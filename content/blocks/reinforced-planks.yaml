@@ -1,0 +1,17 @@
+# Reinforced planks: wooden cover. The axe is the right tool; 450 HP -> 3 iron-axe hits.
+
+id: "astera:reinforced_planks"
+display_name:
+  en: "Reinforced Planks"
+  ja: "補強板"
+base_bukkit_material: "DARK_OAK_PLANKS"
+material: "WOOD"
+base_durability: 450
+
+tool_effectiveness:
+  "AXE/STONE": 100
+  "AXE/IRON": 150
+  "AXE/DIAMOND": 250
+  "PICKAXE/IRON": 30
+  "SHOVEL/IRON": 0
+placed_from: "reinforced-planks-block"

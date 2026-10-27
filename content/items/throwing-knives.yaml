@@ -1,0 +1,37 @@
+# Match arsenal (wp/match-arsenal): Throwing Knives.
+
+id: throwing-knives
+
+material: FLINT
+
+name:
+  ja: "<gray>スローイングナイフ</gray>"
+  en: "<gray>Throwing Knives</gray>"
+lore:
+  ja:
+    - "<gray>右クリック: ナイフを投げる</gray>"
+    - "<gray>スニーク + 右クリック: すり抜け</gray>"
+  en:
+    - "<gray>Right-click: throw a knife</gray>"
+    - "<gray>Sneak + right-click: slip away</gray>"
+
+rarity: uncommon
+level_requirement: 1
+
+attributes:
+  attack_damage: 1.0
+  attack_speed: 2.0
+
+equip_slot: mainhand
+
+resource_type: energy
+resource_cost_per_use: 6
+
+skills:
+  - trigger: right_click
+    skill_id: throwing-knife
+  - trigger: sneak_right
+    skill_id: throwing-knives-slip
+
+pdc_tags:
+  astera:rarity: uncommon

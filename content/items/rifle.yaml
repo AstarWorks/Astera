@@ -1,5 +1,5 @@
 # WP7 gun roster: accurate sustained fire. Right-click = shot (8 dmg, long range),
-# Shift+Q = reload, sneak + right-click = backstep.
+# Sneak+Q = reload, sneak + right-click = backstep.
 
 id: rifle
 
@@ -11,12 +11,12 @@ name:
 lore:
   ja:
     - "<gray>右クリック: 射撃（長射程）</gray>"
-    - "<gray>スニーク + 右クリック: バックステップ</gray>"
-    - "<gray>Shift+Q: リロード</gray>"
+    - "<gray>スニーク+右: バックステップ</gray>"
+    - "<gray>スニーク+Q: リロード</gray>"
   en:
     - "<gray>Right-click: shoot (long range)</gray>"
-    - "<gray>Sneak + right-click: backstep</gray>"
-    - "<gray>Shift+Q: reload</gray>"
+    - "<gray>Sneak+Right-click: backstep</gray>"
+    - "<gray>Sneak+Q: reload</gray>"
 
 rarity: uncommon
 level_requirement: 2

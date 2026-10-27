@@ -1,0 +1,17 @@
+# Tempered glass: see-through cover. The pickaxe is the right tool; 250 HP -> 3 iron-pickaxe hits.
+
+id: "astera:tempered_glass"
+display_name:
+  en: "Tempered Glass"
+  ja: "強化ガラス"
+base_bukkit_material: "GLASS"
+material: "OTHER"
+base_durability: 250
+
+tool_effectiveness:
+  "PICKAXE/STONE": 60
+  "PICKAXE/IRON": 100
+  "PICKAXE/DIAMOND": 160
+  "AXE/IRON": 20
+  "SHOVEL/IRON": 20
+placed_from: "tempered-glass-block"

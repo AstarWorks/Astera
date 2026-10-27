@@ -195,6 +195,11 @@ public object CombatWiring {
         // 3. Register Combat ports onto the shared registry --------------------
         registrations += services.register<ISkillRegistry>(skillContents)
         registrations += services.register<IStatusEffectRegistry>(statusContents)
+        // Item tooltips: Core owns the layout, Combat supplies "what this skill does" from content.
+        services.get<com.astarworks.astera.core.application.service.item.ItemBlueprintFactory>()?.skillTooltips =
+            services.get<com.astarworks.astera.core.application.port.outbound.IMessageRenderer>()?.let {
+                com.astarworks.astera.combat.application.service.SkillTooltipSummary(skillContents, statusContents, it)
+            }
         // Also published so Match can wipe fire / glow / freeze when a match ends or a player leaves it.
         val entityEffects = ports.entityEffectsGateway?.invoke(services)
         if (entityEffects != null) registrations += services.register<com.astarworks.astera.combat.application.port.outbound.IEntityEffectsGateway>(entityEffects)
@@ -443,7 +448,12 @@ public object CombatWiring {
         // Critical strike defaults: 10% chance, 2.0× multiplier (Wave 7c will
         // load these from `content/balance/critical.yaml`).
         val knockbackGateway = services.get<IKnockbackGateway>() ?: NoOpKnockbackGateway()
-        val armorProvider = services.get<IArmorEquipmentProvider>() ?: StubArmorEquipmentProvider()
+        val wornItems = ports.wornItems?.invoke(services)
+        val armorProvider = services.get<IArmorEquipmentProvider>()
+            ?: wornItems?.let {
+                com.astarworks.astera.combat.application.service.ItemArmorEquipmentProvider(it, { services.get<com.astarworks.astera.core.application.port.outbound.IItemRegistry>() }, armorContents)
+            }
+            ?: StubArmorEquipmentProvider()
         val nearbyQuery = com.astarworks.astera.combat.application.service.MeasuredNearbyTargetQuery(
             services.get<INearbyTargetQuery>() ?: EmptyNearbyTargetQuery(),
         )

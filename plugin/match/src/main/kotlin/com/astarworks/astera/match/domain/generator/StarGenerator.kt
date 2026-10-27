@@ -50,6 +50,8 @@ public data class StarGenerator(
     val stockpileCap: Int = DEFAULT_STOCKPILE_CAP,
     val pickupRadius: Double = DEFAULT_PICKUP_RADIUS,
     val lateGameMultiplier: Double = 1.0,
+    /** Item id dropped on the ground instead of a star count (`drop_item:` in the YAML), or `null` for a star generator. */
+    val dropItem: String? = null,
 ) {
     init {
         require(amount >= 1) { "StarGenerator.amount must be >= 1 (was $amount)" }

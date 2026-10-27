@@ -38,6 +38,10 @@ public class MatchPlatformPorts(
     public val spectator: ((ServiceRegistry) -> ISpectator)? = null,
     public val playerPositions: ((ServiceRegistry) -> IMatchPlayerPositions)? = null,
     public val starDropWorld: ((ServiceRegistry) -> IStarDropWorld)? = null,
+    /** Ore generator pops as item stacks on the map (Paper: a dropped item entity). `null` = item generators drop nothing (headless). */
+    /** Sets the vanilla block of Mid ore nodes / their placeholders. `null` = nodes are tracked but nothing is placed (headless). */
+    public val oreNodeWorld: ((ServiceRegistry) -> com.astarworks.astera.match.application.port.outbound.IOreNodeWorld)? = null,
+    public val generatorItemDrop: ((ServiceRegistry) -> com.astarworks.astera.match.application.port.outbound.IGeneratorItemDrop)? = null,
     public val objectiveStage: ((ServiceRegistry) -> IObjectiveStage)? = null,
     public val normaPresentation: ((ServiceRegistry) -> INormaPresentation)? = null,
 )

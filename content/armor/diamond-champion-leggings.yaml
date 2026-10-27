@@ -1,0 +1,8 @@
+# Match arsenal (wp/match-arsenal): Diamond Champion leggings.
+
+type: piece
+id: diamond-champion-leggings
+display_name_key: astera.armor.diamond-champion-leggings.name
+slot: leggings
+damage_reduction: 0.12
+set_key: diamond-champion

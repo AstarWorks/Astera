@@ -1,24 +1,16 @@
-# Guided lobby onboarding. Tokens are emitted only by successful game operations (ADR-0242).
+# Guided lobby onboarding (5 essential steps). Tokens are emitted only by successful game operations (ADR-0242).
+# menu -> hit the training dummy -> main skill -> read the HUD / energy -> queue (bot match). The skip line is shown
+# on every step (TutorialGuide).
 id: getting-started
 displayKey: astera.tutorial.getting_started.title
 steps:
   - type: wait_for_action
     actionId: menu
   - type: wait_for_action
-    actionId: range
-  - type: wait_for_action
-    actionId: rack
-  - type: wait_for_action
     actionId: primary
   - type: wait_for_action
     actionId: secondary
   - type: wait_for_action
-    actionId: reload
-  - type: wait_for_action
-    actionId: staff
-  - type: wait_for_action
     actionId: hud
-  - type: wait_for_action
-    actionId: norma
   - type: wait_for_action
     actionId: queue

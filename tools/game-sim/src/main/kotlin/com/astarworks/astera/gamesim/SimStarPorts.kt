@@ -125,3 +125,37 @@ public class SimMatchPlayerPositions(
         return lookup()?.locate(playerId)
     }
 }
+
+/** Ore node blocks of the simulated world: the current material per cell, in the order they were set. */
+public class SimOreNodeWorld : com.astarworks.astera.match.application.port.outbound.IOreNodeWorld {
+    private val blocks = ConcurrentHashMap<Triple<Int, Int, Int>, String>()
+
+    override fun setBlock(world: WorldId, pos: Vec3, material: String) {
+        blocks[Triple(kotlin.math.floor(pos.x).toInt(), kotlin.math.floor(pos.y).toInt(), kotlin.math.floor(pos.z).toInt())] = material
+    }
+
+    /** The material now at [x],[y],[z], or null when nothing was ever set there. */
+    public fun materialAt(x: Int, y: Int, z: Int): String? = blocks[Triple(x, y, z)]
+}
+
+/** Items a `drop_item` generator dropped into the simulated world, as (item id, amount). */
+public class SimGeneratorItemDrop : com.astarworks.astera.match.application.port.outbound.IGeneratorItemDrop {
+    public val drops: MutableList<Pair<String, Int>> = CopyOnWriteArrayList()
+
+    override fun drop(world: WorldId, position: Vec3, itemId: String, amount: Int): Boolean {
+        drops += itemId to amount
+        return true
+    }
+}
+
+/** Armor a simulated player "wears": scenarios put an Astera item id into a slot with [wear]. */
+public class SimWornItems : com.astarworks.astera.combat.application.port.outbound.IWornItems {
+    private val worn = ConcurrentHashMap<PlayerId, MutableMap<com.astarworks.astera.combat.domain.armor.ArmorSlot, com.astarworks.astera.core.domain.item.ItemId>>()
+
+    public fun wear(player: PlayerId, slot: com.astarworks.astera.combat.domain.armor.ArmorSlot, item: String) {
+        worn.getOrPut(player) { ConcurrentHashMap() }[slot] = com.astarworks.astera.core.domain.item.ItemId(item)
+    }
+
+    override fun wornItems(playerId: PlayerId): Map<com.astarworks.astera.combat.domain.armor.ArmorSlot, com.astarworks.astera.core.domain.item.ItemId> =
+        worn[playerId]?.toMap() ?: emptyMap()
+}

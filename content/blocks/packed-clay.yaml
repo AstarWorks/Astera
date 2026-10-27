@@ -1,0 +1,17 @@
+# Packed clay: soil cover. The shovel is the right tool; 350 HP -> 4 iron-shovel hits.
+
+id: "astera:packed_clay"
+display_name:
+  en: "Packed Clay"
+  ja: "固めた粘土"
+base_bukkit_material: "CLAY"
+material: "SOIL"
+base_durability: 350
+
+tool_effectiveness:
+  "SHOVEL/STONE": 70
+  "SHOVEL/IRON": 100
+  "SHOVEL/DIAMOND": 175
+  "PICKAXE/IRON": 20
+  "AXE/IRON": 0
+placed_from: "packed-clay-block"

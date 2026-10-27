@@ -1,0 +1,79 @@
+# Match arsenal (wp/match-arsenal): simple PvP skill. One cast sound, a few particles.
+
+id: sticky-bomb-throw
+
+name:
+  ja: "粘着爆弾"
+  en: "Sticky Bomb"
+description:
+  ja: "投げつけると着弾で爆発し、周囲のブロックを少し傷つける。"
+  en: "Lobs a bomb that bursts on contact, chipping nearby blocks."
+
+archetype: projectile
+cooldown_ticks: 100
+resource_cost: 0
+tags: [ ranged, fire ]
+# Small cover chip where the bomb lands (ADR-0280).
+block_damage:
+  amount: 25
+  radius: 1.0
+
+params:
+  type: projectile
+  launch_speed: 1.2
+  max_lifetime_ticks: 60
+  visual:
+    trail_spacing: 0.4
+    trail:
+      - type: point
+        particles:
+          - { id: smoke, offset: { x: 0.04, y: 0.04, z: 0.04 } }
+          - { id: dust, color: { r: 120, g: 200, b: 80 }, scale: 1.0 }
+
+phases:
+  type: projectile
+  cast:
+    - type: play_sound
+      targets: { type: caster }
+      sound_id: astera:skill/wand/cast
+      volume: { type: literal, value: 0.8 }
+      pitch: { type: literal, value: 0.8 }
+    - type: spawn_particle
+      targets: { type: caster_forward, distance: 0.9, height: -0.25 }
+      particle_id: fire-cast
+  hit_entity:
+    - type: explode
+      targets: { type: target }
+      power: { type: literal, value: 1.5 }
+      radius: { type: literal, value: 3.0 }
+      break_blocks: { type: literal, value: false }
+      components:
+        - base: { type: literal, value: 60.0 }
+          attribute: fire
+    - type: play_sound
+      targets: { type: target }
+      sound_id: astera:skills/fire-impact
+      volume: { type: literal, value: 0.7 }
+      pitch: { type: literal, value: 1.2 }
+    - type: spawn_particle
+      targets: { type: target_offset, offset: { type: literal, value: { x: 0.0, y: 1.2, z: 0.0 } } }
+      particle_id: hit-spark
+  hit_block:
+    - type: explode
+      targets: { type: hit_location }
+      power: { type: literal, value: 1.5 }
+      radius: { type: literal, value: 3.0 }
+      break_blocks: { type: literal, value: false }
+      components:
+        - base: { type: literal, value: 60.0 }
+          attribute: fire
+    - type: play_sound
+      targets: { type: hit_location }
+      sound_id: astera:weapons/gun-impact-block
+      volume: { type: literal, value: 0.5 }
+      pitch: { type: literal, value: 1.5 }
+    - type: spawn_particle
+      targets: { type: hit_location }
+      particle_id: hit-spark
+  miss: []
+  expire: []

@@ -75,6 +75,19 @@
                 "type": "string"
             }
         },
+        "armor_piece": {
+            "type": "string",
+            "description": "content/armor/ piece id this item stands for while worn; combat applies its damage reduction."
+        },
+        "tool": {
+            "type": "object",
+            "description": "Field-tool identity read by hand-mining and tool skills.",
+            "properties": {
+                "class": { "type": "string", "enum": ["PICKAXE", "AXE", "SHOVEL"] },
+                "tier": { "type": "string", "enum": ["WOOD", "STONE", "IRON", "DIAMOND", "NETHERITE"] }
+            },
+            "required": ["class", "tier"]
+        },
         "resource_type": {
             "type": "string"
         },

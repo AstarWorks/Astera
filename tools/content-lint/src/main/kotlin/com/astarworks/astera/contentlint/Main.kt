@@ -143,6 +143,8 @@ internal data class SchemaTarget(
      * entry (per the schema's own description).
      */
     val arrayOfEntries: Boolean = false,
+    /** Filenames under [targetDir] that belong to another schema and are skipped here. */
+    val excludeFiles: Set<String> = emptySet(),
 )
 
 internal object SchemaMapping {
@@ -155,7 +157,9 @@ internal object SchemaMapping {
         SchemaTarget("norma.schema.json", "norma"),
         SchemaTarget("generator.schema.json", "generators"),
         SchemaTarget("anomaly.schema.json", "anomaly"),
-        SchemaTarget("shop.schema.json", "shops"),
+        SchemaTarget("shop.schema.json", "shops", excludeFiles = setOf("match-shop.yaml")),
+        // match-arsenal: the in-match ore shop catalog sits beside the lobby shops.
+        SchemaTarget("match-shop.schema.json", "shops", singleFile = "match-shop.yaml"),
         // Wave 5f (ADR-0035, RTM #21): particles are per-file definitions
         // mirroring the weapon / skill shape.
         SchemaTarget("particle.schema.json", "particles"),
@@ -294,6 +298,7 @@ internal class LintRunner(private val cli: CliArgs) {
             null -> dir.listDirectoryEntries()
                 .filter { it.isRegularFile() }
                 .filter { it.name.endsWith(".yaml") || it.name.endsWith(".yml") }
+                .filter { it.name !in target.excludeFiles }
                 .sortedBy { it.name }
             else -> listOf(dir.resolve(single)).filter { it.isRegularFile() }
         }

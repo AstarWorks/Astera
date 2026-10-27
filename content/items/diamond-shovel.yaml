@@ -1,0 +1,38 @@
+# Match arsenal (wp/match-arsenal): Diamond Shovel.
+
+id: diamond-shovel
+
+material: DIAMOND_SHOVEL
+
+name:
+  ja: "<aqua>ダイヤのショベル</aqua>"
+  en: "<aqua>Diamond Shovel</aqua>"
+lore:
+  ja:
+    - "<gray>右クリック: 掘削</gray>"
+    - "<gray>スニーク + 右クリック: 土橋</gray>"
+  en:
+    - "<gray>Right-click: excavate</gray>"
+    - "<gray>Sneak + right-click: earth bridge</gray>"
+
+rarity: rare
+level_requirement: 1
+
+equip_slot: mainhand
+unbreakable: true
+enchantable: false
+drop_on_death: false
+keep_on_death: true
+
+tool:
+  class: SHOVEL
+  tier: DIAMOND
+
+skills:
+  - trigger: right_click
+    skill_id: shovel-excavate-diamond
+  - trigger: sneak_right
+    skill_id: shovel-earth-bridge-diamond
+
+pdc_tags:
+  astera:rarity: rare

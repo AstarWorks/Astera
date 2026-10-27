@@ -1,0 +1,29 @@
+# Match arsenal (wp/match-arsenal): Diamond Champion Leggings.
+
+id: diamond-champion-leggings
+
+material: DIAMOND_LEGGINGS
+
+name:
+  ja: "<aqua>ダイヤチャンピオン レギンス</aqua>"
+  en: "<aqua>Diamond Champion Leggings</aqua>"
+lore:
+  ja:
+    - "<gray>ダイヤチャンピオンセットの防具</gray>"
+    - "<gray>2部位・4部位そろえるとボーナス</gray>"
+  en:
+    - "<gray>Diamond Champion set piece</gray>"
+    - "<gray>2+ pieces and the full set give a bonus</gray>"
+
+rarity: rare
+level_requirement: 1
+
+equip_slot: leggings
+unbreakable: true
+enchantable: false
+drop_on_death: false
+keep_on_death: false
+armor_piece: diamond-champion-leggings
+
+pdc_tags:
+  astera:rarity: rare

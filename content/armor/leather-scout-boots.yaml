@@ -1,0 +1,8 @@
+# Match arsenal (wp/match-arsenal): Leather Scout boots.
+
+type: piece
+id: leather-scout-boots
+display_name_key: astera.armor.leather-scout-boots.name
+slot: boots
+damage_reduction: 0.03
+set_key: leather-scout

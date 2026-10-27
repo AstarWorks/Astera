@@ -1,0 +1,38 @@
+# Match arsenal (wp/match-arsenal): Diamond Axe.
+
+id: diamond-axe
+
+material: DIAMOND_AXE
+
+name:
+  ja: "<aqua>ダイヤのオノ</aqua>"
+  en: "<aqua>Diamond Axe</aqua>"
+lore:
+  ja:
+    - "<gray>右クリック: 木断ち</gray>"
+    - "<gray>スニーク + 右クリック: 板壁</gray>"
+  en:
+    - "<gray>Right-click: fell wood</gray>"
+    - "<gray>Sneak + right-click: plank wall</gray>"
+
+rarity: rare
+level_requirement: 1
+
+equip_slot: mainhand
+unbreakable: true
+enchantable: false
+drop_on_death: false
+keep_on_death: true
+
+tool:
+  class: AXE
+  tier: DIAMOND
+
+skills:
+  - trigger: right_click
+    skill_id: axe-fell-diamond
+  - trigger: sneak_right
+    skill_id: axe-plank-wall-diamond
+
+pdc_tags:
+  astera:rarity: rare

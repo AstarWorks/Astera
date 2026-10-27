@@ -53,6 +53,7 @@ public data class StageYamlConfig(
     public val pillars: List<PillarYamlConfig> = emptyList(),
     public val layout: ArenaLayoutYamlConfig? = null,
     @SerialName("warm_slots") public val warmSlots: Int? = null,
+    @SerialName("shop_npcs") public val shopNpcs: List<ShopNpcYamlConfig> = emptyList(),
 ) {
     /**
      * Convert the parsed DTO into a domain [Stage]. Any kebab-case / i18n key
@@ -71,9 +72,20 @@ public data class StageYamlConfig(
             pillars = pillars.map { it.toDomain() },
             layout = layout?.toDomain(),
             warmSlots = warmSlots?.also { require(it in 1..16) },
+            shopNpcs = shopNpcs.map { com.astarworks.astera.core.domain.stage.StageShopNpc(TeamId(it.team), it.x, it.y, it.z, it.yaw) },
         )
     }
 }
+
+/** `shop_npcs: [{ team: red, x: -80.5, y: 65.0, z: 3.5, yaw: 270 }]`: in-match ore-shop NPC spots (stage-local coordinates). */
+@Serializable
+public data class ShopNpcYamlConfig(
+    public val team: String,
+    public val x: Double,
+    public val y: Double,
+    public val z: Double,
+    public val yaw: Float = 0f,
+)
 
 /**
  * YAML-shaped DTO for a stage's `layout:` (ADR-0246): floating islands, bridges and decorated landmarks a

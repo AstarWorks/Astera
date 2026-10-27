@@ -52,7 +52,11 @@ public class ItemBlueprintFactory(
     private val itemModels: ItemModelCatalog = ItemModelCatalog.NONE,
     levelGate: () -> com.astarworks.astera.core.application.port.outbound.IMatchLevelGate? = { null },
 ) {
-    private val tooltip = ItemTooltip(messages, levelGate)
+    /** Attached by Combat at enable time; null until then (tooltips just omit the effect lines). */
+    @Volatile
+    public var skillTooltips: com.astarworks.astera.core.application.port.outbound.item.ISkillTooltipSource? = null
+
+    private val tooltip = ItemTooltip(messages, levelGate) { skillTooltips }
 
     public fun build(spec: ItemSpec, viewer: PlayerId?): ItemBlueprint {
         val template = spec.template

@@ -3,8 +3,8 @@ name:
   ja: 解かれた勅令
   en: Unbound Mandate
 description:
-  ja: 解かれた勅令
-  en: Unbound Mandate
+  ja: E.G.Oを使い、拘束を解いて呼吸を溜める。
+  en: Spend E.G.O to break the bonds and build Poise.
 archetype: sequence
 cooldown_ticks: 220
 resource_cost: 0

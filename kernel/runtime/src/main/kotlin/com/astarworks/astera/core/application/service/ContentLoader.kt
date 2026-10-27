@@ -65,7 +65,7 @@ public class ContentLoader<T : Any>(
      *
      * A missing or non-directory [dir] logs a warning and returns a zero report.
      */
-    public fun loadFrom(dir: Path, onLoaded: (T) -> Unit): LoadReport {
+    public fun loadFrom(dir: Path, accept: (Path) -> Boolean = { true }, onLoaded: (T) -> Unit): LoadReport {
         if (!Files.isDirectory(dir)) {
             log.warn("Content directory not found: {}", dir)
             return LoadReport(loaded = 0, failed = 0)
@@ -75,7 +75,7 @@ public class ContentLoader<T : Any>(
         val failures = mutableListOf<LoadFailure>()
         Files.list(dir).use { stream ->
             stream
-                .filter { it.isRegularFile() }
+                .filter { it.isRegularFile() && accept(it) }
                 .forEach { file ->
                     val parser = parserFor(file.extension)
                     if (parser == null) {

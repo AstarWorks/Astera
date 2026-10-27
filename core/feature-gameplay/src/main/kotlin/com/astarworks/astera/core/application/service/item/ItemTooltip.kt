@@ -2,6 +2,8 @@ package com.astarworks.astera.core.application.service.item
 
 import com.astarworks.astera.core.application.port.outbound.IMatchLevelGate
 import com.astarworks.astera.core.application.port.outbound.IMessageRenderer
+import com.astarworks.astera.core.application.port.outbound.item.ISkillTooltipSource
+import com.astarworks.astera.core.application.port.outbound.item.SkillTooltipBrief
 import com.astarworks.astera.core.domain.i18n.LocalizedLore
 import com.astarworks.astera.core.domain.i18n.MessageKey
 import com.astarworks.astera.core.domain.item.ItemAttributes
@@ -25,6 +27,7 @@ public class ItemTooltip(
     private val messages: IMessageRenderer,
     /** Resolved lazily: Match may register after Core builds the tooltip. `null` result = no Norma gate. */
     private val levelGate: () -> IMatchLevelGate? = { null },
+    private val skillBriefs: () -> ISkillTooltipSource? = { null },
 ) {
 
     public fun lore(spec: ItemSpec, viewer: PlayerId?): List<String> {
@@ -49,9 +52,33 @@ public class ItemTooltip(
                 ),
             ),
         )
-        if (spec.lore != LocalizedLore.EMPTY) addAll(messages.renderLocalizedLore(viewer, spec.lore).map { usageLine(it, viewer) })
+        addAll(usageWithEffects(spec, viewer))
         addAll(statLines(spec, viewer))
         addAll(lockedLines(spec, viewer))
+    }
+
+    /**
+     * The item's own usage lines, each followed by the generated effect lines of the skill it names
+     * (matched by skill name inside the raw line); briefs no line names go after the lore, then one
+     * plain line per applied status and, when a skill spends the gauge, what E.G.O is.
+     */
+    private fun usageWithEffects(spec: ItemSpec, viewer: PlayerId?): List<String> {
+        val raw = if (spec.lore == LocalizedLore.EMPTY) emptyList() else messages.renderLocalizedLore(viewer, spec.lore)
+        val source = skillBriefs()
+        val briefs: List<SkillTooltipBrief> =
+            if (source == null) emptyList() else spec.skillBindings.mapNotNull { source.brief(it.skillId.value, viewer) }.distinctBy { it.name }
+        val pending = briefs.filter { it.lines.isNotEmpty() }.toMutableList()
+        val out = mutableListOf<String>()
+        for (line in raw) {
+            out += usageLine(line, viewer)
+            val hit = pending.firstOrNull { it.name.isNotBlank() && line.contains(it.name) } ?: continue
+            pending.remove(hit)
+            out += hit.lines
+        }
+        pending.forEach { out += "<gray>${it.name}</gray>"; out += it.lines }
+        out += briefs.flatMap { it.statusLines }.distinct()
+        if (briefs.any { it.usesEgo }) out += messages.render(viewer, EGO_NOTE)
+        return out
     }
 
     /** One greyed line when the item's rarity opens above Norma level 1 (ADR-0289): usable only from that in-match level. */
@@ -123,5 +150,6 @@ public class ItemTooltip(
         val RAW_TRIGGER = Regex("^(left_click|right_click|sneak_right|sneak_left|sneak_drop|drop):\\s*(.+)$")
         const val PERCENT = 100.0
         val HEADER = MessageKey("astera.item.tooltip.header")
+        val EGO_NOTE = MessageKey("astera.skillbrief.ego_note")
     }
 }

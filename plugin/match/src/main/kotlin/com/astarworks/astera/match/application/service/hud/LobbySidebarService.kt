@@ -140,6 +140,9 @@ public class LobbySidebarService(
                 add(text("astera.hud.sidebar.spacer"))
                 add(text("astera.hud.sidebar.gold", "gold" to g.toString()))
             }
+            // Always-visible control hint: the lobby keys are otherwise only discoverable from item lore.
+            add(text("astera.hud.sidebar.spacer"))
+            add(text("astera.hud.lobby.controls"))
         }
         return HudLayout.Sidebar(titleKey = TITLE_KEY, lines = lines)
     }

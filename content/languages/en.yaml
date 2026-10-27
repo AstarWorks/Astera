@@ -640,6 +640,31 @@ astera:
     currency:
       gold: "<gold>GOLD</gold>"
       gem: "<light_purple>GEM</light_purple>"
+    matchshop:
+      title: "Ore Shop"
+      npc: "<gold>Ore Shop</gold>"
+      tab:
+        weapons: "<red>Weapons</red>"
+        tools: "<yellow>Tools</yellow>"
+        blocks: "<aqua>Blocks</aqua>"
+        armor: "<green>Armor</green>"
+        current: "<gray>Showing this tab.</gray>"
+        switch: "<yellow>Click to open this tab.</yellow>"
+      ore:
+        ore-iron: "Iron"
+        ore-gold: "Gold"
+        ore-diamond: "Diamond"
+        ore-emerald: "Emerald"
+      lore:
+        price: "<gray>Price: <white>{price}</white></gray>"
+        stack: "<gray>You get: <white>x{amount}</white></gray>"
+        buy: "<yellow>Click to buy.</yellow>"
+        short: "<red>Not enough ore.</red>"
+      bought: "<green>Bought {item} x{amount}.</green>"
+      short: "<red>You need {need} {ore} ore but carry {have}.</red>"
+      wrong-team: "<red>This is the {team} team's shop. Use your own base's shop.</red>"
+      not-in-match: "<red>The ore shop only works inside a match.</red>"
+      failed: "<red>The purchase failed. Nothing was taken.</red>"
     shop:
       example-shop:
         title: "Example Shop"
@@ -832,7 +857,7 @@ astera:
     defeat: "<red>Defeat. Team {team} wins.</red>"
     draw: "<gray>The match ended in a draw.</gray>"
     score:
-      threshold_reached: "<gold>{team} has reached the score threshold.</gold>"
+      threshold_reached: "<gold>{team} has reached the target score.</gold>"
     no_winning_team: "<gray>No clear winner.</gray>"
     spawn:
       error:
@@ -1004,11 +1029,11 @@ astera:
       draw: "<gray><bold>DRAW</bold></gray>"
       header: "<dark_aqua>== Match Summary ==</dark_aqua>"
       reason:
-        score-threshold: "<gray>Ended by reaching the score threshold.</gray>"
+        score-threshold: "<gray>Decided: a team reached the target score.</gray>"
         timer-expired: "<gray>Ended by timer expiry.</gray>"
         admin: "<gray>Ended by an administrator.</gray>"
         sudden-death: "<gray>Resolved in sudden death.</gray>"
-        objective: "<gray>Ended by objective completion.</gray>"
+        objective: "<gray>Decided: a team completed the mode objective.</gray>"
         norma-time-limit: "<gray>Time limit reached:</gray> <{color}><bold>{team}</bold></{color}> <gray>was ahead.</gray>"
         norma-time-draw: "<gray>Time limit reached with the objective, stars and kills all tied.</gray>"
         cancelled: "<gray>Match was cancelled.</gray>"
@@ -1026,7 +1051,7 @@ astera:
     briefing:
       header: "<gold>== How to win ==</gold>"
       mode:
-        annihilation: "<gray>Annihilation:</gray> <white>break the enemy Nexus pillars. The last team with a Nexus standing wins.</white>"
+        annihilation: "<gray>Annihilation:</gray> <white>each team has a Nexus (its base), broken pillar by pillar from the outside. Destroy enemy pillars; the last team with a Nexus standing wins.</white>"
         carry-tnt: "<gray>Carry TNT:</gray> <white>pick up the TNT and carry it into the enemy base. Deliver it first to win.</white>"
         carry-mini-tnt: "<gray>Carry Mini-TNT:</gray> <white>pick up mini-TNTs around the map and carry them into the ENEMY base to plant them. Plant enough to blow the base up and win. If you fall, you lose what you carry.</white>"
         capture-wool: "<gray>Capture Wool:</gray> <white>stand in the wool zones to capture them. Capture enough zones first to win.</white>"
@@ -1038,7 +1063,7 @@ astera:
       first-time:
         header: "<aqua>== First match? Quick guide ==</aqua>"
         sidebar: "<gray>The sidebar on the right shows the team scores, the objective and your Norma goal.</gray>"
-        stars: "<gray>Pick up stars from generators and defeat enemies to raise your Norma level and unlock rarer weapons.</gray>"
+        stars: "<gray>Pick up stars from generators (star spawners on the map) and defeat enemies to raise your Norma level and unlock rarer weapons.</gray>"
         respawn: "<gray>If you fall you respawn after a few seconds with brief protection. Stay with your team and press F for the main menu.</gray>"
     # Objective title flashed when the match turns ACTIVE (MatchBriefingListener).
     objective:
@@ -1145,7 +1170,7 @@ astera:
       friendly_fire_blocked: "<yellow>Friendly fire blocked.</yellow>"
     cast:
       insufficient:
-        ammo: "Out of ammo - press Shift+Q to reload"
+        ammo: "Out of ammo - reload (Pistol: Q / Rifle, Shotgun: Sneak+Q)"
         energy: "Not enough energy"
         ego: "E.G.O gauge not full yet"
       reloading: "Reloading..."
@@ -1181,7 +1206,7 @@ astera:
   anomaly:
     resource_spike:
       name: "<gold>Resource Spike</gold>"
-      description: "<gray>Generator output is amplified for a short window.</gray>"
+      description: "<gray>Generator (star spawner) output is amplified for a short window.</gray>"
     status_burst:
       name: "<gold>Status Burst</gold>"
       description: "<gray>Status effects hit harder for a short window.</gray>"
@@ -2234,7 +2259,7 @@ astera:
       epic: "<light_purple>⭐⭐⭐⭐ Epic</light_purple>"
       legendary: "<gold>⭐⭐⭐⭐⭐ Legendary</gold>"
     refinement:
-      tier: "<light_purple>Refinement tier active</light_purple>"
+      tier: "<light_purple>Upgrade rank active</light_purple>"
   hotbar:
     bind:
       no-skills: "<red>No skills available to bind.</red>"
@@ -2242,11 +2267,11 @@ astera:
       skill:
         tooltip: "<gray>Bind this skill.</gray>"
   tip:
-    "1": "<aqua>💡 Tip:</aqua> <gray>Open the lobby menu with the Compass to queue, open your vault, or browse the shop.</gray>"
-    "2": "<aqua>💡 Tip:</aqua> <gray>Press F to cast your bound skill — bind skills via the Hotbar tile in the menu.</gray>"
+    "1": "<aqua>💡 Tip:</aqua> <gray>Right-click the Compass for the lobby menu: join a queue, open your vault, or visit the shop.</gray>"
+    "2": "<aqua>💡 Tip:</aqua> <gray>Press F to open the main menu (Shift+F for your vault). Pick Play to join a match.</gray>"
     "3": "<aqua>💡 Tip:</aqua> <gray>Form a party to queue together — invite friends with <yellow>/party invite &lt;name&gt;</yellow>.</gray>"
-    "4": "<aqua>💡 Tip:</aqua> <gray>Track your achievements from the Profile tile — every milestone counts.</gray>"
-    "5": "<aqua>💡 Tip:</aqua> <gray>Refining items raises their rarity tier and unlocks per-tier perks. Visit the Refinement tile.</gray>"
+    "4": "<aqua>💡 Tip:</aqua> <gray>Check the Achievements tile in the menu to see what you have unlocked.</gray>"
+    "5": "<aqua>💡 Tip:</aqua> <gray>Playing matches earns GOLD and XP. Spend GOLD on weapons at the lobby shop.</gray>"
     "6": "<aqua>💡 Tip:</aqua> <gray>Survival Islands let you build with your party — open the Travel tile to visit yours.</gray>"
 
   # WP7: status effect display names (content/status/*.yaml display_name_key).
@@ -2291,6 +2316,8 @@ astera:
   damage.target_already_dead: "<red>The target is already dead.</red>"
   damage.target_immune: "<red>The target is immune to damage.</red>"
   dialog.welcome.ok: "Got it"
+  dialog.welcome.astera-welcome.title: "<gold><bold>Welcome to Astera</bold></gold>"
+  dialog.welcome.astera-welcome.body: "<white>Astera is a team-battle Minecraft game with guns, swords and magic.</white><newline><yellow>Press F to open the menu, then pick Play to join a match.</yellow><newline><gray>You can play solo against bots.</gray>"
   gui.binding.coins.value: "<gold>Coins</gold>"
   gui.binding.kills.value: "<red>Kills</red>"
   items.refinement.unknown_item: "<red>That item is not registered.</red>"
@@ -2489,7 +2516,7 @@ astera:
   tutorial.guide.staff.hint: "Right-click the Fire Staff frame on the rack, select it, then right-click to cast. Spells spend energy (the food bar)."
   tutorial.guide.norma.title: "Level up"
   tutorial.guide.norma.subtitle: "Unlock rarer weapons"
-  tutorial.guide.norma.hint: "Grab stars from generators and kills, hit each level's goal (shown on the sidebar), and unlock rarer weapons at higher Norma levels."
+  tutorial.guide.norma.hint: "Grab stars from generators (star spawners on the map) and kills, hit each level's goal (shown on the sidebar), and unlock rarer weapons at higher Norma levels."
   tutorial.guide.queue.title: "Ready to play"
   tutorial.guide.queue.subtitle: "Go to the Play gate by the spawn"
   tutorial.guide.queue.hint: "Walk to the glowing Play gate next to the spawn and right-click the Play guide, then pick a mode. Q on the compass opens the same picker."
@@ -2590,7 +2617,7 @@ astera:
   match_menu.hint: "<gray>Press <yellow>F</yellow> for the match menu (settings, leave, help).</gray>"
   match_menu.settings.tooltip: "<gray>Click to open your settings (language, volume, controls...).</gray>"
   match_menu.leave.tooltip: "<gray>Click to leave the match and return to the lobby (asks to confirm).</gray>"
-  match_menu.help.tooltip: "<gray>Click for a short explanation of Norma, stars and the weapon limit.</gray>"
+  match_menu.help.tooltip: "<gray>Click for a short explanation of Norma (your in-match level), stars and the weapon limit (max weapons you can carry).</gray>"
   match_menu.confirm.title: "Leave the match?"
   match_menu.confirm.yes.tooltip: "<red>Click to confirm: you leave the match, your stars burst out and the forfeit rules apply.</red>"
   match_menu.confirm.no.tooltip: "<gray>Click to go back to the match menu.</gray>"
@@ -2626,3 +2653,93 @@ astera:
   progress.gui.quest.progress: "<yellow>{current}/{required}</yellow>"
   progress.gui.quest.complete: "<green>Complete</green>"
   cover.wrong-tool: "<gray>That tool does not work on this block - try another one.</gray>"
+  # --- W3 arsenal (armor names) ---
+  armor.set.leather-scout.name: "Leather Scout"
+  armor.leather-scout-helmet.name: "Leather Scout Helmet"
+  armor.leather-scout-chestplate.name: "Leather Scout Chestplate"
+  armor.leather-scout-leggings.name: "Leather Scout Leggings"
+  armor.leather-scout-boots.name: "Leather Scout Boots"
+  armor.set.chain-guard.name: "Chain Guard"
+  armor.chain-guard-helmet.name: "Chain Guard Helmet"
+  armor.chain-guard-chestplate.name: "Chain Guard Chestplate"
+  armor.chain-guard-leggings.name: "Chain Guard Leggings"
+  armor.chain-guard-boots.name: "Chain Guard Boots"
+  armor.set.iron-warden.name: "Iron Warden"
+  armor.iron-warden-helmet.name: "Iron Warden Helmet"
+  armor.iron-warden-chestplate.name: "Iron Warden Chestplate"
+  armor.iron-warden-leggings.name: "Iron Warden Leggings"
+  armor.iron-warden-boots.name: "Iron Warden Boots"
+  armor.set.diamond-champion.name: "Diamond Champion"
+  armor.diamond-champion-helmet.name: "Diamond Champion Helmet"
+  armor.diamond-champion-chestplate.name: "Diamond Champion Chestplate"
+  armor.diamond-champion-leggings.name: "Diamond Champion Leggings"
+  armor.diamond-champion-boots.name: "Diamond Champion Boots"
+  ore.needs-tier: "<gray>Needs a <white>{tier}</white> pickaxe or better to mine this ore.</gray>"
+  # match-ux: staged match-start hints (one action-bar line), result-title reason, re-open link
+  match.hint.sidebar: "<gray>The sidebar on the right shows the objective and score</gray>"
+  match.hint.stars: "<gold>★</gold> <gray>Grab stars and defeat enemies to level up</gray>"
+  match.hint.respawn: "<gray>You respawn in seconds. Press <white>F</white> for the menu</gray>"
+  match.hint.norma-rank: "<gray>Higher levels unlock new skills and ultimates (max Lv {max}). Levels never decide the match</gray>"
+  match.hint.time: "<gray>Time limit: {minutes} min</gray>"
+  match.hint.norma-choice-star: "<gray>Next goal: hold <gold>★ {target}</gold>. Change: <white>/astera norma choose kill</white></gray>"
+  match.hint.norma-choice-kill: "<gray>Next goal: <red>⚔ {target} kills</red>. Change: <white>/astera norma choose star</white></gray>"
+  match.summary.subtitle.time-draw: "<gray>Time up - tied</gray>"
+  match.summary.subtitle.pve-cleared: "<green>All {waves} waves cleared</green>"
+  match.summary.subtitle.pve-failed: "<red>Wiped out on wave {wave}/{waves}</red>"
+  match.summary.subtitle.objective: "<{color}>{team}</{color}> <gray>completed the objective</gray>"
+  match.summary.subtitle.timer: "<gray>Time up</gray>"
+  match.summary.subtitle.other: "<gray>Match over</gray>"
+  match.result.open-last: "<click:run_command:'/astera stats last'><hover:show_text:'/astera stats last'><aqua>[Click to view the result again]</aqua></hover></click>"
+
+  # lobby-ux: always-visible control hint / menu order / mode picker / currency help / tutorial skip line
+  hud.lobby.controls: "<yellow>F</yellow><gray>: menu</gray> <yellow>Compass Q</yellow><gray>: play</gray>"
+  gui.main-menu.queue.start-here: "<green><bold>★ Start here!</bold></green> <gray>New? \"Play vs bots\" is the easiest way in.</gray>"
+  play.picker.lane.need: "<yellow><white>{need}</white> more player(s) to start</yellow> <gray>(alone? play vs bots)</gray>"
+  play.picker.lane.ready: "<green>Enough players. Starting soon</green>"
+  play.picker.bots.name-recommended: "<green>★</green> <aqua><bold>Play vs bots</bold></aqua>"
+  play.picker.bots.recommended: "<green>First time, or nobody is queued? Start here (solo, starts right away)</green>"
+  play.lane.annihilation.detail: "<gray>3 teams of up to 4. Break the pillars and destroy the enemy nexus first.</gray>"
+  play.lane.carry-tnt.detail: "<gray>2 teams of up to 4. The carrier is a target, so guard them.</gray>"
+  play.lane.carry-mini-tnt.detail: "<gray>2 teams of up to 4. Collect small TNT and plant it at the enemy base.</gray>"
+  play.lane.capture-wool.detail: "<gray>2 teams of up to 4. Stand on a zone to capture it.</gray>"
+  play.lane.steal-jewelry.detail: "<gray>2 teams of up to 4. Steal jewels and bank them on your own pedestal.</gray>"
+  play.lane.pve-waves.detail: "<gray>Co-op for up to 4. One player is enough to start.</gray>"
+  hint.currency.header: "<gold>Currencies and levels</gold>"
+  hint.currency.gold: "<yellow>GOLD</yellow> <gray>- earned from match rewards. Spend it in the shop on weapons and cosmetics.</gray>"
+  hint.currency.gem: "<aqua>GEM</aqua> <gray>- premium currency. Not earned by playing and has no use yet (planned for cosmetics / convenience).</gray>"
+  hint.currency.star: "<white>STAR</white> <gray>- an in-match item only. Not a currency and never leaves the match.</gray>"
+  hint.currency.level: "<green>Player Lv</green> <gray>- permanent level raised by match reward XP. Level-ups bring rewards.</gray>"
+  hint.currency.norma: "<red>Norma Lv</red> <gray>- in-match level, raised with STAR or kills. Higher levels unlock your ultimates and special items. Resets when the match ends and does not decide the win.</gray>"
+  tutorial.guide.skip: "<gray>Skip: <white>/astera tutorial skip</white> (resume later with /astera tutorial start)</gray>"
+  gui.main-menu.last-result.tooltip: "<gray>Click to see your latest match result again.</gray>"
+
+  # Item tooltip effect lines (generated from skill data) + one-line status explanations.
+  skillbrief.damage: "<red>Hit {value}</red>"
+  skillbrief.range: "<aqua>Reach {value}m</aqua>"
+  skillbrief.radius: "<aqua>Area {value}m</aqua>"
+  skillbrief.dash: "<aqua>Dash {value}m</aqua>"
+  skillbrief.teleport: "<aqua>Blink up to {value}m</aqua>"
+  skillbrief.projectile: "<aqua>Ranged shot</aqua>"
+  skillbrief.cooldown: "<gray>Cooldown {value}s</gray>"
+  skillbrief.cost: "<yellow>Cost {value}</yellow>"
+  skillbrief.ego_cost: "<light_purple>E.G.O {value}</light_purple>"
+  skillbrief.applies: "<gold>Inflicts {value}</gold>"
+  skillbrief.ego_note: "<light_purple>E.G.O gauge:</light_purple> <gray>fills as you hit enemies or get hit, drains out of combat; the Q skill spends it.</gray>"
+  statusdesc.burn: "Takes fire damage every tick while it lasts."
+  statusdesc.bleed: "Takes bleeding damage every tick; stacks up to 3."
+  statusdesc.poison: "Takes poison damage every tick for a long time; stacks."
+  statusdesc.freeze: "Movement is slowed to a crawl."
+  statusdesc.wet: "Soaked: moves a little slower."
+  statusdesc.shock: "Paralysed: cannot act for a moment."
+  statusdesc.sinking: "Weighed down: moves slower; stacks make it worse."
+  statusdesc.reloading: "Reloading: moves a little slower until done."
+  statusdesc.dash: "Dashing: a short burst of speed."
+  statusdesc.swift: "Hasted: moves faster for a while."
+  statusdesc.evasive: "Evasive: a quick burst of speed to slip away."
+  statusdesc.regen: "Regenerating: healing received is boosted."
+  statusdesc.tremor: "Stacks on the target; a burst skill can cash the stacks in for extra damage."
+  statusdesc.rupture: "Stacks on the target; hits from rupture weapons deal extra damage per stack."
+  statusdesc.poise: "Stacks on you as you fight; some skills need or spend poise for a stronger move."
+  statusdesc.charge: "Stacks on you; charge skills spend it for extra damage."
+  statusdesc.immunity: "Takes no damage for a moment."
+  statusdesc.silence: "Cannot cast skills for a moment."

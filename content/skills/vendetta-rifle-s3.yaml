@@ -3,8 +3,8 @@ name:
   ja: 鉄の服従
   en: Ferrous Obedience
 description:
-  ja: 鉄の服従
-  en: Ferrous Obedience
+  ja: 銃剣で三連続で突く。弾薬を3消費。
+  en: Three bayonet thrusts in a row. Uses 3 ammo.
 archetype: sequence
 cooldown_ticks: 90
 resource_cost: 3

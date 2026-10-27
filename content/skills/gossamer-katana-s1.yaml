@@ -3,8 +3,8 @@ name:
   ja: 糸切り
   en: Thread Cut
 description:
-  ja: 糸切り
-  en: Thread Cut
+  ja: 突進して二度斬り、さらに踏み込んで斬る。
+  en: Dash and cut twice, then step in for another cut.
 archetype: sequence
 cooldown_ticks: 100
 resource_cost: 10

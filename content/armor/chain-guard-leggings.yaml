@@ -1,0 +1,8 @@
+# Match arsenal (wp/match-arsenal): Chain Guard leggings.
+
+type: piece
+id: chain-guard-leggings
+display_name_key: astera.armor.chain-guard-leggings.name
+slot: leggings
+damage_reduction: 0.07
+set_key: chain-guard

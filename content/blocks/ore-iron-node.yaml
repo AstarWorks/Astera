@@ -1,0 +1,14 @@
+# Mid ore node (content/ore-nodes/ names this block). Drops and regrowth come from the node file.
+
+id: "astera:ore_iron_node"
+display_name:
+  en: "Iron Ore Node"
+  ja: "鉄鉱石ノード"
+base_bukkit_material: "IRON_ORE"
+material: "STONE"
+base_durability: 200
+
+tool_effectiveness:
+  "PICKAXE/STONE": 100
+  "PICKAXE/IRON": 150
+  "PICKAXE/DIAMOND": 250
