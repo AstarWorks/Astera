@@ -75,6 +75,35 @@ if session_problem:
     meta["captureQuality"].update(invalid=True, reviewRequired=True, reason=session_problem + " Recapture required.")
 if frames:
     meta["capturedAt"] = datetime.datetime.fromtimestamp(frames[-1].stat().st_mtime, datetime.timezone.utc).isoformat()
+# Analytic framing inputs: the Watcher camera (the tp sets the FEET, the eye is EYE_HEIGHT above), the vertical fov and where
+# the caster / target stand, so a metric can project the caster's height without finding it in pixels.
+EYE_HEIGHT = 1.62
+scene = os.environ.get("VFX_SHOT_SCENE", "").split()
+if len(scene) == 5:
+    cx, cy, cz, off = map(float, scene[:4])
+    tgt = [cx + off, cy, cz] if scene[4] == "x" else [cx, cy, cz + off]
+    cam_keys = []
+    plan = Path(os.environ["VFX_SHOT_STATE"]) / "camera-plan.tsv" if os.environ.get("VFX_SHOT_STATE") else None
+    if meta.get("view") == "compare" and plan and plan.is_file():
+        for line in plan.read_text().splitlines():
+            m = re.match(r"(\d+)\t.*tp Watcher (-?[\d.]+) (-?[\d.]+) (-?[\d.]+) (-?[\d.]+) (-?[\d.]+)", line)
+            if m:
+                t, x, y, z, yaw, pitch = m.groups()
+                cam_keys.append({"t_ms": int(t), "feet": [float(x), float(y), float(z)], "yaw": float(yaw), "pitch": float(pitch)})
+    elif os.environ.get("VFX_SHOT_CAM_STATIC", "").strip():
+        x, y, z, yaw, pitch = map(float, os.environ["VFX_SHOT_CAM_STATIC"].split())
+        cam_keys.append({"t_ms": 0, "feet": [x, y, z], "yaw": yaw, "pitch": pitch})
+    for k in cam_keys:
+        k["eye"] = [k["feet"][0], round(k["feet"][1] + EYE_HEIGHT, 3), k["feet"][2]]
+    # the skill-compare framing contract: world eye position, degrees, tick relative to the cast; the client fov is fixed per run
+    # (compare keys with another fov are emulated by dollying), so every key carries the run's fov
+    meta["cameraKeys"] = [{"tick": k["t_ms"] / 50, "pos": k["eye"], "yaw": k["yaw"], "pitch": k["pitch"], "fov": meta.get("fov")}
+                          for k in cam_keys]
+    meta["scene"] = {
+        "casterStart": [cx, cy, cz], "target": tgt, "casterHeight": 1.8,
+        "camera": {"eyeHeight": EYE_HEIGHT, "fovDegVertical": meta.get("fov"), "keys": cam_keys,
+                   "timeBase": "t_ms is relative to the cast; frame = (t_ms + cast_tick_ms) / 50 ticks"},
+    }
 root = Path(__file__).resolve().parents[2]
 
 

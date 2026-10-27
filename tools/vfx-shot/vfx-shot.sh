@@ -904,8 +904,11 @@ keep_beats() { # all_dir dir
 }
 
 meta_py() {
+  # VFX_SHOT_SCENE = caster feet x y z, then the target offset (compare: along +x, orbit views: along +z) and the camera mode;
+  # VFX_SHOT_CAM_STATIC = the fixed Watcher tp of an orbit view ("x y z yaw pitch"; compare reads camera-plan.tsv instead)
   VFX_SHOT_STATE="$STATE" VFX_SHOT_STACK_COLD="${STACK_WAS_COLD:-0}" \
-    VFX_SHOT_BEAT_ONLY="${BEAT_ONLY:-0}" python3 -I "$@"
+    VFX_SHOT_BEAT_ONLY="${BEAT_ONLY:-0}" VFX_SHOT_SCENE="$CX $Y $CZ ${SCENE_TARGET_OFFSET:-0} ${SCENE_TARGET_AXIS:-z}" \
+    VFX_SHOT_CAM_STATIC="${SCENE_CAM_STATIC:-}" python3 -I "$@"
 }
 
 write_meta() { # dir view n  (fps = $FPS; FPS=60 frames are 3 per tick)
@@ -917,11 +920,13 @@ write_meta() { # dir view n  (fps = $FPS; FPS=60 frames are 3 per tick)
     else fov_mode=override-dolly; fi
     printf '{"view":"compare","case":"%s","camera":"%s","skill":"%s","fps":%d,"cast_tick_ms":%d,"frames":%d,"fov":%s,"fovMode":"%s","resolution":"%s"}\n' \
       "$CASE" "$CAMERA" "$SKILL" "$FPS" "$((PRE_TICKS * 50))" "$n" "${FOV:-70}" "$fov_mode" "$RES_FILM" > "$dir/meta.json"
-    meta_py "$HERE/capture_meta.py" "$ROOT/tools/skill-compare/data/$CASE/case.json" "$dir" "$INTENT"
+    SCENE_TARGET_OFFSET="$ENEMY_X" SCENE_TARGET_AXIS=x \
+      meta_py "$HERE/capture_meta.py" "$ROOT/tools/skill-compare/data/$CASE/case.json" "$dir" "$INTENT"
   else
     printf '{"view":"%s","skill":"%s","fps":%d,"cast_tick_ms":0,"frames":%d,"fov":%s,"fovMode":"%s","resolution":"%s"}\n' \
       "$view" "$SKILL" "$FPS" "$n" "${FOV:-70}" "$fov_mode" "$RES_FILM" > "$dir/meta.json"
-    meta_py "$HERE/capture_meta.py" - "$dir"
+    SCENE_TARGET_OFFSET="$DISTANCE" SCENE_TARGET_AXIS=z SCENE_CAM_STATIC="$(orbit_cam "$view")" \
+      meta_py "$HERE/capture_meta.py" - "$dir"
   fi
 }
 
@@ -968,14 +973,18 @@ players_of() { case "$1" in caster) echo Caster ;; opponent) echo "Caster Target
 # +z with the target DISTANCE ahead. Each camera looks at the caster's chest / swing so the whole blade is in frame; front sits
 # 2 blocks beside the target line so the target does not hide the caster; near = a bystander at eye height ~2.4 blocks away.
 orbit_cam() {
-  python3 -I -c '
+  FOV="${FOV:-}" python3 -I -c '
 import math, sys
 v, cx, y, cz, d = sys.argv[1], *map(float, sys.argv[2:])
+import os
+t = math.tan(math.radians(float(os.environ.get("FOV") or 90)) / 2)  # the client vertical fov
+hw = 16 / 9 * t  # half frame width per block of distance
+dmin = 1.8 / (2 * t * 0.33)  # caster ~1/3 of the frame height
 cams = {  # (camera offset, look-at offset) from the caster feet; x = +east = the caster left, z = forward
-    # side/right: close and level like the reference -- the caster is ~1/3 of the frame height (fov 70: 1.8 / (2 D tan35) at D >= 3.9)
-    # and the dash (caster -> target, d blocks) stays inside the 16:9 frame (half width 1.245 D >= d/2 + 1.5); looks at its midpoint.
-    "side": ((-max(3.9, (d / 2 + 1.5) / 1.245), 0.1, d / 2), (0.0, 1.0, d / 2)),  # the caster RIGHT side: screen-right = forward, same orientation as the skill-compare reference
-    "right": ((max(3.9, (d / 2 + 1.5) / 1.245), 0.1, d / 2), (0.0, 1.0, d / 2)),
+    # side/right: close and level like the reference -- the caster is ~1/3 of the frame height (1.8 / (2 D tan(fov/2)), D >= dmin)
+    # and the dash (caster -> target, d blocks) stays inside the 16:9 frame (half width 16/9 tan(fov/2) D >= d/2 + 1.5); looks at its midpoint.
+    "side": ((-max(dmin, (d / 2 + 1.5) / hw), 0.1, d / 2), (0.0, 1.0, d / 2)),  # the caster RIGHT side: screen-right = forward, same orientation as the skill-compare reference
+    "right": ((max(dmin, (d / 2 + 1.5) / hw), 0.1, d / 2), (0.0, 1.0, d / 2)),
     "front": ((2.0, 1.7, d + 3.0), (0.0, 1.2, 0.6)),
     "back": ((-1.0, 2.0, -5.0), (0.0, 1.2, 0.8)),
     "high": ((4.0, 5.8, -1.5), (0.0, 0.9, 1.0)),
