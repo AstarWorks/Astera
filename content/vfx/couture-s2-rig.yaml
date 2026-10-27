@@ -1599,3 +1599,81 @@ elements:
     - 0.0
     - 4.7
     - 0.6
+- id: overhead-chain-a
+  kind:
+    type: particle
+    particle_id: couture-s2-overhead-chain
+    every_ticks: 1
+  brightness: 15
+  start_tick: 24
+  end_tick: 37
+  keyframes:
+  - t: 0
+    translate:
+    - 0.0
+    - 2.7
+    - 0.45
+  - t: 1
+    translate:
+    - 0.0
+    - 3.3
+    - 0.35
+  - t: 4
+    translate:
+    - 0.0
+    - 3.55
+    - 0.25
+  - t: 8
+    translate:
+    - 0.0
+    - 3.7
+    - 0.2
+  - t: 10
+    translate:
+    - 0.0
+    - 3.6
+    - 0.4
+  - t: 12
+    translate:
+    - 0.0
+    - 2.68
+    - 2.24
+- id: overhead-chain-b
+  kind:
+    type: particle
+    particle_id: couture-s2-overhead-chain-pink
+    every_ticks: 1
+  brightness: 15
+  start_tick: 24
+  end_tick: 37
+  keyframes:
+  - t: 0
+    translate:
+    - 0.0
+    - 2.7
+    - 0.45
+  - t: 1
+    translate:
+    - 0.0
+    - 3.3
+    - 0.35
+  - t: 4
+    translate:
+    - 0.0
+    - 3.55
+    - 0.25
+  - t: 8
+    translate:
+    - 0.0
+    - 3.7
+    - 0.2
+  - t: 10
+    translate:
+    - 0.0
+    - 3.6
+    - 0.4
+  - t: 12
+    translate:
+    - 0.0
+    - 2.68
+    - 2.24

@@ -25,10 +25,15 @@ def sm(v):
 core = sm(w - d) * inarc
 rim = sm(w + 1.6 - d) * inarc * 0.55            # faint 1-2 px grey falloff
 glow = np.exp(-(d / (w * 2.6 + 5)) ** 2) * inarc * 0.40  # wide soft halo
+M = np.radians((A0 + A1) / 2)
+proj = x * np.cos(M) + (-y) * np.sin(M)
+seg = (r < R) & (proj > R * np.cos(np.radians((A1 - A0) / 2)))
+edge = sm(R - r) * sm((proj - R * np.cos(np.radians((A1 - A0) / 2))) / 1.0)
+fill = seg * edge * (0.22 + 0.12 * (r / R) ** 3)  # glassy translucent disc, 22-34% alpha
 grey = np.array([150, 148, 156.])
 white = np.array([255, 255, 255.])
 halo = np.array([255, 240, 236.])
-a = np.maximum(np.maximum(rim, glow), core)
+a = np.maximum(np.maximum(np.maximum(rim, glow), core), fill)
 rgb = np.where(core[..., None] > 0.02, white,
                np.where(rim[..., None] > glow[..., None], grey, halo))
 pm = (rgb * a[..., None]).reshape(256, S, 256, S, 3).mean((1, 3))
