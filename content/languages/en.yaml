@@ -453,6 +453,16 @@ astera:
         sneak_left: "<gray>Sneak + left-click: <white>{name}</white></gray>"
         drop: "<gray>Drop (Q): <white>{name}</white></gray>"
         sneak_drop: "<gray>Sneak + drop (Q): <white>{name}</white></gray>"
+      locked: "<dark_gray>Locked: {trigger} - unlocks at Lv {level}</dark_gray>"
+      trigger_name:
+        left_click: "Left-click"
+        right_click: "Right-click"
+        sneak_right: "Sneak + right-click"
+        sneak_left: "Sneak + left-click"
+        drop: "Drop (Q)"
+        sneak_drop: "Sneak + drop (Q)"
+        hold: "Hold"
+        shoot: "Shoot"
       stat:
         attack_damage: "<gray>Damage: <white>{value}</white></gray>"
         attack_speed: "<gray>Attack speed: <white>{value}</white></gray>"
@@ -897,12 +907,16 @@ astera:
       arena-preparing: "<yellow>The arena is still being prepared… hang tight, the match starts as soon as it is ready.</yellow>"
     norma-up:
       title: "<gold><bold>Norma cleared!</bold></gold>"
-      subtitle: "<yellow>Level {level}/{max}</yellow>"
+      subtitle: "<yellow>Level {level}/{max}</yellow>{unlocked}"
+      unlocked-suffix: " <green>- Unlocked: {items}</green>"
+      unlocked: "<green>Norma Lv {level} unlocked:</green> <white>{items}</white>"
       broadcast: "<gold>{player}</gold> <gray>cleared the Norma and reached</gray> <yellow>Lv {level}/{max}</yellow><gray>!</gray>"
       max:
         title: "<gold><bold>NORMA COMPLETE!</bold></gold>"
-        subtitle: "<yellow>Top level Lv {level} reached</yellow>"
+        subtitle: "<yellow>Top level Lv {level} reached</yellow>{unlocked}"
         broadcast: "<gold><bold>{player}</bold></gold> <yellow>reached the top Norma level Lv {level}/{max}!</yellow>"
+    norma-locked:
+      bar: "<red>Locked</red> <gray>- unlocks at</gray> <gold>Lv {level}</gold>"
     norma-choice:
       open:
         title: "<gold><bold>Choose your Norma</bold></gold>"
@@ -1006,8 +1020,7 @@ astera:
         sudden-death: "<gray>Resolved in sudden death.</gray>"
         objective: "<gray>Ended by objective completion.</gray>"
         norma-time-limit: "<gray>Time limit reached:</gray> <{color}><bold>{team}</bold></{color}> <gray>was ahead.</gray>"
-        norma-time-draw: "<gray>Time limit reached with the objective, Norma level, stars and kills all tied.</gray>"
-        norma-level-reached: "<{color}><bold>{team}</bold></{color}> <gray>reached Norma level {level} and won.</gray>"
+        norma-time-draw: "<gray>Time limit reached with the objective, stars and kills all tied.</gray>"
         cancelled: "<gray>Match was cancelled.</gray>"
         world-unloaded: "<gray>The match world was unloaded.</gray>"
         encounter-cleared: "<green>All {waves} waves of the encounter were cleared.</green>"
@@ -1033,14 +1046,13 @@ astera:
         steal-jewelry: "<gray>Steal Jewelry:</gray> <white>take jewels from the enemy pedestals and bank them at home. Bank enough to win.</white>"
         battle-loyal: "<gray>Battle Royal:</gray> <white>team deathmatch. The first team to the kill goal wins.</white>"
         pve-waves: "<gray>Waves:</gray> <white>team up against the monsters and clear every wave without running out of lives.</white>"
-      norma-win: "<gray>Norma:</gray> <white>stars from generators and kills level you up (your current goal is on the sidebar). The first player to reach</white> <gold>Lv {max}</gold> <white>wins the match for their team.</white>"
-      norma-rank: "<gray>Norma:</gray> <white>stars from generators and kills level you up (your goal is on the sidebar). Levels rank the teams if time runs out.</white>"
-      time: "<gray>Time limit {minutes} min: the team ahead on the objective, then Norma level, stars and kills wins.</gray>"
+      norma-rank: "<gray>Norma:</gray> <white>stars from generators and kills level you up (your goal is on the sidebar). Higher levels unlock your ultimates and special items.</white>"
+      time: "<gray>Time limit {minutes} min: the team ahead on the objective, then stars carried and kills wins.</gray>"
       reminder: "<gold>Reminder - how to win:</gold>"
       first-time:
         header: "<aqua>== First match? Quick guide ==</aqua>"
         sidebar: "<gray>The sidebar on the right shows the team scores, the objective and your Norma goal.</gray>"
-        stars: "<gray>Pick up stars from generators and defeat enemies to raise your Norma level; the first to the top level wins.</gray>"
+        stars: "<gray>Pick up stars from generators and defeat enemies to raise your Norma level and unlock your ultimates and special items.</gray>"
         respawn: "<gray>If you fall you respawn after a few seconds with brief protection. Stay with your team and press F for the main menu.</gray>"
     # Objective title flashed when the match turns ACTIVE (MatchBriefingListener).
     objective:
@@ -1070,7 +1082,6 @@ astera:
         subtitle: "<yellow>Clear every wave</yellow>"
     # F3-4 — result screen (chat part) shown at match end, before the transfer back.
     result:
-      hint: "<yellow>To win:</yellow> <white>reach Norma Lv {max} first (kills and stars raise it), or finish the mode objective before the other team.</white>"
       norma:
         label: "<gray>Norma</gray>  {standings}"
         team: "<{color}>{team}</{color}> <white><bold>Lv {level}/{max}</bold></white> <gray>★{stars} ⚔{kills}</gray>"
@@ -1314,7 +1325,7 @@ astera:
       you: "<gray>You:</gray> <{color}>{team}</{color}>"
       stars: "<yellow>*</yellow> <white>{stars}</white> <gray>Stars</gray>"
       level: "<gray>Norma</gray> <white>Lv {level}/{max}</white>"
-      level-vs: "<gray>Norma</gray> <white>Lv {level}/{max}</white> <gray>(rival {rival})</gray>"
+      next-unlock: "<gray>Next:</gray> <white>Lv {level}</white> <gray>{item}</gray>"
       objective-star: "<gray>Goal:</gray> <yellow>Stars</yellow> <white>{progress}/{target}</white>"
       objective-kill: "<gray>Goal:</gray> <red>Kills</red> <white>{progress}/{target}</white>"
       objective-max: "<gold>Top Norma level</gold>"
@@ -2507,9 +2518,9 @@ astera:
   tutorial.guide.staff.title: "Cast a spell"
   tutorial.guide.staff.subtitle: "Take the Fire Staff and right-click"
   tutorial.guide.staff.hint: "Right-click the Fire Staff frame on the rack, select it, then right-click to cast. Spells spend energy (the food bar)."
-  tutorial.guide.norma.title: "How to win"
-  tutorial.guide.norma.subtitle: "Clear Norma levels before the other team"
-  tutorial.guide.norma.hint: "Grab stars from generators and kills, hit each level's goal (shown on the sidebar), and reach the top Norma level first."
+  tutorial.guide.norma.title: "Level up"
+  tutorial.guide.norma.subtitle: "Unlock your ultimates"
+  tutorial.guide.norma.hint: "Grab stars from generators and kills, hit each level's goal (shown on the sidebar), and unlock your ultimates and special items at higher Norma levels."
   tutorial.guide.queue.title: "Ready to play"
   tutorial.guide.queue.subtitle: "Go to the Play gate by the spawn"
   tutorial.guide.queue.hint: "Walk to the glowing Play gate next to the spawn and right-click the Play guide, then pick a mode. Q on the compass opens the same picker."
@@ -2617,7 +2628,7 @@ astera:
   match_menu.confirm.yes.tooltip: "<red>Click to confirm: you leave the match, your stars burst out and the forfeit rules apply.</red>"
   match_menu.confirm.no.tooltip: "<gray>Click to go back to the match menu.</gray>"
   match_menu.help.header: "<gold>Match help</gold>"
-  match_menu.help.norma: "<gray>Norma:</gray> your team clears Norma levels by reaching a star or kill goal; the first team to the top level wins."
+  match_menu.help.norma: "<gray>Norma:</gray> reach a star or kill goal to raise your Norma level; higher levels unlock your ultimates and special items. Levels never decide the match."
   match_menu.help.stars: "<gray>Stars:</gray> a star is an item you carry inside the match. Bring them to your goal; if you are defeated or leave, they burst out for others to grab."
   match_menu.help.weapon-limit: "<gray>Weapon limit:</gray> you can only carry a limited number of weapons in a match; extras are set aside and returned afterwards."
   presentation.sudden-death.title: "<red><bold>Final stretch!</bold></red>"

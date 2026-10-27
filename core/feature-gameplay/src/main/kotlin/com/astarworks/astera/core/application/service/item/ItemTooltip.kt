@@ -46,7 +46,21 @@ public class ItemTooltip(private val messages: IMessageRenderer) {
         )
         if (spec.lore != LocalizedLore.EMPTY) addAll(messages.renderLocalizedLore(viewer, spec.lore).map { usageLine(it, viewer) })
         addAll(statLines(spec, viewer))
+        addAll(lockedLines(spec, viewer))
     }
+
+    /** One greyed line per Norma-gated binding (ADR-0273): which input stays locked until which in-match level. */
+    private fun lockedLines(spec: ItemSpec, viewer: PlayerId?): List<String> =
+        spec.skillBindings.filter { it.minNormaLevel > 1 }.map {
+            messages.render(
+                viewer,
+                MessageKey("$BASE.locked"),
+                mapOf(
+                    "level" to it.minNormaLevel.toString(),
+                    "trigger" to messages.render(viewer, MessageKey("$BASE.trigger_name.${it.trigger.name.lowercase()}")),
+                ),
+            )
+        }
 
     /** Derived numeric lines only (no header / flavor), exposed for tests and compact surfaces. */
     public fun statLines(spec: ItemSpec, viewer: PlayerId?): List<String> {

@@ -4,13 +4,11 @@ import com.astarworks.astera.combat.domain.event.PlayerKilled
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.application.port.outbound.IMatchRepository
 import com.astarworks.astera.core.domain.Result
-import com.astarworks.astera.core.domain.event.EndReason
 import com.astarworks.astera.core.domain.match.Match
 import com.astarworks.astera.core.domain.match.MatchId
 import com.astarworks.astera.core.domain.match.MatchPhase
 import com.astarworks.astera.core.domain.match.TeamId
 import com.astarworks.astera.core.domain.player.PlayerId
-import com.astarworks.astera.match.application.port.inbound.IMatchLifecycle
 import com.astarworks.astera.match.application.port.outbound.IMatchNormaStore
 import com.astarworks.astera.match.application.port.outbound.IMatchStarStore
 import com.astarworks.astera.match.domain.event.NormaLevelUp
@@ -36,7 +34,6 @@ public class NormaLevelService(
     private val configOf: (MatchId) -> NormaConfig,
     private val isNorma: (MatchId) -> Boolean,
     private val eventBus: IDomainEventBus,
-    private val lifecycle: IMatchLifecycle,
 ) {
     public fun onKilled(event: PlayerKilled) {
         val killer = event.killer ?: return
@@ -80,8 +77,13 @@ public class NormaLevelService(
         val carried = stars.get(match.id, playerId)
         val target = cfg.targetFor(p.level, p.goal)
         val progress = if (p.goal == NormaGoal.STAR) carried else p.killsAtLevel
-        val rival = match.teams.filter { playerId !in it.members }.maxOfOrNull { topLevel(match, it.id) }
-        return NormaHud(carried, p.level, cfg.maxLevel, p.goal, progress.coerceAtMost(target), target, rival)
+        return NormaHud(carried, p.level, cfg.maxLevel, p.goal, progress.coerceAtMost(target), target)
+    }
+
+    /** [playerId]'s Norma level in their current match, or `null` outside a Norma match (no gate applies there). */
+    public fun levelOf(playerId: PlayerId): Int? {
+        val match = matches.findMatchOf(playerId)?.takeIf { isNorma(it.id) } ?: return null
+        return norma.get(match.id, playerId).level
     }
 
     /** Kills [playerId] made since reaching the current level (0 outside a Norma match). */

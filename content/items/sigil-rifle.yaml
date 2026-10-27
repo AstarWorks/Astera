@@ -32,9 +32,11 @@ skills:
   skill_id: sigil-rifle-s2
 - trigger: sneak_right
   skill_id: sigil-rifle-s3
+  min_norma_level: 2
 - trigger: sneak_left
   skill_id: sigil-rifle-def
 - trigger: drop
   skill_id: sigil-rifle-ego
+  min_norma_level: 3
 pdc_tags:
   astera:rarity: epic

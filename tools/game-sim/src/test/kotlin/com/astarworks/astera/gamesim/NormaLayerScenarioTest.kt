@@ -14,20 +14,13 @@ import com.astarworks.astera.match.domain.event.NormaLevelUp
 import com.astarworks.astera.match.domain.event.StarsCollected
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.io.TempDir
-import java.nio.file.Files
-import java.nio.file.Path
 
 /**
- * MODE-15: the Norma layer (stars from stage generators, Norma levels, the top level wins) is a standard layer of every
+ * MODE-15: the Norma layer (stars from stage generators, Norma levels that unlock ultimates; ADR-0273) is a standard layer of every
  * game mode, not a mode of its own. Played on the real `content/`: a siege objective mode and Annihilation both get
- * star pickups and level-ups, `norma_win: false` switches the win rule off, and the time limit ranks by the mode's own
- * objective before the Norma level.
+ * star pickups and level-ups, and the time limit ranks by the mode's own objective, then stars carried, then kills.
  */
 class NormaLayerScenarioTest {
-
-    @TempDir
-    lateinit var temp: Path
 
     private fun ScenarioScope.stars() = sim.services.getOrThrow<IMatchStarStore>()
 
@@ -41,7 +34,7 @@ class NormaLayerScenarioTest {
     }
 
     @Test
-    fun `break-core - a generator pop is collected, stars level the player up and the top Norma level wins next to the objective`() {
+    fun `break-core - a generator pop is collected, stars level the player up and the top Norma level does not end the match`() {
         scenario("norma-layer-break-core") {
             val red = player("red-1", team = "red")
             val blue = player("blue-1", team = "blue")
@@ -54,12 +47,12 @@ class NormaLayerScenarioTest {
             assertThat(eventsOf<StarsCollected>().filter { it.playerId == red.id }).`as`("red collected a pop in break-core").isNotEmpty()
             assertThat(stars().get(matchId, red.id)).isGreaterThanOrEqualTo(1)
 
-            // Level 1 -> 5 (norma_max_level): every level-up is announced, the last one ends the match for red.
+            // Level 1 -> 5 (norma_max_level): every level-up is announced; the top level never ends the match.
             climb(matchId, red, levels = 4)
             assertThat(eventsOf<NormaLevelUp>().filter { it.playerId == red.id }.map { it.level }).containsExactly(2, 3, 4, 5)
-            val ended = eventsOf<MatchEnded>().single { it.matchId == matchId }
-            assertThat(ended.reason).isEqualTo(EndReason.NormaLevelReached(TeamId("red"), 5))
-            assertThat(ended.winningTeam).isEqualTo(TeamId("red"))
+            advance(40)
+            assertThat(sim.services.getOrThrow<IMatchRepository>().findById(matchId)!!.phase).isEqualTo(MatchPhase.ACTIVE)
+            assertThat(eventsOf<MatchEnded>().filter { it.matchId == matchId }).isEmpty()
         }
     }
 
@@ -91,36 +84,7 @@ class NormaLayerScenarioTest {
     }
 
     @Test
-    fun `norma_win false - the top Norma level is reached but does not end the match`() {
-        val content = Files.createDirectory(temp.resolve("content"))
-        Files.list(GameSim.defaultContentDir()).use { entries ->
-            entries.filter { it.fileName.toString() != "norma-layer" }.forEach { Files.createSymbolicLink(content.resolve(it.fileName), it) }
-        }
-        val layer = Files.createDirectory(content.resolve("norma-layer"))
-        val shipped = Files.readString(GameSim.defaultContentDir().resolve("norma-layer/layer.yaml"))
-        assertThat(shipped).contains("norma_win: \"true\"")
-        Files.writeString(layer.resolve("layer.yaml"), shipped.replace("norma_win: \"true\"", "norma_win: \"false\""))
-
-        val sim = GameSim.boot("norma-layer-no-win", contentDir = content)
-        try {
-            with(ScenarioScope(sim)) {
-                val red = player("red-1", team = "red")
-                val blue = player("blue-1", team = "blue")
-                val matchId = startMatch("break-core", mapOf(red to "red", blue to "blue"))
-                climb(matchId, red, levels = 4)
-                assertThat(eventsOf<NormaLevelUp>().filter { it.playerId == red.id }.map { it.level }).containsExactly(2, 3, 4, 5)
-                advance(40)
-                assertThat(sim.services.getOrThrow<IMatchRepository>().findById(matchId)!!.phase).`as`("norma_win false: the match runs on").isEqualTo(MatchPhase.ACTIVE)
-                assertThat(eventsOf<MatchEnded>().filter { it.matchId == matchId }).isEmpty()
-            }
-        } finally {
-            sim.writeTrace()
-            sim.shutdown()
-        }
-    }
-
-    @Test
-    fun `time limit - the mode objective ranks before the Norma level`() {
+    fun `time limit - the Norma level is no ranking criterion`() {
         scenario("norma-layer-time-limit-objective") {
             val red = player("red-1", team = "red")
             val blue = player("blue-1", team = "blue")

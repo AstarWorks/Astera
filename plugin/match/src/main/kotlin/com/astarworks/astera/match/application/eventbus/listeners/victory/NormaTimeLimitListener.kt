@@ -20,7 +20,7 @@ import org.slf4j.LoggerFactory
  * like every other mode (result screen, rewards, return to the lobby).
  *
  * Time-limit ranking, best first: the mode's own objective standing ([objectiveOf], skipped when the mode has none),
- * then the highest Norma level, then the most stars carried, then the most kills; a full tie is a draw.
+ * then the most stars carried, then the most kills (the Norma level is power progression, never a ranking); a full tie is a draw.
  *
  * Only matches for which [isNorma] holds are touched.
  */
@@ -31,7 +31,6 @@ public class NormaTimeLimitListener(
     private val timeLimitTicks: (MatchId) -> Long,
     private val now: () -> Long,
     private val objectiveOf: (Match, TeamId) -> Int? = { _, _ -> null },
-    private val levelOf: (Match, TeamId) -> Int = { _, _ -> 1 },
     private val starsOf: (Match, TeamId) -> Int = { _, _ -> 0 },
     private val killsOf: (Match, TeamId) -> Int = { match, team -> match.score.valueFor(team) },
 ) {
@@ -60,12 +59,12 @@ public class NormaTimeLimitListener(
         }
     }
 
-    /** Time-limit winner: mode objective, then Norma level, then stars carried, then kills; `null` when all tie. */
+    /** Time-limit winner: mode objective, then stars carried, then kills; `null` when all tie. */
     internal fun leader(match: Match): TeamId? {
         fun rank(team: TeamId): List<Int> =
-            listOf(objectiveOf(match, team) ?: 0, levelOf(match, team), starsOf(match, team), killsOf(match, team))
+            listOf(objectiveOf(match, team) ?: 0, starsOf(match, team), killsOf(match, team))
         val ranks = match.teams.associate { it.id to rank(it.id) }
-        val best = ranks.values.maxWithOrNull(compareBy<List<Int>>({ it[0] }, { it[1] }, { it[2] }, { it[3] })) ?: return null
+        val best = ranks.values.maxWithOrNull(compareBy<List<Int>>({ it[0] }, { it[1] }, { it[2] })) ?: return null
         return ranks.entries.filter { it.value == best }.singleOrNull()?.key
     }
 

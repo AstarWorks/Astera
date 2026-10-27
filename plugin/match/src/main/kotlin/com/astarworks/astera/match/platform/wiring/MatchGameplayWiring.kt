@@ -440,7 +440,6 @@ internal object MatchGameplayWiring {
                     ?.let { runCatching { com.astarworks.astera.match.domain.mode.GameModeId(it) }.getOrNull() }
                 key?.let { frameworkModes?.get(it) }?.objectiveStanding(match, team)
             },
-            levelOf = { match, team -> matchStars.norma.topLevel(match, team) },
             starsOf = { match, team -> matchStars.norma.carried(match, team) },
             killsOf = { match, team -> matchStars.norma.kills(match, team) },
         )

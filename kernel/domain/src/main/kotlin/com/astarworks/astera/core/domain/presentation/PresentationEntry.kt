@@ -69,6 +69,7 @@ public object PresentationMoments {
     public const val STAR_BURST_SPARK: String = "star-burst-spark"
     public const val NORMA_LEVEL_UP: String = "norma-level-up"
     public const val NORMA_LEVEL_MAX: String = "norma-level-max"
+    public const val NORMA_LOCKED: String = "norma-locked"
     public const val NORMA_CHOICE_OPEN: String = "norma-choice-open"
     public const val NORMA_CHOICE_PICKED: String = "norma-choice-picked"
     public const val NORMA_CHOICE_DEFAULTED: String = "norma-choice-defaulted"

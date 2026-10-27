@@ -52,7 +52,7 @@ internal object MatchHudWiring {
         val norma: (com.astarworks.astera.core.domain.player.PlayerId) -> com.astarworks.astera.match.domain.norma.NormaHud? = { player ->
             env.matches.findMatchOf(player)
                 ?.takeIf { matchStars.stageHasStars(it.stageId.value) }
-                ?.let { matchStars.norma.hudOf(player) }
+                ?.let { matchStars.norma.hudOf(player)?.let { hud -> hud.copy(nextUnlock = matchStars.unlocks.next(player, hud.level)) } }
         }
 
         val modeOf: (MatchId) -> IGameMode? = { id ->
