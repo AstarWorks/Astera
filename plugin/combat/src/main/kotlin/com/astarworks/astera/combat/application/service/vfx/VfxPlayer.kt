@@ -140,8 +140,8 @@ public class VfxPlayer(
         /** Spawned with view range 0 in this instance: it is revealed by the lease bundle (reused passengers already are). */
         var staged: Boolean = false
 
-        /** Bone / weapon display of a performance. */
-        val performer: Boolean = plan.kind is VfxElementKind.SkinBone || plan.kind is VfxElementKind.MainHandWeapon
+        /** Bone / weapon display of a performance (a ghost bone, ADR-0284, is only decoration). */
+        val performer: Boolean = (plan.kind as? VfxElementKind.SkinBone)?.ghost == false || plan.kind is VfxElementKind.MainHandWeapon
 
         /** Entity position offset from the anchor (quads sit at their own point; `0` for ordinary displays). */
         var offset: Vec3 = plan.spawnOffset
@@ -203,7 +203,7 @@ public class VfxPlayer(
         val turns: Boolean get() = castHeading != null || followBodyYaw
 
         /** The BODY bone of a performance: its planned rotation is the spine frame `follow_body_yaw` effects read. */
-        val spine: VfxElementPlan? = plan.elements.firstOrNull { (it.kind as? VfxElementKind.SkinBone)?.bone == SkinRigBone.BODY }
+        val spine: VfxElementPlan? = plan.elements.firstOrNull { (it.kind as? VfxElementKind.SkinBone)?.let { k -> k.bone == SkinRigBone.BODY && !k.ghost } == true }
     }
 
     private val instances: MutableList<Instance> = ArrayList()
@@ -235,7 +235,13 @@ public class VfxPlayer(
             val animation = bodies?.invoke(id) ?: return Result.failure(VfxPlayError.UnknownBody(request.vfxId, id))
             VfxBodyContext(animation, request.anchorEntityId?.let { displays.isSlimSkin(it) } ?: false)
         }
-        val planned = VfxTimeline.plan(def, frame, request.seed, request.scale, sprites, request.freeze, body)
+        val ghostBodies = HashMap<CustomAnimationId, VfxBodyContext>()
+        for (ghost in def.ghostBodies) {
+            val id = ghost.animation ?: continue
+            val animation = bodies?.invoke(id) ?: return Result.failure(VfxPlayError.UnknownBody(request.vfxId, id))
+            ghostBodies[id] = VfxBodyContext(animation, request.anchorEntityId?.let { displays.isSlimSkin(it) } ?: false)
+        }
+        val planned = VfxTimeline.plan(def, frame, request.seed, request.scale, sprites, request.freeze, body, ghostBodies)
         val plan = request.follow?.let { planned.copy(follow = it) } ?: planned
         if (plan.performance && (request.anchorEntityId == null || !plan.attachToAnchor)) {
             return Result.failure(VfxPlayError.PerformanceUnavailable(request.vfxId))
@@ -280,7 +286,7 @@ public class VfxPlayer(
         if (plan.performance) {
             val port = presentation?.invoke()
             if (port != null) {
-                val bodyDrawn = plan.elements.any { it.kind is VfxElementKind.SkinBone }
+                val bodyDrawn = plan.elements.any { (it.kind as? VfxElementKind.SkinBone)?.ghost == false }
                 val mask = PresentationMask(hand = true, offhand = bodyDrawn, armor = bodyDrawn, body = bodyDrawn, pinPose = true)
                 val owner = request.anchorEntityId!!
                 val claimed = port.claim(owner, mask, PresentationKind.PERFORMANCE, onRevoked = { revoked(owner) })
@@ -427,7 +433,7 @@ public class VfxPlayer(
                         // The reveal tick's and every cut tick's update must not reach clients through the entity tracker: its
                         // per-entity sends are separate, a client tick can fall between them (hand one step ahead of the hilt).
                         // They join one presentation bundle instead (PresentationDisplay.beforeSend, applied at tick end).
-                        val bundle = e.kind.let { it is VfxElementKind.SkinBone || it is VfxElementKind.MainHandWeapon } &&
+                        val bundle = state.performer &&
                             instance.lease != null && (age in plan.cutTicks || handle in instance.deferUpdates)
                         val turned = instance.yawed(u.transform)
                         if (bundle) instance.bundled[handle] = { displays.update(handle, turned, u.interpolationTicks) }
@@ -651,7 +657,7 @@ public class VfxPlayer(
                 textRgb = style.textRgb,
             )
         }
-        is VfxElementKind.SkinBone -> DisplayKind.SkinBone(kind.bone, kind.slim)
+        is VfxElementKind.SkinBone -> DisplayKind.SkinBone(kind.bone, kind.slim, kind.ghost)
         is VfxElementKind.MainHandWeapon -> DisplayKind.AnchorMainHand
         is VfxElementKind.Particle -> null
         is VfxElementKind.Sprite -> error("sprite elements are resolved to text by VfxTimeline.plan")

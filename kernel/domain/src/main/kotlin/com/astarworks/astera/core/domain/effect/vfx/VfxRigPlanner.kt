@@ -229,10 +229,15 @@ public object VfxRigPlanner {
         scale: Double,
         freezes: List<VfxFreeze>,
         body: VfxBodyTrack? = null,
+        /** ADR-0284: the track of every ghost body, by [VfxGhostBody.id]. */
+        ghostTracks: Map<String, VfxBodyTrack> = emptyMap(),
     ): List<VfxElementPlan> {
         val motion = VfxRigMotion(rig, anchorRot, scale, freezes, def.sampleTicks, body)
         val out = ArrayList<VfxElementPlan>()
-        if (rig.weapon != null) out += VfxBodyPlanner.plan(def, rig, motion, body)
+        if (rig.weapon != null) {
+            out += VfxBodyPlanner.plan(def, rig, motion, body)
+            def.ghostBodies.forEach { out += VfxBodyPlanner.planGhost(def, it, motion, ghostTracks.getValue(it.id)) }
+        }
         rig.parts.forEach { out += partPlan(def, rig, it, motion) }
         rig.trails.forEach { out += trailPlans(def, it, motion) }
         rig.boards.forEach { out += boardPlans(def, it, motion) }
