@@ -9,6 +9,7 @@ import com.astarworks.astera.core.domain.match.TeamId
 import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.domain.presentation.PresentationMoments
 import com.astarworks.astera.core.domain.stage.Stage
+import com.astarworks.astera.match.application.gamemode.siege.NavTarget
 import com.astarworks.astera.match.application.gamemode.siege.ObjectiveKit
 import com.astarworks.astera.match.application.gamemode.siege.SiegeEnv
 import com.astarworks.astera.match.application.gamemode.siege.SiegeGameMode
@@ -100,6 +101,9 @@ public class CaptureWoolGameMode @JvmOverloads constructor(
         kit.statusBar(player, key, mapOf("zone" to zone, "seconds" to seconds.toString(), "need" to captureSeconds().toString()), progress, color)
     }
 
+    override fun navTarget(run: Run, match: Match, viewer: PlayerId, team: TeamId): NavTarget? =
+        kit.nearest(viewer, run.markers.filterKeys { run.owner[it] != team }.values)?.let { NavTarget(it, HINT_ZONE) }
+
     override fun holdsObjective(run: Run, match: Match, team: TeamId): Boolean =
         run.progress.any { (zone, progress) -> progress.capturedBy == null && team in run.occupants[zone].orEmpty().values }
 
@@ -122,6 +126,7 @@ public class CaptureWoolGameMode @JvmOverloads constructor(
         private val KEY_CAPTURED: MessageKey = MessageKey("astera.gamemode.capture-wool.captured")
         private val BAR_CAPTURING: MessageKey = MessageKey("astera.objective.bar.capture-wool.capturing")
         private val BAR_CONTESTED: MessageKey = MessageKey("astera.objective.bar.capture-wool.contested")
+        private val HINT_ZONE: MessageKey = MessageKey("astera.objective.hint.capture-wool.zone")
         private const val ZONE_PREFIX: String = "wool-"
         private const val NEUTRAL_WOOL: String = "minecraft:white_wool"
         private const val DEFAULT_CAPTURE_SECONDS: Int = 10

@@ -598,6 +598,22 @@ internal object MatchGameplayWiring {
             matchEndSummaryListener.handle(it)
         }
 
+        // The three-line rule card: at ACTIVE (briefing below), `/astera rules`, and on a beginner's first death.
+        val ruleCards = com.astarworks.astera.match.application.service.RuleCards(
+            matches = matches,
+            players = playerGateway,
+            messages = msgRenderer,
+            modeKeyOf = { id -> env.matchModeRegistry.modeKeyOf(id) },
+            configOf = env.modeConfigOf,
+            isFirstMatch = { id ->
+                val stats = env.ctx.services.get<com.astarworks.astera.core.application.port.outbound.IPlayerStatsRepository>()
+                stats != null && (stats.find(id)?.matchesPlayed ?: 0L) == 0L
+            },
+        )
+        commands.register(MatchCommandSpecs.buildRulesCommandSpec(ruleCards))
+        subscriptions += eventBus.subscribe(PlayerKilled::class) { ruleCards.onDeath(it.victim) }
+        subscriptions += eventBus.subscribe(MatchEnded::class) { ruleCards.onMatchEnded(it.matchId) }
+
         // "How to win" chat briefing when a match turns ACTIVE: the mode's objective + how Norma levels win it.
         val matchBriefingListener = com.astarworks.astera.match.application.eventbus.listeners.match.MatchBriefingListener(
             matches = matches,
@@ -622,6 +638,7 @@ internal object MatchGameplayWiring {
                 val stats = env.ctx.services.get<com.astarworks.astera.core.application.port.outbound.IPlayerStatsRepository>()
                 stats != null && (stats.find(id)?.matchesPlayed ?: 0L) == 0L
             },
+            ruleCards = ruleCards,
         )
         subscriptions += eventBus.subscribe(com.astarworks.astera.match.domain.event.PhaseChanged::class) {
             matchBriefingListener.onPhaseChanged(it)

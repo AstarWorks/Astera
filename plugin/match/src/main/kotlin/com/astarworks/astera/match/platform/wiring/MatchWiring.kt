@@ -506,23 +506,7 @@ public object MatchWiring {
             parsed.warnings.forEach { logger.warning(it) }
             parsed.config
         }
-        gameModeFrameworkRegistry.register(
-            AnnihilationGameMode(
-                tracker = annihilationTracker,
-                eventBus = eventBus,
-                defaultConfig = annihilationConfig,
-                clock = { scheduler.currentTick() },
-            ),
-        )
-        logger.info(
-            "Wave 5annihilation wiring: AnnihilationGameMode + AnnihilationMatchTracker " +
-                "registered into IGameModeFrameworkRegistry.",
-        )
-
-        // WP11: the objective modes (carry-tnt / capture-wool /
-        // steal-jewelry / carry-mini-tnt) own their per-match state and react to
-        // region / block / kill events of their own matches; the config comes
-        // from content/game-modes/<id>.yaml `default_config`.
+        val worldLabels = ports.worldLabels?.invoke(services)
         val objectivePositions = ports.playerPositions?.invoke(services)
             ?: com.astarworks.astera.match.application.service.LocationLookupMatchPlayerPositions {
                 services.get<com.astarworks.astera.core.application.port.outbound.IPlayerLocationLookup>()
@@ -547,8 +531,27 @@ public object MatchWiring {
                 stage = { objectiveStage },
                 guide = { services.get<com.astarworks.astera.core.application.port.outbound.IHologramGuide>() },
                 settings = { services.get<com.astarworks.astera.core.application.port.outbound.IPlayerSettingsRepository>() },
+                labels = { worldLabels },
             )
         }
+        gameModeFrameworkRegistry.register(
+            AnnihilationGameMode(
+                tracker = annihilationTracker,
+                eventBus = eventBus,
+                defaultConfig = annihilationConfig,
+                clock = { scheduler.currentTick() },
+                clarity = com.astarworks.astera.match.application.gamemode.annihilation.AnnihilationClarity(siegeEnv(AnnihilationGameMode.ID), annihilationTracker),
+            ),
+        )
+        logger.info(
+            "Wave 5annihilation wiring: AnnihilationGameMode + AnnihilationMatchTracker " +
+                "registered into IGameModeFrameworkRegistry.",
+        )
+
+        // WP11: the objective modes (carry-tnt / capture-wool /
+        // steal-jewelry / carry-mini-tnt) own their per-match state and react to
+        // region / block / kill events of their own matches; the config comes
+        // from content/game-modes/<id>.yaml `default_config`.
         val siegeModes = listOf(
             CarryTntGameMode(siegeEnv(CarryTntGameMode.ID)),
             CarryMiniTntGameMode(siegeEnv(CarryMiniTntGameMode.ID)),
