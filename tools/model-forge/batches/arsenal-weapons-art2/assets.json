@@ -1,0 +1,567 @@
+{
+  "concept_sha256": "66cfbbac6d45fc6bcb491418ec72ca990d3dd0b89cacb2054f8206e17e4e2093",
+  "assets": [
+    {
+      "id": "iron-blade",
+      "model": "content/models/items/iron-blade.model.json",
+      "texture": "vanilla block references + constant face tints",
+      "icon": "content/textures/generated/items/iron-blade.png",
+      "sha256": "01a0ad2e50b75f5979a61a0b9388fd9f27ae72ce12046035b41125441c614232",
+      "elements": 7,
+      "rounds": [
+        "blockout",
+        "shape",
+        "polish",
+        "cleanup"
+      ],
+      "history": "/tmp/claude-1000/codex/arsenal-weapons-art2/iron-blade/project/project.json",
+      "final_hand_gui": "/tmp/claude-1000/codex/arsenal-weapons-art2/contexts-final/iron-blade-board.jpg",
+      "parallel_face_pairs": 0
+    },
+    {
+      "id": "war-axe",
+      "model": "content/models/items/war-axe.model.json",
+      "texture": "vanilla block references + constant face tints",
+      "icon": "content/textures/generated/items/war-axe.png",
+      "sha256": "00204e38f6af4a0913387029d4b16dfe1f8e3a39d6bd33d96387da584df47cb3",
+      "elements": 7,
+      "rounds": [
+        "blockout",
+        "shape",
+        "polish",
+        "cleanup"
+      ],
+      "history": "/tmp/claude-1000/codex/arsenal-weapons-art2/war-axe/project/project.json",
+      "final_hand_gui": "/tmp/claude-1000/codex/arsenal-weapons-art2/contexts-final/war-axe-board.jpg",
+      "parallel_face_pairs": 0
+    },
+    {
+      "id": "spear",
+      "model": "content/models/items/spear.model.json",
+      "texture": "vanilla block references + constant face tints",
+      "icon": "content/textures/generated/items/spear.png",
+      "sha256": "e61e5ae9371bd71f36488fac7f086b736ae7678d307ed00025b6304a6a9b40f0",
+      "elements": 7,
+      "rounds": [
+        "blockout",
+        "shape",
+        "polish",
+        "cleanup"
+      ],
+      "history": "/tmp/claude-1000/codex/arsenal-weapons-art2/spear/project/project.json",
+      "final_hand_gui": "/tmp/claude-1000/codex/arsenal-weapons-art2/contexts-final/spear-board.jpg",
+      "parallel_face_pairs": 0
+    },
+    {
+      "id": "mace",
+      "model": "content/models/items/mace.model.json",
+      "texture": "vanilla block references + constant face tints",
+      "icon": "content/textures/generated/items/mace.png",
+      "sha256": "f3d0eef84509f3ed205f781dcf966e9aa4dc6c29db43dcff0b7af73f80731e41",
+      "elements": 7,
+      "rounds": [
+        "blockout",
+        "shape",
+        "polish",
+        "cleanup"
+      ],
+      "history": "/tmp/claude-1000/codex/arsenal-weapons-art2/mace/project/project.json",
+      "final_hand_gui": "/tmp/claude-1000/codex/arsenal-weapons-art2/contexts-final/mace-board.jpg",
+      "parallel_face_pairs": 0
+    },
+    {
+      "id": "twin-daggers",
+      "model": "content/models/items/twin-daggers.model.json",
+      "texture": "vanilla block references + constant face tints",
+      "icon": "content/textures/generated/items/twin-daggers.png",
+      "sha256": "859ac45315cbafb28115a9fdef2980e88a7ef8a35ffe7d461248d4f410a996d1",
+      "elements": 9,
+      "rounds": [
+        "blockout",
+        "shape",
+        "polish",
+        "cleanup"
+      ],
+      "history": "/tmp/claude-1000/codex/arsenal-weapons-art2/twin-daggers/project/project.json",
+      "final_hand_gui": "/tmp/claude-1000/codex/arsenal-weapons-art2/contexts-final/twin-daggers-board.jpg",
+      "parallel_face_pairs": 0
+    },
+    {
+      "id": "katana",
+      "model": "content/models/items/katana.model.json",
+      "texture": "vanilla block references + constant face tints",
+      "icon": "content/textures/generated/items/katana.png",
+      "sha256": "0f450136100138a1ec3ba70c7658744d52f93ae4a7a29ab1a31a3ba5ceaeb7d8",
+      "elements": 8,
+      "rounds": [
+        "blockout",
+        "shape",
+        "polish",
+        "cleanup"
+      ],
+      "history": "/tmp/claude-1000/codex/arsenal-weapons-art2/katana/project/project.json",
+      "final_hand_gui": "/tmp/claude-1000/codex/arsenal-weapons-art2/contexts-final/katana-board.jpg",
+      "parallel_face_pairs": 0
+    },
+    {
+      "id": "halberd",
+      "model": "content/models/items/halberd.model.json",
+      "texture": "vanilla block references + constant face tints",
+      "icon": "content/textures/generated/items/halberd.png",
+      "sha256": "9e79e5c075f7656859f5a9ed002b0923f8e854ce77627348cf0648f342f46a47",
+      "elements": 9,
+      "rounds": [
+        "blockout",
+        "shape",
+        "polish",
+        "cleanup"
+      ],
+      "history": "/tmp/claude-1000/codex/arsenal-weapons-art2/halberd/project/project.json",
+      "final_hand_gui": "/tmp/claude-1000/codex/arsenal-weapons-art2/contexts-final/halberd-board.jpg",
+      "parallel_face_pairs": 0
+    },
+    {
+      "id": "rapier",
+      "model": "content/models/items/rapier.model.json",
+      "texture": "vanilla block references + constant face tints",
+      "icon": "content/textures/generated/items/rapier.png",
+      "sha256": "4d7a071b4ee6e93a1de5a3474f02d0063860162a4586b324a3a40233e5dd7f05",
+      "elements": 9,
+      "rounds": [
+        "blockout",
+        "shape",
+        "polish",
+        "cleanup"
+      ],
+      "history": "/tmp/claude-1000/codex/arsenal-weapons-art2/rapier/project/project.json",
+      "final_hand_gui": "/tmp/claude-1000/codex/arsenal-weapons-art2/contexts-final/rapier-board.jpg",
+      "parallel_face_pairs": 0
+    },
+    {
+      "id": "cleaver",
+      "model": "content/models/items/cleaver.model.json",
+      "texture": "vanilla block references + constant face tints",
+      "icon": "content/textures/generated/items/cleaver.png",
+      "sha256": "af2f30212fdce4528b00ff041c498f7206fdc043611058d0f57dc2df34576cfe",
+      "elements": 5,
+      "rounds": [
+        "blockout",
+        "shape",
+        "polish",
+        "cleanup"
+      ],
+      "history": "/tmp/claude-1000/codex/arsenal-weapons-art2/cleaver/project/project.json",
+      "final_hand_gui": "/tmp/claude-1000/codex/arsenal-weapons-art2/contexts-final/cleaver-board.jpg",
+      "parallel_face_pairs": 0
+    },
+    {
+      "id": "scythe",
+      "model": "content/models/items/scythe.model.json",
+      "texture": "vanilla block references + constant face tints",
+      "icon": "content/textures/generated/items/scythe.png",
+      "sha256": "8a6274051055e506c2b92523d28dbddaacfcb3d8aef8328230aee02516be7f8f",
+      "elements": 8,
+      "rounds": [
+        "blockout",
+        "shape",
+        "polish",
+        "cleanup"
+      ],
+      "history": "/tmp/claude-1000/codex/arsenal-weapons-art2/scythe/project/project.json",
+      "final_hand_gui": "/tmp/claude-1000/codex/arsenal-weapons-art2/contexts-final/scythe-board.jpg",
+      "parallel_face_pairs": 0
+    },
+    {
+      "id": "club",
+      "model": "content/models/items/club.model.json",
+      "texture": "vanilla block references + constant face tints",
+      "icon": "content/textures/generated/items/club.png",
+      "sha256": "b9dbf57f626db5b2a4835e6bc151f15e49d0b6070fbfdacdf97eb67a5fa7c0be",
+      "elements": 7,
+      "rounds": [
+        "blockout",
+        "shape",
+        "polish",
+        "cleanup"
+      ],
+      "history": "/tmp/claude-1000/codex/arsenal-weapons-art2/club/project/project.json",
+      "final_hand_gui": "/tmp/claude-1000/codex/arsenal-weapons-art2/contexts-final/club-board.jpg",
+      "parallel_face_pairs": 0
+    },
+    {
+      "id": "longbow",
+      "renderer": "unchanged vanilla",
+      "model": null,
+      "texture": null
+    },
+    {
+      "id": "hand-crossbow",
+      "renderer": "unchanged vanilla",
+      "model": null,
+      "texture": null
+    },
+    {
+      "id": "shortbow",
+      "renderer": "unchanged vanilla",
+      "model": null,
+      "texture": null
+    },
+    {
+      "id": "repeater-crossbow",
+      "renderer": "unchanged vanilla",
+      "model": null,
+      "texture": null
+    },
+    {
+      "id": "revolver",
+      "model": "content/models/items/revolver.model.json",
+      "texture": "vanilla block references + constant face tints",
+      "icon": "content/textures/generated/items/revolver.png",
+      "sha256": "fa3b89873966438f0c9d5b2af46bca46721f2aaf07648c30607158e225014388",
+      "elements": 9,
+      "rounds": [
+        "blockout",
+        "shape",
+        "polish",
+        "cleanup"
+      ],
+      "history": "/tmp/claude-1000/codex/arsenal-weapons-art2/revolver/project/project.json",
+      "final_hand_gui": "/tmp/claude-1000/codex/arsenal-weapons-art2/contexts-final/revolver-board.jpg",
+      "parallel_face_pairs": 0
+    },
+    {
+      "id": "smg",
+      "model": "content/models/items/smg.model.json",
+      "texture": "vanilla block references + constant face tints",
+      "icon": "content/textures/generated/items/smg.png",
+      "sha256": "835b6b05b816c79a5e60e8b6028c6d2adb87c558040651f86e939b98f9e751e0",
+      "elements": 10,
+      "rounds": [
+        "blockout",
+        "shape",
+        "polish",
+        "cleanup"
+      ],
+      "history": "/tmp/claude-1000/codex/arsenal-weapons-art2/smg/project/project.json",
+      "final_hand_gui": "/tmp/claude-1000/codex/arsenal-weapons-art2/contexts-final/smg-board.jpg",
+      "parallel_face_pairs": 0
+    },
+    {
+      "id": "sniper",
+      "model": "content/models/items/sniper.model.json",
+      "texture": "vanilla block references + constant face tints",
+      "icon": "content/textures/generated/items/sniper.png",
+      "sha256": "1767d99981d74821d8d5e549f98d556f95fdd051869aa1cc0e4e4574c4681f8f",
+      "elements": 11,
+      "rounds": [
+        "blockout",
+        "shape",
+        "polish",
+        "cleanup"
+      ],
+      "history": "/tmp/claude-1000/codex/arsenal-weapons-art2/sniper/project/project.json",
+      "final_hand_gui": "/tmp/claude-1000/codex/arsenal-weapons-art2/contexts-final/sniper-board.jpg",
+      "parallel_face_pairs": 0
+    },
+    {
+      "id": "harpoon",
+      "model": "content/models/items/harpoon.model.json",
+      "texture": "vanilla block references + constant face tints",
+      "icon": "content/textures/generated/items/harpoon.png",
+      "sha256": "4db36c89c40773bd8697f60df938e7ac1aa83563b56a97cce5c386d1b62b873e",
+      "elements": 9,
+      "rounds": [
+        "blockout",
+        "shape",
+        "polish",
+        "cleanup"
+      ],
+      "history": "/tmp/claude-1000/codex/arsenal-weapons-art2/harpoon/project/project.json",
+      "final_hand_gui": "/tmp/claude-1000/codex/arsenal-weapons-art2/contexts-final/harpoon-board.jpg",
+      "parallel_face_pairs": 0
+    },
+    {
+      "id": "grappling-hook",
+      "model": "content/models/items/grappling-hook.model.json",
+      "texture": "vanilla block references + constant face tints",
+      "icon": "content/textures/generated/items/grappling-hook.png",
+      "sha256": "6a2dc3761848ab36d0362b5288d90eeaa3ac34aa0f3821bdc4a10e587cd16682",
+      "elements": 10,
+      "rounds": [
+        "blockout",
+        "shape",
+        "polish",
+        "cleanup"
+      ],
+      "history": "/tmp/claude-1000/codex/arsenal-weapons-art2/grappling-hook/project/project.json",
+      "final_hand_gui": "/tmp/claude-1000/codex/arsenal-weapons-art2/contexts-final/grappling-hook-board.jpg",
+      "parallel_face_pairs": 0
+    },
+    {
+      "id": "throwing-knives",
+      "model": "content/models/items/throwing-knives.model.json",
+      "texture": "vanilla block references + constant face tints",
+      "icon": "content/textures/generated/items/throwing-knives.png",
+      "sha256": "7e922ba87450f3fa024f620841e143c5d976b4ccdaf47fd1ab443778a1a43e86",
+      "elements": 9,
+      "rounds": [
+        "blockout",
+        "shape",
+        "polish",
+        "cleanup"
+      ],
+      "history": "/tmp/claude-1000/codex/arsenal-weapons-art2/throwing-knives/project/project.json",
+      "final_hand_gui": "/tmp/claude-1000/codex/arsenal-weapons-art2/contexts-final/throwing-knives-board.jpg",
+      "parallel_face_pairs": 0
+    },
+    {
+      "id": "sticky-bomb",
+      "model": "content/models/items/sticky-bomb.model.json",
+      "texture": "vanilla block references + constant face tints",
+      "icon": "content/textures/generated/items/sticky-bomb.png",
+      "sha256": "80aa53a46192da007ad08892a55d0b2674cc6c7b158fdc213c1b6e0ad0e0816b",
+      "elements": 7,
+      "rounds": [
+        "blockout",
+        "shape",
+        "polish",
+        "cleanup"
+      ],
+      "history": "/tmp/claude-1000/codex/arsenal-weapons-art2/sticky-bomb/project/project.json",
+      "final_hand_gui": "/tmp/claude-1000/codex/arsenal-weapons-art2/contexts-final/sticky-bomb-board.jpg",
+      "parallel_face_pairs": 0
+    },
+    {
+      "id": "venom-flask",
+      "model": "content/models/items/venom-flask.model.json",
+      "texture": "vanilla block references + constant face tints",
+      "icon": "content/textures/generated/items/venom-flask.png",
+      "sha256": "564e85ec56af8eb3fcf1dfaee13732d957fa2c95bde25743a65b8f6e332b78fe",
+      "elements": 6,
+      "rounds": [
+        "blockout",
+        "shape",
+        "polish",
+        "cleanup"
+      ],
+      "history": "/tmp/claude-1000/codex/arsenal-weapons-art2/venom-flask/project/project.json",
+      "final_hand_gui": "/tmp/claude-1000/codex/arsenal-weapons-art2/contexts-final/venom-flask-board.jpg",
+      "parallel_face_pairs": 0
+    },
+    {
+      "id": "smoke-bomb",
+      "model": "content/models/items/smoke-bomb.model.json",
+      "texture": "vanilla block references + constant face tints",
+      "icon": "content/textures/generated/items/smoke-bomb.png",
+      "sha256": "0caada9a3af31b849bb78dcd981e86199544de3050936ef0fbe24ac967f3c25c",
+      "elements": 6,
+      "rounds": [
+        "blockout",
+        "shape",
+        "polish",
+        "cleanup"
+      ],
+      "history": "/tmp/claude-1000/codex/arsenal-weapons-art2/smoke-bomb/project/project.json",
+      "final_hand_gui": "/tmp/claude-1000/codex/arsenal-weapons-art2/contexts-final/smoke-bomb-board.jpg",
+      "parallel_face_pairs": 0
+    },
+    {
+      "id": "delay-mine",
+      "model": "content/models/items/delay-mine.model.json",
+      "texture": "vanilla block references + constant face tints",
+      "icon": "content/textures/generated/items/delay-mine.png",
+      "sha256": "16d80f5a2fa95f3d357d28bce0ef8d002353431120921f7725815d8dbf6f0f53",
+      "elements": 4,
+      "rounds": [
+        "blockout",
+        "shape",
+        "polish",
+        "cleanup"
+      ],
+      "history": "/tmp/claude-1000/codex/arsenal-weapons-art2/delay-mine/project/project.json",
+      "final_hand_gui": "/tmp/claude-1000/codex/arsenal-weapons-art2/contexts-final/delay-mine-board.jpg",
+      "parallel_face_pairs": 0
+    },
+    {
+      "id": "frag-grenade",
+      "model": "content/models/items/frag-grenade.model.json",
+      "texture": "vanilla block references + constant face tints",
+      "icon": "content/textures/generated/items/frag-grenade.png",
+      "sha256": "ec4602cbe8fad4846470c55ec9696dc7c2e51d10482a96dbfb7cdc35fa3eacd6",
+      "elements": 9,
+      "rounds": [
+        "blockout",
+        "shape",
+        "polish",
+        "cleanup",
+        "finish"
+      ],
+      "history": "/tmp/claude-1000/codex/arsenal-weapons-art2/frag-grenade/project/project.json",
+      "final_hand_gui": "/tmp/claude-1000/codex/arsenal-weapons-art2/contexts-final/frag-grenade-board.jpg",
+      "parallel_face_pairs": 0
+    },
+    {
+      "id": "flash-bang",
+      "model": "content/models/items/flash-bang.model.json",
+      "texture": "vanilla block references + constant face tints",
+      "icon": "content/textures/generated/items/flash-bang.png",
+      "sha256": "414a323b784b79aff93ec89d69dec54353c08308f57e8bd202897ac1a30cc3eb",
+      "elements": 6,
+      "rounds": [
+        "blockout",
+        "shape",
+        "polish",
+        "cleanup"
+      ],
+      "history": "/tmp/claude-1000/codex/arsenal-weapons-art2/flash-bang/project/project.json",
+      "final_hand_gui": "/tmp/claude-1000/codex/arsenal-weapons-art2/contexts-final/flash-bang-board.jpg",
+      "parallel_face_pairs": 0
+    },
+    {
+      "id": "shock-wand",
+      "model": "content/models/items/shock-wand.model.json",
+      "texture": "vanilla block references + constant face tints",
+      "icon": "content/textures/generated/items/shock-wand.png",
+      "sha256": "502ed25fddd97d872e8a86ee12195cec5f6038439a301dfa0d875c1aac912187",
+      "elements": 7,
+      "rounds": [
+        "blockout",
+        "shape",
+        "polish",
+        "cleanup"
+      ],
+      "history": "/tmp/claude-1000/codex/arsenal-weapons-art2/shock-wand/project/project.json",
+      "final_hand_gui": "/tmp/claude-1000/codex/arsenal-weapons-art2/contexts-final/shock-wand-board.jpg",
+      "parallel_face_pairs": 0
+    },
+    {
+      "id": "ember-rod",
+      "model": "content/models/items/ember-rod.model.json",
+      "texture": "vanilla block references + constant face tints",
+      "icon": "content/textures/generated/items/ember-rod.png",
+      "sha256": "4ea7f444bb10af7ee730853db26dc2943af9d85c2f7ea818d314fda7004c48df",
+      "elements": 5,
+      "rounds": [
+        "blockout",
+        "shape",
+        "polish",
+        "cleanup"
+      ],
+      "history": "/tmp/claude-1000/codex/arsenal-weapons-art2/ember-rod/project/project.json",
+      "final_hand_gui": "/tmp/claude-1000/codex/arsenal-weapons-art2/contexts-final/ember-rod-board.jpg",
+      "parallel_face_pairs": 0
+    },
+    {
+      "id": "frost-rod",
+      "model": "content/models/items/frost-rod.model.json",
+      "texture": "vanilla block references + constant face tints",
+      "icon": "content/textures/generated/items/frost-rod.png",
+      "sha256": "1ef57ccc48169263962217f7c468bcc09431a84bf421037e6621bd5823092fdb",
+      "elements": 5,
+      "rounds": [
+        "blockout",
+        "shape",
+        "polish",
+        "cleanup"
+      ],
+      "history": "/tmp/claude-1000/codex/arsenal-weapons-art2/frost-rod/project/project.json",
+      "final_hand_gui": "/tmp/claude-1000/codex/arsenal-weapons-art2/contexts-final/frost-rod-board.jpg",
+      "parallel_face_pairs": 0
+    },
+    {
+      "id": "fireball-charge",
+      "model": "content/models/items/fireball-charge.model.json",
+      "texture": "vanilla block references + constant face tints",
+      "icon": "content/textures/generated/items/fireball-charge.png",
+      "sha256": "b4f5fce92ec98f71e2e7dcc1bd4829abbdea6d67e20cdce7a634770c987ba176",
+      "elements": 5,
+      "rounds": [
+        "blockout",
+        "shape",
+        "polish",
+        "cleanup"
+      ],
+      "history": "/tmp/claude-1000/codex/arsenal-weapons-art2/fireball-charge/project/project.json",
+      "final_hand_gui": "/tmp/claude-1000/codex/arsenal-weapons-art2/contexts-final/fireball-charge-board.jpg",
+      "parallel_face_pairs": 0
+    },
+    {
+      "id": "glacier-wand",
+      "model": "content/models/items/glacier-wand.model.json",
+      "texture": "vanilla block references + constant face tints",
+      "icon": "content/textures/generated/items/glacier-wand.png",
+      "sha256": "f55b5154fd7e68ef1a4530fed35e20806d6a3d983d9879b3e50bbe7b41eb9404",
+      "elements": 9,
+      "rounds": [
+        "blockout",
+        "shape",
+        "polish",
+        "cleanup",
+        "finish",
+        "bridge"
+      ],
+      "history": "/tmp/claude-1000/codex/arsenal-weapons-art2/glacier-wand/project/project.json",
+      "final_hand_gui": "/tmp/claude-1000/codex/arsenal-weapons-art2/contexts-final/glacier-wand-board.jpg",
+      "parallel_face_pairs": 0
+    },
+    {
+      "id": "sanctuary-staff",
+      "model": "content/models/items/sanctuary-staff.model.json",
+      "texture": "vanilla block references + constant face tints",
+      "icon": "content/textures/generated/items/sanctuary-staff.png",
+      "sha256": "945d02acd9c380698a874aa7fef8c076945c908c4dad474090a23c72c037f44f",
+      "elements": 7,
+      "rounds": [
+        "blockout",
+        "shape",
+        "polish",
+        "cleanup",
+        "finish"
+      ],
+      "history": "/tmp/claude-1000/codex/arsenal-weapons-art2/sanctuary-staff/project/project.json",
+      "final_hand_gui": "/tmp/claude-1000/codex/arsenal-weapons-art2/contexts-final/sanctuary-staff-board.jpg",
+      "parallel_face_pairs": 0
+    },
+    {
+      "id": "chain-rod",
+      "model": "content/models/items/chain-rod.model.json",
+      "texture": "vanilla block references + constant face tints",
+      "icon": "content/textures/generated/items/chain-rod.png",
+      "sha256": "a2534a96fbcd2485d8d7052850202baaf64585c1082ea926a08566b6736b1837",
+      "elements": 16,
+      "rounds": [
+        "blockout",
+        "shape",
+        "polish",
+        "cleanup",
+        "finish"
+      ],
+      "history": "/tmp/claude-1000/codex/arsenal-weapons-art2/chain-rod/project/project.json",
+      "final_hand_gui": "/tmp/claude-1000/codex/arsenal-weapons-art2/contexts-final/chain-rod-board.jpg",
+      "parallel_face_pairs": 0
+    },
+    {
+      "id": "gale-fan",
+      "model": "content/models/items/gale-fan.model.json",
+      "texture": "vanilla block references + constant face tints",
+      "icon": "content/textures/generated/items/gale-fan.png",
+      "sha256": "0585fbc4f4e92e1fa2e0b296a11cfd20a5cf39719bcf93a937cc87dd7aeab32d",
+      "elements": 13,
+      "rounds": [
+        "blockout",
+        "shape",
+        "polish",
+        "cleanup"
+      ],
+      "history": "/tmp/claude-1000/codex/arsenal-weapons-art2/gale-fan/project/project.json",
+      "final_hand_gui": "/tmp/claude-1000/codex/arsenal-weapons-art2/contexts-final/gale-fan-board.jpg",
+      "parallel_face_pairs": 0
+    },
+    {
+      "id": "shield-bulwark",
+      "renderer": "unchanged vanilla",
+      "model": null,
+      "texture": null
+    }
+  ]
+}
