@@ -1,0 +1,192 @@
+# S2 coin 1 hit (skill tick 9): orange streak + white star + petals; peaks on effect tick 1 = damage tick (played at delay 9).
+# --- dense particle layer (couture-s2 particle pass) ---
+id: couture-s2-hit1
+duration_ticks: 12
+orient: world
+follow: false
+sample_ticks: 1
+elements:
+- id: star-0
+  kind: {type: sprite, sprite: couture-s2-feather, frame_ticks: 1, loop: false, see_through: true}
+  billboard: center
+  brightness: 15
+  start_tick: 0
+  end_tick: 6
+  keyframes:
+  - t: 0
+    translate: [0.0, 1.2, 0.0]
+    rotate: [0, 0, 0]
+    scale: [0.10200000000000001, 0.016000000000000004, 1]
+    alpha: 0.0
+  - t: 1
+    translate: [0.0, 1.2, 0.0]
+    rotate: [0, 0, 0]
+    scale: [0.884, 0.20800000000000002, 1]
+    ease: out_expo
+    alpha: 0.7
+  - t: 6
+    translate: [0.0, 1.2, 0.0]
+    rotate: [0, 0, 0]
+    scale: [1.1440000000000001, 0.008, 1]
+    ease: in_quad
+    alpha: 0.0
+- id: star-1
+  kind: {type: sprite, sprite: couture-s2-feather, frame_ticks: 1, loop: false, see_through: true}
+  billboard: center
+  brightness: 15
+  start_tick: 0
+  end_tick: 6
+  keyframes:
+  - t: 0
+    translate: [0.0, 1.2, 0.0]
+    rotate: [0, 0, 45]
+    scale: [0.10200000000000001, 0.016000000000000004, 1]
+    alpha: 0.0
+  - t: 1
+    translate: [0.0, 1.2, 0.0]
+    rotate: [0, 0, 45]
+    scale: [0.884, 0.20800000000000002, 1]
+    ease: out_expo
+    alpha: 0.7
+  - t: 6
+    translate: [0.0, 1.2, 0.0]
+    rotate: [0, 0, 45]
+    scale: [1.1440000000000001, 0.008, 1]
+    ease: in_quad
+    alpha: 0.0
+- id: star-2
+  kind: {type: sprite, sprite: couture-s2-feather, frame_ticks: 1, loop: false, see_through: true}
+  billboard: center
+  brightness: 15
+  start_tick: 0
+  end_tick: 6
+  keyframes:
+  - t: 0
+    translate: [0.0, 1.2, 0.0]
+    rotate: [0, 0, 90]
+    scale: [0.10200000000000001, 0.016000000000000004, 1]
+    alpha: 0.0
+  - t: 1
+    translate: [0.0, 1.2, 0.0]
+    rotate: [0, 0, 90]
+    scale: [0.884, 0.20800000000000002, 1]
+    ease: out_expo
+    alpha: 0.7
+  - t: 6
+    translate: [0.0, 1.2, 0.0]
+    rotate: [0, 0, 90]
+    scale: [1.1440000000000001, 0.008, 1]
+    ease: in_quad
+    alpha: 0.0
+- id: star-3
+  kind: {type: sprite, sprite: couture-s2-feather, frame_ticks: 1, loop: false, see_through: true}
+  billboard: center
+  brightness: 15
+  start_tick: 0
+  end_tick: 6
+  keyframes:
+  - t: 0
+    translate: [0.0, 1.2, 0.0]
+    rotate: [0, 0, 135]
+    scale: [0.10200000000000001, 0.016000000000000004, 1]
+    alpha: 0.0
+  - t: 1
+    translate: [0.0, 1.2, 0.0]
+    rotate: [0, 0, 135]
+    scale: [0.884, 0.20800000000000002, 1]
+    ease: out_expo
+    alpha: 0.7
+  - t: 6
+    translate: [0.0, 1.2, 0.0]
+    rotate: [0, 0, 135]
+    scale: [1.1440000000000001, 0.008, 1]
+    ease: in_quad
+    alpha: 0.0
+- id: p-crit
+  kind: {type: particle, particle_id: couture-s2-p-crit, every_ticks: 3}
+  brightness: 15
+  start_tick: 0
+  end_tick: 2
+  keyframes:
+  - t: 0
+    translate: [0, 1.2, 0]
+- id: p-orange
+  kind: {type: particle, particle_id: couture-s2-p-orange, every_ticks: 1}
+  brightness: 15
+  start_tick: 0
+  end_tick: 3
+  keyframes:
+  - t: 0
+    translate: [0, 1.2, 0]
+- id: p-petal
+  kind: {type: particle, particle_id: couture-s2-p-petal, every_ticks: 4}
+  brightness: 15
+  start_tick: 1
+  end_tick: 8
+  keyframes:
+  - t: 0
+    translate: [0, 1.8, 0]
+- id: p-spark
+  kind: {type: particle, particle_id: couture-s2-p-spark, every_ticks: 3}
+  brightness: 15
+  start_tick: 0
+  end_tick: 4
+  keyframes:
+  - t: 0
+    translate: [0, 1.2, 0]
+- id: ps-orange-0
+  kind: {type: particle, particle_id: couture-s2-p-orange, every_ticks: 1}
+  brightness: 15
+  start_tick: 0
+  end_tick: 3
+  keyframes:
+  - t: 0
+    translate: [0.0, 1.2, 0.0]
+- id: ps-orange-1
+  kind: {type: particle, particle_id: couture-s2-p-orange, every_ticks: 1}
+  brightness: 15
+  start_tick: 0
+  end_tick: 3
+  keyframes:
+  - t: 0
+    translate: [0.36, 1.46, 0.0]
+- id: ps-orange-2
+  kind: {type: particle, particle_id: couture-s2-p-orange, every_ticks: 1}
+  brightness: 15
+  start_tick: 0
+  end_tick: 3
+  keyframes:
+  - t: 0
+    translate: [-0.36, 0.94, 0.0]
+- id: ps-orange-3
+  kind: {type: particle, particle_id: couture-s2-p-orange, every_ticks: 1}
+  brightness: 15
+  start_tick: 0
+  end_tick: 3
+  keyframes:
+  - t: 0
+    translate: [0.68, 1.68, 0.0]
+- id: ps-orange-4
+  kind: {type: particle, particle_id: couture-s2-p-orange, every_ticks: 1}
+  brightness: 15
+  start_tick: 0
+  end_tick: 3
+  keyframes:
+  - t: 0
+    translate: [-0.68, 0.72, 0.0]
+- id: p-crit2
+  kind: {type: particle, particle_id: couture-s2-p-crit, every_ticks: 3}
+  brightness: 15
+  start_tick: 0
+  end_tick: 3
+  keyframes:
+  - t: 0
+    translate: [0.3, 1.4, 0.0]
+- id: p-petal2
+  kind: {type: particle, particle_id: couture-s2-p-petal, every_ticks: 3}
+  brightness: 15
+  start_tick: 1
+  end_tick: 9
+  keyframes:
+  - t: 0
+    translate: [0.4, 1.2, 0.4]

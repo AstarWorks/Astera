@@ -60,15 +60,25 @@ elapsed() { awk -v a="$1" -v b="$(now)" 'BEGIN { printf "%.1fs", b - a }'; }
 # ---- reload verification ---------------------------------------------------------------------------------
 # A rejected reload ("Reload aborted: one or more files failed to parse") keeps the OLD content running, and
 # rcon-cli still exits 0. Every path that reloads or boots content checks the reply / server log and fails loudly.
-FAIL_PATTERN='Reload aborted|aborted|failed|error|exception|unknown|cannot|could not|not found'
+# The server replies in the active locale (en or ja, content/languages/*.yaml): keep both phrasings in sync.
+FAIL_PATTERN='Reload aborted|aborted|failed|error|exception|unknown|cannot|could not|not found|中止|中断|失敗|不明|できません|読み込めません|見つかりません'
+RELOAD_OK='Reloaded all.|再読み込みしました'
 LOG_EXCERPT_PATTERN='Failed to load content from|Reload aborted|Content validation failed|[0-9]+ failed \(dir=|ERROR|Exception'
 
-# reply_ok <ok-substring> <reply>: success only when the reply holds the expected text and no failure marker.
+# reply_ok <ok-substring[|alt...]> <reply>: success only when the reply holds one of the `|`-separated expected
+# texts (en/ja alternatives) and no failure marker outside them.
 reply_ok() {
-  local expected=$1 reply=$2
+  local expected=$1 reply=$2 alt rest found=1
+  local -a alts
   [ -n "$reply" ] || return 1
-  [[ "$reply" == *"$expected"* ]] || return 1
-  if grep -Eiq "$FAIL_PATTERN" <<<"${reply//$expected/}"; then return 1; fi
+  IFS='|' read -ra alts <<<"$expected"
+  rest=$reply
+  for alt in "${alts[@]}"; do
+    [ -n "$alt" ] || continue
+    if [[ "$reply" == *"$alt"* ]]; then found=0; rest=${rest//$alt/}; fi
+  done
+  [ "$found" = 0 ] || return 1
+  if grep -Eiq "$FAIL_PATTERN" <<<"$rest"; then return 1; fi
   return 0
 }
 
@@ -94,12 +104,12 @@ die_loud() {
   exit 1
 }
 
-# Reload content on $1 and require "Reloaded all."; otherwise exit non-zero with the log excerpt.
+# Reload content on $1 and require "Reloaded all." (or the ja reply); otherwise exit non-zero with the log excerpt.
 reload_checked() {
   local svc=$1 out
   out=$(rcon "$svc" "astera admin reload all")
   log "$svc: reload: ${out:-<no output>}"
-  reply_ok "Reloaded all." "$out" || die_loud "$svc" "content reload was not a success" "$out" "$(log_excerpt "$svc")"
+  reply_ok "$RELOAD_OK" "$out" || die_loud "$svc" "content reload was not a success" "$out" "$(log_excerpt "$svc")"
 }
 
 # Boot-time content failures (plugins/hotswap/deploy restarts) show only in the log: scan it since $2.
@@ -134,14 +144,19 @@ deploy_summary() {
 selftest() {
   local n=0 bad=0 r
   t() { n=$((n+1)); if reply_ok "$1" "$2"; then r=ok; else r=fail; fi; [ "$r" = "$3" ] || { echo "selftest #$n FAILED: expected $3 got $r for: $2" >&2; bad=$((bad+1)); }; }
-  t "Reloaded all." "Reloaded all." ok
-  t "Reloaded all." "Reloaded all. (28 categories)" ok
-  t "Reloaded all." "Reload aborted: one or more files failed to parse. Previous state preserved; check server log." fail
-  t "Reloaded all." "Reload of category 'particles' aborted; previous state preserved." fail
-  t "Reloaded all." "" fail
-  t "Reloaded all." "Unknown command" fail
+  t "$RELOAD_OK" "Reloaded all." ok
+  t "$RELOAD_OK" "all を再読み込みしました。" ok
+  t "$RELOAD_OK" "reload を中止しました。一部 YAML がパースに失敗しています。直前の状態は保持されています。" fail
+  t "$RELOAD_OK" "カテゴリ 'particles' のリロードが中断されました。" fail
+  t "$RELOAD_OK" "Reloaded all. (28 categories)" ok
+  t "$RELOAD_OK" "Reload aborted: one or more files failed to parse. Previous state preserved; check server log." fail
+  t "$RELOAD_OK" "Reload of category 'particles' aborted; previous state preserved." fail
+  t "$RELOAD_OK" "" fail
+  t "$RELOAD_OK" "Unknown command" fail
   t "Resource pack 1a2b3c4d" "Resource pack 1a2b3c4d re-pushed to 2 players" ok
   t "Resource pack 1a2b3c4d" "Resource pack hash unchanged" fail
+  t "リソースパック 1a2b3c4d" "リソースパック 1a2b3c4d（変更: 2）を 2 人へ再送信しました。" ok
+  t "リソースパック 1a2b3c4d" "リソースパックを読み込めません（ASTERA_RESOURCE_PACK_URL 未設定）。" fail
   echo "selftest: $n cases, $bad failed"
   [ "$bad" = 0 ]
 }

@@ -1,0 +1,14 @@
+# orange spark #FF9B3A
+id: couture-s2-p-orange
+shape: {kind: burst, spread_blocks: 0.2}
+color: {r: 255, g: 155, b: 58}
+count: 6
+lifetime_ticks: 8
+vanilla_particle: dust
+data:
+  kind: dust
+  color: {r: 255, g: 155, b: 58}
+  scale: 1.1
+speed: 0.0
+velocity: {direction: outward, speed: 0.3, spread_degrees: 0, speed_jitter: 0.5}
+force: true

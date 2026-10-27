@@ -1,8 +1,10 @@
-# Zwei West Section 3 Ishmael, Ward (video 18.9-23.7): backhand sweep, floor scrape, dash-thrust, upright planted slam. Rebuilt from fresh
-# observation (tools/skill-compare/data/bastion-greatsword-s3/notes.md). Caster movement: 3-tick dash that closes the gap to about 1.5 blocks.
+# Zwei West Section 3 Ward (video 18.9-23.7): ring, floor drag, dash-thrust, overhead slam. Built on the S2 pattern (beat sheet r2 gate 1 passed: tools/skill-compare/data/bastion-greatsword-s3/beat-sheet/beat-sheet.md).
+# ONE rig (bastion-s3-rig, real main-hand stack) with freezes at the contacts 10 / 40 / 63. Fx: ring played at 6 (contact = effect tick 4 = t10), scrape 27, dash 37, thrust 36 (contact t40), slam 59 (contact t63), pillar 63 (peak t66-68). Every VFX follows the caster.
+# Hit areas = the visual reach: ring = radius 3.0 gold crescent round the caster; thrust = forward cone 50 deg / 3.6 (the horizontal blade beam); slam = forward cone 90 deg / 3.6 (overhead crescent + pillar). Navy streaks are afterimages with no hit.
+# Travel: 5.4 block hard-stop dash t37-39 (founder Q3), stop_before_target small (0.7) so the full step happens. Sounds: all vanilla, layered and pitched low; contact 3 is the heaviest stack. Charge: +0.5 per stack on every hit, spent by the slam.
 id: bastion-greatsword-s3
 name: {ja: 巨剣墜つ, en: Colossus Fall}
-description: {ja: 背負った巨剣で薙ぎ、引きずって突進で貫き、立てて叩きつける三連の奥義。溜めを消費して最後の一撃が重くなる。, en: 'Backhand sweep, drag the blade, dash through, then plant it upright. Spends charge for the final blow.'}
+description: {ja: 背負った巨剣で輪を描いて薙ぎ、床を引きずって突進で貫き、頭上から叩きつける三連の奥義。溜めを消費して最後の一撃が重くなる。, en: 'Sweep a ring with the shouldered blade, drag it, dash through, then slam it down from overhead. Spends charge for the final blow.'}
 archetype: sequence
 cooldown_ticks: 300
 resource_cost: 50
@@ -11,279 +13,431 @@ params: {type: sequence}
 phases:
   type: sequence
   cast:
-  - type: hide_held_item
-    targets: {type: caster}
-    ticks: {type: literal, value: 84}
-  - type: play_sound
-    targets: {type: caster}
-    sound_id: item.armor.equip_netherite
-    pitch: {type: literal, value: 0.6}
   - type: play_vfx
     targets: {type: caster}
-    vfx_id: bastion-sweep-back
-    delay_ticks: {type: literal, value: 4}
+    vfx_id: bastion-s3-rig
+    freeze:
+    - {at: 10, ticks: 2}
+    - {at: 40, ticks: 2}
+    - {at: 63, ticks: 3}
+  - type: play_vfx
+    targets: {type: caster}
+    vfx_id: bastion-s3-fx-ring
+    delay_ticks: {type: literal, value: 6}
+  - type: play_vfx
+    targets: {type: caster}
+    vfx_id: bastion-s3-fx-scrape
+    delay_ticks: {type: literal, value: 27}
+  - type: play_vfx
+    targets: {type: caster}
+    vfx_id: bastion-s3-fx-dash
+    delay_ticks: {type: literal, value: 37}
+  - type: play_vfx
+    targets: {type: caster}
+    vfx_id: bastion-s3-fx-thrust
+    delay_ticks: {type: literal, value: 37}
+  - type: play_vfx
+    targets: {type: caster}
+    vfx_id: bastion-s3-fx-slam
+    delay_ticks: {type: literal, value: 60}
+  - type: play_vfx
+    targets: {type: caster}
+    vfx_id: bastion-s3-fx-pillar
+    delay_ticks: {type: literal, value: 63}
+  - type: play_sound
+    targets: {type: caster}
+    sound_id: block.gravel.step
+    volume: {type: literal, value: 1.0}
+    pitch: {type: literal, value: 0.6}
+    delay_ticks: {type: literal, value: 0}
+  - type: play_sound
+    targets: {type: caster}
+    sound_id: entity.ravager.step
+    volume: {type: literal, value: 0.6}
+    pitch: {type: literal, value: 0.8}
+    delay_ticks: {type: literal, value: 0}
+  - type: play_sound
+    targets: {type: caster}
+    sound_id: item.armor.equip_chain
+    volume: {type: literal, value: 0.8}
+    pitch: {type: literal, value: 0.7}
+    delay_ticks: {type: literal, value: 2}
   - type: play_sound
     targets: {type: caster}
     sound_id: entity.player.attack.sweep
-    pitch: {type: literal, value: 0.75}
-    delay_ticks: {type: literal, value: 6}
-  - type: damage
-    targets:
-      type: cone
-      from: {type: caster}
-      direction: {type: from_caster}
-      distance: {type: literal, value: 4.8}
-      angle_degrees: {type: literal, value: 110}
-      max_count: 1
-    components:
-    - base: {type: literal, value: 4.5}
-      attribute: physical
-      per_stack: {status_id: charge, amount: 0.4, 'on': caster, consume: false}
-    ignore_invulnerability: {type: literal, value: true}
-    delay_ticks: {type: literal, value: 10}
-  - type: spawn_particle
-    targets:
-      type: cone
-      from: {type: caster}
-      direction: {type: from_caster}
-      distance: {type: literal, value: 4.8}
-      angle_degrees: {type: literal, value: 110}
-      max_count: 1
-    particle_id: bastion-s3-hit-crit
-    delay_ticks: {type: literal, value: 10}
-  - type: hit_stop
-    targets:
-      type: cone
-      from: {type: caster}
-      direction: {type: from_caster}
-      distance: {type: literal, value: 4.8}
-      angle_degrees: {type: literal, value: 110}
-      max_count: 1
-    ticks: 2
-    include_caster: true
+    volume: {type: literal, value: 1.0}
+    pitch: {type: literal, value: 0.5}
+    delay_ticks: {type: literal, value: 8}
+  - type: play_sound
+    targets: {type: caster}
+    sound_id: item.trident.throw
+    volume: {type: literal, value: 0.7}
+    pitch: {type: literal, value: 0.6}
+    delay_ticks: {type: literal, value: 8}
+  - type: play_sound
+    targets: {type: caster}
+    sound_id: item.mace.smash_ground_heavy
+    volume: {type: literal, value: 1.0}
+    pitch: {type: literal, value: 0.9}
     delay_ticks: {type: literal, value: 10}
   - type: play_sound
     targets: {type: caster}
-    sound_id: entity.player.attack.strong
+    sound_id: block.anvil.land
+    volume: {type: literal, value: 0.8}
+    pitch: {type: literal, value: 0.6}
     delay_ticks: {type: literal, value: 10}
-  - type: play_vfx
+  - type: play_sound
     targets: {type: caster}
-    vfx_id: bastion-scrape
-    delay_ticks: {type: literal, value: 26}
+    sound_id: entity.player.attack.crit
+    volume: {type: literal, value: 1.0}
+    pitch: {type: literal, value: 0.8}
+    delay_ticks: {type: literal, value: 10}
+  - type: play_sound
+    targets: {type: caster}
+    sound_id: item.armor.equip_netherite
+    volume: {type: literal, value: 0.9}
+    pitch: {type: literal, value: 0.6}
+    delay_ticks: {type: literal, value: 11}
+  - type: play_sound
+    targets: {type: caster}
+    sound_id: block.chain.place
+    volume: {type: literal, value: 0.8}
+    pitch: {type: literal, value: 0.6}
+    delay_ticks: {type: literal, value: 11}
+  - type: play_sound
+    targets: {type: caster}
+    sound_id: item.armor.equip_iron
+    volume: {type: literal, value: 0.8}
+    pitch: {type: literal, value: 0.8}
+    delay_ticks: {type: literal, value: 21}
+  - type: play_sound
+    targets: {type: caster}
+    sound_id: item.armor.equip_chain
+    volume: {type: literal, value: 0.7}
+    pitch: {type: literal, value: 0.7}
+    delay_ticks: {type: literal, value: 24}
+  - type: play_sound
+    targets: {type: caster}
+    sound_id: block.chain.place
+    volume: {type: literal, value: 0.6}
+    pitch: {type: literal, value: 0.5}
+    delay_ticks: {type: literal, value: 25}
+  - type: play_sound
+    targets: {type: caster}
+    sound_id: item.armor.equip_iron
+    volume: {type: literal, value: 0.6}
+    pitch: {type: literal, value: 0.6}
+    delay_ticks: {type: literal, value: 29}
   - type: play_sound
     targets: {type: caster}
     sound_id: block.grindstone.use
-    volume: {type: literal, value: 0.5}
-    pitch: {type: literal, value: 1.4}
+    volume: {type: literal, value: 0.7}
+    pitch: {type: literal, value: 0.6}
     delay_ticks: {type: literal, value: 28}
   - type: play_sound
     targets: {type: caster}
-    sound_id: block.grindstone.use
-    volume: {type: literal, value: 0.5}
-    pitch: {type: literal, value: 1.4}
-    delay_ticks: {type: literal, value: 32}
+    sound_id: block.chain.step
+    volume: {type: literal, value: 0.7}
+    pitch: {type: literal, value: 0.5}
+    delay_ticks: {type: literal, value: 31}
   - type: play_sound
     targets: {type: caster}
     sound_id: block.grindstone.use
-    volume: {type: literal, value: 0.5}
-    pitch: {type: literal, value: 1.4}
-    delay_ticks: {type: literal, value: 36}
-  - type: play_vfx
+    volume: {type: literal, value: 0.7}
+    pitch: {type: literal, value: 0.5}
+    delay_ticks: {type: literal, value: 34}
+  - type: play_sound
     targets: {type: caster}
-    vfx_id: bastion-dash
+    sound_id: item.armor.equip_chain
+    volume: {type: literal, value: 0.9}
+    pitch: {type: literal, value: 0.6}
+    delay_ticks: {type: literal, value: 35}
+  - type: play_sound
+    targets: {type: caster}
+    sound_id: item.trident.throw
+    volume: {type: literal, value: 0.9}
+    pitch: {type: literal, value: 0.5}
     delay_ticks: {type: literal, value: 37}
   - type: play_sound
     targets: {type: caster}
-    sound_id: item.trident.riptide_1
+    sound_id: entity.player.attack.sweep
+    volume: {type: literal, value: 1.0}
+    pitch: {type: literal, value: 0.5}
+    delay_ticks: {type: literal, value: 37}
+  - type: play_sound
+    targets: {type: caster}
+    sound_id: entity.ravager.step
     volume: {type: literal, value: 0.8}
-    pitch: {type: literal, value: 1.2}
-    delay_ticks: {type: literal, value: 37}
-  - type: dash_strike
-    distance: 3.6
-    ticks: 3
-    radius: 0.3
-    hit_once: true
-    invulnerable: true
-    stop_on_block: true
-    follow_pitch: false
-    on_hit: []
-    stop_before_target: 1.5
-    delay_ticks: {type: literal, value: 37}
-  - type: play_vfx
+    pitch: {type: literal, value: 0.6}
+    delay_ticks: {type: literal, value: 38}
+  - type: play_sound
     targets: {type: caster}
-    vfx_id: bastion-thrust
+    sound_id: item.mace.smash_ground_heavy
+    volume: {type: literal, value: 1.0}
+    pitch: {type: literal, value: 0.8}
     delay_ticks: {type: literal, value: 40}
-  - type: damage
-    targets:
-      type: cone
-      from: {type: caster}
-      direction: {type: from_caster}
-      distance: {type: literal, value: 3.2}
-      angle_degrees: {type: literal, value: 110}
-      max_count: 1
-    components:
-    - base: {type: literal, value: 4.5}
-      attribute: physical
-      per_stack: {status_id: charge, amount: 0.4, 'on': caster, consume: false}
-    ignore_invulnerability: {type: literal, value: true}
-    delay_ticks: {type: literal, value: 40}
-  - type: spawn_particle
-    targets:
-      type: cone
-      from: {type: caster}
-      direction: {type: from_caster}
-      distance: {type: literal, value: 3.2}
-      angle_degrees: {type: literal, value: 110}
-      max_count: 1
-    particle_id: bastion-s3-hit-crit
-    delay_ticks: {type: literal, value: 40}
-  - type: hit_stop
-    targets:
-      type: cone
-      from: {type: caster}
-      direction: {type: from_caster}
-      distance: {type: literal, value: 3.2}
-      angle_degrees: {type: literal, value: 110}
-      max_count: 1
-    ticks: 2
-    include_caster: true
+  - type: play_sound
+    targets: {type: caster}
+    sound_id: block.anvil.land
+    volume: {type: literal, value: 0.9}
+    pitch: {type: literal, value: 0.5}
     delay_ticks: {type: literal, value: 40}
   - type: play_sound
     targets: {type: caster}
     sound_id: entity.player.attack.crit
+    volume: {type: literal, value: 1.0}
+    pitch: {type: literal, value: 0.7}
     delay_ticks: {type: literal, value: 40}
-  - type: screen_flash
-    targets: {type: caster}
-    overlay: speed_diag
-    color: '#FFFFFF'
-    fade_in: {type: literal, value: 0}
-    stay: {type: literal, value: 1}
-    fade_out: {type: literal, value: 0}
-    delay_ticks: {type: literal, value: 40}
-  - type: screen_flash
-    targets:
-      type: nearby_entities
-      center: {type: caster}
-      radius: {type: literal, value: 5.0}
-      exclude_caster: true
-    overlay: speed_diag
-    color: '#FFFFFF'
-    fade_in: {type: literal, value: 0}
-    stay: {type: literal, value: 1}
-    fade_out: {type: literal, value: 0}
-    delay_ticks: {type: literal, value: 40}
-  - type: screen_flash
-    targets: {type: caster}
-    overlay: gold_burst
-    color: '#FFC84A'
-    fade_in: {type: literal, value: 0}
-    stay: {type: literal, value: 1}
-    fade_out: {type: literal, value: 0}
-    delay_ticks: {type: literal, value: 41}
-  - type: screen_flash
-    targets:
-      type: nearby_entities
-      center: {type: caster}
-      radius: {type: literal, value: 5.0}
-      exclude_caster: true
-    overlay: gold_burst
-    color: '#FFC84A'
-    fade_in: {type: literal, value: 0}
-    stay: {type: literal, value: 1}
-    fade_out: {type: literal, value: 0}
-    delay_ticks: {type: literal, value: 41}
-  - type: play_vfx
-    targets: {type: caster}
-    vfx_id: bastion-pillar
-    delay_ticks: {type: literal, value: 59}
   - type: play_sound
     targets: {type: caster}
-    sound_id: item.trident.return
+    sound_id: item.armor.equip_netherite
+    volume: {type: literal, value: 0.9}
+    pitch: {type: literal, value: 0.5}
+    delay_ticks: {type: literal, value: 41}
+  - type: play_sound
+    targets: {type: caster}
+    sound_id: block.chain.place
     volume: {type: literal, value: 0.8}
+    pitch: {type: literal, value: 0.5}
+    delay_ticks: {type: literal, value: 41}
+  - type: play_sound
+    targets: {type: caster}
+    sound_id: item.armor.equip_iron
+    volume: {type: literal, value: 0.9}
+    pitch: {type: literal, value: 0.6}
+    delay_ticks: {type: literal, value: 50}
+  - type: play_sound
+    targets: {type: caster}
+    sound_id: item.armor.equip_chain
+    volume: {type: literal, value: 0.7}
+    pitch: {type: literal, value: 0.6}
+    delay_ticks: {type: literal, value: 51}
+  - type: play_sound
+    targets: {type: caster}
+    sound_id: entity.player.attack.sweep
+    volume: {type: literal, value: 1.0}
+    pitch: {type: literal, value: 0.5}
+    delay_ticks: {type: literal, value: 62}
+  - type: play_sound
+    targets: {type: caster}
+    sound_id: item.trident.throw
+    volume: {type: literal, value: 0.8}
+    pitch: {type: literal, value: 0.5}
+    delay_ticks: {type: literal, value: 62}
+  - type: play_sound
+    targets: {type: caster}
+    sound_id: item.mace.smash_ground_heavy
+    volume: {type: literal, value: 1.0}
     pitch: {type: literal, value: 0.7}
-    delay_ticks: {type: literal, value: 52}
+    delay_ticks: {type: literal, value: 63}
+  - type: play_sound
+    targets: {type: caster}
+    sound_id: block.anvil.land
+    volume: {type: literal, value: 1.0}
+    pitch: {type: literal, value: 0.5}
+    delay_ticks: {type: literal, value: 63}
+  - type: play_sound
+    targets: {type: caster}
+    sound_id: entity.player.attack.crit
+    volume: {type: literal, value: 1.0}
+    pitch: {type: literal, value: 0.6}
+    delay_ticks: {type: literal, value: 63}
+  - type: play_sound
+    targets: {type: caster}
+    sound_id: entity.generic.explode
+    volume: {type: literal, value: 0.8}
+    pitch: {type: literal, value: 0.6}
+    delay_ticks: {type: literal, value: 64}
+  - type: play_sound
+    targets: {type: caster}
+    sound_id: item.armor.equip_netherite
+    volume: {type: literal, value: 1.0}
+    pitch: {type: literal, value: 0.5}
+    delay_ticks: {type: literal, value: 64}
+  - type: play_sound
+    targets: {type: caster}
+    sound_id: block.chain.place
+    volume: {type: literal, value: 0.9}
+    pitch: {type: literal, value: 0.5}
+    delay_ticks: {type: literal, value: 64}
+  - type: play_sound
+    targets: {type: caster}
+    sound_id: entity.lightning_bolt.impact
+    volume: {type: literal, value: 0.5}
+    pitch: {type: literal, value: 1.6}
+    delay_ticks: {type: literal, value: 66}
+  - type: play_sound
+    targets: {type: caster}
+    sound_id: block.beacon.activate
+    volume: {type: literal, value: 0.6}
+    pitch: {type: literal, value: 1.2}
+    delay_ticks: {type: literal, value: 66}
+  - type: play_sound
+    targets: {type: caster}
+    sound_id: item.armor.equip_iron
+    volume: {type: literal, value: 0.8}
+    pitch: {type: literal, value: 0.6}
+    delay_ticks: {type: literal, value: 76}
+  - type: dash_strike
+    distance: 5.4
+    ticks: 3
+    radius: 0.5
+    hit_once: true
+    stop_on_block: true
+    follow_pitch: false
+    on_hit: []
+    stop_before_target: 0.7
+    delay_ticks: {type: literal, value: 37}
+  - type: damage
+    targets: {type: enemies, center: {type: caster}, radius: {type: literal, value: 3.0}}
+    components:
+    - base: {type: literal, value: 7}
+      attribute: physical
+      per_stack: {status_id: charge, amount: 0.5, 'on': caster, consume: false}
+    ignore_invulnerability: {type: literal, value: true}
+    delay_ticks: {type: literal, value: 10}
+  - type: hit_stop
+    targets: {type: enemies, center: {type: caster}, radius: {type: literal, value: 3.0}}
+    ticks: 2
+    include_caster: true
+    delay_ticks: {type: literal, value: 10}
+  - type: knockback
+    targets: {type: enemies, center: {type: caster}, radius: {type: literal, value: 3.0}}
+    direction: {type: away_from_caster, vertical: 0.2}
+    strength: {type: literal, value: 0.4}
+    delay_ticks: {type: literal, value: 10}
   - type: damage
     targets:
       type: cone
       from: {type: caster}
       direction: {type: from_caster}
-      distance: {type: literal, value: 3.2}
-      angle_degrees: {type: literal, value: 110}
-      max_count: 1
+      distance: {type: literal, value: 3.6}
+      angle_degrees: {type: literal, value: 50}
     components:
-    - base: {type: literal, value: 8}
+    - base: {type: literal, value: 9}
       attribute: physical
-      per_stack: {status_id: charge, amount: 0.6, 'on': caster, consume: true}
+      per_stack: {status_id: charge, amount: 0.5, 'on': caster, consume: false}
     ignore_invulnerability: {type: literal, value: true}
-    delay_ticks: {type: literal, value: 63}
-  - type: spawn_particle
-    targets:
-      type: cone
-      from: {type: caster}
-      direction: {type: from_caster}
-      distance: {type: literal, value: 3.2}
-      angle_degrees: {type: literal, value: 110}
-      max_count: 1
-    particle_id: bastion-s3-hit-crit
-    delay_ticks: {type: literal, value: 63}
+    delay_ticks: {type: literal, value: 41}
   - type: hit_stop
     targets:
       type: cone
       from: {type: caster}
       direction: {type: from_caster}
-      distance: {type: literal, value: 3.2}
-      angle_degrees: {type: literal, value: 110}
-      max_count: 1
-    ticks: 4
+      distance: {type: literal, value: 3.6}
+      angle_degrees: {type: literal, value: 50}
+    ticks: 2
     include_caster: true
-    delay_ticks: {type: literal, value: 63}
-  - type: play_sound
-    targets: {type: caster}
-    sound_id: block.anvil.land
-    pitch: {type: literal, value: 0.5}
-    delay_ticks: {type: literal, value: 63}
+    delay_ticks: {type: literal, value: 41}
   - type: knockback
     targets:
       type: cone
       from: {type: caster}
       direction: {type: from_caster}
-      distance: {type: literal, value: 3.2}
-      angle_degrees: {type: literal, value: 110}
-      max_count: 1
-    direction: {type: away_from_caster, vertical: 0.1}
-    strength: {type: literal, value: 1.2}
-    delay_ticks: {type: literal, value: 63}
+      distance: {type: literal, value: 3.6}
+      angle_degrees: {type: literal, value: 50}
+    direction: {type: away_from_caster, vertical: 0.2}
+    strength: {type: literal, value: 0.6}
+    delay_ticks: {type: literal, value: 41}
+  - type: damage
+    targets:
+      type: cone
+      from: {type: caster}
+      direction: {type: from_caster}
+      distance: {type: literal, value: 3.6}
+      angle_degrees: {type: literal, value: 90}
+    components:
+    - base: {type: literal, value: 14}
+      attribute: physical
+      per_stack: {status_id: charge, amount: 0.5, 'on': caster, consume: true}
+    ignore_invulnerability: {type: literal, value: true}
+    delay_ticks: {type: literal, value: 64}
+  - type: hit_stop
+    targets:
+      type: cone
+      from: {type: caster}
+      direction: {type: from_caster}
+      distance: {type: literal, value: 3.6}
+      angle_degrees: {type: literal, value: 90}
+    ticks: 3
+    include_caster: true
+    delay_ticks: {type: literal, value: 64}
+  - type: knockback
+    targets:
+      type: cone
+      from: {type: caster}
+      direction: {type: from_caster}
+      distance: {type: literal, value: 3.6}
+      angle_degrees: {type: literal, value: 90}
+    direction: {type: away_from_caster, vertical: 0.2}
+    strength: {type: literal, value: 1.5}
+    delay_ticks: {type: literal, value: 72}
   - type: camera_shake
     targets:
       type: nearby_entities
       center: {type: caster}
       radius: {type: literal, value: 9.0}
       exclude_caster: true
-    intensity: {type: literal, value: 0.9}
+    intensity: {type: literal, value: 0.8}
     ticks: {type: literal, value: 8}
-    delay_ticks: {type: literal, value: 63}
+    delay_ticks: {type: literal, value: 64}
   - type: screen_flash
     targets: {type: caster}
     overlay: gold_burst
-    color: '#FFC84A'
+    color: '#FF9A1E'
     fade_in: {type: literal, value: 0}
-    stay: {type: literal, value: 2}
-    fade_out: {type: literal, value: 2}
-    delay_ticks: {type: literal, value: 63}
+    stay: {type: literal, value: 1}
+    fade_out: {type: literal, value: 1}
+    delay_ticks: {type: literal, value: 41}
   - type: screen_flash
-    targets:
+    targets: {type: caster}
+    overlay: gold_burst
+    color: '#FFF3C4'
+    fade_in: {type: literal, value: 0}
+    stay: {type: literal, value: 1}
+    fade_out: {type: literal, value: 0}
+    delay_ticks: {type: literal, value: 64}
+  - type: screen_flash
+    targets: {type: caster}
+    overlay: vignette
+    color: '#000000'
+    fade_in: {type: literal, value: 0}
+    stay: {type: literal, value: 1}
+    fade_out: {type: literal, value: 1}
+    delay_ticks: {type: literal, value: 65}
+  - type: screen_flash
+    targets: 
       type: nearby_entities
       center: {type: caster}
-      radius: {type: literal, value: 5.0}
+      radius: {type: literal, value: 12.0}
       exclude_caster: true
     overlay: gold_burst
-    color: '#FFC84A'
+    color: '#FF9A1E'
     fade_in: {type: literal, value: 0}
-    stay: {type: literal, value: 2}
-    fade_out: {type: literal, value: 2}
-    delay_ticks: {type: literal, value: 63}
-  - type: play_sound
-    targets: {type: caster}
-    sound_id: entity.generic.explode
-    pitch: {type: literal, value: 0.6}
-    delay_ticks: {type: literal, value: 63}
+    stay: {type: literal, value: 1}
+    fade_out: {type: literal, value: 1}
+    delay_ticks: {type: literal, value: 41}
+  - type: screen_flash
+    targets: 
+      type: nearby_entities
+      center: {type: caster}
+      radius: {type: literal, value: 12.0}
+      exclude_caster: true
+    overlay: gold_burst
+    color: '#FFF3C4'
+    fade_in: {type: literal, value: 0}
+    stay: {type: literal, value: 1}
+    fade_out: {type: literal, value: 0}
+    delay_ticks: {type: literal, value: 64}
+  - type: screen_flash
+    targets: 
+      type: nearby_entities
+      center: {type: caster}
+      radius: {type: literal, value: 12.0}
+      exclude_caster: true
+    overlay: vignette
+    color: '#000000'
+    fade_in: {type: literal, value: 0}
+    stay: {type: literal, value: 1}
+    fade_out: {type: literal, value: 1}
+    delay_ticks: {type: literal, value: 65}

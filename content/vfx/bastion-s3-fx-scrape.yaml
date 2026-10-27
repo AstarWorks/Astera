@@ -1,0 +1,447 @@
+# Bastion S3 beat 5 (video n41-56, skill t27-t37): orange sparks at the blade tip dragging on the floor behind the caster, 6 intermittent bursts at effect ticks 0,2,4,6,8,10.
+# Played at skill tick 27, caster-follow. Each burst = orange/dark ember dust + crit sparks + (chip | flame wisp) + a 2-tick orange flare + a floor streak. Alive sprite displays: at most 4 (flare + line, 2 ticks each, bursts are 2 ticks apart => at most 2 pairs overlap at the boundary; 12 spawned in total) (flare + line, 2 ticks each, bursts are 2 ticks apart).
+# r2: grey-square chips (block_crumble has no preview texture) removed; orange spark SPRITES (bastion-s1-spark, 5 intermittent bursts of 4) thrown off the blade tip.
+id: bastion-s3-fx-scrape
+duration_ticks: 13
+orient: yaw
+follow: true
+sample_ticks: 1
+elements:
+- id: s3s-p-spark-0
+  kind: {type: particle, particle_id: bastion-s3-p-spark-up, every_ticks: 1}
+  start_tick: 0
+  end_tick: 1
+  keyframes:
+  - t: 0
+    translate: [0.3, 0.08, -1.9]
+- id: s3s-p-orange-0
+  kind: {type: particle, particle_id: bastion-s3-p-spark-orange, every_ticks: 1}
+  start_tick: 0
+  end_tick: 1
+  keyframes:
+  - t: 0
+    translate: [0.3, 0.1, -1.85]
+- id: s3s-flare-0
+  kind: {type: sprite, sprite: bastion-s1-flare, frame_ticks: 1, loop: false, see_through: true, color: '#FF8A20'}
+  billboard: center
+  brightness: 15
+  start_tick: 0
+  end_tick: 2
+  keyframes:
+  - t: 0
+    translate: [0.3, 0.12, -1.9]
+    rotate: [0, 0, 0]
+    scale: [0.06, 0.06, 1]
+  - t: 1
+    translate: [0.3, 0.12, -1.9]
+    rotate: [0, 0, 0]
+    scale: [0.15, 0.15, 1]
+    ease: out_back
+- id: s3s-line-0
+  kind: {type: sprite, sprite: bastion-s1-streak, frame_ticks: 1, loop: false, see_through: true, color: '#FFB040'}
+  billboard: fixed
+  brightness: 15
+  start_tick: 0
+  end_tick: 2
+  keyframes:
+  - t: 0
+    translate: [0.3, 0.05, -1.7]
+    rotate: [-90, 0, 0]
+    scale: [0.05, 0.04, 1]
+  - t: 1
+    translate: [0.3, 0.05, -2]
+    rotate: [-90, 0, 0]
+    scale: [0.3, 0.05, 1]
+    ease: out_expo
+- id: s3s-p-spark-1
+  kind: {type: particle, particle_id: bastion-s3-p-spark-up, every_ticks: 1}
+  start_tick: 2
+  end_tick: 3
+  keyframes:
+  - t: 0
+    translate: [0.52, 0.08, -1.75]
+- id: s3s-p-orange-1
+  kind: {type: particle, particle_id: bastion-s3-p-spark-orange, every_ticks: 1}
+  start_tick: 2
+  end_tick: 3
+  keyframes:
+  - t: 0
+    translate: [0.52, 0.1, -1.7]
+- id: s3s-p-flame-1
+  kind: {type: particle, particle_id: bastion-s3-scrape-flame, every_ticks: 1}
+  start_tick: 2
+  end_tick: 3
+  keyframes:
+  - t: 0
+    translate: [0.52, 0.06, -1.75]
+- id: s3s-flare-1
+  kind: {type: sprite, sprite: bastion-s1-flare, frame_ticks: 1, loop: false, see_through: true, color: '#FF8A20'}
+  billboard: center
+  brightness: 15
+  start_tick: 2
+  end_tick: 4
+  keyframes:
+  - t: 0
+    translate: [0.52, 0.12, -1.75]
+    rotate: [0, 0, 0]
+    scale: [0.06, 0.06, 1]
+  - t: 1
+    translate: [0.52, 0.12, -1.75]
+    rotate: [0, 0, 0]
+    scale: [0.15, 0.15, 1]
+    ease: out_back
+- id: s3s-line-1
+  kind: {type: sprite, sprite: bastion-s1-streak, frame_ticks: 1, loop: false, see_through: true, color: '#FFB040'}
+  billboard: fixed
+  brightness: 15
+  start_tick: 2
+  end_tick: 4
+  keyframes:
+  - t: 0
+    translate: [0.52, 0.05, -1.55]
+    rotate: [-90, 0, 0]
+    scale: [0.05, 0.04, 1]
+  - t: 1
+    translate: [0.52, 0.05, -1.85]
+    rotate: [-90, 0, 0]
+    scale: [0.3, 0.05, 1]
+    ease: out_expo
+- id: s3s-p-spark-2
+  kind: {type: particle, particle_id: bastion-s3-p-spark-up, every_ticks: 1}
+  start_tick: 4
+  end_tick: 5
+  keyframes:
+  - t: 0
+    translate: [0.3, 0.08, -2.05]
+- id: s3s-p-orange-2
+  kind: {type: particle, particle_id: bastion-s3-p-spark-orange, every_ticks: 1}
+  start_tick: 4
+  end_tick: 5
+  keyframes:
+  - t: 0
+    translate: [0.3, 0.1, -2]
+- id: s3s-flare-2
+  kind: {type: sprite, sprite: bastion-s1-flare, frame_ticks: 1, loop: false, see_through: true, color: '#FF8A20'}
+  billboard: center
+  brightness: 15
+  start_tick: 4
+  end_tick: 6
+  keyframes:
+  - t: 0
+    translate: [0.3, 0.12, -2.05]
+    rotate: [0, 0, 0]
+    scale: [0.06, 0.06, 1]
+  - t: 1
+    translate: [0.3, 0.12, -2.05]
+    rotate: [0, 0, 0]
+    scale: [0.15, 0.15, 1]
+    ease: out_back
+- id: s3s-line-2
+  kind: {type: sprite, sprite: bastion-s1-streak, frame_ticks: 1, loop: false, see_through: true, color: '#FFB040'}
+  billboard: fixed
+  brightness: 15
+  start_tick: 4
+  end_tick: 6
+  keyframes:
+  - t: 0
+    translate: [0.3, 0.05, -1.85]
+    rotate: [-90, 0, 0]
+    scale: [0.05, 0.04, 1]
+  - t: 1
+    translate: [0.3, 0.05, -2.15]
+    rotate: [-90, 0, 0]
+    scale: [0.3, 0.05, 1]
+    ease: out_expo
+- id: s3s-p-spark-3
+  kind: {type: particle, particle_id: bastion-s3-p-spark-up, every_ticks: 1}
+  start_tick: 6
+  end_tick: 7
+  keyframes:
+  - t: 0
+    translate: [0.52, 0.08, -1.85]
+- id: s3s-p-orange-3
+  kind: {type: particle, particle_id: bastion-s3-p-spark-orange, every_ticks: 1}
+  start_tick: 6
+  end_tick: 7
+  keyframes:
+  - t: 0
+    translate: [0.52, 0.1, -1.8]
+- id: s3s-p-flame-3
+  kind: {type: particle, particle_id: bastion-s3-scrape-flame, every_ticks: 1}
+  start_tick: 6
+  end_tick: 7
+  keyframes:
+  - t: 0
+    translate: [0.52, 0.06, -1.85]
+- id: s3s-flare-3
+  kind: {type: sprite, sprite: bastion-s1-flare, frame_ticks: 1, loop: false, see_through: true, color: '#FF8A20'}
+  billboard: center
+  brightness: 15
+  start_tick: 6
+  end_tick: 8
+  keyframes:
+  - t: 0
+    translate: [0.52, 0.12, -1.85]
+    rotate: [0, 0, 0]
+    scale: [0.06, 0.06, 1]
+  - t: 1
+    translate: [0.52, 0.12, -1.85]
+    rotate: [0, 0, 0]
+    scale: [0.15, 0.15, 1]
+    ease: out_back
+- id: s3s-line-3
+  kind: {type: sprite, sprite: bastion-s1-streak, frame_ticks: 1, loop: false, see_through: true, color: '#FFB040'}
+  billboard: fixed
+  brightness: 15
+  start_tick: 6
+  end_tick: 8
+  keyframes:
+  - t: 0
+    translate: [0.52, 0.05, -1.65]
+    rotate: [-90, 0, 0]
+    scale: [0.05, 0.04, 1]
+  - t: 1
+    translate: [0.52, 0.05, -1.95]
+    rotate: [-90, 0, 0]
+    scale: [0.3, 0.05, 1]
+    ease: out_expo
+- id: s3s-p-spark-4
+  kind: {type: particle, particle_id: bastion-s3-p-spark-up, every_ticks: 1}
+  start_tick: 8
+  end_tick: 9
+  keyframes:
+  - t: 0
+    translate: [0.3, 0.08, -1.95]
+- id: s3s-p-orange-4
+  kind: {type: particle, particle_id: bastion-s3-p-spark-orange, every_ticks: 1}
+  start_tick: 8
+  end_tick: 9
+  keyframes:
+  - t: 0
+    translate: [0.3, 0.1, -1.9]
+- id: s3s-flare-4
+  kind: {type: sprite, sprite: bastion-s1-flare, frame_ticks: 1, loop: false, see_through: true, color: '#FF8A20'}
+  billboard: center
+  brightness: 15
+  start_tick: 8
+  end_tick: 10
+  keyframes:
+  - t: 0
+    translate: [0.3, 0.12, -1.95]
+    rotate: [0, 0, 0]
+    scale: [0.06, 0.06, 1]
+  - t: 1
+    translate: [0.3, 0.12, -1.95]
+    rotate: [0, 0, 0]
+    scale: [0.15, 0.15, 1]
+    ease: out_back
+- id: s3s-line-4
+  kind: {type: sprite, sprite: bastion-s1-streak, frame_ticks: 1, loop: false, see_through: true, color: '#FFB040'}
+  billboard: fixed
+  brightness: 15
+  start_tick: 8
+  end_tick: 10
+  keyframes:
+  - t: 0
+    translate: [0.3, 0.05, -1.75]
+    rotate: [-90, 0, 0]
+    scale: [0.05, 0.04, 1]
+  - t: 1
+    translate: [0.3, 0.05, -2.05]
+    rotate: [-90, 0, 0]
+    scale: [0.3, 0.05, 1]
+    ease: out_expo
+- id: s3s-p-spark-5
+  kind: {type: particle, particle_id: bastion-s3-p-spark-up, every_ticks: 1}
+  start_tick: 10
+  end_tick: 11
+  keyframes:
+  - t: 0
+    translate: [0.52, 0.08, -1.8]
+- id: s3s-p-orange-5
+  kind: {type: particle, particle_id: bastion-s3-p-spark-orange, every_ticks: 1}
+  start_tick: 10
+  end_tick: 11
+  keyframes:
+  - t: 0
+    translate: [0.52, 0.1, -1.75]
+- id: s3s-p-flame-5
+  kind: {type: particle, particle_id: bastion-s3-scrape-flame, every_ticks: 1}
+  start_tick: 10
+  end_tick: 11
+  keyframes:
+  - t: 0
+    translate: [0.52, 0.06, -1.8]
+- id: s3s-flare-5
+  kind: {type: sprite, sprite: bastion-s1-flare, frame_ticks: 1, loop: false, see_through: true, color: '#FF8A20'}
+  billboard: center
+  brightness: 15
+  start_tick: 10
+  end_tick: 12
+  keyframes:
+  - t: 0
+    translate: [0.52, 0.12, -1.8]
+    rotate: [0, 0, 0]
+    scale: [0.06, 0.06, 1]
+  - t: 1
+    translate: [0.52, 0.12, -1.8]
+    rotate: [0, 0, 0]
+    scale: [0.15, 0.15, 1]
+    ease: out_back
+- id: s3s-line-5
+  kind: {type: sprite, sprite: bastion-s1-streak, frame_ticks: 1, loop: false, see_through: true, color: '#FFB040'}
+  billboard: fixed
+  brightness: 15
+  start_tick: 10
+  end_tick: 12
+  keyframes:
+  - t: 0
+    translate: [0.52, 0.05, -1.6]
+    rotate: [-90, 0, 0]
+    scale: [0.05, 0.04, 1]
+  - t: 1
+    translate: [0.52, 0.05, -1.9]
+    rotate: [-90, 0, 0]
+    scale: [0.3, 0.05, 1]
+    ease: out_expo
+- id: s3s-spark-0
+  kind: {type: sprite, sprite: bastion-s1-spark, frame_ticks: 1, loop: false, see_through: true, color: '#FF8A20'}
+  billboard: center
+  brightness: 15
+  start_tick: 0
+  end_tick: 6
+  keyframes:
+  - t: 0
+    translate: [0.3, 0.1, -1.9]
+    rotate: [0, 0, 0]
+    scale: [1, 1, 1]
+  emit:
+    count: 5
+    speed: [0.05, 0.16]
+    spread_deg: 60
+    direction: up
+    gravity: 0.012
+    drag: 0.1
+    life_ticks: [4, 8]
+    size: [0.22, 0.4]
+    size_over_life:
+    - {t: 0, v: 1}
+    - {t: 1, v: 0.3}
+    alpha_over_life:
+    - {t: 0, v: 1}
+    - {t: 1, v: 0}
+    start_frame: random
+    frame_ticks: [1, 2]
+- id: s3s-spark-1
+  kind: {type: sprite, sprite: bastion-s1-spark, frame_ticks: 1, loop: false, see_through: true, color: '#FF8A20'}
+  billboard: center
+  brightness: 15
+  start_tick: 3
+  end_tick: 9
+  keyframes:
+  - t: 0
+    translate: [0.52, 0.1, -1.75]
+    rotate: [0, 0, 0]
+    scale: [1, 1, 1]
+  emit:
+    count: 5
+    speed: [0.05, 0.16]
+    spread_deg: 60
+    direction: up
+    gravity: 0.012
+    drag: 0.1
+    life_ticks: [4, 8]
+    size: [0.22, 0.4]
+    size_over_life:
+    - {t: 0, v: 1}
+    - {t: 1, v: 0.3}
+    alpha_over_life:
+    - {t: 0, v: 1}
+    - {t: 1, v: 0}
+    start_frame: random
+    frame_ticks: [1, 2]
+- id: s3s-spark-2
+  kind: {type: sprite, sprite: bastion-s1-spark, frame_ticks: 1, loop: false, see_through: true, color: '#FF8A20'}
+  billboard: center
+  brightness: 15
+  start_tick: 5
+  end_tick: 11
+  keyframes:
+  - t: 0
+    translate: [0.3, 0.1, -2.05]
+    rotate: [0, 0, 0]
+    scale: [1, 1, 1]
+  emit:
+    count: 5
+    speed: [0.05, 0.16]
+    spread_deg: 60
+    direction: up
+    gravity: 0.012
+    drag: 0.1
+    life_ticks: [4, 8]
+    size: [0.22, 0.4]
+    size_over_life:
+    - {t: 0, v: 1}
+    - {t: 1, v: 0.3}
+    alpha_over_life:
+    - {t: 0, v: 1}
+    - {t: 1, v: 0}
+    start_frame: random
+    frame_ticks: [1, 2]
+- id: s3s-spark-3
+  kind: {type: sprite, sprite: bastion-s1-spark, frame_ticks: 1, loop: false, see_through: true, color: '#FF8A20'}
+  billboard: center
+  brightness: 15
+  start_tick: 8
+  end_tick: 14
+  keyframes:
+  - t: 0
+    translate: [0.52, 0.1, -1.85]
+    rotate: [0, 0, 0]
+    scale: [1, 1, 1]
+  emit:
+    count: 5
+    speed: [0.05, 0.16]
+    spread_deg: 60
+    direction: up
+    gravity: 0.012
+    drag: 0.1
+    life_ticks: [4, 8]
+    size: [0.22, 0.4]
+    size_over_life:
+    - {t: 0, v: 1}
+    - {t: 1, v: 0.3}
+    alpha_over_life:
+    - {t: 0, v: 1}
+    - {t: 1, v: 0}
+    start_frame: random
+    frame_ticks: [1, 2]
+- id: s3s-spark-4
+  kind: {type: sprite, sprite: bastion-s1-spark, frame_ticks: 1, loop: false, see_through: true, color: '#FF8A20'}
+  billboard: center
+  brightness: 15
+  start_tick: 10
+  end_tick: 16
+  keyframes:
+  - t: 0
+    translate: [0.3, 0.1, -1.95]
+    rotate: [0, 0, 0]
+    scale: [1, 1, 1]
+  emit:
+    count: 5
+    speed: [0.05, 0.16]
+    spread_deg: 60
+    direction: up
+    gravity: 0.012
+    drag: 0.1
+    life_ticks: [4, 8]
+    size: [0.22, 0.4]
+    size_over_life:
+    - {t: 0, v: 1}
+    - {t: 1, v: 0.3}
+    alpha_over_life:
+    - {t: 0, v: 1}
+    - {t: 1, v: 0}
+    start_frame: random
+    frame_ticks: [1, 2]
+follow_pitch: true

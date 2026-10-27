@@ -50,4 +50,3 @@ rigs:
   - { t: 49, rotate: [801.6, 34.7, -562.2] }   # skill 57 chop-plant
   - { t: 58, rotate: [801.6, 34.7, -562.2] }   # skill 66 chop-kneel
   - { t: 67, rotate: [0.0, 0.0, 0.0], ease: step }   # skill 75 hand-back
-follow_pitch: true

@@ -27,7 +27,7 @@ TICKS_DEFAULT="${FARM_TICKS:-80}"
 POLL="${FARM_POLL:-5}"
 MAX_SKILLS="${FARM_MAX_SKILLS:-8}"
 PREVIEW="${FARM_PREVIEW:-1}"
-RETRIES="${FARM_RETRIES:-1}"
+RETRIES="${FARM_RETRIES:-2}"
 OUT_ROOT="${FARM_OUT:-$FARM_ROOT/build/vfx-shot}"
 mkdir -p "$FSTATE"
 
@@ -40,9 +40,16 @@ shot() { # mode(stepped|realtime) skill ticks
   local mode="$1" skill="$2" ticks="$3" stepped=1
   [ "$mode" = realtime ] && stepped=0
   ( cd "$FARM_ROOT" && env SKILL="$skill" VIEW="$VIEWS" TICKS="$ticks" STEPPED="$stepped" FPS=20 OUT_ROOT="$OUT_ROOT" \
-      SHOT_KEEP=1 SHOT_PIN=1 SHOT_KEEP_TTL="${FARM_TTL:-86400}" SHOT_OUTPUTS=lean SHOT_SLOW_RATE="${FARM_RATE:-5}" \
+      SHOT_KEEP=1 SHOT_PIN=1 SHOT_KEEP_TTL="${FARM_TTL:-86400}" SHOT_OUTPUTS=lean SHOT_SLOW_RATE="${RATE:-${FARM_RATE:-5}}" \
       SHOT_LOCK="${SHOT_LOCK:-/tmp/claude-1000/astera-vfx-shot-farm.lock}" SHOT_REAP_SCOPE=self SHOT_DETACHED=1 \
       bash "$FARM_ROOT/tools/vfx-shot/vfx-shot.sh" capture ) >> "$FSTATE/shot.log" 2>&1
+}
+
+publish_failed() { # skill sha reason: record the failure for skill-compare (current.json is left alone)
+  local v
+  for v in ${VIEWS//,/ }; do
+    node "$TOOLS_ROOT/tools/skill-compare/scripts/publish-capture.mjs" "$OUT_ROOT/$1/$v" "$PUBLISHED" "$1" "$v" --auto "$2" --failed "$3" >/dev/null 2>&1 || true
+  done
 }
 
 ticks_for() { # skill: frames of an already published view (the author's chosen length), else the default
@@ -57,7 +64,7 @@ ticks_for() { # skill: frames of an already published view (the author's chosen 
 }
 
 publish() { # skill sha mode(preview|stepped)  -> 0 when every view was published
-  local skill="$1" sha="$2" mode="$3" v rc=0 flag=()
+  local skill="$1" sha="$2" mode="$3" v rc=0 flag=() out
   [ "$mode" = preview ] && flag=(--preview)
   local c; c="$(grep -l "\"asteraSkillId\": *\"$skill\"" "$FARM_ROOT"/tools/skill-compare/data/*/case.json 2>/dev/null | head -1)"
   [ -n "$c" ] && flag+=(--case "$(basename "$(dirname "$c")")")   # stamps the case's reference/content revision into the meta
@@ -95,13 +102,19 @@ process() { # sha [base]
     for s in $skills; do
       ticks="$(ticks_for "$s")"; tstep="$(now)"; n=0
       while :; do
-        if shot stepped "$s" "$ticks" && publish "$s" "$sha" stepped; then
+        # a view that drops ticks at this tick rate (the software client hitches on heavy VFX, mostly side) is refilmed at half the rate
+        rate="$(awk -v r="${FARM_RATE:-5}" -v n="$n" 'BEGIN{for (i = 0; i < n; i++) r /= 2; if (r < 1) r = 1; print r}')"
+        if RATE="$rate" shot stepped "$s" "$ticks" && publish "$s" "$sha" stepped; then
           flog "STEPPED $s published $(awk -v a="$tstep" -v b="$(now)" 'BEGIN{printf "%.0f", b-a}')s (capture), $(awk -v a="$t0" -v b="$(now)" 'BEGIN{printf "%.0f", b-a}')s since detection"
           summary="$summary $s:ok"; break
         fi
         n=$((n + 1))
-        if [ "$n" -gt "$RETRIES" ]; then flog "STEPPED $s not published after $n attempt(s); the preview (if any) stays"; summary="$summary $s:FAILED"; break; fi
-        flog "STEPPED $s attempt $n failed; retrying"
+        if [ "$n" -gt "$RETRIES" ]; then
+          flog "STEPPED $s not published after $n attempt(s); the last valid capture stays as the old version"
+          publish_failed "$s" "$sha" "stepped capture dropped ticks / invalid after $n attempt(s) (last rate $rate tps)"
+          summary="$summary $s:FAILED"; break
+        fi
+        flog "STEPPED $s attempt $n failed at $rate tps; retrying at half the rate"
       done
     done
   fi

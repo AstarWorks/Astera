@@ -25,7 +25,8 @@ log() { printf '%s %s\n' "$(date -Is)" "$*" | tee -a "$STATE/deploy.log"; }
 # manager sees why without opening it. `grep FAILED deploy.log` shows the reasons.
 fail_reason() {
   local r
-  r=$(tr -d '\r' < "$STATE/build.log" 2>/dev/null | sed 's/\x1b\[[0-9;]*m//g' \
+  # Only this deploy's output: build.log is append-only, older failures must not be reported as this one's reason.
+  r=$(tail -c +"$((${BUILD_LOG_START:-0} + 1))" "$STATE/build.log" 2>/dev/null | tr -d '\r' | sed 's/\x1b\[[0-9;]*m//g' \
     | grep -E 'RUNTIME-DECODE FAIL|Failed to load content from|Reload aborted|DEPLOY FAILED|FAIL ' | tail -n 3 | tr '\n' '|' | cut -c1-500) || true
   printf '%s\n' "${r:-no reason found; see $STATE/build.log}"
 }
@@ -150,7 +151,7 @@ rollback() {
       [ "$SECONDS" -lt "$deadline" ] || return 1
       sleep 2
     done
-    confirm "$svc" "astera admin reload all" "Reloaded all." || return
+    confirm "$svc" "astera admin reload all" "Reloaded all.|再読み込みしました" || return
   done
   make dev-pack || return
 }
@@ -162,7 +163,9 @@ confirm() {
     # rcon-cli colors its replies (ESC[32mReloaded ESC[33mall...): strip SGR codes and CRs before matching.
     out=$(docker exec "astera-dev-$svc-1" rcon-cli "$command" | sed 's/\x1b\[[0-9;]*m//g; s/\r//g') || return 1
     printf '%s\n' "$out"
-    [[ "$out" == *"$expected"* ]] && return 0
+    # expected = alternatives separated by '|' (English and localized replies).
+    local alt; local IFS='|'
+    for alt in $expected; do [[ "$out" == *"$alt"* ]] && return 0; done
     [ -z "$out" ] || return 1
     sleep 1
   done
@@ -237,6 +240,7 @@ deploy() (
   [ "$pack" = 0 ] || steps+=(pack)
   [ "$content" = 0 ] || steps+=(content)
   log "deploying $sha [${steps[*]:-none}]"
+  BUILD_LOG_START=$(stat -c %s "$STATE/build.log" 2>/dev/null || echo 0)
   old_pack=$(docker inspect astera-dev-resource-pack-1 --format '{{.Image}}')
   running_before=$(docker ps --format '{{.Names}}' --filter name=astera-dev- | tr '\n' ' ')
   if [ "$plugins" = 1 ]; then
@@ -275,12 +279,12 @@ deploy() (
       for svc in lobby game; do
         case "$step" in
           stack) ;;
-          content) confirm "$svc" "astera admin reload all" "Reloaded all." || exit 1 ;;
+          content) confirm "$svc" "astera admin reload all" "Reloaded all.|再読み込みしました" || exit 1 ;;
           pack)
             hash=$(docker exec astera-dev-resource-pack-1 cat /usr/share/nginx/html/astera.zip.sha1) || exit 1
             hash=${hash:0:8}
             [ "${#hash}" = 8 ] || exit 1
-            confirm "$svc" "astera admin pack reload" "Resource pack $hash" || exit 1
+            confirm "$svc" "astera admin pack reload" "$hash" || exit 1
             ;;
         esac
       done
@@ -295,10 +299,6 @@ deploy() (
   mv "$STATE/last-sha.tmp" "$STATE/last-sha"
   rm -f "$STATE/manual-needed" "$STATE/current-step"
   log "deployed $sha [${steps[*]:-none}]"
-  # Minecraft-free skill previews for the skills this push touched (own lock, detached, never blocks or fails a deploy).
-  if [ -n "$last" ] && grep -zqE '^content/(skills|vfx|animations|models|sounds|particles|particle-skins|poses|items)/' "$STATE/paths" 2>/dev/null; then
-    setsid nohup bash "$DEPLOY/scripts/skill-preview-auto.sh" "$last" "$sha" > /dev/null 2>&1 9>&- 8>&- < /dev/null &
-  fi
 ) 9>"$LOCK"
 
 case "${1:-run}" in

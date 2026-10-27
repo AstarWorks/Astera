@@ -1,247 +1,50 @@
+# Couturier's Shears S2 (型紙裁ち, Pattern Trim): reference GIe7Fna5LD4 t=25.947..31.498. Beat sheet: tools/skill-compare/data/couture-rapier-s2/beat-sheet/beat-sheet.md (r1, gate 1 passed 2026-10-27).
+# Three effect-driven coins: t9 white crescent ring + thin line, t41 three shears converge from above (ONE shears model flies; founder Q2=B), t72 back-turned dash through the enemy with a clockwise 180 deg turn in the smear (Q1=A).
+# Remote hits (t9, t41) are fixed at the cast-time pose and hit whoever stands on the line (Q3=A: no homing, dodgeable). Hit area = visual reach (cone 24 deg / 7 blocks; the line / shears fly ~5.4).
+# The performance rig couture-s2-rig hides the held item for its whole length: the hand shears model is shown t0-21 and t63+, the flying shears t22-58, the other blades / linked shears are flat VFX only.
 id: couture-rapier-s2
-name:
-  ja: 型紙裁ち
-  en: Pattern Trim
-description:
-  ja: 型紙裁ち
-  en: Pattern Trim
+name: {ja: 型紙裁ち, en: Pattern Trim}
+description: {ja: 型紙裁ち, en: Pattern Trim}
 archetype: sequence
 cooldown_ticks: 125
 resource_cost: 18
-params:
-  type: sequence
+params: {type: sequence}
 phases:
   type: sequence
   cast:
-  - type: play_vfx
-    targets:
-      type: cone
-      from:
-        type: caster
-      direction:
-        type: from_caster
-      distance:
-        type: literal
-        value: 12
-      angle_degrees:
-        type: literal
-        value: 45
-      max_count: 1
-    vfx_id: couture-shears-remote
-    delay_ticks:
-      type: literal
-      value: 3
-  - type: play_vfx
-    targets:
-      type: caster
-    vfx_id: couture-shear-crescent
-    delay_ticks:
-      type: literal
-      value: 8
-    follow:
-      type: literal
-      value: true
-  - type: damage
-    targets:
-      type: cone
-      from:
-        type: caster
-      direction:
-        type: from_caster
-      distance:
-        type: literal
-        value: 12
-      angle_degrees:
-        type: literal
-        value: 45
-      max_count: 1
-    ignore_invulnerability:
-      type: literal
-      value: true
-    components:
-    - base:
-        type: literal
-        value: 6
-      attribute: physical
-    delay_ticks:
-      type: literal
-      value: 9
-  - type: play_vfx
-    targets:
-      type: cone
-      from:
-        type: caster
-      direction:
-        type: from_caster
-      distance:
-        type: literal
-        value: 12
-      angle_degrees:
-        type: literal
-        value: 45
-      max_count: 1
-    vfx_id: couture-rapier-cross
-    delay_ticks:
-      type: literal
-      value: 9
-  - type: play_sound
-    targets:
-      type: cone
-      from:
-        type: caster
-      direction:
-        type: from_caster
-      distance:
-        type: literal
-        value: 12
-      angle_degrees:
-        type: literal
-        value: 45
-      max_count: 1
-    sound_id: entity.player.attack.strong
-    volume:
-      type: literal
-      value: 0.7
-    pitch:
-      type: literal
-      value: 1.1
-    delay_ticks:
-      type: literal
-      value: 9
-  - type: play_vfx
-    targets:
-      type: caster
-    vfx_id: couture-s2-orbit
-    delay_ticks:
-      type: literal
-      value: 19
-  - type: damage
-    targets:
-      type: cone
-      from:
-        type: caster
-      direction:
-        type: from_caster
-      distance:
-        type: literal
-        value: 12
-      angle_degrees:
-        type: literal
-        value: 45
-      max_count: 1
-    ignore_invulnerability:
-      type: literal
-      value: true
-    components:
-    - base:
-        type: literal
-        value: 7
-      attribute: physical
-    delay_ticks:
-      type: literal
-      value: 41
-  - type: play_vfx
-    targets:
-      type: cone
-      from:
-        type: caster
-      direction:
-        type: from_caster
-      distance:
-        type: literal
-        value: 12
-      angle_degrees:
-        type: literal
-        value: 45
-      max_count: 1
-    vfx_id: couture-rapier-cross
-    delay_ticks:
-      type: literal
-      value: 41
-  - type: play_sound
-    targets:
-      type: cone
-      from:
-        type: caster
-      direction:
-        type: from_caster
-      distance:
-        type: literal
-        value: 12
-      angle_degrees:
-        type: literal
-        value: 45
-      max_count: 1
-    sound_id: entity.player.attack.strong
-    volume:
-      type: literal
-      value: 0.7
-    pitch:
-      type: literal
-      value: 1.1
-    delay_ticks:
-      type: literal
-      value: 41
-  - type: play_vfx
-    targets:
-      type: caster
-    vfx_id: couture-launch-haze
-    delay_ticks:
-      type: literal
-      value: 63
-  - type: play_vfx
-    targets:
-      type: caster
-    vfx_id: couture-shears-snip
-    delay_ticks:
-      type: literal
-      value: 65
-    follow:
-      type: literal
-      value: true
-  - type: dash_strike
-    distance: 8
-    ticks: 5
-    radius: 0.8
-    hit_once: true
-    invulnerable: false
-    stop_on_block: true
-    on_hit:
-    - type: damage
-      targets:
-        type: target
-      ignore_invulnerability:
-        type: literal
-        value: true
-      components:
-      - base:
-          type: literal
-          value: 10
-        attribute: physical
-    - type: play_vfx
-      targets:
-        type: target
-      vfx_id: couture-rapier-cross
-    - type: play_sound
-      targets:
-        type: target
-      sound_id: entity.player.attack.strong
-      volume:
-        type: literal
-        value: 0.7
-      pitch:
-        type: literal
-        value: 1.1
-    delay_ticks:
-      type: literal
-      value: 69
-  - type: play_vfx
-    targets:
-      type: caster
-    vfx_id: couture-shear-crescent
-    delay_ticks:
-      type: literal
-      value: 72
-    follow:
-      type: literal
-      value: true
+  - {type: play_vfx, targets: {type: caster}, vfx_id: couture-s2-rig}
+  - {type: play_vfx, targets: {type: caster}, vfx_id: couture-s2-rig-b, delay_ticks: {type: literal, value: 63}}
+  - {type: play_vfx, targets: {type: caster}, vfx_id: couture-s2-coin1, delay_ticks: {type: literal, value: 9}, follow: {type: literal, value: true}}
+  - {type: play_vfx, targets: {type: cone, from: {type: caster}, direction: {type: from_caster}, distance: {type: literal, value: 7}, angle_degrees: {type: literal, value: 24}, max_count: 1}, vfx_id: couture-s2-hit1, delay_ticks: {type: literal, value: 8}, snapshot_pose: true}
+  - {type: damage, targets: {type: cone, from: {type: caster}, direction: {type: from_caster}, distance: {type: literal, value: 7}, angle_degrees: {type: literal, value: 24}, max_count: 1}, ignore_invulnerability: {type: literal, value: true}, components: [{base: {type: literal, value: 6}, attribute: physical}], delay_ticks: {type: literal, value: 9}, snapshot_pose: true}
+  - {type: play_vfx, targets: {type: cone, from: {type: caster}, direction: {type: from_caster}, distance: {type: literal, value: 7}, angle_degrees: {type: literal, value: 24}, max_count: 1}, vfx_id: couture-s2-hit2, delay_ticks: {type: literal, value: 39}, snapshot_pose: true}
+  - {type: damage, targets: {type: cone, from: {type: caster}, direction: {type: from_caster}, distance: {type: literal, value: 7}, angle_degrees: {type: literal, value: 24}, max_count: 1}, ignore_invulnerability: {type: literal, value: true}, components: [{base: {type: literal, value: 7}, attribute: physical}], delay_ticks: {type: literal, value: 41}, snapshot_pose: true}
+  - {type: play_vfx, targets: {type: caster}, vfx_id: couture-s2-dash, delay_ticks: {type: literal, value: 70}, follow: {type: literal, value: true}}
+  - {type: dash_strike, distance: 9, ticks: 3, radius: 0.8, hit_once: true, invulnerable: false, stop_on_block: true, follow_pitch: false,
+     on_hit: [
+       {type: damage, targets: {type: target}, ignore_invulnerability: {type: literal, value: true}, components: [{base: {type: literal, value: 10}, attribute: physical}]},
+       {type: play_vfx, targets: {type: target}, vfx_id: couture-s2-hit3},
+       {type: play_sound, targets: {type: target}, sound_id: entity.player.attack.sweep, volume: {type: literal, value: 1.0}, pitch: {type: literal, value: 0.55}},
+       {type: play_sound, targets: {type: target}, sound_id: entity.sheep.shear, volume: {type: literal, value: 1.0}, pitch: {type: literal, value: 0.7}},
+       {type: play_sound, targets: {type: target}, sound_id: item.trident.riptide_1, volume: {type: literal, value: 0.8}, pitch: {type: literal, value: 1.5}}],
+     delay_ticks: {type: literal, value: 70}}
+  - {type: play_sound, targets: {type: caster}, sound_id: entity.player.attack.sweep, volume: {type: literal, value: 0.5}, pitch: {type: literal, value: 0.6}, delay_ticks: {type: literal, value: 0}}
+  - {type: play_sound, targets: {type: caster}, sound_id: item.armor.equip_chain, volume: {type: literal, value: 0.6}, pitch: {type: literal, value: 1.4}, delay_ticks: {type: literal, value: 0}}
+  - {type: play_sound, targets: {type: caster}, sound_id: block.amethyst_block.resonate, volume: {type: literal, value: 0.5}, pitch: {type: literal, value: 1.6}, delay_ticks: {type: literal, value: 3}}
+  - {type: play_sound, targets: {type: caster}, sound_id: entity.player.attack.sweep, volume: {type: literal, value: 0.9}, pitch: {type: literal, value: 1.3}, delay_ticks: {type: literal, value: 9}}
+  - {type: play_sound, targets: {type: caster}, sound_id: entity.sheep.shear, volume: {type: literal, value: 1.0}, pitch: {type: literal, value: 1.0}, delay_ticks: {type: literal, value: 9}}
+  - {type: play_sound, targets: {type: caster}, sound_id: block.amethyst_cluster.break, volume: {type: literal, value: 0.5}, pitch: {type: literal, value: 1.5}, delay_ticks: {type: literal, value: 11}}
+  - {type: play_sound, targets: {type: caster}, sound_id: item.trident.throw, volume: {type: literal, value: 0.5}, pitch: {type: literal, value: 1.2}, delay_ticks: {type: literal, value: 18}}
+  - {type: play_sound, targets: {type: caster}, sound_id: block.amethyst_block.chime, volume: {type: literal, value: 0.6}, pitch: {type: literal, value: 0.8}, delay_ticks: {type: literal, value: 24}}
+  - {type: play_sound, targets: {type: caster}, sound_id: block.amethyst_block.chime, volume: {type: literal, value: 0.6}, pitch: {type: literal, value: 0.7}, delay_ticks: {type: literal, value: 33}}
+  - {type: play_sound, targets: {type: caster}, sound_id: entity.player.attack.sweep, volume: {type: literal, value: 0.9}, pitch: {type: literal, value: 1.2}, delay_ticks: {type: literal, value: 41}}
+  - {type: play_sound, targets: {type: caster}, sound_id: entity.player.attack.sweep, volume: {type: literal, value: 0.9}, pitch: {type: literal, value: 1.3}, delay_ticks: {type: literal, value: 42}}
+  - {type: play_sound, targets: {type: caster}, sound_id: entity.player.attack.sweep, volume: {type: literal, value: 0.9}, pitch: {type: literal, value: 1.4}, delay_ticks: {type: literal, value: 43}}
+  - {type: play_sound, targets: {type: caster}, sound_id: entity.sheep.shear, volume: {type: literal, value: 1.0}, pitch: {type: literal, value: 0.9}, delay_ticks: {type: literal, value: 41}}
+  - {type: play_sound, targets: {type: caster}, sound_id: item.trident.throw, volume: {type: literal, value: 0.7}, pitch: {type: literal, value: 0.8}, delay_ticks: {type: literal, value: 40}}
+  - {type: play_sound, targets: {type: caster}, sound_id: block.amethyst_cluster.break, volume: {type: literal, value: 0.5}, pitch: {type: literal, value: 1.2}, delay_ticks: {type: literal, value: 55}}
+  - {type: play_sound, targets: {type: caster}, sound_id: item.trident.return, volume: {type: literal, value: 0.6}, pitch: {type: literal, value: 1.4}, delay_ticks: {type: literal, value: 59}}
+  - {type: play_sound, targets: {type: caster}, sound_id: block.amethyst_block.resonate, volume: {type: literal, value: 0.6}, pitch: {type: literal, value: 0.6}, delay_ticks: {type: literal, value: 64}}
+  - {type: play_sound, targets: {type: caster}, sound_id: item.armor.equip_iron, volume: {type: literal, value: 0.5}, pitch: {type: literal, value: 0.8}, delay_ticks: {type: literal, value: 68}}
+  - {type: play_sound, targets: {type: caster}, sound_id: entity.player.attack.sweep, volume: {type: literal, value: 0.7}, pitch: {type: literal, value: 0.5}, delay_ticks: {type: literal, value: 71}}
+  - {type: play_sound, targets: {type: caster}, sound_id: block.amethyst_cluster.break, volume: {type: literal, value: 0.5}, pitch: {type: literal, value: 1.0}, delay_ticks: {type: literal, value: 78}}

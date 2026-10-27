@@ -1,0 +1,208 @@
+# Couturier S2 body + weapon: hand shears (rig) t0-21 and t63+, ONE flying shears model t22-58 (founder Q2=B), white single blades / linked shears are flat VFX, never models.
+# --- dense particle layer (couture-s2 particle pass) ---
+id: couture-s2-rig
+duration_ticks: 63
+orient: yaw
+follow: true
+attach_to_anchor: true
+sample_ticks: 1
+body: couture-s2-body
+rigs:
+- id: shears-a
+  pivot: [0, 0, 0]
+  parent: right_hand
+  weapon: main_hand
+  start_tick: 0
+  end_tick: 62
+  weapon_tip: [0.0, 1.3789, 1.0769]
+  weapon_root: [0.0, 0.2367, 0.0]
+  weapon_edge: [0.0, -0.6155, 0.7881]
+  swing:
+  - t: 0
+    rotate: [0, 0, 0]
+  - t: 62
+    rotate: [0, 0, 0]
+  weapon_model:
+  - {t: 0, model: 'astera:couture-rapier'}
+  - {t: 22, model: 'astera:couture-rapier-hidden'}
+  - {t: 61, model: 'astera:couture-rapier'}
+elements:
+- id: fly-shears
+  kind: {type: item, item: shears, item_model: 'astera:couture-rapier', display_mode: fixed}
+  brightness: 15
+  start_tick: 22
+  end_tick: 58
+  keyframes:
+  - t: 0
+    translate: [0.0, 1.5, 0.6]
+    rotate: [0, 0, 0]
+    scale: [1, 1, 1]
+  - t: 3
+    translate: [0.0, 3.3, 0.35]
+    rotate: [0, 0, 0]
+    scale: [1, 1, 1]
+    ease: out_cubic
+  - t: 6
+    translate: [0.0, 3.6, 0.2]
+    rotate: [0, 0, 0]
+    scale: [1, 1, 1]
+    ease: out_back
+  - t: 10
+    translate: [0.0, 3.7, 0.2]
+    rotate: [0, 30, 0]
+    scale: [1, 1, 1]
+    ease: in_out_sine
+  - t: 11
+    translate: [0.0, 3.65, 0.2]
+    rotate: [0, 0, 0]
+    scale: [1, 1, 1]
+    ease: in_out_sine
+  - t: 12
+    translate: [0.0, 3.6, 0.4]
+    rotate: [90, 0, 0]
+    scale: [1, 1, 1]
+    ease: in_out_cubic
+  - t: 17
+    translate: [0.0, 1.3, 5.0]
+    rotate: [90, 0, 0]
+    scale: [1, 1, 1]
+    ease: in_out_cubic
+  - t: 36
+    translate: [0.0, 1.3, 5.0]
+    rotate: [90, 0, 0]
+    scale: [1, 1, 1]
+- id: white-blade-0
+  kind: {type: quad, color: '#FFFFFF', alpha: 0.95, see_through: true}
+  billboard: center
+  brightness: 15
+  start_tick: 24
+  end_tick: 40
+  keyframes:
+  - t: 0
+    translate: [-0.9, 3.4, 0.0]
+    rotate: [0, 0, -6]
+    scale: [0.07, 1.7, 1]
+  - t: 8
+    translate: [-0.9, 3.6, 0.0]
+    rotate: [0, 0, 6]
+    scale: [0.07, 1.7, 1]
+    ease: in_out_sine
+  - t: 16
+    translate: [-0.3, 3.5, 0.4]
+    rotate: [0, 0, 0]
+    scale: [0.07, 1.7, 1]
+    ease: in_out_sine
+- id: white-blade-1
+  kind: {type: quad, color: '#FFFFFF', alpha: 0.95, see_through: true}
+  billboard: center
+  brightness: 15
+  start_tick: 24
+  end_tick: 40
+  keyframes:
+  - t: 0
+    translate: [0.9, 3.4, 0.0]
+    rotate: [0, 0, 6]
+    scale: [0.07, 1.7, 1]
+  - t: 8
+    translate: [0.9, 3.6, 0.0]
+    rotate: [0, 0, -6]
+    scale: [0.07, 1.7, 1]
+    ease: in_out_sine
+  - t: 16
+    translate: [0.3, 3.5, 0.4]
+    rotate: [0, 0, 0]
+    scale: [0.07, 1.7, 1]
+    ease: in_out_sine
+- id: big-c
+  kind: {type: sprite, sprite: couture-orbit, frame_ticks: 1, loop: false, see_through: true}
+  billboard: center
+  brightness: 15
+  start_tick: 22
+  end_tick: 38
+  keyframes:
+  - t: 0
+    translate: [0.0, 3.6999999999999997, 0.2]
+    rotate: [0, 0, 0]
+    scale: [0.275, 0.275, 1]
+  - t: 5
+    translate: [0.0, 3.8, 0.2]
+    rotate: [0, 0, 100]
+    scale: [0.33, 0.33, 1]
+    ease: out_cubic
+  - t: 16
+    translate: [0.0, 3.6999999999999997, 0.2]
+    rotate: [0, 0, 160]
+    scale: [0.275, 0.275, 1]
+    ease: in_out_sine
+- id: link-line
+  kind: {type: block, block: white_concrete}
+  brightness: 15
+  start_tick: 58
+  end_tick: 63
+  keyframes:
+  - t: 0
+    translate: [0.0, 1.5, 0.0]
+    scale: [0.05, 0.05, 0.01]
+  - t: 1
+    translate: [0.0, 1.5, 2.7]
+    rotate: [0, 0, 0]
+    scale: [0.09, 0.09, 5.4]
+    ease: out_expo
+  - t: 4
+    translate: [0.0, 1.5, 2.7]
+    rotate: [0, 0, 0]
+    scale: [0.09, 0.09, 5.4]
+  - t: 5
+    translate: [0.0, 1.5, 2.7]
+    rotate: [0, 0, 0]
+    scale: [0.0, 0.0, 5.4]
+    ease: in_quad
+- id: link-glow
+  kind: {type: quad, color: '#FFFFFF', alpha: 0.3, see_through: true}
+  billboard: center
+  brightness: 15
+  start_tick: 58
+  end_tick: 63
+  keyframes:
+  - t: 0
+    translate: [0.0, 1.5, 2.7]
+    rotate: [0, 0, 0]
+    scale: [0.1, 0.025, 1]
+  - t: 1
+    translate: [0.0, 1.5, 2.7]
+    rotate: [0, 0, 0]
+    scale: [5.4, 0.225, 1]
+    ease: out_expo
+  - t: 4
+    translate: [0.0, 1.5, 2.7]
+    rotate: [0, 0, 0]
+    scale: [5.4, 0.15, 1]
+  - t: 5
+    translate: [0.0, 1.5, 2.7]
+    rotate: [0, 0, 0]
+    scale: [5.4, 0.0, 1]
+    ease: in_quad
+- id: link-spark-0
+  kind: {type: particle, particle_id: couture-s2-p-spark, every_ticks: 2}
+  brightness: 15
+  start_tick: 59
+  end_tick: 63
+  keyframes:
+  - t: 0
+    translate: [0.0, 1.5, 1.2]
+- id: link-spark-1
+  kind: {type: particle, particle_id: couture-s2-p-spark, every_ticks: 2}
+  brightness: 15
+  start_tick: 59
+  end_tick: 63
+  keyframes:
+  - t: 0
+    translate: [0.0, 1.5, 2.8]
+- id: link-spark-2
+  kind: {type: particle, particle_id: couture-s2-p-spark, every_ticks: 2}
+  brightness: 15
+  start_tick: 59
+  end_tick: 63
+  keyframes:
+  - t: 0
+    translate: [0.0, 1.5, 4.4]

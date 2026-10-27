@@ -109,6 +109,14 @@ export function makeHandler(opts = {}) {
     } catch { return null; }
   }
 
+  /** failure.json beside current.json = the farm's newer capture failed; the frames shown are then the old version. */
+  function failureOf(skill, view, meta) {
+    try {
+      const f = readJson(join(publishedDir, skill, view, "failure.json"));
+      return { sha: f.sha, reason: f.reason, at: f.at, old: !meta.auto?.sha || meta.auto.sha !== f.sha };
+    } catch { return null; }
+  }
+
   function mcInfo(skill, referenceRevision, contentRevision) {
     const info = { skill, sources: {}, hitTicks: [], castTickInTrace: 5 };
     if (!/^[a-z0-9][a-z0-9-]{0,63}$/.test(skill || "")) return info;
@@ -122,7 +130,7 @@ export function makeHandler(opts = {}) {
           // STALE = the reference (video/trim) changed after this capture; the skill content version is the capture's own sha (auto/implementationCommit), never compared to case.json.
           const caseRev = !referenceRevision ? "match" : !meta.referenceRevision ? "unknown" : meta.referenceRevision === referenceRevision ? "match" : "stale";
           info.sources["vfx-" + view] = { kind: "frames", base: `/mc/vfx/${skill}/${view}/`,
-            count: meta.frames, fps: meta.fps || 20, castFrame: Math.round(((meta.cast_tick_ms ?? 0) * (meta.fps || 20)) / 1000), extension, revision, prov: { ...provOf(meta), published: true, caseRev } };
+            count: meta.frames, fps: meta.fps || 20, castFrame: Math.round(((meta.cast_tick_ms ?? 0) * (meta.fps || 20)) / 1000), extension, revision, prov: { ...provOf(meta), published: true, caseRev, failure: failureOf(skill, view, meta) } };
         } catch { /* Never fall back to a partially overwritten source after publication. */ }
         continue;
       }

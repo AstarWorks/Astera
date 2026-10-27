@@ -1,0 +1,54 @@
+# S2 coin 1 caster side (played at skill tick 9): white crescent ring round the lower body + thin white line through the enemy.
+# --- dense particle layer (couture-s2 particle pass) ---
+id: couture-s2-coin1
+duration_ticks: 14
+orient: yaw
+follow: true
+sample_ticks: 1
+elements:
+- id: ring
+  kind: {type: sprite, sprite: couture-s2-crescent, frame_ticks: 1, loop: false, see_through: true}
+  billboard: center
+  brightness: 15
+  start_tick: 0
+  end_tick: 6
+  keyframes:
+  - t: 0
+    translate: [0.0, 1.7, 0.6]
+    rotate: [0, 0, -90]
+    scale: [0.3, 0.4, 1]
+  - t: 1
+    translate: [0.0, 2.1, 1.4]
+    rotate: [0, 0, -90]
+    scale: [0.7, 0.85, 1]
+    ease: out_expo
+  - t: 3
+    translate: [0.0, 2.1, 2.0]
+    rotate: [0, 0, -90]
+    scale: [0.7, 0.9, 1]
+    ease: out_quad
+  - t: 5
+    translate: [0.0, 2.1, 2.6]
+    rotate: [0, 0, -90]
+    scale: [0.1, 0.9, 1]
+    ease: in_quad
+- id: line
+  kind: {type: block, block: white_concrete}
+  brightness: 15
+  start_tick: 2
+  end_tick: 11
+  keyframes:
+  - t: 0
+    translate: [0.0, 0.8, 0.0]
+    rotate: [0, 0, 0]
+    scale: [0.02, 0.02, 0.02]
+  - t: 1
+    translate: [0.0, 1.3, 4.2]
+    rotate: [-14, 0, 0]
+    scale: [0.05, 0.05, 9.0]
+    ease: out_expo
+  - t: 9
+    translate: [0.0, 1.3, 4.2]
+    rotate: [-14, 0, 0]
+    scale: [0.0, 0.0, 9.0]
+    ease: in_quad

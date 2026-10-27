@@ -1,0 +1,10 @@
+# speed lines behind the dashing caster
+id: couture-s2-p-speed
+shape: {kind: burst, spread_blocks: 0.6}
+color: {r: 255, g: 255, b: 255}
+count: 2
+lifetime_ticks: 6
+vanilla_particle: end_rod
+speed: 0.0
+velocity: {direction: outward, speed: 0.35, spread_degrees: 0, speed_jitter: 0.4}
+force: true

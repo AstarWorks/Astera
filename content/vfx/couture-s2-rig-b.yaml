@@ -1,0 +1,49 @@
+# Couturier S2 second half (played at skill tick 63): hand shears back, B9 purple haze + silhouette, dash turn, hold.
+# --- dense particle layer (couture-s2 particle pass) ---
+id: couture-s2-rig-b
+duration_ticks: 35
+orient: yaw
+follow: true
+attach_to_anchor: true
+sample_ticks: 1
+body: couture-s2-body-b
+rigs:
+- id: shears-b
+  pivot: [0, 0, 0]
+  parent: right_hand
+  weapon: main_hand
+  start_tick: 0
+  end_tick: 34
+  weapon_tip: [0.0, 1.3789, 1.0769]
+  weapon_root: [0.0, 0.2367, 0.0]
+  weapon_edge: [0.0, -0.6155, 0.7881]
+  swing:
+  - t: 0
+    rotate: [0, 0, 0]
+  - t: 34
+    rotate: [0, 0, 0]
+elements:
+- id: ghost
+  kind: {type: quad, color: '#7A4FC2', alpha: 0.0, see_through: true}
+  billboard: center
+  brightness: 15
+  start_tick: 1
+  end_tick: 9
+  keyframes:
+  - t: 0
+    translate: [0.0, 1.0, 1.2]
+    scale: [0.9, 1.8, 1]
+    color: '#7A4FC2'
+    alpha: 0.0
+  - t: 2
+    translate: [0.0, 1.0, 1.4]
+    scale: [0.9, 1.8, 1]
+    ease: out_quad
+    color: '#7A4FC2'
+    alpha: 0.32
+  - t: 7
+    translate: [0.0, 1.0, 1.8]
+    scale: [0.8, 1.7, 1]
+    ease: in_quad
+    color: '#7A4FC2'
+    alpha: 0.0

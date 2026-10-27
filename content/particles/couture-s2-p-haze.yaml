@@ -1,0 +1,15 @@
+# purple haze at the feet
+id: couture-s2-p-haze
+shape: {kind: burst, spread_blocks: 0.5}
+color: {r: 138, g: 91, b: 214}
+count: 5
+lifetime_ticks: 14
+vanilla_particle: dust_color_transition
+data:
+  kind: dust_color_transition
+  from: {r: 150, g: 100, b: 230}
+  to: {r: 70, g: 40, b: 130}
+  scale: 1.6
+speed: 0.0
+velocity: {direction: up, speed: 0.03, spread_degrees: 80, speed_jitter: 0.5}
+force: true
