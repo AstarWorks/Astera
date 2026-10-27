@@ -45,9 +45,9 @@ spawn_points:
 - `kind: base` (team island: grass, team-coloured rim, spawn pad and two banner posts), `center` (stone-brick
   plaza) or `outpost` (small grass satellite). A base island's `team` picks its colour (`accent` overrides it).
 - `radius` is nominal (3..64); the rim wobbles by up to ~19 percent. Keep anchors within about 0.78 × radius.
-  Production bases are 280 blocks apart (Norma), 320 (Siege), and about 287 (three-team Annihilation).
-  Siege castles have four 25-block towers, walls, an open gate, keep, and climbable galleries. Front spawns sit
-  about 120–124 blocks from the contested centre (roughly 22 seconds at sprint speed). Wide roads and seven-block
+  Production bases are 84 blocks apart (Siege, about 130x80 overall), about 80 (three-team Annihilation, about
+  130x135); Norma keeps its larger layout. Siege castles keep a gate, walls, keep and towers; front spawns sit about
+  40 blocks from the contested centre (roughly 7 seconds at sprint speed) so a 4v4 reaches the fight quickly. Wide roads and seven-block
   bridges keep movement straightforward. PvE expands more conservatively to keep wave travel reasonable.
 - `theme` supplies a material palette for terrain, trees, roads, bridges, structure walls and lights. Optional
   `structures` placements select a part, x/z, surface-relative y, rotation and palette overrides; see the part README.

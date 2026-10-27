@@ -7,15 +7,15 @@ lore:
   ja:
   - '左クリック: 横薙ぎと追突'
   - '右クリック: 二本の杭'
-  - 'Shift+右: 杭と鉄槌'
-  - 'Shift+左: 守護の報復'
+  - 'スニーク+右: 杭と鉄槌'
+  - 'スニーク+左: 守護の報復'
   - 'Q: 誓約の終鐘'
   en:
-  - 'left_click: Hammer Sweep and Rush'
-  - 'right_click: Paired Nails'
-  - 'sneak_right: Nails and Judgment'
-  - 'sneak_left: Guardian Reprisal'
-  - 'drop: Covenant Toll'
+  - 'Left-click: Hammer Sweep and Rush'
+  - 'Right-click: Paired Nails'
+  - 'Sneak+Right-click: Nails and Judgment'
+  - 'Sneak+Left-click: Guardian Reprisal'
+  - 'Q: Covenant Toll'
 rarity: epic
 level_requirement: 4
 attributes:
@@ -32,9 +32,11 @@ skills:
   skill_id: verdict-hammer-s2
 - trigger: sneak_right
   skill_id: verdict-hammer-s3
+  min_norma_level: 2
 - trigger: sneak_left
   skill_id: verdict-hammer-def
 - trigger: drop
   skill_id: verdict-hammer-ego
+  min_norma_level: 3
 pdc_tags:
   astera:rarity: epic

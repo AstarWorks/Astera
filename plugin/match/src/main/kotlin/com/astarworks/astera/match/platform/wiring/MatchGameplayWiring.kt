@@ -40,6 +40,9 @@ internal object MatchGameplayWiring {
     /** Queue notifier keys that also show a title (ADR-0248). */
     private val QUEUE_TITLE_BEATS: Set<String> = setOf("found", "tick", "transferring", "match-found")
 
+    /** Action-bar hints stay readable for 5 s (briefing hints, ticks). */
+    private const val HINT_TTL_TICKS: Int = 100
+
     fun install(env: MatchWiringEnv) {
         val services = env.ctx.services
         val logger = env.ctx.logger
@@ -426,8 +429,7 @@ internal object MatchGameplayWiring {
             com.astarworks.astera.combat.domain.event.PlayerKilled::class,
         ) { killfeedListener.handle(it) }
 
-        // The Norma layer (every game mode, MODE-15): reaching the top Norma level wins when `norma_win` is on (NormaLevelService), next to
-        // the mode's own objective. This listener ends the match after `time_limit_seconds` of ACTIVE time (content/norma-layer/layer.yaml,
+        // The Norma layer (every game mode, MODE-15): levels are an in-match power layer and never win. This listener ends the match after `time_limit_seconds` of ACTIVE time (content/norma-layer/layer.yaml,
         // 0 = none): the mode's own objective standing first, then highest Norma level, then stars carried, then kills; still tied is a draw.
         val frameworkModes = services.get<com.astarworks.astera.match.application.port.outbound.IGameModeFrameworkRegistry>()
         val normaKills = com.astarworks.astera.match.application.eventbus.listeners.victory.NormaTimeLimitListener(
@@ -441,7 +443,6 @@ internal object MatchGameplayWiring {
                     ?.let { runCatching { com.astarworks.astera.match.domain.mode.GameModeId(it) }.getOrNull() }
                 key?.let { frameworkModes?.get(it) }?.objectiveStanding(match, team)
             },
-            levelOf = { match, team -> matchStars.norma.topLevel(match, team) },
             starsOf = { match, team -> matchStars.norma.carried(match, team) },
             killsOf = { match, team -> matchStars.norma.kills(match, team) },
         )
@@ -601,10 +602,21 @@ internal object MatchGameplayWiring {
             matches = matches,
             playerGateway = playerGateway,
             messages = msgRenderer,
+            scheduler = env.scheduler,
             modeKeyOf = { id -> env.matchModeRegistry.modeKeyOf(id) },
             configOf = env.modeConfigOf,
             isNorma = env.normaLayerOf,
             showTitle = { id, title, subtitle -> env.ctx.services.get<IMcServer>()?.findPlayer(id)?.sendTitle(title, subtitle) },
+            showHint = { id, key, params ->
+                hudGateway.showFor(
+                    id,
+                    com.astarworks.astera.core.domain.hud.HudLayout.ActionBar(
+                        component = com.astarworks.astera.core.domain.hud.HudComponent.Text(messageKey = key, placeholders = params),
+                        ttlTicks = HINT_TTL_TICKS,
+                        priority = 1,
+                    ),
+                )
+            },
             isFirstMatch = { id ->
                 val stats = env.ctx.services.get<com.astarworks.astera.core.application.port.outbound.IPlayerStatsRepository>()
                 stats != null && (stats.find(id)?.matchesPlayed ?: 0L) == 0L

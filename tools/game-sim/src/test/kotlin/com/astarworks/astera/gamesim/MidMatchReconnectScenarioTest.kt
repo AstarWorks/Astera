@@ -196,7 +196,7 @@ class MidMatchReconnectScenarioTest {
     // ---- 2. Norma sidebar and result -----------------------------------------------------------------------------
 
     @Test
-    fun `norma sidebar shows the top level and kills, and only the top Norma level wins`() {
+    fun `norma sidebar shows the top level and kills, and no level ever wins the match`() {
         scenario("norma-goal-and-reason", standaloneTeams = false) {
             val red = player("red", team = "red")
             val blue = player("blue", team = "blue")
@@ -215,7 +215,7 @@ class MidMatchReconnectScenarioTest {
             assertThat(eventsOf<MatchEnded>().none { it.matchId == matchId }).`as`("20 kills ended the match").isTrue()
             assertThat(sim.match.matches.findById(matchId)?.score?.valueFor(TeamId("red"))).`as`("kills still counted").isEqualTo(20)
 
-            // Reaching the top Norma level ends it with the Norma level reason.
+            // Reaching the top Norma level only stops levelling (ADR-0288); the match keeps running.
             val stars = sim.services.getOrThrow<IMatchStarStore>()
             stars.add(matchId, red.id, 100)
             repeat(4) {
@@ -223,12 +223,7 @@ class MidMatchReconnectScenarioTest {
                 advance(2)
             }
             advance(20)
-            val ended = eventsOf<MatchEnded>().single { it.matchId == matchId }
-            assertThat(ended.reason).isEqualTo(EndReason.NormaLevelReached(TeamId("red"), 5))
-            assertThat(ended.winningTeam).isEqualTo(TeamId("red"))
-            val chat = checkNotNull(sim.server.view(red.id)).messages
-            assertThat(chat).anyMatch { "reached Norma level 5" in it }
-            assertThat(chat).noneMatch { "objective completion" in it }
+            assertThat(eventsOf<MatchEnded>().none { it.matchId == matchId }).`as`("the top Norma level ended the match").isTrue()
         }
     }
 

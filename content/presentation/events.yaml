@@ -105,6 +105,10 @@ moments:
     subtitle: "astera.match.norma-up.max.subtitle"
     title_stay_ticks: 80
     particle: norma-level-max
+  norma-locked:
+    # A gated item action used below its Norma level (ADR-0288): deny sound and the level it unlocks at.
+    cue: "astera:ui/deny"
+    action_bar: "astera.match.norma-locked.bar"
   norma-choice-open:
     # Sound only: the picker GUI opens in the same tick and covers any title (the GUI's own title and lore say what to do).
     cue: "astera:norma/choice-open"

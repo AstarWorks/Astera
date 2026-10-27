@@ -31,8 +31,8 @@ class SiegeModesScenarioTest {
 
     // The sky-island siege stage (content/stages/siege-isles.yaml): top layer y=64, players stand at y=65. Stage-local coordinates.
     private val tntSpawn = Vec3(0.0, 65.0, -6.0)
-    private val redBase = Vec3(-85.0, 65.0, 0.0)
-    private val blueBase = Vec3(85.0, 65.0, 0.0)
+    private val redBase = Vec3(-43.0, 65.0, 0.0)
+    private val blueBase = Vec3(43.0, 65.0, 0.0)
     private val nowhere = Vec3(0.0, 65.0, -50.0)
 
     // ---- helpers ----------------------------------------------------------
@@ -133,13 +133,13 @@ class SiegeModesScenarioTest {
             val holder = player("holder", at = nowhere)
             val rival = player("rival", at = nowhere)
             val matchId = startMatch("capture-wool", mapOf(holder to "red", rival to "blue"))
-            val woolA = Vec3(0.0, 64.0, -62.0)
-            val woolB = Vec3(0.0, 64.0, 62.0)
+            val woolA = Vec3(0.0, 64.0, -30.0)
+            val woolB = Vec3(0.0, 64.0, 30.0)
             assertThat(blockAt(woolA)).isEqualTo("minecraft:white_wool")
 
             // Both stand in wool-a for longer than the capture time: nobody captures.
-            holder.moveTo(Vec3(0.0, 65.0, -62.0))
-            rival.moveTo(Vec3(1.0, 65.0, -61.0))
+            holder.moveTo(Vec3(0.0, 65.0, -30.0))
+            rival.moveTo(Vec3(1.0, 65.0, -29.0))
             advance(20 * 14)
             assertThat(blockAt(woolA)).isEqualTo("minecraft:white_wool")
             assertThat(sim.objectiveStage.bar(holder.id, "objective")?.progress).`as`("contested: the bar shows no progress").isEqualTo(0.0)
@@ -151,7 +151,7 @@ class SiegeModesScenarioTest {
             assertThat(advanceUntil(20 * 12) { blockAt(woolA) == "minecraft:red_wool" }).isTrue()
             assertThat(eventsOf<MatchEnded>()).isEmpty()
 
-            holder.moveTo(Vec3(0.0, 65.0, 62.0))
+            holder.moveTo(Vec3(0.0, 65.0, 30.0))
             assertThat(advanceUntil(20 * 12) { eventsOf<MatchEnded>().isNotEmpty() }).isTrue()
 
             val end = ended()
@@ -169,15 +169,15 @@ class SiegeModesScenarioTest {
             val thief = player("thief", at = nowhere)
             val keeper = player("keeper", at = nowhere)
             val matchId = startMatch("steal-jewelry", mapOf(thief to "red", keeper to "blue"), stage = "siege-isles-jewelry")
-            val bluePedestal = Vec3(73.0, 65.0, 10.0)
-            val pedestalMarker = Vec3(73.0, 64.0, 10.0)
+            val bluePedestal = Vec3(37.0, 65.0, 8.0)
+            val pedestalMarker = Vec3(37.0, 64.0, 8.0)
             assertThat(blockAt(pedestalMarker)).isEqualTo("minecraft:diamond_block")
 
             // Thief steals jewels; the keeper shoots them down before banking and the jewels lie where they fell.
             keeper.holds("pistol")
             hold(thief, bluePedestal)
             assertThat(sim.objectiveStage.carrying(thief.id)).`as`("thief wears a jewel").isNotNull()
-            keeper.moveTo(Vec3(73.0, 65.0, 20.0))
+            keeper.moveTo(Vec3(37.0, 65.0, 18.0))
             kill(keeper, thief)
             assertThat(sim.objectiveStage.carrying(thief.id)).isNull()
             assertThat(sim.objectiveStage.markers(matchId).keys.filter { it.startsWith("pile-") }).`as`("jewels on the ground").isNotEmpty()

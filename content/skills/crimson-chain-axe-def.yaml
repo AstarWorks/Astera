@@ -3,8 +3,8 @@ name:
   ja: 緋の退避
   en: Crimson Evasion
 description:
-  ja: 緋の退避
-  en: Crimson Evasion
+  ja: 素早く動いて距離を取る。
+  en: Move quickly to get out of reach.
 archetype: sequence
 cooldown_ticks: 80
 resource_cost: 10

@@ -33,13 +33,19 @@ public data class SidebarModel(
 
 public object MatchSidebarModel {
 
-    /** Sidebar rows the client shows. */
-    private const val MAX_LINES: Int = 15
+    /**
+     * Rows kept on the sidebar (the client allows 15, but a player mid-fight reads about seven): header 1, one-line
+     * mode objective 1, mode body 2, viewer footer 3 (team, level, goal).
+     */
+    private const val MAX_LINES: Int = 7
 
-    /** Lines left for the mode after header (2) and the viewer footer (spacer, team, stars, level, goal = 5). */
-    public const val MAX_MODE_LINES: Int = MAX_LINES - 2 - 5
+    /** Lines left for the mode after header (1), objective (1) and the viewer footer (3). */
+    public const val MAX_MODE_LINES: Int = MAX_LINES - 1 - 1 - 3
 
-    private val SPACER: MessageKey = MessageKey("astera.hud.sidebar.spacer")
+    /** Modes that have an `astera.match.objective.<id>.subtitle` one-liner to pin under the phase line. */
+    private val OBJECTIVE_MODES: Set<String> = setOf(
+        "annihilation", "carry-tnt", "carry-mini-tnt", "capture-wool", "steal-jewelry", "pve-waves",
+    )
 
     /** The viewer-independent part, built from the mode's own [IGameMode.hudStatus]. */
     public fun build(mode: IGameMode, match: Match, nowTick: Long, timeLimitTicks: Long = 0L): SidebarModel {
@@ -47,8 +53,10 @@ public object MatchSidebarModel {
         val header = status.phaseLine ?: genericPhaseLine(match, nowTick, timeLimitTicks)
         val lines = buildList {
             add(header)
-            add(HudLine(SPACER))
-            addAll(status.lines.take(MAX_MODE_LINES))
+            // Always-visible "what to do now": the mode's one-sentence objective.
+            val modeId = mode.id().value
+            if (modeId in OBJECTIVE_MODES) add(HudLine(MessageKey("astera.match.objective.$modeId.subtitle")))
+            addAll(status.lines.take(if (modeId in OBJECTIVE_MODES) MAX_MODE_LINES else MAX_MODE_LINES + 1))
         }
         return SidebarModel(titleKey = mode.titleKey(), lines = lines)
     }
@@ -83,26 +91,26 @@ public object MatchSidebarModel {
     ): HudLayout.Sidebar {
         val teams = match.teams.associateBy { it.id }
         val footer = buildList {
-            add(HudComponent.Text(SPACER))
             match.teams.firstOrNull { viewer in it.members }?.let { own ->
                 add(toText(HudLine(MessageKey("astera.hud.sidebar.you"), team = own.id), own, viewer, messages))
             }
             if (norma != null) {
-                add(HudComponent.Text(MessageKey("astera.hud.sidebar.stars"), placeholders = mapOf("stars" to norma.stars.toString())))
                 val levelParams = mapOf("level" to norma.level.toString(), "max" to norma.maxLevel.toString())
-                // The race that wins the match: show the best rival level next to your own.
-                add(
-                    if (norma.rivalLevel != null) {
-                        HudComponent.Text(MessageKey("astera.hud.sidebar.level-vs"), placeholders = levelParams + ("rival" to norma.rivalLevel.toString()))
-                    } else {
-                        HudComponent.Text(MessageKey("astera.hud.sidebar.level"), placeholders = levelParams)
-                    },
-                )
+                add(HudComponent.Text(MessageKey("astera.hud.sidebar.level"), placeholders = levelParams))
                 if (norma.level >= norma.maxLevel) {
                     add(HudComponent.Text(MessageKey("astera.hud.sidebar.objective-max")))
                 } else {
                     val key = if (norma.goal == NormaGoal.STAR) "astera.hud.sidebar.objective-star" else "astera.hud.sidebar.objective-kill"
                     add(HudComponent.Text(MessageKey(key), placeholders = mapOf("progress" to norma.progress.toString(), "target" to norma.target.toString())))
+                }
+                // What the next level opens for this player (ADR-0288): an ultimate or special they carry.
+                norma.nextUnlock?.let {
+                    add(
+                        HudComponent.Text(
+                            MessageKey("astera.hud.sidebar.next-unlock"),
+                            placeholders = mapOf("level" to it.level.toString(), "item" to messages.renderText(viewer, it.item)),
+                        ),
+                    )
                 }
             }
         }

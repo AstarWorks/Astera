@@ -3,8 +3,8 @@ name:
   ja: 緋針の雨
   en: Needle Rain
 description:
-  ja: 緋針の雨
-  en: Needle Rain
+  ja: 緋色の針を雨のように降らせる。
+  en: Rain crimson needles down.
 archetype: sequence
 cooldown_ticks: 165
 resource_cost: 23

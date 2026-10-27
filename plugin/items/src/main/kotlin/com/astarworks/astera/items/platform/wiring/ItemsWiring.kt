@@ -187,6 +187,7 @@ public object ItemsWiring {
             items = itemRegistry,
             eventBus = eventBus,
             resourcePool = services.get<IResourcePoolService>(),
+            levelGate = { services.get<com.astarworks.astera.core.application.port.outbound.IMatchLevelGate>() },
         )
 
         // ADR-0197 — a skill going on cooldown (primary binding / reload) runs the hotbar sweep.

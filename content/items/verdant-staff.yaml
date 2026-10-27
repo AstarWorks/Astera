@@ -11,10 +11,10 @@ name:
 lore:
   ja:
     - "<gray>右クリック: 茨の矢（毒）</gray>"
-    - "<gray>スニーク + 右クリック: 再生の風（味方を回復）</gray>"
+    - "<gray>スニーク+右: 再生の風（味方を回復）</gray>"
   en:
     - "<gray>Right-click: thorn bolt (poison)</gray>"
-    - "<gray>Sneak + right-click: regrowth (heals allies)</gray>"
+    - "<gray>Sneak+Right-click: regrowth (heals allies)</gray>"
 
 rarity: rare
 level_requirement: 3

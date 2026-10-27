@@ -7,17 +7,17 @@ lore:
   ja:
   - '左クリック: 礼節の銃剣'
   - '右クリック: 厳粛な刺突'
-  - 'Shift+右: 鉄の服従'
-  - 'Shift+左: 鉄の構え'
+  - 'スニーク+右: 鉄の服従'
+  - 'スニーク+左: 鉄の構え'
   - 'Q: 紅蓮の決算'
-  - 'Shift+Q: リロード'
+  - 'スニーク+Q: リロード'
   en:
-  - 'left_click: Bayonet Propriety'
-  - 'right_click: Solemn Thrust'
-  - 'sneak_right: Ferrous Obedience'
-  - 'sneak_left: Ferrous Guard'
-  - 'drop: Crimson Settlement'
-  - 'sneak_drop: Reload'
+  - 'Left-click: Bayonet Propriety'
+  - 'Right-click: Solemn Thrust'
+  - 'Sneak+Right-click: Ferrous Obedience'
+  - 'Sneak+Left-click: Ferrous Guard'
+  - 'Q: Crimson Settlement'
+  - 'Sneak+Q: Reload'
 rarity: epic
 level_requirement: 4
 attributes:
@@ -35,10 +35,12 @@ skills:
   skill_id: vendetta-rifle-s2
 - trigger: sneak_right
   skill_id: vendetta-rifle-s3
+  min_norma_level: 2
 - trigger: sneak_left
   skill_id: vendetta-rifle-def
 - trigger: drop
   skill_id: vendetta-rifle-ego
+  min_norma_level: 3
 - trigger: sneak_drop
   skill_id: pistol-reload
 pdc_tags:

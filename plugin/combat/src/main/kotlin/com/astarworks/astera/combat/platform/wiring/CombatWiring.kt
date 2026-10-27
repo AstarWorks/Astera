@@ -195,6 +195,11 @@ public object CombatWiring {
         // 3. Register Combat ports onto the shared registry --------------------
         registrations += services.register<ISkillRegistry>(skillContents)
         registrations += services.register<IStatusEffectRegistry>(statusContents)
+        // Item tooltips: Core owns the layout, Combat supplies "what this skill does" from content.
+        services.get<com.astarworks.astera.core.application.service.item.ItemBlueprintFactory>()?.skillTooltips =
+            services.get<com.astarworks.astera.core.application.port.outbound.IMessageRenderer>()?.let {
+                com.astarworks.astera.combat.application.service.SkillTooltipSummary(skillContents, statusContents, it)
+            }
         // Also published so Match can wipe fire / glow / freeze when a match ends or a player leaves it.
         val entityEffects = ports.entityEffectsGateway?.invoke(services)
         if (entityEffects != null) registrations += services.register<com.astarworks.astera.combat.application.port.outbound.IEntityEffectsGateway>(entityEffects)

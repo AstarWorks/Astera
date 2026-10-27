@@ -10,10 +10,10 @@ name:
 lore:
   ja:
     - "<gray>左クリック: 斬撃</gray>"
-    - "<gray>スニーク + 右クリック: ダッシュ</gray>"
+    - "<gray>スニーク+右: ダッシュ</gray>"
   en:
     - "<gray>Left-click: slash</gray>"
-    - "<gray>Sneak + right-click: dash</gray>"
+    - "<gray>Sneak+Right-click: dash</gray>"
 
 rarity: common
 level_requirement: 1

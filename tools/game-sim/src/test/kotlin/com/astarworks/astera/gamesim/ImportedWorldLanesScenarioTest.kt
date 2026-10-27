@@ -15,8 +15,8 @@ class ImportedWorldLanesScenarioTest {
     @Test
     fun `capture-wool on temple-trouble - three of the four control points win`() {
         scenario("lane-capture-wool-temple-trouble") {
-            val holder = player("holder", at = Vec3(0.5, 65.0, -82.5))
-            val rival = player("rival", at = Vec3(0.5, 65.0, 83.5))
+            val holder = player("holder", at = Vec3(0.5, 65.0, -61.5))
+            val rival = player("rival", at = Vec3(0.5, 65.0, 62.5))
             val matchId = startMatch("capture-wool", mapOf(holder to "red", rival to "blue"), stage = "temple-trouble")
             val zones = listOf(Vec3(-23.0, 65.0, 0.0), Vec3(23.0, 65.0, 0.0), Vec3(0.0, 65.0, -6.0), Vec3(-3.0, 65.0, 6.0))
             holder.moveTo(zones[0])
