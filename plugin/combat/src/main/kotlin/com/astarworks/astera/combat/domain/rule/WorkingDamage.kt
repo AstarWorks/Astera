@@ -5,7 +5,7 @@ import com.astarworks.astera.combat.domain.damage.DamageResolution
 import com.astarworks.astera.combat.domain.damage.MitigationApplied
 import com.astarworks.astera.combat.domain.damage.ResolvedDamage
 import com.astarworks.astera.core.domain.damage.DamageAttribute
-import com.astarworks.astera.core.domain.geometry.Vec3
+import com.astarworks.astera.combat.domain.damage.KnockbackPush
 
 /**
  * Mutable accumulator used inside [DamageRule.resolve]'s modifier pipeline.
@@ -25,7 +25,7 @@ public class WorkingDamage(
     public val mitigations: MutableList<MitigationApplied> = mutableListOf(),
     public var wasCritical: Boolean = false,
     public var criticalMultiplier: Double = 1.0,
-    public var knockback: Vec3? = null,
+    public var knockback: KnockbackPush? = null,
 ) {
     /** Multiply the running amount; clamps to >= 0. */
     public fun multiplyBy(factor: Double) {

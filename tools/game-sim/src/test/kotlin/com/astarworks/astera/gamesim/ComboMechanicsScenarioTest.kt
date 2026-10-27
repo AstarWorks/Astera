@@ -163,6 +163,57 @@ class ComboMechanicsScenarioTest {
     }
 
     @Test
+    fun `dash_strike with stop_before_target strikes at contact for any distance and a sideways-offset target`() {
+        for ((distance, sideways) in listOf(3.5 to 0.0, 5.4 to 0.0, 7.0 to 0.0, 5.4 to 1.0)) {
+            scenario("combo-dash-strike-contact-$distance-$sideways") {
+                val caster = player("caster", at = Vec3(0.0, groundY, 0.0), team = "red")
+                caster.direction = Vec3(0.0, 0.0, 1.0)
+                val target = player("target", at = Vec3(sideways, groundY, distance), team = "blue")
+                run(
+                    caster, null,
+                    Mechanic.DashStrike(
+                        distance = NumericValue.Literal(9.0),
+                        ticks = IntValue.Literal(3),
+                        radius = NumericValue.Literal(0.8),
+                        invulnerable = BoolValue.Literal(false),
+                        stopBeforeTarget = 1.0,
+                        onHit = listOf(stack(tremor, Targeter.Target, 1)),
+                    ),
+                )
+                advance(5)
+
+                assertThat(stacks(target, tremor)).`as`("hit at distance $distance, sideways $sideways").isEqualTo(1)
+                // sharp stop: the caster ends one block short of the target, not past it
+                assertThat(caster.position.z).isCloseTo(distance - 1.0, Offset.offset(1e-6))
+            }
+        }
+    }
+
+    @Test
+    fun `dash_strike with stop_before_target runs its full distance when nothing is on the line`() {
+        scenario("combo-dash-strike-contact-miss") {
+            val caster = player("caster", at = Vec3(0.0, groundY, 0.0), team = "red")
+            caster.direction = Vec3(0.0, 0.0, 1.0)
+            val target = player("target", at = Vec3(3.0, groundY, 5.0), team = "blue")
+            run(
+                caster, null,
+                Mechanic.DashStrike(
+                    distance = NumericValue.Literal(9.0),
+                    ticks = IntValue.Literal(3),
+                    radius = NumericValue.Literal(0.8),
+                    invulnerable = BoolValue.Literal(false),
+                    stopBeforeTarget = 1.0,
+                    onHit = listOf(stack(tremor, Targeter.Target, 1)),
+                ),
+            )
+            advance(5)
+
+            assertThat(stacks(target, tremor)).isZero()
+            assertThat(caster.position.z).isCloseTo(9.0, Offset.offset(1e-6))
+        }
+    }
+
+    @Test
     fun `dash_strike without hit_once keeps hitting while it overlaps`() {
         scenario("combo-dash-strike-multi") {
             val caster = player("caster", at = Vec3(0.0, groundY, 0.0), team = "red")
