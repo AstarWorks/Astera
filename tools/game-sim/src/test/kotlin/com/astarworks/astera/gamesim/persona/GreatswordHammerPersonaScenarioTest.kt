@@ -187,34 +187,6 @@ class GreatswordHammerPersonaScenarioTest {
     }
 
     @Test
-    fun `bastion S3 telegraphs, slams, aftershocks, spends charge and stays under the display cap`() {
-        scenario("persona-bastion-s3") {
-            val d = duel("bastion-greatsword")
-            addStacks(d.caster, d.caster, charge, 5)
-            val before = hp(d.target)
-
-            d.caster.rightClick(sneaking = true)
-            val telegraph = stepPeak(20)
-            assertThat(before - hp(d.target)).isZero() // 29 ticks of windup: nothing has landed yet
-            assertThat(sim.displays.active).isNotEmpty
-
-            val peak = stepPeak(12) // tick 32: the slam
-            val slam = before - hp(d.target)
-            assertThat(slam).isGreaterThanOrEqualTo(10.0 + 0.7 * 5)
-            assertThat(stacks(d.caster, charge)).isEqualTo(5)
-
-            val peak2 = stepPeak(25) // tick 57: the aftershock
-            assertThat(before - hp(d.target)).isGreaterThanOrEqualTo(slam + 7.0 + 0.7 * 5)
-            assertThat(stacks(d.caster, charge)).isZero()
-            assertThat(hitsOn(d.target)).isEqualTo(2)
-            assertThat(maxOf(telegraph, peak, peak2)).isLessThanOrEqualTo(60)
-
-            stepPeak(40)
-            assertDisplaysSpawnedAndGone()
-        }
-    }
-
-    @Test
     fun `bastion DEF raises resistances for the guard only, banks three charge and ends with a bash`() {
         scenario("persona-bastion-def") {
             val caster = player("caster", team = "red")

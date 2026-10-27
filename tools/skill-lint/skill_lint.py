@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""skill-lint: preflight for a VFX skill, run BEFORE every capture. Four invariants, nothing else.
+"""skill-lint: preflight for a VFX skill, run BEFORE every capture. Five invariants, nothing else.
 
     python3 tools/skill-lint/skill_lint.py <skill-id> [--plan plan.json]
     make skill-lint SKILL=bastion-greatsword-s1 [PLAN=<plan.json>]
@@ -13,6 +13,14 @@ Checks (each prints PASS / FAIL / NOT CHECKED; exit 1 on any FAIL):
                    on every tick where the caster stands on the ground (airborne ticks, from the dump's `caster` track,
                    are listed as skipped, not passed)
   4 display budget simultaneous Display entities and particles spawned per tick stay under the budget
+  5 hit events     gameplay events are event-driven, never tick-timed fakes (couture-rapier-s2, founder: 「テストのための実装感が
+                   ぬぐえない」): (a) a thrown / flying weapon is a `projectile` (visual.display + hit_entity / miss), not an
+                   item element riding caster-local keyframes; (b) a stuck / linked / embedded object is never placed at a
+                   caster-local offset in a `follow: true` vfx; (c) a hit-flavoured vfx (id or elements say hit / impact /
+                   contact / burst / stick) aimed with an entity-seeking targeter (cone, nearby, nearest) is bound to the
+                   event (`on_hit:` of dash_strike / counter, `hit_entity:` of a projectile) or at least co-timed with the
+                   `damage` that uses the same targeter at the same `delay_ticks`; a tick offset that only works because the
+                   capture dummy stands at DISTANCE fails
 
 There are no per-skill targets. Facts about the REFERENCE (blade angle, torso lean, ...) are judged on skill-compare,
 not here. Plan dump (written by the runtime, build/skill-lint/<skill>/plan.json): docs/contributing/vfx-team/skill-lint.md.
@@ -36,6 +44,13 @@ FLOOR_TOL = 0.12         # lowest leg corner above / below y = 0
 AIRBORNE_Y = 0.15        # caster feet this far above where they stood at the cast = airborne, floor check skipped
 BUDGET_DISPLAYS = 60     # director.md "Display budget"
 BUDGET_PARTICLES = 300
+# Check 5 vocabulary (element / vfx ids are the author's own words; the lint reads them, so name things honestly).
+HIT_WORDS = ("hit", "impact", "contact", "burst", "explode", "explosion", "stick", "stuck", "linked", "embed", "impale", "pinned")
+STUCK_WORDS = ("stuck", "stick", "linked", "embed", "impale", "pinned", "lodged")
+THROWN_WORDS = ("fly", "flying", "thrown", "throw", "shot", "bolt", "launch", "projectile")
+ENTITY_SEEKING = ("cone", "nearby_entities", "nearest", "nearest_entity", "sphere", "box", "line", "entities_in")
+EVENT_PHASES = ("on_hit", "hit_entity", "hit_block", "miss", "expire", "on_parry", "on_counter", "on_land")
+FAKE_FLIGHT_BLOCKS = 2.0   # an item / model element travelling this far along caster-local keyframes is a fake projectile
 
 # Rig defaults when the dump predates `bones.*.scale` (box size in blocks; a dumped `scale` is twice that, see dump_box_size): 4 x 12 x 4 px boxes at PLAYER_SCALE.
 PLAYER_SCALE = 0.9375
@@ -277,6 +292,87 @@ def check_display_budget(skill):
          "peak %d particles spawned per tick at skill t%d (budget %d)" % (parts[peak_p], peak_p, BUDGET_PARTICLES), ticks=[peak_p])
 
 
+# ---- check 5 ------------------------------------------------------------------------------------------------------
+def _has_word(text, words):
+    t = str(text or "").lower()
+    return any(w in t for w in words)
+
+
+def _targeter_key(t):
+    if not isinstance(t, dict):
+        return str(t)
+    return json.dumps({k: lit(v) if isinstance(v, dict) and "value" in v else v for k, v in sorted(t.items())}, sort_keys=True, default=str)
+
+
+def _event_bound_vfx(doc):
+    """vfx ids played from an event phase anywhere in the skill (on_hit lists, projectile hit_entity / hit_block / miss / expire)."""
+    found = set()
+
+    def walk(node, in_event):
+        if isinstance(node, dict):
+            if in_event and node.get("type") == "play_vfx" and node.get("vfx_id"):
+                found.add(node["vfx_id"])
+            for k, v in node.items():
+                walk(v, in_event or k in EVENT_PHASES)
+        elif isinstance(node, list):
+            for v in node:
+                walk(v, in_event)
+    walk(doc, False)
+    return found
+
+
+def _span_blocks(el):
+    pts = [kf.get("translate") for kf in el.get("keyframes", []) if isinstance(kf.get("translate"), list) and len(kf["translate"]) >= 3]
+    if len(pts) < 2:
+        return 0.0
+    return max(math.dist(pts[0][:3], p[:3]) for p in pts[1:])
+
+
+def check_hit_events(skill):
+    c = "5 hit events"
+    problems = []
+    event_vfx = _event_bound_vfx(skill.doc)
+    # (a) fake projectiles and (b) stuck objects at caster-local offsets, read from every cast-time vfx
+    for vid, (delay, doc) in skill.vfx.items():
+        attached = bool(doc.get("follow")) or bool(doc.get("attach_to_anchor"))
+        for el in doc.get("elements", []):
+            kind = el.get("kind", {})
+            eid = str(el.get("id", ""))
+            if attached and kind.get("type") in ("item", "model", "block") and _has_word(eid, THROWN_WORDS) and _span_blocks(el) >= FAKE_FLIGHT_BLOCKS:
+                problems.append("%s/%s: a %s element flies %.1f blocks on caster-local keyframes (fake projectile: it goes where the capture dummy stood, "
+                                "never where the enemy is); use a `projectile` with `visual.display` and `hit_entity:` / `miss:`" % (vid, eid, kind.get("type"), _span_blocks(el)))
+            if attached and _has_word(eid, STUCK_WORDS) and vid not in event_vfx:
+                problems.append("%s/%s: a stuck / linked object placed at a caster-local offset in a follow vfx (it appears whether or not anything was hit); "
+                                "spawn it from `on_hit:` / `hit_entity:` anchored to the hit entity" % (vid, eid))
+    # (c) hit-flavoured vfx aimed with an entity-seeking targeter at a tick offset, not bound to the event nor co-timed with its damage
+    damage_at = {}
+    for s in skill.steps:
+        if s.get("type") == "damage":
+            damage_at.setdefault(_targeter_key(s.get("targets")), set()).add(int(lit(s.get("delay_ticks"))))
+    event_sources = sorted({s.get("type") for s in skill.steps if s.get("type") in ("dash_strike", "projectile", "launch_projectile", "counter", "parry")})
+    for s in skill.steps:
+        if s.get("type") != "play_vfx":
+            continue
+        vid = s.get("vfx_id")
+        t = s.get("targets") or {}
+        ttype = str(t.get("type", "")) if isinstance(t, dict) else str(t)
+        doc = skill.vfx.get(vid, (0, {}))[1]
+        hitty = _has_word(vid, HIT_WORDS) or any(_has_word(el.get("id"), HIT_WORDS) for el in doc.get("elements", []))
+        if ttype not in ENTITY_SEEKING or not hitty or vid in event_vfx:
+            continue
+        delay = int(lit(s.get("delay_ticks")))
+        if delay in damage_at.get(_targeter_key(t), set()):
+            continue
+        hint = ("the skill has %s: put this play_vfx in its `on_hit:` / `hit_entity:` with `targets: {type: target}`" % " / ".join(event_sources)) if event_sources \
+            else "schedule the `damage` with the same targeter at the same delay_ticks (or make the hit a projectile / dash_strike event)"
+        problems.append("%s: hit effect aimed with `%s` at cast+%d, not bound to the hit (damage with that targeter at %s); %s"
+                        % (vid, ttype, delay, sorted(damage_at.get(_targeter_key(t), set())) or "no tick", hint))
+    if problems:
+        emit(c, "FAIL", "%d tick-timed fake(s): " % len(problems) + " | ".join(problems))
+    else:
+        emit(c, "PASS", "thrown objects are projectiles, stuck objects and hit effects are bound to the hit event or co-timed with their damage")
+
+
 # ---- report.json (published to skill-compare by tools/skill-compare/scripts/publish-lint.mjs) ---------------------------
 def git(*a):
     return subprocess.check_output(["git", *a], cwd=ROOT, text=True).strip()
@@ -320,6 +416,7 @@ def main():
     check_two_hand_grip(plan)
     check_feet_on_floor(plan)
     check_display_budget(skill)
+    check_hit_events(skill)
     if not a.no_report:
         write_report(a.skill, plan_path)
     fails = [r for r in RESULTS if r[1] == "FAIL"]

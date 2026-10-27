@@ -1,0 +1,119 @@
+# S2 arm-raise trail (played at skill tick 15): pale crescent behind the raised arm t16-20.
+id: couture-s2-trail
+duration_ticks: 8
+orient: yaw
+follow: true
+sample_ticks: 1
+elements:
+- id: trail-0
+  kind:
+    type: sprite
+    sprite: couture-s2-crescent
+    frame_ticks: 1
+    loop: false
+    see_through: true
+  billboard: center
+  brightness: 15
+  start_tick: 0
+  end_tick: 6
+  keyframes:
+  - t: 0
+    translate:
+    - 0.1
+    - 1.6
+    - -0.3
+    rotate:
+    - 0
+    - 0
+    - -100
+    scale:
+    - 0.5
+    - 0.9
+    - 1
+    alpha: 0.0
+  - t: 1
+    translate:
+    - 0.1
+    - 1.9
+    - -0.6
+    rotate:
+    - 0
+    - 0
+    - -100
+    scale:
+    - 0.7
+    - 1.0
+    - 1
+    alpha: 0.75
+    ease: out_expo
+  - t: 5
+    translate:
+    - 0.1
+    - 2.3
+    - -1.0
+    rotate:
+    - 0
+    - 0
+    - -100
+    scale:
+    - 0.1
+    - 1.0
+    - 1
+    alpha: 0.0
+    ease: in_quad
+- id: trail-1
+  kind:
+    type: sprite
+    sprite: couture-s2-crescent
+    frame_ticks: 1
+    loop: false
+    see_through: true
+  billboard: center
+  brightness: 15
+  start_tick: 0
+  end_tick: 6
+  keyframes:
+  - t: 0
+    translate:
+    - 0.1
+    - 1.6
+    - -0.3
+    rotate:
+    - 0
+    - 0
+    - -86
+    scale:
+    - 0.6
+    - 0.9
+    - 1
+    alpha: 0.0
+  - t: 1
+    translate:
+    - 0.1
+    - 1.9
+    - -0.8
+    rotate:
+    - 0
+    - 0
+    - -86
+    scale:
+    - 0.7999999999999999
+    - 1.0
+    - 1
+    alpha: 0.75
+    ease: out_expo
+  - t: 5
+    translate:
+    - 0.1
+    - 2.3
+    - -1.2
+    rotate:
+    - 0
+    - 0
+    - -86
+    scale:
+    - 0.1
+    - 1.0
+    - 1
+    alpha: 0.0
+    ease: in_quad

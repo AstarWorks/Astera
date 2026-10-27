@@ -167,9 +167,9 @@ public object VfxBodyPlanner {
             ) { l ->
                 val t = track.at(maxOf(0, l - delay)).transforms.bones.getValue(bone)
                 Pose(
-                    motion.anchorRot.rotate(Vec3(t.translation.x, t.translation.y, t.translation.z) * motion.scale) + shift,
+                    motion.anchorRot.rotate(Vec3(t.translation.x, t.translation.y, t.translation.z) * (motion.scale * ghost.scale)) + shift,
                     motion.anchorRot * Quaternion(t.rotation.x, t.rotation.y, t.rotation.z, t.rotation.w),
-                    t.scale * motion.scale,
+                    t.scale * (motion.scale * ghost.scale),
                 )
             }
         }

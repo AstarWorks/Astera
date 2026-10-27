@@ -197,7 +197,7 @@ deploy() (
         content/models/*|content/textures/*|content/sounds/*|content/sprites/*|content/effects/*|content/hud/*|content/fonts/*|content/pack-assets/*|content/shader-patches/*|content/animations/*) pack=1 ;;
         content/*) content=1 ;;
         tools/resource-pack*) pack=1 ;;
-        plugin/core/*) plugins=1; pack=1 ;;
+        plugin/core/*|core/*|kernel/*) plugins=1; pack=1 ;;
         plugin/*) plugins=1 ;;
         gradle/*|buildSrc/*|config/*|Makefile|*.gradle.kts|gradle.properties|gradlew*) plugins=1; pack=1 ;;
       esac
@@ -299,6 +299,10 @@ deploy() (
   mv "$STATE/last-sha.tmp" "$STATE/last-sha"
   rm -f "$STATE/manual-needed" "$STATE/current-step"
   log "deployed $sha [${steps[*]:-none}]"
+  # Minecraft-free skill previews for the skills this push touched (own lock, detached, never blocks or fails a deploy).
+  if [ -n "$last" ] && grep -zqE '^content/(skills|vfx|animations|models|sounds|particles|particle-skins|poses|items)/' "$STATE/paths" 2>/dev/null; then
+    setsid nohup bash "$DEPLOY/scripts/skill-preview-auto.sh" "$last" "$sha" > /dev/null 2>&1 9>&- 8>&- < /dev/null &
+  fi
 ) 9>"$LOCK"
 
 case "${1:-run}" in

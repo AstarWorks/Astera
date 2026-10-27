@@ -1,0 +1,417 @@
+# S2 throw (ADR-0286): everything that travels from the caster to the enemy, played at skill tick 30 on the caster inside for_each_target with
+# track_bound_target. The authored target stands 5.4 blocks ahead; target_track / target_line move each element to the real target (any distance).
+# Fixed anchor (the caster does not move during the throw): the overhead crescents, the flying shears, the shears stuck in the target, the chain.
+id: couture-s2-throw
+duration_ticks: 34
+orient: yaw
+follow: false
+sample_ticks: 1
+target_reference: [0, 0, 5.4]
+elements:
+- id: fly-shears
+  kind: {type: item, item: shears, item_model: 'astera:couture-rapier', display_mode: fixed}
+  brightness: 15
+  start_tick: 4
+  end_tick: 16
+  keyframes:
+  - {t: 0, translate: [0.0, 3.6, 0.4], rotate: [90, 0, 0], scale: [1, 1, 1]}
+  - {t: 5, translate: [0.0, 1.3, 5.0], rotate: [90, 0, 0], scale: [1, 1, 1], ease: in_out_cubic}
+  - {t: 12, translate: [0.0, 1.3, 5.0], rotate: [90, 0, 0], scale: [1, 1, 1]}
+  target_track:
+  - {t: 0, weight: 0}
+  - {t: 5, weight: 1}
+- id: linked-shears
+  kind: {type: item, item: shears, item_model: 'astera:couture-shears-linked', display_mode: fixed}
+  brightness: 8
+  start_tick: 16
+  end_tick: 28
+  keyframes:
+  - {t: 0, translate: [0.0, 1.25, 5.4], rotate: [90, 0, -110], scale: [0.5, 0.5, 0.5]}
+  - {t: 1, translate: [0.0, 1.25, 5.4], rotate: [90, 0, -110], scale: [0.6, 0.6, 0.6], ease: out_expo}
+  - {t: 10, translate: [0.0, 1.25, 5.4], rotate: [90, 0, -110], scale: [0.6, 0.6, 0.6]}
+  - {t: 12, translate: [0.0, 1.25, 5.4], rotate: [90, 0, -110], scale: [0.45, 0.45, 0.45]}
+  target_track:
+  - {t: 0, weight: 1}
+  - {t: 12, weight: 1}
+- id: chain
+  kind: {type: block, block: white_concrete}
+  brightness: 15
+  start_tick: 10
+  end_tick: 22
+  keyframes:
+  - {t: 0, translate: [-0.0125, 1.2625, 0.0], rotate: [0, 0, 0], scale: [0.025, 0.025, 5.4]}
+  - {t: 8, translate: [-0.0125, 1.2625, 0.0], rotate: [0, 0, 0], scale: [0.025, 0.025, 5.4]}
+  - {t: 11, translate: [0.0, 1.275, 0.0], rotate: [0, 0, 0], scale: [0.0, 0.0, 5.4]}
+  target_line: true
+- id: loop-d
+  kind:
+    type: sprite
+    sprite: couture-s2-overhead-slash
+    frame_ticks: 1
+    loop: false
+    see_through: true
+  billboard: center
+  brightness: 15
+  start_tick: 3
+  end_tick: 8
+  keyframes:
+  - t: 0
+    translate:
+    - 0.0000
+    - 3.9000
+    - -0.2000
+    rotate:
+    - 0
+    - 0
+    - 180
+    scale:
+    - 0.6164
+    - 0.6164
+    - 1
+  - t: 1
+    translate:
+    - 0.0000
+    - 3.9000
+    - 0.8000
+    rotate:
+    - 0
+    - 0
+    - 240
+    scale:
+    - 0.6128
+    - 0.6128
+    - 1
+  - t: 2
+    translate:
+    - 0.0000
+    - 3.9000
+    - 1.8000
+    rotate:
+    - 0
+    - 0
+    - 300
+    scale:
+    - 0.6025
+    - 0.6025
+    - 1
+  - t: 3
+    translate:
+    - 0.0000
+    - 3.9000
+    - 2.8000
+    rotate:
+    - 0
+    - 0
+    - 360
+    scale:
+    - 0.5853
+    - 0.5853
+    - 1
+  - t: 4
+    translate:
+    - 0.0000
+    - 3.9000
+    - 3.8000
+    rotate:
+    - 0
+    - 0
+    - 420
+    scale:
+    - 0.5770
+    - 0.5770
+    - 1
+  - t: 5
+    translate:
+    - 0.0000
+    - 3.9000
+    - 4.8000
+    rotate:
+    - 0
+    - 0
+    - 480
+    scale:
+    - 0.5770
+    - 0.5770
+    - 1
+  target_track:
+  - {t: 0, weight: 0}
+  - {t: 5, weight: 1}
+- id: loop-gd
+  kind:
+    type: sprite
+    sprite: couture-s2-overhead-slash
+    frame_ticks: 1
+    loop: false
+    see_through: true
+  billboard: center
+  brightness: 15
+  start_tick: 0
+  end_tick: 5
+  keyframes:
+  - t: 0
+    translate:
+    - 0.0000
+    - 4.3000
+    - -0.2000
+    rotate:
+    - 0
+    - 0
+    - 180
+    scale:
+    - 0.6164
+    - 0.6164
+    - 1
+  - t: 1
+    translate:
+    - 0.0000
+    - 4.3000
+    - 0.8000
+    rotate:
+    - 0
+    - 0
+    - 240
+    scale:
+    - 0.6128
+    - 0.6128
+    - 1
+  - t: 2
+    translate:
+    - 0.0000
+    - 4.3000
+    - 1.8000
+    rotate:
+    - 0
+    - 0
+    - 300
+    scale:
+    - 0.6025
+    - 0.6025
+    - 1
+  - t: 3
+    translate:
+    - 0.0000
+    - 4.3000
+    - 2.8000
+    rotate:
+    - 0
+    - 0
+    - 360
+    scale:
+    - 0.5853
+    - 0.5853
+    - 1
+  - t: 4
+    translate:
+    - 0.0000
+    - 4.3000
+    - 3.8000
+    rotate:
+    - 0
+    - 0
+    - 420
+    scale:
+    - 0.5770
+    - 0.5770
+    - 1
+  - t: 5
+    translate:
+    - 0.0000
+    - 4.3000
+    - 4.8000
+    rotate:
+    - 0
+    - 0
+    - 480
+    scale:
+    - 0.5770
+    - 0.5770
+    - 1
+  target_track:
+  - {t: 0, weight: 0}
+  - {t: 5, weight: 1}
+- id: loop-d-m
+  kind:
+    type: sprite
+    sprite: couture-s2-overhead-slash
+    frame_ticks: 1
+    loop: false
+    see_through: true
+  billboard: center
+  brightness: 15
+  start_tick: 3
+  end_tick: 8
+  keyframes:
+  - t: 0
+    translate:
+    - -0.0000
+    - 3.9000
+    - -0.2000
+    rotate:
+    - 0
+    - 0
+    - -180
+    scale:
+    - 0.6164
+    - 0.6164
+    - 1
+  - t: 1
+    translate:
+    - -0.0000
+    - 3.9000
+    - 0.8000
+    rotate:
+    - 0
+    - 0
+    - -240
+    scale:
+    - 0.6128
+    - 0.6128
+    - 1
+  - t: 2
+    translate:
+    - -0.0000
+    - 3.9000
+    - 1.8000
+    rotate:
+    - 0
+    - 0
+    - -300
+    scale:
+    - 0.6025
+    - 0.6025
+    - 1
+  - t: 3
+    translate:
+    - -0.0000
+    - 3.9000
+    - 2.8000
+    rotate:
+    - 0
+    - 0
+    - -360
+    scale:
+    - 0.5853
+    - 0.5853
+    - 1
+  - t: 4
+    translate:
+    - -0.0000
+    - 3.9000
+    - 3.8000
+    rotate:
+    - 0
+    - 0
+    - -420
+    scale:
+    - 0.5770
+    - 0.5770
+    - 1
+  - t: 5
+    translate:
+    - -0.0000
+    - 3.9000
+    - 4.8000
+    rotate:
+    - 0
+    - 0
+    - -480
+    scale:
+    - 0.5770
+    - 0.5770
+    - 1
+  target_track:
+  - {t: 0, weight: 0}
+  - {t: 5, weight: 1}
+- id: loop-gd-m
+  kind:
+    type: sprite
+    sprite: couture-s2-overhead-slash
+    frame_ticks: 1
+    loop: false
+    see_through: true
+  billboard: center
+  brightness: 15
+  start_tick: 0
+  end_tick: 5
+  keyframes:
+  - t: 0
+    translate:
+    - -0.0000
+    - 4.3000
+    - -0.2000
+    rotate:
+    - 0
+    - 0
+    - -180
+    scale:
+    - 0.6164
+    - 0.6164
+    - 1
+  - t: 1
+    translate:
+    - -0.0000
+    - 4.3000
+    - 0.8000
+    rotate:
+    - 0
+    - 0
+    - -240
+    scale:
+    - 0.6128
+    - 0.6128
+    - 1
+  - t: 2
+    translate:
+    - -0.0000
+    - 4.3000
+    - 1.8000
+    rotate:
+    - 0
+    - 0
+    - -300
+    scale:
+    - 0.6025
+    - 0.6025
+    - 1
+  - t: 3
+    translate:
+    - -0.0000
+    - 4.3000
+    - 2.8000
+    rotate:
+    - 0
+    - 0
+    - -360
+    scale:
+    - 0.5853
+    - 0.5853
+    - 1
+  - t: 4
+    translate:
+    - -0.0000
+    - 4.3000
+    - 3.8000
+    rotate:
+    - 0
+    - 0
+    - -420
+    scale:
+    - 0.5770
+    - 0.5770
+    - 1
+  - t: 5
+    translate:
+    - -0.0000
+    - 4.3000
+    - 4.8000
+    rotate:
+    - 0
+    - 0
+    - -480
+    scale:
+    - 0.5770
+    - 0.5770
+    - 1
+  target_track:
+  - {t: 0, weight: 0}
+  - {t: 5, weight: 1}

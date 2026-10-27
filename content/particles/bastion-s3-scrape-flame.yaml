@@ -1,9 +1,0 @@
-# Zwei S3: small flame wisps at the scraping tip
-id: bastion-s3-scrape-flame
-shape: { kind: burst, spread_blocks: 0.12 }
-color: { r: 255, g: 140, b: 30 }
-count: 2
-lifetime_ticks: 12
-vanilla_particle: small_flame
-velocity: { direction: up, speed: 0.12, spread_degrees: 40 }
-force: true

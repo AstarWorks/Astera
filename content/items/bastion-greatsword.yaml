@@ -7,13 +7,11 @@ lore:
   ja:
   - '左クリック: 月輪の薙ぎ'
   - '右クリック: 審判の突進'
-  - 'Shift+右: 巨剣墜つ'
   - 'Shift+左: 城壁の構え'
   - 'Q: 城塞の暁'
   en:
   - 'left_click: Moon Sweep'
   - 'right_click: Judgement Rush'
-  - 'sneak_right: Colossus Fall'
   - 'sneak_left: Tower Shield'
   - 'drop: Citadel Dawn'
 rarity: rare
@@ -30,8 +28,6 @@ skills:
   skill_id: bastion-greatsword-s1
 - trigger: right_click
   skill_id: bastion-greatsword-s2
-- trigger: sneak_right
-  skill_id: bastion-greatsword-s3
 - trigger: sneak_left
   skill_id: bastion-greatsword-def
 - trigger: drop

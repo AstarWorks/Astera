@@ -10,7 +10,7 @@ S1/S2/S3の接触時刻を再解析に合わせ、薙ぎの幅・薄さを修正
 |---|---|---|---|---:|---|
 | [S1](/case.html?id=bastion-greatsword-s1) | `bastion-greatsword-s1` | 原動画あり | 現版撮影あり | 2 | 184.256f |
 | [S2](/case.html?id=bastion-greatsword-s2) | `bastion-greatsword-s2` | 原動画あり | 現版撮影あり | 2 | 175.4f |
-| [S3](/case.html?id=zwei-s3) | `bastion-greatsword-s3` | 原動画あり | 現版撮影あり | 2 | 183.27202f |
+| [S3](/case.html?id=zwei-s3) | (削除済み) | 原動画あり | なし (全削除) | 0 | - |
 | [DEF](/case.html?id=bastion-greatsword-def) | `bastion-greatsword-def` | 原動画あり | 現版撮影あり | 1 | 200.0f |
 | [EGO](/case.html?id=bastion-greatsword-ego) | `bastion-greatsword-ego` | wiki由来 | 現版撮影あり | 1 | 172.448f |
 
