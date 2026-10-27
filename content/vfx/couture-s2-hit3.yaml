@@ -223,14 +223,6 @@ elements:
   keyframes:
   - t: 0
     translate: [0, 1.8, 0]
-- id: pxs-0
-  kind: {type: particle, particle_id: couture-s2-p-spark, every_ticks: 3}
-  brightness: 15
-  start_tick: 1
-  end_tick: 5
-  keyframes:
-  - t: 0
-    translate: [0, 1.2, 0]
 - id: pxo-0
   kind: {type: particle, particle_id: couture-s2-p-orange, every_ticks: 1}
   brightness: 15
@@ -239,14 +231,6 @@ elements:
   keyframes:
   - t: 0
     translate: [0.0, 1.2, 0]
-- id: pxs-1
-  kind: {type: particle, particle_id: couture-s2-p-spark, every_ticks: 3}
-  brightness: 15
-  start_tick: 1
-  end_tick: 5
-  keyframes:
-  - t: 0
-    translate: [0.7, 1.98, 0]
 - id: pxo-1
   kind: {type: particle, particle_id: couture-s2-p-orange, every_ticks: 1}
   brightness: 15
@@ -255,14 +239,6 @@ elements:
   keyframes:
   - t: 0
     translate: [0.42, 1.67, 0]
-- id: pxs-2
-  kind: {type: particle, particle_id: couture-s2-p-spark, every_ticks: 3}
-  brightness: 15
-  start_tick: 1
-  end_tick: 5
-  keyframes:
-  - t: 0
-    translate: [-0.7, 0.42, 0]
 - id: pxo-2
   kind: {type: particle, particle_id: couture-s2-p-orange, every_ticks: 1}
   brightness: 15
@@ -271,14 +247,6 @@ elements:
   keyframes:
   - t: 0
     translate: [-0.42, 0.73, 0]
-- id: pxs-3
-  kind: {type: particle, particle_id: couture-s2-p-spark, every_ticks: 3}
-  brightness: 15
-  start_tick: 1
-  end_tick: 5
-  keyframes:
-  - t: 0
-    translate: [1.4, 2.76, 0]
 - id: pxo-3
   kind: {type: particle, particle_id: couture-s2-p-orange, every_ticks: 1}
   brightness: 15
@@ -287,14 +255,6 @@ elements:
   keyframes:
   - t: 0
     translate: [0.84, 2.14, 0]
-- id: pxs-4
-  kind: {type: particle, particle_id: couture-s2-p-spark, every_ticks: 3}
-  brightness: 15
-  start_tick: 1
-  end_tick: 5
-  keyframes:
-  - t: 0
-    translate: [-1.4, -0.36, 0]
 - id: pxo-4
   kind: {type: particle, particle_id: couture-s2-p-orange, every_ticks: 1}
   brightness: 15
@@ -303,14 +263,6 @@ elements:
   keyframes:
   - t: 0
     translate: [-0.84, 0.26, 0]
-- id: pxs-5
-  kind: {type: particle, particle_id: couture-s2-p-spark, every_ticks: 3}
-  brightness: 15
-  start_tick: 1
-  end_tick: 5
-  keyframes:
-  - t: 0
-    translate: [0.7, 0.42, 0]
 - id: pxo-5
   kind: {type: particle, particle_id: couture-s2-p-orange, every_ticks: 1}
   brightness: 15
@@ -319,14 +271,6 @@ elements:
   keyframes:
   - t: 0
     translate: [0.42, 0.73, 0]
-- id: pxs-6
-  kind: {type: particle, particle_id: couture-s2-p-spark, every_ticks: 3}
-  brightness: 15
-  start_tick: 1
-  end_tick: 5
-  keyframes:
-  - t: 0
-    translate: [-0.7, 1.98, 0]
 - id: pxo-6
   kind: {type: particle, particle_id: couture-s2-p-orange, every_ticks: 1}
   brightness: 15
@@ -335,14 +279,6 @@ elements:
   keyframes:
   - t: 0
     translate: [-0.42, 1.67, 0]
-- id: pxs-7
-  kind: {type: particle, particle_id: couture-s2-p-spark, every_ticks: 3}
-  brightness: 15
-  start_tick: 1
-  end_tick: 5
-  keyframes:
-  - t: 0
-    translate: [1.4, -0.36, 0]
 - id: pxo-7
   kind: {type: particle, particle_id: couture-s2-p-orange, every_ticks: 1}
   brightness: 15
@@ -351,14 +287,6 @@ elements:
   keyframes:
   - t: 0
     translate: [0.84, 0.26, 0]
-- id: pxs-8
-  kind: {type: particle, particle_id: couture-s2-p-spark, every_ticks: 3}
-  brightness: 15
-  start_tick: 1
-  end_tick: 5
-  keyframes:
-  - t: 0
-    translate: [-1.4, 2.76, 0]
 - id: pxo-8
   kind: {type: particle, particle_id: couture-s2-p-orange, every_ticks: 1}
   brightness: 15

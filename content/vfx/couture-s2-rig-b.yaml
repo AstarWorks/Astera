@@ -47,11 +47,3 @@ elements:
     ease: in_quad
     color: '#7A4FC2'
     alpha: 0.0
-- id: hz-spark
-  kind: {type: particle, particle_id: couture-s2-p-spark, every_ticks: 3}
-  brightness: 15
-  start_tick: 3
-  end_tick: 9
-  keyframes:
-  - t: 0
-    translate: [0, 1.0, 1.4]
