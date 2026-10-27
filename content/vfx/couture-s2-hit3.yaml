@@ -1,5 +1,4 @@
-# S2 coin 3 hit (dash contact): white flash, orange streak, white X cut, yellow ring #E8DD49, petals; played on dash on_hit.
-# --- dense particle layer (couture-s2 particle pass) ---
+# S2 coin 3 hit (cast-time play_vfx at skill tick 72): white X cut, yellow ring #E8DD49, orange/white sparks.
 id: couture-s2-hit3
 duration_ticks: 16
 orient: world
@@ -78,27 +77,6 @@ elements:
     scale: [1.9800000000000002, 0.01, 1]
     ease: in_quad
     alpha: 0.0
-- id: orange-streak
-  kind: {type: quad, color: '#FF9B3A', alpha: 0.95, see_through: true}
-  billboard: center
-  brightness: 15
-  start_tick: 0
-  end_tick: 5
-  keyframes:
-  - t: 0
-    translate: [0, 1.2, 0]
-    rotate: [0, 0, 80]
-    scale: [0.08, 0.5, 1]
-  - t: 1
-    translate: [0, 1.2, 0]
-    rotate: [0, 0, 80]
-    scale: [0.2, 5.2, 1]
-    ease: out_expo
-  - t: 5
-    translate: [0, 1.2, 0]
-    rotate: [0, 0, 80]
-    scale: [0.0, 5.2, 1]
-    ease: in_quad
 - id: cut-x-a
   kind: {type: quad, color: '#FFFFFF', alpha: 1.0, see_through: true}
   billboard: center
@@ -151,16 +129,16 @@ elements:
   - t: 0
     translate: [0, 1.2, 0]
     rotate: [0, 0, 0]
-    scale: [0.5, 0.5, 1]
+    scale: [0.3, 0.3, 1]
   - t: 2
     translate: [0, 1.2, 0]
     rotate: [0, 0, 120]
-    scale: [1.3, 1.3, 1]
+    scale: [0.78, 0.78, 1]
     ease: out_cubic
   - t: 10
     translate: [0, 1.2, 0]
     rotate: [0, 0, 300]
-    scale: [1.7, 1.7, 1]
+    scale: [1.02, 1.02, 1]
     ease: out_quad
 - id: ring-yellow-2
   kind: {type: sprite, sprite: couture-orbit, frame_ticks: 1, loop: false, see_through: true, color: '#E8DD49'}
@@ -172,16 +150,16 @@ elements:
   - t: 0
     translate: [0, 1.2, 0]
     rotate: [0, 0, 180]
-    scale: [0.5, 0.5, 1]
+    scale: [0.3, 0.3, 1]
   - t: 2
     translate: [0, 1.2, 0]
     rotate: [0, 0, 300]
-    scale: [1.3, 1.3, 1]
+    scale: [0.78, 0.78, 1]
     ease: out_cubic
   - t: 10
     translate: [0, 1.2, 0]
     rotate: [0, 0, 480]
-    scale: [1.7, 1.7, 1]
+    scale: [1.02, 1.02, 1]
     ease: out_quad
 - id: p-orange
   kind: {type: particle, particle_id: couture-s2-p-orange, every_ticks: 1}
