@@ -261,11 +261,11 @@ class MatchArsenalE2eTest : ObjectivePlaythroughBase() {
             assertThat(slot).describedAs("no stone pickaxe in the hotbar").isNotNull()
             fun solid() = (65..67).flatMap { y -> (4..6).map { z -> y to z } }.count { (y, z) -> arenaSolid(-60, y, z) }
             val before = solid()
-            a.useItem(270f, 0f)
-            Thread.sleep(1_500)
-            // Glass is cover (tempered-glass, 250 HP): one stone-pickaxe bore chips it, a second one (after the 8 s cooldown) breaks it.
-            if (solid() == before) {
-                Thread.sleep(7_000)
+            // Glass is cover (tempered-glass, 250 HP; stone pickaxe PICKAXE/STONE = 60%, bore cover_damage 300 -> 180 per cast):
+            // the first cast chips it, the second breaks it. Each cast waits out the 8 s cooldown, which the previous check
+            // (an ore-node bore) may still be running.
+            repeat(2) {
+                Thread.sleep(8_000)
                 a.useItem(270f, 0f)
                 Thread.sleep(1_500)
             }
