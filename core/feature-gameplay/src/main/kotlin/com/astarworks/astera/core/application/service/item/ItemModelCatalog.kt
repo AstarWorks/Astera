@@ -7,7 +7,8 @@ import java.nio.file.Path
  * Which items have art in the resource pack (ADR-0193): an item id has an `astera:<id>` item definition
  * when `content/models/generated/items/<id>.model.json` exists, the file `:tools:item-art` writes and
  * the pack builder turns into `assets/astera/items/<id>.json`. The materializer puts that key in the
- * `item_model` data component; items without art keep the plain vanilla look of their base material.
+ * `item_model` data component; visual-backed `content/blocks` placement items use pack-generated cube
+ * definitions too (ADR-0299). Items without art keep the plain vanilla look of their base material.
  */
 public class ItemModelCatalog(
     modelIds: Set<String>,
@@ -37,8 +38,15 @@ public class ItemModelCatalog(
 
         private fun idsIn(contentDir: Path): Set<String> {
             val dir = contentDir.resolve(GENERATED_MODELS)
-            if (!Files.isDirectory(dir)) return emptySet()
-            return Files.list(dir).use { stream ->
+            val blocksDir = contentDir.resolve("blocks")
+            val blockItems = if (Files.isDirectory(blocksDir)) Files.list(blocksDir).use { stream ->
+                stream.filter { it.fileName.toString().endsWith(".yaml") }.toList().mapNotNull { file ->
+                    val doc = org.yaml.snakeyaml.Yaml().load<Map<String, Any?>>(Files.readString(file))
+                    if (doc["visual"] != null) doc["placed_from"]?.toString() else null
+                }
+            }.toSet() else emptySet()
+            if (!Files.isDirectory(dir)) return blockItems
+            return blockItems + Files.list(dir).use { stream ->
                 stream.map { it.fileName.toString() }
                     .filter { it.endsWith(SUFFIX) }
                     .map { it.removeSuffix(SUFFIX) }

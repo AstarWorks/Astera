@@ -17,6 +17,9 @@ import com.astarworks.astera.match.application.config.GeneratorYamlConfig
 import com.astarworks.astera.match.application.config.StageYamlConfig
 import com.astarworks.astera.stats.application.config.NormaYamlConfig
 import kotlinx.serialization.serializer
+import kotlinx.serialization.json.*
+import kotlin.io.path.readText
+import kotlin.io.path.writeText
 import java.nio.file.Path
 import kotlin.io.path.createDirectories
 
@@ -128,6 +131,7 @@ fun main(args: Array<String>) {
     for (entry in schemas) {
         val outputPath = outputDir.resolve("${entry.name}.schema.json")
         SchemaGenerator.generate(entry.serializer, outputPath, entry.schemaId)
+        if (entry.name == "block") constrainPlacedBlockVisual(outputPath)
         println("Generated: $outputPath")
     }
 
@@ -140,3 +144,22 @@ private data class SchemaEntry<T>(
     val serializer: kotlinx.serialization.KSerializer<T>,
     val schemaId: String,
 )
+
+/** Reserved carrier constraints exceed the structural serialization descriptor (ADR-0299). */
+private fun constrainPlacedBlockVisual(path: Path) {
+    val root = Json.parseToJsonElement(path.readText()).jsonObject.toMutableMap()
+    val properties = root.getValue("properties").jsonObject.toMutableMap()
+    properties["visual"] = Json.parseToJsonElement("""
+        {"type":"object","additionalProperties":false,"required":["base","state"],"properties":{
+          "base":{"const":"note_block"},"state":{"type":"object","additionalProperties":false,
+          "required":["instrument","note","powered"],"properties":{"instrument":{"const":"harp"},
+          "note":{"enum":["1","2","3","4","5","6","7","8","9"]},"powered":{"const":"false"}}}}}
+    """.trimIndent())
+    root["properties"] = JsonObject(properties)
+    root["allOf"] = Json.parseToJsonElement("""
+        [{"if":{"required":["placed_from"]},"then":{"required":["visual","texture"]}}]
+    """.trimIndent())
+    val definitions = root.getValue("definitions").jsonObject.filterKeys { !it.endsWith(".BlockVisualYamlConfig") }
+    root["definitions"] = JsonObject(definitions)
+    path.writeText(Json { prettyPrint = true }.encodeToString(JsonElement.serializer(), JsonObject(root)))
+}

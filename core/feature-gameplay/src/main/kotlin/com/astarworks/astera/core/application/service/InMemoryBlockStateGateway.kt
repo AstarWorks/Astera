@@ -243,6 +243,7 @@ public class InMemoryBlockStateGateway(
      */
     private fun resolveDrops(spec: CustomBlockSpec?, tool: ToolType): List<ItemId> {
         if (spec == null) return emptyList()
+        if (spec.visual != null && spec.placedFrom != null) return listOf(spec.placedFrom)
         return buildList {
             for (drop in spec.drops) {
                 if (drop.requiresTool != null && !toolSatisfies(tool, drop.requiresTool)) continue

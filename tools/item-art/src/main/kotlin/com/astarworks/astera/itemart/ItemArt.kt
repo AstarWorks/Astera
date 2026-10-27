@@ -199,6 +199,7 @@ internal object ItemArt {
         for ((id, spec) in icons(contentDir)) put(id, ModelStyle.GENERATED) { Icons.render(id, spec) }
         // Items with a source but no code design (neither weapon nor icon): always converted.
         for (id in sources.keys) if ("$TEXTURE_DIR/$id.png" !in files) put(id, ModelStyle.GENERATED) { error(id) }
+        files.putAll(BlockArt.renderAll(contentDir))
         files.putAll(SpriteSources.renderAll(contentDir))
         files.putAll(ParticleSkins.renderAll(contentDir))
         files.putAll(TooltipArt.renderAll(contentDir))

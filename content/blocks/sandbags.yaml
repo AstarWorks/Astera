@@ -8,3 +8,10 @@ display_name:
 base_bukkit_material: "PACKED_MUD"
 material: "SOIL"
 base_durability: 200
+
+placed_from: "sandbags-block"
+
+visual:
+  base: note_block
+  state: {instrument: harp, note: "6", powered: "false"}
+texture: "astera:blocks/sandbags"

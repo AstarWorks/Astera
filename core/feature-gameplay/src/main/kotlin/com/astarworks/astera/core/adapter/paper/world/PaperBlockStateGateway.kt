@@ -44,6 +44,7 @@ public class PaperBlockStateGateway(
     private val random: Random = Random.Default,
     /** Called just before this gateway edits the world (break), so an arena slot journal can remember the block. */
     private val beforeWorldEdit: (Block) -> Unit = {},
+    private val dropCustom: (Block, PlayerId, ItemId) -> Unit,
 ) : IBlockStateGateway {
     private val damage = com.astarworks.astera.core.application.service.BlockHpStore()
     override fun damagedWorlds(): Set<WorldId> = damage.worlds()
@@ -65,7 +66,7 @@ public class PaperBlockStateGateway(
     override fun getDurability(world: WorldId, pos: Vec3): Int {
         val block = resolveBlock(world, pos) ?: return BlockState.DEFAULT_MAX_DURABILITY
         if (block.type.isAir) return 0
-        val spec = customBlockRegistry?.resolveByBaseMaterial(block.type.name)
+        val spec = customBlockRegistry?.resolveByBlockData(block.blockData.asString)
         val maxHp = spec?.baseDurability ?: com.astarworks.astera.core.domain.world.BlockHpRules.maxHp(block.type.hardness.toDouble())
         return (maxHp - damage.damage(world, cellOf(pos))).coerceAtLeast(0)
     }
@@ -83,7 +84,7 @@ public class PaperBlockStateGateway(
             )
         if (block.type.isAir || block.type.hardness < 0 || block.type == Material.BARRIER || block.type == Material.BEDROCK)
             return Result.success(BlockDamageOutcome.Ineffective(IneffectiveReason.ZeroDamageCell))
-        val customSpec = customBlockRegistry?.resolveByBaseMaterial(block.type.name)
+        val customSpec = customBlockRegistry?.resolveByBlockData(block.blockData.asString)
         val blockType = customSpec?.id ?: bukkitBlockTypeOf(block)
         val effectiveMaterial = profile.materialOverride
             ?: customSpec?.material
@@ -135,7 +136,13 @@ public class PaperBlockStateGateway(
             // disappear. The in-memory impl skips this; only the Paper
             // adapter knows about the actual Bukkit world.
             beforeWorldEdit(block)
+            if (customSpec?.visual != null) {
+                block.world.spawnParticle(org.bukkit.Particle.BLOCK, block.location.add(0.5, 0.5, 0.5), 24, 0.3, 0.3, 0.3, block.blockData)
+                val sound = Material.matchMaterial(customSpec.baseBukkitMaterial)?.createBlockData()?.soundGroup?.breakSound
+                if (sound != null) block.world.playSound(block.location, sound, 1f, 1f)
+            }
             block.type = Material.AIR
+            if (customSpec?.visual != null) drops.forEach { dropCustom(block, attackerId, it) }
             // Drop the tracker entry — restoring a broken position later
             // would resurrect it at full HP without a placement event,
             // which is incorrect.
@@ -212,7 +219,7 @@ public class PaperBlockStateGateway(
         // want the tracker to claim the block is placed. The arena slot journal remembers what stood here first,
         // so the arena repair after the match brings it back.
         beforeWorldEdit(block)
-        block.type = material
+        block.setBlockData(spec.visual?.let { server.createBlockData(it.blockData) } ?: material.createBlockData(), false)
         if (temporaryBlock) temporaryKeys += BlockKey.of(world, pos)
 
         val state = BlockState(
@@ -237,7 +244,7 @@ public class PaperBlockStateGateway(
 
     override fun isCover(world: WorldId, pos: Vec3): Boolean {
         val block = resolveBlock(world, pos) ?: return false
-        return customBlockRegistry?.resolveByBaseMaterial(block.type.name) != null
+        return customBlockRegistry?.resolveByBlockData(block.blockData.asString) != null
     }
 
     override fun canPlaceAt(world: WorldId, pos: Vec3): Boolean =
@@ -260,7 +267,7 @@ public class PaperBlockStateGateway(
 
     override fun tracked(world: WorldId): Map<Vec3, BlockState> = damage.snapshot(world).mapValues { (pos, hit) ->
         val block = resolveBlock(world, pos)
-        val spec = block?.let { customBlockRegistry?.resolveByBaseMaterial(it.type.name) }
+        val spec = block?.let { customBlockRegistry?.resolveByBlockData(it.blockData.asString) }
         val maxHp = spec?.baseDurability ?: com.astarworks.astera.core.domain.world.BlockHpRules.maxHp(block?.type?.hardness?.toDouble() ?: 1.0)
         BlockState(spec?.id ?: block?.let(::bukkitBlockTypeOf) ?: UNKNOWN_BLOCK_TYPE, maxHp - hit.damage, hit.lastHitTick, null, maxHp)
     }
@@ -302,6 +309,7 @@ public class PaperBlockStateGateway(
      */
     private fun resolveDrops(spec: CustomBlockSpec?, tool: ToolType): List<ItemId> {
         if (spec == null) return emptyList()
+        if (spec.visual != null && spec.placedFrom != null) return listOf(spec.placedFrom)
         return buildList {
             for (drop in spec.drops) {
                 if (drop.requiresTool != null && !toolSatisfies(tool, drop.requiresTool)) continue
@@ -331,7 +339,7 @@ public class PaperBlockStateGateway(
     private fun defaultStateFor(world: WorldId, pos: Vec3): BlockState {
         val block = resolveBlock(world, pos)
         val type = if (block != null) bukkitBlockTypeOf(block) else UNKNOWN_BLOCK_TYPE
-        val maxHp = block?.let { customBlockRegistry?.resolveByBaseMaterial(it.type.name)?.baseDurability ?: com.astarworks.astera.core.domain.world.BlockHpRules.maxHp(it.type.hardness.toDouble()) } ?: BlockState.DEFAULT_MAX_DURABILITY
+        val maxHp = block?.let { customBlockRegistry?.resolveByBlockData(it.blockData.asString)?.baseDurability ?: com.astarworks.astera.core.domain.world.BlockHpRules.maxHp(it.type.hardness.toDouble()) } ?: BlockState.DEFAULT_MAX_DURABILITY
         return BlockState(
             blockType = type,
             durability = maxHp,

@@ -15,3 +15,8 @@ tool_effectiveness:
   "PICKAXE/IRON": 30
   "SHOVEL/IRON": 0
 placed_from: "reinforced-planks-block"
+
+visual:
+  base: note_block
+  state: {instrument: harp, note: "4", powered: "false"}
+texture: "astera:blocks/reinforced-planks"

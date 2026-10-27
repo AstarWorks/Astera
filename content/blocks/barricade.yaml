@@ -8,3 +8,10 @@ display_name:
 base_bukkit_material: "MANGROVE_PLANKS"
 material: "WOOD"
 base_durability: 300
+
+placed_from: "barricade-block"
+
+visual:
+  base: note_block
+  state: {instrument: harp, note: "1", powered: "false"}
+texture: "astera:blocks/barricade"

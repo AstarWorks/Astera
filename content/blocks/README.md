@@ -1,8 +1,9 @@
 # Block HP (ADR-0297)
 
 `base_durability` is custom maximum HP and overrides vanilla `ceil(hardness * 100)`.
-`base_bukkit_material` uniquely identifies that definition in both Paper and game-sim;
-for example every OBSIDIAN is the authored obsidian plate (1500 HP).
+`visual` identifies placed cover by full block state. `base_bukkit_material` supplies
+the original material sound; plain OBSIDIAN remains vanilla terrain. Definitions
+without visuals (ore nodes) still resolve their base material.
 
 `tool_effectiveness` contains percentages of a hit's `block_damage`: 100 = 1x,
 60 = 0.6x, 0 = immune. Missing cells use `damage_matrix` in
@@ -25,3 +26,35 @@ the affected positions. There is no HP persistence or gradual healing.
 
 Schemas: `content/schemas/block.schema.json`, `block-durability.schema.json` and
 `skill.schema.json` (generated from DTOs); contentLint validates all three.
+
+## Placed surfaces (ADR-0299)
+
+Every placeable definition requires `placed_from`, `texture` and `visual`:
+
+```yaml
+placed_from: packed-clay-block
+texture: astera:blocks/packed-clay
+visual:
+  base: note_block
+  state: {instrument: harp, note: "3", powered: "false"}
+```
+
+Reserve harp notes 1–9, unpowered, once each (barricade, hardened-soil, packed-clay,
+reinforced-planks, reinforced-wall, sandbags, stone-bulwark, tempered-glass, obsidian-plate).
+Note 0 belongs to vanilla placement; ore nodes have no visual reservation. Lint rejects unsafe
+states, duplicate claims and placement items without visuals. Plain vanilla materials are terrain,
+not implicit cover. Map structures must explicitly use the authored block state for intended cover.
+
+Original surfaces live in `textures/sources/placed-blocks.yaml`; regenerate just these PNGs with
+`./gradlew :tools:item-art:run --args="blocks content"`. Full item-art generation/check also includes
+these surfaces. The pack builder generates blockstates and matching world/item cube models, retaining
+vanilla note-block looks elsewhere. Existing `content/models/` assets are untouched.
+
+Paper suppresses vanilla note interactions, physics, power, playback and piston movement.
+Hand mining uses authored HP. Broken custom cover drops the shared materializer's placement item,
+so it stacks with the shop/kit stack. Tempered glass uses an **opaque framed-glass** surface because
+the carrier is opaque. No see-through glass behavior is promised.
+
+Review: `tools/item-art/scripts/placed-block-shot.sh` runs an isolated real client, joins PvE, waits
+for ACTIVE, places all nine items and captures them next to dirt/stone/planks/glass at 3 m and 8 m.
+Output: `/tmp/claude-1000/codex/placed-block-look/shots/sheet.png`.

@@ -58,6 +58,7 @@ public class ResourcePackBuilder(
         addTextures(files)
         addEquipment(files)
         addModels(files)
+        addBlockVisuals(files)
         addHeldHiddenDefinition(files)
         addSounds(files)
         addHud(files)
@@ -218,6 +219,36 @@ public class ResourcePackBuilder(
             }
         }
         return colors
+    }
+
+    /** ADR-0299: cube model is shared by the world and the materialized held/dropped item. */
+    private fun addBlockVisuals(files: MutableMap<String, ByteArray>) {
+        val variants = sortedMapOf<String, Any>()
+        val instruments = listOf("harp", "basedrum", "snare", "hat", "bass", "flute", "bell", "guitar",
+            "chime", "xylophone", "iron_xylophone", "cow_bell", "didgeridoo", "bit", "banjo", "pling",
+            "zombie", "skeleton", "creeper", "dragon", "wither_skeleton", "piglin", "custom_head")
+        for (instrument in instruments) for (note in 0..24) for (powered in listOf(false, true)) {
+            variants["instrument=$instrument,note=$note,powered=$powered"] = mapOf("model" to "minecraft:block/note_block")
+        }
+        val claimed = mutableSetOf<String>()
+        for (file in filesUnder("blocks").filter { it.extension == "yaml" }) {
+            val doc = Yaml().load<Map<String, Any?>>(Files.readString(file))
+            val visual = doc["visual"] as? Map<*, *> ?: continue
+            require(visual["base"] == "note_block") { "$file: unsupported visual base" }
+            val state = (visual["state"] as Map<*, *>).entries.associate { it.key.toString() to it.value.toString() }.toSortedMap()
+            val key = state.entries.joinToString(",") { "${it.key}=${it.value}" }
+            require(state["instrument"] == "harp" && state["note"]?.toIntOrNull() in 1..9 && state["powered"] == "false") { "$file: unsafe visual state" }
+            require(claimed.add(key)) { "$file: duplicate visual state $key" }
+            val id = file.name.removeSuffix(".yaml")
+            val texture = doc["texture"].toString()
+            require("assets/${texture.substringBefore(':')}/textures/${texture.substringAfter(':')}.png" in files) { "$file: missing texture $texture" }
+            val model = "blocks/$id"
+            files["assets/$NAMESPACE/models/$model.json"] = json(mapOf("parent" to "minecraft:block/cube_all", "textures" to mapOf("all" to texture))).toByteArray()
+            variants[key] = mapOf("model" to "$NAMESPACE:$model")
+            val item = requireNotNull(doc["placed_from"]) { "$file: visual needs placed_from" }.toString()
+            files["assets/$NAMESPACE/items/$item.json"] = json(mapOf("model" to mapOf("type" to "minecraft:model", "model" to "$NAMESPACE:$model"))).toByteArray()
+        }
+        if (claimed.isNotEmpty()) files["assets/minecraft/blockstates/note_block.json"] = json(mapOf("variants" to variants)).toByteArray()
     }
 
     private fun addSounds(files: MutableMap<String, ByteArray>) {
