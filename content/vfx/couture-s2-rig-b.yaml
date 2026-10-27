@@ -48,4 +48,5 @@ ghost_bodies:
   offset: [0, 0, -0.7]
   delay_ticks: 2
   start_tick: 0
-  end_tick: 7
+  end_tick: 9
+  scale: 1.25

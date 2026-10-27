@@ -5,6 +5,7 @@
 @@ before: #ifndef OIT_ALPHA_ONLY
 layout(location = 8) flat in int rigPart;
 layout(location = 9) in vec3 rigViewPos;
+layout(location = 10) in vec3 rigViewNormal;
 
 @@ before: vec4 calculateFinalColor(vec4 color) {
 // Astera skin rig first-person hiding (ADR-0285). The server cannot know the client's camera perspective, so the
@@ -133,5 +134,10 @@ vec2 rigRemap(vec2 uv, int part) {
         float ghostLuma = dot(color.rgb, vec3(0.2126, 0.7152, 0.0722));
         // Hard luma contrast keeps the face, hair, clothes and per-face shading readable inside the violet, so the copy reads as a body.
         color.rgb = clamp(vec3(0.5412, 0.3608, 1.0) * (0.15 + 1.9 * ghostLuma), 0.0, 1.0);
-        color.a *= 0.5;
+        // Soft glowing edge: faces that look straight at the camera are the thinnest (fade toward the middle), grazing faces carry a
+        // brighter rim, so the silhouette glows instead of reading as a flat plate. Mean opacity stays ~GHOST_OPACITY.
+        float ghostFacing = clamp(abs(dot(normalize(rigViewNormal), normalize(-rigViewPos))), 0.0, 1.0);
+        float ghostRim = 1.0 - ghostFacing;
+        color.rgb = mix(color.rgb, vec3(0.78, 0.66, 1.0), 0.55 * ghostRim);
+        color.a *= mix(0.38, 0.8, ghostRim);
     }
