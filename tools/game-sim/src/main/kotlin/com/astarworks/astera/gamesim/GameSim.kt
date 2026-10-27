@@ -146,6 +146,9 @@ public class GameSim private constructor(
     /** Carrier looks, world markers and boss bars of the objective modes. */
     public val objectiveStage: SimObjectiveStage = SimObjectiveStage()
 
+    /** Floating labels over bases, spawns, objectives and pillars. */
+    public val worldLabels: SimWorldLabels = SimWorldLabels()
+
     /** The per-player hologram guide arrows (ADR-0295): who is pointed at what. */
     public val hologramGuide: SimHologramGuide = SimHologramGuide()
 
@@ -672,7 +675,7 @@ public class GameSim private constructor(
 
             // ---- Match / Stats / Economy ---------------------------------
             val replayRoot = Files.createTempDirectory("astera-sim-replays")
-            sim.match = MatchWiring.install(context(), MatchPlatformPorts(replayExportRoot = replayRoot, annihilationConfig = annihilation, spectator = { sim.spectator }, starDropWorld = { sim.starDrops }, oreNodeWorld = { sim.oreNodes }, generatorItemDrop = { sim.generatorDrops }, objectiveStage = { sim.objectiveStage }, playerPositions = { reg -> SimMatchPlayerPositions({ reg.get<com.astarworks.astera.core.application.port.outbound.IPlayerLocationLookup>() }, sim.spectator) }, normaPresentation = { sim.normaPresentation }))
+            sim.match = MatchWiring.install(context(), MatchPlatformPorts(replayExportRoot = replayRoot, annihilationConfig = annihilation, spectator = { sim.spectator }, starDropWorld = { sim.starDrops }, oreNodeWorld = { sim.oreNodes }, generatorItemDrop = { sim.generatorDrops }, objectiveStage = { sim.objectiveStage }, worldLabels = { sim.worldLabels }, playerPositions = { reg -> SimMatchPlayerPositions({ reg.get<com.astarworks.astera.core.application.port.outbound.IPlayerLocationLookup>() }, sim.spectator) }, normaPresentation = { sim.normaPresentation }))
             sim.stats = StatsWiring.install(context(), StatsPlatformPorts())
             sim.economy = EconomyWiring.install(context(), EconomyPlatformPorts())
 

@@ -11,6 +11,7 @@ import com.astarworks.astera.core.domain.match.MatchId
 import com.astarworks.astera.core.domain.match.MatchPhase
 import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.match.application.gamemode.siege.CountRules
+import com.astarworks.astera.match.application.service.RuleCards
 import com.astarworks.astera.match.domain.event.PhaseChanged
 import com.astarworks.astera.match.domain.norma.NormaConfig
 
@@ -19,7 +20,7 @@ import com.astarworks.astera.match.domain.norma.NormaConfig
  *
  * When a match turns ACTIVE (after the countdown) each participant gets, in order:
  *  1. t=0: the objective as a title (`astera.match.objective.<modeKey>.title|subtitle`, one sentence) plus the mode's
- *     chat line `astera.match.briefing.mode.<modeKey>`. The chat is only a backup of the title.
+ *     three-line rule card in chat ([RuleCards]: goal, how to win, one tip).
  *  2. From [FIRST_HINT_DELAY_TICKS] on, one short action-bar hint every [HINT_SPACING_TICKS] (`astera.match.hint.*`),
  *     each mirrored by its longer chat line: the beginner guide (first match only), then what Norma levels unlock (they never decide
  *     the match, ADR-0288), then the time-limit rule. A hint is dropped if the match is no longer ACTIVE.
@@ -40,6 +41,8 @@ public class MatchBriefingListener(
     private val showHint: (PlayerId, MessageKey, Map<String, String>) -> Unit = { _, _, _ -> },
     /** True while the player has never finished a match: they also get the beginner guide. */
     private val isFirstMatch: (PlayerId) -> Boolean = { false },
+    /** The three-line rule card written to chat after the title. */
+    private val ruleCards: RuleCards,
 ) {
 
     public fun onPhaseChanged(event: PhaseChanged) {
@@ -66,12 +69,7 @@ public class MatchBriefingListener(
                 showTitle(viewer, titleKey, MessageKey("astera.match.objective.$modeKey.subtitle"), countParams)
             }
         }
-        send("astera.match.briefing.header")
-        if (modeKey != null) {
-            val key = "astera.match.briefing.mode.$modeKey"
-            val text = messages.render(viewer, MessageKey(key), countParams)
-            if (text.isNotBlank() && text != key && !text.startsWith("astera.")) playerGateway.sendMessage(viewer, text)
-        }
+        ruleCards.send(viewer, matchId)
 
         // Later stages, one at a time: a short action-bar hint plus its longer chat lines.
         val stages = buildList {

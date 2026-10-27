@@ -31,6 +31,7 @@ import com.astarworks.astera.core.domain.world.BlockType
 import com.astarworks.astera.match.application.port.inbound.IMatchLifecycle
 import com.astarworks.astera.match.application.port.outbound.IMatchPlayerPositions
 import com.astarworks.astera.match.application.port.outbound.IObjectiveStage
+import com.astarworks.astera.match.application.port.outbound.IWorldLabels
 import com.astarworks.astera.match.domain.event.EntityEnteredRegion
 import com.astarworks.astera.match.domain.event.EntityLeftRegion
 import com.astarworks.astera.match.domain.gamemode.GameModeContext
@@ -56,6 +57,7 @@ import org.slf4j.LoggerFactory
  * @property stage the visible objective stage (carrier glow, world markers, boss bars); `null` = headless.
  * @property guide the per-player hologram guide arrow (ADR-0295); `null` = no hologram.
  * @property settings player preferences; the guide is off for players who hid the HUD; `null` = everyone sees it.
+ * @property labels the floating in-world labels over bases, spawns and objectives; `null` = no labels.
  */
 public class SiegeEnv(
     public val eventBus: IDomainEventBus,
@@ -75,6 +77,7 @@ public class SiegeEnv(
     public val stage: () -> IObjectiveStage? = { null },
     public val guide: () -> IHologramGuide? = { null },
     public val settings: () -> IPlayerSettingsRepository? = { null },
+    public val labels: () -> IWorldLabels? = { null },
 ) {
     public fun int(key: String, default: Int): Int = config[key]?.toIntOrNull() ?: default
 
@@ -155,6 +158,9 @@ public abstract class SiegeGameMode<R : SiegeRun>(
     /** The objective feedback helpers (carrier look, markers, bars, compass, channel); only touched while [env] is set. */
     protected val kit: ObjectiveKit by lazy { ObjectiveKit(checkNotNull(env) { "an inert mode has no objective kit" }, modeId.value) }
 
+    /** The in-world labels (bases, spawns, objectives); only touched while [env] is set. */
+    private val labels: ObjectiveLabels by lazy { ObjectiveLabels(checkNotNull(env) { "an inert mode has no labels" }, modeId.value) }
+
     /** Bus subscriptions that route events into the hooks; empty when the mode is inert. */
     public fun subscribe(): List<IDomainEventBus.Subscription> {
         val e = env ?: return emptyList()
@@ -193,6 +199,7 @@ public abstract class SiegeGameMode<R : SiegeRun>(
         runs[match.id] = run
         if (countModel) for (team in match.teams) run.counts[team.id] = countStart()
         start(run, match)
+        labels.place(match, stage)
         e.eventBus.publish(GameModeEvent.GameModeStarted(matchId = match.id, modeId = modeId, atTick = e.now()))
     }
 
@@ -220,8 +227,19 @@ public abstract class SiegeGameMode<R : SiegeRun>(
         if (now - run.slowAt < SLOW_TICKS) return
         run.slowAt = now
         tickRun(run, match, tick)
+        guideMembers(run, match)
+        if (run.due("labels", now, LABEL_REFRESH_TICKS)) labels.place(match, run.stage)
         if (countModel) refreshBars(run, match)
         remindObjective(run, match, e)
+    }
+
+    /** Points every member's compass / hologram at [navTarget] (modes that steer through their own compass return `null`). */
+    private fun guideMembers(run: R, match: Match) {
+        if (run.ended) return
+        for (team in match.teams) for (member in team.members) {
+            val (target, hint, params) = navTarget(run, match, member, team.id) ?: continue
+            kit.compass(member, target, hint, params)
+        }
     }
 
     /** Every [REMINDER_TICKS] of live play, everyone gets the mode's "how to win" line again (the briefing is long gone from chat by then). */
@@ -302,6 +320,7 @@ public abstract class SiegeGameMode<R : SiegeRun>(
         val e = env ?: return
         val run = runs.remove(context.matchId) ?: return
         finish(run)
+        labels.clear(context.matchId)
         kit.endMatch(context.matchId, e.matches.findById(context.matchId)?.teams?.flatMap { it.members }.orEmpty())
         e.eventBus.publish(GameModeEvent.GameModeEnded(matchId = context.matchId, modeId = modeId, atTick = e.now()))
     }
@@ -335,6 +354,9 @@ public abstract class SiegeGameMode<R : SiegeRun>(
 
     /** Once a second while the match is ACTIVE / SUDDEN_DEATH. */
     protected open fun tickRun(run: R, match: Match, tick: Long) {}
+
+    /** Where [viewer] (of [team]) should head right now: target, hint key (`astera.objective.hint.*`) and its params; `null` = this mode draws its own compass or has none. */
+    protected open fun navTarget(run: R, match: Match, viewer: PlayerId, team: TeamId): NavTarget? = null
 
     /** Match ended: remove whatever [start] put into the world. */
     protected open fun finish(run: R) {}
@@ -499,6 +521,9 @@ public abstract class SiegeGameMode<R : SiegeRun>(
 
         /** One second: the cadence of [tickRun]. */
         public const val SLOW_TICKS: Long = 20L
+
+        /** Labels re-resolve their viewers (team changes, late joins) every 10 s. */
+        private const val LABEL_REFRESH_TICKS: Long = 200L
 
         /** Two minutes of server ticks between objective reminders. */
         private const val REMINDER_TICKS: Long = 2400L

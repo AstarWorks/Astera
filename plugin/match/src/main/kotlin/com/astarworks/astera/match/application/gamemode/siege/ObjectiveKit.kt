@@ -215,6 +215,12 @@ public class ObjectiveKit(private val env: SiegeEnv, private val modeKey: String
         guide.point(player, target, label)
     }
 
+    /** The point of [targets] closest to [viewer] on the ground plane (`null` = no targets or the viewer's position is unknown). */
+    public fun nearest(viewer: PlayerId, targets: Collection<Vec3>): Vec3? {
+        val from = positionOf(viewer) ?: return targets.firstOrNull()
+        return targets.minByOrNull { flatDistance(from, it) }
+    }
+
     /** The arrow glyph for where [target] lies relative to where [player] looks (empty when the pose is unknown). */
     public fun arrow(player: PlayerId, target: Vec3): String {
         val pose = env.poses()?.poseOf(player) ?: return ""
@@ -291,3 +297,6 @@ public class ObjectiveKit(private val env: SiegeEnv, private val modeKey: String
         public fun colorOf(team: TeamId): String = team.value
     }
 }
+
+/** Where a viewer should head: the [target] point, the `astera.objective.hint.*` key naming it and that key's [params]. */
+public data class NavTarget(val target: Vec3, val hint: MessageKey, val params: Map<String, String> = emptyMap())
