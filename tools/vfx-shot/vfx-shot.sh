@@ -904,8 +904,11 @@ keep_beats() { # all_dir dir
 }
 
 meta_py() {
+  # VFX_SHOT_SCENE = caster feet x y z, then the target offset (compare: along +x, orbit views: along +z) and the camera mode;
+  # VFX_SHOT_CAM_STATIC = the fixed Watcher tp of an orbit view ("x y z yaw pitch"; compare reads camera-plan.tsv instead)
   VFX_SHOT_STATE="$STATE" VFX_SHOT_STACK_COLD="${STACK_WAS_COLD:-0}" \
-    VFX_SHOT_BEAT_ONLY="${BEAT_ONLY:-0}" python3 -I "$@"
+    VFX_SHOT_BEAT_ONLY="${BEAT_ONLY:-0}" VFX_SHOT_SCENE="$CX $Y $CZ ${SCENE_TARGET_OFFSET:-0} ${SCENE_TARGET_AXIS:-z}" \
+    VFX_SHOT_CAM_STATIC="${SCENE_CAM_STATIC:-}" python3 -I "$@"
 }
 
 write_meta() { # dir view n  (fps = $FPS; FPS=60 frames are 3 per tick)
@@ -917,11 +920,13 @@ write_meta() { # dir view n  (fps = $FPS; FPS=60 frames are 3 per tick)
     else fov_mode=override-dolly; fi
     printf '{"view":"compare","case":"%s","camera":"%s","skill":"%s","fps":%d,"cast_tick_ms":%d,"frames":%d,"fov":%s,"fovMode":"%s","resolution":"%s"}\n' \
       "$CASE" "$CAMERA" "$SKILL" "$FPS" "$((PRE_TICKS * 50))" "$n" "${FOV:-70}" "$fov_mode" "$RES_FILM" > "$dir/meta.json"
-    meta_py "$HERE/capture_meta.py" "$ROOT/tools/skill-compare/data/$CASE/case.json" "$dir" "$INTENT"
+    SCENE_TARGET_OFFSET="$ENEMY_X" SCENE_TARGET_AXIS=x \
+      meta_py "$HERE/capture_meta.py" "$ROOT/tools/skill-compare/data/$CASE/case.json" "$dir" "$INTENT"
   else
     printf '{"view":"%s","skill":"%s","fps":%d,"cast_tick_ms":0,"frames":%d,"fov":%s,"fovMode":"%s","resolution":"%s"}\n' \
       "$view" "$SKILL" "$FPS" "$n" "${FOV:-70}" "$fov_mode" "$RES_FILM" > "$dir/meta.json"
-    meta_py "$HERE/capture_meta.py" - "$dir"
+    SCENE_TARGET_OFFSET="$DISTANCE" SCENE_TARGET_AXIS=z SCENE_CAM_STATIC="$(orbit_cam "$view")" \
+      meta_py "$HERE/capture_meta.py" - "$dir"
   fi
 }
 
