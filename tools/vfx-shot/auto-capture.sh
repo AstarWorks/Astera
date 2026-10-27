@@ -22,7 +22,7 @@ FARM_CHECKOUT="${FARM_CHECKOUT:-1}"                 # 1 = FARM_ROOT is detached 
 DEPLOY_LOG="${FARM_DEPLOY_LOG:-$PRIMARY/.claude/state/dev-deploy/deploy.log}"
 PUBLISHED="${FARM_PUBLISHED:-${SKILL_COMPARE_PUBLISHED:-$PRIMARY/build/skill-compare-published}}"
 FSTATE="${FARM_STATE:-$PRIMARY/.claude/state/capture-farm}"
-VIEWS="${FARM_VIEWS:-side,top}"
+VIEWS="${FARM_VIEWS:-side}"
 TICKS_DEFAULT="${FARM_TICKS:-80}"
 POLL="${FARM_POLL:-5}"
 MAX_SKILLS="${FARM_MAX_SKILLS:-8}"
