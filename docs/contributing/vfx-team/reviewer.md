@@ -19,6 +19,8 @@ S3 r5 and r6 passed a per-row review while being plainly worse than r4: per-row 
 
 Record 1-2 in `review.json` as `reviewer.overall: {v, reason}` and `reviewer.regression: "none" | [..]` (next to the per-row marks); `make round-gate STAGE=manager` reads them.
 
+**Native crops for edge quality.** Reference frames are lossless PNG at native size (<= 1080p); the default sheet may be downscaled. Edge quality (stair-stepping, blur, rim colour, trail width, sprite crispness) is judged ONLY on native crops: `GET /api/cases/<id>/sheet.png?ticks=..&views=ref,compare&zoom=native&crop=x0,y0,x1,y1` (fractions of the frame; `crop=auto` frames caster + fx, but is often the whole frame on the ref, so give an explicit crop). Native cells are never resampled; a sheet over 16000 px is refused. Read `sources[].nativeWidth/nativeHeight` first: a capture smaller than the ref (side/top 640x360) cannot support an edge verdict, so request a higher `RES=` capture instead of marking. A downscaled sheet may support shape, count and direction marks, never an edge or sharpness mark.
+
 **Review surface.** Judge on the compare API sheet and the published captures. Hand-built crops (PIL strips, per-row cut-outs) are additional evidence for a ×, never the basis of a ○, and never replace step 1.
 
 ## Judging: one mark per beat-sheet row
