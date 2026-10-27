@@ -56,11 +56,12 @@ class PaperPlayer(
         fadeIn: Duration,
         stay: Duration,
         fadeOut: Duration,
+        placeholders: Map<String, String>,
     ) {
         bukkit.showTitle(
             Title.title(
-                AsteraTextDeserializer.deserialize(render(titleKey)),
-                subtitleKey?.let { AsteraTextDeserializer.deserialize(render(it)) } ?: Component.empty(),
+                AsteraTextDeserializer.deserialize(render(titleKey, placeholders)),
+                subtitleKey?.let { AsteraTextDeserializer.deserialize(render(it, placeholders)) } ?: Component.empty(),
                 Title.Times.times(fadeIn.toJavaDuration(), stay.toJavaDuration(), fadeOut.toJavaDuration()),
             ),
         )

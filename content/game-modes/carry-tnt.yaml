@@ -2,22 +2,29 @@
 #
 # One TNT sits in the stage's `tnt-spawn` zone. Walk into the zone to pick it
 # up (only while nobody carries it), carry it into an enemy `base-<team>` zone
-# to score a delivery. The carrier dying returns the TNT. First team to
-# `deliveries_to_win` deliveries wins. Implementation: CarryTntGameMode.
+# to score a delivery. The carrier dying returns the TNT. Each delivery takes
+# `count_per_delivery` off the team's count (3 deliveries = knockout).
+# Implementation: CarryTntGameMode.
 #
 # default_config
-#   deliveries_to_win  deliveries needed to win
+#   count_per_delivery  count one delivery takes off (see the count model block below)
 id: carry-tnt
 title_key: astera.gamemode.carry-tnt.title
 impl_class: com.astarworks.astera.match.application.gamemode.CarryTntGameMode
 default_config:
-  # Norma layer (content/norma-layer/layer.yaml) overrides: objective rounds on the big islands take long, so the time limit is 20 minutes. At the limit the teams are ranked by this mode's objective first, then stars carried, kills.
-  time_limit_seconds: "1200"
+  # Norma layer (content/norma-layer/layer.yaml) overrides: objective rounds on the big islands take long, so the time limit is 15 minutes. At the limit the teams are ranked by this mode's objective first, then stars carried, kills.
+  time_limit_seconds: "900"
   # F3-5 death / respawn (seconds): death-screen countdown, killer death-cam length, post-respawn invulnerability (ends on attack).
   respawn_delay_seconds: "5"
   death_cam_seconds: "2"
   spawn_protection_seconds: "3"
-  deliveries_to_win: "2"
+  # Count model (Splatoon-style, SiegeGameMode): every team starts at count_start; each objective event takes its count_per_* off the scorer's
+  # count. 0 = knockout win; at the time limit the lower count wins. count_low_at = "close to knockout" announcement. At the time limit
+  # the match runs on up to overtime_max_seconds while the trailing team holds / carries the objective.
+  count_start: "100"
+  count_low_at: "34"
+  overtime_max_seconds: "60"
+  count_per_delivery: "34"
   # Objective feel (ObjectiveKit): hold time at a pickup / goal in ticks, how long a dropped objective lies before it
   # goes home (seconds), reach of a pile pickup (blocks), distance at which defenders get a gate warning (blocks).
   channel_ticks: "15"

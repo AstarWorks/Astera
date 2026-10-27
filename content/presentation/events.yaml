@@ -164,6 +164,59 @@ moments:
     particle: objective-burst
 
 
+  # Count model announcer (Splatoon-style): every row is played per viewer, so "ours" / "theirs" variants are separate
+  # moments. Args: {ours} / {theirs} = MiniMessage colour tags of the viewer's / the rival's team, {sec}, {count}.
+  time-60:
+    cue: "astera:match/time-warn"
+    action_bar: "astera.announce.time-60.bar"
+  time-30:
+    cue: "astera:match/time-warn"
+    action_bar: "astera.announce.time-30.bar"
+  time-10:
+    cue: "astera:match/time-final"
+    title: "astera.announce.time-10.title"
+    subtitle: "astera.announce.time-10.subtitle"
+    title_stay_ticks: 25
+  time-tick:
+    cue: "astera:match/time-tick"
+    action_bar: "astera.announce.time-tick.bar"
+  overtime-start:
+    cue: "astera:match/overtime-start"
+    title: "astera.announce.overtime-start.title"
+    subtitle: "astera.announce.overtime-start.subtitle"
+    title_stay_ticks: 60
+  overtime-pulse:
+    cue: "astera:match/overtime-pulse"
+    action_bar: "astera.announce.overtime-pulse.bar"
+  lead-gain:
+    cue: "astera:match/lead-gain"
+    action_bar: "astera.announce.lead-gain.bar"
+  lead-loss:
+    cue: "astera:match/lead-loss"
+    action_bar: "astera.announce.lead-loss.bar"
+  objective-taken:
+    cue: "astera:objective/taken"
+    action_bar: "astera.announce.objective-taken.bar"
+  objective-lost:
+    cue: "astera:objective/loss"
+    action_bar: "astera.announce.objective-lost.bar"
+  count-low-ours:
+    cue: "astera:match/count-low"
+    action_bar: "astera.announce.count-low-ours.bar"
+  count-low-theirs:
+    cue: "astera:match/count-low"
+    action_bar: "astera.announce.count-low-theirs.bar"
+  knockout-win:
+    cue: "astera:match/knockout"
+    title: "astera.announce.knockout-win.title"
+    subtitle: "astera.announce.knockout-win.subtitle"
+    title_stay_ticks: 60
+  knockout-lose:
+    cue: "astera:match/knockout"
+    title: "astera.announce.knockout-lose.title"
+    subtitle: "astera.announce.knockout-lose.subtitle"
+    title_stay_ticks: 60
+
   # Queue: a short confirmation when queued; "match found" (title + sting) for everyone in the formed roster.
   queue-join:
     cue: "astera:ui/queue-join"

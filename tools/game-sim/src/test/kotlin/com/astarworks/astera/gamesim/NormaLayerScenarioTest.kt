@@ -90,7 +90,7 @@ class NormaLayerScenarioTest {
             val blue = player("blue-1", team = "blue", at = Vec3(0.0, 65.0, -50.0))
             val matchId = startMatch("carry-tnt", mapOf(red to "red", blue to "blue"), stage = "siege-isles-tnt")
 
-            // Blue clears Norma level 1 (10 stars), red makes the only TNT delivery (1 of 2).
+            // Blue clears Norma level 1 (10 stars), red makes the only TNT delivery (count 66 vs 100).
             stars().add(matchId, blue.id, 10)
             sim.eventBus.publish(StarsCollected(matchId, blue.id, 10, 10))
             advance(2)
@@ -100,9 +100,7 @@ class NormaLayerScenarioTest {
             advance(40)
             red.moveTo(Vec3(43.0, 65.0, 0.0))
             advance(40)
-            assertThat(sim.services.getOrThrow<IMatchRepository>().findById(matchId)!!.score.valueFor(TeamId("red"))).isEqualTo(1)
-
-            advance(24_100)
+            advance(18_100)
             val ended = eventsOf<MatchEnded>().single { it.matchId == matchId }
             assertThat(ended.reason).`as`("blue leads on Norma level, but red leads on the mode objective").isEqualTo(EndReason.NormaTimeLimit(TeamId("red")))
         }

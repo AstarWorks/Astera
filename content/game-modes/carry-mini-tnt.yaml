@@ -2,12 +2,12 @@
 #
 # Small TNT pieces sit on the stage's pickup spots (`pickup_regions`). Walk into a spot to pick one up (up to
 # `carry_limit` at a time) and carry them into the ENEMY `base-<team>` zone to plant them there (your own base plants
-# nothing). A taken piece regrows after `respawn_seconds`; a carrier who dies loses what they carried. The first team to
-# plant `minis_to_win` pieces blows the enemy base up and wins.
+# nothing). A taken piece regrows after `respawn_seconds`; a carrier who dies loses what they carried. Every planted piece
+# takes `count_per_plant` off the team's count (13 pieces = knockout, the enemy base blows up).
 # Implementation: CarryMiniTntGameMode (SiegeGameMode).
 #
 # default_config
-#   minis_to_win     pieces a team must plant in the enemy base to win
+#   count_per_plant  count one planted piece takes off (see the count model block below)
 #   carry_limit      pieces one player can carry
 #   respawn_seconds  seconds until a taken piece regrows
 #   pickup_regions   comma-separated stage regions that hold a piece
@@ -16,13 +16,19 @@ id: carry-mini-tnt
 title_key: astera.gamemode.carry-mini-tnt.title
 impl_class: com.astarworks.astera.match.application.gamemode.CarryMiniTntGameMode
 default_config:
-  # Norma layer (content/norma-layer/layer.yaml) overrides: objective rounds on the big islands take long, so the time limit is 20 minutes. At the limit the teams are ranked by this mode's objective first, then stars carried, kills.
-  time_limit_seconds: "1200"
+  # Norma layer (content/norma-layer/layer.yaml) overrides: objective rounds on the big islands take long, so the time limit is 15 minutes. At the limit the teams are ranked by this mode's objective first, then stars carried, kills.
+  time_limit_seconds: "900"
   # F3-5 death / respawn (seconds): death-screen countdown, killer death-cam length, post-respawn invulnerability (ends on attack).
   respawn_delay_seconds: "5"
   death_cam_seconds: "2"
   spawn_protection_seconds: "3"
-  minis_to_win: "10"
+  # Count model (Splatoon-style, SiegeGameMode): every team starts at count_start; each objective event takes its count_per_* off the scorer's
+  # count. 0 = knockout win; at the time limit the lower count wins. count_low_at = "close to knockout" announcement. At the time limit
+  # the match runs on up to overtime_max_seconds while the trailing team holds / carries the objective.
+  count_start: "100"
+  count_low_at: "34"
+  overtime_max_seconds: "60"
+  count_per_plant: "8"
   carry_limit: "4"
   respawn_seconds: "15"
   pickup_regions: "wool-a,wool-b,wool-c"
