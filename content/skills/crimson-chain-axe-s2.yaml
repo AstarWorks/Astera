@@ -3,8 +3,8 @@ name:
   ja: 二重の刺繍
   en: Double Embroidery
 description:
-  ja: 二重の刺繍
-  en: Double Embroidery
+  ja: 緋色の針を二本続けて撃つ。
+  en: Fire two crimson needles in a row.
 archetype: sequence
 cooldown_ticks: 130
 resource_cost: 18

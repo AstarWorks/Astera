@@ -3,8 +3,8 @@ name:
   ja: 礼節の銃剣
   en: Bayonet Propriety
 description:
-  ja: 礼節の銃剣
-  en: Bayonet Propriety
+  ja: 銃剣で踏み込んで突く。弾薬を1消費。
+  en: Step in with a bayonet thrust. Uses 1 ammo.
 archetype: sequence
 cooldown_ticks: 90
 resource_cost: 1

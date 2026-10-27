@@ -3,8 +3,8 @@ name:
   ja: 炉心解放
   en: Furnace Release
 description:
-  ja: 炉心解放
-  en: Furnace Release
+  ja: 炉の熱を一気に解き放って殴りつける。
+  en: Release the furnace heat in one big punch.
 archetype: sequence
 cooldown_ticks: 100
 resource_cost: 14

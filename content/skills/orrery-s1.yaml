@@ -3,8 +3,8 @@ name:
   ja: 電撃の杖
   en: Energy Rod Strike
 description:
-  ja: 電撃の杖
-  en: Energy Rod Strike
+  ja: 杖で突進して二度打ち、チャージを得る。
+  en: Dash and strike twice with the rod, gaining Charge.
 archetype: sequence
 cooldown_ticks: 115
 resource_cost: 12

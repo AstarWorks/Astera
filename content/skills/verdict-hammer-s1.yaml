@@ -3,8 +3,8 @@ name:
   ja: 横薙ぎと追突
   en: Hammer Sweep and Rush
 description:
-  ja: 横薙ぎと追突
-  en: Hammer Sweep and Rush
+  ja: 槌で薙ぎ払い、前へ突っ込んで体当たりする。
+  en: Sweep the hammer, then charge forward.
 archetype: sequence
 cooldown_ticks: 80
 resource_cost: 12
