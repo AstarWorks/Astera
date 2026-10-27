@@ -6,18 +6,18 @@
   "soundKind": "vanilla tuned",
   "reviewer": {
     "verdict": "fail",
-    "round": "r3",
-    "head": "a12fe0d88",
-    "note": "clean capture a12fe0d88",
+    "round": "r4",
+    "head": "fd1719c06",
+    "note": "clean capture 1c5875e58; fan direction passes",
     "diffs": [
-      "P0 t22 two weapons (animation/model)",
-      "P0 overhead loops thin slivers, white blades 1px lines (texture/particles)",
-      "P0 coin2 t41 burst missing, rays overshoot, no X by t46 (particles/integration)",
-      "P1 shadow straight bar not jagged, ends t64 (model/particles)",
-      "P1 linked shears tiny, line only t60 (model/particles)",
-      "P1 dash smear still bars at t72 in dirty capture (particles)",
-      "P1 back-turned ghost fan t64-71 (animation/particles)",
-      "P2 purple haze t2-5, orange trail t16-24, crescent 1-2 ticks early"
+      "P0 overhead crescent too thick/soft/opaque, ring with gap at t34 (texture/particles)",
+      "P0 coin2 t41 burst small, rays smooth blades not jagged feathers (particles/texture)",
+      "P0 t72 flat saturated pink flash hides structure (particles)",
+      "P1 shadow is one flat black wedge, not jagged (model/particles)",
+      "P1 purple haze only a small blob at t64 (particles)",
+      "P1 caster crouch at t64 wrong, t16-20 arm raise missing (animation)",
+      "P1 caster cropped right after t76 (integration camera)",
+      "P2 no weapon in hand t56-58; flying shears arrive t38 vs ref t41"
     ]
   }
 }
