@@ -12,8 +12,7 @@
   "report": "",
   "skill": {
     "name": "巨剣墜つ",
-    "coins": 3,
-    "asteraSkillId": "bastion-greatsword-s3"
+    "coins": 3
   },
   "mc": {
     "source": "vfx-compare",
@@ -128,7 +127,7 @@
       "notes": "t75-95。"
     }
   ],
-  "notes": "ビートシート r1 (ゲート1)。skill YAML / content は未作成。",
+  "notes": "",
   "editLog": [],
   "ref_caster_height_pct": {
     "0": 15,

@@ -11,8 +11,8 @@ source: /api/cases/<case>/compare?ticks=<t1,t2,t3>&views=ref,<view>&rounds=curre
 this: <sources[].revision of current>  previous: <sources[].revision of prev>  view: <view>  regression: false
 
 ## Trace
-play bastion-s3-fx-ring cast+6 | spawn ... cast+10
-play bastion-s3-fx-thrust cast+36 | first spawn cast+40
+play <vfx_id_a> cast+6 | spawn ... cast+10
+play <vfx_id_b> cast+36 | first spawn cast+40
 ... (one line per vfx_id of the skill, from `[vfx-trace]` or compare.json `sources[].trace.fxSpawnTicks`)
 travel: caster z 300.5 -> 305.9 over cast+38..40 (5.4 blocks, from trace / `casterTravelBlocks`)   # when the skill moves the caster
 
