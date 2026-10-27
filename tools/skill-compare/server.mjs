@@ -176,7 +176,10 @@ export function makeHandler(opts = {}) {
     const out = { dev: F.dev(), views: {} };
     const one = (key, prov, kind) => {
       if (!prov) return;
-      out.views[key] = { ...F.judge(skill, { sha: prov.auto?.sha ?? prov.commit ?? null, capturedAt: prov.capturedAt ?? null, kind }, out.dev), published: prov.published !== false };
+      let j = F.judge(skill, { sha: prov.auto?.sha ?? prov.commit ?? null, capturedAt: prov.capturedAt ?? null, kind }, out.dev);
+      // the farm's failure.json (beside current.json) beats any log guess: the newest capture failed and these frames are the last valid one
+      if (prov.failure?.old) j = { ...j, state: "failed", reason: prov.failure.reason || j.reason || null, failedSha: prov.failure.sha ?? null, farmFailure: true };
+      out.views[key] = { ...j, published: prov.published !== false };
     };
     for (const [name, src] of Object.entries(mc.sources)) if (src.kind === "frames") one(name, src.prov, name.replace("vfx-", ""));
     one("preview", views.preview?.prov, "preview");
@@ -365,7 +368,7 @@ export function makeHandler(opts = {}) {
     const bs = join(dir, "beat-sheet");
     try { for (const f of readdirSync(bs)) parts.push(f, mt(join(bs, f))); } catch { /* no beat sheet */ }
     if (SKILL_RE.test(skill || "")) {
-      for (const k of PUBLISHED_KINDS) parts.push(mt(join(publishedDir, skill, k, "current.json")));
+      for (const k of PUBLISHED_KINDS) parts.push(mt(join(publishedDir, skill, k, "current.json")), mt(join(publishedDir, skill, k, "failure.json")));
       for (const w of ["current", "previous"]) parts.push(soundFile(skill, w)?.f ? mt(soundFile(skill, w).f) : 0);
       for (const v of ["compare", "side", "top"]) parts.push(mt(join(vfxShotDir, skill, v, "meta.json")));
       parts.push(F.signature(skill));

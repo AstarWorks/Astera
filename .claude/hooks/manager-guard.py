@@ -22,7 +22,7 @@ MEMORY_RE = re.compile(r"^/home/node/\.claude-accounts/[^/]+/(?:.*/)?memory/")
 # One baton per track, in the primary checkout's state dir only (not a worktree copy).
 HANDOFF_RE = re.compile(r"^(?!.*/\.claude/worktrees/).*/\.claude/state/handoffs/[a-z0-9][a-z0-9-]*\.md$")
 
-MAKE_OK = re.compile(r"^(dev-content|dev-plugins|dev-deploy|dev-pack|docker-up|dev-hotswap\S*|help|check)$")
+MAKE_OK = re.compile(r"^(dev-content|dev-plugins|dev-deploy|dev-pack|docker-up|dev-hotswap\S*|help|check|skill-compare-(?:up|down|status)|vfx-auto-(?:up|down|status|once))$")
 GIT_DENY = {"mv", "rm", "apply", "am", "clean"}
 MUTATORS = {"cp", "mv", "rm", "rmdir", "ln", "install", "touch", "mkdir", "truncate", "chmod",
             "chown", "patch", "rsync", "unzip", "sponge", "ed", "ex", "shred"}
@@ -176,7 +176,7 @@ def check_argv(argv, cwd, bodies, depth):
     if c == "make":
         for t in [x for x in a if not x.startswith("-") and "=" not in x]:
             if not MAKE_OK.match(t):
-                raise Block(f"make {t} (allowed: dev-content/dev-plugins/dev-deploy/dev-pack/docker-up/dev-hotswap*/help/check)")
+                raise Block(f"make {t} (allowed: dev-content/dev-plugins/dev-deploy/dev-pack/docker-up/dev-hotswap*/skill-compare-up|down|status/vfx-auto-up|down|status|once/help/check)")
         return
     if c in ("codex", "docker", "gh", "codex-task.sh"):
         return

@@ -18,6 +18,7 @@ export const sameSha = (a, b) => { if (!a || !b) return false; const n = Math.mi
 const parseTime = (s) => { if (!s) return 0; const t = Date.parse(s.replace(/([+-]\d\d)(\d\d)$/, "$1:$2")); return Number.isNaN(t) ? 0 : t; };
 const PREVIEW_DIRS = /^content\/(skills|vfx|animations|models|sounds|particles|particle-skins|poses|items)\//;
 const PREVIEW_KINDS = new Set(["preview", "preview-side"]);
+const FARM_KINDS = new Set(["side", "top"]);
 const STALL_MS = 30 * 60 * 1000;
 
 export function makeFreshness({ repo, devDir, farmDir }) {
@@ -26,6 +27,8 @@ export function makeFreshness({ repo, devDir, farmDir }) {
 
   const git = (...a) => execFileSync("git", ["-C", repo, ...a], { encoding: "utf8", maxBuffer: 1 << 26, stdio: ["ignore", "pipe", "ignore"] });
   const hasCommit = (sha) => { try { git("cat-file", "-e", sha + "^{commit}"); return true; } catch { return false; } };
+
+  const isAncestor = (a, b) => { try { git("merge-base", "--is-ancestor", a, b); return true; } catch { return false; } };
 
   /** skills whose own content changed between two commits (the capture farm's mapping), memoised per pair. */
   const memo = new Map();
@@ -109,6 +112,10 @@ export function makeFreshness({ repo, devDir, farmDir }) {
     const out = { state: "unknown", devSha: devNow?.sha ?? null, videoSha: video.sha ?? null, capturedAt: video.capturedAt ?? null };
     if (!devNow || !video.sha) return out;
     if (sameSha(video.sha, devNow.sha)) return { ...out, state: "current" };
+    // only the pipelines' own views are ever re-rendered; legacy views (compare / input / caster ...) are never "building"
+    if (!PREVIEW_KINDS.has(video.kind) && !FARM_KINDS.has(video.kind)) return out;
+    // rendered from a commit AHEAD of what dev has deployed (preview runs on the pushed sha first): not outdated
+    if (hasCommit(video.sha) && hasCommit(devNow.sha) && isAncestor(devNow.sha, video.sha)) return { ...out, state: "current", ahead: true };
     const ch = affected(skill, video.sha, devNow.sha, video.kind);
     if (ch === null) return out;
     if (!ch) return { ...out, state: "current", unchanged: true };
