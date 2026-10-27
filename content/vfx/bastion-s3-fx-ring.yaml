@@ -1,5 +1,6 @@
 # Bastion S3 beat 1 (video n15, contact t10): gold ring round the caster, radius 3.0, copy of bastion-s2-fx-ring (recentred on the caster, tiles scaled 3.0/2.65, same front-to-back CW schedule).
 # Played at skill tick 6: contact = effect tick 4 = skill tick 10. Gold crescent = blade path = hit; the navy streaks are afterimage only (no hit). Hand-authored copy; the S1 generator does not own this file.
+# r4 ring 1: three stacked plate rings (heights 0.5/0.95/1.4, tilts +8/-13/+15, ring2/3 start one tick later, 12 tiles = peak 12 displays); sprites bastion-s3-ring{,2,3}-q0..3.
 # r3 ring 1: thick flat plate ring (bastion-s3-ring-q0..3, tools/item-art/scripts/bastion_s3_ring.py) centred on the caster feet, CW from above, tail erodes front/right first. 4 tiles spawn at tick 3 (blank frame 0), band visible from tick 5 (skill 11).
 # --- particle layer (tools/item-art/scripts/bastion_s1_particles.py): do not edit by hand ---
 # r2: nothing white before contact (particles and tiles start at effect tick >= 4, one thin gold streak at tick 3); tiles q3,q2,q0,q1 so the tail erodes front-first; ink shrunk; duration 21.
@@ -50,7 +51,7 @@ elements:
   end_tick: 17
   keyframes:
   - t: 0
-    translate: [-1.485, 0.591, -1.5]
+    translate: [-1.4854, 0.2912, -1.5]
     rotate: [90.0, -82.0, 90.0]
     scale: [0.4761, 0.4761, 1.0]
 - id: s3r-ring-q1
@@ -61,7 +62,7 @@ elements:
   end_tick: 17
   keyframes:
   - t: 0
-    translate: [1.485, 1.009, -1.5]
+    translate: [1.4854, 0.7088, -1.5]
     rotate: [90.0, -82.0, 90.0]
     scale: [0.4761, 0.4761, 1.0]
 - id: s3r-ring-q2
@@ -72,7 +73,7 @@ elements:
   end_tick: 17
   keyframes:
   - t: 0
-    translate: [-1.485, 0.591, 1.5]
+    translate: [-1.4854, 0.2912, 1.5]
     rotate: [90.0, -82.0, 90.0]
     scale: [0.4761, 0.4761, 1.0]
 - id: s3r-ring-q3
@@ -83,8 +84,96 @@ elements:
   end_tick: 17
   keyframes:
   - t: 0
-    translate: [1.485, 1.009, 1.5]
+    translate: [1.4854, 0.7088, 1.5]
     rotate: [90.0, -82.0, 90.0]
+    scale: [0.4761, 0.4761, 1.0]
+- id: s3r-ring2-q0
+  kind: {type: sprite, sprite: bastion-s3-ring2-q0, frame_ticks: 1, loop: false, see_through: true}
+  billboard: fixed
+  brightness: 15
+  start_tick: 3
+  end_tick: 17
+  keyframes:
+  - t: 0
+    translate: [-1.4616, 1.2874, -1.5]
+    rotate: [-90.0, -77.0, -90.0]
+    scale: [0.4761, 0.4761, 1.0]
+- id: s3r-ring2-q1
+  kind: {type: sprite, sprite: bastion-s3-ring2-q1, frame_ticks: 1, loop: false, see_through: true}
+  billboard: fixed
+  brightness: 15
+  start_tick: 3
+  end_tick: 17
+  keyframes:
+  - t: 0
+    translate: [1.4616, 0.6126, -1.5]
+    rotate: [-90.0, -77.0, -90.0]
+    scale: [0.4761, 0.4761, 1.0]
+- id: s3r-ring2-q2
+  kind: {type: sprite, sprite: bastion-s3-ring2-q2, frame_ticks: 1, loop: false, see_through: true}
+  billboard: fixed
+  brightness: 15
+  start_tick: 3
+  end_tick: 17
+  keyframes:
+  - t: 0
+    translate: [-1.4616, 1.2874, 1.5]
+    rotate: [-90.0, -77.0, -90.0]
+    scale: [0.4761, 0.4761, 1.0]
+- id: s3r-ring2-q3
+  kind: {type: sprite, sprite: bastion-s3-ring2-q3, frame_ticks: 1, loop: false, see_through: true}
+  billboard: fixed
+  brightness: 15
+  start_tick: 3
+  end_tick: 17
+  keyframes:
+  - t: 0
+    translate: [1.4616, 0.6126, 1.5]
+    rotate: [-90.0, -77.0, -90.0]
+    scale: [0.4761, 0.4761, 1.0]
+- id: s3r-ring3-q0
+  kind: {type: sprite, sprite: bastion-s3-ring3-q0, frame_ticks: 1, loop: false, see_through: true}
+  billboard: fixed
+  brightness: 15
+  start_tick: 3
+  end_tick: 17
+  keyframes:
+  - t: 0
+    translate: [-1.4489, 1.0118, -1.5]
+    rotate: [90.0, -75.0, 90.0]
+    scale: [0.4761, 0.4761, 1.0]
+- id: s3r-ring3-q1
+  kind: {type: sprite, sprite: bastion-s3-ring3-q1, frame_ticks: 1, loop: false, see_through: true}
+  billboard: fixed
+  brightness: 15
+  start_tick: 3
+  end_tick: 17
+  keyframes:
+  - t: 0
+    translate: [1.4489, 1.7882, -1.5]
+    rotate: [90.0, -75.0, 90.0]
+    scale: [0.4761, 0.4761, 1.0]
+- id: s3r-ring3-q2
+  kind: {type: sprite, sprite: bastion-s3-ring3-q2, frame_ticks: 1, loop: false, see_through: true}
+  billboard: fixed
+  brightness: 15
+  start_tick: 3
+  end_tick: 17
+  keyframes:
+  - t: 0
+    translate: [-1.4489, 1.0118, 1.5]
+    rotate: [90.0, -75.0, 90.0]
+    scale: [0.4761, 0.4761, 1.0]
+- id: s3r-ring3-q3
+  kind: {type: sprite, sprite: bastion-s3-ring3-q3, frame_ticks: 1, loop: false, see_through: true}
+  billboard: fixed
+  brightness: 15
+  start_tick: 3
+  end_tick: 17
+  keyframes:
+  - t: 0
+    translate: [1.4489, 1.7882, 1.5]
+    rotate: [90.0, -75.0, 90.0]
     scale: [0.4761, 0.4761, 1.0]
 - id: s3r-streak-main
   kind: {type: sprite, sprite: bastion-s1-streak, frame_ticks: 1, loop: false, see_through: true, color: '#1E2A5C'}
