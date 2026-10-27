@@ -1,0 +1,37 @@
+# Match arsenal (wp/match-arsenal, batch 2): Revolver.
+
+id: revolver
+
+material: GOLDEN_HOE
+
+name:
+  ja: "リボルバー"
+  en: "Revolver"
+lore:
+  ja:
+    - "<gray>右クリック: 重い一発</gray>"
+    - "<gray>スニーク + 右クリック: ファニング (近距離)</gray>"
+  en:
+    - "<gray>Right-click: heavy shot</gray>"
+    - "<gray>Sneak + right-click: fan the hammer (close range)</gray>"
+
+rarity: uncommon
+level_requirement: 1
+
+attributes:
+  attack_damage: 1.0
+  attack_speed: 1.0
+
+equip_slot: mainhand
+
+resource_type: energy
+resource_cost_per_use: 6
+
+skills:
+  - trigger: right_click
+    skill_id: revolver-shot
+  - trigger: sneak_right
+    skill_id: revolver-fan
+
+pdc_tags:
+  astera:rarity: uncommon

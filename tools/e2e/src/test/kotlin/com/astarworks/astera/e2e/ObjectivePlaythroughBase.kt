@@ -6,7 +6,7 @@ import org.assertj.core.api.Assertions.assertThat
 import java.io.File
 
 /**
- * Shared frame of the objective-mode playthroughs (carry-tnt, capture-wool, steal-jewelry, battle-loyal): two protocol bots queue
+ * Shared frame of the objective-mode playthroughs (carry-tnt, capture-wool, steal-jewelry, carry-tnt): two protocol bots queue
  * into the lane, the match goes ACTIVE, one bot (the red side) drives the mode's objective by walking the stage's regions with the
  * A* [ObjectiveWalker] while the other stands still, and the match must end by itself with the usual summary / rewards / way back.
  *
@@ -72,10 +72,9 @@ abstract class ObjectivePlaythroughBase : PlaythroughBase() {
             val ansi = Regex("§.|\u001B\\[[0-9;]*m")
             val briefing = bots.associateWith { b -> b.chat.drop(chatFrom.getValue(b)).map { it.text.replace(ansi, "") } }
             bots.forEach { b -> assertThat(briefing.getValue(b).any { it.contains("How to win") }).describedAs("${b.name} got no briefing; chat=${briefing.getValue(b).takeLast(8)}").isTrue() }
-            assertThat(briefing.getValue(bots[0]).any { it.contains("Lv $E2E_NORMA_MAX_LEVEL") }).describedAs("the briefing does not name the top Norma level").isTrue()
             val side = bots.associateWith { it.sidebarLines().joinToString("\n") { l -> l.replace(ansi, "") } }
             bots.forEach { b ->
-                assertThat(side.getValue(b)).describedAs("${b.name} sidebar:\n${side.getValue(b)}").containsPattern("\\d+:\\d{2} ?/ ?\\d+:\\d{2}").contains("rival")
+                assertThat(side.getValue(b)).describedAs("${b.name} sidebar:\n${side.getValue(b)}").containsPattern("\\d+:\\d{2} ?/ ?\\d+:\\d{2}").contains("Norma Lv")
             }
             "briefing + sidebar ok: ${side.getValue(bots[0]).lines().take(3)}"
         }
@@ -113,10 +112,9 @@ abstract class ObjectivePlaythroughBase : PlaythroughBase() {
             if (chat.any { it.contains("ended in a draw") }) E2eReport.notes += "${ctx.suite}: the match ended in a draw (time-limit tie)"
             "verdict lines: ${chat.filter { it.contains("VICTORY") || it.contains("DEFEAT") || it.contains("Victory") || it.contains("Ended by") || it.contains("reached Norma") || it.contains("was ahead") }.take(6)}"
         }
-        E2eReport.check(ctx.suite, "the result screen shows each team's final Norma standing and the loser's what-would-have-won hint", "SystemChat") {
+        E2eReport.check(ctx.suite, "the result screen shows each team's final Norma standing", "SystemChat") {
             val chat = ctx.chat(ctx.idle)
             assertThat(chat.any { it.contains("Norma") && it.contains("Lv ") && it.contains("/$E2E_NORMA_MAX_LEVEL") }).describedAs("no Norma standing line:\n${quote(chat, 30)}").isTrue()
-            if (actorWins) assertThat(chat.any { it.contains("To win:") }).describedAs("the loser got no what-would-have-won hint:\n${quote(chat, 30)}").isTrue()
             "norma lines: ${chat.filter { it.contains("Lv ") }.take(2)}"
         }
         E2eReport.check(ctx.suite, "each player is told their verdict (the winner VICTORY, the other DEFEAT)", "SystemChat") {

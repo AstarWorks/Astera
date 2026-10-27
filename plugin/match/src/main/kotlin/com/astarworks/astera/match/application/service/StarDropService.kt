@@ -54,6 +54,7 @@ public class StarDropService(
     private val nextId = AtomicLong(1)
 
     public fun onSpawned(event: ResourceSpawned) {
+        if (event.dropItem != null) return // item generators are GeneratorItemDropService's
         val generator = generators.listForMatch(event.matchId).firstOrNull { it.id == event.generatorId } ?: return
         val world = matchWorlds.findByMatch(event.matchId)?.worldId ?: return
         val late = matches.findById(event.matchId)?.phase == MatchPhase.SUDDEN_DEATH

@@ -3,8 +3,8 @@ name:
   ja: 二連の刻印弾
   en: Twin Seal Shots
 description:
-  ja: 二連の刻印弾
-  en: Twin Seal Shots
+  ja: 刻印した弾を二発続けて撃つ。
+  en: Fire two sealed shots in a row.
 archetype: sequence
 cooldown_ticks: 120
 resource_cost: 16

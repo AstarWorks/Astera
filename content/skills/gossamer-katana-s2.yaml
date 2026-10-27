@@ -3,8 +3,8 @@ name:
   ja: 影糸の網
   en: Spectral Web
 description:
-  ja: 影糸の網
-  en: Spectral Web
+  ja: 影の糸を張って斬り、踏み込んで連続で斬る。
+  en: Lay shadow threads and cut through in a chain.
 archetype: sequence
 cooldown_ticks: 130
 resource_cost: 18

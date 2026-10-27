@@ -23,6 +23,10 @@ particles:
   norma-level-max: { particle: TOTEM_OF_UNDYING,  count: 120, spread: [0.8, 1.0, 0.8],    speed: 0.5,  y_offset: 0.0 }
   death-soul:      { particle: SOUL,              count: 28,  spread: [0.3, 0.6, 0.3],    speed: 0.06, y_offset: 0.9 }
   respawn-glint:   { particle: END_ROD,           count: 36,  spread: [0.35, 0.9, 0.35],  speed: 0.1,  y_offset: 0.1 }
+  objective-pickup: { particle: FIREWORK,         count: 24,  spread: [0.3, 0.6, 0.3],    speed: 0.12, y_offset: 1.0 }
+  objective-drop:  { particle: LARGE_SMOKE,       count: 20,  spread: [0.3, 0.5, 0.3],    speed: 0.03, y_offset: 0.5 }
+  objective-return: { particle: END_ROD,          count: 40,  spread: [0.4, 1.0, 0.4],    speed: 0.1,  y_offset: 0.3 }
+  objective-burst: { particle: TOTEM_OF_UNDYING,  count: 120, spread: [0.8, 1.0, 0.8],    speed: 0.5,  y_offset: 0.8 }
   player-level-up: { particle: FIREWORK,          count: 30,  spread: [0.5, 0.7, 0.5],    speed: 0.2,  y_offset: 0.5 }
 
 moments:
@@ -101,6 +105,10 @@ moments:
     subtitle: "astera.match.norma-up.max.subtitle"
     title_stay_ticks: 80
     particle: norma-level-max
+  norma-locked:
+    # A weapon used below the Norma level its rarity opens at (ADR-0292): deny sound and "Lv N で <rarity> 解放".
+    cue: "astera:ui/deny"
+    action_bar: "astera.match.norma-locked.bar"
   norma-choice-open:
     # Sound only: the picker GUI opens in the same tick and covers any title (the GUI's own title and lore say what to do).
     cue: "astera:norma/choice-open"
@@ -111,14 +119,59 @@ moments:
     cue: "astera:norma/choice-defaulted"
     action_bar: "astera.match.norma-choice.defaulted.{kind}"
 
-  # carry-mini-tnt: a team's pool reached the combine size and the pieces fused into one real TNT (title for the team, cue for all).
-  mini-tnt-combined:
-    cue: "astera:norma/level-up"
+  # Objective modes (carry-tnt / carry-mini-tnt / steal-jewelry): pickup, drop, return, delivery and the gate warning.
+  # Subjects are the players concerned, each reads {item} in their language; delivery plays for the scoring team, the
+  # "against" row for the rivals.
+  objective-channel:
+    # The hold begins (a pickup / goal progress bar starts filling): a short rising blip for the holder only.
+    cue: "astera:objective/channel-start"
+  objective-pickup:
+    cue: "astera:objective/pickup"
+    title: "astera.objective.moment.pickup.title"
+    subtitle: "astera.objective.moment.pickup.subtitle"
+    title_stay_ticks: 40
+    particle: objective-pickup
+  objective-collect:
+    cue: "astera:objective/pickup"
+    action_bar: "astera.objective.moment.collect.bar"
+    particle: objective-pickup
+  objective-alert:
+    # Your objective was taken: the owners hear the alarm and see who to stop.
+    cue: "astera:objective/warn"
+    action_bar: "astera.objective.moment.alert.bar"
+  objective-drop:
+    cue: "astera:objective/drop"
+    action_bar: "astera.objective.moment.drop.bar"
+    particle: objective-drop
+  objective-return:
+    cue: "astera:objective/return"
+    action_bar: "astera.objective.moment.return.bar"
+    particle: objective-return
+  objective-deliver:
+    # The scoring team: the big bank fanfare (and the lower sting for bystanders of the match).
+    cue: "astera:objective/bank"
     audience_cue: "astera:norma/burst"
-    title: "astera.gamemode.carry-mini-tnt.combined.title"
-    subtitle: "astera.gamemode.carry-mini-tnt.combined.subtitle"
-    title_stay_ticks: 60
-    particle: norma-level-up
+    title: "astera.objective.moment.deliver.title"
+    subtitle: "astera.objective.moment.deliver.subtitle"
+    title_stay_ticks: 50
+    particle: objective-burst
+  objective-deliver-against:
+    cue: "astera:objective/loss"
+    title: "astera.objective.moment.deliver-against.title"
+    subtitle: "astera.objective.moment.deliver-against.subtitle"
+    title_stay_ticks: 50
+  objective-warn:
+    cue: "astera:objective/warn"
+    action_bar: "astera.objective.moment.warn.bar"
+  objective-tension:
+    # One more and it is over: everybody in the match feels it.
+    cue: "astera:objective/tension"
+    action_bar: "astera.objective.moment.tension.bar"
+  objective-capture:
+    cue: "astera:objective/capture"
+    action_bar: "astera.objective.moment.capture.bar"
+    particle: objective-burst
+
 
   # Queue: a short confirmation when queued; "match found" (title + sting) for everyone in the formed roster.
   queue-join:

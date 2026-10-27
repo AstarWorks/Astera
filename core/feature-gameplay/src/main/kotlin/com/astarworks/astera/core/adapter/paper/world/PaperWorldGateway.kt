@@ -9,7 +9,7 @@ import com.astarworks.astera.core.application.port.outbound.IWorldGateway
 import com.astarworks.astera.core.application.port.outbound.WorldGatewayError
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.effect.ParticleSpec
-import com.astarworks.astera.core.domain.effect.ParticleViewers
+import com.astarworks.astera.core.domain.effect.Audience
 import com.astarworks.astera.core.domain.effect.SoundSpec
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.match.MatchId
@@ -178,9 +178,9 @@ public class PaperWorldGateway(
     private fun receiversFor(w: World, spec: ParticleSpec): List<Player>? {
         val source = spec.source ?: return null
         return when (spec.viewers) {
-            ParticleViewers.ALL -> null
-            ParticleViewers.CASTER -> listOfNotNull(onlinePlayer(source))
-            ParticleViewers.OTHERS -> w.players.filter { it.uniqueId != source.uuid }
+            Audience.ALL, Audience.TARGET -> null // particles have no bound target: TARGET shows to everyone
+            Audience.CASTER -> listOfNotNull(onlinePlayer(source))
+            Audience.OTHERS -> w.players.filter { it.uniqueId != source.uuid }
         }
     }
 

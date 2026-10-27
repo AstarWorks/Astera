@@ -3,6 +3,7 @@ package com.astarworks.astera.match.adapter.paper
 import com.astarworks.astera.core.adapter.paper.text.AsteraTextDeserializer
 import com.astarworks.astera.core.application.port.outbound.IMessageRenderer
 import com.astarworks.astera.core.domain.geometry.Vec3
+import com.astarworks.astera.core.domain.item.Rarity
 import com.astarworks.astera.core.domain.i18n.MessageKey
 import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.domain.presentation.PresentationMoments
@@ -10,6 +11,7 @@ import com.astarworks.astera.core.domain.world.WorldId
 import com.astarworks.astera.core.application.port.outbound.presentation.IPresentation
 import com.astarworks.astera.match.application.port.outbound.INormaPresentation
 import com.astarworks.astera.match.domain.norma.NormaGoal
+import com.astarworks.astera.match.domain.norma.NormaUnlock
 import org.bukkit.Color
 import org.bukkit.FireworkEffect
 import org.bukkit.Location
@@ -54,10 +56,13 @@ public class PaperNormaPresentation(
         if (event.entity is Firework) ours.remove(event.entity.uniqueId)
     }
 
-    override fun levelUp(player: PlayerId, audience: List<PlayerId>, level: Int, maxLevel: Int) {
+    override fun levelUp(player: PlayerId, audience: List<PlayerId>, level: Int, maxLevel: Int, unlocked: List<NormaUnlock>) {
         val p = server.getPlayer(player.uuid) ?: return
         val top = level >= maxLevel
-        val args = mapOf("level" to level.toString(), "max" to maxLevel.toString(), "player" to p.name)
+        val unlockedText = unlocked.joinToString(", ") { renderer.render(player, MessageKey("astera.item.tooltip.rarity.${it.rarity.name.lowercase()}")) }
+        // {unlocked} is empty when the level opens nothing, else a leading " - Unlocked: ..." segment for the subtitle.
+        val unlockedSuffix = if (unlocked.isEmpty()) "" else renderer.render(player, MessageKey("astera.match.norma-up.unlocked-suffix"), mapOf("items" to unlockedText))
+        val args = mapOf("level" to level.toString(), "max" to maxLevel.toString(), "player" to p.name, "unlocked" to unlockedSuffix)
         val at = p.location.clone().add(0.0, 1.0, 0.0)
         presentation.play(
             if (top) PresentationMoments.NORMA_LEVEL_MAX else PresentationMoments.NORMA_LEVEL_UP,
@@ -69,6 +74,14 @@ public class PaperNormaPresentation(
             val viewer = server.getPlayer(id.uuid) ?: continue
             viewer.sendMessage(AsteraTextDeserializer.deserialize(renderer.render(id, chatKey, args)))
         }
+        if (unlocked.isNotEmpty()) {
+            p.sendMessage(AsteraTextDeserializer.deserialize(renderer.render(player, MessageKey("astera.match.norma-up.unlocked"), mapOf("level" to level.toString(), "items" to unlockedText))))
+        }
+    }
+
+    override fun locked(player: PlayerId, required: Int, rarity: Rarity) {
+        val rarityText = renderer.render(player, MessageKey("astera.item.tooltip.rarity.${rarity.name.lowercase()}"))
+        presentation.play(PresentationMoments.NORMA_LOCKED, player, mapOf("level" to required.toString(), "rarity" to rarityText))
     }
 
     override fun choiceOpened(player: PlayerId) {

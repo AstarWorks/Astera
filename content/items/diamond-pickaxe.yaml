@@ -1,0 +1,38 @@
+# Match arsenal (wp/match-arsenal): Diamond Pickaxe.
+
+id: diamond-pickaxe
+
+material: DIAMOND_PICKAXE
+
+name:
+  ja: "<aqua>ダイヤのツルハシ</aqua>"
+  en: "<aqua>Diamond Pickaxe</aqua>"
+lore:
+  ja:
+    - "<gray>右クリック: 掘削</gray>"
+    - "<gray>スニーク + 右クリック: 粉砕</gray>"
+  en:
+    - "<gray>Right-click: bore a tunnel</gray>"
+    - "<gray>Sneak + right-click: shatter</gray>"
+
+rarity: rare
+level_requirement: 1
+
+equip_slot: mainhand
+unbreakable: true
+enchantable: false
+drop_on_death: false
+keep_on_death: true
+
+tool:
+  class: PICKAXE
+  tier: DIAMOND
+
+skills:
+  - trigger: right_click
+    skill_id: pickaxe-bore-diamond
+  - trigger: sneak_right
+    skill_id: pickaxe-shatter-diamond
+
+pdc_tags:
+  astera:rarity: rare

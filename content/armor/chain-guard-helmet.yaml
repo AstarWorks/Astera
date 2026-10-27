@@ -1,0 +1,8 @@
+# Match arsenal (wp/match-arsenal): Chain Guard helmet.
+
+type: piece
+id: chain-guard-helmet
+display_name_key: astera.armor.chain-guard-helmet.name
+slot: helmet
+damage_reduction: 0.045
+set_key: chain-guard

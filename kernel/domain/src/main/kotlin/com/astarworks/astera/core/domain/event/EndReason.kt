@@ -9,7 +9,7 @@ public sealed interface EndReason {
 
     /**
      * Wave 5c: a game mode's primary objective was completed by a team
-     * (CarryTNT delivery threshold met, BreakCore destroyed,
+     * (CarryTNT delivery threshold met,
      * etc.). Listeners publishing [com.astarworks.astera.core.domain.event.MatchEnded]
      * with this reason should populate `winningTeam` with the objective-
      * completing team.
@@ -37,12 +37,6 @@ public sealed interface EndReason {
      * score-threshold evaluation cannot know this result.
      */
     public data class TeamVictory(val winner: com.astarworks.astera.core.domain.match.TeamId?) : EndReason
-
-    /** Norma: a member of [winner] reached the top Norma [level] (the Orange-Juice-style win path). */
-    public data class NormaLevelReached(
-        val winner: com.astarworks.astera.core.domain.match.TeamId,
-        val level: Int,
-    ) : EndReason
 
     /** Norma: the time limit ran out; [leader] was ahead on Norma level, then stars carried, then kills; `null` is a draw. */
     public data class NormaTimeLimit(val leader: com.astarworks.astera.core.domain.match.TeamId?) : EndReason

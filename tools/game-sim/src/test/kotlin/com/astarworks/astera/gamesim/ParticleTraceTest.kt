@@ -9,7 +9,7 @@ import com.astarworks.astera.core.domain.effect.ParticleId
 import com.astarworks.astera.core.domain.effect.ParticleShape
 import com.astarworks.astera.core.domain.effect.ParticleTarget
 import com.astarworks.astera.core.domain.effect.ParticleVelocity
-import com.astarworks.astera.core.domain.effect.ParticleViewers
+import com.astarworks.astera.core.domain.effect.Audience
 import com.astarworks.astera.core.domain.effect.VelocityDirection
 import com.astarworks.astera.core.domain.geometry.Vec3
 import kotlinx.serialization.json.JsonObject
@@ -80,7 +80,7 @@ class ParticleTraceTest {
     @Test
     fun `block data and viewers are recorded`() {
         val rows = recorded(
-            def(key = "block_crumble", data = ParticleData.Block("stone")).copy(viewers = ParticleViewers.CASTER),
+            def(key = "block_crumble", data = ParticleData.Block("stone")).copy(viewers = Audience.CASTER),
             Vec3.ZERO,
             ParticleEmitContext(),
         )

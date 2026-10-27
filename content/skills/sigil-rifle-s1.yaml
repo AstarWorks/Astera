@@ -3,8 +3,8 @@ name:
   ja: 銃床の踏み込み
   en: Rifle Rush
 description:
-  ja: 銃床の踏み込み
-  en: Rifle Rush
+  ja: 銃床で踏み込んで殴りつける。
+  en: Step in and bash with the rifle butt.
 archetype: sequence
 cooldown_ticks: 70
 resource_cost: 10

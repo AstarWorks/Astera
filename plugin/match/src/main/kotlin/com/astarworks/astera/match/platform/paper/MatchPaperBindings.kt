@@ -2,6 +2,7 @@ package com.astarworks.astera.match.platform.paper
 
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.application.port.outbound.IScheduler
+import com.astarworks.astera.core.application.services.get
 import com.astarworks.astera.core.application.services.getOrThrow
 import com.astarworks.astera.core.platform.wiring.WiringContext
 import com.astarworks.astera.match.adapter.paper.PaperBarrierGateway
@@ -9,6 +10,7 @@ import com.astarworks.astera.core.application.port.outbound.IMessageRenderer
 import com.astarworks.astera.match.adapter.paper.PaperItemPickupAdapter
 import com.astarworks.astera.match.adapter.paper.PaperNormaPresentation
 import com.astarworks.astera.match.adapter.paper.PaperMatchPlayerPositions
+import com.astarworks.astera.match.adapter.paper.PaperObjectiveStage
 import com.astarworks.astera.match.adapter.paper.PaperStarDropWorld
 import com.astarworks.astera.match.adapter.paper.PaperMatchWorldInputAdapter
 import com.astarworks.astera.match.adapter.paper.PaperPillarBlockListener
@@ -45,6 +47,15 @@ internal object MatchPaperBindings {
         spectator = { services -> PaperSpectator(plugin.server, services.getOrThrow<IScheduler>()) },
         playerPositions = { PaperMatchPlayerPositions(plugin.server) },
         starDropWorld = { PaperStarDropWorld(plugin) },
+        oreNodeWorld = { com.astarworks.astera.match.adapter.paper.PaperOreNodeWorld(plugin) },
+        generatorItemDrop = { services ->
+            com.astarworks.astera.match.adapter.paper.PaperGeneratorItemDrop(
+                server = plugin.server,
+                items = { services.get<com.astarworks.astera.core.application.port.outbound.IItemRegistry>() },
+                materializer = { services.get<com.astarworks.astera.core.adapter.paper.item.PaperItemMaterializer>() },
+            )
+        },
+        objectiveStage = { PaperObjectiveStage(plugin) },
         normaPresentation = { services -> PaperNormaPresentation(
                 plugin,
                 services.getOrThrow<IMessageRenderer>(),
@@ -72,6 +83,8 @@ internal object MatchPaperBindings {
         ).start(plugin)
         // WP10: enemy block breaks on Annihilation pillar blocks damage the pillar.
         PaperPillarBlockListener(wired.pillarTargets).start(plugin)
+        // Mid ore nodes: tier-gated mining with regrow.
+        com.astarworks.astera.match.adapter.paper.PaperOreNodeListener { ctx.services.get<com.astarworks.astera.match.application.service.OreNodeService>() }.start(plugin)
         // Game servers: lobby hand-off arrivals appear on their team's arena spawn and are shielded until start.
         ctx.services.get(com.astarworks.astera.match.application.service.matchmaking.IArrivalSpawns::class)
             ?.let { com.astarworks.astera.match.adapter.paper.PaperArrivalSpawnListener(it).start(plugin) }

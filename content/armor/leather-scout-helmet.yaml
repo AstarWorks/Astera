@@ -1,0 +1,8 @@
+# Match arsenal (wp/match-arsenal): Leather Scout helmet.
+
+type: piece
+id: leather-scout-helmet
+display_name_key: astera.armor.leather-scout-helmet.name
+slot: helmet
+damage_reduction: 0.03
+set_key: leather-scout

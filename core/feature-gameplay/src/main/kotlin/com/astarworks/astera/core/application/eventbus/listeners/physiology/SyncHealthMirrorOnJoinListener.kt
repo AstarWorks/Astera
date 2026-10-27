@@ -12,7 +12,10 @@ import org.slf4j.LoggerFactory
  * Astera mirror is the leftover of the previous session (down to the 1.0 floor of a death), while the Astera
  * container of a fresh process is empty ("full at the default max", see `HpStatusHudService`). The mirror is only
  * written on a mutation, so without this a direct login shows 1-3 hearts next to a full HP line. A container with no
- * recorded HP is made full; a recorded one is re-mirrored unchanged.
+ * recorded HP is made full; a recorded one is re-mirrored (clamped to the max).
+ *
+ * The default max HP is authoritative on join: the container is persisted, so a stored max that differs from
+ * [DEFAULT_MAX_HP] (e.g. a legacy 20-scale row) is overwritten instead of surviving across restarts.
  */
 public class SyncHealthMirrorOnJoinListener(
     /** Resolved per event so the Paper overlay (priority 100) is used whenever it is registered. */
@@ -25,11 +28,9 @@ public class SyncHealthMirrorOnJoinListener(
         val playerId = event.playerId
         val health = health() ?: return
         try {
-            val max = health.getMaxHealth(playerId) ?: run {
-                health.setMaxHealth(playerId, defaultMaxHp)
-                defaultMaxHp
-            }
-            val current = health.getCurrentHealth(playerId) ?: max
+            if (health.getMaxHealth(playerId) != defaultMaxHp) health.setMaxHealth(playerId, defaultMaxHp)
+            val max = defaultMaxHp
+            val current = (health.getCurrentHealth(playerId) ?: max).coerceAtMost(max)
             health.setHealth(playerId, current, HealthChangeSource.Other("join-mirror-sync"))
         } catch (ex: Exception) {
             log.warn("Health mirror sync failed for {}", playerId, ex)

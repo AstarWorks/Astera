@@ -1,0 +1,37 @@
+# Match arsenal (wp/match-arsenal, batch 2): Gale Fan.
+
+id: gale-fan
+
+material: FEATHER
+
+name:
+  ja: "疾風の扇"
+  en: "Gale Fan"
+lore:
+  ja:
+    - "<gray>右クリック: 突風 (押し返す)</gray>"
+    - "<gray>スニーク + 右クリック: 追い風 (前上方へ跳ぶ)</gray>"
+  en:
+    - "<gray>Right-click: gust (pushes enemies back)</gray>"
+    - "<gray>Sneak + right-click: updraft (launches you)</gray>"
+
+rarity: uncommon
+level_requirement: 1
+
+attributes:
+  attack_damage: 1.0
+  attack_speed: 1.0
+
+equip_slot: mainhand
+
+resource_type: energy
+resource_cost_per_use: 10
+
+skills:
+  - trigger: right_click
+    skill_id: gale-gust
+  - trigger: sneak_right
+    skill_id: gale-lift
+
+pdc_tags:
+  astera:rarity: uncommon

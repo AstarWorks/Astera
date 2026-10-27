@@ -54,6 +54,8 @@ public class CombatPlatformPorts(
     public val areaEffectGateway: ((ServiceRegistry) -> IAreaEffectGateway)? = null,
     public val damageGateway: ((ServiceRegistry) -> IDamageGateway)? = null,
     public val statusEffectContainer: ((ServiceRegistry) -> IStatusEffectContainer)? = null,
+    /** Worn Astera armor items per player; with it the real item-driven armor provider replaces the stub. */
+    public val wornItems: ((ServiceRegistry) -> com.astarworks.astera.combat.application.port.outbound.IWornItems)? = null,
     public val knockbackGateway: ((ServiceRegistry) -> IKnockbackGateway)? = null,
     public val explosionGateway: ((ServiceRegistry, ExplosionDamageApplier) -> IExplosionGateway)? = null,
     public val nearbyTargetQuery: ((ServiceRegistry) -> INearbyTargetQuery)? = null,

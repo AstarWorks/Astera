@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # ADR-0247: ask the bot runner of the LIVE stack (compose project astera-dev) for AI bots that queue a lane.
 #
-#   scripts/bots.sh [N] [LANE]        # or: make bots N=2 LANE=skirmish
+#   scripts/bots.sh [N] [LANE]        # or: make bots N=2 LANE=carry-tnt
 #
 # Publishes {"requestId","lane","count","requestedBy"} on Redis `astera:bots:request` and prints the runner's
 # replies from `astera:bots:status` until the bots are queued (or the request failed). The bots then wait in the

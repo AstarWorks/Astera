@@ -1,0 +1,38 @@
+# Match arsenal (wp/match-arsenal): simple PvP skill. One cast sound, a few particles.
+
+id: twin-daggers-shadowstep
+
+name:
+  ja: "影走り"
+  en: "Shadow Step"
+description:
+  ja: "後ろへ跳んで短時間走り抜ける。"
+  en: "Hops back and sprints for a moment."
+
+archetype: buff
+cooldown_ticks: 100
+resource_cost: 0
+tags: [ buff, movement ]
+
+params:
+  type: buff
+  status_effect_id: swift
+  duration_ticks: 40
+
+phases:
+  type: buff
+  cast:
+    - type: propel
+      targets: { type: caster }
+      direction: { type: from_caster }
+      strength: { type: literal, value: -1.0 }
+    - type: play_sound
+      targets: { type: caster }
+      sound_id: astera:weapons/dash-whoosh
+      volume: { type: literal, value: 0.8 }
+      pitch: { type: literal, value: 1.3 }
+    - type: spawn_particle
+      targets: { type: caster_offset, offset: { type: literal, value: { x: 0.0, y: 0.2, z: 0.0 } } }
+      particle_id: dash-cloud
+  expire: []
+  removed: []

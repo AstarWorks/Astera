@@ -30,6 +30,7 @@ import com.astarworks.astera.core.application.service.mob.pve.LootTableLoaderSer
 import com.astarworks.astera.economy.application.contents.betting.BettingPolicyContents
 import com.astarworks.astera.economy.application.service.InMemoryShopRegistry
 import com.astarworks.astera.economy.application.service.InMemoryShopStockRepository
+import com.astarworks.astera.economy.application.service.MatchShopLoaderService
 import com.astarworks.astera.economy.application.service.ShopLoaderService
 import com.astarworks.astera.match.application.contents.AnomalyContents
 import com.astarworks.astera.match.application.contents.GameModeContents
@@ -53,6 +54,10 @@ internal object RuntimeDecode {
     /** [alreadyLoaded]: categories [main] bootstrapped itself (skills need vfx + particles); reported here only. */
     fun run(contentDir: Path, alreadyLoaded: List<Pair<String, ContentLoader.LoadReport>>): Int {
         val cases: List<Pair<String, (Path) -> ContentLoader.LoadReport>> = listOf(
+            "chat" to { d ->
+                com.astarworks.astera.chat.application.config.ChatConfig.load(d.resolve("chat.yaml"))
+                ContentLoader.LoadReport(1, 0, emptyList())
+            },
             "items" to { d -> ItemContents().bootstrap(d) },
             "gui" to { d -> GuiContents().bootstrap(d) },
             "blocks" to { d -> CustomBlockContents().bootstrap(d) },
@@ -80,6 +85,7 @@ internal object RuntimeDecode {
             "stages" to { d -> StageContents().bootstrap(d) },
             "anomaly" to { d -> AnomalyContents().bootstrap(d) },
             "generators" to { d -> GeneratorContents().bootstrap(d) },
+            "ore-nodes" to { d -> com.astarworks.astera.match.application.contents.OreNodeContents().bootstrap(d) },
             "game-modes" to { d -> GameModeContents().bootstrap(d) },
             "norma" to { d -> NormaContents().bootstrap(d) },
             "skills-progression" to { d -> SkillProgressionContents().bootstrap(d) },
@@ -87,6 +93,10 @@ internal object RuntimeDecode {
             "bet-policies" to { d -> BettingPolicyContents().bootstrap(d) },
             "shops" to { d ->
                 val r = ShopLoaderService(InMemoryShopRegistry(), InMemoryShopStockRepository()).loadFrom(d)
+                ContentLoader.LoadReport(r.loaded, r.failed, r.failures)
+            },
+            "shops" to { d ->
+                val r = MatchShopLoaderService().loadFrom(d)
                 ContentLoader.LoadReport(r.loaded, r.failed, r.failures)
             },
             // permissions.yaml sits at the content root.

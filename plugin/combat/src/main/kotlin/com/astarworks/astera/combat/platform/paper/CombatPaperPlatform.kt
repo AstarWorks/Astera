@@ -77,7 +77,15 @@ internal class CombatPaperPlatform(private val plugin: JavaPlugin) {
             gateway
         },
         entityEffectsGateway = { PaperEntityEffectsGateway(plugin.server, plugin) },
-        displayEntityGateway = { PaperDisplayEntityGateway(plugin.server) },
+        displayEntityGateway = { services ->
+            val hud = services.get<com.astarworks.astera.core.application.service.hud.HudPreferences>()
+            PaperDisplayEntityGateway(
+                server = plugin.server,
+                plugin = plugin,
+                scheduler = services.getOrThrow<IScheduler>(),
+                intensityOf = { hud?.vfxIntensity(it) ?: com.astarworks.astera.core.domain.effect.vfx.VfxIntensity.FULL },
+            )
+        },
         summonGateway = { PaperSummonGateway(plugin.server) },
         trainingDummyShells = { PaperTrainingDummyShells(plugin) },
         entityCasterBody = { PaperEntityCasterBody(plugin.server, plugin) },
@@ -136,6 +144,7 @@ internal class CombatPaperPlatform(private val plugin: JavaPlugin) {
             statusContainer = container
             container
         },
+        wornItems = { com.astarworks.astera.combat.adapter.paper.PaperWornItems(plugin.server) },
         knockbackGateway = { PaperKnockbackGateway(plugin.server) },
         explosionGateway = { services, damageApplier ->
             val gateway = PaperExplosionGateway(

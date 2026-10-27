@@ -4,7 +4,7 @@ import com.astarworks.astera.core.domain.effect.ParticleColor
 import com.astarworks.astera.core.domain.effect.ParticleData
 import com.astarworks.astera.core.domain.effect.ParticleSpec
 import com.astarworks.astera.core.domain.effect.ParticleTarget
-import com.astarworks.astera.core.domain.effect.ParticleViewers
+import com.astarworks.astera.core.domain.effect.Audience
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.player.PlayerId
 import kotlinx.serialization.json.Json
@@ -94,7 +94,7 @@ public class TraceRecorder(private val scenario: String, private val groundY: Do
             }
             spec?.data?.let { put("data", particleData(it)) }
             spec?.takeIf { it.force }?.let { put("force", true) }
-            spec?.takeIf { it.viewers != ParticleViewers.ALL }?.let { put("viewers", it.viewers.name.lowercase()) }
+            spec?.takeIf { it.viewers != Audience.ALL }?.let { put("viewers", it.viewers.name.lowercase()) }
             put("world", world)
             vec(at)
         }

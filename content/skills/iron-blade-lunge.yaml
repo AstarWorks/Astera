@@ -1,0 +1,46 @@
+# Match arsenal (wp/match-arsenal): simple PvP skill. One cast sound, a few particles.
+
+id: iron-blade-lunge
+
+name:
+  ja: "突進斬り"
+  en: "Lunge"
+description:
+  ja: "前方へ踏み込み、触れた相手を斬る。"
+  en: "Lunges forward and cuts whoever you hit."
+
+archetype: sequence
+cooldown_ticks: 90
+resource_cost: 10
+tags: [ melee, movement, physical ]
+
+params:
+  type: sequence
+
+phases:
+  type: sequence
+  cast:
+    - type: play_sound
+      targets: { type: caster }
+      sound_id: astera:weapons/dash-whoosh
+      volume: { type: literal, value: 1.0 }
+      pitch: { type: literal, value: 1.1 }
+    - type: spawn_particle
+      targets: { type: caster_offset, offset: { type: literal, value: { x: 0.0, y: 0.2, z: 0.0 } } }
+      particle_id: dash-cloud
+    - type: dash_strike
+      distance: 3
+      ticks: 4
+      radius: 1.0
+      hit_once: true
+      invulnerable: false
+      stop_on_block: true
+      on_hit:
+        - type: damage
+          targets: { type: target }
+          components:
+            - base: { type: literal, value: 30.0 }
+              attribute: physical
+        - type: play_sound
+          targets: { type: target }
+          sound_id: astera:weapons/blade-hit

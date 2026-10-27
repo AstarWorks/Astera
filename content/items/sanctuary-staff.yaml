@@ -1,0 +1,37 @@
+# Match arsenal (wp/match-arsenal, batch 2): Sanctuary Staff.
+
+id: sanctuary-staff
+
+material: HEART_OF_THE_SEA
+
+name:
+  ja: "聖域の杖"
+  en: "Sanctuary Staff"
+lore:
+  ja:
+    - "<gray>右クリック: 癒しの輪 (味方を回復)</gray>"
+    - "<gray>スニーク + 右クリック: 浄化</gray>"
+  en:
+    - "<gray>Right-click: healing circle (heals allies)</gray>"
+    - "<gray>Sneak + right-click: purify</gray>"
+
+rarity: uncommon
+level_requirement: 1
+
+attributes:
+  attack_damage: 1.0
+  attack_speed: 1.0
+
+equip_slot: mainhand
+
+resource_type: energy
+resource_cost_per_use: 15
+
+skills:
+  - trigger: right_click
+    skill_id: sanctuary-heal
+  - trigger: sneak_right
+    skill_id: sanctuary-purify
+
+pdc_tags:
+  astera:rarity: uncommon

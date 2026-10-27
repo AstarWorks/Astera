@@ -1,0 +1,29 @@
+# Match arsenal (wp/match-arsenal): Chain Guard Leggings.
+
+id: chain-guard-leggings
+
+material: CHAINMAIL_LEGGINGS
+
+name:
+  ja: "<gray>チェインガード レギンス</gray>"
+  en: "<gray>Chain Guard Leggings</gray>"
+lore:
+  ja:
+    - "<gray>チェインガードセットの防具</gray>"
+    - "<gray>2部位・4部位そろえるとボーナス</gray>"
+  en:
+    - "<gray>Chain Guard set piece</gray>"
+    - "<gray>2+ pieces and the full set give a bonus</gray>"
+
+rarity: uncommon
+level_requirement: 1
+
+equip_slot: leggings
+unbreakable: true
+enchantable: false
+drop_on_death: false
+keep_on_death: false
+armor_piece: chain-guard-leggings
+
+pdc_tags:
+  astera:rarity: uncommon

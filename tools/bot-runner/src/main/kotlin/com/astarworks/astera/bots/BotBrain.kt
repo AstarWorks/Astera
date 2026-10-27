@@ -209,7 +209,7 @@ class BotBrain(
         }
         if (bot.health == 0f) {
             endTravel()
-            planner?.onDeath()
+            planner?.onDeath(bot.x, bot.z)
             if (now - lastRespawnAt > 1_000) { lastRespawnAt = now; bot.respawn() }
             return
         }
@@ -217,7 +217,7 @@ class BotBrain(
         if (gm == GameMode.SPECTATOR) {
             // Death cam: the server owns us until it respawns us. Stay quiet.
             endTravel()
-            planner?.onDeath()
+            planner?.onDeath(bot.x, bot.z)
             idleNudge(now)
             return
         }
@@ -401,6 +401,10 @@ class BotBrain(
      */
     private fun chooseDest(now: Long, starDest: Dest?): Dest? {
         if (starDest != null) return starDest
+        planner?.let { pl ->
+            pl.noteMarkers(bot.entities.values.filter { bot.entityTextsById[it.id]?.contains(ModePlanner.LOOSE_TAG) == true }.map { it.x to it.z })
+            pl.noteConfirmed(bot.sounds.count { it.contains("objective/pickup") })
+        }
         if (now >= modePausedUntil) planner?.step(now, bot.x, bot.z)?.let { st ->
             modeBreakable = st.breakable
             return Dest(st.x, st.z, st.y, st.arrive, "mode", zone = st.zone)

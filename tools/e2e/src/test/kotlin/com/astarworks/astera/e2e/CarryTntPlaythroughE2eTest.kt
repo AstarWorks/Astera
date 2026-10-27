@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test
 class CarryTntPlaythroughE2eTest : ObjectivePlaythroughBase() {
 
     private val suite = "Carry TNT playthrough"
+    private val DWELL_MS = 1_600L
 
     @Test
     fun `carry-tnt is played until a team delivers the TNT twice`() {
@@ -22,6 +23,7 @@ class CarryTntPlaythroughE2eTest : ObjectivePlaythroughBase() {
 
         val toTnt = ctx.walker.walkTo(tx, tz, 1.2, 120_000, others)
         walkCheck(ctx, "the TNT spawn", toTnt, tx, tz)
+        Thread.sleep(DWELL_MS) // pickups are a short hold (channel_ticks): stand in the zone until the bar completes
         val pickedUp = a.waitUntil(6_000) { ctx.chatCount("picked up the TNT") >= 1 }
         E2eReport.check(suite, "entering the tnt-spawn zone picks the TNT up (objective event)", "SystemChat") {
             assertThat(pickedUp).describedAs("no pickup message; pos=${posOf(a)} chat=${ctx.chat().takeLast(5)} sidebar=${sidebar(a)}").isTrue()
@@ -29,6 +31,7 @@ class CarryTntPlaythroughE2eTest : ObjectivePlaythroughBase() {
         }
 
         val toBase = ctx.walker.walkTo(bx, bz, 2.0, 120_000, others) { ctx.chatCount("delivered the TNT") >= 1 }
+        Thread.sleep(DWELL_MS)
         val delivered = a.waitUntil(6_000) { ctx.chatCount("delivered the TNT") >= 1 }
         E2eReport.check(suite, "carrying the TNT into the enemy base scores a delivery (1/2)", "SystemChat / sidebar") {
             assertThat(delivered).describedAs("no delivery after walk=$toBase; pos=${posOf(a)} chat=${ctx.chat().takeLast(5)} sidebar=${sidebar(a)}").isTrue()
@@ -37,6 +40,7 @@ class CarryTntPlaythroughE2eTest : ObjectivePlaythroughBase() {
 
         // Second round trip: the TNT is loose again at its spawn.
         val again = ctx.walker.walkTo(tx, tz, 1.2, 120_000, others) { ctx.chatCount("picked up the TNT") >= 2 }
+        Thread.sleep(DWELL_MS)
         a.waitUntil(6_000) { ctx.chatCount("picked up the TNT") >= 2 }
         ctx.walker.walkTo(bx, bz, 2.0, 120_000, others) { matchLines().isEmpty() || ctx.chatCount("delivered the TNT") >= 2 }
         val won = a.waitUntil(8_000) { ctx.chatCount("delivered the TNT") >= 2 || matchLines().isEmpty() }

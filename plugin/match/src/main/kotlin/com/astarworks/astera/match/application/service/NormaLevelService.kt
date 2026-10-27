@@ -4,13 +4,11 @@ import com.astarworks.astera.combat.domain.event.PlayerKilled
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.application.port.outbound.IMatchRepository
 import com.astarworks.astera.core.domain.Result
-import com.astarworks.astera.core.domain.event.EndReason
 import com.astarworks.astera.core.domain.match.Match
 import com.astarworks.astera.core.domain.match.MatchId
 import com.astarworks.astera.core.domain.match.MatchPhase
 import com.astarworks.astera.core.domain.match.TeamId
 import com.astarworks.astera.core.domain.player.PlayerId
-import com.astarworks.astera.match.application.port.inbound.IMatchLifecycle
 import com.astarworks.astera.match.application.port.outbound.IMatchNormaStore
 import com.astarworks.astera.match.application.port.outbound.IMatchStarStore
 import com.astarworks.astera.match.domain.event.NormaLevelUp
@@ -25,9 +23,9 @@ import com.astarworks.astera.match.domain.norma.NormaStanding
 /**
  * Orange-Juice-style Norma levels, per (match, player). Everyone starts at level 1 with the STAR goal. At each level
  * the player holds one goal: carry `norma_stars_goal` stars (not consumed) or make `norma_kills_goal` kills at this
- * level. Reaching it levels the player up at once (kills reset, stars kept, the choice re-opens at STAR). The first
- * team with a member at `norma_max_level` wins the match when `norma_win` is on (the default), alongside the mode's
- * own objective, whichever happens first. Everything is dropped at match end.
+ * level. Reaching it levels the player up at once (kills reset, stars kept, the choice re-opens at STAR). Levels
+ * are an in-match power layer: reaching `norma_max_level` only stops further levelling and never ends the match (the
+ * mode's own objective decides it). Everything is dropped at match end.
  */
 public class NormaLevelService(
     private val matches: IMatchRepository,
@@ -36,7 +34,6 @@ public class NormaLevelService(
     private val configOf: (MatchId) -> NormaConfig,
     private val isNorma: (MatchId) -> Boolean,
     private val eventBus: IDomainEventBus,
-    private val lifecycle: IMatchLifecycle,
 ) {
     public fun onKilled(event: PlayerKilled) {
         val killer = event.killer ?: return
@@ -46,7 +43,7 @@ public class NormaLevelService(
         val victimTeam = match.teams.firstOrNull { event.victim in it.members }?.id ?: return
         if (killerTeam == victimTeam) return
         // The kill is tallied (last time-limit tie-break) before it can level the killer up and end the match.
-        // `Match.score` is left to the mode's own objective (battle-loyal, skirmish display).
+        // `Match.score` is left to the mode's own objective (the siege modes' deliveries).
         val p = norma.get(match.id, killer)
         norma.put(match.id, killer, p.copy(killsAtLevel = p.killsAtLevel + 1, totalKills = p.totalKills + 1))
         evaluate(match, killer)
@@ -80,8 +77,19 @@ public class NormaLevelService(
         val carried = stars.get(match.id, playerId)
         val target = cfg.targetFor(p.level, p.goal)
         val progress = if (p.goal == NormaGoal.STAR) carried else p.killsAtLevel
-        val rival = match.teams.filter { playerId !in it.members }.maxOfOrNull { topLevel(match, it.id) }
-        return NormaHud(carried, p.level, cfg.maxLevel, p.goal, progress.coerceAtMost(target), target, rival)
+        return NormaHud(carried, p.level, cfg.maxLevel, p.goal, progress.coerceAtMost(target), target)
+    }
+
+    /** [playerId]'s Norma level in their current match, or `null` outside a Norma match (no gate applies there). */
+    public fun levelOf(playerId: PlayerId): Int? {
+        val match = matches.findMatchOf(playerId)?.takeIf { isNorma(it.id) } ?: return null
+        return norma.get(match.id, playerId).level
+    }
+
+    /** The Norma tunables of [playerId]'s current match, or `null` outside a Norma match. */
+    public fun normaConfigOf(playerId: PlayerId): NormaConfig? {
+        val match = matches.findMatchOf(playerId)?.takeIf { isNorma(it.id) } ?: return null
+        return configOf(match.id)
     }
 
     /** Kills [playerId] made since reaching the current level (0 outside a Norma match). */
@@ -134,10 +142,6 @@ public class NormaLevelService(
         val up = NormaProgress(level = p.level + 1, goal = NormaGoal.STAR, killsAtLevel = 0, totalKills = p.totalKills)
         norma.put(match.id, playerId, up)
         eventBus.publish(NormaLevelUp(match.id, playerId, up.level))
-        if (up.level >= cfg.maxLevel && cfg.win) {
-            val team = match.teams.firstOrNull { playerId in it.members }?.id ?: return
-            lifecycle.end(match.id, EndReason.NormaLevelReached(team, up.level))
-        }
     }
 
     private fun live(match: Match): Boolean = match.phase == MatchPhase.ACTIVE || match.phase == MatchPhase.SUDDEN_DEATH

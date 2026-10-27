@@ -1,0 +1,38 @@
+# Match arsenal (wp/match-arsenal): Iron Shovel.
+
+id: iron-shovel
+
+material: IRON_SHOVEL
+
+name:
+  ja: "<white>鉄のショベル</white>"
+  en: "<white>Iron Shovel</white>"
+lore:
+  ja:
+    - "<gray>右クリック: 掘削</gray>"
+    - "<gray>スニーク + 右クリック: 土橋</gray>"
+  en:
+    - "<gray>Right-click: excavate</gray>"
+    - "<gray>Sneak + right-click: earth bridge</gray>"
+
+rarity: uncommon
+level_requirement: 1
+
+equip_slot: mainhand
+unbreakable: true
+enchantable: false
+drop_on_death: false
+keep_on_death: true
+
+tool:
+  class: SHOVEL
+  tier: IRON
+
+skills:
+  - trigger: right_click
+    skill_id: shovel-excavate-iron
+  - trigger: sneak_right
+    skill_id: shovel-earth-bridge-iron
+
+pdc_tags:
+  astera:rarity: uncommon

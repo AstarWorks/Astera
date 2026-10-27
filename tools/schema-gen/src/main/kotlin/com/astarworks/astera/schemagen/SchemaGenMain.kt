@@ -37,6 +37,8 @@ fun main(args: Array<String>) {
     outputDir.createDirectories()
 
     val schemas = listOf(
+        SchemaEntry("chat", serializer<com.astarworks.astera.chat.application.config.ChatConfig>(),
+            "https://astera.astarworks.com/schemas/chat.schema.json"),
         // Wave _items-1 (ADR-0073): WeaponYamlConfig was removed; Item is the
         // canonical content type now and carries skill bindings + attributes.
         SchemaEntry(

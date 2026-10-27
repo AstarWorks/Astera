@@ -3,8 +3,8 @@ name:
   ja: 落花の裁断
   en: Falling Cutout
 description:
-  ja: 落花の裁断
-  en: Falling Cutout
+  ja: E.G.Oを使い切り、鋏で強烈な連続斬りを叩き込む。
+  en: Spend the full E.G.O gauge for a heavy shearing combo.
 archetype: sequence
 cooldown_ticks: 220
 resource_cost: 0

@@ -9,7 +9,7 @@ import java.io.File
 
 /**
  * `make live-bots SCENARIO=weapons`: every resource-using weapon in content/items, each binding cast at a target bot
- * inside a real `skirmish` match on the LIVE game backend (the lobby world cancels damage, and the game backend sends
+ * inside a real `carry-tnt` match on the LIVE game backend (the lobby world cancels damage, and the game backend sends
  * anybody who is not in a match back to the lobby after 3 s, so a match is the only place where damage applies).
  * Both bots are never op. Nothing is announced; `clear` is only ever run on the two bot names.
  */

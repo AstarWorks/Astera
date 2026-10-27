@@ -1,0 +1,37 @@
+# Match arsenal (wp/match-arsenal): Longbow.
+
+id: longbow
+
+material: BOW
+
+name:
+  ja: "<yellow>ロングボウ</yellow>"
+  en: "<yellow>Longbow</yellow>"
+lore:
+  ja:
+    - "<gray>右クリック: 矢</gray>"
+    - "<gray>スニーク + 右クリック: 重矢</gray>"
+  en:
+    - "<gray>Right-click: arrow</gray>"
+    - "<gray>Sneak + right-click: heavy arrow</gray>"
+
+rarity: uncommon
+level_requirement: 1
+
+attributes:
+  attack_damage: 1.0
+  attack_speed: 1.0
+
+equip_slot: mainhand
+
+resource_type: energy
+resource_cost_per_use: 6
+
+skills:
+  - trigger: right_click
+    skill_id: longbow-arrow
+  - trigger: sneak_right
+    skill_id: longbow-heavy-arrow
+
+pdc_tags:
+  astera:rarity: uncommon

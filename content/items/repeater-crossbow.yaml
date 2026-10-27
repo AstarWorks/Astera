@@ -1,0 +1,38 @@
+# Match arsenal (wp/match-arsenal, batch 2): Repeater Crossbow.
+
+id: repeater-crossbow
+
+material: CROSSBOW
+
+name:
+  ja: "連射クロスボウ"
+  en: "Repeater Crossbow"
+lore:
+  ja:
+    - "<gray>右クリック: 連射</gray>"
+    - "<gray>スニーク + 右クリック: 重い一撃</gray>"
+  en:
+    - "<gray>Right-click: rapid fire</gray>"
+    - "<gray>Sneak + right-click: heavy bolt</gray>"
+
+rarity: uncommon
+level_requirement: 1
+
+attributes:
+  attack_damage: 1.0
+  attack_speed: 1.0
+
+equip_slot: mainhand
+
+resource_type: energy
+resource_cost_per_use: 2
+
+skills:
+  - trigger: right_click
+    skill_id: repeater-bolt
+    cooldown_override_ticks: 6
+  - trigger: sneak_right
+    skill_id: repeater-barrage
+
+pdc_tags:
+  astera:rarity: uncommon

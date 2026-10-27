@@ -85,15 +85,18 @@ abstract class LiveBase {
     @BeforeAll
     fun liveUp() {
         Bot.noteSink = { E2eReport.notes += it }
-        check(runCatching { LiveEnv.rcon("lobby", "list") }.isSuccess) { "lobby backend does not answer RCON" }
-        check(runCatching { LiveEnv.rcon("game", "list") }.isSuccess) { "game backend does not answer RCON" }
+        for (server in LiveEnv.servers.keys) {
+            runCatching { LiveEnv.rcon(server, "list") }.getOrElse { cause ->
+                throw IllegalStateException("$server backend does not answer RCON", cause)
+            }
+        }
         LiveEnv.sweepStaleBotOps()
     }
 
     /** Joins [server] (lobby by default) directly as a forwarded player named `bot_<prefix><tag><n>`. */
-    protected fun bot(prefix: String, on: Endpoint = LiveEnv.lobby, packPolicy: PackPolicy = PackPolicy.LOAD, waitForJoin: Boolean = true): Bot {
+    protected fun bot(prefix: String, on: Endpoint = LiveEnv.lobby, packPolicy: PackPolicy = PackPolicy.LOAD, waitForJoin: Boolean = true, servers: Map<String, Endpoint> = LiveEnv.servers): Bot {
         val name = "${LiveEnv.PREFIX}${prefix.take(5)}$runTag${++counter}"
-        return Bot.join(prefix, packPolicy, waitForJoin = waitForJoin, endpoint = on, servers = LiveEnv.servers, exactName = name)
+        return Bot.join(prefix, packPolicy, waitForJoin = waitForJoin, endpoint = on, servers = servers, exactName = name)
             .also { bots += it }
     }
 
@@ -139,7 +142,7 @@ abstract class LiveBase {
     protected fun matchIdOf(line: String): String? = Regex("^(\\S+) \\[").find(line)?.groupValues?.get(1)
 
     /**
-     * Both bots (on the lobby) queue `skirmish`; the queue forms a match on the game backend and sends them over with a
+     * Both bots (on the lobby) queue `carry-tnt`; the queue forms a match on the game backend and sends them over with a
      * proxy Connect, which the bots follow like Velocity would. If the Connect never comes the check FAILS and the
      * harness hops the bots by hand (clearly labelled) so the rest of the loop can still be exercised.
      * Returns the match id once the match is ACTIVE, or null.
@@ -149,11 +152,11 @@ abstract class LiveBase {
         Thread.sleep(2_000)
         val chatA = a.chat.size
         val chatB = b.chat.size
-        a.command("astera queue join skirmish")
-        b.command("astera queue join skirmish")
+        a.command("astera queue join carry-tnt")
+        b.command("astera queue join carry-tnt")
         val replyA = a.chatSince(chatA)
         val replyB = b.chatSince(chatB)
-        E2eReport.check(suite, "queue join skirmish is acknowledged for both bots", "SystemChat") {
+        E2eReport.check(suite, "queue join carry-tnt is acknowledged for both bots", "SystemChat") {
             assertThat(replyA).describedAs("no reply for ${a.name}").isNotEmpty()
             assertThat(replyB).describedAs("no reply for ${b.name}").isNotEmpty()
             "A:\n${quote(replyA)}\nB:\n${quote(replyB)}\nsidebar A: ${a.sidebarLines()}"

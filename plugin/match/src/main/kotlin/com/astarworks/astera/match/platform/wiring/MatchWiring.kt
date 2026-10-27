@@ -22,14 +22,11 @@ import com.astarworks.astera.core.application.port.outbound.IReloadableContentsR
 import com.astarworks.astera.core.application.port.outbound.IStageRegistry
 import com.astarworks.astera.match.application.contents.AnomalyContents
 import com.astarworks.astera.match.application.contents.GameModeContents
-import com.astarworks.astera.match.application.gamemode.BattleLoyalGameMode
-import com.astarworks.astera.match.application.gamemode.BreakCoreGameMode
 import com.astarworks.astera.match.application.gamemode.CaptureWoolGameMode
 import com.astarworks.astera.match.application.gamemode.PveEnv
 import com.astarworks.astera.match.application.gamemode.PveWaveGameMode
 import com.astarworks.astera.match.application.gamemode.CarryMiniTntGameMode
 import com.astarworks.astera.match.application.gamemode.CarryTntGameMode
-import com.astarworks.astera.match.application.gamemode.SkirmishGameMode
 import com.astarworks.astera.match.application.contents.NormaLayerContents
 import com.astarworks.astera.match.application.gamemode.siege.SiegeEnv
 import com.astarworks.astera.match.application.gamemode.StealJewelryGameMode
@@ -122,6 +119,8 @@ internal class MatchWiringEnv(
      * of the game mode the match runs (the layer defaults alone when the mode is unknown); read live so reloads apply.
      */
     val modeConfigOf: (com.astarworks.astera.core.domain.match.MatchId) -> Map<String, String>,
+    /** The Norma layer defaults alone (`content/norma-layer/layer.yaml`), for what has no match to ask (item tooltips). */
+    val layerDefaults: () -> Map<String, String>,
     /**
      * Whether the Norma layer (stars, kill burst, Norma levels, time-limit ranking) runs in this match. It is a
      * standard layer of every game mode: on unless the mode's `default_config` says `norma_layer: "false"`. The
@@ -479,7 +478,7 @@ public object MatchWiring {
         }
         // Wave 5annihilation (ADR-0108) — Astera Annihilation mode foundation.
         // AnnihilationGameMode owns its own AnnihilationMatchTracker; unlike
-        // the skirmish mode, the
+        // the siege modes, the
         // tracker is the only writer of Annihilation match state and the
         // mode's onTick drives phase advances + sudden-death DoT.
         //
@@ -520,10 +519,15 @@ public object MatchWiring {
                 "registered into IGameModeFrameworkRegistry.",
         )
 
-        // WP11: the objective modes (break-core / carry-tnt / capture-wool /
-        // steal-jewelry / battle-loyal / carry-mini-tnt) own their per-match state and react to
+        // WP11: the objective modes (carry-tnt / capture-wool /
+        // steal-jewelry / carry-mini-tnt) own their per-match state and react to
         // region / block / kill events of their own matches; the config comes
         // from content/game-modes/<id>.yaml `default_config`.
+        val objectivePositions = ports.playerPositions?.invoke(services)
+            ?: com.astarworks.astera.match.application.service.LocationLookupMatchPlayerPositions {
+                services.get<com.astarworks.astera.core.application.port.outbound.IPlayerLocationLookup>()
+            }
+        val objectiveStage = ports.objectiveStage?.invoke(services)
         val siegeEnv = { id: com.astarworks.astera.match.domain.mode.GameModeId ->
             SiegeEnv(
                 eventBus = eventBus,
@@ -536,12 +540,14 @@ public object MatchWiring {
                 config = normaLayer.configFor(gameModeContents.find(id)?.defaultConfig.orEmpty()),
                 now = { scheduler.currentTick() },
                 presentation = { services.get<com.astarworks.astera.core.application.port.outbound.presentation.IPresentation>() },
+                positions = { objectivePositions },
+                poses = { services.get<com.astarworks.astera.core.application.port.outbound.IPlayerPoseLookup>() },
+                speed = { services.get<com.astarworks.astera.core.application.port.outbound.IPlayerSpeedGateway>() },
+                actionBar = { services.get<com.astarworks.astera.core.application.port.outbound.IActionBarChannel>() },
+                stage = { objectiveStage },
             )
         }
         val siegeModes = listOf(
-            SkirmishGameMode(siegeEnv(SkirmishGameMode.ID)),
-            BattleLoyalGameMode(siegeEnv(BattleLoyalGameMode.ID)),
-            BreakCoreGameMode(siegeEnv(BreakCoreGameMode.ID)),
             CarryTntGameMode(siegeEnv(CarryTntGameMode.ID)),
             CarryMiniTntGameMode(siegeEnv(CarryMiniTntGameMode.ID)),
             CaptureWoolGameMode(siegeEnv(CaptureWoolGameMode.ID)),
@@ -651,6 +657,7 @@ public object MatchWiring {
             permService = permService, msgRenderer = msgRenderer, matchModeRegistry = matchModeRegistry,
             facade = facade, queueSettings = queueSettings, annihilationTracker = annihilationTracker, worldGateway = worldGateway,
             modeConfigOf = modeConfigOf,
+            layerDefaults = normaLayer::defaults,
             normaLayerOf = { id -> modeConfigOf(id)["norma_layer"] != "false" },
             scheduledTasks = scheduledTasks, shutdownHooks = shutdownHooks,
         )
@@ -673,8 +680,8 @@ public object MatchWiring {
      * [com.astarworks.astera.match.domain.mode.GameModeId] used by
      * [gameModeFrameworkRegistry] (Wave 5wireup §G16).
      *
-     * `null` / empty / unregistered keys fall back to [SkirmishGameMode.ID] so any
-     * call site that ships without a mode key plays the plain team skirmish.
+     * `null` / empty / unregistered keys fall back to [CarryTntGameMode.ID] so any
+     * call site that ships without a mode key plays carry-tnt.
      */
     private fun resolveModeId(
         modeKey: String?,
@@ -682,7 +689,7 @@ public object MatchWiring {
     ): com.astarworks.astera.match.domain.mode.GameModeId {
         val id = modeKey?.takeIf { it.isNotBlank() }
             ?.let { runCatching { GameModeId(it) }.getOrNull() }
-        return if (id != null && registry.get(id) != null) id else SkirmishGameMode.ID
+        return if (id != null && registry.get(id) != null) id else CarryTntGameMode.ID
     }
 
 }

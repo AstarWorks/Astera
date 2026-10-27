@@ -26,15 +26,14 @@ object SuiteOwners {
         own("ui-access", "Access map", "GUI", "Lobby kit & HUD", "Play entry", "Match menu", "First 10 minutes")
         own(
             "modes-combat",
-            "Annihilation playthrough", "Battle Loyal playthrough", "Capture Wool playthrough", "Carry TNT playthrough",
-            "Carry Mini TNT playthrough", "Steal Jewelry playthrough", "Siege (break-core) playthrough", "Siege crossing playthrough",
-            "Norma playthrough", "PvE waves playthrough", "Match", "Game loop", "Combat", "Stars", "WeaponLimit",
+            "Annihilation playthrough", "Capture Wool playthrough", "Carry TNT playthrough",
+            "Carry Mini TNT playthrough", "Steal Jewelry playthrough", "PvE waves playthrough", "Match", "Game loop", "Combat", "Stars", "WeaponLimit",
             "Mid-match leave", "Mid-match reconnect",
         )
         own("economy-life", "Shop purchase")
         own("presentation", "ClientReceives", "HUD")
         own("skills-vfx", "Weapons", "PersonaWeapons", "SkinRig")
-        own("bots-qa", "BootHealth", "Bot vs bot", "Commands", "Join", "Velocity", "CueGuard", "Live match", "Live smoke", "Live weapons")
+        own("bots-qa", "BootHealth", "Bot vs bot", "Commands", "Join", "Velocity", "CueGuard", "Live match", "Live smoke", "Live weapons", "Live chat")
     }
 
     fun of(suite: String): String = owners[suite] ?: "unmapped"

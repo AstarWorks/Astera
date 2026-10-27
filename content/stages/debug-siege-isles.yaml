@@ -1,5 +1,5 @@
 # Siege (objective) arena on sky islands (ADR-0246, replaces siege-flat; scaled up after the founder's playtest). One
-# stage serves every siege lane (break-core, carry-tnt, capture-wool, steal-jewelry, battle-loyal): each mode reads
+# stage serves every siege lane (carry-tnt, capture-wool, steal-jewelry, carry-mini-tnt): each mode reads
 # only the regions it knows by name, so they never get in each other's way. The lanes share this stage, so one siege
 # match runs at a time.
 #
@@ -19,7 +19,6 @@
 # Stage-local coordinates (the server places the stage in a world slot), top layer y=64, players stand at y=65.
 #
 # Region vocabulary (name -> mode):
-#   core-<team>      1 block, the team's core, ONE ABOVE the floor (y=65)   (break-core)
 #   base-<team>      the team's base zone                (carry-tnt delivery, steal-jewelry deposit)
 #   jewelry-<team>   3x3 pedestal zone inside the base   (steal-jewelry)
 #   tnt-spawn        where the TNT waits                 (carry-tnt)
@@ -65,12 +64,6 @@ regions:
   - name: base-blue
     min: { x: 50.0, y: 64.0, z: -16.0 }
     max: { x: 92.0, y: 70.0, z: 16.0 }
-  - name: core-red
-    min: { x: -82.0, y: 65.0, z: 0.0 }
-    max: { x: -82.0, y: 65.0, z: 0.0 }
-  - name: core-blue
-    min: { x: 82.0, y: 65.0, z: 0.0 }
-    max: { x: 82.0, y: 65.0, z: 0.0 }
   - name: jewelry-red
     min: { x: -79.0, y: 64.0, z: 9.0 }
     max: { x: -77.0, y: 70.0, z: 11.0 }
@@ -120,3 +113,8 @@ spawn_points:
   - role: spectator
     position: { x: 0.5, y: 100.0, z: 0.5 }
     pitch: 60.0
+
+# In-match ore shop (stage-local; inside base-<team>). Only the own team can open it.
+shop_npcs:
+  - { team: red, x: -70.5, y: 65.0, z: 7.5, yaw: 270.0 }
+  - { team: blue, x: 70.5, y: 65.0, z: 7.5, yaw: 90.0 }

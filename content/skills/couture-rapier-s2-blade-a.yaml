@@ -1,0 +1,25 @@
+id: couture-rapier-s2-blade-a
+name: {ja: 型紙裁ち (刃A), en: Pattern Trim blade A}
+description: {ja: S2 の 2 発目、3 つの投射体のうち単独の刃。本体と平行に飛び、同じ敵に刺さる。ダメージは本体のみ。, en: "S2 coin 2, one of three projectiles: a separate blade flying parallel to the body and sticking in the same enemy. Damage comes from the body only."}
+archetype: projectile
+cooldown_ticks: 0
+resource_cost: 0
+tags: [ranged]
+params:
+  type: projectile
+  launch_speed: 1.0
+  max_lifetime_ticks: 16
+  hit_radius: 1.0
+  muzzle_forward: 0.3
+  muzzle_up: 1.8
+  aim_distance: 7
+  visual:
+    vfx: couture-s2-blade-a-flight
+phases:
+  type: projectile
+  cast: []
+  hit_entity:
+  - {type: play_vfx, targets: {type: target}, vfx_id: couture-s2-blade-a-stuck, follow: {type: literal, value: true}}
+  hit_block: []
+  miss: []
+  expire: []

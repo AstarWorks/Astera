@@ -48,7 +48,7 @@ class HudScenarioTest {
             assertThat(idle.keys()).contains("astera.hud.lobby.queue.idle")
             assertThat(idle.keys()).doesNotContain("astera.hud.sidebar.stars")
 
-            val queued = sim.services.getOrThrow<IMatchmaker>().enqueue(alice.id, MatchmakingMode.SKIRMISH)
+            val queued = sim.services.getOrThrow<IMatchmaker>().enqueue(alice.id, MatchmakingMode.CARRY_TNT)
             assertThat(queued).isInstanceOf(Result.Success::class.java)
             advance(2)
 
@@ -73,8 +73,6 @@ class HudScenarioTest {
 
     @ParameterizedTest(name = "{0}")
     @CsvSource(
-        "battle-loyal, astera.hud.sidebar.battle-loyal.team",
-        "break-core,   astera.hud.sidebar.break-core.intact",
         "carry-tnt,    astera.hud.sidebar.carry-tnt.team",
         "capture-wool, astera.hud.sidebar.capture-wool.team",
         "steal-jewelry, astera.hud.sidebar.steal-jewelry.team",
@@ -110,22 +108,6 @@ class HudScenarioTest {
             advance(40)
             assertThat(sim.eventsOf<MatchEnded>()).isNotEmpty()
             assertThat(checkNotNull(sim.hud.sidebar(red.id)).titleKey.value).isEqualTo("astera.hud.lobby.title")
-        }
-    }
-
-    @Test
-    fun `break core sidebar flips a team to core down when its core is broken`() {
-        scenario("hud-sidebar-break-core-progress") {
-            val attacker = player("attacker", team = "red")
-            val defender = player("defender", team = "blue")
-            startMatch("break-core", mapOf(attacker to "red", defender to "blue"))
-            advance(25)
-            assertThat(checkNotNull(sim.hud.sidebar(defender.id)).keys().count { it == "astera.hud.sidebar.break-core.intact" })
-                .isEqualTo(2)
-
-            attacker.breaks(Vec3(90.0, 65.0, 0.0)) // blue core: the mode ends the match
-            advance(25)
-            assertThat(sim.eventsOf<MatchEnded>()).hasSize(1)
         }
     }
 

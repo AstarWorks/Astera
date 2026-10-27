@@ -13,8 +13,8 @@ import org.junit.jupiter.api.Test
 /**
  * Bots play the mode's objective, not just "find enemies" (item 25d). The planner ([ModePlanner], the object BotBrain asks
  * for its destination) is fed the REAL stage regions (StageObjectives.load) and drives a sim player through the REAL
- * mode: in carry-mini-tnt it must collect mini TNT, bank it, fetch the combined TNT and win at the enemy base.
- * Also: core roles, and the Tab-list independent target fallback.
+ * mode: in carry-mini-tnt it must collect mini TNT and plant it in the enemy base until the base blows up.
+ * Also: the Tab-list independent target fallback.
  */
 class BotModeObjectiveScenarioTest {
 
@@ -26,12 +26,19 @@ class BotModeObjectiveScenarioTest {
         return ModePlanner(mode, name, team, listOf(enemy), checkNotNull(src.zones()))
     }
 
-    /** Teleports the sim player to each destination the planner names (region entry is what the mode rewards). */
+    /** Teleports the sim player to each destination the planner names; the planner holds there (pickups and deliveries are short holds). */
     private fun ScenarioScope.drive(runner: SimEntity, planner: ModePlanner, maxRounds: Int, done: () -> Boolean): List<String> {
         val kinds = ArrayList<String>()
         var now = 0L
+        var held = 0
+        var confirmed = 0
         repeat(maxRounds) {
             if (done()) return kinds
+            // The server confirms a pickup to the holder: the sim's carried count rising is that signal.
+            val have = sim.objectiveStage.carriedCount(runner.id)
+            if (have > held) confirmed += have - held
+            held = have
+            planner.noteConfirmed(confirmed)
             val step = checkNotNull(planner.step(now, runner.position.x, runner.position.z)) { "mode has a plan" }
             if (kinds.lastOrNull() != step.kind) kinds += step.kind
             runner.moveTo(Vec3(step.x, 65.0, step.z))
@@ -42,21 +49,19 @@ class BotModeObjectiveScenarioTest {
     }
 
     @Test
-    fun `carry-mini-tnt bot collects banks fetches the TNT and wins at the enemy base`() {
+    fun `carry-mini-tnt bot collects and plants mini TNT until the enemy base blows up`() {
         scenario("bot-mini-tnt-objective") {
             val runner = player("runner", at = Vec3(0.0, 65.0, -50.0))
             val guard = player("guard", at = Vec3(0.0, 65.0, -50.0))
             startMatch("carry-mini-tnt", mapOf(runner to "red", guard to "blue"))
             val p = planner("carry-mini-tnt", "runner", "red", "blue")
 
-            val kinds = drive(runner, p, 400) { eventsOf<MatchEnded>().isNotEmpty() }
+            val kinds = drive(runner, p, 800) { eventsOf<MatchEnded>().isNotEmpty() }
 
             val end = eventsOf<MatchEnded>().singleOrNull()
             assertThat(end).`as`("the planner alone wins the mode (trace: $kinds)").isNotNull()
             assertThat(end!!.winningTeam).isEqualTo(TeamId("red"))
-            assertThat(kinds.take(3)).containsExactly("pickup", "bank", "pickup")
-            assertThat(kinds).contains("tnt", "deliver")
-            assertThat(kinds.indexOf("tnt")).isGreaterThan(kinds.indexOf("bank"))
+            assertThat(kinds.take(3)).containsExactly("pickup", "deliver", "pickup")
         }
     }
 
@@ -69,23 +74,6 @@ class BotModeObjectiveScenarioTest {
             val kinds = drive(runner, planner("carry-tnt", "runner", "red", "blue"), 40) { eventsOf<MatchEnded>().isNotEmpty() }
             assertThat(kinds.take(2)).containsExactly("tnt", "deliver")
             assertThat(eventsOf<MatchEnded>().singleOrNull()?.winningTeam).isEqualTo(TeamId("red"))
-        }
-    }
-
-    @Test
-    fun `core mode - most bots attack the enemy core, every third defends its own`() {
-        val names = (1..12).map { "bot$it" }
-        val plans = names.associateWith { planner("break-core", it, "red", "blue") }
-        val defenders = plans.filterValues { it.role == ModePlanner.Role.DEFEND }
-        assertThat(defenders).`as`("some defend").isNotEmpty()
-        assertThat(defenders.size).`as`("most attack").isLessThan(names.size / 2 + 1)
-        for ((_, plan) in plans) {
-            val step = checkNotNull(plan.step(0, -60.0, 0.0))
-            if (plan.role == ModePlanner.Role.DEFEND) {
-                assertThat(step.zone).isEqualTo("core-red"); assertThat(step.kind).isEqualTo("defend-core"); assertThat(step.breakable).isFalse()
-            } else {
-                assertThat(step.zone).isEqualTo("core-blue"); assertThat(step.kind).isEqualTo("attack-core"); assertThat(step.breakable).isTrue()
-            }
         }
     }
 

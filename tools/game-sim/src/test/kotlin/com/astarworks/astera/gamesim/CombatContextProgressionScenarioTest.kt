@@ -143,7 +143,7 @@ class CombatContextProgressionScenarioTest {
             val red = player("red-1", team = "red")
             val blue = player("blue-1", team = "blue")
             advance(110)
-            startMatch("skirmish", mapOf(red to "red", blue to "blue"))
+            startMatch("carry-tnt", mapOf(red to "red", blue to "blue"))
             val before = snapshot(red)
 
             hit(red, blue.id, 500.0)

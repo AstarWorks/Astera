@@ -40,6 +40,8 @@ public object QueueModeListGuiSpec {
         val name: GuiText,
         /** One-line description. */
         val description: GuiText,
+        /** Second description line (how the goal is reached); null when the catalogue has none for this lane. */
+        val detail: GuiText? = null,
         val laneLabel: String,
         val teams: Int,
         val playersPerTeam: Int,
@@ -50,6 +52,13 @@ public object QueueModeListGuiSpec {
         /** The viewer is queued in this very lane. */
         val mine: Boolean,
     )
+
+    /** Why the lane has not started: how many more players it needs, or that it only waits for the countdown. */
+    private fun needLine(lane: LaneView): GuiText {
+        val need = lane.minPlayers - lane.queued
+        return if (need > 0) GuiText(MessageKey("astera.play.picker.lane.need"), mapOf("need" to need.toString()))
+        else GuiText(MessageKey("astera.play.picker.lane.ready"))
+    }
 
     public fun build(lanes: List<LaneView>, queuedLaneLabel: String?): GuiSpec =
         GuiSpec.build(id = ID, title = MessageKey("astera.play.picker.title"), size = GuiSize.CHEST_27) {
@@ -68,10 +77,12 @@ public object QueueModeListGuiSpec {
                         onLeftClick = GuiIntent("lobby.queue.join", payload),
                         displayName = lane.name,
                         count = lane.queued.coerceIn(1, GuiSlot.Static.MAX_STACK),
-                        lore = listOf(
+                        lore = listOfNotNull(
                             lane.description,
+                            lane.detail,
                             GuiText(MessageKey("astera.play.picker.lane.size"), sizeArgs),
                             GuiText(MessageKey("astera.play.picker.lane.queued"), mapOf("queued" to lane.queued.toString())),
+                            needLine(lane),
                             GuiText(MessageKey(if (lane.mine) "astera.play.picker.lane.mine" else "astera.play.picker.lane.hint")),
                         ),
                     ),
@@ -81,8 +92,9 @@ public object QueueModeListGuiSpec {
                     GuiSlot.Static(
                         itemId = ICON_BOTS,
                         onLeftClick = GuiIntent("lobby.queue.bots", payload),
-                        displayName = GuiText(MessageKey("astera.play.picker.bots.name")),
+                        displayName = GuiText(MessageKey("astera.play.picker.bots.name-recommended")),
                         lore = listOf(
+                            GuiText(MessageKey("astera.play.picker.bots.recommended")),
                             GuiText(MessageKey("astera.play.picker.bots.lane"), mapOf("lane" to lane.laneLabel)),
                             GuiText(MessageKey("astera.play.picker.bots.line"), mapOf("count" to lane.botCount.toString())),
                             GuiText(MessageKey("astera.play.picker.bots.hint")),

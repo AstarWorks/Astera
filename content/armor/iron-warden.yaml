@@ -1,0 +1,12 @@
+# Match arsenal (wp/match-arsenal): Iron Warden set. 2+ pieces / full set bonus stacks on the pieces' own reduction.
+
+type: set
+key: iron-warden
+display_name_key: astera.armor.set.iron-warden.name
+pieces:
+  - iron-warden-helmet
+  - iron-warden-chestplate
+  - iron-warden-leggings
+  - iron-warden-boots
+two_piece_bonus: 0.04
+four_piece_bonus: 0.1

@@ -219,12 +219,12 @@ public class ApplyDamageUseCase(
                         context = context,
                     ),
                 )
-                resolution.knockback?.let { impulse ->
-                    knockbackGateway.applyImpulse(attempt.targetId, impulse)
+                resolution.knockback?.let { push ->
+                    knockbackGateway.applyPush(attempt.targetId, push)
                     eventBus.publish(
                         KnockbackApplied(
                             target = attempt.targetId,
-                            impulse = impulse,
+                            push = push,
                             source = attempt.source,
                         ),
                     )
@@ -283,9 +283,7 @@ public class ApplyDamageUseCase(
                         context = context,
                     ),
                 )
-                resolution.knockback?.let { impulse ->
-                    knockbackGateway.applyImpulse(attempt.targetId, impulse)
-                }
+                resolution.knockback?.let { push -> knockbackGateway.applyPush(attempt.targetId, push) }
                 Result.success(gw.value)
             }
             is Result.Failure -> Result.failure(ApplyDamageError.GatewayFailed(gw.error))

@@ -1,0 +1,37 @@
+# Match arsenal (wp/match-arsenal): Twin Daggers.
+
+id: twin-daggers
+
+material: WOODEN_SWORD
+
+name:
+  ja: "<gray>ツインダガー</gray>"
+  en: "<gray>Twin Daggers</gray>"
+lore:
+  ja:
+    - "<gray>左クリック: 連続斬り (出血)</gray>"
+    - "<gray>スニーク + 右クリック: 影走り</gray>"
+  en:
+    - "<gray>Left-click: flurry (bleed)</gray>"
+    - "<gray>Sneak + right-click: shadow step</gray>"
+
+rarity: uncommon
+level_requirement: 1
+
+attributes:
+  attack_damage: 2.0
+  attack_speed: 3.0
+
+equip_slot: mainhand
+
+resource_type: energy
+resource_cost_per_use: 6
+
+skills:
+  - trigger: left_click
+    skill_id: twin-daggers-flurry
+  - trigger: sneak_right
+    skill_id: twin-daggers-shadowstep
+
+pdc_tags:
+  astera:rarity: uncommon

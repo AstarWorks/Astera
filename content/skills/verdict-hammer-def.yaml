@@ -3,8 +3,8 @@ name:
   ja: 守護の報復
   en: Guardian Reprisal
 description:
-  ja: 守護の報復
-  en: Guardian Reprisal
+  ja: 槌で受けて、反撃の一撃を返す。
+  en: Guard with the hammer and strike back.
 archetype: sequence
 cooldown_ticks: 180
 resource_cost: 10

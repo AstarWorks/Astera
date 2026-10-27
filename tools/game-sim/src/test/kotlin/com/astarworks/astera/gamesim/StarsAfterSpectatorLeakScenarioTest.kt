@@ -21,13 +21,13 @@ class StarsAfterSpectatorLeakScenarioTest {
         scenario("stars-after-spectator-leak") {
             val red = player("red-1", team = "red")
             val blue = player("blue-1", team = "blue")
-            val first = startMatch("skirmish", mapOf(red to "red", blue to "blue"), stage = "example-arena")
+            val first = startMatch("carry-tnt", mapOf(red to "red", blue to "blue"), stage = "example-arena")
             sim.services.getOrThrow<IMatchLifecycle>().end(first, EndReason.AdminEnded)
             advance(5)
             sim.spectator.startSpectating(red.id)
             assertThat(sim.spectator.isSpectating(red.id)).isTrue()
 
-            val matchId = startMatch("skirmish", mapOf(red to "red", blue to "blue"), stage = "example-arena")
+            val matchId = startMatch("carry-tnt", mapOf(red to "red", blue to "blue"), stage = "example-arena")
             assertThat(sim.spectator.isSpectating(red.id)).`as`("entering a match ends spectator mode").isFalse()
 
             val generators = sim.services.getOrThrow<IGeneratorRepository>().listForMatch(matchId)

@@ -30,7 +30,7 @@ class HudPreviewScenarioTest {
             sim.eventBus.publish(ResourcePackStatusChanged(viewer.id, ResourcePackStatus.LOADED))
             if (name != "lobby") {
                 val opponent = player("opponent", team = "blue", at = Vec3(0.0, groundY, 30.0))
-                startMatch("battle-loyal", mapOf(viewer to "red", opponent to "blue"))
+                startMatch("carry-tnt", mapOf(viewer to "red", opponent to "blue"))
             }
             advance(40)
             when (name) {

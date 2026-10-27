@@ -5,7 +5,10 @@ import com.astarworks.astera.match.domain.gamemode.HudLine
 import com.astarworks.astera.combat.domain.event.PlayerKilled
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.application.port.outbound.IMatchRepository
+import com.astarworks.astera.core.application.port.outbound.IActionBarChannel
 import com.astarworks.astera.core.application.port.outbound.IMessageRenderer
+import com.astarworks.astera.core.application.port.outbound.IPlayerPoseLookup
+import com.astarworks.astera.core.application.port.outbound.IPlayerSpeedGateway
 import com.astarworks.astera.core.application.port.outbound.IPlayerGateway
 import com.astarworks.astera.core.application.port.outbound.IStageRegistry
 import com.astarworks.astera.core.application.port.outbound.IWorldGateway
@@ -23,6 +26,8 @@ import com.astarworks.astera.core.domain.stage.Region
 import com.astarworks.astera.core.domain.stage.Stage
 import com.astarworks.astera.core.domain.world.BlockType
 import com.astarworks.astera.match.application.port.inbound.IMatchLifecycle
+import com.astarworks.astera.match.application.port.outbound.IMatchPlayerPositions
+import com.astarworks.astera.match.application.port.outbound.IObjectiveStage
 import com.astarworks.astera.match.domain.event.EntityEnteredRegion
 import com.astarworks.astera.match.domain.event.EntityLeftRegion
 import com.astarworks.astera.match.domain.gamemode.GameModeContext
@@ -41,6 +46,11 @@ import org.slf4j.LoggerFactory
  * @property config the mode's `default_config` from `content/game-modes/<id>.yaml`.
  * @property now current server tick (for framework event stamps).
  * @property presentation the game-moment player (cue / title / particles), resolved lazily; `null` = silent.
+ * @property positions live player positions (dead / offline = `null`) for pickup and deposit channels; `null` = no channels run.
+ * @property poses where a player looks, for the objective compass arrow; `null` = no arrow.
+ * @property speed walk-speed port for the carrier slowdown; `null` = carriers are not slowed.
+ * @property actionBar toast channel of the objective compass and warnings; `null` = no toasts.
+ * @property stage the visible objective stage (carrier glow, world markers, boss bars); `null` = headless.
  */
 public class SiegeEnv(
     public val eventBus: IDomainEventBus,
@@ -53,6 +63,11 @@ public class SiegeEnv(
     public val config: Map<String, String>,
     public val now: () -> Long,
     public val presentation: () -> IPresentation? = { null },
+    public val positions: () -> IMatchPlayerPositions? = { null },
+    public val poses: () -> IPlayerPoseLookup? = { null },
+    public val speed: () -> IPlayerSpeedGateway? = { null },
+    public val actionBar: () -> IActionBarChannel? = { null },
+    public val stage: () -> IObjectiveStage? = { null },
 ) {
     public fun int(key: String, default: Int): Int = config[key]?.toIntOrNull() ?: default
 
@@ -65,11 +80,23 @@ public open class SiegeRun(public val matchId: MatchId, public val stage: Stage)
 
     /** Server tick the next objective reminder is due at; 0 = not scheduled yet. */
     public var reminderAt: Long = 0L
+
+    /** Server tick the slow (once a second) [SiegeGameMode.tickRun] last ran at. */
+    internal var slowAt: Long = 0L
+
+    private val nextAt: MutableMap<String, Long> = mutableMapOf()
+
+    /** True once per [intervalTicks] for [key]; the first call is due at once. */
+    public fun due(key: String, now: Long, intervalTicks: Long): Boolean {
+        if (now < (nextAt[key] ?: 0L)) return false
+        nextAt[key] = now + intervalTicks
+        return true
+    }
 }
 
 /**
- * Shared skeleton of the objective ("siege") modes: break-core, carry-tnt,
- * capture-wool, steal-jewelry, battle-loyal.
+ * Shared skeleton of the objective ("siege") modes: carry-tnt,
+ * capture-wool, steal-jewelry, carry-mini-tnt.
  *
  * A mode is a pure reaction to match-scoped domain events — region
  * transitions ([EntityEnteredRegion] / [EntityLeftRegion], derived from
@@ -96,7 +123,13 @@ public abstract class SiegeGameMode<R : SiegeRun>(
 
     override fun defaultPhases(): List<IGameModePhase> = PHASES
 
-    override fun tickPeriodTicks(): Long = 20L
+    /** Cadence of [fastTick]; modes with channels / drop timers lower it so a half-second hold resolves on time. */
+    protected open val fastTickTicks: Long = SLOW_TICKS
+
+    final override fun tickPeriodTicks(): Long = fastTickTicks
+
+    /** The objective feedback helpers (carrier look, markers, bars, compass, channel); only touched while [env] is set. */
+    protected val kit: ObjectiveKit by lazy { ObjectiveKit(checkNotNull(env) { "an inert mode has no objective kit" }, modeId.value) }
 
     /** Bus subscriptions that route events into the hooks; empty when the mode is inert. */
     public fun subscribe(): List<IDomainEventBus.Subscription> {
@@ -118,6 +151,7 @@ public abstract class SiegeGameMode<R : SiegeRun>(
             e.eventBus.subscribe(PlayerKilled::class) { ev ->
                 val match = e.matches.findMatchOf(ev.victim) ?: return@subscribe
                 dispatch(match.id) { run, m ->
+                    kit.playerDown(ev.victim)
                     if (live(m)) killed(run, m, ev.victim, teamOf(m, ev.victim), ev.killer, ev.killer?.let { k -> teamOf(m, k) })
                 }
             },
@@ -156,6 +190,10 @@ public abstract class SiegeGameMode<R : SiegeRun>(
         val run = runs[context.matchId] ?: return
         val match = e.matches.findById(context.matchId) ?: return
         if (!live(match)) return
+        fastTick(run, match)
+        val now = e.now()
+        if (now - run.slowAt < SLOW_TICKS) return
+        run.slowAt = now
         tickRun(run, match, tick)
         remindObjective(run, match, e)
     }
@@ -189,6 +227,7 @@ public abstract class SiegeGameMode<R : SiegeRun>(
         val e = env ?: return
         val run = runs.remove(context.matchId) ?: return
         finish(run)
+        kit.endMatch(context.matchId, e.matches.findById(context.matchId)?.teams?.flatMap { it.members }.orEmpty())
         e.eventBus.publish(GameModeEvent.GameModeEnded(matchId = context.matchId, modeId = modeId, atTick = e.now()))
     }
 
@@ -213,7 +252,10 @@ public abstract class SiegeGameMode<R : SiegeRun>(
     /** How far [team] is along this mode's objective, for the Norma layer's time-limit ranking; `null` = no objective score. */
     protected open fun standing(run: R, match: Match, team: TeamId): Int? = null
 
-    /** Once per [tickPeriodTicks] while the match is ACTIVE / SUDDEN_DEATH. */
+    /** Every [fastTickTicks] while the match is ACTIVE / SUDDEN_DEATH (channels, drop timers, carrier trail). */
+    protected open fun fastTick(run: R, match: Match) {}
+
+    /** Once a second while the match is ACTIVE / SUDDEN_DEATH. */
     protected open fun tickRun(run: R, match: Match, tick: Long) {}
 
     /** Match ended: remove whatever [start] put into the world. */
@@ -278,6 +320,9 @@ public abstract class SiegeGameMode<R : SiegeRun>(
 
     public companion object {
         public const val DEFAULT_FLOOR_BLOCK: String = "minecraft:grass_block"
+
+        /** One second: the cadence of [tickRun]. */
+        public const val SLOW_TICKS: Long = 20L
 
         /** Two minutes of server ticks between objective reminders. */
         private const val REMINDER_TICKS: Long = 2400L

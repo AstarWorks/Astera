@@ -1,5 +1,5 @@
 # WP7 gun roster: close-range burst. Right-click = blast (13 dmg cone, knockback),
-# Shift+Q = reload, sneak + right-click = backstep.
+# Sneak+Q = reload, sneak + right-click = backstep.
 
 id: shotgun
 
@@ -11,12 +11,12 @@ name:
 lore:
   ja:
     - "<gray>右クリック: 散弾（近距離・ノックバック）</gray>"
-    - "<gray>スニーク + 右クリック: バックステップ</gray>"
-    - "<gray>Shift+Q: リロード</gray>"
+    - "<gray>スニーク+右: バックステップ</gray>"
+    - "<gray>スニーク+Q: リロード</gray>"
   en:
     - "<gray>Right-click: blast (close range, knockback)</gray>"
-    - "<gray>Sneak + right-click: backstep</gray>"
-    - "<gray>Shift+Q: reload</gray>"
+    - "<gray>Sneak+Right-click: backstep</gray>"
+    - "<gray>Sneak+Q: reload</gray>"
 
 rarity: uncommon
 level_requirement: 3

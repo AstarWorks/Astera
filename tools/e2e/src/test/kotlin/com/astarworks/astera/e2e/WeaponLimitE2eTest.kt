@@ -4,7 +4,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
 /**
- * Match weapon restriction (skirmish.yaml `weapon_limits`: 1 per family, 2 in total): a player who queues with
+ * Match weapon restriction (norma-layer `weapon_limits`: 1 per family, 2 in total): a player who queues with
  * five weapons enters the match with at most two; the rest come back when the match ends.
  */
 class WeaponLimitE2eTest : E2eBase() {
@@ -43,11 +43,11 @@ class WeaponLimitE2eTest : E2eBase() {
 
         val partner = bot("Limiter2")
         op(partner)
-        partner.command("astera queue join skirmish")
+        partner.command("astera queue join carry-tnt")
         val chatBefore = b.chat.size
         val worldsBefore = b.worldHistory.size
         val posBefore = b.positionPackets.get()
-        b.command("astera queue join skirmish")
+        b.command("astera queue join carry-tnt")
         val teleported = b.waitUntil(45_000) { b.positionPackets.get() > posBefore || b.worldHistory.size > worldsBefore }
         Thread.sleep(2_500)
         val during = carried(b)

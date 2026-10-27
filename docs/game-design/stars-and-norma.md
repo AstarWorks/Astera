@@ -58,18 +58,19 @@ The RTM README gives no numeric death-drop ratio. Decision: the ratio is content
   a firework at the player and tells the whole match in chat; the top level gets a bigger version. When the picker
   opens: a title and chime; the tiles show the goal (need N ★ / N kills) and the current progress; a pick gives a
   confirmation sound and action bar; the 10 s default is announced on the action bar.
-- Config: `content/norma-layer/layer.yaml` (`norma_max_level`, `norma_stars_goal`, `norma_kills_goal` lists by level, `norma_win`,
+- Config: `content/norma-layer/layer.yaml` (`norma_max_level`, `norma_stars_goal`, `norma_kills_goal` lists by level,
   `time_limit_seconds`, `death_drop_ratio`). Norma is a layer of every game mode, not a mode (ADR-0268, MODE-15): a mode overrides any
   key in its `default_config`; `norma_layer: "false"` turns it off (PvE waves).
-- **Win:** the first team to have a member reach `max_level` wins the match (`norma_win`, default on; in a mode with its own objective
-  it wins next to that objective, whichever comes first, and `norma_win: "false"` leaves the objective as the only win path). In
-  skirmish it is the only win path. There is no kill-count victory (ADR-0272): kills count for a player's KILL goal and, per team, as the
-  last tie-break. **Time limit** (`time_limit_seconds`, 600 s of ACTIVE time by default, 1200 s in the siege objective modes, `0` = none): the mode's
-  own objective standing first (battle-loyal kills, break-core alive, deliveries, captured zones, banked jewels; skirmish and annihilation
-  have none), then the team with the highest member Norma level; tie: the most stars carried (sum over members); tie: the most kills;
-  still tied: draw. The result screen
-  names the reason ("reached Norma level N and won" / "was ahead" / tied). Winning pays the normal reward table
-  (GOLD / XP), never stars.
+- **No win by level (ADR-0288):** Norma levels are in-match power progression and never end a match; only the mode's own
+  objective or the time limit does. Levels **unlock weapon rarity** (ADR-0292, replacing the
+  skill-kind gates of ADR-0288): `rarity_levels` in the layer config (default common 1, uncommon 2, rare 3, epic 4,
+  legendary 5). A weapon is usable (attacks and every skill) once the holder's level reaches its item `rarity:` level; below
+  it the use is refused with a deny sound and the action bar "Lv N で <rarity> 解放", the weapon stays holdable, its tooltip
+  says it is locked until Lv N, each level-up names the rarity it opened and the sidebar shows the next rarity. **Time limit** (`time_limit_seconds`, 600 s of ACTIVE time by
+  default, 1200 s in the siege objective modes, `0` = none): the mode's own objective standing first (deliveries, captured
+  zones, banked jewels; skirmish and annihilation have none), then the most stars carried (sum over members); tie: the most
+  kills; still tied: draw. Kills count for a player's KILL goal and, per team, as the last tie-break (ADR-0272). Winning pays the
+  normal reward table (GOLD / XP), never stars.
 - **Pace (balance, content defaults, 2026-10-27):** 5 levels, star goals **10, 30, 60, 100** (cumulative "carry at least"; the
   last clear is 100) and kill goals 1,2,3,4. Every generator pops **5 stars per 20 s** (15/min; the 4 arena generators = 60/min
   on the stage; sudden death doubles each pop). A death bursts **half** of the carried stack (`death_drop_ratio` 0.5) as up to

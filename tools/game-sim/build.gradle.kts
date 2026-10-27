@@ -23,6 +23,7 @@ dependencies {
     api(project(":plugin:match"))
     api(project(":plugin:stats"))
     api(project(":plugin:economy"))
+    testImplementation(project(":plugin:chat"))
 
     // Cross-plugin in-memory fakes (FakeScheduler, FakeGuiAdapter, FakeBroadcaster, ...).
     api(project(":plugin:test-fixtures"))

@@ -36,17 +36,16 @@ class TutorialScenarioTest {
             assertThat(checkNotNull(sim.server.view(learner.id)).titles).contains(TutorialGuide.key("menu", "title"))
             learner.heldItem = null // F is a lobby key only with an empty hand / the compass.
             assertThat(sim.swapHands(learner)).isTrue() // F -> real kit entry -> rendered menu.
-            assertThat(action()).isEqualTo("range")
+            assertThat(action()).isEqualTo("primary") // 5 steps: menu, primary, secondary, hud, queue.
             advance(100)
-            assertThat(action()).isEqualTo("range") // waiting is never enough.
+            assertThat(action()).isEqualTo("primary") // waiting is never enough.
             val reconnectId = learner.id
             sim.detachPlayer(reconnectId)
             learner = sim.attachPlayer(reconnectId, "learner").also { it.world = lobby }
             advance(10)
-            assertThat(action()).isEqualTo("range")
-            assertThat(checkNotNull(sim.server.view(reconnectId)).titles).contains(TutorialGuide.key("range", "title"))
+            assertThat(action()).isEqualTo("primary")
+            assertThat(checkNotNull(sim.server.view(reconnectId)).titles).contains(TutorialGuide.key("primary", "title"))
             learner.moveTo(plan.spawn)
-            assertThat(action()).isEqualTo("rack")
             val rack = checkNotNull(sim.items.trainingRack)
             assertThat(rack.claim(learner.id, ItemId("knight-sword")).isSuccess).isTrue()
             sim.hold(learner, "knight-sword")
@@ -63,27 +62,12 @@ class TutorialScenarioTest {
             val energyBefore = energy(learner)
             learner.rightClick(sneaking = true)
             assertThat(energy(learner)).isLessThan(energyBefore)
-            assertThat(action()).isEqualTo("reload")
-            assertThat(rack.claim(learner.id, ItemId("pistol")).isSuccess).isTrue()
-            sim.hold(learner, "pistol")
-            learner.rightClick()
-            advance(8)
-            assertThat(ammo(learner)).isLessThan(12)
-            learner.drop() // Q, real bound reload skill and scheduled refill.
-            assertThat(action()).isEqualTo("reload")
-            advance(32)
-            assertThat(ammo(learner)).isEqualTo(12)
-            assertThat(action()).isEqualTo("staff")
-            assertThat(rack.claim(learner.id, ItemId("fire-staff")).isSuccess).isTrue()
-            sim.hold(learner, "fire-staff")
-            learner.rightClick()
-            advance(4)
             assertThat(action()).isEqualTo("hud")
             assertThat(foodLevel(learner)).isNotNull()
             assertThat(cooldownSweeps()).isNotEmpty()
-            advance(90)
-            assertThat(action()).isEqualTo("norma") // reading the HUD advances by itself; the Norma goal text comes next.
-            assertThat(checkNotNull(sim.server.view(learner.id)).titles).contains(TutorialGuide.key("norma", "title"))
+            advance(30)
+            assertThat(checkNotNull(sim.server.view(learner.id)).actionBars.map { it.value })
+                .contains(TutorialGuide.key("hud", "hint").value)
 
             assertThat(sim.command("learner", "tutorial skip").succeeded).isTrue()
             assertThat(states.find(learner.id)?.paused).isTrue()
@@ -94,8 +78,8 @@ class TutorialScenarioTest {
             assertThat(runner.currentStep(id)).isNull() // skip survives a reconnect.
             assertThat(sim.command("learner", "tutorial status").succeeded).isTrue()
             assertThat(sim.command("learner", "tutorial start").succeeded).isTrue()
-            assertThat(action()).isEqualTo("norma")
-            advance(150) // the win-condition step is read-only and advances after seven seconds.
+            assertThat(action()).isEqualTo("hud")
+            advance(90) // the HUD step is read-only and advances after four seconds.
             assertThat(action()).isEqualTo("queue")
             val before = sim.services.getOrThrow<ICurrencyLedger>().balance(id, Currency.GOLD)
             val pad = sim.services.getOrThrow<LobbyLanePadService>().pads().values.first()

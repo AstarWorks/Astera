@@ -43,6 +43,9 @@ public enum class ItemOrigin {
 
     /** Taken from the lobby training weapon rack: never snapshotted, stripped on match entry / world change / quit. */
     TRAINING,
+
+    /** A purchase: armour goes straight into its free armour slot (else the inventory like [STANDARD]). */
+    EQUIP_IF_FREE,
 }
 
 /** Outcome of a single [IItemDelivery.give] call. */

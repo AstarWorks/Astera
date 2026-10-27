@@ -1,0 +1,8 @@
+# Match arsenal (wp/match-arsenal): Diamond Champion helmet.
+
+type: piece
+id: diamond-champion-helmet
+display_name_key: astera.armor.diamond-champion-helmet.name
+slot: helmet
+damage_reduction: 0.08
+set_key: diamond-champion

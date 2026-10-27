@@ -17,6 +17,7 @@ import com.astarworks.astera.match.application.service.matchmaking.BotMatchReque
 import com.astarworks.astera.match.application.service.matchmaking.LaneQueueJoiner
 import com.astarworks.astera.match.domain.matchmaking.MatchmakingMode
 import com.astarworks.astera.match.domain.matchmaking.QueueError
+import com.astarworks.astera.match.domain.matchmaking.LaneKind
 import com.astarworks.astera.match.domain.matchmaking.QueueLane
 import com.astarworks.astera.match.domain.matchmaking.QueueSettings
 import org.slf4j.LoggerFactory
@@ -74,7 +75,7 @@ public class LobbyQueueIntentHandler(
         }
         val config = settings()
         val mine = matchmaker.queueStatus(player.id)?.let { config.laneFor(it.mode) }
-        val views = config.lanes.values.take(QueueModeListGuiSpec.MAX_LANES).map { lane -> view(lane, mine) }
+        val views = config.lanes.values.filter { it.kind != LaneKind.PVE }.take(QueueModeListGuiSpec.MAX_LANES).map { lane -> view(lane, mine) }
         log.info("Play picker opened for {} ({} lanes, queued in {})", player.name, views.size, mine?.key ?: "-")
         if (!guiAdapter.open(mcPlayer, QueueModeListGuiSpec.build(views, mine?.let { LobbyLanePadLayout.displayName(it.key) }))) {
             send(player, MSG_OPEN_REJECTED)
@@ -88,6 +89,7 @@ public class LobbyQueueIntentHandler(
             name = GuiText(known(MessageKey("astera.gamemode.${lane.key}.title"))
                 ?: MessageKey("astera.play.lane.generic.name"), mapOf("lane" to LobbyLanePadLayout.displayName(lane.key))),
             description = GuiText(known(MessageKey("astera.play.lane.${lane.key}.desc")) ?: MessageKey("astera.play.lane.generic.desc")),
+            detail = known(MessageKey("astera.play.lane.${lane.key}.detail"))?.let { GuiText(it) },
             laneLabel = LobbyLanePadLayout.displayName(lane.key),
             teams = lane.teams,
             playersPerTeam = lane.playersPerTeam,

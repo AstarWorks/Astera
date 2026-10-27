@@ -14,7 +14,7 @@
 # can join a backend directly or pose as another player.
 #
 # The Paper image is built from docker/Dockerfile using the repo root as the
-# build context: the multi-stage build compiles the 7 plugin jars AND bakes
+# build context: the multi-stage build compiles the 8 plugin jars AND bakes
 # `content/` into the image at /content (outside the /data volume). The Docker
 # daemon is shared with the host, so a bind mount of ../content would be empty
 # in the container. Content/code changes therefore need `make docker-up`
@@ -175,7 +175,7 @@ services:
       retries: 10
 
   # AI bots (ADR-0247): listens on Redis `astera:bots:request` and spawns protocol bots that queue and play like
-  # players ("play vs bots" in the lobby, `make bots N=2 LANE=skirmish`). The bots log in to the backends directly and
+  # players ("play vs bots" in the lobby, `make bots N=2 LANE=carry-tnt`). The bots log in to the backends directly and
   # answer Paper's Velocity modern-forwarding query with the shared secret (online-mode Velocity would refuse them).
   # A plain service: `make dev-plugins` / `make dev-content` never touch it; rebuild with
   #   docker compose -f docker/docker-compose.yml up -d --build bot-runner

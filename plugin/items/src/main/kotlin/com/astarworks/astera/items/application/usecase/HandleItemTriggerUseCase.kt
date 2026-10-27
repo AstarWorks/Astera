@@ -2,6 +2,7 @@ package com.astarworks.astera.items.application.usecase
 
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.application.port.outbound.IItemRegistry
+import com.astarworks.astera.core.application.port.outbound.IMatchLevelGate
 import com.astarworks.astera.core.application.port.outbound.IResourcePoolService
 import com.astarworks.astera.core.domain.event.SkillCastRequested
 import com.astarworks.astera.core.domain.geometry.Vec3
@@ -27,6 +28,11 @@ import com.astarworks.astera.core.domain.skill.SkillTrigger
  * applies it as the one and only cooldown gate (the item override wins over
  * the skill's own `cooldown_ticks`).
  *
+ * ## Norma level gate
+ *
+ * Every trigger of a weapon (attacks and all skills) is refused (with feedback from [IMatchLevelGate]) while the
+ * caster's in-match Norma level is below the level the item's rarity opens at (ADR-0292); the input is still swallowed.
+ *
  * ## Active weapon
  *
  * [onHeldItemChanged] keeps the resource pool's active weapon (which decides
@@ -36,6 +42,8 @@ public class HandleItemTriggerUseCase(
     private val items: IItemRegistry,
     private val eventBus: IDomainEventBus,
     private val resourcePool: IResourcePoolService? = null,
+    /** Resolved lazily: Match may register after Items enables. `null` result = no Norma gate. */
+    private val levelGate: () -> IMatchLevelGate? = { null },
 ) {
 
     /** The hotbar selection changed; [itemId] is the Astera item now in hand, if any. */
@@ -76,6 +84,8 @@ public class HandleItemTriggerUseCase(
         val spec = items.find(itemId) ?: return castSkillTester(playerId, itemId, trigger, origin)
         val matchingBindings = spec.skillBindings.filter { it.trigger == trigger }
         if (matchingBindings.isEmpty()) return false
+        // Norma rarity gate (ADR-0292): a weapon above the holder's level does nothing, with feedback; the input is swallowed.
+        if (levelGate()?.denyIfLocked(playerId, spec.rarity) == true) return true
 
         for (binding in matchingBindings) {
             eventBus.publish(

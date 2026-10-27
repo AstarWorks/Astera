@@ -51,6 +51,12 @@ public abstract class YamlDynamicContents<K : Any, V : Any, C : Any>(
      */
     protected abstract fun toEntry(config: C): Pair<K, V>?
 
+    /**
+     * Every registry entry of a parsed config. Defaults to the single [toEntry]; override when one file registers several
+     * entries (e.g. one per palette variant).
+     */
+    protected open fun toEntries(config: C): List<Pair<K, V>> = listOfNotNull(toEntry(config))
+
     override fun find(key: K): V? = store.get()[key]
 
     final override fun all(): Collection<V> = store.get().values
@@ -82,7 +88,7 @@ public abstract class YamlDynamicContents<K : Any, V : Any, C : Any>(
     public fun bootstrap(dir: Path): ContentLoader.LoadReport {
         val incoming = LinkedHashMap<K, V>()
         val report = loadAll(dir) { cfg ->
-            toEntry(cfg)?.let { (k, v) -> incoming[k] = v }
+            toEntries(cfg).forEach { (k, v) -> incoming[k] = v }
         }
         while (true) {
             val current = store.get()
@@ -102,7 +108,7 @@ public abstract class YamlDynamicContents<K : Any, V : Any, C : Any>(
     final override fun reload(dir: Path): ContentLoader.LoadReport {
         val next = LinkedHashMap<K, V>()
         val report = loadAll(dir) { cfg ->
-            toEntry(cfg)?.let { (k, v) -> next[k] = v }
+            toEntries(cfg).forEach { (k, v) -> next[k] = v }
         }
         if (report.failed != 0) return report
         EmptyReloadGuard.check(categoryName, dir, next.size, store.get().size)?.let { return it }
@@ -127,7 +133,7 @@ public abstract class YamlDynamicContents<K : Any, V : Any, C : Any>(
         var failed = 0
         val failures = mutableListOf<ContentLoader.LoadFailure>()
         for (d in dirs) {
-            val r = loader.loadFrom(d, onLoaded)
+            val r = loader.loadFrom(d, onLoaded = onLoaded)
             loaded += r.loaded
             failed += r.failed
             failures += r.failures

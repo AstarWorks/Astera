@@ -25,3 +25,12 @@ Images: `![top-down](beat-top.png)` with a path relative to the notes file, e.g.
 - `.png` / `.jpg` / `.jpeg` / `.webp` only (content is checked, no SVG), at most 2 MB per image and 12 images per round.
 - The file must live inside the notes file's directory (or below it): no `..`, absolute paths, URLs or symlinks leaving it.
 - Images are copied into the immutable published revision and served from `/round/<skill>/<revision>/img/<name>`; the page only shows images the publisher listed. Rendering happens once when the case loads, so playback never repaints the notes.
+
+## Capture completeness (every tick has its own frame)
+
+A real-client capture (`tools/vfx-shot`) must contain, for every tick of the requested range, a frame that the client drew for THAT tick (read from the tick stamp rendered into the frame). Rules, enforced in code:
+
+- Filming is always stepped (slow motion, `/tick rate` 5 by default). `STEPPED=0` / `FPS!=20` (realtime) needs `SHOT_REALTIME=1` and the result can never be published (`captureQuality.invalid`).
+- A tick without a frame of its own (`skippedTicks > 0`, `meta.tickStamp.gaps`) makes `vfx-shot.sh` refilm the whole take automatically at half the tick rate (`SHOT_TICK_ATTEMPTS`, default 4). After the last attempt it fails loudly (exit != 0, frames removed). Nothing is published.
+- `publish-capture.mjs` refuses a capture that is `captureQuality.invalid`, not stepped, or has `skippedTicks > 0`. There is no preview/realtime publish path.
+- Cause of a miss: the software-GL client occasionally hitches longer than one slow tick (heavy VFX, first-time assets, host load) and then jumps over a tick; a realtime take (~10 fps client vs 20 tps server) misses 20-50 ticks by construction.

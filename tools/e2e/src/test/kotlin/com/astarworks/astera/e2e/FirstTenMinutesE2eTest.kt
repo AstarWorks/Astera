@@ -106,14 +106,14 @@ class FirstTenMinutesE2eTest : PlaythroughBase() {
         E2eReport.check(suite, "menu: the Play guide opens the mode picker and picking a lane shows the waiting block", "OpenScreen + ContainerClick -> sidebar") {
             val picker = checkNotNull(openPicker(first)) { "Play guide not seen or picker did not open; chat=${first.chatTexts().takeLast(3)}" }
             assertThat(rawKeys(listOf(picker.title))).isEmpty()
-            first.clickSlot(picker.containerId, 0, ContainerActionType.CLICK_ITEM, ClickItemAction.LEFT_CLICK)
+            first.clickSlot(picker.containerId, 1, ContainerActionType.CLICK_ITEM, ClickItemAction.LEFT_CLICK)
             assertThat(first.waitUntil(6_000) { first.sidebarLines().any { "1/2" in it } }).describedAs("no waiting block; sidebar=${first.sidebarLines()}").isTrue()
             queued = true
             "picker='${picker.title}' sidebar=${first.sidebarLines()}"
         }
         val tQueue = System.nanoTime()
-        if (!queued) first.command("astera queue join skirmish")
-        bots.drop(1).forEach { it.command("astera queue join skirmish") }
+        if (!queued) first.command("astera queue join carry-tnt")
+        bots.drop(1).forEach { it.command("astera queue join carry-tnt") }
         val active = awaitMatch("ACTIVE", 90_000)
         E2eReport.check(suite, "queue: four players form a match and it goes ACTIVE within a minute", "RCON astera match list") {
             assertThat(active).describedAs("match never ACTIVE; list=${matchLines()}; chat=${first.chatTexts().takeLast(6)}").isNotNull()
@@ -128,12 +128,11 @@ class FirstTenMinutesE2eTest : PlaythroughBase() {
         val teams = bots.associateWith { side(it) }
         val red = bots.filter { teams[it] == "red" }
         val blue = bots.filter { teams[it] == "blue" }
-        E2eReport.check(suite, "match: the player is told it started and the sidebar names how Norma wins (reach level N)", "SystemChat/title + SetScore") {
+        E2eReport.check(suite, "match: the player is told it started and the sidebar shows their Norma level", "SystemChat/title + SetScore") {
             val said = told(first, chatFrom.getValue(first))
             assertThat(said.any { Regex("started|MATCH START|開始", RegexOption.IGNORE_CASE).containsMatchIn(it) }).describedAs("no 'started' message:\n${quote(said, 30)}").isTrue()
             val lines = sidebar(first)
-            assertThat(lines.any { it.contains("level", true) && it.contains("win", true) && !it.contains("Red", true) && !it.contains("Blue", true) })
-                .describedAs("no 'reach Norma level N to win' line: $lines").isTrue()
+            assertThat(lines.any { it.contains("Norma Lv", true) }).describedAs("no Norma level line on the sidebar: $lines").isTrue()
             assertThat(rawKeys(said + lines)).isEmpty()
             "sidebar=$lines"
         }
@@ -170,7 +169,7 @@ class FirstTenMinutesE2eTest : PlaythroughBase() {
             val last = i == 2
             E2eReport.check(suite, "$kind: ${learner.name} kills ${victim.name} with the ${items[i]} (only its own click bindings)", "PlayerCombatKill") {
                 assertThat(slot).describedAs("${items[i]} never reached the hotbar").isNotNull()
-                assertThat(killed || (last && matchLines().isEmpty())).describedAs("no kill with ${items[i]}; victim status='${status(victim)}' shooter status='${status(learner)}' chat=${learner.chatTexts().takeLast(4)}").isTrue()
+                assertThat(killed).describedAs("no kill with ${items[i]}; victim status='${status(victim)}' shooter status='${status(learner)}' chat=${learner.chatTexts().takeLast(4)}").isTrue()
                 duelNotes.last()
             }
             E2eReport.check(suite, "$kind: the shooter hears the cast cue and sees damage numbers; the victim's HP line drops", "ClientboundSound + text display + HP glyphs") {
@@ -203,12 +202,12 @@ class FirstTenMinutesE2eTest : PlaythroughBase() {
         E2eReport.notes += "First 10 minutes: ${duelNotes.joinToString(" | ")}"
 
         // --- 5. the end -----------------------------------------------------------------------------------------------
+        // The top Norma level unlocks the ultimates, it does not end the match: end it from the console.
+        matchLines().forEach { rcon("astera match end ${it.id}") }
         val ended = awaitNoMatch(45_000, keepAlive = bots)
-        E2eReport.check(suite, "norma: reaching the top level ends the match by itself and the winner is told why", "RCON astera match list + SystemChat") {
-            assertThat(ended).describedAs("match still listed 45s after the third kill: ${matchLines()}; sidebar=${sidebar(learner)}").isTrue()
-            val winnerChat = learner.chat.drop(chatFrom.getValue(learner)).map { clean(it.text) }
-            assertThat(winnerChat.any { it.contains("Norma level", true) }).describedAs("no 'reached Norma level' reason:\n${quote(winnerChat, 40)}").isTrue()
-            "reason='${winnerChat.firstOrNull { it.contains("Norma level", true) }}'"
+        E2eReport.check(suite, "an admin end returns everyone to the lobby", "RCON astera match list") {
+            assertThat(ended).describedAs("match still listed 45s after the end command: ${matchLines()}; sidebar=${sidebar(learner)}").isTrue()
+            "match gone"
         }
         checkEnding(suite, bots, chatFrom, lobbyTitle)
         E2eReport.check(suite, "server log stayed free of errors during the whole first match", "server log") {

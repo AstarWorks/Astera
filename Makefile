@@ -24,8 +24,8 @@ help: ## Show this help
 # ----------------------------------------------------------------------------
 
 .PHONY: build
-build: ## Build the 7 Astera plugin shadow jars (plugin/*/build/libs/astera-*.jar)
-	$(GRADLEW) $(foreach p,core items combat match stats economy persistence,:plugin:$(p):shadowJar)
+build: ## Build the 8 Astera plugin shadow jars (plugin/*/build/libs/astera-*.jar)
+	$(GRADLEW) $(foreach p,core chat items combat match stats economy persistence,:plugin:$(p):shadowJar)
 
 .PHONY: anim-import
 anim-import: ## Import Blockbench player animations: make anim-import BB=path.bbmodel [OUT=content/animations]
@@ -244,7 +244,7 @@ vfx-shot-down: ## Stop the parked clients and drop this checkout's capture stack
 	bash tools/vfx-shot/vfx-shot.sh down
 
 .PHONY: vfx-auto-up vfx-auto-down vfx-auto-status vfx-auto-once
-vfx-auto-up: ## Capture farm: on every dev "deployed <sha>" film the changed skills (top+side, realtime PREVIEW then stepped) and publish to skill-compare as "auto <sha>"
+vfx-auto-up: ## Capture farm: on every dev "deployed <sha>" film the changed skills (top+side, stepped) and publish to skill-compare as "auto <sha>"
 	bash tools/vfx-shot/auto-capture.sh up
 vfx-auto-down: ## Stop the capture farm daemon and drop its warm stack
 	bash tools/vfx-shot/auto-capture.sh down
@@ -263,11 +263,11 @@ vfx-shot-reap: ## Kill vfx-shot clients / astera-shot-* stacks of dead runs, hos
 # ----------------------------------------------------------------------------
 
 .PHONY: live-bots
-live-bots: ## Run bot scenarios against the live stack: make live-bots SCENARIO=smoke|weapons|match|all (report: build/live-report.md)
+live-bots: ## Run bot scenarios against the live stack: make live-bots SCENARIO=smoke|weapons|match|chat|all (report: build/live-report.md)
 	bash scripts/live-bots.sh $(or $(SCENARIO),all)
 
 .PHONY: bots
-bots: ## Fill the live queue with AI bots (ADR-0247): make bots N=2 LANE=skirmish  (starts the bot-runner service if needed)
+bots: ## Fill the live queue with AI bots (ADR-0247): make bots N=2 LANE=carry-tnt  (starts the bot-runner service if needed)
 	bash scripts/bots.sh $(or $(N),2) $(or $(LANE),norma)
 
 .PHONY: skill-compare
@@ -350,6 +350,10 @@ skill-overlay: ## Project a plan dump (or a numpy simulation of content/) onto t
 skill-round: ## Publish the director's round notes (tools/skill-compare/data/<case>/round.md) to skill-compare: make skill-round SKILL=<skill-id> [FILE=<round.md>]
 	@test -n "$(SKILL)" || { echo "usage: make skill-round SKILL=<skill-id> [FILE=<round.md>]"; exit 2; }
 	node tools/skill-compare/scripts/publish-round.mjs "$(SKILL)" $(FILE)
+
+.PHONY: report-check
+report-check: ## First line of every founder report: is <sha> deployed to dev? prints 見られる場所 (exit 0) or まだ見られるものはありません (exit 1): make report-check SHA=<sha>
+	@bash tools/report-check.sh "$(SHA)"
 
 .PHONY: round-gate
 round-gate: ## A build round is finished only if its round note has the mandatory facts (workflow v4: inventory diff with every row ok + structure sha + skill-3d stills first; then compare sheet from the API, trace cast+N, framing, fidelity, "weaker than previous: none"; luma / fx_pct are advisory only); exit 1 otherwise: make round-gate SKILL=<skill-id> [FILE=<round.md>] [CASE=<case>] [STAGE=manager]

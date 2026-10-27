@@ -37,10 +37,10 @@ class CombatMatchBugHuntScenarioTest {
             val blue = player("blue")
             val lifecycle = sim.services.getOrThrow<IMatchLifecycle>()
             val matches = sim.services.getOrThrow<IMatchRepository>()
-            val first = startMatch("skirmish", mapOf(red to "red", blue to "blue"))
+            val first = startMatch("carry-tnt", mapOf(red to "red", blue to "blue"))
             lifecycle.end(first, EndReason.AdminEnded)
             assertThat(matches.findMatchOf(red.id)).isNull()
-            val second = startMatch("skirmish", mapOf(red to "blue", blue to "red"))
+            val second = startMatch("carry-tnt", mapOf(red to "blue", blue to "red"))
             assertThat(matches.findMatchOf(red.id)?.id).isEqualTo(second)
             assertThat(matches.findMatchOf(blue.id)?.id).isEqualTo(second)
         }
@@ -83,7 +83,7 @@ class CombatMatchBugHuntScenarioTest {
         scenario("bug-hunt-replay-ticks") {
             val red = player("red")
             val blue = player("blue")
-            val id = startMatch("skirmish", mapOf(red to "red", blue to "blue"))
+            val id = startMatch("carry-tnt", mapOf(red to "red", blue to "blue"))
             val recorder = sim.services.getOrThrow<IMatchRecorder>()
             recorder.startRecording(id, ReplayFormat.FullPerTick(100))
             val started = sim.tick
@@ -99,7 +99,7 @@ class CombatMatchBugHuntScenarioTest {
         scenario("bug-hunt-natural-end") {
             val red = player("red")
             val blue = player("blue")
-            val id = startMatch("skirmish", mapOf(red to "red", blue to "blue"))
+            val id = startMatch("carry-tnt", mapOf(red to "red", blue to "blue"))
             val lifecycle = sim.services.getOrThrow<IMatchLifecycle>()
             lifecycle.switchPhase(id, MatchStateMachine.TransitionTrigger.ScoreThresholdReached)
             advance(PhaseTimings.SUDDEN_DEATH_TICKS.toInt() + 40)
@@ -115,7 +115,7 @@ class CombatMatchBugHuntScenarioTest {
             val red = player("red", team = "red")
             val mate = player("mate", team = "blue")
             val enemy = player("enemy", team = "red")
-            startMatch("skirmish", mapOf(red to "red", mate to "red", enemy to "blue"))
+            startMatch("carry-tnt", mapOf(red to "red", mate to "red", enemy to "blue"))
             val damage = checkNotNull(sim.combat.applyDamage)
             val source = DamageSource.Skill(
                 SkillId("frost-nova"), red.id,
@@ -136,7 +136,7 @@ class CombatMatchBugHuntScenarioTest {
             val red = player("red")
             val blue = player("blue")
             val lifecycle = sim.services.getOrThrow<IMatchLifecycle>()
-            val started = lifecycle.start(StageId("siege-isles"), "skirmish")
+            val started = lifecycle.start(StageId("siege-isles"), "carry-tnt")
             check(started is Result.Success)
             lifecycle.entry(started.value, red.id, TeamId("red"))
             lifecycle.entry(started.value, blue.id, TeamId("blue"))

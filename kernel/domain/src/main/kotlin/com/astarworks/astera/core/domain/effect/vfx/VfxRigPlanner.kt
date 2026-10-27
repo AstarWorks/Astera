@@ -35,6 +35,8 @@ public class VfxRigMotion(
     public val sampleTicks: Int = 2,
     /** The performance body the rig hangs from (`parent: right_hand`); `null` = the arm stays at rest. */
     public val body: VfxBodyTrack? = null,
+    /** Whether [freezes] stop this clock; the weapon follows `rig.respect_hit_stop`, the skin body also `body_respect_hit_stop`. */
+    respectHitStop: Boolean = rig.respectHitStop,
 ) {
     /** One client interpolation: rotation (anchor-local) from [from] at rig tick [start] to [to] at [end]. */
     public class Chunk(public val start: Int, public val end: Int, public val from: Quaternion, public val to: Quaternion)
@@ -42,7 +44,7 @@ public class VfxRigMotion(
     /** Effect tick at which rig tick 0 lives (the keyframe clock starts one tick after the spawn). */
     public val base: Int = rig.startTick + VfxTimeline.ANIMATION_DELAY_TICKS
 
-    private val windows: List<VfxFreeze> = if (rig.respectHitStop) merge(freezes) else emptyList()
+    private val windows: List<VfxFreeze> = if (respectHitStop) merge(freezes) else emptyList()
 
     /** (rig tick the clock stops at, frozen ticks). */
     private val stops: List<Pair<Int, Int>>
@@ -235,7 +237,12 @@ public object VfxRigPlanner {
         val motion = VfxRigMotion(rig, anchorRot, scale, freezes, def.sampleTicks, body)
         val out = ArrayList<VfxElementPlan>()
         if (rig.weapon != null) {
-            out += VfxBodyPlanner.plan(def, rig, motion, body)
+            val bodyMotion = if (def.bodyRespectHitStop && !rig.respectHitStop) {
+                VfxRigMotion(rig, anchorRot, scale, freezes, def.sampleTicks, body, respectHitStop = true)
+            } else {
+                motion
+            }
+            out += VfxBodyPlanner.plan(def, rig, motion, body, bodyMotion)
             def.ghostBodies.forEach { out += VfxBodyPlanner.planGhost(def, it, motion, ghostTracks.getValue(it.id)) }
         }
         rig.parts.forEach { out += partPlan(def, rig, it, motion) }

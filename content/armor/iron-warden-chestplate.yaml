@@ -1,0 +1,8 @@
+# Match arsenal (wp/match-arsenal): Iron Warden chestplate.
+
+type: piece
+id: iron-warden-chestplate
+display_name_key: astera.armor.iron-warden-chestplate.name
+slot: chestplate
+damage_reduction: 0.12
+set_key: iron-warden

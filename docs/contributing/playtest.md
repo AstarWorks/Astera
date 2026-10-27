@@ -306,13 +306,10 @@ start alone; friends who join the queue before the countdown ends are
 split across the two teams).
 
 ```
-/astera queue join skirmish         # 2 teams (red / blue) on example-arena
 /astera queue join annihilation  # 3 teams (red / blue / yellow) on annihilation-arena
-/astera queue join break-core      # siege-isles: break the enemy emerald core block (yours is protected)
 /astera queue join carry-tnt       # siege-isles: step into the centre-north zone for the TNT, run it into the enemy base (2 deliveries)
 /astera queue join capture-wool    # siege-isles: stand alone in a wool zone for 10 s to capture it; 2 of 3 zones win
 /astera queue join steal-jewelry   # siege-isles: step on the enemy diamond pedestal (inside their base), bank in your base; steal 2 to win
-/astera queue join battle-loyal    # siege-isles: team deathmatch, 5 kills win
 /astera queue status         # your position + how many players are queued
 /astera queue leave          # optional: leave the queue
 ```
@@ -332,12 +329,12 @@ What happens next (no further commands):
    is cancelled if the queue drops below the minimum. A full queue
    (`teams x players_per_team`) starts immediately.
 2. "Match found!": you are put on a team (sizes balanced within 1) and
-   teleported to a spawn of your own team (`content/stages/example-arena.yaml`
-   for `skirmish`, `content/stages/annihilation-arena.yaml` for `annihilation`).
+   teleported to a spawn of your own team (`content/stages/siege-isles-tnt.yaml`
+   for `carry-tnt`, `content/stages/annihilation-arena.yaml` for `annihilation`).
    Teammates get different spawns of that team (least-used first).
 3. A 10 s in-arena COUNTDOWN (`match_countdown_seconds`), then the match is ACTIVE.
 4. When the match ends (win condition, or `/astera match end <matchId>`) everyone
-   is teleported back to the lobby and can `/astera queue join skirmish` again.
+   is teleported back to the lobby and can `/astera queue join carry-tnt` again.
    `/astera match list` shows the match id while it runs.
 
 If the arena is still in use, the queue waits (you are told once) and the
@@ -357,8 +354,8 @@ The `bot-runner` compose service starts with the stack (`make docker-up`). It tu
 named `Bot_Ash`, `Bot_Birch`, ... that log in, queue for a lane and fight like players, then leave after the match.
 
 ```bash
-make bots N=2 LANE=skirmish     # two bots queue skirmish; prints spawning -> queued (or the failure reason)
-make bots N=1 LANE=skirmish     # one bot waits in the queue; join the lane yourself: /astera queue join skirmish
+make bots N=2 LANE=carry-tnt     # two bots queue carry-tnt; prints spawning -> queued (or the failure reason)
+make bots N=1 LANE=carry-tnt     # one bot waits in the queue; join the lane yourself: /astera queue join carry-tnt
 make bots N=3 LANE=annihilation
 ```
 

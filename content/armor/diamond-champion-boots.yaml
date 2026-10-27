@@ -1,0 +1,8 @@
+# Match arsenal (wp/match-arsenal): Diamond Champion boots.
+
+type: piece
+id: diamond-champion-boots
+display_name_key: astera.armor.diamond-champion-boots.name
+slot: boots
+damage_reduction: 0.08
+set_key: diamond-champion

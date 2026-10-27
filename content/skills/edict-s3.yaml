@@ -3,8 +3,8 @@ name:
   ja: 落下の鉄拳
   en: Cuffed Descent
 description:
-  ja: 落下の鉄拳
-  en: Cuffed Descent
+  ja: 跳び上がり、鉄拳を落下させて叩きつける。
+  en: Leap up and slam down with an iron fist.
 archetype: sequence
 cooldown_ticks: 145
 resource_cost: 25

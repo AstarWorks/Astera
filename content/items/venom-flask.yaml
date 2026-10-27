@@ -1,0 +1,33 @@
+# Match arsenal (wp/match-arsenal, batch 2): Venom Flask.
+
+id: venom-flask
+
+material: FERMENTED_SPIDER_EYE
+
+name:
+  ja: "毒霧の瓶"
+  en: "Venom Flask"
+lore:
+  ja:
+    - "<gray>右クリック: 投げる (着弾点に毒の霧)</gray>"
+  en:
+    - "<gray>Right-click: throw (poison cloud on impact)</gray>"
+
+rarity: uncommon
+level_requirement: 1
+
+attributes:
+  attack_damage: 1.0
+  attack_speed: 1.0
+
+equip_slot: mainhand
+
+resource_type: energy
+resource_cost_per_use: 16
+
+skills:
+  - trigger: right_click
+    skill_id: poison-cloud
+
+pdc_tags:
+  astera:rarity: uncommon

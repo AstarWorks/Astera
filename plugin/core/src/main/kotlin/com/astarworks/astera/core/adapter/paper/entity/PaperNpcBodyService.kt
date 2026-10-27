@@ -91,6 +91,13 @@ internal class PaperNpcBodyService(
         schedule(request, run)
     }
 
+    override fun remove(handle: EntityHandle) {
+        pending.removeAll { it.handle == handle }
+        val id = bodies.remove(handle) ?: return
+        plugin.server.getEntity(id)?.let { entity -> entity.scheduler.execute(plugin, Runnable { entity.remove() }, null, 1L) }
+        registry?.release("npc:${handle.id}")
+    }
+
     override fun removeAll() {
         val remove = Runnable {
             pending.clear()

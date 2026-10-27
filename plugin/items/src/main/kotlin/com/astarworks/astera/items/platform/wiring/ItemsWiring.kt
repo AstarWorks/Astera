@@ -115,6 +115,14 @@ public object ItemsWiring {
         registrations += services.register<com.astarworks.astera.core.application.port.outbound.item.IOwnedItemRemoval>(
             com.astarworks.astera.core.application.port.outbound.item.IOwnedItemRemoval { player, item -> itemIdResolver.removeOne(player, item) },
         )
+        registrations += services.register<com.astarworks.astera.core.application.port.outbound.item.IOwnedItemStock>(
+            object : com.astarworks.astera.core.application.port.outbound.item.IOwnedItemStock {
+                override fun count(playerId: com.astarworks.astera.core.domain.player.PlayerId, itemId: com.astarworks.astera.core.domain.item.ItemId): Int =
+                    itemIdResolver.countOf(playerId, itemId)
+                override fun remove(playerId: com.astarworks.astera.core.domain.player.PlayerId, itemId: com.astarworks.astera.core.domain.item.ItemId, amount: Int): Boolean =
+                    itemIdResolver.removeAmount(playerId, itemId, amount)
+            },
+        )
 
         // ── Wave 5refine / ADR-0100 — Item Refinement Layer ──────────────
         // Per-instance state + per-item profile registry. Persistence will
@@ -137,7 +145,7 @@ public object ItemsWiring {
             val refinementReport = com.astarworks.astera.core.application.service.ContentLoader(
                 com.astarworks.astera.core.application.service.ContentLoader.DEFAULT_PARSERS,
                 com.astarworks.astera.items.application.config.refinement.RefinementProfileYaml.serializer(),
-            ).loadFrom(refinementDir, refinementProfiles::registerFromYaml)
+            ).loadFrom(refinementDir, onLoaded = refinementProfiles::registerFromYaml)
             logger.info("Refinement profiles loaded: ${refinementReport.loaded} ok, ${refinementReport.failed} failed")
         } else {
             logger.info("No content/refinement directory; refinement profiles not loaded.")
@@ -179,6 +187,7 @@ public object ItemsWiring {
             items = itemRegistry,
             eventBus = eventBus,
             resourcePool = services.get<IResourcePoolService>(),
+            levelGate = { services.get<com.astarworks.astera.core.application.port.outbound.IMatchLevelGate>() },
         )
 
         // ADR-0197 — a skill going on cooldown (primary binding / reload) runs the hotbar sweep.

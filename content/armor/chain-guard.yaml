@@ -1,0 +1,12 @@
+# Match arsenal (wp/match-arsenal): Chain Guard set. 2+ pieces / full set bonus stacks on the pieces' own reduction.
+
+type: set
+key: chain-guard
+display_name_key: astera.armor.set.chain-guard.name
+pieces:
+  - chain-guard-helmet
+  - chain-guard-chestplate
+  - chain-guard-leggings
+  - chain-guard-boots
+two_piece_bonus: 0.03
+four_piece_bonus: 0.08

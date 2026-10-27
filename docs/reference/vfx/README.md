@@ -18,6 +18,9 @@
 4. [`re-diverse-patterns.md`](re-diverse-patterns.md) — Re:DIVERSE (社内参考サーバー) の観測から抽出した一般原理(音のピッチ弧、telegraph、ビーム、レアリティ別の格)。参考のみで模倣しない。
 5. [`sakurai.md`](sakurai.md) — 桜井政博の回ごとの要点 (既存の規則に入っていない回を含む)。
 6. [`next-improvements.md`](next-improvements.md) — 既存の武器・skill に適用する改善案トップ 10。着手前にここを見て重複を避ける。
+7. [`e3-s10129-techniques.md`](e3-s10129-techniques.md) — 外部クリエイター E3 (@s10129) の投稿から抽出したスプライト/パーティクル技法と Astera とのギャップ。値は推論を含む。
+
+8. [`patterns.md`](patterns.md) — 上の全資料を 7 軸・32 パターンに束ねたパターン言語。組み合わせレシピ、E3 の差分、表現できないもの (gaps) の順位つき。全体像をつかみたいときは最初にここを読んでもよい。
 
 作業の流れ: 重要度 (1-10) を決める → 上の 1-4 で部品と失敗を確認 → YAML を書く →
 `tools/skill-compare` と `make vfx-shot` で検証 (検証手順は正本側)。

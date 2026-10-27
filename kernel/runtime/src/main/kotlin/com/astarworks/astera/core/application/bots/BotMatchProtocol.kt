@@ -21,7 +21,7 @@ import kotlinx.serialization.json.Json
 public data class BotRequest(
     /** Correlation id; echoed in every [BotStatus] answering this request. */
     val requestId: String,
-    /** Queue lane id (`skirmish`, `annihilation`, ...): the lane the requesting player is queued in. */
+    /** Queue lane id (`carry-tnt`, `annihilation`, ...): the lane the requesting player is queued in. */
     val lane: String,
     /** How many bots to bring. */
     val count: Int,
