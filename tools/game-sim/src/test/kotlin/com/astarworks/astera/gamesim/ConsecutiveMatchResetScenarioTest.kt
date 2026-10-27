@@ -19,7 +19,7 @@ import org.junit.jupiter.api.Test
  */
 class ConsecutiveMatchResetScenarioTest {
     private val tntSpawn = Vec3(0.0, 65.0, -6.0)
-    private val blueBase = Vec3(85.0, 65.0, 0.0)
+    private val blueBase = Vec3(43.0, 65.0, 0.0)
     private val nowhere = Vec3(0.0, 65.0, -50.0)
 
     /** [who] (red) carries the TNT to the blue base twice, which wins the match. */
