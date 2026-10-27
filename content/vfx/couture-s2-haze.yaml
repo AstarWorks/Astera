@@ -1,0 +1,121 @@
+# S2 step-in haze (played at skill tick 3): faint violet haze round the caster t4-8.
+id: couture-s2-haze
+duration_ticks: 9
+orient: yaw
+follow: true
+sample_ticks: 1
+elements:
+- id: haze-0
+  kind:
+    type: sprite
+    sprite: couture-s2-burst-soft
+    frame_ticks: 1
+    loop: false
+    see_through: true
+    color: '#8A5CFF'
+  billboard: center
+  brightness: 8
+  start_tick: 0
+  end_tick: 8
+  keyframes:
+  - t: 0
+    translate:
+    - -0.3
+    - 1.0
+    - -0.2
+    rotate:
+    - 0
+    - 0
+    - 0
+    scale:
+    - 0.8
+    - 1.6
+    - 1
+    alpha: 0.0
+  - t: 3
+    translate:
+    - -0.3
+    - 1.1
+    - -0.3
+    rotate:
+    - 0
+    - 0
+    - 0
+    scale:
+    - 1.5
+    - 2.2
+    - 1
+    alpha: 0.35
+    ease: out_quad
+  - t: 8
+    translate:
+    - -0.3
+    - 1.2
+    - -0.4
+    rotate:
+    - 0
+    - 0
+    - 0
+    scale:
+    - 1.9
+    - 2.5
+    - 1
+    alpha: 0.0
+    ease: in_quad
+- id: haze-1
+  kind:
+    type: sprite
+    sprite: couture-s2-burst-soft
+    frame_ticks: 1
+    loop: false
+    see_through: true
+    color: '#8A5CFF'
+  billboard: center
+  brightness: 8
+  start_tick: 0
+  end_tick: 8
+  keyframes:
+  - t: 0
+    translate:
+    - 0.3
+    - 1.0
+    - -0.2
+    rotate:
+    - 0
+    - 0
+    - 0
+    scale:
+    - 0.8
+    - 1.6
+    - 1
+    alpha: 0.0
+  - t: 3
+    translate:
+    - 0.3
+    - 1.1
+    - -0.3
+    rotate:
+    - 0
+    - 0
+    - 0
+    scale:
+    - 1.5
+    - 2.2
+    - 1
+    alpha: 0.35
+    ease: out_quad
+  - t: 8
+    translate:
+    - 0.3
+    - 1.2
+    - -0.4
+    rotate:
+    - 0
+    - 0
+    - 0
+    scale:
+    - 1.9
+    - 2.5
+    - 1
+    alpha: 0.0
+    ease: in_quad
