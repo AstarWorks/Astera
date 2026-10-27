@@ -66,6 +66,27 @@ public object SkillLintPlanDump {
         return file
     }
 
+    /**
+     * Skill actions the client draws on the viewer's own screen (not world space): the fixed side camera cannot show them,
+     * so they are reported as provenance warnings instead of being drawn (a full-screen overlay would misrepresent the game).
+     */
+    private fun viewerOnlyEffectNotes(skillText: String): List<String> {
+        val out = ArrayList<String>()
+        for (type in listOf("screen_flash", "title", "camera_shake")) {
+            val blocks = Regex("""(?m)^\s*-\s*type:\s*$type\b([\s\S]*?)(?=^\s*-\s*type:|\z)""").findAll(skillText).map { it.groupValues[1] }.toList()
+            if (blocks.isEmpty()) continue
+            val overlays = blocks.mapNotNull { Regex("""overlay:\s*([a-z0-9_-]+)""").find(it)?.groupValues?.get(1) }.distinct()
+            val toCaster = blocks.count { Regex("""targets:\s*\{type:\s*caster""").containsMatchIn(it) }
+            val detail = buildString {
+                append("${blocks.size}x")
+                if (overlays.isNotEmpty()) append(" overlay ${overlays.joinToString("/")}")
+                append(" (caster-targeted $toCaster, others ${blocks.size - toCaster})")
+            }
+            out += "プレビュー非対応: $type $detail は視聴者の画面に出る効果で、固定サイドカメラでは再現できない (実クライアントでのみ確認可)"
+        }
+        return out
+    }
+
     /** The plan.json text. */
     public fun render(skill: String): String {
         val skillText = Files.readString(contentDir().resolve("skills/$skill.yaml"))
@@ -87,6 +108,8 @@ public object SkillLintPlanDump {
             // No weapon-rig performance (a pure fx skill): still cast it for the displays + particles; no sampled body / weapon.
             val def = vfxId?.let { registry.find(VfxId(it)) }
             if (def == null) notes += "no performance vfx (a rig with weapon: main_hand): caster drawn in a neutral idle pose, no weapon"
+
+            notes += viewerOnlyEffectNotes(skillText)
 
             val probe = PerformanceProbe(sim, caster)
             val castTick = sim.tick

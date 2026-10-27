@@ -87,7 +87,9 @@ const fov0 = fovOverride ?? keys[0].fov ?? 70;
 const jar = process.env.ASTERA_MC_JAR || join(homedir(), '.cache/astera-vfx-shot/mcdir/versions/26.3/26.3.jar');
 const jarFile = (entry) => { try { return execFileSync('unzip', ['-p', jar, entry], { maxBuffer: 1 << 24 }); } catch { return null; } };
 const bytesUrl = (b) => 'data:image/png;base64,' + b.toString('base64');
-const warnings = [...(plan.notes ?? []), ...(args.warn && args.warn !== true ? String(args.warn).split("||") : [])];
+const warnings = [...(plan.notes ?? []),
+  'プレビュー非対応: 実クライアントとの差 — カメラは参照動画の固定カメラ(実機の視点・画角とは異なる)で、フラット(水平)板は横から細線に見える。ワールド空間スプライトは実寸、タイミングは計画tickのまま(実機キャプチャと1〜2tickずれることがある)',
+...(args.warn && args.warn !== true ? String(args.warn).split("||") : [])];
 
 let skin;
 // --skin alex|steve|<png>; the compare client's Caster is the offline-UUID default skin, Alex
