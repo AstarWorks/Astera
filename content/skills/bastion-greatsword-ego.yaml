@@ -15,7 +15,7 @@ windup:
   sound:
     sound_id: block.amethyst_block.resonate
     volume: 1.0
-    pitch_arc: {from: 0.6, to: 1.8, ticks: 30, ease: in_quad, interval_ticks: 5}
+    pitch_arc: {from: 0.6, to: 1.8, ticks: 25, ease: in_quad, interval_ticks: 5}
     stop_at_impact: false
 phases:
   type: sequence
@@ -132,6 +132,15 @@ phases:
     shape: decay
     direction: from_hit
     viewers: all
+    delay_ticks: {type: literal, value: 11}
+  # The caster feels the impact too, softer than bystanders (viewers caster; a self-shake has no hit direction).
+  - type: camera_shake
+    targets: {type: caster}
+    intensity: {type: literal, value: 0.5}
+    ticks: {type: literal, value: 8}
+    shape: decay
+    direction: none
+    viewers: caster
     delay_ticks: {type: literal, value: 11}
   # Caster-only screen veil (replaces the caster's gold_burst title flash): a gold burst in front of the camera, 15 percent cap.
   - type: screen_veil

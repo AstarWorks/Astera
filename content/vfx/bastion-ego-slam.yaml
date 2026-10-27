@@ -74,7 +74,7 @@ elements:
   kind:
     type: quad
     glyph: ✦
-    color: '#FFEFA0'
+    color: $main
     alpha: 1.0
   brightness: 15
   start_tick: 4
@@ -88,7 +88,7 @@ elements:
     ease: out_back
   - t: 6
     scale: [1.5, 1.5, 1.0]
-    color: '#FF9A30'
+    color: $accent
     alpha: 0.0
     ease: out_quad
 - id: pilcore
@@ -284,9 +284,10 @@ elements:
   kind:
     type: sprite
     sprite: smoke-puff
-    frame_ticks: 4
+    frame_ticks: 6
     loop: false
     color: '#8A8478'
+  billboard: center   # sprite elements default to fixed (edge-on from the side); smoke must face the camera
   brightness: 9
   start_tick: 4
   end_tick: 22
@@ -296,10 +297,10 @@ elements:
     offset: [0, 0.25, 1.7]
   keyframes:
   - t: 0
-    scale: [0.5, 0.5, 0.5]
+    scale: [1.2, 1.2, 1.2]
     alpha: 0.9
   - t: 18
     translate: [0, 0.7, 0]
-    scale: [1.8, 1.8, 1.8]
+    scale: [2.6, 2.6, 2.6]
     alpha: 0.0
     ease: out_quad
