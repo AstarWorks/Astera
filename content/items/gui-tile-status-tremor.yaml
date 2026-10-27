@@ -1,0 +1,7 @@
+# UI-12 status codex tile icon. Vanilla material until item-art draws a glyph.
+
+id: gui-tile-status-tremor
+material: ECHO_SHARD
+name:
+  ja: "<dark_aqua>震動</dark_aqua>"
+  en: "<dark_aqua>Tremor</dark_aqua>"

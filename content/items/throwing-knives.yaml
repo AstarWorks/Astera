@@ -5,15 +5,11 @@ id: throwing-knives
 material: FLINT
 
 name:
-  ja: "<gray>スローイングナイフ</gray>"
-  en: "<gray>Throwing Knives</gray>"
-lore:
-  ja:
-    - "<gray>右クリック: ナイフを投げる</gray>"
-    - "<gray>スニーク + 右クリック: すり抜け</gray>"
-  en:
-    - "<gray>Right-click: throw a knife</gray>"
-    - "<gray>Sneak + right-click: slip away</gray>"
+  ja: "スローイングナイフ"
+  en: "Throwing Knives"
+role:
+  ja: "投擲 / ナイフ投げとすり抜け"
+  en: "Thrown / knife throws and slipping away"
 
 rarity: uncommon
 level_requirement: 1

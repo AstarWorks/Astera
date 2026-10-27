@@ -81,14 +81,26 @@ public data class ItemSpec(
     val skillBindings: List<ItemSkillBinding>,
     val pdcTags: Map<String, String>,
     val modelSlug: String? = null,
+    /** Resource-pack equipment asset in the Astera namespace. */
+    val equipmentAsset: String? = null,
     // ---- Resource pool (Wave 5k, ADR-0080) ----
     val resourceType: ResourceType? = null,
     val resourceCostPerUse: Int = 0,
     val resourceMaxPool: Int = -1,
     val resourceRegenPerSecond: Double = -1.0,
     val resourceReloadable: Boolean = false,
+    /** One-line "what is this for" under the header (docs/contributing/item-lore-style.md). Plain text. */
+    val role: LocalizedText = LocalizedText.EMPTY,
+    /** Optional one-line flavour text at the bottom of the card. Plain text. */
+    val flavor: LocalizedText = LocalizedText.EMPTY,
 ) {
     init {
+        require(equipmentAsset == null || equipmentAsset.matches(Regex("[a-z0-9._-]+"))) {
+            "ItemSpec.equipmentAsset must be a resource asset id"
+        }
+        require(equipmentAsset == null || equipSlot in setOf(EquipSlot.HELMET, EquipSlot.CHESTPLATE, EquipSlot.LEGGINGS, EquipSlot.BOOTS)) {
+            "ItemSpec.equipmentAsset requires an armor equip_slot"
+        }
         require(levelRequirement >= 1) {
             "ItemSpec.levelRequirement must be >= 1, got $levelRequirement"
         }

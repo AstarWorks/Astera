@@ -5,15 +5,11 @@ id: twin-daggers
 material: WOODEN_SWORD
 
 name:
-  ja: "<gray>ツインダガー</gray>"
-  en: "<gray>Twin Daggers</gray>"
-lore:
-  ja:
-    - "<gray>左クリック: 連続斬り (出血)</gray>"
-    - "<gray>スニーク + 右クリック: 影走り</gray>"
-  en:
-    - "<gray>Left-click: flurry (bleed)</gray>"
-    - "<gray>Sneak + right-click: shadow step</gray>"
+  ja: "ツインダガー"
+  en: "Twin Daggers"
+role:
+  ja: "近接 / 出血させる連続斬りと影走り"
+  en: "Melee / bleeding flurries and shadow step"
 
 rarity: uncommon
 level_requirement: 1

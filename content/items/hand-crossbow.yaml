@@ -5,15 +5,11 @@ id: hand-crossbow
 material: CROSSBOW
 
 name:
-  ja: "<yellow>ハンドクロスボウ</yellow>"
-  en: "<yellow>Hand Crossbow</yellow>"
-lore:
-  ja:
-    - "<gray>右クリック: 矢</gray>"
-    - "<gray>スニーク + 右クリック: 毒矢</gray>"
-  en:
-    - "<gray>Right-click: bolt</gray>"
-    - "<gray>Sneak + right-click: venom bolt</gray>"
+  ja: "ハンドクロスボウ"
+  en: "Hand Crossbow"
+role:
+  ja: "弓 / 矢と毒矢で撃つ小型クロスボウ"
+  en: "Bow / compact crossbow with venom bolts"
 
 rarity: uncommon
 level_requirement: 1

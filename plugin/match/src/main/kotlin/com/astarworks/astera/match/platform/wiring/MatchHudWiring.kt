@@ -70,6 +70,7 @@ internal object MatchHudWiring {
             timeLimitTicks = { id ->
                 if (env.normaLayerOf(id)) (env.modeConfigOf(id)["time_limit_seconds"]?.toLongOrNull()?.takeIf { it >= 0 } ?: 600L) * 20L else 0L
             },
+            objectiveParams = { id -> com.astarworks.astera.match.application.gamemode.siege.CountRules.briefingParams(env.modeConfigOf(id)) },
             scheduler = env.scheduler,
         )
         env.shutdownHooks += { matchSidebar.stop() }
@@ -102,6 +103,12 @@ internal object MatchHudWiring {
             gold = { player -> services.get<ICurrencyLedger>()?.balance(player, Currency.GOLD) },
             settings = { env.queueSettings.current() },
             progress = { env.queueProgress },
+            nextStep = { player ->
+                val action = (services.get<com.astarworks.astera.core.application.port.inbound.ITutorialSequencerService>()
+                    ?.currentStep(player) as? com.astarworks.astera.core.domain.tutorial.TutorialStep.WaitForAction)?.actionId
+                if (action != null && services.get<com.astarworks.astera.core.application.service.hud.HudPreferences>()?.tutorialHintsEnabled(player) != false)
+                    "astera.tutorial.guide.$action.next" else null
+            },
         )
         env.shutdownHooks += { lobbySidebar.stop() }
 

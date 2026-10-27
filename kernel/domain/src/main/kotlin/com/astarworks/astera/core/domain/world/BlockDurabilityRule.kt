@@ -56,6 +56,7 @@ package com.astarworks.astera.core.domain.world
  */
 public class BlockDurabilityRule(
     private val matrix: Map<Triple<ToolKind, ToolTier, BlockMaterial>, Int>,
+    public val idleTicks: Long = 200L,
     private val materialBindings: Map<String, BlockMaterial> = emptyMap(),
 ) {
     public fun damageFor(tool: ToolType, material: BlockMaterial): Int =

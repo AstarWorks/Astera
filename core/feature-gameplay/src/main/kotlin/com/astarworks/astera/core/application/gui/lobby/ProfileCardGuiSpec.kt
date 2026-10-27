@@ -32,7 +32,6 @@ public object ProfileCardGuiSpec {
         val wins: Long,
         val losses: Long,
         val gold: Long,
-        val gem: Long,
         val unlocks: List<String> = emptyList(),
         /** Name keys of the equipped title / name colour / kill effect, in that order. */
         val equippedCosmetics: List<MessageKey> = emptyList(),
@@ -96,7 +95,6 @@ public object ProfileCardGuiSpec {
                 displayName = GuiText(MessageKey("astera.gui.profile-card.wallet.name")),
                 lore = listOf(
                     GuiText(MessageKey("astera.gui.profile-card.wallet.gold"), mapOf("amount" to snapshot.gold.toString())),
-                    GuiText(MessageKey("astera.gui.profile-card.wallet.gem"), mapOf("amount" to snapshot.gem.toString())),
                 ),
             ),
         )

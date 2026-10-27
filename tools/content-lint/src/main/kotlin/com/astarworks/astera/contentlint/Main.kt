@@ -151,6 +151,8 @@ internal object SchemaMapping {
     val all: List<SchemaTarget> = listOf(
         SchemaTarget("chat.schema.json", "chat", singleFile = "chat.yaml"),
         SchemaTarget("skill.schema.json", "skills"),
+        SchemaTarget("block.schema.json", "blocks"),
+        SchemaTarget("block-durability.schema.json", "balance", singleFile = "block-durability.yaml"),
         SchemaTarget("status-effect.schema.json", "status"),
         SchemaTarget("stage.schema.json", "stages"),
         SchemaTarget("item.schema.json", "items"),
@@ -263,7 +265,7 @@ internal class LintRunner(private val cli: CliArgs) {
                 } catch (_: Exception) {
                     continue // already reported by the schema pass
                 }
-                val errors = SemanticChecks.check(node, known)
+                val errors = SemanticChecks.check(node, known) + if (dir == "items") SemanticChecks.checkItemText(node) else emptyList()
                 if (errors.isNotEmpty()) out += FileResult(file = yaml, errors = errors)
             }
         }

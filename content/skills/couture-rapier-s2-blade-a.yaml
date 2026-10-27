@@ -7,12 +7,12 @@ resource_cost: 0
 tags: [ranged]
 params:
   type: projectile
-  launch_speed: 1.0
-  max_lifetime_ticks: 16
+  launch_speed: 0.6
+  max_lifetime_ticks: 20
   hit_radius: 1.0
   muzzle_forward: 0.3
-  muzzle_up: 1.8
-  aim_distance: 7
+  muzzle_up: -0.2
+  aim_distance: 5.4
   visual:
     vfx: couture-s2-blade-a-flight
 phases:
@@ -20,6 +20,8 @@ phases:
   cast: []
   hit_entity:
   - {type: play_vfx, targets: {type: target}, vfx_id: couture-s2-blade-a-stuck, follow: {type: literal, value: true}}
+  - {type: play_sound, targets: {type: target}, sound_id: entity.sheep.shear, volume: {type: literal, value: 0.8}, pitch: {type: literal, value: 1.1}, delay_ticks: {type: literal, value: 1}}
+  - {type: play_sound, targets: {type: target}, sound_id: block.amethyst_cluster.break, volume: {type: literal, value: 0.5}, pitch: {type: literal, value: 1.6}, delay_ticks: {type: literal, value: 1}}
   hit_block: []
   miss: []
   expire: []

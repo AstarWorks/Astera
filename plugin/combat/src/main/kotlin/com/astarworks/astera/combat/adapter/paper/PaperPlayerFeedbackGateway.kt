@@ -82,4 +82,26 @@ public class PaperPlayerFeedbackGateway(
         val player = server.getPlayer(target.uuid) ?: return
         player.setRotation(Angle.relative(dx.toFloat()), Angle.relative(dy.toFloat()))
     }
+
+    override fun setLowHealthVignette(target: PlayerId, active: Boolean) {
+        val player = server.getPlayer(target.uuid) ?: return
+        if (!active) {
+            player.worldBorder = null
+            return
+        }
+        // Per-player border (visual only): the client reddens the screen edge by 1 - distanceToBorder / warningDistance.
+        // A wide border centred on the player with a warning distance 2.5x its radius keeps the tint steady (~60%)
+        // however far the player moves inside a match arena.
+        val border = server.createWorldBorder()
+        border.center = player.location
+        border.size = VIGNETTE_BORDER_RADIUS * 2
+        border.warningDistance = (VIGNETTE_BORDER_RADIUS * 2.5).toInt()
+        border.damageAmount = 0.0
+        border.damageBuffer = 0.0
+        player.worldBorder = border
+    }
+
+    private companion object {
+        const val VIGNETTE_BORDER_RADIUS: Double = 500.0
+    }
 }

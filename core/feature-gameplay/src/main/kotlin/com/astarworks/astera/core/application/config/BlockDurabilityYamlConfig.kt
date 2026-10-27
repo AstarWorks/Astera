@@ -57,6 +57,7 @@ import kotlinx.serialization.Serializable
  */
 @Serializable
 public data class BlockDurabilityYamlConfig(
+    @SerialName("idle_ticks") public val idleTicks: Long = 200L,
     public val materials: Map<String, String> = emptyMap(),
     @SerialName("damage_matrix") public val damageMatrix: Map<String, Map<String, Int>> = emptyMap(),
 ) {
@@ -69,6 +70,7 @@ public data class BlockDurabilityYamlConfig(
      * (consistent with the rest of Astera's YAML loaders).
      */
     public fun toDomain(): Result<BlockDurabilityRule, ConfigError> {
+        if (idleTicks <= 0) return Result.failure(ConfigError.OutOfRange("idle_ticks", idleTicks.toString(), "must be > 0"))
         val bindings = mutableMapOf<String, BlockMaterial>()
         for ((blockKey, materialRaw) in materials) {
             val parsed = parseMaterial(materialRaw, field = "materials[\"$blockKey\"]")
@@ -108,6 +110,7 @@ public data class BlockDurabilityYamlConfig(
         return Result.success(
             BlockDurabilityRule(
                 matrix = matrix.toMap(),
+                idleTicks = idleTicks,
                 materialBindings = bindings.toMap(),
             ),
         )

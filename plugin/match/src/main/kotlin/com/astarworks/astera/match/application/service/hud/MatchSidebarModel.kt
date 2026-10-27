@@ -59,14 +59,14 @@ public object MatchSidebarModel {
     private val WHOLE_BODY_MODES: Set<String> = setOf("annihilation")
 
     /** The viewer-independent part, built from the mode's own [IGameMode.hudStatus]. */
-    public fun build(mode: IGameMode, match: Match, nowTick: Long, timeLimitTicks: Long = 0L): SidebarModel {
+    public fun build(mode: IGameMode, match: Match, nowTick: Long, timeLimitTicks: Long = 0L, objectiveParams: Map<String, String> = emptyMap()): SidebarModel {
         val status = mode.hudStatus(match, nowTick)
         val header = status.phaseLine ?: genericPhaseLine(match, nowTick, timeLimitTicks)
         val lines = buildList {
             add(header)
             // Always-visible "what to do now": the mode's one-sentence objective.
             val modeId = mode.id().value
-            if (modeId in OBJECTIVE_MODES) add(HudLine(MessageKey("astera.match.objective.$modeId.subtitle")))
+            if (modeId in OBJECTIVE_MODES) add(HudLine(MessageKey("astera.match.objective.$modeId.subtitle"), objectiveParams))
             val keep = if (modeId in WHOLE_BODY_MODES) status.lines.size else if (modeId in OBJECTIVE_MODES) MAX_MODE_LINES else MAX_MODE_LINES + 1
             addAll(status.lines.take(keep))
         }

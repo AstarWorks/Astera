@@ -5,15 +5,11 @@ id: diamond-pickaxe
 material: DIAMOND_PICKAXE
 
 name:
-  ja: "<aqua>ダイヤのツルハシ</aqua>"
-  en: "<aqua>Diamond Pickaxe</aqua>"
-lore:
-  ja:
-    - "<gray>右クリック: 掘削</gray>"
-    - "<gray>スニーク + 右クリック: 粉砕</gray>"
-  en:
-    - "<gray>Right-click: bore a tunnel</gray>"
-    - "<gray>Sneak + right-click: shatter</gray>"
+  ja: "ダイヤのツルハシ"
+  en: "Diamond Pickaxe"
+role:
+  ja: "ツール / 掘削と粉砕"
+  en: "Tool / tunneling and shattering"
 
 rarity: rare
 level_requirement: 1

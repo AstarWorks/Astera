@@ -27,6 +27,7 @@ internal object CombatHudWiring {
         statusContainer: IStatusEffectContainer?,
         eventBus: IDomainEventBus,
         scheduler: IScheduler,
+        feedbackGateway: com.astarworks.astera.combat.application.port.outbound.IPlayerFeedbackGateway?,
         shutdownHooks: MutableList<() -> Unit>,
     ) {
         val services = ctx.services
@@ -118,6 +119,28 @@ internal object CombatHudWiring {
                 )
             subscriptions += eventBus.subscribe(com.astarworks.astera.combat.domain.event.DamageDealt::class) { hitFeedback.onDamage(it) }
             subscriptions += eventBus.subscribe(com.astarworks.astera.combat.domain.event.PlayerKilled::class) { hitFeedback.onKilled(it) }
+        }
+
+        // FX-12 — damage taken / kill confirm on the action bar (IActionBarChannel, ADR-0279) + low-HP red screen-edge vignette.
+        val actionBarChannel = services.get<com.astarworks.astera.core.application.port.outbound.IActionBarChannel>()
+        val healthGateway = services.get<com.astarworks.astera.core.application.port.outbound.IPlayerHealthGateway>()
+        val playerGatewayForHud = services.get<com.astarworks.astera.core.application.port.outbound.IPlayerGateway>()
+        if (feedbackGateway != null && actionBarChannel != null && healthGateway != null && playerGatewayForHud != null) {
+            val combatFeedback = com.astarworks.astera.combat.application.eventbus.listeners.hud
+                .CombatHudFeedbackListener(
+                    actionBarChannel, healthGateway, playerGatewayForHud, feedbackGateway,
+                    hudVisible = { services.get<com.astarworks.astera.core.application.service.hud.HudPreferences>()?.hpLineVisible(it) ?: true },
+                )
+            subscriptions += eventBus.subscribe(com.astarworks.astera.combat.domain.event.DamageDealt::class) { combatFeedback.onDamage(it) }
+            subscriptions += eventBus.subscribe(com.astarworks.astera.combat.domain.event.PlayerKilled::class) { combatFeedback.onKilled(it) }
+            subscriptions += eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerHealthChanged::class) { combatFeedback.onHealthChanged(it) }
+            subscriptions += eventBus.subscribe(com.astarworks.astera.core.domain.event.MatchEnded::class) { combatFeedback.onMatchEnded(it) }
+            subscriptions += eventBus.subscribe(PlayerQuitServer::class) { combatFeedback.onQuit(it) }
+        } else {
+            logger.warning(
+                "Combat HUD feedback skipped — IPlayerFeedbackGateway=${feedbackGateway != null}, IActionBarChannel=${actionBarChannel != null}, " +
+                    "IPlayerHealthGateway=${healthGateway != null}, IPlayerGateway=${playerGatewayForHud != null}.",
+            )
         }
 
         // ── Wave M 5polish-quickwin (ADR-0130 §C) — quickbar bind UI ─────

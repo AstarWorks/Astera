@@ -188,7 +188,7 @@ class MatchArsenalE2eTest : ObjectivePlaythroughBase() {
             assertThat(arenaBlockIs(0, 65, 12, "minecraft:gold_ore")).describedAs("gold node was removed").isTrue()
             "bars=$bars"
         }
-        E2eReport.check(suite, "mining the iron node with a stone pickaxe gives 2 iron ore and swaps in a placeholder", "RCON clear + block") {
+        E2eReport.check(suite, "mining the iron node with a stone pickaxe gives 2 iron ore and turns it into cobblestone", "RCON clear + block") {
             selectTool(a, "stone_pickaxe")
             tpArena(a.name, 5.5, 65.0, 3.5, 0f, 0f)
             Thread.sleep(1_500)
@@ -197,7 +197,7 @@ class MatchArsenalE2eTest : ObjectivePlaythroughBase() {
             Thread.sleep(500)
             assertThat(got).describedAs("no ore item arrived; iron=${count(a, "iron_ingot")} (before $ironBefore); chat=${a.chatTexts().takeLast(3)}").isTrue()
             assertThat(count(a, "iron_ingot") - ironBefore).describedAs("drop count").isEqualTo(2)
-            assertThat(arenaBlockIs(5, 65, 5, "minecraft:iron_ore")).describedAs("node did not change to a placeholder").isFalse()
+            assertThat(arenaBlockIs(5, 65, 5, "minecraft:cobblestone")).describedAs("node did not turn into cobblestone; now ${clean(inArena("run data get block ${5 + originX} 65 ${5 + originZ} id"))}").isTrue()
             "iron +${count(a, "iron_ingot") - ironBefore}; block now ${clean(inArena("run data get block ${5 + originX} 65 ${5 + originZ} id"))}"
         }
         E2eReport.check(suite, "the iron node regrows after its regrow time (20 s)", "RCON execute if block") {
@@ -212,29 +212,148 @@ class MatchArsenalE2eTest : ObjectivePlaythroughBase() {
             assertThat(back).describedAs("iron_ore did not return within 45s").isTrue()
             "node back"
         }
+        E2eReport.check(suite, "the regrown iron node can be mined again: ore, cobblestone, ore, mined (second cycle)", "RCON clear + block") {
+            selectTool(a, "stone_pickaxe")
+            tpArena(a.name, 5.5, 65.0, 3.5, 0f, 0f)
+            Thread.sleep(1_000)
+            val before = count(a, "iron_ingot")
+            a.dig(5 + originX, 65, 5 + originZ)
+            val got = a.waitUntil(4_000) { count(a, "iron_ingot") > before }
+            Thread.sleep(500)
+            assertThat(got).describedAs("second mining gave no ore; iron=${count(a, "iron_ingot")} (before $before)").isTrue()
+            assertThat(count(a, "iron_ingot") - before).describedAs("second drop count").isEqualTo(2)
+            assertThat(arenaBlockIs(5, 65, 5, "minecraft:cobblestone")).describedAs("node is not cobblestone after the second mine").isTrue()
+            // While regrowing the cobblestone cell must not be breakable by hand.
+            val cobbleIron = count(a, "iron_ingot")
+            a.dig(5 + originX, 65, 5 + originZ)
+            Thread.sleep(1_000)
+            assertThat(arenaBlockIs(5, 65, 5, "minecraft:cobblestone")).describedAs("regrowing cobblestone was broken by hand").isTrue()
+            assertThat(count(a, "iron_ingot")).describedAs("regrowing node gave ore").isEqualTo(cobbleIron)
+            var back = false
+            val end = System.currentTimeMillis() + 45_000
+            while (System.currentTimeMillis() < end && !back) {
+                keep.forEach { it.nudge() }
+                a.nudge()
+                Thread.sleep(1_000)
+                back = arenaBlockIs(5, 65, 5, "minecraft:iron_ore")
+            }
+            assertThat(back).describedAs("iron_ore did not return after the second mine").isTrue()
+            "second cycle ok: +2 iron, cobblestone, ore back"
+        }
 
-        // --- 6. tool skill break_area ---------------------------------------------------------------------------------------
-        E2eReport.check(suite, "a stone pickaxe right-click (bore) removes the blocks in front inside the arena", "RCON execute if block") {
-            // A 3x3 glass wall at x=-60, the bot stands at x=-63.5 facing east (yaw 270), bore reaches 4 blocks.
-            for (y in 65..67) for (z in 4..6) inArena("run setblock ${-60 + originX} $y ${z + originZ} minecraft:glass")
-            tpArena(a.name, -63.5, 65.0, 5.5, 270f, 0f)
-            Thread.sleep(1_500)
-            val slot = selectTool(a, "stone_pickaxe")
-            assertThat(slot).describedAs("no stone pickaxe in the hotbar").isNotNull()
-            fun solid() = (65..67).flatMap { y -> (4..6).map { z -> y to z } }.count { (y, z) -> arenaSolid(-60, y, z) }
-            val before = solid()
+        E2eReport.check(suite, "bore leaves ore-node cells untouched", "ore-node exclusion after timed cast") {
+            tpArena(a.name, 1.5, 65.0, 5.5, 270f, 0f)
+            selectTool(a, "stone_pickaxe")
+            Thread.sleep(8_000)
             a.useItem(270f, 0f)
             Thread.sleep(1_500)
-            // Glass is cover (tempered-glass, 250 HP): one stone-pickaxe bore chips it, a second one (after the 8 s cooldown) breaks it.
-            if (solid() == before) {
-                Thread.sleep(7_000)
-                a.useItem(270f, 0f)
-                Thread.sleep(1_500)
-            }
+            assertThat(arenaBlockIs(5, 65, 5, "minecraft:iron_ore")).isTrue()
+            "iron node survived the entire bore"
+        }
+
+        // --- 6. shared sparse block HP (ADR-0297) ----------------------------------------------------
+        fun bore(bot: Bot = a) {
+            rcon("astera skill cast pickaxe-bore-stone ${bot.name} --force")
+            Thread.sleep(1_500)
+        }
+        fun wall(z: Int, material: String) = inArena("run setblock ${-60 + originX} 66 ${z + originZ} minecraft:$material")
+        fun aimWall(bot: Bot, z: Int) {
+            tpArena(bot.name, -63.5, 65.0, z + 0.5, 270f, 0f)
+            selectTool(bot, "stone_pickaxe")
+        }
+
+        E2eReport.check(suite, "one stone bore breaks dirt but cracks stone and the second bore finishes it", "RCON mixed wall and drops") {
+            inArena("run kill @e[type=minecraft:item,x=${-60 + originX},y=66,z=${11 + originZ},distance=..8]")
+            wall(10, "dirt")
+            wall(11, "stone")
+            wall(12, "obsidian")
+            aimWall(a, 11)
+            bore()
+            assertThat(arenaSolid(-60, 66, 10)).isFalse()
+            assertThat(arenaBlockIs(-60, 66, 11, "minecraft:stone")).isTrue()
+            bore()
+            assertThat(arenaSolid(-60, 66, 11)).isFalse()
+            assertThat(arenaBlockIs(-60, 66, 12, "minecraft:obsidian")).isTrue()
+            val loot = clean(inArena("run data get entity @e[type=minecraft:item,x=${-60 + originX},y=66,z=${11 + originZ},distance=..3,limit=1,nbt={Item:{id:\"minecraft:cobblestone\"}}] Item.id"))
+            assertThat(loot).contains("minecraft:cobblestone")
+            "dirt broke on first cast; stone broke on second and dropped cobblestone; obsidian survived"
+        }
+
+        E2eReport.check(suite, "idle damage expires before the next bore", "RCON stone remains after fresh hit") {
+            wall(18, "stone")
+            aimWall(a, 18)
+            bore()
+            assertThat(arenaBlockIs(-60, 66, 18, "minecraft:stone")).isTrue()
+            // Idle 200 ticks plus the 20-tick sweep bound.
+            Thread.sleep(11_500)
+            bore()
+            assertThat(arenaBlockIs(-60, 66, 18, "minecraft:stone")).isTrue()
+            bore()
+            assertThat(arenaSolid(-60, 66, 18)).isFalse()
+            "expired first hit; two fresh hits still finish the stone"
+        }
+
+        E2eReport.check(suite, "two players share damage on one stone block", "RCON shared HP") {
+            wall(24, "stone")
+            aimWall(a, 24)
+            bore()
+            assertThat(arenaBlockIs(-60, 66, 24, "minecraft:stone")).isTrue()
+            aimWall(ctx.idle, 24)
+            bore(ctx.idle)
+            assertThat(arenaSolid(-60, 66, 24)).isFalse()
+            "first player's crack was completed by the second player"
+        }
+
+        E2eReport.check(suite, "obsidian survives several stone bores", "RCON very hard block") {
+            wall(30, "obsidian")
+            aimWall(a, 30)
+            repeat(5) { bore() }
+            assertThat(arenaBlockIs(-60, 66, 30, "minecraft:obsidian")).isTrue()
+            "1500 HP authored obsidian plate survived five 1-HP scratches"
+        }
+
+        E2eReport.check(suite, "cover shares accumulated damage and drops its reusable placement item", "RCON tempered glass") {
+            inArena("run kill @e[type=minecraft:item,x=${-60 + originX},y=66,z=${36 + originZ},distance=..5]")
+            wall(36, "glass")
+            aimWall(a, 36)
+            bore()
+            assertThat(arenaBlockIs(-60, 66, 36, "minecraft:glass")).isTrue()
+            // 250 HP, stone pickaxe matrix 60% of 100 = 60 HP per cast.
+            repeat(4) { bore() }
+            assertThat(arenaSolid(-60, 66, 36)).isFalse()
+            val loot = clean(inArena("run data get entity @e[type=minecraft:item,x=${-60 + originX},y=66,z=${36 + originZ},distance=..3,limit=1] Item"))
+            assertThat(loot).contains("tempered-glass-block")
+            "five casts accumulated through the shared HP store; placement identity dropped"
+        }
+
+        E2eReport.check(suite, "empty-handed forced bores use stone tool damage and still drop cobblestone", "RCON stand-in tool drops") {
+            val empty = (0..8).firstOrNull { rcon("execute if items entity ${a.name} hotbar.$it *").contains("failed") }
+            assertThat(empty).describedAs("no empty hotbar slot").isNotNull()
+            wall(45, "stone")
+            aimWall(a, 45)
+            a.selectHotbar(empty!!)
+            bore()
+            assertThat(arenaBlockIs(-60, 66, 45, "minecraft:stone")).isTrue()
+            bore()
+            assertThat(arenaSolid(-60, 66, 45)).isFalse()
+            val loot = clean(inArena("run data get entity @e[type=minecraft:item,x=${-60 + originX},y=66,z=${45 + originZ},distance=..3,limit=1,nbt={Item:{id:\"minecraft:cobblestone\"}}] Item.id"))
+            assertThat(loot).contains("minecraft:cobblestone")
+            "empty hand: two stone-tier hits, cobblestone via the skill's stand-in tool"
+        }
+
+        E2eReport.check(suite, "a stone shovel excavate removes plain vanilla dirt", "RCON execute if block") {
+            for (x in -62..-59) for (y in 65..67) for (z in 16..18) inArena("run setblock ${x + originX} $y ${z + originZ} minecraft:dirt")
+            tpArena(a.name, -64.5, 65.0, 17.5, 270f, 0f)
+            Thread.sleep(1_500)
+            selectTool(a, "stone_shovel")
+            fun solid() = (-62..-59).flatMap { x -> (65..67).flatMap { y -> (16..18).map { z -> Triple(x, y, z) } } }.count { (x, y, z) -> arenaSolid(x, y, z) }
+            val before = solid()
+            assertThat(before).describedAs("dirt block was not placed").isEqualTo(36)
+            a.useItem(270f, 0f)
+            Thread.sleep(1_500)
             val after = solid()
-            assertThat(before).describedAs("test wall was not placed").isEqualTo(9)
-            assertThat(after).describedAs("bore removed nothing from the 3x3 glass wall; chat=${a.chatTexts().takeLast(3)}; bars=${a.actionBars.takeLast(2).map { it.text }}").isLessThan(before)
-            "wall solid cells $before -> $after"
+            assertThat(after).describedAs("excavate removed no dirt; chat=${a.chatTexts().takeLast(3)}").isLessThan(before)
+            "dirt cells $before -> $after"
         }
 
         // --- 7. hand-mining a custom block ----------------------------------------------------------------------------------

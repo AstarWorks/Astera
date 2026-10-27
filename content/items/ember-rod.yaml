@@ -5,15 +5,11 @@ id: ember-rod
 material: BLAZE_ROD
 
 name:
-  ja: "<red>エンバーロッド</red>"
-  en: "<red>Ember Rod</red>"
-lore:
-  ja:
-    - "<gray>右クリック: 火花</gray>"
-    - "<gray>スニーク + 右クリック: 火炎爆発</gray>"
-  en:
-    - "<gray>Right-click: ember spark</gray>"
-    - "<gray>Sneak + right-click: ember burst</gray>"
+  ja: "エンバーロッド"
+  en: "Ember Rod"
+role:
+  ja: "魔法 / 火花と火炎爆発"
+  en: "Magic / sparks and fire bursts"
 
 rarity: uncommon
 level_requirement: 1

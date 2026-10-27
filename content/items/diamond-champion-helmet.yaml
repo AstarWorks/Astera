@@ -5,15 +5,11 @@ id: diamond-champion-helmet
 material: DIAMOND_HELMET
 
 name:
-  ja: "<aqua>ダイヤチャンピオン ヘルメット</aqua>"
-  en: "<aqua>Diamond Champion Helmet</aqua>"
-lore:
-  ja:
-    - "<gray>ダイヤチャンピオンセットの防具</gray>"
-    - "<gray>2部位・4部位そろえるとボーナス</gray>"
-  en:
-    - "<gray>Diamond Champion set piece</gray>"
-    - "<gray>2+ pieces and the full set give a bonus</gray>"
+  ja: "ダイヤチャンピオン ヘルメット"
+  en: "Diamond Champion Helmet"
+role:
+  ja: "防具 / ダイヤチャンピオンセット。2・4部位でボーナス"
+  en: "Armor / Diamond Champion (2/4 bonus)"
 
 rarity: rare
 level_requirement: 1
@@ -24,6 +20,7 @@ enchantable: false
 drop_on_death: false
 keep_on_death: false
 armor_piece: diamond-champion-helmet
+equipment_asset: diamond-champion
 
 pdc_tags:
   astera:rarity: rare

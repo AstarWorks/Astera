@@ -81,6 +81,7 @@ public class FakeMcPlayer(
         fadeIn: Duration,
         stay: Duration,
         fadeOut: Duration,
+        placeholders: Map<String, String>,
     ) {
         titles += TitleCall(titleKey, subtitleKey, fadeIn, stay, fadeOut)
     }

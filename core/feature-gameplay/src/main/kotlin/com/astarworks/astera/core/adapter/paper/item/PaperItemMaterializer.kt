@@ -8,6 +8,11 @@ import com.astarworks.astera.core.domain.item.ItemAttributes
 import com.astarworks.astera.core.domain.item.ItemSpec
 import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.adapter.paper.text.AsteraTextDeserializer
+import io.papermc.paper.datacomponent.DataComponentType
+import io.papermc.paper.datacomponent.DataComponentTypes
+import io.papermc.paper.datacomponent.item.TooltipDisplay
+import io.papermc.paper.registry.RegistryAccess
+import io.papermc.paper.registry.RegistryKey
 import org.bukkit.Material
 import org.bukkit.NamespacedKey
 import org.bukkit.attribute.Attribute
@@ -41,6 +46,7 @@ import java.util.UUID
  *    on the spec's template are merged in.
  *  - `custom_model_data` for resource-pack-driven visuals, and the `item_model` component
  *    (`astera:<id>`) for items the pack has generated art for (see [com.astarworks.astera.core.application.service.item.ItemModelCatalog]).
+ *  - `tooltip_style` (`astera:<rarity>`) for every Astera stack, including GUI icons.
  *  - [ItemAttributes] mapped to Bukkit `AttributeModifier`s, scoped to the
  *    spec's [EquipSlot].
  *  - [com.astarworks.astera.core.domain.item.DurabilityPolicy] — `unbreakable`
@@ -85,6 +91,8 @@ public class PaperItemMaterializer(
         val blueprint = blueprints.build(spec, viewerId)
         val stack = baseStack(blueprint, amount)
         applyMeta(stack, blueprint)
+        stack.editMeta { it.tooltipStyle = NamespacedKey("astera", spec.rarity.name.lowercase()) }
+        hideVanillaMetadata(stack)
         return stack
     }
 
@@ -92,7 +100,7 @@ public class PaperItemMaterializer(
     public fun rescanModels(): Unit = blueprints.rescanModels()
 
     /**
-     * Re-apply the visual half of [spec] (display name, lore, `item_model`, custom model data) to an
+     * Re-apply the visual half of [spec] (display name, lore, models and tooltip style) to an
      * existing stack in place (F3-9, ADR-0224). Everything per-instance (refinement, enchants,
      * damage, PDC state) and the base material stay untouched, so a held item picks up an edited
      * item YAML text or new art without being re-given. Returns whether anything changed.
@@ -103,11 +111,29 @@ public class PaperItemMaterializer(
         stack.editMeta { meta ->
             meta.displayName(fresh.displayName())
             meta.lore(fresh.lore())
-            if (fresh.hasItemModel()) meta.itemModel = fresh.itemModel
+            meta.tooltipStyle = fresh.tooltipStyle
+            meta.setEquippable(if (fresh.hasEquippable()) fresh.equippable else null)
+            meta.itemModel = if (fresh.hasItemModel()) fresh.itemModel else null
             @Suppress("DEPRECATION")
             if (fresh.hasCustomModelData()) meta.setCustomModelData(fresh.customModelData)
         }
+        hideVanillaMetadata(stack)
         return stack.itemMeta != before
+    }
+
+    /**
+     * Hides every vanilla metadata tooltip line (attributes, enchantments, durability, dye, trim, potion, ...)
+     * through the `tooltip_display` component: every registered component type is hidden except the ones whose
+     * lines Astera authors itself ([VISIBLE_COMPONENTS]). Future vanilla components are covered automatically.
+     */
+    private fun hideVanillaMetadata(stack: ItemStack) {
+        stack.setData(DataComponentTypes.TOOLTIP_DISPLAY, TooltipDisplay.tooltipDisplay().hiddenComponents(hiddenComponents).build())
+    }
+
+    private val hiddenComponents: Set<DataComponentType> by lazy {
+        RegistryAccess.registryAccess().getRegistry(RegistryKey.DATA_COMPONENT_TYPE).stream()
+            .filter { it !in VISIBLE_COMPONENTS }
+            .toList().toSet()
     }
 
     private fun baseStack(blueprint: ItemBlueprint, amount: Int): ItemStack {
@@ -128,9 +154,9 @@ public class PaperItemMaterializer(
     @Suppress("LongMethod")
     private fun applyMeta(stack: ItemStack, blueprint: ItemBlueprint) {
         stack.editMeta { meta ->
-            blueprint.displayName?.let { meta.displayName(AsteraTextDeserializer.deserialize(it)) }
+            blueprint.displayName?.let { meta.displayName(upright(AsteraTextDeserializer.deserialize(it))) }
             if (blueprint.lore.isNotEmpty()) {
-                meta.lore(blueprint.lore.map { AsteraTextDeserializer.deserialize(it) })
+                meta.lore(blueprint.lore.map { upright(AsteraTextDeserializer.deserialize(it)) })
             }
 
             // PDC: the canonical astera:item_id, plus the policy flags the
@@ -149,6 +175,14 @@ public class PaperItemMaterializer(
             // material stays, so a client without the pack still gets a normal vanilla item.
             blueprint.itemModel?.let { key ->
                 NamespacedKey.fromString(key)?.let { meta.itemModel = it }
+            }
+
+            blueprint.equipmentAsset?.let { asset ->
+                val equippable = meta.equippable
+                equippable.slot = toBukkitSlot(blueprint.equipSlot)
+                // Bukkit calls this model; the wire component field is minecraft:equippable.asset_id.
+                equippable.model = NamespacedKey("astera", asset)
+                meta.setEquippable(equippable)
             }
 
             // use_cooldown (ADR-0197): a per-item cooldown group so the skill cooldown / reload can
@@ -257,6 +291,10 @@ public class PaperItemMaterializer(
         }
     }
 
+    /** Vanilla italicises custom names / lore; item text is upright unless it asks for italic itself (flavour). */
+    private fun upright(c: net.kyori.adventure.text.Component): net.kyori.adventure.text.Component =
+        c.decorationIfAbsent(net.kyori.adventure.text.format.TextDecoration.ITALIC, net.kyori.adventure.text.format.TextDecoration.State.FALSE)
+
     private fun toBukkitSlot(slot: EquipSlot): EquipmentSlot = when (slot) {
         EquipSlot.MAINHAND -> EquipmentSlot.HAND
         EquipSlot.OFFHAND -> EquipmentSlot.OFF_HAND
@@ -271,6 +309,10 @@ public class PaperItemMaterializer(
         public const val ENCHANTABLE_KEY: String = "enchantable"
         public const val KEEP_ON_DEATH_KEY: String = "keep_on_death"
         private const val MAX_DURABILITY_KEY: String = "max_durability"
+        /** Components whose tooltip lines are Astera's own text: name and lore (the frame is `tooltip_style`). */
+        private val VISIBLE_COMPONENTS: Set<DataComponentType> = setOf(
+            DataComponentTypes.CUSTOM_NAME, DataComponentTypes.ITEM_NAME, DataComponentTypes.LORE,
+        )
         private const val BASE_COOLDOWN_SECONDS: Float = 0.05f
 
         @Suppress("FunctionName")

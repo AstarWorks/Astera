@@ -23,7 +23,7 @@ params:
   radius: 5.0
   falloff: linear
   damage:
-    - base: { type: literal, value: 50.0 }
+    - base: { type: literal, value: 25.0 }
       attribute: water
 
 phases:

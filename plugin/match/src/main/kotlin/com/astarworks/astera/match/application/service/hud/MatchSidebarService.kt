@@ -45,6 +45,8 @@ public class MatchSidebarService(
     private val norma: (PlayerId) -> NormaHud?,
     /** Ticks of ACTIVE time the match is limited to (0 = unlimited); shown next to the clock. */
     private val timeLimitTicks: (MatchId) -> Long = { 0L },
+    /** Count-model placeholders of the match's mode (`start`, `per_<event>`, `need_<event>`) for the objective one-liner. */
+    private val objectiveParams: (MatchId) -> Map<String, String> = { emptyMap() },
     private val scheduler: IScheduler,
     pollPeriodTicks: Long = DEFAULT_POLL_PERIOD_TICKS,
 ) {
@@ -73,7 +75,7 @@ public class MatchSidebarService(
     public fun refreshPlayer(playerId: PlayerId) {
         val match = matches.findMatchOf(playerId)?.takeIf { it.isLive() } ?: return
         val mode = modeOf(match.id) ?: return
-        val model = MatchSidebarModel.build(mode, match, scheduler.currentTick(), timeLimitTicks(match.id))
+        val model = MatchSidebarModel.build(mode, match, scheduler.currentTick(), timeLimitTicks(match.id), objectiveParams(match.id))
         push(match, model, playerId)
     }
 
@@ -100,7 +102,7 @@ public class MatchSidebarService(
     private fun refresh(match: Match) {
         if (!match.isLive()) return
         val mode = modeOf(match.id) ?: return
-        val model = MatchSidebarModel.build(mode, match, scheduler.currentTick(), timeLimitTicks(match.id))
+        val model = MatchSidebarModel.build(mode, match, scheduler.currentTick(), timeLimitTicks(match.id), objectiveParams(match.id))
         for (team in match.teams) {
             for (member in team.members) scheduler.run(ExecutionScope.Entity(member.uuid), kotlin.time.Duration.ZERO) { push(match, model, member) }
         }

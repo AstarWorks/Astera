@@ -7,13 +7,9 @@ material: IRON_NUGGET
 name:
   ja: "サブマシンガン"
   en: "SMG"
-lore:
-  ja:
-    - "<gray>右クリック: 連射</gray>"
-    - "<gray>スニーク + 右クリック: ダッシュ (加速)</gray>"
-  en:
-    - "<gray>Right-click: spray</gray>"
-    - "<gray>Sneak + right-click: rush (speed up)</gray>"
+role:
+  ja: "銃 / 連射と加速のダッシュ"
+  en: "Gun / rapid fire and a speed rush"
 
 rarity: uncommon
 level_requirement: 1

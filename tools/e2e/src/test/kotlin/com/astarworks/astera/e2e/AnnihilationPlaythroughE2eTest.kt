@@ -10,19 +10,41 @@ import org.junit.jupiter.api.Test
  * Timers and HP come from docker/e2e-tune-content.sh (build 5s, engage 10s, every pillar 150 HP).
  *
  * The arena is a three-island sky stage in a world slot (content/stages/annihilation-arena.yaml, ADR-0255; all coordinates here are stage-local):
- * red island at (0, -64), blue at (55, 32), yellow at (-55, 32) (radius 22), centre island at (0, 0) (radius 24), three
- * flank islands between the bases; top layer y=64, bots stand at y=65.
+ * red island at (0, -46), blue at (40, 23), yellow at (-40, 23) (radius 21), centre island at (0, 0) (radius 18), three
+ * outpost islands (radius 10) between the bases; top layer y=64, bots stand at y=65. Pillar cells are read from the stage YAML.
  */
 class AnnihilationPlaythroughE2eTest : PlaythroughBase() {
 
     private val suite = "Annihilation playthrough"
 
-    /** Pillar block cells per tier (1..3), stage-local (slot origin is added by the helpers), from content/stages/annihilation-arena.yaml. */
-    private val pillars = mapOf(
-        "Blue" to listOf(Triple(52, 65, 20), Triple(43, 65, 35), Triple(57, 65, 33)),
-        "Yellow" to listOf(Triple(-43, 65, 35), Triple(-52, 65, 20), Triple(-57, 65, 33)),
-        "Red" to listOf(Triple(-9, 65, -55), Triple(9, 65, -55), Triple(0, 65, -66)),
-    )
+    /**
+     * Pillar block cells per tier (1..3), stage-local (slot origin is added by the helpers). Read from the shipped
+     * `content/stages/annihilation-arena.yaml` `pillars:` section so a stage move never leaves the test digging air;
+     * the cell is the floored position (the pillar block's cell, as the stage loader / bot planner use).
+     */
+    private val pillars: Map<String, List<Triple<Int, Int, Int>>> = loadPillars()
+
+    private fun loadPillars(): Map<String, List<Triple<Int, Int, Int>>> {
+        val file = java.io.File(System.getProperty("astera.live.contentDir", "/workspace/content"), "stages/annihilation-arena.yaml")
+        val lines = file.readLines().dropWhile { it.trim() != "pillars:" }.drop(1).takeWhile { it.startsWith(" ") || it.startsWith("-") }
+        val entry = Regex("""-\s*team:\s*(\w+)""")
+        val tier = Regex("""tier:\s*(\d+)""")
+        val pos = Regex("""position:\s*\{x:\s*(-?[\d.]+),\s*y:\s*(-?[\d.]+),\s*z:\s*(-?[\d.]+)\}""")
+        val byTeam = mutableMapOf<String, MutableMap<Int, Triple<Int, Int, Int>>>()
+        var team: String? = null
+        var t = 0
+        for (line in lines) {
+            entry.find(line)?.let { team = it.groupValues[1].replaceFirstChar(Char::uppercase) }
+            tier.find(line)?.let { t = it.groupValues[1].toInt() }
+            pos.find(line)?.let { m ->
+                val (x, y, z) = m.destructured
+                byTeam.getOrPut(team ?: error("pillar position before team")) { mutableMapOf() }[t] =
+                    Triple(Math.floor(x.toDouble()).toInt(), Math.floor(y.toDouble()).toInt(), Math.floor(z.toDouble()).toInt())
+            }
+        }
+        check(byTeam.keys == setOf("Blue", "Yellow", "Red")) { "unexpected pillar teams ${byTeam.keys} in $file" }
+        return byTeam.mapValues { (name, tiers) -> (1..3).map { tiers[it] ?: error("stage has no $name tier $it pillar") } }
+    }
     private val pillarBlocks = listOf("minecraft:obsidian", "minecraft:crying_obsidian", "minecraft:beacon")
 
     private fun teamOfBot(b: Bot): String? = localPosOf(b)?.let { (x, _, z) ->

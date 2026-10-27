@@ -7,15 +7,11 @@ id: rtm-blaster
 material: BLAZE_ROD
 
 name:
-  ja: "<gold>RTMブラスター</gold>"
-  en: "<gold>RTM Blaster</gold>"
-lore:
-  ja:
-    - "<gray>右クリック: シンプルシュート（炎の光線）</gray>"
-    - "<dark_gray>RyuZUTechnicalMagic から移植</dark_gray>"
-  en:
-    - "<gray>Right-click: Simple Shoot (flame beam)</gray>"
-    - "<dark_gray>Ported from RyuZUTechnicalMagic</dark_gray>"
+  ja: "RTMブラスター"
+  en: "RTM Blaster"
+role:
+  ja: "魔法 / 炎の光線"
+  en: "Magic / flame beam"
 
 rarity: rare
 level_requirement: 1

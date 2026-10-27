@@ -6,17 +6,11 @@ id: shotgun
 material: DIAMOND_HORSE_ARMOR
 
 name:
-  ja: "<red>ショットガン</red>"
-  en: "<red>Shotgun</red>"
-lore:
-  ja:
-    - "<gray>右クリック: 散弾（近距離・ノックバック）</gray>"
-    - "<gray>スニーク+右: バックステップ</gray>"
-    - "<gray>スニーク+Q: リロード</gray>"
-  en:
-    - "<gray>Right-click: blast (close range, knockback)</gray>"
-    - "<gray>Sneak+Right-click: backstep</gray>"
-    - "<gray>Sneak+Q: reload</gray>"
+  ja: "ショットガン"
+  en: "Shotgun"
+role:
+  ja: "銃 / 近距離の散弾、ノックバック"
+  en: "Gun / close-range blast with knockback"
 
 rarity: uncommon
 level_requirement: 3

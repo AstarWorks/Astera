@@ -1,0 +1,7 @@
+# UI-12 status codex tile icon. Vanilla material until item-art draws a glyph.
+
+id: gui-tile-status-rupture
+material: NETHERITE_SCRAP
+name:
+  ja: "<dark_red>破裂</dark_red>"
+  en: "<dark_red>Rupture</dark_red>"

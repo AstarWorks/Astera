@@ -7,13 +7,9 @@ material: BONE
 name:
   ja: "棍棒"
   en: "Club"
-lore:
-  ja:
-    - "<gray>左クリック: 強く吹き飛ばす</gray>"
-    - "<gray>スニーク + 右クリック: 叩きつけ (周囲を押し返す)</gray>"
-  en:
-    - "<gray>Left-click: heavy knockback</gray>"
-    - "<gray>Sneak + right-click: slam (pushes everyone back)</gray>"
+role:
+  ja: "近接 / 吹き飛ばしと押し返し"
+  en: "Melee / knockback and crowd pushing"
 
 rarity: uncommon
 level_requirement: 1

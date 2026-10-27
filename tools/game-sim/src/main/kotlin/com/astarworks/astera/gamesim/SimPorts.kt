@@ -388,6 +388,13 @@ public class SimPlayerFeedbackGateway(
         )
     }
 
+    /** Players whose low-HP vignette is currently on. */
+    public val lowHealthVignette: MutableSet<PlayerId> = mutableSetOf()
+
+    override fun setLowHealthVignette(target: PlayerId, active: Boolean) {
+        if (active) lowHealthVignette += target else lowHealthVignette -= target
+    }
+
     public val actionBars: MutableList<Pair<PlayerId, String>> = mutableListOf()
     public val titles: MutableList<Title> = mutableListOf()
 

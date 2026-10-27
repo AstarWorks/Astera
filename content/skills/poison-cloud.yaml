@@ -41,7 +41,7 @@ phases:
     - type: apply_status
       targets: { type: enemies, center: { type: target }, radius: { type: literal, value: 3.5 } }
       status_id: poison
-      effect_duration_ticks: { type: literal, value: 160 }
+      effect_duration_ticks: { type: literal, value: 80 }
     - type: schedule_particle_animation
       targets: { type: target_offset, offset: { type: literal, value: { x: 0.0, y: 0.15, z: 0.0 } } }
       animation:
@@ -62,7 +62,7 @@ phases:
     - type: apply_status
       targets: { type: enemies, center: { type: hit_location }, radius: { type: literal, value: 3.5 } }
       status_id: poison
-      effect_duration_ticks: { type: literal, value: 160 }
+      effect_duration_ticks: { type: literal, value: 80 }
     - type: schedule_particle_animation
       targets: { type: hit_location }
       animation:

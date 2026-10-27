@@ -90,7 +90,8 @@ class BotVsBotE2eTest : PlaythroughBase() {
         // and again after every level-up, so the match can only end through fighting.
         var lastChooseAt = 0L
         val tPlay = System.currentTimeMillis()
-        val deadline = tPlay + 300_000
+        // carry-tnt tune: 420 s limit + up to 60 s overtime (count model), so wait for the clock past that.
+        val deadline = tPlay + 520_000
         var firstKillMs = -1L
         val track = mutableListOf<String>()
         var stallAt: Triple<Double, Double, Double>? = null

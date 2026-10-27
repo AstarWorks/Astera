@@ -55,7 +55,7 @@ public class PostgresMarketplaceRepositoryIT : PostgresIntegrationTestBase() {
             id = id,
             seller = seller,
             itemId = ItemId("example-gun"),
-            price = ShopPrice(Currency.GEM, 25L),
+            price = ShopPrice(Currency.GOLD, 25L),
             listedAt = Instant.parse("2026-05-19T10:00:00Z"),
             status = ListingStatus.Sold(buyer = buyer, soldAt = soldAt),
         )

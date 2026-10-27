@@ -6,12 +6,10 @@ id: menu-compass
 material: COMPASS
 
 name:
-  ja: "<gold>ゲームメニュー</gold>"
-  en: "<gold>Game Menu</gold>"
-lore:
-  ja:
-    - "<dark_gray>(コマンド: /astera menu)</dark_gray>"
-  en:
-    - "<dark_gray>(command: /astera menu)</dark_gray>"
+  ja: "ゲームメニュー"
+  en: "Game Menu"
+role:
+  ja: "補助 / ゲームメニューを開く"
+  en: "Support / opens the game menu"
 
 rarity: common

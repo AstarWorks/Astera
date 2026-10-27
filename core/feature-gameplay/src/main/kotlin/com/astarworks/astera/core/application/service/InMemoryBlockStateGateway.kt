@@ -27,82 +27,34 @@ import com.astarworks.astera.core.domain.world.ToolType
 import com.astarworks.astera.core.domain.world.WorldId
 import kotlin.random.Random
 
-/**
- * Default in-memory [IBlockStateGateway] (Wave 5d → Wave 5x, ADR-0090).
- *
- * Phase 1 PoC: a `Map<WorldId, MutableMap<Vec3, BlockState>>` tracks every
- * damaged or placed position. Untracked positions return
- * [BlockState.DEFAULT_MAX_DURABILITY] from [getDurability] — call sites never
- * need to pre-register stage geometry; the first damage event triggers
- * tracking.
- *
- * **Lifecycle of a tracked entry**:
- * - First [applyDamage] on an untracked position seeds a fresh [BlockState]
- *   at DEFAULT_MAX_DURABILITY then deducts the damage.
- * - [track] writes the supplied state verbatim — used by placed blocks
- *   ([com.astarworks.astera.core.domain.event.BlockPlaced] listeners) and by
- *   the pseudo-recovery scheduler to bump durability back up.
- * - [placeCustomBlock] seeds at `spec.baseDurability` for both current HP
- *   and `maxHp`, replacing any prior tracker entry at the position.
- * - [restore] resets the tracked entry to its `maxHp` (preserves
- *   `blockType` so pseudo-recovery can keep iterating). Untracked positions
- *   are a no-op.
- *
- * **Event publishing** (Wave 5x):
- *  - [applyDamageFromSkill] publishes `BlockDamagedBySkill` (HP reduced,
- *    block intact) or `BlockBrokenBySkill` (HP hit 0) via [eventBus].
- *  - [placeCustomBlock] publishes `CustomBlockPlaced`.
- *  - The Wave-5d [applyDamage] entrypoint still does NOT publish events —
- *    that path is for listener-driven raw damage where the upstream
- *    producer owns the "did it break" decision.
- *
- * **Not thread-safe** — Astera invariant: all match-state mutation runs on
- * the server main thread (per `IScheduler` regional contract). The plain
- * `MutableMap` is intentional; concurrent collections would imply support we
- * do not provide.
- */
+/** Simulator block identity/placement metadata plus the same sparse HP store that Paper uses. */
 public class InMemoryBlockStateGateway(
     private val eventBus: IDomainEventBus? = null,
     private val customBlockRegistry: ICustomBlockRegistry? = null,
     private val durabilityRule: BlockDurabilityRule = BlockDurabilityRule.defaultMatrix(),
     private val random: Random = Random.Default,
+    private val worldGateway: (() -> com.astarworks.astera.core.application.port.outbound.IWorldGateway?)? = null,
     private val initialTick: () -> Long = { 0L },
 ) : IBlockStateGateway {
+    private val damage = com.astarworks.astera.core.application.service.BlockHpStore()
+    override fun damagedWorlds(): Set<WorldId> = damage.worlds()
+    override fun damageBlock(world: WorldId, pos: Vec3, maxHp: Int, amount: Int): Int =
+        damage.hit(world, cellOf(pos), maxHp, amount, initialTick())
+    override fun hasDamage(world: WorldId, pos: Vec3): Boolean = damage.damage(world, cellOf(pos)) > 0
+    override fun clearDamage(world: WorldId, pos: Vec3) { damage.clear(world, cellOf(pos)) }
+    override fun expireDamage(world: WorldId, currentTick: Long): List<Vec3> = damage.expire(world, currentTick, durabilityRule.idleTicks)
+    override fun clearWorldDamage(world: WorldId): List<Vec3> = damage.clearWorld(world)
 
-    private val worlds: MutableMap<WorldId, MutableMap<Vec3, BlockState>> = mutableMapOf()
+
+    private val worlds: MutableMap<WorldId, MutableMap<Vec3, BlockType>> = mutableMapOf()
+
+    private val broken = mutableMapOf<WorldId, MutableSet<Vec3>>()
 
     /** Positions of the temporary blocks placed during a match (ADR-0280); [resetCover] removes them. */
     private val temporary: MutableMap<WorldId, MutableSet<Vec3>> = mutableMapOf()
 
     override fun getDurability(world: WorldId, pos: Vec3): Int =
-        worlds[world]?.get(pos)?.durability ?: BlockState.DEFAULT_MAX_DURABILITY
-
-    override fun applyDamage(
-        world: WorldId,
-        pos: Vec3,
-        amount: Int,
-        tool: ToolType,
-    ): BlockState {
-        val store = worlds.getOrPut(world) { mutableMapOf() }
-        val existing = store[pos]
-        val current = existing?.durability ?: BlockState.DEFAULT_MAX_DURABILITY
-        val maxHp = existing?.maxHp ?: BlockState.DEFAULT_MAX_DURABILITY
-        // amount may be negative or zero on caller error — clamp damage to >= 0
-        // so we never accidentally heal via applyDamage. Healing is restore() / track().
-        val safeAmount = amount.coerceAtLeast(0)
-        val nextDurability = (current - safeAmount).coerceIn(0, maxHp)
-        val nextState = (existing ?: defaultStateFor(pos)).copy(
-            durability = nextDurability,
-            lastDamagedTick = initialTick(),
-        )
-        store[pos] = nextState
-        // tool is currently passed through unchanged — BlockDurabilityRule
-        // application happens upstream of the gateway in Wave 5d for this
-        // entrypoint; Wave 5x's applyDamageFromSkill is the matrix-aware
-        // entrypoint.
-        @Suppress("UNUSED_PARAMETER") tool
-        return nextState
-    }
+        (stateAt(world, pos).durability - damage.damage(world, cellOf(pos))).coerceAtLeast(0)
 
     override fun applyDamageFromSkill(
         world: WorldId,
@@ -111,9 +63,9 @@ public class InMemoryBlockStateGateway(
         attackerId: PlayerId,
         profile: BlockDamageProfile,
     ): Result<BlockDamageOutcome, BlockGatewayError> {
-        val store = worlds.getOrPut(world) { mutableMapOf() }
-        val existing = store[pos]
-        val blockType = existing?.blockType ?: UNKNOWN_BLOCK_TYPE
+        val existing = stateAt(world, pos)
+        if (existing.durability <= 0) return Result.success(BlockDamageOutcome.Ineffective(IneffectiveReason.ZeroDamageCell))
+        val blockType = existing.blockType
         val customSpec = customBlockRegistry?.resolve(blockType)
         val effectiveMaterial = profile.materialOverride
             ?: customSpec?.material
@@ -148,21 +100,16 @@ public class InMemoryBlockStateGateway(
             return Result.success(BlockDamageOutcome.Ineffective(IneffectiveReason.ZeroDamageCell))
         }
 
-        val maxHp = existing?.maxHp ?: (customSpec?.baseDurability ?: BlockState.DEFAULT_MAX_DURABILITY)
-        val currentHp = existing?.durability ?: maxHp
-        val nextHp = (currentHp - scaled).coerceIn(0, maxHp)
-        val nextState = (existing ?: defaultStateFor(pos).copy(
-            blockType = if (customSpec != null) customSpec.id else UNKNOWN_BLOCK_TYPE,
-            maxHp = maxHp,
-            durability = maxHp,
-        )).copy(
+        val maxHp = existing.maxHp
+        val nextHp = damageBlock(world, pos, maxHp, scaled)
+        val nextState = existing.copy(
             durability = nextHp,
             lastDamagedTick = initialTick(),
             damagedBy = attackerId,
         )
-        store[pos] = nextState
 
         return if (nextHp == 0) {
+            broken.getOrPut(world) { mutableSetOf() }.add(cellOf(pos))
             val drops = resolveDrops(customSpec, profile.effectiveTool)
             val change = BlockChange.Broken(
                 position = pos,
@@ -199,20 +146,7 @@ public class InMemoryBlockStateGateway(
         }
     }
 
-    override fun restore(world: WorldId, pos: Vec3) {
-        val store = worlds[world] ?: return
-        val existing = store[pos] ?: return
-        store[pos] = existing.copy(
-            durability = existing.maxHp,
-            // Don't bump lastDamagedTick on restore — the field's only consumer
-            // is the cool-off scheduler, which gates on (now - lastDamagedTick).
-        )
-    }
-
-    override fun track(world: WorldId, pos: Vec3, state: BlockState) {
-        val store = worlds.getOrPut(world) { mutableMapOf() }
-        store[pos] = state
-    }
+    override fun restore(world: WorldId, pos: Vec3) { clearDamage(world, pos) }
 
     override fun placeCustomBlock(
         world: WorldId,
@@ -228,7 +162,9 @@ public class InMemoryBlockStateGateway(
             maxHp = spec.baseDurability,
         )
         val store = worlds.getOrPut(world) { mutableMapOf() }
-        store[pos] = state
+        store[cellOf(pos)] = spec.id
+        broken[world]?.remove(cellOf(pos))
+        clearDamage(world, pos)
         eventBus?.publish(
             CustomBlockPlaced(
                 world = world,
@@ -241,18 +177,16 @@ public class InMemoryBlockStateGateway(
         return Result.success(state)
     }
 
-    override fun tracked(world: WorldId): Map<Vec3, BlockState> =
-        worlds[world]?.toMap() ?: emptyMap()
-
-    override fun isCover(world: WorldId, pos: Vec3): Boolean {
-        val state = worlds[world]?.get(cellOf(pos)) ?: return false
-        return state.durability > 0 && customBlockRegistry?.resolve(state.blockType) != null
+    override fun tracked(world: WorldId): Map<Vec3, BlockState> = damage.snapshot(world).mapValues { (pos, hit) ->
+        val seed = stateAt(world, pos)
+        seed.copy(durability = seed.maxHp - hit.damage, lastDamagedTick = hit.lastHitTick)
     }
 
-    override fun canPlaceAt(world: WorldId, pos: Vec3): Boolean {
-        val state = worlds[world]?.get(cellOf(pos)) ?: return true
-        return state.durability <= 0
-    }
+    override fun isCover(world: WorldId, pos: Vec3): Boolean =
+        cellOf(pos) !in broken[world].orEmpty() && customBlockRegistry?.resolve(stateAt(world, pos).blockType) != null
+
+    override fun canPlaceAt(world: WorldId, pos: Vec3): Boolean =
+        worlds[world]?.containsKey(cellOf(pos)) != true || cellOf(pos) in broken[world].orEmpty()
 
     override fun placeTemporaryBlock(
         world: WorldId,
@@ -267,18 +201,16 @@ public class InMemoryBlockStateGateway(
     }
 
     override fun resetCover(world: WorldId, centre: Vec3?, halfExtent: Double): List<Vec3> {
-        val store = worlds[world] ?: return emptyList()
+        val store = worlds[world] ?: return clearWorldDamage(world)
         val temp = temporary[world]
-        val changed = mutableListOf<Vec3>()
+        val changed = clearWorldDamage(world).toMutableList()
         for (pos in store.keys.toList()) {
             if (centre != null && (kotlin.math.abs(pos.x - centre.x) > halfExtent || kotlin.math.abs(pos.z - centre.z) > halfExtent)) continue
-            val state = store.getValue(pos)
             if (temp != null && pos in temp) {
                 store.remove(pos)
                 temp.remove(pos)
                 changed += pos
-            } else if (state.durability != state.maxHp) {
-                store[pos] = state.copy(durability = state.maxHp)
+            } else if (broken[world]?.remove(pos) == true) {
                 changed += pos
             }
         }
@@ -336,26 +268,12 @@ public class InMemoryBlockStateGateway(
         return tool.tier.ordinal >= gate.tier.ordinal
     }
 
-    /**
-     * Seed a [BlockState] for a position that was previously untracked.
-     *
-     * Phase 1 PoC: we don't know what the original block was (no world-read
-     * port wired yet), so we use a placeholder [BlockType] `astera:unknown`.
-     * Wave 6's `PaperBlockStateGateway` will read the actual `BlockData` from
-     * the world and supply the real type.
-     */
-    private fun defaultStateFor(@Suppress("UNUSED_PARAMETER") pos: Vec3): BlockState =
-        BlockState(
-            blockType = UNKNOWN_BLOCK_TYPE,
-            durability = BlockState.DEFAULT_MAX_DURABILITY,
-            lastDamagedTick = 0L,
-            damagedBy = null,
-            maxHp = BlockState.DEFAULT_MAX_DURABILITY,
-        )
-
-    @Suppress("unused")
-    private fun referenceUnusedAxes(): Pair<ToolKind, ToolTier> =
-        ToolKind.NONE to ToolTier.NONE
+    private fun stateAt(world: WorldId, pos: Vec3): BlockState {
+        val physical = worlds[world]?.get(cellOf(pos)) ?: worldGateway?.invoke()?.blockAt(world, pos) ?: UNKNOWN_BLOCK_TYPE
+        val type = customBlockRegistry?.resolve(physical)?.id ?: customBlockRegistry?.resolveByBaseMaterial(physical.identifier.uppercase())?.id ?: physical
+        val maxHp = customBlockRegistry?.resolve(type)?.baseDurability ?: com.astarworks.astera.core.domain.world.BlockHpRules.maxHp(com.astarworks.astera.core.domain.world.BlockHpRules.simulatedHardness(type))
+        return BlockState(type, if (cellOf(pos) in broken[world].orEmpty()) 0 else maxHp, 0L, null, maxHp)
+    }
 
     private companion object {
         private val UNKNOWN_BLOCK_TYPE = BlockType("astera:unknown")

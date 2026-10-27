@@ -23,7 +23,7 @@ class ObjectiveClarityScenarioTest {
             val titles = checkNotNull(sim.server.view(red.id)).titles.map { it.value }
             assertThat(titles).`as`("the objective is flashed as a title").contains("astera.match.objective.carry-mini-tnt.title")
             val start = chat(red)
-            assertThat(start).contains("How to win").contains("ENEMY base")
+            assertThat(start).contains("Rules").contains("ENEMY base")
             assertThat(start).`as`("a player who never finished a match gets the beginner guide").contains("Quick guide")
             assertThat(start).doesNotContain("Reminder - how to win")
 

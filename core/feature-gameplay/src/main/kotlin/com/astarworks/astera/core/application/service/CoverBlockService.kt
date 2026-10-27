@@ -67,6 +67,12 @@ public class CoverBlockService(
         }
     }
 
+    /** Terrain and custom blocks use the same overlay source and damage-to-stage mapping. */
+    public fun showHp(world: WorldId, cell: Vec3, hp: Int, maxHp: Int) {
+        if (hp <= 0 || hp >= maxHp) animation()?.cancelBreakAnimation(world, cell)
+        else animation()?.setBreakStage(world, cell, stageFor(hp, maxHp))
+    }
+
     /** Damages the cell [cell] once. `null` when no gateway is registered (hosts without blocks). */
     public fun strikeCell(
         attacker: PlayerId,
@@ -296,7 +302,7 @@ public class CoverBlockService(
         public fun stageFor(hp: Int, maxHp: Int): BlockBreakStage {
             if (maxHp <= 0) return BlockBreakStage.STAGE_9
             val lost = (maxHp - hp).coerceIn(0, maxHp).toDouble() / maxHp
-            val index = (lost * 9.0).toInt().coerceIn(0, 9)
+            val index = (lost * 10.0).toInt().coerceIn(0, 9)
             return BlockBreakStage.entries[index]
         }
 

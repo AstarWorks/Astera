@@ -1,27 +1,42 @@
 # Carry TNT (WP11, siege mode).
 #
 # One TNT sits in the stage's `tnt-spawn` zone. Walk into the zone to pick it
-# up (only while nobody carries it), carry it into an enemy `base-<team>` zone
-# to score a delivery. The carrier dying returns the TNT. First team to
-# `deliveries_to_win` deliveries wins. Implementation: CarryTntGameMode.
-#
-# default_config
-#   deliveries_to_win  deliveries needed to win
+# up once its shield is broken (only while nobody carries it) and carry it along the route to the enemy
+# `deliver-<team>` pedestal (Rainmaker / ガチホコ). Count = 100 minus the furthest share of that route the team's
+# carrier has covered; reaching the goal is a knockout. Every `checkpoint-<team>-<n>` pauses the carrier and
+# re-shields them. A fallen carrier drops the TNT; after `drop_return_seconds` it returns to the centre.
+# While carrying, the carrier is slow, glowing and cannot cast skills. Implementation: CarryTntGameMode.
 id: carry-tnt
 title_key: astera.gamemode.carry-tnt.title
 impl_class: com.astarworks.astera.match.application.gamemode.CarryTntGameMode
 default_config:
-  # Norma layer (content/norma-layer/layer.yaml) overrides: objective rounds on the big islands take long, so the time limit is 20 minutes. At the limit the teams are ranked by this mode's objective first, then stars carried, kills.
-  time_limit_seconds: "1200"
+  # Norma layer (content/norma-layer/layer.yaml) overrides: objective rounds on the big islands take long, so the time limit is 15 minutes. At the limit the teams are ranked by this mode's objective first, then stars carried, kills.
+  time_limit_seconds: "900"
   # F3-5 death / respawn (seconds): death-screen countdown, killer death-cam length, post-respawn invulnerability (ends on attack).
   respawn_delay_seconds: "5"
   death_cam_seconds: "2"
   spawn_protection_seconds: "3"
-  deliveries_to_win: "2"
+  # Count model (Splatoon-style, SiegeGameMode): the team's count falls with the furthest route progress of its carrier; 0 = knockout win
+  # (= the goal channel completed). At the time limit the lower count wins; count_low_at = "close to knockout" announcement; the match runs
+  # on up to overtime_max_seconds while the trailing team carries the TNT.
+  count_start: "100"
+  count_low_at: "34"
+  overtime_max_seconds: "60"
+  # Hold time (ticks) to secure a checkpoint on the way and to deliver at the enemy deliver-<team> pedestal.
+  deliver_channel_ticks: "40"
+  checkpoint_hold_ticks: "60"
+  # Checkpoint re-shield: the carrier is damage-immune for this many seconds after securing a checkpoint.
+  checkpoint_shield_seconds: "4"
+  # Shield on the TNT: HP that must be broken before pickup, drain per second per player standing in tnt-spawn,
+  # radius and percentage at which damage dealt near the pedestal also counts.
+  shield_hp: "200"
+  shield_drain_per_second: "10"
+  shield_damage_radius: "6"
+  shield_damage_pct: "100"
   # Objective feel (ObjectiveKit): hold time at a pickup / goal in ticks, how long a dropped objective lies before it
   # goes home (seconds), reach of a pile pickup (blocks), distance at which defenders get a gate warning (blocks).
-  channel_ticks: "15"
-  drop_return_seconds: "20"
+  channel_ticks: "20"
+  drop_return_seconds: "12"
   pickup_radius: "3"
   warn_distance: "24"
   # Carrier walk speed = 100 - slow_pct_per_item * pieces, never below min_speed_pct.

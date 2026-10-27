@@ -80,6 +80,18 @@ Look at edges on native crops before handing a round over: add `&zoom=native&cro
 - Runtime applies 10% / x2 random crits (`CombatWiring`, procedure section 5), so total HP loss does not count hits; count hits from frames or events.
 - Machine/slot discipline: one capture runs at a time on the whole host (`/tmp/claude-1000/astera-vfx-shot.lock`, `SHOT_SLOTS=1`); others queue. A run tears its stack down when it exits unless `SHOT_KEEP=1`, and a kept stack lives at most `SHOT_KEEP_TTL` (45 min) or until another checkout needs the slot. Never use the e2e flock for captures. See the "Real-client capture" section of [README.md](README.md).
 
+## Craft checklist (P-numbers: [pixel-vfx-craft.md](../../reference/vfx/pixel-vfx-craft.md))
+
+Run before each capture round and put the result in the round note.
+
+1. **Shape first (P2).** View the build at `vfx_intensity: minimal` (core lane only): the dominant shape of each effect must read. If not, fix the core, not the extras.
+2. **Impact tick (P4).** The beat sheet's impact tick equals the first-flash tick of the vfx, the `hit_stop` tick and the `camera_shake` tick. Check against the server trace, not by eye.
+3. **Timing template (P3).** Anticipation / impact / expansion / dissipation slots exist for each effect; endings fragment and cool down the ramp, they do not shrink.
+4. **Heat budget (P5).** Only the core carries the top bands; at most two hue families plus smoke; grayscale pass shows a core, not a blob.
+5. **Ramp (P1).** Colours step in hard bands, hue-shifted; no blurred glow or soft gradient on pixel-class sprites.
+6. **Ground and loops (P8, P9).** Ground rings flattened on the floor; loops close on whole cycles.
+7. **Sprites (P6, P10).** Sprites are drawn by [pixel-art.md](pixel-art.md) rules (consult `pixel-artist`): density near 16 texel per block for pixel-class, hard alpha, no strays.
+
 ## Learnings log
 
 (Append dated bullets after each skill, newest last. Format: `- YYYY-MM-DD <case>: <fact / pitfall / number>`.)
@@ -200,3 +212,4 @@ Look at edges on native crops before handing a round over: add `&zoom=native&cro
 - 2026-10-27: every item_model used by a VFX/rig must be listed in content/models/manifest.json or it renders as a giant magenta missing-model cube (blade-a/b were missing). Check this before the first capture.
 - 2026-10-27: `target_line` with `orient: yaw` drew the thread backward from the hand (top view); the same line without target_line points at the target. Use a fixed line (reference distance) until the engine bug is fixed. Projectile VFX have no lateral muzzle param: side-by-side offsets go in the flight VFX x translation.
 - 2026-10-27 couture-s2: `target_line` translate is the box CENTRE and the far end is pinned to the live target; author z = (hand + reference)/2 with scale z = reference - hand (eed14e82d). It was never backward. Thread starts the tick after the throw (for_each_target delay 35 for a t34 cast). The shared capture slots are busy with other agents: top retried 4 times before OK; check `meta.json` and reshoot.
+- 2026-10-28 (S2): end_rod lingers 20+ ticks regardless of lifetime_ticks (use electric_spark/crit for glints); a particle element with target_track is rejected at load; projectile muzzle_up is relative to the eye (1.8 puts it near y3.4); launch_speed 1.0 on a 5.4 block aim makes the flight invisible (2 ticks), 0.6 reads; open the flight frames before publishing.

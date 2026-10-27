@@ -1,5 +1,7 @@
 # Raster sources of item icons (ADR-0238). `./gradlew :tools:item-art:run` converts each listed item's
 # source to its 32x32 icon under textures/generated/items; unlisted items stay drawn by code (ADR-0193/0223).
+# Source options: remove-magenta removes key blends and rejects contaminated output; material-outline
+# replaces the outer near-black band with a 1px material shade without adding a rim. Both default false.
 # Any tool may make a source — an AI sheet (tools/item-art/scripts/gen_sheet.py), Aseprite, a hand-drawn
 # PNG — only the committed file counts. Per item: `name: <source>` or `{ from: <source>, colors: N, model: handheld|generated }`.
 
@@ -9,6 +11,62 @@ sources:
     file: sheets/weapons-v1.png
     grid: [5, 5]
     cells: [bastion-greatsword, couture-rapier, crimson-chain-axe, dagger, edict-blade, ember-gauntlet, fire-staff, frost-staff, gossamer-katana, greatsword, knight-sword, orrery-staff, pistol, rifle, rtm-blaster, shotgun, sigil-rifle, thunder-staff, vendetta-rifle, verdant-staff, verdict-hammer]
+
+  arsenal-tools-v1:
+    remove-magenta: true
+    material-outline: true
+    file: sheets/arsenal-tools-v1.png
+    grid: [5, 4]
+    cells: [stone-pickaxe, stone-axe, stone-shovel, iron-pickaxe, iron-axe, iron-shovel, diamond-pickaxe, diamond-axe, diamond-shovel, ore-iron, ore-gold, ore-diamond, ore-emerald, null, null, null, null, null, null, null]
+  # arsenal-weapons-art2: locked generated reference, 2026-10-28.
+  arsenal-weapons-art2:
+    remove-magenta: true
+    material-outline: true
+    file: sheets/arsenal-weapons-art2.png
+    grid:
+    - 6
+    - 6
+    cells:
+    - iron-blade
+    - war-axe
+    - spear
+    - mace
+    - twin-daggers
+    - katana
+    - halberd
+    - rapier
+    - cleaver
+    - scythe
+    - club
+    - longbow
+    - hand-crossbow
+    - shortbow
+    - repeater-crossbow
+    - revolver
+    - smg
+    - sniper
+    - harpoon
+    - grappling-hook
+    - throwing-knives
+    - sticky-bomb
+    - venom-flask
+    - smoke-bomb
+    - delay-mine
+    - frag-grenade
+    - flash-bang
+    - shock-wand
+    - ember-rod
+    - frost-rod
+    - fireball-charge
+    - glacier-wand
+    - sanctuary-staff
+    - chain-rod
+    - gale-fan
+    - shield-bulwark
+  armor-v1:
+    file: sheets/armor-v1.png
+    grid: [4, 4]
+    cells: [leather-scout-helmet, leather-scout-chestplate, leather-scout-leggings, leather-scout-boots, chain-guard-helmet, chain-guard-chestplate, chain-guard-leggings, chain-guard-boots, iron-warden-helmet, iron-warden-chestplate, iron-warden-leggings, iron-warden-boots, diamond-champion-helmet, diamond-champion-chestplate, diamond-champion-leggings, diamond-champion-boots]
 
 items:
   bastion-greatsword: weapons-v1
@@ -30,3 +88,67 @@ items:
   vendetta-rifle: weapons-v1
   verdant-staff: weapons-v1
   verdict-hammer: weapons-v1
+
+  # Match arsenal: generated flat handheld tools and currency; blocks use native cube models.
+  stone-pickaxe: { from: arsenal-tools-v1, colors: 24, model: handheld }
+  stone-axe: { from: arsenal-tools-v1, colors: 24, model: handheld }
+  stone-shovel: { from: arsenal-tools-v1, colors: 24, model: handheld }
+  iron-pickaxe: { from: arsenal-tools-v1, colors: 24, model: handheld }
+  iron-axe: { from: arsenal-tools-v1, colors: 24, model: handheld }
+  iron-shovel: { from: arsenal-tools-v1, colors: 24, model: handheld }
+  diamond-pickaxe: { from: arsenal-tools-v1, colors: 24, model: handheld }
+  diamond-axe: { from: arsenal-tools-v1, colors: 24, model: handheld }
+  diamond-shovel: { from: arsenal-tools-v1, colors: 24, model: handheld }
+  ore-iron: { from: arsenal-tools-v1, colors: 24 }
+  ore-gold: { from: arsenal-tools-v1, colors: 24 }
+  ore-diamond: { from: arsenal-tools-v1, colors: 24 }
+  ore-emerald: { from: arsenal-tools-v1, colors: 24 }
+  # arsenal-weapons-art2: vanilla use-state weapons deliberately excluded.
+  iron-blade: { from: arsenal-weapons-art2, model: handheld }
+  war-axe: { from: arsenal-weapons-art2, model: handheld }
+  spear: { from: arsenal-weapons-art2, model: handheld }
+  mace: { from: arsenal-weapons-art2, model: handheld }
+  twin-daggers: { from: arsenal-weapons-art2, model: handheld }
+  katana: { from: arsenal-weapons-art2, model: handheld }
+  halberd: { from: arsenal-weapons-art2, model: handheld }
+  rapier: { from: arsenal-weapons-art2, model: handheld }
+  cleaver: { from: arsenal-weapons-art2, model: handheld }
+  scythe: { from: arsenal-weapons-art2, model: handheld }
+  club: { from: arsenal-weapons-art2, model: handheld }
+  revolver: { from: arsenal-weapons-art2, model: handheld }
+  smg: { from: arsenal-weapons-art2, model: handheld }
+  sniper: { from: arsenal-weapons-art2, model: handheld }
+  harpoon: { from: arsenal-weapons-art2, model: handheld }
+  grappling-hook: { from: arsenal-weapons-art2, model: handheld }
+  throwing-knives: { from: arsenal-weapons-art2, model: handheld }
+  sticky-bomb: { from: arsenal-weapons-art2, model: handheld }
+  venom-flask: { from: arsenal-weapons-art2, model: handheld }
+  smoke-bomb: { from: arsenal-weapons-art2, model: handheld }
+  delay-mine: { from: arsenal-weapons-art2, model: handheld }
+  frag-grenade: { from: arsenal-weapons-art2, model: handheld }
+  flash-bang: { from: arsenal-weapons-art2, model: handheld }
+  shock-wand: { from: arsenal-weapons-art2, model: handheld }
+  ember-rod: { from: arsenal-weapons-art2, model: handheld }
+  frost-rod: { from: arsenal-weapons-art2, model: handheld }
+  fireball-charge: { from: arsenal-weapons-art2, model: handheld }
+  glacier-wand: { from: arsenal-weapons-art2, model: handheld }
+  sanctuary-staff: { from: arsenal-weapons-art2, model: handheld }
+  chain-rod: { from: arsenal-weapons-art2, model: handheld }
+  gale-fan: { from: arsenal-weapons-art2, model: handheld }
+  leather-scout-helmet: armor-v1
+  leather-scout-chestplate: armor-v1
+  leather-scout-leggings: armor-v1
+  leather-scout-boots: armor-v1
+  chain-guard-helmet: armor-v1
+  chain-guard-chestplate: armor-v1
+  chain-guard-leggings: armor-v1
+  chain-guard-boots: armor-v1
+  iron-warden-helmet: armor-v1
+  iron-warden-chestplate: armor-v1
+  iron-warden-leggings: armor-v1
+  iron-warden-boots: armor-v1
+  diamond-champion-helmet: armor-v1
+  diamond-champion-chestplate: armor-v1
+  diamond-champion-leggings: armor-v1
+  diamond-champion-boots: armor-v1
+

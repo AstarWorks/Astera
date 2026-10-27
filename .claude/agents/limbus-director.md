@@ -42,6 +42,7 @@ Sound passes only by a listener (in-client recording plus A/B listening, never f
 
 ## Self-check before handing back
 
+- Craft checklist (`docs/contributing/vfx-team/director.md` "Craft checklist", principles `docs/reference/vfx/pixel-vfx-craft.md`): shape reads at `vfx_intensity: minimal` (P2); beat-sheet impact tick = first-flash tick = `hit_stop` / `camera_shake` tick, from the server trace (P4); timing template slots, endings break up and cool down (P3); heat budget, at most two hue families plus smoke (P5); hard colour bands (P1); ground flat, loops whole cycles (P8, P9). Sprite drawing: consult `pixel-artist` (P6, P10).
 - The inventory was written from the whole reference (3x at normal speed) before any frame was stepped and before any key existed; every count and colour is `[O]` or a founder question; the independent inventory diff has no count / colour / anchor disagreement; the approved versions of inventory and sheet were not edited afterwards.
 - The structure commit exists (`structure:` sha in the round note), its `make skill-3d` orbit + top stills show one object per inventory row, and no sprite stands in for a 3D-object, line or enemy-attached row.
 - The last `make dev-*` run printed reload success and the skill id is live; the dev sha equals the capture sha equals the page sha.

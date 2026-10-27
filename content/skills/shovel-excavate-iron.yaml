@@ -25,9 +25,8 @@ phases:
       width: 5
       height: 3
       length: 4
-      power: 2
       tool_class: SHOVEL
-      cover_damage: 250
+      block_damage: 100
     - type: play_sound
       targets: { type: caster }
       sound_id: astera:weapons/gun-impact-block

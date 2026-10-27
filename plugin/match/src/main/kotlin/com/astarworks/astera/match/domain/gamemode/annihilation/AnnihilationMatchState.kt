@@ -181,8 +181,8 @@ public data class AnnihilationMatchState(
                                 matchId = matchId,
                                 owningTeam = team,
                                 tier = tier,
-                                maxHp = hpOverrides[team to tier] ?: config.pillarHp,
-                                hp = hpOverrides[team to tier] ?: config.pillarHp,
+                                maxHp = hpOverrides[team to tier] ?: config.hpOf(tier),
+                                hp = hpOverrides[team to tier] ?: config.hpOf(tier),
                                 state = NexusState.BUILDING,
                             ),
                         )

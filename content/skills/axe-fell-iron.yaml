@@ -25,9 +25,8 @@ phases:
       length: 7
       width: 1
       height: 3
-      power: 2
       tool_class: AXE
-      cover_damage: 200
+      block_damage: 100
     - type: play_sound
       targets: { type: caster }
       sound_id: astera:weapons/blade-heavy-swing

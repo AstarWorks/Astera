@@ -198,7 +198,7 @@ public object CombatWiring {
         // Item tooltips: Core owns the layout, Combat supplies "what this skill does" from content.
         services.get<com.astarworks.astera.core.application.service.item.ItemBlueprintFactory>()?.skillTooltips =
             services.get<com.astarworks.astera.core.application.port.outbound.IMessageRenderer>()?.let {
-                com.astarworks.astera.combat.application.service.SkillTooltipSummary(skillContents, statusContents, it)
+                com.astarworks.astera.combat.application.service.SkillTooltipSummary(skillContents, statusContents, it, armorContents)
             }
         // Also published so Match can wipe fire / glow / freeze when a match ends or a player leaves it.
         val entityEffects = ports.entityEffectsGateway?.invoke(services)
@@ -614,6 +614,7 @@ public object CombatWiring {
                 playerSound = { services.get<com.astarworks.astera.core.application.port.outbound.effect.IPlayerSoundGateway>() },
                 teamColors = { services.get<com.astarworks.astera.core.application.port.outbound.ITeamColorLookup>() },
                 consumptionRecorder = { services.get<com.astarworks.astera.core.application.port.outbound.item.IItemConsumptionRecorder>() },
+                toolBlocks = ports.toolBlocks?.invoke(services),
                 coverService = { services.get<com.astarworks.astera.core.application.service.CoverBlockService>() },
                 blockStates = { services.get<com.astarworks.astera.core.application.port.outbound.IBlockStateGateway>() },
                 customBlocks = { services.get<com.astarworks.astera.core.application.port.outbound.ICustomBlockRegistry>() },
@@ -829,6 +830,7 @@ public object CombatWiring {
             statusContainer = statusContainer,
             eventBus = eventBus,
             scheduler = scheduler,
+            feedbackGateway = ports.playerFeedbackGateway?.invoke(services),
             shutdownHooks = shutdownHooks,
         )
 
@@ -889,6 +891,21 @@ public object CombatWiring {
                 previewService,
             ),
         )
+        // UI-12: `/astera status [id]` lookup and `/astera status codex` (the status codex GUI).
+        val statusMessages = services.get<com.astarworks.astera.core.application.port.outbound.IMessageRenderer>()
+        val statusPlayers = services.get<com.astarworks.astera.core.application.port.outbound.IPlayerGateway>()
+        if (statusMessages != null && statusPlayers != null) {
+            val guiRegistry = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IGuiRegistry>()
+            ctx.commandMount("Astera-Combat").register(
+                com.astarworks.astera.combat.command.statusCommandSpec(
+                    codex = com.astarworks.astera.combat.application.service.StatusCodex(statusContents, statusMessages),
+                    players = statusPlayers,
+                    guiAdapter = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IGuiAdapter>(),
+                    server = services.getOrThrow<com.astarworks.astera.core.adapter.api.server.IMcServer>(),
+                    codexSpec = { guiRegistry.find(it) },
+                ),
+            )
+        }
 
         return CombatWiringResult(
             skillContents = skillContents,

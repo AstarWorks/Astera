@@ -5,15 +5,11 @@ id: spear
 material: STICK
 
 name:
-  ja: "<white>スピア</white>"
-  en: "<white>Spear</white>"
-lore:
-  ja:
-    - "<gray>左クリック: 突き</gray>"
-    - "<gray>スニーク + 右クリック: 突撃</gray>"
-  en:
-    - "<gray>Left-click: thrust</gray>"
-    - "<gray>Sneak + right-click: charge</gray>"
+  ja: "スピア"
+  en: "Spear"
+role:
+  ja: "近接 / 突きと突撃で間合いを制す"
+  en: "Melee / thrusts and charges with reach"
 
 rarity: uncommon
 level_requirement: 1

@@ -12,6 +12,7 @@ class StageObjectives private constructor(
     private val regions: List<Region>,
     private val generators: List<Pair<Double, Double>>,
     private val graph: ArenaRouteGraph?,
+    private val pillars: List<ModePlanner.PillarSite> = emptyList(),
 ) : ObjectiveSource {
     override fun starPoints(): List<Pair<Double, Double>> = generators
     override fun routeGraph(): ArenaRouteGraph? = graph
@@ -19,6 +20,7 @@ class StageObjectives private constructor(
     override fun zones(): ModePlanner.Zones = object : ModePlanner.Zones {
         override fun point(name: String) = regions.firstOrNull { it.name == name }?.let { Triple(it.cx, it.cy, it.cz) }
         override fun names(prefix: String) = zoneNames(prefix)
+        override fun pillars() = this@StageObjectives.pillars
     }
 
     override fun ownTeamAt(spawnX: Double, spawnZ: Double): String? =
@@ -60,6 +62,9 @@ class StageObjectives private constructor(
             stage.regions.mapNotNull { region -> region.name?.let { Region(it, (region.min.x + region.max.x) / 2, region.min.y, (region.min.z + region.max.z) / 2) } },
             starPoints,
             stage.layout?.let(::ArenaRouteGraph),
+            stage.pillars.map {
+                ModePlanner.PillarSite(it.team.value, it.tier.ordinalValue, Math.floor(it.position.x).toInt(), Math.floor(it.position.y).toInt(), Math.floor(it.position.z).toInt())
+            },
         )
 
         fun load(contentDir: File, lane: String): StageObjectives? = runCatching {

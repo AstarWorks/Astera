@@ -94,11 +94,11 @@ phases:
     components:
     - base:
         type: literal
-        value: 112.5
+        value: 56.25
       attribute: physical
       per_stack:
         status_id: charge
-        amount: 0.3
+        amount: 0.15
         'on': caster
         consume: true
   - type: spawn_particle

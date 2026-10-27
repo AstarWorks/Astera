@@ -74,8 +74,8 @@ elements:
   - t: 3
     translate:
     - 0.0
-    - 3.3
-    - 0.35
+    - 1.9
+    - 0.5
     rotate:
     - 0
     - 0
@@ -88,8 +88,8 @@ elements:
   - t: 6
     translate:
     - 0.0
-    - 3.6
-    - 0.2
+    - 2.2
+    - 0.4
     rotate:
     - 0
     - 0
@@ -102,8 +102,8 @@ elements:
   - t: 10
     translate:
     - 0.0
-    - 3.7
-    - 0.2
+    - 2.3
+    - 0.35
     rotate:
     - 0
     - 30
@@ -116,8 +116,8 @@ elements:
   - t: 11
     translate:
     - 0.0
-    - 3.65
-    - 0.2
+    - 2.28
+    - 0.35
     rotate:
     - 0
     - 0
@@ -130,7 +130,7 @@ elements:
   - t: 12
     translate:
     - 0.0
-    - 3.6
+    - 2.25
     - 0.4
     rotate:
     - 90
@@ -166,9 +166,9 @@ elements:
     - 1
   - t: 3
     translate:
-    - 0.0
-    - 3.3
-    - 0.35
+    - -0.15
+    - 1.75
+    - 0.3
     rotate:
     - 0
     - 0
@@ -180,9 +180,9 @@ elements:
     ease: out_cubic
   - t: 6
     translate:
-    - -0.525
-    - 3.75
-    - -0.05
+    - -0.3
+    - 1.75
+    - -0.1
     rotate:
     - 0
     - 0
@@ -194,9 +194,9 @@ elements:
     ease: out_back
   - t: 10
     translate:
-    - -1.05
-    - 4.0
-    - -0.3
+    - -0.35
+    - 1.75
+    - -0.6
     rotate:
     - 0
     - 30
@@ -208,9 +208,9 @@ elements:
     ease: in_out_sine
   - t: 11
     translate:
-    - -1.05
-    - 3.95
-    - -0.3
+    - -0.35
+    - 1.75
+    - -0.6
     rotate:
     - 0
     - 0
@@ -222,9 +222,9 @@ elements:
     ease: in_out_sine
   - t: 12
     translate:
-    - -1.05
-    - 3.9
-    - -0.1
+    - -0.35
+    - 1.75
+    - -0.5
     rotate:
     - 90
     - 0
@@ -259,9 +259,9 @@ elements:
     - 1
   - t: 3
     translate:
-    - 0.0
-    - 3.3
-    - 0.35
+    - 0.2
+    - 1.8
+    - 0.6
     rotate:
     - 0
     - 0
@@ -273,9 +273,9 @@ elements:
     ease: out_cubic
   - t: 6
     translate:
-    - 0.525
-    - 3.45
     - 0.45
+    - 2.1
+    - 0.7
     rotate:
     - 0
     - 0
@@ -287,9 +287,9 @@ elements:
     ease: out_back
   - t: 10
     translate:
-    - 1.05
-    - 3.4
-    - 0.7
+    - 0.6
+    - 2.1
+    - 1.0
     rotate:
     - 0
     - 30
@@ -301,9 +301,9 @@ elements:
     ease: in_out_sine
   - t: 11
     translate:
-    - 1.05
-    - 3.35
-    - 0.7
+    - 0.6
+    - 2.1
+    - 1.0
     rotate:
     - 0
     - 0
@@ -315,9 +315,9 @@ elements:
     ease: in_out_sine
   - t: 12
     translate:
-    - 1.05
-    - 3.3
-    - 0.9
+    - 0.6
+    - 2.05
+    - 1.0
     rotate:
     - 90
     - 0
@@ -327,59 +327,6 @@ elements:
     - 1
     - 1
     ease: in_out_cubic
-- id: big-c
-  kind:
-    type: sprite
-    sprite: couture-orbit
-    frame_ticks: 1
-    loop: false
-    see_through: true
-  billboard: center
-  brightness: 15
-  start_tick: 22
-  end_tick: 38
-  keyframes:
-  - t: 0
-    translate:
-    - 0.0
-    - 3.6999999999999997
-    - 0.2
-    rotate:
-    - 0
-    - 0
-    - 0
-    scale:
-    - 0.275
-    - 0.275
-    - 1
-  - t: 5
-    translate:
-    - 0.0
-    - 3.8
-    - 0.2
-    rotate:
-    - 0
-    - 0
-    - 100
-    scale:
-    - 0.33
-    - 0.33
-    - 1
-    ease: out_cubic
-  - t: 16
-    translate:
-    - 0.0
-    - 3.6999999999999997
-    - 0.2
-    rotate:
-    - 0
-    - 0
-    - 160
-    scale:
-    - 0.275
-    - 0.275
-    - 1
-    ease: in_out_sine
 - id: loop-a
   kind:
     type: sprite
@@ -740,186 +687,6 @@ elements:
     - 0.2423
     - 0.2423
     - 1
-- id: loop-c
-  kind:
-    type: sprite
-    sprite: couture-s2-overhead-slash
-    frame_ticks: 1
-    loop: false
-    see_through: true
-  billboard: center
-  brightness: 15
-  start_tick: 33
-  end_tick: 38
-  keyframes:
-  - t: 0
-    translate:
-    - 0.0
-    - 2.5
-    - 0.0
-    rotate:
-    - 0
-    - 0
-    - 0
-    scale:
-    - 0.2589
-    - 0.2589
-    - 1
-  - t: 1
-    translate:
-    - 0.0
-    - 2.5
-    - 0.0
-    rotate:
-    - 0
-    - 0
-    - -60
-    scale:
-    - 0.2574
-    - 0.2574
-    - 1
-  - t: 2
-    translate:
-    - 0.0
-    - 2.5
-    - 0.0
-    rotate:
-    - 0
-    - 0
-    - -120
-    scale:
-    - 0.253
-    - 0.253
-    - 1
-  - t: 3
-    translate:
-    - 0.0
-    - 2.5
-    - 0.0
-    rotate:
-    - 0
-    - 0
-    - -180
-    scale:
-    - 0.2458
-    - 0.2458
-    - 1
-  - t: 4
-    translate:
-    - 0.0
-    - 2.5
-    - 0.0
-    rotate:
-    - 0
-    - 0
-    - -240
-    scale:
-    - 0.2423
-    - 0.2423
-    - 1
-  - t: 5
-    translate:
-    - 0.0
-    - 2.5
-    - 0.0
-    rotate:
-    - 0
-    - 0
-    - -300
-    scale:
-    - 0.2423
-    - 0.2423
-    - 1
-- id: loop-d
-  kind:
-    type: sprite
-    sprite: couture-s2-overhead-slash
-    frame_ticks: 1
-    loop: false
-    see_through: true
-  billboard: center
-  brightness: 15
-  start_tick: 31
-  end_tick: 37
-  keyframes:
-  - t: 0
-    translate:
-    - 0.0
-    - 2.9
-    - -0.2
-    rotate:
-    - 0
-    - 0
-    - 180
-    scale:
-    - 0.2589
-    - 0.2589
-    - 1
-  - t: 1
-    translate:
-    - 0.0
-    - 2.9
-    - 0.6
-    rotate:
-    - 0
-    - 0
-    - 120
-    scale:
-    - 0.2574
-    - 0.2574
-    - 1
-  - t: 2
-    translate:
-    - 0.0
-    - 2.9
-    - 1.4
-    rotate:
-    - 0
-    - 0
-    - 60
-    scale:
-    - 0.253
-    - 0.253
-    - 1
-  - t: 3
-    translate:
-    - 0.0
-    - 2.9
-    - 2.2
-    rotate:
-    - 0
-    - 0
-    - 0
-    scale:
-    - 0.2458
-    - 0.2458
-    - 1
-  - t: 4
-    translate:
-    - 0.0
-    - 2.9
-    - 3.0
-    rotate:
-    - 0
-    - 0
-    - -60
-    scale:
-    - 0.2423
-    - 0.2423
-    - 1
-  - t: 5
-    translate:
-    - 0.0
-    - 2.9
-    - 3.8
-    rotate:
-    - 0
-    - 0
-    - -120
-    scale:
-    - 0.2423
-    - 0.2423
-    - 1
 - id: loop-gc
   kind:
     type: sprite
@@ -1006,186 +773,6 @@ elements:
     - 0
     - 0
     - -300
-    scale:
-    - 0.2423
-    - 0.2423
-    - 1
-- id: loop-c-m
-  kind:
-    type: sprite
-    sprite: couture-s2-overhead-slash
-    frame_ticks: 1
-    loop: false
-    see_through: true
-  billboard: center
-  brightness: 15
-  start_tick: 33
-  end_tick: 38
-  keyframes:
-  - t: 0
-    translate:
-    - -0.0
-    - 2.5
-    - 0.0
-    rotate:
-    - 0
-    - 0
-    - 0
-    scale:
-    - 0.2589
-    - 0.2589
-    - 1
-  - t: 1
-    translate:
-    - -0.0
-    - 2.5
-    - 0.0
-    rotate:
-    - 0
-    - 0
-    - 60
-    scale:
-    - 0.2574
-    - 0.2574
-    - 1
-  - t: 2
-    translate:
-    - -0.0
-    - 2.5
-    - 0.0
-    rotate:
-    - 0
-    - 0
-    - 120
-    scale:
-    - 0.253
-    - 0.253
-    - 1
-  - t: 3
-    translate:
-    - -0.0
-    - 2.5
-    - 0.0
-    rotate:
-    - 0
-    - 0
-    - 180
-    scale:
-    - 0.2458
-    - 0.2458
-    - 1
-  - t: 4
-    translate:
-    - -0.0
-    - 2.5
-    - 0.0
-    rotate:
-    - 0
-    - 0
-    - 240
-    scale:
-    - 0.2423
-    - 0.2423
-    - 1
-  - t: 5
-    translate:
-    - -0.0
-    - 2.5
-    - 0.0
-    rotate:
-    - 0
-    - 0
-    - 300
-    scale:
-    - 0.2423
-    - 0.2423
-    - 1
-- id: loop-d-m
-  kind:
-    type: sprite
-    sprite: couture-s2-overhead-slash
-    frame_ticks: 1
-    loop: false
-    see_through: true
-  billboard: center
-  brightness: 15
-  start_tick: 31
-  end_tick: 37
-  keyframes:
-  - t: 0
-    translate:
-    - -0.0
-    - 2.9
-    - -0.2
-    rotate:
-    - 0
-    - 0
-    - 180
-    scale:
-    - 0.2589
-    - 0.2589
-    - 1
-  - t: 1
-    translate:
-    - -0.0
-    - 2.9
-    - 0.6
-    rotate:
-    - 0
-    - 0
-    - 240
-    scale:
-    - 0.2574
-    - 0.2574
-    - 1
-  - t: 2
-    translate:
-    - -0.0
-    - 2.9
-    - 1.4
-    rotate:
-    - 0
-    - 0
-    - 300
-    scale:
-    - 0.253
-    - 0.253
-    - 1
-  - t: 3
-    translate:
-    - -0.0
-    - 2.9
-    - 2.2
-    rotate:
-    - 0
-    - 0
-    - 360
-    scale:
-    - 0.2458
-    - 0.2458
-    - 1
-  - t: 4
-    translate:
-    - -0.0
-    - 2.9
-    - 3.0
-    rotate:
-    - 0
-    - 0
-    - 420
-    scale:
-    - 0.2423
-    - 0.2423
-    - 1
-  - t: 5
-    translate:
-    - -0.0
-    - 2.9
-    - 3.8
-    rotate:
-    - 0
-    - 0
-    - 480
     scale:
     - 0.2423
     - 0.2423
@@ -1280,151 +867,3 @@ elements:
     - 0.2423
     - 0.2423
     - 1
-- id: overhead-spark-0
-  kind:
-    type: particle
-    particle_id: couture-s2-overhead-spark
-    every_ticks: 2
-  brightness: 15
-  start_tick: 23
-  end_tick: 26
-  keyframes:
-  - t: 0
-    translate:
-    - 0.0
-    - 4.7
-    - 0.9
-- id: overhead-spark-1
-  kind:
-    type: particle
-    particle_id: couture-s2-overhead-spark
-    every_ticks: 2
-  brightness: 15
-  start_tick: 26
-  end_tick: 29
-  keyframes:
-  - t: 0
-    translate:
-    - 0.0
-    - 4.7
-    - -0.9
-- id: overhead-spark-2
-  kind:
-    type: particle
-    particle_id: couture-s2-overhead-spark
-    every_ticks: 2
-  brightness: 15
-  start_tick: 29
-  end_tick: 32
-  keyframes:
-  - t: 0
-    translate:
-    - 0.0
-    - 4.7
-    - 0.8
-- id: overhead-spark-3
-  kind:
-    type: particle
-    particle_id: couture-s2-overhead-spark
-    every_ticks: 2
-  brightness: 15
-  start_tick: 32
-  end_tick: 35
-  keyframes:
-  - t: 0
-    translate:
-    - 0.0
-    - 4.7
-    - -0.7
-- id: overhead-spark-4
-  kind:
-    type: particle
-    particle_id: couture-s2-overhead-spark
-    every_ticks: 2
-  brightness: 15
-  start_tick: 35
-  end_tick: 38
-  keyframes:
-  - t: 0
-    translate:
-    - 0.0
-    - 4.7
-    - 0.6
-- id: overhead-chain-a
-  kind:
-    type: particle
-    particle_id: couture-s2-overhead-chain
-    every_ticks: 1
-  brightness: 15
-  start_tick: 24
-  end_tick: 37
-  keyframes:
-  - t: 0
-    translate:
-    - 0.0
-    - 2.7
-    - 0.45
-  - t: 1
-    translate:
-    - 0.0
-    - 3.3
-    - 0.35
-  - t: 4
-    translate:
-    - 0.0
-    - 3.55
-    - 0.25
-  - t: 8
-    translate:
-    - 0.0
-    - 3.7
-    - 0.2
-  - t: 10
-    translate:
-    - 0.0
-    - 3.6
-    - 0.4
-  - t: 12
-    translate:
-    - 0.0
-    - 2.68
-    - 2.24
-- id: overhead-chain-b
-  kind:
-    type: particle
-    particle_id: couture-s2-overhead-chain-pink
-    every_ticks: 1
-  brightness: 15
-  start_tick: 24
-  end_tick: 37
-  keyframes:
-  - t: 0
-    translate:
-    - 0.0
-    - 2.7
-    - 0.45
-  - t: 1
-    translate:
-    - 0.0
-    - 3.3
-    - 0.35
-  - t: 4
-    translate:
-    - 0.0
-    - 3.55
-    - 0.25
-  - t: 8
-    translate:
-    - 0.0
-    - 3.7
-    - 0.2
-  - t: 10
-    translate:
-    - 0.0
-    - 3.6
-    - 0.4
-  - t: 12
-    translate:
-    - 0.0
-    - 2.68
-    - 2.24

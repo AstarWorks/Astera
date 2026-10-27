@@ -33,13 +33,14 @@ match_tools:
   - stone-shovel
 
 # Per-currency initial balance. Currency keys must match `Currency` enum
-# constants (GOLD / GEM); values are 64-bit non-negative integers.
+# constants (GOLD); values are 64-bit non-negative integers.
 # Zero entries are dropped at apply-time so the audit log stays readable.
-# GOLD is the everyday currency, earned (matches / quests / advancements / login bonus);
-# GEM is premium. Stars are an in-match item and are never granted here (ADR-0271).
+# GOLD is the everyday currency, earned (matches / quests / advancements / login bonus).
+# ECO-11: a brand-new player starts with exactly enough GOLD for the cheapest recommended shop offer
+# (frost-staff, 150 GOLD; example-shop.yaml) so the first purchase works right away.
+# Stars are an in-match item and are never granted here (ADR-0271).
 wallet_grants:
-  GOLD: 0
-  GEM: 0
+  GOLD: 150
 
 # Tutorial auto-enrollment. When `auto_enroll: true`, the new profile is
 # recorded as enrolled in `tutorial.script_id`. The script must be registered

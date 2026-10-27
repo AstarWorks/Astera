@@ -1,0 +1,7 @@
+# UI-12 status codex tile icon. Vanilla material until item-art draws a glyph.
+
+id: gui-tile-status-silence
+material: BELL
+name:
+  ja: "<dark_aqua>沈黙</dark_aqua>"
+  en: "<dark_aqua>Silenced</dark_aqua>"

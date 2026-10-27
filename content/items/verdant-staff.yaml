@@ -6,15 +6,11 @@ id: verdant-staff
 material: BREEZE_ROD
 
 name:
-  ja: "<green>翠緑の杖</green>"
-  en: "<green>Verdant Staff</green>"
-lore:
-  ja:
-    - "<gray>右クリック: 茨の矢（毒）</gray>"
-    - "<gray>スニーク+右: 再生の風（味方を回復）</gray>"
-  en:
-    - "<gray>Right-click: thorn bolt (poison)</gray>"
-    - "<gray>Sneak+Right-click: regrowth (heals allies)</gray>"
+  ja: "翠緑の杖"
+  en: "Verdant Staff"
+role:
+  ja: "魔法 / 毒の茨と味方を癒やす再生"
+  en: "Magic / poison thorns, healing regrowth"
 
 rarity: rare
 level_requirement: 3

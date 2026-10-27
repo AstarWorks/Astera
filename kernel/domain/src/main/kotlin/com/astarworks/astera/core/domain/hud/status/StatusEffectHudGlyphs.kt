@@ -8,18 +8,18 @@ public object StatusEffectHudGlyphs {
     public const val ICON_ADVANCE: Int = 10
     public const val DIGIT_ADVANCE: Int = 4
 
-    /** Stable code point order; append new content IDs here. Silence is reserved for skill-authored effects. */
+    /** Stable code point order; append new content IDs here. Every `content/status/` id plus the mechanic statuses (silence, immunity) must be here. */
     public val IDS: List<String> = listOf(
         "bleed", "burn", "charge", "dash", "evasive", "freeze", "poise", "poison",
-        "regen", "reloading", "rupture", "shock", "sinking", "tremor", "wet", "silence",
+        "regen", "reloading", "rupture", "shock", "sinking", "tremor", "wet", "silence", "immunity", "swift",
     )
     public fun icon(id: String): Char = (0xE300 + IDS.indexOf(id).also { require(it >= 0) }).toChar()
     public fun digit(value: Int): Char = (0xE320 + value.also { require(it in 0..9) }).toChar()
     public fun stack(value: Int): Char = (0xE330 + value.also { require(it in 0..9) }).toChar()
     public val ATLAS_ROWS: List<String> = listOf(
         IDS.joinToString("") { icon(it).toString() },
-        (0..9).joinToString("") { digit(it).toString() } + "\u0000".repeat(6),
-        (0..9).joinToString("") { stack(it).toString() } + "\u0000".repeat(6),
+        (0..9).joinToString("") { digit(it).toString() } + "\u0000".repeat(IDS.size - 10),
+        (0..9).joinToString("") { stack(it).toString() } + "\u0000".repeat(IDS.size - 10),
     )
     public fun advance(char: Char): Int = when (char) {
         in icon(IDS.first())..icon(IDS.last()) -> ICON_ADVANCE

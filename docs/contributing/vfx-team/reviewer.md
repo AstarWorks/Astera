@@ -140,6 +140,23 @@ Priority: blocker | major | minor
 
 Further checks from [failure-patterns.md](../../reference/vfx/failure-patterns.md): same `hit_stop` on every hit, single hit covering 12-18%+ of the view (secondary), lingering white `screen_flash`, particles piled on mid-combo hits, danger telegraph colour same as hit colour.
 
+## Craft rows (P-numbers: [pixel-vfx-craft.md](../../reference/vfx/pixel-vfx-craft.md))
+
+Add these ○/× rows to the sheet. Each × names the owner and the P-number.
+
+| × condition | P | Owner |
+|---|---|---|
+| blurred glow or soft gradient where hard colour bands should be | P1 | vfx / pixel-artist |
+| white blob: most of the frame at the top band, no dark/mid layers | P5 | vfx / director |
+| shrink-out ending: the last frames are a smaller copy, no break-up or cool-down | P3 | vfx / director |
+| impact tick mismatch: first-flash tick differs from `hit_stop` / `camera_shake` / damage tick (server trace) | P4 | director |
+| shape does not read at `vfx_intensity: minimal` (core lane only) | P2 | director / vfx |
+| texel density mismatch: a pixel-class sprite visibly coarser or finer than skin and block texels (about 8-32 per block is the band) | P6 | pixel-artist / vfx |
+| semi-transparent fringe, stray pixels or holes on a pixel-class sprite (zoom 8x) | P10 | pixel-artist |
+| ground ring not flat or not on the floor line; loop with a visible jump | P8 / P9 | vfx |
+
+Smooth 128-256 px hero sprites are exempt from the P6 and fringe rows (they are judged by the existing "pixel-art staircase" row).
+
 ## Learnings log
 
 (The director appends the reviewer's learnings after each skill. Format: `- YYYY-MM-DD <case>: <fact / pitfall / number>`.)

@@ -32,7 +32,13 @@ default_config:
   respawn_delay_seconds: "5"
   death_cam_seconds: "2"
   spawn_protection_seconds: "3"
-  pillar_hp: "500"
+  # Pillar HP per tier. Sizing (damage lands on a pillar with no invulnerability frames; sustained numbers):
+  # pistol ~118 dps (12-round mag + 1.5 s reload), knight-sword ~44 dps (energy-limited), epic s1 ~55-65 dps => a mixed squad of 4
+  # at ~70% uptime puts ~220 dps on a pillar: Tier 1 10000 = ~45 s, Tier 2 15000 = ~70 s, Tier 3 20000 = ~90 s. A lone pistol
+  # needs ~2 min on Tier 1, a lone sword ~5 min. The tier-3 phase (5 min) must still fit Tier 2 + Tier 3 (35000 = ~160 s).
+  pillar_hp: "10000"
+  pillar_hp_tier2: "15000"
+  pillar_hp_tier3: "20000"
   build_phase_ticks: "1200"
   engage_phase_ticks: "12000"
   tier3_phase_ticks: "6000"

@@ -24,7 +24,6 @@ import kotlinx.serialization.Serializable
  *
  * wallet_grants:
  *   GOLD: 100
- *   GEM: 0
  *
  * tutorial:
  *   auto_enroll: true

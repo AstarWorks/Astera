@@ -52,6 +52,7 @@ Judge against the reference, not against the author's notes or briefs.
 
 ## Self-check before handing back
 
+- Craft rows (`docs/contributing/vfx-team/reviewer.md` "Craft rows", principles `docs/reference/vfx/pixel-vfx-craft.md`) are marked: blurred glow or soft gradient (P1), white blob (P5), shrink-out ending (P3), impact tick vs `hit_stop` / `camera_shake` mismatch via the server trace (P4), shape not reading at core-lane only (P2), texel density mismatch (P6), semi-transparent fringe or strays on a pixel-class sprite (P10).
 - Every ○ and × has evidence you opened yourself; no mark rests on an author explanation.
 - You counted objects (count, colour, anchor, medium) from the whole reference at normal speed before opening the frozen inventory or the capture, your report's first line is the inventory diff, and you did not discuss a detail row while an inventory row was ng.
 - You counted swings and directions from the reference before looking at the capture, and wrote overall + sibling + regression before any row and before the author's notes.

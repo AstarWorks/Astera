@@ -41,7 +41,7 @@ phases:
     - type: damage
       targets: { type: target }
       components:
-        - base: { type: literal, value: 32.0 }
+        - base: { type: literal, value: 16.0 }
           attribute: electric
     - type: play_sound
       targets: { type: target }

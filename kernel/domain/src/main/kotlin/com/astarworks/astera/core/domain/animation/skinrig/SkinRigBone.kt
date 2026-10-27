@@ -84,9 +84,11 @@ public enum class SkinRigBone(public val yamlName: String, public val id: Int) {
  *
  * Not 15: burning entities, blazes, magma cubes, fireballs and glow item frames are all drawn at block light 15
  * with any sky value, so a 15 marker would remap their skins as rig bones. Block 14 is only ever produced by a
- * world light source (a torch cell), never by an entity-side override. Brightness cannot carry more than 16 x 16
- * values (the client unpacks it to two nibbles), so no value is physically unreachable by natural light; this is
- * the rarest one. `PackValidationTest` pins the shader's block value to this constant and rejects 15.
+ * world light source, never by an entity-side override, but that is NOT unforgeable: a lantern, torch or glowstone
+ * makes block 14 with any sky next to it, so ordinary players and mobs there match too. Brightness cannot carry more
+ * than 16 x 16 values, so no light value is unreachable. The light marker is therefore only a candidate; the shader
+ * confirms a rig by its mirrored winding (ADR-0298), which natural entities never produce.
+ * `PackValidationTest` pins the shader's block value to this constant and rejects 15.
  *
  * The shader patch (`content/shader-patches/core/entity.vsh.patch`) decodes exactly this;
  * change both together.

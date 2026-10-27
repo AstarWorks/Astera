@@ -12,10 +12,10 @@ import com.astarworks.astera.match.application.port.outbound.IBarrierGateway
 import com.astarworks.astera.match.application.port.outbound.IMatchWorldRepository
 import com.astarworks.astera.match.application.service.BarrierStatusScheduler
 import com.astarworks.astera.match.application.service.BlockChangeJournal
-import com.astarworks.astera.match.application.service.BlockRecoveryScheduler
+import com.astarworks.astera.match.application.service.BlockDamageGcScheduler
 import com.astarworks.astera.match.application.service.InMemoryBarrierGateway
 import com.astarworks.astera.match.application.service.InMemoryMatchWorldRepository
-import com.astarworks.astera.match.application.usecase.block.BlockStateAutoRecoveryUseCase
+import com.astarworks.astera.match.application.usecase.block.BlockDamageGcUseCase
 import com.astarworks.astera.match.application.usecase.match.RestoreBlocksOnMatchEndedUseCase
 import com.astarworks.astera.match.application.usecase.world.CreateMatchWorldUseCase
 import com.astarworks.astera.match.application.usecase.world.DestroyMatchWorldUseCase
@@ -69,11 +69,11 @@ internal object MatchWorldWiring {
                     registrations += services.register<IMatchWorldRepository>(it, priority = 0)
                 }
 
-        // Block pseudo-recovery scheduler — re-uses the BlockStateGateway to
-        // regenerate +5 HP every 10s for blocks past their cool-off window.
-        val blockRecovery = BlockStateAutoRecoveryUseCase(blockStateGateway, scheduler)
-        val blockRecoveryScheduler = BlockRecoveryScheduler(
-            matchWorlds = matchWorlds,
+        // ADR-0297: bounded, periodic GC of idle terrain and cover damage.
+        val blockRecovery = BlockDamageGcUseCase(blockStateGateway, scheduler,
+            animation = { services.get<com.astarworks.astera.core.application.port.outbound.block.IBlockBreakAnimationGateway>() })
+        val blockRecoveryScheduler = BlockDamageGcScheduler(
+            gateway = blockStateGateway,
             recovery = blockRecovery,
             scheduler = scheduler,
         )
@@ -125,7 +125,7 @@ internal object MatchWorldWiring {
         subscriptions += eventBus.subscribe(WorldUnloading::class) { endMatchOnWorldUnload.handle(it) }
 
         logger.info(
-            "Wave 5d wiring complete: BlockRecoveryScheduler + BarrierStatusScheduler " +
+            "Wave 5d wiring complete: BlockDamageGcScheduler + BarrierStatusScheduler " +
                 "running; BlockChangeJournal + RestoreBlocksOnMatchEnded + Create/" +
                 "DestroyMatchWorld listeners subscribed. " +
                 "Wave L (ADR-0129): EndMatchOnWorldUnload subscribed.",

@@ -430,6 +430,51 @@ objective_capture() {  # zone captured: upward whoosh into a ringing major chord
     mix cp 1.1 a:0:0.6 b:300:0.9 c:300:0.8 d:300:0.7; finish objective/capture cp
 }
 
+match_time_warn() {  # a minute / half a minute left: two even bell pings
+    gen a 0.5 "$(bell 988 9)"; gen b 0.5 "$(bell 988 9)"
+    mix tw 0.8 a:0:1 b:260:0.8; finish match/time-warn tw
+}
+match_time_tick() {  # final-ten tick: dry high click with a short low knock
+    gen a 0.12 "$(sq 1500 60)"; gen b 0.12 "$(sweep 160 90 0.06 30)"
+    mix tt 0.14 a:0:0.8 b:0:0.7; finish match/time-tick tt
+}
+match_time_final() {  # ten seconds left: sharp alarm triplet on a rising swell
+    gen a 0.14 "$(sq 880 14)"; gen b 0.14 "$(sq 880 14)"; gen c 0.14 "$(sq 1175 12)"
+    gen d 0.7 "sin(2*PI*(200*t+(700-200)*t*t/(2*0.7)))*min(t/0.1,1)*0.3"
+    mix tf 0.8 a:0:0.9 b:170:0.9 c:340:1 d:0:0.5; finish match/time-final tf
+}
+match_overtime_start() {  # overtime: a deep gong, falling alarm pair and a rising wash
+    gen a 1.6 "$(bell 110 1.6)"; gen b 1.6 "$(bell 165 2)"
+    gen c 0.3 "$(sq 392 10)"; gen d 0.3 "$(sq 294 10)"
+    gen e 1.0 "sin(2*PI*(150*t+(600-150)*t*t/(2*1.0)))*min(t/0.2,1)*0.25"
+    mix ot 1.8 a:0:1 b:0:0.7 c:60:0.8 d:380:0.8 e:200:0.6; finish match/overtime-start ot
+}
+match_overtime_pulse() {  # overtime loop sting: low double heartbeat with a thin high ping
+    gen a 0.3 "$(sweep 100 55 0.12 12)"; gen b 0.3 "$(sweep 100 55 0.12 12)"; gen c 0.4 "$(bell 1760 14)"
+    mix op 0.9 a:0:1 b:240:0.85 c:480:0.35; finish match/overtime-pulse op
+}
+match_lead_gain() {  # we took the lead: bright rising two-note
+    gen a 0.4 "$(pluck 784 9)"; gen b 0.6 "$(bell 1175 7)"; gen c 0.6 "$(bell 1568 8)"
+    mix lg 0.8 a:0:0.8 b:110:1 c:110:0.6; finish match/lead-gain lg
+}
+match_lead_loss() {  # we lost the lead: dull falling two-note
+    gen a 0.4 "$(pluck 523 6)"; gen b 0.6 "$(pluck 392 5)"
+    mix ll 0.8 a:0:0.8 b:140:1; post ll lead-loss "lowpass=f=2500"; finish match/lead-loss lead-loss
+}
+match_count_low() {  # close to knockout: urgent double beep over a low throb
+    gen a 0.12 "$(sq 1318 18)"; gen b 0.12 "$(sq 1318 18)"; gen c 0.5 "$(sweep 110 70 0.2 8)"
+    mix cl 0.6 a:0:0.8 b:150:0.8 c:0:0.9; finish match/count-low cl
+}
+match_knockout() {  # knockout: cymbal-like crash, a falling boom and a brass hit
+    noise a 1.2 "highpass=f=3000,volume='exp(-t*4)':eval=frame" 83
+    gen b 0.8 "$(sweep 220 45 0.3 5)"; gen c 1.0 "$(brass 392 0.01 3)"; gen d 1.0 "$(brass 587 0.01 3)"
+    mix ko 1.4 a:0:0.6 b:0:1 c:0:0.7 d:0:0.6; finish match/knockout ko
+}
+objective_taken() {  # our objective progress: rising coin chirp (lighter than the bank fanfare)
+    gen a 0.3 "$(pluck 1047 12)"; gen b 0.3 "$(pluck 1568 12)"; gen c 0.5 "$(bell 2093 10)"
+    mix tk 0.6 a:0:0.8 b:90:0.9 c:170:0.5; finish objective/taken tk
+}
+
 ALL=(ui/click ui/confirm ui/deny ui/purchase star/pickup star/burst norma/level-up norma/level-max
      match/countdown-tick match/go combat/kill match/death match/win match/lose
      weapons/gun-shot weapons/sword-swing skills/wand-cast
@@ -441,7 +486,9 @@ ALL=(ui/click ui/confirm ui/deny ui/purchase star/pickup star/burst norma/level-
      norma/burst norma/burst-max norma/choice-open norma/choice-picked norma/choice-defaulted
      ui/level-up ui/login-bonus ui/quest-complete star/burst-gain star/burst-boom match/sudden-death ui/queue-join match/found
      objective/channel-start objective/pickup objective/drop objective/return objective/bank objective/loss objective/warn
-     objective/tension objective/capture)
+     objective/tension objective/capture
+     match/time-warn match/time-tick match/time-final match/overtime-start match/overtime-pulse match/lead-gain match/lead-loss
+     match/count-low match/knockout objective/taken)
 
 targets=("$@"); [[ ${#targets[@]} -gt 0 ]] || targets=("${ALL[@]}")
 for name in "${targets[@]}"; do

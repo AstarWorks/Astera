@@ -40,4 +40,10 @@ public interface IPlayerFeedbackGateway {
      * to zero (`ShakeProfile`), so the host must apply each one as a delta, never as an absolute rotation.
      */
     public fun cameraKick(target: PlayerId, dx: Double, dy: Double)
+
+    /**
+     * Low-HP warning (FX-12): [active] true tints the screen edge red until it is called again with false. Idempotent;
+     * offline players are ignored.
+     */
+    public fun setLowHealthVignette(target: PlayerId, active: Boolean)
 }

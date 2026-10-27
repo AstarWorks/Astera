@@ -7,11 +7,9 @@ material: GUNPOWDER
 name:
   ja: "煙幕弾"
   en: "Smoke Bomb"
-lore:
-  ja:
-    - "<gray>右クリック: 投げる (煙の中の味方が素早く動ける)</gray>"
-  en:
-    - "<gray>Right-click: throw (allies in the smoke move evasively)</gray>"
+role:
+  ja: "投擲 / 煙幕で味方の回避を助ける"
+  en: "Thrown / smoke cover for evasive allies"
 
 rarity: uncommon
 level_requirement: 1

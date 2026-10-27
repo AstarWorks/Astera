@@ -48,7 +48,7 @@ phases:
       radius: { type: literal, value: 3.0 }
       break_blocks: { type: literal, value: false }
       components:
-        - base: { type: literal, value: 60.0 }
+        - base: { type: literal, value: 30.0 }
           attribute: fire
     - type: play_sound
       targets: { type: target }
@@ -65,7 +65,7 @@ phases:
       radius: { type: literal, value: 3.0 }
       break_blocks: { type: literal, value: false }
       components:
-        - base: { type: literal, value: 60.0 }
+        - base: { type: literal, value: 30.0 }
           attribute: fire
     - type: play_sound
       targets: { type: hit_location }

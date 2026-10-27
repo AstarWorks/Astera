@@ -14,6 +14,8 @@ import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
 import org.bukkit.event.block.BlockBreakEvent
 import org.bukkit.event.block.BlockDamageEvent
+import org.bukkit.event.block.BlockExplodeEvent
+import org.bukkit.event.entity.EntityExplodeEvent
 import org.bukkit.persistence.PersistentDataType
 import org.bukkit.plugin.java.JavaPlugin
 
@@ -39,6 +41,19 @@ public class PaperOreNodeListener(
     public fun onDig(event: BlockDamageEvent) {
         val outcome = mine(event.player, event.block) ?: return
         if (outcome !is OreNodeService.Outcome.NotANode) event.isCancelled = true
+    }
+
+    /** An explosion never eats a node cell (ore or its regrowing cobblestone). */
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    public fun onEntityExplode(event: EntityExplodeEvent) {
+        val svc = service() ?: return
+        event.blockList().removeIf { svc.isExcluded(WorldId(it.world.name), Vec3(it.x.toDouble(), it.y.toDouble(), it.z.toDouble())) }
+    }
+
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    public fun onBlockExplode(event: BlockExplodeEvent) {
+        val svc = service() ?: return
+        event.blockList().removeIf { svc.isExcluded(WorldId(it.world.name), Vec3(it.x.toDouble(), it.y.toDouble(), it.z.toDouble())) }
     }
 
     private fun mine(player: Player, block: org.bukkit.block.Block): OreNodeService.Outcome? {

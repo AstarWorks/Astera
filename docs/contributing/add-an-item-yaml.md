@@ -13,15 +13,11 @@ id: knight-sword
 material: IRON_SWORD
 
 name:
-  ja: "<gold>サンプルソード</gold>"
-  en: "<gold>Example Sword</gold>"
-lore:
-  ja:
-    - "<gray>Phase 1 のテスト用武器</gray>"
-    - "<gray>左クリックで攻撃</gray>"
-  en:
-    - "<gray>Phase 1 demo weapon</gray>"
-    - "<gray>Left-click to attack</gray>"
+  ja: "サンプルソード"
+  en: "Example Sword"
+role:                                   # ホバー文の 1 行目 (書式: docs/contributing/item-lore-style.md)
+  ja: "近接 / 基本の剣"
+  en: "Melee / basic sword"
 
 rarity: common
 level_requirement: 1
@@ -49,16 +45,17 @@ custom_model_data: 1001                 # 任意 (resource pack 対応)
 # external_key: ns:my_blade             # 外部プラグイン提供アイテムの場合
 
 # Inline i18n (1 ファイル完結。content/languages/ は触らない)
+# name は色タグなし (レア度色は自動)。スキル行・数値・レア度は skills / attributes から自動生成。
+# 詳細: docs/contributing/item-lore-style.md
 name:
-  ja: "<gold>雷の刃</gold>"
-  en: "<gold>Lightning Blade</gold>"
-lore:
-  ja:
-    - "<gray>雷を纏う剣</gray>"
-    - "<gray>ヘッドショットで麻痺付与</gray>"
-  en:
-    - "<gray>A sword wreathed in lightning</gray>"
-    - "<gray>Headshot causes paralysis</gray>"
+  ja: "雷の刃"
+  en: "Lightning Blade"
+role:
+  ja: "近接 / 雷で麻痺させる剣"
+  en: "Melee / lightning blade that paralyses"
+flavor:                                 # 任意、1 行
+  ja: "鞘から抜く前に空気が焦げる。"
+  en: "The air scorches before it clears the scabbard."
 
 # Rarity / progression
 rarity: rare                            # common | uncommon | rare | epic | legendary
@@ -157,7 +154,7 @@ BukkitEventAdapter に listener が追加される。
 
 ## i18n の集約方針
 
-- **Item の name / lore は inline で完結**: `content/languages/` を開かなくて
+- **Item の name / role / flavor は inline で完結**: `content/languages/` を開かなくて
   済む。Phase 1 では `ja` / `en` のみ。
 - **UI chrome strings** (cooldown msg, command help, GUI button labels, rarity
   ラベル等) は `content/languages/{ja,en}.yaml` に集約 (cross-cutting)。
@@ -197,7 +194,7 @@ cooldown を持つ運用用 (例: pistol は 6 ticks、shotgun は 40 ticks)。
 | 項目 | どこに書く | 理由 |
 |---|---|---|
 | material / custom_model_data | Item | 物 = vendor representation |
-| name / lore | Item | 物固有 |
+| name / role / flavor | Item | 物固有 (hover の他の行は data から生成。[item-lore-style](item-lore-style.md)) |
 | attack_damage / attack_speed / armor 等 (vanilla AttributeModifier) | Item | 装備時に発動 |
 | equip_slot, durability, drop_on_death 等 | Item | 物の挙動 |
 | projectile speed / range / damage 内訳 (element) | Skill | 行動の特性 |

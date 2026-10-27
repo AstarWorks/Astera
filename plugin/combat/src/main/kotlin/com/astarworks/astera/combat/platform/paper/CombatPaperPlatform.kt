@@ -70,6 +70,15 @@ internal class CombatPaperPlatform(private val plugin: JavaPlugin) {
     private var statusTickHandle: IScheduler.TaskHandle? = null
 
     val ports: CombatPlatformPorts = CombatPlatformPorts(
+        toolBlocks = { services ->
+            com.astarworks.astera.combat.adapter.paper.PaperToolBlockGateway(
+                plugin.server,
+                { services.get<com.astarworks.astera.core.application.port.outbound.IItemRegistry>() },
+                com.astarworks.astera.core.adapter.paper.item.PaperItemMaterializer(
+                    plugin, services.getOrThrow<com.astarworks.astera.core.application.service.item.ItemBlueprintFactory>(),
+                ),
+            )
+        },
         nearbyTargetQuery = { PaperNearbyTargetQuery(plugin.server) },
         entityDamageGateway = {
             val gateway = PaperEntityDamageGateway(plugin.server)

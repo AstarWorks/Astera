@@ -5,15 +5,11 @@ id: iron-warden-boots
 material: IRON_BOOTS
 
 name:
-  ja: "<white>アイアンウォーデン ブーツ</white>"
-  en: "<white>Iron Warden Boots</white>"
-lore:
-  ja:
-    - "<gray>アイアンウォーデンセットの防具</gray>"
-    - "<gray>2部位・4部位そろえるとボーナス</gray>"
-  en:
-    - "<gray>Iron Warden set piece</gray>"
-    - "<gray>2+ pieces and the full set give a bonus</gray>"
+  ja: "アイアンウォーデン ブーツ"
+  en: "Iron Warden Boots"
+role:
+  ja: "防具 / アイアンウォーデン、2・4部位でボーナス"
+  en: "Armor / Iron Warden set (2/4 bonus)"
 
 rarity: uncommon
 level_requirement: 1
@@ -24,6 +20,7 @@ enchantable: false
 drop_on_death: false
 keep_on_death: false
 armor_piece: iron-warden-boots
+equipment_asset: iron-warden
 
 pdc_tags:
   astera:rarity: uncommon

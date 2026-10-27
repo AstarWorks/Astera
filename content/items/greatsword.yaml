@@ -6,13 +6,11 @@ id: greatsword
 material: NETHERITE_SWORD
 
 name:
-  ja: "<dark_red>大剣</dark_red>"
-  en: "<dark_red>Greatsword</dark_red>"
-lore:
-  ja:
-    - "<gray>左クリック: 薙ぎ払い（広範囲・大ノックバック）</gray>"
-  en:
-    - "<gray>Left-click: cleave (wide arc, heavy knockback)</gray>"
+  ja: "大剣"
+  en: "Greatsword"
+role:
+  ja: "近接 / 広範囲を薙ぎ払う重い一撃"
+  en: "Melee / heavy wide cleave, big knockback"
 
 rarity: rare
 level_requirement: 3

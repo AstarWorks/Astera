@@ -25,6 +25,31 @@ class PackValidationTest {
         if (ref.startsWith("astera:")) "assets/astera/models/${ref.removePrefix("astera:")}.json" else null
 
     @Test
+    fun `every rarity ships readable tooltip layers with nine slice metadata`() {
+        for (rarity in com.astarworks.astera.core.domain.item.Rarity.entries) {
+            for (part in listOf("background", "frame")) {
+                val path = "assets/astera/textures/gui/sprites/tooltip/${rarity.name.lowercase()}_$part.png"
+                val image = javax.imageio.ImageIO.read(java.io.ByteArrayInputStream(files.getValue(path)))
+                val scaling = json("$path.mcmeta").path("gui").path("scaling")
+                assertThat(scaling.path("type").asText()).isEqualTo("nine_slice")
+                assertThat(scaling.path("width").asInt()).isEqualTo(image.width)
+                assertThat(scaling.path("height").asInt()).isEqualTo(image.height)
+                assertThat(scaling.path("border").asInt()).isBetween(1, image.width / 2 - 1)
+                val centre = image.getRGB(image.width / 2, image.height / 2)
+                if (part == "background") {
+                    assertThat(centre ushr 24).isBetween(240, 254)
+                    assertThat(maxOf(centre shr 16 and 255, centre shr 8 and 255, centre and 255)).isLessThan(24)
+                } else {
+                    assertThat(centre ushr 24).isZero()
+                    assertThat((0 until image.height).any { y ->
+                        (0 until image.width).any { x -> image.getRGB(x, y) ushr 24 > 0 }
+                    }).isTrue()
+                }
+            }
+        }
+    }
+
+    @Test
     fun `every astera texture and parent a packed model references is in the pack`() {
         val models = files.keys.filter { it.startsWith("assets/astera/models/") && it.endsWith(".json") }
         assertThat(models).isNotEmpty()
@@ -88,6 +113,13 @@ class PackValidationTest {
         assertThat(shaderBlock).isEqualTo(com.astarworks.astera.core.domain.animation.skinrig.SkinRigMarker.BLOCK_LIGHT * 16)
         assertThat(shaderBlock).`as`("block light 15 is what burning/emissive entities carry").isNotEqualTo(15 * 16)
         assertThat(vsh).doesNotContain("UV2.x == 240")
+        // The light marker is only a candidate (ADR-0298): the item model is mirrored in x and the fragment stage confirms a rig by
+        // its winding, so an ordinary entity in a block-14 cell (lantern / torch / glowstone) is never taken for one.
+        assertThat(json("assets/astera/items/skinrig.json").path("model").path("transformation").path("scale")[0].asDouble()).isLessThan(0.0)
+        assertThat(fsh).contains("rigConfirmed = gl_FrontFacing != (dot(rigViewNormal, rigViewPos) < 0.0);")
+        assertThat(fsh).contains("color *= rigConfirmed ? rigLightColor : lightMapColor;")
+        assertThat(vsh).contains("layout(location = 11) out vec4 rigLightColor;")
+        assertThat(fsh).contains("layout(location = 11) in vec4 rigLightColor;")
         val marker = com.astarworks.astera.core.domain.animation.skinrig.SkinRigMarker
         // All 16 sky payloads the server can write stay within the nibble.
         for (bone in com.astarworks.astera.core.domain.animation.skinrig.SkinRigBone.entries) for (slim in listOf(false, true)) for (ghost in listOf(false, true)) {
