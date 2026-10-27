@@ -30,7 +30,6 @@ import com.astarworks.astera.match.application.service.LocationLookupMatchPlayer
 import com.astarworks.astera.match.application.service.MatchStarLifecycle
 import com.astarworks.astera.match.application.service.NormaLevelGate
 import com.astarworks.astera.match.application.service.NormaLevelService
-import com.astarworks.astera.match.application.service.NormaUnlocks
 import com.astarworks.astera.match.application.service.StarDropService
 import com.astarworks.astera.match.domain.event.ResourceSpawned
 import com.astarworks.astera.match.domain.event.StarsCollected
@@ -48,7 +47,6 @@ internal object MatchStarWiring {
         private val generators: IGeneratorRegistry,
         private val stages: com.astarworks.astera.core.application.port.outbound.IStageRegistry,
         val norma: NormaLevelService,
-        val unlocks: NormaUnlocks,
         val drops: StarDropService,
         val configOf: (MatchId) -> NormaConfig,
     ) {
@@ -120,20 +118,16 @@ internal object MatchStarWiring {
         val mcServer = services.get<IMcServer>()
         // Norma level-up: title, sound, burst at the player, chat line to the match; the top level is bigger.
         val presentation = env.ports.normaPresentation?.invoke(services)
-        // ADR-0288: Items asks this gate before firing a `min_norma_level` binding; below the level the player gets
-        // the deny sound and "unlocks at Lv N" line.
-        val unlocks = NormaUnlocks(
-            items = { services.get<com.astarworks.astera.core.application.port.outbound.IItemRegistry>() },
-            owned = { services.get<com.astarworks.astera.core.application.port.outbound.item.IOwnedItemQuery>() },
-        )
+        // ADR-0289: Items asks this gate before firing any trigger of a weapon; below the level its rarity opens at,
+        // the player gets the deny sound and the "Lv N で <rarity> 解放" line. The tooltip reads the layer ladder from it.
         env.ctx.registrations += services.register<com.astarworks.astera.core.application.port.outbound.IMatchLevelGate>(
-            NormaLevelGate(norma) { player, required -> presentation?.locked(player, required) },
+            NormaLevelGate(norma, { NormaConfig.parse(env.layerDefaults()) }) { player, required, rarity -> presentation?.locked(player, required, rarity) },
             priority = 0,
         )
         if (presentation != null) {
             subs += eventBus.subscribe(NormaLevelUp::class) { e ->
                 val audience = env.matches.findById(e.matchId)?.teams?.flatMap { it.members }.orEmpty()
-                presentation.levelUp(e.playerId, audience, e.level, configOf(e.matchId).maxLevel, unlocks.at(e.playerId, e.level))
+                presentation.levelUp(e.playerId, audience, e.level, configOf(e.matchId).maxLevel, configOf(e.matchId).unlocksAt(e.level))
             }
         }
         // Norma goal picker (GUI) at match start and at each level-up; default STAR after 10 s.
@@ -165,6 +159,6 @@ internal object MatchStarWiring {
         }
         // Command teleports raise no move event: a short poll covers them and redraws the drop markers.
         env.scheduledTasks += env.scheduler.runRepeatingTicks(ExecutionScope.Global, initialDelayTicks = 10L, periodTicks = 10L) { drops.poll() }
-        return Wired(store, registry, env.stages, norma, unlocks, drops, configOf)
+        return Wired(store, registry, env.stages, norma, drops, configOf)
     }
 }

@@ -458,16 +458,7 @@ astera:
         sneak_left: "<gray>スニーク + 左クリック: <white>{name}</white></gray>"
         drop: "<gray>ドロップ (Q): <white>{name}</white></gray>"
         sneak_drop: "<gray>Shift + ドロップ (Q): <white>{name}</white></gray>"
-      locked: "<dark_gray>ロック中: {trigger} - Lv {level} で解放</dark_gray>"
-      trigger_name:
-        left_click: "左クリック"
-        right_click: "右クリック"
-        sneak_right: "スニーク+右クリック"
-        sneak_left: "スニーク+左クリック"
-        drop: "ドロップ(Q)"
-        sneak_drop: "スニーク+ドロップ(Q)"
-        hold: "長押し"
-        shoot: "射撃"
+      locked: "<dark_gray>試合中はノルマ Lv {level} まで使用不可</dark_gray>"
       stat:
         attack_damage: "<gray>ダメージ: <white>{value}</white></gray>"
         attack_speed: "<gray>攻撃速度: <white>{value}</white></gray>"
@@ -914,15 +905,15 @@ astera:
     norma-up:
       title: "<gold><bold>ノルマ達成！</bold></gold>"
       subtitle: "<yellow>Lv {level}/{max}</yellow>{unlocked}"
-      unlocked-suffix: " <green>- 解放: {items}</green>"
-      unlocked: "<green>ノルマ Lv {level} で解放:</green> <white>{items}</white>"
+      unlocked-suffix: " <green>- {items} 解放</green>"
+      unlocked: "<green>ノルマ Lv {level}:</green> <white>{items}</white> <green>の武器が解放</green>"
       broadcast: "<gold>{player}</gold> <gray>がノルマを達成し</gray> <yellow>Lv {level}/{max}</yellow> <gray>になった！</gray>"
       max:
         title: "<gold><bold>ノルマ完全達成！</bold></gold>"
         subtitle: "<yellow>最高レベル Lv {level} に到達</yellow>{unlocked}"
         broadcast: "<gold><bold>{player}</bold></gold> <yellow>が最高ノルマレベル Lv {level}/{max} に到達！</yellow>"
     norma-locked:
-      bar: "<red>ロック中</red> <gray>-</gray> <gold>Lv {level}</gold> <gray>で解放</gray>"
+      bar: "<red>ロック中</red> <gray>-</gray> <gold>Lv {level}</gold> <gray>で</gray> <white>{rarity}</white> <gray>解放</gray>"
     norma-choice:
       open:
         title: "<gold><bold>ノルマを選ぼう</bold></gold>"
@@ -1048,13 +1039,13 @@ astera:
         capture-wool: "<gray>ウール制圧:</gray> <white>ウールのゾーンに立って制圧。先に必要数を制圧したチームの勝ち。</white>"
         steal-jewelry: "<gray>宝石強奪:</gray> <white>敵の台座から宝石を奪い、自陣へ持ち帰る。必要数を持ち帰れば勝ち。</white>"
         pve-waves: "<gray>ウェーブ:</gray> <white>仲間とモンスターを迎え撃ち、ライフを切らさず全ウェーブを突破。</white>"
-      norma-rank: "<gray>ノルマ:</gray> <white>ジェネレーターのスターとキルでレベルアップ(目標はサイドバー)。レベルが上がるとアルティメットや特殊アイテムが解放されます。</white>"
+      norma-rank: "<gray>ノルマ:</gray> <white>ジェネレーターのスターとキルでレベルアップ(目標はサイドバー)。レベルが上がるとより高レアリティの武器が解放されます。</white>"
       time: "<gray>制限時間 {minutes} 分: 目標の達成度、次にスター所持数・キルで上回ったチームの勝ち。</gray>"
       reminder: "<gold>おさらい - 勝ち方:</gold>"
       first-time:
         header: "<aqua>== 初めての試合？ かんたんガイド ==</aqua>"
         sidebar: "<gray>右のサイドバーにチームのスコア、目標、ノルマの目標が出ています。</gray>"
-        stars: "<gray>ジェネレーターのスターを拾い、敵を倒してノルマレベルを上げよう。レベルが上がるとアルティメットや特殊アイテムが解放されます。</gray>"
+        stars: "<gray>ジェネレーターのスターを拾い、敵を倒してノルマレベルを上げよう。レベルが上がるとより高レアリティの武器が解放されます。</gray>"
         respawn: "<gray>倒されても数秒でリスポーンし、短い間は無敵です。仲間と固まって動き、F キーでメインメニューを開けます。</gray>"
     # 試合開始(ACTIVE)時に出す目標タイトル (MatchBriefingListener)。
     objective:
@@ -1315,7 +1306,7 @@ astera:
       you: "<gray>あなた:</gray> <{color}>{team}</{color}>"
       stars: "<yellow>*</yellow> <white>{stars}</white> <gray>スター</gray>"
       level: "<gray>ノルマ</gray> <white>Lv {level}/{max}</white>"
-      next-unlock: "<gray>次:</gray> <white>Lv {level}</white> <gray>{item}</gray>"
+      next-unlock: "<gray>次:</gray> <white>Lv {level}</white> <white>{rarity}</white> <gray>解放</gray>"
       objective-star: "<gray>目標：</gray> <yellow>スター</yellow> <white>{progress}/{target}</white>"
       objective-kill: "<gray>目標：</gray> <red>キル</red> <white>{progress}/{target}</white>"
       objective-max: "<gold>最高ノルマレベル</gold>"
@@ -2485,8 +2476,8 @@ astera:
   tutorial.guide.staff.subtitle: "ファイアスタッフを取って右クリック"
   tutorial.guide.staff.hint: "ラックのファイアスタッフを右クリックして取り、手に持って右クリックで発動。魔法はエネルギー（満腹度バー）を使う。"
   tutorial.guide.norma.title: "レベルアップ"
-  tutorial.guide.norma.subtitle: "アルティメットを解放しよう"
-  tutorial.guide.norma.hint: "ジェネレーターや撃破でスターを集め、サイドバーに出る各レベルの目標を達成し、ノルマレベルが上がるとアルティメットや特殊アイテムが解放される。"
+  tutorial.guide.norma.subtitle: "高レアの武器を解放しよう"
+  tutorial.guide.norma.hint: "ジェネレーターや撃破でスターを集め、サイドバーに出る各レベルの目標を達成し、ノルマレベルが上がるとより高レアリティの武器が解放される。"
   tutorial.guide.queue.title: "対戦の準備完了"
   tutorial.guide.queue.subtitle: "スポーン横のプレイゲートへ"
   tutorial.guide.queue.hint: "スポーンの隣で光るプレイゲートへ歩き、案内人を右クリックしてモードを選ぶ。コンパスでQを押しても同じ選択画面が開く。"
@@ -2592,7 +2583,7 @@ astera:
   match_menu.confirm.yes.tooltip: "<red>クリックで確定: 試合を抜け、スターは弾け飛び、離脱のルールが適用されます。</red>"
   match_menu.confirm.no.tooltip: "<gray>クリックで試合メニューに戻る。</gray>"
   match_menu.help.header: "<gold>試合ヘルプ</gold>"
-  match_menu.help.norma: "<gray>ノルマ:</gray> チームでスター目標かキル目標を達成してノルマレベルを上げ、レベルが上がるとアルティメットや特殊アイテムが解放される。レベルで勝敗は決まらない。"
+  match_menu.help.norma: "<gray>ノルマ:</gray> チームでスター目標かキル目標を達成してノルマレベルを上げ、レベルが上がるとより高レアリティの武器が解放される。レベルで勝敗は決まらない。"
   match_menu.help.stars: "<gray>スター:</gray> 試合中だけ持てるアイテム。目標まで運ぶ。倒されたり抜けたりすると弾け飛び、他のプレイヤーが拾える。"
   match_menu.help.weapon-limit: "<gray>武器制限:</gray> 試合中に持てる武器の数には上限があり、超えた分は預かられて試合後に戻る。"
   presentation.sudden-death.title: "<red><bold>ラストスパート！</bold></red>"

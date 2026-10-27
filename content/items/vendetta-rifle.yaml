@@ -35,12 +35,10 @@ skills:
   skill_id: vendetta-rifle-s2
 - trigger: sneak_right
   skill_id: vendetta-rifle-s3
-  min_norma_level: 2
 - trigger: sneak_left
   skill_id: vendetta-rifle-def
 - trigger: drop
   skill_id: vendetta-rifle-ego
-  min_norma_level: 3
 - trigger: sneak_drop
   skill_id: pistol-reload
 pdc_tags:

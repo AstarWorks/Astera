@@ -1,7 +1,6 @@
 package com.astarworks.astera.match.domain.norma
 
-import com.astarworks.astera.core.domain.i18n.LocalizedText
-import com.astarworks.astera.core.domain.skill.SkillTrigger
+import com.astarworks.astera.core.domain.item.Rarity
 
-/** One item action a Norma level opens up for a player (ADR-0288): the item's name and the input that fires it. */
-public data class NormaUnlock(val level: Int, val item: LocalizedText, val trigger: SkillTrigger)
+/** One weapon rarity a Norma level opens up for a player (ADR-0289): weapons of [rarity] are usable from [level]. */
+public data class NormaUnlock(val level: Int, val rarity: Rarity)

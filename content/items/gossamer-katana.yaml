@@ -31,11 +31,9 @@ skills:
   skill_id: gossamer-katana-s2
 - trigger: sneak_right
   skill_id: gossamer-katana-s3
-  min_norma_level: 2
 - trigger: sneak_left
   skill_id: gossamer-katana-def
 - trigger: drop
   skill_id: gossamer-katana-ego
-  min_norma_level: 3
 pdc_tags:
   astera:rarity: epic

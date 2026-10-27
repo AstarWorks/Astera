@@ -50,8 +50,9 @@ public data class ItemBlueprint(
 public class ItemBlueprintFactory(
     private val messages: IMessageRenderer,
     private val itemModels: ItemModelCatalog = ItemModelCatalog.NONE,
+    levelGate: () -> com.astarworks.astera.core.application.port.outbound.IMatchLevelGate? = { null },
 ) {
-    private val tooltip = ItemTooltip(messages)
+    private val tooltip = ItemTooltip(messages, levelGate)
 
     public fun build(spec: ItemSpec, viewer: PlayerId?): ItemBlueprint {
         val template = spec.template

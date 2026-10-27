@@ -154,9 +154,6 @@
                 },
                 "phase_overrides": {
                     "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.PhaseOverridesYaml"
-                },
-                "min_norma_level": {
-                    "type": "integer"
                 }
             },
             "required": [

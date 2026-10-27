@@ -3,6 +3,7 @@ package com.astarworks.astera.match.adapter.paper
 import com.astarworks.astera.core.adapter.paper.text.AsteraTextDeserializer
 import com.astarworks.astera.core.application.port.outbound.IMessageRenderer
 import com.astarworks.astera.core.domain.geometry.Vec3
+import com.astarworks.astera.core.domain.item.Rarity
 import com.astarworks.astera.core.domain.i18n.MessageKey
 import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.domain.presentation.PresentationMoments
@@ -58,9 +59,7 @@ public class PaperNormaPresentation(
     override fun levelUp(player: PlayerId, audience: List<PlayerId>, level: Int, maxLevel: Int, unlocked: List<NormaUnlock>) {
         val p = server.getPlayer(player.uuid) ?: return
         val top = level >= maxLevel
-        val unlockedText = unlocked.joinToString(", ") {
-            "${renderer.renderText(player, it.item)} (${renderer.render(player, MessageKey("astera.item.tooltip.trigger_name.${it.trigger.name.lowercase()}"))})"
-        }
+        val unlockedText = unlocked.joinToString(", ") { renderer.render(player, MessageKey("astera.item.tooltip.rarity.${it.rarity.name.lowercase()}")) }
         // {unlocked} is empty when the level opens nothing, else a leading " - Unlocked: ..." segment for the subtitle.
         val unlockedSuffix = if (unlocked.isEmpty()) "" else renderer.render(player, MessageKey("astera.match.norma-up.unlocked-suffix"), mapOf("items" to unlockedText))
         val args = mapOf("level" to level.toString(), "max" to maxLevel.toString(), "player" to p.name, "unlocked" to unlockedSuffix)
@@ -80,8 +79,9 @@ public class PaperNormaPresentation(
         }
     }
 
-    override fun locked(player: PlayerId, required: Int) {
-        presentation.play(PresentationMoments.NORMA_LOCKED, player, mapOf("level" to required.toString()))
+    override fun locked(player: PlayerId, required: Int, rarity: Rarity) {
+        val rarityText = renderer.render(player, MessageKey("astera.item.tooltip.rarity.${rarity.name.lowercase()}"))
+        presentation.play(PresentationMoments.NORMA_LOCKED, player, mapOf("level" to required.toString(), "rarity" to rarityText))
     }
 
     override fun choiceOpened(player: PlayerId) {
