@@ -4,7 +4,7 @@ Owner track `wp/modes-combat`. Seed: audit 2026-10-26. Items: Board prefix `MODE
 
 ## 構想 (source)
 - Siege PvP with gun / sword / magic roles, 15-30 min matches (`docs/game-design/vision.md`, `pillars.md`).
-- **Norma is part of every mode** (founder 2026-10-26, ADR-0268: shared layer `content/norma-layer/layer.yaml`, the old `norma` mode is now `skirmish`): stars pop from generators, a kill bursts carried stars, per-level STAR or KILL goal, 100% Orange Juice style; Norma levels unlock ultimates and specials, never end a match (ADR-0288, ADR-0271, `docs/game-design/stars-and-norma.md`).
+- **Norma is part of every mode** (founder 2026-10-26, ADR-0268: shared layer `content/norma-layer/layer.yaml`, the old `norma` mode is now `skirmish`): stars pop from generators, a kill bursts carried stars, per-level STAR or KILL goal, 100% Orange Juice style; Norma levels unlock weapon rarities (ADR-0289), never end a match (ADR-0288, ADR-0271, `docs/game-design/stars-and-norma.md`).
 - Weapons RTM-style MAIN+SUB caps; the 2-weapon cap is kept; starter kit includes a gun.
 - Matches target siege-scale maps; keep a small debug arena for e2e.
 - Playable loop: queue, form, countdown, ACTIVE, fight, respawn, objective, end summary + rewards, lobby (`docs/game-design/playable-loop-checklist.md`).

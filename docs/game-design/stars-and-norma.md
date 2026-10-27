@@ -62,9 +62,11 @@ The RTM README gives no numeric death-drop ratio. Decision: the ratio is content
   `time_limit_seconds`, `death_drop_ratio`). Norma is a layer of every game mode, not a mode (ADR-0268, MODE-15): a mode overrides any
   key in its `default_config`; `norma_layer: "false"` turns it off (PvE waves).
 - **No win by level (ADR-0288):** Norma levels are in-match power progression and never end a match; only the mode's own
-  objective or the time limit does. Levels **unlock** things: item skill bindings carry `min_norma_level` (sneak_right
-  specials Lv 2, drop ultimates Lv 3); a locked cast is refused with a deny sound and "unlocks at Lv N", the tooltip lists
-  locked lines, and each level-up names what it unlocked. **Time limit** (`time_limit_seconds`, 600 s of ACTIVE time by
+  objective or the time limit does. Levels **unlock weapon rarity** (ADR-0289, replacing the
+  skill-kind gates of ADR-0288): `rarity_levels` in the layer config (default common 1, uncommon 2, rare 3, epic 4,
+  legendary 5). A weapon is usable (attacks and every skill) once the holder's level reaches its item `rarity:` level; below
+  it the use is refused with a deny sound and the action bar "Lv N で <rarity> 解放", the weapon stays holdable, its tooltip
+  says it is locked until Lv N, each level-up names the rarity it opened and the sidebar shows the next rarity. **Time limit** (`time_limit_seconds`, 600 s of ACTIVE time by
   default, 1200 s in the siege objective modes, `0` = none): the mode's own objective standing first (deliveries, captured
   zones, banked jewels; skirmish and annihilation have none), then the most stars carried (sum over members); tie: the most
   kills; still tied: draw. Kills count for a player's KILL goal and, per team, as the last tie-break (ADR-0272). Winning pays the
