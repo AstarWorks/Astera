@@ -2,6 +2,7 @@ package com.astarworks.astera.core.domain.effect.vfx
 
 import com.astarworks.astera.core.domain.animation.Easing
 import com.astarworks.astera.core.domain.animation.player.CustomAnimationId
+import com.astarworks.astera.core.domain.animation.skinrig.SkinRigMarker
 import com.astarworks.astera.core.domain.effect.DisplayBillboard
 import com.astarworks.astera.core.domain.effect.DisplayItemMode
 import com.astarworks.astera.core.domain.effect.ParticleId
@@ -80,6 +81,8 @@ public data class VfxDefinition(
     public val elements: List<VfxElement>,
     /** Weapon rigs + 風切り trails ([VfxRig]); planned into ordinary slots by [VfxRigPlanner]. */
     public val rigs: List<VfxRig> = emptyList(),
+    /** ADR-0284: translucent afterimages of the caster's skin body (visual only, not performers). */
+    public val ghostBodies: List<VfxGhostBody> = emptyList(),
     /** Optional anchor teleport smoothing override; 0 disables teleport smoothing. */
     public val followTeleportTicks: Int? = null,
     /** Opt-in native attachment for fixed displays following a player anchor. */
@@ -123,11 +126,16 @@ public data class VfxDefinition(
         require(followTeleportTicks == null || followTeleportTicks in 0..59) { "followTeleportTicks must be 0..59" }
         require(replaceGroup == null || replaceGroup.matches(Regex("[a-z][a-z0-9-]{0,63}"))) { "replaceGroup must be lower-kebab, at most 64 characters" }
         require(sampleTicks >= 1) { "VfxDefinition.sampleTicks must be >= 1: $sampleTicks" }
+        require(ghostBodies.isEmpty() || rigs.any { it.weapon != null }) { "ghost_bodies need a performance rig (weapon: main_hand): they ride its clock" }
+        ghostBodies.forEach {
+            require(it.animation != null || body != null) { "ghost_body '${it.id}' has no animation and the effect has no body" }
+            require(it.startTick < durationTicks) { "ghost_body '${it.id}' start_tick ${it.startTick} >= duration_ticks $durationTicks" }
+        }
         require(elements.isNotEmpty() || rigs.isNotEmpty()) { "VfxDefinition needs elements or rigs" }
         require(targetReference == null || (!follow && !attachToAnchor)) { "target tracking requires a fixed anchor without native attachment" }
         require(elements.none { it.targetLine } || sampleTicks == 1) { "target_line requires sample_ticks: 1" }
         require(elements.none { it.targetTrack.isNotEmpty() || it.targetLine } || targetReference != null) { "target tracks require target_reference" }
-        val ids = elements.map { it.id } + rigs.map { it.id }
+        val ids = elements.map { it.id } + rigs.map { it.id } + ghostBodies.map { it.id }
         require(ids.toSet().size == ids.size) { "VfxDefinition element ids must be unique: $ids" }
         val slots = elements.sumOf { it.slotCount }
         require(slots <= MAX_SLOTS) { "VfxDefinition has $slots element slots (max $MAX_SLOTS)" }
@@ -305,7 +313,12 @@ public sealed interface VfxElementKind {
     }
 
     /** One bone of the caster's skin rig (ADR-0276); planned by [VfxBodyPlanner], never authored in `elements`. */
-    public data class SkinBone(public val bone: com.astarworks.astera.core.domain.animation.skinrig.SkinRigBone, public val slim: Boolean = false) : VfxElementKind
+    public data class SkinBone(
+        public val bone: com.astarworks.astera.core.domain.animation.skinrig.SkinRigBone,
+        public val slim: Boolean = false,
+        /** ADR-0284: a [VfxGhostBody] bone (tinted, translucent, not a performer). */
+        public val ghost: Boolean = false,
+    ) : VfxElementKind
 
     /** The caster's real main-hand stack as the performance's one weapon display (ADR-0276). */
     public data object MainHandWeapon : VfxElementKind
@@ -440,5 +453,35 @@ public data class VfxOscillate(
 ) {
     init {
         require(periodTicks >= 1) { "VfxOscillate.periodTicks must be >= 1: $periodTicks" }
+    }
+}
+
+/**
+ * ADR-0284: a translucent, tinted copy of the caster's skin body that trails the real performance. It plays [animation] (default:
+ * the effect's `body`) [delayTicks] behind the real body, [offset] away in the effect frame (+Z = the caster's front), from
+ * [startTick] to [endTick]. Pure visual: no lease, never hides the real player or the held item.
+ *
+ * The pack shader draws one ghost look (`SkinRigMarker.GHOST_TINT_RGB` / `GHOST_OPACITY`; the display has no per-entity channel
+ * for more), so [tintRgb] and [opacity] must equal it; a different look is a shader change, not a content edit.
+ */
+public data class VfxGhostBody(
+    public val id: String,
+    public val animation: CustomAnimationId? = null,
+    public val tintRgb: Int = SkinRigMarker.GHOST_TINT_RGB,
+    public val opacity: Double = SkinRigMarker.GHOST_OPACITY,
+    public val offset: Vec3 = Vec3.ZERO,
+    public val delayTicks: Int = 0,
+    public val startTick: Int = 0,
+    public val endTick: Int? = null,
+) {
+    init {
+        require(id.isNotBlank()) { "VfxGhostBody.id must not be blank" }
+        require(delayTicks in 0..40) { "ghost_body '$id' delay_ticks must be 0..40: $delayTicks" }
+        require(startTick >= 0) { "ghost_body '$id' start_tick must be >= 0: $startTick" }
+        require(endTick == null || endTick > startTick) { "ghost_body '$id' end_tick ($endTick) must be > start_tick ($startTick)" }
+        require(tintRgb == SkinRigMarker.GHOST_TINT_RGB && opacity == SkinRigMarker.GHOST_OPACITY) {
+            "ghost_body '$id': the pack shader draws only tint #${"%06X".format(SkinRigMarker.GHOST_TINT_RGB)} at opacity ${SkinRigMarker.GHOST_OPACITY}; " +
+                "change entity.fsh.patch and SkinRigMarker together to move it"
+        }
     }
 }

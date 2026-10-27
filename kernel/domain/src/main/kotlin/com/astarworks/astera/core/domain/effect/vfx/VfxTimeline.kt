@@ -113,14 +113,20 @@ public object VfxTimeline {
         freezes: List<VfxFreeze> = emptyList(),
         /** The resolved `body:` animation of a performance (ADR-0276); required when [VfxDefinition.body] is set. */
         body: VfxBodyContext? = null,
+        /** ADR-0284: the resolved body of every ghost that names its own `animation`, by that animation id. */
+        ghostBodies: Map<com.astarworks.astera.core.domain.animation.player.CustomAnimationId, VfxBodyContext> = emptyMap(),
     ): VfxPlan {
         require((def.body == null) == (body == null)) {
             if (body == null) "effect '${def.id}' has body '${def.body}' but no body animation was resolved" else "effect '${def.id}' has no body but one was supplied"
         }
         val track = body?.let { VfxBodyTrack(it) }
+        val ghostTracks = def.ghostBodies.associate { g ->
+            g.id to (g.animation?.let { VfxBodyTrack(requireNotNull(ghostBodies[it]) { "ghost_body '${g.id}' animation '${it.value}' was not resolved" }) }
+                ?: requireNotNull(track) { "ghost_body '${g.id}' has no animation and the effect has no body" })
+        }
         val slots = def.elements.flatMapIndexed { index, element ->
             planElement(def, element, index, anchor.rotation, seed, scale, sprites)
-        } + def.rigs.flatMap { VfxRigPlanner.plan(def, it, anchor.rotation, scale, freezes, if (it.weapon != null) track else null) }
+        } + def.rigs.flatMap { VfxRigPlanner.plan(def, it, anchor.rotation, scale, freezes, if (it.weapon != null) track else null, ghostTracks) }
         return VfxPlan(
             anchor.origin, def.durationTicks, def.follow, slots.sortedBy { it.spawnTick }, def.followTeleportTicks, def.attachToAnchor, def.replaceGroup,
             performance = def.isPerformance, cutTicks = VfxBodyPlanner.cutTicks(slots),

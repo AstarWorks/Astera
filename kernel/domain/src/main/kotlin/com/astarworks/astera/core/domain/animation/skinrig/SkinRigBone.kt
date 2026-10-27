@@ -90,6 +90,21 @@ public object SkinRigMarker {
     public const val BLOCK_LIGHT: Int = 15
     public const val SLIM_BIT: Int = 8
 
-    public fun skyPayload(bone: SkinRigBone, slim: Boolean): Int =
-        bone.id + if (slim && bone.isArm) SLIM_BIT else 0
+    /**
+     * A ghost bone (ADR-0284) is the same bone drawn tinted and translucent by the shader. The sky nibble has 16 codes: 0..5 bones,
+     * 10 / 11 slim arms, and the otherwise unused 6 / 7 (classic arms), 8 / 9 (head, body), 12 / 13 (legs), 14 / 15 (slim arms) carry
+     * the ghost variants. The look is fixed in `entity.fsh.patch` ([GHOST_TINT_RGB], [GHOST_OPACITY]); change all three together.
+     */
+    public fun skyPayload(bone: SkinRigBone, slim: Boolean, ghost: Boolean = false): Int = when {
+        !ghost -> bone.id + if (slim && bone.isArm) SLIM_BIT else 0
+        bone == SkinRigBone.RIGHT_ARM -> if (slim) 14 else 6
+        bone == SkinRigBone.LEFT_ARM -> if (slim) 15 else 7
+        else -> bone.id + 8
+    }
+
+    /** The one ghost look the pack shader draws (`0xRRGGBB`). */
+    public const val GHOST_TINT_RGB: Int = 0x8A5CFF
+
+    /** The one ghost opacity the pack shader draws. */
+    public const val GHOST_OPACITY: Double = 0.5
 }
