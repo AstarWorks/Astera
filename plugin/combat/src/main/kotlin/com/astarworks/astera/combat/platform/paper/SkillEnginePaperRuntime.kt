@@ -1,0 +1,224 @@
+package com.astarworks.astera.combat.platform.paper
+
+import com.astarworks.astera.combat.adapter.paper.skillengine.PaperSkillCasterAnimGateway
+import com.astarworks.astera.combat.adapter.paper.skillengine.PaperSkillCooldownGateway
+import com.astarworks.astera.combat.adapter.paper.skillengine.PaperSkillEntityQuery
+import com.astarworks.astera.combat.adapter.paper.skillengine.PaperSkillGameplayGateway
+import com.astarworks.astera.combat.adapter.paper.skillengine.PaperSkillItemGateway
+import com.astarworks.astera.combat.adapter.paper.skillengine.PaperSkillMovementGateway
+import com.astarworks.astera.combat.adapter.paper.skillengine.PaperSkillParticleGateway
+import com.astarworks.astera.combat.adapter.paper.skillengine.PaperSkillScreenGateway
+import com.astarworks.astera.combat.adapter.paper.skillengine.PaperSkillSoundGateway
+import com.astarworks.astera.combat.adapter.paper.skillengine.PaperSkillVictimAnimGateway
+import com.astarworks.astera.combat.adapter.paper.skillengine.PaperSkillVisualGateway
+import com.astarworks.astera.combat.adapter.paper.skillengine.PaperSkillWorldEffectGateway
+import com.astarworks.astera.combat.adapter.paper.skillengine.PaperSkillWorldGateway
+import com.astarworks.astera.combat.application.port.outbound.IKnockbackGateway
+import com.astarworks.astera.combat.application.port.outbound.IStatusEffectContainer
+import com.astarworks.astera.combat.application.usecase.damage.ApplyDamageUseCase
+import com.astarworks.astera.combat.application.usecase.status.ApplyStatusUseCase
+import com.astarworks.astera.combat.domain.event.SkillCast
+import com.astarworks.astera.combat.platform.wiring.CombatPlatformPorts
+import com.astarworks.astera.core.application.port.outbound.IBlockStateGateway
+import com.astarworks.astera.core.application.port.outbound.ICooldownTracker
+import com.astarworks.astera.core.application.port.outbound.ICustomBlockRegistry
+import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
+import com.astarworks.astera.core.application.port.outbound.IItemRegistry
+import com.astarworks.astera.core.application.port.outbound.IMatchTeamLookup
+import com.astarworks.astera.core.application.port.outbound.IPlayerAttributeContainerStore
+import com.astarworks.astera.core.application.port.outbound.IPlayerHealthGateway
+import com.astarworks.astera.core.application.port.outbound.IReloadableContentsRegistry
+import com.astarworks.astera.core.application.port.outbound.IResourcePoolService
+import com.astarworks.astera.core.application.port.outbound.IScheduler
+import com.astarworks.astera.core.application.port.outbound.IWorldGateway
+import com.astarworks.astera.core.application.port.outbound.ExecutionScope
+import com.astarworks.astera.core.application.port.outbound.runRepeatingTicks
+import com.astarworks.astera.core.application.services.get
+import com.astarworks.astera.core.application.services.getOrThrow
+import com.astarworks.astera.core.application.skillengine.expr.cel.CelExprCompiler
+import com.astarworks.astera.core.application.skillengine.load.SkillEngineRegistries
+import com.astarworks.astera.core.application.skillengine.runtime.CastRequest
+import com.astarworks.astera.core.application.skillengine.runtime.SkillEngineContents
+import com.astarworks.astera.core.application.skillengine.runtime.SkillEngineGateways
+import com.astarworks.astera.core.application.skillengine.runtime.SkillEngineKit
+import com.astarworks.astera.core.application.skillengine.runtime.port.SkillRuntimePorts
+import com.astarworks.astera.core.domain.event.MatchEnded
+import com.astarworks.astera.core.domain.geometry.Vec3
+import com.astarworks.astera.core.domain.player.PlayerId
+import com.astarworks.astera.core.domain.skillengine.frame.InMemoryFrameTree
+import com.astarworks.astera.core.domain.skillengine.hit.DefaultContactResolver
+import com.astarworks.astera.core.domain.skillengine.motion.DefaultMotionLawFactory
+import com.astarworks.astera.core.platform.wiring.WiringContext
+import org.bukkit.plugin.java.JavaPlugin
+import org.slf4j.LoggerFactory
+import java.util.concurrent.ConcurrentHashMap
+
+/**
+ * Skill engine v2 on Paper (ADR-0299, SKL-08): builds the kit from the Paper gateways, ticks it, reverts world edits at
+ * match end, registers per-skill hot reload, and starts a v2 cast for every `SkillCast` whose skill id the v2 catalog
+ * knows (the cooldown / cost / silence gates already ran in `CastSkillUseCase`).
+ */
+internal class SkillEnginePaperRuntime(
+    private val plugin: JavaPlugin,
+    private val ports: CombatPlatformPorts,
+) {
+    private val log = LoggerFactory.getLogger(javaClass)
+    private var kit: SkillEngineKit? = null
+    private var tickHandle: IScheduler.TaskHandle? = null
+    private val notPorted = ConcurrentHashMap.newKeySet<String>()
+    private var seenDiagnostics = 0
+
+    fun start(
+        ctx: WiringContext,
+        applyDamage: ApplyDamageUseCase,
+        applyStatus: ApplyStatusUseCase,
+        statusContainer: IStatusEffectContainer,
+    ) {
+        val services = ctx.services
+        val scheduler = services.getOrThrow<IScheduler>()
+        val eventBus = services.getOrThrow<IDomainEventBus>()
+        val worldGateway = services.getOrThrow<IWorldGateway>()
+        val knockback = services.get<IKnockbackGateway>() ?: run {
+            log.warn("skill engine v2 not started: no IKnockbackGateway"); return
+        }
+        val entityEffects = services.get<com.astarworks.astera.combat.application.port.outbound.IEntityEffectsGateway>() ?: run {
+            log.warn("skill engine v2 not started: no IEntityEffectsGateway"); return
+        }
+        val displays = ports.displayEntityGateway?.invoke(services) ?: run {
+            log.warn("skill engine v2 not started: no display entity gateway"); return
+        }
+        val feedback = ports.playerFeedbackGateway?.invoke(services) ?: run {
+            log.warn("skill engine v2 not started: no player feedback gateway"); return
+        }
+        val server = plugin.server
+
+        val (tables, frameErrors) = SkillEngineRegistries.frameTables(ctx.contentDir.resolve("frames"))
+        frameErrors.forEach { log.warn("skill engine frame table: {}", it) }
+        val catalog = SkillEngineRegistries.catalog(tables)
+        val contents = SkillEngineContents(catalog)
+        val skillsDir = ctx.contentDir.resolve("skills")
+        val report = contents.reload(skillsDir)
+        log.info("skill engine v2: loaded {} (failed {})", report.loaded, report.failed)
+        services.get<IReloadableContentsRegistry>()?.register(contents, skillsDir)
+
+        val entities = PaperSkillEntityQuery(server)
+        val visuals = PaperSkillVisualGateway(server, displays)
+        val worldId = { visuals.activeWorld() }
+        lateinit var built: SkillEngineKit
+        val gateways = SkillEngineGateways(
+            ports = SkillRuntimePorts(
+                visuals = visuals,
+                particles = PaperSkillParticleGateway(worldGateway, worldId),
+                sounds = PaperSkillSoundGateway(worldGateway, worldId),
+                gameplay = PaperSkillGameplayGateway(
+                    applyDamage = applyDamage,
+                    applyStatus = applyStatus,
+                    knockback = knockback,
+                    casterPosition = { uuid -> server.getEntity(uuid)?.location?.let { Vec3(it.x, it.y, it.z) } },
+                    holdEntity = { id, ticks -> entityEffects.hold(id, ticks) },
+                    statusContainer = statusContainer,
+                    entityEffects = entityEffects,
+                    attributes = services.getOrThrow<IPlayerAttributeContainerStore>(),
+                    scheduler = scheduler,
+                    resourcePool = { services.get<IResourcePoolService>() },
+                ),
+                entities = entities,
+                victimAnim = PaperSkillVictimAnimGateway(server, knockback),
+            ),
+            movement = PaperSkillMovementGateway(server, applyStatus, statusContainer),
+            world = PaperSkillWorldGateway(
+                world = { entities.activeWorld() },
+                ownerOf = { cast -> built.hosts.owner(cast) },
+                blocks = { services.get<IBlockStateGateway>() },
+                guard = { ports.blockEditGuard?.invoke(services) },
+                covers = { services.get<ICustomBlockRegistry>() },
+            ),
+            casterAnim = PaperSkillCasterAnimGateway(server, scheduler),
+            screen = PaperSkillScreenGateway(feedback, scheduler),
+            cooldowns = PaperSkillCooldownGateway { services.get<ICooldownTracker>() },
+            items = PaperSkillItemGateway(server) { id, player, count ->
+                val spec = services.get<IItemRegistry>()?.find(id) ?: return@PaperSkillItemGateway null
+                val factory = services.get<com.astarworks.astera.core.application.service.item.ItemBlueprintFactory>()
+                    ?: return@PaperSkillItemGateway null
+                com.astarworks.astera.core.adapter.paper.item.PaperItemMaterializer(plugin, factory).buildFor(spec, player, count)
+            },
+            effects = PaperSkillWorldEffectGateway(
+                server = server,
+                scheduler = scheduler,
+                health = { services.get<IPlayerHealthGateway>() },
+                lightning = { services.get() },
+                summons = { ports.summonGateway?.invoke(services) },
+                teams = { services.get<IMatchTeamLookup>() },
+            ),
+        )
+        built = SkillEngineKit.build(
+            gateways = gateways,
+            newTree = { InMemoryFrameTree() },
+            motion = DefaultMotionLawFactory(),
+            contacts = DefaultContactResolver(),
+            exprs = CelExprCompiler(),
+            points = SkillEngineRegistries.pointSource(tables),
+            skills = catalog::get,
+            isAlly = { caster, entity ->
+                if (caster == entity) {
+                    true
+                } else {
+                    val lookup = services.get<IMatchTeamLookup>()
+                    val a = lookup?.teamOf(PlayerId(caster))
+                    a != null && a == lookup.teamOf(PlayerId(entity))
+                }
+            },
+        )
+        kit = built
+
+        tickHandle = scheduler.runRepeatingTicks(ExecutionScope.Global, 1L, 1L) {
+            built.runner.tick(scheduler.currentTick().toInt())
+            val diagnostics = built.runner.diagnostics()
+            if (diagnostics.size != seenDiagnostics) {
+                diagnostics.drop(seenDiagnostics).forEach {
+                    log.warn("skill engine v2 cast {} tick {} op {}: {}", it.cast.value, it.tick, it.opId, it.message)
+                }
+                seenDiagnostics = diagnostics.size
+            }
+        }
+
+        ctx.subscriptions += eventBus.subscribe(MatchEnded::class) { built.world.revertAll() }
+        ctx.subscriptions += eventBus.subscribe(SkillCast::class) { event -> onSkillCast(built, catalog::get, scheduler, event) }
+    }
+
+    private fun onSkillCast(
+        kit: SkillEngineKit,
+        find: (String) -> com.astarworks.astera.core.application.skillengine.load.CompiledSkill?,
+        scheduler: IScheduler,
+        event: SkillCast,
+    ) {
+        val id = event.skillId.value
+        val skill = find(id)
+        if (skill == null) {
+            if (notPorted.add(id)) log.debug("skill {} is not ported to engine v2 yet (SKL-09)", id)
+            return
+        }
+        val player = plugin.server.getPlayer(event.caster.uuid) ?: return
+        val loc = player.location
+        val request = CastRequest(
+            skill = skill,
+            caster = event.caster.uuid,
+            casterFeet = Vec3(loc.x, loc.y, loc.z),
+            casterYawDeg = loc.yaw.toDouble(),
+            casterPitchDeg = loc.pitch.toDouble(),
+            seed = event.atTick xor event.caster.uuid.leastSignificantBits,
+            startTick = scheduler.currentTick().toInt(),
+        )
+        val result = kit.runner.start(request)
+        if (result is com.astarworks.astera.core.domain.Result.Failure) {
+            log.warn("skill engine v2 could not start {}: {}", id, result.error)
+        }
+    }
+
+    fun stop() {
+        tickHandle?.cancel()
+        tickHandle = null
+        kit?.shutdown()
+        kit = null
+    }
+}

@@ -5,8 +5,8 @@ import org.junit.jupiter.api.Test
 
 /**
  * SKL-08 (ADR-0299): couture-rapier-s2 coin 2 on the skill engine v2, on a real server.
- * Skeleton: the cast goes through `astera skill cast couture-rapier-s2 <bot> --force`, which the
- * manager points at the new engine when wiring; the dummy is a NoAI zombie 6 blocks ahead.
+ * The cast goes through `astera skill cast couture-rapier-s2 <bot> --force` (CastSkillUseCase publishes SkillCast,
+ * which `SkillEnginePaperRuntime` starts on the v2 runner); the dummy is a NoAI zombie 6 blocks ahead.
  *
  * Checks (bot-judgeable rows of the understanding file):
  *  1. the cast reaches the dummy: its health drops by the throw damage (18) and no more than once per piece volley window;

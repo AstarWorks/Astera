@@ -68,6 +68,7 @@ internal class CombatPaperPlatform(private val plugin: JavaPlugin) {
     private var entityDamageGateway: PaperEntityDamageGateway? = null
 
     private var statusTickHandle: IScheduler.TaskHandle? = null
+    private var skillEngine: SkillEnginePaperRuntime? = null
 
     val ports: CombatPlatformPorts = CombatPlatformPorts(
         toolBlocks = { services ->
@@ -212,6 +213,12 @@ internal class CombatPaperPlatform(private val plugin: JavaPlugin) {
         // WP5: summons never target or hurt their owner's side.
         services.get<SummonRegistry>()?.let { SummonAllegianceListener(it).start(plugin) }
 
+        // Skill engine v2 (ADR-0299): v2 skills run through the cast runner; SkillCast is published once the gates pass.
+        val container = statusContainer
+        if (applyDamage != null && applyStatus != null && container != null) {
+            skillEngine = SkillEnginePaperRuntime(plugin, ports).also { it.start(ctx, applyDamage, applyStatus, container) }
+        }
+
         // F3-11: lobby training dummies are immortal; vanilla damage on their bodies is cancelled.
         plugin.server.pluginManager.registerEvents(PaperTrainingDummyGuard(), plugin)
 
@@ -253,6 +260,8 @@ internal class CombatPaperPlatform(private val plugin: JavaPlugin) {
 
     /** Cancels the scheduler-driven Paper pieces. Bukkit reclaims listeners via `HandlerList.unregisterAll(plugin)`. */
     fun teardown() {
+        skillEngine?.stop()
+        skillEngine = null
         statusTickHandle?.cancel()
         statusTickHandle = null
         projectileService?.stop()
