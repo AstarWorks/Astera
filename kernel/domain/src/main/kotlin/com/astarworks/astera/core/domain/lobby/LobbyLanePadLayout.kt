@@ -70,7 +70,7 @@ public object LobbyLanePadLayout {
         return out
     }
 
-    /** Human display form of a lane id (`break-core` -> `BREAK CORE`), used on signs and holograms. */
+    /** Human display form of a lane id (`carry-tnt` -> `CARRY TNT`), used on signs and holograms. */
     public fun displayName(laneId: String): String = laneId.replace('-', ' ').uppercase()
 
     /** The lane whose pad contains the feet position, or null. */

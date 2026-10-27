@@ -95,8 +95,8 @@ public open class SiegeRun(public val matchId: MatchId, public val stage: Stage)
 }
 
 /**
- * Shared skeleton of the objective ("siege") modes: break-core, carry-tnt,
- * capture-wool, steal-jewelry, battle-loyal.
+ * Shared skeleton of the objective ("siege") modes: carry-tnt,
+ * capture-wool, steal-jewelry, carry-mini-tnt.
  *
  * A mode is a pure reaction to match-scoped domain events — region
  * transitions ([EntityEnteredRegion] / [EntityLeftRegion], derived from

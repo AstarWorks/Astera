@@ -7,7 +7,7 @@ import com.astarworks.astera.core.domain.geometry.Vec3
  * inside the spawn area?", "did the cart enter the goal region?", etc.
  *
  * Bounds are inclusive on both ends. [name] is the stage-YAML region name
- * (`core-red`, `wool-a`, ...) that game modes use to find their objective
+ * (`base-red`, `wool-a`, ...) that game modes use to find their objective
  * zones; geometry-only callers leave it `null`.
  */
 public data class Region(val min: Vec3, val max: Vec3, val name: String? = null) {

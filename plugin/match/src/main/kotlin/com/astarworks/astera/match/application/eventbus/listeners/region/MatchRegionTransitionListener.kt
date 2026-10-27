@@ -13,7 +13,7 @@ import com.astarworks.astera.match.domain.event.EntityLeftRegion
  * Derives the match-scoped region transitions the objective modes consume
  * ([EntityEnteredRegion] / [EntityLeftRegion]) straight from [PlayerMoved].
  *
- * Regions are the *named* regions of the match's own stage (`core-red`,
+ * Regions are the *named* regions of the match's own stage (`base-red`,
  * `wool-a`, ...), so two stages may reuse names without colliding and no
  * global spatial index has to be kept in sync with the stage registry.
  * Players outside a match are ignored.

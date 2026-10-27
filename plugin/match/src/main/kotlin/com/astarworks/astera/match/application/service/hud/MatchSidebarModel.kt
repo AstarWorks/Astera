@@ -90,19 +90,21 @@ public object MatchSidebarModel {
             if (norma != null) {
                 add(HudComponent.Text(MessageKey("astera.hud.sidebar.stars"), placeholders = mapOf("stars" to norma.stars.toString())))
                 val levelParams = mapOf("level" to norma.level.toString(), "max" to norma.maxLevel.toString())
-                // The race that wins the match: show the best rival level next to your own.
-                add(
-                    if (norma.rivalLevel != null) {
-                        HudComponent.Text(MessageKey("astera.hud.sidebar.level-vs"), placeholders = levelParams + ("rival" to norma.rivalLevel.toString()))
-                    } else {
-                        HudComponent.Text(MessageKey("astera.hud.sidebar.level"), placeholders = levelParams)
-                    },
-                )
+                add(HudComponent.Text(MessageKey("astera.hud.sidebar.level"), placeholders = levelParams))
                 if (norma.level >= norma.maxLevel) {
                     add(HudComponent.Text(MessageKey("astera.hud.sidebar.objective-max")))
                 } else {
                     val key = if (norma.goal == NormaGoal.STAR) "astera.hud.sidebar.objective-star" else "astera.hud.sidebar.objective-kill"
                     add(HudComponent.Text(MessageKey(key), placeholders = mapOf("progress" to norma.progress.toString(), "target" to norma.target.toString())))
+                }
+                // What the next level opens for this player (ADR-0288): an ultimate or special they carry.
+                norma.nextUnlock?.let {
+                    add(
+                        HudComponent.Text(
+                            MessageKey("astera.hud.sidebar.next-unlock"),
+                            placeholders = mapOf("level" to it.level.toString(), "item" to messages.renderText(viewer, it.item)),
+                        ),
+                    )
                 }
             }
         }

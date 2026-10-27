@@ -26,7 +26,7 @@ import com.astarworks.astera.core.domain.world.WorldId
  * tracked, then deducts the damage from current durability (or starts at
  * DEFAULT_MAX_DURABILITY if previously untracked). When durability falls to 0
  * the adapter is expected to publish a `BlockBroken` domain event (which the
- * BreakCore listener and the BlockChangeJournal both subscribe to).
+ * block-break listener and the BlockChangeJournal both subscribe to).
  *
  * # Wave 5x additions (ADR-0090)
  *
@@ -48,7 +48,7 @@ public interface IBlockStateGateway {
      * [BlockState] (durability clamped to 0..[BlockState.maxHp]).
      *
      * Wave 5d entrypoint — preserved for the listener-driven raw-damage
-     * path (BreakCore, barrier hits). Skill-cast damage should use
+     * path (mode block vetoes, barrier hits). Skill-cast damage should use
      * [applyDamageFromSkill] instead so per-block-type tool effectiveness
      * matrices apply.
      */
