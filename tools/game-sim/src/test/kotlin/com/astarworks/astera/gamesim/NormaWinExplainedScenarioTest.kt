@@ -45,7 +45,7 @@ class NormaWinExplainedScenarioTest {
             assertThat(sidebar).`as`("the clock shows the limit (the sim shows the sidebar line keys with their placeholders)").contains("limit=20:00")
             assertThat(sidebar).`as`("the Norma race against the rival is on the sidebar").contains("level=1,max=5,rival=1")
 
-            red.breaks(Vec3(118.0, 65.0, 0.0))
+            red.breaks(Vec3(90.0, 65.0, 0.0))
             advance(60)
 
             val ended = eventsOf<MatchEnded>().single()
