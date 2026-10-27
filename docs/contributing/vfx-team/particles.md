@@ -81,6 +81,14 @@ Emitting 30-100 moving particles per contact costs no display: a `kind: particle
 
 Particle-related, from the team's list ([README.md](README.md)): fire made of squares (cubes), black `#`-like smoke glyphs, poles for jets, a static ring standing like a wall. Plus (bastion-s1 r2): a vanilla particle beside the caster camera becoming a block grid; `small_flame` as a cartoon flame; end_rod sparks lingering ~60 ticks.
 
+## Craft checklist (P-numbers: [pixel-vfx-craft.md](../../reference/vfx/pixel-vfx-craft.md))
+
+- **Heat budget (P5).** Particles are accent or ambient: mid-ramp colours, at most two hue families plus smoke; the hottest band belongs to the core. Pair bright with dark ([Dark + bright](#techniques)).
+- **Bands (P1).** `color_over_life` / `dust_color_transition` move down the ramp in steps; no soft alpha-ramp glow.
+- **Break up, do not shrink (P3).** In dissipation, particles spread and cool; do not run `size_over_life` to zero as the only ending. Smoke starts late (about a fifth in).
+- **Ground (P8) and loops (P9).** Ground poofs start at the floor line; periodic emitters complete whole cycles.
+- **Culling (P2).** Particles must be removable (`lane: accent` / `ambient`) without losing the shape.
+
 ## Learnings log
 
 (Append dated bullets after each effect. Format: `- YYYY-MM-DD <case>: <fact / pitfall / number>`.)

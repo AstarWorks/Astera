@@ -80,6 +80,18 @@ Look at edges on native crops before handing a round over: add `&zoom=native&cro
 - Runtime applies 10% / x2 random crits (`CombatWiring`, procedure section 5), so total HP loss does not count hits; count hits from frames or events.
 - Machine/slot discipline: one capture runs at a time on the whole host (`/tmp/claude-1000/astera-vfx-shot.lock`, `SHOT_SLOTS=1`); others queue. A run tears its stack down when it exits unless `SHOT_KEEP=1`, and a kept stack lives at most `SHOT_KEEP_TTL` (45 min) or until another checkout needs the slot. Never use the e2e flock for captures. See the "Real-client capture" section of [README.md](README.md).
 
+## Craft checklist (P-numbers: [pixel-vfx-craft.md](../../reference/vfx/pixel-vfx-craft.md))
+
+Run before each capture round and put the result in the round note.
+
+1. **Shape first (P2).** View the build at `vfx_intensity: minimal` (core lane only): the dominant shape of each effect must read. If not, fix the core, not the extras.
+2. **Impact tick (P4).** The beat sheet's impact tick equals the first-flash tick of the vfx, the `hit_stop` tick and the `camera_shake` tick. Check against the server trace, not by eye.
+3. **Timing template (P3).** Anticipation / impact / expansion / dissipation slots exist for each effect; endings fragment and cool down the ramp, they do not shrink.
+4. **Heat budget (P5).** Only the core carries the top bands; at most two hue families plus smoke; grayscale pass shows a core, not a blob.
+5. **Ramp (P1).** Colours step in hard bands, hue-shifted; no blurred glow or soft gradient on pixel-class sprites.
+6. **Ground and loops (P8, P9).** Ground rings flattened on the floor; loops close on whole cycles.
+7. **Sprites (P6, P10).** Sprites are drawn by [pixel-art.md](pixel-art.md) rules (consult `pixel-artist`): density near 16 texel per block for pixel-class, hard alpha, no strays.
+
 ## Learnings log
 
 (Append dated bullets after each skill, newest last. Format: `- YYYY-MM-DD <case>: <fact / pitfall / number>`.)

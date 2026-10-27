@@ -82,6 +82,16 @@ crescents built from uniform boxes (hoops); fire made of squares (cubes); poles 
 
 Other failure patterns with detection steps: [failure-patterns.md](../../reference/vfx/failure-patterns.md) (e.g. same hit_stop everywhere, a single hit covering 12-18%+ of view, particles on every combo frame, lingering white screen flashes).
 
+## Craft checklist (P-numbers: [pixel-vfx-craft.md](../../reference/vfx/pixel-vfx-craft.md))
+
+- **Bands (P1).** 4-7 hard colour bands per effect, dark to light, hue-shifted (cool shadows, warm highlights); darkest band = outline. Use stepped `color_over_life` keys on display particles rather than smooth ramps. A blurred glow or soft gradient is a ×.
+- **Heat budget (P5).** Core takes the hottest bands; accent and ambient lanes sit mid-ramp. At most two hue families plus smoke.
+- **Break up, do not shrink (P3).** Endings: frames of fragments cooling down the ramp. Sprite elements cannot fade, so do it in the strip and with `scale`.
+- **Ground (P8).** Rings and flashes on the floor: element y on the floor line, flattened (about 0.3), quads or `billboard: center`.
+- **Loops (P9).** Spin, pulse and flicker complete whole cycles in the loop length.
+- **Density (P6).** Pixel-class sprites near 16 texel per block at spawned scale; sprite drawing itself follows [pixel-art.md](pixel-art.md).
+- **Shape first (P2).** The `lane: core` elements alone must show the shape.
+
 ## Learnings log
 
 (Append dated bullets after each skill. Format: `- YYYY-MM-DD <case>: <fact / pitfall / number>`.)

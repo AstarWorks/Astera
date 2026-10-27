@@ -195,6 +195,17 @@ Nothing says which way either cut turns, that cut 2 reverses, or how many swings
 
 TBD — filled from the approved S1 beat sheet. The bold cells are the founder-confirmed facts the skeleton must keep: cut 1 rotates counter-clockwise relative to the camera; cut 2 reverses the body and rotates clockwise. The top direction of both cuts is mandatory in the real sheet because the camera direction cannot carry it.
 
+## Craft checklist for the beat sheet (P-numbers: [pixel-vfx-craft.md](../../reference/vfx/pixel-vfx-craft.md))
+
+Add these to the sheet; they are checks on the cells above, not new columns of the reference reading.
+
+- **Timing template (P3).** For every effect that appears in a beat, write its slots in ticks: anticipation (optional), impact (1-2 tick flash, the brightest), expansion (fast, ease-out), dissipation (slower, breaking into chunks and cooling down the colour ramp; shrinking is not an ending). Smoke starts late (about a fifth in).
+- **Impact tick (P4).** One `impact tick` per hit, equal to the tick of the biggest coverage jump. The skill's `hit_stop` and `camera_shake` ticks (and the damage tick) are written next to it and must be the same number. Mismatch = fix before building.
+- **Shape first (P2).** Name the one dominant shape per effect and say what the `lane: core` elements alone (the `vfx_intensity: minimal` view) show.
+- **Heat budget (P5).** Name the hue families (at most two plus smoke) and which layer owns the hottest band.
+- **Ground (P8) and loops (P9).** Ground rings: pivot on the floor, flattened; periodic parts: whole cycles per loop.
+- **Missing vocabulary (P12).** If the reference needs something Astera has no element for, write it in the cell as `[U]` with the candidate; do not fake it.
+
 ## Learnings log
 
 (The author appends dated bullets after each skill: `- YYYY-MM-DD <case>: <fact>`.)
