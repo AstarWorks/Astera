@@ -166,8 +166,8 @@ elements:
     - 1
   - t: 3
     translate:
-    - -0.2
-    - 1.95
+    - -0.15
+    - 1.9
     - 0.3
     rotate:
     - 0
@@ -180,8 +180,8 @@ elements:
     ease: out_cubic
   - t: 6
     translate:
-    - -0.45
-    - 2.25
+    - -0.3
+    - 2.1
     - -0.1
     rotate:
     - 0
@@ -194,9 +194,9 @@ elements:
     ease: out_back
   - t: 10
     translate:
+    - -0.35
+    - 2.1
     - -0.6
-    - 2.4
-    - -0.5
     rotate:
     - 0
     - 30
@@ -208,9 +208,9 @@ elements:
     ease: in_out_sine
   - t: 11
     translate:
+    - -0.35
+    - 2.08
     - -0.6
-    - 2.35
-    - -0.5
     rotate:
     - 0
     - 0
@@ -222,9 +222,9 @@ elements:
     ease: in_out_sine
   - t: 12
     translate:
-    - -0.6
-    - 2.3
-    - -0.4
+    - -0.35
+    - 2.05
+    - -0.5
     rotate:
     - 90
     - 0
@@ -1280,76 +1280,6 @@ elements:
     - 0.2423
     - 0.2423
     - 1
-- id: overhead-spark-0
-  kind:
-    type: particle
-    particle_id: couture-s2-overhead-spark
-    every_ticks: 2
-  brightness: 15
-  start_tick: 23
-  end_tick: 26
-  keyframes:
-  - t: 0
-    translate:
-    - 0.0
-    - 2.7
-    - 0.9
-- id: overhead-spark-1
-  kind:
-    type: particle
-    particle_id: couture-s2-overhead-spark
-    every_ticks: 2
-  brightness: 15
-  start_tick: 26
-  end_tick: 29
-  keyframes:
-  - t: 0
-    translate:
-    - 0.0
-    - 2.7
-    - -0.9
-- id: overhead-spark-2
-  kind:
-    type: particle
-    particle_id: couture-s2-overhead-spark
-    every_ticks: 2
-  brightness: 15
-  start_tick: 29
-  end_tick: 32
-  keyframes:
-  - t: 0
-    translate:
-    - 0.0
-    - 2.7
-    - 0.8
-- id: overhead-spark-3
-  kind:
-    type: particle
-    particle_id: couture-s2-overhead-spark
-    every_ticks: 2
-  brightness: 15
-  start_tick: 32
-  end_tick: 35
-  keyframes:
-  - t: 0
-    translate:
-    - 0.0
-    - 2.7
-    - -0.7
-- id: overhead-spark-4
-  kind:
-    type: particle
-    particle_id: couture-s2-overhead-spark
-    every_ticks: 2
-  brightness: 15
-  start_tick: 35
-  end_tick: 38
-  keyframes:
-  - t: 0
-    translate:
-    - 0.0
-    - 2.7
-    - 0.6
 - id: overhead-chain-a
   kind:
     type: particle
