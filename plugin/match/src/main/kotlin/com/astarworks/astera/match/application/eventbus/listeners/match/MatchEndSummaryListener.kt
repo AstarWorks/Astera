@@ -72,7 +72,7 @@ public class MatchEndSummaryListener(
 
         for (team in match.teams) {
             for (member in team.members) {
-                pushTitle(member, summary.outcomeOf(member), event.matchId)
+                pushTitle(member, summary.outcomeOf(member), event, match, viewerReasonSubtitle(member, match, event))
                 pushChat(member, match, summary, event, standings)
             }
         }
@@ -107,9 +107,38 @@ public class MatchEndSummaryListener(
         )
     }
 
-    private fun pushTitle(playerId: PlayerId, outcome: MatchOutcome, matchId: MatchId) {
+    /** One-line "why it ended" shown under the verdict title (new short keys `astera.match.summary.subtitle.*`). */
+    private fun viewerReasonSubtitle(viewer: PlayerId, match: Match, event: MatchEnded): HudComponent {
+        val teamsById = match.teams.associateBy { it.id }
+        fun team(id: TeamId?): Map<String, String> = mapOf(
+            "team" to (id?.let { teamsById[it] }?.let { messages.render(viewer, it.displayNameKey) } ?: id?.value.orEmpty()),
+            "color" to teamColor(viewer, id?.let { teamsById[it] }),
+        )
+        val reason = event.reason
+        return when (reason) {
+            is EndReason.NormaLevelReached -> HudComponent.Text(MessageKey("astera.match.summary.subtitle.norma-level"), placeholders = team(reason.winner) + ("level" to reason.level.toString()))
+            is EndReason.NormaTimeLimit ->
+                if (reason.leader != null) HudComponent.Text(MessageKey("astera.match.summary.subtitle.norma-time"), placeholders = team(reason.leader))
+                else HudComponent.Text(MessageKey("astera.match.summary.subtitle.time-draw"))
+            is EndReason.EncounterCleared -> HudComponent.Text(MessageKey("astera.match.summary.subtitle.pve-cleared"), placeholders = mapOf("waves" to reason.waves.toString()))
+            is EndReason.EncounterFailed -> HudComponent.Text(
+                MessageKey("astera.match.summary.subtitle.pve-failed"),
+                placeholders = mapOf("wave" to reason.wave.toString(), "waves" to reason.waves.toString()),
+            )
+            else -> when (reasonKindOf(event)) {
+                "objective" -> event.winningTeam?.let { HudComponent.Text(MessageKey("astera.match.summary.subtitle.objective"), placeholders = team(it)) }
+                    ?: HudComponent.Text(MessageKey("astera.match.summary.subtitle.other"))
+                "timer-expired" -> HudComponent.Text(MessageKey("astera.match.summary.subtitle.timer"))
+                else -> HudComponent.Text(MessageKey("astera.match.summary.subtitle.other"))
+            }
+        }
+    }
+
+    private fun pushTitle(playerId: PlayerId, outcome: MatchOutcome, event: MatchEnded, match: Match, subtitle: HudComponent) {
+        val matchId = event.matchId
         val layout = HudLayout.Subtitle(
-            component = HudComponent.Text(messageKey = verdictKey(outcome)),
+            title = HudComponent.Text(messageKey = verdictKey(outcome)),
+            component = subtitle,
             fadeInTicks = SUMMARY_FADE_IN,
             stayTicks = SUMMARY_STAY,
             fadeOutTicks = SUMMARY_FADE_OUT,
@@ -230,6 +259,9 @@ public class MatchEndSummaryListener(
         if (standings.isNotEmpty() && summary.outcomeOf(viewer) == MatchOutcome.LOSE) {
             send("astera.match.result.hint", "max" to standings.first().maxLevel.toString())
         }
+
+        // Clickable line that re-opens this card later from anywhere (the lobby keeps it as the last-match record).
+        send("astera.match.result.open-last")
     }
 
     private fun teamParams(viewer: PlayerId, team: com.astarworks.astera.core.domain.match.Team?, fallbackName: String): Array<Pair<String, String>> =
@@ -275,7 +307,7 @@ public class MatchEndSummaryListener(
         public val MSG_DRAW: MessageKey = MessageKey("astera.match.summary.draw")
 
         public const val SUMMARY_FADE_IN: Int = 10
-        public const val SUMMARY_STAY: Int = 80
+        public const val SUMMARY_STAY: Int = 130
         public const val SUMMARY_FADE_OUT: Int = 20
 
         /** Rows in the chat top-players table. */
