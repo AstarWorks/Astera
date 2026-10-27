@@ -8,7 +8,8 @@ import kotlin.math.hypot
  * the player), so a game-sim scenario can drive the real mode with it.
  *
  *  - `carry-mini-tnt`: collect mini TNT at the pickup spots and plant it in the enemy base. A carrier that dies starts over.
- *  - `carry-tnt`: take the TNT at `tnt-spawn` to the enemy base.
+ *  - `carry-tnt`: wear down the TNT shield and take the TNT at `tnt-spawn`, hold the enemy's `checkpoint-<team>-<n>` zones
+ *    in order, then hold its `deliver-<team>` pedestal (stages without those zones fall back to `base-<team>`).
  *  - `steal-jewelry`: take a jewel from the enemy pedestal, bank it at the own base.
  *
  * Pickups and deliveries are short holds in the mode (a progress bar fills), so a step only counts as done once the bot
@@ -23,7 +24,7 @@ class ModePlanner(
     private val enemyTeams: List<String>,
     private val zones: Zones,
     private val carryLimit: Int = 4,
-    private val pickupCooldownMs: Long = 15_000,
+    private val pickupCooldownMs: Long = 25_000,
 ) {
     /** Stage regions by name (world coordinates). */
     interface Zones {
@@ -38,6 +39,7 @@ class ModePlanner(
     var carried = 0; private set
     var holdingTnt = false; private set
     private val takenAt = HashMap<String, Long>()
+    private val passedCheckpoints = HashSet<String>()
     private var woolIndex = 0
     private var holdSince = 0L
     private var dwellSince = 0L
@@ -61,7 +63,7 @@ class ModePlanner(
         if (holdingTnt || (modeId == "steal-jewelry" && carried > 0)) {
             lostX = x; lostZ = z; lostPending = true; recoverUntil = 0L
         }
-        carried = 0; holdingTnt = false; holdSince = 0L; dwellSince = 0L; awaitingSince = 0L
+        carried = 0; holdingTnt = false; holdSince = 0L; dwellSince = 0L; awaitingSince = 0L; passedCheckpoints.clear()
     }
 
     /**
@@ -83,7 +85,7 @@ class ModePlanner(
      * A pickup counts only once the server confirmed it: after the hold completes the bot keeps standing on [s] until
      * [noteConfirmed] advances (then [apply] runs and true is returned), or [CONFIRM_MS] pass and the hold is retried.
      */
-    private fun pickedUp(s: Step, now: Long, x: Double, z: Double, apply: () -> Unit): Boolean {
+    private fun pickedUp(s: Step, now: Long, x: Double, z: Double, holdMs: Long = HOLD_MS, apply: () -> Unit): Boolean {
         if (awaitingSince != 0L) {
             if (confirmed > seenConfirmed) {
                 seenConfirmed = confirmed; awaitingSince = 0L; apply(); return true
@@ -91,7 +93,7 @@ class ModePlanner(
             if (now - awaitingSince > CONFIRM_MS) awaitingSince = 0L
             return false
         }
-        if (held(s, now, x, z)) awaitingSince = now
+        if (held(s, now, x, z, holdMs)) awaitingSince = now
         return false
     }
 
@@ -133,22 +135,33 @@ class ModePlanner(
     private fun nearestEnemy(prefix: String, x: Double, z: Double) = nearest(enemyTeams.map { "$prefix$it" }, x, z)
 
     /** True once the bot has stood inside [s]'s radius for [HOLD_MS]: the modes' pickups and deliveries are short holds, not touches. */
-    private fun held(s: Step, now: Long, x: Double, z: Double): Boolean {
+    private fun held(s: Step, now: Long, x: Double, z: Double, holdMs: Long = HOLD_MS): Boolean {
         if (!reached(s, x, z)) { dwellSince = 0L; return false }
         if (dwellSince == 0L) dwellSince = now
-        if (now - dwellSince < HOLD_MS) return false
+        if (now - dwellSince < holdMs) return false
         dwellSince = 0L
         return true
     }
 
     private fun carryTnt(now: Long, x: Double, z: Double): Step? {
         if (holdingTnt) {
-            val s = nearestEnemy("base-", x, z)?.let { step(it, "deliver", BASE_RADIUS) } ?: return null
-            if (held(s, now, x, z)) { holdingTnt = false; return carryTnt(now, x, z) }
+            val deliver = nearestEnemy("deliver-", x, z)
+            val goal = deliver ?: nearestEnemy("base-", x, z) ?: return null
+            if (deliver != null) {
+                val route = zones.names("checkpoint-${deliver.removePrefix("deliver-")}-").sorted()
+                val next = route.firstOrNull { it !in passedCheckpoints }
+                if (next != null) {
+                    val cp = step(next, "checkpoint", CHECKPOINT_RADIUS) ?: return null
+                    if (held(cp, now, x, z, CHECKPOINT_HOLD_MS)) { passedCheckpoints += next; return carryTnt(now, x, z) }
+                    return cp
+                }
+            }
+            val s = step(goal, "deliver", BASE_RADIUS) ?: return null
+            if (held(s, now, x, z, DELIVER_HOLD_MS)) { holdingTnt = false; passedCheckpoints.clear(); return carryTnt(now, x, z) }
             return s
         }
         val s = step(TNT_SPAWN, "tnt", 1.5) ?: return null
-        if (pickedUp(s, now, x, z) { holdingTnt = true }) return carryTnt(now, x, z)
+        if (pickedUp(s, now, x, z, SHIELD_HOLD_MS) { holdingTnt = true }) return carryTnt(now, x, z)
         return s
     }
 
@@ -175,7 +188,7 @@ class ModePlanner(
         }
         val zone = nearestEnemy("jewelry-", x, z) ?: return null
         val s = step(zone, "jewel", 1.5) ?: return null
-        if (pickedUp(s, now, x, z) { carried = 1 }) return jewelry(now, x, z)
+        if (pickedUp(s, now, x, z, STEAL_HOLD_MS) { carried = 1 }) return jewelry(now, x, z)
         return s
     }
 
@@ -195,6 +208,12 @@ class ModePlanner(
         const val TNT_SPAWN = "tnt-spawn"
         const val BASE_RADIUS = 3.0
         const val HOLD_MS = 1_500L
+        /** Server holds: steal 2.5 s, checkpoint 3 s, deliver 2 s, TNT pickup 1 s (after its shield breaks); each plus a margin. */
+        const val STEAL_HOLD_MS = 3_000L
+        const val CHECKPOINT_HOLD_MS = 3_800L
+        const val DELIVER_HOLD_MS = 2_800L
+        const val SHIELD_HOLD_MS = 1_500L
+        const val CHECKPOINT_RADIUS = 2.0
         const val CONFIRM_MS = 4_000L
         /** Custom name the mode puts on loose (dropped) objective markers; keep equal to `PaperObjectiveStage.LOOSE_TAG`. */
         const val LOOSE_TAG = "astera:objective-loose"

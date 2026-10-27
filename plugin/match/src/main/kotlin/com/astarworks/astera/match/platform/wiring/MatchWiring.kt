@@ -543,6 +543,7 @@ public object MatchWiring {
                 positions = { objectivePositions },
                 poses = { services.get<com.astarworks.astera.core.application.port.outbound.IPlayerPoseLookup>() },
                 speed = { services.get<com.astarworks.astera.core.application.port.outbound.IPlayerSpeedGateway>() },
+                statuses = { services.get<com.astarworks.astera.combat.application.port.outbound.IStatusEffectContainer>() },
                 actionBar = { services.get<com.astarworks.astera.core.application.port.outbound.IActionBarChannel>() },
                 stage = { objectiveStage },
                 guide = { services.get<com.astarworks.astera.core.application.port.outbound.IHologramGuide>() },

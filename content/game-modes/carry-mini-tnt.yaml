@@ -1,16 +1,11 @@
-# Carry Mini TNT. Players collect mini TNT and carry it to the ENEMY base to blow it up.
+# Carry Mini TNT (Clam Blitz / ガチアサリ). Players collect minis ("clams"), make a power TNT and break the enemy basket.
 #
-# Small TNT pieces sit on the stage's pickup spots (`pickup_regions`). Walk into a spot to pick one up (up to
-# `carry_limit` at a time) and carry them into the ENEMY `base-<team>` zone to plant them there (your own base plants
-# nothing). A taken piece regrows after `respawn_seconds`; a carrier who dies loses what they carried. Every planted piece
-# takes `count_per_plant` off the team's count (13 pieces = knockout, the enemy base blows up).
-# Implementation: CarryMiniTntGameMode (SiegeGameMode).
-#
-# default_config
-#   count_per_plant  count one planted piece takes off (see the count model block below)
-#   carry_limit      pieces one player can carry
-#   respawn_seconds  seconds until a taken piece regrows
-#   pickup_regions   comma-separated stage regions that hold a piece
+# Minis sit on the stage's `clam-<n>` spots (they regrow after `respawn_seconds`); a player carries up to `carry_limit`.
+# When the clams in a team's hands add up to `power_need`, the collector gets a power TNT. Every enemy `basket-<team>`
+# has a barrier that only a thrown-in power TNT breaks (hold the basket with it): the throw counts `count_per_power`
+# and the barrier stays open `barrier_open_seconds`; while it is open, carried minis planted there count
+# `count_per_mini` each. A carrier who dies scatters what they carried into up to `scatter_piles` piles.
+# Overtime runs while the trailing team holds a power TNT. Implementation: CarryMiniTntGameMode (SiegeGameMode).
 
 id: carry-mini-tnt
 title_key: astera.gamemode.carry-mini-tnt.title
@@ -28,10 +23,16 @@ default_config:
   count_start: "100"
   count_low_at: "34"
   overtime_max_seconds: "60"
-  count_per_plant: "8"
-  carry_limit: "4"
-  respawn_seconds: "15"
-  pickup_regions: "wool-a,wool-b,wool-c"
+  # Count values: a thrown-in power TNT and a planted mini (the scorer's count falls by this much).
+  count_per_power: "20"
+  count_per_mini: "3"
+  carry_limit: "8"
+  power_need: "10"
+  power_carry_weight: "3"
+  respawn_seconds: "20"
+  barrier_open_seconds: "10"
+  scatter_piles: "6"
+  scatter_radius: "2"
   # Objective feel (ObjectiveKit): hold time at a pickup / goal in ticks, how long a dropped objective lies before it
   # goes home (seconds), reach of a pile pickup (blocks), distance at which defenders get a gate warning (blocks).
   channel_ticks: "15"

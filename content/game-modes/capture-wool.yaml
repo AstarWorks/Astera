@@ -1,14 +1,12 @@
 # Capture Wool (WP11, siege mode).
 #
-# The stage's `wool-*` zones are control points marked by a wool block. A team
-# that stands alone in a zone for `capture_seconds` captures it (the marker
-# turns into the team's wool); a contested or empty zone resets. Each capture takes
-# `count_per_capture` off the team's count (3 captures = knockout).
+# The stage's central `wool-*` zones (one or two) are Splat Zones (ガチエリア): a 5x5 pad (concrete ring, wool core)
+# under a tall beam. A team alone in a zone fills its progress ring (`capture_seconds` for a neutral zone,
+# `recapture_seconds` for one an enemy holds) and the pad turns into its colour. While one team owns EVERY zone
+# its count falls `count_per_second` each second; split ownership of two zones pauses both counts. A team that
+# retakes a zone first burns `retake_penalty_pct` percent of the seconds the loser counted (at most
+# `penalty_cap_seconds`). Overtime runs while the trailing team owns every zone.
 # Implementation: CaptureWoolGameMode, ticked once per second.
-#
-# default_config
-#   capture_seconds   seconds alone in a zone to capture it
-#   count_per_capture count one capture takes off (see the count model block below)
 id: capture-wool
 title_key: astera.gamemode.capture-wool.title
 impl_class: com.astarworks.astera.match.application.gamemode.CaptureWoolGameMode
@@ -26,4 +24,11 @@ default_config:
   count_low_at: "34"
   overtime_max_seconds: "60"
   capture_seconds: "10"
-  count_per_capture: "34"
+  recapture_seconds: "8"
+  progress_decay_per_second: "1"
+  count_per_second: "1"
+  retake_penalty_pct: "50"
+  penalty_cap_seconds: "20"
+  floor_radius: "2"
+  inner_radius: "1"
+  beam_height: "20"

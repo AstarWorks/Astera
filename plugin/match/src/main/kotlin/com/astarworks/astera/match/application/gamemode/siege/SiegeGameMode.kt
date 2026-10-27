@@ -2,6 +2,8 @@ package com.astarworks.astera.match.application.gamemode.siege
 
 import com.astarworks.astera.match.domain.gamemode.MatchHudStatus
 import com.astarworks.astera.match.domain.gamemode.HudLine
+import com.astarworks.astera.combat.application.port.outbound.IStatusEffectContainer
+import com.astarworks.astera.combat.domain.event.DamageDealt
 import com.astarworks.astera.combat.domain.event.PlayerKilled
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.application.port.outbound.IMatchRepository
@@ -56,6 +58,7 @@ import org.slf4j.LoggerFactory
  * @property stage the visible objective stage (carrier glow, world markers, boss bars); `null` = headless.
  * @property guide the per-player hologram guide arrow (ADR-0295); `null` = no hologram.
  * @property settings player preferences; the guide is off for players who hid the HUD; `null` = everyone sees it.
+ * @property statuses combat status container; the TNT carrier is silenced through it (Rainmaker: no weapons); `null` = never silenced.
  */
 public class SiegeEnv(
     public val eventBus: IDomainEventBus,
@@ -75,6 +78,7 @@ public class SiegeEnv(
     public val stage: () -> IObjectiveStage? = { null },
     public val guide: () -> IHologramGuide? = { null },
     public val settings: () -> IPlayerSettingsRepository? = { null },
+    public val statuses: () -> IStatusEffectContainer? = { null },
 ) {
     public fun int(key: String, default: Int): Int = config[key]?.toIntOrNull() ?: default
 
@@ -136,7 +140,7 @@ public abstract class SiegeGameMode<R : SiegeRun>(
     private val modeId: GameModeId,
     private val titleKey: MessageKey,
     protected val env: SiegeEnv?,
-) : IGameMode {
+) : IGameMode, IObjectiveStateQuery {
 
     private val log = LoggerFactory.getLogger(javaClass)
     private val runs: MutableMap<MatchId, R> = mutableMapOf()
@@ -170,6 +174,12 @@ public abstract class SiegeGameMode<R : SiegeRun>(
             e.eventBus.subscribe(BlockBroken::class) { ev ->
                 dispatch(ev.matchId) { run, match ->
                     if (live(match)) broken(run, match, ev.playerId, teamOf(match, ev.playerId), ev.position)
+                }
+            },
+            e.eventBus.subscribe(DamageDealt::class) { ev ->
+                val match = e.matches.findMatchOf(ev.target) ?: return@subscribe
+                dispatch(match.id) { run, m ->
+                    if (live(m)) damaged(run, m, ev.target, ev.attacker, ev.resolved.finalAmount)
                 }
             },
             e.eventBus.subscribe(PlayerKilled::class) { ev ->
@@ -313,11 +323,30 @@ public abstract class SiegeGameMode<R : SiegeRun>(
 
     protected open fun start(run: R, match: Match) {}
 
+    /** Read-only view of the mode's live state for bots / tooling; `null` when the mode publishes none. */
+    protected open fun snapshotOf(run: R, match: Match): ObjectiveSnapshot? = null
+
+    final override fun objectiveSnapshot(matchId: MatchId): ObjectiveSnapshot? {
+        val e = env ?: return null
+        val run = runs[matchId] ?: return null
+        val match = e.matches.findById(matchId) ?: return null
+        return snapshotOf(run, match)
+    }
+
+    /** Logs a clear load error naming the stage regions [names] this mode needs and [stage] lacks; always returns `null` for `createRun`. */
+    protected fun <T> missingRegions(stage: Stage, names: Collection<String>): T? {
+        log.error("{}: stage '{}' lacks the required region(s) {}; the match runs without an objective.", modeId, stage.id, names.sorted())
+        return null
+    }
+
     protected open fun entered(run: R, match: Match, player: PlayerId, team: TeamId, region: String) {}
 
     protected open fun left(run: R, player: PlayerId, region: String) {}
 
     protected open fun broken(run: R, match: Match, player: PlayerId, team: TeamId?, position: Vec3) {}
+
+    /** [victim] took [amount] damage (from [attacker], null = the world); a hold in progress breaks on it. */
+    protected open fun damaged(run: R, match: Match, victim: PlayerId, attacker: PlayerId?, amount: Double) {}
 
     protected open fun killed(run: R, match: Match, victim: PlayerId, victimTeam: TeamId?, killer: PlayerId?, killerTeam: TeamId?) {}
 
