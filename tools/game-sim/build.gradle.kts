@@ -63,26 +63,10 @@ tasks.register<Test>("showcase") {
     filter { includeTestsMatching("*SkillShowcaseScenarioTest") }
 }
 
-// ADR-0276: writes build/skill-lint/<skill>/plan.json for tools/skill-lint (a headless cast of the real skill; not a test).
-//   ./gradlew :tools:game-sim:skillLintPlan -Pskill=bastion-greatsword-s1      (or: make skill-lint-plan SKILL=...)
 // Warm path of scripts/skill-preview-auto.sh: prints the runtime classpath (Gradle compiles once per code change), so plan dumps
 // run as a bare `java -cp` with no Gradle startup per skill.
 tasks.register("previewClasspath") {
     val cp = sourceSets.main.get().runtimeClasspath
     dependsOn(cp)
     doLast { println(cp.files.joinToString(":") { it.absolutePath }) }
-}
-
-tasks.register<JavaExec>("skillLintPlan") {
-    group = "verification"
-    description = "Writes build/skill-lint/<skill>/plan.json (body bones, weapon, visibleWeapons per tick) for skill-lint"
-    classpath = sourceSets.main.get().runtimeClasspath
-    mainClass.set("com.astarworks.astera.gamesim.SkillLintPlanDump")
-    systemProperty("astera.sim.contentDir", rootProject.file("content").absolutePath)
-    systemProperty("astera.sim.traceDir", layout.buildDirectory.dir("sim-traces").get().asFile.absolutePath)
-    val skill = providers.gradleProperty("skill")
-    doFirst {
-        require(skill.isPresent) { "pass -Pskill=<skill-id>" }
-        args(skill.get(), rootProject.layout.buildDirectory.dir("skill-lint").get().asFile.absolutePath)
-    }
 }

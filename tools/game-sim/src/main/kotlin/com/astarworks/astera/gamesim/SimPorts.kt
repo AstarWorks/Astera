@@ -32,7 +32,6 @@ import com.astarworks.astera.core.application.port.outbound.WorldGatewayError
 import com.astarworks.astera.core.application.port.outbound.spectator.ISpectator
 import com.astarworks.astera.core.application.port.outbound.spectator.SpectatorError
 import com.astarworks.astera.core.application.port.outbound.runRepeatingTicks
-import com.astarworks.astera.core.domain.skill.mechanic.ScreenOverlay
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.attribute.AttributeValue
 import com.astarworks.astera.core.domain.attribute.Attributes
