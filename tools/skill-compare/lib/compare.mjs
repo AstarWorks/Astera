@@ -55,9 +55,9 @@ export function makeCompare({ publishedDir, getRec, cacheFor, F, failureOf, beat
   function traceOf(dir) {
     let text = "";
     try { text = readFileSync(join(dir, "trace.log"), "utf8"); } catch { return null; }
-    const num = (s) => (s?.match(/-?\d+(?:\.\d+)?/g) ?? []).slice(0, 3).map(Number);
+    const num = (s) => [...(s?.matchAll(/[xyz]=(-?\d+(?:\.\d+)?)/g) ?? [])].map((m) => +m[1]);
     const spawns = [], pos = [];
-    for (const l of text.split("\n")) {
+    for (const l of text.split(/\r?\n/)) {
       let m;
       if ((m = /\[vfx-trace\] spawn (\S+) (\S+) age=(\d+) planSpawn=(-?\d+) tick=(\d+)/.exec(l))) spawns.push({ vfx: m[1], element: m[2], age: +m[3], planSpawn: +m[4], tick: +m[5] });
       else if ((m = /\[vfx-trace\] pos (\S+) age=(\d+) tick=(\d+) caster=(.*?) target=(.*)$/.exec(l))) { const c = num(m[4]), t = num(m[5]); if (c.length === 3) pos.push({ age: +m[2], c, t: t.length === 3 ? t : null }); }

@@ -233,7 +233,24 @@ FOV_FROM_ENV=0
 [ -n "$FOV" ] && FOV_FROM_ENV=1
 RENDER_DISTANCE="${RENDER_DISTANCE:-6}"
 TIME_OF_DAY="${TIME_OF_DAY:-6000}"   # `time set`; 6000 = noon (target + floor readable), 13000 = dusk (glow pops, husk goes dark)
-DISTANCE="${DISTANCE:-4}"            # caster -> target, blocks
+# caster -> target, blocks. Default: the enemy distance of the skill's skill-compare case (data/<case>/intent.json: enemy x minus
+# caster x at t0), so every review view stages the same fight as the ref; 4 when the skill has no case.
+if [ -z "${DISTANCE:-}" ] && [ -n "$SKILL" ]; then
+  DISTANCE="$(python3 -I -c '
+import json, glob, os, sys
+skill, root = sys.argv[1], sys.argv[2]
+for cj in sorted(glob.glob(os.path.join(root, "tools/skill-compare/data/*/case.json"))):
+    try:
+        c = json.load(open(cj))
+        if c.get("asteraSkillId") != skill: continue
+        d = json.load(open(os.path.join(os.path.dirname(cj), c.get("intent", {}).get("file", "intent.json"))))
+        x = {a["id"]: a["keys"][0]["pos"][0] for a in d["actors"] if a.get("id") in ("caster", "enemy")}
+        print(round(x["enemy"] - x["caster"], 2)); break
+    except Exception:
+        continue
+' "$SKILL" "$ROOT" 2>/dev/null)"
+fi
+DISTANCE="${DISTANCE:-4}"
 JOIN_SETTLE="${JOIN_SETTLE:-8}"      # seconds after a client joined before the scene is placed (lobby relocations)
 SETTLE="${SETTLE:-5}"                # seconds after the teleport before filming (chunks, join titles)
 SETTLE_WARM="${SETTLE_WARM:-2}"      # same, when both clients were already parked in the arena
@@ -855,7 +872,7 @@ film() { # viewer view_dir
   # the server's [vfx-trace] lines of this cast (play/spawn/pos): skill-compare derives fx spawn ticks and caster travel from them
   local ct; ct="$(jq -r '.castTick // empty' "$dir/framestamp.json" 2>/dev/null)"
   if [ -n "$ct" ]; then
-    docker logs "$SERVER_CT" 2>&1 | grep -F '[vfx-trace]' \
+    docker logs "$SERVER_CT" 2>&1 | grep -F '[vfx-trace]' | tr -d '\r' \
       | awk -v lo="$((ct - 1))" -v hi="$((ct + TICKS + PRE_TICKS + 10))" '{ if (match($0, /tick=[0-9]+/)) { t = substr($0, RSTART + 5, RLENGTH - 5) + 0; if (t >= lo && t <= hi) print } }' > "$dir/trace.log" || true
   fi
   log "tick stamp: $(cat "$STATE/framestamp.out")"
