@@ -1,8 +1,6 @@
 # Non-IT, non-Shipped* test classes allowed under plugin/*/src/test/ (they load real shipped content / real files).
 # Adding a line needs founder-approved justification; see docs/contributing/testing-policy.md.
-plugin/combat/src/test/kotlin/com/astarworks/astera/combat/application/contents/SkillVisualContentTest.kt
 plugin/combat/src/test/kotlin/com/astarworks/astera/combat/application/contents/CombatBalanceContentsTest.kt
-core/feature-effects/src/test/kotlin/com/astarworks/astera/core/application/contents/VfxRigContentTest.kt
 core/feature-gameplay/src/test/kotlin/com/astarworks/astera/core/application/service/lobby/LobbyWorldContentTest.kt
 core/feature-gameplay/src/test/kotlin/com/astarworks/astera/core/application/service/lobby/LobbyMenuKitTest.kt
 core/feature-gameplay/src/test/kotlin/com/astarworks/astera/core/application/service/entity/LobbyNpcLoaderServiceTest.kt
