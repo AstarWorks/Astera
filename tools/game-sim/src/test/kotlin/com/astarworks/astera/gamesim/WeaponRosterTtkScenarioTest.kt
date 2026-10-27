@@ -23,10 +23,14 @@ import org.junit.jupiter.api.Test
  * most once a second regardless of fire rate; DoTs (burn, bleed, poison) bypass them.
  *
  * Item 18 (2026-10-27) damage policy: player max HP 20 -> 100. MELEE weapons keep the pre-change time-to-kill and
- * hits-to-kill (skill damage x5); every other weapon (guns, staffs, projectiles) takes about twice as long (skill
- * damage x2.5). The band is therefore [1, 6] s for melee and [2, 12] s for ranged.
+ * hits-to-kill (skill damage x5); every other weapon (guns, staffs, projectiles) kills in about HALF the original
+ * time (founder correction). Direct hits land at most once a second (20-tick invulnerability), so ranged damage is
+ * 100 / N for the smallest N that reaches the target (2 hits for most; fire-staff = one hit + 2 burn ticks), plus the
+ * shotgun cooldown 26 -> 20 and thunder-staff cooldown 70 -> 35 so a second hit can land inside ~1-2 s. The band is
+ * [1, 6] s for melee and [0.5, 3] s for ranged.
  *
- * Reference run before the change (20 HP, pre-x5 damage), seconds:
+ * Reference run before the change (20 HP, pre-x5 damage), seconds (measured now for ranged: pistol 1.35, rifle 1.55,
+ * shotgun 1.05, frost 1.70, fire 2.00, thunder 1.90, verdant 2.00):
  *
  * | weapon        | input       | skill             | dist | TTK (s)          |
  * |---------------|-------------|-------------------|------|------------------|
@@ -122,8 +126,8 @@ class WeaponRosterTtkScenarioTest {
                 "TTK ${weapon.item} (${if (weapon.melee) "melee" else "ranged"}): hits ${hits.joinToString()}; " +
                     "seconds ${seconds.joinToString { it?.let { s -> "%.2fs".format(s) } ?: "no-kill" }}",
             )
-            val minBand = if (weapon.melee) MIN_SECONDS else MIN_SECONDS * RANGED_FACTOR
-            val maxBand = if (weapon.melee) MAX_SECONDS else MAX_SECONDS * RANGED_FACTOR
+            val minBand = if (weapon.melee) MIN_SECONDS else RANGED_MIN_SECONDS
+            val maxBand = if (weapon.melee) MAX_SECONDS else RANGED_MAX_SECONDS
             val min = seconds.filterNotNull().minOrNull()
             val max = if (seconds.any { it == null }) Double.POSITIVE_INFINITY else seconds.filterNotNull().maxOrNull()
             if (min == null || min < minBand || max == null || max > maxBand) {
@@ -138,7 +142,8 @@ class WeaponRosterTtkScenarioTest {
         val SEED_OFFSETS = listOf(18, 35, 38, 41, 43)
         val TRIALS = SEED_OFFSETS.size
         const val LIMIT_TICKS = 20 * 24
-        const val RANGED_FACTOR = 2.0
+        const val RANGED_MIN_SECONDS = 0.5
+        const val RANGED_MAX_SECONDS = 3.0
         const val MIN_SECONDS = 1.0
         const val MAX_SECONDS = 6.0
     }

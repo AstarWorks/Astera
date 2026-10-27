@@ -14,7 +14,7 @@ description:
   en: "Hurls a crackling bolt of lightning that can paralyze the target."
 
 archetype: projectile
-cooldown_ticks: 70
+cooldown_ticks: 35
 resource_cost: 30              # energy: the shared pool (100) fits three bolts
 tags: [ ranged, electric-family, stun ]
 # ADR-0280: flat chip where the bolt lands (opt-in; cover has 200-500 HP, weapons only chip).
@@ -60,7 +60,7 @@ phases:
     - type: damage
       targets: { type: target }
       components:
-        - base: { type: literal, value: 35.0 }
+        - base: { type: literal, value: 50.0 }
           attribute: electric
     - type: apply_status
       targets: { type: target }

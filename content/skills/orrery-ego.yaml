@@ -94,7 +94,7 @@ phases:
     components:
     - base:
         type: literal
-        value: 45
+        value: 112.5
       attribute: physical
       per_stack:
         status_id: charge

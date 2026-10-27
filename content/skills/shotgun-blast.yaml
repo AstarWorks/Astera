@@ -12,7 +12,7 @@ description:
   en: "Blasts a close-range cone of pellets for heavy damage and knockback."
 
 archetype: melee
-cooldown_ticks: 26
+cooldown_ticks: 20
 resource_cost: 1               # one shell; the shotgun's magazine is 6
 tags: [ ranged, gun, burst ]
 # ADR-0280: flat chip along the look ray (opt-in; cover has 200-500 HP, weapons only chip).
@@ -26,7 +26,7 @@ params:
   arc_degrees: 50.0
   knockback: 0.9
   damage:
-    - base: { type: literal, value: 32.5 }
+    - base: { type: literal, value: 50.0 }
       attribute: physical
 
 phases:
