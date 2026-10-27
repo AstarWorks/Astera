@@ -39,6 +39,22 @@ tasks.shadowJar {
     archiveBaseName.set("astera-core")
     archiveClassifier.set("")
     mergeServiceFiles()
+    // ADR-0299: cel-java drags guava / protobuf / antlr / re2j into the jar. Relocate all of it so it can never clash
+    // with Paper's own guava or another plugin's protobuf.
+    val shaded = "com.astarworks.astera.shaded"
+    relocate("dev.cel", "$shaded.dev.cel")
+    relocate("com.google.protobuf", "$shaded.com.google.protobuf")
+    relocate("com.google.common", "$shaded.com.google.common")
+    relocate("com.google.thirdparty", "$shaded.com.google.thirdparty")
+    relocate("com.google.re2j", "$shaded.com.google.re2j")
+    relocate("com.google.auto", "$shaded.com.google.auto")
+    relocate("com.google.errorprone","$shaded.com.google.errorprone")
+    relocate("com.google.j2objc", "$shaded.com.google.j2objc")
+    relocate("org.antlr", "$shaded.org.antlr")
+    relocate("org.jspecify", "$shaded.org.jspecify")
+    relocate("org.checkerframework", "$shaded.org.checkerframework")
+    relocate("org.threeten", "$shaded.org.threeten")
+    relocate("google", "$shaded.google") // .proto resource roots (google/api/expr, google/rpc, google/type) bundled with cel
 }
 
 tasks.named("build") {

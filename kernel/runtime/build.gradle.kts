@@ -11,5 +11,6 @@ dependencies {
     api(libs.kotlinx.serialization.json)
     implementation(libs.slf4j.api)
     implementation(libs.kaml)
+    implementation(libs.cel)
     implementation(libs.ktoml.core)
 }
