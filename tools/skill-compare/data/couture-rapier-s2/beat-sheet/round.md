@@ -63,11 +63,11 @@ founder 確認済みの台帳 (coordinator 経由 2026-10-27)。この commit �
 | 2 | 鋏の本体 (花飾りのピボット) | 1 | `astera:couture-shears-linked` | 頭上: キャスターのリグ (follow)。飛翔: 実 projectile `couture-rapier-s2-shears` (couture-s2-body-flight)。命中後: 敵 (couture-s2-body-stuck, follow)。戻り: 糸 vfx の return-body | 手→頭上 (t22-34) → 敵へ平行に直進 (t34-39) → 刺さる (約 12 tick) → 糸で手へ戻る | t22-56 |
 | 3 | 単独の刃 A | 1 | `astera:couture-rapier-blade-a` | 頭上: リグ。飛翔: 実 projectile `couture-rapier-s2-blade-a`。命中後: 敵 (couture-s2-blade-a-stuck)。戻り: return-blade-a | 頭上で本体から左へ分離 (t26-34)、本体と並んで敵へ (側方 -0.7)、刺さる、戻る | t22-56 |
 | 4 | 単独の刃 B | 1 | `astera:couture-rapier-blade-b` | 同上 (couture-rapier-s2-blade-b) | 頭上で本体から右へ分離、本体と並んで敵へ (側方 +0.7)、刺さる、戻る | t22-56 |
-| 5 | 桃色の糸 | 1 | 3D の線 (target_line, `pink_concrete`)。`couture-s2-thread`、for_each_target + track_bound_target でキャスターに再生 | 一端: キャスターの手 / 他端: 生きている敵 (命中前は飛ぶ 3 つの方向にある線、命中後は手⇄敵) | 投擲 (t34) から張る、3 つが刺さっている間は保持、戻りで短くなり消える | t34-57 |
+| 5 | 桃色の糸 | 1 | 3D の線 (`pink_concrete`、固定長で基準距離 5.4 先まで。target_line は yaw 向きで線が後ろへ反転したため外した)。`couture-s2-thread`、for_each_target + track_bound_target でキャスターに再生 | 一端: キャスターの手 / 他端: 生きている敵 (命中前は飛ぶ 3 つの方向にある線、命中後は手⇄敵) | 投擲 (t34) から張る、3 つが刺さっている間は保持、戻りで短くなり消える | t34-57 |
 
 この commit で削除したもの: hit3 の白飛びレイヤー (wo-*, fb-*) と敵の橙の標的 UI 輪の転写 (ring-yellow*)。どちらも武器ではない。
 
 既知の限界 (構成で解決しないもの):
 - 3 つの projectile は同じ発射点・同じ照準。「並んで飛ぶ」の側方オフセットは VFX 側 (flight vfx の x 平行移動) で、判定球は 1 つ分の経路。エンジンに側方 muzzle が無い。
 - 糸は 3 つに直接結ばれていない。キャスターの手→生きた敵への 1 本の線で、飛翔中の 3 つはこの線の近くを飛ぶ。頭上の間 (t22-34) は糸なし。
-- 戻りで糸が短くなるのは敵が基準距離 5.4 のとき。他の距離では糸の端は敵に残る (target_line は終点を敵へ補正し続ける)。
+- 糸は敵に追従しない (固定で基準距離 5.4)。target_line は実機で線が手から後ろ向きに伸びたため使っていない。他の距離の敵への追従は engine 側の確認待ち。

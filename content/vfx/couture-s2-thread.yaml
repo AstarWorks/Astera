@@ -1,4 +1,4 @@
-# S2 coin 2: the pink thread. A 3D line (target_line) from the caster hand to the live target, played on the caster inside for_each_target with track_bound_target. It exists from the throw (tick 34), holds while the three objects fly and stick, then the three objects are pulled back along it to the hand (return-*, target_track weight 1 -> 0) and the thread shortens.
+# S2 coin 2: the pink thread. A static 3D line (target_line was tried and flips the line backward with orient yaw, so it is fixed to the reference 5.4 ahead) from the caster hand to the live target, played on the caster inside for_each_target with track_bound_target. It exists from the throw (tick 34), holds while the three objects fly and stick, then the three objects are pulled back along it to the hand (return-*, target_track weight 1 -> 0) and the thread shortens.
 id: couture-s2-thread
 duration_ticks: 24
 orient: yaw
@@ -70,7 +70,6 @@ elements:
     - 0
     - 0
     - 1.0
-  target_line: true
 - id: return-body
   kind:
     type: item
