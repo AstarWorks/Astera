@@ -12,14 +12,17 @@ class ArsenalArtE2eTest : E2eBase() {
         listOf("pickaxe", "axe", "shovel").map { "$tier-$it" }
     }
     private val ores = listOf("ore-iron", "ore-gold", "ore-diamond", "ore-emerald")
-    private val blocks = mapOf(
-        "reinforced-planks-block" to "dark_oak_planks", "stone-bulwark-block" to "stone_bricks",
-        "obsidian-plate-block" to "obsidian", "packed-clay-block" to "clay",
-        "tempered-glass-block" to "glass", "hardened-soil-block" to "rooted_dirt", "wool-block" to "white_wool",
+    /** ADR-0300: visual-backed placement items carry the item_model of their pack-generated custom cube (`models/blocks/<block file>`). */
+    private val customBlocks = mapOf(
+        "reinforced-planks-block" to "reinforced-planks", "stone-bulwark-block" to "stone-bulwark",
+        "obsidian-plate-block" to "obsidian-plate", "packed-clay-block" to "packed-clay",
+        "tempered-glass-block" to "tempered-glass", "hardened-soil-block" to "hardened-soil",
     )
+    /** Wool is not a custom block: it keeps the vanilla cube and no pack definition. */
+    private val vanillaBlocks = mapOf("wool-block" to "white_wool")
 
     @Test
-    fun `the pushed pack grants flat tools and currencies while blocks retain native cubes`() {
+    fun `the pushed pack grants flat tools and currencies while custom blocks carry their cube item models`() {
         val b = bot("ArsenalArt")
         op(b)
         assertThat(b.waitUntil(10_000) { b.packPushes.isNotEmpty() }).isTrue()
@@ -33,12 +36,13 @@ class ArsenalArtE2eTest : E2eBase() {
                 if (entry.name.startsWith("assets/astera/items/") ||
                     entry.name.startsWith("assets/astera/models/items/") ||
                     entry.name.startsWith("assets/astera/models/generated/items/") ||
+                    entry.name.startsWith("assets/astera/models/blocks/") ||
                     entry.name.startsWith("assets/astera/textures/generated/items/")) {
                     assets[entry.name] = zip.readBytes()
                 }
             }
         }
-        E2eReport.check("Arsenal art", "thirteen flat definitions ship and seven blocks retain vanilla cube models", "pushed pack ZIP") {
+        E2eReport.check("Arsenal art", "thirteen flat definitions ship, six custom block cubes ship, wool stays vanilla", "pushed pack ZIP") {
             val pixels = mutableSetOf<List<Int>>()
             for (id in tools + ores) {
                 val model = "generated/items/$id"
@@ -59,13 +63,21 @@ class ArsenalArtE2eTest : E2eBase() {
                 assertThat(rgba.any { (it ushr 24) != 0 }).describedAs("empty $id").isTrue()
                 assertThat(pixels.add(rgba)).describedAs("duplicate icon $id").isTrue()
             }
-            for (id in blocks.keys) {
+            for ((id, block) in customBlocks) {
+                val definition = assets.getValue("assets/astera/items/$id.json").toString(Charsets.UTF_8)
+                assertThat(definition).describedAs(id).contains("astera:blocks/$block")
+                assertThat(assets).describedAs("cube model of $id").containsKey("assets/astera/models/blocks/$block.json")
+                assertThat(assets).doesNotContainKeys(
+                    "assets/astera/models/generated/items/$id.json", "assets/astera/textures/generated/items/$id.png",
+                )
+            }
+            for (id in vanillaBlocks.keys) {
                 assertThat(assets).doesNotContainKeys(
                     "assets/astera/items/$id.json", "assets/astera/models/generated/items/$id.json",
                     "assets/astera/models/items/arsenal/$id.json", "assets/astera/textures/generated/items/$id.png",
                 )
             }
-            "9 flat handheld tools, 4 generated currency icons; 7 blocks use vanilla cube definitions"
+            "9 flat handheld tools, 4 generated currency icons; 6 custom block cube definitions; wool keeps the vanilla cube"
         }
         for (id in tools + ores) {
             rcon("clear ${b.name}")
@@ -77,15 +89,25 @@ class ArsenalArtE2eTest : E2eBase() {
                 "astera:$id"
             }
         }
-        for ((id, material) in blocks) {
+        for ((id, block) in customBlocks) {
             rcon("clear ${b.name}")
             rcon("astera items give ${b.name} $id")
-            E2eReport.check("Arsenal art", "$id uses the placed block's native cube", "base material and item_model absence") {
+            E2eReport.check("Arsenal art", "$id carries the item_model of its custom cube", "server Inventory component and pack model") {
+                assertThat(b.waitUntil(3_000) {
+                    rcon("data get entity ${b.name} Inventory[{Slot:0b}].components.\"minecraft:item_model\"").contains("astera:$id")
+                }).describedAs("missing item_model for $id").isTrue()
+                assertThat(assets).containsKey("assets/astera/models/blocks/$block.json")
+                "astera:$id -> astera:blocks/$block"
+            }
+        }
+        for ((id, material) in vanillaBlocks) {
+            rcon("clear ${b.name}")
+            rcon("astera items give ${b.name} $id")
+            E2eReport.check("Arsenal art", "$id keeps the vanilla native cube", "base material and item_model absence") {
                 assertThat(b.waitUntil(3_000) {
                     rcon("data get entity ${b.name} Inventory[{Slot:0b}]").contains("minecraft:$material")
                 }).isTrue()
-                val stack = rcon("data get entity ${b.name} Inventory[{Slot:0b}]")
-                assertThat(stack).doesNotContain("minecraft:item_model")
+                assertThat(rcon("data get entity ${b.name} Inventory[{Slot:0b}]")).doesNotContain("minecraft:item_model")
                 "minecraft:block/$material in GUI, hand and ground"
             }
         }
