@@ -1,4 +1,4 @@
-# ADR-0288: Skin-rig fade uses a camera-relative eye-column test
+# ADR-0293: Skin-rig fade uses a camera-relative eye-column test
 
 - Status: Accepted
 - Extends: ADR-0285 (the sphere fade is replaced for head, body and legs; arms keep the sphere)

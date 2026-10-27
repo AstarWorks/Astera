@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # rig-fade-shot: verify the skin-rig first-person camera-distance fade (ADR-0285) in a REAL client.
 # Films the same animation from the CASTER's own client in first person and in F5 (third person, back), plus a bystander
-# (Watcher) 2.4 blocks off the side (case "std"), and the cases where the fade must NOT trigger (ADR-0288): F5 with a wall
+# (Watcher) 2.4 blocks off the side (case "std"), and the cases where the fade must NOT trigger (ADR-0293): F5 with a wall
 # directly behind, F5 under a low ceiling, F5 front view facing a wall, a bystander camera 0.45 / 0.6 / 1.0 blocks from the
 # casting player, and the couture-rapier-s2 dash + ghost set (case "ghost").
 # Output: build/vfx-shot/rig-fade[-TAG]/<case>-<view>/frame_NNN.png and sheet-<case>-<view>.png contact sheets.

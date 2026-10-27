@@ -9,7 +9,7 @@ layout(location = 10) in vec3 rigViewNormal;
 layout(location = 11) in vec3 rigCamOffset;
 
 @@ before: vec4 calculateFinalColor(vec4 color) {
-// Astera skin rig first-person hiding (ADR-0285, column rule ADR-0288). The server cannot know the client's camera
+// Astera skin rig first-person hiding (ADR-0285, column rule ADR-0293). The server cannot know the client's camera
 // perspective, so the rig fades by where it is relative to the camera. In first person the camera sits at the eye and
 // the player's own body is a narrow column straight BELOW and around it; a third-person (F5) camera is behind / above /
 // in front of the body, also when vanilla's camera collision pulls it to ~0.3-1 blocks, and another player's body is
@@ -20,7 +20,7 @@ layout(location = 11) in vec3 rigCamOffset;
 // they are discarded, outside they are fully opaque. Radii exceed the bone corner (head 0.35, torso 0.28, leg 0.26) by a
 // margin that also covers the rig lagging the camera by a few ticks. The test is per fragment, so it only handles the
 // first-person column; a camera INSIDE a bone cube is handled by culling back faces (below), which hides the whole cube
-// at once instead of leaving its far inner faces (ADR-0288 round 2).
+// at once instead of leaving its far inner faces (ADR-0293 round 2).
 const float RIG_HEAD_CUT = 0.12;
 const float RIG_TORSO_CUT = 0.28;
 const float RIG_LEG_CUT = 0.26;
