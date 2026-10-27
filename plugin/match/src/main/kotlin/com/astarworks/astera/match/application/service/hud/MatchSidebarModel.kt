@@ -23,7 +23,7 @@ import com.astarworks.astera.match.domain.norma.NormaHud
  *                       <- spacer
  * <mode lines>          <- per team: score / pillars / objective progress
  *                       <- spacer
- * You: Red   Stars / Lv / goal  <- added per viewer by [MatchSidebarModel.layoutFor]
+ * You: Red   Lv + stars / goal / next unlock  <- added per viewer by [MatchSidebarModel.layoutFor]
  * ```
  */
 public data class SidebarModel(
@@ -92,7 +92,7 @@ public object MatchSidebarModel {
 
     /**
      * Resolves [model] for one viewer: team names / colours in the viewer's
-     * locale, plus the viewer's own team and star count, Norma level and goal (omitted when
+     * locale, plus the viewer's own team, Norma level with the carried star count, and goal (omitted when
      * [norma] is `null`) as the footer.
      */
     public fun layoutFor(
@@ -108,7 +108,8 @@ public object MatchSidebarModel {
                 add(toText(HudLine(MessageKey("astera.hud.sidebar.you"), team = own.id), own, viewer, messages))
             }
             if (norma != null) {
-                val levelParams = mapOf("level" to norma.level.toString(), "max" to norma.maxLevel.toString())
+                // The star count rides on the level row so it stays visible whichever goal (STAR or KILL) the player is on.
+                val levelParams = mapOf("level" to norma.level.toString(), "max" to norma.maxLevel.toString(), "stars" to norma.stars.toString())
                 add(HudComponent.Text(MessageKey("astera.hud.sidebar.level"), placeholders = levelParams))
                 if (norma.level >= norma.maxLevel) {
                     add(HudComponent.Text(MessageKey("astera.hud.sidebar.objective-max")))

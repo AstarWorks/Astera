@@ -22,11 +22,11 @@ class StarsE2eTest : PlaythroughBase() {
     private val suite = "Stars"
 
     /**
-     * The carried-stars number: the progress of the `Goal: Stars 1/2` sidebar line (the sidebar has no separate stars row since the
-     * match-ux redesign), or null while the goal is KILL or the player is at the top level (no goal line).
+     * The carried-stars number: the `* N` after the level on the `Norma Lv 1/3 | * N` sidebar row. It stays on that row under
+     * either goal (STAR or KILL) and at the top level.
      */
     private fun starCount(b: Bot): Int? =
-        sidebar(b).firstNotNullOfOrNull { Regex("Goal:\\s*Stars\\s*(\\d+)/\\d+", RegexOption.IGNORE_CASE).find(it)?.groupValues?.get(1)?.toIntOrNull() }
+        sidebar(b).firstNotNullOfOrNull { Regex("Lv\\s*\\d+/\\d+\\s*\\|\\s*\\*\\s*(\\d+)").find(it)?.groupValues?.get(1)?.toIntOrNull() }
 
     /** `Lv 2/3` on the sidebar as (level, max), or null. */
     private fun levelOf(b: Bot): Pair<Int, Int>? =
@@ -70,11 +70,12 @@ class StarsE2eTest : PlaythroughBase() {
         }
 
         // The goal is chosen with /astera norma choose (nothing opens over the screen at match start; the picker window has no caller).
-        E2eReport.check(suite, "/astera norma choose kill switches the goal to Kills 0/1; choosing star keeps Stars 0/2", "SystemChat -> SetScore") {
+        E2eReport.check(suite, "/astera norma choose kill switches the goal to Kills 0/1 and the star count stays on the Norma row; choosing star keeps Stars 0/2", "SystemChat -> SetScore") {
             val before = c.chat.size
             c.command("astera norma choose kill")
             assertThat(c.waitUntil(6_000) { sidebar(c).any { Regex("Goal:\\s*Kills\\s*0/1").containsMatchIn(it) } })
                 .describedAs("C goal did not become Kills 0/1: ${sidebar(c)}; chat=${c.chatSince(before).map { clean(it) }}").isTrue()
+            assertThat(starCount(c)).describedAs("the carried-star count must stay on the Norma row under the Kills goal: ${sidebar(c)}").isEqualTo(0)
             assertThat(both.all { it.screens.none { s -> s.title.contains("Norma goal") } }).describedAs("a picker window opened by itself: ${both.map { it.screens.map { s -> s.title } }}").isTrue()
             a.command("astera norma choose star")
             Thread.sleep(800)
@@ -169,8 +170,6 @@ class StarsE2eTest : PlaythroughBase() {
             "C sidebar: ${sidebar(c)}"
         }
         // Another player walks over the burst: the death spot and a ring around it (the fountain lands drops within ~4.5 blocks).
-        c.command("astera norma choose star") // the stars carried show as the STAR goal's progress, not under the KILL goal
-        c.waitUntil(4_000) { sidebar(c).any { Regex("Goal:\\s*Stars").containsMatchIn(it) } }
         val sweep = listOf(0.0 to 0.0, 1.5 to 0.0, -1.5 to 0.0, 0.0 to 1.5, 0.0 to -1.5, 1.1 to 1.1, -1.1 to -1.1, 1.1 to -1.1, -1.1 to 1.1, 2.2 to 0.0, -2.2 to 0.0, 0.0 to 2.2, 0.0 to -2.2, 3.2 to 0.0, -3.2 to 0.0, 0.0 to 3.2, 0.0 to -3.2, 2.4 to 2.4, -2.4 to -2.4, 2.4 to -2.4, -2.4 to 2.4)
         var picked = false
         if (deathSpot != null) {
