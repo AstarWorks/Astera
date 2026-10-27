@@ -139,6 +139,18 @@ for c in ${CASES:-std wall-back ceiling wall-front bystander ghost}; do
       for d in ${BYSTANDER_DISTS:-0.45 0.6 1.0}; do
         watcher_at "$d"; rec "bystander-$d" Watcher; case_sheet "bystander-$d" Watcher
       done ;;
+    move-*) # held movement keys while the rig plays: move-walk (w), move-sprint (ctrl+w), move-strafe (d); fp then F5, with Watcher walking alongside
+      mode="${c#move-}"
+      case "$mode" in walk) keys="w";; sprint) keys="w ctrl";; strafe) keys="d";; *) keys="w";; esac
+      prep_skill "${MOVE_SKILL:-$ARG}"
+      for pv in 0 1; do
+        perspective $pv; tp Caster $CASTER_POSE; watcher_at 2.0
+        ( sleep 0.3; for k in $keys; do DISPLAY=":${DISP[Caster]}" xdotool keydown $k; done
+          sleep "${MOVE_HOLD:-3}"; for k in $keys; do DISPLAY=":${DISP[Caster]}" xdotool keyup $k; done ) &
+        mpid=$!
+        rec "$c-p$pv" Caster Watcher; wait $mpid
+        case_sheet "$c-p$pv" Caster Watcher
+      done ;;
     *) log "unknown case $c" ;;
   esac
 done

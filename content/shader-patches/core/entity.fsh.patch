@@ -21,13 +21,15 @@ layout(location = 11) in vec3 rigCamOffset;
 // margin that also covers the rig lagging the camera by a few ticks. The test is per fragment, so it only handles the
 // first-person column; a camera INSIDE a bone cube is handled by culling back faces (below), which hides the whole cube
 // at once instead of leaving its far inner faces (ADR-0293 round 2).
-const float RIG_HEAD_CUT = 0.12;
-const float RIG_TORSO_CUT = 0.28;
-const float RIG_LEG_CUT = 0.26;
-const float RIG_ARM_NEAR = 0.1;     // arms: sphere around the camera, they fade more gently so the first-person swing stays visible
-const float RIG_ARM_FAR = 0.35;
-const float RIG_COLUMN_UP = 0.6;    // the column reaches this far above the camera (the head top is 0.38 above the eye) ...
-const float RIG_COLUMN_DOWN = 1.1;  // ... and this far below it for head and torso (hips are 0.87 below); legs have no lower bound
+const float RIG_HEAD_CUT = 0.4;
+const float RIG_TORSO_CUT = 0.45;
+const float RIG_LEG_CUT = 0.45;
+const float RIG_GHOST_NEAR = 0.6;   // ghost bones: sphere around the camera, for every viewer (decorative, may fade near any camera)
+const float RIG_GHOST_FAR = 1.5;
+const float RIG_ARM_NEAR = 0.15;     // arms: sphere around the camera, they fade more gently so the first-person swing stays visible
+const float RIG_ARM_FAR = 0.5;
+const float RIG_COLUMN_UP = 0.8;    // the column reaches this far above the camera (the head top is 0.38 above the eye) ...
+const float RIG_COLUMN_DOWN = 1.9;  // ... and this far below it for head and torso (hips are 0.87 below); legs have no lower bound
 
 // 4x4 Bayer threshold in (0, 1) for this screen pixel.
 float rigBayer(vec2 fragCoord) {
@@ -129,7 +131,9 @@ vec2 rigRemap(vec2 uv, int part) {
             discard;   // back face: the camera is inside this cube (the vanilla pipeline does not cull these)
         }
         float rigVisible;
-        if (rigBone == 2 || rigBone == 3) {
+        if (rigPart >= 16) {
+            rigVisible = clamp((length(rigViewPos) - RIG_GHOST_NEAR) / (RIG_GHOST_FAR - RIG_GHOST_NEAR), 0.0, 1.0);
+        } else if (rigBone == 2 || rigBone == 3) {
             rigVisible = clamp((length(rigViewPos) - RIG_ARM_NEAR) / (RIG_ARM_FAR - RIG_ARM_NEAR), 0.0, 1.0);
         } else {
             bool rigLeg = rigBone >= 4;
