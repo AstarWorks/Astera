@@ -50,12 +50,12 @@ class WeaponsLiveTest : LiveBase() {
             if (bindings.isEmpty()) null else WeaponDef(id, res, itemCost, bindings)
         }
 
-    private fun skillText(id: String): String = File(LiveEnv.contentDir, "skills/$id.yaml").takeIf { it.exists() }?.readText().orEmpty()
-    private fun expectsDamage(skillId: String) = Regex("(?m)^\\s*-?\\s*type:\\s*damage\\b").containsMatchIn(skillText(skillId))
+    private fun skillText(id: String): String = File(LiveEnv.contentDir, "skills/$id/skill.yaml").takeIf { it.exists() }?.readText().orEmpty()
+    private fun expectsDamage(skillId: String) = Regex("(?m)\\bop:\\s*(damage|explode)\\b").containsMatchIn(skillText(skillId))
 
     /** Resource spent by one cast: the skill's own `resource_cost` when it has one, else the item's default. */
     private fun cost(skillId: String, w: WeaponDef): Int =
-        Regex("(?m)^resource_cost:\\s*(\\d+)").find(skillText(skillId))?.groupValues?.get(1)?.toInt() ?: w.itemCost
+        Regex("\\bresource_cost:\\s*(\\d+)").find(skillText(skillId))?.groupValues?.get(1)?.toInt() ?: w.itemCost
 
     private fun where(b: Bot): String =
         rcon(srv, "data get entity ${b.name} Pos").substringAfter("data: ").trim() + " / " + rcon(srv, "data get entity ${b.name} Rotation").substringAfter("data: ").trim() +

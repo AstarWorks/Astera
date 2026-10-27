@@ -1,5 +1,6 @@
 package com.astarworks.astera.combat.adapter.paper.skillengine
 
+import com.astarworks.astera.core.application.port.outbound.IStructureTargets
 import com.astarworks.astera.core.application.skillengine.runtime.port.BlockHit
 import com.astarworks.astera.core.application.skillengine.runtime.port.EntityRoot
 import com.astarworks.astera.core.application.skillengine.runtime.port.ISkillEntityQuery
@@ -25,7 +26,11 @@ import java.util.UUID
  * The port carries no world id: the world is that of [excluding] (the caster) when given, otherwise
  * the world last seen through this query, otherwise the first world that has players.
  */
-public class PaperSkillEntityQuery(private val server: Server) : ISkillEntityQuery {
+public class PaperSkillEntityQuery(
+    private val server: Server,
+    /** Lazy: Match registers the structure targets (Annihilation pillars) after Combat wires. */
+    private val structures: () -> IStructureTargets? = { null },
+) : ISkillEntityQuery {
 
     private var lastWorld: World? = null
 
@@ -44,6 +49,18 @@ public class PaperSkillEntityQuery(private val server: Server) : ISkillEntityQue
                 yawDeg = loc.yaw.toDouble(),
                 box = HitBox(Vec3(bb.minX, bb.minY, bb.minZ), Vec3(bb.maxX, bb.maxY, bb.maxZ)),
                 velocity = e.velocity.let { Vec3(it.x, it.y, it.z) },
+            )
+        }
+        // WP10: standing, damageable structures are hit targets too; they travel under their synthetic combat id and
+        // take damage through the entity damage gateway (the v1 projectile resolver did the same).
+        structures()?.findInRadius(point, radius + STRUCTURE_REACH, null)?.forEach { s ->
+            val c = s.position
+            out += HitCandidate(
+                entityId = s.id.uuid,
+                feet = Vec3(c.x, c.y - 0.5, c.z),
+                yawDeg = 0.0,
+                box = HitBox(Vec3(c.x - 0.5, c.y - 0.5, c.z - 0.5), Vec3(c.x + 0.5, c.y + 0.5, c.z + 0.5)),
+                velocity = Vec3.ZERO,
             )
         }
         return out
@@ -91,6 +108,11 @@ public class PaperSkillEntityQuery(private val server: Server) : ISkillEntityQue
         val fromEntity = excluding?.let { server.getEntity(it)?.world }
         if (fromEntity != null) lastWorld = fromEntity
         return fromEntity ?: lastWorld ?: server.worlds.firstOrNull { it.players.isNotEmpty() } ?: server.worlds.firstOrNull()
+    }
+
+    private companion object {
+        /** The structure query measures to the block centre; the box reaches half a block (plus the diagonal) further. */
+        const val STRUCTURE_REACH: Double = 1.0
     }
 
     private fun hittable(e: LivingEntity): Boolean {

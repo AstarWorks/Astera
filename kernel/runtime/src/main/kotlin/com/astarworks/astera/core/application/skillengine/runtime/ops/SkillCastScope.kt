@@ -13,6 +13,9 @@ import java.util.UUID
  */
 public interface SkillCastScope {
     public val caster: UUID
+
+    /** Id of the casting skill (skin suffix `@...` stripped): the source of every damage this cast deals. */
+    public val skillId: String
     public val tick: Int
 
     /** Contact of the handler currently running (hit / block), or null outside one. */

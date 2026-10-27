@@ -77,6 +77,7 @@ internal object ProjectileExecutor : OpExecutor<SpawnOp.Projectile> {
                     frames = listOf(op.body),
                     volume = op.volume,
                     window = HitWindow.Once,
+                    swept = true,
                 ),
             ),
         )

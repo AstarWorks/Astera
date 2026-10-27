@@ -18,6 +18,7 @@ import com.astarworks.astera.combat.application.port.outbound.IStatusEffectConta
 import com.astarworks.astera.combat.application.usecase.damage.ApplyDamageUseCase
 import com.astarworks.astera.combat.application.usecase.status.ApplyStatusUseCase
 import com.astarworks.astera.combat.domain.event.SkillCast
+import com.astarworks.astera.core.application.port.outbound.IStructureTargets
 import com.astarworks.astera.combat.platform.wiring.CombatPlatformPorts
 import com.astarworks.astera.core.application.port.outbound.IBlockStateGateway
 import com.astarworks.astera.core.application.port.outbound.ICooldownTracker
@@ -95,7 +96,7 @@ internal class SkillEnginePaperRuntime(
         val tables = wired.frameTables
         val catalog = wired.skillCatalog
 
-        val entities = PaperSkillEntityQuery(server)
+        val entities = PaperSkillEntityQuery(server) { services.get<IStructureTargets>() }
         val visuals = PaperSkillVisualGateway(server, displays)
         val worldId = { visuals.activeWorld() }
         lateinit var built: SkillEngineKit

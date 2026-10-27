@@ -119,6 +119,7 @@ class ProjectileAoeScenarioTest {
 
         // SkillCastScope
         override val caster: UUID get() = casterId
+        override val skillId: String get() = "sim"
         override var tick: Int = 0
         override var contact: ContactEvent? = null
         override val contacts = object : ContactResolver {

@@ -20,6 +20,8 @@ public data class HitRegistration(
     val startTick: Int,
     /** Lifetime cap of accepted victims, nearest first; null = unlimited. */
     val maxCount: Int? = null,
+    /** See [com.astarworks.astera.core.domain.skillengine.op.HitOp.Hit.swept]. */
+    val swept: Boolean = false,
 )
 
 /**

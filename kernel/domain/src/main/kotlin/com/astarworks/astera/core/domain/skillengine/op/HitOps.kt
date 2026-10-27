@@ -16,5 +16,10 @@ public sealed interface HitOp : GameplayOp {
         val window: HitWindow,
         /** At most this many victims per resolution, nearest to the volume first; null = unlimited. */
         val maxCount: Int? = null,
+        /**
+         * Sphere volumes only: test the segment from the previous tick's centre to this tick's (a capsule), so a fast body
+         * cannot step over a thin target between two ticks.
+         */
+        val swept: Boolean = false,
     ) : HitOp
 }

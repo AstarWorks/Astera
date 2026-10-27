@@ -36,8 +36,7 @@ private fun OpContext.damageAll(
             ?: feetOf(victim)
             ?: fallbackPoint
             ?: Vec3.ZERO
-        if (ignoreInvulnerability) ports.gameplay.damage(scope.caster, victim, parts, point, true)
-        else ports.gameplay.damage(scope.caster, victim, parts, point)
+        ports.gameplay.damage(scope.skillId, scope.caster, victim, parts, point, ignoreInvulnerability)
     }
     for ((holder, status) in consumed) ports.gameplay.removeStatus(holder, status)
 }

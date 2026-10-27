@@ -71,6 +71,14 @@ public interface ISkillGameplayGateway {
         damage(caster, victim, components, hitPoint)
     }
 
+    /**
+     * [damage] attributed to the casting skill [skillId], so kill feeds, replays and tutorials see the real skill.
+     * Gateways that record the source override this; the default forwards to the anonymous overloads.
+     */
+    public fun damage(skillId: String, caster: UUID, victim: UUID, components: List<SkillDamage>, hitPoint: Vec3, ignoreInvulnerability: Boolean) {
+        if (ignoreInvulnerability) damage(caster, victim, components, hitPoint, true) else damage(caster, victim, components, hitPoint)
+    }
+
     /** Current stacks of [statusId] on [entity] (0 when absent). */
     public fun statusStacks(entity: UUID, statusId: String): Int = 0
     public fun applyStatus(caster: UUID, victim: UUID, statusId: String, stacks: Int, durationTicks: Int)

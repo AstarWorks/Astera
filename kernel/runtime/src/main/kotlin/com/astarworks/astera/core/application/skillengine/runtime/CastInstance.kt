@@ -364,6 +364,7 @@ internal class CastInstance(
     // ------------------------------------------------------------------ OpHost
 
     override val caster: UUID get() = request.caster
+    override val skillId: String get() = def.id.substringBefore('@')
     override val currentVictim: UUID?
         get() {
             victimOverride?.let { return it }
@@ -535,13 +536,14 @@ internal class CastInstance(
         if (hitRegs.isEmpty()) return
         for (reg in hitRegs.toList()) {
             if (isFrozen(FrameId(reg.reg.frame))) continue
-            val volume = try {
+            val rawVolume = try {
                 resolveVolume(reg.reg)
             } catch (e: ValueResolveException) {
                 report(reg.reg.id, "hit volume: ${e.message}")
                 null
             } ?: continue
             val hitterVel = hitterVelocity(reg.reg.frame)
+            val volume = sweep(reg, rawVolume)
             val candidates = ports.entities.nearby(volume.broadCenter, volume.broadRadius, request.caster)
             val found = deps.contacts.narrow(reg.reg.id, tick, reg.reg.frame, volume, hitterVel, candidates)
             var contacted = false
@@ -587,6 +589,14 @@ internal class CastInstance(
                 false
             }
         }
+    }
+
+    /** A `swept` sphere becomes the capsule from last tick's centre to this tick's (no stepping over thin targets). */
+    private fun sweep(reg: HitReg, v: ResolvedVolume): ResolvedVolume {
+        val prev = reg.prevAnchor
+        if (!reg.reg.swept || v !is ResolvedVolume.Sphere || prev == null || prev == v.center) return v
+        if (prev.distance(v.center) > MAX_SWEEP) return v
+        return ResolvedVolume.Capsule(prev, v.center, v.radius)
     }
 
     private fun anchorOf(v: ResolvedVolume): Vec3? = when (v) {
@@ -823,6 +833,9 @@ internal class CastInstance(
     companion object {
         private const val MAX_EVENTS_PER_DRAIN = 256
         private const val MAX_CHAIN = 4
+
+        /** A swept hit volume that moved further than this in one tick was teleported, not flown: test the point only. */
+        private const val MAX_SWEEP = 16.0
 
         /** Hand / body points of the caster frame (feet origin, yaw only; local +X is left). */
         private val CASTER_POINTS: List<Pair<String, Vec3>> = listOf(

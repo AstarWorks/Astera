@@ -88,8 +88,8 @@ class FirstTenMinutesE2eTest : PlaythroughBase() {
             val lores = weaponSlots.associateWith { first.hotbarLore(it) }
             // The lore is generated from the item's skills: the starter pistol's right-click skill appears by its display name.
             val contentDir = java.io.File(System.getProperty("astera.live.contentDir", "/workspace/content"))
-            val gunSkillName = Regex("""(?s)^name:.*?\ben:\s*"([^"]+)"""", RegexOption.MULTILINE)
-                .find(java.io.File(contentDir, "skills/pistol-shot.yaml").readText())!!.groupValues[1]
+            val gunSkillName = Regex("""\bname:\s*\{[^}]*\ben:\s*"?([^",}]+)""")
+                .find(java.io.File(contentDir, "skills/pistol-shot/skill.yaml").readText())!!.groupValues[1].trim()
             assertThat(lores.values.any { it.contains(gunSkillName) }).describedAs("no gun lore with the skill name '$gunSkillName': $lores").isTrue()
             assertThat(lores.values.any { Regex("slash|斬撃", RegexOption.IGNORE_CASE).containsMatchIn(it) }).describedAs("no sword lore ('Left-click: slash'): $lores").isTrue()
             assertThat(rawKeys(lores.values)).isEmpty()

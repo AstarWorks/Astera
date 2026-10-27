@@ -47,9 +47,16 @@ fun simVictim(n: Int): UUID = UUID.fromString("00000000-0000-0000-0000-0000000d%
  * with fake ports: damage is recorded, the entity query returns the given victims, nothing else happens. Shared by the
  * ported-grammar and the cast-smoke scenarios (SKL-09).
  */
-class Dealt(val tick: Int, val victim: UUID, val amount: Double, val ignoreInvulnerability: Boolean)
+class Dealt(val tick: Int, val victim: UUID, val amount: Double, val ignoreInvulnerability: Boolean, val skill: String = "")
 
-class CastSim(val victims: Map<UUID, Vec3>, val casterStacks: Map<String, Int> = emptyMap(), val blockAtZ: Double? = null) {
+class CastSim(
+    val victims: Map<UUID, Vec3>,
+    val casterStacks: Map<String, Int> = emptyMap(),
+    val blockAtZ: Double? = null,
+    /** Half the victim box width / its height; the default is a generous 1.6 x 1.8 box, real players are 0.6 wide. */
+    val halfWidth: Double = 0.8,
+    val boxHeight: Double = 1.8,
+) {
     private val caster: UUID = SIM_CASTER
     var now = 0
     val dealt = ArrayList<Dealt>()
@@ -70,8 +77,10 @@ class CastSim(val victims: Map<UUID, Vec3>, val casterStacks: Map<String, Int> =
     private val gameplay = object : ISkillGameplayGateway by noop() {
         override fun damage(caster: UUID, victim: UUID, components: List<SkillDamage>, hitPoint: Vec3) =
             damage(caster, victim, components, hitPoint, false)
-        override fun damage(caster: UUID, victim: UUID, components: List<SkillDamage>, hitPoint: Vec3, ignoreInvulnerability: Boolean) {
-            for (c in components) dealt += Dealt(now, victim, c.amount, ignoreInvulnerability)
+        override fun damage(caster: UUID, victim: UUID, components: List<SkillDamage>, hitPoint: Vec3, ignoreInvulnerability: Boolean) =
+            damage("", caster, victim, components, hitPoint, ignoreInvulnerability)
+        override fun damage(skillId: String, caster: UUID, victim: UUID, components: List<SkillDamage>, hitPoint: Vec3, ignoreInvulnerability: Boolean) {
+            for (c in components) dealt += Dealt(now, victim, c.amount, ignoreInvulnerability, skillId)
         }
         override fun statusStacks(entity: UUID, statusId: String): Int = if (entity == caster) casterStacks[statusId] ?: 0 else 0
         override fun removeStatus(victim: UUID, statusId: String) { removed += victim to statusId }
@@ -82,7 +91,7 @@ class CastSim(val victims: Map<UUID, Vec3>, val casterStacks: Map<String, Int> =
     }
 
     private val entities = object : ISkillEntityQuery {
-        private fun box(feet: Vec3) = HitBox(Vec3(feet.x - 0.8, 0.0, feet.z - 0.8), Vec3(feet.x + 0.8, 1.8, feet.z + 0.8))
+        private fun box(feet: Vec3) = HitBox(Vec3(feet.x - halfWidth, 0.0, feet.z - halfWidth), Vec3(feet.x + halfWidth, boxHeight, feet.z + halfWidth))
         override fun nearby(point: Vec3, radius: Double, excluding: UUID?): List<HitCandidate> =
             victims.filter { (id, feet) -> id != excluding && box(feet).center.distance(point) <= radius + 1.2 }
                 .map { (id, feet) -> HitCandidate(id, feet, 0.0, box(feet)) }
