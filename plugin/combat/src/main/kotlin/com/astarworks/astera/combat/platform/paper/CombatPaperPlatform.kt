@@ -212,11 +212,6 @@ internal class CombatPaperPlatform(private val plugin: JavaPlugin) {
         // WP5: summons never target or hurt their owner's side.
         services.get<SummonRegistry>()?.let { SummonAllegianceListener(it).start(plugin) }
 
-        // ADR-0276: a world change ends the caster's skill performance in the same tick.
-        services.get<com.astarworks.astera.combat.application.service.MechanicDispatcher>()?.let { dispatcher ->
-            com.astarworks.astera.combat.adapter.paper.PerformanceWorldChangeListener(dispatcher::endPerformances).start(plugin)
-        }
-
         // F3-11: lobby training dummies are immortal; vanilla damage on their bodies is cancelled.
         plugin.server.pluginManager.registerEvents(PaperTrainingDummyGuard(), plugin)
 

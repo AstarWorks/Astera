@@ -2,7 +2,6 @@ package com.astarworks.astera.core.domain.event
 
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.item.ItemId
-import com.astarworks.astera.core.domain.item.PhaseOverrides
 import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.domain.skill.SkillId
 import com.astarworks.astera.core.domain.skill.SkillTrigger
@@ -33,14 +32,6 @@ import java.time.Instant
  *   so the combat-side cooldown service can apply the right number. `null`
  *   means "use the skill's default cooldown".
  *
- * @property phaseOverrides Wave _skills-2 (ADR-0077): carries the binding's
- *   per-phase mechanic decoration into Combat so `MechanicDispatcher` can
- *   apply [com.astarworks.astera.core.domain.item.PhaseOverrides.applyTo] to
- *   the skill's base [com.astarworks.astera.core.domain.skill.phase.PhaseMechanics]
- *   before dispatch. Defaults to
- *   [com.astarworks.astera.core.domain.item.PhaseOverrides.EMPTY] for
- *   non-item-driven casts (e.g. system-fired skills).
- *
  * @property trigger the input of the binding that fired (`null` for casts that are not input-driven);
  *   the cooldown HUD files the cooldown under this input (ADR-0197).
  */
@@ -50,7 +41,6 @@ public data class SkillCastRequested(
     public val origin: Vec3,
     public val sourceItemId: ItemId,
     public val cooldownOverrideTicks: Int?,
-    public val phaseOverrides: PhaseOverrides = PhaseOverrides.EMPTY,
     public val trigger: SkillTrigger? = null,
     override val occurredAt: Instant = Instant.now(),
     override val version: Int = 1,

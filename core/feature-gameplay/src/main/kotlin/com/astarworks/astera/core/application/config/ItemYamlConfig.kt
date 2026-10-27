@@ -17,7 +17,6 @@ import com.astarworks.astera.core.domain.item.ItemSkillBinding
 import com.astarworks.astera.core.domain.item.ItemSpec
 import com.astarworks.astera.core.domain.item.ItemTemplate
 import com.astarworks.astera.core.domain.item.Rarity
-import com.astarworks.astera.core.application.config.skill.PhaseOverridesYaml
 import com.astarworks.astera.core.domain.resource.ResourceType
 import com.astarworks.astera.core.domain.skill.SkillId
 import com.astarworks.astera.core.domain.skill.SkillTrigger
@@ -268,24 +267,18 @@ public data class AttributesYaml(
 }
 
 /**
- * Sub-DTO for one trigger → skill binding on an item (Wave _items-1; Wave
- * _skills-2 added `phase_overrides`).
+ * Sub-DTO for one trigger → skill binding on an item (Wave _items-1).
  *
  * - `trigger` — name of a [SkillTrigger] enum value (case-insensitive).
  * - `skill_id` — kebab-case skill identifier.
  * - `cooldown_override_ticks` — optional, see
  *   [ItemSkillBinding.cooldownOverrideTicks].
- * - `phase_overrides` — optional per-phase mechanic decoration (Wave
- *   _skills-2, ADR-0077). Single shared DTO; phases the bound skill's
- *   archetype does not own are ignored by the dispatcher. See
- *   [PhaseOverridesYaml] for the wire fields.
  */
 @Serializable
 public data class ItemSkillBindingYaml(
     public val trigger: String,
     @SerialName("skill_id") public val skillId: String,
     @SerialName("cooldown_override_ticks") public val cooldownOverrideTicks: Int? = null,
-    @SerialName("phase_overrides") public val phaseOverrides: PhaseOverridesYaml = PhaseOverridesYaml.EMPTY,
 ) {
     public fun toDomain(): ItemSkillBinding {
         val triggerEnum = try {
@@ -297,7 +290,6 @@ public data class ItemSkillBindingYaml(
             trigger = triggerEnum,
             skillId = SkillId(skillId),
             cooldownOverrideTicks = cooldownOverrideTicks,
-            phaseOverrides = phaseOverrides.toDomain(),
         )
     }
 }

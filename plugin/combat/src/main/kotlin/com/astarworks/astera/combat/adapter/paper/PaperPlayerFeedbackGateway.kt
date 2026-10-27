@@ -5,7 +5,6 @@ import com.astarworks.astera.core.adapter.paper.text.AsteraTextDeserializer
 import com.astarworks.astera.core.application.port.outbound.IActionBarChannel
 import com.astarworks.astera.core.application.port.outbound.postRendered
 import com.astarworks.astera.core.domain.player.PlayerId
-import com.astarworks.astera.core.domain.skill.mechanic.ScreenOverlay
 import io.papermc.paper.math.Angle
 import net.kyori.adventure.key.Key
 import net.kyori.adventure.text.Component
@@ -41,31 +40,6 @@ public class PaperPlayerFeedbackGateway(
             Title.title(
                 AsteraTextDeserializer.deserialize(title),
                 subtitle?.let { AsteraTextDeserializer.deserialize(it) } ?: Component.empty(),
-                Title.Times.times(
-                    Ticks.duration(fadeInTicks.toLong()),
-                    Ticks.duration(stayTicks.toLong()),
-                    Ticks.duration(fadeOutTicks.toLong()),
-                ),
-            ),
-        )
-    }
-
-    override fun sendScreenFlash(
-        target: PlayerId,
-        overlay: ScreenOverlay,
-        colorRgb: Int,
-        fadeInTicks: Int,
-        stayTicks: Int,
-        fadeOutTicks: Int,
-    ) {
-        val player = server.getPlayer(target.uuid) ?: return
-        val glyph = Component.text(overlay.glyph.toString())
-            .font(Key.key(ScreenOverlay.FONT_NAMESPACE, ScreenOverlay.FONT_PATH))
-            .color(TextColor.color(colorRgb))
-        player.showTitle(
-            Title.title(
-                glyph,
-                Component.empty(),
                 Title.Times.times(
                     Ticks.duration(fadeInTicks.toLong()),
                     Ticks.duration(stayTicks.toLong()),

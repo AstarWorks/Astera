@@ -3,7 +3,6 @@ package com.astarworks.astera.combat.application.usecase.skill
 import com.astarworks.astera.core.application.port.outbound.ExecutionScope
 import com.astarworks.astera.combat.application.port.outbound.ISkillRegistry
 import com.astarworks.astera.combat.application.port.outbound.IStatusEffectContainer
-import com.astarworks.astera.combat.application.usecase.skill.dispatch.SkillCastDispatcher
 import com.astarworks.astera.combat.domain.event.CastRejectionReason
 import com.astarworks.astera.combat.domain.event.SkillCast
 import com.astarworks.astera.combat.domain.event.SkillCastRejected
@@ -23,7 +22,6 @@ import com.astarworks.astera.core.domain.cooldown.CooldownKey
 import com.astarworks.astera.core.domain.event.SkillCooldownStarted
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.item.ItemId
-import com.astarworks.astera.core.domain.item.PhaseOverrides
 import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.domain.resource.ResourceType
 import com.astarworks.astera.core.domain.skill.SkillId
@@ -72,21 +70,9 @@ public class CastSkillUseCase(
     private val resourcePool: IResourcePoolService? = null,
     private val items: IItemRegistry? = null,
     /**
-     * Optional reference to the runtime [SkillCastDispatcher] (Wave _skills-2,
-     * ADR-0077) so we can stash per-cast [PhaseOverrides] before publishing
-     * [SkillCast]. `null` in unit tests that don't exercise overrides. The
-     * dispatcher consumes (and removes) the entry on the same SkillCast event.
-     *
-     * Plugin wiring sets this via [bindSkillCastDispatcher] after both this
-     * use case and the dispatcher exist (the dispatcher chain ultimately
-     * loops back here via `MechanicDispatcher.setCastSkillInvoker`, so we
-     * can't constructor-inject without a forward declaration).
-     */
-    private var skillCastDispatcher: SkillCastDispatcher? = null,
-    /**
      * ADR-0174: source of the caster's world / eye / look direction. Stamped
-     * onto [SkillCast.pose] so handlers can aim projectiles and set
-     * `MechanicContext.worldId`. `null` keeps the pre-0174 behaviour (no
+     * onto [SkillCast.pose] so handlers can aim projectiles and stamp
+     * the cast world. `null` keeps the pre-0174 behaviour (no
      * facing, no world => particles / sounds drop).
      */
     private val poseLookup: IPlayerPoseLookup? = null,
@@ -97,15 +83,10 @@ public class CastSkillUseCase(
     /** Tick at which each reloading player's reload completes. */
     private val reloadingUntil: MutableMap<PlayerId, Long> = HashMap()
 
-    public fun bindSkillCastDispatcher(dispatcher: SkillCastDispatcher) {
-        this.skillCastDispatcher = dispatcher
-    }
-
     public fun execute(
         casterId: PlayerId,
         skillId: SkillId,
         at: Vec3 = Vec3.ZERO,
-        phaseOverrides: PhaseOverrides = PhaseOverrides.EMPTY,
         sourceItemId: ItemId? = null,
         cooldownOverrideTicks: Int? = null,
         /** Admin casts (F2-5): do not spend the skill's / item's resource (the cooldown still applies). */
@@ -229,13 +210,7 @@ public class CastSkillUseCase(
             )
         }
 
-        // 6. Stash phase overrides for the dispatcher to consume on the same event.
-        skillCastDispatcher?.setPendingOverrides(
-            SkillCastDispatcher.OverrideKey(casterId, skillId),
-            phaseOverrides,
-        )
-
-        // 7. Publish event
+        // 6. Publish event
         val atTick = scheduler.currentTick()
         val pose = poseLookup?.poseOf(casterId)
         // Callers without a position (charged casts) pass Vec3.ZERO — use the live feet position.

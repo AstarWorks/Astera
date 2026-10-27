@@ -142,15 +142,6 @@ internal fun CoreWiringState.wireContentAndRepositories() {
     services.register<com.astarworks.astera.core.application.port.outbound.ISpriteRegistry>(spriteContents, priority = 0)
     reloadRegistry.register(spriteContents, spritesContentDir)
 
-    // ---- VFX contents (ADR-0220) ------------------------------------
-    // Display choreographies at content/vfx/, played by combat's `play_vfx` mechanic.
-    val vfxContentDir = contentDir.resolve("vfx")
-    val vfxContents = com.astarworks.astera.core.application.contents.VfxContents()
-    val vfxReport = vfxContents.bootstrap(vfxContentDir)
-    logger.info("VFX loaded: ${vfxReport.loaded} ok, ${vfxReport.failed} failed")
-    services.register<com.astarworks.astera.core.application.port.outbound.IVfxRegistry>(vfxContents, priority = 0)
-    reloadRegistry.register(vfxContents, vfxContentDir)
-
     // ---- Skin-rig animations (ADR-0250) -----------------------------
     // Keyframed player poses at content/animations/, played by `play_animation` and `/astera emote`.
     val animationsContentDir = contentDir.resolve("animations")

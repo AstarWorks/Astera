@@ -3,7 +3,6 @@ package com.astarworks.astera.combat.application.port.outbound
 import com.astarworks.astera.core.domain.effect.Audience
 import com.astarworks.astera.core.domain.effect.DisplaySpec
 import com.astarworks.astera.core.domain.effect.DisplayTransform
-import com.astarworks.astera.core.domain.effect.vfx.VfxLane
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.domain.world.WorldId
@@ -23,21 +22,6 @@ public interface IDisplayEntityGateway {
      * handle, or `null` when the world is not loaded or the kind is unsupported.
      */
     public fun spawn(world: WorldId, at: Vec3, spec: DisplaySpec, renderedLines: List<String>): DisplayHandle?
-
-    /**
-     * Audience-scoped spawn: only the viewers selected by [audience] (relative to [caster] / [target]) see the display,
-     * and only those whose own `vfx_intensity` admits [lane]. Default ignores both (everyone in range sees it).
-     */
-    public fun spawn(
-        world: WorldId,
-        at: Vec3,
-        spec: DisplaySpec,
-        renderedLines: List<String>,
-        audience: Audience,
-        caster: PlayerId?,
-        target: PlayerId?,
-        lane: VfxLane = VfxLane.CORE,
-    ): DisplayHandle? = spawn(world, at, spec, renderedLines)
 
     /**
      * Sets the display's `transformation` and lets the client interpolate to it over

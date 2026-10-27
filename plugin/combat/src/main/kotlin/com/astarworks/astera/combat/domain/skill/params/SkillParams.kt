@@ -139,8 +139,6 @@ public data class ProjectileVisualParams(
     val trail: com.astarworks.astera.core.domain.effect.animation.ParticleAnimation? = null,
     val trailSpacing: Double = DEFAULT_TRAIL_SPACING,
     val display: com.astarworks.astera.combat.domain.projectile.DisplaySpec? = null,
-    /** `content/vfx` choreography anchored on the live projectile; it ends with the projectile. */
-    val vfx: com.astarworks.astera.core.domain.effect.vfx.VfxId? = null,
 ) {
     init {
         require(trailSpacing >= 0.0) { "trailSpacing must be >= 0: $trailSpacing" }
