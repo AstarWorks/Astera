@@ -28,6 +28,9 @@ public interface ISkillVisualGateway {
     /** Move a mesh/plate. [interpolationTicks] is the display interpolation length. */
     public fun updatePose(handle: VisualHandle, pose: Frame, interpolationTicks: Int = 1)
 
+    /** Uniform scale of a mesh (item scale) or plate (edge length in blocks). */
+    public fun updateScale(handle: VisualHandle, scale: Double)
+
     public fun updateLine(handle: VisualHandle, from: Vec3, to: Vec3)
 
     /** Append this tick's ribbon cross-section (root and tip positions); the adapter ages it out. */

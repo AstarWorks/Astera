@@ -1,0 +1,190 @@
+package com.astarworks.astera.core.application.skillengine.runtime.presentation
+
+import com.astarworks.astera.core.application.skillengine.runtime.OpContext
+import com.astarworks.astera.core.application.skillengine.runtime.OpExecutor
+import com.astarworks.astera.core.application.skillengine.runtime.port.ParticleBurst
+import com.astarworks.astera.core.domain.geometry.Vec3
+import com.astarworks.astera.core.domain.skillengine.frame.FrameId
+import com.astarworks.astera.core.domain.skillengine.model.Value
+import com.astarworks.astera.core.domain.skillengine.op.BodyOp
+import com.astarworks.astera.core.domain.skillengine.op.FxOp
+import com.astarworks.astera.core.domain.skillengine.op.ScreenOp
+import com.astarworks.astera.core.domain.skillengine.op.SkillOp
+import com.astarworks.astera.core.domain.skillengine.op.VisualOp
+import kotlin.math.roundToInt
+import kotlin.reflect.KClass
+
+/** All presentation executors, bound to one [PresentationRuntime]. The manager registers them. */
+public fun presentationExecutors(rt: PresentationRuntime): List<OpExecutor<*>> = listOf(
+    MeshExecutor(rt), PlateExecutor(rt), LineExecutor(rt), TrailExecutor(rt), TrackExecutor(rt), RemoveExecutor(rt),
+    EmitExecutor(rt), SoundExecutor(rt),
+    VictimAnimExecutor(rt), CasterAnimExecutor(rt),
+    TitleExecutor(rt), ActionBarExecutor(rt), CameraShakeExecutor(rt),
+)
+
+private fun OpContext.passes(op: SkillOp): Boolean = op.whenExpr?.let { values.bool(it) } ?: true
+
+private fun OpContext.text(v: Value<String>?, default: String): String = v?.let { values.text(it) } ?: default
+
+private fun OpContext.num(v: Value<Double>?, default: Double): Double = v?.let { values.num(it) } ?: default
+
+internal class MeshExecutor(private val rt: PresentationRuntime) : OpExecutor<VisualOp.Mesh> {
+    override val opClass: KClass<VisualOp.Mesh> = VisualOp.Mesh::class
+    override fun execute(op: VisualOp.Mesh, ctx: OpContext) {
+        if (!ctx.passes(op)) return
+        val s = rt.state(ctx)
+        val pose = rt.frameWorld(s, op.frame) ?: return
+        val scale = ctx.num(op.scale, 1.0)
+        val h = ctx.ports.visuals.spawnMesh(rt.info.owner(ctx.cast), op.item, op.part, scale, pose)
+        rt.register(s, PresentationRuntime.Live.Mesh(op.id, h, op.frame, scale))
+    }
+}
+
+internal class PlateExecutor(private val rt: PresentationRuntime) : OpExecutor<VisualOp.Plate> {
+    override val opClass: KClass<VisualOp.Plate> = VisualOp.Plate::class
+    override fun execute(op: VisualOp.Plate, ctx: OpContext) {
+        if (!ctx.passes(op)) return
+        val s = rt.state(ctx)
+        val pose = rt.platePose(s, op.parent, op.face) ?: return
+        val reference = ctx.tree.pointWorld(FrameId(op.parent), "tip").getOrNull()
+            ?.let { it.distance(pose.origin) }?.takeIf { it > 1e-6 } ?: 1.0
+        val size = ctx.values.num(op.sizeFrac) * reference
+        val h = ctx.ports.visuals.spawnPlate(
+            rt.info.owner(ctx.cast), op.sprite, op.face, size, ctx.values.num(op.alpha), pose,
+        )
+        rt.register(s, PresentationRuntime.Live.Plate(op.id, h, op.parent, op.face, size))
+    }
+}
+
+internal class LineExecutor(private val rt: PresentationRuntime) : OpExecutor<VisualOp.Line> {
+    override val opClass: KClass<VisualOp.Line> = VisualOp.Line::class
+    override fun execute(op: VisualOp.Line, ctx: OpContext) {
+        if (!ctx.passes(op)) return
+        val s = rt.state(ctx)
+        val a = rt.pointWorld(s, op.from) ?: return
+        val b = rt.pointWorld(s, op.to) ?: return
+        val h = ctx.ports.visuals.spawnLine(
+            rt.info.owner(ctx.cast), a, b, ctx.values.num(op.thickness), ctx.values.text(op.color), op.face,
+        )
+        rt.register(s, PresentationRuntime.Live.Line(op.id, h, op.from, op.to))
+    }
+}
+
+internal class TrailExecutor(private val rt: PresentationRuntime) : OpExecutor<VisualOp.Trail> {
+    override val opClass: KClass<VisualOp.Trail> = VisualOp.Trail::class
+    override fun execute(op: VisualOp.Trail, ctx: OpContext) {
+        if (!ctx.passes(op)) return
+        val s = rt.state(ctx)
+        val h = ctx.ports.visuals.spawnTrail(
+            rt.info.owner(ctx.cast), op.ticks, ctx.values.num(op.widthFrac), ctx.values.text(op.color), ctx.values.num(op.alpha),
+        )
+        rt.register(s, PresentationRuntime.Live.Trail(op.id, h, op.of, op.root, op.ticks, op.untilEvent))
+    }
+}
+
+internal class TrackExecutor(private val rt: PresentationRuntime) : OpExecutor<VisualOp.Track> {
+    override val opClass: KClass<VisualOp.Track> = VisualOp.Track::class
+    override fun execute(op: VisualOp.Track, ctx: OpContext) {
+        if (!ctx.passes(op)) return
+        val s = rt.state(ctx)
+        s.tracks[op.id] = PresentationRuntime.TrackState(op, s.tick)
+    }
+}
+
+internal class RemoveExecutor(private val rt: PresentationRuntime) : OpExecutor<VisualOp.Remove> {
+    override val opClass: KClass<VisualOp.Remove> = VisualOp.Remove::class
+    override fun execute(op: VisualOp.Remove, ctx: OpContext) {
+        if (!ctx.passes(op)) return
+        rt.removeIds(rt.state(ctx), op.ids)
+    }
+}
+
+internal class EmitExecutor(private val rt: PresentationRuntime) : OpExecutor<FxOp.Emit> {
+    override val opClass: KClass<FxOp.Emit> = FxOp.Emit::class
+    override fun execute(op: FxOp.Emit, ctx: OpContext) {
+        if (!ctx.passes(op)) return
+        val s = rt.state(ctx)
+        val at = rt.pointWorld(s, op.at) ?: return
+        val inherit = op.inheritVelocity?.let { ctx.values.num(it) }
+        val burst = ParticleBurst(
+            particle = op.particle,
+            at = at,
+            count = ctx.values.num(op.count).roundToInt().coerceAtLeast(0),
+            dir = op.dir?.let { ctx.values.vec3(it) },
+            spreadDeg = ctx.num(op.spreadDeg, 0.0),
+            speed = ctx.num(op.speed, 0.3),
+            inheritVelocity = inherit?.let { rt.velocityOf(s, op.at.frame) * it },
+            colorHex = op.color?.let { ctx.values.text(it) },
+            seed = ctx.cast.value * 31L + (op.seed ?: op.id).hashCode().toLong(),
+        )
+        ctx.ports.particles.emit(burst)
+    }
+}
+
+internal class SoundExecutor(private val rt: PresentationRuntime) : OpExecutor<FxOp.Sound> {
+    override val opClass: KClass<FxOp.Sound> = FxOp.Sound::class
+    override fun execute(op: FxOp.Sound, ctx: OpContext) {
+        if (!ctx.passes(op)) return
+        val s = rt.state(ctx)
+        val until = op.untilEvent
+        if (until != null && rt.info.hasRaised(ctx.cast, until)) return
+        val play = {
+            val at = rt.pointWorld(s, op.at)
+            if (at != null) {
+                ctx.ports.sounds.play(op.sound, at, ctx.num(op.volume, 1.0).coerceAtLeast(0.0), ctx.num(op.pitch, 1.0))
+            }
+        }
+        play()
+        val every = op.everyTicks
+        if (every != null && every > 0) {
+            s.sounds[op.id] = PresentationRuntime.SoundTask(op.id, every, until, s.tick + every, play)
+        }
+    }
+}
+
+internal class VictimAnimExecutor(private val rt: PresentationRuntime) : OpExecutor<BodyOp.VictimAnim> {
+    override val opClass: KClass<BodyOp.VictimAnim> = BodyOp.VictimAnim::class
+    override fun execute(op: BodyOp.VictimAnim, ctx: OpContext) {
+        if (!ctx.passes(op)) return
+        val away = ctx.tree.pointWorld(FrameId("contact"), "point").getOrNull()
+            ?: ctx.tree.worldOf(FrameId("caster")).getOrNull()?.origin
+            ?: Vec3(0.0, 0.0, 0.0)
+        val strength = ctx.num(op.strength, 1.0)
+        for (victim in rt.info.targets(ctx.cast, op.target)) {
+            ctx.ports.victimAnim.play(victim, op.anim, strength, away)
+        }
+    }
+}
+
+internal class CasterAnimExecutor(private val rt: PresentationRuntime) : OpExecutor<BodyOp.CasterAnim> {
+    override val opClass: KClass<BodyOp.CasterAnim> = BodyOp.CasterAnim::class
+    override fun execute(op: BodyOp.CasterAnim, ctx: OpContext) {
+        if (!ctx.passes(op)) return
+        rt.casterAnim.play(rt.info.owner(ctx.cast), op.anim, ctx.num(op.speed, 1.0))
+    }
+}
+
+internal class TitleExecutor(private val rt: PresentationRuntime) : OpExecutor<ScreenOp.Title> {
+    override val opClass: KClass<ScreenOp.Title> = ScreenOp.Title::class
+    override fun execute(op: ScreenOp.Title, ctx: OpContext) {
+        if (!ctx.passes(op)) return
+        for (v in rt.info.targets(ctx.cast, op.target)) rt.screen.title(v, op.text, op.subtitle, op.ticks)
+    }
+}
+
+internal class ActionBarExecutor(private val rt: PresentationRuntime) : OpExecutor<ScreenOp.ActionBar> {
+    override val opClass: KClass<ScreenOp.ActionBar> = ScreenOp.ActionBar::class
+    override fun execute(op: ScreenOp.ActionBar, ctx: OpContext) {
+        if (!ctx.passes(op)) return
+        for (v in rt.info.targets(ctx.cast, op.target)) rt.screen.actionBar(v, op.text)
+    }
+}
+
+internal class CameraShakeExecutor(private val rt: PresentationRuntime) : OpExecutor<ScreenOp.CameraShake> {
+    override val opClass: KClass<ScreenOp.CameraShake> = ScreenOp.CameraShake::class
+    override fun execute(op: ScreenOp.CameraShake, ctx: OpContext) {
+        if (!ctx.passes(op)) return
+        val intensity = ctx.values.num(op.intensity)
+        for (v in rt.info.targets(ctx.cast, op.target)) rt.screen.cameraShake(v, intensity, op.ticks)
+    }
+}

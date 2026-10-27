@@ -66,6 +66,20 @@ public sealed interface VisualOp : PresentationOp {
         val untilEvent: String?,
     ) : VisualOp
 
+    /**
+     * Keyframes the local offset / rotation / scale of ONE visual object (mesh or plate created by the
+     * op with id [target]) relative to its frame. Moves only that visual, never a gameplay frame, so
+     * hit volumes are unaffected. [space] is the frame whose axes the offset is expressed in
+     * (default: the visual's own frame). Ticks count from the moment this op runs.
+     */
+    public data class Track(
+        override val id: String,
+        override val whenExpr: Value<Boolean>?,
+        val target: String,
+        val keys: List<TrackKey>,
+        val space: String?,
+    ) : VisualOp
+
     /** Remove presentation objects created earlier by the listed op ids. */
     public data class Remove(
         override val id: String,
@@ -73,3 +87,16 @@ public sealed interface VisualOp : PresentationOp {
         val ids: List<String>,
     ) : VisualOp
 }
+
+/**
+ * One key of a [VisualOp.Track]. [rotation] is `[yawDeg, pitchDeg, rollDeg]` applied on top of the
+ * visual's base orientation; a channel that is null is not keyed (it keeps its neutral value).
+ */
+public data class TrackKey(
+    val tick: Int,
+    val offset: Value<com.astarworks.astera.core.domain.geometry.Vec3>?,
+    val rotation: Value<com.astarworks.astera.core.domain.geometry.Vec3>?,
+    val scale: Value<Double>?,
+    /** `linear` (default), `ease_in`, `ease_out`, `ease_in_out`: easing of the segment ENDING at this key. */
+    val ease: String?,
+)
