@@ -35,3 +35,19 @@ Exact to the planner: poses, timing (state at integer ticks, display interpolati
 - Headless screenshots: `make skill-3d SKILL=<id> SHOTS=build/skill-3d VIEWS=side,top,behind,front,fp,ref TICKS=10,45` writes `<skill>_<view>_tNNN.png` and exits (`bun scripts/skill-3d.mjs ... --ui` keeps the panels in the image).
 
 Approximate (same as above, plus): flat lighting, no lightmap/fog shadows, no outline glow, no skin overlay layer; particles are camera-facing quads with the sim's size (half extent), rgba, packed light (brightness only) and roll (sign not verified against the client), no per-particle sub-tick motion; the fixed presets other than ref are our own framings, not client cameras.
+
+## First-person check (caster's own view)
+
+A skill is judged from the caster's own eyes as well as from the camera that films the reference. For anything the caster sees up close
+(a weapon rig, a screen veil, a windup telegraph), run this before the round goes to review:
+
+1. Run `make skill-lint SKILL=<id>` first. Check 1 (`visibleWeapons`) must PASS: the first-person view is where a doubled or missing held weapon is most obvious. Check 8 must PASS if the skill has a `windup`.
+2. Film the two views of the same tick range, back to back, with the same `TICKS`:
+   - `make vfx-shot SKILL=<id> VIEW=caster TICKS=<range>` (the caster, first person; 640x360)
+   - `make vfx-shot SKILL=<id> VIEW=compare CASE=<case> TICKS=<range>` (the case camera; 1280x720)
+3. Cross-check the two against each other and against lint check 1: the held weapon count in the `caster` frames equals the number of held rows of the inventory, and it equals what `compare` shows on the same tick. A disagreement means the first-person item or a rig part is double-drawn or hidden: fix the content, re-lint, re-film.
+4. Screen veils: the `caster` frames are the only place the veil's real size shows. It must cover no more than 15 percent of the frame (hard maximum 18 percent) and must be visible in `caster` only, never in `compare` or `opponent` (default `viewers: caster`).
+5. Windup telegraphs: in `opponent` (the target's view) the rim is at full size on the first windup tick and the fill reaches the rim on the impact tick; `caster` shows the same ground marker unless `viewers` says otherwise.
+
+`make skill-3d ... VIEWS=fp` is the planner's first-person still; it does not replace the real-client `VIEW=caster` capture.
+

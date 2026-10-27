@@ -358,14 +358,14 @@ public class SimPlayerFeedbackGateway(
     private val clock: () -> Long = { 0L },
 ) : IPlayerFeedbackGateway {
     public data class Title(val target: PlayerId, val title: String, val subtitle: String?)
-    public data class Kick(val target: PlayerId, val intensity: Double, val tick: Long)
+    public data class Kick(val target: PlayerId, val dx: Double, val dy: Double, val tick: Long)
 
     /** Camera jolts sent by CameraShake. */
     public val kicks: MutableList<Kick> = mutableListOf()
 
-    override fun cameraKick(target: PlayerId, intensity: Double) {
-        kicks += Kick(target, intensity, clock())
-        recorder?.recordEffect(clock(), "camera_shake", null, "${target.uuid} intensity=${"%.2f".format(intensity)}")
+    override fun cameraKick(target: PlayerId, dx: Double, dy: Double) {
+        kicks += Kick(target, dx, dy, clock())
+        recorder?.recordEffect(clock(), "camera_shake", null, "${target.uuid} dx=${"%.2f".format(dx)} dy=${"%.2f".format(dy)}")
     }
 
     /** Screen flashes sent by ScreenFlash. */

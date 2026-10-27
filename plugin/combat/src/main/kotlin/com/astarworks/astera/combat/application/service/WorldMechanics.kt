@@ -27,23 +27,28 @@ import com.astarworks.astera.core.domain.world.ToolType
 import com.astarworks.astera.core.application.port.outbound.IMatchTeamLookup
 import com.astarworks.astera.core.application.port.outbound.IMessageRenderer
 import com.astarworks.astera.core.application.port.outbound.IPlayerHealthGateway
+import com.astarworks.astera.core.application.port.outbound.IPlayerPoseLookup
 import com.astarworks.astera.core.application.port.outbound.IScheduler
 import com.astarworks.astera.core.application.port.outbound.IWorldGateway
 import com.astarworks.astera.core.application.port.outbound.runLaterTicks
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.damage.DamageAttribute
 import com.astarworks.astera.core.domain.damage.DamageProfile
+import com.astarworks.astera.core.domain.effect.AudienceResolver
 import com.astarworks.astera.core.domain.effect.DisplayKind
+import com.astarworks.astera.core.domain.effect.camera.ShakeProfile
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.domain.player.physiology.HealthChangeSource
 import com.astarworks.astera.core.domain.skill.mechanic.Mechanic
+import com.astarworks.astera.core.domain.skill.mechanic.ShakeDirection
 import com.astarworks.astera.core.domain.world.BlockType
 import com.astarworks.astera.core.domain.world.WorldId
 import org.slf4j.Logger
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.floor
+import kotlin.math.hypot
 import kotlin.math.sin
 
 /**
@@ -71,6 +76,7 @@ internal class WorldMechanics(
     private val effects: IEntityEffectsGateway?,
     private val heldItems: HeldItemHider?,
     private val feedback: IPlayerFeedbackGateway?,
+    private val poseLookup: IPlayerPoseLookup?,
     private val messageRenderer: IMessageRenderer?,
     private val teamLookup: IMatchTeamLookup?,
     private val playerHealth: () -> IPlayerHealthGateway?,
@@ -422,7 +428,7 @@ internal class WorldMechanics(
             emptyList()
         }
         for (at in targeters.resolveLocations(m.targets, ctx).take(MAX_DISPLAYS_PER_CAST)) {
-            val handle = gateway.spawn(world, at, m.display, lines) ?: continue
+            val handle = gateway.spawn(world, at, m.display, lines, m.viewers, ctx.actorId, ctx.targetId) ?: continue
             liveDisplays += handle
             scheduler.runLaterTicks(regionScope(world, at), m.display.lifetimeTicks) {
                 if (liveDisplays.remove(handle)) gateway.remove(handle)
@@ -520,14 +526,33 @@ internal class WorldMechanics(
         val duration = host.resolveInt(m.ticks, ctx)
         val intensity = host.resolveDouble(m.intensity, ctx).coerceIn(0.0, 1.0)
         if (duration <= 0 || intensity <= 0.0) return
-        val targets = living(targeters.resolvePlayers(m.targets, ctx))
-        var offset = 0
-        while (offset < duration) {
-            val strength = intensity * (1.0 - offset.toDouble() / duration)
-            val kick = { targets.forEach { target -> scheduler.run(ExecutionScope.Entity(target.uuid), kotlin.time.Duration.ZERO) { out.cameraKick(target, strength) } } }
-            if (offset == 0) kick() else scheduler.runLaterTicks(ExecutionScope.Global, offset.toLong()) { kick() }
-            offset += SHAKE_PULSE_TICKS
+        val frequency = host.resolveDouble(m.frequency, ctx)
+        val resolved = living(targeters.resolvePlayers(m.targets, ctx))
+        val targets = AudienceResolver.select(resolved, m.viewers, ctx.actorId, ctx.targetId)
+        for (target in targets) {
+            val hit = if (m.direction == ShakeDirection.FROM_HIT) hitDirection(target, ctx) else null
+            val seed = ctx.tickIndex * SHAKE_SEED_MIX + target.uuid.leastSignificantBits
+            val pulses = ShakeProfile.plan(m.shape, m.direction, intensity, duration, frequency, hit, seed)
+            val scope = ExecutionScope.Entity(target.uuid)
+            for (pulse in pulses) {
+                val kick = { out.cameraKick(target, pulse.dx, pulse.dy) }
+                if (pulse.tick == 0) scheduler.run(scope, kotlin.time.Duration.ZERO) { kick() } else scheduler.runLaterTicks(scope, pulse.tick.toLong()) { kick() }
+            }
         }
+    }
+
+    /** Where the hit came from in [target]'s own view frame (the caster is the source); `null` for a self-shake or unknown pose. */
+    private fun hitDirection(target: PlayerId, ctx: MechanicContext): ShakeProfile.HitDirection? {
+        if (target == ctx.actorId) return null
+        val pose = poseLookup?.poseOf(target) ?: return null
+        val look = pose.direction
+        val flat = hypot(look.x, look.z)
+        if (flat < 1e-6) return null
+        val fx = look.x / flat
+        val fz = look.z / flat
+        val sx = ctx.origin.x - pose.position.x
+        val sz = ctx.origin.z - pose.position.z
+        return ShakeProfile.HitDirection(right = sx * -fz + sz * fx, forward = sx * fx + sz * fz)
     }
 
     // ---- Lifecycle -----------------------------------------------------------
@@ -575,7 +600,7 @@ internal class WorldMechanics(
         const val MAX_SUMMONS_PER_CAST: Int = 8
         const val MAX_ACTIVE_SUMMONS_PER_OWNER: Int = 16
         const val SUMMON_RING_RADIUS: Double = 1.5
-        const val SHAKE_PULSE_TICKS: Int = 2
+        const val SHAKE_SEED_MIX: Long = -0x61c8864680b583ebL
 
         private val AIR_LIKE: Set<String> = setOf(
             "air", "cave_air", "void_air", "water", "lava", "short_grass", "tall_grass", "fern", "snow", "fire",

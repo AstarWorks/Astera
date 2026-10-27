@@ -244,7 +244,7 @@ deploy() (
   old_pack=$(docker inspect astera-dev-resource-pack-1 --format '{{.Image}}')
   running_before=$(docker ps --format '{{.Names}}' --filter name=astera-dev- | tr '\n' ' ')
   if [ "$plugins" = 1 ]; then
-    for svc in core items combat match stats economy persistence; do tasks+=(":plugin:$svc:shadowJar"); done
+    for svc in core chat items combat match stats economy persistence; do tasks+=(":plugin:$svc:shadowJar"); done
     ./gradlew "${tasks[@]}" >> "$STATE/build.log" 2>&1 || { log "FAILED $sha build-plugins"; return; }
   fi
   if [ "$pack" = 1 ]; then

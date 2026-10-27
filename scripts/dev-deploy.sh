@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # Fast redeploy into the running docker dev stack (F1-I, ADR-0186; hotswap and pack: F3-9, ADR-0224).
 #
-#   scripts/dev-deploy.sh plugins   build the 7 shadow jars, restart only the backends whose jars changed
-#   scripts/dev-deploy.sh hotswap   build the 7 shadow jars and apply the changed classes to the RUNNING
+#   scripts/dev-deploy.sh plugins   build the 8 shadow jars, restart only the backends whose jars changed
+#   scripts/dev-deploy.sh hotswap   build the 8 shadow jars and apply the changed classes to the RUNNING
 #                                   backends (JBR + agent image, `make dev-hotswap-up`); a backend restarts
 #                                   only when the JVM refuses the change
 #   scripts/dev-deploy.sh deploy    rebuild+restart the resource pack server (docker-cached), build jars AND push content/ into each backend while it still runs, then restart
@@ -45,7 +45,7 @@ if [ -n "${ASTERA_DEV_HOST:-}" ]; then COMPOSE_FILES="$COMPOSE_FILES docker/dock
 for f in $COMPOSE_FILES; do COMPOSE+=(-f "$f"); done
 BACKENDS=${BACKENDS:-"lobby game"}
 BOOT_TIMEOUT=${BOOT_TIMEOUT:-240}
-PLUGINS=(core items combat match stats economy persistence)
+PLUGINS=(core chat items combat match stats economy persistence)
 
 # `docker compose exec -T` returns as soon as its stdin hits EOF (cron, CI, `< /dev/null`), cutting the command
 # off or dropping its output. Plain `docker exec` without -i attaches no stdin and always waits.

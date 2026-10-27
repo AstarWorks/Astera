@@ -1,0 +1,25 @@
+# MiniMessage placeholders are component-safe; rank decorations are trusted administrator content.
+format: '<gray>[<server>]</gray> <prefix><name><suffix> <dark_gray>»</dark_gray> <message>'
+japanize:
+  enabled: true
+  # Privacy: when enabled, hiragana chat text is sent to Google Transliterate.
+  kanji: true
+ranks:
+  - id: admin
+    prefix: '<red>[Admin]</red> '
+    suffix: ''
+    priority: 100
+    roles: [admin, 'astera:admin']
+  - id: mod
+    prefix: '<green>[Mod]</green> '
+    suffix: ''
+    priority: 50
+    roles: [mod, moderator, moderator-lite, 'astera:gm']
+  - id: member
+    prefix: '<gray>[Member]</gray> '
+    suffix: ''
+    priority: 0
+    roles: [member, player, 'astera:player', 'astera:vip']
+discord:
+  enabled: true
+  bridge-server: lobby

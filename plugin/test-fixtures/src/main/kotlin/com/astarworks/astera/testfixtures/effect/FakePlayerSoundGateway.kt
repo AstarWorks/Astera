@@ -20,11 +20,19 @@ public class FakePlayerSoundGateway : IPlayerSoundGateway {
 
     public val calls: MutableList<Call> = mutableListOf()
 
+    /** Every [stop] call, in order: (viewer, sound key). */
+    public val stops: MutableList<Pair<PlayerId, String>> = mutableListOf()
+
     override fun playForViewer(playerId: PlayerId, sound: SoundSpec, position: Vec3?, world: WorldId?) {
         calls += Call(playerId, sound, position, world)
     }
 
+    override fun stop(playerId: PlayerId, key: String) {
+        stops += playerId to key
+    }
+
     public fun clear() {
         calls.clear()
+        stops.clear()
     }
 }

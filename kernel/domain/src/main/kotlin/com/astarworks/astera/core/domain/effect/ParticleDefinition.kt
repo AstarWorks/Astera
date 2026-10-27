@@ -67,7 +67,7 @@ public data class ParticleDefinition(
     public val velocity: ParticleVelocity? = null,
     /** Long-distance render so opponents see skill VFX. */
     public val force: Boolean = true,
-    public val viewers: ParticleViewers = ParticleViewers.ALL,
+    public val viewers: Audience = Audience.ALL,
 ) {
     init {
         require(count > 0) { "count must be positive: $count" }

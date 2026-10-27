@@ -7,7 +7,7 @@ import com.astarworks.astera.core.domain.effect.ParticleId
 import com.astarworks.astera.core.domain.effect.ParticleShape
 import com.astarworks.astera.core.domain.effect.ParticleTarget
 import com.astarworks.astera.core.domain.effect.ParticleVelocity
-import com.astarworks.astera.core.domain.effect.ParticleViewers
+import com.astarworks.astera.core.domain.effect.Audience
 import com.astarworks.astera.core.domain.effect.VelocityDirection
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.i18n.MessageKey
@@ -51,7 +51,7 @@ import kotlinx.serialization.Serializable
  * data: {kind: trail, toward: true, color: {r: 255, g: 255, b: 255}, duration_ticks: 12}
  * velocity: {direction: along_tangent, speed: 0.3, spread_degrees: 6}   # from_caster_look|along_tangent|outward|up|custom
  * force: true          # default true: long-distance render so opponents see it
- * viewers: all         # all | caster | others
+ * viewers: all         # all | caster | target | others
  * ```
  *
  * `data.kind`: `dust` {color, scale} / `dust_color_transition` {from, to, scale} / `tint` {color}
@@ -101,13 +101,9 @@ public data class ParticleYamlConfig(
         data = data?.toDomain(),
         velocity = velocity?.toDomain(),
         force = force,
-        viewers = parseViewers(viewers),
+        viewers = Audience.fromYaml(viewers),
     )
 }
-
-private fun parseViewers(raw: String): ParticleViewers =
-    ParticleViewers.entries.firstOrNull { it.name.equals(raw.trim(), ignoreCase = true) }
-        ?: throw IllegalArgumentException("Unknown viewers '$raw' (expected: all/caster/others)")
 
 private fun vec3(list: List<Double>, field: String): Vec3 {
     require(list.size == 3) { "$field must be [x, y, z], got ${list.size} numbers" }

@@ -59,6 +59,18 @@
         },
         "follow_pitch": {
             "type": "boolean"
+        },
+        "body_respect_hit_stop": {
+            "type": "boolean"
+        },
+        "palette": {
+            "type": "object",
+            "additionalProperties": {
+                "type": "object",
+                "additionalProperties": {
+                    "type": "string"
+                }
+            }
         }
     },
     "required": [
@@ -436,6 +448,12 @@
                 },
                 "target_line": {
                     "type": "boolean"
+                },
+                "lane": {
+                    "type": "string"
+                },
+                "respect_hit_stop": {
+                    "type": "boolean"
                 }
             },
             "required": [
@@ -701,6 +719,44 @@
                     "properties": {
                         "type": {
                             "type": "string",
+                            "const": "dotted_line"
+                        },
+                        "from": {
+                            "type": "array",
+                            "items": {
+                                "type": "number"
+                            }
+                        },
+                        "to": {
+                            "type": "array",
+                            "items": {
+                                "type": "number"
+                            }
+                        },
+                        "spacing": {
+                            "type": "number"
+                        },
+                        "sprite": {
+                            "type": "string"
+                        },
+                        "color": {
+                            "type": "string"
+                        },
+                        "size": {
+                            "type": "number"
+                        }
+                    },
+                    "required": [
+                        "type",
+                        "from",
+                        "to"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
                             "const": "item"
                         },
                         "item": {
@@ -827,6 +883,44 @@
                     "required": [
                         "type",
                         "text"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "const": "thin_line"
+                        },
+                        "from": {
+                            "type": "array",
+                            "items": {
+                                "type": "number"
+                            }
+                        },
+                        "to": {
+                            "type": "array",
+                            "items": {
+                                "type": "number"
+                            }
+                        },
+                        "width": {
+                            "type": "number"
+                        },
+                        "color": {
+                            "type": "string"
+                        },
+                        "alpha": {
+                            "type": "number"
+                        },
+                        "see_through": {
+                            "type": "boolean"
+                        }
+                    },
+                    "required": [
+                        "type",
+                        "from",
+                        "to"
                     ]
                 }
             ]
