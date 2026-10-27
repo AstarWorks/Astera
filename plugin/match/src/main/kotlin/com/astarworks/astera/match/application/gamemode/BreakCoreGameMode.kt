@@ -7,7 +7,10 @@ import com.astarworks.astera.core.domain.match.Match
 import com.astarworks.astera.core.domain.match.MatchId
 import com.astarworks.astera.core.domain.match.TeamId
 import com.astarworks.astera.core.domain.player.PlayerId
+import com.astarworks.astera.core.domain.presentation.PresentationMoments
 import com.astarworks.astera.core.domain.stage.Stage
+import com.astarworks.astera.match.application.gamemode.siege.ObjectiveKit
+import com.astarworks.astera.match.application.port.outbound.ObjectiveLook
 import com.astarworks.astera.match.application.gamemode.siege.SiegeEnv
 import com.astarworks.astera.match.application.gamemode.siege.SiegeGameMode
 import com.astarworks.astera.match.application.gamemode.siege.SiegeRun
@@ -40,6 +43,46 @@ public class BreakCoreGameMode @JvmOverloads constructor(
 
     override fun start(run: Run, match: Match) {
         run.cores.values.forEach { setBlock(run, it, coreBlock()) }
+        showMarkers(run, match)
+    }
+
+    /** A glowing, spinning team-coloured gem over each live core: visible through walls so attackers can aim. */
+    private fun showMarkers(run: Run, match: Match) {
+        for ((team, cell) in run.cores) {
+            if (team in run.eliminated) continue
+            val look = ObjectiveLook(coreBlock(), ObjectiveKit.colorOf(team), 0.4, spin = true)
+            kit.marker(match.id, "$CORE_KEY${team.value}", run.stage.world, Vec3(cell.x + 0.5, cell.y + 1.3, cell.z + 0.5), look)
+        }
+    }
+
+    override fun tickRun(run: Run, match: Match, tick: Long) {
+        val now = env?.now() ?: return
+        showMarkers(run, match)
+        val total = match.teams.size
+        val alive = total - run.eliminated.size
+        for ((team, cell) in run.cores) {
+            if (team in run.eliminated) continue
+            val centre = Vec3(cell.x + 0.5, cell.y + 0.5, cell.z + 0.5)
+            kit.beam(run.stage.world, centre, ObjectiveKit.colorOf(team))
+            val owners = match.teams.firstOrNull { it.id == team }?.members.orEmpty()
+            val intruder = match.teams.filter { it.id != team && it.id !in run.eliminated }.flatMap { it.members }
+                .firstNotNullOfOrNull { p -> kit.positionOf(p)?.takeIf { ObjectiveKit.flatDistance(it, centre) <= kit.warnDistance } }
+            if (intruder != null && run.due("alarm-${team.value}", now, ALARM_INTERVAL_TICKS)) {
+                for (owner in owners) kit.moment(PresentationMoments.OBJECTIVE_CORE_ALARM, owner, mapOf("dir" to kit.arrow(owner, intruder)), intruder, run.stage.world)
+            }
+        }
+        for (team in match.teams) {
+            for (member in team.members) {
+                kit.statusBar(
+                    member, BAR, mapOf("alive" to alive.toString(), "total" to total.toString()),
+                    alive.toDouble() / total, ObjectiveKit.barColorOf(ObjectiveKit.colorOf(team.id)),
+                )
+                val from = kit.positionOf(member) ?: continue
+                val enemy = run.cores.filter { (t, _) -> t != team.id && t !in run.eliminated }.values
+                    .map { Vec3(it.x + 0.5, it.y + 0.5, it.z + 0.5) }.minByOrNull { ObjectiveKit.flatDistance(from, it) }
+                if (enemy != null) kit.compass(member, enemy, HINT_BREAK)
+            }
+        }
     }
 
     override fun broken(run: Run, match: Match, player: PlayerId, team: TeamId?, position: Vec3) {
@@ -51,6 +94,8 @@ public class BreakCoreGameMode @JvmOverloads constructor(
             return
         }
         run.eliminated += owner
+        kit.unmarker(match.id, "$CORE_KEY${owner.value}")
+        run.cores[owner]?.let { kit.burst(run.stage.world, Vec3(it.x + 0.5, it.y + 0.5, it.z + 0.5), ObjectiveKit.colorOf(owner)) }
         tellMatch(match, KEY_DESTROYED, mapOf("team" to owner.value))
         val alive = match.teams.map { it.id }.filter { it !in run.eliminated }
         if (alive.size <= 1) win(run, alive.singleOrNull())
@@ -77,6 +122,10 @@ public class BreakCoreGameMode @JvmOverloads constructor(
         public val ID: GameModeId = GameModeId("break-core")
         public val TITLE_KEY: MessageKey = MessageKey("astera.gamemode.break-core.title")
         private val KEY_DESTROYED: MessageKey = MessageKey("astera.gamemode.break-core.core-destroyed")
+        private val BAR: MessageKey = MessageKey("astera.objective.bar.break-core")
+        private val HINT_BREAK: MessageKey = MessageKey("astera.objective.hint.break-core.break")
+        private const val CORE_KEY: String = "core-"
+        private const val ALARM_INTERVAL_TICKS: Long = 60L
         private const val REGION_PREFIX: String = "core-"
         private const val DEFAULT_CORE_BLOCK: String = "minecraft:emerald_block"
     }

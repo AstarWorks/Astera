@@ -14,8 +14,16 @@ public enum class ObjectiveBarColor { WHITE, RED, BLUE, GREEN, YELLOW, PURPLE, P
  * @property block namespaced block id shown (a TNT block, a diamond block, ...).
  * @property glow glow colour name (`red`, `blue`, `gold`, ...) of a world marker; `null` = white.
  * @property scale edge length of the shown block, in blocks.
+ * @property spin a world marker turns slowly and bobs (a treasure on a pedestal); only meaningful for markers.
+ * @property label rendered MiniMessage line floating over a world marker (a count at a pedestal); `null` = none.
  */
-public data class ObjectiveLook(val block: String, val glow: String? = null, val scale: Double = 0.8)
+public data class ObjectiveLook(
+    val block: String,
+    val glow: String? = null,
+    val scale: Double = 0.8,
+    val spin: Boolean = false,
+    val label: String? = null,
+)
 
 /**
  * The visible stage of an objective mode: the carrier's glow and carried block, the markers lying in the world
@@ -23,10 +31,13 @@ public data class ObjectiveLook(val block: String, val glow: String? = null, val
  * per match and torn down by [clearMatch]; the hosts own the entities (Paper: Display entities and boss bars).
  */
 public interface IObjectiveStage {
-    /** [player] glows and shows [look] on the head while carrying; `null` clears both. */
-    public fun setCarrying(player: PlayerId, look: ObjectiveLook?)
+    /** [player] glows and shows [look] on the head while carrying; `null` clears both. [count] pieces are stacked over the head (capped by the host). */
+    public fun setCarrying(player: PlayerId, look: ObjectiveLook?, count: Int = 1)
 
-    /** Places or moves the world marker [key] of [match] (a glowing block that stays visible through walls). */
+    /**
+     * Places or moves the world marker [key] of [match] (a glowing block that stays visible through walls). Calling it
+     * again with the same key moves the marker and refreshes its [ObjectiveLook.label] and spin step.
+     */
     public fun showMarker(match: MatchId, key: String, world: WorldId, at: Vec3, look: ObjectiveLook)
 
     public fun removeMarker(match: MatchId, key: String)

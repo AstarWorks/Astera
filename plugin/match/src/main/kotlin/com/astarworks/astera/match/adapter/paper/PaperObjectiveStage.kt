@@ -14,6 +14,7 @@ import org.bukkit.Color
 import org.bukkit.Location
 import org.bukkit.entity.BlockDisplay
 import org.bukkit.entity.Display
+import org.bukkit.entity.TextDisplay
 import org.bukkit.plugin.java.JavaPlugin
 import org.bukkit.util.Transformation
 import org.joml.Quaternionf
@@ -27,12 +28,14 @@ import java.util.UUID
  * player and key.
  */
 public class PaperObjectiveStage(private val plugin: JavaPlugin) : IObjectiveStage {
-    private val carried: MutableMap<PlayerId, UUID> = mutableMapOf()
+    private val carried: MutableMap<PlayerId, List<UUID>> = mutableMapOf()
     private val markers: MutableMap<Pair<MatchId, String>, UUID> = mutableMapOf()
+    private val labels: MutableMap<Pair<MatchId, String>, UUID> = mutableMapOf()
+    private val spinStep: MutableMap<Pair<MatchId, String>, Int> = mutableMapOf()
     private val bars: MutableMap<Pair<PlayerId, String>, BossBar> = mutableMapOf()
     private val mini = MiniMessage.miniMessage()
 
-    override fun setCarrying(player: PlayerId, look: ObjectiveLook?) {
+    override fun setCarrying(player: PlayerId, look: ObjectiveLook?, count: Int) {
         removeCarried(player)
         val online = Bukkit.getPlayer(player.uuid) ?: return
         if (look == null) {
@@ -40,20 +43,25 @@ public class PaperObjectiveStage(private val plugin: JavaPlugin) : IObjectiveSta
             return
         }
         online.isGlowing = true
-        val display = online.world.spawn(online.location, BlockDisplay::class.java) { d ->
-            d.block = Bukkit.createBlockData(look.block)
-            d.isPersistent = false
-            d.brightness = Display.Brightness(15, 15)
-            d.transformation = scaled(look.scale, lift = 0.15f)
-            d.teleportDuration = 1
+        // A stack over the head: one block per carried piece (capped), each lifted by its own height.
+        val shown = count.coerceIn(1, MAX_STACK)
+        val stack = (0 until shown).map { i ->
+            val display = online.world.spawn(online.location, BlockDisplay::class.java) { d ->
+                d.block = Bukkit.createBlockData(look.block)
+                d.isPersistent = false
+                d.brightness = Display.Brightness(15, 15)
+                d.transformation = scaled(look.scale, lift = 0.15f + i * look.scale.toFloat() * 0.95f)
+                d.teleportDuration = 1
+            }
+            online.addPassenger(display)
+            online.hideEntity(plugin, display)
+            display.uniqueId
         }
-        online.addPassenger(display)
-        online.hideEntity(plugin, display)
-        carried[player] = display.uniqueId
+        carried[player] = stack
     }
 
     private fun removeCarried(player: PlayerId) {
-        carried.remove(player)?.let { Bukkit.getEntity(it)?.remove() }
+        carried.remove(player)?.forEach { Bukkit.getEntity(it)?.remove() }
     }
 
     override fun showMarker(match: MatchId, key: String, world: WorldId, at: Vec3, look: ObjectiveLook) {
@@ -61,24 +69,68 @@ public class PaperObjectiveStage(private val plugin: JavaPlugin) : IObjectiveSta
         val id = markers[match to key]
         val existing = id?.let { Bukkit.getEntity(it) } as? BlockDisplay
         val where = Location(w, at.x, at.y, at.z)
-        if (existing != null && existing.isValid) {
+        val display = if (existing != null && existing.isValid) {
             existing.teleportAsync(where)
+            existing
+        } else {
+            spinStep.remove(match to key)
+            w.spawn(where, BlockDisplay::class.java) { d ->
+                d.block = Bukkit.createBlockData(look.block)
+                d.isPersistent = false
+                d.isGlowing = true
+                d.glowColorOverride = glowColor(look.glow)
+                d.brightness = Display.Brightness(15, 15)
+                d.transformation = scaled(look.scale, lift = 0f, centred = true)
+                d.viewRange = VIEW_RANGE
+            }.also { markers[match to key] = it.uniqueId }
+        }
+        if (look.spin) spin(match, key, display, look)
+        showLabel(match, key, w, where, look)
+    }
+
+    /** One interpolated step of the slow turn + bob; the caller refreshes about once a second, the client tweens the rest. */
+    private fun spin(match: MatchId, key: String, display: BlockDisplay, look: ObjectiveLook) {
+        val step = (spinStep[match to key] ?: 0) + 1
+        spinStep[match to key] = step
+        val s = look.scale.toFloat()
+        val bob = if (step % 2 == 0) 0f else BOB_HEIGHT
+        val turn = Quaternionf().rotateY(Math.toRadians(SPIN_DEGREES * step.toDouble()).toFloat())
+        // Rotating about the block centre: shift the origin by half the edge, rotate, then shift back.
+        val centre = Vector3f(s / 2f, s / 2f, s / 2f)
+        val offset = Vector3f(-s / 2f, bob, -s / 2f).add(centre).sub(Vector3f(centre).rotate(turn))
+        display.interpolationDelay = 0
+        display.interpolationDuration = SPIN_TWEEN_TICKS
+        display.transformation = Transformation(offset, turn, Vector3f(s, s, s), Quaternionf())
+    }
+
+    private fun showLabel(match: MatchId, key: String, w: org.bukkit.World, where: Location, look: ObjectiveLook) {
+        val text = look.label
+        if (text == null) {
+            labels.remove(match to key)?.let { Bukkit.getEntity(it)?.remove() }
             return
         }
-        val display = w.spawn(where, BlockDisplay::class.java) { d ->
-            d.block = Bukkit.createBlockData(look.block)
-            d.isPersistent = false
-            d.isGlowing = true
-            d.glowColorOverride = glowColor(look.glow)
-            d.brightness = Display.Brightness(15, 15)
-            d.transformation = scaled(look.scale, lift = 0f, centred = true)
-            d.viewRange = VIEW_RANGE
+        val above = where.clone().add(0.0, look.scale + LABEL_LIFT, 0.0)
+        val existing = labels[match to key]?.let { Bukkit.getEntity(it) } as? TextDisplay
+        if (existing != null && existing.isValid) {
+            existing.text(mini.deserialize(text))
+            existing.teleportAsync(above)
+            return
         }
-        markers[match to key] = display.uniqueId
+        val label = w.spawn(above, TextDisplay::class.java) { d ->
+            d.text(mini.deserialize(text))
+            d.isPersistent = false
+            d.billboard = Display.Billboard.CENTER
+            d.brightness = Display.Brightness(15, 15)
+            d.viewRange = VIEW_RANGE
+            d.isSeeThrough = true
+        }
+        labels[match to key] = label.uniqueId
     }
 
     override fun removeMarker(match: MatchId, key: String) {
         markers.remove(match to key)?.let { Bukkit.getEntity(it)?.remove() }
+        labels.remove(match to key)?.let { Bukkit.getEntity(it)?.remove() }
+        spinStep.remove(match to key)
     }
 
     override fun showBar(player: PlayerId, key: String, title: String, progress: Double, color: ObjectiveBarColor) {
@@ -99,7 +151,7 @@ public class PaperObjectiveStage(private val plugin: JavaPlugin) : IObjectiveSta
     }
 
     override fun clearMatch(match: MatchId, players: Collection<PlayerId>) {
-        markers.keys.filter { it.first == match }.forEach { removeMarker(it.first, it.second) }
+        (markers.keys + labels.keys).filter { it.first == match }.forEach { removeMarker(it.first, it.second) }
         for (player in players) {
             removeCarried(player)
             Bukkit.getPlayer(player.uuid)?.isGlowing = false
@@ -134,5 +186,10 @@ public class PaperObjectiveStage(private val plugin: JavaPlugin) : IObjectiveSta
 
     private companion object {
         const val VIEW_RANGE: Float = 2.0f
+        const val MAX_STACK: Int = 5
+        const val BOB_HEIGHT: Float = 0.25f
+        const val SPIN_DEGREES: Double = 90.0
+        const val SPIN_TWEEN_TICKS: Int = 20
+        const val LABEL_LIFT: Double = 0.5
     }
 }

@@ -15,11 +15,15 @@ public class SimObjectiveStage : IObjectiveStage {
     public data class Bar(val title: String, val progress: Double, val color: ObjectiveBarColor)
 
     private val carrying: MutableMap<PlayerId, ObjectiveLook> = ConcurrentHashMap()
+    private val carriedCount: MutableMap<PlayerId, Int> = ConcurrentHashMap()
     private val markers: MutableMap<Pair<MatchId, String>, Marker> = ConcurrentHashMap()
     private val bars: MutableMap<Pair<PlayerId, String>, Bar> = ConcurrentHashMap()
 
     /** What [player] carries right now, `null` = nothing. */
     public fun carrying(player: PlayerId): ObjectiveLook? = carrying[player]
+
+    /** How many pieces [player] shows stacked over the head (0 = none). */
+    public fun carriedCount(player: PlayerId): Int = carriedCount[player] ?: 0
 
     /** World markers of [match] by key. */
     public fun markers(match: MatchId): Map<String, Marker> =
@@ -28,8 +32,14 @@ public class SimObjectiveStage : IObjectiveStage {
     /** Boss bar [key] of [player], `null` = hidden. */
     public fun bar(player: PlayerId, key: String): Bar? = bars[player to key]
 
-    override fun setCarrying(player: PlayerId, look: ObjectiveLook?) {
-        if (look == null) carrying.remove(player) else carrying[player] = look
+    override fun setCarrying(player: PlayerId, look: ObjectiveLook?, count: Int) {
+        if (look == null) {
+            carrying.remove(player)
+            carriedCount.remove(player)
+        } else {
+            carrying[player] = look
+            carriedCount[player] = count
+        }
     }
 
     override fun showMarker(match: MatchId, key: String, world: WorldId, at: Vec3, look: ObjectiveLook) {
@@ -52,6 +62,7 @@ public class SimObjectiveStage : IObjectiveStage {
         markers.keys.removeAll { it.first == match }
         for (p in players) {
             carrying.remove(p)
+            carriedCount.remove(p)
             bars.keys.removeAll { it.first == p }
         }
     }

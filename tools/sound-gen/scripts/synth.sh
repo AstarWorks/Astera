@@ -383,6 +383,58 @@ match_found() {   # attention: three rising bell strikes, last one rings
     mix mf 1.3 a:0:0.8 b:140:0.85 c:280:1 d:280:0.5; finish match/found mf
 }
 
+# ---- objective moments (2026-10-27 objective UX round 2): pickup / drop / return / bank / warning / tension ----
+objective_channel_start() {  # the hold begins: a short rising "charge" blip over a soft tick
+    gen a 0.3 "$(sweep 500 1100 0.25 5)"; gen b 0.2 "$(sq 1500 40)"
+    mix cs 0.3 a:0:0.7 b:0:0.4; finish objective/channel-start cs
+}
+objective_pickup() {  # grabbed: bright snatch sweep, a metallic clink and a high bell
+    gen a 0.25 "$(sweep 700 2200 0.08 16)"; gen b 0.5 "$(bell 1976 11)"; gen c 0.5 "$(bell 2960 13)"
+    noise d 0.1 "highpass=f=4500,volume='exp(-t*60)':eval=frame" 121
+    mix pk 0.55 a:0:0.6 b:30:0.9 c:60:0.6 d:20:0.4; finish objective/pickup pk
+}
+objective_drop() {  # carrier down: falling glassy clatter, a low thud, scattered ticks
+    gen a 0.3 "$(sweep 320 80 0.15 12)"; gen b 0.5 "$(bell 1175 16)"; gen c 0.4 "$(bell 880 18)"
+    noise d 0.35 "highpass=f=2500,volume='exp(-t*14)*(0.5+0.5*sin(2*PI*30*t))':eval=frame" 122
+    mix dr 0.6 a:0:1 b:20:0.5 c:90:0.4 d:10:0.5; finish objective/drop dr
+}
+objective_return() {  # back home: soft ascending triad, calm
+    local i=0 f; for f in 659 880 1319; do gen "r$i" 0.9 "$(bell $f 6)"; i=$((i + 1)); done
+    gen pad 0.9 "$(brass 330 0.08 3)"
+    mix rt 1.0 pad:0:0.4 r0:0:0.7 r1:110:0.8 r2:220:0.9; finish objective/return rt
+}
+objective_bank() {  # delivery: coin cascade, a brass stab and a wide sparkle crown (the big team-wide moment)
+    gen a 0.3 "$(brass 392 0.01 6)"; gen b 1.4 "$(brass 523 0.02 2)"; gen c 1.4 "$(brass 784 0.02 2)"; gen d 1.4 "$(brass 1047 0.02 2)"
+    local i=0 f; for f in 2093 2637 3136 3951 4699 5588; do gen "s$i" 0.9 "$(bell $f 6)"; i=$((i + 1)); done
+    gen lo 0.5 "$(sweep 180 60 0.2 10)"
+    mix bk 1.7 lo:0:0.8 a:0:0.8 b:140:0.7 c:140:0.7 d:140:0.6 s0:140:0.45 s1:190:0.45 s2:240:0.45 s3:290:0.45 s4:340:0.4 s5:390:0.4
+    post bk bank "aecho=0.7:0.5:60|120:0.25|0.12"; finish objective/bank bank
+}
+objective_loss() {  # the rivals bank: a dull falling two-note and a dark swell
+    gen a 0.5 "$(pluck 330 5)"; gen b 0.8 "$(pluck 220 3.5)"; gen c 0.8 "sin(2*PI*(90*t+(60-90)*t*t/(2*0.8)))*min(t/0.1,1)*exp(-2*t)*0.5"
+    mix ls 1.0 a:0:0.8 b:200:0.9 c:0:0.6; post ls loss "lowpass=f=2000"; finish objective/loss loss
+}
+objective_warn() {  # enemy at the gates: two sharp alarm pulses
+    gen a 0.18 "$(sq 523 12)"; gen b 0.18 "$(sq 392 12)"; gen c 0.18 "$(sq 1046 14)"
+    mix wn 0.45 a:0:0.8 c:0:0.3 b:170:0.9 ; finish objective/warn wn
+}
+objective_tension() {  # one point from winning: a rising heartbeat drone with a ticking top
+    gen a 0.4 "$(sweep 90 55 0.15 10)"; gen b 0.4 "$(sweep 90 55 0.15 10)"
+    gen c 1.2 "sin(2*PI*(200*t+(520-200)*t*t/(2*1.2)))*min(t/0.2,1)*0.3"
+    gen d 0.15 "$(sq 2200 60)"
+    mix tn 1.2 a:0:1 b:380:0.9 c:0:0.5 d:760:0.3 d:960:0.4 d:1160:0.5; finish objective/tension tn
+}
+objective_capture() {  # zone captured: upward whoosh into a ringing major chord
+    gen a 0.4 "sin(2*PI*(300*t+(1200-300)*t*t/(2*0.4)))*min(t/0.05,1)*0.4"
+    gen b 1.0 "$(bell 1047 5)"; gen c 1.0 "$(bell 1319 5.5)"; gen d 1.0 "$(bell 1568 6)"
+    mix cp 1.1 a:0:0.6 b:300:0.9 c:300:0.8 d:300:0.7; finish objective/capture cp
+}
+objective_core_alarm() {  # the core is breached: heavy impact and a siren wail
+    gen a 0.5 "$(sweep 150 40 0.2 8)"; noise b 0.4 "lowpass=f=1500,volume='exp(-t*9)':eval=frame" 123
+    gen c 0.9 "sin(2*PI*(500*t+120*sin(2*PI*3*t)*0.2+(700-500)*t*t/(2*0.9)))*min(t/0.05,1)*exp(-1.6*t)*0.35"
+    mix ca 0.9 a:0:1 b:0:0.6 c:150:0.8; finish objective/core-alarm ca
+}
+
 ALL=(ui/click ui/confirm ui/deny ui/purchase star/pickup star/burst norma/level-up norma/level-max
      match/countdown-tick match/go combat/kill match/death match/win match/lose
      weapons/gun-shot weapons/sword-swing skills/wand-cast
@@ -392,7 +444,9 @@ ALL=(ui/click ui/confirm ui/deny ui/purchase star/pickup star/burst norma/level-
      skills/nature-impact skills/heal-chime
      combat/hit combat/crit combat/blocked combat/skill-ready combat/ego-ready match/respawn match/draw star/pop
      norma/burst norma/burst-max norma/choice-open norma/choice-picked norma/choice-defaulted
-     ui/level-up ui/login-bonus ui/quest-complete star/burst-gain star/burst-boom match/sudden-death ui/queue-join match/found)
+     ui/level-up ui/login-bonus ui/quest-complete star/burst-gain star/burst-boom match/sudden-death ui/queue-join match/found
+     objective/channel-start objective/pickup objective/drop objective/return objective/bank objective/loss objective/warn
+     objective/tension objective/capture objective/core-alarm)
 
 targets=("$@"); [[ ${#targets[@]} -gt 0 ]] || targets=("${ALL[@]}")
 for name in "${targets[@]}"; do
