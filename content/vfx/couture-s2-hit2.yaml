@@ -813,33 +813,6 @@ elements:
   keyframes:
   - t: 0
     translate: [0, 1.2, 0]
-- id: shadow
-  kind: {type: quad, color: '#0B0714', alpha: 0.0, see_through: true}
-  billboard: fixed
-  brightness: 15
-  start_tick: 8
-  end_tick: 20
-  keyframes:
-  - t: 0
-    translate: [0, 0.04, 0]
-    rotate: [-90, 0, 0]
-    scale: [1.6, 1.6, 1]
-    color: '#0B0714'
-    alpha: 0.0
-  - t: 2
-    translate: [0, 0.04, 0]
-    rotate: [-90, 0, 0]
-    scale: [1.6, 1.6, 1]
-    ease: out_quad
-    color: '#0B0714'
-    alpha: 0.55
-  - t: 12
-    translate: [0, 0.04, 0]
-    rotate: [-90, 0, 0]
-    scale: [1.2, 1.2, 1]
-    ease: in_quad
-    color: '#0B0714'
-    alpha: 0.0
 - id: px-orange-0
   kind: {type: particle, particle_id: couture-s2-p-orange, every_ticks: 1}
   brightness: 15
@@ -946,3 +919,113 @@ elements:
   - t: 6
     translate: [0.0, 21.398, 6.548]
     ease: out_quad
+- id: shd-0
+  kind: {type: block, block: black_concrete}
+  brightness: 4
+  start_tick: 8
+  end_tick: 20
+  keyframes:
+  - t: 0
+    translate: [0, 0.07, 0]
+    rotate: [0, 0, 0]
+    scale: [0.028, 0.03, 0.003]
+  - t: 2
+    translate: [0, 0.07, 0]
+    rotate: [0, 0, 0]
+    scale: [2.8, 0.03, 0.35]
+  - t: 10
+    translate: [0, 0.07, 0]
+    rotate: [0, 0, 0]
+    scale: [2.8, 0.03, 0.35]
+  - t: 12
+    translate: [0, 0.07, 0]
+    rotate: [0, 0, 0]
+    scale: [0.0, 0.03, 0.0]
+- id: shd-1
+  kind: {type: block, block: black_concrete}
+  brightness: 4
+  start_tick: 8
+  end_tick: 20
+  keyframes:
+  - t: 0
+    translate: [0, 0.07, 0]
+    rotate: [0, 35, 0]
+    scale: [0.024, 0.03, 0.003]
+  - t: 2
+    translate: [0, 0.07, 0]
+    rotate: [0, 35, 0]
+    scale: [2.4, 0.03, 0.3]
+  - t: 10
+    translate: [0, 0.07, 0]
+    rotate: [0, 35, 0]
+    scale: [2.4, 0.03, 0.3]
+  - t: 12
+    translate: [0, 0.07, 0]
+    rotate: [0, 35, 0]
+    scale: [0.0, 0.03, 0.0]
+- id: shd-2
+  kind: {type: block, block: black_concrete}
+  brightness: 4
+  start_tick: 8
+  end_tick: 20
+  keyframes:
+  - t: 0
+    translate: [0, 0.07, 0]
+    rotate: [0, 70, 0]
+    scale: [0.026, 0.03, 0.003]
+  - t: 2
+    translate: [0, 0.07, 0]
+    rotate: [0, 70, 0]
+    scale: [2.6, 0.03, 0.3]
+  - t: 10
+    translate: [0, 0.07, 0]
+    rotate: [0, 70, 0]
+    scale: [2.6, 0.03, 0.3]
+  - t: 12
+    translate: [0, 0.07, 0]
+    rotate: [0, 70, 0]
+    scale: [0.0, 0.03, 0.0]
+- id: shd-3
+  kind: {type: block, block: black_concrete}
+  brightness: 4
+  start_tick: 8
+  end_tick: 20
+  keyframes:
+  - t: 0
+    translate: [0, 0.07, 0]
+    rotate: [0, 110, 0]
+    scale: [0.02, 0.03, 0.003]
+  - t: 2
+    translate: [0, 0.07, 0]
+    rotate: [0, 110, 0]
+    scale: [2.0, 0.03, 0.25]
+  - t: 10
+    translate: [0, 0.07, 0]
+    rotate: [0, 110, 0]
+    scale: [2.0, 0.03, 0.25]
+  - t: 12
+    translate: [0, 0.07, 0]
+    rotate: [0, 110, 0]
+    scale: [0.0, 0.03, 0.0]
+- id: shd-4
+  kind: {type: block, block: black_concrete}
+  brightness: 4
+  start_tick: 8
+  end_tick: 20
+  keyframes:
+  - t: 0
+    translate: [0, 0.07, 0]
+    rotate: [0, 150, 0]
+    scale: [0.023, 0.03, 0.003]
+  - t: 2
+    translate: [0, 0.07, 0]
+    rotate: [0, 150, 0]
+    scale: [2.3, 0.03, 0.28]
+  - t: 10
+    translate: [0, 0.07, 0]
+    rotate: [0, 150, 0]
+    scale: [2.3, 0.03, 0.28]
+  - t: 12
+    translate: [0, 0.07, 0]
+    rotate: [0, 150, 0]
+    scale: [0.0, 0.03, 0.0]
