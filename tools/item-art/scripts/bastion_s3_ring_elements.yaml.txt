@@ -1,0 +1,132 @@
+- id: s3r-ring-q0
+  kind: {type: sprite, sprite: bastion-s3-ring-q0, frame_ticks: 1, loop: false, see_through: true}
+  billboard: fixed
+  brightness: 15
+  start_tick: 3
+  end_tick: 17
+  keyframes:
+  - t: 0
+    translate: [-1.4854, 0.2912, -1.5]
+    rotate: [90.0, -82.0, 90.0]
+    scale: [0.4761, 0.4761, 1.0]
+- id: s3r-ring-q1
+  kind: {type: sprite, sprite: bastion-s3-ring-q1, frame_ticks: 1, loop: false, see_through: true}
+  billboard: fixed
+  brightness: 15
+  start_tick: 3
+  end_tick: 17
+  keyframes:
+  - t: 0
+    translate: [1.4854, 0.7088, -1.5]
+    rotate: [90.0, -82.0, 90.0]
+    scale: [0.4761, 0.4761, 1.0]
+- id: s3r-ring-q2
+  kind: {type: sprite, sprite: bastion-s3-ring-q2, frame_ticks: 1, loop: false, see_through: true}
+  billboard: fixed
+  brightness: 15
+  start_tick: 3
+  end_tick: 17
+  keyframes:
+  - t: 0
+    translate: [-1.4854, 0.2912, 1.5]
+    rotate: [90.0, -82.0, 90.0]
+    scale: [0.4761, 0.4761, 1.0]
+- id: s3r-ring-q3
+  kind: {type: sprite, sprite: bastion-s3-ring-q3, frame_ticks: 1, loop: false, see_through: true}
+  billboard: fixed
+  brightness: 15
+  start_tick: 3
+  end_tick: 17
+  keyframes:
+  - t: 0
+    translate: [1.4854, 0.7088, 1.5]
+    rotate: [90.0, -82.0, 90.0]
+    scale: [0.4761, 0.4761, 1.0]
+- id: s3r-ring2-q0
+  kind: {type: sprite, sprite: bastion-s3-ring2-q0, frame_ticks: 1, loop: false, see_through: true}
+  billboard: fixed
+  brightness: 15
+  start_tick: 3
+  end_tick: 17
+  keyframes:
+  - t: 0
+    translate: [-1.4616, 1.2874, -1.5]
+    rotate: [-90.0, -77.0, -90.0]
+    scale: [0.4761, 0.4761, 1.0]
+- id: s3r-ring2-q1
+  kind: {type: sprite, sprite: bastion-s3-ring2-q1, frame_ticks: 1, loop: false, see_through: true}
+  billboard: fixed
+  brightness: 15
+  start_tick: 3
+  end_tick: 17
+  keyframes:
+  - t: 0
+    translate: [1.4616, 0.6126, -1.5]
+    rotate: [-90.0, -77.0, -90.0]
+    scale: [0.4761, 0.4761, 1.0]
+- id: s3r-ring2-q2
+  kind: {type: sprite, sprite: bastion-s3-ring2-q2, frame_ticks: 1, loop: false, see_through: true}
+  billboard: fixed
+  brightness: 15
+  start_tick: 3
+  end_tick: 17
+  keyframes:
+  - t: 0
+    translate: [-1.4616, 1.2874, 1.5]
+    rotate: [-90.0, -77.0, -90.0]
+    scale: [0.4761, 0.4761, 1.0]
+- id: s3r-ring2-q3
+  kind: {type: sprite, sprite: bastion-s3-ring2-q3, frame_ticks: 1, loop: false, see_through: true}
+  billboard: fixed
+  brightness: 15
+  start_tick: 3
+  end_tick: 17
+  keyframes:
+  - t: 0
+    translate: [1.4616, 0.6126, 1.5]
+    rotate: [-90.0, -77.0, -90.0]
+    scale: [0.4761, 0.4761, 1.0]
+- id: s3r-ring3-q0
+  kind: {type: sprite, sprite: bastion-s3-ring3-q0, frame_ticks: 1, loop: false, see_through: true}
+  billboard: fixed
+  brightness: 15
+  start_tick: 3
+  end_tick: 17
+  keyframes:
+  - t: 0
+    translate: [-1.4489, 1.0118, -1.5]
+    rotate: [90.0, -75.0, 90.0]
+    scale: [0.4761, 0.4761, 1.0]
+- id: s3r-ring3-q1
+  kind: {type: sprite, sprite: bastion-s3-ring3-q1, frame_ticks: 1, loop: false, see_through: true}
+  billboard: fixed
+  brightness: 15
+  start_tick: 3
+  end_tick: 17
+  keyframes:
+  - t: 0
+    translate: [1.4489, 1.7882, -1.5]
+    rotate: [90.0, -75.0, 90.0]
+    scale: [0.4761, 0.4761, 1.0]
+- id: s3r-ring3-q2
+  kind: {type: sprite, sprite: bastion-s3-ring3-q2, frame_ticks: 1, loop: false, see_through: true}
+  billboard: fixed
+  brightness: 15
+  start_tick: 3
+  end_tick: 17
+  keyframes:
+  - t: 0
+    translate: [-1.4489, 1.0118, 1.5]
+    rotate: [90.0, -75.0, 90.0]
+    scale: [0.4761, 0.4761, 1.0]
+- id: s3r-ring3-q3
+  kind: {type: sprite, sprite: bastion-s3-ring3-q3, frame_ticks: 1, loop: false, see_through: true}
+  billboard: fixed
+  brightness: 15
+  start_tick: 3
+  end_tick: 17
+  keyframes:
+  - t: 0
+    translate: [1.4489, 1.7882, 1.5]
+    rotate: [90.0, -75.0, 90.0]
+    scale: [0.4761, 0.4761, 1.0]

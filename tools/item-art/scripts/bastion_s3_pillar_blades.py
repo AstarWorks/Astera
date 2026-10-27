@@ -16,7 +16,9 @@ import numpy as np
 from PIL import Image, ImageDraw
 
 sys.path.insert(0, os.path.dirname(__file__))
-from bastion_s3_sprites import SS, N, comp, down, hexc, to_img  # noqa: E402
+from bastion_s3_sprites import N, comp, down, hexc, to_img  # noqa: E402
+
+SS = 8  # r5: 8x supersampling for crisp anti-aliased edges
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
 OUT = os.path.join(ROOT, "content", "textures", "sources", "images")
@@ -52,10 +54,15 @@ def spikes_frame(specs, ox=128.0, oy=236.0):
     dark, gold, pale, white = [], [], [], []
     for sx, ang, L, hw in specs:
         x = ox + sx
+        # r5: 1.5x longer/wider, clamp the tip inside the frame; thin (3 px) dark edge only
+        L, hw = L * 1.5, hw * 1.5
+        tipx = abs(sx + math.sin(math.radians(ang)) * L)
+        if tipx > 120:
+            L *= (120 - abs(sx)) / max(tipx - abs(sx), 1)
         dark.append(blade(x, oy, ang, L, hw))
-        gold.append(blade(x, oy - 1, ang, L * 0.95, hw * 0.66))
-        pale.append(blade(x, oy - 2, ang, L * 0.8, hw * 0.36))
-        white.append(blade(x, oy - 3, ang, L * 0.55, hw * 0.16))
+        gold.append(blade(x, oy - 1, ang, L - 4, hw - 3))
+        pale.append(blade(x, oy - 2, ang, L * 0.82, hw * 0.62))
+        white.append(blade(x, oy - 3, ang, L * 0.6, hw * 0.3))
     dst = np.zeros((N * SS, N * SS, 4), np.float32)
     dst = comp(dst, hexc("#120E1C"), layer(dark))
     dst = comp(dst, hexc("#F2B31F"), layer(gold))
@@ -89,7 +96,7 @@ def make_bar():
 
     dst = np.zeros((N * SS, N * SS, 4), np.float32)
     dst = comp(dst, hexc("#120E1C"), layer([hexa(1.0)]))
-    dst = comp(dst, hexc("#F2B31F"), layer([hexa(0.74, 0.95)]))
+    dst = comp(dst, hexc("#F2B31F"), layer([hexa(0.8, 0.975)]))
     dst = comp(dst, hexc("#FFE45A"), layer([hexa(0.5, 0.88)]))
     dst = comp(dst, hexc("#FFFFFF"), layer([hexa(0.22, 0.7)]))
     save("pillar-bar", [down(to_img(dst))])
