@@ -197,7 +197,7 @@ deploy() (
         content/models/*|content/textures/*|content/sounds/*|content/sprites/*|content/effects/*|content/hud/*|content/fonts/*|content/pack-assets/*|content/shader-patches/*|content/animations/*) pack=1 ;;
         content/*) content=1 ;;
         tools/resource-pack*) pack=1 ;;
-        plugin/core/*) plugins=1; pack=1 ;;
+        plugin/core/*|core/*|kernel/*) plugins=1; pack=1 ;;
         plugin/*) plugins=1 ;;
         gradle/*|buildSrc/*|config/*|Makefile|*.gradle.kts|gradle.properties|gradlew*) plugins=1; pack=1 ;;
       esac
