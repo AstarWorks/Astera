@@ -43,6 +43,9 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.SerialInfo
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonClassDiscriminator
+import kotlin.math.asin
+import kotlin.math.atan2
+import kotlin.math.floor
 
 /** Why a vfx definition file could not become a [VfxDefinition]. */
 public sealed class VfxConfigError {
@@ -102,30 +105,53 @@ public data class VfxYamlConfig(
      */
     public val palette: Map<String, Map<String, String>> = emptyMap(),
 ) {
-    /** Materializes the domain definition; every validation failure comes back as a [VfxConfigError]. */
-    public fun toDefinition(): Result<VfxDefinition, VfxConfigError> = try {
-        Result.success(
-            VfxDefinition(
-                id = VfxId(id),
-                durationTicks = durationTicks,
-                orient = parseEnum<VfxOrient>(orient, "orient"),
-                follow = follow,
-                followTeleportTicks = followTeleportTicks,
-                attachToAnchor = attachToAnchor,
-                replaceGroup = replaceGroup,
-                sampleTicks = sampleTicks,
-                elements = elements.map { it.toDomain() },
-                rigs = rigs.map { it.toDomain() },
-                ghostBodies = ghostBodies.map { it.toDomain() },
-                targetReference = targetReference?.let { vec3(it, "target_reference") },
-                body = body?.let { com.astarworks.astera.core.domain.animation.player.CustomAnimationId(it) },
-                followBodyYaw = followBodyYaw,
-                followPitch = followPitch,
-                bodyRespectHitStop = bodyRespectHitStop,
-            ),
-        )
+    /** The primary definition: plain [id] (the first palette variant when a palette is declared). */
+    public fun toDefinition(): Result<VfxDefinition, VfxConfigError> =
+        when (val all = toDefinitions()) {
+            is Result.Success -> Result.success(all.value.first())
+            is Result.Failure -> Result.failure(all.error)
+        }
+
+    /**
+     * Every definition this file registers. Without a [palette]: just `[id]`. With one: plain `id` (the first variant), then
+     * `id@<variant>` per variant, each with the `$name` colour references resolved for that variant.
+     */
+    public fun toDefinitions(): Result<List<VfxDefinition>, VfxConfigError> = try {
+        if (palette.isEmpty()) {
+            Result.success(listOf(build(id, emptyMap())))
+        } else {
+            val variants = palette.values.first().keys.toList()
+            require(variants.isNotEmpty()) { "palette entries need at least one variant" }
+            palette.forEach { (name, byVariant) ->
+                require(byVariant.keys.toSet() == variants.toSet()) { "palette '$name' variants ${byVariant.keys} differ from ${variants}" }
+            }
+            fun colours(variant: String): Map<String, String> = palette.mapValues { it.value.getValue(variant) }
+            val built = variants.map { build("$id@$it", colours(it)) }
+            Result.success(listOf(build(id, colours(variants.first()))) + built)
+        }
     } catch (e: IllegalArgumentException) {
         Result.failure(VfxConfigError.Invalid("vfx '$id': ${e.message}"))
+    }
+
+    private fun build(definitionId: String, colours: Map<String, String>): VfxDefinition = VfxPaletteScope.with(colours) {
+        VfxDefinition(
+            id = VfxId(definitionId),
+            durationTicks = durationTicks,
+            orient = parseEnum<VfxOrient>(orient, "orient"),
+            follow = follow,
+            followTeleportTicks = followTeleportTicks,
+            attachToAnchor = attachToAnchor,
+            replaceGroup = replaceGroup,
+            sampleTicks = sampleTicks,
+            elements = elements.map { it.toDomain() },
+            rigs = rigs.map { it.toDomain() },
+            ghostBodies = ghostBodies.map { it.toDomain() },
+            targetReference = targetReference?.let { vec3(it, "target_reference") },
+            body = body?.let { com.astarworks.astera.core.domain.animation.player.CustomAnimationId(it) },
+            followBodyYaw = followBodyYaw,
+            followPitch = followPitch,
+            bodyRespectHitStop = bodyRespectHitStop,
+        )
     }
 }
 
@@ -158,20 +184,29 @@ public data class VfxElementYaml(
     public val lane: String = "core",
     @SerialName("respect_hit_stop") public val respectHitStop: Boolean = false,
 ) {
-    public fun toDomain(): VfxElement = VfxElement(
+    public fun toDomain(): VfxElement {
+        val line = when (kind) {
+            is VfxKindYaml.DottedLine -> kind.plan(this)
+            is VfxKindYaml.ThinLine -> kind.plan(this)
+            else -> null
+        }
+        return build(line)
+    }
+
+    private fun build(line: VfxLinePlan?): VfxElement = VfxElement(
         id = id,
         kind = kind.toDomain(),
         brightness = brightness,
         glowArgb = glowColor?.let { parseArgb(it, "glow_color") },
-        billboard = parseEnum<DisplayBillboard>(billboard ?: if (kind is VfxKindYaml.Quad || (kind is VfxKindYaml.Sprite && emit != null)) "center" else "fixed", "billboard"),
+        billboard = parseEnum<DisplayBillboard>(billboard ?: if (kind is VfxKindYaml.Quad || kind is VfxKindYaml.DottedLine || (kind is VfxKindYaml.Sprite && emit != null)) "center" else "fixed", "billboard"),
         viewRange = viewRange?.toFloat(),
         startTick = startTick,
         endTick = endTick,
         slotLifetimeTicks = slotLifetimeTicks,
-        count = count,
-        formation = formation?.toDomain(count),
+        count = line?.count ?: count,
+        formation = line?.formation ?: formation?.toDomain(count),
         jitter = jitter?.toDomain(),
-        keyframes = keyframes.map { it.toDomain() },
+        keyframes = line?.keyframes ?: keyframes.map { it.toDomain() },
         oscillate = oscillate?.toDomain(),
         groupKeyframes = groupKeyframes.map { it.toDomain() },
         emit = emit?.toDomain(),
@@ -252,8 +287,10 @@ public sealed class VfxKindYaml {
     }
 
     /**
-     * Shorthand: evenly spaced [sprite] dots from [from] to [to] every [spacing] blocks. Expanded into the sprite element +
-     * line formation at load; the expansion is not implemented yet and fails the definition.
+     * Shorthand: evenly spaced [sprite] dots from [from] to [to] every [spacing] blocks. The element expands at load into
+     * a sprite element with `count = floor(length / spacing) + 1` slots on a `line` formation. [size] is the sprite cell scale
+     * (default `spacing * 1.2`); [color] tints the dots (`$name` palette references allowed). The element's own keyframes
+     * (alpha fades etc.) apply to every dot; when it has none a single static keyframe is generated.
      */
     @Serializable
     @SerialName("dotted_line")
@@ -262,13 +299,33 @@ public sealed class VfxKindYaml {
         public val to: List<Double>,
         public val spacing: Double = 0.3,
         public val sprite: String = "dot",
+        public val color: String? = null,
+        public val size: Double? = null,
     ) : VfxKindYaml() {
-        override fun toDomain(): VfxElementKind = throw IllegalArgumentException("kind dotted_line is not implemented yet")
+        override fun toDomain(): VfxElementKind =
+            VfxElementKind.Sprite(SpriteId(sprite), 1, false, color?.let { parseArgb(it, "color") }, false)
+
+        internal fun plan(el: VfxElementYaml): VfxLinePlan {
+            val a = vec3(from, "dotted_line.from")
+            val b = vec3(to, "dotted_line.to")
+            require(spacing > 0.0) { "dotted_line.spacing must be > 0: $spacing" }
+            require(el.formation == null && el.emit == null && el.count == 1) { "dotted_line builds its own formation: omit formation, emit and count" }
+            val dots = floor((b - a).length() / spacing + 1e-9).toInt() + 1
+            require(dots in 2..VfxElement.MAX_COUNT) { "dotted_line yields $dots dots, must be 2..${VfxElement.MAX_COUNT}: widen spacing" }
+            val cell = size ?: (spacing * 1.2)
+            return VfxLinePlan(
+                count = dots,
+                formation = VfxFormation(Curve.Line(a, b), align = VfxAlign.NONE),
+                keyframes = withGeometry(el.keyframes.map { it.toDomain() }, scale = Vec3(cell, cell, cell)),
+            )
+        }
     }
 
     /**
-     * Shorthand: a thin line quad from [from] to [to], [width] blocks wide. Expanded at load; the expansion is not
-     * implemented yet and fails the definition.
+     * Shorthand: a thin line quad from [from] to [to], [width] blocks wide. The element expands at load into a single solid quad
+     * centred on the segment, turned (yaw / roll) so its long axis follows the line, and scaled to `length x width`. [color]
+     * is `#RRGGBB` or a `$name` palette reference, [alpha] 0..1. The element's own keyframes (alpha / colour fades) apply on
+     * top; the first one inherits the line geometry.
      */
     @Serializable
     @SerialName("thin_line")
@@ -276,8 +333,36 @@ public sealed class VfxKindYaml {
         public val from: List<Double>,
         public val to: List<Double>,
         public val width: Double = 0.03,
+        public val color: String = "#FFFFFF",
+        public val alpha: Double = 1.0,
+        @SerialName("see_through") public val seeThrough: Boolean = false,
     ) : VfxKindYaml() {
-        override fun toDomain(): VfxElementKind = throw IllegalArgumentException("kind thin_line is not implemented yet")
+        override fun toDomain(): VfxElementKind = VfxElementKind.Quad(parseRgb(color, "color"), alpha, null, seeThrough)
+
+        internal fun plan(el: VfxElementYaml): VfxLinePlan {
+            val a = vec3(from, "thin_line.from")
+            val b = vec3(to, "thin_line.to")
+            require(width > 0.0) { "thin_line.width must be > 0: $width" }
+            require(el.formation == null && el.emit == null && el.count == 1) { "thin_line builds its own placement: omit formation, emit and count" }
+            val d = b - a
+            val len = d.length()
+            require(len > 1e-6) { "thin_line from and to must differ" }
+            val mid = Vec3((a.x + b.x) / 2, (a.y + b.y) / 2, (a.z + b.z) / 2)
+            // Quaternion.fromEulerDegrees = yaw * pitch * roll; with pitch 0 the quad's local +X lands on (cos r cos a, sin r, -cos r sin a).
+            val roll = Math.toDegrees(asin((d.y / len).coerceIn(-1.0, 1.0)))
+            val yaw = if (d.x == 0.0 && d.z == 0.0) 0.0 else -Math.toDegrees(atan2(-d.z, d.x))
+            return VfxLinePlan(
+                count = 1,
+                formation = null,
+                keyframes = withGeometry(
+                    el.keyframes.map { it.toDomain() },
+                    translate = mid,
+                    rotate = Vec3(yaw, 0.0, roll),
+                    scale = Vec3(len, width, 1.0),
+                    alpha = alpha,
+                ),
+            )
+        }
     }
 
     @Serializable
@@ -890,9 +975,50 @@ private inline fun <reified E : Enum<E>> parseEnum(raw: String, field: String): 
             "unknown $field '$raw' (expected one of ${enumValues<E>().joinToString("/") { it.name.lowercase() }})",
         )
 
+/** Load-time expansion of a line shorthand: slot count, formation and the keyframes carrying its geometry. */
+internal data class VfxLinePlan(val count: Int, val formation: VfxFormation?, val keyframes: List<VfxKeyframe>)
+
+/** Fills the geometry the shorthand owns into the first keyframe (or a generated t=0 one) without overriding authored values. */
+private fun withGeometry(authored: List<VfxKeyframe>, translate: Vec3? = null, rotate: Vec3? = null, scale: Vec3? = null, alpha: Double? = null): List<VfxKeyframe> {
+    val first = authored.firstOrNull() ?: return listOf(VfxKeyframe(t = 0, translate = translate, rotateEuler = rotate, scale = scale, alpha = alpha ?: 1.0))
+    return listOf(
+        first.copy(
+            translate = first.translate ?: translate,
+            rotateEuler = first.rotateEuler ?: rotate,
+            scale = first.scale ?: scale,
+            alpha = first.alpha ?: alpha,
+        ),
+    ) + authored.drop(1)
+}
+
+/**
+ * The palette of the definition currently being built (`$name` -> `#hex` for one variant). Scoped to the synchronous
+ * [VfxYamlConfig.toDefinitions] call so the many colour parse sites need no extra parameter.
+ */
+private object VfxPaletteScope {
+    private val current = ThreadLocal<Map<String, String>>()
+
+    fun <T> with(colours: Map<String, String>, block: () -> T): T {
+        val previous = current.get()
+        current.set(colours)
+        try {
+            return block()
+        } finally {
+            if (previous == null) current.remove() else current.set(previous)
+        }
+    }
+
+    fun resolve(raw: String): String {
+        val key = raw.trim()
+        if (!key.startsWith("$")) return raw
+        return current.get()?.get(key.substring(1))
+            ?: throw IllegalArgumentException("unknown palette colour '$key' (palette: ${current.get()?.keys ?: emptySet<String>()})")
+    }
+}
+
 /** `#RRGGBB` (opaque) or `#AARRGGBB`; the `#` is optional. */
 private fun parseArgb(raw: String, field: String): Int {
-    val hex = raw.trim().removePrefix("#")
+    val hex = VfxPaletteScope.resolve(raw).trim().removePrefix("#")
     val value = hex.toLongOrNull(16)
     require(value != null && (hex.length == 6 || hex.length == 8)) {
         "$field must be #RRGGBB or #AARRGGBB, got '$raw'"
@@ -902,7 +1028,7 @@ private fun parseArgb(raw: String, field: String): Int {
 
 /** `#RRGGBB` only (display particles carry alpha separately). */
 private fun parseRgb(raw: String, field: String): Int {
-    val hex = raw.trim().removePrefix("#")
+    val hex = VfxPaletteScope.resolve(raw).trim().removePrefix("#")
     val value = hex.toIntOrNull(16)
     require(value != null && hex.length == 6) { "$field must be #RRGGBB, got '$raw'" }
     return value
