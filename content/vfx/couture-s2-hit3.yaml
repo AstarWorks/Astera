@@ -798,7 +798,7 @@ elements:
     - 0
     - 48
     scale:
-    - 0.44
+    - 0.46
     - 0.3
     - 1
   - t: 1
@@ -811,7 +811,7 @@ elements:
     - 0
     - 48
     scale:
-    - 0.44
+    - 0.46
     - 3.8
     - 1
     ease: out_expo
@@ -850,7 +850,7 @@ elements:
     - 0
     - 48
     scale:
-    - 0.3
+    - 0.4
     - 0.3
     - 1
   - t: 1
@@ -863,7 +863,7 @@ elements:
     - 0
     - 48
     scale:
-    - 0.3
+    - 0.4
     - 3.8
     - 1
     ease: out_expo
@@ -902,7 +902,7 @@ elements:
     - 0
     - -48
     scale:
-    - 0.44
+    - 0.46
     - 0.3
     - 1
   - t: 1
@@ -915,7 +915,7 @@ elements:
     - 0
     - -48
     scale:
-    - 0.44
+    - 0.46
     - 3.4
     - 1
     ease: out_expo
@@ -954,7 +954,7 @@ elements:
     - 0
     - -48
     scale:
-    - 0.3
+    - 0.4
     - 0.3
     - 1
   - t: 1
@@ -967,7 +967,7 @@ elements:
     - 0
     - -48
     scale:
-    - 0.3
+    - 0.4
     - 3.4
     - 1
     ease: out_expo
@@ -1250,7 +1250,7 @@ elements:
 - id: pet-0
   kind:
     type: sprite
-    sprite: couture-s2-crescent
+    sprite: couture-s2-petal
     frame_ticks: 1
     loop: false
     see_through: true
@@ -1270,7 +1270,7 @@ elements:
     - -2.8
     scale:
     - 0.1
-    - 0.15
+    - 0.06
     - 1
     alpha: 0.0
   - t: 1
@@ -1283,8 +1283,8 @@ elements:
     - 0
     - 12.2
     scale:
-    - 0.35
-    - 0.55
+    - 0.5
+    - 0.3
     - 1
     alpha: 1.0
     ease: out_expo
@@ -1298,15 +1298,15 @@ elements:
     - 0
     - 57.2
     scale:
-    - 0.25
-    - 0.4
+    - 0.35
+    - 0.2
     - 1
     alpha: 0.0
     ease: in_quad
 - id: pet-1
   kind:
     type: sprite
-    sprite: couture-s2-crescent
+    sprite: couture-s2-petal
     frame_ticks: 1
     loop: false
     see_through: true
@@ -1326,7 +1326,7 @@ elements:
     - 23.2
     scale:
     - 0.1
-    - 0.15
+    - 0.06
     - 1
     alpha: 0.0
   - t: 1
@@ -1339,8 +1339,8 @@ elements:
     - 0
     - 38.2
     scale:
-    - 0.35
-    - 0.55
+    - 0.5
+    - 0.3
     - 1
     alpha: 1.0
     ease: out_expo
@@ -1354,15 +1354,15 @@ elements:
     - 0
     - 83.2
     scale:
-    - 0.25
-    - 0.4
+    - 0.35
+    - 0.2
     - 1
     alpha: 0.0
     ease: in_quad
 - id: pet-2
   kind:
     type: sprite
-    sprite: couture-s2-crescent
+    sprite: couture-s2-petal
     frame_ticks: 1
     loop: false
     see_through: true
@@ -1382,7 +1382,7 @@ elements:
     - 52.9
     scale:
     - 0.1
-    - 0.15
+    - 0.06
     - 1
     alpha: 0.0
   - t: 1
@@ -1395,8 +1395,8 @@ elements:
     - 0
     - 67.9
     scale:
-    - 0.35
-    - 0.55
+    - 0.5
+    - 0.3
     - 1
     alpha: 1.0
     ease: out_expo
@@ -1410,15 +1410,15 @@ elements:
     - 0
     - 112.9
     scale:
-    - 0.25
-    - 0.4
+    - 0.35
+    - 0.2
     - 1
     alpha: 0.0
     ease: in_quad
 - id: pet-3
   kind:
     type: sprite
-    sprite: couture-s2-crescent
+    sprite: couture-s2-petal
     frame_ticks: 1
     loop: false
     see_through: true
@@ -1438,7 +1438,7 @@ elements:
     - 88.9
     scale:
     - 0.1
-    - 0.15
+    - 0.06
     - 1
     alpha: 0.0
   - t: 1
@@ -1451,8 +1451,8 @@ elements:
     - 0
     - 103.9
     scale:
-    - 0.35
-    - 0.55
+    - 0.5
+    - 0.3
     - 1
     alpha: 1.0
     ease: out_expo
@@ -1466,15 +1466,15 @@ elements:
     - 0
     - 148.9
     scale:
-    - 0.25
-    - 0.4
+    - 0.35
+    - 0.2
     - 1
     alpha: 0.0
     ease: in_quad
 - id: pet-4
   kind:
     type: sprite
-    sprite: couture-s2-crescent
+    sprite: couture-s2-petal
     frame_ticks: 1
     loop: false
     see_through: true
@@ -1494,7 +1494,7 @@ elements:
     - 118.8
     scale:
     - 0.1
-    - 0.15
+    - 0.06
     - 1
     alpha: 0.0
   - t: 1
@@ -1507,8 +1507,8 @@ elements:
     - 0
     - 133.8
     scale:
-    - 0.35
-    - 0.55
+    - 0.5
+    - 0.3
     - 1
     alpha: 1.0
     ease: out_expo
@@ -1522,15 +1522,15 @@ elements:
     - 0
     - 178.8
     scale:
-    - 0.25
-    - 0.4
+    - 0.35
+    - 0.2
     - 1
     alpha: 0.0
     ease: in_quad
 - id: pet-5
   kind:
     type: sprite
-    sprite: couture-s2-crescent
+    sprite: couture-s2-petal
     frame_ticks: 1
     loop: false
     see_through: true
@@ -1550,7 +1550,7 @@ elements:
     - 145.6
     scale:
     - 0.1
-    - 0.15
+    - 0.06
     - 1
     alpha: 0.0
   - t: 1
@@ -1563,8 +1563,8 @@ elements:
     - 0
     - 160.6
     scale:
-    - 0.35
-    - 0.55
+    - 0.5
+    - 0.3
     - 1
     alpha: 1.0
     ease: out_expo
@@ -1578,15 +1578,15 @@ elements:
     - 0
     - 205.6
     scale:
-    - 0.25
-    - 0.4
+    - 0.35
+    - 0.2
     - 1
     alpha: 0.0
     ease: in_quad
 - id: pet-6
   kind:
     type: sprite
-    sprite: couture-s2-crescent
+    sprite: couture-s2-petal
     frame_ticks: 1
     loop: false
     see_through: true
@@ -1606,7 +1606,7 @@ elements:
     - 181.2
     scale:
     - 0.1
-    - 0.15
+    - 0.06
     - 1
     alpha: 0.0
   - t: 1
@@ -1619,8 +1619,8 @@ elements:
     - 0
     - 196.2
     scale:
-    - 0.35
-    - 0.55
+    - 0.5
+    - 0.3
     - 1
     alpha: 1.0
     ease: out_expo
@@ -1634,15 +1634,15 @@ elements:
     - 0
     - 241.2
     scale:
-    - 0.25
-    - 0.4
+    - 0.35
+    - 0.2
     - 1
     alpha: 0.0
     ease: in_quad
 - id: pet-7
   kind:
     type: sprite
-    sprite: couture-s2-crescent
+    sprite: couture-s2-petal
     frame_ticks: 1
     loop: false
     see_through: true
@@ -1662,7 +1662,7 @@ elements:
     - 202.7
     scale:
     - 0.1
-    - 0.15
+    - 0.06
     - 1
     alpha: 0.0
   - t: 1
@@ -1675,8 +1675,8 @@ elements:
     - 0
     - 217.7
     scale:
-    - 0.35
-    - 0.55
+    - 0.5
+    - 0.3
     - 1
     alpha: 1.0
     ease: out_expo
@@ -1690,15 +1690,15 @@ elements:
     - 0
     - 262.7
     scale:
-    - 0.25
-    - 0.4
+    - 0.35
+    - 0.2
     - 1
     alpha: 0.0
     ease: in_quad
 - id: pet-8
   kind:
     type: sprite
-    sprite: couture-s2-crescent
+    sprite: couture-s2-petal
     frame_ticks: 1
     loop: false
     see_through: true
@@ -1718,7 +1718,7 @@ elements:
     - 234.3
     scale:
     - 0.1
-    - 0.15
+    - 0.06
     - 1
     alpha: 0.0
   - t: 1
@@ -1731,8 +1731,8 @@ elements:
     - 0
     - 249.3
     scale:
-    - 0.35
-    - 0.55
+    - 0.5
+    - 0.3
     - 1
     alpha: 1.0
     ease: out_expo
@@ -1746,15 +1746,15 @@ elements:
     - 0
     - 294.3
     scale:
-    - 0.25
-    - 0.4
+    - 0.35
+    - 0.2
     - 1
     alpha: 0.0
     ease: in_quad
 - id: pet-9
   kind:
     type: sprite
-    sprite: couture-s2-crescent
+    sprite: couture-s2-petal
     frame_ticks: 1
     loop: false
     see_through: true
@@ -1774,7 +1774,7 @@ elements:
     - 275.1
     scale:
     - 0.1
-    - 0.15
+    - 0.06
     - 1
     alpha: 0.0
   - t: 1
@@ -1787,8 +1787,8 @@ elements:
     - 0
     - 290.1
     scale:
-    - 0.35
-    - 0.55
+    - 0.5
+    - 0.3
     - 1
     alpha: 1.0
     ease: out_expo
@@ -1802,15 +1802,15 @@ elements:
     - 0
     - 335.1
     scale:
-    - 0.25
-    - 0.4
+    - 0.35
+    - 0.2
     - 1
     alpha: 0.0
     ease: in_quad
 - id: pet-10
   kind:
     type: sprite
-    sprite: couture-s2-crescent
+    sprite: couture-s2-petal
     frame_ticks: 1
     loop: false
     see_through: true
@@ -1830,7 +1830,7 @@ elements:
     - 302.2
     scale:
     - 0.1
-    - 0.15
+    - 0.06
     - 1
     alpha: 0.0
   - t: 1
@@ -1843,8 +1843,8 @@ elements:
     - 0
     - 317.2
     scale:
-    - 0.35
-    - 0.55
+    - 0.5
+    - 0.3
     - 1
     alpha: 1.0
     ease: out_expo
@@ -1858,15 +1858,15 @@ elements:
     - 0
     - 362.2
     scale:
-    - 0.25
-    - 0.4
+    - 0.35
+    - 0.2
     - 1
     alpha: 0.0
     ease: in_quad
 - id: pet-11
   kind:
     type: sprite
-    sprite: couture-s2-crescent
+    sprite: couture-s2-petal
     frame_ticks: 1
     loop: false
     see_through: true
@@ -1886,7 +1886,7 @@ elements:
     - 323.0
     scale:
     - 0.1
-    - 0.15
+    - 0.06
     - 1
     alpha: 0.0
   - t: 1
@@ -1899,8 +1899,8 @@ elements:
     - 0
     - 338.0
     scale:
-    - 0.35
-    - 0.55
+    - 0.5
+    - 0.3
     - 1
     alpha: 1.0
     ease: out_expo
@@ -1914,8 +1914,8 @@ elements:
     - 0
     - 383.0
     scale:
-    - 0.25
-    - 0.4
+    - 0.35
+    - 0.2
     - 1
     alpha: 0.0
     ease: in_quad
