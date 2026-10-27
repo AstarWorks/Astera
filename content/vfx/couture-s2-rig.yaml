@@ -45,7 +45,7 @@ rigs:
     model: astera:couture-rapier
   - t: 20
     model: astera:couture-rapier-hidden
-  - t: 57
+  - t: 56
     model: astera:couture-rapier
 elements:
 - id: fly-shears
@@ -1474,7 +1474,7 @@ elements:
     display_mode: fixed
   brightness: 8
   start_tick: 46
-  end_tick: 57
+  end_tick: 58
   keyframes:
   - t: 0
     translate:
