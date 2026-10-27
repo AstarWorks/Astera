@@ -545,6 +545,8 @@ public object MatchWiring {
                 speed = { services.get<com.astarworks.astera.core.application.port.outbound.IPlayerSpeedGateway>() },
                 actionBar = { services.get<com.astarworks.astera.core.application.port.outbound.IActionBarChannel>() },
                 stage = { objectiveStage },
+                guide = { services.get<com.astarworks.astera.core.application.port.outbound.IHologramGuide>() },
+                settings = { services.get<com.astarworks.astera.core.application.port.outbound.IPlayerSettingsRepository>() },
             )
         }
         val siegeModes = listOf(

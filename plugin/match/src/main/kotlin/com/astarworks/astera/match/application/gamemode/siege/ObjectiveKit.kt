@@ -77,6 +77,7 @@ public class ObjectiveKit(private val env: SiegeEnv, private val modeKey: String
     /** [player] died or left: whatever the kit showed on them goes away. */
     public fun playerDown(player: PlayerId) {
         uncarry(player)
+        env.guide()?.hide(player)
         cancelChannel(player)
     }
 
@@ -85,6 +86,7 @@ public class ObjectiveKit(private val env: SiegeEnv, private val modeKey: String
         for (player in players) {
             uncarry(player)
             cancelChannel(player)
+            env.guide()?.hide(player)
             env.stage()?.hideBar(player, STATUS_BAR)
             extraBars.remove(player)?.forEach { env.stage()?.hideBar(player, it) }
         }
@@ -196,6 +198,21 @@ public class ObjectiveKit(private val env: SiegeEnv, private val modeKey: String
         val dz = target.z - from.z
         val arrow = if (pose == null) "" else arrowFor(pose.direction.x, pose.direction.z, dx, dz)
         toast(player, key, params + mapOf("arrow" to arrow, "dist" to hypot(dx, dz).roundToInt().toString()))
+        pointGuide(player, target, key, params)
+    }
+
+    /**
+     * The hologram arrow (ADR-0295) beside the action-bar compass: same target, label = the hint's `match.nav.*` twin.
+     * Players who switched the HUD off get no hologram.
+     */
+    private fun pointGuide(player: PlayerId, target: Vec3, hint: MessageKey, params: Map<String, String>) {
+        val guide = env.guide() ?: return
+        if (env.settings()?.findOrDefault(player)?.hpLineVisible == false) {
+            guide.hide(player)
+            return
+        }
+        val label = env.messages.render(player, MessageKey(hint.value.replace(HINT_PREFIX, NAV_PREFIX)), params)
+        guide.point(player, target, label)
     }
 
     /** The arrow glyph for where [target] lies relative to where [player] looks (empty when the pose is unknown). */
@@ -225,6 +242,8 @@ public class ObjectiveKit(private val env: SiegeEnv, private val modeKey: String
     public companion object {
         public const val STATUS_BAR: String = "objective"
         public const val CHANNEL_BAR: String = "channel"
+        private const val HINT_PREFIX: String = "objective.hint."
+        private const val NAV_PREFIX: String = "match.nav."
         private const val BEAM_HEIGHT: Int = 8
         private const val BURST_RINGS: Int = 3
         private const val BURST_POINTS: Int = 18

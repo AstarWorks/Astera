@@ -6,6 +6,8 @@ import com.astarworks.astera.combat.domain.event.PlayerKilled
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.application.port.outbound.IMatchRepository
 import com.astarworks.astera.core.application.port.outbound.IActionBarChannel
+import com.astarworks.astera.core.application.port.outbound.IHologramGuide
+import com.astarworks.astera.core.application.port.outbound.IPlayerSettingsRepository
 import com.astarworks.astera.core.application.port.outbound.IMessageRenderer
 import com.astarworks.astera.core.application.port.outbound.IPlayerPoseLookup
 import com.astarworks.astera.core.application.port.outbound.IPlayerSpeedGateway
@@ -51,6 +53,8 @@ import org.slf4j.LoggerFactory
  * @property speed walk-speed port for the carrier slowdown; `null` = carriers are not slowed.
  * @property actionBar toast channel of the objective compass and warnings; `null` = no toasts.
  * @property stage the visible objective stage (carrier glow, world markers, boss bars); `null` = headless.
+ * @property guide the per-player hologram guide arrow (ADR-0295); `null` = no hologram.
+ * @property settings player preferences; the guide is off for players who hid the HUD; `null` = everyone sees it.
  */
 public class SiegeEnv(
     public val eventBus: IDomainEventBus,
@@ -68,6 +72,8 @@ public class SiegeEnv(
     public val speed: () -> IPlayerSpeedGateway? = { null },
     public val actionBar: () -> IActionBarChannel? = { null },
     public val stage: () -> IObjectiveStage? = { null },
+    public val guide: () -> IHologramGuide? = { null },
+    public val settings: () -> IPlayerSettingsRepository? = { null },
 ) {
     public fun int(key: String, default: Int): Int = config[key]?.toIntOrNull() ?: default
 
