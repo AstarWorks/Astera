@@ -426,8 +426,7 @@ internal object MatchGameplayWiring {
             com.astarworks.astera.combat.domain.event.PlayerKilled::class,
         ) { killfeedListener.handle(it) }
 
-        // The Norma layer (every game mode, MODE-15): reaching the top Norma level wins when `norma_win` is on (NormaLevelService), next to
-        // the mode's own objective. This listener ends the match after `time_limit_seconds` of ACTIVE time (content/norma-layer/layer.yaml,
+        // The Norma layer (every game mode, MODE-15): levels are an in-match power layer and never win. This listener ends the match after `time_limit_seconds` of ACTIVE time (content/norma-layer/layer.yaml,
         // 0 = none): the mode's own objective standing first, then highest Norma level, then stars carried, then kills; still tied is a draw.
         val frameworkModes = services.get<com.astarworks.astera.match.application.port.outbound.IGameModeFrameworkRegistry>()
         val normaKills = com.astarworks.astera.match.application.eventbus.listeners.victory.NormaTimeLimitListener(
@@ -441,7 +440,6 @@ internal object MatchGameplayWiring {
                     ?.let { runCatching { com.astarworks.astera.match.domain.mode.GameModeId(it) }.getOrNull() }
                 key?.let { frameworkModes?.get(it) }?.objectiveStanding(match, team)
             },
-            levelOf = { match, team -> matchStars.norma.topLevel(match, team) },
             starsOf = { match, team -> matchStars.norma.carried(match, team) },
             killsOf = { match, team -> matchStars.norma.kills(match, team) },
         )

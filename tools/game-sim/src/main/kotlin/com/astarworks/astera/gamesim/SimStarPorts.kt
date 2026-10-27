@@ -11,6 +11,7 @@ import com.astarworks.astera.match.application.port.outbound.IMatchPlayerPositio
 import com.astarworks.astera.match.application.port.outbound.INormaPresentation
 import com.astarworks.astera.match.application.port.outbound.IStarDropWorld
 import com.astarworks.astera.match.domain.norma.NormaGoal
+import com.astarworks.astera.match.domain.norma.NormaUnlock
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.CopyOnWriteArrayList
@@ -82,7 +83,7 @@ public class SimStarDropWorld : IStarDropWorld {
 
 /** [INormaPresentation] for the simulator: records what a player would have seen. */
 public class SimNormaPresentation : INormaPresentation {
-    public data class LevelUp(val player: PlayerId, val audience: List<PlayerId>, val level: Int, val maxLevel: Int)
+    public data class LevelUp(val player: PlayerId, val audience: List<PlayerId>, val level: Int, val maxLevel: Int, val unlocked: List<NormaUnlock>)
     public data class Choice(val player: PlayerId, val goal: NormaGoal, val target: Int)
 
     public val levelUps: MutableList<LevelUp> = CopyOnWriteArrayList()
@@ -90,8 +91,14 @@ public class SimNormaPresentation : INormaPresentation {
     public val picked: MutableList<Choice> = CopyOnWriteArrayList()
     public val defaulted: MutableList<Choice> = CopyOnWriteArrayList()
 
-    override fun levelUp(player: PlayerId, audience: List<PlayerId>, level: Int, maxLevel: Int) {
-        levelUps += LevelUp(player, audience, level, maxLevel)
+    public val locked: MutableList<Pair<PlayerId, Int>> = CopyOnWriteArrayList()
+
+    override fun levelUp(player: PlayerId, audience: List<PlayerId>, level: Int, maxLevel: Int, unlocked: List<NormaUnlock>) {
+        levelUps += LevelUp(player, audience, level, maxLevel, unlocked)
+    }
+
+    override fun locked(player: PlayerId, required: Int) {
+        locked += player to required
     }
 
     override fun choiceOpened(player: PlayerId) {

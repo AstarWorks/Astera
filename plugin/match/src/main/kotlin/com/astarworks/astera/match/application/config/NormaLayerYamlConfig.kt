@@ -9,7 +9,6 @@ import kotlinx.serialization.Serializable
  * ```yaml
  * defaults:
  *   norma_layer: "true"
- *   norma_win: "true"
  *   time_limit_seconds: "600"
  * ```
  */

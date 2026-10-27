@@ -70,10 +70,7 @@ public class MatchBriefingListener(
             send("astera.match.briefing.first-time.respawn")
         }
         if (norma == null) return
-        send(
-            if (norma.win) "astera.match.briefing.norma-win" else "astera.match.briefing.norma-rank",
-            "max" to norma.maxLevel.toString(),
-        )
+        send("astera.match.briefing.norma-rank", "max" to norma.maxLevel.toString())
         if (timeLimitMinutes > 0) send("astera.match.briefing.time", "minutes" to timeLimitMinutes.toString())
     }
 
