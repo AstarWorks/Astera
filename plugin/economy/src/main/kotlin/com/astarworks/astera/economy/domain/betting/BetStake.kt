@@ -17,12 +17,10 @@ import com.astarworks.astera.core.domain.economy.Currency
  * Per the JP regulatory posture inherited from ADR-0035 (CurrencyPolicy):
  *
  * - Wagering is permitted **only** with in-game currencies that are NOT
- *   redeemable for cash. Currently that means [Currency.GOLD] (account-bound). [Currency.GEM] is **forbidden**
- *   because it is a paid premium currency; gambling paid currency could be
- *   reclassified as gambling real money under JP law.
+ *   redeemable for cash. Currently that means [Currency.GOLD] (account-bound).
  *
  * The check lives in [BetStake.init] so domain construction rejects an
- * invalid stake at the boundary — use cases never see a GEM stake.
+ * invalid stake at the boundary.
  */
 public data class BetStake(
     val currency: Currency,
@@ -30,9 +28,5 @@ public data class BetStake(
 ) {
     init {
         require(amount > 0L) { "stake amount must be > 0, got $amount" }
-        require(currency != Currency.GEM) {
-            "Currency.GEM is not eligible for betting (paid premium currency, " +
-                "ADR-0103 / ADR-0035 JP compliance)"
-        }
     }
 }

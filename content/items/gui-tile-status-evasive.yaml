@@ -1,0 +1,7 @@
+# UI-12 status codex tile icon. Vanilla material until item-art draws a glyph.
+
+id: gui-tile-status-evasive
+material: LEATHER_BOOTS
+name:
+  ja: "<green>回避</green>"
+  en: "<green>Evasive</green>"

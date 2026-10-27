@@ -1,0 +1,7 @@
+# UI-12 status codex tile icon. Vanilla material until item-art draws a glyph.
+
+id: gui-tile-status-burn
+material: BLAZE_POWDER
+name:
+  ja: "<gold>燃焼</gold>"
+  en: "<gold>Burning</gold>"

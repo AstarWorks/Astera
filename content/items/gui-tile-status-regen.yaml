@@ -1,0 +1,7 @@
+# UI-12 status codex tile icon. Vanilla material until item-art draws a glyph.
+
+id: gui-tile-status-regen
+material: GLISTERING_MELON_SLICE
+name:
+  ja: "<light_purple>再生</light_purple>"
+  en: "<light_purple>Regenerating</light_purple>"

@@ -23,12 +23,14 @@ class ShippedTutorialControlsTest {
     }
 
     @Test
-    fun `tutorial sword gun and staff steps name the exact input in en and ja`() {
+    fun `tutorial progress steps name the exact input in en and ja`() {
         val expected = mapOf(
-            "primary" to (listOf("left-click") to listOf("左クリック")),
-            "secondary" to (listOf("sneak", "right-click") to listOf("スニーク", "右クリック")),
-            "reload" to (listOf("right-click", "Q") to listOf("右クリック", "Q")),
-            "staff" to (listOf("right-click") to listOf("右クリック")),
+            "menu" to (listOf("press F") to listOf("F")),
+            "queue" to (listOf("right-click") to listOf("右クリック")),
+            "result" to (listOf("Last result") to listOf("直近の結果")),
+            "shop" to (listOf("right-click") to listOf("右クリック")),
+            "equip" to (listOf("hotbar") to listOf("ホットバー")),
+            "missions" to (listOf("Daily/Quests") to listOf("デイリー/クエスト")),
         )
         expected.forEach { (step, pair) ->
             val en = guideText("en", step).lowercase()

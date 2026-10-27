@@ -146,6 +146,9 @@ public class GameSim private constructor(
     /** Carrier looks, world markers and boss bars of the objective modes. */
     public val objectiveStage: SimObjectiveStage = SimObjectiveStage()
 
+    /** The per-player hologram guide arrows (ADR-0295): who is pointed at what. */
+    public val hologramGuide: SimHologramGuide = SimHologramGuide()
+
     /** Every per-viewer sound the game plays (ADR-0267 cues resolve to these), in order. */
     public val playerSounds: com.astarworks.astera.testfixtures.effect.FakePlayerSoundGateway =
         com.astarworks.astera.testfixtures.effect.FakePlayerSoundGateway()
@@ -584,6 +587,7 @@ public class GameSim private constructor(
             // What AsteraCorePlugin.afterWiring registers on Paper (PaperPlayerPoseLookup),
             // plus the nearby-target query no Paper adapter registers yet.
             coreCtx.registrations += services.register<IPlayerPoseLookup>(SimPoseLookup(world), priority = 100)
+            coreCtx.registrations += services.register<com.astarworks.astera.core.application.port.outbound.IHologramGuide>(sim.hologramGuide, priority = 100)
             coreCtx.registrations += services.register<com.astarworks.astera.combat.application.port.outbound.INearbyTargetQuery>(
                 SimNearbyTargetQuery(world, alive),
                 priority = 100,

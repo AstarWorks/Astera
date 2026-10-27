@@ -14,7 +14,7 @@ Owner track `wp/ui-access`. Seed: audit 2026-10-26. Items: Board prefix `UI-`.
 - Settings = 言語・音量 3 種・操作方式・クイックキャスト・パーティクル・二段ジャンプ・公開プロフィール・HUD 表示切替 3 種 (HPバー / ダメージ数字 / チュートリアルのヒント、JSONB 保存でマイグレーション不要、`HudPreferences` が 2 秒キャッシュ)。未実装: チャット設定、通知。
 - 表示言語 (ADR-0283): サーバー既定は `ja` (`ASTERA_DEFAULT_LOCALE=en|ja` で変更、e2e は `en` 固定)。個人の明示選択 (`/astera lang`・Settings タイル) が最優先で、クライアントの MC 言語は見ない。`PlayerSettings.locale` は null = サーバー既定。
 - メインメニューの Daily/Quests タイルは専用 GUI (`progress.open`, 54 スロット: ログインボーナス (クリックで受け取り)・ミッション一覧と進捗・クエスト現在ステージ)。`/astera daily|missions|quests` はチャットのショートカットとして残る。
-- 初回ガイド (ADR-0242, `content/tutorials/getting-started.yaml`): menu → range → rack → primary (剣) → secondary → reload (銃) → staff (杖: ファイアスタッフを右クリック) → hud → norma (勝ち方を 7 秒表示) → queue。ショップ/金庫は必須経路から外した (メニューから到達可)。
+- 初回ガイド (ADR-0242, UI-11, `content/tutorials/getting-started.yaml`): 「進め方」7 ステップ = menu → queue (対戦に参加) → match (対戦を最後まで) → result (直近の結果) → shop (GOLD で 1 品購入) → equip (ホットバーで手に持つ) → missions (デイリー/クエスト)。各ステップに why/how の 2〜4 行チャット説明・タイトル・ロビーサイドバーの「次のステップ」行・ホログラム補助 (プレイヤーごとの吹き出し + NPC 上の上下する矢印、完了/退出で消去)・完了時にタイトル+効果音。再接続は永続カーソルから再開。武器操作の説明は外した。ショップ/金庫は必須経路から外した (メニューから到達可)。
 - 試合中サイドバーのフッターは「自チーム / Stars / Norma Lv / 現在のゴール」。モード本体が長くてもフッターは切れない (`MatchSidebarModel`)。e2e `NormaPlaythroughE2eTest` が確認する。
 - 試合中のメニュー経路は `F` のみ。コマンドはショートカット。
 - 武器ツールチップ (`ItemTooltip`, 唯一の組み立て箇所): 生成武器の生の `left_click: 技名` 行は「Left-click: 技名」(ja: 左クリック) のラベル付き灰色行に整形して表示する。ショップ/金庫/インベントリ共通。e2e `ShopPurchaseE2eTest` が生トリガー ID の混入を見る。

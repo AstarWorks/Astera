@@ -9,8 +9,6 @@ import com.astarworks.astera.core.domain.economy.Currency
  * shape:
  *  - **GOLD** (account-bound): tradable, non-redeemable, 180-day expiry,
  *    ¥10M circulation cap. `Earned` source class.
- *  - **GEM** (premium / paid): non-tradable, non-redeemable, 180-day expiry,
- *    ¥10M circulation cap. `Purchased` source class.
  *
  * Phase 4+ may externalize this to `content/economy/currency-policy.yaml`;
  * the in-memory map is intentionally simple to land Phase 1 within scope.
@@ -32,15 +30,6 @@ public object CurrencyPolicies {
             redeemable = false,
             tradable = true,
             sourceClass = SourceClass.Earned,
-        ),
-        Currency.GEM to CurrencyPolicy(
-            currency = Currency.GEM,
-            expirable = true,
-            expirationDays = JP_EXPIRY_DAYS,
-            circulationCap = JP_CAP_YEN,
-            redeemable = false,
-            tradable = false,
-            sourceClass = SourceClass.Purchased,
         ),
     )
 

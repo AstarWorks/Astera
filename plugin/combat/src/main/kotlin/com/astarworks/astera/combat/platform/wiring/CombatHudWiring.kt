@@ -120,6 +120,26 @@ internal object CombatHudWiring {
             subscriptions += eventBus.subscribe(com.astarworks.astera.combat.domain.event.PlayerKilled::class) { hitFeedback.onKilled(it) }
         }
 
+        // FX-12 — damage taken / low HP / kill confirm on the action bar, all through IActionBarChannel (ADR-0279).
+        val actionBarChannel = services.get<com.astarworks.astera.core.application.port.outbound.IActionBarChannel>()
+        val healthGateway = services.get<com.astarworks.astera.core.application.port.outbound.IPlayerHealthGateway>()
+        val playerGatewayForHud = services.get<com.astarworks.astera.core.application.port.outbound.IPlayerGateway>()
+        if (soundGateway != null && actionBarChannel != null && healthGateway != null && playerGatewayForHud != null) {
+            val combatFeedback = com.astarworks.astera.combat.application.eventbus.listeners.hud
+                .CombatHudFeedbackListener(
+                    actionBarChannel, healthGateway, playerGatewayForHud, soundGateway,
+                    hudVisible = { services.get<com.astarworks.astera.core.application.service.hud.HudPreferences>()?.hpLineVisible(it) ?: true },
+                )
+            subscriptions += eventBus.subscribe(com.astarworks.astera.combat.domain.event.DamageDealt::class) { combatFeedback.onDamage(it) }
+            subscriptions += eventBus.subscribe(com.astarworks.astera.combat.domain.event.PlayerKilled::class) { combatFeedback.onKilled(it) }
+            subscriptions += eventBus.subscribe(PlayerQuitServer::class) { combatFeedback.onQuit(it) }
+        } else {
+            logger.warning(
+                "Combat HUD feedback skipped — IActionBarChannel=${actionBarChannel != null}, " +
+                    "IPlayerHealthGateway=${healthGateway != null}, IPlayerGateway=${playerGatewayForHud != null}.",
+            )
+        }
+
         // ── Wave M 5polish-quickwin (ADR-0130 §C) — quickbar bind UI ─────
         // Wires the core-side BindQuickbarSlotIntentHandler with combat's
         // SkillContents as the skill-id provider. Lives here (not core

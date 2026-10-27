@@ -97,5 +97,5 @@ class GuiIntentCoverageScenarioTest {
         }
     }
 
-    private fun emptySnapshot() = ProfileCardGuiSpec.Snapshot(1, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+    private fun emptySnapshot() = ProfileCardGuiSpec.Snapshot(1, 0, 0, 0, 0, 0, 0, 0, 0)
 }

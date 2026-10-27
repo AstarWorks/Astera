@@ -92,7 +92,7 @@ Konsist tests in `:tools:architecture-test` enforce this.
 
 | Type | Purpose |
 |---|---|
-| `Currency` | enum STAR / GOLD / GEM. |
+| `Currency` | enum GOLD (ADR-0294 removed GEM, ADR-0271 removed STAR). |
 | `Wallet` | per-currency Long balances. `balance(c)`, `deposit(c, n)`, `withdraw(c, n) → Result<Wallet, WalletError>`. |
 | `WalletError` | sealed; current case: `InsufficientFunds(currency, have, tried)`. Each carries `messageKey`. |
 
