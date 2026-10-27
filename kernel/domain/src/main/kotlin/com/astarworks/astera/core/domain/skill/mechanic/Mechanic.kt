@@ -2,6 +2,12 @@ package com.astarworks.astera.core.domain.skill.mechanic
 
 import com.astarworks.astera.core.domain.damage.DamageComponent
 import com.astarworks.astera.core.domain.effect.DisplaySpec
+import com.astarworks.astera.core.domain.effect.Audience
+import com.astarworks.astera.core.domain.effect.sound.PitchArc
+import com.astarworks.astera.core.domain.effect.sound.SoundScale
+import com.astarworks.astera.core.domain.effect.vfx.SpriteId
+import com.astarworks.astera.core.domain.effect.vfx.telegraph.TelegraphShape
+import com.astarworks.astera.core.domain.effect.vfx.telegraph.TelegraphTeam
 import com.astarworks.astera.core.domain.effect.vfx.VfxId
 import com.astarworks.astera.core.domain.effect.animation.ParticleAnimation
 import com.astarworks.astera.core.domain.effect.ParticleId
@@ -295,6 +301,8 @@ public sealed class Mechanic {
         override val targets: Targeter,
         val ticks: IntValue,
         val includeCaster: BoolValue = BoolValue.Literal(false),
+        /** Also freeze the held targets' skin-rig animation clock (a frozen ghost stands in for the live limbs). */
+        val freezeAnimation: Boolean = false,
         override val delayTicks: IntValue = IntValue.Literal(0),
         override val periodTicks: IntValue = IntValue.Literal(0),
         override val durationTicks: IntValue = IntValue.Literal(0),
@@ -407,7 +415,9 @@ public sealed class Mechanic {
      * SPHERE: [radius] around the point [length] ahead; LINE: a [length]-long tube of [width] along the look
      * direction; BOX: [width] x [height] x [length] ahead. [power] is the hardness ceiling (1 = soil / wood / wool /
      * glass, 2 = + stone and ores, 3 = anything not protected) and [toolClass] (PICKAXE / AXE / SHOVEL) narrows the
-     * cut to what that tool class digs. Edits revert like [RemoveBlock] and only touch arena blocks the edit guard allows.
+     * cut to what that tool class digs. Custom cover blocks (`content/blocks/`) ignore [power]: each takes damage from
+     * the (tool class, tier of the casting item) cell of its `tool_effectiveness` scaled by [coverDamage] / 100 per
+     * cast, and breaks only once its durability is gone; ore nodes are never touched. Edits to plain blocks revert like [RemoveBlock] and only touch arena blocks the edit guard allows.
      */
     public data class BreakArea(
         val shape: AreaShape,
@@ -417,6 +427,7 @@ public sealed class Mechanic {
         val height: Double = 3.0,
         val power: Double = 2.0,
         val toolClass: String? = null,
+        val coverDamage: Int = 100,
         val revertAfterTicks: IntValue = IntValue.Literal(0),
         val outsideArena: BoolValue = BoolValue.Literal(false),
         override val targets: Targeter = Targeter.Caster,
@@ -427,6 +438,7 @@ public sealed class Mechanic {
         override val snapshotPose: Boolean = false,
     ) : Mechanic() {
         init {
+            require(coverDamage in 0..2000) { "Mechanic.BreakArea.coverDamage must be in 0..2000: $coverDamage" }
             require(radius in 0.0..16.0) { "Mechanic.BreakArea.radius must be in 0..16: $radius" }
             require(length in 0.0..32.0) { "Mechanic.BreakArea.length must be in 0..32: $length" }
             require(width in 1.0..16.0) { "Mechanic.BreakArea.width must be in 1..16: $width" }
@@ -599,6 +611,12 @@ public sealed class Mechanic {
         val soundId: SoundId,
         val volume: NumericValue = NumericValue.Literal(1.0),
         val pitch: NumericValue = NumericValue.Literal(1.0),
+        /** Glide the pitch over time (overrides [pitch]); expanded by the sound planner. */
+        val pitchArc: PitchArc? = null,
+        /** Step the pitch through a musical scale on repeated plays. */
+        val scale: SoundScale? = null,
+        /** Who hears it; `ALL` = every listener in range. */
+        val viewers: Audience = Audience.ALL,
         override val delayTicks: IntValue = IntValue.Literal(0),
         override val periodTicks: IntValue = IntValue.Literal(0),
         override val durationTicks: IntValue = IntValue.Literal(0),
@@ -610,6 +628,7 @@ public sealed class Mechanic {
     public data class SpawnDisplay(
         override val targets: Targeter,
         val display: DisplaySpec,
+        val viewers: Audience = Audience.ALL,
         override val delayTicks: IntValue = IntValue.Literal(0),
         override val periodTicks: IntValue = IntValue.Literal(0),
         override val durationTicks: IntValue = IntValue.Literal(0),
@@ -631,6 +650,7 @@ public sealed class Mechanic {
         val follow: BoolValue? = null,
         /** Hit-stop windows (effect-relative ticks) that freeze the rigs with `respect_hit_stop`. */
         val freeze: List<com.astarworks.astera.core.domain.effect.vfx.VfxFreeze> = emptyList(),
+        val viewers: Audience = Audience.ALL,
         override val delayTicks: IntValue = IntValue.Literal(0),
         override val periodTicks: IntValue = IntValue.Literal(0),
         override val durationTicks: IntValue = IntValue.Literal(0),
@@ -665,6 +685,11 @@ public sealed class Mechanic {
         override val targets: Targeter,
         val intensity: NumericValue,
         val ticks: IntValue,
+        val shape: ShakeShape = ShakeShape.DECAY,
+        val direction: ShakeDirection = ShakeDirection.NONE,
+        /** Oscillations per second; `0` = the profile's default. */
+        val frequency: NumericValue = NumericValue.Literal(0.0),
+        val viewers: Audience = Audience.ALL,
         override val delayTicks: IntValue = IntValue.Literal(0),
         override val periodTicks: IntValue = IntValue.Literal(0),
         override val durationTicks: IntValue = IntValue.Literal(0),
@@ -684,6 +709,62 @@ public sealed class Mechanic {
         val fadeInTicks: IntValue = IntValue.Literal(0),
         val stayTicks: IntValue = IntValue.Literal(1),
         val fadeOutTicks: IntValue = IntValue.Literal(2),
+        val viewers: Audience = Audience.ALL,
+        override val delayTicks: IntValue = IntValue.Literal(0),
+        override val periodTicks: IntValue = IntValue.Literal(0),
+        override val durationTicks: IntValue = IntValue.Literal(0),
+        override val condition: Condition? = null,
+        override val snapshotPose: Boolean = false,
+    ) : Mechanic()
+
+    /** Stops the sound [soundId] for the [targets] (cuts a wind-up cue at the impact). */
+    public data class StopSound(
+        override val targets: Targeter,
+        val soundId: SoundId,
+        override val delayTicks: IntValue = IntValue.Literal(0),
+        override val periodTicks: IntValue = IntValue.Literal(0),
+        override val durationTicks: IntValue = IntValue.Literal(0),
+        override val condition: Condition? = null,
+        override val snapshotPose: Boolean = false,
+    ) : Mechanic()
+
+    /**
+     * Camera-anchored sprite veil (ADR-0291): a display [distance] blocks in front of each viewer's camera, [scale] times
+     * its natural size, for [ticks] ticks. Covers at most [maxScreenFraction] of the view. Viewers are [targets] filtered by
+     * [viewers] (default caster only).
+     */
+    public data class ScreenVeil(
+        override val targets: Targeter,
+        val sprite: SpriteId,
+        val distance: NumericValue = NumericValue.Literal(0.6),
+        val scale: NumericValue = NumericValue.Literal(1.0),
+        val ticks: IntValue,
+        val colorRgb: Int? = null,
+        val viewers: Audience = Audience.CASTER,
+        val maxScreenFraction: NumericValue = NumericValue.Literal(0.15),
+        override val delayTicks: IntValue = IntValue.Literal(0),
+        override val periodTicks: IntValue = IntValue.Literal(0),
+        override val durationTicks: IntValue = IntValue.Literal(0),
+        override val condition: Condition? = null,
+        override val snapshotPose: Boolean = false,
+    ) : Mechanic()
+
+    /**
+     * Ground warning marker at each location of [targets]: the full footprint on tick 0, an inner fill growing until
+     * [impactTick] (default [ticks]). [teamColor] picks the warning colour (enemy) or the friendly team colour (ally).
+     */
+    public data class Telegraph(
+        override val targets: Targeter,
+        val shape: TelegraphShape = TelegraphShape.CIRCLE,
+        val radius: NumericValue,
+        /** Cone full angle in degrees (shape `cone`). */
+        val angleDegrees: NumericValue = NumericValue.Literal(60.0),
+        /** Line width in blocks (shape `line`; its length is [radius]). */
+        val width: NumericValue = NumericValue.Literal(2.0),
+        val ticks: IntValue,
+        val impactTick: IntValue? = null,
+        val teamColor: TelegraphTeam = TelegraphTeam.ENEMY,
+        val viewers: Audience = Audience.ALL,
         override val delayTicks: IntValue = IntValue.Literal(0),
         override val periodTicks: IntValue = IntValue.Literal(0),
         override val durationTicks: IntValue = IntValue.Literal(0),
@@ -814,5 +895,31 @@ public sealed class Mechanic {
             require(weight > 0.0) { "WeightedBranch.weight must be > 0: $weight" }
             require(mechanics.isNotEmpty()) { "WeightedBranch.mechanics must not be empty" }
         }
+    }
+}
+
+/** Camera-shake envelope: `DECAY` rings out smoothly, `IMPULSE` is one sharp kick that settles. */
+public enum class ShakeShape(public val yamlName: String) {
+    DECAY("decay"),
+    IMPULSE("impulse"),
+    ;
+
+    public companion object {
+        public fun fromYaml(raw: String): ShakeShape =
+            entries.firstOrNull { it.yamlName.equals(raw.trim(), ignoreCase = true) }
+                ?: throw IllegalArgumentException("Unknown shake shape '$raw' (expected: ${entries.joinToString("/") { it.yamlName }})")
+    }
+}
+
+/** Direction of a camera shake: `NONE` = random jitter, `FROM_HIT` = kicked away from the hit source. */
+public enum class ShakeDirection(public val yamlName: String) {
+    NONE("none"),
+    FROM_HIT("from_hit"),
+    ;
+
+    public companion object {
+        public fun fromYaml(raw: String): ShakeDirection =
+            entries.firstOrNull { it.yamlName.equals(raw.trim(), ignoreCase = true) }
+                ?: throw IllegalArgumentException("Unknown shake direction '$raw' (expected: ${entries.joinToString("/") { it.yamlName }})")
     }
 }

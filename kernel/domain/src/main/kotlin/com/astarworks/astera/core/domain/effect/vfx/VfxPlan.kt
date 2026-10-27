@@ -50,6 +50,8 @@ public data class VfxElementPlan(
     public val spawnOffset: Vec3 = Vec3.ZERO,
     /** Rig part standing in for the held item: lit by the weapon-rig shader rule (ADR-0275), see `DisplaySpec.weaponRigShading`. */
     public val weaponRigShading: Boolean = false,
+    /** Quality lane of the authored element ([VfxQualityProfile]); rig and body parts are always `core`. */
+    public val lane: VfxLane = VfxLane.CORE,
 )
 
 /**

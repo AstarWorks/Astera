@@ -65,6 +65,10 @@ sprites:
   flame: { draw: flame, frames: 6, color: "#ff7a1f" }
   glint: { draw: glint, frames: 6, color: "#e8f6ff" }
   slash: { draw: slash, frames: 6, color: "#d8e4ff" }
+  dot: { draw: dot, frames: 1, size: 32, color: "#ffffff" }
+  line-thin: { draw: line_thin, frames: 1, size: 32, color: "#ffffff" }
+  sparkle-cross: { draw: sparkle_cross, frames: 1, size: 32, color: "#ffffff" }
+  smoke-puff: { draw: smoke_puff, frames: 4, size: 32, color: "#9aa0ad" }
   couture-s2-crescent: { from: couture-s2-crescent, raw: true, frames: 1, size: 256 }
   couture-s2-crescent-core: { from: couture-s2-crescent-core, raw: true, frames: 1, size: 256 }
   couture-s2-streak: { from: couture-s2-streak, raw: true, frames: 1, size: 256 }

@@ -11,7 +11,7 @@ superseded_by: null
 ## Status
 
 Accepted. Supersedes the win parts of ADR-0268 (`norma_win`, "Norma wins next to the objective"), ADR-0271 (the top level as
-a goal to win) and ADR-0272 (a match is won by the top Norma level). Those ADRs stay immutable apart from their Status lines.
+a goal to win) and ADR-0272 (a match is won by the top Norma level). Those ADRs stay immutable apart from their Status lines. The "Level gating" decision (per-binding `min_norma_level`, s3 at Lv 2, ego at Lv 3) is superseded by ADR-0292 (Norma levels unlock weapon rarity).
 
 ## Context
 

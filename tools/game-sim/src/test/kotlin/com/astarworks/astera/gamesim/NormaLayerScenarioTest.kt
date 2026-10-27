@@ -15,7 +15,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
 /**
- * MODE-15: the Norma layer (stars from stage generators, Norma levels that unlock ultimates; ADR-0288) is a standard layer of every
+ * MODE-15: the Norma layer (stars from stage generators, Norma levels that unlock weapon rarities; ADR-0292) is a standard layer of every
  * game mode, not a mode of its own. Played on the real `content/`: a siege objective mode and Annihilation both get
  * star pickups and level-ups, and the time limit ranks by the mode's own
  * objective before the Norma level.
