@@ -39,6 +39,14 @@ the beat sheet `tools/skill-compare/data/<case>/beat-sheet.md` ([beat-sheet.md](
 - Choreography file `content/vfx/<id>.yaml` (ADR-0220). Rig with `follow: false` for weapon swings. `play_vfx` `freeze: [{at, ticks}]` stops rigs that set `respect_hit_stop: true`.
 - Layering order from [vfx-art-direction.md](../vfx-art-direction.md) section 4: telegraph -> motion -> hit -> afterglow. Core opaque (Sakurai), glow as accent, dark mixed with bright.
 
+## Comparing rounds: use the comparison API, not hand-made crops
+
+Reviewers and directors MUST compare with `GET /api/cases/<id>/compare?ticks=..&views=ref,side,top,preview-side&rounds=current,prev` and
+`.../sheet.png` (same params; `http://127.0.0.1:8097`), never with hand-cropped or PIL contact sheets. The API aligns reference and in-game frames by the
+case's tick mapping, labels revision/sha/age/failure on every row, and returns fx coverage, brightness and regression flags (and caster travel /
+final gap when the capture has `trace.log`). Quote its numbers and sheet URL in the report; a `regression: true` is a finding to route, not to ignore.
+See [skill-compare README](../../../tools/skill-compare/README.md) "Comparison API".
+
 ## Runtime facts and pitfalls (confirmed)
 
 - Font sprites render only up to 256 px; 512 px fails. (Commit `ee976100` on `wp/pilot-bastion-s1`: "512px sprites do not render in the real client (font page limit); 256px with 2x2 supersampled edges is the working maximum.")

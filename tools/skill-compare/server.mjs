@@ -15,6 +15,7 @@ import { contentRevision, publishedRoot, primaryRepo } from "./lib/revision.mjs"
 import { parseBeatSheet } from "./lib/beatsheet.mjs";
 import { makeFreshness } from "./lib/freshness.mjs";
 import { makeEvents } from "./lib/events.mjs";
+import { makeCompare } from "./lib/compare.mjs";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const MAX_BODY = 1_000_000;
@@ -382,6 +383,7 @@ export function makeHandler(opts = {}) {
     stamps.push(mt(join(root, "server.mjs")));
     return String(Math.max(...stamps));
   };
+  const CMP = makeCompare({ publishedDir, getRec: (id) => S.allCases().get(id), cacheFor: (id, src) => S.cacheFor(id, src), F, failureOf, beatSheetOf: (id) => { const rec = S.allCases().get(id); return rec ? parseBeatSheet(join(dirname(rec.file), "beat-sheet")) : null; } });
   const events = makeEvents({
     codeRev, devSha: () => F.dev(),
     signatures: () => ({
@@ -464,6 +466,14 @@ export function makeHandler(opts = {}) {
       if (!rec) return err(404, "no such case");
       const sf = m[2] === "reference" ? (() => { const f = referenceVideo(rec.c, rec); return f && { f, type: "video/mp4" }; })() : soundFile(rec.c.skill?.asteraSkillId, m[2]);
       return sf ? file(sf.f, sf.type) : err(404, "no sound");
+    }
+    if ((m = /^\/api\/cases\/([a-z0-9-]+)\/(compare|sheet\.png)$/.exec(p)) && req.method === "GET") {
+      if (!CASE_ID_RE.test(m[1])) return err(400, "bad id");
+      try {
+        if (m[2] === "compare") { const r = await CMP.compare(m[1], url.searchParams); return r.error ? err(r.status, r.error) : json(r); }
+        const r = await CMP.sheet(m[1], url.searchParams);
+        return r.error ? err(r.status, r.error) : file(r.file, "image/png");
+      } catch (e) { return err(500, String(e.message || e)); }
     }
     if ((m = /^\/api\/cases\/([a-z0-9-]+)$/.exec(p))) {
       if (!CASE_ID_RE.test(m[1])) return err(400, "bad id");

@@ -45,6 +45,14 @@ Status vocabulary for the report: 未分析 / 実装済・未検証 / 検証不�
 4. Look before and after every contact, at normal speed and frame by frame.
 5. Convert to gray (`ffmpeg -vf format=gray`) to test that the main element reads without colour.
 
+## Comparing rounds: use the comparison API, not hand-made crops
+
+Reviewers and directors MUST compare with `GET /api/cases/<id>/compare?ticks=..&views=ref,side,top,preview-side&rounds=current,prev` and
+`.../sheet.png` (same params; `http://127.0.0.1:8097`), never with hand-cropped or PIL contact sheets. The API aligns reference and in-game frames by the
+case's tick mapping, labels revision/sha/age/failure on every row, and returns fx coverage, brightness and regression flags (and caster travel /
+final gap when the capture has `trace.log`). Quote its numbers and sheet URL in the report; a `regression: true` is a finding to route, not to ignore.
+See [skill-compare README](../../../tools/skill-compare/README.md) "Comparison API".
+
 ## Capture validity
 
 - Provenance: `meta.json` records branch, implementation commit, capturedAt, FOV, fovMode, resolution. Round-2 captures need matching `referenceRevision` and `contentRevision`.
