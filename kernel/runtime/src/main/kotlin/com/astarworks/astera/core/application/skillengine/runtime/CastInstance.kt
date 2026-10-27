@@ -1,63 +1,82 @@
 package com.astarworks.astera.core.application.skillengine.runtime
 
 import com.astarworks.astera.core.application.skillengine.load.CompiledSkill
+import com.astarworks.astera.core.application.skillengine.runtime.ops.ISkillWorldEffectGateway
+import com.astarworks.astera.core.application.skillengine.runtime.ops.MovementHost
+import com.astarworks.astera.core.application.skillengine.runtime.ops.OpTargetResolver
+import com.astarworks.astera.core.application.skillengine.runtime.ops.SkillCastScope
+import com.astarworks.astera.core.application.skillengine.runtime.port.ISkillCooldownGateway
+import com.astarworks.astera.core.application.skillengine.runtime.port.ISkillItemGateway
+import com.astarworks.astera.core.application.skillengine.runtime.presentation.PresentationCastInfo
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.geometry.math.Frame
 import com.astarworks.astera.core.domain.geometry.math.Quaternion
+import com.astarworks.astera.core.domain.skillengine.expr.ExprEnv
+import com.astarworks.astera.core.domain.skillengine.expr.ExprHost
+import com.astarworks.astera.core.domain.skillengine.expr.ExprValue
+import com.astarworks.astera.core.domain.skillengine.expr.FrameLookup
 import com.astarworks.astera.core.domain.skillengine.frame.FrameId
 import com.astarworks.astera.core.domain.skillengine.frame.FrameKind
 import com.astarworks.astera.core.domain.skillengine.frame.FrameNode
 import com.astarworks.astera.core.domain.skillengine.frame.FramePoint
 import com.astarworks.astera.core.domain.skillengine.frame.FrameTree
 import com.astarworks.astera.core.domain.skillengine.hit.ContactEvent
+import com.astarworks.astera.core.domain.skillengine.hit.ContactResolver
+import com.astarworks.astera.core.domain.skillengine.hit.HitBox
 import com.astarworks.astera.core.domain.skillengine.hit.HitCandidate
 import com.astarworks.astera.core.domain.skillengine.hit.HitVolume
 import com.astarworks.astera.core.domain.skillengine.hit.HitWindow
 import com.astarworks.astera.core.domain.skillengine.hit.ResolvedVolume
 import com.astarworks.astera.core.domain.skillengine.model.FrameDecl
+import com.astarworks.astera.core.domain.skillengine.model.LocationSpec
 import com.astarworks.astera.core.domain.skillengine.model.ParamValue
 import com.astarworks.astera.core.domain.skillengine.model.PointRef
 import com.astarworks.astera.core.domain.skillengine.model.SkillEvents
+import com.astarworks.astera.core.domain.skillengine.model.TargetRef
 import com.astarworks.astera.core.domain.skillengine.model.ValueResolver
-import com.astarworks.astera.core.domain.skillengine.motion.MotionContext
-import com.astarworks.astera.core.domain.skillengine.motion.MotionLaw
+import com.astarworks.astera.core.domain.skillengine.motion.MotionComposer
 import com.astarworks.astera.core.domain.skillengine.motion.MotionPhase
 import com.astarworks.astera.core.domain.skillengine.motion.MotionSpec
-import com.astarworks.astera.core.domain.skillengine.motion.MotionStep
-import com.astarworks.astera.core.domain.skillengine.op.HitOp
 import com.astarworks.astera.core.domain.skillengine.op.SkillOp
 import java.util.UUID
+import kotlin.random.Random
 
 private val NIL_VICTIM: UUID = UUID(0L, 0L)
+private val UP = Vec3(0.0, 1.0, 0.0)
 
 /**
- * One running cast (ADR-0299): its frame tree, motion laws, hit volumes, scheduled events, timelines and
- * presentation updaters. Casts in progress keep their [CompiledSkill], so a per-skill reload only affects
- * casts started afterwards.
+ * One running cast (ADR-0299) and the single per-cast object every collaborator talks to: it is the executors'
+ * [OpContext] / [OpHost], the spawn / damage executors' [SkillCastScope], the movement executors' [MovementHost],
+ * the status executors' [OpTargetResolver] and the presentation runtime's [PresentationCastInfo]. It owns the frame
+ * tree, the motion composer, hit volumes, scheduled events and the two timelines. Casts in progress keep their
+ * [CompiledSkill], so a per-skill reload only affects casts started afterwards.
  *
  * Tick order (design 3.7): external + scheduled events -> timeline rows (gameplay, presentation) -> motion
- * laws -> hit volumes -> after each phase the raised events drain (gameplay handlers then presentation
- * handlers per event) -> presentation updaters -> snapshot / observer.
+ * laws -> hit volumes -> after each phase the raised events drain (gameplay handlers then presentation handlers
+ * per event) -> presentation tick -> snapshot / observer.
  */
 internal class CastInstance(
     val id: CastId,
-    override val request: CastRequest,
+    val request: CastRequest,
     private val deps: CastRunnerDeps,
     private val bank: ExprBank,
+    private val chain: List<String>,
+    private val startChild: (CastRequest, List<String>) -> Unit,
     private val diagnose: (CastDiagnostic) -> Unit,
-) : CastOpContext {
+) : OpContext, OpHost, SkillCastScope, MovementHost, OpTargetResolver, PresentationCastInfo {
 
-    private class RunningLaw(val frame: String, val law: MotionLaw, val startTick: Int, val opId: String?)
-    private class HitReg(val op: HitOp.Hit, val frame: String, var prevAnchor: Vec3? = null)
-    private class Scheduled(val dueTick: Int, val event: String, val source: String?)
+    private class HitReg(val reg: HitRegistration, var prevAnchor: Vec3? = null)
+    private class Scheduled(val dueTick: Int, val event: String?, val source: String?, val ops: List<SkillOp>?, val victim: UUID?)
+    private class Listener(val event: String, val source: String, val handler: () -> Unit)
 
-    override val skill: CompiledSkill = request.skill
+    val skill: CompiledSkill = request.skill
     private val def = skill.def
 
     override val cast: CastId get() = id
     override val tree: FrameTree = deps.newTree()
     override val ports = deps.ports
+    override val host: OpHost get() = this
     val bus = InMemoryCastEventBus()
 
     // --- params after modifiers (snapshotted at start, F-12) ---
@@ -76,43 +95,40 @@ internal class CastInstance(
         exposed = e
     }
 
-    override val env: CastEnv = CastEnv(this)
-    private val envSpec = ExprBank.envSpec(
-        def,
-        exposed.keys,
-        def.frames.mapTo(LinkedHashSet()) { it.id } + setOf("world", "caster", "enemy", "contact"),
-    )
-    override val values: ValueResolver = CastValueResolver(this, bank, envSpec)
+    override val values: ValueResolver = CastValueResolver(this, bank)
 
     // --- state ---
     override var tick: Int = request.startTick
         private set
-    override val ticksSinceStart: Int get() = tick - request.startTick
+    val ticksSinceStart: Int get() = tick - request.startTick
     var currentEvent: CastEvent? = null
         private set
-    override val event: CastEvent? get() = currentEvent
-    override var currentOpId: String? = null
+    var currentOpId: String? = null
         private set
     var ended: Boolean = false
         private set
 
     private val nodeNames = LinkedHashSet<String>()
-    private val laws = ArrayList<RunningLaw>()
+    private val motion = MotionComposer(tree, { exprEnv() }, ::isFrozen)
+    private val lawSources = HashMap<FrameId, String?>()
     private val hitRegs = ArrayList<HitReg>()
     private val hitSeen = HashMap<String, Int>()
     private val contactedOps = HashSet<String>()
     private val blockedOps = HashSet<String>()
     private val scheduled = ArrayList<Scheduled>()
-    private val updaters = LinkedHashMap<String, PresentationUpdater>()
+    private val listeners = ArrayList<Listener>()
     private val frozenUntil = HashMap<String, Int>()
     private val queue = ArrayDeque<CastEvent>()
     private val tickEvents = ArrayList<CastEvent>()
     private val victims = LinkedHashSet<UUID>()
+    private val counters = HashMap<String, Double>()
+    private val random = Random(request.seed)
     private var lastVictim: UUID? = null
+    private var victimOverride: UUID? = null
+    private var contactOverride: ContactEvent? = null
     private var contactSeq = 0
     private var snapshot: Map<String, Vec3> = emptyMap()
     private var lastVel: Map<String, Vec3> = emptyMap()
-    private var finishRequested = false
     private var casterYaw = request.casterYawDeg
     private var casterPitch = request.casterPitchDeg
     private var casterEye = 1.62
@@ -197,7 +213,9 @@ internal class CastInstance(
         // external + scheduled events
         val due = scheduled.filter { it.dueTick <= tick }
         scheduled.removeAll(due.toSet())
-        for (s in due) queue += CastEvent(s.event, tick, s.source)
+        for (s in due) {
+            if (s.ops != null) runScheduledOps(s) else queue += CastEvent(s.event!!, tick, s.source)
+        }
         drain()
 
         // timeline rows (gameplay first, then presentation)
@@ -205,15 +223,15 @@ internal class CastInstance(
         for (row in presentationTimeline.due(ticksSinceStart, ::eventSince, bus::hasRaised)) runRow(row.whenExpr, row.ops)
         drain()
 
-        stepLaws()
+        stepMotion()
         drain()
 
         resolveHits()
         drain()
 
-        runUpdaters()
+        deps.presentation.tickCast(id)
 
-        if (finishRequested || ticksSinceStart >= deps.maxCastTicks || idle()) finishNow()
+        if (ticksSinceStart >= deps.maxCastTicks || idle()) finishNow()
         takeSnapshot()
         deps.observer?.onTick(id, tick, tree, nodeNames.toSet(), tickEvents.toList())
     }
@@ -234,20 +252,25 @@ internal class CastInstance(
         run(ops)
     }
 
+    private fun runScheduledOps(s: Scheduled) {
+        currentOpId = s.source
+        val victim = s.victim
+        if (victim != null) withVictim(victim) { run(s.ops!!) } else run(s.ops!!)
+        currentOpId = null
+    }
+
     private fun idle(): Boolean =
-        laws.isEmpty() && scheduled.isEmpty() && queue.isEmpty() && updaters.isEmpty() &&
+        !motion.hasWork() && scheduled.isEmpty() && queue.isEmpty() && !deps.dashes.isDashing(id) &&
             !gameplayTimeline.pending() && !presentationTimeline.pending()
 
     private fun finishNow() {
         if (ended) return
         queue += CastEvent(SkillEvents.END, tick, source = null)
         drain()
-        for ((key, u) in updaters.toList()) {
-            updaters.remove(key)
-            safeDispose(key, u)
-        }
-        laws.clear()
+        deps.presentation.endCast(id)
+        deps.dashes.cancel(id)
         hitRegs.clear()
+        listeners.clear()
         ended = true
     }
 
@@ -283,8 +306,17 @@ internal class CastInstance(
         try {
             prepareContact(e)
             bus.raise(e)
+            motion.raise(e.name)
             def.gameplay.on[e.name]?.let { run(it) }
             def.presentation.on[e.name]?.let { run(it) }
+            for (l in listeners.toList()) {
+                if (l.event != e.name || l.source != e.source) continue
+                try {
+                    l.handler()
+                } catch (ex: Exception) {
+                    report(l.source, "${e.name} handler: ${ex::class.simpleName}: ${ex.message}")
+                }
+            }
         } finally {
             currentEvent = null
         }
@@ -294,7 +326,7 @@ internal class CastInstance(
         queue += CastEvent(event, tick, source = currentOpId)
     }
 
-    override fun hasRaised(name: String): Boolean = bus.hasRaised(name)
+    fun hasRaised(name: String): Boolean = bus.hasRaised(name)
 
     // --------------------------------------------------------------- op runs
 
@@ -327,85 +359,156 @@ internal class CastInstance(
         diagnose(CastDiagnostic(id, tick, opId, message))
     }
 
-    // ----------------------------------------------------------- CastOpContext
+    // ------------------------------------------------------------------ OpHost
 
-    override fun frameWorld(frame: String): Frame? = tree.worldOf(FrameId(frame)).getOrNull()
-
-    override fun startMotion(frame: String, spec: MotionSpec) {
-        when (spec) {
-            is MotionSpec.Stick, is MotionSpec.Reel -> laws.removeAll { it.frame == frame }
-            is MotionSpec.Fly, is MotionSpec.Path, is MotionSpec.Follow ->
-                laws.removeAll { it.frame == frame && it.law.phase == MotionPhase.TRANSLATE }
-            is MotionSpec.Pose, is MotionSpec.Spin -> Unit
+    override val caster: UUID get() = request.caster
+    override val currentVictim: UUID?
+        get() {
+            victimOverride?.let { return it }
+            val v = activeContact()?.victim
+            return if (v != null && v != NIL_VICTIM) v else lastVictim
         }
-        laws += RunningLaw(frame, deps.motion.create(FrameId(frame), spec, values), tick, currentOpId)
+    override val contactNormal: Vec3? get() = activeContact()?.normalWorld
+    override val cooldowns: ISkillCooldownGateway get() = deps.cooldowns
+    override val items: ISkillItemGateway get() = deps.items
+
+    override fun registerHit(registration: HitRegistration) {
+        hitRegs.removeAll { it.reg.id == registration.id && it.reg.frame == registration.frame }
+        hitRegs += HitReg(registration)
     }
 
-    override fun stopMotion(frame: String) {
-        laws.removeAll { it.frame == frame }
+    override fun startMotion(frame: FrameId, spec: MotionSpec) {
+        val law = deps.motion.create(frame, spec, values)
+        if (law.phase == MotionPhase.TRANSLATE) lawSources[frame] = currentOpId
+        motion.start(law, tick)
     }
 
-    override fun registerHit(op: HitOp.Hit) {
-        for (f in op.frames) {
-            hitRegs.removeAll { it.op.id == op.id && it.frame == f }
-            hitRegs += HitReg(op, f)
-        }
+    override fun schedule(afterTicks: Int, event: String, source: String) {
+        scheduled += Scheduled(tick + maxOf(0, afterTicks), event, source, null, null)
     }
 
-    override fun unregisterHit(opId: String) {
-        hitRegs.removeAll { it.op.id == opId }
+    override fun scheduleOps(afterTicks: Int, ops: List<SkillOp>) {
+        scheduled += Scheduled(tick + maxOf(0, afterTicks), null, currentOpId, ops, currentVictim)
     }
 
-    override fun schedule(afterTicks: Int, event: String) {
-        scheduled += Scheduled(tick + maxOf(0, afterTicks), event, currentOpId)
-    }
-
-    override fun freeze(frames: List<String>, ticks: Int) {
+    override fun freezeFrames(frames: List<String>, ticks: Int) {
         for (f in frames) frozenUntil[f] = tick + ticks
     }
 
-    override fun registerUpdater(key: String, updater: PresentationUpdater) {
-        updaters.remove(key)?.let { safeDispose(key, it) }
-        updaters[key] = updater
+    override fun castSkill(skillId: String) {
+        val child = deps.skills(skillId)
+        if (child == null) {
+            fail(currentOpId ?: "cast_skill", "unknown skill '$skillId'")
+            return
+        }
+        val path = chain + def.id
+        if (skillId in path || path.size >= MAX_CHAIN) {
+            fail(currentOpId ?: "cast_skill", "cast_skill '$skillId' would ${if (skillId in path) "cycle" else "exceed depth $MAX_CHAIN"} (${path.joinToString(" -> ")})")
+            return
+        }
+        val feet = ports.entities.rootOf(request.caster)?.feet ?: request.casterFeet
+        startChild(
+            request.copy(skill = child, casterFeet = feet, casterYawDeg = casterYaw, casterPitchDeg = casterPitch, seed = random.nextLong(), startTick = tick),
+            path,
+        )
     }
 
-    override fun removeUpdater(key: String): Boolean {
-        val u = updaters.remove(key) ?: return false
-        safeDispose(key, u)
-        return true
+    override fun addCounter(key: String, delta: Double) {
+        counters[key] = (counters[key] ?: 0.0) + delta
     }
 
-    override fun finish() {
-        finishRequested = true
+    override fun nextRandom(): Double = random.nextDouble()
+
+    override fun resolveTargets(ref: TargetRef): List<UUID> = when (ref) {
+        TargetRef.Victim -> listOfNotNull(currentVictim)
+        TargetRef.Caster -> listOf(caster)
+        is TargetRef.Enemies -> around(ref.around, ref.radius, caster).filter { !isAlly(it) }
+        is TargetRef.Allies -> around(ref.around, ref.radius, null).filter { isAlly(it) }
     }
 
-    private fun safeDispose(key: String, u: PresentationUpdater) {
+    private fun around(at: PointRef, radius: com.astarworks.astera.core.domain.skillengine.model.Value<Double>, excluding: UUID?): List<UUID> {
+        val p = tree.pointWorld(FrameId(at.frame), at.point).getOrNull() ?: return emptyList()
+        return ports.entities.nearby(p, values.num(radius), excluding).map { it.entityId }
+    }
+
+    override fun withVictim(victim: UUID, block: () -> Unit) {
+        val outer = victimOverride
+        victimOverride = victim
         try {
-            u.dispose(this)
-        } catch (e: Exception) {
-            report(key, "dispose failed: ${e.message}")
+            block()
+        } finally {
+            victimOverride = outer
         }
     }
 
-    private fun runUpdaters() {
-        for ((key, u) in updaters.toList()) {
-            currentOpId = key
-            val keep = try {
-                u.update(this)
-            } catch (e: Exception) {
-                report(key, "update failed: ${e.message}")
-                false
-            }
-            if (!keep && updaters.remove(key) != null) safeDispose(key, u)
-        }
-        currentOpId = null
+    override fun fail(opId: String, reason: String) {
+        report(opId, reason)
     }
 
-    // ------------------------------------------------------------------ laws
+    // ----------------------------------------------------------- SkillCastScope
 
-    private fun isFrozen(frame: String): Boolean {
+    override val contact: ContactEvent? get() = activeContact()
+    override val contacts: ContactResolver get() = deps.contacts
+    override val effects: ISkillWorldEffectGateway get() = deps.effects
+
+    override fun isAlly(entity: UUID): Boolean = deps.isAlly(request.caster, entity)
+
+    override fun <T> withContact(contact: ContactEvent, block: () -> T): T {
+        val outer = contactOverride
+        contactOverride = contact
+        try {
+            return block()
+        } finally {
+            contactOverride = outer
+        }
+    }
+
+    override fun onEvent(event: String, source: String, handler: () -> Unit) {
+        listeners += Listener(event, source, handler)
+    }
+
+    override fun endProjectile(source: String, body: FrameId) {
+        hitRegs.removeAll { it.reg.id == source }
+        motion.stop(body)
+        lawSources.remove(body)
+    }
+
+    private fun activeContact(): ContactEvent? = contactOverride ?: currentEvent?.contact
+
+    // ------------------------------------------------- MovementHost / targets
+
+    override fun caster(ctx: OpContext): UUID = request.caster
+
+    override fun targets(ctx: OpContext, target: TargetRef): List<UUID> = resolveTargets(target)
+
+    override fun resolve(ctx: OpContext, target: TargetRef): List<UUID> = resolveTargets(target)
+
+    override fun location(ctx: OpContext, spec: LocationSpec): Vec3? = when (spec) {
+        is LocationSpec.AtPoint -> tree.pointWorld(FrameId(spec.point.frame), spec.point.point).getOrNull()
+        is LocationSpec.AtValue -> values.vec3(spec.value)
+    }
+
+    override fun runWithVictim(ctx: OpContext, victim: UUID, point: Vec3, ops: List<SkillOp>) {
+        val synthetic = ContactEvent(
+            hitId = currentOpId ?: "dash", tick = tick, victim = victim, hitterFrame = "caster", part = null,
+            pointWorld = point, normalWorld = UP, pointLocal = point, normalLocal = UP, relVelocity = Vec3.ZERO,
+        )
+        withContact(synthetic) { withVictim(victim) { run(ops) } }
+    }
+
+    // ------------------------------------------------- PresentationCastInfo
+
+    override fun owner(cast: CastId): UUID = request.caster
+
+    override fun targets(cast: CastId, target: TargetRef): List<UUID> = resolveTargets(target)
+
+    override fun hasRaised(cast: CastId, event: String): Boolean = bus.hasRaised(event)
+
+    // ---------------------------------------------------------------- motion
+
+    private fun isFrozen(frame: FrameId): Boolean {
         if (frozenUntil.isEmpty()) return false
-        var f: FrameId? = FrameId(frame)
+        var f: FrameId? = frame
         while (f != null) {
             if ((frozenUntil[f.value] ?: -1) >= tick) return true
             f = tree.node(f)?.parent
@@ -413,66 +516,15 @@ internal class CastInstance(
         return false
     }
 
-    private fun depth(frame: String): Int {
-        var d = 0
-        var f = tree.node(FrameId(frame))?.parent
-        while (f != null) {
-            d++
-            f = tree.node(f)?.parent
+    private fun stepMotion() {
+        for (m in try {
+            motion.tick(tick)
+        } catch (e: Exception) {
+            report(null, "motion: ${e::class.simpleName}: ${e.message}")
+            emptyList()
+        }) {
+            queue += CastEvent(m.event, tick, source = lawSources[m.frame] ?: m.frame.value)
         }
-        return d
-    }
-
-    private fun stepLaws() {
-        if (laws.isEmpty()) return
-        val byFrame = laws.groupBy { it.frame }
-        for (frame in byFrame.keys.sortedBy { depth(it) }) {
-            if (isFrozen(frame)) continue
-            for (running in byFrame.getValue(frame).sortedBy { it.law.phase.ordinal }) {
-                if (running !in laws) continue
-                val fid = FrameId(frame)
-                val node = tree.node(fid)
-                val world = tree.worldOf(fid).getOrNull()
-                if (node == null || world == null) {
-                    report(running.opId, "motion on missing frame '$frame' stopped")
-                    laws.remove(running)
-                    continue
-                }
-                val ctx = LawContext(fid, node.local, world, running.startTick)
-                val step = try {
-                    running.law.step(ctx)
-                } catch (e: ValueResolveException) {
-                    report(running.opId, "motion on '$frame': ${e.message}")
-                    laws.remove(running)
-                    continue
-                } catch (e: Exception) {
-                    report(running.opId, "motion on '$frame': ${e::class.simpleName} ${e.message}")
-                    laws.remove(running)
-                    continue
-                }
-                when (step) {
-                    MotionStep.Hold -> Unit
-                    is MotionStep.Move -> tree.setLocal(fid, step.local)
-                    is MotionStep.Finish -> {
-                        step.local?.let { tree.setLocal(fid, it) }
-                        laws.remove(running)
-                        step.event?.let { queue += CastEvent(it, tick, source = running.opId ?: frame) }
-                    }
-                }
-            }
-        }
-    }
-
-    private inner class LawContext(
-        override val frame: FrameId,
-        override val local: Frame,
-        override val world: Frame,
-        private val startTick: Int,
-    ) : MotionContext {
-        override val tick: Int get() = this@CastInstance.tick
-        override val ticksSinceStart: Int get() = this@CastInstance.tick - startTick
-        override val tree: FrameTree get() = this@CastInstance.tree
-        override val env get() = this@CastInstance.env
     }
 
     // ------------------------------------------------------------------ hits
@@ -480,56 +532,53 @@ internal class CastInstance(
     private fun resolveHits() {
         if (hitRegs.isEmpty()) return
         for (reg in hitRegs.toList()) {
-            if (isFrozen(reg.frame)) continue
+            if (isFrozen(FrameId(reg.reg.frame))) continue
             val volume = try {
-                resolveVolume(reg)
+                resolveVolume(reg.reg)
             } catch (e: ValueResolveException) {
-                report(reg.op.id, "hit volume: ${e.message}")
+                report(reg.reg.id, "hit volume: ${e.message}")
                 null
             } ?: continue
-            val hitterVel = hitterVelocity(reg.frame)
+            val hitterVel = hitterVelocity(reg.reg.frame)
             val candidates = ports.entities.nearby(volume.broadCenter, volume.broadRadius, request.caster)
-            val contacts = deps.contacts.narrow(reg.op.id, tick, reg.frame, volume, hitterVel, candidates)
+            val found = deps.contacts.narrow(reg.reg.id, tick, reg.reg.frame, volume, hitterVel, candidates)
             var contacted = false
-            for (c in contacts) {
-                if (!windowAccepts(reg, c.victim)) continue
+            for (c in found) {
+                if (!windowAccepts(reg.reg, c.victim)) continue
                 contacted = true
-                contactedOps += reg.op.id
-                queue += CastEvent(SkillEvents.HIT, tick, source = reg.op.id, contact = c)
+                contactedOps += reg.reg.id
+                queue += CastEvent(SkillEvents.HIT, tick, source = reg.reg.id, contact = c)
             }
             val anchor = anchorOf(volume)
             val prev = reg.prevAnchor
             reg.prevAnchor = anchor
             if (!contacted && prev != null && anchor != null && prev != anchor &&
-                reg.op.id !in contactedOps && reg.op.id !in blockedOps
+                reg.reg.id !in contactedOps && reg.reg.id !in blockedOps
             ) {
                 ports.entities.raycastBlock(prev, anchor)?.let { hit ->
-                    blockedOps += reg.op.id
-                    queue += CastEvent(SkillEvents.BLOCK, tick, source = reg.op.id, contact = blockContact(reg, hit.point, hit.normal, hit.blockKey, hitterVel))
+                    blockedOps += reg.reg.id
+                    queue += CastEvent(SkillEvents.BLOCK, tick, source = reg.reg.id, contact = blockContact(reg.reg, hit.point, hit.normal, hit.blockKey, hitterVel))
                 }
             }
         }
     }
 
-    private fun blockContact(reg: HitReg, point: Vec3, normal: Vec3, key: String, vel: Vec3) = ContactEvent(
-        hitId = reg.op.id, tick = tick, victim = NIL_VICTIM, hitterFrame = reg.frame, part = key,
+    private fun blockContact(reg: HitRegistration, point: Vec3, normal: Vec3, key: String, vel: Vec3) = ContactEvent(
+        hitId = reg.id, tick = tick, victim = NIL_VICTIM, hitterFrame = reg.frame, part = key,
         pointWorld = point, normalWorld = normal, pointLocal = point, normalLocal = normal, relVelocity = vel,
     )
 
-    private fun windowAccepts(reg: HitReg, victim: UUID): Boolean {
-        val op = reg.op
-        return when (val w = op.window) {
-            HitWindow.Once -> hitSeen.putIfAbsent("${op.id}|$victim", tick) == null
-            HitWindow.PerPart -> hitSeen.putIfAbsent("${op.id}|${reg.frame}|$victim", tick) == null
-            is HitWindow.EveryTicks -> {
-                val key = "${op.id}|${reg.frame}|$victim"
-                val last = hitSeen[key]
-                if (last == null || tick - last >= w.ticks) {
-                    hitSeen[key] = tick
-                    true
-                } else {
-                    false
-                }
+    private fun windowAccepts(reg: HitRegistration, victim: UUID): Boolean = when (val w = reg.window) {
+        HitWindow.Once -> hitSeen.putIfAbsent("${reg.id}|$victim", tick) == null
+        HitWindow.PerPart -> hitSeen.putIfAbsent("${reg.id}|${reg.frame}|$victim", tick) == null
+        is HitWindow.EveryTicks -> {
+            val key = "${reg.id}|${reg.frame}|$victim"
+            val last = hitSeen[key]
+            if (last == null || tick - last >= w.ticks) {
+                hitSeen[key] = tick
+                true
+            } else {
+                false
             }
         }
     }
@@ -546,17 +595,17 @@ internal class CastInstance(
         return now - before
     }
 
-    private fun resolveVolume(reg: HitReg): ResolvedVolume? {
+    private fun resolveVolume(reg: HitRegistration): ResolvedVolume? {
         val host = reg.frame
         fun pt(ref: PointRef): Vec3? =
             tree.pointWorld(FrameId(if (ref.frame == "self") host else ref.frame), ref.point).getOrNull()
-        fun axis(name: String): Vec3? = env.axis(if (name.startsWith("self.")) host + name.removePrefix("self") else name)
-        return when (val v = reg.op.volume) {
+        fun axis(name: String): Vec3? = axisOf(if (name.startsWith("self.")) host + name.removePrefix("self") else name)
+        return when (val v = reg.volume) {
             is HitVolume.Capsule -> {
                 val a = pt(v.from)
                 val b = pt(v.to)
                 if (a == null || b == null) {
-                    report(reg.op.id, "capsule points ${v.from}/${v.to} do not resolve on '$host'")
+                    report(reg.id, "capsule points ${v.from}/${v.to} do not resolve on '$host'")
                     return null
                 }
                 ResolvedVolume.Capsule(a, b, values.num(v.radius))
@@ -564,7 +613,7 @@ internal class CastInstance(
             is HitVolume.Sphere -> {
                 val c = pt(v.at)
                 if (c == null) {
-                    report(reg.op.id, "sphere point ${v.at} does not resolve on '$host'")
+                    report(reg.id, "sphere point ${v.at} does not resolve on '$host'")
                     return null
                 }
                 ResolvedVolume.Sphere(c, values.num(v.radius))
@@ -575,7 +624,7 @@ internal class CastInstance(
                 val fwd = axis(v.forward.name)
                 val left = axis(v.left.name)
                 if (origin == null || fwd == null || left == null) {
-                    report(reg.op.id, "sector axes ${v.forward.name}/${v.left.name} do not resolve on '$host'")
+                    report(reg.id, "sector axes ${v.forward.name}/${v.left.name} do not resolve on '$host'")
                     return null
                 }
                 ResolvedVolume.Sector(origin, fwd, left, values.num(v.angleDeg), values.num(v.range), values.num(v.height))
@@ -583,12 +632,25 @@ internal class CastInstance(
         }
     }
 
-    // --------------------------------------------------------------- contacts
-
-    fun currentVictim(): UUID? {
-        val v = currentEvent?.contact?.victim
-        return if (v != null && v != NIL_VICTIM) v else lastVictim
+    /** World direction: `world.up`, `caster.forward` (look), `<frame>.forward|up|left|right`, `<frame>.<point axis>`. */
+    private fun axisOf(name: String): Vec3? {
+        if (name == "world.up") return UP
+        if (name == "caster.forward") return lookDirection()
+        val dot = name.lastIndexOf('.')
+        if (dot <= 0) return null
+        val frame = FrameId(name.substring(0, dot))
+        val part = name.substring(dot + 1)
+        val world: Frame = tree.worldOf(frame).getOrNull() ?: return null
+        return when (part) {
+            "forward" -> world.forward()
+            "up" -> world.up()
+            "left" -> world.left()
+            "right" -> world.right()
+            else -> tree.point(frame, part)?.axis?.let { world.directionToWorld(it).normalize() }
+        }
     }
+
+    // --------------------------------------------------------------- contacts
 
     private fun prepareContact(e: CastEvent) {
         val c = e.contact ?: return
@@ -646,15 +708,94 @@ internal class CastInstance(
         for (v in victims) refreshEnemy(v)
     }
 
-    // ------------------------------------------------------------- env helpers
-
-    fun hasNode(name: String): Boolean = name in nodeNames || tree.node(FrameId(name)) != null
-
-    fun lastVelocity(frame: String): Vec3 = lastVel[frame] ?: Vec3.ZERO
+    // ------------------------------------------------------------ expressions
 
     fun lookDirection(): Vec3 = Frame.fromYawPitch(Vec3.ZERO, casterYaw, casterPitch).forward()
 
     fun eye(): Vec3 = tree.pointWorld(FrameId("caster"), "eye").getOrNull() ?: (request.casterFeet + Vec3(0.0, casterEye, 0.0))
+
+    /** The expression environment of this instant (shape declared by [com.astarworks.astera.core.application.skillengine.load.SkillExprSpec]). */
+    fun exprEnv(): ExprEnv {
+        val vars = HashMap<String, ExprValue>(params.size + exposed.size + 12)
+        for ((k, v) in params) {
+            vars[k] = when (v) {
+                is ParamValue.Num -> ExprValue.Num(v.value)
+                is ParamValue.Text -> ExprValue.Str(v.value)
+                is ParamValue.Flag -> ExprValue.Bool(v.value)
+            }
+        }
+        for ((k, v) in exposed) vars[k] = ExprValue.Num(v)
+        vars["tick"] = ExprValue.Num(ticksSinceStart.toDouble())
+        vars["event.name"] = ExprValue.Str(currentEvent?.name ?: "")
+        vars["event.source"] = ExprValue.Str(currentEvent?.source ?: "")
+        vars["world.up"] = ExprValue.Vec3(UP)
+        activeContact()?.let { c ->
+            vars["contact.point"] = ExprValue.Vec3(c.pointWorld)
+            vars["contact.normal"] = ExprValue.Vec3(c.normalWorld)
+            vars["contact.rel_velocity"] = ExprValue.Vec3(c.relVelocity)
+            vars["contact.block"] = ExprValue.Str(c.part ?: "")
+        }
+        return ExprEnv(vars, frameLookup, request.seed xor (tick.toLong() shl 24), exprHost)
+    }
+
+    private val frameLookup = object : FrameLookup {
+        override fun worldPose(frame: String, point: String?): Frame? {
+            if (frame == "victim") return victimCentre()?.let { Frame(it) }
+            val id = FrameId(frame)
+            val world = tree.worldOf(id).getOrNull() ?: return null
+            if (point == null) return world
+            val p = tree.pointWorld(id, point).getOrNull() ?: return null
+            return Frame(p, world.rotation)
+        }
+
+        override fun velocity(frame: String, point: String?): Vec3 = lastVel[frame] ?: Vec3.ZERO
+    }
+
+    private val exprHost = object : ExprHost {
+        override fun aimPoint(caster: ExprValue.Ref, range: Double): Vec3 = aimAt(range)
+
+        override fun bladeLen(frame: ExprValue.Ref): Double {
+            val id = FrameId(frame.name)
+            fun off(p: String): Vec3? = tree.point(id, p)?.offset
+            val tip = off("tip") ?: return 0.0
+            val from = off("grip") ?: off("root") ?: return 0.0
+            return from.distance(tip)
+        }
+    }
+
+    private fun victimCentre(): Vec3? {
+        val v = currentVictim ?: return null
+        val root = ports.entities.rootOf(v) ?: return null
+        return Vec3(root.feet.x, root.feet.y + root.height * 0.5, root.feet.z)
+    }
+
+    /** Point on the caster's look ray at [range], pulled back to the first block or body the ray meets. */
+    private fun aimAt(range: Double): Vec3 {
+        val from = eye()
+        val dir = lookDirection()
+        val to = from + dir * range
+        var best = range
+        ports.entities.raycastBlock(from, to)?.let { best = minOf(best, from.distance(it.point)) }
+        for (c in ports.entities.nearby(from + dir * (range * 0.5), range * 0.5 + 2.0, request.caster)) {
+            rayBox(from, dir, c.box)?.let { t -> if (t <= best) best = t }
+        }
+        return from + dir * best
+    }
+
+    private fun rayBox(o: Vec3, d: Vec3, box: HitBox): Double? {
+        var tMin = 0.0
+        var tMax = Double.MAX_VALUE
+        fun slab(oc: Double, dc: Double, lo: Double, hi: Double): Boolean {
+            if (kotlin.math.abs(dc) < 1e-12) return oc in lo..hi
+            val a = (lo - oc) / dc
+            val b = (hi - oc) / dc
+            tMin = maxOf(tMin, minOf(a, b))
+            tMax = minOf(tMax, maxOf(a, b))
+            return tMin <= tMax
+        }
+        if (!slab(o.x, d.x, box.min.x, box.max.x) || !slab(o.y, d.y, box.min.y, box.max.y) || !slab(o.z, d.z, box.min.z, box.max.z)) return null
+        return tMin
+    }
 
     private fun takeSnapshot() {
         val next = HashMap<String, Vec3>()
@@ -673,6 +814,7 @@ internal class CastInstance(
 
     companion object {
         private const val MAX_EVENTS_PER_DRAIN = 256
+        private const val MAX_CHAIN = 4
 
         /** Hand / body points of the caster frame (feet origin, yaw only; local +X is left). */
         private val CASTER_POINTS: List<Pair<String, Vec3>> = listOf(

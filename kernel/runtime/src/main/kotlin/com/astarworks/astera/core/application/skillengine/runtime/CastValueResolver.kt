@@ -1,16 +1,14 @@
 package com.astarworks.astera.core.application.skillengine.runtime
 
 import com.astarworks.astera.core.application.skillengine.load.CompiledSkill
+import com.astarworks.astera.core.application.skillengine.load.SkillExprSpec
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.geometry.math.Quaternion
 import com.astarworks.astera.core.domain.skillengine.expr.CompiledExpr
 import com.astarworks.astera.core.domain.skillengine.expr.ExprCompiler
-import com.astarworks.astera.core.domain.skillengine.expr.ExprEnvSpec
-import com.astarworks.astera.core.domain.skillengine.expr.ExprType
 import com.astarworks.astera.core.domain.skillengine.expr.ExprValue
 import com.astarworks.astera.core.domain.skillengine.model.ParamValue
-import com.astarworks.astera.core.domain.skillengine.model.SkillDef
 import com.astarworks.astera.core.domain.skillengine.model.Value
 import com.astarworks.astera.core.domain.skillengine.model.ValueResolver
 import java.util.WeakHashMap
@@ -20,47 +18,27 @@ internal class ValueResolveException(message: String) : IllegalStateException(me
 
 /**
  * Expressions compiled once per [CompiledSkill] (a skill reload swaps in a new object, so old casts keep their
- * cache and new casts compile fresh). `Value.Expr` only carries source text, so the cache is keyed by source.
+ * cache and new casts compile fresh). `Value.Expr` only carries source text, so the cache is keyed by source; the
+ * compiler's own results ([CompiledSkill.bySource]) are used first, the rest compiles on demand against the same
+ * [SkillExprSpec].
  */
 internal class ExprBank(private val compiler: ExprCompiler) {
-    private val perSkill = WeakHashMap<CompiledSkill, MutableMap<String, CompiledExpr>>()
+    private class Holder(val spec: SkillExprSpec, val cache: MutableMap<String, CompiledExpr>)
+
+    private val perSkill = WeakHashMap<CompiledSkill, Holder>()
 
     @Synchronized
-    fun forSkill(skill: CompiledSkill): MutableMap<String, CompiledExpr> = perSkill.getOrPut(skill) { HashMap() }
+    private fun holder(skill: CompiledSkill): Holder =
+        perSkill.getOrPut(skill) { Holder(SkillExprSpec.of(skill.def), HashMap(skill.bySource)) }
 
-    fun compile(skill: CompiledSkill, source: String, spec: ExprEnvSpec): CompiledExpr {
-        val cache = forSkill(skill)
-        synchronized(cache) {
-            cache[source]?.let { return it }
-            return when (val r = compiler.compile(source, spec)) {
-                is Result.Success -> r.value.also { cache[source] = it }
+    fun compile(skill: CompiledSkill, source: String): CompiledExpr {
+        val h = holder(skill)
+        synchronized(h.cache) {
+            h.cache[source]?.let { return it }
+            return when (val r = compiler.compile(h.spec.rewrite(source), h.spec.spec)) {
+                is Result.Success -> r.value.also { h.cache[source] = it }
                 is Result.Failure -> throw ValueResolveException("expression '$source': ${r.error.message}")
             }
-        }
-    }
-
-    companion object {
-        fun envSpec(def: SkillDef, exposedNames: Set<String>, frameNames: Set<String>): ExprEnvSpec {
-            val v = LinkedHashMap<String, ExprType>()
-            for ((k, p) in def.gameplay.params + def.presentation.params) v[k] = p.type()
-            for (n in exposedNames) v[n] = ExprType.NUM
-            v["tick"] = ExprType.NUM
-            v["event.name"] = ExprType.STR
-            v["event.source"] = ExprType.STR
-            v["contact.point"] = ExprType.VEC3
-            v["contact.normal"] = ExprType.VEC3
-            v["contact.rel_velocity"] = ExprType.VEC3
-            v["contact.block"] = ExprType.STR
-            v["caster"] = ExprType.REF
-            v["victim"] = ExprType.REF
-            for (f in frameNames) v.putIfAbsent(f, ExprType.REF)
-            return ExprEnvSpec(v)
-        }
-
-        private fun ParamValue.type(): ExprType = when (this) {
-            is ParamValue.Num -> ExprType.NUM
-            is ParamValue.Text -> ExprType.STR
-            is ParamValue.Flag -> ExprType.BOOL
         }
     }
 }
@@ -72,7 +50,6 @@ internal class ExprBank(private val compiler: ExprCompiler) {
 internal class CastValueResolver(
     private val cast: CastInstance,
     private val bank: ExprBank,
-    private val spec: ExprEnvSpec,
 ) : ValueResolver {
 
     override fun num(value: Value<Double>): Double = when (value) {
@@ -130,7 +107,7 @@ internal class CastValueResolver(
     private fun param(name: String): ParamValue =
         cast.params[name] ?: throw ValueResolveException("unknown param '$name'")
 
-    private fun eval(source: String): ExprValue = bank.compile(cast.skill, source, spec).eval(cast.env)
+    private fun eval(source: String): ExprValue = bank.compile(cast.skill, source).eval(cast.exprEnv())
 
     private fun ExprValue.kind(): String = when (this) {
         is ExprValue.Num -> "number"

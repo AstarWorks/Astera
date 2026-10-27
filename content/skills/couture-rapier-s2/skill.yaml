@@ -56,7 +56,7 @@ gameplay:
       - {id: dmg, op: damage, when: &on_throw "= event.source == 'throw_hit'", target: victim,
          components: [{kind: physical, amount: "${dmg_throw}"}]}
       - {id: bleed, op: status, when: *on_throw, target: victim, status: bleed, stacks: "${bleed_stacks}", duration_ticks: "${bleed_ticks}"}
-      - {id: stab, op: reparent, when: *on_throw, frames: [volley], to: contact, snap: {point: volley.tip, depth: 0.25}}
+      - {id: stab, op: reparent, when: *on_throw, frames: [volley], to: contact, snap: {point: blade_a.tip, depth: 0.25}}
       - {id: stuck, op: stick, when: *on_throw, frame: volley, parent: contact}
       - {id: push, op: impulse, when: *on_throw, target: victim, vector: "= -contact.normal * 0.35 + world.up * 0.12"}
       - {id: stop, op: freeze, when: *on_throw, ticks: 2, scope: [volley, caster]}
@@ -65,7 +65,7 @@ gameplay:
          components: [{kind: physical, amount: "${dmg_reel}"}]}
       - {id: pull, op: impulse, when: *on_reel, target: victim, vector: "= normalize(pos(palm) - pos(victim)) * 0.25"}
     block:
-      - {id: stab_wall, op: reparent, frames: [volley], to: contact, snap: {point: volley.tip, depth: 0.3}}
+      - {id: stab_wall, op: reparent, frames: [volley], to: contact, snap: {point: blade_a.tip, depth: 0.3}}
       - {id: reel_later_w, op: schedule, after: "${stick_ticks}", event: reel}
     expire:
       - {id: reel_soon, op: schedule, after: 2, event: reel}
@@ -74,7 +74,7 @@ gameplay:
       - {id: reel, op: reel, frame: volley, to: palm, speed: "${reel_speed}", ease: ease_in, align: {axis: "= -vel(volley)", up: world.up}}
       - {id: reel_hit, op: hit, frames: [blade_a, blade_b], capsule: {from: self.root, to: self.tip, radius: 0.2}, window: once}
     arrive:
-      - {id: rejoin, op: reparent, frames: [body, blade_a, blade_b], to: shears, snap: {point: self.root}}
+      - {id: rejoin, op: reparent, frames: [body, blade_a, blade_b], to: shears, snap: {point: self.pivot}}
       - {id: close_a, op: pose, frame: blade_a, keys: [{t: 0}, {t: 2, rotate: {axis: blade_a.edge, deg: 0}}]}
       - {id: close_b, op: pose, frame: blade_b, keys: [{t: 0}, {t: 2, rotate: {axis: blade_b.edge, deg: 0}}]}
       - {id: next, op: event, name: coin3_start}

@@ -52,6 +52,8 @@ public interface SkillDecoder {
 public data class CompiledSkill(
     val def: SkillDef,
     val exprs: Map<String, CompiledExpr>,
+    /** The same expressions keyed by their source text (what `Value.Expr` carries at run time). */
+    val bySource: Map<String, CompiledExpr> = emptyMap(),
 )
 
 /** Compiles every `Value.Expr` of [SkillDef] and checks frame/point/param references. */
