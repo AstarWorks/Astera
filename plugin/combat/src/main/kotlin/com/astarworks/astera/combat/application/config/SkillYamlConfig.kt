@@ -218,12 +218,24 @@ public sealed class SkillParamsYaml {
         @SerialName("max_lifetime_ticks") public val maxLifetimeTicks: Int,
         @SerialName("hit_radius") public val hitRadius: Double? = null,
         public val visual: ProjectileVisualYaml? = null,
+        /** Blocks in front of the eye the projectile spawns at (default 0.5). */
+        @SerialName("muzzle_forward") public val muzzleForward: Double? = null,
+        /** Blocks above the eye the projectile spawns at (default 0). */
+        @SerialName("muzzle_up") public val muzzleUp: Double? = null,
+        /**
+         * When set the shot is aimed at the point this many blocks along the caster's look ray, not parallel to it
+         * (a projectile spawned above the eye then dives onto what the caster looks at). Absent = parallel.
+         */
+        @SerialName("aim_distance") public val aimDistance: Double? = null,
     ) : SkillParamsYaml() {
         override fun toDomain(): SkillParams = SkillParams.ProjectileParams(
             launchSpeed = launchSpeed,
             maxLifetimeTicks = maxLifetimeTicks,
             hitRadius = hitRadius ?: SkillParams.ProjectileParams.DEFAULT_HIT_RADIUS,
             visual = visual?.toDomain() ?: ProjectileVisualParams.NONE,
+            muzzleForward = muzzleForward ?: SkillParams.ProjectileParams.DEFAULT_MUZZLE_FORWARD,
+            muzzleUp = muzzleUp ?: 0.0,
+            aimDistance = aimDistance ?: 0.0,
         )
     }
 
@@ -235,11 +247,14 @@ public sealed class SkillParamsYaml {
         /** Blocks between trail plays along the tick's segment (0 = one play per tick). */
         @SerialName("trail_spacing") public val trailSpacing: Double = ProjectileVisualParams.DEFAULT_TRAIL_SPACING,
         public val display: ProjectileDisplayYaml? = null,
+        /** A `content/vfx` choreography that rides the projectile for its whole flight and ends when it ends (hit, miss, expiry). */
+        public val vfx: String? = null,
     ) {
         public fun toDomain(): ProjectileVisualParams = ProjectileVisualParams(
             trail = trail?.toAnimation(),
             trailSpacing = trailSpacing,
             display = display?.toDomain(),
+            vfx = vfx?.let { com.astarworks.astera.core.domain.effect.vfx.VfxId(it) },
         )
     }
 

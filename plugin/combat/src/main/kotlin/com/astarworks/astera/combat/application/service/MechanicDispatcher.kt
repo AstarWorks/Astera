@@ -300,6 +300,23 @@ public class MechanicDispatcher(
             null
         }
 
+    /**
+     * Plays a `content/vfx` choreography that rides a moving anchor (a projectile) and ends when [endWhen] is true.
+     * Dropped with a warning when the display gateway / vfx catalog is not wired.
+     */
+    public fun playRidingVfx(
+        vfxId: com.astarworks.astera.core.domain.effect.vfx.VfxId,
+        world: WorldId,
+        owner: PlayerId,
+        origin: Vec3,
+        direction: Vec3,
+        anchor: () -> Vec3?,
+        endWhen: () -> Boolean,
+    ) {
+        val vfx = vfxMechanics ?: return warnMissing("projectile vfx", "IVfxRegistry / IDisplayEntityGateway")
+        vfx.playRiding(vfxId, world, owner, origin, direction, anchor, endWhen)
+    }
+
     private fun emitVfxParticle(call: com.astarworks.astera.combat.application.service.vfx.VfxParticleCall) {
         val definition = particleRegistry?.find(call.particleId)
         val context = ParticleEmitContext(

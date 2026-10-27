@@ -34,6 +34,9 @@ import com.astarworks.astera.core.domain.skill.phase.PhaseMechanics
  *  - `max_lifetime_ticks` -> [LifetimePolicy.Ticks] (0 falls back to
  *    [DEFAULT_LIFETIME_TICKS]).
  *  - `hit_radius` (optional) -> [HitProfile.Sphere], default [DEFAULT_HIT_RADIUS].
+ *  - `muzzle_forward` / `muzzle_up` -> spawn point relative to the eye; `aim_distance` -> aim at the look-ray point
+ *    that far away (so a shot spawned above the eye dives onto the target).
+ *  - `visual.vfx` -> a `content/vfx` choreography that rides the live projectile and ends with it.
  */
 public class ProjectileHandler(
     private val projectileService: IProjectileService,
@@ -57,8 +60,18 @@ public class ProjectileHandler(
 
         // 2. Launch along the caster's look direction from the eye.
         val pose = event.pose
-        val direction = pose?.direction?.normalize()?.takeIf { it.lengthSquared() > 0.0 } ?: DEFAULT_DIRECTION
-        val muzzle = if (pose != null) pose.eyePosition + direction * MUZZLE_OFFSET else event.at
+        val look = pose?.direction?.normalize()?.takeIf { it.lengthSquared() > 0.0 } ?: DEFAULT_DIRECTION
+        val muzzle = if (pose != null) {
+            pose.eyePosition + look * params.muzzleForward + Vec3(0.0, params.muzzleUp, 0.0)
+        } else {
+            event.at
+        }
+        // `aim_distance`: dive onto the point the caster looks at instead of flying parallel to the look ray.
+        val direction = if (pose != null && params.aimDistance > 0.0) {
+            (pose.eyePosition + look * params.aimDistance - muzzle).normalize().takeIf { it.lengthSquared() > 0.0 } ?: look
+        } else {
+            look
+        }
 
         val spec = ProjectileSpec(
             motion = MotionProfile.Linear(
@@ -90,6 +103,19 @@ public class ProjectileHandler(
         // 3. Per-tick trail (RTM Effect.Particles.Projectile).
         val trail = params.visual.trail
         val world = pose?.world
+        // 3b. A content/vfx choreography riding the live projectile; it ends the tick the projectile does.
+        val ridingVfx = params.visual.vfx
+        if (ridingVfx != null && world != null) {
+            dispatcher.playRidingVfx(
+                vfxId = ridingVfx,
+                world = world,
+                owner = event.caster,
+                origin = muzzle,
+                direction = direction,
+                anchor = { handle.position },
+                endWhen = { !handle.isAlive },
+            )
+        }
         if (trail != null && world != null && trailFollower != null) {
             trailFollower.follow(handle, world, muzzle, direction, trail, params.visual.trailSpacing)
         }
@@ -110,9 +136,6 @@ public class ProjectileHandler(
 
         /** Floor (blocks/second) so a `launch_speed: 0` skill still builds a valid [MotionProfile]. */
         public const val MIN_SPEED: Double = 0.1
-
-        /** Spawn this far in front of the eye so the projectile does not start inside the caster. */
-        public const val MUZZLE_OFFSET: Double = 0.5
 
         /** Direction used when the caster pose is unknown (no pose lookup wired). */
         public val DEFAULT_DIRECTION: Vec3 = Vec3(1.0, 0.0, 0.0)

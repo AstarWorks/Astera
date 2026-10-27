@@ -88,6 +88,8 @@ public class VfxRequest(
     public val anchorEntityId: PlayerId? = null,
     /** Bound live target feet; null result permanently stops this effect. */
     public val target: (() -> Vec3?)? = null,
+    /** Polled once per tick: `true` ends the effect now (a projectile-riding effect ends with its projectile). */
+    public val endWhen: (() -> Boolean)? = null,
 )
 
 /** One particle element emission handed to the runtime (which plans it through `ParticleEmitter`). */
@@ -378,6 +380,7 @@ public class VfxPlayer(
     private fun advanceEffect(instance: Instance): Boolean {
         val age = instance.age
         val plan = instance.plan
+        if (age > 0 && instance.request.endWhen?.invoke() == true) return true
         // Safety net: a bundle that never ran (host without packets, rig ended first) must not drop the update.
         if (instance.bundled.isNotEmpty()) instance.bundled.values.toList().forEach { it() }.also { instance.bundled.clear() }
         if (instance.awaitingReveal && age == minOf(REVEAL_AGE, plan.durationTicks - 1).coerceAtLeast(1)) reveal(instance)

@@ -48,7 +48,7 @@ rigs:
   - t: 57
     model: astera:couture-rapier
 elements:
-- id: fly-shears
+- id: overhead-shears
   kind:
     type: item
     item: shears

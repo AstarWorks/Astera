@@ -98,7 +98,7 @@
     {
       "tick": 22,
       "beat": "B5 ONE flying shears overhead (hand model off), white blades + loops are flat VFX",
-      "owner": "couture-s2-rig fly-shears",
+      "owner": "couture-rapier-s2-shears projectile",
       "carrier": "rig",
       "status": "implemented-unverified"
     },
