@@ -47,12 +47,12 @@ phases:
       radius: { type: literal, value: 3.5 }
       break_blocks: { type: literal, value: false }
       components:
-        - base: { type: literal, value: 70.0 }
+        - base: { type: literal, value: 35.0 }
           attribute: physical
     - type: apply_status
       targets: { type: enemies, center: { type: target }, radius: { type: literal, value: 3.5 } }
       status_id: bleed
-      effect_duration_ticks: { type: literal, value: 60 }
+      effect_duration_ticks: { type: literal, value: 20 }
     - type: play_sound
       targets: { type: target }
       sound_id: entity.generic.explode
@@ -68,12 +68,12 @@ phases:
       radius: { type: literal, value: 3.5 }
       break_blocks: { type: literal, value: false }
       components:
-        - base: { type: literal, value: 70.0 }
+        - base: { type: literal, value: 35.0 }
           attribute: physical
     - type: apply_status
       targets: { type: enemies, center: { type: hit_location }, radius: { type: literal, value: 3.5 } }
       status_id: bleed
-      effect_duration_ticks: { type: literal, value: 60 }
+      effect_duration_ticks: { type: literal, value: 20 }
     - type: play_sound
       targets: { type: hit_location }
       sound_id: entity.generic.explode

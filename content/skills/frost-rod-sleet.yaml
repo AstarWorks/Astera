@@ -41,7 +41,7 @@ phases:
     - type: damage
       targets: { type: target }
       components:
-        - base: { type: literal, value: 36.0 }
+        - base: { type: literal, value: 18.0 }
           attribute: water
     - type: play_sound
       targets: { type: target }
