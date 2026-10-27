@@ -4,6 +4,9 @@ import com.astarworks.astera.core.application.port.outbound.IWorldGateway
 import com.astarworks.astera.core.application.skillengine.runtime.port.ISkillParticleGateway
 import com.astarworks.astera.core.application.skillengine.runtime.port.ParticleBurst
 import com.astarworks.astera.core.domain.effect.ParticleColor
+import com.astarworks.astera.core.domain.effect.ParticleDefinition
+import com.astarworks.astera.core.domain.effect.ParticleEmitContext
+import com.astarworks.astera.core.domain.effect.ParticleEmitter
 import com.astarworks.astera.core.domain.effect.ParticleSpec
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.world.WorldId
@@ -22,10 +25,17 @@ import kotlin.math.tan
 public class PaperSkillParticleGateway(
     private val world: IWorldGateway,
     private val worldId: () -> WorldId?,
+    /** Custom particle lookup (`content/particles/<id>.yaml`); `null` = the id is a vanilla particle key. */
+    private val definitions: (String) -> ParticleDefinition? = { null },
 ) : ISkillParticleGateway {
 
     override fun emit(burst: ParticleBurst) {
         val w = worldId() ?: return
+        val definition = if (burst.particle.matches(CUSTOM_ID)) definitions(burst.particle) else null
+        if (definition != null) {
+            emitDefinition(w, definition, burst)
+            return
+        }
         val color = burst.colorHex?.let(::color)
         val rng = Random(burst.seed)
         val axis = burst.dir?.normalize()?.takeIf { it.lengthSquared() > 0.0 }
@@ -43,6 +53,22 @@ public class PaperSkillParticleGateway(
                 ParticleSpec(burst.particle, count = 0, offset = velocity, extra = 1.0, color = color)
             }
             world.spawnParticle(w, burst.at, spec)
+        }
+    }
+
+    /**
+     * A custom particle expands through the same planner the rest of the game uses ([ParticleEmitter.plan]): the
+     * definition owns count, shape, speed and vanilla type; the burst contributes position, look direction and an
+     * optional colour. [ParticleBurst.count] repeats the preset.
+     */
+    private fun emitDefinition(w: WorldId, definition: ParticleDefinition, burst: ParticleBurst) {
+        val color = burst.colorHex?.let(::color)
+        val rng = kotlin.random.Random(burst.seed)
+        val ctx = ParticleEmitContext(look = burst.dir, random = rng)
+        repeat(burst.count.coerceIn(0, MAX_PER_BURST)) {
+            for (planned in ParticleEmitter.plan(definition, burst.at, ctx)) {
+                world.spawnParticle(w, planned.at, if (color != null) planned.spec.copy(color = color) else planned.spec)
+            }
         }
     }
 
@@ -72,5 +98,7 @@ public class PaperSkillParticleGateway(
 
     private companion object {
         const val MAX_PER_BURST = 64
+        /** Custom ids are lower-kebab ([com.astarworks.astera.core.domain.effect.ParticleId]); vanilla keys use underscores. */
+        val CUSTOM_ID = Regex("^[a-z][a-z0-9-]*$")
     }
 }

@@ -119,8 +119,51 @@ internal class SkillV2Lint(private val contentDir: Path, private val schemasDir:
             val schema = schemas[kind] ?: return@forEachIndexed
             if (kind == "Skill") node.get("id")?.takeIf { it.isTextual }?.asText()?.let { skillIds += it }
             for (v in schema.validate(node)) errors += "$where: ${v.message}"
+            if (kind == "Skill") errors += fxReferenceErrors(node, where)
         }
         return FileResult(file, errors)
+    }
+
+    private val customParticles: Set<String> by lazy { idsIn("particles", ID_LINE) }
+    private val soundCues: Set<String> by lazy { idsIn("sounds", ID_LINE) + idsIn("sounds", RESOURCE_KEY_LINE) }
+
+    private fun idsIn(dir: String, line: Regex): Set<String> {
+        val root = contentDir.resolve(dir)
+        if (!root.isDirectory()) return emptySet()
+        @OptIn(kotlin.io.path.ExperimentalPathApi::class)
+        return root.walk().filter { it.isRegularFile() && it.extension in YAML_EXT }
+            .mapNotNull { line.find(it.readText())?.groupValues?.get(1) }.toSet()
+    }
+
+    /**
+     * Presentation references that fail silently at runtime: an `op: emit` particle must be a vanilla particle or a
+     * `content/particles` id, and an `astera:` sound of an `op: sound` must be a `content/sounds` cue (the server
+     * only logs `[cue-dropped]`, the player sees and hears nothing). Expressions (`=`, `${`) are not checked.
+     */
+    private fun fxReferenceErrors(root: JsonNode, where: String): List<String> {
+        val out = mutableListOf<String>()
+        fun walk(n: JsonNode) {
+            if (n.isObject) {
+                when (n.get("op")?.asText()) {
+                    "emit" -> n.get("particle")?.takeIf { it.isTextual }?.asText()?.let { id ->
+                        val key = id.substringAfter(':')
+                        if (!id.startsWith("=") && !id.contains("\${") && key !in VANILLA_PARTICLES && id !in customParticles) {
+                            out += "$where: op emit '${n.get("id")?.asText()}': particle '$id' is neither a vanilla particle nor a content/particles id"
+                        }
+                    }
+                    "sound" -> n.get("sound")?.takeIf { it.isTextual }?.asText()?.let { id ->
+                        if (id.startsWith("astera:") && id !in soundCues) {
+                            out += "$where: op sound '${n.get("id")?.asText()}': '$id' is not a content/sounds cue"
+                        }
+                    }
+                }
+                n.elements().forEach(::walk)
+            } else if (n.isArray) {
+                n.elements().forEach(::walk)
+            }
+        }
+        walk(root)
+        return out
     }
 
     private class StrictResolver : Resolver() {
@@ -145,6 +188,12 @@ internal class SkillV2Lint(private val contentDir: Path, private val schemasDir:
     }
 
     companion object {
+        private val ID_LINE = Regex("(?m)^id:\\s*[\"']?([^\"'\\s#]+)")
+        private val RESOURCE_KEY_LINE = Regex("(?m)^resource_key:\\s*[\"']?([^\"'\\s#]+)")
+        /** `org.bukkit.Particle` constants (Paper 26.3) in the lower-case form content uses. */
+        private val VANILLA_PARTICLES: Set<String> = (
+            "poof explosion explosion_emitter firework bubble splash fishing underwater crit enchanted_hit smoke large_smoke effect instant_effect entity_effect witch dripping_water dripping_lava angry_villager happy_villager mycelium note portal enchant flame lava cloud dust item_snowball item_slime heart item block rain elder_guardian dragon_breath end_rod damage_indicator sweep_attack falling_dust totem_of_undying spit squid_ink bubble_pop current_down bubble_column_up nautilus dolphin sneeze campfire_cosy_smoke campfire_signal_smoke composter flash falling_lava landing_lava falling_water dripping_honey falling_honey landing_honey falling_nectar soul_fire_flame ash crimson_spore warped_spore soul dripping_obsidian_tear falling_obsidian_tear landing_obsidian_tear reverse_portal white_ash dust_color_transition vibration falling_spore_blossom spore_blossom_air small_flame snowflake dripping_dripstone_lava falling_dripstone_lava dripping_dripstone_water falling_dripstone_water glow_squid_ink glow wax_on wax_off electric_spark scrape sonic_boom sculk_soul sculk_charge sculk_charge_pop shriek cherry_leaves pale_oak_leaves red_poplar_leaves orange_poplar_leaves yellow_poplar_leaves tinted_leaves egg_crack dust_plume white_smoke gust small_gust gust_emitter_large gust_emitter_small trial_spawner_detection trial_spawner_detection_ominous vault_connection infested item_cobweb dust_pillar block_crumble firefly trail ominous_spawning raid_omen trial_omen block_marker copper_fire_flame pause_mob_growth reset_mob_growth noxious_gas noxious_gas_cloud sulfur_cube_goo sulfur_bubbles geyser geyser_base geyser_plume geyser_poof"
+        ).split(' ').toSet()
         private val V2_MARKER = Regex("""(?m)^apiVersion:\s*["']?astera/v2""")
         private val YAML_EXT = setOf("yaml", "yml")
         val KIND_SCHEMAS: Map<String, String> = linkedMapOf(

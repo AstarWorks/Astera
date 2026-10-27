@@ -1,5 +1,6 @@
 package com.astarworks.astera.combat.platform.paper
 
+import com.astarworks.astera.core.domain.world.WorldId
 import com.astarworks.astera.combat.adapter.paper.skillengine.PaperSkillCasterAnimGateway
 import com.astarworks.astera.combat.adapter.paper.skillengine.PaperSkillCooldownGateway
 import com.astarworks.astera.combat.adapter.paper.skillengine.PaperSkillEntityQuery
@@ -67,6 +68,7 @@ internal class SkillEnginePaperRuntime(
     private var tickHandle: IScheduler.TaskHandle? = null
     private val notPorted = ConcurrentHashMap.newKeySet<String>()
     private var seenDiagnostics = 0
+    private var activeEntities: PaperSkillEntityQuery? = null
 
     fun start(
         ctx: WiringContext,
@@ -98,12 +100,17 @@ internal class SkillEnginePaperRuntime(
 
         val entities = PaperSkillEntityQuery(server) { services.get<IStructureTargets>() }
         val visuals = PaperSkillVisualGateway(server, displays)
-        val worldId = { visuals.activeWorld() }
+        // Presentation-only casts create no display entity, so the visual gateway alone never learns the world.
+        val worldId = { entities.activeWorld()?.let { WorldId(it.name) } ?: visuals.activeWorld() }
+        activeEntities = entities
+        val particleRegistry = services.get<com.astarworks.astera.core.application.port.outbound.IParticleRegistry>()
         lateinit var built: SkillEngineKit
         val gateways = SkillEngineGateways(
             ports = SkillRuntimePorts(
                 visuals = visuals,
-                particles = PaperSkillParticleGateway(worldGateway, worldId),
+                particles = PaperSkillParticleGateway(worldGateway, worldId) { id ->
+                    particleRegistry?.find(com.astarworks.astera.core.domain.effect.ParticleId(id))
+                },
                 sounds = PaperSkillSoundGateway(worldGateway, worldId),
                 gameplay = PaperSkillGameplayGateway(
                     applyDamage = applyDamage,
@@ -196,6 +203,7 @@ internal class SkillEnginePaperRuntime(
         }
         val player = plugin.server.getPlayer(event.caster.uuid) ?: return
         val loc = player.location
+        activeEntities?.noteWorld(player.world)
         val request = CastRequest(
             skill = skill,
             caster = event.caster.uuid,

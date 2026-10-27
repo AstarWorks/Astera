@@ -56,6 +56,7 @@ class CastSim(
     /** Half the victim box width / its height; the default is a generous 1.6 x 1.8 box, real players are 0.6 wide. */
     val halfWidth: Double = 0.8,
     val boxHeight: Double = 1.8,
+    private val particleGateway: ISkillParticleGateway? = null,
 ) {
     private val caster: UUID = SIM_CASTER
     var now = 0
@@ -122,7 +123,7 @@ class CastSim(
 
     val kit: SkillEngineKit = SkillEngineKit.build(
         gateways = SkillEngineGateways(
-            ports = SkillRuntimePorts(noop<ISkillVisualGateway>(), noop<ISkillParticleGateway>(), sound, gameplay, entities, noop<ISkillVictimAnimGateway>()),
+            ports = SkillRuntimePorts(noop<ISkillVisualGateway>(), particleGateway ?: noop<ISkillParticleGateway>(), sound, gameplay, entities, noop<ISkillVictimAnimGateway>()),
             movement = noop<ISkillMovementGateway>(),
             world = world,
             casterAnim = noop<ISkillCasterAnimGateway>(),
