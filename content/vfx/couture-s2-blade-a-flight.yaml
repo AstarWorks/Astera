@@ -21,8 +21,8 @@ elements:
     - 0.65
     - -0.8
     rotate:
-    - -90
     - 0
+    - 90
     - 0
     scale: &id001
     - 1
@@ -34,8 +34,8 @@ elements:
     - 0.12
     - -0.4
     rotate:
-    - -90
     - 0
+    - 90
     - 0
     scale: *id001
   - t: 40
@@ -44,8 +44,8 @@ elements:
     - 0.12
     - -0.4
     rotate:
-    - -90
     - 0
+    - 90
     - 0
     scale:
     - 1
