@@ -7,29 +7,48 @@ cooldown_ticks: 300
 resource_cost: 0
 tags: [aoe, physical, finisher, charge]
 params: {type: sequence}
+# ADR-0290 windup: ticks 0..20 = the barrier rises (guard vfx) under a rising chime glide; everything in `cast:` below is
+# rebased to tick 20 (leap start), so cast delay 11 = skill tick 31 = the unchanged damage tick.
+windup:
+  ticks: 20
+  vfx: bastion-ego-guard
+  sound:
+    sound_id: block.amethyst_block.resonate
+    volume: 1.0
+    pitch_arc: {from: 0.6, to: 1.8, ticks: 30, ease: in_quad, interval_ticks: 5}
+    stop_at_impact: false
 phases:
   type: sequence
   cast:
   - type: hide_held_item
     targets: {type: caster}
-    ticks: {type: literal, value: 44}
-  - type: play_vfx
+    ticks: {type: literal, value: 24}
+  # Cut the rising chime one tick before the damage tick: the hit lands in silence, then the boom.
+  - type: stop_sound
     targets: {type: caster}
-    vfx_id: bastion-ego-guard
+    sound_id: block.amethyst_block.resonate
+    delay_ticks: {type: literal, value: 10}
+  # Enemy warning: the cone fills from the leap start and completes exactly on the damage tick.
+  - type: telegraph
+    targets: {type: caster}
+    shape: cone
+    radius: {type: literal, value: 6.2}
+    angle_degrees: {type: literal, value: 70}
+    ticks: {type: literal, value: 12}   # one tick longer than impact_tick so the full fill is seen on the damage tick
+    impact_tick: {type: literal, value: 11}
+    team_color: enemy
+    viewers: all
   - type: play_sound
     targets: {type: caster}
     sound_id: item.shield.block
     pitch: {type: literal, value: 0.8}
-  - type: play_sound
+  - type: play_vfx
     targets: {type: caster}
-    sound_id: item.armor.equip_netherite
-    pitch: {type: literal, value: 0.5}
-    delay_ticks: {type: literal, value: 14}
+    vfx_id: bastion-ego-trail
   - type: propel
     targets: {type: caster}
     direction: {type: up}
     strength: {type: literal, value: 0.3}
-    delay_ticks: {type: literal, value: 20}
   - type: dash_strike
     distance: 2.8
     ticks: 6
@@ -39,17 +58,16 @@ phases:
     follow_pitch: false
     on_hit: []
     stop_before_target: 1.6
-    delay_ticks: {type: literal, value: 20}
   - type: play_vfx
     targets: {type: caster}
     vfx_id: bastion-ego-slam
-    delay_ticks: {type: literal, value: 27}
+    delay_ticks: {type: literal, value: 7}
   - type: play_sound
     targets: {type: caster}
     sound_id: item.trident.return
     volume: {type: literal, value: 0.8}
     pitch: {type: literal, value: 0.6}
-    delay_ticks: {type: literal, value: 27}
+    delay_ticks: {type: literal, value: 7}
   - type: damage
     targets:
       type: cone
@@ -63,7 +81,7 @@ phases:
       attribute: physical
       per_stack: {status_id: charge, amount: 0.5, 'on': caster, consume: true}
     ignore_invulnerability: {type: literal, value: true}
-    delay_ticks: {type: literal, value: 31}
+    delay_ticks: {type: literal, value: 11}
   - type: spawn_particle
     targets:
       type: cone
@@ -73,7 +91,7 @@ phases:
       angle_degrees: {type: literal, value: 110}
       max_count: 1
     particle_id: bastion-s3-hit-crit
-    delay_ticks: {type: literal, value: 31}
+    delay_ticks: {type: literal, value: 11}
   - type: hit_stop
     targets:
       type: cone
@@ -84,12 +102,13 @@ phases:
       max_count: 1
     ticks: 4
     include_caster: true
-    delay_ticks: {type: literal, value: 31}
+    freeze_animation: true
+    delay_ticks: {type: literal, value: 11}
   - type: play_sound
     targets: {type: caster}
     sound_id: block.anvil.land
     pitch: {type: literal, value: 0.5}
-    delay_ticks: {type: literal, value: 31}
+    delay_ticks: {type: literal, value: 11}
   - type: knockback
     targets:
       type: cone
@@ -100,7 +119,8 @@ phases:
       max_count: 1
     direction: {type: away_from_caster, vertical: 0.3}
     strength: {type: literal, value: 1.6}
-    delay_ticks: {type: literal, value: 31}
+    delay_ticks: {type: literal, value: 11}
+  # Impact shake: a decaying kick aimed away from the hit, for bystanders (the caster gets the veil instead).
   - type: camera_shake
     targets:
       type: nearby_entities
@@ -109,15 +129,21 @@ phases:
       exclude_caster: true
     intensity: {type: literal, value: 1.0}
     ticks: {type: literal, value: 10}
-    delay_ticks: {type: literal, value: 31}
-  - type: screen_flash
+    shape: decay
+    direction: from_hit
+    viewers: all
+    delay_ticks: {type: literal, value: 11}
+  # Caster-only screen veil (replaces the caster's gold_burst title flash): a gold burst in front of the camera, 15 percent cap.
+  - type: screen_veil
     targets: {type: caster}
-    overlay: gold_burst
+    sprite: burst
+    distance: {type: literal, value: 0.4}
+    scale: {type: literal, value: 1.4}
+    ticks: {type: literal, value: 5}
     color: '#FFC84A'
-    fade_in: {type: literal, value: 0}
-    stay: {type: literal, value: 2}
-    fade_out: {type: literal, value: 2}
-    delay_ticks: {type: literal, value: 31}
+    viewers: caster
+    max_screen_fraction: {type: literal, value: 0.15}
+    delay_ticks: {type: literal, value: 11}
   - type: screen_flash
     targets:
       type: nearby_entities
@@ -129,10 +155,10 @@ phases:
     fade_in: {type: literal, value: 0}
     stay: {type: literal, value: 2}
     fade_out: {type: literal, value: 2}
-    delay_ticks: {type: literal, value: 31}
+    delay_ticks: {type: literal, value: 11}
   - type: play_sound
     targets: {type: caster}
     sound_id: entity.generic.explode
     pitch: {type: literal, value: 0.6}
-    delay_ticks: {type: literal, value: 31}
+    delay_ticks: {type: literal, value: 11}
 ego_cost: 100
