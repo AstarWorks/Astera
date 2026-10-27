@@ -15,8 +15,11 @@ About 30 rounds of bastion-greatsword S1 failed for the same reason: the referen
                   (b) fact check: a second fresh reviewer sees reference + sheet and lists every disagreement
 3. Founder gate 1 the sheet + top-down / side / front stick figures on the skill-compare page; approval FREEZES this version
 4. Build          one author end to end; each commit goes live on dev (make dev-content / dev-pack / dev-plugins) with the reload verified
-5. Capture        side, front, back, TOP-DOWN (mandatory), 45 deg high, eye height, via the real player path; skippedTicks = 0
-6. Visual review  a fresh reviewer (new every round) marks every sheet row ○ / × with evidence
+5. Capture        side, front, back, TOP-DOWN (mandatory), 45 deg high, eye height, via the real player path; skippedTicks = 0;
+                  enemy at the intent distance, caster framing within 0.5x-2x of the reference
+5b. Round gate    round note (round-template.md): compare sheet ref | this | previous from the API, trace cast+N, framing,
+                  tool fidelity, "weaker than previous: none"; `make round-gate` must PASS before any reviewer
+6. Visual review  a fresh reviewer (new every round): whole impression, regression vs previous, then every sheet row ○ / × with evidence
 7. Founder gate 2 in game, on dev. Final.
 ```
 
