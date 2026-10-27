@@ -110,14 +110,16 @@ def frame(sa, sb, T):
     th = np.mod(theta - RING["phase"], 360.0)
     rc = 0.5 * (R_OUT + R_IN)
     hw0 = 0.5 * (R_OUT - R_IN) * f * thin
-    # jagged edges: triangle-wave teeth (outer, big) and notches (inner, small), phase random per plate
+    # r5: clean blade plates. Outer edge = one straight ramp per plate that ends in a pointed tip at the gap (a few big
+    # angular facets, no per-pixel zigzag); inner edge straight.
     per = 360.0 / RING["plates"]
     pid = np.floor((th + 0.0) / per)
     rnd = np.random.default_rng(seed).random(RING["plates"] + 2)
-    tooth_p = 9.0 + 4.0 * rnd[np.clip(pid.astype(int), 0, RING["plates"] + 1)]
-    tri = np.abs(np.mod(th, tooth_p) / tooth_p * 2 - 1)  # 0..1
-    jag_o = (tri - 0.5) * 0.16 * f
-    jag_i = (np.abs(np.mod(th * 1.7, 14.0) / 14.0 * 2 - 1) - 0.5) * 0.07 * f
+    gap0 = RING["gap"]
+    uu = np.mod(th + RING["slant"] * (r - rc) / (0.5 * (R_OUT - R_IN)), per)
+    ramp = np.clip((uu - gap0) / max(per - gap0, 1e-3), 0, 1)
+    jag_o = (ramp ** 1.3) * 0.16 * f - 0.02 * f
+    jag_i = -ramp * 0.05 * f
     r_o_edge = rc + hw0 + jag_o
     r_i_edge = rc - hw0 + jag_i
     d_rad = np.minimum(r_o_edge - r, r - r_i_edge)  # blocks, >0 inside
@@ -131,7 +133,7 @@ def frame(sa, sb, T):
     d_gap = np.where(in_gap, -np.minimum(u, gap - u), d_gap_deg) * math.pi / 180.0 * np.maximum(r, 0.5)
     d_edge = np.minimum(d_rad, d_gap)
     px = k
-    alpha = soft(d_edge / px, 0.9) * inside
+    alpha = soft(d_edge / px, 0.7) * inside
     # radial coordinate s: 0 inner .. 1 outer
     s = np.clip((r - r_i_edge) / np.maximum(r_o_edge - r_i_edge, 1e-4), 0, 1)
     pale = hexc("#FFF2B0")
@@ -147,11 +149,11 @@ def frame(sa, sb, T):
     shade = 0.82 + 0.18 * rnd[np.clip(pid.astype(int), 0, RING["plates"] + 1)]
     base = base * shade[..., None]
     # dark outline: 0.075 blocks inside every edge, opaque
-    rim_w = 0.075
-    rim_m = 1.0 - smooth((d_edge - rim_w) / 0.025 + 0.5)
+    rim_w = 0.03
+    rim_m = 1.0 - smooth((d_edge - rim_w) / 0.012 + 0.5)
     # one dark plate groove along the plate (inner third), broken per plate
-    groove = soft((0.02 - np.abs(s - 0.62)) / 0.012, 0.6) * (rnd[np.clip(pid.astype(int), 0, RING["plates"] + 1)] > 0.25)
-    rim_m = np.maximum(rim_m, groove * 0.85)
+    groove = soft((0.012 - np.abs(s - 0.62)) / 0.008, 0.6) * (rnd[np.clip(pid.astype(int), 0, RING["plates"] + 1)] > 0.25)
+    rim_m = np.maximum(rim_m, groove * 0.6)
     col = base * (1 - rim_m[..., None]) + rim * rim_m[..., None]
     out = np.zeros(a.shape + (4,))
     out[..., :3] = col * alpha[..., None]
@@ -168,7 +170,7 @@ def downsample(img):
     al = np.clip(pm[..., 3], 0, 1)
     rgb = np.where(al[..., None] > 1e-4, pm[..., :3] / np.maximum(al[..., None], 1e-4), 0)
     o = np.concatenate([np.clip(rgb, 0, 1), al[..., None]], -1)
-    o[al < 0.3] = 0  # client discards alpha < 0.1; 0.1-0.3 reads as a grey skirt
+    o[al < 0.12] = 0
     return (o * 255 + 0.5).astype(np.uint8)
 
 

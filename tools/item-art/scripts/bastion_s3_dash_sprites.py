@@ -44,38 +44,25 @@ def saw(m, rng, amp, teeth):
 
 
 def make_slab():
+    """r5: stacked clean blades (pointed tips, straight facets), 4x supersampled, thin dark rim (3 px at 256)."""
     n = N * SS
-    rng = np.random.default_rng(31)
-    pale = Image.new("L", (n, n), 0)
-    d = ImageDraw.Draw(pale)
-    # (centre y, half thickness, x start, x end): tail on the left (behind), jagged nose on the right
-    bands = [(48, 12, 44, 212), (82, 15, 16, 226), (122, 22, 8, 238), (162, 17, 26, 228), (198, 11, 54, 204)]
-    for yc, h, x0, x1 in bands:
-        m = 56
-        xs = np.linspace(x0, x1, m)
-        top_o = np.clip(saw(m, rng, h * 0.4, 8), -h * 0.45, h * 0.45)
-        bot_o = np.clip(saw(m, rng, h * 0.4, 8), -h * 0.45, h * 0.45)
-        top, bot = [], []
-        for i, x in enumerate(xs):
-            u = i / (m - 1)
-            env = min(1.0, u * 7) ** 0.7 * min(1.0, (1 - u) * 5) ** 0.7
-            top.append((x * SS, (yc - (h + top_o[i]) * env) * SS))
-            bot.append((x * SS, (yc + (h + bot_o[i]) * env) * SS))
-        d.polygon(top + bot[::-1], fill=255)
-    g = blur(np.asarray(pale).astype(np.float32) / 255, 1.3)
-    # big ragged black silhouette: dilated stripes, edge displaced row-wise by low-frequency noise
-    sil = Image.fromarray(((g > 0.3).astype(np.uint8)) * 255).filter(ImageFilter.MaxFilter(33))
-    sil_a = np.asarray(sil).astype(np.float32) / 255
-    wob = B.noise1d(n, rng, 14, 3) - 0.5
-    shift = (wob * 14 * SS / 2).astype(int)
-    idx = np.clip(np.arange(n)[None, :] + shift[:, None], 0, n - 1)
-    sil_a = blur(np.take_along_axis(sil_a, idx, axis=1), 1.4)
-    inner_src = Image.fromarray(((g > 0.5).astype(np.uint8)) * 255).filter(ImageFilter.MinFilter(37))
-    inner = blur(np.asarray(inner_src).astype(np.float32) / 255, 6)
     dst = np.zeros((n, n, 4), np.float32)
-    dst = B.comp(dst, B.hexc("#0A0810"), sil_a * 0.97)
-    dst = B.comp(dst, B.hexc("#F6C426"), g)
-    dst = B.comp(dst, B.hexc("#FFF29A"), inner * g * 0.95)
+    # (centre y, half thickness, x tail, x nose, nose lift)
+    bands = [(44, 11, 40, 214, 6), (80, 14, 14, 232, 8), (122, 20, 6, 246, 10), (164, 15, 22, 234, 8), (203, 10, 50, 210, 5)]
+    for yc, h, x0, x1, lift in bands:
+        L = x1 - x0
+        xm = x0 + 0.66 * L
+        top = [(x0, yc + 2), (xm, yc - h), (x1, yc - lift)]
+        bot = [(xm - 0.12 * L, yc + h * 0.75), (x0 + 0.1 * L, yc + h * 0.2)]
+        poly = [(x * SS, y * SS) for x, y in top + bot]
+        m = Image.new("L", (n, n), 0)
+        ImageDraw.Draw(m).polygon(poly, fill=255)
+        full = np.asarray(m).astype(np.float32) / 255
+        gold_m = np.asarray(m.filter(ImageFilter.MinFilter(2 * 3 * SS + 1))).astype(np.float32) / 255
+        core_m = np.asarray(m.filter(ImageFilter.MinFilter(2 * (h // 2 + 2) * SS + 1))).astype(np.float32) / 255
+        dst = B.comp(dst, B.hexc("#1C0F04"), blur(full, 1.0))
+        dst = B.comp(dst, B.hexc("#F6C426"), blur(gold_m, 1.0))
+        dst = B.comp(dst, B.hexc("#FFF29A"), blur(core_m, 3.0) * 0.95)
     save("slab", [B.down(B.to_img(dst))])
 
 
@@ -92,8 +79,8 @@ def make_sweep():
     dyy = np.where(Y > cy, dy * 0.8, dy * 1.15)
     d = hh - dyy
     dst = np.zeros((n, n, 4), np.float32)
-    dst = B.comp(dst, B.hexc("#1A1208"), B.soft(d, 1.1) * (env > 0.01) * 0.9)
-    dst = B.comp(dst, B.hexc("#F2B31F"), B.soft(d - 5, 1.1) * (env > 0.02))
+    dst = B.comp(dst, B.hexc("#1A1208"), B.soft(d, 1.1) * (env > 0.01) * 0.95)
+    dst = B.comp(dst, B.hexc("#F2B31F"), B.soft(d - 2.6, 1.1) * (env > 0.02))
     dst = B.comp(dst, B.hexc("#FFE45A"), B.soft(d - 13, 3.0) * (env > 0.03))
     dst = B.comp(dst, B.hexc("#FFF6C8"), B.soft(d - 22, 4.0) * (env > 0.04))
     dst = B.comp(dst, B.hexc("#FFFFFF"), B.soft(d - 30, 3.0) * (env > 0.05))
