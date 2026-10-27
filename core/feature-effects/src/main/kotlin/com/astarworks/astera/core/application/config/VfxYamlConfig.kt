@@ -9,6 +9,7 @@ import com.astarworks.astera.core.domain.effect.vfx.SpriteId
 import com.astarworks.astera.core.domain.effect.vfx.VfxAlign
 import com.astarworks.astera.core.domain.effect.vfx.VfxDefinition
 import com.astarworks.astera.core.domain.effect.vfx.VfxElement
+import com.astarworks.astera.core.domain.effect.vfx.VfxGhostBody
 import com.astarworks.astera.core.domain.effect.vfx.VfxEmitDirection
 import com.astarworks.astera.core.domain.effect.vfx.VfxCurve
 import com.astarworks.astera.core.domain.effect.vfx.VfxCurveKey
@@ -83,6 +84,8 @@ public data class VfxYamlConfig(
     public val elements: List<VfxElementYaml> = emptyList(),
     /** Weapon rigs with 風切り trails (see [VfxRigYaml]). */
     public val rigs: List<VfxRigYaml> = emptyList(),
+    /** ADR-0284: translucent afterimages of the caster's skin body, visual only. */
+    @SerialName("ghost_bodies") public val ghostBodies: List<VfxGhostBodyYaml> = emptyList(),
     @SerialName("target_reference") public val targetReference: List<Double>? = null,
     /** ADR-0276: skin-rig animation id (`content/animations/<id>.yaml`) played as the performance body. */
     public val body: String? = null,
@@ -105,6 +108,7 @@ public data class VfxYamlConfig(
                 sampleTicks = sampleTicks,
                 elements = elements.map { it.toDomain() },
                 rigs = rigs.map { it.toDomain() },
+                ghostBodies = ghostBodies.map { it.toDomain() },
                 targetReference = targetReference?.let { vec3(it, "target_reference") },
                 body = body?.let { com.astarworks.astera.core.domain.animation.player.CustomAnimationId(it) },
                 followBodyYaw = followBodyYaw,
@@ -572,6 +576,34 @@ private fun parseStartFrame(raw: String?): VfxStartFrame {
  *       - { id: wind, from: [0, 0.3, 0], to: [0, 2.9, 0], start_t: 1, end_t: 4, life_ticks: 6 }
  * ```
  */
+/**
+ * ADR-0284: a translucent tinted copy of the caster's skin body, [delayTicks] behind the real body and [offset] away in the effect
+ * frame (+Z = the caster's front, so `[0, 0, -0.7]` is 0.7 blocks behind). `animation` defaults to the effect's `body`. The pack
+ * shader draws one look: `tint` / `opacity` must equal `#8A5CFF` / `0.5` (the defaults).
+ */
+@Serializable
+public data class VfxGhostBodyYaml(
+    public val id: String,
+    public val animation: String? = null,
+    public val tint: String = "#8A5CFF",
+    public val opacity: Double = 0.5,
+    public val offset: List<Double> = listOf(0.0, 0.0, 0.0),
+    @SerialName("delay_ticks") public val delayTicks: Int = 0,
+    @SerialName("start_tick") public val startTick: Int = 0,
+    @SerialName("end_tick") public val endTick: Int? = null,
+) {
+    public fun toDomain(): VfxGhostBody = VfxGhostBody(
+        id = id,
+        animation = animation?.let { com.astarworks.astera.core.domain.animation.player.CustomAnimationId(it) },
+        tintRgb = parseRgb(tint, "tint"),
+        opacity = opacity,
+        offset = vec3(offset, "offset"),
+        delayTicks = delayTicks,
+        startTick = startTick,
+        endTick = endTick,
+    )
+}
+
 @Serializable
 public data class VfxRigYaml(
     public val id: String,

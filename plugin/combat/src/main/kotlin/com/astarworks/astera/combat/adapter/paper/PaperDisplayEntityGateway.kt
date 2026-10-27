@@ -138,10 +138,11 @@ public class PaperDisplayEntityGateway(
                     it.setItemStack(head)
                     it.itemDisplayTransform = ItemDisplay.ItemDisplayTransform.NONE
                     configure(it, spec)
-                    it.brightness = Display.Brightness(SkinRigMarker.BLOCK_LIGHT, SkinRigMarker.skyPayload(kind.bone, kind.slim))
-                    // The hidden player's shadow disappears with them; the body display stands in for it (vanilla 0.5 / 1.0).
-                    it.shadowRadius = if (kind.bone == SkinRigBone.BODY) SHADOW_RADIUS else 0f
-                    it.shadowStrength = if (kind.bone == SkinRigBone.BODY) 1.0f else 0f
+                    it.brightness = Display.Brightness(SkinRigMarker.BLOCK_LIGHT, SkinRigMarker.skyPayload(kind.bone, kind.slim, kind.ghost))
+                    // The hidden player's shadow disappears with them; the body display stands in for it (vanilla 0.5 / 1.0). A ghost casts none.
+                    val shadow = kind.bone == SkinRigBone.BODY && !kind.ghost
+                    it.shadowRadius = if (shadow) SHADOW_RADIUS else 0f
+                    it.shadowStrength = if (shadow) 1.0f else 0f
                 }
             }
             DisplayKind.AnchorMainHand -> {

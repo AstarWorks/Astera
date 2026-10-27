@@ -39,6 +39,12 @@
                 "$ref": "#/definitions/com.astarworks.astera.core.application.config.VfxRigYaml"
             }
         },
+        "ghost_bodies": {
+            "type": "array",
+            "items": {
+                "$ref": "#/definitions/com.astarworks.astera.core.application.config.VfxGhostBodyYaml"
+            }
+        },
         "target_reference": {
             "type": "array",
             "items": {
@@ -545,6 +551,41 @@
             },
             "required": [
                 "curve"
+            ]
+        },
+        "com.astarworks.astera.core.application.config.VfxGhostBodyYaml": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "animation": {
+                    "type": "string"
+                },
+                "tint": {
+                    "type": "string"
+                },
+                "opacity": {
+                    "type": "number"
+                },
+                "offset": {
+                    "type": "array",
+                    "items": {
+                        "type": "number"
+                    }
+                },
+                "delay_ticks": {
+                    "type": "integer"
+                },
+                "start_tick": {
+                    "type": "integer"
+                },
+                "end_tick": {
+                    "type": "integer"
+                }
+            },
+            "required": [
+                "id"
             ]
         },
         "com.astarworks.astera.core.application.config.VfxGroupKeyframeYaml": {

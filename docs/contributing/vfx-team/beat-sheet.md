@@ -15,8 +15,11 @@ About 30 rounds of bastion-greatsword S1 failed for the same reason: the referen
                   (b) fact check: a second fresh reviewer sees reference + sheet and lists every disagreement
 3. Founder gate 1 the sheet + top-down / side / front stick figures on the skill-compare page; approval FREEZES this version
 4. Build          one author end to end; each commit goes live on dev (make dev-content / dev-pack / dev-plugins) with the reload verified
-5. Capture        side, front, back, TOP-DOWN (mandatory), 45 deg high, eye height, via the real player path; skippedTicks = 0
-6. Visual review  a fresh reviewer (new every round) marks every sheet row ○ / × with evidence
+5. Capture        side, front, back, TOP-DOWN (mandatory), 45 deg high, eye height, via the real player path; skippedTicks = 0;
+                  enemy at the intent distance, caster framing within 0.5x-2x of the reference
+5b. Round gate    round note (round-template.md): compare sheet ref | this | previous from the API, trace cast+N, framing,
+                  tool fidelity, "weaker than previous: none"; `make round-gate` must PASS before any reviewer
+6. Visual review  a fresh reviewer (new every round): whole impression, regression vs previous, then every sheet row ○ / × with evidence
 7. Founder gate 2 in game, on dev. Final.
 ```
 
@@ -26,7 +29,7 @@ Do not start step 4 until step 2 passes and gate 1 is approved. Lint (`make skil
 
 ## Reference frame quality (founder 2026-10-27)
 
-`tools/skill-compare/scripts/prepare.mjs` now extracts the reference at the source's native resolution (capped at 1080p, jpg q2) from a yt-dlp download of up to 1080p. Rotation direction, contact timing and blade detail must be judged from **full-resolution single frames or zoomed crops** of those frames (`tools/skill-compare/cache/<case>/frames/frame_NNNNN.jpg`). Never judge them from downscaled contact sheets or strips alone: a 6-up sheet is about 480 px per frame and hides exactly the detail (blade edge, hand grip, foot contact) the beat sheet is supposed to record. Sheets are fine to find the frame; the cell evidence cites the full-resolution frame number.
+`tools/skill-compare/scripts/prepare.mjs` now extracts the reference at the source stream's native resolution and fps as lossless PNG from the best yt-dlp stream (YouTube offers 1080p at most for every reference video; no 1440p/4K/60 fps exists). Rotation direction, contact timing and blade detail must be judged from **full-resolution single frames or zoomed crops** of those frames (`tools/skill-compare/cache/<case>/frames/frame_NNNNN.jpg`). Never judge them from downscaled contact sheets or strips alone: a 6-up sheet is about 480 px per frame and hides exactly the detail (blade edge, hand grip, foot contact) the beat sheet is supposed to record. Sheets are fine to find the frame; the cell evidence cites the full-resolution frame number.
 
 ## Template
 

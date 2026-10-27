@@ -9,9 +9,7 @@ ROOT="$(cd "$HERE/../.." && pwd -P)"
 ARG="${1:-${ANIM:-anim-demo-sword-swing}}"
 set --
 ANIM_ID="$(sed -nE 's/^[[:space:]]*animation:[[:space:]]*"?([a-z0-9-]+)"?.*/\1/p' "$ROOT/content/skills/$ARG.yaml" | head -1)"
-[ -n "$ANIM_ID" ] || { echo "skill $ARG has no animation" >&2; exit 2; }
-ANIM_FILE="$ROOT/content/animations/$ANIM_ID.yaml"
-LENGTH="$(sed -nE 's/^length_ticks:[[:space:]]*([0-9]+).*/\1/p' "$ANIM_FILE" | head -1)"
+if [ -n "$ANIM_ID" ]; then LENGTH="$(sed -nE 's/^length_ticks:[[:space:]]*([0-9]+).*/\1/p' "$ROOT/content/animations/$ANIM_ID.yaml" | head -1)"; else LENGTH="${SHOT_LENGTH:-100}"; fi   # a skill without play_animation: SHOT_LENGTH ticks
 SKILL="$ARG"; ITEM="${ITEM:-bastion-greatsword}"; VIEW=side; VFX_SHOT_SOURCED=1
 # shellcheck source=vfx-shot.sh
 . "$HERE/vfx-shot.sh"
@@ -55,7 +53,7 @@ rec() {
 # sheet <dir> <out.png>: contact sheet, one tile per 2 ticks, labelled with the frame number.
 sheet() {
   local d="$1" out="$2" files=() t f
-  for t in $(seq 4 2 28); do
+  for t in $(seq "${SHEET_FROM:-4}" "${SHEET_STEP:-2}" "${SHEET_TO:-28}"); do
     f="$d/$(printf 'frame_%03d.png' "$t")"; [ -f "$f" ] && files+=(-label "$t" "$f")
   done
   montage "${files[@]}" -tile 4x -geometry 640x360+4+4 "$out" 2>/dev/null || log "WARN: montage failed for $d"

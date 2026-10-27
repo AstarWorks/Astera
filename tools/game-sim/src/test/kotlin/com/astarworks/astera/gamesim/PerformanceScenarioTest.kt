@@ -92,6 +92,29 @@ class PerformanceScenarioTest {
     }
 
     @Test
+    fun `the ghost body afterimage shows six decorative bones on skill ticks 63 to 70 and never takes the lease`() {
+        scenario("performance-ghost-body") {
+            val caster = player("caster", team = "red")
+            val probe = PerformanceProbe(sim, caster)
+            val castTick = sim.tick
+            caster.cast("couture-rapier-s2")
+            fun ghosts() = sim.displays.active.values.filter { (it.spec.kind as? DisplayKind.SkinBone)?.ghost == true }
+            repeat(80) {
+                val skillTick = sim.tick - castTick
+                val expected = if (skillTick in 63..69) 6 else 0
+                assertThat(ghosts()).describedAs("ghost bones at skill tick $skillTick").hasSize(expected)
+                // the afterimage never adds a weapon, never changes who holds the lease
+                assertOneWeapon(probe, "skill tick $skillTick")
+                advance(1)
+            }
+            val all = sim.displays.spawned.filter { (it.spec.kind as? DisplayKind.SkinBone)?.ghost == true }
+            assertThat(all).hasSize(6)
+            assertThat(all.map { it.tick - castTick }.toSet()).containsExactly(63L)
+            assertThat(all.map { (it.spec.kind as DisplayKind.SkinBone).bone }.toSet()).hasSize(6)
+        }
+    }
+
+    @Test
     fun `an interrupting cast replaces the performance with no tick of zero or two weapons`() {
         scenario("performance-interrupted") {
             val caster = player("caster", team = "red")

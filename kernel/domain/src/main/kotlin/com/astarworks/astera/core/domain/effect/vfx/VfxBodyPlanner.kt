@@ -41,7 +41,7 @@ public object VfxBodyPlanner {
             }
         }
         val last = def.durationTicks - motion.base
-        val schedule = schedule(motion, track, last, despawn)
+        val schedule = schedule(motion, last, despawn) { track?.isSnap(it) == true || motion.isSwingStep(it) }
 
         val out = ArrayList<VfxElementPlan>()
         if (track != null) {
@@ -75,11 +75,11 @@ public object VfxBodyPlanner {
     }
 
     /** Which rig ticks are sent when: normal ticks one tick ahead with interpolation 1, cuts on arrival with 0. */
-    private fun schedule(motion: VfxRigMotion, track: VfxBodyTrack?, last: Int, despawn: Int): List<Step> {
+    private fun schedule(motion: VfxRigMotion, last: Int, despawn: Int, isCut: (Int) -> Boolean): List<Step> {
         val out = ArrayList<Step>()
         var lastTick = motion.base - 1
         for (l in 1..last) {
-            val cut = track?.isSnap(l) == true || motion.isSwingStep(l)
+            val cut = isCut(l)
             var tick = if (cut) motion.effectTickEnd(l) else motion.effectTickStart(l - 1)
             var interpolation = if (cut) 0 else 1
             if (tick <= lastTick) {
@@ -103,11 +103,17 @@ public object VfxBodyPlanner {
         schedule: List<Step>,
         pose: (Int) -> Pose,
     ): VfxElementPlan {
-        val initial = pose(0)
+        var initial = pose(0)
         var previous = initial
         val updates = ArrayList<VfxUpdate>()
         for (step in schedule) {
             val next = pose(step.rigTick)
+            if (step.tick <= spawn) {
+                // A step that lands at or before this element's spawn is part of its initial pose (a ghost may spawn mid-clip).
+                initial = next
+                previous = next
+                continue
+            }
             if (!next.differs(previous)) continue
             updates += VfxUpdate(step.tick, next.transform(), step.interpolation)
             previous = next
@@ -142,9 +148,36 @@ public object VfxBodyPlanner {
         return copy(updates = (updates + swaps).sortedBy { it.tick })
     }
 
+    /**
+     * ADR-0284: the six bones of [ghost] as visual-only [VfxElementPlan]s. They follow the performance clock of [motion] but sample
+     * the body [VfxGhostBody.delayTicks] rig ticks late, shifted by [VfxGhostBody.offset] in the effect frame. No weapon, no lease.
+     */
+    public fun planGhost(def: VfxDefinition, ghost: VfxGhostBody, motion: VfxRigMotion, track: VfxBodyTrack): List<VfxElementPlan> {
+        val spawn = ghost.startTick
+        val despawn = minOf(def.durationTicks, ghost.endTick ?: def.durationTicks)
+        val last = def.durationTicks - motion.base
+        val delay = ghost.delayTicks
+        val schedule = schedule(motion, last, despawn) { track.isSnap(it - delay) }
+        val shift = motion.anchorRot.rotate(ghost.offset * motion.scale)
+        return SkinRigBone.entries.map { bone ->
+            element(
+                id = "${ghost.id}.${bone.yamlName}",
+                kind = VfxElementKind.SkinBone(bone, track.body.slim, ghost = true),
+                spawn = spawn, despawn = despawn, last = last, schedule = schedule,
+            ) { l ->
+                val t = track.at(maxOf(0, l - delay)).transforms.bones.getValue(bone)
+                Pose(
+                    motion.anchorRot.rotate(Vec3(t.translation.x, t.translation.y, t.translation.z) * motion.scale) + shift,
+                    motion.anchorRot * Quaternion(t.rotation.x, t.rotation.y, t.rotation.z, t.rotation.w),
+                    t.scale * motion.scale,
+                )
+            }
+        }
+    }
+
     /** Ticks on which at least one performance element jumps (interpolation 0): the runtime sends them as one bundle. */
     public fun cutTicks(elements: List<VfxElementPlan>): Set<Int> = elements
-        .filter { it.kind is VfxElementKind.SkinBone || it.kind is VfxElementKind.MainHandWeapon }
+        .filter { (it.kind as? VfxElementKind.SkinBone)?.ghost != true && (it.kind is VfxElementKind.SkinBone || it.kind is VfxElementKind.MainHandWeapon) }
         .flatMap { e -> e.updates.filter { it.interpolationTicks == 0 && !it.keepTransform }.map { it.tick } }
         .toSet()
 }

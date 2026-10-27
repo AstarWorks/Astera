@@ -346,6 +346,11 @@ skill-round: ## Publish the director's round notes (tools/skill-compare/data/<ca
 	@test -n "$(SKILL)" || { echo "usage: make skill-round SKILL=<skill-id> [FILE=<round.md>]"; exit 2; }
 	node tools/skill-compare/scripts/publish-round.mjs "$(SKILL)" $(FILE)
 
+.PHONY: round-gate
+round-gate: ## A build round is finished only if its round note has the mandatory facts (compare sheet from the API, trace cast+N, framing, fidelity, "weaker than previous: none"); exit 1 otherwise: make round-gate SKILL=<skill-id> [FILE=<round.md>] [CASE=<case>] [STAGE=manager]
+	@test -n "$(SKILL)" || { echo "usage: make round-gate SKILL=<skill-id> [FILE=<round.md>] [CASE=<case>] [STAGE=author|manager]"; exit 2; }
+	python3 tools/skill-lint/round_gate.py "$(SKILL)" $(if $(FILE),--file "$(FILE)") $(if $(CASE),--case "$(CASE)") $(if $(STAGE),--stage "$(STAGE)")
+
 .PHONY: arena-preview
 arena-preview: ## Render every stage to build/arena-previews/ and measure generation/routing
 	$(GRADLEW) :tools:arena-preview:run

@@ -4,7 +4,7 @@ Process for any Astera skill, weapon effect or ambient VFX (founder 2026-10-24: 
 
 Why the old 7-role split is gone: sword, VFX, particles, sound and body were owned by different agents, so a rig change left stale rings and particles behind, sound was never in sync with the blade, regen scripts went stale and nobody owned the whole skill. Specialist **knowledge** stays as reference docs; ownership does not.
 
-Art rules: [vfx-art-direction.md](../vfx-art-direction.md). Acceptance rows: [limbus-skill-reproduction.md](../limbus-skill-reproduction.md).
+Art rules: [vfx-art-direction.md](../vfx-art-direction.md). Acceptance rows: [limbus-skill-reproduction.md](../limbus-skill-reproduction.md). Round note template + gate: [round-template.md](round-template.md) / `make round-gate`. Why the round gate exists (S3 r1-r6): [retro-2026-10-27.md](retro-2026-10-27.md).
 
 ## Roles
 
@@ -30,9 +30,10 @@ A round means "through dev": a change that is not live on dev does not count as 
 | 2 | Two checks | fresh reviewers | (a) sheet only -> reverse read; (b) reference + sheet -> fact check | counts, directions, reversals and contact ticks agree; disputes settled from the reference or marked unknown; max 2 rounds | - |
 | 3 | **Gate 1** | founder | sheet + figures + reference GIF on the page | approved; the approved version is frozen; an x is recorded in sheet vocabulary and returns to 1 (max 2 rounds, then one question) | page |
 | 4 | Build | author | sheet -> sword keys -> VFX -> particles -> sound -> body. After every commit: `make skill-lint` (preflight), then `make dev-content` (or dev-pack / dev-plugins) | lint green; the dev command printed reload success and the skill id is live; the author self-checks sheet rows (self-scores are not submitted) | dev (shootable at any time) |
-| 5 | Capture | author (tools) | same sha as dev; side, top, front, back (+ eye), tick-stepped | `skippedTicks = 0`, every frame stamp read, opponent alive, sha equals dev; otherwise invalid and not published | - |
-| 6 | Judge | fresh reviewer | reference vs capture + sheet -> ○/× per row with evidence and a top-down arrow figure; sound is "not listened" | all rows ○, or 2 rounds elapsed | - |
-| 7 | Inspect | manager | opens the page, looks at side and top -> 10-line Japanese report, A/B sound files | can name the one point to look at | - |
+| 5 | Capture | author (tools) | same sha as dev; side, top, front, back (+ eye), tick-stepped; enemy at the case intent distance | `skippedTicks = 0`, every frame stamp read, opponent alive, sha equals dev, caster bbox within 0.5x-2x of the reference at the key ticks; otherwise invalid and not published | - |
+| 5b | **Round gate** | author | compare sheet `ref | this | previous` from the compare API + `[vfx-trace]` numbers -> [round note](round-template.md); the author looks at its own sheet before anyone else | `make round-gate SKILL=<s>` PASS: trace quoted for every vfx id, framing in tolerance, every mechanic type has a fidelity line, `weaker than previous: none` | page (round notes) |
+| 6 | Judge | fresh reviewer | compare sheet + reference + frozen sheet -> (1) whole-impression verdict, (2) regression verdict vs previous round, (3) ○/× per row with evidence and a top-down arrow figure; sound is "not listened"; `review.json` `reviewer.overall` / `reviewer.regression` | overall ok, regression none, all rows ○, or 2 rounds elapsed | - |
+| 7 | Inspect | manager | checklist: opened the compare sheet on the page, compared with the previous round, `make round-gate STAGE=manager` PASS, dev sha = page sha -> 10-line Japanese report quoting "one point to look at" | every checklist item true; a round that fails one is not reported | - |
 | 8 | **Gate 2** | founder | shoots it on dev in game, listens to the sound | approved; an x becomes a sheet-vocabulary row and returns to 4; after 2 rounds one question. **In game is final** | in game (+ the page) |
 
 Rules of the process:
@@ -40,6 +41,10 @@ Rules of the process:
 - **Gate 1 on the page, gate 2 in game.** The skill-compare page is the only place a table, arrow figure, capture or A/B exists; if it is not on the page, it does not exist. A reviewer all-○ is never done; the founder in game decides.
 - **Every fix is live on dev with the reload verified** in the same round. A fix on an unmerged branch is not reported. A failing `make dev-content` stops all other work until fixed. An aborted reload (for example a negative particle speed) is an error reported to the manager at once. The manager notes when the dev sha and the page sha differ ("not applied").
 - **Lint is a preflight of 4 invariants only** (one sword, both hands on the grip, feet on the floor, display budget). The author never defines or scores quality targets; luma, ink %, coverage and particle counts are not acceptance evidence. Quality is the sheet's ○/× only.
+- **Facts come from tools, quality from eyes** ([retro-2026-10-27.md](retro-2026-10-27.md)). Timing (`cast+N` of every play and spawn), travel (caster position per tick) and framing (caster bbox share) are read from the `[vfx-trace]` server log and the compare API, never estimated from frame labels or pixels. A timing or distance change in content is allowed only when the trace disagrees with the plan. Self-authored quality numbers stay forbidden; tool-measured facts are mandatory.
+- **Never weaker than the previous round.** Every round shows `ref | this | previous` at the key ticks from one camera and states `weaker than previous: none`. Anything weaker is a × of the round even when its sheet row is ○; the fix is to restore, not to argue. The reviewer's first two outputs are the whole-impression verdict and the regression verdict; rows come third.
+- **A capture is review-valid only with reference framing.** The caster's bounding-box share of the frame at the key ticks must be within 0.5x-2x of the reference's; a far wide-angle side view (caster at 1/40 of the frame) or a 2x-too-close preview is not evidence. The enemy stands at the case intent distance (`DISTANCE=`), never the tool default.
+- **Tool fidelity before judgement.** Every round lists each mechanic type of the skill (`screen_flash`, `send_title`, `camera_shake`, particles, sprites, sound) as `shown (view tick)` or `not shown -> gate 2`. Nobody judges an effect the capture cannot show (spectator sees no titles; the preview draws world-space fx full-screen); it is checked by the founder in game.
 - **Sound passes only by a listener**, never by feature numbers: in-client recording plus A/B listening ([sound.md](sound.md)). Sound events are sheet columns from step 1 and go on dev in the same round as the sword.
 - **A capture with skipped ticks is invalid.** It is not judged and not published; it is an infra issue for the runtime worker, not a content round. A 60 fps container full of duplicated frames is not coverage. Preview renderers are for work in progress only; pass/fail is the real client.
 - **One sword per cast**, continuous keys from spawn to despawn. Rings, trails and tangent particles derive from the blade-tip plane; a mismatch is fixed by fixing the sword, never by offsetting the VFX.
@@ -58,7 +63,8 @@ Rules of the process:
 | Brief sheet / pairs | `build/brief/<case>/`, `build/pairs/<case>.png` (`make skill-brief`, `make skill-pairs`) | any | reviewer, author |
 | Capture | `build/vfx-shot/<skill>/<view>/` (`meta.json` provenance, `skippedTicks`) | author | reviewer |
 | Published capture | `build/skill-compare-published/<skill>/<view>/current.json` | author | reviewer, founder |
-| Review marks | reviewer report: every sheet row ○/× with evidence | fresh reviewer | author, manager |
+| Round note + compare sheet | `tools/skill-compare/data/<case>/round.md` (+ `compare/sheet.png`, `compare/compare.json` from `/api/cases/<id>/compare`); template [round-template.md](round-template.md); checked by `make round-gate` | author | reviewer, manager, founder |
+| Review marks | reviewer report + `review.json` `reviewer.overall` / `reviewer.regression` / per-row marks | fresh reviewer | author, manager |
 | Founder approval | weapon REPORT: date + dev sha; rejection comments become sheet rows | manager | author, reviewer |
 | Learnings | `## Learnings log` of each knowledge doc | author | next skill |
 
@@ -66,7 +72,7 @@ Rules of the process:
 
 ## Real-client capture (2026-10-26)
 
-Process step 5 needs the views `side`, `front`, `back`, `top`, `high`, `caster`. `top` (camera straight above the caster, forward at the top of the image) is mandatory because it is the only view that shows rotation direction; a review without it is invalid. Skill captures may not have a `top` view in `tools/vfx-shot` yet (the animation mode `anim-shot.sh` does): until it exists the author raises it to the manager as an infra request for the runtime worker and does not substitute another view.
+Process step 5 needs the views `side`, `front`, `back`, `top`, `high`, `caster`. `top` (camera straight above the caster, forward at the top of the image) is mandatory because it is the only view that shows rotation direction; a review without it is invalid. Side / top views place the enemy at `DISTANCE` (tool default 4): pass the case intent distance explicitly (S3: `DISTANCE=7.2`) or the dash stops short and every travel reading is wrong. Review views must also match the reference framing (caster bbox share within 0.5x-2x; `FOV_DOLLY`, see the vfx-shot README): a capture outside that is not review-valid.
 
 `make vfx-shot` boots an `astera-shot-<id>` stack (server + pack host) and headless clients (~2.5 GB each, server ~2.5 GB), films, and
 **tears everything down when it exits** (success, error, Ctrl-C, TERM/HUP, its caller dying). Runs are serialized host-wide; with `SHOT_KEEP=1`
@@ -126,7 +132,7 @@ Knobs: `FARM_VIEWS` (`side,top`; filmed and published one view at a time, side f
 - No push (the manager pushes), no unit tests, no gradle `check`; commit trailer `Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>`.
 - Real-client capture: see "Real-client capture" above; never wrap it in the e2e flock. All captures on the host queue on the vfx-shot slot lock; each run tears its stack down on exit unless `SHOT_KEEP=1` (bounded by `SHOT_KEEP_TTL`).
 - No paid services (founder). The `generate-sounds` skill uses paid fal.ai and is not used here; CC0 recorded sources with provenance are allowed, game audio is never shipped or derived; see [sound.md](sound.md).
-- Only one weapon may be visible during a skill (mechanic `hide_held_item`; see [director.md](director.md) for where it lives).
+- Only one weapon may be visible during a skill (mechanic `hide_held_item`, on main; `content/skills/bastion-greatsword-s2.yaml` is an example).
 
 ## Confirmed runtime facts and rejected looks
 
