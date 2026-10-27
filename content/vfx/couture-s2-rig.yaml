@@ -31,7 +31,7 @@ elements:
   kind: {type: item, item: shears, item_model: 'astera:couture-rapier', display_mode: fixed}
   brightness: 15
   start_tick: 22
-  end_tick: 58
+  end_tick: 46
   keyframes:
   - t: 0
     translate: [0.0, 1.5, 0.6]
@@ -330,3 +330,26 @@ elements:
     translate: [0.0, 3.1, -0.5]
     rotate: [0, 0, 480]
     scale: [0.1, 0.45, 1]
+- id: linked-shears
+  kind: {type: item, item: shears, item_model: 'astera:couture-shears-linked', display_mode: fixed}
+  brightness: 8
+  start_tick: 46
+  end_tick: 62
+  keyframes:
+  - t: 0
+    translate: [0.0, 2.0, 3.2]
+    rotate: [0, 0, -111]
+    scale: [0.4, 0.4, 0.4]
+  - t: 1
+    translate: [0.0, 2.0, 3.2]
+    rotate: [0, 0, -111]
+    scale: [1.5, 1.5, 1.5]
+    ease: out_expo
+  - t: 14
+    translate: [0.0, 2.0, 3.2]
+    rotate: [0, 0, -111]
+    scale: [1.5, 1.5, 1.5]
+  - t: 16
+    translate: [0.0, 2.0, 3.2]
+    rotate: [0, 0, -111]
+    scale: [0.9, 0.9, 0.9]
