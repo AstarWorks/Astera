@@ -228,7 +228,7 @@ elements:
   billboard: center
   brightness: 15
   start_tick: 0
-  end_tick: 10
+  end_tick: 8
   keyframes:
   - t: 0
     translate: [0.0, 1.0, -0.2]
@@ -241,16 +241,22 @@ elements:
     scale: [0.8, 0.62, 1]
     ease: out_expo
     alpha: 1.0
-  - t: 5
-    translate: [0.0, 1.0, 1.1]
-    rotate: [0, 0, 184]
-    scale: [0.76, 0.66, 1]
+  - t: 4
+    translate: [0.0, 1.0, 0.3]
+    rotate: [0, 0, 186]
+    scale: [0.74, 0.62, 1]
     ease: out_quad
     alpha: 0.9
-  - t: 9
-    translate: [0.0, 1.0, 1.6]
-    rotate: [0, 0, 180]
-    scale: [0.3, 0.66, 1]
+  - t: 6
+    translate: [0.0, 1.0, -1.1]
+    rotate: [0, 0, 176]
+    scale: [0.16, 0.5, 1]
+    ease: in_quad
+    alpha: 0.3
+  - t: 7
+    translate: [0.0, 1.0, -1.5]
+    rotate: [0, 0, 174]
+    scale: [0.06, 0.4, 1]
     ease: in_quad
     alpha: 0.0
 - id: petal-0
