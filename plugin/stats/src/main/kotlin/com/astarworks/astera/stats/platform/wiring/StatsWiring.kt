@@ -636,6 +636,17 @@ public object StatsWiring {
             com.astarworks.astera.stats.application.progress.ProgressMenu.INTENT_PREFIX,
         ) { intent, player -> progressMenu.handle(intent, player) }
 
+        // Main-menu "last match result" tile (`stats.last`).
+        val lastMatchHandler = com.astarworks.astera.stats.application.progress.LastMatchIntentHandler(
+            lastMatches = { services.get<com.astarworks.astera.core.application.port.outbound.ILastMatchStore>() },
+            guiAdapter = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IGuiAdapter>(),
+            messages = messages,
+            playerGateway = playerGateway,
+        )
+        registrations += services.getOrThrow<com.astarworks.astera.core.application.port.inbound.IGuiIntentRouter>().register(
+            com.astarworks.astera.stats.application.progress.LastMatchIntentHandler.INTENT,
+        ) { intent, player -> lastMatchHandler.handle(intent, player) }
+
         // 7. `/astera stats show|leaderboard|xp grant` (ADR-0184).
         com.astarworks.astera.stats.command.StatsCommands(
             grantXp = grantXp,

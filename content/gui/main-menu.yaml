@@ -6,9 +6,9 @@
 #
 # Row 0 (slots 0..8): ops-only Admin (0) and Item catalog (8) via `visible_if: permission:astera.admin.panel`
 #   (ADR-0240), and "Leave queue" (4), shown only while the viewer waits in a queue (`visible_if: state:queued`, ADR-0248).
-# Row 1 (slots 10..17): Play (ADR-0248, the first and most prominent tile), Shop, Vault, Travel, Training, Profile, Settings,
-#   Cosmetics (UI-08; the same screen the profile card's button opens).
-# Row 2 (slots 19..23): Party, Friends, Achievements, Daily/Quests, Help.
+# Row 1 (slots 10..16) "start here and earn": Help (10), Training (11), Daily/Quests (12), PLAY (13: the centre of the menu,
+#   tooltip marked "start here", ADR-0248), Shop (14), Vault (15), Cosmetics (16, UI-08).
+# Row 2 (slots 19..24) "people and settings": Party, Friends, Achievements, Profile, Travel, Settings.
 #
 # Item ids are `gui-tile-*` (content/items/); the texture pack supplies the visuals.
 id: main-menu
@@ -24,6 +24,7 @@ slots:
       key: admin.hub.open
     tooltip:
       - astera.gui.main-menu.admin.tooltip
+
   - type: static
     index: 4
     item: gui-tile-leave-queue
@@ -32,6 +33,7 @@ slots:
       key: lobby.queue.leave
     tooltip:
       - astera.gui.main-menu.leave-queue.tooltip
+
   - type: static
     index: 8
     item: gui-tile-item-catalog
@@ -44,61 +46,69 @@ slots:
 
   - type: static
     index: 10
-    item: gui-tile-queue
+    item: gui-tile-help
     on_left:
-      key: lobby.queue.show
+      key: lobby.hint.show
+      payload: { topic: help }
     tooltip:
-      - astera.gui.main-menu.queue.tooltip
+      - astera.gui.main-menu.help.tooltip
+
   - type: static
     index: 11
-    item: gui-tile-shop
-    on_left:
-      key: lobby.shop.open
-    tooltip:
-      - astera.gui.main-menu.shop.tooltip
-  - type: static
-    index: 12
-    item: gui-tile-vault
-    on_left:
-      key: lobby.vault.open
-    tooltip:
-      - astera.gui.main-menu.vault.tooltip
-  - type: static
-    index: 13
-    item: gui-tile-travel
-    on_left:
-      key: lobby.travel.show
-    tooltip:
-      - astera.gui.main-menu.travel.tooltip
-  - type: static
-    index: 14
     item: gui-tile-training
     on_left:
       key: lobby.training.travel
     tooltip:
       - astera.gui.main-menu.training.tooltip
+
+  - type: static
+    index: 12
+    item: gui-tile-quests
+    on_left:
+      key: progress.open
+    tooltip:
+      - astera.gui.main-menu.quests.tooltip
+
+  - type: static
+    index: 13
+    item: gui-tile-queue
+    on_left:
+      key: lobby.queue.show
+    tooltip:
+      - astera.gui.main-menu.queue.start-here
+      - astera.gui.main-menu.queue.tooltip
+
+  - type: static
+    index: 14
+    item: gui-tile-shop
+    on_left:
+      key: lobby.shop.open
+    tooltip:
+      - astera.gui.main-menu.shop.tooltip
+
   - type: static
     index: 15
-    item: gui-tile-profile
+    item: gui-tile-vault
     on_left:
-      key: lobby.profile.show
+      key: lobby.vault.open
     tooltip:
-      - astera.gui.main-menu.profile.tooltip
+      - astera.gui.main-menu.vault.tooltip
+
   - type: static
     index: 16
-    item: gui-tile-settings
-    on_left:
-      key: gui.open
-      payload: { gui: settings }
-    tooltip:
-      - astera.gui.main-menu.settings.tooltip
-  - type: static
-    index: 17
     item: gui-tile-cosmetics
     on_left:
       key: cosmetic.open
     tooltip:
       - astera.menu.cosmetics.tooltip
+
+  - type: static
+    index: 17
+    item: gui-tile-last-result
+    on_left:
+      key: stats.last
+    tooltip:
+      - astera.gui.main-menu.last-result.tooltip
 
   - type: static
     index: 19
@@ -107,6 +117,7 @@ slots:
       key: lobby.party.show
     tooltip:
       - astera.gui.main-menu.party.tooltip
+
   - type: static
     index: 20
     item: gui-tile-friends
@@ -114,6 +125,7 @@ slots:
       key: lobby.friends.show
     tooltip:
       - astera.gui.main-menu.friends.tooltip
+
   - type: static
     index: 21
     item: gui-tile-achievements
@@ -121,18 +133,28 @@ slots:
       key: lobby.achievement.show
     tooltip:
       - astera.gui.main-menu.achievements.tooltip
+
   - type: static
     index: 22
-    item: gui-tile-quests
+    item: gui-tile-profile
     on_left:
-      key: progress.open
+      key: lobby.profile.show
     tooltip:
-      - astera.gui.main-menu.quests.tooltip
+      - astera.gui.main-menu.profile.tooltip
+
   - type: static
     index: 23
-    item: gui-tile-help
+    item: gui-tile-travel
     on_left:
-      key: lobby.hint.show
-      payload: { topic: help }
+      key: lobby.travel.show
     tooltip:
-      - astera.gui.main-menu.help.tooltip
+      - astera.gui.main-menu.travel.tooltip
+
+  - type: static
+    index: 24
+    item: gui-tile-settings
+    on_left:
+      key: gui.open
+      payload: { gui: settings }
+    tooltip:
+      - astera.gui.main-menu.settings.tooltip

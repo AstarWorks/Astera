@@ -88,6 +88,7 @@ public class LobbyQueueIntentHandler(
             name = GuiText(known(MessageKey("astera.gamemode.${lane.key}.title"))
                 ?: MessageKey("astera.play.lane.generic.name"), mapOf("lane" to LobbyLanePadLayout.displayName(lane.key))),
             description = GuiText(known(MessageKey("astera.play.lane.${lane.key}.desc")) ?: MessageKey("astera.play.lane.generic.desc")),
+            detail = known(MessageKey("astera.play.lane.${lane.key}.detail"))?.let { GuiText(it) },
             laneLabel = LobbyLanePadLayout.displayName(lane.key),
             teams = lane.teams,
             playersPerTeam = lane.playersPerTeam,
