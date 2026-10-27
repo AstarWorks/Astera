@@ -1,4 +1,5 @@
 # Bastion S3 beat 11 (video n99-132, pillar peak t66-68): THICK vertical gold light pillar (bastion-s3-pillar: dark rim + gold + white core, 0.9 block wide, 4.6 high, 2 crossing front+back plane pairs) rising at the planted sword (1.4 forward), horizontal cross bar (bastion-s3-bar, 4 planes), radial jagged lightning spikes (bastion-s3-spikes, 2 sizes), then electric gold floor sparks until ~t84.
+# r4: spikes = straight BLADE triangles (dark edge, gold core, 9 per frame, 1.5-3 blocks at scale 1, base >= 0.45 block), bar 5.6 x 0.75 block hexagon blade, pillar 1.28 block wide with dark slivers; same 9 peak displays.
 # r3: bar = 1 crisp center-billboard bastion-s3-pillar-bar (4+ blocks wide, y 1.4); spikes = bastion-s3-pillar-spikes (UP/outward from the base, 2 sprites); floor electricity = bastion-s3-pillar-crackle (ticks 8-24 = t71-87, 4 frames dense -> sparse) + spark particles to tick 24. Peak displays: 4 pillar + 1 bar + 2 spikes + root flash + crackle = 9.
 # Played at skill tick 63: the pillar rises at effect ticks 2-4 (t65-67), holds to tick 10 (t73), narrows out by 13 (t76); bar to tick 7, spikes ticks 2-8; floor sparks end at tick 21.
 # Display budget: peak 11 sprite displays (4 pillar planes, 4 bar, 2 spikes, 1 root flash), the rest vanilla particles.
@@ -22,12 +23,12 @@ elements:
   - t: 2
     translate: [0, 2.3, 1.4]
     rotate: [90, 0, 0]
-    scale: [0.15, 0.72, 1]
+    scale: [0.2, 0.72, 1]
     ease: out_expo
   - t: 10
     translate: [0, 2.3, 1.4]
     rotate: [90, 0, 0]
-    scale: [0.1275, 0.72, 1]
+    scale: [0.17, 0.72, 1]
   - t: 13
     translate: [0, 2.3, 1.4]
     rotate: [90, 0, 0]
@@ -47,12 +48,12 @@ elements:
   - t: 2
     translate: [0, 2.3, 1.4]
     rotate: [-90, 0, 0]
-    scale: [0.15, 0.72, 1]
+    scale: [0.2, 0.72, 1]
     ease: out_expo
   - t: 10
     translate: [0, 2.3, 1.4]
     rotate: [-90, 0, 0]
-    scale: [0.1275, 0.72, 1]
+    scale: [0.17, 0.72, 1]
   - t: 13
     translate: [0, 2.3, 1.4]
     rotate: [-90, 0, 0]
@@ -72,12 +73,12 @@ elements:
   - t: 2
     translate: [0, 2.3, 1.4]
     rotate: [0, 0, 0]
-    scale: [0.15, 0.72, 1]
+    scale: [0.2, 0.72, 1]
     ease: out_expo
   - t: 10
     translate: [0, 2.3, 1.4]
     rotate: [0, 0, 0]
-    scale: [0.1275, 0.72, 1]
+    scale: [0.17, 0.72, 1]
   - t: 13
     translate: [0, 2.3, 1.4]
     rotate: [0, 0, 0]
@@ -97,12 +98,12 @@ elements:
   - t: 2
     translate: [0, 2.3, 1.4]
     rotate: [180, 0, 0]
-    scale: [0.15, 0.72, 1]
+    scale: [0.2, 0.72, 1]
     ease: out_expo
   - t: 10
     translate: [0, 2.3, 1.4]
     rotate: [180, 0, 0]
-    scale: [0.1275, 0.72, 1]
+    scale: [0.17, 0.72, 1]
   - t: 13
     translate: [0, 2.3, 1.4]
     rotate: [180, 0, 0]
@@ -267,20 +268,20 @@ elements:
   - t: 0
     translate: [0, 1.4, 1.4]
     rotate: [0, 0, 0]
-    scale: [0.2, 0.3, 1]
+    scale: [0.3, 0.4, 1]
   - t: 1
     translate: [0, 1.4, 1.4]
     rotate: [0, 0, 0]
-    scale: [0.85, 0.6, 1]
+    scale: [1.0, 1.0, 1]
     ease: out_expo
   - t: 6
     translate: [0, 1.4, 1.4]
     rotate: [0, 0, 0]
-    scale: [0.8, 0.56, 1]
+    scale: [0.95, 0.95, 1]
   - t: 8
     translate: [0, 1.4, 1.4]
     rotate: [0, 0, 0]
-    scale: [0.62, 0.05, 1]
+    scale: [0.7, 0.1, 1]
     ease: in_quad
 - id: s3p-spike-big
   kind: {type: sprite, sprite: bastion-s3-pillar-spikes, frame_ticks: 2, loop: true, see_through: true}
@@ -290,22 +291,22 @@ elements:
   end_tick: 13
   keyframes:
   - t: 0
-    translate: [0, 0.7, 1.4]
+    translate: [0, 0.37, 1.4]
     rotate: [0, 0, 0]
-    scale: [0.4, 0.2, 1]
+    scale: [0.5, 0.1, 1]
   - t: 1
-    translate: [0, 1.663, 1.4]
+    translate: [0, 2.8, 1.4]
     rotate: [0, 0, 0]
-    scale: [1.0, 0.55, 1]
+    scale: [1.0, 1.0, 1]
     ease: out_back
   - t: 7
-    translate: [0, 1.525, 1.4]
+    translate: [0, 2.665, 1.4]
     rotate: [0, 0, 0]
-    scale: [0.95, 0.5, 1]
+    scale: [0.96, 0.95, 1]
   - t: 9
-    translate: [0, 0.838, 1.4]
+    translate: [0, 0.64, 1.4]
     rotate: [0, 0, 0]
-    scale: [0.6, 0.25, 1]
+    scale: [0.7, 0.2, 1]
     ease: in_quad
 - id: s3p-spike-small
   kind: {type: sprite, sprite: bastion-s3-pillar-spikes, frame_ticks: 2, loop: true, see_through: true}
@@ -315,18 +316,18 @@ elements:
   end_tick: 12
   keyframes:
   - t: 0
-    translate: [0.35, 0.562, 1.7]
+    translate: [0.35, 0.37, 1.7]
     rotate: [0, 0, 0]
-    scale: [0.3, 0.15, 1]
+    scale: [0.3, 0.1, 1]
   - t: 1
-    translate: [0.35, 0.975, 1.7]
+    translate: [0.35, 1.774, 1.7]
     rotate: [0, 0, 0]
-    scale: [0.62, 0.3, 1]
+    scale: [0.62, 0.62, 1]
     ease: out_back
   - t: 8
-    translate: [0.35, 0.48, 1.7]
+    translate: [0.35, 0.64, 1.7]
     rotate: [0, 0, 0]
-    scale: [0.3, 0.12, 1]
+    scale: [0.4, 0.2, 1]
     ease: in_quad
 - id: s3p-crackle
   kind: {type: sprite, sprite: bastion-s3-pillar-crackle, frame_ticks: 4, loop: false, see_through: true}

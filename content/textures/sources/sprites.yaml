@@ -44,9 +44,17 @@ sources:
   bastion-s3-pillar-bar: { file: images/bastion-s3-pillar-bar.png }
   bastion-s3-pillar-crackle: { file: images/bastion-s3-pillar-crackle.png }
   bastion-s3-ring-q0: { file: images/bastion-s3-ring-q0.png }
+  bastion-s3-ring2-q0: { file: images/bastion-s3-ring2-q0.png }
+  bastion-s3-ring3-q0: { file: images/bastion-s3-ring3-q0.png }
   bastion-s3-ring-q1: { file: images/bastion-s3-ring-q1.png }
+  bastion-s3-ring2-q1: { file: images/bastion-s3-ring2-q1.png }
+  bastion-s3-ring3-q1: { file: images/bastion-s3-ring3-q1.png }
   bastion-s3-ring-q2: { file: images/bastion-s3-ring-q2.png }
+  bastion-s3-ring2-q2: { file: images/bastion-s3-ring2-q2.png }
+  bastion-s3-ring3-q2: { file: images/bastion-s3-ring3-q2.png }
   bastion-s3-ring-q3: { file: images/bastion-s3-ring-q3.png }
+  bastion-s3-ring2-q3: { file: images/bastion-s3-ring2-q3.png }
+  bastion-s3-ring3-q3: { file: images/bastion-s3-ring3-q3.png }
 
 sprites:
   gossamer-ribbon: { draw: gossamer_ribbon, frames: 4, size: 128, color: "#DDE5F5" }
@@ -116,7 +124,15 @@ sprites:
   bastion-s3-pillar-spikes: { from: bastion-s3-pillar-spikes, raw: true, frames: 2, size: 256 }
   bastion-s3-pillar-bar: { from: bastion-s3-pillar-bar, raw: true, frames: 1, size: 256 }
   bastion-s3-pillar-crackle: { from: bastion-s3-pillar-crackle, raw: true, frames: 4, size: 256 }
-  bastion-s3-ring-q0: { from: bastion-s3-ring-q0, raw: true, frames: 12, size: 256 }
-  bastion-s3-ring-q1: { from: bastion-s3-ring-q1, raw: true, frames: 12, size: 256 }
-  bastion-s3-ring-q2: { from: bastion-s3-ring-q2, raw: true, frames: 12, size: 256 }
-  bastion-s3-ring-q3: { from: bastion-s3-ring-q3, raw: true, frames: 12, size: 256 }
+  bastion-s3-ring-q0: { from: bastion-s3-ring-q0, raw: true, frames: 13, size: 256 }
+  bastion-s3-ring2-q0: { from: bastion-s3-ring2-q0, raw: true, frames: 13, size: 256 }
+  bastion-s3-ring3-q0: { from: bastion-s3-ring3-q0, raw: true, frames: 13, size: 256 }
+  bastion-s3-ring-q1: { from: bastion-s3-ring-q1, raw: true, frames: 13, size: 256 }
+  bastion-s3-ring2-q1: { from: bastion-s3-ring2-q1, raw: true, frames: 13, size: 256 }
+  bastion-s3-ring3-q1: { from: bastion-s3-ring3-q1, raw: true, frames: 13, size: 256 }
+  bastion-s3-ring-q2: { from: bastion-s3-ring-q2, raw: true, frames: 13, size: 256 }
+  bastion-s3-ring2-q2: { from: bastion-s3-ring2-q2, raw: true, frames: 13, size: 256 }
+  bastion-s3-ring3-q2: { from: bastion-s3-ring3-q2, raw: true, frames: 13, size: 256 }
+  bastion-s3-ring-q3: { from: bastion-s3-ring-q3, raw: true, frames: 13, size: 256 }
+  bastion-s3-ring2-q3: { from: bastion-s3-ring2-q3, raw: true, frames: 13, size: 256 }
+  bastion-s3-ring3-q3: { from: bastion-s3-ring3-q3, raw: true, frames: 13, size: 256 }

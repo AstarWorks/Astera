@@ -118,119 +118,91 @@ elements:
   billboard: center
   brightness: 15
   start_tick: 22
-  end_tick: 27
+  end_tick: 38
   keyframes:
   - t: 0
-    translate: [0.0, 4.6, 0.3]
+    translate: [0.0, 3.6999999999999997, 0.2]
     rotate: [0, 0, 0]
-    scale: [0.9, 0.9, 1]
+    scale: [0.275, 0.275, 1]
   - t: 5
-    translate: [0.0, 4.8, 0.3]
-    rotate: [0, 0, 120]
-    scale: [1.2, 1.2, 1]
+    translate: [0.0, 3.8, 0.2]
+    rotate: [0, 0, 100]
+    scale: [0.33, 0.33, 1]
     ease: out_cubic
-- id: loop-0
-  kind: {type: sprite, sprite: couture-orbit, frame_ticks: 1, loop: false, see_through: true}
-  billboard: center
-  brightness: 15
-  start_tick: 30
-  end_tick: 40
-  keyframes:
-  - t: 0
-    translate: [-1.4, 3.5, 0.0]
-    rotate: [0, 0, 0]
-    scale: [0.9, 0.9, 1]
-  - t: 3
-    translate: [-1.4, 3.5, 0.0]
-    rotate: [0, 0, -110]
-    scale: [0.9, 0.9, 1]
-  - t: 6
-    translate: [-1.4, 3.5, 0.0]
-    rotate: [0, 0, -220]
-    scale: [0.9, 0.9, 1]
-  - t: 9
-    translate: [-1.4, 3.5, 0.0]
-    rotate: [0, 0, -330]
-    scale: [0.9, 0.9, 1]
-- id: loop-1
-  kind: {type: sprite, sprite: couture-orbit, frame_ticks: 1, loop: false, see_through: true}
-  billboard: center
-  brightness: 15
-  start_tick: 30
-  end_tick: 40
-  keyframes:
-  - t: 0
-    translate: [1.4, 3.5, 0.0]
-    rotate: [0, 0, 0]
-    scale: [0.9, 0.9, 1]
-  - t: 3
-    translate: [1.4, 3.5, 0.0]
-    rotate: [0, 0, 110]
-    scale: [0.9, 0.9, 1]
-  - t: 6
-    translate: [1.4, 3.5, 0.0]
-    rotate: [0, 0, 220]
-    scale: [0.9, 0.9, 1]
-  - t: 9
-    translate: [1.4, 3.5, 0.0]
-    rotate: [0, 0, 330]
-    scale: [0.9, 0.9, 1]
+  - t: 16
+    translate: [0.0, 3.6999999999999997, 0.2]
+    rotate: [0, 0, 160]
+    scale: [0.275, 0.275, 1]
+    ease: in_out_sine
 - id: link-line
   kind: {type: block, block: white_concrete}
   brightness: 15
-  start_tick: 59
-  end_tick: 62
+  start_tick: 58
+  end_tick: 63
   keyframes:
   - t: 0
     translate: [0.0, 1.5, 0.0]
-    scale: [0.03, 0.03, 0.01]
+    scale: [0.05, 0.05, 0.01]
   - t: 1
     translate: [0.0, 1.5, 2.7]
     rotate: [0, 0, 0]
-    scale: [0.03, 0.03, 5.4]
+    scale: [0.09, 0.09, 5.4]
     ease: out_expo
-  - t: 3
+  - t: 4
+    translate: [0.0, 1.5, 2.7]
+    rotate: [0, 0, 0]
+    scale: [0.09, 0.09, 5.4]
+  - t: 5
     translate: [0.0, 1.5, 2.7]
     rotate: [0, 0, 0]
     scale: [0.0, 0.0, 5.4]
     ease: in_quad
-- id: link-shear-0
-  kind: {type: quad, color: '#1E1530', alpha: 0.95, see_through: true}
+- id: link-glow
+  kind: {type: quad, color: '#FFFFFF', alpha: 0.3, see_through: true}
   billboard: center
   brightness: 15
   start_tick: 58
-  end_tick: 62
+  end_tick: 63
   keyframes:
   - t: 0
-    translate: [5.4, 1.0, 0.0]
-    rotate: [0, 0, 38]
-    scale: [0.1, 2.4, 1]
-  - t: 3
-    translate: [5.4, 1.0, 0.0]
-    rotate: [0, 0, 38]
-    scale: [0.1, 2.4, 1]
+    translate: [0.0, 1.5, 2.7]
+    rotate: [0, 0, 0]
+    scale: [0.1, 0.025, 1]
+  - t: 1
+    translate: [0.0, 1.5, 2.7]
+    rotate: [0, 0, 0]
+    scale: [5.4, 0.225, 1]
+    ease: out_expo
   - t: 4
-    translate: [5.4, 1.0, 0.0]
-    rotate: [0, 0, 38]
-    scale: [0.0, 0.0, 1]
+    translate: [0.0, 1.5, 2.7]
+    rotate: [0, 0, 0]
+    scale: [5.4, 0.15, 1]
+  - t: 5
+    translate: [0.0, 1.5, 2.7]
+    rotate: [0, 0, 0]
+    scale: [5.4, 0.0, 1]
     ease: in_quad
-- id: link-shear-1
-  kind: {type: quad, color: '#1E1530', alpha: 0.95, see_through: true}
-  billboard: center
+- id: link-spark-0
+  kind: {type: particle, particle_id: couture-s2-p-spark, every_ticks: 2}
   brightness: 15
-  start_tick: 58
-  end_tick: 62
+  start_tick: 59
+  end_tick: 63
   keyframes:
   - t: 0
-    translate: [5.4, 1.0, 0.0]
-    rotate: [0, 0, -38]
-    scale: [0.1, 2.4, 1]
-  - t: 3
-    translate: [5.4, 1.0, 0.0]
-    rotate: [0, 0, -38]
-    scale: [0.1, 2.4, 1]
-  - t: 4
-    translate: [5.4, 1.0, 0.0]
-    rotate: [0, 0, -38]
-    scale: [0.0, 0.0, 1]
-    ease: in_quad
+    translate: [0.0, 1.5, 1.2]
+- id: link-spark-1
+  kind: {type: particle, particle_id: couture-s2-p-spark, every_ticks: 2}
+  brightness: 15
+  start_tick: 59
+  end_tick: 63
+  keyframes:
+  - t: 0
+    translate: [0.0, 1.5, 2.8]
+- id: link-spark-2
+  kind: {type: particle, particle_id: couture-s2-p-spark, every_ticks: 2}
+  brightness: 15
+  start_tick: 59
+  end_tick: 63
+  keyframes:
+  - t: 0
+    translate: [0.0, 1.5, 4.4]
