@@ -43,8 +43,11 @@ public interface MotionLaw {
     public fun step(ctx: MotionContext): MotionStep
 }
 
-/** Align a frame: [axis] (local forward of the body) points along [to], [up] picks the roll. */
-public data class AlignSpec(val axis: AxisRef, val up: AxisRef? = null)
+/**
+ * Align a frame: with [to] (pose keys) the local [axis] is turned onto [to]; without it (fly, reel)
+ * [axis] is itself the target direction. [up] picks the roll.
+ */
+public data class AlignSpec(val axis: AxisRef, val up: AxisRef? = null, val to: AxisRef? = null)
 
 public data class RotateKey(val axis: AxisRef, val deg: Value<Double>)
 

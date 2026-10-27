@@ -28,6 +28,9 @@ public interface OpReader {
 
     /** Nested op lists (`on_hit:`), decoded in the same section through the registry. */
     public fun ops(key: String): List<SkillOp>
+
+    /** Readers for the map entries of the list at [key] (`cases:`, `branches:`), each with its own consumed-key tracking. */
+    public fun entries(key: String): List<OpReader>
     public fun raw(key: String): Any?
     public fun fail(message: String): Nothing
 }

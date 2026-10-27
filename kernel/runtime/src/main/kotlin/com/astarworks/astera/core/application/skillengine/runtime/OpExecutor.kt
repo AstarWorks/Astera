@@ -12,6 +12,9 @@ public interface OpContext {
     public val tree: FrameTree
     public val values: ValueResolver
     public val ports: SkillRuntimePorts
+
+    /** Cast-scoped services the frame / hit / control executors need (hit registry, scheduler, targets). */
+    public val host: OpHost
     public fun raise(event: String)
 
     /** Run nested ops (e.g. `on_hit`) in the current scope. */
