@@ -77,6 +77,21 @@ class PerformanceScenarioTest {
     }
 
     @Test
+    fun `a rig keeps the lease until its last display ends even when an earlier element despawns`() {
+        scenario("performance-lease-outlives-early-elements") {
+            val caster = player("caster", team = "red")
+            val probe = PerformanceProbe(sim, caster)
+            caster.cast("couture-rapier-s2")
+            // couture-s2-rig: the flying shears despawn at rig tick 58, the body runs to 63; the hand must never come back before
+            repeat(60) {
+                assertThat(sim.presentation.holder(caster.id)).describedAs("lease at tick $it").isEqualTo(PresentationKind.PERFORMANCE)
+                assertOneWeapon(probe, "tick $it")
+                advance(1)
+            }
+        }
+    }
+
+    @Test
     fun `an interrupting cast replaces the performance with no tick of zero or two weapons`() {
         scenario("performance-interrupted") {
             val caster = player("caster", team = "red")
