@@ -1,10 +1,14 @@
 #!/usr/bin/env python3
 """skill-compare comparison engine: per-frame metrics + regression flags + the labelled sheet (called by lib/compare.mjs).
 
-stdin  JSON  {"out": "/abs/sheet.png"|null, "cell": [w, h], "title": str, "ticks": [..],
+stdin  JSON  {"out": "/abs/sheet.png"|null, "cell": [w, h], "zoom": "fit"|"native", "crop": null|"auto"|[x0,y0,x1,y1], "title": str, "ticks": [..],
               "rows": [{"id","label","sub","pair": <index of the row this one is compared against>|null,
                         "frames": [{"tick": int, "path": str|null, "note": str}], "bg": [paths]}]}
-stdout JSON  {"rows": [{"id", "cells": [{"tick", "metrics": {...}|null, "delta": {...}|null, "flags": [..]}]}]}
+stdout JSON  {"rows": [{"id", "native": [w, h]|null, "crop": {"norm": [..], "px": [..]}|null, "cells": [{"tick", "metrics": {...}|null, "boxes": {...}, "delta": {...}|null, "flags": [..]}]}], "sheetError": str|null}
+
+Viewing never resamples when zoom = "native": every cell is the source pixels (optionally cropped to `crop`, fractions of the frame; "auto" = a square-in-fraction
+window around the caster + fx boxes of the row, so it keeps the frame aspect) pasted 1:1; cells are as large as the biggest crop, smaller sources are padded, never scaled.
+zoom = "fit" is the downscaled overview. The metrics below always use a <=320 px copy.
 
 Metrics (all on the frame downscaled to <=320 px wide, so they are comparable between sources of different resolution):
   mean_luma / peak_luma   mean and 99th percentile of Rec.709 luma, 0-255
@@ -59,6 +63,12 @@ def metrics(im, bg):
     emissive = (y >= 190) | (((mx - mn) >= 140) & (mx >= 160))
     if bg is not None and bg.shape == a.shape:
         emissive = emissive & (np.abs(a - bg).max(axis=2) > 40)  # only what the clip itself added over its own median background
+    ys, xs = np.where(emissive)
+    if len(ys) >= 20:
+        h_, w_ = emissive.shape
+        out_box = [round(float(np.percentile(xs, 1)) / w_, 4), round(float(np.percentile(ys, 1)) / h_, 4), round(float(np.percentile(xs, 99) + 1) / w_, 4), round(float(np.percentile(ys, 99) + 1) / h_, 4)]
+    else:
+        out_box = None
     out = {"mean_luma": round(float(y.mean()), 1), "peak_luma": round(float(np.percentile(y, 99)), 1), "fx_pct": round(float(emissive.mean() * 100), 2), "mover_h_pct": None}
     if bg is not None and bg.shape == a.shape:
         diff = np.abs(a - bg).max(axis=2) > 40
@@ -66,7 +76,7 @@ def metrics(im, bg):
             rows = np.where(diff.sum(axis=1) >= max(2, 0.01 * diff.shape[1]))[0]
             if len(rows):
                 out["mover_h_pct"] = round(float((rows.max() - rows.min() + 1) / a.shape[0] * 100), 1)
-    return out
+    return out, out_box
 
 
 def hsv_planes(im):
@@ -154,7 +164,8 @@ def caster_bbox(im, key):
     if not cl:
         return {"caster_bbox_pct": None}
     px, (x0, y0, x1, y1) = cl
-    return {"caster_bbox_pct": round(float((y1 - y0) / h.shape[0] * 100), 1), "caster_bbox_w_pct": round(float((x1 - x0) / h.shape[1] * 100), 1), "caster_mask_px": px}
+    return {"caster_bbox_pct": round(float((y1 - y0) / h.shape[0] * 100), 1), "caster_bbox_w_pct": round(float((x1 - x0) / h.shape[1] * 100), 1), "caster_mask_px": px,
+            "_box": [round(float(x0) / h.shape[1], 4), round(float(y0) / h.shape[0], 4), round(float(x1) / h.shape[1], 4), round(float(y1) / h.shape[0], 4)]}
 
 
 def compare(cur, prev):
@@ -178,32 +189,91 @@ def font(size):
         return ImageFont.load_default()
 
 
+MAX_SIDE = 16000  # px; a sheet bigger than this is refused instead of being downscaled
+
+
+def native_size(path):
+    try:
+        with Image.open(path) as im:
+            return im.size
+    except Exception:
+        return None
+
+
+def auto_crop(boxes):
+    """Square-in-fraction window (= the frame's own aspect) around the union of the caster / fx boxes, padded 30%, at least 25% of the frame."""
+    boxes = [b for b in boxes if b]
+    if not boxes:
+        return None
+    x0, y0 = min(b[0] for b in boxes), min(b[1] for b in boxes)
+    x1, y1 = max(b[2] for b in boxes), max(b[3] for b in boxes)
+    s = min(1.0, max((x1 - x0) * 1.3, (y1 - y0) * 1.3, 0.25))
+    cx, cy = (x0 + x1) / 2, (y0 + y1) / 2
+    bx, by = min(max(cx - s / 2, 0.0), 1 - s), min(max(cy - s / 2, 0.0), 1 - s)
+    return [round(bx, 4), round(by, 4), round(bx + s, 4), round(by + s, 4)]
+
+
+def crop_px(norm, size):
+    w, h = size
+    return [int(round(norm[0] * w)), int(round(norm[1] * h)), int(round(norm[2] * w)), int(round(norm[3] * h))]
+
+
 def sheet(spec, rows, result):
-    cw, ch = spec.get("cell", [288, 162])
-    gutter, head, strip, pad = 170, 26, 30, 4
+    """Returns an error string (sheet not written) or None."""
+    native = spec.get("zoom") == "native"
     ticks = spec["ticks"]
+    gutter, head, strip, pad = 170, 26, 30, 4
+    if native:
+        cw = ch = 1
+        for r in result:
+            if r["native"]:
+                b = crop_px(r["crop"]["norm"], r["native"]) if r["crop"] else [0, 0, *r["native"]]
+                cw, ch = max(cw, b[2] - b[0]), max(ch, b[3] - b[1])
+    else:
+        cw, ch = spec.get("cell", [288, 162])
     width = gutter + len(ticks) * (cw + pad)
+    height = 34 + head + len(rows) * (ch + strip + pad)
+    if width > MAX_SIDE or height > MAX_SIDE:
+        return f"native sheet would be {width}x{height} px (cell {cw}x{ch}); use fewer ticks / rows or a tighter crop (crop=x0,y0,x1,y1 fractions, or crop=auto)"
     rh = ch + strip + pad
-    canvas = Image.new("RGB", (width, 34 + head + len(rows) * rh), (18, 20, 26))
+    canvas = Image.new("RGB", (width, height), (18, 20, 26))
     dr = ImageDraw.Draw(canvas)
     f9, f11, f13 = font(10), font(11), font(14)
-    dr.text((8, 8), spec.get("title", ""), fill=(235, 235, 240), font=f13)
+    dr.text((8, 8), spec.get("title", "") + ("   NATIVE PIXELS (no resampling)" if native else "   overview (downscaled; zoom=native for source pixels)"), fill=(235, 235, 240), font=f13)
     for ci, t in enumerate(ticks):
         dr.text((gutter + ci * (cw + pad) + 4, 34 + 6), f"t{t}", fill=(255, 200, 80), font=f13)
     for ri, row in enumerate(rows):
         y0 = 34 + head + ri * rh
         dr.text((8, y0 + 4), row["label"], fill=(235, 235, 240), font=f11)
-        for li, line in enumerate(row.get("sub", [])):
+        sub = list(row.get("sub", []))
+        nat = result[ri]["native"]
+        if nat:
+            sub.append(f"source {nat[0]}x{nat[1]}")
+            if result[ri]["crop"]:
+                sub.append("crop px " + ",".join(str(v) for v in result[ri]["crop"]["px"]))
+        for li, line in enumerate(sub):
             dr.text((8, y0 + 20 + li * 13), line, fill=(150, 156, 170), font=f9)
         for ci, fr in enumerate(row["frames"]):
             x0 = gutter + ci * (cw + pad)
             cell = result[ri]["cells"][ci]
-            im = load(fr["path"]) if fr.get("path") else None
+            im = None
+            if fr.get("path"):
+                try:
+                    im = Image.open(fr["path"]).convert("RGB")
+                except Exception:
+                    im = None
             if im is None:
                 dr.rectangle([x0, y0, x0 + cw, y0 + ch], fill=(30, 33, 40), outline=(70, 74, 86))
                 dr.text((x0 + 8, y0 + ch // 2 - 6), fr.get("note") or "no frame", fill=(200, 120, 120), font=f11)
             else:
-                canvas.paste(im.resize((cw, ch), Image.BILINEAR), (x0, y0))
+                if result[ri]["crop"]:
+                    im = im.crop(tuple(crop_px(result[ri]["crop"]["norm"], im.size)))
+                if native:
+                    canvas.paste(im, (x0, y0))
+                    if im.width < cw or im.height < ch:
+                        dr.rectangle([x0, y0, x0 + cw - 1, y0 + ch - 1], outline=(70, 74, 86))
+                else:
+                    canvas.paste(im.resize((cw, ch), Image.BILINEAR), (x0, y0))
             bad = bool(cell["flags"])
             if bad:
                 dr.rectangle([x0, y0, x0 + cw - 1, y0 + ch - 1], outline=(235, 70, 70), width=3)
@@ -217,24 +287,40 @@ def sheet(spec, rows, result):
                 dl = cell["delta"]
                 dr.text((x0 + 2, y0 + ch + 14), f"vs prev  fx {dl.get('fx_pct', 0):+g}  L {dl.get('mean_luma', 0):+g}", fill=(120, 200, 140), font=f9)
     canvas.save(spec["out"], "PNG", optimize=False)
+    return None
 
 
 def main():
     spec = json.load(sys.stdin)
     rows = spec["rows"]
+    crop_spec = spec.get("crop")
     result = []
     for row in rows:
         bg = background(row.get("bg") or [])
         kim = load(row["keyPath"]) if row.get("keyPath") else None
         key = caster_key(kim, row.get("hue")) if kim is not None else []
-        cells = []
+        cells, boxes = [], []
+        nat = None
         for fr in row["frames"]:
             im = load(fr["path"]) if fr.get("path") else None
-            mt = metrics(im, bg) if im is not None else None
+            if fr.get("path") and nat is None:
+                nat = native_size(fr["path"])
+            mt, bx = (metrics(im, bg) if im is not None else (None, None))
+            cb = None
             if mt is not None:
-                mt.update(caster_bbox(im, key) or {"caster_bbox_pct": None})
-            cells.append({"tick": fr["tick"], "metrics": mt, "delta": None, "flags": []})
-        result.append({"id": row["id"], "casterKey": [list(k) for k in key], "cells": cells})
+                cbb = caster_bbox(im, key) or {"caster_bbox_pct": None}
+                cb = cbb.pop("_box", None)
+                mt.update(cbb)
+            cells.append({"tick": fr["tick"], "metrics": mt, "boxes": {"caster": cb, "fx": bx}, "delta": None, "flags": []})
+            boxes += [cb, bx]
+        crop = None
+        if crop_spec == "auto":
+            norm = auto_crop(boxes)
+        else:
+            norm = crop_spec
+        if norm and nat:
+            crop = {"norm": norm, "px": crop_px(norm, nat)}
+        result.append({"id": row["id"], "native": list(nat) if nat else None, "crop": crop, "casterKey": [list(k) for k in key], "cells": cells})
     for ri, row in enumerate(rows):
         p = row.get("pair")
         if p is None:
@@ -243,9 +329,8 @@ def main():
             a, b = cell["metrics"], result[p]["cells"][ci]["metrics"]
             if a and b:
                 cell["delta"], cell["flags"] = compare(a, b)
-    if spec.get("out"):
-        sheet(spec, rows, result)
-    json.dump({"rows": result}, sys.stdout)
+    err = sheet(spec, rows, result) if spec.get("out") else None
+    json.dump({"rows": result, "sheetError": err}, sys.stdout)
 
 
 main()
