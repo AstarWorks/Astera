@@ -29,10 +29,10 @@ phases:
     if_empty:
     - {type: play_vfx, targets: {type: caster}, vfx_id: couture-s2-throw-miss}
   - {type: play_vfx, targets: {type: caster}, vfx_id: couture-s2-dash, delay_ticks: {type: literal, value: 70}, follow: {type: literal, value: true}}
-  - {type: play_vfx, targets: {type: cone, from: {type: caster}, direction: {type: from_caster}, distance: {type: literal, value: 9}, angle_degrees: {type: literal, value: 60}, max_count: 1}, vfx_id: couture-s2-hit3, delay_ticks: {type: literal, value: 72}, snapshot_pose: true}
   - {type: dash_strike, distance: 9, ticks: 3, radius: 0.8, hit_once: true, invulnerable: false, stop_on_block: true, follow_pitch: false,
      on_hit: [
        {type: damage, targets: {type: target}, ignore_invulnerability: {type: literal, value: true}, components: [{base: {type: literal, value: 10}, attribute: physical}]},
+       {type: play_vfx, targets: {type: target}, vfx_id: couture-s2-hit3, delay_ticks: {type: literal, value: 1}},
        {type: play_sound, targets: {type: target}, sound_id: entity.player.attack.sweep, volume: {type: literal, value: 1.0}, pitch: {type: literal, value: 0.55}},
        {type: play_sound, targets: {type: target}, sound_id: entity.sheep.shear, volume: {type: literal, value: 1.0}, pitch: {type: literal, value: 0.7}},
        {type: play_sound, targets: {type: target}, sound_id: item.trident.riptide_1, volume: {type: literal, value: 0.8}, pitch: {type: literal, value: 1.5}}],
