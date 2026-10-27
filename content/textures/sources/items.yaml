@@ -57,6 +57,10 @@ sources:
     - chain-rod
     - gale-fan
     - shield-bulwark
+  armor-v1:
+    file: sheets/armor-v1.png
+    grid: [4, 4]
+    cells: [leather-scout-helmet, leather-scout-chestplate, leather-scout-leggings, leather-scout-boots, chain-guard-helmet, chain-guard-chestplate, chain-guard-leggings, chain-guard-boots, iron-warden-helmet, iron-warden-chestplate, iron-warden-leggings, iron-warden-boots, diamond-champion-helmet, diamond-champion-chestplate, diamond-champion-leggings, diamond-champion-boots]
 
 items:
   bastion-greatsword: weapons-v1
@@ -132,3 +136,20 @@ items:
   sanctuary-staff: arsenal-weapons-art2
   chain-rod: arsenal-weapons-art2
   gale-fan: arsenal-weapons-art2
+  # Armor lane: generated inventory art.
+  leather-scout-helmet: armor-v1
+  leather-scout-chestplate: armor-v1
+  leather-scout-leggings: armor-v1
+  leather-scout-boots: armor-v1
+  chain-guard-helmet: armor-v1
+  chain-guard-chestplate: armor-v1
+  chain-guard-leggings: armor-v1
+  chain-guard-boots: armor-v1
+  iron-warden-helmet: armor-v1
+  iron-warden-chestplate: armor-v1
+  iron-warden-leggings: armor-v1
+  iron-warden-boots: armor-v1
+  diamond-champion-helmet: armor-v1
+  diamond-champion-chestplate: armor-v1
+  diamond-champion-leggings: armor-v1
+  diamond-champion-boots: armor-v1

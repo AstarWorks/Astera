@@ -40,6 +40,7 @@ public data class ItemBlueprint(
     val enchantable: Boolean,
     val keepOnDeath: Boolean,
     val pdcTags: Map<String, String>,
+    val equipmentAsset: String? = null,
 ) {
     public companion object {
         public const val FALLBACK_MATERIAL: String = "STONE"
@@ -79,6 +80,7 @@ public class ItemBlueprintFactory(
             enchantable = spec.enchantable,
             keepOnDeath = spec.dropPolicy.keepOnDeath,
             pdcTags = spec.pdcTags,
+            equipmentAsset = spec.equipmentAsset,
         )
     }
 

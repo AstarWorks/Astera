@@ -1,0 +1,69 @@
+name: armor-surfaces-v1
+texture_tiles: true
+grid:
+- 6
+- 4
+background: '#FF00FF'
+style: ORTHOGRAPHIC FLAT TEXTURE TILES, NOT objects or inventory icons. Each tile
+  is an opaque square completely filled edge to edge by the described armor surface;
+  no outline, no perspective, no gaps, no lighting gradient. Original crisp low resolution
+  pixel art for Minecraft armor UV mapping. Exact grid boundaries. Row 1 scout green/brown,
+  row 2 charcoal chain, row 3 silver plate, row 4 cyan/gold ornate.
+cells:
+  leather-scout-head-front: flat helmet face, narrow black visor opening in upper
+    middle, solid armored chin; olive green leather, brown crossed straps and brass
+    studs
+  leather-scout-head-wrap: helmet back and sides, continuous material with central
+    reinforcement; olive green leather, brown crossed straps and brass studs
+  leather-scout-chest-front: flat chest armor, neck opening at top, strong centered
+    emblem or buckle, belt at bottom; olive green leather, brown crossed straps and
+    brass studs
+  leather-scout-chest-back: back armor with shoulder straps and waist belt; olive
+    green leather, brown crossed straps and brass studs
+  leather-scout-arm: vertical shoulder armor at top, armored bracer at bottom, no
+    hands; olive green leather, brown crossed straps and brass studs
+  leather-scout-leg: vertical armored trousers, belt at top, knee guard in middle,
+    boot at bottom; olive green leather, brown crossed straps and brass studs
+  chain-guard-head-front: flat helmet face, narrow black visor opening in upper middle,
+    solid armored chin; dark charcoal interlocked chain mail, silver edging and brown
+    belts
+  chain-guard-head-wrap: helmet back and sides, continuous material with central reinforcement;
+    dark charcoal interlocked chain mail, silver edging and brown belts
+  chain-guard-chest-front: flat chest armor, neck opening at top, strong centered
+    emblem or buckle, belt at bottom; dark charcoal interlocked chain mail, silver
+    edging and brown belts
+  chain-guard-chest-back: back armor with shoulder straps and waist belt; dark charcoal
+    interlocked chain mail, silver edging and brown belts
+  chain-guard-arm: vertical shoulder armor at top, armored bracer at bottom, no hands;
+    dark charcoal interlocked chain mail, silver edging and brown belts
+  chain-guard-leg: vertical armored trousers, belt at top, knee guard in middle, boot
+    at bottom; dark charcoal interlocked chain mail, silver edging and brown belts
+  iron-warden-head-front: flat helmet face, narrow black visor opening in upper middle,
+    solid armored chin; heavy silver segmented steel plate, dark seams and restrained
+    brass rivets
+  iron-warden-head-wrap: helmet back and sides, continuous material with central reinforcement;
+    heavy silver segmented steel plate, dark seams and restrained brass rivets
+  iron-warden-chest-front: flat chest armor, neck opening at top, strong centered
+    emblem or buckle, belt at bottom; heavy silver segmented steel plate, dark seams
+    and restrained brass rivets
+  iron-warden-chest-back: back armor with shoulder straps and waist belt; heavy silver
+    segmented steel plate, dark seams and restrained brass rivets
+  iron-warden-arm: vertical shoulder armor at top, armored bracer at bottom, no hands;
+    heavy silver segmented steel plate, dark seams and restrained brass rivets
+  iron-warden-leg: vertical armored trousers, belt at top, knee guard in middle, boot
+    at bottom; heavy silver segmented steel plate, dark seams and restrained brass
+    rivets
+  diamond-champion-head-front: flat helmet face, narrow black visor opening in upper
+    middle, solid armored chin; ornate bright cyan crystal plate, gold filigree, diamond
+    motifs
+  diamond-champion-head-wrap: helmet back and sides, continuous material with central
+    reinforcement; ornate bright cyan crystal plate, gold filigree, diamond motifs
+  diamond-champion-chest-front: flat chest armor, neck opening at top, strong centered
+    emblem or buckle, belt at bottom; ornate bright cyan crystal plate, gold filigree,
+    diamond motifs
+  diamond-champion-chest-back: back armor with shoulder straps and waist belt; ornate
+    bright cyan crystal plate, gold filigree, diamond motifs
+  diamond-champion-arm: vertical shoulder armor at top, armored bracer at bottom,
+    no hands; ornate bright cyan crystal plate, gold filigree, diamond motifs
+  diamond-champion-leg: vertical armored trousers, belt at top, knee guard in middle,
+    boot at bottom; ornate bright cyan crystal plate, gold filigree, diamond motifs

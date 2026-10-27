@@ -106,6 +106,7 @@ public class PaperItemMaterializer(
             meta.displayName(fresh.displayName())
             meta.lore(fresh.lore())
             meta.tooltipStyle = fresh.tooltipStyle
+            meta.setEquippable(if (fresh.hasEquippable()) fresh.equippable else null)
             if (fresh.hasItemModel()) meta.itemModel = fresh.itemModel
             @Suppress("DEPRECATION")
             if (fresh.hasCustomModelData()) meta.setCustomModelData(fresh.customModelData)
@@ -152,6 +153,14 @@ public class PaperItemMaterializer(
             // material stays, so a client without the pack still gets a normal vanilla item.
             blueprint.itemModel?.let { key ->
                 NamespacedKey.fromString(key)?.let { meta.itemModel = it }
+            }
+
+            blueprint.equipmentAsset?.let { asset ->
+                val equippable = meta.equippable
+                equippable.slot = toBukkitSlot(blueprint.equipSlot)
+                // Bukkit calls this model; the wire component field is minecraft:equippable.asset_id.
+                equippable.model = NamespacedKey("astera", asset)
+                meta.setEquippable(equippable)
             }
 
             // use_cooldown (ADR-0197): a per-item cooldown group so the skill cooldown / reload can

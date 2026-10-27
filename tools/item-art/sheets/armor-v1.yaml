@@ -1,0 +1,35 @@
+name: armor-v1
+grid:
+- 4
+- 4
+background: '#FF00FF'
+style: chunky 32x32 pixel-art inventory icons, crisp dark outline, top-left light,
+  no glow, consistent front three-quarter view
+cells:
+  leather-scout-helmet: helmet, light olive green and brown leather, crossed brown
+    straps and brass buckle
+  leather-scout-chestplate: chestplate, light olive green and brown leather, crossed
+    brown straps and brass buckle
+  leather-scout-leggings: leggings, light olive green and brown leather, crossed brown
+    straps and brass buckle
+  leather-scout-boots: boots, light olive green and brown leather, crossed brown straps
+    and brass buckle
+  chain-guard-helmet: helmet, dark charcoal interlocked chain mail, steel edging
+  chain-guard-chestplate: chestplate, dark charcoal interlocked chain mail, steel
+    edging
+  chain-guard-leggings: leggings, dark charcoal interlocked chain mail, steel edging
+  chain-guard-boots: boots, dark charcoal interlocked chain mail, steel edging
+  iron-warden-helmet: helmet, heavy bright silver plate, dark seams, broad reinforced
+    plates
+  iron-warden-chestplate: chestplate, heavy bright silver plate, dark seams, broad
+    reinforced plates
+  iron-warden-leggings: leggings, heavy bright silver plate, dark seams, broad reinforced
+    plates
+  iron-warden-boots: boots, heavy bright silver plate, dark seams, broad reinforced
+    plates
+  diamond-champion-helmet: helmet, ornate brilliant cyan crystal armor with gold filigree
+  diamond-champion-chestplate: chestplate, ornate brilliant cyan crystal armor with
+    gold filigree
+  diamond-champion-leggings: leggings, ornate brilliant cyan crystal armor with gold
+    filigree
+  diamond-champion-boots: boots, ornate brilliant cyan crystal armor with gold filigree
