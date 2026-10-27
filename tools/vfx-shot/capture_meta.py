@@ -189,7 +189,7 @@ if stamp_file.is_file():
         meta["captureQuality"].update(invalid=True, reviewRequired=True,
             reason=f"{st.get('skippedTicks', len(missing))} tick(s) were never drawn by the client (ticks {ticks[:12]}); "
                    "frames for them are nearest-stamp stand-ins, not exact. Every key beat on them is invalid; recapture "
-                   "(stepped mode, STEPPED=1, never skips) required.")
+                   "(vfx-shot.sh refilms at a lower tick rate automatically; a capture still having gaps is never usable).")
 else:
     meta["tickStamp"] = None
 if os.environ.get("VFX_SHOT_BEAT_ONLY") == "1":

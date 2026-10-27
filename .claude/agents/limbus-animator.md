@@ -20,9 +20,9 @@ Make the motion read like the reference: weight, anticipation, a fast main strok
 3. Your brief: `tools/skill-compare/data/<case>/briefs/animation.md`.
 4. Movement mechanics: `docs/contributing/add-a-skill-yaml.md`, section on dash / combo mechanics.
 
-## Workflow v3 (mandatory)
+## Workflow v4 (mandatory)
 
-Read `docs/contributing/vfx-team/beat-sheet.md` and follow workflow v3 (your part is the sword/body motion). The approved beat sheet (`tools/skill-compare/data/<case>/beat-sheet.md`) is the target: build the trajectory in the sheet (tip path, rotation direction in camera and top-down, edge facing, reversals, swing count), not a pose list; plot the tip path from above before handing back.
+Read `docs/contributing/vfx-team/beat-sheet.md` and follow workflow v4 (inventory first; your part is the weapon / body motion). The approved inventory (`tools/skill-compare/data/<case>/inventory.md`) says which objects move: exactly one **held** weapon gets rig keys unless the inventory says otherwise; a thrown or split blade is its own object (a `projectile` sub-skill or an anchored element), never a second set of weapon keys, and you do not animate it as the held weapon flying to the capture distance. The approved beat sheet (8 columns) is the motion target: build the trajectory in 動き一文 and 振り数・方向 (tip path, rotation direction in camera and top-down, edge-leading or flat, reversals, swing count) for the rows named in 台帳行の参照, not a pose list; plot the tip path from above before handing back. Camera and edit phenomena (camera punch-in, hit-stop, white-out) are never keys.
 
 ## Scope when consulted
 

@@ -38,7 +38,7 @@ A weapon model (Java cuboid item model + textures) under `content/models/` that 
 
 - Rejected looks that apply to models: a single-colour slab, uniform-box curved shapes (hoops/crescents from uniform cubes), poles standing in for tapered blades.
 - A rig that borrows the model as BlockDisplay boxes (vfx-art-direction section 7) uses `block:` parts in the documented example; coordinate with the director on whether the swing uses the model or a box approximation.
-- Only one weapon may be visible while a skill plays (mechanic `hide_held_item`, only on `wp/pilot-bastion-s1`, not main). Model changes must not assume the held item and the rig weapon both show.
+- Only one weapon may be **held** while a skill plays (mechanic `hide_held_item`, on main) unless the inventory says otherwise; model changes must not assume the held item and the rig weapon both show. Every other `3D object` row of the case inventory ([beat-sheet.md](beat-sheet.md) "Inventory": thrown blade, stuck needle, split part) is its own model instance, shown as an ItemDisplay / projectile visual; search `content/models/items/` for an existing model before building one and write the model id into the row's 構成案 column (`make skill-lint` check 6 requires it to exist and to be shown).
 
 ## Learnings log
 

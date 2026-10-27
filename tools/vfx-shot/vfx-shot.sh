@@ -217,6 +217,10 @@ TICKS_SET="${TICKS:-}"
 TICKS="${TICKS:-60}"                 # ticks filmed after the cast (compare: the case duration_ticks)
 export SLOW_RATE="${SHOT_SLOW_RATE:-5}"      # STEPPED=1: server tick rate while filming (ticks/s, 1-20); every tick then stays on screen 1/rate s
 STEPPED="${STEPPED:-$([ "${FPS:-20}" = 20 ] && echo 1 || echo 0)}"   # 1 = slow motion (/tick rate SHOT_SLOW_RATE): world, plugin scheduler and client on one clock, several frames per tick, the last is kept (default for 20 fps sheets); 0 = realtime
+# Realtime filming skips ticks by construction (the software client draws ~10 fps): opt-in only (SHOT_REALTIME=1), never an accident of STEPPED=0 / FPS!=20.
+if [ "$SOURCED" != 1 ] && [ "$STEPPED" != 1 ] && [ "${SHOT_REALTIME:-0}" != 1 ]; then
+  echo "vfx-shot: STEPPED=0 / FPS!=20 films in realtime, which drops ticks (marked invalid, never publishable). Set SHOT_REALTIME=1 to do it on purpose." >&2; exit 2
+fi
 FPS="${FPS:-20}"                     # output rate; FPS=60 keeps 3 frames per tick (frame_NNN = NNN/3 ticks), no sheet/gif
 RES="${RES:-}"                       # viewer resolution (client window + framebuffer, GUI scale fixed); default 1920x1080 = the reference's native size
 [ "$SOURCED" = 1 ] && RES="${RES:-1280x720}"   # anim-shot keeps the old default
@@ -1121,31 +1125,55 @@ prepare_view() {
   sleep 1
 }
 
+# tick_gaps <dir>: the plan ticks (>= 0) of <dir>/framestamp.json that have no recorded frame of their own tick (comma list, empty = none)
+tick_gaps() {
+  jq -r '[(.map // [])[] | select(.exact == false and .tick >= 0) | .tick | floor] | unique | join(",")' "$1/framestamp.json" 2>/dev/null
+}
+
 run_view() { # view
-  local view="$1" out
+  local view="$1" out="$OUT_ROOT/$SKILL/$1" attempt=0 gaps rate0="$SLOW_RATE"
+  local max_attempts="${SHOT_TICK_ATTEMPTS:-4}"
   BEAT_ONLY=0
-  phase "preparing $view"
-  prepare_view "$view"
-  # WARM_UP=1: cast the skill once at the normal tick rate first, so the software client has loaded every model / particle /
-  # display it will see (a first-time asset stalls it for >1 s: that tick is then never drawn and a stepped capture is invalid)
-  if [ "${WARM_UP:-1}" = 1 ] && [ "$STEPPED" = 1 ] && [ -n "$SKILL" ]; then
-    local wsec; wsec="$(awk -v t="$TICKS" 'BEGIN{ s = t / 20 + 1.5; if (s > 9) s = 9; printf "%.1f", s }')"
-    log "warm-up cast ($wsec s)"
-    rcon "astera skill cast $SKILL Caster --force" >/dev/null 2>&1 || true
-    sleep "$wsec"
-    place_scene "$view" "$(target_z)"
-    rcon "kill @e[type=minecraft:item]" >/dev/null
-    sleep 2
-  fi
-  phase "filming $view"
-  film "$VIEWER" "$OUT_ROOT/$SKILL/$view"
-  out="$OUT_ROOT/$SKILL/$view"
+  while :; do
+    attempt=$((attempt + 1))
+    phase "preparing $view (attempt $attempt)"
+    prepare_view "$view"
+    # WARM_UP=1: cast the skill once at the normal tick rate first, so the software client has loaded every model / particle /
+    # display it will see (a first-time asset stalls it for >1 s: that tick is then never drawn and a stepped capture is invalid)
+    if [ "${WARM_UP:-1}" = 1 ] && [ "$STEPPED" = 1 ] && [ -n "$SKILL" ]; then
+      local wsec; wsec="$(awk -v t="$TICKS" 'BEGIN{ s = t / 20 + 1.5; if (s > 9) s = 9; printf "%.1f", s }')"
+      log "warm-up cast ($wsec s)"
+      rcon "astera skill cast $SKILL Caster --force" >/dev/null 2>&1 || true
+      sleep "$wsec"
+      place_scene "$view" "$(target_z)"
+      rcon "kill @e[type=minecraft:item]" >/dev/null
+      sleep 2
+    fi
+    phase "filming $view (tick rate $SLOW_RATE)"
+    film "$VIEWER" "$out"
+    # Every plan tick must own a frame of THAT tick. A tick the client never drew (a render hitch longer than one slow tick, mostly
+    # on heavy VFX) is refilmed at half the tick rate; a capture with a gap is never left behind as usable.
+    gaps="$(tick_gaps "$out")"
+    [ -z "$gaps" ] && break
+    if [ "$STEPPED" != 1 ]; then   # explicit realtime (SHOT_REALTIME=1): capture_meta.py marks it captureQuality.invalid, publish-capture refuses it
+      log "WARN: realtime capture: ticks [$gaps] have no frame of their own tick; the capture is marked invalid (not publishable)"
+      break
+    fi
+    if [ "$attempt" -ge "$max_attempts" ]; then
+      rcon "tick rate 20" >/dev/null 2>&1 || true
+      rm -f "$out"/frame_*.png
+      die "$view: ticks [$gaps] have no frame of their own tick after $attempt attempt(s) (last rate $SLOW_RATE tps). NOT usable, nothing published"
+    fi
+    SLOW_RATE="$(awk -v r="$SLOW_RATE" 'BEGIN{ r /= 2; if (r < 0.5) r = 0.5; print r }')"; export SLOW_RATE
+    log "WARN: $view attempt $attempt missed ticks [$gaps]; refilming at $SLOW_RATE tps"
+  done
   if [ "$FPS" = 20 ]; then make_outputs "$out" "$view"; else
     write_meta "$out" "$view" "$(ls "$out"/frame_*.png | wc -l)"
     log "FPS=$FPS: raw frames + meta.json (fps=$FPS, 3 frames per tick) in $out"
   fi
   rcon "kill @e[type=minecraft:husk]" >/dev/null
-  phase "view $view done"
+  SLOW_RATE="$rate0"; export SLOW_RATE   # only after the meta: capture_meta.py judges camera lateness on the rate the take ran at
+  phase "view $view done (every tick has its own frame; $attempt attempt(s))"
 }
 
 # ---------------------------------------------------------------- status / up

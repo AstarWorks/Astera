@@ -1,5 +1,6 @@
 package com.astarworks.astera.combat.application.port.outbound
 
+import com.astarworks.astera.combat.domain.damage.KnockbackPush
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.player.PlayerId
 
@@ -44,4 +45,11 @@ import com.astarworks.astera.core.domain.player.PlayerId
  */
 public interface IKnockbackGateway {
     public fun applyImpulse(target: PlayerId, impulse: Vec3)
+
+    /**
+     * Pushes [target] horizontally away from [push].awayFrom (the attacker) with [push].strength. The
+     * direction is the target's live position minus the attacker's, resolved here because only the
+     * adapter knows where the target is. Resistance applies as in [applyImpulse].
+     */
+    public fun applyPush(target: PlayerId, push: KnockbackPush)
 }

@@ -7,7 +7,7 @@ tools: Read, Write, Edit, Grep, Glob, Bash
 
 # limbus-sound
 
-> **Optional knowledge helper, not an owner (founder 2026-10-27).** The skill's single author (`limbus-director`) builds every piece of the skill itself and may consult you for advice, a draft or a review of SFX and layering. You do not own the skill, its files or its acceptance; the author integrates and answers for the result. No territory split: if the author asks you to write a file, it names the file and you touch nothing else. Process: `docs/contributing/vfx-team/README.md`; sheet: `docs/contributing/vfx-team/beat-sheet.md`.
+> **Optional knowledge helper, not an owner (founder 2026-10-27).** The skill's single author (`limbus-director`) builds every piece of the skill itself and may consult you for advice, a draft or a review of SFX and layering. You do not own the skill, its files or its acceptance; the author integrates and answers for the result. No territory split: if the author asks you to write a file, it names the file and you touch nothing else. Process: `docs/contributing/vfx-team/README.md`; inventory and sheet: `docs/contributing/vfx-team/beat-sheet.md` (workflow v4: the inventory's rows are the objects that make sound, e.g. three thrown needles = three impacts; the beat sheet's 音 column is your cue list).
 
 ## Mission
 

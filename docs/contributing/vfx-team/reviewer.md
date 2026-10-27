@@ -6,11 +6,13 @@ Optional helper agent: `.claude/agents/limbus-reviewer.md` (fresh every round). 
 
 ## Independence rule
 
-The reviewer is read-only on content, code, briefs and case data. It never fixes; it writes marks and diffs. The people who built the skill do not grade it, and a reviewer is a **fresh AI** each round (not the author, not the reverse-check agent). The reviewer judges against the **reference video** and the **approved beat sheet** ([beat-sheet.md](beat-sheet.md)), not against the director's briefs or intent file ("intent is an interpretation, not proof").
+The reviewer is read-only on content, code, briefs and case data. It never fixes; it writes marks and diffs. The people who built the skill do not grade it, and a reviewer is a **fresh AI** each round (not the author, not the agent that wrote the independent inventory). The reviewer judges against the **reference video**, the **approved inventory** and the **approved beat sheet** ([beat-sheet.md](beat-sheet.md)), not against the director's briefs or intent file ("intent is an interpretation, not proof").
 
-## Order of judgement (workflow v3 step 6, revised 2026-10-27)
+## Order of judgement (workflow v4 step 6, revised 2026-10-27)
 
-S3 r5 and r6 passed a per-row review while being plainly worse than r4: per-row crops hide the whole picture and no row says "weaker than last round". The order is therefore fixed:
+S3 r5 and r6 passed a per-row review while being plainly worse than r4: per-row crops hide the whole picture and no row says "weaker than last round". Couture-rapier S2 then passed every tick row while the reference's three thrown needle blades were one rapier and a sprite in the build: no row asked how many objects there were. The order is therefore fixed, and **the inventory diff comes before everything**:
+
+0. **Count first: objects, from the reference.** Watch the whole reference 3 times at normal speed and list its objects (count, colour, anchor, 3D object / plane / line / particles) before opening the frozen inventory, the `make skill-3d` stills or the capture. Then diff row by row against the build (stills + capture + YAML) and write `Inventory diff: ok | ng - row N: ref X, build Y` as the first line of the report and `reviewer.inventory` in `review.json`. A ng inventory stops the content judgement: the detail rows are not discussed on the wrong structure. An object the reference shows and the frozen inventory lacks is also ng and reopens gate 1. Camera and edit phenomena (white-out, punch-in, close-up, hit-stop, UI marker) are never missing objects.
 
 1. **Whole impression first, from the page.** Open the published compare sheet `ref | this | previous` (`/api/cases/<id>/compare`, shown in the page's 比較 panel; the author's `round.md` links `compare/sheet.png`) and the capture views on skill-compare. Before reading any row, write one verdict: `overall: ok | ng` with one sentence that names what is wrong even when no sheet row covers it (silhouette, weight, size of the main element, a weapon that follows the pitch, anything). This is the slot for everything the sheet did not foresee.
    **Sibling consistency is part of this verdict.** Put the accepted frames of the sibling skills of the same weapon / character next to `this` (the round note's `sibling/sheet.png`, or the sibling case's own sheet on the page) and answer `sibling: ok | ng`: *same art language and at least as refined*, by the checklist below. S3 of the bastion greatsword went ng this way ("S1,S2にくらべてめっちゃチープ"): S2 is layered thin tapered crescent strokes with glow, S3 had drifted into flat opaque comic stamps (fat plates, a black-outlined filled starburst, white blobs) while every row and every coverage number was fine.
@@ -72,7 +74,7 @@ These stay as the vocabulary for what a sheet row is judged on; the per-row ○/
 | Playability | caster and opponent views, telegraph, danger range, cleanup |
 | Budget | simultaneous displays and lifetimes within limits; exceptions justified |
 
-Add for this team: a sound exists for every beat; only one weapon is visible during the skill; the model is multi-part, multi-material, not a flat slab; sprites are smooth at close-up.
+Add for this team: a sound exists for every beat; only one weapon is **held** during the skill unless the inventory says otherwise, and every other visible object is an inventory row built in its own medium (a stuck needle is a model on the enemy, never a sprite); the model is multi-part, multi-material, not a flat slab; sprites are smooth at close-up.
 
 Status vocabulary for the report: 未分析 / 実装済・未検証 / 検証不合格 / 再現合格 / 独自設計・動作確認済. "Captured" or "iteration limit reached" is never a pass, and a reviewer pass alone is never done: the founder must also approve in game. A skill with no observed reference never gets an original-match verdict.
 

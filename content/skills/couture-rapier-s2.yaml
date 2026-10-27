@@ -38,7 +38,7 @@ phases:
   - {type: play_vfx, targets: {type: caster}, vfx_id: couture-s2-haze, delay_ticks: {type: literal, value: 3}, follow: {type: literal, value: true}}
   - {type: play_vfx, targets: {type: caster}, vfx_id: couture-s2-trail, delay_ticks: {type: literal, value: 15}, follow: {type: literal, value: true}}
   - {type: play_vfx, targets: {type: caster}, vfx_id: couture-s2-dash, delay_ticks: {type: literal, value: 70}, follow: {type: literal, value: true}}
-  - {type: dash_strike, distance: 9, ticks: 3, radius: 0.8, hit_once: true, invulnerable: false, stop_on_block: true, follow_pitch: false,
+  - {type: dash_strike, distance: 9, ticks: 3, radius: 0.8, hit_once: true, invulnerable: false, stop_on_block: true, follow_pitch: false, stop_before_target: 1.0,
      on_hit: [
        {type: damage, targets: {type: target}, ignore_invulnerability: {type: literal, value: true}, components: [{base: {type: literal, value: 50}, attribute: physical}]},
        {type: play_vfx, targets: {type: target}, vfx_id: couture-s2-hit3, delay_ticks: {type: literal, value: 1}},
