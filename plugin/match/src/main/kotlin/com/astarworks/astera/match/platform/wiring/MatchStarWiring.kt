@@ -16,7 +16,10 @@ import com.astarworks.astera.core.application.services.get
 import com.astarworks.astera.core.application.services.getOrThrow
 import com.astarworks.astera.core.application.services.register
 import com.astarworks.astera.core.domain.event.MatchEnded
+import com.astarworks.astera.core.application.port.outbound.IHudGateway
 import com.astarworks.astera.core.domain.event.MatchStarted
+import com.astarworks.astera.core.domain.hud.HudComponent
+import com.astarworks.astera.core.domain.hud.HudLayout
 import com.astarworks.astera.core.domain.match.MatchId
 import com.astarworks.astera.match.application.port.outbound.IGeneratorRegistry
 import com.astarworks.astera.match.application.port.outbound.IGeneratorRepository
@@ -28,7 +31,9 @@ import com.astarworks.astera.match.application.service.InMemoryMatchNormaStore
 import com.astarworks.astera.match.application.service.InMemoryMatchStarStore
 import com.astarworks.astera.match.application.service.LocationLookupMatchPlayerPositions
 import com.astarworks.astera.match.application.service.MatchStarLifecycle
+import com.astarworks.astera.match.application.service.NormaLevelGate
 import com.astarworks.astera.match.application.service.NormaLevelService
+import com.astarworks.astera.match.application.service.NormaUnlocks
 import com.astarworks.astera.match.application.service.StarDropService
 import com.astarworks.astera.match.domain.event.ResourceSpawned
 import com.astarworks.astera.match.domain.event.StarsCollected
@@ -46,6 +51,7 @@ internal object MatchStarWiring {
         private val generators: IGeneratorRegistry,
         private val stages: com.astarworks.astera.core.application.port.outbound.IStageRegistry,
         val norma: NormaLevelService,
+        val unlocks: NormaUnlocks,
         val drops: StarDropService,
         val configOf: (MatchId) -> NormaConfig,
     ) {
@@ -53,11 +59,11 @@ internal object MatchStarWiring {
         fun stageHasStars(stageId: String): Boolean = generators.all().any { it.matchStageId == (stages.find(com.astarworks.astera.core.domain.stage.StageId(stageId))?.templateId?.value ?: stageId) }
     }
 
-    /** Let the arena settle (teleports, kit) before the picker opens. */
-    private const val PROMPT_DELAY_TICKS = 40L
-
-    /** After a level-up the picker waits until the level-up title has been read. */
+    /** After a level-up the goal hint waits until the level-up title has been read. */
     private const val LEVEL_UP_PROMPT_DELAY_TICKS = 70L
+
+    /** Goal hint stays on the action bar for 5 s. */
+    private const val HINT_TTL_TICKS = 100
 
     fun install(env: MatchWiringEnv): Wired {
         val services = env.ctx.services
@@ -94,7 +100,6 @@ internal object MatchStarWiring {
             configOf = configOf,
             isNorma = env.normaLayerOf,
             eventBus = eventBus,
-            lifecycle = env.facade,
         )
         val lifecycle = MatchStarLifecycle(
             registry = registry,
@@ -118,13 +123,23 @@ internal object MatchStarWiring {
         val mcServer = services.get<IMcServer>()
         // Norma level-up: title, sound, burst at the player, chat line to the match; the top level is bigger.
         val presentation = env.ports.normaPresentation?.invoke(services)
+        // ADR-0288: Items asks this gate before firing a `min_norma_level` binding; below the level the player gets
+        // the deny sound and "unlocks at Lv N" line.
+        val unlocks = NormaUnlocks(
+            items = { services.get<com.astarworks.astera.core.application.port.outbound.IItemRegistry>() },
+            owned = { services.get<com.astarworks.astera.core.application.port.outbound.item.IOwnedItemQuery>() },
+        )
+        env.ctx.registrations += services.register<com.astarworks.astera.core.application.port.outbound.IMatchLevelGate>(
+            NormaLevelGate(norma) { player, required -> presentation?.locked(player, required) },
+            priority = 0,
+        )
         if (presentation != null) {
             subs += eventBus.subscribe(NormaLevelUp::class) { e ->
                 val audience = env.matches.findById(e.matchId)?.teams?.flatMap { it.members }.orEmpty()
-                presentation.levelUp(e.playerId, audience, e.level, configOf(e.matchId).maxLevel)
+                presentation.levelUp(e.playerId, audience, e.level, configOf(e.matchId).maxLevel, unlocks.at(e.playerId, e.level))
             }
         }
-        // Norma goal picker (GUI) at match start and at each level-up; default STAR after 10 s.
+        // Norma goal: default STAR, a non-blocking action-bar hint at each level-up; no GUI opens by itself.
         val guiAdapter = services.get<IGuiAdapter>()
         val renderer = services.get<IMessageRenderer>()
         if (mcServer != null && guiAdapter != null && renderer != null) {
@@ -137,22 +152,20 @@ internal object MatchStarWiring {
                 scheduler = env.scheduler,
                 messages = { p, key, args -> p.sendMessage(renderer.render(p.id, key, args)) },
                 presentation = presentation,
+                hintSink = { id, key, params ->
+                    services.get<IHudGateway>()?.showFor(
+                        id,
+                        HudLayout.ActionBar(HudComponent.Text(messageKey = key, placeholders = params), ttlTicks = HINT_TTL_TICKS, priority = 1),
+                    )
+                },
             )
             env.ctx.registrations += services.getOrThrow<IGuiIntentRouter>().register(NormaChoicePrompter.INTENT_PREFIX) { intent, player ->
                 prompter.handle(intent, player)
             }
-            subs += eventBus.subscribe(NormaLevelUp::class) { e -> env.scheduler.runLaterTicks(ExecutionScope.Entity(e.playerId.uuid), LEVEL_UP_PROMPT_DELAY_TICKS) { prompter.prompt(e.playerId) } }
-            subs += eventBus.subscribe(MatchStarted::class) { e ->
-                // Teams fill in after MatchStarted publishes: read the roster after the settle delay, then fan out.
-                env.scheduler.runLaterTicks(ExecutionScope.Global, PROMPT_DELAY_TICKS) {
-                    env.matches.findById(e.matchId)?.teams?.flatMap { it.members }?.forEach { id ->
-                        env.scheduler.runLaterTicks(ExecutionScope.Entity(id.uuid), 0L) { prompter.prompt(id) }
-                    }
-                }
-            }
+            subs += eventBus.subscribe(NormaLevelUp::class) { e -> env.scheduler.runLaterTicks(ExecutionScope.Entity(e.playerId.uuid), LEVEL_UP_PROMPT_DELAY_TICKS) { prompter.hint(e.playerId) } }
         }
         // Command teleports raise no move event: a short poll covers them and redraws the drop markers.
         env.scheduledTasks += env.scheduler.runRepeatingTicks(ExecutionScope.Global, initialDelayTicks = 10L, periodTicks = 10L) { drops.poll() }
-        return Wired(store, registry, env.stages, norma, drops, configOf)
+        return Wired(store, registry, env.stages, norma, unlocks, drops, configOf)
     }
 }

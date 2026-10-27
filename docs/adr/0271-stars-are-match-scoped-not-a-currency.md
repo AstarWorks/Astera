@@ -10,7 +10,7 @@ superseded_by: null
 
 ## Status
 
-Accepted. Supersedes the STAR parts of ADR-0199 (currency roles), ADR-0177 (lobby/match sidebar STAR wallet),
+Accepted. Level-as-win parts are superseded by ADR-0288. Supersedes the STAR parts of ADR-0199 (currency roles), ADR-0177 (lobby/match sidebar STAR wallet),
 ADR-0235 (level-reward STAR) and ADR-0237 (STAR sources list). Those ADRs stay immutable; this one wins on conflict.
 
 ## Context

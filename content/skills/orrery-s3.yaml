@@ -3,8 +3,8 @@ name:
   ja: 四連の光束
   en: Fourfold Beam
 description:
-  ja: 四連の光束
-  en: Fourfold Beam
+  ja: 光の束を四連続で放ち、チャージを得る。
+  en: Fire four beams in a row, gaining Charge.
 archetype: sequence
 cooldown_ticks: 235
 resource_cost: 28

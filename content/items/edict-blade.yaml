@@ -7,15 +7,15 @@ lore:
   ja:
   - '左クリック: 双拳砕き'
   - '右クリック: 返しの手枷'
-  - 'Shift+右: 落下の鉄拳'
-  - 'Shift+左: 手枷の応酬'
+  - 'スニーク+右: 落下の鉄拳'
+  - 'スニーク+左: 手枷の応酬'
   - 'Q: 解かれた勅令'
   en:
-  - 'left_click: Bound Fist Crush'
-  - 'right_click: Shackle Return'
-  - 'sneak_right: Cuffed Descent'
-  - 'sneak_left: Shackle Reprisal'
-  - 'drop: Unbound Mandate'
+  - 'Left-click: Bound Fist Crush'
+  - 'Right-click: Shackle Return'
+  - 'Sneak+Right-click: Cuffed Descent'
+  - 'Sneak+Left-click: Shackle Reprisal'
+  - 'Q: Unbound Mandate'
 rarity: epic
 level_requirement: 4
 attributes:
@@ -31,9 +31,11 @@ skills:
   skill_id: edict-s2
 - trigger: sneak_right
   skill_id: edict-s3
+  min_norma_level: 2
 - trigger: sneak_left
   skill_id: edict-def
 - trigger: drop
   skill_id: edict-ego
+  min_norma_level: 3
 pdc_tags:
   astera:rarity: epic

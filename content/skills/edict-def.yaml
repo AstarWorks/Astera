@@ -3,8 +3,8 @@ name:
   ja: 手枷の応酬
   en: Shackle Reprisal
 description:
-  ja: 手枷の応酬
-  en: Shackle Reprisal
+  ja: 手枷で受けて、連続で反撃する。
+  en: Guard with the shackles, then counter with a flurry.
 archetype: sequence
 cooldown_ticks: 90
 resource_cost: 10

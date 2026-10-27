@@ -3,8 +3,8 @@ name:
   ja: 杭と鉄槌
   en: Nails and Judgment
 description:
-  ja: 杭と鉄槌
-  en: Nails and Judgment
+  ja: 杭を打ち込み、突進して鉄槌を叩きつける。
+  en: Drive a stake, rush in, and bring the hammer down.
 archetype: sequence
 cooldown_ticks: 165
 resource_cost: 26

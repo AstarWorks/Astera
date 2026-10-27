@@ -10,8 +10,7 @@ package com.astarworks.astera.match.domain.mode
  *
  * Examples:
  * ```
- * GameModeId("battle-loyal")
- * GameModeId("break-core")
+ * GameModeId("annihilation")
  * GameModeId("carry-tnt")
  * ```
  */

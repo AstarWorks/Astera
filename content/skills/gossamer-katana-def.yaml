@@ -3,8 +3,8 @@ name:
   ja: 糸抜け
   en: Thread Slip
 description:
-  ja: 糸抜け
-  en: Thread Slip
+  ja: 糸のようにすり抜けて距離を取る。
+  en: Slip away like a thread and gain distance.
 archetype: sequence
 cooldown_ticks: 80
 resource_cost: 10

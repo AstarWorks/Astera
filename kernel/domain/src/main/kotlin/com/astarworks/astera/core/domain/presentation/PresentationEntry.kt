@@ -69,6 +69,7 @@ public object PresentationMoments {
     public const val STAR_BURST_SPARK: String = "star-burst-spark"
     public const val NORMA_LEVEL_UP: String = "norma-level-up"
     public const val NORMA_LEVEL_MAX: String = "norma-level-max"
+    public const val NORMA_LOCKED: String = "norma-locked"
     public const val NORMA_CHOICE_OPEN: String = "norma-choice-open"
     public const val NORMA_CHOICE_PICKED: String = "norma-choice-picked"
     public const val NORMA_CHOICE_DEFAULTED: String = "norma-choice-defaulted"
@@ -83,7 +84,6 @@ public object PresentationMoments {
     public const val OBJECTIVE_CHANNEL: String = "objective-channel"
     public const val OBJECTIVE_TENSION: String = "objective-tension"
     public const val OBJECTIVE_CAPTURE: String = "objective-capture"
-    public const val OBJECTIVE_CORE_ALARM: String = "objective-core-alarm"
     public const val QUEUE_JOIN: String = "queue-join"
     public const val MATCH_FOUND: String = "match-found"
     public const val SUDDEN_DEATH: String = "sudden-death"
@@ -103,7 +103,7 @@ public object PresentationMoments {
         STAR_POP, STAR_PICKUP, STAR_BURST, STAR_BURST_KILLER, STAR_BURST_GOLD, STAR_BURST_SPARK,
         NORMA_LEVEL_UP, NORMA_LEVEL_MAX, NORMA_CHOICE_OPEN, NORMA_CHOICE_PICKED, NORMA_CHOICE_DEFAULTED,
         OBJECTIVE_PICKUP, OBJECTIVE_COLLECT, OBJECTIVE_ALERT, OBJECTIVE_DROP, OBJECTIVE_RETURN, OBJECTIVE_DELIVER,
-        OBJECTIVE_DELIVER_AGAINST, OBJECTIVE_WARN, OBJECTIVE_CHANNEL, OBJECTIVE_TENSION, OBJECTIVE_CAPTURE, OBJECTIVE_CORE_ALARM, QUEUE_JOIN, MATCH_FOUND, SUDDEN_DEATH, MATCH_WIN, MATCH_LOSE, MATCH_DRAW, REWARD_LOGIN, PURCHASE, QUEST_COMPLETE, PLAYER_LEVEL_UP,
+        OBJECTIVE_DELIVER_AGAINST, OBJECTIVE_WARN, OBJECTIVE_CHANNEL, OBJECTIVE_TENSION, OBJECTIVE_CAPTURE, QUEUE_JOIN, MATCH_FOUND, SUDDEN_DEATH, MATCH_WIN, MATCH_LOSE, MATCH_DRAW, REWARD_LOGIN, PURCHASE, QUEST_COMPLETE, PLAYER_LEVEL_UP,
         UI_CLICK, UI_CONFIRM, UI_DENY,
     )
 }

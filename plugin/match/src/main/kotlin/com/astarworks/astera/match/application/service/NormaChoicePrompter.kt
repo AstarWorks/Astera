@@ -21,9 +21,10 @@ import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicLong
 
 /**
- * Asks a player for the Norma goal (STAR or KILL) without a command: a small GUI opens at match start and at each
- * level-up and closes by itself after [WINDOW_TICKS] (10 s). Not choosing leaves the default, STAR. The GUI clicks
- * land in [handle]; `/astera norma choose` stays available.
+ * The Norma goal (STAR or KILL) defaults to STAR and is never forced on the player: nothing opens over the screen at
+ * match start. At each level-up [hint] shows a one-line, non-blocking action-bar note with the current goal and how to
+ * change it (`/astera norma choose`). [prompt] opens the picker GUI (auto-closing after [WINDOW_TICKS]) when a caller
+ * explicitly wants it; its clicks land in [handle].
  */
 public class NormaChoicePrompter(
     private val matches: IMatchRepository,
@@ -34,10 +35,20 @@ public class NormaChoicePrompter(
     private val scheduler: IScheduler,
     private val messages: (IMcPlayer, MessageKey, Map<String, String>) -> Unit,
     private val presentation: INormaPresentation? = null,
+    /** Shows a short non-blocking line (action bar) with placeholders. */
+    private val hintSink: (PlayerId, MessageKey, Map<String, String>) -> Unit = { _, _, _ -> },
 ) {
     /** Open picker per player: the token of the prompt that opened it (a stale timeout must not announce a newer prompt). */
     private val pending: MutableMap<PlayerId, Long> = ConcurrentHashMap()
     private val tokens = AtomicLong()
+
+    /** Non-blocking level-up note: the current goal stands, and `/astera norma choose` changes it. */
+    public fun hint(playerId: PlayerId) {
+        val hud = norma.hudOf(playerId) ?: return
+        if (hud.level >= hud.maxLevel) return
+        val key = if (hud.goal == NormaGoal.STAR) "astera.match.hint.norma-choice-star" else "astera.match.hint.norma-choice-kill"
+        hintSink(playerId, MessageKey(key), mapOf("target" to hud.target.toString()))
+    }
 
     /** Opens the picker for [playerId] if they are in a live Norma match below the top level. */
     public fun prompt(playerId: PlayerId) {

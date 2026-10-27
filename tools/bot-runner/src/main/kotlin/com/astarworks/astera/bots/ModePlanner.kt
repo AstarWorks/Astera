@@ -7,7 +7,6 @@ import kotlin.math.hypot
  * clock is passed in, state advances only from the bot's own position (standing in a region is how every siege mode rewards
  * the player), so a game-sim scenario can drive the real mode with it.
  *
- *  - `break-core`: attackers dig the enemy core, every third bot (by name hash) defends its own core.
  *  - `carry-mini-tnt`: collect mini TNT at the pickup spots and plant it in the enemy base. A carrier that dies starts over.
  *  - `carry-tnt`: take the TNT at `tnt-spawn` to the enemy base.
  *  - `steal-jewelry`: take a jewel from the enemy pedestal, bank it at the own base.
@@ -32,12 +31,8 @@ class ModePlanner(
         fun names(prefix: String): List<String>
     }
 
-    enum class Role { ATTACK, DEFEND }
-
-    /** Where to go: [kind] is one of `attack-core`, `defend-core`, `pickup`, `bank`, `tnt`, `deliver`, `jewel`, `wool`, `recover`. */
+    /** Where to go: [kind] is one of `pickup`, `bank`, `tnt`, `deliver`, `jewel`, `wool`, `recover`. */
     data class Step(val zone: String, val x: Double, val y: Double, val z: Double, val arrive: Double, val kind: String, val breakable: Boolean = false)
-
-    val role: Role = if (modeId == "break-core" && Math.floorMod(botName.hashCode(), 3) == 0) Role.DEFEND else Role.ATTACK
 
     // Inferred state (the server does not tell a client what it carries).
     var carried = 0; private set
@@ -120,7 +115,6 @@ class ModePlanner(
 
     /** The step for a bot at ([x], [z]) at time [now]; null when the mode has no plan or the stage lacks the regions. */
     fun step(now: Long, x: Double, z: Double): Step? = when (modeId) {
-        "break-core" -> breakCore()
         "carry-tnt" -> (if (holdingTnt) null else recover(now, x, z)) ?: carryTnt(now, x, z)
         "carry-mini-tnt" -> miniTnt(now, x, z)
         "steal-jewelry" -> (if (carried > 0) null else recover(now, x, z)) ?: jewelry(now, x, z)
@@ -137,12 +131,6 @@ class ModePlanner(
         candidates.mapNotNull { n -> zones.point(n)?.let { n to hypot(it.first - x, it.third - z) } }.minByOrNull { it.second }?.first
 
     private fun nearestEnemy(prefix: String, x: Double, z: Double) = nearest(enemyTeams.map { "$prefix$it" }, x, z)
-
-    private fun breakCore(): Step? {
-        if (role == Role.DEFEND) return step("core-$ownTeam", "defend-core", DEFEND_RADIUS)
-        val zone = nearestEnemy("core-", 0.0, 0.0) ?: return null
-        return step(zone, "attack-core", 3.5, breakable = true)
-    }
 
     /** True once the bot has stood inside [s]'s radius for [HOLD_MS]: the modes' pickups and deliveries are short holds, not touches. */
     private fun held(s: Step, now: Long, x: Double, z: Double): Boolean {
@@ -203,10 +191,9 @@ class ModePlanner(
     }
 
     companion object {
-        val MODES = setOf("break-core", "carry-tnt", "carry-mini-tnt", "steal-jewelry", "capture-wool")
+        val MODES = setOf("carry-tnt", "carry-mini-tnt", "steal-jewelry", "capture-wool")
         const val TNT_SPAWN = "tnt-spawn"
         const val BASE_RADIUS = 3.0
-        const val DEFEND_RADIUS = 7.0
         const val HOLD_MS = 1_500L
         const val CONFIRM_MS = 4_000L
         /** Custom name the mode puts on loose (dropped) objective markers; keep equal to `PaperObjectiveStage.LOOSE_TAG`. */

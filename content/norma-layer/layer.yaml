@@ -5,21 +5,17 @@
 # or make kills), and the level-up is presented to the whole match. Everything is dropped at match end.
 #
 # These are the DEFAULTS. A game mode overrides any key in its own `default_config` (content/game-modes/<id>.yaml);
-# the common override is `norma_win: "false"` (levels still count and rank the time limit, but reaching the top does
-# not end the match) or `time_limit_seconds: "0"` (the mode has its own clock). `norma_layer: "false"` takes a mode
+# the common override is `time_limit_seconds: "0"` (the mode has its own clock). Norma levels are in-match power
+# progression (they unlock ultimates and special items, `min_norma_level` on item bindings; ADR-0288) and never win a match. `norma_layer: "false"` takes a mode
 # out of the layer altogether (PvE waves: co-op against mobs, no player-vs-player race).
 # Reload: `/astera reload norma-layer`.
 defaults:
   # Whether the layer runs in the mode at all.
   norma_layer: "true"
 
-  # Win rule: reaching norma_max_level wins the match (100% Orange Juice style), alongside the mode's own objective,
-  # whichever happens first. "false" = the mode's own objective is the only win path.
-  norma_win: "true"
-
   # Time limit (seconds of ACTIVE time); 0 = no limit (the mode brings its own clock). When it runs out the teams
-  # are ranked by: the mode's own objective score (if the mode has one), then the highest Norma level, then the
-  # stars carried, then the kills. Still tied = draw.
+  # are ranked by: the mode's own objective score (if the mode has one), then the stars
+  # carried, then the kills. Still tied = draw.
   time_limit_seconds: "600"
 
   # Norma levels: every player starts at level 1 and clears each level with ONE goal of their choice

@@ -3,8 +3,8 @@ name:
   ja: 緋鎖の展開
   en: Crimson Chain Unfurl
 description:
-  ja: 緋鎖の展開
-  en: Crimson Chain Unfurl
+  ja: E.G.Oを使い、鎖斧を展開して呼吸を溜める。
+  en: Spend E.G.O to unfurl the chain axe and build Poise.
 archetype: sequence
 cooldown_ticks: 220
 resource_cost: 0

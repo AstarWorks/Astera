@@ -36,10 +36,13 @@ public class ShowLastMatchRecapOnJoinListener(
             for (line in LastMatchView.lines(record, now)) {
                 playerGateway.sendMessage(event.playerId, messages.render(event.playerId, line.key, line.params))
             }
+            playerGateway.sendMessage(event.playerId, messages.render(event.playerId, OPEN_LAST))
         }
     }
 
     public companion object {
+        public val OPEN_LAST: com.astarworks.astera.core.domain.i18n.MessageKey =
+            com.astarworks.astera.core.domain.i18n.MessageKey("astera.match.result.open-last")
         public const val RECAP_DELAY_TICKS: Long = 60L
         public const val MAX_AGE_SECONDS: Long = 15L * 60L
         public val RECAP_HEADER: com.astarworks.astera.core.domain.i18n.MessageKey =

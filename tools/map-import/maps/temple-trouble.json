@@ -390,6 +390,136 @@
    ],
    "block": "minecraft:stone_bricks",
    "note": "bridge over the void (the original is bridged by players)"
+  },
+  {
+   "box": [
+    -8,
+    9,
+    -64,
+    8,
+    15,
+    -58
+   ],
+   "block": "minecraft:stone_bricks",
+   "only_air": false,
+   "note": "spawn dais (stepped down toward the centre)"
+  },
+  {
+   "box": [
+    -8,
+    9,
+    58,
+    8,
+    15,
+    64
+   ],
+   "block": "minecraft:stone_bricks",
+   "only_air": false,
+   "note": "spawn dais (stepped down toward the centre)"
+  },
+  {
+   "box": [
+    -8,
+    9,
+    -57,
+    8,
+    14,
+    -57
+   ],
+   "block": "minecraft:stone_bricks",
+   "only_air": false,
+   "note": "spawn dais (stepped down toward the centre)"
+  },
+  {
+   "box": [
+    -8,
+    9,
+    57,
+    8,
+    14,
+    57
+   ],
+   "block": "minecraft:stone_bricks",
+   "only_air": false,
+   "note": "spawn dais (stepped down toward the centre)"
+  },
+  {
+   "box": [
+    -8,
+    9,
+    -56,
+    8,
+    13,
+    -56
+   ],
+   "block": "minecraft:stone_bricks",
+   "only_air": false,
+   "note": "spawn dais (stepped down toward the centre)"
+  },
+  {
+   "box": [
+    -8,
+    9,
+    56,
+    8,
+    13,
+    56
+   ],
+   "block": "minecraft:stone_bricks",
+   "only_air": false,
+   "note": "spawn dais (stepped down toward the centre)"
+  },
+  {
+   "box": [
+    -8,
+    9,
+    -55,
+    8,
+    12,
+    -55
+   ],
+   "block": "minecraft:stone_bricks",
+   "only_air": false,
+   "note": "spawn dais (stepped down toward the centre)"
+  },
+  {
+   "box": [
+    -8,
+    9,
+    55,
+    8,
+    12,
+    55
+   ],
+   "block": "minecraft:stone_bricks",
+   "only_air": false,
+   "note": "spawn dais (stepped down toward the centre)"
+  },
+  {
+   "box": [
+    -8,
+    9,
+    -54,
+    8,
+    11,
+    -54
+   ],
+   "block": "minecraft:stone_bricks",
+   "only_air": false,
+   "note": "spawn dais (stepped down toward the centre)"
+  },
+  {
+   "box": [
+    -8,
+    9,
+    54,
+    8,
+    11,
+    54
+   ],
+   "block": "minecraft:stone_bricks",
+   "only_air": false,
+   "note": "spawn dais (stepped down toward the centre)"
   }
  ],
  "credits": {
@@ -399,6 +529,40 @@
   ],
   "source": "https://github.com/OvercastCommunity/CommunityMaps/tree/17a7432a670589e153f5b07c933557dabca3d981/ctw/temple_trouble",
   "license": "CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0/)",
-  "modified": "converted from a pre-1.13 world to modern block states, moved to y=64, signs/banners/skulls/pistons dropped, stray decoration removed, bridges over the middle void and star plinths added"
- }
+  "modified": "converted from a pre-1.13 world to modern block states, moved to y=64, signs/banners/skulls/pistons dropped, stray decoration removed, cropped to the central play area, bridges over the middle void and star plinths and two spawn daises added"
+ },
+ "crop_out": [
+  [
+   -200,
+   -100,
+   -200,
+   -28,
+   200,
+   200
+  ],
+  [
+   28,
+   -100,
+   -200,
+   200,
+   200,
+   200
+  ],
+  [
+   -200,
+   -100,
+   -200,
+   200,
+   200,
+   -65
+  ],
+  [
+   -200,
+   -100,
+   65,
+   200,
+   200,
+   200
+  ]
+ ]
 }

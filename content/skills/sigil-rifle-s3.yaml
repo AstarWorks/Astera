@@ -3,8 +3,8 @@ name:
   ja: 刻印の追撃
   en: Seal Pursuit
 description:
-  ja: 刻印の追撃
-  en: Seal Pursuit
+  ja: 刻印を目印に強烈な追撃を撃ち込む。
+  en: Fire a heavy follow-up at the sealed target.
 archetype: sequence
 cooldown_ticks: 165
 resource_cost: 25

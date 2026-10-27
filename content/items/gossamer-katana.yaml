@@ -7,15 +7,15 @@ lore:
   ja:
   - '左クリック: 糸切り'
   - '右クリック: 影糸の網'
-  - 'Shift+右: 一線の傷'
-  - 'Shift+左: 糸抜け'
+  - 'スニーク+右: 一線の傷'
+  - 'スニーク+左: 糸抜け'
   - 'Q: 静寂の織機'
   en:
-  - 'left_click: Thread Cut'
-  - 'right_click: Spectral Web'
-  - 'sneak_right: Single Scar'
-  - 'sneak_left: Thread Slip'
-  - 'drop: Silent Loom'
+  - 'Left-click: Thread Cut'
+  - 'Right-click: Spectral Web'
+  - 'Sneak+Right-click: Single Scar'
+  - 'Sneak+Left-click: Thread Slip'
+  - 'Q: Silent Loom'
 rarity: epic
 level_requirement: 3
 attributes:
@@ -31,9 +31,11 @@ skills:
   skill_id: gossamer-katana-s2
 - trigger: sneak_right
   skill_id: gossamer-katana-s3
+  min_norma_level: 2
 - trigger: sneak_left
   skill_id: gossamer-katana-def
 - trigger: drop
   skill_id: gossamer-katana-ego
+  min_norma_level: 3
 pdc_tags:
   astera:rarity: epic

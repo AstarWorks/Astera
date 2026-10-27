@@ -14,7 +14,7 @@ import org.junit.jupiter.api.Test
  * Bots play the mode's objective, not just "find enemies" (item 25d). The planner ([ModePlanner], the object BotBrain asks
  * for its destination) is fed the REAL stage regions (StageObjectives.load) and drives a sim player through the REAL
  * mode: in carry-mini-tnt it must collect mini TNT and plant it in the enemy base until the base blows up.
- * Also: core roles, and the Tab-list independent target fallback.
+ * Also: the Tab-list independent target fallback.
  */
 class BotModeObjectiveScenarioTest {
 
@@ -74,23 +74,6 @@ class BotModeObjectiveScenarioTest {
             val kinds = drive(runner, planner("carry-tnt", "runner", "red", "blue"), 40) { eventsOf<MatchEnded>().isNotEmpty() }
             assertThat(kinds.take(2)).containsExactly("tnt", "deliver")
             assertThat(eventsOf<MatchEnded>().singleOrNull()?.winningTeam).isEqualTo(TeamId("red"))
-        }
-    }
-
-    @Test
-    fun `core mode - most bots attack the enemy core, every third defends its own`() {
-        val names = (1..12).map { "bot$it" }
-        val plans = names.associateWith { planner("break-core", it, "red", "blue") }
-        val defenders = plans.filterValues { it.role == ModePlanner.Role.DEFEND }
-        assertThat(defenders).`as`("some defend").isNotEmpty()
-        assertThat(defenders.size).`as`("most attack").isLessThan(names.size / 2 + 1)
-        for ((_, plan) in plans) {
-            val step = checkNotNull(plan.step(0, -60.0, 0.0))
-            if (plan.role == ModePlanner.Role.DEFEND) {
-                assertThat(step.zone).isEqualTo("core-red"); assertThat(step.kind).isEqualTo("defend-core"); assertThat(step.breakable).isFalse()
-            } else {
-                assertThat(step.zone).isEqualTo("core-blue"); assertThat(step.kind).isEqualTo("attack-core"); assertThat(step.breakable).isTrue()
-            }
         }
     }
 

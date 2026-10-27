@@ -45,18 +45,18 @@ spawn_points:
 - `kind: base` (team island: grass, team-coloured rim, spawn pad and two banner posts), `center` (stone-brick
   plaza) or `outpost` (small grass satellite). A base island's `team` picks its colour (`accent` overrides it).
 - `radius` is nominal (3..64); the rim wobbles by up to ~19 percent. Keep anchors within about 0.78 × radius.
-  Production bases are 280 blocks apart (Norma), 320 (Siege), and about 287 (three-team Annihilation).
-  Siege castles have four 25-block towers, walls, an open gate, keep, and climbable galleries. Front spawns sit
-  about 120–124 blocks from the contested centre (roughly 22 seconds at sprint speed). Wide roads and seven-block
+  Production bases are 84 blocks apart (Siege, about 130x80 overall), about 80 (three-team Annihilation, about
+  130x135); Norma keeps its larger layout. Siege castles keep a gate, walls, keep and towers; front spawns sit about
+  40 blocks from the contested centre (roughly 7 seconds at sprint speed) so a 4v4 reaches the fight quickly. Wide roads and seven-block
   bridges keep movement straightforward. PvE expands more conservatively to keep wave travel reasonable.
 - `theme` supplies a material palette for terrain, trees, roads, bridges, structure walls and lights. Optional
   `structures` placements select a part, x/z, surface-relative y, rotation and palette overrides; see the part README.
 - Terrain the builder adds by itself, deterministic in `seed`: stepped hills, ruined walls (centre) / boulders and trees
-  (other islands) as cover, a wall arc behind `core-*` only in stages without authored structures. It stays clear of spawn pads, anchors, pillar footings
+  (other islands) as cover, a wall arc behind the bases only in stages without authored structures. It stays clear of spawn pads, anchors, pillar footings
   and the straight lane from each island centre to its bridges.
 - Bridges are drawn centre to centre; an island block always wins over a bridge block.
 - Every stage is authored around its own origin (0,0); the server pastes a copy into a free world slot and shifts spawns, regions, pillars, layout and generators by the slot origin at claim time.
-- Per-lane siege-isles variants (MODE-06, ADR-0273) copy `siege-isles` with their own lane objective and generator ids: `siege-isles` (break-core), `siege-isles-tnt`, `-wool`, `-jewelry`, `-loyal`, `-mini-tnt`. They carry no offsets (slots separate concurrent matches); keep each variant in sync with `siege-isles.yaml`.
+- Per-lane siege-isles variants (MODE-06, ADR-0273) copy `siege-isles` with their own lane objective and generator ids: `siege-isles` (base copy, unrouted), `siege-isles-tnt`, `-wool`, `-jewelry`, `-mini-tnt`. They carry no offsets (slots separate concurrent matches); keep each variant in sync with `siege-isles.yaml`.
 - `arena-worlds.marker` stores each stage's marker version, plan digest and previous bounds. Changed content rebuilds
   on restart; bump `marker_version` when editing a cached stage. The old bounds are cleared before placement.
   Planning/digesting runs off thread. Chunk loading is asynchronous; clearing, placing and releasing chunk tickets
@@ -90,7 +90,6 @@ Region `name`s are how a mode finds its objective zones (zones are plain AABBs; 
 
 | Region name | Used by | Meaning |
 |---|---|---|
-| `core-<team>` | `break-core` | exactly one block: the team's core (marker placed at match start, one above the floor) |
 | `base-<team>` | `carry-tnt`, `steal-jewelry` | team base: TNT delivery target / jewel deposit |
 | `jewelry-<team>` | `steal-jewelry` | pedestal zone; its centre floor block is the diamond marker |
 | `tnt-spawn` | `carry-tnt` | where the TNT waits |
@@ -98,7 +97,6 @@ Region `name`s are how a mode finds its objective zones (zones are plain AABBs; 
 
 `<team>` is the team id (`red` / `blue`). A stage that lacks the regions a mode
 needs lets the match run without an objective (warning in the log).
-`battle-loyal` needs no regions.
 
 ## Preview and E2E fixtures
 

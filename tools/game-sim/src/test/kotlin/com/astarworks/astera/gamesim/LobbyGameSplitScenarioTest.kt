@@ -60,8 +60,8 @@ class LobbyGameSplitScenarioTest {
             // A queued lobby player never starts a match locally; a game server has no queue scheduler.
             val p1 = lobby.spawnPlayer("p1")
             val p2 = game.spawnPlayer("p2")
-            lobby.services.getOrThrow<IMatchmaker>().enqueue(p1.id, MatchmakingMode.BATTLE_LOYAL)
-            game.services.getOrThrow<IMatchmaker>().enqueue(p2.id, MatchmakingMode.BATTLE_LOYAL)
+            lobby.services.getOrThrow<IMatchmaker>().enqueue(p1.id, MatchmakingMode.CARRY_TNT)
+            game.services.getOrThrow<IMatchmaker>().enqueue(p2.id, MatchmakingMode.CARRY_TNT)
             lobby.step(400)
             game.step(400)
             assertThat(lobby.eventsOf<MatchStarted>()).isEmpty()
@@ -70,8 +70,8 @@ class LobbyGameSplitScenarioTest {
             // ALL still forms the match on the spot.
             val p3 = all.spawnPlayer("p3")
             val p4 = all.spawnPlayer("p4")
-            all.services.getOrThrow<IMatchmaker>().enqueue(p3.id, MatchmakingMode.BATTLE_LOYAL)
-            all.services.getOrThrow<IMatchmaker>().enqueue(p4.id, MatchmakingMode.BATTLE_LOYAL)
+            all.services.getOrThrow<IMatchmaker>().enqueue(p3.id, MatchmakingMode.CARRY_TNT)
+            all.services.getOrThrow<IMatchmaker>().enqueue(p4.id, MatchmakingMode.CARRY_TNT)
             assertThat(all.stepUntil(400) { all.eventsOf<MatchStarted>().isNotEmpty() }).isTrue()
         } finally {
             lobby.shutdown()
@@ -90,8 +90,8 @@ class LobbyGameSplitScenarioTest {
         try {
             val player = lobby.spawnPlayer("p1")
             val mate = lobby.spawnPlayer("p1b")
-            assertThat(lobby.services.getOrThrow<IMatchmaker>().enqueue(player.id, MatchmakingMode.BATTLE_LOYAL)).isInstanceOf(Result.Success::class.java)
-            lobby.services.getOrThrow<IMatchmaker>().enqueue(mate.id, MatchmakingMode.BATTLE_LOYAL)
+            assertThat(lobby.services.getOrThrow<IMatchmaker>().enqueue(player.id, MatchmakingMode.CARRY_TNT)).isInstanceOf(Result.Success::class.java)
+            lobby.services.getOrThrow<IMatchmaker>().enqueue(mate.id, MatchmakingMode.CARRY_TNT)
 
             // Queue countdown on the lobby, then the assignment is sent and the player is transferred.
             var arrived = false
@@ -120,8 +120,8 @@ class LobbyGameSplitScenarioTest {
             // While it runs, a second wave on the lobby waits for the game server.
             val late = lobby.spawnPlayer("p2")
             val late2 = lobby.spawnPlayer("p2b")
-            lobby.services.getOrThrow<IMatchmaker>().enqueue(late.id, MatchmakingMode.BATTLE_LOYAL)
-            lobby.services.getOrThrow<IMatchmaker>().enqueue(late2.id, MatchmakingMode.BATTLE_LOYAL)
+            lobby.services.getOrThrow<IMatchmaker>().enqueue(late.id, MatchmakingMode.CARRY_TNT)
+            lobby.services.getOrThrow<IMatchmaker>().enqueue(late2.id, MatchmakingMode.CARRY_TNT)
             network.step(300)
             assertThat(game.world.find(late.id)).`as`("queue is held while the game server is busy").isNull()
 
@@ -288,8 +288,8 @@ class LobbyGameSplitScenarioTest {
             val player = lobby.spawnPlayer("p1")
             val mate = lobby.spawnPlayer("p1b")
             checkNotNull(lobby.server.view(player.id)).failNotices = true
-            lobby.services.getOrThrow<IMatchmaker>().enqueue(player.id, MatchmakingMode.BATTLE_LOYAL)
-            lobby.services.getOrThrow<IMatchmaker>().enqueue(mate.id, MatchmakingMode.BATTLE_LOYAL)
+            lobby.services.getOrThrow<IMatchmaker>().enqueue(player.id, MatchmakingMode.CARRY_TNT)
+            lobby.services.getOrThrow<IMatchmaker>().enqueue(mate.id, MatchmakingMode.CARRY_TNT)
 
             assertThat(arrivedOn(network, game, player.id, 800)).`as`("Connect sent despite the failing notice").isTrue()
             assertThat(network.moves.map { it.third }).containsOnly(gameName)
@@ -323,8 +323,8 @@ class LobbyGameSplitScenarioTest {
             assertThat(lobby.eventsOf<PlayerArrivedOnServer>().map { it.playerId }).containsExactly(player.id)
             checkNotNull(lobby.inventory).put(player.id, "sword")
             val mate = lobby.spawnPlayer("p1b")
-            lobby.services.getOrThrow<IMatchmaker>().enqueue(player.id, MatchmakingMode.BATTLE_LOYAL)
-            lobby.services.getOrThrow<IMatchmaker>().enqueue(mate.id, MatchmakingMode.BATTLE_LOYAL)
+            lobby.services.getOrThrow<IMatchmaker>().enqueue(player.id, MatchmakingMode.CARRY_TNT)
+            lobby.services.getOrThrow<IMatchmaker>().enqueue(mate.id, MatchmakingMode.CARRY_TNT)
 
             assertThat(arrivedOn(network, game, player.id, 800)).`as`("player reached the game server").isTrue()
             // "Moving to ..." shown on the source before the proxy hop.
@@ -374,8 +374,8 @@ class LobbyGameSplitScenarioTest {
             network.step(60)
             checkNotNull(lobby.inventory).put(player.id, "sword")
             val mate = lobby.spawnPlayer("p1b")
-            lobby.services.getOrThrow<IMatchmaker>().enqueue(player.id, MatchmakingMode.BATTLE_LOYAL)
-            lobby.services.getOrThrow<IMatchmaker>().enqueue(mate.id, MatchmakingMode.BATTLE_LOYAL)
+            lobby.services.getOrThrow<IMatchmaker>().enqueue(player.id, MatchmakingMode.CARRY_TNT)
+            lobby.services.getOrThrow<IMatchmaker>().enqueue(mate.id, MatchmakingMode.CARRY_TNT)
 
             assertThat(arrivedOn(network, game, player.id, 800)).isTrue()
             network.step(80) // restore wait expires with the store down
@@ -415,8 +415,8 @@ class LobbyGameSplitScenarioTest {
 
             val player = lobby.spawnPlayer("p1")
             val mate = lobby.spawnPlayer("p1b")
-            lobby.services.getOrThrow<IMatchmaker>().enqueue(player.id, MatchmakingMode.BATTLE_LOYAL)
-            lobby.services.getOrThrow<IMatchmaker>().enqueue(mate.id, MatchmakingMode.BATTLE_LOYAL)
+            lobby.services.getOrThrow<IMatchmaker>().enqueue(player.id, MatchmakingMode.CARRY_TNT)
+            lobby.services.getOrThrow<IMatchmaker>().enqueue(mate.id, MatchmakingMode.CARRY_TNT)
             network.step(800)
 
             assertThat(network.sent.map { it.channel }).doesNotContain(ProxyChannel.MATCH_FOUND)

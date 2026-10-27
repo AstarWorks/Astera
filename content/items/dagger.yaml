@@ -11,10 +11,10 @@ name:
 lore:
   ja:
     - "<gray>左クリック: 刺突（出血）</gray>"
-    - "<gray>スニーク + 右クリック: ダッシュ</gray>"
+    - "<gray>スニーク+右: ダッシュ</gray>"
   en:
     - "<gray>Left-click: stab (bleed)</gray>"
-    - "<gray>Sneak + right-click: dash</gray>"
+    - "<gray>Sneak+Right-click: dash</gray>"
 
 rarity: uncommon
 level_requirement: 2

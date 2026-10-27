@@ -19,7 +19,7 @@ import com.astarworks.astera.core.domain.event.PlayerJoinedServer
 import com.astarworks.astera.core.domain.event.PlayerQuitServer
 import com.astarworks.astera.core.domain.event.PlayerReturnedToLobby
 import com.astarworks.astera.core.domain.match.MatchId
-import com.astarworks.astera.match.application.gamemode.BattleLoyalGameMode
+import com.astarworks.astera.match.application.gamemode.CarryTntGameMode
 import com.astarworks.astera.match.application.port.outbound.IGameModeFrameworkRegistry
 import com.astarworks.astera.match.application.port.outbound.matchmaking.IMatchmaker
 import com.astarworks.astera.match.application.service.hud.LobbySidebarService
@@ -52,13 +52,13 @@ internal object MatchHudWiring {
         val norma: (com.astarworks.astera.core.domain.player.PlayerId) -> com.astarworks.astera.match.domain.norma.NormaHud? = { player ->
             env.matches.findMatchOf(player)
                 ?.takeIf { matchStars.stageHasStars(it.stageId.value) }
-                ?.let { matchStars.norma.hudOf(player) }
+                ?.let { matchStars.norma.hudOf(player)?.let { hud -> hud.copy(nextUnlock = matchStars.unlocks.next(player, hud.level)) } }
         }
 
         val modeOf: (MatchId) -> IGameMode? = { id ->
             val key = env.matchModeRegistry.modeKeyOf(id)?.takeIf { it.isNotBlank() }
                 ?.let { runCatching { GameModeId(it) }.getOrNull() }
-            modes?.let { registry -> (key?.let(registry::get)) ?: registry.get(BattleLoyalGameMode.ID) }
+            modes?.let { registry -> (key?.let(registry::get)) ?: registry.get(CarryTntGameMode.ID) }
         }
 
         val matchSidebar = MatchSidebarService(

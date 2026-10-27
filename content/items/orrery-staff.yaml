@@ -7,15 +7,15 @@ lore:
   ja:
   - '左クリック: 電撃の杖'
   - '右クリック: 標的の電場'
-  - 'Shift+右: 四連の光束'
-  - 'Shift+左: 天球の返し'
+  - 'スニーク+右: 四連の光束'
+  - 'スニーク+左: 天球の返し'
   - 'Q: 天球の極点'
   en:
-  - 'left_click: Energy Rod Strike'
-  - 'right_click: Target Field'
-  - 'sneak_right: Fourfold Beam'
-  - 'sneak_left: Orrery Counter-Seal'
-  - 'drop: Orrery Zenith'
+  - 'Left-click: Energy Rod Strike'
+  - 'Right-click: Target Field'
+  - 'Sneak+Right-click: Fourfold Beam'
+  - 'Sneak+Left-click: Orrery Counter-Seal'
+  - 'Q: Orrery Zenith'
 rarity: epic
 level_requirement: 4
 attributes:
@@ -31,9 +31,11 @@ skills:
   skill_id: orrery-s2
 - trigger: sneak_right
   skill_id: orrery-s3
+  min_norma_level: 2
 - trigger: sneak_left
   skill_id: orrery-def
 - trigger: drop
   skill_id: orrery-ego
+  min_norma_level: 3
 pdc_tags:
   astera:rarity: epic

@@ -3,8 +3,8 @@ name:
   ja: 緋針
   en: Crimson Needle
 description:
-  ja: 緋針
-  en: Crimson Needle
+  ja: 緋色の針を撃ち出す。
+  en: Fire a crimson needle.
 archetype: sequence
 cooldown_ticks: 90
 resource_cost: 13

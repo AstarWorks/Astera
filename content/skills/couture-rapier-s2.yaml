@@ -4,7 +4,9 @@
 # The performance rig couture-s2-rig hides the held item for its whole length: the hand shears model is shown t0-21 and t63+, the flying shears t22-58, the other blades / linked shears are flat VFX only.
 id: couture-rapier-s2
 name: {ja: 型紙裁ち, en: Pattern Trim}
-description: {ja: 型紙裁ち, en: Pattern Trim}
+description:
+  ja: 突進して切り、続けてもう一撃。
+  en: Dash through with a cut, then strike again.
 archetype: sequence
 cooldown_ticks: 125
 resource_cost: 18

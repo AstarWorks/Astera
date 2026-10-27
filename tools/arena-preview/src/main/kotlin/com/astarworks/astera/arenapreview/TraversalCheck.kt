@@ -19,8 +19,11 @@ import kotlin.math.hypot
  */
 object TraversalCheck {
     private const val MAX_REPLANS = 12
+    private const val SPRINT = 5.6
+    /** carry-tnt: one piece slows the carrier to 75 percent. */
+    private const val CARRIER = 0.75
 
-    private class Walk(val reached: Boolean, val last: Triple<Int, Int, Int>, val nodes: Int)
+    private class Walk(val reached: Boolean, val last: Triple<Int, Int, Int>, val nodes: Int, val blocks: Int = 0)
 
     private class Leg(val x: Double, val z: Double, val y: Double?)
 
@@ -35,7 +38,7 @@ object TraversalCheck {
         val problems = mutableListOf<String>()
 
         fun walk(sx: Int, sy: Int, sz: Int, gx: Double, gz: Double, gy: Double?, arrive: Double): Walk {
-            var x = sx; var y = sy; var z = sz; var nodes = 0
+            var x = sx; var y = sy; var z = sz; var nodes = 0; var blocks = 0
             val far = hypot(gx - sx, gz - sz) > 48.0
             val legs = (if (far) graph.route(sx + .5, sz + .5, gx, gz).map { Leg(it.x, it.z, it.y) } else emptyList()) + Leg(gx, gz, gy)
             for ((i, leg) in legs.withIndex()) {
@@ -43,21 +46,21 @@ object TraversalCheck {
                 var replans = 0
                 while (true) {
                     val r = finder.find(x, y, z, leg.x, leg.z, leg.y, legArrive) ?: return Walk(false, Triple(x, y, z), nodes)
-                    nodes += r.expanded
+                    nodes += r.expanded; blocks += r.cells.size
                     val end = r.cells.last()
                     val progressed = end.x != x || end.y != y || end.z != z
                     x = end.x; y = end.y; z = end.z
                     if (r.complete) break
-                    if (!progressed || ++replans > MAX_REPLANS) return Walk(false, Triple(x, y, z), nodes)
+                    if (!progressed || ++replans > MAX_REPLANS) return Walk(false, Triple(x, y, z), nodes, blocks)
                 }
             }
-            return Walk(true, Triple(x, y, z), nodes)
+            return Walk(true, Triple(x, y, z), nodes, blocks)
         }
 
         fun check(label: String, sx: Double, sy: Double, sz: Double, gx: Double, gz: Double, gy: Double?, arrive: Double, start: Triple<Int, Int, Int>? = null) {
             val s = start ?: Triple(floor(sx).toInt(), floor(sy).toInt(), floor(sz).toInt())
             val w = walk(s.first, s.second, s.third, gx, gz, gy, arrive)
-            report.append("| ${stage.id.value} | $label | ${w.reached} | ${w.nodes} | ${w.last.first},${w.last.second},${w.last.third} |\n")
+            report.append("| ${stage.id.value} | $label | ${w.reached} | ${w.nodes} | ${w.last.first},${w.last.second},${w.last.third} | ${w.blocks} | %.1f | %.1f |\n".format(w.blocks / SPRINT, w.blocks / (SPRINT * CARRIER)))
             if (!w.reached) problems += "${stage.id.value}: bot route '$label' from (%.1f,%.1f,%.1f) to (%.1f,%.1f) FAILED; last reachable cell (%d,%d,%d), %.1f blocks short".format(
                 sx, sy, sz, gx, gz, w.last.first, w.last.second, w.last.third, hypot(gx - (w.last.first + .5), gz - (w.last.third + .5)),
             )
@@ -73,6 +76,7 @@ object TraversalCheck {
                 if (centre != null) check("$name spawn#$i -> centre", p.x, p.y, p.z, centre.x + .5, centre.z + .5, null, 3.0)
             }
             val p = team.first().position
+            spawns.firstOrNull { it.team!!.value != name }?.let { e -> check("$name spawn -> enemy spawn", p.x, p.y, p.z, e.position.x, e.position.z, null, 3.0) }
             for ((i, star) in stars.withIndex()) check("$name spawn -> star#$i (${star.first.toInt()},${star.second.toInt()})", p.x, p.y, p.z, star.first + .5, star.second + .5, null, 3.0)
             for ((i, placement) in layout.structures.withIndex()) {
                 if (placement.part != "castle-tower") continue

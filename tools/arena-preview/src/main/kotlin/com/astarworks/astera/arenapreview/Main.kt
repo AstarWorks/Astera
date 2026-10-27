@@ -32,7 +32,7 @@ fun main(args: Array<String>) {
     report.append("| Stage | Theme | Blocks | Generation ms | Digest ms | Bounds |\n|---|---|---:|---:|---:|---|\n")
     val routes = StringBuilder("\n## Routing (5000 nodes per A* search)\n\nTerrain treats every non-air block as solid, exactly as packet Terrain does; this is conservative for plants and banners. All chunks are known in this offline measurement. Live bots must progressively discover chunks.\n\n| Stage | Route | Direct complete | Direct nodes | Routed complete | Total local nodes | Max local nodes | Cells |\n|---|---|---|---:|---|---:|---:|---:|\n")
     val problems = mutableListOf<String>()
-    val walks = StringBuilder("\n## Bot traversal (spawn to objective, centre, stars, towers; real PathFinder + route graph, re-plans on capped searches)\n\n| Stage | Route | Reached | Nodes | Last cell |\n|---|---|---|---:|---|\n")
+    val walks = StringBuilder("\n## Bot traversal (spawn to objective, centre, stars, towers; real PathFinder + route graph, re-plans on capped searches)\n\n| Stage | Route | Reached | Nodes | Last cell | Path blocks | Sprint s (5.6 b/s) | Carrier s (75 percent) |\n|---|---|---|---:|---|---:|---:|---:|\n")
     val metrics = StringBuilder("\n## Relief metrics\n\nGround = highest solid non-tree block below surface_y + 12. Flat ground = 5x5 equal height with 3 blocks of headroom. Free run = mean 16-ray distance at eye height on land (void ends the run). Cover clusters = 4-connected groups of >= 3 columns standing 2+ above local ground or carrying a full block.\n\n" + ArenaMetrics.HEADER)
     for (stage in stages.all().sortedBy { it.id.value }) {
         val start = System.nanoTime()
@@ -82,7 +82,7 @@ fun main(args: Array<String>) {
         for (spawn in stage.spawnPoints.filter { it.team != null }.groupBy { it.team }.values.map { it.first() }) {
             for (base in bases.filter { it.team != spawn.team }) route("spawn ${spawn.team!!.value} -> ${base.id}", floor(spawn.position.x).toInt(), floor(spawn.position.z).toInt(), base.x, base.z)
         }
-        for (region in stage.regions.filter { region -> listOf("core-", "jewelry-", "wool-", "tnt-spawn").any { region.name?.startsWith(it) == true } }) {
+        for (region in stage.regions.filter { region -> listOf("jewelry-", "wool-", "tnt-spawn").any { region.name?.startsWith(it) == true } }) {
             val gx = floor((region.min.x + region.max.x) / 2).toInt(); val gz = floor((region.min.z + region.max.z) / 2).toInt()
             val a = bases.firstOrNull { it.team?.value != region.name!!.removePrefix("core-") } ?: layout.islands.firstOrNull()
             if (a != null) route(region.name!!, a.x, a.z, gx, gz)

@@ -58,8 +58,8 @@ class HudE2eTest : E2eBase() {
         op(b)
         val posA = a.positionPackets.get()
         val posB = b.positionPackets.get()
-        a.command("astera queue join battle-loyal")
-        b.command("astera queue join battle-loyal")
+        a.command("astera queue join carry-tnt")
+        b.command("astera queue join carry-tnt")
         a.waitUntil(60_000) { a.positionPackets.get() > posA }
         b.waitUntil(30_000) { b.positionPackets.get() > posB }
         Thread.sleep(3_000)
@@ -118,8 +118,8 @@ class HudE2eTest : E2eBase() {
         // A PvP lane never starts with one player (game-loop queue floor): bring an opponent.
         val partner = bot("HudTab2")
         partner.waitUntil(15_000) { partner.sidebarLines().isNotEmpty() }
-        partner.command("astera queue join battle-loyal")
-        b.command("astera queue join battle-loyal")
+        partner.command("astera queue join carry-tnt")
+        b.command("astera queue join carry-tnt")
         b.waitUntil(45_000) { b.positionPackets.get() > posBefore || b.worldHistory.size > worldsBefore }
         b.waitUntil(15_000) { b.teamOf(b.name)?.first?.startsWith("ast_np_") == true }
         b.waitUntil(5_000) { b.belowNameScores().isNotEmpty() }
