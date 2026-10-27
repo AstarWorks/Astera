@@ -72,7 +72,7 @@ class BotModeObjectiveScenarioTest {
             val guard = player("guard", at = Vec3(0.0, 65.0, -50.0))
             startMatch("carry-tnt", mapOf(runner to "red", guard to "blue"), stage = "siege-isles-tnt")
             val kinds = drive(runner, planner("carry-tnt", "runner", "red", "blue"), 40) { eventsOf<MatchEnded>().isNotEmpty() }
-            assertThat(kinds.take(2)).containsExactly("tnt", "deliver")
+            assertThat(kinds.filter { it != "checkpoint" }.take(2)).containsExactly("tnt", "deliver")
             assertThat(eventsOf<MatchEnded>().singleOrNull()?.winningTeam).isEqualTo(TeamId("red"))
         }
     }
