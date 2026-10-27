@@ -63,6 +63,27 @@ public data class SkillDamage(val kind: String, val amount: Double)
 public interface ISkillGameplayGateway {
     public fun damage(caster: UUID, victim: UUID, components: List<SkillDamage>, hitPoint: Vec3)
     public fun applyStatus(caster: UUID, victim: UUID, statusId: String, stacks: Int, durationTicks: Int)
+
+    /** Remove one status (all stacks) from [victim]. Missing status is a no-op. */
+    public fun removeStatus(victim: UUID, statusId: String)
+
+    /** Remove statuses from [victim]; [negativeOnly] keeps beneficial ones. */
+    public fun cleanse(victim: UUID, negativeOnly: Boolean)
+
+    /** Set [victim] on fire (the existing burn runtime) for [durationTicks]. */
+    public fun ignite(caster: UUID, victim: UUID, durationTicks: Int)
+
+    /** Block skill casting of [victim] for [durationTicks]. */
+    public fun silence(caster: UUID, victim: UUID, durationTicks: Int)
+
+    /**
+     * Attribute modifier on [victim]. [operation] is `add`, `multiply_base` or `multiply_total`;
+     * [durationTicks] null means until removed (end of match / death).
+     */
+    public fun modifyAttribute(caster: UUID, victim: UUID, attribute: String, operation: String, amount: Double, durationTicks: Int?)
+
+    /** Add [amount] to a resource pool of [victim] (e.g. `mana`, `stamina`, `shield`), clamped to its max. */
+    public fun restoreResource(victim: UUID, resource: String, amount: Double)
     public fun impulse(victim: UUID, vector: Vec3)
 
     /** Hit-stop: freeze the listed entities' time for [ticks]. */
