@@ -23,6 +23,8 @@
 #   jewelry-<team>   3x3 pedestal zone inside the base   (steal-jewelry)
 #   tnt-spawn        where the TNT waits                 (carry-tnt)
 #   wool-*           control points, any number          (capture-wool)
+#   basket-<team>    the team's clam basket              (carry-mini-tnt)
+#   clam-<n>         clam spawn spots, point-symmetric   (carry-mini-tnt)
 # Zones span y 64 (the floor block, which the objective marker replaces) .. 70 so a standing/jumping player is inside.
 # The builder puts a pedestal under every anchor; the modes place their markers at match start and remove them at the end.
 # Schema mirrors plugin/match/.../application/config/StageYamlConfig.kt.
@@ -100,6 +102,42 @@ regions:
   - name: wool-c
     min: { x: -3.0, y: 64.0, z: 53.0 }
     max: { x: 3.0, y: 70.0, z: 59.0 }
+  - name: basket-red
+    min: { x: -64.0, y: 64.0, z: -14.0 }
+    max: { x: -60.0, y: 70.0, z: -10.0 }
+  - name: basket-blue
+    min: { x: 60.0, y: 64.0, z: 10.0 }
+    max: { x: 64.0, y: 70.0, z: 14.0 }
+  - name: clam-1
+    min: { x: -15.0, y: 64.0, z: -5.0 }
+    max: { x: -13.0, y: 70.0, z: -3.0 }
+  - name: clam-2
+    min: { x: 13.0, y: 64.0, z: 3.0 }
+    max: { x: 15.0, y: 70.0, z: 5.0 }
+  - name: clam-3
+    min: { x: -7.0, y: 64.0, z: -15.0 }
+    max: { x: -5.0, y: 70.0, z: -13.0 }
+  - name: clam-4
+    min: { x: 5.0, y: 64.0, z: 13.0 }
+    max: { x: 7.0, y: 70.0, z: 15.0 }
+  - name: clam-5
+    min: { x: 4.0, y: 64.0, z: -49.0 }
+    max: { x: 6.0, y: 70.0, z: -47.0 }
+  - name: clam-6
+    min: { x: -6.0, y: 64.0, z: 47.0 }
+    max: { x: -4.0, y: 70.0, z: 49.0 }
+  - name: clam-7
+    min: { x: -53.0, y: 64.0, z: -9.0 }
+    max: { x: -51.0, y: 70.0, z: -7.0 }
+  - name: clam-8
+    min: { x: 51.0, y: 64.0, z: 7.0 }
+    max: { x: 53.0, y: 70.0, z: 9.0 }
+  - name: clam-9
+    min: { x: -10.0, y: 64.0, z: 9.0 }
+    max: { x: -8.0, y: 70.0, z: 11.0 }
+  - name: clam-10
+    min: { x: 8.0, y: 64.0, z: -11.0 }
+    max: { x: 10.0, y: 70.0, z: -9.0 }
 
 spawn_points:
   - team: red
