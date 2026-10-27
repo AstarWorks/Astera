@@ -387,6 +387,9 @@ public class VfxPlayer(
             live - (instance.position + (instance.targetReference ?: return true))
         }
         val anchor = instance.request.anchor
+        if (trace && plan.performance) {
+            log.info("[vfx-trace] pos {} age={} tick={} caster={} target={}", instance.request.vfxId, age, scheduler.currentTick(), anchor?.invoke(), instance.request.target?.invoke())
+        }
         updateYaw(instance)
         if (plan.follow && anchor != null) {
             anchor()?.let { instance.position = it }
