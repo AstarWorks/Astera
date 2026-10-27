@@ -252,223 +252,53 @@ elements:
   - t: 6
     translate: [0.0, 21.398, -6.548]
     ease: out_quad
-- id: shd-0
-  kind: {type: block, block: black_concrete}
-  brightness: 4
+- id: shadow-0
+  kind: {type: sprite, sprite: couture-s2-shadow-spikes, frame_ticks: 1, loop: false, see_through: true}
+  billboard: fixed
+  brightness: 15
   start_tick: 8
-  end_tick: 28
+  end_tick: 27
   keyframes:
   - t: 0
-    translate: [0, 0.04, 0]
-    rotate: [0, 0, 0]
-    scale: [0.03, 0.05, 0.004]
+    translate: [0, 0.05, 0]
+    rotate: [90, 0, 90]
+    scale: [0.05, 0.05, 1]
   - t: 2
-    translate: [0, 0.04, 0]
-    rotate: [0, 0, 0]
-    scale: [4.2, 0.05, 0.55]
-  - t: 18
-    translate: [0, 0.04, 0]
-    rotate: [0, 0, 0]
-    scale: [4.2, 0.05, 0.55]
-  - t: 20
-    translate: [0, 0.04, 0]
-    rotate: [0, 0, 0]
-    scale: [0, 0.05, 0]
-- id: shd-1
-  kind: {type: block, block: black_concrete}
-  brightness: 4
-  start_tick: 8
-  end_tick: 28
+    translate: [0, 0.05, 0]
+    rotate: [90, 0, 90]
+    scale: [0.85, 0.85, 1]
+    ease: out_expo
+  - t: 17
+    translate: [0, 0.05, 0]
+    rotate: [90, 0, 94]
+    scale: [0.8755, 0.8755, 1]
+  - t: 19
+    translate: [0, 0.05, 0]
+    rotate: [90, 0, 94]
+    scale: [0.782, 0.085, 1]
+    ease: in_quad
+- id: shadow-1
+  kind: {type: sprite, sprite: couture-s2-shadow-spikes, frame_ticks: 1, loop: false, see_through: true}
+  billboard: fixed
+  brightness: 15
+  start_tick: 9
+  end_tick: 27
   keyframes:
   - t: 0
-    translate: [0, 0.04, 0]
-    rotate: [0, 25, 0]
-    scale: [0.03, 0.05, 0.004]
+    translate: [0, 0.06, 0]
+    rotate: [90, 0, 20]
+    scale: [0.05, 0.05, 1]
   - t: 2
-    translate: [0, 0.04, 0]
-    rotate: [0, 25, 0]
-    scale: [2.6, 0.05, 0.4]
-  - t: 18
-    translate: [0, 0.04, 0]
-    rotate: [0, 25, 0]
-    scale: [2.6, 0.05, 0.4]
-  - t: 20
-    translate: [0, 0.04, 0]
-    rotate: [0, 25, 0]
-    scale: [0, 0.05, 0]
-- id: shd-2
-  kind: {type: block, block: black_concrete}
-  brightness: 4
-  start_tick: 8
-  end_tick: 28
-  keyframes:
-  - t: 0
-    translate: [0, 0.04, 0]
-    rotate: [0, 36, 0]
-    scale: [0.03, 0.05, 0.004]
-  - t: 2
-    translate: [0, 0.04, 0]
-    rotate: [0, 36, 0]
-    scale: [3.6, 0.05, 0.5]
-  - t: 18
-    translate: [0, 0.04, 0]
-    rotate: [0, 36, 0]
-    scale: [3.6, 0.05, 0.5]
-  - t: 20
-    translate: [0, 0.04, 0]
-    rotate: [0, 36, 0]
-    scale: [0, 0.05, 0]
-- id: shd-3
-  kind: {type: block, block: black_concrete}
-  brightness: 4
-  start_tick: 8
-  end_tick: 28
-  keyframes:
-  - t: 0
-    translate: [0, 0.04, 0]
-    rotate: [0, 61, 0]
-    scale: [0.03, 0.05, 0.004]
-  - t: 2
-    translate: [0, 0.04, 0]
-    rotate: [0, 61, 0]
-    scale: [2.2, 0.05, 0.35]
-  - t: 18
-    translate: [0, 0.04, 0]
-    rotate: [0, 61, 0]
-    scale: [2.2, 0.05, 0.35]
-  - t: 20
-    translate: [0, 0.04, 0]
-    rotate: [0, 61, 0]
-    scale: [0, 0.05, 0]
-- id: shd-4
-  kind: {type: block, block: black_concrete}
-  brightness: 4
-  start_tick: 8
-  end_tick: 28
-  keyframes:
-  - t: 0
-    translate: [0, 0.04, 0]
-    rotate: [0, 72, 0]
-    scale: [0.03, 0.05, 0.004]
-  - t: 2
-    translate: [0, 0.04, 0]
-    rotate: [0, 72, 0]
-    scale: [4.6, 0.05, 0.6]
-  - t: 18
-    translate: [0, 0.04, 0]
-    rotate: [0, 72, 0]
-    scale: [4.6, 0.05, 0.6]
-  - t: 20
-    translate: [0, 0.04, 0]
-    rotate: [0, 72, 0]
-    scale: [0, 0.05, 0]
-- id: shd-5
-  kind: {type: block, block: black_concrete}
-  brightness: 4
-  start_tick: 8
-  end_tick: 28
-  keyframes:
-  - t: 0
-    translate: [0, 0.04, 0]
-    rotate: [0, 97, 0]
-    scale: [0.03, 0.05, 0.004]
-  - t: 2
-    translate: [0, 0.04, 0]
-    rotate: [0, 97, 0]
-    scale: [2.8, 0.05, 0.4]
-  - t: 18
-    translate: [0, 0.04, 0]
-    rotate: [0, 97, 0]
-    scale: [2.8, 0.05, 0.4]
-  - t: 20
-    translate: [0, 0.04, 0]
-    rotate: [0, 97, 0]
-    scale: [0, 0.05, 0]
-- id: shd-6
-  kind: {type: block, block: black_concrete}
-  brightness: 4
-  start_tick: 8
-  end_tick: 28
-  keyframes:
-  - t: 0
-    translate: [0, 0.04, 0]
-    rotate: [0, 108, 0]
-    scale: [0.03, 0.05, 0.004]
-  - t: 2
-    translate: [0, 0.04, 0]
-    rotate: [0, 108, 0]
-    scale: [3.8, 0.05, 0.5]
-  - t: 18
-    translate: [0, 0.04, 0]
-    rotate: [0, 108, 0]
-    scale: [3.8, 0.05, 0.5]
-  - t: 20
-    translate: [0, 0.04, 0]
-    rotate: [0, 108, 0]
-    scale: [0, 0.05, 0]
-- id: shd-7
-  kind: {type: block, block: black_concrete}
-  brightness: 4
-  start_tick: 8
-  end_tick: 28
-  keyframes:
-  - t: 0
-    translate: [0, 0.04, 0]
-    rotate: [0, 133, 0]
-    scale: [0.03, 0.05, 0.004]
-  - t: 2
-    translate: [0, 0.04, 0]
-    rotate: [0, 133, 0]
-    scale: [2.4, 0.05, 0.35]
-  - t: 18
-    translate: [0, 0.04, 0]
-    rotate: [0, 133, 0]
-    scale: [2.4, 0.05, 0.35]
-  - t: 20
-    translate: [0, 0.04, 0]
-    rotate: [0, 133, 0]
-    scale: [0, 0.05, 0]
-- id: shd-8
-  kind: {type: block, block: black_concrete}
-  brightness: 4
-  start_tick: 8
-  end_tick: 28
-  keyframes:
-  - t: 0
-    translate: [0, 0.04, 0]
-    rotate: [0, 144, 0]
-    scale: [0.03, 0.05, 0.004]
-  - t: 2
-    translate: [0, 0.04, 0]
-    rotate: [0, 144, 0]
-    scale: [4.0, 0.05, 0.55]
-  - t: 18
-    translate: [0, 0.04, 0]
-    rotate: [0, 144, 0]
-    scale: [4.0, 0.05, 0.55]
-  - t: 20
-    translate: [0, 0.04, 0]
-    rotate: [0, 144, 0]
-    scale: [0, 0.05, 0]
-- id: shd-9
-  kind: {type: block, block: black_concrete}
-  brightness: 4
-  start_tick: 8
-  end_tick: 28
-  keyframes:
-  - t: 0
-    translate: [0, 0.04, 0]
-    rotate: [0, 169, 0]
-    scale: [0.03, 0.05, 0.004]
-  - t: 2
-    translate: [0, 0.04, 0]
-    rotate: [0, 169, 0]
-    scale: [3.0, 0.05, 0.4]
-  - t: 18
-    translate: [0, 0.04, 0]
-    rotate: [0, 169, 0]
-    scale: [3.0, 0.05, 0.4]
-  - t: 20
-    translate: [0, 0.04, 0]
-    rotate: [0, 169, 0]
-    scale: [0, 0.05, 0]
+    translate: [0, 0.06, 0]
+    rotate: [90, 0, 20]
+    scale: [0.6, 0.6, 1]
+    ease: out_expo
+  - t: 17
+    translate: [0, 0.06, 0]
+    rotate: [90, 0, 24]
+    scale: [0.618, 0.618, 1]
+  - t: 19
+    translate: [0, 0.06, 0]
+    rotate: [90, 0, 24]
+    scale: [0.552, 0.06, 1]
+    ease: in_quad
