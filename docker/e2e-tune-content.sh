@@ -1,7 +1,7 @@
 #!/bin/sh
 # G1: shortens the timers of the baked content so the e2e playthrough suites finish in CI minutes
 # (queue 10s -> 3s, match countdown 10s -> 5s, respawn 5s -> 2s, annihilation build/engage 60s/10min -> 5s/10s,
-# pillar HP 500/800 -> 60, Norma layer 10 min -> 150s with 3 levels, star generator period 30s -> 3s). Run by docker/Dockerfile only for
+# pillar HP 500/800 -> 150, Norma layer 10 min -> 150s with 3 levels, star generator period 30s -> 3s). Run by docker/Dockerfile only for
 # `--build-arg E2E_FAST=1` (docker-compose.e2e.yml); the dev and live images keep the real values.
 # Every edit asserts that its pattern is present, so content drift fails the image build instead of
 # silently running the suites with production timers.
@@ -61,13 +61,17 @@ done
 # The Norma layer's time limit (shared default in norma-layer/layer.yaml; annihilation keeps its own clock = 0).
 patch norma-layer/layer.yaml 's/^(  time_limit_seconds:).*/\1 "150"/' '^  time_limit_seconds:'
 # Siege modes keep their own 20 minute limit (they override the layer): the siege playthroughs must not be cut short.
+# Except carry-tnt: with the Norma level win gone nothing but a delivery or the clock ends it, and the bot-vs-bot suite (bots fight, they
+# do not carry TNT) needs the clock to end the match. The delivery playthroughs finish in well under 4 minutes.
+patch game-modes/carry-tnt.yaml 's/^(  time_limit_seconds:).*/\1 "240"/' '^  time_limit_seconds:'
 
-patch game-modes/annihilation.yaml 's/^(  pillar_hp:).*/\1 "60"/' '^  pillar_hp:'
+patch game-modes/annihilation.yaml 's/^(  pillar_hp:).*/\1 "150"/' '^  pillar_hp:'
 patch game-modes/annihilation.yaml 's/^(  build_phase_ticks:).*/\1 "100"/' '^  build_phase_ticks:'
 patch game-modes/annihilation.yaml 's/^(  engage_phase_ticks:).*/\1 "200"/' '^  engage_phase_ticks:'
 patch game-modes/annihilation.yaml 's/^(  sudden_death_ticks:).*/\1 "600"/' '^  sudden_death_ticks:'
+# 150 = 60 x 2.5: the HP-100 rebalance made ranged damage x2.5 (60e5669a5), so the pillar keeps the same number of pistol hits.
 # The tier-3 pillars carry their own HP in the stage.
-patch stages/annihilation-arena.yaml 's/^(    hp:) 800$/\1 60/' '^    hp: 800$'
+patch stages/annihilation-arena.yaml 's/^(    hp:) 800$/\1 150/' '^    hp: 800$'
 
 # carry-mini-tnt: the bot needs four laps over the compact stage to pool 10 pieces, so the pickup spots regrow in 3 s instead of 15 s.
 patch game-modes/carry-mini-tnt.yaml 's/^(  respawn_seconds:).*/\1 "3"/' '^  respawn_seconds:'
