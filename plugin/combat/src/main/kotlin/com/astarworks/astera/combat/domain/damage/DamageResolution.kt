@@ -1,7 +1,6 @@
 package com.astarworks.astera.combat.domain.damage
 
 import com.astarworks.astera.core.domain.damage.DamageAttribute
-import com.astarworks.astera.core.domain.geometry.Vec3
 
 /**
  * Rich return type of `DamageRule.resolve`. Replaces the bare [ResolvedDamage]
@@ -14,7 +13,7 @@ import com.astarworks.astera.core.domain.geometry.Vec3
 public data class DamageResolution(
     val resolved: ResolvedDamage,
     val mitigations: List<MitigationApplied>,
-    val knockback: Vec3?,
+    val knockback: KnockbackPush?,
     val wasCritical: Boolean,
     val criticalMultiplier: Double,
 ) {

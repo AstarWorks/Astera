@@ -119,7 +119,7 @@ internal class DashStrikeRunner(
                 val feet = candidate.position ?: poseLookup?.poseOf(candidate.id)?.position ?: return@mapNotNull null
                 val delta = feet + Vec3(0.0, candidate.height / 2.0, 0.0) - origin
                 val forward = delta.dot(direction)
-                if (forward <= 0.0 || (delta - direction * forward).length() > params.radius) null
+                if (forward <= 0.0 || (delta - direction * forward).length() > params.radius + BODY_HALF_WIDTH) null
                 else (forward - gap).coerceIn(0.0, params.distance)
             }
             .minOrNull() ?: params.distance
@@ -159,7 +159,9 @@ internal class DashStrikeRunner(
         if (params.onHit.isEmpty()) return
         val bodyOffset = Vec3(0.0, BODY_HALF_HEIGHT, 0.0)
         val mid = (from + to) * 0.5 + bodyOffset
-        val reach = params.radius + from.distance(to) / 2.0 + BODY_HALF_HEIGHT
+        // A dash that stops `stop_before_target` short of its target still strikes it: the contact gap counts as reach.
+        val contactReach = params.radius + BODY_HALF_WIDTH + (params.stopBeforeTarget?.coerceAtLeast(0.0) ?: 0.0)
+        val reach = contactReach + from.distance(to) / 2.0 + BODY_HALF_HEIGHT
         val here = dash.pose.copy(
             position = to,
             eyePosition = to + Vec3(0.0, PlayerPose.STANDING_EYE_HEIGHT, 0.0),
@@ -169,7 +171,7 @@ internal class DashStrikeRunner(
             if (params.hitOnce && candidate.id in dash.hit) continue
             val feet = candidate.position ?: poseLookup?.poseOf(candidate.id)?.position ?: continue
             val body = feet + Vec3(0.0, candidate.height / 2.0, 0.0)
-            if (distanceToSegment(body, from + bodyOffset, to + bodyOffset) > params.radius) continue
+            if (distanceToSegment(body, from + bodyOffset, to + bodyOffset) > contactReach) continue
             if (living(listOf(candidate.id)).isEmpty()) continue
             dash.hit += candidate.id
             runOnHit(
@@ -254,6 +256,9 @@ internal class DashStrikeRunner(
 
     private companion object {
         const val BODY_HALF_HEIGHT: Double = 0.9
+
+        /** Half the standing hitbox width: a target counts when its body edge, not only its centre line, is within reach. */
+        const val BODY_HALF_WIDTH: Double = 0.3
         const val SAFETY_TICKS: Int = 40
 
         /** Feet-relative heights probed for a solid block (feet, knee and head). */

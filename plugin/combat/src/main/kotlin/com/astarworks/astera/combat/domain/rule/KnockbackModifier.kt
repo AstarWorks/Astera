@@ -4,6 +4,7 @@ import com.astarworks.astera.combat.application.port.outbound.IDamageRandomizer
 import com.astarworks.astera.combat.domain.armor.ArmorBundle
 import com.astarworks.astera.combat.domain.damage.DamageAttempt
 import com.astarworks.astera.combat.domain.damage.DamageSource
+import com.astarworks.astera.combat.domain.damage.KnockbackPush
 import com.astarworks.astera.core.domain.attribute.IAttributeContainer
 import com.astarworks.astera.core.domain.geometry.Vec3
 
@@ -60,13 +61,7 @@ public class KnockbackModifier(
     ): WorkingDamage {
         if (baseMagnitude == 0.0) return working
         val origin = originPositionFor(attempt.source) ?: return working
-        // Direction: away from origin, magnitude = baseMagnitude.
-        // Vec3.normalize() returns ZERO when origin == ZERO, in which case
-        // multiplying by -baseMagnitude is still ZERO — caller treats a
-        // zero-vector as "no knockback" implicitly (gateway no-ops).
-        val direction = origin.normalize()
-        val impulse = direction * (-baseMagnitude)
-        working.knockback = impulse
+        working.knockback = KnockbackPush(awayFrom = origin, strength = baseMagnitude)
         return working
     }
 

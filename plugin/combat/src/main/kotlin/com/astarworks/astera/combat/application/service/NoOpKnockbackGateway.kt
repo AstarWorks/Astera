@@ -1,6 +1,7 @@
 package com.astarworks.astera.combat.application.service
 
 import com.astarworks.astera.combat.application.port.outbound.IKnockbackGateway
+import com.astarworks.astera.combat.domain.damage.KnockbackPush
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.player.PlayerId
 import org.slf4j.LoggerFactory
@@ -25,6 +26,12 @@ public class NoOpKnockbackGateway : IKnockbackGateway {
     override fun applyImpulse(target: PlayerId, impulse: Vec3) {
         if (log.isDebugEnabled) {
             log.debug("NoOpKnockbackGateway: target={} impulse={}", target, impulse)
+        }
+    }
+
+    override fun applyPush(target: PlayerId, push: KnockbackPush) {
+        if (log.isDebugEnabled) {
+            log.debug("NoOpKnockbackGateway: target={} push={}", target, push)
         }
     }
 
