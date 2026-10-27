@@ -118,14 +118,6 @@ elements:
   keyframes:
   - t: 0
     translate: [0, 1.2, 0]
-- id: p-petal
-  kind: {type: particle, particle_id: couture-s2-p-petal, every_ticks: 4}
-  brightness: 15
-  start_tick: 1
-  end_tick: 8
-  keyframes:
-  - t: 0
-    translate: [0, 1.8, 0]
 - id: p-spark
   kind: {type: particle, particle_id: couture-s2-p-spark, every_ticks: 3}
   brightness: 15
@@ -182,11 +174,3 @@ elements:
   keyframes:
   - t: 0
     translate: [0.3, 1.4, 0.0]
-- id: p-petal2
-  kind: {type: particle, particle_id: couture-s2-p-petal, every_ticks: 3}
-  brightness: 15
-  start_tick: 1
-  end_tick: 9
-  keyframes:
-  - t: 0
-    translate: [0.4, 1.2, 0.4]
