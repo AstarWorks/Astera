@@ -10,7 +10,7 @@ elements:
   kind:
     type: item
     item: shears
-    item_model: astera:couture-rapier-thrown-stuck
+    item_model: astera:couture-rapier
     display_mode: fixed
   brightness: 15
   start_tick: 0
