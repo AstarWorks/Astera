@@ -1,0 +1,29 @@
+# Match arsenal (wp/match-arsenal): Leather Scout Chestplate.
+
+id: leather-scout-chestplate
+
+material: LEATHER_CHESTPLATE
+
+name:
+  ja: "<gold>レザースカウト チェストプレート</gold>"
+  en: "<gold>Leather Scout Chestplate</gold>"
+lore:
+  ja:
+    - "<gray>レザースカウトセットの防具</gray>"
+    - "<gray>2部位・4部位そろえるとボーナス</gray>"
+  en:
+    - "<gray>Leather Scout set piece</gray>"
+    - "<gray>2+ pieces and the full set give a bonus</gray>"
+
+rarity: common
+level_requirement: 1
+
+equip_slot: chestplate
+unbreakable: true
+enchantable: false
+drop_on_death: false
+keep_on_death: false
+armor_piece: leather-scout-chestplate
+
+pdc_tags:
+  astera:rarity: common

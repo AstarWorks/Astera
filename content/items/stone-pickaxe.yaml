@@ -1,0 +1,38 @@
+# Match arsenal (wp/match-arsenal): Stone Pickaxe.
+
+id: stone-pickaxe
+
+material: STONE_PICKAXE
+
+name:
+  ja: "<gray>石のツルハシ</gray>"
+  en: "<gray>Stone Pickaxe</gray>"
+lore:
+  ja:
+    - "<gray>右クリック: 掘削</gray>"
+    - "<gray>スニーク + 右クリック: 粉砕</gray>"
+  en:
+    - "<gray>Right-click: bore a tunnel</gray>"
+    - "<gray>Sneak + right-click: shatter</gray>"
+
+rarity: common
+level_requirement: 1
+
+equip_slot: mainhand
+unbreakable: true
+enchantable: false
+drop_on_death: false
+keep_on_death: true
+
+tool:
+  class: PICKAXE
+  tier: STONE
+
+skills:
+  - trigger: right_click
+    skill_id: pickaxe-bore-stone
+  - trigger: sneak_right
+    skill_id: pickaxe-shatter-stone
+
+pdc_tags:
+  astera:rarity: common

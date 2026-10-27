@@ -1,0 +1,37 @@
+# Match arsenal (wp/match-arsenal): Mace.
+
+id: mace
+
+material: MACE
+
+name:
+  ja: "<dark_gray>メイス</dark_gray>"
+  en: "<dark_gray>Mace</dark_gray>"
+lore:
+  ja:
+    - "<gray>左クリック: 叩き潰し</gray>"
+    - "<gray>スニーク + 右クリック: 大地震</gray>"
+  en:
+    - "<gray>Left-click: smash</gray>"
+    - "<gray>Sneak + right-click: quake</gray>"
+
+rarity: uncommon
+level_requirement: 1
+
+attributes:
+  attack_damage: 5.0
+  attack_speed: 0.9
+
+equip_slot: mainhand
+
+resource_type: energy
+resource_cost_per_use: 6
+
+skills:
+  - trigger: left_click
+    skill_id: mace-smash
+  - trigger: sneak_right
+    skill_id: mace-quake
+
+pdc_tags:
+  astera:rarity: uncommon

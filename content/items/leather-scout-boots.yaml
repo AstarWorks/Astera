@@ -1,0 +1,29 @@
+# Match arsenal (wp/match-arsenal): Leather Scout Boots.
+
+id: leather-scout-boots
+
+material: LEATHER_BOOTS
+
+name:
+  ja: "<gold>レザースカウト ブーツ</gold>"
+  en: "<gold>Leather Scout Boots</gold>"
+lore:
+  ja:
+    - "<gray>レザースカウトセットの防具</gray>"
+    - "<gray>2部位・4部位そろえるとボーナス</gray>"
+  en:
+    - "<gray>Leather Scout set piece</gray>"
+    - "<gray>2+ pieces and the full set give a bonus</gray>"
+
+rarity: common
+level_requirement: 1
+
+equip_slot: boots
+unbreakable: true
+enchantable: false
+drop_on_death: false
+keep_on_death: false
+armor_piece: leather-scout-boots
+
+pdc_tags:
+  astera:rarity: common

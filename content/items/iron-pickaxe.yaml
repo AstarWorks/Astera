@@ -1,0 +1,38 @@
+# Match arsenal (wp/match-arsenal): Iron Pickaxe.
+
+id: iron-pickaxe
+
+material: IRON_PICKAXE
+
+name:
+  ja: "<white>鉄のツルハシ</white>"
+  en: "<white>Iron Pickaxe</white>"
+lore:
+  ja:
+    - "<gray>右クリック: 掘削</gray>"
+    - "<gray>スニーク + 右クリック: 粉砕</gray>"
+  en:
+    - "<gray>Right-click: bore a tunnel</gray>"
+    - "<gray>Sneak + right-click: shatter</gray>"
+
+rarity: uncommon
+level_requirement: 1
+
+equip_slot: mainhand
+unbreakable: true
+enchantable: false
+drop_on_death: false
+keep_on_death: true
+
+tool:
+  class: PICKAXE
+  tier: IRON
+
+skills:
+  - trigger: right_click
+    skill_id: pickaxe-bore-iron
+  - trigger: sneak_right
+    skill_id: pickaxe-shatter-iron
+
+pdc_tags:
+  astera:rarity: uncommon

@@ -1,0 +1,8 @@
+# Match arsenal (wp/match-arsenal): Leather Scout leggings.
+
+type: piece
+id: leather-scout-leggings
+display_name_key: astera.armor.leather-scout-leggings.name
+slot: leggings
+damage_reduction: 0.045
+set_key: leather-scout

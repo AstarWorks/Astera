@@ -1,0 +1,12 @@
+# Match arsenal (wp/match-arsenal): Leather Scout set. 2+ pieces / full set bonus stacks on the pieces' own reduction.
+
+type: set
+key: leather-scout
+display_name_key: astera.armor.set.leather-scout.name
+pieces:
+  - leather-scout-helmet
+  - leather-scout-chestplate
+  - leather-scout-leggings
+  - leather-scout-boots
+two_piece_bonus: 0.02
+four_piece_bonus: 0.06

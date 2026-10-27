@@ -1,0 +1,29 @@
+# Match arsenal (wp/match-arsenal): Diamond Champion Boots.
+
+id: diamond-champion-boots
+
+material: DIAMOND_BOOTS
+
+name:
+  ja: "<aqua>ダイヤチャンピオン ブーツ</aqua>"
+  en: "<aqua>Diamond Champion Boots</aqua>"
+lore:
+  ja:
+    - "<gray>ダイヤチャンピオンセットの防具</gray>"
+    - "<gray>2部位・4部位そろえるとボーナス</gray>"
+  en:
+    - "<gray>Diamond Champion set piece</gray>"
+    - "<gray>2+ pieces and the full set give a bonus</gray>"
+
+rarity: rare
+level_requirement: 1
+
+equip_slot: boots
+unbreakable: true
+enchantable: false
+drop_on_death: false
+keep_on_death: false
+armor_piece: diamond-champion-boots
+
+pdc_tags:
+  astera:rarity: rare

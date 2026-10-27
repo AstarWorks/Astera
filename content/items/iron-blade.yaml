@@ -1,0 +1,37 @@
+# Match arsenal (wp/match-arsenal): Iron Blade.
+
+id: iron-blade
+
+material: IRON_SWORD
+
+name:
+  ja: "<white>アイアンブレード</white>"
+  en: "<white>Iron Blade</white>"
+lore:
+  ja:
+    - "<gray>左クリック: 斬撃</gray>"
+    - "<gray>スニーク + 右クリック: 突進斬り</gray>"
+  en:
+    - "<gray>Left-click: slash</gray>"
+    - "<gray>Sneak + right-click: lunge</gray>"
+
+rarity: uncommon
+level_requirement: 1
+
+attributes:
+  attack_damage: 3.0
+  attack_speed: 1.6
+
+equip_slot: mainhand
+
+resource_type: energy
+resource_cost_per_use: 6
+
+skills:
+  - trigger: left_click
+    skill_id: iron-blade-slash
+  - trigger: sneak_right
+    skill_id: iron-blade-lunge
+
+pdc_tags:
+  astera:rarity: uncommon

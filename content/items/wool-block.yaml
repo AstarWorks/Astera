@@ -1,0 +1,24 @@
+# Match arsenal (wp/match-arsenal): Wool.
+
+id: wool-block
+
+material: WHITE_WOOL
+
+name:
+  ja: "<white>羊毛</white>"
+  en: "<white>Wool</white>"
+lore:
+  ja:
+    - "<gray>手軽な遮蔽用ブロック</gray>"
+  en:
+    - "<gray>Cheap block for quick cover</gray>"
+
+rarity: common
+level_requirement: 1
+
+equip_slot: mainhand
+drop_on_death: false
+keep_on_death: false
+
+pdc_tags:
+  astera:rarity: common

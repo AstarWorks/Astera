@@ -1,0 +1,172 @@
+# In-match ore shop (wp/match-arsenal). Offers: {item_id, price: {<ore item>: n}, tab, stack}.
+# W1 owns the loader and may merge this header; W3 owns the offers below.
+id: match-shop
+
+offers:
+# --- W3 offers ---
+# Weapons / tools / blocks / armor. Prices: iron = basic, gold = mid, diamond = top. Stone tools are a free loan, not sold.
+  - item_id: throwing-knives
+    price: { ore-iron: 8 }
+    tab: weapons
+    stack: 1
+  - item_id: spear
+    price: { ore-iron: 10 }
+    tab: weapons
+    stack: 1
+  - item_id: twin-daggers
+    price: { ore-iron: 12 }
+    tab: weapons
+    stack: 1
+  - item_id: iron-blade
+    price: { ore-iron: 16 }
+    tab: weapons
+    stack: 1
+  - item_id: war-axe
+    price: { ore-gold: 6 }
+    tab: weapons
+    stack: 1
+  - item_id: mace
+    price: { ore-gold: 8 }
+    tab: weapons
+    stack: 1
+  - item_id: hand-crossbow
+    price: { ore-gold: 5 }
+    tab: weapons
+    stack: 1
+  - item_id: longbow
+    price: { ore-gold: 6 }
+    tab: weapons
+    stack: 1
+  - item_id: shock-wand
+    price: { ore-gold: 7 }
+    tab: weapons
+    stack: 1
+  - item_id: ember-rod
+    price: { ore-gold: 7 }
+    tab: weapons
+    stack: 1
+  - item_id: frost-rod
+    price: { ore-gold: 7 }
+    tab: weapons
+    stack: 1
+  - item_id: sticky-bomb
+    price: { ore-gold: 3 }
+    tab: weapons
+    stack: 1
+  - item_id: iron-pickaxe
+    price: { ore-iron: 12 }
+    tab: tools
+    stack: 1
+  - item_id: iron-axe
+    price: { ore-iron: 12 }
+    tab: tools
+    stack: 1
+  - item_id: iron-shovel
+    price: { ore-iron: 12 }
+    tab: tools
+    stack: 1
+  - item_id: diamond-pickaxe
+    price: { ore-diamond: 3 }
+    tab: tools
+    stack: 1
+  - item_id: diamond-axe
+    price: { ore-diamond: 3 }
+    tab: tools
+    stack: 1
+  - item_id: diamond-shovel
+    price: { ore-diamond: 3 }
+    tab: tools
+    stack: 1
+  - item_id: wool-block
+    price: { ore-iron: 4 }
+    tab: blocks
+    stack: 16
+  - item_id: hardened-soil-block
+    price: { ore-iron: 6 }
+    tab: blocks
+    stack: 16
+  - item_id: packed-clay-block
+    price: { ore-iron: 6 }
+    tab: blocks
+    stack: 16
+  - item_id: reinforced-planks-block
+    price: { ore-iron: 8 }
+    tab: blocks
+    stack: 16
+  - item_id: tempered-glass-block
+    price: { ore-iron: 8 }
+    tab: blocks
+    stack: 8
+  - item_id: stone-bulwark-block
+    price: { ore-gold: 2 }
+    tab: blocks
+    stack: 16
+  - item_id: obsidian-plate-block
+    price: { ore-diamond: 2 }
+    tab: blocks
+    stack: 8
+  - item_id: leather-scout-helmet
+    price: { ore-iron: 4 }
+    tab: armor
+    stack: 1
+  - item_id: leather-scout-chestplate
+    price: { ore-iron: 8 }
+    tab: armor
+    stack: 1
+  - item_id: leather-scout-leggings
+    price: { ore-iron: 6 }
+    tab: armor
+    stack: 1
+  - item_id: leather-scout-boots
+    price: { ore-iron: 4 }
+    tab: armor
+    stack: 1
+  - item_id: chain-guard-helmet
+    price: { ore-gold: 2 }
+    tab: armor
+    stack: 1
+  - item_id: chain-guard-chestplate
+    price: { ore-gold: 4 }
+    tab: armor
+    stack: 1
+  - item_id: chain-guard-leggings
+    price: { ore-gold: 3 }
+    tab: armor
+    stack: 1
+  - item_id: chain-guard-boots
+    price: { ore-gold: 2 }
+    tab: armor
+    stack: 1
+  - item_id: iron-warden-helmet
+    price: { ore-gold: 3 }
+    tab: armor
+    stack: 1
+  - item_id: iron-warden-chestplate
+    price: { ore-gold: 6 }
+    tab: armor
+    stack: 1
+  - item_id: iron-warden-leggings
+    price: { ore-gold: 4 }
+    tab: armor
+    stack: 1
+  - item_id: iron-warden-boots
+    price: { ore-gold: 3 }
+    tab: armor
+    stack: 1
+  - item_id: diamond-champion-helmet
+    price: { ore-diamond: 2 }
+    tab: armor
+    stack: 1
+  - item_id: diamond-champion-chestplate
+    price: { ore-diamond: 4 }
+    tab: armor
+    stack: 1
+  - item_id: diamond-champion-leggings
+    price: { ore-diamond: 3 }
+    tab: armor
+    stack: 1
+  - item_id: diamond-champion-boots
+    price: { ore-diamond: 2 }
+    tab: armor
+    stack: 1
+# --- end W3 offers ---
