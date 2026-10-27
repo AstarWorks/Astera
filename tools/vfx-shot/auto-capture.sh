@@ -7,9 +7,8 @@
 # Stepped = slow motion (/tick rate 5): world, plugin scheduler and client share one clock; frames are mapped by the tick stamp.
 # Flow per deployed sha (coalesced: if several land while one is filming, only the newest is processed, diffed from the last done sha):
 #   1. changed-skills.py maps the changed content/{skills,vfx,animations,sounds,poses} files to skill ids
-#   2. PREVIEW pass: realtime recording (STEPPED=0), published with --preview ("PREVIEW (realtime)" chip; skipped ticks tolerated)
-#   3. STEPPED pass: slow motion (/tick rate 5), the last frame of every tick, published with --auto <sha>; replaces the preview. A stepped capture
-#      with skipped ticks is retried once and then NOT published (publish-capture refuses it; the preview stays and says so in status).
+#   2. STEPPED pass: slow motion, the last frame of every tick, published with --auto <sha>. vfx-shot.sh itself refilms at half the tick rate
+#      until every tick has its own frame; a capture with a missing tick is never published (no realtime preview pass exists any more).
 # The farm owns a worktree (FARM_ROOT) = its own compose project + own slot lock (SHOT_LOCK), so authors' `make vfx-shot` runs are not
 # queued behind it; its stack is pinned (reap.py never evicts it to make room). Idle JVMs are parked (SIGSTOP) by parker.sh.
 set -uo pipefail
@@ -27,7 +26,6 @@ ALL_VIEWS="$VIEWS"
 TICKS_DEFAULT="${FARM_TICKS:-80}"
 POLL="${FARM_POLL:-5}"
 MAX_SKILLS="${FARM_MAX_SKILLS:-8}"
-PREVIEW="${FARM_PREVIEW:-1}"
 RETRIES="${FARM_RETRIES:-1}"
 OUT_ROOT="${FARM_OUT:-$FARM_ROOT/build/vfx-shot}"
 mkdir -p "$FSTATE"
@@ -37,9 +35,8 @@ stamp() { date +%Y-%m-%dT%H:%M:%S%z; }
 flog() { printf '%s %s\n' "$(stamp)" "$*" | tee -a "$FSTATE/farm.log" >&2; }
 
 # The farm's vfx-shot env: pinned warm stack, own slot, lean outputs, short dwell, never evicts other checkouts' stacks.
-shot() { # mode(stepped|realtime) skill ticks
+shot() { # mode(stepped) skill ticks
   local mode="$1" skill="$2" ticks="$3" stepped=1
-  [ "$mode" = realtime ] && stepped=0
   ( cd "$FARM_ROOT" && env SKILL="$skill" VIEW="$VIEWS" CASE="${CASE_ID:-}" TICKS="$ticks" STEPPED="$stepped" FPS=20 OUT_ROOT="$OUT_ROOT" \
       SHOT_KEEP=1 SHOT_PIN=1 SHOT_KEEP_TTL="${FARM_TTL:-86400}" SHOT_OUTPUTS=lean SHOT_SLOW_RATE="${RATE:-${FARM_RATE:-2.5}}" \
       SHOT_LOCK="${SHOT_LOCK:-/tmp/claude-1000/astera-vfx-shot-farm.lock}" SHOT_REAP_SCOPE=self SHOT_DETACHED=1 \
@@ -64,9 +61,8 @@ ticks_for() { # skill: frames of an already published view (the author's chosen 
   echo "$TICKS_DEFAULT"
 }
 
-publish() { # skill sha mode(preview|stepped)  -> 0 when every view was published
+publish() { # skill sha mode(stepped)  -> 0 when every view was published
   local skill="$1" sha="$2" mode="$3" v rc=0 flag=() out
-  [ "$mode" = preview ] && flag=(--preview)
   local c; c="$(grep -l "\"asteraSkillId\": *\"$skill\"" "$FARM_ROOT"/tools/skill-compare/data/*/case.json 2>/dev/null | head -1)"
   [ -n "$c" ] && flag+=(--case "$(basename "$(dirname "$c")")")   # stamps the case's reference/content revision into the meta
   for v in ${VIEWS//,/ }; do
@@ -93,18 +89,6 @@ process() { # sha [base]
   skills="$(printf '%s\n' "$skills" | sed '/^$/d' | head -n "$MAX_SKILLS")"
   flog "deployed ${sha:0:8} (log $deploy_ts) base=${base:0:8} skills: $(echo $skills)"
   if [ -n "$skills" ]; then
-    if [ "$PREVIEW" = 1 ]; then
-      for s in $skills; do
-        # a preview only fills an empty slot (publish-capture keeps stepped captures): a skill that already has captures skips the pass
-        if ls "$PUBLISHED/$s"/*/current.json >/dev/null 2>&1 && [ -n "$(ls "$PUBLISHED/$s"/{side,top}/current.json 2>/dev/null)" ]; then
-          flog "PREVIEW $s skipped: already published, the stepped pass replaces it"; continue
-        fi
-        ticks="$(ticks_for "$s")"; tp="$(now)"
-        if shot realtime "$s" "$ticks" && publish "$s" "$sha" preview; then
-          flog "PREVIEW $s published $(awk -v a="$tp" -v b="$(now)" 'BEGIN{printf "%.0f", b-a}')s (capture), $(awk -v a="$t0" -v b="$(now)" 'BEGIN{printf "%.0f", b-a}')s since detection"
-        else flog "PREVIEW $s failed (see shot.log)"; fi
-      done
-    fi
     for s in $skills; do
       # one view at a time, in FARM_VIEWS order: the first view (side) is published before the next is filmed
       # a skill with a skill-compare case (intent.json) is filmed with the case camera FIRST: that framing matches the reference

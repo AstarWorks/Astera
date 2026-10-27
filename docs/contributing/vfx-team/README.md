@@ -103,7 +103,7 @@ make vfx-shot-reap                                         # kill stragglers of 
 - **Provenance is checked, not assumed.** `meta.json` `stack` carries the deployed content hash (verified inside the container), the pack sha1, the code hash and revision,
   and `workingTreeInSync`; if the tree changed while the capture ran, `captureQuality.invalid` is set and the capture must be redone. `make vfx-shot-status` shows the same
   comparison on demand.
-- **Frame <-> tick is read from every frame.** A server-tick stamp is rendered into each recorded frame (masked out of the saved PNGs), so each frame's tick is read, not assumed. The default (STEPPED=1, 20 fps) freezes the server and `/tick step`s one tick at a time, waiting until the client drew it, so every tick has a frame and `skippedTicks` is 0 whatever the load. `FPS=60` stays realtime and may skip ticks (listed in `tickStamp.gaps`; any skip invalidates the capture, publish refuses it); `meta.json` `tickStamp` has `firstFxTickAfterCast` (real client display lag of the first effect) and `skippedTicks`. Quote it instead of guessing "client lag". A publishable capture needs `skippedTicks = 0`, all stamps read, opponent alive, content sha equal to dev. Anything else is invalid (infra work, not a content round). Never count interpolated or duplicated frames as observation.
+- **Frame <-> tick is read from every frame.** A server-tick stamp is rendered into each recorded frame (masked out of the saved PNGs), so each frame's tick is read, not assumed. The only default (STEPPED=1, 20 fps) runs the whole server at a low `/tick rate` (slow motion), so each tick stays on screen for several client frames. Stepped is not optional any more: `vfx-shot.sh` refuses `STEPPED=0` / `FPS!=20` unless `SHOT_REALTIME=1` is set on purpose (realtime drops ticks, is marked invalid and can never be published). If any tick still has no frame of its own tick, `vfx-shot.sh` automatically refilms the whole take at half the tick rate (up to `SHOT_TICK_ATTEMPTS`, default 4: 5 -> 2.5 -> 1.25 -> 0.62 tps) and dies loudly after the last attempt, deleting the frames; publish-capture additionally refuses any capture that is not stepped or has `skippedTicks > 0`; `meta.json` `tickStamp` has `firstFxTickAfterCast` (real client display lag of the first effect) and `skippedTicks`. Quote it instead of guessing "client lag". A publishable capture needs `skippedTicks = 0`, all stamps read, opponent alive, content sha equal to dev. Anything else is invalid (infra work, not a content round). Never count interpolated or duplicated frames as observation.
 - **Lighter output.** caster / opponent / side views film at 640x360 (compare stays 1280x720; `RES=` overrides). `BEAT_TICKS=case` (the case's `beats[].tick`) or an explicit tick
   list saves only those PNGs (no sheet / gif / mp4, `beatFramesOnly: true`, not publishable): use it for pose / VFX iteration, and a full capture for the round you publish.
 - **Lock and memory discipline.** One capture at a time on the whole host: the slot lock `/tmp/claude-1000/astera-vfx-shot.lock` (`SHOT_SLOTS`, default 1) queues every other
@@ -118,8 +118,7 @@ You do not need to run `make vfx-shot` just to get a skill onto skill-compare. A
 autodeploy log (`.claude/state/dev-deploy/deploy.log`). For every `deployed <sha>` it diffs `content/{skills,vfx,animations,sounds,poses}`
 against the previous sha, maps the changed files to skill ids (`tools/vfx-shot/changed-skills.py`: a changed vfx/animation/sound file
 re-films every skill that references it), films each skill from `top` and `side` on a warm pinned stack and publishes it. On the page the chips read
-`auto <sha7>`; a first realtime pass shows `PREVIEW (realtime)` within about a minute and is replaced by the exact stepped capture
-(slow-motion take, one frame per tick). A stepped capture with skipped ticks is retried once, never published, and the preview stays.
+`auto <sha7>`; every capture is the exact stepped one (slow-motion take, one frame per tick). There is no realtime preview pass. A capture with a missing tick is refilmed at half the tick rate by `vfx-shot.sh` itself, then once more by the farm, and is never published.
 
 ```
 make vfx-auto-status                       # daemon, last run (sha, seconds, per-skill ok/FAILED), warm stack, log tail
@@ -132,7 +131,7 @@ The farm uses its own worktree (`.claude/worktrees/capture-farm`, detached on th
 (`/tmp/claude-1000/astera-vfx-shot-farm.lock`) and a pinned stack that `reap.py` never evicts, so your `make vfx-shot` runs are not queued behind it.
 Compare views (reference video next to the capture) still need `VIEW=compare CASE=<case>` from the author; the farm only does `top` + `side`.
 Knobs: `FARM_VIEWS` (`side,top`; filmed and published one view at a time, side first), `FARM_TICKS` (80, or the frame count already published for the skill), `FARM_MAX_SKILLS` (8),
-`FARM_PREVIEW=0` (skip the realtime pass), `FARM_RATE` (slow-motion tick rate of the first attempt, 2.5; the retry runs at half: 1.25), `FARM_RETRIES` (1), `FARM_TTL` (idle stack lifetime, 24 h).
+`FARM_RATE` (slow-motion tick rate of the first attempt, 2.5; the retry runs at half: 1.25), `FARM_RETRIES` (1), `FARM_TTL` (idle stack lifetime, 24 h).
 
 ## Shared rules
 

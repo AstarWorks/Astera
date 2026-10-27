@@ -1,7 +1,7 @@
 // Publish completed captures without replacing frames used by an open comparison page.
-// node publish-capture.mjs <capture-dir> <published-root> <skill> <view> [--auto <sha>] [--preview] [--case <id>]
+// node publish-capture.mjs <capture-dir> <published-root> <skill> <view> [--auto <sha>] [--case <id>]
 // --case <id>: stamps meta.referenceRevision / caseContentRevision from tools/skill-compare/data/<id>/case.json (the case the page shows).
-// --auto <sha>: stamps meta.auto (capture farm, shown as "auto <sha7>"); --preview: realtime pass, skipped ticks allowed, shown as PREVIEW.
+// --auto <sha>: stamps meta.auto (capture farm, shown as "auto <sha7>"). A capture with any tick that has no frame of its own tick is NEVER published (no preview mode).
 import { readFileSync, writeFileSync, mkdirSync, renameSync, rmSync, existsSync, copyFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -23,21 +23,17 @@ export function publishCapture(source, root, skill, view, opts = {}) {
     meta.referenceRevision ??= c.referenceRevision ?? null;
     meta.caseContentRevision ??= c.contentRevision ?? null;
   }
-  if (opts.preview) {
-    // a realtime preview only fills an empty slot: it never replaces a stepped / valid capture (only an earlier preview)
-    const cur = join(root, skill, view, 'current.json');
-    try { if (JSON.parse(readFileSync(cur, 'utf8')).meta?.auto?.kind !== 'preview') return { kept: true }; } catch (e) { if (e.code !== 'ENOENT') return { kept: true }; }
-  }
-  if (opts.auto || opts.preview) meta.auto = { sha: opts.auto ?? null, at: new Date().toISOString(), kind: opts.preview ? 'preview' : 'stepped' };
-  if ((meta.captureQuality?.invalid && !opts.preview) || !Number.isInteger(meta.frames) || meta.frames < 1 || meta.frames > 10000) throw Error('Capture incomplete or invalid');
-  if (!opts.preview && meta.tickStamp?.skippedTicks > 0) throw Error(`Capture skipped ${meta.tickStamp.skippedTicks} tick(s) (gaps ${JSON.stringify(meta.tickStamp.gaps ?? [])}); key beats on them are not exact. Recapture.`);
+  if (opts.auto) meta.auto = { sha: opts.auto, at: new Date().toISOString(), kind: 'stepped' };
+  if (meta.captureQuality?.invalid || !Number.isInteger(meta.frames) || meta.frames < 1 || meta.frames > 10000) throw Error('Capture incomplete or invalid');
+  if (!meta.tickStamp || meta.tickStamp.mode !== 'stepped') throw Error('Capture has no stepped tick stamp (realtime captures drop ticks and are never publishable). Recapture.');
+  if (meta.tickStamp?.skippedTicks > 0) throw Error(`Capture skipped ${meta.tickStamp.skippedTicks} tick(s) (gaps ${JSON.stringify(meta.tickStamp.gaps ?? [])}); key beats on them are not exact. Recapture.`);
   if (meta.skill !== skill || meta.view !== view) throw Error('Capture metadata identity mismatch');
   const parent = join(root, skill, view);
   mkdirSync(parent, { recursive: true });
   const staging = join(parent, `.pending-${randomUUID()}`);
   mkdirSync(staging);
   try {
-    const hash = createHash('sha256').update(raw).update(opts.case ?? '').update(opts.auto || opts.preview ? JSON.stringify(meta.auto) : '');
+    const hash = createHash('sha256').update(raw).update(opts.case ?? '').update(opts.auto ? JSON.stringify(meta.auto) : '');
     const names = Array.from({ length: meta.frames }, (_, i) => `frame_${String(i).padStart(3, '0')}`);
     const extension = names.every(n => existsSync(join(source, n + '.webp'))) ? 'webp' : 'png';
     for (const name of names) {
@@ -68,11 +64,10 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
   for (let i = 0; i < args.length; i++) {
     if (args[i] === '--auto') opts.auto = args[++i];
     else if (args[i] === '--case') opts.case = args[++i];
-    else if (args[i] === '--preview') opts.preview = true;
     else if (args[i] === '--failed') opts.failed = args[++i];
     else pos.push(args[i]);
   }
-  if (pos.length !== 4 || (opts.auto !== undefined && !/^[0-9a-f]{7,40}$/.test(opts.auto))) throw Error('Usage: publish-capture.mjs <capture-dir> <published-root> <skill> <view> [--auto <sha>] [--preview]');
+  if (pos.length !== 4 || (opts.auto !== undefined && !/^[0-9a-f]{7,40}$/.test(opts.auto))) throw Error('Usage: publish-capture.mjs <capture-dir> <published-root> <skill> <view> [--auto <sha>]');
   if (opts.failed) { recordFailure(pos[1], pos[2], pos[3], opts.auto ?? null, opts.failed); console.log(JSON.stringify({ failed: true })); process.exit(0); }
   const result = publishCapture(...pos, opts);
   if (result.kept) { console.log(JSON.stringify({ kept: true })); process.exit(0); }
