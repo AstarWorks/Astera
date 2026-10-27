@@ -3,19 +3,9 @@ material: IRON_HORSE_ARMOR
 name:
   ja: <#b3141c>刻印の狙撃銃</#b3141c>
   en: <#b3141c>Sigil Rifle</#b3141c>
-lore:
-  ja:
-  - '左クリック: 銃床の踏み込み'
-  - '右クリック: 二連の刻印弾'
-  - 'スニーク+右: 刻印の追撃'
-  - 'スニーク+左: 刻印の退き足'
-  - 'Q: 終刻の弾丸'
-  en:
-  - 'Left-click: Rifle Rush'
-  - 'Right-click: Twin Seal Shots'
-  - 'Sneak+Right-click: Seal Pursuit'
-  - 'Sneak+Left-click: Sigil Ward'
-  - 'Q: Final Inscription'
+role:
+  ja: 銃 / 刻印弾で撃ち抜き追撃する
+  en: Gun / seal shots and relentless pursuit
 rarity: epic
 level_requirement: 4
 attributes:

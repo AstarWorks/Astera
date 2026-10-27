@@ -7,13 +7,9 @@ material: BLUE_ICE
 name:
   ja: "氷壁の杖"
   en: "Glacier Wand"
-lore:
-  ja:
-    - "<gray>右クリック: 氷柱 (足止め)</gray>"
-    - "<gray>スニーク + 右クリック: 氷壁を張る</gray>"
-  en:
-    - "<gray>Right-click: ice spike (slows)</gray>"
-    - "<gray>Sneak + right-click: raise an ice wall</gray>"
+role:
+  ja: "魔法 / 氷柱で足止め、氷壁で遮る"
+  en: "Magic / ice spikes slow, ice walls block"
 
 rarity: uncommon
 level_requirement: 1

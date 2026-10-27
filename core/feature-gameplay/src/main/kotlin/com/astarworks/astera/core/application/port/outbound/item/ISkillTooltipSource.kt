@@ -11,13 +11,24 @@ import com.astarworks.astera.core.domain.player.PlayerId
  * Every string is already rendered for [viewer]'s locale (MiniMessage).
  */
 public interface ISkillTooltipSource {
-    public fun brief(skillId: String, viewer: PlayerId?): SkillTooltipBrief?
+    /**
+     * @param cooldownOverrideTicks the item binding's own cooldown (wins over the skill's), or null.
+     * @param compact true when the item binds many skills: omit the description line to keep the card short.
+     */
+    public fun brief(
+        skillId: String,
+        viewer: PlayerId?,
+        cooldownOverrideTicks: Int? = null,
+        compact: Boolean = false,
+    ): SkillTooltipBrief?
+
+    /** Flat damage reduction (0.0-1.0) of the armor piece with content id [pieceId], or null when unknown. */
+    public fun armorReduction(pieceId: String): Double? = null
 }
 
 /**
- * @property name the skill's localized display name (used to place [lines] under the item's own
- *   lore line that names the skill).
- * @property lines at most two short effect lines.
+ * @property name the skill's localized display name (shown after the input label).
+ * @property lines at most two short effect lines (description, numbers), each already indented.
  * @property statusLines one plain-words line per status the skill applies ("Bleeding: ...").
  * @property usesEgo the skill spends the E.G.O gauge.
  */

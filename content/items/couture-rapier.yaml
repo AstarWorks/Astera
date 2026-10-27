@@ -3,19 +3,9 @@ material: SHEARS
 name:
   ja: 仕立屋の大鋏
   en: Couturier’s Shears
-lore:
-  ja:
-  - '左クリック: 切り合わせ'
-  - '右クリック: 型紙裁ち'
-  - 'スニーク+右: 花鋏の終縫'
-  - 'スニーク+左: 返し裁ち'
-  - 'Q: 落花の裁断'
-  en:
-  - 'Left-click: Shear Passage'
-  - 'Right-click: Pattern Trim'
-  - 'Sneak+Right-click: Floral Closure'
-  - 'Sneak+Left-click: Trimming Guard'
-  - 'Q: Falling Cutout'
+role:
+  ja: "近接 / 切り合わせと裁断の大鋏"
+  en: "Melee / shears that cut and tailor"
 rarity: epic
 level_requirement: 3
 attributes:

@@ -5,15 +5,11 @@ id: iron-shovel
 material: IRON_SHOVEL
 
 name:
-  ja: "<white>鉄のショベル</white>"
-  en: "<white>Iron Shovel</white>"
-lore:
-  ja:
-    - "<gray>右クリック: 掘削</gray>"
-    - "<gray>スニーク + 右クリック: 土橋</gray>"
-  en:
-    - "<gray>Right-click: excavate</gray>"
-    - "<gray>Sneak + right-click: earth bridge</gray>"
+  ja: "鉄のショベル"
+  en: "Iron Shovel"
+role:
+  ja: "ツール / 掘削と土橋づくり"
+  en: "Tool / excavate and build earth bridges"
 
 rarity: uncommon
 level_requirement: 1

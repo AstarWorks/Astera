@@ -128,9 +128,9 @@ public class PaperItemMaterializer(
     @Suppress("LongMethod")
     private fun applyMeta(stack: ItemStack, blueprint: ItemBlueprint) {
         stack.editMeta { meta ->
-            blueprint.displayName?.let { meta.displayName(AsteraTextDeserializer.deserialize(it)) }
+            blueprint.displayName?.let { meta.displayName(upright(AsteraTextDeserializer.deserialize(it))) }
             if (blueprint.lore.isNotEmpty()) {
-                meta.lore(blueprint.lore.map { AsteraTextDeserializer.deserialize(it) })
+                meta.lore(blueprint.lore.map { upright(AsteraTextDeserializer.deserialize(it)) })
             }
 
             // PDC: the canonical astera:item_id, plus the policy flags the
@@ -256,6 +256,10 @@ public class PaperItemMaterializer(
             meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES)
         }
     }
+
+    /** Vanilla italicises custom names / lore; item text is upright unless it asks for italic itself (flavour). */
+    private fun upright(c: net.kyori.adventure.text.Component): net.kyori.adventure.text.Component =
+        c.decorationIfAbsent(net.kyori.adventure.text.format.TextDecoration.ITALIC, net.kyori.adventure.text.format.TextDecoration.State.FALSE)
 
     private fun toBukkitSlot(slot: EquipSlot): EquipmentSlot = when (slot) {
         EquipSlot.MAINHAND -> EquipmentSlot.HAND

@@ -6,15 +6,11 @@ id: dagger
 material: STONE_SWORD
 
 name:
-  ja: "<dark_gray>ダガー</dark_gray>"
-  en: "<dark_gray>Dagger</dark_gray>"
-lore:
-  ja:
-    - "<gray>左クリック: 刺突（出血）</gray>"
-    - "<gray>スニーク+右: ダッシュ</gray>"
-  en:
-    - "<gray>Left-click: stab (bleed)</gray>"
-    - "<gray>Sneak+Right-click: dash</gray>"
+  ja: "ダガー"
+  en: "Dagger"
+role:
+  ja: "近接 / 出血を与える素早い短剣"
+  en: "Melee / quick dagger that causes bleeding"
 
 rarity: uncommon
 level_requirement: 2

@@ -3,21 +3,9 @@ material: LEATHER_HORSE_ARMOR
 name:
   ja: <#ff3d7f>報復の銃剣</#ff3d7f>
   en: <#ff3d7f>Vendetta Bayonet</#ff3d7f>
-lore:
-  ja:
-  - '左クリック: 礼節の銃剣'
-  - '右クリック: 厳粛な刺突'
-  - 'スニーク+右: 鉄の服従'
-  - 'スニーク+左: 鉄の構え'
-  - 'Q: 紅蓮の決算'
-  - 'スニーク+Q: リロード'
-  en:
-  - 'Left-click: Bayonet Propriety'
-  - 'Right-click: Solemn Thrust'
-  - 'Sneak+Right-click: Ferrous Obedience'
-  - 'Sneak+Left-click: Ferrous Guard'
-  - 'Q: Crimson Settlement'
-  - 'Sneak+Q: Reload'
+role:
+  ja: 銃 / 銃剣の接近戦と射撃の両刀
+  en: Gun / bayonet melee and rifle fire
 rarity: epic
 level_requirement: 4
 attributes:

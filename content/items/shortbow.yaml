@@ -7,13 +7,9 @@ material: BOW
 name:
   ja: "ショートボウ"
   en: "Shortbow"
-lore:
-  ja:
-    - "<gray>右クリック: 速射</gray>"
-    - "<gray>スニーク + 右クリック: 足止めの矢</gray>"
-  en:
-    - "<gray>Right-click: quick shot</gray>"
-    - "<gray>Sneak + right-click: snare arrow</gray>"
+role:
+  ja: "弓 / 速射と足止めの矢"
+  en: "Bow / quick shots and snare arrows"
 
 rarity: uncommon
 level_requirement: 1

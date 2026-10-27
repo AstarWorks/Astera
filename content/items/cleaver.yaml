@@ -7,13 +7,9 @@ material: IRON_AXE
 name:
   ja: "大鉈"
   en: "Cleaver"
-lore:
-  ja:
-    - "<gray>左クリック: 重い一撃 (出血しやすい)</gray>"
-    - "<gray>スニーク + 右クリック: 引き裂き (確定出血)</gray>"
-  en:
-    - "<gray>Left-click: heavy chop (may bleed)</gray>"
-    - "<gray>Sneak + right-click: rend (guaranteed bleed)</gray>"
+role:
+  ja: "近接 / 出血を狙う重い大鉈"
+  en: "Melee / heavy cleaver that causes bleeding"
 
 rarity: uncommon
 level_requirement: 1

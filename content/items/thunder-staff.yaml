@@ -6,13 +6,11 @@ id: thunder-staff
 material: LIGHTNING_ROD
 
 name:
-  ja: "<yellow>サンダースタッフ</yellow>"
-  en: "<yellow>Thunder Staff</yellow>"
-lore:
-  ja:
-    - "<gray>右クリック: 稲妻（麻痺）</gray>"
-  en:
-    - "<gray>Right-click: lightning bolt (shock)</gray>"
+  ja: "サンダースタッフ"
+  en: "Thunder Staff"
+role:
+  ja: "魔法 / 稲妻で撃ち麻痺させる"
+  en: "Magic / lightning bolt that shocks"
 
 rarity: rare
 level_requirement: 3

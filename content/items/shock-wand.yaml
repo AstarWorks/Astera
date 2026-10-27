@@ -5,15 +5,11 @@ id: shock-wand
 material: BREEZE_ROD
 
 name:
-  ja: "<yellow>ショックワンド</yellow>"
-  en: "<yellow>Shock Wand</yellow>"
-lore:
-  ja:
-    - "<gray>右クリック: 電撃</gray>"
-    - "<gray>スニーク + 右クリック: 放電</gray>"
-  en:
-    - "<gray>Right-click: zap</gray>"
-    - "<gray>Sneak + right-click: arc burst</gray>"
+  ja: "ショックワンド"
+  en: "Shock Wand"
+role:
+  ja: "魔法 / 電撃と範囲の放電"
+  en: "Magic / zaps and arc bursts"
 
 rarity: uncommon
 level_requirement: 1

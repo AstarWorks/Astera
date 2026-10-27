@@ -5,15 +5,11 @@ id: iron-warden-leggings
 material: IRON_LEGGINGS
 
 name:
-  ja: "<white>アイアンウォーデン レギンス</white>"
-  en: "<white>Iron Warden Leggings</white>"
-lore:
-  ja:
-    - "<gray>アイアンウォーデンセットの防具</gray>"
-    - "<gray>2部位・4部位そろえるとボーナス</gray>"
-  en:
-    - "<gray>Iron Warden set piece</gray>"
-    - "<gray>2+ pieces and the full set give a bonus</gray>"
+  ja: "アイアンウォーデン レギンス"
+  en: "Iron Warden Leggings"
+role:
+  ja: "防具 / アイアンウォーデン、2・4部位でボーナス"
+  en: "Armor / Iron Warden set (2/4 bonus)"
 
 rarity: uncommon
 level_requirement: 1

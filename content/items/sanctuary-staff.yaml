@@ -7,13 +7,9 @@ material: HEART_OF_THE_SEA
 name:
   ja: "聖域の杖"
   en: "Sanctuary Staff"
-lore:
-  ja:
-    - "<gray>右クリック: 癒しの輪 (味方を回復)</gray>"
-    - "<gray>スニーク + 右クリック: 浄化</gray>"
-  en:
-    - "<gray>Right-click: healing circle (heals allies)</gray>"
-    - "<gray>Sneak + right-click: purify</gray>"
+role:
+  ja: "魔法 / 味方の回復と浄化"
+  en: "Magic / heals and purifies allies"
 
 rarity: uncommon
 level_requirement: 1

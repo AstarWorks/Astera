@@ -7,13 +7,11 @@ id: skill-tester
 material: NETHER_STAR
 
 name:
-  ja: "<light_purple>スキルテスター</light_purple>"
-  en: "<light_purple>Skill Tester</light_purple>"
-lore:
-  ja:
-    - "<gray>右クリック: 紐づくスキルを発動</gray>"
-  en:
-    - "<gray>Right-click: cast the bound skill</gray>"
+  ja: "スキルテスター"
+  en: "Skill Tester"
+role:
+  ja: "補助 / 管理者用のスキル試射アイテム"
+  en: "Support / admin item for testing a skill"
 
 rarity: epic
 level_requirement: 1

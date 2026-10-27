@@ -5,15 +5,11 @@ id: stone-bulwark-block
 material: STONE_BRICKS
 
 name:
-  ja: "<gray>石の防壁</gray>"
-  en: "<gray>Stone Bulwark</gray>"
-lore:
-  ja:
-    - "<gray>置いて遮蔽物にする</gray>"
-    - "<gray>壊すには合った道具が必要</gray>"
-  en:
-    - "<gray>Place it for cover</gray>"
-    - "<gray>Use the right tool to break it</gray>"
+  ja: "石の防壁"
+  en: "Stone Bulwark"
+role:
+  ja: "ブロック / 置いて遮蔽物にする"
+  en: "Block / place it for cover"
 
 rarity: common
 level_requirement: 1

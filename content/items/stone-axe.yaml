@@ -5,15 +5,11 @@ id: stone-axe
 material: STONE_AXE
 
 name:
-  ja: "<gray>石のオノ</gray>"
-  en: "<gray>Stone Axe</gray>"
-lore:
-  ja:
-    - "<gray>右クリック: 木断ち</gray>"
-    - "<gray>スニーク + 右クリック: 板壁</gray>"
-  en:
-    - "<gray>Right-click: fell wood</gray>"
-    - "<gray>Sneak + right-click: plank wall</gray>"
+  ja: "石のオノ"
+  en: "Stone Axe"
+role:
+  ja: "ツール / 木を切り倒し、板壁を作る"
+  en: "Tool / fell trees, raise plank walls"
 
 rarity: common
 level_requirement: 1

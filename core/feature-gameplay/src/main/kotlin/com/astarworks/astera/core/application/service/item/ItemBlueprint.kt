@@ -60,7 +60,7 @@ public class ItemBlueprintFactory(
 
     public fun build(spec: ItemSpec, viewer: PlayerId?): ItemBlueprint {
         val template = spec.template
-        val name = if (spec.displayName == LocalizedText.EMPTY) null else messages.renderText(viewer, spec.displayName)
+        val name = if (spec.displayName == LocalizedText.EMPTY) null else messages.renderText(viewer, spec.displayName).takeIf { it.isNotBlank() }?.let { tooltip.colouredName(it, spec.rarity) }
         val durability: DurabilityPolicy = spec.durability
         return ItemBlueprint(
             itemId = spec.id.value,

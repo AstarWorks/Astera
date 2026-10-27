@@ -5,13 +5,11 @@ id: wool-block
 material: WHITE_WOOL
 
 name:
-  ja: "<white>羊毛</white>"
-  en: "<white>Wool</white>"
-lore:
-  ja:
-    - "<gray>手軽な遮蔽用ブロック</gray>"
-  en:
-    - "<gray>Cheap block for quick cover</gray>"
+  ja: "羊毛"
+  en: "Wool"
+role:
+  ja: "ブロック / 手軽な遮蔽用ブロック"
+  en: "Block / cheap block for quick cover"
 
 rarity: common
 level_requirement: 1

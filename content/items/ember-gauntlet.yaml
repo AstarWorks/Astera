@@ -3,19 +3,9 @@ material: GOLDEN_AXE
 name:
   ja: <#ff7a1a>灼拳の手甲</#ff7a1a>
   en: <#ff7a1a>Ember Gauntlet</#ff7a1a>
-lore:
-  ja:
-  - '左クリック: 炎拳と噴射'
-  - '右クリック: 連拳'
-  - 'スニーク+右: 炉心解放'
-  - 'スニーク+左: 迎撃の炎拳'
-  - 'Q: 熾火の心臓'
-  en:
-  - 'Left-click: Flame Fist and Jet'
-  - 'Right-click: Double Fist'
-  - 'Sneak+Right-click: Furnace Release'
-  - 'Sneak+Left-click: Flame Reprisal'
-  - 'Q: Cinder Heart'
+role:
+  ja: "近接 / 炎の連拳と噴射の手甲"
+  en: "Melee / flaming gauntlet with fist combos"
 rarity: epic
 level_requirement: 3
 attributes:
