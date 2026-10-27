@@ -40,7 +40,7 @@ presentation:
       - {id: reel_sparks, op: emit, when: &on_reel "= event.source == 'reel_hit'", at: contact.point, particle: "${spark_particle}", count: 6, dir: "= contact.normal"}
       - {id: slash_snd, op: sound, when: *on_reel, sound: couture.slash_light, at: contact.point}
     block:
-      - {id: crumb, op: emit, at: contact.point, particle: block_crumb, count: 8, dir: "= contact.normal"}
+      - {id: crumb, op: emit, at: contact.point, particle: couture-s2-p-crumb, count: 8, dir: "= contact.normal"}
       - {id: wall_snd, op: sound, sound: couture.stab_wall, at: contact.point}
       - {id: fan_off_w, op: remove, ids: [flight_fan]}
     reel:

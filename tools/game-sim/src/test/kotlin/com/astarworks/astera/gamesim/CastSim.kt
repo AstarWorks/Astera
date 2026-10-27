@@ -49,7 +49,9 @@ fun simVictim(n: Int): UUID = UUID.fromString("00000000-0000-0000-0000-0000000d%
  */
 class Dealt(val tick: Int, val victim: UUID, val amount: Double, val ignoreInvulnerability: Boolean)
 
-class CastSim(val victims: Map<UUID, Vec3>, val casterStacks: Map<String, Int> = emptyMap(), val blockAtZ: Double? = null) {
+class CastSim(val victims: Map<UUID, Vec3>, val casterStacks: Map<String, Int> = emptyMap(), val blockAtZ: Double? = null,
+    private val particleGateway: ISkillParticleGateway? = null,
+) {
     private val caster: UUID = SIM_CASTER
     var now = 0
     val dealt = ArrayList<Dealt>()
@@ -113,7 +115,7 @@ class CastSim(val victims: Map<UUID, Vec3>, val casterStacks: Map<String, Int> =
 
     val kit: SkillEngineKit = SkillEngineKit.build(
         gateways = SkillEngineGateways(
-            ports = SkillRuntimePorts(noop<ISkillVisualGateway>(), noop<ISkillParticleGateway>(), sound, gameplay, entities, noop<ISkillVictimAnimGateway>()),
+            ports = SkillRuntimePorts(noop<ISkillVisualGateway>(), particleGateway ?: noop<ISkillParticleGateway>(), sound, gameplay, entities, noop<ISkillVictimAnimGateway>()),
             movement = noop<ISkillMovementGateway>(),
             world = world,
             casterAnim = noop<ISkillCasterAnimGateway>(),

@@ -87,6 +87,11 @@ public class PaperSkillEntityQuery(private val server: Server) : ISkillEntityQue
     /** The world of the most recent cast owner (the "last seen world" the world-less skill ports share). */
     public fun activeWorld(): World? = worldOf(null)
 
+    /** A cast started in [world]: the world-less particle and sound ports follow it. */
+    public fun noteWorld(world: World) {
+        lastWorld = world
+    }
+
     private fun worldOf(excluding: UUID?): World? {
         val fromEntity = excluding?.let { server.getEntity(it)?.world }
         if (fromEntity != null) lastWorld = fromEntity
