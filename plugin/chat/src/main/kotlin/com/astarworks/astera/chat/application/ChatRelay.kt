@@ -52,7 +52,7 @@ public class ChatRelay(
         .filter { rank -> rank.id == "member" || rank.roles.any { it in roles } }
         .maxBy { it.priority }
 
-    public fun send(player: UUID, name: String, message: String, rank: ChatRank, color: Boolean, nameColor: String? = null): CompletionStage<Void> {
+    public fun send(player: UUID, name: String, message: String, rank: ChatRank, nameColor: String? = null): CompletionStage<Void> {
         val kana = if (toggles[player] ?: config.japanize.enabled) Romaji.hiragana(message) else null
         val converted = when {
             kana == null -> CompletableFuture.completedFuture(message)
@@ -60,7 +60,7 @@ public class ChatRelay(
             else -> CompletableFuture.completedFuture("$kana ($message)")
         }
         return converted.thenAccept { text ->
-            if (active) publish(ChatFrame(name, text, rank.prefix, rank.suffix, color, playerId = player.toString(), nameColor = nameColor))
+            if (active) publish(ChatFrame(name, text, rank.prefix, rank.suffix, rank.decoration, playerId = player.toString(), nameColor = nameColor))
         }
     }
 

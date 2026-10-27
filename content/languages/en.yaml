@@ -2733,7 +2733,7 @@ astera:
   chat.japanize.off: "Japanize disabled."
   chat.title.invalid: "Usage: /astera chat title <all|server-name> <title> [| subtitle]"
   chat.title.sent: "Title sent to {target}."
-  chat.discord.line: "<blue>[Discord]</blue> <name>: <message>"
+  chat.discord.line: "&9[Discord]&r {name}: {message}"
   command.help.chat-japanize-on: "Enable Japanese conversion for this session."
   command.help.chat-japanize-off: "Disable Japanese conversion for this session."
   command.help.chat-title: "Send a screen title across servers."

@@ -2721,7 +2721,7 @@ astera:
   chat.japanize.off: "日本語変換を無効にしました。"
   chat.title.invalid: "使い方: /astera chat title <all|サーバー名> <タイトル> [| サブタイトル]"
   chat.title.sent: "{target} にタイトルを送信しました。"
-  chat.discord.line: "<blue>[Discord]</blue> <name>: <message>"
+  chat.discord.line: "&9[Discord]&r {name}: {message}"
   command.help.chat-japanize-on: "この接続中の日本語変換を有効にします。"
   command.help.chat-japanize-off: "この接続中の日本語変換を無効にします。"
   command.help.chat-title: "指定サーバーまたは全サーバーに画面タイトルを送ります。"
