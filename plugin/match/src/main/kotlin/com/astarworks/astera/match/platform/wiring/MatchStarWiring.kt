@@ -149,7 +149,7 @@ internal object MatchStarWiring {
         val mcServer = services.get<IMcServer>()
         // Norma level-up: title, sound, burst at the player, chat line to the match; the top level is bigger.
         val presentation = env.ports.normaPresentation?.invoke(services)
-        // ADR-0289: Items asks this gate before firing any trigger of a weapon; below the level its rarity opens at,
+        // ADR-0292: Items asks this gate before firing any trigger of a weapon; below the level its rarity opens at,
         // the player gets the deny sound and the "Lv N で <rarity> 解放" line. The tooltip reads the layer ladder from it.
         env.ctx.registrations += services.register<com.astarworks.astera.core.application.port.outbound.IMatchLevelGate>(
             NormaLevelGate(norma, { NormaConfig.parse(env.layerDefaults()) }) { player, required, rarity -> presentation?.locked(player, required, rarity) },

@@ -31,7 +31,7 @@ import com.astarworks.astera.core.domain.skill.SkillTrigger
  * ## Norma level gate
  *
  * Every trigger of a weapon (attacks and all skills) is refused (with feedback from [IMatchLevelGate]) while the
- * caster's in-match Norma level is below the level the item's rarity opens at (ADR-0289); the input is still swallowed.
+ * caster's in-match Norma level is below the level the item's rarity opens at (ADR-0292); the input is still swallowed.
  *
  * ## Active weapon
  *
@@ -84,7 +84,7 @@ public class HandleItemTriggerUseCase(
         val spec = items.find(itemId) ?: return castSkillTester(playerId, itemId, trigger, origin)
         val matchingBindings = spec.skillBindings.filter { it.trigger == trigger }
         if (matchingBindings.isEmpty()) return false
-        // Norma rarity gate (ADR-0289): a weapon above the holder's level does nothing, with feedback; the input is swallowed.
+        // Norma rarity gate (ADR-0292): a weapon above the holder's level does nothing, with feedback; the input is swallowed.
         if (levelGate()?.denyIfLocked(playerId, spec.rarity) == true) return true
 
         for (binding in matchingBindings) {

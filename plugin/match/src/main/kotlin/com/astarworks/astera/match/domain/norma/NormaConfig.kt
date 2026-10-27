@@ -6,7 +6,7 @@ import com.astarworks.astera.core.domain.item.Rarity
  * Norma tunables of a match: the shared layer defaults (`content/norma-layer/layer.yaml`) overlaid with the match's
  * game mode `default_config` (a mode overrides any key). `norma_max_level`, `norma_stars_goal`, `norma_kills_goal`
  * (comma lists indexed by the level being cleared), `death_drop_ratio`, and `rarity_levels` (`rarity:level` pairs: the
- * Norma level at which weapons of that rarity become usable, ADR-0289). Missing or malformed values
+ * Norma level at which weapons of that rarity become usable, ADR-0292). Missing or malformed values
  * fall back to the defaults.
  */
 public data class NormaConfig(

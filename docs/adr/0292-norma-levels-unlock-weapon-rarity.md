@@ -6,7 +6,7 @@ supersedes: null
 superseded_by: null
 ---
 
-# ADR-0289: Norma levels unlock weapon rarity
+# ADR-0292: Norma levels unlock weapon rarity
 
 ## Status
 
