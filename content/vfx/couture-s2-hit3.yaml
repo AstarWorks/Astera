@@ -5,34 +5,486 @@ orient: world
 follow: false
 sample_ticks: 1
 elements:
-- id: flash-full
+- id: fs-w0
   kind:
     type: quad
-    color: '#FFD6EE'
-    alpha: 0.9
+    color: '#FFE4F2'
+    alpha: 0.6
     see_through: true
   billboard: center
   brightness: 15
   start_tick: 0
-  end_tick: 4
+  end_tick: 3
   keyframes:
   - t: 0
     translate:
+    - 0.0
+    - -1.7000000000000002
     - 0
-    - 1.0
+    rotate:
     - 0
+    - 0
+    - -9
     scale:
-    - 16
-    - 9
+    - 18
+    - 0.5
     - 1
   - t: 3
     translate:
+    - 0.0
+    - -1.7000000000000002
     - 0
-    - 1.0
+    rotate:
     - 0
+    - 0
+    - -9
     scale:
-    - 16
-    - 9
+    - 18
+    - 0.5
+    - 1
+- id: fs-w1
+  kind:
+    type: quad
+    color: '#FFE4F2'
+    alpha: 0.6
+    see_through: true
+  billboard: center
+  brightness: 15
+  start_tick: 0
+  end_tick: 3
+  keyframes:
+  - t: 0
+    translate:
+    - 0.0
+    - -0.7500000000000002
+    - 0
+    rotate:
+    - 0
+    - 0
+    - -9
+    scale:
+    - 18
+    - 0.62
+    - 1
+  - t: 3
+    translate:
+    - 0.0
+    - -0.7500000000000002
+    - 0
+    rotate:
+    - 0
+    - 0
+    - -9
+    scale:
+    - 18
+    - 0.62
+    - 1
+- id: fs-w2
+  kind:
+    type: quad
+    color: '#FFE4F2'
+    alpha: 0.6
+    see_through: true
+  billboard: center
+  brightness: 15
+  start_tick: 0
+  end_tick: 3
+  keyframes:
+  - t: 0
+    translate:
+    - 0.0
+    - 0.19999999999999973
+    - 0
+    rotate:
+    - 0
+    - 0
+    - -9
+    scale:
+    - 18
+    - 0.74
+    - 1
+  - t: 3
+    translate:
+    - 0.0
+    - 0.19999999999999973
+    - 0
+    rotate:
+    - 0
+    - 0
+    - -9
+    scale:
+    - 18
+    - 0.74
+    - 1
+- id: fs-w3
+  kind:
+    type: quad
+    color: '#FFE4F2'
+    alpha: 0.6
+    see_through: true
+  billboard: center
+  brightness: 15
+  start_tick: 0
+  end_tick: 3
+  keyframes:
+  - t: 0
+    translate:
+    - 0.0
+    - 1.1499999999999995
+    - 0
+    rotate:
+    - 0
+    - 0
+    - -9
+    scale:
+    - 18
+    - 0.5
+    - 1
+  - t: 3
+    translate:
+    - 0.0
+    - 1.1499999999999995
+    - 0
+    rotate:
+    - 0
+    - 0
+    - -9
+    scale:
+    - 18
+    - 0.5
+    - 1
+- id: fs-w4
+  kind:
+    type: quad
+    color: '#FFE4F2'
+    alpha: 0.6
+    see_through: true
+  billboard: center
+  brightness: 15
+  start_tick: 0
+  end_tick: 3
+  keyframes:
+  - t: 0
+    translate:
+    - 0.0
+    - 2.0999999999999996
+    - 0
+    rotate:
+    - 0
+    - 0
+    - -9
+    scale:
+    - 18
+    - 0.62
+    - 1
+  - t: 3
+    translate:
+    - 0.0
+    - 2.0999999999999996
+    - 0
+    rotate:
+    - 0
+    - 0
+    - -9
+    scale:
+    - 18
+    - 0.62
+    - 1
+- id: fs-w5
+  kind:
+    type: quad
+    color: '#FFE4F2'
+    alpha: 0.6
+    see_through: true
+  billboard: center
+  brightness: 15
+  start_tick: 0
+  end_tick: 3
+  keyframes:
+  - t: 0
+    translate:
+    - 0.0
+    - 3.05
+    - 0
+    rotate:
+    - 0
+    - 0
+    - -9
+    scale:
+    - 18
+    - 0.74
+    - 1
+  - t: 3
+    translate:
+    - 0.0
+    - 3.05
+    - 0
+    rotate:
+    - 0
+    - 0
+    - -9
+    scale:
+    - 18
+    - 0.74
+    - 1
+- id: fs-w6
+  kind:
+    type: quad
+    color: '#FFE4F2'
+    alpha: 0.6
+    see_through: true
+  billboard: center
+  brightness: 15
+  start_tick: 0
+  end_tick: 3
+  keyframes:
+  - t: 0
+    translate:
+    - 0.0
+    - 3.999999999999999
+    - 0
+    rotate:
+    - 0
+    - 0
+    - -9
+    scale:
+    - 18
+    - 0.5
+    - 1
+  - t: 3
+    translate:
+    - 0.0
+    - 3.999999999999999
+    - 0
+    rotate:
+    - 0
+    - 0
+    - -9
+    scale:
+    - 18
+    - 0.5
+    - 1
+- id: fs-g0
+  kind:
+    type: quad
+    color: '#6E6670'
+    alpha: 0.4
+    see_through: true
+  billboard: center
+  brightness: 15
+  start_tick: 0
+  end_tick: 3
+  keyframes:
+  - t: 0
+    translate:
+    - 0.0
+    - -1.25
+    - 0
+    rotate:
+    - 0
+    - 0
+    - -9
+    scale:
+    - 18
+    - 0.35
+    - 1
+  - t: 3
+    translate:
+    - 0.0
+    - -1.25
+    - 0
+    rotate:
+    - 0
+    - 0
+    - -9
+    scale:
+    - 18
+    - 0.35
+    - 1
+- id: fs-g1
+  kind:
+    type: quad
+    color: '#6E6670'
+    alpha: 0.4
+    see_through: true
+  billboard: center
+  brightness: 15
+  start_tick: 0
+  end_tick: 3
+  keyframes:
+  - t: 0
+    translate:
+    - 0.0
+    - -0.30000000000000004
+    - 0
+    rotate:
+    - 0
+    - 0
+    - -9
+    scale:
+    - 18
+    - 0.35
+    - 1
+  - t: 3
+    translate:
+    - 0.0
+    - -0.30000000000000004
+    - 0
+    rotate:
+    - 0
+    - 0
+    - -9
+    scale:
+    - 18
+    - 0.35
+    - 1
+- id: fs-g2
+  kind:
+    type: quad
+    color: '#6E6670'
+    alpha: 0.4
+    see_through: true
+  billboard: center
+  brightness: 15
+  start_tick: 0
+  end_tick: 3
+  keyframes:
+  - t: 0
+    translate:
+    - 0.0
+    - 0.6499999999999999
+    - 0
+    rotate:
+    - 0
+    - 0
+    - -9
+    scale:
+    - 18
+    - 0.35
+    - 1
+  - t: 3
+    translate:
+    - 0.0
+    - 0.6499999999999999
+    - 0
+    rotate:
+    - 0
+    - 0
+    - -9
+    scale:
+    - 18
+    - 0.35
+    - 1
+- id: fs-g3
+  kind:
+    type: quad
+    color: '#6E6670'
+    alpha: 0.4
+    see_through: true
+  billboard: center
+  brightness: 15
+  start_tick: 0
+  end_tick: 3
+  keyframes:
+  - t: 0
+    translate:
+    - 0.0
+    - 1.5999999999999996
+    - 0
+    rotate:
+    - 0
+    - 0
+    - -9
+    scale:
+    - 18
+    - 0.35
+    - 1
+  - t: 3
+    translate:
+    - 0.0
+    - 1.5999999999999996
+    - 0
+    rotate:
+    - 0
+    - 0
+    - -9
+    scale:
+    - 18
+    - 0.35
+    - 1
+- id: fs-g4
+  kind:
+    type: quad
+    color: '#6E6670'
+    alpha: 0.4
+    see_through: true
+  billboard: center
+  brightness: 15
+  start_tick: 0
+  end_tick: 3
+  keyframes:
+  - t: 0
+    translate:
+    - 0.0
+    - 2.55
+    - 0
+    rotate:
+    - 0
+    - 0
+    - -9
+    scale:
+    - 18
+    - 0.35
+    - 1
+  - t: 3
+    translate:
+    - 0.0
+    - 2.55
+    - 0
+    rotate:
+    - 0
+    - 0
+    - -9
+    scale:
+    - 18
+    - 0.35
+    - 1
+- id: fs-g5
+  kind:
+    type: quad
+    color: '#6E6670'
+    alpha: 0.4
+    see_through: true
+  billboard: center
+  brightness: 15
+  start_tick: 0
+  end_tick: 3
+  keyframes:
+  - t: 0
+    translate:
+    - 0.0
+    - 3.5
+    - 0
+    rotate:
+    - 0
+    - 0
+    - -9
+    scale:
+    - 18
+    - 0.35
+    - 1
+  - t: 3
+    translate:
+    - 0.0
+    - 3.5
+    - 0
+    rotate:
+    - 0
+    - 0
+    - -9
+    scale:
+    - 18
+    - 0.35
     - 1
 - id: flash-0
   kind:
