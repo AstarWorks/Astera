@@ -1,0 +1,15 @@
+# pink contact dust
+id: couture-s2-p-stick-pink
+shape: {kind: burst, spread_blocks: 0.12}
+color: {r: 255, g: 150, b: 195}
+count: 2
+lifetime_ticks: 8
+vanilla_particle: dust_color_transition
+data:
+  kind: dust_color_transition
+  from: {r: 255, g: 230, b: 240}
+  to: {r: 255, g: 150, b: 195}
+  scale: 0.9
+speed: 0.0
+velocity: {direction: outward, speed: 0.1, spread_degrees: 0, speed_jitter: 0.4}
+force: true

@@ -55,3 +55,31 @@ elements:
     - 1
     - 1
     - 1
+- id: stick-spark
+  kind:
+    type: particle
+    particle_id: couture-s2-p-stick
+    every_ticks: 1
+  brightness: 15
+  start_tick: 0
+  end_tick: 2
+  keyframes:
+  - t: 0
+    translate:
+    - 0.0
+    - 1.48
+    - 0.05
+- id: stick-pink
+  kind:
+    type: particle
+    particle_id: couture-s2-p-stick-pink
+    every_ticks: 1
+  brightness: 15
+  start_tick: 0
+  end_tick: 2
+  keyframes:
+  - t: 0
+    translate:
+    - 0.0
+    - 1.48
+    - 0.05
