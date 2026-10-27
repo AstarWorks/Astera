@@ -1,0 +1,6 @@
+apiVersion: astera/v2
+kind: Skill
+id: beta
+gameplay:
+  params:
+    range: 2

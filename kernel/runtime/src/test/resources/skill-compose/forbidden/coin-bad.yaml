@@ -1,0 +1,8 @@
+apiVersion: astera/v2
+kind: Patch
+target: coin
+variant: bad
+patchKind: skin
+gameplay:
+  params:
+    range: 99

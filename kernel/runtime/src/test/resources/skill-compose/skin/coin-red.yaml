@@ -1,0 +1,9 @@
+apiVersion: astera/v2
+kind: Patch
+target: coin
+variant: red
+patchKind: skin
+presentation:
+  colors:
+    - {id: ring, color: "#ff0000"}
+    - {id: glow, $patch: delete}

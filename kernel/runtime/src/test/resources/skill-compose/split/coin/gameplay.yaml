@@ -1,0 +1,8 @@
+apiVersion: astera/v2
+kind: Skill
+gameplay:
+  params:
+    range: 12
+  on:
+    hit:
+      - {id: dmg, op: damage, amount: 5}

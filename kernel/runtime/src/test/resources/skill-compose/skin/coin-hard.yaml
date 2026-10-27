@@ -1,0 +1,8 @@
+apiVersion: astera/v2
+kind: Patch
+target: coin
+variant: hard
+patchKind: balance
+gameplay:
+  params:
+    range: 3

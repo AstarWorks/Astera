@@ -12,4 +12,5 @@ dependencies {
     implementation(libs.slf4j.api)
     implementation(libs.kaml)
     implementation(libs.ktoml.core)
+    implementation(libs.snakeyaml)
 }
