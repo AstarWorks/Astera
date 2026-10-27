@@ -2726,3 +2726,9 @@ astera:
   command.help.chat-japanize-off: "この接続中の日本語変換を無効にします。"
   command.help.chat-title: "指定サーバーまたは全サーバーに画面タイトルを送ります。"
   command.help.chat-japanize: "この接続中の日本語変換を切り替えます。"
+
+  # FX-12: 戦闘中のアクションバー表示 (被ダメージ・HP 低下・キル確認)
+  hud.combat.hurt-by: "<red>{name} <gray>-{amount}</gray></red>"
+  hud.combat.hurt: "<red>-{amount}</red>"
+  hud.combat.low-hp: "<red><bold>HP 危険 {hp}</bold></red>"
+  hud.combat.kill: "<gold><bold>撃破</bold> <white>{name}</white></gold>"
