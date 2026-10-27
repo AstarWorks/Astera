@@ -82,6 +82,37 @@ internal class VfxMechanics(
         }
     }
 
+    /**
+     * Plays [vfxId] riding a live moving anchor (a projectile): it starts at [origin], follows [anchor] every tick,
+     * is oriented along [direction], and ends as soon as [endWhen] reports `true`.
+     */
+    fun playRiding(
+        vfxId: com.astarworks.astera.core.domain.effect.vfx.VfxId,
+        world: com.astarworks.astera.core.domain.world.WorldId,
+        owner: com.astarworks.astera.core.domain.player.PlayerId,
+        origin: Vec3,
+        direction: Vec3,
+        anchor: () -> Vec3?,
+        endWhen: () -> Boolean,
+    ) {
+        val request = VfxRequest(
+            vfxId = vfxId,
+            world = world,
+            origin = origin,
+            look = direction,
+            toTarget = direction,
+            follow = true,
+            anchor = anchor,
+            caster = owner,
+            endWhen = endWhen,
+            seed = scheduler.currentTick() * 1_000_003L + owner.hashCode() * 31L,
+        )
+        when (val result = player.play(request)) {
+            is Result.Success -> Unit
+            is Result.Failure -> log.warn("[cue-dropped] projectile vfx: {} not played: {}", vfxId, result.error)
+        }
+    }
+
     private companion object {
         const val MAX_ANCHORS = 8
     }

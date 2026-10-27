@@ -270,7 +270,8 @@ ARENA_H=12                           # air cleared above the floor
 CMP_FOV_OPT=""
 CMP_FOV_DEG=""
 CAM0_CMD=""
-ENEMY_X=4.2
+ENEMY_X="${SHOT_ENEMY_X:-4.2}"            # compare: dummy distance ahead of the caster
+ENEMY_Z="${SHOT_ENEMY_Z:-0}"              # compare: lateral offset of the dummy (miss-case captures: SHOT_ENEMY_Z=6)
 for _v in ${VIEW//,/ }; do   # VIEW=top,side films several orbit views in one run (one scene setup, one stack sync)
   case "$_v" in caster|opponent|side|front|back|right|high|near|top|compare|all) ;; *) die "VIEW must be caster|opponent|side|front|back|right|high|near|top|compare|all (comma list allowed, compare alone)";; esac
 done
@@ -1049,7 +1050,7 @@ place_scene() { # view target_z
       rcon "team modify cmp nametagVisibility never" >/dev/null
       rcon "team join cmp Caster" >/dev/null
       tp Caster "$CX" "$Y" "$CZ" -90 0
-      rcon "execute in minecraft:overworld run summon minecraft:husk $(awk -v x="$CX" -v d="$ENEMY_X" 'BEGIN{printf "%.2f", x+d}') $Y $CZ $(dummy_nbt 90)" >/dev/null
+      rcon "execute in minecraft:overworld run summon minecraft:husk $(awk -v x="$CX" -v d="$ENEMY_X" 'BEGIN{printf "%.2f", x+d}') $Y $(awk -v z="$CZ" -v d="$ENEMY_Z" 'BEGIN{printf "%.2f", z+d}') $(dummy_nbt 90)" >/dev/null
       watcher_camera_mode
       rcon "$CAM0_CMD" >/dev/null ;;
     side|front|back|right|high|near|top)

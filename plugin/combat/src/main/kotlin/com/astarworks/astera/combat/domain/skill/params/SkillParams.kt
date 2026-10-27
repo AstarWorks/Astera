@@ -49,10 +49,17 @@ public sealed class SkillParams {
         val hitRadius: Double = DEFAULT_HIT_RADIUS,
         /** What the projectile looks like in flight (particle trail ids + optional display entity). */
         val visual: ProjectileVisualParams = ProjectileVisualParams.NONE,
+        /** Blocks in front of the eye the projectile spawns at. */
+        val muzzleForward: Double = DEFAULT_MUZZLE_FORWARD,
+        /** Blocks above the eye the projectile spawns at. */
+        val muzzleUp: Double = 0.0,
+        /** `> 0`: aim at the look-ray point this far away instead of flying parallel to the look direction. */
+        val aimDistance: Double = 0.0,
     ) : SkillParams() {
         public val hitShape: BakedHitShape.Sphere =
             BakedHitShape.Sphere(hitRadius)
         init {
+            require(aimDistance >= 0.0) { "ProjectileParams.aimDistance must be >= 0: $aimDistance" }
             require(hitRadius > 0.0) { "ProjectileParams.hitRadius must be > 0: $hitRadius" }
             require(launchSpeed >= 0.0) { "ProjectileParams.launchSpeed must be >= 0: $launchSpeed" }
             require(maxLifetimeTicks >= 0) {
@@ -62,6 +69,7 @@ public sealed class SkillParams {
 
         public companion object {
             public const val DEFAULT_HIT_RADIUS: Double = 0.5
+            public const val DEFAULT_MUZZLE_FORWARD: Double = 0.5
         }
     }
 
@@ -131,6 +139,8 @@ public data class ProjectileVisualParams(
     val trail: com.astarworks.astera.core.domain.effect.animation.ParticleAnimation? = null,
     val trailSpacing: Double = DEFAULT_TRAIL_SPACING,
     val display: com.astarworks.astera.combat.domain.projectile.DisplaySpec? = null,
+    /** `content/vfx` choreography anchored on the live projectile; it ends with the projectile. */
+    val vfx: com.astarworks.astera.core.domain.effect.vfx.VfxId? = null,
 ) {
     init {
         require(trailSpacing >= 0.0) { "trailSpacing must be >= 0: $trailSpacing" }
