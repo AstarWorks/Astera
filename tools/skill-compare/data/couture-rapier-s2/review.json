@@ -6,18 +6,28 @@
   "soundKind": "vanilla tuned",
   "reviewer": {
     "verdict": "fail",
-    "round": "r4",
-    "head": "fd1719c06",
-    "note": "clean capture 1c5875e58; fan direction passes",
+    "round": "r5",
+    "head": "35da38dca",
+    "note": "fresh reviewer, clean side+top capture 35da38dca",
+    "beats": {
+      "t8-10 hit1": "O(weak)",
+      "t15-22 arm raise/throw": "partial",
+      "t22-38 overhead arcs": "O",
+      "t38-46 plume": "partial",
+      "t46-60 linked shears/shadow": "partial",
+      "t56-64 one weapon": "X (gap at t57)",
+      "t63-70 afterimage/coil": "O",
+      "t72-74 flash/X/ring": "partial",
+      "t75-100 aftermath": "partial"
+    },
     "diffs": [
-      "P0 overhead crescent too thick/soft/opaque, ring with gap at t34 (texture/particles)",
-      "P0 coin2 t41 burst small, rays smooth blades not jagged feathers (particles/texture)",
-      "P0 t72 flat saturated pink flash hides structure (particles)",
-      "P1 shadow is one flat black wedge, not jagged (model/particles)",
-      "P1 purple haze only a small blob at t64 (particles)",
-      "P1 caster crouch at t64 wrong, t16-20 arm raise missing (animation)",
-      "P1 caster cropped right after t76 (integration camera)",
-      "P2 no weapon in hand t56-58; flying shears arrive t38 vs ref t41"
+      "P0 one-tick no-weapon gap at t57 (animation/integration)",
+      "P1 t72 not a full white-out (particles)",
+      "P1 coin2 plume flat white lines, no orange core/depth (particles)",
+      "P1 no caster-to-target chain of sparks/links t43-56 (particles/model)",
+      "P2 weapon small/unreadable at t8-10 and t19-21 (model/texture)",
+      "P2 final X thin, no shard/petal debris (particles)",
+      "P2 target does not stagger/kneel, stage not darkened t76-95 (animation)"
     ]
   }
 }
