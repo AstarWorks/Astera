@@ -1,5 +1,6 @@
 package com.astarworks.astera.core.domain.player
 
+import com.astarworks.astera.core.domain.effect.vfx.VfxIntensity
 import com.astarworks.astera.core.domain.i18n.LocaleCode
 
 /**
@@ -117,6 +118,8 @@ public data class PlayerSettings(
     val damageNumbersVisible: Boolean = true,
     /** UI-03 — show the first-time guide's title / action-bar hints and world marker. Off pauses the guide. */
     val tutorialHintsEnabled: Boolean = true,
+    /** Visual-effect quality (`vfx_intensity`): `reduced` drops ambient-lane effects, `minimal` keeps only core ones, per viewer. */
+    val vfxIntensity: VfxIntensity = VfxIntensity.FULL,
 ) {
     init {
         quickCastSlots.keys.forEach { slot ->

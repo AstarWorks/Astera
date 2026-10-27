@@ -220,7 +220,7 @@ internal class WorldMechanics(
             emptyList()
         }
         for (at in targeters.resolveLocations(m.targets, ctx).take(MAX_DISPLAYS_PER_CAST)) {
-            val handle = gateway.spawn(world, at, m.display, lines) ?: continue
+            val handle = gateway.spawn(world, at, m.display, lines, m.viewers, ctx.actorId, ctx.targetId) ?: continue
             liveDisplays += handle
             scheduler.runLaterTicks(regionScope(world, at), m.display.lifetimeTicks) {
                 if (liveDisplays.remove(handle)) gateway.remove(handle)

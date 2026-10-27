@@ -102,7 +102,9 @@ public class GameSim private constructor(
     }
 
     /** Displays spawned by SpawnDisplay (WP5). */
-    public val displays: SimDisplayGateway = SimDisplayGateway(scheduler, recorder)
+    public val displays: SimDisplayGateway = SimDisplayGateway(scheduler, recorder).also { gateway ->
+        gateway.nearbyPlayers = { world.entities.filter { it.kind == SimEntityKind.PLAYER }.map { it.id } }
+    }
 
     /** Bodies of the lobby training dummies (F3-11). */
     public val trainingShells: SimTrainingShells = SimTrainingShells(world, recorder)
