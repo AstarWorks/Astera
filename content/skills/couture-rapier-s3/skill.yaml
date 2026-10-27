@@ -1,0 +1,30 @@
+# Converted from content/skills/couture-rapier-s3.yaml by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
+# Generated point-frame offsets are [left, up, forward] in the parent frame.
+apiVersion: "astera/v2"
+kind: Skill
+id: couture-rapier-s3
+item: couture-rapier
+meta: {name: {ja: "花鋏の終縫", en: "Floral Closure"}, description: {ja: "鋏で三度切りつける仕上げの大技。", en: "A three-cut finisher with the shears."}, cooldown_ticks: 180, resource_cost: 25}
+gameplay:
+  params: {arc_deg: 45, reach: 12, dmg_physical: 35, dmg_physical_2: 70}
+  expose:
+    - {id: damage, param: dmg_physical}
+    - {id: range, param: reach}
+  timeline:
+    - id: t30
+      at: 30
+      do:
+        - {id: sel_2, op: hit, frames: [caster], sector: {frame: caster, forward: caster.forward, left: caster.left, angle_deg: "${arc_deg}", range: "${reach}", height: 2.0}, max_count: 1, window: once}
+    - id: t46
+      at: 46
+      do:
+        - {id: sel_4, op: hit, frames: [caster], sector: {frame: caster, forward: caster.forward, left: caster.left, angle_deg: "${arc_deg}", range: "${reach}", height: 2.0}, max_count: 1, window: once}
+    - id: t113
+      at: 113
+      do:
+        - {id: sel_6, op: hit, frames: [caster], sector: {frame: caster, forward: caster.forward, left: caster.left, angle_deg: "${arc_deg}", range: "${reach}", height: 2.0}, max_count: 1, window: once}
+  "on":
+    hit:
+      - {id: dmg, op: damage, components: [{kind: physical, amount: "${dmg_physical}"}], target: victim, ignore_invulnerability: true, when: "= event.source == 'sel_2'"}
+      - {id: dmg_2, op: damage, components: [{kind: physical, amount: "${dmg_physical}"}], target: victim, ignore_invulnerability: true, when: "= event.source == 'sel_4'"}
+      - {id: dmg_3, op: damage, components: [{kind: physical, amount: "${dmg_physical_2}"}], target: victim, ignore_invulnerability: true, when: "= event.source == 'sel_6'"}

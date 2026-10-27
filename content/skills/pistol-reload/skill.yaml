@@ -1,0 +1,14 @@
+# Converted from content/skills/pistol-reload.yaml by tools/skill-convert/convert.py (v1 archetype: buff). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
+# Generated point-frame offsets are [left, up, forward] in the parent frame.
+# also bound to items: rifle, shotgun, vendetta-rifle
+apiVersion: "astera/v2"
+kind: Skill
+id: pistol-reload
+item: pistol
+meta: {name: {ja: "リロード", en: Reload}, description: {ja: "銃を再装填する。短時間動きが鈍る。", en: "Reloads the gun. Slows you briefly."}, cooldown_ticks: 30, resource_cost: 0, reload_ticks: 30, tags: [gun, reload]}
+gameplay:
+  params: {reloading_ticks: 30}
+  expose:
+    - {id: duration, param: reloading_ticks}
+  timeline:
+    - {id: t0, at: 0, do: [{id: buff, op: status, target: caster, status: reloading, duration_ticks: "${reloading_ticks}"}, {id: sch, op: schedule, after: "${reloading_ticks}", event: buff_end}]}

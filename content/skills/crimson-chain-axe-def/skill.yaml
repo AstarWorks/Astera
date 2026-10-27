@@ -1,0 +1,20 @@
+# Converted from content/skills/crimson-chain-axe-def.yaml by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
+# Generated point-frame offsets are [left, up, forward] in the parent frame.
+apiVersion: "astera/v2"
+kind: Skill
+id: crimson-chain-axe-def
+item: crimson-chain-axe
+meta: {name: {ja: "緋の退避", en: "Crimson Evasion"}, description: {ja: "素早く動いて距離を取る。", en: "Move quickly to get out of reach."}, cooldown_ticks: 80, resource_cost: 10}
+gameplay:
+  params: {propel: -0.65}
+  timeline:
+    - id: t0
+      at: 0
+      do:
+        - {id: propel, op: propel, direction: "= axis(caster, \"forward\")", strength: "${propel}"}
+        - {id: attr, op: modify_attribute, attribute: resist.physical, operation: add, amount: 0.7, duration_ticks: 8, target: caster}
+    - id: t19
+      at: 19
+      do:
+        - {id: propel_2, op: propel, direction: "= axis(caster, \"forward\")", strength: "${propel}"}
+        - {id: attr_2, op: modify_attribute, attribute: resist.physical, operation: add, amount: 0.7, duration_ticks: 8, target: caster}

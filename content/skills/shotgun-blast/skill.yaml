@@ -1,0 +1,29 @@
+# Converted from content/skills/shotgun-blast.yaml by tools/skill-convert/convert.py (v1 archetype: melee). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
+# Generated point-frame offsets are [left, up, forward] in the parent frame.
+apiVersion: "astera/v2"
+kind: Skill
+id: shotgun-blast
+item: shotgun
+meta:
+  name: {ja: "ショットガン射撃", en: "Shotgun Blast"}
+  description: {ja: "近距離の扇状に散弾を撃ち込み、大ダメージとノックバックを与える。", en: "Blasts a close-range cone of pellets for heavy damage and knockback."}
+  cooldown_ticks: 20
+  resource_cost: 1
+  tags: [ranged, gun, burst]
+frames:
+  - {id: pt_caster_eye_0_0_4, kind: point, parent: caster.eye, offset: [0.0, 0.0, 4.0]}
+gameplay:
+  params: {arc_deg: 50.0, range: 6.0, dmg_physical: 25.0, knockback: 0.9}
+  expose:
+    - {id: damage, param: dmg_physical}
+    - {id: range, param: range}
+  timeline:
+    - id: t0
+      at: 0
+      do:
+        - {id: swing, op: hit, frames: [caster], sector: {frame: caster, forward: caster.forward, left: caster.left, angle_deg: "${arc_deg}", range: "${range}", height: 2.0}, window: once}
+        - {op: break_area, shape: sphere, radius: 0.5, block_damage: 30, breaks: true, id: chip, at: pt_caster_eye_0_0_4}
+  "on":
+    hit:
+      - {id: dmg, op: damage, target: victim, components: [{kind: physical, amount: "${dmg_physical}"}], when: "= event.source == 'swing'"}
+      - {id: kb, op: knockback, direction: "= normalize(pos(victim) - pos(caster))", strength: "${knockback}", when: "= event.source == 'swing'"}

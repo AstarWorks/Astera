@@ -1,0 +1,24 @@
+# Converted from content/skills/regrowth.yaml by tools/skill-convert/convert.py (v1 archetype: buff). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
+# Generated point-frame offsets are [left, up, forward] in the parent frame.
+apiVersion: "astera/v2"
+kind: Skill
+id: regrowth
+item: verdant-staff
+meta:
+  name: {ja: "再生の風", en: Regrowth}
+  description: {ja: "自分と周囲の味方の状態異常を浄化し、しばらく体力を回復し続ける。", en: "Cleanses you and nearby allies and heals them over time."}
+  cooldown_ticks: 240
+  resource_cost: 35
+  tags: [magic, earth-family, support, heal]
+gameplay:
+  params: {regen_ticks: 160, radius: 3.0}
+  expose:
+    - {id: duration, param: regen_ticks}
+    - {id: radius, param: radius}
+  timeline:
+    - id: t0
+      at: 0
+      do:
+        - {id: buff, op: status, target: caster, status: regen, duration_ticks: "${regen_ticks}"}
+        - {id: cleanse, op: cleanse, negative_only: true, target: {allies: {around: caster, radius: "${radius}"}}}
+        - {id: st_regen, op: status, status: regen, duration_ticks: "${regen_ticks}", target: {allies: {around: caster, radius: "${radius}"}}}

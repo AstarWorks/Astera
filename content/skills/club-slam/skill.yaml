@@ -1,0 +1,23 @@
+# Converted from content/skills/club-slam.yaml by tools/skill-convert/convert.py (v1 archetype: aoe). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
+# Generated point-frame offsets are [left, up, forward] in the parent frame.
+apiVersion: "astera/v2"
+kind: Skill
+id: club-slam
+item: club
+meta:
+  name: {ja: "叩きつけ", en: Slam}
+  description: {ja: "地面を叩き、周囲を弾き飛ばす。", en: "Slams the ground and shoves everyone around you away."}
+  cooldown_ticks: 130
+  resource_cost: 14
+  tags: [aoe, physical, control]
+gameplay:
+  params: {radius: 3.0, dmg_physical: 16.0, knockback: 1.1}
+  expose:
+    - {id: damage, param: dmg_physical}
+    - {id: radius, param: radius}
+  timeline:
+    - {id: t0, at: 0, do: [{id: burst, op: hit, frames: [caster], sphere: {at: caster, radius: "${radius}"}, window: once}]}
+  "on":
+    hit:
+      - {id: dmg, op: damage, target: victim, components: [{kind: physical, amount: "= dmg_physical * (1.0 - 0.5 * dist(pos(caster), pos(victim)) / radius)"}], when: "= event.source == 'burst'"}
+      - {id: kb, op: knockback, direction: "= normalize(pos(victim) - pos(caster)) + vec(0.0, 0.3, 0.0)", strength: "${knockback}", when: "= event.source == 'burst'"}

@@ -1,0 +1,21 @@
+# Converted from content/skills/shotgun-blast.yaml + content/vfx/* by tools/skill-convert/convert.py (v1 archetype: melee). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
+# Generated point-frame offsets are [left, up, forward] in the parent frame.
+apiVersion: "astera/v2"
+kind: Skill
+id: shotgun-blast
+frames:
+  - {id: pt_caster_0_m0p25_1p2, kind: point, parent: caster, offset: [0.0, -0.25, 1.2]}
+  - {id: pt_caster_0_m0p2_2p4, kind: point, parent: caster, offset: [0.0, -0.2, 2.4]}
+  - {id: pt_enemy_0_1p2_0, kind: point, parent: enemy, offset: [0.0, 1.2, 0.0]}
+presentation:
+  timeline:
+    - id: fx0
+      at: 0
+      do:
+        - {id: snd, op: sound, sound: "astera:weapons/shotgun-blast", at: caster, volume: 0.6, pitch: 1.4}
+        - {id: emit, op: emit, at: pt_caster_0_m0p25_1p2, particle: shotgun-muzzle, count: 1}
+        - {id: emit_2, op: emit, at: pt_caster_0_m0p2_2p4, particle: shotgun-cone-smoke, count: 1}
+  "on":
+    hit:
+      - {id: snd_2, op: sound, sound: "astera:weapons/gun-impact", at: contact.point, when: "= event.source == 'swing'"}
+      - {id: emit_3, op: emit, at: pt_enemy_0_1p2_0, particle: gun-impact, count: 1, when: "= event.source == 'swing'"}

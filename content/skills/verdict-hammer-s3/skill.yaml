@@ -1,0 +1,35 @@
+# Converted from content/skills/verdict-hammer-s3.yaml by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
+# Generated point-frame offsets are [left, up, forward] in the parent frame.
+apiVersion: "astera/v2"
+kind: Skill
+id: verdict-hammer-s3
+item: verdict-hammer
+meta: {name: {ja: "杭と鉄槌", en: "Nails and Judgment"}, description: {ja: "杭を打ち込み、突進して鉄槌を叩きつける。", en: "Drive a stake, rush in, and bring the hammer down."}, cooldown_ticks: 165, resource_cost: 26}
+gameplay:
+  params: {arc_deg: 45, reach: 12, dmg_physical: 40, dash_distance: 5, arc_deg_2: 90, reach_2: 3.8, dmg_physical_2: 50, propel: 0.65, dmg_physical_3: 80}
+  expose:
+    - {id: damage, param: dmg_physical}
+    - {id: range, param: reach}
+  timeline:
+    - id: t26
+      at: 26
+      do:
+        - {id: sel_2, op: hit, frames: [caster], sector: {frame: caster, forward: caster.forward, left: caster.left, angle_deg: "${arc_deg}", range: "${reach}", height: 2.0}, max_count: 1, window: once}
+    - id: t49
+      at: 49
+      do:
+        - {id: dash, op: dash_strike, distance: "${dash_distance}", ticks: 4, radius: 0.8, hit_once: true, invulnerable: false, stop_on_block: true, follow_pitch: false, stop_before_target: 1.8}
+    - id: t53
+      at: 53
+      do:
+        - {id: sel_3, op: hit, frames: [caster], sector: {frame: caster, forward: caster.forward, left: caster.left, angle_deg: "${arc_deg_2}", range: "${reach_2}", height: 2.0}, max_count: 1, window: once}
+    - {id: t73, at: 73, do: [{id: propel, op: propel, direction: "= vec(0.0, 1.0, 0.0)", strength: "${propel}"}]}
+    - id: t91
+      at: 91
+      do:
+        - {id: sel_4, op: hit, frames: [caster], sector: {frame: caster, forward: caster.forward, left: caster.left, angle_deg: "${arc_deg_2}", range: "${reach_2}", height: 2.0}, max_count: 1, window: once}
+  "on":
+    hit:
+      - {id: dmg, op: damage, components: [{kind: physical, amount: "${dmg_physical}"}], target: victim, ignore_invulnerability: true, when: "= event.source == 'sel_2'"}
+      - {id: dmg_2, op: damage, components: [{kind: physical, amount: "${dmg_physical_2}"}], target: victim, ignore_invulnerability: true, when: "= event.source == 'sel_3'"}
+      - {id: dmg_3, op: damage, components: [{kind: physical, amount: "${dmg_physical_3}"}], target: victim, ignore_invulnerability: true, when: "= event.source == 'sel_4'"}

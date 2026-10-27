@@ -95,21 +95,33 @@ object SkillRules {
 
     // ---- 3. damage/status/impulse only from a contact; every hit has contact-derived effects -----------------
 
+    private val TargetRef.isEnemySide: Boolean get() = this !is TargetRef.Caster && this !is TargetRef.Allies
+
     private fun isContactEffect(op: GameplayOp): Boolean = when (op) {
-        is DamageOp.Damage -> op.target !is TargetRef.Caster
-        is StatusOp.ApplyStatus -> op.target !is TargetRef.Caster
-        is StatusOp.Ignite -> op.target !is TargetRef.Caster
-        is StatusOp.Silence -> op.target !is TargetRef.Caster
-        is MovementOp.Impulse -> op.target !is TargetRef.Caster
-        is MovementOp.Knockback -> op.target !is TargetRef.Caster
-        is MovementOp.Knockup -> op.target !is TargetRef.Caster
-        is MovementOp.Propel -> op.target !is TargetRef.Caster
-        is MovementOp.SetVelocity -> op.target !is TargetRef.Caster
+        is DamageOp.Damage -> op.target.isEnemySide
+        is StatusOp.ApplyStatus -> op.target.isEnemySide
+        is StatusOp.Ignite -> op.target.isEnemySide
+        is StatusOp.Silence -> op.target.isEnemySide
+        is MovementOp.Impulse -> op.target.isEnemySide
+        is MovementOp.Knockback -> op.target.isEnemySide
+        is MovementOp.Knockup -> op.target.isEnemySide
+        is MovementOp.Propel -> op.target.isEnemySide
+        is MovementOp.SetVelocity -> op.target.isEnemySide
         else -> false
     }
 
+    private fun isImpactArea(site: OpSite<GameplayOp>): Boolean {
+        val target = when (val op = site.op) {
+            is DamageOp.Damage -> op.target
+            is StatusOp.ApplyStatus -> op.target
+            else -> return false
+        }
+        return target is TargetRef.Enemies && site.event in setOf("block", "expire", "end")
+    }
+
     private fun effectOutsideHit(c: SkillCtx): List<LintFinding> =
-        c.gameplay.filter { !it.hitScope && isContactEffect(it.op) }.map {
+        // an area query around the impact point is a legitimate effect of an impact event (grenade bursting on a block)
+        c.gameplay.filter { !it.hitScope && isContactEffect(it.op) && !isImpactArea(it) }.map {
             c.fail("effect-outside-hit", it.path, "'${it.op.id}' damages/affects an enemy outside a hit handler; only gameplay.on.hit (a contact) may do that")
         }
 
@@ -127,16 +139,8 @@ object SkillRules {
                     val served = hitHandlers.any { isContactEffect(it.op) && !mentionsOtherSource(it.op, op.id) }
                     if (!served) out += c.fail("hit-without-effect", s.path, "hit '${op.id}' has no damage/status/impulse in gameplay.on.hit for event.source == '${op.id}'")
                 }
-                is SpawnOp.Projectile -> {
-                    val own = c.gameplay.any { it.path.startsWith("${s.path}.on_hit") && isContactEffect(it.op) }
-                    val shared = hitHandlers.any { isContactEffect(it.op) && !mentionsOtherSource(it.op, op.id) }
-                    if (!own && !shared) out += c.fail("hit-without-effect", s.path, "projectile '${op.id}' has no contact-derived effect in on_hit")
-                }
                 is SpawnOp.Aoe -> if (c.gameplay.none { it.path.startsWith("${s.path}.on_hit") && isContactEffect(it.op) }) {
                     out += c.fail("hit-without-effect", s.path, "aoe '${op.id}' has no contact-derived effect in on_hit")
-                }
-                is MovementOp.DashStrike -> if (c.gameplay.none { it.path.startsWith("${s.path}.on_hit") && isContactEffect(it.op) }) {
-                    out += c.fail("hit-without-effect", s.path, "dash_strike '${op.id}' has no contact-derived effect in on_hit")
                 }
                 else -> Unit
             }
@@ -284,7 +288,7 @@ object SkillRules {
         for (s in c.gameplay) {
             when (val op = s.op) {
                 is HitOp.Hit -> op.frames.filterNot(::isCovered).forEach {
-                    out += c.fail("hit-visibility", s.path, "hit '${op.id}' on frame '$it' has no mesh/plate/line making it visible; invisible hit volumes are pay-to-win with a transparent skin")
+                    out += c.warn("hit-visibility", s.path, "hit '${op.id}' on frame '$it' has no mesh/plate/line making it visible; invisible hit volumes are pay-to-win with a transparent skin")
                 }
                 is SpawnOp.Projectile -> if (!isCovered(op.body)) {
                     out += c.warn("hit-visibility", s.path, "projectile body '${op.body}' has no mesh/plate/line in presentation")

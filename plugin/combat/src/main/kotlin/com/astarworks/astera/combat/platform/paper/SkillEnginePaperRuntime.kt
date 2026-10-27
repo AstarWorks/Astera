@@ -38,7 +38,6 @@ import com.astarworks.astera.core.application.services.getOrThrow
 import com.astarworks.astera.core.application.skillengine.expr.cel.CelExprCompiler
 import com.astarworks.astera.core.application.skillengine.load.SkillEngineRegistries
 import com.astarworks.astera.core.application.skillengine.runtime.CastRequest
-import com.astarworks.astera.core.application.skillengine.runtime.SkillEngineContents
 import com.astarworks.astera.core.application.skillengine.runtime.SkillEngineGateways
 import com.astarworks.astera.core.application.skillengine.runtime.SkillEngineKit
 import com.astarworks.astera.core.application.skillengine.runtime.port.SkillRuntimePorts
@@ -73,6 +72,7 @@ internal class SkillEnginePaperRuntime(
         applyDamage: ApplyDamageUseCase,
         applyStatus: ApplyStatusUseCase,
         statusContainer: IStatusEffectContainer,
+        wired: com.astarworks.astera.combat.platform.wiring.CombatWiringResult,
     ) {
         val services = ctx.services
         val scheduler = services.getOrThrow<IScheduler>()
@@ -92,14 +92,8 @@ internal class SkillEnginePaperRuntime(
         }
         val server = plugin.server
 
-        val (tables, frameErrors) = SkillEngineRegistries.frameTables(ctx.contentDir.resolve("frames"))
-        frameErrors.forEach { log.warn("skill engine frame table: {}", it) }
-        val catalog = SkillEngineRegistries.catalog(tables)
-        val contents = SkillEngineContents(catalog)
-        val skillsDir = ctx.contentDir.resolve("skills")
-        val report = contents.reload(skillsDir)
-        log.info("skill engine v2: loaded {} (failed {})", report.loaded, report.failed)
-        services.get<IReloadableContentsRegistry>()?.register(contents, skillsDir)
+        val tables = wired.frameTables
+        val catalog = wired.skillCatalog
 
         val entities = PaperSkillEntityQuery(server)
         val visuals = PaperSkillVisualGateway(server, displays)
@@ -173,6 +167,7 @@ internal class SkillEnginePaperRuntime(
 
         tickHandle = scheduler.runRepeatingTicks(ExecutionScope.Global, 1L, 1L) {
             built.runner.tick(scheduler.currentTick().toInt())
+            built.world.tick()
             val diagnostics = built.runner.diagnostics()
             if (diagnostics.size != seenDiagnostics) {
                 diagnostics.drop(seenDiagnostics).forEach {

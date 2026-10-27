@@ -1,0 +1,62 @@
+# Converted from content/skills/vendetta-rifle-ego.yaml by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
+# Generated point-frame offsets are [left, up, forward] in the parent frame.
+apiVersion: "astera/v2"
+kind: Skill
+id: vendetta-rifle-ego
+item: vendetta-rifle
+meta:
+  name: {ja: "紅蓮の決算", en: "Crimson Settlement"}
+  description: {ja: "銃剣を振るい、5連の近接攻撃を放つ。", en: "A 5-beat close-range bayonet sequence with crimson wakes and gold-edged cuts."}
+  cooldown_ticks: 277
+  resource_cost: 0
+  ego_cost: 100
+  tags: [persona, melee, tremor]
+gameplay:
+  params: {dash_distance: 3.0, arc_deg: 75.0, reach: 3.6, dmg_physical: 10.0, tremor_ticks: 240, tremor_stacks: 3, dmg_physical_2: 20.0, knockback: 0.45}
+  expose:
+    - {id: damage, param: dmg_physical}
+    - {id: range, param: reach}
+  timeline:
+    - id: t43
+      at: 43
+      do:
+        - {id: dash, op: dash_strike, distance: "${dash_distance}", ticks: 4, radius: 0.3, hit_once: true, invulnerable: false, stop_on_block: true, follow_pitch: false, stop_before_target: 1.8}
+    - id: t53
+      at: 53
+      do:
+        - {id: sel, op: hit, frames: [caster], sector: {frame: caster, forward: caster.forward, left: caster.left, angle_deg: "${arc_deg}", range: "${reach}", height: 2.0}, window: once}
+    - id: t71
+      at: 71
+      do:
+        - {id: sel_2, op: hit, frames: [caster], sector: {frame: caster, forward: caster.forward, left: caster.left, angle_deg: "${arc_deg}", range: "${reach}", height: 2.0}, window: once}
+    - id: t108
+      at: 108
+      do:
+        - {id: sel_3, op: hit, frames: [caster], sector: {frame: caster, forward: caster.forward, left: caster.left, angle_deg: "${arc_deg}", range: "${reach}", height: 2.0}, window: once}
+    - id: t141
+      at: 141
+      do:
+        - {id: sel_4, op: hit, frames: [caster], sector: {frame: caster, forward: caster.forward, left: caster.left, angle_deg: "${arc_deg}", range: "${reach}", height: 2.0}, window: once}
+    - {id: t213, at: 213, do: [{id: leap, op: leap, to: caster, arc_height: 1.4}]}
+    - id: t231
+      at: 231
+      do:
+        - {id: sel_5, op: hit, frames: [caster], sector: {frame: caster, forward: caster.forward, left: caster.left, angle_deg: "${arc_deg}", range: "${reach}", height: 2.0}, window: once}
+  "on":
+    hit:
+      - {id: dmg, op: damage, components: [{kind: physical, amount: "${dmg_physical}"}], target: victim, ignore_invulnerability: true, when: "= event.source == 'sel'"}
+      - {id: st_tremor, op: status, status: tremor, duration_ticks: "${tremor_ticks}", target: victim, stacks: "${tremor_stacks}", when: "= event.source == 'sel'"}
+      - {id: stop, op: freeze, ticks: 2, scope: [enemy, caster], when: "= event.source == 'sel'"}
+      - {id: dmg_2, op: damage, components: [{kind: physical, amount: "${dmg_physical}"}], target: victim, ignore_invulnerability: true, when: "= event.source == 'sel_2'"}
+      - {id: st_tremor_2, op: status, status: tremor, duration_ticks: "${tremor_ticks}", target: victim, stacks: "${tremor_stacks}", when: "= event.source == 'sel_2'"}
+      - {id: stop_2, op: freeze, ticks: 2, scope: [enemy, caster], when: "= event.source == 'sel_2'"}
+      - {id: dmg_3, op: damage, components: [{kind: physical, amount: "${dmg_physical}"}], target: victim, ignore_invulnerability: true, when: "= event.source == 'sel_3'"}
+      - {id: st_tremor_3, op: status, status: tremor, duration_ticks: "${tremor_ticks}", target: victim, stacks: "${tremor_stacks}", when: "= event.source == 'sel_3'"}
+      - {id: stop_3, op: freeze, ticks: 2, scope: [enemy, caster], when: "= event.source == 'sel_3'"}
+      - {id: dmg_4, op: damage, components: [{kind: physical, amount: "${dmg_physical}"}], target: victim, ignore_invulnerability: true, when: "= event.source == 'sel_4'"}
+      - {id: st_tremor_4, op: status, status: tremor, duration_ticks: "${tremor_ticks}", target: victim, stacks: "${tremor_stacks}", when: "= event.source == 'sel_4'"}
+      - {id: stop_4, op: freeze, ticks: 2, scope: [enemy, caster], when: "= event.source == 'sel_4'"}
+      - {id: dmg_5, op: damage, components: [{kind: physical, amount: "${dmg_physical_2}"}], target: victim, ignore_invulnerability: true, when: "= event.source == 'sel_5'"}
+      - {id: st_tremor_5, op: status, status: tremor, duration_ticks: "${tremor_ticks}", target: victim, stacks: "${tremor_stacks}", when: "= event.source == 'sel_5'"}
+      - {id: stop_5, op: freeze, ticks: 3, scope: [enemy, caster], when: "= event.source == 'sel_5'"}
+      - {id: kb, op: knockback, direction: "= normalize(pos(victim) - pos(caster)) + vec(0.0, 0.1, 0.0)", strength: "${knockback}", when: "= event.source == 'sel_5'"}

@@ -1,0 +1,23 @@
+# Converted from content/skills/orrery-s2.yaml by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
+# Generated point-frame offsets are [left, up, forward] in the parent frame.
+apiVersion: "astera/v2"
+kind: Skill
+id: orrery-s2
+item: orrery-staff
+meta: {name: {ja: "標的の電場", en: "Target Field"}, description: {ja: "標的に電場を張って打ち据える。", en: "Lay an electric field on the target and strike."}, cooldown_ticks: 140, resource_cost: 20}
+gameplay:
+  params: {dash_distance: 3, radius: 2.4, dmg_physical: 28.125, dmg_physical_2: 37.5}
+  expose:
+    - {id: damage, param: dmg_physical}
+    - {id: radius, param: radius}
+  timeline:
+    - id: t0
+      at: 0
+      do:
+        - {id: dash, op: dash_strike, distance: "${dash_distance}", ticks: 7, radius: 0.8, hit_once: true, invulnerable: false, stop_on_block: true, follow_pitch: false, stop_before_target: 4}
+    - {id: t35, at: 35, do: [{id: sel, op: hit, frames: [caster], sphere: {at: caster, radius: "${radius}"}, max_count: 5, window: once}]}
+    - {id: t61, at: 61, do: [{id: sel_2, op: hit, frames: [caster], sphere: {at: caster, radius: "${radius}"}, max_count: 5, window: once}]}
+  "on":
+    hit:
+      - {id: dmg, op: damage, components: [{kind: physical, amount: "${dmg_physical}"}], target: victim, ignore_invulnerability: true, when: "= event.source == 'sel'"}
+      - {id: dmg_2, op: damage, components: [{kind: physical, amount: "${dmg_physical_2}"}], target: victim, ignore_invulnerability: true, when: "= event.source == 'sel_2'"}

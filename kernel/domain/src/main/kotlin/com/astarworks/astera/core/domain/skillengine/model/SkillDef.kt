@@ -63,6 +63,25 @@ public data class PresentationSection(
     val on: Map<String, List<PresentationOp>> = emptyMap(),
 )
 
+/**
+ * Skill header: what the cast gate (cooldown, resource, E.G.O, reload) and the UI need, which the timeline cannot
+ * express. [name] / [description] are inline `{ja, en}` maps (the same i18n shape as items).
+ */
+public data class SkillMeta(
+    val name: Map<String, String> = emptyMap(),
+    val description: Map<String, String> = emptyMap(),
+    val cooldownTicks: Int = 0,
+    /** `ammo` / `energy`; null = the source item's resource type. */
+    val resourceType: String? = null,
+    /** null = the source item's per-use cost. */
+    val resourceCost: Int? = null,
+    val egoCost: Int = 0,
+    val reloadTicks: Int = 0,
+    /** Sound when the cooldown ends; null = on for cooldowns of 3 s or more. */
+    val readyCue: Boolean? = null,
+    val tags: List<String> = emptyList(),
+)
+
 /** The typed skill (one cast definition, base or `id@variant`). Immutable once decoded. */
 public data class SkillDef(
     val id: String,
@@ -71,6 +90,7 @@ public data class SkillDef(
     val frames: List<FrameDecl>,
     val gameplay: GameplaySection,
     val presentation: PresentationSection,
+    val meta: SkillMeta = SkillMeta(),
 ) {
     /** Base id without `@variant`. */
     val baseId: String get() = id.substringBefore('@')

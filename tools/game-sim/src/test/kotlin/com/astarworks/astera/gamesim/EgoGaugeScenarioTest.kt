@@ -25,11 +25,7 @@ class EgoGaugeScenarioTest {
             shooter.holds("pistol")
             shooter.faces(dummy)
 
-            // A throwaway E.G.O skill: the pistol shot with an E.G.O price tag and no other cost.
-            val base = checkNotNull(sim.combat.skillContents.find(SkillId("pistol-shot")))
-            sim.combat.skillContents.register(
-                base.copy(id = SkillId("ego-test"), egoCost = gauge.config.max, resourceCost = 0, cooldownTicks = 0),
-            )
+            // A real E.G.O skill: vendetta-rifle-ego carries meta.ego_cost (the gauge max) and no other cost.
 
             // Gain on hit: the shooter fills by gain_on_dealt per landed shot, the target by gain_on_taken.
             shooter.rightClick()
@@ -39,10 +35,10 @@ class EgoGaugeScenarioTest {
 
             // Short gauge: refused with the E.G.O reason, nothing spent.
             val before = gauge.value(shooter.id)
-            shooter.cast("ego-test")
+            shooter.cast("vendetta-rifle-ego")
             advance(1)
             assertThat(eventsOf<SkillCastRejected>().map { it.reason }).contains(CastRejectionReason.INSUFFICIENT_EGO)
-            assertThat(eventsOf<SkillCast>().count { it.skillId == SkillId("ego-test") }).isZero()
+            assertThat(eventsOf<SkillCast>().count { it.skillId == SkillId("vendetta-rifle-ego") }).isZero()
             assertThat(gauge.value(shooter.id)).isGreaterThanOrEqualTo(before)
 
             // Fill it: READY edge fires once, the readout shows READY, the cast goes through and empties it.
@@ -50,9 +46,9 @@ class EgoGaugeScenarioTest {
             assertThat(eventsOf<EgoGaugeChanged>().count { it.playerId == shooter.id && it.becameFull }).isEqualTo(1)
             advance(12)
             assertThat(sim.hud.actionBar(shooter.id)).isNotNull
-            shooter.cast("ego-test")
+            shooter.cast("vendetta-rifle-ego")
             advance(1)
-            assertThat(eventsOf<SkillCast>().count { it.skillId == SkillId("ego-test") }).isEqualTo(1)
+            assertThat(eventsOf<SkillCast>().count { it.skillId == SkillId("vendetta-rifle-ego") }).isEqualTo(1)
             assertThat(gauge.value(shooter.id)).isZero()
         }
     }

@@ -1,0 +1,20 @@
+# Converted from content/skills/swift-powder-use.yaml by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
+# Generated point-frame offsets are [left, up, forward] in the parent frame.
+apiVersion: "astera/v2"
+kind: Skill
+id: swift-powder-use
+item: swift-powder
+meta:
+  name: {ja: "疾風の粉", en: "Swift Powder"}
+  description: {ja: "使い切りで 8 秒間、移動速度が上がる。", en: "Single use; faster movement for 8s."}
+  cooldown_ticks: 200
+  resource_cost: 0
+  tags: [support, movement, consumable]
+gameplay:
+  params: {swift_ticks: 160, swift_stacks: 1}
+  timeline:
+    - id: t0
+      at: 0
+      do:
+        - {id: consume, op: consume_item, target: caster, item: swift-powder, count: 1}
+        - {id: st_swift, op: status, status: swift, duration_ticks: "${swift_ticks}", target: caster, stacks: "${swift_stacks}"}

@@ -1,0 +1,21 @@
+# Converted from content/skills/delay-mine-lay.yaml by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
+# Generated point-frame offsets are [left, up, forward] in the parent frame.
+apiVersion: "astera/v2"
+kind: Skill
+id: delay-mine-lay
+item: delay-mine
+meta:
+  name: {ja: "地雷設置", en: "Lay Mine"}
+  description: {ja: "目の前に地雷を置く。少し後に爆発する。", en: "Plants a mine ahead that detonates after a short delay."}
+  cooldown_ticks: 160
+  resource_cost: 10
+  tags: [utility, explosive, zone]
+frames:
+  - {id: pt_caster_0_0_2p5, kind: point, parent: caster, offset: [0.0, 0.0, 2.5]}
+gameplay:
+  params: {explode_power: 1.0, explode_radius: 2.5, explode_physical: 55.0}
+  timeline:
+    - id: t50
+      at: 50
+      do:
+        - {id: explode, op: explode, power: "${explode_power}", break_blocks: false, radius: "${explode_radius}", components: [{kind: physical, amount: "${explode_physical}"}], at: pt_caster_0_0_2p5}

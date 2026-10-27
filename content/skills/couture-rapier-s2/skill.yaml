@@ -7,6 +7,15 @@ id: couture-rapier-s2
 item: couture-rapier
 importance: 8
 
+# Gate data the cast reads (replaces the v1 flat couture-rapier-s2.yaml fields): cooldown 6.25 s, 18 of the item's resource.
+meta:
+  name: {ja: 型紙裁ち, en: Pattern Trim}
+  description:
+    ja: 突進して切り、続けてもう一撃。
+    en: Dash through with a cut, then strike again.
+  cooldown_ticks: 125
+  resource_cost: 18
+
 frames:
   - {id: shears,  kind: item, parent: caster.right_hand, model: couture-rapier, part: held}
   - {id: body,    kind: part, parent: shears, model: couture-rapier, part: body}

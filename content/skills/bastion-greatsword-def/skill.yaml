@@ -1,0 +1,18 @@
+# Converted from content/skills/bastion-greatsword-def.yaml by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
+# Generated point-frame offsets are [left, up, forward] in the parent frame.
+apiVersion: "astera/v2"
+kind: Skill
+id: bastion-greatsword-def
+item: bastion-greatsword
+meta: {name: {ja: "城壁の構え", en: "Tower Shield"}, description: {ja: "半透明の障壁で受け止める。", en: "Brace behind a translucent barrier."}, cooldown_ticks: 120, resource_cost: 15, tags: [buff, defense, charge]}
+gameplay:
+  params: {charge_ticks: 400, charge_stacks: 1}
+  timeline:
+    - id: t0
+      at: 0
+      do:
+        - {id: attr, op: modify_attribute, attribute: resist.physical, operation: add, amount: 0.7, duration_ticks: 162, target: caster}
+        - {id: attr_2, op: modify_attribute, attribute: resist.knockback, operation: add, amount: 1.0, duration_ticks: 162, target: caster}
+        - {id: st_charge, op: status, status: charge, duration_ticks: "${charge_ticks}", target: caster, stacks: "${charge_stacks}"}
+    - {id: t20, at: 20, do: [{id: st_charge_2, op: status, status: charge, duration_ticks: "${charge_ticks}", target: caster, stacks: "${charge_stacks}"}]}
+    - {id: t40, at: 40, do: [{id: st_charge_3, op: status, status: charge, duration_ticks: "${charge_ticks}", target: caster, stacks: "${charge_stacks}"}]}

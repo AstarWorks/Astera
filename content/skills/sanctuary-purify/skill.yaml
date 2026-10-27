@@ -1,0 +1,13 @@
+# Converted from content/skills/sanctuary-purify.yaml by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
+# Generated point-frame offsets are [left, up, forward] in the parent frame.
+apiVersion: "astera/v2"
+kind: Skill
+id: sanctuary-purify
+item: sanctuary-staff
+meta: {name: {ja: "浄化", en: Purify}, description: {ja: "自分と周囲の味方の状態異常を取り除く。", en: "Clears harmful effects from you and nearby allies."}, cooldown_ticks: 200, resource_cost: 20, tags: [magic, support]}
+gameplay:
+  params: {radius: 6.0}
+  expose:
+    - {id: radius, param: radius}
+  timeline:
+    - {id: t0, at: 0, do: [{id: cleanse, op: cleanse, negative_only: true, target: {allies: {around: caster, radius: "${radius}"}}}]}

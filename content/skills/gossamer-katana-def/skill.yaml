@@ -1,0 +1,12 @@
+# Converted from content/skills/gossamer-katana-def.yaml by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
+# Generated point-frame offsets are [left, up, forward] in the parent frame.
+apiVersion: "astera/v2"
+kind: Skill
+id: gossamer-katana-def
+item: gossamer-katana
+meta: {name: {ja: "糸抜け", en: "Thread Slip"}, description: {ja: "糸のようにすり抜けて距離を取る。", en: "Slip away like a thread and gain distance."}, cooldown_ticks: 80, resource_cost: 10}
+gameplay:
+  params: {dash_distance: 5}
+  timeline:
+    - {id: t0, at: 0, do: [{id: attr, op: modify_attribute, attribute: resist.physical, operation: add, amount: 0.7, duration_ticks: 12, target: caster}]}
+    - {id: t3, at: 3, do: [{id: dash, op: dash_strike, distance: "${dash_distance}", ticks: 5, radius: 0.8, hit_once: true, invulnerable: false, stop_on_block: true, follow_pitch: false}]}

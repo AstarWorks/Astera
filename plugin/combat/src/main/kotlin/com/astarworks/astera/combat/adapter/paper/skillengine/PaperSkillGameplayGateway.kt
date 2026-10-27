@@ -56,6 +56,15 @@ public class PaperSkillGameplayGateway(
     private val log = LoggerFactory.getLogger(javaClass)
 
     override fun damage(caster: UUID, victim: UUID, components: List<SkillDamage>, hitPoint: Vec3) {
+        damage(caster, victim, components, hitPoint, ignoreInvulnerability = false)
+    }
+
+    override fun statusStacks(entity: UUID, statusId: String): Int {
+        val id = runCatching { StatusEffectId(statusId) }.getOrNull() ?: return 0
+        return statusContainer.stacks(PlayerId(entity), id)
+    }
+
+    override fun damage(caster: UUID, victim: UUID, components: List<SkillDamage>, hitPoint: Vec3, ignoreInvulnerability: Boolean) {
         if (components.isEmpty()) return
         val profile = DamageProfile(
             components.map { DamageComponent(base = NumericValue.Literal(it.amount), attribute = attributeOf(it.kind)) },
@@ -64,6 +73,7 @@ public class PaperSkillGameplayGateway(
             DamageAttempt(
                 targetId = PlayerId(victim),
                 baseProfile = profile,
+                ignoreInvulnerability = ignoreInvulnerability,
                 source = DamageSource.Skill(
                     skillId = ENGINE_SKILL_ID,
                     casterId = PlayerId(caster),

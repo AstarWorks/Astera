@@ -111,6 +111,7 @@ class Conv:
         self.has_bolt = False
         self.todo_gaps = OrderedDict()
         self.present_gaps = OrderedDict()
+        self.windup = 0  # ticks every cast-row op is rebased by (v1 `windup`)
 
     # ---------- gaps (the only place a dropped v1 construct is recorded) ----------
     def gap(self, kind, name, detail=""):
@@ -169,26 +170,28 @@ class Conv:
                 self.present("presentation inside a nested gameplay list (dash on_hit has no event hook)", op.get("op", ""))
                 return
             if delay:
-                self.todo("delay inside a nested gameplay list (dash on_hit): emitted immediate", op.get("op", ""))
+                op = {"id": self.oid("delay"), "op": "delay", "after": delay, "do": [op]}
             where.ops.append(op)
             return
         rows = self.g_rows if side == "g" else self.p_rows
         on = self.g_on if side == "g" else self.p_on
-        if where.kind == "cast":
-            rows.setdefault((None, delay), []).append(op)
-            return
         if where.guard:
             cur = op.get("when")
             g = where.guard
             op["when"] = ("= (" + g[2:] + ") && (" + cur[2:] + ")") if cur else g
+        if where.kind == "cast":
+            rows.setdefault((None, delay + self.windup), []).append(op)
+            return
         if delay == 0:
             on.setdefault(where.event, []).append(op)
         else:
             rows.setdefault((where.event, delay), []).append(op)
 
     def g(self, where, delay, op, victim_scope=False):
-        if where.kind == "handler" and delay and victim_scope:
-            self.todo("delayed op inside a handler (victim/contact scope after the delay is unverified)", f"{where.event}+{delay}")
+        if where.kind == "handler" and delay:
+            # `delay` re-runs its body in the victim binding of the handler (scheduleOps), unlike a timeline row
+            op = {"id": self.oid("delay"), "op": "delay", "after": delay, "do": [op]}
+            delay = 0
         self._put("g", where, delay, op)
 
     def p(self, where, delay, op):
@@ -222,11 +225,12 @@ class Conv:
             return "caster"
         if t in AREA:
             r = self.param("radius", V(tg.get("radius", tg.get("distance", 3.0))))
+            around = self.point(tg["center"], where, "g") if tg.get("center") else "caster"
             if t == "allies":
-                return ("allies", r)
+                return ("allies", r, around)
             if where.kind != "cast":
                 if t in ("enemies", "nearby_entities"):
-                    return ("enemies", r)
+                    return ("enemies", r, around)
                 self.todo("cone / forward_ray targeter outside the cast row: used the contact victim", t)
             return "victim"
         return "victim"
@@ -236,10 +240,10 @@ class Conv:
         if isinstance(spec, str):
             op["target"] = spec
         elif mode == "map":
-            op["target"] = {spec[0]: {"around": "caster", "radius": spec[1]}}
+            op["target"] = {spec[0]: {"around": spec[2], "radius": spec[1]}}
         else:  # movement family: target + sibling around / radius
             op["target"] = spec[0]
-            op["around"] = "caster"
+            op["around"] = spec[2]
             op["radius"] = spec[1]
 
     def select(self, tg, delay, m=None):
@@ -264,10 +268,20 @@ class Conv:
         else:
             op["sphere"] = {"at": "caster", "radius": 3.0}
         if "max_count" in tg:
-            self.todo("targeter max_count (hit has no cap)", "max_count=%s" % V(tg["max_count"]))
-        if m is not None and V(m.get("snapshot_pose", False)):
-            self.todo("snapshot_pose (hit samples the live pose)", t)
+            op["max_count"] = int(V(tg["max_count"]))
         op["window"] = "once"
+        if m is not None and V(m.get("snapshot_pose", False)):
+            # the volume rides a frozen copy of the caster pose taken at this tick, not the live caster
+            snap = self.oid("snap")
+            self.frames[snap] = {"id": snap, "kind": "body", "parent": "world", "inactive": True}
+            self.g(CAST, delay, {"id": self.oid("place_" + snap), "op": "place", "frame": snap, "like": "caster"})
+            op["frames"] = [snap]
+            if "sector" in op:
+                op["sector"].update({"frame": snap, "forward": snap + ".forward", "left": snap + ".left"})
+            elif "sphere" in op:
+                op["sphere"]["at"] = snap
+            elif "capsule" in op:
+                op["capsule"]["from"] = snap
         self.g(CAST, delay, op)
         w = Where("handler", "hit", f"= event.source == '{hid}'")
         self.sel[key] = w
@@ -304,7 +318,7 @@ class Conv:
         c = m.get("condition")
         if not c:
             return None
-        if c["type"] == "distance_less_than":
+        if c["type"] == "distance_less_than" and c["b"]["type"] in ("caster", "victim", "target"):
             def ref(x):
                 return "caster" if x["type"] == "caster" else "victim"
             return "= dist(pos(%s), pos(%s)) < %s" % (ref(c["a"]), ref(c["b"]), fl(V(c["distance"])))
@@ -365,13 +379,16 @@ class Conv:
         spec = self.tspec(tg, where)
         if t == "damage":
             comps = [{"kind": c["attribute"], "amount": self.param("dmg_" + c["attribute"], V(c["base"]))} for c in m["components"]]
-            for c in m["components"]:
+            for comp, c in zip(comps, m["components"]):
                 if "per_stack" in c:
-                    self.todo("damage component per_stack (stack scaling)", "%s per_stack=%s" % (c["attribute"], V(c["per_stack"])))
+                    ps = c["per_stack"]
+                    comp["per_stack"] = {"status": V(ps["status_id"]), "amount": V(ps["amount"]),
+                                         "on": "victim" if V(ps.get("on", "caster")) in ("target", "victim") else "caster",
+                                         "consume": bool(V(ps.get("consume", False)))}
             op = {"id": self.oid("dmg"), "op": "damage", "components": comps}
             self.put_target(op, spec if spec != "caster" or tg else "victim", "map")
             if V(m.get("ignore_invulnerability", False)):
-                self.todo("damage ignore_invulnerability (no i-frame policy on damage)", "ignore_invulnerability=true")
+                op["ignore_invulnerability"] = True
         elif t == "apply_status":
             sname = m["status_id"]
             op = {"id": self.oid("st_" + sname), "op": "status", "status": sname,
@@ -409,9 +426,10 @@ class Conv:
             if tt == "caster":
                 op["target"] = "caster"
             else:
-                op["target"] = "victim"
-                if tt != "target":
-                    self.todo("explode at a point (explode targets victim or caster only)", tt)
+                if tt == "target":
+                    op["target"] = "victim"
+                else:
+                    op["at"] = _loc(self.point(tg, where, "g"))
         elif t == "break_area":
             op = {"id": self.oid("break"), "op": "break_area"}
             shape = V(m.get("shape"))
@@ -747,6 +765,29 @@ class Conv:
 
 # ---------------------------------------------------------------- skill-level driver
 
+def _loc(point):
+    """Gameplay `at:` location: `contact.point` is a CEL variable, not a frame point, so it needs the value form."""
+    return "= contact.point" if point == "contact.point" else point
+
+
+def block_damage(c, d, arch, on_hit, on_block):
+    """v1 `block_damage` (ADR-0280) -> a `break_area` chip at the impact / cast point."""
+    bd = d.get("block_damage")
+    if not bd:
+        return
+    op = {"op": "break_area", "shape": "sphere", "radius": max(float(bd.get("radius", 0.0)), 0.5),
+          "block_damage": int(bd["amount"]), "breaks": True}
+    if bd.get("tool"):
+        op["tool_class"] = str(bd["tool"]).split("/")[0].upper()
+    if arch == "projectile":
+        for where in (on_hit, on_block):
+            c.g(where, 0, dict(op, id=c.oid("chip"), at="= contact.point"))
+    elif arch == "aoe":
+        c.g(CAST, 0, dict(op, id=c.oid("chip"), at="caster"))
+    else:
+        reach = float(bd.get("reach", 0.0)) or 4.0
+        c.g(CAST, 0, dict(op, id=c.oid("chip"), at=c.pframe("caster.eye", [0.0, 0.0, reach], "g")))
+
 def convert_skill(d, vfx_dir, item):
     c = Conv(d, vfx_dir)
     arch = d["archetype"]
@@ -762,11 +803,16 @@ def convert_skill(d, vfx_dir, item):
     guard_proj = arch == "projectile" and has_area(phases.get("cast"))
 
     if "windup" in d:
-        c.todo("windup (cast delay + windup sound)", "ticks=%s" % V(d["windup"].get("ticks")))
-    if "reload_ticks" in d:
-        c.todo("reload_ticks (no reload op)", "reload_ticks=%s" % d["reload_ticks"])
-    if "block_damage" in d:
-        c.todo("block_damage (block chip on impact: no op)", "amount=%s" % V(d["block_damage"].get("amount")))
+        wu = d["windup"]
+        if wu.get("vfx"):
+            c.vfx({"vfx_id": wu["vfx"]}, {"type": "caster"}, CAST, 0, None)
+        if wu.get("sound"):
+            sd = wu["sound"]
+            c.mech({"type": "play_sound", "sound_id": sd["sound_id"], "volume": sd.get("volume", 1.0),
+                    "targets": {"type": "caster"}}, CAST)
+            if sd.get("pitch_arc"):
+                c.present("windup sound pitch_arc (sound has a fixed pitch)", short(sd["pitch_arc"], 80))
+        c.windup = int(V(wu["ticks"]))
 
     if arch == "melee":
         c.id_counts["swing"] = 1
@@ -784,9 +830,11 @@ def convert_skill(d, vfx_dir, item):
             c.g(w, 0, {"id": c.oid("kb"), "op": "knockback", "direction": "= normalize(pos(victim) - pos(caster))", "strength": kb})
         c.mechanics(phases.get("cast"), CAST)
         c.mechanics(phases.get("hit_entity"), w)
+        block_damage(c, d, arch, None, None)
         if phases.get("miss"):
-            c.todo("melee miss phase (no hit counter to branch on); its mechanics were dropped",
-                   ",".join(sorted({x["type"] for x in phases["miss"]})))
+            c.g(w, 0, {"id": "swing_hit_count", "op": "counter", "key": "swing_hits"})
+            # the swing volume is resolved on its first ticks; the miss phase runs once it is clear nothing was hit
+            c.mechanics(phases["miss"], Where("cast", guard="= counter('swing_hits') == 0.0"), 2)
     elif arch == "aoe":
         c.id_counts["burst"] = 1
         radius = c.param("radius", params["radius"])
@@ -800,6 +848,7 @@ def convert_skill(d, vfx_dir, item):
         c.mechanics(phases.get("cast"), CAST)
         c.mechanics(phases.get("hit_entity"), w)
         c.mechanics(phases.get("expire"), Where("handler", "end", None))
+        block_damage(c, d, arch, None, None)
     elif arch == "projectile":
         c.has_bolt = True
         c.frames["bolt"] = {"id": "bolt", "kind": "body", "parent": "world", "inactive": True}
@@ -841,6 +890,7 @@ def convert_skill(d, vfx_dir, item):
         c.mechanics(phases.get("hit_block"), wb)
         c.mechanics(phases.get("expire"), we)
         c.mechanics(phases.get("miss"), we)
+        block_damage(c, d, arch, wh, wb)
     elif arch == "buff":
         dur = c.param(sid(params["status_effect_id"]) + "_ticks", params["duration_ticks"])
         c.g(CAST, 0, {"id": c.oid("buff"), "op": "status", "target": "caster", "status": params["status_effect_id"], "duration_ticks": dur})
@@ -874,18 +924,20 @@ def gap_lines(gaps, kind):
     return out
 
 
-def meta_lines(d):
-    """v1 skill meta with no SkillDef home (item binding or engine request)."""
-    bits = []
-    for k in ("cooldown_ticks", "resource_cost", "ego_cost"):
+def meta_block(d):
+    """v1 skill header -> the v2 `meta:` block (cast gate + UI)."""
+    m = OrderedDict()
+    if "name" in d:
+        m["name"] = d["name"]
+    if "description" in d:
+        m["description"] = d["description"]
+    for k in ("cooldown_ticks", "resource_type", "resource_cost", "ego_cost", "reload_ticks", "ready_cue"):
         if k in d:
-            bits.append("%s=%s" % (k, d[k]))
+            m[k] = d[k]
     tags = [t for t in d.get("tags", []) if t not in ("demo", "vfx", "rtm", "animation")]
     if tags:
-        bits.append("tags=%s" % ",".join(tags))
-    out = ["CONVERT-TODO meta: no SkillDef home for name / description / cooldown / cost / tags (cooldown and cost live on the item binding): " + "; ".join(bits)]
-    out.append("CONVERT-TODO meta: name=%s | description=%s" % (short(d.get("name"), 70), short(d.get("description"), 110)))
-    return out
+        m["tags"] = tags
+    return m
 
 
 def build_docs(c, d, item, items):
@@ -896,6 +948,9 @@ def build_docs(c, d, item, items):
     sk["id"] = d["id"]
     if item:
         sk["item"] = item
+    meta = meta_block(d)
+    if meta:
+        sk["meta"] = meta
     if c.frames:
         sk["frames"] = list(c.frames.values())
     gp = OrderedDict()
@@ -920,7 +975,7 @@ def build_docs(c, d, item, items):
     cm = []
     if len(items) > 1:
         cm.append("also bound to items: " + ", ".join(items[1:]))
-    cm += meta_lines(d) + gap_lines(c.todo_gaps, "TODO")
+    cm += gap_lines(c.todo_gaps, "TODO")
     sk["#"] = cm
 
     # presentation: repeating rows (trail emits) become `every` rows

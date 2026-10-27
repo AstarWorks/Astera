@@ -7,6 +7,7 @@ import com.astarworks.astera.core.domain.skillengine.model.GameplaySection
 import com.astarworks.astera.core.domain.skillengine.model.ParamValue
 import com.astarworks.astera.core.domain.skillengine.model.PresentationSection
 import com.astarworks.astera.core.domain.skillengine.model.SkillDef
+import com.astarworks.astera.core.domain.skillengine.model.SkillMeta
 import com.astarworks.astera.core.domain.skillengine.model.TimelineEntry
 import com.astarworks.astera.core.domain.skillengine.modifier.ExposedParam
 import com.astarworks.astera.core.domain.skillengine.op.GameplayOp
@@ -44,7 +45,47 @@ public class YamlSkillDecoder(private val registry: OpDecoderRegistry) : SkillDe
             val frames = decodeFrames(top.listOrNull("frames"))
             val gameplay = decodeGameplay(top.mapOrNull("gameplay"))
             val presentation = decodePresentation(top.mapOrNull("presentation"))
-            return SkillDef(skillId, item, importance, frames, gameplay, presentation)
+            val meta = decodeMeta(top.mapOrNull("meta"))
+            return SkillDef(skillId, item, importance, frames, gameplay, presentation, meta)
+        }
+
+        /**
+         * `meta: {name: {ja, en}, description: {ja, en}, cooldown_ticks, resource_type, resource_cost, ego_cost,
+         * reload_ticks, ready_cue, tags}`. Unknown keys are refused.
+         */
+        fun decodeMeta(raw: Map<*, *>?): SkillMeta {
+            if (raw == null) return SkillMeta()
+            fun bad(key: String, message: String): Nothing =
+                throw DecodeAbort(SkillDecodeError.Invalid(skillId, "meta.$key", message))
+            val allowed = setOf(
+                "name", "description", "cooldown_ticks", "resource_type", "resource_cost", "ego_cost",
+                "reload_ticks", "ready_cue", "tags",
+            )
+            raw.keys.firstOrNull { it.toString() !in allowed }?.let { bad(it.toString(), "unknown meta key (allowed: ${allowed.joinToString()})") }
+            fun text(key: String): Map<String, String> {
+                val v = raw[key] ?: return emptyMap()
+                val m = v as? Map<*, *> ?: bad(key, "expected a {ja, en} map")
+                return m.entries.associate { (k, t) -> k.toString() to (t?.toString() ?: bad(key, "empty text for '$k'")) }
+            }
+            fun nat(key: String): Int? {
+                val v = raw[key] ?: return null
+                val n = (v as? Number)?.toInt() ?: bad(key, "expected an integer")
+                if (n < 0) bad(key, "must be >= 0")
+                return n
+            }
+            val resource = raw["resource_type"]?.toString()
+            if (resource != null && resource !in setOf("ammo", "energy")) bad("resource_type", "expected ammo or energy")
+            return SkillMeta(
+                name = text("name"),
+                description = text("description"),
+                cooldownTicks = nat("cooldown_ticks") ?: 0,
+                resourceType = resource,
+                resourceCost = nat("resource_cost"),
+                egoCost = nat("ego_cost") ?: 0,
+                reloadTicks = nat("reload_ticks") ?: 0,
+                readyCue = raw["ready_cue"] as? Boolean,
+                tags = (raw["tags"] as? List<*>)?.map { it.toString() } ?: emptyList(),
+            )
         }
 
         /** A skin may only touch `presentation.*` (the composer records every touched leaf in `_patch.touched`). */

@@ -25,6 +25,75 @@
         "importance": {
             "type": "integer"
         },
+        "meta": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "object",
+                    "properties": {
+                        "ja": {
+                            "type": "string"
+                        },
+                        "en": {
+                            "type": "string"
+                        }
+                    },
+                    "required": [
+                        "ja",
+                        "en"
+                    ],
+                    "additionalProperties": false
+                },
+                "description": {
+                    "type": "object",
+                    "properties": {
+                        "ja": {
+                            "type": "string"
+                        },
+                        "en": {
+                            "type": "string"
+                        }
+                    },
+                    "required": [
+                        "ja",
+                        "en"
+                    ],
+                    "additionalProperties": false
+                },
+                "cooldown_ticks": {
+                    "type": "integer",
+                    "minimum": 0
+                },
+                "resource_type": {
+                    "enum": [
+                        "ammo",
+                        "energy"
+                    ]
+                },
+                "resource_cost": {
+                    "type": "integer",
+                    "minimum": 0
+                },
+                "ego_cost": {
+                    "type": "integer",
+                    "minimum": 0
+                },
+                "reload_ticks": {
+                    "type": "integer",
+                    "minimum": 0
+                },
+                "ready_cue": {
+                    "type": "boolean"
+                },
+                "tags": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            },
+            "additionalProperties": false
+        },
         "frames": {
             "type": "array",
             "items": {
@@ -167,6 +236,9 @@
                 },
                 "amount": {
                     "$ref": "#/definitions/Value_number"
+                },
+                "per_stack": {
+                    "$ref": "#/definitions/PerStackSpec"
                 }
             },
             "required": [
@@ -269,6 +341,7 @@
                         "counter",
                         "damage",
                         "dash_strike",
+                        "delay",
                         "event",
                         "explode",
                         "fly",
@@ -447,6 +520,21 @@
                     },
                     "then": {
                         "$ref": "#/definitions/op_dash_strike"
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "op": {
+                                "const": "delay"
+                            }
+                        },
+                        "required": [
+                            "op"
+                        ]
+                    },
+                    "then": {
+                        "$ref": "#/definitions/op_delay"
                     }
                 },
                 {
@@ -1109,6 +1197,33 @@
                 "do"
             ],
             "additionalProperties": false
+        },
+        "PerStackSpec": {
+            "type": "object",
+            "properties": {
+                "status": {
+                    "type": "string"
+                },
+                "amount": {
+                    "$ref": "#/definitions/Value_number"
+                },
+                "on": {
+                    "type": "string",
+                    "enum": [
+                        "caster",
+                        "victim"
+                    ]
+                },
+                "consume": {
+                    "type": "boolean"
+                }
+            },
+            "required": [
+                "status",
+                "amount",
+                "on"
+            ],
+            "additionalProperties": true
         },
         "PoseKey": {
             "type": "object",
@@ -2001,6 +2116,9 @@
                     "items": {
                         "$ref": "#/definitions/DamageComponentSpec"
                     }
+                },
+                "ignore_invulnerability": {
+                    "type": "boolean"
                 }
             },
             "required": [
@@ -2059,6 +2177,36 @@
                     "type": "boolean"
                 },
                 "on_hit": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/GameplayOp"
+                    }
+                }
+            },
+            "required": [
+                "id",
+                "op"
+            ],
+            "additionalProperties": true
+        },
+        "op_delay": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "unique within the skill (patches address ops by id)"
+                },
+                "op": {
+                    "const": "delay"
+                },
+                "when": {
+                    "$ref": "#/definitions/Value_boolean"
+                },
+                "after": {
+                    "$ref": "#/definitions/Value_number"
+                },
+                "body": {
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/GameplayOp"
@@ -2181,6 +2329,13 @@
                     "items": {
                         "$ref": "#/definitions/DamageComponentSpec"
                     }
+                },
+                "at": {
+                    "type": [
+                        "string",
+                        "object"
+                    ],
+                    "description": "one of: at_point, at_value"
                 }
             },
             "required": [
@@ -2425,6 +2580,9 @@
                         "object"
                     ],
                     "description": "one of: every_ticks, once, per_part"
+                },
+                "max_count": {
+                    "type": "integer"
                 }
             },
             "required": [

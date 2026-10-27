@@ -1,0 +1,21 @@
+# Converted from content/skills/war-axe-chop.yaml by tools/skill-convert/convert.py (v1 archetype: melee). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
+# Generated point-frame offsets are [left, up, forward] in the parent frame.
+apiVersion: "astera/v2"
+kind: Skill
+id: war-axe-chop
+item: war-axe
+meta: {name: {ja: "重い一撃", en: "Heavy Chop"}, description: {ja: "範囲は狭いが重い一撃を叩き込む。", en: "A slow, heavy chop with a short arc."}, cooldown_ticks: 22, resource_cost: 10, tags: [melee, physical]}
+gameplay:
+  params: {arc_deg: 80.0, range: 3.0, dmg_physical: 55.0, knockback: 0.6}
+  expose:
+    - {id: damage, param: dmg_physical}
+    - {id: range, param: range}
+  timeline:
+    - id: t0
+      at: 0
+      do:
+        - {id: swing, op: hit, frames: [caster], sector: {frame: caster, forward: caster.forward, left: caster.left, angle_deg: "${arc_deg}", range: "${range}", height: 2.0}, window: once}
+  "on":
+    hit:
+      - {id: dmg, op: damage, target: victim, components: [{kind: physical, amount: "${dmg_physical}"}], when: "= event.source == 'swing'"}
+      - {id: kb, op: knockback, direction: "= normalize(pos(victim) - pos(caster))", strength: "${knockback}", when: "= event.source == 'swing'"}

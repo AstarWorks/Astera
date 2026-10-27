@@ -1,9 +1,8 @@
 # Converted from content/skills/heal-potion-use.yaml by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
 # Generated point-frame offsets are [left, up, forward] in the parent frame.
-# CONVERT-TODO meta: no SkillDef home for name / description / cooldown / cost / tags (cooldown and cost live on the item binding): cooldown_ticks=100; resource_cost=0; tags=support,heal,consumable
-# CONVERT-TODO meta: name={"en": "Healing Draught", "ja": "回復薬"} | description={"en": "Single use; restores 40 HP.", "ja": "使い切りで体力を 40 回復する。"}
 apiVersion: "astera/v2"
 kind: Skill
 id: heal-potion-use
 item: heal-potion
+meta: {name: {ja: "回復薬", en: "Healing Draught"}, description: {ja: "使い切りで体力を 40 回復する。", en: "Single use; restores 40 HP."}, cooldown_ticks: 100, resource_cost: 0, tags: [support, heal, consumable]}
 gameplay: {params: {heal: 40.0}, timeline: [{id: t0, at: 0, do: [{id: consume, op: consume_item, target: caster, item: heal-potion, count: 1}, {id: heal, op: heal, amount: "${heal}", target: caster}]}]}

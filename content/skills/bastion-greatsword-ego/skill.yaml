@@ -1,0 +1,39 @@
+# Converted from content/skills/bastion-greatsword-ego.yaml by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
+# Generated point-frame offsets are [left, up, forward] in the parent frame.
+apiVersion: "astera/v2"
+kind: Skill
+id: bastion-greatsword-ego
+item: bastion-greatsword
+meta:
+  name: {ja: "城塞の暁", en: "Citadel Dawn"}
+  description: {ja: "大盾を掲げて跳び、剣を突き立てて黄金の稲妻を放つ。E.G.Oゲージを全て消費する。", en: "Raise the barrier, leap and plant the blade in a burst of golden lightning. Consumes the full E.G.O gauge."}
+  cooldown_ticks: 300
+  resource_cost: 0
+  ego_cost: 100
+  tags: [aoe, physical, finisher, charge]
+gameplay:
+  params: {propel: 0.3, dash_distance: 2.8, arc_deg: 110, reach: 3.8, dmg_physical: 140, knockback: 1.6}
+  expose:
+    - {id: damage, param: dmg_physical}
+    - {id: range, param: reach}
+  timeline:
+    - id: t20
+      at: 20
+      do:
+        - {id: propel, op: propel, direction: "= vec(0.0, 1.0, 0.0)", strength: "${propel}"}
+        - {id: dash, op: dash_strike, distance: "${dash_distance}", ticks: 6, radius: 0.3, hit_once: true, invulnerable: false, stop_on_block: true, follow_pitch: false, stop_before_target: 1.6}
+    - id: t31
+      at: 31
+      do:
+        - {id: sel, op: hit, frames: [caster], sector: {frame: caster, forward: caster.forward, left: caster.left, angle_deg: "${arc_deg}", range: "${reach}", height: 2.0}, max_count: 1, window: once}
+  "on":
+    hit:
+      - id: dmg
+        op: damage
+        components:
+          - {kind: physical, amount: "${dmg_physical}", per_stack: {status: charge, amount: 0.5, "on": caster, consume: true}}
+        target: victim
+        ignore_invulnerability: true
+        when: "= event.source == 'sel'"
+      - {id: stop, op: freeze, ticks: 4, scope: [enemy, caster], when: "= event.source == 'sel'"}
+      - {id: kb, op: knockback, direction: "= normalize(pos(victim) - pos(caster)) + vec(0.0, 0.3, 0.0)", strength: "${knockback}", when: "= event.source == 'sel'"}

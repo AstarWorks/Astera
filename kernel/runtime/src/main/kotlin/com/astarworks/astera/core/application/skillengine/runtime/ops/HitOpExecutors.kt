@@ -22,7 +22,7 @@ public class HitOpExecutor : OpExecutor<HitOp.Hit> {
                 ctx.host.fail(op.id, "hit on unknown frame '$frame'")
                 continue
             }
-            ctx.host.registerHit(HitRegistration(op.id, frame, op.volume, op.window, ctx.host.tick))
+            ctx.host.registerHit(HitRegistration(op.id, frame, op.volume, op.window, ctx.host.tick, op.maxCount))
         }
     }
 }

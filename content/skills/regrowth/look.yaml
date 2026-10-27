@@ -1,0 +1,24 @@
+# Converted from content/skills/regrowth.yaml + content/vfx/* by tools/skill-convert/convert.py (v1 archetype: buff). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
+# Generated point-frame offsets are [left, up, forward] in the parent frame.
+# CONVERT-PRESENT particle animation ring (emit has no shape / ring / path: one burst at the anchor) (x3): {"end_radius": 2.2, "period_ticks": 8, "points": 16, "start_radius": 0.4} | {"end_radius": 0.7, "period_ticks": 14, "points": 10, "rise": 2.2, "start_radius": 1.1}
+# CONVERT-PRESENT particle scale / offset (emit has neither) (x5): {"scale": 1.4} | {"scale": 1.2}
+apiVersion: "astera/v2"
+kind: Skill
+id: regrowth
+frames:
+  - {id: pt_caster_0_1_0, kind: point, parent: caster, offset: [0.0, 1.0, 0.0]}
+  - {id: pt_caster_0_0p1_0, kind: point, parent: caster, offset: [0.0, 0.1, 0.0]}
+presentation:
+  timeline:
+    - id: fx0
+      at: 0
+      do:
+        - {id: snd, op: sound, sound: "astera:skills/heal-chime", at: caster, volume: 0.5}
+        - {id: emit, op: emit, at: pt_caster_0_1_0, particle: verdant-heal, count: 1}
+        - {id: emit_2, op: emit, at: pt_caster_0_0p1_0, particle: happy_villager, count: 0, speed: 0.02}
+        - {id: emit_3, op: emit, at: pt_caster_0_0p1_0, particle: dust, count: 1, color: "#5ae65a"}
+        - {id: emit_4, op: emit, at: pt_caster_0_0p1_0, particle: happy_villager, count: 1}
+        - {id: emit_5, op: emit, at: pt_caster_0_0p1_0, particle: dust, count: 1, color: "#8cff78"}
+        - {id: emit_8, op: emit, at: pt_caster_0_0p1_0, particle: heart, count: 8}
+        - {id: emit_9, op: emit, at: pt_caster_0_0p1_0, particle: happy_villager, count: 22}
+    - {id: fx6, at: 6, do: [{id: emit_6, op: emit, at: pt_caster_0_0p1_0, particle: happy_villager, count: 1}, {id: emit_7, op: emit, at: pt_caster_0_0p1_0, particle: dust, count: 1, color: "#8cff78"}]}

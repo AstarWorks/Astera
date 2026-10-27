@@ -1,0 +1,17 @@
+# Converted from content/skills/sanctuary-purify.yaml + content/vfx/* by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
+# Generated point-frame offsets are [left, up, forward] in the parent frame.
+# CONVERT-PRESENT particle animation ring (emit has no shape / ring / path: one burst at the anchor) (x1): {"end_radius": 3.0, "period_ticks": 8, "points": 16, "start_radius": 0.4}
+# CONVERT-PRESENT particle scale / offset (emit has neither) (x1): {"scale": 1.4}
+apiVersion: "astera/v2"
+kind: Skill
+id: sanctuary-purify
+frames:
+  - {id: pt_caster_0_0p15_0, kind: point, parent: caster, offset: [0.0, 0.15, 0.0]}
+presentation:
+  timeline:
+    - id: fx0
+      at: 0
+      do:
+        - {id: snd, op: sound, sound: block.amethyst_block.chime, at: caster, volume: 0.8, pitch: 1.2}
+        - {id: emit, op: emit, at: pt_caster_0_0p15_0, particle: end_rod, count: 0, speed: 0.02}
+        - {id: emit_2, op: emit, at: pt_caster_0_0p15_0, particle: dust, count: 1, color: "#f0f0aa"}

@@ -1,0 +1,67 @@
+# Converted from content/skills/ember-gauntlet-ego.yaml + content/vfx/* by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
+# Generated point-frame offsets are [left, up, forward] in the parent frame.
+# CONVERT-PRESENT vfx frame orient (frames carry no orientation / scale) (x6): orient="yaw"
+# CONVERT-PRESENT rig pivot / rest / tilt / respect_hit_stop / weapon points (frames carry no pivot or rest pose) (x5): {"pivot": [0, 1.1, -0.36]} | {"pivot": [-0.35, 1.05, 0.25], "rest": [0, 90, 0], "tilt": [0, 0, 12]}
+# CONVERT-PRESENT rig block parts (mesh takes an item model, not a block + size) (x5): 2 parts | 3 parts
+# CONVERT-PRESENT rig swing without a weapon mesh (track needs a visual to move) (x5): 2 keys | 4 keys
+# CONVERT-PRESENT vfx frame scale (frames carry no orientation / scale) (x5): scale=1
+# CONVERT-PRESENT repeating particle element (emit is one burst) (x9): every=3 ticks=14 | every=4 ticks=10
+# CONVERT-PRESENT block element (mesh takes an item model, plate takes a sprite: no block / solid-colour primitive) (x20): yellow_concrete | white_concrete
+# CONVERT-PRESENT element formation (no v2 equivalent) (x7): {"align": "outward", "curve": {"radius": 0.12, "type": "sphe | {"curve": {"from": [0, 0, 0.8], "to": [0, 0, 3.4], "type": "
+# CONVERT-PRESENT element count (no v2 equivalent) (x7): 8 | 5
+# CONVERT-PRESENT element brightness (no v2 equivalent) (x28): 15
+# CONVERT-PRESENT element kind text (text) has no v2 op (x8): {"background": "#00000000", "see_through": true, "shadow": false, "text": "<#FFF | {"background": "#00000000", "see_through": true, "shadow": false, "text": "<#FFD
+# CONVERT-PRESENT trail style / bands / edge / fade (trail has width_frac, color, alpha only) (x1): {"bands": [{"block": "yellow_concrete", "color": "#A0FF8F18", "color_to": "#10E0
+# CONVERT-PRESENT rig emitter repeats (emit is one burst) (x1): ticks=8
+# CONVERT-PRESENT element group_keyframes (no v2 equivalent) (x2): [{"t": 0}, {"ease": "out_quad", "t": 4, "translate": [0, 0, 
+# CONVERT-PRESENT vfx follow=false (anchored at world, no place-at-spawn) (x1): ember-smoke-puff
+# CONVERT-PRESENT screen_flash has no v2 op (x3): {"color": "#000000", "fade_in": 0, "fade_out": 0, "overlay": "white", "stay": 1} | {"color": "#FFE839", "fade_in": 0, "fade_out": 1, "overlay": "white", "stay": 2}
+apiVersion: "astera/v2"
+kind: Skill
+id: ember-gauntlet-ego
+frames:
+  - {id: fx1_ember_harness, kind: body, parent: caster}
+  - {id: fx1_ember_harness_furnace_pack, kind: body, parent: caster.right_hand}
+  - {id: fx2_ember_ignition, kind: body, parent: caster}
+  - {id: fx2_ember_ignition_gauntlet, kind: body, parent: caster.right_hand}
+  - {id: fx3_ember_sweep, kind: body, parent: caster}
+  - {id: fx3_ember_sweep_gauntlet, kind: body, parent: caster.right_hand}
+  - {id: pt_fx3_ember_sweep_gauntlet_0_1p95_0, kind: point, parent: fx3_ember_sweep_gauntlet, offset: [0.0, 1.95, 0.0]}
+  - {id: pt_fx3_ember_sweep_gauntlet_0_2p65_0, kind: point, parent: fx3_ember_sweep_gauntlet, offset: [0.0, 2.65, 0.0]}
+  - {id: fx4_ember_punch, kind: body, parent: caster}
+  - {id: fx4_ember_punch_gauntlet, kind: body, parent: caster.right_hand}
+  - {id: fx5_ember_furnace_blast, kind: body, parent: caster}
+  - {id: fx5_ember_furnace_blast_gauntlet, kind: body, parent: caster.right_hand}
+  - {id: fx6_ember_smoke_puff, kind: body, parent: world}
+presentation:
+  timeline:
+    - id: fx0
+      at: 0
+      do:
+        - {id: fx2_ember_ignition_pilot, op: emit, at: fx2_ember_ignition, particle: ember-fine-spark, count: 1}
+        - {id: fx2_ember_ignition_smoke, op: emit, at: fx2_ember_ignition, particle: fire-smoke, count: 1}
+    - id: fx17
+      at: 17
+      do:
+        - {id: fx3_ember_sweep_embers, op: emit, at: fx3_ember_sweep, particle: ember-fine-spark, count: 1}
+        - {id: fx3_ember_sweep_gauntlet_flame_fan, op: trail, of: pt_fx3_ember_sweep_gauntlet_0_2p65_0, root: pt_fx3_ember_sweep_gauntlet_0_1p95_0, ticks: 9}
+        - {id: fx3_ember_sweep_gauntlet_fire, op: emit, at: pt_fx3_ember_sweep_gauntlet_0_2p65_0, particle: ember-fine-spark, count: 1}
+    - {id: fx20, at: 20, do: [{id: snd, op: sound, sound: entity.blaze.shoot, at: caster, volume: 0.8, pitch: 1.1}]}
+    - id: fx24
+      at: 24
+      do:
+        - {id: fx4_ember_punch_flame, op: emit, at: fx4_ember_punch, particle: ember-fine-spark, count: 1}
+        - {id: fx4_ember_punch_soot, op: emit, at: fx4_ember_punch, particle: fire-smoke, count: 1}
+    - {id: fx26, at: 26, do: [{id: snd_2, op: sound, sound: entity.blaze.shoot, at: caster, volume: 0.8, pitch: 0.8}]}
+    - {id: fx29, at: 29, do: [{id: rm, op: remove, ids: [fx3_ember_sweep_gauntlet_flame_fan]}]}
+    - id: fx54
+      at: 54
+      do:
+        - {id: fx5_ember_furnace_blast_flame, op: emit, at: fx5_ember_furnace_blast, particle: ember-fine-spark, count: 1}
+        - {id: fx5_ember_furnace_blast_soot, op: emit, at: fx5_ember_furnace_blast, particle: fire-smoke, count: 1}
+    - {id: fx56, at: 56, do: [{id: snd_3, op: sound, sound: entity.blaze.shoot, at: caster, volume: 0.8, pitch: 0.8}]}
+    - id: fx68
+      at: 68
+      do:
+        - {id: fx6_ember_smoke_puff_vent, op: emit, at: fx6_ember_smoke_puff, particle: fire-smoke, count: 1}
+        - {id: fx6_ember_smoke_puff_haze, op: emit, at: fx6_ember_smoke_puff, particle: gun-smoke, count: 1}

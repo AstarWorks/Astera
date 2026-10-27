@@ -1,0 +1,45 @@
+# Converted from content/skills/verdict-hammer-ego.yaml by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
+# Generated point-frame offsets are [left, up, forward] in the parent frame.
+apiVersion: "astera/v2"
+kind: Skill
+id: verdict-hammer-ego
+item: verdict-hammer
+meta:
+  name: {ja: "誓約の終鐘", en: "Covenant Toll"}
+  description: {ja: "黄金の杭の陣が四度の槌音に応え、地へ沈む。", en: "A field of golden stakes answers four hammer pulses before sinking into the floor."}
+  cooldown_ticks: 260
+  resource_cost: 0
+  ego_cost: 100
+frames:
+  - {id: snap, kind: body, parent: world, inactive: true}
+  - {id: snap_2, kind: body, parent: world, inactive: true}
+  - {id: snap_3, kind: body, parent: world, inactive: true}
+  - {id: snap_4, kind: body, parent: world, inactive: true}
+gameplay:
+  params: {radius: 5.8, dmg_physical: 60.0, dash_distance: 3.0}
+  expose:
+    - {id: damage, param: dmg_physical}
+    - {id: radius, param: radius}
+  timeline:
+    - id: t8
+      at: 8
+      do:
+        - {id: dash, op: dash_strike, distance: "${dash_distance}", ticks: 8, radius: 0.3, hit_once: true, invulnerable: false, stop_on_block: true, follow_pitch: false, stop_before_target: 1.8}
+    - {id: t71, at: 71, do: [{id: place_snap, op: place, frame: snap, like: caster}, {id: sel, op: hit, frames: [snap], sphere: {at: snap, radius: "${radius}"}, max_count: 3, window: once}]}
+    - id: t93
+      at: 93
+      do:
+        - {id: dash_2, op: dash_strike, distance: "${dash_distance}", ticks: 8, radius: 0.3, hit_once: true, invulnerable: false, stop_on_block: true, follow_pitch: false, stop_before_target: 1.8}
+    - {id: t102, at: 102, do: [{id: place_snap_2, op: place, frame: snap_2, like: caster}, {id: sel_2, op: hit, frames: [snap_2], sphere: {at: snap_2, radius: "${radius}"}, max_count: 3, window: once}]}
+    - {id: t128, at: 128, do: [{id: place_snap_3, op: place, frame: snap_3, like: caster}, {id: sel_3, op: hit, frames: [snap_3], sphere: {at: snap_3, radius: "${radius}"}, max_count: 3, window: once}]}
+    - {id: t191, at: 191, do: [{id: place_snap_4, op: place, frame: snap_4, like: caster}, {id: sel_4, op: hit, frames: [snap_4], sphere: {at: snap_4, radius: "${radius}"}, max_count: 3, window: once}]}
+  "on":
+    hit:
+      - {id: dmg, op: damage, components: [{kind: physical, amount: "${dmg_physical}"}], target: victim, ignore_invulnerability: true, when: "= event.source == 'sel'"}
+      - {id: stop, op: freeze, ticks: 2, scope: [enemy, caster], when: "= event.source == 'sel'"}
+      - {id: dmg_2, op: damage, components: [{kind: physical, amount: "${dmg_physical}"}], target: victim, ignore_invulnerability: true, when: "= event.source == 'sel_2'"}
+      - {id: stop_2, op: freeze, ticks: 2, scope: [enemy, caster], when: "= event.source == 'sel_2'"}
+      - {id: dmg_3, op: damage, components: [{kind: physical, amount: "${dmg_physical}"}], target: victim, ignore_invulnerability: true, when: "= event.source == 'sel_3'"}
+      - {id: stop_3, op: freeze, ticks: 2, scope: [enemy, caster], when: "= event.source == 'sel_3'"}
+      - {id: dmg_4, op: damage, components: [{kind: physical, amount: "${dmg_physical}"}], target: victim, ignore_invulnerability: true, when: "= event.source == 'sel_4'"}
+      - {id: stop_4, op: freeze, ticks: 2, scope: [enemy, caster], when: "= event.source == 'sel_4'"}

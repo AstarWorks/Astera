@@ -1,0 +1,30 @@
+# Converted from content/skills/harpoon-throw.yaml by tools/skill-convert/convert.py (v1 archetype: projectile). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
+# Generated point-frame offsets are [left, up, forward] in the parent frame.
+apiVersion: "astera/v2"
+kind: Skill
+id: harpoon-throw
+item: harpoon
+meta: {name: {ja: "銛", en: Harpoon}, description: {ja: "銛を投げ、当たった相手を引き寄せる。", en: "Hurls a harpoon and reels the target in."}, cooldown_ticks: 100, resource_cost: 10, tags: [ranged, physical, control]}
+frames:
+  - {id: bolt, kind: body, parent: world, inactive: true}
+  - {id: pt_caster_eye_0_0_0p5, kind: point, parent: caster.eye, offset: [0.0, 0.0, 0.5]}
+gameplay:
+  params: {launch_speed: 2.2, max_lifetime_ticks: 40, aim_distance: 50.0, dmg_physical: 18, knockback: 1.4}
+  expose:
+    - {id: damage, param: dmg_physical}
+    - {id: flight_speed, param: launch_speed}
+  timeline:
+    - id: t0
+      at: 0
+      do:
+        - id: bolt
+          op: projectile
+          body: bolt
+          from: pt_caster_eye_0_0_0p5
+          velocity: "= normalize(aim_point(caster, aim_distance) - pos(pt_caster_eye_0_0_0p5)) * launch_speed"
+          max_ticks: "${max_lifetime_ticks}"
+          radius: 0.3
+  "on":
+    hit:
+      - {id: dmg, op: damage, components: [{kind: physical, amount: "${dmg_physical}"}], target: victim}
+      - {id: kb, op: knockback, direction: "= normalize(pos(caster) - pos(victim)) + vec(0.0, 0.2, 0.0)", strength: "${knockback}"}
