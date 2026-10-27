@@ -1,0 +1,33 @@
+# Match arsenal (wp/match-arsenal, batch 2): Chain Rod.
+
+id: chain-rod
+
+material: LIGHTNING_ROD
+
+name:
+  ja: "連鎖の杖"
+  en: "Chain Rod"
+lore:
+  ja:
+    - "<gray>右クリック: 連鎖雷 (着弾点の周囲の敵にも走る)</gray>"
+  en:
+    - "<gray>Right-click: chain lightning (arcs to nearby enemies)</gray>"
+
+rarity: uncommon
+level_requirement: 1
+
+attributes:
+  attack_damage: 1.0
+  attack_speed: 1.0
+
+equip_slot: mainhand
+
+resource_type: energy
+resource_cost_per_use: 18
+
+skills:
+  - trigger: right_click
+    skill_id: chain-lightning
+
+pdc_tags:
+  astera:rarity: uncommon

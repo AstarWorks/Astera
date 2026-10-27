@@ -18,6 +18,8 @@ import java.net.SocketTimeoutException
 class PlayEntryE2eTest : E2eBase() {
 
     private val suite = "Play entry"
+    /** Picker order follows content/matchmaking/queue.yaml: annihilation, carry-tnt (the default lane), capture-wool, steal-jewelry, carry-mini-tnt. */
+    private val CARRY_TNT_TILE = 1
 
     /** The Play guide: a villager whose name tag reads "Play" (the hologram above it is a text display). */
     private fun playNpcId(b: Bot): Int? = b.entityEvents.filter { it.added && it.type == "VILLAGER" }
@@ -53,25 +55,25 @@ class PlayEntryE2eTest : E2eBase() {
             val s = openPicker(b)
             picker = s
             val items = b.contents[s.containerId].orEmpty()
-            val laneTiles = (0..6).count { items.getOrNull(it)?.amount?.let { n -> n > 0 } == true }
-            val botTiles = (9..15).count { items.getOrNull(it)?.amount?.let { n -> n > 0 } == true }
+            val laneTiles = (0..4).count { items.getOrNull(it)?.amount?.let { n -> n > 0 } == true }
+            val botTiles = (9..13).count { items.getOrNull(it)?.amount?.let { n -> n > 0 } == true }
             assertThat(rawKeys(listOf(s.title))).describedAs("raw key as title").isEmpty()
             assertThat(s.title).describedAs("picker title").contains("Play")
-            assertThat(laneTiles).describedAs("lane tiles in slots 0..6; items=${items.take(27).map { it.itemId to it.amount }}").isEqualTo(7)
-            assertThat(botTiles).describedAs("bots tiles in slots 9..15").isEqualTo(7)
+            assertThat(laneTiles).describedAs("lane tiles in slots 0..4; items=${items.take(27).map { it.itemId to it.amount }}").isEqualTo(5)
+            assertThat(botTiles).describedAs("bots tiles in slots 9..13").isEqualTo(5)
             "title='${s.title}' lane tiles=$laneTiles bots tiles=$botTiles"
         }
 
         val compassBefore = b.hotbar()[8]
         E2eReport.check(suite, "clicking a lane queues the player: log line, chat, title/sidebar waiting block, action bar", "ServerboundContainerClick -> sidebar + action bar") {
             val s = checkNotNull(picker) { "picker was not opened" }
-            b.clickSlot(s.containerId, 0, ContainerActionType.CLICK_ITEM, ClickItemAction.LEFT_CLICK)
+            b.clickSlot(s.containerId, CARRY_TNT_TILE, ContainerActionType.CLICK_ITEM, ClickItemAction.LEFT_CLICK)
             assertThat(b.waitUntil(6_000) { b.sidebarLines().any { "1/2" in it } })
                 .describedAs("sidebar never showed the players X/min line; sidebar=${b.sidebarLines()}; chat=${b.chatTexts().takeLast(4)}").isTrue()
             val lines = b.sidebarLines()
             assertThat(lines.any { "Waiting" in it && ":" in it }).describedAs("elapsed time line missing: $lines").isTrue()
             assertThat(lines.any { "Waiting for opponents" in it }).describedAs("status line missing: $lines").isTrue()
-            assertThat(lines.any { "carry-tnt" in it }).describedAs("lane line missing: $lines").isTrue()
+            assertThat(lines.any { "Carry TNT" in it }).describedAs("lane line missing: $lines").isTrue()
             assertThat(b.waitUntil(4_000) { b.actionBars.any { "Waiting for opponents" in it.text && "1/2" in it.text } })
                 .describedAs("action bar never showed the waiting line; bars=${b.actionBars.takeLast(5).map { it.text }}").isTrue()
             assertThat(b.chatTexts().any { "Queued for" in it }).describedAs("no 'Queued for' chat line: ${b.chatTexts().takeLast(5)}").isTrue()
@@ -107,7 +109,7 @@ class PlayEntryE2eTest : E2eBase() {
             var requestId = ""
             E2eReport.check(suite, "clicking 'Play vs bots' queues the player and publishes {requestId,lane,count,requestedBy}", "Redis astera:bots:request") {
                 val s = openPicker(b)
-                b.clickSlot(s.containerId, 9, ContainerActionType.CLICK_ITEM, ClickItemAction.LEFT_CLICK)
+                b.clickSlot(s.containerId, 9 + CARRY_TNT_TILE, ContainerActionType.CLICK_ITEM, ClickItemAction.LEFT_CLICK)
                 val payload = listener.nextMessage(8_000)
                 assertThat(payload).describedAs("nothing published on astera:bots:request; chat=${b.chatTexts().takeLast(4)}").isNotNull()
                 val json = payload!!
@@ -133,7 +135,7 @@ class PlayEntryE2eTest : E2eBase() {
                 Thread.sleep(1_000)
                 val s = openPicker(b)
                 val before = b.chat.size
-                b.clickSlot(s.containerId, 9, ContainerActionType.CLICK_ITEM, ClickItemAction.LEFT_CLICK)
+                b.clickSlot(s.containerId, 9 + CARRY_TNT_TILE, ContainerActionType.CLICK_ITEM, ClickItemAction.LEFT_CLICK)
                 listener.nextMessage(8_000) // the second request, left unanswered
                 val started = System.currentTimeMillis()
                 assertThat(b.waitUntil(16_000) { b.chat.drop(before).any { "Bots are unavailable" in it.text } })

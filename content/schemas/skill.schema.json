@@ -2473,6 +2473,9 @@
                         "power": {
                             "type": "number"
                         },
+                        "cover_damage": {
+                            "type": "integer"
+                        },
                         "tool_class": {
                             "type": "string",
                             "enum": [

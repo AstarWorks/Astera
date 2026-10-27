@@ -1,0 +1,37 @@
+# Match arsenal (wp/match-arsenal, batch 2): Halberd.
+
+id: halberd
+
+material: NETHERITE_AXE
+
+name:
+  ja: "ハルバード"
+  en: "Halberd"
+lore:
+  ja:
+    - "<gray>左クリック: 薙ぎ払い</gray>"
+    - "<gray>スニーク + 右クリック: 引っ掛け (体勢を崩す)</gray>"
+  en:
+    - "<gray>Left-click: wide sweep</gray>"
+    - "<gray>Sneak + right-click: hook (unsteadies)</gray>"
+
+rarity: uncommon
+level_requirement: 1
+
+attributes:
+  attack_damage: 3.0
+  attack_speed: 1.0
+
+equip_slot: mainhand
+
+resource_type: energy
+resource_cost_per_use: 6
+
+skills:
+  - trigger: left_click
+    skill_id: halberd-sweep
+  - trigger: sneak_right
+    skill_id: halberd-hook
+
+pdc_tags:
+  astera:rarity: uncommon

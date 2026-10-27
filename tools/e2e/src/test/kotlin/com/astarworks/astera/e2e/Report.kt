@@ -27,13 +27,13 @@ object SuiteOwners {
         own(
             "modes-combat",
             "Annihilation playthrough", "Capture Wool playthrough", "Carry TNT playthrough",
-            "Carry Mini TNT playthrough", "Steal Jewelry playthrough", "Norma playthrough", "PvE waves playthrough", "Match", "Game loop", "Combat", "Stars", "WeaponLimit",
+            "Carry Mini TNT playthrough", "Steal Jewelry playthrough", "PvE waves playthrough", "Match", "Game loop", "Combat", "Stars", "WeaponLimit",
             "Mid-match leave", "Mid-match reconnect",
         )
         own("economy-life", "Shop purchase")
         own("presentation", "ClientReceives", "HUD")
         own("skills-vfx", "Weapons", "PersonaWeapons", "SkinRig")
-        own("bots-qa", "BootHealth", "Bot vs bot", "Commands", "Join", "Velocity", "CueGuard", "Live match", "Live smoke", "Live weapons")
+        own("bots-qa", "BootHealth", "Bot vs bot", "Commands", "Join", "Velocity", "CueGuard", "Live match", "Live smoke", "Live weapons", "Live chat")
     }
 
     fun of(suite: String): String = owners[suite] ?: "unmapped"

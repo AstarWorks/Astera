@@ -31,11 +31,9 @@ skills:
   skill_id: edict-s2
 - trigger: sneak_right
   skill_id: edict-s3
-  min_norma_level: 2
 - trigger: sneak_left
   skill_id: edict-def
 - trigger: drop
   skill_id: edict-ego
-  min_norma_level: 3
 pdc_tags:
   astera:rarity: epic

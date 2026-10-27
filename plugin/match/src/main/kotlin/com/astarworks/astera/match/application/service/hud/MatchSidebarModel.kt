@@ -23,12 +23,14 @@ import com.astarworks.astera.match.domain.norma.NormaHud
  *                       <- spacer
  * <mode lines>          <- per team: score / pillars / objective progress
  *                       <- spacer
- * You: Red   Stars / Lv / goal  <- added per viewer by [MatchSidebarModel.layoutFor]
+ * You: Red   Lv + stars / goal / next unlock  <- added per viewer by [MatchSidebarModel.layoutFor]
  * ```
  */
 public data class SidebarModel(
     public val titleKey: MessageKey,
     public val lines: List<HudLine>,
+    /** Rows kept after the viewer footer is added; the footer is never cut, the body is. */
+    public val maxLines: Int = MatchSidebarModel.MAX_LINES,
 )
 
 public object MatchSidebarModel {
@@ -37,7 +39,7 @@ public object MatchSidebarModel {
      * Rows kept on the sidebar (the client allows 15, but a player mid-fight reads about seven): header 1, one-line
      * mode objective 1, mode body 2, viewer footer 3 (team, level, goal).
      */
-    private const val MAX_LINES: Int = 7
+    public const val MAX_LINES: Int = 7
 
     /** Lines left for the mode after header (1), objective (1) and the viewer footer (3). */
     public const val MAX_MODE_LINES: Int = MAX_LINES - 1 - 1 - 3
@@ -46,6 +48,15 @@ public object MatchSidebarModel {
     private val OBJECTIVE_MODES: Set<String> = setOf(
         "annihilation", "carry-tnt", "carry-mini-tnt", "capture-wool", "steal-jewelry", "pve-waves",
     )
+
+    /** Footer rows in the worst case: team, level, goal, next unlock. */
+    private const val MAX_FOOTER_LINES: Int = 4
+
+    /**
+     * Modes whose body must stay whole: Annihilation is played on the enemy pillars' HP, so every team's line (one per
+     * team, three in all) has to stay readable instead of being cut to fit [MAX_LINES].
+     */
+    private val WHOLE_BODY_MODES: Set<String> = setOf("annihilation")
 
     /** The viewer-independent part, built from the mode's own [IGameMode.hudStatus]. */
     public fun build(mode: IGameMode, match: Match, nowTick: Long, timeLimitTicks: Long = 0L): SidebarModel {
@@ -56,9 +67,11 @@ public object MatchSidebarModel {
             // Always-visible "what to do now": the mode's one-sentence objective.
             val modeId = mode.id().value
             if (modeId in OBJECTIVE_MODES) add(HudLine(MessageKey("astera.match.objective.$modeId.subtitle")))
-            addAll(status.lines.take(if (modeId in OBJECTIVE_MODES) MAX_MODE_LINES else MAX_MODE_LINES + 1))
+            val keep = if (modeId in WHOLE_BODY_MODES) status.lines.size else if (modeId in OBJECTIVE_MODES) MAX_MODE_LINES else MAX_MODE_LINES + 1
+            addAll(status.lines.take(keep))
         }
-        return SidebarModel(titleKey = mode.titleKey(), lines = lines)
+        val maxLines = if (mode.id().value in WHOLE_BODY_MODES) lines.size + MAX_FOOTER_LINES else MAX_LINES
+        return SidebarModel(titleKey = mode.titleKey(), lines = lines, maxLines = maxLines)
     }
 
     private fun genericPhaseLine(match: Match, nowTick: Long, timeLimitTicks: Long): HudLine {
@@ -79,7 +92,7 @@ public object MatchSidebarModel {
 
     /**
      * Resolves [model] for one viewer: team names / colours in the viewer's
-     * locale, plus the viewer's own team and star count, Norma level and goal (omitted when
+     * locale, plus the viewer's own team, Norma level with the carried star count, and goal (omitted when
      * [norma] is `null`) as the footer.
      */
     public fun layoutFor(
@@ -95,7 +108,8 @@ public object MatchSidebarModel {
                 add(toText(HudLine(MessageKey("astera.hud.sidebar.you"), team = own.id), own, viewer, messages))
             }
             if (norma != null) {
-                val levelParams = mapOf("level" to norma.level.toString(), "max" to norma.maxLevel.toString())
+                // The star count rides on the level row so it stays visible whichever goal (STAR or KILL) the player is on.
+                val levelParams = mapOf("level" to norma.level.toString(), "max" to norma.maxLevel.toString(), "stars" to norma.stars.toString())
                 add(HudComponent.Text(MessageKey("astera.hud.sidebar.level"), placeholders = levelParams))
                 if (norma.level >= norma.maxLevel) {
                     add(HudComponent.Text(MessageKey("astera.hud.sidebar.objective-max")))
@@ -103,19 +117,19 @@ public object MatchSidebarModel {
                     val key = if (norma.goal == NormaGoal.STAR) "astera.hud.sidebar.objective-star" else "astera.hud.sidebar.objective-kill"
                     add(HudComponent.Text(MessageKey(key), placeholders = mapOf("progress" to norma.progress.toString(), "target" to norma.target.toString())))
                 }
-                // What the next level opens for this player (ADR-0288): an ultimate or special they carry.
+                // What the next level opens for this player (ADR-0292): the next weapon rarity it opens.
                 norma.nextUnlock?.let {
                     add(
                         HudComponent.Text(
                             MessageKey("astera.hud.sidebar.next-unlock"),
-                            placeholders = mapOf("level" to it.level.toString(), "item" to messages.renderText(viewer, it.item)),
+                            placeholders = mapOf("level" to it.level.toString(), "rarity" to messages.render(viewer, MessageKey("astera.item.tooltip.rarity.${it.rarity.name.lowercase()}"))),
                         ),
                     )
                 }
             }
         }
         // The footer carries the viewer's Norma goal, so it is never the part that gets cut: the mode body shrinks instead.
-        val body = model.lines.take(MAX_LINES - footer.size).map { line -> toText(line, teams[line.team], viewer, messages) }
+        val body = model.lines.take(model.maxLines - footer.size).map { line -> toText(line, teams[line.team], viewer, messages) }
         return HudLayout.Sidebar(titleKey = model.titleKey, lines = body + footer)
     }
 

@@ -79,7 +79,7 @@ class PveWavesPlaythroughE2eTest : PlaythroughBase() {
             val dmg = clean(rcon("execute at ${bot.name} as @e[tag=astera_pve_mob,sort=nearest,limit=1] run attribute @s minecraft:attack_damage get"))
             val nameData = clean(rcon("execute at ${bot.name} run data get entity @e[tag=astera_pve_mob,sort=nearest,limit=1] CustomName"))
             val kinds = clean(rcon("execute at ${bot.name} run data get entity @e[tag=astera_pve_mob,sort=nearest,limit=1] id"))
-            assertThat(first).describedAs("Astera max HP 18 (dark-zombie)").containsAnyOf("18.0f", "18.0")
+            assertThat(first).describedAs("Astera max HP 90 (dark-zombie, 18 x5 with the 100 HP rebalance)").containsAnyOf("90.0f", "90.0")
             assertThat(dmg).describedAs("Astera melee damage 3.5").contains("3.5")
             assertThat(nameData).describedAs("Astera display name").contains("Dark Zombie")
             val clientSaw = bot.spawnedEntityTypes.keys.filter { it.contains("ZOMBIE", true) || it.contains("SPIDER", true) }

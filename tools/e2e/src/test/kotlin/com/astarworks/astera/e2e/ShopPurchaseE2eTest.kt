@@ -125,7 +125,7 @@ class ShopPurchaseE2eTest : E2eBase() {
         var draughtSlot = -1
 
         E2eReport.check(suite, "buying the healing draught (40 GOLD, no confirm below 100) drops GOLD to 60 and delivers it", "SystemChat + RCON balance + inventory") {
-            draughtSlot = slotWithLore(b, s, "restore 8 HP")
+            draughtSlot = slotWithLore(b, s, "restore 40 HP")
             assertThat(b.contents[s.containerId]!![draughtSlot].lore).describedAs("draught offer price").contains("Price: 40 GOLD")
             val chatFrom = b.chat.size
             click(b, s, draughtSlot)

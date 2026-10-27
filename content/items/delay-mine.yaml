@@ -1,0 +1,33 @@
+# Match arsenal (wp/match-arsenal, batch 2): Timed Mine.
+
+id: delay-mine
+
+material: TRIPWIRE_HOOK
+
+name:
+  ja: "時限地雷"
+  en: "Timed Mine"
+lore:
+  ja:
+    - "<gray>右クリック: 前方に設置 (2.5秒後に爆発)</gray>"
+  en:
+    - "<gray>Right-click: plant ahead (detonates in 2.5s)</gray>"
+
+rarity: uncommon
+level_requirement: 1
+
+attributes:
+  attack_damage: 1.0
+  attack_speed: 1.0
+
+equip_slot: mainhand
+
+resource_type: energy
+resource_cost_per_use: 10
+
+skills:
+  - trigger: right_click
+    skill_id: delay-mine-lay
+
+pdc_tags:
+  astera:rarity: uncommon

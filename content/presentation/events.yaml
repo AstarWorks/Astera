@@ -106,18 +106,9 @@ moments:
     title_stay_ticks: 80
     particle: norma-level-max
   norma-locked:
-    # A gated item action used below its Norma level (ADR-0288): deny sound and the level it unlocks at.
+    # A weapon used below the Norma level its rarity opens at (ADR-0292): deny sound and "Lv N で <rarity> 解放".
     cue: "astera:ui/deny"
     action_bar: "astera.match.norma-locked.bar"
-  norma-choice-open:
-    # Sound only: the picker GUI opens in the same tick and covers any title (the GUI's own title and lore say what to do).
-    cue: "astera:norma/choice-open"
-  norma-choice-picked:
-    cue: "astera:norma/choice-picked"
-    action_bar: "astera.match.norma-choice.picked.{kind}"
-  norma-choice-defaulted:
-    cue: "astera:norma/choice-defaulted"
-    action_bar: "astera.match.norma-choice.defaulted.{kind}"
 
   # Objective modes (carry-tnt / carry-mini-tnt / steal-jewelry): pickup, drop, return, delivery and the gate warning.
   # Subjects are the players concerned, each reads {item} in their language; delivery plays for the scoring team, the

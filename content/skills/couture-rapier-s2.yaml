@@ -1,7 +1,7 @@
 # Couturier's Shears S2 (型紙裁ち, Pattern Trim): reference GIe7Fna5LD4 t=25.947..31.498. Beat sheet: tools/skill-compare/data/couture-rapier-s2/beat-sheet/beat-sheet.md (r1, gate 1 passed 2026-10-27).
-# Three effect-driven coins: t9 white crescent ring + thin line, t41 three shears converge from above (ONE shears model flies; founder Q2=B), t72 back-turned dash through the enemy with a clockwise 180 deg turn in the smear (Q1=A).
+# Three effect-driven coins: t9 white crescent ring + thin line, t34 the shears split overhead into THREE objects (body + two separate blades) that fly side by side as three real projectiles and stick in the enemy; a pink thread links hand and target and pulls them back, t72 back-turned dash through the enemy with a clockwise 180 deg turn in the smear (Q1=A).
 # Remote hits (t9, t41) are fixed at the cast-time pose and hit whoever stands on the line (Q3=A: no homing, dodgeable). Hit area = visual reach (cone 24 deg / 7 blocks; the line / shears fly ~5.4).
-# The performance rig couture-s2-rig hides the held item for its whole length: the hand shears model is shown t0-21 and t63+, the flying shears t22-58, the other blades / linked shears are flat VFX only.
+# The performance rig couture-s2-rig hides the held item t20-57: hand shears t0-19 and t57+, the three overhead objects t22-34, the three flying projectiles t34+.
 id: couture-rapier-s2
 name: {ja: 型紙裁ち, en: Pattern Trim}
 description:
@@ -28,6 +28,15 @@ phases:
   # coin 2 (ADR-0287): the shears are a REAL projectile (couture-rapier-s2-shears): leave from overhead at t34, fly in 3D with entity/block collision,
   # stick in what they hit. Damage, the burst and the stuck shears fire only from its hit_entity phase; a miss flies to max range and pops where it ends.
   - {type: cast_skill, targets: {type: caster}, skill_id: couture-rapier-s2-shears, delay_ticks: {type: literal, value: 34}}
+  - {type: cast_skill, targets: {type: caster}, skill_id: couture-rapier-s2-blade-a, delay_ticks: {type: literal, value: 34}}
+  - {type: cast_skill, targets: {type: caster}, skill_id: couture-rapier-s2-blade-b, delay_ticks: {type: literal, value: 34}}
+  # the pink thread: a 3D line caster hand -> live target (target_line), exists from the throw, holds while the three objects fly and stick, then pulls them back.
+  - type: for_each_target
+    targets: {type: cone, from: {type: caster}, direction: {type: from_caster}, distance: {type: literal, value: 9}, angle_degrees: {type: literal, value: 30}, max_count: 1}
+    snapshot_pose: true
+    delay_ticks: {type: literal, value: 35}
+    mechanics:
+    - {type: play_vfx, targets: {type: caster}, vfx_id: couture-s2-thread, track_bound_target: true}
   - {type: play_vfx, targets: {type: caster}, vfx_id: couture-s2-haze, delay_ticks: {type: literal, value: 3}, follow: {type: literal, value: true}}
   - {type: play_vfx, targets: {type: caster}, vfx_id: couture-s2-trail, delay_ticks: {type: literal, value: 15}, follow: {type: literal, value: true}}
   - {type: play_vfx, targets: {type: caster}, vfx_id: couture-s2-dash, delay_ticks: {type: literal, value: 70}, follow: {type: literal, value: true}}

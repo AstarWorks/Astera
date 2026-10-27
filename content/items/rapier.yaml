@@ -1,0 +1,37 @@
+# Match arsenal (wp/match-arsenal, batch 2): Rapier.
+
+id: rapier
+
+material: STONE_SWORD
+
+name:
+  ja: "レイピア"
+  en: "Rapier"
+lore:
+  ja:
+    - "<gray>左クリック: 素早い突き</gray>"
+    - "<gray>スニーク + 右クリック: 受け流し (後退 + 加速)</gray>"
+  en:
+    - "<gray>Left-click: fast thrust</gray>"
+    - "<gray>Sneak + right-click: parry step (back + sprint)</gray>"
+
+rarity: uncommon
+level_requirement: 1
+
+attributes:
+  attack_damage: 2.0
+  attack_speed: 2.6
+
+equip_slot: mainhand
+
+resource_type: energy
+resource_cost_per_use: 6
+
+skills:
+  - trigger: left_click
+    skill_id: rapier-thrust
+  - trigger: sneak_right
+    skill_id: rapier-sidestep
+
+pdc_tags:
+  astera:rarity: uncommon

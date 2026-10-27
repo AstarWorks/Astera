@@ -32,7 +32,7 @@ class ModePlanner(
     }
 
     /** Where to go: [kind] is one of `pickup`, `bank`, `tnt`, `deliver`, `jewel`, `wool`, `recover`. */
-    data class Step(val zone: String, val x: Double, val y: Double, val z: Double, val arrive: Double, val kind: String, val breakable: Boolean = false)
+    data class Step(val zone: String, val x: Double, val y: Double, val z: Double, val arrive: Double, val kind: String)
 
     // Inferred state (the server does not tell a client what it carries).
     var carried = 0; private set
@@ -122,8 +122,8 @@ class ModePlanner(
         else -> null
     }
 
-    private fun step(zone: String, kind: String, arrive: Double, breakable: Boolean = false): Step? =
-        zones.point(zone)?.let { Step(zone, it.first, it.second, it.third, arrive, kind, breakable) }
+    private fun step(zone: String, kind: String, arrive: Double): Step? =
+        zones.point(zone)?.let { Step(zone, it.first, it.second, it.third, arrive, kind) }
 
     private fun reached(s: Step, x: Double, z: Double) = hypot(s.x - x, s.z - z) <= s.arrive
 

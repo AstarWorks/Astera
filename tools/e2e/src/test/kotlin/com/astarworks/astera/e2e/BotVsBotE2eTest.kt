@@ -8,8 +8,8 @@ import org.junit.jupiter.api.Test
 /**
  * ADR-0247: two AI bots (real protocol clients driven by [BotBrain], the same code the `bot-runner` service uses) play
  * a whole Norma 1v1 against each other. Nothing is forced over RCON: the AI has to find the enemy, walk to it, swing /
- * shoot, kill it, survive the death cam and respawn until the match ends on its own (content timers are shortened by
- * docker/e2e-tune-content.sh: top Norma level (3 levels) or 150 s). Then: a winner is declared, summary and rewards arrive, both bots are
+ * shoot, kill it, survive the death cam and respawn until the clock ends the match on its own (content timers are shortened by
+ * docker/e2e-tune-content.sh: the carry-tnt clock, 240 s). Then: a winner is declared, summary and rewards arrive, both bots are
  * back in the lobby.
  *
  * The only RCON use is read-only (`astera match list`, `data get entity`) plus handing out the starter weapons when a
@@ -156,21 +156,14 @@ class BotVsBotE2eTest : PlaythroughBase() {
         // --- a winner, rewards, back in the lobby ----------------------------------------------------------------
         bots.forEach { b -> b.waitUntil(40_000) { b.hotbar()[8] != -1 && b.sidebarTitle() == lobbyTitle } }
         val chats = bots.associateWith { b -> b.chat.drop(chatFrom.getValue(b)).map { clean(it.text) } }
-        E2eReport.check(suite, "a winner is declared: the summary names a team and the scores differ", "SystemChat") {
+        E2eReport.check(suite, "a winner is declared: the time-limit summary names the team that was ahead", "SystemChat") {
             val summary = chats.getValue(bots[0])
-            val reason = summary.firstOrNull { it.contains("was ahead") || it.contains("reached Norma level") }
+            val reason = summary.firstOrNull { it.contains("was ahead") }
             val score = summary.firstOrNull { it.startsWith("Score") }.orEmpty()
             assertThat(reason).describedAs("no winner reason (draw?):\n${quote(summary, 40)}").isNotNull()
-            if (reason!!.contains("Norma level")) {
-                // Won on Norma levels (stars or kills): the winner need not lead on the kill score.
-                assertThat(reason).describedAs("level win names no team").containsPattern("Red|Blue")
-                return@check "reason='$reason'; score='$score' (level win)"
-            }
-            val numbers = Regex("(Red|Blue)\\D*(\\d+)").findAll(score).associate { it.groupValues[1] to it.groupValues[2].toInt() }
-            assertThat(numbers.values.toSet().size).describedAs("scores tied: '$score'").isGreaterThan(1)
-            val winner = numbers.maxByOrNull { it.value }?.key
-            assertThat(reason).describedAs("reason does not name the leading team $winner").contains(winner!!)
-            "reason='$reason'; score='$score'; winner=$winner"
+            // The clock ranks the teams by the objective, then stars carried, then kills: the score line may read 0-0 on deliveries.
+            assertThat(reason).describedAs("winner reason names no team").containsPattern("Red|Blue")
+            "reason='$reason'; score='$score'"
         }
         checkEnding(suite, bots, chatFrom, lobbyTitle)
         E2eReport.check(suite, "server log stayed free of errors during the match", "server log") {

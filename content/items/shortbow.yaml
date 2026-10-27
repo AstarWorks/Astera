@@ -1,0 +1,37 @@
+# Match arsenal (wp/match-arsenal, batch 2): Shortbow.
+
+id: shortbow
+
+material: BOW
+
+name:
+  ja: "ショートボウ"
+  en: "Shortbow"
+lore:
+  ja:
+    - "<gray>右クリック: 速射</gray>"
+    - "<gray>スニーク + 右クリック: 足止めの矢</gray>"
+  en:
+    - "<gray>Right-click: quick shot</gray>"
+    - "<gray>Sneak + right-click: snare arrow</gray>"
+
+rarity: uncommon
+level_requirement: 1
+
+attributes:
+  attack_damage: 1.0
+  attack_speed: 1.0
+
+equip_slot: mainhand
+
+resource_type: energy
+resource_cost_per_use: 6
+
+skills:
+  - trigger: right_click
+    skill_id: shortbow-arrow
+  - trigger: sneak_right
+    skill_id: shortbow-snare
+
+pdc_tags:
+  astera:rarity: uncommon
