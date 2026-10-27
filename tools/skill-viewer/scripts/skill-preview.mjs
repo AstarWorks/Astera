@@ -52,17 +52,15 @@ const intent = readJson(join(caseDir, kase.intent?.file ?? 'intent.json'));
 // (front | back | opposite | high45 | back45 | eye | top); vfx-shot CAMERA=<name> films the same camera. Default = intent.camera.
 const cameraPreset = [args.camera, args.view].find((v) => v && v !== true && v !== 'compare') ?? null;
 let keys = intent.camera ?? [];
-if (cameraPreset === 'side') {
-  // fixed SIDE camera (skill-compare "side" slot): caster faces screen-right toward the enemy, camera on the caster's right (+z in intent
-  // units; looking -z, screen-right = +x), framed on the whole travel (caster path, enemy), vertical FOV 45, no cuts. The sim caster
-  // moves along sim +z which the viewer rotates onto compare +x. A case `mirrored` flag is only recorded: this view always faces right.
-  const xs = [-1.2, ...(plan.caster ?? []).map((c) => c.pos?.[2] ?? 0)];
-  const e = (intent.actors ?? []).find((a) => a.id === 'enemy')?.keys?.[0]?.pos;
-  if (e) xs.push(e[0]);
-  const lo = Math.min(...xs), hi = Math.max(...xs), halfW = (hi - lo) / 2 + 2.2;
-  const dist = Math.max(5.5, halfW / (Math.tan((22.5 * Math.PI) / 180) * (1280 / 720)));
-  const cx = (lo + hi) / 2;
-  keys = [{ t: 0, pos: [cx, 1.5, dist], target: [cx, 1.0, 0], fov: 45 }];
+let sideEnemy = null;
+if (cameraPreset === 'side' && !intent.camera_presets?.side) {
+  // SIDE camera = the capture farm's side view (tools/vfx-shot/vfx-shot.sh orbit_cam "side" + DISTANCE=4 + FOV=90), so the preview and the
+  // real capture compare frame for frame: spectator 6 blocks off the caster's right (+z in intent units, screen-right = forward), half the
+  // caster->target distance ahead, eye height 1.0 above the caster's feet, looking straight across with pitch 8 degrees down, vertical fov 90.
+  // The enemy husk stands at the farm's DISTANCE ahead. A case that wants the reference framing defines intent.camera_presets.side.
+  const SIDE_DISTANCE = 4, SIDE_OFF = 6, SIDE_EYE = 1.0, SIDE_PITCH = 8;
+  keys = [{ t: 0, pos: [SIDE_DISTANCE / 2, SIDE_EYE, SIDE_OFF], target: [SIDE_DISTANCE / 2, SIDE_EYE - SIDE_OFF * Math.tan((SIDE_PITCH * Math.PI) / 180), 0], fov: 90 }];
+  sideEnemy = [SIDE_DISTANCE, 0, 0];
 } else if (cameraPreset) {
   if (intent.camera_presets?.[cameraPreset]) keys = intent.camera_presets[cameraPreset];
   else {
@@ -74,7 +72,7 @@ if (cameraPreset === 'side') {
 if (!keys.length) { console.error(`case ${caseId}: intent has no camera keys`); process.exit(2); }
 const actor = (id) => (intent.actors ?? []).find((a) => a.id === id)?.keys?.[0]?.pos;
 const casterOrigin = actor('caster') ?? [0, 0, 0];
-const enemyPos = actor('enemy');
+const enemyPos = sideEnemy ?? actor('enemy');
 const duration = intent.duration_ticks ?? 60;
 const [tFrom, tTo] = String(args.ticks ?? `0-${duration}`).split('-').map(Number);
 const [W, H] = String(args.size ?? '1280x720').split('x').map(Number);
@@ -88,7 +86,7 @@ const jar = process.env.ASTERA_MC_JAR || join(homedir(), '.cache/astera-vfx-shot
 const jarFile = (entry) => { try { return execFileSync('unzip', ['-p', jar, entry], { maxBuffer: 1 << 24 }); } catch { return null; } };
 const bytesUrl = (b) => 'data:image/png;base64,' + b.toString('base64');
 const warnings = [...(plan.notes ?? []),
-  'プレビュー非対応: 実クライアントとの差 — カメラは参照動画の固定カメラ(実機の視点・画角とは異なる)で、フラット(水平)板は横から細線に見える。ワールド空間スプライトは実寸、タイミングは計画tickのまま(実機キャプチャと1〜2tickずれることがある)',
+  'プレビュー非対応: 農場キャプチャとの時間差 — プレビューはサーバーの計画tick(delay_ticks + 要素start_tick)で、農場キャプチャのフレーム番号は fx で約1〜2 tick 早く見える(S3: slam burst 計画64/実機62、thrust flash 41/39)。tick を数えるときは同じ基準で比べること',
 ...(args.warn && args.warn !== true ? String(args.warn).split("||") : [])];
 
 let skin;
