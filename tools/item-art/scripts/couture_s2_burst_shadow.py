@@ -62,23 +62,31 @@ def star():
         tri(da, 128, 128, ang, L, hw)
         tri(db, 128, 128, ang, L + 5, hw + 2.2)
     disc(da, 128, 128, 22); disc(db, 128, 128, 27)
-    return rgba(down(ca), down(cb) * 0.9, (255, 255, 252), (255, 176, 70))
+    return rgba(down(ca), down(cb) * 0.9, (255, 255, 252), (255, 255, 255))
 
 
 def plume():
     rnd = random.Random(11)
     ca, cb = canvas(), canvas()
     da, db = ImageDraw.Draw(ca), ImageDraw.Draw(cb)
-    n = 17
+    n = 30
     for i in range(n):
-        ang = math.radians(-26 + 52 * i / (n - 1) + rnd.uniform(-1.2, 1.2))
+        ang = math.radians(-27 + 54 * i / (n - 1) + rnd.uniform(-1.2, 1.2))
         mid = 1 - abs(i - (n - 1) / 2) / ((n - 1) / 2)
-        L = 84 + 40 * mid * rnd.uniform(0.85, 1.0) - (26 if i % 2 else 0)
-        hw = rnd.uniform(3.2, 5.0)
+        L = 96 + 28 * mid * rnd.uniform(0.85, 1.0) - (rnd.choice([0, 18, 34]) if i % 2 else 0)
+        hw = rnd.uniform(2.6, 4.2)
         tri(da, 128, 128, ang, L, hw, r0=0, grow=0.8)
         tri(db, 128, 128, ang, L + 4, hw + 1.6, r0=0, grow=0.8)
     disc(da, 128, 128, 8); disc(db, 128, 128, 11)
-    return rgba(down(ca), down(cb) * 0.9, (255, 255, 252), (255, 176, 70))
+    return rgba(down(ca), down(cb) * 0.9, (255, 255, 252), (255, 255, 255))
+
+
+def shard():
+    """fat pointed kite, tip at +x, centre at (128,128)."""
+    ca = canvas(); da = ImageDraw.Draw(ca)
+    pts = [(24, 128), (70, 100), (230, 128), (70, 156)]
+    da.polygon([(x * SS, y * SS) for x, y in pts], fill=255)
+    return rgba(down(ca), down(ca), (255, 255, 255), (255, 255, 255))
 
 
 def shadow():
@@ -104,6 +112,6 @@ def shadow():
 
 
 if __name__ == "__main__":
-    for name, im in (("burst-star", star()), ("burst-plume", plume()), ("shadow-spikes", shadow())):
+    for name, im in (("burst-star", star()), ("burst-plume", plume()), ("burst-shard", shard()), ("shadow-spikes", shadow())):
         im.save(os.path.join(OUT, f"couture-s2-{name}.png"))
         print(name, im.size)

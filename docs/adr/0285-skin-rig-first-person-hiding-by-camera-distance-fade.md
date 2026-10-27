@@ -49,6 +49,19 @@ F5, which is what this ADR avoids.
 - **Guess the perspective from packets**: none exist.
 - **Head-only drop in the vertex shader** (previous rule): leaves torso/legs/arms blocking the view.
 
+## Merge with ADR-0284 (ghost_body)
+
+- ADR-0284's vertex-shader head-drop rule (`rigPart = -2`) is removed. The
+  camera-distance fade already covers the head, so one mechanism handles
+  first-person hiding. No `-2` sentinel remains in either shader.
+- The fade classifies bones by `rigPart & 7`, so the slim (+8) and ghost
+  (+16) flags do not affect it. `rigViewPos` is emitted for every rig part.
+- Ghost bones fade near the camera too: an afterimage overlapping the camera
+  blocks the view equally. The dither discard works in the translucent pass.
+- Re-verified after the merge with `make rig-fade-shot` on
+  `anim-demo-sword-swing` (no regression) and `couture-rapier-s2` (ghost tint
+  and slim/ghost UV remap intact).
+
 ## Verification
 
 `make rig-fade-shot` (real client, `tools/vfx-shot/rig-fade-shot.sh`, skill `anim-demo-sword-swing`, FOV effects off so

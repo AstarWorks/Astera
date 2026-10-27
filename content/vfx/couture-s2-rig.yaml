@@ -43,7 +43,7 @@ rigs:
   weapon_model:
   - t: 0
     model: astera:couture-rapier
-  - t: 21
+  - t: 20
     model: astera:couture-rapier-hidden
   - t: 57
     model: astera:couture-rapier
