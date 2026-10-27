@@ -41,6 +41,7 @@ import java.util.UUID
  *    on the spec's template are merged in.
  *  - `custom_model_data` for resource-pack-driven visuals, and the `item_model` component
  *    (`astera:<id>`) for items the pack has generated art for (see [com.astarworks.astera.core.application.service.item.ItemModelCatalog]).
+ *  - `tooltip_style` (`astera:<rarity>`) for every Astera stack, including GUI icons.
  *  - [ItemAttributes] mapped to Bukkit `AttributeModifier`s, scoped to the
  *    spec's [EquipSlot].
  *  - [com.astarworks.astera.core.domain.item.DurabilityPolicy] — `unbreakable`
@@ -85,6 +86,7 @@ public class PaperItemMaterializer(
         val blueprint = blueprints.build(spec, viewerId)
         val stack = baseStack(blueprint, amount)
         applyMeta(stack, blueprint)
+        stack.editMeta { it.tooltipStyle = NamespacedKey("astera", spec.rarity.name.lowercase()) }
         return stack
     }
 
@@ -92,7 +94,7 @@ public class PaperItemMaterializer(
     public fun rescanModels(): Unit = blueprints.rescanModels()
 
     /**
-     * Re-apply the visual half of [spec] (display name, lore, `item_model`, custom model data) to an
+     * Re-apply the visual half of [spec] (display name, lore, models and tooltip style) to an
      * existing stack in place (F3-9, ADR-0224). Everything per-instance (refinement, enchants,
      * damage, PDC state) and the base material stay untouched, so a held item picks up an edited
      * item YAML text or new art without being re-given. Returns whether anything changed.
@@ -103,6 +105,7 @@ public class PaperItemMaterializer(
         stack.editMeta { meta ->
             meta.displayName(fresh.displayName())
             meta.lore(fresh.lore())
+            meta.tooltipStyle = fresh.tooltipStyle
             if (fresh.hasItemModel()) meta.itemModel = fresh.itemModel
             @Suppress("DEPRECATION")
             if (fresh.hasCustomModelData()) meta.setCustomModelData(fresh.customModelData)
