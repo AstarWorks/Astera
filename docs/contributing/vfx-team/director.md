@@ -50,6 +50,14 @@ Two S3 rounds were lost to a +1 tick "fix" made from a mislabelled capture, and 
 - Choreography file `content/vfx/<id>.yaml` (ADR-0220). Rig with `follow: false` for weapon swings. `play_vfx` `freeze: [{at, ticks}]` stops rigs that set `respect_hit_stop: true`.
 - Layering order from [vfx-art-direction.md](../vfx-art-direction.md) section 4: telegraph -> motion -> hit -> afterglow. Core opaque (Sakurai), glow as accent, dark mixed with bright.
 
+## Comparing rounds: use the comparison API, not hand-made crops
+
+Reviewers and directors MUST compare with `GET /api/cases/<id>/compare?ticks=..&views=ref,side,top,preview-side&rounds=current,prev` and
+`.../sheet.png` (same params; `http://127.0.0.1:8097`), never with hand-cropped or PIL contact sheets. The API aligns reference and in-game frames by the
+case's tick mapping, labels revision/sha/age/failure on every row, and returns fx coverage, brightness and regression flags (and caster travel /
+final gap when the capture has `trace.log`). Quote its numbers and sheet URL in the report; a `regression: true` is a finding to route, not to ignore.
+See [skill-compare README](../../../tools/skill-compare/README.md) "Comparison API".
+
 ## Runtime facts and pitfalls (confirmed)
 
 - Font sprites render only up to 256 px; 512 px fails. (Commit `ee976100` on `wp/pilot-bastion-s1`: "512px sprites do not render in the real client (font page limit); 256px with 2x2 supersampled edges is the working maximum.")
@@ -170,3 +178,4 @@ Two S3 rounds were lost to a +1 tick "fix" made from a mislabelled capture, and 
 - 2026-10-27 couture S2 r1: the vfx-shot ghost-fix (caster scale 0.0625) shrank effect geometry and targets; sprites/quads vanished while particles stayed (reverted on main af2ff6135). If sprites vanish after a merge, check capture-script changes before editing content.
 - 2026-10-27 couture S2 r1: `publish-capture.mjs` with an empty root writes into cwd; always pass the published root. Round notes: `make skill-round SKILL=... FILE=.../beat-sheet/round.md`.
 - 2026-10-27 couture-s2 r4: settle direction disputes by extracting the reference frame (ffmpeg -ss 26.593233+tick/20) before touching content; mirroring a world-orient fan = negate translate z and rot z. A full-screen flash is a 16x9 billboard quad, alpha 0.9, 4 ticks, at the cast-time hit VFX. Rewriting a YAML through PyYAML explodes the diff (flow lists become block lists) but validates fine. Side/top captures crop the enemy's feet, so ground shadows cannot be verified there; needs a lower/wider camera in the capture tool.
+- 2026-10-27 S3 r7 RULE: every round compare the new capture with the PREVIOUS round's capture at the same ticks (not only the ref); never ship anything weaker (size, brightness, contrast, opaque coverage). "Smooth edges" passes (r5) dropped coverage/luminance; measure sprite opaque coverage and mean luminance vs the last good commit. Geometry changes (dash stop 1.8 short) move impact fx: thrust flash/tip must sit at the enemy (z 1.8 from the dash end), beam >= 4.5 blocks.

@@ -103,7 +103,7 @@ def make_pillar():
     wob_y = wob[np.clip((Y * SS).astype(int), 0, n - 1)]
     u = np.abs(X - N / 2 + wob_y * 0.6) / half  # 0 centre .. 1 edge
     # vertical envelope: hard base, soft top
-    top = smooth((Y - 4) / 90.0)
+    top = smooth((Y - 1) / 12.0)  # r7: full height bright, only the last 12 px fade (r5/r6 faded the top 35%)
     bot = soft((N - 6) - Y, 1.2)
     env = top * bot
     d = (1.0 - u) * half  # px inside the outer edge
@@ -113,7 +113,7 @@ def make_pillar():
     dst = comp(dst, hexc("#F2B31F"), soft(d - 3, 0.9) * env)
     dst = comp(dst, hexc("#FFE45A"), soft(d - 18, 5.0) * env)
     dst = comp(dst, hexc("#FFF6C8"), soft(d - 46, 8.0) * env)
-    dst = comp(dst, hexc("#FFFFFF"), soft(d - 72, 8.0) * env * 0.97)
+    dst = comp(dst, hexc("#FFFFFF"), soft(d - 62, 8.0) * env * 0.99)
     # faint vertical streaks in the body for the electric look
     g = noise1d(n, np.random.default_rng(3), 22, 2)[np.clip((X * SS).astype(int), 0, n - 1)]
     dst[..., :3] *= (0.97 + 0.06 * (g[..., None] - 0.5) * 2)

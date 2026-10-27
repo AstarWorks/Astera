@@ -7,215 +7,533 @@ follow: true
 sample_ticks: 1
 elements:
 - id: streak-0
-  kind: {type: sprite, sprite: couture-s2-smear, frame_ticks: 1, loop: false, see_through: true}
+  kind:
+    type: sprite
+    sprite: couture-s2-smear
+    frame_ticks: 1
+    loop: false
+    see_through: true
   billboard: center
   brightness: 15
   start_tick: 0
   end_tick: 3
   keyframes:
   - t: 0
-    translate: [0.0, 0.1, -1.5]
-    rotate: [0, 0, 2]
-    scale: [10.4, 0.101, 1]
+    translate:
+    - 0.0
+    - 0.1
+    - -1.5
+    rotate:
+    - 0
+    - 0
+    - 2
+    scale:
+    - 10.4
+    - 0.101
+    - 1
   - t: 1
-    translate: [0.0, 0.1, 3.5]
-    rotate: [0, 0, 2]
-    scale: [26, 0.504, 1]
+    translate:
+    - 0.0
+    - 0.1
+    - 3.5
+    rotate:
+    - 0
+    - 0
+    - 2
+    scale:
+    - 26
+    - 0.504
+    - 1
     ease: out_expo
   - t: 3
-    translate: [0.0, 0.1, 10.0]
-    rotate: [0, 0, 2]
-    scale: [26, 0.018, 1]
+    translate:
+    - 0.0
+    - 0.1
+    - 10.0
+    rotate:
+    - 0
+    - 0
+    - 2
+    scale:
+    - 26
+    - 0.018
+    - 1
     ease: in_quad
 - id: streak-1
-  kind: {type: sprite, sprite: couture-s2-smear, frame_ticks: 1, loop: false, see_through: true}
+  kind:
+    type: sprite
+    sprite: couture-s2-smear
+    frame_ticks: 1
+    loop: false
+    see_through: true
   billboard: center
   brightness: 15
   start_tick: 1
   end_tick: 4
   keyframes:
   - t: 0
-    translate: [0.0, 0.5, -1.5]
-    rotate: [0, 0, 2]
-    scale: [12.8, 0.072, 1]
+    translate:
+    - 0.0
+    - 0.5
+    - -1.5
+    rotate:
+    - 0
+    - 0
+    - 2
+    scale:
+    - 12.8
+    - 0.072
+    - 1
   - t: 1
-    translate: [0.0, 0.5, 3.5]
-    rotate: [0, 0, 2]
-    scale: [32, 0.36, 1]
+    translate:
+    - 0.0
+    - 0.5
+    - 3.5
+    rotate:
+    - 0
+    - 0
+    - 2
+    scale:
+    - 32
+    - 0.36
+    - 1
     ease: out_expo
   - t: 3
-    translate: [0.0, 0.5, 10.0]
-    rotate: [0, 0, 2]
-    scale: [32, 0.018, 1]
+    translate:
+    - 0.0
+    - 0.5
+    - 10.0
+    rotate:
+    - 0
+    - 0
+    - 2
+    scale:
+    - 32
+    - 0.018
+    - 1
     ease: in_quad
 - id: streak-2
-  kind: {type: sprite, sprite: couture-s2-smear, frame_ticks: 1, loop: false, see_through: true}
+  kind:
+    type: sprite
+    sprite: couture-s2-smear
+    frame_ticks: 1
+    loop: false
+    see_through: true
   billboard: center
   brightness: 15
   start_tick: 2
   end_tick: 5
   keyframes:
   - t: 0
-    translate: [0.0, 0.9, -1.5]
-    rotate: [0, 0, 2]
-    scale: [14.4, 0.13, 1]
+    translate:
+    - 0.0
+    - 0.9
+    - -1.5
+    rotate:
+    - 0
+    - 0
+    - 2
+    scale:
+    - 14.4
+    - 0.13
+    - 1
   - t: 1
-    translate: [0.0, 0.9, 3.5]
-    rotate: [0, 0, 2]
-    scale: [36, 0.648, 1]
+    translate:
+    - 0.0
+    - 0.9
+    - 3.5
+    rotate:
+    - 0
+    - 0
+    - 2
+    scale:
+    - 36
+    - 0.648
+    - 1
     ease: out_expo
   - t: 3
-    translate: [0.0, 0.9, 10.0]
-    rotate: [0, 0, 2]
-    scale: [36, 0.018, 1]
+    translate:
+    - 0.0
+    - 0.9
+    - 10.0
+    rotate:
+    - 0
+    - 0
+    - 2
+    scale:
+    - 36
+    - 0.018
+    - 1
     ease: in_quad
 - id: streak-3
-  kind: {type: sprite, sprite: couture-s2-smear, frame_ticks: 1, loop: false, see_through: true}
+  kind:
+    type: sprite
+    sprite: couture-s2-smear
+    frame_ticks: 1
+    loop: false
+    see_through: true
   billboard: center
   brightness: 15
   start_tick: 0
   end_tick: 3
   keyframes:
   - t: 0
-    translate: [0.0, 1.3, -1.5]
-    rotate: [0, 0, 2]
-    scale: [12.0, 0.086, 1]
+    translate:
+    - 0.0
+    - 1.3
+    - -1.5
+    rotate:
+    - 0
+    - 0
+    - 2
+    scale:
+    - 12.0
+    - 0.086
+    - 1
   - t: 1
-    translate: [0.0, 1.3, 3.5]
-    rotate: [0, 0, 2]
-    scale: [30, 0.432, 1]
+    translate:
+    - 0.0
+    - 1.3
+    - 3.5
+    rotate:
+    - 0
+    - 0
+    - 2
+    scale:
+    - 30
+    - 0.432
+    - 1
     ease: out_expo
   - t: 3
-    translate: [0.0, 1.3, 10.0]
-    rotate: [0, 0, 2]
-    scale: [30, 0.018, 1]
+    translate:
+    - 0.0
+    - 1.3
+    - 10.0
+    rotate:
+    - 0
+    - 0
+    - 2
+    scale:
+    - 30
+    - 0.018
+    - 1
     ease: in_quad
 - id: streak-4
-  kind: {type: sprite, sprite: couture-s2-smear, frame_ticks: 1, loop: false, see_through: true}
+  kind:
+    type: sprite
+    sprite: couture-s2-smear
+    frame_ticks: 1
+    loop: false
+    see_through: true
   billboard: center
   brightness: 15
   start_tick: 1
   end_tick: 4
   keyframes:
   - t: 0
-    translate: [0.0, 1.7, -1.5]
-    rotate: [0, 0, 2]
-    scale: [15.200000000000001, 0.115, 1]
+    translate:
+    - 0.0
+    - 1.7
+    - -1.5
+    rotate:
+    - 0
+    - 0
+    - 2
+    scale:
+    - 15.200000000000001
+    - 0.115
+    - 1
   - t: 1
-    translate: [0.0, 1.7, 3.5]
-    rotate: [0, 0, 2]
-    scale: [38, 0.576, 1]
+    translate:
+    - 0.0
+    - 1.7
+    - 3.5
+    rotate:
+    - 0
+    - 0
+    - 2
+    scale:
+    - 38
+    - 0.576
+    - 1
     ease: out_expo
   - t: 3
-    translate: [0.0, 1.7, 10.0]
-    rotate: [0, 0, 2]
-    scale: [38, 0.018, 1]
+    translate:
+    - 0.0
+    - 1.7
+    - 10.0
+    rotate:
+    - 0
+    - 0
+    - 2
+    scale:
+    - 38
+    - 0.018
+    - 1
     ease: in_quad
 - id: streak-5
-  kind: {type: sprite, sprite: couture-s2-smear, frame_ticks: 1, loop: false, see_through: true}
+  kind:
+    type: sprite
+    sprite: couture-s2-smear
+    frame_ticks: 1
+    loop: false
+    see_through: true
   billboard: center
   brightness: 15
   start_tick: 2
   end_tick: 5
   keyframes:
   - t: 0
-    translate: [0.0, 2.1, -1.5]
-    rotate: [0, 0, 2]
-    scale: [11.200000000000001, 0.079, 1]
+    translate:
+    - 0.0
+    - 2.1
+    - -1.5
+    rotate:
+    - 0
+    - 0
+    - 2
+    scale:
+    - 11.200000000000001
+    - 0.079
+    - 1
   - t: 1
-    translate: [0.0, 2.1, 3.5]
-    rotate: [0, 0, 2]
-    scale: [28, 0.396, 1]
+    translate:
+    - 0.0
+    - 2.1
+    - 3.5
+    rotate:
+    - 0
+    - 0
+    - 2
+    scale:
+    - 28
+    - 0.396
+    - 1
     ease: out_expo
   - t: 3
-    translate: [0.0, 2.1, 10.0]
-    rotate: [0, 0, 2]
-    scale: [28, 0.018, 1]
+    translate:
+    - 0.0
+    - 2.1
+    - 10.0
+    rotate:
+    - 0
+    - 0
+    - 2
+    scale:
+    - 28
+    - 0.018
+    - 1
     ease: in_quad
 - id: streak-6
-  kind: {type: sprite, sprite: couture-s2-smear, frame_ticks: 1, loop: false, see_through: true}
+  kind:
+    type: sprite
+    sprite: couture-s2-smear
+    frame_ticks: 1
+    loop: false
+    see_through: true
   billboard: center
   brightness: 15
   start_tick: 0
   end_tick: 3
   keyframes:
   - t: 0
-    translate: [0.0, 2.5, -1.5]
-    rotate: [0, 0, 2]
-    scale: [13.600000000000001, 0.108, 1]
+    translate:
+    - 0.0
+    - 2.5
+    - -1.5
+    rotate:
+    - 0
+    - 0
+    - 2
+    scale:
+    - 13.600000000000001
+    - 0.108
+    - 1
   - t: 1
-    translate: [0.0, 2.5, 3.5]
-    rotate: [0, 0, 2]
-    scale: [34, 0.54, 1]
+    translate:
+    - 0.0
+    - 2.5
+    - 3.5
+    rotate:
+    - 0
+    - 0
+    - 2
+    scale:
+    - 34
+    - 0.54
+    - 1
     ease: out_expo
   - t: 3
-    translate: [0.0, 2.5, 10.0]
-    rotate: [0, 0, 2]
-    scale: [34, 0.018, 1]
+    translate:
+    - 0.0
+    - 2.5
+    - 10.0
+    rotate:
+    - 0
+    - 0
+    - 2
+    scale:
+    - 34
+    - 0.018
+    - 1
     ease: in_quad
 - id: streak-7
-  kind: {type: sprite, sprite: couture-s2-smear, frame_ticks: 1, loop: false, see_through: true}
+  kind:
+    type: sprite
+    sprite: couture-s2-smear
+    frame_ticks: 1
+    loop: false
+    see_through: true
   billboard: center
   brightness: 15
   start_tick: 1
   end_tick: 4
   keyframes:
   - t: 0
-    translate: [0.0, 2.9, -1.5]
-    rotate: [0, 0, 2]
-    scale: [9.600000000000001, 0.065, 1]
+    translate:
+    - 0.0
+    - 2.9
+    - -1.5
+    rotate:
+    - 0
+    - 0
+    - 2
+    scale:
+    - 9.600000000000001
+    - 0.065
+    - 1
   - t: 1
-    translate: [0.0, 2.9, 3.5]
-    rotate: [0, 0, 2]
-    scale: [24, 0.324, 1]
+    translate:
+    - 0.0
+    - 2.9
+    - 3.5
+    rotate:
+    - 0
+    - 0
+    - 2
+    scale:
+    - 24
+    - 0.324
+    - 1
     ease: out_expo
   - t: 3
-    translate: [0.0, 2.9, 10.0]
-    rotate: [0, 0, 2]
-    scale: [24, 0.018, 1]
+    translate:
+    - 0.0
+    - 2.9
+    - 10.0
+    rotate:
+    - 0
+    - 0
+    - 2
+    scale:
+    - 24
+    - 0.018
+    - 1
     ease: in_quad
 - id: streak-8
-  kind: {type: sprite, sprite: couture-s2-smear, frame_ticks: 1, loop: false, see_through: true}
+  kind:
+    type: sprite
+    sprite: couture-s2-smear
+    frame_ticks: 1
+    loop: false
+    see_through: true
   billboard: center
   brightness: 15
   start_tick: 2
   end_tick: 5
   keyframes:
   - t: 0
-    translate: [0.0, 0.3, -1.5]
-    rotate: [0, 0, 2]
-    scale: [16.0, 0.158, 1]
+    translate:
+    - 0.0
+    - 0.3
+    - -1.5
+    rotate:
+    - 0
+    - 0
+    - 2
+    scale:
+    - 16.0
+    - 0.158
+    - 1
   - t: 1
-    translate: [0.0, 0.3, 3.5]
-    rotate: [0, 0, 2]
-    scale: [40, 0.792, 1]
+    translate:
+    - 0.0
+    - 0.3
+    - 3.5
+    rotate:
+    - 0
+    - 0
+    - 2
+    scale:
+    - 40
+    - 0.792
+    - 1
     ease: out_expo
   - t: 3
-    translate: [0.0, 0.3, 10.0]
-    rotate: [0, 0, 2]
-    scale: [40, 0.018, 1]
+    translate:
+    - 0.0
+    - 0.3
+    - 10.0
+    rotate:
+    - 0
+    - 0
+    - 2
+    scale:
+    - 40
+    - 0.018
+    - 1
     ease: in_quad
 - id: p-orange
-  kind: {type: particle, particle_id: couture-s2-p-orange, every_ticks: 1}
+  kind:
+    type: particle
+    particle_id: couture-s2-p-pink
+    every_ticks: 1
   brightness: 15
   start_tick: 2
   end_tick: 6
   keyframes:
   - t: 0
-    translate: [0.0, 1.0, 1.5]
+    translate:
+    - 0.0
+    - 1.0
+    - 1.5
 - id: pink-crescent
-  kind: {type: sprite, sprite: couture-orbit, frame_ticks: 1, loop: false, see_through: true, color: '#FFC8DC'}
+  kind:
+    type: sprite
+    sprite: couture-orbit
+    frame_ticks: 1
+    loop: false
+    see_through: true
+    color: '#FFC8DC'
   billboard: fixed
   brightness: 15
   start_tick: 6
   end_tick: 26
   keyframes:
   - t: 0
-    translate: [0.0, 1.1, -1.6]
-    rotate: [0, 90, 0]
-    scale: [1.8, 1.8, 1]
+    translate:
+    - 0.0
+    - 1.1
+    - -1.6
+    rotate:
+    - 0
+    - 90
+    - 0
+    scale:
+    - 1.8
+    - 1.8
+    - 1
   - t: 18
-    translate: [0.0, 1.1, -2.2]
-    rotate: [0, 90, 0]
-    scale: [2.0, 2.0, 1]
+    translate:
+    - 0.0
+    - 1.1
+    - -2.2
+    rotate:
+    - 0
+    - 90
+    - 0
+    scale:
+    - 2.0
+    - 2.0
+    - 1
     ease: out_quad

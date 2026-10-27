@@ -172,3 +172,25 @@ Nothing is done by hand; start it once (the old hand-started server on :8097 mus
   outdated only when *that skill's* content changed between the video's sha and dev (`tools/vfx-shot/changed-skills.py`, plus
   models/particles/items for the preview kinds), not on every push. Then: `生成中… (旧版を表示中)` while a render is queued/running
   (queued longer than 30 min is flagged stalled), `失敗` + reason when preview.log / farm.log record a failure after the deploy.
+
+## Comparison API (the one standard; reviewers, directors, manager and the 比較 panel all use it)
+
+Reviews are NOT hand-made crops or PIL contact sheets: those disagree between people (the same dash was measured 3.3 / 5.4 / 6.5 blocks by eye)
+and a regression slipped through unnoticed. Everyone asks the server, so everyone sees the same frames and the same numbers.
+
+- `GET /api/cases/<id>/compare?ticks=2,10,41,63&views=ref,compare,side,top,preview-side&rounds=current,prev` -> JSON.
+  `ticks` (default: the beat sheet's key ticks + hits, max 12), `views` (`ref` = the original video, else any published view), `rounds`
+  (`current`, `prev`, `prev2`, or a revision hex prefix such as `f3eb4c,ac4809`). Per tick and view: frame number + URL for every round,
+  `metrics`, `delta` vs the next older round of that view, `flags`. `sources[]` gives revision, sha, capturedAt, freshness (stale / building /
+  failed) and failure for every source. `regression: true` + `regressions[]` summarise the flags.
+- `GET /api/cases/<id>/sheet.png?...` (same params) -> one labelled grid (fixed 288x162 cells, rows = view x round, columns = ticks, red frame = regression).
+- Alignment: MC frame = `tick*fps/20 + castFrame - firstTick*fps/20` (20 fps: frame N = plan tick N); reference frame = `floor((castMs + tick*50)*fps/1000)` where
+  `castMs` includes the case's `mc.offset_ms`. Never re-derive it by hand.
+- Metrics (`scripts/compare.py`, frames downscaled to 320 px): `fx_pct` = emissive pixels that are new vs the clip's median background (so sky/floor do
+  not count), `mean_luma` / `peak_luma` (p99), `mover_h_pct` = vertical extent of what moved (informational only). A flag is raised when
+  `fx_pct` / `mean_luma` / `peak_luma` fall more than 20% vs the previous round (floors ignore near-black noise). Example: bastion-greatsword-s3 `rounds=f3eb4c,ac4809`
+  flags t41 (`fx_pct 2.37 -> 0.4`, the thrust hit burst is gone).
+- Trace numbers: if `<published>/<skill>/<view>/<revision>/trace.log` exists (the farm saves the capture's server-log slice there, containing the
+  `[vfx-trace] play|pos|spawn` lines of `ASTERA_VFX_TRACE`), `sources[].trace` carries `fxSpawnTicks`, `casterTravelBlocks` (first to last caster
+  position), `casterMaxFromStartBlocks` and `finalGapBlocks` (caster to target at the last sample). Absent file = no `trace` key.
+- The case page has a collapsible **比較** panel (the same sheet, regression list, links to the JSON / PNG).

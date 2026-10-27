@@ -141,3 +141,11 @@
 .pane .view img.dim { transition: opacity .2s; }
 .live { display: inline-block; width: 9px; height: 9px; border-radius: 50%; background: #2e9d4f; margin-right: 8px; vertical-align: middle; }
 .live.off { background: #d32f2f; }
+
+.cmp-sec { margin-top: 22px; }
+.cmp-sec > summary { cursor: pointer; display: flex; align-items: baseline; gap: 12px; }
+.cmp-sec > summary h2 { display: inline; margin: 0; }
+.cmp-body img { max-width: 100%; height: auto; display: block; margin-top: 8px; border: 1px solid var(--line, #333); }
+.cmp-flags { list-style: none; margin: 8px 0 0; padding: 0; }
+.cmp-flags li { color: #ff7a7a; }
+.cmp-links a { margin-right: 12px; }

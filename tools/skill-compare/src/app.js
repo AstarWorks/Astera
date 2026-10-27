@@ -60,6 +60,7 @@ function init(d) {
   buildRows();
   buildSound();
   buildAuthor();
+  setupCompare();
   S.views.setup();
   setupControls();
   setupSkillNav();
@@ -115,6 +116,7 @@ function refresh(d) {
   buildRows();
   buildSound();
   fillAuthor();
+  if ($("cmpPanel").open) loadCompare();
   S.views.setup();
   syncControls();
   S.activeRow = -2;
@@ -320,6 +322,30 @@ function normalizeRows() {
   if (beats.length) return beats.map((b, i) => ({ id: "B" + i, title: b.label || "", t0: b.tick ?? toTick(b.t_s), t1: beats[i + 1] ? (beats[i + 1].tick ?? toTick(beats[i + 1].t_s)) : (b.tick ?? toTick(b.t_s)), reading: [b.weapon, b.caster_move].filter(Boolean).join(" / ").slice(0, 170), tip: b.weapon || "", vfx: b.vfx || "", body: b.caster_move || "", camera: "", top: "", hit: null, img: "" }));
   return (S.c.segments || []).filter((s) => s.kind !== "skill").sort((a, b) => (a.start_s ?? a.t_s) - (b.start_s ?? b.t_s))
     .map((s) => ({ id: s.id, title: s.label || s.id, t0: toTick(s.start_s ?? s.t_s), t1: toTick(s.end_s ?? s.t_s), reading: s.notes || "", tip: s.notes || "", camera: "", top: "", hit: s.kind === "hit" ? toTick(s.t_s) : null, img: "" }));
+}
+// ---- 比較 panel: the standard comparison API (GET /api/cases/<id>/compare + sheet.png), same image reviewers get ---------
+const CMP_QS = "views=ref,side,top,preview-side&rounds=current,prev";
+function setupCompare() { document.addEventListener("toggle", (e) => { if (e.target.id === "cmpPanel" && e.target.open) loadCompare(); }, true); }
+async function loadCompare() {
+  const body = $("cmpBody"), sum = $("cmpSum"), q = `${CMP_QS}&ticks=${beatTicks().join(",")}`, base = `/api/cases/${caseId}`;
+  try {
+    const r = await fetch(`${base}/compare?${q}`);
+    const d = await r.json();
+    if (!r.ok) throw new Error(d.error || r.status);
+    body.textContent = "";
+    sum.textContent = d.regression ? `回帰の疑い ${d.regressions.length} 件` : "回帰なし";
+    sum.style.color = d.regression ? "#ff7a7a" : "";
+    if (d.regressions.length) {
+      const ul = el("ul", "cmp-flags");
+      d.regressions.forEach((g) => ul.append(el("li", "", `t${g.tick} ${g.view} ${g.round} vs ${g.vs}: ${g.flags.join("; ")}`)));
+      body.append(ul);
+    }
+    const img = el("img"); img.alt = "比較シート"; img.src = `${base}/sheet.png?${q}&_=${d.sources.map((s) => s.revision || "").join("").length}${d.sources.map((s) => (s.revision || "").slice(0, 6)).join("")}`;
+    body.append(img);
+    const links = el("p", "cmp-links status");
+    [["sheet.png", `${base}/sheet.png?${q}`], ["JSON", `${base}/compare?${q}`]].forEach(([t, h]) => { const a = el("a", "", t); a.href = h; a.target = "_blank"; links.append(a); });
+    body.append(links);
+  } catch (e) { body.textContent = "比較の読み込みに失敗: " + e.message; }
 }
 function buildRows() {
   S.rows = normalizeRows();

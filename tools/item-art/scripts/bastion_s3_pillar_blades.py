@@ -55,10 +55,9 @@ def spikes_frame(specs, ox=128.0, oy=236.0):
     for sx, ang, L, hw in specs:
         x = ox + sx
         # r5: 1.5x longer/wider, clamp the tip inside the frame; thin (3 px) dark edge only
-        L, hw = L * 1.5, hw * 1.5
         tipx = abs(sx + math.sin(math.radians(ang)) * L)
-        if tipx > 120:
-            L *= (120 - abs(sx)) / max(tipx - abs(sx), 1)
+        if tipx > 124:
+            L *= (124 - abs(sx)) / max(tipx - abs(sx), 1)
         dark.append(blade(x, oy, ang, L, hw))
         gold.append(blade(x, oy - 1, ang, L - 4, hw - 3))
         pale.append(blade(x, oy - 2, ang, L * 0.82, hw * 0.62))
@@ -75,10 +74,13 @@ def spikes_frame(specs, ox=128.0, oy=236.0):
 
 
 # (base x offset, angle from up, length px, base half width px); 40 px = 1 block
-A = [(-26, -78, 80, 11), (-14, -52, 112, 13), (-5, -26, 96, 12), (4, -5, 120, 14), (12, 20, 100, 12),
-     (20, 46, 116, 13), (28, 70, 76, 11), (-30, -64, 62, 9), (30, 58, 66, 9)]
-B = [(-24, -70, 92, 12), (-12, -40, 104, 13), (-3, -14, 120, 14), (6, 12, 98, 12), (14, 36, 112, 13),
-     (24, 62, 84, 12), (-28, -84, 64, 9), (32, 80, 60, 9), (0, 28, 70, 9)]
+# r7: 12 long thick blades fanning in a half dome (angle from up), 100-150 px = 2.5-3.75 blocks at scale 1.2
+A = [(-30, -84, 112, 15), (-24, -68, 128, 16), (-18, -52, 140, 17), (-11, -36, 150, 17), (-4, -18, 156, 18),
+     (3, -4, 160, 18), (9, 12, 152, 17), (16, 30, 146, 17), (22, 46, 138, 16), (27, 62, 126, 16),
+     (31, 76, 114, 15), (33, 86, 104, 14)]
+B = [(-31, -78, 108, 15), (-26, -60, 132, 16), (-19, -44, 144, 17), (-12, -28, 154, 18), (-5, -10, 158, 18),
+     (2, 6, 162, 18), (9, 20, 156, 18), (15, 36, 148, 17), (21, 52, 138, 16), (26, 68, 124, 16),
+     (30, 80, 112, 15), (-33, -88, 100, 14)]
 
 
 def make_spikes():
@@ -87,7 +89,7 @@ def make_spikes():
 
 def make_bar():
     cx, cy = 128.0, 128.0
-    L, H = 112.0, 15.0
+    L, H = 118.0, 5.5
 
     def hexa(k, kl=1.0):
         l, h = L * kl, H * k
