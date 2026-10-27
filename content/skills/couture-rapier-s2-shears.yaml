@@ -7,13 +7,13 @@ resource_cost: 0
 tags: [ranged]
 params:
   type: projectile
-  # Real 3D flight: ~20 blocks/s (1.0 blocks/tick, the flight reads for about 4-5 ticks), ~16 blocks range, generous 1.0-block hit sphere. Leaves from overhead (muzzle_up) and dives onto the look point.
+  # Real 3D flight: 1.0 block/tick (about 5 visible ticks). The muzzle sits at hand height (eye -0.2) and aims at the enemy chest (aim_distance 5.4) so the piece rides the thread line hand -> enemy; the overhead-to-line dive is authored in the flight VFX.
   launch_speed: 1.0
   max_lifetime_ticks: 16
   hit_radius: 1.0
   muzzle_forward: 0.3
-  muzzle_up: 1.8
-  aim_distance: 7
+  muzzle_up: -0.2
+  aim_distance: 5.4
   visual:
     vfx: couture-s2-body-flight
 phases:

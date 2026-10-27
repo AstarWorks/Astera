@@ -1,4 +1,4 @@
-# S2 coin 2, one of THREE flying objects (blade-b = couture-rapier-blade-b). Rides its own real projectile (couture-rapier-s2-blade-b), +z = flight, x = lateral offset 0.70 so the three fly side by side. No sprites, no particles.
+# S2 coin 2, one of THREE flying objects riding its own real projectile. Muzzle sits at hand height on the thread line; t0-3 the piece dives from its overhead split position onto the line, then flies along hand -> enemy chest height with the thread. No sprites, no particles.
 id: couture-s2-blade-b-flight
 duration_ticks: 40
 orient: look
@@ -17,21 +17,28 @@ elements:
   keyframes:
   - t: 0
     translate:
-    - 1.0
-    - -0.3
-    - 0.5
-    rotate:
+    - 0.6
+    - 0.65
+    - 0.7
+    rotate: &id001
     - 90
     - 0
     - 0
-    scale:
+    scale: &id002
     - 1
     - 1
     - 1
+  - t: 3
+    translate:
+    - 0.6
+    - -0.1
+    - 0.5
+    rotate: *id001
+    scale: *id002
   - t: 40
     translate:
-    - 1.0
-    - -0.3
+    - 0.6
+    - -0.1
     - 0.5
     rotate:
     - 90

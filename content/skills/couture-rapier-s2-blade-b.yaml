@@ -11,8 +11,8 @@ params:
   max_lifetime_ticks: 16
   hit_radius: 1.0
   muzzle_forward: 0.3
-  muzzle_up: 1.8
-  aim_distance: 7
+  muzzle_up: -0.2
+  aim_distance: 5.4
   visual:
     vfx: couture-s2-blade-b-flight
 phases:
