@@ -179,7 +179,7 @@ Reviews are NOT hand-made crops or PIL contact sheets: those disagree between pe
 and a regression slipped through unnoticed. Everyone asks the server, so everyone sees the same frames and the same numbers.
 
 - `GET /api/cases/<id>/compare?ticks=2,10,41,63&views=ref,compare,side,top,preview-side&rounds=current,prev` -> JSON.
-  `ticks` (default: the beat sheet's key ticks + hits, max 12), `views` (`ref` = the original video, else any published view), `rounds`
+  `ticks` (default: the beat sheet's contact ticks = tick 0 plus each hit at -2 / 0 / +2, max 12), `views` (`ref` = the original video, else any published view), `rounds`
   (`current`, `prev`, `prev2`, or a revision hex prefix such as `f3eb4c,ac4809`). Per tick and view: frame number + URL for every round,
   `metrics`, `delta` vs the next older round of that view, `flags`. `sources[]` gives revision, sha, capturedAt, freshness (stale / building /
   failed) and failure for every source. `regression: true` + `regressions[]` summarise the flags.
@@ -194,3 +194,8 @@ and a regression slipped through unnoticed. Everyone asks the server, so everyon
   `[vfx-trace] play|pos|spawn` lines of `ASTERA_VFX_TRACE`), `sources[].trace` carries `fxSpawnTicks`, `casterTravelBlocks` (first to last caster
   position), `casterMaxFromStartBlocks` and `finalGapBlocks` (caster to target at the last sample). Absent file = no `trace` key.
 - The case page has a collapsible **比較** panel (the same sheet, regression list, links to the JSON / PNG).
+- **Framing parity** (`caster_bbox_pct` per cell, `framing[]` per source): the height of the caster's key-colour cluster (compact saturated hair/outfit hues
+  found in the same source's pre-cast tick-0 frame; blue and green are skipped; sparse fx pixels are ignored) as % of the frame height, motion-independent.
+  `framing[]` gives the median per source and `ratioToRef` / `withinTolerance` (0.5x-2x of the ref, the round_gate framing rule). It measures the key-colour cluster, not
+  the full silhouette, and the fx at hit ticks (same hue as the hair) can inflate single ticks: judge on the `framing[]` median, and set
+  `caster_key: {"ref": [lo, hi], "mc": [lo, hi]}` (hue degrees) in `case.json` when the auto key picks the wrong colour (`casterKey` shows what was used).
