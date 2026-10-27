@@ -79,7 +79,7 @@ class SiegeModesScenarioTest {
     // ---- carry-tnt --------------------------------------------------------
 
     @Test
-    fun `carry tnt - two deliveries win, a dead carrier drops the tnt where it fell`() {
+    fun `carry tnt - three deliveries (-34 each) knock out, a dead carrier drops the tnt where it fell`() {
         scenario("siege-carry-tnt") {
             val runner = player("runner", at = nowhere)
             val guard = player("guard", at = nowhere)
@@ -103,18 +103,18 @@ class SiegeModesScenarioTest {
             assertThat(sim.objectiveStage.markers(matchId).keys).`as`("the dropped TNT is marked").isNotEmpty()
             respawnAt(runner, nowhere)
 
-            // The guard (blue) picks the dropped TNT up and delivers it to the red base: 1/2.
+            // The guard (blue) picks the dropped TNT up and delivers it to the red base: blue count 66.
             hold(guard, tntSpawn)
             assertThat(sim.objectiveStage.carrying(guard.id)).isNotNull()
             hold(guard, redBase)
             assertThat(eventsOf<MatchEnded>()).isEmpty()
 
-            // Runner now carries it to the blue base twice.
-            repeat(2) {
+            // Runner now carries it to the blue base three times (100 -> 66 -> 32 -> 0).
+            repeat(3) {
                 hold(runner, tntSpawn)
                 hold(runner, blueBase)
-                if (it == 0) {
-                    assertThat(eventsOf<MatchEnded>()).`as`("red 1/2, blue 1/2").isEmpty()
+                if (it < 2) {
+                    assertThat(eventsOf<MatchEnded>()).`as`("red still above 0").isEmpty()
                     runner.moveTo(nowhere)
                 }
             }
@@ -128,7 +128,7 @@ class SiegeModesScenarioTest {
     // ---- capture-wool -----------------------------------------------------
 
     @Test
-    fun `capture wool - a contested zone does not progress, holding two zones wins`() {
+    fun `capture wool - a contested zone does not progress, holding all three zones knocks out`() {
         scenario("siege-capture-wool") {
             val holder = player("holder", at = nowhere)
             val rival = player("rival", at = nowhere)
@@ -152,6 +152,10 @@ class SiegeModesScenarioTest {
             assertThat(eventsOf<MatchEnded>()).isEmpty()
 
             holder.moveTo(Vec3(0.0, 65.0, 30.0))
+            assertThat(advanceUntil(20 * 12) { blockAt(Vec3(0.0, 64.0, 30.0)) == "minecraft:red_wool" }).isTrue()
+            assertThat(eventsOf<MatchEnded>()).`as`("two of three zones: count 32, no knockout").isEmpty()
+
+            holder.moveTo(Vec3(0.0, 65.0, 6.0))
             assertThat(advanceUntil(20 * 12) { eventsOf<MatchEnded>().isNotEmpty() }).isTrue()
 
             val end = ended()
@@ -164,7 +168,7 @@ class SiegeModesScenarioTest {
     // ---- steal-jewelry ----------------------------------------------------
 
     @Test
-    fun `steal jewelry - a dead thief drops the jewels, the owners recover them, banking every enemy jewel wins`() {
+    fun `steal jewelry - a dead thief drops the jewels, the owners recover them, banking three jewels knocks out`() {
         scenario("siege-steal-jewelry") {
             val thief = player("thief", at = nowhere)
             val keeper = player("keeper", at = nowhere)
@@ -191,7 +195,7 @@ class SiegeModesScenarioTest {
 
             // Now the thief steals every jewel and banks them.
             keeper.moveTo(nowhere)
-            repeat(2) {
+            repeat(3) {
                 hold(thief, bluePedestal)
                 thief.moveTo(nowhere)
             }

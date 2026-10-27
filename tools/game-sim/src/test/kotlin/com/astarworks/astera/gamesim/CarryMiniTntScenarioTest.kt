@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test
 /**
  * MODE-05: carry-mini-tnt is played on the real `siege-isles-mini-tnt` stage and `content/game-modes/carry-mini-tnt.yaml`:
  * pieces from the wool-a/b/c spots are carried into the ENEMY base and planted there (the own base plants nothing);
- * the team that plants 10 pieces blows the enemy base up and wins. Stage-local coordinates.
+ * every piece takes 8 off the count (100 -> 0 after 13 pieces): the team that gets there blows the enemy base up and wins. Stage-local coordinates.
  */
 class CarryMiniTntScenarioTest {
 
@@ -55,11 +55,11 @@ class CarryMiniTntScenarioTest {
             guard.moveTo(nowhere)
             assertThat(eventsOf<MatchEnded>()).isEmpty()
 
-            // Trips 1-3 plant 3, 6, 9 pieces: below the goal of 10 nothing ends.
-            repeat(3) { collectAndPlant(runner, redBase, blueBase) }
-            assertThat(eventsOf<MatchEnded>()).`as`("9/10 planted: not blown up yet").isEmpty()
+            // Trips 1-4 plant 3, 6, 9, 12 pieces: count 100 -> 4, nothing ends.
+            repeat(4) { collectAndPlant(runner, redBase, blueBase) }
+            assertThat(eventsOf<MatchEnded>()).`as`("12 planted: count 4, not blown up yet").isEmpty()
 
-            // Trip 4 takes the plant count to 12 >= 10: the enemy base blows up and red wins.
+            // Trip 5 takes the count below 0: the enemy base blows up and red wins.
             for (spot in pickupSpots) hold(runner, spot)
             hold(runner, blueBase)
             val end = eventsOf<MatchEnded>().single()
