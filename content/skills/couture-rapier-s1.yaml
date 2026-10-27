@@ -3,8 +3,8 @@ name:
   ja: 切り合わせ
   en: Shear Passage
 description:
-  ja: 切り合わせ
-  en: Shear Passage
+  ja: 前方へ突進して切りつける。
+  en: Dash forward and cut.
 archetype: sequence
 cooldown_ticks: 65
 resource_cost: 10

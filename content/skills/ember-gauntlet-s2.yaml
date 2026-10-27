@@ -3,8 +3,8 @@ name:
   ja: 連拳
   en: Double Fist
 description:
-  ja: 連拳
-  en: Double Fist
+  ja: 両拳で連続して殴る。
+  en: Hit with both fists in a row.
 archetype: sequence
 cooldown_ticks: 100
 resource_cost: 14
