@@ -63,6 +63,7 @@ object ModelWalk {
         when (op) {
             is ControlOp.If -> { kids(op.then, "then", hit); kids(op.otherwise, "otherwise", hit) }
             is ControlOp.Loop -> kids(op.body, "body", hit)
+            is ControlOp.Delay -> kids(op.body, "body", hit)
             is ControlOp.Choose -> {
                 op.cases.forEachIndexed { i, c -> kids(c.second, "cases[$i]", hit) }
                 kids(op.otherwise, "otherwise", hit)

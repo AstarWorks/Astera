@@ -181,6 +181,9 @@
                 },
                 "amount": {
                     "$ref": "#/definitions/Value_number"
+                },
+                "per_stack": {
+                    "$ref": "#/definitions/PerStackSpecPatch"
                 }
             },
             "additionalProperties": true
@@ -288,6 +291,7 @@
                             "counter",
                             "damage",
                             "dash_strike",
+                            "delay",
                             "explode",
                             "fly",
                             "follow",
@@ -466,6 +470,21 @@
                         },
                         "then": {
                             "$ref": "#/definitions/op_dash_strike"
+                        }
+                    },
+                    {
+                        "if": {
+                            "properties": {
+                                "op": {
+                                    "const": "delay"
+                                }
+                            },
+                            "required": [
+                                "op"
+                            ]
+                        },
+                        "then": {
+                            "$ref": "#/definitions/op_delay"
                         }
                     },
                     {
@@ -1127,6 +1146,28 @@
                 "id"
             ],
             "additionalProperties": false
+        },
+        "PerStackSpecPatch": {
+            "type": "object",
+            "properties": {
+                "status": {
+                    "type": "string"
+                },
+                "amount": {
+                    "$ref": "#/definitions/Value_number"
+                },
+                "on": {
+                    "type": "string",
+                    "enum": [
+                        "caster",
+                        "victim"
+                    ]
+                },
+                "consume": {
+                    "type": "boolean"
+                }
+            },
+            "additionalProperties": true
         },
         "PoseKeyPatch": {
             "type": "object",
@@ -2008,6 +2049,9 @@
                     "items": {
                         "$ref": "#/definitions/DamageComponentSpecPatch"
                     }
+                },
+                "ignore_invulnerability": {
+                    "type": "boolean"
                 }
             },
             "required": [
@@ -2066,6 +2110,36 @@
                     "type": "boolean"
                 },
                 "on_hit": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/GameplayOp"
+                    }
+                }
+            },
+            "required": [
+                "id",
+                "op"
+            ],
+            "additionalProperties": true
+        },
+        "op_delay": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "unique within the skill (patches address ops by id)"
+                },
+                "op": {
+                    "const": "delay"
+                },
+                "when": {
+                    "$ref": "#/definitions/Value_boolean"
+                },
+                "after": {
+                    "$ref": "#/definitions/Value_number"
+                },
+                "body": {
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/GameplayOp"
@@ -2164,6 +2238,13 @@
                     "items": {
                         "$ref": "#/definitions/DamageComponentSpecPatch"
                     }
+                },
+                "at": {
+                    "type": [
+                        "string",
+                        "object"
+                    ],
+                    "description": "one of: at_point, at_value"
                 }
             },
             "required": [
@@ -2408,6 +2489,9 @@
                         "object"
                     ],
                     "description": "one of: every_ticks, once, per_part"
+                },
+                "max_count": {
+                    "type": "integer"
                 }
             },
             "required": [

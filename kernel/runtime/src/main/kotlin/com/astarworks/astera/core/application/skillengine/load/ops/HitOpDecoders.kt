@@ -26,6 +26,7 @@ public class HitOpDecoders : OpDecoder {
             frames = reader.stringList("frames") ?: reader.fail("missing 'frames'"),
             volume = volume(reader),
             window = window(reader),
+            maxCount = reader.int("max_count")?.also { if (it < 1) reader.fail("max_count must be >= 1") },
         )
 
     private fun volume(reader: OpReader): HitVolume {

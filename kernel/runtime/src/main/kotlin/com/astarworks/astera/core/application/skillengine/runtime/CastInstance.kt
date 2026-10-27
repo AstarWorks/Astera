@@ -66,6 +66,8 @@ internal class CastInstance(
     private val diagnose: (CastDiagnostic) -> Unit,
 ) : OpContext, OpHost, SkillCastScope, MovementHost, OpTargetResolver, PresentationCastInfo {
 
+    private val hitCounts = HashMap<String, Int>()
+
     private class HitReg(val reg: HitRegistration, var prevAnchor: Vec3? = null)
     private class Scheduled(val dueTick: Int, val event: String?, val source: String?, val ops: List<SkillOp>?, val victim: UUID?)
     private class Listener(val event: String, val source: String, val handler: () -> Unit)
@@ -543,8 +545,12 @@ internal class CastInstance(
             val candidates = ports.entities.nearby(volume.broadCenter, volume.broadRadius, request.caster)
             val found = deps.contacts.narrow(reg.reg.id, tick, reg.reg.frame, volume, hitterVel, candidates)
             var contacted = false
-            for (c in found) {
+            val cap = reg.reg.maxCount
+            val nearestFirst = if (cap == null) found else found.sortedBy { it.pointWorld.distanceSquared(volume.broadCenter) }
+            for (c in nearestFirst) {
+                if (cap != null && hitCounts.getOrDefault(reg.reg.id, 0) >= cap) break
                 if (!windowAccepts(reg.reg, c.victim)) continue
+                if (cap != null) hitCounts.merge(reg.reg.id, 1, Int::plus)
                 contacted = true
                 contactedOps += reg.reg.id
                 queue += CastEvent(SkillEvents.HIT, tick, source = reg.reg.id, contact = c)
@@ -753,6 +759,8 @@ internal class CastInstance(
 
     private val exprHost = object : ExprHost {
         override fun aimPoint(caster: ExprValue.Ref, range: Double): Vec3 = aimAt(range)
+
+        override fun counter(key: String): Double = counters[key] ?: 0.0
 
         override fun bladeLen(frame: ExprValue.Ref): Double {
             val id = FrameId(frame.name)

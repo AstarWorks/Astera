@@ -212,6 +212,8 @@ internal object CelFunctions {
         }
         def("blade_len", "blade_len_ref", D, listOf(REF), listOf(R)) { host().bladeLen(it[0] as ExprValue.Ref) }
 
+        def("counter", "counter_str", D, listOf(SimpleType.STRING), listOf(STR)) { host().counter(it[0] as String) }
+
         // spatial tests (angles in degrees)
         def("dist", "dist_any", D, listOf(NUM, NUM), listOf(OBJ, OBJ)) { vec(it[0]).distance(vec(it[1])) }
         def("angle", "angle_vec3", D, listOf(VEC3, VEC3), listOf(V, V)) {

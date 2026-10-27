@@ -14,5 +14,7 @@ public sealed interface HitOp : GameplayOp {
         val frames: List<String>,
         val volume: HitVolume,
         val window: HitWindow,
+        /** At most this many victims per resolution, nearest to the volume first; null = unlimited. */
+        val maxCount: Int? = null,
     ) : HitOp
 }

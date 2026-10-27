@@ -51,6 +51,14 @@ public sealed interface ControlOp : GameplayOp {
         val body: List<GameplayOp>,
     ) : ControlOp
 
+    /** Run [body] once, [afterTicks] later, in the scope (victim binding) the op ran in. */
+    public data class Delay(
+        override val id: String,
+        override val whenExpr: Value<Boolean>?,
+        val afterTicks: Value<Double>,
+        val body: List<GameplayOp>,
+    ) : ControlOp
+
     public data class Choose(
         override val id: String,
         override val whenExpr: Value<Boolean>?,

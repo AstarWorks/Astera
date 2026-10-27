@@ -1,0 +1,79 @@
+# Converted from content/skills/bastion-greatsword-s2.yaml by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
+# Generated point-frame offsets are [left, up, forward] in the parent frame.
+# CONVERT-TODO missing vfx file (x4): bastion-s2-rig | bastion-s2-fx-ring
+apiVersion: "astera/v2"
+kind: Skill
+id: bastion-greatsword-s2
+item: bastion-greatsword
+meta:
+  name: {ja: "審判の突進", en: "Judgement Rush"}
+  description: {ja: "踏み込んで二度薙ぎ払い、頭上から斬り下ろして前へ踏み込む。最後の一撃で溜めを消費する。", en: "Step in, sweep twice, then cleave from overhead and step through. The final blow spends charge."}
+  cooldown_ticks: 100
+  resource_cost: 30
+  tags: [melee, physical, charge]
+gameplay:
+  params:
+    dash_distance: 2.4
+    dash_distance_2: 1.6
+    radius: 3.0
+    dmg_physical: 35
+    knockback: 0.4
+    dmg_physical_2: 40
+    knockback_2: 0.5
+    arc_deg: 80
+    reach: 3.4
+    dmg_physical_3: 60
+    knockback_3: 0.9
+    dash_distance_3: 4.0
+  expose:
+    - {id: damage, param: dmg_physical}
+    - {id: range, param: reach}
+    - {id: radius, param: radius}
+  timeline:
+    - id: t10
+      at: 10
+      do:
+        - {id: dash, op: dash_strike, distance: "${dash_distance}", ticks: 3, radius: 0.5, hit_once: true, invulnerable: false, stop_on_block: true, follow_pitch: false, stop_before_target: 0.9}
+    - {id: t13, at: 13, do: [{id: sel, op: hit, frames: [caster], sphere: {at: caster, radius: "${radius}"}, window: once}]}
+    - id: t29
+      at: 29
+      do:
+        - {id: dash_2, op: dash_strike, distance: "${dash_distance_2}", ticks: 3, radius: 0.5, hit_once: true, invulnerable: false, stop_on_block: true, follow_pitch: false, stop_before_target: 0.9}
+    - {id: t32, at: 32, do: [{id: sel_2, op: hit, frames: [caster], sphere: {at: caster, radius: "${radius}"}, window: once}]}
+    - id: t53
+      at: 53
+      do:
+        - {id: sel_3, op: hit, frames: [caster], sector: {frame: caster, forward: caster.forward, left: caster.left, angle_deg: "${arc_deg}", range: "${reach}", height: 2.0}, window: once}
+    - id: t54
+      at: 54
+      do:
+        - {id: dash_3, op: dash_strike, distance: "${dash_distance_3}", ticks: 3, radius: 0.5, hit_once: true, invulnerable: false, stop_on_block: true, follow_pitch: false, stop_before_target: 0.6}
+  "on":
+    hit:
+      - id: dmg
+        op: damage
+        components:
+          - {kind: physical, amount: "${dmg_physical}", per_stack: {status: charge, amount: 0.5, "on": caster, consume: false}}
+        target: victim
+        ignore_invulnerability: true
+        when: "= event.source == 'sel'"
+      - {id: stop, op: freeze, ticks: 2, scope: [enemy, caster], when: "= event.source == 'sel'"}
+      - {id: kb, op: knockback, direction: "= normalize(pos(victim) - pos(caster)) + vec(0.0, 0.2, 0.0)", strength: "${knockback}", when: "= event.source == 'sel'"}
+      - id: dmg_2
+        op: damage
+        components:
+          - {kind: physical, amount: "${dmg_physical_2}", per_stack: {status: charge, amount: 0.5, "on": caster, consume: false}}
+        target: victim
+        ignore_invulnerability: true
+        when: "= event.source == 'sel_2'"
+      - {id: stop_2, op: freeze, ticks: 2, scope: [enemy, caster], when: "= event.source == 'sel_2'"}
+      - {id: kb_2, op: knockback, direction: "= normalize(pos(victim) - pos(caster)) + vec(0.0, 0.2, 0.0)", strength: "${knockback_2}", when: "= event.source == 'sel_2'"}
+      - id: dmg_3
+        op: damage
+        components:
+          - {kind: physical, amount: "${dmg_physical_3}", per_stack: {status: charge, amount: 0.5, "on": caster, consume: true}}
+        target: victim
+        ignore_invulnerability: true
+        when: "= event.source == 'sel_3'"
+      - {id: stop_3, op: freeze, ticks: 3, scope: [enemy, caster], when: "= event.source == 'sel_3'"}
+      - {id: kb_3, op: knockback, direction: "= normalize(pos(victim) - pos(caster)) + vec(0.0, 0.2, 0.0)", strength: "${knockback_3}", when: "= event.source == 'sel_3'"}

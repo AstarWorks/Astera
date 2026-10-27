@@ -1,5 +1,6 @@
 package com.astarworks.astera.core.domain.skillengine.op
 
+import com.astarworks.astera.core.domain.skillengine.model.LocationSpec
 import com.astarworks.astera.core.domain.skillengine.model.TargetRef
 import com.astarworks.astera.core.domain.skillengine.model.Value
 
@@ -11,6 +12,8 @@ public sealed interface DamageOp : GameplayOp {
         override val whenExpr: Value<Boolean>?,
         val target: TargetRef,
         val components: List<DamageComponentSpec>,
+        /** Bypass the victim's invulnerability frames (v1 `ignore_invulnerability`). */
+        val ignoreInvulnerability: Boolean = false,
     ) : DamageOp
 
     public data class Heal(
@@ -36,7 +39,26 @@ public sealed interface DamageOp : GameplayOp {
         val incendiary: Boolean,
         val radius: Value<Double>?,
         val components: List<DamageComponentSpec>,
+        /** Blast centre; null = the position of [target]. */
+        val at: LocationSpec? = null,
     ) : DamageOp
 }
 
-public data class DamageComponentSpec(val kind: String, val amount: Value<Double>)
+public data class DamageComponentSpec(
+    val kind: String,
+    val amount: Value<Double>,
+    val perStack: PerStackSpec? = null,
+)
+
+/**
+ * Adds `amount x stacks` of [status] (read on [on] before the hit) to a damage component. [consume] removes the
+ * stacks once the whole op has landed.
+ */
+public data class PerStackSpec(
+    val status: String,
+    val amount: Value<Double>,
+    val on: StackSide,
+    val consume: Boolean,
+)
+
+public enum class StackSide { CASTER, VICTIM }

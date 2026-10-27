@@ -18,6 +18,8 @@ public data class HitRegistration(
     val volume: HitVolume,
     val window: HitWindow,
     val startTick: Int,
+    /** Lifetime cap of accepted victims, nearest first; null = unlimited. */
+    val maxCount: Int? = null,
 )
 
 /**
