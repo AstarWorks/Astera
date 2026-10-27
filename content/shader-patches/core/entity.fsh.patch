@@ -131,6 +131,7 @@ vec2 rigRemap(vec2 uv, int part) {
     // the skin's shading keeps the body readable, its hue goes to the tint, and the alpha is what the translucent pipeline blends.
     if (rigPart >= 16) {
         float ghostLuma = dot(color.rgb, vec3(0.2126, 0.7152, 0.0722));
-        color.rgb = mix(color.rgb, vec3(0.5412, 0.3608, 1.0) * (0.55 + 0.7 * ghostLuma), 0.8);
+        // Hard luma contrast keeps the face, hair, clothes and per-face shading readable inside the violet, so the copy reads as a body.
+        color.rgb = clamp(vec3(0.5412, 0.3608, 1.0) * (0.15 + 1.9 * ghostLuma), 0.0, 1.0);
         color.a *= 0.5;
     }
