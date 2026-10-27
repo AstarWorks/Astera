@@ -26,7 +26,7 @@ params:
   arc_degrees: 50.0
   knockback: 0.9
   damage:
-    - base: { type: literal, value: 13.0 }
+    - base: { type: literal, value: 32.5 }
       attribute: physical
 
 phases:

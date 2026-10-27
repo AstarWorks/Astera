@@ -56,7 +56,7 @@ public class InMemoryPlayerHealthGateway(
     private val containerStore: IPlayerAttributeContainerStore,
     private val scheduler: IScheduler,
     private val eventBus: IDomainEventBus,
-    private val defaultMaxHp: Double = 20.0,
+    private val defaultMaxHp: Double = com.astarworks.astera.core.domain.attribute.Attributes.DEFAULT_PLAYER_MAX_HP,
 ) : IPlayerHealthGateway {
 
     private data class RegenSlot(

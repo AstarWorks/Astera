@@ -51,7 +51,7 @@ phases:
     components:
     - base:
         type: literal
-        value: 12
+        value: 30
       attribute: physical
       per_stack:
         status_id: poise
@@ -140,7 +140,7 @@ phases:
     components:
     - base:
         type: literal
-        value: 14
+        value: 35
       attribute: physical
       per_stack:
         status_id: poise

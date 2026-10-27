@@ -1,7 +1,7 @@
-# ECO-04: heal-potion right-click. Consumes one potion, then heals the caster 8 HP (4 hearts).
+# ECO-04: heal-potion right-click. Consumes one potion, then heals the caster 40 HP (of 100; was 8 of 20).
 id: heal-potion-use
 name: {ja: 回復薬, en: Healing Draught}
-description: {ja: 使い切りで体力を 8 回復する。, en: Single use; restores 8 HP.}
+description: {ja: 使い切りで体力を 40 回復する。, en: Single use; restores 40 HP.}
 archetype: sequence
 cooldown_ticks: 100
 resource_cost: 0
@@ -15,7 +15,7 @@ phases:
     item_id: heal-potion
   - type: heal
     targets: {type: caster}
-    amount: {type: literal, value: 8.0}
+    amount: {type: literal, value: 40.0}
   - type: play_sound
     targets: {type: caster}
     sound_id: entity.generic.drink

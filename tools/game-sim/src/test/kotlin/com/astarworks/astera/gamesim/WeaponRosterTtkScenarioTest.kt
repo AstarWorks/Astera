@@ -1,14 +1,16 @@
 package com.astarworks.astera.gamesim
 
 import com.astarworks.astera.combat.domain.event.CriticalHit
+import com.astarworks.astera.combat.domain.event.DamageDealt
 import com.astarworks.astera.combat.domain.event.PlayerKilled
+import com.astarworks.astera.core.domain.attribute.Attributes
 import com.astarworks.astera.core.domain.geometry.Vec3
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
 /**
  * WP7 balance sanity: for every shipped weapon, spam its primary input against a stationary
- * 20-HP enemy player and measure the time to kill (first input -> `PlayerKilled`).
+ * full-HP ([Attributes.DEFAULT_PLAYER_MAX_HP], 100) enemy player and measure the time to kill (first input -> `PlayerKilled`).
  *
  * The attacker presses the primary input every tick (cooldown / resource rejections are part of
  * the weapon's real cadence) and presses the drop key to reload when an ammo weapon runs dry.
@@ -20,7 +22,11 @@ import org.junit.jupiter.api.Test
  * Players have 20-tick invulnerability frames (PaperDamageGateway), so a direct hit lands at
  * most once a second regardless of fire rate; DoTs (burn, bleed, poison) bypass them.
  *
- * Reference run, seconds:
+ * Item 18 (2026-10-27) damage policy: player max HP 20 -> 100. MELEE weapons keep the pre-change time-to-kill and
+ * hits-to-kill (skill damage x5); every other weapon (guns, staffs, projectiles) takes about twice as long (skill
+ * damage x2.5). The band is therefore [1, 6] s for melee and [2, 12] s for ranged.
+ *
+ * Reference run before the change (20 HP, pre-x5 damage), seconds:
  *
  * | weapon        | input       | skill             | dist | TTK (s)          |
  * |---------------|-------------|-------------------|------|------------------|
@@ -42,15 +48,21 @@ class WeaponRosterTtkScenarioTest {
 
     private enum class Input { LEFT, RIGHT }
 
-    private data class Weapon(val item: String, val input: Input, val distance: Double, val usesAmmo: Boolean = false)
+    private data class Weapon(
+        val item: String,
+        val input: Input,
+        val distance: Double,
+        val usesAmmo: Boolean = false,
+        val melee: Boolean = false,
+    )
 
     private val roster = listOf(
         Weapon("pistol", Input.RIGHT, 8.0, usesAmmo = true),
         Weapon("rifle", Input.RIGHT, 12.0, usesAmmo = true),
         Weapon("shotgun", Input.RIGHT, 4.0, usesAmmo = true),
-        Weapon("knight-sword", Input.LEFT, 2.2),
-        Weapon("greatsword", Input.LEFT, 2.2),
-        Weapon("dagger", Input.LEFT, 2.0),
+        Weapon("knight-sword", Input.LEFT, 2.2, melee = true),
+        Weapon("greatsword", Input.LEFT, 2.2, melee = true),
+        Weapon("dagger", Input.LEFT, 2.0, melee = true),
         Weapon("frost-staff", Input.RIGHT, 8.0),
         Weapon("fire-staff", Input.RIGHT, 8.0),
         Weapon("thunder-staff", Input.RIGHT, 8.0),
@@ -63,13 +75,17 @@ class WeaponRosterTtkScenarioTest {
      * reproducible; the seeds are chosen so no trial rolls a critical hit (asserted in [runOnce]),
      * which keeps the table the crit-free baseline.
      */
-    private fun timeToKill(weapon: Weapon, trial: Int): Int? = runOnce(weapon, trial)
+    private fun timeToKill(weapon: Weapon, trial: Int): Kill? = runOnce(weapon, trial)
 
-    private fun runOnce(weapon: Weapon, trial: Int): Int? {
-        var result: Int? = null
+    /** Ticks from the first input to the death and the number of damage events the victim took on the way. */
+    private data class Kill(val ticks: Int, val hits: Int)
+
+    private fun runOnce(weapon: Weapon, trial: Int): Kill? {
+        var result: Kill? = null
         scenario("roster-ttk-${weapon.item}-$trial", seed = GameSim.DEFAULT_SEED + SEED_OFFSETS[trial - 1]) {
             val attacker = player("attacker", team = "red")
             val victim = player("victim", at = Vec3(0.0, groundY, weapon.distance), team = "blue")
+            assertThat(hp(victim)).`as`("a fresh player starts at full 100 HP").isEqualTo(Attributes.DEFAULT_PLAYER_MAX_HP)
             attacker.holds(weapon.item)
             attacker.faces(victim)
             val start = sim.tick
@@ -88,7 +104,7 @@ class WeaponRosterTtkScenarioTest {
                 assertThat(kill.victim).isEqualTo(victim.id)
                 // A DoT (burn / bleed / poison) death has no killer; a direct kill must credit the attacker.
                 kill.killer?.let { assertThat(it).isEqualTo(attacker.id) }
-                result = (sim.tick - start).toInt()
+                result = Kill((sim.tick - start).toInt(), eventsOf<DamageDealt>().count { it.target == victim.id })
             }
             assertThat(eventsOf<CriticalHit>()).`as`("${weapon.item} trial $trial rolled a crit; use another seed").isEmpty()
         }
@@ -96,16 +112,22 @@ class WeaponRosterTtkScenarioTest {
     }
 
     @Test
-    fun `every shipped weapon kills a 20 HP player within the target time band`() {
+    fun `every shipped weapon kills a full HP player within the target time band`() {
         val failures = mutableListOf<String>()
         for (weapon in roster) {
-            val ttks = (1..TRIALS).map { timeToKill(weapon, it) }
-            val seconds = ttks.map { it?.let { t -> t / 20.0 } }
-            println("TTK ${weapon.item}: ${seconds.joinToString { it?.let { s -> "%.2fs".format(s) } ?: "no-kill" }}")
+            val kills = (1..TRIALS).map { timeToKill(weapon, it) }
+            val seconds = kills.map { it?.let { k -> k.ticks / 20.0 } }
+            val hits = kills.map { it?.hits }
+            println(
+                "TTK ${weapon.item} (${if (weapon.melee) "melee" else "ranged"}): hits ${hits.joinToString()}; " +
+                    "seconds ${seconds.joinToString { it?.let { s -> "%.2fs".format(s) } ?: "no-kill" }}",
+            )
+            val minBand = if (weapon.melee) MIN_SECONDS else MIN_SECONDS * RANGED_FACTOR
+            val maxBand = if (weapon.melee) MAX_SECONDS else MAX_SECONDS * RANGED_FACTOR
             val min = seconds.filterNotNull().minOrNull()
             val max = if (seconds.any { it == null }) Double.POSITIVE_INFINITY else seconds.filterNotNull().maxOrNull()
-            if (min == null || min < MIN_SECONDS || max == null || max > MAX_SECONDS) {
-                failures += "${weapon.item}: $seconds outside [$MIN_SECONDS, $MAX_SECONDS]s"
+            if (min == null || min < minBand || max == null || max > maxBand) {
+                failures += "${weapon.item}: $seconds outside [$minBand, $maxBand]s"
             }
         }
         assertThat(failures).`as`("weapons outside the TTK band").isEmpty()
@@ -113,9 +135,10 @@ class WeaponRosterTtkScenarioTest {
 
     private companion object {
         /** Seeds (offsets from the default) for which no weapon rolls a crit in any trial. */
-        val SEED_OFFSETS = listOf(9, 12, 18, 27, 32)
+        val SEED_OFFSETS = listOf(18, 35, 38, 41, 43)
         val TRIALS = SEED_OFFSETS.size
-        const val LIMIT_TICKS = 20 * 12
+        const val LIMIT_TICKS = 20 * 24
+        const val RANGED_FACTOR = 2.0
         const val MIN_SECONDS = 1.0
         const val MAX_SECONDS = 6.0
     }

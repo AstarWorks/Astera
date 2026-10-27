@@ -307,7 +307,7 @@ phases:
   - type: damage
     targets: {type: enemies, center: {type: caster}, radius: {type: literal, value: 3.0}}
     components:
-    - base: {type: literal, value: 7}
+    - base: {type: literal, value: 35}
       attribute: physical
       per_stack: {status_id: charge, amount: 0.5, 'on': caster, consume: false}
     ignore_invulnerability: {type: literal, value: true}
@@ -325,7 +325,7 @@ phases:
   - type: damage
     targets: {type: enemies, center: {type: caster}, radius: {type: literal, value: 3.0}}
     components:
-    - base: {type: literal, value: 8}
+    - base: {type: literal, value: 40}
       attribute: physical
       per_stack: {status_id: charge, amount: 0.5, 'on': caster, consume: false}
     ignore_invulnerability: {type: literal, value: true}
@@ -348,7 +348,7 @@ phases:
       distance: {type: literal, value: 3.4}
       angle_degrees: {type: literal, value: 80}
     components:
-    - base: {type: literal, value: 12}
+    - base: {type: literal, value: 60}
       attribute: physical
       per_stack: {status_id: charge, amount: 0.5, 'on': caster, consume: true}
     ignore_invulnerability: {type: literal, value: true}

@@ -59,7 +59,7 @@ phases:
       angle_degrees: {type: literal, value: 110}
       max_count: 1
     components:
-    - base: {type: literal, value: 28}
+    - base: {type: literal, value: 140}
       attribute: physical
       per_stack: {status_id: charge, amount: 0.5, 'on': caster, consume: true}
     ignore_invulnerability: {type: literal, value: true}

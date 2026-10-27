@@ -120,12 +120,12 @@ class MultiHitEngineScenarioTest {
                 NumericValue.Literal(4.0), maxCount = 1,
             )
             run(caster, null, hit(0, true, cone), Mechanic.Ignite(cone, IntValue.Literal(40)))
-            assertThat(hp(near)).isEqualTo(18.0)
+            assertThat(hp(near)).isEqualTo(com.astarworks.astera.core.domain.attribute.Attributes.DEFAULT_PLAYER_MAX_HP - 2.0)
             assertThat(near.fireTicks).isEqualTo(40)
-            assertThat(hp(far)).isEqualTo(20.0)
+            assertThat(hp(far)).isEqualTo(com.astarworks.astera.core.domain.attribute.Attributes.DEFAULT_PLAYER_MAX_HP)
             assertThat(far.fireTicks).isZero()
             run(caster, null, hit(0, true, cone.copy(maxCount = 0)))
-            assertThat(hp(near)).isEqualTo(18.0)
+            assertThat(hp(near)).isEqualTo(com.astarworks.astera.core.domain.attribute.Attributes.DEFAULT_PLAYER_MAX_HP - 2.0)
         }
     }
 

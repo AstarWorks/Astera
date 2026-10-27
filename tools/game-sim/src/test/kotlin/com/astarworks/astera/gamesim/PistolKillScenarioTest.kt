@@ -37,7 +37,7 @@ class PistolKillScenarioTest {
             assertThat(sim.projectiles.inFlight).isLessThanOrEqualTo(1)
 
             // Out-of-match death path: the victim is returned to the lobby spawn at full health.
-            assertThat(hp(victim)).isEqualTo(20.0)
+            assertThat(hp(victim)).isEqualTo(com.astarworks.astera.core.domain.attribute.Attributes.DEFAULT_PLAYER_MAX_HP)
             assertThat(victim.position.z).isEqualTo(0.0)
 
             // The cast left its cues in the trace recorder.

@@ -449,7 +449,7 @@ public class GameSim private constructor(
     }
 
     public companion object {
-        private const val DEFAULT_HP: Double = 20.0
+        private const val DEFAULT_HP: Double = com.astarworks.astera.core.domain.attribute.Attributes.DEFAULT_PLAYER_MAX_HP
 
         /** Per-tick HUD / regen chatter kept out of the trace's catch-all `events` list (still in [events]). */
         private val TRACE_NOISE: Set<String> = setOf("HudShown", "HudCleared", "HudUpdated", "ResourceRegenned")

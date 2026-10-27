@@ -19,7 +19,7 @@ import com.astarworks.astera.core.domain.player.physiology.HealthChangeSource
  * with a fake scheduler instead.
  */
 public class FakePlayerHealthGateway(
-    private val defaultMaxHp: Double = 20.0,
+    private val defaultMaxHp: Double = com.astarworks.astera.core.domain.attribute.Attributes.DEFAULT_PLAYER_MAX_HP,
 ) : IPlayerHealthGateway {
 
     public sealed interface Call {

@@ -212,7 +212,7 @@ public class SimDamageGateway(
     }
 
     public companion object {
-        public const val DEFAULT_MAX_HP: Double = 20.0
+        public const val DEFAULT_MAX_HP: Double = com.astarworks.astera.core.domain.attribute.Attributes.DEFAULT_PLAYER_MAX_HP
 
         /** Bukkit `maximumNoDamageTicks`; the Paper gateway sets `noDamageTicks` to this after a hit. */
         public const val DEFAULT_INVULNERABILITY_TICKS: Long = 20L

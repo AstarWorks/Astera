@@ -254,7 +254,7 @@ public class DeathRespawnCoordinator(
         private const val FADE_IN_TICKS = 5
         private const val FADE_OUT_TICKS = 10
         private const val COUNTDOWN_TTL_TICKS = 25
-        private const val DEFAULT_MAX_HP = 20.0
+        private const val DEFAULT_MAX_HP = com.astarworks.astera.core.domain.attribute.Attributes.DEFAULT_PLAYER_MAX_HP
         private val TITLE = MessageKey("astera.death.title")
         private val SUBTITLE_WEAPON = MessageKey("astera.death.subtitle.weapon")
         private val SUBTITLE_KILLER = MessageKey("astera.death.subtitle.killer")

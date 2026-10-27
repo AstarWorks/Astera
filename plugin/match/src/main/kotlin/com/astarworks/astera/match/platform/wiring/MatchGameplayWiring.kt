@@ -514,7 +514,7 @@ internal object MatchGameplayWiring {
         // find "weapons suddenly stop working", so every participant starts a match at full HP with a clean weapon state.
         // Mid-match join / reconnect: a player entering a server while registered in a match starts clean too.
         fun resetWeaponState(pid: com.astarworks.astera.core.domain.player.PlayerId) {
-            val max = health.getMaxHealth(pid) ?: 20.0
+            val max = health.getMaxHealth(pid) ?: com.astarworks.astera.core.domain.attribute.Attributes.DEFAULT_PLAYER_MAX_HP
             health.setHealth(pid, max, com.astarworks.astera.core.domain.player.physiology.HealthChangeSource.Respawn)
             services.get<IStatusEffectContainer>()?.clear(pid)
             services.get<com.astarworks.astera.core.application.port.outbound.ICooldownTracker>()?.let { cooldowns ->

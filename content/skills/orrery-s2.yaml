@@ -98,7 +98,7 @@ phases:
       components:
       - base:
           type: literal
-          value: 9
+          value: 22.5
         attribute: physical
     - type: play_vfx
       targets:
@@ -150,7 +150,7 @@ phases:
       components:
       - base:
           type: literal
-          value: 12
+          value: 30
         attribute: physical
     - type: play_vfx
       targets:

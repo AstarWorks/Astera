@@ -126,7 +126,7 @@ public class RespawnUseCase(
  * @property protectionSeconds Seconds of spawn protection; 0 = no protection.
  *   Default 5s matches the Annihilation tuning point.
  * @property initialHealth HP to restore to (clamped to current max-health by
- *   the health gateway). Default 20.0 = vanilla full health.
+ *   the health gateway). Default = Astera default max HP (100).
  * @property kit Optional pre-fill kit (loadout); `null` for "do not fill
  *   inventory". When `applyOnRespawn=false`, the use case keeps the kit
  *   reference on the event without applying it (lobby preview).
@@ -138,7 +138,7 @@ public data class RespawnSpec(
     public val matchId: MatchId?,
     public val spawnPoint: SpawnPoint,
     public val protectionSeconds: Int = 5,
-    public val initialHealth: Double = 20.0,
+    public val initialHealth: Double = com.astarworks.astera.core.domain.attribute.Attributes.DEFAULT_PLAYER_MAX_HP,
     public val kit: PreFillKit? = null,
     public val effects: List<StatusEffectInstance> = emptyList(),
 ) {

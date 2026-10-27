@@ -273,25 +273,27 @@ position come back when the preview ends (or you quit). Dummies are removed 120 
 
 ### Weapon roster (WP7)
 
-| Item | Class | Right-click | Sneak + right-click | Left-click | GOLD | Crit-free TTK on 20 HP |
+| Item | Class | Right-click | Sneak + right-click | Left-click | GOLD | Crit-free TTK on 100 HP (hits) |
 |---|---|---|---|---|---|---|
-| `pistol` | gun | shot (7 phys, 12 rounds) | | | 60 | 2.6 s |
-| `rifle` | gun | long-range shot (8 phys, 20 rounds) | backstep (hop + sprint) | | 120 | 3.0 s |
-| `shotgun` | gun | cone blast (13 phys, knockback, 6 shells) | backstep | | 110 | 1.4 s |
-| `knight-sword` | sword | | dash (lunge) | slash (8 phys arc) | 50 | 2.1 s |
-| `greatsword` | sword | | | cleave (13 phys, wide, heavy knockback) | 140 | 1.5 s |
-| `dagger` | sword | | dash (lunge) | stab (5 phys + bleed DoT) | 70 | 2.5 - 3.0 s |
-| `frost-staff` | magic (water) | frost shard (slow + wet) | frost nova (AoE slow) | | 90 | 4.7 s |
-| `fire-staff` | magic (fire) | flame burst (burn DoT) | | | 100 | 4.0 s |
-| `thunder-staff` | magic (electric) | lightning bolt (shock stun) | | | 160 | 3.7 s |
-| `verdant-staff` | support (earth) | thorn bolt (poison) | regrowth (cleanse + heal-over-time for you and allies within 10 blocks) | | 130 | 3.8 s |
+| `pistol` | gun | shot (17.5 phys, 12 rounds) | | | 60 | ranged, 7.4 s (6 hits) |
+| `rifle` | gun | long-range shot (20 phys, 20 rounds) | backstep (hop + sprint) | | 120 | ranged, 5.8 s (5 hits) |
+| `shotgun` | gun | cone blast (32.5 phys, knockback, 6 shells) | backstep | | 110 | ranged, 4.0 s (4 hits) |
+| `knight-sword` | sword | | dash (lunge) | slash (40 phys arc) | 50 | melee, 2.1 s (3 hits) |
+| `greatsword` | sword | | | cleave (65 phys, wide, heavy knockback) | 140 | melee, 1.5 s (2 hits) |
+| `dagger` | sword | | dash (lunge) | stab (25 phys + bleed DoT) | 70 | melee, 2.5 - 3.0 s (3 hits) |
+| `frost-staff` | magic (water) | frost shard (slow + wet) | frost nova (AoE slow) | | 90 | ranged, 9.2 s (7 hits) |
+| `fire-staff` | magic (fire) | flame burst (burn DoT) | | | 100 | ranged, 6.0 - 8.3 s (2-3 hits + burn) |
+| `thunder-staff` | magic (electric) | lightning bolt (shock stun) | | | 160 | ranged, 7.2 s (3 hits) |
+| `verdant-staff` | support (earth) | thorn bolt (poison) | regrowth (cleanse + heal-over-time for you and allies within 10 blocks) | | 130 | ranged, 6.2 s (6 hits) |
 
 Statuses: `burn`, `freeze`, `wet`, `shock`, `poison`, `bleed`, `regen`, `dash`, `evasive`, `reloading`
 (`content/status/`). Interactions (`content/balance/status-effect-interactions.yaml`): burn cancels
 freeze, a shock on a `wet` target doubles the wet slow. Element loop: fire > wind > earth > electric > water > fire.
 
 TTK numbers come from `./gradlew :tools:game-sim:test --tests '*WeaponRosterTtk*'`
-(spam the primary input at a stationary 20-HP player; the test asserts every weapon lands in 1 to 6 s).
+(spam the primary input at a stationary 20-HP player; the test asserts melee weapons land in 1 to 6 s and ranged weapons in 2 to 12 s).
+Item 18 (2026-10-27): player max HP is 100 (was 20). Melee skill damage is x5 so melee time-to-kill and hits-to-kill are
+unchanged; every other weapon is x2.5 (about twice the hits); healing is x5 (heal potion 40). Mob `mob.max_hp` is x5.
 Players have 20-tick invulnerability frames, so a direct hit lands at most once a second whatever the
 fire rate; a critical (10 percent, x2) can shorten any of these (shotgun / greatsword can one-shot).
 The shop, starter grant, recipes and tutorials all use this roster (the old `example-*` items were removed in WP15).

@@ -44,7 +44,7 @@ phases:
     components:
     - base:
         type: literal
-        value: 12.0
+        value: 60.0
       attribute: physical
     snapshot_pose: true
   - type: hit_stop
@@ -129,7 +129,7 @@ phases:
     components:
     - base:
         type: literal
-        value: 12.0
+        value: 60.0
       attribute: physical
     snapshot_pose: true
   - type: hit_stop
@@ -213,7 +213,7 @@ phases:
     components:
     - base:
         type: literal
-        value: 12.0
+        value: 60.0
       attribute: physical
     snapshot_pose: true
   - type: hit_stop
@@ -297,7 +297,7 @@ phases:
     components:
     - base:
         type: literal
-        value: 12.0
+        value: 60.0
       attribute: physical
     snapshot_pose: true
   - type: hit_stop

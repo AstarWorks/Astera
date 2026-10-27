@@ -13,4 +13,4 @@ max_stacks: 3
 
 params:
   type: burn
-  damage_per_tick: 1.0
+  damage_per_tick: 5.0

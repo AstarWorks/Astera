@@ -51,7 +51,7 @@ phases:
     components:
     - base:
         type: literal
-        value: 12
+        value: 60
       attribute: physical
     delay_ticks:
       type: literal

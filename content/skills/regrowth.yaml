@@ -1,5 +1,5 @@
 # WP7: verdant staff sneak + right-click. Support: the caster and allies within
-# ~10 blocks lose harmful statuses and regenerate 1.5 HP/s for 8s.
+# ~10 blocks lose harmful statuses and regenerate 7.5 HP/s (1.5 x 5, max HP is 100) for 8s.
 # (A direct heal mechanic is still held back; heal-over-time rides the regen status.)
 
 id: regrowth

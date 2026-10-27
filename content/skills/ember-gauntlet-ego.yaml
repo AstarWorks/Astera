@@ -69,7 +69,7 @@ phases:
     components:
     - base:
         type: literal
-        value: 3.0
+        value: 15.0
       attribute: fire
     delay_ticks:
       type: literal
@@ -160,7 +160,7 @@ phases:
     components:
     - base:
         type: literal
-        value: 3.0
+        value: 15.0
       attribute: fire
     delay_ticks:
       type: literal
@@ -251,7 +251,7 @@ phases:
     components:
     - base:
         type: literal
-        value: 4.0
+        value: 20.0
       attribute: fire
     delay_ticks:
       type: literal

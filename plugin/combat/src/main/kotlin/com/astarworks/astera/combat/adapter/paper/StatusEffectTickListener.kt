@@ -9,6 +9,7 @@ import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.application.port.outbound.IPlayerHealthGateway
 import com.astarworks.astera.core.application.port.outbound.IScheduler
 import com.astarworks.astera.core.application.port.outbound.runRepeatingTicks
+import com.astarworks.astera.core.domain.attribute.Attributes
 import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.domain.player.physiology.HealthChangeSource
 import com.astarworks.astera.core.domain.status.StatusEffectId
@@ -169,9 +170,9 @@ public class StatusEffectTickListener(
                 }
             }
             StatusKind.HEAL_AMP -> {
-                // Tick-amp heal: magnitude HP per tick * stacks. HEAL_REDUCE /
+                // Tick-amp heal: magnitude (20-HP-scale) x stacks x VANILLA_HP_SCALE (player max HP is 100). HEAL_REDUCE /
                 // HEAL_NULL are read by the heal resolver, not ticked here.
-                val healAmount = instance.spec.magnitude * instance.currentStacks
+                val healAmount = instance.spec.magnitude * instance.currentStacks * Attributes.VANILLA_HP_SCALE
                 if (healAmount > 0.0) {
                     healthGateway.heal(
                         playerId = playerId,

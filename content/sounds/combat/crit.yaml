@@ -1,7 +1,15 @@
 # Sound cue (ADR-0267). Astera OGG synthesized by tools/sound-gen/scripts/synth.sh (ffmpeg, no samples);
 # the event is generated into assets/astera/sounds.json by :tools:resource-pack from this id + combat/crit.ogg.
+# Vanilla layers added for punch (founder feedback 2026-10-27); the primary stays Astera's so the cue stays identifiable.
 id: "astera:combat/crit"
 resource_key: "astera:combat/crit"
 default_volume: 0.7
 default_pitch: 1.0
 category: combat
+layers:
+  - resource_key: "minecraft:entity.player.attack.crit"
+    volume: 0.8
+    pitch: 1.0
+  - resource_key: "minecraft:block.note_block.bell"
+    volume: 0.4
+    pitch: 1.5

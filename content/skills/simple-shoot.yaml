@@ -54,7 +54,7 @@ phases:
     - type: damage
       targets: { type: target }
       components:
-        - base: { type: literal, value: 8.0 }
+        - base: { type: literal, value: 20.0 }
           attribute: fire
     - type: schedule_particle_animation
       targets: { type: hit_location }

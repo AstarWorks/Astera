@@ -41,8 +41,12 @@ moments:
     cue: "astera:match/respawn"
     action_bar: "astera.presentation.respawn"
     particle: respawn-glint
+  # hit: rapid hits climb a half-semitone each (max 4 steps = 2 semitones, 700 ms window) so sustained fire reads as a streak.
   hit:
     cue: "astera:combat/hit"
+    chain_window_ms: 700
+    chain_pitch_semitones: 0.5
+    chain_max_steps: 4
   crit:
     cue: "astera:combat/crit"
   blocked:

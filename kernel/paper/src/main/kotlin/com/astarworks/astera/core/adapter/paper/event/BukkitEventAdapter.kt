@@ -373,7 +373,7 @@ public class BukkitEventAdapter(
                 val attacker = if (damager is org.bukkit.entity.Projectile) damager.shooter as? org.bukkit.entity.Entity else damager
                 val outcome = playerHealthGateway.damage(
                     playerId,
-                    event.finalDamage,
+                    event.finalDamage * com.astarworks.astera.core.domain.attribute.Attributes.VANILLA_HP_SCALE,
                     attacker?.let { HealthChangeSource.Attack(it.uniqueId) } ?: synthesizeHealthChangeSource(event.cause),
                 )
                 if (outcome is com.astarworks.astera.core.domain.Result.Failure) {
@@ -427,7 +427,7 @@ public class BukkitEventAdapter(
             -> {
                 event.isCancelled = true
                 val playerId = PlayerId(entity.uniqueId)
-                val amount = event.finalDamage
+                val amount = event.finalDamage * com.astarworks.astera.core.domain.attribute.Attributes.VANILLA_HP_SCALE
                 val source = synthesizeHealthChangeSource(event.cause)
                 val outcome = playerHealthGateway.damage(playerId, amount, source)
                 if (outcome is com.astarworks.astera.core.domain.Result.Failure) {
