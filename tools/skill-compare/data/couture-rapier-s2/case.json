@@ -144,5 +144,14 @@
       "carrier": "rig",
       "status": "implemented-unverified"
     }
-  ]
+  ],
+  "capture": {
+    "side": {
+      "command": "STEPPED=1 DISTANCE=5.4 FOV=90 TICKS=100 make vfx-shot SKILL=couture-rapier-s2 VIEW=side ITEM=couture-rapier",
+      "why": "FOV 90 keeps the caster in frame after the 9-block dash (t76+); DISTANCE 5.4 keeps the dummy inside the 7-block cone of every hit; STEPPED=1 avoids lag"
+    },
+    "top": {
+      "command": "STEPPED=1 TICKS=100 make vfx-shot SKILL=couture-rapier-s2 VIEW=top ITEM=couture-rapier"
+    }
+  }
 }
