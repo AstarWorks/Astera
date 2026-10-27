@@ -29,6 +29,10 @@ import org.junit.jupiter.api.Test
  * shotgun cooldown 26 -> 20 and thunder-staff cooldown 70 -> 35 so a second hit can land inside ~1-2 s. The band is
  * [1, 6] s for melee and [0.5, 3] s for ranged.
  *
+ * 2026-10-28: ranged skill damage (and DoT) x0.5 again, so ranged needs 4 hits (fire-staff 2 hits + burn); measured
+ * pistol 5.00, rifle 4.35, shotgun 3.05, frost 4.70, fire 5.00 - 8.25 (burn is a 85 percent roll), thunder 5.40, verdant 3.75.
+ * The ranged band is widened to [0.5, 9] s; this is not a TTK target.
+ *
  * Reference run before the change (20 HP, pre-x5 damage), seconds (measured now for ranged: pistol 1.35, rifle 1.55,
  * shotgun 1.05, frost 1.70, fire 2.00, thunder 1.90, verdant 2.00):
  *
@@ -143,7 +147,7 @@ class WeaponRosterTtkScenarioTest {
         val TRIALS = SEED_OFFSETS.size
         const val LIMIT_TICKS = 20 * 24
         const val RANGED_MIN_SECONDS = 0.5
-        const val RANGED_MAX_SECONDS = 3.0
+        const val RANGED_MAX_SECONDS = 9.0
         const val MIN_SECONDS = 1.0
         const val MAX_SECONDS = 6.0
     }

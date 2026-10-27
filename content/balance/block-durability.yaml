@@ -1,3 +1,4 @@
+idle_ticks: 200
 # Astera — Block durability rock-paper-scissors damage matrix (Wave 5d → Wave 5x).
 #
 # Each cell is "damage per single-hit applied to a 100-HP block":

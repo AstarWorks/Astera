@@ -22,6 +22,7 @@ internal class PaperArenaWorld(
     private val scheduler: IScheduler,
     private val slots: SlotAllocator,
     private val contentDir: Path,
+    private val clearBlockDamage: (WorldId) -> Unit,
 ) : IArenaBuilder {
     private val log = LoggerFactory.getLogger(javaClass)
     private fun setting(name: String, default: Int): Int = System.getenv(name)?.toIntOrNull() ?: default
@@ -153,6 +154,7 @@ internal class PaperArenaWorld(
             // Claimed once: a duplicate / stale request, or a pristine warm copy, is ignored (see ArenaSlotBook).
             val entry = book.beginRepair(stageId) ?: return@run
             val build = entry.build
+            clearBlockDamage(build.stage.world)
             val template = stages()?.find(entry.slot.stage)
             val world = plugin.server.getWorld(build.stage.world.value)
             if (world == null) {

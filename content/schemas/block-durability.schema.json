@@ -3,6 +3,9 @@
     "$id": "https://astera.astarworks.com/schemas/block-durability.schema.json",
     "type": "object",
     "properties": {
+        "idle_ticks": {
+            "type": "integer"
+        },
         "materials": {
             "type": "object",
             "additionalProperties": {

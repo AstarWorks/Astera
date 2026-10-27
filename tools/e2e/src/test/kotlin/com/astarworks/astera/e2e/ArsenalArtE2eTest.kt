@@ -72,7 +72,7 @@ class ArsenalArtE2eTest : E2eBase() {
             rcon("astera items give ${b.name} $id")
             E2eReport.check("Arsenal art", "$id is granted with its custom item model", "server Inventory component") {
                 assertThat(b.waitUntil(3_000) {
-                    rcon("data get entity ${b.name} Inventory").contains("astera:$id")
+                    rcon("data get entity ${b.name} Inventory[{Slot:0b}].components.\"minecraft:item_model\"").contains("astera:$id")
                 }).describedAs("missing item_model for $id").isTrue()
                 "astera:$id"
             }

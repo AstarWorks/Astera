@@ -1,0 +1,97 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "https://astera.astarworks.com/schemas/block.schema.json",
+    "type": "object",
+    "properties": {
+        "id": {
+            "type": "string"
+        },
+        "display_name": {
+            "type": "object",
+            "additionalProperties": {
+                "type": "string"
+            }
+        },
+        "base_bukkit_material": {
+            "type": "string"
+        },
+        "material": {
+            "type": "string"
+        },
+        "base_durability": {
+            "type": "integer"
+        },
+        "tool_effectiveness": {
+            "type": "object",
+            "additionalProperties": {
+                "type": "integer"
+            }
+        },
+        "drops": {
+            "type": "array",
+            "items": {
+                "$ref": "#/definitions/com.astarworks.astera.core.application.config.block.BlockDropYamlConfig"
+            }
+        },
+        "placed_from": {
+            "type": "string"
+        },
+        "immune_to": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            }
+        },
+        "texture": {
+            "type": "string"
+        },
+        "on_right_click": {
+            "$ref": "#/definitions/com.astarworks.astera.core.application.config.block.OnRightClickYamlConfig"
+        }
+    },
+    "required": [
+        "id",
+        "base_bukkit_material",
+        "material",
+        "base_durability"
+    ],
+    "definitions": {
+        "com.astarworks.astera.core.application.config.block.BlockDropYamlConfig": {
+            "type": "object",
+            "properties": {
+                "item_id": {
+                    "type": "string"
+                },
+                "count_range": {
+                    "type": "string"
+                },
+                "drop_chance": {
+                    "type": "number"
+                },
+                "requires_tool": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "item_id"
+            ]
+        },
+        "com.astarworks.astera.core.application.config.block.OnRightClickYamlConfig": {
+            "type": "object",
+            "properties": {
+                "key": {
+                    "type": "string"
+                },
+                "payload": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                }
+            },
+            "required": [
+                "key"
+            ]
+        }
+    }
+}

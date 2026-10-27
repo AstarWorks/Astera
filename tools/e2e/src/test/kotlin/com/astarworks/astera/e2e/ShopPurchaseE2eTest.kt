@@ -43,6 +43,13 @@ class ShopPurchaseE2eTest : E2eBase() {
         }
     }
 
+    /** English `role` of an item from the shipped content; the item lore is generated from it. */
+    private fun contentRoleEn(itemId: String): String {
+        val dir = java.io.File(System.getProperty("astera.live.contentDir", "/workspace/content"))
+        val yaml = java.io.File(dir, "items/$itemId.yaml").readText()
+        return Regex("""(?s)^role:.*?\ben:\s*"([^"]+)"""", RegexOption.MULTILINE).find(yaml)!!.groupValues[1]
+    }
+
     private fun gold(b: Bot): Long =
         Regex("GOLD:\\s*(\\d+)").find(plain(listOf(rcon("astera economy balance gold ${b.name}"))).first())?.groupValues?.get(1)?.toLong() ?: -1L
 
@@ -156,7 +163,8 @@ class ShopPurchaseE2eTest : E2eBase() {
         var draughtSlot = -1
 
         E2eReport.check(suite, "buying the healing draught (40 GOLD, no confirm below 100) drops GOLD to 60 and delivers it", "SystemChat + RCON balance + inventory") {
-            draughtSlot = slotWithLore(b, s, "restore 40 HP")
+            // The generated lore opens with the item's role line (content/items/heal-potion.yaml).
+            draughtSlot = slotWithLore(b, s, contentRoleEn("heal-potion"))
             assertThat(b.contents[s.containerId]!![draughtSlot].lore).describedAs("draught offer price").contains("Price: 40 GOLD")
             val chatFrom = b.chat.size
             click(b, s, draughtSlot)

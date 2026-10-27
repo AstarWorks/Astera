@@ -9,8 +9,9 @@ import com.astarworks.astera.core.domain.world.WorldId
 public interface IToolBlockGateway {
     public data class Surface(val data: String, val hardness: Double)
     public fun surface(world: WorldId, cell: Vec3): Surface?
-    public fun heldTool(player: PlayerId): String?
-    public fun crack(world: WorldId, cell: Vec3, progress: Double)
+    /** The tool the break drops are computed with: the held stack when it is the skill's class, else a vanilla stand-in of [kind]/[tier]; null when none applies. Never throws. */
+    public fun heldTool(player: PlayerId, kind: String?, tier: String?): String?
+    public fun hitEffect(world: WorldId, cell: Vec3)
     public fun clink(world: WorldId, cell: Vec3)
     public fun breakBlock(world: WorldId, cell: Vec3, player: PlayerId, toolData: String?)
     public fun effect(world: WorldId, cell: Vec3, data: String, placing: Boolean)

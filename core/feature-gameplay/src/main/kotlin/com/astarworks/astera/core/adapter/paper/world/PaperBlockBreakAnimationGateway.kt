@@ -35,7 +35,7 @@ public class PaperBlockBreakAnimationGateway(private val server: Server) : IBloc
 
     override fun cancelBreakAnimation(world: WorldId, position: Vec3): Result<Unit, BlockBreakAnimationError> {
         val key = keyOf(world, position)
-        stages.remove(key) ?: return Result.success(Unit)
+        stages.remove(key)
         return send(key, 0f, null)
     }
 
@@ -50,7 +50,7 @@ public class PaperBlockBreakAnimationGateway(private val server: Server) : IBloc
         } else {
             bukkitWorld.players.filter { it.location.distanceSquared(at) <= VIEW_RADIUS * VIEW_RADIUS }
         }
-        targets.forEach { it.sendBlockDamage(at, progress) }
+        targets.forEach { it.sendBlockDamage(at, progress, listOf(key.world.value, key.x, key.y, key.z).hashCode()) }
         return Result.success(Unit)
     }
 

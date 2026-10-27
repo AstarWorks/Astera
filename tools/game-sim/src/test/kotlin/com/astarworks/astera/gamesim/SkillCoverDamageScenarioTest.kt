@@ -12,7 +12,7 @@ import com.astarworks.astera.core.domain.world.BlockType
 import com.astarworks.astera.core.domain.world.WorldId
 import com.astarworks.astera.match.application.port.inbound.IMatchLifecycle
 import com.astarworks.astera.match.application.port.outbound.IMatchWorldRepository
-import com.astarworks.astera.match.application.usecase.block.BlockStateAutoRecoveryUseCase
+import com.astarworks.astera.match.application.usecase.block.BlockDamageGcUseCase
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -34,7 +34,7 @@ class SkillCoverDamageScenarioTest {
     }
 
     private fun ScenarioScope.hp(cell: Vec3, inWorld: WorldId = world): Int? =
-        sim.services.getOrThrow<IBlockStateGateway>().tracked(inWorld)[cell]?.durability
+        sim.services.getOrThrow<IBlockStateGateway>().getDurability(inWorld, cell)
 
     @Test
     fun `a weapon skill with block_damage chips cover where its bullet lands`() {
@@ -54,7 +54,7 @@ class SkillCoverDamageScenarioTest {
     }
 
     @Test
-    fun `damaged cover does not regenerate during the match`() {
+    fun `cover damage expires through the same idle GC as terrain`() {
         scenario("skill-cover-no-regen") {
             val shooter = player("shooter", at = Vec3(0.5, groundY, 0.0), team = "red")
             shooter.world = world
@@ -66,13 +66,13 @@ class SkillCoverDamageScenarioTest {
             advance(20)
             assertThat(hp(wall)).isEqualTo(388)
 
-            val recovery = BlockStateAutoRecoveryUseCase(
+            val recovery = BlockDamageGcUseCase(
                 sim.services.getOrThrow<IBlockStateGateway>(),
                 sim.scheduler,
-                coolOffTicks = 0L,
             )
-            assertThat(recovery.tick(world, currentTick = 100_000L)).isEqualTo(0)
-            assertThat(hp(wall)).isEqualTo(388)
+            assertThat(recovery.tick(world, currentTick = sim.scheduler.currentTick() + 221)).isEqualTo(1)
+            assertThat(hp(wall)).isEqualTo(400)
+            assertThat(sim.services.getOrThrow<IBlockStateGateway>().tracked(world)).isEmpty()
         }
     }
 

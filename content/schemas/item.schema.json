@@ -87,23 +87,14 @@
                 "type": "string"
             }
         },
-        "equipment_asset": {
-            "type": "string",
-            "pattern": "^[a-z0-9._-]+$",
-            "description": "Astera equipment asset id; requires textures/equipment/{humanoid,humanoid_leggings}/<id>.png."
+        "tool": {
+            "$ref": "#/definitions/com.astarworks.astera.core.application.config.ToolYaml"
         },
         "armor_piece": {
-            "type": "string",
-            "description": "content/armor/ piece id this item stands for while worn; combat applies its damage reduction."
+            "type": "string"
         },
-        "tool": {
-            "type": "object",
-            "description": "Field-tool identity read by hand-mining and tool skills.",
-            "properties": {
-                "class": { "type": "string", "enum": ["PICKAXE", "AXE", "SHOVEL"] },
-                "tier": { "type": "string", "enum": ["WOOD", "STONE", "IRON", "DIAMOND", "NETHERITE"] }
-            },
-            "required": ["class", "tier"]
+        "equipment_asset": {
+            "type": "string"
         },
         "resource_type": {
             "type": "string"
@@ -189,6 +180,21 @@
             "required": [
                 "trigger",
                 "skill_id"
+            ]
+        },
+        "com.astarworks.astera.core.application.config.ToolYaml": {
+            "type": "object",
+            "properties": {
+                "class": {
+                    "type": "string"
+                },
+                "tier": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "class",
+                "tier"
             ]
         },
         "com.astarworks.astera.core.application.config.VfxFreezeYaml": {
@@ -1061,6 +1067,61 @@
                         "targets",
                         "status_id",
                         "effect_duration_ticks"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "const": "break_area"
+                        },
+                        "shape": {
+                            "type": "string"
+                        },
+                        "radius": {
+                            "type": "number"
+                        },
+                        "length": {
+                            "type": "number"
+                        },
+                        "width": {
+                            "type": "number"
+                        },
+                        "height": {
+                            "type": "number"
+                        },
+                        "tool_class": {
+                            "type": "string"
+                        },
+                        "block_damage": {
+                            "type": "integer"
+                        },
+                        "revert_after_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "outside_arena": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.BoolValueYaml"
+                        },
+                        "delay_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "period_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "duration_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "condition": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.ConditionYaml"
+                        },
+                        "snapshot_pose": {
+                            "type": "boolean"
+                        }
+                    },
+                    "required": [
+                        "type",
+                        "shape"
                     ]
                 },
                 {
@@ -2003,6 +2064,62 @@
                         "attribute_key",
                         "delta",
                         "ticks"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "const": "place_shape"
+                        },
+                        "shape": {
+                            "type": "string"
+                        },
+                        "block_key": {
+                            "type": "string"
+                        },
+                        "width": {
+                            "type": "integer"
+                        },
+                        "height": {
+                            "type": "integer"
+                        },
+                        "length": {
+                            "type": "integer"
+                        },
+                        "consume_from_inventory": {
+                            "type": "boolean"
+                        },
+                        "item_id": {
+                            "type": "string"
+                        },
+                        "revert_after_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "outside_arena": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.BoolValueYaml"
+                        },
+                        "delay_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "period_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "duration_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "condition": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.ConditionYaml"
+                        },
+                        "snapshot_pose": {
+                            "type": "boolean"
+                        }
+                    },
+                    "required": [
+                        "type",
+                        "shape",
+                        "block_key"
                     ]
                 },
                 {

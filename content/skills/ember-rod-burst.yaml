@@ -19,7 +19,7 @@ params:
   radius: 3.5
   falloff: linear
   damage:
-    - base: { type: literal, value: 45.0 }
+    - base: { type: literal, value: 22.5 }
       attribute: fire
 
 phases:
@@ -50,5 +50,5 @@ phases:
     - type: apply_status
       targets: { type: target }
       status_id: burn
-      effect_duration_ticks: { type: literal, value: 40 }
+      effect_duration_ticks: { type: literal, value: 20 }
   expire: []

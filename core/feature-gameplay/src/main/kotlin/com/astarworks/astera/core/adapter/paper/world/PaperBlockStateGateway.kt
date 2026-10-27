@@ -1,11 +1,9 @@
 package com.astarworks.astera.core.adapter.paper.world
 
-import com.astarworks.astera.core.application.port.outbound.IBlockChangeJournalRepository
 import com.astarworks.astera.core.application.port.outbound.IBlockStateGateway
 import com.astarworks.astera.core.application.port.outbound.ICustomBlockRegistry
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.application.port.outbound.IScheduler
-import com.astarworks.astera.core.application.service.InMemoryBlockChangeJournalRepository
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.block.BlockDamageOutcome
 import com.astarworks.astera.core.domain.block.BlockDamageProfile
@@ -36,86 +34,7 @@ import java.util.concurrent.ConcurrentHashMap
 import kotlin.math.floor
 import kotlin.random.Random
 
-/**
- * Paper concrete of [IBlockStateGateway] (Wave 6b-1, ADR-0156).
- *
- * Mirrors [com.astarworks.astera.core.application.service.InMemoryBlockStateGateway]
- * matrix + event semantics 1:1 — the gateway behaviour (drops resolution,
- * effectiveness lookup, event publishing, untracked-position seeding) is
- * shared by inheritance-of-design, not by inheritance-of-code. The Paper
- * adapter adds two side effects on top of the tracker mutations:
- *
- *  1. **World swap.** On [placeCustomBlock] the Bukkit `Block` at `pos` is
- *     re-typed to `spec.baseBukkitMaterial` (looked up via
- *     `Material.matchMaterial`). On a [BlockDamageOutcome.Broken] outcome
- *     the world block is cleared to `Material.AIR` (Bukkit physics fire
- *     on the same tick — drops are returned as the outcome value for the
- *     caller's item-spawn path).
- *  2. **Durability persistence.** Stored in an in-process
- *     `ConcurrentHashMap<BlockKey, BlockState>`. See "Why an internal map,
- *     not NBT" below.
- *
- * # Why an internal map, not block-NBT
- *
- * Bukkit / Paper does NOT expose a `PersistentDataContainer` on the generic
- * `Block` API. The PDC surface lives on `org.bukkit.block.TileState`
- * (signs / chests / banners / skulls — anything backed by a vanilla
- * `BlockEntity`). A `minecraft:stone` block has no tile entity and therefore
- * no per-instance NBT slot we can hang an `astera:hp` long off of. The
- * `BlockData` API (`blockData.asString()`) only stores vanilla block-state
- * properties (e.g. `waterlogged=true`, `facing=north`); we cannot extend it.
- *
- * Wave 6c (ADR-0160) write-through journal: every tracked position lives
- * in [tracker], keyed by `(worldId, blockX, blockY, blockZ)`. The
- * [tracker] mutations are mirrored to [journal] ([IBlockChangeJournalRepository])
- * so state survives `/restart`. Operators who set `ASTERA_PG_URL` get the
- * Postgres-backed journal at priority 100 (`PostgresBlockChangeJournalRepository`,
- * V45 migration); the default is the process-local in-memory journal, which
- * matches the pre-6c behaviour. The TileState PDC path (signs as marker
- * blocks for indestructible match objects) is a separate concern, not
- * addressed here.
- *
- * # ADR-0149 §C invariant
- *
- * Block damage NEVER routes through Bukkit's vanilla damage system. The
- * gateway never calls `Player.damage(...)`, never spawns a damage event,
- * never modifies player health. The only player-facing effect is the event
- * bus publishing `BlockBrokenBySkill` (which downstream HUD / particle
- * listeners interpret) and the world swap to AIR on break. Player-damage
- * is owned by the Combat plugin and stays decoupled per ADR-0149 §C.
- *
- * # Main-thread requirement
- *
- * Bukkit `world.getBlockAt(...)`, `Block.type =`, and `Block.blockData =`
- * are main-thread only (per Folia regional contract documented in
- * ADR-0144 / ADR-0145 / ADR-0146). Off-main callers MUST round-trip via
- * `IScheduler.run(Duration.ZERO, ...)` — the gateway does not
- * defensively re-dispatch (would mask threading bugs). [tracker] mutations
- * are thread-safe via [ConcurrentHashMap] purely to survive accidental
- * cross-thread reads (e.g. a metrics scraper iterating [tracked]); the
- * invariant is "all callers main-thread" regardless.
- *
- * # Offline / unloaded world handling
- *
- * - [getDurability] / [tracked] return safe defaults (DEFAULT_MAX / empty
- *   map) when the world is unloaded — read-only paths never throw.
- * - [applyDamage] returns the seeded default-state when the world / block
- *   cannot be resolved (the in-memory impl matches: it never fails this
- *   entrypoint, only mutates the tracker).
- * - [applyDamageFromSkill] returns `Result.failure(BlockGatewayError.Storage)`
- *   on unresolvable world (cannot apply damage to a phantom position).
- * - [placeCustomBlock] returns `Result.failure(BlockGatewayError.Storage)`
- *   when the world or target block cannot be resolved (placement requires
- *   a real world-side effect; tracker-only placement would diverge from
- *   what players see).
- *
- * # Registration
- *
- * Wire in `AsteraCorePlugin.onEnable` at priority 100 (overlays
- * `InMemoryBlockStateGateway` at priority 0). The in-memory impl stays
- * registered as a fallback for boot ordering — first-online priority wins
- * per `ServiceRegistry` contract.
- */
+/** Paper world I/O for ADR-0297. Damage lives only in the platform-free sparse store. */
 public class PaperBlockStateGateway(
     private val server: Server,
     private val scheduler: IScheduler,
@@ -123,103 +42,32 @@ public class PaperBlockStateGateway(
     private val customBlockRegistry: ICustomBlockRegistry? = null,
     private val durabilityRule: BlockDurabilityRule = BlockDurabilityRule.defaultMatrix(),
     private val random: Random = Random.Default,
-    private val journal: IBlockChangeJournalRepository = InMemoryBlockChangeJournalRepository(),
     /** Called just before this gateway edits the world (break), so an arena slot journal can remember the block. */
     private val beforeWorldEdit: (Block) -> Unit = {},
 ) : IBlockStateGateway {
+    private val damage = com.astarworks.astera.core.application.service.BlockHpStore()
+    override fun damagedWorlds(): Set<WorldId> = damage.worlds()
+    override fun damageBlock(world: WorldId, pos: Vec3, maxHp: Int, amount: Int): Int =
+        damage.hit(world, cellOf(pos), maxHp, amount, scheduler.currentTick())
+    override fun hasDamage(world: WorldId, pos: Vec3): Boolean = damage.damage(world, cellOf(pos)) > 0
+    override fun clearDamage(world: WorldId, pos: Vec3) { damage.clear(world, cellOf(pos)) }
+    override fun expireDamage(world: WorldId, currentTick: Long): List<Vec3> = damage.expire(world, currentTick, durabilityRule.idleTicks)
+    override fun clearWorldDamage(world: WorldId): List<Vec3> = damage.clearWorld(world)
+
+
+    private fun cellOf(pos: Vec3): Vec3 = Vec3(floor(pos.x), floor(pos.y), floor(pos.z))
 
     private val log = LoggerFactory.getLogger(javaClass)
-
-    /**
-     * Per-position tracker. Keyed by [BlockKey] (`worldId` + integer block
-     * coords) so two positions that share a Vec3 column but differ in
-     * floor(Y) don't collide and Vec3's double-precision fractional parts
-     * are normalized out (Bukkit blocks are integer-coord cells).
-     */
-    private val tracker: MutableMap<BlockKey, BlockState> = ConcurrentHashMap()
 
     /** Temporary blocks placed during a match (ADR-0280); [resetCover] clears them. */
     private val temporaryKeys: MutableSet<BlockKey> = ConcurrentHashMap.newKeySet()
 
-    /**
-     * Hydrate [tracker] from the persistent [journal] for [world] (Wave 6c,
-     * ADR-0160). Call once per loaded world from `AsteraCorePlugin.onEnable`
-     * after the gateway is registered. Calling twice for the same world
-     * overwrites tracker entries with whatever the journal currently holds
-     * (the journal is the source of truth — the in-memory tracker is a hot
-     * cache).
-     *
-     * On [JournalError.Storage] the warm-up logs WARN and continues — the
-     * gateway falls back to the seeded-default tracker behaviour. A
-     * subsequent damage event re-saves the state.
-     */
-    public fun warmUp(world: WorldId) {
-        when (val result = journal.loadAll(world)) {
-            is Result.Success -> {
-                tracker.putAll(result.value)
-                if (log.isDebugEnabled) {
-                    log.debug(
-                        "PaperBlockStateGateway.warmUp: hydrated {} tracker entries for world={}",
-                        result.value.size,
-                        world.value,
-                    )
-                }
-            }
-            is Result.Failure -> {
-                log.warn(
-                    "PaperBlockStateGateway.warmUp: journal.loadAll failed for world={} — {}",
-                    world.value,
-                    result.error,
-                )
-            }
-        }
-    }
-
-    private fun journalSave(key: BlockKey, state: BlockState) {
-        val outcome = journal.save(key, state)
-        if (outcome is Result.Failure) {
-            log.warn(
-                "PaperBlockStateGateway: journal.save best-effort failure for key={} — {}",
-                key,
-                outcome.error,
-            )
-        }
-    }
-
-    private fun journalDelete(key: BlockKey) {
-        val outcome = journal.delete(key)
-        if (outcome is Result.Failure) {
-            log.warn(
-                "PaperBlockStateGateway: journal.delete best-effort failure for key={} — {}",
-                key,
-                outcome.error,
-            )
-        }
-    }
-
-    override fun getDurability(world: WorldId, pos: Vec3): Int =
-        tracker[BlockKey.of(world, pos)]?.durability ?: BlockState.DEFAULT_MAX_DURABILITY
-
-    override fun applyDamage(
-        world: WorldId,
-        pos: Vec3,
-        amount: Int,
-        tool: ToolType,
-    ): BlockState {
-        val key = BlockKey.of(world, pos)
-        val existing = tracker[key]
-        val current = existing?.durability ?: BlockState.DEFAULT_MAX_DURABILITY
-        val maxHp = existing?.maxHp ?: BlockState.DEFAULT_MAX_DURABILITY
-        val safeAmount = amount.coerceAtLeast(0)
-        val nextDurability = (current - safeAmount).coerceIn(0, maxHp)
-        val nextState = (existing ?: defaultStateFor(world, pos)).copy(
-            durability = nextDurability,
-            lastDamagedTick = scheduler.currentTick(),
-        )
-        tracker[key] = nextState
-        journalSave(key, nextState)
-        @Suppress("UNUSED_PARAMETER") tool
-        return nextState
+    override fun getDurability(world: WorldId, pos: Vec3): Int {
+        val block = resolveBlock(world, pos) ?: return BlockState.DEFAULT_MAX_DURABILITY
+        if (block.type.isAir) return 0
+        val spec = customBlockRegistry?.resolveByBaseMaterial(block.type.name)
+        val maxHp = spec?.baseDurability ?: com.astarworks.astera.core.domain.world.BlockHpRules.maxHp(block.type.hardness.toDouble())
+        return (maxHp - damage.damage(world, cellOf(pos))).coerceAtLeast(0)
     }
 
     override fun applyDamageFromSkill(
@@ -233,14 +81,10 @@ public class PaperBlockStateGateway(
             ?: return Result.failure(
                 BlockGatewayError.Storage("world or chunk unavailable for ($world, $pos)"),
             )
-        val key = BlockKey.of(world, pos)
-        // A tracked entry whose custom block is no longer what stands in the world (an arena slot rebuilt
-        // over it) is stale: re-identify the block from what is there now.
-        val existing = tracker[key]?.takeIf { stillStands(it, block) }
-        // An untracked block that a stage placed is identified by its (unique) base material.
-        val baseSpec = if (existing == null) customBlockRegistry?.resolveByBaseMaterial(block.type.name) else null
-        val blockType = existing?.blockType ?: baseSpec?.id ?: bukkitBlockTypeOf(block)
-        val customSpec = baseSpec ?: customBlockRegistry?.resolve(blockType)
+        if (block.type.isAir || block.type.hardness < 0 || block.type == Material.BARRIER || block.type == Material.BEDROCK)
+            return Result.success(BlockDamageOutcome.Ineffective(IneffectiveReason.ZeroDamageCell))
+        val customSpec = customBlockRegistry?.resolveByBaseMaterial(block.type.name)
+        val blockType = customSpec?.id ?: bukkitBlockTypeOf(block)
         val effectiveMaterial = profile.materialOverride
             ?: customSpec?.material
             ?: durabilityRule.materialOf(blockType)
@@ -272,10 +116,9 @@ public class PaperBlockStateGateway(
             return Result.success(BlockDamageOutcome.Ineffective(IneffectiveReason.ZeroDamageCell))
         }
 
-        val maxHp = existing?.maxHp ?: (customSpec?.baseDurability ?: BlockState.DEFAULT_MAX_DURABILITY)
-        val currentHp = existing?.durability ?: maxHp
-        val nextHp = (currentHp - scaled).coerceIn(0, maxHp)
-        val seeded = existing ?: defaultStateFor(world, pos).copy(
+        val maxHp = customSpec?.baseDurability ?: com.astarworks.astera.core.domain.world.BlockHpRules.maxHp(block.type.hardness.toDouble())
+        val nextHp = damageBlock(world, pos, maxHp, scaled)
+        val seeded = defaultStateFor(world, pos).copy(
             blockType = if (customSpec != null) customSpec.id else blockType,
             maxHp = maxHp,
             durability = maxHp,
@@ -285,8 +128,6 @@ public class PaperBlockStateGateway(
             lastDamagedTick = scheduler.currentTick(),
             damagedBy = attackerId,
         )
-        tracker[key] = nextState
-        journalSave(key, nextState)
 
         return if (nextHp == 0) {
             val drops = resolveDrops(customSpec, profile.effectiveTool)
@@ -298,8 +139,6 @@ public class PaperBlockStateGateway(
             // Drop the tracker entry — restoring a broken position later
             // would resurrect it at full HP without a placement event,
             // which is incorrect.
-            tracker.remove(key)
-            journalDelete(key)
             val change = BlockChange.Broken(
                 position = pos,
                 prevBlockType = seeded.blockType,
@@ -335,24 +174,7 @@ public class PaperBlockStateGateway(
         }
     }
 
-    private fun stillStands(state: BlockState, block: org.bukkit.block.Block): Boolean {
-        val spec = customBlockRegistry?.resolve(state.blockType) ?: return true
-        return spec.baseBukkitMaterial == block.type.name
-    }
-
-    override fun restore(world: WorldId, pos: Vec3) {
-        val key = BlockKey.of(world, pos)
-        val existing = tracker[key] ?: return
-        val restored = existing.copy(durability = existing.maxHp)
-        tracker[key] = restored
-        journalSave(key, restored)
-    }
-
-    override fun track(world: WorldId, pos: Vec3, state: BlockState) {
-        val key = BlockKey.of(world, pos)
-        tracker[key] = state
-        journalSave(key, state)
-    }
+    override fun restore(world: WorldId, pos: Vec3) { clearDamage(world, pos) }
 
     override fun placeCustomBlock(
         world: WorldId,
@@ -400,9 +222,7 @@ public class PaperBlockStateGateway(
             damagedBy = null,
             maxHp = spec.baseDurability,
         )
-        val placedKey = BlockKey.of(world, pos)
-        tracker[placedKey] = state
-        journalSave(placedKey, state)
+        clearDamage(world, pos)
         eventBus.publish(
             CustomBlockPlaced(
                 world = world,
@@ -417,8 +237,6 @@ public class PaperBlockStateGateway(
 
     override fun isCover(world: WorldId, pos: Vec3): Boolean {
         val block = resolveBlock(world, pos) ?: return false
-        val existing = tracker[BlockKey.of(world, pos)]?.takeIf { stillStands(it, block) }
-        if (existing != null) return existing.durability > 0 && customBlockRegistry?.resolve(existing.blockType) != null
         return customBlockRegistry?.resolveByBaseMaterial(block.type.name) != null
     }
 
@@ -426,15 +244,7 @@ public class PaperBlockStateGateway(
         resolveBlock(world, pos)?.type?.isAir == true
 
     override fun resetCover(world: WorldId, centre: Vec3?, halfExtent: Double): List<Vec3> {
-        val changed = mutableListOf<Vec3>()
-        for ((key, _) in tracker.entries.toList()) {
-            if (key.worldId != world.value) continue
-            if (centre != null && (kotlin.math.abs(key.x - centre.x) > halfExtent || kotlin.math.abs(key.z - centre.z) > halfExtent)) continue
-            tracker.remove(key)
-            journalDelete(key)
-            changed += Vec3(key.x.toDouble(), key.y.toDouble(), key.z.toDouble())
-        }
-        // Temporary blocks go now; every other broken block is re-placed by the arena repair.
+        val changed = clearWorldDamage(world).toMutableList()
         for (key in temporaryKeys.toList()) {
             if (key.worldId != world.value) continue
             if (centre != null && (kotlin.math.abs(key.x - centre.x) > halfExtent || kotlin.math.abs(key.z - centre.z) > halfExtent)) continue
@@ -448,13 +258,11 @@ public class PaperBlockStateGateway(
         return changed
     }
 
-    override fun tracked(world: WorldId): Map<Vec3, BlockState> {
-        val snapshot = mutableMapOf<Vec3, BlockState>()
-        for ((key, state) in tracker) {
-            if (key.worldId != world.value) continue
-            snapshot[Vec3(key.x.toDouble(), key.y.toDouble(), key.z.toDouble())] = state
-        }
-        return snapshot
+    override fun tracked(world: WorldId): Map<Vec3, BlockState> = damage.snapshot(world).mapValues { (pos, hit) ->
+        val block = resolveBlock(world, pos)
+        val spec = block?.let { customBlockRegistry?.resolveByBaseMaterial(it.type.name) }
+        val maxHp = spec?.baseDurability ?: com.astarworks.astera.core.domain.world.BlockHpRules.maxHp(block?.type?.hardness?.toDouble() ?: 1.0)
+        BlockState(spec?.id ?: block?.let(::bukkitBlockTypeOf) ?: UNKNOWN_BLOCK_TYPE, maxHp - hit.damage, hit.lastHitTick, null, maxHp)
     }
 
     /**
@@ -523,12 +331,13 @@ public class PaperBlockStateGateway(
     private fun defaultStateFor(world: WorldId, pos: Vec3): BlockState {
         val block = resolveBlock(world, pos)
         val type = if (block != null) bukkitBlockTypeOf(block) else UNKNOWN_BLOCK_TYPE
+        val maxHp = block?.let { customBlockRegistry?.resolveByBaseMaterial(it.type.name)?.baseDurability ?: com.astarworks.astera.core.domain.world.BlockHpRules.maxHp(it.type.hardness.toDouble()) } ?: BlockState.DEFAULT_MAX_DURABILITY
         return BlockState(
             blockType = type,
-            durability = BlockState.DEFAULT_MAX_DURABILITY,
+            durability = maxHp,
             lastDamagedTick = 0L,
             damagedBy = null,
-            maxHp = BlockState.DEFAULT_MAX_DURABILITY,
+            maxHp = maxHp,
         )
     }
 

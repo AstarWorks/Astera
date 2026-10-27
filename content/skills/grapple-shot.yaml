@@ -41,7 +41,7 @@ phases:
     - type: damage
       targets: { type: target }
       components:
-        - base: { type: literal, value: 10 }
+        - base: { type: literal, value: 5 }
           attribute: physical
     - type: knockback
       targets: { type: target }

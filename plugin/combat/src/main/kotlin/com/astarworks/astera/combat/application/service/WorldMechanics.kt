@@ -4,7 +4,7 @@ import com.astarworks.astera.core.application.port.outbound.regionScope
 import com.astarworks.astera.core.application.port.outbound.ExecutionScope
 import com.astarworks.astera.combat.application.port.outbound.IBlockEditGuard
 import com.astarworks.astera.combat.application.port.outbound.IToolBlockGateway
-import com.astarworks.astera.combat.domain.world.PowerToolMining
+import com.astarworks.astera.core.domain.world.BlockHpRules
 import com.astarworks.astera.core.domain.effect.SoundSpec
 import com.astarworks.astera.combat.application.port.outbound.IDisplayEntityGateway
 import com.astarworks.astera.combat.application.port.outbound.IEntityDamageGateway
@@ -111,8 +111,6 @@ internal class WorldMechanics(
 
     private val editedBlocks: MutableMap<BlockKey, EditedBlock> = HashMap()
     private var nextToken: Long = 0
-    private class MiningProgress(val surface: String, var work: Double = 0.0, var token: Long = 0)
-    private val mining: MutableMap<BlockKey, MiningProgress> = HashMap()
     private var stopped = false
 
     private val liveDisplays: MutableSet<IDisplayEntityGateway.DisplayHandle> = LinkedHashSet()
@@ -230,7 +228,8 @@ internal class WorldMechanics(
         val anywhere = host.resolveBool(m.outsideArena, ctx)
         val aim = aim(ctx)
         val tool = toolOf(m.toolClass, ctx)
-        val toolData = toolBlocks?.heldTool(ctx.actorId)
+        // Captured once at cast time: the caster may swap or empty the hand mid-ripple, and a forced cast has no tool at all.
+        val toolData = runCatching { toolBlocks?.heldTool(ctx.actorId, tool.kind.name, tool.tier.name) }.getOrNull()
         val skillId = ctx.castedSkills.firstOrNull() ?: MechanicDispatcher.FALLBACK_SKILL_ID
         val centre = if (m.shape == Mechanic.AreaShape.SPHERE) aim.eye + aim.look * m.length else aim.eye
         val ordered = breakCells(m, aim).sortedBy { (it - centre).lengthSquared() }
@@ -242,88 +241,47 @@ internal class WorldMechanics(
             if (!isCover && (current == null || isAir(current) || isIndestructible(current))) continue
             val surface = toolBlocks?.surface(world, cell)
             val signature = surface?.data ?: current?.toString() ?: "cover"
-            val key = BlockKey(world, cell.x.toInt(), cell.y.toInt(), cell.z.toInt())
-            val progress = mining[key]?.takeIf { it.surface == signature }
-                ?: MiningProgress(signature).also {
-                    toolBlocks?.crack(world, cell, 0.0)
-                    mining[key] = it
-                }
-            val token = ++nextToken
-            progress.token = token
             val baseType = surface?.data?.substringBefore('[')?.let(::BlockType) ?: current
-            val allowed = if (isCover) baseType == null || breakable(baseType, m.power, null)
-                else current != null && breakable(current, m.power, m.toolClass)
-            val ticks = PowerToolMining.breakTicks(surface?.hardness ?: 1.5, tool.tier)
-            // Spread fast blocks over the available window too, so equal-hardness walls do not burst in one tick.
-            val span = PowerToolMining.CAST_TICKS - if (isCover) PowerToolMining.WORK_TICKS else minOf(ticks, PowerToolMining.WORK_TICKS)
-            val delay = 1 + index * span / ordered.size.coerceAtLeast(1)
+            val hardness = surface?.hardness ?: baseType?.let(BlockHpRules::simulatedHardness) ?: 1.5
+            if (hardness < 0) continue
+            val preferred = baseType == null || preferredKind(baseType) == tool.kind.name
             val custom = current?.let { coverBlocks.registry()?.find(it) }
                 ?: surface?.let { coverBlocks.registry()?.resolveByBaseMaterial(it.data.substringBefore('[').substringAfter(':').uppercase()) }
-            for (step in 1..minOf(PowerToolMining.WORK_TICKS, PowerToolMining.CAST_TICKS - delay + 1)) {
-                scheduler.runLaterTicks(regionScope(world, cell), (delay + step - 1).toLong()) work@{
-                    if (stopped || mining[key] !== progress || progress.token != token) return@work
-                    if (!mayEdit(ctx, world, cell, anywhere) || coverBlocks.exclusion()?.isExcluded(world, cell) == true ||
-                        (toolBlocks != null && toolBlocks.surface(world, cell)?.data != signature) ||
-                        (toolBlocks == null && !isCover && worldGateway.blockAt(world, cell) != current)) {
-                        mining.remove(key)
-                        toolBlocks?.crack(world, cell, 0.0)
-                        return@work
-                    }
-                    if (!allowed) {
-                        if (step == 1) {
-                            toolBlocks?.crack(world, cell, 0.1)
-                            toolBlocks?.clink(world, cell)
-                        }
-                        if (step == 4) {
-                            toolBlocks?.crack(world, cell, 0.0)
-                            mining.remove(key)
-                        }
-                        return@work
-                    }
-                    if (isCover) {
-                        // Six integer portions preserve cover_damage exactly, including its remainder.
-                        if (step % 4 != 0) return@work
-                        val portion = m.coverDamage * (step / 4) / 6 - m.coverDamage * (step / 4 - 1) / 6
-                        if (portion <= 0) return@work
-                        val outcome = (coverBlocks.cover()?.strikeCell(
-                            ctx.actorId, world, cell, skillId, BlockDamageProfile(portion, tool),
-                            CoverBlockService.Feedback(null, SoundSpec("minecraft:block.stone.break", 0.0, 1.0)),
-                        ) as? Result.Success)?.value
-                        if (outcome is CoverBlockService.CellOutcome.Broken) {
+            val delay = 1 + index * 29 / ordered.size.coerceAtLeast(1)
+            scheduler.runLaterTicks(regionScope(world, cell), delay.toLong()) hit@{
+                if (stopped || !mayEdit(ctx, world, cell, anywhere) || coverBlocks.exclusion()?.isExcluded(world, cell) == true) return@hit
+                if (toolBlocks != null && toolBlocks.surface(world, cell)?.data != signature) return@hit
+                if (toolBlocks == null && !isCover && worldGateway.blockAt(world, cell) != current) return@hit
+                val blocks = coverBlocks.blocks() ?: return@hit
+                if (isCover) {
+                    if (!blocks.isCover(world, cell)) return@hit
+                    val outcome = (coverBlocks.cover()?.strikeCell(
+                        ctx.actorId, world, cell, skillId, BlockDamageProfile(m.blockDamage, tool),
+                        CoverBlockService.Feedback(null, SoundSpec("minecraft:block.stone.break", 0.0, 1.0)),
+                    ) as? Result.Success)?.value
+                    when (outcome) {
+                        is CoverBlockService.CellOutcome.Broken -> {
                             surface?.let { toolBlocks?.effect(world, cell, it.data, false) }
-                            val item = custom?.placedFrom
-                            if (item != null) toolBlocks?.dropCustom(world, cell, ctx.actorId, item)
-                            mining.remove(key)
-                            toolBlocks?.crack(world, cell, 0.0)
-                        } else if (outcome is CoverBlockService.CellOutcome.Chipped) {
-                            toolBlocks?.crack(world, cell, 1.0 - outcome.hp.toDouble() / outcome.maxHp)
-                        } else if (outcome is CoverBlockService.CellOutcome.Ineffective) {
-                            if (step == 4) {
-                                toolBlocks?.clink(world, cell)
-                                toolBlocks?.crack(world, cell, 0.1)
-                            } else {
-                                toolBlocks?.crack(world, cell, 0.0)
-                                mining.remove(key)
-                            }
+                            custom?.placedFrom?.let { toolBlocks?.dropCustom(world, cell, ctx.actorId, it) }
                         }
+                        is CoverBlockService.CellOutcome.Chipped -> toolBlocks?.hitEffect(world, cell)
+                        is CoverBlockService.CellOutcome.Ineffective -> toolBlocks?.clink(world, cell)
+                        else -> Unit
+                    }
+                } else {
+                    val maxHp = BlockHpRules.maxHp(hardness)
+                    val hp = blocks.damageBlock(world, cell, maxHp, BlockHpRules.damage(m.blockDamage, tool, preferred, hardness))
+                    if (hp == 0) {
+                        edit(world, cell, revert) {
+                            if (toolBlocks != null) toolBlocks.breakBlock(world, cell, ctx.actorId, toolData)
+                            else worldGateway.removeBlock(world, cell)
+                        }
+                        surface?.let { toolBlocks?.effect(world, cell, it.data, false) }
+                        coverBlocks.cover()?.showHp(world, cell, 0, maxHp)
                     } else {
-                        progress.work += 1.0 / ticks
-                        if (progress.work >= 1.0 - 1e-9) {
-                            edit(world, cell, revert) {
-                                if (toolBlocks != null) toolBlocks.breakBlock(world, cell, ctx.actorId, toolData)
-                                else worldGateway.removeBlock(world, cell)
-                            }
-                            surface?.let { toolBlocks?.effect(world, cell, it.data, false) }
-                            toolBlocks?.crack(world, cell, 0.0)
-                            mining.remove(key)
-                        } else toolBlocks?.crack(world, cell, progress.work.coerceIn(0.0, 1.0))
+                        coverBlocks.cover()?.showHp(world, cell, hp, maxHp)
+                        toolBlocks?.hitEffect(world, cell)
                     }
-                }
-            }
-            scheduler.runLaterTicks(regionScope(world, cell), PowerToolMining.RESET_TICKS) {
-                if (mining[key] === progress && progress.token == token) {
-                    mining.remove(key)
-                    toolBlocks?.crack(world, cell, 0.0)
                 }
             }
         }
@@ -449,26 +407,15 @@ internal class WorldMechanics(
         return out.take(MAX_SHAPE_BLOCKS)
     }
 
-    /**
-     * Whether a skill with [power] and [toolClass] may break [type]. Power is a hardness ceiling: 1 = every ordinary block
-     * (soil, wood, glass, stone, cobblestone, ores, bricks), 2 = also obsidian-like blocks, 3 = also the hardest unprotected ones.
-     * The class decides what the tool is for: shovel = soil, axe = wood, pickaxe = everything else.
-     */
-    private fun breakable(type: BlockType, power: Double, toolClass: String?): Boolean {
+    /** Preferred class for solid terrain; hand-breakable surfaces do not need a class bonus. */
+    private fun preferredKind(type: BlockType): String {
         val id = type.identifier
-        val kind = when {
+        return when {
             id.contains("sandstone") || id.contains("mud_brick") -> "PICKAXE"
             SOIL_WORDS.any { it in id } -> "SHOVEL"
             WOOD_WORDS.any { it in id } -> "AXE"
             else -> "PICKAXE"
         }
-        if (toolClass != null && toolClass != kind) return false
-        val hardness = when {
-            id in HARDEST -> 3
-            id in HARD -> 2
-            else -> 1
-        }
-        return hardness <= power
     }
 
     private fun cells(targets: com.astarworks.astera.core.domain.skill.targeter.Targeter, ctx: MechanicContext): List<Vec3> =
@@ -485,6 +432,8 @@ internal class WorldMechanics(
 
     /** Applies [change] to [cell] and schedules its undo; overlapping edits keep the very first original. */
     private fun edit(world: WorldId, cell: Vec3, revertAfter: Long, change: () -> Unit) {
+        coverBlocks.blocks()?.clearDamage(world, cell)
+        coverBlocks.cover()?.showHp(world, cell, 0, 1)
         val key = BlockKey(world, cell.x.toInt(), cell.y.toInt(), cell.z.toInt())
         val entry = editedBlocks[key] ?: EditedBlock(worldGateway.blockAt(world, cell), 0L).also { editedBlocks[key] = it }
         val token = ++nextToken
@@ -496,6 +445,8 @@ internal class WorldMechanics(
     }
 
     private fun restore(key: BlockKey, cell: Vec3) {
+        coverBlocks.blocks()?.clearDamage(key.world, cell)
+        coverBlocks.cover()?.showHp(key.world, cell, 0, 1)
         val entry = editedBlocks.remove(key) ?: return
         val original = entry.original
         if (original == null || isAir(original)) {
@@ -650,8 +601,6 @@ internal class WorldMechanics(
     /** Undoes every temporary world change (blocks, displays, summons). */
     fun shutdown() {
         stopped = true
-        mining.keys.forEach { toolBlocks?.crack(it.world, Vec3(it.x.toDouble(), it.y.toDouble(), it.z.toDouble()), 0.0) }
-        mining.clear()
         editedBlocks.keys.toList().forEach { key -> restore(key, Vec3(key.x.toDouble(), key.y.toDouble(), key.z.toDouble())) }
         displays?.let { gateway -> liveDisplays.toList().forEach { gateway.remove(it) } }
         liveDisplays.clear()
@@ -686,8 +635,6 @@ internal class WorldMechanics(
 
         private val SOIL_WORDS: List<String> = listOf("dirt", "grass_block", "sand", "gravel", "clay", "mud", "snow", "podzol", "mycelium", "soul_soil", "farmland")
         private val WOOD_WORDS: List<String> = listOf("plank", "log", "wood", "stem", "hyphae", "leaves", "fence", "door", "bookshelf", "scaffolding", "bamboo", "wool", "hay_block", "carpet")
-        private val HARD: Set<String> = setOf("obsidian", "crying_obsidian", "respawn_anchor", "enchanting_table", "anvil", "chipped_anvil", "damaged_anvil")
-        private val HARDEST: Set<String> = setOf("reinforced_deepslate", "netherite_block", "ancient_debris")
 
         /** `lifetime_ticks: 0` means this; summons never live forever. */
         const val DEFAULT_SUMMON_LIFETIME_TICKS: Long = 1200L
