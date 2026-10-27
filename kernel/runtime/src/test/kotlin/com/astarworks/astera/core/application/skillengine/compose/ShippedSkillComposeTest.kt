@@ -39,6 +39,8 @@ class ShippedSkillComposeTest {
     }
 
     @Suppress("UNCHECKED_CAST")
+    private fun meta(skill: ComposedSkill): Map<String, Any?> = skill.tree["_patch"] as Map<String, Any?>
+
     @Test
     fun `a skin variant changes one presentation colour by id and leaves the base alone`() {
         val all = compose("skin")
@@ -48,7 +50,16 @@ class ShippedSkillComposeTest {
         assertThat(colors("coin@red")).containsExactly(mapOf("id" to "ring", "color" to "#ff0000")) // glow deleted via $patch
         assertThat(all.getValue("coin@red").tree["id"]).isEqualTo("coin@red")
         assertThat(all.getValue("coin@red").sources).containsExactly("coin.yaml", "coin-red.yaml")
-        assertThat(compose("skin", balance = true).keys).contains("coin@hard")
+        assertThat(meta(all.getValue("coin"))).isEqualTo(mapOf("kind" to "base", "touched" to emptyList<String>()))
+        assertThat(meta(all.getValue("coin@red"))).isEqualTo(
+            mapOf("kind" to "skin", "touched" to listOf("presentation.colors[glow]", "presentation.colors[ring].color")),
+        )
+
+        val balanced = compose("skin", balance = true)
+        assertThat(balanced.keys).contains("coin@hard")
+        assertThat(meta(balanced.getValue("coin@hard"))).isEqualTo(
+            mapOf("kind" to "balance", "touched" to listOf("gameplay.params.range")),
+        )
     }
 
     @Test
