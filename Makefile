@@ -324,10 +324,9 @@ particle-sim: ## Run the real vanilla particle classes (local 26.3 client jar) f
 	./gradlew :tools:particle-sim:run --args="$(SKILL) $(if $(SEED),--seed $(SEED))" -q 2>&1 | grep -v '^WARNING'
 
 .PHONY: skill-preview
-skill-preview: ## Render a skill from the skill-compare camera without the client and publish it as the PREVIEW + PREVIEW-SIDE (fixed side camera) views of skill-compare (PUBLISH=0 skips): make skill-preview SKILL=<skill-id> [CASE=<case id>] [TICKS=0-53] [EVERY=4] [FOV=<deg>] [REUSE=1 keeps plan.json]
-	@test -n "$(SKILL)" || { echo "usage: make skill-preview SKILL=<skill-id> [CASE=..] [TICKS=a-b] [EVERY=n] [FOV=deg] [REUSE=1]"; exit 2; }
-	$(if $(REUSE),,./gradlew :tools:game-sim:skillLintPlan -Pskill="$(SKILL)" -q --offline 2>&1 | grep -v ' INFO \| DEBUG \| WARN ' || true)
-	cd tools/skill-viewer && bun install --frozen-lockfile >/dev/null && bun run build >/dev/null && bun scripts/skill-preview.mjs --skill "$(SKILL)" $(if $(CASE),--case "$(CASE)") $(if $(TICKS),--ticks "$(TICKS)") $(if $(EVERY),--every "$(EVERY)") $(if $(FOV),--fov "$(FOV)") && bun scripts/skill-preview.mjs --skill "$(SKILL)" --no-ref --camera side --out "$(CURDIR)/build/skill-preview/$(SKILL)/side"
+skill-preview: ## Render a skill from the skill-compare camera without the client and publish it as the PREVIEW + PREVIEW-SIDE (fixed side camera) views of skill-compare (PUBLISH=0 skips): make skill-preview SKILL=<skill-id> [TRACE=<astera-sim-trace/2 file>] [CASE=<case id>] [TICKS=0-53] [EVERY=4] [FOV=<deg>]
+	@test -n "$(SKILL)" || { echo "usage: make skill-preview SKILL=<skill-id> [TRACE=f] [CASE=..] [TICKS=a-b] [EVERY=n] [FOV=deg]"; exit 2; }
+	cd tools/skill-viewer && bun install --frozen-lockfile >/dev/null && bun run build >/dev/null && bun scripts/trace-preview.mjs --skill "$(SKILL)" $(if $(TRACE),--trace "$(abspath $(TRACE))") $(if $(CASE),--case "$(CASE)") $(if $(TICKS),--ticks "$(TICKS)") $(if $(EVERY),--every "$(EVERY)") $(if $(FOV),--fov "$(FOV)") && bun scripts/trace-preview.mjs --skill "$(SKILL)" $(if $(TRACE),--trace "$(abspath $(TRACE))") --no-ref --camera side --out "$(CURDIR)/build/skill-preview/$(SKILL)/side"
 	$(if $(filter 0,$(PUBLISH)),,node tools/skill-compare/scripts/publish-preview.mjs "$(SKILL)" && node tools/skill-compare/scripts/publish-preview.mjs "$(SKILL)" --src "build/skill-preview/$(SKILL)/side" --kind preview-side)
 
 .PHONY: skill-3d

@@ -299,7 +299,7 @@ fi
 if [ -n "$FOV" ] && [ -z "$FOV_OPT" ]; then
   FOV_OPT="$(python3 -c 'import sys; print("%.4f" % ((float(sys.argv[1]) - 70.0) / 40.0))' "$FOV")"
 fi
-[ -n "$ITEM" ] || ITEM="$(printf '%s' "$SKILL" | sed -E 's/-(s[0-9]+|def)$//')"
+[ -n "$ITEM" ] || ITEM="$(printf '%s' "$SKILL" | sed -E 's/@.*$//;s/-(s[0-9]+|def)$//')"
 
 CACHE="${SHOT_CACHE:-$HOME/.cache/astera-vfx-shot}"
 VENV="$CACHE/venv"
@@ -878,7 +878,7 @@ film() { # viewer view_dir
   # the server's [vfx-trace] lines of this cast (play/spawn/pos): skill-compare derives fx spawn ticks and caster travel from them
   local ct; ct="$(jq -r '.castTick // empty' "$dir/framestamp.json" 2>/dev/null)"
   if [ -n "$ct" ]; then
-    docker logs "$SERVER_CT" 2>&1 | grep -F '[vfx-trace]' | tr -d '\r' \
+    docker logs "$SERVER_CT" 2>&1 | grep -E '\[(vfx|skill)-trace\]' | tr -d '\r' \
       | awk -v lo="$((ct - 1))" -v hi="$((ct + TICKS + PRE_TICKS + 10))" '{ if (match($0, /tick=[0-9]+/)) { t = substr($0, RSTART + 5, RLENGTH - 5) + 0; if (t >= lo && t <= hi) print } }' > "$dir/trace.log" || true
   fi
   log "tick stamp: $(cat "$STATE/framestamp.out")"

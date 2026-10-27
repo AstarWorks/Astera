@@ -333,3 +333,13 @@ fresh per view (NOT `NoAI`: that would also swallow knockback/velocity). It can 
 
 
 When reusing one client for several comparison cases, pass its actual FOV in degrees as the optional last argument to `compare_plan.py` (for example `70`). This converts every intent camera key to the running client's FOV. Without this argument the emitted `CMP_FOV_OPT` must be applied when starting the client; changing a shell variable after startup does not change the rendered FOV. A camera plan with correct response timing but the wrong client FOV is not valid framing evidence.
+
+## Skill engine v2 (ADR-0299)
+
+- Real-client capture is unchanged: `make vfx-shot SKILL=<skill-id>` casts `astera skill cast <skill-id> Caster --force`. The coin is
+  part of the id (`couture-rapier-s2` = coin 2). `@variant` ids are accepted; the held item is the id without `@variant` and `-sN`/`-def`.
+  `[vfx-trace]` and `[skill-trace]` server log lines are copied into `trace.log`.
+- The skill-compare PREVIEW is fed by the game-sim trace `astera-sim-trace/2`, specified in `SIM-TRACE-V2.md`
+  (`tools/game-sim/build/sim-traces/v2/<skill>.json`). Check one with `python3 -I tools/vfx-shot/trace_v2.py <file>`;
+  `--sample <out>` writes a synthetic coin-2 trace. Render: `make skill-preview SKILL=couture-rapier-s2 TRACE=<file>`
+  (`tools/skill-viewer/scripts/trace-preview.mjs`).
