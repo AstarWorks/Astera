@@ -438,11 +438,12 @@ internal object MatchGameplayWiring {
             isNorma = env.normaLayerOf,
             timeLimitTicks = { id -> (env.modeConfigOf(id)["time_limit_seconds"]?.toLongOrNull()?.takeIf { it >= 0 } ?: 600L) * 20L },
             now = { scheduler.currentTick() },
-            objectiveOf = { match, team ->
+            modeOf = { match ->
                 val key = env.matchModeRegistry.modeKeyOf(match.id)?.takeIf { it.isNotBlank() }
                     ?.let { runCatching { com.astarworks.astera.match.domain.mode.GameModeId(it) }.getOrNull() }
-                key?.let { frameworkModes?.get(it) }?.objectiveStanding(match, team)
+                key?.let { frameworkModes?.get(it) }
             },
+            overtimeMaxTicks = { id -> (env.modeConfigOf(id)[com.astarworks.astera.match.application.gamemode.siege.CountRules.OVERTIME_KEY]?.toLongOrNull()?.coerceAtLeast(0L) ?: 0L) * 20L },
             starsOf = { match, team -> matchStars.norma.carried(match, team) },
             killsOf = { match, team -> matchStars.norma.kills(match, team) },
         )
@@ -606,7 +607,7 @@ internal object MatchGameplayWiring {
             modeKeyOf = { id -> env.matchModeRegistry.modeKeyOf(id) },
             configOf = env.modeConfigOf,
             isNorma = env.normaLayerOf,
-            showTitle = { id, title, subtitle -> env.ctx.services.get<IMcServer>()?.findPlayer(id)?.sendTitle(title, subtitle) },
+            showTitle = { id, title, subtitle, params -> env.ctx.services.get<IMcServer>()?.findPlayer(id)?.sendTitle(title, subtitle, placeholders = params) },
             showHint = { id, key, params ->
                 hudGateway.showFor(
                     id,

@@ -24,8 +24,8 @@ import kotlin.math.abs
  * Carry TNT (Rainmaker-style): one TNT sits in the `tnt-spawn` zone. Standing in the zone for `channel_ticks` picks it
  * up (only while nobody carries it); the carrier is slowed, glows and wears the TNT; holding an enemy `base-<team>`
  * zone for `channel_ticks` scores a delivery for the carrier's team. A carrier who falls drops the TNT where they
- * died: anyone can pick it up there, and it goes back to the spawn after `drop_return_seconds`. First team to
- * `deliveries_to_win` deliveries wins.
+ * died: anyone can pick it up there, and it goes back to the spawn after `drop_return_seconds`. Each delivery takes
+ * `count_per_delivery` off the team's count (count model, see [SiegeGameMode]).
  */
 public class CarryTntGameMode @JvmOverloads constructor(
     env: SiegeEnv? = null,
@@ -41,7 +41,6 @@ public class CarryTntGameMode @JvmOverloads constructor(
         public val bases: Map<TeamId, Region>,
     ) : SiegeRun(matchId, stage) {
         public val tnt: TntCarrier = TntCarrier()
-        public val deliveries: MutableMap<TeamId, Int> = mutableMapOf()
 
         /** Last place the carrier was seen alive (where the TNT lands if the carrier vanishes). */
         public var lastCarrierPos: Vec3? = null
@@ -49,8 +48,6 @@ public class CarryTntGameMode @JvmOverloads constructor(
         /** Whether the TNT block still stands on the spawn pedestal. */
         public var pedestalLit: Boolean = true
     }
-
-    private fun deliveriesToWin(): Int = env?.int("deliveries_to_win", DEFAULT_DELIVERIES) ?: DEFAULT_DELIVERIES
 
     override fun createRun(match: Match, stage: Stage): Run? {
         val spawn = stage.region(SPAWN_REGION) ?: return null
@@ -120,8 +117,7 @@ public class CarryTntGameMode @JvmOverloads constructor(
         tellMatch(match, KEY_PICKED_UP, mapOf("team" to team.value))
         val at = run.lastCarrierPos
         kit.broadcast(listOf(player), PresentationMoments.OBJECTIVE_PICKUP, at = at, world = run.stage.world)
-        val enemies = match.teams.filter { it.id != team }.flatMap { it.members }
-        kit.broadcast(enemies, PresentationMoments.OBJECTIVE_ALERT, at = at, world = run.stage.world)
+        announceObjectiveShift(run, match, team, at)
     }
 
     private fun delivered(run: Run, match: Match, player: PlayerId, team: TeamId, baseTeam: String) {
@@ -129,17 +125,15 @@ public class CarryTntGameMode @JvmOverloads constructor(
         val base = run.bases.entries.firstOrNull { it.key.value == baseTeam }?.takeIf { it.key != team } ?: return
         kit.uncarry(player)
         run.tnt.reset()
-        val score = (run.deliveries[team] ?: 0) + 1
-        run.deliveries[team] = score
         refreshMarker(run, match)
-        tellMatch(match, KEY_DELIVERED, mapOf("team" to team.value, "score" to score.toString(), "goal" to deliveriesToWin().toString()))
-        val args = mapOf("team" to team.value, "score" to score.toString(), "goal" to deliveriesToWin().toString())
+        val args = mapOf("team" to team.value, "count" to (countOf(run, team) - countPer(EVENT_DELIVERY)).coerceAtLeast(0).toString(), "per" to countPer(EVENT_DELIVERY).toString())
+        tellMatch(match, KEY_DELIVERED, args)
         val burst = ObjectiveKit.centreOf(base.value, 1.0)
         val ours = match.teams.firstOrNull { it.id == team }?.members.orEmpty()
         val theirs = match.teams.filter { it.id != team }.flatMap { it.members }
         kit.broadcast(ours, PresentationMoments.OBJECTIVE_DELIVER, args, burst, run.stage.world)
         kit.broadcast(theirs, PresentationMoments.OBJECTIVE_DELIVER_AGAINST, args, burst, run.stage.world)
-        if (score >= deliveriesToWin()) win(run, team)
+        countEvent(run, match, team, EVENT_DELIVERY, at = burst)
     }
 
     // ---- drop / return ----------------------------------------------------
@@ -246,23 +240,17 @@ public class CarryTntGameMode @JvmOverloads constructor(
         }
     }
 
-    override fun standing(run: Run, match: Match, team: TeamId): Int = run.deliveries[team] ?: 0
+    override fun holdsObjective(run: Run, match: Match, team: TeamId): Boolean =
+        run.tnt.carrier?.let { teamOf(match, it) } == team
 
     override fun hudLines(run: Run, match: Match): List<HudLine> {
         val carrierTeam = run.tnt.carrier?.let { c -> match.teams.firstOrNull { c in it.members }?.id }
-        val teamLines = match.teams.map { team ->
-            HudLine(
-                key = MessageKey("astera.hud.sidebar.carry-tnt.team"),
-                placeholders = mapOf("score" to (run.deliveries[team.id] ?: 0).toString(), "goal" to deliveriesToWin().toString()),
-                team = team.id,
-            )
-        }
         val carrier = if (carrierTeam != null) {
             HudLine(MessageKey("astera.hud.sidebar.carry-tnt.carried"), team = carrierTeam)
         } else {
             HudLine(MessageKey("astera.hud.sidebar.carry-tnt.loose"))
         }
-        return teamLines + carrier
+        return listOf(carrier)
     }
 
     override fun finish(run: Run) {
@@ -292,7 +280,7 @@ public class CarryTntGameMode @JvmOverloads constructor(
         private const val MARKER_KEY: String = "tnt"
         private const val PICKUP: String = "pickup"
         private const val DELIVER_PREFIX: String = "deliver:"
-        private const val DEFAULT_DELIVERIES: Int = 3
+        private const val EVENT_DELIVERY: String = "delivery"
         private const val FAST_TICKS: Long = 5L
         private const val TRAIL_TICKS: Long = 5L
         private const val WARN_INTERVAL_TICKS: Long = 40L

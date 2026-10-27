@@ -2,21 +2,28 @@
 #
 # The stage's `wool-*` zones are control points marked by a wool block. A team
 # that stands alone in a zone for `capture_seconds` captures it (the marker
-# turns into the team's wool); a contested or empty zone resets. First team to
-# `captures_to_win` zones wins (default: a majority of the zones).
+# turns into the team's wool); a contested or empty zone resets. Each capture takes
+# `count_per_capture` off the team's count (3 captures = knockout).
 # Implementation: CaptureWoolGameMode, ticked once per second.
 #
 # default_config
 #   capture_seconds   seconds alone in a zone to capture it
-#   captures_to_win   zones needed to win (omit for a majority)
+#   count_per_capture count one capture takes off (see the count model block below)
 id: capture-wool
 title_key: astera.gamemode.capture-wool.title
 impl_class: com.astarworks.astera.match.application.gamemode.CaptureWoolGameMode
 default_config:
-  # Norma layer (content/norma-layer/layer.yaml) overrides: objective rounds on the big islands take long, so the time limit is 20 minutes. At the limit the teams are ranked by this mode's objective first, then stars carried, kills.
-  time_limit_seconds: "1200"
+  # Norma layer (content/norma-layer/layer.yaml) overrides: objective rounds on the big islands take long, so the time limit is 15 minutes. At the limit the teams are ranked by this mode's objective first, then stars carried, kills.
+  time_limit_seconds: "900"
   # F3-5 death / respawn (seconds): death-screen countdown, killer death-cam length, post-respawn invulnerability (ends on attack).
   respawn_delay_seconds: "5"
   death_cam_seconds: "2"
   spawn_protection_seconds: "3"
+  # Count model (Splatoon-style, SiegeGameMode): every team starts at count_start; each objective event takes its count_per_* off the scorer's
+  # count. 0 = knockout win; at the time limit the lower count wins. count_low_at = "close to knockout" announcement. At the time limit
+  # the match runs on up to overtime_max_seconds while the trailing team holds / carries the objective.
+  count_start: "100"
+  count_low_at: "34"
+  overtime_max_seconds: "60"
   capture_seconds: "10"
+  count_per_capture: "34"

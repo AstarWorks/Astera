@@ -10,6 +10,7 @@ import com.astarworks.astera.core.domain.i18n.MessageKey
 import com.astarworks.astera.core.domain.match.MatchId
 import com.astarworks.astera.core.domain.match.MatchPhase
 import com.astarworks.astera.core.domain.player.PlayerId
+import com.astarworks.astera.match.application.gamemode.siege.CountRules
 import com.astarworks.astera.match.domain.event.PhaseChanged
 import com.astarworks.astera.match.domain.norma.NormaConfig
 
@@ -34,7 +35,7 @@ public class MatchBriefingListener(
     private val configOf: (MatchId) -> Map<String, String>,
     private val isNorma: (MatchId) -> Boolean,
     /** Shows a title + subtitle (already resolved against the viewer's language by the Paper layer). */
-    private val showTitle: (PlayerId, MessageKey, MessageKey) -> Unit = { _, _, _ -> },
+    private val showTitle: (PlayerId, MessageKey, MessageKey, Map<String, String>) -> Unit = { _, _, _, _ -> },
     /** Shows a short one-line hint (action bar) with placeholders. */
     private val showHint: (PlayerId, MessageKey, Map<String, String>) -> Unit = { _, _, _ -> },
     /** True while the player has never finished a match: they also get the beginner guide. */
@@ -50,24 +51,25 @@ public class MatchBriefingListener(
         val norma = if (isNorma(event.matchId)) NormaConfig.parse(config) else null
         val timeLimitMinutes = (config["time_limit_seconds"]?.toLongOrNull() ?: DEFAULT_TIME_LIMIT_SECONDS) / SECONDS_PER_MINUTE
         val modeKey = modeKeyOf(event.matchId)?.takeIf { it.isNotBlank() }
-        for (member in members) brief(event.matchId, member, modeKey, norma, timeLimitMinutes)
+        val countParams = CountRules.briefingParams(config)
+        for (member in members) brief(event.matchId, member, modeKey, norma, timeLimitMinutes, countParams)
     }
 
-    private fun brief(matchId: MatchId, viewer: PlayerId, modeKey: String?, norma: NormaConfig?, timeLimitMinutes: Long) {
+    private fun brief(matchId: MatchId, viewer: PlayerId, modeKey: String?, norma: NormaConfig?, timeLimitMinutes: Long, countParams: Map<String, String>) {
         fun send(key: String, params: Map<String, String> = emptyMap()) =
             playerGateway.sendMessage(viewer, messages.render(viewer, MessageKey(key), params))
 
         if (modeKey != null) {
             val titleKey = MessageKey("astera.match.objective.$modeKey.title")
-            val rendered = messages.render(viewer, titleKey)
+            val rendered = messages.render(viewer, titleKey, countParams)
             if (rendered.isNotBlank() && !rendered.startsWith("astera.")) {
-                showTitle(viewer, titleKey, MessageKey("astera.match.objective.$modeKey.subtitle"))
+                showTitle(viewer, titleKey, MessageKey("astera.match.objective.$modeKey.subtitle"), countParams)
             }
         }
         send("astera.match.briefing.header")
         if (modeKey != null) {
             val key = "astera.match.briefing.mode.$modeKey"
-            val text = messages.render(viewer, MessageKey(key))
+            val text = messages.render(viewer, MessageKey(key), countParams)
             if (text.isNotBlank() && text != key && !text.startsWith("astera.")) playerGateway.sendMessage(viewer, text)
         }
 

@@ -24,8 +24,8 @@ import kotlin.math.min
  * `channel_ticks` picks a piece up (up to `carry_limit` at a time); every piece slows and lights up the carrier a
  * little more. Holding an ENEMY `base-<team>` zone for `channel_ticks` plants everything carried there. A taken piece
  * grows back after `respawn_seconds`; a carrier who falls drops what they carried in a pile where they died, anyone can
- * collect it, and it burns out after `drop_return_seconds`. The first team to plant `minis_to_win` pieces blows the
- * enemy base up and wins. Entering your own base plants nothing.
+ * collect it, and it burns out after `drop_return_seconds`. Every planted piece takes `count_per_plant` off the
+ * team's count (count model, see [SiegeGameMode]). Entering your own base plants nothing.
  */
 public class CarryMiniTntGameMode @JvmOverloads constructor(
     env: SiegeEnv? = null,
@@ -47,17 +47,12 @@ public class CarryMiniTntGameMode @JvmOverloads constructor(
         public val takenAt: MutableMap<String, Long> = mutableMapOf()
         public val carried: MutableMap<PlayerId, Int> = mutableMapOf()
 
-        /** Pieces each team has planted in the enemy base. */
-        public val planted: MutableMap<TeamId, Int> = mutableMapOf()
-
         public val piles: MutableList<Pile> = mutableListOf()
         internal var nextPileId: Int = 1
 
         /** Last place each carrier was seen alive. */
         internal val lastPos: MutableMap<PlayerId, Vec3> = mutableMapOf()
     }
-
-    private fun minisToWin(): Int = env?.int("minis_to_win", DEFAULT_MINIS_TO_WIN) ?: DEFAULT_MINIS_TO_WIN
 
     private fun carryLimit(): Int = env?.int("carry_limit", DEFAULT_CARRY_LIMIT) ?: DEFAULT_CARRY_LIMIT
 
@@ -170,18 +165,15 @@ public class CarryMiniTntGameMode @JvmOverloads constructor(
         val have = run.carried.remove(player) ?: return
         run.lastPos.remove(player)
         kit.uncarry(player)
-        val total = (run.planted[team] ?: 0) + have
-        run.planted[team] = total
-        val args = mapOf("team" to team.value, "enemy" to enemy.value, "count" to have.toString(), "planted" to total.toString(), "score" to total.toString(), "goal" to minisToWin().toString())
+        val left = (countOf(run, team) - countPer(EVENT_PLANT) * have).coerceAtLeast(0)
+        val args = mapOf("team" to team.value, "enemy" to enemy.value, "pieces" to have.toString(), "count" to left.toString(), "per" to countPer(EVENT_PLANT).toString())
         tellMatch(match, KEY_PLANTED, args)
         val burst = ObjectiveKit.centreOf(base, 1.0)
         val ours = match.teams.firstOrNull { it.id == team }?.members.orEmpty()
         kit.broadcast(ours, PresentationMoments.OBJECTIVE_DELIVER, args, burst, run.stage.world)
         kit.broadcast(match.teams.filter { it.id != team }.flatMap { it.members }, PresentationMoments.OBJECTIVE_DELIVER_AGAINST, args, burst, run.stage.world)
-        if (total >= minisToWin()) {
-            tellMatch(match, KEY_BLOWN_UP, mapOf("team" to team.value, "enemy" to enemy.value))
-            win(run, team)
-        }
+        countEvent(run, match, team, EVENT_PLANT, times = have, at = burst)
+        if (run.ended) tellMatch(match, KEY_BLOWN_UP, mapOf("team" to team.value, "enemy" to enemy.value))
     }
 
     // ---- drops ----------------------------------------------------------------
@@ -238,12 +230,11 @@ public class CarryMiniTntGameMode @JvmOverloads constructor(
     }
 
     private fun statusBar(run: Run, viewer: PlayerId, team: TeamId) {
-        val planted = run.planted[team] ?: 0
-        val goal = minisToWin()
+        val left = countOf(run, team)
         kit.statusBar(
             viewer, BAR,
-            mapOf("count" to (run.carried[viewer] ?: 0).toString(), "limit" to carryLimit().toString(), "planted" to planted.toString(), "goal" to goal.toString()),
-            planted.toDouble() / goal, ObjectiveKit.barColorOf(ObjectiveKit.colorOf(team)),
+            mapOf("count" to (run.carried[viewer] ?: 0).toString(), "limit" to carryLimit().toString(), "left" to left.toString()),
+            1.0 - left.toDouble() / countStart(), ObjectiveKit.barColorOf(ObjectiveKit.colorOf(team)),
         )
     }
 
@@ -273,21 +264,15 @@ public class CarryMiniTntGameMode @JvmOverloads constructor(
         }
     }
 
-    override fun standing(run: Run, match: Match, team: TeamId): Int = run.planted[team] ?: 0
+    override fun holdsObjective(run: Run, match: Match, team: TeamId): Boolean =
+        run.carried.any { (carrier, pieces) -> pieces > 0 && teamOf(match, carrier) == team }
 
     override fun hudLines(run: Run, match: Match): List<HudLine> {
-        val teamLines = match.teams.map { team ->
-            HudLine(
-                key = MessageKey("astera.hud.sidebar.carry-mini-tnt.team"),
-                placeholders = mapOf("planted" to (run.planted[team.id] ?: 0).toString(), "goal" to minisToWin().toString()),
-                team = team.id,
-            )
-        }
         val loose = HudLine(
             MessageKey("astera.hud.sidebar.carry-mini-tnt.loose"),
             placeholders = mapOf("count" to (run.spots.size - run.takenAt.size + run.piles.sumOf { it.count }).toString()),
         )
-        return teamLines + loose
+        return listOf(loose)
     }
 
     override fun finish(run: Run) {
@@ -315,7 +300,7 @@ public class CarryMiniTntGameMode @JvmOverloads constructor(
         private const val SPOT_KEY: String = "spot-"
         private const val PILE_KEY: String = "pile-"
         private const val DEFAULT_PICKUPS: String = "wool-a,wool-b,wool-c"
-        private const val DEFAULT_MINIS_TO_WIN: Int = 10
+        private const val EVENT_PLANT: String = "plant"
         private const val DEFAULT_CARRY_LIMIT: Int = 4
         private const val DEFAULT_RESPAWN_SECONDS: Int = 15
         private const val FAST_TICKS: Long = 5L

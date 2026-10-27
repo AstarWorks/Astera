@@ -21,8 +21,8 @@ import com.astarworks.astera.match.domain.mode.RegionCaptureProgress
  * Capture Wool: the stage's `wool-*` zones are control points, each marked by a
  * white wool block. A team that is alone in a zone for `capture_seconds`
  * captures it (the marker turns into that team's wool and the zone stays
- * captured); a contested or empty zone resets. The first team to
- * `captures_to_win` zones wins (default: a majority of the zones).
+ * captured); a contested or empty zone resets. Each capture takes `count_per_capture` off the team's count
+ * (count model, see [SiegeGameMode]).
  */
 public class CaptureWoolGameMode @JvmOverloads constructor(
     env: SiegeEnv? = null,
@@ -32,15 +32,11 @@ public class CaptureWoolGameMode @JvmOverloads constructor(
         public val progress: MutableMap<String, RegionCaptureProgress> =
             markers.keys.associateWith { RegionCaptureProgress.empty(it) }.toMutableMap()
         public val occupants: MutableMap<String, MutableMap<PlayerId, TeamId>> = mutableMapOf()
-        public val captured: MutableMap<TeamId, Int> = mutableMapOf()
         internal val owner: MutableMap<String, TeamId> = mutableMapOf()
         internal val barred: MutableSet<PlayerId> = mutableSetOf()
     }
 
     private fun captureSeconds(): Long = (env?.int("capture_seconds", DEFAULT_CAPTURE_SECONDS) ?: DEFAULT_CAPTURE_SECONDS).toLong()
-
-    private fun capturesToWin(run: Run): Int =
-        env?.config?.get("captures_to_win")?.toIntOrNull() ?: (run.markers.size / 2 + 1)
 
     override fun createRun(match: Match, stage: Stage): Run? {
         val zones = stage.regionsWithPrefix(ZONE_PREFIX)
@@ -91,13 +87,9 @@ public class CaptureWoolGameMode @JvmOverloads constructor(
             kit.burst(world, above, ObjectiveKit.colorOf(winner))
             kit.broadcast(match.teams.flatMap { it.members }.filter { teamOf(match, it) == winner }, PresentationMoments.OBJECTIVE_CAPTURE, at = above, world = world)
             setBlock(run, cell, woolOf(winner))
-            val count = (run.captured[winner] ?: 0) + 1
-            run.captured[winner] = count
-            tellMatch(match, KEY_CAPTURED, mapOf("team" to winner.value, "zone" to zone, "score" to count.toString(), "goal" to capturesToWin(run).toString()))
-            if (count >= capturesToWin(run)) {
-                win(run, winner)
-                return
-            }
+            tellMatch(match, KEY_CAPTURED, mapOf("team" to winner.value, "zone" to zone, "count" to (countOf(run, winner) - countPer(EVENT_CAPTURE)).coerceAtLeast(0).toString()))
+            countEvent(run, match, winner, EVENT_CAPTURE, at = above)
+            if (run.ended) return
         }
         for (gone in run.barred - barNow) kit.hideStatusBar(gone)
         run.barred.clear()
@@ -108,19 +100,12 @@ public class CaptureWoolGameMode @JvmOverloads constructor(
         kit.statusBar(player, key, mapOf("zone" to zone, "seconds" to seconds.toString(), "need" to captureSeconds().toString()), progress, color)
     }
 
-    override fun standing(run: Run, match: Match, team: TeamId): Int = run.captured[team] ?: 0
+    override fun holdsObjective(run: Run, match: Match, team: TeamId): Boolean =
+        run.progress.any { (zone, progress) -> progress.capturedBy == null && team in run.occupants[zone].orEmpty().values }
 
     override fun hudLines(run: Run, match: Match): List<HudLine> {
-        val goal = capturesToWin(run)
-        val teamLines = match.teams.map { team ->
-            HudLine(
-                key = MessageKey("astera.hud.sidebar.capture-wool.team"),
-                placeholders = mapOf("score" to (run.captured[team.id] ?: 0).toString(), "goal" to goal.toString()),
-                team = team.id,
-            )
-        }
         val open = run.progress.values.count { it.capturedBy == null }
-        return teamLines + HudLine(MessageKey("astera.hud.sidebar.capture-wool.open"), mapOf("open" to open.toString(), "total" to run.markers.size.toString()))
+        return listOf(HudLine(MessageKey("astera.hud.sidebar.capture-wool.open"), mapOf("open" to open.toString(), "total" to run.markers.size.toString())))
     }
 
     override fun finish(run: Run) {
@@ -131,6 +116,7 @@ public class CaptureWoolGameMode @JvmOverloads constructor(
         if (team.value in WOOL_COLORS) "minecraft:${team.value}_wool" else NEUTRAL_WOOL
 
     public companion object {
+        private const val EVENT_CAPTURE: String = "capture"
         public val ID: GameModeId = GameModeId("capture-wool")
         public val TITLE_KEY: MessageKey = MessageKey("astera.gamemode.capture-wool.title")
         private val KEY_CAPTURED: MessageKey = MessageKey("astera.gamemode.capture-wool.captured")
@@ -138,7 +124,7 @@ public class CaptureWoolGameMode @JvmOverloads constructor(
         private val BAR_CONTESTED: MessageKey = MessageKey("astera.objective.bar.capture-wool.contested")
         private const val ZONE_PREFIX: String = "wool-"
         private const val NEUTRAL_WOOL: String = "minecraft:white_wool"
-        private const val DEFAULT_CAPTURE_SECONDS: Int = 15
+        private const val DEFAULT_CAPTURE_SECONDS: Int = 10
         private val WOOL_COLORS: Set<String> = setOf("red", "blue", "yellow", "green", "orange", "purple", "pink", "lime", "cyan")
     }
 }

@@ -23,7 +23,8 @@ import kotlin.math.abs
  * enemy pedestal zone for `channel_ticks` takes one of its jewels; holding your own `base-<team>` zone banks what you
  * carry. Every jewel slows and lights up the carrier a little more. A carrier who falls drops the jewels in a pile
  * where they died: the pile's owners recover their own jewels by touching it, anyone else can steal the rest, and what
- * is left returns to the pedestals after `drop_return_seconds`. A team wins by banking every enemy jewel.
+ * is left returns to the pedestals after `drop_return_seconds`. Every banked jewel takes `count_per_gem` off the
+ * team's count (count model, see [SiegeGameMode]).
  */
 public class StealJewelryGameMode @JvmOverloads constructor(
     env: SiegeEnv? = null,
@@ -48,18 +49,12 @@ public class StealJewelryGameMode @JvmOverloads constructor(
         /** Jewels each player carries, tagged with the team they were stolen from. */
         public val carried: MutableMap<PlayerId, MutableList<TeamId>> = mutableMapOf()
 
-        /** Jewels each team has banked. */
-        public val banked: MutableMap<TeamId, Int> = mutableMapOf()
-
         public val piles: MutableList<Pile> = mutableListOf()
         internal var nextPileId: Int = 1
         internal val lastPos: MutableMap<PlayerId, Vec3> = mutableMapOf()
-        internal val tensionShown: MutableSet<TeamId> = mutableSetOf()
     }
 
     private fun gemsPerTeam(): Int = env?.int("gems_per_team", DEFAULT_GEMS) ?: DEFAULT_GEMS
-
-    private fun goalFor(match: Match): Int = gemsPerTeam() * (match.teams.size - 1)
 
     override fun createRun(match: Match, stage: Stage): Run? {
         val regions = match.teams.mapNotNull { team ->
@@ -159,20 +154,14 @@ public class StealJewelryGameMode @JvmOverloads constructor(
         val gems = run.carried.remove(player)?.takeIf { it.isNotEmpty() } ?: return
         run.lastPos.remove(player)
         kit.uncarry(player)
-        val total = (run.banked[team] ?: 0) + gems.size
-        run.banked[team] = total
-        val goal = goalFor(match)
-        val args = mapOf("team" to team.value, "score" to total.toString(), "goal" to goal.toString(), "count" to gems.size.toString())
+        val left = (countOf(run, team) - countPer(EVENT_GEM) * gems.size).coerceAtLeast(0)
+        val args = mapOf("team" to team.value, "gems" to gems.size.toString(), "count" to left.toString(), "per" to countPer(EVENT_GEM).toString())
         tellMatch(match, KEY_BANKED, args)
         val burst = run.bases[team]?.let { ObjectiveKit.centreOf(it, 1.0) }
         if (burst != null) kit.burst(run.stage.world, burst, ObjectiveKit.colorOf(team))
         kit.broadcast(match.teams.firstOrNull { it.id == team }?.members.orEmpty(), PresentationMoments.OBJECTIVE_DELIVER, args, burst, run.stage.world)
         kit.broadcast(match.teams.filter { it.id != team }.flatMap { it.members }, PresentationMoments.OBJECTIVE_DELIVER_AGAINST, args, burst, run.stage.world)
-        if (total >= goal) {
-            win(run, team)
-        } else if (total == goal - 1 && run.tensionShown.add(team)) {
-            kit.broadcast(match.teams.flatMap { it.members }, PresentationMoments.OBJECTIVE_TENSION, args, burst, run.stage.world)
-        }
+        countEvent(run, match, team, EVENT_GEM, times = gems.size, at = burst)
     }
 
     // ---- drops ----------------------------------------------------------------
@@ -238,36 +227,20 @@ public class StealJewelryGameMode @JvmOverloads constructor(
         }
         for (team in match.teams) {
             for (member in team.members) {
-                statusBar(run, match, member, team.id)
-                teamBars(run, match, member)
+                statusBar(run, member, team.id)
                 compass(run, member, team.id)
             }
         }
         warnOwners(run, match, now)
     }
 
-    private fun statusBar(run: Run, match: Match, viewer: PlayerId, team: TeamId) {
-        val goal = goalFor(match)
-        val banked = run.banked[team] ?: 0
+    private fun statusBar(run: Run, viewer: PlayerId, team: TeamId) {
+        val left = countOf(run, team)
         kit.statusBar(
             viewer, BAR,
-            mapOf("count" to run.carried[viewer].orEmpty().size.toString(), "banked" to banked.toString(), "goal" to goal.toString(), "left" to (run.onPedestal[team] ?: 0).toString()),
-            if (goal > 0) banked.toDouble() / goal else 0.0, ObjectiveKit.barColorOf(ObjectiveKit.colorOf(team)),
+            mapOf("count" to run.carried[viewer].orEmpty().size.toString(), "left" to (run.onPedestal[team] ?: 0).toString(), "remaining" to left.toString()),
+            1.0 - left.toDouble() / countStart(), ObjectiveKit.barColorOf(ObjectiveKit.colorOf(team)),
         )
-    }
-
-    /** One bank-progress bar per team under the personal one, in the team's colour. */
-    private fun teamBars(run: Run, match: Match, viewer: PlayerId) {
-        val goal = goalFor(match)
-        for (team in match.teams) {
-            val banked = run.banked[team.id] ?: 0
-            val color = ObjectiveKit.colorOf(team.id)
-            kit.bar(
-                viewer, "$TEAM_BAR${team.id.value}", BAR_TEAM,
-                mapOf("team" to team.id.value, "tag" to ObjectiveKit.tagOf(color), "banked" to banked.toString(), "goal" to goal.toString()),
-                if (goal > 0) banked.toDouble() / goal else 0.0, ObjectiveKit.barColorOf(color),
-            )
-        }
     }
 
     private fun compass(run: Run, viewer: PlayerId, team: TeamId) {
@@ -294,22 +267,10 @@ public class StealJewelryGameMode @JvmOverloads constructor(
         }
     }
 
-    override fun standing(run: Run, match: Match, team: TeamId): Int = run.banked[team] ?: 0
+    override fun holdsObjective(run: Run, match: Match, team: TeamId): Boolean =
+        run.carried.any { (carrier, gems) -> gems.isNotEmpty() && teamOf(match, carrier) == team }
 
-    override fun hudLines(run: Run, match: Match): List<HudLine> {
-        val goal = goalFor(match)
-        return match.teams.map { team ->
-            HudLine(
-                key = MessageKey("astera.hud.sidebar.steal-jewelry.team"),
-                placeholders = mapOf(
-                    "score" to (run.banked[team.id] ?: 0).toString(),
-                    "goal" to goal.toString(),
-                    "left" to (run.onPedestal[team.id] ?: 0).toString(),
-                ),
-                team = team.id,
-            )
-        }
-    }
+    override fun hudLines(run: Run, match: Match): List<HudLine> = emptyList()
 
     override fun finish(run: Run) {
         run.pedestals.values.forEach { setBlock(run, it, floorBlock()) }
@@ -326,7 +287,6 @@ public class StealJewelryGameMode @JvmOverloads constructor(
         private val LABEL_STEAL: MessageKey = MessageKey("astera.objective.channel.steal-jewelry.steal")
         private val LABEL_BANK: MessageKey = MessageKey("astera.objective.channel.steal-jewelry.bank")
         private val BAR: MessageKey = MessageKey("astera.objective.bar.steal-jewelry")
-        private val BAR_TEAM: MessageKey = MessageKey("astera.objective.bar.steal-jewelry.team")
         private val HINT_BANK: MessageKey = MessageKey("astera.objective.hint.steal-jewelry.bank")
         private val HINT_STEAL: MessageKey = MessageKey("astera.objective.hint.steal-jewelry.steal")
         private val LOOK: ObjectiveLook = ObjectiveLook("minecraft:diamond_block", "aqua", 0.5)
@@ -338,8 +298,8 @@ public class StealJewelryGameMode @JvmOverloads constructor(
         private const val PILE: String = "pile:"
         private const val PILE_KEY: String = "pile-"
         private const val PEDESTAL_KEY: String = "pedestal-"
-        private const val TEAM_BAR: String = "bank-"
         private const val DEFAULT_GEMS: Int = 3
+        private const val EVENT_GEM: String = "gem"
         private const val FAST_TICKS: Long = 5L
         private const val TRAIL_TICKS: Long = 5L
         private const val WARN_INTERVAL_TICKS: Long = 40L
