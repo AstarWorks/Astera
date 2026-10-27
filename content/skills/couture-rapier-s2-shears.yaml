@@ -8,8 +8,8 @@ tags: [ranged]
 params:
   type: projectile
   # Real 3D flight: 1.0 block/tick (about 5 visible ticks). The muzzle sits at hand height (eye -0.2) and aims at the enemy chest (aim_distance 5.4) so the piece rides the thread line hand -> enemy; the overhead-to-line dive is authored in the flight VFX.
-  launch_speed: 1.0
-  max_lifetime_ticks: 16
+  launch_speed: 0.6
+  max_lifetime_ticks: 20
   hit_radius: 1.0
   muzzle_forward: 0.3
   muzzle_up: -0.2
