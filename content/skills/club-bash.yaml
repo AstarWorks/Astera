@@ -1,0 +1,46 @@
+# Match arsenal (wp/match-arsenal, batch 2): simple PvP skill. One cast sound, a few particles.
+
+id: club-bash
+
+name:
+  ja: "棍棒の殴打"
+  en: "Club Bash"
+description:
+  ja: "大きく吹き飛ばす一撃。"
+  en: "A blow that knocks the target far back."
+
+archetype: melee
+cooldown_ticks: 18
+resource_cost: 8
+tags: [ melee, physical, control ]
+
+params:
+  type: melee
+  range: 2.8
+  arc_degrees: 80.0
+  knockback: 1.6
+  damage:
+    - base: { type: literal, value: 24.0 }
+      attribute: physical
+
+phases:
+  type: melee
+  cast:
+    - type: play_sound
+      targets: { type: caster }
+      sound_id: astera:weapons/blade-heavy-swing
+      volume: { type: literal, value: 0.9 }
+      pitch: { type: literal, value: 1.1 }
+    - type: spawn_particle
+      targets: { type: caster_forward, distance: 1.4, height: 0.0 }
+      particle_id: hit-spark
+  hit_entity:
+    - type: play_sound
+      targets: { type: target }
+      sound_id: astera:weapons/blade-hit
+      volume: { type: literal, value: 0.7 }
+      pitch: { type: literal, value: 1.2 }
+    - type: spawn_particle
+      targets: { type: target_offset, offset: { type: literal, value: { x: 0.0, y: 1.2, z: 0.0 } } }
+      particle_id: hit-spark
+  miss: []

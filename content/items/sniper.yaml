@@ -1,0 +1,33 @@
+# Match arsenal (wp/match-arsenal, batch 2): Sniper Rifle.
+
+id: sniper
+
+material: SPYGLASS
+
+name:
+  ja: "スナイパーライフル"
+  en: "Sniper Rifle"
+lore:
+  ja:
+    - "<gray>右クリック: 狙撃 (長いクールダウン)</gray>"
+  en:
+    - "<gray>Right-click: long-range shot (long cooldown)</gray>"
+
+rarity: rare
+level_requirement: 1
+
+attributes:
+  attack_damage: 1.0
+  attack_speed: 1.0
+
+equip_slot: mainhand
+
+resource_type: energy
+resource_cost_per_use: 12
+
+skills:
+  - trigger: right_click
+    skill_id: sniper-shot
+
+pdc_tags:
+  astera:rarity: rare
