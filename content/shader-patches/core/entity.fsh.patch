@@ -6,6 +6,13 @@
 layout(location = 8) flat in int rigPart;
 layout(location = 9) in vec3 rigViewPos;
 layout(location = 10) in vec3 rigViewNormal;
+layout(location = 11) in vec4 rigLightColor;
+
+// rigPart >= 0 is only a light-marker CANDIDATE (ADR-0298): an ordinary entity in a block-14 cell (next to a lantern, torch or
+// glowstone) matches it too. A rig is confirmed by its winding: the skinrig item model is mirrored in x, so a rig face that looks
+// at the camera is a BACK face to the rasteriser (gl_FrontFacing false) while its normal points at the camera. A real entity's
+// front faces always agree with their normals. Set at the top of main(), read by calculateFinalColor.
+bool rigConfirmed = false;
 
 @@ before: vec4 calculateFinalColor(vec4 color) {
 // Astera skin rig first-person hiding (ADR-0285). The server cannot know the client's camera perspective, so the
@@ -58,6 +65,15 @@ vec2 rigRemap(vec2 uv, int part) {
         face = 2 + column;
         f = vec2(lu - float(column) * 8.0, v - 8.0) / 8.0;
     }
+
+    // The skinrig item model is mirrored in x (ADR-0298), so the geometry shows the mirror image of what this layout says: take the
+    // mirror partner of the fragment instead (left and right faces swap, u runs the other way on every face).
+    if (face == 2) {
+        face = 4;
+    } else if (face == 4) {
+        face = 2;
+    }
+    f.x = 1.0 - f.x;
 
     // Target box: texOffs (skin pixels) and size (width, height, depth).
     vec2 offs;
@@ -112,6 +128,9 @@ vec2 rigRemap(vec2 uv, int part) {
 @@ replace: vec4 color = texture(Sampler0, texCoord0);
     vec2 skinUV = texCoord0;
     if (rigPart >= 0) {
+        rigConfirmed = gl_FrontFacing != (dot(rigViewNormal, rigViewPos) < 0.0);
+    }
+    if (rigConfirmed) {
         int rigBone = rigPart & 7;
         bool rigArm = rigBone == 2 || rigBone == 3;
         float rigNear = rigArm ? RIG_ARM_NEAR : RIG_BODY_NEAR;
@@ -130,7 +149,7 @@ vec2 rigRemap(vec2 uv, int part) {
 @@ after: color *= faceVertexColor * ColorModulator;
     // Ghost bone (ADR-0284): a tinted, translucent afterimage. The look is fixed here (SkinRigMarker.GHOST_TINT_RGB / GHOST_OPACITY):
     // the skin's shading keeps the body readable, its hue goes to the tint, and the alpha is what the translucent pipeline blends.
-    if (rigPart >= 16) {
+    if (rigConfirmed && rigPart >= 16) {
         float ghostLuma = dot(color.rgb, vec3(0.2126, 0.7152, 0.0722));
         // Hard luma contrast keeps the face, hair, clothes and per-face shading readable inside the violet, so the copy reads as a body.
         color.rgb = clamp(vec3(0.5412, 0.3608, 1.0) * (0.15 + 1.9 * ghostLuma), 0.0, 1.0);
@@ -141,3 +160,10 @@ vec2 rigRemap(vec2 uv, int part) {
         color.rgb = mix(color.rgb, vec3(0.78, 0.66, 1.0), 0.55 * ghostRim);
         color.a *= mix(0.38, 0.8, ghostRim);
     }
+
+@@ replace: color *= lightMapColor;
+    color *= rigConfirmed ? rigLightColor : lightMapColor;
+
+@@ replace: vec4 faceVertexColor = gl_FrontFacing ? vertexPerFaceColorFront : vertexPerFaceColorBack;
+    // A confirmed rig is mirrored, so its camera-facing faces are back faces: shade them as the front faces they are.
+    vec4 faceVertexColor = (gl_FrontFacing != rigConfirmed) ? vertexPerFaceColorFront : vertexPerFaceColorBack;

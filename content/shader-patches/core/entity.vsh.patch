@@ -14,11 +14,17 @@
 layout(location = 8) flat out int rigPart;
 layout(location = 9) out vec3 rigViewPos;
 layout(location = 10) out vec3 rigViewNormal;
+layout(location = 11) out vec4 rigLightColor;
+// The light marker alone is only a CANDIDATE (ADR-0298): world light produces block 14 + any sky next to every lantern, torch
+// and glowstone, so an ordinary player, zombie or villager standing there matches too. entity.fsh confirms a candidate by
+// the rig's mirrored winding (gl_FrontFacing against the vertex normal) and only then treats it as a rig; until then the entity
+// keeps its own light (lightMapColor) and the fullbright rig light waits in rigLightColor.
 
 @@ after: void main() {
     rigPart = -1;
     rigViewPos = vec3(0.0);
     rigViewNormal = vec3(0.0);
+    rigLightColor = vec4(1.0);
     if (UV2.x == 224 && (UV2.y & 15) == 0) {
         int sky = UV2.y >> 4;
         if (sky <= 5) {
@@ -39,5 +45,7 @@ layout(location = 10) out vec3 rigViewNormal;
     }
 
 @@ replace: lightMapColor = sample_lightmap(Sampler2, UV2);
-    // Rig displays are lit as if beside a light-15 source, whatever payload their brightness carries.
-    lightMapColor = sample_lightmap(Sampler2, rigPart >= 0 ? ivec2(240, 240) : UV2);
+    lightMapColor = sample_lightmap(Sampler2, UV2);
+    // Rig displays are lit as if beside a light-15 source, whatever payload their brightness carries (entity.fsh picks this
+    // once the candidate is confirmed as a rig).
+    rigLightColor = sample_lightmap(Sampler2, rigPart >= 0 ? ivec2(240, 240) : UV2);

@@ -139,6 +139,96 @@ for c in ${CASES:-std wall-back ceiling wall-front bystander ghost}; do
       for d in ${BYSTANDER_DISTS:-0.45 0.6 1.0}; do
         watcher_at "$d"; rec "bystander-$d" Watcher; case_sheet "bystander-$d" Watcher
       done ;;
+    idle) # NORMAL state, F5 back, no cast: is the player's own body drawn normally (not translucent)? before a cast, after one, and on a scoreboard team
+      prep_skill "$ARG"; tp Caster $CASTER_POSE; watcher_at 2.4
+      mkdir -p "$OUT/idle"
+      snap() { DISPLAY=":${DISP[Caster]}" import -window root "$OUT/idle/$1.png" 2>/dev/null || log "WARN: snap $1 failed"; }
+      perspective 1; sleep 1
+      snap f5-1-before-cast
+      rcon "astera skill cast $SKILL Caster --force" >/dev/null; sleep "$(awk -v t=$LENGTH 'BEGIN{printf "%.1f", t/20 + 4}')"; tp Caster $CASTER_POSE; sleep 1.5
+      snap f5-2-after-cast
+      rcon "team add rigtest" >/dev/null; rcon "team join rigtest Caster" >/dev/null; sleep 1.5
+      snap f5-3-team-idle
+      rcon "astera skill cast $SKILL Caster --force" >/dev/null; sleep 1.2
+      snap f5-4-team-casting
+      sleep "$(awk -v t=$LENGTH 'BEGIN{printf "%.1f", t/20 + 3}')"; tp Caster $CASTER_POSE; sleep 1.5
+      snap f5-5-team-after-cast
+      rcon "team leave Caster" >/dev/null; rcon "team remove rigtest" >/dev/null
+      montage "$OUT"/idle/f5-*.png -tile 3x -geometry 800x450+4+4 "$OUT/sheet-idle.png" 2>/dev/null || log "WARN: montage idle" ;;
+    lights) # natural light vs the rig marker (block 14): a player (Watcher), a zombie, a villager and the caster stand in cells lit by a lantern / torch / glowstone, outdoors (sky 15) and in a closed stone box (sky 0); NO cast, nothing here is a rig
+      mkdir -p "$OUT/lights"
+      bx=${CX%.*}; bz=${CZ%.*}
+      lsnap() { DISPLAY=":${DISP[$1]}" import -window root "$OUT/lights/$2.png" 2>/dev/null || log "WARN: snap $2 failed"; }
+      # station <name> <block> <cell|center> <r>: ring of 4 cells (caster S, zombie W, villager E, watcher N) at radius r around C=(bx,bz+4);
+      # center = one source in C (entity cells are r away, light 15-r), cell = a source in every entity cell (the entity stands inside it)
+      lstation() {
+        local name="$1" blk="$2" mode="$3" r="$4" env="$5" cs ws es ns
+        if [ -n "${LIGHT_ONLY:-}" ] && ! echo " $LIGHT_ONLY " | grep -q " $name "; then return; fi
+        arena_clear; rcon "kill @e[type=minecraft:zombie]" >/dev/null; rcon "kill @e[type=minecraft:villager]" >/dev/null
+        if [ "$env" = indoor ]; then
+          rcon "execute in minecraft:overworld run fill $((bx - 6)) $((Y - 1)) $((bz - 5)) $((bx + 6)) $((Y + 4)) $((bz + 8)) minecraft:stone hollow" >/dev/null
+        fi
+        cs="$bx $((bz + 4 - r))"; ws="$((bx - r)) $((bz + 4))"; es="$((bx + r)) $((bz + 4))"; ns="$bx $((bz + 4 + r))"
+        if [ "$mode" = none ]; then :
+        elif [ "$mode" = center ]; then
+          rcon "execute in minecraft:overworld run setblock $bx $((Y + 1)) $((bz + 4)) $blk" >/dev/null
+        else
+          for p in "$cs" "$ws" "$es" "$ns"; do set -- $p; rcon "execute in minecraft:overworld run setblock $1 $((Y + 1)) $2 $blk" >/dev/null; done
+        fi
+        set -- $ws; rcon "execute in minecraft:overworld run summon minecraft:zombie $1.5 $Y $2.5 {NoAI:1b,Silent:1b,PersistenceRequired:1b,LeftHanded:1b,Rotation:[180f,0f],equipment:{head:{id:\"minecraft:iron_helmet\",count:1},mainhand:{id:\"minecraft:iron_sword\",count:1}}}" >/dev/null
+        set -- $es; rcon "execute in minecraft:overworld run summon minecraft:villager $1.5 $Y $2.5 {NoAI:1b,Silent:1b,PersistenceRequired:1b,Rotation:[180f,0f]}" >/dev/null
+        set -- $ns; tp Watcher "$1.5" "$Y" "$2.5" 180 0
+        set -- $cs; tp Caster "$1.5" "$Y" "$2.5" 0 0
+        sleep 3
+        perspective 0; sleep 0.5; lsnap Caster "$name-$env-1fp"
+        lsnap Watcher "$name-$env-3watcher"
+        perspective 1; sleep 0.5; lsnap Caster "$name-$env-2f5"
+        perspective 0
+        montage -label "$name $env: caster fp | caster F5 | watcher" "$OUT/lights/$name-$env-1fp.png" "$OUT/lights/$name-$env-2f5.png" "$OUT/lights/$name-$env-3watcher.png" -tile 3x -geometry 640x360+4+4 "$OUT/sheet-lights-$name-$env.png" 2>/dev/null || log "WARN: montage $name"
+      }
+      rcon "gamemode survival Watcher" >/dev/null
+      for env in ${LIGHT_ENVS:-outdoor indoor}; do
+        lstation control "minecraft:air" none 1 $env
+        lstation lantern-l14 "minecraft:lantern" center 1 $env
+        lstation lantern-l13 "minecraft:lantern" center 2 $env
+        lstation torch-l14 "minecraft:torch" cell 2 $env
+        lstation torch-l13 "minecraft:torch" center 1 $env
+        lstation glowstone-l14 "minecraft:glowstone" center 1 $env
+        lstation glowstone-l13 "minecraft:glowstone" center 2 $env
+        lstation lightblock-l14 "minecraft:light[level=14]" cell 2 $env
+        lstation lightblock-l15 "minecraft:light[level=15]" cell 2 $env
+      done
+      # the founder's case: walk up to a lantern with another player and a mob beside it (F5 back, still every second)
+      [ -n "${LIGHT_ONLY:-}" ] && { rcon "gamemode spectator Watcher" >/dev/null; continue; }
+      arena_clear; rcon "kill @e[type=minecraft:zombie]" >/dev/null; rcon "kill @e[type=minecraft:villager]" >/dev/null
+      rcon "execute in minecraft:overworld run setblock $bx $((Y + 1)) $((bz + 4)) minecraft:lantern" >/dev/null
+      rcon "execute in minecraft:overworld run summon minecraft:zombie $((bx - 1)).5 $Y $((bz + 4)).5 {NoAI:1b,Silent:1b,PersistenceRequired:1b,LeftHanded:1b,Rotation:[180f,0f],equipment:{head:{id:\"minecraft:iron_helmet\",count:1},mainhand:{id:\"minecraft:iron_sword\",count:1}}}" >/dev/null
+      rcon "execute in minecraft:overworld run summon minecraft:villager $((bx + 1)).5 $Y $((bz + 4)).5 {NoAI:1b,Silent:1b,PersistenceRequired:1b,Rotation:[180f,0f]}" >/dev/null
+      tp Watcher "$bx.5" "$Y" "$((bz + 5)).5" 180 0
+      tp Caster "$bx.5" "$Y" "$((bz - 3)).5" 0 0; sleep 3
+      perspective 1; sleep 0.5
+      ( sleep 0.3; DISPLAY=":${DISP[Caster]}" xdotool keydown w; sleep 4.2; DISPLAY=":${DISP[Caster]}" xdotool keyup w ) &
+      mpid=$!
+      for i in 1 2 3 4 5; do lsnap Caster "walk-$i"; sleep 0.7; done
+      wait $mpid
+      montage "$OUT"/lights/walk-*.png -tile 3x -geometry 640x360+4+4 "$OUT/sheet-lights-walk.png" 2>/dev/null || log "WARN: montage walk"
+      rcon "kill @e[type=minecraft:zombie]" >/dev/null; rcon "kill @e[type=minecraft:villager]" >/dev/null
+      rcon "gamemode spectator Watcher" >/dev/null ;;
+    look-down) # F5 back looking steeply down (camera nearly straight above the body)
+      prep_skill "$ARG"; CASTER_POSE="$CX $Y $CZ 0 80"; tp Caster $CASTER_POSE; watcher_at 2.4
+      perspective 1; rec look-down-f5 Caster; case_sheet look-down-f5 Caster ;;
+    move-*) # held movement keys while the rig plays: move-walk (w), move-sprint (ctrl+w), move-strafe (d); fp then F5, with Watcher walking alongside
+      mode="${c#move-}"
+      case "$mode" in walk) keys="w";; sprint) keys="w ctrl";; strafe) keys="d";; *) keys="w";; esac
+      prep_skill "${MOVE_SKILL:-$ARG}"
+      for pv in 0 1; do
+        perspective $pv; tp Caster $CASTER_POSE; watcher_at 2.0
+        ( sleep 0.3; for k in $keys; do DISPLAY=":${DISP[Caster]}" xdotool keydown $k; done
+          sleep "${MOVE_HOLD:-3}"; for k in $keys; do DISPLAY=":${DISP[Caster]}" xdotool keyup $k; done ) &
+        mpid=$!
+        rec "$c-p$pv" Caster Watcher; wait $mpid
+        case_sheet "$c-p$pv" Caster Watcher
+      done ;;
     *) log "unknown case $c" ;;
   esac
 done

@@ -113,6 +113,13 @@ class PackValidationTest {
         assertThat(shaderBlock).isEqualTo(com.astarworks.astera.core.domain.animation.skinrig.SkinRigMarker.BLOCK_LIGHT * 16)
         assertThat(shaderBlock).`as`("block light 15 is what burning/emissive entities carry").isNotEqualTo(15 * 16)
         assertThat(vsh).doesNotContain("UV2.x == 240")
+        // The light marker is only a candidate (ADR-0298): the item model is mirrored in x and the fragment stage confirms a rig by
+        // its winding, so an ordinary entity in a block-14 cell (lantern / torch / glowstone) is never taken for one.
+        assertThat(json("assets/astera/items/skinrig.json").path("model").path("transformation").path("scale")[0].asDouble()).isLessThan(0.0)
+        assertThat(fsh).contains("rigConfirmed = gl_FrontFacing != (dot(rigViewNormal, rigViewPos) < 0.0);")
+        assertThat(fsh).contains("color *= rigConfirmed ? rigLightColor : lightMapColor;")
+        assertThat(vsh).contains("layout(location = 11) out vec4 rigLightColor;")
+        assertThat(fsh).contains("layout(location = 11) in vec4 rigLightColor;")
         val marker = com.astarworks.astera.core.domain.animation.skinrig.SkinRigMarker
         // All 16 sky payloads the server can write stay within the nibble.
         for (bone in com.astarworks.astera.core.domain.animation.skinrig.SkinRigBone.entries) for (slim in listOf(false, true)) for (ghost in listOf(false, true)) {
