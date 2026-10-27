@@ -1,0 +1,20 @@
+# Converted from content/skills/frost-nova.yaml by tools/skill-convert/convert.py (v1 archetype: aoe). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
+# Generated point-frame offsets are [left, up, forward] in the parent frame.
+# CONVERT-TODO meta: no SkillDef home for name / description / cooldown / cost / tags (cooldown and cost live on the item binding): cooldown_ticks=160; resource_cost=25; tags=magic,ice-family,aoe
+# CONVERT-TODO meta: name={"en": "Frost Nova", "ja": "フロストノヴァ"} | description={"en": "Blasts nearby enemies with ice and slows them.", "ja": "周囲の敵に氷属性ダメージを与え、動きを鈍らせる。"}
+# CONVERT-TODO block_damage (block chip on impact: no op) (x1): amount=20
+apiVersion: "astera/v2"
+kind: Skill
+id: frost-nova
+item: frost-staff
+gameplay:
+  params: {radius: 5.0, dmg_water: 25.0, freeze_ticks: 60}
+  expose:
+    - {id: damage, param: dmg_water}
+    - {id: radius, param: radius}
+  timeline:
+    - {id: t0, at: 0, do: [{id: burst, op: hit, frames: [caster], sphere: {at: caster, radius: "${radius}"}, window: once}]}
+  "on":
+    hit:
+      - {id: dmg, op: damage, target: victim, components: [{kind: water, amount: "= dmg_water * (1.0 - 0.5 * dist(pos(caster), pos(victim)) / radius)"}], when: "= event.source == 'burst'"}
+      - {id: st_freeze, op: status, status: freeze, duration_ticks: "${freeze_ticks}", target: victim, when: "= event.source == 'burst'"}

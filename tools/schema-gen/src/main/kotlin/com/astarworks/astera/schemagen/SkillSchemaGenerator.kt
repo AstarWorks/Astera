@@ -72,7 +72,8 @@ object SkillSchemaGenerator {
         if (specParam != null) {
             leaves(MotionSpec::class).map { OpEntry(snake(it.simpleName!!), k, section, it) }
         } else {
-            listOf(OpEntry(snake(k.simpleName!!), k, section))
+            // the decoder names `StatusOp.ApplyStatus` plain `status` (op: status, status: <id>)
+            listOf(OpEntry(if (k.simpleName == "ApplyStatus") "status" else snake(k.simpleName!!), k, section))
         }
     }.sortedBy { it.yamlName }
 
@@ -88,6 +89,8 @@ object SkillSchemaGenerator {
         property == "afterTicks" -> "after"
         property == "everyTicks" -> "every"
         property == "ops" -> "do"
+        owner == com.astarworks.astera.core.domain.skillengine.op.TrackKey::class && property == "tick" -> "t"
+        owner == com.astarworks.astera.core.domain.skillengine.op.StatusOp.ApplyStatus::class && property == "statusId" -> "status"
         owner == com.astarworks.astera.core.domain.skillengine.modifier.ExposedParam::class && property == "name" -> "id"
         else -> snake(property)
     }
@@ -260,6 +263,7 @@ object SkillSchemaGenerator {
                 }
                 pk != null && pk.isSubclassOf(HitVolume::class) -> {
                     for (v in leaves(HitVolume::class)) props[snake(v.simpleName!!)] = ref(dataDef(v, ctx))
+                    if (e.kclass.simpleName == "Projectile" || e.kclass.simpleName == "Aoe") props["radius"] = ref("Value_number")
                 }
                 else -> props[yamlKey(e.kclass, name)] = typeSchema(p.type, ctx)
             }
@@ -276,9 +280,12 @@ object SkillSchemaGenerator {
             put("required", buildJsonArray { add("id"); add("op") })
             put("additionalProperties", true)
             if (oneOfVolume) {
-                put("oneOf", JsonArray(leaves(HitVolume::class).map { v ->
-                    obj { put("required", buildJsonArray { add(snake(v.simpleName!!)) }) }
-                }))
+                // projectile and aoe also accept a bare `radius:` (a sphere on the frame the volume rides on)
+                val shorthand = e.kclass.simpleName == "Projectile" || e.kclass.simpleName == "Aoe"
+                put("oneOf", JsonArray(
+                    leaves(HitVolume::class).map { v -> obj { put("required", buildJsonArray { add(snake(v.simpleName!!)) }) } } +
+                        (if (shorthand) listOf(obj { put("required", buildJsonArray { add("radius") }) }) else emptyList()),
+                ))
             }
         }
     }

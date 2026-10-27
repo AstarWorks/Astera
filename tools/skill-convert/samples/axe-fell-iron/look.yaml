@@ -1,8 +1,0 @@
-# Converted from content/skills/axe-fell-iron.yaml + content/vfx/* by tools/skill-convert/convert.py (v1 archetype: sequence). Grep the converter markers (TODO / PRESENT prefixed with CONVERT-) before hand-editing.
-# Generated point-frame offsets are [left, up, forward] in the parent frame.
-apiVersion: "astera/v2"
-kind: Skill
-id: axe-fell-iron
-presentation:
-  timeline:
-    - {id: fx0, at: 0, do: [{id: snd, op: sound, sound: "astera:weapons/blade-heavy-swing", at: caster, volume: 1.0, pitch: 0.8}, {id: emit, op: emit, at: pt_caster_0_0_2, particle: hit-spark, count: 1}]}
