@@ -1,0 +1,7 @@
+# UI-12 status codex tile icon. Vanilla material until item-art draws a glyph.
+
+id: gui-tile-status-poise
+material: SHIELD
+name:
+  ja: "<gray>構え</gray>"
+  en: "<gray>Poise</gray>"

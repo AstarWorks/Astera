@@ -43,6 +43,7 @@ public class LobbyHintIntentHandler(
                 "astera.hint.help.header",
                 "astera.hint.help.commands",
                 "astera.hint.help.tutorial",
+                "astera.statuscodex.hint",
                 "astera.hint.help.in-match",
                 "astera.hint.currency.header",
                 "astera.hint.currency.gold",
