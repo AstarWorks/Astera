@@ -50,19 +50,6 @@ tasks.withType<Test>().configureEach {
     // The long annihilation pillar scenarios produce traces that do not fit the 512 MB default test heap.
     maxHeapSize = "2g"
 }
-
-// V-1 (ADR-0225): only the per-skill showcase traces, for :tools:skill-viewer. Not part of `check`
-// (the same scenarios also run in `test`).
-tasks.register<Test>("showcase") {
-    group = "verification"
-    description = "Writes build/sim-traces/showcase-<skill>.json for every skill in content/skills"
-    val testSet = sourceSets.test.get()
-    testClassesDirs = testSet.output.classesDirs
-    classpath = testSet.runtimeClasspath
-    useJUnitPlatform()
-    filter { includeTestsMatching("*SkillShowcaseScenarioTest") }
-}
-
 // Warm path of scripts/skill-preview-auto.sh: prints the runtime classpath (Gradle compiles once per code change), so plan dumps
 // run as a bare `java -cp` with no Gradle startup per skill.
 tasks.register("previewClasspath") {
