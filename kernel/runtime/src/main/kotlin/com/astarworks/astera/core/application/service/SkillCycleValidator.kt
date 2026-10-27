@@ -66,6 +66,7 @@ public class SkillCycleValidator {
                 }
                 is Mechanic.ForEachTarget -> {
                     for (x in m.mechanics) stack.addLast(x)
+                    for (x in m.ifEmpty) stack.addLast(x)
                 }
                 is Mechanic.Loop -> {
                     for (x in m.mechanics) stack.addLast(x)

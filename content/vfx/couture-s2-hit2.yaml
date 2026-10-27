@@ -1,7 +1,7 @@
 # S2 coin 2 hit (skill tick 41): three white streak bundles converge, star shrinks to a thin X, black shadow; contact = effect tick 2 (played at delay 39).
 id: couture-s2-hit2
 duration_ticks: 29
-orient: world
+orient: to_target
 follow: false
 sample_ticks: 1
 elements:
@@ -313,16 +313,16 @@ elements:
   end_tick: 7
   keyframes:
   - t: 0
-    translate: [0, 1.387, -0.492]
+    translate: [0, 1.387, -0.295]
     rotate: [0, 0, 170]
     scale: [0.21, 0.294, 1]
   - t: 1
-    translate: [0, 1.844, -3.087]
+    translate: [0, 1.844, -1.852]
     rotate: [0, 0, 170]
     scale: [0.42, 0.378, 1]
     ease: out_expo
   - t: 4
-    translate: [0, 2.203, -5.121]
+    translate: [0, 2.203, -3.073]
     rotate: [0, 0, 170]
     scale: [0.084, 0.042, 1]
     ease: in_quad
@@ -334,16 +334,16 @@ elements:
   end_tick: 8
   keyframes:
   - t: 0
-    translate: [0, 1.45, -0.371]
+    translate: [0, 1.45, -0.223]
     rotate: [0, 0, 158]
     scale: [0.17, 0.238, 1]
   - t: 1
-    translate: [0, 2.289, -2.448]
+    translate: [0, 2.289, -1.469]
     rotate: [0, 0, 158]
     scale: [0.34, 0.30600000000000005, 1]
     ease: out_expo
   - t: 4
-    translate: [0, 2.948, -4.08]
+    translate: [0, 2.948, -2.448]
     rotate: [0, 0, 158]
     scale: [0.068, 0.034, 1]
     ease: in_quad
@@ -355,16 +355,16 @@ elements:
   end_tick: 9
   keyframes:
   - t: 0
-    translate: [0, 1.65, -0.606]
+    translate: [0, 1.65, -0.364]
     rotate: [0, 0, 150]
     scale: [0.23, 0.322, 1]
   - t: 1
-    translate: [0, 3.032, -3.001]
+    translate: [0, 3.032, -1.801]
     rotate: [0, 0, 150]
     scale: [0.46, 0.41400000000000003, 1]
     ease: out_expo
   - t: 4
-    translate: [0, 4.1, -4.85]
+    translate: [0, 4.1, -2.91]
     rotate: [0, 0, 150]
     scale: [0.09200000000000001, 0.046000000000000006, 1]
     ease: in_quad
@@ -376,16 +376,16 @@ elements:
   end_tick: 7
   keyframes:
   - t: 0
-    translate: [0, 1.621, -0.383]
+    translate: [0, 1.621, -0.23]
     rotate: [0, 0, 140]
     scale: [0.15, 0.21, 1]
   - t: 1
-    translate: [0, 2.891, -1.896]
+    translate: [0, 2.891, -1.138]
     rotate: [0, 0, 140]
     scale: [0.3, 0.27, 1]
     ease: out_expo
   - t: 4
-    translate: [0, 3.871, -3.064]
+    translate: [0, 3.871, -1.838]
     rotate: [0, 0, 140]
     scale: [0.06, 0.03, 1]
     ease: in_quad
@@ -397,16 +397,16 @@ elements:
   end_tick: 8
   keyframes:
   - t: 0
-    translate: [0, 1.548, -0.865]
+    translate: [0, 1.548, -0.519]
     rotate: [0, 0, 164]
     scale: [0.18, 0.252, 1]
   - t: 1
-    translate: [0, 2.346, -3.648]
+    translate: [0, 2.346, -2.189]
     rotate: [0, 0, 164]
     scale: [0.36, 0.324, 1]
     ease: out_expo
   - t: 4
-    translate: [0, 2.954, -5.768]
+    translate: [0, 2.954, -3.461]
     rotate: [0, 0, 164]
     scale: [0.072, 0.036, 1]
     ease: in_quad
@@ -418,16 +418,16 @@ elements:
   end_tick: 9
   keyframes:
   - t: 0
-    translate: [0, 1.76, -0.386]
+    translate: [0, 1.76, -0.232]
     rotate: [0, 0, 130]
     scale: [0.15, 0.21, 1]
   - t: 1
-    translate: [0, 3.07, -1.485]
+    translate: [0, 3.07, -0.891]
     rotate: [0, 0, 130]
     scale: [0.3, 0.27, 1]
     ease: out_expo
   - t: 4
-    translate: [0, 4.058, -2.314]
+    translate: [0, 4.058, -1.388]
     rotate: [0, 0, 130]
     scale: [0.06, 0.03, 1]
     ease: in_quad
@@ -439,16 +439,16 @@ elements:
   end_tick: 7
   keyframes:
   - t: 0
-    translate: [0, 1.738, -0.899]
+    translate: [0, 1.738, -0.539]
     rotate: [0, 0, 154]
     scale: [0.14, 0.196, 1]
   - t: 1
-    translate: [0, 2.698, -2.867]
+    translate: [0, 2.698, -1.72]
     rotate: [0, 0, 154]
     scale: [0.28, 0.25200000000000006, 1]
     ease: out_expo
   - t: 4
-    translate: [0, 3.404, -4.314]
+    translate: [0, 3.404, -2.588]
     rotate: [0, 0, 154]
     scale: [0.05600000000000001, 0.028000000000000004, 1]
     ease: in_quad
@@ -460,16 +460,16 @@ elements:
   end_tick: 8
   keyframes:
   - t: 0
-    translate: [0, 1.476, -0.243]
+    translate: [0, 1.476, -0.146]
     rotate: [0, 0, 144]
     scale: [0.19, 0.26599999999999996, 1]
   - t: 1
-    translate: [0, 3.143, -2.536]
+    translate: [0, 3.143, -1.522]
     rotate: [0, 0, 144]
     scale: [0.38, 0.342, 1]
     ease: out_expo
   - t: 4
-    translate: [0, 4.474, -4.369]
+    translate: [0, 4.474, -2.621]
     rotate: [0, 0, 144]
     scale: [0.07600000000000001, 0.038000000000000006, 1]
     ease: in_quad
@@ -555,9 +555,9 @@ elements:
   end_tick: 7
   keyframes:
   - t: 0
-    translate: [0, 1.342, -0.297]
+    translate: [0, 1.342, -0.178]
   - t: 3
-    translate: [0, 1.926, -4.456]
+    translate: [0, 1.926, -2.674]
     ease: out_quad
 - id: burst-ember-1
   kind: {type: particle, particle_id: couture-s2-burst-ember, every_ticks: 1}
@@ -566,9 +566,9 @@ elements:
   end_tick: 7
   keyframes:
   - t: 0
-    translate: [0, 1.393, -0.285]
+    translate: [0, 1.393, -0.171]
   - t: 3
-    translate: [0, 2.814, -4.66]
+    translate: [0, 2.814, -2.796]
     ease: out_quad
 - id: burst-ember-2
   kind: {type: particle, particle_id: couture-s2-burst-ember, every_ticks: 1}
@@ -577,9 +577,9 @@ elements:
   end_tick: 7
   keyframes:
   - t: 0
-    translate: [0, 1.441, -0.265]
+    translate: [0, 1.441, -0.159]
   - t: 3
-    translate: [0, 3.788, -4.68]
+    translate: [0, 3.788, -2.808]
     ease: out_quad
 - id: burst-ember-3
   kind: {type: particle, particle_id: couture-s2-burst-ember, every_ticks: 1}
@@ -588,9 +588,9 @@ elements:
   end_tick: 7
   keyframes:
   - t: 0
-    translate: [0, 1.485, -0.236]
+    translate: [0, 1.485, -0.142]
   - t: 3
-    translate: [0, 4.07, -3.546]
+    translate: [0, 4.07, -2.128]
     ease: out_quad
 - id: burst-ember-4
   kind: {type: particle, particle_id: couture-s2-burst-ember, every_ticks: 1}
@@ -599,9 +599,9 @@ elements:
   end_tick: 7
   keyframes:
   - t: 0
-    translate: [0, 1.523, -0.201]
+    translate: [0, 1.523, -0.121]
   - t: 3
-    translate: [0, 4.941, -3.279]
+    translate: [0, 4.941, -1.967]
     ease: out_quad
 - id: burst-ember-5
   kind: {type: particle, particle_id: couture-s2-burst-ember, every_ticks: 1}
@@ -610,9 +610,9 @@ elements:
   end_tick: 7
   keyframes:
   - t: 0
-    translate: [0, 1.554, -0.159]
+    translate: [0, 1.554, -0.095]
   - t: 3
-    translate: [0, 5.795, -2.809]
+    translate: [0, 5.795, -1.685]
     ease: out_quad
 - id: p-orange
   kind: {type: particle, particle_id: couture-s2-p-orange, every_ticks: 1}
@@ -670,6 +670,72 @@ elements:
   keyframes:
   - t: 0
     translate: [-0.4, 1.6, 0]
+- id: axis-0
+  kind: {type: particle, particle_id: couture-s2-p-spark, every_ticks: 1}
+  brightness: 15
+  start_tick: 2
+  end_tick: 9
+  keyframes:
+  - t: 0
+    translate: [0.0, 1.37, 1.905]
+  - t: 6
+    translate: [0.0, 3.527, -13.444]
+    ease: out_quad
+- id: axis-1
+  kind: {type: particle, particle_id: couture-s2-p-spark, every_ticks: 1}
+  brightness: 15
+  start_tick: 2
+  end_tick: 9
+  keyframes:
+  - t: 0
+    translate: [0.0, 1.471, 1.93]
+  - t: 6
+    translate: [0.0, 7.798, -15.454]
+    ease: out_quad
+- id: axis-2
+  kind: {type: particle, particle_id: couture-s2-p-spark, every_ticks: 1}
+  brightness: 15
+  start_tick: 2
+  end_tick: 9
+  keyframes:
+  - t: 0
+    translate: [0.0, 1.565, 1.976]
+  - t: 6
+    translate: [0.0, 12.958, -16.257]
+    ease: out_quad
+- id: axis-3
+  kind: {type: particle, particle_id: couture-s2-p-spark, every_ticks: 1}
+  brightness: 15
+  start_tick: 2
+  end_tick: 9
+  keyframes:
+  - t: 0
+    translate: [0.0, 1.647, 2.04]
+  - t: 6
+    translate: [0.0, 12.415, -9.109]
+    ease: out_quad
+- id: axis-4
+  kind: {type: particle, particle_id: couture-s2-p-spark, every_ticks: 1}
+  brightness: 15
+  start_tick: 2
+  end_tick: 9
+  keyframes:
+  - t: 0
+    translate: [0.0, 1.715, 2.12]
+  - t: 6
+    translate: [0.0, 17.052, -8.225]
+    ease: out_quad
+- id: axis-5
+  kind: {type: particle, particle_id: couture-s2-p-spark, every_ticks: 1}
+  brightness: 15
+  start_tick: 2
+  end_tick: 9
+  keyframes:
+  - t: 0
+    translate: [0.0, 1.757, 2.197]
+  - t: 6
+    translate: [0.0, 21.398, -6.548]
+    ease: out_quad
 - id: shadow-0
   kind: {type: sprite, sprite: couture-s2-shadow-spikes, frame_ticks: 1, loop: false, see_through: true}
   billboard: fixed

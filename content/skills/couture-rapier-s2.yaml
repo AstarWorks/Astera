@@ -1,6 +1,6 @@
 # Couturier's Shears S2 (型紙裁ち, Pattern Trim): reference GIe7Fna5LD4 t=25.947..31.498. Beat sheet: tools/skill-compare/data/couture-rapier-s2/beat-sheet/beat-sheet.md (r1, gate 1 passed 2026-10-27).
 # Three effect-driven coins: t9 white crescent ring + thin line, t41 three shears converge from above (ONE shears model flies; founder Q2=B), t72 back-turned dash through the enemy with a clockwise 180 deg turn in the smear (Q1=A).
-# Coin 1 is a line fixed at the cast-time pose (cone 30 deg / 9 blocks = the drawn line); coin 2 is a real projectile (couture-rapier-s2-shears). Hit effects fire only on a real hit, anchored on the hit entity (Q3=A: no homing, dodgeable).
+# Remote hits (t9, t41) are fixed at the cast-time pose and hit whoever stands on the line (Q3=A: no homing, dodgeable). Hit area = visual reach (cone 24 deg / 7 blocks; the line / shears fly ~5.4).
 # The performance rig couture-s2-rig hides the held item for its whole length: the hand shears model is shown t0-21 and t63+, the flying shears t22-58, the other blades / linked shears are flat VFX only.
 id: couture-rapier-s2
 name: {ja: 型紙裁ち, en: Pattern Trim}
@@ -15,21 +15,26 @@ phases:
   - {type: play_vfx, targets: {type: caster}, vfx_id: couture-s2-rig}
   - {type: play_vfx, targets: {type: caster}, vfx_id: couture-s2-rig-b, delay_ticks: {type: literal, value: 61}}
   - {type: play_vfx, targets: {type: caster}, vfx_id: couture-s2-coin1, delay_ticks: {type: literal, value: 7}, follow: {type: literal, value: true}}
-  # coin 1: ONE target resolve at the cast-time pose; hit VFX, damage and sound all hit that same entity, only if something is on the line (Q3=A: no homing).
+  - {type: play_vfx, targets: {type: cone, from: {type: caster}, direction: {type: from_caster}, distance: {type: literal, value: 7}, angle_degrees: {type: literal, value: 24}, max_count: 1}, vfx_id: couture-s2-hit1, delay_ticks: {type: literal, value: 8}, snapshot_pose: true}
+  - {type: damage, targets: {type: cone, from: {type: caster}, direction: {type: from_caster}, distance: {type: literal, value: 7}, angle_degrees: {type: literal, value: 24}, max_count: 1}, ignore_invulnerability: {type: literal, value: true}, components: [{base: {type: literal, value: 6}, attribute: physical}], delay_ticks: {type: literal, value: 9}, snapshot_pose: true}
+  # The throw (ADR-0286): resolved at t30; shears, chain, burst and damage all follow the REAL target (cone 30 deg / 9 blocks). No target: the shears fly to max range, no link, no burst.
   - type: for_each_target
     targets: {type: cone, from: {type: caster}, direction: {type: from_caster}, distance: {type: literal, value: 9}, angle_degrees: {type: literal, value: 30}, max_count: 1}
     snapshot_pose: true
-    delay_ticks: {type: literal, value: 8}
+    delay_ticks: {type: literal, value: 30}
     mechanics:
-    - {type: play_vfx, targets: {type: target}, vfx_id: couture-s2-hit1}
-    - {type: damage, targets: {type: target}, ignore_invulnerability: {type: literal, value: true}, components: [{base: {type: literal, value: 6}, attribute: physical}], delay_ticks: {type: literal, value: 1}}
-  # coin 2: a REAL projectile (couture-rapier-s2-shears): leaves from overhead, flies 3D with entity/block collision, sticks in what it hits. Hit VFX/damage live in that skill's hit_entity phase.
-  - {type: cast_skill, targets: {type: caster}, skill_id: couture-rapier-s2-shears, delay_ticks: {type: literal, value: 34}}
+    - {type: play_vfx, targets: {type: caster}, vfx_id: couture-s2-throw, track_bound_target: true}
+    - {type: play_vfx, targets: {type: target}, vfx_id: couture-s2-hit2, delay_ticks: {type: literal, value: 8}}
+    - {type: damage, targets: {type: target}, ignore_invulnerability: {type: literal, value: true}, components: [{base: {type: literal, value: 7}, attribute: physical}], delay_ticks: {type: literal, value: 11}}
+    if_empty:
+    - {type: play_vfx, targets: {type: caster}, vfx_id: couture-s2-throw-miss}
+  - {type: play_vfx, targets: {type: caster}, vfx_id: couture-s2-haze, delay_ticks: {type: literal, value: 3}, follow: {type: literal, value: true}}
+  - {type: play_vfx, targets: {type: caster}, vfx_id: couture-s2-trail, delay_ticks: {type: literal, value: 15}, follow: {type: literal, value: true}}
   - {type: play_vfx, targets: {type: caster}, vfx_id: couture-s2-dash, delay_ticks: {type: literal, value: 70}, follow: {type: literal, value: true}}
-  - {type: play_vfx, targets: {type: cone, from: {type: caster}, direction: {type: from_caster}, distance: {type: literal, value: 9}, angle_degrees: {type: literal, value: 60}, max_count: 1}, vfx_id: couture-s2-hit3, delay_ticks: {type: literal, value: 72}, snapshot_pose: true}
   - {type: dash_strike, distance: 9, ticks: 3, radius: 0.8, hit_once: true, invulnerable: false, stop_on_block: true, follow_pitch: false,
      on_hit: [
        {type: damage, targets: {type: target}, ignore_invulnerability: {type: literal, value: true}, components: [{base: {type: literal, value: 10}, attribute: physical}]},
+       {type: play_vfx, targets: {type: target}, vfx_id: couture-s2-hit3, delay_ticks: {type: literal, value: 1}},
        {type: play_sound, targets: {type: target}, sound_id: entity.player.attack.sweep, volume: {type: literal, value: 1.0}, pitch: {type: literal, value: 0.55}},
        {type: play_sound, targets: {type: target}, sound_id: entity.sheep.shear, volume: {type: literal, value: 1.0}, pitch: {type: literal, value: 0.7}},
        {type: play_sound, targets: {type: target}, sound_id: item.trident.riptide_1, volume: {type: literal, value: 0.8}, pitch: {type: literal, value: 1.5}}],

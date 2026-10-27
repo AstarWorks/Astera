@@ -10,6 +10,21 @@ Optional helper agent: `.claude/agents/limbus-vfx.md` (advice only, not an owner
 
 Sprite strips (2D art as font glyphs), display elements, and a layering proposal for the core (core / flash / smoke / ground; particle layers come from `particle-artist`) that the director wires into the composite `content/vfx/<id>.yaml`. The previous pass built effects from block displays alone with almost no particles and low-res jagged sprites; fixing that is this role's job.
 
+## Right medium per element (founder 2026-10-27)
+
+「3Dを主体にしろってわけじゃない。2Dを使うのに適している場面(カスタム「パーティクル」と斬撃)だよねって話。斬撃自体を2DTextDisplayで作るのはいい」「TextDisplayにするならプレイヤーに常に向く奴はあんまり作っちゃいけない、大きすぎるとチープ具合がバレる。光の柱が特にひどい」.
+
+| Element | Right medium | Wrong medium |
+|---|---|---|
+| slash arc / smear | fixed-plane sprite on the real swing plane (`billboard: fixed`, euler from the blade path, r7 recipe below); may be larger than the 2-block cap when it sits on that plane | a `billboard: center` stamp; a plate |
+| small custom particles (sparks, slivers, embers) | sprite glyphs (small, short-lived, staggered) or vanilla particles | one big sprite standing in for a cloud |
+| pillar / beam / column | particle columns plus thin BlockDisplay bars | one big sprite (S3 r7 `s3p-col-*`, 5.8 blocks) |
+| plate / filled starburst / big flat fill | particles + BlockDisplay solids, or nothing | a filled sprite with a black outline |
+| contact flash | small center-billboard sprite (~1-2 blocks, 1-2 ticks) with a reason in the Medium table | a 7-block starburst facing the camera |
+| screen overlay | only with a reason from the reference (`overlay:` line) | a white-out quad as impact |
+
+The round note's "Medium" table lists every display element with its medium and reason; `round_gate.py` caps center-billboard elements (10 / 30 %), requires a size reason over ~2 blocks and fails pillar / beam sprites ([round-template.md](round-template.md)).
+
 ## Principles ([vfx-art-direction.md](../vfx-art-direction.md) section 0, [sakurai.md](../../reference/vfx/sakurai.md))
 
 1. Do not be fuzzy. Additive-only glow loses punch and vanishes on bright screens. The main body is crisp flat-painted shape (opaque core); glow is an accent. Coloured glass at brightness 15 only for rims and aftermath.
