@@ -125,7 +125,7 @@ public object VfxTimeline {
                 ?: requireNotNull(track) { "ghost_body '${g.id}' has no animation and the effect has no body" })
         }
         val slots = def.elements.flatMapIndexed { index, element ->
-            planElement(def, element, index, anchor.rotation, seed, scale, sprites)
+            planElement(def, element, index, anchor.rotation, seed, scale, sprites, freezes)
         } + def.rigs.flatMap { VfxRigPlanner.plan(def, it, anchor.rotation, scale, freezes, if (it.weapon != null) track else null, ghostTracks) }
         val lanes = def.elements.associate { it.id to it.lane }.filterValues { it != VfxLane.CORE }
         val laned = if (lanes.isEmpty()) slots else slots.map { plan -> lanes[plan.elementId]?.let { plan.copy(lane = it) } ?: plan }
@@ -145,6 +145,7 @@ public object VfxTimeline {
         seed: Long,
         scale: Double,
         sprites: SpriteFrames,
+        freezes: List<VfxFreeze>,
     ): List<VfxElementPlan> {
         if (el.emit != null) return VfxEmitterPlanner.plan(def, el, elementIndex, anchorRot, seed, scale, sprites)
         val formation = el.formation
@@ -161,7 +162,8 @@ public object VfxTimeline {
             if (life <= 0) continue
 
             val geometry = slotGeometry(el, baked.positions[slot], baked.rotations[slot], anchorRot, scale, slotRandom(seed, elementIndex, slot))
-            val ctx = SlotContext(el, baked, anchorRot, geometry, scale, life, def.sampleTicks)
+            val clock = if (el.respectHitStop) HitStopClock(freezes, spawn + ANIMATION_DELAY_TICKS) else HitStopClock.NONE
+            val ctx = SlotContext(el, baked, anchorRot, geometry, scale, life, def.sampleTicks, clock)
 
             out += if (el.kind is VfxElementKind.Particle) {
                 particleSlot(el, el.kind, formation, slot, spawn, despawn, ctx)
@@ -317,13 +319,14 @@ public object VfxTimeline {
         val scale: Double,
         val life: Int,
         val sampleTicks: Int,
+        val clock: HitStopClock = HitStopClock.NONE,
     ) {
         val frames = baked.frames
         val group = baked.group
         fun localAt(u: Int): Local = baked.localAt(u)
 
         /** Sorted distinct element-relative ticks where the element or group track changes slope. */
-        val breakpoints: List<Int> = baked.breakpoints
+        val breakpoints: List<Int> = (baked.breakpoints + clock.stopsAt.filter { baked.breakpoints.isNotEmpty() && it > baked.breakpoints.first() && it < baked.breakpoints.last() }).distinct().sorted()
 
         /**
          * Group transform at [u]: (world rotation, extra world translation, uniform scale). The rotation
@@ -457,13 +460,56 @@ public object VfxTimeline {
                         else -> null
                     },
                 )
-            }
+            }.map { ctx.clock.shifted(it) }
         }
-        return byTick.values.sortedBy { it.tick }
+        return byTick.values.sortedBy { it.tick }.map { ctx.clock.shifted(it) }
     }
 
     private fun spriteOpacity(el: VfxElement, u: Double): Int =
         (VfxQuad.trackAt(el, 0xFFFFFF, 1.0, u).second * 255).roundToInt().coerceIn(VfxQuad.MIN_TEXT_OPACITY, 255)
+
+    /**
+     * Element-level hit-stop (`respect_hit_stop` on an element): the keyframe clock stops during each merged window of
+     * [freezes] (effect ticks, post-freeze time) and every update after it lands that many ticks later. [base] is the effect tick
+     * of element tick 0. [NONE] is the identity.
+     */
+    internal class HitStopClock(freezes: List<VfxFreeze>, private val base: Int) {
+        /** (pre-freeze effect tick the clock stops at, frozen ticks). */
+        private val stops: List<Pair<Int, Int>>
+
+        init {
+            val merged = ArrayList<VfxFreeze>()
+            for (f in freezes.sortedBy { it.at }) {
+                val last = merged.lastOrNull()
+                if (last != null && f.at <= last.at + last.ticks) {
+                    merged[merged.size - 1] = VfxFreeze(last.at, maxOf(last.at + last.ticks, f.at + f.ticks) - last.at)
+                } else {
+                    merged += f
+                }
+            }
+            var acc = 0
+            val out = ArrayList<Pair<Int, Int>>()
+            for (w in merged) {
+                val at = w.at - acc
+                if (at >= base) {
+                    out += at to w.ticks
+                    acc += w.ticks
+                }
+            }
+            stops = out
+        }
+
+        /** Element-relative ticks where the clock stops (extra interpolation breakpoints). */
+        val stopsAt: List<Int> get() = stops.map { it.first - base }
+
+        fun shift(tick: Int): Int = tick + stops.filter { tick >= it.first }.sumOf { it.second }
+
+        fun shifted(u: VfxUpdate): VfxUpdate = if (stops.isEmpty()) u else u.copy(tick = shift(u.tick))
+
+        companion object {
+            val NONE = HitStopClock(emptyList(), 0)
+        }
+    }
 
     private class Swap(val u: Int, val block: String?, val text: String?)
 

@@ -23,6 +23,7 @@ import com.astarworks.astera.core.application.port.outbound.runLaterTicks
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.damage.DamageAttribute
 import com.astarworks.astera.core.domain.damage.DamageProfile
+import com.astarworks.astera.core.domain.effect.AudienceResolver
 import com.astarworks.astera.core.domain.effect.DisplayKind
 import com.astarworks.astera.core.domain.effect.camera.ShakeProfile
 import com.astarworks.astera.core.domain.geometry.Vec3
@@ -319,7 +320,8 @@ internal class WorldMechanics(
         val intensity = host.resolveDouble(m.intensity, ctx).coerceIn(0.0, 1.0)
         if (duration <= 0 || intensity <= 0.0) return
         val frequency = host.resolveDouble(m.frequency, ctx)
-        val targets = living(targeters.resolvePlayers(m.targets, ctx))
+        val resolved = living(targeters.resolvePlayers(m.targets, ctx))
+        val targets = AudienceResolver.select(resolved, m.viewers, ctx.actorId, ctx.targetId)
         for (target in targets) {
             val hit = if (m.direction == ShakeDirection.FROM_HIT) hitDirection(target, ctx) else null
             val seed = ctx.tickIndex * SHAKE_SEED_MIX + target.uuid.leastSignificantBits
