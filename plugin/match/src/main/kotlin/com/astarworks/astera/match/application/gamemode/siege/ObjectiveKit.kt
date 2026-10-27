@@ -97,7 +97,13 @@ public class ObjectiveKit(private val env: SiegeEnv, private val modeKey: String
      * One observation of [player] standing on [key] (`null` = on nothing actionable): shows the progress bar and
      * returns true on the observation that completes the hold. Moving to another target restarts it.
      */
-    public fun channel(player: PlayerId, key: String?, label: MessageKey, color: ObjectiveBarColor = ObjectiveBarColor.GREEN): Boolean {
+    public fun channel(
+        player: PlayerId,
+        key: String?,
+        label: MessageKey,
+        color: ObjectiveBarColor = ObjectiveBarColor.GREEN,
+        needTicks: Long = channelTicks,
+    ): Boolean {
         if (key == null) {
             cancelChannel(player)
             return false
@@ -107,7 +113,7 @@ public class ObjectiveKit(private val env: SiegeEnv, private val modeKey: String
             channels[player] = it
             moment(PresentationMoments.OBJECTIVE_CHANNEL, player, at = positionOf(player))
         }
-        val need = channelTicks
+        val need = needTicks
         val progress = if (need <= 0L) 1.0 else ((now - ch.startedAt).toDouble() / need).coerceIn(0.0, 1.0)
         if (progress >= 1.0) {
             cancelChannel(player)
@@ -115,6 +121,14 @@ public class ObjectiveKit(private val env: SiegeEnv, private val modeKey: String
         }
         env.stage()?.showBar(player, CHANNEL_BAR, env.messages.render(player, label), progress, color)
         return false
+    }
+
+    /** True while [player] is mid-hold (a bar is filling). */
+    public fun isChanneling(player: PlayerId): Boolean = channels.containsKey(player)
+
+    /** Breaks [player]'s hold (damage taken, left the spot); the next observation starts over. */
+    public fun interruptChannel(player: PlayerId) {
+        cancelChannel(player)
     }
 
     private fun cancelChannel(player: PlayerId) {
@@ -132,13 +146,33 @@ public class ObjectiveKit(private val env: SiegeEnv, private val modeKey: String
     }
 
     /** A pillar of light over [at]; call about once a second. */
-    public fun beam(world: WorldId, at: Vec3, colorName: String?) {
+    public fun beam(world: WorldId, at: Vec3, colorName: String?, height: Int = BEAM_HEIGHT) {
         val gateway = env.world ?: return
         val dust = dustOf(colorName)
-        for (i in 0 until BEAM_HEIGHT) {
+        for (i in 0 until height) {
             gateway.spawnParticle(world, Vec3(at.x, at.y + i, at.z), ParticleSpec("minecraft:dust", 2, Vec3(0.15, 0.4, 0.15), 0.0, dust, 1.4f, force = true))
         }
-        gateway.spawnParticle(world, Vec3(at.x, at.y + BEAM_HEIGHT, at.z), ParticleSpec("minecraft:end_rod", 3, Vec3(0.1, 0.5, 0.1), 0.02, force = true))
+        gateway.spawnParticle(world, Vec3(at.x, at.y + height, at.z), ParticleSpec("minecraft:end_rod", 3, Vec3(0.1, 0.5, 0.1), 0.02, force = true))
+    }
+
+    /**
+     * A progress ring of dust on the ground around [at]: the arc covers [fraction] (0..1) of the circle, starting north and
+     * running clockwise; the rest is a faint white outline, so the fill reads as a gauge. Call about once a second.
+     */
+    public fun ring(world: WorldId, at: Vec3, radius: Double, fraction: Double, colorName: String?) {
+        val gateway = env.world ?: return
+        val dust = dustOf(colorName)
+        val grey = dustOf(null)
+        val f = fraction.coerceIn(0.0, 1.0)
+        for (i in 0 until RING_POINTS) {
+            val a = 2 * PI * i / RING_POINTS
+            val filled = i.toDouble() / RING_POINTS < f
+            gateway.spawnParticle(
+                world,
+                Vec3(at.x + radius * sin(a), at.y + 0.15, at.z - radius * cos(a)),
+                ParticleSpec("minecraft:dust", 1, Vec3(0.0, 0.0, 0.0), 0.0, if (filled) dust else grey, if (filled) 1.5f else 0.6f, force = true),
+            )
+        }
     }
 
     /**
@@ -176,6 +210,12 @@ public class ObjectiveKit(private val env: SiegeEnv, private val modeKey: String
     public fun bar(player: PlayerId, barKey: String, key: MessageKey, params: Map<String, String>, progress: Double, color: ObjectiveBarColor) {
         extraBars.getOrPut(player) { mutableSetOf() } += barKey
         env.stage()?.showBar(player, barKey, env.messages.render(player, key, params), progress.coerceIn(0.0, 1.0), color)
+    }
+
+    /** Hides the extra boss bar [barKey] of [player]. */
+    public fun hideBar(player: PlayerId, barKey: String) {
+        extraBars[player]?.remove(barKey)
+        env.stage()?.hideBar(player, barKey)
     }
 
     /** Hides the personal [statusBar] of [player]. */
@@ -219,6 +259,11 @@ public class ObjectiveKit(private val env: SiegeEnv, private val modeKey: String
         "blue" -> ParticleColor(80, 120, 255)
         "green" -> ParticleColor(80, 230, 110)
         "yellow", "gold" -> ParticleColor(255, 205, 60)
+        "orange" -> ParticleColor(255, 150, 40)
+        "purple" -> ParticleColor(170, 90, 230)
+        "pink" -> ParticleColor(255, 140, 200)
+        "lime" -> ParticleColor(150, 240, 60)
+        "cyan", "aqua" -> ParticleColor(60, 220, 230)
         else -> ParticleColor(255, 255, 255)
     }
 
@@ -226,6 +271,7 @@ public class ObjectiveKit(private val env: SiegeEnv, private val modeKey: String
         public const val STATUS_BAR: String = "objective"
         public const val CHANNEL_BAR: String = "channel"
         private const val BEAM_HEIGHT: Int = 8
+        private const val RING_POINTS: Int = 28
         private const val BURST_RINGS: Int = 3
         private const val BURST_POINTS: Int = 18
         private const val DEFAULT_CHANNEL_TICKS: Int = 15

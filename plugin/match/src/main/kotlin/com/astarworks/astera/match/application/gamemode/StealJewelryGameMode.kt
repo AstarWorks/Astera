@@ -20,7 +20,7 @@ import kotlin.math.abs
 
 /**
  * Steal Jewelry: each team keeps `gems_per_team` jewels on its pedestal (stage region `jewelry-<team>`). Holding an
- * enemy pedestal zone for `channel_ticks` takes one of its jewels; holding your own `base-<team>` zone banks what you
+ * enemy pedestal zone for `steal_channel_ticks` (damage interrupts) takes one of its jewels; holding your own `base-<team>` zone banks what you
  * carry. Every jewel slows and lights up the carrier a little more. A carrier who falls drops the jewels in a pile
  * where they died: the pile's owners recover their own jewels by touching it, anyone else can steal the rest, and what
  * is left returns to the pedestals after `drop_return_seconds`. A team wins by banking every enemy jewel.
@@ -59,6 +59,13 @@ public class StealJewelryGameMode @JvmOverloads constructor(
 
     private fun gemsPerTeam(): Int = env?.int("gems_per_team", DEFAULT_GEMS) ?: DEFAULT_GEMS
 
+    /** Hold time (ticks) to lift a jewel off an enemy pedestal; taking damage interrupts it. */
+    private fun stealChannelTicks(): Long = (env?.int("steal_channel_ticks", DEFAULT_STEAL_TICKS) ?: DEFAULT_STEAL_TICKS).toLong()
+
+    override fun damaged(run: Run, match: Match, victim: PlayerId, attacker: PlayerId?, amount: Double) {
+        if (amount > 0.0 && kit.isChanneling(victim)) kit.interruptChannel(victim)
+    }
+
     private fun goalFor(match: Match): Int = gemsPerTeam() * (match.teams.size - 1)
 
     override fun createRun(match: Match, stage: Stage): Run? {
@@ -95,7 +102,9 @@ public class StealJewelryGameMode @JvmOverloads constructor(
             for (member in team.members) {
                 if (run.ended) return
                 val target = kit.positionOf(member)?.let { targetOf(run, member, team.id, it) }
-                if (kit.channel(member, target, if (target?.startsWith(BANK) == true) LABEL_BANK else LABEL_STEAL)) {
+                val stealing = target?.startsWith(STEAL) == true
+                val need = if (stealing) stealChannelTicks() else kit.channelTicks
+                if (kit.channel(member, target, if (target?.startsWith(BANK) == true) LABEL_BANK else LABEL_STEAL, needTicks = need)) {
                     complete(run, match, member, team.id, target ?: continue)
                 }
             }
@@ -168,12 +177,18 @@ public class StealJewelryGameMode @JvmOverloads constructor(
         if (burst != null) kit.burst(run.stage.world, burst, ObjectiveKit.colorOf(team))
         kit.broadcast(match.teams.firstOrNull { it.id == team }?.members.orEmpty(), PresentationMoments.OBJECTIVE_DELIVER, args, burst, run.stage.world)
         kit.broadcast(match.teams.filter { it.id != team }.flatMap { it.members }, PresentationMoments.OBJECTIVE_DELIVER_AGAINST, args, burst, run.stage.world)
+        onObjectiveScored(team, gems.size * countPerGem())
         if (total >= goal) {
             win(run, team)
         } else if (total == goal - 1 && run.tensionShown.add(team)) {
             kit.broadcast(match.teams.flatMap { it.members }, PresentationMoments.OBJECTIVE_TENSION, args, burst, run.stage.world)
         }
     }
+
+    private fun countPerGem(): Int = env?.int("count_per_gem", DEFAULT_COUNT_PER_GEM) ?: DEFAULT_COUNT_PER_GEM
+
+    /** Seam to the shared count model: [team] earned [amount] count from banking jewels. The manager wires this at merge. */
+    private fun onObjectiveScored(team: TeamId, amount: Int) {}
 
     // ---- drops ----------------------------------------------------------------
 
@@ -340,6 +355,8 @@ public class StealJewelryGameMode @JvmOverloads constructor(
         private const val PEDESTAL_KEY: String = "pedestal-"
         private const val TEAM_BAR: String = "bank-"
         private const val DEFAULT_GEMS: Int = 3
+        private const val DEFAULT_STEAL_TICKS: Int = 50
+        private const val DEFAULT_COUNT_PER_GEM: Int = 34
         private const val FAST_TICKS: Long = 5L
         private const val TRAIL_TICKS: Long = 5L
         private const val WARN_INTERVAL_TICKS: Long = 40L

@@ -2,6 +2,7 @@ package com.astarworks.astera.match.application.gamemode.siege
 
 import com.astarworks.astera.match.domain.gamemode.MatchHudStatus
 import com.astarworks.astera.match.domain.gamemode.HudLine
+import com.astarworks.astera.combat.domain.event.DamageDealt
 import com.astarworks.astera.combat.domain.event.PlayerKilled
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.application.port.outbound.IMatchRepository
@@ -148,6 +149,12 @@ public abstract class SiegeGameMode<R : SiegeRun>(
                     if (live(match)) broken(run, match, ev.playerId, teamOf(match, ev.playerId), ev.position)
                 }
             },
+            e.eventBus.subscribe(DamageDealt::class) { ev ->
+                val match = e.matches.findMatchOf(ev.target) ?: return@subscribe
+                dispatch(match.id) { run, m ->
+                    if (live(m)) damaged(run, m, ev.target, ev.attacker, ev.resolved.finalAmount)
+                }
+            },
             e.eventBus.subscribe(PlayerKilled::class) { ev ->
                 val match = e.matches.findMatchOf(ev.victim) ?: return@subscribe
                 dispatch(match.id) { run, m ->
@@ -243,6 +250,9 @@ public abstract class SiegeGameMode<R : SiegeRun>(
     protected open fun left(run: R, player: PlayerId, region: String) {}
 
     protected open fun broken(run: R, match: Match, player: PlayerId, team: TeamId?, position: Vec3) {}
+
+    /** [victim] took [amount] damage (from [attacker], null = the world); a hold in progress breaks on it. */
+    protected open fun damaged(run: R, match: Match, victim: PlayerId, attacker: PlayerId?, amount: Double) {}
 
     protected open fun killed(run: R, match: Match, victim: PlayerId, victimTeam: TeamId?, killer: PlayerId?, killerTeam: TeamId?) {}
 

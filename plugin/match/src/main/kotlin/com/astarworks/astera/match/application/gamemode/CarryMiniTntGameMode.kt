@@ -165,6 +165,11 @@ public class CarryMiniTntGameMode @JvmOverloads constructor(
         kit.broadcast(listOf(player), PresentationMoments.OBJECTIVE_COLLECT, mapOf("count" to have.toString(), "limit" to carryLimit().toString()), run.lastPos[player], run.stage.world)
     }
 
+    private fun countPerMini(): Int = env?.int("count_per_mini", DEFAULT_COUNT_PER_MINI) ?: DEFAULT_COUNT_PER_MINI
+
+    /** Seam to the shared count model: [team] earned [amount] count from planting pieces. The manager wires this at merge. */
+    private fun onObjectiveScored(team: TeamId, amount: Int) {}
+
     /** Enemy base: the pieces the player carries are planted there; enough of them blow the base up. */
     private fun plant(run: Run, match: Match, player: PlayerId, team: TeamId, enemy: TeamId, base: Region) {
         val have = run.carried.remove(player) ?: return
@@ -178,6 +183,7 @@ public class CarryMiniTntGameMode @JvmOverloads constructor(
         val ours = match.teams.firstOrNull { it.id == team }?.members.orEmpty()
         kit.broadcast(ours, PresentationMoments.OBJECTIVE_DELIVER, args, burst, run.stage.world)
         kit.broadcast(match.teams.filter { it.id != team }.flatMap { it.members }, PresentationMoments.OBJECTIVE_DELIVER_AGAINST, args, burst, run.stage.world)
+        onObjectiveScored(team, have * countPerMini())
         if (total >= minisToWin()) {
             tellMatch(match, KEY_BLOWN_UP, mapOf("team" to team.value, "enemy" to enemy.value))
             win(run, team)
@@ -317,7 +323,8 @@ public class CarryMiniTntGameMode @JvmOverloads constructor(
         private const val DEFAULT_PICKUPS: String = "wool-a,wool-b,wool-c"
         private const val DEFAULT_MINIS_TO_WIN: Int = 10
         private const val DEFAULT_CARRY_LIMIT: Int = 4
-        private const val DEFAULT_RESPAWN_SECONDS: Int = 15
+        private const val DEFAULT_RESPAWN_SECONDS: Int = 25
+        private const val DEFAULT_COUNT_PER_MINI: Int = 10
         private const val FAST_TICKS: Long = 5L
         private const val TRAIL_TICKS: Long = 5L
         private const val WARN_INTERVAL_TICKS: Long = 40L

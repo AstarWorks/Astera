@@ -37,6 +37,13 @@ public class TntCarrier {
         return true
     }
 
+    /** The charge lies loose at [at] from [tick] on (parked at a checkpoint after a drop timed out). */
+    public fun placeAt(at: Vec3, tick: Long) {
+        carrier = null
+        droppedAt = at
+        droppedTick = tick
+    }
+
     /** True when [player] carries the charge. */
     public fun isCarrying(player: PlayerId): Boolean = carrier == player
 
