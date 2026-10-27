@@ -6,16 +6,28 @@
 layout(location = 8) flat in int rigPart;
 layout(location = 9) in vec3 rigViewPos;
 layout(location = 10) in vec3 rigViewNormal;
+layout(location = 11) in vec3 rigCamOffset;
 
 @@ before: vec4 calculateFinalColor(vec4 color) {
-// Astera skin rig first-person hiding (ADR-0285). The server cannot know the client's camera perspective, so the
-// rig fades by distance to the camera instead: the owner's own rig surrounds / touches the first-person camera
-// (hidden), a third-person (F5) camera is 3+ blocks away (fully visible), other players' rigs are never this close.
-// Tuning constants (blocks): fully discarded below *_NEAR, fully visible from *_FAR, ordered-dither in between.
-const float RIG_BODY_NEAR = 0.6;  // head, torso, legs
-const float RIG_BODY_FAR = 1.2;
-const float RIG_ARM_NEAR = 0.1;   // arms fade more gently so the first-person swing stays visible
+// Astera skin rig first-person hiding (ADR-0285, column rule ADR-0288). The server cannot know the client's camera
+// perspective, so the rig fades by where it is relative to the camera. In first person the camera sits at the eye and
+// the player's own body is a narrow column straight BELOW and around it; a third-person (F5) camera is behind / above /
+// in front of the body, also when vanilla's camera collision pulls it to ~0.3-1 blocks, and another player's body is
+// at least one hitbox (0.6) away. So head, torso and legs fade by HORIZONTAL distance to the camera (world axes, from
+// rigCamOffset) inside a vertical window, not by a sphere. Arms hang to the sides and swing in front of the camera:
+// they keep a small sphere so the first-person swing still shows.
+// Tuning constants (blocks): discarded below *_NEAR, fully visible from *_FAR, ordered-dither in between.
+const float RIG_HEAD_NEAR = 0.36;   // head: the camera inside the 0.5-wide cube (corner 0.35) sees only its inside
+const float RIG_HEAD_FAR = 0.46;
+const float RIG_TORSO_NEAR = 0.30;  // torso (corner 0.28)
+const float RIG_TORSO_FAR = 0.42;
+const float RIG_LEG_NEAR = 0.30;    // legs (corner 0.26)
+const float RIG_LEG_FAR = 0.40;
+const float RIG_ARM_NEAR = 0.1;     // arms: sphere around the camera, they fade more gently so the first-person swing stays visible
 const float RIG_ARM_FAR = 0.35;
+const float RIG_COLUMN_UP = 0.5;    // the column reaches this far above the camera (the head top is 0.38 above the eye) ...
+const float RIG_COLUMN_DOWN = 1.0;  // ... and this far below it for head and torso (hips are 0.87 below); legs have no lower bound
+const float RIG_COLUMN_SOFT = 0.2;  // the vertical edges of the column fade over this distance
 
 // 4x4 Bayer threshold in (0, 1) for this screen pixel.
 float rigBayer(vec2 fragCoord) {
@@ -113,10 +125,18 @@ vec2 rigRemap(vec2 uv, int part) {
     vec2 skinUV = texCoord0;
     if (rigPart >= 0) {
         int rigBone = rigPart & 7;
-        bool rigArm = rigBone == 2 || rigBone == 3;
-        float rigNear = rigArm ? RIG_ARM_NEAR : RIG_BODY_NEAR;
-        float rigFar = rigArm ? RIG_ARM_FAR : RIG_BODY_FAR;
-        float rigVisible = clamp((length(rigViewPos) - rigNear) / (rigFar - rigNear), 0.0, 1.0);
+        float rigVisible;
+        if (rigBone == 2 || rigBone == 3) {
+            rigVisible = clamp((length(rigViewPos) - RIG_ARM_NEAR) / (RIG_ARM_FAR - RIG_ARM_NEAR), 0.0, 1.0);
+        } else {
+            bool rigLeg = rigBone >= 4;
+            float rigNear = rigBone == 0 ? RIG_HEAD_NEAR : (rigLeg ? RIG_LEG_NEAR : RIG_TORSO_NEAR);
+            float rigFar = rigBone == 0 ? RIG_HEAD_FAR : (rigLeg ? RIG_LEG_FAR : RIG_TORSO_FAR);
+            float rigAbove = clamp((rigCamOffset.y - RIG_COLUMN_UP) / RIG_COLUMN_SOFT, 0.0, 1.0);
+            float rigBelow = rigLeg ? 0.0 : clamp((-rigCamOffset.y - RIG_COLUMN_DOWN) / RIG_COLUMN_SOFT, 0.0, 1.0);
+            float rigSide = clamp((length(rigCamOffset.xz) - rigNear) / (rigFar - rigNear), 0.0, 1.0);
+            rigVisible = max(rigSide, max(rigAbove, rigBelow));
+        }
         if (rigVisible <= rigBayer(gl_FragCoord.xy)) {
             discard;
         }
