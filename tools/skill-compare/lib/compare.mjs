@@ -14,6 +14,7 @@ import { tmpdir } from "node:os";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { castMs } from "../src/timeline.js";
+import { analyticHeights, refHeightAt } from "./framing.mjs";
 
 const SCRIPT = join(dirname(fileURLToPath(import.meta.url)), "..", "scripts", "compare.py");
 const REV_RE = /^[a-f0-9]{64}$/;
@@ -153,7 +154,7 @@ export function makeCompare({ publishedDir, getRec, cacheFor, F, failureOf, beat
         rows.push({
           id: rid, view, round, keyPath, hue: c.caster_key?.mc ?? null, label: `${view} ${round === "current" ? "cur" : round}`.slice(0, 22),
           sub: [`rev ${r.rev.slice(0, 8)}  sha ${sha ? sha.slice(0, 7) : "?"}`, (r.meta.capturedAt ?? "").slice(0, 16).replace("T", " ") + (isCurrent ? "  current" : "")],
-          frames, bg: bgNames.map((n) => join(dir, n)),
+          frames, bg: bgNames.map((n) => join(dir, n)), cap: { dir, meta: r.meta },
           at: r.at, source: { kind: "capture", revision: r.rev, sha, capturedAt: r.meta.capturedAt ?? null, fps, frames: count, extension: r.extension, current: isCurrent, freshness, failure: isCurrent ? failureOf(skill, view, { auto: { sha } }) : null, trace: traceOf(dir) },
         });
       }
@@ -210,19 +211,36 @@ export function makeCompare({ publishedDir, getRec, cacheFor, F, failureOf, beat
       });
       return { tick, cells };
     });
-    // framing parity: median caster bbox share per source and this/ref (round_gate wants 0.5x-2x)
+    // framing parity (round gate 0.5x-2x): MC = analytic caster height from the capture camera + trace caster position; ref = annotated
+    // case.json ref_caster_height_pct. The key-colour bbox (caster_bbox_pct) stays in cell metrics as a debug number only.
+    const rec = getRec(id), intent = readJson(join(dirname(rec.file), rec.c.intent?.file ?? "intent.json"));
+    const ak = (intent?.actors ?? []).filter((a) => a.keys?.length), ex = (n) => ak.find((a) => a.id === n)?.keys[0].pos[0];
+    const distance = ex("enemy") != null && ex("caster") != null ? +(ex("enemy") - ex("caster")).toFixed(2) : null;
+    const annot = rec.c.ref_caster_height_pct ?? null;
     const med = (a) => { const v = a.filter((x) => x != null).sort((x, y) => x - y); return v.length ? v[Math.floor(v.length / 2)] : null; };
-    const share = (ri) => med(res.rows[ri].cells.map((c) => c.metrics?.caster_bbox_pct));
-    const refIdx = p.rows.findIndex((r) => r.view === "ref"), refShare = refIdx >= 0 ? share(refIdx) : null;
+    const refPer = Object.fromEntries(p.ticks.map((t) => [t, refHeightAt(annot, t)]));
     const framing = p.rows.map((r, ri) => {
-      if (r.view === "ref") return { key: r.id, casterBboxPct: refShare, casterKey: res.rows[ri].casterKey };
-      const sh = share(ri), ratio = sh != null && refShare ? +(sh / refShare).toFixed(2) : null;
-      return { key: r.id, casterBboxPct: sh, casterKey: res.rows[ri].casterKey, ratioToRef: ratio, withinTolerance: ratio == null ? null : ratio >= 0.5 && ratio <= 2 };
+      const debug = med(res.rows[ri].cells.map((c) => c.metrics?.caster_bbox_pct));
+      const dbg = { debugHueBboxPct: debug, casterKey: res.rows[ri].casterKey };
+      if (r.view === "ref") {
+        const vals = Object.values(refPer).filter((x) => x != null);
+        return { key: r.id, casterHeightPct: med(vals), perTick: refPer, source: annot ? "annotated (case.json ref_caster_height_pct)" : null, error: annot ? null : "case.json has no ref_caster_height_pct {tick: % of frame height}", ...dbg };
+      }
+      const h = analyticHeights({ view: r.view, meta: r.cap?.meta, intent, dir: r.cap?.dir, ticks: p.ticks, distance });
+      if (h.error) return { key: r.id, casterHeightPct: null, ratioToRef: null, withinTolerance: null, error: h.error, ...dbg };
+      const per = {}, ratios = [];
+      for (const t of p.ticks) {
+        const x = h.perTick[t];
+        per[t] = x ? { pct: x.pct, onScreen: x.onScreen } : null;
+        if (x && refPer[t]) ratios.push(x.pct / refPer[t]);
+      }
+      const ratio = med(ratios), ratioN = ratios.length;
+      return { key: r.id, casterHeightPct: med(Object.values(per).map((x) => x?.pct)), perTick: per, source: `analytic: ${h.method}, fov ${h.fov}, caster ${1.8} blocks`, ratioToRef: ratio == null ? null : +ratio.toFixed(2), ratioTicks: ratioN, withinTolerance: ratio == null ? null : ratio >= 0.5 && ratio <= 2, ...dbg };
     });
     return {
       id, skill: p.skill, dev: p.dev, ticks: p.ticks, views: p.views, rounds: p.rounds, castMs: p.cast, framing,
       mapping: { mc: "frame = tick*fps/20 + castFrame - firstTick*fps/20 (20 fps: frame N = plan tick N)", ref: "frame = floor((castMs + tick*50) * fps / 1000)" },
-      metricsDoc: "caster_bbox_pct = height of the caster's key-colour mask (compact saturated hair/outfit hues from the pre-cast tick-0 frame of the same source; override with case.json caster_key {ref:[lo,hi],mc:[lo,hi]} in degrees) as % of frame height; framing[] = median per source and ratio to ref (valid 0.5-2). fx_pct = emissive pixels new vs the clip median %; mean_luma/peak_luma(p99) 0-255; mover_h_pct informational. Flags: fx/luma down >20% vs the next older round.",
+      metricsDoc: "framing[]: casterHeightPct = caster (1.8 blocks) on-screen height as % of frame height; MC rows analytic (capture camera + trace caster position), ref row annotated (case.json ref_caster_height_pct, nearest tick within 2); ratioToRef = median of per-tick this/ref (valid 0.5-2). debug only: caster_bbox_pct = height of the caster's key-colour mask (compact saturated hair/outfit hues from the pre-cast tick-0 frame of the same source; override with case.json caster_key {ref:[lo,hi],mc:[lo,hi]} in degrees) as % of frame height; fx_pct = emissive pixels new vs the clip median %; mean_luma/peak_luma(p99) 0-255; mover_h_pct informational. Flags: fx/luma down >20% vs the next older round.",
       sources: p.rows.map((r, ri) => ({ key: r.id, view: r.view, round: r.round, ...r.source, nativeWidth: res.rows[ri].native?.[0] ?? null, nativeHeight: res.rows[ri].native?.[1] ?? null, crop: res.rows[ri].crop })),
       view: { zoom: p.zoom, crop: p.crop, note: p.zoom === "native" ? "sheet cells are source pixels 1:1 (cropped, never resampled); smaller sources are padded" : "sheet is a downscaled overview; add zoom=native (and crop=x0,y0,x1,y1 fractions | crop=auto) to see source pixels" },
       ticksData: ticks, regression: regressions.length > 0, regressions,

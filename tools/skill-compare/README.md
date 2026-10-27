@@ -194,11 +194,13 @@ and a regression slipped through unnoticed. Everyone asks the server, so everyon
   `[vfx-trace] play|pos|spawn` lines of `ASTERA_VFX_TRACE`), `sources[].trace` carries `fxSpawnTicks`, `casterTravelBlocks` (first to last caster
   position), `casterMaxFromStartBlocks` and `finalGapBlocks` (caster to target at the last sample). Absent file = no `trace` key.
 - The case page has a collapsible **比較** panel (the same sheet, regression list, links to the JSON / PNG).
-- **Framing parity** (`caster_bbox_pct` per cell, `framing[]` per source): the height of the caster's key-colour cluster (compact saturated hair/outfit hues
-  found in the same source's pre-cast tick-0 frame; blue and green are skipped; sparse fx pixels are ignored) as % of the frame height, motion-independent.
-  `framing[]` gives the median per source and `ratioToRef` / `withinTolerance` (0.5x-2x of the ref, the round_gate framing rule). It measures the key-colour cluster, not
-  the full silhouette, and the fx at hit ticks (same hue as the hair) can inflate single ticks: judge on the `framing[]` median, and set
-  `caster_key: {"ref": [lo, hi], "mc": [lo, hi]}` (hue degrees) in `case.json` when the auto key picks the wrong colour (`casterKey` shows what was used).
+- **Framing parity** (`framing[]` per source; the round_gate rule is `ratioToRef` within 0.5x-2x): the caster's on-screen height (1.8 blocks, feet to head) as % of the
+  frame height. MC rows are **analytic**: the capture camera (`compare` = `intent.json` camera keys exactly as `tools/vfx-shot/compare_plan.py` plays them; `side`/`right`/`front`/
+  `back`/`high`/`near` = vfx-shot `orbit_cam` with the case intent distance; fov from the capture meta) projected onto the caster position of the capture's `trace.log`
+  (`[vfx-trace] pos` lines). Other views (`top`, `preview-*`) report an `error`. The ref row is **annotated**: `case.json` `ref_caster_height_pct: {"<tick>": pct}` (hair top to feet
+  of the upright caster in the ref frame, read off a gridded frame; add one entry per camera cut and for the key ticks; a tick uses the nearest annotated tick within +-2, else none).
+  `ratioToRef` = median of per-tick this/ref over the ticks where both exist (`ratioTicks`); `perTick` shows each value (`onScreen` = feet and head inside the frame). bastion-greatsword-s3
+  is annotated. The old key-colour bbox (`caster_bbox_pct` per cell, `framing[].debugHueBboxPct`) is debug only: it swung 1.7-35% on r7 (fx share the hair hue) and is not a gate input.
 - **Source quality** (audited 2026-10-27, all 10 reference videos): YouTube offers 1080p at most (no 1440p/4K, no 60 fps); the cache holds the best stream (VP9 "premium"
   ~3.3-4.0 Mbps for 8 videos; Svaaq9F7Ty8 only offers H.264 2.2 Mbps). Reference frames are lossless PNG at native size/fps. MC captures are far smaller:
   `side`/`top` 640x360, `input` 854x480, `compare`/`preview` 1280x720 (`RES=` in vfx-shot raises it), so judge MC detail with `zoom=native`.
