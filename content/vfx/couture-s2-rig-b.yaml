@@ -9,17 +9,77 @@ sample_ticks: 1
 body: couture-s2-body-b
 rigs:
 - id: shears-b
-  pivot: [0, 0, 0]
+  pivot:
+  - 0
+  - 0
+  - 0
   parent: right_hand
   weapon: main_hand
   start_tick: 0
   end_tick: 34
-  weapon_tip: [0.0, 1.3789, 1.0769]
-  weapon_root: [0.0, 0.2367, 0.0]
-  weapon_edge: [0.0, -0.6155, 0.7881]
+  weapon_tip:
+  - 0.0
+  - 1.3789
+  - 1.0769
+  weapon_root:
+  - 0.0
+  - 0.2367
+  - 0.0
+  weapon_edge:
+  - 0.0
+  - -0.6155
+  - 0.7881
   swing:
   - t: 0
-    rotate: [0, 0, 0]
+    rotate:
+    - 0
+    - 0
+    - 0
   - t: 34
-    rotate: [0, 0, 0]
-elements: []
+    rotate:
+    - 0
+    - 0
+    - 0
+elements:
+- id: haze-0
+  kind:
+    type: particle
+    particle_id: couture-s2-p-haze
+    every_ticks: 1
+  brightness: 15
+  start_tick: 0
+  end_tick: 8
+  keyframes:
+  - t: 0
+    translate:
+    - 0
+    - 1.0
+    - 0
+- id: haze-1
+  kind:
+    type: particle
+    particle_id: couture-s2-p-purple
+    every_ticks: 1
+  brightness: 15
+  start_tick: 0
+  end_tick: 8
+  keyframes:
+  - t: 0
+    translate:
+    - 0.4
+    - 1.0
+    - -0.3
+- id: haze-2
+  kind:
+    type: particle
+    particle_id: couture-s2-p-haze
+    every_ticks: 1
+  brightness: 15
+  start_tick: 0
+  end_tick: 8
+  keyframes:
+  - t: 0
+    translate:
+    - -0.4
+    - 1.0
+    - 0.3
