@@ -273,6 +273,7 @@ class MatchArsenalE2eTest : ObjectivePlaythroughBase() {
             assertThat(arenaBlockIs(-60, 66, 11, "minecraft:stone")).isTrue()
             bore()
             assertThat(arenaSolid(-60, 66, 11)).isFalse()
+            assertThat(a.crackStage(-60 + originX, 66, 11 + originZ)).describedAs("crack overlay cleared when the stone broke").isNull()
             assertThat(arenaBlockIs(-60, 66, 12, "minecraft:obsidian")).isTrue()
             val loot = clean(inArena("run data get entity @e[type=minecraft:item,x=${-60 + originX},y=66,z=${11 + originZ},distance=..3,limit=1,nbt={Item:{id:\"minecraft:cobblestone\"}}] Item.id"))
             assertThat(loot).contains("minecraft:cobblestone")
@@ -284,13 +285,17 @@ class MatchArsenalE2eTest : ObjectivePlaythroughBase() {
             aimWall(a, 18)
             bore()
             assertThat(arenaBlockIs(-60, 66, 18, "minecraft:stone")).isTrue()
-            // Idle 200 ticks plus the 20-tick sweep bound.
-            Thread.sleep(11_500)
+            // The bot's client still shows the crack ~9 s after the hit (inside the 200-tick idle window).
+            Thread.sleep(7_500)
+            assertThat(a.crackStage(-60 + originX, 66, 18 + originZ)).describedAs("crack overlay at ~9 s").isNotNull()
+            // Idle 200 ticks plus the 20-tick sweep bound; the sweep must also clear the overlay.
+            Thread.sleep(4_000)
+            assertThat(a.crackStage(-60 + originX, 66, 18 + originZ)).describedAs("crack overlay after the idle window").isNull()
             bore()
             assertThat(arenaBlockIs(-60, 66, 18, "minecraft:stone")).isTrue()
             bore()
             assertThat(arenaSolid(-60, 66, 18)).isFalse()
-            "expired first hit; two fresh hits still finish the stone"
+            "crack visible at ~9 s, cleared after the idle window; expired first hit, two fresh hits still finish the stone"
         }
 
         E2eReport.check(suite, "two players share damage on one stone block", "RCON shared HP") {
@@ -321,7 +326,8 @@ class MatchArsenalE2eTest : ObjectivePlaythroughBase() {
             // 250 HP, stone pickaxe matrix 60% of 100 = 60 HP per cast.
             repeat(4) { bore() }
             assertThat(arenaSolid(-60, 66, 36)).isFalse()
-            val loot = clean(inArena("run data get entity @e[type=minecraft:item,x=${-60 + originX},y=66,z=${36 + originZ},distance=..3,limit=1] Item"))
+            val loot = clean(inArena("run data get entity @e[type=minecraft:item,x=${-60 + originX},y=66,z=${36 + originZ},distance=..3,limit=1] Item.components.\"minecraft:custom_data\""))
+            // The materializer stores the identity as the astera:item_id PDC (custom_data); the whole-Item dump is cut off before it.
             assertThat(loot).contains("tempered-glass-block")
             "five casts accumulated through the shared HP store; placement identity dropped"
         }

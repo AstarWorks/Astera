@@ -38,6 +38,7 @@ import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.entity.Clie
 import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.entity.ClientboundMoveEntityPosPacket
 import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.entity.ClientboundMoveEntityPosRotPacket
 import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.entity.ClientboundTeleportEntityPacket
+import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.level.ClientboundBlockDestructionPacket
 import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.level.ClientboundBlockUpdatePacket
 import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.level.ClientboundForgetLevelChunkPacket
 import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.level.ClientboundLevelChunkWithLightPacket
@@ -235,6 +236,9 @@ class Bot private constructor(
     /** This client's own entity id, and the entity id of every damage-event packet received (self hits = ids equal to it). */
     @Volatile var selfEntityId = -1; private set
     val damageEventEntities = CopyOnWriteArrayList<Int>()
+    /** Crack overlay stage (0..9) this client currently shows per block position; absent = no overlay (stage outside 0..9 clears, as in vanilla). */
+    private val crackStages = ConcurrentHashMap<Vector3i, Int>()
+    fun crackStage(x: Int, y: Int, z: Int): Int? = crackStages[Vector3i.from(x, y, z)]
     /** Floating damage numbers shown to this client, one per text-display entity, in arrival order. */
     val damageNumbers = CopyOnWriteArrayList<String>()
     private val seenDamageNumberEntities = java.util.Collections.newSetFromMap(ConcurrentHashMap<Int, Boolean>())
@@ -295,6 +299,11 @@ class Bot private constructor(
             }
             is ClientboundCustomQueryPacket -> answerLoginQuery(packet)
             is ClientboundCustomPayloadPacket -> handlePluginMessage(packet)
+            is ClientboundBlockDestructionPacket -> {
+                // Wire stage 0..9 = enum STAGE_1..STAGE_10 (ordinal); anything else decodes to RESET and clears, as in vanilla.
+                val stage = packet.stage.ordinal
+                if (stage in 0..9) crackStages[packet.position] = stage else crackStages.remove(packet.position)
+            }
             is ClientboundDamageEventPacket -> damageEventEntities += packet.entityId
             is ClientboundLoginPacket -> {
                 selfEntityId = packet.entityId
