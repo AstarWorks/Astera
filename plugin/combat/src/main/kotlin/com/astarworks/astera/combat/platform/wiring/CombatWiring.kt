@@ -5,7 +5,6 @@ import com.astarworks.astera.combat.domain.damage.attackerIdOrNull
 import com.astarworks.astera.combat.application.config.StatusEffectInteractionLoader
 import com.astarworks.astera.combat.application.contents.ArmorContents
 import com.astarworks.astera.combat.application.contents.ComboRouteContents
-import com.astarworks.astera.combat.application.contents.SkillContents
 import com.astarworks.astera.combat.application.contents.StatusContents
 import com.astarworks.astera.combat.application.port.outbound.IArmorEquipmentProvider
 import com.astarworks.astera.combat.application.port.outbound.IArmorRegistry
@@ -89,9 +88,12 @@ import com.astarworks.astera.core.platform.wiring.WiringContext
  * ICooldownTracker missing — same condition as before ADR-0174).
  */
 public class CombatWiringResult(
-    public val skillContents: SkillContents,
-    /** The cast gate's registry: v1 specs overlaid with the v2 `meta:` block (bound by the skill engine runtime). */
+    /** The cast gate's registry: every skill of the v2 catalog, its gate data read from the `meta:` block. */
     public val skillGate: SkillMetaRegistry,
+    /** The v2 skill catalog (ADR-0301), loaded from `content/skills` at install; the Paper runtime casts from it. */
+    public val skillCatalog: com.astarworks.astera.core.application.skillengine.load.SkillCatalog,
+    /** Decoded `content/frames` point tables for the v2 compiler and point source. */
+    public val frameTables: Map<String, com.astarworks.astera.core.application.skillengine.load.ItemFrames>,
     public val statusContents: StatusContents,
     public val armorContents: ArmorContents,
     public val applyDamage: ApplyDamageUseCase?,
@@ -132,10 +134,15 @@ public object CombatWiring {
         // in the unified /astera reload <category> dispatcher.
         val skillsContentDir = ctx.contentDir.resolve("skills")
         val contentCelEvaluator = services.get<ICelEvaluator>() ?: StubCelEvaluator()
-        val skillContents = SkillContents(contentCelEvaluator)
-        val skillGate = SkillMetaRegistry(skillContents)
-        val skillReport = skillContents.bootstrap(skillsContentDir)
-        logger.info("Skills loaded: ${skillReport.loaded} ok, ${skillReport.failed} failed")
+        // Skill engine v2 (ADR-0301): the catalog is the one skill store; the cast gate reads its `meta:` blocks.
+        val (frameTables, frameErrors) = com.astarworks.astera.core.application.skillengine.load.SkillEngineRegistries
+            .frameTables(ctx.contentDir.resolve("frames"))
+        frameErrors.forEach { logger.warning("skill engine frame table: $it") }
+        val skillCatalog = com.astarworks.astera.core.application.skillengine.load.SkillEngineRegistries.catalog(frameTables)
+        val skillEngineContents = com.astarworks.astera.core.application.skillengine.runtime.SkillEngineContents(skillCatalog)
+        val skillGate = SkillMetaRegistry(skillCatalog)
+        val skillReport = skillEngineContents.reload(skillsContentDir)
+        logger.info("Skills (engine v2) loaded: ${skillReport.loaded} ok, ${skillReport.failed} failed")
 
         val statusContentDir = ctx.contentDir.resolve("status")
         val statusContents = StatusContents()
@@ -279,7 +286,7 @@ public object CombatWiring {
 
         // Wave _infra-2b: register Combat's 3 content types on the dispatcher.
         val reloadRegistry = services.getOrThrow<IReloadableContentsRegistry>()
-        reloadRegistry.register(skillContents, skillsContentDir)
+        reloadRegistry.register(skillEngineContents, skillsContentDir)
         reloadRegistry.register(statusContents, statusContentDir)
         reloadRegistry.register(armorContents, armorContentDir)
         reloadRegistry.register(balanceContents, ctx.contentDir.resolve("balance"))
@@ -683,7 +690,7 @@ public object CombatWiring {
 
         CombatHudWiring.install(
             ctx = ctx,
-            skillContents = skillContents,
+            skills = skillGate,
             cooldownTracker = cooldownTracker,
             statusContainer = statusContainer,
             eventBus = eventBus,
@@ -710,7 +717,7 @@ public object CombatWiring {
 
         // ── F2-5 (ADR-0196) — cast any skill directly: `/astera skill ...` + admin panel Skills page ──
         val adminSkillCaster = com.astarworks.astera.combat.application.admin.AdminSkillCaster(
-            skills = skillContents,
+            skills = skillGate,
             castSkill = castSkillOut,
             cooldowns = cooldownTracker,
         )
@@ -766,8 +773,9 @@ public object CombatWiring {
         }
 
         return CombatWiringResult(
-            skillContents = skillContents,
             skillGate = skillGate,
+            skillCatalog = skillCatalog,
+            frameTables = frameTables,
             statusContents = statusContents,
             armorContents = armorContents,
             applyDamage = applyDamageOut,

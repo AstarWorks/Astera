@@ -1,6 +1,6 @@
 package com.astarworks.astera.combat.platform.wiring
 
-import com.astarworks.astera.combat.application.contents.SkillContents
+import com.astarworks.astera.combat.application.port.outbound.ISkillRegistry
 import com.astarworks.astera.combat.application.eventbus.listeners.hud.HudStatusEffectReadoutListener
 import com.astarworks.astera.combat.application.eventbus.listeners.hud.SkillReadyCueListener
 import com.astarworks.astera.combat.application.port.outbound.IStatusEffectContainer
@@ -22,7 +22,7 @@ internal object CombatHudWiring {
 
     fun install(
         ctx: WiringContext,
-        skillContents: SkillContents,
+        skills: ISkillRegistry,
         cooldownTracker: ICooldownTracker?,
         statusContainer: IStatusEffectContainer?,
         eventBus: IDomainEventBus,
@@ -161,7 +161,7 @@ internal object CombatHudWiring {
                 .BindQuickbarSlotIntentHandler(
                     modalGateway = modalGateway,
                     settings = settingsRepo,
-                    skillIdsProvider = { skillContents.all().map { it.id.value } },
+                    skillIdsProvider = { skills.all().map { it.id.value } },
                     playerGateway = playerGatewayForBind,
                     messages = messageRendererForBind,
                 )

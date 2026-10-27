@@ -19,7 +19,6 @@ import com.astarworks.astera.combat.application.usecase.damage.ApplyDamageUseCas
 import com.astarworks.astera.combat.application.usecase.status.ApplyStatusUseCase
 import com.astarworks.astera.combat.domain.event.SkillCast
 import com.astarworks.astera.combat.platform.wiring.CombatPlatformPorts
-import com.astarworks.astera.combat.platform.wiring.SkillMetaRegistry
 import com.astarworks.astera.core.application.port.outbound.IBlockStateGateway
 import com.astarworks.astera.core.application.port.outbound.ICooldownTracker
 import com.astarworks.astera.core.application.port.outbound.ICustomBlockRegistry
@@ -39,7 +38,6 @@ import com.astarworks.astera.core.application.services.getOrThrow
 import com.astarworks.astera.core.application.skillengine.expr.cel.CelExprCompiler
 import com.astarworks.astera.core.application.skillengine.load.SkillEngineRegistries
 import com.astarworks.astera.core.application.skillengine.runtime.CastRequest
-import com.astarworks.astera.core.application.skillengine.runtime.SkillEngineContents
 import com.astarworks.astera.core.application.skillengine.runtime.SkillEngineGateways
 import com.astarworks.astera.core.application.skillengine.runtime.SkillEngineKit
 import com.astarworks.astera.core.application.skillengine.runtime.port.SkillRuntimePorts
@@ -74,7 +72,7 @@ internal class SkillEnginePaperRuntime(
         applyDamage: ApplyDamageUseCase,
         applyStatus: ApplyStatusUseCase,
         statusContainer: IStatusEffectContainer,
-        skillGate: SkillMetaRegistry,
+        wired: com.astarworks.astera.combat.platform.wiring.CombatWiringResult,
     ) {
         val services = ctx.services
         val scheduler = services.getOrThrow<IScheduler>()
@@ -94,16 +92,8 @@ internal class SkillEnginePaperRuntime(
         }
         val server = plugin.server
 
-        val (tables, frameErrors) = SkillEngineRegistries.frameTables(ctx.contentDir.resolve("frames"))
-        frameErrors.forEach { log.warn("skill engine frame table: {}", it) }
-        val catalog = SkillEngineRegistries.catalog(tables)
-        val contents = SkillEngineContents(catalog)
-        // the cast gate reads cooldown / cost / reload / ego from the v2 `meta:` block of every skill that has one
-        skillGate.metaOf = { id -> catalog.get(id)?.def?.meta }
-        val skillsDir = ctx.contentDir.resolve("skills")
-        val report = contents.reload(skillsDir)
-        log.info("skill engine v2: loaded {} (failed {})", report.loaded, report.failed)
-        services.get<IReloadableContentsRegistry>()?.register(contents, skillsDir)
+        val tables = wired.frameTables
+        val catalog = wired.skillCatalog
 
         val entities = PaperSkillEntityQuery(server)
         val visuals = PaperSkillVisualGateway(server, displays)

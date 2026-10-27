@@ -25,7 +25,6 @@ class ShippedCombatContentDecodesTest {
     @TestFactory
     fun `every shipped combat content file decodes`(): List<DynamicTest> {
         val cases: List<Pair<String, (Path) -> ContentLoader.LoadReport>> = listOf(
-            "skills" to { d -> SkillContents().bootstrap(d) },
             "status" to { d -> StatusContents().bootstrap(d) },
             "armor" to { d -> ArmorContents().bootstrap(d) },
             "combat-depth/combos" to { d -> ComboRouteContents().bootstrap(d) },

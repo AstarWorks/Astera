@@ -216,7 +216,7 @@ internal class CombatPaperPlatform(private val plugin: JavaPlugin) {
         // Skill engine v2 (ADR-0301): v2 skills run through the cast runner; SkillCast is published once the gates pass.
         val container = statusContainer
         if (applyDamage != null && applyStatus != null && container != null) {
-            skillEngine = SkillEnginePaperRuntime(plugin, ports).also { it.start(ctx, applyDamage, applyStatus, container, wired.skillGate) }
+            skillEngine = SkillEnginePaperRuntime(plugin, ports).also { it.start(ctx, applyDamage, applyStatus, container, wired) }
         }
 
         // F3-11: lobby training dummies are immortal; vanilla damage on their bodies is cancelled.
