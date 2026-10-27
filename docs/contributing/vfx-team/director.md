@@ -163,3 +163,5 @@ Relevant Learnings: <links>
 
 - 2026-10-27 S3 r6: `[vfx-trace]` (docker logs of a SHOT_KEEP=1 stack; stack removed on exit otherwise) proves server-side spawn ticks: thrust flash cast+40, slam burst cast+63, pillar cast+65 with delays 36/59/63; the early look in captures was a labeling fault, so no +1 compensation. Reverted.
 - 2026-10-27 S3 r6: side/top/etc views place the target at DISTANCE (default 4), not the intent's enemy x, so dash_strike stopped at 4-0.7=3.3. Capture side/top with DISTANCE=7.2; stop_before_target 1.8 gives 5.4 travel at 7.2 and a ~1.8 stop for nearer targets. Trace: caster z 300.5 -> 305.9 over cast+38..40 (1.8/tick).
+
+- 2026-10-27 S3 r7 RULE: every round compare the new capture with the PREVIOUS round's capture at the same ticks (not only the ref); never ship anything weaker (size, brightness, contrast, opaque coverage). "Smooth edges" passes (r5) dropped coverage/luminance; measure sprite opaque coverage and mean luminance vs the last good commit. Geometry changes (dash stop 1.8 short) move impact fx: thrust flash/tip must sit at the enemy (z 1.8 from the dash end), beam >= 4.5 blocks.
