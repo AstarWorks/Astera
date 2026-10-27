@@ -99,6 +99,17 @@ export function makeCompare({ publishedDir, getRec, cacheFor, F, failureOf, beat
     const rounds = (q.get("rounds") ?? "current,prev").split(",").map((s) => s.trim()).filter(Boolean);
     for (const v of views) if (v !== "ref" && !MC_VIEWS.has(v)) return { error: `unknown view '${v}'`, status: 400 };
     for (const r of rounds) if (!/^(current|prev\d*|[a-f0-9]{6,64})$/.test(r)) return { error: `bad round '${r}' (current | prev | prev2 | revision prefix)`, status: 400 };
+    // viewing: zoom=native pastes source pixels 1:1 (never resampled; default whenever crop is given), zoom=fit is the downscaled overview.
+    // crop = x0,y0,x1,y1 as fractions of the frame (same window on every row) or "auto" (a window around the caster + fx of each row).
+    const cropQ = (q.get("crop") ?? "").trim();
+    let crop = null;
+    if (cropQ === "auto") crop = "auto";
+    else if (cropQ) {
+      crop = cropQ.split(",").map(Number);
+      if (crop.length !== 4 || crop.some((x) => !Number.isFinite(x) || x < 0 || x > 1) || crop[2] - crop[0] < 0.02 || crop[3] - crop[1] < 0.02) return { error: "crop: 'auto' or x0,y0,x1,y1 fractions 0-1 (x1>x0, y1>y0)", status: 400 };
+    }
+    const zoom = (q.get("zoom") ?? (crop ? "native" : "fit")).trim();
+    if (zoom !== "native" && zoom !== "fit") return { error: "zoom: native | fit", status: 400 };
     const dev = F.dev();
     const cast = castMs(c);
     const rows = [];
@@ -109,12 +120,12 @@ export function makeCompare({ publishedDir, getRec, cacheFor, F, failureOf, beat
         const frames = ticks.map((tick) => {
           const ms = cast + tick * 50, f = Math.floor((ms * fps) / 1000 + 1e-6);
           if (!cdir || !n) return { tick, frame: null, note: "no reference frames" };
-          const fr = Math.min(Math.max(f, 0), n - 1), name = `frame_${String(fr).padStart(5, "0")}.jpg`;
+          const fr = Math.min(Math.max(f, 0), n - 1), name = `frame_${String(fr).padStart(5, "0")}.png`;
           return { tick, frame: fr, refMs: ms, path: join(cdir, "frames", name), url: `/media/${id}/frames/${name}?v=${encodeURIComponent(c.referenceRevision || String(c.rev ?? 0))}`, note: fr !== f ? "clamped" : undefined };
         });
-        const bg = cdir && n ? Array.from({ length: Math.min(16, n) }, (_, i) => join(cdir, "frames", `frame_${String(Math.round((i * (n - 1)) / Math.max(1, Math.min(16, n) - 1))).padStart(5, "0")}.jpg`)) : [];
-        const k0 = cdir && n ? join(cdir, "frames", `frame_${String(Math.min(Math.max(Math.floor((cast * fps) / 1000 + 1e-6), 0), n - 1)).padStart(5, "0")}.jpg`) : null;
-        rows.push({ id: "ref", view, round: "ref", keyPath: k0, hue: c.caster_key?.ref ?? null, label: "ref (original)", sub: [meta ? `${fps} fps, ${meta.width}x${meta.height}` : "no cache", `cast ${cast} ms`], frames, bg, source: { kind: "reference", fps, frames: n, videoId: c.videoId, startS: c.start_s } });
+        const bg = cdir && n ? Array.from({ length: Math.min(16, n) }, (_, i) => join(cdir, "frames", `frame_${String(Math.round((i * (n - 1)) / Math.max(1, Math.min(16, n) - 1))).padStart(5, "0")}.png`)) : [];
+        const k0 = cdir && n ? join(cdir, "frames", `frame_${String(Math.min(Math.max(Math.floor((cast * fps) / 1000 + 1e-6), 0), n - 1)).padStart(5, "0")}.png`) : null;
+        rows.push({ id: "ref", view, round: "ref", keyPath: k0, hue: c.caster_key?.ref ?? null, label: "ref (original)", sub: [meta ? `${fps} fps, ${meta.source?.codec ?? "?"} ${meta.source?.bitrateKbps ?? "?"} kbps` : "no cache", `cast ${cast} ms`], frames, bg, source: { kind: "reference", fps, frames: n, videoId: c.videoId, startS: c.start_s, frameExt: "png", video: meta?.source ?? null } });
         continue;
       }
       for (const round of rounds) {
@@ -154,12 +165,12 @@ export function makeCompare({ publishedDir, getRec, cacheFor, F, failureOf, beat
       rows.forEach((o, j) => { if (j !== i && o.view === row.view && o.source.kind === "capture" && o.at < row.at && (best < 0 || o.at > rows[best].at)) best = j; });
       if (best >= 0) row.pair = best;
     });
-    return { id, skill, ticks, views, rounds, rows, cast, dev, title: `${id}  dev ${dev?.sha?.slice(0, 7) ?? "?"}  ticks ${ticks.join(",")}` };
+    return { id, skill, ticks, views, rounds, rows, cast, dev, crop, zoom, title: `${id}  dev ${dev?.sha?.slice(0, 7) ?? "?"}  ticks ${ticks.join(",")}` };
   }
   const readdirSafe = (d) => { try { return readdirSync(d); } catch { return []; } };
 
   function run(p, withSheet) {
-    const spec = { out: null, cell: [288, 162], title: p.title, ticks: p.ticks, rows: p.rows.map((r) => ({ id: r.id, label: r.label, sub: r.sub, pair: r.pair, keyPath: r.keyPath ?? null, hue: r.hue ?? null, frames: r.frames.map((f) => ({ tick: f.tick, path: f.path ?? null, note: f.note })), bg: r.bg })) };
+    const spec = { out: null, cell: [288, 162], zoom: p.zoom, crop: p.crop, title: p.title, ticks: p.ticks, rows: p.rows.map((r) => ({ id: r.id, label: r.label, sub: r.sub, pair: r.pair, keyPath: r.keyPath ?? null, hue: r.hue ?? null, frames: r.frames.map((f) => ({ tick: f.tick, path: f.path ?? null, note: f.note })), bg: r.bg })) };
     const key = createHash("sha1").update(String(mtime(SCRIPT))).update(JSON.stringify(spec)).digest("hex").slice(0, 20);
     const out = join(outDir, key + ".png");
     const hit = cache.get(key);
@@ -183,7 +194,10 @@ export function makeCompare({ publishedDir, getRec, cacheFor, F, failureOf, beat
     const p = plan(id, q);
     if (p.error) return p;
     const res = await run(p, false);
-    const qs = new URLSearchParams({ ticks: p.ticks.join(","), views: p.views.join(","), rounds: p.rounds.join(",") }).toString();
+    const qp = { ticks: p.ticks.join(","), views: p.views.join(","), rounds: p.rounds.join(",") };
+    if (p.crop) qp.crop = p.crop === "auto" ? "auto" : p.crop.join(",");
+    if (p.zoom === "native") qp.zoom = "native";
+    const qs = new URLSearchParams(qp).toString();
     const regressions = [];
     const ticks = p.ticks.map((tick, ci) => {
       const cells = {};
@@ -207,15 +221,17 @@ export function makeCompare({ publishedDir, getRec, cacheFor, F, failureOf, beat
       id, skill: p.skill, dev: p.dev, ticks: p.ticks, views: p.views, rounds: p.rounds, castMs: p.cast, framing,
       mapping: { mc: "frame = tick*fps/20 + castFrame - firstTick*fps/20 (20 fps: frame N = plan tick N)", ref: "frame = floor((castMs + tick*50) * fps / 1000)" },
       metricsDoc: "caster_bbox_pct = height of the caster's key-colour mask (compact saturated hair/outfit hues from the pre-cast tick-0 frame of the same source; override with case.json caster_key {ref:[lo,hi],mc:[lo,hi]} in degrees) as % of frame height; framing[] = median per source and ratio to ref (valid 0.5-2). fx_pct = emissive pixels new vs the clip median %; mean_luma/peak_luma(p99) 0-255; mover_h_pct informational. Flags: fx/luma down >20% vs the next older round.",
-      sources: p.rows.map((r) => ({ key: r.id, view: r.view, round: r.round, ...r.source })),
+      sources: p.rows.map((r, ri) => ({ key: r.id, view: r.view, round: r.round, ...r.source, nativeWidth: res.rows[ri].native?.[0] ?? null, nativeHeight: res.rows[ri].native?.[1] ?? null, crop: res.rows[ri].crop })),
+      view: { zoom: p.zoom, crop: p.crop, note: p.zoom === "native" ? "sheet cells are source pixels 1:1 (cropped, never resampled); smaller sources are padded" : "sheet is a downscaled overview; add zoom=native (and crop=x0,y0,x1,y1 fractions | crop=auto) to see source pixels" },
       ticksData: ticks, regression: regressions.length > 0, regressions,
-      sheetUrl: `/api/cases/${id}/sheet.png?${qs}`,
+      sheetUrl: res.sheetError ? null : `/api/cases/${id}/sheet.png?${qs}`, sheetError: res.sheetError ?? null,
     };
   }
   async function sheet(id, q) {
     const p = plan(id, q);
     if (p.error) return p;
     const res = await run(p, true);
+    if (res.sheetError) return { error: res.sheetError, status: 400 };
     return { file: res.out };
   }
   return { compare, sheet };

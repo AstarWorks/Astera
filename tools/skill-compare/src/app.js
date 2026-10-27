@@ -242,7 +242,7 @@ const visiblePanes = () => S.panes.filter((p) => !p.fig.closest("[hidden]"));
 function videoUrl(ms) {
   if (!S.data.media.ready) return null;
   const i = msToVideoFrame(ms, S.fps, S.frameCount || 1);
-  return `${S.data.media.base}frame_${String(i).padStart(5, "0")}.jpg?v=${encodeURIComponent(S.data.media.revision || "0")}`;
+  return `${S.data.media.base}frame_${String(i).padStart(5, "0")}.png?v=${encodeURIComponent(S.data.media.revision || "0")}`;
 }
 function drawVideo(ms) {
   const entry = S.frameCache.get(videoUrl(ms));

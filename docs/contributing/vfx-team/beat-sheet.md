@@ -29,7 +29,7 @@ Do not start step 4 until step 2 passes and gate 1 is approved. Lint (`make skil
 
 ## Reference frame quality (founder 2026-10-27)
 
-`tools/skill-compare/scripts/prepare.mjs` now extracts the reference at the source's native resolution (capped at 1080p, jpg q2) from a yt-dlp download of up to 1080p. Rotation direction, contact timing and blade detail must be judged from **full-resolution single frames or zoomed crops** of those frames (`tools/skill-compare/cache/<case>/frames/frame_NNNNN.jpg`). Never judge them from downscaled contact sheets or strips alone: a 6-up sheet is about 480 px per frame and hides exactly the detail (blade edge, hand grip, foot contact) the beat sheet is supposed to record. Sheets are fine to find the frame; the cell evidence cites the full-resolution frame number.
+`tools/skill-compare/scripts/prepare.mjs` now extracts the reference at the source stream's native resolution and fps as lossless PNG from the best yt-dlp stream (YouTube offers 1080p at most for every reference video; no 1440p/4K/60 fps exists). Rotation direction, contact timing and blade detail must be judged from **full-resolution single frames or zoomed crops** of those frames (`tools/skill-compare/cache/<case>/frames/frame_NNNNN.jpg`). Never judge them from downscaled contact sheets or strips alone: a 6-up sheet is about 480 px per frame and hides exactly the detail (blade edge, hand grip, foot contact) the beat sheet is supposed to record. Sheets are fine to find the frame; the cell evidence cites the full-resolution frame number.
 
 ## Template
 
