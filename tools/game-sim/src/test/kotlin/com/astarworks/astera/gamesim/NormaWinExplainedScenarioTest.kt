@@ -37,9 +37,12 @@ class NormaWinExplainedScenarioTest {
             startMatch("break-core", mapOf(red to "red", blue to "blue"))
             advance(40)
 
-            val briefing = chat(red)
-            assertThat(briefing).contains("How to win").contains("destroy the enemy core").contains("Lv 5").contains("Time limit 20 min")
+            assertThat(chat(red)).contains("How to win").contains("destroy the enemy core")
             assertThat(chat(blue)).`as`("everybody is briefed").contains("How to win")
+            // The briefing is staged: the Norma and time-limit lines follow as spaced-out hints, not all at once.
+            advance(1500)
+            val briefing = chat(red)
+            assertThat(briefing).contains("Lv 5").contains("Time limit 20 min")
 
             val sidebar = sim.hud.sidebarText(red.id).joinToString("\n")
             assertThat(sidebar).`as`("the clock shows the limit (the sim shows the sidebar line keys with their placeholders)").contains("limit=20:00")
