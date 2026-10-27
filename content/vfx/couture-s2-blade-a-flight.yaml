@@ -48,3 +48,17 @@ elements:
     - 1
     - 1
     - 1
+- id: tip-glint
+  kind:
+    type: particle
+    particle_id: couture-s2-p-tip
+    every_ticks: 1
+  brightness: 15
+  start_tick: 3
+  end_tick: 10
+  keyframes:
+  - t: 0
+    translate:
+    - -0.6
+    - 0.12
+    - 0.05

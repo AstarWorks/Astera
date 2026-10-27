@@ -342,7 +342,7 @@ elements:
   - t: 0
     translate:
     - 0.0
-    - 3.6999999999999997
+    - 2.9
     - 0.2
     rotate:
     - 0
@@ -355,7 +355,7 @@ elements:
   - t: 5
     translate:
     - 0.0
-    - 3.8
+    - 3.0
     - 0.2
     rotate:
     - 0
@@ -369,7 +369,7 @@ elements:
   - t: 16
     translate:
     - 0.0
-    - 3.6999999999999997
+    - 2.9
     - 0.2
     rotate:
     - 0
@@ -1292,7 +1292,7 @@ elements:
   - t: 0
     translate:
     - 0.0
-    - 4.7
+    - 2.7
     - 0.9
 - id: overhead-spark-1
   kind:
@@ -1306,7 +1306,7 @@ elements:
   - t: 0
     translate:
     - 0.0
-    - 4.7
+    - 2.7
     - -0.9
 - id: overhead-spark-2
   kind:
@@ -1320,7 +1320,7 @@ elements:
   - t: 0
     translate:
     - 0.0
-    - 4.7
+    - 2.7
     - 0.8
 - id: overhead-spark-3
   kind:
@@ -1334,7 +1334,7 @@ elements:
   - t: 0
     translate:
     - 0.0
-    - 4.7
+    - 2.7
     - -0.7
 - id: overhead-spark-4
   kind:
@@ -1348,7 +1348,7 @@ elements:
   - t: 0
     translate:
     - 0.0
-    - 4.7
+    - 2.7
     - 0.6
 - id: overhead-chain-a
   kind:
