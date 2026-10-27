@@ -54,6 +54,10 @@
       "path": "content/models/items/guns/railgun_final.model.json",
       "updated_at": "2026-06-03T02:49:28.965Z"
     },
+    "items/couture-rapier-hidden": {
+      "path": "content/models/items/couture-rapier-hidden.model.json",
+      "updated_at": "2026-10-27T00:00:00.000Z"
+    },
     "items/couture-rapier-open-15": {
       "path": "content/models/items/couture-rapier-open-15.model.json",
       "updated_at": "2026-10-27T00:00:00.000Z"

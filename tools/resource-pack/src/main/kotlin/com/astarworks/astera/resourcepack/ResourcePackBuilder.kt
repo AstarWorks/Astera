@@ -116,8 +116,9 @@ public class ResourcePackBuilder(
             val bytes = Files.readAllBytes(file)
             val model = mapper.readTree(bytes)
             modelTints(model) // Fail malformed palettes/indices before shipping the model.
-            files["assets/$NAMESPACE/models/$rel.json"] = if (model.has("astera_tints")) {
+            files["assets/$NAMESPACE/models/$rel.json"] = if (model.has("astera_tints") || model.has("astera_empty")) {
                 (model as ObjectNode).remove("astera_tints")
+                model.remove("astera_empty")
                 json(model).toByteArray()
             } else bytes
         }
@@ -159,6 +160,10 @@ public class ResourcePackBuilder(
     private fun itemDefinition(model: String): ByteArray {
         val source = mapper.readTree(Files.readAllBytes(contentDir.resolve("models/$model.model.json")))
         val definition = linkedMapOf<String, Any>("type" to "minecraft:model", "model" to "$NAMESPACE:$model")
+        // `astera_empty: true` marks an invisible item (weapon_model hide key): the vanilla empty item model, no cuboid model.
+        if (source.path("astera_empty").asBoolean(false)) {
+            return json(mapOf("model" to mapOf("type" to "minecraft:empty"), "hand_animation_on_swap" to false)).toByteArray()
+        }
         val tints = modelTints(source)
         if (tints.isNotEmpty()) definition["tints"] = tints.map { mapOf("type" to "minecraft:constant", "value" to it) }
         // The first-person hand swaps to / from an Astera item in one frame (no lower-and-raise): a rig that replaces the
