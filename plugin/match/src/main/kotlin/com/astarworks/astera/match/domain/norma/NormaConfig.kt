@@ -3,7 +3,7 @@ package com.astarworks.astera.match.domain.norma
 /**
  * Norma tunables of a match: the shared layer defaults (`content/norma-layer/layer.yaml`) overlaid with the match's
  * game mode `default_config` (a mode overrides any key). `norma_max_level`, `norma_stars_goal`, `norma_kills_goal`
- * (comma lists indexed by the level being cleared), `norma_win` and `death_drop_ratio`. Missing or malformed values
+ * (comma lists indexed by the level being cleared), and `death_drop_ratio`. Missing or malformed values
  * fall back to the defaults.
  */
 public data class NormaConfig(
@@ -11,8 +11,6 @@ public data class NormaConfig(
     val starsGoal: List<Int> = DEFAULT_STARS_GOAL,
     val killsGoal: List<Int> = DEFAULT_KILLS_GOAL,
     val deathDropRatio: Double = DEFAULT_DEATH_DROP_RATIO,
-    /** `norma_win`: reaching [maxLevel] wins the match (alongside the mode's own objective, whichever comes first). */
-    val win: Boolean = true,
 ) {
     init {
         require(maxLevel >= 2) { "norma_max_level must be >= 2 (was $maxLevel)" }
@@ -46,7 +44,6 @@ public data class NormaConfig(
                 killsGoal = list("norma_kills_goal", DEFAULT_KILLS_GOAL),
                 deathDropRatio = raw["death_drop_ratio"]?.trim()?.toDoubleOrNull()?.takeIf { it in 0.0..1.0 }
                     ?: DEFAULT_DEATH_DROP_RATIO,
-                win = raw["norma_win"]?.trim()?.lowercase() != "false",
             )
         }
     }

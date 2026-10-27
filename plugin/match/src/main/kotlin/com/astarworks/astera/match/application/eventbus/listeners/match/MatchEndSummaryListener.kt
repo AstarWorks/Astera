@@ -137,8 +137,6 @@ public class MatchEndSummaryListener(
         send("astera.match.summary.header")
         val reason = event.reason
         when (reason) {
-            is EndReason.NormaLevelReached ->
-                send("astera.match.summary.reason.norma-level-reached", *teamParams(viewer, teamsById[reason.winner], reason.winner.value), "level" to reason.level.toString())
             is EndReason.NormaTimeLimit -> {
                 val leader = reason.leader
                 if (leader != null) {
@@ -225,11 +223,6 @@ public class MatchEndSummaryListener(
                 "objective" to me.objective.toString(),
             )
         }
-
-        // A loser is told what would have won (the Norma race is the one rule every mode shares).
-        if (standings.isNotEmpty() && summary.outcomeOf(viewer) == MatchOutcome.LOSE) {
-            send("astera.match.result.hint", "max" to standings.first().maxLevel.toString())
-        }
     }
 
     private fun teamParams(viewer: PlayerId, team: com.astarworks.astera.core.domain.match.Team?, fallbackName: String): Array<Pair<String, String>> =
@@ -263,7 +256,7 @@ public class MatchEndSummaryListener(
             is EndReason.Cancelled -> "cancelled"
             is EndReason.TeamVictory -> "objective"
             // Norma results are named by pushChat (they carry the team); this is only the generic fallback.
-            is EndReason.NormaLevelReached, is EndReason.NormaTimeLimit -> "score-threshold"
+            is EndReason.NormaTimeLimit -> "score-threshold"
             // PvE results are named by pushChat (they carry the wave counts); this is only the generic fallback.
             is EndReason.EncounterCleared -> "encounter-cleared"
             is EndReason.EncounterFailed -> "encounter-failed"

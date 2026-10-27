@@ -15,7 +15,6 @@ defaults:
 
   # Win rule: reaching norma_max_level wins the match (100% Orange Juice style), alongside the mode's own objective,
   # whichever happens first. "false" = the mode's own objective is the only win path.
-  norma_win: "true"
 
   # Time limit (seconds of ACTIVE time); 0 = no limit (the mode brings its own clock). When it runs out the teams
   # are ranked by: the mode's own objective score (if the mode has one), then the highest Norma level, then the

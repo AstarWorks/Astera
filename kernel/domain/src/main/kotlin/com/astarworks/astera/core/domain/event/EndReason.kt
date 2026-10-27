@@ -38,12 +38,6 @@ public sealed interface EndReason {
      */
     public data class TeamVictory(val winner: com.astarworks.astera.core.domain.match.TeamId?) : EndReason
 
-    /** Norma: a member of [winner] reached the top Norma [level] (the Orange-Juice-style win path). */
-    public data class NormaLevelReached(
-        val winner: com.astarworks.astera.core.domain.match.TeamId,
-        val level: Int,
-    ) : EndReason
-
     /** Norma: the time limit ran out; [leader] was ahead on Norma level, then stars carried, then kills; `null` is a draw. */
     public data class NormaTimeLimit(val leader: com.astarworks.astera.core.domain.match.TeamId?) : EndReason
 

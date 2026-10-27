@@ -15,8 +15,7 @@ import org.slf4j.LoggerFactory
 /**
  * The Norma layer's time limit (MODE-15): a standard part of every game mode that has the layer on.
  *
- * Reaching the top Norma level wins the match when `norma_win` is on (`NormaLevelService`, [EndReason.NormaLevelReached]),
- * next to the mode's own objective: whichever happens first. This listener ends a match that ran [timeLimitTicks] of
+ * Norma levels never end a match by themselves. This listener ends a match that ran [timeLimitTicks] of
  * ACTIVE time (`time_limit_seconds`; `0` or less = no limit, the mode has its own clock) through [IMatchLifecycle.end],
  * like every other mode (result screen, rewards, return to the lobby).
  *

@@ -25,9 +25,9 @@ import com.astarworks.astera.match.domain.norma.NormaStanding
 /**
  * Orange-Juice-style Norma levels, per (match, player). Everyone starts at level 1 with the STAR goal. At each level
  * the player holds one goal: carry `norma_stars_goal` stars (not consumed) or make `norma_kills_goal` kills at this
- * level. Reaching it levels the player up at once (kills reset, stars kept, the choice re-opens at STAR). The first
- * team with a member at `norma_max_level` wins the match when `norma_win` is on (the default), alongside the mode's
- * own objective, whichever happens first. Everything is dropped at match end.
+ * level. Reaching it levels the player up at once (kills reset, stars kept, the choice re-opens at STAR). Levels
+ * are an in-match power layer: reaching `norma_max_level` only stops further levelling and never ends the match (the
+ * mode's own objective decides it). Everything is dropped at match end.
  */
 public class NormaLevelService(
     private val matches: IMatchRepository,
@@ -134,10 +134,6 @@ public class NormaLevelService(
         val up = NormaProgress(level = p.level + 1, goal = NormaGoal.STAR, killsAtLevel = 0, totalKills = p.totalKills)
         norma.put(match.id, playerId, up)
         eventBus.publish(NormaLevelUp(match.id, playerId, up.level))
-        if (up.level >= cfg.maxLevel && cfg.win) {
-            val team = match.teams.firstOrNull { playerId in it.members }?.id ?: return
-            lifecycle.end(match.id, EndReason.NormaLevelReached(team, up.level))
-        }
     }
 
     private fun live(match: Match): Boolean = match.phase == MatchPhase.ACTIVE || match.phase == MatchPhase.SUDDEN_DEATH
