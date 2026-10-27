@@ -5,10 +5,10 @@ orient: yaw
 follow: true
 sample_ticks: 1
 elements:
-- id: haze-0
+- id: haze-hip
   kind:
     type: sprite
-    sprite: couture-s2-smear
+    sprite: couture-s2-haze-soft
     frame_ticks: 1
     loop: false
     see_through: true
@@ -20,102 +20,45 @@ elements:
   keyframes:
   - t: 0
     translate:
-    - -0.3
-    - 1.0
-    - -0.2
+    - 0.0
+    - 0.9
+    - -0.1
     rotate:
     - 0
     - 0
-    - 90
+    - 0
     scale:
-    - 2.6
-    - 0.9
+    - 0.4
+    - 0.4
     - 1
     alpha: 0.0
   - t: 3
     translate:
-    - -0.3
-    - 1.1
-    - -0.3
-    rotate:
-    - 0
-    - 0
-    - 90
-    scale:
-    - 3.6
-    - 1.1
-    - 1
-    alpha: 0.55
-    ease: out_quad
-  - t: 8
-    translate:
-    - -0.3
-    - 1.2
-    - -0.4
-    rotate:
-    - 0
-    - 0
-    - 90
-    scale:
-    - 3.6
-    - 1.1
-    - 1
-    alpha: 0.0
-    ease: in_quad
-- id: haze-1
-  kind:
-    type: sprite
-    sprite: couture-s2-smear
-    frame_ticks: 1
-    loop: false
-    see_through: true
-    color: '#8A5CFF'
-  billboard: center
-  brightness: 15
-  start_tick: 0
-  end_tick: 8
-  keyframes:
-  - t: 0
-    translate:
-    - 0.3
-    - 1.0
-    - -0.2
-    rotate:
-    - 0
-    - 0
-    - 90
-    scale:
-    - 2.6
+    - 0.0
     - 0.9
-    - 1
-    alpha: 0.0
-  - t: 3
-    translate:
-    - 0.3
-    - 1.1
-    - -0.3
+    - -0.1
     rotate:
     - 0
     - 0
-    - 90
+    - 0
     scale:
-    - 3.6
-    - 1.1
+    - 0.8
+    - 0.8
     - 1
-    alpha: 0.55
+    alpha: 0.3
     ease: out_quad
   - t: 8
     translate:
-    - 0.3
-    - 1.2
-    - -0.4
+    - 0.0
+    - 0.9
+    - -0.1
     rotate:
     - 0
     - 0
-    - 90
+    - 0
     scale:
-    - 3.6
-    - 1.1
+    - 0.8
+    - 0.8
     - 1
     alpha: 0.0
     ease: in_quad
