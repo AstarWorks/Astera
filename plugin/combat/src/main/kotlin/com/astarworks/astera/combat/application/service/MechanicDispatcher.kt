@@ -291,6 +291,7 @@ public class MechanicDispatcher(
         effects = entityEffects,
         heldItems = heldItemHider,
         feedback = feedback,
+        poseLookup = poseLookup,
         messageRenderer = messageRenderer,
         teamLookup = teamLookup,
         playerHealth = { playerHealth?.invoke() },
