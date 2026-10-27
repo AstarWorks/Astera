@@ -72,8 +72,13 @@ object SkillSchemaGenerator {
         if (specParam != null) {
             leaves(MotionSpec::class).map { OpEntry(snake(it.simpleName!!), k, section, it) }
         } else {
-            // the decoder names `StatusOp.ApplyStatus` plain `status` (op: status, status: <id>)
-            listOf(OpEntry(if (k.simpleName == "ApplyStatus") "status" else snake(k.simpleName!!), k, section))
+            // the decoder names `StatusOp.ApplyStatus` plain `status` and `ControlOp.RaiseEvent` plain `event`
+            val yaml = when (k.simpleName) {
+                "ApplyStatus" -> "status"
+                "RaiseEvent" -> "event"
+                else -> snake(k.simpleName!!)
+            }
+            listOf(OpEntry(yaml, k, section))
         }
     }.sortedBy { it.yamlName }
 

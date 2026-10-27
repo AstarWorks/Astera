@@ -288,6 +288,7 @@
                             "counter",
                             "damage",
                             "dash_strike",
+                            "event",
                             "explode",
                             "fly",
                             "follow",
@@ -310,7 +311,6 @@
                             "pose",
                             "projectile",
                             "propel",
-                            "raise_event",
                             "reel",
                             "remove_block",
                             "remove_status",
@@ -466,6 +466,21 @@
                         },
                         "then": {
                             "$ref": "#/definitions/op_dash_strike"
+                        }
+                    },
+                    {
+                        "if": {
+                            "properties": {
+                                "op": {
+                                    "const": "event"
+                                }
+                            },
+                            "required": [
+                                "op"
+                            ]
+                        },
+                        "then": {
+                            "$ref": "#/definitions/op_event"
                         }
                     },
                     {
@@ -796,21 +811,6 @@
                         },
                         "then": {
                             "$ref": "#/definitions/op_propel"
-                        }
-                    },
-                    {
-                        "if": {
-                            "properties": {
-                                "op": {
-                                    "const": "raise_event"
-                                }
-                            },
-                            "required": [
-                                "op"
-                            ]
-                        },
-                        "then": {
-                            "$ref": "#/definitions/op_raise_event"
                         }
                     },
                     {
@@ -2126,6 +2126,30 @@
             ],
             "additionalProperties": true
         },
+        "op_event": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "unique within the skill (patches address ops by id)"
+                },
+                "op": {
+                    "const": "event"
+                },
+                "when": {
+                    "$ref": "#/definitions/Value_boolean"
+                },
+                "event": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "id",
+                "op"
+            ],
+            "additionalProperties": true
+        },
         "op_explode": {
             "type": "object",
             "properties": {
@@ -3098,30 +3122,6 @@
                 },
                 "strength": {
                     "$ref": "#/definitions/Value_number"
-                }
-            },
-            "required": [
-                "id",
-                "op"
-            ],
-            "additionalProperties": true
-        },
-        "op_raise_event": {
-            "type": "object",
-            "properties": {
-                "id": {
-                    "type": "string",
-                    "minLength": 1,
-                    "description": "unique within the skill (patches address ops by id)"
-                },
-                "op": {
-                    "const": "raise_event"
-                },
-                "when": {
-                    "$ref": "#/definitions/Value_boolean"
-                },
-                "event": {
-                    "type": "string"
                 }
             },
             "required": [
