@@ -25,6 +25,8 @@ plugins {
 }
 
 dependencies {
+    implementation(project(":kernel:domain"))
+    implementation(libs.adventure.minimessage)
     implementation(libs.kotlin.stdlib)
     implementation(libs.snakeyaml)
     implementation(libs.slf4j.api)

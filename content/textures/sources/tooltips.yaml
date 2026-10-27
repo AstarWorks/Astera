@@ -1,0 +1,7 @@
+# gen_sheet.py tools/item-art/sheets/tooltip-v1.yaml --prompt-only; generate that prompt with image_gen.
+# Colours come from astera.item.tooltip.rarity in languages/en.yaml, shared with lore.
+sources:
+  tooltip-v1:
+    file: sheets/tooltip-v1.png
+    grid: [3, 3]
+    cells: [common, uncommon, rare, epic, legendary]
