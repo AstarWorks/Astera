@@ -6,11 +6,11 @@ supersedes: null
 superseded_by: null
 ---
 
-# ADR-0288: Generic VFX primitives: sound arc, audience/intensity/lane, sprite + line shorthands, telegraph, stage palette, windup, shake profile, hit-stop clock
+# ADR-0290: Generic VFX primitives: sound arc, audience/intensity/lane, sprite + line shorthands, telegraph, stage palette, windup, shake profile, hit-stop clock
 
 ## Status
 
-Proposed (track `vfx-primitives`). Companion: ADR-0289 (screen veil).
+Proposed (track `vfx-primitives`). Companion: ADR-0291 (screen veil).
 
 ## Context
 
@@ -79,5 +79,5 @@ client/GPU/mod combination). Display-entity composition plus the sprite font cov
 
 ## References
 
-- ADR-0289 (screen veil), ADR-0220 (vfx choreography), ADR-0284 (ghost bodies), ADR-0262 (Folia ownership)
+- ADR-0291 (screen veil), ADR-0220 (vfx choreography), ADR-0284 (ghost bodies), ADR-0262 (Folia ownership)
 - `docs/reference/vfx/patterns.md`

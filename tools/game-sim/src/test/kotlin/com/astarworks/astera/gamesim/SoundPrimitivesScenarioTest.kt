@@ -13,7 +13,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.data.Offset
 import org.junit.jupiter.api.Test
 
-/** ADR-0288: `play_sound` pitch_arc / viewers and `stop_sound`, through the real dispatcher and the recording sound gateway. */
+/** ADR-0290: `play_sound` pitch_arc / viewers and `stop_sound`, through the real dispatcher and the recording sound gateway. */
 class SoundPrimitivesScenarioTest {
 
     @Test

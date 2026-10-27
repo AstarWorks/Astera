@@ -19,7 +19,7 @@ import kotlin.math.sin
 import kotlin.math.sqrt
 
 /**
- * ADR-0288 telegraph: builds the ground-warning [VfxDefinition] for a circle, cone or line.
+ * ADR-0290 telegraph: builds the ground-warning [VfxDefinition] for a circle, cone or line.
  *
  * Two layers: the OUTER RIM exists at full size on tick 0 (the judged footprint = the drawn footprint); the INNER FILL
  * grows from nothing to the full footprint by [Request.impactTick]. Flat coloured quads lie on the ground in the

@@ -253,7 +253,7 @@ public class MechanicDispatcher(
         resolveDouble = { value, c -> resolveDouble(value, c) },
     )
 
-    /** vfx-primitives (ADR-0288 / ADR-0289): `stop_sound`, `telegraph`, `screen_veil` handlers, one file each. */
+    /** vfx-primitives (ADR-0290 / ADR-0291): `stop_sound`, `telegraph`, `screen_veil` handlers, one file each. */
     private val primitiveDeps = com.astarworks.astera.combat.application.service.primitives.PrimitiveDeps(
             host = this,
             targeters = targeterResolver,

@@ -1052,7 +1052,7 @@ public sealed class MechanicYaml {
         )
     }
 
-    /** Camera-anchored sprite veil (ADR-0289); viewers default to the caster. */
+    /** Camera-anchored sprite veil (ADR-0291); viewers default to the caster. */
     @Serializable
     @SerialName("screen_veil")
     public data class ScreenVeil(

@@ -27,7 +27,7 @@ import kotlin.math.hypot
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
-/** ADR-0288 telegraph + windup desugar and ADR-0289 screen veil, end to end through the real dispatcher and sim ports. */
+/** ADR-0290 telegraph + windup desugar and ADR-0291 screen veil, end to end through the real dispatcher and sim ports. */
 class TelegraphWindupVeilScenarioTest {
 
     private fun ScenarioScope.dispatch(ctx: MechanicContext, vararg mechanics: Mechanic) {

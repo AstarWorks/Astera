@@ -5,7 +5,7 @@ import kotlin.math.sqrt
 import kotlin.math.tan
 
 /**
- * ADR-0289 screen veil geometry: a square sprite quad [distance] blocks in front of the eye covers a bounded fraction of
+ * ADR-0291 screen veil geometry: a square sprite quad [distance] blocks in front of the eye covers a bounded fraction of
  * the screen. Vertical FOV is fixed at [FOV_DEGREES] (the shipped client default) and the aspect at 16:9.
  */
 public object ScreenVeilMath {

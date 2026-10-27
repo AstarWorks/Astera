@@ -6,11 +6,11 @@ supersedes: null
 superseded_by: null
 ---
 
-# ADR-0289: Screen veil: camera-anchored display, viewer-scoped, screen-area cap
+# ADR-0291: Screen veil: camera-anchored display, viewer-scoped, screen-area cap
 
 ## Status
 
-Proposed (track `vfx-primitives`). Companion: ADR-0288.
+Proposed (track `vfx-primitives`). Companion: ADR-0290.
 
 ## Context
 
@@ -44,8 +44,8 @@ dropped for viewers with `vfx_intensity: minimal`. Handler: `PrimitiveMechanics.
 
 - **`camera_overlay` component / head-slot swap**: rejected, it needs equipment juggling and conflicts with armour/presentation leases.
 - **Font title (current `screen_flash`)**: rejected, cannot be shaped and displaces gameplay titles.
-- **Core shader overlay**: out of scope, see ADR-0288.
+- **Core shader overlay**: out of scope, see ADR-0290.
 
 ## References
 
-- ADR-0288, `docs/reference/vfx/patterns.md` (4.2, G-4)
+- ADR-0290, `docs/reference/vfx/patterns.md` (4.2, G-4)

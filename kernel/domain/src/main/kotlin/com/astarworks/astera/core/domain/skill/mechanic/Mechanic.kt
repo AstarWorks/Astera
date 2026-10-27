@@ -654,7 +654,7 @@ public sealed class Mechanic {
     ) : Mechanic()
 
     /**
-     * Camera-anchored sprite veil (ADR-0289): a display [distance] blocks in front of each viewer's camera, [scale] times
+     * Camera-anchored sprite veil (ADR-0291): a display [distance] blocks in front of each viewer's camera, [scale] times
      * its natural size, for [ticks] ticks. Covers at most [maxScreenFraction] of the view. Viewers are [targets] filtered by
      * [viewers] (default caster only).
      */

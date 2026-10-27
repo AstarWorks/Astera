@@ -13,7 +13,7 @@ import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.domain.skill.mechanic.Mechanic
 
 /**
- * `play_sound` with `pitch_arc`, `scale` and `viewers` (ADR-0288).
+ * `play_sound` with `pitch_arc`, `scale` and `viewers` (ADR-0290).
  *
  * Pitch: a `pitch_arc` is expanded per tick by [SoundPlanner] (overrides `pitch` and `scale`); a `scale` picks the step
  * `tickIndex % steps` (the index a `loop` mechanic hands its children), multiplied by the base pitch. All pitches are clamped

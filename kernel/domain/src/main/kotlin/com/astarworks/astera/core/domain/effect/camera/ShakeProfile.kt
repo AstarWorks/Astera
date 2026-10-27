@@ -10,7 +10,7 @@ import kotlin.math.roundToInt
 import kotlin.math.sin
 
 /**
- * Pure planner for `camera_shake` (ADR-0288): turns shape / direction / frequency / intensity into the relative view kicks
+ * Pure planner for `camera_shake` (ADR-0290): turns shape / direction / frequency / intensity into the relative view kicks
  * the host applies, one per [Pulse].
  *
  * The planner works on the VIEW OFFSET the shake wants at each pulse and emits the DIFFERENCE between neighbouring offsets, so

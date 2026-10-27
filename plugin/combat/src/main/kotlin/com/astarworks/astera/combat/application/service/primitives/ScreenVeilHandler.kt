@@ -25,7 +25,7 @@ import kotlin.math.atan2
 import kotlin.math.sqrt
 
 /**
- * `screen_veil` (ADR-0289): a large sprite quad `distance` blocks in front of a player's eye along the look direction,
+ * `screen_veil` (ADR-0291): a large sprite quad `distance` blocks in front of a player's eye along the look direction,
  * re-anchored every tick through teleport interpolation, visible only to the mechanic's `viewers` (audience-scoped spawn)
  * and fading out over `ticks`. Its side is clamped so the projected area stays within `max_screen_fraction`
  * ([ScreenVeilMath], FOV 70, 16:9).

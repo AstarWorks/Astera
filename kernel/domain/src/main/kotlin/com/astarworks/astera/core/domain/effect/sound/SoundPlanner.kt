@@ -6,7 +6,7 @@ import com.astarworks.astera.core.domain.world.WorldId
 import kotlin.math.pow
 
 /**
- * Pure expansion of [PitchArc] and [SoundScale] into scheduler input (ADR-0288).
+ * Pure expansion of [PitchArc] and [SoundScale] into scheduler input (ADR-0290).
  *
  * Every pitch produced here is clamped to the vanilla playable range [SoundSpec.MIN_PITCH]..[SoundSpec.MAX_PITCH]
  * (0.5..2.0): the client cannot play outside it, so an arc or scale that leaves the range holds at the nearest bound

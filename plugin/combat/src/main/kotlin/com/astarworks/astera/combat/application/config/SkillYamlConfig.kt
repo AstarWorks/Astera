@@ -168,7 +168,7 @@ public data class SkillYamlConfig(
     }
 
     /**
-     * Desugars the skill-level `windup:` block into cast-phase mechanics (ADR-0288): the sound, telegraph and vfx start at cast
+     * Desugars the skill-level `windup:` block into cast-phase mechanics (ADR-0290): the sound, telegraph and vfx start at cast
      * tick 0, `stop_sound` cuts the sound at the impact tick, and the existing cast mechanics are shifted by `windup.ticks`
      * (wrapped in a delayed one-iteration loop). Only `sequence` skills qualify: melee / aoe / projectile apply their baseline
      * damage in the archetype handler, outside the mechanics, so their impact cannot be moved from here.

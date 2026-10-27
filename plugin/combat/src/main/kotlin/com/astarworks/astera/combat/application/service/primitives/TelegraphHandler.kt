@@ -18,7 +18,7 @@ import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicLong
 
 /**
- * `telegraph` (ADR-0288): a ground warning at each location of `targets`. [TelegraphPlanner] builds the effect (outer rim at
+ * `telegraph` (ADR-0290): a ground warning at each location of `targets`. [TelegraphPlanner] builds the effect (outer rim at
  * full size on tick 0, inner fill growing to full by `impact_tick`); it plays through the ordinary [VfxPlayer] path with the
  * mechanic's `viewers` audience applied to every display it spawns.
  *

@@ -51,7 +51,7 @@ internal fun interface PrimitiveHandler<M : Mechanic> {
 }
 
 /**
- * Hook for the generic VFX primitives (ADR-0288 / ADR-0289). [MechanicDispatcher] routes `stop_sound`, `screen_veil` and
+ * Hook for the generic VFX primitives (ADR-0290 / ADR-0291). [MechanicDispatcher] routes `stop_sound`, `screen_veil` and
  * `telegraph` here; each handler lives in its own file so territories never touch the dispatcher:
  *  - [StopSoundHandler] (T1 sound)
  *  - [TelegraphHandler], [ScreenVeilHandler] (T5)
