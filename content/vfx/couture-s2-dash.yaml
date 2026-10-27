@@ -7,193 +7,193 @@ follow: true
 sample_ticks: 1
 elements:
 - id: streak-0
-  kind: {type: sprite, sprite: couture-s2-feather, frame_ticks: 1, loop: false, see_through: true}
+  kind: {type: sprite, sprite: couture-s2-smear, frame_ticks: 1, loop: false, see_through: true}
   billboard: center
   brightness: 15
   start_tick: 0
-  end_tick: 9
+  end_tick: 3
   keyframes:
   - t: 0
     translate: [0.0, 0.1, -1.5]
     rotate: [0, 0, 2]
-    scale: [10.4, 0.27999999999999997, 1]
-  - t: 3
+    scale: [10.4, 0.101, 1]
+  - t: 1
     translate: [0.0, 0.1, 3.5]
     rotate: [0, 0, 2]
-    scale: [26, 1.4, 1]
+    scale: [26, 0.504, 1]
     ease: out_expo
-  - t: 8
+  - t: 3
     translate: [0.0, 0.1, 10.0]
     rotate: [0, 0, 2]
-    scale: [26, 0.05, 1]
+    scale: [26, 0.018, 1]
     ease: in_quad
 - id: streak-1
-  kind: {type: sprite, sprite: couture-s2-feather, frame_ticks: 1, loop: false, see_through: true}
+  kind: {type: sprite, sprite: couture-s2-smear, frame_ticks: 1, loop: false, see_through: true}
   billboard: center
   brightness: 15
   start_tick: 1
-  end_tick: 9
+  end_tick: 4
   keyframes:
   - t: 0
     translate: [0.0, 0.5, -1.5]
     rotate: [0, 0, 2]
-    scale: [12.8, 0.2, 1]
-  - t: 3
+    scale: [12.8, 0.072, 1]
+  - t: 1
     translate: [0.0, 0.5, 3.5]
     rotate: [0, 0, 2]
-    scale: [32, 1.0, 1]
+    scale: [32, 0.36, 1]
     ease: out_expo
-  - t: 8
+  - t: 3
     translate: [0.0, 0.5, 10.0]
     rotate: [0, 0, 2]
-    scale: [32, 0.05, 1]
+    scale: [32, 0.018, 1]
     ease: in_quad
 - id: streak-2
-  kind: {type: sprite, sprite: couture-s2-feather, frame_ticks: 1, loop: false, see_through: true}
+  kind: {type: sprite, sprite: couture-s2-smear, frame_ticks: 1, loop: false, see_through: true}
   billboard: center
   brightness: 15
   start_tick: 2
-  end_tick: 9
+  end_tick: 5
   keyframes:
   - t: 0
     translate: [0.0, 0.9, -1.5]
     rotate: [0, 0, 2]
-    scale: [14.4, 0.36000000000000004, 1]
-  - t: 3
+    scale: [14.4, 0.13, 1]
+  - t: 1
     translate: [0.0, 0.9, 3.5]
     rotate: [0, 0, 2]
-    scale: [36, 1.8, 1]
+    scale: [36, 0.648, 1]
     ease: out_expo
-  - t: 8
+  - t: 3
     translate: [0.0, 0.9, 10.0]
     rotate: [0, 0, 2]
-    scale: [36, 0.05, 1]
+    scale: [36, 0.018, 1]
     ease: in_quad
 - id: streak-3
-  kind: {type: sprite, sprite: couture-s2-feather, frame_ticks: 1, loop: false, see_through: true}
+  kind: {type: sprite, sprite: couture-s2-smear, frame_ticks: 1, loop: false, see_through: true}
   billboard: center
   brightness: 15
   start_tick: 0
-  end_tick: 9
+  end_tick: 3
   keyframes:
   - t: 0
     translate: [0.0, 1.3, -1.5]
     rotate: [0, 0, 2]
-    scale: [12.0, 0.24, 1]
-  - t: 3
+    scale: [12.0, 0.086, 1]
+  - t: 1
     translate: [0.0, 1.3, 3.5]
     rotate: [0, 0, 2]
-    scale: [30, 1.2, 1]
+    scale: [30, 0.432, 1]
     ease: out_expo
-  - t: 8
+  - t: 3
     translate: [0.0, 1.3, 10.0]
     rotate: [0, 0, 2]
-    scale: [30, 0.05, 1]
+    scale: [30, 0.018, 1]
     ease: in_quad
 - id: streak-4
-  kind: {type: sprite, sprite: couture-s2-feather, frame_ticks: 1, loop: false, see_through: true}
+  kind: {type: sprite, sprite: couture-s2-smear, frame_ticks: 1, loop: false, see_through: true}
   billboard: center
   brightness: 15
   start_tick: 1
-  end_tick: 9
+  end_tick: 4
   keyframes:
   - t: 0
     translate: [0.0, 1.7, -1.5]
     rotate: [0, 0, 2]
-    scale: [15.200000000000001, 0.32000000000000006, 1]
-  - t: 3
+    scale: [15.200000000000001, 0.115, 1]
+  - t: 1
     translate: [0.0, 1.7, 3.5]
     rotate: [0, 0, 2]
-    scale: [38, 1.6, 1]
+    scale: [38, 0.576, 1]
     ease: out_expo
-  - t: 8
+  - t: 3
     translate: [0.0, 1.7, 10.0]
     rotate: [0, 0, 2]
-    scale: [38, 0.05, 1]
+    scale: [38, 0.018, 1]
     ease: in_quad
 - id: streak-5
-  kind: {type: sprite, sprite: couture-s2-feather, frame_ticks: 1, loop: false, see_through: true}
+  kind: {type: sprite, sprite: couture-s2-smear, frame_ticks: 1, loop: false, see_through: true}
   billboard: center
   brightness: 15
   start_tick: 2
-  end_tick: 9
+  end_tick: 5
   keyframes:
   - t: 0
     translate: [0.0, 2.1, -1.5]
     rotate: [0, 0, 2]
-    scale: [11.200000000000001, 0.22000000000000003, 1]
-  - t: 3
+    scale: [11.200000000000001, 0.079, 1]
+  - t: 1
     translate: [0.0, 2.1, 3.5]
     rotate: [0, 0, 2]
-    scale: [28, 1.1, 1]
+    scale: [28, 0.396, 1]
     ease: out_expo
-  - t: 8
+  - t: 3
     translate: [0.0, 2.1, 10.0]
     rotate: [0, 0, 2]
-    scale: [28, 0.05, 1]
+    scale: [28, 0.018, 1]
     ease: in_quad
 - id: streak-6
-  kind: {type: sprite, sprite: couture-s2-feather, frame_ticks: 1, loop: false, see_through: true}
+  kind: {type: sprite, sprite: couture-s2-smear, frame_ticks: 1, loop: false, see_through: true}
   billboard: center
   brightness: 15
   start_tick: 0
-  end_tick: 9
+  end_tick: 3
   keyframes:
   - t: 0
     translate: [0.0, 2.5, -1.5]
     rotate: [0, 0, 2]
-    scale: [13.600000000000001, 0.30000000000000004, 1]
-  - t: 3
+    scale: [13.600000000000001, 0.108, 1]
+  - t: 1
     translate: [0.0, 2.5, 3.5]
     rotate: [0, 0, 2]
-    scale: [34, 1.5, 1]
+    scale: [34, 0.54, 1]
     ease: out_expo
-  - t: 8
+  - t: 3
     translate: [0.0, 2.5, 10.0]
     rotate: [0, 0, 2]
-    scale: [34, 0.05, 1]
+    scale: [34, 0.018, 1]
     ease: in_quad
 - id: streak-7
-  kind: {type: sprite, sprite: couture-s2-feather, frame_ticks: 1, loop: false, see_through: true}
+  kind: {type: sprite, sprite: couture-s2-smear, frame_ticks: 1, loop: false, see_through: true}
   billboard: center
   brightness: 15
   start_tick: 1
-  end_tick: 9
+  end_tick: 4
   keyframes:
   - t: 0
     translate: [0.0, 2.9, -1.5]
     rotate: [0, 0, 2]
-    scale: [9.600000000000001, 0.18000000000000002, 1]
-  - t: 3
+    scale: [9.600000000000001, 0.065, 1]
+  - t: 1
     translate: [0.0, 2.9, 3.5]
     rotate: [0, 0, 2]
-    scale: [24, 0.9, 1]
+    scale: [24, 0.324, 1]
     ease: out_expo
-  - t: 8
+  - t: 3
     translate: [0.0, 2.9, 10.0]
     rotate: [0, 0, 2]
-    scale: [24, 0.05, 1]
+    scale: [24, 0.018, 1]
     ease: in_quad
 - id: streak-8
-  kind: {type: sprite, sprite: couture-s2-feather, frame_ticks: 1, loop: false, see_through: true}
+  kind: {type: sprite, sprite: couture-s2-smear, frame_ticks: 1, loop: false, see_through: true}
   billboard: center
   brightness: 15
   start_tick: 2
-  end_tick: 9
+  end_tick: 5
   keyframes:
   - t: 0
     translate: [0.0, 0.3, -1.5]
     rotate: [0, 0, 2]
-    scale: [16.0, 0.44000000000000006, 1]
-  - t: 3
+    scale: [16.0, 0.158, 1]
+  - t: 1
     translate: [0.0, 0.3, 3.5]
     rotate: [0, 0, 2]
-    scale: [40, 2.2, 1]
+    scale: [40, 0.792, 1]
     ease: out_expo
-  - t: 8
+  - t: 3
     translate: [0.0, 0.3, 10.0]
     rotate: [0, 0, 2]
-    scale: [40, 0.05, 1]
+    scale: [40, 0.018, 1]
     ease: in_quad
 - id: p-orange
   kind: {type: particle, particle_id: couture-s2-p-orange, every_ticks: 1}
