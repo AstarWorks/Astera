@@ -27,7 +27,7 @@ the affected positions. There is no HP persistence or gradual healing.
 Schemas: `content/schemas/block.schema.json`, `block-durability.schema.json` and
 `skill.schema.json` (generated from DTOs); contentLint validates all three.
 
-## Placed surfaces (ADR-0299)
+## Placed surfaces (ADR-0300)
 
 Every placeable definition requires `placed_from`, `texture` and `visual`:
 

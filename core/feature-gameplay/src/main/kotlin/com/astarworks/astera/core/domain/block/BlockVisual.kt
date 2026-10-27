@@ -1,6 +1,6 @@
 package com.astarworks.astera.core.domain.block
 
-/** Reserved non-placement note states (ADR-0299). No Minecraft API leaks into content. */
+/** Reserved non-placement note states (ADR-0300). No Minecraft API leaks into content. */
 public data class BlockVisual(val base: String, val state: Map<String, String>) {
     init {
         require(base == "note_block") { "visual.base must be note_block" }

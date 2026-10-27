@@ -6,7 +6,7 @@ supersedes: null
 superseded_by: null
 ---
 
-# ADR-0299: Placed custom block look
+# ADR-0300: Placed custom block look
 
 ## Status
 

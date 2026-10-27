@@ -8,7 +8,7 @@ import java.nio.file.Path
  * when `content/models/generated/items/<id>.model.json` exists, the file `:tools:item-art` writes and
  * the pack builder turns into `assets/astera/items/<id>.json`. The materializer puts that key in the
  * `item_model` data component; visual-backed `content/blocks` placement items use pack-generated cube
- * definitions too (ADR-0299). Items without art keep the plain vanilla look of their base material.
+ * definitions too (ADR-0300). Items without art keep the plain vanilla look of their base material.
  */
 public class ItemModelCatalog(
     modelIds: Set<String>,

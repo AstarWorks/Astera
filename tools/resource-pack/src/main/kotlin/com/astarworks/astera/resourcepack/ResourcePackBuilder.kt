@@ -221,7 +221,7 @@ public class ResourcePackBuilder(
         return colors
     }
 
-    /** ADR-0299: cube model is shared by the world and the materialized held/dropped item. */
+    /** ADR-0300: cube model is shared by the world and the materialized held/dropped item. */
     private fun addBlockVisuals(files: MutableMap<String, ByteArray>) {
         val variants = sortedMapOf<String, Any>()
         val instruments = listOf("harp", "basedrum", "snare", "hat", "bass", "flute", "bell", "guitar",

@@ -21,7 +21,7 @@ import com.astarworks.astera.core.domain.world.ToolType
  * - [displayName] — inline en/ja `LocalizedText`; renderer resolves at
  *   query time.
  * - [baseBukkitMaterial] — original material for sound and non-visual definitions.
- * - [visual] — complete reserved world state (ADR-0299); visual-backed cover never
+ * - [visual] — complete reserved world state (ADR-0300); visual-backed cover never
  *   identifies ordinary terrain by its base material.
  * - [material] — coarse [BlockMaterial] used as the right axis of the
  *   damage matrix when [toolEffectiveness] doesn't cover a cell.

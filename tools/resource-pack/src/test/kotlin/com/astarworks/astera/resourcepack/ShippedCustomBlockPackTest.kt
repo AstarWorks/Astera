@@ -42,6 +42,17 @@ class ShippedCustomBlockPackTest {
             assertThat(held.path("model").path("model").asText()).isEqualTo("astera:$model")
         }
         assertThat(claimed).hasSize(9)
+        val coverFiles = Files.list(content.resolve("structures")).use { it.filter { f -> f.fileName.toString().startsWith("cover-") }.toList() }
+        assertThat(coverFiles).isNotEmpty()
+        for (file in coverFiles) {
+            val boxes = Yaml().load<Map<String, Any?>>(Files.readString(file))["boxes"] as List<*>
+            for (box in boxes) {
+                val block = (box as Map<*, *>)["block"].toString().removePrefix("minecraft:")
+                val props = block.substringAfter("[", "").removeSuffix("]").split(",").sorted().joinToString(",")
+                assertThat(block).describedAs("cover block of $file").startsWith("note_block[")
+                assertThat(claimed).describedAs("cover block of $file resolves to a content/blocks custom block").contains(props)
+            }
+        }
         assertThat(states.path("instrument=harp,note=0,powered=false").path("model").asText()).isEqualTo("minecraft:block/note_block")
         assertThat(files.keys).noneMatch { it.startsWith("assets/astera/textures/sources/") }
     }

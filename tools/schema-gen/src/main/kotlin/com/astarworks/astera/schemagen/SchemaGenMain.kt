@@ -145,7 +145,7 @@ private data class SchemaEntry<T>(
     val schemaId: String,
 )
 
-/** Reserved carrier constraints exceed the structural serialization descriptor (ADR-0299). */
+/** Reserved carrier constraints exceed the structural serialization descriptor (ADR-0300). */
 private fun constrainPlacedBlockVisual(path: Path) {
     val root = Json.parseToJsonElement(path.readText()).jsonObject.toMutableMap()
     val properties = root.getValue("properties").jsonObject.toMutableMap()
