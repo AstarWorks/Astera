@@ -11,7 +11,7 @@ progress on the sidebar -> win condition ends the match (never an admin) -> summ
 
 ## Verified by which suite
 
-| Step | Norma 2v2 (`NormaPlaythroughE2eTest`) | Annihilation (`AnnihilationPlaythroughE2eTest`) | Break-core (`SiegePlaythroughE2eTest`) |
+| Step | Norma 2v2 (`NormaPlaythroughE2eTest`) | Annihilation (`AnnihilationPlaythroughE2eTest`) | Carry TNT (`CarryTntPlaythroughE2eTest`) |
 |---|---|---|---|
 | Queue -> ACTIVE pacing | yes | yes | yes |
 | Teams / spawns | 2v2 by side | 3 teams, 1 bot each | 2 sides |
@@ -20,7 +20,7 @@ progress on the sidebar -> win condition ends the match (never an admin) -> summ
 | Death -> spectator -> respawn time | yes | elimination spectates | - |
 | Score on sidebar follows kills | yes | pillar HP | core down |
 | Build-phase immunity | - | yes | - |
-| Damage by skill and by block break | - | yes (survival dig, creative fallback flagged) | yes (enemy core; own core refuses) |
+| Damage by skill and by block break | - | yes (survival dig, creative fallback flagged) | yes (mode block rules) |
 | Win condition ends the match | 3 kills (e2e) | last team standing | last core |
 | Summary, score line, own stats | yes | yes | yes |
 | Rewards announced | yes | yes | yes |

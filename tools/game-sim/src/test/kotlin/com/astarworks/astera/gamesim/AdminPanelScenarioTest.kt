@@ -61,12 +61,12 @@ class AdminPanelScenarioTest {
         scenario("admin-panel-denied") {
             val rookie = player("rookie")
             val matchmaker = sim.services.getOrThrow<IMatchmaker>()
-            matchmaker.enqueue(rookie.id, MatchmakingMode.BATTLE_LOYAL)
+            matchmaker.enqueue(rookie.id, MatchmakingMode.CARRY_TNT)
 
             // A first-time player already holds the starter grant (content/balance/starter-grant.yaml).
             val before = checkNotNull(sim.server.view(rookie.id)).givenItems.toList()
 
-            click(rookie, "admin.match.lane-force", "lane" to "battle-loyal")
+            click(rookie, "admin.match.lane-force", "lane" to "carry-tnt")
             click(rookie, "admin.items.kit")
 
             assertThat(sim.services.getOrThrow<IMatchRepository>().findActiveMatches()).isEmpty()
@@ -80,17 +80,17 @@ class AdminPanelScenarioTest {
             val admin = player("admin")
             val p1 = player("p1")
             makeAdmin(admin)
-            sim.services.getOrThrow<IMatchmaker>().enqueue(p1.id, MatchmakingMode.BATTLE_LOYAL)
+            sim.services.getOrThrow<IMatchmaker>().enqueue(p1.id, MatchmakingMode.CARRY_TNT)
             val matches = sim.services.getOrThrow<IMatchRepository>()
             assertThat(matches.findActiveMatches()).isEmpty()
 
-            click(admin, "admin.match.lane-force", "lane" to "battle-loyal")
+            click(admin, "admin.match.lane-force", "lane" to "carry-tnt")
 
             val match = matches.findActiveMatches().single()
             assertThat(match.phase).isEqualTo(MatchPhase.ACTIVE)
             assertThat(match.hasParticipant(p1.id)).isTrue()
             assertThat(sim.tick).`as`("no queue/match countdown elapsed").isLessThan(200)
-            assertThat(sim.services.getOrThrow<IMatchmaker>().pendingByMode(MatchmakingMode.BATTLE_LOYAL)).isEmpty()
+            assertThat(sim.services.getOrThrow<IMatchmaker>().pendingByMode(MatchmakingMode.CARRY_TNT)).isEmpty()
         }
     }
 
@@ -101,9 +101,9 @@ class AdminPanelScenarioTest {
             val other = player("other")
             makeAdmin(admin)
             val matchmaker = sim.services.getOrThrow<IMatchmaker>()
-            matchmaker.enqueue(other.id, MatchmakingMode.BATTLE_LOYAL)
+            matchmaker.enqueue(other.id, MatchmakingMode.CARRY_TNT)
 
-            click(admin, "admin.match.lane-solo", "lane" to "battle-loyal")
+            click(admin, "admin.match.lane-solo", "lane" to "carry-tnt")
 
             val match = sim.services.getOrThrow<IMatchRepository>().findActiveMatches().single()
             assertThat(match.phase).isEqualTo(MatchPhase.ACTIVE)
@@ -118,7 +118,7 @@ class AdminPanelScenarioTest {
         scenario("admin-panel-end") {
             val admin = player("admin")
             makeAdmin(admin)
-            click(admin, "admin.match.lane-solo", "lane" to "battle-loyal")
+            click(admin, "admin.match.lane-solo", "lane" to "carry-tnt")
             val matches = sim.services.getOrThrow<IMatchRepository>()
             val id = matches.findActiveMatches().single().id
 

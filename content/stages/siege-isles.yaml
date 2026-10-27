@@ -140,12 +140,6 @@ regions:
 - name: base-blue
   min: {x: 22.0, y: 64.0, z: -17.0}
   max: {x: 64.0, y: 70.0, z: 17.0}
-- name: core-red
-  min: {x: -52.0, y: 65.0, z: 0.0}
-  max: {x: -52.0, y: 65.0, z: 0.0}
-- name: core-blue
-  min: {x: 52.0, y: 65.0, z: 0.0}
-  max: {x: 52.0, y: 65.0, z: 0.0}
 - name: jewelry-red
   min: {x: -38.0, y: 64.0, z: 7.0}
   max: {x: -36.0, y: 70.0, z: 9.0}

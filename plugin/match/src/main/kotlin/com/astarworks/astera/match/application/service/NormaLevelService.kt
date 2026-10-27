@@ -46,7 +46,7 @@ public class NormaLevelService(
         val victimTeam = match.teams.firstOrNull { event.victim in it.members }?.id ?: return
         if (killerTeam == victimTeam) return
         // The kill is tallied (last time-limit tie-break) before it can level the killer up and end the match.
-        // `Match.score` is left to the mode's own objective (battle-loyal).
+        // `Match.score` is left to the mode's own objective (the siege modes' deliveries).
         val p = norma.get(match.id, killer)
         norma.put(match.id, killer, p.copy(killsAtLevel = p.killsAtLevel + 1, totalKills = p.totalKills + 1))
         evaluate(match, killer)

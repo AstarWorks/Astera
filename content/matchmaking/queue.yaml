@@ -15,7 +15,7 @@ queue_countdown_seconds: 10
 match_countdown_seconds: 10
 
 lanes:
-  # A lane id is a game-mode id and joins as `custom:<id>` (e.g. annihilation). `battle-loyal` is the
+  # A lane id is a game-mode id and joins as `custom:<id>` (e.g. annihilation). `carry-tnt` is the
   # standard 2-team lane (the default when a call site names no mode).
   # PvP: at least one player per team (never a solo start). The admin
   # force-start in the panel bypasses this floor.
@@ -31,15 +31,9 @@ lanes:
 
   # Siege / objective modes (WP11) on sky islands. A stage hosts one match at a time and stages are fixed
   # coordinates in the `arenas` world (no per-match instancing yet), so every siege lane has its OWN copy of
-  # siege-isles, 800 blocks apart on z (content/stages/siege-isles-<mode>.yaml): the six lanes run concurrently.
-  # Each mode reads its own regions from its stage. break-core runs on the imported CC BY-SA world medieval-village and
-  # capture-wool on temple-trouble (ADR-0281, content/stages/NOTICE.md); the siege-isles copies for those two modes stay unrouted.
-  - id: break-core
-    stage: medieval-village
-    teams: 2
-    players_per_team: 4
-    min_players: 2
-    kind: pvp
+  # siege-isles, 800 blocks apart on z (content/stages/siege-isles-<mode>.yaml): the lanes run concurrently.
+  # Each mode reads its own regions from its stage. capture-wool runs on the imported CC BY-SA world
+  # temple-trouble (ADR-0281, content/stages/NOTICE.md); its siege-isles copy stays unrouted.
   - id: carry-tnt
     stage: siege-isles-tnt
     teams: 2
@@ -58,12 +52,6 @@ lanes:
     players_per_team: 4
     min_players: 2
     kind: pvp
-  - id: battle-loyal
-    stage: siege-isles-loyal
-    teams: 2
-    players_per_team: 4
-    min_players: 2
-    kind: pvp
   - id: carry-mini-tnt
     stage: siege-isles-mini-tnt
     teams: 2
@@ -71,7 +59,7 @@ lanes:
     min_players: 2
     kind: pvp
 
-  # PvE Waves (ADR-0249): a solo / co-op run against waves of real mobs. `kind: pve` means one
+  # PvE Waves (ADR-0249): not in the Play picker or on the lobby pads (kind pve); it opens from the main-menu PvE tile. A solo / co-op run against waves of real mobs. `kind: pve` means one
   # player is enough and everyone queued fights on the same side (the lane holds
   # players_per_team players; a full lane starts at once, otherwise after the queue countdown).
   - id: pve-waves

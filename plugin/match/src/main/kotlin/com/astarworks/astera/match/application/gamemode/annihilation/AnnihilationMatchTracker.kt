@@ -38,7 +38,7 @@ import com.astarworks.astera.match.domain.gamemode.annihilation.WinConditionRule
  *
  * It's the use-case-layer composition of the pure-domain
  * `AnnihilationMatchState` + the cross-cutting `IDomainEventBus`. Following
- * the established Wave 5c convention (e.g. `BreakCoreListener` lives in
+ * the established Wave 5c convention (e.g. `CarryTntListener` lives in
  * `match.application.usecase.mode/`), tracker-style services hang off the
  * application layer; the domain stays pure.
  *
