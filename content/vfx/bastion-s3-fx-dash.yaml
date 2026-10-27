@@ -1,4 +1,5 @@
 # Bastion S3 beat 6 (video n57-59, skill t38-41): r4 WORLD-ANCHORED (follow: false) along the dash path. cause of r3 miss: follow:true teleports every element to anchor + offset each tick and the anchor (the server caster) is already at the landing point at t38, so every plate sat at the enemy as one static blob. Now the plates are fixed in the cast frame (+z = dash direction) at z 0.3 / 2.1 / 3.9 (ticks 1 / 2 / 3, the caster covers ~1.8 blocks per tick) and fade FRONT-first (first spawned collapses first), life 5 ticks (t38-42). Black-edged jagged slabs (front+back pair, vertical, side cam) + one flat slab each on the floor (top cam) + gold crescent sweeps ahead of them, pop flash and streaks along the path.
+# r7: no pop / dust (they read as an orange blob from the top cam); the sweep is 2 big gold crescents (4-frame sprite, grows tail->tip then erodes tail-first) spanning the whole 5.4 block path + 1 flat one on the floor; plates denser. Peak displays 17.
 # r5: clean pointed blade plates (4x supersampled, 3 px rim), 5 plates travelling z 0.3 -> 5.4, one per tick (start ticks 1..5, each grows in over 1 tick, holds, shrinks), plate 0 starts tiny so the first clear plate is tick 2; one continuous sweep streak links them. Peak displays: 3 plates x 3 + 2 sweep + 1 pop + 3 streaks = 15.
 id: bastion-s3-fx-dash
 duration_ticks: 10
@@ -381,7 +382,7 @@ elements:
     rotate: [0, 90, 0]
     scale: [0.32, 0.016, 1]
     ease: in_quad
-- id: s3d-sweep-0f
+- id: s3d-sweep-af
   kind: {type: sprite, sprite: bastion-s3-dash-sweep, frame_ticks: 1, loop: false, see_through: true}
   billboard: fixed
   brightness: 15
@@ -389,28 +390,14 @@ elements:
   end_tick: 6
   keyframes:
   - t: 0
-    translate: [0, 1.25, 0.6]
+    translate: [0, 1.15, 2.7]
     rotate: [90, 0, 0]
-    scale: [0.2, 0.2, 1]
+    scale: [0.9, 0.5, 1]
   - t: 1
-    translate: [0, 1.25, 2.4]
+    translate: [0, 1.15, 2.7]
     rotate: [90, 0, 0]
-    scale: [0.7, 0.3, 1]
-    ease: out_quad
-  - t: 2
-    translate: [0, 1.25, 3.3]
-    rotate: [90, 0, 0]
-    scale: [0.9, 0.3, 1]
-  - t: 3
-    translate: [0, 1.25, 4.6]
-    rotate: [90, 0, 0]
-    scale: [0.7, 0.2, 1]
-  - t: 4
-    translate: [0, 1.25, 5.8]
-    rotate: [90, 0, 0]
-    scale: [0.3, 0.03, 1]
-    ease: in_quad
-- id: s3d-sweep-0b
+    scale: [0.9, 0.5, 1]
+- id: s3d-sweep-ab
   kind: {type: sprite, sprite: bastion-s3-dash-sweep, frame_ticks: 1, loop: false, see_through: true}
   billboard: fixed
   brightness: 15
@@ -418,38 +405,58 @@ elements:
   end_tick: 6
   keyframes:
   - t: 0
-    translate: [0, 1.25, 0.6]
+    translate: [0, 1.15, 2.7]
     rotate: [-90, 0, 0]
-    scale: [0.2, 0.2, 1]
+    scale: [0.9, 0.5, 1]
   - t: 1
-    translate: [0, 1.25, 2.4]
+    translate: [0, 1.15, 2.7]
     rotate: [-90, 0, 0]
-    scale: [0.7, 0.3, 1]
-    ease: out_quad
-  - t: 2
-    translate: [0, 1.25, 3.3]
-    rotate: [-90, 0, 0]
-    scale: [0.9, 0.3, 1]
-  - t: 3
-    translate: [0, 1.25, 4.6]
-    rotate: [-90, 0, 0]
-    scale: [0.7, 0.2, 1]
-  - t: 4
-    translate: [0, 1.25, 5.8]
-    rotate: [-90, 0, 0]
-    scale: [0.3, 0.03, 1]
-    ease: in_quad
-- id: s3d-pop
-  kind: {type: sprite, sprite: bastion-s1-ink, frame_ticks: 1, loop: false, see_through: true, color: '#FFF2B8'}
-  billboard: center
+    scale: [0.9, 0.5, 1]
+- id: s3d-sweep-bf
+  kind: {type: sprite, sprite: bastion-s3-dash-sweep, frame_ticks: 1, loop: false, see_through: true}
+  billboard: fixed
   brightness: 15
   start_tick: 2
-  end_tick: 3
+  end_tick: 7
   keyframes:
   - t: 0
-    translate: [0, 1.2, 2.5]
-    rotate: [0, 0, 0]
-    scale: [0.75, 0.75, 1]
+    translate: [0, 0.95, 3.4]
+    rotate: [90, 0, 0]
+    scale: [0.7, 0.4, 1]
+  - t: 1
+    translate: [0, 0.95, 3.4]
+    rotate: [90, 0, 0]
+    scale: [0.7, 0.4, 1]
+- id: s3d-sweep-bb
+  kind: {type: sprite, sprite: bastion-s3-dash-sweep, frame_ticks: 1, loop: false, see_through: true}
+  billboard: fixed
+  brightness: 15
+  start_tick: 2
+  end_tick: 7
+  keyframes:
+  - t: 0
+    translate: [0, 0.95, 3.4]
+    rotate: [-90, 0, 0]
+    scale: [0.7, 0.4, 1]
+  - t: 1
+    translate: [0, 0.95, 3.4]
+    rotate: [-90, 0, 0]
+    scale: [0.7, 0.4, 1]
+- id: s3d-sweep-flat
+  kind: {type: sprite, sprite: bastion-s3-dash-sweep, frame_ticks: 1, loop: false, see_through: true}
+  billboard: fixed
+  brightness: 15
+  start_tick: 1
+  end_tick: 6
+  keyframes:
+  - t: 0
+    translate: [0, 0.09, 2.7]
+    rotate: [0, 90, 0]
+    scale: [0.9, 0.4, 1]
+  - t: 1
+    translate: [0, 0.09, 2.7]
+    rotate: [0, 90, 0]
+    scale: [0.9, 0.4, 1]
 - id: s3d-line-0
   kind: {type: sprite, sprite: bastion-s1-streak, frame_ticks: 1, loop: false, see_through: true, color: '#FFF2B8'}
   billboard: fixed
@@ -533,13 +540,6 @@ elements:
     translate: [-0.3, 0.5, 0.8]
   - t: 2
     translate: [-0.3, 0.5, 3.2]
-- id: s3d-p-dust
-  kind: {type: particle, particle_id: bastion-s1-p-impact-dust, every_ticks: 1}
-  start_tick: 2
-  end_tick: 3
-  keyframes:
-  - t: 0
-    translate: [0, 0.1, 2.4]
 - id: s3d-p-mote
   kind: {type: particle, particle_id: bastion-s3-p-gold-mote, every_ticks: 1}
   start_tick: 2

@@ -25,9 +25,9 @@ HALF = 3.0  # blocks from the full sprite centre to its edge (tile = half of it)
 # r4: three stacked, differently tilted plate rings (sharp slanted plate ends, jagged outer edge, dark outline).
 # name, centre height, roll tilt (deg about the forward axis, left up), r_out, r_in, plates, gap deg, slant, phase deg, delay ticks, seed
 RINGS = [
-    dict(name="bastion-s3-ring", yc=0.50, tilt=8.0, r_out=2.85, r_in=2.25, plates=6, gap=8.0, slant=14.0, phase=0.0, delay=0, seed=3),
-    dict(name="bastion-s3-ring2", yc=0.95, tilt=-13.0, r_out=2.65, r_in=2.05, plates=5, gap=10.0, slant=-16.0, phase=110.0, delay=1, seed=7),
-    dict(name="bastion-s3-ring3", yc=1.40, tilt=15.0, r_out=2.45, r_in=1.85, plates=7, gap=7.0, slant=12.0, phase=215.0, delay=1, seed=13),
+    dict(name="bastion-s3-ring", yc=0.50, tilt=8.0, r_out=2.85, r_in=2.13, plates=6, gap=8.0, slant=14.0, phase=0.0, delay=0, seed=3),
+    dict(name="bastion-s3-ring2", yc=0.95, tilt=-13.0, r_out=2.65, r_in=1.93, plates=5, gap=10.0, slant=-16.0, phase=110.0, delay=1, seed=7),
+    dict(name="bastion-s3-ring3", yc=1.40, tilt=15.0, r_out=2.45, r_in=1.73, plates=7, gap=7.0, slant=12.0, phase=215.0, delay=1, seed=13),
 ]
 RING = RINGS[0]
 TILES = [(-1, 1), (1, 1), (-1, -1), (1, -1)]
@@ -138,22 +138,25 @@ def frame(sa, sb, T):
     s = np.clip((r - r_i_edge) / np.maximum(r_o_edge - r_i_edge, 1e-4), 0, 1)
     pale = hexc("#FFF2B0")
     gold = hexc("#FFD23A")
-    amber = hexc("#E8921A")
+    amber = hexc("#D97A0E")
     rim = hexc("#2A1503")
     hot = hexc("#FFF4B8")
     base = np.where(s[..., None] < 0.5, gold * (s[..., None] / 0.5) + pale * (1 - s[..., None] / 0.5),
                     gold * (1 - (s[..., None] - 0.5) / 0.5) + amber * ((s[..., None] - 0.5) / 0.5))
     core = np.exp(-((s - 0.2) / 0.09) ** 2)[..., None] * np.clip(f, 0, 1)[..., None]
     base = base * (1 - core) + hot * core
+    # r7: bevel highlight near the outer edge (thin white line) so each plate reads gold with white highlights
+    hl = np.exp(-((s - 0.84) / 0.045) ** 2)[..., None] * np.clip(f, 0, 1)[..., None] * 0.85
+    base = base * (1 - hl) + hexc("#FFFBE0") * hl
     # per-plate brightness (plates read separately) + brighter at the leading (CW-forward = high u) end
-    shade = 0.82 + 0.18 * rnd[np.clip(pid.astype(int), 0, RING["plates"] + 1)]
+    shade = 0.9 + 0.1 * rnd[np.clip(pid.astype(int), 0, RING["plates"] + 1)]
     base = base * shade[..., None]
     # dark outline: 0.075 blocks inside every edge, opaque
-    rim_w = 0.03
-    rim_m = 1.0 - smooth((d_edge - rim_w) / 0.012 + 0.5)
+    rim_w = 0.078
+    rim_m = 1.0 - smooth((d_edge - rim_w) / 0.014 + 0.5)
     # one dark plate groove along the plate (inner third), broken per plate
-    groove = soft((0.012 - np.abs(s - 0.62)) / 0.008, 0.6) * (rnd[np.clip(pid.astype(int), 0, RING["plates"] + 1)] > 0.25)
-    rim_m = np.maximum(rim_m, groove * 0.6)
+    groove = soft((0.016 - np.abs(s - 0.62)) / 0.008, 0.6) * (rnd[np.clip(pid.astype(int), 0, RING["plates"] + 1)] > 0.25)
+    rim_m = np.maximum(rim_m, groove * 0.85)
     col = base * (1 - rim_m[..., None]) + rim * rim_m[..., None]
     out = np.zeros(a.shape + (4,))
     out[..., :3] = col * alpha[..., None]

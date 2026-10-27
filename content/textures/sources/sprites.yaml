@@ -42,6 +42,7 @@ sources:
   bastion-s3-dash-slab: { file: images/bastion-s3-dash-slab.png }
   bastion-s3-dash-sweep: { file: images/bastion-s3-dash-sweep.png }
   bastion-s3-dash-flash: { file: images/bastion-s3-dash-flash.png }
+  bastion-s3-dash-streak: { file: images/bastion-s3-dash-streak.png }
   bastion-s3-slam-burst: { file: images/bastion-s3-slam-burst.png }
   bastion-s3-slam-dark: { file: images/bastion-s3-slam-dark.png }
   bastion-s3-pillar-spikes: { file: images/bastion-s3-pillar-spikes.png }
@@ -125,8 +126,9 @@ sprites:
   bastion-s3-spikes: { from: bastion-s3-spikes, raw: true, frames: 2, size: 256 }
   bastion-s3-plate: { from: bastion-s3-plate, raw: true, frames: 1, size: 256 }
   bastion-s3-dash-slab: { from: bastion-s3-dash-slab, raw: true, frames: 1, size: 256 }
-  bastion-s3-dash-sweep: { from: bastion-s3-dash-sweep, raw: true, frames: 1, size: 256 }
+  bastion-s3-dash-sweep: { from: bastion-s3-dash-sweep, raw: true, frames: 4, size: 256 }
   bastion-s3-dash-flash: { from: bastion-s3-dash-flash, raw: true, frames: 2, size: 256 }
+  bastion-s3-dash-streak: { from: bastion-s3-dash-streak, raw: true, frames: 1, size: 256 }
   bastion-s3-slam-burst: { from: bastion-s3-slam-burst, raw: true, frames: 3, size: 256 }
   bastion-s3-slam-dark: { from: bastion-s3-slam-dark, raw: true, frames: 1, size: 256 }
   bastion-s3-pillar-spikes: { from: bastion-s3-pillar-spikes, raw: true, frames: 2, size: 256 }
