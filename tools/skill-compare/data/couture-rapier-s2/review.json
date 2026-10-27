@@ -6,9 +6,9 @@
   "soundKind": "vanilla tuned",
   "reviewer": {
     "verdict": "fail",
-    "round": "r2",
-    "head": "40a0dcb5e",
-    "note": "capture contentDirty (reviewed b1807a604+dirty)",
+    "round": "r3",
+    "head": "a12fe0d88",
+    "note": "clean capture a12fe0d88",
     "diffs": [
       "P0 t22 two weapons (animation/model)",
       "P0 overhead loops thin slivers, white blades 1px lines (texture/particles)",

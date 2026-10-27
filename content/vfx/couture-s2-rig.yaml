@@ -334,7 +334,7 @@ elements:
   kind: {type: item, item: shears, item_model: 'astera:couture-shears-linked', display_mode: fixed}
   brightness: 8
   start_tick: 46
-  end_tick: 59
+  end_tick: 57
   keyframes:
   - t: 0
     translate: [0.0, 1.9, 3.4]
