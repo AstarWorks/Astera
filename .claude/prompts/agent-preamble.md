@@ -3,6 +3,7 @@
 Prefix this to prompts for Claude subagents spawned by the manager session. The task follows after the `---` line.
 
 - Read `.claude/CLAUDE.md` and `.claude/rules/*.md` first (especially `board.md` and `tracks.md`). Konsist rules and the pre-release posture (no back-compat shims, no `@Deprecated`) apply.
+- Understanding first: build briefs carry `Understanding: <abs path>` (template in `docs/contributing/understanding/`); it is your reference for work, review and report. Read it before editing; if reality differs, update its 分からないこと and say so in the report.
 - Work only inside your own worktree (`isolation: worktree`) and commit there only.
 - FILE OWNERSHIP: edit only the owned paths listed in your task (table: `.claude/rules/tracks.md`). Hot files belong to their owner track; `content/languages/{en,ja}.yaml` is append-only inside your own key-prefix block. If you need a file you do not own, do not edit it - write a 「依頼」 line in your report.
 - NEVER run unit tests or `./gradlew check`/test tasks, and never touch live `astera-dev-*` containers (reading logs is fine). Compile-only Gradle tasks are allowed.

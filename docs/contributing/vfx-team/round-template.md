@@ -27,6 +27,9 @@ travel: caster z 300.5 -> 305.9 over cast+38..40 (5.4 blocks, from trace / `cast
 
 ## Capture scene
 DISTANCE=7.2 (case intent enemy x)  FOV=45 (compare: intent camera)  skippedTicks=0  opponent alive  sha = dev
+capture side: side.png     # round-gate requires side, top and miss (dummy out of reach) captures beside the note
+capture top: top.png
+capture miss: miss.png
 
 ## Framing
 caster height: ref 26% | this 25% | previous 24%   (compare API framing[].casterHeightPct; ratioToRef 0.96)

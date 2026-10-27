@@ -22,7 +22,7 @@ MEMORY_RE = re.compile(r"^/home/node/\.claude-accounts/[^/]+/(?:.*/)?memory/")
 # One baton per track, in the primary checkout's state dir only (not a worktree copy).
 HANDOFF_RE = re.compile(r"^(?!.*/\.claude/worktrees/).*/\.claude/state/handoffs/[a-z0-9][a-z0-9-]*\.md$")
 
-MAKE_OK = re.compile(r"^(dev-content|dev-plugins|dev-deploy|dev-pack|docker-up|dev-hotswap\S*|help|check|skill-compare-(?:up|down|status)|vfx-auto-(?:up|down|status|once))$")
+MAKE_OK = re.compile(r"^(dev-content|dev-plugins|dev-deploy|dev-pack|docker-up|dev-hotswap\S*|help|check|report-check|skill-compare-(?:up|down|status)|vfx-auto-(?:up|down|status|once))$")
 GIT_DENY = {"mv", "rm", "apply", "am", "clean"}
 MUTATORS = {"cp", "mv", "rm", "rmdir", "ln", "install", "touch", "mkdir", "truncate", "chmod",
             "chown", "patch", "rsync", "unzip", "sponge", "ed", "ex", "shred"}
