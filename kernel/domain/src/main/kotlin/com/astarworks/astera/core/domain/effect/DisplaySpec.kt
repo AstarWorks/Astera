@@ -63,9 +63,10 @@ public sealed class DisplayKind {
 
     /**
      * One bone of the skin rig (ADR-0250, ADR-0276): the owner's skin on a `player_head` cube, remapped by the pack's core
-     * shader. The adapter resolves the owner's profile; [slim] only selects the Alex arm marker.
+     * shader. The adapter resolves the owner's profile; [slim] only selects the Alex arm marker. [ghost] draws the bone tinted and
+     * translucent (ADR-0284): a purely visual afterimage, never a performer.
      */
-    public data class SkinBone(public val bone: SkinRigBone, public val slim: Boolean = false) : DisplayKind()
+    public data class SkinBone(public val bone: SkinRigBone, public val slim: Boolean = false, public val ghost: Boolean = false) : DisplayKind()
 
     /** The anchor's real main-hand stack in the `THIRDPERSON_RIGHTHAND` context (ADR-0276): the one weapon of a performance. */
     public data object AnchorMainHand : DisplayKind()

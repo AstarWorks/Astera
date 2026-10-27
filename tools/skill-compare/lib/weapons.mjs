@@ -63,7 +63,7 @@ function thumbs(rec, S, mc) {
   if (cache && c.status !== "from-wiki") {
     let fps = 30;
     try { fps = JSON.parse(readFileSync(join(cache, "meta.json"), "utf8")).fps || 30; } catch { /* keep 30 */ }
-    out.video = `/media/${rec.id}/frames/frame_${String(Math.max(0, Math.floor((t - c.start_s) * fps))).padStart(5, "0")}.jpg`;
+    out.video = `/media/${rec.id}/frames/frame_${String(Math.max(0, Math.floor((t - c.start_s) * fps))).padStart(5, "0")}.png`;
   }
   const cmp = mc?.sources?.["vfx-compare"];
   if (cmp) {

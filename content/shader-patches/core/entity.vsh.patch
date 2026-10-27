@@ -6,22 +6,30 @@
 // Astera skin rig (ADR-0250). A player_head ItemDisplay with brightness override (block 15, sky = payload)
 // is one bone of an animated player body. The server writes payload = bone id (0 head, 1 body, 2 right arm,
 // 3 left arm, 4 right leg, 5 left leg) + 8 for a slim arm. -1 = an ordinary entity. entity.fsh remaps the
-// head-cube UVs of such a display onto that bone's part of the skin. -2 = a head bone enclosing the camera (dropped).
+// head-cube UVs of such a display onto that bone's part of the skin and fades it out near the camera (ADR-0285).
+// Ghost bones (ADR-0284, a translucent tinted afterimage) use the codes 6..9 and 12..15: rigPart = bone + 8 if slim + 16 if ghost.
 layout(location = 8) flat out int rigPart;
+layout(location = 9) out vec3 rigViewPos;
 
 @@ after: void main() {
     rigPart = -1;
+    rigViewPos = vec3(0.0);
     if (UV2.x == 240 && (UV2.y & 15) == 0) {
         int sky = UV2.y >> 4;
-        if ((sky & 7) <= 5) {
+        if (sky <= 5) {
             rigPart = sky;
+        } else if (sky == 6 || sky == 7) {
+            rigPart = (sky - 4) + 16;
+        } else if (sky == 8 || sky == 9 || sky == 12 || sky == 13) {
+            rigPart = (sky - 8) + 16;
+        } else if (sky == 10 || sky == 11) {
+            rigPart = sky - 8 + 8;
+        } else {
+            rigPart = (sky - 12) + 8 + 16;
         }
-    }
-    // The head bone encloses the camera in the owner's first person view (the owner sees their own head cube from inside).
-    // Drop it when the camera is inside the head: every vertex of an enclosing head is within ~0.55 block of the eye, while a
-    // third-person camera is 1.5+ blocks away, so the owner sees the head in third person and never in first person.
-    if (rigPart == 0 && length(Position) < 0.7) {
-        rigPart = -2;
+        // Camera-space position, interpolated: the fragment shader fades every rig part (ghosts included) by its distance
+        // to the camera (ADR-0285). That replaces the old "drop a head bone enclosing the camera" rule.
+        rigViewPos = (ModelViewMat * vec4(Position, 1.0)).xyz;
     }
 
 @@ replace: lightMapColor = sample_lightmap(Sampler2, UV2);

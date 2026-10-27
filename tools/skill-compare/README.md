@@ -19,7 +19,7 @@ Pages: `/` case index, `/case.html?id=<case>` (video | Minecraft columns, beat s
 | Path | In git | What |
 |---|---|---|
 | `data/<case>/case.json` | yes | videoId, start_s/end_s, skill (name, coins, `asteraSkillId`), `segments`, optional `beats`, `mc` (source, `offset_ms`, `castTickInTrace`), `focus`, `notes`, `rev`, `editLog` |
-| `cache/` | **no** (gitignored, copyright) | `videos/<id>.mp4`, `<case>/frames/frame_NNNNN.jpg` (native fps, 720p), `meta.json`, `analysis.json` |
+| `cache/` | **no** (gitignored, copyright) | `videos/<id>.mp4`, `<case>/frames/frame_NNNNN.png` (native fps, native resolution, lossless; best stream YouTube offers, usually 1080p VP9), `meta.json`, `analysis.json` |
 
 Beats (optional, shown as a table in the beat sheet, active row highlighted, click = seek): `[{t_s, label, weapon, caster_move, vfx, notes}]`,
 `t_s` in absolute video seconds, the rest strings (weapon orientation, caster movement, effects per moment). Old `intent*.json` files are ignored.
@@ -179,11 +179,11 @@ Reviews are NOT hand-made crops or PIL contact sheets: those disagree between pe
 and a regression slipped through unnoticed. Everyone asks the server, so everyone sees the same frames and the same numbers.
 
 - `GET /api/cases/<id>/compare?ticks=2,10,41,63&views=ref,compare,side,top,preview-side&rounds=current,prev` -> JSON.
-  `ticks` (default: the beat sheet's key ticks + hits, max 12), `views` (`ref` = the original video, else any published view), `rounds`
+  `ticks` (default: the beat sheet's contact ticks = tick 0 plus each hit at -2 / 0 / +2, max 12), `views` (`ref` = the original video, else any published view), `rounds`
   (`current`, `prev`, `prev2`, or a revision hex prefix such as `f3eb4c,ac4809`). Per tick and view: frame number + URL for every round,
   `metrics`, `delta` vs the next older round of that view, `flags`. `sources[]` gives revision, sha, capturedAt, freshness (stale / building /
   failed) and failure for every source. `regression: true` + `regressions[]` summarise the flags.
-- `GET /api/cases/<id>/sheet.png?...` (same params) -> one labelled grid (fixed 288x162 cells, rows = view x round, columns = ticks, red frame = regression).
+- `GET /api/cases/<id>/sheet.png?...` (same params) -> one labelled grid (rows = view x round, columns = ticks, red frame = regression). Default `zoom=fit` is a 288x162 downscaled OVERVIEW; for judging detail use `zoom=native`: every cell is the source pixels 1:1 (never resampled), optionally cropped with `crop=x0,y0,x1,y1` (fractions of the frame, same window on every row; `zoom=native` is implied) or `crop=auto` (a window around the caster + fx of each row). Cells are as large as the biggest crop, smaller sources are padded, never upscaled; a sheet over 16000 px is refused with the numbers instead of being shrunk. `sources[]` carries `nativeWidth/nativeHeight` (+ `crop.px`) per source, and the ref also `video` (codec, size, fps, kbps). Metrics stay downscaled.
 - Alignment: MC frame = `tick*fps/20 + castFrame - firstTick*fps/20` (20 fps: frame N = plan tick N); reference frame = `floor((castMs + tick*50)*fps/1000)` where
   `castMs` includes the case's `mc.offset_ms`. Never re-derive it by hand.
 - Metrics (`scripts/compare.py`, frames downscaled to 320 px): `fx_pct` = emissive pixels that are new vs the clip's median background (so sky/floor do
@@ -194,3 +194,11 @@ and a regression slipped through unnoticed. Everyone asks the server, so everyon
   `[vfx-trace] play|pos|spawn` lines of `ASTERA_VFX_TRACE`), `sources[].trace` carries `fxSpawnTicks`, `casterTravelBlocks` (first to last caster
   position), `casterMaxFromStartBlocks` and `finalGapBlocks` (caster to target at the last sample). Absent file = no `trace` key.
 - The case page has a collapsible **比較** panel (the same sheet, regression list, links to the JSON / PNG).
+- **Framing parity** (`caster_bbox_pct` per cell, `framing[]` per source): the height of the caster's key-colour cluster (compact saturated hair/outfit hues
+  found in the same source's pre-cast tick-0 frame; blue and green are skipped; sparse fx pixels are ignored) as % of the frame height, motion-independent.
+  `framing[]` gives the median per source and `ratioToRef` / `withinTolerance` (0.5x-2x of the ref, the round_gate framing rule). It measures the key-colour cluster, not
+  the full silhouette, and the fx at hit ticks (same hue as the hair) can inflate single ticks: judge on the `framing[]` median, and set
+  `caster_key: {"ref": [lo, hi], "mc": [lo, hi]}` (hue degrees) in `case.json` when the auto key picks the wrong colour (`casterKey` shows what was used).
+- **Source quality** (audited 2026-10-27, all 10 reference videos): YouTube offers 1080p at most (no 1440p/4K, no 60 fps); the cache holds the best stream (VP9 "premium"
+  ~3.3-4.0 Mbps for 8 videos; Svaaq9F7Ty8 only offers H.264 2.2 Mbps). Reference frames are lossless PNG at native size/fps. MC captures are far smaller:
+  `side`/`top` 640x360, `input` 854x480, `compare`/`preview` 1280x720 (`RES=` in vfx-shot raises it), so judge MC detail with `zoom=native`.

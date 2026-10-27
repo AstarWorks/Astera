@@ -481,11 +481,11 @@ export function makeHandler(opts = {}) {
       if (req.method === "POST") { return saveCase(m[1], req); }
       return err(405, "method not allowed");
     }
-    if ((m = /^\/media\/([a-z0-9-]+)\/frames\/(frame_\d{5}\.jpg)$/.exec(p))) {
+    if ((m = /^\/media\/([a-z0-9-]+)\/frames\/(frame_\d{5}\.png)$/.exec(p))) {
       const cdir = S.cacheFor(m[1], S.allCases().get(m[1])?.src);
       if (!cdir) return err(404, "no media");
       const f = join(cdir, "frames", m[2]);
-      return inside(cdir, f) ? file(f, "image/jpeg") : err(400, "bad path");
+      return inside(cdir, f) ? file(f, "image/png") : err(400, "bad path");
     }
     if ((m = /^\/mc\/vfx\/([a-z0-9-]+)\/(compare|input|caster|opponent|side|preview-side|front|back|right|top|high|near|preview)\/(frame_\d{3,4}\.(?:png|webp))$/.exec(p))) {
       const revision = new URL(req.url).searchParams.get("v");

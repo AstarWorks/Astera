@@ -1,14 +1,25 @@
 # Director knowledge base
 
-Reference knowledge (2026-10-27): the skill has ONE author who builds every piece; this page is an accumulated knowledge base the author consults, not a role with a territory. Process: [README.md](README.md). Historical Learnings entries may name old roles and numeric targets; numbers are never acceptance evidence.
+Reference knowledge (2026-10-27): the skill has ONE author who builds every piece; this page is an accumulated knowledge base the author consults, not a role with a territory. Process: [README.md](README.md). Historical Learnings entries may name old roles and numeric targets; self-authored quality numbers are never acceptance evidence (tool-measured facts are mandatory, see "Ground truth" below).
 
 Skill author agent: `.claude/agents/limbus-director.md` (single end-to-end author). Team overview: [README.md](README.md).
 
-> Reference frames are native resolution (<= 1080p, jpg q2). Judge rotation, contact and blade detail from full-resolution single frames or zoomed crops, never from downscaled contact sheets or strips alone (see [beat-sheet.md](beat-sheet.md) "Reference frame quality").
+> Reference frames are native resolution (<= 1080p, lossless PNG). Judge rotation, contact and blade detail from full-resolution single frames or zoomed crops, never from downscaled contact sheets or strips alone (see [beat-sheet.md](beat-sheet.md) "Reference frame quality").
 
 ## What the director produces
 
-the beat sheet `tools/skill-compare/data/<case>/beat-sheet.md` ([beat-sheet.md](beat-sheet.md): mandatory template, swings counted, rotation direction from the camera and from above) with its reverse-check record, `beats` (tick mirror) in `case.json`, six briefs in `.../briefs/`, the skill YAML, the composite VFX, the capture and its publication. Then it routes reviewer diffs.
+the beat sheet `tools/skill-compare/data/<case>/beat-sheet.md` ([beat-sheet.md](beat-sheet.md): mandatory template, swings counted, rotation direction from the camera and from above) with its reverse-check record, `beats` (tick mirror) in `case.json`, the skill YAML, the composite VFX, the capture and its publication, and per build round the round note ([round-template.md](round-template.md): compare sheet from the API, trace numbers, framing, fidelity, regression) that `make round-gate` checks. Then it fixes reviewer × rows.
+
+## Ground truth (from [retro-2026-10-27.md](retro-2026-10-27.md))
+
+Two S3 rounds were lost to a +1 tick "fix" made from a mislabelled capture, and three dash-distance readings (3.3 / 5.4 / 6.5) were all eye estimates in a scene whose enemy stood at the tool default distance. Rules:
+
+- **Timing**: the server trace is the only witness. `ASTERA_VFX_TRACE=1` (set in `tools/vfx-shot/compose.override.yml`) logs `[vfx-trace] play <vfx> tick=` and `[vfx-trace] spawn <vfx> <element> age= planSpawn= tick=`; read it with `docker logs` of the capture stack (keep it with `SHOT_KEEP=1`, the stack is removed on exit otherwise). Quote `cast+N` for every `vfx_id` in the round note. Frame labels (`framestamp`, sheet tick chips) are a second witness; when they disagree with the trace, the capture tooling is wrong, not the content. Never shift content by a tick to match a label.
+- **Travel**: `[vfx-trace] pos ... caster=` gives the caster position per tick; travel = difference, in blocks. Never read it from pixels.
+- **Scene**: side / top / compare captures place the enemy at `DISTANCE` (default 4). Pass the case intent distance (S3: 7.2) and state it in the round note; `dash_strike` stops at `distance - stop_before_target`, so a wrong scene changes the motion itself.
+- **Framing**: a review capture is valid only when the caster bbox share of the frame at the key ticks is within 0.5x-2x of the reference (read off the compare sheet; the API does not measure it yet, retro T1). Reframe with `FOV_DOLLY` / distance instead of judging a 1/40-frame caster.
+- **Tool fidelity**: before judging an effect in a capture or preview, know whether that tool can show it. Spectator clients render no `send_title` / `screen_flash`; skill-preview draws world-space fx full-screen and does not draw ring tiles; `caster` view has F1 on (no first-person hand). Write one line per mechanic type in the round note; "not shown" effects go to gate 2 in game.
+- **Regression**: every round compares with the previous published revision at the same ticks and camera (`ref | this | previous`). Look at your own sheet before the reviewer does. `weaker than previous: none` or the round is not finished.
 
 ## Verified facts and where they live
 
@@ -46,32 +57,19 @@ Reviewers and directors MUST compare with `GET /api/cases/<id>/compare?ticks=..&
 case's tick mapping, labels revision/sha/age/failure on every row, and returns fx coverage, brightness and regression flags (and caster travel /
 final gap when the capture has `trace.log`). Quote its numbers and sheet URL in the report; a `regression: true` is a finding to route, not to ignore.
 See [skill-compare README](../../../tools/skill-compare/README.md) "Comparison API".
+Look at edges on native crops before handing a round over: add `&zoom=native&crop=x0,y0,x1,y1` (fractions of the frame, same region for ref and in-game; `crop=auto` follows caster + fx) to the sheet URL. Capture side/top with a `RES=` high enough to match the 1080p reference, otherwise the reviewer cannot judge edges.
 
 ## Runtime facts and pitfalls (confirmed)
 
 - Font sprites render only up to 256 px; 512 px fails. (Commit `ee976100` on `wp/pilot-bastion-s1`: "512px sprites do not render in the real client (font page limit); 256px with 2x2 supersampled edges is the working maximum.")
 - A TextDisplay with `fixed` billboard laid horizontal does not render in the real client (it does in vfx-preview). Never trust vfx-preview alone for horizontal text boards.
 - Hit VFX must peak on the damage tick. Verify in the capture frame at the hit tick.
-- Only one weapon may be visible during a skill: mechanic `hide_held_item` exists only on branch `wp/pilot-bastion-s1` (it is in `content/schemas/skill.schema.json` and `content/skills/bastion-greatsword-{s1,s2,ego}.yaml` there) and is **not on main**. Until merged, the pilot branch is the only place it works; bring that mechanic with the merge before using it elsewhere.
+- Only one weapon may be visible during a skill: mechanic `hide_held_item` (schema `content/schemas/skill.schema.json`; used by `content/skills/bastion-greatsword-s2.yaml`, `-ego.yaml`).
 - Rejected looks: crescents built from uniform boxes (hoops); fire made of squares (cubes); poles for jets; a static ring standing like a wall; separate floating sprites instead of one continuous sweep; a pixel-art staircase at close-up; black `#`-like smoke glyphs.
 - Machine load causes 2-6 tick (sometimes ~20) capture lag. Reject frozen or magenta-cube captures (`captureQuality.invalid`). Repeated idle frames alone do not prove a stall; `maxRepeatedFrames >= 15` needs visual confirmation.
 - Software GL renders ~35 fps at 1280x720, so +-1 tick is normal; do not tune per-hit offsets to hide sync drift.
 - Runtime applies 10% / x2 random crits (`CombatWiring`, procedure section 5), so total HP loss does not count hits; count hits from frames or events.
 - Machine/slot discipline: one capture runs at a time on the whole host (`/tmp/claude-1000/astera-vfx-shot.lock`, `SHOT_SLOTS=1`); others queue. A run tears its stack down when it exits unless `SHOT_KEEP=1`, and a kept stack lives at most `SHOT_KEEP_TTL` (45 min) or until another checkout needs the slot. Never use the e2e flock for captures. See the "Real-client capture" section of [README.md](README.md).
-
-## Brief template (copy per specialist)
-
-```
-# <role> brief - <case>
-Reference: video <id> t=<a>..<b>s; frames: <paths>
-Beat(s) owned: <ticks and what must be visible>
-Targets (numbers): sizes, angles, colours (hex), durations (ticks)
-Files you may touch: <paths>
-Must not: <Rejected looks that apply, other roles' files>
-Acceptance rows you answer: <rows from the procedure>
-Hand back: <report format from your agent file>
-Relevant Learnings: <links>
-```
 
 ## Learnings log
 
@@ -163,14 +161,15 @@ Relevant Learnings: <links>
 
 - 2026-10-27 S3 r3: Centre-based radial bursts need transparent gaps between rays; spikes need their origin at the base; dark vignettes must be 0 at the border or the square sprite edge shows (generator `tools/item-art/scripts/bastion_s3_slam_sprites.py`).
 - 2026-10-27 S3 r3: Never reuse another skill's baked ring tiles (S2 ring was a 0.15-block crescent baked around a rig pivot); bake ring-specific tiles centred on the feet (`bastion_s3_ring.py`). skill-preview does not draw ring tiles, so judge in the real client.
-- 2026-10-27 S3 r3: hits looked 1 tick early in stepped captures at all three contacts; consistent offset points to capture stamp mapping, not game timing (unconfirmed, needs a realtime capture).
+- 2026-10-27 S3 r3: hits looked 1 tick early in stepped captures at all three contacts; it was the capture stamp mapping (framestamp off by one, fixed e643edd4a), not game timing. The r4 "+1" content shift made from that label cost two rounds: timing is settled by `[vfx-trace]` only (see "Ground truth").
 
 - 2026-10-27 S3 r4: the real full-screen flash is `screen_flash` (title overlay), visible only to targeted players; the compare Watcher (spectator ~8 blocks away) needs a nearby_entities radius >= 12 to see it. skill-preview draws world-space fx full-screen that the client does not; judge flashes in real captures.
-- 2026-10-27 S3 r4: dash distance check from the top capture: 105 px of 140 px for a 7.2-block enemy gap = ~5.4 blocks, lands ~1.8 short (rough pixel estimate; reviewer's 3.3 likely a mid-dash frame). follow:true fx snap to the caster anchor each tick, so dash plates must be world-fixed (follow:false) to flow along the path.
-- 2026-10-27 S3 r4: contacts 2/3 showed 1 tick early in the stepped capture; shifted fx, flashes, damage +1 (delays 41/64) empirically; verify in the next capture.
+- 2026-10-27 S3 r4: the pixel dash estimate (5.4) and the reviewer's (3.3) were both eye readings of a scene with the enemy at the tool default `DISTANCE=4`; the trace later gave 3.3 for that scene. Travel is read from the trace in a scene at the intent distance, never from pixels. follow:true fx snap to the caster anchor each tick, so dash plates must be world-fixed (follow:false) to flow along the path.
+- 2026-10-27 S3 r4: contacts 2/3 "showed 1 tick early" in the stepped capture and content was shifted +1 (delays 41/64) empirically; reverted in r6 once the trace proved the runtime on plan. Do not repeat: no timing change without a trace disagreement.
 
 - 2026-10-27 S3 r6: `[vfx-trace]` (docker logs of a SHOT_KEEP=1 stack; stack removed on exit otherwise) proves server-side spawn ticks: thrust flash cast+40, slam burst cast+63, pillar cast+65 with delays 36/59/63; the early look in captures was a labeling fault, so no +1 compensation. Reverted.
 - 2026-10-27 S3 r6: side/top/etc views place the target at DISTANCE (default 4), not the intent's enemy x, so dash_strike stopped at 4-0.7=3.3. Capture side/top with DISTANCE=7.2; stop_before_target 1.8 gives 5.4 travel at 7.2 and a ~1.8 stop for nearer targets. Trace: caster z 300.5 -> 305.9 over cast+38..40 (1.8/tick).
+- 2026-10-27 S3 r5/r6 regression (retro): r5 and r6 passed the per-row review while the thrust streak shrank, the ring went fainter and the pillar became a lollipop versus r4 (`mgr_side_hist` ref|r3|r4|r6 at the same camera). Nothing in the process compared rounds. From now on every round carries `ref | this | previous` and `weaker than previous: none` (`make round-gate`); the author looks at its own sheet first.
 
 - 2026-10-27 couture S2 r1: sprite glyph scale is not a fixed block size per unit. Measured: feather ~15 blocks per scale unit along x; crescent differs. Sprites rotate about the translate point and are symmetric spindles, so a forward-only fan needs centre = tip + (sx*U/2)*(sinφ up, cosφ forward); measure U from a diagnostic capture.
 - 2026-10-27 couture S2 r1: symmetric sprites (flash, X marks) at the hit point send needles back toward the caster and read as a bowtie; delete them, anchor every needle at the blade tip, tilt the axis up-right (+28deg) like the reference.
