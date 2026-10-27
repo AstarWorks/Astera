@@ -5,15 +5,11 @@ id: diamond-shovel
 material: DIAMOND_SHOVEL
 
 name:
-  ja: "<aqua>ダイヤのショベル</aqua>"
-  en: "<aqua>Diamond Shovel</aqua>"
-lore:
-  ja:
-    - "<gray>右クリック: 掘削</gray>"
-    - "<gray>スニーク + 右クリック: 土橋</gray>"
-  en:
-    - "<gray>Right-click: excavate</gray>"
-    - "<gray>Sneak + right-click: earth bridge</gray>"
+  ja: "ダイヤのショベル"
+  en: "Diamond Shovel"
+role:
+  ja: "ツール / 掘削と土橋づくり"
+  en: "Tool / digging and earth bridges"
 
 rarity: rare
 level_requirement: 1

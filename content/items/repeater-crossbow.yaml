@@ -7,13 +7,9 @@ material: CROSSBOW
 name:
   ja: "連射クロスボウ"
   en: "Repeater Crossbow"
-lore:
-  ja:
-    - "<gray>右クリック: 連射</gray>"
-    - "<gray>スニーク + 右クリック: 重い一撃</gray>"
-  en:
-    - "<gray>Right-click: rapid fire</gray>"
-    - "<gray>Sneak + right-click: heavy bolt</gray>"
+role:
+  ja: "弓 / 連射と重い一撃"
+  en: "Bow / rapid fire and a heavy bolt"
 
 rarity: uncommon
 level_requirement: 1

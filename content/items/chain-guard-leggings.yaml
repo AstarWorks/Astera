@@ -5,15 +5,11 @@ id: chain-guard-leggings
 material: CHAINMAIL_LEGGINGS
 
 name:
-  ja: "<gray>チェインガード レギンス</gray>"
-  en: "<gray>Chain Guard Leggings</gray>"
-lore:
-  ja:
-    - "<gray>チェインガードセットの防具</gray>"
-    - "<gray>2部位・4部位そろえるとボーナス</gray>"
-  en:
-    - "<gray>Chain Guard set piece</gray>"
-    - "<gray>2+ pieces and the full set give a bonus</gray>"
+  ja: "チェインガード レギンス"
+  en: "Chain Guard Leggings"
+role:
+  ja: "防具 / チェインガードセット。2部位・4部位でボーナス"
+  en: "Armor / Chain Guard set (2/4 bonus)"
 
 rarity: uncommon
 level_requirement: 1

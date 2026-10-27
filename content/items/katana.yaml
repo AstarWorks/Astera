@@ -7,13 +7,9 @@ material: GOLDEN_SWORD
 name:
   ja: "刀"
   en: "Katana"
-lore:
-  ja:
-    - "<gray>左クリック: 素早い斬撃</gray>"
-    - "<gray>スニーク + 右クリック: 抜刀斬り</gray>"
-  en:
-    - "<gray>Left-click: quick slash</gray>"
-    - "<gray>Sneak + right-click: iaido</gray>"
+role:
+  ja: "近接 / 素早い斬撃と抜刀斬り"
+  en: "Melee / quick slashes and iaido"
 
 rarity: uncommon
 level_requirement: 1

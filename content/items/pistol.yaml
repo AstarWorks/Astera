@@ -7,15 +7,11 @@ id: pistol
 material: IRON_HORSE_ARMOR
 
 name:
-  ja: "<aqua>ピストル</aqua>"
-  en: "<aqua>Pistol</aqua>"
-lore:
-  ja:
-    - "<gray>右クリック: 射撃</gray>"
-    - "<gray>Q: リロード</gray>"
-  en:
-    - "<gray>Right-click: shoot</gray>"
-    - "<gray>Q: reload</gray>"
+  ja: "ピストル"
+  en: "Pistol"
+role:
+  ja: "銃 / 手軽な連射とリロード"
+  en: "Gun / easy rapid fire with reloads"
 
 rarity: common
 level_requirement: 1

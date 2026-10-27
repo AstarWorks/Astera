@@ -10,6 +10,11 @@ sources:
     grid: [5, 5]
     cells: [bastion-greatsword, couture-rapier, crimson-chain-axe, dagger, edict-blade, ember-gauntlet, fire-staff, frost-staff, gossamer-katana, greatsword, knight-sword, orrery-staff, pistol, rifle, rtm-blaster, shotgun, sigil-rifle, thunder-staff, vendetta-rifle, verdant-staff, verdict-hammer]
 
+  arsenal-tools-v1:
+    file: sheets/arsenal-tools-v1.png
+    grid: [5, 4]
+    cells: [stone-pickaxe, stone-axe, stone-shovel, iron-pickaxe, iron-axe, iron-shovel, diamond-pickaxe, diamond-axe, diamond-shovel, ore-iron, ore-gold, ore-diamond, ore-emerald, reinforced-planks-block, stone-bulwark-block, obsidian-plate-block, packed-clay-block, tempered-glass-block, hardened-soil-block, wool-block]
+
 items:
   bastion-greatsword: weapons-v1
   crimson-chain-axe: weapons-v1
@@ -30,3 +35,25 @@ items:
   vendetta-rifle: weapons-v1
   verdant-staff: weapons-v1
   verdict-hammer: weapons-v1
+
+  # Match arsenal: generated concept sheet, shared currency seal and material tiers.
+  stone-pickaxe: { from: arsenal-tools-v1, colors: 24 }
+  stone-axe: { from: arsenal-tools-v1, colors: 24 }
+  stone-shovel: { from: arsenal-tools-v1, colors: 24 }
+  iron-pickaxe: { from: arsenal-tools-v1, colors: 24 }
+  iron-axe: { from: arsenal-tools-v1, colors: 24 }
+  iron-shovel: { from: arsenal-tools-v1, colors: 24 }
+  diamond-pickaxe: { from: arsenal-tools-v1, colors: 24 }
+  diamond-axe: { from: arsenal-tools-v1, colors: 24 }
+  diamond-shovel: { from: arsenal-tools-v1, colors: 24 }
+  ore-iron: { from: arsenal-tools-v1, colors: 24 }
+  ore-gold: { from: arsenal-tools-v1, colors: 24 }
+  ore-diamond: { from: arsenal-tools-v1, colors: 24 }
+  ore-emerald: { from: arsenal-tools-v1, colors: 24 }
+  reinforced-planks-block: { from: arsenal-tools-v1, colors: 24 }
+  stone-bulwark-block: { from: arsenal-tools-v1, colors: 24 }
+  obsidian-plate-block: { from: arsenal-tools-v1, colors: 24 }
+  packed-clay-block: { from: arsenal-tools-v1, colors: 24 }
+  tempered-glass-block: { from: arsenal-tools-v1, colors: 24 }
+  hardened-soil-block: { from: arsenal-tools-v1, colors: 24 }
+  wool-block: { from: arsenal-tools-v1, colors: 24 }

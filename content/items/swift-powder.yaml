@@ -5,13 +5,11 @@ id: swift-powder
 material: SUGAR
 
 name:
-  ja: "<yellow>疾風の粉</yellow>"
-  en: "<yellow>Swift Powder</yellow>"
-lore:
-  ja:
-    - "<gray>右クリック: 8 秒間、移動速度アップ（使い切り）</gray>"
-  en:
-    - "<gray>Right-click: move faster for 8s (single use)</gray>"
+  ja: "疾風の粉"
+  en: "Swift Powder"
+role:
+  ja: "補助 / 一時的に移動速度が上がる使い切り"
+  en: "Support / single-use temporary speed boost"
 
 rarity: common
 

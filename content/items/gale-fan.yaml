@@ -7,13 +7,9 @@ material: FEATHER
 name:
   ja: "疾風の扇"
   en: "Gale Fan"
-lore:
-  ja:
-    - "<gray>右クリック: 突風 (押し返す)</gray>"
-    - "<gray>スニーク + 右クリック: 追い風 (前上方へ跳ぶ)</gray>"
-  en:
-    - "<gray>Right-click: gust (pushes enemies back)</gray>"
-    - "<gray>Sneak + right-click: updraft (launches you)</gray>"
+role:
+  ja: "補助 / 敵を押し返し、自分は跳ぶ"
+  en: "Support / push foes back, launch yourself"
 
 rarity: uncommon
 level_requirement: 1

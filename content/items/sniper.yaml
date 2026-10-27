@@ -7,11 +7,9 @@ material: SPYGLASS
 name:
   ja: "スナイパーライフル"
   en: "Sniper Rifle"
-lore:
-  ja:
-    - "<gray>右クリック: 狙撃 (長いクールダウン)</gray>"
-  en:
-    - "<gray>Right-click: long-range shot (long cooldown)</gray>"
+role:
+  ja: "銃 / 長距離の狙撃、再使用は遅い"
+  en: "Gun / long-range sniping, slow to reuse"
 
 rarity: rare
 level_requirement: 1

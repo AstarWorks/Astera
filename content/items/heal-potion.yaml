@@ -8,13 +8,11 @@ id: heal-potion
 material: GLISTERING_MELON_SLICE
 
 name:
-  ja: "<red>回復薬</red>"
-  en: "<red>Healing Draught</red>"
-lore:
-  ja:
-    - "<gray>右クリック: 体力を 40 回復（使い切り）</gray>"
-  en:
-    - "<gray>Right-click: restore 40 HP (single use)</gray>"
+  ja: "回復薬"
+  en: "Healing Draught"
+role:
+  ja: "補助 / 体力を回復する使い切りの薬"
+  en: "Support / single-use healing draught"
 
 rarity: common
 

@@ -6,17 +6,11 @@ id: rifle
 material: GOLDEN_HORSE_ARMOR
 
 name:
-  ja: "<green>ライフル</green>"
-  en: "<green>Rifle</green>"
-lore:
-  ja:
-    - "<gray>右クリック: 射撃（長射程）</gray>"
-    - "<gray>スニーク+右: バックステップ</gray>"
-    - "<gray>スニーク+Q: リロード</gray>"
-  en:
-    - "<gray>Right-click: shoot (long range)</gray>"
-    - "<gray>Sneak+Right-click: backstep</gray>"
-    - "<gray>Sneak+Q: reload</gray>"
+  ja: "ライフル"
+  en: "Rifle"
+role:
+  ja: "銃 / 長射程の精密射撃"
+  en: "Gun / accurate long-range fire"
 
 rarity: uncommon
 level_requirement: 2

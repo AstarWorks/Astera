@@ -5,15 +5,11 @@ id: diamond-axe
 material: DIAMOND_AXE
 
 name:
-  ja: "<aqua>ダイヤのオノ</aqua>"
-  en: "<aqua>Diamond Axe</aqua>"
-lore:
-  ja:
-    - "<gray>右クリック: 木断ち</gray>"
-    - "<gray>スニーク + 右クリック: 板壁</gray>"
-  en:
-    - "<gray>Right-click: fell wood</gray>"
-    - "<gray>Sneak + right-click: plank wall</gray>"
+  ja: "ダイヤのオノ"
+  en: "Diamond Axe"
+role:
+  ja: "ツール / 伐採と板壁づくり"
+  en: "Tool / felling wood and plank walls"
 
 rarity: rare
 level_requirement: 1

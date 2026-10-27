@@ -5,15 +5,11 @@ id: stone-pickaxe
 material: STONE_PICKAXE
 
 name:
-  ja: "<gray>石のツルハシ</gray>"
-  en: "<gray>Stone Pickaxe</gray>"
-lore:
-  ja:
-    - "<gray>右クリック: 掘削</gray>"
-    - "<gray>スニーク + 右クリック: 粉砕</gray>"
-  en:
-    - "<gray>Right-click: bore a tunnel</gray>"
-    - "<gray>Sneak + right-click: shatter</gray>"
+  ja: "石のツルハシ"
+  en: "Stone Pickaxe"
+role:
+  ja: "ツール / 坑道掘りと岩の粉砕"
+  en: "Tool / bore tunnels, shatter rock"
 
 rarity: common
 level_requirement: 1

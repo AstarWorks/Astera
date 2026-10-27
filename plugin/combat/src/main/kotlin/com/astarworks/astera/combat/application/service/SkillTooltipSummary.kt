@@ -1,7 +1,9 @@
 package com.astarworks.astera.combat.application.service
 
+import com.astarworks.astera.combat.application.port.outbound.IArmorRegistry
 import com.astarworks.astera.combat.application.port.outbound.ISkillRegistry
 import com.astarworks.astera.combat.application.port.outbound.IStatusEffectRegistry
+import com.astarworks.astera.combat.domain.armor.ArmorId
 import com.astarworks.astera.combat.domain.skill.SkillSpec
 import com.astarworks.astera.combat.domain.skill.params.SkillParams
 import com.astarworks.astera.core.application.port.outbound.IMessageRenderer
@@ -26,16 +28,19 @@ public class SkillTooltipSummary(
     private val skills: ISkillRegistry,
     private val statuses: IStatusEffectRegistry,
     private val messages: IMessageRenderer,
+    private val armors: IArmorRegistry? = null,
 ) : ISkillTooltipSource {
 
-    override fun brief(skillId: String, viewer: PlayerId?): SkillTooltipBrief? {
+    override fun armorReduction(pieceId: String): Double? = armors?.find(ArmorId(pieceId))?.reduction?.default
+
+    override fun brief(skillId: String, viewer: PlayerId?, cooldownOverrideTicks: Int?, compact: Boolean): SkillTooltipBrief? {
         val spec = skills.find(SkillId(skillId)) ?: return null
         val name = messages.renderText(viewer, spec.name)
         val involved = involvedSpecs(spec)
         val mechanics = involved.flatMap { allMechanics(it) }
         val lines = buildList {
-            describe(spec, name, viewer)?.let { add("<dark_gray>  </dark_gray><gray>$it</gray>") }
-            stats(spec, involved, mechanics, viewer)?.let { add("<dark_gray>  </dark_gray>$it") }
+            if (!compact) describe(spec, name, viewer)?.let { add("<dark_gray>  </dark_gray><gray>$it</gray>") }
+            stats(spec, involved, mechanics, viewer, cooldownOverrideTicks ?: spec.cooldownTicks)?.let { add("<dark_gray>  </dark_gray>$it") }
         }
         val applied = appliedStatuses(mechanics).filter { it.value != IMMUNITY }
         val statusLines = applied.mapNotNull { id ->
@@ -52,7 +57,7 @@ public class SkillTooltipSummary(
         return firstSentence(text)
     }
 
-    private fun stats(spec: SkillSpec, involved: List<SkillSpec>, mechanics: List<Mechanic>, viewer: PlayerId?): String? {
+    private fun stats(spec: SkillSpec, involved: List<SkillSpec>, mechanics: List<Mechanic>, viewer: PlayerId?, cooldownTicks: Int): String? {
         val tokens = mutableListOf<String>()
         fun token(key: String, vararg kv: Pair<String, String>) {
             tokens += messages.render(viewer, MessageKey("$BRIEF.$key"), kv.toMap())
@@ -60,7 +65,7 @@ public class SkillTooltipSummary(
         val hit = strongestHit(involved, mechanics)
         if (hit > 0.0) token("damage", "value" to number(hit))
         reach(involved, mechanics)?.let { (key, value) -> token(key, "value" to number(value)) }
-        if (spec.cooldownTicks > 0) token("cooldown", "value" to number(spec.cooldownTicks / TPS))
+        if (cooldownTicks > 0) token("cooldown", "value" to number(cooldownTicks / TPS))
         spec.resourceCost?.takeIf { it > 0 }?.let { token("cost", "value" to it.toString()) }
         spec.egoCost?.takeIf { it > 0 }?.let { token("ego_cost", "value" to it.toString()) }
         val applied = appliedStatuses(mechanics).filter { it.value != IMMUNITY }
@@ -154,7 +159,7 @@ public class SkillTooltipSummary(
         const val STATUS_DESC = "astera.statusdesc"
         const val SEPARATOR = "<dark_gray> | </dark_gray>"
         const val TPS = 20.0
-        const val MAX_DESC = 60
+        const val MAX_DESC = 28
         const val MAX_CHAIN_DEPTH = 3
         const val IMMUNITY = "immunity"
     }

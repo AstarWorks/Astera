@@ -5,15 +5,11 @@ id: chain-guard-helmet
 material: CHAINMAIL_HELMET
 
 name:
-  ja: "<gray>チェインガード ヘルメット</gray>"
-  en: "<gray>Chain Guard Helmet</gray>"
-lore:
-  ja:
-    - "<gray>チェインガードセットの防具</gray>"
-    - "<gray>2部位・4部位そろえるとボーナス</gray>"
-  en:
-    - "<gray>Chain Guard set piece</gray>"
-    - "<gray>2+ pieces and the full set give a bonus</gray>"
+  ja: "チェインガード ヘルメット"
+  en: "Chain Guard Helmet"
+role:
+  ja: "防具 / チェインガードセット。2部位・4部位でボーナス"
+  en: "Armor / Chain Guard set (2/4 bonus)"
 
 rarity: uncommon
 level_requirement: 1

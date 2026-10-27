@@ -263,7 +263,7 @@ internal class LintRunner(private val cli: CliArgs) {
                 } catch (_: Exception) {
                     continue // already reported by the schema pass
                 }
-                val errors = SemanticChecks.check(node, known)
+                val errors = SemanticChecks.check(node, known) + if (dir == "items") SemanticChecks.checkItemText(node) else emptyList()
                 if (errors.isNotEmpty()) out += FileResult(file = yaml, errors = errors)
             }
         }

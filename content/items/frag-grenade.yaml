@@ -7,11 +7,9 @@ material: FIREWORK_STAR
 name:
   ja: "破片手榴弾"
   en: "Frag Grenade"
-lore:
-  ja:
-    - "<gray>右クリック: 投げる (破片で出血、ブロックを少し傷つける)</gray>"
-  en:
-    - "<gray>Right-click: throw (shrapnel bleeds, chips blocks)</gray>"
+role:
+  ja: "投擲 / 破片で出血、ブロックを少し傷つける"
+  en: "Thrown / bleeding shrapnel, chips blocks"
 
 rarity: uncommon
 level_requirement: 1

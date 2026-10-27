@@ -5,15 +5,11 @@ id: sticky-bomb
 material: SLIME_BALL
 
 name:
-  ja: "<green>粘着爆弾</green>"
-  en: "<green>Sticky Bomb</green>"
-lore:
-  ja:
-    - "<gray>右クリック: 投げる (着弾で爆発)</gray>"
-    - "<gray>周囲のブロックを少し傷つける</gray>"
-  en:
-    - "<gray>Right-click: throw (bursts on contact)</gray>"
-    - "<gray>Chips nearby blocks a little</gray>"
+  ja: "粘着爆弾"
+  en: "Sticky Bomb"
+role:
+  ja: "投擲 / 着弾爆発、周囲のブロックを少し壊す"
+  en: "Thrown / bursts on contact, chips blocks"
 
 rarity: uncommon
 level_requirement: 1

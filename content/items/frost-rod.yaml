@@ -5,15 +5,11 @@ id: frost-rod
 material: AMETHYST_SHARD
 
 name:
-  ja: "<aqua>フロストロッド</aqua>"
-  en: "<aqua>Frost Rod</aqua>"
-lore:
-  ja:
-    - "<gray>右クリック: みぞれ</gray>"
-    - "<gray>スニーク + 右クリック: 冷気</gray>"
-  en:
-    - "<gray>Right-click: sleet</gray>"
-    - "<gray>Sneak + right-click: chill</gray>"
+  ja: "フロストロッド"
+  en: "Frost Rod"
+role:
+  ja: "魔法 / みぞれと冷気で敵を鈍らせる"
+  en: "Magic / sleet and chill to slow enemies"
 
 rarity: uncommon
 level_requirement: 1

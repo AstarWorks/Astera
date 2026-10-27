@@ -48,11 +48,12 @@ import kotlinx.serialization.Serializable
  * name:
  *   en: "Example Sword"
  *   ja: "サンプルソード"
- * lore:
- *   en:
- *     - "<gray>A demo sword.</gray>"
- *   ja:
- *     - "<gray>テスト用</gray>"
+ * role:
+ *   en: "Melee / demo sword"
+ *   ja: "近接 / テスト用の剣"
+ * flavor:                  # optional
+ *   en: "A demo sword."
+ *   ja: "テスト用。"
  * rarity: rare
  * level_requirement: 5
  * attributes:
@@ -100,7 +101,12 @@ public data class ItemYamlConfig(
     public val model: String? = null,
     @SerialName("external_key") public val externalKey: String? = null,
     public val name: Map<String, String> = emptyMap(),
+    /** Plain GUI text (`gui-*` tiles, indicators); gear / blocks use [role] + [flavor] and get generated lines. */
     public val lore: Map<String, List<String>> = emptyMap(),
+    /** One-line role under the header (`docs/contributing/item-lore-style.md`). Plain text, per locale. */
+    public val role: Map<String, String> = emptyMap(),
+    /** Optional one-line flavour at the bottom of the card. Plain text, per locale. */
+    public val flavor: Map<String, String> = emptyMap(),
     public val rarity: String = "common",
     @SerialName("level_requirement") public val levelRequirement: Int = 1,
     public val attributes: AttributesYaml = AttributesYaml(),
@@ -204,6 +210,8 @@ public data class ItemYamlConfig(
             resourceMaxPool = resourceMaxPool,
             resourceRegenPerSecond = resourceRegenPerSecond,
             resourceReloadable = resourceReloadable,
+            role = role.toLocalizedText(),
+            flavor = flavor.toLocalizedText(),
         )
     }
 

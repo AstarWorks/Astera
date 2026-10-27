@@ -5,15 +5,11 @@ id: iron-pickaxe
 material: IRON_PICKAXE
 
 name:
-  ja: "<white>鉄のツルハシ</white>"
-  en: "<white>Iron Pickaxe</white>"
-lore:
-  ja:
-    - "<gray>右クリック: 掘削</gray>"
-    - "<gray>スニーク + 右クリック: 粉砕</gray>"
-  en:
-    - "<gray>Right-click: bore a tunnel</gray>"
-    - "<gray>Sneak + right-click: shatter</gray>"
+  ja: "鉄のツルハシ"
+  en: "Iron Pickaxe"
+role:
+  ja: "ツール / 掘削と粉砕"
+  en: "Tool / tunnelling and shattering"
 
 rarity: uncommon
 level_requirement: 1

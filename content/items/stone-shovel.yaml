@@ -5,15 +5,11 @@ id: stone-shovel
 material: STONE_SHOVEL
 
 name:
-  ja: "<gray>石のショベル</gray>"
-  en: "<gray>Stone Shovel</gray>"
-lore:
-  ja:
-    - "<gray>右クリック: 掘削</gray>"
-    - "<gray>スニーク + 右クリック: 土橋</gray>"
-  en:
-    - "<gray>Right-click: excavate</gray>"
-    - "<gray>Sneak + right-click: earth bridge</gray>"
+  ja: "石のショベル"
+  en: "Stone Shovel"
+role:
+  ja: "ツール / 土を掘り、土橋を架ける"
+  en: "Tool / dig earth, build earth bridges"
 
 rarity: common
 level_requirement: 1

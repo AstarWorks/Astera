@@ -7,13 +7,9 @@ material: SHIELD
 name:
   ja: "大盾"
   en: "Bulwark Shield"
-lore:
-  ja:
-    - "<gray>左クリック: シールドバッシュ</gray>"
-    - "<gray>スニーク + 右クリック: 防御姿勢</gray>"
-  en:
-    - "<gray>Left-click: shield bash</gray>"
-    - "<gray>Sneak + right-click: brace</gray>"
+role:
+  ja: "補助 / 殴って押し返し、構えて身を守る"
+  en: "Support / bash foes back, brace to defend"
 
 rarity: uncommon
 level_requirement: 1

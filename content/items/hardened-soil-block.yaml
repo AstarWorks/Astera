@@ -5,15 +5,11 @@ id: hardened-soil-block
 material: ROOTED_DIRT
 
 name:
-  ja: "<gold>硬化土</gold>"
-  en: "<gold>Hardened Soil</gold>"
-lore:
-  ja:
-    - "<gray>置いて遮蔽物にする</gray>"
-    - "<gray>壊すには合った道具が必要</gray>"
-  en:
-    - "<gray>Place it for cover</gray>"
-    - "<gray>Use the right tool to break it</gray>"
+  ja: "硬化土"
+  en: "Hardened Soil"
+role:
+  ja: "ブロック / 置いて遮蔽物にする、壊すには道具が必要"
+  en: "Block / cover; break with a tool"
 
 rarity: common
 level_requirement: 1

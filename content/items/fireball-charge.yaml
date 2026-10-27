@@ -7,11 +7,9 @@ material: FIRE_CHARGE
 name:
   ja: "ファイアボール"
   en: "Fireball Charge"
-lore:
-  ja:
-    - "<gray>右クリック: 火球 (着弾で爆発、延焼)</gray>"
-  en:
-    - "<gray>Right-click: fireball (bursts, sets ablaze)</gray>"
+role:
+  ja: "魔法 / 着弾で爆発し延焼させる火球"
+  en: "Magic / explosive, igniting fireball"
 
 rarity: uncommon
 level_requirement: 1

@@ -7,13 +7,9 @@ material: STONE_SWORD
 name:
   ja: "レイピア"
   en: "Rapier"
-lore:
-  ja:
-    - "<gray>左クリック: 素早い突き</gray>"
-    - "<gray>スニーク + 右クリック: 受け流し (後退 + 加速)</gray>"
-  en:
-    - "<gray>Left-click: fast thrust</gray>"
-    - "<gray>Sneak + right-click: parry step (back + sprint)</gray>"
+role:
+  ja: "近接 / 素早い突きと受け流し"
+  en: "Melee / fast thrusts and parry steps"
 
 rarity: uncommon
 level_requirement: 1

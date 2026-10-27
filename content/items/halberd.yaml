@@ -7,13 +7,9 @@ material: NETHERITE_AXE
 name:
   ja: "ハルバード"
   en: "Halberd"
-lore:
-  ja:
-    - "<gray>左クリック: 薙ぎ払い</gray>"
-    - "<gray>スニーク + 右クリック: 引っ掛け (体勢を崩す)</gray>"
-  en:
-    - "<gray>Left-click: wide sweep</gray>"
-    - "<gray>Sneak + right-click: hook (unsteadies)</gray>"
+role:
+  ja: "近接 / 薙ぎ払いと体勢を崩す引っ掛け"
+  en: "Melee / wide sweeps, unsteadying hook"
 
 rarity: uncommon
 level_requirement: 1

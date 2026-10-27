@@ -6,15 +6,11 @@ id: frost-staff
 material: BLAZE_ROD
 
 name:
-  ja: "<aqua>フロストスタッフ</aqua>"
-  en: "<aqua>Frost Staff</aqua>"
-lore:
-  ja:
-    - "<gray>右クリック: 氷の刃</gray>"
-    - "<gray>スニーク+右: フロストノヴァ</gray>"
-  en:
-    - "<gray>Right-click: frost shard</gray>"
-    - "<gray>Sneak+Right-click: frost nova</gray>"
+  ja: "フロストスタッフ"
+  en: "Frost Staff"
+role:
+  ja: "魔法 / 氷の刃と範囲の足止め"
+  en: "Magic / ice shards and area slow"
 
 rarity: uncommon
 level_requirement: 2

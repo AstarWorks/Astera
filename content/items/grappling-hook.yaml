@@ -7,11 +7,9 @@ material: LEAD
 name:
   ja: "グラップリングフック"
   en: "Grappling Hook"
-lore:
-  ja:
-    - "<gray>右クリック: 壁に当てると自分が、敵に当てると相手が引き寄せられる</gray>"
-  en:
-    - "<gray>Right-click: hit a wall to reel yourself in, an enemy to pull it</gray>"
+role:
+  ja: "補助 / 壁に自分を、敵に相手を引き寄せる"
+  en: "Support / reel to walls, pull enemies"
 
 rarity: uncommon
 level_requirement: 1

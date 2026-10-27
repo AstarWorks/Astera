@@ -3,19 +3,9 @@ material: NETHERITE_AXE
 name:
   ja: <#c0102a>緋の鎖斧</#c0102a>
   en: <#c0102a>Crimson Chain-Axe</#c0102a>
-lore:
-  ja:
-  - '左クリック: 緋針'
-  - '右クリック: 二重の刺繍'
-  - 'スニーク+右: 緋針の雨'
-  - 'スニーク+左: 緋の退避'
-  - 'Q: 緋鎖の展開'
-  en:
-  - 'Left-click: Crimson Needle'
-  - 'Right-click: Double Embroidery'
-  - 'Sneak+Right-click: Needle Rain'
-  - 'Sneak+Left-click: Crimson Evasion'
-  - 'Q: Crimson Chain Unfurl'
+role:
+  ja: "近接 / 針と鎖で刺し貫く鎖斧"
+  en: "Melee / chain-axe of needles and chains"
 rarity: epic
 level_requirement: 4
 attributes:
