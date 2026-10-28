@@ -13,7 +13,8 @@ PORT=8100 HOST=127.0.0.1 make sprite-gallery-up
 通常のアクセス先: **http://192.168.11.5:8098**。設定変更は down → up。
 PID・ログは `build/sprite-gallery/`。skill-compare の deploy follower と異なり、
 この checkout をそのまま配信し、Git checkout・コンテナ操作は行わない。
-`SPRITE_GALLERY_ROOT=/path/to/Astera` で読み取り対象のリポジトリを変更できる。
+foreground の `make sprite-gallery` は `SPRITE_GALLERY_ROOT=/path/to/Astera` で読み取り対象を変更できる。
+`make sprite-gallery-up` は常に起動元のcheckoutを配信する。
 
 - スプライトを canvas で同時再生。ID・タグ検索、カテゴリ、4× / 8×、1–60 fps、停止。
   大きい素材は一覧の 4× 表示を 200 px 以内に収め、8× ではその倍に拡大する。
@@ -35,7 +36,7 @@ PID・ログは `build/sprite-gallery/`。skill-compare の deploy follower と�
 | 横連番 PNG | `content/textures/generated/sprites/<id>.png` |
 | フレーム数・サイズ | `content/sprites/<id>.yaml`（ソースより優先） |
 | ソース定義 | `content/textures/sources/sprites.yaml` の `sprites.<id>` |
-| 任意のタグ | ソース定義の `tags: [tag, ...]`。未指定なら ID の最初の `-` より前（item-art の tags 許可は担当側の修正待ち） |
+| 任意のタグ | ソース定義の `tags: [tag, ...]`。未指定なら ID の最初の `-` より前（kebab-case 文字列の配列） |
 | ノード中間画像 | `build/**/<id>/**/*.png`（ID ディレクトリ直下も対象） |
 | VFX 演出 | `content/skills/<id>/look.yaml` |
 | 演出コンタクトシート | `build/vfx-shot/<id>/side/sheet.png`（実機優先） / `build/skill-preview/<id>/side/strip.png` |
@@ -75,12 +76,14 @@ plate がなければ4ブロックの仮寸法。照明・shader・Minecraft の
 このモードでは加算・背景・ピクセル拡大を無効化。通常再生は20 fps。
 
 `sample-` は64px / 8フレームの14グラフ。通常11種はv2 skillの4ブロックplate、
-frame_ticks: 1、40tickの一覧用ループ。dissolve-sigil / energy-orb-rim / heat-hazeは
-shader-pendingタグ付きグラフのみ。ADR-0305側の効果が接続されるまで実機完成扱いにしない。
-VFXタブは実機シート、engineプレビューを優先する。未撮影のsampleには実sprite全8フレームの
-「スプライト寸法シート（近似）」を表示する。skill runtime の再現ではない。
+frame_ticks: 1、40tickの一覧用ループ。残る3種も40tickのデモskillを持つ。
+dissolve-sigilはdissolve、energy-orbはemissive-pulse、heat-hazeはuv-flowを
+同じsprite画像のアニメーション付き4ブロックmeshに適用する。カードにshader_effectを表示。
+meshはside向き固定で、atlasアニメーション位相はcast開始と同期しない。
+VFXタブは `build/vfx-shot/<id>/side/sheet.png` の実機シートを最優先する。
+未撮影ならengineプレビュー、次に「スプライト寸法シート（近似）」を表示する。
 
-ブラウザ統合確認（実データ・α cutoff・距離・全14種・11デモ・シート・スクラブ）:
+ブラウザ統合確認（実データ・α cutoff・距離・全14種・14デモ・シート・スクラブ）:
 
 ```sh
 PORT=8099 make sprite-gallery
@@ -90,15 +93,18 @@ PLAYWRIGHT_PACKAGE_ROOT=/IdeaProjects/Astera/tools/skill-compare \
 
 スクリーンショット: `/tmp/claude-1000/vfx-nodegraph/samples-shot.png`。
 
-実機の代表3種（専用 `astera-shot-*` のみ。既定sideは近接なのでDISTANCEを広げる）:
+全14種の実機撮影（専用 `astera-shot-*` のみ）:
 
 ```sh
-for sample in sample-magic-circle sample-slash-arc sample-portal-swirl; do
-  SHOT_REAP_SCOPE=self SHOT_KEEP=1 ITEM=shield-bulwark DISTANCE=10 \
-    VIEW=side TICKS=16 SHOT_SLOW_RATE=1.25 make vfx-shot SKILL="$sample"
+for dir in content/skills/sample-*; do
+  SHOT_REAP_SCOPE=self SHOT_KEEP=1 ITEM=shield-bulwark DISTANCE=14 RES=640x360 \
+    VIEW=side TICKS=40 SHOT_SLOW_RATE=2.5 make vfx-shot SKILL="${dir##*/}"
 done
 make vfx-shot-down
+REQUIRE_SAMPLE_CAPTURES=1 GALLERY_URL=http://127.0.0.1:8099 \
+  PLAYWRIGHT_PACKAGE_ROOT=/IdeaProjects/Astera/tools/skill-compare \
+  bun tools/sprite-gallery/scripts/samples-browser.e2e.mjs
 ```
 
 フレームは `build/vfx-shot/<id>/side/frame_000.png`〜、シートは同じディレクトリの `sheet.png`。
-通常11種の残り8種はブラウザ寸法確認のみで、実機レビュー済みとは扱わない。
+共有8098のプロセスはmanagerが再起動する。他checkoutのプロセスは停止しない。

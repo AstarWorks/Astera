@@ -70,6 +70,31 @@ class ShippedShaderEffectsPackTest {
     }
 
     @Test
+    fun `all fourteen samples load and shader combos use animated sprite surfaces`() {
+        val (tables, _) = SkillEngineRegistries.frameTables(content.resolve("frames"))
+        val catalog = SkillEngineRegistries.catalog(tables)
+        val report = SkillEngineContents(catalog).reload(content.resolve("skills"))
+        assertThat(report.failures).isEmpty()
+        val samples = Files.list(content.resolve("skills")).use { paths -> paths.filter { it.fileName.toString().startsWith("sample-") }.toList() }
+        assertThat(samples).hasSize(14)
+        for (sample in samples) assertThat(catalog.get(sample.fileName.toString())).isNotNull()
+        for ((sample, effect) in mapOf("sample-dissolve-sigil" to "dissolve", "sample-energy-orb" to "emissive-pulse", "sample-heat-haze" to "uv-flow")) {
+            val item = json.readTree(pack.getValue("assets/astera/items/shader-effects/$effect/$sample.json"))
+            val modelKey = item.path("model").path("model").asText().removePrefix("astera:")
+            val model = json.readTree(pack.getValue("assets/astera/models/$modelKey.json"))
+            assertThat(model.path("textures").path("sprite").asText()).isEqualTo("astera:generated/sprites/$sample")
+            val animation = json.readTree(pack.getValue("assets/astera/textures/generated/sprites/$sample.png.mcmeta")).path("animation")
+            assertThat(animation.path("frames").size()).isEqualTo(8)
+            assertThat(animation.path("frametime").asInt()).isEqualTo(1)
+            assertThat(model.path("elements")[0].path("faces").all { it.path("tintindex").asInt(-1) == 0 }).isTrue()
+        }
+        val atlas = json.readTree(pack.getValue("assets/minecraft/atlases/items.json")).path("sources")
+        assertThat(atlas.count { it.path("type").asText() == "single" && it.path("resource").asText().startsWith("astera:generated/sprites/") }).isEqualTo(3)
+        assertThat(atlas.any { it.path("source").asText() == "generated/sprites" }).isFalse()
+        assertThat(PackReferenceCheck.check(pack, null).problems).isEmpty()
+    }
+
+    @Test
     fun `duplicate markers fail the real pack build loudly`() {
         Files.list(content).use { paths -> paths.forEach { source ->
             if (source.fileName.toString() != "shader-patches") Files.createSymbolicLink(temp.resolve(source.fileName), source)

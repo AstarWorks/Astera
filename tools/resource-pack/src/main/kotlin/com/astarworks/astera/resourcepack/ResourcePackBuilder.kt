@@ -93,7 +93,11 @@ public class ResourcePackBuilder(
     private fun addAtlases(files: MutableMap<String, ByteArray>) {
         val dirs = atlasDirectories(files.keys)
         for ((atlas, list) in dirs) {
-            val sources = list.map { mapOf("type" to "directory", "source" to it, "prefix" to "$it/") }
+            val sources = list.map { mapOf("type" to "directory", "source" to it, "prefix" to "$it/") } +
+                if (atlas == "items") files.keys.filter {
+                    it.startsWith("assets/$NAMESPACE/textures/generated/sprites/") && it.endsWith(".png.mcmeta")
+                }.map { mapOf("type" to "single", "resource" to "$NAMESPACE:" + it.removePrefix("assets/$NAMESPACE/textures/").removeSuffix(".png.mcmeta")) }
+                else emptyList()
             files["assets/minecraft/atlases/$atlas.json"] = json(mapOf("sources" to sources)).toByteArray()
         }
     }

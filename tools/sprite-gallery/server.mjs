@@ -64,16 +64,18 @@ async function catalog() {
   const skills = await Promise.all(skillNames.map(async id => {
     const source = await text(resolve(skillDir, id, 'look.yaml'));
     const look = Bun.YAML.parse(source);
-    const plates = (look?.presentation?.timeline || []).flatMap(event => event.do || []).filter(op => op.op === 'plate');
+    const ops = (look?.presentation?.timeline || []).flatMap(event => event.do || []);
+    const plates = ops.filter(op => op.op === 'plate');
+    const shaderEffects = [...new Set(ops.map(op => op.shader_effect).filter(Boolean))];
     const shot = await asset(resolve(root, 'build/vfx-shot', id, 'side/sheet.png'));
     const preview = await asset(resolve(root, 'build/skill-preview', id, 'side/strip.png'));
-    return { id, source, plates, sheet: shot || preview, capture: shot ? '実クライアント' : 'プレビュー' };
+    return { id, source, plates, shaderEffects, sheet: shot || preview, capture: shot ? '実クライアント' : 'プレビュー' };
   }));
   const sprites = await Promise.all([...ids].sort().map(async id => {
     const meta = Bun.YAML.parse(await text(resolve(metaDir, `${id}.yaml`))) || {};
     const def = defs[id] || {};
     const tags = Array.isArray(def.tags) ? def.tags.map(String) : typeof def.tags === 'string' ? [def.tags] : [id.split('-')[0]];
-    return { id, blocks: skills.flatMap(skill => skill.plates).find(op => op.sprite === id && typeof op.size === 'number')?.size, frames: meta.frames || def.frames || 1, size: meta.size || def.size || 32, tags,
+    return { id, shaderEffects: skills.find(skill => skill.id === id)?.shaderEffects || [], blocks: skills.flatMap(skill => skill.plates).find(op => op.sprite === id && typeof op.size === 'number')?.size, frames: meta.frames || def.frames || 1, size: meta.size || def.size || 32, tags,
       image: await asset(resolve(imageDir, `${id}.png`)), source: blocks.get(id) || '# ソース定義なし', intermediates: (intermediates.get(id) || []).sort((a,b) => a.name.localeCompare(b.name)) };
   }));
   const vfx = skills.filter(skill => skill.source);

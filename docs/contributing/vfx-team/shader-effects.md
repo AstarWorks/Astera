@@ -41,3 +41,25 @@ The builder composes real skill/VFX YAML and generates only referenced combinati
 ## Capture integration note
 
 The current `vfx-shot` warm-stack pack fingerprint predates mesh-reference-driven variants. Until the QA owner adds `skills`, `vfx` and `frames` to `tools/vfx-shot/shotstate.py`'s pack inputs, run `make vfx-shot-down` before filming a changed model/effect reference. A cold shot always rebuilds the pack. The Gradle pack task already tracks all three directories.
+
+## Sprite shader combinations (Minecraft samples)
+
+The three `content/skills/sample-*/` shader demos use double-sided, four-block
+item meshes from `content/pack-assets/assets/astera/models/vfx-samples/`.
+They reference the same graph-generated horizontal sprite strips; the adjacent
+`.mcmeta.json` supplies 64×64 frames 0–7 at one tick per frame. The item atlas
+includes only the animated sprite entries (single sources), rather than uploading
+all plate-only strips. Unlike plate flipbooks, atlas animation phase is
+client-global and does not restart on cast. Meshes face the side capture camera
+(fixed 90° yaw); they are not viewer billboards.
+
+| sample | shader_effect | Meaning |
+|---|---|---|
+| `sample-dissolve-sigil` | `dissolve` | rotating sigil plus noise erosion |
+| `sample-energy-orb` | `emissive-pulse` | animated orb plus pulsing unlit colour boost |
+| `sample-heat-haze` | `uv-flow` | animated heat ribbons plus flowing cyan bands |
+
+The orb's painted ring is not a view-dependent rim shader. Heat haze does not
+refract or distort the background. These use the three existing ADR-0305 effects;
+no new marker or screen-reading shader is needed. The gallery displays effect ids
+and the real-client side sheets from `build/vfx-shot/<sample>/side/sheet.png`.

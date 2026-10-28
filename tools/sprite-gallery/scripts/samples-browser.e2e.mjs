@@ -20,13 +20,25 @@ try {
     assert.equal(sprite.size, 64); assert.equal(sprite.frames, 8);
     assert.ok(sprite.tags.includes('sample')); assert.ok(sprite.image);
   }
-  assert.equal(samples.filter(sprite => sprite.tags.includes('shader-pending')).length, 3);
+  assert.equal(samples.filter(sprite => sprite.tags.includes('shader-pending')).length, 0);
   const demos = catalog.vfx.filter(skill => skill.id.startsWith('sample-'));
-  assert.equal(demos.length, 11);
+  assert.equal(demos.length, 14);
   for (const demo of demos) {
-    assert.match(demo.source, /op: plate/);
-    assert.match(demo.source, /size: 4/);
-    assert.match(demo.source, /frame_ticks: 1/);
+    if (demo.shaderEffects.length) {
+      assert.match(demo.source, /op: mesh/);
+      assert.match(demo.source, /scale: 4/);
+    } else {
+      assert.match(demo.source, /op: plate/);
+      assert.match(demo.source, /size: 4/);
+      assert.match(demo.source, /frame_ticks: 1/);
+    }
+    if (process.env.REQUIRE_SAMPLE_CAPTURES === '1') {
+      assert.equal(demo.capture, '実クライアント'); assert.ok(demo.sheet);
+      assert.equal((await fetch(`${url}${demo.sheet}`)).status, 200);
+    }
+  }
+  for (const [id, effect] of Object.entries({'sample-dissolve-sigil':'dissolve','sample-energy-orb':'emissive-pulse','sample-heat-haze':'uv-flow'})) {
+    assert.deepEqual(demos.find(d => d.id === id).shaderEffects, [effect]);
   }
   await page.goto(url);
   await page.locator('#filter').fill('sample-');
@@ -77,8 +89,11 @@ try {
   await page.locator('#preview-mode').selectOption('sprite');
   await page.waitForFunction(() => document.querySelector('.card canvas').width === 64);
   await page.locator('[data-tab="vfx"]').click();
-  assert.equal(await page.locator('.card').count(), 11);
-  assert.equal(await page.locator('.card .sheet').count(), 11, 'each demo has a capture or labelled dimension sheet');
+  assert.equal(await page.locator('.card').count(), 14);
+  assert.equal(await page.locator('.card .sheet').count(), 14, 'each demo has a capture or labelled dimension sheet');
+  for (const effect of ['dissolve', 'emissive-pulse', 'uv-flow']) assert.ok(await page.getByText(`shader_effect: ${effect}`, {exact:true}).count());
+  await page.locator('.card img.sheet').evaluateAll(images => Promise.all(images.map(image => image.decode())));
+  await page.screenshot({ path: output.replace(/\.png$/, '-vfx.png'), fullPage: true });
   assert.deepEqual(errors, []);
-  console.log(`PASS: 14 samples, 11 v2 plate demos, Minecraft cutoff/scale controls, scrubber; ${output}`);
+  console.log(`PASS: 14 samples, 14 v2 demos, Minecraft cutoff/scale controls, scrubber; ${output}`);
 } finally { await browser.close(); }
