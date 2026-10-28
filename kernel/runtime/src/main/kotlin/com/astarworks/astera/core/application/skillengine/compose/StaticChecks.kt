@@ -301,6 +301,9 @@ public object StaticChecks {
                 }
             }
         }
+        // R45: machine-root rows live as long as the machine, so their bound is the machine's worst-case path, not any one state's duration
+        val machineMax = g.table.bounds.path.max
+        for (row in g.table.worldRows) overrun(g, WORLD_UNIT, row, 0, machineMax)?.let { return it }
         for (sub in g.table.subTables.values) {
             val owner = g.stateByPath[sub.owner.value]
                 ?: return SkillDecodeError.TableClosure(sub.event.value, "owner state '${sub.owner.value}' does not exist", g.skillId)
@@ -435,7 +438,9 @@ public object StaticChecks {
         val stateByPath: Map<String, StateTable> = table.states.associateBy { it.state.value }
 
         val units: List<TableUnit> = table.states.map { TableUnit(it.state.value, it.state, it.rows, it.branches, null) } +
-            table.subTables.values.map { TableUnit(it.event.value, it.owner, it.rows, it.branches, it.window) }
+            table.subTables.values.map { TableUnit(it.event.value, it.owner, it.rows, it.branches, it.window) } +
+            // R45: the machine-root section is a unit of its own; its owner names no state, so only the world rows themselves are in its spawn scope
+            listOfNotNull(table.worldRows.takeIf { it.isNotEmpty() }?.let { TableUnit(WORLD_UNIT, StatePath(""), it, emptyList(), null) })
 
         fun allBranches(): List<Branch> = units.flatMap { it.branches }
 
@@ -483,9 +488,14 @@ public object StaticChecks {
             deliveredSubs = subs
         }
 
-        /** Instances spawned or called in [owner]'s rows and owned sub-tables, and in every enclosing state's. */
+        /** Instances spawned or called in [owner]'s rows and owned sub-tables, and in every enclosing state's, and in the machine-root `world` rows (R45). */
         fun spawnScope(owner: StatePath): List<InstanceId> {
             val out = ArrayList<InstanceId>()
+            for (r in table.worldRows) when (val a = r.action) {
+                is Action.Spawn -> out += r.instance
+                is Action.Call -> out += a.callId
+                else -> {}
+            }
             var path: String? = owner.value
             while (path != null) {
                 val s = stateByPath[path]
@@ -531,6 +541,8 @@ public object StaticChecks {
                 }.maxOrNull()
                 spans += intArrayOf(r.tick, own ?: viaSub ?: exit)
             }
+            // R45: a world display is alive for the whole machine, so it is counted alive across every state
+            for (r in table.worldRows) if (isDisplay(r)) spans += intArrayOf(0, exit)
             for (sub in subs) for (r in sub.rows) {
                 if (!isDisplay(r)) continue
                 val end = sub.rows.filter { it.action is Action.End && covers(((it.action as Action.End).instance), r.instance) && it.tick >= r.tick }
@@ -547,6 +559,8 @@ public object StaticChecks {
             return best to bestTick
         }
     }
+
+    private const val WORLD_UNIT = "machine.world"
 
     private val DISPLAY_KINDS = setOf(SpawnKind.ITEM, SpawnKind.BLOCK, SpawnKind.TEXT, SpawnKind.SPRITE, SpawnKind.RIBBON)
 }

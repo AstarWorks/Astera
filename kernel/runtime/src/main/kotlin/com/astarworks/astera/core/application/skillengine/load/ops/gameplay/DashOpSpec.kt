@@ -26,6 +26,9 @@ import com.astarworks.astera.core.domain.skillengine.table.InstanceId
 import com.astarworks.astera.core.domain.skillengine.table.OpId
 import com.astarworks.astera.core.domain.skillengine.table.SrcPath
 import com.astarworks.astera.core.domain.skillengine.table.Row
+import com.astarworks.astera.core.domain.skillengine.table.EventPath
+import com.astarworks.astera.core.domain.skillengine.table.SubTable
+import com.astarworks.astera.core.domain.skillengine.table.TickRange
 import com.astarworks.astera.core.domain.skillengine.table.Val
 import org.joml.Vector3d
 
@@ -130,6 +133,14 @@ public object DashOpSpec : OpSpec<DashOp> {
             CasterMotion.row(0, inst, op.id, lc, payload),
             CasterMotion.row(ticks, inst, op.id, lc, mapOf("kind" to CasterMotion.known("dash.end"))),
         )
-        return Result.Success(Lowered(rows = rows, instances = listOf(inst)))
+        // `until: <event>` ends the dash at the event, inside the static `for` window: the sub-table stops the driver and ends the instance.
+        val subTables = op.timing?.until?.let { ev ->
+            val endRows = listOf(
+                CasterMotion.row(0, inst, op.id, lc, mapOf("kind" to CasterMotion.known("dash.end"))),
+                Row(0, inst, Action.End(inst), lc.src),
+            )
+            listOf(SubTable(EventPath(ev), lc.state, TickRange(lc.clockOffset, lc.clockOffset + ticks), 1, endRows, emptyList()))
+        }.orEmpty()
+        return Result.Success(Lowered(rows = rows, subTables = subTables, instances = listOf(inst)))
     }
 }

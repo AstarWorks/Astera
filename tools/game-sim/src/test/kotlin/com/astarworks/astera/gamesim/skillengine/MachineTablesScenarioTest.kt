@@ -275,8 +275,8 @@ class MachineTablesScenarioTest : SkillEngineScenario() {
     }
 
     @Test
-    fun machineWorldRowsAreLoweredAtCastTickZero() {
-        // R45 (ADR 10.1): `machine.world` rows belong to the cast, not to a state; they decode and lower beside the start state's own rows.
+    fun machineWorldRowsAreMachineRootRows() {
+        // R45 (ADR 10.1): `machine.world` rows belong to the cast, not to a state: they land in ExpansionTable.worldRows, in no state's rows.
         val s = compiled(
             """
             apiVersion: astera/v3
@@ -293,11 +293,37 @@ class MachineTablesScenarioTest : SkillEngineScenario() {
                 done: { final: true }
             """.trimIndent(),
         )
-        val cast = s.table.states.first { it.state == StatePath("cast") }
-        val world = cast.rows.filter { it.action is Action.Damage }
+        val world = s.table.worldRows.filter { it.action is Action.Damage }
         assertThat(world).hasSize(1)
         assertThat(world.first().tick).isEqualTo(0)
         assertThat(world.first().src.value).contains("world")
-        assertThat(s.table.states.first { it.state == StatePath("done") }.rows.none { it.action is Action.Damage }).isTrue()
+        assertThat(s.table.states.flatMap { it.rows }.none { it.action is Action.Damage }).`as`("no state carries the world row").isTrue()
+    }
+
+    @Test
+    fun machineWorldBodyOutlivesItsStartStateWithoutOverrun() {
+        // couture s2: the body clip starts at 63, after the 34-tick start state; the bound is the machine's worst-case path (34 + 40), not the start state.
+        val s = compiled(
+            """
+            apiVersion: astera/v3
+            kind: Skill
+            id: world-body-late
+            machine:
+              start: cast
+              world:
+                - {id: clip, op: body, at: 63, anim: slash_a, speed: 1.0, for: 9}
+              states:
+                cast:
+                  for: 34
+                  then: tail
+                tail:
+                  for: 40
+                  then: done
+                done: { final: true }
+            """.trimIndent(),
+        )
+        assertThat(s.table.worldRows.map { it.tick }).containsExactly(63, 72)
+        val calls = play(s, 1L).filter { it.verb == "effect" }
+        assertThat(calls.map { it.tick to it.payload }).contains(63 to "body=slash_a speed=1", 72 to "body_stop=slash_a")
     }
 }

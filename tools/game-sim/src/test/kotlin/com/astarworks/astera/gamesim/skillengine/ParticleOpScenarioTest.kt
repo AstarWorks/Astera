@@ -219,4 +219,14 @@ class ParticleOpScenarioTest : SkillEngineScenario() {
         val ps = particles(loaded(skill("{id: p, op: particle, particle: flame, anchor: {of: body, offset: {up: 2.0}}}")))
         assertEquals(2.0, position(ps.single()).y, 1e-9)
     }
+
+    @Test
+    fun particleDefPlaysAsABurstOfItsDef() {
+        // W2-04: Action.ParticleDef reaches the particle gateway as one burst whose type is the def id
+        val s = loaded(skill("{id: pd, op: particle_def, def: frost-cast, anchor: body}"))
+        val calls = play(s, 3L).filter { it.verb == "particle" }
+        assertEquals(1, calls.size)
+        assertEquals("type=frost-cast", calls.single().payload)
+        assertEquals(0, calls.single().tick)
+    }
 }

@@ -87,7 +87,7 @@ public object SoundOpSpec : OpSpec<SoundOp> {
             position = Val.Live<Vector3d>(anchor.instance.text, null),
             category = op.category,
         )
-        return Result.Success(Lowered(rows = listOf(Row(lc.clockOffset, lc.self, action, lc.src))))
+        return Result.Success(Lowered(rows = listOf(Row(0, lc.self, action, lc.src))))
     }
 
     private fun number(v: Value<Double>): Num = when (v) {
