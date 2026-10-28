@@ -19,13 +19,14 @@ import kotlin.io.path.createDirectories
  *
  * Prints the compiled [ExpansionTable] of a loaded skill through [ExpansionDump] (text, or JSON with `src` per row)
  * and writes both forms to [outDir] (`<skill-id>.txt` / `<skill-id>.json`); `all` writes every loaded skill.
+ * [outDir] is the `expand_dir` key of `content/engine/skill-engine.yaml` (`EngineConfig.expandDir`); there is no fallback path.
  * Read-only, so it reuses the `astera.skill.list` permission. The chat copy replaces `<` / `>` with `‹` / `›`
  * because `<L:...>` values would be read as MiniMessage tags; the files keep the exact dump.
  */
-internal fun skillExpandSubcommand(
+public fun skillExpandSubcommand(
     ids: () -> Collection<String>,
     tableOf: (String) -> ExpansionTable?,
-    outDir: Path = Path.of("build", "skill-expand"),
+    outDir: Path,
 ): CommandSpec.Literal = CommandSpec.Literal(
     name = "expand",
     subcommands = listOf(

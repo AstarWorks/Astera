@@ -1,6 +1,7 @@
 package com.astarworks.astera.core.application.skillengine.load
 
 import com.astarworks.astera.core.application.skillengine.compose.ComposedSkill
+import com.astarworks.astera.core.application.skillengine.expr.cel.V3Bindings
 import com.astarworks.astera.core.application.skillengine.load.grammar.Grammar
 import com.astarworks.astera.core.application.skillengine.load.grammar.GrammarContext
 import com.astarworks.astera.core.application.skillengine.load.spec.OpSpecRegistry
@@ -24,12 +25,12 @@ public typealias YamlNode = Any?
 
 /**
  * What a document decode needs besides the file: the part/skill catalogs it may name, and the identifiers a CEL expression may use
- * ([exprEnv], the V3 bindings; empty = only literals compile).
+ * ([exprEnv], the V3 bindings by default).
  */
 public class GrammarEnv(
     public val knownParts: Set<String> = emptySet(),
     public val knownSkills: Set<String> = emptySet(),
-    public val exprEnv: ExprEnvSpec = ExprEnvSpec(),
+    public val exprEnv: ExprEnvSpec = V3Bindings.spec(null),
 )
 
 /** One multi-document file: skills decoded, parts and patches kept as raw trees for the part catalog and the composer. */
