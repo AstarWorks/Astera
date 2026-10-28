@@ -1,6 +1,7 @@
 package com.astarworks.astera.core.application.skillengine.compose
 
 import com.astarworks.astera.core.application.skillengine.load.SkillDecodeError
+import com.astarworks.astera.core.application.skillengine.expr.cel.ExprClassifier
 import com.astarworks.astera.core.application.skillengine.expr.cel.V3Bindings
 import com.astarworks.astera.core.application.skillengine.load.grammar.Every
 import com.astarworks.astera.core.application.skillengine.load.grammar.Spacing
@@ -129,7 +130,8 @@ public object GroupUnroller {
             is WhenRef.Expr -> Guard.Expr(ref.compiled.source)
             is WhenRef.Named -> Guard.Named(ref.cond)
         }
-        if (occ.classify(compiled) != ExprClass.S) return Result.Success(WhenGate.Guarded(guard))
+        // rand() is outcome randomness (C4d): the row exists, the draw happens at its tick from the cast seed, never baked at expand time
+        if (occ.classify(compiled) != ExprClass.S || ExprClassifier.analyse(compiled.source).usesRand) return Result.Success(WhenGate.Guarded(guard))
         val env = ExprEnv(V3Bindings.values(occ.occurrence), NoFrames, seed = V3Bindings.seed(0L, node.id, occ.occurrence.i))
         val v = try {
             compiled.eval(env)

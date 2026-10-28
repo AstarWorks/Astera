@@ -545,6 +545,13 @@ public class TablePlayer(
         // ADR-0303 2.0a: `until` is a mask over candidate rows; the named event cuts every remaining candidate
         if (row.maskUntil.isNotEmpty() && row.maskUntil.any { it in run.seen }) return
         val src = row.src.value.ifEmpty { row.instance.text }
+        val g = row.guard
+        if (g != null) {
+            // a class-L / seeded `when` on a point gameplay op (ADR-0303 item 13): the row exists, the guard decides at its tick
+            val ok = hooks.guard(run.cursor.handle, g, run.cursor.skill.table.conditions, ctx.binding, now - ctx.base)
+            if (ok == null) { fault(run, now, src, "no guard evaluator for $g"); return }
+            if (!ok) return
+        }
         ctx.scope = rowScope(run, row)
         try {
             when (val a = row.action) {
