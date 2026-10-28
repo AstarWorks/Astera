@@ -5,13 +5,13 @@ kind: Skill
 id: ember-gauntlet-def
 frames:
   - {id: fx1_ember_harness, kind: body, parent: world}
-  - {id: fx1_ember_harness_furnace_pack, kind: body, parent: caster}
-  - {id: fx1_ember_harness_furnace_pack_parts, kind: body, parent: caster}
+  - {id: fx1_ember_harness_furnace_pack, kind: body, parent: caster, passenger: false, teleport_ticks: 2}
+  - {id: fx1_ember_harness_furnace_pack_parts, kind: body, parent: caster, passenger: false, teleport_ticks: 2}
   - {id: fx2_ember_flare_guard, kind: body, parent: world}
   - {id: fx3_ember_counter_sweep, kind: body, parent: world}
   - {id: fx3_ember_counter_sweep_embers_at, kind: body, parent: fx3_ember_counter_sweep}
-  - {id: fx3_ember_counter_sweep_gauntlet, kind: body, parent: caster}
-  - {id: fx3_ember_counter_sweep_gauntlet_parts, kind: body, parent: caster}
+  - {id: fx3_ember_counter_sweep_gauntlet, kind: body, parent: caster, passenger: false, teleport_ticks: 2}
+  - {id: fx3_ember_counter_sweep_gauntlet_parts, kind: body, parent: caster, passenger: false, teleport_ticks: 2}
   - {id: pt_fx3_ember_counter_sweep_gauntlet_0_1p95_0, kind: point, parent: fx3_ember_counter_sweep_gauntlet, offset: [0.0, 1.95, 0.0]}
   - {id: pt_fx3_ember_counter_sweep_gauntlet_0_2p65_0, kind: point, parent: fx3_ember_counter_sweep_gauntlet, offset: [0.0, 2.65, 0.0]}
   - {id: fx4_ember_hoop_hit, kind: body, parent: world}

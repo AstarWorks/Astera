@@ -22,6 +22,12 @@ public data class FrameNode(
     val orient: FrameOrient? = null,
     /** Uniform scale this node applies to its descendants (their local translations and display sizes), like the v1 `play_vfx scale`. */
     val scale: Double = 1.0,
+    /** Body frame hung on the caster: true = its displays ride the caster as native passengers (v1 `attach_to_anchor`, ADR-0276), false = they follow by teleport. Null on every other node. */
+    val passenger: Boolean? = null,
+    /** A non-passenger caster body frame of a followed vfx: its displays are written with this `teleport_duration` (v1 `follow_teleport_ticks` or 2, VfxPlayer.kt:416-419). */
+    val teleportTicks: Int? = null,
+    /** Same, for a display a track moves itself; only an explicit v1 `follow_teleport_ticks` sets it (VfxPlayer.kt:442). */
+    val movingTeleportTicks: Int? = null,
 )
 
 /** A named attachment point on a node: `<node>.<name>` resolves to `node.world.toWorld(offset)`. */

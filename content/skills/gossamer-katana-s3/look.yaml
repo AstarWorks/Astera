@@ -5,8 +5,8 @@ kind: Skill
 id: gossamer-katana-s3
 frames:
   - {id: fx1_gossamer_katana_draw, kind: body, parent: world}
-  - {id: fx1_gossamer_katana_draw_katana, kind: body, parent: caster}
-  - {id: fx1_gossamer_katana_draw_katana_parts, kind: body, parent: caster}
+  - {id: fx1_gossamer_katana_draw_katana, kind: body, parent: caster, passenger: false, teleport_ticks: 2}
+  - {id: fx1_gossamer_katana_draw_katana_parts, kind: body, parent: caster, passenger: false, teleport_ticks: 2}
   - {id: fx2_gossamer_katana_scar, kind: body, parent: world}
   - {id: fx3_gossamer_katana_iaido_line, kind: body, parent: world}
 presentation:

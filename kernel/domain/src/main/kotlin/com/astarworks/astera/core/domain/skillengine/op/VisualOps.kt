@@ -237,7 +237,9 @@ public sealed interface VisualOp : PresentationOp {
      * forward (and origin, for to_target) instead of the live caster (v1 `snapshot_pose`, MechanicDispatcher.kt:560-566).
      * With [teleportTicks] every display under the frame that is not a native passenger is written with that
      * `teleport_duration` instead of its interpolation length (v1 followed effect: `follow_teleport_ticks` or
-     * FOLLOW_TELEPORT_TICKS = 2, VfxPlayer.kt:416-419, 442).
+     * FOLLOW_TELEPORT_TICKS = 2, VfxPlayer.kt:416-419, 442). A display a track moves itself (v1 `selfMoving`, a text quad / sprite
+     * with updates) is not follow-teleported; when the vfx states `follow_teleport_ticks` explicitly its own position writes take
+     * that value as [movingTeleportTicks] (VfxPlayer.kt:442), otherwise their interpolation length.
      */
     public data class Anchor(
         override val id: String,
@@ -249,6 +251,7 @@ public sealed interface VisualOp : PresentationOp {
         val pitch: Boolean = false,
         val pose: String? = null,
         val teleportTicks: Int? = null,
+        val movingTeleportTicks: Int? = null,
     ) : VisualOp
 
     /**

@@ -324,6 +324,8 @@ class Conv:
         self.damaged_sel = set()  # guards of area selections that already carry a v1 `damage` earlier in mechanic order
         self.vfx_n = 0
         self.vfx_pull = None
+        self.vfx_tp = None
+        self.vfx_passenger = None  # set per play_vfx: v1 attach_to_anchor + follow
         self.meta_lines = []
         self.has_bolt = False
         self.todo_gaps = OrderedDict()
@@ -1375,11 +1377,19 @@ class Conv:
         if follow:
             # a followed effect teleports its non-passenger displays every tick over follow_teleport_ticks (default 2), VfxPlayer.kt:416-419
             anchor["teleport_ticks"] = int(d.get("follow_teleport_ticks", 2))
+            if "follow_teleport_ticks" in d:
+                # only an explicit value reaches a display a track moves (VfxPlayer.kt:442: plan.followTeleportTicks is null otherwise)
+                anchor["moving_teleport_ticks"] = int(d["follow_teleport_ticks"])
         # v1 tilts only a plain yaw-oriented effect; a performance (body or a weapon rig) never pitches (VfxPlayer.kt:243)
         performance = d.get("body") is not None or any(r.get("weapon") for r in d.get("rigs", []))
         if d.get("follow_pitch") and name == "yaw" and not performance:
             anchor["pitch"] = True
         self.p(where, delay, self._w(anchor, when))
+        # v1 mounts a display as a native passenger only when the vfx says attach_to_anchor and follows (VfxPlayer.kt:627, performers
+        # always); every other display of a caster-hung rig follows by teleport (VfxPlayer.kt:416-419). Each body frame on the caster
+        # states which, explicitly (`passenger:`).
+        self.vfx_passenger = bool(d.get("attach_to_anchor")) and follow
+        self.vfx_tp = (int(d.get("follow_teleport_ticks", 2)), int(d["follow_teleport_ticks"]) if "follow_teleport_ticks" in d else None) if follow else None
         if d.get("attach_to_anchor") and not (want == "caster" or want.startswith("caster.")) :
             self.present("vfx attach_to_anchor on a non-caster anchor", short(want, 40))
         self.vfx_pull = None
@@ -1619,10 +1629,24 @@ class Conv:
                 op[name] = [float(x) for x in r[key]]
         return op
 
+    def body_frame(self, fid, parent):
+        """A look body frame. One hung on the caster states `passenger:` (the loader requires it): true for a vfx with v1 attach_to_anchor + follow."""
+        frame = {"id": fid, "kind": "body", "parent": parent}
+        if parent in ("caster", "aim") or parent.startswith(("caster.", "aim.")):
+            if self.vfx_passenger is None:
+                raise UnhandledV1Key("caster-hung body frame %s outside a play_vfx" % fid)
+            frame["passenger"] = self.vfx_passenger
+            if not self.vfx_passenger and self.vfx_tp is not None:
+                # a followed vfx teleports its non-passenger displays every tick (VfxPlayer.kt:416-419); a track-moved one only on an explicit value (:442)
+                frame["teleport_ticks"] = self.vfx_tp[0]
+                if self.vfx_tp[1] is not None:
+                    frame["moving_teleport_ticks"] = self.vfx_tp[1]
+        self.look_frames[fid] = frame
+
     def vfx_body_only(self, body, fid, where, delay, when, dur, vd):
         """A performance body with no rig: a rig op with nothing riding it."""
         rid = fid + "_body"
-        self.look_frames[rid] = {"id": rid, "kind": "body", "parent": "caster"}
+        self.body_frame(rid, "caster")
         op = self.rig_op(rid, "caster", True, body, {}, dur, vd, [])
         self.p(where, delay, self._w(op, when))
 
@@ -1640,7 +1664,7 @@ class Conv:
             raise UnhandledV1Key("rig weapon_model without a weapon display")
         if "." in pr:  # the rig op's parent is a frame in the tree; a point (caster.right_hand) needs a body frame standing on it
             anchor = rid + "_at"
-            self.look_frames[anchor] = {"id": anchor, "kind": "body", "parent": pr}
+            self.body_frame(anchor, pr)
             pr = anchor
         fscale = getattr(self, "vfx_scale", 1.0)
         if fscale != 1.0:
@@ -1652,9 +1676,10 @@ class Conv:
                 r = vfxelem.scale_rig(r, fscale)
             else:
                 carrier = rid + "_sc"
-                self.look_frames[carrier] = {"id": carrier, "kind": "body", "parent": pr, "scale": fscale}
+                self.body_frame(carrier, pr)
+                self.look_frames[carrier]["scale"] = fscale
                 pr = carrier
-        self.look_frames[rid] = {"id": rid, "kind": "body", "parent": pr}
+        self.body_frame(rid, pr)
         start = delay + int(r.get("start_tick", 0))
         end = int(r.get("end_tick", dur))
         rig_dur = end - int(r.get("start_tick", 0))
@@ -1678,7 +1703,7 @@ class Conv:
         pframe = rid
         if parts and hand:
             pframe = rid + "_parts"
-            self.look_frames[pframe] = {"id": pframe, "kind": "body", "parent": "caster"}
+            self.body_frame(pframe, "caster")
             rp = {k: v for k, v in r.items() if k not in ("weapon_tip", "weapon_root", "weapon_edge")}
             self.p(where, start, self._w(self.rig_op(pframe, "caster", False, None, rp, rig_dur, vd, freeze), when))
         seen = set()
