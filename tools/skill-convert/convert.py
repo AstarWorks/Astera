@@ -922,7 +922,10 @@ def block_damage(c, d, arch, on_hit, on_block):
         c.g(CAST, 0, dict(op, id=c.oid("chip"), at="caster"))
     else:
         reach = float(bd.get("reach", 0.0)) or 4.0
-        c.g(CAST, 0, dict(op, id=c.oid("chip"), at=c.pframe("aim", [0.0, 0.0, reach], "g")))
+        if bd.get("shape", "ball") != "ball":
+            raise SystemExit("block_damage: %s: shape %r has no v2 equivalent (only ball/strikeRay is ported)" % (d.get("id"), bd.get("shape")))
+        # v1 strikeRay: march the look ray from the eye up to `reach`, strike the first cover met.
+        c.g(CAST, 0, dict(op, shape="ray", length=reach, id=c.oid("chip"), at="aim"))
 
 def convert_skill(d, vfx_dir, item):
     c = Conv(d, vfx_dir)

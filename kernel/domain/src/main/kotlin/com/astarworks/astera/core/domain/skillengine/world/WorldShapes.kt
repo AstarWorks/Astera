@@ -44,7 +44,8 @@ public object WorldShapes {
     public fun breakCells(op: WorldOp.BreakArea, aim: WorldAim): List<BlockCell> {
         val out = LinkedHashSet<BlockCell>()
         when (op.shape) {
-            WorldOp.AreaShape.SPHERE -> {
+            // RAY: the executor has already marched to the struck cover, so the aim origin IS the ball centre.
+            WorldOp.AreaShape.SPHERE, WorldOp.AreaShape.RAY -> {
                 val r = op.radius
                 val n = ceil(r).toInt()
                 val base = BlockCell.containing(breakCentre(op, aim))

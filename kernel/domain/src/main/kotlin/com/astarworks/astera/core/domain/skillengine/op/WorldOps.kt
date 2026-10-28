@@ -11,7 +11,7 @@ import com.astarworks.astera.core.domain.skillengine.model.Value
  */
 public sealed interface WorldOp : GameplayOp {
 
-    public enum class AreaShape { SPHERE, LINE, BOX }
+    public enum class AreaShape { SPHERE, LINE, BOX, RAY }
     public enum class BuildShape { WALL, BRIDGE, PILLAR, PLATFORM }
 
     public data class SetBlock(

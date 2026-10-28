@@ -77,12 +77,16 @@ internal class RemoveBlockExecutor(private val editor: SkillWorldEditor) : OpExe
     }
 }
 
+private const val RAY_STEP = 0.25
+
 internal class BreakAreaExecutor(private val editor: SkillWorldEditor) : OpExecutor<WorldOp.BreakArea> {
     override val opClass: KClass<WorldOp.BreakArea> = WorldOp.BreakArea::class
 
     override fun execute(op: WorldOp.BreakArea, ctx: OpContext) {
         if (!op.breaksBlocks) return
-        val aim = ctx.aim(op.at) ?: return
+        val cast0 = ctx.aim(op.at) ?: return
+        // RAY (v1 strikeRay): march the look ray from the origin up to `length`; the first cover cell it meets is the ball centre.
+        val aim = if (op.shape == WorldOp.AreaShape.RAY) rayHit(cast0, op.length) ?: return else cast0
         val centre = WorldShapes.breakCentre(op, aim)
         val ordered = WorldShapes.breakCells(op, aim).sortedBy { it.distanceSquaredTo(centre) }
         val revert = ctx.revertTicks(op.revertAfterTicks)
@@ -94,6 +98,16 @@ internal class BreakAreaExecutor(private val editor: SkillWorldEditor) : OpExecu
                 strike(op, cast, cell, revert)
             }
         }
+    }
+
+    private fun rayHit(aim: WorldAim, reach: Double): WorldAim? {
+        var d = 0.0
+        while (d <= reach) {
+            val p = aim.origin + aim.look * d
+            if (editor.world.isCover(BlockCell.containing(p))) return WorldAim(p, aim.look)
+            d += RAY_STEP
+        }
+        return null
     }
 
     private fun strike(op: WorldOp.BreakArea, cast: CastId, cell: BlockCell, revert: Long) {

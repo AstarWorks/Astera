@@ -53,7 +53,7 @@ class V1GameplayDumpTest {
                     val coverSpec = checkNotNull(sim.services.getOrThrow<ICustomBlockRegistry>().find(BlockType("astera:reinforced_wall")))
                     val blockGateway = sim.services.getOrThrow<IBlockStateGateway>()
                     for (x in -6..6) for (y in 0..8) {
-                        val cell = Vec3(feet.x + x, feet.y + y, feet.z + 8.0)
+                        val cell = Vec3(feet.x + x, feet.y + y, feet.z + (System.getenv("ASTERA_WALL_Z") ?: "8").toDouble())
                         blockGateway.placeCustomBlock(caster.world, cell, coverSpec, caster.id)
                         sim.world.placeBlock(caster.world, cell, BlockType("astera:reinforced_wall"))
                     }
@@ -63,8 +63,11 @@ class V1GameplayDumpTest {
                     fun who(uuid: String) = when (uuid) { caster.id.uuid.toString() -> "caster"; dummy.id.uuid.toString() -> "dummy"; else -> "other" }
                     lines += "{\"e\":\"meta\",\"id\":\"$id\",\"item\":\"$item\"}"
                     if (id.endsWith("-ego")) runCatching { val g = sim.services.getOrThrow<IEgoGauge>(); g.gain(caster.id, g.config.max) }
-                    val poolBefore = sim.pool(caster)?.let { it.ammo to it.energy }
                     sim.step(1)
+                    // The cast switches the active weapon to its source item (the held starter item when the skill has none), which clamps the
+                    // carried pool to that item's cap: not a spend. Settle it first so poolBefore - poolAfter is only what the cast spends.
+                    sim.services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IResourcePoolService>().setActiveWeapon(caster.id, caster.heldItem ?: com.astarworks.astera.core.domain.item.ItemId("sim"))
+                    val poolBefore = sim.pool(caster)?.let { it.ammo to it.energy }
                     val start = sim.scheduler.currentTick()
                     caster.cast(id)
                     val poolAfter = sim.pool(caster)?.let { it.ammo to it.energy }
