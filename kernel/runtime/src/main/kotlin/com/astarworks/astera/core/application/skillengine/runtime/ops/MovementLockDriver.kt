@@ -30,7 +30,9 @@ public class MovementLockDriver(private val movement: ISkillMovementGateway) {
         val expired = HashSet<UUID>()
         for (l in active.toList()) {
             if (!movement.isAlive(l.entity)) {
+                // Death or quit: drop the lock and let the gateway clear whatever it put on the (dying) entity.
                 active -= l
+                if (active.none { it.entity == l.entity }) movement.unlockMovement(l.entity)
                 continue
             }
             val left = l.remaining ?: continue

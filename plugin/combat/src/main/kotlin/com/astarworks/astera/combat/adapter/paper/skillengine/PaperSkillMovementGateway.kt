@@ -26,6 +26,7 @@ public class PaperSkillMovementGateway(
     private val statuses: IStatusEffectContainer,
 ) : ISkillMovementGateway {
     private val granted = HashSet<UUID>()
+    private val locked = HashSet<UUID>()
     private val lockKey: NamespacedKey = NamespacedKey("astera", "skill_move_lock")
 
     private fun living(entity: UUID): LivingEntity? = (server.getEntity(entity) as? LivingEntity)?.takeIf { it.isValid && !it.isDead }
@@ -68,14 +69,23 @@ public class PaperSkillMovementGateway(
     override fun lockMovement(entity: UUID, speedFactor: Double) {
         val e = living(entity) ?: return
         clearLock(e)
+        locked += entity
         val factor = speedFactor.coerceIn(0.0, 1.0)
         e.getAttribute(Attribute.MOVEMENT_SPEED)?.addTransientModifier(modifier(factor - 1.0))
         if (factor <= 0.0) e.getAttribute(Attribute.JUMP_STRENGTH)?.addTransientModifier(modifier(-1.0))
     }
 
+    /**
+     * Looks the entity up without the alive check: a lock must come off a dying or respawning player too (the engine
+     * calls this on cast end, death and quit). An offline player has no entity; transient modifiers die with it.
+     */
     override fun unlockMovement(entity: UUID) {
-        clearLock(living(entity) ?: return)
+        locked -= entity
+        clearLock(server.getEntity(entity) as? LivingEntity ?: return)
     }
+
+    /** Entities currently held by [lockMovement]; for diagnostics and the release-on-quit sweep. */
+    public fun lockedEntities(): Set<UUID> = locked.toSet()
 
     private fun modifier(amount: Double) =
         AttributeModifier(lockKey, amount, AttributeModifier.Operation.MULTIPLY_SCALAR_1)

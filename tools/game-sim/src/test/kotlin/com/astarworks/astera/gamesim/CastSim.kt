@@ -58,7 +58,9 @@ fun simVictim(n: Int): UUID = UUID.fromString("00000000-0000-0000-0000-0000000d%
  * with fake ports: damage is recorded, the entity query returns the given victims, nothing else happens. Shared by the
  * ported-grammar and the cast-smoke scenarios (SKL-09).
  */
-class CasterAnimCall(val tick: Int, val verb: String, val anim: String, val ticks: Int)
+class CasterAnimCall(val tick: Int, val verb: String, val anim: String, val ticks: Int, val speed: Double = 1.0)
+
+class VictimAnimCall(val tick: Int, val victim: UUID, val anim: String, val strength: Double)
 
 class Dealt(val tick: Int, val victim: UUID, val amount: Double, val ignoreInvulnerability: Boolean, val skill: String = "")
 
@@ -130,6 +132,10 @@ class CastSim(
     val removed = ArrayList<Pair<UUID, String>>()
     /** Caster body animation calls in order: tick, verb (play / stop / release), clip, hold ticks. */
     val casterAnims = ArrayList<CasterAnimCall>()
+    /** Victim reactions played through `victim_anim`. */
+    val victimAnims = ArrayList<VictimAnimCall>()
+    /** Flip to false to simulate the caster dying or quitting (the movement gateway then reports it gone). */
+    var casterAlive: Boolean = true
     /** Statuses applied through the gameplay gateway: (tick, victim, status id). */
     val statuses = ArrayList<Triple<Int, UUID, String>>()
     /** Hit-stop calls: (tick, frozen entities, ticks). */
@@ -151,7 +157,7 @@ class CastSim(
         private set
 
     private val movement = object : ISkillMovementGateway by noop() {
-        override fun isAlive(entity: UUID): Boolean = true
+        override fun isAlive(entity: UUID): Boolean = entity != caster || casterAlive
         override fun teleport(entity: UUID, to: Vec3, yawDeg: Double?): Boolean {
             if (entity == caster) casterFeet = to
             return true
@@ -226,11 +232,11 @@ class CastSim(
 
     val kit: SkillEngineKit = SkillEngineKit.build(
         gateways = SkillEngineGateways(
-            ports = SkillRuntimePorts(visualGateway ?: object : ISkillVisualGateway by noop() { override fun sprite(sprite: String) = com.astarworks.astera.core.application.skillengine.runtime.port.SpriteInfo(1, 32) }, particleGateway ?: noop<ISkillParticleGateway>(), sound, gameplay, entities, noop<ISkillVictimAnimGateway>()),
+            ports = SkillRuntimePorts(visualGateway ?: object : ISkillVisualGateway by noop() { override fun sprite(sprite: String) = com.astarworks.astera.core.application.skillengine.runtime.port.SpriteInfo(1, 32) }, particleGateway ?: noop<ISkillParticleGateway>(), sound, gameplay, entities, object : ISkillVictimAnimGateway { override fun play(victim: UUID, anim: String, strength: Double, awayFrom: Vec3) { victimAnims += VictimAnimCall(now, victim, anim, strength) } }),
             movement = movement,
             world = world,
             casterAnim = object : ISkillCasterAnimGateway {
-                override fun play(caster: UUID, anim: String, speed: Double, ticks: Int) { casterAnims += CasterAnimCall(now, "play", anim, ticks) }
+                override fun play(caster: UUID, anim: String, speed: Double, ticks: Int) { casterAnims += CasterAnimCall(now, "play", anim, ticks, speed) }
                 override fun stop(caster: UUID, anim: String) { casterAnims += CasterAnimCall(now, "stop", anim, 0) }
                 override fun release(caster: UUID, anim: String) { casterAnims += CasterAnimCall(now, "release", anim, 0) }
             },
