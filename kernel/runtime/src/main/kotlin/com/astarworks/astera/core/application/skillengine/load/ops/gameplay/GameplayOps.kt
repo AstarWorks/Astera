@@ -128,10 +128,11 @@ internal object GameplayOps {
     }
 
     /** Any vector value as a table cell: a literal is known, `${p}` / `= expr` are read live at play time. */
-    fun liveVec(v: Value<Vec3>): Val<Vec3> = when (v) {
-        is Value.Literal -> Val.Known(v.value)
-        is Value.ParamRef -> Val.Live<Vec3>("\${${v.name}}", null)
-        is Value.Expr -> Val.Live<Vec3>("= ${v.source}", null)
+    fun liveVec(v: Value<Vec3>): Val<Any> = when (v) {
+        // the player reads vector cells as the skillengine math Vector3d (CasterMotion.vec3 does the same), never the domain Vec3
+        is Value.Literal -> Val.Known(com.astarworks.astera.core.domain.skillengine.math.Vector3d(v.value.x, v.value.y, v.value.z))
+        is Value.ParamRef -> Val.Live<Any>("\${${v.name}}", null)
+        is Value.Expr -> Val.Live<Any>("= ${v.source}", null)
     }
 
     /** Whole-number value from a literal (stacks). */

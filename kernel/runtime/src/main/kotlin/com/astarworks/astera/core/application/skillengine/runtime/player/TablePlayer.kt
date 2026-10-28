@@ -469,6 +469,12 @@ public class TablePlayer(
                     val ev = RuntimeEvent(EventPath("cancel"), now, null, null, null)
                     offer(run, ev, EventBinding(ev.path, null, null, null), now, only = innermost)
                 }
+                // ADR-0303 3.6 / 10.6: `end` fires also on cancel, so every body still in flight announces `<body>.end` while its handlers are in scope
+                for ((id, rec) in run.recs.entries.toList().asReversed()) {
+                    if (rec.kind != SpawnKind.PROJECTILE_BODY || rec.ended) continue
+                    rec.ended = true
+                    deliverEvent(run, RuntimeEvent(EventPath(id.text + ".end"), now, id.path.lastOrNull()?.index, null, null), now)
+                }
                 for (lvl in run.cursor.levels.sortedByDescending { it.depth }) {
                     if (lvl !in run.cursor.levels) continue
                     exitLevel(run, lvl, ExitReason.CANCEL, now, binding)
@@ -1167,8 +1173,6 @@ public class TablePlayer(
             stopOnBlock = bool(run, cell("stop_on_block"), ctx),
             invulnerable = bool(run, cell("invulnerable"), ctx),
             faceMovement = bool(run, cell("face_movement"), ctx),
-            radius = dbl(run, cell("radius"), ctx),
-            stopBeforeTarget = p["stop_before_target"]?.let { dbl(run, it, ctx) },
         )
         run.dash.start(row.instance.text, params)?.let { fault(run, now, src, it) }
     }
@@ -1322,6 +1326,7 @@ public class TablePlayer(
         frame.real?.let { visual.write(it, visualPose(frame, worldOf(run, frame, next, null, now)), 0) }
         if (st.arrived) {
             run.reels.remove(id)
+            trace.event(run.cursor.handle, EventPath(id.text + ".end"), now, null)
             emit(run, EventPath(id.text + ".end"), now, null)
         }
     }
@@ -1538,6 +1543,8 @@ public class TablePlayer(
         }
         is Val.Live ->
             if (v.name.startsWith("caster")) listOf(run.request.caster)
+            // ADR-0303 3.8 / op table `damage`: `event.attacker` is the bound attacker, never the victim
+            else if (v.name == "event.attacker") liveTargets(run, TargetRule.Entity("event.attacker"), ctx)
             else live.targets(run.cursor.handle, TargetRule.Entity("event.victim"), ctx.binding).entities.map { it.id }
     }
 
