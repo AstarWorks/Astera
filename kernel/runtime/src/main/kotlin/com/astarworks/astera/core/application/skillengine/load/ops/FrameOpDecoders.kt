@@ -141,7 +141,7 @@ public class FrameOpDecoders : OpDecoder {
     private fun poseKey(raw: Any?, index: Int, reader: OpReader): PoseKey {
         val what = "keys[$index]"
         val m = FrameRawValues.map(raw, reader, what)
-        FrameRawValues.onlyKeys(m, setOf("t", "rotate", "offset", "align", "ease"), reader, what)
+        FrameRawValues.onlyKeys(m, setOf("t", "rotate", "offset", "at", "align", "ease"), reader, what)
         val t = (m["t"] as? Number)?.toInt() ?: reader.fail("$what: missing integer 't'")
         val rotate = m["rotate"]?.let {
             val r = FrameRawValues.map(it, reader, "$what.rotate")
@@ -151,10 +151,12 @@ public class FrameOpDecoders : OpDecoder {
                 deg = FrameRawValues.num(r["deg"] ?: reader.fail("$what.rotate: missing 'deg'"), reader, "$what.rotate.deg"),
             )
         }
+        if (m["offset"] != null && m["at"] != null) reader.fail("$what: use either parent-local 'offset' or world 'at', not both")
         return PoseKey(
             t = t,
             rotate = rotate,
             offset = m["offset"]?.let { FrameRawValues.vec3(it, reader, "$what.offset") },
+            at = m["at"]?.let { FrameRawValues.vec3(it, reader, "$what.at") },
             align = m["align"]?.let { align(it, reader, "$what.align", withTo = true) },
             ease = m["ease"] as? String,
         )

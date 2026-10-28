@@ -8,7 +8,7 @@ import com.astarworks.astera.core.domain.skillengine.model.ValueResolver
 
 /**
  * Few keys in the parent frame, eased between. `rotate` is an absolute orientation of the local frame
- * (axis-angle from identity), `offset` a local position, `align` an orientation toward a named axis.
+ * (axis-angle from identity), `offset` a parent-local position, `at` a world point (converted to parent-local), `align` an orientation toward a named axis.
  * A key that sets nothing keeps the previous value. Finishes at the last key's tick.
  */
 internal class PoseLaw(
@@ -26,6 +26,7 @@ internal class PoseLaw(
 
     private fun sample(ctx: MotionContext, key: PoseKey): Sample {
         val pos = key.offset?.let { resolver.vec3(it) }
+            ?: key.at?.let { MotionMath.worldPointToLocal(ctx, resolver.vec3(it)) }
         val rot = key.rotate?.let { r ->
             MotionAxes.resolve(r.axis, ctx)?.let { axis ->
                 Quaternion.axisAngle(MotionMath.worldDirToLocal(ctx, axis), Math.toRadians(resolver.num(r.deg)))

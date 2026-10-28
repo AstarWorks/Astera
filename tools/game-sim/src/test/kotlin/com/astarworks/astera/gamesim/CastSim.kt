@@ -2,6 +2,9 @@ package com.astarworks.astera.gamesim
 
 import com.astarworks.astera.core.application.skillengine.load.SkillCatalog
 import com.astarworks.astera.core.application.skillengine.runtime.CastId
+import com.astarworks.astera.core.application.skillengine.runtime.CastObserver
+import com.astarworks.astera.core.domain.skillengine.frame.FrameId
+import com.astarworks.astera.core.domain.skillengine.frame.FrameTree
 import com.astarworks.astera.core.application.skillengine.runtime.CastRequest
 import com.astarworks.astera.core.application.skillengine.runtime.SkillEngineContents
 import com.astarworks.astera.core.application.skillengine.runtime.SkillEngineGateways
@@ -38,6 +41,14 @@ import org.junit.jupiter.api.Test
 import java.nio.file.Path
 import java.util.UUID
 
+/** The point `dist` in front of / `side` left of / `up` above [origin] for a caster facing [yawDeg] (Minecraft: yaw 0 faces +Z, left is +X). */
+fun ahead(origin: Vec3, yawDeg: Double, dist: Double, side: Double = 0.0, up: Double = 0.0): Vec3 {
+    val y = Math.toRadians(yawDeg)
+    val fx = -Math.sin(y); val fz = Math.cos(y)
+    val lx = Math.cos(y); val lz = Math.sin(y)
+    return Vec3(origin.x + fx * dist + lx * side, origin.y + up, origin.z + fz * dist + lz * side)
+}
+
 val SIM_CASTER: UUID = UUID.fromString("00000000-0000-0000-0000-00000000c0a1")
 
 fun simVictim(n: Int): UUID = UUID.fromString("00000000-0000-0000-0000-0000000d%04d".format(n))
@@ -59,7 +70,39 @@ class CastSim(
     val halfWidth: Double = 0.8,
     val boxHeight: Double = 1.8,
     private val particleGateway: ISkillParticleGateway? = null,
+    /** Caster feet in world space and yaw (Minecraft degrees: 0 faces +Z). Victims / floor / wall are WORLD coordinates; use [ahead] to place them relative to the caster. */
+    val origin: Vec3 = Vec3.ZERO,
+    val yawDeg: Double = 0.0,
 ) {
+    /** World point `dist` blocks in front of the caster and `side` to its left, at feet level plus `up`. */
+    fun ahead(dist: Double, side: Double = 0.0, up: Double = 0.0): Vec3 = ahead(origin, yawDeg, dist, side, up)
+
+    /** Largest distance from the caster feet of any live frame (except `world`) seen in a tick, with the offender. */
+    var farthest: Pair<String, Double> = "" to 0.0
+        private set
+    /**
+     * A frame hanging directly off `world` at exactly (0,0,0) (the `enemy` frame before a hit, a declared body before
+     * `place`) is not placed yet; it and its children are not a placement.
+     */
+    private fun unplaced(tree: FrameTree, id: FrameId): Boolean {
+        var cur: FrameId? = id
+        while (cur != null) {
+            val node = tree.node(cur) ?: return false
+            if (node.parent?.value == "world" && node.local.origin == Vec3.ZERO) return true
+            cur = node.parent
+        }
+        return false
+    }
+
+    private val farObserver = CastObserver { _, _, tree, nodes, _ ->
+        for (n in nodes) {
+            if (n == "world" || unplaced(tree, FrameId(n))) continue
+            val o = tree.worldOf(FrameId(n)).getOrNull()?.origin ?: continue
+            val d = o.distance(origin)
+            if (d > farthest.second) farthest = "$n@${"%.1f,%.1f,%.1f".format(o.x, o.y, o.z)}" to d
+        }
+    }
+
     private val caster: UUID = SIM_CASTER
     var now = 0
     val dealt = ArrayList<Dealt>()
@@ -94,7 +137,7 @@ class CastSim(
     }
 
     private val entities = object : ISkillEntityQuery {
-        private fun box(feet: Vec3) = HitBox(Vec3(feet.x - halfWidth, 0.0, feet.z - halfWidth), Vec3(feet.x + halfWidth, boxHeight, feet.z + halfWidth))
+        private fun box(feet: Vec3) = HitBox(Vec3(feet.x - halfWidth, feet.y, feet.z - halfWidth), Vec3(feet.x + halfWidth, feet.y + boxHeight, feet.z + halfWidth))
         override fun nearby(point: Vec3, radius: Double, excluding: UUID?): List<HitCandidate> =
             victims.filter { (id, feet) ->
                 // Paper's getNearbyLivingEntities: the cube of half-size radius around the point must overlap the entity box.
@@ -105,7 +148,7 @@ class CastSim(
             }
                 .map { (id, feet) -> HitCandidate(id, feet, 0.0, box(feet)) }
         override fun rootOf(entity: UUID): EntityRoot? =
-            if (entity == caster) EntityRoot(Vec3.ZERO, 0.0, 0.0, 1.62, 1.8) else victims[entity]?.let { EntityRoot(it, 0.0, 0.0, 1.62, 1.8) }
+            if (entity == caster) EntityRoot(origin, yawDeg, 0.0, 1.62, 1.8) else victims[entity]?.let { EntityRoot(it, 0.0, 0.0, 1.62, 1.8) }
         override fun raycastBlock(from: Vec3, to: Vec3): BlockHit? {
             val fy = floorY
             if (fy != null && from.y > fy && to.y <= fy) {
@@ -113,7 +156,7 @@ class CastSim(
                 return BlockHit(from + (to - from) * t, Vec3(0.0, 1.0, 0.0), "minecraft:grass_block")
             }
             val z = blockAtZ ?: return null
-            return if (from.z <= z && to.z >= z) BlockHit(Vec3(0.0, 1.0, z), Vec3(0.0, 0.0, -1.0), "minecraft:stone") else null
+            return if (from.z <= z && to.z >= z) BlockHit(Vec3(origin.x, origin.y + 1.0, z), Vec3(0.0, 0.0, -1.0), "minecraft:stone") else null
         }
     }
 
@@ -146,12 +189,12 @@ class CastSim(
             effects = noop<ISkillWorldEffectGateway>(),
         ),
         newTree = c.newTree, motion = c.motion, contacts = c.contacts, exprs = c.exprs, points = c.points,
-        skills = catalog::get, observer = null,
+        skills = catalog::get, observer = farObserver,
     )
 
     fun cast(id: String, ticks: Int): CastId {
         val skill = requireNotNull(catalog.get(id)) { "skill $id not loaded" }
-        val req = CastRequest(skill, caster, Vec3.ZERO, 0.0, 0.0, seed = 7L, startTick = 0)
+        val req = CastRequest(skill, caster, origin, yawDeg, 0.0, seed = 7L, startTick = 0)
         val cast = when (val r = kit.runner.start(req)) {
             is Result.Success -> r.value
             is Result.Failure -> error("cast did not start: ${r.error}")

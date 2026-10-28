@@ -54,7 +54,10 @@ public data class RotateKey(val axis: AxisRef, val deg: Value<Double>)
 public data class PoseKey(
     val t: Int,
     val rotate: RotateKey? = null,
+    /** Position in the PARENT frame's local space. Never put a `pos()` / world point here: use [at]. */
     val offset: Value<Vec3>? = null,
+    /** A WORLD point (e.g. `= pos(palm) + up(caster) * 0.9`); converted to the parent-local position. Exclusive with [offset]. */
+    val at: Value<Vec3>? = null,
     val align: AlignSpec? = null,
     val ease: String? = null,
 )

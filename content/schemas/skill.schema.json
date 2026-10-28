@@ -1237,6 +1237,9 @@
                 "offset": {
                     "$ref": "#/definitions/Value_vec3"
                 },
+                "at": {
+                    "$ref": "#/definitions/Value_vec3"
+                },
                 "align": {
                     "$ref": "#/definitions/AlignSpec"
                 },

@@ -37,7 +37,7 @@ gameplay:
       do:
         # shears overhead: long axis up, blade faces toward the throw direction
         - {id: raise_pose, op: pose, frame: shears,
-           keys: [{t: 0}, {t: 6, align: {axis: shears.axis, to: world.up, up: caster.forward}, offset: "= pos(palm) + up(caster) * 0.9", ease: ease_out}]}
+           keys: [{t: 0}, {t: 6, align: {axis: shears.axis, to: world.up, up: caster.forward}, at: "= pos(palm) + up(caster) * 0.9", ease: ease_out}]}
     - id: spin_up
       at: 4
       do:
