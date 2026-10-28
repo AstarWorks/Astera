@@ -266,7 +266,18 @@ written in the field table. A value that differed in v1 is written EXPLICITLY by
 | `scale`, `size` growth, `volume`, `pitch` | identity 1 (volume/pitch: vanilla sound defaults) | |
 | `billboard`, `context`, `view_range`, `yaw`, `pitch` | vanilla `fixed`, `fixed` (decision), 1.0, 0, 0 | |
 | `ribbon.style` (`soft | crisp | both`), one of `ribbon.width_frac` (with `root`) / `ribbon.width` (without `root`), `projectile.block.mode` | **required** (v2 hid `soft`) | no neutral value exists |
+| display `line_width`, `text_opacity` (kind text) | **listed defaults** 200, 255 | the vanilla text_display values (line width 200, opacity 255 = opaque); not identities, so the schema prints them as `x-listed-default` |
+| sound `category` | **listed default** `master` | vanilla `SoundCategory.MASTER` |
+| `frame.mode` | **listed default** `follow` (the other value is `snapshot`) | the engine value; follow re-reads the parent at every send |
+| `align.axis`, `stretch.axis`, `align.up` | **listed defaults** `forward`, `forward`, `world.up` | the engine values: the object's forward points at the target, up is kept toward the world up |
+| `orbit.face` | **listed default** `keep` | the engine value: the object does not turn with the orbit |
+| reactive law `step` | **listed default** 2 (ticks between re-sends, minimum 1) | the engine value; a live law is re-sent every 2 ticks |
+| ribbon `step_deg` | **listed default** 30 (degrees between samples, 5..90) | the engine value |
+| rig `sample_ticks` | **listed default** 2 (ticks between key samples, minimum 1) | the engine value |
 | `lasts`, `for`/`until`/`times` bounds, `block.restitution`, `block.times`, `block.for` | **required** where they apply | no neutral value exists |
+
+These listed defaults are the only non-identity defaults in the schema. Each is printed as `x-listed-default`, never as `default`, so a
+reader of the generated schema sees which values the engine supplies. No v1/v2 source is recorded for the engine-valued rows; the vanilla rows cite vanilla.
 
 #### 2.1 `display` (kinds `item`, `block`, `text`, `sprite`)
 
