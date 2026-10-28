@@ -25,7 +25,10 @@ import com.astarworks.astera.core.domain.skillengine.table.Look
 import com.astarworks.astera.core.domain.skillengine.table.OpId
 import com.astarworks.astera.core.domain.skillengine.table.SrcPath
 import com.astarworks.astera.core.domain.skillengine.table.Pose
+import com.astarworks.astera.core.domain.skillengine.table.EventPath
 import com.astarworks.astera.core.domain.skillengine.table.Row
+import com.astarworks.astera.core.domain.skillengine.table.SubTable
+import com.astarworks.astera.core.domain.skillengine.table.TickRange
 import com.astarworks.astera.core.domain.skillengine.table.SpawnKind
 import com.astarworks.astera.core.domain.skillengine.table.Val
 import com.astarworks.astera.core.domain.skillengine.math.Quaterniond
@@ -209,7 +212,11 @@ public object RibbonOpSpec : OpSpec<RibbonOp> {
                 is Result.Failure -> return r
             }
             Span.UntilCastEnds -> return Result.Failure(SkillDecodeError.Invalid(lc.skillId, "$p.for", "ribbon: 'for: cast' is not supported; give a tick count"))
-            null -> return Result.Failure(SkillDecodeError.Invalid(lc.skillId, p, "ribbon needs for (the trail points are enumerated over the window)"))
+            null -> {
+                if (timing.until == null) return Result.Failure(SkillDecodeError.Invalid(lc.skillId, p, "ribbon needs for or until"))
+                if (op.shape is RibbonShape.Trail) return Result.Failure(SkillDecodeError.Invalid(lc.skillId, p, "a trail ribbon needs for (the trail points are enumerated over the window); until alone is for a line"))
+                null
+            }
         }
         // The unroller owns every repetition and id (item 5): this call lowers exactly one instance, `lc.self`.
         val self = lc.self
@@ -258,6 +265,7 @@ public object RibbonOpSpec : OpSpec<RibbonOp> {
             rows += Row(0, self, Action.Spawn(SpawnKind.RIBBON, tipAnchor, tipName, pose, Look(look)), lc.src)
             // ADR-0303 3.4 / 3.7: a width law is one `set` of the width per tick where it changes (as fade is), which the player hands to the trail
             op.motion?.let { laws ->
+                if (life == null) return Result.Failure(SkillDecodeError.Invalid(lc.skillId, "$p.motion", "a width law needs a static for: (the ribbon ends at an event, so its length is not known)"))
                 val field = if (look.containsKey("width_frac")) "width_frac" else "width"
                 val base = ((look[field] as Val.Known<*>).value as Number).toDouble()
                 var prev = base
@@ -268,12 +276,17 @@ public object RibbonOpSpec : OpSpec<RibbonOp> {
                 }
             }
             if (op.shape is RibbonShape.Trail) {
-                for (t in 0 until life) {
+                for (t in 0 until life!!) {
                     rows += Row(t, self, Action.TrailPoint(self, Val.Live("anchor:$tipName", null)), lc.src)
                 }
             }
-            rows += Row(life, self, Action.End(self), lc.src)
+            if (life != null) rows += Row(life, self, Action.End(self), lc.src)
         }
-        return Result.Success(Lowered(rows, instances = listOf(self)))
+        // `until` is a mask (2.0), like a display's: the event's sub-table ends the ribbon the first time it fires.
+        val subTables = timing.until?.let { ev ->
+            val hi = lc.clockOffset + (life ?: lc.config.maxLifeTicks)
+            listOf(SubTable(EventPath(ev), lc.state, TickRange(lc.clockOffset, maxOf(lc.clockOffset, hi)), 1, listOf(Row(0, self, Action.End(self), lc.src)), emptyList()))
+        }.orEmpty()
+        return Result.Success(Lowered(rows, subTables, instances = listOf(self)))
     }
 }

@@ -110,6 +110,14 @@ public class PartExpander(private val parts: Map<String, Part>, private val maxD
         return entry.getValue(m.start) to myFinals
     }
 
+    /** A `parallel` region is a machine of its own: expanded with local ids (MachineTables prefixes them with the parent path); its links join the call's. */
+    private fun region(r: Machine, evPrefix: String, depth: Int, stack: List<String>, out: Out): Machine {
+        val sub = Out()
+        val entry = level(r, "", evPrefix, depth, stack, sub).first
+        out.links += sub.links
+        return Machine(entry, sub.states, emptyList(), r.world)
+    }
+
     /**
      * ADR-0303 section 9 (`frames_out`): a call's frame binding `<sibling call>.<out name>` reads a frame the sibling part publishes. It names the inner
      * frame the sibling declared under `frames_out` (the anchor registry resolves it by its op id, as it does for any frame of the same skill).
@@ -122,14 +130,6 @@ public class PartExpander(private val parts: Map<String, Part>, private val maxD
             val inner = sibling?.framesOut?.get(out)
             if (inner == null) v else inner + v.substring(v.substringBefore('.').length + 1 + out.length)
         })
-    }
-
-    /** A `parallel` region is a machine of its own: expanded with local ids (MachineTables prefixes them with the parent path); its links join the call's. */
-    private fun region(r: Machine, evPrefix: String, depth: Int, stack: List<String>, out: Out): Machine {
-        val sub = Out()
-        val entry = level(r, "", evPrefix, depth, stack, sub).first
-        out.links += sub.links
-        return Machine(entry, sub.states, emptyList(), r.world)
     }
 
     private fun join(prefix: String, name: String): String = if (prefix.isEmpty()) name else "$prefix.$name"

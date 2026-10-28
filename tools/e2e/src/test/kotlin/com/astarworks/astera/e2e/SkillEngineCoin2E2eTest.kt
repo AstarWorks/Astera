@@ -4,9 +4,9 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
 /**
- * SKL-08 (ADR-0301): couture-rapier-s2 coin 2 on the skill engine v2, on a real server.
+ * SKL-08 / ADR-0303: couture-rapier-s2 coin 2 on the skill engine v3, on a real server.
  * The cast goes through `astera skill cast couture-rapier-s2 <bot> --force` (CastSkillUseCase publishes SkillCast,
- * which `SkillEnginePaperRuntime` starts on the v2 runner); the dummy is a NoAI zombie 6 blocks ahead.
+ * which `SkillEnginePaperRuntime` starts on the v3 table player); the dummy is a NoAI zombie 6 blocks ahead.
  *
  * Checks (bot-judgeable rows of the understanding file):
  *  1. the cast reaches the dummy: its health drops by the throw damage (18) and no more than once per piece volley window;

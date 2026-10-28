@@ -209,6 +209,25 @@ public class PaperSkillGameplayGateway(
         if (rig.active(PlayerId(caster)) == CustomAnimationId(anim)) rig.stop(PlayerId(caster))
     }
 
+    /** The item model each caster's weapon had before a `held_model` swap (empty = no `item_model` component). */
+    private val heldOriginal = java.util.concurrent.ConcurrentHashMap<UUID, java.util.Optional<org.bukkit.NamespacedKey>>()
+
+    override fun setHeldModel(cast: CastRef, caster: UUID, model: String) {
+        val key = org.bukkit.NamespacedKey.fromString(model) ?: run { log.warn("skill engine: invalid held model '{}'", model); return }
+        val player = server.getPlayer(caster) ?: return
+        val held = player.inventory.itemInMainHand
+        if (held.type.isAir) return
+        heldOriginal.computeIfAbsent(caster) { java.util.Optional.ofNullable(held.itemMeta?.takeIf { it.hasItemModel() }?.itemModel) }
+        held.editMeta { it.itemModel = key }
+    }
+
+    override fun clearHeldModel(cast: CastRef, caster: UUID) {
+        val original = heldOriginal.remove(caster) ?: return
+        val held = server.getPlayer(caster)?.inventory?.itemInMainHand ?: return
+        if (held.type.isAir) return
+        held.editMeta { it.itemModel = original.orElse(null) }
+    }
+
     override fun ignite(caster: UUID, victim: UUID, durationTicks: Int) {
         entityEffects.setFireTicks(PlayerId(victim), durationTicks.coerceAtLeast(0))
     }

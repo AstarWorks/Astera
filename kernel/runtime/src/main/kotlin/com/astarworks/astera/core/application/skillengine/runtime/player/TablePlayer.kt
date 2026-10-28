@@ -528,6 +528,7 @@ public class TablePlayer(
             run.recs.remove(k)
             run.cursor.instances.remove(k)
             run.bodyClips.remove(k)?.let { gameplay.stopBodyClip(castRef(run), run.request.caster, it) }
+            if (run.heldModels.remove(k)) gameplay.clearHeldModel(castRef(run), run.request.caster)
             rec.real?.let { visual.remove(it) }
         }
     }
@@ -1177,6 +1178,15 @@ public class TablePlayer(
                 run.bodyClips[id] = anim
                 gameplay.playBodyClip(castRef(run), caster, anim, d("speed"))
             }
+            "held_model" -> {
+                val id = row.instance
+                run.recs[id]?.let { endInstance(run, id) }
+                // like `body`: the swap lives as long as its instance (End / state exit / cast end all go through endInstance)
+                run.recs[id] = Rec(SpawnKind.FRAME, null, "", now, ctx.owner, PoseV(Vector3d(), Quaterniond(), Vector3d(1.0, 1.0, 1.0)))
+                run.cursor.instances[id] = GatewayHandle(nextSynthetic--)
+                run.heldModels += id
+                gameplay.setHeldModel(castRef(run), caster, s("model"))
+            }
             "hurt" -> {
                 val at = liveVec(run, s("from").removePrefix("instance:"), ctx)
                 victims.forEach { gameplay.hurt(castRef(run), it, Vec3(at.x, at.y, at.z)) }
@@ -1785,6 +1795,9 @@ public class TablePlayer(
         /** R45: how many machine-root `world` rows have been played; and the body clip each live `body` instance plays. */
         var nextWorld = 0
         val bodyClips = HashMap<InstanceId, String>()
+
+        /** Live `held_model` instances (each holds one swap of the caster's weapon model). */
+        val heldModels = HashSet<InstanceId>()
 
         /** Final regions seen per parallel parent (`<parent>.end` is published when all are final). */
         val regionEnds = HashMap<StatePath, Int>()

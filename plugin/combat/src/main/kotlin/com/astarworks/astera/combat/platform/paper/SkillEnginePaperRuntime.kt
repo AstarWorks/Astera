@@ -134,7 +134,8 @@ internal class SkillEnginePaperRuntime(
             bodyRegistry = { services.get<com.astarworks.astera.core.application.port.outbound.ISkinRigRegistry>() },
             bodyPoses = { services.get<com.astarworks.astera.core.application.port.outbound.animation.IPlayerAnimationGateway>() },
         )
-        val live = PaperLiveValueSource(server, scheduler, gameplay)
+        val entityQuery = PaperSkillEntityQuery(server, teams = { services.get<IMatchTeamLookup>() }, structures = { services.get<IStructureTargets>() })
+        val live = PaperLiveValueSource(server, scheduler, gameplay, entityQuery)
         val movementGateway = PaperSkillMovementGateway(server)
         movement = movementGateway
         val worldGateway3 = PaperSkillWorldGateway(
@@ -150,7 +151,7 @@ internal class SkillEnginePaperRuntime(
             particles = PaperSkillParticleGateway(worldGateway) { id -> particleRegistry?.find(ParticleId(id)) },
             sounds = PaperSkillSoundGateway(server),
             gameplay = gameplay,
-            query = PaperSkillEntityQuery(server, teams = { services.get<IMatchTeamLookup>() }, structures = { services.get<IStructureTargets>() }),
+            query = entityQuery,
             live = live,
             movement = movementGateway,
             items = PaperSkillItemGateway(server, { wired.skillGate }, { services.get<ICooldownTracker>() }, { services.get<IResourcePoolService>() }),

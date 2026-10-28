@@ -92,6 +92,14 @@ public object MachineTables {
 
         val flat = Flat(LinkedHashMap(), LinkedHashMap())
         flatten(machine, "", flat)?.let { return bad("machine.states", it) }
+        // ADR-0303 10.2: a caller transition on a call is handled by the call's descendants
+        machine.links.forEach { link ->
+            val prefix = link.callPath.replace('.', '/') + "/"
+            // the call's exit states (folded continuation: an immediate transition) have left the call; only running states react
+            val hit = flat.states.filter { (id, st) -> id.startsWith(prefix) && st.on.none { it.event == null && it.afterTicks == 0 } }.keys.toList()
+            if (hit.isEmpty()) return bad("machine.links", "caller transition on '${link.event}' names call '${link.callPath}' which has no running states")
+            hit.forEach { id -> flat.states[id] = flat.states.getValue(id).let { it.copy(on = it.on + link.transition) } }
+        }
         val all = flat.states
 
         val states = ArrayList<StateTable>()

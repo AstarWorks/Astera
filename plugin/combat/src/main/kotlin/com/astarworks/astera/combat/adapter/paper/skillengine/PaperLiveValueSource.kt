@@ -28,6 +28,9 @@ import org.bukkit.Server
 import org.bukkit.entity.LivingEntity
 import com.astarworks.astera.core.domain.skillengine.math.Quaterniond
 import com.astarworks.astera.core.domain.skillengine.math.Vector3d
+import com.astarworks.astera.core.application.skillengine.runtime.player.EntityQueryExprHost
+import com.astarworks.astera.core.application.skillengine.runtime.port.CastRef
+import com.astarworks.astera.core.application.skillengine.runtime.port.ISkillEntityQuery
 import java.util.concurrent.ConcurrentHashMap
 
 /**
@@ -42,6 +45,7 @@ public class PaperLiveValueSource(
     private val server: Server,
     private val scheduler: IScheduler,
     private val gameplay: ISkillGameplayGateway,
+    private val query: ISkillEntityQuery,
 ) : LiveValueSource {
     private val requests = ConcurrentHashMap<CastHandle, CastRequest>()
     private val compiler = CelExprCompiler()
@@ -61,6 +65,9 @@ public class PaperLiveValueSource(
     }
 
     public fun envSpec(): ExprEnvSpec = spec
+
+    /** The CEL host of [cast] at the event [binding]: `stacks`, `nearest_enemy_dist`, `enemy_in_cone` (guards and live cells share it). */
+    public fun exprHost(cast: CastHandle, binding: EventBinding?): ExprHost = StackHost(request(cast), cast, binding)
 
     /** The CEL variables of [cast] at the event [binding] (`contact.*`, `target.*`, `cast.t`, `state.t`). */
     public fun variables(cast: CastHandle, binding: EventBinding?, castTick: Int, stateTick: Int): Map<String, ExprValue> =
@@ -281,7 +288,7 @@ public class PaperLiveValueSource(
             frames = withInstances(frames(cast), scope.frames),
             seed = scope.seed,
             castSeed = scope.castSeed,
-            host = StackHost(request, binding),
+            host = StackHost(request, cast, binding),
         )
         return expr.eval(env)
     }
@@ -298,7 +305,13 @@ public class PaperLiveValueSource(
     }
 
     /** `stacks(entity, status)` reads the gateway; the other host reads are not served on Paper yet and fail loudly. */
-    private inner class StackHost(private val request: CastRequest, private val binding: EventBinding?) : ExprHost {
+    private inner class StackHost(private val request: CastRequest, cast: CastHandle, private val binding: EventBinding?) : ExprHost {
+        private val world = EntityQueryExprHost(query, CastRef(cast.value, request.caster, request.world))
+
+        override fun nearestEnemyDist(from: Vec3): Double = world.nearestEnemyDist(from)
+
+        override fun enemyInCone(from: Vec3, dir: Vec3, range: Double, halfAngleDeg: Double): Boolean = world.enemyInCone(from, dir, range, halfAngleDeg)
+
         override fun stacks(entity: ExprValue.Ref, status: String): Double {
             val id = when (entity.name) {
                 CASTER -> request.caster

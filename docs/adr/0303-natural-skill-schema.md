@@ -43,8 +43,18 @@ rig `of` and `reset` (10.5); dump `world` rows and event names (11.3); Patch doc
 and `#aarrggbb` colour (2.1), world op defaults (10.1c), dash `direction` required, `rand()` in a `when` guard, hit occurrence windows, check 10
 counted over `[spawn, end)`, a `lock` row owning its instance, param defaults and item-part axes for frame motion, state-qualified
 instance ids, ribbon opacity as the colour alpha. Each sentence names the commit that implemented it. No field is added or removed.
+**rev4.5 (2026-10-29, SKL-22 gaps, wording only)**: the `seq:` desugar applies to part and machine op lists alike (11.1); a display `size` may be a T-class expression, fitted to `Key` segments (2.1, 3.5); a ribbon takes `{law: grow, prop: width}` and lowers it per tick because a trail has no client interpolation (3.4, 3.7). No field is added or removed.
 Founder questions Q1-Q7 are OPEN: every spot that depends on one carries a "pending founder Qn" note with both options and chooses neither (list under
 "Open decisions"). Examples c, e, g updated; `rejected/r12`-`r14` added. Status stays Proposed (edited in place by the manager's authorisation).
+- **rev4.5 (2026-10-29, SKL-22, founder 10/28 asks)**: the look lock is confirmed as the `pitch` / `yaw` fields of `lock` (10.6, no new field; the player already
+  reaches `lockLook` / `unlockLook`); 3.8 names the "any enemy within r" condition (`nearest_enemy_dist(caster) < r`, no new primitive) and the Paper host now serves
+  `nearest_enemy_dist` / `enemy_in_cone` in guards and live cells; 3.5.1 records the CEL library policy.
+**rev4.6 (2026-10-29, SKL-22 couture-rapier-s2 load; NEW OP for the founder)**: (1) a state may name an instance an EARLIER state spawned with the
+state-qualified spelling `/<state>/<id>` (`/throw/volley`, `/throw/fly_a.root`; 10.1 `/x` is absolute from the machine root, ids are state-qualified,
+11.3). The state must be written before the referencing one, must declare the instance, and the instance must not have ended by then (a static
+`End` before the spawning state's guaranteed length is a load error). A bare name never looks into another state. (2) `ribbon` takes `until:` as
+well as `for:` like every extended op (5): a line ribbon ends at the event's sub-table; a trail ribbon still needs `for:`. (3) new op `held_model`
+(10.1b): v1 `weapon_model` keys (`couture-s2-rig.yaml`, hidden at t20, back at t57) could not be said by `rig` (section "Skin rig").
 
 **Partially supersedes [[adr/0301-skill-engine-v2-frame-tree]]** (0301's body is not edited). Map:
 
@@ -503,6 +513,24 @@ Examples: `deg_per_tick: "= 10 + t * 2"`; `offset: {left: "= sin(i * 0.5) * 0.3"
 write per object per tick, never split). `expand` prints each object's segment table and the number of writes per tick; the lint warns above 1.
 Fields of class S never cost anything.
 
+#### 3.5.1 CEL library policy (founder 10/28: "details in CEL; libraries allowed, with judgement on which kinds")
+
+Skill details are written in CEL; a function (or a CEL extension library) may join the engine's function set only if it meets all of these:
+
+| rule | meaning |
+|---|---|
+| Deterministic | the same inputs and the same seeds give the same result on every host and replay. Randomness only through the seeded `rand` / `roll` / `draw` family; no wall clock, no `random()`, no iteration order of unordered collections. |
+| Side-effect free | a function reads its arguments and, for a world function, the cast's world through `ExprHost`; it never writes the world, an entity, a status, a cooldown or any state, and never does I/O. A change to the world is an op, not an expression. |
+| Keeps the precomputed table | a function of constants only is class S and folds at load (3.5); a function that reads `t` / `lt` / `cast.t` / `state.t` is class T; a function that reads live state (a frame function, a world function, `stacks`) is class L and is listed in the classifier (`ExprClassifier`). A new function is added to the classifier in the same change, so an unclassified call is never silently S; an unknown function stays a `BadExpr` load error. Timing fields (`at`, `for`, `every`, `times`, `until`, `lasts`, `then`) accept class S only (C5), so no library function can make the table depend on runtime state. |
+| Typed and total | the CEL type-check at load accepts the call (argument and result types declared); at run time it either returns a value of its declared type or raises `ExprEvalException`, which a guard turns into a fault plus `false`, never a silent default. A world function that cannot answer fails loudly or returns a documented neutral value (e.g. "no enemy" is a very large distance). |
+| Bounded | O(arguments) or a world query with a documented reach (`nearest_enemy_dist`: 64 blocks); no unbounded loops, no allocation proportional to world size. |
+| Vanilla-neutral names | functions use plain English names with units in degrees and blocks; a library function that merely renames an existing one is not added. |
+
+Allowed kinds: maths (trig, clamp, mix, smoothstep, vector algebra), easing, string and list helpers that are pure, seeded random streams, read-only frame
+and world queries. Not allowed: anything that mutates, any I/O or clock access, reflection, user-defined recursion, and any library that is not
+deterministic across JVMs. A third-party CEL extension library is adopted function by function against this table, not wholesale; the first
+function that fails a row blocks the library. A new function also updates `docs/contributing/add-a-skill-yaml.md`.
+
 #### 3.6 Gameplay uses the same grammar: projectile block mode
 
 `projectile` takes the timing block (`for` replaces `max_ticks`), spawns a gameplay FRAME (its body, 1.1) and carries its handlers inline. Every
@@ -599,6 +627,8 @@ interpolates LINEARLY within `interpolation_duration`, so the curve is reproduce
 
 `expand` (11) prints, for each eased law, `m`, `h`, the max error and the writes, and the lint warns above one write per tick as it does for any T expression.
 
+Properties that no client interpolates (ribbon `width`, which the adapter applies to each trail point it pushes) are not fitted to `m + 1` segments: they lower per tick, one `set` per tick where the value changes, as `fade` does in 3.4.
+
 #### 3.7.1 Speed and spacing take the same `ease`
 
 - **Speed**: `move {speed, for, ease}` follows the total rule (`displacement = velocity * for * E(u)`), so `ease: out_cubic` is a dash that decelerates and `in_quad` is
@@ -629,6 +659,18 @@ conditions:
 | Scope | a skill's conditions are visible in its machine and in the parts it calls only through `with:` (a part sees nothing of its caller, 9); a part declares its own. An unknown `cond:` name is a load error. |
 | Class | a condition's class (S/T/L, 3.5) is derived from its body; a condition on a **timing** field is illegal like any expression (C5); on a transition guard it is evaluated at the event tick (C4b). |
 | Expansion | the table prints each guard by name and, for S-class, its value under the sample inputs. |
+
+**Enemy within r (founder 10/28, "distance_less_than any enemy").** No new primitive: the condition is the CEL world function
+`nearest_enemy_dist(ref)` (3.5; feet to feet, a very large value when no enemy is within 64 blocks) compared with the radius, declared once and used by name:
+
+```yaml
+conditions:
+  enemy_near: "= nearest_enemy_dist(caster) < ${range}"
+```
+
+An enemy is a hittable entity that is neither the caster nor on its team; "any enemy within r" is therefore `nearest_enemy_dist(caster) < r`. The class is L
+(a world read), so the condition is evaluated at the row or event tick, never folded. `enemy_in_cone(ref, range, half_angle_deg)` is the same test limited to a
+horizontal fan. Both are served by the game-sim recorder and by the Paper host through the cast's entity query. `max_count` is unchanged (pending Q1).
 
 ### 4. Sending to the client (RC1)
 
@@ -899,6 +941,7 @@ All take the timing block (2.0); their own fields keep the 0301 meaning. `YAML` 
 | `camera_shake` | `target`, `intensity`, `for`, `direction: from_hit \| none` |
 | `stop_sound` | `target`, `sound` (stops a sound started by `sound` with a long `for`) |
 | `body` | `anim`, `speed`, `for \| until`: plays a caster body clip (replaces `caster_anim`; port `playBodyClip` / `stopBodyClip`, 14.2) |
+| `held_model` | `model` (item model id, required), `for \| until` (required): the weapon the caster holds shows `model` for the window and its own model afterwards; two windows on one cast nest in written order. Port `setHeldModel` / `clearHeldModel` (14.2, `ISkillGameplayGateway`); Paper sets the `item_model` component of the main-hand stack and restores the remembered one. Row: `held_model model=<id>`; ended by the instance `End` like `body` (rev4.6) |
 | `emit` | `name` (an event for transitions) |
 | removed | `counter` (and the `counter` world function), `caster_anim` (now `body`), `place` (now `place_shape`, 10.1c) |
 | `screen_flash`, `screen_veil` | **Pending founder Q7**: (A) revive both as presentation ops (full-screen tint / vignette on the target); (B) drop them (use a `sprite` display with `billboard: center` and a short `fade`). Not chosen; neither is in the op list until decided. |

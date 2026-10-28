@@ -231,6 +231,12 @@ public interface ISkillGameplayGateway {
     /** Ends the [anim] clip on [caster] (the `body` window closed). A clip that is not playing is a no-op. */
     public fun stopBodyClip(cast: CastRef, caster: UUID, anim: String)
 
+    /** `held_model` (ADR-0303 rev4.6): shows the item model [model] on the weapon [caster] holds. The item's own model is remembered on the first call. */
+    public fun setHeldModel(cast: CastRef, caster: UUID, model: String)
+
+    /** Ends a `held_model` window: the weapon [caster] holds shows its own model again. No swap active is a no-op. */
+    public fun clearHeldModel(cast: CastRef, caster: UUID)
+
     /** Plays [target]'s hurt animation as if struck from [from] (R44): no damage, no push, no strength. */
     public fun hurt(cast: CastRef, target: UUID, from: Vec3)
 }
