@@ -119,6 +119,7 @@ class MovementOpsScenarioTest {
             override fun spawnPlate(castOwner: UUID, sprite: String, alpha: Double, pose: VisualPose, brightness: Int?) = VisualHandle(0)
             override fun spawnBlock(castOwner: UUID, block: String, pose: VisualPose, brightness: Int?) = VisualHandle(0)
             override fun spawnQuad(castOwner: UUID, colorHex: String, alpha: Double, text: String?, shadow: Boolean, seeThrough: Boolean, pose: VisualPose, brightness: Int?) = VisualHandle(0)
+            override fun spawnSkinBone(castOwner: UUID, bone: com.astarworks.astera.core.domain.animation.skinrig.SkinRigBone, slim: Boolean, ghost: Boolean, pose: VisualPose) = VisualHandle(0)
             override fun spawnLine(castOwner: UUID, colorHex: String, pose: VisualPose) = VisualHandle(0)
             override fun spawnTrail(castOwner: UUID, ticks: Int, widthFrac: Double, colorHex: String, alpha: Double) = VisualHandle(0)
             override fun write(handle: VisualHandle, pose: VisualPose, interpolationTicks: Int) = Unit

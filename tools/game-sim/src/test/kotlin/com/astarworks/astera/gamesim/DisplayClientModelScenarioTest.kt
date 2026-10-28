@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test
  * Paper gateway sends ([RecordingVisuals] client model).
  *  (a) a display gets at most ONE write per tick (split position / rotation / scale writes desynchronise);
  *  (b) rotation and scale interpolate over the same length as the position (a lagging rotation swings the model off its hand);
- *  (c) a hand-anchored display stays within [HAND_TOLERANCE] blocks of the hand while the caster dashes (bastion-greatsword-s1);
+ *  (c) a hand-anchored display stays rides the caster (no teleport lag, bounded reach) while the caster dashes (bastion-greatsword-s1);
  *  (d) viewer-facing plates are a vanilla billboard, never a server-side aim.
  */
 class DisplayClientModelScenarioTest {
@@ -32,7 +32,7 @@ class DisplayClientModelScenarioTest {
         assertThat(rec.calls).isNotEmpty
         val perTick = rec.calls.filter { !it.spawn }.groupBy { it.handle to it.tick }.filterValues { it.size > 1 }
         assertThat(perTick.keys).describedAs("split writes (handle, tick)").isEmpty()
-        val laggy = rec.calls.filter { it.write.interpolationDuration != it.write.teleportDuration || it.write.interpolationDelay != 0 }
+        val laggy = rec.calls.filter { it.write.anchor == null && it.write.interpolationDuration != it.write.teleportDuration || it.write.interpolationDelay != 0 }
         assertThat(laggy.map { "h${it.handle} t${it.tick}" }).describedAs("rotation/scale interpolation differs from position").isEmpty()
     }
 
@@ -42,17 +42,29 @@ class DisplayClientModelScenarioTest {
         val anchored = rec.calls.filter { it.write.anchor != null }.map { it.handle }.toSet()
         assertThat(anchored).describedAs("the hand sword is anchored to the caster").isNotEmpty
         assertThat(feet.map { it.second }.distinct().size).describedAs("the caster actually dashed").isGreaterThan(3)
-        var worst = 0.0
-        for (h in anchored) {
-            var prevRel: Vec3? = null
-            for ((t, f) in feet) {
-                val rel = (rec.shownAt(h, t, f) ?: continue) - f
-                // Hand-relative motion per tick is the authored rig only; a display left behind by the dash slides ~1.8 blocks/tick.
-                prevRel?.let { worst = maxOf(worst, rel.distance(it)); }
-                prevRel = rel
-            }
+        // A rider never teleports: v1 PaperDisplayEntityGateway.spawnAttached (addPassenger, :83) and teleport() (:293-299) fold the
+        // offset into the transform and never set teleportDuration for an attachment (:303 is the non-attached branch).
+        val lagging = rec.calls.filter { it.write.anchor != null && it.write.teleportDuration != 0 }
+        assertThat(lagging.map { "h${it.handle} t${it.tick}" }).describedAs("anchored writes that would lag behind the dashing caster").isEmpty()
+        // The offset a write carries is measured from the caster's feet AT THE WRITE'S OWN TICK (a stale anchor sends the display one
+        // dash step behind), and what the client shows at every tick is exactly caster feet now + that authored offset.
+        val feetByTick = feet.toMap()
+        val stale = ArrayList<String>()
+        for (c in rec.calls) {
+            val anchor = c.write.anchor ?: continue
+            val now = feetByTick[c.tick - 1] /* call at sim tick T sees feet after step T = list index T-1 */ ?: continue
+            if (anchor.feet.distance(now) > EXACT) stale += "h${c.handle} t${c.tick} anchor ${anchor.feet.distance(now)} behind"
         }
-        assertThat(worst).describedAs("max per-tick slide of the anchored display relative to the hand").isLessThan(HAND_TOLERANCE)
+        assertThat(stale).describedAs("anchored writes measured from a stale caster position").isEmpty()
+        val drift = ArrayList<String>()
+        for (h in anchored) for ((t, f) in feet) {
+            val write = rec.calls.lastOrNull { it.handle == h && it.tick <= t } ?: continue
+            val anchor = write.write.anchor ?: continue
+            val authored = write.write.at - anchor.feet
+            val shown = (rec.shownAt(h, t, f) ?: continue) - f
+            if (shown.distance(authored) > EXACT) drift += "h$h t$t off the hand by ${shown.distance(authored)}"
+        }
+        assertThat(drift).describedAs("anchored display position relative to its caster differs from the authored offset").isEmpty()
     }
 
     @Test
@@ -73,6 +85,6 @@ class DisplayClientModelScenarioTest {
     }
 
     private companion object {
-        const val HAND_TOLERANCE = 0.3
+        const val EXACT = 1e-6
     }
 }

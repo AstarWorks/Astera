@@ -1,6 +1,5 @@
 # Converted from content/skills/couture-rapier-s1.yaml + content/vfx/* by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
 # Generated point-frame offsets are [left, up, forward] in the parent frame.
-# CONVERT-PRESENT play_animation ticks (anim ops have no duration) (x1): ticks=35
 # CONVERT-PRESENT vfx follow=false (anchored at world, no place-at-spawn) (x1): couture-passage-windup
 # CONVERT-PRESENT vfx frame orient (frames carry no orientation / scale) (x3): orient="yaw"
 # CONVERT-PRESENT presentation inside a nested gameplay list (dash on_hit has no event hook) (x2): play_vfx | play_sound
@@ -16,7 +15,7 @@ presentation:
     - id: fx2
       at: 2
       do:
-        - {id: anim, op: caster_anim, anim: crouch}
+        - {id: anim, op: caster_anim, anim: crouch, ticks: 35}
         - {op: quad, parent: fx1_couture_passage_windup, face: {viewer: center}, size: [1.0, 1.0], color: "#8573B0", alpha: 0.38, text: "◆", brightness: 15, id: fx1_couture_passage_windup_fold_0}
         - id: fx1_couture_passage_windup_fold_0_trk
           op: track
