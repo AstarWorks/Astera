@@ -98,8 +98,9 @@ public object MotionLaws {
     private val keyPoseF = Field.optional("pose", Types.nullable(Rotations.type), null, "absolute orientation [{axis, deg}, ...] (literal angles)")
     private val keyScaleF = Field.optional("scale", Types.nullable(ScaleType(strict = true)), null, "absolute scale")
     private val keyAlphaF = Field.optional("alpha", Types.nullable(Types.number), null, "absolute opacity 0..1")
+    private val keyColorF = Field.optional("color", Types.nullable(Types.text), null, "absolute colour #rrggbb of a text / sprite display (lerped per channel)")
     private val keyEaseF = Field.optional("ease", Types.nullable(Types.id), null, "easing of the segment ENDING at this key (step allowed)")
-    private val keyFields = Fields.of("motion-key", tF, keyOffsetF, keyPoseF, keyScaleF, keyAlphaF, keyEaseF)
+    private val keyFields = Fields.of("motion-key", tF, keyOffsetF, keyPoseF, keyScaleF, keyAlphaF, keyColorF, keyEaseF)
     private val keysF = Field.required("keys", Types.list(Types.nested(keyFields)), "irregular choreography only")
 
     // orbit (ADR-0303 section 3; center is a literal frame-local pivot, see LawSegmenter)
@@ -316,7 +317,7 @@ public object MotionLaws {
             velocity = velocity.normalize() * speed
         }
         val start = n.frameVec(v[moveStartF], "$path.start")
-        return { s -> MoveRate(s, forTicks, start, velocity, 0.0, ease) }
+        return { s -> MoveRate(s, forTicks, start, velocity, ease) }
     }
 
     private fun grow(v: FieldValues, ease: String?, forTicks: Int, ctx: GrammarContext, n: LawNumbers, path: String): (Int) -> RateLaw {
@@ -394,12 +395,22 @@ public object MotionLaws {
             }
             val scale = k[keyScaleF]?.toValue()
             val alpha = k[keyAlphaF]
+            val colorText = k[keyColorF]?.let { c ->
+                val lit = (c as? Value.Literal)?.value ?: ctx.fail("$p.color", "a key colour is lowered at load, so it must be a literal #rrggbb")
+                val h = lit.removePrefix("#")
+                if (!lit.startsWith("#") || h.length != 6 || h.toIntOrNull(16) == null) ctx.fail("$p.color", "'$lit' is not #rrggbb")
+                lit.lowercase()
+            }
+            val color = colorText?.let { c ->
+                val v = c.removePrefix("#").toInt(16)
+                Vec3(((v shr 16) and 0xff).toDouble(), ((v shr 8) and 0xff).toDouble(), (v and 0xff).toDouble())
+            }
             val ease = LawEase.forKey(k[keyEaseF], ctx, "$p.ease", allowStep = true)
             val channels = listOfNotNull(
-                "offset".takeIf { offset != null }, "turn".takeIf { turn != null }, "scale".takeIf { scale != null }, "alpha".takeIf { alpha != null },
+                "offset".takeIf { offset != null }, "turn".takeIf { turn != null }, "scale".takeIf { scale != null }, "alpha".takeIf { alpha != null }, "color".takeIf { color != null },
             )
-            if (channels.isEmpty()) ctx.fail(p, "a key sets at least one of offset, pose, scale, alpha")
-            keys += TrackKey(tick, offset, turn, scale, ease, alpha)
+            if (channels.isEmpty()) ctx.fail(p, "a key sets at least one of offset, pose, scale, alpha, color")
+            keys += TrackKey(tick, offset, turn, scale, ease, alpha, colorText)
             lawKeys += LawKey(
                 tick,
                 k[keyOffsetF]?.let { n.frameVec(it, "$p.offset") },
@@ -407,6 +418,7 @@ public object MotionLaws {
                 k[keyScaleF]?.let { n.scale(it, "$p.scale") },
                 alpha?.let { n.num(it, "$p.alpha") },
                 ease,
+                color,
             )
             channels.forEach { pieces += Piece(p, it, tick, tick, order, null) }
         }
@@ -542,8 +554,8 @@ public sealed interface MotionLaw {
 /** `spin` / `move` / `grow` / `fade`: the domain rate law, one copy. */
 public data class RateMotion(val rate: RateLaw, override val order: Int, override val path: String) : MotionLaw
 
-/** One key of a `keys` law; a null channel is not keyed. [pose] is a rotation vector (axis * degrees). */
-public data class LawKey(val tick: Int, val offset: Vec3?, val pose: Vec3?, val scale: Vec3?, val alpha: Double?, val ease: String?)
+/** One key of a `keys` law; a null channel is not keyed. [pose] is a rotation vector (axis * degrees); [color] is rgb 0..255. */
+public data class LawKey(val tick: Int, val offset: Vec3?, val pose: Vec3?, val scale: Vec3?, val alpha: Double?, val ease: String?, val color: Vec3? = null)
 
 public data class KeysMotion(val keys: List<LawKey>, override val order: Int, override val path: String) : MotionLaw
 

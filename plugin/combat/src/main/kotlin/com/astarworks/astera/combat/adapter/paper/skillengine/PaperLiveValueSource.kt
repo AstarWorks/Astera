@@ -75,6 +75,7 @@ public class PaperLiveValueSource(
                 return when (point) {
                     null, "feet" -> Frame.fromYawPitch(p.feet, p.yaw, p.pitch)
                     "eye" -> Frame.fromYawPitch(p.eye, p.yaw, p.pitch)
+                    "look" -> Frame.fromYawPitch(p.feet, p.yaw, p.pitch)
                     else -> null
                 }
             }
@@ -147,10 +148,10 @@ public class PaperLiveValueSource(
         if (name != CASTER && !name.startsWith("$CASTER.")) return null
         val p = casterPose(request)
         val v = when (name.removePrefix(CASTER).removePrefix(".")) {
-            "", "feet", "pos", "position" -> p.feet
+            "", "feet", "pos", "position", "look" -> p.feet
             "eye" -> p.eye
             "forward" -> Frame.fromYawPitch(p.feet, p.yaw, p.pitch).forward()
-            else -> throw IllegalArgumentException("caster field '$name' is not one of feet, eye, forward")
+            else -> throw IllegalArgumentException("caster field '$name' is not one of feet, eye, look, forward")
         }
         return Vector3d(v.x, v.y, v.z)
     }

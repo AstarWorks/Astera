@@ -74,6 +74,9 @@ public object LawSegmenter {
     private const val EPS = 1e-9
     private const val DEFAULT_FADE_FIELD = "text_opacity"
 
+    /** A keys `color` channel is one `Set color=#rrggbb` row per changed tick (text and sprite displays), like the fade. */
+    private const val COLOR_FIELD = "color"
+
     public fun segments(instance: InstanceId, laws: List<MotionLaw>, lc: LowerContext, fadeField: String = DEFAULT_FADE_FIELD): Result<Lowered, SkillDecodeError> =
         lower(instance, laws, lc.config, lc.src, lc.clockOffset, fadeField)
 
@@ -97,6 +100,7 @@ public object LawSegmenter {
             )
         }
         for ((tick, alpha) in m.fadeSteps()) rows += Row(base + tick, instance, Action.Set(fadeField, Val.Known(alpha)), src)
+        for ((tick, rgb) in m.colorSteps()) rows += Row(base + tick, instance, Action.Set(COLOR_FIELD, Val.Known(rgb)), src)
         rows.sortBy { it.tick }
         checkOneWritePerTick(rows, src)?.let { return Result.Failure(it) }
         val perTick = rows.groupingBy { it.tick }.eachCount()
@@ -299,6 +303,23 @@ public object LawSegmenter {
             for (t in ticks.first()..ticks.last()) {
                 val v = eval(t.toDouble(), left = false).alpha
                 if (abs(v - prev) > EPS) { out += t to v; prev = v }
+            }
+            return out
+        }
+
+        /** The ticks (relative to the instance start) where a keys `color` channel changes, with the new `#rrggbb`: one `Set` row each. */
+        fun colorSteps(): List<Pair<Int, String>> {
+            val keyed = ordered.filterIsInstance<KeysMotion>().filter { l -> l.keys.any { it.color != null } }
+            if (keyed.isEmpty()) return emptyList()
+            val ticks = java.util.TreeSet<Int>()
+            keyed.forEach { l -> l.keys.filter { it.color != null }.forEach { ticks += it.tick } }
+            val out = ArrayList<Pair<Int, String>>()
+            var prev: String? = null
+            for (t in ticks.first()..ticks.last()) {
+                var rgb: Vec3? = null
+                for (l in keyed) keyChannel(l.keys, t.toDouble(), false, { it.color }, { a, b, f -> a + (b - a) * f })?.let { rgb = it }
+                val hex = rgb?.let { c -> "#%02x%02x%02x".format(c.x.roundToInt().coerceIn(0, 255), c.y.roundToInt().coerceIn(0, 255), c.z.roundToInt().coerceIn(0, 255)) }
+                if (hex != null && hex != prev) { out += t to hex; prev = hex }
             }
             return out
         }

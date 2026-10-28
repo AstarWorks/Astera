@@ -48,6 +48,8 @@ public class RigOp(
     override val whenExpr: WhenRef?,
     override val timing: Timing?,
     public val parent: String,
+    /** R27: the declared frame whose axes the swing drives (block displays anchored to it follow); null = the held item. */
+    public val of: String?,
     public val anim: String?,
     public val hand: Boolean,
     public val pivot: FrameVec,
@@ -67,6 +69,7 @@ public class RigOp(
 
 public object RigOpSpec : OpSpec<RigOp> {
     private val parent = Field.required("parent", Types.id, "frame the rig hangs on")
+    private val of = Field.optional("of", Types.nullable(Types.id), null, "frame id whose axes the swing drives; absent = the held item (R27)")
     private val anim = Field.optional("anim", Types.nullable(Types.id), null, "rig animation name")
     private val hand = Field.optional("hand", Types.bool, Value.Literal(true), "true = held in the hand")
     private val pivot = Field.optional("pivot", FrameVecs.type, FrameVec.Parts(Value.Literal(0.0), Value.Literal(0.0), Value.Literal(0.0)), "pivot offset in the parent frame")
@@ -91,7 +94,7 @@ public object RigOpSpec : OpSpec<RigOp> {
     override val section: OpSection = OpSection.GAMEPLAY
     override val timing: TimingKind? = TimingKind.EXTENDED
     override val fields: Fields = Fields.of(
-        "rig", parent, anim, hand, pivot, tilt, rest, swing, bladePart, sampleTicks,
+        "rig", parent, of, anim, hand, pivot, tilt, rest, swing, bladePart, sampleTicks,
         respectHitStop, bodyRespectHitStop, freezes, tip, root, edge,
     )
 
@@ -129,7 +132,7 @@ public object RigOpSpec : OpSpec<RigOp> {
                 RigFreezeSpec(a, t)
             }
             RigOp(
-                id, src, whenExpr, timing, values[parent], values[anim], flag(hand), values[pivot],
+                id, src, whenExpr, timing, values[parent], values[of], values[anim], flag(hand), values[pivot],
                 rotationVector(values[tilt], ctx, "$path.tilt"), rotationVector(values[rest], ctx, "$path.rest"),
                 steps, values[bladePart], sample, duration,
                 flag(respectHitStop), flag(bodyRespectHitStop), frz, values[tip], values[root], values[edge],
@@ -146,6 +149,9 @@ public object RigOpSpec : OpSpec<RigOp> {
         }
         val parentInstance = lc.anchors.resolve(op.parent)?.instance
             ?: return Result.Failure(SkillDecodeError.UndefinedReference(lc.skillId, path, op.parent))
+        val driven = op.of?.let { name ->
+            lc.anchors.resolve(name)?.instance ?: return Result.Failure(SkillDecodeError.UndefinedReference(lc.skillId, path, name))
+        }
         val inst = CasterMotion.instance(op, lc)
         val tilt = Vec3(op.tilt.x, op.tilt.y, op.tilt.z)
         val rest = Vec3(op.rest.x, op.rest.y, op.rest.z)
@@ -184,6 +190,7 @@ public object RigOpSpec : OpSpec<RigOp> {
             "body_respect_hit_stop" to CasterMotion.known(op.bodyRespectHitStop),
             "freezes" to CasterMotion.known(op.freezes.map { mapOf("at" to it.at.toDouble(), "ticks" to it.ticks.toDouble()) }),
         )
+        driven?.let { payload["of"] = CasterMotion.known(it) }
         op.anim?.let { payload["anim"] = CasterMotion.known(it) }
         op.tip?.let { payload["tip"] = CasterMotion.vec3(it.toLocal()) }
         op.root?.let { payload["root"] = CasterMotion.vec3(it.toLocal()) }
