@@ -41,6 +41,8 @@ public class PaperSkillWorldGateway(
     private val skillOf: (CastId) -> SkillDef?,
     /** The field-tool class and tier an item id names (its tool tag), null for any other item. */
     private val itemTool: (String) -> ToolType?,
+    /** Cells another system owns (Mid ore nodes) that an area skill must never break. */
+    private val exclusion: () -> com.astarworks.astera.core.application.port.outbound.IAreaBreakExclusion?,
 ) : ISkillWorldGateway {
 
     private val log = LoggerFactory.getLogger(javaClass)
@@ -100,6 +102,8 @@ public class PaperSkillWorldGateway(
     override fun damage(cast: CastId, cell: BlockCell, blockDamage: Int, toolClass: String?): BlockDamageOutcome {
         val w = world() ?: return failed("break_area at $cell: no active world")
         val owner = ownerOf(cast) ?: return failed("break_area at $cell: cast ${cast.value} has no owner")
+        // Blocks another system owns (Mid ore nodes) are never an area skill's to break (v1 PaperCoverToolListener does the same).
+        if (exclusion()?.isExcluded(worldId(w), pos(cell)) == true) return BlockDamageOutcome.NONE
         val gateway = blocks() ?: return failed("break_area at $cell: block gateway is not registered")
         val def = skillOf(cast) ?: return failed("break_area at $cell: cast ${cast.value} is not running")
         val skillId = runCatching { SkillId(def.baseId) }.getOrNull() ?: return failed("break_area: '${def.baseId}' is not a valid skill id")
