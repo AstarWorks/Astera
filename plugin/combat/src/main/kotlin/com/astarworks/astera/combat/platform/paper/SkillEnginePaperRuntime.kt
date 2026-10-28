@@ -212,7 +212,6 @@ internal class SkillEnginePaperRuntime(
 
         tickHandle = scheduler.runRepeatingTicks(ExecutionScope.Global, 1L, 1L) {
             built.runner.tick(scheduler.currentTick().toInt())
-            built.world.tick()
             releaseLetGoHolds(eventBus, scheduler.currentTick())
             val diagnostics = built.runner.diagnostics()
             if (diagnostics.size != seenDiagnostics) {

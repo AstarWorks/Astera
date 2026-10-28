@@ -13,7 +13,7 @@ public fun worldDecoders(blocks: IBlockKeyCatalog): List<OpDecoder> = listOf(Wor
 /**
  * ```yaml
  * - {id: wall, op: place_shape, shape: wall, block: oak_planks, width: 5, height: 3, revert_after: 400}
- * - {id: dig,  op: break_area, shape: sphere, radius: 2.5, length: 3, tool_class: PICKAXE, block_damage: 40, breaks: true}
+ * - {id: dig,  op: break_area, shape: sphere, radius: 2.5, length: 3, tool_class: PICKAXE, block_damage: 40, power: 2, breaks: true}
  * ```
  * `at` is a frame point (`caster`, `contact.point`, `blade_a.tip`) or a world vector; default `caster` (feet).
  * `breaks: false` makes a destructive op inert (per-skill block flag). Sizes are literals.
@@ -40,6 +40,7 @@ internal class WorldOpDecoder(private val blocks: IBlockKeyCatalog) : OpDecoder 
                 height = literal(reader, "height", 2.0),
                 toolClass = reader.string("tool_class")?.uppercase(),
                 blockDamage = reader.int("block_damage") ?: 0,
+                power = literal(reader, "power", 3.0),
                 breaksBlocks = reader.bool("breaks") ?: true,
                 revertAfterTicks = revert,
                 outsideArena = outside,

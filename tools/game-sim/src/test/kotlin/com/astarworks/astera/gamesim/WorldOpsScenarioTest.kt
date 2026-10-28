@@ -129,7 +129,7 @@ class WorldOpsScenarioTest {
     )
 
     private fun sphere(radius: Double, breaks: Boolean, damage: Int = 100, length: Double = 2.0) = WorldOp.BreakArea(
-        "b", null, atCaster, WorldOp.AreaShape.SPHERE, radius, length, 1.0, 2.0, "PICKAXE", damage, breaks,
+        "b", null, atCaster, WorldOp.AreaShape.SPHERE, radius, length, 1.0, 2.0, "PICKAXE", damage, 3.0, breaks,
         Value.Literal(100.0), false,
     )
 

@@ -43,6 +43,8 @@ public sealed interface WorldOp : GameplayOp {
         val height: Double,
         val toolClass: String?,
         val blockDamage: Int,
+        /** Terrain hardness gate (v1 Mechanic.BreakArea.power): 1 = common, 2 = hard (obsidian, anvils), 3 = hardest. */
+        val power: Double,
         val breaksBlocks: Boolean,
         val revertAfterTicks: Value<Double>?,
         val outsideArena: Boolean,

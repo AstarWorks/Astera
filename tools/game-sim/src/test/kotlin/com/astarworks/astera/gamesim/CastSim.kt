@@ -403,7 +403,6 @@ class CastSim(
     fun step(untilTick: Int) {
         while (now < untilTick) {
             kit.runner.tick(now)
-            kit.world.tick()
             combat?.advance()
             now++
         }
@@ -421,7 +420,6 @@ class CastSim(
         }
         while (now < ticks) {
             kit.runner.tick(now)
-            kit.world.tick()
             now++
         }
         assertThat(kit.runner.diagnostics()).describedAs("no op failed").isEmpty()
