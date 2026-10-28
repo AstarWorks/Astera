@@ -56,7 +56,10 @@ public class PaperSkillWorldGateway(
         runCatching { covers()?.resolve(BlockType(blockKey)) != null }.getOrDefault(false)
 
     override fun place(cell: BlockCell, blockKey: String) {
-        val material = Material.matchMaterial(blockKey) ?: return
+        val material = Material.matchMaterial(blockKey) ?: run {
+            org.slf4j.LoggerFactory.getLogger(javaClass).error("[skill-error] place: '{}' is not a block material", blockKey)
+            return
+        }
         block(cell)?.setType(material, false)
     }
 

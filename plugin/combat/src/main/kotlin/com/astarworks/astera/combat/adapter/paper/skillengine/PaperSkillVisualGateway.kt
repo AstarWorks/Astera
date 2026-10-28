@@ -349,7 +349,7 @@ public class PaperSkillVisualGateway(
 
     /** The cast owner is offline or the display could not spawn: a handle that every update ignores. */
     private fun dead(what: String): VisualHandle {
-        log.warn("skill visual '{}' dropped: owner offline or display refused", what)
+        log.error("[skill-error] visual '{}' dropped: owner offline or display refused", what)
         return VisualHandle(ids.getAndIncrement())
     }
 }

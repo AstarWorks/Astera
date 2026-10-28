@@ -62,6 +62,8 @@ tasks.named<JavaExec>("run") {
     workingDir = rootDir
     systemProperty("astera.minecraftVersion", libs.versions.minecraft.get())
     systemProperty("java.awt.headless", "true")
+    // Silent-drop checks of SkillStrictLint fail the run unless -Pastera.strictSkills=false (default: on).
+    systemProperty("astera.strictSkills", providers.gradleProperty("astera.strictSkills").getOrElse("true"))
     args = listOf(
         "--content-dir", "$rootDir/content",
         "--schemas-dir", "$rootDir/content/schemas",

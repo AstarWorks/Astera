@@ -62,7 +62,10 @@ internal object YamlDocs {
 
     @Suppress("UNCHECKED_CAST")
     fun parse(file: String, group: String, text: String): Pair<List<Doc>, List<ComposeError>> {
-        if (!v2Marker.containsMatchIn(text)) return emptyList<Doc>() to emptyList()
+        if (text.isBlank()) return emptyList<Doc>() to emptyList()
+        if (!v2Marker.containsMatchIn(text)) {
+            return emptyList<Doc>() to listOf(ComposeError.InvalidDocument(file, "apiVersion", "no 'apiVersion: astera/v2' document in this file (a skill file that is not v2 is an error, never skipped)"))
+        }
         val raw = try {
             newYaml().loadAll(text).toList()
         } catch (e: YAMLException) {
@@ -72,8 +75,16 @@ internal object YamlDocs {
         val docs = ArrayList<Doc>()
         val errors = ArrayList<ComposeError>()
         raw.forEachIndexed { i, any ->
-            val m = any as? Map<*, *> ?: return@forEachIndexed
-            if (m["apiVersion"] != API_VERSION) return@forEachIndexed
+            if (any == null) return@forEachIndexed
+            val m = any as? Map<*, *>
+            if (m == null) {
+                errors += ComposeError.InvalidDocument(file, "", "document #${i + 1}: expected a mapping at the document root")
+                return@forEachIndexed
+            }
+            if (m["apiVersion"] != API_VERSION) {
+                errors += ComposeError.InvalidDocument(file, "apiVersion", "document #${i + 1}: apiVersion must be $API_VERSION, was '${m["apiVersion"]}'")
+                return@forEachIndexed
+            }
             val tree = normalize(m) as Map<String, Any?>
             val body = LinkedHashMap(tree)
             listOf("apiVersion", "kind", "target", "variant", "patchKind").forEach { body.remove(it) }

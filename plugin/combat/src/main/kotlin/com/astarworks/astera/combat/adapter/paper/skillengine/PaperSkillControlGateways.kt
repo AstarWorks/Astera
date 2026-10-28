@@ -56,6 +56,7 @@ public class PaperSkillCasterAnimGateway(
             return
         }
         val result = poses()?.playCustomAnimation(player, id, ticks.toLong().coerceAtLeast(1))
+        if (result == null) log.error("[skill-error] caster_anim '{}': no player animation gateway, nothing plays", anim)
         trace("caster_anim play $anim (pose, $ticks ticks) -> ${result ?: "no gateway"}")
     }
 
@@ -108,7 +109,10 @@ public class PaperSkillItemGateway(
 ) : ISkillItemGateway {
     override fun give(entity: UUID, itemId: String, count: Int) {
         val player = server.getPlayer(entity) ?: return
-        val stack = build(ItemId(itemId), PlayerId(entity), count) ?: return
+        val stack = build(ItemId(itemId), PlayerId(entity), count) ?: run {
+            LoggerFactory.getLogger(javaClass).error("[skill-error] give_item: item '{}' does not resolve to a stack", itemId)
+            return
+        }
         player.inventory.addItem(stack).values.forEach { player.world.dropItem(player.location, it) }
     }
 

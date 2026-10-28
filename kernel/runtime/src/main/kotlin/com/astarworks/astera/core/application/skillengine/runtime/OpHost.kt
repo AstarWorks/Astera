@@ -74,6 +74,9 @@ public interface OpHost {
     /** Report an op that could not run (bad frame, cycle); the runner logs it with the skill id. */
     public fun fail(opId: String, reason: String)
 
+    /** [fail] for the op being executed right now (a referent that does not resolve is a loud error, never a skipped op). */
+    public fun failHere(reason: String): Unit = fail("?", reason)
+
     public val cooldowns: ISkillCooldownGateway
     public val items: ISkillItemGateway
 }

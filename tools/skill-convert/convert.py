@@ -174,6 +174,8 @@ class Conv:
 
     # ---------- gaps (the only place a dropped v1 construct is recorded) ----------
     def gap(self, kind, name, detail=""):
+        if STRICT:
+            raise UnhandledV1Key(f"{kind} gap '{name}' {detail}".strip())
         d = self.todo_gaps if kind == "todo" else self.present_gaps
         e = d.setdefault(name, [0, []])
         e[0] += 1
@@ -1256,8 +1258,17 @@ def protected_diff(sid_, skill_dir, sk_text, look_text, conv):
     return lines
 
 
+STRICT = False
+
+
+class UnhandledV1Key(Exception):
+    """--strict: a v1 construct the converter cannot express is an error, never a CONVERT- comment (founder 2026-10-28)."""
+
+
 def main():
+    global STRICT
     ap = argparse.ArgumentParser()
+    ap.add_argument("--strict", action="store_true", help="raise on any v1 key the converter would drop (CONVERT-TODO / CONVERT-PRESENT)")
     ap.add_argument("--repo", default=REPO)
     ap.add_argument("--ids", default="")
     ap.add_argument("--all", action="store_true")
@@ -1267,6 +1278,7 @@ def main():
     ap.add_argument("--vfx-dir", default=None, help="v1 vfx yaml dir (default <repo>/content/vfx; the old engine deleted it: "
                     "git archive 0c9e986ef^ content/vfx | tar -x -C <dir>)")
     a = ap.parse_args()
+    STRICT = a.strict
     repo = a.repo
     out = a.out or os.path.join(repo, "content", "skills")
     items = item_map(repo)
