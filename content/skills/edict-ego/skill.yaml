@@ -8,6 +8,4 @@ meta: {name: {ja: "解かれた勅令", en: "Unbound Mandate"}, description: {ja
 gameplay:
   params: {poise_ticks: 400, poise_stacks: 5}
   timeline:
-    - {id: t1, at: 1, do: [{id: pin, op: place, frame: fx2_edict_branching_arms, like: caster}]}
-    - {id: t10, at: 10, do: [{id: pin_2, op: place, frame: fx3_edict_ground_ellipse, like: caster}]}
     - {id: t24, at: 24, do: [{id: st_poise, op: status, status: poise, duration_ticks: "${poise_ticks}", target: caster, stacks: "${poise_stacks}"}]}

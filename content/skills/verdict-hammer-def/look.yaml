@@ -59,7 +59,6 @@ presentation:
             - {t: 19, rotate: [29.081633, 0.0, 0.0], sample: true}
             - {t: 20, rotate: [25.0, 0.0, 0.0]}
           sample_ticks: 1
-          respect_hit_stop: true
         - id: fx1_verdict_def_vigil_hammer_parts_rig
           op: rig
           frame: fx1_verdict_def_vigil_hammer_parts
@@ -91,7 +90,6 @@ presentation:
             - {t: 19, rotate: [29.081633, 0.0, 0.0], sample: true}
             - {t: 20, rotate: [25.0, 0.0, 0.0]}
           sample_ticks: 1
-          respect_hit_stop: true
         - {id: fx1_verdict_def_vigil_hammer_haft, op: block, parent: fx1_verdict_def_vigil_hammer_parts, block: black_concrete, size: [0.12, 1.8, 0.12], at: [0.0, 0.8, 0.0], brightness: 15}
         - {id: fx1_verdict_def_vigil_hammer_head, op: block, parent: fx1_verdict_def_vigil_hammer_parts, block: black_concrete, size: [1.2, 0.7, 0.65], at: [0.0, 2.0, 0.0], brightness: 15}
         - {id: fx1_verdict_def_vigil_hammer_cap_0_53, op: block, parent: fx1_verdict_def_vigil_hammer_parts, block: yellow_concrete, size: [0.12, 0.74, 0.69], at: [-0.53, 2.0, 0.0], brightness: 15}
@@ -158,7 +156,6 @@ presentation:
             - {t: 19, rotate: [0.0, -170.087464, 0.0], sample: true}
             - {t: 20, rotate: [0.0, -170.0, 0.0]}
           sample_ticks: 1
-          respect_hit_stop: true
         - id: fx4_verdict_s1_gavel_hammer_parts_rig
           op: rig
           frame: fx4_verdict_s1_gavel_hammer_parts
@@ -191,7 +188,6 @@ presentation:
             - {t: 19, rotate: [0.0, -170.087464, 0.0], sample: true}
             - {t: 20, rotate: [0.0, -170.0, 0.0]}
           sample_ticks: 1
-          respect_hit_stop: true
         - {id: fx4_verdict_s1_gavel_hammer_haft, op: block, parent: fx4_verdict_s1_gavel_hammer_parts, block: black_concrete, size: [0.12, 1.8, 0.12], at: [0.0, 0.8, 0.0], brightness: 15}
         - {id: fx4_verdict_s1_gavel_hammer_head, op: block, parent: fx4_verdict_s1_gavel_hammer_parts, block: black_concrete, size: [1.2, 0.7, 0.65], at: [0.0, 2.0, 0.0], brightness: 15}
         - {id: fx4_verdict_s1_gavel_hammer_cap_0_53, op: block, parent: fx4_verdict_s1_gavel_hammer_parts, block: yellow_concrete, size: [0.12, 0.74, 0.69], at: [-0.53, 2.0, 0.0], brightness: 15}
@@ -245,7 +241,6 @@ presentation:
             - {t: 19, rotate: [0.0, -170.087464, 0.0], sample: true}
             - {t: 20, rotate: [0.0, -170.0, 0.0]}
           sample_ticks: 1
-          respect_hit_stop: true
         - id: fx6_verdict_s1_echo_hammer_parts_rig
           op: rig
           frame: fx6_verdict_s1_echo_hammer_parts
@@ -278,7 +273,6 @@ presentation:
             - {t: 19, rotate: [0.0, -170.087464, 0.0], sample: true}
             - {t: 20, rotate: [0.0, -170.0, 0.0]}
           sample_ticks: 1
-          respect_hit_stop: true
         - {id: fx6_verdict_s1_echo_hammer_haft, op: block, parent: fx6_verdict_s1_echo_hammer_parts, block: black_concrete, size: [0.12, 1.8, 0.12], at: [0.0, 0.8, 0.0], brightness: 15}
         - {id: fx6_verdict_s1_echo_hammer_head, op: block, parent: fx6_verdict_s1_echo_hammer_parts, block: black_concrete, size: [1.2, 0.7, 0.65], at: [0.0, 2.0, 0.0], brightness: 15}
         - {id: fx6_verdict_s1_echo_hammer_cap_0_53, op: block, parent: fx6_verdict_s1_echo_hammer_parts, block: yellow_concrete, size: [0.12, 0.74, 0.69], at: [-0.53, 2.0, 0.0], brightness: 15}

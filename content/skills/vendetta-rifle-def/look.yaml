@@ -118,7 +118,6 @@ presentation:
             - {t: 7, rotate: [-70.0, 0.0, 0.0], sample: true}
             - {t: 8, rotate: [-65.0, 0.0, 0.0]}
           sample_ticks: 1
-          respect_hit_stop: true
         - id: fx2_vendetta_parry_ring_bayonet_parts_rig
           op: rig
           frame: fx2_vendetta_parry_ring_bayonet_parts
@@ -139,7 +138,6 @@ presentation:
             - {t: 7, rotate: [-70.0, 0.0, 0.0], sample: true}
             - {t: 8, rotate: [-65.0, 0.0, 0.0]}
           sample_ticks: 1
-          respect_hit_stop: true
         - {id: fx2_vendetta_parry_ring_bayonet_heel, op: block, parent: fx2_vendetta_parry_ring_bayonet_parts, block: nether_bricks, size: [0.2, 0.8, 0.16], at: [0.0, 0.4, 0.0], rig_shading: true}
         - id: fx2_vendetta_parry_ring_bayonet_spine
           op: block

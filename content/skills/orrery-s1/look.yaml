@@ -52,7 +52,6 @@ presentation:
             - {t: 16, rotate: [-1.428571, 0.0, 0.0], sample: true}
             - {t: 17, rotate: [0.0, 0.0, 0.0]}
           sample_ticks: 1
-          respect_hit_stop: true
         - id: fx1_orrery_crescent_a_staff_parts_rig
           op: rig
           frame: fx1_orrery_crescent_a_staff_parts
@@ -81,7 +80,6 @@ presentation:
             - {t: 16, rotate: [-1.428571, 0.0, 0.0], sample: true}
             - {t: 17, rotate: [0.0, 0.0, 0.0]}
           sample_ticks: 1
-          respect_hit_stop: true
         - {id: fx1_orrery_crescent_a_staff_shaft, op: block, parent: fx1_orrery_crescent_a_staff_parts, block: black_concrete, size: [0.1, 1.9, 0.1], at: [0.0, 0.45, 0.0], rig_shading: true}
         - {id: fx1_orrery_crescent_a_staff_lower_collar, op: block, parent: fx1_orrery_crescent_a_staff_parts, block: gray_concrete, size: [0.16, 0.12, 0.16], at: [0.0, -0.25, 0.0], rig_shading: true}
         - {id: fx1_orrery_crescent_a_staff_upper_collar, op: block, parent: fx1_orrery_crescent_a_staff_parts, block: gray_concrete, size: [0.16, 0.12, 0.16], at: [0.0, 1.1, 0.0], rig_shading: true}
@@ -156,7 +154,6 @@ presentation:
             - {t: 16, rotate: [26.734694, 0.0, 0.0], sample: true}
             - {t: 17, rotate: [25.0, 0.0, 0.0]}
           sample_ticks: 1
-          respect_hit_stop: true
         - id: fx3_orrery_crescent_b_staff_parts_rig
           op: rig
           frame: fx3_orrery_crescent_b_staff_parts
@@ -185,7 +182,6 @@ presentation:
             - {t: 16, rotate: [26.734694, 0.0, 0.0], sample: true}
             - {t: 17, rotate: [25.0, 0.0, 0.0]}
           sample_ticks: 1
-          respect_hit_stop: true
         - {id: fx3_orrery_crescent_b_staff_shaft, op: block, parent: fx3_orrery_crescent_b_staff_parts, block: black_concrete, size: [0.1, 1.9, 0.1], at: [0.0, 0.45, 0.0], rig_shading: true}
         - {id: fx3_orrery_crescent_b_staff_lower_collar, op: block, parent: fx3_orrery_crescent_b_staff_parts, block: gray_concrete, size: [0.16, 0.12, 0.16], at: [0.0, -0.25, 0.0], rig_shading: true}
         - {id: fx3_orrery_crescent_b_staff_upper_collar, op: block, parent: fx3_orrery_crescent_b_staff_parts, block: gray_concrete, size: [0.16, 0.12, 0.16], at: [0.0, 1.1, 0.0], rig_shading: true}

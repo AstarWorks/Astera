@@ -45,7 +45,6 @@ presentation:
             - {t: 9, rotate: [-35.15625, 0.0, 0.0], sample: true}
             - {t: 10, rotate: [-35.0, 0.0, 0.0]}
           sample_ticks: 1
-          respect_hit_stop: true
         - id: fx5_gossamer_katana_slash_down_katana_parts_rig
           op: rig
           frame: fx5_gossamer_katana_slash_down_katana_parts
@@ -67,7 +66,6 @@ presentation:
             - {t: 9, rotate: [-35.15625, 0.0, 0.0], sample: true}
             - {t: 10, rotate: [-35.0, 0.0, 0.0]}
           sample_ticks: 1
-          respect_hit_stop: true
         - {id: fx5_gossamer_katana_slash_down_katana_blade, op: block, parent: fx5_gossamer_katana_slash_down_katana_parts, block: iron_block, size: [0.09, 2.0, 0.05], at: [0.0, 1.05, 0.0], brightness: 15}
         - id: fx5_gossamer_katana_slash_down_katana_grip
           op: block
@@ -284,7 +282,6 @@ presentation:
           - {t: 9, rotate: [0.0, 89.84375, 0.0], sample: true}
           - {t: 10, rotate: [0.0, 90.0, 0.0]}
         sample_ticks: 1
-        respect_hit_stop: true
         when: "= event.source == 'sel_2'"
       - id: fx2_gossamer_katana_echo_cut_katana_parts_rig
         op: rig
@@ -308,7 +305,6 @@ presentation:
           - {t: 9, rotate: [0.0, 89.84375, 0.0], sample: true}
           - {t: 10, rotate: [0.0, 90.0, 0.0]}
         sample_ticks: 1
-        respect_hit_stop: true
         when: "= event.source == 'sel_2'"
       - id: fx2_gossamer_katana_echo_cut_katana_blade
         op: block

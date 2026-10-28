@@ -5,7 +5,4 @@ kind: Skill
 id: sigil-rifle-s2
 item: sigil-rifle
 meta: {name: {ja: "二連の刻印弾", en: "Twin Seal Shots"}, description: {ja: "刻印した弾を二発続けて撃つ。", en: "Fire two sealed shots in a row."}, cooldown_ticks: 120, resource_cost: 16}
-gameplay:
-  timeline:
-    - {id: t20, at: 20, do: [{id: pin, op: place, frame: fx2_sigil_rifle_shot, like: caster}, {id: cast, op: cast_skill, skill: sigil-bullet-projectile}]}
-    - {id: t56, at: 56, do: [{id: pin_2, op: place, frame: fx3_sigil_rifle_shot, like: caster}, {id: cast_2, op: cast_skill, skill: sigil-bullet-projectile}]}
+gameplay: {timeline: [{id: t20, at: 20, do: [{id: cast, op: cast_skill, skill: sigil-bullet-projectile}]}, {id: t56, at: 56, do: [{id: cast_2, op: cast_skill, skill: sigil-bullet-projectile}]}]}

@@ -11,14 +11,9 @@ gameplay:
     - {id: damage, param: dmg_physical}
     - {id: range, param: reach}
   timeline:
-    - {id: t0, at: 0, do: [{id: pin, op: place, frame: fx2_gossamer_katana_guard, like: caster}]}
-    - {id: t20, at: 20, do: [{id: pin_2, op: place, frame: fx3_gossamer_katana_iaido_line, like: caster}]}
-    - {id: t30, at: 30, do: [{id: pin_3, op: place, frame: fx4_gossamer_katana_slash_up, like: caster}]}
-    - {id: t42, at: 42, do: [{id: pin_4, op: place, frame: fx5_gossamer_katana_slash_down, like: caster}]}
     - id: t60
       at: 60
       do:
-        - {id: pin_5, op: place, frame: fx6_gossamer_katana_scar, like: pt_aim_0_m1p62_3p6}
         - {id: sel, op: hit, frames: [caster], sector: {frame: caster, at: eye, forward: caster.forward, left: caster.left, angle_deg: "${arc_deg}", range: "${reach}", height: 2.0}, window: once, ticks: 1}
   "on":
     hit:

@@ -632,7 +632,6 @@ presentation:
             - {t: 39, rotate: [66.0, 0.0, 0.0], sample: true}
             - {t: 40, rotate: [66.0, 0.0, 0.0]}
           sample_ticks: 1
-          respect_hit_stop: true
         - id: fx4_bastion_ego_slam_sword_parts_rig
           op: rig
           frame: fx4_bastion_ego_slam_sword_parts
@@ -684,7 +683,6 @@ presentation:
             - {t: 39, rotate: [66.0, 0.0, 0.0], sample: true}
             - {t: 40, rotate: [66.0, 0.0, 0.0]}
           sample_ticks: 1
-          respect_hit_stop: true
         - {id: fx4_bastion_ego_slam_sword_face, op: block, parent: fx4_bastion_ego_slam_sword_parts, block: gray_concrete, size: [0.46, 1.9, 0.07], at: [0.0, 1.55, 0.0], rig_shading: true}
         - {id: fx4_bastion_ego_slam_sword_rim_l, op: block, parent: fx4_bastion_ego_slam_sword_parts, block: white_concrete, size: [0.07, 1.9, 0.12], at: [0.25, 1.55, 0.0], rig_shading: true}
         - {id: fx4_bastion_ego_slam_sword_rim_r, op: block, parent: fx4_bastion_ego_slam_sword_parts, block: white_concrete, size: [0.07, 1.9, 0.12], at: [-0.25, 1.55, 0.0], rig_shading: true}

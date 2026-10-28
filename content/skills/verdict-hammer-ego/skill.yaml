@@ -11,15 +11,22 @@ meta:
   resource_cost: 0
   ego_cost: 100
 frames:
+  - {id: cast_caster, kind: body, parent: world, inactive: true}
+  - {id: cast_aim, kind: body, parent: world, inactive: true}
+  - {id: pt_aim_0_m1p62_8, kind: point, parent: aim, offset: [0.0, -1.62, 8.0]}
   - {id: snap, kind: body, parent: world, inactive: true}
-  - {id: pt_caster_0_m1p62_8, kind: point, parent: caster, offset: [0.0, -1.62, 8.0]}
 gameplay:
   params: {radius: 5.8, dmg_physical: 60.0, dash_distance: 3.0}
   expose:
     - {id: damage, param: dmg_physical}
     - {id: radius, param: radius}
   timeline:
-    - {id: t0, at: 0, do: [{id: place_snap, op: place, frame: snap, like: caster}]}
+    - id: t0
+      at: 0
+      do:
+        - {id: place_cast_aim, op: place, frame: cast_aim, like: aim}
+        - {id: place_cast_caster, op: place, frame: cast_caster, like: caster}
+        - {id: place_snap, op: place, frame: snap, like: caster}
     - id: t8
       at: 8
       do:

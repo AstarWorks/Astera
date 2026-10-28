@@ -443,8 +443,6 @@ class Conv:
             self.g(CAST, 0, {"id": "place_snap", "op": "place", "frame": "snap", "like": "caster"})
         return "snap"
 
-    def point(self, tg, where, side="p"):
-
     def frozen(self, base, where):
         """`base` (caster | aim) as the context holds it: one body frame, placed like `base` once. v1 MechanicDispatcher.livePose :565
         keeps the stored context pose instead of re-reading the live caster for `snapshot_pose` mechanics and for hit contexts

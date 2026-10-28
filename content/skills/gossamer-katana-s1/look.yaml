@@ -66,7 +66,6 @@ presentation:
             - {t: 28, rotate: [-75.555556, 0.0, 0.0], sample: true}
             - {t: 29, rotate: [-45.0, 0.0, 0.0]}
           sample_ticks: 1
-          respect_hit_stop: true
         - id: fx1_gossamer_katana_draw_katana_parts_rig
           op: rig
           frame: fx1_gossamer_katana_draw_katana_parts
@@ -107,7 +106,6 @@ presentation:
             - {t: 28, rotate: [-75.555556, 0.0, 0.0], sample: true}
             - {t: 29, rotate: [-45.0, 0.0, 0.0]}
           sample_ticks: 1
-          respect_hit_stop: true
         - {id: fx1_gossamer_katana_draw_katana_blade, op: block, parent: fx1_gossamer_katana_draw_katana_parts, block: iron_block, size: [0.09, 2.0, 0.05], at: [0.0, 1.05, 0.0], brightness: 15}
         - {id: fx1_gossamer_katana_draw_katana_grip, op: block, parent: fx1_gossamer_katana_draw_katana_parts, block: black_concrete, size: [0.1, 0.4, 0.08], at: [0.0, -0.15, 0.0], rig_shading: true}
         - {id: fx1_gossamer_katana_draw_katana_guard, op: block, parent: fx1_gossamer_katana_draw_katana_parts, block: blue_concrete, size: [0.28, 0.08, 0.18], at: [0.0, 0.06, 0.0], rig_shading: true}
@@ -135,7 +133,6 @@ presentation:
             - {t: 9, rotate: [154.84375, 0.0, 0.0], sample: true}
             - {t: 10, rotate: [155.0, 0.0, 0.0]}
           sample_ticks: 1
-          respect_hit_stop: true
         - id: fx3_gossamer_katana_slash_up_katana_parts_rig
           op: rig
           frame: fx3_gossamer_katana_slash_up_katana_parts
@@ -157,7 +154,6 @@ presentation:
             - {t: 9, rotate: [154.84375, 0.0, 0.0], sample: true}
             - {t: 10, rotate: [155.0, 0.0, 0.0]}
           sample_ticks: 1
-          respect_hit_stop: true
         - {id: fx3_gossamer_katana_slash_up_katana_blade, op: block, parent: fx3_gossamer_katana_slash_up_katana_parts, block: iron_block, size: [0.09, 2.0, 0.05], at: [0.0, 1.05, 0.0], brightness: 15}
         - {id: fx3_gossamer_katana_slash_up_katana_grip, op: block, parent: fx3_gossamer_katana_slash_up_katana_parts, block: black_concrete, size: [0.1, 0.4, 0.08], at: [0.0, -0.15, 0.0], rig_shading: true}
         - {id: fx3_gossamer_katana_slash_up_katana_guard, op: block, parent: fx3_gossamer_katana_slash_up_katana_parts, block: blue_concrete, size: [0.28, 0.08, 0.18], at: [0.0, 0.06, 0.0], rig_shading: true}
@@ -198,7 +194,6 @@ presentation:
             - {t: 9, rotate: [-35.15625, 0.0, 0.0], sample: true}
             - {t: 10, rotate: [-35.0, 0.0, 0.0]}
           sample_ticks: 1
-          respect_hit_stop: true
         - id: fx4_gossamer_katana_slash_down_katana_parts_rig
           op: rig
           frame: fx4_gossamer_katana_slash_down_katana_parts
@@ -220,7 +215,6 @@ presentation:
             - {t: 9, rotate: [-35.15625, 0.0, 0.0], sample: true}
             - {t: 10, rotate: [-35.0, 0.0, 0.0]}
           sample_ticks: 1
-          respect_hit_stop: true
         - {id: fx4_gossamer_katana_slash_down_katana_blade, op: block, parent: fx4_gossamer_katana_slash_down_katana_parts, block: iron_block, size: [0.09, 2.0, 0.05], at: [0.0, 1.05, 0.0], brightness: 15}
         - id: fx4_gossamer_katana_slash_down_katana_grip
           op: block

@@ -18,7 +18,6 @@ gameplay:
   expose:
     - {id: damage, param: dmg_physical}
   timeline:
-    - {id: t0, at: 0, do: [{id: pin, op: place, frame: fx1_orrery_poise, like: caster}]}
     - {id: t24, at: 24, do: [{id: sel, op: hit, frames: [caster], capsule: {from: aim, to: pt_aim_0_0_13, radius: 0.3}, window: once, ticks: 1}]}
   "on":
     hit:

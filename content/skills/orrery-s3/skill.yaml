@@ -14,31 +14,26 @@ gameplay:
     - {id: damage, param: dmg_physical}
   timeline:
     - {id: t0, at: 0, do: [{id: sel, op: hit, frames: [caster], capsule: {from: aim, to: pt_aim_0_0_14, radius: 0.3}, window: once, ticks: 1}]}
-    - {id: t5, at: 5, do: [{id: pin_5, op: place, frame: fx9_orrery_channel, like: caster}]}
     - {id: t145, at: 145, do: [{id: st_charge, op: status, status: charge, duration_ticks: "${charge_ticks}", target: caster, stacks: "${charge_stacks}"}]}
   "on":
     hit:
       - {id: place_hit_caster, op: place, frame: hit_caster, like: caster}
       - {id: delay, op: delay, after: 45, do: [{id: dmg, op: damage, components: [{kind: physical, amount: "${dmg_physical}"}], target: victim, ignore_invulnerability: true}], when: "= event.source == 'sel'"}
-      - {id: delay_2, op: delay, after: 45, do: [{id: pin, op: place, frame: fx2_orrery_ring_hit_target, like: contact}], when: "= event.source == 'sel'"}
-      - id: delay_3
+      - id: delay_2
         op: delay
         after: 60
         do:
           - {id: dmg_2, op: damage, components: [{kind: physical, amount: "${dmg_physical}"}], target: victim, ignore_invulnerability: true}
         when: "= event.source == 'sel'"
-      - {id: delay_4, op: delay, after: 60, do: [{id: pin_2, op: place, frame: fx4_orrery_ring_hit_target, like: contact}], when: "= event.source == 'sel'"}
-      - id: delay_5
+      - id: delay_3
         op: delay
         after: 72
         do:
           - {id: dmg_3, op: damage, components: [{kind: physical, amount: "${dmg_physical}"}], target: victim, ignore_invulnerability: true}
         when: "= event.source == 'sel'"
-      - {id: delay_6, op: delay, after: 72, do: [{id: pin_3, op: place, frame: fx6_orrery_ring_hit_target, like: contact}], when: "= event.source == 'sel'"}
-      - id: delay_7
+      - id: delay_4
         op: delay
         after: 143
         do:
           - {id: dmg_4, op: damage, components: [{kind: physical, amount: "${dmg_physical_2}"}], target: victim, ignore_invulnerability: true}
         when: "= event.source == 'sel'"
-      - {id: delay_8, op: delay, after: 143, do: [{id: pin_4, op: place, frame: fx8_orrery_ring_hit_target_long, like: contact}], when: "= event.source == 'sel'"}

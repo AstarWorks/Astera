@@ -131,7 +131,6 @@ presentation:
             - {t: 15, rotate: [-72.5, 0.0, 0.0], sample: true}
             - {t: 16, rotate: [-70.0, 0.0, 0.0]}
           sample_ticks: 1
-          respect_hit_stop: true
         - id: fx1_vendetta_ready_bayonet_parts_rig
           op: rig
           frame: fx1_vendetta_ready_bayonet_parts
@@ -160,7 +159,6 @@ presentation:
             - {t: 15, rotate: [-72.5, 0.0, 0.0], sample: true}
             - {t: 16, rotate: [-70.0, 0.0, 0.0]}
           sample_ticks: 1
-          respect_hit_stop: true
         - {id: fx1_vendetta_ready_bayonet_heel, op: block, parent: fx1_vendetta_ready_bayonet_parts, block: nether_bricks, size: [0.2, 0.8, 0.16], at: [0.0, 0.4, 0.0], rig_shading: true}
         - id: fx1_vendetta_ready_bayonet_spine
           op: block
