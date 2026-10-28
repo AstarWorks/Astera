@@ -4,6 +4,8 @@ import com.astarworks.astera.core.application.skillengine.compose.ComposeError
 import com.astarworks.astera.core.application.skillengine.compose.ComposeOptions
 import com.astarworks.astera.core.application.skillengine.compose.ComposedSkill
 import com.astarworks.astera.core.application.skillengine.compose.SkillComposer
+import com.astarworks.astera.core.application.skillengine.load.SkillEngineRegistries
+import com.astarworks.astera.core.application.skillengine.load.SkillLoadReport
 import com.astarworks.astera.core.domain.Result
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -18,9 +20,9 @@ import java.nio.file.Path
  */
 class SkillPatchReloadScenarioTest {
 
-    private val presentation = setOf("display", "particle", "sound")
-    private val skinOnly = ComposeOptions(allowBalancePatches = false, presentationOps = presentation)
-    private val balanceOn = ComposeOptions(allowBalancePatches = true, presentationOps = presentation)
+    // The default presentation op set comes from the registered specs (SkillEngineSpecs); an empty registry makes these cases fail.
+    private val skinOnly = ComposeOptions(allowBalancePatches = false)
+    private val balanceOn = ComposeOptions(allowBalancePatches = true)
 
     private val rapier = """
         apiVersion: astera/v3
@@ -50,6 +52,85 @@ class SkillPatchReloadScenarioTest {
               final: true
     """.trimIndent()
 
+    /** Presentation timeline, a group, and a projectile with `on.<event>` handlers (W1-26 skin scope). */
+    private val bolt = """
+        apiVersion: astera/v3
+        kind: Skill
+        id: bolt
+        params:
+          range: 8.0
+        presentation:
+          timeline:
+            - id: aura
+              op: particle
+              color: "#ffffff"
+              at: 2
+            - id: pack
+              do:
+                - id: spark
+                  op: sound
+                  sound: block.note_block.bell
+                  volume: 0.5
+                - id: dmg
+                  op: damage
+                  amount: 1
+        machine:
+          start: cast
+          states:
+            cast:
+              do:
+                - id: shot
+                  op: projectile
+                  speed: 1.0
+                  on:
+                    hit:
+                      - id: boom
+                        op: particle
+                        count: 3
+                      - id: pain
+                        op: damage
+                        amount: 4
+              on:
+                - when: "true"
+                  goto: done
+            done:
+              final: true
+    """.trimIndent()
+
+    private val flashPart = """
+        apiVersion: astera/v3
+        kind: Part
+        id: flash
+        machine:
+          start: run
+          states:
+            run:
+              for: 4
+              then: end
+              enter:
+                - id: glow
+                  op: particle
+                  color: "#ffffff"
+            end:
+              final: true
+    """.trimIndent()
+
+    private val caller = """
+        apiVersion: astera/v3
+        kind: Skill
+        id: caller
+        machine:
+          start: step
+          states:
+            step:
+              use: flash
+              on:
+                - event: step.end
+                  to: done
+            done:
+              final: true
+    """.trimIndent()
+
     private val other = rapier.replace("id: rapier", "id: lance")
 
     private fun write(dir: Path, name: String, text: String) {
@@ -65,10 +146,10 @@ class SkillPatchReloadScenarioTest {
 
     private fun errorsOf(c: SkillComposer): List<ComposeError> = (c.composeAll() as Result.Failure).error
 
-    private fun patch(patchKind: String, variant: String?, body: String): String = buildString {
+    private fun patch(patchKind: String, variant: String?, body: String, target: String = "rapier"): String = buildString {
         appendLine("apiVersion: astera/v3")
         appendLine("kind: Patch")
-        appendLine("target: rapier")
+        appendLine("target: $target")
         if (variant != null) appendLine("variant: $variant")
         appendLine("patchKind: $patchKind")
         append(body.trimIndent())
@@ -283,5 +364,172 @@ class SkillPatchReloadScenarioTest {
         """))
         assertThat(c.recompose(listOf(tmp.resolve("recolour.yaml"))) is Result.Success).isTrue()
         assertThat(c.composed().getValue("rapier@blue")).isNotEqualTo(before.getValue("rapier@blue"))
+    }
+
+    @Test
+    fun `skin patch reaches presentation timeline ops group children and on-handler lists with their timing`(@TempDir tmp: Path) {
+        write(tmp, "bolt.yaml", bolt)
+        write(tmp, "skin.yaml", patch("skin", "gold", """
+            presentation:
+              timeline:
+                - id: aura
+                  color: "#ffcc00"
+                  at: 5
+                - id: pack
+                  do:
+                    - id: spark
+                      volume: 1.0
+            machine:
+              states:
+                cast:
+                  do:
+                    - id: shot
+                      on:
+                        hit:
+                          - id: boom
+                            count: 9
+        """, target = "bolt"))
+        val all = compose(SkillComposer(tmp, skinOnly))
+        assertThat(diff(all.getValue("bolt"), all.getValue("bolt@gold"))).containsExactlyInAnyOrder(
+            "presentation.timeline[aura].color",
+            "presentation.timeline[aura].at",
+            "presentation.timeline[pack].do[spark].volume",
+            "machine.states.cast.do[shot].on.hit[boom].count",
+        )
+        assertThat(all.getValue("bolt@gold").patch.kind).isEqualTo("skin")
+    }
+
+    @Test
+    fun `skin patch outside the presentation scope is a ForbiddenPath`(@TempDir tmp: Path) {
+        write(tmp, "bolt.yaml", bolt)
+        fun forbidden(body: String): String {
+            write(tmp, "skin.yaml", patch("skin", "x", body, target = "bolt"))
+            return (errorsOf(SkillComposer(tmp, skinOnly)).single() as ComposeError.PatchError.ForbiddenPath).path
+        }
+        // a gameplay op inside an on.<event> list
+        assertThat(forbidden("""
+            machine:
+              states:
+                cast:
+                  do:
+                    - id: shot
+                      on:
+                        hit:
+                          - id: pain
+                            amount: 99
+        """)).startsWith("machine.states.cast.do[shot].on.hit[pain]")
+        // the projectile's own fields
+        assertThat(forbidden("""
+            machine:
+              states:
+                cast:
+                  do:
+                    - id: shot
+                      speed: 5.0
+        """)).startsWith("machine.states.cast.do[shot].speed")
+        // a new event key is `on` structure
+        assertThat(forbidden("""
+            machine:
+              states:
+                cast:
+                  do:
+                    - id: shot
+                      on:
+                        bounce:
+                          - id: ding
+                            op: sound
+                            sound: block.anvil.land
+        """)).startsWith("machine.states.cast.do[shot].on.bounce")
+        // group own timing, gameplay child of a group
+        assertThat(forbidden("""
+            presentation:
+              timeline:
+                - id: pack
+                  at: 3
+        """)).startsWith("presentation.timeline[pack].at")
+        assertThat(forbidden("""
+            presentation:
+              timeline:
+                - id: pack
+                  do:
+                    - id: dmg
+                      amount: 50
+        """)).startsWith("presentation.timeline[pack].do[dmg]")
+        // params / anchors / a new state / state structure / use
+        assertThat(forbidden("params: {range: 20.0}")).startsWith("params")
+        assertThat(forbidden("anchors: [{id: hand, anchor: caster.hand_r}]")).startsWith("anchors")
+        assertThat(forbidden("""
+            machine:
+              states:
+                extra:
+                  final: true
+        """)).startsWith("machine.states.extra")
+        assertThat(forbidden("""
+            machine:
+              states:
+                cast:
+                  for: 9
+        """)).startsWith("machine.states.cast.for")
+        assertThat(forbidden("""
+            machine:
+              states:
+                cast:
+                  use: flash
+        """)).startsWith("machine.states.cast.use")
+    }
+
+    @Test
+    fun `part patch overlays the part in place and keeps the same scope`(@TempDir tmp: Path) {
+        write(tmp, "flash.yaml", flashPart)
+        write(tmp, "recolour.yaml", patch("skin", null, """
+            machine:
+              states:
+                run:
+                  enter:
+                    - id: glow
+                      color: "#00ffcc"
+        """, target = "part:flash"))
+        val c = SkillComposer(tmp, skinOnly)
+        assertThat(c.composeAll()).isInstanceOf(Result.Success::class.java)
+        val part = c.composedParts().getValue("flash")
+        assertThat(part.patch.kind).isEqualTo("skin")
+        val run = ((part.tree["machine"] as Map<*, *>)["states"] as Map<*, *>)["run"] as Map<*, *>
+        assertThat(((run["enter"] as List<*>).single() as Map<*, *>)["color"]).isEqualTo("#00ffcc")
+        assertThat(c.dependents("recolour.yaml")).containsExactly("part:flash")
+
+        // state wiring of a part is forbidden, and a part patch takes no variant
+        write(tmp, "recolour.yaml", patch("skin", null, "machine: {states: {run: {then: run}}}", target = "part:flash"))
+        assertThat(errorsOf(SkillComposer(tmp, skinOnly)).single()).isInstanceOf(ComposeError.PatchError.ForbiddenPath::class.java)
+        write(tmp, "recolour.yaml", patch("skin", "blue", "machine: {states: {run: {enter: [{id: glow, color: \"#fff\"}]}}}", target = "part:flash"))
+        assertThat(errorsOf(SkillComposer(tmp, skinOnly)).single()).isInstanceOf(ComposeError.InvalidDocument::class.java)
+    }
+
+    @Test
+    fun `a part change recompiles the skills that inline it and leaves the others`(@TempDir tmp: Path) {
+        write(tmp, "flash.yaml", flashPart)
+        write(tmp, "caller.yaml", caller)
+        val c = SkillComposer(tmp, ComposeOptions(allowBalancePatches = false))
+        assertThat(c.composeAll()).isInstanceOf(Result.Success::class.java)
+        val catalog = SkillEngineRegistries.catalog(emptyMap(), emptyMap())
+        fun load(keys: Collection<String>): SkillLoadReport {
+            val composed = c.composed()
+            val parts = c.composedParts()
+            return catalog.reload(keys.mapNotNull { if (it.startsWith("part:")) parts[it.removePrefix("part:")] else composed[it] })
+        }
+        val report = load(listOf("part:flash", "caller"))
+        assertThat(report.failed).isEmpty()
+        val before = catalog.get("caller")!!
+        assertThat(before.usedParts).containsExactly("flash")
+        assertThat(before.usedSkills).isEmpty()
+
+        // edit the part file: only the part is reloaded, the caller is recompiled by the catalog
+        write(tmp, "flash.yaml", flashPart.replace("for: 4", "for: 9"))
+        val changed = (c.recompose(listOf(tmp.resolve("flash.yaml"))) as Result.Success).value
+        assertThat(changed).containsExactly("part:flash")
+        val second = load(changed)
+        assertThat(second.failed).isEmpty()
+        assertThat(second.loaded).containsExactly("caller")
+        assertThat(catalog.get("caller")).isNotSameAs(before)
+        assertThat(catalog.get("caller")!!.table).isNotEqualTo(before.table)
     }
 }

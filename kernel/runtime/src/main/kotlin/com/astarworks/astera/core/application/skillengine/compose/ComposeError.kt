@@ -22,10 +22,10 @@ sealed interface ComposeError {
     sealed interface PatchError : ComposeError {
         /** A skin patch touched something other than the fields of a presentation op. [path] is the first offending leaf path. */
         data class ForbiddenPath(override val file: String, override val path: String) : PatchError {
-            override val reason: String get() = "skin patches may only touch presentation ops (machine.states.*.{enter,do,exit}[<id>]), but touch '$path'"
+            override val reason: String get() = "skin patches may only touch presentation ops (machine.states.*.{enter,do,exit}[<id>], presentation.timeline[<id>], op on.<event>[<id>]), but touch '$path'"
         }
 
-        /** The patch `target` has no `kind: Skill` document. */
+        /** The patch `target` has no `kind: Skill` (or, for `part:<id>`, `kind: Part`) document. */
         data class TargetNotFound(override val file: String, override val path: String, override val reason: String) : PatchError
 
         /** A list of maps is merged by `id`, but an entry has none. */
