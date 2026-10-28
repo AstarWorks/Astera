@@ -521,7 +521,8 @@ public class TablePlayer(
                 is Action.Status -> for (v in ruleTargets(run, a.targets, ctx)) {
                     gameplay.applyStatus(run.request.caster, v, a.status, int(run, a.stacks, ctx), a.forTicks)
                 }
-                is Action.Effect -> effect(run, row, a, ctx, now, src)                is Action.Lock -> {
+                is Action.Effect -> effect(run, row, a, ctx, now, src)
+                is Action.Lock -> {
                     val until = when (val end = a.until) {
                         is LockEnd.AtTick -> ctx.base + end.tick
                         // released by the owning level exiting or the cast ending; the bound is the server cap
