@@ -69,6 +69,22 @@ class LockCancelScenarioTest : SkillEngineScenario() {
         assertThat(reject(skill("- {id: open, op: lock, move: all, at: 0}"))).isInstanceOf(SkillDecodeError.Invalid::class.java)
     }
 
+    /** Founder 10/28: the look lock is a lock field next to `move`; the player hands it to `lockLook` / `unlockLook` at the window ticks. */
+    @Test
+    fun lookLockReachesTheLookPortOverItsWindowAndMoveOnlyDoesNot() {
+        val look = compile(skill("- {id: aim, op: lock, pitch: true, at: 2, for: 6}"))
+        val calls = play(look, seed = 1L, ticks = 12)
+        assertThat(calls.filter { it.verb == "lock" }.map { it.tick to it.payload }).containsExactly(2 to "pitch=true yaw=false until=8")
+        assertThat(calls.filter { it.verb == "unlock" }.map { it.tick }).containsExactly(8)
+
+        val both = compile(skill("- {id: aim, op: lock, move: walk, pitch: true, yaw: true, at: 0, for: 4}"))
+        assertThat(play(both, seed = 1L, ticks = 8).filter { it.verb == "lock" }.map { it.payload }).containsExactly("pitch=true yaw=true until=4")
+
+        // move alone never touches the look port
+        val move = compile(skill("- {id: plant, op: lock, move: all, at: 0, for: 4}"))
+        assertThat(play(move, seed = 1L, ticks = 8).filter { it.verb == "lock" || it.verb == "unlock" }).isEmpty()
+    }
+
     @Test
     fun cancelCastEmitsCancelThenEnd() {
         val s = compile(skill("- {id: g, at: 3, do: [{id: stop, op: cancel, scope: cast}]}"))
