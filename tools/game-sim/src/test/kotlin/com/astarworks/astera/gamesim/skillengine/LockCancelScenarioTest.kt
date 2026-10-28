@@ -106,7 +106,9 @@ class LockCancelScenarioTest : SkillEngineScenario() {
         val sub = s.table.subTables.values.single { it.event.value.startsWith("cast.cancel[marker") }
         assertThat(sub.rows.single().action).isInstanceOf(Action.End::class.java)
         val calls = play(s, seed = 1L, ticks = 10)
-        assertThat(calls.filter { it.instance.startsWith("marker") && it.verb.contains("end", ignoreCase = true) }.map { it.tick }).containsExactly(4)
+        // GatewayRecorder names a visual `#<spawn ordinal>`: the marker is the only spawn, and its End row plays as the remove call at the cancel tick
+        assertThat(calls.filter { it.verb == "spawn" }.map { it.instance }).containsExactly("#0")
+        assertThat(calls.filter { it.instance == "#0" && it.verb == "remove" }.map { it.tick }).containsExactly(4)
     }
 
     @Test

@@ -22,13 +22,13 @@ params:
   c1_arc_deg: {type: number, default: 30}
   c1_reach: {type: blocks, default: 9}
   c3_dash_distance: {type: blocks, default: 9}
-  thread_color: {type: string, default: "#ff5fa2"}
   thread_thick: {type: number, default: 0.06}
   spark_count: {type: number, default: 14}
-  spark_particle: {type: string, default: crit}
 # Four hits: coin1 30 (sector 30 deg, 9 blocks, height 2.0), throw 18 + bleed 2x60, reel 6, coin3 50 (dash 9 blocks, 3 ticks).
 anchors:
   - {id: shears, anchor: caster.hand_r, mount: caster}
+  - {id: palm, anchor: caster.palm, mount: caster}
+  - {id: body_c, anchor: caster, offset: {up: 0.9}, mount: caster}
 machine:
   start: windup
   states:
@@ -71,8 +71,8 @@ machine:
         # v1 trail: ticks 6, width_frac 0.6, alpha 0.35 = byte 0x59 of the colour (ribbon opacity is the colour alpha byte), fade_power default 1.5 (ADR-0303 s.260); the colour is a literal (ribbon colour takes no param), crimson patches it.
         - {id: trail_a, op: ribbon, of: piece_a.tip, root: piece_a.root, history: 6, style: soft, width_frac: 0.6, fade: 1.5, color: "#59ff5fa2", at: 4, for: 30}
         - {id: trail_b, op: ribbon, of: piece_b.tip, root: piece_b.root, history: 6, style: soft, width_frac: 0.6, fade: 1.5, color: "#59ff5fa2", at: 4, for: 30}
-        # GAP(ENGINE): v1 volume used speed(shears.tip). Expressions only know the `anchors:` ids as refs: `shears.tip` is "ref has no field selection" and frame-op ids (piece_a) are "undeclared reference". speed(shears) is the HAND speed, not the tip speed; restore the tip once expressions can name frame-op points.
-        - {id: whoosh,op: sound, sound: couture.whoosh, anchor: shears, at: 4, every: 4, for: 30, volume: "= clamp(speed(shears) / 1.5, 0.2, 1.0)", pitch: "= 0.9 + 0.3 * clamp(speed(shears) / 2.0, 0.0, 1.0)"}
+        # v1 volume / pitch read the tip speed: piece_a.tip (frame-op point, ADR-0303 3.5).
+        - {id: whoosh,op: sound, sound: couture.whoosh, anchor: shears, at: 4, every: 4, for: 30, volume: "= clamp(speed(piece_a.tip) / 1.5, 0.2, 1.0)", pitch: "= 0.9 + 0.3 * clamp(speed(piece_a.tip) / 2.0, 0.0, 1.0)"}
         # coin1: 30 degree / 9 block cone around the caster pose of tick 8; damage lands one tick after the selector (v2 delay op)
         - {id: slash, op: frame, anchor: caster, mode: snapshot, at: 8, for: 1}
         - id: c1_hit
@@ -226,7 +226,7 @@ machine:
               op: display
               kind: sprite
               sprite: couture-s2-haze-soft
-              tint: "#8A5CFF"
+              color: "#8A5CFF"
               anchor: fx6_couture_s2_haze
               offset: {left: 0, up: 0.9, forward: -0.1}
               size: [2.56, 2.56]
@@ -963,7 +963,7 @@ machine:
               pitch: 0.7
     throw:
       # v2 release: volley placed at the shears, pieces reparented, fly tip-first at throw_speed, gravity 0, drag 0, max_ticks = ceil(range / speed) + 2
-      for: "= ceil(throw_range / throw_speed) + 2"
+      for: 7   # = ceil(throw_range / throw_speed) + 2 = ceil(7 / 1.7) + 2 = 5 + 2 = 7 with the current params (C5: for is a compile-time tick count)
       then: reel
       enter:
         - id: volley
@@ -986,9 +986,9 @@ machine:
               - {id: bleed, op: status, at: 0, target: event.victim, status: bleed, stacks: "= bleed_stacks", for: "= bleed_ticks"}
               - {id: push, op: impulse, at: 0, target: event.victim, vector: "= -contact.normal * 0.35 + vec(0, 0.12, 0)"}
               - {id: hitstop, op: freeze, at: 0, ticks: 2, scope: [caster, volley]}
-              - {id: stab_snd, op: sound, sound: couture.stab, anchor: contact, pitch: "= 1.2 - 0.2 * clamp(length(velocity(volley) - velocity(event.victim)) / 2.0, 0.0, 1.0)"}
+              - {id: stab_snd, op: sound, sound: couture.stab, anchor: contact, pitch: "= 1.2 - 0.2 * clamp(length(velocity(volley) - velocity(victim)) / 2.0, 0.0, 1.0)"}
               # GAP: v2 victim_anim stagger_back (strength = clamp(|rel_velocity| / 2, 0.3, 1.0)) has no victim body op (R41 covers the caster only)
-              - {id: sparks, op: particle, particle: "= spark_particle", anchor: contact, count: "= spark_count", offset: 0.4, extra: 0.4}
+              - {id: sparks, op: particle, particle: crit, anchor: contact, count: "= spark_count", offset: [0.4, 0.4, 0.4], extra: 0.4}
             block:
               - {id: crumb, op: particle_def, def: couture-s2-p-crumb, anchor: contact}
               - {id: wall_snd, op: sound, sound: couture.stab_wall, anchor: contact}
@@ -1001,17 +1001,19 @@ machine:
         - {id: fly_b_m, op: display, kind: item, item: "astera:couture-rapier-blade-b", anchor: fly_b, until: reel.end}
         - {id: throw_snd, op: sound, sound: couture.throw, anchor: shears, pitch: 1.1}
         # v2 dust: vanilla directed form (R34); v2 speed 0 so the velocity is only inherit_velocity 0.5 x the volley velocity.
-        - {id: puff, op: particle, particle: dust, anchor: caster.palm, times: 6, count: 0, offset: "= velocity(volley) * 0.5", extra: 1.0, color: "= thread_color", size: 1.0}
+        - {id: puff, op: particle, particle: dust, anchor: caster.palm, times: 6, count: 0, offset: "= velocity(volley) * 0.5", extra: 1.0, color: "#ff5fa2", size: 1.0}
         # v2 thread lines palm -> blade_a.root / blade_b.root / body.pivot (R34: live ribbons).
-        - {id: thread_a, op: ribbon, from: {of: caster, offset: palm}, to: fly_a.root, thickness: "= thread_thick", color: "#ff5fa2", until: reel.end}
-        - {id: thread_b, op: ribbon, from: {of: caster, offset: palm}, to: fly_b.root, thickness: "= thread_thick", color: "#ff5fa2", until: reel.end}
-        - {id: thread_body, op: ribbon, from: {of: caster, offset: palm}, to: fly_body.pivot, thickness: "= thread_thick", color: "#ff5fa2", until: reel.end}
+        - {id: palm_f, op: frame, anchor: palm, until: reel.end}   # ribbon ends resolve frame-op ids only (RibbonOpSpec.anchorOf), not document anchors
+        # ENGINE GAP: RibbonOpSpec.kt:179 demands a static `for`, but the reel ends on arrival (runtime distance, v2), so its length is not fixed; kept until: reel.end (not a literal 51) until the engine accepts it.
+        - {id: thread_a, op: ribbon, from: palm_f, to: fly_a.root, thickness: "= thread_thick", color: "#ff5fa2", until: reel.end}
+        - {id: thread_b, op: ribbon, from: palm_f, to: fly_b.root, thickness: "= thread_thick", color: "#ff5fa2", until: reel.end}
+        - {id: thread_body, op: ribbon, from: palm_f, to: fly_body.pivot, thickness: "= thread_thick", color: "#ff5fa2", until: reel.end}
         # v1 plate flight_fan: slash_fan (= couture-s2-crescent) in the plane [axis, up] of the volley, alpha 0.5, removed on hit/block (the throw state ends then). Size 1.9 is the v2 value. ASSUMPTION: a fixed sprite faces +forward, so up 90 lays its x axis along the flight axis.
         - {id: flight_fan, op: display, kind: sprite, sprite: couture-s2-crescent, size: [1.9, 1.9], color: "#80ffffff", anchor: volley, billboard: fixed, rotate: [{axis: up, deg: 90}], for: 7}
         # v1 tip-glint (couture-s2-*-flight): couture-s2-p-tip every tick, ticks 3..10, per piece, at the v1 vfx-local lane point. v1 VfxDefinition.kt:372 documents x = left, y = up, z = forward, so offsets are copied unchanged.
-        - {id: tip_glint_a, op: particle_def, def: couture-s2-p-tip, anchor: volley, offset: {left: -0.6, up: 0.12, forward: 0.05}, at: 3, every: 1, times: 8}
-        - {id: tip_glint_b, op: particle_def, def: couture-s2-p-tip, anchor: volley, offset: {left: 0.6, up: -0.1, forward: 0.95}, at: 3, every: 1, times: 8}
-        - {id: tip_glint_body, op: particle_def, def: couture-s2-p-tip, anchor: volley, offset: {left: 0.0, up: 0.0, forward: 0.45}, at: 3, every: 1, times: 8}
+        - {id: tip_glint_a, op: particle_def, def: couture-s2-p-tip, anchor: {of: volley, offset: {left: -0.6, up: 0.12, forward: 0.05}}, at: 3, every: 1, times: 8}
+        - {id: tip_glint_b, op: particle_def, def: couture-s2-p-tip, anchor: {of: volley, offset: {left: 0.6, up: -0.1, forward: 0.95}}, at: 3, every: 1, times: 8}
+        - {id: tip_glint_body, op: particle_def, def: couture-s2-p-tip, anchor: {of: volley, offset: {left: 0.0, up: 0.0, forward: 0.45}}, at: 3, every: 1, times: 8}
       on:
         - {event: volley.hit, to: stuck}
         - {event: volley.block, to: stuck}
@@ -1020,12 +1022,12 @@ machine:
       then: reel
       do:
         # v1 stick-spark / stick-pink (couture-s2-*-stuck): ticks 0..2 per piece at the v1 vfx-local point (x lane, y 1.48, z 0.05). same axis mapping as tip-glint; the anchor is the volley, not the hit point.
-        - {id: stick_a_stick, op: particle_def, def: couture-s2-p-stick, anchor: volley, offset: {left: -0.6, up: 1.48, forward: 0.05}, at: 0, every: 1, times: 3}
-        - {id: stick_a_stick_pink, op: particle_def, def: couture-s2-p-stick-pink, anchor: volley, offset: {left: -0.6, up: 1.48, forward: 0.05}, at: 0, every: 1, times: 3}
-        - {id: stick_b_stick, op: particle_def, def: couture-s2-p-stick, anchor: volley, offset: {left: 0.6, up: 1.48, forward: 0.05}, at: 0, every: 1, times: 3}
-        - {id: stick_b_stick_pink, op: particle_def, def: couture-s2-p-stick-pink, anchor: volley, offset: {left: 0.6, up: 1.48, forward: 0.05}, at: 0, every: 1, times: 3}
-        - {id: stick_body_stick, op: particle_def, def: couture-s2-p-stick, anchor: volley, offset: {left: 0.0, up: 1.48, forward: 0.05}, at: 0, every: 1, times: 3}
-        - {id: stick_body_stick_pink, op: particle_def, def: couture-s2-p-stick-pink, anchor: volley, offset: {left: 0.0, up: 1.48, forward: 0.05}, at: 0, every: 1, times: 3}
+        - {id: stick_a_stick, op: particle_def, def: couture-s2-p-stick, anchor: {of: volley, offset: {left: -0.6, up: 1.48, forward: 0.05}}, at: 0, every: 1, times: 3}
+        - {id: stick_a_stick_pink, op: particle_def, def: couture-s2-p-stick-pink, anchor: {of: volley, offset: {left: -0.6, up: 1.48, forward: 0.05}}, at: 0, every: 1, times: 3}
+        - {id: stick_b_stick, op: particle_def, def: couture-s2-p-stick, anchor: {of: volley, offset: {left: 0.6, up: 1.48, forward: 0.05}}, at: 0, every: 1, times: 3}
+        - {id: stick_b_stick_pink, op: particle_def, def: couture-s2-p-stick-pink, anchor: {of: volley, offset: {left: 0.6, up: 1.48, forward: 0.05}}, at: 0, every: 1, times: 3}
+        - {id: stick_body_stick, op: particle_def, def: couture-s2-p-stick, anchor: {of: volley, offset: {left: 0.0, up: 1.48, forward: 0.05}}, at: 0, every: 1, times: 3}
+        - {id: stick_body_stick_pink, op: particle_def, def: couture-s2-p-stick-pink, anchor: {of: volley, offset: {left: 0.0, up: 1.48, forward: 0.05}}, at: 0, every: 1, times: 3}
         - id: t2
           op: group
           at: 2
@@ -1039,7 +1041,7 @@ machine:
               op: display
               kind: sprite
               sprite: couture-s2-burst-soft
-              tint: "#FFB8D8"
+              color: "#FFB8D8"
               anchor: fx1_couture_s2_hit2
               offset: {left: 0.1, up: 1.3, forward: 0}
               rotate: [{axis: forward, deg: 170}]
@@ -1052,7 +1054,7 @@ machine:
               op: display
               kind: sprite
               sprite: couture-s2-burst-plume
-              tint: "#FFB8D8"
+              color: "#FFB8D8"
               anchor: fx1_couture_s2_hit2
               offset: {left: 0, up: 1.3, forward: 0}
               rotate: [{axis: forward, deg: 168}]
@@ -1065,7 +1067,7 @@ machine:
               op: display
               kind: sprite
               sprite: couture-s2-burst-plume
-              tint: "#FFB8D8"
+              color: "#FFB8D8"
               anchor: fx1_couture_s2_hit2
               offset: {left: 0, up: 1.3, forward: 0}
               rotate: [{axis: forward, deg: 152}]
@@ -1078,7 +1080,7 @@ machine:
               op: display
               kind: sprite
               sprite: couture-s2-burst-plume
-              tint: "#FFB8D8"
+              color: "#FFB8D8"
               anchor: fx1_couture_s2_hit2
               offset: {left: 0, up: 1.3, forward: 0}
               rotate: [{axis: forward, deg: 136}]
@@ -1091,7 +1093,7 @@ machine:
               op: display
               kind: sprite
               sprite: couture-s2-burst-star
-              tint: "#FFB8D8"
+              color: "#FFB8D8"
               anchor: fx1_couture_s2_hit2
               offset: {left: 0, up: 1.3, forward: 0}
               size: [0.1728, 0.1728]
@@ -1103,7 +1105,7 @@ machine:
               op: display
               kind: sprite
               sprite: couture-s2-burst-star
-              tint: "#FFB8D8"
+              color: "#FFB8D8"
               anchor: fx1_couture_s2_hit2
               offset: {left: 0, up: 1.3, forward: 0}
               rotate: [{axis: forward, deg: 9}]
@@ -1120,7 +1122,7 @@ machine:
               op: display
               kind: sprite
               sprite: couture-s2-burst-shard
-              tint: "#FFB8D8"
+              color: "#FFB8D8"
               anchor: fx1_couture_s2_hit2
               offset: {left: 0, up: 1.387, forward: -0.295}
               rotate: [{axis: forward, deg: 170}]
@@ -1133,7 +1135,7 @@ machine:
               op: display
               kind: sprite
               sprite: couture-s2-burst-shard
-              tint: "#FFB8D8"
+              color: "#FFB8D8"
               anchor: fx1_couture_s2_hit2
               offset: {left: 0, up: 1.621, forward: -0.23}
               rotate: [{axis: forward, deg: 140}]
@@ -1146,7 +1148,7 @@ machine:
               op: display
               kind: sprite
               sprite: couture-s2-burst-shard
-              tint: "#FFB8D8"
+              color: "#FFB8D8"
               anchor: fx1_couture_s2_hit2
               offset: {left: 0, up: 1.738, forward: -0.539}
               rotate: [{axis: forward, deg: 154}]
@@ -1159,7 +1161,7 @@ machine:
               op: display
               kind: sprite
               sprite: couture-s2-haze-soft
-              tint: "#FFB8D8"
+              color: "#FFB8D8"
               anchor: fx1_couture_s2_hit2
               offset: {left: -0.1, up: 1.3, forward: 0}
               size: [0.2304, 0.2304]
@@ -1205,7 +1207,7 @@ machine:
               op: display
               kind: sprite
               sprite: couture-s2-burst-plume
-              tint: "#FFB8D8"
+              color: "#FFB8D8"
               anchor: fx1_couture_s2_hit2
               offset: {left: 0, up: 1.3, forward: 0}
               rotate: [{axis: forward, deg: 160}]
@@ -1218,7 +1220,7 @@ machine:
               op: display
               kind: sprite
               sprite: couture-s2-burst-plume
-              tint: "#FFB8D8"
+              color: "#FFB8D8"
               anchor: fx1_couture_s2_hit2
               offset: {left: 0, up: 1.3, forward: 0}
               rotate: [{axis: forward, deg: 144}]
@@ -1231,7 +1233,7 @@ machine:
               op: display
               kind: sprite
               sprite: couture-s2-burst-shard
-              tint: "#FFB8D8"
+              color: "#FFB8D8"
               anchor: fx1_couture_s2_hit2
               offset: {left: 0, up: 1.45, forward: -0.223}
               rotate: [{axis: forward, deg: 158}]
@@ -1244,7 +1246,7 @@ machine:
               op: display
               kind: sprite
               sprite: couture-s2-burst-shard
-              tint: "#FFB8D8"
+              color: "#FFB8D8"
               anchor: fx1_couture_s2_hit2
               offset: {left: 0, up: 1.548, forward: -0.519}
               rotate: [{axis: forward, deg: 164}]
@@ -1257,7 +1259,7 @@ machine:
               op: display
               kind: sprite
               sprite: couture-s2-burst-shard
-              tint: "#FFB8D8"
+              color: "#FFB8D8"
               anchor: fx1_couture_s2_hit2
               offset: {left: 0, up: 1.476, forward: -0.146}
               rotate: [{axis: forward, deg: 144}]
@@ -1270,7 +1272,7 @@ machine:
               op: display
               kind: sprite
               sprite: couture-s2-burst-flare
-              tint: "#FFB8D8"
+              color: "#FFB8D8"
               anchor: fx1_couture_s2_hit2
               offset: {left: 0, up: 1.3, forward: 0}
               size: [0.31872, 0.31872]
@@ -1282,7 +1284,7 @@ machine:
               op: display
               kind: sprite
               sprite: couture-s2-burst-flare
-              tint: "#FFB8D8"
+              color: "#FFB8D8"
               anchor: fx1_couture_s2_hit2
               offset: {left: 0, up: 1.3, forward: 0}
               rotate: [{axis: forward, deg: 28}]
@@ -1303,7 +1305,7 @@ machine:
               op: display
               kind: sprite
               sprite: couture-s2-burst-shard
-              tint: "#FFB8D8"
+              color: "#FFB8D8"
               anchor: fx1_couture_s2_hit2
               offset: {left: 0, up: 1.65, forward: -0.364}
               rotate: [{axis: forward, deg: 150}]
@@ -1316,7 +1318,7 @@ machine:
               op: display
               kind: sprite
               sprite: couture-s2-burst-shard
-              tint: "#FFB8D8"
+              color: "#FFB8D8"
               anchor: fx1_couture_s2_hit2
               offset: {left: 0, up: 1.76, forward: -0.232}
               rotate: [{axis: forward, deg: 130}]
@@ -1347,8 +1349,9 @@ machine:
       then: coin3
       do:
         - {id: reel, op: reel, anchor: volley, to: caster.palm, speed: "= reel_speed", ease: in}
-        - {id: reel_hit, op: hit, anchor: volley, targets: enemies, shape: {capsule: 0.2, from: root, to: tip}, window: once, damage: {physical: "= dmg_reel"}, on: {hit: [{id: pull, op: impulse, target: event.victim, vector: "= normalize(pos(caster.palm) - pos(event.victim)) * 0.25"}, {id: reel_sparks, op: particle, particle: "= spark_particle", anchor: contact, count: 6}, {id: slash_snd, op: sound, sound: couture.slash_light, anchor: contact}]}}
-        - {id: reel_snd, op: sound, sound: couture.reel, anchor: volley, every: 3, for: 16, volume: 1.0, pitch: "= 1.0 + 0.4 * (1 - dist(volley, caster.palm) / throw_range)"}
+        # ignore_invulnerability: false is the vanilla default (v2 reel_hit had no flag).
+        - {id: reel_hit, op: hit, anchor: volley, targets: enemies, shape: {capsule: 0.2, from: root, to: tip}, window: once, ignore_invulnerability: false, damage: {physical: "= dmg_reel"}, on: {hit: [{id: pull, op: impulse, target: event.victim, vector: "= normalize(pos(palm) - pos(event.victim)) * 0.25"}, {id: reel_sparks, op: particle, particle: crit, anchor: contact, count: 6}, {id: slash_snd, op: sound, sound: couture.slash_light, anchor: contact}]}}
+        - {id: reel_snd, op: sound, sound: couture.reel, anchor: volley, every: 3, for: 16, volume: 1.0, pitch: "= 1.0 + 0.4 * (1 - dist(volley, palm) / throw_range)"}
         - {id: catch_snd, op: sound, sound: couture.catch, anchor: shears, at: 15}
       on:
         - {event: reel.end, to: coin3}
@@ -1364,9 +1367,9 @@ machine:
           at: 9
           every: 1
           for: 3
-          anchor: caster
+          anchor: body_c
           targets: enemies
-          shape: {sphere: {center: caster.body, radius: 1.8}}
+          shape: {sphere: 0.8}   # v2 dash_strike radius 0.8, hit_once: true (9d4c4a3db content/skills/couture-rapier-s2/coin3.yaml:20-21); window: once = hit_once
           window: once
           damage: {physical: = dmg_coin3}
           ignore_invulnerability: true
@@ -1825,7 +1828,7 @@ machine:
               op: display
               kind: sprite
               sprite: couture-orbit
-              tint: "#FFC8DC"
+              color: "#FFC8DC"
               anchor: fx8_couture_s2_dash
               offset: {left: 0, up: 1.1, forward: -1.6}
               rotate: [{axis: left, deg: 90}]

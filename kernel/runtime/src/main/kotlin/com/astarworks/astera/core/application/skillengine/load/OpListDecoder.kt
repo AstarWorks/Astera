@@ -10,6 +10,7 @@ import com.astarworks.astera.core.application.skillengine.load.spec.OpNode
 import com.astarworks.astera.core.application.skillengine.load.spec.OpSpec
 import com.astarworks.astera.core.application.skillengine.load.spec.OpSpecRegistry
 import com.astarworks.astera.core.application.skillengine.load.spec.WhenRef
+import com.astarworks.astera.core.application.skillengine.part.SeqSugar
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.skillengine.expr.ExprType
 import com.astarworks.astera.core.domain.skillengine.model.Value
@@ -34,7 +35,7 @@ public class OpListDecoder(private val specs: OpSpecRegistry) {
     /** Throwing form used by nested-list field types ([OpLists]); call under [Grammar.guard]. */
     internal fun read(list: YamlNode, section: OpSection, ctx: GrammarContext, path: String): List<OpNode> {
         if (list == null) return emptyList()
-        val items = list as? List<*> ?: ctx.mismatch(path, "list of ops", list)
+        val items = SeqSugar.expandList(list as? List<*> ?: ctx.mismatch(path, "list of ops", list), path) { p, msg -> ctx.fail(p, msg) }
         val out = ArrayList<OpNode>(items.size)
         val seen = HashSet<String>()
         for ((i, el) in items.withIndex()) {

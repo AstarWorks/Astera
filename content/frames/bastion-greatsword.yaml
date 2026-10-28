@@ -18,3 +18,10 @@ parts:
     length: 1.1059
     points: { grip: [-0.2501, -0.3447, 0.0774], pivot: [-0.2501, -0.3447, 0.0774], root: [-0.1629, -0.2201, 0.0774], tip: [0.3198, 0.4692, 0.0774] }
     axes: { long: [0.5736, 0.8192, 0], edge: [0.8192, -0.5736, 0] }
+  # The ego slam sword is built from block displays (bastion-ego-slam v1 `parts`), not from the item model: its frame is the plain
+  # block frame, long = up (the 1.9 high face), edge = forward (the thin 0.07 axis, so the broad face leads the pitch swing), as v1
+  # rig `sword` (rest [0,90,0], pure pitch). It reuses the item's model name only because a part needs one; it has no points.
+  slam_blocks:
+    model: astera:bastion-greatsword
+    display: fixed
+    axes: { long: [0, 1, 0], edge: [0, 0, 1] }

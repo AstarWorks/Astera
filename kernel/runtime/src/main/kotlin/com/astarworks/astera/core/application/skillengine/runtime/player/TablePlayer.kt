@@ -142,8 +142,9 @@ public class TablePlayer(
     // ------------------------------------------------------------------ API
 
     override fun start(request: CastRequest, skill: CompiledSkill): Result<CastHandle, CastError> {
-        val rootPath = StatePath(skill.def.machine.start)
+        // the table's first state is the entry (MachineTables puts it there): a part call as `machine.start` is expanded to its child path
         val states = skill.table.states.associateBy { it.state }
+        val rootPath = skill.table.states.firstOrNull()?.state ?: StatePath(skill.def.machine.start)
         if (rootPath !in states) return Result.Failure(CastError.FrameSetup("start state '${rootPath.value}' has no table in ${skill.table.skillId}"))
         val handle = CastHandle(nextCast++)
         val root = LevelCursor(rootPath, request.startTick, 0)
@@ -799,6 +800,12 @@ public class TablePlayer(
         }
         val value = dbl(run, a.value, ctx)
         when (a.field) {
+            "width", "width_frac" -> {
+                val rec = run.recs[row.instance]
+                val handle = rec?.real
+                if (rec != null && rec.kind != SpawnKind.RIBBON) fault(run, now, src, "set ${a.field}: '${row.instance.text}' is a ${rec.kind.name.lowercase()} display; it is for ribbons")
+                else if (handle != null) visual.setTrailWidth(handle, value)
+            }
             "count", "volume" -> run.fields.getOrPut(row.instance) { HashMap() }[a.field] = value
             "text_opacity" -> {
                 val rec = run.recs[row.instance]

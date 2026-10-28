@@ -204,20 +204,20 @@ public object PartParser {
     private fun state(id: String, raw: Any?, where: String, out: MutableMap<String, MachineState>) {
         val m = raw.asMap(where)
         if ("machine" in m) abort("$where.machine", "nested machine: is not supported; declare child states with states: and start:")
-        checkKeys(m, where, setOf("for", "then", "final", "enter", "do", "exit", "on", "use", "with", "frames", "start", "states"))
+        checkKeys(m, where, setOf("for", "then", "final", "enter", "do", "exit", "on", "use", "with", "frames", "start", "states", "parallel"))
         val local = id.substringAfterLast('/')
         if (!STATE_ID.matches(local)) abort(where, "state id '$local' must match [A-Za-z][A-Za-z0-9_-]*")
         val final = m["final"] as? Boolean ?: false
         if (m["final"] != null && m["final"] !is Boolean) abort("$where.final", "final must be true or false")
         val use = m["use"]
         if (use != null) {
-            val bad = listOf("for", "final", "enter", "do", "exit", "states", "start").firstOrNull { it in m }
+            val bad = listOf("for", "final", "enter", "do", "exit", "states", "start", "parallel").firstOrNull { it in m }
             if (bad != null) abort("$where.$bad", "a state that calls a part (use:) carries only with / frames / on / then")
         } else {
             for (k in listOf("with", "frames")) if (k in m) abort("$where.$k", "'$k' is only valid next to use:")
         }
         if (final) {
-            val bad = listOf("for", "then", "on", "exit", "use", "states", "start").firstOrNull { it in m }
+            val bad = listOf("for", "then", "on", "exit", "use", "states", "start", "parallel").firstOrNull { it in m }
             if (bad != null) abort("$where.$bad", "a final state has no outgoing transitions, exit or children")
         }
         val childrenRaw = m["states"]?.asMap("$where.states")
@@ -229,6 +229,14 @@ public object PartParser {
             if (start == null) abort("$where.start", "NestedStartMissing: state '$local' has states: and must declare start: <child>")
             if (start !is String) abort("$where.start", "start must be a child state name")
         }
+        // ADR-0303 10.2: `parallel: [machine, ...]` regions all run and the state ends when every one is final; a region is a machine
+        // of its own, so it cannot share a state with child `states:` (two ways to say what is entered first)
+        val parallel = m["parallel"]?.let { raw ->
+            if (childrenRaw != null) abort("$where.parallel", "a state has either states: (one active child) or parallel: (all regions), not both")
+            val list = raw as? List<*> ?: abort("$where.parallel", "parallel must be a list of machines {start, states}")
+            if (list.isEmpty()) abort("$where.parallel", "parallel needs at least one region")
+            list.mapIndexed { i, r -> machine(r, "$where.parallel[$i]") }
+        } ?: emptyList()
         val forTicks = m["for"]
         if (forTicks != null) {
             if (!(forTicks is Number && forTicks.toDouble() >= 0 && forTicks.toDouble() == Math.floor(forTicks.toDouble())) && !(forTicks is String && forTicks.startsWith("= "))) {
@@ -243,7 +251,7 @@ public object PartParser {
             val part = it as? String ?: abort("$where.use", "use must be a part id")
             PartCall(part, m["with"].let { w -> if (w == null) emptyMap() else w.asMap("$where.with") }, stringMap(m["frames"], "$where.frames"))
         }
-        out[id] = MachineState(id, forTicks, then, final, ops(m["enter"], "$where.enter"), ops(m["do"], "$where.do"), ops(m["exit"], "$where.exit"), on, call, start = start as String?)
+        out[id] = MachineState(id, forTicks, then, final, ops(m["enter"], "$where.enter"), ops(m["do"], "$where.do"), ops(m["exit"], "$where.exit"), on, call, parallel = parallel, start = start as String?)
         childrenRaw?.forEach { (cid, c) -> state("$id/$cid", c, "$where.states.$cid", out) }
     }
 
@@ -263,15 +271,15 @@ public object PartParser {
 
     private fun ops(raw: Any?, where: String): List<OpMap> {
         if (raw == null) return emptyList()
-        val list = raw as? List<*> ?: abort(where, "expected a list of ops")
-        return list.mapIndexed { i, e ->
+        val list = SeqSugar.expandList(raw as? List<*> ?: abort(where, "expected a list of ops"), where) { p, msg -> abort(p, msg) }
+        return list.flatMapIndexed { i, e ->
             val m = e.asMap("$where[$i]")
             if (m["op"] !is String && m["emit"] !is String && m["use"] !is String) {
                 // ADR-0303 2.0a: a timing group is implied by `do:`
-                if (m["do"] is List<*>) return@mapIndexed m + ("op" to "group")
+                if (m["do"] is List<*>) return@flatMapIndexed listOf(m + ("op" to "group"))
                 abort("$where[$i]", "an op needs 'op: <name>' (or the shorthands 'emit: <event>' / 'use: <part>'; a timing group is a map with `do:`)")
             }
-            m
+            listOf(m)
         }
     }
 

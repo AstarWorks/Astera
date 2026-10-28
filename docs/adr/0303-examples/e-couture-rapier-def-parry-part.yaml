@@ -54,7 +54,7 @@ meta: {cooldown_ticks: 85, resource_cost: 10}
 anchors:
   - {id: blade, anchor: caster.hand_r, mount: caster}
 machine:
-  start: guard                                 # ENGINE GAP: PartExpander rewrites this start to the child path (StartNamesChild) / StaticChecks takes table.states.first(); see report
+  start: guard
   states:
     guard:
       use: parry

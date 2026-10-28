@@ -96,6 +96,19 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
 
     private fun name(h: VisualHandle): String = "#" + (ordinals[h.id] ?: -1)
 
+    /** The lock sink the platform's `PaperPlayerHooks` is: pitch / yaw go through `lockLook`, so a played lock shows as a `lock` call. */
+    val hooks: com.astarworks.astera.core.application.skillengine.runtime.player.PlayerHooks =
+        object : com.astarworks.astera.core.application.skillengine.runtime.player.PlayerHooks {
+            override fun lock(caster: UUID, move: com.astarworks.astera.core.domain.skillengine.table.LockMove, pitch: Boolean, yaw: Boolean, untilTick: Int): Boolean {
+                if (pitch || yaw) gameplay.lockLook(caster, pitch, yaw, untilTick)
+                return true
+            }
+
+            override fun unlock(caster: UUID, move: com.astarworks.astera.core.domain.skillengine.table.LockMove, pitch: Boolean, yaw: Boolean) {
+                if (pitch || yaw) gameplay.unlockLook(caster)
+            }
+        }
+
     val visual: ISkillVisualGateway = object : ISkillVisualGateway {
         override fun spawnMesh(cast: CastRef, item: String, part: String?, pose: VisualPose, brightness: Int?, look: MeshLook, view: DisplayView, glow: String?) = spawned(cast, "item")
 
@@ -121,6 +134,8 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
         override fun setTrailLook(handle: VisualHandle, fadePower: Double, style: String) = Unit
 
         override fun setTrailShape(handle: VisualHandle, bands: List<TrailBand>, edge: TrailEdge?, rim: TrailRim?, stepDeg: Double, doubleSided: Boolean) = Unit
+
+        override fun setTrailWidth(handle: VisualHandle, widthFrac: Double) = add("trail_width", name(handle), "w=%.3f".format(widthFrac))
     }
 
     val particles: ISkillParticleGateway = object : ISkillParticleGateway {

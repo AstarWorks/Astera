@@ -16,33 +16,32 @@ machine:
         - {id: orb,   op: display, kind: sprite, sprite: couture-s2-haze-soft, anchor: caster, size: [0.4, 0.4], at: 0, for: 16}
         - {id: flash, op: display, kind: sprite, sprite: ring,     anchor: caster, size: [1.0, 1.0], at: 16, for: 3}
     end: {final: true}
-# ENGINE GAP: the `seq:` sugar of ADR-0303 11.x (R17) is not implemented in the kernel loader ("an op needs op:"), so the imperative form is kept as a comment only.
+---
 # 2) imperative sugar: same effect with seq. `wait` advances the running offset; each item fires at the current offset.
-# apiVersion: astera/v3
-# kind: Skill
-# id: example-seq-imperative
-# machine:
-#   start: charge
-#   states:
-#     charge:
-#       for: 19
-#       then: end
-#       do:
-#         - seq:
-#             - {id: orb,     op: display, kind: sprite, sprite: couture-s2-haze-soft, anchor: caster, size: [0.4, 0.4], for: 16}   # offset 0
-#             - {id: shimmer0, op: sound, sound: block.amethyst_block.chime, anchor: caster, volume: 0.5, pitch: 1.0}
-#             - {wait: 4}
-#             - {id: shimmer1, op: sound, sound: block.amethyst_block.chime, anchor: caster, volume: 0.5, pitch: 1.1}
-#             - {wait: 4}
-#             - {id: shimmer2, op: sound, sound: block.amethyst_block.chime, anchor: caster, volume: 0.5, pitch: 1.2}
-#             - {wait: 4}
-#             - {id: shimmer3, op: sound, sound: block.amethyst_block.chime, anchor: caster, volume: 0.5, pitch: 1.3}
-#             - {wait: 4}
-#             - {id: flash, op: display, kind: sprite, sprite: ring, anchor: caster, size: [1.0, 1.0], for: 3}   # offset 16
-#     end: {final: true}
+apiVersion: astera/v3
+kind: Skill
+id: example-seq-imperative
+machine:
+  start: charge
+  states:
+    charge:
+      for: 19
+      then: end
+      do:
+        - seq:
+            - {id: orb,     op: display, kind: sprite, sprite: couture-s2-haze-soft, anchor: caster, size: [0.4, 0.4], for: 16}   # offset 0
+            - {id: shimmer0, op: sound, sound: block.amethyst_block.chime, anchor: caster, volume: 0.5, pitch: 1.0}
+            - {wait: 4}
+            - {id: shimmer1, op: sound, sound: block.amethyst_block.chime, anchor: caster, volume: 0.5, pitch: 1.1}
+            - {wait: 4}
+            - {id: shimmer2, op: sound, sound: block.amethyst_block.chime, anchor: caster, volume: 0.5, pitch: 1.2}
+            - {wait: 4}
+            - {id: shimmer3, op: sound, sound: block.amethyst_block.chime, anchor: caster, volume: 0.5, pitch: 1.3}
+            - {wait: 4}
+            - {id: flash, op: display, kind: sprite, sprite: ring, anchor: caster, size: [1.0, 1.0], for: 3}   # offset 16
+    end: {final: true}
 # Both expand (generated) to the IDENTICAL table:
 #   charge  ticks 0-19   firings: sound chime @0,4,8,12 x4 (pitch 1.0,1.1,1.2,1.3) | orb display 0-16 | flash display 16-19
 #   writes: orb 1 segment (0 laws), flash 1 | hits 0 | path: charge(19)->end  min 19 max 19
 # Check (lint + sim `seq-equality`): desugar(seq) == declarative tick for tick; a mismatch fails the load.
 # The declarative form is shorter at scale (one `every: 4, for: 16` replaces four ops and three waits) and is what the converter emits.
-# 
