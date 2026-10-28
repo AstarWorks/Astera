@@ -1,6 +1,7 @@
 # ADR-0303 example (a): couture-rapier-s2 coin 1 presentation, rewritten from content/skills/couture-rapier-s2/coin1.yaml.
 # Shapes, rates and timings come from the current file (see the rule R1-R13 outputs); sizes in blocks are illustrative (the converter
-# computes them from each sprite's px). The 30-degree / 9-block sector, the 30 damage and the 1-tick delay stay in `gameplay` unchanged.
+# computes them from each sprite's px). Timing is the ONE block of ADR-0303 2.0 (at / for / every / times / until / lasts) on every op; laws have their
+# own from/for windows. Lines marked [CEL] / [REPEAT] show the 2.0 / 3.5 additions (added for illustration, they are not in v1 data). The 30-degree / 9-block sector, the 30 damage and the 1-tick delay stay in `gameplay` unchanged.
 apiVersion: astera/v3
 kind: Skill
 id: couture-rapier-s2
@@ -14,6 +15,8 @@ presentation:
       do:
         - {id: snd_a, op: sound, sound: entity.player.attack.sweep, at: caster, volume: 0.5, pitch: 0.6}
         - {id: snd_b, op: sound, sound: item.armor.equip_chain,     at: caster, volume: 0.6, pitch: 1.4}
+        # [REPEAT] a repeating sound is the same timing block as a display: three ticks of rustle, pitch climbing by CEL on the repeat index
+        - {id: snd_rustle, op: sound, sound: item.armor.equip_leather, at: caster, volume: 0.4, every: 2, times: 3, pitch: "= 0.9 + 0.08 * i"}
     - id: fx3
       at: 3
       do:
@@ -26,9 +29,9 @@ presentation:
           billboard: center
           color: "#8A5CFF"
           size: [0.8, 0.8]
-          life: {ticks: 8}
+          for: 8
           motion:
-            - {law: grow, from: 0, ticks: 3, per_tick: [0.133, 0.133]}      # 0.4 -> 0.8 (size starts [0.4, 0.4]), then holds
+            - {law: grow, from: 0, for: 3, per_tick: [0.133, 0.133]}      # 0.4 -> 0.8 (size starts [0.4, 0.4]), then holds
           mount: caster
     - id: fx7
       at: 7
@@ -47,12 +50,12 @@ presentation:
           billboard: center
           rotate: [{axis: face, deg: "${roll}"}]       # constant roll is a static rotation, not a law
           size: [0.2, 0.2]
-          life: {ticks: 5}
+          for: 5
           motion:
-            - {law: move, velocity: {forward: 1.2}, from: 0, ticks: 1}            # fast out
-            - {law: move, velocity: {forward: 0.35}, from: 1, ticks: 4}           # then slows
-            - {law: grow, per_tick: [0.3, 0], from: 0, ticks: 1}                  # 0.2 -> 0.5 wide
-            - {law: grow, per_tick: [-0.05, -0.02], from: 1, ticks: 4}            # -> 0.3 x 0.12
+            - {law: move, velocity: {forward: 1.2}, from: 0, for: 1}            # fast out
+            - {law: move, velocity: {forward: 0.35}, from: 1, for: 4}           # then slows
+            - {law: grow, per_tick: [0.3, 0], from: 0, for: 1}                  # 0.2 -> 0.5 wide
+            - {law: grow, per_tick: [-0.05, -0.02], from: 1, for: 4}            # -> 0.3 x 0.12
         # crescent core: the irregular one, so keys (named axis `face`)
         - id: core
           op: display
@@ -62,7 +65,7 @@ presentation:
           offset: {up: 1.0, forward: -0.2}
           billboard: center
           size: [0.5, 0.4]
-          life: {ticks: 7}
+          for: 7
           motion:
             - law: keys
               keys:
@@ -86,15 +89,19 @@ presentation:
           kind: sprite
           sprite: couture-s2-petal-spark
           at: slash
-          offset: {left: "${left}", up: "${up}", forward: "${forward}"}
+          # [CEL] spawn-time (class S): each petal gets a seeded jitter on top of its data row, deterministic per cast
+          offset: {left: "= ${left} + (rand() - 0.5) * 0.05", up: "${up}", forward: "${forward}"}
           rotate: [{axis: face, deg: "${roll}"}]
           billboard: center
           size: [0.3, 0.3]
-          life: {ticks: 5}
+          for: 5
           motion:
-            - {law: spin, axis: face, deg_per_tick: 40}
-            - {law: move, velocity: {forward: 0.2},  from: 0, ticks: 1}
-            - {law: move, velocity: {forward: 0.41, up: 0.0275}, from: 1, ticks: 4}
-            - {law: grow, per_tick: [0.44, 0.29], from: 0, ticks: 1}
-            - {law: grow, per_tick: [-0.055, -0.06], from: 1, ticks: 4}
-    - {id: sp_loop, at: 7, every: 1, ticks: 7, do: [{id: sp, op: particle_def, def: couture-s2-p-white, at: slash}]}
+            - {law: spin, axis: face, deg_per_tick: 40}                          # v1 data: 309 -> 349 -> 509 is 40 deg/tick
+            # [CEL] the same spin if it should ramp: {law: spin, axis: face, deg_per_tick: "= 40 + t * 3"}  (class T, one fitted segment per ~2 deg of error, 3.5)
+            - {law: move, velocity: {forward: 0.2},  from: 0, for: 1}
+            - {law: move, velocity: {forward: 0.41, up: 0.0275}, from: 1, for: 4}
+            - {law: grow, per_tick: [0.44, 0.29], from: 0, for: 1}
+            - {law: grow, per_tick: [-0.055, -0.06], from: 1, for: 4}
+        # [REPEAT] the particle emit loop is NOT a separate timeline entry any more: it is the same timing block on the op (was sp_loop: at 7, every 1, 7 ticks).
+        # `count` is a [CEL] on the repeat index: it thickens, then thins (class S, no per-tick writes; particles are fire-and-forget).
+        - {id: sp, op: particle, particle: end_rod, at: slash, offset: {forward: "= 0.4 * i"}, count: "= 3 + i", extra: 0.02, at: 7, every: 1, for: 7}

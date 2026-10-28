@@ -23,7 +23,7 @@ presentation:
           context: fixed
           at: hand
           rotate: [{axis: left, deg: 98}, {axis: up, deg: -12}]        # rest: blade up and out of the fist (replaces pivot/rest/tilt)
-          life: {ticks: 47}
+          for: 47
           motion:
             - law: keys
               keys:
@@ -39,6 +39,7 @@ presentation:
           op: ribbon
           of: sword.tip                    # tip / root come from content/frames/<item>.yaml
           root: sword.grip
-          ticks: 4
+          lasts: 4                         # ribbon history length (a ribbon is extended: its window is `for` below)
           color: "#EE14245F"
-          life: {ticks: 20}
+          at: 3                            # the trail starts when the chop starts, `for` is its window
+          for: 20

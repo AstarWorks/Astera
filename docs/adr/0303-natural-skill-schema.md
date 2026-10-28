@@ -84,6 +84,42 @@ at its step (section 4).
 
 ### 2. Objects: thin vanilla mappings
 
+#### 2.0 One timing block for every kind
+
+Every op that does something over time carries the SAME timing block: `display`, `ribbon`, `particle`, `particle_def`, `sound`, and the
+gameplay ops (`hit`, `damage`, `status`, `impulse`, `knockback`, `projectile`). A repeating sound or emit is this block, never a separate `every` op.
+
+| field | meaning |
+|---|---|
+| `at` | start: a tick (since cast start, or since the event inside a handler) or an event, with optional offset: `at: 8`, `at: release`, `at: "release+2"`. Inherited from the enclosing timeline group, overridable per op. |
+| `for` | duration in ticks of the op's window; `for: cast` = until the cast ends. **Extended kinds** (display, ribbon) without `every`: the instance lives `for` ticks. **Point kinds** (particle, sound, hit, damage) with `every`: the window in which they repeat. |
+| `every` | repeat period in ticks: occurrences at `at + k * every` (exact multiples, k = 0, 1, ...) inside the window. Absent = one occurrence. |
+| `times` | maximum number of occurrences (with `every`). |
+| `until` | an event; ends the window (and every live instance of an extended kind) the first time it fires. |
+| `lasts` | extended kinds WITH `every` only: how long each occurrence lives. Required there (no hidden default), so repeats cannot pile up. |
+
+- Repeat index `i` (0-based) and occurrence count `n` (`times`, else `floor(for / every)`, else -1 for `until`-bounded) are CEL variables (3.5).
+- A repeat with no bound (`every` without one of `for`, `times`, `until`) is a load error.
+- A timeline group `{at, every, for, times, until, do: [...]}` is only shorthand: its block is the default of every op in `do`, and an op's own field
+  overrides it field by field.
+- Examples of the same grammar on different kinds: sound `{at: 4, every: 4, until: release}`; particle `{at: 7, every: 1, for: 7}`; display
+  `{at: 7, for: 5}`; trail ribbon `{at: 4, until: release}`; multi-hit `{op: hit, at: 8, every: 2, times: 3}`; damage over time
+  `{op: damage, at: 0, every: 10, for: 60}`. Each occurrence of a gameplay op sees its own `i`.
+
+#### 2.0b No hidden defaults
+
+Every field is either **required** or defaults to the **identity value** (0, 1, empty, absent, or the plain vanilla default), and that default is
+written in the field table. A value that differed in v1 is written EXPLICITLY by the converter, never supplied by the engine.
+
+| field | choice | why |
+|---|---|---|
+| `fade.exponent` / ribbon `fade` (v1 `fade_power`) | identity default **1.0** (linear); the converter writes `exponent: 1.5` on every v1 element, because v1 defaulted to 1.5 (v2 silently changed it to 1.0, unapproved) | the schema default is the neutral value, and the v1 look is visible in the content instead of in the engine |
+| `count`, `offset`, `extra` (particle) | identity 1, [0,0,0], 0 | vanilla overload arguments, written down |
+| `scale`, `size` growth, `volume`, `pitch` | identity 1 (volume/pitch: vanilla sound defaults) | |
+| `billboard`, `context`, `view_range`, `yaw`, `pitch` | vanilla `fixed`, `fixed` (decision), 1.0, 0, 0 | |
+| `ribbon.style` (`soft | crisp | both`), `ribbon.width_frac`, `projectile.block.mode` | **required** (v2 hid `soft`) | no neutral value exists |
+| `lasts`, `for`/`until`/`times` bounds, `block.restitution`, `block.times`, `block.for` | **required** where they apply | no neutral value exists |
+
 #### 2.1 `display` (kinds `item`, `block`, `text`, `sprite`)
 
 Every field is a vanilla field. Defaults are vanilla defaults.
@@ -110,7 +146,7 @@ Every field is a vanilla field. Defaults are vanilla defaults.
   interpolation_delay: 0           # engine-owned after spawn (section 4); written by the author only for hand-tuned loops
   interpolation_duration: 0
   teleport_duration: 0
-  life: {ticks: 24}                # REQUIRED, section 5
+  for: 24                          # REQUIRED end (for | until | for: cast), section 2.0 and 5; `at`, `every`, `times`, `until`, `lasts` also apply
   motion: [ ... ]                  # laws, section 3
 ```
 
@@ -143,7 +179,7 @@ overload: `count: 1`, `offset: [0, 0, 0]`, `extra: 0`.
 | `extra` | extra (speed; for dust etc. as vanilla uses it) |
 | `color`, `size` | `Particle.DustOptions` (color, size) |
 | `block`, `item` | `BlockData` / `ItemStack` data |
-| `every`, `ticks` | timeline repetition (`every: 1` for a trail); not a particle argument |
+| `at`, `for`, `every`, `times`, `until` | the timing block of 2.0 (`every: 1` for a trail); not particle arguments |
 
 Deleted: `dir`, `spread_deg`, `speed` (the 0.3 sphere), `inherit_velocity`, `seed`, "count as repeat" and the `vanilla` flag. A custom particle
 definition is a separate op, `particle_def: couture-s2-p-pink` with `repeat`, never an overload of `particle`. The server-side per-call count cap
@@ -165,19 +201,19 @@ The vanilla order is `T * L * S * R`: `translation` is NOT rotated by `left_rota
 
 Motion is a list on the object (`motion:`) or on an anchor (`motion:` in `anchors`, presentation anchors only). Laws are composable.
 
-Common fields: `from` (tick since the object exists, default 0), `ticks` or `until: <event>` (default: to the end of the object's life), `ease`
-(`linear` default). Axes are named (3.1) and RESOLVED ONCE at law start, then frozen in the parent basis (a spinning object does not wobble).
+Every law has its own window: `from` (ticks since the instance started, default 0), `for` (ticks; or `until: <event>`; default to the end of the
+instance), and `ease` (`linear` default). A law is an ordinary part of the timing grammar (2.0): same words, same meaning, relative to the instance. Axes are named (3.1) and RESOLVED ONCE at law start, then frozen in the parent basis (a spinning object does not wobble).
 Closed-form: all laws are evaluated as functions of `tau = ticks since law start`, never integrated tick by tick.
 
 | law | fields | meaning |
 |---|---|---|
 | `spin` | `axis`, `deg_per_tick`, `accel?` (deg/tick^2) | `angle(tau) = rate*tau + accel*tau^2/2` about `axis` |
-| `move` | `dir` or `velocity` (name-keyed or CEL), `speed`, `gravity?` (blocks/tick^2 down), `drag?` (fraction/tick) | `v' = (v + g) * (1 - drag)` per tick; closed form per segment |
+| `move` | `dir` or `velocity` (name-keyed or CEL), `speed`, `accel?` (blocks/tick^2 along the velocity), `gravity?` (blocks/tick^2 down), `drag?` (fraction/tick) | `v' = (v + a + g) * (1 - drag)` per tick; closed form per segment |
 | `orbit` | `center` (anchor), `axis`, `deg_per_tick`, `phase_deg?`, `face?: keep/tangent/center` | position rotates about `center` along `axis`; radius = distance at law start |
-| `grow` | `per_tick` (vector or number), or `to` + `ticks` | linear change of `scale` (displays) or `size` (sprites), no exponential form |
-| `fade` | `alpha_per_tick` or `to` + `ticks` | `text_opacity` for text/sprite; for item/block displays use `grow` to zero (there is no alpha) |
+| `grow` | `prop?`, `per_tick` (vector or number) + `accel?`, or `to` + `for` + `ease` | change of a property: display `scale`/`size`, particle `count`/`offset`/`extra`, sound `volume`/`pitch` |
+| `fade` | `exponent?` (1.0 = linear, see 2.0b), `for` | the intensity property goes to 0: display `text_opacity` (text/sprite; item/block displays have no alpha, use `grow` to zero), particle `count`, sound `volume`. `a = (1 - tau/for) ^ exponent` |
 | `align` | `axis: <named>`, `to: velocity \| toward(<anchor>) \| <named axis/CEL vector>`, `up?` | orients the object axis; `to: velocity` of an attached `move` is constant over its segment, so it is ONE write |
-| `follow` | `anchor`, `offset?`, `lag?` | position tracks another anchor; the only per-step law |
+| `follow` | `anchor`, `offset?`, `lag?`, `step?` | position tracks another anchor; per-step (live) law |
 | `stretch` | `axis`, `from`, `to` (anchors) | length of the object along `axis` equals the distance between two anchors; this is what `line` expands to |
 | `keys` | `[{t, pose?, offset?, size/scale?, ease?}]` | irregular choreography only (3.3) |
 
@@ -209,6 +245,89 @@ is representable as one `{axis, deg}`. Between keys: slerp for rotation, lerp fo
 tweens linearly, so an eased segment is cut into 2-6 linear sub-segments (error under 2 degrees / 0.03 blocks). Multi-turn motion between keys is
 not expressible (shortest path); the lint rejects a key pair turning more than 170 degrees and asks for `spin` or a midpoint key.
 
+#### 3.4 The same laws on every kind
+
+A law acts on a **property**, named by `prop`. Defaults per kind are in the table; a law whose type does not fit the property (a `spin` on a
+`pitch`) is a lint error. This is what lets one law set drive a display, a particle and a sound together.
+
+| kind | properties (`prop`) | default prop of `grow` / `fade` |
+|---|---|---|
+| display (item, block, text, sprite) | `offset` (position), `rotate`, `size` (sprite) / `scale`, `alpha` (text, sprite) | `size`/`scale`; `alpha` |
+| particle | `at` (emission point), `count`, `offset` (vanilla: spread box, or the DIRECTION when `count: 0`), `extra` (vanilla: speed) | `count`; `count` |
+| sound | `at` (source point), `volume`, `pitch` | `volume`; `volume` |
+
+| law | on display | on particle | on sound |
+|---|---|---|---|
+| `grow` | `scale`, `size`, `offset` | `count`, `offset`, `extra` | `volume`, `pitch` |
+| `accel` (field on `spin`, `move`, `grow`) | rate of the rate: `deg_per_tick`, blocks/tick, size/tick | `extra` (speed) `accel`; `count` rate | `pitch` / `volume` rate |
+| `move` / `orbit` / `follow` | `offset` | emission point `at`; with `count: 0` also the direction vector | source `at` |
+| `spin` | `rotate` | the direction vector (`count: 0`) | n/a |
+| `fade` | `alpha` | `count` to 0 | `volume` to 0 |
+| `align` / `stretch` | orientation / length | direction vector | n/a |
+
+Composition: laws on the same property add their contributions (rates add; rotations compose per 3.2), each only inside its own
+`from`/`for` window; a `to:` target blends from the value at window start. Examples: `{law: grow, prop: count, per_tick: 0.5}` (an emit that thickens),
+`{law: grow, prop: pitch, per_tick: 0.02, accel: 0.001}` (a rising sound), `{law: move, prop: at, velocity: {forward: 0.3}}` (an emitter that drifts),
+`{law: spin, prop: offset, axis: up, deg_per_tick: 12}` (a count-0 particle burst whose direction turns).
+
+How each kind samples a law:
+
+- **Displays**: continuous, sent as segments (section 4).
+- **Particles and sounds are fire-and-forget**, so a law is evaluated **per occurrence** (at `at + i * every`) and the occurrence uses that value. A
+  continuous glide is therefore an occurrence train: a windup rise is `{op: sound, every: 1, for: 20}` plus `grow pitch`. (Minecraft cannot change a
+  playing sound; v1's `pitch_arc` is exactly this.)
+
+#### 3.5 Expressions (CEL) in every numeric or vector field
+
+Every numeric or vector field of every op, law and key accepts `"= <CEL>"` (0301 Decision 5, same cel-java). Variables:
+
+| variable | meaning |
+|---|---|
+| `t` | ticks since the instance (occurrence) started; `lt`: ticks since the current law's window started |
+| `i`, `n` | repeat index of `every` (0-based), and the occurrence count (see 2.0) |
+| `rand()` | seeded, deterministic uniform [0,1): seed = (cast id, op id, i, call-site order), so replays and the game-sim are identical |
+| `forward`, `left`, `up`, `long`, `edge`, `face` | the object's axes as WORLD vectors (anchor axes first, then item part axes) |
+| `caster`, `target`, `contact` | positions with `.pos`, `.forward`, `.eye`; `contact.normal`, `contact.point`; `target` is the victim or aim target |
+| `row.<name>` | the current `each:` row; `${param}` for params; `anchor.<id>` for any anchor |
+
+Examples: `deg_per_tick: "= 10 + t * 2"`; `offset: {left: "= sin(i * 0.5) * 0.3"}`; `count: "= 4 + i"`; `pitch: "= 0.8 + 0.05 * i"`;
+`velocity: "= normalize(target.pos - pos) * 1.2"`.
+
+**When an expression is evaluated, and what it costs in writes** (one class per expression, decided by what it references):
+
+| class | references | evaluated | cost |
+|---|---|---|---|
+| S, spawn | params, `i`, `n`, `row`, `rand()`, snapshot anchors, `caster`/`target`/`contact` read at the occurrence start | once, at the occurrence's start | none beyond the spawn |
+| T, time | S-values plus `t` / `lt` | pre-sampled at spawn on the tick grid; the samples are fitted to piecewise-linear segments with the error budget of section 4 (0.03 blocks / 2 degrees); breakpoints become segment boundaries. A polynomial in `t` (`10 + t*2` as a rate) is integrated exactly | **one write per fitted segment**: a slow or smooth expression costs a few writes, the same as a law |
+| L, live | follow-mode anchors, live `caster` / `target` / `contact` motion | at every send step (`step`, default 1) | one write per step |
+
+**A per-tick expression forces per-tick writes.** If a T expression varies faster than the error budget allows for segments longer than one tick
+(period of about 3 ticks or less, a `rand()` inside a T field) or the expression is L, the object is written every tick (still one combined
+write per object per tick, never split). `expand` prints each object's segment table and the number of writes per tick; the lint warns above 1.
+Fields of class S never cost anything.
+
+#### 3.6 Gameplay uses the same grammar: projectile block mode
+
+`projectile` takes the timing block (`for` replaces `max_ticks`) and a `block` field (replaces `block_mode`, `stick_ticks`, `restitution`, `max_bounces`
+from `wp/se-grammar` `e5aedb5b0`); `mode` is required, the other fields are required for their mode:
+
+```yaml
+- {id: bolt, op: projectile, body: bolt, from: muzzle, velocity: "= look(caster) * launch_speed", for: "${max_lifetime_ticks}", radius: 0.5,
+   block: {mode: bounce, restitution: 0.6, times: 3}}      # times = max_bounces
+#  block: {mode: stick, for: 28}          # for = stick_ticks: stays stuck 28 ticks, then `unstick`
+#  block: {mode: despawn}                 # ends at the block; `pass` flies through
+```
+
+| `mode` | other fields | events (usable as `at` / `until`) |
+|---|---|---|
+| `despawn` | none | `end` |
+| `stick` | `for` (ticks stuck) | `stick`, `unstick`, `end` |
+| `bounce` | `restitution` (required, 1.0 = elastic), `times` (required, max bounces) | `bounce` (with `i`), `end` |
+| `pass` | none | none |
+
+Displays anchored on `bolt` end with `until: end` (or `until: unstick` for a stuck prop) and follow the gameplay frame through the bounce; the
+bounce is a gameplay `move` reflection, the display needs no extra law.
+
 ### 4. Sending to the client (RC1)
 
 Per object the engine keeps the last sent state and sends **segments**. One send is ONE entity-metadata write containing, together,
@@ -224,7 +343,7 @@ Re-send happens only at:
 3. an error-budget boundary inside a law: gravity/drag arcs, pivot-offset arcs, `orbit` (budget 0.03 blocks / 2 degrees; at most 59 ticks per segment,
    the teleport_duration limit);
 4. the law set changing: event, `reparent`, parameter change, `remove`;
-5. reactive laws (`follow`, `align` toward a moving anchor, a mounted caster's heading drift): every `step` ticks (default 2, minimum 1);
+5. reactive laws (`follow`, `align` toward a moving anchor, a mounted caster's heading drift): every `step` ticks (default 2, minimum 1); a live (class L) or high-frequency T expression (3.5) is written every tick;
 6. a gameplay anchor's reactive motion: every tick.
 
 Constant-rate cases (coin 2's spinning shears, petals, streaks) therefore cost ONE write per law for the whole spin. Client latency jitter
@@ -233,20 +352,21 @@ authored-vs-shown rotation and position) becomes the shipped gate (BS1/BS2).
 
 ### 5. Lifetime (RC5)
 
-**Every object declares its end; `life` is REQUIRED on `display`, `ribbon`, and any looping `particle`/`particle_def`; a skill without it fails to load.**
+**Every object declares its end in the timing block (2.0); an end (`for`, `until`, or `for: cast`) is REQUIRED on `display` and `ribbon`, and a
+bound (`for`, `times`, or `until`) on any repeating op; a skill without it fails to load.**
 
 ```yaml
-life: {ticks: 24}            # n ticks after creation
-life: {until: release}       # first time the event fires
-life: cast                   # explicit: until the cast ends (cancel, death, disconnect and unload count as the end)
+for: 24                      # n ticks after the start
+until: release               # first time the event fires
+for: cast                    # explicit: until the cast ends (cancel, death, disconnect and unload count as the end)
 ```
 
 - Owner is the cast. The runtime registry is keyed by cast id; cast end/cancel/death/disconnect/unload removes everything owned. A cap
-  (`max_life_ticks`, server config, default 1200) applies even to `life: cast`.
+  (`max_life_ticks`, server config, default 1200) applies even to `for: cast`.
 - Every spawned entity carries the PDC tag `astera:cast=<uuid>`; at boot and on chunk load a sweeper removes tagged entities with no live owner.
 - `remove: [ids]` stays for early ends; it is never the only end.
 - **Converter carries the v1 end (patch on wp/se-streak, `bea1b2641`, added a remove by hand because the converter read `end_tick` but
-  dropped it for plates):** `life.ticks = end_tick - start_tick`; an element WITHOUT `end_tick` takes the v1 effect's `duration - start_tick`
+  dropped it for plates):** `for = end_tick - start_tick`; an element WITHOUT `end_tick` takes the v1 effect's `duration - start_tick`
   (v1 despawned the whole effect at its duration). The converter FAILS (does not warn) when it cannot determine an end.
 - Content known or suspected to rely on a missing end, to be confirmed by the load-time check on first run of this schema (not yet audited by
   capture): `couture-rapier-s2` coin 1 streaks (confirmed by founder); `bastion-greatsword-def` `bastion-rim`/`crest` (5 plates, one remove at
@@ -271,7 +391,7 @@ Output laws first, keys last.
 | R9 | Generated point frames (`pt_caster_0_m0p2_1`) become inline `{at, offset: {...}}` on the object; no synthetic frame ids. `like: contact` hit anchors default to the contact point (RC6). |
 | R10 | v1 particle parts map 1:1 to `particle` (count, offset, extra, data, count 0 included). No default sphere, no `vanilla` flag. |
 | R11 | Sprite sizes are written as `size` in blocks from the v1 plan and the sprite file's `px`; no x5, no frame-distance factor. |
-| R12 | `end_tick` becomes `life` (section 5). |
+| R12 | `end_tick` becomes `for` (section 5); v1 `start_tick` becomes `at`, v1 loops (`every`/`for`) become the same fields on the op, and v1 non-default values such as `fade_power: 1.5` are written explicitly (2.0b). |
 | R13 | **The PROTECTED set is dropped.** Hand edits live in a `kind: Patch` document keyed by `id` (0301 composition); the converter writes only `*.gen.yaml`, so re-conversion never touches hand-written files and nothing needs to be skipped. |
 
 Worked check (coin 1 petal 0): offset forward 1.68 -> 1.88 over 1 tick, then -> 3.52 over 4 ticks => `move 0.2/tick` for 1 tick then `move 0.41/tick`
@@ -285,6 +405,7 @@ Full examples are in `docs/adr/0303-examples/`:
 - (a) [a-couture-rapier-s2-coin1.yaml](0303-examples/a-couture-rapier-s2-coin1.yaml): coin 1, rewritten from `coin1.yaml`.
 - (b) [b-frost-shard-projectile.yaml](0303-examples/b-frost-shard-projectile.yaml): a simple-shoot projectile skill (`frost-shard`).
 - (c) [c-bastion-greatsword-s1-swing.yaml](0303-examples/c-bastion-greatsword-s1-swing.yaml): a melee sweep with a weapon swing (`bastion-greatsword-s1`).
+- (d) [d-shared-timing-and-laws.yaml](0303-examples/d-shared-timing-and-laws.yaml): a sound, a particle and a display sharing one timing block and one law set.
 
 Sizes in the examples are illustrative: the converter computes them from the sprite files; shapes, rates and timings are taken from the current files.
 
@@ -298,7 +419,7 @@ Sizes in the examples are illustrative: the converter computes them from the spr
 | `face: {plane: {frame, axes}}` | `billboard: fixed` + `rotate` over named axes | `left_rotation` |
 | `face: {viewer: axis}` (ViewerAxis) | deleted; `align` + `billboard` | |
 | `line {from, to, thickness}` | `ribbon {from, to, thickness}` = display + `align`/`stretch` laws | scale along the stretched axis + `left_rotation` |
-| `trail {of, root, ticks, ...}` | `ribbon` over the anchor history, `life` | chain of display segments |
+| `trail {of, root, ticks, ...}` | `ribbon` over the anchor history, `for` / `until` | chain of display segments |
 | `track {keys: [{offset, rotation: euler, scale}]}` | `motion: [spin/move/grow]` or `keys` with `pose` | `Transformation` segments, `interpolation_duration` |
 | rotation `[yaw, pitch, roll]` | `{axis, deg}` list or quaternion | `left_rotation` |
 | frame offset `[left, up, forward]` | `{forward, left, up}` map | `translation` / entity location |
@@ -310,7 +431,11 @@ Sizes in the examples are illustrative: the converter computes them from the spr
 | `HeldItem` mesh (cloned stack, THIRDPERSON_RIGHTHAND) | `item: main_hand` resolved to model id, `context: fixed` (open decision 1) | `item_display` context |
 | world-teleported "attached" mesh | `mount: caster` | passenger |
 | `size_frac` (x parent frame distance), glyph x5 | `size` in blocks | `scale` |
-| missing `end_tick` / `lifetime = 1_000_000` | `life` required, cast registry, sweeper | n/a |
+| timeline group `every` loops, separate `sound every`, `emit spacing` loops, `at` + `until` scattered | the one timing block `at / for / every / times / until / lasts` on every op | n/a |
+| `fade` default 1.0 (v1 `fade_power` 1.5) | `fade.exponent` identity 1.0, converter writes 1.5 explicitly | n/a |
+| `projectile {block_mode, stick_ticks, restitution, max_bounces, max_ticks}` | `projectile {for, block: {mode, for, restitution, times}}` | n/a (gameplay) |
+| literal-only numbers | any numeric/vector field accepts `"= CEL"` with `t`, `i`, `n`, `rand()`, axes, `caster/target/contact` | n/a |
+| missing `end_tick` / `lifetime = 1_000_000` | `for` / `until` required, cast registry, sweeper | n/a |
 
 ## Consequences
 
@@ -327,6 +452,7 @@ Sizes in the examples are illustrative: the converter computes them from the spr
 - Breaking change to every converted skill and to the presentation half of 0301 (accepted: pre-release posture, no shims).
 - Pivot-offset rotation and gravity arcs cost more writes than constant rates; reactive laws cost one per step.
 - The passenger attachment height and heading behaviour of mounted displays are calibrated, not derived; they need a real-client capture.
+- CEL in every field makes the write count data-dependent; the lint prints it and warns above one write per tick per object.
 - Text opacity has no native tween path (unverified); `fade` on sprites steps per tick.
 
 ### Mitigations
