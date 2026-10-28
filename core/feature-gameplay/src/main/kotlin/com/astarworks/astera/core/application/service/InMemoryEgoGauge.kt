@@ -34,6 +34,8 @@ public class InMemoryEgoGauge(
         return after
     }
 
+    override fun lastCombatTick(playerId: PlayerId): Long? = lastGainTick[playerId]
+
     override fun spend(playerId: PlayerId, cost: Int): Result<Int, EgoError> {
         if (cost < 0) return Result.failure(EgoError.InvalidValue(cost))
         val before = value(playerId)
