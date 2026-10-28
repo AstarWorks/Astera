@@ -28,6 +28,7 @@ import com.astarworks.astera.core.domain.skillengine.table.Branch
 import com.astarworks.astera.core.domain.skillengine.table.CompiledSkill
 import com.astarworks.astera.core.domain.skillengine.table.Duration
 import com.astarworks.astera.core.domain.skillengine.table.EventPath
+import com.astarworks.astera.core.domain.skillengine.table.HitWindow
 import com.astarworks.astera.core.domain.skillengine.table.ExpansionTable
 import com.astarworks.astera.core.domain.skillengine.table.Row
 import com.astarworks.astera.core.domain.skillengine.table.SpawnKind
@@ -234,6 +235,12 @@ abstract class SkillEngineScenario {
                 .minByOrNull { it.first.tick }
             val cut = firing?.takeIf { it.second.target != null }?.first?.tick
             st.rows.forEach { if (cut == null || entry + it.tick <= cut) emit(entry, it) }
+            // The sim has no victims, so a single-pass hit with a final detection raises `<op>.miss` on its own tick (TablePlayer.hit).
+            for (r in st.rows) {
+                val h = r.action as? Action.Hit ?: continue
+                if (!h.finalDetection || h.window != HitWindow.Once || (cut != null && entry + r.tick > cut)) continue
+                table.subTables[EventPath(r.instance.text + ".miss")]?.rows?.forEach { emit(entry + r.tick, it) }
+            }
             // pasted sub-tables of this state (all firings inside the live part)
             for (e in events) {
                 val b = st.branches.firstOrNull { it.event == e.path && inWindow(it, e.tick - entry) } ?: continue
