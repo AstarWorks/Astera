@@ -1,6 +1,4 @@
-# Converted from content/skills/frost-nova.yaml by tools/skill-convert/convert.py (v1 archetype: aoe). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
-# Generated point-frame offsets are [left, up, forward] in the parent frame.
-apiVersion: "astera/v2"
+apiVersion: "astera/v3"
 kind: Skill
 id: frost-nova
 item: frost-staff
@@ -10,18 +8,58 @@ meta:
   cooldown_ticks: 160
   resource_cost: 25
   tags: [magic, ice-family, aoe]
-gameplay:
-  params: {radius: 5.0, dmg_water: 25.0, freeze_ticks: 60}
-  expose:
-    - {id: damage, param: dmg_water}
-    - {id: radius, param: radius}
+anchors:
+  cast_body: {anchor: caster.body, offset: {up: 0.15}, mode: snapshot}
+# anchor note: v2 enemy point offset 0.9 -> victim.body up 0.1
+presentation:
   timeline:
-    - id: t0
-      at: 0
+    - at: 0
       do:
-        - {id: burst, op: hit, frames: [caster], sphere: {at: caster, radius: "${radius}"}, window: once, ticks: 1}
+        - {id: snd, op: sound, sound: "astera:skills/frost-cast", anchor: caster, volume: 1.0, pitch: 0.9}
+        - {id: snd_2, op: sound, sound: "astera:skills/frost-impact", anchor: caster, volume: 0.7, pitch: 1.0}
+        - {id: fx_burst, op: particle, particle: snowflake, anchor: cast_body, count: 40, extra: 0.12}
+        - {id: cast_base, op: frame, anchor: cast_body, turn: [{axis: up, deg: "= rand() * 360"}], for: 10}
+    - id: rings
+      at: 0
+      every: 1
+      times: 8
+      do:
+        - {id: rings_pt, op: frame, times: 24, anchor: cast_base, turn: [{axis: up, deg: "= 360 * i / 24 + 90"}], offset: {forward: "= 0.5 + 0.6429 * parent.i"}, for: 1}
+        - {op: particle, times: 24, anchor: 'rings_pt[i]', particle: snowflake, count: 0, offset: "= anchor.forward", extra: 0.03}
+        - {op: particle, times: 24, anchor: 'rings_pt[i]', particle: dust, count: 1, color: "#c8ebff", size: 1.6}
+        - {op: particle, times: 24, anchor: 'rings_pt[i]', particle: end_rod, count: 0, offset: "= anchor.forward", extra: 0.02}
+    # second snowflake ring: from tick 2, N 12, radius 0.5+0.6*(tick-2), count 2, offset up 0.5
+    - id: rings2
+      at: 2
+      every: 1
+      times: 6
+      do:
+        - {id: rings2_pt, op: frame, times: 12, anchor: cast_base, turn: [{axis: up, deg: "= 360 * i / 12 + 90"}], offset: {forward: "= 0.5 + 0.6 * parent.i"}, for: 1}
+        - {op: particle, times: 12, anchor: 'rings2_pt[i]', particle: snowflake, count: 2, offset: [0.0, 0.5, 0.0], extra: 0.02}
+gameplay:
+  timeline:
+    - at: 0
+      do:
+        - id: burst
+          op: hit
+          anchor: caster
+          targets: enemies
+          shape: {sphere: 5.0}
+          damage: {water: "= 25.0 * (1.0 - 0.5 * dist(pos(caster), pos(event.victim)) / 5.0)"}
+          on:
+            hit:
+              - {id: st_freeze, op: status, target: event.victim, status: freeze, stacks: 1, for: 60}
+              - {id: snd_hit, op: sound, sound: "astera:skills/frost-impact", anchor: victim.body, volume: 1.0, pitch: 1.0}
+              - {id: fx_snow, op: particle, particle: snowflake, anchor: victim.body, count: 30, offset: [0.4, 0.8, 0.4], extra: 0.02}
+              - {id: fx_dust, op: particle, particle: dust, anchor: victim.body, count: 20, offset: [0.4, 0.8, 0.4], color: "#aae1ff", size: 1.4}
+              - {id: fx_rod, op: particle, particle: end_rod, anchor: victim.body, count: 10, offset: [0.35, 0.8, 0.35], extra: 0.02}
+              - {id: hit_base, op: frame, anchor: victim.body, offset: {up: 0.1}, turn: [{axis: up, deg: "= rand() * 360"}], for: 4}
+              - id: hit_rings
+                at: 0
+                every: 1
+                times: 3
+                do:
+                  - {id: hit_rings_pt, op: frame, times: 10, anchor: hit_base, turn: [{axis: up, deg: "= 360 * i / 10 + 90"}], offset: {forward: "= 0.6 + 0.15 * parent.i"}, for: 1}
+                  - {op: particle, times: 10, anchor: 'hit_rings_pt[i]', particle: end_rod, count: 0, offset: "= anchor.forward", extra: 0.01}
+        # GAP: break_area (sphere r2.5, block_damage 20, breaks true, staged false, length 0.0, at caster) -> none; v3 has no world-damage op
         - {op: break_area, shape: sphere, radius: 2.5, block_damage: 20, breaks: true, staged: false, length: 0.0, id: chip, at: caster}
-  "on":
-    hit:
-      - {id: dmg, op: damage, target: victim, components: [{kind: water, amount: "= dmg_water * (1.0 - 0.5 * dist(pos(caster), pos(victim)) / radius)"}], when: "= event.source == 'burst'"}
-      - {id: st_freeze, op: status, status: freeze, duration_ticks: "${freeze_ticks}", target: victim, when: "= event.source == 'burst'"}

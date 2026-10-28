@@ -1,18 +1,36 @@
-# Converted from content/skills/frost-rod-chill.yaml by tools/skill-convert/convert.py (v1 archetype: aoe). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
-# Generated point-frame offsets are [left, up, forward] in the parent frame.
-apiVersion: "astera/v2"
+apiVersion: "astera/v3"
 kind: Skill
 id: frost-rod-chill
 item: frost-rod
 meta: {name: {ja: "冷気", en: Chill}, description: {ja: "周囲に冷気を放ち、敵を凍らせる。", en: "A cold wave that freezes nearby enemies."}, cooldown_ticks: 160, resource_cost: 16, tags: [aoe, water]}
-gameplay:
-  params: {radius: 4.0, dmg_water: 12.5, freeze_ticks: 40}
-  expose:
-    - {id: damage, param: dmg_water}
-    - {id: radius, param: radius}
+anchors:
+  cast_body: {anchor: caster.body, offset: {up: 0.15}, mode: snapshot}
+presentation:
   timeline:
-    - {id: t0, at: 0, do: [{id: burst, op: hit, frames: [caster], sphere: {at: caster, radius: "${radius}"}, window: once, ticks: 1}]}
-  "on":
-    hit:
-      - {id: dmg, op: damage, target: victim, components: [{kind: water, amount: "= dmg_water * (1.0 - 0.5 * dist(pos(caster), pos(victim)) / radius)"}], when: "= event.source == 'burst'"}
-      - {id: st_freeze, op: status, status: freeze, duration_ticks: "${freeze_ticks}", target: victim, when: "= event.source == 'burst'"}
+    - at: 0
+      do:
+        - {id: snd, op: sound, sound: "astera:skill/wand/cast", anchor: caster, volume: 1.0, pitch: 1.0}
+        - {id: cast_base, op: frame, anchor: cast_body, turn: [{axis: up, deg: "= rand() * 360"}], for: 10}
+    - id: rings
+      at: 0
+      every: 1
+      times: 6
+      do:
+        - {id: rings_pt, op: frame, times: 16, anchor: cast_base, turn: [{axis: up, deg: "= 360 * i / 16 + 90"}], offset: {forward: "= 0.5 + 0.7 * parent.i"}, for: 1}
+        - {op: particle, times: 16, anchor: 'rings_pt[i]', particle: snowflake, count: 0, offset: "= anchor.forward", extra: 0.03}
+        - {op: particle, times: 16, anchor: 'rings_pt[i]', particle: dust, count: 1, color: "#c8ebff", size: 1.4}
+
+gameplay:
+  timeline:
+    - at: 0
+      do:
+        - id: burst
+          op: hit
+          anchor: caster
+          targets: enemies
+          shape: {sphere: 4.0}
+          damage: {water: "= 12.5 * (1.0 - 0.5 * dist(pos(caster), pos(event.victim)) / 4.0)"}
+          on:
+            hit:
+              - {id: st_freeze, op: status, target: event.victim, status: freeze, stacks: 1, for: 40}
+              - {id: snd_hit, op: sound, sound: "astera:weapons/blade-hit", anchor: victim.body, volume: 0.7, pitch: 1.0}

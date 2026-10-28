@@ -1,6 +1,4 @@
-# Converted from content/skills/frost-shard.yaml by tools/skill-convert/convert.py (v1 archetype: projectile). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
-# Generated point-frame offsets are [left, up, forward] in the parent frame.
-apiVersion: "astera/v2"
+apiVersion: "astera/v3"
 kind: Skill
 id: frost-shard
 item: frost-staff
@@ -10,21 +8,59 @@ meta:
   cooldown_ticks: 30
   resource_cost: 8
   tags: [ranged, ice-family, slow]
-frames:
-  - {id: bolt, kind: body, parent: world, inactive: true}
-  - {id: pt_aim_0_0_0p5, kind: point, parent: aim, offset: [0.0, 0.0, 0.5]}
-gameplay:
-  params: {launch_speed: 2.2, max_lifetime_ticks: 50, dmg_water: 25.0, freeze_ticks: 60, wet_ticks: 100}
-  expose:
-    - {id: damage, param: dmg_water}
-    - {id: flight_speed, param: launch_speed}
+anchors:
+  muzzle: {anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}
+  cast_fx: {anchor: caster.eye, offset: {up: -0.2, forward: 1.0}, mode: snapshot}
+  heart: {anchor: victim.body, offset: {up: 0.2}}
+# anchor note: v2 enemy point offset Y minus 0.8 (example b maps 1.0 -> up 0.2)
+presentation:
   timeline:
-    - {id: t0, at: 0, do: [{id: bolt, op: projectile, body: bolt, from: pt_aim_0_0_0p5, velocity: "= look(caster) * launch_speed", max_ticks: "${max_lifetime_ticks}", radius: 0.5}]}
-  "on":
-    hit:
-      - {id: dmg, op: damage, components: [{kind: water, amount: "${dmg_water}"}], target: victim}
-      - {id: st_freeze, op: status, status: freeze, duration_ticks: "${freeze_ticks}", target: victim, chance: 0.7}
-      - {id: st_wet, op: status, status: wet, duration_ticks: "${wet_ticks}", target: victim}
-      - {op: break_area, shape: sphere, radius: 0.5, block_damage: 10, breaks: true, staged: false, length: 0.0, id: chip, at: "= contact.point"}
-    block:
-      - {op: break_area, shape: sphere, radius: 0.5, block_damage: 10, breaks: true, staged: false, length: 0.0, id: chip_2, at: "= contact.point"}
+    - at: 0
+      do:
+        - {id: shell, op: display, kind: item, item: "minecraft:prismarine_shard", context: fixed, anchor: bolt, scale: 0.9, at: 0, until: bolt.end}
+        # GAP: mesh display_mode none / rig_shading false -> context fixed is the closest item display context
+        - {id: snd, op: sound, sound: "astera:skills/frost-cast", anchor: caster, volume: 0.8, pitch: 1.4}
+        - {id: fx, op: particle_def, def: frost-cast, anchor: cast_fx}
+    - {at: 0, every: 1, until: bolt.end, do: [{op: particle, particle: snowflake, anchor: {of: bolt, sweep: 0.3}, count: 2, offset: [0.08, 0.08, 0.08], extra: 0.01}]}
+    - {at: 0, every: 1, until: bolt.end, do: [{op: particle, particle: dust, anchor: {of: bolt, sweep: 0.3}, count: 2, offset: [0.06, 0.06, 0.06], color: "#ebf5ff", size: 0.9}]}
+    - {at: 0, every: 1, until: bolt.end, do: [{op: particle, particle: end_rod, anchor: {of: bolt, sweep: 0.3}, count: 1, offset: [0.02, 0.02, 0.02]}]}
+gameplay:
+  timeline:
+    - at: 0
+      do:
+        - id: bolt
+          op: projectile
+          origin: muzzle
+          velocity: "= look(caster) * 2.2"
+          for: 50
+          radius: 0.5
+          hit: {targets: enemies, once: true}
+          block: {mode: despawn}
+          on:
+            hit:
+              - {id: dmg, op: damage, target: event.victim, components: [{kind: water, amount: 25.0}]}
+              - {id: st_freeze, op: status, target: event.victim, status: freeze, stacks: 1, for: 60, when: "= rand() < 0.7"}
+              - {id: st_wet, op: status, target: event.victim, status: wet, stacks: 1, for: 100}
+              # GAP: break_area (sphere r0.5, block_damage 10, breaks true, staged false, length 0.0) -> none; v3 has no world-damage op, kept verbatim (flat strike per cell, 054769350)
+              - {op: break_area, shape: sphere, radius: 0.5, block_damage: 10, breaks: true, staged: false, length: 0.0, id: chip, at: contact.point}
+              - {id: snd_hit, op: sound, sound: "astera:skills/frost-impact", anchor: heart, volume: 0.7, pitch: 1.5}
+              - {id: fx_snow, op: particle, particle: snowflake, anchor: heart, count: 30, extra: 0.15}
+              - {id: fx_rod, op: particle, particle: end_rod, anchor: heart, count: 10, extra: 0.2}
+              - {id: fx_dust, op: particle, particle: dust, anchor: heart, count: 20, offset: [0.4, 0.4, 0.4], extra: 0.0, color: "#bee6ff", size: 1.4}
+              - {id: hit_base, op: frame, anchor: heart, turn: [{axis: up, deg: "= rand() * 360"}], for: 8}
+              - id: hit_rings
+                at: 0
+                every: 1
+                times: 4
+                do:
+                  - {id: hit_rings_pt, op: frame, times: 12, anchor: hit_base, turn: [{axis: up, deg: "= 360 * i / 12 + 90"}], offset: {forward: "= 0.3 + 0.3667 * parent.i"}, for: 1}
+                  - {op: particle, times: 12, anchor: 'hit_rings_pt[i]', particle: snowflake, count: 0, offset: "= anchor.forward", extra: 0.04}
+                  - {op: particle, times: 12, anchor: 'hit_rings_pt[i]', particle: dust, count: 1, color: "#bee6ff", size: 1.3}
+            block:
+              # GAP: break_area (sphere r0.5, block_damage 10, breaks true, staged false, length 0.0) -> none; v3 has no world-damage op, kept verbatim (flat strike per cell, 054769350)
+              - {op: break_area, shape: sphere, radius: 0.5, block_damage: 10, breaks: true, staged: false, length: 0.0, id: chip_2, at: contact.point}
+              - {id: snd_blk, op: sound, sound: "astera:skills/frost-impact", anchor: contact.point, volume: 0.5, pitch: 1.6}
+              - {id: fx_blk, op: particle_def, def: frost-impact, anchor: contact.point}
+              - {id: fx_blk_dust, op: particle_def, def: frost-impact-dust, anchor: contact.point}
+            end:
+              - {id: fx_end, op: particle_def, def: frost-impact, anchor: contact.point}
