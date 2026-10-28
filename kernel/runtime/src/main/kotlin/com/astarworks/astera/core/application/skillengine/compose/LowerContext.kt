@@ -1,5 +1,6 @@
 package com.astarworks.astera.core.application.skillengine.compose
 
+import com.astarworks.astera.core.application.skillengine.expr.cel.ExprClassifier
 import com.astarworks.astera.core.application.skillengine.load.SkillCatalogView
 import com.astarworks.astera.core.application.skillengine.load.SkillDecodeError
 import com.astarworks.astera.core.application.skillengine.runtime.player.SeededStream
@@ -45,15 +46,12 @@ public class LowerContext(
         SrcPath(src.value + ".do[" + doIndex + "]"),
     )
 
-    /** S / T / L (3.5). W1-24 implements it. */
-    public fun classify(expr: CompiledExpr): ExprClass = TODO("W1-24: expression classification")
+    /** S / T / L (3.5), from the expression source and this scope's anchor bases. */
+    public fun classify(expr: CompiledExpr): ExprClass = ExprClassifier.analyse(expr.source) { anchors.resolve(it)?.basis }.cls
 
-    /** Check 9: a timing field must be known at compile time. W1-24 completes the CEL/param cases. */
+    /** Check 9: a timing field must be a compile-time integer. Any L value, `rand()`, `t` or runtime position is [SkillDecodeError.RuntimeTiming]. */
     public fun requireStaticTiming(path: String, field: String, v: Value<Double>): Result<Int, SkillDecodeError> =
-        when (v) {
-            is Value.Literal -> Result.Success(Math.round(v.value).toInt())
-            else -> TODO("W1-24: static evaluation of timing field '$field'")
-        }
+        ExprClassifier.staticTicks(this, path, field, v)
 }
 
 public data class Occurrence(val i: Int, val n: Int, val parent: Occurrence?)

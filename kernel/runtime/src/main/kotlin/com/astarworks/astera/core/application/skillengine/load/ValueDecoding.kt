@@ -36,6 +36,33 @@ internal object ValueDecoding {
         return special<Double>(raw) ?: mismatch(skillId, path, "number, \${param} or '= expr'", raw)
     }
 
+    /** A live value with its declared range: `{expr: "= ...", bound: [lo, hi]}` (11.4). Never legal on a timing field. */
+    data class Bounded(val value: Value<Double>, val lo: Double, val hi: Double)
+
+    fun isBoundedForm(raw: Any?): Boolean = raw is Map<*, *> && "expr" in raw && "bound" in raw
+
+    fun bounded(raw: Any?, skillId: String, path: String): Bounded {
+        val m = raw as? Map<*, *> ?: mismatch(skillId, path, "{expr, bound}", raw)
+        val unknown = m.keys.firstOrNull { it != "expr" && it != "bound" }
+        if (unknown != null) throw DecodeAbort(SkillDecodeError.UnknownKey(skillId, path, unknown.toString()))
+        val expr = m["expr"] as? String
+        if (expr == null || !expr.startsWith(EXPR_PREFIX)) mismatch(skillId, "$path.expr", "'= expr'", m["expr"])
+        val b = m["bound"] as? List<*>
+        if (b == null || b.size != 2 || b.any { it !is Number }) mismatch(skillId, "$path.bound", "[lo, hi] numbers", m["bound"])
+        val lo = (b[0] as Number).toDouble()
+        val hi = (b[1] as Number).toDouble()
+        if (lo > hi) throw DecodeAbort(SkillDecodeError.Invalid(skillId, "$path.bound", "bound [$lo, $hi] has lo > hi"))
+        return Bounded(Value.Expr(expr.substring(EXPR_PREFIX.length).trim()), lo, hi)
+    }
+
+    /** A timing field (`at`, `for`, `every`, `times`, `lasts`, `after`, law window): the `{expr, bound}` form is [SkillDecodeError.RuntimeTiming] (C5 rev4.1). */
+    fun timingNumber(raw: Any?, skillId: String, path: String, field: String): Value<Double> {
+        if (isBoundedForm(raw)) {
+            throw DecodeAbort(SkillDecodeError.RuntimeTiming(path, field, "a bound proves a range, not one schedule; write until: / range: instead", skillId))
+        }
+        return number(raw, skillId, path)
+    }
+
     fun bool(raw: Any?, skillId: String, path: String): Value<Boolean> {
         if (raw is Boolean) return Value.Literal(raw)
         return special<Boolean>(raw) ?: mismatch(skillId, path, "boolean, \${param} or '= expr'", raw)
