@@ -27,10 +27,10 @@ public sealed interface HitVolume {
 }
 
 /** How often one volume may hit the same victim. */
-public sealed interface HitWindow {
-    public data object Once : HitWindow
-    public data class EveryTicks(val ticks: Int) : HitWindow
-    public data object PerPart : HitWindow
+public sealed interface RehitWindow {
+    public data object Once : RehitWindow
+    public data class EveryTicks(val ticks: Int) : RehitWindow
+    public data object PerPart : RehitWindow
 }
 
 /** A volume with its points and radii resolved to world coordinates for this tick. */

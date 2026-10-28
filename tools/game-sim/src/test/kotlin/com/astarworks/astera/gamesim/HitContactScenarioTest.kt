@@ -4,7 +4,7 @@ import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.skillengine.hit.DefaultContactResolver
 import com.astarworks.astera.core.domain.skillengine.hit.HitBox
 import com.astarworks.astera.core.domain.skillengine.hit.HitCandidate
-import com.astarworks.astera.core.domain.skillengine.hit.HitWindow
+import com.astarworks.astera.core.domain.skillengine.hit.RehitWindow
 import com.astarworks.astera.core.domain.skillengine.hit.HitWindowTracker
 import com.astarworks.astera.core.domain.skillengine.hit.ResolvedVolume
 import org.assertj.core.api.Assertions.assertThat
@@ -101,17 +101,17 @@ class HitContactScenarioTest {
         fun contact(tick: Int, frame: String) =
             resolver.narrow("h", tick, frame, vol, Vec3.ZERO, listOf(d)).single()
 
-        val once = HitWindowTracker(HitWindow.Once)
+        val once = HitWindowTracker(RehitWindow.Once)
         assertThat(once.accept(contact(1, "blade_a"))).isTrue()
         assertThat(once.accept(contact(2, "blade_b"))).isFalse()
         assertThat(once.accept(contact(99, "blade_a"))).isFalse()
 
-        val every = HitWindowTracker(HitWindow.EveryTicks(4))
+        val every = HitWindowTracker(RehitWindow.EveryTicks(4))
         assertThat(every.accept(contact(1, "a"))).isTrue()
         assertThat(every.accept(contact(4, "a"))).isFalse()
         assertThat(every.accept(contact(5, "a"))).isTrue()
 
-        val part = HitWindowTracker(HitWindow.PerPart)
+        val part = HitWindowTracker(RehitWindow.PerPart)
         assertThat(part.accept(contact(1, "blade_a"))).isTrue()
         assertThat(part.accept(contact(1, "blade_b"))).isTrue()
         assertThat(part.accept(contact(2, "blade_a"))).isFalse()

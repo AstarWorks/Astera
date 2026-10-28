@@ -8,13 +8,10 @@ meta:
   cooldown_ticks: 10
   resource_cost: 5
   tags: [ranged, physical]
-# GAP: gameplay.expose (damage <- dmg_physical, flight_speed <- launch_speed) -> none (inline literals)
-# GAP: v2 vanilla emit without speed (trail crit) -> extra: 0 (v3 identity); v2 default not recoverable
 anchors:
   - {id: muzzle, anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}
   - {id: flash,  anchor: caster.eye, offset: {up: -0.25, forward: 0.9}}
-  - {id: foe,    anchor: victim.root}
-  - {id: heart,  anchor: victim.root, offset: {up: 1.2}}
+  - {id: heart,  anchor: victim.root, offset: {up: 1.2}}  # GAP(Q2): v2 enemy frame origin = feet+0.8 fixed; victim.body (live hitbox centre, 0.9) or a fixed chest point is the founder's choice (Q2)
 machine:
   start: fly
   states:
@@ -34,12 +31,12 @@ machine:
           block: {mode: despawn}
           on:
             hit:
-              - {id: dmg, op: damage, target: event.victim, components: [{kind: physical, amount: 14.0}]}
-              - {id: snd_hit, op: sound, sound: "astera:weapons/gun-impact", anchor: foe, volume: 0.7, pitch: 1.2}
+              - {id: dmg, op: damage, target: event.victim, damage: {physical: 14.0}}
+              - {id: snd_hit, op: sound, sound: "astera:weapons/gun-impact", anchor: contact, volume: 0.7, pitch: 1.2}
               - {id: fx_hit, op: particle_def, def: hit-spark, anchor: heart}
             block:
-              - {id: snd_blk, op: sound, sound: "astera:weapons/gun-impact-block", anchor: contact.point, volume: 0.5, pitch: 1.5}
-              - {id: fx_blk, op: particle_def, def: hit-spark, anchor: contact.point}
+              - {id: snd_blk, op: sound, sound: "astera:weapons/gun-impact-block", anchor: contact, volume: 0.5, pitch: 1.5}
+              - {id: fx_blk, op: particle_def, def: hit-spark, anchor: contact}
         - {id: trail,   op: particle, particle: crit, anchor: {of: bolt, sweep: 0.4}, count: 1, offset: [0.04, 0.04, 0.04], at: 0, every: 1, until: bolt.end}
         - {id: trail_2, op: particle, particle: dust, anchor: {of: bolt, sweep: 0.4}, count: 1, color: "#e6e6e6", size: 1.0, at: 0, every: 1, until: bolt.end}
     end: {final: true}

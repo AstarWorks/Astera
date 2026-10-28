@@ -20,7 +20,7 @@ internal object VolumeGeometry {
         is ResolvedVolume.Sphere -> sphere(volume, box)
         is ResolvedVolume.Capsule -> capsule(volume, box)
         is ResolvedVolume.Sector -> sector(volume, box)
-        is ResolvedVolume.Box -> error("W1b-02: oriented box vs hitbox narrow phase")
+        is ResolvedVolume.Box -> orientedBox(volume, box)
     }
 
     fun clampToBox(p: Vec3, box: HitBox): Vec3 = Vec3(
@@ -76,6 +76,43 @@ internal object VolumeGeometry {
         if (len < EPS) return true
         val cos = (flat.dot(fwd) / len).coerceIn(-1.0, 1.0)
         return acos(cos) <= halfRad + 1e-9
+    }
+
+    /**
+     * Oriented box vs axis-aligned hitbox: separating-axis test over the 15 candidate axes (3 + 3 face normals, 9 edge
+     * cross products). The contact point is the hitbox point closest to the oriented box's centre (the centre itself when
+     * it lies inside the hitbox).
+     */
+    private fun orientedBox(v: ResolvedVolume.Box, box: HitBox): VolumeTouch? {
+        val axesA = arrayOf(
+            org.joml.Vector3d(1.0, 0.0, 0.0).rotate(v.rotation),
+            org.joml.Vector3d(0.0, 1.0, 0.0).rotate(v.rotation),
+            org.joml.Vector3d(0.0, 0.0, 1.0).rotate(v.rotation),
+        )
+        val halfA = doubleArrayOf(abs(v.halfExtents.x), abs(v.halfExtents.y), abs(v.halfExtents.z))
+        val axesB = arrayOf(
+            org.joml.Vector3d(1.0, 0.0, 0.0), org.joml.Vector3d(0.0, 1.0, 0.0), org.joml.Vector3d(0.0, 0.0, 1.0),
+        )
+        val c = box.center
+        val halfB = doubleArrayOf((box.max.x - box.min.x) / 2.0, (box.max.y - box.min.y) / 2.0, (box.max.z - box.min.z) / 2.0)
+        val t = org.joml.Vector3d(c.x - v.center.x, c.y - v.center.y, c.z - v.center.z)
+        val candidates = ArrayList<org.joml.Vector3d>(15)
+        candidates += axesA
+        candidates += axesB
+        for (a in axesA) for (b in axesB) candidates += org.joml.Vector3d(a).cross(b)
+        for (l in candidates) {
+            val len = l.length()
+            if (len < 1e-9) continue
+            l.div(len)
+            var ra = 0.0
+            var rb = 0.0
+            for (i in 0..2) {
+                ra += halfA[i] * abs(axesA[i].dot(l))
+                rb += halfB[i] * abs(axesB[i].dot(l))
+            }
+            if (abs(t.dot(l)) > ra + rb + EPS) return null
+        }
+        return VolumeTouch(clampToBox(v.center, box))
     }
 
     private fun distSqToBox(p: Vec3, box: HitBox): Double {

@@ -1,5 +1,4 @@
 # astera/v3 hand port of the v2 skill.yaml + look.yaml (tick for tick).
-# GAP: gameplay.expose [damage <- dmg_physical, range <- range] -> none (no v3 spelling; the numbers are inline below)
 apiVersion: astera/v3
 kind: Skill
 id: scythe-reap
@@ -8,7 +7,7 @@ meta: {name: {ja: "刈り取り", en: "Scythe Reap"}, description: {ja: "半円�
 anchors:
   - {id: eye,   anchor: caster.eye}
   - {id: sweep, anchor: caster.eye, offset: {up: -0.2, forward: 1.5}}   # was pt_aim_0_m0p2_1p5
-  - {id: heart, anchor: victim, offset: {up: 1.2}}                       # was pt_enemy_0_1p2_0 (enemy frame)
+  - {id: heart, anchor: victim, offset: {up: 1.2}}                       # GAP(Q2): v2 enemy frame (feet +0.8 fixed) vs v3 victim anchors; was pt_enemy_0_1p2_0
 machine:
   start: cast
   states:
@@ -22,12 +21,15 @@ machine:
           op: hit
           at: 0
           anchor: eye
-          shape: {sector: {deg: 180.0, range: 3.4, height: 2.0}}
+          shape: {sector: {deg: 180.0, range: 3.4, height: 2.0, forward: look}}
           targets: enemies
+          # GAP(Q1): v2 has no cap (unlimited, nearest-first); spelling A `max_count: all`, B omitted
+          window: once
+          ignore_invulnerability: false
           damage: {physical: 28.0}
-          # GAP: inline `on: hit` handler on a hit op is not in ADR 10.1b (closest: projectile on: 3.6)
           on:
             hit:
-              - {id: snd_hit, op: sound, sound: "astera:weapons/blade-hit", anchor: victim, volume: 0.7, pitch: 1.2}
+              - {id: kb, op: knockback, target: event.victim, direction: "= normalize(pos(event.victim) - pos(caster))", strength: 0.3}
+              - {id: snd_hit, op: sound, sound: "astera:weapons/blade-hit", anchor: contact, volume: 0.7, pitch: 1.2}
               - {id: fx_hit, op: particle_def, def: hit-spark, anchor: heart}
     end: {final: true}

@@ -46,7 +46,7 @@ import org.joml.Vector3d
 
 /** The events a projectile body produces (ADR-0303 3.6). [key] is the yaml key of `on:` and the suffix of the event path (`ball.hit`). */
 public enum class ProjectileEvent(public val key: String) {
-    HIT("hit"), BOUNCE("bounce"), STICK("stick"), UNSTICK("unstick"), BLOCK("block"), END("end");
+    HIT("hit"), BOUNCE("bounce"), STICK("stick"), UNSTICK("unstick"), BLOCK("block"), EXPIRE("expire"), END("end");
 
     public companion object {
         public fun ofKey(key: String): ProjectileEvent? = entries.firstOrNull { it.key == key }
@@ -164,7 +164,7 @@ public object ProjectileOpSpec : OpSpec<ProjectileOp> {
     private val block = Field.required("block", Types.nested(blockFields))
     private val gravity = Field.optional("gravity", Types.nullable(Types.number), null, "blocks per tick squared, down")
     private val drag = Field.optional("drag", Types.nullable(Types.number), null, "speed fraction lost per tick")
-    private val on = Field.optional("on", Types.nullable(Types.nested(onFields)), null, "handlers by event: hit, bounce, stick, unstick, block, end")
+    private val on = Field.optional("on", Types.nullable(Types.nested(onFields)), null, "handlers by event: hit, bounce, stick, unstick, block, expire, end")
 
     override val fields: Fields = Fields.of("projectile", origin, velocity, speed, range, radius, hit, motion, block, gravity, drag, on)
 
@@ -218,7 +218,7 @@ public object ProjectileOpSpec : OpSpec<ProjectileOp> {
         ProjectileEvent.BLOCK -> mode != "pass"
         ProjectileEvent.BOUNCE -> mode == "bounce"
         ProjectileEvent.STICK, ProjectileEvent.UNSTICK -> mode == "stick"
-        ProjectileEvent.END -> true
+        ProjectileEvent.EXPIRE, ProjectileEvent.END -> true
     }
 
     override fun lower(op: ProjectileOp, lc: LowerContext): Result<Lowered, SkillDecodeError> {
@@ -325,6 +325,7 @@ public object ProjectileOpSpec : OpSpec<ProjectileOp> {
             val now = lc.clockOffset
             val absolute = TickRange(now + window.min, now + window.max)
             val firstStick = TickRange(now + window.min, now + window.max - stickTicks)
+            val flightEnd = TickRange(now + flight, now + flight)
             val afterStick = TickRange(now + window.min + stickTicks, now + window.max)
 
             for (e in ProjectileEvent.entries) {
@@ -364,6 +365,7 @@ public object ProjectileOpSpec : OpSpec<ProjectileOp> {
                     ProjectileEvent.BOUNCE -> absolute to bounces
                     ProjectileEvent.STICK -> firstStick to 1
                     ProjectileEvent.UNSTICK -> afterStick to 1
+                    ProjectileEvent.EXPIRE -> flightEnd to 1
                     ProjectileEvent.END -> absolute to 1
                 }
                 subTables += SubTable(path, lc.state, win, firings, handlerRows, listOfNotNull(follows))

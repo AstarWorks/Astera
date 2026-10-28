@@ -4,6 +4,9 @@ import com.astarworks.astera.core.application.skillengine.compose.ProjectileKine
 import com.astarworks.astera.core.application.skillengine.load.SkillDecodeError
 import com.astarworks.astera.core.application.skillengine.runtime.player.RuntimeEvent
 import com.astarworks.astera.core.domain.Result
+import com.astarworks.astera.core.domain.geometry.Vec3
+import com.astarworks.astera.core.domain.skillengine.hit.HitBox
+import com.astarworks.astera.core.domain.skillengine.hit.HitCandidate
 import com.astarworks.astera.core.domain.skillengine.table.Action
 import com.astarworks.astera.core.domain.skillengine.table.CompiledSkill
 import com.astarworks.astera.core.domain.skillengine.table.EventPath
@@ -240,5 +243,75 @@ class ProjectileScenarioTest : SkillEngineScenario() {
         // the body's End row lands at tick 10 while the end handler rows are event-relative (>= 0), so the handler outlives it.
         assertEquals(10, end(s).tick)
         assertTrue(sub.rows.all { it.tick >= 0 })
+    }
+
+    private val expireOn = "on: {expire: [{id: ex, op: sound, sound: \"astera:ex\", anchor: caster}]}"
+
+    @Test
+    fun expireBeforeEnd() {
+        val s = compile("{$base, speed: 1.0, range: 12, hit: {targets: enemies, once: true}, block: {mode: despawn}, $expireOn}")
+        val expire = s.sub("expire")
+        assertEquals(1, expire.maxFirings)
+        // the flight ends by range at tick 12: `expire` is that tick, never later than the End row
+        assertEquals(12, expire.window.min)
+        assertEquals(12, expire.window.max)
+        assertEquals(end(s).tick, expire.window.max)
+        assertTrue(expire.branches.isEmpty())
+        // stick mode: the stuck ticks are added to `end` only
+        val st = compile("{$base, for: 30, hit: {targets: enemies, once: true}, block: {mode: stick, for: 20}, $expireOn}")
+        assertEquals(30, st.sub("expire").window.max)
+        assertEquals(50, end(st).tick)
+    }
+
+    @Test
+    fun expireOnRangeNotAfterHit() {
+        val s = compile("{$base, speed: 1.0, range: 12, hit: {targets: enemies, once: true}, block: {mode: despawn}, $expireOn}")
+        val hitPath = s.table.subTables.keys.first { it.value.endsWith(".hit") }
+        val expired = play(s, seed = 1L, ticks = 30).count { it.verb == "sound" }
+        assertEquals(1, expired)
+        val afterHit = play(s, seed = 1L, events = listOf(RuntimeEvent(hitPath, 3, null, null, null)), ticks = 30).count { it.verb == "sound" }
+        assertEquals(0, afterHit)
+    }
+
+    private fun victimAt(feet: Vec3) = HitCandidate(
+        java.util.UUID.randomUUID(), feet, 0.0, HitBox(Vec3(feet.x - 0.3, feet.y, feet.z - 0.3), Vec3(feet.x + 0.3, feet.y + 1.8, feet.z + 0.3)),
+    )
+
+    private fun sounds(calls: List<RecordedCall>, name: String) = calls.filter { it.verb == "sound" && it.toString().contains(name) }
+
+    @Test
+    fun projectileHitsEntityFiresOnHit() {
+        val s = compile(
+            "{$base, speed: 1.0, range: 12, hit: {targets: enemies, once: true}, block: {mode: despawn}, " +
+                "on: {hit: [{id: h, op: sound, sound: \"astera:onhit\", anchor: caster}], end: [{id: e, op: sound, sound: \"astera:onend\", anchor: caster}], " +
+                "expire: [{id: x, op: sound, sound: \"astera:onexpire\", anchor: caster}]}}",
+        )
+        val rec = GatewayRecorder()
+        // the stand-in muzzle is (0, 1, 0) and the body flies +y one block per tick; the victim stands 2.5 blocks up its line
+        rec.victims = listOf(victimAt(Vec3(0.0, 2.5, 0.0)))
+        val calls = play(s, seed = 1L, events = emptyList(), ticks = 30, rec = rec)
+        val hit = sounds(calls, "onhit")
+        assertEquals(1, hit.size)
+        assertTrue(hit.single().tick in 1..4)
+        // hit once ends the flight right there: `end` fires on the same tick, `expire` never does
+        assertEquals(listOf(hit.single().tick), sounds(calls, "onend").map { it.tick })
+        assertEquals(0, sounds(calls, "onexpire").size)
+        // nobody on the line: no hit
+        val none = play(s, seed = 1L, events = emptyList(), ticks = 30, rec = GatewayRecorder())
+        assertEquals(0, sounds(none, "onhit").size)
+    }
+
+    @Test
+    fun naturalEndFiresOnEnd() {
+        val s = compile(
+            "{$base, speed: 1.0, range: 12, hit: {targets: enemies, once: true}, block: {mode: despawn}, " +
+                "on: {end: [{id: e, op: sound, sound: \"astera:onend\", anchor: caster}], expire: [{id: x, op: sound, sound: \"astera:onexpire\", anchor: caster}]}}",
+        )
+        val calls = play(s, seed = 1L, events = emptyList(), ticks = 30, rec = GatewayRecorder())
+        val expire = sounds(calls, "onexpire")
+        val end = sounds(calls, "onend")
+        assertEquals(1, expire.size)
+        assertEquals(1, end.size)
+        assertEquals(end.single().tick, expire.single().tick)
     }
 }
