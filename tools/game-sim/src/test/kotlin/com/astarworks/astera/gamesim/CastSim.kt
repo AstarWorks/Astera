@@ -416,7 +416,7 @@ class CastSim(
     /** A hit of [amount] from [attacker] reaches the caster now; returns the damage multiplier the cast's windows impose. */
     fun incoming(attacker: UUID, amount: Double): Double = kit.runner.intercept(caster, attacker, amount)
 
-    fun cast(id: String, ticks: Int): CastId {
+    fun cast(id: String, ticks: Int, drainWorld: Boolean = true): CastId {
         val skill = requireNotNull(catalog.get(id)) { "skill $id not loaded" }
         val req = CastRequest(skill, caster, castWorld, origin, yawDeg, pitchDeg, seed = 7L, startTick = 0)
         val cast = when (val r = kit.runner.start(req)) {
@@ -427,8 +427,8 @@ class CastSim(
             kit.runner.tick(now)
             now++
         }
-        // Cover strikes and ripple edits are scheduled up to one cast window (v1 CAST_TICKS = 30) after the contact, past the cast's end: let the world ledger run them out.
-        repeat(WORLD_EDIT_DRAIN_TICKS) { kit.world.tick(); now++ }
+        // (The gameplay dumps stop at the dump window: drainWorld = false.) Cover strikes and ripple edits are scheduled up to one cast window (v1 CAST_TICKS = 30) after the contact, past the cast's end: let the world ledger run them out.
+        if (drainWorld) repeat(WORLD_EDIT_DRAIN_TICKS) { kit.world.tick(); now++ }
         assertThat(kit.runner.diagnostics()).describedAs("no op failed").isEmpty()
         return cast
     }
