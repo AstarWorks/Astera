@@ -78,7 +78,8 @@ public object LawSegmenter {
     private const val COLOR_FIELD = "color"
 
     public fun segments(instance: InstanceId, laws: List<MotionLaw>, lc: LowerContext, fadeField: String = DEFAULT_FADE_FIELD): Result<Lowered, SkillDecodeError> =
-        lower(instance, laws, lc.config, lc.src, lc.clockOffset, fadeField)
+        // rows are relative to the occurrence: GroupUnroller shifts them by the occurrence tick, so adding lc.clockOffset here would count it twice
+        lower(instance, laws, lc.config, lc.src, 0, fadeField)
 
     /** [segments] without a [LowerContext]: [base] is the instance's start tick. */
     public fun lower(
