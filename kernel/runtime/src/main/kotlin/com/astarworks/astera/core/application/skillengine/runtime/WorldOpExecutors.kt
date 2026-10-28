@@ -57,7 +57,9 @@ internal class SetBlockExecutor(private val editor: SkillWorldEditor) : OpExecut
         val world = editor.world
         if (!world.canEdit(ctx.cast, cell, op.outsideArena)) return
         if (!WorldBlockRules.isReplaceable(world.blockAt(cell))) return
-        editor.edit(cell, ctx.revertTicks(op.revertAfterTicks)) { world.place(cell, key); true }
+        editor.edit(cell, ctx.revertTicks(op.revertAfterTicks)) {
+            world.place(cell, key).also { if (!it) ctx.host.fail(op.id, "set_block: '$key' could not be placed at $cell") }
+        }
     }
 }
 
@@ -127,7 +129,9 @@ internal class PlaceShapeExecutor(private val editor: SkillWorldEditor) : OpExec
                 if (cover) {
                     world.placeCover(cast, cell, key)
                 } else {
-                    editor.edit(cell, revert) { world.place(cell, key); true }
+                    editor.edit(cell, revert) {
+                        world.place(cell, key).also { if (!it) ctx.host.fail(op.id, "place_shape: '$key' could not be placed at $cell") }
+                    }
                 }
             }
         }
