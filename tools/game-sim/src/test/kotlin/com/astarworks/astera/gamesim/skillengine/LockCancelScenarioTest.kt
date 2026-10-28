@@ -19,21 +19,26 @@ import org.junit.jupiter.api.Test
  * package compiles alone. The manager may move them at merge. Needs the wave 1b harness (W1-20) and the compiler to run.
  */
 class LockCancelScenarioTest : SkillEngineScenario() {
-    private fun skill(body: String, extraStates: String = ""): String = """
-        apiVersion: astera/v3
-        kind: Skill
-        id: lock-cancel-test
-        machine:
-          start: cast
-          states:
-            cast:
-              for: 20
-              then: done
-              do:
-        $body
-        $extraStates
-            done: {final: true}
-    """.trimIndent()
+    /** One state `cast` (20 ticks, `then: done`) whose `do:` holds [body] (list items, any indent), plus optional extra states. */
+    private fun skill(body: String, extraStates: String = ""): String {
+        val doLines = body.trimIndent().lines().joinToString("\n") { "        $it" }
+        val extra = if (extraStates.isBlank()) "" else extraStates.trimIndent().lines().joinToString("\n", prefix = "\n") { "    $it" }
+        return """
+            |apiVersion: astera/v3
+            |kind: Skill
+            |id: lock-cancel-test
+            |meta: {cooldown_ticks: 0, resource_cost: 0}
+            |machine:
+            |  start: cast
+            |  states:
+            |    cast:
+            |      for: 20
+            |      then: done
+            |      do:
+            |$doLines$extra
+            |    done: {final: true}
+        """.trimMargin()
+    }
 
     private fun compile(yaml: String): CompiledSkill = when (val r = loadInline(yaml)) {
         is Result.Success -> r.value
@@ -47,7 +52,7 @@ class LockCancelScenarioTest : SkillEngineScenario() {
 
     @Test
     fun lockMovePitchWindow() {
-        val s = compile(skill("    - {id: plant, op: lock, move: all, pitch: true, at: 0, for: 12}"))
+        val s = compile(skill("- {id: plant, op: lock, move: all, pitch: true, at: 0, for: 12}"))
         val rows = s.table.states.single { it.state == StatePath("cast") }.rows
         val lock = rows.single { it.action is Action.Lock }
         assertThat(lock.tick).isEqualTo(0)
@@ -60,13 +65,13 @@ class LockCancelScenarioTest : SkillEngineScenario() {
         assertThat(calls.filter { it.verb.contains("lock", ignoreCase = true) }.map { it.tick }).contains(0)
 
         // a lock with no flag, or without a window, is a load error
-        assertThat(reject(skill("    - {id: noop, op: lock, at: 0, for: 4}"))).isInstanceOf(SkillDecodeError.Invalid::class.java)
-        assertThat(reject(skill("    - {id: open, op: lock, move: all, at: 0}"))).isInstanceOf(SkillDecodeError.Invalid::class.java)
+        assertThat(reject(skill("- {id: noop, op: lock, at: 0, for: 4}"))).isInstanceOf(SkillDecodeError.Invalid::class.java)
+        assertThat(reject(skill("- {id: open, op: lock, move: all, at: 0}"))).isInstanceOf(SkillDecodeError.Invalid::class.java)
     }
 
     @Test
     fun cancelCastEmitsCancelThenEnd() {
-        val s = compile(skill("    - {id: stop, op: cancel, scope: cast, at: 3}"))
+        val s = compile(skill("- {id: g, at: 3, do: [{id: stop, op: cancel, scope: cast}]}"))
         val row = s.table.states.single { it.state == StatePath("cast") }.rows.single { it.action is Action.Cancel }
         assertThat(row.action).isEqualTo(Action.Cancel(CancelScope.Cast))
         val sub = s.table.subTables.getValue(EventPath("cast.cancel[cast]"))
@@ -80,7 +85,7 @@ class LockCancelScenarioTest : SkillEngineScenario() {
 
     @Test
     fun cancelStateTakesThen() {
-        val s = compile(skill("    - {id: leave, op: cancel, scope: state, at: 2}"))
+        val s = compile(skill("- {id: g, at: 2, do: [{id: leave, op: cancel, scope: state}]}"))
         val sub = s.table.subTables.getValue(EventPath("cast.cancel[state]"))
         assertThat(sub.rows.map { it.action }).containsExactly(Action.Emit(EventPath("cancel")))
         // no on: cancel handler is written, so the state is left through its `then`, as by a timer but with exit.reason = cancel
@@ -93,9 +98,9 @@ class LockCancelScenarioTest : SkillEngineScenario() {
         val s = compile(
             skill(
                 """
-                |    - {id: marker, op: display, kind: item, item: fire_charge, context: fixed, anchor: caster, at: 0, for: 20}
-                |    - {id: drop, op: cancel, scope: marker, at: 4}
-                """.trimMargin().prependIndent(""),
+                - {id: marker, op: display, kind: item, item: fire_charge, context: fixed, anchor: caster, at: 0, for: 20}
+                - {id: g, at: 4, do: [{id: drop, op: cancel, scope: marker}]}
+                """,
             ),
         )
         val sub = s.table.subTables.values.single { it.event.value.startsWith("cast.cancel[marker") }
@@ -111,17 +116,20 @@ class LockCancelScenarioTest : SkillEngineScenario() {
             apiVersion: astera/v3
             kind: Skill
             id: lock-cancel-nested
+            meta: {cooldown_ticks: 0, resource_cost: 0}
             machine:
               start: outer
               states:
                 outer:
-                  machine:
-                    start: inner
-                    states:
-                      inner:
-                        for: 10
-                        do:
-                          - {id: stop, op: cancel, scope: cast, at: 2}
+                  then: done
+                  start: inner
+                  states:
+                    inner:
+                      for: 10
+                      then: end
+                      do:
+                        - {id: g, at: 2, do: [{id: stop, op: cancel, scope: cast}]}
+                    end: {final: true}
                 done: {final: true}
             """.trimIndent(),
         )

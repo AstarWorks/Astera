@@ -115,12 +115,16 @@ class ParticleOpScenarioTest : SkillEngineScenario() {
         id: particle-probe
         anchors:
           - {id: body, anchor: caster}
-        presentation:
-          timeline:
-            - id: fx0
-              $timeline
+        machine:
+          start: s
+          states:
+            s:
+              for: 20
               do:
-        """.trimIndent() + "\n" + ops.joinToString("\n") { "                - $it" }
+                - id: fx0
+                  $timeline
+                  do:
+        """.trimIndent() + "\n" + ops.joinToString("\n") { "                    - $it" }
 
     private fun loaded(yaml: String): CompiledSkill {
         val r = loadInline(yaml)
@@ -133,17 +137,21 @@ class ParticleOpScenarioTest : SkillEngineScenario() {
 
     private val origin = object : FrameLookup {
         override fun worldPose(frame: String, point: String?): Frame? =
-            if (frame == "body") Frame(Vec3(10.0, 0.0, 0.0), Quaternion(0.0, 0.0, 0.0, 1.0)) else null
+            // the anchors-list alias `body` lowers to the caster frame it names
+            if (frame == "caster") Frame(Vec3(10.0, 0.0, 0.0), Quaternion(0.0, 0.0, 0.0, 1.0)) else null
 
         override fun velocity(frame: String, point: String?): Vec3 = Vec3.ZERO
     }
-    private val spec = ExprEnvSpec(frames = setOf("body"))
+    private val spec = ExprEnvSpec(frames = setOf("caster"))
     private val compiler = CelExprCompiler()
 
     private fun source(v: Val<*>): String = (v as Val.Live<*>).name
 
     private fun position(a: Action.Particle, seed: Long = 7L, sample: Int = 0): Vec3 {
-        val compiled = (compiler.compile(source(a.position), spec) as Result.Success).value
+        val compiled = when (val c = compiler.compile(source(a.position), spec)) {
+            is Result.Success -> c.value
+            is Result.Failure -> throw AssertionError("position '${source(a.position)}' did not compile: ${c.error}")
+        }
         return (compiled.eval(ExprEnv(emptyMap(), origin, seed, null, seed, sample)) as ExprValue.Vec3).value
     }
 
@@ -176,12 +184,13 @@ class ParticleOpScenarioTest : SkillEngineScenario() {
 
     @Test
     fun ringPhaseDrawConstantPerCast() {
+        // shift `forward` is the +z axis of an identity frame, so the draw is read from z
         val ps = particles(loaded(skill("{id: ring, op: particle, particle: flame, anchor: body, times: 3, shift: {forward: \"= draw('ring_ph')\"}}")))
-        val xs = ps.map { position(it).x }
+        val xs = ps.map { position(it).z }
         assertEquals(1, xs.map { Math.round(it * 1e9) }.toSet().size, "draw is one value for every copy of one cast: $xs")
-        val later = ps.map { position(it, sample = 9).x }
+        val later = ps.map { position(it, sample = 9).z }
         assertEquals(xs, later, "draw is constant across ticks of one cast")
-        assertTrue(position(ps[0], seed = 7L).x != position(ps[0], seed = 8L).x, "draw differs between casts")
+        assertTrue(position(ps[0], seed = 7L).z != position(ps[0], seed = 8L).z, "draw differs between casts")
     }
 
     @Test
@@ -204,7 +213,8 @@ class ParticleOpScenarioTest : SkillEngineScenario() {
     fun indexedListExpandsPerI() {
         val ps = particles(loaded(skill("{id: p, op: particle, particle: flame, anchor: body, times: 3, count: [1, 2, 3]}")))
         assertEquals(3, ps.size)
-        assertEquals(listOf(1.0, 2.0, 3.0).size, ps.map { source(it.count) }.toSet().size.let { 3 })
+        // literal counts lower to Known cells (not Live sources): each copy carries its own entry of the list
+        assertEquals(listOf(1.0, 2.0, 3.0), ps.map { (it.count as Val.Known<*>).value.let { v -> (v as Number).toDouble() } })
         assertTrue(ps.all { it.count is Val.Live<*> || it.count is Val.Known<*> })
     }
 

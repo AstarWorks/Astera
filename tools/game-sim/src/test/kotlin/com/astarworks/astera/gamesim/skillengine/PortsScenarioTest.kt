@@ -59,7 +59,7 @@ class PortsScenarioTest : SkillEngineScenario() {
             go:
               for: 12
               do:
-                - {id: dash, op: dash, at: 1, speed: 1.5, for: 6, follow_pitch: false, stop_on_block: true, invulnerable: true, face_movement: true}
+                - {id: dash, op: dash, at: 1, speed: 1.5, for: 6, direction: {forward: 1}, follow_pitch: false, stop_on_block: true, invulnerable: true, face_movement: true}
                 - {id: bang, op: sound, sound: block.note_block.hat, anchor: caster, at: 0}
                 - {id: mote, op: particle, particle: crit, anchor: caster, count: 2, at: 0}
                 - {id: disc, op: display, kind: sprite, sprite: couture-s2-petal-spark, anchor: caster, billboard: center, size: [0.5, 0.5], for: 6, at: 0}
@@ -99,15 +99,14 @@ class PortsScenarioTest : SkillEngineScenario() {
         kind: Skill
         id: ports-reel
         item: couture-rapier
-        anchors:
-          - {id: pulled, anchor: caster}
-          - {id: goal, anchor: caster, offset: {forward: 4}}
         machine:
           start: go
           states:
             go:
               for: 16
               do:
+                - {id: pulled, op: frame, anchor: caster, mode: snapshot, for: 16}
+                - {id: goal, op: frame, anchor: caster, offset: {forward: 4}, mode: snapshot, for: 16}
                 - {id: reel, op: reel, anchor: pulled, to: goal, speed: 1.0, at: 1}
     """.trimIndent()
 
@@ -126,12 +125,13 @@ class PortsScenarioTest : SkillEngineScenario() {
         id: ports-world
         anchors:
           - {id: body, anchor: caster}
-        gameplay:
-          timeline:
-            - id: t0
-              at: 0
+        machine:
+          start: s
+          states:
+            s:
+              for: 20
               do:
-                - {id: b, op: break_area, anchor: body, shape: {sphere: {radius: 1.5, ahead: 0.0}}, tool: none, block_damage: 100, ripple: 0, revert: 200, outside_arena: false}
+                - {id: b, op: break_area, anchor: body, shape: {sphere: {radius: 1.5, ahead: 0.0}}, tool: pickaxe, block_damage: 100, ripple: 0, revert: 200, outside_arena: false}
     """.trimIndent()
 
     @Test
@@ -162,12 +162,13 @@ class PortsScenarioTest : SkillEngineScenario() {
         id: $id
         anchors:
           - {id: body, anchor: caster}
-        gameplay:
-          timeline:
-            - id: t0
-              at: 0
+        machine:
+          start: s
+          states:
+            s:
+              for: 20
               do:
-                - {id: b, op: break_area, anchor: body, shape: {sphere: {radius: $radius, ahead: 0.0}}, tool: none, block_damage: 100, ripple: 0, revert: 200, outside_arena: false}
+                - {id: b, op: break_area, anchor: body, shape: {sphere: {radius: $radius, ahead: 0.0}}, tool: pickaxe, block_damage: 100, ripple: 0, revert: 200, outside_arena: false}
     """.trimIndent()
 
     @Test
@@ -196,8 +197,6 @@ class PortsScenarioTest : SkillEngineScenario() {
         apiVersion: astera/v3
         kind: Skill
         id: ports-attacker
-        anchors:
-          - {id: contact, anchor: caster}
         machine:
           start: wait
           states:
@@ -205,12 +204,14 @@ class PortsScenarioTest : SkillEngineScenario() {
               for: 20
               then: end
               on:
-                - {event: hurt, to: react}
+                - event: hurt
+                  to: react
+                  do:
+                    - {id: contact, op: frame, anchor: caster, for: 4}
+                    - {id: back, op: hurt, target: event.attacker, from: contact, at: 1}
             react:
-              for: 2
+              for: 4
               then: end
-              exit:
-                - {id: back, op: hurt, target: event.attacker, from: contact}
             end: {final: true}
     """.trimIndent()
 
@@ -231,14 +232,13 @@ class PortsScenarioTest : SkillEngineScenario() {
         apiVersion: astera/v3
         kind: Skill
         id: ports-allies
-        anchors:
-          - {id: body, anchor: caster}
-        gameplay:
-          timeline:
-            - id: t0
-              at: 0
+        machine:
+          start: s
+          states:
+            s:
+              for: 20
               do:
-                - {id: st, op: status, target: {kind: KIND, around: body, radius: 6.0, max_count: all, include_self: false}, status: shock, stacks: 1, for: 30}
+                - {id: st, op: status, target: {kind: KIND, around: caster, radius: 6.0, max_count: all INC}, status: shock, stacks: 1, for: 30}
     """.trimIndent()
 
     private fun candidate(id: UUID, z: Double) = HitCandidate(
@@ -257,9 +257,9 @@ class PortsScenarioTest : SkillEngineScenario() {
             val rec = GatewayRecorder()
             rec.victims = listOf(candidate(friend, 2.0), candidate(foe, 3.0))
             rec.allies += friend
-            val run = start(compile(alliesSkill.replace("KIND", kind)), rec, WorldId("world"))
+            val run = start(compile(alliesSkill.replace("KIND", kind).replace("INC", if (kind == "allies") ", include_self: false" else "")), rec, WorldId("world"))
             for (now in 0..2) run.tick(now)
-            assertThat(rec.calls.filter { it.verb == "effect" }.map { it.instance }.toSet()).describedAs(kind).containsExactly(expected.toString())
+            assertThat(rec.calls.filter { it.verb == "status" }.map { it.instance }.toSet()).describedAs(kind).containsExactly(expected.toString())
             assertThat(run.player.faults()).isEmpty()
         }
     }
