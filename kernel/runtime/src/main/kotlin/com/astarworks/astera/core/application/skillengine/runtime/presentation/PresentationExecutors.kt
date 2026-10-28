@@ -152,7 +152,7 @@ internal class TextExecutor(private val rt: PresentationRuntime) : OpExecutor<Vi
             val par = parent ?: op.parent
             val live = PresentationRuntime.Live.Quad(
                 id, par, op.face, ctx.values.vec3(op.size), rt.billboardOf(s, op.face, par),
-                op.at?.let { ctx.values.vec3(it) } ?: Vec3.ZERO, op.turn?.let { turn(ctx.values.vec3(it)) } ?: Quaternion.IDENTITY,
+                op.at?.let { ctx.values.vec3(it) } ?: Vec3.ZERO, op.turn?.let { turn(ctx.values.vec3(it)) } ?: Quaternion.IDENTITY, plainText = true,
             )
             val pose = rt.spawnNode(s, live, par) ?: run { ctx.host.fail(op.id, "text: parent frame '$par' is not in the frame tree"); return@repeated null }
             // v1 WorldMechanics.display (:459-478) spawns at most MAX_DISPLAYS_PER_CAST (:631) displays per cast

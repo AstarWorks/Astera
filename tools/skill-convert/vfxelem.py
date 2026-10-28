@@ -852,6 +852,8 @@ def group_slots(c, el, skel, eid, where, delay, when, rows, spawns, life_of, liv
     side = with_initial_look(side, skel.get("alpha"), skel.get("color") if skel["op"] == "quad" else None)
     other = {k["t"]: {x: v for x, v in k.items() if x in ("alpha", "color", "block", "text")} for k in side}
     other = {t: v for t, v in other.items() if v}
+    # v1 chunks between the authored keyframe ticks only (VfxTimeline.kt:544-559); the other dense keys are `sample: true` fillers.
+    breaks = {0} | {int(k["t"]) for k in (kfs or [])} | {int(k["t"]) for k in (gkfs or [])}
     for k in live:
         sp, rs = rows[k]
         life = life_of(k)
@@ -872,6 +874,8 @@ def group_slots(c, el, skel, eid, where, delay, when, rows, spawns, life_of, liv
             rot = qnorm(_q_mul(rsl, euler_to_quat(*lr)))
             e = {"t": u, "offset": clean(pos), "turn": clean(rv(rot)), "scale": clean(vmul(ls, gs))}
             e.update(other.get(u, {}))
+            if not extra and u not in breaks and u != life - 1:
+                e["sample"] = True
             keys.append(e)
         have = {e["t"] for e in keys}
         for t, v in other.items():

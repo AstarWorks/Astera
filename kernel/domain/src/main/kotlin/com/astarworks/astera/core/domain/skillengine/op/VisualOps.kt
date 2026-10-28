@@ -355,6 +355,8 @@ public data class TrackKey(
     val block: String? = null,
     /** MiniMessage text a [VisualOp.Text] switches to from this key on (a step, never blended); nothing is applied before the first text key's tick. */
     val text: String? = null,
+    /** Densified filler key, not a chunk boundary: v1 chunks only between the authored keyframe ticks (VfxTimeline.kt:544-559), so the runtime ignores it when cutting steps. */
+    val sample: Boolean = false,
 )
 
 /**

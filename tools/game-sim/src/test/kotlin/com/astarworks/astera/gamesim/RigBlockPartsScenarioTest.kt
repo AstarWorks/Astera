@@ -36,7 +36,7 @@ class RigBlockPartsScenarioTest {
         item: pistol
         meta: {name: {ja: "t", en: "t"}, description: {ja: "t", en: "t"}, cooldown_ticks: 1, resource_cost: 0, tags: []}
         frames:
-          - {id: at, kind: body, parent: caster.right_hand}
+          - {id: at, kind: body, parent: caster.right_hand, passenger: false}
           - {id: sword, kind: body, parent: at}
         gameplay:
           timeline:
