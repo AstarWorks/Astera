@@ -11,5 +11,5 @@ public sealed interface Val<out T> {
 public data class Bound<T>(val lo: T, val hi: T)
 
 public typealias Num = Val<Double>
-public typealias Vec = Val<org.joml.Vector3d>
-public typealias Rot = Val<org.joml.Quaterniond>
+public typealias Vec = Val<com.astarworks.astera.core.domain.skillengine.math.Vector3d>
+public typealias Rot = Val<com.astarworks.astera.core.domain.skillengine.math.Quaterniond>

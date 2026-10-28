@@ -26,8 +26,8 @@ import com.astarworks.astera.core.domain.skillengine.table.TargetRule
 import com.astarworks.astera.core.domain.skillengine.table.TargetSet
 import org.bukkit.Server
 import org.bukkit.entity.LivingEntity
-import org.joml.Quaterniond
-import org.joml.Vector3d
+import com.astarworks.astera.core.domain.skillengine.math.Quaterniond
+import com.astarworks.astera.core.domain.skillengine.math.Vector3d
 import java.util.concurrent.ConcurrentHashMap
 
 /**

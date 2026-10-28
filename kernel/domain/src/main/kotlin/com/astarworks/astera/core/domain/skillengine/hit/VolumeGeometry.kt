@@ -85,9 +85,9 @@ internal object VolumeGeometry {
      */
     private fun orientedBox(v: ResolvedVolume.Box, box: HitBox): VolumeTouch? {
         val axesA = arrayOf(
-            org.joml.Vector3d(1.0, 0.0, 0.0).rotate(v.rotation),
-            org.joml.Vector3d(0.0, 1.0, 0.0).rotate(v.rotation),
-            org.joml.Vector3d(0.0, 0.0, 1.0).rotate(v.rotation),
+            org.joml.Vector3d(1.0, 0.0, 0.0).rotate(v.rotation.j),
+            org.joml.Vector3d(0.0, 1.0, 0.0).rotate(v.rotation.j),
+            org.joml.Vector3d(0.0, 0.0, 1.0).rotate(v.rotation.j),
         )
         val halfA = doubleArrayOf(abs(v.halfExtents.x), abs(v.halfExtents.y), abs(v.halfExtents.z))
         val axesB = arrayOf(
