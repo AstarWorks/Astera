@@ -426,6 +426,10 @@ class BotBrain(
             pl.noteRoster(roster())
             pl.noteMarkers(bot.entities.values.filter { bot.entityTextsById[it.id]?.contains(ModePlanner.LOOSE_TAG) == true }.map { it.x to it.z })
             pl.noteConfirmed(bot.sounds.count { it.contains("objective/pickup") })
+            if (pl.clickWanted && now - lastClickAt >= CLICK_INTERVAL_MS) {
+                bot.entities.values.filter { it.type.contains("INTERACTION", ignoreCase = true) && hypot(it.x - bot.x, it.z - bot.z) <= CLICK_REACH }
+                    .minByOrNull { hypot(it.x - bot.x, it.z - bot.z) }?.let { bot.interact(it.id); lastClickAt = now }
+            }
         }
         if (now >= modePausedUntil) planner?.step(now, bot.x, bot.z)?.let { st ->
             return Dest(st.x, st.z, st.y, st.arrive, "mode", zone = st.zone, strike = st.strike, affinity = st.affinity)
@@ -485,6 +489,7 @@ class BotBrain(
 
     private var starArrivedSince = 0L
     private var modePausedUntil = 0L
+    private var lastClickAt = 0L
 
     /** Digs [block] (an Annihilation pillar): the server turns every break attempt on a pillar block into damage to it. */
     private fun strikeBlock(block: Triple<Int, Int, Int>, affinity: LoadoutClassifier.Affinity?, now: Long) {
@@ -914,6 +919,8 @@ class BotBrain(
         const val SLOT_PITCH = 2048.0
         val AMMO_WORD = Regex("reload|リロード")
         const val SIGHT_RANGE = 70.0
+        const val CLICK_INTERVAL_MS = 500L
+        const val CLICK_REACH = 5.0
         const val STRIKE_INTERVAL_MS = 450L
         const val TOOL_CAST_INTERVAL_MS = 2_000L
         const val STRIKE_REACH = 4.5

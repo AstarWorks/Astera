@@ -16,6 +16,8 @@ import com.astarworks.astera.core.domain.mob.encounter.EncounterZone
 import com.astarworks.astera.core.domain.mob.encounter.EncounterZoneId
 import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.domain.stage.Stage
+import com.astarworks.astera.match.application.gamemode.siege.NavTarget
+import com.astarworks.astera.match.application.gamemode.siege.ObjectiveKit
 import com.astarworks.astera.match.application.gamemode.siege.SiegeEnv
 import com.astarworks.astera.match.application.gamemode.siege.SiegeGameMode
 import com.astarworks.astera.match.application.gamemode.siege.SiegeRun
@@ -235,6 +237,13 @@ public class PveWaveGameMode @JvmOverloads constructor(
         )
     }
 
+    /** The compass heads for the nearest wave spawn: that is where the monsters appear (a live-mob position needs a body-gateway lookup, not available yet). */
+    override fun navTarget(run: Run, match: Match, viewer: PlayerId, team: TeamId): NavTarget? {
+        val from = kit.positionOf(viewer) ?: return null
+        val spawn = run.spawnPoints.minByOrNull { ObjectiveKit.flatDistance(from, it) } ?: return null
+        return NavTarget(spawn, if (run.alive.isEmpty()) HINT_NEXT else HINT_FIGHT)
+    }
+
     override fun finish(run: Run) {
         val p = pve ?: return
         for (handle in run.alive.values) p.spawner.despawn(handle)
@@ -253,6 +262,8 @@ public class PveWaveGameMode @JvmOverloads constructor(
         private val KEY_HUD_NEXT: MessageKey = MessageKey("astera.hud.sidebar.pve-waves.next")
         private val KEY_HUD_LIVES: MessageKey = MessageKey("astera.hud.sidebar.pve-waves.lives")
         private val KEY_HUD_KILLS: MessageKey = MessageKey("astera.hud.sidebar.pve-waves.kills")
+        private val HINT_FIGHT: MessageKey = MessageKey("astera.objective.hint.pve-waves.fight")
+        private val HINT_NEXT: MessageKey = MessageKey("astera.objective.hint.pve-waves.next")
         private const val SPAWN_PREFIX: String = "mob-spawn-"
         private const val DEFAULT_ENCOUNTER: String = "astera:proving-grounds"
         private const val DEFAULT_LIVES: Int = 2

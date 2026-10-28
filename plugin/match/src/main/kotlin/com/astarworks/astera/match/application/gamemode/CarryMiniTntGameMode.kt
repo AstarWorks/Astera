@@ -121,7 +121,7 @@ public class CarryMiniTntGameMode @JvmOverloads constructor(
     private fun labelOf(target: String?): MessageKey = when {
         target?.startsWith(THROW) == true -> LABEL_THROW
         target?.startsWith(PLANT) == true -> LABEL_PLANT
-        else -> LABEL_PICKUP
+        else -> LABEL_PLANT
     }
 
     private fun trackCarriers(run: Run, match: Match, now: Long) {
@@ -150,16 +150,29 @@ public class CarryMiniTntGameMode @JvmOverloads constructor(
             if ((run.carried[player] ?: 0) > 0 && run.open(enemy.key, now)) return "$PLANT${enemy.key.value}"
         }
         val have = run.carried[player] ?: 0
-        if (have >= carryLimit()) return null
-        run.spotRegions.entries.firstOrNull { (name, region) -> name !in run.takenAt && region.contains(pos) }?.let { return "$SPOT${it.key}" }
-        val pile = run.piles.firstOrNull { ObjectiveKit.flatDistance(pos, it.position) <= kit.pickupRadius && abs(pos.y - it.position.y) <= REACH_HEIGHT }
-        return pile?.let { "$PILE${it.id}" }
+        return null
+    }
+
+    /** Right-click on a clam spot or a dropped pile within reach collects it (up to the carry limit). */
+    override fun interacted(run: Run, match: Match, player: PlayerId, team: TeamId, key: String) {
+        val pos = kit.positionOf(player) ?: return
+        val at = when {
+            key.startsWith(SPOT_KEY) -> run.spotRegions[key.removePrefix(SPOT_KEY)]?.let { ObjectiveKit.centreOf(it, 1.0) }
+            key.startsWith(PILE_KEY) -> run.piles.firstOrNull { it.id == key.removePrefix(PILE_KEY).toIntOrNull() }?.position
+            else -> null
+        } ?: return
+        if (ObjectiveKit.flatDistance(pos, at) > CLICK_REACH || abs(pos.y - at.y) > CLICK_REACH_HEIGHT) return
+        if ((run.carried[player] ?: 0) >= carryLimit()) {
+            kit.toast(player, TOAST_FULL, mapOf("limit" to carryLimit().toString()), ttlTicks = 40)
+            return
+        }
+        val now = env?.now?.invoke() ?: return
+        if (key.startsWith(SPOT_KEY)) collectSpot(run, match, player, team, key.removePrefix(SPOT_KEY), now)
+        else collectPile(run, match, player, key.removePrefix(PILE_KEY).toIntOrNull())
     }
 
     private fun complete(run: Run, match: Match, player: PlayerId, team: TeamId, target: String, now: Long) {
         when {
-            target.startsWith(SPOT) -> collectSpot(run, match, player, team, target.removePrefix(SPOT), now)
-            target.startsWith(PILE) -> collectPile(run, match, player, target.removePrefix(PILE).toIntOrNull())
             target.startsWith(THROW) -> run.baskets.entries.firstOrNull { it.key.value == target.removePrefix(THROW) }
                 ?.takeIf { it.key != team }?.let { throwIn(run, match, player, team, it.key, it.value, now) }
             target.startsWith(PLANT) -> run.baskets.entries.firstOrNull { it.key.value == target.removePrefix(PLANT) }
@@ -444,7 +457,7 @@ public class CarryMiniTntGameMode @JvmOverloads constructor(
         private val KEY_CLOSED: MessageKey = MessageKey("astera.gamemode.carry-mini-tnt.closed")
         private val KEY_BLOWN_UP: MessageKey = MessageKey("astera.gamemode.carry-mini-tnt.blown-up")
         private val KEY_DROPPED: MessageKey = MessageKey("astera.gamemode.carry-mini-tnt.dropped")
-        private val LABEL_PICKUP: MessageKey = MessageKey("astera.objective.channel.carry-mini-tnt.pickup")
+        private val TOAST_FULL: MessageKey = MessageKey("astera.objective.toast.carry-mini-tnt.full")
         private val LABEL_PLANT: MessageKey = MessageKey("astera.objective.channel.carry-mini-tnt.plant")
         private val LABEL_THROW: MessageKey = MessageKey("astera.objective.channel.carry-mini-tnt.throw")
         private val BAR: MessageKey = MessageKey("astera.objective.bar.carry-mini-tnt")
@@ -456,8 +469,6 @@ public class CarryMiniTntGameMode @JvmOverloads constructor(
         private const val CLAM_PREFIX: String = "clam-"
         private const val BASKET_PREFIX: String = "basket-"
         private const val MARKER_BLOCK: String = "minecraft:tnt"
-        private const val SPOT: String = "spot:"
-        private const val PILE: String = "pile:"
         private const val PLANT: String = "plant:"
         private const val THROW: String = "throw:"
         private const val SPOT_KEY: String = "spot-"
@@ -475,7 +486,8 @@ public class CarryMiniTntGameMode @JvmOverloads constructor(
         private const val FAST_TICKS: Long = 5L
         private const val TRAIL_TICKS: Long = 5L
         private const val WARN_INTERVAL_TICKS: Long = 40L
-        private const val REACH_HEIGHT: Double = 3.0
+        private const val CLICK_REACH: Double = 6.0
+        private const val CLICK_REACH_HEIGHT: Double = 4.0
         private const val VOID_MARGIN: Double = 8.0
     }
 }

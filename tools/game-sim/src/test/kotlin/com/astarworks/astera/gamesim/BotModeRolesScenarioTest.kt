@@ -70,7 +70,7 @@ class BotModeRolesScenarioTest {
         scenario("bot-roles-carry-tnt") {
             val runner = player("r1", at = Vec3(0.0, 65.0, -50.0))
             val enemy = player("b1", at = Vec3(0.0, 65.0, -50.0))
-            startMatch("carry-tnt", mapOf(runner to "red", enemy to "blue"), stage = "siege-isles-tnt")
+            val matchId = startMatch("carry-tnt", mapOf(runner to "red", enemy to "blue"), stage = "siege-isles-tnt")
             val src = objectives("carry-tnt")
             val zones = checkNotNull(src.zones())
             val redBase = checkNotNull(zones.point("base-red"))
@@ -111,6 +111,7 @@ class BotModeRolesScenarioTest {
                 val step = checkNotNull(carrier.step(now, runner.position.x, runner.position.z))
                 if (kinds.lastOrNull() != step.kind) kinds += step.kind
                 runner.moveTo(Vec3(step.x, 65.0, step.z))
+                if (carrier.clickWanted) clickNearestMarker(runner, matchId)
                 if (carrier.holdingTnt) {
                     // The facts now say red carries; the mates see r1 where it stands.
                     facts.tnt = TntFact(runner.position.x, runner.position.z, "red", "r1")
@@ -215,7 +216,7 @@ class BotModeRolesScenarioTest {
         scenario("bot-roles-mini-tnt") {
             val runner = player("r1", at = Vec3(0.0, 65.0, -50.0))
             val guard = player("b1", at = Vec3(0.0, 65.0, -50.0))
-            startMatch("carry-mini-tnt", mapOf(runner to "red", guard to "blue"))
+            val matchId = startMatch("carry-mini-tnt", mapOf(runner to "red", guard to "blue"))
             val src = objectives("carry-mini-tnt")
             val zones = checkNotNull(src.zones())
             val redBase = checkNotNull(zones.point("base-red"))
@@ -262,6 +263,7 @@ class BotModeRolesScenarioTest {
                 val step = checkNotNull(rush.step(now, runner.position.x, runner.position.z))
                 if (seen.lastOrNull() != step.role to step.kind) seen += step.role to step.kind
                 runner.moveTo(Vec3(step.x, 65.0, step.z))
+                if (rush.clickWanted) clickNearestMarker(runner, matchId)
                 advance(10)
                 now += 500
             }
@@ -394,6 +396,7 @@ class BotModeRolesScenarioTest {
             val step = checkNotNull(bot.step(now, runner.position.x, runner.position.z)) { "mode has a plan" }
             if (kinds.lastOrNull() != step.kind) kinds += step.kind
             runner.moveTo(Vec3(step.x, 65.0, step.z))
+            if (bot.clickWanted) clickNearestMarker(runner, match)
             advance(10)
             now += 500
         }

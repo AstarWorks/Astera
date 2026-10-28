@@ -264,8 +264,14 @@ public class StealJewelryGameMode @JvmOverloads constructor(
             return
         }
         val loot = run.pedestalRegions.filter { (owner, _) -> owner != team && (run.onPedestal[owner] ?: 0) > 0 }.values.map { ObjectiveKit.centreOf(it) } + run.piles.map { it.position }
-        val nearest = loot.minByOrNull { ObjectiveKit.flatDistance(from, it) } ?: return
-        kit.compass(viewer, nearest, HINT_STEAL)
+        val nearest = loot.minByOrNull { ObjectiveKit.flatDistance(from, it) }
+        if (nearest != null) {
+            kit.compass(viewer, nearest, HINT_STEAL)
+            return
+        }
+        // Nothing to steal (the enemy pedestal is empty): guard the own jewelry instead.
+        val own = run.pedestalRegions[team] ?: return
+        kit.compass(viewer, ObjectiveKit.centreOf(own), HINT_GUARD)
     }
 
     /** An enemy near a pedestal that still holds jewels: its owners are warned every two seconds. */
@@ -283,7 +289,9 @@ public class StealJewelryGameMode @JvmOverloads constructor(
     override fun holdsObjective(run: Run, match: Match, team: TeamId): Boolean =
         run.carried.any { (carrier, gems) -> gems.isNotEmpty() && teamOf(match, carrier) == team }
 
-    override fun hudLines(run: Run, match: Match): List<HudLine> = emptyList()
+    /** One sidebar line per team: the jewels still on its pedestal. */
+    override fun hudLines(run: Run, match: Match): List<HudLine> =
+        match.teams.map { HudLine(KEY_HUD_JEWELS, mapOf("left" to (run.onPedestal[it.id] ?: 0).toString()), it.id) }
 
     override fun snapshotOf(run: Run, match: Match): ObjectiveSnapshot = ObjectiveSnapshot.Jewels(
         onPedestal = run.onPedestal.toMap(),
@@ -307,6 +315,8 @@ public class StealJewelryGameMode @JvmOverloads constructor(
         private val LABEL_BANK: MessageKey = MessageKey("astera.objective.channel.steal-jewelry.bank")
         private val BAR: MessageKey = MessageKey("astera.objective.bar.steal-jewelry")
         private val HINT_BANK: MessageKey = MessageKey("astera.objective.hint.steal-jewelry.bank")
+        private val KEY_HUD_JEWELS: MessageKey = MessageKey("astera.hud.sidebar.steal-jewelry.pedestal")
+        private val HINT_GUARD: MessageKey = MessageKey("astera.objective.hint.steal-jewelry.guard")
         private val HINT_STEAL: MessageKey = MessageKey("astera.objective.hint.steal-jewelry.steal")
         private val LOOK: ObjectiveLook = ObjectiveLook("minecraft:diamond_block", "aqua", 0.5)
         private const val PEDESTAL_PREFIX: String = "jewelry-"

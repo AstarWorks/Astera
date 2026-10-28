@@ -122,17 +122,23 @@ class ModePlanner(
      * A pickup counts only once the server confirmed it: after the hold completes the bot keeps standing on [s] until
      * [noteConfirmed] advances (then [apply] runs and true is returned), or [CONFIRM_MS] pass and the hold is retried.
      */
-    private fun pickedUp(s: Step, now: Long, x: Double, z: Double, holdMs: Long = HOLD_MS, apply: () -> Unit): Boolean {
+    private fun pickedUp(s: Step, now: Long, x: Double, z: Double, holdMs: Long = HOLD_MS, click: Boolean = false, apply: () -> Unit): Boolean {
         if (awaitingSince != 0L) {
             if (confirmed > seenConfirmed) {
-                seenConfirmed = confirmed; awaitingSince = 0L; apply(); return true
+                seenConfirmed = confirmed; awaitingSince = 0L; clickWanted = false; apply(); return true
             }
-            if (now - awaitingSince > CONFIRM_MS) awaitingSince = 0L
+            if (now - awaitingSince > CONFIRM_MS) { awaitingSince = 0L; clickWanted = false }
             return false
         }
-        if (held(s, now, x, z, holdMs)) awaitingSince = now
+        // A right-click pickup needs no dwell: standing within reach of the marker is enough, then the brain clicks it.
+        if (click) {
+            if (reached(s, x, z)) { awaitingSince = now; clickWanted = true }
+        } else if (held(s, now, x, z, holdMs)) awaitingSince = now
         return false
     }
+
+    /** True while the bot stands at a right-click pickup and waits for the server's confirm: the brain clicks the nearest interaction entity. */
+    var clickWanted: Boolean = false; private set
 
     /** Heads for a dropped objective (own death spot first, else the nearest loose marker); null when there is none to chase. */
     private fun recover(now: Long, x: Double, z: Double): Step? {
@@ -148,7 +154,7 @@ class ModePlanner(
         }
         val y = zones.point(if (modeId == "carry-tnt") TNT_SPAWN else Regions.bank(ownTeam, zones) ?: return null)?.second ?: return null
         val s = Step("loose", tx, y, tz, 1.5, "recover")
-        if (pickedUp(s, now, x, z) { lostPending = false; if (modeId == "carry-tnt") holdingTnt = true else carried = 1 }) return step(now, x, z)
+        if (pickedUp(s, now, x, z, click = modeId == "carry-tnt") { lostPending = false; if (modeId == "carry-tnt") holdingTnt = true else carried = 1 }) return step(now, x, z)
         return s
     }
 
@@ -217,7 +223,7 @@ class ModePlanner(
                 if (holdingTnt) route(now, x, z)
                 else {
                     val s = at(tx, spawn.second, tz, TNT_SPAWN, "tnt", 1.5, Role.CARRIER, engage = CARRY_ENGAGE)
-                    if (pickedUp(s, now, x, z) { holdingTnt = true; secured.clear() }) carryTnt(now, x, z) else s
+                    if (pickedUp(s, now, x, z, click = true) { holdingTnt = true; secured.clear() }) carryTnt(now, x, z) else s
                 }
             }
             Role.SHIELD_BREAKER -> step(TNT_SPAWN, "shield", 2.0, Role.SHIELD_BREAKER, engage = GUARD_ENGAGE)
@@ -311,7 +317,7 @@ class ModePlanner(
         val target = claimed(lying, x, z) ?: stage.minByOrNull { hypot(it.x - x, it.z - z) } ?: return null
         val y = zones.point(target.id)?.second ?: zones.point(Regions.clams(zones).firstOrNull() ?: "")?.second ?: 65.0
         val s = Step(target.id, target.x, y, target.z, 1.5, "pickup", Role.COLLECTOR)
-        if (target in lying && pickedUp(s, now, x, z) { takenAt[target.id] = now; carried = facts.carriedBy(botName) ?: (carried + 1) }) return miniTnt(now, x, z)
+        if (target in lying && pickedUp(s, now, x, z, click = true) { takenAt[target.id] = now; carried = facts.carriedBy(botName) ?: (carried + 1) }) return miniTnt(now, x, z)
         return s
     }
 
