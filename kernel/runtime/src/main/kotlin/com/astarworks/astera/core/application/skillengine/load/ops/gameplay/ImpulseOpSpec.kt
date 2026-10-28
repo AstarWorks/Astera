@@ -76,5 +76,4 @@ public object ImpulseOpSpec : OpSpec<ImpulseOp> {
             }
         }
     }
-    }
 }
