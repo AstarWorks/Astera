@@ -2,8 +2,6 @@
 # Generated point-frame offsets are [left, up, forward] in the parent frame.
 # CONVERT-PRESENT vfx frame orient (frames carry no orientation / scale) (x5): orient="yaw"
 # CONVERT-PRESENT rig respect_hit_stop / weapon points (x1): {"respect_hit_stop": false}
-# CONVERT-PRESENT rig block parts (mesh takes an item model, not a block + size) (x1): 5 parts
-# CONVERT-PRESENT rig swing without a weapon mesh (track needs a visual to move) (x1): 30 keys
 # CONVERT-PRESENT vfx follow=false (anchored at world, no place-at-spawn) (x4): sigil-rifle-shot | sigil-rifle-mark
 # CONVERT-PRESENT area target used only by presentation ops (no damaging hit volume to attach them to) (x1): sel_2: 25 presentation op(s) dropped
 apiVersion: "astera/v2"
@@ -19,7 +17,230 @@ frames:
   - {id: pt_caster_0_m0p35_1p8, kind: point, parent: caster, offset: [0.0, -0.35, 1.8]}
 presentation:
   timeline:
-    - {id: fx0, at: 0, do: [{id: snd, op: sound, sound: block.beacon.charge, at: caster, pitch: 0.6}]}
+    - id: fx0
+      at: 0
+      do:
+        - id: fx1_sigil_rifle_s2_rig_rifle_stock
+          op: block
+          parent: fx1_sigil_rifle_s2_rig_rifle
+          block: black_concrete
+          size: [0.2, 0.7289, 0.25]
+          at: [0.0, -0.2278, 0.0]
+          pivot: [-0.28, 1.25, 0.25]
+          rest_turn: [90.0, 0.0, 0.0]
+          brightness: 10
+        - id: fx1_sigil_rifle_s2_rig_rifle_receiver
+          op: block
+          parent: fx1_sigil_rifle_s2_rig_rifle
+          block: gray_concrete
+          size: [0.18, 0.6378, 0.18]
+          at: [0.0, 0.3644, 0.0]
+          pivot: [-0.28, 1.25, 0.25]
+          rest_turn: [90.0, 0.0, 0.0]
+          brightness: 10
+        - id: fx1_sigil_rifle_s2_rig_rifle_barrel
+          op: block
+          parent: fx1_sigil_rifle_s2_rig_rifle
+          block: black_concrete
+          size: [0.09, 0.82, 0.09]
+          at: [0.0, 1.0478, 0.0]
+          pivot: [-0.28, 1.25, 0.25]
+          rest_turn: [90.0, 0.0, 0.0]
+          brightness: 10
+        - id: fx1_sigil_rifle_s2_rig_rifle_rail
+          op: block
+          parent: fx1_sigil_rifle_s2_rig_rifle
+          block: light_gray_concrete
+          size: [0.025, 1.1844, 0.035]
+          at: [-0.1, 0.7289, 0.0]
+          pivot: [-0.28, 1.25, 0.25]
+          rest_turn: [90.0, 0.0, 0.0]
+          brightness: 10
+        - id: fx1_sigil_rifle_s2_rig_rifle_sight
+          op: block
+          parent: fx1_sigil_rifle_s2_rig_rifle
+          block: black_concrete
+          size: [0.09, 0.0729, 0.1]
+          at: [0.0, 1.4122, -0.09]
+          pivot: [-0.28, 1.25, 0.25]
+          rest_turn: [90.0, 0.0, 0.0]
+          brightness: 10
+        - id: fx1_sigil_rifle_s2_rig_rifle_swing
+          op: track
+          target: fx1_sigil_rifle_s2_rig_rifle_stock
+          space: caster.right_hand
+          keys:
+            - {t: 0, ease: out_quad, turn: [-75.0, 0.0, 0.0]}
+            - {t: 1, turn: [-48.0, 0.0, 0.0]}
+            - {t: 2, turn: [-27.0, 0.0, 0.0]}
+            - {t: 3, turn: [-12.0, 0.0, 0.0]}
+            - {t: 4, turn: [-3.0, 0.0, 0.0]}
+            - {t: 5, ease: out_quad, turn: [0.0, 0.0, 0.0]}
+            - {t: 18, ease: out_quad, turn: [0.0, 0.0, 0.0]}
+            - {t: 19, turn: [-9.0, 0.0, 0.0]}
+            - {t: 20, ease: out_quad, turn: [-12.0, 0.0, 0.0]}
+            - {t: 21, turn: [-6.75, 0.0, 0.0]}
+            - {t: 22, turn: [-3.0, 0.0, 0.0]}
+            - {t: 23, turn: [-0.75, 0.0, 0.0]}
+            - {t: 24, ease: out_quad, turn: [0.0, 0.0, 0.0]}
+            - {t: 40, ease: out_quad, turn: [0.0, 0.0, 0.0]}
+            - {t: 54, ease: out_quad, turn: [0.0, 0.0, 0.0]}
+            - {t: 55, turn: [-12.0, 0.0, 0.0]}
+            - {t: 56, ease: out_quad, turn: [-16.0, 0.0, 0.0]}
+            - {t: 57, turn: [-10.24, 0.0, 0.0]}
+            - {t: 58, turn: [-5.76, 0.0, 0.0]}
+            - {t: 59, turn: [-2.56, 0.0, 0.0]}
+            - {t: 60, turn: [-0.64, 0.0, 0.0]}
+            - {t: 61, ease: out_quad, turn: [0.0, 0.0, 0.0]}
+            - {t: 62, turn: [-5.859375, 0.0, 0.0]}
+            - {t: 63, turn: [-10.9375, 0.0, 0.0]}
+            - {t: 64, turn: [-15.234375, 0.0, 0.0]}
+            - {t: 65, turn: [-18.75, 0.0, 0.0]}
+            - {t: 66, turn: [-21.484375, 0.0, 0.0]}
+            - {t: 67, turn: [-23.4375, 0.0, 0.0]}
+            - {t: 68, turn: [-24.609375, 0.0, 0.0]}
+            - {t: 69, ease: out_quad, turn: [-25.0, 0.0, 0.0]}
+        - id: fx1_sigil_rifle_s2_rig_rifle_swing_1
+          op: track
+          target: fx1_sigil_rifle_s2_rig_rifle_receiver
+          space: caster.right_hand
+          keys:
+            - {t: 0, ease: out_quad, turn: [-75.0, 0.0, 0.0]}
+            - {t: 1, turn: [-48.0, 0.0, 0.0]}
+            - {t: 2, turn: [-27.0, 0.0, 0.0]}
+            - {t: 3, turn: [-12.0, 0.0, 0.0]}
+            - {t: 4, turn: [-3.0, 0.0, 0.0]}
+            - {t: 5, ease: out_quad, turn: [0.0, 0.0, 0.0]}
+            - {t: 18, ease: out_quad, turn: [0.0, 0.0, 0.0]}
+            - {t: 19, turn: [-9.0, 0.0, 0.0]}
+            - {t: 20, ease: out_quad, turn: [-12.0, 0.0, 0.0]}
+            - {t: 21, turn: [-6.75, 0.0, 0.0]}
+            - {t: 22, turn: [-3.0, 0.0, 0.0]}
+            - {t: 23, turn: [-0.75, 0.0, 0.0]}
+            - {t: 24, ease: out_quad, turn: [0.0, 0.0, 0.0]}
+            - {t: 40, ease: out_quad, turn: [0.0, 0.0, 0.0]}
+            - {t: 54, ease: out_quad, turn: [0.0, 0.0, 0.0]}
+            - {t: 55, turn: [-12.0, 0.0, 0.0]}
+            - {t: 56, ease: out_quad, turn: [-16.0, 0.0, 0.0]}
+            - {t: 57, turn: [-10.24, 0.0, 0.0]}
+            - {t: 58, turn: [-5.76, 0.0, 0.0]}
+            - {t: 59, turn: [-2.56, 0.0, 0.0]}
+            - {t: 60, turn: [-0.64, 0.0, 0.0]}
+            - {t: 61, ease: out_quad, turn: [0.0, 0.0, 0.0]}
+            - {t: 62, turn: [-5.859375, 0.0, 0.0]}
+            - {t: 63, turn: [-10.9375, 0.0, 0.0]}
+            - {t: 64, turn: [-15.234375, 0.0, 0.0]}
+            - {t: 65, turn: [-18.75, 0.0, 0.0]}
+            - {t: 66, turn: [-21.484375, 0.0, 0.0]}
+            - {t: 67, turn: [-23.4375, 0.0, 0.0]}
+            - {t: 68, turn: [-24.609375, 0.0, 0.0]}
+            - {t: 69, ease: out_quad, turn: [-25.0, 0.0, 0.0]}
+        - id: fx1_sigil_rifle_s2_rig_rifle_swing_2
+          op: track
+          target: fx1_sigil_rifle_s2_rig_rifle_barrel
+          space: caster.right_hand
+          keys:
+            - {t: 0, ease: out_quad, turn: [-75.0, 0.0, 0.0]}
+            - {t: 1, turn: [-48.0, 0.0, 0.0]}
+            - {t: 2, turn: [-27.0, 0.0, 0.0]}
+            - {t: 3, turn: [-12.0, 0.0, 0.0]}
+            - {t: 4, turn: [-3.0, 0.0, 0.0]}
+            - {t: 5, ease: out_quad, turn: [0.0, 0.0, 0.0]}
+            - {t: 18, ease: out_quad, turn: [0.0, 0.0, 0.0]}
+            - {t: 19, turn: [-9.0, 0.0, 0.0]}
+            - {t: 20, ease: out_quad, turn: [-12.0, 0.0, 0.0]}
+            - {t: 21, turn: [-6.75, 0.0, 0.0]}
+            - {t: 22, turn: [-3.0, 0.0, 0.0]}
+            - {t: 23, turn: [-0.75, 0.0, 0.0]}
+            - {t: 24, ease: out_quad, turn: [0.0, 0.0, 0.0]}
+            - {t: 40, ease: out_quad, turn: [0.0, 0.0, 0.0]}
+            - {t: 54, ease: out_quad, turn: [0.0, 0.0, 0.0]}
+            - {t: 55, turn: [-12.0, 0.0, 0.0]}
+            - {t: 56, ease: out_quad, turn: [-16.0, 0.0, 0.0]}
+            - {t: 57, turn: [-10.24, 0.0, 0.0]}
+            - {t: 58, turn: [-5.76, 0.0, 0.0]}
+            - {t: 59, turn: [-2.56, 0.0, 0.0]}
+            - {t: 60, turn: [-0.64, 0.0, 0.0]}
+            - {t: 61, ease: out_quad, turn: [0.0, 0.0, 0.0]}
+            - {t: 62, turn: [-5.859375, 0.0, 0.0]}
+            - {t: 63, turn: [-10.9375, 0.0, 0.0]}
+            - {t: 64, turn: [-15.234375, 0.0, 0.0]}
+            - {t: 65, turn: [-18.75, 0.0, 0.0]}
+            - {t: 66, turn: [-21.484375, 0.0, 0.0]}
+            - {t: 67, turn: [-23.4375, 0.0, 0.0]}
+            - {t: 68, turn: [-24.609375, 0.0, 0.0]}
+            - {t: 69, ease: out_quad, turn: [-25.0, 0.0, 0.0]}
+        - id: fx1_sigil_rifle_s2_rig_rifle_swing_3
+          op: track
+          target: fx1_sigil_rifle_s2_rig_rifle_rail
+          space: caster.right_hand
+          keys:
+            - {t: 0, ease: out_quad, turn: [-75.0, 0.0, 0.0]}
+            - {t: 1, turn: [-48.0, 0.0, 0.0]}
+            - {t: 2, turn: [-27.0, 0.0, 0.0]}
+            - {t: 3, turn: [-12.0, 0.0, 0.0]}
+            - {t: 4, turn: [-3.0, 0.0, 0.0]}
+            - {t: 5, ease: out_quad, turn: [0.0, 0.0, 0.0]}
+            - {t: 18, ease: out_quad, turn: [0.0, 0.0, 0.0]}
+            - {t: 19, turn: [-9.0, 0.0, 0.0]}
+            - {t: 20, ease: out_quad, turn: [-12.0, 0.0, 0.0]}
+            - {t: 21, turn: [-6.75, 0.0, 0.0]}
+            - {t: 22, turn: [-3.0, 0.0, 0.0]}
+            - {t: 23, turn: [-0.75, 0.0, 0.0]}
+            - {t: 24, ease: out_quad, turn: [0.0, 0.0, 0.0]}
+            - {t: 40, ease: out_quad, turn: [0.0, 0.0, 0.0]}
+            - {t: 54, ease: out_quad, turn: [0.0, 0.0, 0.0]}
+            - {t: 55, turn: [-12.0, 0.0, 0.0]}
+            - {t: 56, ease: out_quad, turn: [-16.0, 0.0, 0.0]}
+            - {t: 57, turn: [-10.24, 0.0, 0.0]}
+            - {t: 58, turn: [-5.76, 0.0, 0.0]}
+            - {t: 59, turn: [-2.56, 0.0, 0.0]}
+            - {t: 60, turn: [-0.64, 0.0, 0.0]}
+            - {t: 61, ease: out_quad, turn: [0.0, 0.0, 0.0]}
+            - {t: 62, turn: [-5.859375, 0.0, 0.0]}
+            - {t: 63, turn: [-10.9375, 0.0, 0.0]}
+            - {t: 64, turn: [-15.234375, 0.0, 0.0]}
+            - {t: 65, turn: [-18.75, 0.0, 0.0]}
+            - {t: 66, turn: [-21.484375, 0.0, 0.0]}
+            - {t: 67, turn: [-23.4375, 0.0, 0.0]}
+            - {t: 68, turn: [-24.609375, 0.0, 0.0]}
+            - {t: 69, ease: out_quad, turn: [-25.0, 0.0, 0.0]}
+        - id: fx1_sigil_rifle_s2_rig_rifle_swing_4
+          op: track
+          target: fx1_sigil_rifle_s2_rig_rifle_sight
+          space: caster.right_hand
+          keys:
+            - {t: 0, ease: out_quad, turn: [-75.0, 0.0, 0.0]}
+            - {t: 1, turn: [-48.0, 0.0, 0.0]}
+            - {t: 2, turn: [-27.0, 0.0, 0.0]}
+            - {t: 3, turn: [-12.0, 0.0, 0.0]}
+            - {t: 4, turn: [-3.0, 0.0, 0.0]}
+            - {t: 5, ease: out_quad, turn: [0.0, 0.0, 0.0]}
+            - {t: 18, ease: out_quad, turn: [0.0, 0.0, 0.0]}
+            - {t: 19, turn: [-9.0, 0.0, 0.0]}
+            - {t: 20, ease: out_quad, turn: [-12.0, 0.0, 0.0]}
+            - {t: 21, turn: [-6.75, 0.0, 0.0]}
+            - {t: 22, turn: [-3.0, 0.0, 0.0]}
+            - {t: 23, turn: [-0.75, 0.0, 0.0]}
+            - {t: 24, ease: out_quad, turn: [0.0, 0.0, 0.0]}
+            - {t: 40, ease: out_quad, turn: [0.0, 0.0, 0.0]}
+            - {t: 54, ease: out_quad, turn: [0.0, 0.0, 0.0]}
+            - {t: 55, turn: [-12.0, 0.0, 0.0]}
+            - {t: 56, ease: out_quad, turn: [-16.0, 0.0, 0.0]}
+            - {t: 57, turn: [-10.24, 0.0, 0.0]}
+            - {t: 58, turn: [-5.76, 0.0, 0.0]}
+            - {t: 59, turn: [-2.56, 0.0, 0.0]}
+            - {t: 60, turn: [-0.64, 0.0, 0.0]}
+            - {t: 61, ease: out_quad, turn: [0.0, 0.0, 0.0]}
+            - {t: 62, turn: [-5.859375, 0.0, 0.0]}
+            - {t: 63, turn: [-10.9375, 0.0, 0.0]}
+            - {t: 64, turn: [-15.234375, 0.0, 0.0]}
+            - {t: 65, turn: [-18.75, 0.0, 0.0]}
+            - {t: 66, turn: [-21.484375, 0.0, 0.0]}
+            - {t: 67, turn: [-23.4375, 0.0, 0.0]}
+            - {t: 68, turn: [-24.609375, 0.0, 0.0]}
+            - {t: 69, ease: out_quad, turn: [-25.0, 0.0, 0.0]}
+        - {id: snd, op: sound, sound: block.beacon.charge, at: caster, pitch: 0.6}
     - id: fx30
       at: 30
       do:
@@ -71,23 +292,29 @@ presentation:
         - {id: shake, op: camera_shake, target: caster, intensity: 0.2, ticks: 3}
         - {id: emit_7, op: emit, at: pt_caster_0_m0p35_1p8, particle: dust, count: 16, offset: [0.25, 0.25, 0.25], speed: 0.09, data: "#f52a13", data_size: 1.5}
         - {id: emit_8, op: emit, at: pt_caster_0_m0p35_1p8, particle: smoke, count: 4, speed: 0.04}
-    - {id: fx33, at: 33, do: [{id: rm, op: remove, ids: [fx2_sigil_rifle_shot_hot_thread]}]}
-    - {id: fx34, at: 34, do: [{id: rm_2, op: remove, ids: [fx2_sigil_rifle_shot_dark_underlay]}]}
-    - {id: fx37, at: 37, do: [{id: rm_3, op: remove, ids: [fx2_sigil_rifle_shot_red_core, fx2_sigil_rifle_shot_solid_impact_0, fx2_sigil_rifle_shot_solid_impact_1, fx2_sigil_rifle_shot_solid_impact_2]}]}
-    - {id: fx39, at: 39, do: [{id: rm_4, op: remove, ids: [fx2_sigil_rifle_shot_bloom]}]}
+    - {id: fx33, at: 33, do: [{id: rm_2, op: remove, ids: [fx2_sigil_rifle_shot_hot_thread]}]}
+    - {id: fx34, at: 34, do: [{id: rm_3, op: remove, ids: [fx2_sigil_rifle_shot_dark_underlay]}]}
+    - {id: fx37, at: 37, do: [{id: rm_4, op: remove, ids: [fx2_sigil_rifle_shot_red_core, fx2_sigil_rifle_shot_solid_impact_0, fx2_sigil_rifle_shot_solid_impact_1, fx2_sigil_rifle_shot_solid_impact_2]}]}
+    - {id: fx39, at: 39, do: [{id: rm_5, op: remove, ids: [fx2_sigil_rifle_shot_bloom]}]}
     - id: fx60
       at: 60
       do:
         - {id: snd_3, op: sound, sound: item.crossbow.shoot, at: caster, pitch: 0.65}
         - {id: shake_2, op: camera_shake, target: caster, intensity: 0.2, ticks: 3}
         - {id: flash, op: screen_flash, target: caster, overlay: gold_burst, color: "#FF9B29", stay: 1, fade_out: 2}
+    - id: fx70
+      at: 70
+      do:
+        - id: rm
+          op: remove
+          ids: [fx1_sigil_rifle_s2_rig_rifle_stock, fx1_sigil_rifle_s2_rig_rifle_receiver, fx1_sigil_rifle_s2_rig_rifle_barrel, fx1_sigil_rifle_s2_rig_rifle_rail, fx1_sigil_rifle_s2_rig_rifle_sight]
     - {id: fxhit_2, at: "hit+2", do: []}
     - {id: fxhit_4, at: "hit+4", do: []}
     - id: fxhit_7
       at: "hit+7"
       do:
-        - {id: rm_5, op: remove, ids: [fx3_sigil_rifle_mark_solid_impact_0, fx3_sigil_rifle_mark_solid_impact_1, fx3_sigil_rifle_mark_solid_impact_2], when: "= event.source == 'sel'"}
-        - {id: rm_7, op: remove, ids: [fx5_sigil_rifle_mark_solid_impact_0, fx5_sigil_rifle_mark_solid_impact_1, fx5_sigil_rifle_mark_solid_impact_2], when: "= event.source == 'sel_3'"}
+        - {id: rm_6, op: remove, ids: [fx3_sigil_rifle_mark_solid_impact_0, fx3_sigil_rifle_mark_solid_impact_1, fx3_sigil_rifle_mark_solid_impact_2], when: "= event.source == 'sel'"}
+        - {id: rm_8, op: remove, ids: [fx5_sigil_rifle_mark_solid_impact_0, fx5_sigil_rifle_mark_solid_impact_1, fx5_sigil_rifle_mark_solid_impact_2], when: "= event.source == 'sel_3'"}
     - {id: fxhit_44, at: "hit+44", do: []}
   "on":
     hit:

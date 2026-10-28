@@ -799,9 +799,13 @@ class Conv:
             vfxelem.display_element(self, el, fid, where, delay, when, dur, removes)
             return
         if kt == "item":
-            op = {"id": eid, "op": "mesh", "frame": fid, "item": kind["item"]}
-            if kind.get("item_model") or kind.get("display_mode"):
-                self.present("item element item_model / display_mode (mesh has item + part only)", short({k: kind.get(k) for k in ("item_model", "display_mode")}, 60))
+            # v1 item element: ItemDisplay of the material, item_model on its meta, ItemDisplayTransform = display_mode (default
+            # fixed), lit by the world (the weapon-rig shader rule only ever lit rig weapon parts).
+            op = {"id": eid, "op": "mesh", "frame": fid, "item": kind["item"], "rig_shading": False}
+            if kind.get("item_model"):
+                op["item_model"] = kind["item_model"]
+            if kind.get("display_mode"):
+                op["display_mode"] = str(kind["display_mode"]).lower()
         elif kt == "particle":
             at_frame = fid
             moving = [k for k in el.get("keyframes", []) if "translate" in k]
@@ -881,8 +885,34 @@ class Conv:
                     mesh[key if key == "pivot" else key + "_turn"] = [float(x) for x in (val if key == "pivot" else euler_to_vec(val))]
             self.p(where, start, self._w(mesh, when))
             removes.setdefault(end, []).append(first)
-        if r.get("parts"):
-            self.present("rig block parts (mesh takes an item model, not a block + size)", "%d parts" % len(r["parts"]))
+        # v1 VfxRigPlanner.partPlan: each part is a block display at pivot + R(t) * offset, R = tilt * swing * rest, turned
+        # about its own centre by `rotate`; a part without brightness is lit by the weapon-rig shader rule (ADR-0275).
+        swung = [first] if first else []
+        seen = set()
+        pivot = [float(x) for x in r.get("pivot", [0, 0, 0])]
+        for part in r.get("parts") or []:
+            pid = "%s_%s" % (rid, sid(part["id"]))
+            if pid in seen:
+                self.present("rig part id %s collides after sanitising" % part["id"])
+                continue
+            seen.add(pid)
+            if part.get("glow_color"):
+                self.present("rig part glow_color (block has no glow)", short(part["glow_color"], 40))
+            blk = {"id": pid, "op": "block", "parent": rid, "block": part["block"],
+                   "size": [float(x) for x in part["size"]], "at": [float(x) for x in part["offset"]], "pivot": pivot}
+            if part.get("rotate") and any(float(x) != 0.0 for x in part["rotate"]):
+                blk["turn"] = [float(x) for x in euler_to_vec(part["rotate"])]
+            for key in ("rest", "tilt"):
+                val = r.get(key)
+                if val and any(float(x) != 0.0 for x in val):
+                    blk[key + "_turn"] = [float(x) for x in euler_to_vec(val)]
+            if part.get("brightness") is not None:
+                blk["brightness"] = int(part["brightness"])
+            else:
+                blk["rig_shading"] = True
+            self.p(where, start, self._w(blk, when))
+            removes.setdefault(end, []).append(pid)
+            swung.append(pid)
         if r.get("swing"):
             keys = []
             for k in r["swing"]:
@@ -891,10 +921,11 @@ class Conv:
                     e["ease"] = self.ease_name(k["ease"])
                 keys.append(e)
             keys = convert_keys(keys)
-            if first:
-                self.p(where, start, self._w({"id": rid + "_swing", "op": "track", "target": first, "space": pr, "keys": keys}, when))
-            else:
-                self.present("rig swing without a weapon mesh (track needs a visual to move)", "%d keys" % len(keys))
+            if not swung:
+                self.present("rig swing without a weapon mesh or parts (track needs a visual to move)", "%d keys" % len(keys))
+            for i, target in enumerate(swung):
+                tid = rid + "_swing" if i == 0 else "%s_swing_%d" % (rid, i)
+                self.p(where, start, self._w({"id": tid, "op": "track", "target": target, "space": pr, "keys": keys}, when))
         for tr in r.get("trails", []):
             a = self.pframe(rid, tr["from"], "p")
             b = self.pframe(rid, tr["to"], "p")
@@ -1074,12 +1105,16 @@ def convert_skill(d, vfx_dir, item):
                 c.p_rows.setdefault(("rep", 1), []).append(op)
         if vis.get("display"):
             disp = vis["display"]
-            op = {"id": c.oid("mesh"), "op": "mesh", "frame": "bolt", "item": disp.get("material")}
-            if disp.get("scale"):
-                op["scale"] = disp["scale"]
-            c.present("projectile display.material used as the mesh item id (unverified); variant dropped",
-                      "%s variant=%s" % (disp.get("material"), disp.get("variant")))
-            c.p(CAST, 0, op)
+            # v1 PaperProjectileService.spawnDisplay: an ItemDisplay of the material with the default ItemDisplayTransform
+            # (NONE), uniform scale, FIXED billboard, no brightness override, teleported to the flight point each tick.
+            if disp.get("variant", "item") != "item":
+                c.present("projectile display variant %s has no v2 op" % disp.get("variant"), str(disp.get("material")))
+            else:
+                op = {"id": c.oid("mesh"), "op": "mesh", "frame": "bolt", "item": disp.get("material"),
+                      "display_mode": "none", "rig_shading": False}
+                if disp.get("scale"):
+                    op["scale"] = disp["scale"]
+                c.p(CAST, 0, op)
         if vis.get("vfx"):
             c.vfx({"vfx_id": vis["vfx"]}, {"type": "projectile_position"}, CAST, 0, None)
         c.mechanics(phases.get("cast"), CAST)

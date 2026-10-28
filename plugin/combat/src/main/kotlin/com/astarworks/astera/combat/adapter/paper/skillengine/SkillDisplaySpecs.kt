@@ -1,6 +1,7 @@
 package com.astarworks.astera.combat.adapter.paper.skillengine
 
 import com.astarworks.astera.core.application.skillengine.load.MeshModel
+import com.astarworks.astera.core.application.skillengine.runtime.port.MeshLook
 import com.astarworks.astera.core.domain.effect.DisplayBillboard
 import com.astarworks.astera.core.domain.effect.DisplayItemMode
 import com.astarworks.astera.core.domain.effect.DisplayKind
@@ -32,17 +33,17 @@ public object SkillDisplaySpecs {
     }
 
     /** The item a pack or vanilla mesh model draws; null for the caster's held item (needs the caster). */
-    public fun meshKind(model: MeshModel): DisplayKind.Item? = when (model) {
-        is MeshModel.Pack -> DisplayKind.Item(ItemId("paper"), DisplayItemMode.FIXED, model.key)
-        is MeshModel.Vanilla -> DisplayKind.Item(ItemId(model.material.replace('_', '-')), DisplayItemMode.FIXED, null)
+    public fun meshKind(model: MeshModel, look: MeshLook = MeshLook()): DisplayKind.Item? = when (model) {
+        is MeshModel.Pack -> DisplayKind.Item(ItemId("paper"), look.mode, look.itemModel ?: model.key)
+        is MeshModel.Vanilla -> DisplayKind.Item(ItemId(model.material.replace('_', '-')), look.mode, look.itemModel)
         MeshModel.HeldItem -> null
     }
 
-    public fun mesh(kind: DisplayKind.Item, first: DisplayTransform, brightness: Int? = null): DisplaySpec =
-        DisplaySpec(kind = kind, transform = first, lifetimeTicks = LIFETIME, billboard = DisplayBillboard.FIXED, brightness = brightness, weaponRigShading = brightness == null)
+    public fun mesh(kind: DisplayKind.Item, first: DisplayTransform, brightness: Int? = null, rigShading: Boolean = true): DisplaySpec =
+        DisplaySpec(kind = kind, transform = first, lifetimeTicks = LIFETIME, billboard = DisplayBillboard.FIXED, brightness = brightness, weaponRigShading = rigShading && brightness == null)
 
-    public fun block(blockKey: String, first: DisplayTransform, brightness: Int?): DisplaySpec =
-        DisplaySpec(kind = DisplayKind.Block(blockKey), transform = first, lifetimeTicks = LIFETIME, billboard = DisplayBillboard.FIXED, brightness = brightness)
+    public fun block(blockKey: String, first: DisplayTransform, brightness: Int?, rigShading: Boolean = false): DisplaySpec =
+        DisplaySpec(kind = DisplayKind.Block(blockKey), transform = first, lifetimeTicks = LIFETIME, billboard = DisplayBillboard.FIXED, brightness = brightness, weaponRigShading = rigShading && brightness == null)
 
     /** A solid-colour quad (`text` null: one blank line on a background of [colorHex] at [alpha]) or a text glyph drawn over it. */
     public fun quad(colorHex: String, alpha: Double, text: String?, shadow: Boolean, seeThrough: Boolean, first: DisplayTransform, billboard: DisplayBillboard, brightness: Int?): DisplaySpec {

@@ -2,8 +2,6 @@
 # Generated point-frame offsets are [left, up, forward] in the parent frame.
 # CONVERT-PRESENT vfx frame orient (frames carry no orientation / scale) (x2): orient="yaw"
 # CONVERT-PRESENT rig respect_hit_stop / weapon points (x1): {"respect_hit_stop": true}
-# CONVERT-PRESENT rig block parts (mesh takes an item model, not a block + size) (x1): 3 parts
-# CONVERT-PRESENT rig swing without a weapon mesh (track needs a visual to move) (x1): 5 keys
 # CONVERT-PRESENT presentation inside a nested gameplay list (dash on_hit has no event hook) (x2): play_vfx | play_sound
 # CONVERT-PRESENT vfx follow=false (anchored at world, no place-at-spawn) (x1): gossamer-katana-iaido-line
 apiVersion: "astera/v2"
@@ -15,6 +13,66 @@ frames:
   - {id: fx2_gossamer_katana_iaido_line, kind: body, parent: world}
 presentation:
   timeline:
+    - id: fx0
+      at: 0
+      do:
+        - id: fx1_gossamer_katana_draw_katana_blade
+          op: block
+          parent: fx1_gossamer_katana_draw_katana
+          block: iron_block
+          size: [0.09, 2.0, 0.05]
+          at: [0.0, 1.05, 0.0]
+          pivot: [-0.25, 0.9, 0.15]
+          tilt_turn: [0.0, 0.0, 12.0]
+          brightness: 15
+        - id: fx1_gossamer_katana_draw_katana_grip
+          op: block
+          parent: fx1_gossamer_katana_draw_katana
+          block: black_concrete
+          size: [0.1, 0.4, 0.08]
+          at: [0.0, -0.15, 0.0]
+          pivot: [-0.25, 0.9, 0.15]
+          tilt_turn: [0.0, 0.0, 12.0]
+          rig_shading: true
+        - id: fx1_gossamer_katana_draw_katana_guard
+          op: block
+          parent: fx1_gossamer_katana_draw_katana
+          block: blue_concrete
+          size: [0.28, 0.08, 0.18]
+          at: [0.0, 0.06, 0.0]
+          pivot: [-0.25, 0.9, 0.15]
+          tilt_turn: [0.0, 0.0, 12.0]
+          rig_shading: true
+        - id: fx1_gossamer_katana_draw_katana_swing
+          op: track
+          target: fx1_gossamer_katana_draw_katana_blade
+          space: caster.right_hand
+          keys:
+            - {t: 0, turn: [-100.0, 0.0, 0.0]}
+            - {t: 26, turn: [-100.0, 0.0, 0.0]}
+            - {t: 27, turn: [-93.888889, 0.0, 0.0]}
+            - {t: 28, turn: [-75.555556, 0.0, 0.0]}
+            - {t: 29, ease: in_quad, turn: [-45.0, 0.0, 0.0]}
+        - id: fx1_gossamer_katana_draw_katana_swing_1
+          op: track
+          target: fx1_gossamer_katana_draw_katana_grip
+          space: caster.right_hand
+          keys:
+            - {t: 0, turn: [-100.0, 0.0, 0.0]}
+            - {t: 26, turn: [-100.0, 0.0, 0.0]}
+            - {t: 27, turn: [-93.888889, 0.0, 0.0]}
+            - {t: 28, turn: [-75.555556, 0.0, 0.0]}
+            - {t: 29, ease: in_quad, turn: [-45.0, 0.0, 0.0]}
+        - id: fx1_gossamer_katana_draw_katana_swing_2
+          op: track
+          target: fx1_gossamer_katana_draw_katana_guard
+          space: caster.right_hand
+          keys:
+            - {t: 0, turn: [-100.0, 0.0, 0.0]}
+            - {t: 26, turn: [-100.0, 0.0, 0.0]}
+            - {t: 27, turn: [-93.888889, 0.0, 0.0]}
+            - {t: 28, turn: [-75.555556, 0.0, 0.0]}
+            - {t: 29, ease: in_quad, turn: [-45.0, 0.0, 0.0]}
     - id: fx5
       at: 5
       do:
@@ -57,7 +115,8 @@ presentation:
             - {t: 1, scale: [0.08, 2.8, 0.04], ease: out_expo}
             - {t: 5, scale: [0.0, 0.0, 0.0], ease: in_quad}
     - {id: fx6, at: 6, do: [{id: flash, op: screen_flash, target: caster, overlay: vignette, color: "#08080a", fade_in: 0, stay: 1, fade_out: 2}]}
-    - {id: fx11, at: 11, do: [{id: rm, op: remove, ids: [fx2_gossamer_katana_iaido_line_glint]}]}
-    - {id: fx17, at: 17, do: [{id: rm_2, op: remove, ids: [fx2_gossamer_katana_iaido_line_bloom]}]}
-    - {id: fx39, at: 39, do: [{id: rm_3, op: remove, ids: [fx2_gossamer_katana_iaido_line_dark]}]}
-    - {id: fx41, at: 41, do: [{id: rm_4, op: remove, ids: [fx2_gossamer_katana_iaido_line_core]}]}
+    - {id: fx11, at: 11, do: [{id: rm_2, op: remove, ids: [fx2_gossamer_katana_iaido_line_glint]}]}
+    - {id: fx17, at: 17, do: [{id: rm_3, op: remove, ids: [fx2_gossamer_katana_iaido_line_bloom]}]}
+    - {id: fx29, at: 29, do: [{id: rm, op: remove, ids: [fx1_gossamer_katana_draw_katana_blade, fx1_gossamer_katana_draw_katana_grip, fx1_gossamer_katana_draw_katana_guard]}]}
+    - {id: fx39, at: 39, do: [{id: rm_4, op: remove, ids: [fx2_gossamer_katana_iaido_line_dark]}]}
+    - {id: fx41, at: 41, do: [{id: rm_5, op: remove, ids: [fx2_gossamer_katana_iaido_line_core]}]}

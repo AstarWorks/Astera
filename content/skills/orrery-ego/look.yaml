@@ -3,8 +3,6 @@
 # CONVERT-PRESENT vfx follow=false (anchored at world, no place-at-spawn) (x1): orrery-poise
 # CONVERT-PRESENT vfx frame orient (frames carry no orientation / scale) (x6): orient="yaw" | orient="look"
 # CONVERT-PRESENT rig respect_hit_stop / weapon points (x1): {"respect_hit_stop": true}
-# CONVERT-PRESENT rig block parts (mesh takes an item model, not a block + size) (x1): 11 parts
-# CONVERT-PRESENT rig swing without a weapon mesh (track needs a visual to move) (x1): 10 keys
 # CONVERT-PRESENT particle along_path (x1): true
 # CONVERT-PRESENT element jitter (no v2 equivalent) (x1): {"position": 0.08}
 # CONVERT-PRESENT vfx anchored at a runtime point (frame parent must exist at cast start): anchored at world (x1): contact.point
@@ -26,6 +24,270 @@ presentation:
     - id: fx0
       at: 0
       do:
+        - id: fx1_orrery_poise_staff_shaft
+          op: block
+          parent: fx1_orrery_poise_staff
+          block: black_concrete
+          size: [0.1, 1.9, 0.1]
+          at: [0.0, 0.45, 0.0]
+          pivot: [-0.3, 1.1, 0.3]
+          tilt_turn: [0.0, 0.0, 20.0]
+          rig_shading: true
+        - id: fx1_orrery_poise_staff_lower_collar
+          op: block
+          parent: fx1_orrery_poise_staff
+          block: gray_concrete
+          size: [0.16, 0.12, 0.16]
+          at: [0.0, -0.25, 0.0]
+          pivot: [-0.3, 1.1, 0.3]
+          tilt_turn: [0.0, 0.0, 20.0]
+          rig_shading: true
+        - id: fx1_orrery_poise_staff_upper_collar
+          op: block
+          parent: fx1_orrery_poise_staff
+          block: gray_concrete
+          size: [0.16, 0.12, 0.16]
+          at: [0.0, 1.1, 0.0]
+          pivot: [-0.3, 1.1, 0.3]
+          tilt_turn: [0.0, 0.0, 20.0]
+          rig_shading: true
+        - id: fx1_orrery_poise_staff_emitter_housing
+          op: block
+          parent: fx1_orrery_poise_staff
+          block: black_concrete
+          size: [0.32, 0.65, 0.28]
+          at: [0.0, 1.6, 0.0]
+          pivot: [-0.3, 1.1, 0.3]
+          tilt_turn: [0.0, 0.0, 20.0]
+          rig_shading: true
+        - id: fx1_orrery_poise_staff_emitter_cap
+          op: block
+          parent: fx1_orrery_poise_staff
+          block: gray_concrete
+          size: [0.34, 0.08, 0.3]
+          at: [0.0, 1.95, 0.0]
+          pivot: [-0.3, 1.1, 0.3]
+          tilt_turn: [0.0, 0.0, 20.0]
+          rig_shading: true
+        - id: fx1_orrery_poise_staff_emitter_inset_front
+          op: block
+          parent: fx1_orrery_poise_staff
+          block: orange_concrete
+          size: [0.15, 0.4, 0.025]
+          at: [0.0, 1.6, -0.146]
+          pivot: [-0.3, 1.1, 0.3]
+          tilt_turn: [0.0, 0.0, 20.0]
+          rig_shading: true
+        - id: fx1_orrery_poise_staff_emitter_inset_back
+          op: block
+          parent: fx1_orrery_poise_staff
+          block: orange_concrete
+          size: [0.15, 0.4, 0.025]
+          at: [0.0, 1.6, 0.146]
+          pivot: [-0.3, 1.1, 0.3]
+          tilt_turn: [0.0, 0.0, 20.0]
+          rig_shading: true
+        - id: fx1_orrery_poise_staff_cable_upper
+          op: block
+          parent: fx1_orrery_poise_staff
+          block: black_concrete
+          size: [0.28, 0.07, 0.07]
+          at: [0.27, 1.3, 0.0]
+          pivot: [-0.3, 1.1, 0.3]
+          tilt_turn: [0.0, 0.0, 20.0]
+          rig_shading: true
+        - id: fx1_orrery_poise_staff_cable_drop
+          op: block
+          parent: fx1_orrery_poise_staff
+          block: black_concrete
+          size: [0.07, 1.16, 0.07]
+          at: [0.42, 0.72, 0.0]
+          pivot: [-0.3, 1.1, 0.3]
+          tilt_turn: [0.0, 0.0, 20.0]
+          rig_shading: true
+        - id: fx1_orrery_poise_staff_cable_bottom
+          op: block
+          parent: fx1_orrery_poise_staff
+          block: black_concrete
+          size: [0.25, 0.07, 0.07]
+          at: [0.3, 0.12, 0.0]
+          pivot: [-0.3, 1.1, 0.3]
+          tilt_turn: [0.0, 0.0, 20.0]
+          rig_shading: true
+        - id: fx1_orrery_poise_staff_cable_return
+          op: block
+          parent: fx1_orrery_poise_staff
+          block: black_concrete
+          size: [0.07, 0.35, 0.07]
+          at: [0.16, 0.29, 0.0]
+          pivot: [-0.3, 1.1, 0.3]
+          tilt_turn: [0.0, 0.0, 20.0]
+          rig_shading: true
+        - id: fx1_orrery_poise_staff_swing
+          op: track
+          target: fx1_orrery_poise_staff_shaft
+          space: caster.right_hand
+          keys:
+            - {t: 0, ease: out_quad, turn: [25.0, 0.0, 0.0]}
+            - {t: 1, turn: [19.140625, 0.0, 0.0]}
+            - {t: 2, turn: [14.0625, 0.0, 0.0]}
+            - {t: 3, turn: [9.765625, 0.0, 0.0]}
+            - {t: 4, turn: [6.25, 0.0, 0.0]}
+            - {t: 5, turn: [3.515625, 0.0, 0.0]}
+            - {t: 6, turn: [1.5625, 0.0, 0.0]}
+            - {t: 7, turn: [0.390625, 0.0, 0.0]}
+            - {t: 8, ease: out_quad, turn: [0.0, 0.0, 0.0]}
+            - {t: 22, ease: out_quad, turn: [0.0, 0.0, 0.0]}
+        - id: fx1_orrery_poise_staff_swing_1
+          op: track
+          target: fx1_orrery_poise_staff_lower_collar
+          space: caster.right_hand
+          keys:
+            - {t: 0, ease: out_quad, turn: [25.0, 0.0, 0.0]}
+            - {t: 1, turn: [19.140625, 0.0, 0.0]}
+            - {t: 2, turn: [14.0625, 0.0, 0.0]}
+            - {t: 3, turn: [9.765625, 0.0, 0.0]}
+            - {t: 4, turn: [6.25, 0.0, 0.0]}
+            - {t: 5, turn: [3.515625, 0.0, 0.0]}
+            - {t: 6, turn: [1.5625, 0.0, 0.0]}
+            - {t: 7, turn: [0.390625, 0.0, 0.0]}
+            - {t: 8, ease: out_quad, turn: [0.0, 0.0, 0.0]}
+            - {t: 22, ease: out_quad, turn: [0.0, 0.0, 0.0]}
+        - id: fx1_orrery_poise_staff_swing_2
+          op: track
+          target: fx1_orrery_poise_staff_upper_collar
+          space: caster.right_hand
+          keys:
+            - {t: 0, ease: out_quad, turn: [25.0, 0.0, 0.0]}
+            - {t: 1, turn: [19.140625, 0.0, 0.0]}
+            - {t: 2, turn: [14.0625, 0.0, 0.0]}
+            - {t: 3, turn: [9.765625, 0.0, 0.0]}
+            - {t: 4, turn: [6.25, 0.0, 0.0]}
+            - {t: 5, turn: [3.515625, 0.0, 0.0]}
+            - {t: 6, turn: [1.5625, 0.0, 0.0]}
+            - {t: 7, turn: [0.390625, 0.0, 0.0]}
+            - {t: 8, ease: out_quad, turn: [0.0, 0.0, 0.0]}
+            - {t: 22, ease: out_quad, turn: [0.0, 0.0, 0.0]}
+        - id: fx1_orrery_poise_staff_swing_3
+          op: track
+          target: fx1_orrery_poise_staff_emitter_housing
+          space: caster.right_hand
+          keys:
+            - {t: 0, ease: out_quad, turn: [25.0, 0.0, 0.0]}
+            - {t: 1, turn: [19.140625, 0.0, 0.0]}
+            - {t: 2, turn: [14.0625, 0.0, 0.0]}
+            - {t: 3, turn: [9.765625, 0.0, 0.0]}
+            - {t: 4, turn: [6.25, 0.0, 0.0]}
+            - {t: 5, turn: [3.515625, 0.0, 0.0]}
+            - {t: 6, turn: [1.5625, 0.0, 0.0]}
+            - {t: 7, turn: [0.390625, 0.0, 0.0]}
+            - {t: 8, ease: out_quad, turn: [0.0, 0.0, 0.0]}
+            - {t: 22, ease: out_quad, turn: [0.0, 0.0, 0.0]}
+        - id: fx1_orrery_poise_staff_swing_4
+          op: track
+          target: fx1_orrery_poise_staff_emitter_cap
+          space: caster.right_hand
+          keys:
+            - {t: 0, ease: out_quad, turn: [25.0, 0.0, 0.0]}
+            - {t: 1, turn: [19.140625, 0.0, 0.0]}
+            - {t: 2, turn: [14.0625, 0.0, 0.0]}
+            - {t: 3, turn: [9.765625, 0.0, 0.0]}
+            - {t: 4, turn: [6.25, 0.0, 0.0]}
+            - {t: 5, turn: [3.515625, 0.0, 0.0]}
+            - {t: 6, turn: [1.5625, 0.0, 0.0]}
+            - {t: 7, turn: [0.390625, 0.0, 0.0]}
+            - {t: 8, ease: out_quad, turn: [0.0, 0.0, 0.0]}
+            - {t: 22, ease: out_quad, turn: [0.0, 0.0, 0.0]}
+        - id: fx1_orrery_poise_staff_swing_5
+          op: track
+          target: fx1_orrery_poise_staff_emitter_inset_front
+          space: caster.right_hand
+          keys:
+            - {t: 0, ease: out_quad, turn: [25.0, 0.0, 0.0]}
+            - {t: 1, turn: [19.140625, 0.0, 0.0]}
+            - {t: 2, turn: [14.0625, 0.0, 0.0]}
+            - {t: 3, turn: [9.765625, 0.0, 0.0]}
+            - {t: 4, turn: [6.25, 0.0, 0.0]}
+            - {t: 5, turn: [3.515625, 0.0, 0.0]}
+            - {t: 6, turn: [1.5625, 0.0, 0.0]}
+            - {t: 7, turn: [0.390625, 0.0, 0.0]}
+            - {t: 8, ease: out_quad, turn: [0.0, 0.0, 0.0]}
+            - {t: 22, ease: out_quad, turn: [0.0, 0.0, 0.0]}
+        - id: fx1_orrery_poise_staff_swing_6
+          op: track
+          target: fx1_orrery_poise_staff_emitter_inset_back
+          space: caster.right_hand
+          keys:
+            - {t: 0, ease: out_quad, turn: [25.0, 0.0, 0.0]}
+            - {t: 1, turn: [19.140625, 0.0, 0.0]}
+            - {t: 2, turn: [14.0625, 0.0, 0.0]}
+            - {t: 3, turn: [9.765625, 0.0, 0.0]}
+            - {t: 4, turn: [6.25, 0.0, 0.0]}
+            - {t: 5, turn: [3.515625, 0.0, 0.0]}
+            - {t: 6, turn: [1.5625, 0.0, 0.0]}
+            - {t: 7, turn: [0.390625, 0.0, 0.0]}
+            - {t: 8, ease: out_quad, turn: [0.0, 0.0, 0.0]}
+            - {t: 22, ease: out_quad, turn: [0.0, 0.0, 0.0]}
+        - id: fx1_orrery_poise_staff_swing_7
+          op: track
+          target: fx1_orrery_poise_staff_cable_upper
+          space: caster.right_hand
+          keys:
+            - {t: 0, ease: out_quad, turn: [25.0, 0.0, 0.0]}
+            - {t: 1, turn: [19.140625, 0.0, 0.0]}
+            - {t: 2, turn: [14.0625, 0.0, 0.0]}
+            - {t: 3, turn: [9.765625, 0.0, 0.0]}
+            - {t: 4, turn: [6.25, 0.0, 0.0]}
+            - {t: 5, turn: [3.515625, 0.0, 0.0]}
+            - {t: 6, turn: [1.5625, 0.0, 0.0]}
+            - {t: 7, turn: [0.390625, 0.0, 0.0]}
+            - {t: 8, ease: out_quad, turn: [0.0, 0.0, 0.0]}
+            - {t: 22, ease: out_quad, turn: [0.0, 0.0, 0.0]}
+        - id: fx1_orrery_poise_staff_swing_8
+          op: track
+          target: fx1_orrery_poise_staff_cable_drop
+          space: caster.right_hand
+          keys:
+            - {t: 0, ease: out_quad, turn: [25.0, 0.0, 0.0]}
+            - {t: 1, turn: [19.140625, 0.0, 0.0]}
+            - {t: 2, turn: [14.0625, 0.0, 0.0]}
+            - {t: 3, turn: [9.765625, 0.0, 0.0]}
+            - {t: 4, turn: [6.25, 0.0, 0.0]}
+            - {t: 5, turn: [3.515625, 0.0, 0.0]}
+            - {t: 6, turn: [1.5625, 0.0, 0.0]}
+            - {t: 7, turn: [0.390625, 0.0, 0.0]}
+            - {t: 8, ease: out_quad, turn: [0.0, 0.0, 0.0]}
+            - {t: 22, ease: out_quad, turn: [0.0, 0.0, 0.0]}
+        - id: fx1_orrery_poise_staff_swing_9
+          op: track
+          target: fx1_orrery_poise_staff_cable_bottom
+          space: caster.right_hand
+          keys:
+            - {t: 0, ease: out_quad, turn: [25.0, 0.0, 0.0]}
+            - {t: 1, turn: [19.140625, 0.0, 0.0]}
+            - {t: 2, turn: [14.0625, 0.0, 0.0]}
+            - {t: 3, turn: [9.765625, 0.0, 0.0]}
+            - {t: 4, turn: [6.25, 0.0, 0.0]}
+            - {t: 5, turn: [3.515625, 0.0, 0.0]}
+            - {t: 6, turn: [1.5625, 0.0, 0.0]}
+            - {t: 7, turn: [0.390625, 0.0, 0.0]}
+            - {t: 8, ease: out_quad, turn: [0.0, 0.0, 0.0]}
+            - {t: 22, ease: out_quad, turn: [0.0, 0.0, 0.0]}
+        - id: fx1_orrery_poise_staff_swing_10
+          op: track
+          target: fx1_orrery_poise_staff_cable_return
+          space: caster.right_hand
+          keys:
+            - {t: 0, ease: out_quad, turn: [25.0, 0.0, 0.0]}
+            - {t: 1, turn: [19.140625, 0.0, 0.0]}
+            - {t: 2, turn: [14.0625, 0.0, 0.0]}
+            - {t: 3, turn: [9.765625, 0.0, 0.0]}
+            - {t: 4, turn: [6.25, 0.0, 0.0]}
+            - {t: 5, turn: [3.515625, 0.0, 0.0]}
+            - {t: 6, turn: [1.5625, 0.0, 0.0]}
+            - {t: 7, turn: [0.390625, 0.0, 0.0]}
+            - {t: 8, ease: out_quad, turn: [0.0, 0.0, 0.0]}
+            - {t: 22, ease: out_quad, turn: [0.0, 0.0, 0.0]}
         - op: block
           parent: fx2_orrery_motes
           block: red_concrete
@@ -229,6 +491,23 @@ presentation:
             - {t: 0, scale: [0.0, 0.0, 0.0]}
             - {t: 2, scale: [0.1, 0.1, 0.1], ease: out_back}
             - {t: 13, offset: [0.0, 0.8, 0.0], scale: [0.0, 0.0, 0.0], ease: in_quad}
+    - id: fx23
+      at: 23
+      do:
+        - id: rm
+          op: remove
+          ids:
+            - fx1_orrery_poise_staff_shaft
+            - fx1_orrery_poise_staff_lower_collar
+            - fx1_orrery_poise_staff_upper_collar
+            - fx1_orrery_poise_staff_emitter_housing
+            - fx1_orrery_poise_staff_emitter_cap
+            - fx1_orrery_poise_staff_emitter_inset_front
+            - fx1_orrery_poise_staff_emitter_inset_back
+            - fx1_orrery_poise_staff_cable_upper
+            - fx1_orrery_poise_staff_cable_drop
+            - fx1_orrery_poise_staff_cable_bottom
+            - fx1_orrery_poise_staff_cable_return
     - id: fx24
       at: 24
       do:
@@ -367,11 +646,11 @@ presentation:
           particle: orrery-ember
           times: 12
           shift: "= [vec(0.0, 1.65, 3.6), vec(0.0, 2.475, 3.37894), vec(0.0, 3.07894, 2.775), vec(0.0, 3.3, 1.95), vec(0.0, 3.07894, 1.125), vec(0.0, 2.475, 0.52106), vec(0.0, 1.65, 0.3), vec(0.0, 0.825, 0.52106), vec(0.0, 0.22106, 1.125), vec(0.0, 0.0, 1.95), vec(0.0, 0.22106, 2.775), vec(0.0, 0.825, 3.37894)][int(i)]"
-    - {id: fx34, at: 34, do: [{id: rm_3, op: remove, ids: [fx5_orrery_seal_front_gold, fx5_orrery_seal_front_dark, fx5_orrery_seal_front_inner_clock]}]}
-    - {id: fx44, at: 44, do: [{id: rm, op: remove, ids: [fx3_orrery_orb_core]}]}
-    - {id: fx56, at: 56, do: [{id: rm_2, op: remove, ids: [fx4_orrery_beam_core, fx4_orrery_beam_bloom, fx4_orrery_beam_dark]}]}
-    - {id: fxhit_8, at: "hit+8", do: [{id: rm_4, op: remove, ids: [fx6_orrery_ring_hit_violet_core], when: "= event.source == 'sel'"}]}
-    - {id: fxhit_10, at: "hit+10", do: [{id: rm_5, op: remove, ids: [fx6_orrery_ring_hit_shard], when: "= event.source == 'sel'"}]}
+    - {id: fx34, at: 34, do: [{id: rm_4, op: remove, ids: [fx5_orrery_seal_front_gold, fx5_orrery_seal_front_dark, fx5_orrery_seal_front_inner_clock]}]}
+    - {id: fx44, at: 44, do: [{id: rm_2, op: remove, ids: [fx3_orrery_orb_core]}]}
+    - {id: fx56, at: 56, do: [{id: rm_3, op: remove, ids: [fx4_orrery_beam_core, fx4_orrery_beam_bloom, fx4_orrery_beam_dark]}]}
+    - {id: fxhit_8, at: "hit+8", do: [{id: rm_5, op: remove, ids: [fx6_orrery_ring_hit_violet_core], when: "= event.source == 'sel'"}]}
+    - {id: fxhit_10, at: "hit+10", do: [{id: rm_6, op: remove, ids: [fx6_orrery_ring_hit_shard], when: "= event.source == 'sel'"}]}
     - {id: loop1, at: 0, every: 1, for: 22, do: [{id: fx1_orrery_poise_staff_embers, op: emit, at: pt_fx1_orrery_poise_staff_0_1p65_0, particle: orrery-ember}]}
   "on":
     hit:

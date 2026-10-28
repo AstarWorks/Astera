@@ -3,10 +3,8 @@
 # CONVERT-PRESENT vfx follow=false (anchored at world, no place-at-spawn) (x6): gossamer-katana-echo | gossamer-katana-echo-cut
 # CONVERT-PRESENT vfx frame orient (frames carry no orientation / scale) (x6): orient="yaw"
 # CONVERT-PRESENT rig respect_hit_stop / weapon points (x2): {"respect_hit_stop": true}
-# CONVERT-PRESENT rig block parts (mesh takes an item model, not a block + size) (x2): 3 parts
-# CONVERT-PRESENT rig swing without a weapon mesh (track needs a visual to move) (x2): 10 keys
 # CONVERT-PRESENT presentation inside a nested gameplay list (dash on_hit has no event hook) (x2): play_vfx | play_sound
-# CONVERT-PRESENT area target used only by presentation ops (no damaging hit volume to attach them to) (x3): sel: 15 presentation op(s) dropped | sel_2: 2 presentation op(s) dropped
+# CONVERT-PRESENT area target used only by presentation ops (no damaging hit volume to attach them to) (x3): sel: 15 presentation op(s) dropped | sel_2: 9 presentation op(s) dropped
 apiVersion: "astera/v2"
 kind: Skill
 id: gossamer-katana-s2
@@ -25,6 +23,81 @@ frames:
   - {id: fx6_gossamer_katana_petals, kind: body, parent: world}
 presentation:
   timeline:
+    - id: fx28
+      at: 28
+      do:
+        - id: fx4_gossamer_katana_slash_down_katana_blade
+          op: block
+          parent: fx4_gossamer_katana_slash_down_katana
+          block: iron_block
+          size: [0.09, 2.0, 0.05]
+          at: [0.0, 1.05, 0.0]
+          pivot: [-0.25, 1.0, 0.25]
+          tilt_turn: [0.0, 0.0, 12.0]
+          brightness: 15
+        - id: fx4_gossamer_katana_slash_down_katana_grip
+          op: block
+          parent: fx4_gossamer_katana_slash_down_katana
+          block: black_concrete
+          size: [0.1, 0.4, 0.08]
+          at: [0.0, -0.15, 0.0]
+          pivot: [-0.25, 1.0, 0.25]
+          tilt_turn: [0.0, 0.0, 12.0]
+          rig_shading: true
+        - id: fx4_gossamer_katana_slash_down_katana_guard
+          op: block
+          parent: fx4_gossamer_katana_slash_down_katana
+          block: blue_concrete
+          size: [0.28, 0.08, 0.18]
+          at: [0.0, 0.06, 0.0]
+          pivot: [-0.25, 1.0, 0.25]
+          tilt_turn: [0.0, 0.0, 12.0]
+          rig_shading: true
+        - id: fx4_gossamer_katana_slash_down_katana_swing
+          op: track
+          target: fx4_gossamer_katana_slash_down_katana_blade
+          space: caster.right_hand
+          keys:
+            - {t: 0, turn: [145.0, 0.0, 0.0]}
+            - {t: 2, turn: [145.0, 0.0, 0.0]}
+            - {t: 3, turn: [61.875, 0.0, 0.0]}
+            - {t: 4, turn: [2.5, 0.0, 0.0]}
+            - {t: 5, turn: [-33.125, 0.0, 0.0]}
+            - {t: 6, ease: out_quad, turn: [-45.0, 0.0, 0.0]}
+            - {t: 7, turn: [-39.21875, 0.0, 0.0]}
+            - {t: 8, turn: [-36.25, 0.0, 0.0]}
+            - {t: 9, turn: [-35.15625, 0.0, 0.0]}
+            - {t: 10, ease: out_cubic, turn: [-35.0, 0.0, 0.0]}
+        - id: fx4_gossamer_katana_slash_down_katana_swing_1
+          op: track
+          target: fx4_gossamer_katana_slash_down_katana_grip
+          space: caster.right_hand
+          keys:
+            - {t: 0, turn: [145.0, 0.0, 0.0]}
+            - {t: 2, turn: [145.0, 0.0, 0.0]}
+            - {t: 3, turn: [61.875, 0.0, 0.0]}
+            - {t: 4, turn: [2.5, 0.0, 0.0]}
+            - {t: 5, turn: [-33.125, 0.0, 0.0]}
+            - {t: 6, ease: out_quad, turn: [-45.0, 0.0, 0.0]}
+            - {t: 7, turn: [-39.21875, 0.0, 0.0]}
+            - {t: 8, turn: [-36.25, 0.0, 0.0]}
+            - {t: 9, turn: [-35.15625, 0.0, 0.0]}
+            - {t: 10, ease: out_cubic, turn: [-35.0, 0.0, 0.0]}
+        - id: fx4_gossamer_katana_slash_down_katana_swing_2
+          op: track
+          target: fx4_gossamer_katana_slash_down_katana_guard
+          space: caster.right_hand
+          keys:
+            - {t: 0, turn: [145.0, 0.0, 0.0]}
+            - {t: 2, turn: [145.0, 0.0, 0.0]}
+            - {t: 3, turn: [61.875, 0.0, 0.0]}
+            - {t: 4, turn: [2.5, 0.0, 0.0]}
+            - {t: 5, turn: [-33.125, 0.0, 0.0]}
+            - {t: 6, ease: out_quad, turn: [-45.0, 0.0, 0.0]}
+            - {t: 7, turn: [-39.21875, 0.0, 0.0]}
+            - {t: 8, turn: [-36.25, 0.0, 0.0]}
+            - {t: 9, turn: [-35.15625, 0.0, 0.0]}
+            - {t: 10, ease: out_cubic, turn: [-35.0, 0.0, 0.0]}
     - id: fx30
       at: 30
       do:
@@ -36,7 +109,8 @@ presentation:
           bands:
             - {from: 0.0, to: 1.0, color: "#14245f", alpha: 0.933, color_to: "#7c36a8"}
           step_deg: 20.0
-    - {id: fx38, at: 38, do: [{id: rm_4, op: remove, ids: [fx4_gossamer_katana_slash_down_katana_crescent]}]}
+    - {id: fx38, at: 38, do: [{id: rm_5, op: remove, ids: [fx4_gossamer_katana_slash_down_katana_crescent]}]}
+    - {id: fx40, at: 40, do: [{id: rm_6, op: remove, ids: [fx4_gossamer_katana_slash_down_katana_blade, fx4_gossamer_katana_slash_down_katana_grip, fx4_gossamer_katana_slash_down_katana_guard]}]}
     - {id: fxhit_1, at: "hit+1", do: []}
     - {id: fxhit_2, at: "hit+2", do: []}
     - {id: fxhit_6, at: "hit+6", do: []}
@@ -44,7 +118,7 @@ presentation:
     - id: fxhit_9
       at: "hit+9"
       do:
-        - id: rm_3
+        - id: rm_4
           op: remove
           ids:
             - fx3_gossamer_katana_petals_petals_0
@@ -60,7 +134,7 @@ presentation:
             - fx3_gossamer_katana_petals_ink_2
             - fx3_gossamer_katana_petals_ink_3
           when: "= event.source == 'sel_3'"
-        - id: rm_8
+        - id: rm_10
           op: remove
           ids:
             - fx6_gossamer_katana_petals_petals_0
@@ -77,6 +151,7 @@ presentation:
             - fx6_gossamer_katana_petals_ink_3
           when: "= event.source == 'sel_5'"
     - {id: fxhit_10, at: "hit+10", do: []}
+    - {id: fxhit_12, at: "hit+12", do: []}
     - {id: fxhit_20, at: "hit+20", do: []}
   "on":
     hit:

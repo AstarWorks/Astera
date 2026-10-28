@@ -35,9 +35,9 @@ class LeakTrackingVisuals(private val clock: () -> Int = { 0 }) : ISkillVisualGa
         if (handle.id !in live) stale += "$what on removed handle ${handle.id}"
     }
 
-    override fun spawnMesh(castOwner: UUID, item: String, part: String?, pose: VisualPose, brightness: Int?) = open("mesh $item/$part")
+    override fun spawnMesh(castOwner: UUID, item: String, part: String?, pose: VisualPose, brightness: Int?, look: com.astarworks.astera.core.application.skillengine.runtime.port.MeshLook) = open("mesh $item/$part")
     override fun spawnPlate(castOwner: UUID, sprite: String, alpha: Double, pose: VisualPose, brightness: Int?) = open("plate $sprite")
-    override fun spawnBlock(castOwner: UUID, block: String, pose: VisualPose, brightness: Int?) = open("block")
+    override fun spawnBlock(castOwner: UUID, block: String, pose: VisualPose, brightness: Int?, rigShading: Boolean) = open("block")
     override fun spawnQuad(castOwner: UUID, colorHex: String, alpha: Double, text: String?, shadow: Boolean, seeThrough: Boolean, pose: VisualPose, brightness: Int?) = open("quad")
     override fun spawnLine(castOwner: UUID, colorHex: String, pose: VisualPose) = open("line")
     override fun spawnTrail(castOwner: UUID, ticks: Int, widthFrac: Double, colorHex: String, alpha: Double) = open("trail")

@@ -115,9 +115,9 @@ class MovementOpsScenarioTest {
             override fun freezeEntities(entities: List<UUID>, ticks: Int) = Unit
         }
         val visuals = object : ISkillVisualGateway {
-            override fun spawnMesh(castOwner: UUID, item: String, part: String?, pose: VisualPose, brightness: Int?) = VisualHandle(0)
+            override fun spawnMesh(castOwner: UUID, item: String, part: String?, pose: VisualPose, brightness: Int?, look: com.astarworks.astera.core.application.skillengine.runtime.port.MeshLook) = VisualHandle(0)
             override fun spawnPlate(castOwner: UUID, sprite: String, alpha: Double, pose: VisualPose, brightness: Int?) = VisualHandle(0)
-            override fun spawnBlock(castOwner: UUID, block: String, pose: VisualPose, brightness: Int?) = VisualHandle(0)
+            override fun spawnBlock(castOwner: UUID, block: String, pose: VisualPose, brightness: Int?, rigShading: Boolean) = VisualHandle(0)
             override fun spawnQuad(castOwner: UUID, colorHex: String, alpha: Double, text: String?, shadow: Boolean, seeThrough: Boolean, pose: VisualPose, brightness: Int?) = VisualHandle(0)
             override fun spawnLine(castOwner: UUID, colorHex: String, pose: VisualPose) = VisualHandle(0)
             override fun spawnTrail(castOwner: UUID, ticks: Int, widthFrac: Double, colorHex: String, alpha: Double) = VisualHandle(0)

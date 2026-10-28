@@ -132,12 +132,12 @@ class RecordingVisuals(
             .map { it.resolve("content/sprites") }.firstOrNull { it.isDirectory }
     }
 
-    override fun spawnMesh(castOwner: UUID, item: String, part: String?, pose: VisualPose, brightness: Int?): VisualHandle {
+    override fun spawnMesh(castOwner: UUID, item: String, part: String?, pose: VisualPose, brightness: Int?, look: com.astarworks.astera.core.application.skillengine.runtime.port.MeshLook): VisualHandle {
         val h = next(Mesh(), "mesh", "$item/$part")
         val w = write(h.id, "mesh", Intrinsic.ITEM_FIXED, pose, 0, pose.size.x, "$item/$part", spawn = true)
-        val kind = SkillDisplaySpecs.meshKind(MeshModels.resolve(item, part, frameTables))
-            ?: com.astarworks.astera.core.domain.effect.DisplayKind.Item(com.astarworks.astera.core.domain.item.ItemId("main-hand"), com.astarworks.astera.core.domain.effect.DisplayItemMode.FIXED, null)
-        specs[h.id] = SkillDisplaySpecs.mesh(kind, w.transform, brightness)
+        val kind = SkillDisplaySpecs.meshKind(MeshModels.resolve(item, part, frameTables), look)
+            ?: com.astarworks.astera.core.domain.effect.DisplayKind.Item(com.astarworks.astera.core.domain.item.ItemId("main-hand"), look.mode, null)
+        specs[h.id] = SkillDisplaySpecs.mesh(kind, w.transform, brightness, look.rigShading)
         return h
     }
 
@@ -153,10 +153,10 @@ class RecordingVisuals(
     private class Block
     private class Quad(val intrinsic: Intrinsic)
 
-    override fun spawnBlock(castOwner: UUID, block: String, pose: VisualPose, brightness: Int?): VisualHandle {
+    override fun spawnBlock(castOwner: UUID, block: String, pose: VisualPose, brightness: Int?, rigShading: Boolean): VisualHandle {
         val h = next(Block(), "block", block)
         val w = write(h.id, "block", Intrinsic.BLOCK, pose, 0, pose.size.x, block, spawn = true)
-        specs[h.id] = SkillDisplaySpecs.block(block, w.transform, brightness)
+        specs[h.id] = SkillDisplaySpecs.block(block, w.transform, brightness, rigShading)
         return h
     }
 

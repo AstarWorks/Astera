@@ -1,5 +1,6 @@
 package com.astarworks.astera.core.domain.skillengine.op
 
+import com.astarworks.astera.core.domain.effect.DisplayItemMode
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.skillengine.model.AxisRef
 import com.astarworks.astera.core.domain.skillengine.model.PointRef
@@ -50,6 +51,12 @@ public sealed interface VisualOp : PresentationOp {
         val tilt: Value<Vec3>? = null,
         /** Vanilla Display.brightness 0..15 (block and sky light together); null = lit by the world. */
         val brightness: Int? = null,
+        /** Resource-pack item model key set on the item (vanilla `item_model` component); null = the item's own model (or the resolved pack model of [item]). */
+        val itemModel: String? = null,
+        /** Vanilla ItemDisplayContext the model is drawn in; null = FIXED. */
+        val displayMode: DisplayItemMode? = null,
+        /** True = lit by the weapon-rig shader rule when [brightness] is null (a held weapon); false = lit by the world. */
+        val rigShading: Boolean = true,
     ) : VisualOp
 
     /** A sprite quad as a NODE of the frame tree named [id], child of [parent]; [size] is its edge length in BLOCKS. */
@@ -91,6 +98,16 @@ public sealed interface VisualOp : PresentationOp {
         val turn: Value<Vec3>? = null,
         val brightness: Int? = null,
         val repeat: Repeat? = null,
+        /**
+         * Swing space (a rig part): when [pivot] is set the node is `pivot + track offset` turned by `tilt * track turn * rest`
+         * (as for a [Mesh]) and the block sits at [at] / [turn] INSIDE that space, so a track swings it about the pivot.
+         * Without a [pivot] a track turns the block about its own centre.
+         */
+        val pivot: Value<Vec3>? = null,
+        val rest: Value<Vec3>? = null,
+        val tilt: Value<Vec3>? = null,
+        /** True = lit by the weapon-rig shader rule when [brightness] is null; false = lit by the world. */
+        val rigShading: Boolean = false,
     ) : VisualOp
 
     /**

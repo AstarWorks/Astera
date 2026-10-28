@@ -104,7 +104,11 @@ public class PresentationRuntime(
         }
 
         /** A block display on a node: per-axis [size] in blocks, base local origin [at] and base turn [turn]. */
-        class Block(override val opId: String, val parent: String, val size: Vec3, val at: Vec3, val turn: Quaternion) : Live()
+        class Block(
+            override val opId: String, val parent: String, val size: Vec3, val at: Vec3, val turn: Quaternion,
+            /** Swing-space origin (a rig part); null = a track turns the block about its own centre. */
+            val pivot: Vec3? = null, val tilt: Quaternion = Quaternion.IDENTITY, val rest: Quaternion = Quaternion.IDENTITY,
+        ) : Live()
 
         /** A text-display quad on a node: [size] = (width, height) in blocks (a text glyph: blocks per text unit). */
         class Quad(
@@ -238,6 +242,12 @@ public class PresentationRuntime(
             is Live.Block -> {
                 val parentW = frameWorld(s, live.parent) ?: return null
                 val t = tracked(s, live.opId, parentW, live.group)
+                if (live.pivot != null) {
+                    tree.setLocal(live.node, Frame(live.pivot + t.offset, (live.tilt * t.turn * live.rest).normalized()))
+                    val space = tree.worldOf(live.node).getOrNull() ?: return null
+                    val shown = Frame(space.origin + space.rotation.rotate(live.at), (space.rotation * live.turn).normalized())
+                    return VisualPose(shown, Vec3(live.size.x * t.scale.x, live.size.y * t.scale.y, live.size.z * t.scale.z), DisplayBillboard.FIXED, anchorFeet(s, live.parent))
+                }
                 tree.setLocal(live.node, Frame(live.at + live.turn.rotate(t.offset), (live.turn * t.turn).normalized()))
                 val world = tree.worldOf(live.node).getOrNull() ?: return null
                 return VisualPose(world, Vec3(live.size.x * t.scale.x, live.size.y * t.scale.y, live.size.z * t.scale.z), DisplayBillboard.FIXED, anchorFeet(s, live.parent))

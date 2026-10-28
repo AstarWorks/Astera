@@ -2,6 +2,7 @@ package com.astarworks.astera.core.application.skillengine.load.presentation
 
 import com.astarworks.astera.core.application.skillengine.load.OpDecoder
 import com.astarworks.astera.core.application.skillengine.load.OpReader
+import com.astarworks.astera.core.domain.effect.DisplayItemMode
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.skillengine.model.AxisRef
 import com.astarworks.astera.core.domain.skillengine.model.PointRef
@@ -214,7 +215,11 @@ private object VisualOpDecoder : OpDecoder {
     override fun decode(op: String, id: String, whenExpr: Value<Boolean>?, reader: OpReader): SkillOp = with(reader) {
         when (op) {
             "mesh" -> VisualOp.Mesh(id, whenExpr, requireString("frame"), requireString("item"), string("part"), number("scale"),
-                vec3("pivot"), vec3("rest_turn"), vec3("tilt_turn"), brightness())
+                vec3("pivot"), vec3("rest_turn"), vec3("tilt_turn"), brightness(),
+                string("item_model"), string("display_mode")?.let { m ->
+                    DisplayItemMode.entries.firstOrNull { it.name.equals(m, ignoreCase = true) }
+                        ?: fail("display_mode '$m' is not one of ${DisplayItemMode.entries.joinToString { it.name.lowercase() }}")
+                }, bool("rig_shading") ?: true)
             "plate" -> VisualOp.Plate(
                 id, whenExpr, requireString("parent"), face(null), requireString("sprite"),
                 numberOr("size", 1.0), numberOr("alpha", 1.0),
@@ -224,6 +229,7 @@ private object VisualOpDecoder : OpDecoder {
             "block" -> VisualOp.Block(
                 id, whenExpr, requireString("parent"), requireString("block"), sizeVec("size", uniform = true),
                 vec3("at"), vec3("turn"), brightness(), repeat(),
+                vec3("pivot"), vec3("rest_turn"), vec3("tilt_turn"), bool("rig_shading") ?: false,
             )
             "quad" -> VisualOp.Quad(
                 id, whenExpr, requireString("parent"), face(PlateFace.ViewerCenter), sizeVec("size", uniform = false),

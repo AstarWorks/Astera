@@ -1,8 +1,6 @@
 # Converted from content/skills/ember-gauntlet-s3.yaml + content/vfx/* by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
 # Generated point-frame offsets are [left, up, forward] in the parent frame.
 # CONVERT-PRESENT vfx frame orient (frames carry no orientation / scale) (x8): orient="yaw" | orient="look"
-# CONVERT-PRESENT rig block parts (mesh takes an item model, not a block + size) (x4): 2 parts | 3 parts
-# CONVERT-PRESENT rig swing without a weapon mesh (track needs a visual to move) (x4): 2 keys | 14 keys
 # CONVERT-PRESENT element kind text has no v2 op (x11): {'type': 'text', 'text': '<#FFF1A0>✦', 'background': '#00000000', 'shadow': Fals | {'type': 'text', 'text': '<#ffb020>✦', 'background': '#00000000', 'shadow': Fals
 # CONVERT-PRESENT vfx follow=false (anchored at world, no place-at-spawn) (x4): ember-hoop-hit | ember-smoke-puff
 apiVersion: "astera/v2"
@@ -35,10 +33,118 @@ frames:
   - {id: fx8_ember_smoke_puff_haze_at, kind: body, parent: fx8_ember_smoke_puff}
 presentation:
   timeline:
+    - id: fx0
+      at: 0
+      do:
+        - id: fx1_ember_harness_furnace_pack_shell
+          op: block
+          parent: fx1_ember_harness_furnace_pack
+          block: black_concrete
+          size: [0.5, 0.85, 0.3]
+          at: [0.0, 0.0, 0.0]
+          pivot: [0.0, 1.1, -0.36]
+          rig_shading: true
+        - id: fx1_ember_harness_furnace_pack_clasp
+          op: block
+          parent: fx1_ember_harness_furnace_pack
+          block: raw_gold_block
+          size: [0.32, 0.12, 0.34]
+          at: [0.0, 0.32, -0.02]
+          pivot: [0.0, 1.1, -0.36]
+          rig_shading: true
+        - {id: fx1_ember_harness_furnace_pack_swing, op: track, target: fx1_ember_harness_furnace_pack_shell, space: caster.right_hand, keys: [{t: 0, turn: [0.0, 0.0, 0.0]}, {t: 85, turn: [0.0, 0.0, 0.0]}]}
+        - {id: fx1_ember_harness_furnace_pack_swing_1, op: track, target: fx1_ember_harness_furnace_pack_clasp, space: caster.right_hand, keys: [{t: 0, turn: [0.0, 0.0, 0.0]}, {t: 85, turn: [0.0, 0.0, 0.0]}]}
     - id: fx15
       at: 15
       do:
         - {id: fx2_ember_sweep_embers_atrk, op: track, target: fx2_ember_sweep_embers_at, space: fx2_ember_sweep, keys: [{t: 0, offset: [0, 1.1, 2.2]}]}
+        - id: fx2_ember_sweep_gauntlet_cuff
+          op: block
+          parent: fx2_ember_sweep_gauntlet
+          block: black_concrete
+          size: [0.38, 0.45, 0.38]
+          at: [0.0, 0.18, 0.0]
+          pivot: [-0.35, 1.05, 0.25]
+          rest_turn: [90.0, 0.0, 0.0]
+          tilt_turn: [0.0, 0.0, 8.0]
+          rig_shading: true
+        - id: fx2_ember_sweep_gauntlet_fist
+          op: block
+          parent: fx2_ember_sweep_gauntlet
+          block: gray_concrete
+          size: [0.45, 0.4, 0.42]
+          at: [0.0, 0.56, 0.0]
+          pivot: [-0.35, 1.05, 0.25]
+          rest_turn: [90.0, 0.0, 0.0]
+          tilt_turn: [0.0, 0.0, 8.0]
+          rig_shading: true
+        - id: fx2_ember_sweep_gauntlet_nozzle
+          op: block
+          parent: fx2_ember_sweep_gauntlet
+          block: gold_block
+          size: [0.25, 0.14, 0.25]
+          at: [0.0, 0.8, 0.0]
+          pivot: [-0.35, 1.05, 0.25]
+          rest_turn: [90.0, 0.0, 0.0]
+          tilt_turn: [0.0, 0.0, 8.0]
+          brightness: 15
+        - id: fx2_ember_sweep_gauntlet_swing
+          op: track
+          target: fx2_ember_sweep_gauntlet_cuff
+          space: caster.right_hand
+          keys:
+            - {t: 0, turn: [-18.273096, -98.229824, -21.777028]}
+            - {t: 1, turn: [-10.89235, 27.689983, 2.693343]}
+            - {t: 2, turn: [-1.962249, 104.421418, 2.531743]}
+            - {t: 3, ease: out_quad, turn: [0.0, 130.0, 0.0]}
+            - {t: 4, turn: [0.0, 133.75, 0.0]}
+            - {t: 5, turn: [0.0, 137.5, 0.0]}
+            - {t: 6, turn: [0.0, 141.25, 0.0]}
+            - {t: 7, turn: [0.0, 145.0, 0.0]}
+            - {t: 8, turn: [-0.916626, 136.928169, 2.323686]}
+            - {t: 9, turn: [-5.08672, 112.578654, 7.65291]}
+            - {t: 10, turn: [-15.093548, 71.90376, 11.067047]}
+            - {t: 11, turn: [-26.495577, 31.607394, 7.653122]}
+            - {t: 12, turn: [-33.000475, 7.830723, 2.323696]}
+            - {t: 13, ease: in_out_quad, turn: [-35.0, 0.0, 0.0]}
+        - id: fx2_ember_sweep_gauntlet_swing_1
+          op: track
+          target: fx2_ember_sweep_gauntlet_fist
+          space: caster.right_hand
+          keys:
+            - {t: 0, turn: [-18.273096, -98.229824, -21.777028]}
+            - {t: 1, turn: [-10.89235, 27.689983, 2.693343]}
+            - {t: 2, turn: [-1.962249, 104.421418, 2.531743]}
+            - {t: 3, ease: out_quad, turn: [0.0, 130.0, 0.0]}
+            - {t: 4, turn: [0.0, 133.75, 0.0]}
+            - {t: 5, turn: [0.0, 137.5, 0.0]}
+            - {t: 6, turn: [0.0, 141.25, 0.0]}
+            - {t: 7, turn: [0.0, 145.0, 0.0]}
+            - {t: 8, turn: [-0.916626, 136.928169, 2.323686]}
+            - {t: 9, turn: [-5.08672, 112.578654, 7.65291]}
+            - {t: 10, turn: [-15.093548, 71.90376, 11.067047]}
+            - {t: 11, turn: [-26.495577, 31.607394, 7.653122]}
+            - {t: 12, turn: [-33.000475, 7.830723, 2.323696]}
+            - {t: 13, ease: in_out_quad, turn: [-35.0, 0.0, 0.0]}
+        - id: fx2_ember_sweep_gauntlet_swing_2
+          op: track
+          target: fx2_ember_sweep_gauntlet_nozzle
+          space: caster.right_hand
+          keys:
+            - {t: 0, turn: [-18.273096, -98.229824, -21.777028]}
+            - {t: 1, turn: [-10.89235, 27.689983, 2.693343]}
+            - {t: 2, turn: [-1.962249, 104.421418, 2.531743]}
+            - {t: 3, ease: out_quad, turn: [0.0, 130.0, 0.0]}
+            - {t: 4, turn: [0.0, 133.75, 0.0]}
+            - {t: 5, turn: [0.0, 137.5, 0.0]}
+            - {t: 6, turn: [0.0, 141.25, 0.0]}
+            - {t: 7, turn: [0.0, 145.0, 0.0]}
+            - {t: 8, turn: [-0.916626, 136.928169, 2.323686]}
+            - {t: 9, turn: [-5.08672, 112.578654, 7.65291]}
+            - {t: 10, turn: [-15.093548, 71.90376, 11.067047]}
+            - {t: 11, turn: [-26.495577, 31.607394, 7.653122]}
+            - {t: 12, turn: [-33.000475, 7.830723, 2.323696]}
+            - {t: 13, ease: in_out_quad, turn: [-35.0, 0.0, 0.0]}
         - id: fx2_ember_sweep_gauntlet_flame_fan
           op: trail
           of: pt_fx2_ember_sweep_gauntlet_0_2p65_0
@@ -74,7 +180,7 @@ presentation:
     - id: fx21
       at: 21
       do:
-        - {id: rm, op: remove, ids: [fx2_ember_sweep_impact_core]}
+        - {id: rm_2, op: remove, ids: [fx2_ember_sweep_impact_core]}
         - {op: block, parent: fx4_ember_punch, block: yellow_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx4_ember_punch_flame_0}
         - id: fx4_ember_punch_flame_0_trk
           op: track
@@ -136,6 +242,90 @@ presentation:
           times: 5
           shift: "= [vec(0.0, 0.0, 0.8), vec(0.0, 0.0, 1.45), vec(0.0, 0.0, 2.1), vec(0.0, 0.0, 2.75), vec(0.0, 0.0, 3.4)][int(i)]"
         - {id: fx4_ember_punch_soot_atrk, op: track, target: fx4_ember_punch_soot_at, space: fx4_ember_punch, keys: [{t: 0, offset: [0, 1.15, 0.8]}]}
+        - id: fx4_ember_punch_gauntlet_cuff
+          op: block
+          parent: fx4_ember_punch_gauntlet
+          block: black_concrete
+          size: [0.38, 0.45, 0.38]
+          at: [0.0, 0.18, 0.0]
+          pivot: [-0.35, 1.05, 0.25]
+          rest_turn: [90.0, 0.0, 0.0]
+          tilt_turn: [0.0, 0.0, 12.0]
+          rig_shading: true
+        - id: fx4_ember_punch_gauntlet_fist
+          op: block
+          parent: fx4_ember_punch_gauntlet
+          block: gray_concrete
+          size: [0.45, 0.4, 0.42]
+          at: [0.0, 0.56, 0.0]
+          pivot: [-0.35, 1.05, 0.25]
+          rest_turn: [90.0, 0.0, 0.0]
+          tilt_turn: [0.0, 0.0, 12.0]
+          rig_shading: true
+        - id: fx4_ember_punch_gauntlet_nozzle
+          op: block
+          parent: fx4_ember_punch_gauntlet
+          block: gold_block
+          size: [0.25, 0.14, 0.25]
+          at: [0.0, 0.8, 0.0]
+          pivot: [-0.35, 1.05, 0.25]
+          rest_turn: [90.0, 0.0, 0.0]
+          tilt_turn: [0.0, 0.0, 12.0]
+          brightness: 15
+        - id: fx4_ember_punch_gauntlet_swing
+          op: track
+          target: fx4_ember_punch_gauntlet_cuff
+          space: caster.right_hand
+          keys:
+            - {t: 0, turn: [-25.0, 0.0, 0.0]}
+            - {t: 1, turn: [-11.111111, 0.0, 0.0]}
+            - {t: 2, turn: [-2.777778, 0.0, 0.0]}
+            - {t: 3, ease: out_quad, turn: [0.0, 0.0, 0.0]}
+            - {t: 7, turn: [0.0, 0.0, 0.0]}
+            - {t: 8, turn: [-1.09375, 0.0, 0.0]}
+            - {t: 9, turn: [-4.375, 0.0, 0.0]}
+            - {t: 10, turn: [-9.84375, 0.0, 0.0]}
+            - {t: 11, turn: [-17.5, 0.0, 0.0]}
+            - {t: 12, turn: [-25.15625, 0.0, 0.0]}
+            - {t: 13, turn: [-30.625, 0.0, 0.0]}
+            - {t: 14, turn: [-33.90625, 0.0, 0.0]}
+            - {t: 15, ease: in_out_quad, turn: [-35.0, 0.0, 0.0]}
+        - id: fx4_ember_punch_gauntlet_swing_1
+          op: track
+          target: fx4_ember_punch_gauntlet_fist
+          space: caster.right_hand
+          keys:
+            - {t: 0, turn: [-25.0, 0.0, 0.0]}
+            - {t: 1, turn: [-11.111111, 0.0, 0.0]}
+            - {t: 2, turn: [-2.777778, 0.0, 0.0]}
+            - {t: 3, ease: out_quad, turn: [0.0, 0.0, 0.0]}
+            - {t: 7, turn: [0.0, 0.0, 0.0]}
+            - {t: 8, turn: [-1.09375, 0.0, 0.0]}
+            - {t: 9, turn: [-4.375, 0.0, 0.0]}
+            - {t: 10, turn: [-9.84375, 0.0, 0.0]}
+            - {t: 11, turn: [-17.5, 0.0, 0.0]}
+            - {t: 12, turn: [-25.15625, 0.0, 0.0]}
+            - {t: 13, turn: [-30.625, 0.0, 0.0]}
+            - {t: 14, turn: [-33.90625, 0.0, 0.0]}
+            - {t: 15, ease: in_out_quad, turn: [-35.0, 0.0, 0.0]}
+        - id: fx4_ember_punch_gauntlet_swing_2
+          op: track
+          target: fx4_ember_punch_gauntlet_nozzle
+          space: caster.right_hand
+          keys:
+            - {t: 0, turn: [-25.0, 0.0, 0.0]}
+            - {t: 1, turn: [-11.111111, 0.0, 0.0]}
+            - {t: 2, turn: [-2.777778, 0.0, 0.0]}
+            - {t: 3, ease: out_quad, turn: [0.0, 0.0, 0.0]}
+            - {t: 7, turn: [0.0, 0.0, 0.0]}
+            - {t: 8, turn: [-1.09375, 0.0, 0.0]}
+            - {t: 9, turn: [-4.375, 0.0, 0.0]}
+            - {t: 10, turn: [-9.84375, 0.0, 0.0]}
+            - {t: 11, turn: [-17.5, 0.0, 0.0]}
+            - {t: 12, turn: [-25.15625, 0.0, 0.0]}
+            - {t: 13, turn: [-30.625, 0.0, 0.0]}
+            - {t: 14, turn: [-33.90625, 0.0, 0.0]}
+            - {t: 15, ease: in_out_quad, turn: [-35.0, 0.0, 0.0]}
     - id: fx22
       at: 22
       do:
@@ -167,17 +357,18 @@ presentation:
           particle: ember-fine-spark
           times: 5
           shift: "= [vec(0.0, 0.0, 0.8), vec(0.0, 0.0, 1.45), vec(0.0, 0.0, 2.1), vec(0.0, 0.0, 2.75), vec(0.0, 0.0, 3.4)][int(i)]"
-    - {id: fx26, at: 26, do: [{id: rm_2, op: remove, ids: [fx2_ember_sweep_impact_spokes]}, {id: rm_5, op: remove, ids: [fx4_ember_punch_impact_core]}]}
+    - {id: fx26, at: 26, do: [{id: rm_3, op: remove, ids: [fx2_ember_sweep_impact_spokes]}, {id: rm_7, op: remove, ids: [fx4_ember_punch_impact_core]}]}
     - id: fx27
       at: 27
       do:
-        - {id: rm_3, op: remove, ids: [fx2_ember_sweep_gauntlet_flame_fan]}
+        - {id: rm_4, op: remove, ids: [fx2_ember_sweep_gauntlet_flame_fan]}
         - id: emit_2
           op: emit
           at: fx4_ember_punch_flame_at
           particle: ember-fine-spark
           times: 5
           shift: "= [vec(0.0, 0.0, 0.8), vec(0.0, 0.0, 1.45), vec(0.0, 0.0, 2.1), vec(0.0, 0.0, 2.75), vec(0.0, 0.0, 3.4)][int(i)]"
+    - {id: fx29, at: 29, do: [{id: rm_5, op: remove, ids: [fx2_ember_sweep_gauntlet_cuff, fx2_ember_sweep_gauntlet_fist, fx2_ember_sweep_gauntlet_nozzle]}]}
     - id: fx30
       at: 30
       do:
@@ -187,8 +378,9 @@ presentation:
           particle: ember-fine-spark
           times: 5
           shift: "= [vec(0.0, 0.0, 0.8), vec(0.0, 0.0, 1.45), vec(0.0, 0.0, 2.1), vec(0.0, 0.0, 2.75), vec(0.0, 0.0, 3.4)][int(i)]"
-        - {id: rm_6, op: remove, ids: [fx4_ember_punch_flame_0, fx4_ember_punch_flame_1, fx4_ember_punch_flame_2, fx4_ember_punch_flame_3, fx4_ember_punch_flame_4]}
-    - {id: fx31, at: 31, do: [{id: rm_7, op: remove, ids: [fx4_ember_punch_bloom, fx4_ember_punch_impact_spokes]}]}
+        - {id: rm_8, op: remove, ids: [fx4_ember_punch_flame_0, fx4_ember_punch_flame_1, fx4_ember_punch_flame_2, fx4_ember_punch_flame_3, fx4_ember_punch_flame_4]}
+    - {id: fx31, at: 31, do: [{id: rm_9, op: remove, ids: [fx4_ember_punch_bloom, fx4_ember_punch_impact_spokes]}]}
+    - {id: fx37, at: 37, do: [{id: rm_10, op: remove, ids: [fx4_ember_punch_gauntlet_cuff, fx4_ember_punch_gauntlet_fist, fx4_ember_punch_gauntlet_nozzle]}]}
     - id: fx49
       at: 49
       do:
@@ -805,6 +997,105 @@ presentation:
             - {t: 15, offset: [-0.41, 0.38986, 2.9], turn: [80.92793, 46.72376, 46.72376], scale: [0.00941, 0.00941, 0.38]}
             - {t: 16, offset: [-0.41, 0.38986, 2.9], turn: [80.92793, 46.72376, 46.72376], scale: [0.00471, 0.00471, 0.38]}
             - {t: 17, offset: [-0.41, 0.38986, 2.9], turn: [80.92793, 46.72376, 46.72376], scale: [0.0, 0.0, 0.38]}
+        - id: fx6_ember_furnace_blast_gauntlet_cuff
+          op: block
+          parent: fx6_ember_furnace_blast_gauntlet
+          block: black_concrete
+          size: [0.38, 0.45, 0.38]
+          at: [0.0, 0.18, 0.0]
+          pivot: [-0.35, 1.05, 0.25]
+          rest_turn: [90.0, 0.0, 0.0]
+          tilt_turn: [0.0, 0.0, 12.0]
+          rig_shading: true
+        - id: fx6_ember_furnace_blast_gauntlet_fist
+          op: block
+          parent: fx6_ember_furnace_blast_gauntlet
+          block: gray_concrete
+          size: [0.45, 0.4, 0.42]
+          at: [0.0, 0.56, 0.0]
+          pivot: [-0.35, 1.05, 0.25]
+          rest_turn: [90.0, 0.0, 0.0]
+          tilt_turn: [0.0, 0.0, 12.0]
+          rig_shading: true
+        - id: fx6_ember_furnace_blast_gauntlet_nozzle
+          op: block
+          parent: fx6_ember_furnace_blast_gauntlet
+          block: gold_block
+          size: [0.25, 0.14, 0.25]
+          at: [0.0, 0.8, 0.0]
+          pivot: [-0.35, 1.05, 0.25]
+          rest_turn: [90.0, 0.0, 0.0]
+          tilt_turn: [0.0, 0.0, 12.0]
+          brightness: 15
+        - id: fx6_ember_furnace_blast_gauntlet_swing
+          op: track
+          target: fx6_ember_furnace_blast_gauntlet_cuff
+          space: caster.right_hand
+          keys:
+            - {t: 0, turn: [-25.0, 0.0, 0.0]}
+            - {t: 1, turn: [-11.111111, 0.0, 0.0]}
+            - {t: 2, turn: [-2.777778, 0.0, 0.0]}
+            - {t: 3, ease: out_quad, turn: [0.0, 0.0, 0.0]}
+            - {t: 7, turn: [0.0, 0.0, 0.0]}
+            - {t: 8, turn: [-0.414201, 0.0, 0.0]}
+            - {t: 9, turn: [-1.656805, 0.0, 0.0]}
+            - {t: 10, turn: [-3.727811, 0.0, 0.0]}
+            - {t: 11, turn: [-6.627219, 0.0, 0.0]}
+            - {t: 12, turn: [-10.35503, 0.0, 0.0]}
+            - {t: 13, turn: [-14.911243, 0.0, 0.0]}
+            - {t: 14, turn: [-20.088757, 0.0, 0.0]}
+            - {t: 15, turn: [-24.64497, 0.0, 0.0]}
+            - {t: 16, turn: [-28.372781, 0.0, 0.0]}
+            - {t: 17, turn: [-31.272189, 0.0, 0.0]}
+            - {t: 18, turn: [-33.343195, 0.0, 0.0]}
+            - {t: 19, turn: [-34.585799, 0.0, 0.0]}
+            - {t: 20, ease: in_out_quad, turn: [-35.0, 0.0, 0.0]}
+        - id: fx6_ember_furnace_blast_gauntlet_swing_1
+          op: track
+          target: fx6_ember_furnace_blast_gauntlet_fist
+          space: caster.right_hand
+          keys:
+            - {t: 0, turn: [-25.0, 0.0, 0.0]}
+            - {t: 1, turn: [-11.111111, 0.0, 0.0]}
+            - {t: 2, turn: [-2.777778, 0.0, 0.0]}
+            - {t: 3, ease: out_quad, turn: [0.0, 0.0, 0.0]}
+            - {t: 7, turn: [0.0, 0.0, 0.0]}
+            - {t: 8, turn: [-0.414201, 0.0, 0.0]}
+            - {t: 9, turn: [-1.656805, 0.0, 0.0]}
+            - {t: 10, turn: [-3.727811, 0.0, 0.0]}
+            - {t: 11, turn: [-6.627219, 0.0, 0.0]}
+            - {t: 12, turn: [-10.35503, 0.0, 0.0]}
+            - {t: 13, turn: [-14.911243, 0.0, 0.0]}
+            - {t: 14, turn: [-20.088757, 0.0, 0.0]}
+            - {t: 15, turn: [-24.64497, 0.0, 0.0]}
+            - {t: 16, turn: [-28.372781, 0.0, 0.0]}
+            - {t: 17, turn: [-31.272189, 0.0, 0.0]}
+            - {t: 18, turn: [-33.343195, 0.0, 0.0]}
+            - {t: 19, turn: [-34.585799, 0.0, 0.0]}
+            - {t: 20, ease: in_out_quad, turn: [-35.0, 0.0, 0.0]}
+        - id: fx6_ember_furnace_blast_gauntlet_swing_2
+          op: track
+          target: fx6_ember_furnace_blast_gauntlet_nozzle
+          space: caster.right_hand
+          keys:
+            - {t: 0, turn: [-25.0, 0.0, 0.0]}
+            - {t: 1, turn: [-11.111111, 0.0, 0.0]}
+            - {t: 2, turn: [-2.777778, 0.0, 0.0]}
+            - {t: 3, ease: out_quad, turn: [0.0, 0.0, 0.0]}
+            - {t: 7, turn: [0.0, 0.0, 0.0]}
+            - {t: 8, turn: [-0.414201, 0.0, 0.0]}
+            - {t: 9, turn: [-1.656805, 0.0, 0.0]}
+            - {t: 10, turn: [-3.727811, 0.0, 0.0]}
+            - {t: 11, turn: [-6.627219, 0.0, 0.0]}
+            - {t: 12, turn: [-10.35503, 0.0, 0.0]}
+            - {t: 13, turn: [-14.911243, 0.0, 0.0]}
+            - {t: 14, turn: [-20.088757, 0.0, 0.0]}
+            - {t: 15, turn: [-24.64497, 0.0, 0.0]}
+            - {t: 16, turn: [-28.372781, 0.0, 0.0]}
+            - {t: 17, turn: [-31.272189, 0.0, 0.0]}
+            - {t: 18, turn: [-33.343195, 0.0, 0.0]}
+            - {t: 19, turn: [-34.585799, 0.0, 0.0]}
+            - {t: 20, ease: in_out_quad, turn: [-35.0, 0.0, 0.0]}
     - id: fx50
       at: 50
       do:
@@ -868,7 +1159,7 @@ presentation:
           particle: ember-fine-spark
           times: 5
           shift: "= [vec(0.0, 0.0, 0.8), vec(0.0, 0.0, 1.45), vec(0.0, 0.0, 2.1), vec(0.0, 0.0, 2.75), vec(0.0, 0.0, 3.4)][int(i)]"
-        - {id: rm_9, op: remove, ids: [fx6_ember_furnace_blast_impact_core]}
+        - {id: rm_12, op: remove, ids: [fx6_ember_furnace_blast_impact_core]}
     - id: fx63
       at: 63
       do:
@@ -886,8 +1177,8 @@ presentation:
     - id: fx65
       at: 65
       do:
-        - {id: rm_10, op: remove, ids: [fx6_ember_furnace_blast_flame_0, fx6_ember_furnace_blast_flame_1, fx6_ember_furnace_blast_flame_2, fx6_ember_furnace_blast_flame_3, fx6_ember_furnace_blast_flame_4]}
-    - {id: fx66, at: 66, do: [{id: rm_11, op: remove, ids: [fx6_ember_furnace_blast_bloom, fx6_ember_furnace_blast_impact_spokes]}]}
+        - {id: rm_13, op: remove, ids: [fx6_ember_furnace_blast_flame_0, fx6_ember_furnace_blast_flame_1, fx6_ember_furnace_blast_flame_2, fx6_ember_furnace_blast_flame_3, fx6_ember_furnace_blast_flame_4]}
+    - {id: fx66, at: 66, do: [{id: rm_14, op: remove, ids: [fx6_ember_furnace_blast_bloom, fx6_ember_furnace_blast_impact_spokes]}]}
     - id: fx67
       at: 67
       do:
@@ -897,7 +1188,7 @@ presentation:
           particle: ember-fine-spark
           times: 5
           shift: "= [vec(0.0, 0.0, 0.8), vec(0.0, 0.0, 1.45), vec(0.0, 0.0, 2.1), vec(0.0, 0.0, 2.75), vec(0.0, 0.0, 3.4)][int(i)]"
-        - id: rm_12
+        - id: rm_15
           op: remove
           ids:
             - fx6_ember_furnace_blast_pressure_hoop_s0
@@ -924,12 +1215,14 @@ presentation:
             - fx6_ember_furnace_blast_pressure_hoop_front_s9
             - fx6_ember_furnace_blast_pressure_hoop_front_s10
             - fx6_ember_furnace_blast_pressure_hoop_front_s11
+    - {id: fx70, at: 70, do: [{id: rm_16, op: remove, ids: [fx6_ember_furnace_blast_gauntlet_cuff, fx6_ember_furnace_blast_gauntlet_fist, fx6_ember_furnace_blast_gauntlet_nozzle]}]}
+    - {id: fx85, at: 85, do: [{id: rm, op: remove, ids: [fx1_ember_harness_furnace_pack_shell, fx1_ember_harness_furnace_pack_clasp]}]}
     - id: fxhit_9
       at: "hit+9"
       do:
-        - {id: rm_4, op: remove, ids: [fx3_ember_hoop_hit_needle], when: "= event.source == 'sel'"}
-        - {id: rm_8, op: remove, ids: [fx5_ember_hoop_hit_needle], when: "= event.source == 'sel_2'"}
-        - {id: rm_13, op: remove, ids: [fx7_ember_hoop_hit_needle], when: "= event.source == 'sel_3'"}
+        - {id: rm_6, op: remove, ids: [fx3_ember_hoop_hit_needle], when: "= event.source == 'sel'"}
+        - {id: rm_11, op: remove, ids: [fx5_ember_hoop_hit_needle], when: "= event.source == 'sel_2'"}
+        - {id: rm_17, op: remove, ids: [fx7_ember_hoop_hit_needle], when: "= event.source == 'sel_3'"}
     - {id: loop1, at: 15, every: 4, for: 10, do: [{id: fx2_ember_sweep_embers, op: emit, at: fx2_ember_sweep_embers_at, particle: ember-fine-spark}]}
     - {id: loop2, at: 15, every: 1, for: 8, do: [{id: fx2_ember_sweep_gauntlet_fire, op: emit, at: pt_fx2_ember_sweep_gauntlet_0_2p65_0, particle: ember-fine-spark}]}
     - {id: loop3, at: 21, every: 3, for: 10, do: [{id: fx4_ember_punch_soot, op: emit, at: fx4_ember_punch_soot_at, particle: fire-smoke}]}

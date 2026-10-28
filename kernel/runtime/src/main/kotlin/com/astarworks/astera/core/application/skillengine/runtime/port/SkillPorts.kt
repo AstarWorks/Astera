@@ -1,6 +1,7 @@
 package com.astarworks.astera.core.application.skillengine.runtime.port
 
 import com.astarworks.astera.core.domain.effect.DisplayBillboard
+import com.astarworks.astera.core.domain.effect.DisplayItemMode
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.geometry.math.Frame
 import com.astarworks.astera.core.domain.skillengine.hit.HitCandidate
@@ -30,6 +31,13 @@ public data class VisualPose(
     val anchorFeet: Vec3? = null,
 )
 
+/** How a mesh item is drawn: pack model key set on the item, ItemDisplayContext, and whether the weapon-rig shader rule lights it. */
+public data class MeshLook(
+    val itemModel: String? = null,
+    val mode: DisplayItemMode = DisplayItemMode.FIXED,
+    val rigShading: Boolean = true,
+)
+
 /** A sprite's flipbook length and texture edge in pixels (its natural size is `px * 0.025` blocks). */
 public data class SpriteInfo(val frames: Int, val px: Int)
 
@@ -40,13 +48,13 @@ public data class SpriteInfo(val frames: Int, val px: Int)
  */
 public interface ISkillVisualGateway {
     /** An item model; [pose].size is the model scale in blocks per model unit. */
-    public fun spawnMesh(castOwner: UUID, item: String, part: String?, pose: VisualPose, brightness: Int? = null): VisualHandle
+    public fun spawnMesh(castOwner: UUID, item: String, part: String?, pose: VisualPose, brightness: Int? = null, look: MeshLook = MeshLook()): VisualHandle
 
     /** A sprite quad; [pose].size.x / .y are its width and height in blocks. [brightness] null = full bright (15). */
     public fun spawnPlate(castOwner: UUID, sprite: String, alpha: Double, pose: VisualPose, brightness: Int? = null): VisualHandle
 
     /** A block display of vanilla block [block] (`gold_block`); [pose].size is its edge per axis in blocks, centred on the pose origin. */
-    public fun spawnBlock(castOwner: UUID, block: String, pose: VisualPose, brightness: Int?): VisualHandle
+    public fun spawnBlock(castOwner: UUID, block: String, pose: VisualPose, brightness: Int?, rigShading: Boolean = false): VisualHandle
 
     /**
      * A text-display quad: [text] null = a solid [colorHex] background at [alpha] ([pose].size.x / .y = width / height in blocks);

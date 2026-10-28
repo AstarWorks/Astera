@@ -5,7 +5,9 @@ import com.astarworks.astera.core.domain.effect.sound.PitchArc
 import com.astarworks.astera.core.domain.effect.sound.SoundPlanner
 import com.astarworks.astera.core.application.skillengine.runtime.OpContext
 import com.astarworks.astera.core.application.skillengine.runtime.OpExecutor
+import com.astarworks.astera.core.application.skillengine.runtime.port.MeshLook
 import com.astarworks.astera.core.application.skillengine.runtime.port.ParticleBurst
+import com.astarworks.astera.core.domain.effect.DisplayItemMode
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.geometry.math.Frame
 import com.astarworks.astera.core.domain.geometry.math.Quaternion
@@ -53,7 +55,10 @@ internal class MeshExecutor(private val rt: PresentationRuntime) : OpExecutor<Vi
         // The node carries the model's points (scaled to blocks), so `<mesh id>.tip` follows the swing.
         val pts = rt.points.points(op.item, op.part).map { FramePoint(live.node, it.name, it.offset * scale, it.axis) }
         val pose = rt.spawnNode(s, live, op.frame, pts) ?: return ctx.host.fail(op.id, "mesh: parent frame '${op.frame}' is not in the frame tree")
-        live.handle = ctx.ports.visuals.spawnMesh(rt.info.owner(ctx.cast), op.item, op.part, pose, op.brightness)
+        live.handle = ctx.ports.visuals.spawnMesh(
+            rt.info.owner(ctx.cast), op.item, op.part, pose, op.brightness,
+            MeshLook(op.itemModel, op.displayMode ?: DisplayItemMode.FIXED, op.rigShading),
+        )
         rt.register(s, live)
     }
 }
@@ -91,9 +96,12 @@ internal class BlockExecutor(private val rt: PresentationRuntime) : OpExecutor<V
             val live = PresentationRuntime.Live.Block(
                 id, par, ctx.values.vec3(op.size),
                 op.at?.let { ctx.values.vec3(it) } ?: Vec3.ZERO, op.turn?.let { turn(ctx.values.vec3(it)) } ?: Quaternion.IDENTITY,
+                op.pivot?.let { ctx.values.vec3(it) },
+                op.tilt?.let { turn(ctx.values.vec3(it)) } ?: Quaternion.IDENTITY,
+                op.rest?.let { turn(ctx.values.vec3(it)) } ?: Quaternion.IDENTITY,
             )
             val pose = rt.spawnNode(s, live, par) ?: run { ctx.host.fail(op.id, "block: parent frame '$par' is not in the frame tree"); return@repeated null }
-            live.handle = ctx.ports.visuals.spawnBlock(rt.info.owner(ctx.cast), op.block, pose, op.brightness)
+            live.handle = ctx.ports.visuals.spawnBlock(rt.info.owner(ctx.cast), op.block, pose, op.brightness, op.rigShading)
             rt.register(s, live)
             live
         }

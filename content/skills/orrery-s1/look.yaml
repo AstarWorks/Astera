@@ -4,8 +4,6 @@
 # CONVERT-PRESENT vfx follow=false (anchored at world, no place-at-spawn) (x2): orrery-crescent-a | orrery-crescent-b
 # CONVERT-PRESENT vfx frame orient (frames carry no orientation / scale) (x4): orient="yaw" | orient="to_target"
 # CONVERT-PRESENT rig respect_hit_stop / weapon points (x2): {"respect_hit_stop": true}
-# CONVERT-PRESENT rig block parts (mesh takes an item model, not a block + size) (x2): 11 parts
-# CONVERT-PRESENT rig swing without a weapon mesh (track needs a visual to move) (x2): 18 keys
 # CONVERT-PRESENT vfx anchored at a runtime point (frame parent must exist at cast start): anchored at world (x2): contact.point
 apiVersion: "astera/v2"
 kind: Skill
@@ -25,7 +23,362 @@ frames:
   - {id: fx4_orrery_ring_hit, kind: body, parent: world}
 presentation:
   timeline:
-    - {id: fx17, at: 17, do: [{id: anim, op: caster_anim, anim: hide-main-hand}]}
+    - id: fx17
+      at: 17
+      do:
+        - {id: anim, op: caster_anim, anim: hide-main-hand}
+        - id: fx1_orrery_crescent_a_staff_shaft
+          op: block
+          parent: fx1_orrery_crescent_a_staff
+          block: black_concrete
+          size: [0.1, 1.9, 0.1]
+          at: [0.0, 0.45, 0.0]
+          pivot: [-0.3, 1.9, 0.3]
+          tilt_turn: [0.0, 0.0, 20.0]
+          rig_shading: true
+        - id: fx1_orrery_crescent_a_staff_lower_collar
+          op: block
+          parent: fx1_orrery_crescent_a_staff
+          block: gray_concrete
+          size: [0.16, 0.12, 0.16]
+          at: [0.0, -0.25, 0.0]
+          pivot: [-0.3, 1.9, 0.3]
+          tilt_turn: [0.0, 0.0, 20.0]
+          rig_shading: true
+        - id: fx1_orrery_crescent_a_staff_upper_collar
+          op: block
+          parent: fx1_orrery_crescent_a_staff
+          block: gray_concrete
+          size: [0.16, 0.12, 0.16]
+          at: [0.0, 1.1, 0.0]
+          pivot: [-0.3, 1.9, 0.3]
+          tilt_turn: [0.0, 0.0, 20.0]
+          rig_shading: true
+        - id: fx1_orrery_crescent_a_staff_emitter_housing
+          op: block
+          parent: fx1_orrery_crescent_a_staff
+          block: black_concrete
+          size: [0.32, 0.65, 0.28]
+          at: [0.0, 1.6, 0.0]
+          pivot: [-0.3, 1.9, 0.3]
+          tilt_turn: [0.0, 0.0, 20.0]
+          rig_shading: true
+        - id: fx1_orrery_crescent_a_staff_emitter_cap
+          op: block
+          parent: fx1_orrery_crescent_a_staff
+          block: gray_concrete
+          size: [0.34, 0.08, 0.3]
+          at: [0.0, 1.95, 0.0]
+          pivot: [-0.3, 1.9, 0.3]
+          tilt_turn: [0.0, 0.0, 20.0]
+          rig_shading: true
+        - id: fx1_orrery_crescent_a_staff_emitter_inset_front
+          op: block
+          parent: fx1_orrery_crescent_a_staff
+          block: orange_concrete
+          size: [0.15, 0.4, 0.025]
+          at: [0.0, 1.6, -0.146]
+          pivot: [-0.3, 1.9, 0.3]
+          tilt_turn: [0.0, 0.0, 20.0]
+          rig_shading: true
+        - id: fx1_orrery_crescent_a_staff_emitter_inset_back
+          op: block
+          parent: fx1_orrery_crescent_a_staff
+          block: orange_concrete
+          size: [0.15, 0.4, 0.025]
+          at: [0.0, 1.6, 0.146]
+          pivot: [-0.3, 1.9, 0.3]
+          tilt_turn: [0.0, 0.0, 20.0]
+          rig_shading: true
+        - id: fx1_orrery_crescent_a_staff_cable_upper
+          op: block
+          parent: fx1_orrery_crescent_a_staff
+          block: black_concrete
+          size: [0.28, 0.07, 0.07]
+          at: [0.27, 1.3, 0.0]
+          pivot: [-0.3, 1.9, 0.3]
+          tilt_turn: [0.0, 0.0, 20.0]
+          rig_shading: true
+        - id: fx1_orrery_crescent_a_staff_cable_drop
+          op: block
+          parent: fx1_orrery_crescent_a_staff
+          block: black_concrete
+          size: [0.07, 1.16, 0.07]
+          at: [0.42, 0.72, 0.0]
+          pivot: [-0.3, 1.9, 0.3]
+          tilt_turn: [0.0, 0.0, 20.0]
+          rig_shading: true
+        - id: fx1_orrery_crescent_a_staff_cable_bottom
+          op: block
+          parent: fx1_orrery_crescent_a_staff
+          block: black_concrete
+          size: [0.25, 0.07, 0.07]
+          at: [0.3, 0.12, 0.0]
+          pivot: [-0.3, 1.9, 0.3]
+          tilt_turn: [0.0, 0.0, 20.0]
+          rig_shading: true
+        - id: fx1_orrery_crescent_a_staff_cable_return
+          op: block
+          parent: fx1_orrery_crescent_a_staff
+          block: black_concrete
+          size: [0.07, 0.35, 0.07]
+          at: [0.16, 0.29, 0.0]
+          pivot: [-0.3, 1.9, 0.3]
+          tilt_turn: [0.0, 0.0, 20.0]
+          rig_shading: true
+        - id: fx1_orrery_crescent_a_staff_swing
+          op: track
+          target: fx1_orrery_crescent_a_staff_shaft
+          space: caster.right_hand
+          keys:
+            - {t: 0, ease: out_quad, turn: [65.0, 0.0, 0.0]}
+            - {t: 1, turn: [84.444444, 0.0, 0.0]}
+            - {t: 2, turn: [96.111111, 0.0, 0.0]}
+            - {t: 3, ease: out_quad, turn: [100.0, 0.0, 0.0]}
+            - {t: 4, turn: [178.75, 0.0, 0.0]}
+            - {t: 5, turn: [-125.0, 0.0, 0.0]}
+            - {t: 6, turn: [-91.25, 0.0, 0.0]}
+            - {t: 7, ease: out_quad, turn: [-80.0, 0.0, 0.0]}
+            - {t: 8, turn: [-74.444444, 0.0, 0.0]}
+            - {t: 9, turn: [-71.111111, 0.0, 0.0]}
+            - {t: 10, ease: out_quad, turn: [-70.0, 0.0, 0.0]}
+            - {t: 11, turn: [-51.428571, 0.0, 0.0]}
+            - {t: 12, turn: [-35.714286, 0.0, 0.0]}
+            - {t: 13, turn: [-22.857143, 0.0, 0.0]}
+            - {t: 14, turn: [-12.857143, 0.0, 0.0]}
+            - {t: 15, turn: [-5.714286, 0.0, 0.0]}
+            - {t: 16, turn: [-1.428571, 0.0, 0.0]}
+            - {t: 17, ease: out_quad, turn: [0.0, 0.0, 0.0]}
+        - id: fx1_orrery_crescent_a_staff_swing_1
+          op: track
+          target: fx1_orrery_crescent_a_staff_lower_collar
+          space: caster.right_hand
+          keys:
+            - {t: 0, ease: out_quad, turn: [65.0, 0.0, 0.0]}
+            - {t: 1, turn: [84.444444, 0.0, 0.0]}
+            - {t: 2, turn: [96.111111, 0.0, 0.0]}
+            - {t: 3, ease: out_quad, turn: [100.0, 0.0, 0.0]}
+            - {t: 4, turn: [178.75, 0.0, 0.0]}
+            - {t: 5, turn: [-125.0, 0.0, 0.0]}
+            - {t: 6, turn: [-91.25, 0.0, 0.0]}
+            - {t: 7, ease: out_quad, turn: [-80.0, 0.0, 0.0]}
+            - {t: 8, turn: [-74.444444, 0.0, 0.0]}
+            - {t: 9, turn: [-71.111111, 0.0, 0.0]}
+            - {t: 10, ease: out_quad, turn: [-70.0, 0.0, 0.0]}
+            - {t: 11, turn: [-51.428571, 0.0, 0.0]}
+            - {t: 12, turn: [-35.714286, 0.0, 0.0]}
+            - {t: 13, turn: [-22.857143, 0.0, 0.0]}
+            - {t: 14, turn: [-12.857143, 0.0, 0.0]}
+            - {t: 15, turn: [-5.714286, 0.0, 0.0]}
+            - {t: 16, turn: [-1.428571, 0.0, 0.0]}
+            - {t: 17, ease: out_quad, turn: [0.0, 0.0, 0.0]}
+        - id: fx1_orrery_crescent_a_staff_swing_2
+          op: track
+          target: fx1_orrery_crescent_a_staff_upper_collar
+          space: caster.right_hand
+          keys:
+            - {t: 0, ease: out_quad, turn: [65.0, 0.0, 0.0]}
+            - {t: 1, turn: [84.444444, 0.0, 0.0]}
+            - {t: 2, turn: [96.111111, 0.0, 0.0]}
+            - {t: 3, ease: out_quad, turn: [100.0, 0.0, 0.0]}
+            - {t: 4, turn: [178.75, 0.0, 0.0]}
+            - {t: 5, turn: [-125.0, 0.0, 0.0]}
+            - {t: 6, turn: [-91.25, 0.0, 0.0]}
+            - {t: 7, ease: out_quad, turn: [-80.0, 0.0, 0.0]}
+            - {t: 8, turn: [-74.444444, 0.0, 0.0]}
+            - {t: 9, turn: [-71.111111, 0.0, 0.0]}
+            - {t: 10, ease: out_quad, turn: [-70.0, 0.0, 0.0]}
+            - {t: 11, turn: [-51.428571, 0.0, 0.0]}
+            - {t: 12, turn: [-35.714286, 0.0, 0.0]}
+            - {t: 13, turn: [-22.857143, 0.0, 0.0]}
+            - {t: 14, turn: [-12.857143, 0.0, 0.0]}
+            - {t: 15, turn: [-5.714286, 0.0, 0.0]}
+            - {t: 16, turn: [-1.428571, 0.0, 0.0]}
+            - {t: 17, ease: out_quad, turn: [0.0, 0.0, 0.0]}
+        - id: fx1_orrery_crescent_a_staff_swing_3
+          op: track
+          target: fx1_orrery_crescent_a_staff_emitter_housing
+          space: caster.right_hand
+          keys:
+            - {t: 0, ease: out_quad, turn: [65.0, 0.0, 0.0]}
+            - {t: 1, turn: [84.444444, 0.0, 0.0]}
+            - {t: 2, turn: [96.111111, 0.0, 0.0]}
+            - {t: 3, ease: out_quad, turn: [100.0, 0.0, 0.0]}
+            - {t: 4, turn: [178.75, 0.0, 0.0]}
+            - {t: 5, turn: [-125.0, 0.0, 0.0]}
+            - {t: 6, turn: [-91.25, 0.0, 0.0]}
+            - {t: 7, ease: out_quad, turn: [-80.0, 0.0, 0.0]}
+            - {t: 8, turn: [-74.444444, 0.0, 0.0]}
+            - {t: 9, turn: [-71.111111, 0.0, 0.0]}
+            - {t: 10, ease: out_quad, turn: [-70.0, 0.0, 0.0]}
+            - {t: 11, turn: [-51.428571, 0.0, 0.0]}
+            - {t: 12, turn: [-35.714286, 0.0, 0.0]}
+            - {t: 13, turn: [-22.857143, 0.0, 0.0]}
+            - {t: 14, turn: [-12.857143, 0.0, 0.0]}
+            - {t: 15, turn: [-5.714286, 0.0, 0.0]}
+            - {t: 16, turn: [-1.428571, 0.0, 0.0]}
+            - {t: 17, ease: out_quad, turn: [0.0, 0.0, 0.0]}
+        - id: fx1_orrery_crescent_a_staff_swing_4
+          op: track
+          target: fx1_orrery_crescent_a_staff_emitter_cap
+          space: caster.right_hand
+          keys:
+            - {t: 0, ease: out_quad, turn: [65.0, 0.0, 0.0]}
+            - {t: 1, turn: [84.444444, 0.0, 0.0]}
+            - {t: 2, turn: [96.111111, 0.0, 0.0]}
+            - {t: 3, ease: out_quad, turn: [100.0, 0.0, 0.0]}
+            - {t: 4, turn: [178.75, 0.0, 0.0]}
+            - {t: 5, turn: [-125.0, 0.0, 0.0]}
+            - {t: 6, turn: [-91.25, 0.0, 0.0]}
+            - {t: 7, ease: out_quad, turn: [-80.0, 0.0, 0.0]}
+            - {t: 8, turn: [-74.444444, 0.0, 0.0]}
+            - {t: 9, turn: [-71.111111, 0.0, 0.0]}
+            - {t: 10, ease: out_quad, turn: [-70.0, 0.0, 0.0]}
+            - {t: 11, turn: [-51.428571, 0.0, 0.0]}
+            - {t: 12, turn: [-35.714286, 0.0, 0.0]}
+            - {t: 13, turn: [-22.857143, 0.0, 0.0]}
+            - {t: 14, turn: [-12.857143, 0.0, 0.0]}
+            - {t: 15, turn: [-5.714286, 0.0, 0.0]}
+            - {t: 16, turn: [-1.428571, 0.0, 0.0]}
+            - {t: 17, ease: out_quad, turn: [0.0, 0.0, 0.0]}
+        - id: fx1_orrery_crescent_a_staff_swing_5
+          op: track
+          target: fx1_orrery_crescent_a_staff_emitter_inset_front
+          space: caster.right_hand
+          keys:
+            - {t: 0, ease: out_quad, turn: [65.0, 0.0, 0.0]}
+            - {t: 1, turn: [84.444444, 0.0, 0.0]}
+            - {t: 2, turn: [96.111111, 0.0, 0.0]}
+            - {t: 3, ease: out_quad, turn: [100.0, 0.0, 0.0]}
+            - {t: 4, turn: [178.75, 0.0, 0.0]}
+            - {t: 5, turn: [-125.0, 0.0, 0.0]}
+            - {t: 6, turn: [-91.25, 0.0, 0.0]}
+            - {t: 7, ease: out_quad, turn: [-80.0, 0.0, 0.0]}
+            - {t: 8, turn: [-74.444444, 0.0, 0.0]}
+            - {t: 9, turn: [-71.111111, 0.0, 0.0]}
+            - {t: 10, ease: out_quad, turn: [-70.0, 0.0, 0.0]}
+            - {t: 11, turn: [-51.428571, 0.0, 0.0]}
+            - {t: 12, turn: [-35.714286, 0.0, 0.0]}
+            - {t: 13, turn: [-22.857143, 0.0, 0.0]}
+            - {t: 14, turn: [-12.857143, 0.0, 0.0]}
+            - {t: 15, turn: [-5.714286, 0.0, 0.0]}
+            - {t: 16, turn: [-1.428571, 0.0, 0.0]}
+            - {t: 17, ease: out_quad, turn: [0.0, 0.0, 0.0]}
+        - id: fx1_orrery_crescent_a_staff_swing_6
+          op: track
+          target: fx1_orrery_crescent_a_staff_emitter_inset_back
+          space: caster.right_hand
+          keys:
+            - {t: 0, ease: out_quad, turn: [65.0, 0.0, 0.0]}
+            - {t: 1, turn: [84.444444, 0.0, 0.0]}
+            - {t: 2, turn: [96.111111, 0.0, 0.0]}
+            - {t: 3, ease: out_quad, turn: [100.0, 0.0, 0.0]}
+            - {t: 4, turn: [178.75, 0.0, 0.0]}
+            - {t: 5, turn: [-125.0, 0.0, 0.0]}
+            - {t: 6, turn: [-91.25, 0.0, 0.0]}
+            - {t: 7, ease: out_quad, turn: [-80.0, 0.0, 0.0]}
+            - {t: 8, turn: [-74.444444, 0.0, 0.0]}
+            - {t: 9, turn: [-71.111111, 0.0, 0.0]}
+            - {t: 10, ease: out_quad, turn: [-70.0, 0.0, 0.0]}
+            - {t: 11, turn: [-51.428571, 0.0, 0.0]}
+            - {t: 12, turn: [-35.714286, 0.0, 0.0]}
+            - {t: 13, turn: [-22.857143, 0.0, 0.0]}
+            - {t: 14, turn: [-12.857143, 0.0, 0.0]}
+            - {t: 15, turn: [-5.714286, 0.0, 0.0]}
+            - {t: 16, turn: [-1.428571, 0.0, 0.0]}
+            - {t: 17, ease: out_quad, turn: [0.0, 0.0, 0.0]}
+        - id: fx1_orrery_crescent_a_staff_swing_7
+          op: track
+          target: fx1_orrery_crescent_a_staff_cable_upper
+          space: caster.right_hand
+          keys:
+            - {t: 0, ease: out_quad, turn: [65.0, 0.0, 0.0]}
+            - {t: 1, turn: [84.444444, 0.0, 0.0]}
+            - {t: 2, turn: [96.111111, 0.0, 0.0]}
+            - {t: 3, ease: out_quad, turn: [100.0, 0.0, 0.0]}
+            - {t: 4, turn: [178.75, 0.0, 0.0]}
+            - {t: 5, turn: [-125.0, 0.0, 0.0]}
+            - {t: 6, turn: [-91.25, 0.0, 0.0]}
+            - {t: 7, ease: out_quad, turn: [-80.0, 0.0, 0.0]}
+            - {t: 8, turn: [-74.444444, 0.0, 0.0]}
+            - {t: 9, turn: [-71.111111, 0.0, 0.0]}
+            - {t: 10, ease: out_quad, turn: [-70.0, 0.0, 0.0]}
+            - {t: 11, turn: [-51.428571, 0.0, 0.0]}
+            - {t: 12, turn: [-35.714286, 0.0, 0.0]}
+            - {t: 13, turn: [-22.857143, 0.0, 0.0]}
+            - {t: 14, turn: [-12.857143, 0.0, 0.0]}
+            - {t: 15, turn: [-5.714286, 0.0, 0.0]}
+            - {t: 16, turn: [-1.428571, 0.0, 0.0]}
+            - {t: 17, ease: out_quad, turn: [0.0, 0.0, 0.0]}
+        - id: fx1_orrery_crescent_a_staff_swing_8
+          op: track
+          target: fx1_orrery_crescent_a_staff_cable_drop
+          space: caster.right_hand
+          keys:
+            - {t: 0, ease: out_quad, turn: [65.0, 0.0, 0.0]}
+            - {t: 1, turn: [84.444444, 0.0, 0.0]}
+            - {t: 2, turn: [96.111111, 0.0, 0.0]}
+            - {t: 3, ease: out_quad, turn: [100.0, 0.0, 0.0]}
+            - {t: 4, turn: [178.75, 0.0, 0.0]}
+            - {t: 5, turn: [-125.0, 0.0, 0.0]}
+            - {t: 6, turn: [-91.25, 0.0, 0.0]}
+            - {t: 7, ease: out_quad, turn: [-80.0, 0.0, 0.0]}
+            - {t: 8, turn: [-74.444444, 0.0, 0.0]}
+            - {t: 9, turn: [-71.111111, 0.0, 0.0]}
+            - {t: 10, ease: out_quad, turn: [-70.0, 0.0, 0.0]}
+            - {t: 11, turn: [-51.428571, 0.0, 0.0]}
+            - {t: 12, turn: [-35.714286, 0.0, 0.0]}
+            - {t: 13, turn: [-22.857143, 0.0, 0.0]}
+            - {t: 14, turn: [-12.857143, 0.0, 0.0]}
+            - {t: 15, turn: [-5.714286, 0.0, 0.0]}
+            - {t: 16, turn: [-1.428571, 0.0, 0.0]}
+            - {t: 17, ease: out_quad, turn: [0.0, 0.0, 0.0]}
+        - id: fx1_orrery_crescent_a_staff_swing_9
+          op: track
+          target: fx1_orrery_crescent_a_staff_cable_bottom
+          space: caster.right_hand
+          keys:
+            - {t: 0, ease: out_quad, turn: [65.0, 0.0, 0.0]}
+            - {t: 1, turn: [84.444444, 0.0, 0.0]}
+            - {t: 2, turn: [96.111111, 0.0, 0.0]}
+            - {t: 3, ease: out_quad, turn: [100.0, 0.0, 0.0]}
+            - {t: 4, turn: [178.75, 0.0, 0.0]}
+            - {t: 5, turn: [-125.0, 0.0, 0.0]}
+            - {t: 6, turn: [-91.25, 0.0, 0.0]}
+            - {t: 7, ease: out_quad, turn: [-80.0, 0.0, 0.0]}
+            - {t: 8, turn: [-74.444444, 0.0, 0.0]}
+            - {t: 9, turn: [-71.111111, 0.0, 0.0]}
+            - {t: 10, ease: out_quad, turn: [-70.0, 0.0, 0.0]}
+            - {t: 11, turn: [-51.428571, 0.0, 0.0]}
+            - {t: 12, turn: [-35.714286, 0.0, 0.0]}
+            - {t: 13, turn: [-22.857143, 0.0, 0.0]}
+            - {t: 14, turn: [-12.857143, 0.0, 0.0]}
+            - {t: 15, turn: [-5.714286, 0.0, 0.0]}
+            - {t: 16, turn: [-1.428571, 0.0, 0.0]}
+            - {t: 17, ease: out_quad, turn: [0.0, 0.0, 0.0]}
+        - id: fx1_orrery_crescent_a_staff_swing_10
+          op: track
+          target: fx1_orrery_crescent_a_staff_cable_return
+          space: caster.right_hand
+          keys:
+            - {t: 0, ease: out_quad, turn: [65.0, 0.0, 0.0]}
+            - {t: 1, turn: [84.444444, 0.0, 0.0]}
+            - {t: 2, turn: [96.111111, 0.0, 0.0]}
+            - {t: 3, ease: out_quad, turn: [100.0, 0.0, 0.0]}
+            - {t: 4, turn: [178.75, 0.0, 0.0]}
+            - {t: 5, turn: [-125.0, 0.0, 0.0]}
+            - {t: 6, turn: [-91.25, 0.0, 0.0]}
+            - {t: 7, ease: out_quad, turn: [-80.0, 0.0, 0.0]}
+            - {t: 8, turn: [-74.444444, 0.0, 0.0]}
+            - {t: 9, turn: [-71.111111, 0.0, 0.0]}
+            - {t: 10, ease: out_quad, turn: [-70.0, 0.0, 0.0]}
+            - {t: 11, turn: [-51.428571, 0.0, 0.0]}
+            - {t: 12, turn: [-35.714286, 0.0, 0.0]}
+            - {t: 13, turn: [-22.857143, 0.0, 0.0]}
+            - {t: 14, turn: [-12.857143, 0.0, 0.0]}
+            - {t: 15, turn: [-5.714286, 0.0, 0.0]}
+            - {t: 16, turn: [-1.428571, 0.0, 0.0]}
+            - {t: 17, ease: out_quad, turn: [0.0, 0.0, 0.0]}
     - id: fx20
       at: 20
       do:
@@ -40,7 +393,379 @@ presentation:
             - {from: 0.6, to: 1.0, color: "#ffd447", alpha: 1.0, color_to: "#ff970b"}
           step_deg: 20.0
     - {id: fx29, at: 29, do: [{id: rm, op: remove, ids: [fx1_orrery_crescent_a_staff_fan]}]}
-    - {id: fx48, at: 48, do: [{id: anim_2, op: caster_anim, anim: hide-main-hand}]}
+    - id: fx34
+      at: 34
+      do:
+        - id: rm_2
+          op: remove
+          ids:
+            - fx1_orrery_crescent_a_staff_shaft
+            - fx1_orrery_crescent_a_staff_lower_collar
+            - fx1_orrery_crescent_a_staff_upper_collar
+            - fx1_orrery_crescent_a_staff_emitter_housing
+            - fx1_orrery_crescent_a_staff_emitter_cap
+            - fx1_orrery_crescent_a_staff_emitter_inset_front
+            - fx1_orrery_crescent_a_staff_emitter_inset_back
+            - fx1_orrery_crescent_a_staff_cable_upper
+            - fx1_orrery_crescent_a_staff_cable_drop
+            - fx1_orrery_crescent_a_staff_cable_bottom
+            - fx1_orrery_crescent_a_staff_cable_return
+    - id: fx48
+      at: 48
+      do:
+        - {id: anim_2, op: caster_anim, anim: hide-main-hand}
+        - id: fx3_orrery_crescent_b_staff_shaft
+          op: block
+          parent: fx3_orrery_crescent_b_staff
+          block: black_concrete
+          size: [0.1, 1.9, 0.1]
+          at: [0.0, 0.45, 0.0]
+          pivot: [-0.3, 1.1, 0.3]
+          tilt_turn: [0.0, 0.0, 20.0]
+          rig_shading: true
+        - id: fx3_orrery_crescent_b_staff_lower_collar
+          op: block
+          parent: fx3_orrery_crescent_b_staff
+          block: gray_concrete
+          size: [0.16, 0.12, 0.16]
+          at: [0.0, -0.25, 0.0]
+          pivot: [-0.3, 1.1, 0.3]
+          tilt_turn: [0.0, 0.0, 20.0]
+          rig_shading: true
+        - id: fx3_orrery_crescent_b_staff_upper_collar
+          op: block
+          parent: fx3_orrery_crescent_b_staff
+          block: gray_concrete
+          size: [0.16, 0.12, 0.16]
+          at: [0.0, 1.1, 0.0]
+          pivot: [-0.3, 1.1, 0.3]
+          tilt_turn: [0.0, 0.0, 20.0]
+          rig_shading: true
+        - id: fx3_orrery_crescent_b_staff_emitter_housing
+          op: block
+          parent: fx3_orrery_crescent_b_staff
+          block: black_concrete
+          size: [0.32, 0.65, 0.28]
+          at: [0.0, 1.6, 0.0]
+          pivot: [-0.3, 1.1, 0.3]
+          tilt_turn: [0.0, 0.0, 20.0]
+          rig_shading: true
+        - id: fx3_orrery_crescent_b_staff_emitter_cap
+          op: block
+          parent: fx3_orrery_crescent_b_staff
+          block: gray_concrete
+          size: [0.34, 0.08, 0.3]
+          at: [0.0, 1.95, 0.0]
+          pivot: [-0.3, 1.1, 0.3]
+          tilt_turn: [0.0, 0.0, 20.0]
+          rig_shading: true
+        - id: fx3_orrery_crescent_b_staff_emitter_inset_front
+          op: block
+          parent: fx3_orrery_crescent_b_staff
+          block: orange_concrete
+          size: [0.15, 0.4, 0.025]
+          at: [0.0, 1.6, -0.146]
+          pivot: [-0.3, 1.1, 0.3]
+          tilt_turn: [0.0, 0.0, 20.0]
+          rig_shading: true
+        - id: fx3_orrery_crescent_b_staff_emitter_inset_back
+          op: block
+          parent: fx3_orrery_crescent_b_staff
+          block: orange_concrete
+          size: [0.15, 0.4, 0.025]
+          at: [0.0, 1.6, 0.146]
+          pivot: [-0.3, 1.1, 0.3]
+          tilt_turn: [0.0, 0.0, 20.0]
+          rig_shading: true
+        - id: fx3_orrery_crescent_b_staff_cable_upper
+          op: block
+          parent: fx3_orrery_crescent_b_staff
+          block: black_concrete
+          size: [0.28, 0.07, 0.07]
+          at: [0.27, 1.3, 0.0]
+          pivot: [-0.3, 1.1, 0.3]
+          tilt_turn: [0.0, 0.0, 20.0]
+          rig_shading: true
+        - id: fx3_orrery_crescent_b_staff_cable_drop
+          op: block
+          parent: fx3_orrery_crescent_b_staff
+          block: black_concrete
+          size: [0.07, 1.16, 0.07]
+          at: [0.42, 0.72, 0.0]
+          pivot: [-0.3, 1.1, 0.3]
+          tilt_turn: [0.0, 0.0, 20.0]
+          rig_shading: true
+        - id: fx3_orrery_crescent_b_staff_cable_bottom
+          op: block
+          parent: fx3_orrery_crescent_b_staff
+          block: black_concrete
+          size: [0.25, 0.07, 0.07]
+          at: [0.3, 0.12, 0.0]
+          pivot: [-0.3, 1.1, 0.3]
+          tilt_turn: [0.0, 0.0, 20.0]
+          rig_shading: true
+        - id: fx3_orrery_crescent_b_staff_cable_return
+          op: block
+          parent: fx3_orrery_crescent_b_staff
+          block: black_concrete
+          size: [0.07, 0.35, 0.07]
+          at: [0.16, 0.29, 0.0]
+          pivot: [-0.3, 1.1, 0.3]
+          tilt_turn: [0.0, 0.0, 20.0]
+          rig_shading: true
+        - id: fx3_orrery_crescent_b_staff_swing
+          op: track
+          target: fx3_orrery_crescent_b_staff_shaft
+          space: caster.right_hand
+          keys:
+            - {t: 0, ease: out_quad, turn: [-65.0, 0.0, 0.0]}
+            - {t: 1, turn: [-73.333333, 0.0, 0.0]}
+            - {t: 2, turn: [-78.333333, 0.0, 0.0]}
+            - {t: 3, ease: out_quad, turn: [-80.0, 0.0, 0.0]}
+            - {t: 4, turn: [-1.25, 0.0, 0.0]}
+            - {t: 5, turn: [55.0, 0.0, 0.0]}
+            - {t: 6, turn: [88.75, 0.0, 0.0]}
+            - {t: 7, ease: out_quad, turn: [100.0, 0.0, 0.0]}
+            - {t: 8, turn: [105.555556, 0.0, 0.0]}
+            - {t: 9, turn: [108.888889, 0.0, 0.0]}
+            - {t: 10, ease: out_quad, turn: [110.0, 0.0, 0.0]}
+            - {t: 11, turn: [87.44898, 0.0, 0.0]}
+            - {t: 12, turn: [68.367347, 0.0, 0.0]}
+            - {t: 13, turn: [52.755102, 0.0, 0.0]}
+            - {t: 14, turn: [40.612245, 0.0, 0.0]}
+            - {t: 15, turn: [31.938776, 0.0, 0.0]}
+            - {t: 16, turn: [26.734694, 0.0, 0.0]}
+            - {t: 17, ease: out_quad, turn: [25.0, 0.0, 0.0]}
+        - id: fx3_orrery_crescent_b_staff_swing_1
+          op: track
+          target: fx3_orrery_crescent_b_staff_lower_collar
+          space: caster.right_hand
+          keys:
+            - {t: 0, ease: out_quad, turn: [-65.0, 0.0, 0.0]}
+            - {t: 1, turn: [-73.333333, 0.0, 0.0]}
+            - {t: 2, turn: [-78.333333, 0.0, 0.0]}
+            - {t: 3, ease: out_quad, turn: [-80.0, 0.0, 0.0]}
+            - {t: 4, turn: [-1.25, 0.0, 0.0]}
+            - {t: 5, turn: [55.0, 0.0, 0.0]}
+            - {t: 6, turn: [88.75, 0.0, 0.0]}
+            - {t: 7, ease: out_quad, turn: [100.0, 0.0, 0.0]}
+            - {t: 8, turn: [105.555556, 0.0, 0.0]}
+            - {t: 9, turn: [108.888889, 0.0, 0.0]}
+            - {t: 10, ease: out_quad, turn: [110.0, 0.0, 0.0]}
+            - {t: 11, turn: [87.44898, 0.0, 0.0]}
+            - {t: 12, turn: [68.367347, 0.0, 0.0]}
+            - {t: 13, turn: [52.755102, 0.0, 0.0]}
+            - {t: 14, turn: [40.612245, 0.0, 0.0]}
+            - {t: 15, turn: [31.938776, 0.0, 0.0]}
+            - {t: 16, turn: [26.734694, 0.0, 0.0]}
+            - {t: 17, ease: out_quad, turn: [25.0, 0.0, 0.0]}
+        - id: fx3_orrery_crescent_b_staff_swing_2
+          op: track
+          target: fx3_orrery_crescent_b_staff_upper_collar
+          space: caster.right_hand
+          keys:
+            - {t: 0, ease: out_quad, turn: [-65.0, 0.0, 0.0]}
+            - {t: 1, turn: [-73.333333, 0.0, 0.0]}
+            - {t: 2, turn: [-78.333333, 0.0, 0.0]}
+            - {t: 3, ease: out_quad, turn: [-80.0, 0.0, 0.0]}
+            - {t: 4, turn: [-1.25, 0.0, 0.0]}
+            - {t: 5, turn: [55.0, 0.0, 0.0]}
+            - {t: 6, turn: [88.75, 0.0, 0.0]}
+            - {t: 7, ease: out_quad, turn: [100.0, 0.0, 0.0]}
+            - {t: 8, turn: [105.555556, 0.0, 0.0]}
+            - {t: 9, turn: [108.888889, 0.0, 0.0]}
+            - {t: 10, ease: out_quad, turn: [110.0, 0.0, 0.0]}
+            - {t: 11, turn: [87.44898, 0.0, 0.0]}
+            - {t: 12, turn: [68.367347, 0.0, 0.0]}
+            - {t: 13, turn: [52.755102, 0.0, 0.0]}
+            - {t: 14, turn: [40.612245, 0.0, 0.0]}
+            - {t: 15, turn: [31.938776, 0.0, 0.0]}
+            - {t: 16, turn: [26.734694, 0.0, 0.0]}
+            - {t: 17, ease: out_quad, turn: [25.0, 0.0, 0.0]}
+        - id: fx3_orrery_crescent_b_staff_swing_3
+          op: track
+          target: fx3_orrery_crescent_b_staff_emitter_housing
+          space: caster.right_hand
+          keys:
+            - {t: 0, ease: out_quad, turn: [-65.0, 0.0, 0.0]}
+            - {t: 1, turn: [-73.333333, 0.0, 0.0]}
+            - {t: 2, turn: [-78.333333, 0.0, 0.0]}
+            - {t: 3, ease: out_quad, turn: [-80.0, 0.0, 0.0]}
+            - {t: 4, turn: [-1.25, 0.0, 0.0]}
+            - {t: 5, turn: [55.0, 0.0, 0.0]}
+            - {t: 6, turn: [88.75, 0.0, 0.0]}
+            - {t: 7, ease: out_quad, turn: [100.0, 0.0, 0.0]}
+            - {t: 8, turn: [105.555556, 0.0, 0.0]}
+            - {t: 9, turn: [108.888889, 0.0, 0.0]}
+            - {t: 10, ease: out_quad, turn: [110.0, 0.0, 0.0]}
+            - {t: 11, turn: [87.44898, 0.0, 0.0]}
+            - {t: 12, turn: [68.367347, 0.0, 0.0]}
+            - {t: 13, turn: [52.755102, 0.0, 0.0]}
+            - {t: 14, turn: [40.612245, 0.0, 0.0]}
+            - {t: 15, turn: [31.938776, 0.0, 0.0]}
+            - {t: 16, turn: [26.734694, 0.0, 0.0]}
+            - {t: 17, ease: out_quad, turn: [25.0, 0.0, 0.0]}
+        - id: fx3_orrery_crescent_b_staff_swing_4
+          op: track
+          target: fx3_orrery_crescent_b_staff_emitter_cap
+          space: caster.right_hand
+          keys:
+            - {t: 0, ease: out_quad, turn: [-65.0, 0.0, 0.0]}
+            - {t: 1, turn: [-73.333333, 0.0, 0.0]}
+            - {t: 2, turn: [-78.333333, 0.0, 0.0]}
+            - {t: 3, ease: out_quad, turn: [-80.0, 0.0, 0.0]}
+            - {t: 4, turn: [-1.25, 0.0, 0.0]}
+            - {t: 5, turn: [55.0, 0.0, 0.0]}
+            - {t: 6, turn: [88.75, 0.0, 0.0]}
+            - {t: 7, ease: out_quad, turn: [100.0, 0.0, 0.0]}
+            - {t: 8, turn: [105.555556, 0.0, 0.0]}
+            - {t: 9, turn: [108.888889, 0.0, 0.0]}
+            - {t: 10, ease: out_quad, turn: [110.0, 0.0, 0.0]}
+            - {t: 11, turn: [87.44898, 0.0, 0.0]}
+            - {t: 12, turn: [68.367347, 0.0, 0.0]}
+            - {t: 13, turn: [52.755102, 0.0, 0.0]}
+            - {t: 14, turn: [40.612245, 0.0, 0.0]}
+            - {t: 15, turn: [31.938776, 0.0, 0.0]}
+            - {t: 16, turn: [26.734694, 0.0, 0.0]}
+            - {t: 17, ease: out_quad, turn: [25.0, 0.0, 0.0]}
+        - id: fx3_orrery_crescent_b_staff_swing_5
+          op: track
+          target: fx3_orrery_crescent_b_staff_emitter_inset_front
+          space: caster.right_hand
+          keys:
+            - {t: 0, ease: out_quad, turn: [-65.0, 0.0, 0.0]}
+            - {t: 1, turn: [-73.333333, 0.0, 0.0]}
+            - {t: 2, turn: [-78.333333, 0.0, 0.0]}
+            - {t: 3, ease: out_quad, turn: [-80.0, 0.0, 0.0]}
+            - {t: 4, turn: [-1.25, 0.0, 0.0]}
+            - {t: 5, turn: [55.0, 0.0, 0.0]}
+            - {t: 6, turn: [88.75, 0.0, 0.0]}
+            - {t: 7, ease: out_quad, turn: [100.0, 0.0, 0.0]}
+            - {t: 8, turn: [105.555556, 0.0, 0.0]}
+            - {t: 9, turn: [108.888889, 0.0, 0.0]}
+            - {t: 10, ease: out_quad, turn: [110.0, 0.0, 0.0]}
+            - {t: 11, turn: [87.44898, 0.0, 0.0]}
+            - {t: 12, turn: [68.367347, 0.0, 0.0]}
+            - {t: 13, turn: [52.755102, 0.0, 0.0]}
+            - {t: 14, turn: [40.612245, 0.0, 0.0]}
+            - {t: 15, turn: [31.938776, 0.0, 0.0]}
+            - {t: 16, turn: [26.734694, 0.0, 0.0]}
+            - {t: 17, ease: out_quad, turn: [25.0, 0.0, 0.0]}
+        - id: fx3_orrery_crescent_b_staff_swing_6
+          op: track
+          target: fx3_orrery_crescent_b_staff_emitter_inset_back
+          space: caster.right_hand
+          keys:
+            - {t: 0, ease: out_quad, turn: [-65.0, 0.0, 0.0]}
+            - {t: 1, turn: [-73.333333, 0.0, 0.0]}
+            - {t: 2, turn: [-78.333333, 0.0, 0.0]}
+            - {t: 3, ease: out_quad, turn: [-80.0, 0.0, 0.0]}
+            - {t: 4, turn: [-1.25, 0.0, 0.0]}
+            - {t: 5, turn: [55.0, 0.0, 0.0]}
+            - {t: 6, turn: [88.75, 0.0, 0.0]}
+            - {t: 7, ease: out_quad, turn: [100.0, 0.0, 0.0]}
+            - {t: 8, turn: [105.555556, 0.0, 0.0]}
+            - {t: 9, turn: [108.888889, 0.0, 0.0]}
+            - {t: 10, ease: out_quad, turn: [110.0, 0.0, 0.0]}
+            - {t: 11, turn: [87.44898, 0.0, 0.0]}
+            - {t: 12, turn: [68.367347, 0.0, 0.0]}
+            - {t: 13, turn: [52.755102, 0.0, 0.0]}
+            - {t: 14, turn: [40.612245, 0.0, 0.0]}
+            - {t: 15, turn: [31.938776, 0.0, 0.0]}
+            - {t: 16, turn: [26.734694, 0.0, 0.0]}
+            - {t: 17, ease: out_quad, turn: [25.0, 0.0, 0.0]}
+        - id: fx3_orrery_crescent_b_staff_swing_7
+          op: track
+          target: fx3_orrery_crescent_b_staff_cable_upper
+          space: caster.right_hand
+          keys:
+            - {t: 0, ease: out_quad, turn: [-65.0, 0.0, 0.0]}
+            - {t: 1, turn: [-73.333333, 0.0, 0.0]}
+            - {t: 2, turn: [-78.333333, 0.0, 0.0]}
+            - {t: 3, ease: out_quad, turn: [-80.0, 0.0, 0.0]}
+            - {t: 4, turn: [-1.25, 0.0, 0.0]}
+            - {t: 5, turn: [55.0, 0.0, 0.0]}
+            - {t: 6, turn: [88.75, 0.0, 0.0]}
+            - {t: 7, ease: out_quad, turn: [100.0, 0.0, 0.0]}
+            - {t: 8, turn: [105.555556, 0.0, 0.0]}
+            - {t: 9, turn: [108.888889, 0.0, 0.0]}
+            - {t: 10, ease: out_quad, turn: [110.0, 0.0, 0.0]}
+            - {t: 11, turn: [87.44898, 0.0, 0.0]}
+            - {t: 12, turn: [68.367347, 0.0, 0.0]}
+            - {t: 13, turn: [52.755102, 0.0, 0.0]}
+            - {t: 14, turn: [40.612245, 0.0, 0.0]}
+            - {t: 15, turn: [31.938776, 0.0, 0.0]}
+            - {t: 16, turn: [26.734694, 0.0, 0.0]}
+            - {t: 17, ease: out_quad, turn: [25.0, 0.0, 0.0]}
+        - id: fx3_orrery_crescent_b_staff_swing_8
+          op: track
+          target: fx3_orrery_crescent_b_staff_cable_drop
+          space: caster.right_hand
+          keys:
+            - {t: 0, ease: out_quad, turn: [-65.0, 0.0, 0.0]}
+            - {t: 1, turn: [-73.333333, 0.0, 0.0]}
+            - {t: 2, turn: [-78.333333, 0.0, 0.0]}
+            - {t: 3, ease: out_quad, turn: [-80.0, 0.0, 0.0]}
+            - {t: 4, turn: [-1.25, 0.0, 0.0]}
+            - {t: 5, turn: [55.0, 0.0, 0.0]}
+            - {t: 6, turn: [88.75, 0.0, 0.0]}
+            - {t: 7, ease: out_quad, turn: [100.0, 0.0, 0.0]}
+            - {t: 8, turn: [105.555556, 0.0, 0.0]}
+            - {t: 9, turn: [108.888889, 0.0, 0.0]}
+            - {t: 10, ease: out_quad, turn: [110.0, 0.0, 0.0]}
+            - {t: 11, turn: [87.44898, 0.0, 0.0]}
+            - {t: 12, turn: [68.367347, 0.0, 0.0]}
+            - {t: 13, turn: [52.755102, 0.0, 0.0]}
+            - {t: 14, turn: [40.612245, 0.0, 0.0]}
+            - {t: 15, turn: [31.938776, 0.0, 0.0]}
+            - {t: 16, turn: [26.734694, 0.0, 0.0]}
+            - {t: 17, ease: out_quad, turn: [25.0, 0.0, 0.0]}
+        - id: fx3_orrery_crescent_b_staff_swing_9
+          op: track
+          target: fx3_orrery_crescent_b_staff_cable_bottom
+          space: caster.right_hand
+          keys:
+            - {t: 0, ease: out_quad, turn: [-65.0, 0.0, 0.0]}
+            - {t: 1, turn: [-73.333333, 0.0, 0.0]}
+            - {t: 2, turn: [-78.333333, 0.0, 0.0]}
+            - {t: 3, ease: out_quad, turn: [-80.0, 0.0, 0.0]}
+            - {t: 4, turn: [-1.25, 0.0, 0.0]}
+            - {t: 5, turn: [55.0, 0.0, 0.0]}
+            - {t: 6, turn: [88.75, 0.0, 0.0]}
+            - {t: 7, ease: out_quad, turn: [100.0, 0.0, 0.0]}
+            - {t: 8, turn: [105.555556, 0.0, 0.0]}
+            - {t: 9, turn: [108.888889, 0.0, 0.0]}
+            - {t: 10, ease: out_quad, turn: [110.0, 0.0, 0.0]}
+            - {t: 11, turn: [87.44898, 0.0, 0.0]}
+            - {t: 12, turn: [68.367347, 0.0, 0.0]}
+            - {t: 13, turn: [52.755102, 0.0, 0.0]}
+            - {t: 14, turn: [40.612245, 0.0, 0.0]}
+            - {t: 15, turn: [31.938776, 0.0, 0.0]}
+            - {t: 16, turn: [26.734694, 0.0, 0.0]}
+            - {t: 17, ease: out_quad, turn: [25.0, 0.0, 0.0]}
+        - id: fx3_orrery_crescent_b_staff_swing_10
+          op: track
+          target: fx3_orrery_crescent_b_staff_cable_return
+          space: caster.right_hand
+          keys:
+            - {t: 0, ease: out_quad, turn: [-65.0, 0.0, 0.0]}
+            - {t: 1, turn: [-73.333333, 0.0, 0.0]}
+            - {t: 2, turn: [-78.333333, 0.0, 0.0]}
+            - {t: 3, ease: out_quad, turn: [-80.0, 0.0, 0.0]}
+            - {t: 4, turn: [-1.25, 0.0, 0.0]}
+            - {t: 5, turn: [55.0, 0.0, 0.0]}
+            - {t: 6, turn: [88.75, 0.0, 0.0]}
+            - {t: 7, ease: out_quad, turn: [100.0, 0.0, 0.0]}
+            - {t: 8, turn: [105.555556, 0.0, 0.0]}
+            - {t: 9, turn: [108.888889, 0.0, 0.0]}
+            - {t: 10, ease: out_quad, turn: [110.0, 0.0, 0.0]}
+            - {t: 11, turn: [87.44898, 0.0, 0.0]}
+            - {t: 12, turn: [68.367347, 0.0, 0.0]}
+            - {t: 13, turn: [52.755102, 0.0, 0.0]}
+            - {t: 14, turn: [40.612245, 0.0, 0.0]}
+            - {t: 15, turn: [31.938776, 0.0, 0.0]}
+            - {t: 16, turn: [26.734694, 0.0, 0.0]}
+            - {t: 17, ease: out_quad, turn: [25.0, 0.0, 0.0]}
     - id: fx51
       at: 51
       do:
@@ -54,17 +779,34 @@ presentation:
             - {from: 0.0, to: 0.65, color: "#dc820d", alpha: 0.439, color_to: "#4e2710"}
             - {from: 0.65, to: 1.0, color: "#ffd447", alpha: 1.0, color_to: "#ff970b"}
           step_deg: 20.0
-    - {id: fx60, at: 60, do: [{id: rm_4, op: remove, ids: [fx3_orrery_crescent_b_staff_fan]}]}
+    - {id: fx60, at: 60, do: [{id: rm_5, op: remove, ids: [fx3_orrery_crescent_b_staff_fan]}]}
+    - id: fx65
+      at: 65
+      do:
+        - id: rm_6
+          op: remove
+          ids:
+            - fx3_orrery_crescent_b_staff_shaft
+            - fx3_orrery_crescent_b_staff_lower_collar
+            - fx3_orrery_crescent_b_staff_upper_collar
+            - fx3_orrery_crescent_b_staff_emitter_housing
+            - fx3_orrery_crescent_b_staff_emitter_cap
+            - fx3_orrery_crescent_b_staff_emitter_inset_front
+            - fx3_orrery_crescent_b_staff_emitter_inset_back
+            - fx3_orrery_crescent_b_staff_cable_upper
+            - fx3_orrery_crescent_b_staff_cable_drop
+            - fx3_orrery_crescent_b_staff_cable_bottom
+            - fx3_orrery_crescent_b_staff_cable_return
     - id: fxhit_8
       at: "hit+8"
       do:
-        - {id: rm_2, op: remove, ids: [fx2_orrery_ring_hit_violet_core], when: "= event.source == 'sel'"}
-        - {id: rm_5, op: remove, ids: [fx4_orrery_ring_hit_violet_core], when: "= event.source == 'sel_2'"}
+        - {id: rm_3, op: remove, ids: [fx2_orrery_ring_hit_violet_core], when: "= event.source == 'sel'"}
+        - {id: rm_7, op: remove, ids: [fx4_orrery_ring_hit_violet_core], when: "= event.source == 'sel_2'"}
     - id: fxhit_10
       at: "hit+10"
       do:
-        - {id: rm_3, op: remove, ids: [fx2_orrery_ring_hit_shard], when: "= event.source == 'sel'"}
-        - {id: rm_6, op: remove, ids: [fx4_orrery_ring_hit_shard], when: "= event.source == 'sel_2'"}
+        - {id: rm_4, op: remove, ids: [fx2_orrery_ring_hit_shard], when: "= event.source == 'sel'"}
+        - {id: rm_8, op: remove, ids: [fx4_orrery_ring_hit_shard], when: "= event.source == 'sel_2'"}
     - {id: loop1, at: 17, every: 1, for: 8, do: [{id: fx1_orrery_crescent_a_staff_embers, op: emit, at: pt_fx1_orrery_crescent_a_staff_0_1p65_0, particle: orrery-ember}]}
     - {id: loop2, at: 48, every: 1, for: 8, do: [{id: fx3_orrery_crescent_b_staff_embers, op: emit, at: pt_fx3_orrery_crescent_b_staff_0_1p65_0, particle: orrery-ember}]}
   "on":

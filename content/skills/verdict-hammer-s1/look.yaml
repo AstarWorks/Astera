@@ -3,8 +3,6 @@
 # CONVERT-PRESENT vfx follow=false (anchored at world, no place-at-spawn) (x3): verdict-s1-gavel | verdict-impact
 # CONVERT-PRESENT vfx frame orient (frames carry no orientation / scale) (x3): orient="yaw" | orient="world"
 # CONVERT-PRESENT rig respect_hit_stop / weapon points (x2): {"respect_hit_stop": true}
-# CONVERT-PRESENT rig block parts (mesh takes an item model, not a block + size) (x2): 6 parts
-# CONVERT-PRESENT rig swing without a weapon mesh (track needs a visual to move) (x2): 21 keys
 # CONVERT-PRESENT presentation inside a nested gameplay list (dash on_hit has no event hook) (x2): play_vfx | play_sound
 apiVersion: "astera/v2"
 kind: Skill
@@ -21,6 +19,225 @@ frames:
   - {id: pt_fx3_verdict_s1_echo_hammer_0_3_0, kind: point, parent: fx3_verdict_s1_echo_hammer, offset: [0.0, 3.0, 0.0]}
 presentation:
   timeline:
+    - id: fx0
+      at: 0
+      do:
+        - id: fx1_verdict_s1_gavel_hammer_haft
+          op: block
+          parent: fx1_verdict_s1_gavel_hammer
+          block: black_concrete
+          size: [0.12, 1.8, 0.12]
+          at: [0.0, 0.8, 0.0]
+          pivot: [-0.25, 1.6, 0.15]
+          rest_turn: [90.0, 0.0, 0.0]
+          tilt_turn: [0.0, 0.0, 40.0]
+          brightness: 15
+        - id: fx1_verdict_s1_gavel_hammer_head
+          op: block
+          parent: fx1_verdict_s1_gavel_hammer
+          block: black_concrete
+          size: [1.2, 0.7, 0.65]
+          at: [0.0, 2.0, 0.0]
+          pivot: [-0.25, 1.6, 0.15]
+          rest_turn: [90.0, 0.0, 0.0]
+          tilt_turn: [0.0, 0.0, 40.0]
+          brightness: 15
+        - id: fx1_verdict_s1_gavel_hammer_cap_0_53
+          op: block
+          parent: fx1_verdict_s1_gavel_hammer
+          block: yellow_concrete
+          size: [0.12, 0.74, 0.69]
+          at: [-0.53, 2.0, 0.0]
+          pivot: [-0.25, 1.6, 0.15]
+          rest_turn: [90.0, 0.0, 0.0]
+          tilt_turn: [0.0, 0.0, 40.0]
+          brightness: 15
+        - id: fx1_verdict_s1_gavel_hammer_cap0_53
+          op: block
+          parent: fx1_verdict_s1_gavel_hammer
+          block: yellow_concrete
+          size: [0.12, 0.74, 0.69]
+          at: [0.53, 2.0, 0.0]
+          pivot: [-0.25, 1.6, 0.15]
+          rest_turn: [90.0, 0.0, 0.0]
+          tilt_turn: [0.0, 0.0, 40.0]
+          brightness: 15
+        - id: fx1_verdict_s1_gavel_hammer_stripe1_78
+          op: block
+          parent: fx1_verdict_s1_gavel_hammer
+          block: yellow_concrete
+          size: [1.05, 0.045, 0.02]
+          at: [0.0, 1.78, 0.34]
+          pivot: [-0.25, 1.6, 0.15]
+          rest_turn: [90.0, 0.0, 0.0]
+          tilt_turn: [0.0, 0.0, 40.0]
+          brightness: 15
+        - id: fx1_verdict_s1_gavel_hammer_stripe2_22
+          op: block
+          parent: fx1_verdict_s1_gavel_hammer
+          block: yellow_concrete
+          size: [1.05, 0.045, 0.02]
+          at: [0.0, 2.22, 0.34]
+          pivot: [-0.25, 1.6, 0.15]
+          rest_turn: [90.0, 0.0, 0.0]
+          tilt_turn: [0.0, 0.0, 40.0]
+          brightness: 15
+        - id: fx1_verdict_s1_gavel_hammer_swing
+          op: track
+          target: fx1_verdict_s1_gavel_hammer_haft
+          space: caster.right_hand
+          keys:
+            - {t: 0, turn: [0.0, -110.0, 0.0]}
+            - {t: 1, turn: [0.0, -111.2, 0.0]}
+            - {t: 2, turn: [0.0, -114.8, 0.0]}
+            - {t: 3, turn: [0.0, -120.2, 0.0]}
+            - {t: 4, turn: [0.0, -123.8, 0.0]}
+            - {t: 5, ease: in_out_quad, turn: [0.0, -125.0, 0.0]}
+            - {t: 6, turn: [0.0, -6.875, 0.0]}
+            - {t: 7, turn: [0.0, 77.5, 0.0]}
+            - {t: 8, turn: [0.0, 128.125, 0.0]}
+            - {t: 9, ease: out_quad, turn: [0.0, 145.0, 0.0]}
+            - {t: 10, turn: [0.0, 148.75, 0.0]}
+            - {t: 11, turn: [0.0, 152.5, 0.0]}
+            - {t: 12, turn: [0.0, 156.25, 0.0]}
+            - {t: 13, turn: [0.0, 160.0, 0.0]}
+            - {t: 14, turn: [0.0, 171.107872, 0.0]}
+            - {t: 15, turn: [0.0, 179.067055, 0.0]}
+            - {t: 16, turn: [0.0, -175.597668, 0.0]}
+            - {t: 17, turn: [0.0, -172.361516, 0.0]}
+            - {t: 18, turn: [0.0, -170.699708, 0.0]}
+            - {t: 19, turn: [0.0, -170.087464, 0.0]}
+            - {t: 20, ease: out_cubic, turn: [0.0, -170.0, 0.0]}
+        - id: fx1_verdict_s1_gavel_hammer_swing_1
+          op: track
+          target: fx1_verdict_s1_gavel_hammer_head
+          space: caster.right_hand
+          keys:
+            - {t: 0, turn: [0.0, -110.0, 0.0]}
+            - {t: 1, turn: [0.0, -111.2, 0.0]}
+            - {t: 2, turn: [0.0, -114.8, 0.0]}
+            - {t: 3, turn: [0.0, -120.2, 0.0]}
+            - {t: 4, turn: [0.0, -123.8, 0.0]}
+            - {t: 5, ease: in_out_quad, turn: [0.0, -125.0, 0.0]}
+            - {t: 6, turn: [0.0, -6.875, 0.0]}
+            - {t: 7, turn: [0.0, 77.5, 0.0]}
+            - {t: 8, turn: [0.0, 128.125, 0.0]}
+            - {t: 9, ease: out_quad, turn: [0.0, 145.0, 0.0]}
+            - {t: 10, turn: [0.0, 148.75, 0.0]}
+            - {t: 11, turn: [0.0, 152.5, 0.0]}
+            - {t: 12, turn: [0.0, 156.25, 0.0]}
+            - {t: 13, turn: [0.0, 160.0, 0.0]}
+            - {t: 14, turn: [0.0, 171.107872, 0.0]}
+            - {t: 15, turn: [0.0, 179.067055, 0.0]}
+            - {t: 16, turn: [0.0, -175.597668, 0.0]}
+            - {t: 17, turn: [0.0, -172.361516, 0.0]}
+            - {t: 18, turn: [0.0, -170.699708, 0.0]}
+            - {t: 19, turn: [0.0, -170.087464, 0.0]}
+            - {t: 20, ease: out_cubic, turn: [0.0, -170.0, 0.0]}
+        - id: fx1_verdict_s1_gavel_hammer_swing_2
+          op: track
+          target: fx1_verdict_s1_gavel_hammer_cap_0_53
+          space: caster.right_hand
+          keys:
+            - {t: 0, turn: [0.0, -110.0, 0.0]}
+            - {t: 1, turn: [0.0, -111.2, 0.0]}
+            - {t: 2, turn: [0.0, -114.8, 0.0]}
+            - {t: 3, turn: [0.0, -120.2, 0.0]}
+            - {t: 4, turn: [0.0, -123.8, 0.0]}
+            - {t: 5, ease: in_out_quad, turn: [0.0, -125.0, 0.0]}
+            - {t: 6, turn: [0.0, -6.875, 0.0]}
+            - {t: 7, turn: [0.0, 77.5, 0.0]}
+            - {t: 8, turn: [0.0, 128.125, 0.0]}
+            - {t: 9, ease: out_quad, turn: [0.0, 145.0, 0.0]}
+            - {t: 10, turn: [0.0, 148.75, 0.0]}
+            - {t: 11, turn: [0.0, 152.5, 0.0]}
+            - {t: 12, turn: [0.0, 156.25, 0.0]}
+            - {t: 13, turn: [0.0, 160.0, 0.0]}
+            - {t: 14, turn: [0.0, 171.107872, 0.0]}
+            - {t: 15, turn: [0.0, 179.067055, 0.0]}
+            - {t: 16, turn: [0.0, -175.597668, 0.0]}
+            - {t: 17, turn: [0.0, -172.361516, 0.0]}
+            - {t: 18, turn: [0.0, -170.699708, 0.0]}
+            - {t: 19, turn: [0.0, -170.087464, 0.0]}
+            - {t: 20, ease: out_cubic, turn: [0.0, -170.0, 0.0]}
+        - id: fx1_verdict_s1_gavel_hammer_swing_3
+          op: track
+          target: fx1_verdict_s1_gavel_hammer_cap0_53
+          space: caster.right_hand
+          keys:
+            - {t: 0, turn: [0.0, -110.0, 0.0]}
+            - {t: 1, turn: [0.0, -111.2, 0.0]}
+            - {t: 2, turn: [0.0, -114.8, 0.0]}
+            - {t: 3, turn: [0.0, -120.2, 0.0]}
+            - {t: 4, turn: [0.0, -123.8, 0.0]}
+            - {t: 5, ease: in_out_quad, turn: [0.0, -125.0, 0.0]}
+            - {t: 6, turn: [0.0, -6.875, 0.0]}
+            - {t: 7, turn: [0.0, 77.5, 0.0]}
+            - {t: 8, turn: [0.0, 128.125, 0.0]}
+            - {t: 9, ease: out_quad, turn: [0.0, 145.0, 0.0]}
+            - {t: 10, turn: [0.0, 148.75, 0.0]}
+            - {t: 11, turn: [0.0, 152.5, 0.0]}
+            - {t: 12, turn: [0.0, 156.25, 0.0]}
+            - {t: 13, turn: [0.0, 160.0, 0.0]}
+            - {t: 14, turn: [0.0, 171.107872, 0.0]}
+            - {t: 15, turn: [0.0, 179.067055, 0.0]}
+            - {t: 16, turn: [0.0, -175.597668, 0.0]}
+            - {t: 17, turn: [0.0, -172.361516, 0.0]}
+            - {t: 18, turn: [0.0, -170.699708, 0.0]}
+            - {t: 19, turn: [0.0, -170.087464, 0.0]}
+            - {t: 20, ease: out_cubic, turn: [0.0, -170.0, 0.0]}
+        - id: fx1_verdict_s1_gavel_hammer_swing_4
+          op: track
+          target: fx1_verdict_s1_gavel_hammer_stripe1_78
+          space: caster.right_hand
+          keys:
+            - {t: 0, turn: [0.0, -110.0, 0.0]}
+            - {t: 1, turn: [0.0, -111.2, 0.0]}
+            - {t: 2, turn: [0.0, -114.8, 0.0]}
+            - {t: 3, turn: [0.0, -120.2, 0.0]}
+            - {t: 4, turn: [0.0, -123.8, 0.0]}
+            - {t: 5, ease: in_out_quad, turn: [0.0, -125.0, 0.0]}
+            - {t: 6, turn: [0.0, -6.875, 0.0]}
+            - {t: 7, turn: [0.0, 77.5, 0.0]}
+            - {t: 8, turn: [0.0, 128.125, 0.0]}
+            - {t: 9, ease: out_quad, turn: [0.0, 145.0, 0.0]}
+            - {t: 10, turn: [0.0, 148.75, 0.0]}
+            - {t: 11, turn: [0.0, 152.5, 0.0]}
+            - {t: 12, turn: [0.0, 156.25, 0.0]}
+            - {t: 13, turn: [0.0, 160.0, 0.0]}
+            - {t: 14, turn: [0.0, 171.107872, 0.0]}
+            - {t: 15, turn: [0.0, 179.067055, 0.0]}
+            - {t: 16, turn: [0.0, -175.597668, 0.0]}
+            - {t: 17, turn: [0.0, -172.361516, 0.0]}
+            - {t: 18, turn: [0.0, -170.699708, 0.0]}
+            - {t: 19, turn: [0.0, -170.087464, 0.0]}
+            - {t: 20, ease: out_cubic, turn: [0.0, -170.0, 0.0]}
+        - id: fx1_verdict_s1_gavel_hammer_swing_5
+          op: track
+          target: fx1_verdict_s1_gavel_hammer_stripe2_22
+          space: caster.right_hand
+          keys:
+            - {t: 0, turn: [0.0, -110.0, 0.0]}
+            - {t: 1, turn: [0.0, -111.2, 0.0]}
+            - {t: 2, turn: [0.0, -114.8, 0.0]}
+            - {t: 3, turn: [0.0, -120.2, 0.0]}
+            - {t: 4, turn: [0.0, -123.8, 0.0]}
+            - {t: 5, ease: in_out_quad, turn: [0.0, -125.0, 0.0]}
+            - {t: 6, turn: [0.0, -6.875, 0.0]}
+            - {t: 7, turn: [0.0, 77.5, 0.0]}
+            - {t: 8, turn: [0.0, 128.125, 0.0]}
+            - {t: 9, ease: out_quad, turn: [0.0, 145.0, 0.0]}
+            - {t: 10, turn: [0.0, 148.75, 0.0]}
+            - {t: 11, turn: [0.0, 152.5, 0.0]}
+            - {t: 12, turn: [0.0, 156.25, 0.0]}
+            - {t: 13, turn: [0.0, 160.0, 0.0]}
+            - {t: 14, turn: [0.0, 171.107872, 0.0]}
+            - {t: 15, turn: [0.0, 179.067055, 0.0]}
+            - {t: 16, turn: [0.0, -175.597668, 0.0]}
+            - {t: 17, turn: [0.0, -172.361516, 0.0]}
+            - {t: 18, turn: [0.0, -170.699708, 0.0]}
+            - {t: 19, turn: [0.0, -170.087464, 0.0]}
+            - {t: 20, ease: out_cubic, turn: [0.0, -170.0, 0.0]}
     - id: fx5
       at: 5
       do:
@@ -34,6 +251,225 @@ presentation:
             - {from: 0.85, to: 1.0, color: "#fff4c7", alpha: 0.937, color_to: "#d5ac60"}
           step_deg: 18.0
     - {id: fx15, at: 15, do: [{id: rm, op: remove, ids: [fx1_verdict_s1_gavel_hammer_gold_fan]}]}
+    - id: fx16
+      at: 16
+      do:
+        - id: fx3_verdict_s1_echo_hammer_haft
+          op: block
+          parent: fx3_verdict_s1_echo_hammer
+          block: black_concrete
+          size: [0.12, 1.8, 0.12]
+          at: [0.0, 0.8, 0.0]
+          pivot: [-0.25, 1.6, 0.15]
+          rest_turn: [90.0, 0.0, 0.0]
+          tilt_turn: [0.0, 0.0, 40.0]
+          brightness: 15
+        - id: fx3_verdict_s1_echo_hammer_head
+          op: block
+          parent: fx3_verdict_s1_echo_hammer
+          block: black_concrete
+          size: [1.2, 0.7, 0.65]
+          at: [0.0, 2.0, 0.0]
+          pivot: [-0.25, 1.6, 0.15]
+          rest_turn: [90.0, 0.0, 0.0]
+          tilt_turn: [0.0, 0.0, 40.0]
+          brightness: 15
+        - id: fx3_verdict_s1_echo_hammer_cap_0_53
+          op: block
+          parent: fx3_verdict_s1_echo_hammer
+          block: yellow_concrete
+          size: [0.12, 0.74, 0.69]
+          at: [-0.53, 2.0, 0.0]
+          pivot: [-0.25, 1.6, 0.15]
+          rest_turn: [90.0, 0.0, 0.0]
+          tilt_turn: [0.0, 0.0, 40.0]
+          brightness: 15
+        - id: fx3_verdict_s1_echo_hammer_cap0_53
+          op: block
+          parent: fx3_verdict_s1_echo_hammer
+          block: yellow_concrete
+          size: [0.12, 0.74, 0.69]
+          at: [0.53, 2.0, 0.0]
+          pivot: [-0.25, 1.6, 0.15]
+          rest_turn: [90.0, 0.0, 0.0]
+          tilt_turn: [0.0, 0.0, 40.0]
+          brightness: 15
+        - id: fx3_verdict_s1_echo_hammer_stripe1_78
+          op: block
+          parent: fx3_verdict_s1_echo_hammer
+          block: yellow_concrete
+          size: [1.05, 0.045, 0.02]
+          at: [0.0, 1.78, 0.34]
+          pivot: [-0.25, 1.6, 0.15]
+          rest_turn: [90.0, 0.0, 0.0]
+          tilt_turn: [0.0, 0.0, 40.0]
+          brightness: 15
+        - id: fx3_verdict_s1_echo_hammer_stripe2_22
+          op: block
+          parent: fx3_verdict_s1_echo_hammer
+          block: yellow_concrete
+          size: [1.05, 0.045, 0.02]
+          at: [0.0, 2.22, 0.34]
+          pivot: [-0.25, 1.6, 0.15]
+          rest_turn: [90.0, 0.0, 0.0]
+          tilt_turn: [0.0, 0.0, 40.0]
+          brightness: 15
+        - id: fx3_verdict_s1_echo_hammer_swing
+          op: track
+          target: fx3_verdict_s1_echo_hammer_haft
+          space: caster.right_hand
+          keys:
+            - {t: 0, turn: [0.0, -110.0, 0.0]}
+            - {t: 1, turn: [0.0, -111.2, 0.0]}
+            - {t: 2, turn: [0.0, -114.8, 0.0]}
+            - {t: 3, turn: [0.0, -120.2, 0.0]}
+            - {t: 4, turn: [0.0, -123.8, 0.0]}
+            - {t: 5, ease: in_out_quad, turn: [0.0, -125.0, 0.0]}
+            - {t: 6, turn: [0.0, -6.875, 0.0]}
+            - {t: 7, turn: [0.0, 77.5, 0.0]}
+            - {t: 8, turn: [0.0, 128.125, 0.0]}
+            - {t: 9, ease: out_quad, turn: [0.0, 145.0, 0.0]}
+            - {t: 10, turn: [0.0, 148.75, 0.0]}
+            - {t: 11, turn: [0.0, 152.5, 0.0]}
+            - {t: 12, turn: [0.0, 156.25, 0.0]}
+            - {t: 13, turn: [0.0, 160.0, 0.0]}
+            - {t: 14, turn: [0.0, 171.107872, 0.0]}
+            - {t: 15, turn: [0.0, 179.067055, 0.0]}
+            - {t: 16, turn: [0.0, -175.597668, 0.0]}
+            - {t: 17, turn: [0.0, -172.361516, 0.0]}
+            - {t: 18, turn: [0.0, -170.699708, 0.0]}
+            - {t: 19, turn: [0.0, -170.087464, 0.0]}
+            - {t: 20, ease: out_cubic, turn: [0.0, -170.0, 0.0]}
+        - id: fx3_verdict_s1_echo_hammer_swing_1
+          op: track
+          target: fx3_verdict_s1_echo_hammer_head
+          space: caster.right_hand
+          keys:
+            - {t: 0, turn: [0.0, -110.0, 0.0]}
+            - {t: 1, turn: [0.0, -111.2, 0.0]}
+            - {t: 2, turn: [0.0, -114.8, 0.0]}
+            - {t: 3, turn: [0.0, -120.2, 0.0]}
+            - {t: 4, turn: [0.0, -123.8, 0.0]}
+            - {t: 5, ease: in_out_quad, turn: [0.0, -125.0, 0.0]}
+            - {t: 6, turn: [0.0, -6.875, 0.0]}
+            - {t: 7, turn: [0.0, 77.5, 0.0]}
+            - {t: 8, turn: [0.0, 128.125, 0.0]}
+            - {t: 9, ease: out_quad, turn: [0.0, 145.0, 0.0]}
+            - {t: 10, turn: [0.0, 148.75, 0.0]}
+            - {t: 11, turn: [0.0, 152.5, 0.0]}
+            - {t: 12, turn: [0.0, 156.25, 0.0]}
+            - {t: 13, turn: [0.0, 160.0, 0.0]}
+            - {t: 14, turn: [0.0, 171.107872, 0.0]}
+            - {t: 15, turn: [0.0, 179.067055, 0.0]}
+            - {t: 16, turn: [0.0, -175.597668, 0.0]}
+            - {t: 17, turn: [0.0, -172.361516, 0.0]}
+            - {t: 18, turn: [0.0, -170.699708, 0.0]}
+            - {t: 19, turn: [0.0, -170.087464, 0.0]}
+            - {t: 20, ease: out_cubic, turn: [0.0, -170.0, 0.0]}
+        - id: fx3_verdict_s1_echo_hammer_swing_2
+          op: track
+          target: fx3_verdict_s1_echo_hammer_cap_0_53
+          space: caster.right_hand
+          keys:
+            - {t: 0, turn: [0.0, -110.0, 0.0]}
+            - {t: 1, turn: [0.0, -111.2, 0.0]}
+            - {t: 2, turn: [0.0, -114.8, 0.0]}
+            - {t: 3, turn: [0.0, -120.2, 0.0]}
+            - {t: 4, turn: [0.0, -123.8, 0.0]}
+            - {t: 5, ease: in_out_quad, turn: [0.0, -125.0, 0.0]}
+            - {t: 6, turn: [0.0, -6.875, 0.0]}
+            - {t: 7, turn: [0.0, 77.5, 0.0]}
+            - {t: 8, turn: [0.0, 128.125, 0.0]}
+            - {t: 9, ease: out_quad, turn: [0.0, 145.0, 0.0]}
+            - {t: 10, turn: [0.0, 148.75, 0.0]}
+            - {t: 11, turn: [0.0, 152.5, 0.0]}
+            - {t: 12, turn: [0.0, 156.25, 0.0]}
+            - {t: 13, turn: [0.0, 160.0, 0.0]}
+            - {t: 14, turn: [0.0, 171.107872, 0.0]}
+            - {t: 15, turn: [0.0, 179.067055, 0.0]}
+            - {t: 16, turn: [0.0, -175.597668, 0.0]}
+            - {t: 17, turn: [0.0, -172.361516, 0.0]}
+            - {t: 18, turn: [0.0, -170.699708, 0.0]}
+            - {t: 19, turn: [0.0, -170.087464, 0.0]}
+            - {t: 20, ease: out_cubic, turn: [0.0, -170.0, 0.0]}
+        - id: fx3_verdict_s1_echo_hammer_swing_3
+          op: track
+          target: fx3_verdict_s1_echo_hammer_cap0_53
+          space: caster.right_hand
+          keys:
+            - {t: 0, turn: [0.0, -110.0, 0.0]}
+            - {t: 1, turn: [0.0, -111.2, 0.0]}
+            - {t: 2, turn: [0.0, -114.8, 0.0]}
+            - {t: 3, turn: [0.0, -120.2, 0.0]}
+            - {t: 4, turn: [0.0, -123.8, 0.0]}
+            - {t: 5, ease: in_out_quad, turn: [0.0, -125.0, 0.0]}
+            - {t: 6, turn: [0.0, -6.875, 0.0]}
+            - {t: 7, turn: [0.0, 77.5, 0.0]}
+            - {t: 8, turn: [0.0, 128.125, 0.0]}
+            - {t: 9, ease: out_quad, turn: [0.0, 145.0, 0.0]}
+            - {t: 10, turn: [0.0, 148.75, 0.0]}
+            - {t: 11, turn: [0.0, 152.5, 0.0]}
+            - {t: 12, turn: [0.0, 156.25, 0.0]}
+            - {t: 13, turn: [0.0, 160.0, 0.0]}
+            - {t: 14, turn: [0.0, 171.107872, 0.0]}
+            - {t: 15, turn: [0.0, 179.067055, 0.0]}
+            - {t: 16, turn: [0.0, -175.597668, 0.0]}
+            - {t: 17, turn: [0.0, -172.361516, 0.0]}
+            - {t: 18, turn: [0.0, -170.699708, 0.0]}
+            - {t: 19, turn: [0.0, -170.087464, 0.0]}
+            - {t: 20, ease: out_cubic, turn: [0.0, -170.0, 0.0]}
+        - id: fx3_verdict_s1_echo_hammer_swing_4
+          op: track
+          target: fx3_verdict_s1_echo_hammer_stripe1_78
+          space: caster.right_hand
+          keys:
+            - {t: 0, turn: [0.0, -110.0, 0.0]}
+            - {t: 1, turn: [0.0, -111.2, 0.0]}
+            - {t: 2, turn: [0.0, -114.8, 0.0]}
+            - {t: 3, turn: [0.0, -120.2, 0.0]}
+            - {t: 4, turn: [0.0, -123.8, 0.0]}
+            - {t: 5, ease: in_out_quad, turn: [0.0, -125.0, 0.0]}
+            - {t: 6, turn: [0.0, -6.875, 0.0]}
+            - {t: 7, turn: [0.0, 77.5, 0.0]}
+            - {t: 8, turn: [0.0, 128.125, 0.0]}
+            - {t: 9, ease: out_quad, turn: [0.0, 145.0, 0.0]}
+            - {t: 10, turn: [0.0, 148.75, 0.0]}
+            - {t: 11, turn: [0.0, 152.5, 0.0]}
+            - {t: 12, turn: [0.0, 156.25, 0.0]}
+            - {t: 13, turn: [0.0, 160.0, 0.0]}
+            - {t: 14, turn: [0.0, 171.107872, 0.0]}
+            - {t: 15, turn: [0.0, 179.067055, 0.0]}
+            - {t: 16, turn: [0.0, -175.597668, 0.0]}
+            - {t: 17, turn: [0.0, -172.361516, 0.0]}
+            - {t: 18, turn: [0.0, -170.699708, 0.0]}
+            - {t: 19, turn: [0.0, -170.087464, 0.0]}
+            - {t: 20, ease: out_cubic, turn: [0.0, -170.0, 0.0]}
+        - id: fx3_verdict_s1_echo_hammer_swing_5
+          op: track
+          target: fx3_verdict_s1_echo_hammer_stripe2_22
+          space: caster.right_hand
+          keys:
+            - {t: 0, turn: [0.0, -110.0, 0.0]}
+            - {t: 1, turn: [0.0, -111.2, 0.0]}
+            - {t: 2, turn: [0.0, -114.8, 0.0]}
+            - {t: 3, turn: [0.0, -120.2, 0.0]}
+            - {t: 4, turn: [0.0, -123.8, 0.0]}
+            - {t: 5, ease: in_out_quad, turn: [0.0, -125.0, 0.0]}
+            - {t: 6, turn: [0.0, -6.875, 0.0]}
+            - {t: 7, turn: [0.0, 77.5, 0.0]}
+            - {t: 8, turn: [0.0, 128.125, 0.0]}
+            - {t: 9, ease: out_quad, turn: [0.0, 145.0, 0.0]}
+            - {t: 10, turn: [0.0, 148.75, 0.0]}
+            - {t: 11, turn: [0.0, 152.5, 0.0]}
+            - {t: 12, turn: [0.0, 156.25, 0.0]}
+            - {t: 13, turn: [0.0, 160.0, 0.0]}
+            - {t: 14, turn: [0.0, 171.107872, 0.0]}
+            - {t: 15, turn: [0.0, 179.067055, 0.0]}
+            - {t: 16, turn: [0.0, -175.597668, 0.0]}
+            - {t: 17, turn: [0.0, -172.361516, 0.0]}
+            - {t: 18, turn: [0.0, -170.699708, 0.0]}
+            - {t: 19, turn: [0.0, -170.087464, 0.0]}
+            - {t: 20, ease: out_cubic, turn: [0.0, -170.0, 0.0]}
     - id: fx21
       at: 21
       do:
@@ -46,7 +482,31 @@ presentation:
             - {from: 0.0, to: 0.85, color: "#ffd878", alpha: 0.094, color_to: "#a07020"}
             - {from: 0.85, to: 1.0, color: "#fff4c7", alpha: 0.937, color_to: "#d5ac60"}
           step_deg: 18.0
-    - {id: fx31, at: 31, do: [{id: rm_5, op: remove, ids: [fx3_verdict_s1_echo_hammer_gold_fan]}]}
+    - id: fx23
+      at: 23
+      do:
+        - id: rm_2
+          op: remove
+          ids:
+            - fx1_verdict_s1_gavel_hammer_haft
+            - fx1_verdict_s1_gavel_hammer_head
+            - fx1_verdict_s1_gavel_hammer_cap_0_53
+            - fx1_verdict_s1_gavel_hammer_cap0_53
+            - fx1_verdict_s1_gavel_hammer_stripe1_78
+            - fx1_verdict_s1_gavel_hammer_stripe2_22
+    - {id: fx31, at: 31, do: [{id: rm_6, op: remove, ids: [fx3_verdict_s1_echo_hammer_gold_fan]}]}
+    - id: fx32
+      at: 32
+      do:
+        - id: rm_7
+          op: remove
+          ids:
+            - fx3_verdict_s1_echo_hammer_haft
+            - fx3_verdict_s1_echo_hammer_head
+            - fx3_verdict_s1_echo_hammer_cap_0_53
+            - fx3_verdict_s1_echo_hammer_cap0_53
+            - fx3_verdict_s1_echo_hammer_stripe1_78
+            - fx3_verdict_s1_echo_hammer_stripe2_22
     - id: fxhit_1
       at: "hit+1"
       do:
@@ -107,9 +567,9 @@ presentation:
             - {t: 5, offset: [-1.3, 1.4, 0.3], scale: [0.16, 0.26, 1.0], ease: out_cubic}
             - {t: 11, scale: [0.04, 0.04, 1.0], alpha: 0.0}
           when: "= event.source == 'sel'"
-    - {id: fxhit_9, at: "hit+9", do: [{id: rm_2, op: remove, ids: [fx2_verdict_impact_bloom], when: "= event.source == 'sel'"}]}
-    - {id: fxhit_10, at: "hit+10", do: [{id: rm_3, op: remove, ids: [fx2_verdict_impact_star], when: "= event.source == 'sel'"}]}
-    - {id: fxhit_12, at: "hit+12", do: [{id: rm_4, op: remove, ids: [fx2_verdict_impact_dark0, fx2_verdict_impact_dark1, fx2_verdict_impact_dark2], when: "= event.source == 'sel'"}]}
+    - {id: fxhit_9, at: "hit+9", do: [{id: rm_3, op: remove, ids: [fx2_verdict_impact_bloom], when: "= event.source == 'sel'"}]}
+    - {id: fxhit_10, at: "hit+10", do: [{id: rm_4, op: remove, ids: [fx2_verdict_impact_star], when: "= event.source == 'sel'"}]}
+    - {id: fxhit_12, at: "hit+12", do: [{id: rm_5, op: remove, ids: [fx2_verdict_impact_dark0, fx2_verdict_impact_dark1, fx2_verdict_impact_dark2], when: "= event.source == 'sel'"}]}
   "on":
     hit:
       - op: quad
