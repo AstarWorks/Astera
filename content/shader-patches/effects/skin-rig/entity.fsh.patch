@@ -1,8 +1,6 @@
-# Astera skin rig (ADR-0250): our own additions to Mojang's core/entity.fsh, applied at pack build time to the
-# vanilla shader taken from the client jar (never committed). Format: `@@ before|after|replace: <anchor>`,
-# anchor = one whole vanilla line (trimmed), must match exactly once or the pack build fails.
-# The body runs to the next `@@` line (or the end of file).
-@@ before: #ifndef OIT_ALPHA_ONLY
+# Astera skin-rig: named hooks from content/shader-patches/hooks.yaml (ADR-0305).
+# Shader bodies and marker semantics are preserved from ADR-0275 / ADR-0298.
+@@ hook: skin_rig_0
 layout(location = 8) flat in int rigPart;
 layout(location = 9) in vec3 rigViewPos;
 layout(location = 10) in vec3 rigViewNormal;
@@ -14,7 +12,7 @@ layout(location = 11) in vec4 rigLightColor;
 // front faces always agree with their normals. Set at the top of main(), read by calculateFinalColor.
 bool rigConfirmed = false;
 
-@@ before: vec4 calculateFinalColor(vec4 color) {
+@@ hook: skin_rig_1
 // Astera skin rig first-person hiding (ADR-0285). The server cannot know the client's camera perspective, so the
 // rig fades by distance to the camera instead: the owner's own rig surrounds / touches the first-person camera
 // (hidden), a third-person (F5) camera is 3+ blocks away (fully visible), other players' rigs are never this close.
@@ -125,7 +123,7 @@ vec2 rigRemap(vec2 uv, int part) {
     return (offs + origin + clamp(f, 0.001, 0.999) * extent) / 64.0;
 }
 
-@@ replace: vec4 color = texture(Sampler0, texCoord0);
+@@ hook: skin_rig_2
     vec2 skinUV = texCoord0;
     if (rigPart >= 0) {
         rigConfirmed = gl_FrontFacing != (dot(rigViewNormal, rigViewPos) < 0.0);
@@ -146,7 +144,7 @@ vec2 rigRemap(vec2 uv, int part) {
     }
     vec4 color = texture(Sampler0, skinUV);
 
-@@ after: color *= faceVertexColor * ColorModulator;
+@@ hook: skin_rig_3
     // Ghost bone (ADR-0284): a tinted, translucent afterimage. The look is fixed here (SkinRigMarker.GHOST_TINT_RGB / GHOST_OPACITY):
     // the skin's shading keeps the body readable, its hue goes to the tint, and the alpha is what the translucent pipeline blends.
     if (rigConfirmed && rigPart >= 16) {
@@ -161,9 +159,9 @@ vec2 rigRemap(vec2 uv, int part) {
         color.a *= mix(0.38, 0.8, ghostRim);
     }
 
-@@ replace: color *= lightMapColor;
+@@ hook: skin_rig_4
     color *= rigConfirmed ? rigLightColor : lightMapColor;
 
-@@ replace: vec4 faceVertexColor = gl_FrontFacing ? vertexPerFaceColorFront : vertexPerFaceColorBack;
+@@ hook: skin_rig_5
     // A confirmed rig is mirrored, so its camera-facing faces are back faces: shade them as the front faces they are.
     vec4 faceVertexColor = (gl_FrontFacing != rigConfirmed) ? vertexPerFaceColorFront : vertexPerFaceColorBack;

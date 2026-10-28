@@ -41,6 +41,8 @@ public sealed interface VisualOp : PresentationOp {
         val rest: Value<Vec3>? = null,
         /** Rotation vector (degrees) that tilts the whole swing plane, applied OUTSIDE the track turn: the node's base rotation. */
         val tilt: Value<Vec3>? = null,
+        /** Isolated item-surface effect id from content/shader-patches/effects. */
+        val shaderEffect: String? = null,
     ) : VisualOp
 
     /** A sprite quad as a NODE of the frame tree named [id], child of [parent]; [size] is its edge length in BLOCKS. */

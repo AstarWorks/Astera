@@ -28,6 +28,7 @@ public data class VisualPose(
     val size: Vec3,
     val billboard: DisplayBillboard = DisplayBillboard.FIXED,
     val anchorFeet: Vec3? = null,
+    val shaderEffect: String? = null,
 )
 
 /** A sprite's flipbook length and texture edge in pixels (its natural size is `px * 0.025` blocks). */
