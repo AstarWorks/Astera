@@ -6,7 +6,8 @@ id: halberd-sweep
 item: halberd
 meta: {name: {ja: "薙ぎ払い", en: "Halberd Sweep"}, description: {ja: "広い弧で前方を薙ぎ払う。", en: "A wide sweeping arc."}, cooldown_ticks: 24, resource_cost: 12, tags: [melee, physical]}
 gameplay:
-  params: {arc_deg: 160.0, range: 3.8, dmg_physical: 38.0, knockback: 0.6}
+  # V1-NOOP melee params.knockback: knockback: 0.6 (v1 MeleeHandler ignores it; the plain-hit push is the combat pipeline's KnockbackModifier)
+  params: {arc_deg: 160.0, range: 3.8, dmg_physical: 38.0}
   expose:
     - {id: damage, param: dmg_physical}
     - {id: range, param: range}
@@ -18,4 +19,3 @@ gameplay:
   "on":
     hit:
       - {id: dmg, op: damage, target: victim, components: [{kind: physical, amount: "${dmg_physical}"}], when: "= event.source == 'swing'"}
-      - {id: kb, op: knockback, direction: "= normalize(flat(pos(victim) - pos(caster)))", strength: "${knockback}", when: "= event.source == 'swing'"}

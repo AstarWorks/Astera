@@ -144,7 +144,6 @@ public class SimSkillEngine private constructor(
             applyStatus = applyStatus,
             knockback = knockback,
             casterPosition = { uuid -> world.find(PlayerId(uuid))?.position },
-            holdEntity = { id, ticks -> entityEffects.freeze(id, ticks) },
             statusContainer = statusContainer,
             entityEffects = entityEffects,
             attributes = attributes,

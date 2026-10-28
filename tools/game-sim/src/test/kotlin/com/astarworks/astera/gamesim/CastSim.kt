@@ -185,6 +185,16 @@ class CastSim(
     fun rel(v: Vec3) = "\"x\":${r(v.x - origin.x)},\"y\":${r(v.y - origin.y)},\"z\":${r(v.z - origin.z)}"
     fun whoOf(e: UUID): String = if (e == SIM_CASTER) "caster" else if (e == victims.keys.firstOrNull()) "dummy" else e.toString()
     private fun cellAt(cell: BlockCell) = rel(Vec3(cell.x.toDouble(), cell.y.toDouble(), cell.z.toDouble()))
+    /** True while [CombatLink.advance] runs: the scheduler's tasks then land on the tick the step arrives at, one past [now]. */
+    private var advancing = false
+    private val lateImpulses = ArrayList<Pair<UUID, Vec3>>()
+
+    private fun recordImpulse(victim: UUID, vector: Vec3) {
+        // A scheduler-driven push lands on the sim tick the step arrives at, which the dump labels with the next cast tick.
+        if (advancing) lateImpulses += victim to vector else velocities[victim] = (velocities[victim] ?: Vec3.ZERO) + vector
+        val at = if (advancing) now + 1 else now
+        gp += "{\"t\":$at,\"e\":\"kb\",\"who\":\"${whoOf(victim)}\",\"strength\":${r(vector.length())},\"vec\":[${r(vector.x)},${r(vector.y)},${r(vector.z)}],\"via\":\"impulse\"}"
+    }
     private fun gpLine(kind: String, body: String) { gp += "{\"t\":$now,\"e\":\"$kind\"${if (body.isEmpty()) "" else ",$body"}}" }
 
     private inline fun <reified T> noop(): T = java.lang.reflect.Proxy.newProxyInstance(T::class.java.classLoader, arrayOf(T::class.java)) { _, m, _ ->
@@ -202,7 +212,10 @@ class CastSim(
         private set
 
     init {
-        combat?.let { it.feet = { casterFeet }; it.sink = gp; it.origin = origin }
+        combat?.let {
+            it.feet = { casterFeet }; it.sink = gp; it.origin = origin
+            it.onImpulse = { real, vector -> recordImpulse(it.unmap(real), vector) }
+        }
     }
 
     private val movement = object : ISkillMovementGateway by noop() {
@@ -242,6 +255,7 @@ class CastSim(
         }
         override fun freezeEntities(entities: List<UUID>, ticks: Int) {
             frozen += Triple(now, entities, ticks)
+            combat?.let { it.gateway.freezeEntities(entities.map(it::map), ticks) }
             gpLine("freeze", "\"who\":${entities.joinToString(",", "[", "]") { jq(whoOf(it)) }},\"ticks\":$ticks")
         }
         override fun statusStacks(entity: UUID, statusId: String): Int = (if (entity == caster) casterStacks else entityStacks[entity] ?: emptyMap())[statusId] ?: 0
@@ -265,8 +279,9 @@ class CastSim(
             gpLine("resource", "\"who\":\"${whoOf(victim)}\",\"res\":${jq(resource)},\"amount\":${r(amount)}")
         }
         override fun impulse(victim: UUID, vector: Vec3) {
-            velocities[victim] = (velocities[victim] ?: Vec3.ZERO) + vector
-            gpLine("kb", "\"who\":\"${whoOf(victim)}\",\"strength\":${r(vector.length())},\"vec\":[${r(vector.x)},${r(vector.y)},${r(vector.z)}],\"via\":\"impulse\"")
+            // With the real pipeline the gateway's hold clock decides when the push lands; CombatLink.onImpulse records it then.
+            combat?.let { it.gateway.impulse(it.map(victim), vector); return }
+            recordImpulse(victim, vector)
         }
     }
 
@@ -402,8 +417,11 @@ class CastSim(
     /** Ticks the runner until the clock reads [untilTick] (exclusive). */
     fun step(untilTick: Int) {
         while (now < untilTick) {
+            for ((v, d) in lateImpulses) velocities[v] = (velocities[v] ?: Vec3.ZERO) + d
+            lateImpulses.clear()
             kit.runner.tick(now)
-            combat?.advance()
+            advancing = true
+            try { combat?.advance() } finally { advancing = false }
             now++
         }
     }
