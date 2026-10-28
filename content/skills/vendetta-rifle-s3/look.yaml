@@ -19,7 +19,7 @@ presentation:
     - id: fx5
       at: 5
       do:
-        - {id: anchor, op: anchor, frame: fx1_vendetta_bayonet_rise, at: caster, orient: yaw, follow: true}
+        - {id: anchor, op: anchor, frame: fx1_vendetta_bayonet_rise, at: caster, orient: yaw, follow: true, teleport_ticks: 2}
         - {op: block, parent: fx1_vendetta_bayonet_rise, block: brown_terracotta, size: [1.0, 1.0, 1.0], id: fx1_vendetta_bayonet_rise_stock}
         - id: fx1_vendetta_bayonet_rise_stock_trk
           op: track
@@ -198,7 +198,7 @@ presentation:
     - id: fx13
       at: 13
       do:
-        - {id: anchor_4, op: anchor, frame: fx4_vendetta_bayonet_thrust, at: caster, orient: yaw, follow: true}
+        - {id: anchor_4, op: anchor, frame: fx4_vendetta_bayonet_thrust, at: caster, orient: yaw, follow: true, teleport_ticks: 2}
         - {op: block, parent: fx4_vendetta_bayonet_thrust, block: brown_terracotta, size: [1.0, 1.0, 1.0], id: fx4_vendetta_bayonet_thrust_stock}
         - id: fx4_vendetta_bayonet_thrust_stock_trk
           op: track
@@ -423,7 +423,7 @@ presentation:
     - id: fx41
       at: 41
       do:
-        - {id: anchor_7, op: anchor, frame: fx7_vendetta_bayonet_thrust, at: caster, orient: yaw, follow: true}
+        - {id: anchor_7, op: anchor, frame: fx7_vendetta_bayonet_thrust, at: caster, orient: yaw, follow: true, teleport_ticks: 2}
         - {op: block, parent: fx7_vendetta_bayonet_thrust, block: brown_terracotta, size: [1.0, 1.0, 1.0], id: fx7_vendetta_bayonet_thrust_stock}
         - id: fx7_vendetta_bayonet_thrust_stock_trk
           op: track

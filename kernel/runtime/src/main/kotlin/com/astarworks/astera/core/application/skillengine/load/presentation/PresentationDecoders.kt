@@ -270,7 +270,8 @@ private object VisualOpDecoder : OpDecoder {
             "anchor" -> VisualOp.Anchor(
                 id, whenExpr, requireString("frame"), requirePoint("at"),
                 (string("orient") ?: "world").let { AnchorOrient.fromYaml(it) ?: fail("orient must be one of ${AnchorOrient.entries.joinToString { o -> o.yamlName }}") },
-                bool("follow") ?: false,
+                bool("follow") ?: false, bool("pitch") ?: false, string("pose"),
+                int("teleport_ticks")?.also { if (it !in 0..59) fail("teleport_ticks must be 0..59") },
             )
             "pull" -> VisualOp.Pull(
                 id, whenExpr, requireString("target"), requirePoint("ref"), requirePoint("to"), pullKeys(),

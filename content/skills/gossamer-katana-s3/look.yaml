@@ -13,7 +13,7 @@ frames:
   - {id: fx2_gossamer_katana_iaido_line, kind: body, parent: world}
 presentation:
   timeline:
-    - {id: fx0, at: 0, do: [{id: anchor, op: anchor, frame: fx1_gossamer_katana_draw, at: caster, orient: yaw, follow: true}]}
+    - {id: fx0, at: 0, do: [{id: anchor, op: anchor, frame: fx1_gossamer_katana_draw, at: caster, orient: yaw, follow: true, teleport_ticks: 2}]}
     - id: fx5
       at: 5
       do:

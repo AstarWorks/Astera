@@ -184,7 +184,12 @@ public sealed interface VisualOp : PresentationOp {
      * follow a frame (v1 `follow: false`, VfxPlayer.kt:274) or is anchored at a point computed at runtime (a hit point).
      * Everything parented to [frame] then sits in that pose. With [follow] the frame's origin keeps tracking [at] every tick
      * while its rotation stays the spawn rotation (v1 `follow: true`, VfxPlayer.kt:414-420: the position follows the
-     * anchor, the yaw was baked at spawn).
+     * anchor, the yaw was baked at spawn). With [pitch] a [AnchorOrient.YAW] frame also takes the caster's look pitch at spawn,
+     * clamped to +-SLASH_PITCH_LIMIT_DEGREES (v1 `follow_pitch`, VfxPlayer.kt:243-246). With [pose] the orient reads that frame's
+     * forward (and origin, for to_target) instead of the live caster (v1 `snapshot_pose`, MechanicDispatcher.kt:560-566).
+     * With [teleportTicks] every display under the frame that is not a native passenger is written with that
+     * `teleport_duration` instead of its interpolation length (v1 followed effect: `follow_teleport_ticks` or
+     * FOLLOW_TELEPORT_TICKS = 2, VfxPlayer.kt:416-419, 442).
      */
     public data class Anchor(
         override val id: String,
@@ -193,6 +198,9 @@ public sealed interface VisualOp : PresentationOp {
         val at: PointRef,
         val orient: AnchorOrient,
         val follow: Boolean = false,
+        val pitch: Boolean = false,
+        val pose: String? = null,
+        val teleportTicks: Int? = null,
     ) : VisualOp
 
     /**

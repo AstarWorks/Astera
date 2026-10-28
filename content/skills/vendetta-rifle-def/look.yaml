@@ -16,7 +16,7 @@ presentation:
     - id: fx0
       at: 0
       do:
-        - {id: anchor, op: anchor, frame: fx1_vendetta_bayonet_thrust, at: caster, orient: yaw, follow: true}
+        - {id: anchor, op: anchor, frame: fx1_vendetta_bayonet_thrust, at: caster, orient: yaw, follow: true, teleport_ticks: 2}
         - {op: block, parent: fx1_vendetta_bayonet_thrust, block: brown_terracotta, size: [1.0, 1.0, 1.0], id: fx1_vendetta_bayonet_thrust_stock}
         - id: fx1_vendetta_bayonet_thrust_stock_trk
           op: track

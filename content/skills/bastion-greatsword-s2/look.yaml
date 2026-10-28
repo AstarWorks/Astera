@@ -2,7 +2,6 @@
 # Generated point-frame offsets are [left, up, forward] in the parent frame.
 # CONVERT-PRESENT play_vfx freeze (no v2 equivalent) (x1): [{"at": 13, "ticks": 2}, {"at": 32, "tic
 # CONVERT-PRESENT rig respect_hit_stop / weapon points (x1): {"respect_hit_stop": true, "weapon_edge": [0.0, -0.6155, 0.7881], "weapon_root":
-# CONVERT-PRESENT vfx follow_pitch (no v2 equivalent) (x3): true
 apiVersion: "astera/v2"
 kind: Skill
 id: bastion-greatsword-s2
@@ -387,7 +386,7 @@ presentation:
     - id: fx0
       at: 0
       do:
-        - {id: anchor, op: anchor, frame: fx1_bastion_s2_rig, at: caster, orient: yaw, follow: true}
+        - {id: anchor, op: anchor, frame: fx1_bastion_s2_rig, at: caster, orient: yaw, follow: true, teleport_ticks: 2}
         - {id: canim, op: caster_anim, anim: bastion-s2-body}
         - {id: fx1_bastion_s2_rig_sword_weapon, op: mesh, frame: fx1_bastion_s2_rig_sword, item: main_hand}
         - id: fx1_bastion_s2_rig_sword_swing
@@ -449,7 +448,7 @@ presentation:
     - id: fx9
       at: 9
       do:
-        - {id: anchor_2, op: anchor, frame: fx2_bastion_s2_fx_ring, at: caster, orient: yaw, follow: true}
+        - {id: anchor_2, op: anchor, frame: fx2_bastion_s2_fx_ring, at: caster, orient: yaw, follow: true, teleport_ticks: 2, pitch: true}
         - {id: snd_5, op: sound, sound: entity.player.attack.sweep, at: caster, volume: 1.0, pitch: 0.5}
         - {id: snd_6, op: sound, sound: item.trident.throw, at: caster, volume: 0.7, pitch: 0.6}
     - id: fx10
@@ -1151,7 +1150,7 @@ presentation:
     - id: fx28
       at: 28
       do:
-        - {id: anchor_3, op: anchor, frame: fx3_bastion_s2_fx_ring, at: caster, orient: yaw, follow: true}
+        - {id: anchor_3, op: anchor, frame: fx3_bastion_s2_fx_ring, at: caster, orient: yaw, follow: true, teleport_ticks: 2, pitch: true}
         - {id: snd_15, op: sound, sound: entity.player.attack.sweep, at: caster, volume: 1.0, pitch: 0.45}
         - {id: snd_16, op: sound, sound: entity.breeze.wind_burst, at: caster, volume: 0.6, pitch: 0.5}
         - {id: snd_17, op: sound, sound: item.trident.throw, at: caster, volume: 0.8, pitch: 0.5}
@@ -1861,7 +1860,7 @@ presentation:
     - id: fx49
       at: 49
       do:
-        - {id: anchor_4, op: anchor, frame: fx4_bastion_s2_fx_chop, at: caster, orient: yaw, follow: true}
+        - {id: anchor_4, op: anchor, frame: fx4_bastion_s2_fx_chop, at: caster, orient: yaw, follow: true, teleport_ticks: 2, pitch: true}
         - {id: fx4_bastion_s2_fx_chop_s2c_p_gather_atrk, op: track, target: fx4_bastion_s2_fx_chop_s2c_p_gather_at, space: fx4_bastion_s2_fx_chop, keys: [{t: 0, offset: [0.0, 2.5, 0.2]}]}
     - id: fx50
       at: 50

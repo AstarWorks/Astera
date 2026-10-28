@@ -40,7 +40,7 @@ class DisplayFrame(
 class DisplayLife(val handle: Long, val kind: String, val note: String, val spawnTick: Int, var removeTick: Int? = null)
 
 /** One display write as the client receives it: [write] at [tick], with the caster feet then (anchored writes are relative to them). */
-class DisplayCall(val tick: Int, val handle: Long, val write: DisplayWrite, val feet: Vec3, val spawn: Boolean = false)
+class DisplayCall(val tick: Int, val handle: Long, val write: DisplayWrite, val feet: Vec3, val spawn: Boolean = false, val followed: Boolean = false)
 
 /**
  * Records the display matrices the Paper visual gateway would build (the same [toDisplayWrite] the Paper gateway calls),
@@ -206,8 +206,8 @@ class RecordingVisuals(
 
     /** The Paper gateway's write, recorded: [toDisplayWrite] of the pose, then the same fields as a [DisplayCall] and a [DisplayFrame]. */
     private fun write(id: Long, kind: String, intrinsic: Intrinsic, pose: VisualPose, ticks: Int, authored: Double, note: String = "", spawn: Boolean = false): DisplayWrite {
-        val w = toDisplayWrite(pose.frame, pose.size, intrinsic, pose.billboard, ticks, if (kind == "line") null else anchorAt(pose.anchorFeet))
-        calls += DisplayCall(now(), id, w, casterFeet(), spawn)
+        val w = toDisplayWrite(pose.frame, pose.size, intrinsic, pose.billboard, ticks, if (kind == "line") null else anchorAt(pose.anchorFeet), pose.teleportTicks)
+        calls += DisplayCall(now(), id, w, casterFeet(), spawn, pose.teleportTicks != null)
         record(kind, id, authored, w.transform, note)
         return w
     }

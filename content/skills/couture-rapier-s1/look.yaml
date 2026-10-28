@@ -72,7 +72,7 @@ presentation:
     - id: fx6
       at: 6
       do:
-        - {id: anchor_2, op: anchor, frame: fx2_couture_shears_snip, at: caster, orient: yaw, follow: true}
+        - {id: anchor_2, op: anchor, frame: fx2_couture_shears_snip, at: caster, orient: yaw, follow: true, teleport_ticks: 2}
         - {op: block, parent: fx2_couture_shears_snip, block: gray_concrete, size: [1.0, 1.0, 1.0], id: fx2_couture_shears_snip_1_blade_0}
         - id: fx2_couture_shears_snip_1_blade_0_trk
           op: track
@@ -578,7 +578,7 @@ presentation:
     - id: fx13
       at: 13
       do:
-        - {id: anchor_3, op: anchor, frame: fx3_couture_shear_passage, at: caster, orient: yaw, follow: true}
+        - {id: anchor_3, op: anchor, frame: fx3_couture_shear_passage, at: caster, orient: yaw, follow: true, teleport_ticks: 2}
         - {op: plate, parent: fx3_couture_shear_passage, face: {viewer: center}, sprite: couture-cut, size: 3.2, frame_ticks: 2, brightness: 15, id: fx3_couture_shear_passage_passage_crescent}
         - id: fx3_couture_shear_passage_passage_crescent_trk
           op: track

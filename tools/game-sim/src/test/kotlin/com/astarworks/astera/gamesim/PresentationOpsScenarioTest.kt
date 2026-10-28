@@ -116,6 +116,7 @@ class PresentationOpsScenarioTest {
     private val poses = HashMap<Long, Frame>()
     private val scales = HashMap<Long, Double>()
     private val lanes = HashMap<Long, com.astarworks.astera.core.domain.effect.vfx.VfxLane>()
+    private val teleports = HashMap<Long, Int?>()
     private val spawnedBillboards = HashMap<Long, com.astarworks.astera.core.domain.effect.DisplayBillboard>()
     private val lines = HashSet<Long>()
     private fun ends(pose: VisualPose): Pair<Vec3, Vec3> {
@@ -145,6 +146,7 @@ class PresentationOpsScenarioTest {
             h("line:$colorHex").also { lineEnds[it.id] = ends(pose); lines += it.id }
         override fun spawnTrail(castOwner: UUID, ticks: Int, widthFrac: Double, colorHex: String, alpha: Double) = h("trail")
         override fun write(handle: VisualHandle, pose: VisualPose, interpolationTicks: Int) {
+            teleports[handle.id] = pose.teleportTicks
             if (handle.id in lines) lineEnds[handle.id] = ends(pose) else { poses[handle.id] = pose.frame; scales[handle.id] = pose.size.x }
         }
         override fun pushTrailPoint(handle: VisualHandle, root: Vec3, tip: Vec3) { trailPoints += root to tip }
@@ -566,5 +568,35 @@ class PresentationOpsScenarioTest {
         val d = decode("mesh", mapOf("frame" to "shears", "item" to "x", "lane" to "accent")) as VisualOp.Mesh
         assertThat(d.lane).isEqualTo(com.astarworks.astera.core.domain.effect.vfx.VfxLane.ACCENT)
         assertThatThrownBy { decode("mesh", mapOf("frame" to "shears", "item" to "x", "lane" to "loud")) }.isInstanceOf(IllegalArgumentException::class.java)
+    }
+
+    @Test
+    fun `followed anchor teleports its displays over teleport_ticks and the live pose is read only without pose`() {
+        run(VisualOp.Anchor("a", null, "volley", PointRef("contact"), AnchorOrient.WORLD, follow = true, teleportTicks = 2))
+        run(VisualOp.Mesh("m", null, "volley", "couture-shears", null, null))
+        tick()
+        assertThat(teleports[1]).isEqualTo(2)
+        run(VisualOp.Anchor("b", null, "volley", PointRef("contact"), AnchorOrient.WORLD))
+        tick()
+        assertThat(teleports[1]).isNull()
+
+        val d = decode("anchor", mapOf("frame" to "volley", "at" to "contact", "follow" to true, "pitch" to true, "pose" to "snap", "teleport_ticks" to 3)) as VisualOp.Anchor
+        assertThat(d.pitch).isTrue()
+        assertThat(d.pose).isEqualTo("snap")
+        assertThat(d.teleportTicks).isEqualTo(3)
+        assertThatThrownBy { decode("anchor", mapOf("frame" to "volley", "at" to "contact", "teleport_ticks" to 60)) }.isInstanceOf(IllegalArgumentException::class.java)
+    }
+
+    @Test
+    fun `server floor drops ambient then accent lanes as the live-display budget fills`() {
+        val q = com.astarworks.astera.core.domain.effect.vfx.VfxQualityProfile
+        val full = com.astarworks.astera.core.domain.effect.VfxIntensity.FULL
+        val lane = com.astarworks.astera.core.domain.effect.vfx.VfxLane.entries.associateBy { it.name }
+        assertThat(q.serverFloor(0, 100)).isEqualTo(full)
+        assertThat(q.admits(q.serverFloor(70, 100), lane.getValue("AMBIENT"))).isFalse()
+        assertThat(q.admits(q.serverFloor(70, 100), lane.getValue("ACCENT"))).isTrue()
+        assertThat(q.admits(q.serverFloor(90, 100), lane.getValue("ACCENT"))).isFalse()
+        assertThat(q.admits(q.serverFloor(90, 100), lane.getValue("CORE"))).isTrue()
+        assertThat(q.admits(q.serverFloor(1, 0), lane.getValue("CORE"))).isTrue()
     }
 }

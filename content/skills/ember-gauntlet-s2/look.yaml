@@ -26,11 +26,11 @@ frames:
   - {id: fx6_ember_smoke_puff_haze_at, kind: body, parent: fx6_ember_smoke_puff}
 presentation:
   timeline:
-    - {id: fx0, at: 0, do: [{id: anchor, op: anchor, frame: fx1_ember_harness, at: caster, orient: yaw, follow: true}]}
+    - {id: fx0, at: 0, do: [{id: anchor, op: anchor, frame: fx1_ember_harness, at: caster, orient: yaw, follow: true, teleport_ticks: 2}]}
     - id: fx3
       at: 3
       do:
-        - {id: anchor_2, op: anchor, frame: fx2_ember_punch, at: caster, orient: yaw, follow: true}
+        - {id: anchor_2, op: anchor, frame: fx2_ember_punch, at: caster, orient: yaw, follow: true, teleport_ticks: 2}
         - {op: block, parent: fx2_ember_punch, block: yellow_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx2_ember_punch_flame_0}
         - id: fx2_ember_punch_flame_0_trk
           op: track
@@ -147,7 +147,7 @@ presentation:
     - id: fx19
       at: 19
       do:
-        - {id: anchor_4, op: anchor, frame: fx4_ember_punch, at: caster, orient: yaw, follow: true}
+        - {id: anchor_4, op: anchor, frame: fx4_ember_punch, at: caster, orient: yaw, follow: true, teleport_ticks: 2}
         - {op: block, parent: fx4_ember_punch, block: yellow_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx4_ember_punch_flame_0}
         - id: fx4_ember_punch_flame_0_trk
           op: track

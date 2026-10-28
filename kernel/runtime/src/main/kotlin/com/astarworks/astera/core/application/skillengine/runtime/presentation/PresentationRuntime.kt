@@ -155,6 +155,9 @@ public class PresentationRuntime(
         val tracks = LinkedHashMap<String, TrackState>()
         val pulls = LinkedHashMap<String, PullState>()
         val anchors = LinkedHashMap<String, AnchorFollow>()
+
+        /** Anchor frame -> `teleport_duration` of the displays under it (see [VisualOp.Anchor.teleportTicks]). */
+        val teleports = HashMap<String, Int>()
         val lastOrigin = HashMap<String, Vec3>()
         val velocity = HashMap<String, Vec3>()
         val watched = LinkedHashSet<String>()
@@ -478,14 +481,15 @@ public class PresentationRuntime(
         val visuals = s.ctx.ports.visuals
         for (l in s.live.values.toList()) {
             when (l) {
-                is Live.Mesh -> update(s, l)?.let { visuals.write(l.handle, it, if (l.pulledNow) 0 else DISPLAY_TICKS) }
+                is Live.Mesh -> update(s, l)?.let { visuals.write(l.handle, followed(s, it, l.parent), if (l.pulledNow) 0 else DISPLAY_TICKS) }
                 is Live.Plate -> {
-                    update(s, l)?.let { visuals.write(l.handle, it, if (l.pulledNow) 0 else DISPLAY_TICKS) }
+                    update(s, l)?.let { visuals.write(l.handle, followed(s, it, l.parent), if (l.pulledNow) 0 else DISPLAY_TICKS) }
                     tickFlipbook(s, l)
                     tickLook(s, l)
                 }
                 is Live.Block, is Live.Quad -> {
-                    update(s, l)?.let { visuals.write(l.handle, it, if (l.pulledNow) 0 else DISPLAY_TICKS) }
+                    val parent = if (l is Live.Block) l.parent else (l as Live.Quad).parent
+                    update(s, l)?.let { visuals.write(l.handle, followed(s, it, parent), if (l.pulledNow) 0 else DISPLAY_TICKS) }
                     tickLook(s, l)
                 }
                 is Live.Line -> linePose(s, l)?.let { visuals.write(l.handle, it, DISPLAY_TICKS) }
@@ -595,6 +599,18 @@ public class PresentationRuntime(
      * display rides the caster natively (v1 ADR-0276) so a dash or knockback cannot leave it behind. A frame re-parented to
      * the world (a thrown piece) is not anchored from that tick on.
      */
+    /** The pose with the `teleport_duration` of the followed anchor above [frame]; native passengers (caster-anchored) keep theirs. */
+    private fun followed(s: CastState, pose: VisualPose, frame: String): VisualPose {
+        if (s.teleports.isEmpty() || pose.anchorFeet != null) return pose
+        var cur: FrameId? = FrameId(frame)
+        var hops = 0
+        while (cur != null && hops++ < MAX_FRAME_DEPTH) {
+            s.teleports[cur.value]?.let { return pose.copy(teleportTicks = it) }
+            cur = s.ctx.tree.node(cur)?.parent
+        }
+        return pose
+    }
+
     internal fun anchorFeet(s: CastState, frame: String): Vec3? =
         if (casterAnchored(s, frame)) s.ctx.tree.worldOf(FrameId("caster")).getOrNull()?.origin else null
 

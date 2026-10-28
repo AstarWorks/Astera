@@ -10,7 +10,7 @@ presentation:
     - id: fx0
       at: 0
       do:
-        - {id: anchor, op: anchor, frame: fx1_sigil_rifle_ward, at: caster, orient: yaw, follow: true}
+        - {id: anchor, op: anchor, frame: fx1_sigil_rifle_ward, at: caster, orient: yaw, follow: true, teleport_ticks: 2}
         - {op: quad, parent: fx1_sigil_rifle_ward, face: {viewer: center}, size: [1.0, 1.0], color: "#230808", alpha: 0.8, text: "◆", brightness: 15, id: fx1_sigil_rifle_ward_ward_dark}
         - id: fx1_sigil_rifle_ward_ward_dark_trk
           op: track

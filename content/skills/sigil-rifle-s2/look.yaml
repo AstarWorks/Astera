@@ -13,7 +13,7 @@ frames:
   - {id: fx3_sigil_rifle_shot, kind: body, parent: world}
 presentation:
   timeline:
-    - {id: fx0, at: 0, do: [{id: anchor, op: anchor, frame: fx1_sigil_rifle_s2_rig, at: caster, orient: yaw, follow: true}]}
+    - {id: fx0, at: 0, do: [{id: anchor, op: anchor, frame: fx1_sigil_rifle_s2_rig, at: caster, orient: yaw, follow: true, teleport_ticks: 2}]}
     - id: fx20
       at: 20
       do:

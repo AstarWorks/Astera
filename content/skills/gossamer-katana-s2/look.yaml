@@ -4,7 +4,6 @@
 # CONVERT-PRESENT rig block parts (mesh takes an item model, not a block + size) (x2): 3 parts
 # CONVERT-PRESENT rig swing without a weapon mesh (track needs a visual to move) (x2): 10 keys
 # CONVERT-PRESENT presentation inside a nested gameplay list (dash on_hit has no event hook) (x2): play_vfx | play_sound
-# CONVERT-PRESENT area target used only by presentation ops (no damaging hit volume to attach them to) (x3): sel: 16 presentation op(s) dropped | sel_2: 3 presentation op(s) dropped
 apiVersion: "astera/v2"
 kind: Skill
 id: gossamer-katana-s2
@@ -36,10 +35,49 @@ presentation:
             - {from: 0.0, to: 1.0, color: "#14245f", alpha: 0.933, color_to: "#7c36a8"}
           step_deg: 20.0
     - {id: fx38, at: 38, do: [{id: rm_4, op: remove, ids: [fx4_gossamer_katana_slash_down_katana_crescent]}]}
-    - {id: fxhit_1, at: "hit+1", do: []}
-    - {id: fxhit_2, at: "hit+2", do: []}
-    - {id: fxhit_6, at: "hit+6", do: []}
-    - {id: fxhit_8, at: "hit+8", do: []}
+    - id: fxhit_1
+      at: "hit+1"
+      do:
+        - {op: block, parent: fx5_gossamer_katana_lattice, block: purple_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx5_gossamer_katana_lattice_rake_b, when: "= event.source == 'sel_4'"}
+        - id: fx5_gossamer_katana_lattice_rake_b_trk
+          op: track
+          target: fx5_gossamer_katana_lattice_rake_b
+          keys:
+            - {t: 0, offset: [0.0, 1.05, 0.0], scale: [0.008, 3.8, 0.04], turn: [-40.0, 0.0, 0.0]}
+            - {t: 1, scale: [0.04, 6.8, 0.04], ease: out_expo}
+            - {t: 18, scale: [0.0, 0.0, 0.0], ease: in_quad}
+          when: "= event.source == 'sel_4'"
+    - id: fxhit_2
+      at: "hit+2"
+      do:
+        - id: fx2_gossamer_katana_echo_cut_katana_crescent
+          op: trail
+          of: pt_fx2_gossamer_katana_echo_cut_katana_0_2p1_0
+          root: pt_fx2_gossamer_katana_echo_cut_katana_0_1p25_0
+          ticks: 4
+          bands:
+            - {from: 0.0, to: 1.0, color: "#14245f", alpha: 0.933, color_to: "#7c36a8"}
+          step_deg: 20.0
+          when: "= event.source == 'sel_2'"
+    - id: fxhit_6
+      at: "hit+6"
+      do:
+        - {id: rm_5, op: remove, ids: [fx5_gossamer_katana_lattice_impact_dark, fx5_gossamer_katana_lattice_impact_core, fx5_gossamer_katana_lattice_impact_bloom], when: "= event.source == 'sel_4'"}
+    - id: fxhit_8
+      at: "hit+8"
+      do:
+        - id: rm_6
+          op: remove
+          ids:
+            - fx5_gossamer_katana_lattice_petals_0
+            - fx5_gossamer_katana_lattice_petals_1
+            - fx5_gossamer_katana_lattice_petals_2
+            - fx5_gossamer_katana_lattice_petals_3
+            - fx5_gossamer_katana_lattice_petals_4
+            - fx5_gossamer_katana_lattice_petals_5
+            - fx5_gossamer_katana_lattice_petals_6
+            - fx5_gossamer_katana_lattice_petals_7
+          when: "= event.source == 'sel_4'"
     - id: fxhit_9
       at: "hit+9"
       do:
@@ -75,10 +113,91 @@ presentation:
             - fx6_gossamer_katana_petals_ink_2
             - fx6_gossamer_katana_petals_ink_3
           when: "= event.source == 'sel_5'"
-    - {id: fxhit_10, at: "hit+10", do: []}
-    - {id: fxhit_20, at: "hit+20", do: []}
+    - id: fxhit_10
+      at: "hit+10"
+      do:
+        - id: rm
+          op: remove
+          ids:
+            - fx1_gossamer_katana_echo_echo_0
+            - fx1_gossamer_katana_echo_echo_1
+            - fx1_gossamer_katana_echo_echo_2
+            - fx1_gossamer_katana_echo_echo_3
+            - fx1_gossamer_katana_echo_echo_4
+            - fx1_gossamer_katana_echo_echo_blade
+            - fx1_gossamer_katana_echo_scan_streak
+          when: "= event.source == 'sel'"
+        - {id: rm_2, op: remove, ids: [fx2_gossamer_katana_echo_cut_katana_crescent], when: "= event.source == 'sel_2'"}
+    - id: fxhit_20
+      at: "hit+20"
+      do:
+        - {id: rm_7, op: remove, ids: [fx5_gossamer_katana_lattice_rake_a, fx5_gossamer_katana_lattice_rake_b, fx5_gossamer_katana_lattice_level], when: "= event.source == 'sel_4'"}
   "on":
     hit:
+      - {id: anchor, op: anchor, frame: fx1_gossamer_katana_echo, at: contact.point, orient: yaw, when: "= event.source == 'sel'"}
+      - {op: block, parent: fx1_gossamer_katana_echo, block: light_blue_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_gossamer_katana_echo_echo_0, when: "= event.source == 'sel'"}
+      - id: fx1_gossamer_katana_echo_echo_0_trk
+        op: track
+        target: fx1_gossamer_katana_echo_echo_0
+        keys:
+          - {t: 0, offset: [0.0, 1.6, 0.0], scale: [0.084, 0.42, 0.4], turn: [0.0, 0.0, 0.0]}
+          - {t: 1, scale: [0.42, 0.42, 0.4], ease: out_expo}
+          - {t: 9, scale: [0.0, 0.0, 0.0], ease: in_quad}
+        when: "= event.source == 'sel'"
+      - {op: block, parent: fx1_gossamer_katana_echo, block: light_blue_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_gossamer_katana_echo_echo_1, when: "= event.source == 'sel'"}
+      - id: fx1_gossamer_katana_echo_echo_1_trk
+        op: track
+        target: fx1_gossamer_katana_echo_echo_1
+        keys:
+          - {t: 0, offset: [0.0, 1.05, 0.0], scale: [0.1, 0.7, 0.4], turn: [0.0, 0.0, 0.0]}
+          - {t: 1, scale: [0.5, 0.7, 0.4], ease: out_expo}
+          - {t: 9, scale: [0.0, 0.0, 0.0], ease: in_quad}
+        when: "= event.source == 'sel'"
+      - {op: block, parent: fx1_gossamer_katana_echo, block: light_blue_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_gossamer_katana_echo_echo_2, when: "= event.source == 'sel'"}
+      - id: fx1_gossamer_katana_echo_echo_2_trk
+        op: track
+        target: fx1_gossamer_katana_echo_echo_2
+        keys:
+          - {t: 0, offset: [0.0, 0.35, -0.17], scale: [0.044, 0.7, 0.4], turn: [0.0, 0.0, 0.0]}
+          - {t: 1, scale: [0.22, 0.7, 0.4], ease: out_expo}
+          - {t: 9, scale: [0.0, 0.0, 0.0], ease: in_quad}
+        when: "= event.source == 'sel'"
+      - {op: block, parent: fx1_gossamer_katana_echo, block: light_blue_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_gossamer_katana_echo_echo_3, when: "= event.source == 'sel'"}
+      - id: fx1_gossamer_katana_echo_echo_3_trk
+        op: track
+        target: fx1_gossamer_katana_echo_echo_3
+        keys:
+          - {t: 0, offset: [0.0, 0.35, 0.17], scale: [0.044, 0.7, 0.4], turn: [0.0, 0.0, 0.0]}
+          - {t: 1, scale: [0.22, 0.7, 0.4], ease: out_expo}
+          - {t: 9, scale: [0.0, 0.0, 0.0], ease: in_quad}
+        when: "= event.source == 'sel'"
+      - {op: block, parent: fx1_gossamer_katana_echo, block: light_blue_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_gossamer_katana_echo_echo_4, when: "= event.source == 'sel'"}
+      - id: fx1_gossamer_katana_echo_echo_4_trk
+        op: track
+        target: fx1_gossamer_katana_echo_echo_4
+        keys:
+          - {t: 0, offset: [0.0, 1.0, 0.4], scale: [0.036, 0.6, 0.4], turn: [0.0, 0.0, 0.0]}
+          - {t: 1, scale: [0.18, 0.6, 0.4], ease: out_expo}
+          - {t: 9, scale: [0.0, 0.0, 0.0], ease: in_quad}
+        when: "= event.source == 'sel'"
+      - {op: block, parent: fx1_gossamer_katana_echo, block: light_blue_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_gossamer_katana_echo_echo_blade, when: "= event.source == 'sel'"}
+      - id: fx1_gossamer_katana_echo_echo_blade_trk
+        op: track
+        target: fx1_gossamer_katana_echo_echo_blade
+        keys:
+          - {t: 0, offset: [0.0, 0.8, 0.4], scale: [0.007, 0.035, 2.1], turn: [0.0, 0.0, 0.0]}
+          - {t: 1, scale: [0.035, 0.035, 2.1], ease: out_expo}
+          - {t: 9, scale: [0.0, 0.0, 0.0], ease: in_quad}
+        when: "= event.source == 'sel'"
+      - {op: block, parent: fx1_gossamer_katana_echo, block: purple_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_gossamer_katana_echo_scan_streak, when: "= event.source == 'sel'"}
+      - id: fx1_gossamer_katana_echo_scan_streak_trk
+        op: track
+        target: fx1_gossamer_katana_echo_scan_streak
+        keys:
+          - {t: 0, offset: [0.03, 1.0, 0.0], scale: [0.06, 0.03, 0.75]}
+          - {t: 9, scale: [0.0, 0.0, 0.0], ease: in_quad}
+        when: "= event.source == 'sel'"
+      - {id: anchor_2, op: anchor, frame: fx2_gossamer_katana_echo_cut, at: contact.point, orient: yaw, when: "= event.source == 'sel_2'"}
       - {id: anchor_3, op: anchor, frame: fx3_gossamer_katana_petals, at: contact.point, orient: yaw, when: "= event.source == 'sel_3'"}
       - id: fx3_gossamer_katana_petals_petals_0
         op: quad
@@ -369,6 +488,262 @@ presentation:
           - {t: 8, offset: [0.74635, -1.10328, 0.97349], scale: [0.0, 0.0, 1.0], alpha: 0.0}
         when: "= event.source == 'sel_3'"
       - {id: snd, op: sound, sound: entity.player.attack.strong, at: contact.point, volume: 0.7, pitch: 1.1, when: "= event.source == 'sel_3'"}
+      - {id: anchor_5, op: anchor, frame: fx5_gossamer_katana_lattice, at: contact.point, orient: yaw, when: "= event.source == 'sel_4'"}
+      - {op: block, parent: fx5_gossamer_katana_lattice, block: light_blue_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx5_gossamer_katana_lattice_rake_a, when: "= event.source == 'sel_4'"}
+      - id: fx5_gossamer_katana_lattice_rake_a_trk
+        op: track
+        target: fx5_gossamer_katana_lattice_rake_a
+        keys:
+          - {t: 0, offset: [0.0, 1.05, 0.0], scale: [0.009, 3.8, 0.045], turn: [38.0, 0.0, 0.0]}
+          - {t: 1, scale: [0.045, 6.8, 0.045], ease: out_expo}
+          - {t: 18, scale: [0.0, 0.0, 0.0], ease: in_quad}
+        when: "= event.source == 'sel_4'"
+      - {op: block, parent: fx5_gossamer_katana_lattice, block: light_blue_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx5_gossamer_katana_lattice_level, when: "= event.source == 'sel_4'"}
+      - id: fx5_gossamer_katana_lattice_level_trk
+        op: track
+        target: fx5_gossamer_katana_lattice_level
+        keys:
+          - {t: 0, offset: [0.0, 1.05, 0.0], scale: [0.008, 0.045, 5.4], turn: [0.0, 0.0, 0.0]}
+          - {t: 1, scale: [0.04, 0.045, 5.4], ease: out_expo}
+          - {t: 18, scale: [0.0, 0.0, 0.0], ease: in_quad}
+        when: "= event.source == 'sel_4'"
+      - id: fx5_gossamer_katana_lattice_petals_0
+        op: quad
+        parent: fx5_gossamer_katana_lattice
+        face: {viewer: center}
+        size: [1.0, 1.0]
+        color: "#96EFFF"
+        alpha: 0.8
+        text: "✦"
+        brightness: 15
+        when: "= event.source == 'sel_4'"
+      - id: fx5_gossamer_katana_lattice_petals_0_trk
+        op: track
+        target: fx5_gossamer_katana_lattice_petals_0
+        keys:
+          - {t: 0, offset: [0.0, 1.1, 0.0], scale: [0.13, 0.13, 1.0], alpha: 0.8}
+          - {t: 1, offset: [0.10694, 1.27919, 0.0], scale: [0.111429, 0.111429, 1.0], alpha: 0.68571}
+          - {t: 2, offset: [0.20747, 1.43352, 0.0], scale: [0.092857, 0.092857, 1.0], alpha: 0.57143}
+          - {t: 3, offset: [0.30196, 1.5645, 0.0], scale: [0.074286, 0.074286, 1.0], alpha: 0.45714}
+          - {t: 4, offset: [0.39079, 1.67352, 0.0], scale: [0.055714, 0.055714, 1.0], alpha: 0.34286}
+          - {t: 5, offset: [0.47428, 1.76189, 0.0], scale: [0.037143, 0.037143, 1.0], alpha: 0.22857}
+          - {t: 6, offset: [0.55277, 1.83087, 0.0], scale: [0.018571, 0.018571, 1.0], alpha: 0.11429}
+          - {t: 7, offset: [0.62655, 1.8816, 0.0], scale: [0.0, 0.0, 1.0], alpha: 0.0}
+        when: "= event.source == 'sel_4'"
+      - id: fx5_gossamer_katana_lattice_petals_1
+        op: quad
+        parent: fx5_gossamer_katana_lattice
+        face: {viewer: center}
+        size: [1.0, 1.0]
+        color: "#96EFFF"
+        alpha: 0.8
+        text: "✦"
+        brightness: 15
+        when: "= event.source == 'sel_4'"
+      - id: fx5_gossamer_katana_lattice_petals_1_trk
+        op: track
+        target: fx5_gossamer_katana_lattice_petals_1
+        keys:
+          - {t: 0, offset: [0.0, 1.1, 0.0], scale: [0.13, 0.13, 1.0], alpha: 0.8}
+          - {t: 1, offset: [-0.12715, 1.22396, 0.11648], scale: [0.111429, 0.111429, 1.0], alpha: 0.68571}
+          - {t: 2, offset: [-0.24667, 1.32639, 0.22597], scale: [0.092857, 0.092857, 1.0], alpha: 0.57143}
+          - {t: 3, offset: [-0.35903, 1.40857, 0.3289], scale: [0.074286, 0.074286, 1.0], alpha: 0.45714}
+          - {t: 4, offset: [-0.46464, 1.47172, 0.42565], scale: [0.055714, 0.055714, 1.0], alpha: 0.34286}
+          - {t: 5, offset: [-0.56391, 1.51697, 0.51659], scale: [0.037143, 0.037143, 1.0], alpha: 0.22857}
+          - {t: 6, offset: [-0.65723, 1.54542, 0.60207], scale: [0.018571, 0.018571, 1.0], alpha: 0.11429}
+          - {t: 7, offset: [-0.74495, 1.55806, 0.68243], scale: [0.0, 0.0, 1.0], alpha: 0.0}
+        when: "= event.source == 'sel_4'"
+      - id: fx5_gossamer_katana_lattice_petals_2
+        op: quad
+        parent: fx5_gossamer_katana_lattice
+        face: {viewer: center}
+        size: [1.0, 1.0]
+        color: "#96EFFF"
+        alpha: 0.8
+        text: "✦"
+        brightness: 15
+        when: "= event.source == 'sel_4'"
+      - id: fx5_gossamer_katana_lattice_petals_2_trk
+        op: track
+        target: fx5_gossamer_katana_lattice_petals_2
+        keys:
+          - {t: 0, offset: [0.0, 1.1, 0.0], scale: [0.13, 0.13, 1.0], alpha: 0.8}
+          - {t: 1, offset: [0.0179, 1.16874, -0.204], scale: [0.111429, 0.111429, 1.0], alpha: 0.68571}
+          - {t: 2, offset: [0.03473, 1.21925, -0.39575], scale: [0.092857, 0.092857, 1.0], alpha: 0.57143}
+          - {t: 3, offset: [0.05055, 1.25263, -0.576], scale: [0.074286, 0.074286, 1.0], alpha: 0.45714}
+          - {t: 4, offset: [0.06542, 1.26991, -0.74544], scale: [0.055714, 0.055714, 1.0], alpha: 0.34286}
+          - {t: 5, offset: [0.0794, 1.27206, -0.90471], scale: [0.037143, 0.037143, 1.0], alpha: 0.22857}
+          - {t: 6, offset: [0.09254, 1.25997, -1.05442], scale: [0.018571, 0.018571, 1.0], alpha: 0.11429}
+          - {t: 7, offset: [0.10489, 1.23451, -1.19515], scale: [0.0, 0.0, 1.0], alpha: 0.0}
+        when: "= event.source == 'sel_4'"
+      - id: fx5_gossamer_katana_lattice_petals_3
+        op: quad
+        parent: fx5_gossamer_katana_lattice
+        face: {viewer: center}
+        size: [1.0, 1.0]
+        color: "#96EFFF"
+        alpha: 0.8
+        text: "✦"
+        brightness: 15
+        when: "= event.source == 'sel_4'"
+      - id: fx5_gossamer_katana_lattice_petals_3_trk
+        op: track
+        target: fx5_gossamer_katana_lattice_petals_3
+        keys:
+          - {t: 0, offset: [0.0, 1.1, 0.0], scale: [0.13, 0.13, 1.0], alpha: 0.8}
+          - {t: 1, offset: [0.13335, 1.11351, 0.17393], scale: [0.111429, 0.111429, 1.0], alpha: 0.68571}
+          - {t: 2, offset: [0.2587, 1.11211, 0.33743], scale: [0.092857, 0.092857, 1.0], alpha: 0.57143}
+          - {t: 3, offset: [0.37653, 1.0967, 0.49111], scale: [0.074286, 0.074286, 1.0], alpha: 0.45714}
+          - {t: 4, offset: [0.48729, 1.06811, 0.63558], scale: [0.055714, 0.055714, 1.0], alpha: 0.34286}
+          - {t: 5, offset: [0.5914, 1.02714, 0.77137], scale: [0.037143, 0.037143, 1.0], alpha: 0.22857}
+          - {t: 6, offset: [0.68926, 0.97452, 0.89902], scale: [0.018571, 0.018571, 1.0], alpha: 0.11429}
+          - {t: 7, offset: [0.78126, 0.91096, 1.01901], scale: [0.0, 0.0, 1.0], alpha: 0.0}
+        when: "= event.source == 'sel_4'"
+      - id: fx5_gossamer_katana_lattice_petals_4
+        op: quad
+        parent: fx5_gossamer_katana_lattice
+        face: {viewer: center}
+        size: [1.0, 1.0]
+        color: "#96EFFF"
+        alpha: 0.8
+        text: "✦"
+        brightness: 15
+        when: "= event.source == 'sel_4'"
+      - id: fx5_gossamer_katana_lattice_petals_4_trk
+        op: track
+        target: fx5_gossamer_katana_lattice_petals_4
+        keys:
+          - {t: 0, offset: [0.0, 1.1, 0.0], scale: [0.13, 0.13, 1.0], alpha: 0.8}
+          - {t: 1, offset: [-0.21582, 1.05829, -0.03818], scale: [0.111429, 0.111429, 1.0], alpha: 0.68571}
+          - {t: 2, offset: [-0.41869, 1.00498, -0.07406], scale: [0.092857, 0.092857, 1.0], alpha: 0.57143}
+          - {t: 3, offset: [-0.60938, 0.94077, -0.10779], scale: [0.074286, 0.074286, 1.0], alpha: 0.45714}
+          - {t: 4, offset: [-0.78864, 0.86631, -0.1395], scale: [0.055714, 0.055714, 1.0], alpha: 0.34286}
+          - {t: 5, offset: [-0.95713, 0.78222, -0.1693], scale: [0.037143, 0.037143, 1.0], alpha: 0.22857}
+          - {t: 6, offset: [-1.11552, 0.68907, -0.19732], scale: [0.018571, 0.018571, 1.0], alpha: 0.11429}
+          - {t: 7, offset: [-1.26441, 0.58741, -0.22366], scale: [0.0, 0.0, 1.0], alpha: 0.0}
+        when: "= event.source == 'sel_4'"
+      - id: fx5_gossamer_katana_lattice_petals_5
+        op: quad
+        parent: fx5_gossamer_katana_lattice
+        face: {viewer: center}
+        size: [1.0, 1.0]
+        color: "#96EFFF"
+        alpha: 0.8
+        text: "✦"
+        brightness: 15
+        when: "= event.source == 'sel_4'"
+      - id: fx5_gossamer_katana_lattice_petals_5_trk
+        op: track
+        target: fx5_gossamer_katana_lattice_petals_5
+        keys:
+          - {t: 0, offset: [0.0, 1.1, 0.0], scale: [0.13, 0.13, 1.0], alpha: 0.8}
+          - {t: 1, offset: [0.17278, 1.00306, -0.10991], scale: [0.111429, 0.111429, 1.0], alpha: 0.68571}
+          - {t: 2, offset: [0.3352, 0.89784, -0.21323], scale: [0.092857, 0.092857, 1.0], alpha: 0.57143}
+          - {t: 3, offset: [0.48787, 0.78483, -0.31034], scale: [0.074286, 0.074286, 1.0], alpha: 0.45714}
+          - {t: 4, offset: [0.63138, 0.66451, -0.40164], scale: [0.055714, 0.055714, 1.0], alpha: 0.34286}
+          - {t: 5, offset: [0.76629, 0.5373, -0.48745], scale: [0.037143, 0.037143, 1.0], alpha: 0.22857}
+          - {t: 6, offset: [0.89309, 0.40362, -0.56811], scale: [0.018571, 0.018571, 1.0], alpha: 0.11429}
+          - {t: 7, offset: [1.01229, 0.26387, -0.64394], scale: [0.0, 0.0, 1.0], alpha: 0.0}
+        when: "= event.source == 'sel_4'"
+      - id: fx5_gossamer_katana_lattice_petals_6
+        op: quad
+        parent: fx5_gossamer_katana_lattice
+        face: {viewer: center}
+        size: [1.0, 1.0]
+        color: "#96EFFF"
+        alpha: 0.8
+        text: "✦"
+        brightness: 15
+        when: "= event.source == 'sel_4'"
+      - id: fx5_gossamer_katana_lattice_petals_6_trk
+        op: track
+        target: fx5_gossamer_katana_lattice_petals_6
+        keys:
+          - {t: 0, offset: [0.0, 1.1, 0.0], scale: [0.13, 0.13, 1.0], alpha: 0.8}
+          - {t: 1, offset: [-0.04477, 0.94784, 0.16653], scale: [0.111429, 0.111429, 1.0], alpha: 0.68571}
+          - {t: 2, offset: [-0.08685, 0.7907, 0.32306], scale: [0.092857, 0.092857, 1.0], alpha: 0.57143}
+          - {t: 3, offset: [-0.1264, 0.6289, 0.47021], scale: [0.074286, 0.074286, 1.0], alpha: 0.45714}
+          - {t: 4, offset: [-0.16358, 0.4627, 0.60852], scale: [0.055714, 0.055714, 1.0], alpha: 0.34286}
+          - {t: 5, offset: [-0.19853, 0.29238, 0.73854], scale: [0.037143, 0.037143, 1.0], alpha: 0.22857}
+          - {t: 6, offset: [-0.23139, 0.11817, 0.86076], scale: [0.018571, 0.018571, 1.0], alpha: 0.11429}
+          - {t: 7, offset: [-0.26227, -0.05968, 0.97564], scale: [0.0, 0.0, 1.0], alpha: 0.0}
+        when: "= event.source == 'sel_4'"
+      - id: fx5_gossamer_katana_lattice_petals_7
+        op: quad
+        parent: fx5_gossamer_katana_lattice
+        face: {viewer: center}
+        size: [1.0, 1.0]
+        color: "#96EFFF"
+        alpha: 0.8
+        text: "✦"
+        brightness: 15
+        when: "= event.source == 'sel_4'"
+      - id: fx5_gossamer_katana_lattice_petals_7_trk
+        op: track
+        target: fx5_gossamer_katana_lattice_petals_7
+        keys:
+          - {t: 0, offset: [0.0, 1.1, 0.0], scale: [0.13, 0.13, 1.0], alpha: 0.8}
+          - {t: 1, offset: [-0.04929, 0.89261, -0.09491], scale: [0.111429, 0.111429, 1.0], alpha: 0.68571}
+          - {t: 2, offset: [-0.09562, 0.68357, -0.18412], scale: [0.092857, 0.092857, 1.0], alpha: 0.57143}
+          - {t: 3, offset: [-0.13918, 0.47297, -0.26798], scale: [0.074286, 0.074286, 1.0], alpha: 0.45714}
+          - {t: 4, offset: [-0.18012, 0.2609, -0.3468], scale: [0.055714, 0.055714, 1.0], alpha: 0.34286}
+          - {t: 5, offset: [-0.2186, 0.04746, -0.4209], scale: [0.037143, 0.037143, 1.0], alpha: 0.22857}
+          - {t: 6, offset: [-0.25478, -0.16728, -0.49055], scale: [0.018571, 0.018571, 1.0], alpha: 0.11429}
+          - {t: 7, offset: [-0.28878, -0.38323, -0.55603], scale: [0.0, 0.0, 1.0], alpha: 0.0}
+        when: "= event.source == 'sel_4'"
+      - op: quad
+        parent: fx5_gossamer_katana_lattice
+        face: {viewer: center}
+        size: [1.0, 1.0]
+        color: "#111A36"
+        alpha: 1.0
+        text: "✦"
+        brightness: 15
+        id: fx5_gossamer_katana_lattice_impact_dark
+        when: "= event.source == 'sel_4'"
+      - id: fx5_gossamer_katana_lattice_impact_dark_trk
+        op: track
+        target: fx5_gossamer_katana_lattice_impact_dark
+        keys:
+          - {t: 0, offset: [0.0, 1.05, 0.0], scale: [1.8, 1.8, 1.0], alpha: 1.0}
+          - {t: 2, scale: [1.8, 1.8, 1.0], ease: out_expo}
+          - {t: 5, scale: [0.0, 0.0, 1.0], alpha: 0.0, ease: in_quad}
+        when: "= event.source == 'sel_4'"
+      - op: quad
+        parent: fx5_gossamer_katana_lattice
+        face: {viewer: center}
+        size: [1.0, 1.0]
+        color: "#E9FAFF"
+        alpha: 1.0
+        text: "✦"
+        brightness: 15
+        id: fx5_gossamer_katana_lattice_impact_core
+        when: "= event.source == 'sel_4'"
+      - id: fx5_gossamer_katana_lattice_impact_core_trk
+        op: track
+        target: fx5_gossamer_katana_lattice_impact_core
+        keys:
+          - {t: 0, offset: [0.0, 1.05, 0.0], scale: [1.5, 1.5, 1.0], alpha: 1.0}
+          - {t: 2, scale: [1.5, 1.5, 1.0], ease: out_expo}
+          - {t: 5, scale: [0.0, 0.0, 1.0], alpha: 0.0, ease: in_quad}
+        when: "= event.source == 'sel_4'"
+      - op: quad
+        parent: fx5_gossamer_katana_lattice
+        face: {viewer: center}
+        size: [1.0, 1.0]
+        color: "#60E1FF"
+        alpha: 0.22
+        brightness: 15
+        id: fx5_gossamer_katana_lattice_impact_bloom
+        when: "= event.source == 'sel_4'"
+      - id: fx5_gossamer_katana_lattice_impact_bloom_trk
+        op: track
+        target: fx5_gossamer_katana_lattice_impact_bloom
+        keys:
+          - {t: 0, offset: [0.0, 1.05, 0.0], scale: [3.2, 1.1, 1.0], alpha: 0.22}
+          - {t: 2, scale: [3.2, 1.1, 1.0], ease: out_expo}
+          - {t: 5, scale: [0.0, 0.0, 1.0], alpha: 0.0, ease: in_quad}
+        when: "= event.source == 'sel_4'"
       - {id: anchor_6, op: anchor, frame: fx6_gossamer_katana_petals, at: contact.point, orient: yaw, when: "= event.source == 'sel_5'"}
       - id: fx6_gossamer_katana_petals_petals_0
         op: quad

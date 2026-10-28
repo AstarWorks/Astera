@@ -276,18 +276,27 @@ class Conv:
         self.p_reps.append((at, every, span, op))
 
     # ---------- targets ----------
+    def snapshot_frame(self):
+        """v1 `snapshot_pose: true` (MechanicDispatcher.livePose, MechanicDispatcher.kt:560-566): a delayed mechanic reads the caster pose
+        of the cast start instead of the live pose. One inactive body frame, placed `like caster` on the first tick of the cast."""
+        if "snap" not in self.frames:
+            self.frames["snap"] = {"id": "snap", "kind": "body", "parent": "world", "inactive": True}
+            self.g(CAST, 0, {"id": "place_snap", "op": "place", "frame": "snap", "like": "caster"})
+        return "snap"
+
     def point(self, tg, where, side="p"):
         t = tg["type"] if tg else "caster"
+        cref = getattr(self, "cref", "caster")
         if t == "caster":
-            return "caster"
+            return cref
         if t == "target":
             return "contact.point" if side == "p" and where.kind == "handler" and where.event == "hit" else "enemy"
         if t == "hit_location":
             return "contact.point"
         if t == "caster_forward":
-            return self.pframe("caster", [0.0, V(tg.get("height", 0.0)), V(tg.get("distance", 0.0))], side)
+            return self.pframe(cref, [0.0, V(tg.get("height", 0.0)), V(tg.get("distance", 0.0))], side)
         if t == "caster_offset":
-            return self.pframe("caster", vec3(tg["offset"]), side)
+            return self.pframe(cref, vec3(tg["offset"]), side)
         if t == "target_offset":
             return self.pframe("enemy", vec3(tg["offset"]), side)
         if t == "projectile_position":
@@ -350,9 +359,7 @@ class Conv:
         op["window"] = "once"
         if m is not None and V(m.get("snapshot_pose", False)):
             # the volume rides a frozen copy of the caster pose taken at this tick, not the live caster
-            snap = self.oid("snap")
-            self.frames[snap] = {"id": snap, "kind": "body", "parent": "world", "inactive": True}
-            self.g(CAST, delay, {"id": self.oid("place_" + snap), "op": "place", "frame": snap, "like": "caster"})
+            snap = self.snapshot_frame()
             op["frames"] = [snap]
             if "sector" in op:
                 op["sector"].update({"frame": snap, "forward": snap + ".forward", "left": snap + ".left"})
@@ -364,32 +371,6 @@ class Conv:
         w = Where("handler", "hit", f"= event.source == '{hid}'")
         self.sel[key] = w
         return w
-
-    def prune_idle_hits(self):
-        """Drop `hit` volumes no gameplay handler listens to (v1 area targets used only by play_vfx / sound): they
-        would be invisible hit volumes without an effect. Their presentation handlers go with them."""
-        def mentions(op, hid):
-            return ("'%s'" % hid) in (op.get("when") or "")
-        for rows_key, rows in list(self.g_rows.items()):
-            for op in list(rows):
-                if op.get("op") != "hit":
-                    continue
-                hid = op["id"]
-                served = any(mentions(o, hid) for lst in self.g_on.values() for o in lst) or \
-                    any(mentions(o, hid) for rs in self.g_rows.values() for o in rs)
-                if served:
-                    continue
-                rows.remove(op)
-                n = 0
-                for store in (self.p_on, self.p_rows):
-                    for k, lst in store.items():
-                        keep = [o for o in lst if not mentions(o, hid)]
-                        n += len(lst) - len(keep)
-                        lst[:] = keep
-                self.present("area target used only by presentation ops (no damaging hit volume to attach them to)",
-                             "%s: %d presentation op(s) dropped" % (hid, n))
-            if not rows:
-                del self.g_rows[rows_key]
 
     # ---------- conditions ----------
     def cond(self, m):
@@ -717,9 +698,16 @@ class Conv:
             self.todo("missing vfx file", vid)
             return
         d = vfxelem.resolve_palette(d)
+        sc = V(m.get("scale", d.get("scale", 1.0)))
+        if not isinstance(sc, (int, float)):
+            raise ValueError("play_vfx scale must be a number, got %r (%s)" % (sc, vid))
+        d = vfxelem.scale_def(d, float(sc))
         self.vfx_n += 1
         fid = "fx%d_%s" % (self.vfx_n, sid(vid))
-        want = self.point(tg, where, "p") if tg else "caster"
+        snap = self.snapshot_frame() if V(m.get("snapshot_pose", False)) else None
+        self.cref = snap or "caster"
+        want = self.point(tg, where, "p") if tg else self.cref
+        self.cref = "caster"
         follow = bool(V(m.get("follow", d.get("follow", True))))
         # v1 places the instance at the play point with VfxOrient.frame (VfxDefinition.kt:33-60) and moves only a follow=true one
         # (VfxPlayer.kt:414-420: position tracks the anchor, the spawn rotation stays). Both are one `anchor` op on a
@@ -735,25 +723,28 @@ class Conv:
         anchor = {"id": self.oid("anchor"), "op": "anchor", "frame": fid, "at": want, "orient": name}
         if tracks:
             anchor["follow"] = True
+        if snap:
+            anchor["pose"] = snap
+        if follow:
+            # a followed effect teleports its non-passenger displays every tick over follow_teleport_ticks (default 2), VfxPlayer.kt:416-419
+            anchor["teleport_ticks"] = int(d.get("follow_teleport_ticks", 2))
+        # v1 tilts only a plain yaw-oriented effect; a performance (body or a weapon rig) never pitches (VfxPlayer.kt:243)
+        performance = d.get("body") is not None or any(r.get("weapon") for r in d.get("rigs", []))
+        if d.get("follow_pitch") and name == "yaw" and not performance:
+            anchor["pitch"] = True
         self.p(where, delay, self._w(anchor, when))
-        if "scale" in d or "scale" in m:
-            self.present("vfx frame scale (frames carry no scale)", "scale=%s" % short(V(m.get("scale", d.get("scale"))), 30))
         if d.get("attach_to_anchor") and not (want == "caster" or want.startswith("caster.")) :
             self.present("vfx attach_to_anchor on a non-caster anchor", short(want, 40))
         self.vfx_pull = None
         if "target_reference" in d:
-            sc = V(m.get("scale", d.get("scale", 1.0)))
-            if not isinstance(sc, (int, float)):
-                sc = 1.0
-                self.present("vfx target_reference with a non-numeric scale", short(d["target_reference"], 40))
             ref = self.pframe(fid, [float(x) * float(sc) for x in d["target_reference"]], "p")
             self.vfx_pull = {"ref": ref, "to": "enemy", "ends": []}
         elif m.get("track_bound_target"):
             self.present("play_vfx track_bound_target without a vfx target_reference (nothing to track)", vid)
-        for k in ("follow_teleport_ticks", "replace_group", "follow_pitch", "ghost_bodies"):
+        for k in ("replace_group", "ghost_bodies"):
             if k in d:
                 self.present("vfx %s (no v2 equivalent)" % k, short(d[k], 60))
-        for k in ("freeze", "viewers", "snapshot_pose"):
+        for k in ("freeze", "viewers"):
             if k in m:
                 self.present("play_vfx %s (no v2 equivalent)" % k, short(V(m[k]), 40))
         dur = int(d.get("duration_ticks", 20))
@@ -1221,7 +1212,6 @@ def meta_block(d):
 
 
 def build_docs(c, d, item, items):
-    c.prune_idle_hits()
     sk = OrderedDict()
     sk["apiVersion"] = "astera/v2"
     sk["kind"] = "Skill"

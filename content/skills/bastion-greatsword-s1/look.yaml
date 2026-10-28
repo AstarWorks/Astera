@@ -373,7 +373,7 @@ presentation:
     - id: fx0
       at: 0
       do:
-        - {id: anchor, op: anchor, frame: fx1_bastion_s1_rig, at: caster, orient: yaw, follow: true}
+        - {id: anchor, op: anchor, frame: fx1_bastion_s1_rig, at: caster, orient: yaw, follow: true, teleport_ticks: 2}
         - {id: canim, op: caster_anim, anim: bastion-s1-body}
         - {id: fx1_bastion_s1_rig_sword_weapon, op: mesh, frame: fx1_bastion_s1_rig_sword, item: main_hand}
         - id: fx1_bastion_s1_rig_sword_swing
@@ -431,7 +431,7 @@ presentation:
     - id: fx3
       at: 3
       do:
-        - {id: anchor_2, op: anchor, frame: fx2_bastion_s1_fx_high, at: caster, orient: yaw, follow: true}
+        - {id: anchor_2, op: anchor, frame: fx2_bastion_s1_fx_high, at: caster, orient: yaw, follow: true, teleport_ticks: 2}
         - op: plate
           parent: fx2_bastion_s1_fx_high
           face: {plane: {frame: fx2_bastion_s1_fx_high, axes: [left, up]}}
@@ -1168,7 +1168,7 @@ presentation:
         - {id: snd_15, op: sound, sound: entity.player.attack.sweep, at: caster, volume: 1.0, pitch: 0.45}
         - {id: snd_16, op: sound, sound: entity.breeze.wind_burst, at: caster, volume: 0.6, pitch: 0.5}
         - {id: snd_17, op: sound, sound: item.trident.throw, at: caster, volume: 0.8, pitch: 0.5}
-    - {id: fx27, at: 27, do: [{id: anchor_3, op: anchor, frame: fx3_bastion_s1_fx_low, at: caster, orient: yaw, follow: true}]}
+    - {id: fx27, at: 27, do: [{id: anchor_3, op: anchor, frame: fx3_bastion_s1_fx_low, at: caster, orient: yaw, follow: true, teleport_ticks: 2}]}
     - id: fx28
       at: 28
       do:

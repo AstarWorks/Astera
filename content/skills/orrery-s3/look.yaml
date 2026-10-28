@@ -46,7 +46,7 @@ presentation:
     - id: fx20
       at: 20
       do:
-        - {id: anchor_10, op: anchor, frame: fx10_orrery_orb, at: caster, orient: look, follow: true}
+        - {id: anchor_10, op: anchor, frame: fx10_orrery_orb, at: caster, orient: look, follow: true, teleport_ticks: 2}
         - {op: plate, parent: fx10_orrery_orb, face: {viewer: center}, sprite: orrery-orb, size: 3.2, color: "#FFFFFF", brightness: 15, id: fx10_orrery_orb_core}
         - id: fx10_orrery_orb_core_trk
           op: track
@@ -100,7 +100,7 @@ presentation:
     - id: fx45
       at: 45
       do:
-        - {id: anchor_11, op: anchor, frame: fx11_orrery_seal_front, at: caster, orient: yaw, follow: true}
+        - {id: anchor_11, op: anchor, frame: fx11_orrery_seal_front, at: caster, orient: yaw, follow: true, teleport_ticks: 2}
         - op: block
           parent: fx11_orrery_seal_front
           block: gold_block
@@ -214,7 +214,7 @@ presentation:
     - id: fx60
       at: 60
       do:
-        - {id: anchor_12, op: anchor, frame: fx12_orrery_seal_front, at: caster, orient: yaw, follow: true}
+        - {id: anchor_12, op: anchor, frame: fx12_orrery_seal_front, at: caster, orient: yaw, follow: true, teleport_ticks: 2}
         - op: block
           parent: fx12_orrery_seal_front
           block: gold_block
@@ -329,7 +329,7 @@ presentation:
     - id: fx72
       at: 72
       do:
-        - {id: anchor_13, op: anchor, frame: fx13_orrery_seal_front, at: caster, orient: yaw, follow: true}
+        - {id: anchor_13, op: anchor, frame: fx13_orrery_seal_front, at: caster, orient: yaw, follow: true, teleport_ticks: 2}
         - op: block
           parent: fx13_orrery_seal_front
           block: gold_block
@@ -473,7 +473,7 @@ presentation:
     - id: fx143
       at: 143
       do:
-        - {id: anchor_14, op: anchor, frame: fx14_orrery_seal_front, at: caster, orient: yaw, follow: true}
+        - {id: anchor_14, op: anchor, frame: fx14_orrery_seal_front, at: caster, orient: yaw, follow: true, teleport_ticks: 2}
         - op: block
           parent: fx14_orrery_seal_front
           block: gold_block

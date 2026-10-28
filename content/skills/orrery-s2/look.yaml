@@ -26,7 +26,7 @@ presentation:
       at: 7
       do:
         - {id: anim_2, op: caster_anim, anim: hide-main-hand}
-        - {id: anchor, op: anchor, frame: fx1_orrery_s2_charge_ring, at: caster, orient: yaw, follow: true}
+        - {id: anchor, op: anchor, frame: fx1_orrery_s2_charge_ring, at: caster, orient: yaw, follow: true, teleport_ticks: 2}
         - op: block
           parent: fx1_orrery_s2_charge_ring
           block: gold_block
@@ -120,7 +120,7 @@ presentation:
     - id: fx50
       at: 50
       do:
-        - {id: anchor_2, op: anchor, frame: fx2_orrery_s2_charge_ring, at: caster, orient: yaw, follow: true}
+        - {id: anchor_2, op: anchor, frame: fx2_orrery_s2_charge_ring, at: caster, orient: yaw, follow: true, teleport_ticks: 2}
         - op: block
           parent: fx2_orrery_s2_charge_ring
           block: gold_block

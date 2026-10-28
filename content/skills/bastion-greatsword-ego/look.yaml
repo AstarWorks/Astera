@@ -23,7 +23,7 @@ presentation:
     - id: fx0
       at: 0
       do:
-        - {id: anchor, op: anchor, frame: fx1_bastion_ego_guard, at: caster, orient: yaw, follow: true}
+        - {id: anchor, op: anchor, frame: fx1_bastion_ego_guard, at: caster, orient: yaw, follow: true, teleport_ticks: 2}
         - op: plate
           parent: fx1_bastion_ego_guard
           face: {plane: {frame: fx1_bastion_ego_guard, axes: [left, up]}}

@@ -17,7 +17,7 @@ presentation:
     - id: fx0
       at: 0
       do:
-        - {id: anchor, op: anchor, frame: fx1_edict_ghost, at: caster, orient: yaw, follow: true}
+        - {id: anchor, op: anchor, frame: fx1_edict_ghost, at: caster, orient: yaw, follow: true, teleport_ticks: 2}
         - op: block
           parent: fx1_edict_ghost
           block: white_stained_glass
@@ -50,7 +50,7 @@ presentation:
     - id: fx3
       at: 3
       do:
-        - {id: anchor_2, op: anchor, frame: fx2_edict_fists_down, at: caster, orient: yaw, follow: true}
+        - {id: anchor_2, op: anchor, frame: fx2_edict_fists_down, at: caster, orient: yaw, follow: true, teleport_ticks: 2}
         - {op: block, parent: fx2_edict_fists_down, block: white_concrete, size: [1.0, 1.0, 1.0], id: fx2_edict_fists_down_1_glove}
         - id: fx2_edict_fists_down_1_glove_trk
           op: track
@@ -339,7 +339,7 @@ presentation:
     - id: fx16
       at: 16
       do:
-        - {id: anchor_5, op: anchor, frame: fx5_edict_fists_return, at: caster, orient: yaw, follow: true}
+        - {id: anchor_5, op: anchor, frame: fx5_edict_fists_return, at: caster, orient: yaw, follow: true, teleport_ticks: 2}
         - {op: block, parent: fx5_edict_fists_return, block: white_concrete, size: [1.0, 1.0, 1.0], id: fx5_edict_fists_return_1_glove}
         - id: fx5_edict_fists_return_1_glove_trk
           op: track

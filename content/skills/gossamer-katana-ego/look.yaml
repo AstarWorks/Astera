@@ -26,7 +26,7 @@ presentation:
     - id: fx0
       at: 0
       do:
-        - {id: anchor, op: anchor, frame: fx1_gossamer_katana_draw, at: caster, orient: yaw, follow: true}
+        - {id: anchor, op: anchor, frame: fx1_gossamer_katana_draw, at: caster, orient: yaw, follow: true, teleport_ticks: 2}
         - {id: anchor_2, op: anchor, frame: fx2_gossamer_katana_guard, at: caster, orient: yaw}
         - {op: block, parent: fx2_gossamer_katana_guard, block: cyan_stained_glass, size: [1.0, 1.0, 1.0], brightness: 15, id: fx2_gossamer_katana_guard_echo_0}
         - id: fx2_gossamer_katana_guard_echo_0_trk

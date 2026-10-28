@@ -11,7 +11,7 @@ presentation:
     - id: fx0
       at: 0
       do:
-        - {id: anchor, op: anchor, frame: fx1_orrery_guard, at: caster, orient: yaw, follow: true}
+        - {id: anchor, op: anchor, frame: fx1_orrery_guard, at: caster, orient: yaw, follow: true, teleport_ticks: 2}
         - {op: block, parent: fx1_orrery_guard, block: gold_block, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_orrery_guard_hoop_a_s0}
         - id: fx1_orrery_guard_hoop_a_s0_trk
           op: track

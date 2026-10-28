@@ -22,7 +22,7 @@ presentation:
     - id: fx0
       at: 0
       do:
-        - {id: anchor, op: anchor, frame: fx1_ember_harness, at: caster, orient: yaw, follow: true}
+        - {id: anchor, op: anchor, frame: fx1_ember_harness, at: caster, orient: yaw, follow: true, teleport_ticks: 2}
         - {id: anchor_2, op: anchor, frame: fx2_ember_flare_guard, at: caster, orient: yaw}
         - op: block
           parent: fx2_ember_flare_guard
@@ -255,7 +255,7 @@ presentation:
     - id: fx111
       at: 111
       do:
-        - {id: anchor_3, op: anchor, frame: fx3_ember_counter_sweep, at: caster, orient: yaw, follow: true}
+        - {id: anchor_3, op: anchor, frame: fx3_ember_counter_sweep, at: caster, orient: yaw, follow: true, teleport_ticks: 2}
         - {id: fx3_ember_counter_sweep_embers_atrk, op: track, target: fx3_ember_counter_sweep_embers_at, space: fx3_ember_counter_sweep, keys: [{t: 0, offset: [0, 1.1, 2.2]}]}
         - {op: block, parent: fx3_ember_counter_sweep, block: yellow_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx3_ember_counter_sweep_pressure_hoop_s0}
         - id: fx3_ember_counter_sweep_pressure_hoop_s0_trk

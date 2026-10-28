@@ -24,7 +24,7 @@ presentation:
       at: 0
       do:
         - {id: anchor, op: anchor, frame: fx1_orrery_poise, at: caster, orient: yaw}
-        - {id: anchor_2, op: anchor, frame: fx2_orrery_motes, at: caster, orient: yaw, follow: true}
+        - {id: anchor_2, op: anchor, frame: fx2_orrery_motes, at: caster, orient: yaw, follow: true, teleport_ticks: 2}
         - op: block
           parent: fx2_orrery_motes
           block: red_concrete
@@ -59,7 +59,7 @@ presentation:
             - {t: 0, scale: [0.0, 0.0, 0.0]}
             - {t: 2, scale: [0.1, 0.1, 0.1], ease: out_back}
             - {t: 13, offset: [0.0, 0.8, 0.0], scale: [0.0, 0.0, 0.0], ease: in_quad}
-        - {id: anchor_3, op: anchor, frame: fx3_orrery_orb, at: caster, orient: look, follow: true}
+        - {id: anchor_3, op: anchor, frame: fx3_orrery_orb, at: caster, orient: look, follow: true, teleport_ticks: 2}
         - {op: plate, parent: fx3_orrery_orb, face: {viewer: center}, sprite: orrery-orb, size: 3.2, color: "#FFFFFF", brightness: 15, id: fx3_orrery_orb_core}
         - id: fx3_orrery_orb_core_trk
           op: track
@@ -232,7 +232,7 @@ presentation:
     - id: fx24
       at: 24
       do:
-        - {id: anchor_4, op: anchor, frame: fx4_orrery_beam, at: caster, orient: yaw, follow: true}
+        - {id: anchor_4, op: anchor, frame: fx4_orrery_beam, at: caster, orient: yaw, follow: true, teleport_ticks: 2}
         - {op: block, parent: fx4_orrery_beam, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx4_orrery_beam_core}
         - id: fx4_orrery_beam_core_trk
           op: track
@@ -257,7 +257,7 @@ presentation:
             - {t: 0, offset: [-0.3, 1.28, 7.45], scale: [0.025, 0.025, 11.0]}
             - {t: 29, scale: [0.025, 0.025, 11.0]}
             - {t: 32, scale: [0.0, 0.0, 11.0]}
-        - {id: anchor_5, op: anchor, frame: fx5_orrery_seal_front, at: caster, orient: yaw, follow: true}
+        - {id: anchor_5, op: anchor, frame: fx5_orrery_seal_front, at: caster, orient: yaw, follow: true, teleport_ticks: 2}
         - op: block
           parent: fx5_orrery_seal_front
           block: gold_block
@@ -377,7 +377,7 @@ presentation:
     - {id: loop1, at: 0, every: 1, for: 22, do: [{id: fx1_orrery_poise_staff_embers, op: emit, at: pt_fx1_orrery_poise_staff_0_1p65_0, particle: orrery-ember}]}
   "on":
     hit:
-      - {id: anchor_6, op: anchor, frame: fx6_orrery_ring_hit, at: contact.point, orient: to_target, when: "= event.source == 'sel'"}
+      - {id: anchor_6, op: anchor, frame: fx6_orrery_ring_hit, at: contact.point, orient: to_target, teleport_ticks: 2, when: "= event.source == 'sel'"}
       - op: block
         parent: fx6_orrery_ring_hit
         block: gold_block

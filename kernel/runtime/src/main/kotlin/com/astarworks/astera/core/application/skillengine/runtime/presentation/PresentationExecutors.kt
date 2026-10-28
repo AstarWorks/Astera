@@ -6,7 +6,9 @@ import com.astarworks.astera.core.domain.effect.sound.SoundPlanner
 import com.astarworks.astera.core.application.skillengine.runtime.OpContext
 import com.astarworks.astera.core.application.skillengine.runtime.OpExecutor
 import com.astarworks.astera.core.application.skillengine.runtime.port.ParticleBurst
+import com.astarworks.astera.core.domain.geometry.SLASH_PITCH_LIMIT_DEGREES
 import com.astarworks.astera.core.domain.geometry.Vec3
+import com.astarworks.astera.core.domain.geometry.pitchRadians
 import com.astarworks.astera.core.domain.geometry.math.Frame
 import com.astarworks.astera.core.domain.geometry.math.Quaternion
 import com.astarworks.astera.core.domain.skillengine.frame.FrameId
@@ -169,16 +171,24 @@ internal class AnchorExecutor(private val rt: PresentationRuntime) : OpExecutor<
         val parentWorld = node.parent?.let { rt.frameWorld(s, it.value) } ?: Frame(Vec3.ZERO)
         val origin = rt.pointWorld(s, op.at) ?: return ctx.host.fail(op.id, "anchor: point '${op.at}' does not resolve")
         // v1 VfxOrient.frame (VfxDefinition.kt:55): world = identity, look = caster look, yaw = look flattened, to_target = caster -> anchor.
-        val look = ctx.host.lookDirection()
-        val toTarget = rt.frameWorld(s, "caster")?.let { origin - it.origin }?.takeIf { it.lengthSquared() > 1e-9 }
+        val poseFrame = op.pose?.let { rt.frameWorld(s, it) }
+        val look = poseFrame?.forward() ?: ctx.host.lookDirection()
+        val toTarget = (poseFrame ?: rt.frameWorld(s, "caster"))?.let { origin - it.origin }?.takeIf { it.lengthSquared() > 1e-9 }
         val dir: Vec3? = when (op.orient) {
             AnchorOrient.WORLD -> null
             AnchorOrient.LOOK -> look
             AnchorOrient.YAW -> Vec3(look.x, 0.0, look.z)
             AnchorOrient.TO_TARGET -> toTarget ?: look
         }
-        val target = if (dir == null || dir.lengthSquared() < 1e-9) Frame(origin) else Frame.fromDirection(origin, dir)
+        var target = if (dir == null || dir.lengthSquared() < 1e-9) Frame(origin) else Frame.fromDirection(origin, dir)
+        if (op.pitch && op.orient == AnchorOrient.YAW) {
+            // v1 follow_pitch (VfxPlayer.kt:243-246): the yaw frame also takes the look pitch, clamped, tilting about the frame's x axis.
+            val limit = Math.toRadians(SLASH_PITCH_LIMIT_DEGREES)
+            val pitch = look.pitchRadians().coerceIn(-limit, limit)
+            if (pitch != 0.0) target = target.copy(rotation = target.rotation * Quaternion.axisAngle(Vec3(1.0, 0.0, 0.0), -pitch))
+        }
         ctx.tree.setLocal(FrameId(op.frame), relativeTo(parentWorld, target))
+        op.teleportTicks?.let { s.teleports[op.frame] = it } ?: s.teleports.remove(op.frame)
         if (op.follow) s.anchors[op.frame] = PresentationRuntime.AnchorFollow(op, target.rotation) else s.anchors.remove(op.frame)
     }
 }
