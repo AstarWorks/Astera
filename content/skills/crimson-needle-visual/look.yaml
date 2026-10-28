@@ -1,6 +1,6 @@
 # Converted from content/skills/crimson-needle-visual.yaml + content/vfx/* by tools/skill-convert/convert.py (v1 archetype: projectile). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
 # Generated point-frame offsets are [left, up, forward] in the parent frame.
-# CONVERT-PRESENT projectile trail shape / scale / offset (emit has none) (x1): point
+# CONVERT-PRESENT projectile trail shape / scale (emit has none) (x1): point
 # CONVERT-PRESENT projectile display.material used as the mesh item id (unverified); variant dropped (x1): minecraft:redstone variant=item
 apiVersion: "astera/v2"
 kind: Skill
@@ -8,4 +8,4 @@ id: crimson-needle-visual
 presentation:
   timeline:
     - {id: fx0, at: 0, do: [{id: mesh, op: mesh, frame: bolt, item: "minecraft:redstone", scale: 0.35}]}
-    - {id: rep1, at: 0, every: 1, until: end, do: [{id: trail, op: emit, at: bolt, particle: dust, count: 1, color: "#f02341"}]}
+    - {id: rep1, at: 0, every: 1, until: end, do: [{id: trail, op: emit, at: bolt, particle: dust, count: 1, spacing: 0.2, color: "#f02341", extra: 0.0}]}

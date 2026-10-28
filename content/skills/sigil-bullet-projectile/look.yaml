@@ -1,6 +1,6 @@
 # Converted from content/skills/sigil-bullet-projectile.yaml + content/vfx/* by tools/skill-convert/convert.py (v1 archetype: projectile). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
 # Generated point-frame offsets are [left, up, forward] in the parent frame.
-# CONVERT-PRESENT projectile trail shape / scale / offset (emit has none) (x1): point
+# CONVERT-PRESENT projectile trail shape / scale (emit has none) (x1): point
 # CONVERT-PRESENT projectile display.material used as the mesh item id (unverified); variant dropped (x1): minecraft:iron_nugget variant=item
 # CONVERT-PRESENT vfx follow=false (anchored at world, no place-at-spawn) (x1): sigil-rifle-mark
 # CONVERT-PRESENT vfx frame orient (frames carry no orientation / scale) (x1): orient="yaw"
@@ -14,5 +14,5 @@ frames:
 presentation:
   timeline:
     - {id: fx0, at: 0, do: [{id: mesh, op: mesh, frame: bolt, item: "minecraft:iron_nugget", scale: 0.35}]}
-    - {id: rep1, at: 0, every: 1, until: end, do: [{id: trail, op: emit, at: bolt, particle: dust, count: 1, color: "#f0dc96"}]}
+    - {id: rep1, at: 0, every: 1, until: end, do: [{id: trail, op: emit, at: bolt, particle: dust, count: 1, spacing: 0.2, color: "#f0dc96", extra: 0.0}]}
   "on": {hit: [{id: snd, op: sound, sound: entity.player.attack.strong, at: contact.point, volume: 0.7, pitch: 1.1}]}

@@ -210,6 +210,7 @@ internal object CelFunctions {
         def("aim_point", "aim_point_ref_num", VEC3, listOf(REF, NUM), listOf(R, OBJ)) {
             host().aimPoint(it[0] as ExprValue.Ref, n(it[1]))
         }
+        def("look", "look_ref", VEC3, listOf(REF), listOf(R)) { host().lookDirection(it[0] as ExprValue.Ref) }
         def("blade_len", "blade_len_ref", D, listOf(REF), listOf(R)) { host().bladeLen(it[0] as ExprValue.Ref) }
 
         // world queries about the caster's surroundings (cast required)

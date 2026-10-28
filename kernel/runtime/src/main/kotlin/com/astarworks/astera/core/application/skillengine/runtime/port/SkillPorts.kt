@@ -49,6 +49,13 @@ public data class ParticleBurst(
     val inheritVelocity: Vec3?,
     val colorHex: String?,
     val seed: Long,
+    /**
+     * The op set `offset` or `extra`: spawn a vanilla `spawnParticle` (count, [offset] spread, [extra] speed) instead of
+     * the dir / speed model. Custom particle definitions ignore it.
+     */
+    val vanilla: Boolean = false,
+    val offset: Vec3? = null,
+    val extra: Double = 0.0,
 )
 
 public interface ISkillParticleGateway {

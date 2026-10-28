@@ -820,6 +820,8 @@ internal class CastInstance(
     private val exprHost = object : ExprHost {
         override fun aimPoint(caster: ExprValue.Ref, range: Double): Vec3 = aimAt(range)
 
+        override fun lookDirection(caster: ExprValue.Ref): Vec3 = lookDirection()
+
         override fun counter(key: String): Double = counters[key] ?: 0.0
 
         private fun enemies(from: Vec3, radius: Double): List<HitCandidate> =

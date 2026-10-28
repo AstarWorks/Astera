@@ -158,7 +158,7 @@ private object FxOpDecoder : OpDecoder {
             "emit" -> FxOp.Emit(
                 id, whenExpr, requirePoint("at"), requireString("particle"), numberOr("count", 1.0),
                 vec3("dir"), number("spread_deg"), number("speed"), number("inherit_velocity"),
-                stringValue("color"), string("seed"),
+                stringValue("color"), string("seed"), number("spacing"), vec3("offset"), number("extra"),
             )
             "sound" -> FxOp.Sound(
                 id, whenExpr, requireString("sound"), requirePoint("at"), number("volume"), number("pitch"),
