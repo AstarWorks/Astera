@@ -52,6 +52,7 @@ public class SkillEngineKit(
     public val hosts: CastHosts,
 ) {
     public fun shutdown() {
+        runner.cancelAll()
         dashes.shutdown()
         locks.shutdown()
         world.revertAll()

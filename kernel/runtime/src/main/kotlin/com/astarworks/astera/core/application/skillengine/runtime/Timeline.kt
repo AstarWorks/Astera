@@ -1,5 +1,6 @@
 package com.astarworks.astera.core.application.skillengine.runtime
 
+import com.astarworks.astera.core.domain.skillengine.model.SkillEvents
 import com.astarworks.astera.core.domain.skillengine.model.TimelineAt
 import com.astarworks.astera.core.domain.skillengine.model.TimelineEntry
 import com.astarworks.astera.core.domain.skillengine.op.SkillOp
@@ -53,5 +54,8 @@ internal class Timeline<O : SkillOp>(private val rows: List<TimelineEntry<O>>) {
     }
 
     /** True while a row can still fire without any further event (event-relative rows that never started do not count). */
-    fun pending(): Boolean = rows.indices.any { i -> !states[i].done && (states[i].next != null || rows[i].at is TimelineAt.Tick) }
+    fun pending(): Boolean = rows.indices.any { i ->
+        // A row that repeats `until: end` is released by the cast ending, so it must not be what keeps the cast alive.
+        !states[i].done && rows[i].untilEvent != SkillEvents.END && (states[i].next != null || rows[i].at is TimelineAt.Tick)
+    }
 }

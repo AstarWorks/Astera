@@ -273,14 +273,18 @@ internal class CastInstance(
     private fun finishNow(cancelled: Boolean = false) {
         if (ended) return
         queue += CastEvent(SkillEvents.END, tick, source = null)
-        drain()
-        deps.presentation.endCast(id, cancelled)
-        deps.dashes.cancel(id)
-        deps.locks.cancel(id)
-        hitRegs.clear()
-        listeners.clear()
-        windows.clear()
-        ended = true
+        try {
+            drain()
+        } finally {
+            // Whatever the END handlers did, every handle, dash and lock this cast owns is released.
+            ended = true
+            deps.presentation.endCast(id, cancelled)
+            deps.dashes.cancel(id)
+            deps.locks.cancel(id)
+            hitRegs.clear()
+            listeners.clear()
+            windows.clear()
+        }
     }
 
     fun cancel() {
@@ -523,6 +527,7 @@ internal class CastInstance(
 
     override fun endProjectile(source: String, body: FrameId) {
         hitRegs.removeAll { it.reg.id == source }
+        deps.presentation.endBody(id, body.value)
         motion.stop(body)
         lawSources.remove(body)
     }

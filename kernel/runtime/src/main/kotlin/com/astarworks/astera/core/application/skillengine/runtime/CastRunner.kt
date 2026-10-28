@@ -56,6 +56,12 @@ public interface CastRunner {
 
     public fun isRunning(cast: CastId): Boolean
 
+    /** Cancels every running cast of [caster] (quit, death, weapon swap, world change); returns how many ended. */
+    public fun cancelAllOf(caster: java.util.UUID): Int
+
+    /** Cancels every running cast (plugin disable, reload). */
+    public fun cancelAll(): Int
+
     /** Advance every running cast by one server tick. Called once per tick by the platform. */
     public fun tick(currentTick: Int)
 }

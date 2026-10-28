@@ -69,6 +69,8 @@ internal class SkillEnginePaperRuntime(
     private val notPorted = ConcurrentHashMap.newKeySet<String>()
     private var seenDiagnostics = 0
     private var activeEntities: PaperSkillEntityQuery? = null
+    private var visualGateway: PaperSkillVisualGateway? = null
+    private var interruptions: org.bukkit.event.Listener? = null
     private val trace = com.astarworks.astera.combat.adapter.paper.skillengine.SkillEngineTraceObserver()
 
     fun start(
@@ -102,6 +104,9 @@ internal class SkillEnginePaperRuntime(
         val entities = PaperSkillEntityQuery(server) { services.get<IStructureTargets>() }
         val sprites = services.get<com.astarworks.astera.core.application.port.outbound.ISpriteRegistry>()
         val visuals = PaperSkillVisualGateway(server, displays, tables) { id -> sprites?.find(com.astarworks.astera.core.domain.sprite.SpriteId(id))?.frames ?: 1 }
+        visualGateway = visuals
+        val orphans = visuals.sweepOrphans()
+        if (orphans > 0) log.info("skill engine v2 removed {} orphaned ribbon displays left by an earlier run", orphans)
         // Presentation-only casts create no display entity, so the visual gateway alone never learns the world.
         val worldId = { entities.activeWorld()?.let { WorldId(it.name) } ?: visuals.activeWorld() }
         activeEntities = entities
@@ -195,6 +200,24 @@ internal class SkillEnginePaperRuntime(
             }
         }
 
+        // A cast ends its displays itself; these paths end the cast (and so its displays) when its caster goes away.
+        fun interrupt(caster: java.util.UUID) {
+            built.runner.cancelAllOf(caster)
+            visuals.removeAllOf(caster)
+        }
+        val listener = object : org.bukkit.event.Listener {
+            @org.bukkit.event.EventHandler
+            fun onQuit(e: org.bukkit.event.player.PlayerQuitEvent) = interrupt(e.player.uniqueId)
+
+            @org.bukkit.event.EventHandler
+            fun onDeath(e: org.bukkit.event.entity.PlayerDeathEvent) = interrupt(e.entity.uniqueId)
+
+            @org.bukkit.event.EventHandler
+            fun onWorld(e: org.bukkit.event.player.PlayerChangedWorldEvent) = interrupt(e.player.uniqueId)
+        }
+        interruptions = listener
+        plugin.server.pluginManager.registerEvents(listener, plugin)
+
         ctx.subscriptions += eventBus.subscribe(MatchEnded::class) { built.world.revertAll() }
         ctx.subscriptions += eventBus.subscribe(SkillCast::class) { event -> onSkillCast(built, catalog::get, scheduler, event) }
     }
@@ -239,7 +262,11 @@ internal class SkillEnginePaperRuntime(
     fun stop() {
         tickHandle?.cancel()
         tickHandle = null
+        interruptions?.let { org.bukkit.event.HandlerList.unregisterAll(it) }
+        interruptions = null
         kit?.shutdown()
         kit = null
+        visualGateway?.removeAll()
+        visualGateway = null
     }
 }
