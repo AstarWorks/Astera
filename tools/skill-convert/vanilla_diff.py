@@ -12,6 +12,8 @@ State of one display at a tick, in caster-relative world terms:
   billboard, interpolation duration, teleport duration.
 """
 import math
+
+import numpy as np
 import json, os, sys, collections
 
 EPS = 1e-3
@@ -187,6 +189,34 @@ def field_diff(a, b):
     return out
 
 
+def plane_of(g):
+    """(planar, unit normal) of a group's positions: planar when the smallest covariance eigenvalue is under 5% of the
+    largest; the normal is the matching eigenvector. None for fewer than 4 points or a degenerate (collinear) group."""
+    if len(g) < 4:
+        return None
+    pts = np.array([[p[1], p[2], p[3]] for p in g], dtype=float)
+    w, v = np.linalg.eigh(np.cov((pts - pts.mean(axis=0)).T))
+    if w[2] < 1e-9 or w[1] < 0.05 * w[2]:
+        return None
+    return (w[0] < 0.05 * w[2], v[:, 0])
+
+
+def plane_equal(a, b):
+    """Plane check for ring/circle groups. v1 and HEAD must agree on planarity per key, and when v1's normal is
+    axis-aligned (a horizontal or world-vertical ring, the angles v1 does not randomise) HEAD's must lie within 25 degrees.
+    Rings with a random axis legitimately differ per cast, so their normals are not compared: that is this check's limit."""
+    for key in {p[0] for p in a}:
+        pa = plane_of([p for p in a if p[0] == key])
+        pb = plane_of([p for p in b if p[0] == key])
+        if pa is None and pb is None:
+            continue
+        if pa is None or pb is None or pa[0] != pb[0]:
+            return False
+        if pa[0] and max(abs(pa[1])) > 0.95 and abs(float(np.dot(pa[1], pb[1]))) < math.cos(math.radians(25)):
+            return False
+    return True
+
+
 def stat_equal(a, b):
     """True when two particle ticks differ only in v1-random fields. v1 drew ring phase, line jitter and orbit start from an
     unseeded RNG, so HEAD (cast-seeded SeededRandom) can never reproduce its positions; seeding both runs identically is not
@@ -210,6 +240,8 @@ def stat_equal(a, b):
         return out
 
     sa, sb = spread(a), spread(b)
+    if not plane_equal(a, b):
+        return False
     near = lambda x, y: abs(x - y) <= 0.25 * max(abs(x), abs(y)) + 0.05
     for key in sa:
         (da, oa), (db, ob) = sa[key], sb[key]

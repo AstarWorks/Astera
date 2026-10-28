@@ -272,6 +272,8 @@ internal class SkillEnginePaperRuntime(
         }
     }
 
+    private var castSequence = 0L
+
     private fun onSkillCast(
         kit: SkillEngineKit,
         find: (String) -> com.astarworks.astera.core.application.skillengine.load.CompiledSkill?,
@@ -297,7 +299,8 @@ internal class SkillEnginePaperRuntime(
             casterFeet = Vec3(loc.x, loc.y, loc.z),
             casterYawDeg = loc.yaw.toDouble(),
             casterPitchDeg = loc.pitch.toDouble(),
-            seed = event.atTick xor event.caster.uuid.leastSignificantBits,
+            // Per cast: tick and caster tell casts apart, the counter separates two casts of one caster in the same tick.
+            seed = (event.atTick xor event.caster.uuid.leastSignificantBits) xor (castSequence++ * -0x61c8864680b583ebL),
             startTick = scheduler.currentTick().toInt(),
         )
         val result = kit.runner.start(request)
