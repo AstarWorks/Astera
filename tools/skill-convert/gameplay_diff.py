@@ -181,7 +181,8 @@ def compare_skill(d, skill, v1, hd):
     # projectiles (v1 only has them; HEAD has frames, seen through hit/block phases)
     spawns = [r for r in by(v1, "proj") if r["k"] == "spawn"]
     ends = [r for r in by(v1, "proj") if r["k"] != "spawn"]
-    hphase = [r for r in by(hd, "phase") if r["name"] in ("hit", "block")]
+    # `sel*` hits are target selectors (cones, spheres), not projectile frames; only flying volumes compare with v1 projectiles
+    hphase = [r for r in by(hd, "phase") if r["name"] in ("hit", "block") and not str(r.get("source", "")).startswith("sel")]
     if spawns:
         v1_hit = min((r["t"] for r in ends if r["k"].startswith("hit")), default=None)
         hd_hit = min((r["t"] for r in hphase), default=None)

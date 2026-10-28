@@ -95,32 +95,44 @@ internal object ProjectileExecutor : OpExecutor<SpawnOp.Projectile> {
             scope.endProjectile(op.id, body)
         }
 
-        ctx.run(
-            listOf(
-                FrameOp.Motion(
-                    id = op.id,
-                    whenExpr = null,
-                    frame = op.body,
-                    spec = MotionSpec.Fly(
-                        velocity = op.velocity,
-                        gravity = op.gravity,
-                        drag = op.drag,
-                        align = AlignSpec(AxisRef("velocity"), AxisRef("world.up")),
-                        maxTicks = op.maxTicks,
+        // The aim and the lifetime are fixed at the spawn (v1 spawned the entity with its velocity), not at the launch tick.
+        val velocity = Value.Literal(ctx.values.vec3(op.velocity))
+        val maxTicks = Value.Literal(ctx.values.num(op.maxTicks))
+        // v1 `ProjectileStepper`: the entity is placed at the muzzle on the spawn tick and first moves (and is first
+        // hit-tested, along the muzzle -> new position segment) on the NEXT tick. The flight and the hit volume therefore
+        // start one tick after the spawn, whatever the speed.
+        scope.onEvent(LAUNCH_EVENT, op.id) {
+            ctx.run(
+                listOf(
+                    FrameOp.Motion(
+                        id = op.id,
+                        whenExpr = null,
+                        frame = op.body,
+                        spec = MotionSpec.Fly(
+                            velocity = velocity,
+                            gravity = op.gravity,
+                            drag = op.drag,
+                            align = AlignSpec(AxisRef("velocity"), AxisRef("world.up")),
+                            maxTicks = maxTicks,
+                        ),
+                    ),
+                    HitOp.Hit(
+                        id = op.id,
+                        whenExpr = null,
+                        frames = listOf(op.body),
+                        volume = op.volume,
+                        window = HitWindow.Once,
+                        swept = true,
                     ),
                 ),
-                HitOp.Hit(
-                    id = op.id,
-                    whenExpr = null,
-                    frames = listOf(op.body),
-                    volume = op.volume,
-                    window = HitWindow.Once,
-                    swept = true,
-                ),
-            ),
-        )
+            )
+        }
+        ctx.host.schedule(1, LAUNCH_EVENT, op.id)
     }
 }
+
+/** Raised one tick after a projectile op fired: the body starts flying and its hit volume goes live. */
+private const val LAUNCH_EVENT = "projectile_launch"
 
 /**
  * Aoe = a hit volume on a transient point frame at `at` (oriented like the caster), resolved once.

@@ -959,6 +959,24 @@ def block_damage(c, d, arch, on_hit, on_block):
         reach = float(bd.get("reach", 0.0)) or 4.0
         c.g(CAST, 0, dict(op, id=c.oid("chip"), at=c.pframe("aim", [0.0, 0.0, reach], "g")))
 
+# Every v1 projectile field the converter maps to v2. Anything else fails the conversion (a silently dropped
+# projectile setting changes speed, flight time or impact, SKL-18).
+PROJECTILE_PARAMS = {"type", "launch_speed", "max_lifetime_ticks", "hit_radius", "visual", "muzzle_forward", "muzzle_up", "aim_distance"}
+PROJECTILE_VISUAL = {"trail", "trail_spacing", "display", "vfx"}
+PROJECTILE_DISPLAY = {"variant", "material", "scale"}
+
+
+def projectile_fields_or_fail(sid_, params):
+    for where, got, ok in (("params", params, PROJECTILE_PARAMS),
+                           ("params.visual", params.get("visual") or {}, PROJECTILE_VISUAL),
+                           ("params.visual.display", (params.get("visual") or {}).get("display") or {}, PROJECTILE_DISPLAY)):
+        extra = sorted(set(got) - ok)
+        if extra:
+            raise AssertionError("%s: v1 projectile field(s) %s.%s have no v2 mapping" % (sid_, where, extra))
+    if V(params["launch_speed"]) <= 0 or V(params["max_lifetime_ticks"]) <= 0:
+        raise AssertionError("%s: projectile launch_speed / max_lifetime_ticks must be positive" % sid_)
+
+
 def convert_skill(d, vfx_dir, item):
     c = Conv(d, vfx_dir)
     c.item = item
@@ -1034,12 +1052,16 @@ def convert_skill(d, vfx_dir, item):
         c.mechanics(phases.get("expire"), Where("handler", "end", None))
         block_damage(c, d, arch, None, None)
     elif arch == "projectile":
+        projectile_fields_or_fail(d["id"], params)
         c.has_bolt = True
         c.frames["bolt"] = {"id": "bolt", "kind": "body", "parent": "world", "inactive": True}
         c.id_counts["bolt"] = 1
         up = V(params.get("muzzle_up", 0.0))
         fw = V(params.get("muzzle_forward", 0.5))
         muzzle = c.pframe("aim", [0.0, up, fw], "g")
+        if up:
+            # v1 offset the muzzle along world up; the aim frame's up tilts with the caster's pitch
+            c.present("projectile muzzle_up is along the aim frame's up (v1: world up); differs when the caster is pitched", str(up))
         speed = c.param("launch_speed", params["launch_speed"])
         life = c.param("max_lifetime_ticks", params["max_lifetime_ticks"])
         # v1: aim_distance 0 (default) = fly parallel to the look ray; > 0 = dive onto the look-ray point.

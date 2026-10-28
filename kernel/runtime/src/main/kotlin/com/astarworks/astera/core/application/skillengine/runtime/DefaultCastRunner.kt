@@ -143,17 +143,25 @@ public class DefaultCastRunner(private val deps: CastRunnerDeps) : CastRunner, I
 
     @Synchronized
     override fun tick(currentTick: Int) {
-        for (cast in casts.values.toList()) {
-            try {
-                cast.tick(currentTick)
-            } catch (e: RuntimeException) {
-                // A cast that throws must not stay alive with frozen displays: end it and release what it owns.
-                record(CastDiagnostic(cast.id, currentTick, null, "cast tick failed: ${e::class.simpleName}: ${e.message}"))
-                runCatching { cast.cancel() }
-            }
-            if (cast.ended) {
-                casts.remove(cast.id.value)
-                deps.hosts.unregister(cast.id)
+        // A `cast_skill` child starts during its parent's tick and runs its first tick in this same tick (v1 ran the child
+        // the moment the delayed task fired); children of children follow in the same pass.
+        val ticked = HashSet<Long>()
+        while (true) {
+            val batch = casts.values.filter { it.id.value !in ticked }
+            if (batch.isEmpty()) break
+            for (cast in batch) {
+                ticked += cast.id.value
+                try {
+                    cast.tick(currentTick)
+                } catch (e: RuntimeException) {
+                    // A cast that throws must not stay alive with frozen displays: end it and release what it owns.
+                    record(CastDiagnostic(cast.id, currentTick, null, "cast tick failed: ${e::class.simpleName}: ${e.message}"))
+                    runCatching { cast.cancel() }
+                }
+                if (cast.ended) {
+                    casts.remove(cast.id.value)
+                    deps.hosts.unregister(cast.id)
+                }
             }
         }
         deps.dashes.tick()
