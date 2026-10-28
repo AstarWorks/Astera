@@ -5,6 +5,7 @@ import com.astarworks.astera.combat.application.port.outbound.aoe.ILightningGate
 import com.astarworks.astera.core.application.port.outbound.IBlockStateGateway
 import com.astarworks.astera.core.application.port.outbound.ICustomBlockRegistry
 import com.astarworks.astera.core.application.skillengine.runtime.port.BlockDamageOutcome
+import com.astarworks.astera.core.application.skillengine.runtime.port.CastRef
 import com.astarworks.astera.core.application.skillengine.runtime.port.ISkillBlockAccess
 import com.astarworks.astera.core.application.skillengine.runtime.world.LedgerWorldGateway
 import com.astarworks.astera.core.domain.block.BlockDamageProfile
@@ -37,13 +38,13 @@ public class PaperSkillWorldGateway(
     private val lightning: () -> ILightningGateway?,
 ) : LedgerWorldGateway(PaperBlockAccess(server, world, guard, blockStates, covers)) {
 
-    override fun explode(caster: UUID, at: Vec3, power: Double, breakBlocks: Boolean, fire: Boolean) {
-        val owner = server.getEntity(caster) ?: return
+    override fun explode(cast: CastRef, at: Vec3, power: Double, breakBlocks: Boolean, fire: Boolean) {
+        val owner = server.getEntity(cast.caster) ?: return
         owner.world.createExplosion(Location(owner.world, at.x, at.y, at.z), power.toFloat(), fire, breakBlocks, owner)
     }
 
-    override fun lightning(caster: UUID, at: Vec3, visualOnly: Boolean) {
-        val owner = server.getEntity(caster) ?: return
+    override fun lightning(cast: CastRef, at: Vec3, visualOnly: Boolean) {
+        val owner = server.getEntity(cast.caster) ?: return
         val world = owner.world
         if (visualOnly) {
             world.strikeLightningEffect(Location(world, at.x, at.y, at.z))

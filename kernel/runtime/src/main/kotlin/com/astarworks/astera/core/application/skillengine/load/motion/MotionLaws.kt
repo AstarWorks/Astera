@@ -109,7 +109,7 @@ public object MotionLaws {
     private val faceF = Field.optional("face", Types.enumOf("keep", "tangent", "center"), "keep", "keep = the object does not turn; center / tangent = it turns with the orbit")
 
     // align
-    private val alignToF = Field.required("to", Types.id, "'velocity' (of the attached move laws), the name of an anchor to face, or a named direction (`world.up`, `world.forward`, `<anchor>.<axis>`)")
+    private val alignToF = Field.required("to", Types.id, "'velocity' (of the attached move laws) or a named direction (`world.up`, `world.down`, `<anchor>.<axis>`)")
     private val alignUpF = Field.optional("up", Types.id, "world.up", "the named direction the object's up is kept toward (Basis.facing(direction, up)); applies to every `to` form")
     private val alignAxisF = Field.optional("axis", Types.id, "forward", "the object axis that is pointed at the target")
 
@@ -271,6 +271,12 @@ public object MotionLaws {
             "align" -> {
                 val axis = axisOf(alignAxisF)
                 val to = v[alignToF]
+                if (to != "velocity" && !to.contains('.')) {
+                    ctx.fail("$path.to", "align to: needs a named direction <anchor>.<axis> or world.*; bare anchor id '$to' is not supported")
+                }
+                if (!v[alignUpF].contains('.')) {
+                    ctx.fail("$path.up", "align up: needs a named direction <anchor>.<axis> or world.*; bare anchor id '${v[alignUpF]}' is not supported")
+                }
                 if (to == "velocity" && v[alignUpF] != "world.up") {
                     ctx.fail("$path.up", "align to velocity keeps the heading's up at world.up (the velocity is a literal direction); '${v[alignUpF]}' is only valid with an anchor or a named direction")
                 }

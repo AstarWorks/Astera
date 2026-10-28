@@ -154,7 +154,7 @@ abstract class SkillEngineScenario {
         play(skill, seed, events, ticks, GatewayRecorder())
 
     fun play(skill: CompiledSkill, seed: Long, events: List<RuntimeEvent>, ticks: Int?, rec: GatewayRecorder): List<RecordedCall> {
-        val player = TablePlayer(rec.visual, rec.particles, rec.sounds, rec.gameplay, rec.query, rec.live)
+        val player = TablePlayer(rec.visual, rec.particles, rec.sounds, rec.gameplay, rec.query, rec.live, rec, rec.movement, rec.items, rec.world)
         val request = CastRequest(
             skill = skill,
             caster = rec.caster,

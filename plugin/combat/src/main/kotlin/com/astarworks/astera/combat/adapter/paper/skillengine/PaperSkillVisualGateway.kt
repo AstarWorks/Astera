@@ -7,6 +7,7 @@ import com.astarworks.astera.core.adapter.paper.entity.PaperManagedEntities
 import com.astarworks.astera.core.application.skillengine.load.ItemFrames
 import com.astarworks.astera.core.application.skillengine.load.MeshModel
 import com.astarworks.astera.core.application.skillengine.load.MeshModels
+import com.astarworks.astera.core.application.skillengine.runtime.port.CastRef
 import com.astarworks.astera.core.application.skillengine.runtime.port.ISkillVisualGateway
 import com.astarworks.astera.core.application.skillengine.runtime.port.MeshLook
 import com.astarworks.astera.core.application.skillengine.runtime.port.SpriteInfo
@@ -110,8 +111,9 @@ public class PaperSkillVisualGateway(
         val segments = ArrayDeque<Seg>()
     }
 
-    override fun spawnMesh(castOwner: UUID, item: String, part: String?, pose: VisualPose, brightness: Int?, look: MeshLook, view: DisplayView, glow: String?): VisualHandle {
-        val world = worldOf(castOwner) ?: return dead("mesh $item")
+    override fun spawnMesh(cast: CastRef, item: String, part: String?, pose: VisualPose, brightness: Int?, look: MeshLook, view: DisplayView, glow: String?): VisualHandle {
+        val castOwner = cast.caster
+        val world = worldOf(cast) ?: return dead("mesh $item")
         val kind = SkillDisplaySpecs.meshKind(MeshModels.resolve(item, part, frameTables), look)
         val heldItem = kind == DisplayKind.AnchorMainHand
         // v1 cloned the real stack (custom model, components) and drew it in THIRDPERSON_RIGHTHAND (PaperDisplayEntityGateway.kt:192-199).
@@ -123,8 +125,9 @@ public class PaperSkillVisualGateway(
         return register(castOwner, MeshEntry(handle, castOwner, heldItem))
     }
 
-    override fun spawnSkinBone(castOwner: UUID, bone: com.astarworks.astera.core.domain.animation.skinrig.SkinRigBone, slim: Boolean, ghost: Boolean, pose: VisualPose): VisualHandle {
-        val world = worldOf(castOwner) ?: return dead("skin bone ${bone.yamlName}")
+    override fun spawnSkinBone(cast: CastRef, bone: com.astarworks.astera.core.domain.animation.skinrig.SkinRigBone, slim: Boolean, ghost: Boolean, pose: VisualPose): VisualHandle {
+        val castOwner = cast.caster
+        val world = worldOf(cast) ?: return dead("skin bone ${bone.yamlName}")
         val first = toDisplayWrite(pose.frame, pose.size, Intrinsic.ITEM_FIXED, pose.billboard, 0)
         val spec = SkillDisplaySpecs.skinBone(DisplayKind.SkinBone(bone, slim, ghost), first.transform)
         val handle = spawnDisplay(world, castOwner, pose.frame.origin, spec, emptyList(), pose.anchorFeet != null) ?: return dead("skin bone ${bone.yamlName}")
@@ -168,8 +171,9 @@ public class PaperSkillVisualGateway(
         presentation()?.release(hide.lease)
     }
 
-    override fun spawnPlate(castOwner: UUID, sprite: String, alpha: Double, tintHex: String?, seeThrough: Boolean, pose: VisualPose, brightness: Int?, view: DisplayView, glow: String?): VisualHandle {
-        val world = worldOf(castOwner) ?: return dead("plate $sprite")
+    override fun spawnPlate(cast: CastRef, sprite: String, alpha: Double, tintHex: String?, seeThrough: Boolean, pose: VisualPose, brightness: Int?, view: DisplayView, glow: String?): VisualHandle {
+        val castOwner = cast.caster
+        val world = worldOf(cast) ?: return dead("plate $sprite")
         val glyph = SpriteGlyphs.text(SpriteId(sprite), 0, tintHex?.let { argb(it) and 0xFFFFFF })
         val intrinsic = Intrinsic.textGlyph(spriteInfo(sprite).px)
         val first = toDisplayWrite(pose.frame, pose.size, intrinsic, pose.billboard, 0)
@@ -179,16 +183,18 @@ public class PaperSkillVisualGateway(
         return register(castOwner, PlateEntry(handle, castOwner, sprite, intrinsic, tintHex?.let { argb(it) and 0xFFFFFF }, SkillDisplaySpecs.opacity(alpha)))
     }
 
-    override fun spawnBlock(castOwner: UUID, block: String, pose: VisualPose, brightness: Int?, rigShading: Boolean, view: DisplayView, glow: String?): VisualHandle {
-        val world = worldOf(castOwner) ?: return dead("block $block")
+    override fun spawnBlock(cast: CastRef, block: String, pose: VisualPose, brightness: Int?, rigShading: Boolean, view: DisplayView, glow: String?): VisualHandle {
+        val castOwner = cast.caster
+        val world = worldOf(cast) ?: return dead("block $block")
         val first = toDisplayWrite(pose.frame, pose.size, Intrinsic.BLOCK, DisplayBillboard.FIXED, 0)
         val spec = SkillDisplaySpecs.block(block, first.transform, brightness, rigShading).copy(glowArgb = SkillDisplaySpecs.glowArgb(glow))
         val handle = spawnDisplay(world, castOwner, pose.frame.origin, spec, emptyList(), pose.anchorFeet != null, view) ?: return dead("block $block")
         return register(castOwner, BlockEntry(handle, castOwner))
     }
 
-    override fun spawnText(castOwner: UUID, text: String, backgroundHex: String, backgroundAlpha: Double, shadow: Boolean, seeThrough: Boolean, pose: VisualPose, brightness: Int?, view: DisplayView): VisualHandle {
-        val world = worldOf(castOwner) ?: return dead("text")
+    override fun spawnText(cast: CastRef, text: String, backgroundHex: String, backgroundAlpha: Double, shadow: Boolean, seeThrough: Boolean, pose: VisualPose, brightness: Int?, view: DisplayView): VisualHandle {
+        val castOwner = cast.caster
+        val world = worldOf(cast) ?: return dead("text")
         val intrinsic = Intrinsic.textGlyph(QUAD_TEXT_PX)
         val first = toDisplayWrite(pose.frame, pose.size, intrinsic, pose.billboard, 0)
         val spec = SkillDisplaySpecs.text(text, backgroundHex, backgroundAlpha, shadow, seeThrough, first.transform, pose.billboard, brightness)
@@ -197,8 +203,9 @@ public class PaperSkillVisualGateway(
         return register(castOwner, TextEntry(handle, castOwner, intrinsic, (((backgroundAlpha.coerceIn(0.0, 1.0) * 255.0).roundToInt()) shl 24) or (argb(backgroundHex) and 0xFFFFFF)))
     }
 
-    override fun spawnTrail(castOwner: UUID, ticks: Int, widthFrac: Double, colorHex: String, alpha: Double): VisualHandle {
-        val world = worldOf(castOwner) ?: return dead("trail")
+    override fun spawnTrail(cast: CastRef, ticks: Int, widthFrac: Double, colorHex: String, alpha: Double): VisualHandle {
+        val castOwner = cast.caster
+        val world = worldOf(cast) ?: return dead("trail")
         val rgb = argb(colorHex) and 0xFFFFFF
         return register(castOwner, TrailEntry(world, ticks.coerceAtLeast(1), widthFrac, rgb, alpha.coerceIn(0.0, 1.0)))
     }
@@ -430,10 +437,7 @@ public class PaperSkillVisualGateway(
         val BODY = PresentationMask(hand = true, offhand = true, armor = true, body = true, pinPose = true)
     }
 
-    private fun worldOf(owner: UUID): World? {
-        val world = server.getPlayer(owner)?.world ?: return null
-        return world
-    }
+    private fun worldOf(cast: CastRef): World? = server.getWorld(cast.world.value)
 
      /** The caster as the anchor of a display, or null when it is not anchored (or the caster is offline). */
     private fun anchorOf(owner: UUID, feet: Vec3?): DisplayWrite.Anchor? =

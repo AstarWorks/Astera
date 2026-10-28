@@ -28,10 +28,10 @@ public object ExprClassifier {
 
     private val TIME_VARS = setOf("t", "lt", "cast.t", "state.t")
     private val LIVE_FRAME_FUNCTIONS = setOf(
-        "pos", "velocity", "speed", "axis", "forward", "up", "left", "right", "dist", "dist_xz", "in_cone", "behind", "hp_ratio", "enemy_in_cone",
+        "pos", "velocity", "speed", "axis", "forward", "up", "left", "right", "dist", "dist_xz", "in_cone", "behind", "hp_ratio", "enemy_in_cone", "stacks",
     )
-    private val LIVE_WORLD_FUNCTIONS = setOf("aim_point", "look_dir", "nearest_enemy_dist", "enemy_in_cone", "counter")
-    private val LIVE_ENTITIES = setOf("caster", "target", "victim", "enemy")
+    private val LIVE_WORLD_FUNCTIONS = setOf("aim_point", "look_dir", "nearest_enemy_dist", "enemy_in_cone")
+    private val LIVE_ENTITIES = setOf("caster", "target", "victim", "enemy", "event")
 
     /** What the source reads, for the class and for check-9 messages. */
     public data class Analysis(
@@ -48,7 +48,7 @@ public object ExprClassifier {
         val text = STRING.replace(source.trim().removePrefix("=")) { " ".repeat(it.value.length) }
         val idents = IDENT.findAll(text).map { it.value }.toList()
         val usesTime = idents.any { it in TIME_VARS }
-        val usesRuntimePosition = idents.any { id -> id.contains('.') && id.substringBefore('.') in V3Bindings.RUNTIME_POSITION_ROOTS }
+        val usesRuntimePosition = idents.any { V3Bindings.isRuntimePosition(it) }
         val usesRand = RAND.containsMatchIn(text)
         var live = false
         for (m in CALL.findAll(text)) {
@@ -109,7 +109,7 @@ public object ExprClassifier {
             a.usesRand -> "rand / roll / draw are random per cast; a random delay is a value in a non-timing field, never a time (C5, R11)"
             a.usesTime -> "t / lt change every tick; timing is resolved to integers at compile time (C5)"
             a.usesLive -> "a live (class L) value, with or without a bound, cannot schedule anything; use until: / range: (C5)"
-            a.usesRuntimePosition -> "contact / target / caster positions are only known at run time (C4c, C5)"
+            a.usesRuntimePosition -> "contact / target / caster / event.victim positions are only known at run time (C4c, C5)"
             else -> null
         }
         if (why != null) return Result.Failure(SkillDecodeError.RuntimeTiming(path, field, why, lc.skillId))

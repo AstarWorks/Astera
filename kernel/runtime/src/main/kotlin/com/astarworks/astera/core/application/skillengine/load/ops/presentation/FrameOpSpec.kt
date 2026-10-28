@@ -3,8 +3,10 @@ package com.astarworks.astera.core.application.skillengine.load.ops.presentation
 import com.astarworks.astera.core.application.skillengine.compose.AnchorNames
 import com.astarworks.astera.core.application.skillengine.compose.AnchorRegistry
 import com.astarworks.astera.core.application.skillengine.compose.ExprClass
+import com.astarworks.astera.core.application.skillengine.compose.LawSegmenter
 import com.astarworks.astera.core.application.skillengine.compose.LowerContext
 import com.astarworks.astera.core.application.skillengine.compose.Occurrence
+import com.astarworks.astera.core.application.skillengine.load.DecodeAbort
 import com.astarworks.astera.core.application.skillengine.load.SkillDecodeError
 import com.astarworks.astera.core.application.skillengine.load.grammar.Field
 import com.astarworks.astera.core.application.skillengine.load.grammar.FieldType
@@ -37,12 +39,13 @@ import com.astarworks.astera.core.domain.skillengine.expr.ExprValue
 import com.astarworks.astera.core.domain.skillengine.expr.FrameLookup
 import com.astarworks.astera.core.domain.skillengine.model.Value
 import com.astarworks.astera.core.domain.skillengine.op.OpSection
-import com.astarworks.astera.core.domain.skillengine.op.TrackKey
+import com.astarworks.astera.core.application.skillengine.load.motion.MotionLaw
 import com.astarworks.astera.core.domain.skillengine.table.Action
 import com.astarworks.astera.core.domain.skillengine.table.InstanceId
 import com.astarworks.astera.core.domain.skillengine.table.Look
 import com.astarworks.astera.core.domain.skillengine.table.OpId
 import com.astarworks.astera.core.domain.skillengine.table.SrcPath
+import com.astarworks.astera.core.domain.skillengine.table.SubTable
 import com.astarworks.astera.core.domain.skillengine.table.Pose
 import com.astarworks.astera.core.domain.skillengine.table.Row
 import com.astarworks.astera.core.domain.skillengine.table.SpawnKind
@@ -74,8 +77,8 @@ public class FrameOp(
     public val mode: FrameMode,
     /** R23: whose axes the frame takes (`caster` / `victim` / `world`); null = the anchor's own axes. Re-read per send (follow) or once (snapshot). */
     public val axes: String?,
-    /** Rate laws already lowered to key tables by [MotionLaws]; null = a still frame. */
-    public val motion: List<TrackKey>?,
+    /** Motion laws decoded by [MotionLaws]; segmented into `Key` rows by [LawSegmenter] at compile; null = a still frame. */
+    public val motion: List<MotionLaw>?,
 ) : OpNode
 
 public object FrameOpSpec : OpSpec<FrameOp> {
@@ -93,9 +96,9 @@ public object FrameOpSpec : OpSpec<FrameOp> {
 
     override val fields: Fields = Fields.of("frame", anchorF, partF, offsetF, turnF, modeF, axesF, motionF)
 
-    private object MotionType : FieldType<List<TrackKey>> {
+    private object MotionType : FieldType<List<MotionLaw>> {
         override val label = "list of laws"
-        override fun decode(raw: Any?, ctx: GrammarContext, path: String): List<TrackKey> = MotionLaws.read(raw, ctx, path)
+        override fun decode(raw: Any?, ctx: GrammarContext, path: String): List<MotionLaw> = MotionLaws.readLaws(raw, ctx, path)
         override fun schema(): Map<String, Any?> = MotionLaws.jsonSchema()
     }
 
@@ -137,6 +140,7 @@ public object FrameOpSpec : OpSpec<FrameOp> {
         val life: Int? = lifeTicks(op, lc, ctx, src)
         val rows = ArrayList<Row>()
         val writes = LinkedHashMap<InstanceId, WriteStats>()
+        val subTables = ArrayList<SubTable>()
         var basis = if (op.motion != null) ExprClass.T else ExprClass.S
 
         // The unroller owns every repetition and id (item 5): this call lowers exactly one instance, `lc.self`.
@@ -166,17 +170,23 @@ public object FrameOpSpec : OpSpec<FrameOp> {
             )
 
             var segments = 0
-            if (op.motion != null) {
-                val keyRows = motionRows(op.motion, instance, position, rotation, lc, ctx, src)
-                rows += keyRows
-                segments = keyRows.size
+            // The anchor's own laws ride first (left_rotation = anchor.rot(t) * rider), then this frame's own.
+            val laws = lc.anchors.laws(op.anchor) + op.motion.orEmpty()
+            if (laws.isNotEmpty()) {
+                val moved = when (val r = LawSegmenter.segments(instance, laws, lc)) {
+                    is Result.Failure -> throw DecodeAbort(r.error)
+                    is Result.Success -> r.value
+                }
+                rows += composeBase(moved.rows, position, rotation, ctx, src)
+                subTables += moved.subTables
+                segments = moved.rows.count { it.action is Action.Key }
             }
             if (life != null) rows += Row(life, instance, Action.End(instance), lc.src)
             writes[instance] = WriteStats(segments, if (segments > 0) 1 else 0)
         }
 
-        (lc.anchors as? AnchorRegistry)?.declare(declared, family, basis)
-        return Lowered(rows = rows, instances = listOf(instance), writes = writes)
+        (lc.anchors as? AnchorRegistry)?.declare(declared, family, basis, op.motion.orEmpty())
+        return Lowered(rows = rows, subTables = subTables, instances = listOf(instance), writes = writes)
     }
 
     /** End tick of one frame: `lasts` when it repeats, else `for`; `for: cast` / `until` / no `for` leave the end to the owner and the unroller. */
@@ -227,51 +237,26 @@ public object FrameOpSpec : OpSpec<FrameOp> {
     }
 
     /**
-     * Interim `motion` lowering: the key table of [MotionLaws] becomes `Key` rows (linear segments between keys; `step` is a cut). Eased
-     * segments and live bases are LawSegmenter's job (W1-08) and fail loudly here instead of being flattened.
+     * The law state is relative to the frame's own base pose: a Known `Key` is moved by the base offset and turned by the base rotation
+     * (`offset = base + law`, `rot = base * law`). A live law cell (follow / align / stretch) cannot be re-based, and a live base cannot
+     * carry laws: both fail the load instead of being flattened.
      */
-    private fun motionRows(
-        keys: List<TrackKey>, instance: InstanceId, basePosition: Val<Vector3d>, baseRotation: Val<Quaterniond>,
-        lc: LowerContext, ctx: GrammarContext, src: String,
-    ): List<Row> {
-        val bp = (basePosition as? Val.Known)?.value ?: ctx.fail("$src.motion", "motion on a live offset needs the law segmenter (W1-08)")
-        val br = (baseRotation as? Val.Known)?.value ?: ctx.fail("$src.motion", "motion on a live turn needs the law segmenter (W1-08)")
-        val out = ArrayList<Row>()
-        var prev: TrackKey? = null
-        var pos = Vector3d(bp)
-        var rot = Quaterniond(br)
-        var scale = Vector3d(1.0, 1.0, 1.0)
-        for ((n, key) in keys.sortedBy { it.tick }.withIndex()) {
-            val ease = key.ease?.trim()?.lowercase()
-            if (ease != null && ease != "linear" && ease != "step") {
-                ctx.fail("$src.motion[$n]", "eased segment '$ease' needs the law segmenter (W1-08)")
+    private fun composeBase(rows: List<Row>, basePosition: Val<Vector3d>, baseRotation: Val<Quaterniond>, ctx: GrammarContext, src: String): List<Row> {
+        val bp = (basePosition as? Val.Known)?.value
+        val br = (baseRotation as? Val.Known)?.value
+        val identity = bp != null && br != null && bp.lengthSquared() == 0.0 && br.x == 0.0 && br.y == 0.0 && br.z == 0.0
+        return rows.map { row ->
+            val k = row.action as? Action.Key ?: return@map row
+            val t = k.translation
+            val r = k.leftRotation
+            if (t is Val.Known && r is Val.Known) {
+                if (bp == null || br == null) ctx.fail("$src.motion", "motion on a live offset or turn cannot be re-based onto the frame")
+                row.copy(action = k.copy(translation = Val.Known(Vector3d(bp).add(t.value)), leftRotation = Val.Known(Quaterniond(br).mul(r.value))))
+            } else {
+                if (!identity) ctx.fail("$src.motion", "a reactive law (follow / align / stretch) needs a frame with no offset and no turn")
+                row
             }
-            (key.offset as? Value.Literal)?.let { pos = Vector3d(bp).add(it.value.x, it.value.y, it.value.z) }
-            if (key.offset != null && key.offset !is Value.Literal) ctx.fail("$src.motion[$n]", "a key offset must be a literal here")
-            (key.turn as? Value.Literal)?.let { rot = Quaterniond(br).mul(turnQuat(it.value)) }
-            if (key.turn != null && key.turn !is Value.Literal) ctx.fail("$src.motion[$n]", "a key turn must be a literal here")
-            (key.scale as? Value.Literal)?.let { scale = Vector3d(it.value.x, it.value.y, it.value.z) }
-            if (key.scale != null && key.scale !is Value.Literal) ctx.fail("$src.motion[$n]", "a key scale must be a literal here")
-            val p = prev
-            val cut = ease == "step" || p == null
-            val from = if (cut) key.tick else p!!.tick
-            val duration = if (cut) 0 else key.tick - p!!.tick
-            out += Row(
-                from, instance,
-                Action.Key(instance, duration, Val.Known(Vector3d(pos)), Val.Known(Quaterniond(rot)), Val.Known(Vector3d(scale))),
-                lc.src,
-            )
-            prev = key
         }
-        return out
-    }
-
-    /** TrackKey `turn` = rotation vector (axis * degrees). */
-    private fun turnQuat(v: Vec3): Quaterniond {
-        val deg = v.length()
-        if (deg < 1e-12) return Quaterniond()
-        val a = Math.toRadians(deg)
-        return Quaterniond().fromAxisAngleRad(v.x / deg, v.y / deg, v.z / deg, a)
     }
 
     /** Static evaluation of the pose values of ONE instance: literals and expressions of `i`, `n`, `parent.i` fold to Known; the rest stays Live. */

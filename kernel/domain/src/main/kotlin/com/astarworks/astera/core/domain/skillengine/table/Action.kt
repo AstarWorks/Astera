@@ -1,5 +1,6 @@
 package com.astarworks.astera.core.domain.skillengine.table
 
+import com.astarworks.astera.core.domain.damage.DamageAttribute
 import com.astarworks.astera.core.domain.damage.DamageComponent
 import com.astarworks.astera.core.domain.effect.ParticleData
 import java.util.UUID
@@ -21,14 +22,20 @@ public sealed interface Action {
     public data class Set(val field: String, val value: Val<Any>) : Action
 
     // gameplay
-    /** Detection + damage in one op (ADR-0303 10.1b). [anchor] is the frame the shape's points are in. */
+    /**
+     * Detection + damage in one op (ADR-0303 10.1b, R7/R21/R24). [anchor] is the frame the shape's points are in; [targets] filters the victims the shape found,
+     * nearest first. [damage] is applied to each victim (each amount read once per victim, before any victim is damaged); empty = detection only, no damage call.
+     * [finalDetection] marks the op's last detection tick: a hit that found nobody on any tick of the op raises `<op>.miss` there.
+     */
     public data class Hit(
         val shape: HitShape,
         val anchor: InstanceId?,
         val anchorName: String,
-        val targets: TargetRule,
+        val targets: HitTargets,
         val window: HitWindow,
-        val damage: List<DamageComponent>,
+        val ignoreInvulnerability: Boolean,
+        val finalDetection: Boolean,
+        val damage: List<HitDamage>,
     ) : Action
 
     public data class Damage(val targets: TargetRule, val components: List<DamageComponent>, val ignoreInvulnerability: Boolean) : Action
@@ -97,8 +104,11 @@ public sealed interface HitShape {
     public data class Capsule(val from: Vec, val to: Vec, val radius: Num) : HitShape
     public data class Box(val center: Vec, val halfExtents: Vec, val rotation: Rot) : HitShape
 
-    /** Sphere wedge: within [range] of [origin], horizontal angle to [forward] at most `deg / 2`, within +-[height] / 2 of the origin vertically. */
-    public data class Sector(val origin: Vec, val forward: Vec, val deg: Num, val range: Num, val height: Num) : HitShape
+    /**
+     * Sphere wedge: within [range] of [origin], horizontal angle to [forward] at most `deg / 2` (`deg` is the full opening), within +-[height] / 2 of the origin vertically.
+     * [flat] = `forward: yaw` (R12): the player flattens [forward] to the horizontal and normalises it; false = `forward: look`, used as is.
+     */
+    public data class Sector(val origin: Vec, val forward: Vec, val deg: Num, val range: Num, val height: Num, val flat: Boolean) : HitShape
 }
 
 /** Who a gameplay row touches; resolved at play time (C4c). */
@@ -112,10 +122,17 @@ public sealed interface TargetRule {
         val around: InstanceId?,
         val aroundName: String,
         val radius: Num,
-        val maxCount: Int,
+        /** Keep the nearest N to the centre; null = unlimited (R8). */
+        val maxCount: Int?,
         val includeSelf: Boolean,
     ) : TargetRule
 }
+
+/** Which of the victims a `hit` shape found are kept: [kind] `enemies` | `allies` | `all` (never the caster), nearest-first from the shape origin, at most [maxCount] (null = all). */
+public data class HitTargets(val kind: String, val maxCount: Int?)
+
+/** One damage band of a `hit`; [amount] may read `event.victim`, `contact.*` and `stacks(...)`, so it is evaluated per victim. */
+public data class HitDamage(val attribute: DamageAttribute, val amount: Num)
 
 /** Re-hit rule of a repeating `hit`: once per victim per instance, or again after [Every.ticks]. */
 public sealed interface HitWindow {

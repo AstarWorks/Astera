@@ -1,6 +1,7 @@
 package com.astarworks.astera.core.application.skillengine.runtime.world
 
 import com.astarworks.astera.core.application.skillengine.runtime.port.BlockDamageOutcome
+import com.astarworks.astera.core.application.skillengine.runtime.port.CastRef
 import com.astarworks.astera.core.application.skillengine.runtime.port.ISkillBlockAccess
 import com.astarworks.astera.core.application.skillengine.runtime.port.ISkillWorldGateway
 import com.astarworks.astera.core.domain.skillengine.world.BlockCell
@@ -21,7 +22,8 @@ import java.util.UUID
 public abstract class LedgerWorldGateway(protected val blocks: ISkillBlockAccess) : ISkillWorldGateway {
     protected val editor: SkillWorldEditor = SkillWorldEditor(blocks)
 
-    override fun breakArea(caster: UUID, spec: BreakAreaSpec, aim: WorldAim) {
+    override fun breakArea(cast: CastRef, spec: BreakAreaSpec, aim: WorldAim) {
+        val caster = cast.caster
         val centre = WorldShapes.breakCentre(spec.shape, aim)
         val ordered = WorldShapes.breakCells(spec.shape, aim).sortedBy { it.distanceSquaredTo(centre) }
         val toolClass = spec.tool.takeIf { it != "none" }
@@ -42,7 +44,8 @@ public abstract class LedgerWorldGateway(protected val blocks: ISkillBlockAccess
         editor.edit(cell, spec.revertTicks.toLong()) { blocks.damage(caster, cell, spec.blockDamage, toolClass) == BlockDamageOutcome.BROKEN }
     }
 
-    override fun placeShape(caster: UUID, spec: PlaceShapeSpec, aim: WorldAim) {
+    override fun placeShape(cast: CastRef, spec: PlaceShapeSpec, aim: WorldAim) {
+        val caster = cast.caster
         val key = WorldBlockRules.normalize(spec.block)
         val cover = blocks.isCoverBlock(key)
         if (!cover && WorldBlockRules.isProtected(key)) return
