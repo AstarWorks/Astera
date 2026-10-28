@@ -36,8 +36,8 @@ gameplay:
         ignore_invulnerability: true
         when: "= event.source == 'sel'"
       - {id: stop_2, op: freeze, ticks: 2, scope: [enemy, caster], when: "= event.source == 'sel'"}
-      - {id: pin_2, op: place, frame: fx3_sigil_rifle_mark, like: contact, orient: yaw, when: "= event.source == 'sel'"}
-      - {id: pin_3, op: place, frame: fx4_sigil_rifle_detonate, like: contact, orient: yaw, when: "= event.source == 'sel_2'"}
+      - {id: pin_2, op: place, frame: fx3_sigil_rifle_mark, like: enemy, orient: yaw, when: "= event.source == 'sel'"}
+      - {id: pin_3, op: place, frame: fx4_sigil_rifle_detonate, like: enemy, orient: yaw, when: "= event.source == 'sel_2'"}
       - id: dmg_2
         op: damage
         components:
@@ -46,4 +46,4 @@ gameplay:
         ignore_invulnerability: true
         when: "= event.source == 'sel_3'"
       - {id: stop_3, op: freeze, ticks: 2, scope: [enemy, caster], when: "= event.source == 'sel_3'"}
-      - {id: pin_4, op: place, frame: fx5_sigil_rifle_mark, like: contact, orient: yaw, when: "= event.source == 'sel_3'"}
+      - {id: pin_4, op: place, frame: fx5_sigil_rifle_mark, like: enemy, orient: yaw, when: "= event.source == 'sel_3'"}

@@ -127,6 +127,7 @@ public class PresentationRuntime(
             val lagTicks: Int = 0,
         ) : Live() {
             var stoppedAt: Int = -1
+            var lastPushed: Pair<Vec3, Vec3>? = null
             val lagged = ArrayDeque<Pair<Vec3, Vec3>>()
         }
     }
@@ -494,16 +495,28 @@ public class PresentationRuntime(
     private fun tickTrail(s: CastState, t: Live.Trail) {
         if (t.stoppedAt < 0 && t.untilEvent != null && info.hasRaised(s.ctx.cast, t.untilEvent)) t.stoppedAt = s.tick
         if (t.stoppedAt >= 0) {
-            if (s.tick - t.stoppedAt >= t.ticks) {
+            if (s.tick - t.stoppedAt >= t.ticks + t.lagTicks) {
                 s.live.remove(t.opId)
                 s.ctx.ports.visuals.remove(t.handle)
+                return
             }
+            // lag_ticks: the cross-sections still queued are drawn at the same cadence after the point stopped.
+            if (t.lagged.isNotEmpty()) {
+                val (r, p) = t.lagged.removeFirst()
+                s.ctx.ports.visuals.pushTrailPoint(t.handle, r, p)
+                t.lastPushed = r to p
+                return
+            }
+            // A stopped trail stops growing but its quads keep fading (v1 VfxRigPlanner.trailPlans: quads live life_ticks after the rig ends):
+            // re-pushing the last cross-section adds no quad and ages the existing ones.
+            t.lastPushed?.let { (r, p) -> s.ctx.ports.visuals.pushTrailPoint(t.handle, r, p) }
             return
         }
         val tip = pointWorld(s, t.of) ?: return
         val root = t.root?.let { pointWorld(s, it) } ?: tip
         if (t.lagTicks <= 0) {
             s.ctx.ports.visuals.pushTrailPoint(t.handle, root, tip)
+            t.lastPushed = root to tip
             return
         }
         // lag_ticks: the ribbon is drawn that many ticks behind the point.
@@ -511,6 +524,7 @@ public class PresentationRuntime(
         if (t.lagged.size > t.lagTicks) {
             val (r, p) = t.lagged.removeFirst()
             s.ctx.ports.visuals.pushTrailPoint(t.handle, r, p)
+            t.lastPushed = r to p
         }
     }
 

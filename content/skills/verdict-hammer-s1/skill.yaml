@@ -22,6 +22,7 @@ gameplay:
           max_count: 1
           window: once
           ticks: 1
+    - {id: t11, at: 11, do: [{id: fx1_verdict_s1_gavel_hammer_gold_fan_stop, op: raise_event, name: fx1_verdict_s1_gavel_hammer_gold_fan_stop}]}
     - {id: t16, at: 16, do: [{id: pin_3, op: place, frame: fx3_verdict_s1_echo, like: caster, orient: yaw}]}
     - id: t23
       at: 23
@@ -43,7 +44,8 @@ gameplay:
             - {id: sch_2, op: schedule, after: 9, event: dash_fx9}
             - {id: sch_3, op: schedule, after: 10, event: dash_fx10}
             - {id: sch_4, op: schedule, after: 12, event: dash_fx12}
+    - {id: t27, at: 27, do: [{id: fx3_verdict_s1_echo_hammer_gold_fan_stop, op: raise_event, name: fx3_verdict_s1_echo_hammer_gold_fan_stop}]}
   "on":
     hit:
       - {id: dmg, op: damage, components: [{kind: physical, amount: "${dmg_physical}"}], target: victim, ignore_invulnerability: true, when: "= event.source == 'sel'"}
-      - {id: pin_2, op: place, frame: fx2_verdict_impact, like: contact, orient: world, when: "= event.source == 'sel'"}
+      - {id: pin_2, op: place, frame: fx2_verdict_impact, like: enemy, orient: world, when: "= event.source == 'sel'"}

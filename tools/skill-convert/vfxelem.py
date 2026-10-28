@@ -640,6 +640,14 @@ def cel_rows(rows):
     return "[" + ", ".join(cel_vec(r) for r in rows) + "][int(i)]"
 
 
+def hex_alpha(argb):
+    """'#AARRGGBB' (v1 text background) -> ('#rrggbb', alpha 0..1)."""
+    h = str(argb).lstrip("#")
+    if len(h) == 8:
+        return "#" + h[2:].lower(), round(int(h[:2], 16) / 255.0, 3)
+    return "#" + h.lower(), 1.0
+
+
 def base_fields(kind, el, c, fid):
     """The kind-specific op skeleton (without id / placement)."""
     kt = kind["type"]
@@ -677,6 +685,16 @@ def base_fields(kind, el, c, fid):
             if alpha > 0:
                 op["background"] = rgb
                 op["background_alpha"] = alpha
+        if kind.get("shadow"):
+            op["shadow"] = True
+        if kind.get("see_through"):
+            op["see_through"] = True
+        return op
+    if kt == "text":
+        # v1 VfxPlayer.displayKind VfxElementKind.Text: DisplayKind.Text(text, backgroundArgb, shadow, seeThrough); one text unit is
+        # the 8 px vanilla font = 0.2 blocks, so size 0.2 puts the keyframe scale on vanilla's own text scale.
+        rgb, a = hex_alpha(kind.get("background", "#40000000"))
+        op = {"op": "quad", "parent": fid, "face": face, "size": [0.2, 0.2], "color": rgb, "alpha": a, "text": kind["text"]}
         if kind.get("shadow"):
             op["shadow"] = True
         if kind.get("see_through"):
@@ -749,6 +767,8 @@ def display_element(c, el, fid, where, delay, when, dur, removes):
     single = n == 1
     pos_e = cel_rows([r[0] for r in rows])
     rot_e = cel_rows([rv(r[1]) for r in rows])
+    # v1 seeds jitter from actor.hashCode() + the tick (VfxTimeline.kt:177-214), so it is not reproducible even in v1:
+    # a per-element random stream with the same distribution is the faithful mapping.
     stream = "j_" + eid
     dyn_at = (not single and "[int(i)]" in pos_e) or bool(jit)
     dyn_turn = (not single and "[int(i)]" in rot_e) or bool(jit and float(jit.get("rotation_deg", 0.0)))

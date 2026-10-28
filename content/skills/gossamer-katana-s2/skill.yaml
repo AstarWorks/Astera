@@ -34,14 +34,21 @@ gameplay:
             - {id: raise, op: raise_event, name: dash_fx}
             - {id: sch, op: schedule, after: 9, event: dash_fx9}
         - {id: pin_5, op: place, frame: fx5_gossamer_katana_slash_down, like: caster, orient: yaw}
+    - {id: t35, at: 35, do: [{id: fx5_gossamer_katana_slash_down_katana_crescent_stop, op: raise_event, name: fx5_gossamer_katana_slash_down_katana_crescent_stop}]}
     - {id: t57, at: 57, do: [{id: sel_4, op: hit, frames: [caster], sphere: {at: caster, radius: "${radius}"}, max_count: 1, window: once, ticks: 1}]}
     - {id: t59, at: 59, do: [{id: sel_5, op: hit, frames: [caster], sphere: {at: caster, radius: "${radius}"}, max_count: 1, window: once, ticks: 1}]}
   "on":
     hit:
-      - {id: pin, op: place, frame: fx1_gossamer_katana_echo, like: contact, orient: yaw, when: "= event.source == 'sel'"}
-      - {id: pin_2, op: place, frame: fx2_gossamer_katana_echo_cut, like: contact, orient: yaw, when: "= event.source == 'sel_2'"}
+      - {id: pin, op: place, frame: fx1_gossamer_katana_echo, like: enemy, orient: yaw, when: "= event.source == 'sel'"}
+      - {id: pin_2, op: place, frame: fx2_gossamer_katana_echo_cut, like: enemy, orient: yaw, when: "= event.source == 'sel_2'"}
+      - id: delay
+        op: delay
+        after: 7
+        do:
+          - {id: fx2_gossamer_katana_echo_cut_katana_crescent_stop, op: raise_event, name: fx2_gossamer_katana_echo_cut_katana_crescent_stop}
+        when: "= event.source == 'sel_2'"
       - {id: dmg, op: damage, components: [{kind: physical, amount: "${dmg_physical}"}], target: victim, ignore_invulnerability: true, when: "= event.source == 'sel_3'"}
-      - {id: pin_3, op: place, frame: fx3_gossamer_katana_petals, like: contact, orient: yaw, when: "= event.source == 'sel_3'"}
-      - {id: pin_6, op: place, frame: fx6_gossamer_katana_lattice, like: contact, orient: yaw, when: "= event.source == 'sel_4'"}
+      - {id: pin_3, op: place, frame: fx3_gossamer_katana_petals, like: enemy, orient: yaw, when: "= event.source == 'sel_3'"}
+      - {id: pin_6, op: place, frame: fx6_gossamer_katana_lattice, like: enemy, orient: yaw, when: "= event.source == 'sel_4'"}
       - {id: dmg_3, op: damage, components: [{kind: physical, amount: "${dmg_physical_3}"}], target: victim, ignore_invulnerability: true, when: "= event.source == 'sel_5'"}
-      - {id: pin_7, op: place, frame: fx7_gossamer_katana_petals, like: contact, orient: yaw, when: "= event.source == 'sel_5'"}
+      - {id: pin_7, op: place, frame: fx7_gossamer_katana_petals, like: enemy, orient: yaw, when: "= event.source == 'sel_5'"}

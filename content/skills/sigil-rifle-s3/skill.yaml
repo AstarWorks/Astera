@@ -11,6 +11,7 @@ gameplay:
     - {id: damage, param: dmg_physical}
     - {id: range, param: reach}
   timeline:
+    - {id: t24, at: 24, do: [{id: fx1_sigil_rifle_s3_rig_rifle_shoulder_ribbon_stop, op: raise_event, name: fx1_sigil_rifle_s3_rig_rifle_shoulder_ribbon_stop}]}
     - {id: t61, at: 61, do: [{id: pin, op: place, frame: fx2_sigil_rifle_shot, like: caster, orient: yaw}, {id: cast, op: cast_skill, skill: sigil-bullet-projectile}]}
     - id: t82
       at: 82
@@ -34,6 +35,6 @@ gameplay:
           ticks: 1
   "on":
     hit:
-      - {id: pin_2, op: place, frame: fx3_sigil_rifle_detonate, like: contact, orient: yaw, when: "= event.source == 'sel'"}
+      - {id: pin_2, op: place, frame: fx3_sigil_rifle_detonate, like: enemy, orient: yaw, when: "= event.source == 'sel'"}
       - {id: dmg, op: damage, components: [{kind: physical, amount: "${dmg_physical}"}], target: victim, ignore_invulnerability: true, when: "= event.source == 'sel_2'"}
-      - {id: pin_3, op: place, frame: fx4_sigil_rifle_mark, like: contact, orient: yaw, when: "= event.source == 'sel_2'"}
+      - {id: pin_3, op: place, frame: fx4_sigil_rifle_mark, like: enemy, orient: yaw, when: "= event.source == 'sel_2'"}

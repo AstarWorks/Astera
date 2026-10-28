@@ -14,7 +14,9 @@ gameplay:
     - {id: t0, at: 0, do: [{id: pin, op: place, frame: fx2_gossamer_katana_guard, like: caster, orient: yaw}]}
     - {id: t20, at: 20, do: [{id: pin_2, op: place, frame: fx3_gossamer_katana_iaido_line, like: caster, orient: yaw}]}
     - {id: t30, at: 30, do: [{id: pin_3, op: place, frame: fx4_gossamer_katana_slash_up, like: caster, orient: yaw}]}
+    - {id: t37, at: 37, do: [{id: fx4_gossamer_katana_slash_up_katana_crescent_stop, op: raise_event, name: fx4_gossamer_katana_slash_up_katana_crescent_stop}]}
     - {id: t42, at: 42, do: [{id: pin_4, op: place, frame: fx5_gossamer_katana_slash_down, like: caster, orient: yaw}]}
+    - {id: t49, at: 49, do: [{id: fx5_gossamer_katana_slash_down_katana_crescent_stop, op: raise_event, name: fx5_gossamer_katana_slash_down_katana_crescent_stop}]}
     - id: t60
       at: 60
       do:

@@ -29,6 +29,7 @@ gameplay:
         - {id: sel, op: hit, frames: [caster], sector: {frame: caster, at: eye, forward: caster.forward, left: caster.left, angle_deg: "${arc_deg}", range: "${reach}", height: 2.0}, window: once, ticks: 1}
         - {id: pin_2, op: place, frame: fx3_vendetta_thrust_flash, like: caster, orient: yaw}
         - {id: pin_3, op: place, frame: fx4_vendetta_burst, like: caster, orient: yaw}
+    - {id: t56, at: 56, do: [{id: fx2_vendetta_slash_b_bayonet_cut_stop, op: raise_event, name: fx2_vendetta_slash_b_bayonet_cut_stop}]}
     - {id: t66, at: 66, do: [{id: pin_4, op: place, frame: fx5_vendetta_slash_b, like: caster, orient: yaw}]}
     - id: t71
       at: 71
@@ -36,6 +37,7 @@ gameplay:
         - {id: sel_2, op: hit, frames: [caster], sector: {frame: caster, at: eye, forward: caster.forward, left: caster.left, angle_deg: "${arc_deg}", range: "${reach}", height: 2.0}, window: once, ticks: 1}
         - {id: pin_5, op: place, frame: fx6_vendetta_thrust_flash, like: caster, orient: yaw}
         - {id: pin_6, op: place, frame: fx7_vendetta_burst, like: caster, orient: yaw}
+    - {id: t74, at: 74, do: [{id: fx5_vendetta_slash_b_bayonet_cut_stop, op: raise_event, name: fx5_vendetta_slash_b_bayonet_cut_stop}]}
     - {id: t103, at: 103, do: [{id: pin_7, op: place, frame: fx8_vendetta_slash_a, like: caster, orient: yaw}]}
     - id: t108
       at: 108
@@ -43,6 +45,7 @@ gameplay:
         - {id: sel_3, op: hit, frames: [caster], sector: {frame: caster, at: eye, forward: caster.forward, left: caster.left, angle_deg: "${arc_deg}", range: "${reach}", height: 2.0}, window: once, ticks: 1}
         - {id: pin_8, op: place, frame: fx9_vendetta_thrust_flash, like: caster, orient: yaw}
         - {id: pin_9, op: place, frame: fx10_vendetta_burst, like: caster, orient: yaw}
+    - {id: t111, at: 111, do: [{id: fx8_vendetta_slash_a_bayonet_cut_stop, op: raise_event, name: fx8_vendetta_slash_a_bayonet_cut_stop}]}
     - {id: t136, at: 136, do: [{id: pin_10, op: place, frame: fx11_vendetta_slash_b, like: caster, orient: yaw}]}
     - id: t141
       at: 141
@@ -50,6 +53,7 @@ gameplay:
         - {id: sel_4, op: hit, frames: [caster], sector: {frame: caster, at: eye, forward: caster.forward, left: caster.left, angle_deg: "${arc_deg}", range: "${reach}", height: 2.0}, window: once, ticks: 1}
         - {id: pin_11, op: place, frame: fx12_vendetta_thrust_flash, like: caster, orient: yaw}
         - {id: pin_12, op: place, frame: fx13_vendetta_burst, like: caster, orient: yaw}
+    - {id: t144, at: 144, do: [{id: fx11_vendetta_slash_b_bayonet_cut_stop, op: raise_event, name: fx11_vendetta_slash_b_bayonet_cut_stop}]}
     - {id: t184, at: 184, do: [{id: pin_17, op: place, frame: fx18_vendetta_burst, like: caster, orient: yaw}]}
     - {id: t213, at: 213, do: [{id: leap, op: leap, to: caster, arc_height: 1.4}]}
     - {id: t226, at: 226, do: [{id: pin_13, op: place, frame: fx14_vendetta_slash_a, like: caster, orient: yaw}]}
@@ -59,6 +63,7 @@ gameplay:
         - {id: sel_5, op: hit, frames: [caster], sector: {frame: caster, at: eye, forward: caster.forward, left: caster.left, angle_deg: "${arc_deg}", range: "${reach}", height: 2.0}, window: once, ticks: 1}
         - {id: pin_14, op: place, frame: fx15_vendetta_thrust_flash, like: caster, orient: yaw}
         - {id: pin_15, op: place, frame: fx16_vendetta_burst, like: caster, orient: yaw}
+    - {id: t234, at: 234, do: [{id: fx14_vendetta_slash_a_bayonet_cut_stop, op: raise_event, name: fx14_vendetta_slash_a_bayonet_cut_stop}]}
   "on":
     hit:
       - {id: dmg, op: damage, components: [{kind: physical, amount: "${dmg_physical}"}], target: victim, ignore_invulnerability: true, when: "= event.source == 'sel'"}

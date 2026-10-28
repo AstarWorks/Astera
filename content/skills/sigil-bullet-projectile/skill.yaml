@@ -17,4 +17,4 @@ gameplay:
   "on":
     hit:
       - {id: dmg, op: damage, components: [{kind: physical, amount: "${dmg_physical}"}], target: victim, ignore_invulnerability: true}
-      - {id: pin, op: place, frame: fx1_sigil_rifle_mark, like: contact, orient: yaw}
+      - {id: pin, op: place, frame: fx1_sigil_rifle_mark, like: enemy, orient: yaw}

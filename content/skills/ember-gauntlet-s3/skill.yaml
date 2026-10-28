@@ -27,6 +27,7 @@ gameplay:
           max_count: 1
           window: once
           ticks: 1
+    - {id: t19, at: 19, do: [{id: fx2_ember_sweep_gauntlet_flame_fan_stop, op: raise_event, name: fx2_ember_sweep_gauntlet_flame_fan_stop}]}
     - id: t23
       at: 23
       do:
@@ -42,8 +43,8 @@ gameplay:
   "on":
     hit:
       - {id: dmg, op: damage, components: [{kind: physical, amount: "${dmg_physical}"}], target: victim, ignore_invulnerability: true, when: "= event.source == 'sel'"}
-      - {id: pin, op: place, frame: fx3_ember_hoop_hit, like: contact, orient: look, when: "= event.source == 'sel'"}
+      - {id: pin, op: place, frame: fx3_ember_hoop_hit, like: enemy, orient: look, when: "= event.source == 'sel'"}
       - {id: dmg_2, op: damage, components: [{kind: physical, amount: "${dmg_physical}"}], target: victim, ignore_invulnerability: true, when: "= event.source == 'sel_2'"}
-      - {id: pin_2, op: place, frame: fx5_ember_hoop_hit, like: contact, orient: look, when: "= event.source == 'sel_2'"}
+      - {id: pin_2, op: place, frame: fx5_ember_hoop_hit, like: enemy, orient: look, when: "= event.source == 'sel_2'"}
       - {id: dmg_3, op: damage, components: [{kind: physical, amount: "${dmg_physical_2}"}], target: victim, ignore_invulnerability: true, when: "= event.source == 'sel_3'"}
-      - {id: pin_3, op: place, frame: fx7_ember_hoop_hit, like: contact, orient: look, when: "= event.source == 'sel_3'"}
+      - {id: pin_3, op: place, frame: fx7_ember_hoop_hit, like: enemy, orient: look, when: "= event.source == 'sel_3'"}

@@ -307,9 +307,9 @@ presentation:
           when: "= event.source == 'sel_2'"
   "on":
     hit:
-      - {id: emit, op: emit, at: contact.point, particle: crit, count: 8, offset: [0, 1, 0], speed: 0.15, when: "= event.source == 'sel'"}
-      - {id: emit_2, op: emit, at: contact.point, particle: smoke, count: 5, offset: [0, 1, 0], speed: 0.04, when: "= event.source == 'sel'"}
-      - {id: emit_3, op: emit, at: contact.point, particle: dust, count: 14, offset: [0, 1, 0], speed: 0.08, data: "#f52a13", data_size: 1.2, when: "= event.source == 'sel'"}
+      - {id: emit, op: emit, at: enemy, particle: crit, count: 8, offset: [0, 1, 0], speed: 0.15, when: "= event.source == 'sel'"}
+      - {id: emit_2, op: emit, at: enemy, particle: smoke, count: 5, offset: [0, 1, 0], speed: 0.04, when: "= event.source == 'sel'"}
+      - {id: emit_3, op: emit, at: enemy, particle: dust, count: 14, offset: [0, 1, 0], speed: 0.08, data: "#f52a13", data_size: 1.2, when: "= event.source == 'sel'"}
       - {op: block, parent: fx3_sigil_rifle_mark, block: red_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx3_sigil_rifle_mark_solid_impact_0, when: "= event.source == 'sel'"}
       - id: fx3_sigil_rifle_mark_solid_impact_0_trk
         op: track
@@ -379,9 +379,9 @@ presentation:
           - {t: 28, scale: [0.03, 0.03, 0.96]}
           - {t: 44, scale: [0.0, 0.0, 0.0], ease: in_quad}
         when: "= event.source == 'sel_2'"
-      - {id: emit_4, op: emit, at: contact.point, particle: crit, count: 8, offset: [0, 1, 0], speed: 0.15, when: "= event.source == 'sel_3'"}
-      - {id: emit_5, op: emit, at: contact.point, particle: smoke, count: 5, offset: [0, 1, 0], speed: 0.04, when: "= event.source == 'sel_3'"}
-      - {id: emit_6, op: emit, at: contact.point, particle: dust, count: 14, offset: [0, 1, 0], speed: 0.08, data: "#f52a13", data_size: 1.2, when: "= event.source == 'sel_3'"}
+      - {id: emit_4, op: emit, at: enemy, particle: crit, count: 8, offset: [0, 1, 0], speed: 0.15, when: "= event.source == 'sel_3'"}
+      - {id: emit_5, op: emit, at: enemy, particle: smoke, count: 5, offset: [0, 1, 0], speed: 0.04, when: "= event.source == 'sel_3'"}
+      - {id: emit_6, op: emit, at: enemy, particle: dust, count: 14, offset: [0, 1, 0], speed: 0.08, data: "#f52a13", data_size: 1.2, when: "= event.source == 'sel_3'"}
       - {op: block, parent: fx5_sigil_rifle_mark, block: red_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx5_sigil_rifle_mark_solid_impact_0, when: "= event.source == 'sel_3'"}
       - id: fx5_sigil_rifle_mark_solid_impact_0_trk
         op: track

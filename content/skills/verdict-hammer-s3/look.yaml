@@ -70,15 +70,17 @@ presentation:
           of: pt_fx3_verdict_s1_gavel_hammer_0_3_0
           root: pt_fx3_verdict_s1_gavel_hammer_0_0p9_0
           ticks: 5
+          fade: 1.5
           bands:
             - {from: 0.0, to: 0.85, color: "#ffd878", alpha: 0.094, color_to: "#a07020"}
             - {from: 0.85, to: 1.0, color: "#fff4c7", alpha: 0.937, color_to: "#d5ac60"}
           step_deg: 18.0
-    - {id: fx59, at: 59, do: [{id: rm_5, op: remove, ids: [fx3_verdict_s1_gavel_hammer_gold_fan]}]}
+          lag_ticks: 1
+          until: fx3_verdict_s1_gavel_hammer_gold_fan_stop
     - id: fx67
       at: 67
       do:
-        - id: rm_6
+        - id: rm_5
           op: remove
           ids:
             - fx3_verdict_s1_gavel_hammer_haft
@@ -135,15 +137,17 @@ presentation:
           of: pt_fx5_verdict_s3_judgment_hammer_0_2p7_0
           root: pt_fx5_verdict_s3_judgment_hammer_0_0p9_0
           ticks: 5
+          fade: 1.5
           bands:
             - {from: 0.0, to: 0.85, color: "#ffd878", alpha: 0.094, color_to: "#a07020"}
             - {from: 0.85, to: 1.0, color: "#fff4c7", alpha: 0.937, color_to: "#d5ac60"}
           step_deg: 18.0
-    - {id: fx97, at: 97, do: [{id: rm_10, op: remove, ids: [fx5_verdict_s3_judgment_hammer_gold_fan]}]}
+          lag_ticks: 1
+          until: fx5_verdict_s3_judgment_hammer_gold_fan_stop
     - id: fx105
       at: 105
       do:
-        - id: rm_11
+        - id: rm_9
           op: remove
           ids:
             - fx5_verdict_s3_judgment_hammer_haft
@@ -330,24 +334,24 @@ presentation:
       at: "hit+9"
       do:
         - {id: rm_2, op: remove, ids: [fx2_verdict_impact_bloom], when: "= event.source == 'sel_2'"}
-        - {id: rm_7, op: remove, ids: [fx4_verdict_impact_bloom], when: "= event.source == 'sel_3'"}
-        - {id: rm_12, op: remove, ids: [fx6_verdict_impact_bloom], when: "= event.source == 'sel_4'"}
+        - {id: rm_6, op: remove, ids: [fx4_verdict_impact_bloom], when: "= event.source == 'sel_3'"}
+        - {id: rm_10, op: remove, ids: [fx6_verdict_impact_bloom], when: "= event.source == 'sel_4'"}
     - id: fxhit_10
       at: "hit+10"
       do:
         - {id: rm_3, op: remove, ids: [fx2_verdict_impact_star], when: "= event.source == 'sel_2'"}
-        - {id: rm_8, op: remove, ids: [fx4_verdict_impact_star], when: "= event.source == 'sel_3'"}
-        - {id: rm_13, op: remove, ids: [fx6_verdict_impact_star], when: "= event.source == 'sel_4'"}
+        - {id: rm_7, op: remove, ids: [fx4_verdict_impact_star], when: "= event.source == 'sel_3'"}
+        - {id: rm_11, op: remove, ids: [fx6_verdict_impact_star], when: "= event.source == 'sel_4'"}
     - id: fxhit_12
       at: "hit+12"
       do:
         - {id: rm_4, op: remove, ids: [fx2_verdict_impact_dark0, fx2_verdict_impact_dark1, fx2_verdict_impact_dark2], when: "= event.source == 'sel_2'"}
-        - {id: rm_9, op: remove, ids: [fx4_verdict_impact_dark0, fx4_verdict_impact_dark1, fx4_verdict_impact_dark2], when: "= event.source == 'sel_3'"}
-        - {id: rm_14, op: remove, ids: [fx6_verdict_impact_dark0, fx6_verdict_impact_dark1, fx6_verdict_impact_dark2], when: "= event.source == 'sel_4'"}
+        - {id: rm_8, op: remove, ids: [fx4_verdict_impact_dark0, fx4_verdict_impact_dark1, fx4_verdict_impact_dark2], when: "= event.source == 'sel_3'"}
+        - {id: rm_12, op: remove, ids: [fx6_verdict_impact_dark0, fx6_verdict_impact_dark1, fx6_verdict_impact_dark2], when: "= event.source == 'sel_4'"}
     - id: fxhit_16
       at: "hit+16"
       do:
-        - id: rm_15
+        - id: rm_13
           op: remove
           ids:
             - fx7_verdict_ego_ring_ring_s0

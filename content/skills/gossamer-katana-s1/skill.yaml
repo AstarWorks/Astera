@@ -29,9 +29,11 @@ gameplay:
             - {id: raise, op: raise_event, name: dash_fx}
             - {id: sch, op: schedule, after: 9, event: dash_fx9}
         - {id: pin_2, op: place, frame: fx3_gossamer_katana_slash_up, like: caster, orient: yaw}
+    - {id: t17, at: 17, do: [{id: fx3_gossamer_katana_slash_up_katana_crescent_stop, op: raise_event, name: fx3_gossamer_katana_slash_up_katana_crescent_stop}]}
     - {id: t21, at: 21, do: [{id: propel, op: propel, direction: "= axis(caster, \"forward\")", strength: "${propel}"}]}
     - {id: t22, at: 22, do: [{id: pin_3, op: place, frame: fx4_gossamer_katana_slash_down, like: caster, orient: yaw}]}
     - {id: t24, at: 24, do: [{id: sel, op: hit, frames: [caster], sphere: {at: caster, radius: "${radius}"}, max_count: 1, window: once, ticks: 1}]}
+    - {id: t29, at: 29, do: [{id: fx4_gossamer_katana_slash_down_katana_crescent_stop, op: raise_event, name: fx4_gossamer_katana_slash_down_katana_crescent_stop}]}
     - id: t37
       at: 37
       do:
@@ -53,4 +55,4 @@ gameplay:
   "on":
     hit:
       - {id: dmg_2, op: damage, components: [{kind: physical, amount: "${dmg_physical}"}], target: victim, ignore_invulnerability: true, when: "= event.source == 'sel'"}
-      - {id: pin_4, op: place, frame: fx5_gossamer_katana_petals, like: contact, orient: yaw, when: "= event.source == 'sel'"}
+      - {id: pin_4, op: place, frame: fx5_gossamer_katana_petals, like: enemy, orient: yaw, when: "= event.source == 'sel'"}

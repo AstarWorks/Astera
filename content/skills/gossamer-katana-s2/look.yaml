@@ -56,11 +56,13 @@ presentation:
           of: pt_fx5_gossamer_katana_slash_down_katana_0_2p1_0
           root: pt_fx5_gossamer_katana_slash_down_katana_0_1p25_0
           ticks: 4
+          fade: 1.5
           bands:
             - {from: 0.0, to: 1.0, color: "#14245f", alpha: 0.933, color_to: "#7c36a8"}
           step_deg: 20.0
-    - {id: fx38, at: 38, do: [{id: rm_6, op: remove, ids: [fx5_gossamer_katana_slash_down_katana_crescent]}]}
-    - {id: fx40, at: 40, do: [{id: rm_7, op: remove, ids: [fx5_gossamer_katana_slash_down_katana_blade, fx5_gossamer_katana_slash_down_katana_grip, fx5_gossamer_katana_slash_down_katana_guard]}]}
+          lag_ticks: 1
+          until: fx5_gossamer_katana_slash_down_katana_crescent_stop
+    - {id: fx40, at: 40, do: [{id: rm_5, op: remove, ids: [fx5_gossamer_katana_slash_down_katana_blade, fx5_gossamer_katana_slash_down_katana_grip, fx5_gossamer_katana_slash_down_katana_guard]}]}
     - id: fxhit_1
       at: "hit+1"
       do:
@@ -81,18 +83,21 @@ presentation:
           of: pt_fx2_gossamer_katana_echo_cut_katana_0_2p1_0
           root: pt_fx2_gossamer_katana_echo_cut_katana_0_1p25_0
           ticks: 4
+          fade: 1.5
           bands:
             - {from: 0.0, to: 1.0, color: "#14245f", alpha: 0.933, color_to: "#7c36a8"}
           step_deg: 20.0
+          lag_ticks: 1
+          until: fx2_gossamer_katana_echo_cut_katana_crescent_stop
           when: "= event.source == 'sel_2'"
     - id: fxhit_6
       at: "hit+6"
       do:
-        - {id: rm_8, op: remove, ids: [fx6_gossamer_katana_lattice_impact_dark, fx6_gossamer_katana_lattice_impact_core, fx6_gossamer_katana_lattice_impact_bloom], when: "= event.source == 'sel_4'"}
+        - {id: rm_6, op: remove, ids: [fx6_gossamer_katana_lattice_impact_dark, fx6_gossamer_katana_lattice_impact_core, fx6_gossamer_katana_lattice_impact_bloom], when: "= event.source == 'sel_4'"}
     - id: fxhit_8
       at: "hit+8"
       do:
-        - id: rm_9
+        - id: rm_7
           op: remove
           ids:
             - fx6_gossamer_katana_lattice_petals_0
@@ -107,7 +112,7 @@ presentation:
     - id: fxhit_9
       at: "hit+9"
       do:
-        - id: rm_4
+        - id: rm_3
           op: remove
           ids:
             - fx3_gossamer_katana_petals_petals_0
@@ -123,7 +128,7 @@ presentation:
             - fx3_gossamer_katana_petals_ink_2
             - fx3_gossamer_katana_petals_ink_3
           when: "= event.source == 'sel_3'"
-        - id: rm_11
+        - id: rm_9
           op: remove
           ids:
             - fx7_gossamer_katana_petals_petals_0
@@ -153,15 +158,14 @@ presentation:
             - fx1_gossamer_katana_echo_echo_blade
             - fx1_gossamer_katana_echo_scan_streak
           when: "= event.source == 'sel'"
-        - {id: rm_2, op: remove, ids: [fx2_gossamer_katana_echo_cut_katana_crescent], when: "= event.source == 'sel_2'"}
     - id: fxhit_12
       at: "hit+12"
       do:
-        - {id: rm_3, op: remove, ids: [fx2_gossamer_katana_echo_cut_katana_blade, fx2_gossamer_katana_echo_cut_katana_grip, fx2_gossamer_katana_echo_cut_katana_guard], when: "= event.source == 'sel_2'"}
+        - {id: rm_2, op: remove, ids: [fx2_gossamer_katana_echo_cut_katana_blade, fx2_gossamer_katana_echo_cut_katana_grip, fx2_gossamer_katana_echo_cut_katana_guard], when: "= event.source == 'sel_2'"}
     - id: fxhit_20
       at: "hit+20"
       do:
-        - {id: rm_10, op: remove, ids: [fx6_gossamer_katana_lattice_rake_a, fx6_gossamer_katana_lattice_rake_b, fx6_gossamer_katana_lattice_level], when: "= event.source == 'sel_4'"}
+        - {id: rm_8, op: remove, ids: [fx6_gossamer_katana_lattice_rake_a, fx6_gossamer_katana_lattice_rake_b, fx6_gossamer_katana_lattice_level], when: "= event.source == 'sel_4'"}
   "on":
     hit:
       - {op: block, parent: fx1_gossamer_katana_echo, block: light_blue_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_gossamer_katana_echo_echo_0, when: "= event.source == 'sel'"}
@@ -1275,7 +1279,7 @@ presentation:
           - {t: 8, offset: [0.74635, -1.10328, 0.97349], scale: [0.0, 0.0, 1.0], alpha: 0.0}
       - {id: snd_2, op: sound, sound: entity.player.attack.strong, at: enemy, volume: 0.7, pitch: 1.1}
     dash_fx9:
-      - id: rm_5
+      - id: rm_4
         op: remove
         ids:
           - fx4_gossamer_katana_petals_petals_0

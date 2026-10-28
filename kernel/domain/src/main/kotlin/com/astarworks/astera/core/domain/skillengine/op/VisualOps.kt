@@ -273,11 +273,14 @@ public data class TrackKey(
     val text: String? = null,
 )
 
-/** One radial band of a [VisualOp.Trail]: colour `#rrggbb`, peak [alpha] 0..1, optional [colorTo] it has faded to at the end of the life. */
-public data class TrailBand(val from: Double, val to: Double, val color: String, val alpha: Double, val colorTo: String? = null)
+/**
+ * One radial band of a [VisualOp.Trail]: colour `#rrggbb`, peak [alpha] 0..1, optional [colorTo] it has faded to at the end of the life.
+ * [block] is the crisp slab block of the styles `crisp` / `both` (a block display that shrinks as it fades); a `crisp` band without one draws nothing.
+ */
+public data class TrailBand(val from: Double, val to: Double, val color: String, val alpha: Double, val colorTo: String? = null, val block: String? = null)
 
-/** Leading edge of a [VisualOp.Trail]: `#rrggbb` line [width] blocks wide, opaque for the whole life. */
-public data class TrailEdge(val color: String, val width: Double)
+/** Leading edge of a [VisualOp.Trail]: a [block] slab line [width] blocks wide centred on the tip path, drawn for every style; it thins out as it ages. */
+public data class TrailEdge(val block: String, val width: Double)
 
 /** Dark rim outside the tip of a [VisualOp.Trail]: `#rrggbb` at [alpha], [width] blocks wide. */
 public data class TrailRim(val color: String, val alpha: Double, val width: Double)
