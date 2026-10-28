@@ -306,7 +306,7 @@ public class PaperLiveValueSource(
 
     /** `stacks(entity, status)` reads the gateway; the other host reads are not served on Paper yet and fail loudly. */
     private inner class StackHost(private val request: CastRequest, cast: CastHandle, private val binding: EventBinding?) : ExprHost {
-        private val world = EntityQueryExprHost(query, CastRef(cast.value, request.caster, request.world))
+        private val world = EntityQueryExprHost(query, CastRef(cast.value, request.caster, request.world, request.skill.def.item))
 
         override fun nearestEnemyDist(from: Vec3): Double = world.nearestEnemyDist(from)
 

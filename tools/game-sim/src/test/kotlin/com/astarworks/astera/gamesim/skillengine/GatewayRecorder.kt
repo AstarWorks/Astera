@@ -54,6 +54,9 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
     var casterPosition: Vector3d = Vector3d(0.0, 1.0, 0.0)
     var casterYawDeg: Double = 0.0
 
+    /** The item id of the skill being played (`play` sets it), as the player puts it in every [CastRef]. */
+    var castItem: String? = null
+
     /** Values the cast reads through `Val.Live` numbers, by live name. A name not set here reads 0.0; every read is in [liveReads]. */
     val liveNums: MutableMap<String, Double> = HashMap()
     private val reads = ArrayList<String>()
@@ -119,7 +122,7 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
                     null, stateTick = localTick, eventI = binding?.index ?: 0,
                     target = com.astarworks.astera.core.application.skillengine.expr.cel.V3Bindings.Binding(pos = ahead),
                 )
-                val world = com.astarworks.astera.core.application.skillengine.runtime.player.EntityQueryExprHost(query, CastRef(cast.value, this@GatewayRecorder.caster, castWorld))
+                val world = com.astarworks.astera.core.application.skillengine.runtime.player.EntityQueryExprHost(query, CastRef(cast.value, this@GatewayRecorder.caster, castWorld, castItem))
                 // world functions read the recorder's entity query (victims / allies); the frame functions are not served by this host
                 val host = object : com.astarworks.astera.core.domain.skillengine.expr.ExprHost {
                     override fun aimPoint(caster: com.astarworks.astera.core.domain.skillengine.expr.ExprValue.Ref, range: Double): Vec3 = error("aim_point is not served by the sim guard host")
