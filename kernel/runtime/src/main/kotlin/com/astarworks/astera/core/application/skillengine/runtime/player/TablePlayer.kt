@@ -1090,50 +1090,67 @@ public class TablePlayer(
         run.reels[row.instance] = ReelRec(frame, to)
     }
 
+    /**
+     * `rig` (v2 `RigExecutor` / `RigPerformer` at 93cd534e4~1): the swing drives the frame `of` (absent = `parent`), whose local pose in
+     * the parent's axes is the grip origin and the arm-carried wrist orientation each tick. A clip (`anim`) plays on the caster's own body
+     * for the same span and carries the arm; `freezes` stop the rig clock when `respect_hit_stop` (the body's when `body_respect_hit_stop`).
+     */
     private fun rigStart(run: Run, row: Row, p: Map<String, Val<Any>>, ctx: RowCtx, now: Int, src: String) {
         fun cell(k: String): Val<Any> = p[k] ?: throw IllegalArgumentException("effect 'rig' needs '$k'")
         val parent = any(run, cell("parent"), ctx) as InstanceId
-        if (run.recs[parent] == null) {
-            fault(run, now, src, "rig: parent '${parent.text}' is not a live instance")
+        val driven = p["of"]?.let { any(run, it, ctx) as InstanceId } ?: parent
+        if (run.recs[driven] == null) {
+            fault(run, now, src, "rig: frame '${driven.text}' is not a live instance")
             return
         }
-        val freezes = any(run, cell("freezes"), ctx) as? List<*>
-        if (!freezes.isNullOrEmpty()) fault(run, now, src, "rig freezes (hit-stop pauses) are not played yet (W2-08 owns the rig pose maths)")
-        val rest = any(run, cell("rest"), ctx) as Vector3d
+        val duration = (any(run, cell("duration"), ctx) as Number).toInt()
+        val anim = p["anim"]?.let { any(run, it, ctx) as String }
+        val clip = anim?.let { name ->
+            val c = gameplay.bodyClip(name)
+            if (c == null) {
+                fault(run, now, src, "rig: no skin-rig clip '$name'")
+                return
+            }
+            if (c.lengthTicks != duration) {
+                fault(run, now, src, "rig: clip '$name' is ${c.lengthTicks} ticks but the rig lasts $duration: a performance body must cover exactly its duration")
+                return
+            }
+            c
+        }
+        val caster = run.request.caster
+        val slim = clip != null && gameplay.isSlimSkin(caster)
+        val track = clip?.let { RigBodyTrack(it, slim) }
         @Suppress("UNCHECKED_CAST")
         val swing = (any(run, cell("swing"), ctx) as List<Map<String, Any>>).map { m ->
-            RigKey((m["t"] as Number).toInt(), m["rotate"] as? Vector3d, m["ease"]?.toString() ?: "linear")
+            RigWristKey((m["t"] as Number).toInt(), (m["rotate"] as? Vector3d)?.let { Vec3(it.x, it.y, it.z) }, m["ease"]?.toString() ?: "linear", m["sample"] as? Boolean ?: false)
         }
-        // `reset` (W2-08): when the rig ends the frame returns to its rest pose. `of` is read by W2-08's display frames, not here.
-        val reset = p["reset"]?.let { bool(run, it, ctx) } ?: false
-        val rig = RigRec(parent, now, Vector3d(rest), swing, reset)
+        val freezes = (any(run, cell("freezes"), ctx) as List<*>).map { f ->
+            val m = f as Map<*, *>
+            RigFreezeWindow((m["at"] as Number).toInt(), (m["ticks"] as Number).toInt())
+        }
+        fun v3(k: String): Vec3 = (any(run, cell(k), ctx) as Vector3d).let { Vec3(it.x, it.y, it.z) }
+        val hand = bool(run, cell("hand"), ctx)
+        val sampleTicks = (any(run, cell("sample_ticks"), ctx) as Number).toInt()
+        val respect = bool(run, cell("respect_hit_stop"), ctx)
+        val bodyRespect = bool(run, cell("body_respect_hit_stop"), ctx)
+        fun motion(hitStop: Boolean) = RigMotion(swing, v3("tilt"), v3("rest"), v3("pivot"), hand, sampleTicks, freezes, hitStop, track, slim)
+        val wrist = motion(respect)
+        val bodyClock = if (bodyRespect && !respect) motion(true) else wrist
+        if (anim != null) gameplay.playBodyClip(castRef(run), caster, anim, 1.0)
+        val rig = RigRec(driven, now, wrist, bodyClock, anim, caster)
         run.rigs[row.instance] = rig
         rigPose(run, rig, now)
     }
 
-    /** Euler degrees of the rig [t] ticks after it started: `rest` until the first key, then eased between the key rotations. */
-    private fun rigAngles(rig: RigRec, t: Int): Vector3d {
-        var from = Vector3d(rig.rest)
-        var fromT = 0
-        for (k in rig.keys) {
-            val to = k.rotate ?: continue
-            if (t <= k.tick) {
-                val span = (k.tick - fromT).coerceAtLeast(1)
-                val e = Easing.fromKey(k.ease) ?: Easing.fromKey("linear") ?: throw IllegalArgumentException("rig ease '${k.ease}' is not an easing")
-                return Vector3d(from).lerp(to, e.apply((t - fromT).toDouble() / span))
-            }
-            from = Vector3d(to)
-            fromT = k.tick
-        }
-        return from
-    }
-
     private fun rigPose(run: Run, rig: RigRec, now: Int) {
-        val rec = run.recs[rig.parent] ?: return
-        val a = rigAngles(rig, now - rig.start)
-        val q = Quaterniond().rotationXYZ(Math.toRadians(a.x), Math.toRadians(a.y), Math.toRadians(a.z))
+        val rec = run.recs[rig.driven] ?: return
+        val elapsed = now - rig.start
+        val s = rig.wrist.clock(elapsed)
+        val bodyS = rig.bodyClock.clock(elapsed)
+        val origin = rig.wrist.originAt(bodyS)
+        val q = rig.wrist.frameRotationAt(s, bodyS)
         val cur = rec.localAt(now)
-        val target = PoseV(Vector3d(cur.pos), q, Vector3d(cur.scale))
+        val target = PoseV(Vector3d(origin.x, origin.y, origin.z), Quaterniond(q.x, q.y, q.z, q.w), Vector3d(cur.scale))
         rec.moveTo(target, now, 0)
         rec.real?.let { visual.write(it, visualPose(rec, worldOf(run, rec, target, null, now)), 0) }
     }
@@ -1168,6 +1185,10 @@ public class TablePlayer(
         }
     }
 
+    private fun rigStop(run: Run, rig: RigRec) {
+        rig.anim?.let { gameplay.stopBodyClip(castRef(run), rig.caster, it) }
+    }
+
     private fun hasDriver(run: Run, id: InstanceId): Boolean =
         id in run.reels || id in run.rigs || run.dash.isActive(id.text) || run.reel.isActive(id.text)
 
@@ -1175,13 +1196,14 @@ public class TablePlayer(
         run.dash.end(id.text)
         run.reel.stop(id.text)
         run.reels.remove(id)
-        run.rigs.remove(id)?.let { if (it.reset) rigPose(run, RigRec(it.parent, lastTick, it.rest, emptyList(), false), lastTick) }
+        run.rigs.remove(id)?.let { rigStop(run, it) }
     }
 
     private fun stopDrivers(run: Run) {
         run.dash.cancelAll()
         run.reel.stopAll()
         run.reels.clear()
+        run.rigs.values.toList().forEach { rigStop(run, it) }
         run.rigs.clear()
     }
 
@@ -1404,9 +1426,7 @@ public class TablePlayer(
 
     private class ReelRec(val frame: InstanceId, val to: InstanceId)
 
-    private class RigKey(val tick: Int, val rotate: Vector3d?, val ease: String)
-
-    private class RigRec(val parent: InstanceId, val start: Int, val rest: Vector3d, val keys: List<RigKey>, val reset: Boolean)
+    private class RigRec(val driven: InstanceId, val start: Int, val wrist: RigMotion, val bodyClock: RigMotion, val anim: String?, val caster: UUID)
 
     private class ShapeFrame(val frame: String, val from: String, val to: String)
 
