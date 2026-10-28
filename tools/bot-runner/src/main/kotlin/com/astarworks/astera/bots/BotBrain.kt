@@ -90,7 +90,7 @@ class BotBrain(
 
     private enum class Goal { STAR, KILL }
 
-    private class Dest(val x: Double, val z: Double, val y: Double?, val arrive: Double, val kind: String, val starId: Int = -1, val zone: String = "", val strike: Triple<Int, Int, Int>? = null)
+    private class Dest(val x: Double, val z: Double, val y: Double?, val arrive: Double, val kind: String, val starId: Int = -1, val zone: String = "", val strike: Triple<Int, Int, Int>? = null, val affinity: LoadoutClassifier.Affinity? = null)
 
     @Volatile var mode: Mode = Mode.IDLE
 
@@ -116,6 +116,9 @@ class BotBrain(
     @Volatile var firstAttackMs = -1L; private set
 
     @Volatile var loadout: List<Weapon> = emptyList(); private set
+
+    /** Pickaxe / shovel / axe hotbar slots by class (right-click tool skill, digs pillars); never part of the weapon [loadout]. */
+    private val toolSlots = java.util.concurrent.ConcurrentHashMap<LoadoutClassifier.Affinity, Int>()
 
     private val rnd = Random(bot.name.hashCode().toLong())
     private val exec: ScheduledExecutorService = Executors.newSingleThreadScheduledExecutor { r ->
@@ -180,6 +183,11 @@ class BotBrain(
     private var planner: ModePlanner? = null
     private var observed: ObservedModeFacts? = null
     private var lastStrikeAt = 0L
+    private var lastToolCastAt = 0L
+    /** Look direction toward the pillar block being struck this tick (null = keep the heading). */
+    private var strikeLook: Pair<Float, Float>? = null
+    /** Tool skill casts at pillars, for reports and tests. */
+    val toolCasts = AtomicInteger()
     private var sidestepUntil = 0L
     private var sidestepSign = 1
     private var forceJump = false
@@ -330,6 +338,7 @@ class BotBrain(
             }
         } else {
             ineffective.disengage()
+            strikeLook = null
             val dest = chooseDest(now, starDest)
             if (dest == null) {
                 endTravel()
@@ -356,7 +365,8 @@ class BotBrain(
         }
 
         if (standStill || heading == null) {
-            bot.moveTo(bot.x, bot.y, bot.z, yaw, pitch)
+            val look = strikeLook
+            if (look != null) bot.moveTo(bot.x, bot.y, bot.z, look.first, look.second) else bot.moveTo(bot.x, bot.y, bot.z, yaw, pitch)
         } else {
             move(heading, speed, yaw, pitch, now)
         }
@@ -412,12 +422,17 @@ class BotBrain(
         planner?.let { pl ->
             val markers = bot.entities.values.filter { bot.entityTextsById[it.id]?.contains(ModePlanner.LOOSE_TAG) == true }.map { it.x to it.z }
             observed?.update(markers, sightings())
+            observed?.updateRainmaker(bot.bossBars.values.map { it.title }, glowingPlayers())
             pl.noteRoster(roster())
             pl.noteMarkers(bot.entities.values.filter { bot.entityTextsById[it.id]?.contains(ModePlanner.LOOSE_TAG) == true }.map { it.x to it.z })
             pl.noteConfirmed(bot.sounds.count { it.contains("objective/pickup") })
+            if (pl.clickWanted && now - lastClickAt >= CLICK_INTERVAL_MS) {
+                bot.entities.values.filter { it.type.contains("INTERACTION", ignoreCase = true) && hypot(it.x - bot.x, it.z - bot.z) <= CLICK_REACH }
+                    .minByOrNull { hypot(it.x - bot.x, it.z - bot.z) }?.let { bot.interact(it.id); lastClickAt = now }
+            }
         }
         if (now >= modePausedUntil) planner?.step(now, bot.x, bot.z)?.let { st ->
-            return Dest(st.x, st.z, st.y, st.arrive, "mode", zone = st.zone, strike = st.strike)
+            return Dest(st.x, st.z, st.y, st.arrive, "mode", zone = st.zone, strike = st.strike, affinity = st.affinity)
         }
         if (goal == Goal.STAR && starPoints.isNotEmpty()) {
             var bestI = -1
@@ -453,7 +468,7 @@ class BotBrain(
     }
 
     private fun arrivedAt(d: Dest, now: Long, unreachable: Boolean = false) {
-        if (d.strike != null && hypot(d.x - bot.x, d.z - bot.z) <= STRIKE_REACH) strikeBlock(d.strike, now)
+        if (d.strike != null && hypot(d.x - bot.x, d.z - bot.z) <= STRIKE_REACH) strikeBlock(d.strike, d.affinity, now)
         when (d.kind) {
             "gen" -> {
                 if (unreachable) { visitedAt[d.starId] = now; return }
@@ -474,9 +489,28 @@ class BotBrain(
 
     private var starArrivedSince = 0L
     private var modePausedUntil = 0L
+    private var lastClickAt = 0L
 
     /** Digs [block] (an Annihilation pillar): the server turns every break attempt on a pillar block into damage to it. */
-    private fun strikeBlock(block: Triple<Int, Int, Int>, now: Long) {
+    private fun strikeBlock(block: Triple<Int, Int, Int>, affinity: LoadoutClassifier.Affinity?, now: Long) {
+        // Face the block: the tool skill is aimed with the look direction.
+        val dx = block.first + 0.5 - bot.x
+        val dz = block.third + 0.5 - bot.z
+        val dy = block.second + 0.5 - (bot.y + 1.62)
+        val yaw = Math.toDegrees(atan2(-dx, dz)).toFloat()
+        val pitch = (-Math.toDegrees(atan2(dy, hypot(dx, dz).coerceAtLeast(0.01)))).toFloat()
+        strikeLook = yaw to pitch
+        // The tool of the pillar's class (any tool when the kit lacks it); without one the bare hand digs.
+        val toolSlot = affinity?.let { toolSlots[it] } ?: toolSlots.values.minOrNull()
+        if (toolSlot != null && bot.selectedSlot != toolSlot) {
+            if (now - lastSwitchAt > 300) { lastSwitchAt = now; bot.selectHotbar(toolSlot) }
+            return
+        }
+        if (toolSlot != null && now - lastToolCastAt >= TOOL_CAST_INTERVAL_MS) {
+            lastToolCastAt = now
+            bot.useItem(yaw, pitch)
+            toolCasts.incrementAndGet()
+        }
         if (now - lastStrikeAt < STRIKE_INTERVAL_MS) return
         lastStrikeAt = now
         blocksBroken.incrementAndGet()
@@ -493,6 +527,13 @@ class BotBrain(
             Mate(name, e?.x ?: spawnX, e?.z ?: spawnZ, alive = bot.playerGameModes[uuid] != GameMode.SPECTATOR)
         }
     }
+
+    /** Every player entity with the glowing flag (0x40): the carry-tnt carrier glows. Self counts, at its own position. */
+    private fun glowingPlayers(): List<GlowingPlayer> =
+        bot.entities.values.filter { it.type == "PLAYER" && ((bot.entityFlags[it.id] ?: 0) and 0x40) != 0 }.map { e ->
+            val self = e.id == bot.selfEntityId
+            GlowingPlayer(if (self) bot.name else bot.playerNames[e.uuid], if (self) bot.x else e.x, if (self) bot.z else e.z)
+        }
 
     private fun sightings(): List<Sighting> {
         val myTeam = bot.teamOf(bot.name)?.first
@@ -518,6 +559,7 @@ class BotBrain(
             id,
             solidAt = { x, y, z -> bot.terrain.isSolid(x, y, z) },
             pillarBlock = { team, tier -> world.pillars().firstOrNull { it.team == team && it.tier == tier }?.let { Triple(it.x, it.y, it.z) } },
+            tntSpawn = world.point(ModePlanner.TNT_SPAWN)?.let { it.first to it.third },
         ).also { observed = it }
         val modeFacts = src.modeFacts(facts, originX, originZ) ?: facts
         return ModePlanner(id, bot.name, own, src.teams().filter { it != own }, world, facts = modeFacts).takeIf { it.handles() }
@@ -829,6 +871,7 @@ class BotBrain(
         val found = ArrayList<Weapon>()
         val kindByItem = HashMap<Int, Weapon>()
         healSlot = -1
+        toolSlots.clear()
         for (slot in 0..7) {
             val item = hotbar[slot]
             if (item == -1) continue
@@ -836,27 +879,29 @@ class BotBrain(
             val known = kindByItem[item]
             if (known != null) { found += known.copy(slot = slot); continue }
             val lore = bot.hotbarLore(slot)
-            val weapon = classifyByLore(lore)?.copy(slot = slot) ?: probeForAmmo(slot)
+            val name = bot.hotbarName(slot)
+            val c = LoadoutClassifier.classify(name, lore)
+            when (c.kind) {
+                LoadoutClassifier.Kind.TOOL -> { c.affinity?.let { toolSlots.putIfAbsent(it, slot) }; continue }
+                LoadoutClassifier.Kind.OTHER -> {
+                    // No tooltip at all (plain test items): learn it by probing the ammo counter; anything with a tooltip but no weapon binding is not a weapon.
+                    if (lore.isBlank() && name.isNotBlank() && !name.lowercase().contains("compass")) {
+                        val weapon = probeForAmmo(slot)
+                        kindByItem[item] = weapon
+                        found += weapon
+                    }
+                    continue
+                }
+                else -> {}
+            }
+            val weapon = Weapon(slot, if (c.kind == LoadoutClassifier.Kind.RANGED) WeaponKind.RANGED else WeaponKind.MELEE, magazine = c.magazine)
             kindByItem[item] = weapon
             found += weapon
         }
         loadout = found
         lastLoadoutSignature = bot.hotbar().take(8).joinToString(",")
-        found.firstOrNull { it.kind == WeaponKind.MELEE }?.let { bot.selectHotbar(it.slot) }
-    }
-
-    /** Left-click bound = melee, only right-click bound = ranged (the item lore says which; en and ja). `null` = no lore. */
-    private fun classifyByLore(lore: String): Weapon? {
-        if (lore.isBlank()) return null
-        val l = lore.lowercase()
-        val left = Regex("(^|\\| )\\s*(left-click|左クリック)").containsMatchIn(l)
-        val right = Regex("(^|\\| )\\s*(right-click|右クリック)").containsMatchIn(l)
-        val reloadable = AMMO_WORD.containsMatchIn(l)
-        return when {
-            left -> Weapon(-1, WeaponKind.MELEE)
-            right || reloadable -> Weapon(-1, WeaponKind.RANGED, magazine = reloadable)
-            else -> Weapon(-1, WeaponKind.MELEE)
-        }
+        // Start with the sword in hand if there is one, else the first ranged item (never a tool or the compass).
+        (found.firstOrNull { it.kind == WeaponKind.MELEE } ?: found.firstOrNull())?.let { bot.selectHotbar(it.slot) }
     }
 
     /** Fallback for items without lore: select it and see whether the action bar shows an ammo counter. */
@@ -874,7 +919,10 @@ class BotBrain(
         const val SLOT_PITCH = 2048.0
         val AMMO_WORD = Regex("reload|リロード")
         const val SIGHT_RANGE = 70.0
+        const val CLICK_INTERVAL_MS = 500L
+        const val CLICK_REACH = 5.0
         const val STRIKE_INTERVAL_MS = 450L
+        const val TOOL_CAST_INTERVAL_MS = 2_000L
         const val STRIKE_REACH = 4.5
         const val MELEE_REACH = 2.9
         const val RANGED_REACH = 40.0

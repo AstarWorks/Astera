@@ -18,6 +18,8 @@ machine:
       then: end
       do:
         - {id: wall, op: place_shape, at: 0, anchor: caster, shape: {wall: {width: 7, height: 3}}, block: "astera:reinforced_planks", consume: none, ripple: 29, revert: 200, outside_arena: false}
-        - {id: snd, op: sound, sound: "astera:weapons/gun-impact-block", anchor: caster, volume: 1.0, pitch: 0.9, at: 0}
-        - {id: spark, op: particle_def, def: hit-spark, anchor: aim, at: 0}
+        - {id: snd, op: sound, sound: item.axe.strip, anchor: caster, volume: 1.0, pitch: 0.6}
+        - {id: snd_2, op: sound, sound: block.wood.break, anchor: caster, volume: 1.0, pitch: 0.7}
+        - {id: snd_3, op: sound, sound: entity.player.attack.crit, anchor: caster, volume: 0.8, pitch: 0.9}
+        - {id: spark, op: particle_def, def: tool-axe-diamond, anchor: aim}
     end: {final: true}

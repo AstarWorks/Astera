@@ -71,6 +71,20 @@ class HudScenarioTest {
 
     // ---- match sidebar -------------------------------------------------------
 
+    @Test
+    fun `steal jewelry sidebar shows the jewels left on each pedestal`() {
+        scenario("hud-sidebar-steal-jewelry-pedestal") {
+            val red = player("red", team = "red")
+            val blue = player("blue", team = "blue")
+            startMatch("steal-jewelry", mapOf(red to "red", blue to "blue"))
+            advance(40)
+            val sidebar = checkNotNull(sim.hud.sidebar(red.id)) { "no match sidebar" }
+            val lines = sidebar.texts().filter { it.messageKey.value == "astera.hud.sidebar.steal-jewelry.pedestal" }
+            assertThat(lines.map { it.placeholders["team"] }).`as`("one objective line per team").hasSize(2)
+            assertThat(lines.all { it.placeholders["left"] != null }).isTrue()
+        }
+    }
+
     @ParameterizedTest(name = "{0}")
     @CsvSource(
         "carry-tnt,    astera.hud.sidebar.count",

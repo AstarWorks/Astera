@@ -55,7 +55,10 @@ internal object MatchPaperBindings {
                 materializer = { services.get<com.astarworks.astera.core.adapter.paper.item.PaperItemMaterializer>() },
             )
         },
-        objectiveStage = { PaperObjectiveStage(plugin) },
+        objectiveStage = { services -> PaperObjectiveStage(plugin, services.getOrThrow<IDomainEventBus>()) },
+        matchCompass = { services ->
+            com.astarworks.astera.match.adapter.paper.PaperMatchCompass(plugin, services.getOrThrow<IMessageRenderer>()).also { it.start() }
+        },
         worldLabels = { com.astarworks.astera.match.adapter.paper.PaperWorldLabels(plugin) },
         normaPresentation = { services -> PaperNormaPresentation(
                 plugin,

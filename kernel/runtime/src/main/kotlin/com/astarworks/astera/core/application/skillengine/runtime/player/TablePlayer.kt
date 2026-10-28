@@ -152,7 +152,7 @@ public class TablePlayer(
         val listened = HashSet<EventPath>(skill.table.subTables.keys)
         skill.table.states.forEach { st -> st.branches.forEach { listened += it.event } }
         skill.table.subTables.values.forEach { sub -> sub.branches.forEach { listened += it.event } }
-        runs[handle.value] = Run(cursor, request, states, listened, DashDriver(CastRef(handle.value, request.caster, request.world), movement, query))
+        runs[handle.value] = Run(cursor, request, states, listened, DashDriver(CastRef(handle.value, request.caster, request.world, request.skill.def.item), movement, query))
         lastTick = max(lastTick, request.startTick)
         return Result.Success(handle)
     }
@@ -1654,7 +1654,7 @@ public class TablePlayer(
     private fun rowStream(run: Run, row: Row, ctx: RowCtx): SeededStream =
         run.cursor.seed.fork("${row.instance.text}|${row.src.value}|${ctx.base}|${row.tick}")
 
-    private fun castRef(run: Run): CastRef = CastRef(run.cursor.handle.value, run.request.caster, run.request.world)
+    private fun castRef(run: Run): CastRef = CastRef(run.cursor.handle.value, run.request.caster, run.request.world, run.request.skill.def.item)
 
     private fun fault(run: Run, tick: Int, src: String, message: String) {
         faultLog += PlayerFault(run.cursor.handle, tick, src, message)

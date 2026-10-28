@@ -75,7 +75,7 @@ internal object WorldOps {
     private val sphere = Fields.of("shape.sphere", sphereRadius, sphereAhead)
     private val lineLength = Field.required("length", positive("number > 0"), "blocks along the look")
     private val lineWidth = Field.required("width", positive("number > 0"), "diameter of the ball filled at each 0.5-block step")
-    private val lineHeight = Field.optional("height", size, 1, "accepted for v2 parity and unused: a line is a ball of `width` swept along the look (v2 ignored it too)")
+    private val lineHeight = Field.optional("height", size, 1, "cells tall: 1 sweeps a ball of `width` along the look, more sweeps a `width` disc stretched to a column of this height")
     private val line = Fields.of("shape.line", lineLength, lineWidth, lineHeight)
     private val boxWidth = Field.required("width", size, "blocks, centred on the caster")
     private val boxHeight = Field.required("height", size, "blocks up from the feet")
@@ -88,7 +88,7 @@ internal object WorldOps {
             val (kind, body) = single(raw, ctx, path, label)
             return when (kind) {
                 "sphere" -> sphere.read(body, ctx, "$path.sphere").let { AreaShape.Sphere(it[sphereRadius], it[sphereAhead]) }
-                "line" -> line.read(body, ctx, "$path.line").let { AreaShape.Line(it[lineLength], it[lineWidth]) }
+                "line" -> line.read(body, ctx, "$path.line").let { AreaShape.Line(it[lineLength], it[lineWidth], it[lineHeight]) }
                 "box" -> box.read(body, ctx, "$path.box").let { AreaShape.Box(it[boxWidth], it[boxHeight], it[boxLength]) }
                 else -> ctx.fail(path, "unknown shape '$kind', expected sphere, line or box")
             }

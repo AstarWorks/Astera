@@ -5,15 +5,16 @@ package com.astarworks.astera.bots
  * Pure and deterministic - no clock, no randomness, no protocol - so a game-sim scenario can drive the very
  * same decision the live [BotBrain] makes.
  *
- * Sword up close; at range the gun, or the staff while the gun is empty / reloading; during a reload with
+ * A bot that carries a melee weapon CLOSES IN with it (within [MELEE_SWITCH]; the brain walks up and swings) instead of
+ * kiting at the ranged preferred distance; beyond that the gun fires while the bot approaches. At range the gun, or the staff while the gun is empty / reloading; during a reload with
  * no staff the sword covers a close enemy; an empty gun is still selected at range so the brain can reload it.
  */
 object WeaponPolicy {
-    /** Switch to melee at or below this distance (blocks) ... */
-    const val MELEE_SWITCH = 4.0
+    /** Switch to melee at or below this distance (blocks): a sword bot starts its rush from here ... */
+    const val MELEE_SWITCH = 10.0
 
     /** ... and only switch back to a ranged item beyond this, so the bot does not flap on the boundary. */
-    const val MELEE_RELEASE = 5.0
+    const val MELEE_RELEASE = 12.0
 
     /** While the gun reloads and there is no staff, the sword is held for an enemy closer than this. */
     const val RELOAD_COVER = 8.0

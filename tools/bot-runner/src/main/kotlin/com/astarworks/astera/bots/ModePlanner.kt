@@ -43,7 +43,10 @@ class ModePlanner(
     }
 
     /** One pillar block of an Annihilation stage: [x]/[y]/[z] are the block coordinates. */
-    data class PillarSite(val team: String, val tier: Int, val x: Int, val y: Int, val z: Int)
+    data class PillarSite(val team: String, val tier: Int, val x: Int, val y: Int, val z: Int, val affinity: String? = null) {
+        /** Tool class that digs this pillar fastest: the stage's `affinity`, else the tier default. */
+        fun toolClass(): LoadoutClassifier.Affinity = LoadoutClassifier.parseAffinity(affinity) ?: LoadoutClassifier.defaultAffinity(tier)
+    }
 
     /**
      * Where to go: [kind] is one of `pickup`, `bank`, `tnt`, `deliver`, `jewel`, `wool`, `recover`, `shield`, `checkpoint`,
@@ -53,6 +56,7 @@ class ModePlanner(
     data class Step(
         val zone: String, val x: Double, val y: Double, val z: Double, val arrive: Double, val kind: String,
         val role: Role? = null, val engage: Double = Double.MAX_VALUE, val strike: Triple<Int, Int, Int>? = null,
+        val affinity: LoadoutClassifier.Affinity? = null,
     )
 
     // Inferred state (the server does not tell a client what it carries).
@@ -118,17 +122,23 @@ class ModePlanner(
      * A pickup counts only once the server confirmed it: after the hold completes the bot keeps standing on [s] until
      * [noteConfirmed] advances (then [apply] runs and true is returned), or [CONFIRM_MS] pass and the hold is retried.
      */
-    private fun pickedUp(s: Step, now: Long, x: Double, z: Double, holdMs: Long = HOLD_MS, apply: () -> Unit): Boolean {
+    private fun pickedUp(s: Step, now: Long, x: Double, z: Double, holdMs: Long = HOLD_MS, click: Boolean = false, apply: () -> Unit): Boolean {
         if (awaitingSince != 0L) {
             if (confirmed > seenConfirmed) {
-                seenConfirmed = confirmed; awaitingSince = 0L; apply(); return true
+                seenConfirmed = confirmed; awaitingSince = 0L; clickWanted = false; apply(); return true
             }
-            if (now - awaitingSince > CONFIRM_MS) awaitingSince = 0L
+            if (now - awaitingSince > CONFIRM_MS) { awaitingSince = 0L; clickWanted = false }
             return false
         }
-        if (held(s, now, x, z, holdMs)) awaitingSince = now
+        // A right-click pickup needs no dwell: standing within reach of the marker is enough, then the brain clicks it.
+        if (click) {
+            if (reached(s, x, z)) { awaitingSince = now; clickWanted = true }
+        } else if (held(s, now, x, z, holdMs)) awaitingSince = now
         return false
     }
+
+    /** True while the bot stands at a right-click pickup and waits for the server's confirm: the brain clicks the nearest interaction entity. */
+    var clickWanted: Boolean = false; private set
 
     /** Heads for a dropped objective (own death spot first, else the nearest loose marker); null when there is none to chase. */
     private fun recover(now: Long, x: Double, z: Double): Step? {
@@ -144,7 +154,7 @@ class ModePlanner(
         }
         val y = zones.point(if (modeId == "carry-tnt") TNT_SPAWN else Regions.bank(ownTeam, zones) ?: return null)?.second ?: return null
         val s = Step("loose", tx, y, tz, 1.5, "recover")
-        if (pickedUp(s, now, x, z) { lostPending = false; if (modeId == "carry-tnt") holdingTnt = true else carried = 1 }) return step(now, x, z)
+        if (pickedUp(s, now, x, z, click = modeId == "carry-tnt") { lostPending = false; if (modeId == "carry-tnt") holdingTnt = true else carried = 1 }) return step(now, x, z)
         return s
     }
 
@@ -167,7 +177,10 @@ class ModePlanner(
     /** Hands and TNT as the mode itself reports them (when the facts know), instead of what the pickups inferred. */
     private fun syncFromFacts() {
         when (modeId) {
-            "carry-tnt" -> facts.tnt()?.let { holdingTnt = it.carrierName == botName }
+            "carry-tnt" -> facts.tnt()?.let {
+                // A carrier whose name is unknown (client view) leaves the pickup-confirmed state alone while the own team carries.
+                holdingTnt = if (it.carrierName != null) it.carrierName == botName else it.carrierTeam == ownTeam && holdingTnt
+            }
             "carry-mini-tnt", "steal-jewelry" -> facts.carriedBy(botName)?.let { carried = it }
         }
     }
@@ -210,7 +223,7 @@ class ModePlanner(
                 if (holdingTnt) route(now, x, z)
                 else {
                     val s = at(tx, spawn.second, tz, TNT_SPAWN, "tnt", 1.5, Role.CARRIER, engage = CARRY_ENGAGE)
-                    if (pickedUp(s, now, x, z) { holdingTnt = true; secured.clear() }) carryTnt(now, x, z) else s
+                    if (pickedUp(s, now, x, z, click = true) { holdingTnt = true; secured.clear() }) carryTnt(now, x, z) else s
                 }
             }
             Role.SHIELD_BREAKER -> step(TNT_SPAWN, "shield", 2.0, Role.SHIELD_BREAKER, engage = GUARD_ENGAGE)
@@ -304,7 +317,7 @@ class ModePlanner(
         val target = claimed(lying, x, z) ?: stage.minByOrNull { hypot(it.x - x, it.z - z) } ?: return null
         val y = zones.point(target.id)?.second ?: zones.point(Regions.clams(zones).firstOrNull() ?: "")?.second ?: 65.0
         val s = Step(target.id, target.x, y, target.z, 1.5, "pickup", Role.COLLECTOR)
-        if (target in lying && pickedUp(s, now, x, z) { takenAt[target.id] = now; carried = facts.carriedBy(botName) ?: (carried + 1) }) return miniTnt(now, x, z)
+        if (target in lying && pickedUp(s, now, x, z, click = true) { takenAt[target.id] = now; carried = facts.carriedBy(botName) ?: (carried + 1) }) return miniTnt(now, x, z)
         return s
     }
 
@@ -383,7 +396,7 @@ class ModePlanner(
         val target = RoleAssigner.weakestTeam(enemyTeams) { t -> all.count { it.team == t && standing(it) } } ?: return null
         val p = all.filter { it.team == target && standing(it) }.minByOrNull { it.tier } ?: return null
         return Step("pillar-$target-${p.tier}", p.x + 0.5, p.y.toDouble(), p.z + 0.5, PILLAR_REACH, "pillar", Role.PILLAR_ATTACKER,
-            strike = Triple(p.x, p.y, p.z))
+            engage = ATTACK_ENGAGE, strike = Triple(p.x, p.y, p.z), affinity = p.toolClass())
     }
 
     /** Stage region ids per the objective-mode region contract (ADR-0296): no fallbacks, a stage without them has no plan. */
@@ -421,5 +434,7 @@ class ModePlanner(
         const val ESCORT_ENGAGE = 25.0
         const val GUARD_ENGAGE = 30.0
         const val HOLD_ENGAGE = 14.0
+        /** A pillar attacker only fights an enemy this close; farther ones are walked past so the pillar trip finishes. */
+        const val ATTACK_ENGAGE = 12.0
     }
 }

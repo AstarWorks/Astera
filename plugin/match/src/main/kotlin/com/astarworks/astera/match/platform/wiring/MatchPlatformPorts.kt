@@ -46,4 +46,6 @@ public class MatchPlatformPorts(
     public val normaPresentation: ((ServiceRegistry) -> INormaPresentation)? = null,
     /** Floating labels over bases, spawns, objectives and pillars (Paper: TextDisplays shown per viewer). `null` = no labels (headless). */
     public val worldLabels: ((ServiceRegistry) -> com.astarworks.astera.match.application.port.outbound.IWorldLabels)? = null,
+    /** The locked hotbar navigation compass (Paper: tagged COMPASS in slot index 8). `null` = no compass item, guides stay always on (headless). */
+    public val matchCompass: ((ServiceRegistry) -> com.astarworks.astera.match.application.port.outbound.IMatchCompass)? = null,
 )

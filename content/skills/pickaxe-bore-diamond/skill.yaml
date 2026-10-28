@@ -19,6 +19,8 @@ machine:
       then: end
       enter:
         - {id: break, op: break_area, at: 0, anchor: caster, shape: {line: {length: 8, width: 3, height: 3}}, tool: pickaxe, block_damage: 100, ripple: 29, revert: 200, outside_arena: false}
-        - {id: snd_bore, op: sound, sound: "astera:weapons/gun-impact-block", anchor: caster, volume: 1.0, pitch: 0.5}
-        - {id: fx_bore, op: particle_def, def: hit-spark, anchor: dust}
+        - {id: snd_bore, op: sound, sound: block.stone.break, anchor: caster, volume: 1.0, pitch: 0.6}
+        - {id: snd_bore_2, op: sound, sound: item.trident.hit_ground, anchor: caster, volume: 0.8, pitch: 1.0}
+        - {id: snd_bore_3, op: sound, sound: block.amethyst_cluster.break, anchor: caster, volume: 0.8, pitch: 1.0}
+        - {id: fx_bore, op: particle_def, def: tool-pick-diamond, anchor: dust}
     end: {final: true}

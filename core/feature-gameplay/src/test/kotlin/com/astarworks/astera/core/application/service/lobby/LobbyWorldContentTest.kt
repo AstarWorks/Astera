@@ -87,6 +87,24 @@ class LobbyWorldContentTest {
     }
 
     @Test
+    fun `the tool bay is part of the lobby build with a walkable gate, a rack wall and a reset button (MAP-A6)`() {
+        assertThat(config.markerVersion).describedAs("the tool bay needs a repaste").isGreaterThanOrEqualTo(7)
+        val bay = plan.toolBay
+        assertThat(bay).isEqualTo(com.astarworks.astera.core.domain.lobby.LobbyToolBayLayout.plan(config.center.x, config.center.z, config.surfaceY))
+        assertThat(plan.isWalkable(bay.entry)).isTrue()
+        assertThat(bay.rackSlots).hasSize(9)
+        bay.rackSlots.forEach { slot ->
+            assertThat(plan.stateAt(slot.x - 1, slot.y, slot.z)).describedAs("rack backing at ${slot.index}").isNotNull()
+            assertThat(plan.stateAt(slot.x, slot.y, slot.z)).describedAs("frame cell ${slot.index} is free").isNull()
+        }
+        assertThat(plan.stateAt(bay.resetButton.x, bay.resetButton.y, bay.resetButton.z)).startsWith("minecraft:stone_button")
+        assertThat(bay.region.contains(bay.resetButton.x + 0.5, bay.resetButton.y + 0.5, bay.resetButton.z + 0.5)).isFalse()
+        assertThat(plan.signs.mapNotNull { it.lines.firstOrNull()?.value }).contains(
+            "astera.lobby.sign.training.bay.tools.title", "astera.lobby.sign.training.bay.reset.title",
+        )
+    }
+
+    @Test
     fun `every NPC hub has a name board on its building within sight of the NPC (MAP-07)`() {
         assertThat(config.markerVersion).describedAs("hub buildings need a repaste").isGreaterThanOrEqualTo(5)
         val hubSigns = plan.signs.filter { sign -> sign.lines.firstOrNull()?.value?.startsWith("astera.lobby.sign.hub.") == true }

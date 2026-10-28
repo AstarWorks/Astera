@@ -19,6 +19,7 @@ import com.astarworks.astera.core.application.port.outbound.IWorldGateway
 import com.astarworks.astera.core.application.port.outbound.presentation.IPresentation
 import com.astarworks.astera.core.domain.event.BlockBroken
 import com.astarworks.astera.core.domain.event.EndReason
+import com.astarworks.astera.core.domain.event.PlayerRespawned
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.i18n.MessageKey
 import com.astarworks.astera.core.domain.match.Match
@@ -32,10 +33,12 @@ import com.astarworks.astera.core.domain.stage.Stage
 import com.astarworks.astera.core.domain.world.BlockType
 import com.astarworks.astera.match.application.port.inbound.IMatchLifecycle
 import com.astarworks.astera.match.application.port.outbound.IMatchPlayerPositions
+import com.astarworks.astera.match.application.port.outbound.IMatchCompass
 import com.astarworks.astera.match.application.port.outbound.IObjectiveStage
 import com.astarworks.astera.match.application.port.outbound.IWorldLabels
 import com.astarworks.astera.match.domain.event.EntityEnteredRegion
 import com.astarworks.astera.match.domain.event.EntityLeftRegion
+import com.astarworks.astera.match.domain.event.ObjectiveMarkerInteracted
 import com.astarworks.astera.match.domain.gamemode.GameModeContext
 import com.astarworks.astera.match.domain.gamemode.GameModeEvent
 import com.astarworks.astera.match.domain.gamemode.IGameMode
@@ -60,6 +63,7 @@ import org.slf4j.LoggerFactory
  * @property guide the per-player hologram guide arrow (ADR-0295); `null` = no hologram.
  * @property settings player preferences; the guide is off for players who hid the HUD; `null` = everyone sees it.
  * @property labels the floating in-world labels over bases, spawns and objectives; `null` = no labels.
+ * @property compass the locked hotbar navigation compass (slot index 8); modes that use it show their guide only while it is held; `null` = none.
  * @property statuses combat status container; the TNT carrier is silenced through it (Rainmaker: no weapons); `null` = never silenced.
  */
 public class SiegeEnv(
@@ -82,6 +86,7 @@ public class SiegeEnv(
     public val settings: () -> IPlayerSettingsRepository? = { null },
     public val labels: () -> IWorldLabels? = { null },
     public val statuses: () -> IStatusEffectContainer? = { null },
+    public val compass: () -> IMatchCompass? = { null },
 ) {
     public fun int(key: String, default: Int): Int = config[key]?.toIntOrNull() ?: default
 
@@ -160,7 +165,7 @@ public abstract class SiegeGameMode<R : SiegeRun>(
     final override fun tickPeriodTicks(): Long = fastTickTicks
 
     /** The objective feedback helpers (carrier look, markers, bars, compass, channel); only touched while [env] is set. */
-    protected val kit: ObjectiveKit by lazy { ObjectiveKit(checkNotNull(env) { "an inert mode has no objective kit" }, modeId.value) }
+    protected val kit: ObjectiveKit by lazy { ObjectiveKit(checkNotNull(env) { "an inert mode has no objective kit" }, modeId.value, compassItem = true) }
 
     /** The in-world labels (bases, spawns, objectives); only touched while [env] is set. */
     private val labels: ObjectiveLabels by lazy { ObjectiveLabels(checkNotNull(env) { "an inert mode has no labels" }, modeId.value) }
@@ -176,6 +181,15 @@ public abstract class SiegeGameMode<R : SiegeRun>(
             },
             e.eventBus.subscribe(EntityLeftRegion::class) { ev ->
                 dispatch(ev.matchId) { run, _ -> left(run, ev.playerId, ev.regionId) }
+            },
+            e.eventBus.subscribe(ObjectiveMarkerInteracted::class) { ev ->
+                dispatch(ev.matchId) { run, match ->
+                    val team = teamOf(match, ev.playerId)
+                    if (live(match) && team != null && !run.ended) interacted(run, match, ev.playerId, team, ev.key)
+                }
+            },
+            e.eventBus.subscribe(PlayerRespawned::class) { ev ->
+                ev.matchId?.let { id -> dispatch(id) { _, _ -> e.compass()?.give(ev.playerId) } }
             },
             e.eventBus.subscribe(BlockBroken::class) { ev ->
                 dispatch(ev.matchId) { run, match ->
@@ -209,6 +223,7 @@ public abstract class SiegeGameMode<R : SiegeRun>(
         runs[match.id] = run
         if (countModel) for (team in match.teams) run.counts[team.id] = countStart()
         start(run, match)
+        giveCompasses(match)
         labels.place(match, stage)
         e.eventBus.publish(GameModeEvent.GameModeStarted(matchId = match.id, modeId = modeId, atTick = e.now()))
     }
@@ -237,10 +252,17 @@ public abstract class SiegeGameMode<R : SiegeRun>(
         if (now - run.slowAt < SLOW_TICKS) return
         run.slowAt = now
         tickRun(run, match, tick)
+        giveCompasses(match)
         guideMembers(run, match)
         if (run.due("labels", now, LABEL_REFRESH_TICKS)) labels.place(match, run.stage)
         if (countModel) refreshBars(run, match)
         remindObjective(run, match, e)
+    }
+
+    /** Everyone in the match owns the navigation compass (idempotent: covers match start, late joiners and any respawn path). */
+    private fun giveCompasses(match: Match) {
+        val compass = env?.compass?.invoke() ?: return
+        for (team in match.teams) for (member in team.members) compass.give(member)
     }
 
     /** Points every member's compass / hologram at [navTarget] (modes that steer through their own compass return `null`). */
@@ -331,7 +353,9 @@ public abstract class SiegeGameMode<R : SiegeRun>(
         val run = runs.remove(context.matchId) ?: return
         finish(run)
         labels.clear(context.matchId)
-        kit.endMatch(context.matchId, e.matches.findById(context.matchId)?.teams?.flatMap { it.members }.orEmpty())
+        val members = e.matches.findById(context.matchId)?.teams?.flatMap { it.members }.orEmpty()
+        e.compass()?.let { compass -> members.forEach(compass::remove) }
+        kit.endMatch(context.matchId, members)
         e.eventBus.publish(GameModeEvent.GameModeEnded(matchId = context.matchId, modeId = modeId, atTick = e.now()))
     }
 
@@ -361,6 +385,9 @@ public abstract class SiegeGameMode<R : SiegeRun>(
     protected open fun entered(run: R, match: Match, player: PlayerId, team: TeamId, region: String) {}
 
     protected open fun left(run: R, player: PlayerId, region: String) {}
+
+    /** [player] (of [team]) right-clicked the loose objective marker [key] (the key the mode gave `kit.marker`). */
+    protected open fun interacted(run: R, match: Match, player: PlayerId, team: TeamId, key: String) {}
 
     protected open fun broken(run: R, match: Match, player: PlayerId, team: TeamId?, position: Vec3) {}
 

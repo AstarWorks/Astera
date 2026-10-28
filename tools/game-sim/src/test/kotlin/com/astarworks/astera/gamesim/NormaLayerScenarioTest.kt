@@ -42,7 +42,7 @@ class NormaLayerScenarioTest {
 
             // The siege stage has its own star generators (siege-center-east at 14.5, 65, 0.5, stage-local).
             red.moveTo(Vec3(14.5, 65.0, 0.5))
-            blue.moveTo(Vec3(80.0, 65.0, 0.5))
+            blue.moveTo(Vec3(100.0, 65.0, 0.5))
             advance(650)
             assertThat(eventsOf<StarsCollected>().filter { it.playerId == red.id }).`as`("red collected a pop in carry-tnt").isNotEmpty()
             assertThat(stars().get(matchId, red.id)).isGreaterThanOrEqualTo(1)
@@ -66,8 +66,8 @@ class NormaLayerScenarioTest {
 
             // annihilation-center-east stands at 9.5, 65, 0.5 (stage-local) on the centre island.
             red.moveTo(Vec3(9.5, 65.0, 0.5))
-            blue.moveTo(Vec3(40.0, 65.0, 23.0))
-            yellow.moveTo(Vec3(-40.0, 65.0, 23.0))
+            blue.moveTo(Vec3(52.0, 65.0, 30.0))
+            yellow.moveTo(Vec3(-52.0, 65.0, 30.0))
             advance(650)
             assertThat(eventsOf<StarsCollected>().filter { it.playerId == red.id }).`as`("red collected a pop in annihilation").isNotEmpty()
 
@@ -98,7 +98,7 @@ class NormaLayerScenarioTest {
 
             red.moveTo(Vec3(0.0, 65.0, -6.0))
             advance(40)
-            red.moveTo(Vec3(80.0, 65.0, 0.0))
+            red.moveTo(Vec3(100.0, 65.0, 0.0))
             advance(40)
             advance(18_100)
             val ended = eventsOf<MatchEnded>().single { it.matchId == matchId }

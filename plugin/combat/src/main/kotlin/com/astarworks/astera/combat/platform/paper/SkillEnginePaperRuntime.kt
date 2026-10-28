@@ -138,12 +138,19 @@ internal class SkillEnginePaperRuntime(
         val live = PaperLiveValueSource(server, scheduler, gameplay, entityQuery)
         val movementGateway = PaperSkillMovementGateway(server)
         movement = movementGateway
+        val toolBlocks by lazy { ports.toolBlocks?.invoke(services) }
         val worldGateway3 = PaperSkillWorldGateway(
             server,
             guard = { ports.blockEditGuard?.invoke(services) },
             blockStates = { services.get<IBlockStateGateway>() },
             covers = { services.get<ICustomBlockRegistry>() },
+            structures = { services.get<IStructureTargets>() },
+            toolBay = { services.get<com.astarworks.astera.core.application.port.outbound.lobby.ILobbyToolBay>() },
             lightning = { services.get<ILightningGateway>() },
+            coverService = { services.get<com.astarworks.astera.core.application.service.CoverBlockService>() },
+            toolBlocks = { toolBlocks },
+            items = { services.get<com.astarworks.astera.core.application.port.outbound.IItemRegistry>() },
+            exclusion = { services.get<com.astarworks.astera.core.application.port.outbound.IAreaBreakExclusion>() },
         )
         worldOps = worldGateway3
         val player = TablePlayer(

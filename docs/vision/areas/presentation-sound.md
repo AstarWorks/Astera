@@ -13,6 +13,7 @@ Owner track `wp/presentation` (skill-level VFX/sound belongs to `skills-vfx`). I
 - `content/presentation/events.yaml` is the one moment table (ADR-0267 cue path): 34 moments (countdown, kill/death/respawn, hit/crit/blocked, star pop/pickup/burst, Norma level/choice, queue/found, sudden death, win/lose/draw, reward, purchase, quest, player level-up, UI click/confirm/deny) with cue, audience cue, title, action bar and particle presets. All cues are own synthesized OGGs (`tools/sound-gen`, ffmpeg only) under `content/sounds/`, 6 BGM tracks play through the Paper music gateway.
 - Death, respawn and player level-up are now visible as well as audible (soul / glint / spark presets; respawn action-bar line); `PresentationCueCoverageScenarioTest` covers them.
 - UI: click is central in the GUI intent router; confirm/deny are played only by the queue, shop and cosmetic handlers.
+- Status HUD: HP is the red bar, the energy (hunger) row is drawn as blue mana orbs (own 9x9 sprites in `content/pack-assets/.../hud/food_*.png`), and the ammo readout sits on the HP row to the right of the orb row, clear of both it and the cooldown row (`AmmoReadoutLayout`). HP regens 1/s after 5 s without a hit (`content/balance/health-regen.yaml`, `HealthRegenScenarioTest`).
 - Gaps: the party / friends / vault / travel intent handlers refuse silently (no deny cue); 25 of 84 skills have no `play_sound` (skills-vfx area); star pop/burst strength is still a founder taste call.
 
 ## 理想形
