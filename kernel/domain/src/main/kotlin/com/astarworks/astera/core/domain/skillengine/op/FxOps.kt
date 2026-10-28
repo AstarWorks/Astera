@@ -31,5 +31,10 @@ public sealed interface FxOp : PresentationOp {
         val pitch: Value<Double>?,
         val everyTicks: Int?,
         val untilEvent: String?,
+        /** With [overTicks]: the pitch glides from [pitch] to [pitchTo] over that many ticks (windup rise), then holds. */
+        val pitchTo: Value<Double>? = null,
+        val overTicks: Int? = null,
+        /** Easing key of the glide (v1 `pitch_arc.ease`, e.g. `in_quad`); null = linear. */
+        val pitchEase: String? = null,
     ) : FxOp
 }

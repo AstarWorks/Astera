@@ -23,7 +23,7 @@ public fun movementDecoders(): List<OpDecoder> = listOf(MovementOpDecoder)
 private object MovementOpDecoder : OpDecoder {
     override val section: OpSection = OpSection.GAMEPLAY
     override val opNames: Set<String> =
-        setOf("impulse", "knockback", "knockup", "set_velocity", "propel", "teleport", "leap", "dash_strike")
+        setOf("impulse", "knockback", "knockup", "set_velocity", "propel", "teleport", "leap", "dash_strike", "lock", "unlock")
 
     override fun decode(op: String, id: String, whenExpr: Value<Boolean>?, reader: OpReader): SkillOp = when (op) {
         "impulse" -> MovementOp.Impulse(id, whenExpr, target(reader, TargetRef.Victim), vec(reader, "vector"))
@@ -42,6 +42,11 @@ private object MovementOpDecoder : OpDecoder {
             id, whenExpr, target(reader, TargetRef.Caster), destination(reader), reader.number("arc_height") ?: literal(2.0),
         )
         "dash_strike" -> dash(id, whenExpr, reader)
+        "lock" -> MovementOp.Lock(
+            id, whenExpr, target(reader, TargetRef.Caster), reader.number("speed") ?: literal(0.0),
+            reader.number("ticks"),
+        )
+        "unlock" -> MovementOp.Unlock(id, whenExpr, target(reader, TargetRef.Caster))
         else -> reader.fail("movement decoder does not own op '$op'")
     }
 

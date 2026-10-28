@@ -78,4 +78,24 @@ public sealed interface MovementOp : GameplayOp {
         val faceMovement: Boolean,
         val onHit: List<GameplayOp>,
     ) : MovementOp
+
+    /**
+     * Movement lock (windup / cast phases): [speed] is the walk-speed factor kept while locked (0 = full root,
+     * 0.3 = slowed to 30%; the view stays free). Held [ticks] ticks, or until `unlock` /
+     * cast end / cancel when [ticks] is null. Several locks on one entity apply the strictest.
+     */
+    public data class Lock(
+        override val id: String,
+        override val whenExpr: Value<Boolean>?,
+        val target: TargetRef,
+        val speed: Value<Double>,
+        val ticks: Value<Double>?,
+    ) : MovementOp
+
+    /** Releases the locks this cast placed on [target] early. */
+    public data class Unlock(
+        override val id: String,
+        override val whenExpr: Value<Boolean>?,
+        val target: TargetRef,
+    ) : MovementOp
 }

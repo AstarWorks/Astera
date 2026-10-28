@@ -271,6 +271,7 @@ internal class CastInstance(
         drain()
         deps.presentation.endCast(id, cancelled)
         deps.dashes.cancel(id)
+        deps.locks.cancel(id)
         hitRegs.clear()
         listeners.clear()
         ended = true

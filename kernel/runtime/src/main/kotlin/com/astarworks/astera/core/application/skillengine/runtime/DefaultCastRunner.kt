@@ -2,6 +2,7 @@ package com.astarworks.astera.core.application.skillengine.runtime
 
 import com.astarworks.astera.core.application.skillengine.load.CompiledSkill
 import com.astarworks.astera.core.application.skillengine.runtime.ops.DashStrikeDriver
+import com.astarworks.astera.core.application.skillengine.runtime.ops.MovementLockDriver
 import com.astarworks.astera.core.application.skillengine.runtime.ops.ISkillWorldEffectGateway
 import com.astarworks.astera.core.application.skillengine.runtime.port.ISkillCooldownGateway
 import com.astarworks.astera.core.application.skillengine.runtime.port.ISkillItemGateway
@@ -42,6 +43,7 @@ public class CastRunnerDeps(
     public val points: ModelPointSource,
     public val hosts: CastHosts,
     public val dashes: DashStrikeDriver,
+    public val locks: MovementLockDriver,
     public val world: SkillWorldEditor,
     public val presentation: PresentationRuntime,
     public val cooldowns: ISkillCooldownGateway,
@@ -111,6 +113,7 @@ public class DefaultCastRunner(private val deps: CastRunnerDeps) : CastRunner {
             }
         }
         deps.dashes.tick()
+        deps.locks.tick()
         deps.world.tick()
     }
 

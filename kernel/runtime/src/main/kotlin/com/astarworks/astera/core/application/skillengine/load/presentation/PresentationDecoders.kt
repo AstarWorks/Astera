@@ -162,7 +162,7 @@ private object FxOpDecoder : OpDecoder {
             )
             "sound" -> FxOp.Sound(
                 id, whenExpr, requireString("sound"), requirePoint("at"), number("volume"), number("pitch"),
-                int("every"), string("until"),
+                int("every"), string("until"), number("pitch_to"), int("over"), string("pitch_ease"),
             )
             else -> fail("not an fx op: $op")
         }
