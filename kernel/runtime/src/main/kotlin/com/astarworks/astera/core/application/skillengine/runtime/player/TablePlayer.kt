@@ -83,7 +83,7 @@ public data class PlayerFault(val cast: CastHandle, val tick: Int, val src: Stri
  */
 public interface PlayerHooks {
     /** True / false for the guard at [localTick] ticks into the owning state; null = cannot evaluate. */
-    public fun guard(cast: CastHandle, guard: Guard, conditions: Map<String, String>, binding: EventBinding?, localTick: Int): Boolean? = null
+    public fun guard(cast: CastHandle, guard: Guard, conditions: Map<String, String>, binding: EventBinding?, localTick: Int, seed: Long = 0L): Boolean? = null
 
     /** Starts holding the caster's inputs until server tick [untilTick] (absolute); false = unsupported. */
     public fun lock(caster: UUID, move: LockMove, pitch: Boolean, yaw: Boolean, untilTick: Int): Boolean = false
@@ -328,6 +328,9 @@ public class TablePlayer(
     private fun exitLevel(run: Run, lvl: LevelCursor, reason: ExitReason, now: Int, binding: EventBinding?) {
         for (child in run.cursor.levels.filter { it.parent === lvl }.asReversed()) exitLevel(run, child, ExitReason.PREEMPT, now, binding)
         pasteSub(run, EventPath("${lvl.state.value}.exit[${reason.name.lowercase()}]"), now, binding, owner = null, direct = true)
+        // End rows the table already played this tick are the contract and run in row order; the sweep below only closes what is still alive
+        for (id in run.pendingEnds.toList()) endInstance(run, id)
+        run.pendingEnds.clear()
         for ((id, rec) in run.recs.entries.toList().asReversed()) if (rec.owner == lvl.state) endInstance(run, id)
         run.regionEnds.remove(lvl.state)
         for (l in run.locks.filter { it.owner == lvl.state }) {
@@ -414,7 +417,7 @@ public class TablePlayer(
 
     private fun guardOk(run: Run, b: Branch, binding: EventBinding, lt: Int, now: Int): Boolean {
         val g = b.guard ?: return true
-        val r = hooks.guard(run.cursor.handle, g, run.cursor.skill.table.conditions, binding, lt)
+        val r = hooks.guard(run.cursor.handle, g, run.cursor.skill.table.conditions, binding, lt, run.request.seed)
         if (r == null) fault(run, now, b.event.value, "no guard evaluator for $g")
         return r == true
     }
@@ -548,7 +551,7 @@ public class TablePlayer(
         val g = row.guard
         if (g != null) {
             // a class-L / seeded `when` on a point gameplay op (ADR-0303 item 13): the row exists, the guard decides at its tick
-            val ok = hooks.guard(run.cursor.handle, g, run.cursor.skill.table.conditions, ctx.binding, now - ctx.base)
+            val ok = hooks.guard(run.cursor.handle, g, run.cursor.skill.table.conditions, ctx.binding, now - ctx.base, guardSeed(run, row, ctx, now))
             if (ok == null) { fault(run, now, src, "no guard evaluator for $g"); return }
             if (!ok) return
         }
@@ -1534,6 +1537,20 @@ public class TablePlayer(
     }
 
     /** The seed `V3Bindings.seed(castSeed, op, i)` the compiler folds with, and the copy indices of the instance path (innermost first). */
+    /**
+     * The seed a row guard draws with: (cast seed, row instance + source, firing tick, event index, victim). Each firing of a row draws
+     * independently (v2 `rollChance` was one fresh draw per application), and a replay of the cast draws the same values.
+     */
+    private fun guardSeed(run: Run, row: Row, ctx: RowCtx, now: Int): Long {
+        var h = rowScope(run, row).seed xor (row.src.value.hashCode().toLong() * -0x61c8864680b583ebL)
+        h = (h xor (h ushr 30)) * -0x40a7b892e31b1a47L
+        h = h xor (now.toLong() * 0x2545F4914F6CDD1DL)
+        h = (h xor (h ushr 27)) * -0x6b2fb644ecceee15L
+        h = h xor ((ctx.binding?.index ?: -1).toLong() * 0x1B873593L)
+        h = h xor ((ctx.binding?.victim?.id?.hashCode() ?: 0).toLong() * -0x61c8864680b583ebL)
+        return h xor (h ushr 31)
+    }
+
     private fun rowScope(run: Run, row: Row): RowScope {
         val last = row.instance.path.lastOrNull() ?: return RowScope.cast(run.request.seed)
         val indices = row.instance.path.mapNotNull { it.index }.asReversed()

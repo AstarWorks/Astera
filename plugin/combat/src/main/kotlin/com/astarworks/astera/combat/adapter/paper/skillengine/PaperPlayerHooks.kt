@@ -46,7 +46,7 @@ public class PaperPlayerHooks(
     private val lockKey = NamespacedKey("astera", "skill_move_lock")
     private val moveLocks = ConcurrentHashMap<UUID, Int>()
 
-    override fun guard(cast: CastHandle, guard: Guard, conditions: Map<String, String>, binding: EventBinding?, localTick: Int): Boolean? {
+    override fun guard(cast: CastHandle, guard: Guard, conditions: Map<String, String>, binding: EventBinding?, localTick: Int, seed: Long): Boolean? {
         val request = live.requestOf(cast) ?: return null
         val source = when (guard) {
             is Guard.Expr -> guard.source
@@ -72,7 +72,7 @@ public class PaperPlayerHooks(
             val env = ExprEnv(
                 variables = live.variables(cast, binding, castTick = scheduler.currentTick().toInt() - request.startTick, stateTick = localTick),
                 frames = live.frames(cast, binding),
-                seed = request.seed,
+                seed = seed,
                 castSeed = request.seed,
             )
             (expr.eval(env) as? ExprValue.Bool)?.value
