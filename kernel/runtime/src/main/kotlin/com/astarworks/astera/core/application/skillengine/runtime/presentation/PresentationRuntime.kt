@@ -19,6 +19,7 @@ import com.astarworks.astera.core.domain.skillengine.model.AxisRef
 import com.astarworks.astera.core.domain.skillengine.model.PointRef
 import com.astarworks.astera.core.domain.skillengine.model.Value
 import com.astarworks.astera.core.domain.skillengine.model.ValueResolver
+import com.astarworks.astera.core.domain.skillengine.op.MeshModelKey
 import com.astarworks.astera.core.domain.skillengine.op.PlateFace
 import com.astarworks.astera.core.domain.skillengine.op.Repeat
 import com.astarworks.astera.core.domain.skillengine.op.TrackKey
@@ -83,7 +84,11 @@ public class PresentationRuntime(
             val pivot: Vec3,
             val tilt: Quaternion,
             val rest: Quaternion,
-        ) : Live()
+            val models: List<MeshModelKey> = emptyList(),
+        ) : Live() {
+            /** Item model last pushed to the gateway (writes only on change). */
+            var shownModel: String? = null
+        }
 
         class Plate(
             override val opId: String,
@@ -419,10 +424,13 @@ public class PresentationRuntime(
         }
         for (l in s.live.values.toList()) {
             when (l) {
-                is Live.Mesh -> update(s, l)?.let { pose ->
-                    val driver = driverOf(s, l.parent)
-                    if (driver == null) visuals.write(l.handle, pose, DISPLAY_TICKS)
-                    else driver.driven?.let { interp -> if (driver.changed(l.opId, pose)) visuals.write(l.handle, pose, interp) }
+                is Live.Mesh -> {
+                    update(s, l)?.let { pose ->
+                        val driver = driverOf(s, l.parent)
+                        if (driver == null) visuals.write(l.handle, pose, DISPLAY_TICKS)
+                        else driver.driven?.let { interp -> if (driver.changed(l.opId, pose)) visuals.write(l.handle, pose, interp) }
+                    }
+                    tickModel(s, l)
                 }
                 is Live.Plate -> {
                     update(s, l)?.let { visuals.write(l.handle, it, DISPLAY_TICKS) }
@@ -509,6 +517,18 @@ public class PresentationRuntime(
             if (c != null) l.shownColor = c
         }
         block?.takeIf { it != l.shownBlock }?.let { visuals.setBlock(l.handle, it); l.shownBlock = it }
+    }
+
+    /** Pushes the `item_model` step key of a rig-borne mesh that has come due on the rig's clock (v1 VfxBodyPlanner.withModelSwaps). */
+    private fun tickModel(s: CastState, l: Live.Mesh) {
+        if (l.models.isEmpty()) return
+        val driver = driverOf(s, l.parent) ?: return
+        val e = s.tick - 1 - driver.startTick
+        val model = l.models.lastOrNull { driver.modelTick(it.tick) <= e && driver.modelTick(it.tick) < driver.op.durationTicks }?.model ?: return
+        if (model != l.shownModel) {
+            s.ctx.ports.visuals.setItemModel(l.handle, model)
+            l.shownModel = model
+        }
     }
 
     private class Look(val alpha: Double?, val color: String?, val block: String?)

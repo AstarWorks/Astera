@@ -10,6 +10,7 @@ import com.astarworks.astera.core.domain.skillengine.model.Value
 import com.astarworks.astera.core.domain.skillengine.model.literal
 import com.astarworks.astera.core.domain.skillengine.op.BodyOp
 import com.astarworks.astera.core.domain.skillengine.op.FxOp
+import com.astarworks.astera.core.domain.skillengine.op.MeshModelKey
 import com.astarworks.astera.core.domain.skillengine.op.OpSection
 import com.astarworks.astera.core.domain.skillengine.op.PlateFace
 import com.astarworks.astera.core.domain.skillengine.op.Repeat
@@ -143,6 +144,20 @@ private fun OpReader.trackKeys(): List<TrackKey> {
     }
 }
 
+/** `models: [{t, model}]` of a mesh: step keys of its `item_model` (v1 `weapon_model`, VfxRig.kt VfxWeaponModelKey). */
+private fun OpReader.meshModels(): List<MeshModelKey> {
+    val keys = (raw("models") as? List<*> ?: emptyList<Any?>()).mapIndexed { i, e ->
+        val m = e as? Map<*, *> ?: fail("models[$i] must be a map")
+        m.keys.firstOrNull { it !in setOf("t", "model") }?.let { fail("unknown key '$it' in models[$i]") }
+        val t = (m["t"] as? Number)?.toInt()?.takeIf { it >= 0 } ?: fail("models[$i] needs integer 't' >= 0")
+        val model = (m["model"] as? String)?.takeIf { Regex("[a-z0-9_.-]+:[a-z0-9_./-]+").matches(it) }
+            ?: fail("models[$i].model must be a namespaced id (namespace:path)")
+        MeshModelKey(t, model)
+    }
+    keys.zipWithNext().forEach { (a, b) -> if (b.tick <= a.tick) fail("models t must be strictly increasing") }
+    return keys
+}
+
 private fun OpReader.literalVec(key: String): Vec3? {
     val list = raw(key) ?: return null
     val n = (list as? List<*>)?.map { (it as? Number)?.toDouble() ?: fail("$key must be [x,y,z] numbers") }
@@ -257,7 +272,7 @@ private object VisualOpDecoder : OpDecoder {
     override fun decode(op: String, id: String, whenExpr: Value<Boolean>?, reader: OpReader): SkillOp = with(reader) {
         when (op) {
             "mesh" -> VisualOp.Mesh(id, whenExpr, requireString("frame"), requireString("item"), string("part"), number("scale"),
-                vec3("pivot"), vec3("rest_turn"), vec3("tilt_turn"), brightness())
+                vec3("pivot"), vec3("rest_turn"), vec3("tilt_turn"), brightness(), meshModels())
             "plate" -> VisualOp.Plate(
                 id, whenExpr, requireString("parent"), face(null), requireString("sprite"),
                 numberOr("size", 1.0), numberOr("alpha", 1.0),

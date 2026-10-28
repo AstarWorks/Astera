@@ -85,6 +85,9 @@ public interface ISkillVisualGateway {
     /** A plate's or quad's opacity 0..1 and, for a quad, its colour `#rrggbb` (null = unchanged); called only when a track key changes them. */
     public fun setLook(handle: VisualHandle, alpha: Double?, colorHex: String?) {}
 
+    /** A mesh display switches to item model [model] (`namespace:path`); null restores the stack's own model. */
+    public fun setItemModel(handle: VisualHandle, model: String?) {}
+
     /** A block display switches to vanilla block [block]. */
     public fun setBlock(handle: VisualHandle, block: String) {}
 
