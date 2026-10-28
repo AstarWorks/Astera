@@ -61,6 +61,7 @@ public class PaperSkillVisualGateway(
     private val log = LoggerFactory.getLogger(javaClass)
     private val ids = AtomicLong(1)
     private val entries = ConcurrentHashMap<Long, Entry>()
+    private val owners = ConcurrentHashMap<Long, UUID>()
 
     @Volatile
     private var lastWorld: WorldId? = null
@@ -108,7 +109,7 @@ public class PaperSkillVisualGateway(
             weaponRigShading = true,
         )
         val handle = displays.spawn(WorldId(world.name), pose.origin, spec, emptyList()) ?: return dead("mesh $item")
-        return register(MeshEntry(handle, uniform(scale), pose.rotation))
+        return register(castOwner, MeshEntry(handle, uniform(scale), pose.rotation))
     }
 
     override fun spawnPlate(castOwner: UUID, sprite: String, face: PlateFace, size: Double, alpha: Double, pose: Frame): VisualHandle {
@@ -129,7 +130,7 @@ public class PaperSkillVisualGateway(
             brightness = 15,
         )
         val handle = displays.spawn(WorldId(world.name), pose.origin, spec, listOf(glyph)) ?: return dead("plate $sprite")
-        return register(PlateEntry(handle, face, uniform(size), world, placed.rotation, sprite))
+        return register(castOwner, PlateEntry(handle, face, uniform(size), world, placed.rotation, sprite))
     }
 
     override fun spawnLine(castOwner: UUID, from: Vec3, to: Vec3, thickness: Double, colorHex: String, face: PlateFace): VisualHandle {
@@ -150,13 +151,13 @@ public class PaperSkillVisualGateway(
             brightness = 15,
         )
         val handle = displays.spawn(WorldId(world.name), mid, spec, listOf(" ")) ?: return dead("line")
-        return register(LineEntry(handle, face, thickness, world))
+        return register(castOwner, LineEntry(handle, face, thickness, world))
     }
 
     override fun spawnTrail(castOwner: UUID, ticks: Int, widthFrac: Double, colorHex: String, alpha: Double): VisualHandle {
         val world = worldOf(castOwner) ?: return dead("trail")
         val rgb = argb(colorHex) and 0xFFFFFF
-        return register(TrailEntry(world, ticks.coerceAtLeast(1), widthFrac, rgb, alpha.coerceIn(0.0, 1.0)))
+        return register(castOwner, TrailEntry(world, ticks.coerceAtLeast(1), widthFrac, rgb, alpha.coerceIn(0.0, 1.0)))
     }
 
     override fun spriteFrames(sprite: String): Int = spriteFrameCount(sprite).coerceAtLeast(1)
@@ -256,7 +257,32 @@ public class PaperSkillVisualGateway(
         RibbonMesh.PieceKind.RIM -> PieceStyle(argb(t.rim!!.color) and 0xFFFFFF, t.rim!!.alpha, null, false)
     }
 
+    /** Removes every display [owner] still has (quit, death, world change): the safety net behind the cast-end removal. */
+    public fun removeAllOf(owner: UUID): Int {
+        val mine = owners.entries.filter { it.value == owner }.map { it.key }
+        mine.forEach { remove(VisualHandle(it)) }
+        return mine.size
+    }
+
+    /** Removes every display this gateway owns (plugin disable). */
+    public fun removeAll(): Int {
+        val all = entries.keys.toList()
+        all.forEach { remove(VisualHandle(it)) }
+        return all.size
+    }
+
+    /** Ribbon segments left in the world by an earlier run of the plugin (reload, crash): none belongs to a live trail at enable. */
+    public fun sweepOrphans(): Int {
+        val tag = com.astarworks.astera.core.application.port.outbound.entity.IManagedEntityRegistry.OWNER_TAG_PREFIX + "skill-ribbon"
+        var removed = 0
+        for (world in server.worlds) for (e in world.entities) {
+            if (tag in e.scoreboardTags) { e.remove(); removed++ }
+        }
+        return removed
+    }
+
     override fun remove(handle: VisualHandle) {
+        owners.remove(handle.id)
         when (val e = entries.remove(handle.id)) {
             is MeshEntry -> displays.remove(e.handle)
             is PlateEntry -> displays.remove(e.handle)
@@ -347,9 +373,10 @@ public class PaperSkillVisualGateway(
         return Vec3(eye.x, eye.y, eye.z)
     }
 
-    private fun register(entry: Entry): VisualHandle {
+    private fun register(owner: UUID, entry: Entry): VisualHandle {
         val id = ids.getAndIncrement()
         entries[id] = entry
+        owners[id] = owner
         return VisualHandle(id)
     }
 

@@ -101,12 +101,32 @@ public class DefaultCastRunner(private val deps: CastRunnerDeps) : CastRunner, I
     }
 
     @Synchronized
+    override fun cancelAllOf(caster: UUID): Int {
+        val mine = casts.values.filter { it.request.caster == caster }
+        mine.forEach { cancel(it.id) }
+        return mine.size
+    }
+
+    @Synchronized
+    override fun cancelAll(): Int {
+        val all = casts.values.toList()
+        all.forEach { cancel(it.id) }
+        return all.size
+    }
+
+    @Synchronized
     override fun isRunning(cast: CastId): Boolean = casts[cast.value]?.ended == false
 
     @Synchronized
     override fun tick(currentTick: Int) {
         for (cast in casts.values.toList()) {
-            cast.tick(currentTick)
+            try {
+                cast.tick(currentTick)
+            } catch (e: RuntimeException) {
+                // A cast that throws must not stay alive with frozen displays: end it and release what it owns.
+                record(CastDiagnostic(cast.id, currentTick, null, "cast tick failed: ${e::class.simpleName}: ${e.message}"))
+                runCatching { cast.cancel() }
+            }
             if (cast.ended) {
                 casts.remove(cast.id.value)
                 deps.hosts.unregister(cast.id)

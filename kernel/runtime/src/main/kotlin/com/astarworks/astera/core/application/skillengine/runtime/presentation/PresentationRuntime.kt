@@ -131,8 +131,16 @@ public class PresentationRuntime(
 
     public fun endCast(cast: CastId, cancelled: Boolean = false) {
         val s = casts.remove(cast) ?: return
-        for (a in s.anims) if (cancelled) casterAnim.stop(a.owner, a.anim) else casterAnim.release(a.owner, a.anim)
-        for (l in s.live.values) s.ctx.ports.visuals.remove(l.handle)
+        // One failing gateway call must not leak the remaining handles.
+        for (a in s.anims) runCatching { if (cancelled) casterAnim.stop(a.owner, a.anim) else casterAnim.release(a.owner, a.anim) }
+        for (l in s.live.values) runCatching { s.ctx.ports.visuals.remove(l.handle) }
+    }
+
+    /** A projectile body ended (hit, block, expire): the meshes and plates riding that body go with it, on that tick. */
+    public fun endBody(cast: CastId, body: String) {
+        val s = casts[cast] ?: return
+        val gone = s.live.values.filter { (it is Live.Mesh && it.frame == body) || (it is Live.Plate && it.parent == body) }
+        removeIds(s, gone.map { it.opId })
     }
 
     public fun tickCast(cast: CastId) {
