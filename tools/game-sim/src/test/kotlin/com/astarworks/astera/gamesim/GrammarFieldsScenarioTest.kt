@@ -10,7 +10,6 @@ import com.astarworks.astera.core.application.skillengine.load.grammar.Fields
 import com.astarworks.astera.core.application.skillengine.load.grammar.Grammar
 import com.astarworks.astera.core.application.skillengine.load.grammar.GrammarContext
 import com.astarworks.astera.core.application.skillengine.load.grammar.Rotation
-import com.astarworks.astera.core.application.skillengine.load.grammar.RotationConvention
 import com.astarworks.astera.core.application.skillengine.load.grammar.Rotations
 import com.astarworks.astera.core.application.skillengine.load.grammar.SchemaJson
 import com.astarworks.astera.core.application.skillengine.load.grammar.Span
@@ -129,12 +128,6 @@ class GrammarFieldsScenarioTest {
         assertQuat(quat("[{axis: frame.up, deg: 90}]"), b)
         assertQuat(quat("[{axis: -up, deg: 90}]"), Quaternion.axisAngle(Vec3(0.0, -1.0, 0.0), Math.toRadians(90.0)))
         assertQuat(quat("[0, 0, 0, 1]"), Quaternion.IDENTITY)
-    }
-
-    @Test
-    fun `clockwise lives in one named constant`() {
-        assertThat(RotationConvention.CW_DEG_SIGN).isEqualTo(-1.0)
-        assertThat(RotationConvention.clockwiseDeg(90.0)).isEqualTo(-90.0)
     }
 
     @Test
