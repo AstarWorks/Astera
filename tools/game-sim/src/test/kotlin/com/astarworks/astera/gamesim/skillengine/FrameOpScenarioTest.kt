@@ -12,6 +12,8 @@ import org.junit.jupiter.api.Test
 /** ADR-0303 1.1 `frame` op (W1-07). Runs at the wave 1b gate (needs the document decoder, unroller and compiler). */
 class FrameOpScenarioTest : SkillEngineScenario() {
 
+    // Instance ids are state-qualified (ADR-0303 C2; section 9): the `throw` state emits `throw/<path>`.
+
     /** [ops] are flow-style op lines; they become the `enter:` list of the single state. */
     private fun skill(vararg ops: String): String = (
         listOf(

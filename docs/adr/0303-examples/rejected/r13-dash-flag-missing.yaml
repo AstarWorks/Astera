@@ -11,5 +11,5 @@ machine:
       for: 10
       then: end
       do:
-        - {id: rush, op: dash, at: 0, until: 8, direction: look, follow_pitch: false, stop_on_block: true, face_movement: true, speed: 1.2}
+        - {id: rush, op: dash, at: 0, until: 8, direction: [0, 0, 1], follow_pitch: false, stop_on_block: true, face_movement: true, speed: 1.2}
     end: {final: true}

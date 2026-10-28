@@ -1,4 +1,4 @@
-# error: SkillDecodeError.MissingField   (2.0b / 3.6: block mode `bounce` requires `restitution` and `times`; nothing is defaulted)
+# error: SkillDecodeError.Invalid   (the loader reports "block.restitution is required"; 2.0b / 3.6: block mode `bounce` requires `restitution` and `times`; nothing is defaulted)
 apiVersion: astera/v3
 kind: Skill
 id: rejected-r6
@@ -13,6 +13,6 @@ machine:
       for: 40
       then: end
       do:
-        - {id: ball, op: projectile, origin: muzzle, velocity: "= forward * 1.0", speed: 1.0, range: 12, radius: 0.4,
+        - {id: ball, op: projectile, origin: muzzle, velocity: "= look(caster) * 1.0", range: 12, radius: 0.4,
            hit: {targets: enemies, once: true}, block: {mode: bounce}}
     end: {final: true}

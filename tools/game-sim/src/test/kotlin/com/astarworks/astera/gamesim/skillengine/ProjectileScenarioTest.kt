@@ -2,7 +2,11 @@ package com.astarworks.astera.gamesim.skillengine
 
 import com.astarworks.astera.core.application.skillengine.compose.ProjectileKinematics
 import com.astarworks.astera.core.application.skillengine.load.SkillDecodeError
+import com.astarworks.astera.core.application.skillengine.runtime.CastRequest
 import com.astarworks.astera.core.application.skillengine.runtime.player.RuntimeEvent
+import com.astarworks.astera.core.application.skillengine.runtime.player.TablePlayer
+import com.astarworks.astera.core.domain.skillengine.table.CancelScope
+import com.astarworks.astera.core.domain.world.WorldId
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.skillengine.hit.HitBox
@@ -59,9 +63,13 @@ class ProjectileScenarioTest : SkillEngineScenario() {
 
     private fun CompiledSkill.hasSub(event: String): Boolean = table.subTables.keys.any { it.value.endsWith(".$event") }
 
-    private val base = "id: bolt, op: projectile, origin: muzzle, velocity: \"= forward * 1.0\", radius: 0.4"
+    private val base = "id: bolt, op: projectile, origin: muzzle, velocity: \"= look(caster) * 1.0\", radius: 0.4"
 
-    private fun end(skill: CompiledSkill): Row = skill.rows().single { it.action is Action.End }
+    // instance ids are state-qualified (`cast/bolt`, ADR-0303 C2: an entry is (state, tick, op id, ...)); the final state's own End row is not the body's
+    private fun end(skill: CompiledSkill): Row = skill.rows().single { it.action is Action.End && it.instance.text == "cast/bolt" }
+
+    /** Joins a further op to the `do` list the projectile sits in (same indentation as `- $projectile` in [skill]). */
+    private val sibling = "\n" + " ".repeat(16) + "- "
 
     @Test
     fun rangeEnds() {
@@ -89,13 +97,16 @@ class ProjectileScenarioTest : SkillEngineScenario() {
 
     @Test
     fun spinAboutForwardOneWrite() {
+        // the body emits no Key rows (ADR-0303 3.6, wave1 resolution 16): its closed-form `motion:` is composed into the rider anchored on it
         val s = compile(
             "{$base, for: 5, hit: {targets: enemies, once: true}, block: {mode: despawn}, " +
-                "motion: [{law: spin, axis: forward, deg_per_tick: 30, for: 5}]}",
+                "motion: [{law: spin, axis: forward, deg_per_tick: 30, for: 5}]}" +
+                sibling + "{id: rider, op: display, kind: item, item: fire_charge, anchor: bolt, for: 5, at: 0}",
         )
         val keys = s.rows().filter { it.action is Action.Key }
         assertEquals(1, keys.size)
-        assertEquals(1, s.table.writes.values.single().maxWritesPerTick)
+        assertEquals("cast/rider", keys.single().instance.text)
+        assertEquals(1, s.table.writes.values.maxOf { it.maxWritesPerTick })
     }
 
     @Test
@@ -119,8 +130,9 @@ class ProjectileScenarioTest : SkillEngineScenario() {
         val sub = s.sub("bounce")
         assertEquals(2, sub.maxFirings)
         assertEquals(1, sub.rows.count { it.action is Action.Sound })
-        val events = listOf(RuntimeEvent(EventPath(s.table.subTables.keys.first { it.value.endsWith(".bounce") }.value), 5, 1, null, null))
-        assertTrue(expectedCalls(s, events).any { it.verb == "sound" })
+        // projectile sub-tables hang off the body, not off a state branch, so the table oracle does not paste them: play the event instead
+        val events = listOf(event(s.table.subTables.keys.first { it.value.endsWith(".bounce") }, 5, 1))
+        assertTrue(play(s, seed = 1L, events = events, ticks = 8).any { it.verb == "sound" && it.tick == 5 })
     }
 
     @Test
@@ -164,7 +176,7 @@ class ProjectileScenarioTest : SkillEngineScenario() {
 
     @Test
     fun hitPierceTimes() {
-        val s = compile("{$base, for: 40, hit: {targets: enemies, once: false, times: 3}, block: {mode: despawn}}")
+        val s = compile("{$base, for: 40, hit: {targets: enemies, once: false, times: 3}, block: {mode: despawn}, on: {hit: [{id: h, op: sound, sound: \"astera:x\", anchor: caster}]}}")
         assertEquals(3, s.sub("hit").maxFirings)
         assertTrue(s.sub("hit").branches.none { it.event.value.endsWith(".end") })
         val e = failure("{$base, for: 40, hit: {targets: enemies, once: false}, block: {mode: despawn}}")
@@ -173,10 +185,35 @@ class ProjectileScenarioTest : SkillEngineScenario() {
 
     @Test
     fun onEndSubSkillWithParams() {
-        val s = compile(
+        // a called skill sees only its frames_in (ADR-0303 9), so the callee is its own document, as in example j
+        val callee = """
+            ---
+            apiVersion: astera/v3
+            kind: Skill
+            id: puff
+            item: any
+            meta: {cooldown_ticks: 0, resource_cost: 0}
+            params:
+              n: {type: number, required: true}
+            frames_in: {origin: anchor}
+            machine:
+              start: go
+              states:
+                go:
+                  for: 4
+                  then: done
+                  enter:
+                    - {id: smoke, op: particle, particle: smoke, anchor: origin, count: "${'$'}{n}", offset: [0.2, 0.2, 0.2], extra: 0.01, at: 0}
+                done: {final: true}
+        """.trimIndent()
+        val text = skill(
             "{$base, for: 10, hit: {targets: enemies, once: true}, block: {mode: despawn}, " +
-                "on: {end: [{use: \"skill:proj-test\", with: {n: 1}}]}}",
-        )
+                "on: {end: [{use: \"skill:puff\", with: {n: 1}, frames: {origin: bolt}}]}}",
+        ) + "\n" + callee + "\n"
+        val s = when (val r = loadInline(text)) {
+            is Result.Success -> r.value
+            is Result.Failure -> error("expected a clean decode, got ${r.error}")
+        }
         assertTrue(s.hasSub("end"))
         assertTrue(s.sub("end").rows.isNotEmpty())
     }
@@ -195,8 +232,20 @@ class ProjectileScenarioTest : SkillEngineScenario() {
             "{$base, for: 40, hit: {targets: enemies, once: true}, block: {mode: despawn}, " +
                 "on: {end: [{id: p, op: sound, sound: \"astera:x\", anchor: caster}]}}",
         )
-        val calls = play(s, seed = 1L, ticks = 5)
-        assertEquals(1, calls.count { it.verb == "end" })
+        // `end` is not a gateway verb: the cancelled body's `on: end` handler is what the player does (ADR-0303 3.6: end fires also on cancel, 10.6)
+        val rec = GatewayRecorder()
+        val player = TablePlayer(rec.visual, rec.particles, rec.sounds, rec.gameplay, rec.query, rec.live, rec, rec.movement, rec.items, rec.world)
+        val request = CastRequest(s, rec.caster, WorldId("world"), Vec3(0.0, 0.0, 0.0), 0.0, 0.0, 1L, startTick = 0)
+        val cast = (player.start(request, s) as Result.Success).value
+        for (now in 0..5) {
+            rec.tick = now
+            player.tick(now)
+        }
+        assertEquals(0, rec.calls.count { it.verb == "sound" })
+        player.cancel(cast, CancelScope.Cast)
+        rec.tick = 6
+        player.tick(6)
+        assertEquals(1, rec.calls.count { it.verb == "sound" })
     }
 
     @Test
@@ -209,9 +258,10 @@ class ProjectileScenarioTest : SkillEngineScenario() {
 
     @Test
     fun sweptCollisionNoTunnel() {
-        val s = compile("{$base, speed: 3.0, range: 30, radius: 0.1, hit: {targets: enemies, once: true}, block: {mode: despawn}}")
+        val s = compile("{${base.replace(", radius: 0.4", "")}, speed: 3.0, range: 30, radius: 0.1, hit: {targets: enemies, once: true}, block: {mode: despawn}}")
         val look = s.rows().single { it.action is Action.Spawn }.action as Action.Spawn
-        assertTrue(look.look.fields.containsKey("speed.to"))
+        // a constant speed prints the plain `speed` key; only a ramp prints speed.from / speed.to (ProjectileOpSpec.lower)
+        assertTrue(look.look.fields.containsKey("speed"))
         assertTrue(look.look.fields.containsKey("radius"))
         // a 3 block step against a 0.2 block wide target must still register one hit at its tick.
         val calls = play(s, seed = 7L, ticks = 12)
@@ -227,8 +277,9 @@ class ProjectileScenarioTest : SkillEngineScenario() {
         )
         val order = listOf("hit", "block", "end")
         val paths = order.map { ev -> s.table.subTables.keys.first { it.value.endsWith(".$ev") } }
-        val events = paths.map { RuntimeEvent(it, 7, null, null, null) }
-        val calls = expectedCalls(s, events).filter { it.tick == 7 && it.verb == "sound" }
+        val events = paths.map { event(it, 7) }
+        // projectile sub-tables hang off the body, not off a state branch, so the table oracle does not paste them: play the events instead
+        val calls = play(s, seed = 1L, events = events, ticks = 10).filter { it.tick == 7 && it.verb == "sound" }
         assertEquals(listOf("astera:x", "astera:y", "astera:z").size, calls.size)
     }
 
@@ -317,7 +368,7 @@ class ProjectileScenarioTest : SkillEngineScenario() {
 
     @Test
     fun hitShapeCapsulesFrames() {
-        val nob = "id: bolt, op: projectile, origin: muzzle, velocity: \"= forward * 1.0\""
+        val nob = "id: bolt, op: projectile, origin: muzzle, velocity: \"= look(caster) * 1.0\""
         val shape = "shape: {capsule: 0.22, from: root, to: tip, frames: [lane_a, lane_b]}"
         val s = compile("{$nob, speed: 1.0, range: 12, hit: {targets: enemies, once: true, $shape}, block: {mode: despawn}}")
         val look = s.rows().map { it.action }.filterIsInstance<Action.Spawn>().single { it.kind == com.astarworks.astera.core.domain.skillengine.table.SpawnKind.PROJECTILE_BODY }.look.fields

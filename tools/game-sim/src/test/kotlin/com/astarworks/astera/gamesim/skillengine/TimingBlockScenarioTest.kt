@@ -47,20 +47,24 @@ $body
 
     private fun ticks(rows: List<Row>): List<Int> = rows.map { it.tick }
 
+    // Instance ids are state-qualified (ADR-0303 C2: an entry is (state, tick, op id, occurrence i, action); section 9: `/x` is absolute from the state root),
+    // so every id the `cast` state emits reads `cast/<path>`.
     private fun ids(rows: List<Row>): List<String> = rows.map { it.instance.text }
 
     @Test
     fun atForEvery() {
         val s = compile("        - ${snd("at: 4, every: 4, for: 12")}")
         assertThat(ticks(sounds(s))).containsExactly(4, 8, 12)
-        assertThat(ids(sounds(s))).containsExactly("tick[0]", "tick[1]", "tick[2]")
+        assertThat(ids(sounds(s))).containsExactly("cast/tick[0]", "cast/tick[1]", "cast/tick[2]")
     }
 
     @Test
     fun timesCapsOccurrences() {
-        assertThat(ticks(sounds(compile("        - ${snd("at: 0, every: 3, times: 2, for: 20")}")))).containsExactly(0, 3)
-        // times larger than the window holds: the window wins, ceil(7 / 3) = 3 (0, 3, 6)
-        assertThat(ticks(sounds(compile("        - ${snd("at: 0, every: 3, times: 10, for: 7")}")))).containsExactly(0, 3, 6)
+        assertThat(ticks(sounds(compile("        - ${snd("at: 0, every: 3, times: 2")}")))).containsExactly(0, 3)
+        // v3 (ADR-0303 section 12 / loader message "every: write for or times, not both"): `for` + `times` together is a load error,
+        // where v2 let the smaller of the two win; the window-only form is ceilCountOnNondivisibleWindow
+        val both = loadInline(skill("        - ${snd("at: 0, every: 3, times: 10, for: 7")}", 40))
+        assertThat((both as Result.Failure).error.toString()).contains("write for or times, not both")
     }
 
     @Test
@@ -92,11 +96,11 @@ $body
           for: 30
           lasts: 6
           do:
-            - {id: core, op: display, kind: item, item: fire_charge, context: fixed, anchor: muzzle, scale: [0.6, 0.6, 0.6], at: 0}
+            - {id: core, op: display, kind: item, item: fire_charge, context: fixed, anchor: muzzle, scale: [0.6, 0.6, 0.6], at: 0, for: cast}
 """.trimEnd(),
         )
         val ends = castRows(s).filter { it.action is Action.End }
-        assertThat(ids(ends)).containsExactly("pulse[0]/core", "pulse[1]/core", "pulse[2]/core")
+        assertThat(ids(ends)).containsExactly("cast/pulse[0]/core", "cast/pulse[1]/core", "cast/pulse[2]/core")
         assertThat(ticks(ends)).containsExactly(6, 16, 26)
     }
 
@@ -118,8 +122,8 @@ $body
 """.trimEnd(),
         )
         assertThat(ids(sounds(s))).containsExactly(
-            "outer[0]/inner[0]/puff", "outer[0]/inner[1]/puff", "outer[0]/inner[2]/puff",
-            "outer[1]/inner[0]/puff", "outer[1]/inner[1]/puff", "outer[1]/inner[2]/puff",
+            "cast/outer[0]/inner[0]/puff", "cast/outer[0]/inner[1]/puff", "cast/outer[0]/inner[2]/puff",
+            "cast/outer[1]/inner[0]/puff", "cast/outer[1]/inner[1]/puff", "cast/outer[1]/inner[2]/puff",
         )
         assertThat(ticks(sounds(s))).containsExactly(0, 2, 4, 10, 12, 14)
     }
@@ -143,7 +147,7 @@ $body
     @Test
     fun familyTimesCreatesIndexedInstances() {
         val s = compile("        - ${snd("at: 2, times: 3", id = "blade")}")
-        assertThat(ids(sounds(s))).containsExactly("blade[0]", "blade[1]", "blade[2]")
+        assertThat(ids(sounds(s))).containsExactly("cast/blade[0]", "cast/blade[1]", "cast/blade[2]")
         assertThat(ticks(sounds(s))).containsExactly(2, 2, 2)
     }
 
@@ -160,8 +164,8 @@ $body
 """.trimEnd(),
         )
         assertThat(ids(sounds(s))).containsExactly(
-            "pulse[0]/blade[0]", "pulse[0]/blade[1]", "pulse[0]/blade[2]",
-            "pulse[1]/blade[0]", "pulse[1]/blade[1]", "pulse[1]/blade[2]",
+            "cast/pulse[0]/blade[0]", "cast/pulse[0]/blade[1]", "cast/pulse[0]/blade[2]",
+            "cast/pulse[1]/blade[0]", "cast/pulse[1]/blade[1]", "cast/pulse[1]/blade[2]",
         )
         assertThat(ticks(sounds(s))).containsExactly(0, 0, 0, 4, 4, 4)
     }
