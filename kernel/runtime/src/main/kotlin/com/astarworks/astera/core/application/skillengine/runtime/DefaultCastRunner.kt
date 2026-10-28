@@ -56,7 +56,7 @@ public class CastRunnerDeps(
     public val hosts: CastHosts,
     public val dashes: DashStrikeDriver,
     public val locks: MovementLockDriver,
-    public val world: SkillWorldEditor,
+    public val world: SkillWorldEditors,
     public val presentation: PresentationRuntime,
     public val cooldowns: ISkillCooldownGateway,
     public val items: ISkillItemGateway,

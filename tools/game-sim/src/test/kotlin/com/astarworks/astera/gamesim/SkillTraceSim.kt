@@ -226,7 +226,7 @@ internal class Sim(val c: Coin2Collaborators, val catalog: SkillCatalog, val wit
         gateways = SkillEngineGateways(
             portsIn = { _ -> SkillRuntimePorts(visuals, particles, sounds, gameplay, entities, anim) },
             movement = noop<ISkillMovementGateway>(),
-            world = noop<ISkillWorldGateway>(),
+            worldIn = { _ -> noop<ISkillWorldGateway>() },
             casterAnim = noop<ISkillCasterAnimGateway>(),
             screen = noop<ISkillScreenGateway>(),
             cooldowns = noop<ISkillCooldownGateway>(),

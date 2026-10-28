@@ -10,6 +10,7 @@ import com.astarworks.astera.core.domain.skillengine.op.SkillOp
 /** Well-known event names (authors may define more). */
 public object SkillEvents {
     public const val START: String = "start"
+    public const val CHARGE: String = "charge"
     public const val RELEASE: String = "release"
     public const val HIT: String = "hit"
     public const val BLOCK: String = "block"

@@ -74,6 +74,7 @@ class ProjectileAoeScenarioTest {
         val lowered = mutableListOf<SkillOp>()
 
         override val cast = CastId(1)
+        override val world = com.astarworks.astera.core.domain.world.WorldId("world")
         override val tree = Tree().also {
             it.add(FrameNode(FrameId("world"), FrameKind.WORLD, null, Frame(Vec3.ZERO)))
             it.add(FrameNode(FrameId("caster"), FrameKind.CASTER, FrameId("world"), Frame(Vec3.ZERO)))

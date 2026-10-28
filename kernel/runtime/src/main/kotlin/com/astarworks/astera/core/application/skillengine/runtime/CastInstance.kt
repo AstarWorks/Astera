@@ -80,6 +80,7 @@ internal class CastInstance(
     private val def = skill.def
 
     override val cast: CastId get() = id
+    override val world: com.astarworks.astera.core.domain.world.WorldId get() = request.world
     override val tree: FrameTree = deps.newTree()
     override val ports: com.astarworks.astera.core.application.skillengine.runtime.port.SkillRuntimePorts = deps.portsIn(request.world)
     override val host: OpHost get() = this
