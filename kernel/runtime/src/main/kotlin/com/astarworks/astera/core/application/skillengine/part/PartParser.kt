@@ -267,7 +267,9 @@ public object PartParser {
         return list.mapIndexed { i, e ->
             val m = e.asMap("$where[$i]")
             if (m["op"] !is String && m["emit"] !is String && m["use"] !is String) {
-                abort("$where[$i]", "an op needs 'op: <name>' (or the shorthands 'emit: <event>' / 'use: <part>')")
+                // ADR-0303 2.0a: a timing group is implied by `do:`
+                if (m["do"] is List<*>) return@mapIndexed m + ("op" to "group")
+                abort("$where[$i]", "an op needs 'op: <name>' (or the shorthands 'emit: <event>' / 'use: <part>'; a timing group is a map with `do:`)")
             }
             m
         }
