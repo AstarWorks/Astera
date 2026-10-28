@@ -1,6 +1,10 @@
 package com.astarworks.astera.gamesim
 
 import com.astarworks.astera.combat.adapter.paper.skillengine.RibbonMesh
+import com.astarworks.astera.combat.adapter.paper.skillengine.SkillDisplaySpecs
+import com.astarworks.astera.core.application.skillengine.load.MeshModels
+import com.astarworks.astera.core.domain.sprite.SpriteGlyphs
+import com.astarworks.astera.core.domain.sprite.SpriteId
 import com.astarworks.astera.combat.adapter.paper.skillengine.Intrinsic
 import com.astarworks.astera.combat.adapter.paper.skillengine.ribbonColumns
 import com.astarworks.astera.combat.adapter.paper.skillengine.toDisplayWrite
@@ -42,7 +46,15 @@ class DisplayCall(val tick: Int, val handle: Long, val write: DisplayWrite, val 
  * Records the display matrices the Paper visual gateway would build (the same [toDisplayWrite] the Paper gateway calls),
  * one [DisplayFrame] per spawn / update, so a scenario can check them for stretch (SKL-14).
  */
-class RecordingVisuals(private val now: () -> Int, private val casterFeet: () -> Vec3 = { Vec3.ZERO }) : ISkillVisualGateway {
+class RecordingVisuals(
+    private val now: () -> Int,
+    private val casterFeet: () -> Vec3 = { Vec3.ZERO },
+    /** `content/frames` tables: resolves a mesh to its pack model like the Paper gateway does. */
+    private val frameTables: Map<String, com.astarworks.astera.core.application.skillengine.load.ItemFrames> = emptyMap(),
+) : ISkillVisualGateway {
+    /** The vanilla display each spawn would create (kind, text, billboard, brightness), by handle: what the Paper gateway hands `IDisplayEntityGateway.spawn`. */
+    val specs = HashMap<Long, com.astarworks.astera.core.domain.effect.DisplaySpec>()
+
     val frames = ArrayList<DisplayFrame>()
 
     /** Every spawn / update write, in order: what the Paper gateway hands [com.astarworks.astera.combat.application.port.outbound.IDisplayEntityGateway.place]. */
@@ -122,7 +134,10 @@ class RecordingVisuals(private val now: () -> Int, private val casterFeet: () ->
 
     override fun spawnMesh(castOwner: UUID, item: String, part: String?, pose: VisualPose): VisualHandle {
         val h = next(Mesh(), "mesh", "$item/$part")
-        write(h.id, "mesh", Intrinsic.ITEM_FIXED, pose, 0, pose.size.x, "$item/$part", spawn = true)
+        val w = write(h.id, "mesh", Intrinsic.ITEM_FIXED, pose, 0, pose.size.x, "$item/$part", spawn = true)
+        val kind = SkillDisplaySpecs.meshKind(MeshModels.resolve(item, part, frameTables))
+            ?: com.astarworks.astera.core.domain.effect.DisplayKind.Item(com.astarworks.astera.core.domain.item.ItemId("main-hand"), com.astarworks.astera.core.domain.effect.DisplayItemMode.FIXED, null)
+        specs[h.id] = SkillDisplaySpecs.mesh(kind, w.transform)
         return h
     }
 
@@ -130,17 +145,24 @@ class RecordingVisuals(private val now: () -> Int, private val casterFeet: () ->
         val intrinsic = Intrinsic.textGlyph(spritePixels(sprite))
         val h = next(Plate(intrinsic), "plate", sprite)
         spriteOf[h.id] = sprite
-        write(h.id, "plate", intrinsic, pose, 0, pose.size.x, sprite, spawn = true)
+        val w = write(h.id, "plate", intrinsic, pose, 0, pose.size.x, sprite, spawn = true)
+        specs[h.id] = SkillDisplaySpecs.plate(SpriteGlyphs.text(SpriteId(sprite), 0), alpha, w.transform, pose.billboard)
         return h
     }
 
     override fun spawnLine(castOwner: UUID, colorHex: String, pose: VisualPose): VisualHandle {
         val h = next(Line(), "line")
-        write(h.id, "line", Intrinsic.TEXT_SOLID, pose, 0, pose.size.y, "len=${"%.2f".format(pose.size.x)}", spawn = true)
+        val w = write(h.id, "line", Intrinsic.TEXT_SOLID, pose, 0, pose.size.y, "len=${"%.2f".format(pose.size.x)}", spawn = true)
+        specs[h.id] = SkillDisplaySpecs.line(colorHex, w.transform)
         return h
     }
 
     override fun spawnTrail(castOwner: UUID, ticks: Int, widthFrac: Double, colorHex: String, alpha: Double): VisualHandle = next(Trail(widthFrac, colorHex, alpha), "trail")
+
+    /** Every flipbook frame / tint change of a plate: (tick, handle, frame, tint). */
+    val plateFrames = ArrayList<Triple<Int, Long, Pair<Int, String?>>>()
+
+    override fun setPlateFrame(handle: VisualHandle, frame: Int, tintHex: String?) { plateFrames += Triple(now(), handle.id, frame to tintHex) }
 
     override fun sprite(sprite: String): SpriteInfo = SpriteInfo(spriteFrames(sprite), spritePixels(sprite))
 
@@ -153,10 +175,11 @@ class RecordingVisuals(private val now: () -> Int, private val casterFeet: () ->
     }
 
     /** The Paper gateway's write, recorded: [toDisplayWrite] of the pose, then the same fields as a [DisplayCall] and a [DisplayFrame]. */
-    private fun write(id: Long, kind: String, intrinsic: Intrinsic, pose: VisualPose, ticks: Int, authored: Double, note: String = "", spawn: Boolean = false) {
+    private fun write(id: Long, kind: String, intrinsic: Intrinsic, pose: VisualPose, ticks: Int, authored: Double, note: String = "", spawn: Boolean = false): DisplayWrite {
         val w = toDisplayWrite(pose.frame, pose.size, intrinsic, pose.billboard, ticks, if (kind == "line") null else anchorAt(pose.anchorFeet))
         calls += DisplayCall(now(), id, w, casterFeet(), spawn)
         record(kind, id, authored, w.transform, note)
+        return w
     }
 
     /** Frames in a sprite's flipbook (`frames:` of `content/sprites/<id>.yaml`). */
