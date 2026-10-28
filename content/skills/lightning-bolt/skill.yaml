@@ -17,9 +17,9 @@ params:
 anchors:
   - {id: origin, anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}       # was pt_aim_0_0_0p5
   - {id: muzzle, anchor: caster.eye, offset: {up: -0.2, forward: 1.0}, mode: snapshot}   # was pt_aim_0_m0p2_1
-  - {id: heart, anchor: victim.body, offset: {up: 0.2}}                            # was pt_enemy_0_1_0
-  - {id: feet, anchor: victim.body, offset: {up: -0.6}}                            # was pt_enemy_0_0p2_0
-  - {id: sky, anchor: victim.body, offset: {up: 7.2}}                              # was pt_enemy_0_8_0
+  - {id: heart, anchor: victim.root, offset: {up: 1.0}}                            # was pt_enemy_0_1_0 ; GAP(Q2): v2 enemy frame origin = feet+0.8 (victim.root = feet)
+  - {id: feet, anchor: victim.root, offset: {up: 0.2}}                            # was pt_enemy_0_0p2_0 ; GAP(Q2): v2 enemy frame origin = feet+0.8 (victim.root = feet)
+  - {id: sky, anchor: victim.root, offset: {up: 8.0}}                              # was pt_enemy_0_8_0 ; GAP(Q2): v2 enemy frame origin = feet+0.8 (victim.root = feet)
 machine:
   start: fly
   states:
@@ -37,31 +37,56 @@ machine:
           block: {mode: despawn}
           on:
             hit:
-              - {id: dmg, op: damage, target: event.victim, components: [{kind: electric, amount: "= dmg_electric"}]}
-              - {id: st_shock, op: status, target: event.victim, status: shock, stacks: 1, for: "= shock_ticks", when: "= rand() < 0.6"}
-              # GAP: summon_lightning {at: enemy, visual_only: true} (vanilla lightning visual) -> none.
-              - {id: lightning, op: summon_lightning, anchor: heart, visual_only: true}
-              # GAP: break_area chip (sphere 1.0, block_damage 25, breaks, not staged) -> none in v3; kept verbatim, v2 `at: contact.point` is `anchor: contact`.
-              - {id: chip, op: break_area, shape: sphere, radius: 1.0, block_damage: 25, breaks: true, staged: false, length: 0.0, anchor: contact}
+              - {id: dmg, op: damage, target: event.victim, damage: {electric: "= dmg_electric"}}
+              - {id: st_shock, op: status, target: event.victim, status: shock, stacks: 1, for: "= shock_ticks", when: "= roll('shock') < 0.6"}
+              # GAP(Q2): v2 `at: enemy` = enemy frame origin (feet+0.8); `victim.root` is the feet.
+              - {id: lightning, op: lightning, anchor: victim.root, visual_only: true}
+              - {id: chip, op: break_area, anchor: contact, shape: {sphere: {radius: 1.0, ahead: 0.0}}, tool: none, block_damage: 25, ripple: 0, revert: 200, outside_arena: false}
               - {id: snd_hit, op: sound, sound: "astera:skills/lightning-impact", anchor: heart, volume: 0.7, pitch: 1.3}
               - {id: fx_impact, op: particle_def, def: thunder-impact, anchor: heart}
-              # GAP: the sky strike column (v2 emit_3..emit_33: 4-segment electric_spark and end_rod zigzag falling from enemy+8 with roll()-jittered vertices, 3 strands) -> none (needs a jittered polyline particle).
-              # GAP: hit rings at hit+1..hit+3 (electric_spark, 14 points, speed 0.1, radius 1.1667/1.8333/2.5 at enemy+0.2, random phase) -> directions kept, radius shift and phase have no v3 field.
+              # sky strike column (v2 line: 10 segments x 4 points over 8 blocks falling from enemy+8, jitter 0.6, 2 strands per particle)
+              - id: col_spark
+                times: 2
+                do:
+                  - {id: col_spark_pt, op: particle, particle: electric_spark, anchor: sky, at: 0, times: 40, count: 1, offset: [0, 0, 0], shift: "= vec(0.0, -8.0 * i / 39, 0.0) + roll_unit('col_jit') * 0.6", extra: 0}
+              - id: col_rod
+                times: 2
+                do:
+                  - {id: col_rod_pt, op: particle, particle: end_rod, anchor: sky, at: 0, times: 40, count: 1, offset: [0, 0, 0], shift: "= vec(0.0, -8.0 * i / 39, 0.0) + roll_unit('col_jit') * 0.6", extra: 0}
+              # hit rings at hit+1..hit+3: radius 1.1667 / 1.8333 / 2.5 at enemy+0.2, 14 points, random phase per cast
               - id: hit_rings
                 at: 1
                 every: 1
                 times: 3
                 do:
-                  - {id: ring_hit, op: particle, particle: electric_spark, anchor: feet, at: 0, times: 14, count: 0, offset: "= vec(cos(6.283185307179586 * i / 14), 0.0, -sin(6.283185307179586 * i / 14))", extra: 0.1}
+                  - id: ring_hit
+                    op: particle
+                    particle: electric_spark
+                    anchor: feet
+                    at: 0
+                    times: 14
+                    count: 0
+                    offset: "= vec(cos(6.283185307179586 * i / 14 + draw('ring_ph') * 6.283185307179586), 0.0, -sin(6.283185307179586 * i / 14 + draw('ring_ph') * 6.283185307179586))"
+                    shift: "= vec((0.5 + 2.0 * (parent.i + 1) / 3) * cos(6.283185307179586 * i / 14 + draw('ring_ph') * 6.283185307179586), 0.0, -(0.5 + 2.0 * (parent.i + 1) / 3) * sin(6.283185307179586 * i / 14 + draw('ring_ph') * 6.283185307179586))"
+                    extra: 0.1
             block:
-              - {id: chip_blk, op: break_area, shape: sphere, radius: 1.0, block_damage: 25, breaks: true, staged: false, length: 0.0, anchor: contact}
-              # GAP: block rings at block+1..block+3 (same shape as the hit rings, at contact.point): radius shift and phase have no v3 field.
+              - {id: chip_blk, op: break_area, anchor: contact, shape: {sphere: {radius: 1.0, ahead: 0.0}}, tool: none, block_damage: 25, ripple: 0, revert: 200, outside_arena: false}
+              # block rings at block+1..block+3: same shape as the hit rings, at the contact point
               - id: block_rings
                 at: 1
                 every: 1
                 times: 3
                 do:
-                  - {id: ring_blk, op: particle, particle: electric_spark, anchor: contact, at: 0, times: 14, count: 0, offset: "= vec(cos(6.283185307179586 * i / 14), 0.0, -sin(6.283185307179586 * i / 14))", extra: 0.1}
+                  - id: ring_blk
+                    op: particle
+                    particle: electric_spark
+                    anchor: contact
+                    at: 0
+                    times: 14
+                    count: 0
+                    offset: "= vec(cos(6.283185307179586 * i / 14 + draw('ring_ph') * 6.283185307179586), 0.0, -sin(6.283185307179586 * i / 14 + draw('ring_ph') * 6.283185307179586))"
+                    shift: "= vec((0.5 + 2.0 * (parent.i + 1) / 3) * cos(6.283185307179586 * i / 14 + draw('ring_ph') * 6.283185307179586), 0.0, -(0.5 + 2.0 * (parent.i + 1) / 3) * sin(6.283185307179586 * i / 14 + draw('ring_ph') * 6.283185307179586))"
+                    extra: 0.1
       do:
         - id: mesh
           op: display
@@ -82,5 +107,13 @@ machine:
           do:
             - {id: tr_spark, op: particle, particle: electric_spark, anchor: {of: bolt, sweep: 0.5}, count: 4, offset: [0.15, 0.15, 0.15], extra: 0.05}
             - {id: tr_rod, op: particle, particle: end_rod, anchor: {of: bolt, sweep: 0.5}, count: 1, offset: [0.02, 0.02, 0.02], extra: 0}
-            # GAP: 8 trail strands (rep3..rep10: electric_spark and end_rod, 3-segment zigzag along the flight axis with roll()-jittered vertices +-0.25, length 0.9) -> none (jittered polyline particle).
+            # 8 trail strands: 4 electric_spark + 4 end_rod, 3-segment zigzag along the flight axis, length 0.9, jitter +-0.25
+            - id: strand_spark
+              times: 4
+              do:
+                - {id: strand_spark_pt, op: particle, particle: electric_spark, anchor: bolt, at: 0, times: 4, count: 1, offset: [0, 0, 0], shift: {forward: "= -0.9 * i / 3", left: "= roll('strand_l', -0.25, 0.25)", up: "= roll('strand_u', -0.25, 0.25)"}, extra: 0}
+            - id: strand_rod
+              times: 4
+              do:
+                - {id: strand_rod_pt, op: particle, particle: end_rod, anchor: bolt, at: 0, times: 4, count: 1, offset: [0, 0, 0], shift: {forward: "= -0.9 * i / 3", left: "= roll('strand_l', -0.25, 0.25)", up: "= roll('strand_u', -0.25, 0.25)"}, extra: 0}
     end: {final: true}

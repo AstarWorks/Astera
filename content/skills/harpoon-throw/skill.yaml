@@ -17,7 +17,7 @@ params:
 anchors:
   - {id: origin, anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}       # was pt_aim_0_0_0p5
   - {id: muzzle, anchor: caster.eye, offset: {up: -0.25, forward: 0.9}, mode: snapshot}   # was pt_aim_0_m0p25_0p9
-  - {id: heart, anchor: victim.body, offset: {up: 0.4}}                            # was pt_enemy_0_1p2_0
+  - {id: heart, anchor: victim.root, offset: {up: 1.2}}                            # was pt_enemy_0_1p2_0 ; GAP(Q2): v2 enemy frame origin = feet+0.8 (victim.root = feet)
 machine:
   start: fly
   states:
@@ -35,7 +35,7 @@ machine:
           block: {mode: despawn}
           on:
             hit:
-              - {id: dmg, op: damage, target: event.victim, components: [{kind: physical, amount: "= dmg_physical"}]}
+              - {id: dmg, op: damage, target: event.victim, damage: {physical: "= dmg_physical"}}
               - {id: pull, op: knockback, target: event.victim, direction: "= normalize(flat(pos(caster) - pos(event.victim))) + vec(0.0, 0.2, 0.0)", strength: "= knockback"}
               - {id: snd_hit, op: sound, sound: "item.trident.hit", anchor: heart, volume: 0.8, pitch: 1.0}
               - {id: fx_hit, op: particle_def, def: hit-spark, anchor: heart}

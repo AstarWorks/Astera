@@ -16,7 +16,6 @@ params:
 anchors:
   - {id: eye, anchor: caster.eye}
   - {id: sweep, anchor: caster.eye, offset: {up: -0.2, forward: 1.4}, mode: snapshot}   # was pt_aim_0_m0p2_1p4
-  - {id: heart, anchor: victim.body, offset: {up: 0.4}}                              # was pt_enemy_0_1p2_0
 machine:
   start: swing
   states:
@@ -26,10 +25,19 @@ machine:
       enter:
         - {id: snd_swing, op: sound, sound: "astera:weapons/sword-swing", anchor: caster, volume: 1.0, pitch: 1.0}
         - {id: fx_swing, op: particle_def, def: slash-sweep, anchor: sweep}
-        - {id: swing, op: hit, anchor: eye, at: 0, shape: {sector: {deg: "= arc_deg", range: "= range", height: 2.0}}, targets: enemies, damage: {physical: "= dmg_physical"}}
-      on:
-        - event: swing
-          do:
-            - {id: snd_hit, op: sound, sound: "astera:weapons/blade-hit", anchor: heart, volume: 0.7, pitch: 1.2}
-            - {id: fx_hit, op: particle_def, def: hit-spark, anchor: heart}
+        # GAP(Q1): max_count spelling (A: required int|all, B: optional); v2 had no cap, so `all` = unlimited.
+        - id: swing
+          op: hit
+          anchor: eye
+          at: 0
+          shape: {sector: {deg: "= arc_deg", range: "= range", height: 2.0, forward: look}}
+          targets: enemies
+          max_count: all
+          window: once
+          ignore_invulnerability: false
+          damage: {physical: "= dmg_physical"}
+          on:
+            hit:
+              - {id: snd_hit, op: sound, sound: "astera:weapons/blade-hit", anchor: contact, volume: 0.7, pitch: 1.2}
+              - {id: fx_hit, op: particle_def, def: hit-spark, anchor: contact}
     end: {final: true}
