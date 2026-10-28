@@ -19,5 +19,9 @@ public sealed interface BodyOp : PresentationOp {
         override val whenExpr: Value<Boolean>?,
         val anim: String,
         val speed: Value<Double>?,
+        /** Hold time for pose-only clips (`crouch`, `hide-main-hand`); a `content/animations` clip runs its own length. */
+        val ticks: Int?,
+        /** Event that stops the clip early (blends out); a cancelled cast stops it too. */
+        val untilEvent: String?,
     ) : BodyOp
 }

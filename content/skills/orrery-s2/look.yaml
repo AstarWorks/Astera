@@ -1,6 +1,5 @@
 # Converted from content/skills/orrery-s2.yaml + content/vfx/* by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
 # Generated point-frame offsets are [left, up, forward] in the parent frame.
-# CONVERT-PRESENT play_animation ticks (anim ops have no duration) (x2): ticks=7 | ticks=100
 # CONVERT-PRESENT vfx frame orient (frames carry no orientation / scale) (x5): orient="yaw"
 # CONVERT-PRESENT block element (mesh takes an item model, plate takes a sprite: no block / solid-colour primitive) (x4): gold_block | black_concrete
 # CONVERT-PRESENT element formation (no v2 equivalent) (x4): {"align": "tangent", "curve": {"from_deg": 0, "radius": 1.25 | {"align": "tangent", "curve": {"from_deg": 0, "radius": 1.35
@@ -33,11 +32,11 @@ frames:
   - {id: fx5_orrery_s2_impact_long, kind: body, parent: world}
 presentation:
   timeline:
-    - {id: fx0, at: 0, do: [{id: anim, op: caster_anim, anim: crouch}]}
+    - {id: fx0, at: 0, do: [{id: anim, op: caster_anim, anim: crouch, ticks: 7}]}
     - id: fx7
       at: 7
       do:
-        - {id: anim_2, op: caster_anim, anim: hide-main-hand}
+        - {id: anim_2, op: caster_anim, anim: hide-main-hand, ticks: 100}
         - {id: fx3_orrery_s2_poise_emitter_light, op: plate, parent: fx3_orrery_s2_poise, face: {viewer: center}, sprite: orrery-orb}
         - id: fx3_orrery_s2_poise_emitter_light_trk
           op: track

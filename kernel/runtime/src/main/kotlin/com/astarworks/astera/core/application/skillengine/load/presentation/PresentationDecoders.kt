@@ -175,7 +175,7 @@ private object BodyOpDecoder : OpDecoder {
     override fun decode(op: String, id: String, whenExpr: Value<Boolean>?, reader: OpReader): SkillOp = with(reader) {
         when (op) {
             "victim_anim" -> BodyOp.VictimAnim(id, whenExpr, target(TargetRef.Victim), requireString("anim"), number("strength"))
-            "caster_anim" -> BodyOp.CasterAnim(id, whenExpr, requireString("anim"), number("speed"))
+            "caster_anim" -> BodyOp.CasterAnim(id, whenExpr, requireString("anim"), number("speed"), int("ticks"), string("until"))
             else -> fail("not a body op: $op")
         }
     }

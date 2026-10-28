@@ -8,6 +8,8 @@ presentation:
     - id: raise_fx
       at: 0
       do:
+        # v1 couture-s2-rig body: the skin-rig performance (overhead spin to t34, throw thrust t34-58); ends by itself, stops if the cast is cancelled
+        - {id: body_anim, op: caster_anim, anim: couture-s2-body}
         - {id: mesh_held, op: mesh, frame: shears, item: couture-rapier, part: held}
         - {id: raise_snd, op: sound, sound: couture.raise, at: shears.tip, volume: 0.6}
     - id: spin_fx

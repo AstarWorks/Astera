@@ -1962,6 +1962,14 @@
                 },
                 "speed": {
                     "$ref": "#/definitions/Value_number"
+                },
+                "ticks": {
+                    "type": "integer",
+                    "description": "hold time of a pose-only clip (crouch, hide-main-hand)"
+                },
+                "until": {
+                    "type": "string",
+                    "description": "event that blends the clip out early"
                 }
             },
             "required": [

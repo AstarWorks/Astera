@@ -7,7 +7,13 @@ import com.astarworks.astera.core.application.port.outbound.IScheduler
 import com.astarworks.astera.core.application.port.outbound.runLaterTicks
 import com.astarworks.astera.core.application.skillengine.runtime.port.ISkillCooldownGateway
 import com.astarworks.astera.core.application.skillengine.runtime.port.ISkillItemGateway
+import com.astarworks.astera.combat.application.trace.SkillEngineTrace
+import com.astarworks.astera.core.application.port.outbound.ISkinRigRegistry
+import com.astarworks.astera.core.application.port.outbound.animation.IPlayerAnimationGateway
+import com.astarworks.astera.core.application.port.outbound.animation.ISkinRigAnimator
 import com.astarworks.astera.core.application.skillengine.runtime.presentation.ISkillCasterAnimGateway
+import com.astarworks.astera.core.domain.animation.player.CustomAnimationId
+import org.slf4j.LoggerFactory
 import com.astarworks.astera.core.application.skillengine.runtime.presentation.ISkillScreenGateway
 import com.astarworks.astera.core.domain.cooldown.CooldownKey
 import com.astarworks.astera.core.domain.effect.camera.ShakeDirection
@@ -30,22 +36,43 @@ public class PaperSkillCooldownGateway(private val tracker: () -> ICooldownTrack
 }
 
 /**
- * Caster animation: the vanilla player model only has an arm swing and a crouch, so "crouch" holds sneak for a short while
- * and every other clip name plays a main-hand swing.
+ * Caster body animation (`caster_anim`). A clip id in `content/animations` plays on the skin rig (the caster's own
+ * skin on a Display rig, ADR-0250); the pose-only clips (`crouch`, `hide-main-hand`, `swing-main-hand`) go through the
+ * player animation gateway and are held for `ticks`. Logs one trace line per play / stop while `astera skill trace` is on.
  */
 public class PaperSkillCasterAnimGateway(
-    private val server: Server,
-    private val scheduler: IScheduler,
+    private val rigs: () -> ISkinRigAnimator?,
+    private val registry: () -> ISkinRigRegistry?,
+    private val poses: () -> IPlayerAnimationGateway?,
 ) : ISkillCasterAnimGateway {
-    override fun play(caster: UUID, anim: String, speed: Double) {
-        val player = server.getPlayer(caster) ?: return
-        if (anim.equals("crouch", ignoreCase = true)) {
-            player.isSneaking = true
-            val hold = (10 / speed.coerceAtLeast(0.1)).toLong().coerceAtLeast(2)
-            scheduler.runLaterTicks(ExecutionScope.Entity(caster), hold) { server.getPlayer(caster)?.isSneaking = false }
-        } else {
-            player.swingMainHand()
+    private val log = LoggerFactory.getLogger("com.astarworks.astera.combat.skillengine.trace")
+
+    override fun play(caster: UUID, anim: String, speed: Double, ticks: Int) {
+        val id = CustomAnimationId(anim)
+        val player = PlayerId(caster)
+        if (registry()?.find(id) != null) {
+            val result = rigs()?.play(player, id)
+            trace("caster_anim play $anim (skin rig) -> ${result ?: "no animator"}")
+            return
         }
+        val result = poses()?.playCustomAnimation(player, id, ticks.toLong().coerceAtLeast(1))
+        trace("caster_anim play $anim (pose, $ticks ticks) -> ${result ?: "no gateway"}")
+    }
+
+    override fun stop(caster: UUID, anim: String) {
+        val id = CustomAnimationId(anim)
+        val rig = rigs() ?: return
+        if (rig.active(PlayerId(caster)) != id) return
+        rig.stop(PlayerId(caster))
+        trace("caster_anim stop $anim")
+    }
+
+    override fun release(caster: UUID, anim: String) {
+        if (registry()?.find(CustomAnimationId(anim))?.loop == true) stop(caster, anim)
+    }
+
+    private fun trace(message: String) {
+        if (SkillEngineTrace.enabled) log.info("skill trace {}", message)
     }
 }
 

@@ -265,11 +265,11 @@ internal class CastInstance(
         !motion.hasWork() && scheduled.isEmpty() && queue.isEmpty() && !deps.dashes.isDashing(id) &&
             !gameplayTimeline.pending() && !presentationTimeline.pending()
 
-    private fun finishNow() {
+    private fun finishNow(cancelled: Boolean = false) {
         if (ended) return
         queue += CastEvent(SkillEvents.END, tick, source = null)
         drain()
-        deps.presentation.endCast(id)
+        deps.presentation.endCast(id, cancelled)
         deps.dashes.cancel(id)
         hitRegs.clear()
         listeners.clear()
@@ -279,7 +279,7 @@ internal class CastInstance(
     fun cancel() {
         if (ended) return
         if (tick < request.startTick) tick = request.startTick
-        finishNow()
+        finishNow(cancelled = true)
         takeSnapshot()
         deps.observer?.onTick(id, tick, tree, nodeNames.toSet(), tickEvents.toList())
     }

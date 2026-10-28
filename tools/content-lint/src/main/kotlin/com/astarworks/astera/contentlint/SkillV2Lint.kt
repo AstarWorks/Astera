@@ -125,6 +125,7 @@ internal class SkillV2Lint(private val contentDir: Path, private val schemasDir:
     }
 
     private val customParticles: Set<String> by lazy { idsIn("particles", ID_LINE) }
+    private val rigAnimations: Set<String> by lazy { idsIn("animations", ID_LINE) + POSE_ONLY_ANIMATIONS }
     private val soundCues: Set<String> by lazy { idsIn("sounds", ID_LINE) + idsIn("sounds", RESOURCE_KEY_LINE) }
 
     private fun idsIn(dir: String, line: Regex): Set<String> {
@@ -149,6 +150,11 @@ internal class SkillV2Lint(private val contentDir: Path, private val schemasDir:
                         val key = id.substringAfter(':')
                         if (!id.startsWith("=") && !id.contains("\${") && key !in VANILLA_PARTICLES && id !in customParticles) {
                             out += "$where: op emit '${n.get("id")?.asText()}': particle '$id' is neither a vanilla particle nor a content/particles id"
+                        }
+                    }
+                    "caster_anim" -> n.get("anim")?.takeIf { it.isTextual }?.asText()?.let { id ->
+                        if (id !in rigAnimations) {
+                            out += "$where: op caster_anim '${n.get("id")?.asText()}': '$id' is neither a content/animations clip nor a pose-only clip ($POSE_ONLY_ANIMATIONS)"
                         }
                     }
                     "sound" -> n.get("sound")?.takeIf { it.isTextual }?.asText()?.let { id ->
@@ -188,6 +194,8 @@ internal class SkillV2Lint(private val contentDir: Path, private val schemasDir:
     }
 
     companion object {
+        /** Clips the player animation gateway plays without a content/animations file. */
+        private val POSE_ONLY_ANIMATIONS = setOf("crouch", "hide-main-hand", "swing-main-hand")
         private val ID_LINE = Regex("(?m)^id:\\s*[\"']?([^\"'\\s#]+)")
         private val RESOURCE_KEY_LINE = Regex("(?m)^resource_key:\\s*[\"']?([^\"'\\s#]+)")
         /** `org.bukkit.Particle` constants (Paper 26.3) in the lower-case form content uses. */

@@ -58,7 +58,10 @@ public class PresentationRuntime(
 
     internal class SoundTask(val opId: String, val every: Int, val until: String?, var next: Int, val play: () -> Unit)
 
+    internal class AnimRun(val owner: java.util.UUID, val anim: String, val until: String?)
+
     internal class CastState(val ctx: OpContext) {
+        val anims = ArrayList<AnimRun>()
         var tick: Int = 0
         val live = LinkedHashMap<String, Live>()
         val sounds = LinkedHashMap<String, SoundTask>()
@@ -102,8 +105,9 @@ public class PresentationRuntime(
         }
     }
 
-    public fun endCast(cast: CastId) {
+    public fun endCast(cast: CastId, cancelled: Boolean = false) {
         val s = casts.remove(cast) ?: return
+        for (a in s.anims) if (cancelled) casterAnim.stop(a.owner, a.anim) else casterAnim.release(a.owner, a.anim)
         for (l in s.live.values) s.ctx.ports.visuals.remove(l.handle)
     }
 
@@ -133,6 +137,11 @@ public class PresentationRuntime(
                 }
                 is Live.Trail -> tickTrail(s, l)
             }
+        }
+        if (s.anims.isNotEmpty()) {
+            val done = s.anims.filter { it.until != null && info.hasRaised(cast, it.until) }
+            for (a in done) casterAnim.stop(a.owner, a.anim)
+            s.anims.removeAll(done)
         }
         for (t in s.sounds.values.toList()) {
             if (t.until != null && info.hasRaised(cast, t.until)) {

@@ -22,6 +22,9 @@ public fun presentationExecutors(rt: PresentationRuntime): List<OpExecutor<*>> =
     TitleExecutor(rt), ActionBarExecutor(rt), CameraShakeExecutor(rt),
 )
 
+/** Hold time of a pose-only caster clip (crouch, hide-main-hand) when the op gives no `ticks:`. */
+private const val DEFAULT_POSE_TICKS = 20
+
 private fun OpContext.passes(op: SkillOp): Boolean = op.whenExpr?.let { values.bool(it) } ?: true
 
 private fun OpContext.text(v: Value<String>?, default: String): String = v?.let { values.text(it) } ?: default
@@ -160,7 +163,11 @@ internal class CasterAnimExecutor(private val rt: PresentationRuntime) : OpExecu
     override val opClass: KClass<BodyOp.CasterAnim> = BodyOp.CasterAnim::class
     override fun execute(op: BodyOp.CasterAnim, ctx: OpContext) {
         if (!ctx.passes(op)) return
-        rt.casterAnim.play(rt.info.owner(ctx.cast), op.anim, ctx.num(op.speed, 1.0))
+        val until = op.untilEvent
+        if (until != null && rt.info.hasRaised(ctx.cast, until)) return
+        val owner = rt.info.owner(ctx.cast)
+        rt.casterAnim.play(owner, op.anim, ctx.num(op.speed, 1.0), op.ticks ?: DEFAULT_POSE_TICKS)
+        rt.state(ctx).anims += PresentationRuntime.AnimRun(owner, op.anim, until)
     }
 }
 

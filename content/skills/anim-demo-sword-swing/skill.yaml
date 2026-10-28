@@ -1,0 +1,19 @@
+# Skin-rig demo (ADR-0250, engine v2): plays content/animations/sword-swing.yaml on the caster with `caster_anim`, no damage, no other VFX.
+# Not bound to any item. Film it from the side with `make vfx-shot SKILL=anim-demo-sword-swing VIEW=side TICKS=40`
+# (see tools/vfx-shot/README.md, "Skin-rig animations").
+apiVersion: astera/v2
+kind: Skill
+id: anim-demo-sword-swing
+meta:
+  name: {ja: "デモ・剣の袈裟斬りモーション", en: "Demo Sword Swing Motion"}
+  description: {ja: "プレイヤー本人のスキンのまま、キーフレームの斬撃モーションを再生するデモ。", en: "Plays the keyframed sword-swing motion on the caster's own skin."}
+  cooldown_ticks: 40
+  resource_cost: 0
+  tags: [demo, animation]
+presentation:
+  timeline:
+    - id: swing
+      at: 0
+      do:
+        - {id: body_anim, op: caster_anim, anim: sword-swing}
+        - {id: snd, op: sound, sound: "astera:weapons/sword-swing", at: caster}

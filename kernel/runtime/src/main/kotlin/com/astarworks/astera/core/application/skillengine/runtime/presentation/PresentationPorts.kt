@@ -6,7 +6,14 @@ import java.util.UUID
 
 /** Caster body animation (the victim side is `ISkillVictimAnimGateway`). */
 public interface ISkillCasterAnimGateway {
-    public fun play(caster: UUID, anim: String, speed: Double)
+    /** Starts [anim] on the caster: a `content/animations` skin-rig clip, or a pose-only clip held for [ticks]. */
+    public fun play(caster: UUID, anim: String, speed: Double, ticks: Int)
+
+    /** Blends [anim] out now (an `until:` event fired or the cast was cancelled); a no-op if it is not running. */
+    public fun stop(caster: UUID, anim: String)
+
+    /** The cast ended normally: a clip that loops must not outlive it, a clip with its own length finishes by itself. */
+    public fun release(caster: UUID, anim: String)
 }
 
 /** Viewer-screen effects: titles, action bar, camera shake. Always addressed to concrete players. */

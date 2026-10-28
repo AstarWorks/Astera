@@ -8,16 +8,16 @@ import com.astarworks.astera.core.domain.animation.skinrig.SkinRigError
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
-/** ADR-0250: `play_animation` of a `content/animations/` id runs the skin-rig timeline end to end (headless animator). */
+/** ADR-0250: a `content/animations/` clip runs the skin-rig timeline end to end (headless animator). The v2 `caster_anim` op that starts it from a skill is covered by CasterAnimScenarioTest. */
 class SkinRigAnimationScenarioTest {
 
     @Test
-    fun `the demo skill plays the sword swing and the rig ends on its own timeline`() {
+    fun `the sword swing clip plays and the rig ends on its own timeline`() {
         scenario("anim-demo-sword-swing") {
             val caster = player("caster", team = "red")
             val animator = sim.services.getOrThrow<ISkinRigAnimator>()
 
-            caster.cast("anim-demo-sword-swing")
+            assertThat(animator.play(caster.id, CustomAnimationId("sword-swing"))).isEqualTo(Result.success(Unit))
             assertThat(animator.active(caster.id)?.value).isEqualTo("sword-swing")
 
             // 12 ticks of motion + 3 ticks of blend-out, then the real player is back.

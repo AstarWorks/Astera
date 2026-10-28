@@ -136,7 +136,11 @@ internal class SkillEnginePaperRuntime(
                 guard = { ports.blockEditGuard?.invoke(services) },
                 covers = { services.get<ICustomBlockRegistry>() },
             ),
-            casterAnim = PaperSkillCasterAnimGateway(server, scheduler),
+            casterAnim = PaperSkillCasterAnimGateway(
+                rigs = { services.get<com.astarworks.astera.core.application.port.outbound.animation.ISkinRigAnimator>() },
+                registry = { services.get<com.astarworks.astera.core.application.port.outbound.ISkinRigRegistry>() },
+                poses = { services.get<com.astarworks.astera.core.application.port.outbound.animation.IPlayerAnimationGateway>() },
+            ),
             screen = PaperSkillScreenGateway(feedback, scheduler),
             cooldowns = PaperSkillCooldownGateway { services.get<ICooldownTracker>() },
             items = PaperSkillItemGateway(server) { id, player, count ->

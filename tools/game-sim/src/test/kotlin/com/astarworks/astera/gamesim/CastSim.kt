@@ -58,6 +58,8 @@ fun simVictim(n: Int): UUID = UUID.fromString("00000000-0000-0000-0000-0000000d%
  * with fake ports: damage is recorded, the entity query returns the given victims, nothing else happens. Shared by the
  * ported-grammar and the cast-smoke scenarios (SKL-09).
  */
+class CasterAnimCall(val tick: Int, val verb: String, val anim: String, val ticks: Int)
+
 class Dealt(val tick: Int, val victim: UUID, val amount: Double, val ignoreInvulnerability: Boolean, val skill: String = "")
 
 class CastSim(
@@ -108,6 +110,8 @@ class CastSim(
     val dealt = ArrayList<Dealt>()
     val sounds = ArrayList<Pair<Int, String>>()
     val removed = ArrayList<Pair<UUID, String>>()
+    /** Caster body animation calls in order: tick, verb (play / stop / release), clip, hold ticks. */
+    val casterAnims = ArrayList<CasterAnimCall>()
     val blockStrikes = ArrayList<Triple<Int, Int, String?>>()
 
     private inline fun <reified T> noop(): T = java.lang.reflect.Proxy.newProxyInstance(T::class.java.classLoader, arrayOf(T::class.java)) { _, m, _ ->
@@ -182,7 +186,11 @@ class CastSim(
             ports = SkillRuntimePorts(noop<ISkillVisualGateway>(), particleGateway ?: noop<ISkillParticleGateway>(), sound, gameplay, entities, noop<ISkillVictimAnimGateway>()),
             movement = noop<ISkillMovementGateway>(),
             world = world,
-            casterAnim = noop<ISkillCasterAnimGateway>(),
+            casterAnim = object : ISkillCasterAnimGateway {
+                override fun play(caster: UUID, anim: String, speed: Double, ticks: Int) { casterAnims += CasterAnimCall(now, "play", anim, ticks) }
+                override fun stop(caster: UUID, anim: String) { casterAnims += CasterAnimCall(now, "stop", anim, 0) }
+                override fun release(caster: UUID, anim: String) { casterAnims += CasterAnimCall(now, "release", anim, 0) }
+            },
             screen = noop<ISkillScreenGateway>(),
             cooldowns = noop<ISkillCooldownGateway>(),
             items = noop<ISkillItemGateway>(),
