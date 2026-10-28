@@ -31,7 +31,7 @@ public class PaperSkillMovementGateway(
     override fun teleport(cast: CastRef, entity: UUID, pos: Vec3, yaw: Double?, pitch: Double?) {
         val e = living(entity) ?: return
         val at = e.location
-        e.teleport(Location(e.world, pos.x, pos.y, pos.z, yaw?.toFloat() ?: at.yaw, pitch?.toFloat() ?: at.pitch))
+        e.teleportAsync(Location(e.world, pos.x, pos.y, pos.z, yaw?.toFloat() ?: at.yaw, pitch?.toFloat() ?: at.pitch))
     }
 
     override fun velocity(cast: CastRef, entity: UUID): Vec3 =
