@@ -121,11 +121,7 @@ fun main(args: Array<String>) {
         println("Generated: $outputPath")
     }
 
-    // Skill engine v2 (ADR-0301): skill / skill-patch / item-frames, derived by reflection over the op hierarchy.
-    val skillSchemas = SkillSchemaGenerator.generate(outputDir)
-    for (name in skillSchemas) println("Generated: ${outputDir.resolve("$name.schema.json")}")
-
-    println("Done. ${schemas.size + skillSchemas.size} schema(s) written to $outputDir")
+    println("Done. ${schemas.size} schema(s) written to $outputDir")
 }
 
 /** Holds one schema generation job. Typed so [SchemaGenerator.generate] stays generic. */

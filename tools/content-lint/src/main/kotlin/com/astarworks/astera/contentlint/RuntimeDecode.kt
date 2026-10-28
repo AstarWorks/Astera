@@ -60,10 +60,15 @@ internal object RuntimeDecode {
                 com.astarworks.astera.chat.application.config.ChatConfig.load(d.resolve("chat.yaml"))
                 ContentLoader.LoadReport(1, 0, emptyList())
             },
-            // Skill engine v2 (ADR-0301): the same compose -> decode -> compile path the combat plugin runs at boot.
+            // Skill engine v3 (ADR-0303): the same parts -> compose -> decode -> compile path the combat plugin runs at boot.
             "skills" to { d ->
                 val (tables, frameErrors) = SkillEngineRegistries.frameTables(contentDir.resolve("frames"))
-                val report = SkillEngineContents(SkillEngineRegistries.catalog(tables, com.astarworks.astera.core.application.skillengine.load.IBlockKeyCatalog.Unchecked)).reload(d)
+                val partDir = contentDir.resolve("skill-parts")
+                val parts = when (val r = com.astarworks.astera.core.application.skillengine.part.PartParser.loadDirectory(partDir)) {
+                    is com.astarworks.astera.core.domain.Result.Success -> r.value
+                    is com.astarworks.astera.core.domain.Result.Failure -> return@to ContentLoader.LoadReport(0, r.error.size, r.error.map { ContentLoader.LoadFailure(partDir, it.toString()) })
+                }
+                val report = SkillEngineContents(SkillEngineRegistries.catalog(tables, parts)).reload(d)
                 val frameFailures = frameErrors.map { ContentLoader.LoadFailure(contentDir.resolve("frames"), "${it.path}: ${it.message}") }
                 ContentLoader.LoadReport(report.loaded, report.failed + frameFailures.size, report.failures + frameFailures)
             },

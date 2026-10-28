@@ -38,7 +38,6 @@ import org.joml.Vector3d
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
-import com.astarworks.astera.core.application.skillengine.load.CompiledSkill as LoadedSkill
 
 /**
  * Harness base for v3 skill-engine scenarios (ADR-0303 section 12): real loaders, real [SkillCompiler], real [TablePlayer],
@@ -157,7 +156,7 @@ abstract class SkillEngineScenario {
     fun play(skill: CompiledSkill, seed: Long, events: List<RuntimeEvent>, ticks: Int?, rec: GatewayRecorder): List<RecordedCall> {
         val player = TablePlayer(rec.visual, rec.particles, rec.sounds, rec.gameplay, rec.query, rec.live)
         val request = CastRequest(
-            skill = LoadedSkill(skill.def, emptyMap()),
+            skill = skill,
             caster = rec.caster,
             world = WorldId("world"),
             casterFeet = Vec3(0.0, 0.0, 0.0),

@@ -23,8 +23,6 @@ import com.astarworks.astera.core.domain.sprite.SpriteId
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.geometry.math.Frame
 import com.astarworks.astera.core.domain.geometry.math.Quaternion
-import com.astarworks.astera.core.domain.i18n.LocaleCode
-import com.astarworks.astera.core.domain.i18n.LocalizedText
 import com.astarworks.astera.combat.application.port.outbound.IDisplayEntityGateway.DisplayWrite
 import com.astarworks.astera.core.application.port.outbound.presentation.IPlayerPresentation
 import com.astarworks.astera.core.domain.Result
@@ -71,8 +69,6 @@ public class PaperSkillVisualGateway(
     private val spriteInfo: (String) -> SpriteInfo = { SpriteInfo(1, 32) },
     /** Hides the real held item while a `main_hand` mesh stands in for it (ADR-0276: one weapon on screen, never two). */
     private val presentation: () -> IPlayerPresentation? = { null },
-    /** Resolves a localized text for the caster (v1 `messageRenderer.renderText(actorId, ...)`); null = English. */
-    private val messages: () -> com.astarworks.astera.core.application.port.outbound.IMessageRenderer? = { null },
 ) : ISkillVisualGateway {
 
     private val log = LoggerFactory.getLogger(javaClass)
@@ -89,9 +85,7 @@ public class PaperSkillVisualGateway(
     /** One body lease per caster, shared by every live non-ghost skin bone of that caster (hand, offhand, armour, body hidden, pose pinned). */
     private val bodyHides = ConcurrentHashMap<UUID, HandHide>()
     private class PlateEntry(val handle: DisplayHandle, val owner: UUID, val sprite: String, val intrinsic: Intrinsic) : Entry
-    private class LineEntry(val handle: DisplayHandle) : Entry
     private class BlockEntry(val handle: DisplayHandle, val owner: UUID) : Entry
-    private class QuadEntry(val handle: DisplayHandle, val owner: UUID, val intrinsic: Intrinsic, var colorHex: String, var alpha: Double, val glyph: Boolean) : Entry
     private class TextEntry(val handle: DisplayHandle, val owner: UUID, val intrinsic: Intrinsic) : Entry
     /** Colour of one soft ribbon quad: peak [alpha] and the [rgbTo] it has faded to at the end of its life. */
     private class PieceStyle(val rgb: Int, val alpha: Double, val rgbTo: Int?)
@@ -189,16 +183,6 @@ public class PaperSkillVisualGateway(
         return register(castOwner, BlockEntry(handle, castOwner))
     }
 
-    override fun spawnQuad(castOwner: UUID, colorHex: String, alpha: Double, text: String?, shadow: Boolean, seeThrough: Boolean, pose: VisualPose, brightness: Int?, view: DisplayView, glow: String?): VisualHandle {
-        val world = worldOf(castOwner) ?: return dead("quad")
-        val intrinsic = if (text == null) Intrinsic.TEXT_SOLID else Intrinsic.glyphQuad(QUAD_TEXT_PX)
-        val first = toDisplayWrite(pose.frame, pose.size, intrinsic, pose.billboard, 0)
-        val spec = SkillDisplaySpecs.quad(colorHex, alpha, text, shadow, seeThrough, first.transform, pose.billboard, brightness).copy(glowArgb = SkillDisplaySpecs.glowArgb(glow))
-        val handle = spawnDisplay(world, castOwner, pose.frame.origin, spec, listOf(text ?: " "), pose.anchorFeet != null && pose.billboard == DisplayBillboard.FIXED, view)
-            ?: return dead("quad")
-        return register(castOwner, QuadEntry(handle, castOwner, intrinsic, colorHex, alpha, text != null))
-    }
-
     override fun spawnText(castOwner: UUID, text: String, backgroundHex: String, backgroundAlpha: Double, shadow: Boolean, seeThrough: Boolean, pose: VisualPose, brightness: Int?, view: DisplayView): VisualHandle {
         val world = worldOf(castOwner) ?: return dead("text")
         val intrinsic = Intrinsic.textGlyph(QUAD_TEXT_PX)
@@ -209,14 +193,6 @@ public class PaperSkillVisualGateway(
         return register(castOwner, TextEntry(handle, castOwner, intrinsic))
     }
 
-    override fun spawnLine(castOwner: UUID, colorHex: String, pose: VisualPose, view: DisplayView): VisualHandle {
-        val world = worldOf(castOwner) ?: return dead("line")
-        val first = toDisplayWrite(pose.frame, pose.size, Intrinsic.TEXT_SOLID, DisplayBillboard.FIXED, 0)
-        val spec = SkillDisplaySpecs.line(colorHex, first.transform)
-        val handle = spawnDisplay(world, castOwner, pose.frame.origin, spec, listOf(" "), false, view) ?: return dead("line")
-        return register(castOwner, LineEntry(handle))
-    }
-
     override fun spawnTrail(castOwner: UUID, ticks: Int, widthFrac: Double, colorHex: String, alpha: Double): VisualHandle {
         val world = worldOf(castOwner) ?: return dead("trail")
         val rgb = argb(colorHex) and 0xFFFFFF
@@ -224,47 +200,6 @@ public class PaperSkillVisualGateway(
     }
 
     override fun sprite(sprite: String): SpriteInfo = spriteInfo(sprite).let { SpriteInfo(it.frames.coerceAtLeast(1), it.px.coerceAtLeast(1)) }
-
-    override fun setPlateFrame(handle: VisualHandle, frame: Int, tintHex: String?) {
-        val e = entries[handle.id] as? PlateEntry ?: return
-        val rgb = tintHex?.let { argb(it) and 0xFFFFFF }
-        displays.setText(e.handle, listOf(SpriteGlyphs.text(SpriteId(e.sprite), frame, rgb)))
-    }
-
-    override fun setLook(handle: VisualHandle, alpha: Double?, colorHex: String?) {
-        when (val e = entries[handle.id]) {
-            is PlateEntry -> if (alpha != null) displays.setTextStyle(e.handle, 0, SkillDisplaySpecs.opacity(alpha), null)
-            is QuadEntry -> {
-                alpha?.let { e.alpha = it }
-                colorHex?.let { e.colorHex = it }
-                val a = (e.alpha.coerceIn(0.0, 1.0) * 255.0).roundToInt()
-                val rgb = argb(e.colorHex) and 0xFFFFFF
-                if (e.glyph) displays.setTextStyle(e.handle, 0, a.coerceAtLeast(MIN_GLYPH_OPACITY), rgb)
-                else displays.setTextStyle(e.handle, (a shl 24) or rgb, 255, null)
-            }
-            else -> {}
-        }
-    }
-
-    override fun setItemModel(handle: VisualHandle, model: String?) {
-        val e = entries[handle.id] as? MeshEntry ?: return
-        displays.setItemModel(e.handle, model)
-    }
-
-    override fun setBlock(handle: VisualHandle, block: String) {
-        val e = entries[handle.id] as? BlockEntry ?: return
-        displays.setBlock(e.handle, block)
-    }
-
-    override fun localize(castOwner: UUID, byLocale: Map<String, String>): String {
-        val renderer = messages() ?: return super.localize(castOwner, byLocale)
-        return renderer.renderText(PlayerId(castOwner), LocalizedText(byLocale.mapKeys { (k, _) -> LocaleCode.parse(k) }))
-    }
-
-    override fun setText(handle: VisualHandle, text: String) {
-        val e = entries[handle.id] as? TextEntry ?: return
-        displays.setText(e.handle, listOf(text))
-    }
 
     override fun setTrailLook(handle: VisualHandle, fadePower: Double, style: String) {
         val t = entries[handle.id] as? TrailEntry ?: return
@@ -287,9 +222,7 @@ public class PaperSkillVisualGateway(
             is SkinEntry -> displays.place(e.handle, toDisplayWrite(pose.frame, pose.size, Intrinsic.ITEM_FIXED, pose.billboard, interpolationTicks, anchorOf(e.owner, pose.anchorFeet), pose.teleportTicks))
             is PlateEntry -> displays.place(e.handle, toDisplayWrite(pose.frame, pose.size, e.intrinsic, pose.billboard, interpolationTicks, anchorOf(e.owner, pose.anchorFeet), pose.teleportTicks))
             is BlockEntry -> displays.place(e.handle, toDisplayWrite(pose.frame, pose.size, Intrinsic.BLOCK, pose.billboard, interpolationTicks, anchorOf(e.owner, pose.anchorFeet), pose.teleportTicks))
-            is QuadEntry -> displays.place(e.handle, toDisplayWrite(pose.frame, pose.size, e.intrinsic, pose.billboard, interpolationTicks, anchorOf(e.owner, pose.anchorFeet), pose.teleportTicks))
             is TextEntry -> displays.place(e.handle, toDisplayWrite(pose.frame, pose.size, e.intrinsic, pose.billboard, interpolationTicks, anchorOf(e.owner, pose.anchorFeet), pose.teleportTicks))
-            is LineEntry -> displays.place(e.handle, toDisplayWrite(pose.frame, pose.size, Intrinsic.TEXT_SOLID, DisplayBillboard.FIXED, interpolationTicks))
             is TrailEntry -> error("a trail is fed through pushTrailPoint, never written")
             null -> Unit // already removed (owner quit / cast ended): nothing left to move
         }
@@ -368,9 +301,7 @@ public class PaperSkillVisualGateway(
             is SkinEntry -> { displays.remove(e.handle); if (!e.ghost) showBody(e.owner) }
             is PlateEntry -> displays.remove(e.handle)
             is BlockEntry -> displays.remove(e.handle)
-            is QuadEntry -> displays.remove(e.handle)
             is TextEntry -> displays.remove(e.handle)
-            is LineEntry -> displays.remove(e.handle)
             is TrailEntry -> {
                 e.segments.forEach { server.getEntity(it.display)?.remove() }
                 e.segments.clear()
@@ -453,7 +384,6 @@ public class PaperSkillVisualGateway(
 
         /** Font height (px) of a quad's drawn text: the vanilla default, 8 px = 0.2 blocks per text scale unit. */
         const val QUAD_TEXT_PX = 8
-        const val MIN_GLYPH_OPACITY = 4
         val BODY = PresentationMask(hand = true, offhand = true, armor = true, body = true, pinPose = true)
     }
 

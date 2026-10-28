@@ -14,16 +14,5 @@ attributes:
 equip_slot: mainhand
 resource_type: energy
 resource_cost_per_use: 12
-skills:
-- trigger: left_click
-  skill_id: ember-gauntlet-s1
-- trigger: right_click
-  skill_id: ember-gauntlet-s2
-- trigger: sneak_right
-  skill_id: ember-gauntlet-s3
-- trigger: sneak_left
-  skill_id: ember-gauntlet-def
-- trigger: drop
-  skill_id: ember-gauntlet-ego
 pdc_tags:
   astera:rarity: epic

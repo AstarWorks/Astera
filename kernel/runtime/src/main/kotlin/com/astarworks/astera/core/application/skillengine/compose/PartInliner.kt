@@ -30,7 +30,6 @@ public object PartInliner {
         val resolved = LinkedHashMap<String, Part>()
         val scope = HashSet(BUILTIN_FRAMES).apply {
             def.anchors.forEach { add(it.id) }
-            def.frames.forEach { add(it.id) }
             addAll(def.framesIn.keys)
         }
         validate(def.id, def.machine, "machine", scope, parts, config, emptyList(), resolved)?.let { return Result.failure(it) }

@@ -297,10 +297,6 @@ skill-pairs: ## Video vs MC frame pairs at video times -> build/pairs/<case>.png
 	@test -n "$(CASE)" -a -n "$(AT)" || { echo "usage: make skill-pairs CASE=<id> [SKILL=<skill>] AT=\"19.7:hit1 20.9:hit2\" (t = video seconds)"; exit 2; }
 	python3 -I tools/skill-compare/scripts/pairs.py --case "$(CASE)" $(if $(SKILL),--skill "$(SKILL)") --out "build/pairs/$(CASE).png" $(AT)
 
-.PHONY: skill-lint
-skill-lint: ## Structural lint of skill engine v2 skills (ADR-0301; exit 1 on FAIL): make skill-lint [ROOT=content/skills] [BALANCE=1]
-	./gradlew :tools:skill-lint:run --args="--root $(or $(ROOT),content/skills) $(if $(BALANCE),--balance)" -q
-
 .PHONY: skill-trace
 skill-trace: ## Cast a v2 skill once in game-sim (real cast runner, dummy 6 blocks ahead) -> tools/game-sim/build/sim-traces/v2/<skill>.json (astera-sim-trace/2): make skill-trace SKILL=<skill-id>[,<skill-id>...]
 	@test -n "$(SKILL)" || { echo "usage: make skill-trace SKILL=<skill-id>[,<skill-id>...]"; exit 2; }

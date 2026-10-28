@@ -15,16 +15,5 @@ equip_slot: mainhand
 resource_type: energy
 resource_cost_per_use: 20
 glint: true
-skills:
-- trigger: left_click
-  skill_id: verdict-hammer-s1
-- trigger: right_click
-  skill_id: verdict-hammer-s2
-- trigger: sneak_right
-  skill_id: verdict-hammer-s3
-- trigger: sneak_left
-  skill_id: verdict-hammer-def
-- trigger: drop
-  skill_id: verdict-hammer-ego
 pdc_tags:
   astera:rarity: epic

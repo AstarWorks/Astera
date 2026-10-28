@@ -129,9 +129,6 @@ public class GameSim private constructor(
         private set
     public lateinit var combat: CombatWiringResult
 
-    /** Skill engine v2 runtime (the sim's twin of `SkillEnginePaperRuntime`); casts of v2 skills run through it. */
-    public lateinit var skillEngine: SimSkillEngine
-        private set
     public lateinit var match: MatchWiringResult
         private set
     /** Spectator-mode recorder behind the `ISpectator` port (death cam / eliminated teams). */
@@ -318,7 +315,6 @@ public class GameSim private constructor(
     /** Feeds one input with the held item into the same sink `PaperItemInputListener` feeds. */
     public fun input(entity: SimEntity, kind: IMcEvent.InputKind, sneaking: Boolean = false): Boolean {
         val view = checkNotNull(server.view(entity.id)) { "${entity.name} is not a player" }
-        if (kind == IMcEvent.InputKind.RIGHT_CLICK) skillEngine.noteRightClick(entity.id.uuid)
         return items.triggerListener.handle(IMcEvent.PlayerInput(view, kind, sneaking, entity.heldItem))
     }
 
@@ -462,7 +458,6 @@ public class GameSim private constructor(
         runCatching { economy.shutdown() }
         runCatching { stats.shutdown() }
         runCatching { match.shutdown() }
-        runCatching { skillEngine.shutdown() }
         runCatching { combat.shutdown() }
         contexts.asReversed().forEach { runCatching { it.close() } }
         runCatching { core.shutdown() }
@@ -664,15 +659,6 @@ public class GameSim private constructor(
             // rerouted-damage kill publisher.
             projectiles.start()
             if (statusContainer.isInitialized()) statusContainer.value.start()
-            sim.skillEngine = SimSkillEngine.install(
-                ctx = context(),
-                world = world,
-                scheduler = scheduler,
-                combat = sim.combat,
-                mcServer = mcServer,
-                statusContainer = statusContainer.value,
-                alive = alive,
-            )
             val killResolver = VanillaKillResolver(
                 com.astarworks.astera.core.application.service.combat.CombatContextResolver { services.get<IMatchTeamLookup>() },
                 recentAttacker = { victim, atTick ->

@@ -1,7 +1,0 @@
-# Converted from content/skills/vfx-demo-smoke.yaml by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
-# Generated point-frame offsets are [left, up, forward] in the parent frame.
-apiVersion: "astera/v2"
-kind: Skill
-id: vfx-demo-smoke
-meta: {name: {ja: "デモ・煙", en: "Demo Smoke"}, description: {ja: "ambient レーンの煙を再生するデモ。", en: "Plays an ambient-lane smoke bank."}, cooldown_ticks: 20}
-gameplay: {}

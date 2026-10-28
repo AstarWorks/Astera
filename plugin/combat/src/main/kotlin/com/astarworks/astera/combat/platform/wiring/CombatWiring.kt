@@ -136,16 +136,24 @@ public object CombatWiring {
         // in the unified /astera reload <category> dispatcher.
         val skillsContentDir = ctx.contentDir.resolve("skills")
         val contentCelEvaluator = services.get<ICelEvaluator>() ?: StubCelEvaluator()
-        // Skill engine v2 (ADR-0301): the catalog is the one skill store; the cast gate reads its `meta:` blocks.
+        // Skill engine v3 (ADR-0303): the catalog is the one skill store; the cast gate reads its `meta:` blocks.
         val (frameTables, frameErrors) = com.astarworks.astera.core.application.skillengine.load.SkillEngineRegistries
             .frameTables(ctx.contentDir.resolve("frames"))
         frameErrors.forEach { logger.warning("skill engine frame table: $it") }
-        val skillCatalog = com.astarworks.astera.core.application.skillengine.load.SkillEngineRegistries
-            .catalog(frameTables, ports.blockKeys?.invoke(services) ?: com.astarworks.astera.core.application.skillengine.load.IBlockKeyCatalog.Unchecked)
+        val skillParts = when (val r = com.astarworks.astera.core.application.skillengine.part.PartParser.loadDirectory(ctx.contentDir.resolve("skill-parts"))) {
+            is com.astarworks.astera.core.domain.Result.Success -> r.value
+            is com.astarworks.astera.core.domain.Result.Failure -> {
+                r.error.forEach { logger.severe("[skill-error] skill-parts: $it") }
+                emptyMap()
+            }
+        }
+        val skillCatalog = com.astarworks.astera.core.application.skillengine.load.SkillEngineRegistries.catalog(frameTables, skillParts)
         val skillEngineContents = com.astarworks.astera.core.application.skillengine.runtime.SkillEngineContents(skillCatalog)
         val skillGate = SkillMetaRegistry(skillCatalog)
         val skillReport = skillEngineContents.reload(skillsContentDir)
-        logger.info("Skills (engine v2) loaded: ${skillReport.loaded} ok, ${skillReport.failed} failed")
+        // A skill file that is not a v3 `kind: Skill` document is rejected here and does not run (never skipped silently).
+        skillReport.failures.forEach { logger.severe("[skill-error] ${it.file}: ${it.message}") }
+        logger.info("Skills (engine v3) loaded: ${skillReport.loaded} ok, ${skillReport.failed} failed")
 
         val statusContentDir = ctx.contentDir.resolve("status")
         val statusContents = StatusContents()

@@ -1,7 +1,0 @@
-# Converted from content/skills/vfx-demo-veil-shake.yaml by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
-# Generated point-frame offsets are [left, up, forward] in the parent frame.
-apiVersion: "astera/v2"
-kind: Skill
-id: vfx-demo-veil-shake
-meta: {name: {ja: "デモ・ベール", en: "Demo Veil"}, description: {ja: "screen_veil と camera_shake を術者に再生するデモ。", en: "Plays screen_veil and camera_shake on the caster."}, cooldown_ticks: 20}
-gameplay: {}

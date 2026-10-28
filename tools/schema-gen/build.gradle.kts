@@ -36,7 +36,7 @@ tasks.register<JavaExec>("generateSchemas") {
 }
 
 // v3 skill engine schema (ADR-0303): op variants + timing block + rate laws from the OpSpecRegistry. Not part of the
-// drift guard yet: it writes the same skill.schema.json as the v2 generator above, which is removed with the v2 purge (W1b-01).
+// drift guard yet.
 tasks.register<JavaExec>("generateSkillSchema") {
     group = "astera"
     description = "Generate the v3 skill engine JSON Schema (ADR-0303) into content/schemas/skill.schema.json."

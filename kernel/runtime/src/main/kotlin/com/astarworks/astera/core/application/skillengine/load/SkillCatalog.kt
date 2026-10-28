@@ -1,6 +1,7 @@
 package com.astarworks.astera.core.application.skillengine.load
 
 import com.astarworks.astera.core.application.skillengine.compose.ComposedSkill
+import com.astarworks.astera.core.domain.skillengine.table.CompiledSkill
 
 /** Result of reloading one skill (and, for a base, its variants). */
 public data class SkillLoadReport(

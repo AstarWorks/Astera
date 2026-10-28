@@ -1,7 +1,0 @@
-# Converted from content/skills/vfx-demo-lanes-others.yaml by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
-# Generated point-frame offsets are [left, up, forward] in the parent frame.
-apiVersion: "astera/v2"
-kind: Skill
-id: vfx-demo-lanes-others
-meta: {name: {ja: "デモ・レーン (others)", en: "Demo Lanes (others)"}, description: {ja: "レーン別の表示エンティティを viewers=others で再生するデモ。", en: "Plays one display per VFX lane with viewers=others."}, cooldown_ticks: 20}
-gameplay: {}

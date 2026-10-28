@@ -70,11 +70,7 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L)) {
 
         override fun spawnBlock(castOwner: UUID, block: String, pose: VisualPose, brightness: Int?, rigShading: Boolean, view: DisplayView, glow: String?) = spawned("block")
 
-        override fun spawnQuad(castOwner: UUID, colorHex: String, alpha: Double, text: String?, shadow: Boolean, seeThrough: Boolean, pose: VisualPose, brightness: Int?, view: DisplayView, glow: String?) = spawned("text")
-
         override fun spawnText(castOwner: UUID, text: String, backgroundHex: String, backgroundAlpha: Double, shadow: Boolean, seeThrough: Boolean, pose: VisualPose, brightness: Int?, view: DisplayView) = spawned("text")
-
-        override fun spawnLine(castOwner: UUID, colorHex: String, pose: VisualPose, view: DisplayView) = spawned("ribbon")
 
         override fun spawnTrail(castOwner: UUID, ticks: Int, widthFrac: Double, colorHex: String, alpha: Double) = spawned("ribbon")
 
@@ -86,8 +82,6 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L)) {
         override fun remove(handle: VisualHandle) = add("remove", name(handle), "")
 
         override fun sprite(sprite: String): SpriteInfo = SpriteInfo(1, 32)
-
-        override fun setPlateFrame(handle: VisualHandle, frame: Int, tintHex: String?) = Unit
 
         override fun setTrailLook(handle: VisualHandle, fadePower: Double, style: String) = Unit
 

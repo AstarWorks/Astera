@@ -82,23 +82,14 @@ public interface ISkillVisualGateway {
     public fun spawnBlock(castOwner: UUID, block: String, pose: VisualPose, brightness: Int?, rigShading: Boolean = false, view: DisplayView = DisplayView(), glow: String? = null): VisualHandle
 
     /**
-     * A text-display quad: [text] null = a solid [colorHex] background at [alpha] ([pose].size.x / .y = width / height in blocks);
-     * else the MiniMessage [text] over that background, [pose].size = blocks per text unit.
-     */
-    public fun spawnQuad(castOwner: UUID, colorHex: String, alpha: Double, text: String?, shadow: Boolean, seeThrough: Boolean, pose: VisualPose, brightness: Int?, view: DisplayView = DisplayView(), glow: String? = null): VisualHandle
-
-    /**
      * A text display of the MiniMessage [text] ([pose].size = blocks per text unit) with a [backgroundHex] box at [backgroundAlpha]
      * (0 = none); the text keeps its own colour and full opacity.
      */
     public fun spawnText(castOwner: UUID, text: String, backgroundHex: String, backgroundAlpha: Double, shadow: Boolean, seeThrough: Boolean, pose: VisualPose, brightness: Int?, view: DisplayView = DisplayView()): VisualHandle
 
-    /** A solid ribbon; [pose] is its centre, basis (x along the line) and size (length, thickness). */
-    public fun spawnLine(castOwner: UUID, colorHex: String, pose: VisualPose, view: DisplayView = DisplayView()): VisualHandle
-
     public fun spawnTrail(castOwner: UUID, ticks: Int, widthFrac: Double, colorHex: String, alpha: Double): VisualHandle
 
-    /** The ONE per-tick write of a mesh, plate or line: the whole [pose] reaches the client together and arrives after [interpolationTicks]. */
+    /** The ONE per-tick write of a mesh, plate, block or text: the whole [pose] reaches the client together and arrives after [interpolationTicks]. */
     public fun write(handle: VisualHandle, pose: VisualPose, interpolationTicks: Int)
 
     /** Append this tick's ribbon cross-section (root and tip positions); the adapter ages it out. */
@@ -108,24 +99,6 @@ public interface ISkillVisualGateway {
 
     /** Flipbook length and texture size of a sprite. An unknown sprite is an error, never a guessed size. */
     public fun sprite(sprite: String): SpriteInfo
-
-    /** Show flipbook [frame] of a plate's sprite, multiplied by [tintHex] (`#rrggbb`) when not null. */
-    public fun setPlateFrame(handle: VisualHandle, frame: Int, tintHex: String?)
-
-    /** A plate's or quad's opacity 0..1 and, for a quad, its colour `#rrggbb` (null = unchanged); called only when a track key changes them. */
-    public fun setLook(handle: VisualHandle, alpha: Double?, colorHex: String?) {}
-
-    /** A mesh display switches to item model [model] (`namespace:path`); null restores the stack's own model. */
-    public fun setItemModel(handle: VisualHandle, model: String?) {}
-
-    /** A block display switches to vanilla block [block]. */
-    public fun setBlock(handle: VisualHandle, block: String) {}
-
-    /** A text display switches to the MiniMessage [text] (a track key's `text`); called only on change. */
-    public fun setText(handle: VisualHandle, text: String) {}
-
-    /** The markup of [byLocale] for the cast owner's locale (v1 `messageRenderer.renderText(actorId, ...)`); `en`, else the first entry. */
-    public fun localize(castOwner: UUID, byLocale: Map<String, String>): String = byLocale["en"] ?: byLocale.values.firstOrNull().orEmpty()
 
     /** Ribbon look: alpha follows `(1 - age/ticks) ^ fadePower`; [style] is `soft`, `crisp` or `both`. Called once after [spawnTrail]. */
     public fun setTrailLook(handle: VisualHandle, fadePower: Double, style: String)

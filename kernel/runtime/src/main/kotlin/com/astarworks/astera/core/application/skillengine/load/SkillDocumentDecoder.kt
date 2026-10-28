@@ -13,8 +13,6 @@ import com.astarworks.astera.core.domain.skillengine.model.AnchorDecl
 import com.astarworks.astera.core.domain.skillengine.model.PointRef
 import com.astarworks.astera.core.domain.skillengine.model.SkillDef
 import com.astarworks.astera.core.domain.skillengine.model.SkillMeta
-import com.astarworks.astera.core.domain.skillengine.model.GameplaySection
-import com.astarworks.astera.core.domain.skillengine.model.PresentationSection
 import com.astarworks.astera.core.domain.skillengine.op.OpSection
 import com.astarworks.astera.core.domain.skillengine.part.ParamSpec
 import com.astarworks.astera.core.domain.skillengine.part.ParamType
@@ -121,8 +119,7 @@ public class SkillDocumentDecoder(private val specs: OpSpecRegistry, private val
         val meta = meta(boot, tree["meta"])
         val machine = machine(ctx, tree)
         return SkillDef(
-            id = id, item = item, importance = importance, frames = emptyList(),
-            gameplay = GameplaySection(), presentation = PresentationSection(), meta = meta,
+            id = id, item = item, importance = importance, meta = meta,
             params = params, framesIn = framesIn, emits = emits, anchors = anchors, conditions = conditions, machine = machine,
         )
     }
@@ -276,9 +273,4 @@ public class SkillDocumentDecoder(private val specs: OpSpecRegistry, private val
         val STATE_KEYS = setOf("for", "then", "final", "enter", "do", "exit", "on", "use", "with", "frames", "machine")
         val TRANSITION_KEYS = setOf("event", "after", "when", "to", "do")
     }
-}
-
-/** Feeds the catalog path: decodes a composed tree with the v3 document decoder (the file name is the skill id). */
-public class DocumentSkillDecoder(private val decoder: SkillDocumentDecoder, private val env: GrammarEnv = GrammarEnv()) : SkillDecoder {
-    override fun decode(composed: ComposedSkill): Result<SkillDef, SkillDecodeError> = decoder.decode(composed.id, composed.tree, env)
 }
