@@ -10,8 +10,8 @@ params:
   freeze_ticks:       {type: ticks, default: 40}
 anchors:
   - {id: muzzle,  anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}
-  - {id: cast_fx, anchor: caster.eye, offset: {up: -0.25, forward: 0.9}, mode: snapshot}
-  - {id: heart,   anchor: victim.body, offset: {up: 0.4}}   # anchor note: v2 enemy point offset Y minus 0.8 (example b maps 1.0 -> up 0.2)
+  - {id: cast_fx, anchor: caster, offset: {up: -0.25, forward: 0.9}, mode: snapshot}
+  - {id: heart,   anchor: victim.root, offset: {up: 1.2}}   # v2 enemy frame = victim feet, yaw-only (pt_enemy_0_1p2_0)
 machine:
   start: fly
   states:
