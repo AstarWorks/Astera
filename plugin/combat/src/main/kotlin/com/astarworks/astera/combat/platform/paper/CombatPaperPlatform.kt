@@ -87,6 +87,9 @@ internal class CombatPaperPlatform(private val plugin: JavaPlugin) {
             gateway
         },
         entityEffectsGateway = { PaperEntityEffectsGateway(plugin.server, plugin) },
+        blockKeys = { services ->
+            com.astarworks.astera.combat.adapter.paper.skillengine.PaperBlockKeyCatalog { services.get<com.astarworks.astera.core.application.port.outbound.ICustomBlockRegistry>() }
+        },
         displayEntityGateway = { services ->
             val hud = services.get<com.astarworks.astera.core.application.service.hud.HudPreferences>()
             PaperDisplayEntityGateway(

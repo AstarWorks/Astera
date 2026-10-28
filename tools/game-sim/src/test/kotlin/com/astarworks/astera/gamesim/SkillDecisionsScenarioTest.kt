@@ -170,7 +170,7 @@ class SkillDecisionsScenarioTest {
         val contentDir = Path.of(requireNotNull(System.getProperty("astera.sim.contentDir")))
         val registry = ParticleContents().also { check(it.bootstrap(contentDir.resolve("particles")).failed == 0) }
         val world = RecordingWorld()
-        val gateway = PaperSkillParticleGateway(world, { WorldId("world") }) { registry.find(ParticleId(it)) }
+        val gateway = PaperSkillParticleGateway(world, WorldId("world")) { registry.find(ParticleId(it)) }
         val s = skill(
             "t-emit",
             presentation = "{timeline: [{id: e, at: 0, do: [{id: em, op: emit, at: caster, $emit}]}]}",

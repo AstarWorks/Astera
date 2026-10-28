@@ -131,6 +131,7 @@ class PresentationOpsScenarioTest {
     private val victim = UUID.randomUUID()
 
     private val visuals = object : ISkillVisualGateway {
+    override fun setTrailShape(handle: com.astarworks.astera.core.application.skillengine.runtime.port.VisualHandle, bands: List<com.astarworks.astera.core.domain.skillengine.op.TrailBand>, edge: com.astarworks.astera.core.domain.skillengine.op.TrailEdge?, rim: com.astarworks.astera.core.domain.skillengine.op.TrailRim?, stepDeg: Double, doubleSided: Boolean) {}
         private fun h(kind: String): VisualHandle { calls += kind; return VisualHandle(nextHandle++) }
         override fun spawnMesh(castOwner: UUID, item: String, part: String?, pose: VisualPose) =
             h("mesh:$item").also { poses[it.id] = pose.frame; scales[it.id] = pose.size.x }
@@ -156,6 +157,7 @@ class PresentationOpsScenarioTest {
             override fun play(sound: String, at: Vec3, volume: Double, pitch: Double) { sounds += Triple(sound, at, volume to pitch) }
         },
         gameplay = object : ISkillGameplayGateway {
+    override fun statusStacks(entity: UUID, statusId: String): Int = 0
             override fun removeStatus(victim: UUID, statusId: String) = Unit
             override fun cleanse(victim: UUID, negativeOnly: Boolean) = Unit
             override fun ignite(caster: UUID, victim: UUID, durationTicks: Int) = Unit
@@ -168,6 +170,7 @@ class PresentationOpsScenarioTest {
             override fun freezeEntities(entities: List<UUID>, ticks: Int) = error("gameplay")
         },
         entities = object : ISkillEntityQuery {
+    override fun healthRatio(entity: UUID): Double? = null
             override fun nearby(point: Vec3, radius: Double, excluding: UUID?): List<HitCandidate> = emptyList()
             override fun rootOf(entity: UUID): EntityRoot? = null
             override fun raycastBlock(from: Vec3, to: Vec3): BlockHit? = null

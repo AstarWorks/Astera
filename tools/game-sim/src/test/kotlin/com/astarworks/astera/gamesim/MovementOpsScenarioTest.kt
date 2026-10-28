@@ -79,6 +79,7 @@ class MovementOpsScenarioTest {
     private fun env(caster: UUID): Env {
         val w = World()
         val entities = object : ISkillEntityQuery {
+    override fun healthRatio(entity: UUID): Double? = null
             override fun nearby(point: Vec3, radius: Double, excluding: UUID?): List<HitCandidate> =
                 w.feet.filter { (id, _) -> id != excluding && id in w.alive }
                     .map { (id, f) -> HitCandidate(id, f, 0.0, box(f)) }
@@ -91,6 +92,8 @@ class MovementOpsScenarioTest {
                 w.solidFromZ?.takeIf { to.z >= it }?.let { BlockHit(Vec3(to.x, to.y, it), Vec3(0.0, 0.0, -1.0), "stone") }
         }
         val movement = object : ISkillMovementGateway {
+    override fun lockMovement(entity: UUID, speedFactor: Double) {}
+    override fun unlockMovement(entity: UUID) {}
             override fun isAlive(entity: UUID) = entity in w.alive
             override fun setVelocity(entity: UUID, velocity: Vec3) { w.velocities[entity] = velocity }
             override fun addVelocity(entity: UUID, delta: Vec3) { w.added += entity to delta }
@@ -103,6 +106,7 @@ class MovementOpsScenarioTest {
             override fun releaseInvulnerable(entity: UUID) { w.immune = false }
         }
         val gameplay = object : ISkillGameplayGateway {
+    override fun statusStacks(entity: UUID, statusId: String): Int = 0
             override fun removeStatus(victim: UUID, statusId: String) = Unit
             override fun cleanse(victim: UUID, negativeOnly: Boolean) = Unit
             override fun ignite(caster: UUID, victim: UUID, durationTicks: Int) = Unit
@@ -115,6 +119,10 @@ class MovementOpsScenarioTest {
             override fun freezeEntities(entities: List<UUID>, ticks: Int) = Unit
         }
         val visuals = object : ISkillVisualGateway {
+    override fun sprite(sprite: String): com.astarworks.astera.core.application.skillengine.runtime.port.SpriteInfo = com.astarworks.astera.core.application.skillengine.runtime.port.SpriteInfo(1, 32)
+    override fun setPlateFrame(handle: com.astarworks.astera.core.application.skillengine.runtime.port.VisualHandle, frame: Int, tintHex: String?) {}
+    override fun setTrailLook(handle: com.astarworks.astera.core.application.skillengine.runtime.port.VisualHandle, fadePower: Double, style: String) {}
+    override fun setTrailShape(handle: com.astarworks.astera.core.application.skillengine.runtime.port.VisualHandle, bands: List<com.astarworks.astera.core.domain.skillengine.op.TrailBand>, edge: com.astarworks.astera.core.domain.skillengine.op.TrailEdge?, rim: com.astarworks.astera.core.domain.skillengine.op.TrailRim?, stepDeg: Double, doubleSided: Boolean) {}
             override fun spawnMesh(castOwner: UUID, item: String, part: String?, pose: VisualPose) = VisualHandle(0)
             override fun spawnPlate(castOwner: UUID, sprite: String, alpha: Double, pose: VisualPose) = VisualHandle(0)
             override fun spawnLine(castOwner: UUID, colorHex: String, pose: VisualPose) = VisualHandle(0)
@@ -185,7 +193,7 @@ class MovementOpsScenarioTest {
         val e = env(caster)
         e.world.feet[caster] = Vec3(0.0, 0.0, 0.0)
         e.world.alive += listOf(caster, enemyA, enemyB)
-        return Triple(e, DashStrikeDriver(e.ports, e.movement, e.host), e.world)
+        return Triple(e, DashStrikeDriver(e.movement, e.host), e.world)
     }
 
     @Test

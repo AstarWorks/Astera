@@ -52,6 +52,7 @@ class RecordingVisuals(
     /** `content/frames` tables: resolves a mesh to its pack model like the Paper gateway does. */
     private val frameTables: Map<String, com.astarworks.astera.core.application.skillengine.load.ItemFrames> = emptyMap(),
 ) : ISkillVisualGateway {
+    override fun setTrailLook(handle: com.astarworks.astera.core.application.skillengine.runtime.port.VisualHandle, fadePower: Double, style: String) {}
     /** The vanilla display each spawn would create (kind, text, billboard, brightness), by handle: what the Paper gateway hands `IDisplayEntityGateway.spawn`. */
     val specs = HashMap<Long, com.astarworks.astera.core.domain.effect.DisplaySpec>()
 

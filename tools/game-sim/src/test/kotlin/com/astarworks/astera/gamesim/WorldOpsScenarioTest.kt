@@ -240,7 +240,7 @@ class WorldOpsScenarioTest {
             override fun raw(key: String): Any? = keys[key]
             override fun fail(message: String): Nothing = throw IllegalStateException(message)
         }
-        val decoder = worldDecoders().single()
+        val decoder = worldDecoders(com.astarworks.astera.core.application.skillengine.load.IBlockKeyCatalog.Unchecked).single()
         assertThat(decoder.section).isEqualTo(OpSection.GAMEPLAY)
         val op = decoder.decode("break_area", "dig", null, reader) as WorldOp.BreakArea
         assertThat(op.shape).isEqualTo(WorldOp.AreaShape.BOX)

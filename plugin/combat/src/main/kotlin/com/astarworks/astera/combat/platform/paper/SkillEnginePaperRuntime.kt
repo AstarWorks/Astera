@@ -103,6 +103,9 @@ internal class SkillEnginePaperRuntime(
         val server = plugin.server
 
         val tables = wired.frameTables
+        // The custom block registry may not have existed when the skills first loaded: retry the ones that failed on it.
+        val retried = wired.reloadSkills()
+        retried.failures.forEach { log.error("[skill-error] {}: {}", it.file, it.message) }
         val catalog = wired.skillCatalog
 
         val sprites = services.get<com.astarworks.astera.core.application.port.outbound.ISpriteRegistry>()
