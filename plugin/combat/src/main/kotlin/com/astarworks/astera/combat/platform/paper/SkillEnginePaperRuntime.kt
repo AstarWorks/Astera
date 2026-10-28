@@ -152,6 +152,7 @@ internal class SkillEnginePaperRuntime(
                 blocks = { services.get<IBlockStateGateway>() },
                 guard = { ports.blockEditGuard?.invoke(services) },
                 covers = { services.get<ICustomBlockRegistry>() },
+                exclusion = { services.get<com.astarworks.astera.core.application.port.outbound.IAreaBreakExclusion>() },
                 skillOf = { cast -> built.hosts.skillOf(cast) },
                 itemTool = { id ->
                     services.get<com.astarworks.astera.core.application.port.outbound.IItemRegistry>()
