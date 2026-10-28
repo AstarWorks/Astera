@@ -12,6 +12,7 @@ import com.astarworks.astera.core.domain.skillengine.table.StatePath
 import com.astarworks.astera.core.domain.world.WorldId
 import com.astarworks.astera.testfixtures.skillengine.FakeSkillWorldGateway
 import com.astarworks.astera.core.application.skillengine.runtime.player.LiveValueSource
+import com.astarworks.astera.core.application.skillengine.runtime.player.RowScope
 import com.astarworks.astera.core.application.skillengine.runtime.port.BlockHit
 import com.astarworks.astera.core.application.skillengine.runtime.port.CastRef
 import com.astarworks.astera.core.application.skillengine.runtime.port.EntityRoot
@@ -300,11 +301,11 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
     val world = FakeSkillWorldGateway()
 
     val live: LiveValueSource = object : LiveValueSource {
-        override fun vec(cast: CastHandle, name: String, binding: EventBinding?): Vector3d = Vector3d(casterPosition)
+        override fun vec(cast: CastHandle, name: String, binding: EventBinding?, scope: RowScope): Vector3d = Vector3d(casterPosition)
 
-        override fun rot(cast: CastHandle, name: String, binding: EventBinding?): Quaterniond = Quaterniond()
+        override fun rot(cast: CastHandle, name: String, binding: EventBinding?, scope: RowScope): Quaterniond = Quaterniond()
 
-        override fun num(cast: CastHandle, name: String, binding: EventBinding?): Double {
+        override fun num(cast: CastHandle, name: String, binding: EventBinding?, scope: RowScope): Double {
             reads += name
             return liveNums[name] ?: 0.0
         }
