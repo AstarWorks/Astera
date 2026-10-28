@@ -77,18 +77,19 @@ internal object GameplayOps {
     private val areaSelf = Field.optional("include_self", flag, false, "allies only: include the caster")
     private val areaFields: Fields = Fields.of("target", areaKind, areaAround, areaRadius, areaMax, areaSelf)
 
-    /** `victim`, `event.victim`, `caster` or an area map. Read as a plain string or a map, never a bare CEL value. */
+    /** `victim`, `event.victim`, `event.attacker`, `caster` or an area map. Read as a plain string or a map, never a bare CEL value. */
     val target: FieldType<TargetRef> = object : FieldType<TargetRef> {
         override val label = "victim, caster or {kind: enemies|allies, around, radius, max_count?, include_self?}"
         override fun decode(raw: Any?, ctx: GrammarContext, path: String): TargetRef = when (raw) {
             "victim", "event.victim" -> TargetRef.Victim
             "caster" -> TargetRef.Caster
+            "event.attacker" -> TargetRef.Attacker
             is Map<*, *> -> decodeArea(raw, ctx, path)
             else -> ctx.mismatch(path, label, raw)
         }
         override fun schema(): Map<String, Any?> = linkedMapOf(
             "oneOf" to listOf(
-                linkedMapOf("enum" to listOf("victim", "event.victim", "caster")),
+                linkedMapOf("enum" to listOf("victim", "event.victim", "event.attacker", "caster")),
                 areaFields.jsonSchema(),
             ),
         )
@@ -166,6 +167,7 @@ internal object GameplayOps {
     fun targetCell(t: TargetRef, lc: LowerContext, path: String): Result<Val<Any>, SkillDecodeError> = when (t) {
         TargetRef.Victim -> Result.Success(Val.Live<Any>("victim", null))
         TargetRef.Caster -> Result.Success(Val.Live<Any>("caster", null))
+        TargetRef.Attacker -> Result.Success(Val.Live<Any>("event.attacker", null))
         is TargetRef.Enemies, is TargetRef.Allies -> targetRule(t, lc, path).map { Val.Known<Any>(it) }
     }
 
@@ -173,6 +175,7 @@ internal object GameplayOps {
     fun targetRule(t: TargetRef, lc: LowerContext, path: String): Result<TargetRule, SkillDecodeError> = when (t) {
         TargetRef.Victim -> Result.Success(TargetRule.Entity("event.victim"))
         TargetRef.Caster -> Result.Success(TargetRule.Entity("caster"))
+        TargetRef.Attacker -> Result.Success(TargetRule.Entity("event.attacker"))
         is TargetRef.Enemies -> area(lc, path, "enemies", t.around, t.radius, t.maxCount, false)
         is TargetRef.Allies -> area(lc, path, "allies", t.around, t.radius, t.maxCount, t.includeSelf)
     }
