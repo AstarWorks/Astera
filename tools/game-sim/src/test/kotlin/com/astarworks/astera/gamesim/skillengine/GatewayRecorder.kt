@@ -134,6 +134,8 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
         override fun setTrailLook(handle: VisualHandle, fadePower: Double, style: String) = Unit
 
         override fun setTrailShape(handle: VisualHandle, bands: List<TrailBand>, edge: TrailEdge?, rim: TrailRim?, stepDeg: Double, doubleSided: Boolean) = Unit
+
+        override fun setTrailWidth(handle: VisualHandle, widthFrac: Double) = add("trail_width", name(handle), "w=%.3f".format(widthFrac))
     }
 
     val particles: ISkillParticleGateway = object : ISkillParticleGateway {

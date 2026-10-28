@@ -77,7 +77,7 @@ machine:
               sprite: couture-s2-haze-soft
               anchor: palm
               billboard: center
-              size: [0.3, 0.3]            # ENGINE GAP: display `size` is literal [w, h] only, so the class T size curve of ADR 3.4 is not expressible; constant mean size
+              size: ["= 0.2 + 0.4 * ease('out_quad', t / 4)", "= 0.2 + 0.4 * ease('out_quad', t / 4)"]   # class T: sampled per tick, fitted to linear segments (budget 0.03 blocks)
               for: 4
 
     done: {final: true}
