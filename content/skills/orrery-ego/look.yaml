@@ -1,6 +1,5 @@
 # Converted from content/skills/orrery-ego.yaml + content/vfx/* by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
 # Generated point-frame offsets are [left, up, forward] in the parent frame.
-# CONVERT-PRESENT vfx follow=false (anchored at world, no place-at-spawn) (x1): orrery-poise
 # CONVERT-PRESENT vfx frame orient (frames carry no orientation / scale) (x6): orient="yaw" | orient="look"
 # CONVERT-PRESENT particle along_path (x1): true
 # CONVERT-PRESENT element jitter (no v2 equivalent) (x1): {"position": 0.08}

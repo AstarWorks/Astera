@@ -1,6 +1,5 @@
 # Converted from content/skills/orrery-s3.yaml + content/vfx/* by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
 # Generated point-frame offsets are [left, up, forward] in the parent frame.
-# CONVERT-PRESENT vfx follow=false (anchored at world, no place-at-spawn) (x9): orrery-beam-short | orrery-ring-hit-target
 # CONVERT-PRESENT vfx frame orient (frames carry no orientation / scale) (x14): orient="yaw" | orient="to_target"
 # CONVERT-PRESENT vfx target_reference (no v2 equivalent) (x8): [0, 0, 6] | [0, 0, 0]
 # CONVERT-PRESENT play_vfx track_bound_target (no v2 equivalent) (x8): true
@@ -12,13 +11,13 @@ apiVersion: "astera/v2"
 kind: Skill
 id: orrery-s3
 frames:
-  - {id: fx1_orrery_beam_short, kind: body, parent: world}
+  - {id: fx1_orrery_beam_short, kind: body, parent: hit_caster}
   - {id: fx2_orrery_ring_hit_target, kind: body, parent: world}
-  - {id: fx3_orrery_beam_short, kind: body, parent: world}
+  - {id: fx3_orrery_beam_short, kind: body, parent: hit_caster}
   - {id: fx4_orrery_ring_hit_target, kind: body, parent: world}
-  - {id: fx5_orrery_beam_short, kind: body, parent: world}
+  - {id: fx5_orrery_beam_short, kind: body, parent: hit_caster}
   - {id: fx6_orrery_ring_hit_target, kind: body, parent: world}
-  - {id: fx7_orrery_beam_target, kind: body, parent: world}
+  - {id: fx7_orrery_beam_target, kind: body, parent: hit_caster}
   - {id: fx8_orrery_ring_hit_target_long, kind: body, parent: world}
   - {id: fx9_orrery_channel, kind: body, parent: world}
   - {id: fx9_orrery_channel_staff_at, kind: body, parent: caster.right_hand}

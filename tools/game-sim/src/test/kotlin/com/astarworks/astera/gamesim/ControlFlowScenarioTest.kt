@@ -394,6 +394,7 @@ class ControlFlowScenarioTest {
         }
         override fun withVictim(victim: UUID, block: () -> Unit) = bind(victim, block)
         override fun withIndex(index: Int, count: Int, block: () -> Unit) = block()
+        override fun withSample(sample: Int, block: () -> Unit) = block()
         private fun bind(victim: UUID?, block: () -> Unit) {
             val saved = this.victim
             this.victim = victim

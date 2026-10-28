@@ -88,12 +88,18 @@ public interface ExprHost {
     public fun hpRatio(who: ExprValue.Ref): Double = 1.0
 }
 
-/** Values at eval time. [seed] makes `rand(stream)` deterministic per cast; [host] serves `aim_point` / `blade_len`. */
+/**
+ * Values at eval time. [seed] makes `rand(stream)` deterministic per cast and tick; [castSeed] is the per-cast seed alone
+ * (`draw(...)` values stay fixed for the whole cast); [sample] is the replay index of a spacing sweep, so `rand` re-rolls
+ * per sample; [host] serves `aim_point` / `blade_len`.
+ */
 public class ExprEnv(
     public val variables: Map<String, ExprValue>,
     public val frames: FrameLookup,
     public val seed: Long = 0L,
     public val host: ExprHost? = null,
+    public val castSeed: Long = seed,
+    public val sample: Int = 0,
 )
 
 public sealed interface ExprError {

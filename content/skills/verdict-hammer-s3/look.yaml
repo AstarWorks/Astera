@@ -1,6 +1,5 @@
 # Converted from content/skills/verdict-hammer-s3.yaml + content/vfx/* by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
 # Generated point-frame offsets are [left, up, forward] in the parent frame.
-# CONVERT-PRESENT vfx follow=false (anchored at world, no place-at-spawn) (x7): verdict-summoned-nails | verdict-impact
 # CONVERT-PRESENT vfx frame orient (frames carry no orientation / scale) (x7): orient="yaw" | orient="world"
 apiVersion: "astera/v2"
 kind: Skill

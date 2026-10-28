@@ -76,6 +76,9 @@ public interface OpHost {
     /** Run [block] with the expression variables `i` = [index] and `n` = [count] bound (copy [index] of [count] of a repeated display / emit). */
     public fun withIndex(index: Int, count: Int, block: () -> Unit)
 
+    /** Run [block] with the replay [sample] bound (a spacing sweep re-plays one op per sample; `rand` re-rolls per sample). */
+    public fun withSample(sample: Int, block: () -> Unit)
+
     /** Report an op that could not run (bad frame, cycle); the runner logs it with the skill id. */
     public fun fail(opId: String, reason: String)
 

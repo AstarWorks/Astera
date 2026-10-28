@@ -560,6 +560,18 @@ internal class CastInstance(
         }
     }
 
+    private var copySample = 0
+
+    override fun withSample(sample: Int, block: () -> Unit) {
+        val outer = copySample
+        copySample = sample
+        try {
+            block()
+        } finally {
+            copySample = outer
+        }
+    }
+
     override fun fail(opId: String, reason: String) {
         report(opId, reason)
     }
@@ -928,7 +940,7 @@ internal class CastInstance(
             vars["contact.rel_velocity"] = ExprValue.Vec3(c.relVelocity)
             vars["contact.block"] = ExprValue.Str(c.part ?: "")
         }
-        return ExprEnv(vars, frameLookup, request.seed xor (tick.toLong() shl 24), exprHost)
+        return ExprEnv(vars, frameLookup, request.seed xor (tick.toLong() shl 24), exprHost, request.seed, copySample)
     }
 
     private val frameLookup = object : FrameLookup {
