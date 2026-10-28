@@ -18,8 +18,8 @@ object LoadoutClassifier {
 
     data class Item(val kind: Kind, val magazine: Boolean = false, val affinity: Affinity? = null)
 
-    private val LMB = Regex("\\[lmb]|left-click|左クリック")
-    private val RMB = Regex("\\[rmb]|\\[hold rmb]|right-click|右クリック")
+    private val LMB = Regex("\\[lmb]|\\[左]|left-click|左クリック")
+    private val RMB = Regex("\\[rmb]|\\[hold rmb]|\\[右]|\\[右長押し]|right-click|右クリック")
     private val RELOAD = Regex("reload|リロード")
     private val COMPASS = Regex("compass|コンパス")
     private val PICKAXE = Regex("pickaxe|ツルハシ")

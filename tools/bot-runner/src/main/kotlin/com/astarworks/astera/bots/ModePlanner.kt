@@ -171,7 +171,10 @@ class ModePlanner(
     /** Hands and TNT as the mode itself reports them (when the facts know), instead of what the pickups inferred. */
     private fun syncFromFacts() {
         when (modeId) {
-            "carry-tnt" -> facts.tnt()?.let { holdingTnt = it.carrierName == botName }
+            "carry-tnt" -> facts.tnt()?.let {
+                // A carrier whose name is unknown (client view) leaves the pickup-confirmed state alone while the own team carries.
+                holdingTnt = if (it.carrierName != null) it.carrierName == botName else it.carrierTeam == ownTeam && holdingTnt
+            }
             "carry-mini-tnt", "steal-jewelry" -> facts.carriedBy(botName)?.let { carried = it }
         }
     }

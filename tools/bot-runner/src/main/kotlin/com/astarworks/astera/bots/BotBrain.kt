@@ -422,6 +422,7 @@ class BotBrain(
         planner?.let { pl ->
             val markers = bot.entities.values.filter { bot.entityTextsById[it.id]?.contains(ModePlanner.LOOSE_TAG) == true }.map { it.x to it.z }
             observed?.update(markers, sightings())
+            observed?.updateRainmaker(bot.bossBars.values.map { it.title }, glowingPlayers())
             pl.noteRoster(roster())
             pl.noteMarkers(bot.entities.values.filter { bot.entityTextsById[it.id]?.contains(ModePlanner.LOOSE_TAG) == true }.map { it.x to it.z })
             pl.noteConfirmed(bot.sounds.count { it.contains("objective/pickup") })
@@ -522,6 +523,13 @@ class BotBrain(
         }
     }
 
+    /** Every player entity with the glowing flag (0x40): the carry-tnt carrier glows. Self counts, at its own position. */
+    private fun glowingPlayers(): List<GlowingPlayer> =
+        bot.entities.values.filter { it.type == "PLAYER" && ((bot.entityFlags[it.id] ?: 0) and 0x40) != 0 }.map { e ->
+            val self = e.id == bot.selfEntityId
+            GlowingPlayer(if (self) bot.name else bot.playerNames[e.uuid], if (self) bot.x else e.x, if (self) bot.z else e.z)
+        }
+
     private fun sightings(): List<Sighting> {
         val myTeam = bot.teamOf(bot.name)?.first
         return bot.entities.values.filter { it.type == "PLAYER" && it.id != bot.selfEntityId }.mapNotNull { e ->
@@ -546,6 +554,7 @@ class BotBrain(
             id,
             solidAt = { x, y, z -> bot.terrain.isSolid(x, y, z) },
             pillarBlock = { team, tier -> world.pillars().firstOrNull { it.team == team && it.tier == tier }?.let { Triple(it.x, it.y, it.z) } },
+            tntSpawn = world.point(ModePlanner.TNT_SPAWN)?.let { it.first to it.third },
         ).also { observed = it }
         val modeFacts = src.modeFacts(facts, originX, originZ) ?: facts
         return ModePlanner(id, bot.name, own, src.teams().filter { it != own }, world, facts = modeFacts).takeIf { it.handles() }
