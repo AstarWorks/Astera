@@ -49,6 +49,16 @@ class WorldOpScenarioTest : SkillEngineScenario() {
     }
 
     @Test
+    fun worldRowSitsAtItsOwnTickNotDoubleShifted() {
+        val src = skill("{id: b, op: break_area, anchor: body, shape: {sphere: {radius: 1.0, ahead: 0.0}}, tool: none, block_damage: 100, ripple: 0, revert: 200, outside_arena: false}")
+            .replace("at: 0", "at: 7")
+        val r = loadInline(src)
+        assertThat(r).isInstanceOf(Result.Success::class.java)
+        val ticks = (r as Result.Success).value.table.states.flatMap { it.rows }.filter { it.action is Action.World }.map { it.tick }
+        assertThat(ticks).containsExactly(7)
+    }
+
+    @Test
     fun breakAreaRippleOrderNearestFirst() {
         val world = FakeSkillWorldGateway()
         stoneBlock(world, -4, 4)
