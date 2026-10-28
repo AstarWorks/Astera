@@ -48,7 +48,7 @@ public object ExprClassifier {
         val text = STRING.replace(source.trim().removePrefix("=")) { " ".repeat(it.value.length) }
         val idents = IDENT.findAll(text).map { it.value }.toList()
         val usesTime = idents.any { it in TIME_VARS }
-        val usesRuntimePosition = idents.any { id -> id.contains('.') && id.substringBefore('.') in V3Bindings.RUNTIME_POSITION_ROOTS }
+        val usesRuntimePosition = idents.any { V3Bindings.isRuntimePosition(it) }
         val usesRand = RAND.containsMatchIn(text)
         var live = false
         for (m in CALL.findAll(text)) {
@@ -109,7 +109,7 @@ public object ExprClassifier {
             a.usesRand -> "rand / roll / draw are random per cast; a random delay is a value in a non-timing field, never a time (C5, R11)"
             a.usesTime -> "t / lt change every tick; timing is resolved to integers at compile time (C5)"
             a.usesLive -> "a live (class L) value, with or without a bound, cannot schedule anything; use until: / range: (C5)"
-            a.usesRuntimePosition -> "contact / target / caster positions are only known at run time (C4c, C5)"
+            a.usesRuntimePosition -> "contact / target / caster / event.victim positions are only known at run time (C4c, C5)"
             else -> null
         }
         if (why != null) return Result.Failure(SkillDecodeError.RuntimeTiming(path, field, why, lc.skillId))
