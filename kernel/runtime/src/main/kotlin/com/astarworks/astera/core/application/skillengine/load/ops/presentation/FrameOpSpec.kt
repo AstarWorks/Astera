@@ -121,7 +121,6 @@ public object FrameOpSpec : OpSpec<FrameOp> {
         val t = op.timing
         // A family is `times` WITHOUT `every`; with `every` the unroller owns the repeat and each occurrence is one frame (2.0, rev4.1).
         val family: Int? = if (t?.times != null && t.every == null) staticTicks(lc, ctx, "$src.times", "times", t.times) else null
-        val count = family ?: 1
 
         val item = if (op.part != null) {
             lc.skills.skill(lc.skillId)?.item
@@ -134,18 +133,15 @@ public object FrameOpSpec : OpSpec<FrameOp> {
 
         val life: Int? = lifeTicks(op, lc, ctx, src)
         val rows = ArrayList<Row>()
-        val instances = ArrayList<InstanceId>()
         val writes = LinkedHashMap<InstanceId, WriteStats>()
         var basis = if (op.motion != null) ExprClass.T else ExprClass.S
 
-        // The family base: instance prefix + the op id; members append `[k]`.
-        val prefix = lc.self.path
-        val declared = InstanceId(prefix + InstanceId.Segment(op.id, null))
-
-        for (k in 0 until count) {
-            val occ = Occurrence(k, count, lc.occurrence)
+        // The unroller owns every repetition and id (item 5): this call lowers exactly one instance, `lc.self`.
+        val instance = lc.self
+        val declared = InstanceId(instance.path.dropLast(1) + InstanceId.Segment(op.id, null))
+        val occ = lc.occurrence
+        run {
             val ev = Evaluator(lc, ctx, occ)
-            val instance = InstanceId(prefix + InstanceId.Segment(op.id, if (family != null) k else null))
             val scope = (lc.anchors as? AnchorRegistry)?.at(occ) ?: lc.anchors
 
             val parent = resolveParent(op.anchor, scope, src, ctx)
@@ -172,13 +168,11 @@ public object FrameOpSpec : OpSpec<FrameOp> {
                 segments = keyRows.size
             }
             if (life != null) rows += Row(life, instance, Action.End(instance), lc.src)
-
-            instances += instance
             writes[instance] = WriteStats(segments, if (segments > 0) 1 else 0)
         }
 
         (lc.anchors as? AnchorRegistry)?.declare(declared, family, basis)
-        return Lowered(rows = rows, instances = instances, writes = writes)
+        return Lowered(rows = rows, instances = listOf(instance), writes = writes)
     }
 
     /** End tick of one frame: `lasts` when it repeats, else `for`; `for: cast` / `until` / no `for` leave the end to the owner and the unroller. */

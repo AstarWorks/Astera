@@ -67,12 +67,8 @@ internal object CasterMotion {
 
     fun known(value: Any): Val<Any> = Val.Known(value)
 
-    /** The op's own instance: the prefix itself when it already ends in the op, else the prefix plus the op segment. */
-    fun instance(op: OpNode, lc: LowerContext): InstanceId {
-        val last = lc.self.path.lastOrNull()
-        return if (last != null && last.op == op.id) lc.self
-        else InstanceId(lc.self.path + InstanceId.Segment(op.id, null))
-    }
+    /** The op's own instance: the unroller builds it into [LowerContext.self] (ADR-0303 item 5). */
+    fun instance(@Suppress("UNUSED_PARAMETER") op: OpNode, lc: LowerContext): InstanceId = lc.self
 
     fun row(tick: Int, instance: InstanceId, op: OpId, lc: LowerContext, payload: Map<String, Val<Any>>): Row =
         Row(tick, instance, Action.Effect(op, payload), lc.src)

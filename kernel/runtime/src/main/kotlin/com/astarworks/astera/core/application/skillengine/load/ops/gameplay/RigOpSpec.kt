@@ -54,8 +54,7 @@ public class RigOp(
     public val tilt: Vector3d,
     public val rest: Vector3d,
     public val swing: List<SwingStep>,
-    public val bladeItem: String?,
-    public val bladePart: String?,
+        public val bladePart: String?,
     public val sampleTicks: Int,
     public val duration: Value<Double>,
     public val respectHitStop: Boolean,
@@ -75,8 +74,7 @@ public object RigOpSpec : OpSpec<RigOp> {
     private val rest = Field.optional("rest", Rotations.type, Rotation.Turns(emptyList()), "rest orientation of the model (literal turns)")
     private val swing = Field.optional("swing", RigSwings.type, emptyList(), "edge-travel steps: from / via / to, edge leading|trailing")
 
-    private val bladeItem = Field.optional("item", Types.nullable(Types.id), null, "item whose frames table gives the blade axes (needed with swing)")
-    private val bladePart = Field.optional("part", Types.nullable(Types.id), null, "model part of that item; absent = held")
+    private val bladePart = Field.optional("part", Types.nullable(Types.id), null, "part of the skill item's content/frames/<item>.yaml; absent = held")
     private val sampleTicks = Field.optional("sample_ticks", Types.number, Value.Literal(2.0), "ticks between key samples, >= 1")
     private val respectHitStop = Field.optional("respect_hit_stop", Types.bool, Value.Literal(false), "the rig freezes during hit-stop")
     private val bodyRespectHitStop = Field.optional("body_respect_hit_stop", Types.bool, Value.Literal(false), "the body freezes during hit-stop")
@@ -93,7 +91,7 @@ public object RigOpSpec : OpSpec<RigOp> {
     override val section: OpSection = OpSection.GAMEPLAY
     override val timing: TimingKind? = TimingKind.EXTENDED
     override val fields: Fields = Fields.of(
-        "rig", parent, anim, hand, pivot, tilt, rest, swing, bladeItem, bladePart, sampleTicks,
+        "rig", parent, anim, hand, pivot, tilt, rest, swing, bladePart, sampleTicks,
         respectHitStop, bodyRespectHitStop, freezes, tip, root, edge,
     )
 
@@ -124,7 +122,6 @@ public object RigOpSpec : OpSpec<RigOp> {
             val sample = ctx.resolveNumber(values[sampleTicks])?.toInt() ?: ctx.fail("$path.sample_ticks", "must be a number known at load")
             if (sample < 1) ctx.fail("$path.sample_ticks", "must be >= 1")
             val steps = values[swing]
-            if (steps.isNotEmpty() && values[bladeItem] == null) ctx.fail("$path.item", "a swing needs 'item' (and optionally 'part') to read the blade axes from the frames table")
             val frz = values[freezes].mapIndexed { i, f ->
                 val a = ctx.resolveNumber(f[freezeAt])?.toInt() ?: ctx.fail("$path.freezes[$i].at", "must be a number known at load")
                 val t = ctx.resolveNumber(f[freezeTicks])?.toInt() ?: ctx.fail("$path.freezes[$i].ticks", "must be a number known at load")
@@ -134,13 +131,15 @@ public object RigOpSpec : OpSpec<RigOp> {
             RigOp(
                 id, src, whenExpr, timing, values[parent], values[anim], flag(hand), values[pivot],
                 rotationVector(values[tilt], ctx, "$path.tilt"), rotationVector(values[rest], ctx, "$path.rest"),
-                steps, values[bladeItem], values[bladePart], sample, duration,
+                steps, values[bladePart], sample, duration,
                 flag(respectHitStop), flag(bodyRespectHitStop), frz, values[tip], values[root], values[edge],
             )
         }
 
     override fun lower(op: RigOp, lc: LowerContext): Result<Lowered, SkillDecodeError> {
         val path = lc.src.value
+        val item = lc.item?.takeIf { it != "any" }
+            ?: return Result.Failure(SkillDecodeError.Invalid(lc.skillId, path, "rig needs a concrete item: set the skill's item: (not any) so the rig can read content/frames/<item>.yaml"))
         val duration = when (val d = lc.requireStaticTiming(path, "for", op.duration)) {
             is Result.Success -> d.value
             is Result.Failure -> return d
@@ -154,7 +153,6 @@ public object RigOpSpec : OpSpec<RigOp> {
         val keys = if (op.swing.isEmpty()) {
             emptyList()
         } else {
-            val item = op.bladeItem!!
             val part = lc.frames.item(item)?.partFor(op.bladePart)
                 ?: return Result.Failure(SkillDecodeError.UndefinedReference(lc.skillId, path, op.bladePart?.let { "$item.$it" } ?: item))
             val long = part.axes["long"] ?: return Result.Failure(SkillDecodeError.Invalid(lc.skillId, path, "frames of '$item' part '${part.name}' declare no 'long' axis"))

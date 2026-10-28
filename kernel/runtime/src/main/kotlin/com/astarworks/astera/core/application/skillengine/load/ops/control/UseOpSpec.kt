@@ -132,7 +132,7 @@ private object UseLowering {
                 return Result.failure(SkillDecodeError.UndefinedReference(lc.skillId, "$at.frames.$k", v))
             }
         }
-        val callId = InstanceId(lc.self.path + InstanceId.Segment(op.id, null))
+        val callId = lc.self
         val with = LinkedHashMap<String, Val<Any>>()
         for ((name, spec) in part.params) {
             val v = if (name in op.args) op.args[name] else spec.default
