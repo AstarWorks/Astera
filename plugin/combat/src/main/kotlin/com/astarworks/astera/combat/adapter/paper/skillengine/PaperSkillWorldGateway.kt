@@ -4,6 +4,7 @@ import com.astarworks.astera.combat.application.port.outbound.IBlockEditGuard
 import com.astarworks.astera.core.application.port.outbound.IBlockStateGateway
 import com.astarworks.astera.core.application.port.outbound.ICustomBlockRegistry
 import com.astarworks.astera.core.application.port.outbound.IStructureTargets
+import com.astarworks.astera.core.application.port.outbound.lobby.ILobbyToolBay
 import com.astarworks.astera.core.domain.world.ToolKind
 import com.astarworks.astera.core.domain.world.BlockType
 import com.astarworks.astera.core.application.skillengine.runtime.CastId
@@ -36,6 +37,8 @@ public class PaperSkillWorldGateway(
     private val covers: () -> ICustomBlockRegistry?,
     /** Lazy: Match registers the structure targets (Annihilation pillars) after Combat wires. */
     private val structures: () -> IStructureTargets? = { null },
+    /** Lazy: Core registers the lobby tool bay (MAP-A6) on lobby-hosting backends only. */
+    private val toolBay: () -> ILobbyToolBay? = { null },
 ) : ISkillWorldGateway {
 
     private fun block(cell: BlockCell): Block? = world()?.getBlockAt(cell.x, cell.y, cell.z)
@@ -47,6 +50,8 @@ public class PaperSkillWorldGateway(
     override fun canEdit(cast: CastId, cell: BlockCell, outsideArena: Boolean): Boolean {
         val w = world() ?: return false
         val owner = ownerOf(cast) ?: return false
+        // The lobby is protected except for the tool bay (MAP-A6): the bay policy outranks the outside-arena shortcut.
+        toolBay()?.editPolicy(worldId(w), cell.x, cell.y, cell.z)?.let { return it }
         if (outsideArena) return true
         return guard()?.canEdit(PlayerId(owner), worldId(w), pos(cell)) ?: true
     }
@@ -61,11 +66,19 @@ public class PaperSkillWorldGateway(
 
     override fun place(cell: BlockCell, blockKey: String) {
         val material = Material.matchMaterial(blockKey) ?: return
+        remember(cell)
         block(cell)?.setType(material, false)
     }
 
     override fun remove(cell: BlockCell) {
+        remember(cell)
         block(cell)?.setType(Material.AIR, false)
+    }
+
+    /** Journals a bay block before a raw edit so the bay restores it (no-op outside the bay). */
+    private fun remember(cell: BlockCell) {
+        val w = world() ?: return
+        toolBay()?.remember(worldId(w), cell.x, cell.y, cell.z)
     }
 
     override fun placeCover(cast: CastId, cell: BlockCell, blockKey: String): Boolean {

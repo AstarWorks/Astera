@@ -145,6 +145,7 @@ internal class SkillEnginePaperRuntime(
                 guard = { ports.blockEditGuard?.invoke(services) },
                 covers = { services.get<ICustomBlockRegistry>() },
                 structures = { services.get<IStructureTargets>() },
+                toolBay = { services.get<com.astarworks.astera.core.application.port.outbound.lobby.ILobbyToolBay>() },
             ),
             casterAnim = PaperSkillCasterAnimGateway(
                 rigs = { services.get<com.astarworks.astera.core.application.port.outbound.animation.ISkinRigAnimator>() },
