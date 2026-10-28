@@ -93,7 +93,7 @@ gameplay ops (`hit`, `damage`, `status`, `impulse`, `knockback`, `projectile`). 
 |---|---|
 | `at` | start: a tick (since cast start, or since the event inside a handler) or an event, with optional offset: `at: 8`, `at: release`, `at: "release+2"`. Inherited from the enclosing timeline group, overridable per op. |
 | `for` | duration in ticks of the op's window; `for: cast` = until the cast ends. **Extended kinds** (display, ribbon) without `every`: the instance lives `for` ticks. **Point kinds** (particle, sound, hit, damage) with `every`: the window in which they repeat. |
-| `every` | repeat period in ticks: occurrences at `at + k * every` (exact multiples, k = 0, 1, ...) inside the window. Absent = one occurrence. |
+| `every` | repeat period in ticks: occurrences at `at + k * every` (exact multiples, k = 0, 1, ...) inside the window. Absent = one occurrence. May be a range with an `ease` (3.7.1): `every: {from, to, ease}`, fire ticks computed statically. |
 | `times` | maximum number of occurrences (with `every`). |
 | `until` | an event; ends the window (and every live instance of an extended kind) the first time it fires. |
 | `lasts` | extended kinds WITH `every` only: how long each occurrence lives. Required there (no hidden default), so repeats cannot pile up. |
@@ -329,9 +329,14 @@ from `wp/se-grammar` `e5aedb5b0`); `mode` is required, the other fields are requ
 Displays anchored on `bolt` end with `until: end` (or `until: unstick` for a stuck prop) and follow the gameplay frame through the bounce; the
 bounce is a gameplay `move` reflection, the display needs no extra law.
 
-#### 3.7 Easing (every law, every key)
+#### 3.7 Easing: how anything advances over a window
 
-Every law (`move`, `spin`, `grow`, `fade`, `orbit`, `stretch`, `align`, `follow` blend, and every `prop` law of 3.4) and every `keys` segment takes `ease:`.
+**One rule, stated once: any value or rate that changes over a window takes `ease`.** It is not attached per kind. It applies to every law on any kind
+(display transform, particle `count`/`offset`/`extra`, sound `volume`/`pitch`, ribbon `width_frac`), to `keys` segments, to speed (a `move` law's `speed`, a
+`projectile`'s speed ramp: a dash that eases out, a shot that accelerates in), and to **timing itself** (the spacing of `every`, 3.7.1). If a quantity moves from
+one value to another across a window, the window's `ease` says how it advances.
+
+Every law (`move`, `spin`, `grow`, `fade`, `orbit`, `stretch`, `align`, `follow` blend, every `prop` law of 3.4) and every `keys` segment takes `ease:`.
 `linear` is the identity default (written in the field table, 2.0b). Names are the standard easing set:
 
 | family | names |
@@ -380,6 +385,15 @@ interpolates LINEARLY within `interpolation_duration`, so the curve is reproduce
 4. The sub-segment endpoints are sampled from `E`, so the first and last of the window always match the unmodified end values exactly.
 
 `expand` (11) prints, for each eased law, `m`, `h`, the max error and the writes, and the lint warns above one write per tick as it does for any T expression.
+
+#### 3.7.1 Speed and spacing take the same `ease`
+
+- **Speed**: `move {speed, for, ease}` follows the total rule (`displacement = velocity * for * E(u)`), so `ease: out_cubic` is a dash that decelerates and `in_quad` is
+  an acceleration. `projectile` takes `speed: {from, to, for, ease}` for a speed ramp (a shot that accelerates in): the speed at lt is `lerp(from, to, E(lt / for))`
+  and the path is the exact integral, computed at expand time (a T expression); the gameplay body and the display share it.
+- **Spacing (timing)**: `every` may be a range, `every: {from: 6, to: 2, ease: in_quad}`: the period shrinks from 6 to 2 ticks across the op's `for` window. The fire ticks are computed
+  STATICALLY at expand time by `t0 = at`, `t(k+1) = t(k) + max(1, round_half_up(lerp(from, to, E((t(k) - at) / for))))`, while `t(k) < at + for` (bounded by `times` if given), and listed in the table (11).
+  A plain number `every: M` keeps the exact-multiples rule of 2.0 and is the same as `from == to`, `ease: linear`. Spacing ease needs a finite `for` (an `until`-only window is a load error, as for any ease).
 
 **Particles and sounds** (fire-and-forget, 3.4): the law is sampled at each occurrence's `lt`; an eased `count`/`offset`/`extra`/`volume`/`pitch` changes the sampled value per
 occurrence and needs no segments; the occurrence train IS the sampling.
@@ -501,6 +515,7 @@ Sizes in the examples are illustrative: the converter computes them from the spr
 | `projectile {block_mode, stick_ticks, restitution, max_bounces, max_ticks}` | `projectile {for, block: {mode, for, restitution, times}}` | n/a (gameplay) |
 | literal-only numbers | any numeric/vector field accepts `"= CEL"` with `t`, `i`, `n`, `rand()`, axes, `caster/target/contact` | n/a |
 | (new) free `wait`/`seq` sequences | `for N, every M` is primary; `seq:` is sugar that desugars to the same ops, equality asserted by lint | n/a |
+| (new) eased spacing and speed ramps | `every: {from, to, ease}`, `projectile speed: {from, to, for, ease}`, `move ease`; fire ticks listed in the expansion table | n/a |
 | (new) per-law `ease` names | `ease: linear\|<in_\|out_\|in_out_><shape>\|cubic_bezier(..)\|steps(n)`; ease shapes the accumulated total (3.7) | n/a, sent as linear segments within the budget |
 | (new) L-expression timing | `bound: [lo, hi]` declared or load error (11) | n/a |
 | v1 part: `sequence` timeline groups, `window`, `delay`, `schedule`, event handlers (`on: hit/block/expire/reel/arrive`) | states with `for`/`then`, transitions, nested parts | n/a |
