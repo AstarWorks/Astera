@@ -7,11 +7,11 @@ import com.astarworks.astera.core.application.skillengine.load.ItemFrames
 import com.astarworks.astera.core.application.skillengine.load.MeshModel
 import com.astarworks.astera.core.application.skillengine.load.MeshModels
 import com.astarworks.astera.core.application.skillengine.runtime.port.ISkillVisualGateway
+import com.astarworks.astera.core.application.skillengine.runtime.port.MeshLook
 import com.astarworks.astera.core.application.skillengine.runtime.port.SpriteInfo
 import com.astarworks.astera.core.application.skillengine.runtime.port.VisualHandle
 import com.astarworks.astera.core.application.skillengine.runtime.port.VisualPose
 import com.astarworks.astera.core.domain.effect.DisplayBillboard
-import com.astarworks.astera.core.domain.effect.DisplayItemMode
 import com.astarworks.astera.core.domain.effect.DisplayKind
 import com.astarworks.astera.core.domain.effect.DisplaySpec
 import com.astarworks.astera.core.domain.effect.vfx.VfxLane
@@ -105,16 +105,16 @@ public class PaperSkillVisualGateway(
         val segments = ArrayDeque<Seg>()
     }
 
-    override fun spawnMesh(castOwner: UUID, item: String, part: String?, pose: VisualPose, brightness: Int?): VisualHandle {
+    override fun spawnMesh(castOwner: UUID, item: String, part: String?, pose: VisualPose, brightness: Int?, look: MeshLook): VisualHandle {
         val world = worldOf(castOwner) ?: return dead("mesh $item")
-        val heldItem = SkillDisplaySpecs.meshKind(MeshModels.resolve(item, part, frameTables)) == null
-        val kind = SkillDisplaySpecs.meshKind(MeshModels.resolve(item, part, frameTables)) ?: run {
+        val heldItem = SkillDisplaySpecs.meshKind(MeshModels.resolve(item, part, frameTables), look) == null
+        val kind = SkillDisplaySpecs.meshKind(MeshModels.resolve(item, part, frameTables), look) ?: run {
             val held = server.getPlayer(castOwner)?.inventory?.itemInMainHand?.takeUnless { it.type.isAir }
                 ?: return dead("mesh $item (empty main hand)")
-            DisplayKind.Item(ItemId(held.type.key.key.replace('_', '-')), DisplayItemMode.FIXED, held.itemMeta?.takeIf { it.hasItemModel() }?.itemModel?.toString())
+            DisplayKind.Item(ItemId(held.type.key.key.replace('_', '-')), look.mode, held.itemMeta?.takeIf { it.hasItemModel() }?.itemModel?.toString())
         }
         val first = toDisplayWrite(pose.frame, pose.size, Intrinsic.ITEM_FIXED, pose.billboard, 0)
-        val spec = SkillDisplaySpecs.mesh(kind, first.transform, brightness)
+        val spec = SkillDisplaySpecs.mesh(kind, first.transform, brightness, look.rigShading)
         val handle = spawnDisplay(world, castOwner, pose.frame.origin, spec, emptyList(), pose.anchorFeet != null, pose.lane) ?: return dead("mesh $item")
         if (heldItem) hideHand(castOwner)
         return register(castOwner, MeshEntry(handle, castOwner, heldItem))
@@ -176,10 +176,10 @@ public class PaperSkillVisualGateway(
         return register(castOwner, PlateEntry(handle, castOwner, sprite, intrinsic))
     }
 
-    override fun spawnBlock(castOwner: UUID, block: String, pose: VisualPose, brightness: Int?): VisualHandle {
+    override fun spawnBlock(castOwner: UUID, block: String, pose: VisualPose, brightness: Int?, rigShading: Boolean): VisualHandle {
         val world = worldOf(castOwner) ?: return dead("block $block")
         val first = toDisplayWrite(pose.frame, pose.size, Intrinsic.BLOCK, DisplayBillboard.FIXED, 0)
-        val spec = SkillDisplaySpecs.block(block, first.transform, brightness)
+        val spec = SkillDisplaySpecs.block(block, first.transform, brightness, rigShading)
         val handle = spawnDisplay(world, castOwner, pose.frame.origin, spec, emptyList(), pose.anchorFeet != null, pose.lane) ?: return dead("block $block")
         return register(castOwner, BlockEntry(handle, castOwner))
     }
@@ -388,10 +388,10 @@ public class PaperSkillVisualGateway(
 
     private companion object {
         val HAND = PresentationMask(hand = true)
+        val BODY = PresentationMask(hand = true, offhand = true, armor = true, body = true, pinPose = true)
 
         /** Font height (px) of a quad's drawn text: the vanilla default, 8 px = 0.2 blocks per text scale unit. */
         const val QUAD_TEXT_PX = 8
-        val BODY = PresentationMask(hand = true, offhand = true, armor = true, body = true, pinPose = true)
     }
 
     private fun worldOf(owner: UUID): World? {

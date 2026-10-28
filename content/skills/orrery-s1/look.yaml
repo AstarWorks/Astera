@@ -5,15 +5,15 @@ kind: Skill
 id: orrery-s1
 frames:
   - {id: fx1_orrery_crescent_a, kind: body, parent: world}
-  - {id: fx1_orrery_crescent_a_staff_at, kind: body, parent: caster.right_hand}
-  - {id: fx1_orrery_crescent_a_staff, kind: body, parent: fx1_orrery_crescent_a_staff_at}
+  - {id: fx1_orrery_crescent_a_staff, kind: body, parent: caster}
+  - {id: fx1_orrery_crescent_a_staff_parts, kind: body, parent: caster}
   - {id: pt_fx1_orrery_crescent_a_staff_0_1_0, kind: point, parent: fx1_orrery_crescent_a_staff, offset: [0.0, 1.0, 0.0]}
   - {id: pt_fx1_orrery_crescent_a_staff_0_2p1_0, kind: point, parent: fx1_orrery_crescent_a_staff, offset: [0.0, 2.1, 0.0]}
   - {id: pt_fx1_orrery_crescent_a_staff_0_1p65_0, kind: point, parent: fx1_orrery_crescent_a_staff, offset: [0.0, 1.65, 0.0]}
   - {id: fx2_orrery_ring_hit, kind: body, parent: world}
   - {id: fx3_orrery_crescent_b, kind: body, parent: world}
-  - {id: fx3_orrery_crescent_b_staff_at, kind: body, parent: caster.right_hand}
-  - {id: fx3_orrery_crescent_b_staff, kind: body, parent: fx3_orrery_crescent_b_staff_at}
+  - {id: fx3_orrery_crescent_b_staff, kind: body, parent: caster}
+  - {id: fx3_orrery_crescent_b_staff_parts, kind: body, parent: caster}
   - {id: pt_fx3_orrery_crescent_b_staff_0_1_0, kind: point, parent: fx3_orrery_crescent_b_staff, offset: [0.0, 1.0, 0.0]}
   - {id: pt_fx3_orrery_crescent_b_staff_0_2p3_0, kind: point, parent: fx3_orrery_crescent_b_staff, offset: [0.0, 2.3, 0.0]}
   - {id: pt_fx3_orrery_crescent_b_staff_0_1p65_0, kind: point, parent: fx3_orrery_crescent_b_staff, offset: [0.0, 1.65, 0.0]}
@@ -28,10 +28,9 @@ presentation:
         - id: fx1_orrery_crescent_a_staff_rig
           op: rig
           frame: fx1_orrery_crescent_a_staff
-          parent: fx1_orrery_crescent_a_staff_at
+          parent: caster
           duration: 17
-          hand: false
-          pivot: [1.900777, 0.294998, 0.294998]
+          pivot: [-0.3, 1.9, 0.3]
           tilt: [0.0, 0.0, 20.0]
           swing:
             - {t: 0, rotate: [65.0, 0.0, 0.0]}
@@ -53,17 +52,47 @@ presentation:
             - {t: 16, rotate: [-1.428571, 0.0, 0.0], sample: true}
             - {t: 17, rotate: [0.0, 0.0, 0.0]}
           sample_ticks: 1
-        - {id: fx1_orrery_crescent_a_staff_shaft, op: block, parent: fx1_orrery_crescent_a_staff, block: black_concrete, size: [0.1, 1.9, 0.1], at: [0.0, 0.45, 0.0]}
-        - {id: fx1_orrery_crescent_a_staff_lower_collar, op: block, parent: fx1_orrery_crescent_a_staff, block: gray_concrete, size: [0.16, 0.12, 0.16], at: [0.0, -0.25, 0.0]}
-        - {id: fx1_orrery_crescent_a_staff_upper_collar, op: block, parent: fx1_orrery_crescent_a_staff, block: gray_concrete, size: [0.16, 0.12, 0.16], at: [0.0, 1.1, 0.0]}
-        - {id: fx1_orrery_crescent_a_staff_emitter_housing, op: block, parent: fx1_orrery_crescent_a_staff, block: black_concrete, size: [0.32, 0.65, 0.28], at: [0.0, 1.6, 0.0]}
-        - {id: fx1_orrery_crescent_a_staff_emitter_cap, op: block, parent: fx1_orrery_crescent_a_staff, block: gray_concrete, size: [0.34, 0.08, 0.3], at: [0.0, 1.95, 0.0]}
-        - {id: fx1_orrery_crescent_a_staff_emitter_inset_front, op: block, parent: fx1_orrery_crescent_a_staff, block: orange_concrete, size: [0.15, 0.4, 0.025], at: [0.0, 1.6, -0.146]}
-        - {id: fx1_orrery_crescent_a_staff_emitter_inset_back, op: block, parent: fx1_orrery_crescent_a_staff, block: orange_concrete, size: [0.15, 0.4, 0.025], at: [0.0, 1.6, 0.146]}
-        - {id: fx1_orrery_crescent_a_staff_cable_upper, op: block, parent: fx1_orrery_crescent_a_staff, block: black_concrete, size: [0.28, 0.07, 0.07], at: [0.27, 1.3, 0.0]}
-        - {id: fx1_orrery_crescent_a_staff_cable_drop, op: block, parent: fx1_orrery_crescent_a_staff, block: black_concrete, size: [0.07, 1.16, 0.07], at: [0.42, 0.72, 0.0]}
-        - {id: fx1_orrery_crescent_a_staff_cable_bottom, op: block, parent: fx1_orrery_crescent_a_staff, block: black_concrete, size: [0.25, 0.07, 0.07], at: [0.3, 0.12, 0.0]}
-        - {id: fx1_orrery_crescent_a_staff_cable_return, op: block, parent: fx1_orrery_crescent_a_staff, block: black_concrete, size: [0.07, 0.35, 0.07], at: [0.16, 0.29, 0.0]}
+          respect_hit_stop: true
+        - id: fx1_orrery_crescent_a_staff_parts_rig
+          op: rig
+          frame: fx1_orrery_crescent_a_staff_parts
+          parent: caster
+          duration: 17
+          hand: false
+          pivot: [-0.3, 1.9, 0.3]
+          tilt: [0.0, 0.0, 20.0]
+          swing:
+            - {t: 0, rotate: [65.0, 0.0, 0.0]}
+            - {t: 1, rotate: [84.444444, 0.0, 0.0], sample: true}
+            - {t: 2, rotate: [96.111111, 0.0, 0.0], sample: true}
+            - {t: 3, rotate: [100.0, 0.0, 0.0]}
+            - {t: 4, rotate: [178.75, 0.0, 0.0], sample: true}
+            - {t: 5, rotate: [-125.0, 0.0, 0.0], sample: true}
+            - {t: 6, rotate: [-91.25, 0.0, 0.0], sample: true}
+            - {t: 7, rotate: [-80.0, 0.0, 0.0]}
+            - {t: 8, rotate: [-74.444444, 0.0, 0.0], sample: true}
+            - {t: 9, rotate: [-71.111111, 0.0, 0.0], sample: true}
+            - {t: 10, rotate: [-70.0, 0.0, 0.0]}
+            - {t: 11, rotate: [-51.428571, 0.0, 0.0], sample: true}
+            - {t: 12, rotate: [-35.714286, 0.0, 0.0], sample: true}
+            - {t: 13, rotate: [-22.857143, 0.0, 0.0], sample: true}
+            - {t: 14, rotate: [-12.857143, 0.0, 0.0], sample: true}
+            - {t: 15, rotate: [-5.714286, 0.0, 0.0], sample: true}
+            - {t: 16, rotate: [-1.428571, 0.0, 0.0], sample: true}
+            - {t: 17, rotate: [0.0, 0.0, 0.0]}
+          sample_ticks: 1
+          respect_hit_stop: true
+        - {id: fx1_orrery_crescent_a_staff_shaft, op: block, parent: fx1_orrery_crescent_a_staff_parts, block: black_concrete, size: [0.1, 1.9, 0.1], at: [0.0, 0.45, 0.0], rig_shading: true}
+        - {id: fx1_orrery_crescent_a_staff_lower_collar, op: block, parent: fx1_orrery_crescent_a_staff_parts, block: gray_concrete, size: [0.16, 0.12, 0.16], at: [0.0, -0.25, 0.0], rig_shading: true}
+        - {id: fx1_orrery_crescent_a_staff_upper_collar, op: block, parent: fx1_orrery_crescent_a_staff_parts, block: gray_concrete, size: [0.16, 0.12, 0.16], at: [0.0, 1.1, 0.0], rig_shading: true}
+        - {id: fx1_orrery_crescent_a_staff_emitter_housing, op: block, parent: fx1_orrery_crescent_a_staff_parts, block: black_concrete, size: [0.32, 0.65, 0.28], at: [0.0, 1.6, 0.0], rig_shading: true}
+        - {id: fx1_orrery_crescent_a_staff_emitter_cap, op: block, parent: fx1_orrery_crescent_a_staff_parts, block: gray_concrete, size: [0.34, 0.08, 0.3], at: [0.0, 1.95, 0.0], rig_shading: true}
+        - {id: fx1_orrery_crescent_a_staff_emitter_inset_front, op: block, parent: fx1_orrery_crescent_a_staff_parts, block: orange_concrete, size: [0.15, 0.4, 0.025], at: [0.0, 1.6, -0.146], rig_shading: true}
+        - {id: fx1_orrery_crescent_a_staff_emitter_inset_back, op: block, parent: fx1_orrery_crescent_a_staff_parts, block: orange_concrete, size: [0.15, 0.4, 0.025], at: [0.0, 1.6, 0.146], rig_shading: true}
+        - {id: fx1_orrery_crescent_a_staff_cable_upper, op: block, parent: fx1_orrery_crescent_a_staff_parts, block: black_concrete, size: [0.28, 0.07, 0.07], at: [0.27, 1.3, 0.0], rig_shading: true}
+        - {id: fx1_orrery_crescent_a_staff_cable_drop, op: block, parent: fx1_orrery_crescent_a_staff_parts, block: black_concrete, size: [0.07, 1.16, 0.07], at: [0.42, 0.72, 0.0], rig_shading: true}
+        - {id: fx1_orrery_crescent_a_staff_cable_bottom, op: block, parent: fx1_orrery_crescent_a_staff_parts, block: black_concrete, size: [0.25, 0.07, 0.07], at: [0.3, 0.12, 0.0], rig_shading: true}
+        - {id: fx1_orrery_crescent_a_staff_cable_return, op: block, parent: fx1_orrery_crescent_a_staff_parts, block: black_concrete, size: [0.07, 0.35, 0.07], at: [0.16, 0.29, 0.0], rig_shading: true}
     - id: fx20
       at: 20
       do:
@@ -103,10 +132,9 @@ presentation:
         - id: fx3_orrery_crescent_b_staff_rig
           op: rig
           frame: fx3_orrery_crescent_b_staff
-          parent: fx3_orrery_crescent_b_staff_at
+          parent: caster
           duration: 17
-          hand: false
-          pivot: [1.10078, 0.29711, 0.29711]
+          pivot: [-0.3, 1.1, 0.3]
           tilt: [0.0, 0.0, 20.0]
           swing:
             - {t: 0, rotate: [-65.0, 0.0, 0.0]}
@@ -128,17 +156,47 @@ presentation:
             - {t: 16, rotate: [26.734694, 0.0, 0.0], sample: true}
             - {t: 17, rotate: [25.0, 0.0, 0.0]}
           sample_ticks: 1
-        - {id: fx3_orrery_crescent_b_staff_shaft, op: block, parent: fx3_orrery_crescent_b_staff, block: black_concrete, size: [0.1, 1.9, 0.1], at: [0.0, 0.45, 0.0]}
-        - {id: fx3_orrery_crescent_b_staff_lower_collar, op: block, parent: fx3_orrery_crescent_b_staff, block: gray_concrete, size: [0.16, 0.12, 0.16], at: [0.0, -0.25, 0.0]}
-        - {id: fx3_orrery_crescent_b_staff_upper_collar, op: block, parent: fx3_orrery_crescent_b_staff, block: gray_concrete, size: [0.16, 0.12, 0.16], at: [0.0, 1.1, 0.0]}
-        - {id: fx3_orrery_crescent_b_staff_emitter_housing, op: block, parent: fx3_orrery_crescent_b_staff, block: black_concrete, size: [0.32, 0.65, 0.28], at: [0.0, 1.6, 0.0]}
-        - {id: fx3_orrery_crescent_b_staff_emitter_cap, op: block, parent: fx3_orrery_crescent_b_staff, block: gray_concrete, size: [0.34, 0.08, 0.3], at: [0.0, 1.95, 0.0]}
-        - {id: fx3_orrery_crescent_b_staff_emitter_inset_front, op: block, parent: fx3_orrery_crescent_b_staff, block: orange_concrete, size: [0.15, 0.4, 0.025], at: [0.0, 1.6, -0.146]}
-        - {id: fx3_orrery_crescent_b_staff_emitter_inset_back, op: block, parent: fx3_orrery_crescent_b_staff, block: orange_concrete, size: [0.15, 0.4, 0.025], at: [0.0, 1.6, 0.146]}
-        - {id: fx3_orrery_crescent_b_staff_cable_upper, op: block, parent: fx3_orrery_crescent_b_staff, block: black_concrete, size: [0.28, 0.07, 0.07], at: [0.27, 1.3, 0.0]}
-        - {id: fx3_orrery_crescent_b_staff_cable_drop, op: block, parent: fx3_orrery_crescent_b_staff, block: black_concrete, size: [0.07, 1.16, 0.07], at: [0.42, 0.72, 0.0]}
-        - {id: fx3_orrery_crescent_b_staff_cable_bottom, op: block, parent: fx3_orrery_crescent_b_staff, block: black_concrete, size: [0.25, 0.07, 0.07], at: [0.3, 0.12, 0.0]}
-        - {id: fx3_orrery_crescent_b_staff_cable_return, op: block, parent: fx3_orrery_crescent_b_staff, block: black_concrete, size: [0.07, 0.35, 0.07], at: [0.16, 0.29, 0.0]}
+          respect_hit_stop: true
+        - id: fx3_orrery_crescent_b_staff_parts_rig
+          op: rig
+          frame: fx3_orrery_crescent_b_staff_parts
+          parent: caster
+          duration: 17
+          hand: false
+          pivot: [-0.3, 1.1, 0.3]
+          tilt: [0.0, 0.0, 20.0]
+          swing:
+            - {t: 0, rotate: [-65.0, 0.0, 0.0]}
+            - {t: 1, rotate: [-73.333333, 0.0, 0.0], sample: true}
+            - {t: 2, rotate: [-78.333333, 0.0, 0.0], sample: true}
+            - {t: 3, rotate: [-80.0, 0.0, 0.0]}
+            - {t: 4, rotate: [-1.25, 0.0, 0.0], sample: true}
+            - {t: 5, rotate: [55.0, 0.0, 0.0], sample: true}
+            - {t: 6, rotate: [88.75, 0.0, 0.0], sample: true}
+            - {t: 7, rotate: [100.0, 0.0, 0.0]}
+            - {t: 8, rotate: [105.555556, 0.0, 0.0], sample: true}
+            - {t: 9, rotate: [108.888889, 0.0, 0.0], sample: true}
+            - {t: 10, rotate: [110.0, 0.0, 0.0]}
+            - {t: 11, rotate: [87.44898, 0.0, 0.0], sample: true}
+            - {t: 12, rotate: [68.367347, 0.0, 0.0], sample: true}
+            - {t: 13, rotate: [52.755102, 0.0, 0.0], sample: true}
+            - {t: 14, rotate: [40.612245, 0.0, 0.0], sample: true}
+            - {t: 15, rotate: [31.938776, 0.0, 0.0], sample: true}
+            - {t: 16, rotate: [26.734694, 0.0, 0.0], sample: true}
+            - {t: 17, rotate: [25.0, 0.0, 0.0]}
+          sample_ticks: 1
+          respect_hit_stop: true
+        - {id: fx3_orrery_crescent_b_staff_shaft, op: block, parent: fx3_orrery_crescent_b_staff_parts, block: black_concrete, size: [0.1, 1.9, 0.1], at: [0.0, 0.45, 0.0], rig_shading: true}
+        - {id: fx3_orrery_crescent_b_staff_lower_collar, op: block, parent: fx3_orrery_crescent_b_staff_parts, block: gray_concrete, size: [0.16, 0.12, 0.16], at: [0.0, -0.25, 0.0], rig_shading: true}
+        - {id: fx3_orrery_crescent_b_staff_upper_collar, op: block, parent: fx3_orrery_crescent_b_staff_parts, block: gray_concrete, size: [0.16, 0.12, 0.16], at: [0.0, 1.1, 0.0], rig_shading: true}
+        - {id: fx3_orrery_crescent_b_staff_emitter_housing, op: block, parent: fx3_orrery_crescent_b_staff_parts, block: black_concrete, size: [0.32, 0.65, 0.28], at: [0.0, 1.6, 0.0], rig_shading: true}
+        - {id: fx3_orrery_crescent_b_staff_emitter_cap, op: block, parent: fx3_orrery_crescent_b_staff_parts, block: gray_concrete, size: [0.34, 0.08, 0.3], at: [0.0, 1.95, 0.0], rig_shading: true}
+        - {id: fx3_orrery_crescent_b_staff_emitter_inset_front, op: block, parent: fx3_orrery_crescent_b_staff_parts, block: orange_concrete, size: [0.15, 0.4, 0.025], at: [0.0, 1.6, -0.146], rig_shading: true}
+        - {id: fx3_orrery_crescent_b_staff_emitter_inset_back, op: block, parent: fx3_orrery_crescent_b_staff_parts, block: orange_concrete, size: [0.15, 0.4, 0.025], at: [0.0, 1.6, 0.146], rig_shading: true}
+        - {id: fx3_orrery_crescent_b_staff_cable_upper, op: block, parent: fx3_orrery_crescent_b_staff_parts, block: black_concrete, size: [0.28, 0.07, 0.07], at: [0.27, 1.3, 0.0], rig_shading: true}
+        - {id: fx3_orrery_crescent_b_staff_cable_drop, op: block, parent: fx3_orrery_crescent_b_staff_parts, block: black_concrete, size: [0.07, 1.16, 0.07], at: [0.42, 0.72, 0.0], rig_shading: true}
+        - {id: fx3_orrery_crescent_b_staff_cable_bottom, op: block, parent: fx3_orrery_crescent_b_staff_parts, block: black_concrete, size: [0.25, 0.07, 0.07], at: [0.3, 0.12, 0.0], rig_shading: true}
+        - {id: fx3_orrery_crescent_b_staff_cable_return, op: block, parent: fx3_orrery_crescent_b_staff_parts, block: black_concrete, size: [0.07, 0.35, 0.07], at: [0.16, 0.29, 0.0], rig_shading: true}
     - id: fx51
       at: 51
       do:

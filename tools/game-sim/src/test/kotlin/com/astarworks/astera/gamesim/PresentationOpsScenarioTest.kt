@@ -119,6 +119,8 @@ class PresentationOpsScenarioTest {
     private val teleports = HashMap<Long, Int?>()
     private val spawnedBillboards = HashMap<Long, com.astarworks.astera.core.domain.effect.DisplayBillboard>()
     private val lines = HashSet<Long>()
+    private val meshLooks = ArrayList<com.astarworks.astera.core.application.skillengine.runtime.port.MeshLook>()
+    private val blockShading = ArrayList<Boolean>()
     private fun ends(pose: VisualPose): Pair<Vec3, Vec3> {
         val half = pose.frame.directionToWorld(Vec3(1.0, 0.0, 0.0)) * (pose.size.x / 2.0)
         return (pose.frame.origin - half) to (pose.frame.origin + half)
@@ -137,13 +139,13 @@ class PresentationOpsScenarioTest {
     private val visuals = object : ISkillVisualGateway {
     override fun setTrailShape(handle: com.astarworks.astera.core.application.skillengine.runtime.port.VisualHandle, bands: List<com.astarworks.astera.core.domain.skillengine.op.TrailBand>, edge: com.astarworks.astera.core.domain.skillengine.op.TrailEdge?, rim: com.astarworks.astera.core.domain.skillengine.op.TrailRim?, stepDeg: Double, doubleSided: Boolean) {}
         private fun h(kind: String): VisualHandle { calls += kind; return VisualHandle(nextHandle++) }
-        override fun spawnMesh(castOwner: UUID, item: String, part: String?, pose: VisualPose, brightness: Int?) =
-            h("mesh:$item").also { poses[it.id] = pose.frame; scales[it.id] = pose.size.x; lanes[it.id] = pose.lane }
+        override fun spawnMesh(castOwner: UUID, item: String, part: String?, pose: VisualPose, brightness: Int?, look: com.astarworks.astera.core.application.skillengine.runtime.port.MeshLook) =
+            h("mesh:$item").also { poses[it.id] = pose.frame; scales[it.id] = pose.size.x; meshLooks += look; lanes[it.id] = pose.lane }
         override fun spawnSkinBone(castOwner: UUID, bone: com.astarworks.astera.core.domain.animation.skinrig.SkinRigBone, slim: Boolean, ghost: Boolean, pose: VisualPose) =
             h("skin_bone:${bone.yamlName}").also { poses[it.id] = pose.frame; scales[it.id] = pose.size.x }
         override fun spawnPlate(castOwner: UUID, sprite: String, alpha: Double, pose: VisualPose, brightness: Int?) =
             h("plate:$sprite").also { poses[it.id] = pose.frame; scales[it.id] = pose.size.x; spawnedBillboards[it.id] = pose.billboard }
-        override fun spawnBlock(castOwner: UUID, block: String, pose: VisualPose, brightness: Int?) = h("block").also { poses[it.id] = pose.frame; scales[it.id] = pose.size.x }
+        override fun spawnBlock(castOwner: UUID, block: String, pose: VisualPose, brightness: Int?, rigShading: Boolean) = h("block").also { poses[it.id] = pose.frame; scales[it.id] = pose.size.x; blockShading += rigShading }
         override fun spawnQuad(castOwner: UUID, colorHex: String, alpha: Double, text: String?, shadow: Boolean, seeThrough: Boolean, pose: VisualPose, brightness: Int?) = h("quad").also { poses[it.id] = pose.frame; scales[it.id] = pose.size.x }
         override fun spawnLine(castOwner: UUID, colorHex: String, pose: VisualPose) =
             h("line:$colorHex").also { lineEnds[it.id] = ends(pose); lines += it.id }
@@ -295,6 +297,29 @@ class PresentationOpsScenarioTest {
     }
 
     @Test
+    fun `mesh carries item_model display_mode and rig_shading to the gateway and a rig part block sits at its offset`() {
+        val mesh = decode("mesh", mapOf("frame" to "volley", "item" to "minecraft:iron_nugget", "item_model" to "astera:bolt", "display_mode" to "none", "rig_shading" to false)) as VisualOp.Mesh
+        assertThat(mesh.itemModel).isEqualTo("astera:bolt")
+        assertThat(mesh.displayMode).isEqualTo(com.astarworks.astera.core.domain.effect.DisplayItemMode.NONE)
+        assertThatThrownBy { decode("mesh", mapOf("frame" to "volley", "item" to "minecraft:stick", "display_mode" to "sideways")) }.isInstanceOf(IllegalArgumentException::class.java)
+        run(mesh)
+        val look = meshLooks.single()
+        assertThat(look.itemModel).isEqualTo("astera:bolt")
+        assertThat(look.mode).isEqualTo(com.astarworks.astera.core.domain.effect.DisplayItemMode.NONE)
+        assertThat(look.rigShading).isFalse()
+
+        // A rig part: a block at `at` in its rig frame, lit by the weapon-rig shader rule.
+        val part = decode("block", mapOf("id" to "part", "parent" to "volley", "block" to "iron_block", "size" to listOf(1.0, 1.0, 1.0),
+            "at" to listOf(0.0, 0.0, 2.0), "rig_shading" to true)) as VisualOp.Block
+        run(part)
+        assertThat(blockShading.single()).isTrue()
+        val origin = poses.getValue(2L).origin
+        near(origin.x, 5.0)
+        near(origin.y, 2.0)
+        near(origin.z, 2.0)
+    }
+
+    @Test
     fun `decoders cover every presentation op and a plate has exactly two face modes`() {
         val names = presentationDecoders().flatMap { it.opNames }.toSet()
         assertThat(names).containsExactlyInAnyOrder(
@@ -404,7 +429,7 @@ class PresentationOpsScenarioTest {
             ),
         )
         val frames = tree.snapshot()
-        tick(1) // the pose pushed now is on screen next tick, so it already carries tick 2 of the track
+        tick(3) // cast tick 2 pushes the value of key tick 2 (v1 VfxPlayer.kt:365-375 age++, :429 `u.tick <= age`)
         assertThat(poses[1]!!.origin.y).isCloseTo(3.0, Offset.offset(1e-9)) // 2.0 base + 1.0 (half of 2.0)
         near(scales[1]!!, 2.0)
         tick(10)
@@ -482,15 +507,12 @@ class PresentationOpsScenarioTest {
     // ---- SKL-14 restored v1 behaviour --------------------------------------------------------------
 
     @Test
-    fun `pose lag - a keyframe at tick N is the pose pushed on tick N-1 so the player sees it at tick N`() {
+    fun `track clock - a keyframe at tick N is the pose pushed on tick N`() {
         run(VisualOp.Mesh("m", null, "shears", "couture-shears", null, null))
         run(VisualOp.Track("t", null, "m", listOf(TrackKey(0, v(0.0, 0.0, 0.0), null, null, null), TrackKey(5, v(0.0, 5.0, 0.0), null, null, null)), null))
-        // the gateway interpolates one tick: what is pushed during tick k is displayed at tick k+1
-        val shown = (1..6).map { tick(); near(0.0, 0.0); poses[1]!!.origin.y - 2.0 }
-        // pushed at tick 1..6 -> shown at tick 2..7: tick N shows key value N (offset N), capped at the last key (5)
-        assertThat(shown.map { Math.round(it * 1000) / 1000.0 }).containsExactly(2.0, 3.0, 4.0, 5.0, 5.0, 5.0)
-        // and tick 1 shows 1.0: it was the spawn pose + the tick-0 push, i.e. the first push already looks one tick ahead
-        assertThat(shown.first()).isEqualTo(2.0)
+        // v1 advances the element age once per tick and pushes every update with `tick <= age` on that tick (VfxPlayer.kt:365-375, :429)
+        val shown = (1..6).map { tick(); poses[1]!!.origin.y - 2.0 }
+        assertThat(shown.map { Math.round(it * 1000) / 1000.0 }).containsExactly(0.0, 1.0, 2.0, 3.0, 4.0, 5.0)
     }
 
     @Test

@@ -1,5 +1,6 @@
 package com.astarworks.astera.core.domain.skillengine.op
 
+import com.astarworks.astera.core.domain.effect.DisplayItemMode
 import com.astarworks.astera.core.domain.effect.vfx.VfxLane
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.skillengine.model.AxisRef
@@ -51,6 +52,12 @@ public sealed interface VisualOp : PresentationOp {
         val tilt: Value<Vec3>? = null,
         /** Vanilla Display.brightness 0..15 (block and sky light together); null = lit by the world. */
         val brightness: Int? = null,
+        /** Resource-pack item model key set on the item (vanilla `item_model` component); null = the item's own model (or the resolved pack model of [item]). */
+        val itemModel: String? = null,
+        /** Vanilla ItemDisplayContext the model is drawn in; null = FIXED. */
+        val displayMode: DisplayItemMode? = null,
+        /** True = lit by the weapon-rig shader rule when [brightness] is null (a held weapon); false = lit by the world. */
+        val rigShading: Boolean = true,
         /** Per-viewer quality class (v1 `lane`): which viewers are shown this display. */
         val lane: VfxLane = VfxLane.CORE,
     ) : VisualOp
@@ -95,6 +102,8 @@ public sealed interface VisualOp : PresentationOp {
         val turn: Value<Vec3>? = null,
         val brightness: Int? = null,
         val repeat: Repeat? = null,
+        /** True = lit by the weapon-rig shader rule when [brightness] is null; false = lit by the world. */
+        val rigShading: Boolean = false,
         val lane: VfxLane = VfxLane.CORE,
     ) : VisualOp
 

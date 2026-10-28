@@ -49,9 +49,6 @@ public class PresentationRuntime(
         /** Client interpolation length of every per-tick display write. */
         const val DISPLAY_TICKS: Int = 1
 
-        /** The client shows a write one tick later (interpolation), so a track is sampled one tick ahead: key N is on screen at tick N (v1 SKL-14). */
-        const val DISPLAY_LEAD: Int = 1
-
         /** v1 `VfxTimeline.ANIMATION_DELAY_TICKS`: a target weight is read one tick behind the element clock (VfxPlayer.kt:426). */
         const val PULL_DELAY: Int = 1
         const val MAX_FRAME_DEPTH: Int = 64
@@ -120,7 +117,9 @@ public class PresentationRuntime(
         }
 
         /** A block display on a node: per-axis [size] in blocks, base local origin [at] and base turn [turn]. */
-        class Block(override val opId: String, val parent: String, val size: Vec3, val at: Vec3, val turn: Quaternion) : Live()
+        class Block(
+            override val opId: String, val parent: String, val size: Vec3, val at: Vec3, val turn: Quaternion,
+        ) : Live()
 
         /** A text-display quad on a node: [size] = (width, height) in blocks (a text glyph: blocks per text unit). */
         class Quad(
@@ -174,6 +173,7 @@ public class PresentationRuntime(
 
         /** Ids of the group nodes made for repeated displays. */
         val groups = LinkedHashSet<String>()
+
         val rigs = ArrayList<RigPerformer>()
     }
 
@@ -393,6 +393,12 @@ public class PresentationRuntime(
 
     private class Tracked(val offset: Vec3, val turn: Quaternion, val scale: Vec3)
 
+    /**
+     * Ticks since [t] started, on the cast tick being processed (`s.tick` was advanced at the top of [tickCast]): the key of tick N is
+     * the value written on tick N, as v1's element clock does (VfxPlayer.kt:335-338 ticker, :365-375 `age++`, :429 `u.tick <= age`).
+     */
+    private fun castElapsed(s: CastState, t: TrackState): Int = s.tick - 1 - t.startTick
+
     /** Sum of every track on [target] at this tick; offsets are expressed in the track's space and returned in the parent's axes. */
     private fun tracked(s: CastState, target: String, parentW: Frame, group: String? = null): Tracked {
         var offset = Vec3.ZERO
@@ -400,7 +406,7 @@ public class PresentationRuntime(
         var scale = ONE
         for (t in s.tracks.values) {
             if (t.op.target != target && (group == null || t.op.target != group)) continue
-            val sample = sampleTrack(s, t, s.tick - t.startTick + DISPLAY_LEAD)
+            val sample = sampleTrack(s, t, castElapsed(s, t))
             val space = t.op.space?.let { frameWorld(s, it) } ?: parentW
             offset += parentW.rotation.conjugate().rotate(space.directionToWorld(sample.offset))
             turn = (turn * sample.turn).normalized()
@@ -608,7 +614,7 @@ public class PresentationRuntime(
         var block: String? = null
         for (t in s.tracks.values) {
             if (t.op.target != l.opId && (group == null || t.op.target != group)) continue
-            val look = sampleLook(s, t, s.tick - t.startTick + DISPLAY_LEAD)
+            val look = sampleLook(s, t, castElapsed(s, t))
             look.alpha?.let { alpha = it }
             look.color?.let { color = it }
             look.block?.let { block = it }

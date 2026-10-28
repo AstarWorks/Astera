@@ -6,15 +6,15 @@ id: gossamer-katana-s2
 frames:
   - {id: fx1_gossamer_katana_echo, kind: body, parent: world}
   - {id: fx2_gossamer_katana_echo_cut, kind: body, parent: world}
-  - {id: fx2_gossamer_katana_echo_cut_katana_at, kind: body, parent: caster.right_hand}
-  - {id: fx2_gossamer_katana_echo_cut_katana, kind: body, parent: fx2_gossamer_katana_echo_cut_katana_at}
+  - {id: fx2_gossamer_katana_echo_cut_katana, kind: body, parent: caster}
+  - {id: fx2_gossamer_katana_echo_cut_katana_parts, kind: body, parent: caster}
   - {id: pt_fx2_gossamer_katana_echo_cut_katana_0_1p25_0, kind: point, parent: fx2_gossamer_katana_echo_cut_katana, offset: [0.0, 1.25, 0.0]}
   - {id: pt_fx2_gossamer_katana_echo_cut_katana_0_2p1_0, kind: point, parent: fx2_gossamer_katana_echo_cut_katana, offset: [0.0, 2.1, 0.0]}
   - {id: fx3_gossamer_katana_petals, kind: body, parent: world}
   - {id: fx4_gossamer_katana_petals, kind: body, parent: world}
   - {id: fx5_gossamer_katana_slash_down, kind: body, parent: world}
-  - {id: fx5_gossamer_katana_slash_down_katana_at, kind: body, parent: caster.right_hand}
-  - {id: fx5_gossamer_katana_slash_down_katana, kind: body, parent: fx5_gossamer_katana_slash_down_katana_at}
+  - {id: fx5_gossamer_katana_slash_down_katana, kind: body, parent: caster}
+  - {id: fx5_gossamer_katana_slash_down_katana_parts, kind: body, parent: caster}
   - {id: pt_fx5_gossamer_katana_slash_down_katana_0_1p25_0, kind: point, parent: fx5_gossamer_katana_slash_down_katana, offset: [0.0, 1.25, 0.0]}
   - {id: pt_fx5_gossamer_katana_slash_down_katana_0_2p1_0, kind: point, parent: fx5_gossamer_katana_slash_down_katana, offset: [0.0, 2.1, 0.0]}
   - {id: fx6_gossamer_katana_lattice, kind: body, parent: world}
@@ -28,10 +28,9 @@ presentation:
         - id: fx5_gossamer_katana_slash_down_katana_rig
           op: rig
           frame: fx5_gossamer_katana_slash_down_katana
-          parent: fx5_gossamer_katana_slash_down_katana_at
+          parent: caster
           duration: 12
-          hand: false
-          pivot: [1.000542, 0.247812, 0.247812]
+          pivot: [-0.25, 1.0, 0.25]
           tilt: [0.0, 0.0, 12.0]
           swing:
             - {t: 0, rotate: [145.0, 0.0, 0.0]}
@@ -46,9 +45,44 @@ presentation:
             - {t: 9, rotate: [-35.15625, 0.0, 0.0], sample: true}
             - {t: 10, rotate: [-35.0, 0.0, 0.0]}
           sample_ticks: 1
-        - {id: fx5_gossamer_katana_slash_down_katana_blade, op: block, parent: fx5_gossamer_katana_slash_down_katana, block: iron_block, size: [0.09, 2.0, 0.05], at: [0.0, 1.05, 0.0], brightness: 15}
-        - {id: fx5_gossamer_katana_slash_down_katana_grip, op: block, parent: fx5_gossamer_katana_slash_down_katana, block: black_concrete, size: [0.1, 0.4, 0.08], at: [0.0, -0.15, 0.0]}
-        - {id: fx5_gossamer_katana_slash_down_katana_guard, op: block, parent: fx5_gossamer_katana_slash_down_katana, block: blue_concrete, size: [0.28, 0.08, 0.18], at: [0.0, 0.06, 0.0]}
+          respect_hit_stop: true
+        - id: fx5_gossamer_katana_slash_down_katana_parts_rig
+          op: rig
+          frame: fx5_gossamer_katana_slash_down_katana_parts
+          parent: caster
+          duration: 12
+          hand: false
+          pivot: [-0.25, 1.0, 0.25]
+          tilt: [0.0, 0.0, 12.0]
+          swing:
+            - {t: 0, rotate: [145.0, 0.0, 0.0]}
+            - {t: 1, rotate: [145.0, 0.0, 0.0], sample: true}
+            - {t: 2, rotate: [145.0, 0.0, 0.0]}
+            - {t: 3, rotate: [61.875, 0.0, 0.0], sample: true}
+            - {t: 4, rotate: [2.5, 0.0, 0.0], sample: true}
+            - {t: 5, rotate: [-33.125, 0.0, 0.0], sample: true}
+            - {t: 6, rotate: [-45.0, 0.0, 0.0]}
+            - {t: 7, rotate: [-39.21875, 0.0, 0.0], sample: true}
+            - {t: 8, rotate: [-36.25, 0.0, 0.0], sample: true}
+            - {t: 9, rotate: [-35.15625, 0.0, 0.0], sample: true}
+            - {t: 10, rotate: [-35.0, 0.0, 0.0]}
+          sample_ticks: 1
+          respect_hit_stop: true
+        - {id: fx5_gossamer_katana_slash_down_katana_blade, op: block, parent: fx5_gossamer_katana_slash_down_katana_parts, block: iron_block, size: [0.09, 2.0, 0.05], at: [0.0, 1.05, 0.0], brightness: 15}
+        - id: fx5_gossamer_katana_slash_down_katana_grip
+          op: block
+          parent: fx5_gossamer_katana_slash_down_katana_parts
+          block: black_concrete
+          size: [0.1, 0.4, 0.08]
+          at: [0.0, -0.15, 0.0]
+          rig_shading: true
+        - id: fx5_gossamer_katana_slash_down_katana_guard
+          op: block
+          parent: fx5_gossamer_katana_slash_down_katana_parts
+          block: blue_concrete
+          size: [0.28, 0.08, 0.18]
+          at: [0.0, 0.06, 0.0]
+          rig_shading: true
     - id: fx30
       at: 30
       do:
@@ -232,10 +266,9 @@ presentation:
       - id: fx2_gossamer_katana_echo_cut_katana_rig
         op: rig
         frame: fx2_gossamer_katana_echo_cut_katana
-        parent: fx2_gossamer_katana_echo_cut_katana_at
+        parent: caster
         duration: 12
-        hand: false
-        pivot: [1.000542, 0.247812, 0.247812]
+        pivot: [-0.25, 1.0, 0.25]
         tilt: [0.0, 0.0, 12.0]
         rest: [90.0, 0.0, 0.0]
         swing:
@@ -251,10 +284,35 @@ presentation:
           - {t: 9, rotate: [0.0, 89.84375, 0.0], sample: true}
           - {t: 10, rotate: [0.0, 90.0, 0.0]}
         sample_ticks: 1
+        respect_hit_stop: true
+        when: "= event.source == 'sel_2'"
+      - id: fx2_gossamer_katana_echo_cut_katana_parts_rig
+        op: rig
+        frame: fx2_gossamer_katana_echo_cut_katana_parts
+        parent: caster
+        duration: 12
+        hand: false
+        pivot: [-0.25, 1.0, 0.25]
+        tilt: [0.0, 0.0, 12.0]
+        rest: [90.0, 0.0, 0.0]
+        swing:
+          - {t: 0, rotate: [0.0, -110.0, 0.0]}
+          - {t: 1, rotate: [0.0, -110.0, 0.0], sample: true}
+          - {t: 2, rotate: [0.0, -110.0, 0.0]}
+          - {t: 3, rotate: [0.0, -26.875, 0.0], sample: true}
+          - {t: 4, rotate: [0.0, 32.5, 0.0], sample: true}
+          - {t: 5, rotate: [0.0, 68.125, 0.0], sample: true}
+          - {t: 6, rotate: [0.0, 80.0, 0.0]}
+          - {t: 7, rotate: [0.0, 85.78125, 0.0], sample: true}
+          - {t: 8, rotate: [0.0, 88.75, 0.0], sample: true}
+          - {t: 9, rotate: [0.0, 89.84375, 0.0], sample: true}
+          - {t: 10, rotate: [0.0, 90.0, 0.0]}
+        sample_ticks: 1
+        respect_hit_stop: true
         when: "= event.source == 'sel_2'"
       - id: fx2_gossamer_katana_echo_cut_katana_blade
         op: block
-        parent: fx2_gossamer_katana_echo_cut_katana
+        parent: fx2_gossamer_katana_echo_cut_katana_parts
         block: iron_block
         size: [0.09, 2.0, 0.05]
         at: [0.0, 1.05, 0.0]
@@ -262,17 +320,19 @@ presentation:
         when: "= event.source == 'sel_2'"
       - id: fx2_gossamer_katana_echo_cut_katana_grip
         op: block
-        parent: fx2_gossamer_katana_echo_cut_katana
+        parent: fx2_gossamer_katana_echo_cut_katana_parts
         block: black_concrete
         size: [0.1, 0.4, 0.08]
         at: [0.0, -0.15, 0.0]
+        rig_shading: true
         when: "= event.source == 'sel_2'"
       - id: fx2_gossamer_katana_echo_cut_katana_guard
         op: block
-        parent: fx2_gossamer_katana_echo_cut_katana
+        parent: fx2_gossamer_katana_echo_cut_katana_parts
         block: blue_concrete
         size: [0.28, 0.08, 0.18]
         at: [0.0, 0.06, 0.0]
+        rig_shading: true
         when: "= event.source == 'sel_2'"
       - {id: anchor_3, op: anchor, frame: fx3_gossamer_katana_petals, at: contact.point, orient: yaw, when: "= event.source == 'sel_3'"}
       - id: fx3_gossamer_katana_petals_petals_0

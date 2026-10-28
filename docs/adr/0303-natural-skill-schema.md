@@ -841,6 +841,8 @@ swapped `weapon_model`, `ghost_bodies`, block parts without the block op) is a c
 The v2 tilt seen on dev (2026-10-28) came from `main_hand` hanging off the static `caster.right_hand` point at scale 1.0 while `caster_anim`
 animated the arm outside the engine; v1 hung the weapon from the animated hand. Rider displays never teleport (teleport 0, interpolation N), as in v1.
 
+Rig `parts` are `block` ops. v1 hangs them from the anchor pivot and turns them by the wrist swing alone (`VfxRigPlanner.partPlan`: `pivotWorld + anchorRot * R(t) * offset`, no arm), so a hand-parented rig gets a second, anchor-parented `rig` frame (`<rig>_parts`, no skin bones) that carries the parts; the weapon mesh stays on the hand frame.
+
 ## References
 
 - 関連 ADR: [[adr/0301-skill-engine-v2-frame-tree]], [[adr/0290-generic-vfx-primitives]], [[adr/0276-skill-performance-one-body-one-weapon-one-lease]] (v1 passenger transport), [[adr/0239-custom-particle-sprites-as-textdisplay-glyphs]]
