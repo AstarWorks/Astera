@@ -318,15 +318,16 @@ class MatchArsenalE2eTest : ObjectivePlaythroughBase() {
         }
 
         E2eReport.check(suite, "cover shares accumulated damage and drops its reusable placement item", "RCON tempered glass") {
-            inArena("run kill @e[type=minecraft:item,x=${-60 + originX},y=66,z=${36 + originZ},distance=..5]")
-            wall(36, "note_block[instrument=harp,note=8,powered=false]")
-            aimWall(a, 36)
+            // z is stage-local; the red island is only r22 around (-68,0), so x=-60 is solid for |z| <= 20. A wall further out hangs over the void and its drop falls out of the world.
+            inArena("run kill @e[type=minecraft:item,x=${-60 + originX},y=66,z=${-8 + originZ},distance=..5]")
+            wall(-8, "note_block[instrument=harp,note=8,powered=false]")
+            aimWall(a, -8)
             bore()
-            assertThat(arenaBlockIs(-60, 66, 36, "minecraft:note_block[instrument=harp,note=8,powered=false]")).isTrue()
+            assertThat(arenaBlockIs(-60, 66, -8, "minecraft:note_block[instrument=harp,note=8,powered=false]")).isTrue()
             // 250 HP, stone pickaxe matrix 60% of 100 = 60 HP per cast.
             repeat(4) { bore() }
-            assertThat(arenaSolid(-60, 66, 36)).isFalse()
-            val loot = clean(inArena("run data get entity @e[type=minecraft:item,x=${-60 + originX},y=66,z=${36 + originZ},distance=..3,limit=1] Item.components.\"minecraft:custom_data\""))
+            assertThat(arenaSolid(-60, 66, -8)).isFalse()
+            val loot = clean(inArena("run data get entity @e[type=minecraft:item,x=${-60 + originX},y=66,z=${-8 + originZ},distance=..3,limit=1,nbt={Item:{id:\"minecraft:glass\"}}] Item.components.\"minecraft:custom_data\""))
             // The materializer stores the identity as the astera:item_id PDC (custom_data); the whole-Item dump is cut off before it.
             assertThat(loot).contains("tempered-glass-block")
             "five casts accumulated through the shared HP store; placement identity dropped"
@@ -335,14 +336,14 @@ class MatchArsenalE2eTest : ObjectivePlaythroughBase() {
         E2eReport.check(suite, "empty-handed forced bores use stone tool damage and still drop cobblestone", "RCON stand-in tool drops") {
             val empty = (0..8).firstOrNull { rcon("execute if items entity ${a.name} hotbar.$it *").contains("failed") }
             assertThat(empty).describedAs("no empty hotbar slot").isNotNull()
-            wall(45, "stone")
-            aimWall(a, 45)
+            wall(-14, "stone")
+            aimWall(a, -14)
             a.selectHotbar(empty!!)
             bore()
-            assertThat(arenaBlockIs(-60, 66, 45, "minecraft:stone")).isTrue()
+            assertThat(arenaBlockIs(-60, 66, -14, "minecraft:stone")).isTrue()
             bore()
-            assertThat(arenaSolid(-60, 66, 45)).isFalse()
-            val loot = clean(inArena("run data get entity @e[type=minecraft:item,x=${-60 + originX},y=66,z=${45 + originZ},distance=..3,limit=1,nbt={Item:{id:\"minecraft:cobblestone\"}}] Item.id"))
+            assertThat(arenaSolid(-60, 66, -14)).isFalse()
+            val loot = clean(inArena("run data get entity @e[type=minecraft:item,x=${-60 + originX},y=66,z=${-14 + originZ},distance=..3,limit=1,nbt={Item:{id:\"minecraft:cobblestone\"}}] Item.id"))
             assertThat(loot).contains("minecraft:cobblestone")
             "empty hand: two stone-tier hits, cobblestone via the skill's stand-in tool"
         }
