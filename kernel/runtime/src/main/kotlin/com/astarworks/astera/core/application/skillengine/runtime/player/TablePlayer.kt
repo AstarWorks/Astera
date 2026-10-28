@@ -887,7 +887,7 @@ public class TablePlayer(
         val prev = worldOf(run, rec, rec.localAt(now - 1), null, now - 1).pos
         val delta = Vec3(cur.x - prev.x, cur.y - prev.y, cur.z - prev.z)
         val vol = ResolvedVolume.Capsule(Vec3(prev.x, prev.y, prev.z), Vec3(cur.x, cur.y, cur.z), rec.hitRadius)
-        val cands = query.nearby(vol.broadCenter, vol.broadRadius, run.request.caster).filter { it.entityId !in rec.hitVictims }
+        val cands = query.nearby(castRef(run), vol.broadCenter, vol.broadRadius, run.request.caster).filter { it.entityId !in rec.hitVictims }
         val start = Vec3(prev.x, prev.y, prev.z)
         val found = resolver.narrow(id.text, now, id.text, vol, delta, cands).sortedBy { it.pointWorld.distance(start) }
         for (ce in found) {
