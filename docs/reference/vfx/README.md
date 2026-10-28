@@ -56,6 +56,6 @@ Astera の対応状況は 2026-10-23 時点のコード (`MechanicYaml.kt`, `Vfx
 - 迫力を出す最短: 音 (層とピッチ弧) → 命中 tick のヒットストップ+フラッシュ → 溜めを見せる (telegraph) → 余韻。
 - 「薄い・軽い」と言われたら: [`next-improvements.md`](next-improvements.md) の 1-4 と [`failure-patterns.md`](failure-patterns.md) の G-11, G-12 を見る。
 10. [`neac-shader-techniques.md`](neac-shader-techniques.md) — NeAc_ / EMagipi 由来のシェーダー系技法 NA-1〜10 (魚眼床・スキャン帯・床の暗転ほか) と、(a)/(b)/(c) 分類、26.3 の core shader で届く範囲。原理のみ。
-- [`スプライトギャラリー`](../../../tools/sprite-gallery/README.md) — `make sprite-gallery-up` で LAN 上の全スプライトをアニメーション比較 (`:8098`)。
+- [`Astera レビューハブ`](../../../tools/skill-compare/README.md) — `make skill-compare-up`、http://192.168.11.5:8097 の「スプライト」「VFX サンプル」。実機撮影・モデル・HUD・アリーナ・ライブ配信も同じナビゲーションから閲覧。
 
 - [Shader effects authoring](../../contributing/vfx-team/shader-effects.md) — add an isolated effect in 3 steps; markers, hooks and playable demos (ADR-0305).

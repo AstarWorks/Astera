@@ -61,5 +61,7 @@ client-global and does not restart on cast. Meshes face the side capture camera
 
 The orb's painted ring is not a view-dependent rim shader. Heat haze does not
 refract or distort the background. These use the three existing ADR-0305 effects;
-no new marker or screen-reading shader is needed. The gallery displays effect ids
+no new marker or screen-reading shader is needed. The skill-compare 「VFX サンプル」 tab (`/samples`, http://192.168.11.5:8097) displays effect ids
 and the real-client side sheets from `build/vfx-shot/<sample>/side/sheet.png`.
+
+Browser review uses `make skill-compare-up`; the 「スプライト」 tab retains source YAML and node intermediates. Shader appearance must be checked with the real-client sheets or the 「ライブ」 tab, rather than the dimension approximation.

@@ -376,3 +376,11 @@ Generated from `SpriteGraph.SPECS`. Numeric defaults are shown for a 32px canvas
 Dither patterns include Bayer 2/4/8 and Floyd–Steinberg. CPU noise is deterministic,
 but is not promised to match Studio WebGL noise bit for bit. PixelComposer-derived
 filter math retains its [MIT notice](../../../tools/item-art/LICENSE-PIXEL-COMPOSER.txt).
+
+## ブラウザ確認
+
+`make skill-compare-up` → http://192.168.11.5:8097 の「スプライト」(`/sprites`)。
+タグ検索・再生設定・Minecraft 寸法近似・詳細の全フレーム/YAML/ノード中間画像を確認する。
+「VFX サンプル」(`/samples`) は shader ID と実クライアント side sheet を表示する。
+配信 checkout の content と primary の生成物を読み、2 秒ごとに更新する。
+実装・ブラウザ検証手順: [skill-compare](../../../tools/skill-compare/README.md)。
