@@ -9,7 +9,7 @@ variant: crimson
 patchKind: skin
 ops:
   - {path: "machine.states.windup.do[trail_b]", $patch: delete}
-  - {path: "machine.states.windup.do[trail_a].color", $patch: replace, value: "#d0203a"}
+  - {path: "machine.states.windup.do[trail_a].color", $patch: replace, value: "#59d0203a"}
   - {path: "machine.states.throw.enter[puff].color", $patch: replace, value: "#d0203a"}
   - {path: "machine.states.throw.enter[thread_a].color", $patch: replace, value: "#d0203a"}
   - {path: "machine.states.throw.enter[thread_b].color", $patch: replace, value: "#d0203a"}

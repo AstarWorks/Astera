@@ -1202,6 +1202,8 @@ machine:
                       op: particle_def
                       def: stab-spark
                       anchor: fx3_couture_rapier_cross_sparks_at
+                      every: 3
+                      times: 2
                     - id: fx3_couture_rapier_cross_contact_fill
                       op: display
                       kind: text

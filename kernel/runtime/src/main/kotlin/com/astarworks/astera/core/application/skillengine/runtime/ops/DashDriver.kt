@@ -30,8 +30,6 @@ public class DashDriver(
         val stopOnBlock: Boolean,
         val invulnerable: Boolean,
         val faceMovement: Boolean,
-        val radius: Double,
-        val stopBeforeTarget: Double?,
     )
 
     private class Dash(
@@ -60,8 +58,7 @@ public class DashDriver(
         if (local.lengthSquared() < 1e-12) return "dash direction is the zero vector"
         val frame = Frame.fromYawPitch(Vec3.ZERO, root.yawDeg, if (p.followPitch) root.pitchDeg else 0.0)
         val direction = frame.directionToWorld(local.normalize()).normalize()
-        val total = p.speed * p.ticks
-        val travel = approach(root.feet, direction, total, p)
+        val travel = p.speed * p.ticks
         if (travel <= 0.0) return null
         active.remove(key)?.let { finish(it) }
         val dash = Dash(key, p, easing, root.feet, direction, travel)
@@ -108,25 +105,7 @@ public class DashDriver(
         if (dash.p.invulnerable) movement.invulnerable(cast, cast.caster, 0)
     }
 
-    /** `stop_before_target`: the distance to the first living body ahead inside the corridor, less the gap. */
-    private fun approach(feet: Vec3, direction: Vec3, distance: Double, p: Params): Double {
-        val gap = p.stopBeforeTarget?.coerceAtLeast(0.0) ?: return distance
-        val origin = feet + Vec3(0.0, BODY_HALF_HEIGHT, 0.0)
-        return query.nearby(cast, origin, distance + gap + p.radius, cast.caster)
-            .asSequence()
-            .filter { it.entityId != cast.caster }
-            .mapNotNull { candidate ->
-                val delta = candidate.box.center - origin
-                val ahead = delta.dot(direction)
-                if (ahead <= 0.0 || (delta - direction * ahead).length() > p.radius + BODY_HALF_WIDTH) null
-                else (ahead - gap).coerceIn(0.0, distance)
-            }
-            .minOrNull() ?: distance
-    }
-
     private companion object {
-        const val BODY_HALF_HEIGHT: Double = 0.9
-        const val BODY_HALF_WIDTH: Double = 0.3
         const val SAFETY_TICKS: Int = 2
     }
 }
