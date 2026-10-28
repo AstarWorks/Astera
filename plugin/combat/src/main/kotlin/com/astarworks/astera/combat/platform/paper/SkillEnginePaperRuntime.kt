@@ -149,6 +149,11 @@ internal class SkillEnginePaperRuntime(
                 blocks = { services.get<IBlockStateGateway>() },
                 guard = { ports.blockEditGuard?.invoke(services) },
                 covers = { services.get<ICustomBlockRegistry>() },
+                skillOf = { cast -> built.hosts.skillOf(cast) },
+                itemTool = { id ->
+                    services.get<com.astarworks.astera.core.application.port.outbound.IItemRegistry>()
+                        ?.let { com.astarworks.astera.core.application.usecase.block.HitCustomBlockUseCase.toolOf(it, com.astarworks.astera.core.domain.item.ItemId(id)) }
+                },
             ),
             casterAnim = PaperSkillCasterAnimGateway(
                 rigs = { services.get<com.astarworks.astera.core.application.port.outbound.animation.ISkinRigAnimator>() },

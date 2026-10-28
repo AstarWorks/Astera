@@ -39,12 +39,17 @@ class WorldOpsScenarioTest {
         val blocks = HashMap<BlockCell, String>()
         val hp = HashMap<BlockCell, Int>()
         val cover = HashSet<BlockCell>()
+        val failures = ArrayList<String>()
         var items = 100
         override fun blockAt(cell: BlockCell) = blocks[cell]
         override fun canEdit(cast: CastId, cell: BlockCell, outsideArena: Boolean) = outsideArena || cell.y >= 0
         override fun isCover(cell: BlockCell) = cell in cover
         override fun isCoverBlock(blockKey: String) = blockKey.startsWith("astera:")
-        override fun place(cell: BlockCell, blockKey: String) { blocks[cell] = blockKey }
+        override fun place(cell: BlockCell, blockKey: String): Boolean {
+            if (blockKey == UNPLACEABLE) return false
+            blocks[cell] = blockKey
+            return true
+        }
         override fun remove(cell: BlockCell) { blocks.remove(cell) }
         override fun placeCover(cast: CastId, cell: BlockCell, blockKey: String): Boolean { blocks[cell] = blockKey; cover += cell; return true }
         override fun damage(cast: CastId, cell: BlockCell, blockDamage: Int, toolClass: String?): BlockDamageOutcome {
@@ -85,7 +90,13 @@ class WorldOpsScenarioTest {
         private val tree = FakeTree()
         private val executors = worldExecutors(editor)
         private val ctx = object : OpContext {
-        override val host: com.astarworks.astera.core.application.skillengine.runtime.OpHost get() = error("this scenario never reaches the cast host")
+        override val host: com.astarworks.astera.core.application.skillengine.runtime.OpHost = java.lang.reflect.Proxy.newProxyInstance(
+                com.astarworks.astera.core.application.skillengine.runtime.OpHost::class.java.classLoader,
+                arrayOf(com.astarworks.astera.core.application.skillengine.runtime.OpHost::class.java),
+            ) { _, m, args ->
+                if (m.name == "fail") world.failures += "${args[0]}: ${args[1]}" else error("world ops reach only OpHost.fail, not ${m.name}")
+                null
+            } as com.astarworks.astera.core.application.skillengine.runtime.OpHost
             override val cast = CastId(1)
             override val tree: FrameTree = this@Fixture.tree
             override val values: ValueResolver = Literals
@@ -102,6 +113,11 @@ class WorldOpsScenarioTest {
 
         fun advance(ticks: Int) = repeat(ticks) { editor.tick() }
         fun filled(prefix: String) = world.blocks.filterValues { it == prefix }.keys
+    }
+
+    private companion object {
+        /** A key the gateway cannot place (Material.matchMaterial returns null in Paper). */
+        const val UNPLACEABLE = "minecraft:not_a_block"
     }
 
     private val atCaster = LocationSpec.AtPoint(PointRef("caster"))
@@ -181,6 +197,23 @@ class WorldOpsScenarioTest {
         assertThat(f.world.blocks[cell]).isEqualTo("minecraft:dirt")
         f.editor.revertAll()
         assertThat(f.world.blocks[cell]).isEqualTo("minecraft:stone")
+    }
+
+    @Test
+    fun `a block key the gateway cannot place is reported as an op failure and owes no revert`() {
+        val f = Fixture()
+        f.run(WorldOp.SetBlock("s", null, LocationSpec.AtValue(Value.Literal(Vec3(2.5, 64.5, 0.5))), UNPLACEABLE, Value.Literal(50.0), false))
+        assertThat(f.world.failures).hasSize(1)
+        assertThat(f.world.failures.single()).contains("s:").contains(UNPLACEABLE)
+        assertThat(f.world.blocks).isEmpty()
+        assertThat(f.editor.pendingReverts).isZero()
+
+        f.run(WorldOp.PlaceShape("w", null, atCaster, WorldOp.BuildShape.WALL, UNPLACEABLE, 3, 2, 3, null, Value.Literal(50.0), false))
+        f.advance(40)
+        // One failure per cell the wall would have filled, none of them silently treated as success.
+        assertThat(f.world.failures.drop(1)).hasSize(6).allMatch { it.startsWith("w:") }
+        assertThat(f.world.blocks).isEmpty()
+        assertThat(f.editor.pendingReverts).isZero()
     }
 
     @Test

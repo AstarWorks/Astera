@@ -45,5 +45,8 @@ public class CastHosts : MovementHost, OpTargetResolver, PresentationCastInfo {
 
     override fun targets(cast: CastId, target: TargetRef): List<UUID> = of(cast).targets(cast, target)
 
+    /** The definition of the running [cast], null once it has ended. */
+    public fun skillOf(cast: CastId): com.astarworks.astera.core.domain.skillengine.model.SkillDef? = live[cast]?.skill?.def
+
     override fun hasRaised(cast: CastId, event: String): Boolean = live[cast]?.hasRaised(cast, event) ?: false
 }
