@@ -118,6 +118,7 @@ class MovementOpsScenarioTest {
             override fun restoreResource(victim: UUID, resource: String, amount: Double) = Unit
             override fun damage(skillId: String, caster: UUID, victim: UUID, components: List<SkillDamage>, hitPoint: Vec3, ignoreInvulnerability: Boolean, ignoreArmor: Boolean) = Unit
             override fun applyStatus(caster: UUID, victim: UUID, statusId: String, stacks: Int, durationTicks: Int) = Unit
+            override fun rollChance(chance: Double): Boolean = true
             override fun impulse(victim: UUID, vector: Vec3) { w.impulses += victim to vector }
             override fun freezeEntities(entities: List<UUID>, ticks: Int) = Unit
         }

@@ -191,6 +191,7 @@ class PresentationOpsScenarioTest {
             override fun restoreResource(victim: UUID, resource: String, amount: Double) = Unit
             override fun damage(skillId: String, caster: UUID, victim: UUID, components: List<SkillDamage>, hitPoint: Vec3, ignoreInvulnerability: Boolean, ignoreArmor: Boolean) = error("gameplay")
             override fun applyStatus(caster: UUID, victim: UUID, statusId: String, stacks: Int, durationTicks: Int) = error("gameplay")
+            override fun rollChance(chance: Double): Boolean = error("gameplay")
             override fun impulse(victim: UUID, vector: Vec3) = error("gameplay")
             override fun freezeEntities(entities: List<UUID>, ticks: Int) = error("gameplay")
         },

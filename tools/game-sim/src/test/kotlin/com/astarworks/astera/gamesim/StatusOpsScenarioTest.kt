@@ -37,7 +37,9 @@ class StatusOpsScenarioTest {
     private val victim = UUID(0, 2)
     private val bystander = UUID(0, 3)
 
-    private class Recorder : ISkillGameplayGateway {
+    private class Recorder(seed: Long = 1L) : ISkillGameplayGateway {
+        private val rng = kotlin.random.Random(seed)
+        override fun rollChance(chance: Double): Boolean = rng.nextDouble() <= chance
     override fun statusStacks(entity: UUID, statusId: String): Int = 0
         val calls = mutableListOf<String>()
         override fun damage(skillId: String, caster: UUID, victim: UUID, components: List<SkillDamage>, hitPoint: Vec3, ignoreInvulnerability: Boolean, ignoreArmor: Boolean) { calls += "damage" }
@@ -172,11 +174,11 @@ class StatusOpsScenarioTest {
     }
 
     @Test
-    fun `an area target applies to every resolved entity and chance is deterministic per cast`() {
+    fun `an area target applies to every resolved entity and chance draws from the shared seeded source`() {
         scenario("status-ops-chance") {
             val op = decode("status", "target" to "victim", "status" to "stun", "duration_ticks" to 20, "chance" to 0.5)
             fun landed(cast: Long): Int {
-                val gameplay = Recorder()
+                val gameplay = Recorder(cast)
                 val executors = statusExecutors({ _, _ -> listOf(victim, bystander) }) { caster }
                 repeat(200) { runWith(executors, listOf(op), gameplay, cast) }
                 return gameplay.calls.size

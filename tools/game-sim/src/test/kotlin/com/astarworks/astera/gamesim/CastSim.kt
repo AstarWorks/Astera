@@ -268,6 +268,7 @@ class CastSim(
             combat?.let { it.gateway.removeStatus(it.map(victim), statusId); return }
             gpLine("status", "\"who\":\"${whoOf(victim)}\",\"id\":${jq(statusId)},\"op\":\"removed\"")
         }
+        override fun rollChance(chance: Double): Boolean = combat?.gateway?.rollChance(chance) ?: true
         override fun applyStatus(caster: UUID, victim: UUID, statusId: String, stacks: Int, durationTicks: Int) {
             statuses += Triple(now, victim, statusId)
             combat?.let { it.gateway.applyStatus(it.map(caster), it.map(victim), statusId, stacks, durationTicks); return }
@@ -322,7 +323,7 @@ class CastSim(
                 .map { (id, feet) -> HitCandidate(id, feet, 0.0, box(feet)) }
         }
         override fun rootOf(entity: UUID): EntityRoot? =
-            if (entity == caster) EntityRoot(casterFeet, yawDeg, pitchDeg, 1.62, 1.8) else victims[entity]?.let { EntityRoot(it, 0.0, 0.0, 1.62, 1.8) }
+            if (entity == caster) EntityRoot(casterFeet, yawDeg, pitchDeg, 1.62, 1.8) else (standing[entity] ?: victims[entity])?.let { EntityRoot(it, 0.0, 0.0, 1.62, 1.8) }
         override fun raycastBlock(from: Vec3, to: Vec3): BlockHit? {
             val fy = floorY
             if (fy != null && from.y > fy && to.y <= fy) {

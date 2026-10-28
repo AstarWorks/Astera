@@ -127,6 +127,7 @@ internal class SkillEnginePaperRuntime(
             entityEffects = entityEffects,
             attributes = services.getOrThrow<IPlayerAttributeContainerStore>(),
             scheduler = scheduler,
+            randomizer = services.getOrThrow<com.astarworks.astera.combat.application.port.outbound.IDamageRandomizer>(),
             resourcePool = { services.get<IResourcePoolService>() },
         )
         val victimAnim = PaperSkillVictimAnimGateway(server, knockback)

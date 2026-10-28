@@ -5,6 +5,11 @@ import com.astarworks.astera.core.domain.skillengine.model.TimelineAt
 import com.astarworks.astera.core.domain.skillengine.model.TimelineEntry
 import com.astarworks.astera.core.domain.skillengine.op.SkillOp
 
+/** Which rows a [Timeline.due] call may fire: v1's `cast` phase (a one-shot `at: 0` row) runs before the tick's motion and hits, the rest after. */
+internal enum class RowPhase { ALL, CAST, AFTER_CAST }
+
+private fun TimelineEntry<*>.isCastPhase(): Boolean = at == TimelineAt.Tick(0) && (everyTicks == null || everyTicks!! <= 0) && untilEvent == null
+
 /**
  * The rows of one section's `timeline:`. A row fires at an absolute tick since cast start (`at: 4`) or
  * [TimelineAt.AfterEvent] ticks after an event was first raised (`at: release+2`); with `every` it repeats
@@ -24,11 +29,20 @@ internal class Timeline<O : SkillOp>(private val rows: List<TimelineEntry<O>>) {
      * @param eventSince ticks-since-start at which an event was first raised, or null
      * @param raised whether an event has been raised
      */
-    fun due(since: Int, startTick: Int, raises: (String) -> List<CastEvent>, eventSince: (String) -> Int?, raised: (String) -> Boolean): List<Fire<O>> {
+    fun due(
+        since: Int,
+        startTick: Int,
+        raises: (String) -> List<CastEvent>,
+        eventSince: (String) -> Int?,
+        raised: (String) -> Boolean,
+        phase: RowPhase = RowPhase.ALL,
+    ): List<Fire<O>> {
         val out = ArrayList<Fire<O>>()
         for ((i, row) in rows.withIndex()) {
             val st = states[i]
             if (st.done) continue
+            if (phase == RowPhase.CAST && !row.isCastPhase()) continue
+            if (phase == RowPhase.AFTER_CAST && row.isCastPhase()) continue
             val at0 = row.at
             if (at0 is TimelineAt.AfterEvent && (row.everyTicks == null || row.everyTicks!! <= 0) && row.untilEvent == null) {
                 // One-shot `event+N`: one firing per raise (per source), each carrying its own raise as the current event.

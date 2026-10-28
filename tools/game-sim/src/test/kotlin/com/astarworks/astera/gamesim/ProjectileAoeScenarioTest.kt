@@ -109,6 +109,7 @@ class ProjectileAoeScenarioTest {
                     damaged += victim to components.sumOf { it.amount }
                 }
                 override fun applyStatus(caster: UUID, victim: UUID, statusId: String, stacks: Int, durationTicks: Int) = Unit
+            override fun rollChance(chance: Double): Boolean = true
                 override fun impulse(victim: UUID, vector: Vec3) = Unit
                 override fun freezeEntities(entities: List<UUID>, ticks: Int) = Unit
             },
