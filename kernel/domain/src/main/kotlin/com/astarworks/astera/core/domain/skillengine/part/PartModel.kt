@@ -63,6 +63,8 @@ public data class Machine(
     val start: String,
     val states: Map<String, MachineState>,
     val links: List<EventLink> = emptyList(),
+    /** R45 `machine.world`: op rows owned by the cast rather than by a state (skill machines only; a part declares none). */
+    val world: List<OpMap> = emptyList(),
 )
 
 public data class Part(

@@ -273,4 +273,31 @@ class MachineTablesScenarioTest : SkillEngineScenario() {
         assertThat(hold.branches.map { it.event.value }).containsExactlyInAnyOrder("input.release", "timer(40)")
         assertThat(keys(s)).contains("hold.exit[event]", "hold.exit[timer]")
     }
+
+    @Test
+    fun machineWorldRowsAreLoweredAtCastTickZero() {
+        // R45 (ADR 10.1): `machine.world` rows belong to the cast, not to a state; they decode and lower beside the start state's own rows.
+        val s = compiled(
+            """
+            apiVersion: astera/v3
+            kind: Skill
+            id: world-body
+            machine:
+              start: cast
+              world:
+                - {id: body, op: damage, amount: 3}
+              states:
+                cast:
+                  for: 34
+                  then: done
+                done: { final: true }
+            """.trimIndent(),
+        )
+        val cast = s.table.states.first { it.state == StatePath("cast") }
+        val world = cast.rows.filter { it.action is Action.Damage }
+        assertThat(world).hasSize(1)
+        assertThat(world.first().tick).isEqualTo(0)
+        assertThat(world.first().src.value).contains("world")
+        assertThat(s.table.states.first { it.state == StatePath("done") }.rows.none { it.action is Action.Damage }).isTrue()
+    }
 }

@@ -5,7 +5,7 @@ import com.astarworks.astera.core.domain.skillengine.part.PartError
 
 public enum class PatchVerb(public val key: String) { DELETE("delete"), REPLACE("replace"), MERGE("merge") }
 
-/** One path segment: a field [name], optionally followed by a row selector `[<id>]` into the list that field holds. */
+/** One path segment: a field [name], optionally followed by a row selector `[<id>]` (the `event` name for an `on:` transition) into the list that field holds. */
 public data class PatchSeg(val name: String, val id: String?)
 
 /** `{path, $patch, value}` of a `kind: Patch` document (R35). [value] is null for [PatchVerb.DELETE]. */
@@ -135,7 +135,9 @@ public object PatchApplier {
         val list = child as? List<*>
         if (list == null && !(last && op.verb == PatchVerb.MERGE && !has)) fail("no list '${seg.name}' to select '${seg.id}' from")
         val rows = ArrayList<Any?>(list.orEmpty())
-        val at = rows.indexOfFirst { (it as? Map<*, *>)?.get("id") == seg.id }
+        val hits = rows.indices.filter { matches(rows[it], seg.id) }
+        if (hits.size > 1) fail("row selector '${seg.id}' in '${seg.name}' matches ${hits.size} rows; make it unique")
+        val at = hits.firstOrNull() ?: -1
         if (last) {
             when (op.verb) {
                 PatchVerb.DELETE -> { if (at < 0) fail("no row '${seg.id}' in '${seg.name}' to delete"); rows.removeAt(at) }
@@ -148,6 +150,16 @@ public object PatchApplier {
         }
         out[seg.name] = rows
         return out
+    }
+
+    /**
+     * Does [row] answer to selector [sel]? Rows carry an `id`; a state's `on:` transitions carry none, so they are selected by their
+     * `event` (`on[reel_hit.hit]`). A row with an `id` is never matched by its event.
+     */
+    public fun matches(row: Any?, sel: String): Boolean {
+        val m = row as? Map<*, *> ?: return false
+        val id = m["id"]
+        return if (id != null) id == sel else m["event"] == sel
     }
 
     /** A row for the list: [value] must be a map; its own `id`, if written, must equal the selector. `id` comes first. */
