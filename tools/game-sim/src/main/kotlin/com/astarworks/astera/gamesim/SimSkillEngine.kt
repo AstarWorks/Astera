@@ -402,10 +402,11 @@ private class SimSkillVisuals(
     }
 
     override fun spawnMesh(castOwner: UUID, item: String, part: String?, pose: VisualPose, brightness: Int?, look: MeshLook) = spawn()
-    override fun spawnPlate(castOwner: UUID, sprite: String, alpha: Double, pose: VisualPose, brightness: Int?) = spawn()
+    override fun spawnPlate(castOwner: UUID, sprite: String, alpha: Double, tintHex: String?, seeThrough: Boolean, pose: VisualPose, brightness: Int?) = spawn()
     override fun spawnBlock(castOwner: UUID, block: String, pose: VisualPose, brightness: Int?, rigShading: Boolean) = spawn()
     override fun spawnQuad(castOwner: UUID, colorHex: String, alpha: Double, text: String?, shadow: Boolean, seeThrough: Boolean, pose: VisualPose, brightness: Int?) = spawn()
     override fun spawnSkinBone(castOwner: UUID, bone: SkinRigBone, slim: Boolean, ghost: Boolean, pose: VisualPose) = spawn()
+    override fun spawnText(castOwner: UUID, text: String, backgroundHex: String, backgroundAlpha: Double, shadow: Boolean, seeThrough: Boolean, pose: VisualPose, brightness: Int?) = spawn()
     override fun spawnLine(castOwner: UUID, colorHex: String, pose: VisualPose) = spawn()
     override fun spawnTrail(castOwner: UUID, ticks: Int, widthFrac: Double, colorHex: String, alpha: Double) = spawn()
     override fun write(handle: VisualHandle, pose: VisualPose, interpolationTicks: Int) {}

@@ -1,22 +1,21 @@
 # Converted from content/skills/verdict-hammer-ego.yaml + content/vfx/* by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
 # Generated point-frame offsets are [left, up, forward] in the parent frame.
 # CONVERT-PRESENT vfx frame orient (frames carry no orientation / scale) (x13): orient="yaw" | orient="world"
-# CONVERT-PRESENT play_vfx snapshot_pose (no v2 equivalent) (x9): true
 # CONVERT-PRESENT vfx frame scale (frames carry no orientation / scale) (x8): scale=2.5 | scale=4.0
 apiVersion: "astera/v2"
 kind: Skill
 id: verdict-hammer-ego
 frames:
-  - {id: pt_aim_0_m1p62_8, kind: point, parent: aim, offset: [0.0, -1.62, 8.0]}
-  - {id: fx1_verdict_ego_field, kind: body, parent: world}
-  - {id: fx2_verdict_impact, kind: body, parent: world}
-  - {id: fx3_verdict_ego_ring, kind: body, parent: world}
-  - {id: fx4_verdict_impact, kind: body, parent: world}
-  - {id: fx5_verdict_ego_ring, kind: body, parent: world}
-  - {id: fx6_verdict_impact, kind: body, parent: world}
-  - {id: fx7_verdict_ego_ring, kind: body, parent: world}
-  - {id: fx8_verdict_impact, kind: body, parent: world}
-  - {id: fx9_verdict_ego_ring, kind: body, parent: world}
+  - {id: pt_cast_aim_0_m1p62_8, kind: point, parent: cast_aim, offset: [0.0, -1.62, 8.0]}
+  - {id: fx1_verdict_ego_field, kind: body, parent: pt_cast_aim_0_m1p62_8}
+  - {id: fx2_verdict_impact, kind: body, parent: pt_cast_aim_0_m1p62_8}
+  - {id: fx3_verdict_ego_ring, kind: body, parent: pt_cast_aim_0_m1p62_8}
+  - {id: fx4_verdict_impact, kind: body, parent: pt_cast_aim_0_m1p62_8}
+  - {id: fx5_verdict_ego_ring, kind: body, parent: pt_cast_aim_0_m1p62_8}
+  - {id: fx6_verdict_impact, kind: body, parent: pt_cast_aim_0_m1p62_8}
+  - {id: fx7_verdict_ego_ring, kind: body, parent: pt_cast_aim_0_m1p62_8}
+  - {id: fx8_verdict_impact, kind: body, parent: pt_cast_aim_0_m1p62_8}
+  - {id: fx9_verdict_ego_ring, kind: body, parent: pt_cast_aim_0_m1p62_8}
   - {id: fx10_verdict_ego_hammer, kind: body, parent: world}
   - {id: fx10_verdict_ego_hammer_hammer_at, kind: body, parent: caster.right_hand}
   - {id: fx10_verdict_ego_hammer_hammer, kind: body, parent: fx10_verdict_ego_hammer_hammer_at}

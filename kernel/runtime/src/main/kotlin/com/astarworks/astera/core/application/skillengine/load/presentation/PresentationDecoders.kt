@@ -132,7 +132,7 @@ private fun OpReader.trackKeys(): List<TrackKey> {
     if (list.isEmpty()) fail("track 'keys' must not be empty")
     return list.mapIndexed { i, e ->
         val m = e as? Map<*, *> ?: fail("keys[$i] must be a map")
-        m.keys.firstOrNull { it !in setOf("t", "offset", "turn", "scale", "ease", "alpha", "color", "block") }
+        m.keys.firstOrNull { it !in setOf("t", "offset", "turn", "scale", "ease", "alpha", "color", "block", "text") }
             ?.let { fail("unknown key '$it' in keys[$i]") }
         val t = (m["t"] as? Number)?.toInt() ?: fail("keys[$i] needs integer 't'")
         val offset = m["offset"]?.let { vecValue(it) ?: fail("keys[$i].offset must be [x,y,z], \${param} or = expr") }
@@ -143,7 +143,8 @@ private fun OpReader.trackKeys(): List<TrackKey> {
         val alpha = m["alpha"]?.let { numValue(it) ?: fail("keys[$i].alpha must be a number, \${param} or = expr") }
         val color = m["color"]?.let { c -> (c as? String)?.takeIf { Regex("#[0-9a-fA-F]{6}").matches(it) } ?: fail("keys[$i].color must be #rrggbb") }
         val block = m["block"]?.let { it as? String ?: fail("keys[$i].block must be a vanilla block id") }
-        TrackKey(t, offset, turn, scale, ease, alpha, color, block)
+        val text = m["text"]?.let { it as? String ?: fail("keys[$i].text must be a string") }
+        TrackKey(t, offset, turn, scale, ease, alpha, color, block, text)
     }
 }
 
@@ -256,12 +257,13 @@ private fun OpReader.repeat(allowLife: Boolean = true): Repeat? {
     val times = number("times")
     val every = int("every")
     val life = int("life")
-    if (times == null && every == null && life == null) return null
+    val instance = bool("instance") ?: false
+    if (times == null && every == null && life == null && !instance) return null
     if (times == null && every != null) fail("'every' needs 'times'")
     if (every != null && every < 0) fail("every must be >= 0")
     if (life != null && life < 1) fail("life must be >= 1")
     if (life != null && !allowLife) fail("'life' is not used by this op")
-    return Repeat(times ?: Value.Literal(1.0), every ?: 0, life)
+    return Repeat(times ?: Value.Literal(1.0), every ?: 0, life, instance)
 }
 
 /** `size:` of a block / quad: a number (uniform), `[a, b]` (z = 1), `[a, b, c]`, `${param}` or `= expr`. */
@@ -276,7 +278,7 @@ private val TRAIL_STYLES = setOf("soft", "crisp", "both")
 
 private object VisualOpDecoder : OpDecoder {
     override val section = OpSection.PRESENTATION
-    override val opNames = setOf("mesh", "plate", "block", "quad", "line", "trail", "track", "anchor", "pull", "remove", "rig")
+    override val opNames = setOf("mesh", "plate", "block", "quad", "text", "line", "trail", "track", "anchor", "pull", "remove", "rig")
     override fun decode(op: String, id: String, whenExpr: Value<Boolean>?, reader: OpReader): SkillOp = with(reader) {
         when (op) {
             "mesh" -> VisualOp.Mesh(id, whenExpr, requireString("frame"), requireString("item"), string("part"), number("scale"),
@@ -289,7 +291,7 @@ private object VisualOpDecoder : OpDecoder {
                 id, whenExpr, requireString("parent"), face(null), requireString("sprite"),
                 numberOr("size", 1.0), numberOr("alpha", 1.0),
                 int("frame_ticks")?.also { if (it < 1) fail("frame_ticks must be >= 1") }, bool("loop") ?: false, stringValue("color"),
-                vec3("at"), vec3("turn"), brightness(), repeat(), lane(),
+                bool("see_through") ?: false, vec3("at"), vec3("turn"), brightness(), repeat(), lane(),
             )
             "block" -> VisualOp.Block(
                 id, whenExpr, requireString("parent"), requireString("block"), sizeVec("size", uniform = true),
@@ -301,6 +303,17 @@ private object VisualOpDecoder : OpDecoder {
                 colorOr("color", "#ffffff"), numberOr("alpha", 1.0), string("text"), bool("shadow") ?: false, bool("see_through") ?: false,
                 vec3("at"), vec3("turn"), brightness(), repeat(), lane(),
             )
+            "text" -> {
+                val byLocale = mapOf("text_by_locale")?.mapValues { (k, v) -> v as? String ?: fail("text_by_locale.$k must be a string") }
+                if (byLocale != null && byLocale.isEmpty()) fail("text_by_locale must not be empty")
+                VisualOp.Text(
+                    id, whenExpr, requireString("parent"), face(PlateFace.ViewerCenter), sizeVec("size", uniform = false),
+                    if (byLocale == null) requireString("text") else string("text") ?: byLocale["en"] ?: byLocale.values.first(),
+                    colorOr("background", "#000000"), numberOr("background_alpha", 0.0),
+                    bool("shadow") ?: false, bool("see_through") ?: false,
+                    vec3("at"), vec3("turn"), brightness(), repeat(), byLocale ?: emptyMap(), lane(),
+                )
+            }
             "line" -> VisualOp.Line(
                 id, whenExpr, requirePoint("from"), requirePoint("to"), numberOr("thickness", 0.05),
                 colorOr("color", "#ffffff"), face(PlateFace.ViewerAxis(AxisRef("line.along"))),

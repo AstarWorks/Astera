@@ -63,12 +63,7 @@ BLOCK_RGB = {
 }
 
 
-def argb_split(c):
-    """v1 `#AARRGGBB` (or `#RRGGBB`) -> (`#rrggbb`, alpha 0..1)."""
-    h = str(c).lstrip("#")
-    if len(h) == 8:
-        return "#" + h[2:].lower(), round(int(h[:2], 16) / 255.0, 3)
-    return "#" + h.lower(), 1.0
+argb_split = vfxelem.argb_split
 
 
 def block_rgb(name):
@@ -444,10 +439,28 @@ class Conv:
         return "snap"
 
     def point(self, tg, where, side="p"):
+
+    def frozen(self, base, where):
+        """`base` (caster | aim) as the context holds it: one body frame, placed like `base` once. v1 MechanicDispatcher.livePose :565
+        keeps the stored context pose instead of re-reading the live caster for `snapshot_pose` mechanics and for hit contexts
+        (hitLocation != null). The cast context is built at cast start (t = 0); an event handler's context is built when the event
+        is raised, so its frame is placed at the head of that handler. Targeter points derived from it (caster_forward 8,
+        caster_offset ..) are resolved from the frozen frame, so a delayed firing stays where the context put it."""
+        if where.kind == "handler":
+            fid = "%s_%s" % (sid(where.event), base)
+            rows = self.g_on.setdefault(where.event, [])
+        else:
+            fid = "cast_" + base
+            rows = self.g_rows.setdefault((None, 0), [])
+        if fid not in self.frames:
+            self.frames[fid] = {"id": fid, "kind": "body", "parent": "world", "inactive": True}
+            rows.insert(0, {"id": self.oid("place_" + fid), "op": "place", "frame": fid, "like": base})
+        return fid
+
+    def point(self, tg, where, side="p", frozen=False):
         t = tg["type"] if tg else "caster"
-        cref = getattr(self, "cref", "caster")
         if t == "caster":
-            return cref
+            return self.frozen("caster", where) if frozen else "caster"
         if t == "target":
             return "contact.point" if side == "p" and where.kind == "handler" and where.event == "hit" else "enemy"
         if t == "hit_location":
@@ -455,10 +468,9 @@ class Conv:
         if t == "caster_forward":
             # v1 TargeterResolver.casterForward: eye + look direction * distance + (0, height, 0). The `aim` frame is the
             # eye with the full look rotation, so distance is exact; height is along the aim up (world up at pitch 0).
-            # A snapshotted caster (cref != "caster") keeps its own frame.
-            return self.pframe("aim" if cref == "caster" else cref, [0.0, V(tg.get("height", 0.0)), V(tg.get("distance", 0.0))], side)
+            return self.pframe(self.frozen("aim", where) if frozen else "aim", [0.0, V(tg.get("height", 0.0)), V(tg.get("distance", 0.0))], side)
         if t == "caster_offset":
-            return self.pframe(cref, vec3(tg["offset"]), side)
+            return self.pframe(self.frozen("caster", where) if frozen else "caster", vec3(tg["offset"]), side)
         if t == "target_offset":
             return self.pframe("enemy", vec3(tg["offset"]), side)
         if t == "projectile_position":
@@ -971,15 +983,6 @@ class Conv:
 
         if t == "play_sound":
             self.play_sound(m, tg, where, delay, when)
-        elif t == "spawn_display":
-            # v1 SpawnDisplay (WorldMechanics.kt:510-528 + PaperDisplayEntityGateway.kt:202-211) draws a vanilla text display: lines
-            # chosen by the CASTER's locale, a world-fixed billboard (default), a background argb (default 0x40000000), a per-display
-            # lifetime. The only v2 text op is `quad`: one locale-neutral string, face viewer / frame plane, no lifetime field. So
-            # it is never converted silently; whichever of these the mechanic uses, it is recorded (raises under --strict).
-            kind = (m.get("display") or {}).get("kind") or {}
-            self.todo("spawn_display text: v2 `quad` has no per-locale lines, world-fixed billboard, vanilla text scale or lifetime",
-                      short({"kind": kind.get("type"), "billboard": (m.get("display") or {}).get("billboard", "fixed"),
-                             "lines": kind.get("lines")}, 160))
         elif t == "spawn_particle":
             if tg and tg.get("type") == "target" and where.kind == "handler" and where.event == "hit" and where.guard in self.damaged_sel:
                 # v1 TargeterResolver.resolveLocations (TargeterResolver.kt:120-139) resolves LIVING players when the mechanic runs,
@@ -1044,6 +1047,8 @@ class Conv:
             W(op)
         elif t == "telegraph":
             self.telegraph(m, tg, where, delay, when)
+        elif t == "spawn_display":
+            self.spawn_display(m, tg, where, delay, when)
         else:
             frag = {k: V(v) for k, v in m.items() if k not in ("type", "targets", "delay_ticks")}
             self.present("%s has no v2 op" % t, short(frag, 160))
@@ -1219,6 +1224,78 @@ class Conv:
             or (parent == "bolt" and self.has_bolt)
         return parent if ok else None
 
+    SPAWN_DISPLAY_KEYS = {"display", "viewers", "period_ticks", "duration_ticks", "snapshot_pose"}
+    SPAWN_DISPLAY_TEXT_KEYS = {"type", "lines", "background_argb"}
+
+    def spawn_display(self, m, tg, where, delay, when):
+        """v1 Mechanic.SpawnDisplay, text kind (WorldMechanics.display :459-478).
+
+        v1 renders every `lines` entry for the caster's locale (messageRenderer.renderText(actorId, ..)), joins them with newlines,
+        spawns a TextDisplay at the resolved location (billboard FIXED unless set, vanilla text scale 1 = 0.2 blocks, background
+        `background_argb` default 0x40000000, shadow / see_through off) and removes it `lifetime_ticks` later (scheduler.runLaterTicks).
+        At most MAX_DISPLAYS_PER_CAST (32, :631) displays per cast; the v2 text op enforces the same cap."""
+        extra = sorted(set(m) - self.SPAWN_DISPLAY_KEYS - self.COMMON_MECH_KEYS)
+        if extra:
+            raise ValueError("%s: spawn_display carries field(s) %s that v2 cannot express; extend the op before converting"
+                             % (self.sid_hint(), extra))
+        disp = m["display"]
+        kind = disp["kind"]
+        if kind.get("type") != "text":
+            self.present("spawn_display kind %s has no v2 op" % kind.get("type"), short(kind, 80))
+            return
+        extra = sorted(set(kind) - self.SPAWN_DISPLAY_TEXT_KEYS)
+        if extra:
+            raise ValueError("%s: spawn_display text carries field(s) %s that v2 cannot express" % (self.sid_hint(), extra))
+        extra = sorted(set(disp) - {"kind", "transform", "lifetime_ticks", "billboard"})
+        if extra:
+            raise ValueError("%s: spawn_display display carries field(s) %s that v2 cannot express" % (self.sid_hint(), extra))
+        if str(V(m.get("viewers", "all"))).lower() != "all":
+            self.present("spawn_display viewers (v2 displays are shown to everyone)", short(V(m["viewers"]), 30))
+        for k in ("period_ticks", "duration_ticks"):
+            if k in m and V(m[k]):
+                self.present("spawn_display %s (v1 respawns on a period; the v2 text op spawns once)" % k, str(V(m[k])))
+        if V(m.get("snapshot_pose", False)):
+            self.present("spawn_display snapshot_pose", "true")
+        lines = kind["lines"]
+        locales = sorted({loc for ln in lines for loc in ln})
+        by_locale = {loc: "\n".join(ln.get(loc, ln.get("en", next(iter(ln.values())))) for ln in lines) for loc in locales}
+        tr = disp.get("transform") or {}
+        sc = vec3(tr["scale"]) if "scale" in tr else [1.0, 1.0, 1.0]
+        size = [round(0.2 * float(sc[0]), 4), round(0.2 * float(sc[1]), 4)]
+        at = self.point(tg, where, "p")
+        parent = self.frame_parent(at)
+        if parent is None:
+            self.present("spawn_display anchored at a runtime point (frame parent must exist at cast start): anchored at world", at)
+            parent = "world"
+        bb = str(disp.get("billboard", "fixed")).lower()
+        if bb == "fixed":
+            face = {"plane": {"frame": parent, "axes": ["left", "up"]}}
+        elif bb in ("center", "vertical"):
+            face = {"viewer": bb}
+        else:
+            self.present("spawn_display billboard %s (v2 faces: fixed, center, vertical)" % bb)
+            face = {"plane": {"frame": parent, "axes": ["left", "up"]}}
+        rot = tr.get("rotation")
+        if rot and any(abs(float(V(rot.get(a, 0.0)))) > 1e-9 for a in ("x", "y", "z")):
+            self.present("spawn_display transform.rotation", short(rot, 60))
+        argb = int(V(kind.get("background_argb", 0x40000000))) & 0xFFFFFFFF
+        eid = self.oid("display")
+        # v1 resolves the Location once per firing (TargeterResolver.resolveLocations :120 returns bare Vec3s; PaperDisplayEntityGateway
+        # .spawn :146 builds Location(world, x, y, z), yaw = pitch = 0) and the display never moves afterwards. `instance` makes every
+        # firing its own world-parented, world-axes node at the parent's origin; `life` is runLaterTicks(lifetime) (WorldMechanics :472).
+        if face.get("plane"):
+            face["plane"]["frame"] = "world"
+        op = {"id": eid, "op": "text", "parent": parent, "face": face, "size": size, "text_by_locale": by_locale,
+              "times": 1, "life": int(V(disp["lifetime_ticks"])), "instance": True}
+        if "translation" in tr:
+            off = vec3(tr["translation"])
+            if any(abs(float(x)) > 1e-9 for x in off):
+                op["at"] = off
+        if argb >> 24:
+            op["background"] = "#%06x" % (argb & 0xFFFFFF)
+            op["background_alpha"] = round((argb >> 24) / 255.0, 3)
+        self.p(where, delay, self._w(op, when))
+
     def vfx(self, m, tg, where, delay, when, d=None, parent=None):
         vid = m["vfx_id"]
         if d is None:
@@ -1233,10 +1310,13 @@ class Conv:
         d = vfxelem.scale_def(d, float(sc))
         self.vfx_n += 1
         fid = "fx%d_%s" % (self.vfx_n, sid(vid))
-        snap = self.snapshot_frame() if V(m.get("snapshot_pose", False)) else None
-        self.cref = snap or "caster"
-        want = self.point(tg, where, "p") if tg else self.cref
-        self.cref = "caster"
+        # v1 reads the stored cast context, not the live caster, for `snapshot_pose` and for a hit context (MechanicDispatcher.livePose :565)
+        # (a delay-0 hit firing runs at the instant the context was built, so there is nothing to freeze); only a caster-pose
+        # targeter is derived from the stored pose, enemy / contact targets resolve from their own entity / hit location
+        snapshot = bool(V(m.get("snapshot_pose", False))) or (where.kind == "handler" and where.event == "hit" and delay > 0)
+        snapshot = snapshot and (not tg or tg["type"] in ("caster", "caster_forward", "caster_offset"))
+        snap = self.frozen("caster", where) if snapshot else None
+        want = self.point(tg, where, "p", frozen=snapshot) if tg else (snap or "caster")
         follow = bool(V(m.get("follow", d.get("follow", True))))
         # v1 places the instance at the play point with VfxOrient.frame (VfxDefinition.kt:33-60) and moves only a follow=true one
         # (VfxPlayer.kt:414-420: position tracks the anchor, the spawn rotation stays). Both are one `anchor` op on a
