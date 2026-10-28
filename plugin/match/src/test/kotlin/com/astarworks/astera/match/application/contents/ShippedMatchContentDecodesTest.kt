@@ -26,6 +26,7 @@ class ShippedMatchContentDecodesTest {
             "anomaly" to { d -> AnomalyContents().bootstrap(d) },
             "generators" to { d -> GeneratorContents().bootstrap(d) },
             "game-modes" to { d -> GameModeContents().bootstrap(d) },
+            "bot-loadouts" to { d -> BotLoadoutContents().bootstrap(d) },
         )
         return cases.map { (category, load) ->
             DynamicTest.dynamicTest(category) {

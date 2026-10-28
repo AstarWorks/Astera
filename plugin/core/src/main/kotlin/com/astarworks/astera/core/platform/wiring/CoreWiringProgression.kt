@@ -311,6 +311,7 @@ internal fun CoreWiringState.wireProgression() {
         restorePending = { services.get<com.astarworks.astera.core.application.service.handoff.PlayerHandoffService>()?.isRestorePending(it) ?: false },
         afterEntryCapture = {
             weaponLimits.enforceOnEntry(it)
+            services.get<com.astarworks.astera.core.application.port.outbound.item.IMatchEntryLoadout>()?.grantOnEntry(it)
             loanerKit.ensureArmed(it)
         },
     )
