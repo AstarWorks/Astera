@@ -2,6 +2,7 @@ package com.astarworks.astera.core.application.skillengine.load.ops.control
 
 import com.astarworks.astera.core.application.skillengine.compose.LowerContext
 import com.astarworks.astera.core.application.skillengine.compose.PartInliner
+import com.astarworks.astera.core.application.skillengine.compose.SkillCallInliner
 import com.astarworks.astera.core.application.skillengine.load.grammar.FieldType
 import com.astarworks.astera.core.application.skillengine.load.spec.Lowered
 import com.astarworks.astera.core.domain.skillengine.table.Action
@@ -25,7 +26,7 @@ import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.skillengine.op.OpSection
 import com.astarworks.astera.core.domain.skillengine.table.OpId
 
-/** Decoded `use` op. Part half (W1-14): [target] is a part id; the `skill:` branch is W1-15's. */
+/** Decoded `use` op. [target] is a part id, or `skill:<id>` (W1-15) with [gateCooldown] / [gateCost] from `gate:`. */
 public class UseOp(
     override val id: OpId,
     override val whenExpr: WhenRef?,
@@ -33,6 +34,8 @@ public class UseOp(
     public val target: String,
     public val args: Map<String, Any?>,
     public val frames: Map<String, String>,
+    public val gateCooldown: Boolean = false,
+    public val gateCost: Boolean = false,
 ) : OpNode
 
 public object UseOpSpec : OpSpec<UseOp> {
@@ -42,16 +45,22 @@ public object UseOpSpec : OpSpec<UseOp> {
     private val useField = Field.required("use", Types.id)
     private val withField = Field.optional("with", RawMap, emptyMap())
     private val framesField = Field.optional("frames", StringMap, emptyMap())
-    override val fields: Fields = Fields.of("use", useField, withField, framesField)
+    private val gateField = Field.optional("gate", GateType, null)
+    override val fields: Fields = Fields.of("use", useField, withField, framesField, gateField)
 
     override fun decode(id: OpId, whenExpr: WhenRef?, timing: Timing?, values: FieldValues, ctx: GrammarContext): Result<UseOp, SkillDecodeError> {
         val target = values[useField]
-        if (target.startsWith("skill:")) TODO("W1-15: use: skill:<id>")
+        val gate = values[gateField]
+        if (target.startsWith(SkillCallInliner.PREFIX)) {
+            if (target.length == SkillCallInliner.PREFIX.length) ctx.fail("use", "'skill:' names no skill")
+            return Result.success(UseOp(id, whenExpr, timing, target, values[withField], values[framesField], gate?.cooldown ?: false, gate?.cost ?: false))
+        }
+        if (gate != null) ctx.fail("gate", "gate: applies to a skill call (use: skill:<id>); a part call has no cooldown or cost")
         return Result.success(UseOp(id, whenExpr, timing, target, values[withField], values[framesField]))
     }
 
     override fun lower(op: UseOp, lc: LowerContext): Result<Lowered, SkillDecodeError> {
-        if (op.target.startsWith("skill:")) TODO("W1-15: use: skill:<id>")
+        if (op.target.startsWith(SkillCallInliner.PREFIX)) return SkillCallInliner.lowerCall(op, lc, UseLowering::lowerPartCall)
         return UseLowering.lowerPartCall(op, lc)
     }
 }
@@ -64,6 +73,29 @@ private object RawMap : FieldType<Map<String, Any?>> {
         return m.entries.associate { (k, v) -> (k as? String ?: ctx.fail(path, "key '$k' is not a string")) to v }
     }
     override fun schema(): Map<String, Any?> = linkedMapOf("type" to "object")
+}
+
+/** `gate:` of a skill call (ADR-0303 section 9): which of the caster's cooldown / resource cost the called skill also pays. */
+internal data class Gate(val cooldown: Boolean, val cost: Boolean)
+
+private object GateType : FieldType<Gate?> {
+    override val label = "{cooldown: bool, cost: bool}"
+    override fun decode(raw: Any?, ctx: GrammarContext, path: String): Gate {
+        val m = raw as? Map<*, *> ?: ctx.mismatch(path, label, raw)
+        if (m.isEmpty()) ctx.fail(path, "gate: names neither cooldown nor cost")
+        for (k in m.keys) if (k != "cooldown" && k != "cost") ctx.abort(SkillDecodeError.UnknownKey(ctx.file, path, k.toString()))
+        fun flag(key: String): Boolean = when (val v = m[key]) {
+            null -> false
+            is Boolean -> v
+            else -> ctx.mismatch("$path.$key", "bool", v)
+        }
+        return Gate(flag("cooldown"), flag("cost"))
+    }
+    override fun schema(): Map<String, Any?> = linkedMapOf(
+        "type" to "object",
+        "additionalProperties" to false,
+        "properties" to linkedMapOf("cooldown" to linkedMapOf("type" to "boolean"), "cost" to linkedMapOf("type" to "boolean")),
+    )
 }
 
 /** `frames:` of a call: part frame name -> caller frame reference. */
