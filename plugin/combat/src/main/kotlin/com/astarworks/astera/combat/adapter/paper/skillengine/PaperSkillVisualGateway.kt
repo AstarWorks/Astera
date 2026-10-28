@@ -175,12 +175,14 @@ public class PaperSkillVisualGateway(
         val castOwner = cast.caster
         val world = worldOf(cast) ?: return dead("plate $sprite")
         val glyph = SpriteGlyphs.text(SpriteId(sprite), 0, tintHex?.let { argb(it) and 0xFFFFFF })
-        val intrinsic = Intrinsic.textGlyph(spriteInfo(sprite).px)
+        val intrinsic = Intrinsic.SPRITE
+        // a `#aarrggbb` tint carries its own opacity (the flat translucent quad of ADR-0303 2.1)
+        val shown = alpha * (tintHex?.let { SkillDisplaySpecs.alphaOf(it) } ?: 1.0)
         val first = toDisplayWrite(pose.frame, pose.size, intrinsic, pose.billboard, 0)
-        val spec = SkillDisplaySpecs.plate(glyph, alpha, seeThrough, first.transform, pose.billboard, brightness ?: 15).copy(glowArgb = SkillDisplaySpecs.glowArgb(glow))
+        val spec = SkillDisplaySpecs.plate(glyph, shown, seeThrough, first.transform, pose.billboard, brightness ?: 15).copy(glowArgb = SkillDisplaySpecs.glowArgb(glow))
         val handle = spawnDisplay(world, castOwner, pose.frame.origin, spec, listOf(glyph), pose.anchorFeet != null && pose.billboard == DisplayBillboard.FIXED, view)
             ?: return dead("plate $sprite")
-        return register(castOwner, PlateEntry(handle, castOwner, sprite, intrinsic, tintHex?.let { argb(it) and 0xFFFFFF }, SkillDisplaySpecs.opacity(alpha)))
+        return register(castOwner, PlateEntry(handle, castOwner, sprite, intrinsic, tintHex?.let { argb(it) and 0xFFFFFF }, SkillDisplaySpecs.opacity(shown)))
     }
 
     override fun spawnBlock(cast: CastRef, block: String, pose: VisualPose, brightness: Int?, rigShading: Boolean, view: DisplayView, glow: String?): VisualHandle {
@@ -192,15 +194,15 @@ public class PaperSkillVisualGateway(
         return register(castOwner, BlockEntry(handle, castOwner))
     }
 
-    override fun spawnText(cast: CastRef, text: String, backgroundHex: String, backgroundAlpha: Double, shadow: Boolean, seeThrough: Boolean, pose: VisualPose, brightness: Int?, view: DisplayView): VisualHandle {
+    override fun spawnText(cast: CastRef, text: String, backgroundArgbHex: String, shadow: Boolean, seeThrough: Boolean, pose: VisualPose, brightness: Int?, view: DisplayView): VisualHandle {
         val castOwner = cast.caster
         val world = worldOf(cast) ?: return dead("text")
-        val intrinsic = Intrinsic.textGlyph(QUAD_TEXT_PX)
+        val intrinsic = Intrinsic.TEXT_QUAD
         val first = toDisplayWrite(pose.frame, pose.size, intrinsic, pose.billboard, 0)
-        val spec = SkillDisplaySpecs.text(text, backgroundHex, backgroundAlpha, shadow, seeThrough, first.transform, pose.billboard, brightness)
+        val spec = SkillDisplaySpecs.text(text, backgroundArgbHex, shadow, seeThrough, first.transform, pose.billboard, brightness)
         val handle = spawnDisplay(world, castOwner, pose.frame.origin, spec, listOf(text), pose.anchorFeet != null && pose.billboard == DisplayBillboard.FIXED, view)
             ?: return dead("text")
-        return register(castOwner, TextEntry(handle, castOwner, intrinsic, (((backgroundAlpha.coerceIn(0.0, 1.0) * 255.0).roundToInt()) shl 24) or (argb(backgroundHex) and 0xFFFFFF)))
+        return register(castOwner, TextEntry(handle, castOwner, intrinsic, argb(backgroundArgbHex)))
     }
 
     override fun spawnTrail(cast: CastRef, ticks: Int, widthFrac: Double, colorHex: String, alpha: Double): VisualHandle {
@@ -231,7 +233,11 @@ public class PaperSkillVisualGateway(
     public fun setText(handle: VisualHandle, field: String, value: String): Boolean {
         when (val e = entries[handle.id]) {
             is PlateEntry -> when (field) {
-                "color" -> { e.rgb = argb(value) and 0xFFFFFF; displays.setText(e.handle, listOf(SpriteGlyphs.text(SpriteId(e.sprite), e.frame, e.rgb))) }
+                "color" -> {
+                    e.rgb = argb(value) and 0xFFFFFF
+                    displays.setText(e.handle, listOf(SpriteGlyphs.text(SpriteId(e.sprite), e.frame, e.rgb)))
+                    if (value.removePrefix("#").length == 8) { e.opacity = SkillDisplaySpecs.opacity(SkillDisplaySpecs.alphaOf(value)); displays.setTextStyle(e.handle, 0, e.opacity, null) }
+                }
                 "text" -> {
                     val glyph = value.firstOrNull { it.code in 0xE000 until 0xE000 + SpriteGlyphs.MAX_FRAMES } ?: return false
                     e.frame = glyph.code - 0xE000
@@ -432,8 +438,6 @@ public class PaperSkillVisualGateway(
     private companion object {
         val HAND = PresentationMask(hand = true)
 
-        /** Font height (px) of a quad's drawn text: the vanilla default, 8 px = 0.2 blocks per text scale unit. */
-        const val QUAD_TEXT_PX = 8
         val BODY = PresentationMask(hand = true, offhand = true, armor = true, body = true, pinPose = true)
     }
 

@@ -12,7 +12,8 @@ machine:
   start: cast
   states:
     cast:
-      for: 25
+      # v2/v1: caster_anim crouch ticks 35 from tick 2 -> the cast lives to tick 37 (dash ends at 25, settle state holds the body anim)
+      for: 37
       then: end
       start: wind
       on:
@@ -49,9 +50,7 @@ machine:
               for: 12
               motion:
                 - {law: grow, per_tick: {left: -0.163636, up: -0.063636, forward: 0}, at: 0, for: 11}
-                - {law: fade, start: 0.12, to: 0.399999, at: 0, for: 3}
-                - {law: fade, start: 0.399999, to: 0.319996, at: 3, for: 7}
-                - {law: fade, start: 0.319996, to: -4e-06, at: 10, for: 1}
+                - {law: keys, keys: [{t: 0, alpha: 0.12}, {t: 3, alpha: 0.4}, {t: 10, alpha: 0.32}, {t: 11, alpha: 0}]}
             - id: fx1_couture_passage_windup_fold_1
               op: display
               kind: text
@@ -65,9 +64,7 @@ machine:
               for: 12
               motion:
                 - {law: grow, per_tick: {left: -0.209091, up: -0.063636, forward: 0}, at: 0, for: 11}
-                - {law: fade, start: 0.12, to: 0.399999, at: 0, for: 3}
-                - {law: fade, start: 0.399999, to: 0.319996, at: 3, for: 7}
-                - {law: fade, start: 0.319996, to: -4e-06, at: 10, for: 1}
+                - {law: keys, keys: [{t: 0, alpha: 0.12}, {t: 3, alpha: 0.4}, {t: 10, alpha: 0.32}, {t: 11, alpha: 0}]}
             - id: fx1_couture_passage_windup_fold_2
               op: display
               kind: text
@@ -81,9 +78,7 @@ machine:
               for: 12
               motion:
                 - {law: grow, per_tick: {left: -0.127273, up: -0.063636, forward: 0}, at: 0, for: 11}
-                - {law: fade, start: 0.12, to: 0.399999, at: 0, for: 3}
-                - {law: fade, start: 0.399999, to: 0.319996, at: 3, for: 7}
-                - {law: fade, start: 0.319996, to: -4e-06, at: 10, for: 1}
+                - {law: keys, keys: [{t: 0, alpha: 0.12}, {t: 3, alpha: 0.4}, {t: 10, alpha: 0.32}, {t: 11, alpha: 0}]}
             - id: fx1_couture_passage_windup_fold_3
               op: display
               kind: text
@@ -97,9 +92,7 @@ machine:
               for: 12
               motion:
                 - {law: grow, per_tick: {left: -0.218182, up: -0.063636, forward: 0}, at: 0, for: 11}
-                - {law: fade, start: 0.12, to: 0.399999, at: 0, for: 3}
-                - {law: fade, start: 0.399999, to: 0.319996, at: 3, for: 7}
-                - {law: fade, start: 0.319996, to: -4e-06, at: 10, for: 1}
+                - {law: keys, keys: [{t: 0, alpha: 0.12}, {t: 3, alpha: 0.4}, {t: 10, alpha: 0.32}, {t: 11, alpha: 0}]}
             - id: fx1_couture_passage_windup_fold_4
               op: display
               kind: text
@@ -113,9 +106,7 @@ machine:
               for: 12
               motion:
                 - {law: grow, per_tick: {left: -0.163636, up: -0.063636, forward: 0}, at: 0, for: 11}
-                - {law: fade, start: 0.12, to: 0.399999, at: 0, for: 3}
-                - {law: fade, start: 0.399999, to: 0.319996, at: 3, for: 7}
-                - {law: fade, start: 0.319996, to: -4e-06, at: 10, for: 1}
+                - {law: keys, keys: [{t: 0, alpha: 0.12}, {t: 3, alpha: 0.4}, {t: 10, alpha: 0.32}, {t: 11, alpha: 0}]}
             - id: fx1_couture_passage_windup_spindle
               op: display
               kind: text
@@ -129,8 +120,7 @@ machine:
               brightness: {block: 15, sky: 15}
               for: 12
               motion:
-                - {law: fade, start: 0.12, to: 0.350001, at: 0, for: 3}
-                - {law: fade, start: 0.350001, to: 1e-06, at: 3, for: 8}
+                - {law: keys, keys: [{t: 0, alpha: 0.12}, {t: 3, alpha: 0.35}, {t: 11, alpha: 0}]}
         - id: p6
           op: group
           at: 6
@@ -654,7 +644,7 @@ machine:
           # v2 dash_strike at tick 11: distance 9 over 5 ticks, radius 0.8, hit_once, invulnerable false.
           # The dash_fx handler of v2 outlives the dash by 9 ticks (dash_fx6..9 removals), so the state lasts 14 ticks.
           for: 14
-          then: done
+          then: settle
           enter:
             - {id: lunge, op: dash, speed: "= dash_distance / 5", for: 5, until: dash_hit.hit, direction: {forward: 1.0}, follow_pitch: false, stop_on_block: true, invulnerable: false, face_movement: false}
           do:
@@ -723,7 +713,7 @@ machine:
                         motion:
                           - {law: move, velocity: {left: 0, up: -0.133333, forward: -0.15}, at: 0, for: 6, ease: out_cubic}
                           - {law: grow, per_tick: {left: -0.093333, up: -0.053333, forward: 0}, at: 0, for: 6, ease: out_cubic}
-                          - {law: fade, start: 1.0, to: -2e-06, at: 0, for: 6, ease: out_cubic}
+                          - {law: fade, at: 0, for: 6, ease: out_cubic}
                       - id: fx3_couture_passage_contact_dark_1
                         op: display
                         kind: text
@@ -732,15 +722,15 @@ machine:
                         background: "#28201C"
                         anchor: fx3_couture_passage_contact
                         offset: {left: 0, up: 1.1, forward: 0}
-                        rotate: [{axis: forward, deg: 60}]
                         scale: [0.96, 0.64, 1]
                         billboard: center
                         brightness: {block: 15, sky: 15}
                         for: 7
                         motion:
+                          - {law: spin, axis: forward, deg_per_tick: 10, at: 0, for: 6, ease: out_cubic}
                           - {law: move, velocity: {left: 0, up: -0.083333, forward: -0.05}, at: 0, for: 6, ease: out_cubic}
                           - {law: grow, per_tick: {left: -0.093333, up: -0.053333, forward: 0}, at: 0, for: 6, ease: out_cubic}
-                          - {law: fade, start: 1.0, to: -2e-06, at: 0, for: 6, ease: out_cubic}
+                          - {law: fade, at: 0, for: 6, ease: out_cubic}
                       - id: fx3_couture_passage_contact_dark_2
                         op: display
                         kind: text
@@ -749,15 +739,15 @@ machine:
                         background: "#28201C"
                         anchor: fx3_couture_passage_contact
                         offset: {left: 0, up: 1.1, forward: 0}
-                        rotate: [{axis: forward, deg: 120}]
                         scale: [0.96, 0.64, 1]
                         billboard: center
                         brightness: {block: 15, sky: 15}
                         for: 7
                         motion:
+                          - {law: spin, axis: forward, deg_per_tick: 20, at: 0, for: 6, ease: out_cubic}
                           - {law: move, velocity: {left: 0, up: -0.033333, forward: 0.05}, at: 0, for: 6, ease: out_cubic}
                           - {law: grow, per_tick: {left: -0.093333, up: -0.053333, forward: 0}, at: 0, for: 6, ease: out_cubic}
-                          - {law: fade, start: 1.0, to: -2e-06, at: 0, for: 6, ease: out_cubic}
+                          - {law: fade, at: 0, for: 6, ease: out_cubic}
                       - id: fx3_couture_passage_contact_dark_3
                         op: display
                         kind: text
@@ -766,15 +756,15 @@ machine:
                         background: "#28201C"
                         anchor: fx3_couture_passage_contact
                         offset: {left: 0, up: 1.1, forward: 0}
-                        rotate: [{axis: forward, deg: 180}]
                         scale: [0.96, 0.64, 1]
                         billboard: center
                         brightness: {block: 15, sky: 15}
                         for: 7
                         motion:
+                          - {law: spin, axis: forward, deg_per_tick: 30, at: 0, for: 6, ease: out_cubic}
                           - {law: move, velocity: {left: 0, up: 0.016667, forward: 0.15}, at: 0, for: 6, ease: out_cubic}
                           - {law: grow, per_tick: {left: -0.093333, up: -0.053333, forward: 0}, at: 0, for: 6, ease: out_cubic}
-                          - {law: fade, start: 1.0, to: -2e-06, at: 0, for: 6, ease: out_cubic}
+                          - {law: fade, at: 0, for: 6, ease: out_cubic}
                       - id: fx3_couture_passage_contact_bloom
                         op: display
                         kind: text
@@ -790,7 +780,7 @@ machine:
                         motion:
                           - {law: grow, per_tick: {left: 8, up: 4, forward: 0}, at: 0, for: 1}
                           - {law: grow, per_tick: {left: 1, up: 0.5, forward: 0}, at: 1, for: 4}
-                          - {law: fade, start: 0.2, to: 0.0, at: 0, for: 5}
+                          - {law: keys, keys: [{t: 0, alpha: 0.2}, {t: 5, alpha: 0}]}
                       - id: fx3_couture_passage_contact_petals_0
                         op: display
                         kind: text
@@ -818,11 +808,7 @@ machine:
                           - {law: grow, per_tick: {left: -0.074568, up: -0.037284, forward: 0}, at: 4, for: 1}
                           - {law: grow, per_tick: {left: -0.074576, up: -0.037288, forward: 0}, at: 5, for: 1}
                           - {law: grow, per_tick: {left: -0.074568, up: -0.037284, forward: 0}, at: 6, for: 1}
-                          - {law: fade, start: 1.0, to: 0.85714, at: 0, for: 1}
-                          - {law: fade, start: 0.85714, to: 0.71429, at: 1, for: 1}
-                          - {law: fade, start: 0.71429, to: 0.28571, at: 2, for: 3}
-                          - {law: fade, start: 0.28571, to: 0.14286, at: 5, for: 1}
-                          - {law: fade, start: 0.14286, to: 0.0, at: 6, for: 1}
+                          - {law: keys, keys: [{t: 0, alpha: 1}, {t: 1, alpha: 0.85714}, {t: 2, alpha: 0.71429}, {t: 5, alpha: 0.28571}, {t: 6, alpha: 0.14286}, {t: 7, alpha: 0}]}
                       - id: fx3_couture_passage_contact_petals_1
                         op: display
                         kind: text
@@ -850,11 +836,7 @@ machine:
                           - {law: grow, per_tick: {left: -0.074568, up: -0.037284, forward: 0}, at: 4, for: 1}
                           - {law: grow, per_tick: {left: -0.074576, up: -0.037288, forward: 0}, at: 5, for: 1}
                           - {law: grow, per_tick: {left: -0.074568, up: -0.037284, forward: 0}, at: 6, for: 1}
-                          - {law: fade, start: 1.0, to: 0.85714, at: 0, for: 1}
-                          - {law: fade, start: 0.85714, to: 0.71429, at: 1, for: 1}
-                          - {law: fade, start: 0.71429, to: 0.28571, at: 2, for: 3}
-                          - {law: fade, start: 0.28571, to: 0.14286, at: 5, for: 1}
-                          - {law: fade, start: 0.14286, to: 0.0, at: 6, for: 1}
+                          - {law: keys, keys: [{t: 0, alpha: 1}, {t: 1, alpha: 0.85714}, {t: 2, alpha: 0.71429}, {t: 5, alpha: 0.28571}, {t: 6, alpha: 0.14286}, {t: 7, alpha: 0}]}
                       - id: fx3_couture_passage_contact_petals_2
                         op: display
                         kind: text
@@ -882,11 +864,7 @@ machine:
                           - {law: grow, per_tick: {left: -0.074568, up: -0.037284, forward: 0}, at: 4, for: 1}
                           - {law: grow, per_tick: {left: -0.074576, up: -0.037288, forward: 0}, at: 5, for: 1}
                           - {law: grow, per_tick: {left: -0.074568, up: -0.037284, forward: 0}, at: 6, for: 1}
-                          - {law: fade, start: 1.0, to: 0.85714, at: 0, for: 1}
-                          - {law: fade, start: 0.85714, to: 0.71429, at: 1, for: 1}
-                          - {law: fade, start: 0.71429, to: 0.28571, at: 2, for: 3}
-                          - {law: fade, start: 0.28571, to: 0.14286, at: 5, for: 1}
-                          - {law: fade, start: 0.14286, to: 0.0, at: 6, for: 1}
+                          - {law: keys, keys: [{t: 0, alpha: 1}, {t: 1, alpha: 0.85714}, {t: 2, alpha: 0.71429}, {t: 5, alpha: 0.28571}, {t: 6, alpha: 0.14286}, {t: 7, alpha: 0}]}
                       - id: fx3_couture_passage_contact_petals_3
                         op: display
                         kind: text
@@ -914,11 +892,7 @@ machine:
                           - {law: grow, per_tick: {left: -0.074568, up: -0.037284, forward: 0}, at: 4, for: 1}
                           - {law: grow, per_tick: {left: -0.074576, up: -0.037288, forward: 0}, at: 5, for: 1}
                           - {law: grow, per_tick: {left: -0.074568, up: -0.037284, forward: 0}, at: 6, for: 1}
-                          - {law: fade, start: 1.0, to: 0.85714, at: 0, for: 1}
-                          - {law: fade, start: 0.85714, to: 0.71429, at: 1, for: 1}
-                          - {law: fade, start: 0.71429, to: 0.28571, at: 2, for: 3}
-                          - {law: fade, start: 0.28571, to: 0.14286, at: 5, for: 1}
-                          - {law: fade, start: 0.14286, to: 0.0, at: 6, for: 1}
+                          - {law: keys, keys: [{t: 0, alpha: 1}, {t: 1, alpha: 0.85714}, {t: 2, alpha: 0.71429}, {t: 5, alpha: 0.28571}, {t: 6, alpha: 0.14286}, {t: 7, alpha: 0}]}
                       - id: fx3_couture_passage_contact_petals_4
                         op: display
                         kind: text
@@ -946,11 +920,7 @@ machine:
                           - {law: grow, per_tick: {left: -0.074568, up: -0.037284, forward: 0}, at: 4, for: 1}
                           - {law: grow, per_tick: {left: -0.074576, up: -0.037288, forward: 0}, at: 5, for: 1}
                           - {law: grow, per_tick: {left: -0.074568, up: -0.037284, forward: 0}, at: 6, for: 1}
-                          - {law: fade, start: 1.0, to: 0.85714, at: 0, for: 1}
-                          - {law: fade, start: 0.85714, to: 0.71429, at: 1, for: 1}
-                          - {law: fade, start: 0.71429, to: 0.28571, at: 2, for: 3}
-                          - {law: fade, start: 0.28571, to: 0.14286, at: 5, for: 1}
-                          - {law: fade, start: 0.14286, to: 0.0, at: 6, for: 1}
+                          - {law: keys, keys: [{t: 0, alpha: 1}, {t: 1, alpha: 0.85714}, {t: 2, alpha: 0.71429}, {t: 5, alpha: 0.28571}, {t: 6, alpha: 0.14286}, {t: 7, alpha: 0}]}
                       - id: fx3_couture_passage_contact_petals_5
                         op: display
                         kind: text
@@ -978,11 +948,7 @@ machine:
                           - {law: grow, per_tick: {left: -0.074568, up: -0.037284, forward: 0}, at: 4, for: 1}
                           - {law: grow, per_tick: {left: -0.074576, up: -0.037288, forward: 0}, at: 5, for: 1}
                           - {law: grow, per_tick: {left: -0.074568, up: -0.037284, forward: 0}, at: 6, for: 1}
-                          - {law: fade, start: 1.0, to: 0.85714, at: 0, for: 1}
-                          - {law: fade, start: 0.85714, to: 0.71429, at: 1, for: 1}
-                          - {law: fade, start: 0.71429, to: 0.28571, at: 2, for: 3}
-                          - {law: fade, start: 0.28571, to: 0.14286, at: 5, for: 1}
-                          - {law: fade, start: 0.14286, to: 0.0, at: 6, for: 1}
+                          - {law: keys, keys: [{t: 0, alpha: 1}, {t: 1, alpha: 0.85714}, {t: 2, alpha: 0.71429}, {t: 5, alpha: 0.28571}, {t: 6, alpha: 0.14286}, {t: 7, alpha: 0}]}
                       - id: fx3_couture_passage_contact_petals_6
                         op: display
                         kind: text
@@ -1010,11 +976,7 @@ machine:
                           - {law: grow, per_tick: {left: -0.074568, up: -0.037284, forward: 0}, at: 4, for: 1}
                           - {law: grow, per_tick: {left: -0.074576, up: -0.037288, forward: 0}, at: 5, for: 1}
                           - {law: grow, per_tick: {left: -0.074568, up: -0.037284, forward: 0}, at: 6, for: 1}
-                          - {law: fade, start: 1.0, to: 0.85714, at: 0, for: 1}
-                          - {law: fade, start: 0.85714, to: 0.71429, at: 1, for: 1}
-                          - {law: fade, start: 0.71429, to: 0.28571, at: 2, for: 3}
-                          - {law: fade, start: 0.28571, to: 0.14286, at: 5, for: 1}
-                          - {law: fade, start: 0.14286, to: 0.0, at: 6, for: 1}
+                          - {law: keys, keys: [{t: 0, alpha: 1}, {t: 1, alpha: 0.85714}, {t: 2, alpha: 0.71429}, {t: 5, alpha: 0.28571}, {t: 6, alpha: 0.14286}, {t: 7, alpha: 0}]}
                       - id: fx3_couture_passage_contact_petals_7
                         op: display
                         kind: text
@@ -1042,11 +1004,7 @@ machine:
                           - {law: grow, per_tick: {left: -0.074568, up: -0.037284, forward: 0}, at: 4, for: 1}
                           - {law: grow, per_tick: {left: -0.074576, up: -0.037288, forward: 0}, at: 5, for: 1}
                           - {law: grow, per_tick: {left: -0.074568, up: -0.037284, forward: 0}, at: 6, for: 1}
-                          - {law: fade, start: 1.0, to: 0.85714, at: 0, for: 1}
-                          - {law: fade, start: 0.85714, to: 0.71429, at: 1, for: 1}
-                          - {law: fade, start: 0.71429, to: 0.28571, at: 2, for: 3}
-                          - {law: fade, start: 0.28571, to: 0.14286, at: 5, for: 1}
-                          - {law: fade, start: 0.14286, to: 0.0, at: 6, for: 1}
+                          - {law: keys, keys: [{t: 0, alpha: 1}, {t: 1, alpha: 0.85714}, {t: 2, alpha: 0.71429}, {t: 5, alpha: 0.28571}, {t: 6, alpha: 0.14286}, {t: 7, alpha: 0}]}
                       - id: fx3_couture_passage_contact_sparks_at
                         op: frame
                         anchor: fx3_couture_passage_contact
@@ -1063,5 +1021,6 @@ machine:
                         anchor: victim
                         volume: 0.7
                         pitch: 1.1
+        settle: {for: 12, then: done}
         done: {final: true}
     end: {final: true}

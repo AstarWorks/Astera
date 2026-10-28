@@ -674,8 +674,8 @@ public class TablePlayer(
             )
             SpawnKind.BLOCK -> visual.spawnBlock(cast, req(run, look, "block", ctx), pose, brightness, glow = glow)
             SpawnKind.TEXT -> visual.spawnText(
-                cast, req(run, look, "text", ctx), look.fields["background"]?.let { strOf(run, it, ctx) } ?: "#000000",
-                look.fields["background_alpha"]?.let { dbl(run, it, ctx) } ?: 0.0, flag(run, look, "shadow", ctx), flag(run, look, "see_through", ctx), pose, brightness,
+                cast, req(run, look, "text", ctx), look.fields["background"]?.let { strOf(run, it, ctx) } ?: "#00000000",
+                flag(run, look, "shadow", ctx), flag(run, look, "see_through", ctx), pose, brightness,
             )
             SpawnKind.SPRITE -> visual.spawnPlate(
                 cast, req(run, look, "sprite", ctx), look.fields["alpha"]?.let { dbl(run, it, ctx) } ?: 1.0,
@@ -691,6 +691,11 @@ public class TablePlayer(
         }
         val gh = if (h != null) GatewayHandle(h.id) else GatewayHandle(nextSynthetic--)
         rec.real = h
+        // a glyph quad (v1 VfxQuad.style): the text colour and opacity of the spawn row are written like a first `set` (spawnText has no slot for them)
+        if (h != null && a.kind == SpawnKind.TEXT) {
+            look.fields["color"]?.let { hooks.setDisplayText(h, "color", strOf(run, it, ctx)) }
+            look.fields["text_opacity"]?.let { op -> dbl(run, op, ctx).takeIf { it < 255.0 }?.let { hooks.setDisplayField(h, "text_opacity", it / 255.0) } }
+        }
         run.cursor.instances[id] = gh
     }
 

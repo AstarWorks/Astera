@@ -61,10 +61,9 @@ machine:
         - {id: dash_hit_3, op: hit, at: 54, for: 3, every: 1, anchor: caster.body, shape: {sphere: 0.6}, targets: enemies, window: once, ignore_invulnerability: false}
         - {id: dash_3, op: dash, at: 54, speed: "= dash_distance_3 / 3", for: 3, until: dash_hit_3.hit, direction: {forward: 1.0}, invulnerable: true, stop_on_block: true, follow_pitch: false, face_movement: false}
         # --- weapon rig (v2 look.yaml group fx0, rig duration 80) ---
-        - {id: wielder, op: frame, anchor: caster, mode: follow, for: 80}
         - id: rig
           op: rig
-          parent: wielder
+          parent: caster
           anim: bastion-s2-body
           rest: [{axis: left, deg: 72}]
           sample_ticks: 1
