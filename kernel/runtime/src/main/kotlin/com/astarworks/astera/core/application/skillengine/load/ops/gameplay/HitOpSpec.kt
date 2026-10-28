@@ -251,8 +251,13 @@ public object HitOpSpec : OpSpec<HitOp> {
             instances += lo.instances
             events += lo.events
             writes.putAll(lo.writes)
-            // the player decides when the event fires (per victim / once per op), so the sub-table accepts it anywhere in the owner and any number of times
-            subTables += SubTable(path, lc.state, TickRange(0, lc.config.maxCastTicks), Int.MAX_VALUE, lo.rows.sortedBy { it.tick }, emptyList())
+            // A single firing raises its event on the firing tick, so handler rows (`at:` offsets) are bounded from there. A repeating hit
+            // (any enclosing group with n > 1) can raise it on any of its firings: the sub-table accepts it anywhere in the owner.
+            var single = true
+            var occ: com.astarworks.astera.core.application.skillengine.compose.Occurrence? = lc.occurrence
+            while (occ != null) { if (occ.n > 1) single = false; occ = occ.parent }
+            val window = if (single) TickRange(lc.clockOffset, lc.clockOffset) else TickRange(0, lc.config.maxCastTicks)
+            subTables += SubTable(path, lc.state, window, Int.MAX_VALUE, lo.rows.sortedBy { it.tick }, emptyList())
         }
         return Result.Success(Lowered(rows, subTables, instances, events.distinct(), writes))
     }

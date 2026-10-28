@@ -44,27 +44,29 @@ public object DamageOpSpec : OpSpec<DamageOp> {
     override val section: OpSection = OpSection.GAMEPLAY
     override val timing: TimingKind? = TimingKind.POINT
 
-    private val componentKind = Field.required("kind", Types.enumOf("physical", "fire", "electric", "wind", "water", "earth"), "element family")
-    private val componentAmount = Field.required("amount", Types.number, "damage before the matrix")
-    private val componentFields: Fields = Fields.of("damage.component", componentKind, componentAmount)
+    private val kindFields: List<Pair<DamageAttribute, Field<Value<Double>?>>> = DamageAttribute.entries.map {
+        it to Field.optional(it.name.lowercase(), Types.nullable(Types.number), null, "${it.name.lowercase()} damage before the matrix")
+    }
+    private val damageSpec: Fields = Fields.of("damage.kinds", *kindFields.map { it.second }.toTypedArray())
 
     private val targetField = Field.required("target", GameplayOps.target, "victim, caster or an area")
-    private val componentsField = Field.required("components", Types.list(Types.nested(componentFields)), "one or more {kind, amount}")
+    private val damageField = Field.required("damage", Types.nested(damageSpec), "{kind: amount} map, one or more kinds")
     private val ignoreField = Field.optional("ignore_invulnerability", GameplayOps.flag, false, "bypass invulnerability windows")
 
-    override val fields: Fields = Fields.of("damage", targetField, componentsField, ignoreField)
+    override val fields: Fields = Fields.of("damage", targetField, damageField, ignoreField)
 
     override fun decode(id: OpId, src: SrcPath, whenExpr: WhenRef?, timing: Timing?, values: FieldValues, ctx: GrammarContext): Result<DamageOp, SkillDecodeError> =
         Grammar.guard {
-            val comps = values[componentsField]
-            if (comps.isEmpty()) ctx.fail("damage.components", "needs at least one component")
+            val d = values[damageField]
+            val comps = kindFields.mapNotNull { (attr, f) -> d[f]?.let { DamageComponentDecl(attr, it) } }
+            if (comps.isEmpty()) ctx.fail("damage.damage", "needs at least one damage kind")
             DamageOp(
                 id = id,
                 src = src,
                 whenExpr = whenExpr,
                 timing = timing,
                 target = values[targetField],
-                components = comps.map { c -> DamageComponentDecl(DamageAttribute.valueOf(c[componentKind].uppercase()), c[componentAmount]) },
+                components = comps,
                 ignoreInvulnerability = values[ignoreField],
             )
         }
@@ -72,12 +74,13 @@ public object DamageOpSpec : OpSpec<DamageOp> {
     override fun lower(op: DamageOp, lc: LowerContext): Result<Lowered, SkillDecodeError> {
         val path = lc.src.value
         return GameplayOps.targetRule(op.target, lc, path).flatMap { targets ->
-            val components = ArrayList<DamageComponent>(op.components.size)
-            for (c in op.components) {
-                when (val amount = GameplayOps.literal(c.amount, lc, "$path.damage.components")) {
-                    is Result.Failure -> return@flatMap Result.Failure(amount.error)
-                    is Result.Success -> components += DamageComponent(NumericValue.Literal(amount.value), c.attribute)
+            val components = op.components.map { c ->
+                val base = when (val v = c.amount) {
+                    is Value.Literal -> NumericValue.Literal(v.value)
+                    is Value.ParamRef -> NumericValue.Cel("\${${v.name}}")
+                    is Value.Expr -> NumericValue.Cel(v.source)
                 }
+                DamageComponent(base, c.attribute)
             }
             Result.Success(GameplayOps.lowered(lc, Action.Damage(targets, components, op.ignoreInvulnerability)))
         }

@@ -102,17 +102,20 @@ public object ParticleOpSpec : OpSpec<ParticleOp> {
             is Value.Expr -> (OccurrenceBake.fold(lc, c.source, ExprType.NUM) as? ExprValue.Num)?.let { Val.Known(it.value.toInt()) }
                 ?: Val.Live("= ${OccurrenceBake.bake(c.source, lc.occurrence)}", null)
         }
+        // `anchor` in the op's own expressions names its emission anchor (ADR-0303 3.2: `offset: "= anchor.forward"`)
+        val own = Regex("(?<![\\w.])anchor\\.(forward|up|left)\\b")
+        fun bound(source: String): String = own.replace(source) { "axis(${op.anchor.of}, '${it.groupValues[1]}')" }
         val extra: Val<Double> = when (val e = op.extra) {
             is Value.Literal -> Val.Known(e.value)
             is Value.ParamRef -> Val.Live(e.name, null)
-            is Value.Expr -> (OccurrenceBake.fold(lc, e.source, ExprType.NUM) as? ExprValue.Num)?.let { Val.Known(it.value) }
-                ?: Val.Live("= ${OccurrenceBake.bake(e.source, lc.occurrence)}", null)
+            is Value.Expr -> (OccurrenceBake.fold(lc, bound(e.source), ExprType.NUM) as? ExprValue.Num)?.let { Val.Known(it.value) }
+                ?: Val.Live("= ${OccurrenceBake.bake(bound(e.source), lc.occurrence)}", null)
         }
         val offset: Val<Vector3d> = when (val o = op.offset) {
             is Value.Literal -> Val.Known(Vector3d(o.value.x, o.value.y, o.value.z))
             is Value.ParamRef -> Val.Live(o.name, null)
-            is Value.Expr -> (OccurrenceBake.fold(lc, o.source, ExprType.VEC3) as? ExprValue.Vec3)?.let { Val.Known(Vector3d(it.value.x, it.value.y, it.value.z)) }
-                ?: Val.Live("= ${OccurrenceBake.bake(o.source, lc.occurrence)}", null)
+            is Value.Expr -> (OccurrenceBake.fold(lc, bound(o.source), ExprType.VEC3) as? ExprValue.Vec3)?.let { Val.Known(Vector3d(it.value.x, it.value.y, it.value.z)) }
+                ?: Val.Live("= ${OccurrenceBake.bake(bound(o.source), lc.occurrence)}", null)
         }
         val placed = when (val r = ParticlePlacement.place("particle", lc, op.anchor, op.shift)) {
             is Result.Success -> r.value

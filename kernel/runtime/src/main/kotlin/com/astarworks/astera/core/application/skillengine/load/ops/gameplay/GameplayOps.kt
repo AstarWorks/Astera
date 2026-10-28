@@ -125,6 +125,13 @@ internal object GameplayOps {
         is Value.Expr -> Val.Live<Double>("= ${v.source}", null)
     }
 
+    /** Any vector value as a table cell: a literal is known, `${p}` / `= expr` are read live at play time. */
+    fun liveVec(v: Value<Vec3>): Val<Vec3> = when (v) {
+        is Value.Literal -> Val.Known(v.value)
+        is Value.ParamRef -> Val.Live<Vec3>("\${${v.name}}", null)
+        is Value.Expr -> Val.Live<Vec3>("= ${v.source}", null)
+    }
+
     /** Whole-number value from a literal (stacks). */
     fun whole(v: Value<Double>, lc: LowerContext, path: String): Result<Int, SkillDecodeError> = literal(v, lc, path).map { Math.round(it).toInt() }
 
@@ -155,12 +162,11 @@ internal object GameplayOps {
     /** A frame point, or a bare frame name (its origin), as a named live position (C4c). */
     fun point(frame: String, point: String?): String = PointRef(frame, point).toString()
 
-    /** Target as a table cell. Area targets need a TargetRule, which Action.Damage / Status do not carry yet. */
-    fun targetCell(t: TargetRef, lc: LowerContext, path: String): Result<Val<TargetSet>, SkillDecodeError> = when (t) {
-        TargetRef.Victim -> Result.Success(Val.Live<TargetSet>("victim", null))
-        TargetRef.Caster -> Result.Success(Val.Live<TargetSet>("caster", null))
-        is TargetRef.Enemies, is TargetRef.Allies ->
-            Result.Failure(SkillDecodeError.Invalid(lc.skillId, path, "area target needs a TargetRule on this action (domain request: Action.Damage / Action.Status take a TargetSet only)"))
+    /** Target as an effect-payload cell: `victim` / `caster` live by name, an area as its [TargetRule]. */
+    fun targetCell(t: TargetRef, lc: LowerContext, path: String): Result<Val<Any>, SkillDecodeError> = when (t) {
+        TargetRef.Victim -> Result.Success(Val.Live<Any>("victim", null))
+        TargetRef.Caster -> Result.Success(Val.Live<Any>("caster", null))
+        is TargetRef.Enemies, is TargetRef.Allies -> targetRule(t, lc, path).map { Val.Known<Any>(it) }
     }
 
     /** Target as a [TargetRule] (damage / status / cleanse). An area keeps its anchor instance when `around` names one, else the live name (`caster`, `contact`). */

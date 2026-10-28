@@ -33,7 +33,7 @@ class ShippedV3ContentScenarioTest : SkillEngineScenario() {
                         assertPlays(r.value)
                     } catch (e: AssertionError) {
                         problems += "$rel: ${e.message}"
-                    } catch (e: RuntimeException) {
+                    } catch (e: Throwable) {
                         problems += "$rel: replay crashed: $e @ ${e.stackTrace.firstOrNull { it.className.contains("astarworks") }}"
                     }
                 }

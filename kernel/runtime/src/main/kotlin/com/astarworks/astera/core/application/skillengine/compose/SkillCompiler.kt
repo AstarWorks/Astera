@@ -11,7 +11,10 @@ import com.astarworks.astera.core.application.skillengine.load.ops.control.UseOp
 import com.astarworks.astera.core.application.skillengine.load.ops.gameplay.HitEvent
 import com.astarworks.astera.core.application.skillengine.load.ops.gameplay.HitOp
 import com.astarworks.astera.core.application.skillengine.load.ops.gameplay.ProjectileEvent
+import com.astarworks.astera.core.application.skillengine.load.grammar.Span
+import com.astarworks.astera.core.application.skillengine.load.ops.presentation.FrameOp
 import com.astarworks.astera.core.application.skillengine.load.ops.gameplay.ProjectileOp
+import com.astarworks.astera.core.domain.skillengine.model.Value
 import com.astarworks.astera.core.application.skillengine.load.spec.Lowered
 import com.astarworks.astera.core.application.skillengine.load.spec.OpNode
 import com.astarworks.astera.core.application.skillengine.load.spec.OpSpec
@@ -152,6 +155,9 @@ public class SkillCompiler(
     }
 
     /** An occurrence chain as deep as `parent.` goes, so every `parent.i` the grammar allows compiles. */
+    /** `anchor.forward` / `.up` / `.left` in a particle's own expressions: the axes of the op's emission anchor (rewritten to `axis(<anchor>, '..')`). */
+    private val ANCHOR_AXES = listOf("forward", "up", "left")
+
     private val DEEP: Occurrence = run {
         var o: Occurrence? = null
         repeat(V3Bindings.MAX_PARENT_DEPTH + 1) { o = Occurrence(0, 1, o) }
@@ -172,9 +178,12 @@ public class SkillCompiler(
         val usedSkills = LinkedHashSet<String>()
 
         private val decoder = OpListDecoder(specs)
-        private val grammar = GrammarContext(original.id, null, exprs, V3Bindings.spec(DEEP, ExprEnvSpec(frames = flat.anchors.map { it.id }.toSet() + flat.framesIn.keys)))
+        private val grammar = GrammarContext(original.id, null, exprs, V3Bindings.spec(DEEP, ExprEnvSpec(variables = ANCHOR_AXES.associate { "anchor.$it" to ExprType.VEC3 }, frames = flat.anchors.map { it.id }.toSet() + flat.framesIn.keys)))
         private val documents: Map<String, AnchorDecl> = flat.anchors.associateBy { it.id }
         private val registries = HashMap<String, AnchorRegistry>()
+
+        /** Latest `<op>.end` tick of the bodies a state without `for:` has spawned so far (its natural length). */
+        private val bodyHorizon = HashMap<String, Int>()
         private val callStack = ArrayList<String>().apply { add(SkillCallInliner.PREFIX + original.id) }
         private val statesById: Map<String, MachineState> = flat.machine.states.values.associateBy { it.id }
         private val specByNode: Map<Class<*>, OpSpec<*>> = buildMap {
@@ -210,14 +219,29 @@ public class SkillCompiler(
         /** The lowerer [MachineTables] calls once per (state, section). */
         val sections: SectionLowerer = SectionLowerer { state, section, ops ->
             val st = statesById[state.value]
-            val horizon = (st?.forTicks as? Number)?.toInt()
             val nodes = decodeList(ops, "machine.states.${state.value}.$section").getOr { return@SectionLowerer Result.Failure(it) }
+            // a state without `for:` lasts as long as the longest body it spawns (`until: <body>.end` closes against it): bodies of the
+            // sections lowered before this one, and projectiles written earlier in this one
+            val horizon = (st?.forTicks as? Number)?.toInt()
+                ?: listOfNotNull(
+                    bodyHorizon[state.value],
+                    nodes.filterIsInstance<ProjectileOp>().mapNotNull { ((it.timing?.span as? Span.Ticks)?.ticks as? Value.Literal)?.value?.toInt() }.maxOrNull(),
+                ).maxOrNull()
             val registry = registries.getOrPut(state.value) { DefaultAnchorScope(Occurrence(0, 1, null), documents) }
-            var acc = Lowered(emptyList())
-            for (n in nodes) {
+            // A list is declarative: a rider may name a body or frame written further down. Bodies and frames declare their anchors
+            // first (in written order), everything else follows; rows are merged back in written order.
+            val declaring = nodes.indices.filter { nodes[it] is ProjectileOp || nodes[it] is FrameOp }
+            val lowered = arrayOfNulls<Lowered>(nodes.size)
+            for (k in declaring + nodes.indices.filter { it !in declaring }) {
+                val n = nodes[k]
                 val base = rootContext(state, registry).with(src = n.src)
-                val lo = GroupUnroller.unroll(n, base, horizon, childLowering).getOr { return@SectionLowerer Result.Failure(it) }
-                acc = merge(acc, lo)
+                lowered[k] = GroupUnroller.unroll(n, base, horizon, childLowering).getOr { return@SectionLowerer Result.Failure(it) }
+            }
+            var acc = Lowered(emptyList())
+            for (lo in lowered) acc = merge(acc, lo!!)
+            if (st?.forTicks == null) {
+                acc.subTables.filter { it.event.value.endsWith(".end") }.maxOfOrNull { it.window.max }
+                    ?.let { bodyHorizon[state.value] = maxOf(it, bodyHorizon[state.value] ?: 0) }
             }
             Result.Success(acc)
         }
