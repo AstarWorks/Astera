@@ -199,7 +199,16 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
         }
     }
 
+    /** Entities on the caster's team: `isAlly(caster, x)` is true for these (and for the caster itself). */
+    val allies: MutableSet<UUID> = HashSet()
+
     val query: ISkillEntityQuery = object : ISkillEntityQuery {
+        override fun isAlly(cast: CastRef, a: UUID, b: UUID): Boolean {
+            seen("query.isAlly", cast)
+            val me = this@GatewayRecorder.caster
+            return (a == me && (b == me || b in allies)) || (b == me && a in allies)
+        }
+
         override fun nearby(cast: CastRef, point: Vec3, radius: Double, excluding: UUID?): List<HitCandidate> {
             seen("query.nearby", cast)
             return victims.filter { it.entityId != excluding }

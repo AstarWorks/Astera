@@ -34,6 +34,7 @@ import com.astarworks.astera.core.application.port.outbound.IPlayerAttributeCont
 import com.astarworks.astera.core.application.port.outbound.IResourcePoolService
 import com.astarworks.astera.core.application.port.outbound.IScheduler
 import com.astarworks.astera.core.application.port.outbound.ISpriteRegistry
+import com.astarworks.astera.core.application.port.outbound.IMatchTeamLookup
 import com.astarworks.astera.core.application.port.outbound.IStructureTargets
 import com.astarworks.astera.core.application.port.outbound.IWorldGateway
 import com.astarworks.astera.core.application.port.outbound.presentation.IPlayerPresentation
@@ -81,12 +82,6 @@ internal class SkillEnginePaperRuntime(
     private var movement: PaperSkillMovementGateway? = null
     private var worldOps: PaperSkillWorldGateway? = null
 
-    /**
-     * World of the cast started last, for [PaperSkillWorldGateway] only: its block seam (`ISkillBlockAccess`, W2-01) carries no
-     * world yet. Every other port reads `CastRef.world`.
-     */
-    @Volatile
-    private var blockWorld: WorldId = WorldId("world")
 
     fun start(
         ctx: WiringContext,
@@ -144,7 +139,6 @@ internal class SkillEnginePaperRuntime(
         movement = movementGateway
         val worldGateway3 = PaperSkillWorldGateway(
             server,
-            world = { server.getWorld(blockWorld.value) },
             guard = { ports.blockEditGuard?.invoke(services) },
             blockStates = { services.get<IBlockStateGateway>() },
             covers = { services.get<ICustomBlockRegistry>() },
@@ -156,7 +150,7 @@ internal class SkillEnginePaperRuntime(
             particles = PaperSkillParticleGateway(worldGateway) { id -> particleRegistry?.find(ParticleId(id)) },
             sounds = PaperSkillSoundGateway(server),
             gameplay = gameplay,
-            query = PaperSkillEntityQuery(server) { services.get<IStructureTargets>() },
+            query = PaperSkillEntityQuery(server, teams = { services.get<IMatchTeamLookup>() }, structures = { services.get<IStructureTargets>() }),
             live = live,
             movement = movementGateway,
             items = PaperSkillItemGateway(server, { wired.skillGate }, { services.get<ICooldownTracker>() }, { services.get<IResourcePoolService>() }),
@@ -170,8 +164,8 @@ internal class SkillEnginePaperRuntime(
         runner = cast
 
         // A hit on a caster is an input event for the casts it is running (`hurt`); the amount is never changed here.
-        applyDamage.incomingInterceptor = IIncomingDamageInterceptor { target, _, _ ->
-            cast.raiseAllOf(target.uuid, "hurt", scheduler.currentTick().toInt())
+        applyDamage.incomingInterceptor = IIncomingDamageInterceptor { target, attacker, _ ->
+            cast.raiseAllOf(target.uuid, "hurt", scheduler.currentTick().toInt(), attacker.uuid)
             1.0
         }
 
@@ -255,7 +249,6 @@ internal class SkillEnginePaperRuntime(
         }
         val loc = player.location
         val world = WorldId(player.world.name)
-        blockWorld = world
         val request = CastRequest(
             skill = skill,
             caster = event.caster.uuid,

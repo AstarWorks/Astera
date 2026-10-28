@@ -1,11 +1,13 @@
 package com.astarworks.astera.combat.adapter.paper.skillengine
 
+import com.astarworks.astera.core.application.port.outbound.IMatchTeamLookup
 import com.astarworks.astera.core.application.port.outbound.IStructureTargets
 import com.astarworks.astera.core.application.skillengine.runtime.port.BlockHit
 import com.astarworks.astera.core.application.skillengine.runtime.port.CastRef
 import com.astarworks.astera.core.application.skillengine.runtime.port.EntityRoot
 import com.astarworks.astera.core.application.skillengine.runtime.port.ISkillEntityQuery
 import com.astarworks.astera.core.domain.geometry.Vec3
+import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.domain.world.WorldId
 import com.astarworks.astera.core.domain.skillengine.hit.HitBox
 import com.astarworks.astera.core.domain.skillengine.hit.HitCandidate
@@ -30,6 +32,8 @@ import java.util.UUID
  */
 public class PaperSkillEntityQuery(
     private val server: Server,
+    /** Lazy: Match registers the team lookup after Combat wires. */
+    private val teams: () -> IMatchTeamLookup? = { null },
     /** Lazy: Match registers the structure targets (Annihilation pillars) after Combat wires. */
     private val structures: () -> IStructureTargets? = { null },
 ) : ISkillEntityQuery {
@@ -79,6 +83,12 @@ public class PaperSkillEntityQuery(
             eyeHeight = e.eyeHeight,
             height = e.height,
         )
+    }
+
+    override fun isAlly(cast: CastRef, a: UUID, b: UUID): Boolean {
+        val lookup = teams() ?: return false
+        val team = lookup.teamOf(PlayerId(a)) ?: return false
+        return lookup.teamOf(PlayerId(b)) == team
     }
 
     override fun healthRatio(cast: CastRef, entity: UUID): Double {

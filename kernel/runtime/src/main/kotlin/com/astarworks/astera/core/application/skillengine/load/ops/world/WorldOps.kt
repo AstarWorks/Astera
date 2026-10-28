@@ -151,7 +151,7 @@ internal object WorldOps {
     fun lower(op: OpId, anchor: String, payload: Map<String, Val<Any>>, lc: LowerContext): Result<Lowered, SkillDecodeError> =
         position(anchor, lc).map { origin ->
             val action = Action.World(op, origin, Val.Live<Vector3d>("caster.forward", null), payload)
-            Lowered(rows = listOf(Row(lc.clockOffset, lc.self, action, lc.src)))
+            Lowered(rows = listOf(Row(0, lc.self, action, lc.src)))
         }
 
     val anchorField: Field<String> = Field.required("anchor", com.astarworks.astera.core.application.skillengine.load.grammar.Types.id, "where it happens: a declared anchor, or caster / caster.eye / caster.feet / contact.point")

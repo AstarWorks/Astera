@@ -137,7 +137,8 @@ public class PaperLiveValueSource(
             is TargetRule.Entity -> when (rule.ref) {
                 "caster" -> TargetSet(listOf(EntityRef(request.caster)))
                 "event.victim" -> TargetSet(listOfNotNull(binding?.victim))
-                else -> throw IllegalArgumentException("target rule '${rule.ref}' has no Paper resolver (event.attacker needs the binding to carry it)")
+                "event.attacker" -> TargetSet(listOfNotNull(binding?.attacker?.let { EntityRef(it) }))
+                else -> throw IllegalArgumentException("target rule '${rule.ref}' has no Paper resolver")
             }
             is TargetRule.Area -> throw IllegalArgumentException("area target rule needs an anchor-instance resolver (not in LiveValueSource's Paper side yet)")
         }

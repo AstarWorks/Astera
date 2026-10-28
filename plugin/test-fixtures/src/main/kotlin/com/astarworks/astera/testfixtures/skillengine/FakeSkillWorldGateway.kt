@@ -71,34 +71,34 @@ internal class FakeBlocks : ISkillBlockAccess {
     val placements: MutableList<Pair<Int, BlockCell>> = ArrayList()
     val consumed: MutableList<String> = ArrayList()
 
-    override fun blockAt(cell: BlockCell): String? = world[cell]
+    override fun blockAt(cast: CastRef, cell: BlockCell): String? = world[cell]
 
-    override fun canEdit(caster: UUID, cell: BlockCell, outsideArena: Boolean): Boolean = outsideArena || permit(cell)
+    override fun canEdit(cast: CastRef, cell: BlockCell, outsideArena: Boolean): Boolean = outsideArena || permit(cell)
 
-    override fun isCover(cell: BlockCell): Boolean = false
+    override fun isCover(cast: CastRef, cell: BlockCell): Boolean = false
 
     override fun isCoverBlock(blockKey: String): Boolean = false
 
-    override fun place(cell: BlockCell, blockKey: String) {
+    override fun place(cast: CastRef, cell: BlockCell, blockKey: String) {
         world[cell] = blockKey
         placements += now to cell
     }
 
-    override fun remove(cell: BlockCell) {
+    override fun remove(cast: CastRef, cell: BlockCell) {
         world.remove(cell)
         placements += now to cell
     }
 
-    override fun placeCover(caster: UUID, cell: BlockCell, blockKey: String): Boolean = false
+    override fun placeCover(cast: CastRef, cell: BlockCell, blockKey: String): Boolean = false
 
-    override fun damage(caster: UUID, cell: BlockCell, blockDamage: Int, toolClass: String?): BlockDamageOutcome {
+    override fun damage(cast: CastRef, cell: BlockCell, blockDamage: Int, toolClass: String?): BlockDamageOutcome {
         strikes += now to cell
         if (blockDamage <= 0 || world[cell] == null) return BlockDamageOutcome.NONE
         world.remove(cell)
         return BlockDamageOutcome.BROKEN
     }
 
-    override fun consumeItem(caster: UUID, itemId: String): Boolean {
+    override fun consumeItem(cast: CastRef, itemId: String): Boolean {
         val have = stock[itemId] ?: 0
         if (have <= 0) return false
         stock[itemId] = have - 1

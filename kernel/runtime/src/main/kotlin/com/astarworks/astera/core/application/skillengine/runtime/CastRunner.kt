@@ -37,9 +37,10 @@ public interface CastRunner {
 
     /**
      * Deliver the input event [name] (`release`, `charge`) to every running cast of [caster];
-     * returns how many casts received it (0 is normal: most clicks end no hold).
+     * returns how many casts received it (0 is normal: most clicks end no hold). [attacker] binds `event.attacker`
+     * (the `hurt` event).
      */
-    public fun raiseAllOf(caster: UUID, name: String, tick: Int): Int
+    public fun raiseAllOf(caster: UUID, name: String, tick: Int, attacker: UUID? = null): Int
 
     public fun cancel(cast: CastHandle, scope: CancelScope = CancelScope.Cast)
 
@@ -65,9 +66,9 @@ public class DefaultCastRunner(private val player: ISkillTablePlayer) : CastRunn
         return started
     }
 
-    override fun raiseAllOf(caster: UUID, name: String, tick: Int): Int {
+    override fun raiseAllOf(caster: UUID, name: String, tick: Int, attacker: UUID?): Int {
         val mine = ownedLive(caster)
-        mine.forEach { player.deliver(it, RuntimeEvent(EventPath(name), tick, null, null, null)) }
+        mine.forEach { player.deliver(it, RuntimeEvent(EventPath(name), tick, null, null, null, attacker)) }
         return mine.size
     }
 
