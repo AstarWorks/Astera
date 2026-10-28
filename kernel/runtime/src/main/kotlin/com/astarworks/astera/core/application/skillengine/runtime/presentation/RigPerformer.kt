@@ -180,6 +180,10 @@ internal class RigMotion(
         }
     }
 
+    /** Part updates of v1 `VfxRigPlanner.partPlan`: (effect tick, rig tick reached, interpolation ticks) per turning chunk. */
+    fun partSteps(): List<Triple<Int, Int, Int>> =
+        chunks.filter { it.from.angleTo(it.to) > 1e-9 }.map { Triple(effectTickStart(it.start), it.end, it.end - it.start) }
+
     fun isSwingStep(t: Int): Boolean = keys.any { it.t == t && it.ease == Easing.STEP }
 
     fun rotationAt(s: Double): Quaternion {
@@ -258,12 +262,16 @@ internal class RigPerformer(
     private val last = HashMap<String, Pose>()
     private val schedule: Map<Int, RigStep>
     private val bodySchedule: Map<Int, RigStep>
+    private val partSchedule: Map<Int, Pair<Int, Int>>
+    private var partDue: Pair<Int, Int>? = null
+    private var curRigTick: Int = 0
     private var rigStepAt: Int = 0
     private var bodyStepAt: Int = 0
 
     init {
         val lastRig = op.durationTicks - motion.base
         schedule = rigSchedule(motion, lastRig, op.durationTicks) { track?.isSnap(it) == true || motion.isSwingStep(it) }.associateBy { it.tick }
+        partSchedule = motion.partSteps().filter { it.first < op.durationTicks }.associate { it.first to (it.second to it.third) }
         bodySchedule = if (bodyMotion === motion) schedule
         else rigSchedule(bodyMotion, lastRig, op.durationTicks) { track?.isSnap(it) == true }.associateBy { it.tick }
     }
@@ -306,9 +314,13 @@ internal class RigPerformer(
     var driven: Int? = null
         private set
 
+    /** Rig-relative effect tick at which the `item_model` key of rig tick [t] lands: spawn for 0, else the arrival tick of rig tick [t] (v1 VfxBodyPlanner.withModelSwaps). */
+    fun modelTick(t: Int): Int = if (t == 0) 0 else motion.effectTickEnd(t)
+
     /** Advances the performance to effect tick [e]; returns false once it is over. */
     fun tick(s: PresentationRuntime.CastState, visuals: com.astarworks.astera.core.application.skillengine.runtime.port.ISkillVisualGateway, e: Int): Boolean {
         driven = null
+        partDue = partSchedule[e]
         if (e >= op.durationTicks) {
             bones.values.forEach { visuals.remove(it) }
             bones.clear()
@@ -316,6 +328,7 @@ internal class RigPerformer(
         }
         schedule[e]?.let { step ->
             applyRig(s, step.rigTick)
+            curRigTick = step.rigTick
             driven = step.interpolation
         }
         if (track != null) {
@@ -332,6 +345,20 @@ internal class RigPerformer(
             }
         }
         return true
+    }
+
+    /**
+     * Runs [f] with the rig frame at the end of the part chunk due this tick (v1 partPlan: parts ride chunk updates, not the
+     * per-tick weapon schedule); [f] gets the interpolation. Null when no chunk starts this tick.
+     */
+    fun <T> atPartChunk(s: PresentationRuntime.CastState, f: (Int) -> T?): T? {
+        val due = partDue ?: return null
+        applyRig(s, due.first)
+        try {
+            return f(due.second)
+        } finally {
+            applyRig(s, curRigTick)
+        }
     }
 
     /** True when [pose] of display [id] differs from what was last written for it; remembers it. */

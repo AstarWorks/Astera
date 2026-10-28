@@ -55,7 +55,7 @@ internal class MeshExecutor(private val rt: PresentationRuntime) : OpExecutor<Vi
         val tilt = op.tilt?.let { turn(ctx.values.vec3(it)) } ?: Quaternion.IDENTITY
         val rest = op.rest?.let { turn(ctx.values.vec3(it)) } ?: Quaternion.IDENTITY
         val scale = ctx.num(op.scale, 1.0)
-        val live = PresentationRuntime.Live.Mesh(op.id, op.frame, scale, pivot, tilt, rest)
+        val live = PresentationRuntime.Live.Mesh(op.id, op.frame, scale, pivot, tilt, rest, op.models)
         // The node carries the model's points (scaled to blocks), so `<mesh id>.tip` follows the swing.
         val pts = rt.points.points(op.item, op.part).map { FramePoint(live.node, it.name, it.offset * scale, it.axis) }
         val pose = rt.spawnNode(s, live, op.frame, pts) ?: return ctx.host.fail(op.id, "mesh: parent frame '${op.frame}' is not in the frame tree")
@@ -125,6 +125,7 @@ internal class QuadExecutor(private val rt: PresentationRuntime) : OpExecutor<Vi
             live.handle = ctx.ports.visuals.spawnQuad(
                 rt.info.owner(ctx.cast), ctx.values.text(op.color), ctx.values.num(op.alpha), op.text, op.shadow, op.seeThrough, pose.copy(lane = op.lane), op.brightness,
             )
+            rt.driverOf(s, par)?.changed(id, pose)
             rt.register(s, live)
             live
         }

@@ -21,6 +21,7 @@ import com.astarworks.astera.core.domain.skillengine.model.AxisRef
 import com.astarworks.astera.core.domain.skillengine.model.PointRef
 import com.astarworks.astera.core.domain.skillengine.model.Value
 import com.astarworks.astera.core.domain.skillengine.model.ValueResolver
+import com.astarworks.astera.core.domain.skillengine.op.MeshModelKey
 import com.astarworks.astera.core.domain.skillengine.op.PlateFace
 import com.astarworks.astera.core.domain.skillengine.op.Repeat
 import com.astarworks.astera.core.domain.skillengine.op.TrackKey
@@ -100,7 +101,11 @@ public class PresentationRuntime(
             val pivot: Vec3,
             val tilt: Quaternion,
             val rest: Quaternion,
-        ) : Live()
+            val models: List<MeshModelKey> = emptyList(),
+        ) : Live() {
+            /** Item model last pushed to the gateway (writes only on change). */
+            var shownModel: String? = null
+        }
 
         class Plate(
             override val opId: String,
@@ -457,14 +462,16 @@ public class PresentationRuntime(
             }
         }
         for (k in 0 until n) {
+            // a delayed copy runs inside tickCast, after `s.tick` advanced: its life counts from the tick it is due, not the tick it runs
+            val spawnTick = s.tick + k * repeat.every
             val run = {
                 ctx.host.withIndex(k, n) {
                     val made = body("$groupName#$k", if (parent != null) groupName else null)
                     val life = repeat.life
-                    if (made != null && life != null) made.dieAt = s.tick + life
+                    if (made != null && life != null) made.dieAt = spawnTick + life
                 }
             }
-            if (k * repeat.every <= 0) run() else s.pending += Pending(group, s.tick + k * repeat.every, run)
+            if (k * repeat.every <= 0) run() else s.pending += Pending(group, spawnTick, run)
         }
     }
 
@@ -566,26 +573,27 @@ public class PresentationRuntime(
         }
         for (l in s.live.values.toList()) {
             when (l) {
-                is Live.Mesh -> update(s, l)?.let { pose ->
-                    val driver = driverOf(s, l.parent)
-                    if (driver == null) put(visuals, l, followed(s, pose, l.parent, l), if (l.pulledNow) 0 else DISPLAY_TICKS)
-                    else driver.driven?.let { interp -> if (driver.changed(l.opId, pose)) visuals.write(l.handle, pose, interp) }
+                is Live.Mesh -> {
+                    update(s, l)?.let { pose ->
+                        val driver = driverOf(s, l.parent)
+                        if (driver == null) put(visuals, l, followed(s, pose, l.parent, l), if (l.pulledNow) 0 else DISPLAY_TICKS)
+                        else driver.driven?.let { interp -> if (driver.changed(l.opId, pose)) visuals.write(l.handle, pose, interp) }
+                    }
+                    tickModel(s, l)
                 }
                 is Live.Plate -> {
                     update(s, l)?.let { put(visuals, l, followed(s, it, l.parent, l), if (l.pulledNow) 0 else DISPLAY_TICKS) }
                     tickFlipbook(s, l)
                     tickLook(s, l)
                 }
-                is Live.Block -> {
-                    update(s, l)?.let { pose ->
-                        val driver = driverOf(s, l.parent)
-                        if (driver == null) put(visuals, l, followed(s, pose, l.parent, l), if (l.pulledNow) 0 else DISPLAY_TICKS)
-                        else driver.driven?.let { interp -> if (driver.changed(l.opId, pose)) visuals.write(l.handle, pose, interp) }
+                is Live.Block, is Live.Quad -> {
+                    // parts hanging from a rig are written per turning chunk (v1 VfxRigPlanner.partPlan), not per rig tick
+                    val parent = if (l is Live.Block) l.parent else (l as Live.Quad).parent
+                    val driver = driverOf(s, parent)
+                    if (driver == null) update(s, l)?.let { put(visuals, l, followed(s, it, parent, l), if (l.pulledNow) 0 else DISPLAY_TICKS) }
+                    else driver.atPartChunk(s) { interp ->
+                        update(s, l)?.let { pose -> if (driver.changed(l.opId, pose)) visuals.write(l.handle, pose, interp) }
                     }
-                    tickLook(s, l)
-                }
-                is Live.Quad -> {
-                    update(s, l)?.let { put(visuals, l, followed(s, it, l.parent, l), if (l.pulledNow) 0 else DISPLAY_TICKS) }
                     tickLook(s, l)
                 }
                 is Live.Line -> linePose(s, l)?.let { put(visuals, l, it, DISPLAY_TICKS) }
@@ -667,6 +675,18 @@ public class PresentationRuntime(
         }
         block?.takeIf { it != l.shownBlock }?.let { visuals.setBlock(l.handle, it); l.shownBlock = it }
         text?.takeIf { it != l.shownText }?.let { visuals.setText(l.handle, it); l.shownText = it }
+    }
+
+    /** Pushes the `item_model` step key of a rig-borne mesh that has come due on the rig's clock (v1 VfxBodyPlanner.withModelSwaps). */
+    private fun tickModel(s: CastState, l: Live.Mesh) {
+        if (l.models.isEmpty()) return
+        val driver = driverOf(s, l.parent) ?: return
+        val e = s.tick - 1 - driver.startTick
+        val model = l.models.lastOrNull { driver.modelTick(it.tick) <= e && driver.modelTick(it.tick) < driver.op.durationTicks }?.model ?: return
+        if (model != l.shownModel) {
+            s.ctx.ports.visuals.setItemModel(l.handle, model)
+            l.shownModel = model
+        }
     }
 
     private class Look(val alpha: Double?, val color: String?, val block: String?, val text: String?)
