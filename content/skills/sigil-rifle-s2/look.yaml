@@ -1,7 +1,6 @@
 # Converted from content/skills/sigil-rifle-s2.yaml + content/vfx/* by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
 # Generated point-frame offsets are [left, up, forward] in the parent frame.
 # CONVERT-PRESENT vfx frame orient (frames carry no orientation / scale) (x3): orient="yaw"
-# CONVERT-PRESENT rig respect_hit_stop / weapon points (x1): {"respect_hit_stop": false}
 # CONVERT-PRESENT rig block parts (mesh takes an item model, not a block + size) (x1): 5 parts
 # CONVERT-PRESENT rig swing without a weapon mesh (track needs a visual to move) (x1): 30 keys
 # CONVERT-PRESENT vfx follow=false (anchored at world, no place-at-spawn) (x2): sigil-rifle-shot

@@ -3,7 +3,6 @@
 # CONVERT-PRESENT vfx follow=false (anchored at world, no place-at-spawn) (x6): couture-shear-overhead | couture-shears-falling
 # CONVERT-PRESENT vfx frame orient (frames carry no orientation / scale) (x6): orient="yaw"
 # CONVERT-PRESENT element brightness (no v2 equivalent) (x2): 15
-# CONVERT-PRESENT area target used only by presentation ops (no damaging hit volume to attach them to) (x3): sel: 53 presentation op(s) dropped | sel_3: 53 presentation op(s) dropped
 apiVersion: "astera/v2"
 kind: Skill
 id: couture-rapier-ego
@@ -183,12 +182,426 @@ presentation:
       do:
         - {id: rm_6, op: remove, ids: [fx3_couture_rapier_cross_cross_0, fx3_couture_rapier_cross_cross_1, fx3_couture_rapier_cross_cross_2], when: "= event.source == 'sel_2'"}
         - {id: rm_11, op: remove, ids: [fx5_couture_rapier_cross_cross_0, fx5_couture_rapier_cross_cross_1, fx5_couture_rapier_cross_cross_2], when: "= event.source == 'sel_4'"}
-    - {id: fxhit_11, at: "hit+11", do: []}
-    - {id: fxhit_21, at: "hit+21", do: []}
+    - id: fxhit_11
+      at: "hit+11"
+      do:
+        - id: rm_12
+          op: remove
+          ids:
+            - fx6_couture_target_rosette_arc_0
+            - fx6_couture_target_rosette_arc_1
+            - fx6_couture_target_rosette_arc_2
+            - fx6_couture_target_rosette_arc_3
+            - fx6_couture_target_rosette_arc_4
+            - fx6_couture_target_rosette_arc_5
+            - fx6_couture_target_rosette_arc_6
+            - fx6_couture_target_rosette_arc_7
+            - fx6_couture_target_rosette_arc_8
+            - fx6_couture_target_rosette_arc_9
+            - fx6_couture_target_rosette_arc_10
+            - fx6_couture_target_rosette_arc_11
+            - fx6_couture_target_rosette_arc_12
+            - fx6_couture_target_rosette_arc_13
+            - fx6_couture_target_rosette_arc_14
+            - fx6_couture_target_rosette_arc_15
+          when: "= event.source == 'sel_5'"
+    - id: fxhit_21
+      at: "hit+21"
+      do:
+        - id: rm_2
+          op: remove
+          ids:
+            - fx2_couture_shears_falling_1_blade_0
+            - fx2_couture_shears_falling_1_edge_0
+            - fx2_couture_shears_falling_1_blade_1
+            - fx2_couture_shears_falling_1_edge_1
+            - fx2_couture_shears_falling_1_blade_2
+            - fx2_couture_shears_falling_1_edge_2
+            - fx2_couture_shears_falling_1_handle_0
+            - fx2_couture_shears_falling_1_handle_1
+            - fx2_couture_shears_falling_1_handle_2
+            - fx2_couture_shears_falling_1_handle_3
+            - fx2_couture_shears_falling_1_handle_4
+            - fx2_couture_shears_falling_1_blade_0_2
+            - fx2_couture_shears_falling_1_edge_0_2
+            - fx2_couture_shears_falling_1_blade_1_2
+            - fx2_couture_shears_falling_1_edge_1_2
+            - fx2_couture_shears_falling_1_blade_2_2
+            - fx2_couture_shears_falling_1_edge_2_2
+            - fx2_couture_shears_falling_1_handle_0_2
+            - fx2_couture_shears_falling_1_handle_1_2
+            - fx2_couture_shears_falling_1_handle_2_2
+            - fx2_couture_shears_falling_1_handle_3_2
+            - fx2_couture_shears_falling_1_handle_4_2
+            - fx2_couture_shears_falling_hinge_flower_0
+            - fx2_couture_shears_falling_hinge_flower_1
+            - fx2_couture_shears_falling_hinge_flower_2
+            - fx2_couture_shears_falling_hinge_flower_3
+          when: "= event.source == 'sel'"
+        - id: rm_7
+          op: remove
+          ids:
+            - fx4_couture_shears_falling_1_blade_0
+            - fx4_couture_shears_falling_1_edge_0
+            - fx4_couture_shears_falling_1_blade_1
+            - fx4_couture_shears_falling_1_edge_1
+            - fx4_couture_shears_falling_1_blade_2
+            - fx4_couture_shears_falling_1_edge_2
+            - fx4_couture_shears_falling_1_handle_0
+            - fx4_couture_shears_falling_1_handle_1
+            - fx4_couture_shears_falling_1_handle_2
+            - fx4_couture_shears_falling_1_handle_3
+            - fx4_couture_shears_falling_1_handle_4
+            - fx4_couture_shears_falling_1_blade_0_2
+            - fx4_couture_shears_falling_1_edge_0_2
+            - fx4_couture_shears_falling_1_blade_1_2
+            - fx4_couture_shears_falling_1_edge_1_2
+            - fx4_couture_shears_falling_1_blade_2_2
+            - fx4_couture_shears_falling_1_edge_2_2
+            - fx4_couture_shears_falling_1_handle_0_2
+            - fx4_couture_shears_falling_1_handle_1_2
+            - fx4_couture_shears_falling_1_handle_2_2
+            - fx4_couture_shears_falling_1_handle_3_2
+            - fx4_couture_shears_falling_1_handle_4_2
+            - fx4_couture_shears_falling_hinge_flower_0
+            - fx4_couture_shears_falling_hinge_flower_1
+            - fx4_couture_shears_falling_hinge_flower_2
+            - fx4_couture_shears_falling_hinge_flower_3
+          when: "= event.source == 'sel_3'"
     - {id: loop1, at: hit, every: 3, for: 4, do: [{id: fx3_couture_rapier_cross_sparks, op: emit, at: fx3_couture_rapier_cross_sparks_at, particle: stab-spark, when: "= event.source == 'sel_2'"}]}
     - {id: loop2, at: hit, every: 3, for: 4, do: [{id: fx5_couture_rapier_cross_sparks, op: emit, at: fx5_couture_rapier_cross_sparks_at, particle: stab-spark, when: "= event.source == 'sel_4'"}]}
   "on":
     hit:
+      - {op: block, parent: fx2_couture_shears_falling, block: gray_concrete, size: [1.0, 1.0, 1.0], id: fx2_couture_shears_falling_1_blade_0, when: "= event.source == 'sel'"}
+      - id: fx2_couture_shears_falling_1_blade_0_trk
+        op: track
+        target: fx2_couture_shears_falling_1_blade_0
+        keys:
+          - {t: 0, offset: [-0.09, 5.80718, -0.4], scale: [0.12, 0.38, 1.6], turn: [120.0, 0.0, 0.0]}
+          - {t: 8, offset: [-0.09, 2.10718, -0.4], scale: [0.12, 0.38, 1.6], turn: [120.0, 0.0, 0.0]}
+          - {t: 9, turn: [110.66667, 0.0, 0.0]}
+          - {t: 10, turn: [101.33333, 0.0, 0.0]}
+          - {t: 11, offset: [-0.09, 2.00049, -0.02792], scale: [0.12, 0.38, 1.6], turn: [92.0, 0.0, 0.0]}
+          - {t: 16, offset: [-0.09, 2.00049, -0.02792], scale: [0.12, 0.38, 1.6], turn: [92.0, 0.0, 0.0]}
+          - {t: 20, offset: [-0.09, 2.00049, -0.02792], scale: [0.0, 0.0, 0.0], turn: [92.0, 0.0, 0.0]}
+        when: "= event.source == 'sel'"
+      - {op: block, parent: fx2_couture_shears_falling, block: iron_block, size: [1.0, 1.0, 1.0], id: fx2_couture_shears_falling_1_edge_0, when: "= event.source == 'sel'"}
+      - id: fx2_couture_shears_falling_1_edge_0_trk
+        op: track
+        target: fx2_couture_shears_falling_1_edge_0
+        keys:
+          - {t: 0, offset: [-0.09, 5.74733, -0.29634], scale: [0.12, 0.05, 1.60329], turn: [123.66907, 0.0, 0.0]}
+          - {t: 8, offset: [-0.09, 2.04733, -0.29634], scale: [0.12, 0.05, 1.60329], turn: [123.66907, 0.0, 0.0]}
+          - {t: 9, turn: [114.33573, 0.0, 0.0]}
+          - {t: 10, turn: [105.0024, 0.0, 0.0]}
+          - {t: 11, offset: [-0.09, 1.99631, 0.09171], scale: [0.12, 0.05, 1.60329], turn: [95.66907, 0.0, 0.0]}
+          - {t: 16, offset: [-0.09, 1.99631, 0.09171], scale: [0.12, 0.05, 1.60329], turn: [95.66907, 0.0, 0.0]}
+          - {t: 20, offset: [-0.09, 1.99631, 0.09171], scale: [0.0, 0.0, 0.0], turn: [95.66907, 0.0, 0.0]}
+        when: "= event.source == 'sel'"
+      - {op: block, parent: fx2_couture_shears_falling, block: gray_concrete, size: [1.0, 1.0, 1.0], id: fx2_couture_shears_falling_1_blade_1, when: "= event.source == 'sel'"}
+      - id: fx2_couture_shears_falling_1_blade_1_trk
+        op: track
+        target: fx2_couture_shears_falling_1_blade_1
+        keys:
+          - {t: 0, offset: [-0.09, 4.59474, -1.1], scale: [0.12, 0.24, 1.2], turn: [120.0, 0.0, 0.0]}
+          - {t: 8, offset: [-0.09, 0.89474, -1.1], scale: [0.12, 0.24, 1.2], turn: [120.0, 0.0, 0.0]}
+          - {t: 9, turn: [110.66667, 0.0, 0.0]}
+          - {t: 10, turn: [101.33333, 0.0, 0.0]}
+          - {t: 11, offset: [-0.09, 0.60134, -0.07678], scale: [0.12, 0.24, 1.2], turn: [92.0, 0.0, 0.0]}
+          - {t: 16, offset: [-0.09, 0.60134, -0.07678], scale: [0.12, 0.24, 1.2], turn: [92.0, 0.0, 0.0]}
+          - {t: 20, offset: [-0.09, 0.60134, -0.07678], scale: [0.0, 0.0, 0.0], turn: [92.0, 0.0, 0.0]}
+        when: "= event.source == 'sel'"
+      - {op: block, parent: fx2_couture_shears_falling, block: iron_block, size: [1.0, 1.0, 1.0], id: fx2_couture_shears_falling_1_edge_1, when: "= event.source == 'sel'"}
+      - id: fx2_couture_shears_falling_1_edge_1_trk
+        op: track
+        target: fx2_couture_shears_falling_1_edge_1
+        keys:
+          - {t: 0, offset: [-0.09, 4.55694, -1.03453], scale: [0.12, 0.05, 1.20175], turn: [123.09097, 0.0, 0.0]}
+          - {t: 8, offset: [-0.09, 0.85694, -1.03453], scale: [0.12, 0.05, 1.20175], turn: [123.09097, 0.0, 0.0]}
+          - {t: 9, turn: [113.75764, 0.0, 0.0]}
+          - {t: 10, turn: [104.4243, 0.0, 0.0]}
+          - {t: 11, offset: [-0.09, 0.5987, -0.00122], scale: [0.12, 0.05, 1.20175], turn: [95.09097, 0.0, 0.0]}
+          - {t: 16, offset: [-0.09, 0.5987, -0.00122], scale: [0.12, 0.05, 1.20175], turn: [95.09097, 0.0, 0.0]}
+          - {t: 20, offset: [-0.09, 0.5987, -0.00122], scale: [0.0, 0.0, 0.0], turn: [95.09097, 0.0, 0.0]}
+        when: "= event.source == 'sel'"
+      - {op: block, parent: fx2_couture_shears_falling, block: gray_concrete, size: [1.0, 1.0, 1.0], id: fx2_couture_shears_falling_1_blade_2, when: "= event.source == 'sel'"}
+      - id: fx2_couture_shears_falling_1_blade_2_trk
+        op: track
+        target: fx2_couture_shears_falling_1_blade_2
+        keys:
+          - {t: 0, offset: [-0.09, 3.72872, -1.6], scale: [0.12, 0.09, 0.8], turn: [120.0, 0.0, 0.0]}
+          - {t: 8, offset: [-0.09, 0.02872, -1.6], scale: [0.12, 0.09, 0.8], turn: [120.0, 0.0, 0.0]}
+          - {t: 9, turn: [110.66667, 0.0, 0.0]}
+          - {t: 10, turn: [101.33333, 0.0, 0.0]}
+          - {t: 11, offset: [-0.09, -0.39805, -0.11168], scale: [0.12, 0.09, 0.8], turn: [92.0, 0.0, 0.0]}
+          - {t: 16, offset: [-0.09, -0.39805, -0.11168], scale: [0.12, 0.09, 0.8], turn: [92.0, 0.0, 0.0]}
+          - {t: 20, offset: [-0.09, -0.39805, -0.11168], scale: [0.0, 0.0, 0.0], turn: [92.0, 0.0, 0.0]}
+        when: "= event.source == 'sel'"
+      - {op: block, parent: fx2_couture_shears_falling, block: iron_block, size: [1.0, 1.0, 1.0], id: fx2_couture_shears_falling_1_edge_2, when: "= event.source == 'sel'"}
+      - id: fx2_couture_shears_falling_1_edge_2_trk
+        op: track
+        target: fx2_couture_shears_falling_1_edge_2
+        keys:
+          - {t: 0, offset: [-0.09, 3.71454, -1.57545], scale: [0.12, 0.05, 0.80037], turn: [121.73982, 0.0, 0.0]}
+          - {t: 8, offset: [-0.09, 0.01454, -1.57545], scale: [0.12, 0.05, 0.80037], turn: [121.73982, 0.0, 0.0]}
+          - {t: 9, turn: [112.40649, 0.0, 0.0]}
+          - {t: 10, turn: [103.07316, 0.0, 0.0]}
+          - {t: 11, offset: [-0.09, -0.39904, -0.08335], scale: [0.12, 0.05, 0.80037], turn: [93.73982, 0.0, 0.0]}
+          - {t: 16, offset: [-0.09, -0.39904, -0.08335], scale: [0.12, 0.05, 0.80037], turn: [93.73982, 0.0, 0.0]}
+          - {t: 20, offset: [-0.09, -0.39904, -0.08335], scale: [0.0, 0.0, 0.0], turn: [93.73982, 0.0, 0.0]}
+        when: "= event.source == 'sel'"
+      - {op: block, parent: fx2_couture_shears_falling, block: black_concrete, size: [1.0, 1.0, 1.0], id: fx2_couture_shears_falling_1_handle_0, when: "= event.source == 'sel'"}
+      - id: fx2_couture_shears_falling_1_handle_0_trk
+        op: track
+        target: fx2_couture_shears_falling_1_handle_0
+        keys:
+          - {t: 0, offset: [-0.09, 6.71909, 0.38053], scale: [0.12, 0.09, 0.62225], turn: [-15.0, 0.0, 0.0]}
+          - {t: 8, offset: [-0.09, 3.01909, 0.38053], scale: [0.12, 0.09, 0.62225], turn: [-15.0, 0.0, 0.0]}
+          - {t: 9, turn: [-24.33333, 0.0, 0.0]}
+          - {t: 10, turn: [-33.66667, 0.0, 0.0]}
+          - {t: 11, offset: [-0.09, 3.17209, 0.23313], scale: [0.12, 0.09, 0.62225], turn: [-43.0, 0.0, 0.0]}
+          - {t: 16, offset: [-0.09, 3.17209, 0.23313], scale: [0.12, 0.09, 0.62225], turn: [-43.0, 0.0, 0.0]}
+          - {t: 20, offset: [-0.09, 3.17209, 0.23313], scale: [0.0, 0.0, 0.0], turn: [-43.0, 0.0, 0.0]}
+        when: "= event.source == 'sel'"
+      - {op: block, parent: fx2_couture_shears_falling, block: black_concrete, size: [1.0, 1.0, 1.0], id: fx2_couture_shears_falling_1_handle_1, when: "= event.source == 'sel'"}
+      - id: fx2_couture_shears_falling_1_handle_1_trk
+        op: track
+        target: fx2_couture_shears_falling_1_handle_1
+        keys:
+          - {t: 0, offset: [-0.09, 7.20433, 0.88007], scale: [0.12, 0.09, 0.902], turn: [-63.81407, 0.0, 0.0]}
+          - {t: 8, offset: [-0.09, 3.50433, 0.88007], scale: [0.12, 0.09, 0.902], turn: [-63.81407, 0.0, 0.0]}
+          - {t: 9, turn: [-73.14741, 0.0, 0.0]}
+          - {t: 10, turn: [-82.48074, 0.0, 0.0]}
+          - {t: 11, offset: [-0.09, 3.83505, 0.44639], scale: [0.12, 0.09, 0.902], turn: [-91.81407, 0.0, 0.0]}
+          - {t: 16, offset: [-0.09, 3.83505, 0.44639], scale: [0.12, 0.09, 0.902], turn: [-91.81407, 0.0, 0.0]}
+          - {t: 20, offset: [-0.09, 3.83505, 0.44639], scale: [0.0, 0.0, 0.0], turn: [-91.81407, 0.0, 0.0]}
+        when: "= event.source == 'sel'"
+      - {op: block, parent: fx2_couture_shears_falling, block: black_concrete, size: [1.0, 1.0, 1.0], id: fx2_couture_shears_falling_1_handle_2, when: "= event.source == 'sel'"}
+      - id: fx2_couture_shears_falling_1_handle_2_trk
+        op: track
+        target: fx2_couture_shears_falling_1_handle_2
+        keys:
+          - {t: 0, offset: [-0.09, 7.7993, 0.96954], scale: [0.12, 0.09, 0.43909], turn: [-119.93142, 0.0, 0.0]}
+          - {t: 8, offset: [-0.09, 4.0993, 0.96954], scale: [0.12, 0.09, 0.43909], turn: [-119.93142, 0.0, 0.0]}
+          - {t: 9, turn: [-129.26475, 0.0, 0.0]}
+          - {t: 10, turn: [-138.59808, 0.0, 0.0]}
+          - {t: 11, offset: [-0.09, 4.40239, 0.24607], scale: [0.12, 0.09, 0.43909], turn: [-147.93142, 0.0, 0.0]}
+          - {t: 16, offset: [-0.09, 4.40239, 0.24607], scale: [0.12, 0.09, 0.43909], turn: [-147.93142, 0.0, 0.0]}
+          - {t: 20, offset: [-0.09, 4.40239, 0.24607], scale: [0.0, 0.0, 0.0], turn: [-147.93142, 0.0, 0.0]}
+        when: "= event.source == 'sel'"
+      - {op: block, parent: fx2_couture_shears_falling, block: black_concrete, size: [1.0, 1.0, 1.0], id: fx2_couture_shears_falling_1_handle_3, when: "= event.source == 'sel'"}
+      - id: fx2_couture_shears_falling_1_handle_3_trk
+        op: track
+        target: fx2_couture_shears_falling_1_handle_3
+        keys:
+          - {t: 0, offset: [-0.09, 7.75181, 0.49179], scale: [0.12, 0.09, 0.87658], turn: [147.14968, 0.0, 0.0]}
+          - {t: 8, offset: [-0.09, 4.05181, 0.49179], scale: [0.12, 0.09, 0.87658], turn: [147.14968, 0.0, 0.0]}
+          - {t: 9, turn: [137.81635, 0.0, 0.0]}
+          - {t: 10, turn: [128.48302, 0.0, 0.0]}
+          - {t: 11, offset: [-0.09, 4.13617, -0.15346], scale: [0.12, 0.09, 0.87658], turn: [119.14968, 0.0, 0.0]}
+          - {t: 16, offset: [-0.09, 4.13617, -0.15346], scale: [0.12, 0.09, 0.87658], turn: [119.14968, 0.0, 0.0]}
+          - {t: 20, offset: [-0.09, 4.13617, -0.15346], scale: [0.0, 0.0, 0.0], turn: [119.14968, 0.0, 0.0]}
+        when: "= event.source == 'sel'"
+      - {op: block, parent: fx2_couture_shears_falling, block: black_concrete, size: [1.0, 1.0, 1.0], id: fx2_couture_shears_falling_1_handle_4, when: "= event.source == 'sel'"}
+      - id: fx2_couture_shears_falling_1_handle_4_trk
+        op: track
+        target: fx2_couture_shears_falling_1_handle_4
+        keys:
+          - {t: 0, offset: [-0.09, 7.07631, 0.10179], scale: [0.12, 0.09, 0.87658], turn: [92.85032, 0.0, 0.0]}
+          - {t: 8, offset: [-0.09, 3.37631, 0.10179], scale: [0.12, 0.09, 0.87658], turn: [92.85032, 0.0, 0.0]}
+          - {t: 9, turn: [83.51698, 0.0, 0.0]}
+          - {t: 10, turn: [74.18365, 0.0, 0.0]}
+          - {t: 11, offset: [-0.09, 3.35664, -0.18068], scale: [0.12, 0.09, 0.87658], turn: [64.85032, 0.0, 0.0]}
+          - {t: 16, offset: [-0.09, 3.35664, -0.18068], scale: [0.12, 0.09, 0.87658], turn: [64.85032, 0.0, 0.0]}
+          - {t: 20, offset: [-0.09, 3.35664, -0.18068], scale: [0.0, 0.0, 0.0], turn: [64.85032, 0.0, 0.0]}
+        when: "= event.source == 'sel'"
+      - {op: block, parent: fx2_couture_shears_falling, block: gray_concrete, size: [1.0, 1.0, 1.0], id: fx2_couture_shears_falling_1_blade_0_2, when: "= event.source == 'sel'"}
+      - id: fx2_couture_shears_falling_1_blade_0_2_trk
+        op: track
+        target: fx2_couture_shears_falling_1_blade_0_2
+        keys:
+          - {t: 0, offset: [0.09, 5.80718, 0.4], scale: [0.12, 0.38, 1.6], turn: [60.0, 0.0, 0.0]}
+          - {t: 8, offset: [0.09, 2.10718, 0.4], scale: [0.12, 0.38, 1.6], turn: [60.0, 0.0, 0.0]}
+          - {t: 9, turn: [69.33333, 0.0, 0.0]}
+          - {t: 10, turn: [78.66667, 0.0, 0.0]}
+          - {t: 11, offset: [0.09, 2.00049, 0.02792], scale: [0.12, 0.38, 1.6], turn: [88.0, 0.0, 0.0]}
+          - {t: 16, offset: [0.09, 2.00049, 0.02792], scale: [0.12, 0.38, 1.6], turn: [88.0, 0.0, 0.0]}
+          - {t: 20, offset: [0.09, 2.00049, 0.02792], scale: [0.0, 0.0, 0.0], turn: [88.0, 0.0, 0.0]}
+        when: "= event.source == 'sel'"
+      - {op: block, parent: fx2_couture_shears_falling, block: iron_block, size: [1.0, 1.0, 1.0], id: fx2_couture_shears_falling_1_edge_0_2, when: "= event.source == 'sel'"}
+      - id: fx2_couture_shears_falling_1_edge_0_2_trk
+        op: track
+        target: fx2_couture_shears_falling_1_edge_0_2
+        keys:
+          - {t: 0, offset: [0.09, 5.86703, 0.50366], scale: [0.12, 0.05, 1.60329], turn: [63.66907, 0.0, 0.0]}
+          - {t: 8, offset: [0.09, 2.16703, 0.50366], scale: [0.12, 0.05, 1.60329], turn: [63.66907, 0.0, 0.0]}
+          - {t: 9, turn: [73.0024, 0.0, 0.0]}
+          - {t: 10, turn: [82.33573, 0.0, 0.0]}
+          - {t: 11, offset: [0.09, 2.00466, 0.14755], scale: [0.12, 0.05, 1.60329], turn: [91.66907, 0.0, 0.0]}
+          - {t: 16, offset: [0.09, 2.00466, 0.14755], scale: [0.12, 0.05, 1.60329], turn: [91.66907, 0.0, 0.0]}
+          - {t: 20, offset: [0.09, 2.00466, 0.14755], scale: [0.0, 0.0, 0.0], turn: [91.66907, 0.0, 0.0]}
+        when: "= event.source == 'sel'"
+      - {op: block, parent: fx2_couture_shears_falling, block: gray_concrete, size: [1.0, 1.0, 1.0], id: fx2_couture_shears_falling_1_blade_1_2, when: "= event.source == 'sel'"}
+      - id: fx2_couture_shears_falling_1_blade_1_2_trk
+        op: track
+        target: fx2_couture_shears_falling_1_blade_1_2
+        keys:
+          - {t: 0, offset: [0.09, 4.59474, 1.1], scale: [0.12, 0.24, 1.2], turn: [60.0, 0.0, 0.0]}
+          - {t: 8, offset: [0.09, 0.89474, 1.1], scale: [0.12, 0.24, 1.2], turn: [60.0, 0.0, 0.0]}
+          - {t: 9, turn: [69.33333, 0.0, 0.0]}
+          - {t: 10, turn: [78.66667, 0.0, 0.0]}
+          - {t: 11, offset: [0.09, 0.60134, 0.07678], scale: [0.12, 0.24, 1.2], turn: [88.0, 0.0, 0.0]}
+          - {t: 16, offset: [0.09, 0.60134, 0.07678], scale: [0.12, 0.24, 1.2], turn: [88.0, 0.0, 0.0]}
+          - {t: 20, offset: [0.09, 0.60134, 0.07678], scale: [0.0, 0.0, 0.0], turn: [88.0, 0.0, 0.0]}
+        when: "= event.source == 'sel'"
+      - {op: block, parent: fx2_couture_shears_falling, block: iron_block, size: [1.0, 1.0, 1.0], id: fx2_couture_shears_falling_1_edge_1_2, when: "= event.source == 'sel'"}
+      - id: fx2_couture_shears_falling_1_edge_1_2_trk
+        op: track
+        target: fx2_couture_shears_falling_1_edge_1_2
+        keys:
+          - {t: 0, offset: [0.09, 4.63254, 1.16547], scale: [0.12, 0.05, 1.20175], turn: [63.09097, 0.0, 0.0]}
+          - {t: 8, offset: [0.09, 0.93254, 1.16547], scale: [0.12, 0.05, 1.20175], turn: [63.09097, 0.0, 0.0]}
+          - {t: 9, turn: [72.4243, 0.0, 0.0]}
+          - {t: 10, turn: [81.75764, 0.0, 0.0]}
+          - {t: 11, offset: [0.09, 0.60398, 0.15233], scale: [0.12, 0.05, 1.20175], turn: [91.09097, 0.0, 0.0]}
+          - {t: 16, offset: [0.09, 0.60398, 0.15233], scale: [0.12, 0.05, 1.20175], turn: [91.09097, 0.0, 0.0]}
+          - {t: 20, offset: [0.09, 0.60398, 0.15233], scale: [0.0, 0.0, 0.0], turn: [91.09097, 0.0, 0.0]}
+        when: "= event.source == 'sel'"
+      - {op: block, parent: fx2_couture_shears_falling, block: gray_concrete, size: [1.0, 1.0, 1.0], id: fx2_couture_shears_falling_1_blade_2_2, when: "= event.source == 'sel'"}
+      - id: fx2_couture_shears_falling_1_blade_2_2_trk
+        op: track
+        target: fx2_couture_shears_falling_1_blade_2_2
+        keys:
+          - {t: 0, offset: [0.09, 3.72872, 1.6], scale: [0.12, 0.09, 0.8], turn: [60.0, 0.0, 0.0]}
+          - {t: 8, offset: [0.09, 0.02872, 1.6], scale: [0.12, 0.09, 0.8], turn: [60.0, 0.0, 0.0]}
+          - {t: 9, turn: [69.33333, 0.0, 0.0]}
+          - {t: 10, turn: [78.66667, 0.0, 0.0]}
+          - {t: 11, offset: [0.09, -0.39805, 0.11168], scale: [0.12, 0.09, 0.8], turn: [88.0, 0.0, 0.0]}
+          - {t: 16, offset: [0.09, -0.39805, 0.11168], scale: [0.12, 0.09, 0.8], turn: [88.0, 0.0, 0.0]}
+          - {t: 20, offset: [0.09, -0.39805, 0.11168], scale: [0.0, 0.0, 0.0], turn: [88.0, 0.0, 0.0]}
+        when: "= event.source == 'sel'"
+      - {op: block, parent: fx2_couture_shears_falling, block: iron_block, size: [1.0, 1.0, 1.0], id: fx2_couture_shears_falling_1_edge_2_2, when: "= event.source == 'sel'"}
+      - id: fx2_couture_shears_falling_1_edge_2_2_trk
+        op: track
+        target: fx2_couture_shears_falling_1_edge_2_2
+        keys:
+          - {t: 0, offset: [0.09, 3.74289, 1.62455], scale: [0.12, 0.05, 0.80037], turn: [61.73982, 0.0, 0.0]}
+          - {t: 8, offset: [0.09, 0.04289, 1.62455], scale: [0.12, 0.05, 0.80037], turn: [61.73982, 0.0, 0.0]}
+          - {t: 9, turn: [71.07316, 0.0, 0.0]}
+          - {t: 10, turn: [80.40649, 0.0, 0.0]}
+          - {t: 11, offset: [0.09, -0.39706, 0.14001], scale: [0.12, 0.05, 0.80037], turn: [89.73982, 0.0, 0.0]}
+          - {t: 16, offset: [0.09, -0.39706, 0.14001], scale: [0.12, 0.05, 0.80037], turn: [89.73982, 0.0, 0.0]}
+          - {t: 20, offset: [0.09, -0.39706, 0.14001], scale: [0.0, 0.0, 0.0], turn: [89.73982, 0.0, 0.0]}
+        when: "= event.source == 'sel'"
+      - {op: block, parent: fx2_couture_shears_falling, block: black_concrete, size: [1.0, 1.0, 1.0], id: fx2_couture_shears_falling_1_handle_0_2, when: "= event.source == 'sel'"}
+      - id: fx2_couture_shears_falling_1_handle_0_2_trk
+        op: track
+        target: fx2_couture_shears_falling_1_handle_0_2
+        keys:
+          - {t: 0, offset: [0.09, 6.93909, 0.00053], scale: [0.12, 0.09, 0.62225], turn: [-75.0, 0.0, 0.0]}
+          - {t: 8, offset: [0.09, 3.23909, 0.00053], scale: [0.12, 0.09, 0.62225], turn: [-75.0, 0.0, 0.0]}
+          - {t: 9, turn: [-65.66667, 0.0, 0.0]}
+          - {t: 10, turn: [-56.33333, 0.0, 0.0]}
+          - {t: 11, offset: [0.09, 3.18745, 0.2066], scale: [0.12, 0.09, 0.62225], turn: [-47.0, 0.0, 0.0]}
+          - {t: 16, offset: [0.09, 3.18745, 0.2066], scale: [0.12, 0.09, 0.62225], turn: [-47.0, 0.0, 0.0]}
+          - {t: 20, offset: [0.09, 3.18745, 0.2066], scale: [0.0, 0.0, 0.0], turn: [-47.0, 0.0, 0.0]}
+        when: "= event.source == 'sel'"
+      - {op: block, parent: fx2_couture_shears_falling, block: black_concrete, size: [1.0, 1.0, 1.0], id: fx2_couture_shears_falling_1_handle_1_2, when: "= event.source == 'sel'"}
+      - id: fx2_couture_shears_falling_1_handle_1_2_trk
+        op: track
+        target: fx2_couture_shears_falling_1_handle_1_2
+        keys:
+          - {t: 0, offset: [0.09, 7.61433, -0.16993], scale: [0.12, 0.09, 0.902], turn: [-123.81407, 0.0, 0.0]}
+          - {t: 8, offset: [0.09, 3.91433, -0.16993], scale: [0.12, 0.09, 0.902], turn: [-123.81407, 0.0, 0.0]}
+          - {t: 9, turn: [-114.48074, 0.0, 0.0]}
+          - {t: 10, turn: [-105.14741, 0.0, 0.0]}
+          - {t: 11, offset: [0.09, 3.86367, 0.37311], scale: [0.12, 0.09, 0.902], turn: [-95.81407, 0.0, 0.0]}
+          - {t: 16, offset: [0.09, 3.86367, 0.37311], scale: [0.12, 0.09, 0.902], turn: [-95.81407, 0.0, 0.0]}
+          - {t: 20, offset: [0.09, 3.86367, 0.37311], scale: [0.0, 0.0, 0.0], turn: [-95.81407, 0.0, 0.0]}
+        when: "= event.source == 'sel'"
+      - {op: block, parent: fx2_couture_shears_falling, block: black_concrete, size: [1.0, 1.0, 1.0], id: fx2_couture_shears_falling_1_handle_2_2, when: "= event.source == 'sel'"}
+      - id: fx2_couture_shears_falling_1_handle_2_2_trk
+        op: track
+        target: fx2_couture_shears_falling_1_handle_2_2
+        keys:
+          - {t: 0, offset: [0.09, 7.9893, -0.64046], scale: [0.12, 0.09, 0.43909], turn: [-179.93142, 0.0, 0.0]}
+          - {t: 8, offset: [0.09, 4.2893, -0.64046], scale: [0.12, 0.09, 0.43909], turn: [-179.93142, 0.0, 0.0]}
+          - {t: 9, turn: [-170.59808, 0.0, 0.0]}
+          - {t: 10, turn: [-161.26475, 0.0, 0.0]}
+          - {t: 11, offset: [0.09, 4.41565, 0.1337], scale: [0.12, 0.09, 0.43909], turn: [-151.93142, 0.0, 0.0]}
+          - {t: 16, offset: [0.09, 4.41565, 0.1337], scale: [0.12, 0.09, 0.43909], turn: [-151.93142, 0.0, 0.0]}
+          - {t: 20, offset: [0.09, 4.41565, 0.1337], scale: [0.0, 0.0, 0.0], turn: [-151.93142, 0.0, 0.0]}
+        when: "= event.source == 'sel'"
+      - {op: block, parent: fx2_couture_shears_falling, block: black_concrete, size: [1.0, 1.0, 1.0], id: fx2_couture_shears_falling_1_handle_3_2, when: "= event.source == 'sel'"}
+      - id: fx2_couture_shears_falling_1_handle_3_2_trk
+        op: track
+        target: fx2_couture_shears_falling_1_handle_3_2
+        keys:
+          - {t: 0, offset: [0.09, 7.55181, -0.83821], scale: [0.12, 0.09, 0.87658], turn: [87.14968, 0.0, 0.0]}
+          - {t: 8, offset: [0.09, 3.85181, -0.83821], scale: [0.12, 0.09, 0.87658], turn: [87.14968, 0.0, 0.0]}
+          - {t: 9, turn: [96.48302, 0.0, 0.0]}
+          - {t: 10, turn: [105.81635, 0.0, 0.0]}
+          - {t: 11, offset: [0.09, 4.12221, -0.24629], scale: [0.12, 0.09, 0.87658], turn: [115.14968, 0.0, 0.0]}
+          - {t: 16, offset: [0.09, 4.12221, -0.24629], scale: [0.12, 0.09, 0.87658], turn: [115.14968, 0.0, 0.0]}
+          - {t: 20, offset: [0.09, 4.12221, -0.24629], scale: [0.0, 0.0, 0.0], turn: [115.14968, 0.0, 0.0]}
+        when: "= event.source == 'sel'"
+      - {op: block, parent: fx2_couture_shears_falling, block: black_concrete, size: [1.0, 1.0, 1.0], id: fx2_couture_shears_falling_1_handle_4_2, when: "= event.source == 'sel'"}
+      - id: fx2_couture_shears_falling_1_handle_4_2_trk
+        op: track
+        target: fx2_couture_shears_falling_1_handle_4_2
+        keys:
+          - {t: 0, offset: [0.09, 6.87631, -0.44821], scale: [0.12, 0.09, 0.87658], turn: [32.85032, 0.0, 0.0]}
+          - {t: 8, offset: [0.09, 3.17631, -0.44821], scale: [0.12, 0.09, 0.87658], turn: [32.85032, 0.0, 0.0]}
+          - {t: 9, turn: [42.18365, 0.0, 0.0]}
+          - {t: 10, turn: [51.51698, 0.0, 0.0]}
+          - {t: 11, offset: [0.09, 3.34269, -0.21907], scale: [0.12, 0.09, 0.87658], turn: [60.85032, 0.0, 0.0]}
+          - {t: 16, offset: [0.09, 3.34269, -0.21907], scale: [0.12, 0.09, 0.87658], turn: [60.85032, 0.0, 0.0]}
+          - {t: 20, offset: [0.09, 3.34269, -0.21907], scale: [0.0, 0.0, 0.0], turn: [60.85032, 0.0, 0.0]}
+        when: "= event.source == 'sel'"
+      - {op: block, parent: fx2_couture_shears_falling, block: white_concrete, size: [1.0, 1.0, 1.0], id: fx2_couture_shears_falling_hinge_flower_0, when: "= event.source == 'sel'"}
+      - id: fx2_couture_shears_falling_hinge_flower_0_trk
+        op: track
+        target: fx2_couture_shears_falling_hinge_flower_0
+        keys:
+          - {t: 0, offset: [-0.24, 6.5, 0.0], scale: [0.3, 0.3, 0.24]}
+          - {t: 8, offset: [-0.24, 2.8, 0.0], scale: [0.3, 0.3, 0.24]}
+          - {t: 11, offset: [-0.24, 2.8, 0.0], scale: [0.3, 0.3, 0.24]}
+          - {t: 16, offset: [-0.24, 2.8, 0.0], scale: [0.3, 0.3, 0.24]}
+          - {t: 20, offset: [-0.24, 2.8, 0.0], scale: [0.0, 0.0, 0.0]}
+        when: "= event.source == 'sel'"
+      - {op: block, parent: fx2_couture_shears_falling, block: white_concrete, size: [1.0, 1.0, 1.0], id: fx2_couture_shears_falling_hinge_flower_1, when: "= event.source == 'sel'"}
+      - id: fx2_couture_shears_falling_hinge_flower_1_trk
+        op: track
+        target: fx2_couture_shears_falling_hinge_flower_1
+        keys:
+          - {t: 0, offset: [0.24, 6.5, 0.0], scale: [0.3, 0.3, 0.24]}
+          - {t: 8, offset: [0.24, 2.8, 0.0], scale: [0.3, 0.3, 0.24]}
+          - {t: 11, offset: [0.24, 2.8, 0.0], scale: [0.3, 0.3, 0.24]}
+          - {t: 16, offset: [0.24, 2.8, 0.0], scale: [0.3, 0.3, 0.24]}
+          - {t: 20, offset: [0.24, 2.8, 0.0], scale: [0.0, 0.0, 0.0]}
+        when: "= event.source == 'sel'"
+      - {op: block, parent: fx2_couture_shears_falling, block: white_concrete, size: [1.0, 1.0, 1.0], id: fx2_couture_shears_falling_hinge_flower_2, when: "= event.source == 'sel'"}
+      - id: fx2_couture_shears_falling_hinge_flower_2_trk
+        op: track
+        target: fx2_couture_shears_falling_hinge_flower_2
+        keys:
+          - {t: 0, offset: [0.0, 6.74, 0.0], scale: [0.3, 0.3, 0.24]}
+          - {t: 8, offset: [0.0, 3.04, 0.0], scale: [0.3, 0.3, 0.24]}
+          - {t: 11, offset: [0.0, 3.04, 0.0], scale: [0.3, 0.3, 0.24]}
+          - {t: 16, offset: [0.0, 3.04, 0.0], scale: [0.3, 0.3, 0.24]}
+          - {t: 20, offset: [0.0, 3.04, 0.0], scale: [0.0, 0.0, 0.0]}
+        when: "= event.source == 'sel'"
+      - {op: block, parent: fx2_couture_shears_falling, block: white_concrete, size: [1.0, 1.0, 1.0], id: fx2_couture_shears_falling_hinge_flower_3, when: "= event.source == 'sel'"}
+      - id: fx2_couture_shears_falling_hinge_flower_3_trk
+        op: track
+        target: fx2_couture_shears_falling_hinge_flower_3
+        keys:
+          - {t: 0, offset: [0.0, 6.26, 0.0], scale: [0.3, 0.3, 0.24]}
+          - {t: 8, offset: [0.0, 2.56, 0.0], scale: [0.3, 0.3, 0.24]}
+          - {t: 11, offset: [0.0, 2.56, 0.0], scale: [0.3, 0.3, 0.24]}
+          - {t: 16, offset: [0.0, 2.56, 0.0], scale: [0.3, 0.3, 0.24]}
+          - {t: 20, offset: [0.0, 2.56, 0.0], scale: [0.0, 0.0, 0.0]}
+        when: "= event.source == 'sel'"
       - {op: block, parent: fx3_couture_rapier_cross, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx3_couture_rapier_cross_cross_0, when: "= event.source == 'sel_2'"}
       - id: fx3_couture_rapier_cross_cross_0_trk
         op: track
@@ -501,6 +914,336 @@ presentation:
           - {t: 6, scale: [0.2, 0.2, 1.0], alpha: 0.0, ease: in_quad}
         when: "= event.source == 'sel_2'"
       - {id: snd, op: sound, sound: entity.player.attack.strong, at: enemy, volume: 0.7, pitch: 1.1, when: "= event.source == 'sel_2'"}
+      - {op: block, parent: fx4_couture_shears_falling, block: gray_concrete, size: [1.0, 1.0, 1.0], id: fx4_couture_shears_falling_1_blade_0, when: "= event.source == 'sel_3'"}
+      - id: fx4_couture_shears_falling_1_blade_0_trk
+        op: track
+        target: fx4_couture_shears_falling_1_blade_0
+        keys:
+          - {t: 0, offset: [-0.09, 5.80718, -0.4], scale: [0.12, 0.38, 1.6], turn: [120.0, 0.0, 0.0]}
+          - {t: 8, offset: [-0.09, 2.10718, -0.4], scale: [0.12, 0.38, 1.6], turn: [120.0, 0.0, 0.0]}
+          - {t: 9, turn: [110.66667, 0.0, 0.0]}
+          - {t: 10, turn: [101.33333, 0.0, 0.0]}
+          - {t: 11, offset: [-0.09, 2.00049, -0.02792], scale: [0.12, 0.38, 1.6], turn: [92.0, 0.0, 0.0]}
+          - {t: 16, offset: [-0.09, 2.00049, -0.02792], scale: [0.12, 0.38, 1.6], turn: [92.0, 0.0, 0.0]}
+          - {t: 20, offset: [-0.09, 2.00049, -0.02792], scale: [0.0, 0.0, 0.0], turn: [92.0, 0.0, 0.0]}
+        when: "= event.source == 'sel_3'"
+      - {op: block, parent: fx4_couture_shears_falling, block: iron_block, size: [1.0, 1.0, 1.0], id: fx4_couture_shears_falling_1_edge_0, when: "= event.source == 'sel_3'"}
+      - id: fx4_couture_shears_falling_1_edge_0_trk
+        op: track
+        target: fx4_couture_shears_falling_1_edge_0
+        keys:
+          - {t: 0, offset: [-0.09, 5.74733, -0.29634], scale: [0.12, 0.05, 1.60329], turn: [123.66907, 0.0, 0.0]}
+          - {t: 8, offset: [-0.09, 2.04733, -0.29634], scale: [0.12, 0.05, 1.60329], turn: [123.66907, 0.0, 0.0]}
+          - {t: 9, turn: [114.33573, 0.0, 0.0]}
+          - {t: 10, turn: [105.0024, 0.0, 0.0]}
+          - {t: 11, offset: [-0.09, 1.99631, 0.09171], scale: [0.12, 0.05, 1.60329], turn: [95.66907, 0.0, 0.0]}
+          - {t: 16, offset: [-0.09, 1.99631, 0.09171], scale: [0.12, 0.05, 1.60329], turn: [95.66907, 0.0, 0.0]}
+          - {t: 20, offset: [-0.09, 1.99631, 0.09171], scale: [0.0, 0.0, 0.0], turn: [95.66907, 0.0, 0.0]}
+        when: "= event.source == 'sel_3'"
+      - {op: block, parent: fx4_couture_shears_falling, block: gray_concrete, size: [1.0, 1.0, 1.0], id: fx4_couture_shears_falling_1_blade_1, when: "= event.source == 'sel_3'"}
+      - id: fx4_couture_shears_falling_1_blade_1_trk
+        op: track
+        target: fx4_couture_shears_falling_1_blade_1
+        keys:
+          - {t: 0, offset: [-0.09, 4.59474, -1.1], scale: [0.12, 0.24, 1.2], turn: [120.0, 0.0, 0.0]}
+          - {t: 8, offset: [-0.09, 0.89474, -1.1], scale: [0.12, 0.24, 1.2], turn: [120.0, 0.0, 0.0]}
+          - {t: 9, turn: [110.66667, 0.0, 0.0]}
+          - {t: 10, turn: [101.33333, 0.0, 0.0]}
+          - {t: 11, offset: [-0.09, 0.60134, -0.07678], scale: [0.12, 0.24, 1.2], turn: [92.0, 0.0, 0.0]}
+          - {t: 16, offset: [-0.09, 0.60134, -0.07678], scale: [0.12, 0.24, 1.2], turn: [92.0, 0.0, 0.0]}
+          - {t: 20, offset: [-0.09, 0.60134, -0.07678], scale: [0.0, 0.0, 0.0], turn: [92.0, 0.0, 0.0]}
+        when: "= event.source == 'sel_3'"
+      - {op: block, parent: fx4_couture_shears_falling, block: iron_block, size: [1.0, 1.0, 1.0], id: fx4_couture_shears_falling_1_edge_1, when: "= event.source == 'sel_3'"}
+      - id: fx4_couture_shears_falling_1_edge_1_trk
+        op: track
+        target: fx4_couture_shears_falling_1_edge_1
+        keys:
+          - {t: 0, offset: [-0.09, 4.55694, -1.03453], scale: [0.12, 0.05, 1.20175], turn: [123.09097, 0.0, 0.0]}
+          - {t: 8, offset: [-0.09, 0.85694, -1.03453], scale: [0.12, 0.05, 1.20175], turn: [123.09097, 0.0, 0.0]}
+          - {t: 9, turn: [113.75764, 0.0, 0.0]}
+          - {t: 10, turn: [104.4243, 0.0, 0.0]}
+          - {t: 11, offset: [-0.09, 0.5987, -0.00122], scale: [0.12, 0.05, 1.20175], turn: [95.09097, 0.0, 0.0]}
+          - {t: 16, offset: [-0.09, 0.5987, -0.00122], scale: [0.12, 0.05, 1.20175], turn: [95.09097, 0.0, 0.0]}
+          - {t: 20, offset: [-0.09, 0.5987, -0.00122], scale: [0.0, 0.0, 0.0], turn: [95.09097, 0.0, 0.0]}
+        when: "= event.source == 'sel_3'"
+      - {op: block, parent: fx4_couture_shears_falling, block: gray_concrete, size: [1.0, 1.0, 1.0], id: fx4_couture_shears_falling_1_blade_2, when: "= event.source == 'sel_3'"}
+      - id: fx4_couture_shears_falling_1_blade_2_trk
+        op: track
+        target: fx4_couture_shears_falling_1_blade_2
+        keys:
+          - {t: 0, offset: [-0.09, 3.72872, -1.6], scale: [0.12, 0.09, 0.8], turn: [120.0, 0.0, 0.0]}
+          - {t: 8, offset: [-0.09, 0.02872, -1.6], scale: [0.12, 0.09, 0.8], turn: [120.0, 0.0, 0.0]}
+          - {t: 9, turn: [110.66667, 0.0, 0.0]}
+          - {t: 10, turn: [101.33333, 0.0, 0.0]}
+          - {t: 11, offset: [-0.09, -0.39805, -0.11168], scale: [0.12, 0.09, 0.8], turn: [92.0, 0.0, 0.0]}
+          - {t: 16, offset: [-0.09, -0.39805, -0.11168], scale: [0.12, 0.09, 0.8], turn: [92.0, 0.0, 0.0]}
+          - {t: 20, offset: [-0.09, -0.39805, -0.11168], scale: [0.0, 0.0, 0.0], turn: [92.0, 0.0, 0.0]}
+        when: "= event.source == 'sel_3'"
+      - {op: block, parent: fx4_couture_shears_falling, block: iron_block, size: [1.0, 1.0, 1.0], id: fx4_couture_shears_falling_1_edge_2, when: "= event.source == 'sel_3'"}
+      - id: fx4_couture_shears_falling_1_edge_2_trk
+        op: track
+        target: fx4_couture_shears_falling_1_edge_2
+        keys:
+          - {t: 0, offset: [-0.09, 3.71454, -1.57545], scale: [0.12, 0.05, 0.80037], turn: [121.73982, 0.0, 0.0]}
+          - {t: 8, offset: [-0.09, 0.01454, -1.57545], scale: [0.12, 0.05, 0.80037], turn: [121.73982, 0.0, 0.0]}
+          - {t: 9, turn: [112.40649, 0.0, 0.0]}
+          - {t: 10, turn: [103.07316, 0.0, 0.0]}
+          - {t: 11, offset: [-0.09, -0.39904, -0.08335], scale: [0.12, 0.05, 0.80037], turn: [93.73982, 0.0, 0.0]}
+          - {t: 16, offset: [-0.09, -0.39904, -0.08335], scale: [0.12, 0.05, 0.80037], turn: [93.73982, 0.0, 0.0]}
+          - {t: 20, offset: [-0.09, -0.39904, -0.08335], scale: [0.0, 0.0, 0.0], turn: [93.73982, 0.0, 0.0]}
+        when: "= event.source == 'sel_3'"
+      - {op: block, parent: fx4_couture_shears_falling, block: black_concrete, size: [1.0, 1.0, 1.0], id: fx4_couture_shears_falling_1_handle_0, when: "= event.source == 'sel_3'"}
+      - id: fx4_couture_shears_falling_1_handle_0_trk
+        op: track
+        target: fx4_couture_shears_falling_1_handle_0
+        keys:
+          - {t: 0, offset: [-0.09, 6.71909, 0.38053], scale: [0.12, 0.09, 0.62225], turn: [-15.0, 0.0, 0.0]}
+          - {t: 8, offset: [-0.09, 3.01909, 0.38053], scale: [0.12, 0.09, 0.62225], turn: [-15.0, 0.0, 0.0]}
+          - {t: 9, turn: [-24.33333, 0.0, 0.0]}
+          - {t: 10, turn: [-33.66667, 0.0, 0.0]}
+          - {t: 11, offset: [-0.09, 3.17209, 0.23313], scale: [0.12, 0.09, 0.62225], turn: [-43.0, 0.0, 0.0]}
+          - {t: 16, offset: [-0.09, 3.17209, 0.23313], scale: [0.12, 0.09, 0.62225], turn: [-43.0, 0.0, 0.0]}
+          - {t: 20, offset: [-0.09, 3.17209, 0.23313], scale: [0.0, 0.0, 0.0], turn: [-43.0, 0.0, 0.0]}
+        when: "= event.source == 'sel_3'"
+      - {op: block, parent: fx4_couture_shears_falling, block: black_concrete, size: [1.0, 1.0, 1.0], id: fx4_couture_shears_falling_1_handle_1, when: "= event.source == 'sel_3'"}
+      - id: fx4_couture_shears_falling_1_handle_1_trk
+        op: track
+        target: fx4_couture_shears_falling_1_handle_1
+        keys:
+          - {t: 0, offset: [-0.09, 7.20433, 0.88007], scale: [0.12, 0.09, 0.902], turn: [-63.81407, 0.0, 0.0]}
+          - {t: 8, offset: [-0.09, 3.50433, 0.88007], scale: [0.12, 0.09, 0.902], turn: [-63.81407, 0.0, 0.0]}
+          - {t: 9, turn: [-73.14741, 0.0, 0.0]}
+          - {t: 10, turn: [-82.48074, 0.0, 0.0]}
+          - {t: 11, offset: [-0.09, 3.83505, 0.44639], scale: [0.12, 0.09, 0.902], turn: [-91.81407, 0.0, 0.0]}
+          - {t: 16, offset: [-0.09, 3.83505, 0.44639], scale: [0.12, 0.09, 0.902], turn: [-91.81407, 0.0, 0.0]}
+          - {t: 20, offset: [-0.09, 3.83505, 0.44639], scale: [0.0, 0.0, 0.0], turn: [-91.81407, 0.0, 0.0]}
+        when: "= event.source == 'sel_3'"
+      - {op: block, parent: fx4_couture_shears_falling, block: black_concrete, size: [1.0, 1.0, 1.0], id: fx4_couture_shears_falling_1_handle_2, when: "= event.source == 'sel_3'"}
+      - id: fx4_couture_shears_falling_1_handle_2_trk
+        op: track
+        target: fx4_couture_shears_falling_1_handle_2
+        keys:
+          - {t: 0, offset: [-0.09, 7.7993, 0.96954], scale: [0.12, 0.09, 0.43909], turn: [-119.93142, 0.0, 0.0]}
+          - {t: 8, offset: [-0.09, 4.0993, 0.96954], scale: [0.12, 0.09, 0.43909], turn: [-119.93142, 0.0, 0.0]}
+          - {t: 9, turn: [-129.26475, 0.0, 0.0]}
+          - {t: 10, turn: [-138.59808, 0.0, 0.0]}
+          - {t: 11, offset: [-0.09, 4.40239, 0.24607], scale: [0.12, 0.09, 0.43909], turn: [-147.93142, 0.0, 0.0]}
+          - {t: 16, offset: [-0.09, 4.40239, 0.24607], scale: [0.12, 0.09, 0.43909], turn: [-147.93142, 0.0, 0.0]}
+          - {t: 20, offset: [-0.09, 4.40239, 0.24607], scale: [0.0, 0.0, 0.0], turn: [-147.93142, 0.0, 0.0]}
+        when: "= event.source == 'sel_3'"
+      - {op: block, parent: fx4_couture_shears_falling, block: black_concrete, size: [1.0, 1.0, 1.0], id: fx4_couture_shears_falling_1_handle_3, when: "= event.source == 'sel_3'"}
+      - id: fx4_couture_shears_falling_1_handle_3_trk
+        op: track
+        target: fx4_couture_shears_falling_1_handle_3
+        keys:
+          - {t: 0, offset: [-0.09, 7.75181, 0.49179], scale: [0.12, 0.09, 0.87658], turn: [147.14968, 0.0, 0.0]}
+          - {t: 8, offset: [-0.09, 4.05181, 0.49179], scale: [0.12, 0.09, 0.87658], turn: [147.14968, 0.0, 0.0]}
+          - {t: 9, turn: [137.81635, 0.0, 0.0]}
+          - {t: 10, turn: [128.48302, 0.0, 0.0]}
+          - {t: 11, offset: [-0.09, 4.13617, -0.15346], scale: [0.12, 0.09, 0.87658], turn: [119.14968, 0.0, 0.0]}
+          - {t: 16, offset: [-0.09, 4.13617, -0.15346], scale: [0.12, 0.09, 0.87658], turn: [119.14968, 0.0, 0.0]}
+          - {t: 20, offset: [-0.09, 4.13617, -0.15346], scale: [0.0, 0.0, 0.0], turn: [119.14968, 0.0, 0.0]}
+        when: "= event.source == 'sel_3'"
+      - {op: block, parent: fx4_couture_shears_falling, block: black_concrete, size: [1.0, 1.0, 1.0], id: fx4_couture_shears_falling_1_handle_4, when: "= event.source == 'sel_3'"}
+      - id: fx4_couture_shears_falling_1_handle_4_trk
+        op: track
+        target: fx4_couture_shears_falling_1_handle_4
+        keys:
+          - {t: 0, offset: [-0.09, 7.07631, 0.10179], scale: [0.12, 0.09, 0.87658], turn: [92.85032, 0.0, 0.0]}
+          - {t: 8, offset: [-0.09, 3.37631, 0.10179], scale: [0.12, 0.09, 0.87658], turn: [92.85032, 0.0, 0.0]}
+          - {t: 9, turn: [83.51698, 0.0, 0.0]}
+          - {t: 10, turn: [74.18365, 0.0, 0.0]}
+          - {t: 11, offset: [-0.09, 3.35664, -0.18068], scale: [0.12, 0.09, 0.87658], turn: [64.85032, 0.0, 0.0]}
+          - {t: 16, offset: [-0.09, 3.35664, -0.18068], scale: [0.12, 0.09, 0.87658], turn: [64.85032, 0.0, 0.0]}
+          - {t: 20, offset: [-0.09, 3.35664, -0.18068], scale: [0.0, 0.0, 0.0], turn: [64.85032, 0.0, 0.0]}
+        when: "= event.source == 'sel_3'"
+      - {op: block, parent: fx4_couture_shears_falling, block: gray_concrete, size: [1.0, 1.0, 1.0], id: fx4_couture_shears_falling_1_blade_0_2, when: "= event.source == 'sel_3'"}
+      - id: fx4_couture_shears_falling_1_blade_0_2_trk
+        op: track
+        target: fx4_couture_shears_falling_1_blade_0_2
+        keys:
+          - {t: 0, offset: [0.09, 5.80718, 0.4], scale: [0.12, 0.38, 1.6], turn: [60.0, 0.0, 0.0]}
+          - {t: 8, offset: [0.09, 2.10718, 0.4], scale: [0.12, 0.38, 1.6], turn: [60.0, 0.0, 0.0]}
+          - {t: 9, turn: [69.33333, 0.0, 0.0]}
+          - {t: 10, turn: [78.66667, 0.0, 0.0]}
+          - {t: 11, offset: [0.09, 2.00049, 0.02792], scale: [0.12, 0.38, 1.6], turn: [88.0, 0.0, 0.0]}
+          - {t: 16, offset: [0.09, 2.00049, 0.02792], scale: [0.12, 0.38, 1.6], turn: [88.0, 0.0, 0.0]}
+          - {t: 20, offset: [0.09, 2.00049, 0.02792], scale: [0.0, 0.0, 0.0], turn: [88.0, 0.0, 0.0]}
+        when: "= event.source == 'sel_3'"
+      - {op: block, parent: fx4_couture_shears_falling, block: iron_block, size: [1.0, 1.0, 1.0], id: fx4_couture_shears_falling_1_edge_0_2, when: "= event.source == 'sel_3'"}
+      - id: fx4_couture_shears_falling_1_edge_0_2_trk
+        op: track
+        target: fx4_couture_shears_falling_1_edge_0_2
+        keys:
+          - {t: 0, offset: [0.09, 5.86703, 0.50366], scale: [0.12, 0.05, 1.60329], turn: [63.66907, 0.0, 0.0]}
+          - {t: 8, offset: [0.09, 2.16703, 0.50366], scale: [0.12, 0.05, 1.60329], turn: [63.66907, 0.0, 0.0]}
+          - {t: 9, turn: [73.0024, 0.0, 0.0]}
+          - {t: 10, turn: [82.33573, 0.0, 0.0]}
+          - {t: 11, offset: [0.09, 2.00466, 0.14755], scale: [0.12, 0.05, 1.60329], turn: [91.66907, 0.0, 0.0]}
+          - {t: 16, offset: [0.09, 2.00466, 0.14755], scale: [0.12, 0.05, 1.60329], turn: [91.66907, 0.0, 0.0]}
+          - {t: 20, offset: [0.09, 2.00466, 0.14755], scale: [0.0, 0.0, 0.0], turn: [91.66907, 0.0, 0.0]}
+        when: "= event.source == 'sel_3'"
+      - {op: block, parent: fx4_couture_shears_falling, block: gray_concrete, size: [1.0, 1.0, 1.0], id: fx4_couture_shears_falling_1_blade_1_2, when: "= event.source == 'sel_3'"}
+      - id: fx4_couture_shears_falling_1_blade_1_2_trk
+        op: track
+        target: fx4_couture_shears_falling_1_blade_1_2
+        keys:
+          - {t: 0, offset: [0.09, 4.59474, 1.1], scale: [0.12, 0.24, 1.2], turn: [60.0, 0.0, 0.0]}
+          - {t: 8, offset: [0.09, 0.89474, 1.1], scale: [0.12, 0.24, 1.2], turn: [60.0, 0.0, 0.0]}
+          - {t: 9, turn: [69.33333, 0.0, 0.0]}
+          - {t: 10, turn: [78.66667, 0.0, 0.0]}
+          - {t: 11, offset: [0.09, 0.60134, 0.07678], scale: [0.12, 0.24, 1.2], turn: [88.0, 0.0, 0.0]}
+          - {t: 16, offset: [0.09, 0.60134, 0.07678], scale: [0.12, 0.24, 1.2], turn: [88.0, 0.0, 0.0]}
+          - {t: 20, offset: [0.09, 0.60134, 0.07678], scale: [0.0, 0.0, 0.0], turn: [88.0, 0.0, 0.0]}
+        when: "= event.source == 'sel_3'"
+      - {op: block, parent: fx4_couture_shears_falling, block: iron_block, size: [1.0, 1.0, 1.0], id: fx4_couture_shears_falling_1_edge_1_2, when: "= event.source == 'sel_3'"}
+      - id: fx4_couture_shears_falling_1_edge_1_2_trk
+        op: track
+        target: fx4_couture_shears_falling_1_edge_1_2
+        keys:
+          - {t: 0, offset: [0.09, 4.63254, 1.16547], scale: [0.12, 0.05, 1.20175], turn: [63.09097, 0.0, 0.0]}
+          - {t: 8, offset: [0.09, 0.93254, 1.16547], scale: [0.12, 0.05, 1.20175], turn: [63.09097, 0.0, 0.0]}
+          - {t: 9, turn: [72.4243, 0.0, 0.0]}
+          - {t: 10, turn: [81.75764, 0.0, 0.0]}
+          - {t: 11, offset: [0.09, 0.60398, 0.15233], scale: [0.12, 0.05, 1.20175], turn: [91.09097, 0.0, 0.0]}
+          - {t: 16, offset: [0.09, 0.60398, 0.15233], scale: [0.12, 0.05, 1.20175], turn: [91.09097, 0.0, 0.0]}
+          - {t: 20, offset: [0.09, 0.60398, 0.15233], scale: [0.0, 0.0, 0.0], turn: [91.09097, 0.0, 0.0]}
+        when: "= event.source == 'sel_3'"
+      - {op: block, parent: fx4_couture_shears_falling, block: gray_concrete, size: [1.0, 1.0, 1.0], id: fx4_couture_shears_falling_1_blade_2_2, when: "= event.source == 'sel_3'"}
+      - id: fx4_couture_shears_falling_1_blade_2_2_trk
+        op: track
+        target: fx4_couture_shears_falling_1_blade_2_2
+        keys:
+          - {t: 0, offset: [0.09, 3.72872, 1.6], scale: [0.12, 0.09, 0.8], turn: [60.0, 0.0, 0.0]}
+          - {t: 8, offset: [0.09, 0.02872, 1.6], scale: [0.12, 0.09, 0.8], turn: [60.0, 0.0, 0.0]}
+          - {t: 9, turn: [69.33333, 0.0, 0.0]}
+          - {t: 10, turn: [78.66667, 0.0, 0.0]}
+          - {t: 11, offset: [0.09, -0.39805, 0.11168], scale: [0.12, 0.09, 0.8], turn: [88.0, 0.0, 0.0]}
+          - {t: 16, offset: [0.09, -0.39805, 0.11168], scale: [0.12, 0.09, 0.8], turn: [88.0, 0.0, 0.0]}
+          - {t: 20, offset: [0.09, -0.39805, 0.11168], scale: [0.0, 0.0, 0.0], turn: [88.0, 0.0, 0.0]}
+        when: "= event.source == 'sel_3'"
+      - {op: block, parent: fx4_couture_shears_falling, block: iron_block, size: [1.0, 1.0, 1.0], id: fx4_couture_shears_falling_1_edge_2_2, when: "= event.source == 'sel_3'"}
+      - id: fx4_couture_shears_falling_1_edge_2_2_trk
+        op: track
+        target: fx4_couture_shears_falling_1_edge_2_2
+        keys:
+          - {t: 0, offset: [0.09, 3.74289, 1.62455], scale: [0.12, 0.05, 0.80037], turn: [61.73982, 0.0, 0.0]}
+          - {t: 8, offset: [0.09, 0.04289, 1.62455], scale: [0.12, 0.05, 0.80037], turn: [61.73982, 0.0, 0.0]}
+          - {t: 9, turn: [71.07316, 0.0, 0.0]}
+          - {t: 10, turn: [80.40649, 0.0, 0.0]}
+          - {t: 11, offset: [0.09, -0.39706, 0.14001], scale: [0.12, 0.05, 0.80037], turn: [89.73982, 0.0, 0.0]}
+          - {t: 16, offset: [0.09, -0.39706, 0.14001], scale: [0.12, 0.05, 0.80037], turn: [89.73982, 0.0, 0.0]}
+          - {t: 20, offset: [0.09, -0.39706, 0.14001], scale: [0.0, 0.0, 0.0], turn: [89.73982, 0.0, 0.0]}
+        when: "= event.source == 'sel_3'"
+      - {op: block, parent: fx4_couture_shears_falling, block: black_concrete, size: [1.0, 1.0, 1.0], id: fx4_couture_shears_falling_1_handle_0_2, when: "= event.source == 'sel_3'"}
+      - id: fx4_couture_shears_falling_1_handle_0_2_trk
+        op: track
+        target: fx4_couture_shears_falling_1_handle_0_2
+        keys:
+          - {t: 0, offset: [0.09, 6.93909, 0.00053], scale: [0.12, 0.09, 0.62225], turn: [-75.0, 0.0, 0.0]}
+          - {t: 8, offset: [0.09, 3.23909, 0.00053], scale: [0.12, 0.09, 0.62225], turn: [-75.0, 0.0, 0.0]}
+          - {t: 9, turn: [-65.66667, 0.0, 0.0]}
+          - {t: 10, turn: [-56.33333, 0.0, 0.0]}
+          - {t: 11, offset: [0.09, 3.18745, 0.2066], scale: [0.12, 0.09, 0.62225], turn: [-47.0, 0.0, 0.0]}
+          - {t: 16, offset: [0.09, 3.18745, 0.2066], scale: [0.12, 0.09, 0.62225], turn: [-47.0, 0.0, 0.0]}
+          - {t: 20, offset: [0.09, 3.18745, 0.2066], scale: [0.0, 0.0, 0.0], turn: [-47.0, 0.0, 0.0]}
+        when: "= event.source == 'sel_3'"
+      - {op: block, parent: fx4_couture_shears_falling, block: black_concrete, size: [1.0, 1.0, 1.0], id: fx4_couture_shears_falling_1_handle_1_2, when: "= event.source == 'sel_3'"}
+      - id: fx4_couture_shears_falling_1_handle_1_2_trk
+        op: track
+        target: fx4_couture_shears_falling_1_handle_1_2
+        keys:
+          - {t: 0, offset: [0.09, 7.61433, -0.16993], scale: [0.12, 0.09, 0.902], turn: [-123.81407, 0.0, 0.0]}
+          - {t: 8, offset: [0.09, 3.91433, -0.16993], scale: [0.12, 0.09, 0.902], turn: [-123.81407, 0.0, 0.0]}
+          - {t: 9, turn: [-114.48074, 0.0, 0.0]}
+          - {t: 10, turn: [-105.14741, 0.0, 0.0]}
+          - {t: 11, offset: [0.09, 3.86367, 0.37311], scale: [0.12, 0.09, 0.902], turn: [-95.81407, 0.0, 0.0]}
+          - {t: 16, offset: [0.09, 3.86367, 0.37311], scale: [0.12, 0.09, 0.902], turn: [-95.81407, 0.0, 0.0]}
+          - {t: 20, offset: [0.09, 3.86367, 0.37311], scale: [0.0, 0.0, 0.0], turn: [-95.81407, 0.0, 0.0]}
+        when: "= event.source == 'sel_3'"
+      - {op: block, parent: fx4_couture_shears_falling, block: black_concrete, size: [1.0, 1.0, 1.0], id: fx4_couture_shears_falling_1_handle_2_2, when: "= event.source == 'sel_3'"}
+      - id: fx4_couture_shears_falling_1_handle_2_2_trk
+        op: track
+        target: fx4_couture_shears_falling_1_handle_2_2
+        keys:
+          - {t: 0, offset: [0.09, 7.9893, -0.64046], scale: [0.12, 0.09, 0.43909], turn: [-179.93142, 0.0, 0.0]}
+          - {t: 8, offset: [0.09, 4.2893, -0.64046], scale: [0.12, 0.09, 0.43909], turn: [-179.93142, 0.0, 0.0]}
+          - {t: 9, turn: [-170.59808, 0.0, 0.0]}
+          - {t: 10, turn: [-161.26475, 0.0, 0.0]}
+          - {t: 11, offset: [0.09, 4.41565, 0.1337], scale: [0.12, 0.09, 0.43909], turn: [-151.93142, 0.0, 0.0]}
+          - {t: 16, offset: [0.09, 4.41565, 0.1337], scale: [0.12, 0.09, 0.43909], turn: [-151.93142, 0.0, 0.0]}
+          - {t: 20, offset: [0.09, 4.41565, 0.1337], scale: [0.0, 0.0, 0.0], turn: [-151.93142, 0.0, 0.0]}
+        when: "= event.source == 'sel_3'"
+      - {op: block, parent: fx4_couture_shears_falling, block: black_concrete, size: [1.0, 1.0, 1.0], id: fx4_couture_shears_falling_1_handle_3_2, when: "= event.source == 'sel_3'"}
+      - id: fx4_couture_shears_falling_1_handle_3_2_trk
+        op: track
+        target: fx4_couture_shears_falling_1_handle_3_2
+        keys:
+          - {t: 0, offset: [0.09, 7.55181, -0.83821], scale: [0.12, 0.09, 0.87658], turn: [87.14968, 0.0, 0.0]}
+          - {t: 8, offset: [0.09, 3.85181, -0.83821], scale: [0.12, 0.09, 0.87658], turn: [87.14968, 0.0, 0.0]}
+          - {t: 9, turn: [96.48302, 0.0, 0.0]}
+          - {t: 10, turn: [105.81635, 0.0, 0.0]}
+          - {t: 11, offset: [0.09, 4.12221, -0.24629], scale: [0.12, 0.09, 0.87658], turn: [115.14968, 0.0, 0.0]}
+          - {t: 16, offset: [0.09, 4.12221, -0.24629], scale: [0.12, 0.09, 0.87658], turn: [115.14968, 0.0, 0.0]}
+          - {t: 20, offset: [0.09, 4.12221, -0.24629], scale: [0.0, 0.0, 0.0], turn: [115.14968, 0.0, 0.0]}
+        when: "= event.source == 'sel_3'"
+      - {op: block, parent: fx4_couture_shears_falling, block: black_concrete, size: [1.0, 1.0, 1.0], id: fx4_couture_shears_falling_1_handle_4_2, when: "= event.source == 'sel_3'"}
+      - id: fx4_couture_shears_falling_1_handle_4_2_trk
+        op: track
+        target: fx4_couture_shears_falling_1_handle_4_2
+        keys:
+          - {t: 0, offset: [0.09, 6.87631, -0.44821], scale: [0.12, 0.09, 0.87658], turn: [32.85032, 0.0, 0.0]}
+          - {t: 8, offset: [0.09, 3.17631, -0.44821], scale: [0.12, 0.09, 0.87658], turn: [32.85032, 0.0, 0.0]}
+          - {t: 9, turn: [42.18365, 0.0, 0.0]}
+          - {t: 10, turn: [51.51698, 0.0, 0.0]}
+          - {t: 11, offset: [0.09, 3.34269, -0.21907], scale: [0.12, 0.09, 0.87658], turn: [60.85032, 0.0, 0.0]}
+          - {t: 16, offset: [0.09, 3.34269, -0.21907], scale: [0.12, 0.09, 0.87658], turn: [60.85032, 0.0, 0.0]}
+          - {t: 20, offset: [0.09, 3.34269, -0.21907], scale: [0.0, 0.0, 0.0], turn: [60.85032, 0.0, 0.0]}
+        when: "= event.source == 'sel_3'"
+      - {op: block, parent: fx4_couture_shears_falling, block: white_concrete, size: [1.0, 1.0, 1.0], id: fx4_couture_shears_falling_hinge_flower_0, when: "= event.source == 'sel_3'"}
+      - id: fx4_couture_shears_falling_hinge_flower_0_trk
+        op: track
+        target: fx4_couture_shears_falling_hinge_flower_0
+        keys:
+          - {t: 0, offset: [-0.24, 6.5, 0.0], scale: [0.3, 0.3, 0.24]}
+          - {t: 8, offset: [-0.24, 2.8, 0.0], scale: [0.3, 0.3, 0.24]}
+          - {t: 11, offset: [-0.24, 2.8, 0.0], scale: [0.3, 0.3, 0.24]}
+          - {t: 16, offset: [-0.24, 2.8, 0.0], scale: [0.3, 0.3, 0.24]}
+          - {t: 20, offset: [-0.24, 2.8, 0.0], scale: [0.0, 0.0, 0.0]}
+        when: "= event.source == 'sel_3'"
+      - {op: block, parent: fx4_couture_shears_falling, block: white_concrete, size: [1.0, 1.0, 1.0], id: fx4_couture_shears_falling_hinge_flower_1, when: "= event.source == 'sel_3'"}
+      - id: fx4_couture_shears_falling_hinge_flower_1_trk
+        op: track
+        target: fx4_couture_shears_falling_hinge_flower_1
+        keys:
+          - {t: 0, offset: [0.24, 6.5, 0.0], scale: [0.3, 0.3, 0.24]}
+          - {t: 8, offset: [0.24, 2.8, 0.0], scale: [0.3, 0.3, 0.24]}
+          - {t: 11, offset: [0.24, 2.8, 0.0], scale: [0.3, 0.3, 0.24]}
+          - {t: 16, offset: [0.24, 2.8, 0.0], scale: [0.3, 0.3, 0.24]}
+          - {t: 20, offset: [0.24, 2.8, 0.0], scale: [0.0, 0.0, 0.0]}
+        when: "= event.source == 'sel_3'"
+      - {op: block, parent: fx4_couture_shears_falling, block: white_concrete, size: [1.0, 1.0, 1.0], id: fx4_couture_shears_falling_hinge_flower_2, when: "= event.source == 'sel_3'"}
+      - id: fx4_couture_shears_falling_hinge_flower_2_trk
+        op: track
+        target: fx4_couture_shears_falling_hinge_flower_2
+        keys:
+          - {t: 0, offset: [0.0, 6.74, 0.0], scale: [0.3, 0.3, 0.24]}
+          - {t: 8, offset: [0.0, 3.04, 0.0], scale: [0.3, 0.3, 0.24]}
+          - {t: 11, offset: [0.0, 3.04, 0.0], scale: [0.3, 0.3, 0.24]}
+          - {t: 16, offset: [0.0, 3.04, 0.0], scale: [0.3, 0.3, 0.24]}
+          - {t: 20, offset: [0.0, 3.04, 0.0], scale: [0.0, 0.0, 0.0]}
+        when: "= event.source == 'sel_3'"
+      - {op: block, parent: fx4_couture_shears_falling, block: white_concrete, size: [1.0, 1.0, 1.0], id: fx4_couture_shears_falling_hinge_flower_3, when: "= event.source == 'sel_3'"}
+      - id: fx4_couture_shears_falling_hinge_flower_3_trk
+        op: track
+        target: fx4_couture_shears_falling_hinge_flower_3
+        keys:
+          - {t: 0, offset: [0.0, 6.26, 0.0], scale: [0.3, 0.3, 0.24]}
+          - {t: 8, offset: [0.0, 2.56, 0.0], scale: [0.3, 0.3, 0.24]}
+          - {t: 11, offset: [0.0, 2.56, 0.0], scale: [0.3, 0.3, 0.24]}
+          - {t: 16, offset: [0.0, 2.56, 0.0], scale: [0.3, 0.3, 0.24]}
+          - {t: 20, offset: [0.0, 2.56, 0.0], scale: [0.0, 0.0, 0.0]}
+        when: "= event.source == 'sel_3'"
       - {op: block, parent: fx5_couture_rapier_cross, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx5_couture_rapier_cross_cross_0, when: "= event.source == 'sel_4'"}
       - id: fx5_couture_rapier_cross_cross_0_trk
         op: track
@@ -813,3 +1556,147 @@ presentation:
           - {t: 6, scale: [0.2, 0.2, 1.0], alpha: 0.0, ease: in_quad}
         when: "= event.source == 'sel_4'"
       - {id: snd_2, op: sound, sound: entity.player.attack.strong, at: enemy, volume: 0.7, pitch: 1.1, when: "= event.source == 'sel_4'"}
+      - {op: block, parent: fx6_couture_target_rosette, block: pink_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx6_couture_target_rosette_arc_0, when: "= event.source == 'sel_5'"}
+      - id: fx6_couture_target_rosette_arc_0_trk
+        op: track
+        target: fx6_couture_target_rosette_arc_0
+        keys:
+          - {t: 0, offset: [0.0, 1.1, 3.0], scale: [0.0, 0.0, 0.0], turn: [-90.0, 0.0, 0.0]}
+          - {t: 2, offset: [0.0, 1.1, 3.0], scale: [0.05, 0.04705, 1.25245], turn: [-90.0, 0.0, 0.0]}
+          - {t: 11, offset: [0.0, 1.1, 3.0], scale: [0.0, 0.0, 0.75147], turn: [-90.0, 0.0, 0.0]}
+        when: "= event.source == 'sel_5'"
+      - {op: block, parent: fx6_couture_target_rosette, block: pink_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx6_couture_target_rosette_arc_1, when: "= event.source == 'sel_5'"}
+      - id: fx6_couture_target_rosette_arc_1_trk
+        op: track
+        target: fx6_couture_target_rosette_arc_1
+        keys:
+          - {t: 0, offset: [0.0, 2.15752, 2.77522], scale: [0.0, 0.0, 0.0], turn: [-114.0, 0.0, 0.0]}
+          - {t: 2, offset: [0.0, 2.15752, 2.77522], scale: [0.05, 0.06835, 1.25245], turn: [-114.0, 0.0, 0.0]}
+          - {t: 11, offset: [0.0, 2.15752, 2.77522], scale: [0.0, 0.0, 0.75147], turn: [-114.0, 0.0, 0.0]}
+        when: "= event.source == 'sel_5'"
+      - {op: block, parent: fx6_couture_target_rosette, block: pink_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx6_couture_target_rosette_arc_2, when: "= event.source == 'sel_5'"}
+      - id: fx6_couture_target_rosette_arc_2_trk
+        op: track
+        target: fx6_couture_target_rosette_arc_2
+        keys:
+          - {t: 0, offset: [0.0, 3.03218, 2.13974], scale: [0.0, 0.0, 0.0], turn: [-138.0, 0.0, 0.0]}
+          - {t: 2, offset: [0.0, 3.03218, 2.13974], scale: [0.05, 0.08817, 1.25245], turn: [-138.0, 0.0, 0.0]}
+          - {t: 11, offset: [0.0, 3.03218, 2.13974], scale: [0.0, 0.0, 0.75147], turn: [-138.0, 0.0, 0.0]}
+        when: "= event.source == 'sel_5'"
+      - {op: block, parent: fx6_couture_target_rosette, block: pink_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx6_couture_target_rosette_arc_3, when: "= event.source == 'sel_5'"}
+      - id: fx6_couture_target_rosette_arc_3_trk
+        op: track
+        target: fx6_couture_target_rosette_arc_3
+        keys:
+          - {t: 0, offset: [0.0, 3.57275, 1.20344], scale: [0.0, 0.0, 0.0], turn: [-162.0, 0.0, 0.0]}
+          - {t: 2, offset: [0.0, 3.57275, 1.20344], scale: [0.05, 0.10584, 1.25245], turn: [-162.0, 0.0, 0.0]}
+          - {t: 11, offset: [0.0, 3.57275, 1.20344], scale: [0.0, 0.0, 0.75147], turn: [-162.0, 0.0, 0.0]}
+        when: "= event.source == 'sel_5'"
+      - {op: block, parent: fx6_couture_target_rosette, block: pink_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx6_couture_target_rosette_arc_4, when: "= event.source == 'sel_5'"}
+      - id: fx6_couture_target_rosette_arc_4_trk
+        op: track
+        target: fx6_couture_target_rosette_arc_4
+        keys:
+          - {t: 0, offset: [0.0, 3.68576, 0.12823], scale: [0.0, 0.0, 0.0], turn: [174.0, 0.0, 0.0]}
+          - {t: 2, offset: [0.0, 3.68576, 0.12823], scale: [0.05, 0.12076, 1.25245], turn: [174.0, 0.0, 0.0]}
+          - {t: 11, offset: [0.0, 3.68576, 0.12823], scale: [0.0, 0.0, 0.75147], turn: [174.0, 0.0, 0.0]}
+        when: "= event.source == 'sel_5'"
+      - {op: block, parent: fx6_couture_target_rosette, block: pink_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx6_couture_target_rosette_arc_5, when: "= event.source == 'sel_5'"}
+      - id: fx6_couture_target_rosette_arc_5_trk
+        op: track
+        target: fx6_couture_target_rosette_arc_5
+        keys:
+          - {t: 0, offset: [0.0, 3.35167, -0.9], scale: [0.0, 0.0, 0.0], turn: [150.0, 0.0, 0.0]}
+          - {t: 2, offset: [0.0, 3.35167, -0.9], scale: [0.05, 0.13242, 1.25245], turn: [150.0, 0.0, 0.0]}
+          - {t: 11, offset: [0.0, 3.35167, -0.9], scale: [0.0, 0.0, 0.75147], turn: [150.0, 0.0, 0.0]}
+        when: "= event.source == 'sel_5'"
+      - {op: block, parent: fx6_couture_target_rosette, block: pink_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx6_couture_target_rosette_arc_6, when: "= event.source == 'sel_5'"}
+      - id: fx6_couture_target_rosette_arc_6_trk
+        op: track
+        target: fx6_couture_target_rosette_arc_6
+        keys:
+          - {t: 0, offset: [0.0, 2.62824, -1.70344], scale: [0.0, 0.0, 0.0], turn: [126.0, 0.0, 0.0]}
+          - {t: 2, offset: [0.0, 2.62824, -1.70344], scale: [0.05, 0.14042, 1.25245], turn: [126.0, 0.0, 0.0]}
+          - {t: 11, offset: [0.0, 2.62824, -1.70344], scale: [0.0, 0.0, 0.75147], turn: [126.0, 0.0, 0.0]}
+        when: "= event.source == 'sel_5'"
+      - {op: block, parent: fx6_couture_target_rosette, block: pink_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx6_couture_target_rosette_arc_7, when: "= event.source == 'sel_5'"}
+      - id: fx6_couture_target_rosette_arc_7_trk
+        op: track
+        target: fx6_couture_target_rosette_arc_7
+        keys:
+          - {t: 0, offset: [0.0, 1.64057, -2.14318], scale: [0.0, 0.0, 0.0], turn: [102.0, 0.0, 0.0]}
+          - {t: 2, offset: [0.0, 1.64057, -2.14318], scale: [0.05, 0.14449, 1.25245], turn: [102.0, 0.0, 0.0]}
+          - {t: 11, offset: [0.0, 1.64057, -2.14318], scale: [0.0, 0.0, 0.75147], turn: [102.0, 0.0, 0.0]}
+        when: "= event.source == 'sel_5'"
+      - {op: block, parent: fx6_couture_target_rosette, block: pink_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx6_couture_target_rosette_arc_8, when: "= event.source == 'sel_5'"}
+      - id: fx6_couture_target_rosette_arc_8_trk
+        op: track
+        target: fx6_couture_target_rosette_arc_8
+        keys:
+          - {t: 0, offset: [0.0, 0.55943, -2.14318], scale: [0.0, 0.0, 0.0], turn: [78.0, 0.0, 0.0]}
+          - {t: 2, offset: [0.0, 0.55943, -2.14318], scale: [0.05, 0.14449, 1.25245], turn: [78.0, 0.0, 0.0]}
+          - {t: 11, offset: [0.0, 0.55943, -2.14318], scale: [0.0, 0.0, 0.75147], turn: [78.0, 0.0, 0.0]}
+        when: "= event.source == 'sel_5'"
+      - {op: block, parent: fx6_couture_target_rosette, block: pink_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx6_couture_target_rosette_arc_9, when: "= event.source == 'sel_5'"}
+      - id: fx6_couture_target_rosette_arc_9_trk
+        op: track
+        target: fx6_couture_target_rosette_arc_9
+        keys:
+          - {t: 0, offset: [0.0, -0.42824, -1.70344], scale: [0.0, 0.0, 0.0], turn: [54.0, 0.0, 0.0]}
+          - {t: 2, offset: [0.0, -0.42824, -1.70344], scale: [0.05, 0.14042, 1.25245], turn: [54.0, 0.0, 0.0]}
+          - {t: 11, offset: [0.0, -0.42824, -1.70344], scale: [0.0, 0.0, 0.75147], turn: [54.0, 0.0, 0.0]}
+        when: "= event.source == 'sel_5'"
+      - {op: block, parent: fx6_couture_target_rosette, block: pink_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx6_couture_target_rosette_arc_10, when: "= event.source == 'sel_5'"}
+      - id: fx6_couture_target_rosette_arc_10_trk
+        op: track
+        target: fx6_couture_target_rosette_arc_10
+        keys:
+          - {t: 0, offset: [0.0, -1.15167, -0.9], scale: [0.0, 0.0, 0.0], turn: [30.0, 0.0, 0.0]}
+          - {t: 2, offset: [0.0, -1.15167, -0.9], scale: [0.05, 0.13242, 1.25245], turn: [30.0, 0.0, 0.0]}
+          - {t: 11, offset: [0.0, -1.15167, -0.9], scale: [0.0, 0.0, 0.75147], turn: [30.0, 0.0, 0.0]}
+        when: "= event.source == 'sel_5'"
+      - {op: block, parent: fx6_couture_target_rosette, block: pink_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx6_couture_target_rosette_arc_11, when: "= event.source == 'sel_5'"}
+      - id: fx6_couture_target_rosette_arc_11_trk
+        op: track
+        target: fx6_couture_target_rosette_arc_11
+        keys:
+          - {t: 0, offset: [0.0, -1.48576, 0.12823], scale: [0.0, 0.0, 0.0], turn: [6.0, 0.0, 0.0]}
+          - {t: 2, offset: [0.0, -1.48576, 0.12823], scale: [0.05, 0.12076, 1.25245], turn: [6.0, 0.0, 0.0]}
+          - {t: 11, offset: [0.0, -1.48576, 0.12823], scale: [0.0, 0.0, 0.75147], turn: [6.0, 0.0, 0.0]}
+        when: "= event.source == 'sel_5'"
+      - {op: block, parent: fx6_couture_target_rosette, block: pink_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx6_couture_target_rosette_arc_12, when: "= event.source == 'sel_5'"}
+      - id: fx6_couture_target_rosette_arc_12_trk
+        op: track
+        target: fx6_couture_target_rosette_arc_12
+        keys:
+          - {t: 0, offset: [0.0, -1.37275, 1.20344], scale: [0.0, 0.0, 0.0], turn: [-18.0, 0.0, 0.0]}
+          - {t: 2, offset: [0.0, -1.37275, 1.20344], scale: [0.05, 0.10584, 1.25245], turn: [-18.0, 0.0, 0.0]}
+          - {t: 11, offset: [0.0, -1.37275, 1.20344], scale: [0.0, 0.0, 0.75147], turn: [-18.0, 0.0, 0.0]}
+        when: "= event.source == 'sel_5'"
+      - {op: block, parent: fx6_couture_target_rosette, block: pink_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx6_couture_target_rosette_arc_13, when: "= event.source == 'sel_5'"}
+      - id: fx6_couture_target_rosette_arc_13_trk
+        op: track
+        target: fx6_couture_target_rosette_arc_13
+        keys:
+          - {t: 0, offset: [0.0, -0.83218, 2.13974], scale: [0.0, 0.0, 0.0], turn: [-42.0, 0.0, 0.0]}
+          - {t: 2, offset: [0.0, -0.83218, 2.13974], scale: [0.05, 0.08817, 1.25245], turn: [-42.0, 0.0, 0.0]}
+          - {t: 11, offset: [0.0, -0.83218, 2.13974], scale: [0.0, 0.0, 0.75147], turn: [-42.0, 0.0, 0.0]}
+        when: "= event.source == 'sel_5'"
+      - {op: block, parent: fx6_couture_target_rosette, block: pink_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx6_couture_target_rosette_arc_14, when: "= event.source == 'sel_5'"}
+      - id: fx6_couture_target_rosette_arc_14_trk
+        op: track
+        target: fx6_couture_target_rosette_arc_14
+        keys:
+          - {t: 0, offset: [0.0, 0.04248, 2.77522], scale: [0.0, 0.0, 0.0], turn: [-66.0, 0.0, 0.0]}
+          - {t: 2, offset: [0.0, 0.04248, 2.77522], scale: [0.05, 0.06835, 1.25245], turn: [-66.0, 0.0, 0.0]}
+          - {t: 11, offset: [0.0, 0.04248, 2.77522], scale: [0.0, 0.0, 0.75147], turn: [-66.0, 0.0, 0.0]}
+        when: "= event.source == 'sel_5'"
+      - {op: block, parent: fx6_couture_target_rosette, block: pink_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx6_couture_target_rosette_arc_15, when: "= event.source == 'sel_5'"}
+      - id: fx6_couture_target_rosette_arc_15_trk
+        op: track
+        target: fx6_couture_target_rosette_arc_15
+        keys:
+          - {t: 0, offset: [0.0, 1.1, 3.0], scale: [0.0, 0.0, 0.0], turn: [-90.0, 0.0, 0.0]}
+          - {t: 2, offset: [0.0, 1.1, 3.0], scale: [0.05, 0.04705, 1.25245], turn: [-90.0, 0.0, 0.0]}
+          - {t: 11, offset: [0.0, 1.1, 3.0], scale: [0.0, 0.0, 0.75147], turn: [-90.0, 0.0, 0.0]}
+        when: "= event.source == 'sel_5'"

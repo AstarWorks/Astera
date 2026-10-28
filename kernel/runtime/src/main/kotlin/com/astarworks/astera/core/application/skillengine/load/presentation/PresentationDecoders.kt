@@ -7,6 +7,7 @@ import com.astarworks.astera.core.domain.skillengine.model.AxisRef
 import com.astarworks.astera.core.domain.skillengine.model.PointRef
 import com.astarworks.astera.core.domain.skillengine.model.TargetRef
 import com.astarworks.astera.core.domain.skillengine.model.Value
+import com.astarworks.astera.core.domain.skillengine.model.literal
 import com.astarworks.astera.core.domain.skillengine.op.BodyOp
 import com.astarworks.astera.core.domain.skillengine.op.FxOp
 import com.astarworks.astera.core.domain.skillengine.op.OpSection
@@ -107,13 +108,15 @@ private fun OpReader.target(default: TargetRef): TargetRef {
     if (m.size != 1) fail("target map needs exactly one of enemies / allies")
     val (kind, body) = m.entries.single()
     val b = body as? Map<*, *> ?: fail("target.$kind must be a map")
-    b.keys.firstOrNull { it !in setOf("around", "radius", "max_count") }?.let { fail("unknown key '$it' in target.$kind") }
+    b.keys.firstOrNull { it !in setOf("around", "radius", "max_count", "include_self") }?.let { fail("unknown key '$it' in target.$kind") }
     val around = PointRef.parse(b["around"] as? String ?: fail("target.$kind needs 'around'"))
     val radius = numValue(b["radius"]) ?: fail("target.$kind needs 'radius'")
     val maxCount = b["max_count"]?.let { (it as? Number)?.toInt()?.takeIf { n -> n >= 1 } ?: fail("target.$kind.max_count must be an integer >= 1") }
+    val includeSelf = b["include_self"]?.let { it as? Boolean ?: fail("target.$kind.include_self must be a boolean") } ?: false
+    if (includeSelf && kind != "allies") fail("target.$kind.include_self applies to allies only")
     return when (kind) {
         "enemies" -> TargetRef.Enemies(around, radius, maxCount)
-        "allies" -> TargetRef.Allies(around, radius, maxCount)
+        "allies" -> TargetRef.Allies(around, radius, maxCount, includeSelf)
         else -> fail("target must be victim, caster or {enemies|allies: ...}")
     }
 }
@@ -293,7 +296,7 @@ private object BodyOpDecoder : OpDecoder {
 
 private object ScreenOpDecoder : OpDecoder {
     override val section = OpSection.PRESENTATION
-    override val opNames = setOf("title", "action_bar", "camera_shake", "screen_flash", "stop_sound")
+    override val opNames = setOf("title", "action_bar", "camera_shake", "screen_flash", "screen_veil", "stop_sound")
     override fun decode(op: String, id: String, whenExpr: Value<Boolean>?, reader: OpReader): SkillOp = with(reader) {
         when (op) {
             "title" -> ScreenOp.Title(
@@ -312,6 +315,16 @@ private object ScreenOpDecoder : OpDecoder {
                 ScreenOp.Flash(
                     id, whenExpr, target(TargetRef.Caster), overlay, color?.substring(1)?.toInt(16),
                     int("fade_in") ?: 0, int("stay") ?: 1, int("fade_out") ?: 2,
+                )
+            }
+            "screen_veil" -> {
+                val color = string("color")?.also { if (!Regex("#[0-9a-fA-F]{6}").matches(it)) fail("color '$it' is not #RRGGBB") }
+                val ticks = int("ticks") ?: fail("missing 'ticks'")
+                if (ticks < 1) fail("ticks must be >= 1")
+                ScreenOp.Veil(
+                    id, whenExpr, target(TargetRef.Caster), requireString("sprite"), color?.substring(1)?.toInt(16),
+                    number("distance") ?: literal(0.6), number("scale") ?: literal(1.0),
+                    number("max_screen_fraction") ?: literal(0.15), ticks,
                 )
             }
             "stop_sound" -> ScreenOp.StopSound(id, whenExpr, target(TargetRef.Caster), requireString("sound"))

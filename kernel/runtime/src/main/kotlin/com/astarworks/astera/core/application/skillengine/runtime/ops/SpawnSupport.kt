@@ -45,7 +45,7 @@ internal fun OpContext.positionOf(scope: SkillCastScope, target: TargetRef): Vec
     is TargetRef.Allies -> pointWorld(target.around)
 }
 
-/** Entities a target ref stands for. Enemies exclude allies of the caster; allies include the caster. */
+/** Entities a target ref stands for. Enemies exclude allies of the caster; allies are the caster's team mates, plus the caster only for `include_self`. */
 internal fun OpContext.resolveTargets(scope: SkillCastScope, target: TargetRef): List<UUID> = when (target) {
     TargetRef.Victim -> listOfNotNull(scope.contact?.victim ?: host.currentVictim)
     TargetRef.Caster -> listOf(scope.caster)
@@ -63,8 +63,9 @@ internal fun OpContext.resolveTargets(scope: SkillCastScope, target: TargetRef):
         if (at == null) {
             emptyList()
         } else {
-            ports.entities.nearby(at, values.num(target.radius), null)
-                .filter { scope.isAlly(it.entityId) }.nearestN(at, target.maxCount)
+            val mates = ports.entities.nearby(at, values.num(target.radius), scope.caster)
+                .filter { it.entityId != scope.caster && scope.isAlly(it.entityId) }.nearestN(at, target.maxCount)
+            if (target.includeSelf) listOf(scope.caster) + mates else mates
         }
     }
 }

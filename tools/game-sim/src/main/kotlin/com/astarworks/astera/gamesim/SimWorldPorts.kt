@@ -171,6 +171,21 @@ public class SimDisplayGateway(
         return handle
     }
 
+    /** Viewer-scoped displays (`screen_veil`): handle -> the only player who sees it. */
+    public val viewers: MutableMap<IDisplayEntityGateway.DisplayHandle, com.astarworks.astera.core.domain.player.PlayerId> = linkedMapOf()
+
+    override fun spawnFor(
+        world: WorldId,
+        at: Vec3,
+        spec: DisplaySpec,
+        renderedLines: List<String>,
+        viewer: com.astarworks.astera.core.domain.player.PlayerId,
+    ): IDisplayEntityGateway.DisplayHandle {
+        val handle = spawn(world, at, spec, renderedLines)
+        viewers[handle] = viewer
+        return handle
+    }
+
     /** Displays riding a player (ADR-0276): handle -> the anchor. */
     public val attached: MutableMap<IDisplayEntityGateway.DisplayHandle, com.astarworks.astera.core.domain.player.PlayerId> = linkedMapOf()
 
