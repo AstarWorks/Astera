@@ -17,5 +17,5 @@ gameplay:
         - {id: sel, op: hit, frames: [caster], sector: {frame: caster, at: eye, forward: caster.forward, left: caster.left, angle_deg: "${arc_deg}", range: "${reach}", height: 2.0}, max_count: 3, window: once}
   "on":
     hit:
-      - {id: kb, op: knockback, direction: "= normalize(pos(caster) - pos(victim)) + vec(0.0, 0.2, 0.0)", strength: "${knockback}", when: "= event.source == 'sel'"}
+      - {id: kb, op: knockback, direction: "= normalize(flat(pos(caster) - pos(victim))) + vec(0.0, 0.2, 0.0)", strength: "${knockback}", when: "= event.source == 'sel'"}
       - {id: dmg, op: damage, components: [{kind: physical, amount: "${dmg_physical}"}], target: victim, when: "= event.source == 'sel'"}

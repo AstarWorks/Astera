@@ -23,5 +23,5 @@ gameplay:
   "on":
     hit:
       - {id: dmg, op: damage, target: victim, components: [{kind: physical, amount: "${dmg_physical}"}], when: "= event.source == 'swing'"}
-      - {id: kb, op: knockback, direction: "= normalize(pos(victim) - pos(caster))", strength: "${knockback}", when: "= event.source == 'swing'"}
+      - {id: kb, op: knockback, direction: "= normalize(flat(pos(victim) - pos(caster)))", strength: "${knockback}", when: "= event.source == 'swing'"}
       - {id: st_bleed, op: status, status: bleed, duration_ticks: "${bleed_ticks}", target: victim, chance: 0.6, when: "= event.source == 'swing'"}

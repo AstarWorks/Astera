@@ -49,6 +49,7 @@ class V1GameplayDumpTest {
                     caster.world = WorldId("arenas")
                     val feet = caster.position
                     val dummy = mob("dummy", Vec3(feet.x, feet.y, feet.z + 5.0))
+                    dummy.world = caster.world // the dummy must share the caster's world or no targeter ever finds it
                     // v1 only hurts COVER (CoverBlockService: terrain and air are never hurt), so the wall plane is reinforced cover, not stone.
                     val coverSpec = checkNotNull(sim.services.getOrThrow<ICustomBlockRegistry>().find(BlockType("astera:reinforced_wall")))
                     val blockGateway = sim.services.getOrThrow<IBlockStateGateway>()
@@ -127,6 +128,12 @@ class V1GameplayDumpTest {
                                 else -> {}
                             }
                         }
+                    }
+                    // skill-driven pushes (Knockback mechanic impulse, explosion radial push), the vocabulary HEAD's CastSim writes as via=impulse
+                    for ((pt, pid, v) in sim.pushes) {
+                        val tt = (pt - start).toInt()
+                        if (tt < 0 || tt >= ticks) continue
+                        lines += "{\"t\":$tt,\"e\":\"kb\",\"who\":\"${who(pid.uuid.toString())}\",\"strength\":${r(v.length())},\"vec\":[${r(v.x)},${r(v.y)},${r(v.z)}],\"via\":\"impulse\"}"
                     }
                     // cover HP actually lost per cell (the gateway tracker is the truth for a chip)
                     for ((cell, st) in sim.services.getOrThrow<IBlockStateGateway>().tracked(caster.world)) {

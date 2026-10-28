@@ -127,6 +127,8 @@ internal object CelFunctions {
         // spec names (territories.md): `normalize` and `length` are the authoring spellings of norm / len
         def("normalize", "normalize_vec3", VEC3, listOf(VEC3), listOf(V)) { (it[0] as Vec3).normalize() }
         def("length", "length_vec3", D, listOf(VEC3), listOf(V)) { (it[0] as Vec3).length() }
+        // the horizontal part of a vector (y dropped): a radial push is the flat direction plus its own vertical lift
+        def("flat", "flat_vec3", VEC3, listOf(VEC3), listOf(V)) { (it[0] as Vec3).let { v -> Vec3(v.x, 0.0, v.z) } }
         // numbers: any int/double mix, result double (vectors have their own overload below)
         for (tag in listOf("dd", "di", "id", "ii")) {
             val pa = if (tag[0] == 'd') D else I

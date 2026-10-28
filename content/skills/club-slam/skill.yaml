@@ -20,4 +20,4 @@ gameplay:
   "on":
     hit:
       - {id: dmg, op: damage, target: victim, components: [{kind: physical, amount: "= dmg_physical * (1.0 - 0.5 * dist(pos(caster), pos(victim)) / radius)"}], when: "= event.source == 'burst'"}
-      - {id: kb, op: knockback, direction: "= normalize(pos(victim) - pos(caster)) + vec(0.0, 0.3, 0.0)", strength: "${knockback}", when: "= event.source == 'burst'"}
+      - {id: kb, op: knockback, direction: "= normalize(flat(pos(victim) - pos(caster))) + vec(0.0, 0.3, 0.0)", strength: "${knockback}", when: "= event.source == 'burst'"}

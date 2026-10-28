@@ -91,6 +91,8 @@ class CastSim(
     val entityStacks: Map<UUID, Map<String, Int>> = emptyMap(),
     /** Entities on the caster's team. */
     val allies: Set<UUID> = emptySet(),
+    /** The real combat pipeline (production gateway over the GameSim's use cases); null = the ports only record. */
+    val combat: CombatLink? = null,
 ) {
     /** World each sound / particle burst / entity query was bound to, in call order. */
     val soundWorlds = ArrayList<WorldId>()
@@ -199,6 +201,10 @@ class CastSim(
     var casterFeet: Vec3 = origin
         private set
 
+    init {
+        combat?.let { it.feet = { casterFeet }; it.sink = gp; it.origin = origin }
+    }
+
     private val movement = object : ISkillMovementGateway by noop() {
         override fun isAlive(entity: UUID): Boolean = if (entity == caster) casterAlive else entity !in dead
         override fun teleport(entity: UUID, to: Vec3, yawDeg: Double?): Boolean {
@@ -223,6 +229,7 @@ class CastSim(
         override fun damage(skillId: String, caster: UUID, victim: UUID, components: List<SkillDamage>, hitPoint: Vec3, ignoreInvulnerability: Boolean) =
             damage(skillId, caster, victim, components, hitPoint, ignoreInvulnerability, false)
         override fun damage(skillId: String, caster: UUID, victim: UUID, components: List<SkillDamage>, hitPoint: Vec3, ignoreInvulnerability: Boolean, ignoreArmor: Boolean) {
+            combat?.gateway?.damage(skillId, combat.map(caster), combat.map(victim), components, hitPoint, ignoreInvulnerability, ignoreArmor)
             for (c in components) {
                 dealt += Dealt(now, victim, c.amount, ignoreInvulnerability, skillId, ignoreArmor)
                 gpLine("damage", "\"v\":\"${whoOf(victim)}\",\"amt\":${r(c.amount)},\"src\":${jq(skillId)},\"hit\":{${rel(hitPoint)}},\"ignoreIframes\":$ignoreInvulnerability")
@@ -246,15 +253,17 @@ class CastSim(
         override fun statusStacks(entity: UUID, statusId: String): Int = (if (entity == caster) casterStacks else entityStacks[entity] ?: emptyMap())[statusId] ?: 0
         override fun removeStatus(victim: UUID, statusId: String) {
             removed += victim to statusId
+            combat?.let { it.gateway.removeStatus(it.map(victim), statusId); return }
             gpLine("status", "\"who\":\"${whoOf(victim)}\",\"id\":${jq(statusId)},\"op\":\"removed\"")
         }
         override fun applyStatus(caster: UUID, victim: UUID, statusId: String, stacks: Int, durationTicks: Int) {
             statuses += Triple(now, victim, statusId)
+            combat?.let { it.gateway.applyStatus(it.map(caster), it.map(victim), statusId, stacks, durationTicks); return }
             gpLine("status", "\"who\":\"${whoOf(victim)}\",\"id\":${jq(statusId)},\"op\":\"applied\",\"stacks\":$stacks,\"dur\":$durationTicks")
         }
-        override fun cleanse(victim: UUID, negativeOnly: Boolean) { gpLine("cleanse", "\"who\":\"${whoOf(victim)}\",\"negativeOnly\":$negativeOnly") }
+        override fun cleanse(victim: UUID, negativeOnly: Boolean) { combat?.let { it.gateway.cleanse(it.map(victim), negativeOnly) }; gpLine("cleanse", "\"who\":\"${whoOf(victim)}\",\"negativeOnly\":$negativeOnly") }
         override fun ignite(caster: UUID, victim: UUID, durationTicks: Int) { gpLine("status", "\"who\":\"${whoOf(victim)}\",\"id\":\"ignite\",\"op\":\"applied\",\"dur\":$durationTicks") }
-        override fun silence(caster: UUID, victim: UUID, durationTicks: Int) { gpLine("status", "\"who\":\"${whoOf(victim)}\",\"id\":\"silence\",\"op\":\"applied\",\"dur\":$durationTicks") }
+        override fun silence(caster: UUID, victim: UUID, durationTicks: Int) { combat?.let { it.gateway.silence(it.map(caster), it.map(victim), durationTicks); return }; gpLine("status", "\"who\":\"${whoOf(victim)}\",\"id\":\"silence\",\"op\":\"applied\",\"dur\":$durationTicks") }
         override fun modifyAttribute(caster: UUID, victim: UUID, attribute: String, operation: String, amount: Double, durationTicks: Int?) {
             gpLine("attr", "\"who\":\"${whoOf(victim)}\",\"attr\":${jq(attribute)},\"op\":${jq(operation)},\"amount\":${r(amount)},\"dur\":$durationTicks")
         }
@@ -284,7 +293,9 @@ class CastSim(
         private fun box(feet: Vec3) = HitBox(Vec3(feet.x - halfWidth, feet.y, feet.z - halfWidth), Vec3(feet.x + halfWidth, feet.y + boxHeight, feet.z + halfWidth))
         override fun nearby(point: Vec3, radius: Double, excluding: UUID?): List<HitCandidate> {
             queryWorlds += w
-            return victims.filter { (id, feet) ->
+            // Paper's getNearbyLivingEntities includes the caster itself (the engine filters it out where a skill excludes it); only the combat-linked dump models that.
+            val inRange = if (combat != null) victims + (caster to casterFeet) else victims
+            return inRange.filter { (id, feet) ->
                 if (id in dead) return@filter false
                 // Paper's getNearbyLivingEntities: the cube of half-size radius around the point must overlap the entity box.
                 val b = box(feet)
@@ -399,6 +410,7 @@ class CastSim(
         while (now < untilTick) {
             kit.runner.tick(now)
             kit.world.tick()
+            combat?.advance()
             now++
         }
     }

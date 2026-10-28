@@ -40,11 +40,24 @@ object GameplayDump {
 
     fun ids(): List<String> = VanillaDump.ids()
 
-    /** The lines of one cast. */
+    /** The lines of one cast. The damage goes through the real combat pipeline ([CombatLink]) over a booted [GameSim]. */
     fun dump(id: String, ticks: Int = TICKS): List<String> {
+        val gs = GameSim.boot("gdump-$id")
+        try {
+            val caster = gs.spawnPlayer("caster", Vec3(0.0, gs.world.groundY, 0.0), null, Vec3(0.0, 0.0, 1.0))
+            val dummy = gs.spawnMob("dummy", Vec3(0.0, gs.world.groundY, 5.0))
+            val item = itemOf(id)
+            if (item != null) runCatching { check(gs.give(caster, item.first)); gs.hold(caster, item.first) }
+            return dump(id, ticks, CombatLink(gs, caster, dummy, fillEgo = id.endsWith("-ego")))
+        } finally {
+            gs.shutdown()
+        }
+    }
+
+    private fun dump(id: String, ticks: Int, link: CombatLink): List<String> {
         val lines = ArrayList<String>()
         val feet = Vec3.ZERO
-        val sim = CastSim(mapOf(simVictim(1) to ahead(feet, 0.0, 5.0)), blockAtZ = (System.getenv("ASTERA_WALL_Z") ?: "8").toDouble(), floorY = 0.0, halfWidth = 0.3)
+        val sim = CastSim(mapOf(simVictim(1) to ahead(feet, 0.0, 5.0)), blockAtZ = (System.getenv("ASTERA_WALL_Z") ?: "8").toDouble(), floorY = 0.0, halfWidth = 0.3, combat = link)
         sim.victimHp = DUMMY_HP
         val item = itemOf(id)
         lines += "{\"e\":\"meta\",\"id\":\"$id\",\"item\":\"${item?.first}\"}"
