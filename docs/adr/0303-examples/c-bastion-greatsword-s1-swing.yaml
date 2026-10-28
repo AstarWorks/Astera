@@ -1,0 +1,45 @@
+# ADR-0303 example (c): bastion-greatsword-s1, melee sweep with a weapon swing. Hit sector stays gameplay (a 120-degree sector, unchanged).
+# BEFORE (converted, content/skills/bastion-greatsword-s1/look.yaml): 26 keys of Euler triples such as
+#   {t: 3, rotation: [115.0, -34.1, 167.3]}, {t: 4, rotation: [188.0, -19.5, 236.8]}, {t: 5, rotation: [263.0, 104.7, 222.4]} ...
+# Raw data check (computed from those keys): consecutive keys differ by 71, 72, 130, 24, 31, 166 degrees about axes that change every tick
+# (the capture jitters), so R3/R5 cannot merge them into laws; the converter would emit R7 `keys` with one {axis, deg} per key.
+# Below is the AUTHORED form an animator would write for the same three beats (wind-up, chop, recover). Angles are illustrative
+# authoring values, not a numeric re-derivation of the 26 keys.
+apiVersion: astera/v3
+kind: Skill
+id: bastion-greatsword-s1
+anchors:
+  - {id: hand, anchor: caster.hand_r, mount: caster}      # the sword is a passenger: it cannot lag the hand while the caster moves (RC2)
+presentation:
+  timeline:
+    - id: swing
+      at: 0
+      do:
+        - {id: canim, op: caster_anim, anim: bastion-s1-body}
+        - id: sword
+          op: display
+          kind: item
+          item: main_hand                  # resolved to its item_model id at cast start (no cloned stack)
+          context: fixed
+          anchor: hand
+          rotate: [{axis: left, deg: 98}, {axis: up, deg: -12}]        # rest: blade up and out of the fist (replaces pivot/rest/tilt)
+          for: 47
+          motion:
+            - law: keys
+              keys:
+                - {t: 2,  pose: [{axis: left, deg: 98},  {axis: up, deg: -12}]}              # wind-up hold
+                - {t: 5,  pose: [{axis: left, deg: 250}, {axis: up, deg: 20}],  ease: in}    # overhead chop: +deg about `left` takes the tip up -> forward -> down
+                - {t: 8,  pose: [{axis: left, deg: 330}, {axis: up, deg: 40}]}               # follow-through
+                - {t: 16, pose: [{axis: left, deg: 340}, {axis: up, deg: 55}]}               # hold
+                - {t: 27, pose: [{axis: left, deg: 300}, {axis: up, deg: 95}], ease: out}    # recover into the cross-cut
+                - {t: 36, pose: [{axis: left, deg: 240}, {axis: up, deg: 25}]}
+                - {t: 47, pose: []}                                                           # back to rest
+        - {id: snd, op: sound, sound: block.gravel.step, anchor: caster, volume: 1.0, pitch: 0.6}
+        - id: edge_trail
+          op: ribbon
+          of: sword.tip                    # tip / root come from content/frames/<item>.yaml
+          root: sword.grip
+          lasts: 4                         # ribbon history length (a ribbon is extended: its window is `for` below)
+          color: "#EE14245F"
+          at: 3                            # the trail starts when the chop starts, `for` is its window
+          for: 20

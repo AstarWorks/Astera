@@ -1,0 +1,83 @@
+# ADR-0303 example (f): a shoot skill that calls a `projectile` part (block mode bounce) and an `explosion` part on contact.
+---
+apiVersion: astera/v3
+kind: Part
+id: projectile
+params:
+  speed:       {type: number, required: true}
+  radius:      {type: blocks, required: true}
+  max_ticks:   {type: ticks,  required: true}
+  block:       {type: block_mode, required: true}   # {mode: bounce, restitution, times} etc. (3.6)
+frames_in:  {muzzle: anchor}
+frames_out: {bolt: anchor}                         # the body, readable by the caller (and by displays it owns)
+emits: [contact, hit, bounce, end]
+machine:
+  start: flying
+  states:
+    flying:
+      for: "= max_ticks"
+      then: end
+      enter:
+        - {id: bolt, op: projectile, from: muzzle, velocity: "= look(caster) * speed", for: "= max_ticks", radius: "= radius", block: "= block"}
+      on:
+        - {event: hit,    to: end, do: [{emit: hit}, {emit: contact}]}
+        - {event: bounce, to: flying, when: "= event.i < block.times", do: [{emit: bounce}]}   # re-enter keeps the body; guard bounds the loop (10.4 check 3)
+    end: {final: true}
+---
+apiVersion: astera/v3
+kind: Part
+id: explosion
+params:
+  radius:   {type: blocks, required: true}
+  damage:   {type: number, required: true}
+  ring_for: {type: ticks, required: true}
+frames_in:  {center: anchor}
+emits: [end]
+machine:
+  start: blast
+  states:
+    blast:
+      for: "= ring_for"
+      then: end
+      enter:
+        - {id: boom, op: sound, sound: entity.generic.explode, anchor: center, volume: 0.8, pitch: 1.2}
+        - {id: dmg, op: hit, at: 0, shape: {sphere: "= radius"}, damage: "= damage"}
+      do:
+        - id: ring
+          op: display
+          kind: sprite
+          sprite: ring-flash
+          anchor: at
+          billboard: center
+          size: [0.3, 0.3]
+          for: "= ring_for"
+          motion: [{law: grow, prop: size, per_tick: "= [radius / ring_for, radius / ring_for]"}, {law: fade, exponent: 1.0}]
+        - {id: sparks, op: particle, particle: flame, anchor: center, count: 6, offset: [0.2, 0.2, 0.2], extra: 0.15, every: 1, for: 4}
+    end: {final: true}
+---
+apiVersion: astera/v3
+kind: Skill
+id: example-fire-bolt
+anchors:
+  - {id: muzzle, anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}
+machine:
+  start: fly
+  states:
+    fly:
+      use: projectile
+      with: {speed: 1.6, radius: 0.5, max_ticks: 40, block: {mode: bounce, restitution: 0.6, times: 2}}
+      frames: {muzzle: muzzle}
+      on:
+        - {event: fly.contact, to: boom}              # the part emits contact; the caller reacts
+        - {event: fly.end,     to: done}
+    boom:
+      use: explosion
+      with: {radius: 3, damage: 24, ring_for: 8}
+      frames: {center: fly.bolt}                          # read frame from the finished child (snapshot of its last pose)
+      then_event: boom.end
+      on: [{event: boom.end, to: done}]
+    done: {final: true}
+# Expanded table:
+#   fly (part projectile)  ticks 0-40 (bounded by max_ticks)  branches: hit/contact -> boom | bounce x<=2 -> fly (loop bounded by times) | timer(40) -> done
+#   boom (part explosion)  ticks 0-8  firings: boom @0, dmg @0 x1, sparks @0..3 x4 | ring display 0-8
+#   paths: fly(1..40)+boom(8) = min 9 max 48 | fly(40) = 40

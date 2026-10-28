@@ -1,0 +1,52 @@
+# ADR-0303 example (b): frost-shard (simple-shoot projectile). Gameplay is unchanged from content/skills/frost-shard/skill.yaml; only the presentation
+# half is in the new schema. Projectile block mode (wp/se-grammar e5aedb5b0) is folded into the gameplay body as `block: {mode: bounce, ...}` (ADR-0303 3.6). The gameplay body `bolt` moves the hit volume; the display is anchored on it.
+apiVersion: astera/v3
+kind: Skill
+id: frost-shard
+anchors:
+  - {id: muzzle, anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}   # was pt_caster_0_m0p2_1 / pt_caster_eye_...
+  - {id: heart,  anchor: victim.body, offset: {up: 0.2}}                       # was pt_enemy_0_1_0
+presentation:
+  timeline:
+    - id: cast
+      at: 0
+      do:
+        - id: shard
+          op: display
+          kind: item
+          item: minecraft:prismarine_shard
+          context: fixed
+          anchor: bolt                    # gameplay frame, read-only; constant-velocity law exports segments, here sampled per tick (hit can end it)
+          scale: [0.9, 0.9, 0.9]      # vanilla scale
+          rotate: [{axis: forward, deg: 45}]
+          until: end                # `end` = the projectile's own end event (hit, block, expire)
+          motion:
+            - {law: follow, anchor: bolt, step: 1}
+            - {law: spin, axis: forward, deg_per_tick: 30}      # tumbles about its flight direction
+        - {id: snd, op: sound, sound: "astera:skills/frost-cast", anchor: caster, volume: 0.8, pitch: 1.4}
+        - {id: puff, op: particle_def, def: frost-cast, anchor: muzzle}
+    - id: trail                 # a timing group: `at / every / until` are the defaults of every op in `do` (ADR-0303 2.0), no separate loop op
+      at: 0
+      every: 1
+      until: end
+      do:
+        - {id: t1, op: particle, particle: snowflake, anchor: {of: bolt, sweep: 0.3}, count: 2, offset: [0.08, 0.08, 0.08], extra: 0.01}
+        - {id: t2, op: particle, particle: dust,      anchor: {of: bolt, sweep: 0.3}, count: 2, offset: [0.06, 0.06, 0.06], extra: 0, color: "#ebf5ff", size: 1.4}
+        - {id: t3, op: particle, particle: end_rod,   anchor: {of: bolt, sweep: 0.3}, count: 1, offset: [0.02, 0.02, 0.02], extra: 0}
+  # gameplay body, shown only for the block field (rest unchanged from skill.yaml):
+  #   - {id: bolt, op: projectile, from: muzzle, velocity: "= look(caster) * 1.6", for: 40, radius: 0.5,
+  #      block: {mode: bounce, restitution: 0.6, times: 2}}      # was block_mode/restitution/max_bounces/max_ticks
+  "on":
+    hit:
+      - {id: snd_hit, op: sound, sound: "astera:skills/frost-impact", anchor: contact.point, volume: 0.7, pitch: 1.5}
+      - {id: p_snow,  op: particle, particle: snowflake, anchor: heart, count: 30, extra: 0.15}
+      - {id: p_rod,   op: particle, particle: end_rod,   anchor: heart, count: 10, extra: 0.2}
+      - {id: p_dust,  op: particle, particle: dust,      anchor: heart, count: 20, offset: [0.4, 0.4, 0.4], extra: 0, color: "#bee6ff", size: 1.3}
+      - {id: p_burst, op: particle, particle: snowflake, anchor: heart, count: 0, offset: "= contact.normal", extra: 0.04}   # count 0: direction + speed, plain vanilla
+    bounce:                    # event of block.mode bounce; `i` is the bounce index
+      - {id: snd_bn, op: sound, sound: "astera:skills/frost-impact", anchor: contact.point, volume: "= 0.5 - 0.15 * i", pitch: "= 1.6 + 0.1 * i"}
+    block:
+      - {id: snd_blk, op: sound, sound: "astera:skills/frost-impact", anchor: contact.point, volume: 0.5, pitch: 1.6}
+      - {id: p_blk,   op: particle_def, def: frost-impact, anchor: contact.point}
+    expire:
+      - {id: p_exp, op: particle_def, def: frost-impact, anchor: contact.point}
