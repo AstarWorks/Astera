@@ -501,6 +501,7 @@ public object StaticChecks {
             for (r in table.worldRows) when (val a = r.action) {
                 is Action.Spawn -> out += r.instance
                 is Action.Call -> out += a.callId
+                is Action.Lock -> out += r.instance
                 else -> {}
             }
             var path: String? = owner.value
@@ -512,6 +513,8 @@ public object StaticChecks {
                         is Action.Call -> out += a.callId
                         // `body` and `rig` are spawners too: their start row is an Effect on their own instance, their `for` an End
                         is Action.Effect -> out += r.instance
+                        // `lock` owns its window: LockOpSpec lowers it to a Lock row on its own instance, ended by an End row on that same instance
+                        is Action.Lock -> out += r.instance
                         else -> {}
                     }
                 }
