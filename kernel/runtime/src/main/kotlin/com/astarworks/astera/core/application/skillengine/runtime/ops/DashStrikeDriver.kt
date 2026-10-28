@@ -130,7 +130,7 @@ public class DashStrikeDriver(
             if (distanceToSegment(center, from + body, to + body) > contactReach) continue
             if (!movement.isAlive(candidate.entityId)) continue
             dash.hit += candidate.entityId
-            host.runWithVictim(dash.ctx, candidate.entityId, center, op.onHit)
+            host.runWithVictim(dash.ctx, op.id, candidate.entityId, center, op.onHit)
             if (dash.finished) return
         }
     }

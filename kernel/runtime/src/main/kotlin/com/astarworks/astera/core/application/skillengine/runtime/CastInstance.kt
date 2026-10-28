@@ -600,12 +600,13 @@ internal class CastInstance(
         is LocationSpec.AtValue -> values.vec3(spec.value)
     }
 
-    override fun runWithVictim(ctx: OpContext, victim: UUID, point: Vec3, ops: List<SkillOp>) {
+    override fun runWithVictim(ctx: OpContext, source: String, victim: UUID, point: Vec3, ops: List<SkillOp>) {
         val synthetic = ContactEvent(
-            hitId = currentOpId ?: "dash", tick = tick, victim = victim, hitterFrame = "caster", part = null,
+            hitId = source, tick = tick, victim = victim, hitterFrame = "caster", part = null,
             pointWorld = point, normalWorld = UP, pointLocal = point, normalLocal = UP, relVelocity = Vec3.ZERO,
         )
         withContact(synthetic) { withVictim(victim) { run(ops) } }
+        queue += CastEvent("dash_hit", tick, source = source, contact = synthetic)
     }
 
     // ------------------------------------------------- PresentationCastInfo

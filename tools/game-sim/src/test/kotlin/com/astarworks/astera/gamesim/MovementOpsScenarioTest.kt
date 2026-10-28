@@ -147,7 +147,7 @@ class MovementOpsScenarioTest {
                 else -> emptyList()
             }
             override fun location(ctx: OpContext, spec: LocationSpec): Vec3? = (spec as? LocationSpec.AtValue)?.let { ctx.values.vec3(it.value) }
-            override fun runWithVictim(ctx: OpContext, victim: UUID, point: Vec3, ops: List<SkillOp>) {
+            override fun runWithVictim(ctx: OpContext, source: String, victim: UUID, point: Vec3, ops: List<SkillOp>) {
                 w.hits += victim
                 w.immuneTrace += w.immune
             }

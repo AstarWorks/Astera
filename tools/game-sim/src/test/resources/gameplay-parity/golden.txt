@@ -2291,7 +2291,7 @@ couture-rapier-s1	9	6d7be6ef9399
 couture-rapier-s1	10	6d7be6ef9399
 couture-rapier-s1	11	c51e89f8bd44
 couture-rapier-s1	12	f94243bf9573
-couture-rapier-s1	13	f1ab6c4b5626
+couture-rapier-s1	13	b3ed4cfeb26c
 couture-rapier-s1	14	7467d187f195
 couture-rapier-s1	15	7467d187f195
 couture-rapier-s1	16	7467d187f195
@@ -2479,7 +2479,7 @@ couture-rapier-s2	77	fb162d4c95d9
 couture-rapier-s2	78	6d7be6ef9399
 couture-rapier-s2	79	e0e2fb4aceb3
 couture-rapier-s2	80	b9e89d4c3253
-couture-rapier-s2	81	e236ed4e0ce4
+couture-rapier-s2	81	5f50465075fa
 couture-rapier-s2	82	d994abe37baa
 couture-rapier-s2	83	d994abe37baa
 couture-rapier-s2	84	d994abe37baa
@@ -6851,7 +6851,7 @@ gossamer-katana-s1	9	6d7be6ef9399
 gossamer-katana-s1	10	16e3a2a2de8f
 gossamer-katana-s1	11	92c14e996d6e
 gossamer-katana-s1	12	6f62d768e855
-gossamer-katana-s1	13	518e79c44e4b
+gossamer-katana-s1	13	a80a28d0e856
 gossamer-katana-s1	14	518e79c44e4b
 gossamer-katana-s1	15	518e79c44e4b
 gossamer-katana-s1	16	518e79c44e4b
@@ -6875,7 +6875,7 @@ gossamer-katana-s1	33	fbe967d439fa
 gossamer-katana-s1	34	fbe967d439fa
 gossamer-katana-s1	35	fbe967d439fa
 gossamer-katana-s1	36	fbe967d439fa
-gossamer-katana-s1	37	9d3d9c69d6a4
+gossamer-katana-s1	37	ebf69cf51034
 gossamer-katana-s1	38	d111945cbec0
 gossamer-katana-s1	39	cf1cb981431b
 gossamer-katana-s1	40	52e00342e7ed
@@ -6988,7 +6988,7 @@ gossamer-katana-s2	26	6d7be6ef9399
 gossamer-katana-s2	27	6d7be6ef9399
 gossamer-katana-s2	28	516f7cb1a87d
 gossamer-katana-s2	29	128ca43d09d3
-gossamer-katana-s2	30	5f5c150fb1eb
+gossamer-katana-s2	30	ab1f36267996
 gossamer-katana-s2	31	3b5b150afa98
 gossamer-katana-s2	32	52e00342e7ed
 gossamer-katana-s2	33	52e00342e7ed
@@ -7084,7 +7084,7 @@ gossamer-katana-s3	2	6d7be6ef9399
 gossamer-katana-s3	3	6d7be6ef9399
 gossamer-katana-s3	4	4f41d5cef35f
 gossamer-katana-s3	5	2e4b43bc5118
-gossamer-katana-s3	6	6892f6217214
+gossamer-katana-s3	6	70191f97f037
 gossamer-katana-s3	7	b333222d439a
 gossamer-katana-s3	8	a39a153945df
 gossamer-katana-s3	9	a39a153945df
@@ -8400,7 +8400,7 @@ iron-blade-slash	118	6d7be6ef9399
 iron-blade-slash	119	6d7be6ef9399
 katana-iaido	0	1a66a1086866
 katana-iaido	1	1d02421c0071
-katana-iaido	2	0975e6684478
+katana-iaido	2	99b1e756cbb8
 katana-iaido	3	d994abe37baa
 katana-iaido	4	d994abe37baa
 katana-iaido	5	d994abe37baa
@@ -15241,7 +15241,7 @@ sniper-shot	119	6d7be6ef9399
 spear-charge	0	0b687b1c5db5
 spear-charge	1	5c517a506737
 spear-charge	2	bceea2921535
-spear-charge	3	566caac57b75
+spear-charge	3	6cac2ce427b9
 spear-charge	4	87f4ecc10528
 spear-charge	5	b333222d439a
 spear-charge	6	a39a153945df
@@ -17423,7 +17423,7 @@ verdict-hammer-s1	21	6d7be6ef9399
 verdict-hammer-s1	22	6d7be6ef9399
 verdict-hammer-s1	23	4f41d5cef35f
 verdict-hammer-s1	24	da196891629a
-verdict-hammer-s1	25	6892f6217214
+verdict-hammer-s1	25	70191f97f037
 verdict-hammer-s1	26	a39a153945df
 verdict-hammer-s1	27	a39a153945df
 verdict-hammer-s1	28	a39a153945df

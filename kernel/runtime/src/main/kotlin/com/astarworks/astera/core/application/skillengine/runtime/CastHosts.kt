@@ -36,8 +36,8 @@ public class CastHosts : MovementHost, OpTargetResolver, PresentationCastInfo {
 
     override fun location(ctx: OpContext, spec: LocationSpec): Vec3? = of(ctx).location(ctx, spec)
 
-    override fun runWithVictim(ctx: OpContext, victim: UUID, point: Vec3, ops: List<SkillOp>) =
-        of(ctx).runWithVictim(ctx, victim, point, ops)
+    override fun runWithVictim(ctx: OpContext, source: String, victim: UUID, point: Vec3, ops: List<SkillOp>) =
+        of(ctx).runWithVictim(ctx, source, victim, point, ops)
 
     override fun resolve(ctx: OpContext, target: TargetRef): List<UUID> = of(ctx).resolve(ctx, target)
 
