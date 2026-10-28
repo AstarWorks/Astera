@@ -13,5 +13,5 @@ machine:
       for: 12
       then: end
       do:
-        - {id: cut, op: hit, at: 4, anchor: caster, targets: enemies, shape: {sector: {deg: 90, range: 4}}, damage: 12}
+        - {id: cut, op: hit, at: 4, anchor: caster, targets: enemies, shape: {sector: {deg: 90, range: 4, height: 2.0}}, damage: 12}
     end: {final: true}

@@ -65,7 +65,7 @@ presentation:
       do:
         # damage / hit ticks use the same block: three hits, 2 ticks apart (each occurrence sees i). `at: 0` = the group occurrence tick (34);
         # the group block is not inherited and child timing is relative to it (2.0a, rev4.1 corrected `at: 34` here, which meant 68)
-        - {id: pulse, op: hit, at: 0, every: 2, times: 3, anchor: caster, targets: enemies, shape: {sector: {deg: 360, range: 3}}, damage: {physical: "= 10 + 2 * i"}}
+        - {id: pulse, op: hit, at: 0, every: 2, times: 3, anchor: caster, targets: enemies, shape: {sector: {deg: 360, range: 3, height: 2.0}}, damage: {physical: "= 10 + 2 * i"}}
         - {id: boom, op: sound, sound: entity.generic.explode, anchor: palm, volume: 0.8, pitch: 1.2}
         # CEL class T on a display: a flash whose size follows a curve of t. The curve is fitted to segments; the budget is 0.03 blocks.
         - id: flash

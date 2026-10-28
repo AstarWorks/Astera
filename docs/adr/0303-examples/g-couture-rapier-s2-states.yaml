@@ -16,7 +16,7 @@ machine:
       then: raise
       do:
         - {use: slash-arc, at: 7, with: {radius: 9, sector: 30}, frames: {origin: caster}}          # reusable part
-        - {id: hit1, op: hit, at: 8, anchor: caster, targets: enemies, shape: {sector: {deg: 30, range: 9}}, damage: {physical: 30}}
+        - {id: hit1, op: hit, at: 8, anchor: caster, targets: enemies, shape: {sector: {deg: 30, range: 9, height: 2.0}}, damage: {physical: 30}}
     raise:
       for: 4
       then: throw

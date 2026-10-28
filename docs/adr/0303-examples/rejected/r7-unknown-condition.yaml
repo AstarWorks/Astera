@@ -13,5 +13,5 @@ machine:
       for: 10
       then: end
       do:
-        - {id: hit, op: hit, at: 2, when: cond:nope, shape: {sector: {deg: 30, range: 3}}, damage: 8}
+        - {id: hit, op: hit, at: 2, when: cond:nope, shape: {sector: {deg: 30, range: 3, height: 2.0}}, damage: 8}
     end: {final: true}

@@ -30,7 +30,8 @@ ribbon `history`, `style` and width are explicit fields (2.0b, 5); one instance-
 S / T / L classification written as a definition (3.5); motion laws hold after their window, orbit `center`, `fade` as per-tick `set`, a jump is one
 duration-0 write, `steps(n)` removed (3.2, 3.4, 3.7, 4); stick window (3.6); the hit, dash and rig fields (10.1b, SKL-17); sub-table keys
 `<state>.exit[<reason>]` / `<state>.on[<k>]` with no bubbling, cancel scopes (10.2, 10.6); call depth wording and recompile of callers (9, 10.4);
-dump grammar additions (11.3). Status stays Proposed.
+dump grammar additions (11.3). 2026-10-29 founder decision (F8, option B): the hit `sector` gets a required `height` (10.1b), so a sector hits only within
+±height/2 of the origin's vertical position; an absent `height` is a load error (rejected `r11-sector-without-height.yaml`). Status stays Proposed.
 
 **Partially supersedes [[adr/0301-skill-engine-v2-frame-tree]]** (0301's body is not edited). Map:
 
@@ -691,7 +692,8 @@ Full examples are in `docs/adr/0303-examples/`:
   train), `r2-random-timing.yaml` (`rand()` in `at`), `r3-unbounded-repeat.yaml` (`every` without a bound), `r4-law-from.yaml` (law window spelt `from`),
   `r5-live-timing-no-bound.yaml` (L-class `for` without `bound`), `r6-hidden-default.yaml` (projectile `block: {mode: bounce}` without `times`),
   `r7-unknown-condition.yaml` (`when: cond:nope`), `r8-group-every-no-lasts.yaml` (repeating group with a display child and no `lasts`),
-  `r9-every-for-and-times.yaml` (`every` with both `for` and `times`), `r10-hit-bare-damage.yaml` (`hit` with `damage: 12`, no kind).
+  `r9-every-for-and-times.yaml` (`every` with both `for` and `times`), `r10-hit-bare-damage.yaml` (`hit` with `damage: 12`, no kind),
+  `r11-sector-without-height.yaml` (`hit` with `sector: {deg, range}` and no `height`).
 
 Sizes in the examples are illustrative (the sprite files decide them); shapes, rates and timings are taken from the current v1 files. **Every
 example under `0303-examples/*.yaml` loads, expands and plays exactly to the table in its comments (A1, A2); every `rejected/*.yaml` fails with
@@ -828,7 +830,7 @@ All take the timing block (2.0); their own fields keep the 0301 meaning. `YAML` 
 
 | op | fields |
 |---|---|
-| `hit` | `anchor` (one frame, required; `caster` for body sectors), `shape` (one of `sector: {deg, range}`, `sphere: <radius>`, `capsule: <radius>` with the frames' `from`/`to`; points are in the anchor frame), `targets` (`enemies` \| `allies`, required), `damage: {kind: amount}` (a map; a bare number is a load error), `window` (required iff the hit repeats with `every`: `once` or `{every: N}`; forbidden on a single firing). A sector is a sphere wedge: points within `range` whose horizontal angle to the anchor's forward is at most `deg/2`, no vertical limit. |
+| `hit` | `anchor` (one frame, required; `caster` for body sectors), `shape` (one of `sector: {deg, range, height}`, `sphere: <radius>`, `capsule: <radius>` with the frames' `from`/`to`; points are in the anchor frame), `targets` (`enemies` \| `allies`, required), `damage: {kind: amount}` (a map; a bare number is a load error), `window` (required iff the hit repeats with `every`: `once` or `{every: N}`; forbidden on a single firing). A sector is a sphere wedge: points within `range` whose horizontal angle to the anchor's forward is at most `deg/2`, and whose vertical offset from the origin is within ±`height/2`. All three fields (`deg`, `range`, `height`) are required; an absent `height` is a load error. |
 | `damage` | `target` (`caster`, `event.victim`, `event.attacker`, or an area `{kind: enemies\|allies, around: <frame>, radius, max_count, include_self}`, all area fields required), `components: [{kind, amount}]`, `ignore_invulnerability?` (false = vanilla identity). No `chance` field anywhere: write `when: "= rand() < 0.3"` (class S). |
 | `status` | `target`, `status`, `stacks`, `for` |
 | `modify_attribute` | `target`, `attribute`, `operation`, `amount`, `for` |

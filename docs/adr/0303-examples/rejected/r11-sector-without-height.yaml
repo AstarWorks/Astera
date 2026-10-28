@@ -1,0 +1,17 @@
+# error: SkillDecodeError.Invalid   (10.1b: `sector` is `{deg, range, height}`, all required; an absent `height` is a load error)
+apiVersion: astera/v3
+kind: Skill
+id: rejected-r11
+item: couture-rapier
+meta: {cooldown_ticks: 10, resource_cost: 0}
+anchors:
+  - {id: hand, anchor: caster.hand_r}
+machine:
+  start: s
+  states:
+    s:
+      for: 12
+      then: end
+      do:
+        - {id: cut, op: hit, at: 4, anchor: caster, targets: enemies, shape: {sector: {deg: 90, range: 4}}, damage: {physical: 12}}
+    end: {final: true}
