@@ -21,5 +21,11 @@ public sealed interface HitOp : GameplayOp {
          * cannot step over a thin target between two ticks.
          */
         val swept: Boolean = false,
+        /**
+         * The registration resolves for this many ticks, the registration tick included, then is dropped; null = until the
+         * cast ends or the op is removed. A v1 melee selection (cone / nearby / ray) was one query at one tick, so it is `1`;
+         * a projectile or a blade body keeps testing every tick and leaves it null.
+         */
+        val ticks: Int? = null,
     ) : HitOp
 }

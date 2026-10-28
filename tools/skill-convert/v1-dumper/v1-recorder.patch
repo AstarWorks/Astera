@@ -1,8 +1,56 @@
+diff --git a/tools/game-sim/src/main/kotlin/com/astarworks/astera/gamesim/GameSim.kt b/tools/game-sim/src/main/kotlin/com/astarworks/astera/gamesim/GameSim.kt
+index d6e59c9c7..dceb3213f 100644
+--- a/tools/game-sim/src/main/kotlin/com/astarworks/astera/gamesim/GameSim.kt
++++ b/tools/game-sim/src/main/kotlin/com/astarworks/astera/gamesim/GameSim.kt
+@@ -130,6 +130,8 @@ public class GameSim private constructor(
+         private set
+     public lateinit var combat: CombatWiringResult
+         private set
++    /** Vanilla-parity dump: every skill-driven push (Knockback mechanic, explosion) as (tick, target, impulse). */
++    public val pushes: MutableList<Triple<Long, PlayerId, Vec3>> = mutableListOf()
+     public lateinit var match: MatchWiringResult
+         private set
+     /** Spectator-mode recorder behind the `ISpectator` port (death cam / eliminated teams). */
+@@ -638,6 +640,10 @@ public class GameSim private constructor(
+                         SimDamageGateway(world, svc.getOrThrow<IPlayerAttributeContainerStore>(), scheduler, svc.getOrThrow<IDomainEventBus>())
+                     },
+                     statusEffectContainer = { statusContainer.value },
++                    knockbackGateway = { object : com.astarworks.astera.combat.application.port.outbound.IKnockbackGateway {
++                        override fun applyImpulse(target: PlayerId, impulse: Vec3) { sim.pushes += Triple(scheduler.currentTick(), target, impulse) }
++                        override fun applyPush(target: PlayerId, push: com.astarworks.astera.combat.domain.damage.KnockbackPush) {}
++                    } },
+                     entityEffectsGateway = { SimEntityEffectsGateway(world, recorder) { scheduler.currentTick() } },
+                     playerFeedbackGateway = { feedback },
+                     displayEntityGateway = { sim.displays },
+@@ -651,6 +657,7 @@ public class GameSim private constructor(
+                             damageApplier = applier,
+                             isAlive = alive,
+                             recorder = recorder,
++                            onPush = { id, v -> sim.pushes += Triple(scheduler.currentTick(), id, v) },
+                         )
+                     },
+                 ),
 diff --git a/tools/game-sim/src/main/kotlin/com/astarworks/astera/gamesim/SimWorldPorts.kt b/tools/game-sim/src/main/kotlin/com/astarworks/astera/gamesim/SimWorldPorts.kt
-index c185bbe4b..751d83575 100644
+index c185bbe4b..42cb69734 100644
 --- a/tools/game-sim/src/main/kotlin/com/astarworks/astera/gamesim/SimWorldPorts.kt
 +++ b/tools/game-sim/src/main/kotlin/com/astarworks/astera/gamesim/SimWorldPorts.kt
-@@ -100,6 +100,13 @@ public class SimDisplayGateway(
+@@ -39,6 +39,7 @@ public class SimExplosionGateway(
+     private val damageApplier: ExplosionDamageApplier,
+     private val isAlive: (PlayerId) -> Boolean,
+     private val recorder: TraceRecorder,
++    private val onPush: (PlayerId, Vec3) -> Unit = { _, _ -> },
+ ) : IExplosionGateway {
+ 
+     override fun trigger(spec: ExplosionSpec): Result<ExplosionResult, ExplosionError> {
+@@ -57,6 +58,7 @@ public class SimExplosionGateway(
+                 if (spec.knockbackMultiplier > 0.0) {
+                     val radial = if (distance > 0.0) offset.normalize() else Vec3(0.0, 1.0, 0.0)
+                     entity.velocity = entity.velocity + radial * (spec.knockbackMultiplier * falloff)
++                    onPush(entity.id, radial * (spec.knockbackMultiplier * falloff))
+                 }
+             }
+         }
+@@ -100,6 +102,13 @@ public class SimDisplayGateway(
      public var peakActive: Int = 0
          private set
  
@@ -16,7 +64,7 @@ index c185bbe4b..751d83575 100644
      /** Every display ever spawned, in order. */
      public val spawned: MutableList<Spawned> = mutableListOf()
  
-@@ -137,6 +144,18 @@ public class SimDisplayGateway(
+@@ -137,6 +146,18 @@ public class SimDisplayGateway(
          active[handle] = record
          peakActive = maxOf(peakActive, active.size)
          spawned += record
@@ -35,7 +83,7 @@ index c185bbe4b..751d83575 100644
          val what = when (val kind = spec.kind) {
              is DisplayKind.Block -> "block ${kind.blockKey}"
              is DisplayKind.Item -> "item ${kind.itemId.value}"
-@@ -222,7 +241,9 @@ public class SimDisplayGateway(
+@@ -222,7 +243,9 @@ public class SimDisplayGateway(
          anchor: com.astarworks.astera.core.domain.player.PlayerId,
          offset: Vec3,
      ): IDisplayEntityGateway.DisplayHandle {
@@ -45,7 +93,7 @@ index c185bbe4b..751d83575 100644
          attached[handle] = anchor
          return handle
      }
-@@ -232,11 +253,13 @@ public class SimDisplayGateway(
+@@ -232,11 +255,13 @@ public class SimDisplayGateway(
  
      override fun setViewRange(handle: IDisplayEntityGateway.DisplayHandle, viewRange: Float) {
          viewRanges[handle] = viewRange
@@ -59,7 +107,7 @@ index c185bbe4b..751d83575 100644
          recorder.recordEffect(scheduler.currentTick(), "display_update", record.at, "${handle.id} over=$interpolationTicks scale=${transform.scale}")
          recorder.recordDisplay(
              scheduler.currentTick(),
-@@ -247,12 +270,14 @@ public class SimDisplayGateway(
+@@ -247,12 +272,14 @@ public class SimDisplayGateway(
      override fun setItemModel(handle: IDisplayEntityGateway.DisplayHandle, itemModel: String?) {
          val record = active[handle] ?: return
          swaps += Swap(handle, scheduler.currentTick(), "item_model", itemModel ?: "")
@@ -74,7 +122,7 @@ index c185bbe4b..751d83575 100644
          recorder.recordEffect(scheduler.currentTick(), "display_swap", record.at, "${handle.id} block $blockKey")
          recorder.recordDisplay(
              scheduler.currentTick(),
-@@ -263,6 +288,7 @@ public class SimDisplayGateway(
+@@ -263,6 +290,7 @@ public class SimDisplayGateway(
      override fun setText(handle: IDisplayEntityGateway.DisplayHandle, renderedLines: List<String>) {
          val record = active[handle] ?: return
          swaps += Swap(handle, scheduler.currentTick(), "text", renderedLines.joinToString(" / "))
@@ -82,7 +130,7 @@ index c185bbe4b..751d83575 100644
          recorder.recordEffect(scheduler.currentTick(), "display_swap", record.at, "${handle.id} text ${renderedLines.joinToString(" / ")}")
          recorder.recordDisplay(
              scheduler.currentTick(),
-@@ -276,12 +302,14 @@ public class SimDisplayGateway(
+@@ -276,12 +304,14 @@ public class SimDisplayGateway(
      override fun setTextStyle(handle: IDisplayEntityGateway.DisplayHandle, backgroundArgb: Int, textOpacity: Int, textRgb: Int?) {
          val record = active[handle] ?: return
          styles += Style(handle, scheduler.currentTick(), backgroundArgb, textOpacity, textRgb)
@@ -97,7 +145,7 @@ index c185bbe4b..751d83575 100644
          recorder.recordEffect(scheduler.currentTick(), "display_teleport", at, "${handle.id} over=$teleportTicks")
          recorder.recordDisplay(
              scheduler.currentTick(),
-@@ -295,6 +323,7 @@ public class SimDisplayGateway(
+@@ -295,6 +325,7 @@ public class SimDisplayGateway(
  
      override fun remove(handle: IDisplayEntityGateway.DisplayHandle) {
          val record = active.remove(handle) ?: return

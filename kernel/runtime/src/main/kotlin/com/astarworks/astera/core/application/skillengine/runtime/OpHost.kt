@@ -22,6 +22,8 @@ public data class HitRegistration(
     val maxCount: Int? = null,
     /** See [com.astarworks.astera.core.domain.skillengine.op.HitOp.Hit.swept]. */
     val swept: Boolean = false,
+    /** See [com.astarworks.astera.core.domain.skillengine.op.HitOp.Hit.ticks]. */
+    val ticks: Int? = null,
 )
 
 /**

@@ -1,7 +1,6 @@
 # Converted from content/skills/bastion-greatsword-ego.yaml + content/vfx/* by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
 # Generated point-frame offsets are [left, up, forward] in the parent frame.
 # CONVERT-PRESENT vfx frame orient (frames carry no orientation / scale) (x3): orient="yaw"
-# CONVERT-PRESENT windup sound pitch_arc (sound has a fixed pitch) (x1): {"ease": "in_quad", "from": 0.6, "interval_ticks": 5, "ticks": 25, "to": 1.8}
 # CONVERT-PRESENT telegraph has no v2 op (x1): {"angle_degrees": 70, "impact_tick": 11, "radius": 6.2, "shape": "cone", "team_color": "enemy", "ticks": 12, "viewers": "all"}
 # CONVERT-PRESENT vfx follow=false (anchored at world, no place-at-spawn) (x2): bastion-ego-trail | bastion-ego-slam
 # CONVERT-PRESENT dotted_line (line is solid) (x1): {"color": "#FFE08A", "from": [0, 1.0, 0.2], "spacing": 0.28,
@@ -95,7 +94,7 @@ presentation:
             - {t: 6, scale: [1.5, 3.3, 1.0], alpha: 0.14, ease: out_cubic}
             - {t: 22, alpha: 0.14}
             - {t: 30, scale: [1.4, 3.1, 1.0], alpha: 0.0, ease: in_quad}
-        - {id: snd, op: sound, sound: block.amethyst_block.resonate, at: caster, volume: 1.0}
+        - {id: snd, op: sound, sound: block.amethyst_block.resonate, at: caster, volume: 1.0, pitch: 0.6, pitch_to: 1.8, over: 25, pitch_ease: in_quad, every: 5}
     - id: fx20
       at: 20
       do:

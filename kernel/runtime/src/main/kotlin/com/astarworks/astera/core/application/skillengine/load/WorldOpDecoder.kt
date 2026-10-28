@@ -8,17 +8,17 @@ import com.astarworks.astera.core.domain.skillengine.op.SkillOp
 import com.astarworks.astera.core.domain.skillengine.op.WorldOp
 
 /** Decoders of the world family. The manager registers them with `OpDecoderRegistry`. */
-public fun worldDecoders(): List<OpDecoder> = listOf(WorldOpDecoder)
+public fun worldDecoders(blocks: IBlockKeyCatalog): List<OpDecoder> = listOf(WorldOpDecoder(blocks))
 
 /**
  * ```yaml
  * - {id: wall, op: place_shape, shape: wall, block: oak_planks, width: 5, height: 3, revert_after: 400}
- * - {id: dig,  op: break_area, shape: sphere, radius: 2.5, length: 3, tool_class: PICKAXE, block_damage: 40, breaks: true}
+ * - {id: dig,  op: break_area, shape: sphere, radius: 2.5, length: 3, tool_class: PICKAXE, block_damage: 40, power: 2, breaks: true}
  * ```
  * `at` is a frame point (`caster`, `contact.point`, `blade_a.tip`) or a world vector; default `caster` (feet).
  * `breaks: false` makes a destructive op inert (per-skill block flag). Sizes are literals.
  */
-internal object WorldOpDecoder : OpDecoder {
+internal class WorldOpDecoder(private val blocks: IBlockKeyCatalog) : OpDecoder {
     override val section: OpSection = OpSection.GAMEPLAY
     override val opNames: Set<String> = setOf("set_block", "remove_block", "break_area", "place_shape")
 
@@ -27,7 +27,7 @@ internal object WorldOpDecoder : OpDecoder {
         val revert = reader.number("revert_after")
         val outside = reader.bool("outside_arena") ?: false
         return when (op) {
-            "set_block" -> WorldOp.SetBlock(id, whenExpr, at, reader.requireString("block"), revert, outside)
+            "set_block" -> WorldOp.SetBlock(id, whenExpr, at, blockKey(reader), revert, outside)
             "remove_block" -> WorldOp.RemoveBlock(id, whenExpr, at, reader.bool("breaks") ?: true, revert, outside)
             "break_area" -> WorldOp.BreakArea(
                 id = id,
@@ -40,6 +40,7 @@ internal object WorldOpDecoder : OpDecoder {
                 height = literal(reader, "height", 2.0),
                 toolClass = reader.string("tool_class")?.uppercase(),
                 blockDamage = reader.int("block_damage") ?: 0,
+                power = literal(reader, "power", 3.0),
                 breaksBlocks = reader.bool("breaks") ?: true,
                 revertAfterTicks = revert,
                 outsideArena = outside,
@@ -49,7 +50,7 @@ internal object WorldOpDecoder : OpDecoder {
                 whenExpr = whenExpr,
                 at = at,
                 shape = enumOf(reader, "shape", WorldOp.BuildShape.WALL),
-                block = reader.requireString("block"),
+                block = blockKey(reader),
                 width = reader.int("width") ?: 3,
                 height = reader.int("height") ?: 3,
                 length = reader.int("length") ?: 3,
@@ -59,6 +60,12 @@ internal object WorldOpDecoder : OpDecoder {
             )
             else -> reader.fail("not a world op: $op")
         }
+    }
+
+    private fun blockKey(reader: OpReader): String {
+        val key = reader.requireString("block")
+        if (!blocks.exists(key)) reader.fail("block: unknown block key '$key' (not a vanilla material and not a registered custom block)")
+        return key
     }
 
     private fun location(reader: OpReader): LocationSpec {

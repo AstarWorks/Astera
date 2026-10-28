@@ -25,6 +25,6 @@ gameplay:
       - {id: dmg, op: damage, components: [{kind: electric, amount: "${dmg_electric}"}], target: victim}
       - {id: st_shock, op: status, status: shock, duration_ticks: "${shock_ticks}", target: victim, chance: 0.6}
       - {id: lightning, op: summon_lightning, at: enemy, visual_only: true}
-      - {op: break_area, shape: sphere, radius: 1.0, block_damage: 25, breaks: true, id: chip, at: "= contact.point"}
+      - {op: break_area, shape: sphere, radius: 1.0, block_damage: 25, breaks: true, length: 0.0, id: chip, at: "= contact.point"}
     block:
-      - {op: break_area, shape: sphere, radius: 1.0, block_damage: 25, breaks: true, id: chip_2, at: "= contact.point"}
+      - {op: break_area, shape: sphere, radius: 1.0, block_damage: 25, breaks: true, length: 0.0, id: chip_2, at: "= contact.point"}

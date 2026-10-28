@@ -62,7 +62,7 @@ public sealed interface ControlOp : GameplayOp {
     /**
      * Event-sourced window: for [ticks] ticks, [listen] on the caster is watched. Each occurrence is passed through
      * [filter] (CEL, `incoming.amount` and `victim` = the attacker bound); on a pass the incoming damage is
-     * multiplied by [scale] (0 = negated, [absorb]) and [body] runs once with the attacker as the current victim on the
+     * multiplied by [scale] (`absorb: true` in YAML is `scale: 0`, the hit is negated) and [body] runs once with the attacker as the current victim on the
      * next cast tick. [once] closes the window after the first pass. The cast stays alive while a window is open.
      */
     public data class Window(
@@ -71,10 +71,29 @@ public sealed interface ControlOp : GameplayOp {
         val listen: WindowEvent,
         val ticks: Value<Double>,
         val once: Boolean,
-        val absorb: Boolean,
         val scale: Double,
         val filter: Value<Boolean>?,
         val body: List<GameplayOp>,
+    ) : ControlOp
+
+    /** Runs [then] when every target in [target] carries [status] with at least [minStacks] stacks (none = false), else [otherwise]. */
+    public data class HasStatus(
+        override val id: String,
+        override val whenExpr: Value<Boolean>?,
+        val target: TargetRef,
+        val status: String,
+        val minStacks: Value<Double>,
+        val then: List<GameplayOp>,
+        val otherwise: List<GameplayOp>,
+    ) : ControlOp
+
+    /** Runs [then] when the caster is allied with every target in [target] (none = false; the caster itself counts), else [otherwise]. */
+    public data class IsAlly(
+        override val id: String,
+        override val whenExpr: Value<Boolean>?,
+        val target: TargetRef,
+        val then: List<GameplayOp>,
+        val otherwise: List<GameplayOp>,
     ) : ControlOp
 
     public data class Choose(

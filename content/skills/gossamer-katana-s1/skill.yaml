@@ -1,5 +1,6 @@
 # Converted from content/skills/gossamer-katana-s1.yaml by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
 # Generated point-frame offsets are [left, up, forward] in the parent frame.
+# CONVERT-TODO sound: dash on_hit sound waits for the engine `dash_hit` event (CastInstance.runWithVictim does not raise it) (x2): entity.player.attack.strong
 apiVersion: "astera/v2"
 kind: Skill
 id: gossamer-katana-s1
@@ -26,7 +27,7 @@ gameplay:
           on_hit:
             - {id: dmg, op: damage, components: [{kind: physical, amount: "${dmg_physical}"}], target: victim, ignore_invulnerability: true}
     - {id: t21, at: 21, do: [{id: propel, op: propel, direction: "= axis(caster, \"forward\")", strength: "${propel}"}]}
-    - {id: t24, at: 24, do: [{id: sel, op: hit, frames: [caster], sphere: {at: caster, radius: "${radius}"}, max_count: 1, window: once}]}
+    - {id: t24, at: 24, do: [{id: sel, op: hit, frames: [caster], sphere: {at: caster, radius: "${radius}"}, max_count: 1, window: once, ticks: 1}]}
     - id: t37
       at: 37
       do:

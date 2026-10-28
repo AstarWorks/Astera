@@ -287,7 +287,7 @@ presentation:
     - {id: rep2, at: 0, every: 1, until: end, do: [{id: trail_2, op: emit, at: bolt, particle: dust, count: 1, spacing: 0.25, data: "#ff6414", data_size: 1.5}]}
   "on":
     hit:
-      - {id: snd_2, op: sound, sound: "astera:skills/fire-impact", at: contact.point}
+      - {id: snd_2, op: sound, sound: "astera:skills/fire-impact", at: enemy}
       - {id: emit_3, op: emit, at: contact.point, particle: flame, count: 60, speed: 0.2}
       - {id: emit_4, op: emit, at: contact.point, particle: lava, count: 8, speed: 0.1}
       - id: emit_5

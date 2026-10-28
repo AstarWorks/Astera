@@ -4,7 +4,7 @@
 # CONVERT-PRESENT rig respect_hit_stop / weapon points (x3): {"respect_hit_stop": true}
 # CONVERT-PRESENT rig block parts (mesh takes an item model, not a block + size) (x3): 3 parts
 # CONVERT-PRESENT rig swing without a weapon mesh (track needs a visual to move) (x3): 5 keys | 10 keys
-# CONVERT-PRESENT presentation inside a nested gameplay list (dash on_hit has no event hook) (x4): play_vfx | play_sound
+# CONVERT-PRESENT presentation inside a nested gameplay list (dash on_hit has no event hook) (x2): play_vfx
 # CONVERT-PRESENT vfx follow=false (anchored at world, no place-at-spawn) (x4): gossamer-katana-slash-up | gossamer-katana-slash-down
 apiVersion: "astera/v2"
 kind: Skill
@@ -113,6 +113,9 @@ presentation:
             - fx4_gossamer_katana_petals_ink_3
           when: "= event.source == 'sel'"
   "on":
+    dash_hit:
+      - {id: snd, op: sound, sound: entity.player.attack.strong, at: enemy, volume: 0.7, pitch: 1.1, when: "= event.source == 'dash'"}
+      - {id: snd_3, op: sound, sound: entity.player.attack.strong, at: enemy, volume: 0.7, pitch: 1.1, when: "= event.source == 'dash_2'"}
     hit:
       - id: fx4_gossamer_katana_petals_petals_0
         op: quad
@@ -402,4 +405,4 @@ presentation:
           - {t: 7, offset: [0.66893, -0.79912, 0.8725], scale: [0.013125, 0.013125, 1.0], alpha: 0.125}
           - {t: 8, offset: [0.74635, -1.10328, 0.97349], scale: [0.0, 0.0, 1.0], alpha: 0.0}
         when: "= event.source == 'sel'"
-      - {id: snd, op: sound, sound: entity.player.attack.strong, at: contact.point, volume: 0.7, pitch: 1.1, when: "= event.source == 'sel'"}
+      - {id: snd_2, op: sound, sound: entity.player.attack.strong, at: enemy, volume: 0.7, pitch: 1.1, when: "= event.source == 'sel'"}

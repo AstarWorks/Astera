@@ -11,7 +11,7 @@ import com.astarworks.astera.core.domain.skillengine.model.Value
  */
 public sealed interface WorldOp : GameplayOp {
 
-    public enum class AreaShape { SPHERE, LINE, BOX }
+    public enum class AreaShape { SPHERE, LINE, BOX, RAY }
     public enum class BuildShape { WALL, BRIDGE, PILLAR, PLATFORM }
 
     public data class SetBlock(
@@ -43,6 +43,8 @@ public sealed interface WorldOp : GameplayOp {
         val height: Double,
         val toolClass: String?,
         val blockDamage: Int,
+        /** Terrain hardness gate (v1 Mechanic.BreakArea.power): 1 = common, 2 = hard (obsidian, anvils), 3 = hardest. */
+        val power: Double,
         val breaksBlocks: Boolean,
         val revertAfterTicks: Value<Double>?,
         val outsideArena: Boolean,

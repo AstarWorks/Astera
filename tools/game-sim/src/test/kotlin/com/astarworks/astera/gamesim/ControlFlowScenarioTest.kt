@@ -332,6 +332,7 @@ class ControlFlowScenarioTest {
         }
 
         override val cast: CastId = CastId(1)
+        override val world = com.astarworks.astera.core.domain.world.WorldId("world")
         override val tree: FrameTree = Proxy.newProxyInstance(javaClass.classLoader, arrayOf(FrameTree::class.java)) { _, m, args ->
             when {
                 m.name.startsWith("node") -> FrameNode(FrameId(args[0] as String), FrameKind.PART, FrameId("shears"), Frame(Vec3(0.0, 0.0, 0.0), Quaternion.IDENTITY))
