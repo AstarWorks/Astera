@@ -226,6 +226,18 @@ class FrameOpScenarioTest : SkillEngineScenario() {
     }
 
     @Test
+    fun casterEntityStateFieldsLoadInCells() {
+        val r = loadInline(
+            skill(
+                "{id: f, op: frame, anchor: shears, for: 40}",
+                sound("snd", 0, "= caster.on_ground ? 1.0 : 0.5"),
+                sound("snd2", 1, "= caster.health_ratio < 0.35 ? 0.2 : 1.0"),
+            ),
+        )
+        assertThat(r).isInstanceOf(Result.Success::class.java)
+    }
+
+    @Test
     fun unknownFrameIdInExpressionIsLoadError() {
         val r = loadInline(skill("{id: f, op: frame, anchor: shears, for: 40}", sound("snd", 0, "= speed(nosuch)")))
         assertThat(r).isInstanceOf(Result.Failure::class.java)

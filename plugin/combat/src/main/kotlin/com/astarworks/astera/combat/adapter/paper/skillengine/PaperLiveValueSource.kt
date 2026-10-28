@@ -70,7 +70,19 @@ public class PaperLiveValueSource(
             eventI = binding?.index ?: 0,
             contact = contactOf(binding),
             target = victimOf(binding),
+            extra = entityState("caster", server.getEntity(request(cast).caster) as? LivingEntity) +
+                entityState("target", binding?.victim?.id?.let { server.getEntity(it) as? LivingEntity }),
         )
+
+    /** `<root>.on_ground` / `<root>.health_ratio` (3.8 conditions); absent entity = the neutral values of [V3Bindings.values]. */
+    private fun entityState(root: String, e: LivingEntity?): Map<String, ExprValue> {
+        if (e == null || !e.isValid) return emptyMap()
+        val max = e.getAttribute(org.bukkit.attribute.Attribute.MAX_HEALTH)?.value ?: 20.0
+        return mapOf(
+            "$root.on_ground" to ExprValue.Bool(e.isOnGround),
+            "$root.health_ratio" to ExprValue.Num(if (max > 0.0) (e.health / max).coerceIn(0.0, 1.0) else 0.0),
+        )
+    }
 
     public fun frames(cast: CastHandle, binding: EventBinding? = null): FrameLookup {
         val request = request(cast)
