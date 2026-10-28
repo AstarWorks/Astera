@@ -129,7 +129,7 @@ private fun OpReader.trackKeys(): List<TrackKey> {
         val turn = m["turn"]?.let { vecValue(it) ?: fail("keys[$i].turn must be a rotation vector [x,y,z] (axis * degrees), \${param} or = expr") }
         val scale = m["scale"]?.let { scaleValue(it) ?: fail("keys[$i].scale must be a number, [x,y,z], \${param} or = expr") }
         val ease = m["ease"]?.let { it as? String ?: fail("keys[$i].ease must be a string") }
-        if (ease != null && ease !in EASES) fail("keys[$i].ease must be one of $EASES")
+        if (ease != null && com.astarworks.astera.core.domain.animation.Easing.fromKey(ease) == null) fail("keys[$i].ease must be linear, step or in_/out_/in_out_ + sine, quad, cubic, quart, quint, expo, circ, back, elastic, bounce")
         val alpha = m["alpha"]?.let { numValue(it) ?: fail("keys[$i].alpha must be a number, \${param} or = expr") }
         val color = m["color"]?.let { c -> (c as? String)?.takeIf { Regex("#[0-9a-fA-F]{6}").matches(it) } ?: fail("keys[$i].color must be #rrggbb") }
         val block = m["block"]?.let { it as? String ?: fail("keys[$i].block must be a vanilla block id") }
@@ -207,8 +207,6 @@ private fun OpReader.sizeVec(key: String, uniform: Boolean): Value<Vec3> {
 }
 
 private val TRAIL_STYLES = setOf("soft", "crisp", "both")
-
-private val EASES = setOf("linear", "ease_in", "ease_out", "ease_in_out")
 
 private object VisualOpDecoder : OpDecoder {
     override val section = OpSection.PRESENTATION

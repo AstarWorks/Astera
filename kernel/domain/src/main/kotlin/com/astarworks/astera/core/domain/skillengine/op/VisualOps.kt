@@ -191,7 +191,7 @@ public data class TrackKey(
     val turn: Value<com.astarworks.astera.core.domain.geometry.Vec3>?,
     /** Per-axis scale factor on the visual's authored size: a mesh scales x/y/z, a plate x = width and y = height (z ignored). A bare number in YAML is the uniform shorthand. */
     val scale: Value<com.astarworks.astera.core.domain.geometry.Vec3>?,
-    /** `linear` (default), `ease_in`, `ease_out`, `ease_in_out`: easing of the segment ENDING at this key. */
+    /** Easing of the segment ENDING at this key: `linear` (default), `step`, or `in_` / `out_` / `in_out_` + sine, quad, cubic, quart, quint, expo, circ, back, elastic, bounce (the v1 `Easing` names). */
     val ease: String?,
     /** Absolute opacity 0..1 of a plate / quad (lerped between keyed neighbours); not for a mesh or block. */
     val alpha: Value<Double>? = null,

@@ -571,10 +571,5 @@ public class PresentationRuntime(
         return lerp(value(a), value(b), ease(b.ease, raw))
     }
 
-    private fun ease(name: String?, f: Double): Double = when (name) {
-        "ease_in" -> f * f
-        "ease_out" -> 1.0 - (1.0 - f) * (1.0 - f)
-        "ease_in_out" -> if (f < 0.5) 2.0 * f * f else 1.0 - 2.0 * (1.0 - f) * (1.0 - f)
-        else -> f
-    }
+    private fun ease(name: String?, f: Double): Double = name?.let { com.astarworks.astera.core.domain.animation.Easing.fromKey(it) }?.apply(f) ?: f
 }

@@ -313,7 +313,7 @@ class PresentationOpsScenarioTest {
                 "target" to "m", "space" to "world",
                 "keys" to listOf(
                     mapOf("t" to 0, "offset" to listOf(0, 0, 0)),
-                    mapOf("t" to 4, "offset" to listOf(0, 2, 0), "scale" to "\${n}", "ease" to "ease_out"),
+                    mapOf("t" to 4, "offset" to listOf(0, 2, 0), "scale" to "\${n}", "ease" to "out_quad"),
                 ),
             ),
         ) as VisualOp.Track
