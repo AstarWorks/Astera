@@ -114,6 +114,7 @@ internal class SkillEnginePaperRuntime(
         val worldId = { entities.activeWorld()?.let { WorldId(it.name) } ?: visuals.activeWorld() }
         activeEntities = entities
         val particleRegistry = services.get<com.astarworks.astera.core.application.port.outbound.IParticleRegistry>()
+        val toolBlocks = lazy { ports.toolBlocks?.invoke(services) }
         lateinit var built: SkillEngineKit
         val gateways = SkillEngineGateways(
             ports = SkillRuntimePorts(
@@ -145,6 +146,10 @@ internal class SkillEnginePaperRuntime(
                 guard = { ports.blockEditGuard?.invoke(services) },
                 covers = { services.get<ICustomBlockRegistry>() },
                 structures = { services.get<IStructureTargets>() },
+                toolBlocks = toolBlocks::value,
+                cover = { services.get<com.astarworks.astera.core.application.service.CoverBlockService>() },
+                items = { services.get<com.astarworks.astera.core.application.port.outbound.IItemRegistry>() },
+                itemOf = { cast -> built.hosts.itemOf(cast) },
             ),
             casterAnim = PaperSkillCasterAnimGateway(
                 rigs = { services.get<com.astarworks.astera.core.application.port.outbound.animation.ISkinRigAnimator>() },

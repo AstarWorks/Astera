@@ -5,6 +5,14 @@ import com.astarworks.astera.core.application.port.outbound.IBlockStateGateway
 import com.astarworks.astera.core.application.port.outbound.ICustomBlockRegistry
 import com.astarworks.astera.core.application.port.outbound.IStructureTargets
 import com.astarworks.astera.core.domain.world.ToolKind
+import com.astarworks.astera.combat.application.port.outbound.IToolBlockGateway
+import com.astarworks.astera.core.application.port.outbound.IItemRegistry
+import com.astarworks.astera.core.application.service.CoverBlockService
+import com.astarworks.astera.core.application.usecase.block.HitCustomBlockUseCase
+import com.astarworks.astera.core.domain.item.ItemId
+import com.astarworks.astera.core.domain.world.BlockHpRules
+import com.astarworks.astera.core.domain.world.ToolTier
+import com.astarworks.astera.core.domain.world.ToolType
 import com.astarworks.astera.core.domain.world.BlockType
 import com.astarworks.astera.core.application.skillengine.runtime.CastId
 import com.astarworks.astera.core.application.skillengine.runtime.port.BlockDamageOutcome
@@ -36,6 +44,13 @@ public class PaperSkillWorldGateway(
     private val covers: () -> ICustomBlockRegistry?,
     /** Lazy: Match registers the structure targets (Annihilation pillars) after Combat wires. */
     private val structures: () -> IStructureTargets? = { null },
+    /** Mining I/O of tool skills: surface hardness, drops with the tool, hit and break feedback. */
+    private val toolBlocks: () -> IToolBlockGateway? = { null },
+    /** Crack overlay and cover strikes; the one door cover damage goes through. */
+    private val cover: () -> CoverBlockService? = { null },
+    private val items: () -> IItemRegistry? = { null },
+    /** The item the cast's skill is bound to; its tool tier sets the damage tier. */
+    private val itemOf: (CastId) -> String? = { null },
 ) : ISkillWorldGateway {
 
     private fun block(cell: BlockCell): Block? = world()?.getBlockAt(cell.x, cell.y, cell.z)
@@ -83,6 +98,8 @@ public class PaperSkillWorldGateway(
         val owner = ownerOf(cast) ?: return BlockDamageOutcome.NONE
         structures()?.targetAtBlock(worldId(w), pos(cell))?.let { return strikeStructure(w, it, owner, blockDamage, toolClass) }
         val gateway = blocks() ?: return BlockDamageOutcome.NONE
+        val kind = toolClass?.let { runCatching { ToolKind.valueOf(it.uppercase()) }.getOrNull() }?.takeIf { it != ToolKind.NONE }
+        if (kind != null) return strikeWithTool(cast, w, cell, PlayerId(owner), gateway, blockDamage, kind)
         val result = gateway.applyDamageFromSkill(
             worldId(w), pos(cell), SkillId("skill-engine"), PlayerId(owner), BlockDamageProfile.flat(blockDamage),
         )
@@ -91,6 +108,69 @@ public class PaperSkillWorldGateway(
             is com.astarworks.astera.core.domain.block.BlockDamageOutcome.Damaged -> BlockDamageOutcome.CHIPPED
             is com.astarworks.astera.core.domain.block.BlockDamageOutcome.Broken -> BlockDamageOutcome.BROKEN
             else -> BlockDamageOutcome.NONE
+        }
+    }
+
+    /**
+     * A tool skill (`tool_class`) strikes [cell]: the (tool, block) matrix and tier set the damage, the block keeps its
+     * HP across casts, the crack overlay follows it, and a break drops what the tool would drop by hand.
+     */
+    private fun strikeWithTool(
+        cast: CastId,
+        w: World,
+        cell: BlockCell,
+        owner: PlayerId,
+        gateway: IBlockStateGateway,
+        blockDamage: Int,
+        kind: ToolKind,
+    ): BlockDamageOutcome {
+        val world = worldId(w)
+        val at = pos(cell)
+        val tier = itemOf(cast)?.let { id -> items()?.let { HitCustomBlockUseCase.toolOf(it, ItemId(id)) } }?.tier ?: ToolTier.STONE
+        val tool = ToolType(kind, tier)
+        val tools = toolBlocks()
+        val skill = SkillId("skill-engine")
+        if (gateway.isCover(world, at)) {
+            val spec = block(cell)?.let { covers()?.resolveByBlockData(it.blockData.asString) }
+            val outcome = (cover()?.strikeCell(
+                owner, world, at, skill, BlockDamageProfile(blockDamage, tool), CoverBlockService.Feedback.swing(kind),
+            ) as? AsteraResult.Success)?.value
+            return when (outcome) {
+                is CoverBlockService.CellOutcome.Broken -> {
+                    spec?.placedFrom?.let { tools?.dropCustom(world, at, owner, it) }
+                    BlockDamageOutcome.BROKEN
+                }
+                is CoverBlockService.CellOutcome.Chipped -> { tools?.hitEffect(world, at); BlockDamageOutcome.CHIPPED }
+                is CoverBlockService.CellOutcome.Ineffective -> { tools?.clink(world, at); BlockDamageOutcome.NONE }
+                null -> BlockDamageOutcome.NONE
+            }
+        }
+        val surface = tools?.surface(world, at)
+        val baseType = surface?.data?.substringBefore('[')?.let(::BlockType) ?: blockAt(cell)?.let(::BlockType)
+        val hardness = surface?.hardness ?: baseType?.let(BlockHpRules::simulatedHardness) ?: 1.5
+        if (hardness < 0) return BlockDamageOutcome.NONE
+        val preferred = baseType == null || preferredKind(baseType) == kind.name
+        val maxHp = BlockHpRules.maxHp(hardness)
+        val hp = gateway.damageBlock(world, at, maxHp, BlockHpRules.damage(blockDamage, tool, preferred, hardness))
+        cover()?.showHp(world, at, hp, maxHp)
+        if (hp > 0) {
+            tools?.hitEffect(world, at)
+            return BlockDamageOutcome.CHIPPED
+        }
+        val toolData = runCatching { tools?.heldTool(owner, kind.name, tool.tier.name) }.getOrNull()
+        if (tools != null) tools.breakBlock(world, at, owner, toolData) else remove(cell)
+        surface?.let { tools?.effect(world, at, it.data, false) }
+        return BlockDamageOutcome.BROKEN
+    }
+
+    /** Preferred class for solid terrain; hand-breakable surfaces do not need a class bonus. */
+    private fun preferredKind(type: BlockType): String {
+        val id = type.identifier
+        return when {
+            id.contains("sandstone") || id.contains("mud_brick") -> "PICKAXE"
+            SOIL_WORDS.any { it in id } -> "SHOVEL"
+            WOOD_WORDS.any { it in id } -> "AXE"
+            else -> "PICKAXE"
         }
     }
 
@@ -127,5 +207,10 @@ public class PaperSkillWorldGateway(
             return true
         }
         return false
+    }
+
+    private companion object {
+        val SOIL_WORDS: List<String> = listOf("dirt", "grass_block", "sand", "gravel", "clay", "mud", "snow", "podzol", "mycelium", "soul_soil", "farmland")
+        val WOOD_WORDS: List<String> = listOf("plank", "log", "wood", "stem", "hyphae", "leaves", "fence", "door", "bookshelf", "scaffolding", "bamboo", "wool", "hay_block", "carpet")
     }
 }
