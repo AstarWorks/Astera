@@ -275,7 +275,10 @@ class CastSim(
             gpLine("block", "\"k\":\"damage\",${cellAt(cell)},\"amount\":$blockDamage,\"tool\":${toolClass?.let { jq(it) }}")
             return BlockDamageOutcome.CHIPPED
         }
-        override fun place(cell: BlockCell, blockKey: String) { gpLine("block", "\"k\":\"place\",${cellAt(cell)},\"block\":${jq(blockKey)}") }
+        override fun place(cell: BlockCell, blockKey: String): Boolean {
+            gpLine("block", "\"k\":\"place\",${cellAt(cell)},\"block\":${jq(blockKey)}")
+            return true
+        }
         override fun remove(cell: BlockCell) { gpLine("block", "\"k\":\"break\",${cellAt(cell)}") }
         override fun placeCover(cast: CastId, cell: BlockCell, blockKey: String): Boolean {
             gpLine("block", "\"k\":\"place\",${cellAt(cell)},\"block\":${jq(blockKey)},\"cover\":true")
