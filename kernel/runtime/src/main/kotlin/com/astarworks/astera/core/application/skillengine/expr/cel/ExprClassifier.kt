@@ -24,11 +24,11 @@ public object ExprClassifier {
     private val STRING = Regex("""'(?:[^'\\]|\\.)*'|"(?:[^"\\]|\\.)*"""")
     private val IDENT = Regex("""[A-Za-z_][A-Za-z0-9_]*(?:\.[A-Za-z_][A-Za-z0-9_]*)*""")
     private val CALL = Regex("""([A-Za-z_][A-Za-z0-9_]*)\s*\(""")
-    private val RAND = Regex("""(?<![A-Za-z0-9_.])rand\s*\(""")
+    private val RAND = Regex("""(?<![A-Za-z0-9_.])(?:rand|roll|roll_unit|draw|draw_unit)\s*\(""")
 
     private val TIME_VARS = setOf("t", "lt", "cast.t", "state.t")
     private val LIVE_FRAME_FUNCTIONS = setOf(
-        "pos", "vel", "speed", "axis", "forward", "up", "left", "right", "dist", "dist_xz", "in_cone", "behind", "hp_ratio", "enemy_in_cone",
+        "pos", "velocity", "speed", "axis", "forward", "up", "left", "right", "dist", "dist_xz", "in_cone", "behind", "hp_ratio", "enemy_in_cone",
     )
     private val LIVE_WORLD_FUNCTIONS = setOf("aim_point", "look_dir", "nearest_enemy_dist", "enemy_in_cone", "counter")
     private val LIVE_ENTITIES = setOf("caster", "target", "victim", "enemy")
@@ -106,7 +106,7 @@ public object ExprClassifier {
         }
         val a = analyse(source) { name -> lc.anchors.resolve(name)?.basis }
         val why = when {
-            a.usesRand -> "rand() is drawn at run time; a random delay is a value in a non-timing field, never a time (C5)"
+            a.usesRand -> "rand / roll / draw are random per cast; a random delay is a value in a non-timing field, never a time (C5, R11)"
             a.usesTime -> "t / lt change every tick; timing is resolved to integers at compile time (C5)"
             a.usesLive -> "a live (class L) value, with or without a bound, cannot schedule anything; use until: / range: (C5)"
             a.usesRuntimePosition -> "contact / target / caster positions are only known at run time (C4c, C5)"

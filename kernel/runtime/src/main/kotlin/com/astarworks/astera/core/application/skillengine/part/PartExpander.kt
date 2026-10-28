@@ -26,7 +26,7 @@ public class PartExpander(private val parts: Map<String, Part>, private val maxD
     public fun expand(machine: Machine): Result<Machine, PartError> = try {
         val out = Out()
         val entry = level(machine, "", "", 0, emptyList(), out).first
-        Result.success(Machine(entry, out.states, out.links))
+        Result.success(Machine(entry, out.states, out.links, machine.world))
     } catch (e: PartAbort) {
         Result.failure(e.error)
     }
@@ -141,6 +141,7 @@ internal object Binding {
         for (k in part.framesIn.keys) if (k !in call.frames) abort("$where.frames.$k", "frame '$k' of part '${part.id}' is not bound")
         val env = Env(values, call.frames)
         val m = part.machine
+        if (m.world.isNotEmpty()) abort("$where.world", "part '${part.id}' declares machine.world: only a skill machine owns cast-level rows")
         return Machine(
             start = m.start,
             states = m.states.mapValues { (_, s) -> state(s, env) },

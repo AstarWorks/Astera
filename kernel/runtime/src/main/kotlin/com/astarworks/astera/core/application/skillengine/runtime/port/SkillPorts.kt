@@ -221,6 +221,9 @@ public interface ISkillGameplayGateway {
 
     /** Ends the [anim] clip on [caster] (the `body` window closed). A clip that is not playing is a no-op. */
     public fun stopBodyClip(cast: CastRef, caster: UUID, anim: String)
+
+    /** Plays [target]'s hurt animation as if struck from [from] (R44): no damage, no push, no strength. */
+    public fun hurt(cast: CastRef, target: UUID, from: Vec3)
 }
 
 /**

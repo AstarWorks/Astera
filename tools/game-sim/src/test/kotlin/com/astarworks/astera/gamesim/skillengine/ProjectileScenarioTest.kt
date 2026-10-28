@@ -314,4 +314,18 @@ class ProjectileScenarioTest : SkillEngineScenario() {
         assertEquals(1, end.size)
         assertEquals(end.single().tick, expire.single().tick)
     }
+
+    @Test
+    fun hitShapeCapsulesFrames() {
+        val nob = "id: bolt, op: projectile, origin: muzzle, velocity: \"= forward * 1.0\""
+        val shape = "shape: {capsule: 0.22, from: root, to: tip, frames: [lane_a, lane_b]}"
+        val s = compile("{$nob, speed: 1.0, range: 12, hit: {targets: enemies, once: true, $shape}, block: {mode: despawn}}")
+        val look = s.rows().map { it.action }.filterIsInstance<Action.Spawn>().single { it.kind == com.astarworks.astera.core.domain.skillengine.table.SpawnKind.PROJECTILE_BODY }.look.fields
+        assertTrue(look.containsKey("hit.shape.radius"))
+        assertTrue(look.containsKey("hit.shape.frame.0") && look.containsKey("hit.shape.frame.1.to"))
+        assertTrue(!look.containsKey("radius"))
+        // exactly one of radius / hit.shape
+        assertTrue(failure("{$base, speed: 1.0, range: 12, hit: {targets: enemies, once: true, $shape}, block: {mode: despawn}}").toString().contains("exclusive"))
+        assertTrue(failure("{$nob, speed: 1.0, range: 12, hit: {targets: enemies, once: true}, block: {mode: despawn}}").toString().contains("hit.shape"))
+    }
 }

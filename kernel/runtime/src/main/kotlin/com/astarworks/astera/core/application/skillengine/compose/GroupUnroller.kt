@@ -245,6 +245,27 @@ public object GroupUnroller {
         val path = lc.src.value
         fun tick(field: String, v: Value<Double>): Result<Int, SkillDecodeError> = lc.requireStaticTiming(path, field, v)
 
+        val every = t.every
+        val timesN: Int? = if (t.times == null) null else when (val r = tick("times", t.times)) {
+            is Result.Success -> r.value
+            is Result.Failure -> return r
+        }
+        if (timesN != null && timesN < 1) return fail(SkillDecodeError.Invalid(lc.skillId, "$path.times", "times must be at least 1"))
+
+        // R28: a family of simultaneous copies (times without every) reads `i` in `at` as its OWN index (`at: [0, 2, 5, 9]`).
+        val atExpr = (t.at as? TimeAt.Tick)?.ticks as? Value.Expr
+        if (every == null && timesN != null && atExpr != null) {
+            val starts = ArrayList<Int>(timesN)
+            for (k in 0 until timesN) {
+                when (val r = lc.child(node.id, k, timesN, 0).requireStaticTiming(path, "at", atExpr)) {
+                    is Result.Success -> starts += r.value
+                    is Result.Failure -> return r
+                }
+            }
+            if (starts.any { it < 0 }) return fail(SkillDecodeError.Invalid(lc.skillId, "$path.at", "at must not be negative"))
+            return Result.Success(Schedule(starts, true, null))
+        }
+
         val start = when (val at = t.at) {
             null -> 0
             is TimeAt.Tick -> when (val r = tick("at", at.ticks)) {
@@ -254,13 +275,6 @@ public object GroupUnroller {
             is TimeAt.Event -> at.offsetTicks
         }
         if (start < 0) return fail(SkillDecodeError.Invalid(lc.skillId, "$path.at", "at must not be negative"))
-
-        val every = t.every
-        val timesN: Int? = if (t.times == null) null else when (val r = tick("times", t.times)) {
-            is Result.Success -> r.value
-            is Result.Failure -> return r
-        }
-        if (timesN != null && timesN < 1) return fail(SkillDecodeError.Invalid(lc.skillId, "$path.times", "times must be at least 1"))
 
         if (every == null) {
             // single occurrence, or a family of simultaneous instances id[i]

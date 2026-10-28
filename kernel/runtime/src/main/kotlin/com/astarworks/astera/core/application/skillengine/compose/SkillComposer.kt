@@ -254,7 +254,7 @@ class SkillComposer(private val root: Path, private val options: ComposeOptions 
     private val opLists = setOf("enter", "do", "exit")
 
     /**
-     * Skin patches may touch only presentation ops inside states: a path `machine.states.<s>.{enter,do,exit}[<id>]...` whose deepest
+     * Skin patches may touch only presentation ops inside states: a path `machine.states.<s>.{enter,do,exit}[<id>]...` or `machine.states.<s>.on[<event>].do[<id>]...` (a transition's effects) whose deepest
      * `[id]` row is a presentation op (or, for a whole-row add / replace / delete, a group of them). Inside such a row only the row's own
      * fields change: a group takes whole-child operations only (`do[g].do[c]`), and an op's `on.<event>` lists are reached through their
      * rows (`do[shot].on.hit[boom]`), never as a whole. Anything else (gameplay or control rows, `for`, `then`, `on`, `final`, `use`, new
@@ -268,7 +268,8 @@ class SkillComposer(private val root: Path, private val options: ComposeOptions 
         val state = segs.getOrNull(2)
         val section = segs.getOrNull(3)
         val ok = head?.name == "machine" && head.id == null && states?.name == "states" && states.id == null &&
-            state != null && state.id == null && section != null && section.name in opLists && section.id != null
+            state != null && state.id == null && section != null && section.id != null &&
+            (section.name in opLists || (section.name == "on" && segs.getOrNull(4).let { it?.name == "do" && it.id != null }))
         if (!ok) return op.path
         val deepest = segs.indices.last { segs[it].id != null }
         val row = rowAt(base, segs, deepest)
@@ -291,7 +292,7 @@ class SkillComposer(private val root: Path, private val options: ComposeOptions 
         for (i in 0..upTo) {
             val m = node as? Map<*, *> ?: return null
             val child = m[segs[i].name]
-            node = if (segs[i].id == null) child else (child as? List<*>)?.firstOrNull { (it as? Map<*, *>)?.get("id") == segs[i].id }
+            node = if (segs[i].id == null) child else (child as? List<*>)?.singleOrNull { PatchApplier.matches(it, segs[i].id!!) }
         }
         return node as? Map<*, *>
     }
