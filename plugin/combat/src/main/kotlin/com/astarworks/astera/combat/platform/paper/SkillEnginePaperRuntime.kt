@@ -174,6 +174,9 @@ internal class SkillEnginePaperRuntime(
             },
         )
         kit = built
+        applyDamage.incomingInterceptor = com.astarworks.astera.combat.application.port.outbound.IIncomingDamageInterceptor { target, attacker, amount ->
+            built.runner.intercept(target.uuid, attacker.uuid, amount)
+        }
 
         tickHandle = scheduler.runRepeatingTicks(ExecutionScope.Global, 1L, 1L) {
             built.runner.tick(scheduler.currentTick().toInt())

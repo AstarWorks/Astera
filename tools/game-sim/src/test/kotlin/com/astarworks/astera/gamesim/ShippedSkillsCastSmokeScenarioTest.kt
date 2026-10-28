@@ -38,7 +38,8 @@ class ShippedSkillsCastSmokeScenarioTest {
                 sim.cast(id, 260)
                 cast++
                 if (sim.dealt.isNotEmpty()) damaged++
-                if (hasDamage && sim.dealt.isEmpty()) problems += "$id: has a damage op but hurt nobody"
+                val reactive = Files.walk(skillsDir.resolve(id)).use { s -> s.filter { it.toString().endsWith(".yaml") }.anyMatch { Regex("""op:\s*window\b""").containsMatchIn(Files.readString(it)) } }
+                if (hasDamage && !reactive && sim.dealt.isEmpty()) problems += "$id: has a damage op but hurt nobody"
                 if (sim.farthest.second > 30.0) problems += "$id: a frame ${"%.1f".format(sim.farthest.second)} blocks from the caster (${sim.farthest.first}); a world point was probably used as a parent-local offset"
             } catch (e: Throwable) {
                 problems += "$id: ${e::class.simpleName}: ${e.message?.take(300)}"

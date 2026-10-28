@@ -90,6 +90,16 @@ public class DelayOpExecutor : OpExecutor<ControlOp.Delay> {
     }
 }
 
+/** Opens an event window on the caster; the cast keeps running while it is open. */
+public class WindowOpExecutor : OpExecutor<ControlOp.Window> {
+    override val opClass: KClass<ControlOp.Window> = ControlOp.Window::class
+
+    override fun execute(op: ControlOp.Window, ctx: OpContext) {
+        val ticks = ctx.ticks(op.ticks)
+        if (ticks > 0) ctx.host.openWindow(op, ticks)
+    }
+}
+
 /** First case whose guard holds; otherwise the `else` list. */
 public class ChooseOpExecutor : OpExecutor<ControlOp.Choose> {
     override val opClass: KClass<ControlOp.Choose> = ControlOp.Choose::class
@@ -176,6 +186,7 @@ public fun registerControlOpExecutors(registry: OpExecutorRegistry) {
     registry.register(IfOpExecutor())
     registry.register(LoopOpExecutor())
     registry.register(DelayOpExecutor())
+    registry.register(WindowOpExecutor())
     registry.register(ChooseOpExecutor())
     registry.register(WeightedBranchOpExecutor())
     registry.register(ForEachOpExecutor())

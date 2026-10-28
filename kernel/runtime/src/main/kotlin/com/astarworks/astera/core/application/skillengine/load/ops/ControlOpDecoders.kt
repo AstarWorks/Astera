@@ -10,6 +10,7 @@ import com.astarworks.astera.core.domain.skillengine.op.ControlOp
 import com.astarworks.astera.core.domain.skillengine.op.GameplayOp
 import com.astarworks.astera.core.domain.skillengine.op.OpSection
 import com.astarworks.astera.core.domain.skillengine.op.SkillOp
+import com.astarworks.astera.core.domain.skillengine.op.WindowEvent
 
 /**
  * Control family. YAML names: freeze, schedule, event (alias raise_event), cast_skill, if, loop,
@@ -23,7 +24,7 @@ public class ControlOpDecoders : OpDecoder {
 
     override val opNames: Set<String> = setOf(
         "freeze", "schedule", "event", "raise_event", "cast_skill", "if", "loop", "choose",
-        "weighted_branch", "for_each", "delay", "counter", "set_cooldown", "give_item", "consume_item",
+        "weighted_branch", "for_each", "delay", "window", "counter", "set_cooldown", "give_item", "consume_item",
     )
 
     override fun decode(op: String, id: String, whenExpr: Value<Boolean>?, reader: OpReader): SkillOp = when (op) {
@@ -44,6 +45,19 @@ public class ControlOpDecoders : OpDecoder {
             body = gameplay(reader, "do"),
         )
         "delay" -> ControlOp.Delay(id, whenExpr, reader.requireNumber("after"), gameplay(reader, "do"))
+        "window" -> {
+            val key = reader.string("listen") ?: "incoming_hit"
+            ControlOp.Window(
+                id, whenExpr,
+                listen = WindowEvent.of(key) ?: reader.fail("window: unknown listen '$key' (incoming_hit)"),
+                ticks = reader.requireNumber("ticks"),
+                once = reader.bool("once") ?: true,
+                absorb = reader.bool("absorb") ?: false,
+                scale = (reader.raw("scale") as? Number)?.toDouble() ?: if (reader.bool("absorb") == true) 0.0 else 1.0,
+                filter = reader.boolValue("filter"),
+                body = gameplay(reader, "do"),
+            )
+        }
         "choose" -> ControlOp.Choose(
             id, whenExpr,
             cases = reader.entries("cases").map { c ->

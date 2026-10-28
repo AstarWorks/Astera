@@ -60,7 +60,7 @@ public class CastRunnerDeps(
  * handlers call the registered [OpExecutor]s; no op semantics live here. A cast keeps the `CompiledSkill` it
  * started with, so a per-skill reload swaps definitions for the next cast only.
  */
-public class DefaultCastRunner(private val deps: CastRunnerDeps) : CastRunner {
+public class DefaultCastRunner(private val deps: CastRunnerDeps) : CastRunner, IncomingHitHook {
     private val ids = AtomicLong(1)
     private val casts = LinkedHashMap<Long, CastInstance>()
     private val bank = ExprBank(deps.exprs)
@@ -112,6 +112,15 @@ public class DefaultCastRunner(private val deps: CastRunnerDeps) : CastRunner {
         }
         deps.dashes.tick()
         deps.world.tick()
+    }
+
+    @Synchronized
+    override fun intercept(target: UUID, attacker: UUID, amount: Double): Double {
+        var multiplier = 1.0
+        for (cast in casts.values) {
+            if (cast.request.caster == target && cast.request.caster != attacker) multiplier *= cast.interceptIncoming(attacker, amount)
+        }
+        return multiplier
     }
 
     /** Failures reported so far (ops without executor, bad expressions, ...). */

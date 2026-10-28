@@ -377,6 +377,8 @@ class ControlFlowScenarioTest {
         }
         override fun freezeFrames(frames: List<String>, ticks: Int) = Unit
         override fun castSkill(skillId: String) = Unit
+        override fun openWindow(op: com.astarworks.astera.core.domain.skillengine.op.ControlOp.Window, ticks: Int) = Unit
+
         override fun addCounter(key: String, delta: Double) {
             counters.merge(key, delta, Double::plus)
             counterLog += now to key

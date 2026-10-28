@@ -59,6 +59,24 @@ public sealed interface ControlOp : GameplayOp {
         val body: List<GameplayOp>,
     ) : ControlOp
 
+    /**
+     * Event-sourced window: for [ticks] ticks, [listen] on the caster is watched. Each occurrence is passed through
+     * [filter] (CEL, `incoming.amount` and `victim` = the attacker bound); on a pass the incoming damage is
+     * multiplied by [scale] (0 = negated, [absorb]) and [body] runs once with the attacker as the current victim on the
+     * next cast tick. [once] closes the window after the first pass. The cast stays alive while a window is open.
+     */
+    public data class Window(
+        override val id: String,
+        override val whenExpr: Value<Boolean>?,
+        val listen: WindowEvent,
+        val ticks: Value<Double>,
+        val once: Boolean,
+        val absorb: Boolean,
+        val scale: Double,
+        val filter: Value<Boolean>?,
+        val body: List<GameplayOp>,
+    ) : ControlOp
+
     public data class Choose(
         override val id: String,
         override val whenExpr: Value<Boolean>?,
@@ -108,4 +126,15 @@ public sealed interface ControlOp : GameplayOp {
         val item: String,
         val count: Value<Double>,
     ) : ControlOp
+}
+
+/** What a [ControlOp.Window] listens for on the caster. */
+public enum class WindowEvent(public val key: String) {
+    /** A hit from another entity reaches the caster through the damage pipeline. */
+    INCOMING_HIT("incoming_hit"),
+    ;
+
+    public companion object {
+        public fun of(key: String): WindowEvent? = entries.firstOrNull { it.key == key }
+    }
 }

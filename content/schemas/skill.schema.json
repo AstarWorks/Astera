@@ -382,7 +382,8 @@
                         "summon",
                         "summon_lightning",
                         "teleport",
-                        "weighted_branch"
+                        "weighted_branch",
+                        "window"
                     ]
                 }
             },
@@ -520,6 +521,21 @@
                     },
                     "then": {
                         "$ref": "#/definitions/op_dash_strike"
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "op": {
+                                "const": "window"
+                            }
+                        },
+                        "required": [
+                            "op"
+                        ]
+                    },
+                    "then": {
+                        "$ref": "#/definitions/op_window"
                     }
                 },
                 {
@@ -2219,6 +2235,62 @@
             "required": [
                 "id",
                 "op"
+            ],
+            "additionalProperties": true
+        },
+        "op_window": {
+            "type": "object",
+            "description": "Event window on the caster: for `ticks` ticks, each `incoming_hit` that passes `filter` is scaled by `scale` (absorb = 0) and runs `do` once with the attacker bound as victim on the next tick. The cast stays alive while the window is open.",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "unique within the skill (patches address ops by id)"
+                },
+                "op": {
+                    "const": "window"
+                },
+                "when": {
+                    "$ref": "#/definitions/Value_boolean"
+                },
+                "listen": {
+                    "enum": [
+                        "incoming_hit"
+                    ],
+                    "default": "incoming_hit"
+                },
+                "ticks": {
+                    "$ref": "#/definitions/Value_number"
+                },
+                "once": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "close the window after the first hit that passes"
+                },
+                "absorb": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "negate the incoming damage (scale 0)"
+                },
+                "scale": {
+                    "type": "number",
+                    "description": "damage multiplier for a passing hit (default 0 with absorb, else 1)"
+                },
+                "filter": {
+                    "$ref": "#/definitions/Value_boolean",
+                    "description": "CEL guard; `victim` is the attacker, `incoming.amount` the damage"
+                },
+                "do": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/GameplayOp"
+                    }
+                }
+            },
+            "required": [
+                "id",
+                "op",
+                "ticks"
             ],
             "additionalProperties": true
         },
