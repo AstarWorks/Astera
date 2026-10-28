@@ -579,10 +579,9 @@ class Conv:
             op = {"id": self.oid("emit"), "op": "emit", "at": at, "particle": part["id"], "count": part.get("count", 1)}
             if "color" in part:
                 op["color"] = color_hex(part["color"])
-            if part.get("extra"):
-                op["speed"] = part["extra"]
-            if "scale" in part or "offset" in part:
-                self.present("particle scale / offset (emit has neither)", short({k: part[k] for k in ("scale", "offset") if k in part}, 60))
+            particle_vanilla(op, part)
+            if "scale" in part:
+                self.present("particle scale (dust size; emit has none)", short(part["scale"], 60))
             self.p(where, d2, self._w(op, when))
 
     # ---------- vfx inlining ----------
@@ -765,6 +764,14 @@ class Conv:
 
 # ---------------------------------------------------------------- skill-level driver
 
+def particle_vanilla(op, part):
+    """v1 particle part: vanilla `spawnParticle` offset / extra, carried 1:1 (never mapped onto dir / speed)."""
+    off = part.get("offset")
+    if off:
+        op["offset"] = [off.get("x", 0.0), off.get("y", 0.0), off.get("z", 0.0)] if isinstance(off, dict) else off
+    op["extra"] = part.get("extra", 0.0)  # always present: it selects the vanilla spawn
+
+
 def _loc(point):
     """Gameplay `at:` location: `contact.point` is a CEL variable, not a frame point, so it needs the value form."""
     return "= contact.point" if point == "contact.point" else point
@@ -858,10 +865,14 @@ def convert_skill(d, vfx_dir, item):
         muzzle = c.pframe("caster.eye", [0.0, up, fw], "g")
         speed = c.param("launch_speed", params["launch_speed"])
         life = c.param("max_lifetime_ticks", params["max_lifetime_ticks"])
-        aim = c.param("aim_distance", V(params.get("aim_distance", 50.0)))
-        c.g(CAST, 0, {"id": "bolt", "op": "projectile", "body": "bolt", "from": muzzle,
-                      "velocity": "= normalize(aim_point(caster, %s) - pos(%s)) * %s" % (c.pname(aim), muzzle, c.pname(speed)),
-                      "max_ticks": life, "radius": V(params.get("hit_radius", 0.3))})
+        # v1: aim_distance 0 (default) = fly parallel to the look ray; > 0 = dive onto the look-ray point.
+        if params.get("aim_distance", 0.0) > 0.0:
+            aim = c.param("aim_distance", V(params["aim_distance"]))
+            vel = "= normalize(aim_point(caster, %s) - pos(%s)) * %s" % (c.pname(aim), muzzle, c.pname(speed))
+        else:
+            vel = "= look(caster) * %s" % c.pname(speed)
+        c.g(CAST, 0, {"id": "bolt", "op": "projectile", "body": "bolt", "from": muzzle, "velocity": vel,
+                      "max_ticks": life, "radius": V(params.get("hit_radius", 0.5))})
         guard = "= event.source == 'bolt'" if guard_proj else None
         wh = Where("handler", "hit", guard)
         wb = Where("handler", "block", guard)
@@ -870,10 +881,13 @@ def convert_skill(d, vfx_dir, item):
         for tr in vis.get("trail") or []:
             for part in tr.get("particles", []):
                 op = {"id": c.oid("trail"), "op": "emit", "at": "bolt", "particle": part["id"], "count": part.get("count", 1)}
+                if vis.get("trail_spacing", 0.5) > 0:
+                    op["spacing"] = vis.get("trail_spacing", 0.5)
                 if "color" in part:
                     op["color"] = color_hex(part["color"])
-                if tr["type"] == "line" or "scale" in part or part.get("offset"):
-                    c.present("projectile trail shape / scale / offset (emit has none)", tr["type"])
+                particle_vanilla(op, part)
+                if tr["type"] == "line" or "scale" in part:
+                    c.present("projectile trail shape / scale (emit has none)", tr["type"])
                 c.p_rows.setdefault(("rep", 1), []).append(op)
         if vis.get("display"):
             disp = vis["display"]

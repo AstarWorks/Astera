@@ -1,7 +1,7 @@
 # Converted from content/skills/mace-quake.yaml + content/vfx/* by tools/skill-convert/convert.py (v1 archetype: aoe). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
 # Generated point-frame offsets are [left, up, forward] in the parent frame.
 # CONVERT-PRESENT particle animation ring (emit has no shape / ring / path: one burst at the anchor) (x1): {"end_radius": 3.5, "period_ticks": 6, "points": 16, "start_radius": 0.5}
-# CONVERT-PRESENT particle scale / offset (emit has neither) (x1): {"scale": 1.4}
+# CONVERT-PRESENT particle scale (dust size; emit has none) (x1): 1.4
 apiVersion: "astera/v2"
 kind: Skill
 id: mace-quake
@@ -13,6 +13,6 @@ presentation:
       at: 0
       do:
         - {id: snd, op: sound, sound: "astera:weapons/blade-heavy-swing", at: caster, volume: 1.0, pitch: 0.6}
-        - {id: emit, op: emit, at: pt_caster_0_0p15_0, particle: crit, count: 0, speed: 0.03}
-        - {id: emit_2, op: emit, at: pt_caster_0_0p15_0, particle: dust, count: 1, color: "#96785a"}
+        - {id: emit, op: emit, at: pt_caster_0_0p15_0, particle: crit, count: 0, extra: 0.03}
+        - {id: emit_2, op: emit, at: pt_caster_0_0p15_0, particle: dust, count: 1, color: "#96785a", extra: 0.0}
   "on": {hit: [{id: snd_2, op: sound, sound: "astera:weapons/blade-hit", at: contact.point, volume: 0.7, pitch: 1.0, when: "= event.source == 'burst'"}]}

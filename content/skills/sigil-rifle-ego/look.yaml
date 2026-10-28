@@ -7,7 +7,7 @@
 # CONVERT-PRESENT vfx follow=false (anchored at world, no place-at-spawn) (x4): sigil-rifle-shot | sigil-rifle-mark
 # CONVERT-PRESENT block element (mesh takes an item model, plate takes a sprite: no block / solid-colour primitive) (x25): red_concrete | black_concrete
 # CONVERT-PRESENT element brightness (no v2 equivalent) (x25): 15
-# CONVERT-PRESENT particle scale / offset (emit has neither) (x7): {"offset": {"x": 0, "y": 1, "z": 0}} | {"offset": {"x": 0, "y": 1, "z": 0}, "scale": 1.2}
+# CONVERT-PRESENT particle scale (dust size; emit has none) (x3): 1.2 | 1.5
 # CONVERT-PRESENT element formation (no v2 equivalent) (x3): {"align": "tangent", "curve": {"radius": 0.68, "type": "circ
 # CONVERT-PRESENT element count (no v2 equivalent) (x3): 12
 # CONVERT-PRESENT screen_flash has no v2 op (x1): {"color": "#FF9B29", "fade_out": 2, "overlay": "gold_burst", "stay": 1}
@@ -31,14 +31,14 @@ presentation:
       do:
         - {id: snd_2, op: sound, sound: item.crossbow.shoot, at: caster, pitch: 0.65}
         - {id: shake, op: camera_shake, target: caster, intensity: 0.2, ticks: 3}
-        - {id: emit_7, op: emit, at: pt_caster_0_m0p35_1p8, particle: dust, count: 16, color: "#f52a13", speed: 0.09}
-        - {id: emit_8, op: emit, at: pt_caster_0_m0p35_1p8, particle: smoke, count: 4, speed: 0.04}
+        - {id: emit_7, op: emit, at: pt_caster_0_m0p35_1p8, particle: dust, count: 16, color: "#f52a13", offset: [0.25, 0.25, 0.25], extra: 0.09}
+        - {id: emit_8, op: emit, at: pt_caster_0_m0p35_1p8, particle: smoke, count: 4, extra: 0.04}
     - {id: fx60, at: 60, do: [{id: snd_3, op: sound, sound: item.crossbow.shoot, at: caster, pitch: 0.65}, {id: shake_2, op: camera_shake, target: caster, intensity: 0.2, ticks: 3}]}
   "on":
     hit:
-      - {id: emit, op: emit, at: contact.point, particle: crit, count: 8, speed: 0.15, when: "= event.source == 'sel'"}
-      - {id: emit_2, op: emit, at: contact.point, particle: smoke, count: 5, speed: 0.04, when: "= event.source == 'sel'"}
-      - {id: emit_3, op: emit, at: contact.point, particle: dust, count: 14, color: "#f52a13", speed: 0.08, when: "= event.source == 'sel'"}
-      - {id: emit_4, op: emit, at: contact.point, particle: crit, count: 8, speed: 0.15, when: "= event.source == 'sel_3'"}
-      - {id: emit_5, op: emit, at: contact.point, particle: smoke, count: 5, speed: 0.04, when: "= event.source == 'sel_3'"}
-      - {id: emit_6, op: emit, at: contact.point, particle: dust, count: 14, color: "#f52a13", speed: 0.08, when: "= event.source == 'sel_3'"}
+      - {id: emit, op: emit, at: contact.point, particle: crit, count: 8, offset: [0, 1, 0], extra: 0.15, when: "= event.source == 'sel'"}
+      - {id: emit_2, op: emit, at: contact.point, particle: smoke, count: 5, offset: [0, 1, 0], extra: 0.04, when: "= event.source == 'sel'"}
+      - {id: emit_3, op: emit, at: contact.point, particle: dust, count: 14, color: "#f52a13", offset: [0, 1, 0], extra: 0.08, when: "= event.source == 'sel'"}
+      - {id: emit_4, op: emit, at: contact.point, particle: crit, count: 8, offset: [0, 1, 0], extra: 0.15, when: "= event.source == 'sel_3'"}
+      - {id: emit_5, op: emit, at: contact.point, particle: smoke, count: 5, offset: [0, 1, 0], extra: 0.04, when: "= event.source == 'sel_3'"}
+      - {id: emit_6, op: emit, at: contact.point, particle: dust, count: 14, color: "#f52a13", offset: [0, 1, 0], extra: 0.08, when: "= event.source == 'sel_3'"}

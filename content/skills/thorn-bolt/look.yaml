@@ -1,8 +1,8 @@
 # Converted from content/skills/thorn-bolt.yaml + content/vfx/* by tools/skill-convert/convert.py (v1 archetype: projectile). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
 # Generated point-frame offsets are [left, up, forward] in the parent frame.
-# CONVERT-PRESENT projectile trail shape / scale / offset (emit has none) (x4): point | line
+# CONVERT-PRESENT projectile trail shape / scale (emit has none) (x2): point | line
 # CONVERT-PRESENT particle animation line (emit has no shape / ring / path: one burst at the anchor) (x1): {"amount": 4, "angle": "random", "jitter": 0.2, "length": 1.4, "points_per_segment": 3, "segments": 
-# CONVERT-PRESENT particle scale / offset (emit has neither) (x1): {"scale": 1.2}
+# CONVERT-PRESENT particle scale (dust size; emit has none) (x1): 1.2
 # CONVERT-PRESENT particle animation ring (emit has no shape / ring / path: one burst at the anchor) (x1): {"angle": "random", "end_radius": 1.6, "period_ticks": 4, "points": 10, "start_radius": 0.3}
 apiVersion: "astera/v2"
 kind: Skill
@@ -13,17 +13,17 @@ frames:
 presentation:
   timeline:
     - {id: fx0, at: 0, do: [{id: snd, op: sound, sound: "astera:skill/wand/cast", at: caster, volume: 0.9, pitch: 1.4}, {id: emit, op: emit, at: pt_caster_0_m0p2_1, particle: verdant-cast, count: 1}]}
-    - {id: rep1, at: 0, every: 1, until: end, do: [{id: trail, op: emit, at: bolt, particle: happy_villager, count: 1}]}
-    - {id: rep2, at: 0, every: 1, until: end, do: [{id: trail_2, op: emit, at: bolt, particle: composter, count: 2}]}
-    - {id: rep3, at: 0, every: 1, until: end, do: [{id: trail_3, op: emit, at: bolt, particle: dust, count: 2, color: "#46aa3c"}]}
-    - {id: rep4, at: 0, every: 1, until: end, do: [{id: trail_4, op: emit, at: bolt, particle: dust, count: 1, color: "#287828"}]}
+    - {id: rep1, at: 0, every: 1, until: end, do: [{id: trail, op: emit, at: bolt, particle: happy_villager, count: 1, spacing: 0.3, offset: [0.08, 0.08, 0.08], extra: 0.0}]}
+    - {id: rep2, at: 0, every: 1, until: end, do: [{id: trail_2, op: emit, at: bolt, particle: composter, count: 2, spacing: 0.3, offset: [0.1, 0.1, 0.1], extra: 0.0}]}
+    - {id: rep3, at: 0, every: 1, until: end, do: [{id: trail_3, op: emit, at: bolt, particle: dust, count: 2, spacing: 0.3, color: "#46aa3c", offset: [0.08, 0.08, 0.08], extra: 0.0}]}
+    - {id: rep4, at: 0, every: 1, until: end, do: [{id: trail_4, op: emit, at: bolt, particle: dust, count: 1, spacing: 0.3, color: "#287828", extra: 0.0}]}
   "on":
     hit:
       - {id: snd_2, op: sound, sound: "astera:skills/nature-impact", at: contact.point, volume: 1.0, pitch: 0.7}
       - {id: emit_2, op: emit, at: pt_enemy_0_1_0, particle: verdant-impact, count: 1}
       - {id: emit_3, op: emit, at: pt_enemy_0_1_0, particle: verdant-impact-sparkle, count: 1}
-      - {id: emit_4, op: emit, at: pt_enemy_0_1_0, particle: dust, count: 1, color: "#3c9632"}
-      - {id: emit_5, op: emit, at: pt_enemy_0_1_0, particle: composter, count: 0, speed: 0.04}
+      - {id: emit_4, op: emit, at: pt_enemy_0_1_0, particle: dust, count: 1, color: "#3c9632", extra: 0.0}
+      - {id: emit_5, op: emit, at: pt_enemy_0_1_0, particle: composter, count: 0, extra: 0.04}
     block:
       - {id: snd_3, op: sound, sound: "astera:skills/nature-impact", at: contact.point, volume: 0.8, pitch: 0.8}
       - {id: emit_6, op: emit, at: contact.point, particle: verdant-impact, count: 1}
