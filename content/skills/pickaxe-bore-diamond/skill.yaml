@@ -5,4 +5,4 @@ kind: Skill
 id: pickaxe-bore-diamond
 item: diamond-pickaxe
 meta: {name: {ja: "ダイヤの掘削", en: "Diamond Bore"}, description: {ja: "正面に3x3のトンネルを掘り進む。", en: "Bores a 3x3 tunnel straight ahead."}, cooldown_ticks: 90, resource_cost: 0, tags: [tool, cover]}
-gameplay: {timeline: [{id: t0, at: 0, do: [{id: break, op: break_area, shape: line, length: 8, width: 3, height: 3, tool_class: PICKAXE, block_damage: 100}]}]}
+gameplay: {timeline: [{id: t0, at: 0, do: [{id: break, op: break_area, shape: line, radius: 2.0, length: 8, width: 3, height: 3, tool_class: PICKAXE, block_damage: 350, at: aim}]}]}
