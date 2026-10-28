@@ -3,6 +3,9 @@ package com.astarworks.astera.combat.adapter.paper.skillengine
 import com.astarworks.astera.combat.application.port.outbound.IDisplayEntityGateway
 import com.astarworks.astera.combat.application.port.outbound.IDisplayEntityGateway.DisplayHandle
 import com.astarworks.astera.core.adapter.paper.entity.PaperManagedEntities
+import com.astarworks.astera.core.application.skillengine.load.ItemFrames
+import com.astarworks.astera.core.application.skillengine.load.MeshModel
+import com.astarworks.astera.core.application.skillengine.load.MeshModels
 import com.astarworks.astera.core.application.skillengine.runtime.port.ISkillVisualGateway
 import com.astarworks.astera.core.application.skillengine.runtime.port.VisualHandle
 import com.astarworks.astera.core.domain.effect.DisplayBillboard
@@ -46,10 +49,8 @@ import kotlin.math.roundToInt
 public class PaperSkillVisualGateway(
     private val server: Server,
     private val displays: IDisplayEntityGateway,
-    /** Item model key of a mesh: item id and optional part (point-table part name). */
-    private val modelKey: (item: String, part: String?) -> String = { item, part ->
-        if (part == null) "astera:$item" else "astera:$item-${part.replace('_', '-')}"
-    },
+    /** Item point tables: a mesh part names its pack model there ([MeshModels]). */
+    private val frameTables: Map<String, ItemFrames> = emptyMap(),
 ) : ISkillVisualGateway {
 
     private val log = LoggerFactory.getLogger(javaClass)
@@ -76,8 +77,17 @@ public class PaperSkillVisualGateway(
 
     override fun spawnMesh(castOwner: UUID, item: String, part: String?, scale: Double, pose: Frame): VisualHandle {
         val world = worldOf(castOwner) ?: return dead("mesh $item")
+        val kind = when (val model = MeshModels.resolve(item, part, frameTables)) {
+            is MeshModel.Pack -> DisplayKind.Item(ItemId("paper"), DisplayItemMode.FIXED, model.key)
+            is MeshModel.Vanilla -> DisplayKind.Item(ItemId(model.material.replace('_', '-')), DisplayItemMode.FIXED, null)
+            MeshModel.HeldItem -> {
+                val held = server.getPlayer(castOwner)?.inventory?.itemInMainHand?.takeUnless { it.type.isAir }
+                    ?: return dead("mesh $item (empty main hand)")
+                DisplayKind.Item(ItemId(held.type.key.key.replace('_', '-')), DisplayItemMode.FIXED, held.itemMeta?.takeIf { it.hasItemModel() }?.itemModel?.toString())
+            }
+        }
         val spec = DisplaySpec(
-            kind = DisplayKind.Item(ItemId("paper"), DisplayItemMode.FIXED, modelKey(item, part)),
+            kind = kind,
             transform = DisplayTransform(Vec3.ZERO, pose.rotation, uniform(scale)),
             lifetimeTicks = LIFETIME,
             billboard = DisplayBillboard.FIXED,

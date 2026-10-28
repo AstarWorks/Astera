@@ -27,6 +27,8 @@ plugins {
 dependencies {
     implementation(libs.kotlin.stdlib)
     implementation(project(":plugin:combat"))
+    // SKL-12: builds the pack and checks every reference in it (PackRefLint).
+    implementation(project(":tools:resource-pack"))
     implementation(project(":core:feature-gameplay"))
     // Every category the server reloads is decoded here through its production loader (RuntimeDecode.kt).
     implementation(project(":core:feature-pve"))
@@ -58,6 +60,8 @@ application {
 // override with `./gradlew :tools:content-lint:run --args="..."`.
 tasks.named<JavaExec>("run") {
     workingDir = rootDir
+    systemProperty("astera.minecraftVersion", libs.versions.minecraft.get())
+    systemProperty("java.awt.headless", "true")
     args = listOf(
         "--content-dir", "$rootDir/content",
         "--schemas-dir", "$rootDir/content/schemas",

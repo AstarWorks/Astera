@@ -35,7 +35,13 @@ fun main(args: Array<String>) {
     val particles = com.astarworks.astera.core.application.contents.ParticleContents()
     val particleLoad = particles.bootstrap(parsed.contentDir.resolve("particles"))
     val runtime = RuntimeDecode.run(parsed.contentDir, listOf("particles" to particleLoad))
-    exitProcess(if (report.failed == 0 && runtime == 0) 0 else 1)
+    val packRefs = PackRefLint(parsed.contentDir).run()
+    packRefs.problems.forEach { println("packRef: $it") }
+    println(
+        "packRef: ${packRefs.problems.size} unresolved reference(s) over ${packRefs.packFiles} pack files" +
+            if (packRefs.vanillaSkipped > 0) " (${packRefs.vanillaSkipped} vanilla references unchecked: no client jar found, set ASTERA_VANILLA_CLIENT_JAR)" else "",
+    )
+    exitProcess(if (report.failed == 0 && runtime == 0 && packRefs.problems.isEmpty()) 0 else 1)
 }
 
 // -----------------------------------------------------------------------------
