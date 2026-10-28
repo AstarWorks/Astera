@@ -45,6 +45,10 @@ layout:
   - {kind: generator, x: -14, z: 0}
   - {kind: generator, x: 10, z: -70}
   - {kind: generator, x: -10, z: 70}
+  - {kind: generator, x: 102, z: -6}
+  - {kind: generator, x: 102, z: 7}
+  - {kind: generator, x: -102, z: -6}
+  - {kind: generator, x: -102, z: 7}
   structures:
   - part: castle-gate
     x: -88
