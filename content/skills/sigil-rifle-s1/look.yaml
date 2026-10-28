@@ -7,7 +7,6 @@
 # CONVERT-PRESENT rig respect_hit_stop / weapon points (x1): {"respect_hit_stop": false}
 # CONVERT-PRESENT rig block parts (mesh takes an item model, not a block + size) (x1): 5 parts
 # CONVERT-PRESENT rig swing without a weapon mesh (track needs a visual to move) (x1): 8 keys
-# CONVERT-PRESENT trail bands / edge / dark_rim / step_deg / lag_ticks / double_sided (trail has style, fade, width_frac, color, alpha) (x2): {"bands": [{"block": "red_concrete", "color": "#EEEF2311", "color_to": "#603A080
 # CONVERT-PRESENT vfx follow=false (anchored at world, no place-at-spawn) (x1): sigil-rifle-mark
 apiVersion: "astera/v2"
 kind: Skill
@@ -20,11 +19,36 @@ frames:
   - {id: fx2_sigil_rifle_mark, kind: body, parent: world}
 presentation:
   timeline:
-    - {id: fx7, at: 7, do: [{id: fx1_sigil_rifle_dash_rifle_ribbon_5, op: trail, of: pt_fx1_sigil_rifle_dash_rifle_0_1p65_0, root: pt_fx1_sigil_rifle_dash_rifle_0_0p55_0, ticks: 8, style: both, fade: 0.3}]}
+    - id: fx7
+      at: 7
+      do:
+        - id: fx1_sigil_rifle_dash_rifle_ribbon_5
+          op: trail
+          of: pt_fx1_sigil_rifle_dash_rifle_0_1p65_0
+          root: pt_fx1_sigil_rifle_dash_rifle_0_0p55_0
+          ticks: 8
+          style: both
+          fade: 0.3
+          bands:
+            - {from: 0.7, to: 1.0, color: "#ef2311", alpha: 0.933, color_to: "#3a0808"}
+          edge: {color: "#080a0f", width: 0.03}
+          dark_rim: {color: "#190808", alpha: 0.816, width: 0.15}
+          step_deg: 25.0
     - id: fx20
       at: 20
       do:
-        - {id: fx1_sigil_rifle_dash_rifle_ribbon_20, op: trail, of: pt_fx1_sigil_rifle_dash_rifle_0_1p65_0, root: pt_fx1_sigil_rifle_dash_rifle_0_0p55_0, ticks: 8, style: both, fade: 0.3}
+        - id: fx1_sigil_rifle_dash_rifle_ribbon_20
+          op: trail
+          of: pt_fx1_sigil_rifle_dash_rifle_0_1p65_0
+          root: pt_fx1_sigil_rifle_dash_rifle_0_0p55_0
+          ticks: 8
+          style: both
+          fade: 0.3
+          bands:
+            - {from: 0.7, to: 1.0, color: "#ef2311", alpha: 0.933, color_to: "#3a0808"}
+          edge: {color: "#080a0f", width: 0.03}
+          dark_rim: {color: "#190808", alpha: 0.816, width: 0.15}
+          step_deg: 25.0
         - {id: rm, op: remove, ids: [fx1_sigil_rifle_dash_rifle_ribbon_5]}
     - {id: fx31, at: 31, do: [{id: rm_2, op: remove, ids: [fx1_sigil_rifle_dash_rifle_ribbon_20]}]}
     - {id: loop1, at: 7, every: 1, for: 5, do: [{id: fx1_sigil_rifle_dash_rifle_embers_7, op: emit, at: pt_fx1_sigil_rifle_dash_rifle_0_1p65_0, particle: sigil-rifle-embers, count: 1}]}

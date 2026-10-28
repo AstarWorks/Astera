@@ -4,6 +4,7 @@ import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.skillengine.frame.FrameId
 import com.astarworks.astera.core.domain.skillengine.hit.ContactEvent
 import com.astarworks.astera.core.domain.skillengine.hit.ContactResolver
+import com.astarworks.astera.core.domain.skillengine.motion.MotionSpec
 import java.util.UUID
 
 /**
@@ -36,6 +37,15 @@ public interface SkillCastScope {
 
     /** Stop a projectile: unregister its hit volume [source] and stop its motion law on [body]. */
     public fun endProjectile(source: String, body: FrameId)
+
+    /** `block_mode: pass`: the projectile [source] never probes blocks again (no `block` event). */
+    public fun ignoreBlocks(source: String) {}
+
+    /**
+     * `block_mode: bounce`: move [body] by [nudge], replace its flight with [spec] and re-arm the block probe for
+     * [source] from the new position (the hit volume stays registered).
+     */
+    public fun bounceProjectile(source: String, body: FrameId, spec: MotionSpec.Fly, nudge: Vec3) {}
 }
 
 /** World effects that have no port in `SkillRuntimePorts` yet. Paper implements it in the combat adapter. */

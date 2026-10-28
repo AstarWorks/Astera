@@ -9,7 +9,6 @@
 # CONVERT-PRESENT rig respect_hit_stop / weapon points (x1): {"respect_hit_stop": false}
 # CONVERT-PRESENT rig block parts (mesh takes an item model, not a block + size) (x1): 11 parts
 # CONVERT-PRESENT rig swing without a weapon mesh (track needs a visual to move) (x1): 8 keys
-# CONVERT-PRESENT trail bands / edge / dark_rim / step_deg / lag_ticks / double_sided (trail has style, fade, width_frac, color, alpha) (x2): {"bands": [{"color": "#70DC820D", "color_to": "#204E2710", "from": 0.0, "to": 0.
 # CONVERT-PRESENT vfx target_reference (no v2 equivalent) (x2): [0, 0, 0]
 # CONVERT-PRESENT play_vfx track_bound_target (no v2 equivalent) (x2): true
 # CONVERT-PRESENT element target_track (no v2 equivalent) (x4): [{"t": 0, "weight": 1}]
@@ -64,9 +63,33 @@ presentation:
             - {t: 82, offset: [-0.3, 3.2, 0.3], scale: [0.203125, 0.203125, 1.0]}
             - {t: 92, offset: [-0.3, 3.2, 0.3], scale: [0.0, 0.0, 1.0]}
             - {t: 99, offset: [-0.3, 3.2, 0.3], scale: [0.0, 0.0, 1.0]}
-    - {id: fx19, at: 19, do: [{id: fx3_orrery_s2_poise_staff_raise, op: trail, of: pt_fx3_orrery_s2_poise_staff_0_2p3_0, root: pt_fx3_orrery_s2_poise_staff_0_1_0, ticks: 3, fade: 0.3}]}
+    - id: fx19
+      at: 19
+      do:
+        - id: fx3_orrery_s2_poise_staff_raise
+          op: trail
+          of: pt_fx3_orrery_s2_poise_staff_0_2p3_0
+          root: pt_fx3_orrery_s2_poise_staff_0_1_0
+          ticks: 3
+          fade: 0.3
+          bands:
+            - {from: 0.0, to: 0.65, color: "#dc820d", alpha: 0.439, color_to: "#4e2710"}
+            - {from: 0.65, to: 1.0, color: "#ffd447", alpha: 1.0, color_to: "#ff970b"}
+          step_deg: 50.0
     - {id: fx28, at: 28, do: [{id: rm, op: remove, ids: [fx3_orrery_s2_poise_staff_raise]}]}
-    - {id: fx48, at: 48, do: [{id: fx3_orrery_s2_poise_staff_recharge, op: trail, of: pt_fx3_orrery_s2_poise_staff_0_2p3_0, root: pt_fx3_orrery_s2_poise_staff_0_1_0, ticks: 3, fade: 0.3}]}
+    - id: fx48
+      at: 48
+      do:
+        - id: fx3_orrery_s2_poise_staff_recharge
+          op: trail
+          of: pt_fx3_orrery_s2_poise_staff_0_2p3_0
+          root: pt_fx3_orrery_s2_poise_staff_0_1_0
+          ticks: 3
+          fade: 0.3
+          bands:
+            - {from: 0.0, to: 0.65, color: "#dc820d", alpha: 0.439, color_to: "#4e2710"}
+            - {from: 0.65, to: 1.0, color: "#ffd447", alpha: 1.0, color_to: "#ff970b"}
+          step_deg: 50.0
     - {id: fx62, at: 62, do: [{id: rm_2, op: remove, ids: [fx3_orrery_s2_poise_staff_recharge]}]}
     - {id: fx106, at: 106, do: [{id: rm_3, op: remove, ids: [fx3_orrery_s2_poise_emitter_light]}]}
     - id: fxhit_7

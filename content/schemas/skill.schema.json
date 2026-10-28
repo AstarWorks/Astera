@@ -1681,6 +1681,69 @@
             ],
             "additionalProperties": true
         },
+        "TrailBand": {
+            "type": "object",
+            "properties": {
+                "from": {
+                    "type": "number"
+                },
+                "to": {
+                    "type": "number"
+                },
+                "color": {
+                    "type": "string"
+                },
+                "alpha": {
+                    "type": "number"
+                },
+                "color_to": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "from",
+                "to",
+                "color",
+                "alpha"
+            ],
+            "additionalProperties": true
+        },
+        "TrailEdge": {
+            "type": "object",
+            "properties": {
+                "color": {
+                    "type": "string"
+                },
+                "width": {
+                    "type": "number"
+                }
+            },
+            "required": [
+                "color",
+                "width"
+            ],
+            "additionalProperties": true
+        },
+        "TrailRim": {
+            "type": "object",
+            "properties": {
+                "color": {
+                    "type": "string"
+                },
+                "alpha": {
+                    "type": "number"
+                },
+                "width": {
+                    "type": "number"
+                }
+            },
+            "required": [
+                "color",
+                "alpha",
+                "width"
+            ],
+            "additionalProperties": true
+        },
         "Value_any": {
             "description": "literal, ${param} or = CEL expression"
         },
@@ -3346,6 +3409,24 @@
                     "items": {
                         "$ref": "#/definitions/GameplayOp"
                     }
+                },
+                "block_mode": {
+                    "type": "string",
+                    "enum": [
+                        "despawn",
+                        "stick",
+                        "bounce",
+                        "pass"
+                    ]
+                },
+                "stick_ticks": {
+                    "$ref": "#/definitions/Value_number"
+                },
+                "restitution": {
+                    "$ref": "#/definitions/Value_number"
+                },
+                "max_bounces": {
+                    "type": "integer"
                 }
             },
             "required": [
@@ -4159,6 +4240,27 @@
                 },
                 "style": {
                     "type": "string"
+                },
+                "bands": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/TrailBand"
+                    }
+                },
+                "edge": {
+                    "$ref": "#/definitions/TrailEdge"
+                },
+                "dark_rim": {
+                    "$ref": "#/definitions/TrailRim"
+                },
+                "step_deg": {
+                    "type": "number"
+                },
+                "lag_ticks": {
+                    "type": "integer"
+                },
+                "double_sided": {
+                    "type": "boolean"
                 }
             },
             "required": [

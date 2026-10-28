@@ -272,8 +272,36 @@ engine は 1 tick 先の値を送る (tick k に push した pose が k+1 に見
 ### `trail` の `fade` / `style`
 
 `fade: p` は alpha を `alpha * (1 - age/ticks)^p` で落とす (既定 1。小さいほど長く残り、0 で最後まで落ちない)。
-`style: soft | crisp | both` は縁の質感 (既定 soft)。`crisp` は端まで alpha を保つ。`bands` / `edge` / `dark_rim` /
-`step_deg` / `lag_ticks` / `double_sided` は未対応で、converter が `CONVERT-PRESENT` に残す。
+`style: soft | crisp | both` は縁の質感 (既定 soft)。`crisp` は端まで alpha を保つ。
+
+多層 ribbon (v1 の trail と同じ形。root から tip までの半径方向の帯):
+
+| field | 意味 |
+|---|---|
+| `bands` | `[{from, to, color: "#RRGGBB", alpha, color_to?}]`。`from`/`to` は root=0 から tip=1 の割合。`color_to` を書くと古くなるほどその色へ寄る |
+| `edge` | `{color, width}`。tip 側の縁取り (幅は block 単位、既定 0.04) |
+| `dark_rim` | `{color, alpha, width}`。tip の外側の暗いふち (既定 width 0.18) |
+| `step_deg` | 5..90 (既定 30)。刃の回転がこの角度を超えたら ribbon を最大 12 分割して滑らかにする |
+| `lag_ticks` | 扇を N tick 遅らせて描く (既定 0) |
+| `double_sided` | true で裏面にも同じ quad を張る (text quad は片面のため) |
+
+```yaml
+- {id: fan, op: trail, of: blade_tip, root: blade_root, ticks: 9,
+   bands: [{from: 0.0, to: 1.0, color: "#ff8f18", alpha: 0.63, color_to: "#e04d08"}],
+   dark_rim: {color: "#2a170c", alpha: 0.69, width: 0.08}, step_deg: 36}
+```
+
+### `projectile` の block 挙動
+
+`block_mode` で弾が block に当たったときの挙動を選ぶ。既定 `despawn` (v1 と同じ)。`on: block` の handler は接触のたびに走る
+(`pass` を除く)。
+
+| mode | 挙動 |
+|---|---|
+| `despawn` | 当たったら弾を終える |
+| `stick` | 接触点に飛行方向のまま刺さり、`stick_ticks` (既定 60) 後に消える。消えるとき `stick_end` event |
+| `bounce` | 法線で速度を反射して `restitution` (既定 0.6) を掛ける。`max_bounces` (既定 3) 回まで、その次の接触で終わる |
+| `pass` | block を無視する (`on: block` も走らない) |
 
 ### 繰り返し: timeline の `for`
 

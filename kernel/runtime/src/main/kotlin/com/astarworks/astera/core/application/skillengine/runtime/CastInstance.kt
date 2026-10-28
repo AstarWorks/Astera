@@ -527,6 +527,21 @@ internal class CastInstance(
         lawSources.remove(body)
     }
 
+    override fun ignoreBlocks(source: String) {
+        blockedOps += source
+    }
+
+    override fun bounceProjectile(source: String, body: FrameId, spec: MotionSpec.Fly, nudge: Vec3) {
+        motion.stop(body)
+        val node = tree.node(body)
+        if (node != null) tree.setLocal(body, node.local.copy(origin = node.local.origin + nudge))
+        blockedOps -= source
+        val anchor = tree.pointWorld(body, null).getOrNull()
+        for (r in hitRegs) if (r.reg.id == source) r.prevAnchor = anchor
+        lawSources[body] = source
+        motion.start(deps.motion.create(body, spec, values), tick)
+    }
+
     private fun activeContact(): ContactEvent? = contactOverride ?: currentEvent?.contact
 
     // ------------------------------------------------- MovementHost / targets

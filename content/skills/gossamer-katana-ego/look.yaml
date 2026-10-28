@@ -8,7 +8,6 @@
 # CONVERT-PRESENT block element (mesh takes an item model, plate takes a sprite: no block / solid-colour primitive) (x10): cyan_stained_glass | white_concrete
 # CONVERT-PRESENT element brightness (no v2 equivalent) (x11): 15
 # CONVERT-PRESENT quad element (plate takes a sprite: no solid-colour quad / glyph) (x1): {"color": "#59D9FF", "glyph": null}
-# CONVERT-PRESENT trail bands / edge / dark_rim / step_deg / lag_ticks / double_sided (trail has style, fade, width_frac, color, alpha) (x2): {"bands": [{"color": "#EE14245F", "color_to": "#307C36A8", "from": 0.0, "to": 1.
 # CONVERT-PRESENT screen_flash has no v2 op (x1): {"fade_in": 0, "fade_out": 2, "overlay": "white", "stay": 1}
 apiVersion: "astera/v2"
 kind: Skill
@@ -33,12 +32,26 @@ presentation:
     - id: fx32
       at: 32
       do:
-        - {id: fx4_gossamer_katana_slash_up_katana_crescent, op: trail, of: pt_fx4_gossamer_katana_slash_up_katana_0_2p1_0, root: pt_fx4_gossamer_katana_slash_up_katana_0_1p25_0, ticks: 4}
+        - id: fx4_gossamer_katana_slash_up_katana_crescent
+          op: trail
+          of: pt_fx4_gossamer_katana_slash_up_katana_0_2p1_0
+          root: pt_fx4_gossamer_katana_slash_up_katana_0_1p25_0
+          ticks: 4
+          bands:
+            - {from: 0.0, to: 1.0, color: "#14245f", alpha: 0.933, color_to: "#7c36a8"}
+          step_deg: 20.0
     - {id: fx40, at: 40, do: [{id: rm, op: remove, ids: [fx4_gossamer_katana_slash_up_katana_crescent]}]}
     - id: fx44
       at: 44
       do:
-        - {id: fx5_gossamer_katana_slash_down_katana_crescent, op: trail, of: pt_fx5_gossamer_katana_slash_down_katana_0_2p1_0, root: pt_fx5_gossamer_katana_slash_down_katana_0_1p25_0, ticks: 4}
+        - id: fx5_gossamer_katana_slash_down_katana_crescent
+          op: trail
+          of: pt_fx5_gossamer_katana_slash_down_katana_0_2p1_0
+          root: pt_fx5_gossamer_katana_slash_down_katana_0_1p25_0
+          ticks: 4
+          bands:
+            - {from: 0.0, to: 1.0, color: "#14245f", alpha: 0.933, color_to: "#7c36a8"}
+          step_deg: 20.0
     - {id: fx52, at: 52, do: [{id: rm_2, op: remove, ids: [fx5_gossamer_katana_slash_down_katana_crescent]}]}
     - {id: fx60, at: 60, do: [{id: snd, op: sound, sound: entity.player.attack.crit, at: caster, pitch: 1.3}]}
   "on": {hit: [{id: emit, op: emit, at: contact.point, particle: hit-spark, count: 1, when: "= event.source == 'sel'"}]}

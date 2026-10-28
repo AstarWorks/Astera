@@ -81,6 +81,21 @@ public sealed interface VisualOp : PresentationOp {
         val fade: Value<Double>? = null,
         /** `soft` translucent ribbon (default), `crisp` hard ribbon that keeps its alpha until it ends, `both` soft body with a crisp edge. */
         val style: String = "soft",
+        /**
+         * Radial colour bands, `from..to` as fractions of the root-to-tip segment (0 root, 1 tip), each its own quad.
+         * Empty = one band over the whole segment in [color] / [alpha].
+         */
+        val bands: List<TrailBand> = emptyList(),
+        /** Crisp opaque line of [TrailEdge.width] blocks centred on the tip path. */
+        val edge: TrailEdge? = null,
+        /** Soft dark band just outside the tip so the fan reads against bright skies. */
+        val darkRim: TrailRim? = null,
+        /** The ribbon is sampled finely enough that the root-to-tip segment turns at most this many degrees per quad (5..90). */
+        val stepDeg: Double = 30.0,
+        /** The ribbon is drawn this many ticks behind the point. */
+        val lagTicks: Int = 0,
+        /** Also draw the reversed face of every soft quad (a text-display quad is single sided). */
+        val doubleSided: Boolean = false,
     ) : VisualOp
 
     /**
@@ -118,3 +133,12 @@ public data class TrackKey(
     /** `linear` (default), `ease_in`, `ease_out`, `ease_in_out`: easing of the segment ENDING at this key. */
     val ease: String?,
 )
+
+/** One radial band of a [VisualOp.Trail]: colour `#rrggbb`, peak [alpha] 0..1, optional [colorTo] it has faded to at the end of the life. */
+public data class TrailBand(val from: Double, val to: Double, val color: String, val alpha: Double, val colorTo: String? = null)
+
+/** Leading edge of a [VisualOp.Trail]: `#rrggbb` line [width] blocks wide, opaque for the whole life. */
+public data class TrailEdge(val color: String, val width: Double)
+
+/** Dark rim outside the tip of a [VisualOp.Trail]: `#rrggbb` at [alpha], [width] blocks wide. */
+public data class TrailRim(val color: String, val alpha: Double, val width: Double)

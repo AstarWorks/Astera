@@ -8,7 +8,6 @@
 # CONVERT-PRESENT element count (no v2 equivalent) (x5): 8 | 4
 # CONVERT-PRESENT element brightness (no v2 equivalent) (x21): 15
 # CONVERT-PRESENT element kind text (text) has no v2 op (x9): {"background": "#00000000", "see_through": true, "shadow": false, "text": "<#FFF | {"background": "#00000000", "see_through": true, "shadow": false, "text": "<#ffb
-# CONVERT-PRESENT trail bands / edge / dark_rim / step_deg / lag_ticks / double_sided (trail has style, fade, width_frac, color, alpha) (x1): {"bands": [{"block": "yellow_concrete", "color": "#A0FF8F18", "color_to": "#10E0
 # CONVERT-PRESENT vfx follow=false (anchored at world, no place-at-spawn) (x3): ember-hoop-hit | ember-smoke-puff
 # CONVERT-PRESENT element jitter (no v2 equivalent) (x2): {"rotation_deg": 8, "scale": 0.3}
 apiVersion: "astera/v2"
@@ -28,7 +27,19 @@ frames:
   - {id: fx6_ember_smoke_puff, kind: body, parent: world}
 presentation:
   timeline:
-    - {id: fx5, at: 5, do: [{id: fx2_ember_sweep_gauntlet_flame_fan, op: trail, of: pt_fx2_ember_sweep_gauntlet_0_2p65_0, root: pt_fx2_ember_sweep_gauntlet_0_1p95_0, ticks: 9, style: both}]}
+    - id: fx5
+      at: 5
+      do:
+        - id: fx2_ember_sweep_gauntlet_flame_fan
+          op: trail
+          of: pt_fx2_ember_sweep_gauntlet_0_2p65_0
+          root: pt_fx2_ember_sweep_gauntlet_0_1p95_0
+          ticks: 9
+          style: both
+          bands:
+            - {from: 0.0, to: 1.0, color: "#ff8f18", alpha: 0.627, color_to: "#e04d08"}
+          dark_rim: {color: "#2a170c", alpha: 0.69, width: 0.08}
+          step_deg: 36.0
     - {id: fx17, at: 17, do: [{id: rm, op: remove, ids: [fx2_ember_sweep_gauntlet_flame_fan]}]}
     - {id: loop1, at: 5, every: 4, for: 10, do: [{id: fx2_ember_sweep_embers, op: emit, at: fx2_ember_sweep, particle: ember-fine-spark, count: 1}]}
     - {id: loop2, at: 5, every: 1, for: 8, do: [{id: fx2_ember_sweep_gauntlet_fire, op: emit, at: pt_fx2_ember_sweep_gauntlet_0_2p65_0, particle: ember-fine-spark, count: 1}]}

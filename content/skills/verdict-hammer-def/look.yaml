@@ -5,7 +5,6 @@
 # CONVERT-PRESENT rig respect_hit_stop / weapon points (x3): {"respect_hit_stop": true}
 # CONVERT-PRESENT rig block parts (mesh takes an item model, not a block + size) (x3): 6 parts
 # CONVERT-PRESENT rig swing without a weapon mesh (track needs a visual to move) (x3): 5 keys
-# CONVERT-PRESENT trail bands / edge / dark_rim / step_deg / lag_ticks / double_sided (trail has style, fade, width_frac, color, alpha) (x3): {"bands": [{"color": "#18FFD878", "color_to": "#00A07020", "from": 0.0, "to": 0.
 # CONVERT-PRESENT block element (mesh takes an item model, plate takes a sprite: no block / solid-colour primitive) (x6): iron_block | white_concrete
 # CONVERT-PRESENT quad element (plate takes a sprite: no solid-colour quad / glyph) (x15): {"color": "#FFFAD8", "glyph": "✷"} | {"color": "#FFD66B", "glyph": "✦"}
 # CONVERT-PRESENT element brightness (no v2 equivalent) (x15): 15
@@ -32,11 +31,44 @@ frames:
   - {id: fx7_verdict_impact, kind: body, parent: world}
 presentation:
   timeline:
-    - {id: fx5, at: 5, do: [{id: fx1_verdict_def_vigil_hammer_gold_fan, op: trail, of: pt_fx1_verdict_def_vigil_hammer_0_2p7_0, root: pt_fx1_verdict_def_vigil_hammer_0_0p9_0, ticks: 5}]}
+    - id: fx5
+      at: 5
+      do:
+        - id: fx1_verdict_def_vigil_hammer_gold_fan
+          op: trail
+          of: pt_fx1_verdict_def_vigil_hammer_0_2p7_0
+          root: pt_fx1_verdict_def_vigil_hammer_0_0p9_0
+          ticks: 5
+          bands:
+            - {from: 0.0, to: 0.85, color: "#ffd878", alpha: 0.094, color_to: "#a07020"}
+            - {from: 0.85, to: 1.0, color: "#fff4c7", alpha: 0.937, color_to: "#d5ac60"}
+          step_deg: 18.0
     - {id: fx15, at: 15, do: [{id: rm, op: remove, ids: [fx1_verdict_def_vigil_hammer_gold_fan]}]}
-    - {id: fx114, at: 114, do: [{id: fx4_verdict_s1_gavel_hammer_gold_fan, op: trail, of: pt_fx4_verdict_s1_gavel_hammer_0_3_0, root: pt_fx4_verdict_s1_gavel_hammer_0_0p9_0, ticks: 5}]}
+    - id: fx114
+      at: 114
+      do:
+        - id: fx4_verdict_s1_gavel_hammer_gold_fan
+          op: trail
+          of: pt_fx4_verdict_s1_gavel_hammer_0_3_0
+          root: pt_fx4_verdict_s1_gavel_hammer_0_0p9_0
+          ticks: 5
+          bands:
+            - {from: 0.0, to: 0.85, color: "#ffd878", alpha: 0.094, color_to: "#a07020"}
+            - {from: 0.85, to: 1.0, color: "#fff4c7", alpha: 0.937, color_to: "#d5ac60"}
+          step_deg: 18.0
     - {id: fx124, at: 124, do: [{id: rm_2, op: remove, ids: [fx4_verdict_s1_gavel_hammer_gold_fan]}]}
-    - {id: fx125, at: 125, do: [{id: fx6_verdict_s1_echo_hammer_gold_fan, op: trail, of: pt_fx6_verdict_s1_echo_hammer_0_3_0, root: pt_fx6_verdict_s1_echo_hammer_0_0p9_0, ticks: 5}]}
+    - id: fx125
+      at: 125
+      do:
+        - id: fx6_verdict_s1_echo_hammer_gold_fan
+          op: trail
+          of: pt_fx6_verdict_s1_echo_hammer_0_3_0
+          root: pt_fx6_verdict_s1_echo_hammer_0_0p9_0
+          ticks: 5
+          bands:
+            - {from: 0.0, to: 0.85, color: "#ffd878", alpha: 0.094, color_to: "#a07020"}
+            - {from: 0.85, to: 1.0, color: "#fff4c7", alpha: 0.937, color_to: "#d5ac60"}
+          step_deg: 18.0
     - {id: fx135, at: 135, do: [{id: rm_3, op: remove, ids: [fx6_verdict_s1_echo_hammer_gold_fan]}]}
   "on":
     hit:

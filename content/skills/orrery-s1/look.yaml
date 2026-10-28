@@ -5,7 +5,7 @@
 # CONVERT-PRESENT rig respect_hit_stop / weapon points (x2): {"respect_hit_stop": true}
 # CONVERT-PRESENT rig block parts (mesh takes an item model, not a block + size) (x2): 11 parts
 # CONVERT-PRESENT rig swing without a weapon mesh (track needs a visual to move) (x2): 5 keys
-# CONVERT-PRESENT trail bands / edge / dark_rim / step_deg / lag_ticks / double_sided (trail has style, fade, width_frac, color, alpha) (x2): {"bands": [{"color": "#70DC820D", "color_to": "#204E2710", "from": 0.0, "to": 0.
+
 # CONVERT-PRESENT vfx anchored at a runtime point (frame parent must exist at cast start): anchored at world (x2): contact.point
 # CONVERT-PRESENT block element (mesh takes an item model, plate takes a sprite: no block / solid-colour primitive) (x4): gold_block | purple_stained_glass
 # CONVERT-PRESENT element formation (no v2 equivalent) (x2): {"align": "outward", "curve": {"from_deg": 0, "radius": 0.5,
@@ -30,10 +30,34 @@ frames:
 presentation:
   timeline:
     - {id: fx17, at: 17, do: [{id: anim, op: caster_anim, anim: hide-main-hand, ticks: 18}]}
-    - {id: fx20, at: 20, do: [{id: fx1_orrery_crescent_a_staff_fan, op: trail, of: pt_fx1_orrery_crescent_a_staff_0_2p1_0, root: pt_fx1_orrery_crescent_a_staff_0_1_0, ticks: 5, fade: 0.3}]}
+    - id: fx20
+      at: 20
+      do:
+        - id: fx1_orrery_crescent_a_staff_fan
+          op: trail
+          of: pt_fx1_orrery_crescent_a_staff_0_2p1_0
+          root: pt_fx1_orrery_crescent_a_staff_0_1_0
+          ticks: 5
+          fade: 0.3
+          bands:
+            - {from: 0.0, to: 0.6, color: "#dc820d", alpha: 0.439, color_to: "#4e2710"}
+            - {from: 0.6, to: 1.0, color: "#ffd447", alpha: 1.0, color_to: "#ff970b"}
+          step_deg: 20.0
     - {id: fx29, at: 29, do: [{id: rm, op: remove, ids: [fx1_orrery_crescent_a_staff_fan]}]}
     - {id: fx48, at: 48, do: [{id: anim_2, op: caster_anim, anim: hide-main-hand, ticks: 18}]}
-    - {id: fx51, at: 51, do: [{id: fx3_orrery_crescent_b_staff_fan, op: trail, of: pt_fx3_orrery_crescent_b_staff_0_2p3_0, root: pt_fx3_orrery_crescent_b_staff_0_1_0, ticks: 5, fade: 0.3}]}
+    - id: fx51
+      at: 51
+      do:
+        - id: fx3_orrery_crescent_b_staff_fan
+          op: trail
+          of: pt_fx3_orrery_crescent_b_staff_0_2p3_0
+          root: pt_fx3_orrery_crescent_b_staff_0_1_0
+          ticks: 5
+          fade: 0.3
+          bands:
+            - {from: 0.0, to: 0.65, color: "#dc820d", alpha: 0.439, color_to: "#4e2710"}
+            - {from: 0.65, to: 1.0, color: "#ffd447", alpha: 1.0, color_to: "#ff970b"}
+          step_deg: 20.0
     - {id: fx60, at: 60, do: [{id: rm_2, op: remove, ids: [fx3_orrery_crescent_b_staff_fan]}]}
     - {id: loop1, at: 17, every: 1, for: 8, do: [{id: fx1_orrery_crescent_a_staff_embers, op: emit, at: pt_fx1_orrery_crescent_a_staff_0_1p65_0, particle: orrery-ember, count: 1}]}
     - {id: loop2, at: 48, every: 1, for: 8, do: [{id: fx3_orrery_crescent_b_staff_embers, op: emit, at: pt_fx3_orrery_crescent_b_staff_0_1p65_0, particle: orrery-ember, count: 1}]}

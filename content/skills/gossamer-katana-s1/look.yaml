@@ -6,7 +6,6 @@
 # CONVERT-PRESENT rig swing without a weapon mesh (track needs a visual to move) (x3): 3 keys | 4 keys
 # CONVERT-PRESENT presentation inside a nested gameplay list (dash on_hit has no event hook) (x4): play_vfx | play_sound
 # CONVERT-PRESENT vfx follow=false (anchored at world, no place-at-spawn) (x4): gossamer-katana-slash-up | gossamer-katana-slash-down
-# CONVERT-PRESENT trail bands / edge / dark_rim / step_deg / lag_ticks / double_sided (trail has style, fade, width_frac, color, alpha) (x2): {"bands": [{"color": "#EE14245F", "color_to": "#307C36A8", "from": 0.0, "to": 1.
 # CONVERT-PRESENT quad element (plate takes a sprite: no solid-colour quad / glyph) (x3): {"color": "#BC1839", "glyph": "◆"} | {"color": "#170E24", "glyph": "◆"}
 # CONVERT-PRESENT element emit (no v2 equivalent) (x2): {"alpha_over_life": [{"t": 0, "v": 1}, {"t": 1, "v": 0}], "c
 # CONVERT-PRESENT element brightness (no v2 equivalent) (x6): 15
@@ -32,11 +31,25 @@ presentation:
     - id: fx12
       at: 12
       do:
-        - {id: fx2_gossamer_katana_slash_up_katana_crescent, op: trail, of: pt_fx2_gossamer_katana_slash_up_katana_0_2p1_0, root: pt_fx2_gossamer_katana_slash_up_katana_0_1p25_0, ticks: 4}
+        - id: fx2_gossamer_katana_slash_up_katana_crescent
+          op: trail
+          of: pt_fx2_gossamer_katana_slash_up_katana_0_2p1_0
+          root: pt_fx2_gossamer_katana_slash_up_katana_0_1p25_0
+          ticks: 4
+          bands:
+            - {from: 0.0, to: 1.0, color: "#14245f", alpha: 0.933, color_to: "#7c36a8"}
+          step_deg: 20.0
     - {id: fx20, at: 20, do: [{id: rm, op: remove, ids: [fx2_gossamer_katana_slash_up_katana_crescent]}]}
     - id: fx24
       at: 24
       do:
-        - {id: fx3_gossamer_katana_slash_down_katana_crescent, op: trail, of: pt_fx3_gossamer_katana_slash_down_katana_0_2p1_0, root: pt_fx3_gossamer_katana_slash_down_katana_0_1p25_0, ticks: 4}
+        - id: fx3_gossamer_katana_slash_down_katana_crescent
+          op: trail
+          of: pt_fx3_gossamer_katana_slash_down_katana_0_2p1_0
+          root: pt_fx3_gossamer_katana_slash_down_katana_0_1p25_0
+          ticks: 4
+          bands:
+            - {from: 0.0, to: 1.0, color: "#14245f", alpha: 0.933, color_to: "#7c36a8"}
+          step_deg: 20.0
     - {id: fx32, at: 32, do: [{id: rm_2, op: remove, ids: [fx3_gossamer_katana_slash_down_katana_crescent]}]}
   "on": {hit: [{id: snd, op: sound, sound: entity.player.attack.strong, at: contact.point, volume: 0.7, pitch: 1.1, when: "= event.source == 'sel'"}]}
