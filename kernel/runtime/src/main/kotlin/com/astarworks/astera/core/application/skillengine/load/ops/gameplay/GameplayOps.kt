@@ -1,0 +1,147 @@
+package com.astarworks.astera.core.application.skillengine.load.ops.gameplay
+
+import com.astarworks.astera.core.application.skillengine.compose.LowerContext
+import com.astarworks.astera.core.application.skillengine.load.SkillDecodeError
+import com.astarworks.astera.core.application.skillengine.load.grammar.Field
+import com.astarworks.astera.core.application.skillengine.load.grammar.FieldType
+import com.astarworks.astera.core.application.skillengine.load.grammar.Fields
+import com.astarworks.astera.core.application.skillengine.load.grammar.GrammarContext
+import com.astarworks.astera.core.application.skillengine.load.grammar.Span
+import com.astarworks.astera.core.application.skillengine.load.grammar.Timing
+import com.astarworks.astera.core.application.skillengine.load.grammar.Types
+import com.astarworks.astera.core.domain.Result
+import com.astarworks.astera.core.domain.geometry.Vec3
+import com.astarworks.astera.core.domain.skillengine.model.PointRef
+import com.astarworks.astera.core.domain.skillengine.model.TargetRef
+import com.astarworks.astera.core.domain.skillengine.model.Value
+import com.astarworks.astera.core.domain.skillengine.table.Action
+import com.astarworks.astera.core.domain.skillengine.table.InstanceId
+import com.astarworks.astera.core.domain.skillengine.table.Num
+import com.astarworks.astera.core.domain.skillengine.table.OpId
+import com.astarworks.astera.core.domain.skillengine.table.Row
+import com.astarworks.astera.core.domain.skillengine.table.TargetSet
+import com.astarworks.astera.core.domain.skillengine.table.Val
+import com.astarworks.astera.core.application.skillengine.load.spec.Lowered
+
+/**
+ * Shared decode and lower helpers for the wave-1 gameplay ops (hit, damage, status, modify_attribute, impulse,
+ * knockback, heal, resource, remove).
+ *
+ * Lowering only accepts literal values. `${param}` and `= CEL` need the skill params and the CEL env, which
+ * LowerContext does not carry yet (W1-24), so they fail loudly here instead of being guessed at.
+ */
+internal object GameplayOps {
+
+    /** `true` / `false`, no `${param}` / `= CEL`. */
+    val flag: FieldType<Boolean> = object : FieldType<Boolean> {
+        override val label = "boolean"
+        override fun decode(raw: Any?, ctx: GrammarContext, path: String): Boolean = raw as? Boolean ?: ctx.mismatch(path, label, raw)
+        override fun schema(): Map<String, Any?> = linkedMapOf("type" to "boolean")
+    }
+
+    /** A whole number, no `${param}` / `= CEL` (used for `max_count`). */
+    private val wholeNumber: FieldType<Int> = object : FieldType<Int> {
+        override val label = "integer"
+        override fun decode(raw: Any?, ctx: GrammarContext, path: String): Int {
+            val n = raw as? Number ?: ctx.mismatch(path, label, raw)
+            if (n.toDouble() % 1.0 != 0.0) ctx.fail(path, "expected an integer, found $n")
+            return n.toInt()
+        }
+        override fun schema(): Map<String, Any?> = linkedMapOf("type" to "integer")
+    }
+
+    /** `{kind: enemies|allies, around, radius, max_count?, include_self?}` (ADR-0303 3 target grammar). */
+    private val areaKind = Field.required("kind", Types.enumOf("enemies", "allies"), "enemies or allies")
+    private val areaAround = Field.required("around", Types.id, "point or frame the area is centred on")
+    private val areaRadius = Field.required("radius", Types.number, "radius in blocks")
+    private val areaMax = Field.optional("max_count", Types.nullable(wholeNumber), null, "keep the nearest N to `around`")
+    private val areaSelf = Field.optional("include_self", flag, false, "allies only: include the caster")
+    private val areaFields: Fields = Fields.of("target", areaKind, areaAround, areaRadius, areaMax, areaSelf)
+
+    /** `victim`, `event.victim`, `caster` or an area map. Read as a plain string or a map, never a bare CEL value. */
+    val target: FieldType<TargetRef> = object : FieldType<TargetRef> {
+        override val label = "victim, caster or {kind: enemies|allies, around, radius, max_count?, include_self?}"
+        override fun decode(raw: Any?, ctx: GrammarContext, path: String): TargetRef = when (raw) {
+            "victim", "event.victim" -> TargetRef.Victim
+            "caster" -> TargetRef.Caster
+            is Map<*, *> -> decodeArea(raw, ctx, path)
+            else -> ctx.mismatch(path, label, raw)
+        }
+        override fun schema(): Map<String, Any?> = linkedMapOf(
+            "oneOf" to listOf(
+                linkedMapOf("enum" to listOf("victim", "event.victim", "caster")),
+                areaFields.jsonSchema(),
+            ),
+        )
+    }
+
+    private fun decodeArea(raw: Map<*, *>, ctx: GrammarContext, path: String): TargetRef {
+        val v = areaFields.read(raw, ctx, path)
+        return when (v[areaKind]) {
+            "enemies" -> {
+                if (v.isPresent(areaSelf)) ctx.fail(path, "include_self is only valid for allies")
+                TargetRef.Enemies(PointRef.parse(v[areaAround]), v[areaRadius], v[areaMax])
+            }
+            else -> TargetRef.Allies(PointRef.parse(v[areaAround]), v[areaRadius], v[areaMax], v[areaSelf])
+        }
+    }
+
+    /** Literal number, or an unsupported-value error that names the W1-24 gap. */
+    fun literal(v: Value<Double>, lc: LowerContext, path: String): Result<Double, SkillDecodeError> = when (v) {
+        is Value.Literal -> Result.Success(v.value)
+        else -> Result.Failure(SkillDecodeError.Invalid(lc.skillId, path, "non-literal number needs W1-24 (params and CEL are not lowered yet)"))
+    }
+
+    fun literalVec(v: Value<Vec3>, lc: LowerContext, path: String): Result<Vec3, SkillDecodeError> = when (v) {
+        is Value.Literal -> Result.Success(v.value)
+        else -> Result.Failure(SkillDecodeError.Invalid(lc.skillId, path, "non-literal vector needs W1-24 (params and CEL are not lowered yet)"))
+    }
+
+    fun num(v: Value<Double>, lc: LowerContext, path: String): Result<Num, SkillDecodeError> = literal(v, lc, path).map { Val.Known(it) }
+
+    /** Whole-number value from a literal (stacks). */
+    fun whole(v: Value<Double>, lc: LowerContext, path: String): Result<Int, SkillDecodeError> = literal(v, lc, path).map { Math.round(it).toInt() }
+
+    /** Window length of a `for:` span in ticks; `cast` and an absent span are errors the table cannot express yet. */
+    fun duration(timing: Timing?, lc: LowerContext, path: String, field: String): Result<Int, SkillDecodeError> = when (val span = timing?.span) {
+        null -> Result.Failure(SkillDecodeError.MissingField(lc.skillId, path, field))
+        is Span.Ticks -> lc.requireStaticTiming(path, field, span.ticks)
+        Span.UntilCastEnds -> Result.Failure(SkillDecodeError.Invalid(lc.skillId, path, "'$field: cast' needs a tick count the table can end on"))
+    }
+
+    /** Resolves a frame / anchor name to the instance it stands for in this occurrence. */
+    fun anchor(name: String, lc: LowerContext, path: String): Result<InstanceId, SkillDecodeError> {
+        val r = lc.anchors.resolve(name) ?: return Result.Failure(SkillDecodeError.UndefinedReference(lc.skillId, path, name))
+        return Result.Success(r.instance)
+    }
+
+    fun anchors(names: List<String>, lc: LowerContext, path: String): Result<List<InstanceId>, SkillDecodeError> {
+        val out = ArrayList<InstanceId>(names.size)
+        for (name in names) {
+            when (val r = anchor(name, lc, path)) {
+                is Result.Failure -> return r
+                is Result.Success -> out += r.value
+            }
+        }
+        return Result.Success(out)
+    }
+
+    /** A frame point, or a bare frame name (its origin), as a named live position (C4c). */
+    fun point(frame: String, point: String?): String = PointRef(frame, point).toString()
+
+    /** Target as a table cell. Area targets need a TargetRule, which Action.Damage / Status do not carry yet. */
+    fun targetCell(t: TargetRef, lc: LowerContext, path: String): Result<Val<TargetSet>, SkillDecodeError> = when (t) {
+        TargetRef.Victim -> Result.Success(Val.Live<TargetSet>("victim", null))
+        TargetRef.Caster -> Result.Success(Val.Live<TargetSet>("caster", null))
+        is TargetRef.Enemies, is TargetRef.Allies ->
+            Result.Failure(SkillDecodeError.Invalid(lc.skillId, path, "area target needs a TargetRule on this action (domain request: Action.Damage / Action.Status take a TargetSet only)"))
+    }
+
+    fun row(lc: LowerContext, instance: InstanceId, action: Action): Row = Row(0, instance, action, lc.src)
+
+    fun lowered(lc: LowerContext, action: Action): Lowered = Lowered(rows = listOf(row(lc, lc.instancePrefix, action)))
+
+    /** `Action.Effect` for ops the table carries as a generic payload. */
+    fun effect(lc: LowerContext, op: String, payload: Map<String, Val<Any>>): Lowered =
+        lowered(lc, Action.Effect(OpId(op), payload))
+}
