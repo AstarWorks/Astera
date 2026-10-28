@@ -123,7 +123,6 @@ internal class SkillEnginePaperRuntime(
             applyStatus = applyStatus,
             knockback = knockback,
             casterPosition = { uuid -> server.getEntity(uuid)?.location?.let { Vec3(it.x, it.y, it.z) } },
-            holdEntity = { id, ticks -> entityEffects.hold(id, ticks) },
             statusContainer = statusContainer,
             entityEffects = entityEffects,
             attributes = services.getOrThrow<IPlayerAttributeContainerStore>(),

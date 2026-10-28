@@ -1,5 +1,6 @@
 # Converted from content/skills/sword-slash.yaml by tools/skill-convert/convert.py (v1 archetype: melee). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
 # Generated point-frame offsets are [left, up, forward] in the parent frame.
+# CONVERT-V1-NOOP melee params.knockback (x1): knockback: 0.4 (v1 MeleeHandler ignores it; the plain-hit push is the combat pipeline's)
 apiVersion: "astera/v2"
 kind: Skill
 id: sword-slash
@@ -10,7 +11,7 @@ meta:
   cooldown_ticks: 10
   tags: [melee, physical]
 gameplay:
-  params: {arc_deg: 100.0, range: 3.5, dmg_physical: 40.0, knockback: 0.4}
+  params: {arc_deg: 100.0, range: 3.5, dmg_physical: 40.0}
   expose:
     - {id: damage, param: dmg_physical}
     - {id: range, param: range}
@@ -22,5 +23,4 @@ gameplay:
   "on":
     hit:
       - {id: dmg, op: damage, target: victim, components: [{kind: physical, amount: "${dmg_physical}"}], when: "= event.source == 'swing'"}
-      - {id: kb, op: knockback, direction: "= normalize(flat(pos(victim) - pos(caster)))", strength: "${knockback}", when: "= event.source == 'swing'"}
       - {id: swing_hit_count, op: counter, key: swing_hits, when: "= event.source == 'swing'"}

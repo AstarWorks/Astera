@@ -31,6 +31,8 @@ class CombatLink(val sim: GameSim, val caster: SimEntity, val dummy: SimEntity, 
     /** Receives the recorded lines; set by [CastSim]. */
     var sink: MutableList<String> = ArrayList()
     var origin: Vec3 = Vec3.ZERO
+    /** Receives each skill impulse (real entity id) at the moment the gateway applies it; set by [CastSim]. */
+    var onImpulse: (UUID, Vec3) -> Unit = { _, _ -> }
 
     private val startTick: Long
 
@@ -64,18 +66,27 @@ class CombatLink(val sim: GameSim, val caster: SimEntity, val dummy: SimEntity, 
     private fun who(u: UUID): String = when (u) { caster.id.uuid -> "caster"; dummy.id.uuid -> "dummy"; else -> "other" }
 
     /** [CastSim]'s entity id -> the real sim entity id. */
+    /** The real sim entity id -> [CastSim]'s entity id. */
+    fun unmap(u: UUID): UUID = when (u) { caster.id.uuid -> SIM_CASTER; dummy.id.uuid -> simVictim(1); else -> u }
+
     fun map(u: UUID): UUID = when (u) { SIM_CASTER -> caster.id.uuid; simVictim(1) -> dummy.id.uuid; else -> u }
 
     val gateway = PaperSkillGameplayGateway(
         applyDamage = checkNotNull(sim.combat.applyDamage) { "combat wiring has no ApplyDamageUseCase" },
         applyStatus = checkNotNull(sim.combat.applyStatus) { "combat wiring has no ApplyStatusUseCase" },
         // The sim registers no physical knockback gateway (the wiring falls back to a no-op); the push itself is read off KnockbackApplied.
-        knockback = sim.services.get<IKnockbackGateway>() ?: object : IKnockbackGateway {
-            override fun applyImpulse(target: com.astarworks.astera.core.domain.player.PlayerId, impulse: Vec3) {}
-            override fun applyPush(target: com.astarworks.astera.core.domain.player.PlayerId, push: com.astarworks.astera.combat.domain.damage.KnockbackPush) {}
+        // A skill impulse arrives here only once v1's hold clock released it, so [onImpulse] sees the tick it really lands on.
+        knockback = object : IKnockbackGateway {
+            private val inner = sim.services.get<IKnockbackGateway>()
+            override fun applyImpulse(target: com.astarworks.astera.core.domain.player.PlayerId, impulse: Vec3) {
+                inner?.applyImpulse(target, impulse)
+                onImpulse(target.uuid, impulse)
+            }
+            override fun applyPush(target: com.astarworks.astera.core.domain.player.PlayerId, push: com.astarworks.astera.combat.domain.damage.KnockbackPush) {
+                inner?.applyPush(target, push)
+            }
         },
         casterPosition = { feet() },
-        holdEntity = { _, _ -> },
         statusContainer = sim.services.getOrThrow<IStatusEffectContainer>(),
         entityEffects = sim.services.getOrThrow<IEntityEffectsGateway>(),
         attributes = sim.services.getOrThrow<IPlayerAttributeContainerStore>(),

@@ -315,13 +315,14 @@ class Conv:
         self.has_bolt = False
         self.todo_gaps = OrderedDict()
         self.present_gaps = OrderedDict()
+        self.noop_gaps = OrderedDict()  # v1 fields its production code never reads: documented, not converted, not a gap
         self.windup = 0  # ticks every cast-row op is rebased by (v1 `windup`)
 
     # ---------- gaps (the only place a dropped v1 construct is recorded) ----------
     def gap(self, kind, name, detail=""):
-        if STRICT:
+        if STRICT and kind != "noop":
             raise UnhandledV1Key(f"{kind} gap '{name}' {detail}".strip())
-        d = self.todo_gaps if kind == "todo" else self.present_gaps
+        d = {"todo": self.todo_gaps, "present": self.present_gaps, "noop": self.noop_gaps}[kind]
         e = d.setdefault(name, [0, []])
         e[0] += 1
         if detail and len(e[1]) < 2 and detail not in e[1]:
@@ -332,6 +333,10 @@ class Conv:
 
     def present(self, name, detail=""):
         self.gap("present", name, detail)
+
+    def v1_noop(self, name, detail=""):
+        """A v1 field that v1's production code never consumes (so it never did anything): left out on purpose and said so in the file."""
+        self.gap("noop", name, detail)
 
     def sound_gap(self, name, detail=""):
         """A v1 sound setting v2 cannot play. Never dropped silently: a CONVERT-TODO in the file and a non-zero exit."""
@@ -1823,8 +1828,9 @@ def convert_skill(d, vfx_dir, item):
             c.g(w, 0, {"id": c.oid("dmg"), "op": "damage", "target": "victim",
                        "components": [{"kind": comp["attribute"], "amount": c.param("dmg_" + comp["attribute"], V(comp["base"]))}]})
         if params.get("knockback"):
-            kb = c.param("knockback", params["knockback"])
-            c.g(w, 0, {"id": c.oid("kb"), "op": "knockback", "direction": "= normalize(flat(pos(victim) - pos(caster)))", "strength": kb})
+            # v1 MeleeHandler never reads MeleeParams.knockback (SkillParams.kt:19 is only stored); the push a melee hit gets is the combat
+            # pipeline's plain-hit KnockbackModifier push, which v2 gets through the same ApplyDamageUseCase. Not a skill push.
+            c.v1_noop("melee params.knockback", "knockback: %s (v1 MeleeHandler ignores it; the plain-hit push is the combat pipeline's)" % V(params["knockback"]))
         c.mechanics(phases.get("cast"), CAST)
         c.mechanics(phases.get("hit_entity"), w)
         block_damage(c, d, arch, None, None)
@@ -2002,6 +2008,7 @@ def build_docs(c, d, item, items):
     if len(items) > 1:
         cm.append("also bound to items: " + ", ".join(items[1:]))
     cm += gap_lines(c.todo_gaps, "TODO")
+    cm += gap_lines(c.noop_gaps, "V1-NOOP")
     sk["#"] = cm
 
     # presentation: repeating rows (trail emits) become `every` rows

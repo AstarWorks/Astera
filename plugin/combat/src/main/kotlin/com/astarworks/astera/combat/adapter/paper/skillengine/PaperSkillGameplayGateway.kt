@@ -34,7 +34,8 @@ import java.util.UUID
  * [ISkillGameplayGateway] over the existing combat pipeline (ADR-0301): damage goes through
  * [ApplyDamageUseCase] (armor, element matrix, i-frames, kill events), statuses through
  * [ApplyStatusUseCase], impulses through [IKnockbackGateway] (knockback resistance honoured) and
- * hit-stop through the dispatcher's own hold clock, supplied as [holdEntity].
+ * hit-stop through [IEntityEffectsGateway.hold] with v1's hold clock: an impulse landing on a held entity is deferred to
+ * the release, and one landing the same tick before the hold is replayed after it (v1 `MechanicDispatcher.applyMovement`).
  *
  * Main thread only.
  */
@@ -43,8 +44,6 @@ public class PaperSkillGameplayGateway(
     private val applyStatus: ApplyStatusUseCase,
     private val knockback: IKnockbackGateway,
     private val casterPosition: (UUID) -> Vec3?,
-    /** MechanicDispatcher's hit-stop clock: zero velocity + freeze, deferred same-tick movement. */
-    private val holdEntity: (PlayerId, Int) -> Unit,
     private val statusContainer: IStatusEffectContainer,
     private val entityEffects: IEntityEffectsGateway,
     private val attributes: IPlayerAttributeContainerStore,
@@ -173,12 +172,47 @@ public class PaperSkillGameplayGateway(
     }
 
     override fun impulse(victim: UUID, vector: Vec3) {
-        knockback.applyImpulse(PlayerId(victim), vector)
+        val target = PlayerId(victim)
+        applyMovement(target) { knockback.applyImpulse(target, vector) }
     }
 
     override fun freezeEntities(entities: List<UUID>, ticks: Int) {
         if (ticks <= 0) return
         for (id in entities.distinct()) holdEntity(PlayerId(id), ticks)
+    }
+
+    /** Tick each entity is held until; an impulse before that tick is deferred to the release. */
+    private val heldUntil: MutableMap<PlayerId, Long> = HashMap()
+
+    /** Impulses applied to a held entity, replayed on release. */
+    private val deferredMovement: MutableMap<PlayerId, MutableList<() -> Unit>> = HashMap()
+
+    /** Impulses applied this tick per entity, so a hit-stop that follows in the same tick defers them instead of wiping them. */
+    private val recentMovement: MutableMap<PlayerId, Pair<Long, MutableList<() -> Unit>>> = HashMap()
+
+    private fun applyMovement(target: PlayerId, op: () -> Unit) {
+        val now = scheduler.currentTick()
+        if ((heldUntil[target] ?: Long.MIN_VALUE) > now) {
+            deferredMovement.getOrPut(target) { ArrayList() } += op
+            return
+        }
+        op()
+        val recent = recentMovement[target]
+        if (recent == null || recent.first != now) recentMovement[target] = now to mutableListOf(op) else recent.second += op
+    }
+
+    private fun holdEntity(id: PlayerId, ticks: Int) {
+        val now = scheduler.currentTick()
+        val sameTick = recentMovement.remove(id)?.takeIf { it.first == now }?.second.orEmpty()
+        entityEffects.hold(id, ticks) // zeroes velocity: this tick's movement is re-applied after the release
+        if (sameTick.isNotEmpty()) deferredMovement.getOrPut(id) { ArrayList() } += sameTick
+        heldUntil[id] = maxOf(heldUntil[id] ?: 0L, now + ticks)
+        scheduler.run(ExecutionScope.Entity(id.uuid), ticks(ticks.toLong())) {
+            if ((heldUntil[id] ?: Long.MAX_VALUE) <= scheduler.currentTick()) {
+                heldUntil.remove(id)
+                deferredMovement.remove(id)?.forEach { it() }
+            }
+        }
     }
 
     private fun attributeOf(kind: String): DamageAttribute =

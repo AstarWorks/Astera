@@ -1,12 +1,13 @@
 # Converted from content/skills/rapier-thrust.yaml by tools/skill-convert/convert.py (v1 archetype: melee). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
 # Generated point-frame offsets are [left, up, forward] in the parent frame.
+# CONVERT-V1-NOOP melee params.knockback (x1): knockback: 0.1 (v1 MeleeHandler ignores it; the plain-hit push is the combat pipeline's)
 apiVersion: "astera/v2"
 kind: Skill
 id: rapier-thrust
 item: rapier
 meta: {name: {ja: "レイピアの突き", en: "Rapier Thrust"}, description: {ja: "細い突きを素早く繰り出す。", en: "A fast, precise thrust."}, cooldown_ticks: 9, resource_cost: 5, tags: [melee, physical]}
 gameplay:
-  params: {arc_deg: 20.0, range: 3.6, dmg_physical: 24.0, knockback: 0.1}
+  params: {arc_deg: 20.0, range: 3.6, dmg_physical: 24.0}
   expose:
     - {id: damage, param: dmg_physical}
     - {id: range, param: range}
@@ -15,7 +16,4 @@ gameplay:
       at: 0
       do:
         - {id: swing, op: hit, frames: [caster], sector: {frame: caster, at: eye, forward: caster.forward, left: caster.left, angle_deg: "${arc_deg}", range: "${range}", height: 2.0}, window: once, ticks: 1}
-  "on":
-    hit:
-      - {id: dmg, op: damage, target: victim, components: [{kind: physical, amount: "${dmg_physical}"}], when: "= event.source == 'swing'"}
-      - {id: kb, op: knockback, direction: "= normalize(flat(pos(victim) - pos(caster)))", strength: "${knockback}", when: "= event.source == 'swing'"}
+  "on": {hit: [{id: dmg, op: damage, target: victim, components: [{kind: physical, amount: "${dmg_physical}"}], when: "= event.source == 'swing'"}]}
