@@ -1,27 +1,33 @@
-# Converted from content/skills/scythe-pull.yaml by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
-# Generated point-frame offsets are [left, up, forward] in the parent frame.
-apiVersion: "astera/v2"
+# astera/v3 hand port of the v2 skill.yaml + look.yaml (tick for tick).
+# GAP: gameplay.expose [damage <- dmg_physical, range <- reach] -> none (no v3 spelling; the numbers are inline below)
+apiVersion: astera/v3
 kind: Skill
 id: scythe-pull
 item: scythe
 meta: {name: {ja: "引き寄せ", en: Pull}, description: {ja: "前方の相手を手前へ引き寄せる。", en: "Drags the targets in front of you toward you."}, cooldown_ticks: 130, resource_cost: 12, tags: [melee, control]}
-gameplay:
-  params: {arc_deg: 50, reach: 5.0, knockback: 1.3, dmg_physical: 14.0}
-  expose:
-    - {id: damage, param: dmg_physical}
-    - {id: range, param: reach}
-  timeline:
-    - id: t0
-      at: 0
+anchors:
+  - {id: eye,   anchor: caster.eye}
+  - {id: sweep, anchor: caster.eye, offset: {up: -0.1, forward: 2.0}}   # was pt_aim_0_m0p1_2
+machine:
+  start: cast
+  states:
+    cast:
+      for: 1
+      then: end
       do:
+        - {id: snd, op: sound, sound: entity.player.attack.sweep, anchor: caster, volume: 1.0, pitch: 0.6}
+        - {id: fx, op: particle_def, def: slash-sweep, anchor: sweep}
         - id: sel
           op: hit
-          frames: [caster]
-          sector: {frame: caster, at: eye, forward: caster.forward, left: caster.left, angle_deg: "${arc_deg}", range: "${reach}", height: 2.0}
-          max_count: 3
-          window: once
-          ticks: 1
-  "on":
-    hit:
-      - {id: kb, op: knockback, direction: "= normalize(flat(pos(caster) - pos(victim))) + vec(0.0, 0.2, 0.0)", strength: "${knockback}", when: "= event.source == 'sel'"}
-      - {id: dmg, op: damage, components: [{kind: physical, amount: "${dmg_physical}"}], target: victim, when: "= event.source == 'sel'"}
+          at: 0
+          anchor: eye
+          shape: {sector: {deg: 50, range: 5.0, height: 2.0}}
+          # GAP: hit max_count: 3 -> none
+          targets: enemies
+          damage: {physical: 14.0}
+          # GAP: inline `on: hit` handler on a hit op is not in ADR 10.1b (closest: projectile on: 3.6). v2 ran knockback before damage; here the hit damage lands first, then the handler.
+          # GAP: CEL functions normalize / flat / vec are used as in v2; the v3 function registry is unconfirmed.
+          on:
+            hit:
+              - {id: kb, op: knockback, target: event.victim, direction: "= normalize(flat(pos(caster) - pos(event.victim))) + vec(0.0, 0.2, 0.0)", strength: 1.3}
+    end: {final: true}
