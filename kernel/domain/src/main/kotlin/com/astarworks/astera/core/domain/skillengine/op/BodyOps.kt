@@ -33,4 +33,15 @@ public sealed interface BodyOp : PresentationOp {
         /** Event that stops the clip early (blends out); a cancelled cast stops it too. */
         val untilEvent: String?,
     ) : BodyOp
+
+    /**
+     * Outline glow on each target for [ticks] ticks (v1 `glow`). Only living players glow; a later glow on the same target
+     * REPLACES the end time of the running one (last writer wins), so a shorter later glow also shortens the first.
+     */
+    public data class Glow(
+        override val id: String,
+        override val whenExpr: Value<Boolean>?,
+        val target: TargetRef,
+        val ticks: Value<Double>,
+    ) : BodyOp
 }

@@ -167,6 +167,7 @@ internal class SkillEnginePaperRuntime(
             screen = PaperSkillScreenGateway(feedback, scheduler, server, displays) { id ->
                 sprites?.find(com.astarworks.astera.core.domain.sprite.SpriteId(id))?.size ?: 8
             },
+            glow = com.astarworks.astera.combat.adapter.paper.skillengine.PaperEntityGlowGateway(server, entityEffects),
             cooldowns = PaperSkillCooldownGateway { services.get<ICooldownTracker>() },
             items = PaperSkillItemGateway(server) { id, player, count ->
                 val spec = services.get<IItemRegistry>()?.find(id) ?: return@PaperSkillItemGateway null

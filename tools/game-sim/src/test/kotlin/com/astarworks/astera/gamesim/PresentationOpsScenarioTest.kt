@@ -290,7 +290,7 @@ class PresentationOpsScenarioTest {
         val names = presentationDecoders().flatMap { it.opNames }.toSet()
         assertThat(names).containsExactlyInAnyOrder(
             "mesh", "plate", "block", "quad", "line", "trail", "track", "remove", "emit", "sound",
-            "victim_anim", "caster_anim", "title", "action_bar", "camera_shake", "screen_flash", "screen_veil", "stop_sound",
+            "victim_anim", "caster_anim", "glow", "title", "action_bar", "camera_shake", "screen_flash", "screen_veil", "stop_sound",
         )
         val viewer = decode("plate", mapOf("parent" to "volley", "sprite" to "slash_fan", "face" to mapOf("viewer" to "vertical"))) as VisualOp.Plate
         assertThat(viewer.face).isEqualTo(PlateFace.ViewerVertical)

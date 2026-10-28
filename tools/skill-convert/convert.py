@@ -47,7 +47,7 @@ GAMEPLAY = {"damage", "apply_status", "knockback", "propel", "hit_stop", "cast_s
             "place_shape", "heal", "cleanse", "consume_item", "summon_lightning", "leap", "modify_attribute",
             "dash_strike", "counter"}
 PRESENT = {"play_sound", "spawn_particle", "schedule_particle_animation", "play_vfx", "camera_shake", "screen_flash",
-           "screen_veil", "telegraph", "play_animation", "stop_sound", "hide_held_item"}
+           "screen_veil", "telegraph", "play_animation", "stop_sound", "hide_held_item", "glow"}
 AREA = {"cone", "nearby_entities", "forward_ray", "enemies", "allies"}
 SHAPES_BREAK = {"sphere", "line", "box"}
 SHAPES_BUILD = {"wall", "bridge", "pillar", "platform"}
@@ -579,7 +579,7 @@ class Conv:
         if t == "counter":
             self.counter(m, where, delay)
             return
-        if tg and tg["type"] in AREA and tg["type"] != "allies" and t not in ("camera_shake", "screen_flash", "screen_veil", "stop_sound"):
+        if tg and tg["type"] in AREA and tg["type"] != "allies" and t not in ("camera_shake", "screen_flash", "screen_veil", "stop_sound", "glow"):
             if where.kind == "cast":
                 where = self.select(tg, delay, m)
                 delay = 0
@@ -792,6 +792,13 @@ class Conv:
             for k in ("shape", "direction", "viewers"):
                 if k in m:
                     self.present("camera_shake %s (engine shake is intensity + ticks only)" % k, "%s=%s" % (k, short(V(m[k]), 40)))
+        elif t == "glow":
+            # v1 WorldMechanics.glow (WM:585): outline for `ticks`, living players only, the last writer's end time wins.
+            extra = sorted(set(m) - {"ticks"} - self.COMMON_MECH_KEYS)
+            if extra:
+                raise ValueError("%s: glow mechanic carries field(s) %s that v2 cannot express; extend the op before "
+                                 "converting" % (self.sid_hint(), extra))
+            W({"id": self.oid("glow"), "op": "glow", "target": self.screen_target(tg), "ticks": V(m["ticks"])})
         elif t == "play_animation":
             anim = m["animation"]
             if tg and tg["type"] == "caster":

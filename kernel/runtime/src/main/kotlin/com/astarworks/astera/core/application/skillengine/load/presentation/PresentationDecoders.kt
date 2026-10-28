@@ -277,11 +277,12 @@ private object FxOpDecoder : OpDecoder {
 
 private object BodyOpDecoder : OpDecoder {
     override val section = OpSection.PRESENTATION
-    override val opNames = setOf("victim_anim", "caster_anim")
+    override val opNames = setOf("victim_anim", "caster_anim", "glow")
     override fun decode(op: String, id: String, whenExpr: Value<Boolean>?, reader: OpReader): SkillOp = with(reader) {
         when (op) {
             "victim_anim" -> BodyOp.VictimAnim(id, whenExpr, target(TargetRef.Victim), requireString("anim").also { if (it !in BodyOp.VictimAnim.KNOWN) fail("victim_anim: unknown anim '$it' (${BodyOp.VictimAnim.KNOWN.joinToString()})") }, number("strength"))
             "caster_anim" -> BodyOp.CasterAnim(id, whenExpr, requireString("anim"), number("speed"), int("ticks"), string("until"))
+            "glow" -> BodyOp.Glow(id, whenExpr, target(TargetRef.Caster), requireNumber("ticks"))
             else -> fail("not a body op: $op")
         }
     }

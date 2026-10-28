@@ -237,6 +237,7 @@ internal class Sim(val c: Coin2Collaborators, val catalog: SkillCatalog, val wit
             cooldowns = noop<ISkillCooldownGateway>(),
             items = noop<ISkillItemGateway>(),
             effects = noop<ISkillWorldEffectGateway>(),
+            glow = noop<com.astarworks.astera.core.application.skillengine.runtime.ops.IEntityGlowGateway>(),
         ),
         newTree = c.newTree,
         motion = c.motion,
