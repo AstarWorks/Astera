@@ -1,20 +1,81 @@
 # Converted from content/skills/sigil-rifle-s1.yaml + content/vfx/* by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
 # Generated point-frame offsets are [left, up, forward] in the parent frame.
 # CONVERT-PRESENT vfx frame orient (frames carry no orientation / scale) (x2): orient="yaw"
-# CONVERT-PRESENT rig block parts (mesh takes an item model, not a block + size) (x1): 5 parts
-# CONVERT-PRESENT rig swing without a weapon mesh (track needs a visual to move) (x1): 41 keys
 # CONVERT-PRESENT vfx follow=false (anchored at world, no place-at-spawn) (x1): sigil-rifle-mark
 apiVersion: "astera/v2"
 kind: Skill
 id: sigil-rifle-s1
 frames:
   - {id: fx1_sigil_rifle_dash, kind: body, parent: caster}
-  - {id: fx1_sigil_rifle_dash_rifle, kind: body, parent: caster.right_hand}
+  - {id: fx1_sigil_rifle_dash_rifle_at, kind: body, parent: caster.right_hand}
+  - {id: fx1_sigil_rifle_dash_rifle, kind: body, parent: fx1_sigil_rifle_dash_rifle_at}
   - {id: pt_fx1_sigil_rifle_dash_rifle_0_0p55_0, kind: point, parent: fx1_sigil_rifle_dash_rifle, offset: [0.0, 0.55, 0.0]}
   - {id: pt_fx1_sigil_rifle_dash_rifle_0_1p65_0, kind: point, parent: fx1_sigil_rifle_dash_rifle, offset: [0.0, 1.65, 0.0]}
   - {id: fx2_sigil_rifle_mark, kind: body, parent: world}
 presentation:
   timeline:
+    - id: fx0
+      at: 0
+      do:
+        - id: fx1_sigil_rifle_dash_rifle_rig
+          op: rig
+          frame: fx1_sigil_rifle_dash_rifle
+          parent: fx1_sigil_rifle_dash_rifle_at
+          duration: 44
+          hand: false
+          pivot: [1.250606, 0.277261, 0.246935]
+          rest: [90.0, 0.0, 0.0]
+          swing:
+            - {t: 0, rotate: [-75.0, 0.0, 0.0]}
+            - {t: 1, rotate: [-89.591837, 0.0, 0.0], sample: true}
+            - {t: 2, rotate: [-101.938776, 0.0, 0.0], sample: true}
+            - {t: 3, rotate: [-112.040816, 0.0, 0.0], sample: true}
+            - {t: 4, rotate: [-119.897959, 0.0, 0.0], sample: true}
+            - {t: 5, rotate: [-125.510204, 0.0, 0.0], sample: true}
+            - {t: 6, rotate: [-128.877551, 0.0, 0.0], sample: true}
+            - {t: 7, rotate: [-130.0, 0.0, 0.0]}
+            - {t: 8, rotate: [-68.8, 0.0, 0.0], sample: true}
+            - {t: 9, rotate: [-21.2, 0.0, 0.0], sample: true}
+            - {t: 10, rotate: [12.8, 0.0, 0.0], sample: true}
+            - {t: 11, rotate: [33.2, 0.0, 0.0], sample: true}
+            - {t: 12, rotate: [40.0, 0.0, 0.0]}
+            - {t: 13, rotate: [40.0, 0.0, 0.0], sample: true}
+            - {t: 14, rotate: [40.0, 0.0, 0.0], sample: true}
+            - {t: 15, rotate: [40.0, 0.0, 0.0], sample: true}
+            - {t: 16, rotate: [40.0, 0.0, 0.0]}
+            - {t: 17, rotate: [-21.25, 0.0, 0.0], sample: true}
+            - {t: 18, rotate: [-65.0, 0.0, 0.0], sample: true}
+            - {t: 19, rotate: [-91.25, 0.0, 0.0], sample: true}
+            - {t: 20, rotate: [-100.0, 0.0, 0.0]}
+            - {t: 21, rotate: [-25.0, 0.0, 0.0], sample: true}
+            - {t: 22, rotate: [20.0, 0.0, 0.0], sample: true}
+            - {t: 23, rotate: [35.0, 0.0, 0.0]}
+            - {t: 24, rotate: [29.6, 0.0, 0.0], sample: true}
+            - {t: 25, rotate: [25.4, 0.0, 0.0], sample: true}
+            - {t: 26, rotate: [22.4, 0.0, 0.0], sample: true}
+            - {t: 27, rotate: [20.6, 0.0, 0.0], sample: true}
+            - {t: 28, rotate: [20.0, 0.0, 0.0]}
+            - {t: 29, rotate: [17.422222, 0.0, 0.0], sample: true}
+            - {t: 30, rotate: [15.022222, 0.0, 0.0], sample: true}
+            - {t: 31, rotate: [12.8, 0.0, 0.0], sample: true}
+            - {t: 32, rotate: [10.755556, 0.0, 0.0], sample: true}
+            - {t: 33, rotate: [8.888889, 0.0, 0.0], sample: true}
+            - {t: 34, rotate: [7.2, 0.0, 0.0], sample: true}
+            - {t: 35, rotate: [5.688889, 0.0, 0.0], sample: true}
+            - {t: 36, rotate: [4.355556, 0.0, 0.0], sample: true}
+            - {t: 37, rotate: [3.2, 0.0, 0.0], sample: true}
+            - {t: 38, rotate: [2.222222, 0.0, 0.0], sample: true}
+            - {t: 39, rotate: [1.422222, 0.0, 0.0], sample: true}
+            - {t: 40, rotate: [0.8, 0.0, 0.0], sample: true}
+            - {t: 41, rotate: [0.355556, 0.0, 0.0], sample: true}
+            - {t: 42, rotate: [0.088889, 0.0, 0.0], sample: true}
+            - {t: 43, rotate: [0.0, 0.0, 0.0]}
+          sample_ticks: 1
+        - {id: fx1_sigil_rifle_dash_rifle_stock, op: block, parent: fx1_sigil_rifle_dash_rifle, block: black_concrete, size: [0.2, 0.7289, 0.25], at: [0.0, -0.2278, 0.0], brightness: 10}
+        - {id: fx1_sigil_rifle_dash_rifle_receiver, op: block, parent: fx1_sigil_rifle_dash_rifle, block: gray_concrete, size: [0.18, 0.6378, 0.18], at: [0.0, 0.3644, 0.0], brightness: 10}
+        - {id: fx1_sigil_rifle_dash_rifle_barrel, op: block, parent: fx1_sigil_rifle_dash_rifle, block: black_concrete, size: [0.09, 0.82, 0.09], at: [0.0, 1.0478, 0.0], brightness: 10}
+        - {id: fx1_sigil_rifle_dash_rifle_rail, op: block, parent: fx1_sigil_rifle_dash_rifle, block: light_gray_concrete, size: [0.025, 1.1844, 0.035], at: [-0.1, 0.7289, 0.0], brightness: 10}
+        - {id: fx1_sigil_rifle_dash_rifle_sight, op: block, parent: fx1_sigil_rifle_dash_rifle, block: black_concrete, size: [0.09, 0.0729, 0.1], at: [0.0, 1.4122, -0.09], brightness: 10}
     - id: fx7
       at: 7
       do:
@@ -88,10 +149,16 @@ presentation:
     - {id: fx25, at: 25, do: [{id: rm_3, op: remove, ids: [fx1_sigil_rifle_dash_contact]}]}
     - {id: fx28, at: 28, do: [{id: rm_4, op: remove, ids: [fx1_sigil_rifle_dash_solid_impact_0, fx1_sigil_rifle_dash_solid_impact_1, fx1_sigil_rifle_dash_solid_impact_2]}]}
     - {id: fx31, at: 31, do: [{id: rm_5, op: remove, ids: [fx1_sigil_rifle_dash_rifle_ribbon_20]}]}
+    - id: fx44
+      at: 44
+      do:
+        - id: rm_6
+          op: remove
+          ids: [fx1_sigil_rifle_dash_rifle_stock, fx1_sigil_rifle_dash_rifle_receiver, fx1_sigil_rifle_dash_rifle_barrel, fx1_sigil_rifle_dash_rifle_rail, fx1_sigil_rifle_dash_rifle_sight]
     - id: fxhit_7
       at: "hit+7"
       do:
-        - {id: rm_6, op: remove, ids: [fx2_sigil_rifle_mark_solid_impact_0, fx2_sigil_rifle_mark_solid_impact_1, fx2_sigil_rifle_mark_solid_impact_2], when: "= event.source == 'sel'"}
+        - {id: rm_7, op: remove, ids: [fx2_sigil_rifle_mark_solid_impact_0, fx2_sigil_rifle_mark_solid_impact_1, fx2_sigil_rifle_mark_solid_impact_2], when: "= event.source == 'sel'"}
     - {id: loop1, at: 7, every: 1, for: 5, do: [{id: fx1_sigil_rifle_dash_rifle_embers_7, op: emit, at: pt_fx1_sigil_rifle_dash_rifle_0_1p65_0, particle: sigil-rifle-embers}]}
     - {id: loop2, at: 20, every: 1, for: 3, do: [{id: fx1_sigil_rifle_dash_rifle_embers_20, op: emit, at: pt_fx1_sigil_rifle_dash_rifle_0_1p65_0, particle: sigil-rifle-embers}]}
   "on":

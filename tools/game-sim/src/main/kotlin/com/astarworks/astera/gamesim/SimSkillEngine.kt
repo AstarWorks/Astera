@@ -36,7 +36,6 @@ import com.astarworks.astera.core.application.skillengine.runtime.CastRequest
 import com.astarworks.astera.core.application.skillengine.runtime.SkillEngineGateways
 import com.astarworks.astera.core.application.skillengine.runtime.SkillEngineKit
 import com.astarworks.astera.core.application.skillengine.runtime.ops.ISkillWorldEffectGateway
-import com.astarworks.astera.core.domain.effect.ScreenOverlay
 import com.astarworks.astera.core.application.skillengine.runtime.port.BlockDamageOutcome
 import com.astarworks.astera.core.application.skillengine.runtime.port.BlockHit
 import com.astarworks.astera.core.application.skillengine.runtime.port.EntityRoot
@@ -188,6 +187,8 @@ public class SimSkillEngine private constructor(
                 )
             },
             casterAnim = object : ISkillCasterAnimGateway {
+                override fun clip(anim: String): com.astarworks.astera.core.domain.animation.skinrig.SkinRigAnimation? = null
+                override fun isSlim(caster: UUID) = false
                 override fun play(caster: UUID, anim: String, speed: Double, ticks: Int) { recording.casterAnims += "play $anim" }
                 override fun stop(caster: UUID, anim: String) { recording.casterAnims += "stop $anim" }
                 override fun release(caster: UUID, anim: String) { recording.casterAnims += "release $anim" }
@@ -196,7 +197,7 @@ public class SimSkillEngine private constructor(
                 override fun title(viewer: UUID, text: String, subtitle: String?, ticks: Int) { recording.screens += "title $text" }
                 override fun actionBar(viewer: UUID, text: String) { recording.screens += "actionbar $text" }
                 override fun cameraShake(viewer: UUID, intensity: Double, ticks: Int) { recording.screens += "shake $intensity" }
-                override fun flash(viewer: UUID, overlay: ScreenOverlay, colorRgb: Int, fadeIn: Int, stay: Int, fadeOut: Int) { recording.screens += "flash $overlay" }
+                override fun flash(viewer: UUID, overlay: com.astarworks.astera.core.domain.effect.ScreenOverlay, colorRgb: Int, fadeIn: Int, stay: Int, fadeOut: Int) { recording.screens += "flash $overlay" }
                 override fun veil(viewer: UUID, sprite: String, colorRgb: Int, side: Double, distance: Double, ticks: Int) { recording.screens += "veil $sprite" }
                 override fun stopSound(viewer: UUID, sound: String) { recording.screens += "stop_sound $sound" }
             },
@@ -391,6 +392,7 @@ private class SimSkillVisuals(
     }
 
     override fun spawnMesh(castOwner: UUID, item: String, part: String?, pose: VisualPose, brightness: Int?) = spawn()
+    override fun spawnSkinBone(castOwner: UUID, bone: com.astarworks.astera.core.domain.animation.skinrig.SkinRigBone, slim: Boolean, ghost: Boolean, pose: VisualPose) = spawn()
     override fun spawnPlate(castOwner: UUID, sprite: String, alpha: Double, pose: VisualPose, brightness: Int?) = spawn()
     override fun spawnBlock(castOwner: UUID, block: String, pose: VisualPose, brightness: Int?) = spawn()
     override fun spawnQuad(castOwner: UUID, colorHex: String, alpha: Double, text: String?, shadow: Boolean, seeThrough: Boolean, pose: VisualPose, brightness: Int?) = spawn()

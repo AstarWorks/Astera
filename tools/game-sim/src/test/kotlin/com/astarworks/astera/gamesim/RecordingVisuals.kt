@@ -142,6 +142,13 @@ class RecordingVisuals(
         return h
     }
 
+    override fun spawnSkinBone(castOwner: UUID, bone: com.astarworks.astera.core.domain.animation.skinrig.SkinRigBone, slim: Boolean, ghost: Boolean, pose: VisualPose): VisualHandle {
+        val h = next(Mesh(), "skin_bone", bone.yamlName)
+        val w = write(h.id, "skin_bone", Intrinsic.ITEM_FIXED, pose, 0, pose.size.x, bone.yamlName, spawn = true)
+        specs[h.id] = SkillDisplaySpecs.skinBone(com.astarworks.astera.core.domain.effect.DisplayKind.SkinBone(bone, slim, ghost), w.transform)
+        return h
+    }
+
     override fun spawnPlate(castOwner: UUID, sprite: String, alpha: Double, pose: VisualPose, brightness: Int?): VisualHandle {
         val intrinsic = Intrinsic.textGlyph(spritePixels(sprite))
         val h = next(Plate(intrinsic), "plate", sprite)
