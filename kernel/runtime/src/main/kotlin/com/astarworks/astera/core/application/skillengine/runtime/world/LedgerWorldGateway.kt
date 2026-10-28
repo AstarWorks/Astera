@@ -33,12 +33,17 @@ public abstract class LedgerWorldGateway(protected val blocks: ISkillBlockAccess
         val toolClass = spec.tool.takeIf { it != "none" }
         for ((index, cell) in ordered.withIndex()) {
             if (!blocks.canEdit(cast, cell, spec.outsideArena)) continue
+            val type = blocks.blockAt(cast, cell)
             if (blocks.isCover(cast, cell)) {
+                // v1 WorldMechanics.kt:259-260: cover is struck only when its base material is within the skill's power
+                if (type != null && !WorldBlockRules.breakable(type, spec.power, null)) continue
                 scheduleCoverStrikes(cast, spec, toolClass, cell, index, ordered.size)
                 continue
             }
             // a flat chip (no tool) only ever hurts cover; terrain is the tool skills' to break (v2 BreakAreaExecutor)
             if (toolClass == null) continue
+            if (WorldBlockRules.isAir(type) || WorldBlockRules.isProtected(type!!)) continue
+            if (!WorldBlockRules.breakable(type, spec.power, toolClass)) continue
             schedule(cast, index, ordered.size, spec.rippleTicks) { strikeTerrain(cast, spec, toolClass, cell) }
         }
     }
@@ -71,7 +76,7 @@ public abstract class LedgerWorldGateway(protected val blocks: ISkillBlockAccess
         val key = WorldBlockRules.normalize(spec.block)
         val cover = blocks.isCoverBlock(key)
         if (!cover && WorldBlockRules.isProtected(key)) return
-        val ordered = WorldShapes.buildCells(spec.shape, aim).sortedBy { it.distanceSquaredTo(aim.origin) }
+        val ordered = WorldShapes.buildCells(spec.shape, aim).sortedBy { it.distanceSquaredTo(aim.eye) }
         for ((index, cell) in ordered.withIndex()) {
             schedule(cast, index, ordered.size, spec.rippleTicks) {
                 if (!blocks.canEdit(cast, cell, spec.outsideArena)) return@schedule

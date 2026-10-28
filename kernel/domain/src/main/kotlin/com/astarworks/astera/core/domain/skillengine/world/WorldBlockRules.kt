@@ -16,6 +16,34 @@ public object WorldBlockRules {
         "brewing_stand", "jukebox", "crafter",
     )
 
+    // v1 WorldMechanics.kt:687-690.
+    private val SOIL_WORDS: List<String> = listOf("dirt", "grass_block", "sand", "gravel", "clay", "mud", "snow", "podzol", "mycelium", "soul_soil", "farmland")
+    private val WOOD_WORDS: List<String> = listOf("plank", "log", "wood", "stem", "hyphae", "leaves", "fence", "door", "bookshelf", "scaffolding", "bamboo", "wool", "hay_block", "carpet")
+    private val HARD: Set<String> = setOf("obsidian", "crying_obsidian", "respawn_anchor", "enchanting_table", "anvil", "chipped_anvil", "damaged_anvil")
+    private val HARDEST: Set<String> = setOf("reinforced_deepslate", "netherite_block", "ancient_debris")
+
+    /**
+     * v1 WorldMechanics.breakable (WorldMechanics.kt:457-472), 1:1 as v2 kept it. The class decides what a tool is for (shovel = soil, axe = wood,
+     * pickaxe = everything else; a null [toolClass] accepts any block), and [power] must reach the block's hardness tier
+     * (hardest 3, hard 2, everything else 1). Namespaces are ignored like v1's `BlockType.identifier`.
+     */
+    public fun breakable(blockKey: String, power: Double, toolClass: String?): Boolean {
+        val id = idOf(blockKey).second
+        val kind = when {
+            id.contains("sandstone") || id.contains("mud_brick") -> "pickaxe"
+            SOIL_WORDS.any { it in id } -> "shovel"
+            WOOD_WORDS.any { it in id } -> "axe"
+            else -> "pickaxe"
+        }
+        if (toolClass != null && toolClass != kind) return false
+        val hardness = when {
+            id in HARDEST -> 3
+            id in HARD -> 2
+            else -> 1
+        }
+        return hardness <= power
+    }
+
     public fun normalize(key: String): String = if (':' in key) key.lowercase() else "minecraft:${key.lowercase()}"
 
     private fun idOf(key: String): Pair<String, String> {
