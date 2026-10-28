@@ -25,8 +25,8 @@ public data class ResolvedAnchor(val instance: InstanceId, val basis: ExprClass)
  * declaration order. [at] re-binds `i` / `parent.i` to another occurrence (a family member, a group occurrence) over the same declarations.
  */
 public interface AnchorRegistry : AnchorScope {
-    /** [instance] is the instance of an op WITHOUT its family index; [family] = N for `times: N` (instances `id[0..N-1]`), null for a single one. */
-    public fun declare(instance: InstanceId, family: Int?, basis: ExprClass)
+    /** [instance] is the instance of an op WITHOUT its family index; [family] = N for `times: N` (instances `id[0..N-1]`), null for a single one. [laws] are the closed-form laws that move the anchor (a projectile body's `motion:`): riders compose them into their own Key rows (item 16). */
+    public fun declare(instance: InstanceId, family: Int?, basis: ExprClass, laws: List<MotionLaw> = emptyList())
 
     public fun at(occurrence: Occurrence): AnchorScope
 }
@@ -51,13 +51,15 @@ public class DefaultAnchorScope private constructor(
 ) : AnchorRegistry {
     public constructor(occurrence: Occurrence) : this(occurrence, LinkedHashMap())
 
-    private data class Entry(val instance: InstanceId, val family: Int?, val basis: ExprClass)
+    private data class Entry(val instance: InstanceId, val family: Int?, val basis: ExprClass, val laws: List<MotionLaw>)
 
-    override fun declare(instance: InstanceId, family: Int?, basis: ExprClass) {
+    override fun declare(instance: InstanceId, family: Int?, basis: ExprClass, laws: List<MotionLaw>) {
         val id = instance.path.last().op
         require(family == null || family >= 1) { "family of '${id.value}' must be >= 1 (was $family)" }
-        entries[id.value] = Entry(instance, family, basis)
+        entries[id.value] = Entry(instance, family, basis, laws)
     }
+
+    override fun laws(anchor: String): List<MotionLaw> = AnchorNames.split(anchor)?.let { entries[it.base]?.laws } ?: emptyList()
 
     override fun at(occurrence: Occurrence): AnchorScope = DefaultAnchorScope(occurrence, entries)
 

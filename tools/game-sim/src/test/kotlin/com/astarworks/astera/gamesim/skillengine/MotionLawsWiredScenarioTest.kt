@@ -38,7 +38,13 @@ class MotionLawsWiredScenarioTest : SkillEngineScenario() {
         return (r as? Result.Success)?.value ?: error("expected laws but got ${(r as Result.Failure).error}")
     }
 
-    private fun lowerRows(text: String): List<Row> = LawSegmenter.lower(instance, laws(text), config, SrcPath("t")).rows
+    private fun lowerRows(text: String): List<Row> {
+        val r = LawSegmenter.lower(instance, laws(text), config, SrcPath("t"))
+        return (r as? Result.Success)?.value?.rows ?: error("expected rows but got ${(r as Result.Failure).error}")
+    }
+
+    private fun sets(rows: List<Row>): List<Pair<Int, Double>> =
+        rows.mapNotNull { r -> (r.action as? Action.Set)?.let { r.tick to ((it.value as Val.Known).value as Double) } }
 
     private fun keys(rows: List<Row>): List<K> = rows.mapNotNull { r ->
         val a = r.action as? Action.Key ?: return@mapNotNull null
@@ -107,13 +113,14 @@ class MotionLawsWiredScenarioTest : SkillEngineScenario() {
 
     @Test
     fun fade() {
+        // item 15d: a fade is one Action.Set of text_opacity per tick where the opacity changes (no law.alpha effect, no alpha segment)
         val rows = lowerRows("- {law: fade, at: 20, for: 10}")
-        assertThat(rows).hasSize(1)
-        assertThat(rows[0].tick).isEqualTo(20)
-        val a = rows[0].action as Action.Effect
-        assertThat(a.op).isEqualTo(OpId("law.alpha"))
-        assertThat((a.payload["alpha"] as Val.Known).value as Double).isCloseTo(0.0, within(1e-9))
-        assertThat((a.payload["duration"] as Val.Known).value as Double).isCloseTo(10.0, within(1e-9))
+        assertThat(rows.all { it.action is Action.Set }).isTrue()
+        rows.forEach { assertThat((it.action as Action.Set).field).isEqualTo("text_opacity") }
+        val ss = sets(rows)
+        assertThat(ss.map { it.first }).isEqualTo((21..30).toList())
+        ss.forEach { (t, v) -> assertThat(v).isCloseTo(1.0 - (t - 20) / 10.0, within(1e-9)) }
+        assertThat(ss.last().second).isCloseTo(0.0, within(1e-9))
     }
 
     @Test
@@ -131,7 +138,8 @@ class MotionLawsWiredScenarioTest : SkillEngineScenario() {
         assertThat(live.map { it.tick }).containsExactly(0, 2, 4)
         live.forEach { r ->
             val rot = (r.action as Action.Key).leftRotation as Val.Live
-            assertThat(rot.name).isEqualTo("align:muzzle")
+            // item 15e: the live name carries the object axis
+            assertThat(rot.name).isEqualTo("align:forward>muzzle")
         }
     }
 
@@ -160,17 +168,88 @@ class MotionLawsWiredScenarioTest : SkillEngineScenario() {
                 - {t: 9, offset: {up: 1.0}, ease: step}
             """,
         )
-        // the pose channel is keyed from t=6 only, so it holds 40 deg before: a duration-0 write sets it at the first boundary
+        // sum+hold: the pose channel is neutral before its first key (t=6) and jumps there; the position channel interpolates 0..6
         assertThat(ks.first().tick).isEqualTo(0)
         val at6 = ks.last { it.tick + it.dur == 6 }
         near(at6.pos, Vec3(0.0, 0.5, 0.0))
         assertThat(degrees(at6.rot, turn(left, 40.0))).isLessThan(1e-3)
-        // step: holds 0.5 up to t=9 (no segment spans 6..9), then a duration-0 jump to 1.0 on tick 9
-        assertThat(ks.filter { it.dur > 0 }.maxOf { it.tick + it.dur }).isEqualTo(6)
+        // step: holds 0.5 up to t=9, then a duration-0 jump to 1.0 on tick 9
         val jump = ks.last()
         assertThat(jump.tick).isEqualTo(9)
         assertThat(jump.dur).isEqualTo(0)
         near(jump.pos, Vec3(0.0, 1.0, 0.0))
+    }
+
+    @Test
+    fun holdAfterAMove() {
+        // item 15a: a rate law holds its final value after its window; a later law sums on top of the held value
+        val ks = keysOf(
+            """
+            - {law: move, velocity: {forward: 0.4}, for: 5}
+            - {law: move, velocity: {up: 0.1}, at: 10, for: 5}
+            """,
+        )
+        val held = ks.first { it.tick == 5 }
+        near(held.pos, Vec3(0.0, 0.0, 2.0))
+        near(ks.last().pos, Vec3(0.0, 0.5, 2.0))
+        assertThat(ks.last().tick + ks.last().dur).isEqualTo(15)
+    }
+
+    @Test
+    fun jumpIsDurationZeroAndNextStartsAtTickPlusOne() {
+        // item 15c: a jump (step key) is a duration-0 write; the next segment may not start on the same tick
+        val ks = keysOf(
+            """
+            - law: keys
+              keys:
+                - {t: 0, offset: {up: 0}}
+                - {t: 4, offset: {up: 1}, ease: step}
+                - {t: 10, offset: {up: 2}}
+            """,
+        )
+        val jump = ks.first { it.dur == 0 }
+        assertThat(jump.tick).isEqualTo(4)
+        val next = ks.first { it.tick > jump.tick }
+        assertThat(next.tick).isEqualTo(jump.tick + 1)
+        near(ks.last().pos, Vec3(0.0, 2.0, 0.0))
+        // one write per object per tick
+        assertThat(ks.groupingBy { it.tick }.eachCount().values.max()).isEqualTo(1)
+    }
+
+    @Test
+    fun twoWritesOnOneTickIsMachineCheck12() {
+        val rows = lowerRows("- {law: move, velocity: {forward: 0.4}, for: 5}")
+        assertThat(LawSegmenter.checkOneWritePerTick(rows, SrcPath("t"))).isNull()
+        val dup = rows + rows
+        val e = LawSegmenter.checkOneWritePerTick(dup, SrcPath("t"))
+        assertThat(e).isInstanceOf(SkillDecodeError.MachineCheck::class.java)
+        assertThat((e as SkillDecodeError.MachineCheck).check).isEqualTo(12)
+    }
+
+    @Test
+    fun keysTurningOver170DegreesIsALoadError() {
+        val r = MotionLaws.decodeLaws(
+            Yaml().load<Any?>(
+                """
+                - law: keys
+                  keys:
+                    - {t: 0, pose: [{axis: up, deg: 0}]}
+                    - {t: 6, pose: [{axis: up, deg: 200}]}
+                """.trimIndent(),
+            ),
+            gctx, "motion",
+        )
+        val e = (r as? Result.Failure)?.error ?: error("a 200 degree key turn must not load")
+        assertThat(e).isInstanceOf(SkillDecodeError.Invalid::class.java)
+        assertThat((e as SkillDecodeError.Invalid).message).contains("write a spin or a midpoint key")
+    }
+
+    @Test
+    fun moveHasNoAccel() {
+        val r = MotionLaws.decodeLaws(Yaml().load<Any?>("- {law: move, velocity: {forward: 0.1}, accel: {forward: 0.1}, for: 5}"), gctx, "motion")
+        val e = (r as? Result.Failure)?.error ?: error("accel on move must not load")
+        assertThat(e).isInstanceOf(SkillDecodeError.UnknownKey::class.java)
+        assertThat((e as SkillDecodeError.UnknownKey).key).isEqualTo("accel")
     }
 
     @Test
@@ -203,7 +282,7 @@ class MotionLawsWiredScenarioTest : SkillEngineScenario() {
         val sc = keysOf("- {law: grow, start: 1, to: 2, for: 4}\n- {law: grow, start: 1, to: 3, for: 4}")
         near(sc.last().scale, Vec3(6.0, 6.0, 6.0))
         val fades = lowerRows("- {law: fade, start: 1, to: 0.5, for: 4}\n- {law: fade, start: 1, to: 0.5, for: 4}")
-        assertThat(((fades.last().action as Action.Effect).payload["alpha"] as Val.Known).value as Double).isCloseTo(0.25, within(1e-9))
+        assertThat(sets(fades).last().second).isCloseTo(0.25, within(1e-9))
     }
 
     @Test

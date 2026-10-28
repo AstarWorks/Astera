@@ -1,5 +1,7 @@
 package com.astarworks.astera.core.application.skillengine.load.ops.gameplay
 
+import com.astarworks.astera.core.application.skillengine.compose.AnchorRegistry
+import com.astarworks.astera.core.application.skillengine.compose.ExprClass
 import com.astarworks.astera.core.application.skillengine.compose.HandlerLowering
 import com.astarworks.astera.core.application.skillengine.compose.LowerContext
 import com.astarworks.astera.core.application.skillengine.compose.ProjectileKinematics
@@ -14,6 +16,7 @@ import com.astarworks.astera.core.application.skillengine.load.grammar.Span
 import com.astarworks.astera.core.application.skillengine.load.grammar.Timing
 import com.astarworks.astera.core.application.skillengine.load.grammar.TimingKind
 import com.astarworks.astera.core.application.skillengine.load.grammar.Types
+import com.astarworks.astera.core.application.skillengine.load.motion.MotionLaw
 import com.astarworks.astera.core.application.skillengine.load.motion.MotionLaws
 import com.astarworks.astera.core.application.skillengine.load.spec.Lowered
 import com.astarworks.astera.core.application.skillengine.load.spec.OpNode
@@ -24,7 +27,6 @@ import com.astarworks.astera.core.domain.animation.Easing
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.skillengine.model.Value
 import com.astarworks.astera.core.domain.skillengine.op.OpSection
-import com.astarworks.astera.core.domain.skillengine.op.TrackKey
 import com.astarworks.astera.core.domain.skillengine.table.Action
 import com.astarworks.astera.core.domain.skillengine.table.Branch
 import com.astarworks.astera.core.domain.skillengine.table.EventPath
@@ -64,8 +66,8 @@ public data class ProjectileHit(val targets: String, val once: Value<Boolean>, v
 public data class ProjectileBlock(val mode: String, val forTicks: Value<Double>?, val restitution: Value<Double>?, val times: Value<Double>?)
 
 /**
- * Decoded `projectile` op (ADR-0303 3.6). The flight length is the timing block's `for`; `every`, `times`, `until` and `lasts` are not
- * accepted (repeat a projectile with a group). The handler lists of `on:` are ops of any kind, so they are kept raw in [rawOn] and decoded by
+ * Decoded `projectile` op (ADR-0303 3.6). The flight length is the timing block's `for` and/or `range`; `times` makes a family (the unroller supplies `i`), while `every`, `until`
+ * and `lasts` are not accepted (repeat a projectile with a group). The handler lists of `on:` are ops of any kind, so they are kept raw in [rawOn] and decoded by
  * the document's `OpListDecoder`, which attaches them with [withHandlers]; a projectile that has `on:` handlers but was never given a body fails
  * at lowering.
  */
@@ -80,7 +82,7 @@ public class ProjectileOp(
     public val range: Value<Double>?,
     public val radius: Value<Double>,
     public val hit: ProjectileHit,
-    public val motion: List<TrackKey>?,
+    public val motion: List<MotionLaw>?,
     public val block: ProjectileBlock,
     public val gravity: Value<Double>?,
     public val drag: Value<Double>?,
@@ -170,7 +172,6 @@ public object ProjectileOpSpec : OpSpec<ProjectileOp> {
         Grammar.guard {
             val path = "projectile '${id.value}'"
             if (timing?.every != null) ctx.fail("$path.every", "a projectile is not repeated with every; put it in a group")
-            if (timing?.times != null) ctx.fail("$path.times", "times needs every; put the projectile in a group")
             if (timing?.until != null) ctx.fail("$path.until", "a projectile ends by itself (range / for / block mode)")
             if (timing?.lasts != null) ctx.fail("$path.lasts", "lasts is for repeated ops; use for")
             if (timing?.span is Span.UntilCastEnds) ctx.fail("$path.for", "for: cast is not a flight length; give ticks")
@@ -207,7 +208,7 @@ public object ProjectileOpSpec : OpSpec<ProjectileOp> {
                 }
             }
 
-            val keys = values[motion]?.let { m -> MotionLaws.read(m, ctx, "$path.motion") }
+            val keys = values[motion]?.let { m -> MotionLaws.readLaws(m, ctx, "$path.motion") }
             ProjectileOp(id, src, whenExpr, timing, values[origin], values[velocity], values[speed], values[range], values[radius], hitSpec, keys, blockSpec, values[gravity], values[drag], raw)
         }
 
@@ -268,10 +269,14 @@ public object ProjectileOpSpec : OpSpec<ProjectileOp> {
             val look = LinkedHashMap<String, Val<Any>>()
             look["velocity"] = vec(op.velocity)
             if (speed != null) {
-                look["speed.from"] = Val.Known(speed.from)
-                look["speed.to"] = Val.Known(speed.to)
-                look["speed.for"] = Val.Known(speed.rampTicks.toDouble())
-                look["speed.ease"] = Val.Known(op.speed.let { (it as? SpeedSpec.Ramp)?.ease ?: "linear" })
+                val ramp = op.speed as? SpeedSpec.Ramp
+                if (ramp == null) look["speed"] = Val.Known(speed.to)
+                else {
+                    look["speed.from"] = Val.Known(speed.from)
+                    look["speed.to"] = Val.Known(speed.to)
+                    look["speed.for"] = Val.Known(speed.rampTicks.toDouble())
+                    look["speed.ease"] = Val.Known(ramp.ease)
+                }
             }
             if (range != null) look["range"] = Val.Known(range)
             if (forTicks != null) look["for"] = Val.Known(forTicks.toDouble())
@@ -300,8 +305,12 @@ public object ProjectileOpSpec : OpSpec<ProjectileOp> {
                 ),
                 src,
             )
-            val motionRows = op.motion?.let { ProjectileKinematics.motionRows(it, body, src) } ?: emptyList()
-            rows += motionRows
+            // the body emits no Key / Teleport rows: its position stays live and its closed-form `motion:` is composed into every rider (item 16)
+            if (!op.motion.isNullOrEmpty()) {
+                val declared = InstanceId(body.path.dropLast(1) + InstanceId.Segment(op.id, null))
+                val family = (op.timing?.times as? Value.Literal)?.value?.toInt()
+                (lc.anchors as? AnchorRegistry)?.declare(declared, family, ExprClass.T, op.motion)
+            }
             rows += Row(window.max, body, Action.End(body), src)
 
             // ---- sub-tables: one per event that has handlers, a follow branch, or is `end` (always, so `until: ball.end` closes) ----
@@ -309,7 +318,6 @@ public object ProjectileOpSpec : OpSpec<ProjectileOp> {
             val instances = arrayListOf(body)
             val events = ArrayList<EventPath>()
             val writes = LinkedHashMap<InstanceId, WriteStats>()
-            if (motionRows.isNotEmpty()) writes[body] = WriteStats(motionRows.size, 1)
 
             if (op.rawOn.isNotEmpty() && op.lowerHandlers == null) return bad("on: handlers were never decoded (OpListDecoder attaches them)")
             fun eventPath(e: ProjectileEvent) = EventPath(body.text + "." + e.key)
