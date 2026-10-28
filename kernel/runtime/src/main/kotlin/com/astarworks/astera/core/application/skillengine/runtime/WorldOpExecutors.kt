@@ -105,7 +105,8 @@ internal class BreakAreaExecutor(private val editors: SkillWorldEditors) : OpExe
             if (world.isCover(cell)) {
                 // v1 WorldMechanics.kt:259-260: cover is struck only when its base material is within the skill's power.
                 if (type != null && !WorldBlockRules.breakable(type, op.power, null)) continue
-                scheduleCoverStrikes(editor, op, cast, cell, index, ordered.size)
+                if (op.staged) scheduleCoverStrikes(editor, op, cast, cell, index, ordered.size)
+                else strikeCoverFlat(editor, op, cast, cell)
                 continue
             }
             // A flat chip (no tool_class: guns, spells) only ever hurts cover; terrain is the tool skills' to break (v1 CoverBlockService).
@@ -135,6 +136,12 @@ internal class BreakAreaExecutor(private val editors: SkillWorldEditors) : OpExe
                 if (world.canEdit(cast, cell, op.outsideArena) && world.isCover(cell)) world.damage(cast, cell, portion, op.toolClass)
             }
         }
+    }
+
+    /** v1 CoverBlockService.strikeCell (:219) via strikeBall (:111) / strikeCells (:71): one flat strike of the full amount, no staging. */
+    private fun strikeCoverFlat(editor: SkillWorldEditor, op: WorldOp.BreakArea, cast: CastId, cell: BlockCell) {
+        val world = editor.world
+        if (world.canEdit(cast, cell, op.outsideArena) && world.isCover(cell)) world.damage(cast, cell, op.blockDamage, op.toolClass)
     }
 
     private fun rayHit(editor: SkillWorldEditor, aim: WorldAim, reach: Double): WorldAim? {

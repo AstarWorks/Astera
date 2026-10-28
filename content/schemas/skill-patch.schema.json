@@ -1329,14 +1329,17 @@
                         "type": "string",
                         "enum": [
                             "action_bar",
+                            "anchor",
                             "block",
                             "camera_shake",
                             "caster_anim",
                             "emit",
                             "flash",
+                            "glow",
                             "line",
                             "mesh",
                             "plate",
+                            "pull",
                             "quad",
                             "remove",
                             "rig",
@@ -1365,6 +1368,21 @@
                         },
                         "then": {
                             "$ref": "#/definitions/op_action_bar"
+                        }
+                    },
+                    {
+                        "if": {
+                            "properties": {
+                                "op": {
+                                    "const": "anchor"
+                                }
+                            },
+                            "required": [
+                                "op"
+                            ]
+                        },
+                        "then": {
+                            "$ref": "#/definitions/op_anchor"
                         }
                     },
                     {
@@ -1446,6 +1464,21 @@
                         "if": {
                             "properties": {
                                 "op": {
+                                    "const": "glow"
+                                }
+                            },
+                            "required": [
+                                "op"
+                            ]
+                        },
+                        "then": {
+                            "$ref": "#/definitions/op_glow"
+                        }
+                    },
+                    {
+                        "if": {
+                            "properties": {
+                                "op": {
                                     "const": "line"
                                 }
                             },
@@ -1485,6 +1518,21 @@
                         },
                         "then": {
                             "$ref": "#/definitions/op_plate"
+                        }
+                    },
+                    {
+                        "if": {
+                            "properties": {
+                                "op": {
+                                    "const": "pull"
+                                }
+                            },
+                            "required": [
+                                "op"
+                            ]
+                        },
+                        "then": {
+                            "$ref": "#/definitions/op_pull"
                         }
                     },
                     {
@@ -1700,6 +1748,18 @@
                 "id"
             ],
             "additionalProperties": false
+        },
+        "PullKeyPatch": {
+            "type": "object",
+            "properties": {
+                "tick": {
+                    "type": "integer"
+                },
+                "weight": {
+                    "type": "number"
+                }
+            },
+            "additionalProperties": true
         },
         "RepeatPatch": {
             "type": "object",
@@ -2027,6 +2087,54 @@
             ],
             "additionalProperties": true
         },
+        "op_anchor": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "unique within the skill (patches address ops by id)"
+                },
+                "op": {
+                    "const": "anchor"
+                },
+                "when": {
+                    "$ref": "#/definitions/Value_boolean"
+                },
+                "frame": {
+                    "type": "string"
+                },
+                "at": {
+                    "type": "string"
+                },
+                "orient": {
+                    "type": "string",
+                    "enum": [
+                        "world",
+                        "look",
+                        "yaw",
+                        "to_target"
+                    ]
+                },
+                "follow": {
+                    "type": "boolean"
+                },
+                "pitch": {
+                    "type": "boolean"
+                },
+                "pose": {
+                    "type": "string"
+                },
+                "teleport_ticks": {
+                    "type": "integer"
+                }
+            },
+            "required": [
+                "id",
+                "op"
+            ],
+            "additionalProperties": true
+        },
         "op_aoe": {
             "type": "object",
             "properties": {
@@ -2129,6 +2237,17 @@
                 },
                 "repeat": {
                     "$ref": "#/definitions/RepeatPatch"
+                },
+                "rig_shading": {
+                    "type": "boolean"
+                },
+                "lane": {
+                    "type": "string",
+                    "enum": [
+                        "core",
+                        "accent",
+                        "ambient"
+                    ]
                 }
             },
             "required": [
@@ -2195,6 +2314,9 @@
                     "$ref": "#/definitions/Value_number"
                 },
                 "outside_arena": {
+                    "type": "boolean"
+                },
+                "staged": {
                     "type": "boolean"
                 }
             },
@@ -2903,6 +3025,37 @@
             ],
             "additionalProperties": true
         },
+        "op_glow": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "unique within the skill (patches address ops by id)"
+                },
+                "op": {
+                    "const": "glow"
+                },
+                "when": {
+                    "$ref": "#/definitions/Value_boolean"
+                },
+                "target": {
+                    "type": [
+                        "string",
+                        "object"
+                    ],
+                    "description": "one of: allies, caster, enemies, victim"
+                },
+                "ticks": {
+                    "$ref": "#/definitions/Value_number"
+                }
+            },
+            "required": [
+                "id",
+                "op"
+            ],
+            "additionalProperties": true
+        },
         "op_has_status": {
             "type": "object",
             "properties": {
@@ -3434,6 +3587,34 @@
                 },
                 "brightness": {
                     "type": "integer"
+                },
+                "item_model": {
+                    "type": "string"
+                },
+                "display_mode": {
+                    "type": "string",
+                    "enum": [
+                        "none",
+                        "thirdperson_lefthand",
+                        "thirdperson_righthand",
+                        "firstperson_lefthand",
+                        "firstperson_righthand",
+                        "head",
+                        "gui",
+                        "ground",
+                        "fixed"
+                    ]
+                },
+                "rig_shading": {
+                    "type": "boolean"
+                },
+                "lane": {
+                    "type": "string",
+                    "enum": [
+                        "core",
+                        "accent",
+                        "ambient"
+                    ]
                 }
             },
             "required": [
@@ -3665,6 +3846,14 @@
                 },
                 "repeat": {
                     "$ref": "#/definitions/RepeatPatch"
+                },
+                "lane": {
+                    "type": "string",
+                    "enum": [
+                        "core",
+                        "accent",
+                        "ambient"
+                    ]
                 }
             },
             "required": [
@@ -3853,6 +4042,51 @@
             ],
             "additionalProperties": true
         },
+        "op_pull": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "unique within the skill (patches address ops by id)"
+                },
+                "op": {
+                    "const": "pull"
+                },
+                "when": {
+                    "$ref": "#/definitions/Value_boolean"
+                },
+                "target": {
+                    "type": "string"
+                },
+                "ref": {
+                    "type": "string"
+                },
+                "to": {
+                    "type": "string"
+                },
+                "keys": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/PullKeyPatch"
+                    }
+                },
+                "line": {
+                    "type": "boolean"
+                },
+                "ends": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            },
+            "required": [
+                "id",
+                "op"
+            ],
+            "additionalProperties": true
+        },
         "op_quad": {
             "type": "object",
             "properties": {
@@ -3906,6 +4140,14 @@
                 },
                 "repeat": {
                     "$ref": "#/definitions/RepeatPatch"
+                },
+                "lane": {
+                    "type": "string",
+                    "enum": [
+                        "core",
+                        "accent",
+                        "ambient"
+                    ]
                 }
             },
             "required": [
@@ -4748,6 +4990,14 @@
                     "additionalProperties": {
                         "type": "string"
                     }
+                },
+                "lane": {
+                    "type": "string",
+                    "enum": [
+                        "core",
+                        "accent",
+                        "ambient"
+                    ]
                 }
             },
             "required": [

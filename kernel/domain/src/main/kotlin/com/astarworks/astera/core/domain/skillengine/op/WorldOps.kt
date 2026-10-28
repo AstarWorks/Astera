@@ -48,6 +48,12 @@ public sealed interface WorldOp : GameplayOp {
         val breaksBlocks: Boolean,
         val revertAfterTicks: Value<Double>?,
         val outsideArena: Boolean,
+        /**
+         * true = the v1 break_area mechanic (WorldMechanics.kt:262-308): cover damage lands in six portions over the cast window.
+         * false = the v1 `block_damage` chip (CoverBlockService.strikeBall/strikeCells/strikeCell): one flat strike of the full
+         * amount per cover cell at once.
+         */
+        val staged: Boolean = true,
     ) : WorldOp
 
     public data class PlaceShape(

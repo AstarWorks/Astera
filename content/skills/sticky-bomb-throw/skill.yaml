@@ -22,7 +22,7 @@ gameplay:
   "on":
     hit:
       - {id: explode, op: explode, power: "${explode_power}", break_blocks: false, radius: "${explode_radius}", components: [{kind: fire, amount: "${explode_fire}"}], target: victim}
-      - {op: break_area, shape: sphere, radius: 1.0, block_damage: 25, breaks: true, length: 0.0, id: chip, at: "= contact.point"}
+      - {op: break_area, shape: sphere, radius: 1.0, block_damage: 25, breaks: true, staged: false, length: 0.0, id: chip, at: "= contact.point"}
     block:
       - {id: explode_2, op: explode, power: "${explode_power}", break_blocks: false, radius: "${explode_radius}", components: [{kind: fire, amount: "${explode_fire}"}], at: "= contact.point"}
-      - {op: break_area, shape: sphere, radius: 1.0, block_damage: 25, breaks: true, length: 0.0, id: chip_2, at: "= contact.point"}
+      - {op: break_area, shape: sphere, radius: 1.0, block_damage: 25, breaks: true, staged: false, length: 0.0, id: chip_2, at: "= contact.point"}
