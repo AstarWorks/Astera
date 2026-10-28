@@ -12,7 +12,16 @@ public sealed interface BodyOp : PresentationOp {
         val target: TargetRef,
         val anim: String,
         val strength: Value<Double>?,
-    ) : BodyOp
+    ) : BodyOp {
+        public companion object {
+            /**
+             * The victim reactions the engine can play. v1 had no `victim_anim` op; its victim-side presentation was the vanilla
+             * hurt flash (`hurt`), the impact freeze (`hit_stop`, now the `hit_stop` op) and a pushed stagger (`stagger`,
+             * `stagger_back`: the victim recoils away from the contact point).
+             */
+            public val KNOWN: Set<String> = setOf("hurt", "stagger", "stagger_back")
+        }
+    }
 
     public data class CasterAnim(
         override val id: String,
