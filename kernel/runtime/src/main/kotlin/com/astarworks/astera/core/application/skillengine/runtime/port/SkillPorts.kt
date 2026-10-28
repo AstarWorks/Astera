@@ -215,6 +215,17 @@ public interface ISkillGameplayGateway {
 
     /** Hit-stop: freeze the listed entities' time for [ticks]. */
     public fun freezeEntities(entities: List<UUID>, ticks: Int)
+
+    /**
+     * Hold the look of [caster] (ADR-0303 10.6 `lock pitch/yaw`, founder Q3 default A): the pitch and/or yaw it has at this call
+     * is held until the absolute server tick [untilTick] (`IScheduler.currentTick()` scale); the gateway re-sends the held
+     * value whenever the client drifts more than 1 degree. A second call replaces the previous hold. No-op by default so
+     * recording fakes need not implement it.
+     */
+    public fun lockLook(caster: UUID, pitch: Boolean, yaw: Boolean, untilTick: Int) {}
+
+    /** Release the look hold of [caster] now (cast end, cancel, state exit, death, quit). Missing hold is a no-op. */
+    public fun unlockLook(caster: UUID) {}
 }
 
 /** Entity query with hitbox, used for the broad phase. */
