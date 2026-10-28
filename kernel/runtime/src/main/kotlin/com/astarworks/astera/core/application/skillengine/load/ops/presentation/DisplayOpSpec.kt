@@ -156,7 +156,7 @@ public object DisplayOpSpec : OpSpec<DisplayOp> {
     // sprite
     private val spriteF = Field.optional("sprite", Types.nullable(Types.id), null, "kind sprite: content/sprites id")
     private val sizeF = Field.optional("size", Types.nullable(SIZE), null, "kind sprite: [w, h] in BLOCKS (2.1)")
-    private val pivotF = Field.optional("pivot", Types.enumOf("center", "origin"), "center", "kind sprite: centre compensation macro (2.1), decision default center")
+    private val pivotF = Field.optional("pivot", Types.enumOf("center"), "center", "kind sprite: the glyph is centred on the entity by the sprite font (ADR-0239), so center is the only pivot")
     private val colorF = Field.optional("color", Types.nullable(Types.text), null, "kind text | sprite: colour #rrggbb or #aarrggbb; absent = the glyph's own colours")
     private val flipFrames = Field.required("frames", Types.number, "number of glyph frames of the sprite")
     private val flipEvery = Field.required("every", Types.number, "ticks per frame")

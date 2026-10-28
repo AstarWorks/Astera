@@ -674,8 +674,8 @@ public class TablePlayer(
             )
             SpawnKind.BLOCK -> visual.spawnBlock(cast, req(run, look, "block", ctx), pose, brightness, glow = glow)
             SpawnKind.TEXT -> visual.spawnText(
-                cast, req(run, look, "text", ctx), look.fields["background"]?.let { strOf(run, it, ctx) } ?: "#000000",
-                look.fields["background_alpha"]?.let { dbl(run, it, ctx) } ?: 0.0, flag(run, look, "shadow", ctx), flag(run, look, "see_through", ctx), pose, brightness,
+                cast, req(run, look, "text", ctx), look.fields["background"]?.let { strOf(run, it, ctx) } ?: "#00000000",
+                flag(run, look, "shadow", ctx), flag(run, look, "see_through", ctx), pose, brightness,
             )
             SpawnKind.SPRITE -> visual.spawnPlate(
                 cast, req(run, look, "sprite", ctx), look.fields["alpha"]?.let { dbl(run, it, ctx) } ?: 1.0,

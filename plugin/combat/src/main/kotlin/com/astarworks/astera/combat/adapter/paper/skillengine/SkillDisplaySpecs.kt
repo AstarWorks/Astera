@@ -24,13 +24,15 @@ public object SkillDisplaySpecs {
 
     public fun opacity(alpha: Double): Int = (alpha.coerceIn(0.0, 1.0) * 255.0).roundToInt().coerceAtLeast(MIN_TEXT_OPACITY)
 
-    /** `#rrggbb` or `#rrggbbaa` (alpha last) to ARGB; a malformed value is white. */
+    /** `#rrggbb` or `#aarrggbb` (alpha FIRST, the one order every skill colour key uses, ADR-0303 R33) to ARGB; a malformed value is opaque white. */
     public fun argb(hex: String): Int {
         val h = hex.removePrefix("#")
-        val rgb = h.take(6).toIntOrNull(16) ?: return 0xFFFFFFFF.toInt()
-        val a = if (h.length >= 8) h.substring(6, 8).toIntOrNull(16) ?: 255 else 255
-        return (a shl 24) or rgb
+        val v = h.toLongOrNull(16) ?: return 0xFFFFFFFF.toInt()
+        return if (h.length == 6) (0xFF000000L or v).toInt() else v.toInt()
     }
+
+    /** The alpha (0..1) a colour string carries: `#aarrggbb` its first byte, `#rrggbb` 1. */
+    public fun alphaOf(hex: String): Double = ((argb(hex) ushr 24) and 0xFF) / 255.0
 
     /** v1 glow_color: `#rrggbb` or `#aarrggbb` (alpha first), VfxYamlConfig.parseArgb; null stays unglowing. */
     public fun glowArgb(hex: String?): Int? {
@@ -75,13 +77,12 @@ public object SkillDisplaySpecs {
         )
     }
 
-    /** A MiniMessage [text] display with a [backgroundHex] box at [backgroundAlpha]; the text keeps its own colour and full opacity. */
-    public fun text(text: String, backgroundHex: String, backgroundAlpha: Double, shadow: Boolean, seeThrough: Boolean, first: DisplayTransform, billboard: DisplayBillboard, brightness: Int?): DisplaySpec {
-        val a = (backgroundAlpha.coerceIn(0.0, 1.0) * 255.0).roundToInt()
+    /** A MiniMessage [text] display with a box of [backgroundArgbHex] (`#aarrggbb`, `#00000000` = none); the text keeps its own colour and full opacity. */
+    public fun text(text: String, backgroundArgbHex: String, shadow: Boolean, seeThrough: Boolean, first: DisplayTransform, billboard: DisplayBillboard, brightness: Int?): DisplaySpec {
         return DisplaySpec(
             kind = DisplayKind.Text(
                 lines = listOf(LocalizedText(mapOf(LocaleCode.EN to text, LocaleCode.JA to text))),
-                backgroundArgb = (a shl 24) or (argb(backgroundHex) and 0xFFFFFF), shadow = shadow, seeThrough = seeThrough, textOpacity = 255,
+                backgroundArgb = argb(backgroundArgbHex), shadow = shadow, seeThrough = seeThrough, textOpacity = 255,
             ),
             transform = first, lifetimeTicks = LIFETIME, billboard = billboard, brightness = brightness,
         )
