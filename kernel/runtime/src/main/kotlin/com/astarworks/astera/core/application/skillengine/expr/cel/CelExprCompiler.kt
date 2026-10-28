@@ -13,6 +13,7 @@ import com.astarworks.astera.core.domain.skillengine.expr.ExprType
 import com.astarworks.astera.core.domain.skillengine.expr.ExprValue
 import dev.cel.common.CelException
 import dev.cel.common.CelIssue
+import dev.cel.common.types.CelKind
 import dev.cel.common.types.CelType
 import dev.cel.common.types.SimpleType
 import dev.cel.compiler.CelCompiler
@@ -43,8 +44,21 @@ public class CelExprCompiler : ExprCompiler {
         if (parsed.hasError()) return Result.Failure(error(parsed.errors.first(), syntax = true))
         val checked = compiler.check(parsed.ast)
         if (checked.hasError()) return Result.Failure(error(checked.errors.first(), syntax = false))
+        checkResultType(checked.ast.resultType)?.let { return Result.Failure(ExprError.Type(it, 1)) }
+        CelFunctions.checkStatic(checked.ast.expr)?.let { return Result.Failure(ExprError.Type(it, 1)) }
         return Result.Success(CelCompiled(source, runtime.createProgram(checked.ast), env.frames))
     }
+
+    /** Null when [t] is a type [fromRaw] can turn into an [ExprValue]; otherwise the load-time message (nothing is left to throw mid-cast). */
+    private fun checkResultType(t: CelType): String? = when (t.kind()) {
+        CelKind.DOUBLE, CelKind.INT, CelKind.UINT, CelKind.BOOL, CelKind.STRING, CelKind.DYN -> null
+        CelKind.OPAQUE ->
+            if (t == CelFunctions.VEC3 || t == CelFunctions.QUAT || t == CelFunctions.REF) null else unsupported(t)
+        else -> unsupported(t)
+    }
+
+    private fun unsupported(t: CelType) =
+        "unsupported expression result type '${t.name()}' (expected number, bool, string, vec3, quat or frame)"
 
     private fun error(issue: CelIssue, syntax: Boolean): ExprError {
         val col = issue.sourceLocation.column + 1
