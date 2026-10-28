@@ -333,7 +333,10 @@ class MatchArsenalE2eTest : ObjectivePlaythroughBase() {
         }
 
         E2eReport.check(suite, "empty-handed forced bores use stone tool damage and still drop cobblestone", "RCON stand-in tool drops") {
+            // The hotbar can be full (loan tools, bought items, the locked match compass in slot 9): free a slot that holds no loan tool.
             val empty = (0..8).firstOrNull { rcon("execute if items entity ${a.name} hotbar.$it *").contains("failed") }
+                ?: (0..7).firstOrNull { s -> listOf("stone_pickaxe", "stone_axe", "stone_shovel").none { hasItems(a, "hotbar.$s", it) } }
+                    ?.also { rcon("item replace entity ${a.name} hotbar.$it with minecraft:air") }
             assertThat(empty).describedAs("no empty hotbar slot").isNotNull()
             wall(45, "stone")
             aimWall(a, 45)

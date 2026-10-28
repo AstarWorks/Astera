@@ -584,6 +584,8 @@ internal class CastInstance(
 
     override fun owner(cast: CastId): UUID = request.caster
 
+    internal fun itemOf(): String? = request.skill.def.item
+
     override fun targets(cast: CastId, target: TargetRef): List<UUID> = resolveTargets(target)
 
     override fun hasRaised(cast: CastId, event: String): Boolean = bus.hasRaised(event)
