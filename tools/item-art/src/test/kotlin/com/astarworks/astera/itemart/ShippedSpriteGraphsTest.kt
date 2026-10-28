@@ -34,6 +34,29 @@ class ShippedSpriteGraphsTest {
     }
 
     @Test
+    fun `shipped sprite tags accept only kebab string lists and schemas stay synchronized`(@TempDir dir: Path) {
+        val raw = Files.readString(content.resolve(SpriteSources.MANIFEST))
+        val doc = Yaml().load<Map<String, Any>>(raw)
+        @Suppress("UNCHECKED_CAST")
+        val sample = (doc.getValue("sprites") as Map<String, Map<String, Any>>).getValue("sample-dissolve-sigil")
+        val manifest = dir.resolve(SpriteSources.MANIFEST)
+        Files.createDirectories(manifest.parent)
+        for (tags in listOf(listOf("sample", "shader-combo"), emptyList<String>())) {
+            Files.writeString(manifest, Yaml().dump(mapOf("sprites" to mapOf("sample" to (sample + ("tags" to tags))))))
+            assertThat(SpriteSources.load(dir)).hasSize(1)
+        }
+        for (tags in listOf(null, "sample", listOf(1), listOf("Bad"), listOf("bad_tag"), listOf("bad--tag"), listOf("bad-"))) {
+            Files.writeString(manifest, Yaml().dump(mapOf("sprites" to mapOf("sample" to (sample + ("tags" to tags))))))
+            assertThatThrownBy { SpriteSources.load(dir) }.hasMessageContaining("tags must be a list of kebab-case strings")
+        }
+        val toolSchema = content.parent.resolve("tools/item-art/sprite-sources.schema.json")
+        assertThat(Files.readString(content.resolve("schemas/sprite-sources.schema.json"))).isEqualTo(Files.readString(toolSchema))
+        GraphReference.write(dir.resolve("reference"))
+        // Formatting is editorial; the tag contract must also survive regenerating the schema.
+        assertThat(Files.readString(dir.resolve("reference/sprite-sources.schema.json"))).contains("\"tags\":{\"type\":\"array\"")
+    }
+
+    @Test
     fun `authoring recipes and node catalog render deterministically when scrubbed backwards`() {
         val defs = SpriteSources.load(examples)
         assertThat(defs.map { it.id }).contains("expanding-ring", "rotating-magic-circle", "slash-arc-with-trail", "node-catalog")

@@ -1180,7 +1180,6 @@ sprites:
     tags:
     - sample
     - shader-combo
-    - shader-pending
     graph:
       nodes:
         sigil:
@@ -1212,14 +1211,13 @@ sprites:
           type: output
           inputs:
             image: turn.image
-  sample-energy-orb-rim:
+  sample-energy-orb:
     size: 64
     frames: 8
     colors: 6
     tags:
     - sample
     - shader-combo
-    - shader-pending
     graph:
       nodes:
         orb:
@@ -1260,7 +1258,6 @@ sprites:
     tags:
     - sample
     - shader-combo
-    - shader-pending
     graph:
       nodes:
         ribbons:

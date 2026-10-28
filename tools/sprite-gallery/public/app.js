@@ -74,7 +74,7 @@ requestAnimationFrame(animate);
 function sampleSheet(item) {
   if (!item.id.startsWith('sample-')) return null;
   const plate = item.plates?.find(op => op.op === 'plate');
-  const sprite = data.sprites.find(sprite => sprite.id === plate?.sprite);
+  const sprite = data.sprites.find(sprite => sprite.id === (plate?.sprite || item.id));
   if (!sprite?.image) return null;
   const canvas = el('canvas', null, 'sheet'); canvas.width = 640; canvas.height = 264;
   const img = image(sprite.image);
@@ -87,7 +87,7 @@ function sampleSheet(item) {
       ctx.drawImage(tile, x, y, 160, 110);
       ctx.fillStyle = '#111722'; ctx.fillRect(x, y + 110, 160, 22);
       ctx.fillStyle = '#d8e2f1'; ctx.font = '12px system-ui';
-      ctx.fillText(`tick ${frame * (plate.frame_ticks || 1)}`, x + 5, y + 125);
+      ctx.fillText(`tick ${frame * (plate?.frame_ticks || 1)}`, x + 5, y + 125);
     }
   };
   if (img.complete && img.naturalWidth) fill(); else img.addEventListener('load', fill, { once: true });
@@ -119,6 +119,7 @@ function render() {
       else area.append(sampleSheet(item) || el('span', '未生成', 'missing'));
       card.append(area, el('h3', item.id), el('p', item.sheet ? `${item.capture} コンタクトシート` : item.id.startsWith('sample-') ? 'スプライト寸法シート（近似・skill 再生未撮影）' : 'コンタクトシート 未生成', 'meta'));
     }
+    if (item.shaderEffects?.length) card.append(el('p', `shader_effect: ${item.shaderEffects.join(', ')}`, 'meta'));
     grid.append(card);
   }
   if (!items.length) grid.append(el('p', tab === 'vfx' && !data.vfx.length ? 'content/skills/ に演出 YAML がありません。' : '該当する素材がありません。', 'empty'));

@@ -1,0 +1,15 @@
+apiVersion: astera/v2
+kind: Skill
+id: sample-dissolve-sigil
+frames:
+- {id: screen, kind: point, parent: caster, offset: [0, 2.4, 3]}
+presentation:
+  timeline:
+  - id: show
+    at: 0
+    do:
+    - {id: sprite, op: mesh, frame: screen, item: sample-dissolve-sigil, scale: 4, tilt_turn: [0, 90, 0], shader_effect: dissolve}
+  - id: finish
+    at: 40
+    do:
+    - {id: hide, op: remove, ids: [sprite]}
