@@ -67,6 +67,9 @@ public class PresentationRuntime(
         /** Cast tick at which a repeated copy is removed (Repeat.life); null = stays. */
         var dieAt: Int? = null
 
+        /** Id of the repeated op this is a copy of; a track on that id moves every copy in its own slot axes. */
+        val group: String? get() = if (opId.contains('#')) opId.substringBeforeLast('#') else null
+
         /** A model on a node: base local origin [pivot], base turn [tilt], resting orientation [rest] inside the track turn. */
         class Mesh(
             override val opId: String,
@@ -161,7 +164,7 @@ public class PresentationRuntime(
      */
     internal fun settleFrame(s: CastState, frame: String) {
         for (t in s.tracks.values) {
-            if (t.op.target != frame || s.live.containsKey(frame)) continue
+            if (t.op.target != frame || s.live.containsKey(frame) || frame in s.groups) continue
             val node = s.ctx.tree.node(FrameId(frame)) ?: continue
             val parent = node.parent ?: continue
             val sample = sampleTrack(s, t, s.tick - t.startTick)
@@ -209,7 +212,7 @@ public class PresentationRuntime(
         when (live) {
             is Live.Mesh -> {
                 val parentW = frameWorld(s, live.parent) ?: return null
-                val t = tracked(s, live.opId, parentW)
+                val t = tracked(s, live.opId, parentW, live.group)
                 tree.setLocal(live.node, Frame(live.pivot + t.offset, (live.tilt * t.turn * live.rest).normalized()))
                 val world = tree.worldOf(live.node).getOrNull() ?: return null
                 val k = live.scale
@@ -217,10 +220,10 @@ public class PresentationRuntime(
             }
             is Live.Plate -> {
                 val parentW = frameWorld(s, live.parent) ?: return null
-                val t = tracked(s, live.opId, parentW)
+                val t = tracked(s, live.opId, parentW, live.group)
                 val base = (live.face as? PlateFace.Plane)?.let { planeRotation(s, it) }
                     ?.let { parentW.rotation.conjugate() * it } ?: Quaternion.IDENTITY
-                tree.setLocal(live.node, Frame(live.at + t.offset, (base * live.turn * t.turn).normalized()))
+                tree.setLocal(live.node, Frame(live.at + live.turn.rotate(t.offset), (base * live.turn * t.turn).normalized()))
                 val world = tree.worldOf(live.node).getOrNull() ?: return null
                 val fixed = live.billboard == DisplayBillboard.FIXED
                 // A viewer face is the vanilla billboard: it owns the rotation, so the written frame carries only the origin.
@@ -229,17 +232,17 @@ public class PresentationRuntime(
             }
             is Live.Block -> {
                 val parentW = frameWorld(s, live.parent) ?: return null
-                val t = tracked(s, live.opId, parentW)
-                tree.setLocal(live.node, Frame(live.at + t.offset, (live.turn * t.turn).normalized()))
+                val t = tracked(s, live.opId, parentW, live.group)
+                tree.setLocal(live.node, Frame(live.at + live.turn.rotate(t.offset), (live.turn * t.turn).normalized()))
                 val world = tree.worldOf(live.node).getOrNull() ?: return null
                 return VisualPose(world, Vec3(live.size.x * t.scale.x, live.size.y * t.scale.y, live.size.z * t.scale.z), DisplayBillboard.FIXED, anchorFeet(s, live.parent))
             }
             is Live.Quad -> {
                 val parentW = frameWorld(s, live.parent) ?: return null
-                val t = tracked(s, live.opId, parentW)
+                val t = tracked(s, live.opId, parentW, live.group)
                 val base = (live.face as? PlateFace.Plane)?.let { planeRotation(s, it) }
                     ?.let { parentW.rotation.conjugate() * it } ?: Quaternion.IDENTITY
-                tree.setLocal(live.node, Frame(live.at + t.offset, (base * live.turn * t.turn).normalized()))
+                tree.setLocal(live.node, Frame(live.at + live.turn.rotate(t.offset), (base * live.turn * t.turn).normalized()))
                 val world = tree.worldOf(live.node).getOrNull() ?: return null
                 val fixed = live.billboard == DisplayBillboard.FIXED
                 val frame = if (fixed) world else Frame(world.origin)
@@ -288,12 +291,12 @@ public class PresentationRuntime(
     private class Tracked(val offset: Vec3, val turn: Quaternion, val scale: Vec3)
 
     /** Sum of every track on [target] at this tick; offsets are expressed in the track's space and returned in the parent's axes. */
-    private fun tracked(s: CastState, target: String, parentW: Frame): Tracked {
+    private fun tracked(s: CastState, target: String, parentW: Frame, group: String? = null): Tracked {
         var offset = Vec3.ZERO
         var turn = Quaternion.IDENTITY
         var scale = ONE
         for (t in s.tracks.values) {
-            if (t.op.target != target) continue
+            if (t.op.target != target && (group == null || t.op.target != group)) continue
             val sample = sampleTrack(s, t, s.tick - t.startTick + DISPLAY_LEAD)
             val space = t.op.space?.let { frameWorld(s, it) } ?: parentW
             offset += parentW.rotation.conjugate().rotate(space.directionToWorld(sample.offset))
@@ -386,7 +389,7 @@ public class PresentationRuntime(
             due.forEach { it.run() }
         }
         for (l in s.live.values.filter { val d = it.dieAt; d != null && s.tick - 1 >= d }) removeIds(s, listOf(l.opId))
-        for (target in s.tracks.values.map { it.op.target }.distinct()) if (!s.live.containsKey(target)) settleFrame(s, target)
+        for (target in s.tracks.values.map { it.op.target }.distinct()) if (!s.live.containsKey(target) && target !in s.groups) settleFrame(s, target)
         val visuals = s.ctx.ports.visuals
         for (l in s.live.values.toList()) {
             when (l) {
