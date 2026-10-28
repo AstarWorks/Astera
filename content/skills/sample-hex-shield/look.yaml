@@ -1,0 +1,31 @@
+apiVersion: astera/v2
+kind: Skill
+id: sample-hex-shield
+frames:
+- id: screen
+  kind: point
+  parent: caster
+  offset:
+  - 0
+  - 2.4
+  - 3
+presentation:
+  timeline:
+  - id: show
+    at: 0
+    do:
+    - id: sprite
+      op: plate
+      parent: screen
+      face:
+        viewer: center
+      sprite: sample-hex-shield
+      size: 4
+      frame_ticks: 1
+      loop: true
+  - id: finish
+    at: 40
+    do:
+    - id: hide
+      op: remove
+      ids: [sprite]

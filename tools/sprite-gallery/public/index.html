@@ -5,11 +5,14 @@
 <nav aria-label="表示切替"><button data-tab="sprites" aria-pressed="true">スプライト <span id="sprite-count"></span></button><button data-tab="vfx" aria-pressed="false">VFX 演出 <span id="vfx-count"></span></button></nav>
 <section class="controls" aria-label="プレビュー設定">
 <label class="search">絞り込み<input id="filter" type="search" placeholder="ID・タグで検索…"></label>
+<label>表示<select id="preview-mode"><option value="sprite">素材</option><option value="minecraft">Minecraft 表示</option></select></label>
+<label>距離<select id="distance"><option value="3">3 blocks</option><option value="5" selected>5 blocks</option><option value="10">10 blocks</option></select></label>
 <label>拡大<select id="scale"><option value="4">4×</option><option value="8">8×</option></select></label>
-<label>速度 <output id="fps-value">12 fps</output><input id="fps" type="range" min="1" max="60" value="12"></label>
+<label>速度 <output id="fps-value">20 fps</output><input id="fps" type="range" min="1" max="60" value="20"></label>
 <label>背景<select id="background"><option value="black">黒</option><option value="grey">グレー</option><option value="checker">チェッカー</option><option value="sky">ゲームの空（近似）</option></select></label>
 <label class="check"><input id="additive" type="checkbox">加算合成（暗背景）</label>
 <button id="pause">一時停止</button></section>
+<p class="meta">Minecraft 表示: 70° 縦視野角の寸法近似・1目盛り1ブロック。shader・照明の評価は実クライアントで。</p>
 <div id="tags" aria-label="カテゴリ"></div><main id="grid" aria-label="ギャラリー"></main>
 <dialog id="detail"><div class="dialog-top"><h2 id="detail-title"></h2><button id="close" aria-label="詳細を閉じる">閉じる ×</button></div><div id="detail-body"></div></dialog>
 <script type="module" src="/app.js"></script></html>
