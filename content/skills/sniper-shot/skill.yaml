@@ -8,6 +8,10 @@ meta:
   cooldown_ticks: 50
   resource_cost: 12
   tags: [ranged, gun, physical]
+params:
+  launch_speed: {type: number, default: 6.0}
+  max_lifetime_ticks: {type: ticks, default: 50}
+  dmg_physical: {type: number, default: 47.5}
 anchors:
   - {id: muzzle, anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}
   - {id: flash,  anchor: caster.eye, offset: {up: -0.25, forward: 1.0}}
@@ -24,14 +28,14 @@ machine:
         - id: bolt
           op: projectile
           origin: muzzle
-          velocity: "= look(caster) * 6.0"
-          for: 50
+          velocity: "= look(caster) * ${launch_speed}"
+          for: "${max_lifetime_ticks}"
           radius: 0.5
           hit: {targets: enemies, once: true}     # v2 projectile ended on its first victim
           block: {mode: despawn}
           on:
             hit:
-              - {id: dmg, op: damage, target: event.victim, damage: {physical: 47.5}}
+              - {id: dmg, op: damage, target: event.victim, damage: {physical: "${dmg_physical}"}}
               - {id: snd_hit, op: sound, sound: "astera:weapons/blade-crit", anchor: contact, volume: 0.8, pitch: 1.0}
               - {id: fx_hit, op: particle_def, def: hit-spark, anchor: heart}
             block:
