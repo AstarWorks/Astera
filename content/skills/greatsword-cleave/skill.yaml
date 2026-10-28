@@ -9,7 +9,7 @@ meta:
   resource_cost: 35
   tags: [melee, physical, burst]
 anchors:
-  - {id: cast_fx, anchor: caster.eye, offset: {up: -0.3, forward: 2.4}, mode: snapshot}
+  - {id: cast_fx, anchor: caster, offset: {up: -0.3, forward: 2.4}, mode: snapshot}
   - {id: heart, anchor: victim.body, offset: {up: 0.4}}
   - {id: head, anchor: victim.body, offset: {up: 0.8}}
 machine:
@@ -24,7 +24,7 @@ machine:
         - {event: end, to: done}
       states:
         strike:
-          for: 1
+          for: 3   # v2 miss cue fires at tick 2, so the state must outlast it
           then: recover
           enter:
             - id: swing

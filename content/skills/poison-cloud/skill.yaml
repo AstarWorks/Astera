@@ -1,4 +1,5 @@
 # v3 hand port of the v2 skill (ADR-0303 rev4.2). v2 params launch_speed 1.3, max_lifetime_ticks 50, radius 3.5, poison_ticks 80.
+# Look = dev single burst (happy_villager count 0 speed 0.02 + one dust) at the victim / contact point; no ring waves (dev look.yaml had none).
 apiVersion: astera/v3
 kind: Skill
 id: poison-cloud
@@ -6,7 +7,7 @@ item: venom-flask
 meta: {name: {ja: "毒霧の瓶", en: "Poison Cloud"}, description: {ja: "着弾点に毒の霧を広げる。", en: "Bursts into a lingering poison cloud."}, cooldown_ticks: 160, resource_cost: 16, tags: [ranged, poison, magic, zone]}
 anchors:
   - {id: start,  anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}            # was pt_aim_0_0_0p5
-  - {id: muzzle, anchor: caster.eye, offset: {up: -0.25, forward: 0.9}, mode: snapshot} # was pt_aim_0_m0p25_0p9
+  - {id: muzzle, anchor: caster, offset: {up: -0.25, forward: 0.9}, mode: snapshot} # was pt_aim_0_m0p25_0p9
   - {id: foe,    anchor: victim.root}   # GAP(Q2): v2 enemy frame origin = feet+0.8; victim.root = feet
   - {id: foe_low, anchor: victim.root, offset: {up: 0.15}}   # GAP(Q2): v2 enemy frame origin = feet+0.8; victim.root = feet
 machine:
@@ -29,25 +30,15 @@ machine:
           block: {mode: despawn}
           on:
             hit:
-              - {id: st_poison, op: status, target: {kind: enemies, around: foe, radius: 3.5, max_count: all, include_self: false}, status: poison, stacks: 1, for: 80}   # GAP(Q1): v2 had no cap; A=`all`, B=omit
-              - id: ring
-                at: 0
-                every: 1
-                times: 8             # ring k = parent.i; radius = 0.4 + parent.i * 0.4429 (0.4 .. 3.5)
-                do:
-                  - {id: pts,  op: particle, particle: happy_villager, anchor: foe_low, count: 0, offset: "= [cos(6.283185307179586 * i / n + 6.283185307179586 * draw('shape_ph')), 0, -sin(6.283185307179586 * i / n + 6.283185307179586 * draw('shape_ph'))]", extra: 0.02, times: 16, at: 0, shift: {left: "= (0.4 + parent.i * 3.1 / 7.0) * cos(6.283185307179586 * i / n + 6.283185307179586 * draw('shape_ph'))", forward: "= -(0.4 + parent.i * 3.1 / 7.0) * sin(6.283185307179586 * i / n + 6.283185307179586 * draw('shape_ph'))"}}
-                  - {id: dust, op: particle, particle: dust, anchor: foe_low, count: 1, extra: 0, color: "#5aaa3c", size: 1.4, times: 16, at: 0, shift: {left: "= (0.4 + parent.i * 3.1 / 7.0) * cos(6.283185307179586 * i / n + 6.283185307179586 * draw('shape_ph'))", forward: "= -(0.4 + parent.i * 3.1 / 7.0) * sin(6.283185307179586 * i / n + 6.283185307179586 * draw('shape_ph'))"}}
+              - {id: st_poison, op: status, target: {kind: enemies, around: foe, radius: 3.5, max_count: all}, status: poison, stacks: 1, for: 80}   # GAP(Q1): v2 had no cap; A=`all`, B=omit
+              - {id: pts,  op: particle, particle: happy_villager, anchor: foe_low, count: 0, extra: 0.02}
+              - {id: dust, op: particle, particle: dust, anchor: foe_low, count: 1, extra: 0, color: "#5aaa3c", size: 1.4}
               - {id: snd_hit, op: sound, sound: entity.splash_potion.break, anchor: foe, volume: 0.8, pitch: 0.8}
             block:
-              - {id: st_poison_b, op: status, target: {kind: enemies, around: contact, radius: 3.5, max_count: all, include_self: false}, status: poison, stacks: 1, for: 80}   # GAP(Q1): v2 had no cap; A=`all`, B=omit
-              - id: ring
-                at: 0
-                every: 1
-                times: 8             # ring k = parent.i; radius = 0.4 + parent.i * 0.4429 (0.4 .. 3.5)
-                do:
-                  - {id: pts,  op: particle, particle: happy_villager, anchor: contact, count: 0, offset: "= [cos(6.283185307179586 * i / n + 6.283185307179586 * draw('shape_ph')), 0, -sin(6.283185307179586 * i / n + 6.283185307179586 * draw('shape_ph'))]", extra: 0.02, times: 16, at: 0, shift: {left: "= (0.4 + parent.i * 3.1 / 7.0) * cos(6.283185307179586 * i / n + 6.283185307179586 * draw('shape_ph'))", forward: "= -(0.4 + parent.i * 3.1 / 7.0) * sin(6.283185307179586 * i / n + 6.283185307179586 * draw('shape_ph'))"}}
-                  - {id: dust, op: particle, particle: dust, anchor: contact, count: 1, extra: 0, color: "#5aaa3c", size: 1.4, times: 16, at: 0, shift: {left: "= (0.4 + parent.i * 3.1 / 7.0) * cos(6.283185307179586 * i / n + 6.283185307179586 * draw('shape_ph'))", forward: "= -(0.4 + parent.i * 3.1 / 7.0) * sin(6.283185307179586 * i / n + 6.283185307179586 * draw('shape_ph'))"}}
+              - {id: st_poison_b, op: status, target: {kind: enemies, around: contact, radius: 3.5, max_count: all}, status: poison, stacks: 1, for: 80}   # GAP(Q1): v2 had no cap; A=`all`, B=omit
+              - {id: pts_b,  op: particle, particle: happy_villager, anchor: contact, count: 0, extra: 0.02}
+              - {id: dust_b, op: particle, particle: dust, anchor: contact, count: 1, extra: 0, color: "#5aaa3c", size: 1.4}
               - {id: snd_blk, op: sound, sound: entity.splash_potion.break, anchor: contact, volume: 0.8, pitch: 0.8}
-        - {id: trail0, op: particle, particle: happy_villager, anchor: {of: bolt, sweep: 0.4}, count: 1, offset: [0.04, 0.04, 0.04], extra: 0, every: 1, until: bolt.end}
-        - {id: trail1, op: particle, particle: dust, anchor: {of: bolt, sweep: 0.4}, count: 1, extra: 0, color: "#5aaa3c", size: 1.0, every: 1, until: bolt.end}
+        - {id: trail0, op: particle, particle: happy_villager, anchor: {of: bolt, sweep: 0.4}, count: 1, offset: [0.04, 0.04, 0.04], extra: 0, at: 0, every: 1, until: bolt.end}
+        - {id: trail1, op: particle, particle: dust, anchor: {of: bolt, sweep: 0.4}, count: 1, extra: 0, color: "#5aaa3c", size: 1.0, at: 0, every: 1, until: bolt.end}
     end: {final: true}
