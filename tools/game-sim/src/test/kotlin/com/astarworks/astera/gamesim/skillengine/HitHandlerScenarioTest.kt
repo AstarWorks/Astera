@@ -5,6 +5,7 @@ import com.astarworks.astera.core.application.skillengine.runtime.player.CastHan
 import com.astarworks.astera.core.application.skillengine.runtime.player.CastTrace
 import com.astarworks.astera.core.application.skillengine.runtime.player.EventBinding
 import com.astarworks.astera.core.application.skillengine.runtime.player.LiveValueSource
+import com.astarworks.astera.core.application.skillengine.runtime.player.RowScope
 import com.astarworks.astera.core.application.skillengine.runtime.player.TablePlayer
 import com.astarworks.astera.core.application.skillengine.runtime.port.ISkillGameplayGateway
 import com.astarworks.astera.core.application.skillengine.runtime.port.SkillDamage
@@ -98,13 +99,13 @@ class HitHandlerScenarioTest {
         private fun feetZ(b: EventBinding?): Double =
             rec.victims.first { it.entityId == b?.victim?.id }.feet.z
 
-        override fun num(cast: CastHandle, name: String, binding: EventBinding?): Double = when (name) {
+        override fun num(cast: CastHandle, name: String, binding: EventBinding?, scope: RowScope): Double = when (name) {
             "event.i" -> binding?.index?.toDouble() ?: -1.0
             "vz" -> feetZ(binding)
             "falloff" -> 10.0 - feetZ(binding)
             "stacks" -> stacks
             "consume" -> { stacks = 0.0; 0.0 }
-            else -> rec.live.num(cast, name, binding)
+            else -> rec.live.num(cast, name, binding, scope)
         }
     }
 

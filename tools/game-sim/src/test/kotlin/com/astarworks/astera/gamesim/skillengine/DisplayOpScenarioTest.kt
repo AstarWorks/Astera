@@ -100,6 +100,21 @@ class DisplayOpScenarioTest : SkillEngineScenario() {
     }
 
     @Test
+    fun rigWithoutOfPlaysTheHeldItemThroughTheRealPlayer() {
+        // v2 RigPerformer: no `of` = the rig is its own frame and the main-hand item rides it; it is posed every tick and removed with the rig
+        val s = compiled(
+            "{id: r, op: rig, parent: caster, pivot: {left: 0.0, up: 1.4, forward: 0.3}, for: 12, " +
+                "swing: [{at: 2, for: 3, from: {left: -1, up: 1, forward: 1}, to: {left: 1, up: -1, forward: 1}, edge: leading}]}",
+        )
+        val rec = GatewayRecorder()
+        val player = playProbe(s, ticks = 14, rec = rec)
+        assertThat(player.faults()).isEmpty()
+        assertThat(rec.calls.filter { it.verb == "spawn" }.map { it.payload }).containsExactly("kind=item")
+        assertThat(rec.calls.count { it.verb == "write" }).isGreaterThanOrEqualTo(12)
+        assertThat(rec.calls.single { it.verb == "remove" }.tick).isEqualTo(12)
+    }
+
+    @Test
     fun rigCarriesPivotTiltFreezesAndSampleTicks() {
         // the player plays these 1:1 as v2 RigMotion (chunked slerp, hit-stop clock); the lowering must hand every field over
         val s = compiled(

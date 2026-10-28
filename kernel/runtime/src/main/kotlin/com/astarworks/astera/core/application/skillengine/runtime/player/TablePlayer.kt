@@ -1,5 +1,6 @@
 package com.astarworks.astera.core.application.skillengine.runtime.player
 
+import com.astarworks.astera.core.application.skillengine.expr.cel.V3Bindings
 import com.astarworks.astera.core.application.skillengine.runtime.CastError
 import com.astarworks.astera.core.application.skillengine.runtime.CastRequest
 import com.astarworks.astera.core.application.skillengine.runtime.ops.DashDriver
@@ -46,6 +47,9 @@ import com.astarworks.astera.core.domain.skillengine.table.Guard
 import com.astarworks.astera.core.domain.skillengine.table.LockMove
 import com.astarworks.astera.core.domain.skillengine.table.HitShape
 import com.astarworks.astera.core.domain.skillengine.table.InstanceId
+import com.astarworks.astera.core.domain.skillengine.table.OpId
+import com.astarworks.astera.core.domain.animation.skinrig.SkinRigTransforms
+import com.astarworks.astera.core.application.skillengine.load.MeshModels
 import com.astarworks.astera.core.domain.skillengine.table.Look
 import com.astarworks.astera.core.domain.skillengine.table.Num
 import com.astarworks.astera.core.domain.skillengine.table.Rot
@@ -511,14 +515,14 @@ public class TablePlayer(
             pp = pw.pos
             pr = pw.rot
         } else if (rec.anchorName.isNotEmpty() && rec.anchorName != "world") {
-            pp = live.vec(run.cursor.handle, rec.anchorName, binding)
-            pr = live.rot(run.cursor.handle, rec.anchorName, binding)
+            pp = live.vec(run.cursor.handle, rec.anchorName, binding, RowScope.cast(run.request.seed))
+            pr = live.rot(run.cursor.handle, rec.anchorName, binding, RowScope.cast(run.request.seed))
         }
         if (parent == null) {
             when (rec.axes) {
                 "world" -> pr = Quaterniond()
-                "caster" -> pr = live.rot(run.cursor.handle, "caster", binding)
-                "victim" -> pr = live.rot(run.cursor.handle, "target", binding)
+                "caster" -> pr = live.rot(run.cursor.handle, "caster", binding, RowScope.cast(run.request.seed))
+                "victim" -> pr = live.rot(run.cursor.handle, "target", binding, RowScope.cast(run.request.seed))
             }
         }
         return PoseV(Vector3d(local.pos).rotate(pr).add(pp), Quaterniond(pr).mul(local.rot), Vector3d(local.scale))
@@ -533,10 +537,12 @@ public class TablePlayer(
 
     // ------------------------------------------------------------------ rows
 
-    private class RowCtx(val base: Int, val binding: EventBinding?, val owner: StatePath?, val level: LevelCursor?)
+    /** [scope] is set by [playRow] before the row's cells are read (the row's seed and copy index); the bare default is the cast's. */
+    private class RowCtx(val base: Int, val binding: EventBinding?, val owner: StatePath?, val level: LevelCursor?, var scope: RowScope = RowScope.cast(0L))
 
     private fun playRow(run: Run, row: Row, ctx: RowCtx, now: Int) {
         val src = row.src.value.ifEmpty { row.instance.text }
+        ctx.scope = rowScope(run, row)
         try {
             when (val a = row.action) {
                 is Action.Enter -> {
@@ -781,6 +787,8 @@ public class TablePlayer(
     // `<op>.hit` handlers start (one event per victim, index = victim ordinal). `<op>.miss` fires once, on the op's final detection, if nothing was ever hit.
     private fun hit(run: Run, row: Row, a: Action.Hit, ctx: RowCtx, now: Int) {
         val caster = run.request.caster
+        // v2 `resolveHits`: `if (isFrozen(...)) continue` (CastInstance.kt:757)
+        a.anchor?.let { if (isFrozen(run, it, now)) return }
         val delta = a.anchor?.let { run.recs[it] }?.let { r ->
             val cur = worldOf(run, r, r.localAt(now), ctx.binding, now).pos
             val prev = worldOf(run, r, r.localAt(now - 1), ctx.binding, now - 1).pos
@@ -867,7 +875,7 @@ public class TablePlayer(
         }
         // every amount is read first (so a `stacks(...)` read sees the stacks as they were before any damage or consume), then the damage lands
         val amounts = bindings.map { (_, b) ->
-            val vctx = RowCtx(ctx.base, b, ctx.owner, ctx.level)
+            val vctx = RowCtx(ctx.base, b, ctx.owner, ctx.level, ctx.scope)
             a.damage.map { c -> SkillDamage(c.attribute.name.lowercase(), num(run, c.amount, vctx)) }
         }
         for ((n, pair) in bindings.withIndex()) {
@@ -906,15 +914,33 @@ public class TablePlayer(
     private fun projectileStep(run: Run, now: Int) {
         for ((id, rec) in run.recs.entries.toList()) {
             if (rec.kind != SpawnKind.PROJECTILE_BODY) continue
+            // a frozen body (v2 `isFrozen`, CastInstance.kt:726-734) holds its place: its flight clock and range timer stand still, no contact is tested
+            if (isFrozen(run, id, now)) {
+                rec.frozenTicks++
+                if (rec.expireTick >= 0) rec.expireTick++
+                continue
+            }
             rec.flight?.let { fl ->
                 val cur = rec.localAt(now)
-                rec.moveTo(PoseV(fl.at(now - rec.spawnTick), cur.rot, cur.scale), now, 0)
+                rec.moveTo(PoseV(fl.at(now - rec.spawnTick - rec.frozenTicks), cur.rot, cur.scale), now, 0)
             }
             val blocked = blockContact(run, id, rec, now)
             if (!blocked) entityContact(run, id, rec, now)
             // R16: `expire` is the end by range / `for`, just before `end`; a hit / block end (rec.ended) never expires (checked at delivery)
             if (rec.expireTick == now) run.pending += RuntimeEvent(EventPath(id.text + ".expire"), now, id.path.lastOrNull()?.index, null, null)
         }
+    }
+
+    /** v2 `CastInstance.isFrozen` (:726-734): the instance or any frame it rides is inside its `freeze` window. */
+    private fun isFrozen(run: Run, id: InstanceId, now: Int): Boolean {
+        if (run.frozenUntil.isEmpty()) return false
+        var cur: InstanceId? = id
+        var depth = 0
+        while (cur != null && depth++ < 16) {
+            if ((run.frozenUntil[cur] ?: Int.MIN_VALUE) > now) return true
+            cur = run.recs[cur]?.anchor
+        }
+        return false
     }
 
     /** Fires `<body>.block` for a block on this tick's segment; true when that block ends the flight (despawn / stick), so no entity is tested behind it. */
@@ -972,8 +998,8 @@ public class TablePlayer(
                 continue
             }
             val d = Vector3d(worldOf(run, fr, fr.localAt(now), null, now).pos).sub(worldOf(run, fr, fr.localAt(now - 1), null, now - 1).pos)
-            val f = live.vec(run.cursor.handle, sf.from, null)
-            val t = live.vec(run.cursor.handle, sf.to, null)
+            val f = live.vec(run.cursor.handle, sf.from, null, RowScope.cast(run.request.seed))
+            val t = live.vec(run.cursor.handle, sf.to, null, RowScope.cast(run.request.seed))
             val travel = d.length()
             val poses = if (travel < 1e-9) 1 else min(config.maxSweepSteps.toDouble(), ceil(travel / max(rec.shapeRadius, 1e-6)) + 1.0).toInt().coerceAtLeast(1)
             for (i in 0 until poses) {
@@ -1060,7 +1086,13 @@ public class TablePlayer(
                 for (name in any(run, cell("scope"), ctx) as List<*>) when (val n = name.toString()) {
                     "caster" -> entities += caster
                     "event.victim" -> entities += targets(run, Val.Live("event.victim", null), ctx)
-                    else -> fault(run, now, src, "freeze scope '$n': the gateway holds entities only, a frame instance has no entity to hold")
+                    else -> {
+                        // v2 `FreezeOpExecutor` split the scope into entities and frames (ControlOpExecutors.kt:14-33, `host.freezeFrames`);
+                        // the frame half was cast-internal state (CastInstance.kt:539-541), so it stays the player's, not a gateway call
+                        val target = run.recs.keys.firstOrNull { "instance:" + it.text == n || it.text == n }
+                        if (target == null) fault(run, now, src, "freeze scope '$n': not a live instance")
+                        else if (ticks > 0) run.frozenUntil[target] = now + ticks
+                    }
                 }
                 if (ticks > 0 && entities.isNotEmpty()) gameplay.freezeEntities(entities.toList(), ticks)
             }
@@ -1141,9 +1173,9 @@ public class TablePlayer(
     private fun rigStart(run: Run, row: Row, p: Map<String, Val<Any>>, ctx: RowCtx, now: Int, src: String) {
         fun cell(k: String): Val<Any> = p[k] ?: throw IllegalArgumentException("effect 'rig' needs '$k'")
         val parent = any(run, cell("parent"), ctx) as InstanceId
-        val driven = p["of"]?.let { any(run, it, ctx) as InstanceId } ?: parent
-        if (run.recs[driven] == null) {
-            fault(run, now, src, "rig: frame '${driven.text}' is not a live instance")
+        val of = p["of"]?.let { any(run, it, ctx) as InstanceId }
+        if (of != null && run.recs[of] == null) {
+            fault(run, now, src, "rig: frame '${of.text}' is not a live instance")
             return
         }
         val duration = (any(run, cell("duration"), ctx) as Number).toInt()
@@ -1180,10 +1212,40 @@ public class TablePlayer(
         val wrist = motion(respect)
         val bodyClock = if (bodyRespect && !respect) motion(true) else wrist
         if (anim != null) gameplay.playBodyClip(castRef(run), caster, anim, 1.0)
-        val rig = RigRec(driven, now, wrist, bodyClock, anim, caster)
+        var held: Rec? = null
+        val driven: InstanceId
+        if (of != null) {
+            driven = of
+        } else {
+            // no `of`: the rig is its own frame (v2 `RigPerformer.start`, 93cd534e4~1) and the caster's held item rides it as the part (R27).
+            // The frame is carried by the arm; the part takes only the fixed pivot and the wrist orientation (`withPartFrame`).
+            driven = row.instance
+            if (run.recs[driven] != null) endInstance(run, driven)
+            val parentRec = run.recs[parent]
+            val identity = PoseV(Vector3d(), Quaterniond(), Vector3d(1.0, 1.0, 1.0))
+            run.recs[driven] = Rec(SpawnKind.FRAME, parentRec?.let { parent }, if (parentRec == null) parent.text else "", now, ctx.owner, identity)
+            run.cursor.instances[driven] = GatewayHandle(nextSynthetic--)
+            val heldId = InstanceId(driven.path + InstanceId.Segment(OpId("held"), null))
+            val pivot = v3("pivot")
+            val local = PoseV(Vector3d(pivot.x, pivot.y, pivot.z), rotOf(wrist.rotationAt(wrist.clock(0))), Vector3d(SkinRigTransforms.PLAYER_SCALE))
+            val rec = Rec(SpawnKind.ITEM, parentRec?.let { parent }, if (parentRec == null) parent.text else "", now, ctx.owner, local)
+            val h = visual.spawnMesh(
+                castRef(run), MeshModels.MAIN_HAND, null, visualPose(rec, worldOf(run, rec, local, ctx.binding, now)), null, MeshLook(rigShading = true),
+            )
+            rec.real = h
+            run.recs[heldId] = rec
+            run.cursor.instances[heldId] = GatewayHandle(h.id)
+            held = rec
+        }
+        val frameRec = run.recs.getValue(driven)
+        for (k in listOf("tip", "root", "edge")) p[k]?.let { frameRec.points[k] = any(run, it, ctx) as Vector3d }
+        val pivot = v3("pivot")
+        val rig = RigRec(driven, now, wrist, bodyClock, anim, caster, held, Vector3d(pivot.x, pivot.y, pivot.z))
         run.rigs[row.instance] = rig
         rigPose(run, rig, now)
     }
+
+    private fun rotOf(q: Quaternion): Quaterniond = Quaterniond(q.x, q.y, q.z, q.w)
 
     private fun rigPose(run: Run, rig: RigRec, now: Int) {
         val rec = run.recs[rig.driven] ?: return
@@ -1196,6 +1258,11 @@ public class TablePlayer(
         val target = PoseV(Vector3d(origin.x, origin.y, origin.z), Quaterniond(q.x, q.y, q.z, q.w), Vector3d(cur.scale))
         rec.moveTo(target, now, 0)
         rec.real?.let { visual.write(it, visualPose(rec, worldOf(run, rec, target, null, now)), 0) }
+        rig.held?.let { h ->
+            val pose = PoseV(Vector3d(rig.pivot), rotOf(rig.wrist.rotationAt(s)), Vector3d(h.localAt(now).scale))
+            h.moveTo(pose, now, 0)
+            h.real?.let { visual.write(it, visualPose(h, worldOf(run, h, pose, null, now)), 0) }
+        }
     }
 
     private fun driversStep(run: Run, now: Int) {
@@ -1207,6 +1274,7 @@ public class TablePlayer(
     private fun reelStep(run: Run, id: InstanceId, reel: ReelRec, now: Int) {
         val frame = run.recs[reel.frame]
         val to = run.recs[reel.to]
+        if (frame != null && isFrozen(run, reel.frame, now)) return
         if (frame == null || to == null) {
             run.reel.stop(id.text)
             run.reels.remove(id)
@@ -1274,7 +1342,7 @@ public class TablePlayer(
         val to = body.substringAfter('>').substringBefore('^')
         val up = body.substringAfter('^')
         val parent = anchor?.let { run.recs[it] }?.let { worldOf(run, it, it.localAt(lastTick), ctx.binding, lastTick) }
-            ?: if (anchorName.isNotEmpty() && anchorName != "world") PoseV(live.vec(run.cursor.handle, anchorName, ctx.binding), live.rot(run.cursor.handle, anchorName, ctx.binding), Vector3d(1.0, 1.0, 1.0)) else PoseV(Vector3d(), Quaterniond(), Vector3d(1.0, 1.0, 1.0))
+            ?: if (anchorName.isNotEmpty() && anchorName != "world") PoseV(live.vec(run.cursor.handle, anchorName, ctx.binding, ctx.scope), live.rot(run.cursor.handle, anchorName, ctx.binding, ctx.scope), Vector3d(1.0, 1.0, 1.0)) else PoseV(Vector3d(), Quaterniond(), Vector3d(1.0, 1.0, 1.0))
         val dir = namedDirection(run, to, ctx)
         val upDir = namedDirection(run, up, ctx)
         val objAxis = LocalAxes.axis(axisName.removePrefix("-"))?.let { if (axisName.startsWith("-")) it * -1.0 else it }
@@ -1297,7 +1365,13 @@ public class TablePlayer(
         if (dot <= 0) throw IllegalArgumentException("align target '$name' is not a direction (world.up, world.down, <frame>.<axis>)")
         val inst = name.substring(0, dot)
         val axis = name.substring(dot + 1)
-        val rot = if (inst == "caster") live.rot(run.cursor.handle, "caster", ctx.binding)
+        if (axis == "edge") {
+            val (rec, _) = anchorOf(run, name) ?: throw IllegalArgumentException("align target '$name': frame '$inst' has no edge point")
+            val d = rec.points.getValue("edge")
+            val r = worldOf(run, rec, rec.localAt(lastTick), ctx.binding, lastTick).rot
+            return Vector3d(d).rotate(r).let { Vec3(it.x, it.y, it.z) }
+        }
+        val rot = if (inst == "caster") live.rot(run.cursor.handle, "caster", ctx.binding, ctx.scope)
         else anchorOf(run, inst)?.let { (rec, _) -> worldOf(run, rec, rec.localAt(lastTick), ctx.binding, lastTick).rot }
             ?: throw IllegalArgumentException("align target '$name': no frame '$inst'")
         return Basis.axis(Frame(Vec3(0.0, 0.0, 0.0), Quaternion(rot.x, rot.y, rot.z, rot.w)), axis)
@@ -1334,10 +1408,12 @@ public class TablePlayer(
     /** `anchor:<instance>[.position|.rotation]` (or the bare instance text): the live instance and the requested part. */
     private fun anchorOf(run: Run, name: String): Pair<Rec, String>? {
         val bare = name.removePrefix("anchor:")
-        for (part in listOf("position", "rotation", "forward", "")) {
+        for (part in listOf("position", "rotation", "forward", "tip", "root", "edge", "")) {
             val base = if (part.isEmpty()) bare else if (bare.endsWith(".$part")) bare.removeSuffix(".$part") else continue
             val id = run.recs.keys.firstOrNull { it.text == base } ?: continue
-            return run.recs.getValue(id) to part
+            val rec = run.recs.getValue(id)
+            if ((part == "tip" || part == "root" || part == "edge") && part !in rec.points) continue
+            return rec to part
         }
         return null
     }
@@ -1347,9 +1423,11 @@ public class TablePlayer(
         anchorOf(run, name)?.let { (rec, part) ->
             if (part == "rotation") throw IllegalArgumentException("'$name' is a rotation, not a vector")
             val w = worldOf(run, rec, rec.localAt(lastTick), ctx.binding, lastTick)
+            if (part == "tip" || part == "root") return Vector3d(rec.points.getValue(part)).rotate(w.rot).add(w.pos)
+            // `edge` is a direction with a zero local origin (v2 `FramePoint(frame, "edge", Vec3.ZERO, dir)`): as a point it is the frame origin
             return if (part == "forward") Vector3d(0.0, 0.0, 1.0).rotate(w.rot) else w.pos
         }
-        return live.vec(run.cursor.handle, name, ctx.binding)
+        return live.vec(run.cursor.handle, name, ctx.binding, ctx.scope)
     }
 
     private fun liveRot(run: Run, name: String, ctx: RowCtx): Quaterniond {
@@ -1357,10 +1435,10 @@ public class TablePlayer(
         if (name == "motion.turn") return Quaterniond()
         paramOf(run, name)?.let { v -> return (v as? Quaterniond)?.let { Quaterniond(it) } ?: throw IllegalArgumentException("param '$name' is not a rotation") }
         anchorOf(run, name)?.let { (rec, part) ->
-            if (part == "position" || part == "forward") throw IllegalArgumentException("'$name' is a ${part}, not a rotation")
+            if (part != "rotation" && part.isNotEmpty()) throw IllegalArgumentException("'$name' is a ${part}, not a rotation")
             return worldOf(run, rec, rec.localAt(lastTick), ctx.binding, lastTick).rot
         }
-        return live.rot(run.cursor.handle, name, ctx.binding)
+        return live.rot(run.cursor.handle, name, ctx.binding, ctx.scope)
     }
 
     private fun liveNum(run: Run, name: String, ctx: RowCtx): Double {
@@ -1371,7 +1449,7 @@ public class TablePlayer(
                 else -> throw IllegalArgumentException("param '$name' is not a number")
             }
         }
-        return live.num(run.cursor.handle, name, ctx.binding)
+        return live.num(run.cursor.handle, name, ctx.binding, ctx.scope)
     }
 
     private fun toVector(v: Any, name: String): Vector3d = when (v) {
@@ -1428,6 +1506,13 @@ public class TablePlayer(
             else live.targets(run.cursor.handle, TargetRule.Entity("event.victim"), ctx.binding).entities.map { it.id }
     }
 
+    /** The seed `V3Bindings.seed(castSeed, op, i)` the compiler folds with, and the copy indices of the instance path (innermost first). */
+    private fun rowScope(run: Run, row: Row): RowScope {
+        val last = row.instance.path.last()
+        val indices = row.instance.path.mapNotNull { it.index }.asReversed()
+        return RowScope(V3Bindings.seed(run.request.seed, last.op, last.index ?: 0), run.request.seed, indices)
+    }
+
     private fun rowStream(run: Run, row: Row, ctx: RowCtx): SeededStream =
         run.cursor.seed.fork("${row.instance.text}|${row.src.value}|${ctx.base}|${row.tick}")
 
@@ -1477,7 +1562,7 @@ public class TablePlayer(
 
     private class ReelRec(val frame: InstanceId, val to: InstanceId)
 
-    private class RigRec(val driven: InstanceId, val start: Int, val wrist: RigMotion, val bodyClock: RigMotion, val anim: String?, val caster: UUID)
+    private class RigRec(val driven: InstanceId, val start: Int, val wrist: RigMotion, val bodyClock: RigMotion, val anim: String?, val caster: UUID, val held: Rec?, val pivot: Vector3d)
 
     private class ShapeFrame(val frame: String, val from: String, val to: String)
 
@@ -1510,6 +1595,12 @@ public class TablePlayer(
         var billboard: DisplayBillboard = DisplayBillboard.FIXED
         /** `frame axes`: which rotation a root frame takes (null = its anchor's own). */
         var axes: String? = null
+
+        /** Ticks this body spent frozen: its flight clock runs `frozenTicks` behind the wall clock. */
+        var frozenTicks: Int = 0
+
+        /** Rig frame points (v2 `FramePoint`): `tip` / `root` local offsets, `edge` a direction at the frame origin. */
+        val points: MutableMap<String, Vector3d> = HashMap()
         private var from: PoseV = to
         private var segStart: Int = spawnTick
         private var segDur: Int = 0
@@ -1543,6 +1634,9 @@ public class TablePlayer(
         val external = ConcurrentLinkedQueue<RuntimeEvent>()
         val firings = HashMap<EventPath, Int>()
         val hitOnce = HashMap<InstanceId, MutableSet<UUID>>()
+
+        /** `freeze` on a frame instance: the tick it lifts (exclusive), per instance. */
+        val frozenUntil = HashMap<InstanceId, Int>()
 
         /** Ops (identity without the occurrence index) that have found a victim at least once / already raised `miss`. */
         val hitEver = HashSet<InstanceId>()

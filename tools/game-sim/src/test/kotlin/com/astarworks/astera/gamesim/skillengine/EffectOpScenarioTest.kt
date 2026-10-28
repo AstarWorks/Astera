@@ -192,5 +192,51 @@ class EffectOpScenarioTest : SkillEngineScenario() {
         val sounds = play(s, 1L).filter { it.verb == "sound" }.map { it.tick }
         assertThat(sounds).containsExactly(0, 3, 6)
     }
-}
 
+    /**
+     * `freeze` with an instance in its scope (v2 `FreezeOpExecutor` split entities / frames, ControlOpExecutors.kt:14-33; frames held in
+     * `CastInstance.frozenUntil`, :539-541): the volley holds its place while frozen, so a text display riding it six ticks apart
+     * lands three flight-steps short of the unfrozen cast. Never a fault, and the entity half (`caster`) still reaches the gateway.
+     */
+    @Test
+    fun freezeHoldsAProjectileBodyInstance() {
+        fun yaml(freeze: Boolean): String = (
+            listOf(
+                "apiVersion: astera/v3", "kind: Skill", "id: freeze-body", "item: any",
+                "anchors:", "  - {id: muzzle, anchor: caster.eye, offset: {forward: 0.5}}",
+                "machine:", "  start: s", "  states:", "    s:", "      for: 30", "      do:",
+                "        - {id: bolt, op: projectile, origin: muzzle, velocity: \"= forward * 1.0\", speed: 1.0, radius: 0.4, for: 25, hit: {targets: enemies, once: true}, block: {mode: despawn}}",
+                "        - {id: da, op: display, kind: text, text: a, anchor: bolt, at: 3, for: 1}",
+                "        - {id: db, op: display, kind: text, text: b, anchor: bolt, at: 9, for: 1}",
+            ) + (if (freeze) listOf("        - {id: fz, op: freeze, at: 4, ticks: 3, scope: [caster, bolt]}") else emptyList())
+            ).joinToString("\n") + "\n"
+
+        fun gap(freeze: Boolean): Pair<Double, List<String>> {
+            val rec = GatewayRecorder()
+            val at = HashMap<String, com.astarworks.astera.core.domain.geometry.Vec3>()
+            val visual = object : com.astarworks.astera.core.application.skillengine.runtime.port.ISkillVisualGateway by rec.visual {
+                override fun spawnText(
+                    cast: com.astarworks.astera.core.application.skillengine.runtime.port.CastRef, text: String, backgroundHex: String, backgroundAlpha: Double,
+                    shadow: Boolean, seeThrough: Boolean, pose: com.astarworks.astera.core.application.skillengine.runtime.port.VisualPose, brightness: Int?,
+                    view: com.astarworks.astera.core.application.skillengine.runtime.port.DisplayView,
+                ): com.astarworks.astera.core.application.skillengine.runtime.port.VisualHandle {
+                    at[text] = pose.frame.origin
+                    return rec.visual.spawnText(cast, text, backgroundHex, backgroundAlpha, shadow, seeThrough, pose, brightness, view)
+                }
+            }
+            val player = playProbe(compile(yaml(freeze)), ticks = 12, rec = rec, visual = visual)
+            val a = at.getValue("a")
+            val b = at.getValue("b")
+            val d = Math.sqrt((b.x - a.x) * (b.x - a.x) + (b.y - a.y) * (b.y - a.y) + (b.z - a.z) * (b.z - a.z))
+            assertThat(player.faults()).isEmpty()
+            return d to rec.calls.filter { it.verb == "effect" }.map { it.payload }
+        }
+
+        val (free, freeCalls) = gap(false)
+        val (held, heldCalls) = gap(true)
+        assertThat(freeCalls).isEmpty()
+        assertThat(heldCalls).containsExactly("freeze=3")
+        // six unfrozen flight ticks between the two samples; three of them are frozen
+        assertThat(held).isCloseTo(free / 2.0, org.assertj.core.data.Offset.offset(1e-6))
+    }
+}

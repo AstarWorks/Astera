@@ -5,6 +5,7 @@ import com.astarworks.astera.core.application.skillengine.runtime.player.CastHan
 import com.astarworks.astera.core.application.skillengine.runtime.player.CastTrace
 import com.astarworks.astera.core.application.skillengine.runtime.player.EventBinding
 import com.astarworks.astera.core.application.skillengine.runtime.player.LiveValueSource
+import com.astarworks.astera.core.application.skillengine.runtime.player.RowScope
 import com.astarworks.astera.core.application.skillengine.runtime.player.PlayerHooks
 import com.astarworks.astera.core.application.skillengine.runtime.player.RuntimeEvent
 import com.astarworks.astera.core.application.skillengine.runtime.player.TablePlayer
@@ -329,7 +330,7 @@ class TablePlayerRulesScenarioTest {
     fun liveNumComesFromTheValueSourceAndParamsFromTheTable() {
         val rec = GatewayRecorder()
         val source = object : LiveValueSource by rec.live {
-            override fun num(cast: CastHandle, name: String, binding: EventBinding?): Double = if (name == "speed") 7.5 else 0.0
+            override fun num(cast: CastHandle, name: String, binding: EventBinding?, scope: RowScope): Double = if (name == "speed") 7.5 else 0.0
         }
         val s = skill(
             "a",
@@ -342,6 +343,121 @@ class TablePlayerRulesScenarioTest {
         assertThat(vols[0]).contains("vol=" + RecordedCall.num(7.5))
         assertThat(vols[1]).contains("vol=" + RecordedCall.num(3.0))
         assertThat(fx.player.faults()).isEmpty()
+    }
+
+    /**
+     * R10: a live cell is read with the row's own seed and copy indices, so Paper evaluates `rand()` / `i` / `parent.i` as the compiler folded them
+     * (the cast seed alone would give every `times` copy the same stream).
+     */
+    @Test
+    fun liveCellsAreReadWithTheRowsSeedAndCopyIndices() {
+        val rec = GatewayRecorder()
+        val seen = ArrayList<RowScope>()
+        val source = object : LiveValueSource by rec.live {
+            override fun num(cast: CastHandle, name: String, binding: EventBinding?, scope: RowScope): Double {
+                seen += scope
+                return 1.0
+            }
+        }
+        val a = InstanceId(listOf(InstanceId.Segment(OpId("grp"), 2), InstanceId.Segment(OpId("snd"), 0)))
+        val b = InstanceId(listOf(InstanceId.Segment(OpId("grp"), 2), InstanceId.Segment(OpId("snd"), 1)))
+        val s = skill(
+            "a",
+            listOf(st("a", listOf(enter("a"), row(0, sound("x", Val.Live("probe", null)), a), row(0, sound("y", Val.Live("probe", null)), b)))),
+        )
+        val fx = Fx(s, rec, source)
+        fx.run(1)
+        assertThat(fx.player.faults()).isEmpty()
+        assertThat(seen.map { it.indices }).containsExactly(listOf(0, 2), listOf(1, 2))
+        assertThat(seen[0].seed).isEqualTo(com.astarworks.astera.core.application.skillengine.expr.cel.V3Bindings.seed(1L, OpId("snd"), 0))
+        assertThat(seen[1].seed).isEqualTo(com.astarworks.astera.core.application.skillengine.expr.cel.V3Bindings.seed(1L, OpId("snd"), 1))
+        assertThat(seen[0].seed).isNotEqualTo(seen[1].seed)
+        assertThat(seen.map { it.castSeed }.toSet()).containsExactly(1L)
+    }
+
+    // ---- rig: held item and frame points (v2 RigPerformer, 93cd534e4~1) -------------------------------------------
+
+    private fun rigPayload(parent: InstanceId, of: InstanceId?, extra: Map<String, Val<Any>> = emptyMap()): Map<String, Val<Any>> {
+        val zero = Vector3d()
+        return buildMap {
+            put("parent", Val.Known(parent))
+            of?.let { put("of", Val.Known(it)) }
+            put("hand", Val.Known(false))
+            put("pivot", Val.Known(Vector3d(0.0, 1.0, 0.0)))
+            put("tilt", Val.Known(Vector3d(zero)))
+            put("rest", Val.Known(Vector3d(zero)))
+            put("swing", Val.Known(emptyList<Any>()))
+            put("sample_ticks", Val.Known(1))
+            put("duration", Val.Known(10))
+            put("respect_hit_stop", Val.Known(false))
+            put("body_respect_hit_stop", Val.Known(false))
+            put("freezes", Val.Known(emptyList<Any>()))
+            putAll(extra)
+        }
+    }
+
+    private val unitPose = Pose(Val.Known(Vector3d()), Val.Known(Quaterniond()), Val.Known(Vector3d(1.0, 1.0, 1.0)))
+
+    @Test
+    fun aRigWithoutOfCarriesTheHeldItemAndRemovesItAtTheEnd() {
+        // v2: the rig is its own frame and the caster's main-hand item rides it as the part (RigPerformer.start / withPartFrame)
+        val r = id("r")
+        val s = skill(
+            "a",
+            listOf(
+                st(
+                    "a",
+                    listOf(
+                        enter("a"),
+                        row(0, Action.Effect(OpId("rig"), rigPayload(id("caster"), null)), r),
+                        row(10, Action.End(r), r),
+                    ),
+                ),
+            ),
+        )
+        val rec = GatewayRecorder()
+        val player = playProbe(s, ticks = 12, rec = rec)
+        assertThat(player.faults()).isEmpty()
+        assertThat(rec.calls.filter { it.verb == "spawn" }.map { it.payload }).containsExactly("kind=item")
+        assertThat(rec.calls.filter { it.verb == "write" }).isNotEmpty()
+        assertThat(rec.calls.single { it.verb == "remove" }.tick).isEqualTo(10)
+    }
+
+    @Test
+    fun rigTipResolvesOnTheDrivenFrame() {
+        // v2 FramePoint(frame, "tip", local): the point rides the frame (origin + rotation * local)
+        val slam = id("slam")
+        val txt = id("txt")
+        val s = skill(
+            "a",
+            listOf(
+                st(
+                    "a",
+                    listOf(
+                        enter("a"),
+                        row(0, Action.Spawn(SpawnKind.FRAME, null, "caster", unitPose, Look(emptyMap())), slam),
+                        row(0, Action.Spawn(SpawnKind.TEXT, null, "", unitPose, Look(mapOf<String, Val<Any>>("text" to Val.Known("hi")))), txt),
+                        row(0, Action.Effect(OpId("rig"), rigPayload(id("caster"), slam, mapOf("tip" to Val.Known(Vector3d(0.0, 0.0, 2.0))))), id("r")),
+                        row(5, Action.Key(txt, 0, Val.Live("slam.tip", null), Val.Known(Quaterniond()), Val.Known(Vector3d(1.0, 1.0, 1.0))), txt),
+                    ),
+                ),
+            ),
+        )
+        val rec = GatewayRecorder()
+        val writes = ArrayList<Vec3>()
+        val visual = object : com.astarworks.astera.core.application.skillengine.runtime.port.ISkillVisualGateway by rec.visual {
+            override fun write(handle: VisualHandle, pose: com.astarworks.astera.core.application.skillengine.runtime.port.VisualPose, interpolationTicks: Int) {
+                writes += pose.frame.origin
+                rec.visual.write(handle, pose, interpolationTicks)
+            }
+        }
+        val player = playProbe(s, ticks = 6, rec = rec, visual = visual)
+        assertThat(player.faults()).isEmpty()
+        // caster stand-in (0, 1, 0) + rig pivot (0, 1, 0) + tip (0, 0, 2)
+        assertThat(writes).hasSize(1)
+        assertThat(writes[0].x).isCloseTo(0.0, org.assertj.core.data.Offset.offset(1e-9))
+        assertThat(writes[0].y).isCloseTo(2.0, org.assertj.core.data.Offset.offset(1e-9))
+        assertThat(writes[0].z).isCloseTo(2.0, org.assertj.core.data.Offset.offset(1e-9))
     }
 
     @Test
