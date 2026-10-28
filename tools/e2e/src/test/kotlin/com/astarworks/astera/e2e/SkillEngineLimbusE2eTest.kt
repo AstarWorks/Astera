@@ -105,7 +105,7 @@ class SkillEngineLimbusE2eTest : E2eBase() {
     @Test fun coutureRapierS3() = runCase(Oracle("couture-rapier-s3", 138, 191, 10))
     @Test fun coutureRapierEgo() = runCase(Oracle("couture-rapier-ego", 73, 114, 5))
 
-    // couture-rapier-s2 has no shipped oracle dump yet (it does not load: `= thread_color`, ShippedV3ContentScenarioTest); the bounds are the
+    // couture-rapier-s2 has no shipped oracle dump yet (replayed only by ShippedV3ContentScenarioTest); its three reel threads are line ribbons (text displays, spawnLine) and count in the display peak; the bounds are the
     // engine's own max_live_displays (64) and the content comment "four hits"; the end tick is the sticking window with its reel.
     @Test fun coutureRapierS2() = runCase(Oracle("couture-rapier-s2", 200, 64, 4))
 }

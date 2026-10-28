@@ -93,6 +93,16 @@ public interface ISkillVisualGateway {
 
     public fun spawnTrail(cast: CastRef, ticks: Int, widthFrac: Double, colorHex: String, alpha: Double): VisualHandle
 
+    /**
+     * A thread (ADR-0303 section 5 ribbon `shape: line`): a flat strip of [thickness] blocks from [from] to [to] that faces the viewer around its own
+     * axis (v1 `line` op, `face: {viewer: axis, axis: line.along}`). [colorHex] is `#rrggbb`, [alpha] its opacity. The runtime moves the ends
+     * with [updateLine] every tick; [remove] ends it.
+     */
+    public fun spawnLine(cast: CastRef, from: Vec3, to: Vec3, thickness: Double, colorHex: String, alpha: Double): VisualHandle
+
+    /** Move both ends of a line from [spawnLine] (the strip is rebuilt between them). */
+    public fun updateLine(handle: VisualHandle, from: Vec3, to: Vec3)
+
     /** The ONE per-tick write of a mesh, plate, block or text: the whole [pose] reaches the client together and arrives after [interpolationTicks]. */
     public fun write(handle: VisualHandle, pose: VisualPose, interpolationTicks: Int)
 
