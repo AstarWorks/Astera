@@ -815,6 +815,19 @@ worst-case path exceeds `max_cast_ticks` fails), and the Board's per-item "durat
 3. **Sprite authoring unit**: blocks (`size`, taken here) vs vanilla scale.
 4. `ribbon`/`trail` internals (segment count, the history sampler) are deliberately thin here and need a follow-up.
 
+## v1 presentation parity additions (2026-10-28)
+
+Added so the converter can express v1 presentation without dropping it (each maps 1:1 to a vanilla Display / `spawnParticle` field):
+
+- `block` op: `parent`, `block`, `size` (number | `[a,b,c]` | expr), `at`, `turn`, `brightness`, `times`/`every`/`life`.
+- `quad` / `plate`: `brightness`, repeat (`times`/`every`/`life`, with CEL `i` / `n`); `quad` `text`, `shadow`, `see_through`.
+- `emit`: repeat with `i`/`n`, `shift` (an offset in the `at` frame's axes, per copy), expression `offset`.
+- `track` key: `alpha`, `color` (`#rrggbb`), `block` swap, and the full v1 ease set (31 names).
+- `screen_flash`, `stop_sound` ops (decoder, executor, Paper gateway).
+- Converter bakes (no engine field): formation / count / reverse / stagger / slot lifetime become `times` + per-copy `at`/`turn` tables and
+  per-copy tracks; jitter becomes `rand('<stream>')`; oscillate and group keyframes become dense absolute track keys; ring particle
+  animations become one `emit` per period tick with `times: points` and a `shift` table (random phase fixed per instance).
+
 ## References
 
 - 関連 ADR: [[adr/0301-skill-engine-v2-frame-tree]], [[adr/0290-generic-vfx-primitives]], [[adr/0276-skill-performance-one-body-one-weapon-one-lease]] (v1 passenger transport), [[adr/0239-custom-particle-sprites-as-textdisplay-glyphs]]

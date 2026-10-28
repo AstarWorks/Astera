@@ -2,15 +2,9 @@
 # Generated point-frame offsets are [left, up, forward] in the parent frame.
 # CONVERT-PRESENT vfx frame orient (frames carry no orientation / scale) (x8): orient="yaw" | orient="look"
 # CONVERT-PRESENT rig block parts (mesh takes an item model, not a block + size) (x4): 2 parts | 3 parts
-# CONVERT-PRESENT rig swing without a weapon mesh (track needs a visual to move) (x4): 2 keys | 4 keys
-# CONVERT-PRESENT block element (mesh takes an item model, plate takes a sprite: no block / solid-colour primitive) (x23): yellow_concrete | white_concrete
-# CONVERT-PRESENT element formation (no v2 equivalent) (x10): {"align": "outward", "curve": {"radius": 0.12, "type": "sphe | {"align": "outward", "curve": {"radius": 0.1, "type": "spher
-# CONVERT-PRESENT element count (no v2 equivalent) (x10): 8 | 4
-# CONVERT-PRESENT element brightness (no v2 equivalent) (x34): 15
-# CONVERT-PRESENT element kind text (text) has no v2 op (x11): {"background": "#00000000", "see_through": true, "shadow": false, "text": "<#FFF | {"background": "#00000000", "see_through": true, "shadow": false, "text": "<#ffb
+# CONVERT-PRESENT rig swing without a weapon mesh (track needs a visual to move) (x4): 2 keys | 14 keys
+# CONVERT-PRESENT element kind text has no v2 op (x11): {'type': 'text', 'text': '<#FFF1A0>✦', 'background': '#00000000', 'shadow': Fals | {'type': 'text', 'text': '<#ffb020>✦', 'background': '#00000000', 'shadow': Fals
 # CONVERT-PRESENT vfx follow=false (anchored at world, no place-at-spawn) (x4): ember-hoop-hit | ember-smoke-puff
-# CONVERT-PRESENT element jitter (no v2 equivalent) (x3): {"rotation_deg": 8, "scale": 0.3}
-# CONVERT-PRESENT element group_keyframes (no v2 equivalent) (x2): [{"t": 0}, {"ease": "out_quad", "t": 4, "translate": [0, 0, 
 apiVersion: "astera/v2"
 kind: Skill
 id: ember-gauntlet-s3
@@ -55,38 +49,958 @@ presentation:
             - {from: 0.0, to: 1.0, color: "#ff8f18", alpha: 0.627, color_to: "#e04d08"}
           dark_rim: {color: "#2a170c", alpha: 0.69, width: 0.08}
           step_deg: 36.0
+    - id: fx17
+      at: 17
+      do:
+        - op: block
+          parent: fx2_ember_sweep
+          block: yellow_concrete
+          size: [1.0, 1.0, 1.0]
+          brightness: 15
+          at: "= [vec(0.05809, 1.205, 2.5), vec(-0.06907, 1.175, 2.56328), vec(0.00973, 1.145, 2.38918), vec(0.07244, 1.115, 2.59449), vec(-0.11724, 1.085, 2.47926), vec(0.09386, 1.055, 2.44029), vec(-0.02432, 1.025, 2.59046), vec(-0.02678, 0.995, 2.44844)][int(i)]"
+          turn: "= [vec(-47.52276, 80.60528, 47.52276), vec(-36.40712, -45.64799, -16.02246), vec(-1.46463, 171.84712, 33.44154), vec(-6.92276, 37.42693, 2.34839), vec(5.25608, -99.88519, 6.2674), vec(12.89416, 120.67843, -23.48408), vec(38.4562, -14.46938, 5.07876), vec(19.25152, -133.71762, 78.83641)][int(i)]"
+          times: 8
+          id: fx2_ember_sweep_impact_spokes
+        - id: fx2_ember_sweep_impact_spokes_trk
+          op: track
+          target: fx2_ember_sweep_impact_spokes
+          keys:
+            - {t: 0, scale: [0.06, 0.06, 0.12]}
+            - {t: 1, scale: [0.12, 0.12, 0.85], ease: out_expo}
+            - {t: 4, block: orange_concrete}
+            - {t: 8, scale: [0.02, 0.02, 0.1]}
+        - {op: block, parent: fx2_ember_sweep, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx2_ember_sweep_impact_core}
+        - {id: fx2_ember_sweep_impact_core_trk, op: track, target: fx2_ember_sweep_impact_core, keys: [{t: 0, offset: [-0.12, 0.98, 2.38], scale: [0.24, 0.24, 0.24]}, {t: 3, scale: [0.0, 0.0, 0.0]}]}
     - id: fx21
       at: 21
       do:
+        - {id: rm, op: remove, ids: [fx2_ember_sweep_impact_core]}
+        - {op: block, parent: fx4_ember_punch, block: yellow_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx4_ember_punch_flame_0}
+        - id: fx4_ember_punch_flame_0_trk
+          op: track
+          target: fx4_ember_punch_flame_0
+          keys:
+            - {t: 0, offset: [0.0, 1.05, 0.8], scale: [0.019, 0.028, 0.09]}
+            - {t: 2, offset: [0.0, 1.05, 1.0], scale: [0.114, 0.165, 0.54], ease: out_expo, turn: [13.94868, -11.94015, 1.46607]}
+            - {t: 7, offset: [0.0, 1.2, 1.25], block: orange_concrete}
+            - {t: 8, offset: [0.0, 1.4, 1.5], scale: [0.0, 0.0, 0.0], block: orange_concrete}
+        - {op: block, parent: fx4_ember_punch, block: yellow_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx4_ember_punch_flame_1}
+        - id: fx4_ember_punch_flame_1_trk
+          op: track
+          target: fx4_ember_punch_flame_1
+          keys:
+            - {t: 0, offset: [0.0, 1.05, 1.35], scale: [0.019, 0.028, 0.09]}
+            - {t: 2, offset: [0.0, 1.17, 1.55], scale: [0.152, 0.22, 0.72], ease: out_expo, turn: [-13.94868, 11.94015, 1.46607]}
+            - {t: 7, offset: [0.0, 1.2, 1.8], block: orange_concrete}
+            - {t: 8, offset: [0.0, 1.4, 2.05], scale: [0.0, 0.0, 0.0], block: orange_concrete}
+        - {op: block, parent: fx4_ember_punch, block: yellow_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx4_ember_punch_flame_2}
+        - id: fx4_ember_punch_flame_2_trk
+          op: track
+          target: fx4_ember_punch_flame_2
+          keys:
+            - {t: 0, offset: [0.0, 1.05, 1.9], scale: [0.019, 0.028, 0.09]}
+            - {t: 2, offset: [0.0, 1.05, 2.1], scale: [0.19, 0.275, 0.9], ease: out_expo, turn: [13.94868, -11.94015, 1.46607]}
+            - {t: 7, offset: [0.0, 1.2, 2.35], block: orange_concrete}
+            - {t: 8, offset: [0.0, 1.4, 2.6], scale: [0.0, 0.0, 0.0], block: orange_concrete}
+        - {op: block, parent: fx4_ember_punch, block: yellow_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx4_ember_punch_flame_3}
+        - id: fx4_ember_punch_flame_3_trk
+          op: track
+          target: fx4_ember_punch_flame_3
+          keys:
+            - {t: 0, offset: [0.0, 1.05, 2.45], scale: [0.019, 0.028, 0.09]}
+            - {t: 2, offset: [0.0, 1.17, 2.65], scale: [0.228, 0.33, 1.08], ease: out_expo, turn: [-13.94868, 11.94015, 1.46607]}
+            - {t: 7, offset: [0.0, 1.2, 2.9], block: orange_concrete}
+            - {t: 8, offset: [0.0, 1.4, 3.15], scale: [0.0, 0.0, 0.0], block: orange_concrete}
+        - {op: block, parent: fx4_ember_punch, block: yellow_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx4_ember_punch_flame_4}
+        - id: fx4_ember_punch_flame_4_trk
+          op: track
+          target: fx4_ember_punch_flame_4
+          keys:
+            - {t: 0, offset: [0.0, 1.05, 3.0], scale: [0.019, 0.028, 0.09]}
+            - {t: 2, offset: [0.0, 1.05, 3.2], scale: [0.266, 0.385, 1.26], ease: out_expo, turn: [13.94868, -11.94015, 1.46607]}
+            - {t: 7, offset: [0.0, 1.2, 3.45], block: orange_concrete}
+            - {t: 8, offset: [0.0, 1.4, 3.7], scale: [0.0, 0.0, 0.0], block: orange_concrete}
+        - {op: block, parent: fx4_ember_punch, block: orange_stained_glass, size: [1.0, 1.0, 1.0], brightness: 15, id: fx4_ember_punch_bloom}
+        - id: fx4_ember_punch_bloom_trk
+          op: track
+          target: fx4_ember_punch_bloom
+          keys:
+            - {t: 0, offset: [-0.18, 0.8, 0.85], scale: [0.36, 0.5, 0.1]}
+            - {t: 2, scale: [0.36, 0.5, 2.7], ease: out_expo}
+            - {t: 9, scale: [0.01, 0.01, 2.7]}
         - {id: fx4_ember_punch_flame_atrk, op: track, target: fx4_ember_punch_flame_at, space: fx4_ember_punch, keys: [{t: 0, offset: [0, 1.05, 0]}]}
+        - id: fx4_ember_punch_flame
+          op: emit
+          at: fx4_ember_punch_flame_at
+          particle: ember-fine-spark
+          times: 5
+          shift: "= [vec(0.0, 0.0, 0.8), vec(0.0, 0.0, 1.45), vec(0.0, 0.0, 2.1), vec(0.0, 0.0, 2.75), vec(0.0, 0.0, 3.4)][int(i)]"
         - {id: fx4_ember_punch_soot_atrk, op: track, target: fx4_ember_punch_soot_at, space: fx4_ember_punch, keys: [{t: 0, offset: [0, 1.15, 0.8]}]}
-    - {id: fx27, at: 27, do: [{id: rm, op: remove, ids: [fx2_ember_sweep_gauntlet_flame_fan]}]}
+    - id: fx22
+      at: 22
+      do:
+        - op: block
+          parent: fx4_ember_punch
+          block: yellow_concrete
+          size: [1.0, 1.0, 1.0]
+          brightness: 15
+          at: "= [vec(0.05809, 1.205, 3.0), vec(-0.06907, 1.175, 3.06328), vec(0.00973, 1.145, 2.88918), vec(0.07244, 1.115, 3.09449), vec(-0.11724, 1.085, 2.97926), vec(0.09386, 1.055, 2.94029), vec(-0.02432, 1.025, 3.09046), vec(-0.02678, 0.995, 2.94844)][int(i)]"
+          turn: "= [vec(-47.52276, 80.60528, 47.52276), vec(-36.40712, -45.64799, -16.02246), vec(-1.46463, 171.84712, 33.44154), vec(-6.92276, 37.42693, 2.34839), vec(5.25608, -99.88519, 6.2674), vec(12.89416, 120.67843, -23.48408), vec(38.4562, -14.46938, 5.07876), vec(19.25152, -133.71762, 78.83641)][int(i)]"
+          times: 8
+          id: fx4_ember_punch_impact_spokes
+        - id: fx4_ember_punch_impact_spokes_trk
+          op: track
+          target: fx4_ember_punch_impact_spokes
+          keys:
+            - {t: 0, scale: [0.06, 0.06, 0.12]}
+            - {t: 1, scale: [0.12, 0.12, 0.85], ease: out_expo}
+            - {t: 4, block: orange_concrete}
+            - {t: 8, scale: [0.02, 0.02, 0.1]}
+        - {op: block, parent: fx4_ember_punch, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx4_ember_punch_impact_core}
+        - {id: fx4_ember_punch_impact_core_trk, op: track, target: fx4_ember_punch_impact_core, keys: [{t: 0, offset: [-0.12, 0.98, 2.88], scale: [0.24, 0.24, 0.24]}, {t: 3, scale: [0.0, 0.0, 0.0]}]}
+    - id: fx24
+      at: 24
+      do:
+        - id: emit
+          op: emit
+          at: fx4_ember_punch_flame_at
+          particle: ember-fine-spark
+          times: 5
+          shift: "= [vec(0.0, 0.0, 0.8), vec(0.0, 0.0, 1.45), vec(0.0, 0.0, 2.1), vec(0.0, 0.0, 2.75), vec(0.0, 0.0, 3.4)][int(i)]"
+    - {id: fx26, at: 26, do: [{id: rm_2, op: remove, ids: [fx2_ember_sweep_impact_spokes]}, {id: rm_5, op: remove, ids: [fx4_ember_punch_impact_core]}]}
+    - id: fx27
+      at: 27
+      do:
+        - {id: rm_3, op: remove, ids: [fx2_ember_sweep_gauntlet_flame_fan]}
+        - id: emit_2
+          op: emit
+          at: fx4_ember_punch_flame_at
+          particle: ember-fine-spark
+          times: 5
+          shift: "= [vec(0.0, 0.0, 0.8), vec(0.0, 0.0, 1.45), vec(0.0, 0.0, 2.1), vec(0.0, 0.0, 2.75), vec(0.0, 0.0, 3.4)][int(i)]"
+    - id: fx30
+      at: 30
+      do:
+        - id: emit_3
+          op: emit
+          at: fx4_ember_punch_flame_at
+          particle: ember-fine-spark
+          times: 5
+          shift: "= [vec(0.0, 0.0, 0.8), vec(0.0, 0.0, 1.45), vec(0.0, 0.0, 2.1), vec(0.0, 0.0, 2.75), vec(0.0, 0.0, 3.4)][int(i)]"
+        - {id: rm_6, op: remove, ids: [fx4_ember_punch_flame_0, fx4_ember_punch_flame_1, fx4_ember_punch_flame_2, fx4_ember_punch_flame_3, fx4_ember_punch_flame_4]}
+    - {id: fx31, at: 31, do: [{id: rm_7, op: remove, ids: [fx4_ember_punch_bloom, fx4_ember_punch_impact_spokes]}]}
     - id: fx49
       at: 49
       do:
+        - {op: block, parent: fx6_ember_furnace_blast, block: yellow_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx6_ember_furnace_blast_flame_0}
+        - id: fx6_ember_furnace_blast_flame_0_trk
+          op: track
+          target: fx6_ember_furnace_blast_flame_0
+          keys:
+            - {t: 0, offset: [0.0, 1.05, 0.8], scale: [0.019, 0.0392, 0.09]}
+            - {t: 2, offset: [0.0, 1.05, 1.0], scale: [0.114, 0.231, 0.54], ease: out_expo, turn: [13.94868, -11.94015, 1.46607]}
+            - {t: 14, offset: [0.0, 1.2, 1.25], block: orange_concrete}
+            - {t: 15, offset: [0.0, 1.4, 1.5], scale: [0.0, 0.0, 0.0], block: orange_concrete}
+        - {op: block, parent: fx6_ember_furnace_blast, block: yellow_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx6_ember_furnace_blast_flame_1}
+        - id: fx6_ember_furnace_blast_flame_1_trk
+          op: track
+          target: fx6_ember_furnace_blast_flame_1
+          keys:
+            - {t: 0, offset: [0.0, 1.05, 1.35], scale: [0.019, 0.0392, 0.09]}
+            - {t: 2, offset: [0.0, 1.17, 1.55], scale: [0.152, 0.308, 0.72], ease: out_expo, turn: [-13.94868, 11.94015, 1.46607]}
+            - {t: 14, offset: [0.0, 1.2, 1.8], block: orange_concrete}
+            - {t: 15, offset: [0.0, 1.4, 2.05], scale: [0.0, 0.0, 0.0], block: orange_concrete}
+        - {op: block, parent: fx6_ember_furnace_blast, block: yellow_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx6_ember_furnace_blast_flame_2}
+        - id: fx6_ember_furnace_blast_flame_2_trk
+          op: track
+          target: fx6_ember_furnace_blast_flame_2
+          keys:
+            - {t: 0, offset: [0.0, 1.05, 1.9], scale: [0.019, 0.0392, 0.09]}
+            - {t: 2, offset: [0.0, 1.05, 2.1], scale: [0.19, 0.385, 0.9], ease: out_expo, turn: [13.94868, -11.94015, 1.46607]}
+            - {t: 14, offset: [0.0, 1.2, 2.35], block: orange_concrete}
+            - {t: 15, offset: [0.0, 1.4, 2.6], scale: [0.0, 0.0, 0.0], block: orange_concrete}
+        - {op: block, parent: fx6_ember_furnace_blast, block: yellow_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx6_ember_furnace_blast_flame_3}
+        - id: fx6_ember_furnace_blast_flame_3_trk
+          op: track
+          target: fx6_ember_furnace_blast_flame_3
+          keys:
+            - {t: 0, offset: [0.0, 1.05, 2.45], scale: [0.019, 0.0392, 0.09]}
+            - {t: 2, offset: [0.0, 1.17, 2.65], scale: [0.228, 0.462, 1.08], ease: out_expo, turn: [-13.94868, 11.94015, 1.46607]}
+            - {t: 14, offset: [0.0, 1.2, 2.9], block: orange_concrete}
+            - {t: 15, offset: [0.0, 1.4, 3.15], scale: [0.0, 0.0, 0.0], block: orange_concrete}
+        - {op: block, parent: fx6_ember_furnace_blast, block: yellow_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx6_ember_furnace_blast_flame_4}
+        - id: fx6_ember_furnace_blast_flame_4_trk
+          op: track
+          target: fx6_ember_furnace_blast_flame_4
+          keys:
+            - {t: 0, offset: [0.0, 1.05, 3.0], scale: [0.019, 0.0392, 0.09]}
+            - {t: 2, offset: [0.0, 1.05, 3.2], scale: [0.266, 0.539, 1.26], ease: out_expo, turn: [13.94868, -11.94015, 1.46607]}
+            - {t: 14, offset: [0.0, 1.2, 3.45], block: orange_concrete}
+            - {t: 15, offset: [0.0, 1.4, 3.7], scale: [0.0, 0.0, 0.0], block: orange_concrete}
+        - {op: block, parent: fx6_ember_furnace_blast, block: orange_stained_glass, size: [1.0, 1.0, 1.0], brightness: 15, id: fx6_ember_furnace_blast_bloom}
+        - id: fx6_ember_furnace_blast_bloom_trk
+          op: track
+          target: fx6_ember_furnace_blast_bloom
+          keys:
+            - {t: 0, offset: [-0.18, 0.8, 0.85], scale: [0.36, 0.5, 0.1]}
+            - {t: 2, scale: [0.36, 0.5, 2.7], ease: out_expo}
+            - {t: 16, scale: [0.01, 0.01, 2.7]}
         - {id: fx6_ember_furnace_blast_flame_atrk, op: track, target: fx6_ember_furnace_blast_flame_at, space: fx6_ember_furnace_blast, keys: [{t: 0, offset: [0, 1.05, 0]}]}
+        - id: fx6_ember_furnace_blast_flame
+          op: emit
+          at: fx6_ember_furnace_blast_flame_at
+          particle: ember-fine-spark
+          times: 5
+          shift: "= [vec(0.0, 0.0, 0.8), vec(0.0, 0.0, 1.45), vec(0.0, 0.0, 2.1), vec(0.0, 0.0, 2.75), vec(0.0, 0.0, 3.4)][int(i)]"
         - {id: fx6_ember_furnace_blast_soot_atrk, op: track, target: fx6_ember_furnace_blast_soot_at, space: fx6_ember_furnace_blast, keys: [{t: 0, offset: [0, 1.15, 0.8]}]}
+        - {op: block, parent: fx6_ember_furnace_blast, block: yellow_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx6_ember_furnace_blast_pressure_hoop_s0}
+        - id: fx6_ember_furnace_blast_pressure_hoop_s0_trk
+          op: track
+          target: fx6_ember_furnace_blast_pressure_hoop_s0
+          keys:
+            - {t: 0, offset: [0.0, 0.4, 2.0], turn: [69.28203, 69.28203, 69.28203], scale: [0.08, 0.08, 0.38]}
+            - {t: 1, offset: [0.0, 0.4, 2.0], turn: [69.28203, 69.28203, 69.28203], scale: [0.07529, 0.07529, 0.38]}
+            - {t: 2, offset: [0.0, 0.4, 2.0], turn: [69.28203, 69.28203, 69.28203], scale: [0.07059, 0.07059, 0.38]}
+            - {t: 3, offset: [0.0, 0.4, 2.0], turn: [69.28203, 69.28203, 69.28203], scale: [0.06588, 0.06588, 0.38]}
+            - {t: 4, offset: [0.0, 0.4, 2.0], turn: [69.28203, 69.28203, 69.28203], scale: [0.06118, 0.06118, 0.38]}
+            - {t: 5, offset: [0.0, 0.4, 2.0], turn: [69.28203, 69.28203, 69.28203], scale: [0.05647, 0.05647, 0.38]}
+            - {t: 6, offset: [0.0, 0.4, 2.0], turn: [69.28203, 69.28203, 69.28203], scale: [0.05176, 0.05176, 0.38]}
+            - {t: 7, offset: [0.0, 0.4, 2.0], turn: [69.28203, 69.28203, 69.28203], scale: [0.04706, 0.04706, 0.38]}
+            - {t: 8, offset: [0.0, 0.4, 2.0], turn: [69.28203, 69.28203, 69.28203], scale: [0.04235, 0.04235, 0.38]}
+            - {t: 9, offset: [0.0, 0.4, 2.0], turn: [69.28203, 69.28203, 69.28203], scale: [0.03765, 0.03765, 0.38]}
+            - {t: 10, offset: [0.0, 0.4, 2.0], turn: [69.28203, 69.28203, 69.28203], scale: [0.03294, 0.03294, 0.38]}
+            - {t: 11, offset: [0.0, 0.4, 2.0], turn: [69.28203, 69.28203, 69.28203], scale: [0.02824, 0.02824, 0.38]}
+            - {t: 12, offset: [0.0, 0.4, 2.0], turn: [69.28203, 69.28203, 69.28203], scale: [0.02353, 0.02353, 0.38]}
+            - {t: 13, offset: [0.0, 0.4, 2.0], turn: [69.28203, 69.28203, 69.28203], scale: [0.01882, 0.01882, 0.38], block: orange_concrete}
+            - {t: 14, offset: [0.0, 0.4, 2.0], turn: [69.28203, 69.28203, 69.28203], scale: [0.01412, 0.01412, 0.38]}
+            - {t: 15, offset: [0.0, 0.4, 2.0], turn: [69.28203, 69.28203, 69.28203], scale: [0.00941, 0.00941, 0.38]}
+            - {t: 16, offset: [0.0, 0.4, 2.0], turn: [69.28203, 69.28203, 69.28203], scale: [0.00471, 0.00471, 0.38]}
+            - {t: 17, offset: [0.0, 0.4, 2.0], turn: [69.28203, 69.28203, 69.28203], scale: [0.0, 0.0, 0.38]}
+        - {op: block, parent: fx6_ember_furnace_blast, block: yellow_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx6_ember_furnace_blast_pressure_hoop_s1}
+        - id: fx6_ember_furnace_blast_pressure_hoop_s1_trk
+          op: track
+          target: fx6_ember_furnace_blast_pressure_hoop_s1
+          keys:
+            - {t: 0, offset: [0.35, 0.49378, 2.0], turn: [52.38224, 90.7287, 90.7287], scale: [0.08, 0.08, 0.38]}
+            - {t: 1, offset: [0.35, 0.49378, 2.0], turn: [52.38224, 90.7287, 90.7287], scale: [0.07529, 0.07529, 0.38]}
+            - {t: 2, offset: [0.35, 0.49378, 2.0], turn: [52.38224, 90.7287, 90.7287], scale: [0.07059, 0.07059, 0.38]}
+            - {t: 3, offset: [0.35, 0.49378, 2.0], turn: [52.38224, 90.7287, 90.7287], scale: [0.06588, 0.06588, 0.38]}
+            - {t: 4, offset: [0.35, 0.49378, 2.0], turn: [52.38224, 90.7287, 90.7287], scale: [0.06118, 0.06118, 0.38]}
+            - {t: 5, offset: [0.35, 0.49378, 2.0], turn: [52.38224, 90.7287, 90.7287], scale: [0.05647, 0.05647, 0.38]}
+            - {t: 6, offset: [0.35, 0.49378, 2.0], turn: [52.38224, 90.7287, 90.7287], scale: [0.05176, 0.05176, 0.38]}
+            - {t: 7, offset: [0.35, 0.49378, 2.0], turn: [52.38224, 90.7287, 90.7287], scale: [0.04706, 0.04706, 0.38]}
+            - {t: 8, offset: [0.35, 0.49378, 2.0], turn: [52.38224, 90.7287, 90.7287], scale: [0.04235, 0.04235, 0.38]}
+            - {t: 9, offset: [0.35, 0.49378, 2.0], turn: [52.38224, 90.7287, 90.7287], scale: [0.03765, 0.03765, 0.38]}
+            - {t: 10, offset: [0.35, 0.49378, 2.0], turn: [52.38224, 90.7287, 90.7287], scale: [0.03294, 0.03294, 0.38]}
+            - {t: 11, offset: [0.35, 0.49378, 2.0], turn: [52.38224, 90.7287, 90.7287], scale: [0.02824, 0.02824, 0.38]}
+            - {t: 12, offset: [0.35, 0.49378, 2.0], turn: [52.38224, 90.7287, 90.7287], scale: [0.02353, 0.02353, 0.38]}
+            - {t: 13, offset: [0.35, 0.49378, 2.0], turn: [52.38224, 90.7287, 90.7287], scale: [0.01882, 0.01882, 0.38], block: orange_concrete}
+            - {t: 14, offset: [0.35, 0.49378, 2.0], turn: [52.38224, 90.7287, 90.7287], scale: [0.01412, 0.01412, 0.38]}
+            - {t: 15, offset: [0.35, 0.49378, 2.0], turn: [52.38224, 90.7287, 90.7287], scale: [0.00941, 0.00941, 0.38]}
+            - {t: 16, offset: [0.35, 0.49378, 2.0], turn: [52.38224, 90.7287, 90.7287], scale: [0.00471, 0.00471, 0.38]}
+            - {t: 17, offset: [0.35, 0.49378, 2.0], turn: [52.38224, 90.7287, 90.7287], scale: [0.0, 0.0, 0.38]}
+        - {op: block, parent: fx6_ember_furnace_blast, block: yellow_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx6_ember_furnace_blast_pressure_hoop_s2}
+        - id: fx6_ember_furnace_blast_pressure_hoop_s2_trk
+          op: track
+          target: fx6_ember_furnace_blast_pressure_hoop_s2
+          keys:
+            - {t: 0, offset: [0.60622, 0.75, 2.0], turn: [29.58207, 110.40178, 110.40178], scale: [0.08, 0.08, 0.38]}
+            - {t: 1, offset: [0.60622, 0.75, 2.0], turn: [29.58207, 110.40178, 110.40178], scale: [0.07529, 0.07529, 0.38]}
+            - {t: 2, offset: [0.60622, 0.75, 2.0], turn: [29.58207, 110.40178, 110.40178], scale: [0.07059, 0.07059, 0.38]}
+            - {t: 3, offset: [0.60622, 0.75, 2.0], turn: [29.58207, 110.40178, 110.40178], scale: [0.06588, 0.06588, 0.38]}
+            - {t: 4, offset: [0.60622, 0.75, 2.0], turn: [29.58207, 110.40178, 110.40178], scale: [0.06118, 0.06118, 0.38]}
+            - {t: 5, offset: [0.60622, 0.75, 2.0], turn: [29.58207, 110.40178, 110.40178], scale: [0.05647, 0.05647, 0.38]}
+            - {t: 6, offset: [0.60622, 0.75, 2.0], turn: [29.58207, 110.40178, 110.40178], scale: [0.05176, 0.05176, 0.38]}
+            - {t: 7, offset: [0.60622, 0.75, 2.0], turn: [29.58207, 110.40178, 110.40178], scale: [0.04706, 0.04706, 0.38]}
+            - {t: 8, offset: [0.60622, 0.75, 2.0], turn: [29.58207, 110.40178, 110.40178], scale: [0.04235, 0.04235, 0.38]}
+            - {t: 9, offset: [0.60622, 0.75, 2.0], turn: [29.58207, 110.40178, 110.40178], scale: [0.03765, 0.03765, 0.38]}
+            - {t: 10, offset: [0.60622, 0.75, 2.0], turn: [29.58207, 110.40178, 110.40178], scale: [0.03294, 0.03294, 0.38]}
+            - {t: 11, offset: [0.60622, 0.75, 2.0], turn: [29.58207, 110.40178, 110.40178], scale: [0.02824, 0.02824, 0.38]}
+            - {t: 12, offset: [0.60622, 0.75, 2.0], turn: [29.58207, 110.40178, 110.40178], scale: [0.02353, 0.02353, 0.38]}
+            - {t: 13, offset: [0.60622, 0.75, 2.0], turn: [29.58207, 110.40178, 110.40178], scale: [0.01882, 0.01882, 0.38], block: orange_concrete}
+            - {t: 14, offset: [0.60622, 0.75, 2.0], turn: [29.58207, 110.40178, 110.40178], scale: [0.01412, 0.01412, 0.38]}
+            - {t: 15, offset: [0.60622, 0.75, 2.0], turn: [29.58207, 110.40178, 110.40178], scale: [0.00941, 0.00941, 0.38]}
+            - {t: 16, offset: [0.60622, 0.75, 2.0], turn: [29.58207, 110.40178, 110.40178], scale: [0.00471, 0.00471, 0.38]}
+            - {t: 17, offset: [0.60622, 0.75, 2.0], turn: [29.58207, 110.40178, 110.40178], scale: [0.0, 0.0, 0.38]}
+        - {op: block, parent: fx6_ember_furnace_blast, block: yellow_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx6_ember_furnace_blast_pressure_hoop_s3}
+        - id: fx6_ember_furnace_blast_pressure_hoop_s3_trk
+          op: track
+          target: fx6_ember_furnace_blast_pressure_hoop_s3
+          keys:
+            - {t: 0, offset: [0.7, 1.1, 2.0], turn: [0.0, 127.27922, 127.27922], scale: [0.08, 0.08, 0.38]}
+            - {t: 1, offset: [0.7, 1.1, 2.0], turn: [0.0, 127.27922, 127.27922], scale: [0.07529, 0.07529, 0.38]}
+            - {t: 2, offset: [0.7, 1.1, 2.0], turn: [0.0, 127.27922, 127.27922], scale: [0.07059, 0.07059, 0.38]}
+            - {t: 3, offset: [0.7, 1.1, 2.0], turn: [0.0, 127.27922, 127.27922], scale: [0.06588, 0.06588, 0.38]}
+            - {t: 4, offset: [0.7, 1.1, 2.0], turn: [0.0, 127.27922, 127.27922], scale: [0.06118, 0.06118, 0.38]}
+            - {t: 5, offset: [0.7, 1.1, 2.0], turn: [0.0, 127.27922, 127.27922], scale: [0.05647, 0.05647, 0.38]}
+            - {t: 6, offset: [0.7, 1.1, 2.0], turn: [0.0, 127.27922, 127.27922], scale: [0.05176, 0.05176, 0.38]}
+            - {t: 7, offset: [0.7, 1.1, 2.0], turn: [0.0, 127.27922, 127.27922], scale: [0.04706, 0.04706, 0.38]}
+            - {t: 8, offset: [0.7, 1.1, 2.0], turn: [0.0, 127.27922, 127.27922], scale: [0.04235, 0.04235, 0.38]}
+            - {t: 9, offset: [0.7, 1.1, 2.0], turn: [0.0, 127.27922, 127.27922], scale: [0.03765, 0.03765, 0.38]}
+            - {t: 10, offset: [0.7, 1.1, 2.0], turn: [0.0, 127.27922, 127.27922], scale: [0.03294, 0.03294, 0.38]}
+            - {t: 11, offset: [0.7, 1.1, 2.0], turn: [0.0, 127.27922, 127.27922], scale: [0.02824, 0.02824, 0.38]}
+            - {t: 12, offset: [0.7, 1.1, 2.0], turn: [0.0, 127.27922, 127.27922], scale: [0.02353, 0.02353, 0.38]}
+            - {t: 13, offset: [0.7, 1.1, 2.0], turn: [0.0, 127.27922, 127.27922], scale: [0.01882, 0.01882, 0.38], block: orange_concrete}
+            - {t: 14, offset: [0.7, 1.1, 2.0], turn: [0.0, 127.27922, 127.27922], scale: [0.01412, 0.01412, 0.38]}
+            - {t: 15, offset: [0.7, 1.1, 2.0], turn: [0.0, 127.27922, 127.27922], scale: [0.00941, 0.00941, 0.38]}
+            - {t: 16, offset: [0.7, 1.1, 2.0], turn: [0.0, 127.27922, 127.27922], scale: [0.00471, 0.00471, 0.38]}
+            - {t: 17, offset: [0.7, 1.1, 2.0], turn: [0.0, 127.27922, 127.27922], scale: [0.0, 0.0, 0.38]}
+        - {op: block, parent: fx6_ember_furnace_blast, block: yellow_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx6_ember_furnace_blast_pressure_hoop_s4}
+        - id: fx6_ember_furnace_blast_pressure_hoop_s4_trk
+          op: track
+          target: fx6_ember_furnace_blast_pressure_hoop_s4
+          keys:
+            - {t: 0, offset: [0.60622, 1.45, 2.0], turn: [29.58207, -110.40178, -110.40178], scale: [0.08, 0.08, 0.38]}
+            - {t: 1, offset: [0.60622, 1.45, 2.0], turn: [29.58207, -110.40178, -110.40178], scale: [0.07529, 0.07529, 0.38]}
+            - {t: 2, offset: [0.60622, 1.45, 2.0], turn: [29.58207, -110.40178, -110.40178], scale: [0.07059, 0.07059, 0.38]}
+            - {t: 3, offset: [0.60622, 1.45, 2.0], turn: [29.58207, -110.40178, -110.40178], scale: [0.06588, 0.06588, 0.38]}
+            - {t: 4, offset: [0.60622, 1.45, 2.0], turn: [29.58207, -110.40178, -110.40178], scale: [0.06118, 0.06118, 0.38]}
+            - {t: 5, offset: [0.60622, 1.45, 2.0], turn: [29.58207, -110.40178, -110.40178], scale: [0.05647, 0.05647, 0.38]}
+            - {t: 6, offset: [0.60622, 1.45, 2.0], turn: [29.58207, -110.40178, -110.40178], scale: [0.05176, 0.05176, 0.38]}
+            - {t: 7, offset: [0.60622, 1.45, 2.0], turn: [29.58207, -110.40178, -110.40178], scale: [0.04706, 0.04706, 0.38]}
+            - {t: 8, offset: [0.60622, 1.45, 2.0], turn: [29.58207, -110.40178, -110.40178], scale: [0.04235, 0.04235, 0.38]}
+            - {t: 9, offset: [0.60622, 1.45, 2.0], turn: [29.58207, -110.40178, -110.40178], scale: [0.03765, 0.03765, 0.38]}
+            - {t: 10, offset: [0.60622, 1.45, 2.0], turn: [29.58207, -110.40178, -110.40178], scale: [0.03294, 0.03294, 0.38]}
+            - {t: 11, offset: [0.60622, 1.45, 2.0], turn: [29.58207, -110.40178, -110.40178], scale: [0.02824, 0.02824, 0.38]}
+            - {t: 12, offset: [0.60622, 1.45, 2.0], turn: [29.58207, -110.40178, -110.40178], scale: [0.02353, 0.02353, 0.38]}
+            - {t: 13, offset: [0.60622, 1.45, 2.0], turn: [29.58207, -110.40178, -110.40178], scale: [0.01882, 0.01882, 0.38], block: orange_concrete}
+            - {t: 14, offset: [0.60622, 1.45, 2.0], turn: [29.58207, -110.40178, -110.40178], scale: [0.01412, 0.01412, 0.38]}
+            - {t: 15, offset: [0.60622, 1.45, 2.0], turn: [29.58207, -110.40178, -110.40178], scale: [0.00941, 0.00941, 0.38]}
+            - {t: 16, offset: [0.60622, 1.45, 2.0], turn: [29.58207, -110.40178, -110.40178], scale: [0.00471, 0.00471, 0.38]}
+            - {t: 17, offset: [0.60622, 1.45, 2.0], turn: [29.58207, -110.40178, -110.40178], scale: [0.0, 0.0, 0.38]}
+        - {op: block, parent: fx6_ember_furnace_blast, block: yellow_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx6_ember_furnace_blast_pressure_hoop_s5}
+        - id: fx6_ember_furnace_blast_pressure_hoop_s5_trk
+          op: track
+          target: fx6_ember_furnace_blast_pressure_hoop_s5
+          keys:
+            - {t: 0, offset: [0.35, 1.70622, 2.0], turn: [52.38224, -90.7287, -90.7287], scale: [0.08, 0.08, 0.38]}
+            - {t: 1, offset: [0.35, 1.70622, 2.0], turn: [52.38224, -90.7287, -90.7287], scale: [0.07529, 0.07529, 0.38]}
+            - {t: 2, offset: [0.35, 1.70622, 2.0], turn: [52.38224, -90.7287, -90.7287], scale: [0.07059, 0.07059, 0.38]}
+            - {t: 3, offset: [0.35, 1.70622, 2.0], turn: [52.38224, -90.7287, -90.7287], scale: [0.06588, 0.06588, 0.38]}
+            - {t: 4, offset: [0.35, 1.70622, 2.0], turn: [52.38224, -90.7287, -90.7287], scale: [0.06118, 0.06118, 0.38]}
+            - {t: 5, offset: [0.35, 1.70622, 2.0], turn: [52.38224, -90.7287, -90.7287], scale: [0.05647, 0.05647, 0.38]}
+            - {t: 6, offset: [0.35, 1.70622, 2.0], turn: [52.38224, -90.7287, -90.7287], scale: [0.05176, 0.05176, 0.38]}
+            - {t: 7, offset: [0.35, 1.70622, 2.0], turn: [52.38224, -90.7287, -90.7287], scale: [0.04706, 0.04706, 0.38]}
+            - {t: 8, offset: [0.35, 1.70622, 2.0], turn: [52.38224, -90.7287, -90.7287], scale: [0.04235, 0.04235, 0.38]}
+            - {t: 9, offset: [0.35, 1.70622, 2.0], turn: [52.38224, -90.7287, -90.7287], scale: [0.03765, 0.03765, 0.38]}
+            - {t: 10, offset: [0.35, 1.70622, 2.0], turn: [52.38224, -90.7287, -90.7287], scale: [0.03294, 0.03294, 0.38]}
+            - {t: 11, offset: [0.35, 1.70622, 2.0], turn: [52.38224, -90.7287, -90.7287], scale: [0.02824, 0.02824, 0.38]}
+            - {t: 12, offset: [0.35, 1.70622, 2.0], turn: [52.38224, -90.7287, -90.7287], scale: [0.02353, 0.02353, 0.38]}
+            - {t: 13, offset: [0.35, 1.70622, 2.0], turn: [52.38224, -90.7287, -90.7287], scale: [0.01882, 0.01882, 0.38], block: orange_concrete}
+            - {t: 14, offset: [0.35, 1.70622, 2.0], turn: [52.38224, -90.7287, -90.7287], scale: [0.01412, 0.01412, 0.38]}
+            - {t: 15, offset: [0.35, 1.70622, 2.0], turn: [52.38224, -90.7287, -90.7287], scale: [0.00941, 0.00941, 0.38]}
+            - {t: 16, offset: [0.35, 1.70622, 2.0], turn: [52.38224, -90.7287, -90.7287], scale: [0.00471, 0.00471, 0.38]}
+            - {t: 17, offset: [0.35, 1.70622, 2.0], turn: [52.38224, -90.7287, -90.7287], scale: [0.0, 0.0, 0.38]}
+        - {op: block, parent: fx6_ember_furnace_blast, block: yellow_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx6_ember_furnace_blast_pressure_hoop_s6}
+        - id: fx6_ember_furnace_blast_pressure_hoop_s6_trk
+          op: track
+          target: fx6_ember_furnace_blast_pressure_hoop_s6
+          keys:
+            - {t: 0, offset: [0.0, 1.8, 2.0], turn: [69.28203, -69.28203, -69.28203], scale: [0.08, 0.08, 0.38]}
+            - {t: 1, offset: [0.0, 1.8, 2.0], turn: [69.28203, -69.28203, -69.28203], scale: [0.07529, 0.07529, 0.38]}
+            - {t: 2, offset: [0.0, 1.8, 2.0], turn: [69.28203, -69.28203, -69.28203], scale: [0.07059, 0.07059, 0.38]}
+            - {t: 3, offset: [0.0, 1.8, 2.0], turn: [69.28203, -69.28203, -69.28203], scale: [0.06588, 0.06588, 0.38]}
+            - {t: 4, offset: [0.0, 1.8, 2.0], turn: [69.28203, -69.28203, -69.28203], scale: [0.06118, 0.06118, 0.38]}
+            - {t: 5, offset: [0.0, 1.8, 2.0], turn: [69.28203, -69.28203, -69.28203], scale: [0.05647, 0.05647, 0.38]}
+            - {t: 6, offset: [0.0, 1.8, 2.0], turn: [69.28203, -69.28203, -69.28203], scale: [0.05176, 0.05176, 0.38]}
+            - {t: 7, offset: [0.0, 1.8, 2.0], turn: [69.28203, -69.28203, -69.28203], scale: [0.04706, 0.04706, 0.38]}
+            - {t: 8, offset: [0.0, 1.8, 2.0], turn: [69.28203, -69.28203, -69.28203], scale: [0.04235, 0.04235, 0.38]}
+            - {t: 9, offset: [0.0, 1.8, 2.0], turn: [69.28203, -69.28203, -69.28203], scale: [0.03765, 0.03765, 0.38]}
+            - {t: 10, offset: [0.0, 1.8, 2.0], turn: [69.28203, -69.28203, -69.28203], scale: [0.03294, 0.03294, 0.38]}
+            - {t: 11, offset: [0.0, 1.8, 2.0], turn: [69.28203, -69.28203, -69.28203], scale: [0.02824, 0.02824, 0.38]}
+            - {t: 12, offset: [0.0, 1.8, 2.0], turn: [69.28203, -69.28203, -69.28203], scale: [0.02353, 0.02353, 0.38]}
+            - {t: 13, offset: [0.0, 1.8, 2.0], turn: [69.28203, -69.28203, -69.28203], scale: [0.01882, 0.01882, 0.38], block: orange_concrete}
+            - {t: 14, offset: [0.0, 1.8, 2.0], turn: [69.28203, -69.28203, -69.28203], scale: [0.01412, 0.01412, 0.38]}
+            - {t: 15, offset: [0.0, 1.8, 2.0], turn: [69.28203, -69.28203, -69.28203], scale: [0.00941, 0.00941, 0.38]}
+            - {t: 16, offset: [0.0, 1.8, 2.0], turn: [69.28203, -69.28203, -69.28203], scale: [0.00471, 0.00471, 0.38]}
+            - {t: 17, offset: [0.0, 1.8, 2.0], turn: [69.28203, -69.28203, -69.28203], scale: [0.0, 0.0, 0.38]}
+        - {op: block, parent: fx6_ember_furnace_blast, block: yellow_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx6_ember_furnace_blast_pressure_hoop_s7}
+        - id: fx6_ember_furnace_blast_pressure_hoop_s7_trk
+          op: track
+          target: fx6_ember_furnace_blast_pressure_hoop_s7
+          keys:
+            - {t: 0, offset: [-0.35, 1.70622, 2.0], turn: [80.92793, -46.72376, -46.72376], scale: [0.08, 0.08, 0.38]}
+            - {t: 1, offset: [-0.35, 1.70622, 2.0], turn: [80.92793, -46.72376, -46.72376], scale: [0.07529, 0.07529, 0.38]}
+            - {t: 2, offset: [-0.35, 1.70622, 2.0], turn: [80.92793, -46.72376, -46.72376], scale: [0.07059, 0.07059, 0.38]}
+            - {t: 3, offset: [-0.35, 1.70622, 2.0], turn: [80.92793, -46.72376, -46.72376], scale: [0.06588, 0.06588, 0.38]}
+            - {t: 4, offset: [-0.35, 1.70622, 2.0], turn: [80.92793, -46.72376, -46.72376], scale: [0.06118, 0.06118, 0.38]}
+            - {t: 5, offset: [-0.35, 1.70622, 2.0], turn: [80.92793, -46.72376, -46.72376], scale: [0.05647, 0.05647, 0.38]}
+            - {t: 6, offset: [-0.35, 1.70622, 2.0], turn: [80.92793, -46.72376, -46.72376], scale: [0.05176, 0.05176, 0.38]}
+            - {t: 7, offset: [-0.35, 1.70622, 2.0], turn: [80.92793, -46.72376, -46.72376], scale: [0.04706, 0.04706, 0.38]}
+            - {t: 8, offset: [-0.35, 1.70622, 2.0], turn: [80.92793, -46.72376, -46.72376], scale: [0.04235, 0.04235, 0.38]}
+            - {t: 9, offset: [-0.35, 1.70622, 2.0], turn: [80.92793, -46.72376, -46.72376], scale: [0.03765, 0.03765, 0.38]}
+            - {t: 10, offset: [-0.35, 1.70622, 2.0], turn: [80.92793, -46.72376, -46.72376], scale: [0.03294, 0.03294, 0.38]}
+            - {t: 11, offset: [-0.35, 1.70622, 2.0], turn: [80.92793, -46.72376, -46.72376], scale: [0.02824, 0.02824, 0.38]}
+            - {t: 12, offset: [-0.35, 1.70622, 2.0], turn: [80.92793, -46.72376, -46.72376], scale: [0.02353, 0.02353, 0.38]}
+            - {t: 13, offset: [-0.35, 1.70622, 2.0], turn: [80.92793, -46.72376, -46.72376], scale: [0.01882, 0.01882, 0.38], block: orange_concrete}
+            - {t: 14, offset: [-0.35, 1.70622, 2.0], turn: [80.92793, -46.72376, -46.72376], scale: [0.01412, 0.01412, 0.38]}
+            - {t: 15, offset: [-0.35, 1.70622, 2.0], turn: [80.92793, -46.72376, -46.72376], scale: [0.00941, 0.00941, 0.38]}
+            - {t: 16, offset: [-0.35, 1.70622, 2.0], turn: [80.92793, -46.72376, -46.72376], scale: [0.00471, 0.00471, 0.38]}
+            - {t: 17, offset: [-0.35, 1.70622, 2.0], turn: [80.92793, -46.72376, -46.72376], scale: [0.0, 0.0, 0.38]}
+        - {op: block, parent: fx6_ember_furnace_blast, block: yellow_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx6_ember_furnace_blast_pressure_hoop_s8}
+        - id: fx6_ember_furnace_blast_pressure_hoop_s8_trk
+          op: track
+          target: fx6_ember_furnace_blast_pressure_hoop_s8
+          keys:
+            - {t: 0, offset: [-0.60622, 1.45, 2.0], turn: [87.75192, -23.51306, -23.51306], scale: [0.08, 0.08, 0.38]}
+            - {t: 1, offset: [-0.60622, 1.45, 2.0], turn: [87.75192, -23.51306, -23.51306], scale: [0.07529, 0.07529, 0.38]}
+            - {t: 2, offset: [-0.60622, 1.45, 2.0], turn: [87.75192, -23.51306, -23.51306], scale: [0.07059, 0.07059, 0.38]}
+            - {t: 3, offset: [-0.60622, 1.45, 2.0], turn: [87.75192, -23.51306, -23.51306], scale: [0.06588, 0.06588, 0.38]}
+            - {t: 4, offset: [-0.60622, 1.45, 2.0], turn: [87.75192, -23.51306, -23.51306], scale: [0.06118, 0.06118, 0.38]}
+            - {t: 5, offset: [-0.60622, 1.45, 2.0], turn: [87.75192, -23.51306, -23.51306], scale: [0.05647, 0.05647, 0.38]}
+            - {t: 6, offset: [-0.60622, 1.45, 2.0], turn: [87.75192, -23.51306, -23.51306], scale: [0.05176, 0.05176, 0.38]}
+            - {t: 7, offset: [-0.60622, 1.45, 2.0], turn: [87.75192, -23.51306, -23.51306], scale: [0.04706, 0.04706, 0.38]}
+            - {t: 8, offset: [-0.60622, 1.45, 2.0], turn: [87.75192, -23.51306, -23.51306], scale: [0.04235, 0.04235, 0.38]}
+            - {t: 9, offset: [-0.60622, 1.45, 2.0], turn: [87.75192, -23.51306, -23.51306], scale: [0.03765, 0.03765, 0.38]}
+            - {t: 10, offset: [-0.60622, 1.45, 2.0], turn: [87.75192, -23.51306, -23.51306], scale: [0.03294, 0.03294, 0.38]}
+            - {t: 11, offset: [-0.60622, 1.45, 2.0], turn: [87.75192, -23.51306, -23.51306], scale: [0.02824, 0.02824, 0.38]}
+            - {t: 12, offset: [-0.60622, 1.45, 2.0], turn: [87.75192, -23.51306, -23.51306], scale: [0.02353, 0.02353, 0.38]}
+            - {t: 13, offset: [-0.60622, 1.45, 2.0], turn: [87.75192, -23.51306, -23.51306], scale: [0.01882, 0.01882, 0.38], block: orange_concrete}
+            - {t: 14, offset: [-0.60622, 1.45, 2.0], turn: [87.75192, -23.51306, -23.51306], scale: [0.01412, 0.01412, 0.38]}
+            - {t: 15, offset: [-0.60622, 1.45, 2.0], turn: [87.75192, -23.51306, -23.51306], scale: [0.00941, 0.00941, 0.38]}
+            - {t: 16, offset: [-0.60622, 1.45, 2.0], turn: [87.75192, -23.51306, -23.51306], scale: [0.00471, 0.00471, 0.38]}
+            - {t: 17, offset: [-0.60622, 1.45, 2.0], turn: [87.75192, -23.51306, -23.51306], scale: [0.0, 0.0, 0.38]}
+        - {op: block, parent: fx6_ember_furnace_blast, block: yellow_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx6_ember_furnace_blast_pressure_hoop_s9}
+        - id: fx6_ember_furnace_blast_pressure_hoop_s9_trk
+          op: track
+          target: fx6_ember_furnace_blast_pressure_hoop_s9
+          keys:
+            - {t: 0, offset: [-0.7, 1.1, 2.0], turn: [90.0, 0.0, 0.0], scale: [0.08, 0.08, 0.38]}
+            - {t: 1, offset: [-0.7, 1.1, 2.0], turn: [90.0, 0.0, 0.0], scale: [0.07529, 0.07529, 0.38]}
+            - {t: 2, offset: [-0.7, 1.1, 2.0], turn: [90.0, 0.0, 0.0], scale: [0.07059, 0.07059, 0.38]}
+            - {t: 3, offset: [-0.7, 1.1, 2.0], turn: [90.0, 0.0, 0.0], scale: [0.06588, 0.06588, 0.38]}
+            - {t: 4, offset: [-0.7, 1.1, 2.0], turn: [90.0, 0.0, 0.0], scale: [0.06118, 0.06118, 0.38]}
+            - {t: 5, offset: [-0.7, 1.1, 2.0], turn: [90.0, 0.0, 0.0], scale: [0.05647, 0.05647, 0.38]}
+            - {t: 6, offset: [-0.7, 1.1, 2.0], turn: [90.0, 0.0, 0.0], scale: [0.05176, 0.05176, 0.38]}
+            - {t: 7, offset: [-0.7, 1.1, 2.0], turn: [90.0, 0.0, 0.0], scale: [0.04706, 0.04706, 0.38]}
+            - {t: 8, offset: [-0.7, 1.1, 2.0], turn: [90.0, 0.0, 0.0], scale: [0.04235, 0.04235, 0.38]}
+            - {t: 9, offset: [-0.7, 1.1, 2.0], turn: [90.0, 0.0, 0.0], scale: [0.03765, 0.03765, 0.38]}
+            - {t: 10, offset: [-0.7, 1.1, 2.0], turn: [90.0, 0.0, 0.0], scale: [0.03294, 0.03294, 0.38]}
+            - {t: 11, offset: [-0.7, 1.1, 2.0], turn: [90.0, 0.0, 0.0], scale: [0.02824, 0.02824, 0.38]}
+            - {t: 12, offset: [-0.7, 1.1, 2.0], turn: [90.0, 0.0, 0.0], scale: [0.02353, 0.02353, 0.38]}
+            - {t: 13, offset: [-0.7, 1.1, 2.0], turn: [90.0, 0.0, 0.0], scale: [0.01882, 0.01882, 0.38], block: orange_concrete}
+            - {t: 14, offset: [-0.7, 1.1, 2.0], turn: [90.0, 0.0, 0.0], scale: [0.01412, 0.01412, 0.38]}
+            - {t: 15, offset: [-0.7, 1.1, 2.0], turn: [90.0, 0.0, 0.0], scale: [0.00941, 0.00941, 0.38]}
+            - {t: 16, offset: [-0.7, 1.1, 2.0], turn: [90.0, 0.0, 0.0], scale: [0.00471, 0.00471, 0.38]}
+            - {t: 17, offset: [-0.7, 1.1, 2.0], turn: [90.0, 0.0, 0.0], scale: [0.0, 0.0, 0.38]}
+        - {op: block, parent: fx6_ember_furnace_blast, block: yellow_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx6_ember_furnace_blast_pressure_hoop_s10}
+        - id: fx6_ember_furnace_blast_pressure_hoop_s10_trk
+          op: track
+          target: fx6_ember_furnace_blast_pressure_hoop_s10
+          keys:
+            - {t: 0, offset: [-0.60622, 0.75, 2.0], turn: [87.75192, 23.51306, 23.51306], scale: [0.08, 0.08, 0.38]}
+            - {t: 1, offset: [-0.60622, 0.75, 2.0], turn: [87.75192, 23.51306, 23.51306], scale: [0.07529, 0.07529, 0.38]}
+            - {t: 2, offset: [-0.60622, 0.75, 2.0], turn: [87.75192, 23.51306, 23.51306], scale: [0.07059, 0.07059, 0.38]}
+            - {t: 3, offset: [-0.60622, 0.75, 2.0], turn: [87.75192, 23.51306, 23.51306], scale: [0.06588, 0.06588, 0.38]}
+            - {t: 4, offset: [-0.60622, 0.75, 2.0], turn: [87.75192, 23.51306, 23.51306], scale: [0.06118, 0.06118, 0.38]}
+            - {t: 5, offset: [-0.60622, 0.75, 2.0], turn: [87.75192, 23.51306, 23.51306], scale: [0.05647, 0.05647, 0.38]}
+            - {t: 6, offset: [-0.60622, 0.75, 2.0], turn: [87.75192, 23.51306, 23.51306], scale: [0.05176, 0.05176, 0.38]}
+            - {t: 7, offset: [-0.60622, 0.75, 2.0], turn: [87.75192, 23.51306, 23.51306], scale: [0.04706, 0.04706, 0.38]}
+            - {t: 8, offset: [-0.60622, 0.75, 2.0], turn: [87.75192, 23.51306, 23.51306], scale: [0.04235, 0.04235, 0.38]}
+            - {t: 9, offset: [-0.60622, 0.75, 2.0], turn: [87.75192, 23.51306, 23.51306], scale: [0.03765, 0.03765, 0.38]}
+            - {t: 10, offset: [-0.60622, 0.75, 2.0], turn: [87.75192, 23.51306, 23.51306], scale: [0.03294, 0.03294, 0.38]}
+            - {t: 11, offset: [-0.60622, 0.75, 2.0], turn: [87.75192, 23.51306, 23.51306], scale: [0.02824, 0.02824, 0.38]}
+            - {t: 12, offset: [-0.60622, 0.75, 2.0], turn: [87.75192, 23.51306, 23.51306], scale: [0.02353, 0.02353, 0.38]}
+            - {t: 13, offset: [-0.60622, 0.75, 2.0], turn: [87.75192, 23.51306, 23.51306], scale: [0.01882, 0.01882, 0.38], block: orange_concrete}
+            - {t: 14, offset: [-0.60622, 0.75, 2.0], turn: [87.75192, 23.51306, 23.51306], scale: [0.01412, 0.01412, 0.38]}
+            - {t: 15, offset: [-0.60622, 0.75, 2.0], turn: [87.75192, 23.51306, 23.51306], scale: [0.00941, 0.00941, 0.38]}
+            - {t: 16, offset: [-0.60622, 0.75, 2.0], turn: [87.75192, 23.51306, 23.51306], scale: [0.00471, 0.00471, 0.38]}
+            - {t: 17, offset: [-0.60622, 0.75, 2.0], turn: [87.75192, 23.51306, 23.51306], scale: [0.0, 0.0, 0.38]}
+        - {op: block, parent: fx6_ember_furnace_blast, block: yellow_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx6_ember_furnace_blast_pressure_hoop_s11}
+        - id: fx6_ember_furnace_blast_pressure_hoop_s11_trk
+          op: track
+          target: fx6_ember_furnace_blast_pressure_hoop_s11
+          keys:
+            - {t: 0, offset: [-0.35, 0.49378, 2.0], turn: [80.92793, 46.72376, 46.72376], scale: [0.08, 0.08, 0.38]}
+            - {t: 1, offset: [-0.35, 0.49378, 2.0], turn: [80.92793, 46.72376, 46.72376], scale: [0.07529, 0.07529, 0.38]}
+            - {t: 2, offset: [-0.35, 0.49378, 2.0], turn: [80.92793, 46.72376, 46.72376], scale: [0.07059, 0.07059, 0.38]}
+            - {t: 3, offset: [-0.35, 0.49378, 2.0], turn: [80.92793, 46.72376, 46.72376], scale: [0.06588, 0.06588, 0.38]}
+            - {t: 4, offset: [-0.35, 0.49378, 2.0], turn: [80.92793, 46.72376, 46.72376], scale: [0.06118, 0.06118, 0.38]}
+            - {t: 5, offset: [-0.35, 0.49378, 2.0], turn: [80.92793, 46.72376, 46.72376], scale: [0.05647, 0.05647, 0.38]}
+            - {t: 6, offset: [-0.35, 0.49378, 2.0], turn: [80.92793, 46.72376, 46.72376], scale: [0.05176, 0.05176, 0.38]}
+            - {t: 7, offset: [-0.35, 0.49378, 2.0], turn: [80.92793, 46.72376, 46.72376], scale: [0.04706, 0.04706, 0.38]}
+            - {t: 8, offset: [-0.35, 0.49378, 2.0], turn: [80.92793, 46.72376, 46.72376], scale: [0.04235, 0.04235, 0.38]}
+            - {t: 9, offset: [-0.35, 0.49378, 2.0], turn: [80.92793, 46.72376, 46.72376], scale: [0.03765, 0.03765, 0.38]}
+            - {t: 10, offset: [-0.35, 0.49378, 2.0], turn: [80.92793, 46.72376, 46.72376], scale: [0.03294, 0.03294, 0.38]}
+            - {t: 11, offset: [-0.35, 0.49378, 2.0], turn: [80.92793, 46.72376, 46.72376], scale: [0.02824, 0.02824, 0.38]}
+            - {t: 12, offset: [-0.35, 0.49378, 2.0], turn: [80.92793, 46.72376, 46.72376], scale: [0.02353, 0.02353, 0.38]}
+            - {t: 13, offset: [-0.35, 0.49378, 2.0], turn: [80.92793, 46.72376, 46.72376], scale: [0.01882, 0.01882, 0.38], block: orange_concrete}
+            - {t: 14, offset: [-0.35, 0.49378, 2.0], turn: [80.92793, 46.72376, 46.72376], scale: [0.01412, 0.01412, 0.38]}
+            - {t: 15, offset: [-0.35, 0.49378, 2.0], turn: [80.92793, 46.72376, 46.72376], scale: [0.00941, 0.00941, 0.38]}
+            - {t: 16, offset: [-0.35, 0.49378, 2.0], turn: [80.92793, 46.72376, 46.72376], scale: [0.00471, 0.00471, 0.38]}
+            - {t: 17, offset: [-0.35, 0.49378, 2.0], turn: [80.92793, 46.72376, 46.72376], scale: [0.0, 0.0, 0.38]}
+        - {op: block, parent: fx6_ember_furnace_blast, block: yellow_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx6_ember_furnace_blast_pressure_hoop_front_s0}
+        - id: fx6_ember_furnace_blast_pressure_hoop_front_s0_trk
+          op: track
+          target: fx6_ember_furnace_blast_pressure_hoop_front_s0
+          keys:
+            - {t: 0, offset: [0.0, 0.28, 2.9], turn: [69.28203, 69.28203, 69.28203], scale: [0.08, 0.08, 0.38]}
+            - {t: 1, offset: [0.0, 0.28, 2.9], turn: [69.28203, 69.28203, 69.28203], scale: [0.07529, 0.07529, 0.38]}
+            - {t: 2, offset: [0.0, 0.28, 2.9], turn: [69.28203, 69.28203, 69.28203], scale: [0.07059, 0.07059, 0.38]}
+            - {t: 3, offset: [0.0, 0.28, 2.9], turn: [69.28203, 69.28203, 69.28203], scale: [0.06588, 0.06588, 0.38]}
+            - {t: 4, offset: [0.0, 0.28, 2.9], turn: [69.28203, 69.28203, 69.28203], scale: [0.06118, 0.06118, 0.38]}
+            - {t: 5, offset: [0.0, 0.28, 2.9], turn: [69.28203, 69.28203, 69.28203], scale: [0.05647, 0.05647, 0.38]}
+            - {t: 6, offset: [0.0, 0.28, 2.9], turn: [69.28203, 69.28203, 69.28203], scale: [0.05176, 0.05176, 0.38]}
+            - {t: 7, offset: [0.0, 0.28, 2.9], turn: [69.28203, 69.28203, 69.28203], scale: [0.04706, 0.04706, 0.38]}
+            - {t: 8, offset: [0.0, 0.28, 2.9], turn: [69.28203, 69.28203, 69.28203], scale: [0.04235, 0.04235, 0.38]}
+            - {t: 9, offset: [0.0, 0.28, 2.9], turn: [69.28203, 69.28203, 69.28203], scale: [0.03765, 0.03765, 0.38]}
+            - {t: 10, offset: [0.0, 0.28, 2.9], turn: [69.28203, 69.28203, 69.28203], scale: [0.03294, 0.03294, 0.38]}
+            - {t: 11, offset: [0.0, 0.28, 2.9], turn: [69.28203, 69.28203, 69.28203], scale: [0.02824, 0.02824, 0.38]}
+            - {t: 12, offset: [0.0, 0.28, 2.9], turn: [69.28203, 69.28203, 69.28203], scale: [0.02353, 0.02353, 0.38]}
+            - {t: 13, offset: [0.0, 0.28, 2.9], turn: [69.28203, 69.28203, 69.28203], scale: [0.01882, 0.01882, 0.38], block: orange_concrete}
+            - {t: 14, offset: [0.0, 0.28, 2.9], turn: [69.28203, 69.28203, 69.28203], scale: [0.01412, 0.01412, 0.38]}
+            - {t: 15, offset: [0.0, 0.28, 2.9], turn: [69.28203, 69.28203, 69.28203], scale: [0.00941, 0.00941, 0.38]}
+            - {t: 16, offset: [0.0, 0.28, 2.9], turn: [69.28203, 69.28203, 69.28203], scale: [0.00471, 0.00471, 0.38]}
+            - {t: 17, offset: [0.0, 0.28, 2.9], turn: [69.28203, 69.28203, 69.28203], scale: [0.0, 0.0, 0.38]}
+        - {op: block, parent: fx6_ember_furnace_blast, block: yellow_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx6_ember_furnace_blast_pressure_hoop_front_s1}
+        - id: fx6_ember_furnace_blast_pressure_hoop_front_s1_trk
+          op: track
+          target: fx6_ember_furnace_blast_pressure_hoop_front_s1
+          keys:
+            - {t: 0, offset: [0.41, 0.38986, 2.9], turn: [52.38224, 90.7287, 90.7287], scale: [0.08, 0.08, 0.38]}
+            - {t: 1, offset: [0.41, 0.38986, 2.9], turn: [52.38224, 90.7287, 90.7287], scale: [0.07529, 0.07529, 0.38]}
+            - {t: 2, offset: [0.41, 0.38986, 2.9], turn: [52.38224, 90.7287, 90.7287], scale: [0.07059, 0.07059, 0.38]}
+            - {t: 3, offset: [0.41, 0.38986, 2.9], turn: [52.38224, 90.7287, 90.7287], scale: [0.06588, 0.06588, 0.38]}
+            - {t: 4, offset: [0.41, 0.38986, 2.9], turn: [52.38224, 90.7287, 90.7287], scale: [0.06118, 0.06118, 0.38]}
+            - {t: 5, offset: [0.41, 0.38986, 2.9], turn: [52.38224, 90.7287, 90.7287], scale: [0.05647, 0.05647, 0.38]}
+            - {t: 6, offset: [0.41, 0.38986, 2.9], turn: [52.38224, 90.7287, 90.7287], scale: [0.05176, 0.05176, 0.38]}
+            - {t: 7, offset: [0.41, 0.38986, 2.9], turn: [52.38224, 90.7287, 90.7287], scale: [0.04706, 0.04706, 0.38]}
+            - {t: 8, offset: [0.41, 0.38986, 2.9], turn: [52.38224, 90.7287, 90.7287], scale: [0.04235, 0.04235, 0.38]}
+            - {t: 9, offset: [0.41, 0.38986, 2.9], turn: [52.38224, 90.7287, 90.7287], scale: [0.03765, 0.03765, 0.38]}
+            - {t: 10, offset: [0.41, 0.38986, 2.9], turn: [52.38224, 90.7287, 90.7287], scale: [0.03294, 0.03294, 0.38]}
+            - {t: 11, offset: [0.41, 0.38986, 2.9], turn: [52.38224, 90.7287, 90.7287], scale: [0.02824, 0.02824, 0.38]}
+            - {t: 12, offset: [0.41, 0.38986, 2.9], turn: [52.38224, 90.7287, 90.7287], scale: [0.02353, 0.02353, 0.38]}
+            - {t: 13, offset: [0.41, 0.38986, 2.9], turn: [52.38224, 90.7287, 90.7287], scale: [0.01882, 0.01882, 0.38], block: orange_concrete}
+            - {t: 14, offset: [0.41, 0.38986, 2.9], turn: [52.38224, 90.7287, 90.7287], scale: [0.01412, 0.01412, 0.38]}
+            - {t: 15, offset: [0.41, 0.38986, 2.9], turn: [52.38224, 90.7287, 90.7287], scale: [0.00941, 0.00941, 0.38]}
+            - {t: 16, offset: [0.41, 0.38986, 2.9], turn: [52.38224, 90.7287, 90.7287], scale: [0.00471, 0.00471, 0.38]}
+            - {t: 17, offset: [0.41, 0.38986, 2.9], turn: [52.38224, 90.7287, 90.7287], scale: [0.0, 0.0, 0.38]}
+        - {op: block, parent: fx6_ember_furnace_blast, block: yellow_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx6_ember_furnace_blast_pressure_hoop_front_s2}
+        - id: fx6_ember_furnace_blast_pressure_hoop_front_s2_trk
+          op: track
+          target: fx6_ember_furnace_blast_pressure_hoop_front_s2
+          keys:
+            - {t: 0, offset: [0.71014, 0.69, 2.9], turn: [29.58207, 110.40178, 110.40178], scale: [0.08, 0.08, 0.38]}
+            - {t: 1, offset: [0.71014, 0.69, 2.9], turn: [29.58207, 110.40178, 110.40178], scale: [0.07529, 0.07529, 0.38]}
+            - {t: 2, offset: [0.71014, 0.69, 2.9], turn: [29.58207, 110.40178, 110.40178], scale: [0.07059, 0.07059, 0.38]}
+            - {t: 3, offset: [0.71014, 0.69, 2.9], turn: [29.58207, 110.40178, 110.40178], scale: [0.06588, 0.06588, 0.38]}
+            - {t: 4, offset: [0.71014, 0.69, 2.9], turn: [29.58207, 110.40178, 110.40178], scale: [0.06118, 0.06118, 0.38]}
+            - {t: 5, offset: [0.71014, 0.69, 2.9], turn: [29.58207, 110.40178, 110.40178], scale: [0.05647, 0.05647, 0.38]}
+            - {t: 6, offset: [0.71014, 0.69, 2.9], turn: [29.58207, 110.40178, 110.40178], scale: [0.05176, 0.05176, 0.38]}
+            - {t: 7, offset: [0.71014, 0.69, 2.9], turn: [29.58207, 110.40178, 110.40178], scale: [0.04706, 0.04706, 0.38]}
+            - {t: 8, offset: [0.71014, 0.69, 2.9], turn: [29.58207, 110.40178, 110.40178], scale: [0.04235, 0.04235, 0.38]}
+            - {t: 9, offset: [0.71014, 0.69, 2.9], turn: [29.58207, 110.40178, 110.40178], scale: [0.03765, 0.03765, 0.38]}
+            - {t: 10, offset: [0.71014, 0.69, 2.9], turn: [29.58207, 110.40178, 110.40178], scale: [0.03294, 0.03294, 0.38]}
+            - {t: 11, offset: [0.71014, 0.69, 2.9], turn: [29.58207, 110.40178, 110.40178], scale: [0.02824, 0.02824, 0.38]}
+            - {t: 12, offset: [0.71014, 0.69, 2.9], turn: [29.58207, 110.40178, 110.40178], scale: [0.02353, 0.02353, 0.38]}
+            - {t: 13, offset: [0.71014, 0.69, 2.9], turn: [29.58207, 110.40178, 110.40178], scale: [0.01882, 0.01882, 0.38], block: orange_concrete}
+            - {t: 14, offset: [0.71014, 0.69, 2.9], turn: [29.58207, 110.40178, 110.40178], scale: [0.01412, 0.01412, 0.38]}
+            - {t: 15, offset: [0.71014, 0.69, 2.9], turn: [29.58207, 110.40178, 110.40178], scale: [0.00941, 0.00941, 0.38]}
+            - {t: 16, offset: [0.71014, 0.69, 2.9], turn: [29.58207, 110.40178, 110.40178], scale: [0.00471, 0.00471, 0.38]}
+            - {t: 17, offset: [0.71014, 0.69, 2.9], turn: [29.58207, 110.40178, 110.40178], scale: [0.0, 0.0, 0.38]}
+        - {op: block, parent: fx6_ember_furnace_blast, block: yellow_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx6_ember_furnace_blast_pressure_hoop_front_s3}
+        - id: fx6_ember_furnace_blast_pressure_hoop_front_s3_trk
+          op: track
+          target: fx6_ember_furnace_blast_pressure_hoop_front_s3
+          keys:
+            - {t: 0, offset: [0.82, 1.1, 2.9], turn: [0.0, 127.27922, 127.27922], scale: [0.08, 0.08, 0.38]}
+            - {t: 1, offset: [0.82, 1.1, 2.9], turn: [0.0, 127.27922, 127.27922], scale: [0.07529, 0.07529, 0.38]}
+            - {t: 2, offset: [0.82, 1.1, 2.9], turn: [0.0, 127.27922, 127.27922], scale: [0.07059, 0.07059, 0.38]}
+            - {t: 3, offset: [0.82, 1.1, 2.9], turn: [0.0, 127.27922, 127.27922], scale: [0.06588, 0.06588, 0.38]}
+            - {t: 4, offset: [0.82, 1.1, 2.9], turn: [0.0, 127.27922, 127.27922], scale: [0.06118, 0.06118, 0.38]}
+            - {t: 5, offset: [0.82, 1.1, 2.9], turn: [0.0, 127.27922, 127.27922], scale: [0.05647, 0.05647, 0.38]}
+            - {t: 6, offset: [0.82, 1.1, 2.9], turn: [0.0, 127.27922, 127.27922], scale: [0.05176, 0.05176, 0.38]}
+            - {t: 7, offset: [0.82, 1.1, 2.9], turn: [0.0, 127.27922, 127.27922], scale: [0.04706, 0.04706, 0.38]}
+            - {t: 8, offset: [0.82, 1.1, 2.9], turn: [0.0, 127.27922, 127.27922], scale: [0.04235, 0.04235, 0.38]}
+            - {t: 9, offset: [0.82, 1.1, 2.9], turn: [0.0, 127.27922, 127.27922], scale: [0.03765, 0.03765, 0.38]}
+            - {t: 10, offset: [0.82, 1.1, 2.9], turn: [0.0, 127.27922, 127.27922], scale: [0.03294, 0.03294, 0.38]}
+            - {t: 11, offset: [0.82, 1.1, 2.9], turn: [0.0, 127.27922, 127.27922], scale: [0.02824, 0.02824, 0.38]}
+            - {t: 12, offset: [0.82, 1.1, 2.9], turn: [0.0, 127.27922, 127.27922], scale: [0.02353, 0.02353, 0.38]}
+            - {t: 13, offset: [0.82, 1.1, 2.9], turn: [0.0, 127.27922, 127.27922], scale: [0.01882, 0.01882, 0.38], block: orange_concrete}
+            - {t: 14, offset: [0.82, 1.1, 2.9], turn: [0.0, 127.27922, 127.27922], scale: [0.01412, 0.01412, 0.38]}
+            - {t: 15, offset: [0.82, 1.1, 2.9], turn: [0.0, 127.27922, 127.27922], scale: [0.00941, 0.00941, 0.38]}
+            - {t: 16, offset: [0.82, 1.1, 2.9], turn: [0.0, 127.27922, 127.27922], scale: [0.00471, 0.00471, 0.38]}
+            - {t: 17, offset: [0.82, 1.1, 2.9], turn: [0.0, 127.27922, 127.27922], scale: [0.0, 0.0, 0.38]}
+        - {op: block, parent: fx6_ember_furnace_blast, block: yellow_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx6_ember_furnace_blast_pressure_hoop_front_s4}
+        - id: fx6_ember_furnace_blast_pressure_hoop_front_s4_trk
+          op: track
+          target: fx6_ember_furnace_blast_pressure_hoop_front_s4
+          keys:
+            - {t: 0, offset: [0.71014, 1.51, 2.9], turn: [29.58207, -110.40178, -110.40178], scale: [0.08, 0.08, 0.38]}
+            - {t: 1, offset: [0.71014, 1.51, 2.9], turn: [29.58207, -110.40178, -110.40178], scale: [0.07529, 0.07529, 0.38]}
+            - {t: 2, offset: [0.71014, 1.51, 2.9], turn: [29.58207, -110.40178, -110.40178], scale: [0.07059, 0.07059, 0.38]}
+            - {t: 3, offset: [0.71014, 1.51, 2.9], turn: [29.58207, -110.40178, -110.40178], scale: [0.06588, 0.06588, 0.38]}
+            - {t: 4, offset: [0.71014, 1.51, 2.9], turn: [29.58207, -110.40178, -110.40178], scale: [0.06118, 0.06118, 0.38]}
+            - {t: 5, offset: [0.71014, 1.51, 2.9], turn: [29.58207, -110.40178, -110.40178], scale: [0.05647, 0.05647, 0.38]}
+            - {t: 6, offset: [0.71014, 1.51, 2.9], turn: [29.58207, -110.40178, -110.40178], scale: [0.05176, 0.05176, 0.38]}
+            - {t: 7, offset: [0.71014, 1.51, 2.9], turn: [29.58207, -110.40178, -110.40178], scale: [0.04706, 0.04706, 0.38]}
+            - {t: 8, offset: [0.71014, 1.51, 2.9], turn: [29.58207, -110.40178, -110.40178], scale: [0.04235, 0.04235, 0.38]}
+            - {t: 9, offset: [0.71014, 1.51, 2.9], turn: [29.58207, -110.40178, -110.40178], scale: [0.03765, 0.03765, 0.38]}
+            - {t: 10, offset: [0.71014, 1.51, 2.9], turn: [29.58207, -110.40178, -110.40178], scale: [0.03294, 0.03294, 0.38]}
+            - {t: 11, offset: [0.71014, 1.51, 2.9], turn: [29.58207, -110.40178, -110.40178], scale: [0.02824, 0.02824, 0.38]}
+            - {t: 12, offset: [0.71014, 1.51, 2.9], turn: [29.58207, -110.40178, -110.40178], scale: [0.02353, 0.02353, 0.38]}
+            - {t: 13, offset: [0.71014, 1.51, 2.9], turn: [29.58207, -110.40178, -110.40178], scale: [0.01882, 0.01882, 0.38], block: orange_concrete}
+            - {t: 14, offset: [0.71014, 1.51, 2.9], turn: [29.58207, -110.40178, -110.40178], scale: [0.01412, 0.01412, 0.38]}
+            - {t: 15, offset: [0.71014, 1.51, 2.9], turn: [29.58207, -110.40178, -110.40178], scale: [0.00941, 0.00941, 0.38]}
+            - {t: 16, offset: [0.71014, 1.51, 2.9], turn: [29.58207, -110.40178, -110.40178], scale: [0.00471, 0.00471, 0.38]}
+            - {t: 17, offset: [0.71014, 1.51, 2.9], turn: [29.58207, -110.40178, -110.40178], scale: [0.0, 0.0, 0.38]}
+        - {op: block, parent: fx6_ember_furnace_blast, block: yellow_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx6_ember_furnace_blast_pressure_hoop_front_s5}
+        - id: fx6_ember_furnace_blast_pressure_hoop_front_s5_trk
+          op: track
+          target: fx6_ember_furnace_blast_pressure_hoop_front_s5
+          keys:
+            - {t: 0, offset: [0.41, 1.81014, 2.9], turn: [52.38224, -90.7287, -90.7287], scale: [0.08, 0.08, 0.38]}
+            - {t: 1, offset: [0.41, 1.81014, 2.9], turn: [52.38224, -90.7287, -90.7287], scale: [0.07529, 0.07529, 0.38]}
+            - {t: 2, offset: [0.41, 1.81014, 2.9], turn: [52.38224, -90.7287, -90.7287], scale: [0.07059, 0.07059, 0.38]}
+            - {t: 3, offset: [0.41, 1.81014, 2.9], turn: [52.38224, -90.7287, -90.7287], scale: [0.06588, 0.06588, 0.38]}
+            - {t: 4, offset: [0.41, 1.81014, 2.9], turn: [52.38224, -90.7287, -90.7287], scale: [0.06118, 0.06118, 0.38]}
+            - {t: 5, offset: [0.41, 1.81014, 2.9], turn: [52.38224, -90.7287, -90.7287], scale: [0.05647, 0.05647, 0.38]}
+            - {t: 6, offset: [0.41, 1.81014, 2.9], turn: [52.38224, -90.7287, -90.7287], scale: [0.05176, 0.05176, 0.38]}
+            - {t: 7, offset: [0.41, 1.81014, 2.9], turn: [52.38224, -90.7287, -90.7287], scale: [0.04706, 0.04706, 0.38]}
+            - {t: 8, offset: [0.41, 1.81014, 2.9], turn: [52.38224, -90.7287, -90.7287], scale: [0.04235, 0.04235, 0.38]}
+            - {t: 9, offset: [0.41, 1.81014, 2.9], turn: [52.38224, -90.7287, -90.7287], scale: [0.03765, 0.03765, 0.38]}
+            - {t: 10, offset: [0.41, 1.81014, 2.9], turn: [52.38224, -90.7287, -90.7287], scale: [0.03294, 0.03294, 0.38]}
+            - {t: 11, offset: [0.41, 1.81014, 2.9], turn: [52.38224, -90.7287, -90.7287], scale: [0.02824, 0.02824, 0.38]}
+            - {t: 12, offset: [0.41, 1.81014, 2.9], turn: [52.38224, -90.7287, -90.7287], scale: [0.02353, 0.02353, 0.38]}
+            - {t: 13, offset: [0.41, 1.81014, 2.9], turn: [52.38224, -90.7287, -90.7287], scale: [0.01882, 0.01882, 0.38], block: orange_concrete}
+            - {t: 14, offset: [0.41, 1.81014, 2.9], turn: [52.38224, -90.7287, -90.7287], scale: [0.01412, 0.01412, 0.38]}
+            - {t: 15, offset: [0.41, 1.81014, 2.9], turn: [52.38224, -90.7287, -90.7287], scale: [0.00941, 0.00941, 0.38]}
+            - {t: 16, offset: [0.41, 1.81014, 2.9], turn: [52.38224, -90.7287, -90.7287], scale: [0.00471, 0.00471, 0.38]}
+            - {t: 17, offset: [0.41, 1.81014, 2.9], turn: [52.38224, -90.7287, -90.7287], scale: [0.0, 0.0, 0.38]}
+        - {op: block, parent: fx6_ember_furnace_blast, block: yellow_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx6_ember_furnace_blast_pressure_hoop_front_s6}
+        - id: fx6_ember_furnace_blast_pressure_hoop_front_s6_trk
+          op: track
+          target: fx6_ember_furnace_blast_pressure_hoop_front_s6
+          keys:
+            - {t: 0, offset: [0.0, 1.92, 2.9], turn: [69.28203, -69.28203, -69.28203], scale: [0.08, 0.08, 0.38]}
+            - {t: 1, offset: [0.0, 1.92, 2.9], turn: [69.28203, -69.28203, -69.28203], scale: [0.07529, 0.07529, 0.38]}
+            - {t: 2, offset: [0.0, 1.92, 2.9], turn: [69.28203, -69.28203, -69.28203], scale: [0.07059, 0.07059, 0.38]}
+            - {t: 3, offset: [0.0, 1.92, 2.9], turn: [69.28203, -69.28203, -69.28203], scale: [0.06588, 0.06588, 0.38]}
+            - {t: 4, offset: [0.0, 1.92, 2.9], turn: [69.28203, -69.28203, -69.28203], scale: [0.06118, 0.06118, 0.38]}
+            - {t: 5, offset: [0.0, 1.92, 2.9], turn: [69.28203, -69.28203, -69.28203], scale: [0.05647, 0.05647, 0.38]}
+            - {t: 6, offset: [0.0, 1.92, 2.9], turn: [69.28203, -69.28203, -69.28203], scale: [0.05176, 0.05176, 0.38]}
+            - {t: 7, offset: [0.0, 1.92, 2.9], turn: [69.28203, -69.28203, -69.28203], scale: [0.04706, 0.04706, 0.38]}
+            - {t: 8, offset: [0.0, 1.92, 2.9], turn: [69.28203, -69.28203, -69.28203], scale: [0.04235, 0.04235, 0.38]}
+            - {t: 9, offset: [0.0, 1.92, 2.9], turn: [69.28203, -69.28203, -69.28203], scale: [0.03765, 0.03765, 0.38]}
+            - {t: 10, offset: [0.0, 1.92, 2.9], turn: [69.28203, -69.28203, -69.28203], scale: [0.03294, 0.03294, 0.38]}
+            - {t: 11, offset: [0.0, 1.92, 2.9], turn: [69.28203, -69.28203, -69.28203], scale: [0.02824, 0.02824, 0.38]}
+            - {t: 12, offset: [0.0, 1.92, 2.9], turn: [69.28203, -69.28203, -69.28203], scale: [0.02353, 0.02353, 0.38]}
+            - {t: 13, offset: [0.0, 1.92, 2.9], turn: [69.28203, -69.28203, -69.28203], scale: [0.01882, 0.01882, 0.38], block: orange_concrete}
+            - {t: 14, offset: [0.0, 1.92, 2.9], turn: [69.28203, -69.28203, -69.28203], scale: [0.01412, 0.01412, 0.38]}
+            - {t: 15, offset: [0.0, 1.92, 2.9], turn: [69.28203, -69.28203, -69.28203], scale: [0.00941, 0.00941, 0.38]}
+            - {t: 16, offset: [0.0, 1.92, 2.9], turn: [69.28203, -69.28203, -69.28203], scale: [0.00471, 0.00471, 0.38]}
+            - {t: 17, offset: [0.0, 1.92, 2.9], turn: [69.28203, -69.28203, -69.28203], scale: [0.0, 0.0, 0.38]}
+        - {op: block, parent: fx6_ember_furnace_blast, block: yellow_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx6_ember_furnace_blast_pressure_hoop_front_s7}
+        - id: fx6_ember_furnace_blast_pressure_hoop_front_s7_trk
+          op: track
+          target: fx6_ember_furnace_blast_pressure_hoop_front_s7
+          keys:
+            - {t: 0, offset: [-0.41, 1.81014, 2.9], turn: [80.92793, -46.72376, -46.72376], scale: [0.08, 0.08, 0.38]}
+            - {t: 1, offset: [-0.41, 1.81014, 2.9], turn: [80.92793, -46.72376, -46.72376], scale: [0.07529, 0.07529, 0.38]}
+            - {t: 2, offset: [-0.41, 1.81014, 2.9], turn: [80.92793, -46.72376, -46.72376], scale: [0.07059, 0.07059, 0.38]}
+            - {t: 3, offset: [-0.41, 1.81014, 2.9], turn: [80.92793, -46.72376, -46.72376], scale: [0.06588, 0.06588, 0.38]}
+            - {t: 4, offset: [-0.41, 1.81014, 2.9], turn: [80.92793, -46.72376, -46.72376], scale: [0.06118, 0.06118, 0.38]}
+            - {t: 5, offset: [-0.41, 1.81014, 2.9], turn: [80.92793, -46.72376, -46.72376], scale: [0.05647, 0.05647, 0.38]}
+            - {t: 6, offset: [-0.41, 1.81014, 2.9], turn: [80.92793, -46.72376, -46.72376], scale: [0.05176, 0.05176, 0.38]}
+            - {t: 7, offset: [-0.41, 1.81014, 2.9], turn: [80.92793, -46.72376, -46.72376], scale: [0.04706, 0.04706, 0.38]}
+            - {t: 8, offset: [-0.41, 1.81014, 2.9], turn: [80.92793, -46.72376, -46.72376], scale: [0.04235, 0.04235, 0.38]}
+            - {t: 9, offset: [-0.41, 1.81014, 2.9], turn: [80.92793, -46.72376, -46.72376], scale: [0.03765, 0.03765, 0.38]}
+            - {t: 10, offset: [-0.41, 1.81014, 2.9], turn: [80.92793, -46.72376, -46.72376], scale: [0.03294, 0.03294, 0.38]}
+            - {t: 11, offset: [-0.41, 1.81014, 2.9], turn: [80.92793, -46.72376, -46.72376], scale: [0.02824, 0.02824, 0.38]}
+            - {t: 12, offset: [-0.41, 1.81014, 2.9], turn: [80.92793, -46.72376, -46.72376], scale: [0.02353, 0.02353, 0.38]}
+            - {t: 13, offset: [-0.41, 1.81014, 2.9], turn: [80.92793, -46.72376, -46.72376], scale: [0.01882, 0.01882, 0.38], block: orange_concrete}
+            - {t: 14, offset: [-0.41, 1.81014, 2.9], turn: [80.92793, -46.72376, -46.72376], scale: [0.01412, 0.01412, 0.38]}
+            - {t: 15, offset: [-0.41, 1.81014, 2.9], turn: [80.92793, -46.72376, -46.72376], scale: [0.00941, 0.00941, 0.38]}
+            - {t: 16, offset: [-0.41, 1.81014, 2.9], turn: [80.92793, -46.72376, -46.72376], scale: [0.00471, 0.00471, 0.38]}
+            - {t: 17, offset: [-0.41, 1.81014, 2.9], turn: [80.92793, -46.72376, -46.72376], scale: [0.0, 0.0, 0.38]}
+        - {op: block, parent: fx6_ember_furnace_blast, block: yellow_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx6_ember_furnace_blast_pressure_hoop_front_s8}
+        - id: fx6_ember_furnace_blast_pressure_hoop_front_s8_trk
+          op: track
+          target: fx6_ember_furnace_blast_pressure_hoop_front_s8
+          keys:
+            - {t: 0, offset: [-0.71014, 1.51, 2.9], turn: [87.75192, -23.51306, -23.51306], scale: [0.08, 0.08, 0.38]}
+            - {t: 1, offset: [-0.71014, 1.51, 2.9], turn: [87.75192, -23.51306, -23.51306], scale: [0.07529, 0.07529, 0.38]}
+            - {t: 2, offset: [-0.71014, 1.51, 2.9], turn: [87.75192, -23.51306, -23.51306], scale: [0.07059, 0.07059, 0.38]}
+            - {t: 3, offset: [-0.71014, 1.51, 2.9], turn: [87.75192, -23.51306, -23.51306], scale: [0.06588, 0.06588, 0.38]}
+            - {t: 4, offset: [-0.71014, 1.51, 2.9], turn: [87.75192, -23.51306, -23.51306], scale: [0.06118, 0.06118, 0.38]}
+            - {t: 5, offset: [-0.71014, 1.51, 2.9], turn: [87.75192, -23.51306, -23.51306], scale: [0.05647, 0.05647, 0.38]}
+            - {t: 6, offset: [-0.71014, 1.51, 2.9], turn: [87.75192, -23.51306, -23.51306], scale: [0.05176, 0.05176, 0.38]}
+            - {t: 7, offset: [-0.71014, 1.51, 2.9], turn: [87.75192, -23.51306, -23.51306], scale: [0.04706, 0.04706, 0.38]}
+            - {t: 8, offset: [-0.71014, 1.51, 2.9], turn: [87.75192, -23.51306, -23.51306], scale: [0.04235, 0.04235, 0.38]}
+            - {t: 9, offset: [-0.71014, 1.51, 2.9], turn: [87.75192, -23.51306, -23.51306], scale: [0.03765, 0.03765, 0.38]}
+            - {t: 10, offset: [-0.71014, 1.51, 2.9], turn: [87.75192, -23.51306, -23.51306], scale: [0.03294, 0.03294, 0.38]}
+            - {t: 11, offset: [-0.71014, 1.51, 2.9], turn: [87.75192, -23.51306, -23.51306], scale: [0.02824, 0.02824, 0.38]}
+            - {t: 12, offset: [-0.71014, 1.51, 2.9], turn: [87.75192, -23.51306, -23.51306], scale: [0.02353, 0.02353, 0.38]}
+            - {t: 13, offset: [-0.71014, 1.51, 2.9], turn: [87.75192, -23.51306, -23.51306], scale: [0.01882, 0.01882, 0.38], block: orange_concrete}
+            - {t: 14, offset: [-0.71014, 1.51, 2.9], turn: [87.75192, -23.51306, -23.51306], scale: [0.01412, 0.01412, 0.38]}
+            - {t: 15, offset: [-0.71014, 1.51, 2.9], turn: [87.75192, -23.51306, -23.51306], scale: [0.00941, 0.00941, 0.38]}
+            - {t: 16, offset: [-0.71014, 1.51, 2.9], turn: [87.75192, -23.51306, -23.51306], scale: [0.00471, 0.00471, 0.38]}
+            - {t: 17, offset: [-0.71014, 1.51, 2.9], turn: [87.75192, -23.51306, -23.51306], scale: [0.0, 0.0, 0.38]}
+        - {op: block, parent: fx6_ember_furnace_blast, block: yellow_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx6_ember_furnace_blast_pressure_hoop_front_s9}
+        - id: fx6_ember_furnace_blast_pressure_hoop_front_s9_trk
+          op: track
+          target: fx6_ember_furnace_blast_pressure_hoop_front_s9
+          keys:
+            - {t: 0, offset: [-0.82, 1.1, 2.9], turn: [90.0, 0.0, 0.0], scale: [0.08, 0.08, 0.38]}
+            - {t: 1, offset: [-0.82, 1.1, 2.9], turn: [90.0, 0.0, 0.0], scale: [0.07529, 0.07529, 0.38]}
+            - {t: 2, offset: [-0.82, 1.1, 2.9], turn: [90.0, 0.0, 0.0], scale: [0.07059, 0.07059, 0.38]}
+            - {t: 3, offset: [-0.82, 1.1, 2.9], turn: [90.0, 0.0, 0.0], scale: [0.06588, 0.06588, 0.38]}
+            - {t: 4, offset: [-0.82, 1.1, 2.9], turn: [90.0, 0.0, 0.0], scale: [0.06118, 0.06118, 0.38]}
+            - {t: 5, offset: [-0.82, 1.1, 2.9], turn: [90.0, 0.0, 0.0], scale: [0.05647, 0.05647, 0.38]}
+            - {t: 6, offset: [-0.82, 1.1, 2.9], turn: [90.0, 0.0, 0.0], scale: [0.05176, 0.05176, 0.38]}
+            - {t: 7, offset: [-0.82, 1.1, 2.9], turn: [90.0, 0.0, 0.0], scale: [0.04706, 0.04706, 0.38]}
+            - {t: 8, offset: [-0.82, 1.1, 2.9], turn: [90.0, 0.0, 0.0], scale: [0.04235, 0.04235, 0.38]}
+            - {t: 9, offset: [-0.82, 1.1, 2.9], turn: [90.0, 0.0, 0.0], scale: [0.03765, 0.03765, 0.38]}
+            - {t: 10, offset: [-0.82, 1.1, 2.9], turn: [90.0, 0.0, 0.0], scale: [0.03294, 0.03294, 0.38]}
+            - {t: 11, offset: [-0.82, 1.1, 2.9], turn: [90.0, 0.0, 0.0], scale: [0.02824, 0.02824, 0.38]}
+            - {t: 12, offset: [-0.82, 1.1, 2.9], turn: [90.0, 0.0, 0.0], scale: [0.02353, 0.02353, 0.38]}
+            - {t: 13, offset: [-0.82, 1.1, 2.9], turn: [90.0, 0.0, 0.0], scale: [0.01882, 0.01882, 0.38], block: orange_concrete}
+            - {t: 14, offset: [-0.82, 1.1, 2.9], turn: [90.0, 0.0, 0.0], scale: [0.01412, 0.01412, 0.38]}
+            - {t: 15, offset: [-0.82, 1.1, 2.9], turn: [90.0, 0.0, 0.0], scale: [0.00941, 0.00941, 0.38]}
+            - {t: 16, offset: [-0.82, 1.1, 2.9], turn: [90.0, 0.0, 0.0], scale: [0.00471, 0.00471, 0.38]}
+            - {t: 17, offset: [-0.82, 1.1, 2.9], turn: [90.0, 0.0, 0.0], scale: [0.0, 0.0, 0.38]}
+        - {op: block, parent: fx6_ember_furnace_blast, block: yellow_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx6_ember_furnace_blast_pressure_hoop_front_s10}
+        - id: fx6_ember_furnace_blast_pressure_hoop_front_s10_trk
+          op: track
+          target: fx6_ember_furnace_blast_pressure_hoop_front_s10
+          keys:
+            - {t: 0, offset: [-0.71014, 0.69, 2.9], turn: [87.75192, 23.51306, 23.51306], scale: [0.08, 0.08, 0.38]}
+            - {t: 1, offset: [-0.71014, 0.69, 2.9], turn: [87.75192, 23.51306, 23.51306], scale: [0.07529, 0.07529, 0.38]}
+            - {t: 2, offset: [-0.71014, 0.69, 2.9], turn: [87.75192, 23.51306, 23.51306], scale: [0.07059, 0.07059, 0.38]}
+            - {t: 3, offset: [-0.71014, 0.69, 2.9], turn: [87.75192, 23.51306, 23.51306], scale: [0.06588, 0.06588, 0.38]}
+            - {t: 4, offset: [-0.71014, 0.69, 2.9], turn: [87.75192, 23.51306, 23.51306], scale: [0.06118, 0.06118, 0.38]}
+            - {t: 5, offset: [-0.71014, 0.69, 2.9], turn: [87.75192, 23.51306, 23.51306], scale: [0.05647, 0.05647, 0.38]}
+            - {t: 6, offset: [-0.71014, 0.69, 2.9], turn: [87.75192, 23.51306, 23.51306], scale: [0.05176, 0.05176, 0.38]}
+            - {t: 7, offset: [-0.71014, 0.69, 2.9], turn: [87.75192, 23.51306, 23.51306], scale: [0.04706, 0.04706, 0.38]}
+            - {t: 8, offset: [-0.71014, 0.69, 2.9], turn: [87.75192, 23.51306, 23.51306], scale: [0.04235, 0.04235, 0.38]}
+            - {t: 9, offset: [-0.71014, 0.69, 2.9], turn: [87.75192, 23.51306, 23.51306], scale: [0.03765, 0.03765, 0.38]}
+            - {t: 10, offset: [-0.71014, 0.69, 2.9], turn: [87.75192, 23.51306, 23.51306], scale: [0.03294, 0.03294, 0.38]}
+            - {t: 11, offset: [-0.71014, 0.69, 2.9], turn: [87.75192, 23.51306, 23.51306], scale: [0.02824, 0.02824, 0.38]}
+            - {t: 12, offset: [-0.71014, 0.69, 2.9], turn: [87.75192, 23.51306, 23.51306], scale: [0.02353, 0.02353, 0.38]}
+            - {t: 13, offset: [-0.71014, 0.69, 2.9], turn: [87.75192, 23.51306, 23.51306], scale: [0.01882, 0.01882, 0.38], block: orange_concrete}
+            - {t: 14, offset: [-0.71014, 0.69, 2.9], turn: [87.75192, 23.51306, 23.51306], scale: [0.01412, 0.01412, 0.38]}
+            - {t: 15, offset: [-0.71014, 0.69, 2.9], turn: [87.75192, 23.51306, 23.51306], scale: [0.00941, 0.00941, 0.38]}
+            - {t: 16, offset: [-0.71014, 0.69, 2.9], turn: [87.75192, 23.51306, 23.51306], scale: [0.00471, 0.00471, 0.38]}
+            - {t: 17, offset: [-0.71014, 0.69, 2.9], turn: [87.75192, 23.51306, 23.51306], scale: [0.0, 0.0, 0.38]}
+        - {op: block, parent: fx6_ember_furnace_blast, block: yellow_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx6_ember_furnace_blast_pressure_hoop_front_s11}
+        - id: fx6_ember_furnace_blast_pressure_hoop_front_s11_trk
+          op: track
+          target: fx6_ember_furnace_blast_pressure_hoop_front_s11
+          keys:
+            - {t: 0, offset: [-0.41, 0.38986, 2.9], turn: [80.92793, 46.72376, 46.72376], scale: [0.08, 0.08, 0.38]}
+            - {t: 1, offset: [-0.41, 0.38986, 2.9], turn: [80.92793, 46.72376, 46.72376], scale: [0.07529, 0.07529, 0.38]}
+            - {t: 2, offset: [-0.41, 0.38986, 2.9], turn: [80.92793, 46.72376, 46.72376], scale: [0.07059, 0.07059, 0.38]}
+            - {t: 3, offset: [-0.41, 0.38986, 2.9], turn: [80.92793, 46.72376, 46.72376], scale: [0.06588, 0.06588, 0.38]}
+            - {t: 4, offset: [-0.41, 0.38986, 2.9], turn: [80.92793, 46.72376, 46.72376], scale: [0.06118, 0.06118, 0.38]}
+            - {t: 5, offset: [-0.41, 0.38986, 2.9], turn: [80.92793, 46.72376, 46.72376], scale: [0.05647, 0.05647, 0.38]}
+            - {t: 6, offset: [-0.41, 0.38986, 2.9], turn: [80.92793, 46.72376, 46.72376], scale: [0.05176, 0.05176, 0.38]}
+            - {t: 7, offset: [-0.41, 0.38986, 2.9], turn: [80.92793, 46.72376, 46.72376], scale: [0.04706, 0.04706, 0.38]}
+            - {t: 8, offset: [-0.41, 0.38986, 2.9], turn: [80.92793, 46.72376, 46.72376], scale: [0.04235, 0.04235, 0.38]}
+            - {t: 9, offset: [-0.41, 0.38986, 2.9], turn: [80.92793, 46.72376, 46.72376], scale: [0.03765, 0.03765, 0.38]}
+            - {t: 10, offset: [-0.41, 0.38986, 2.9], turn: [80.92793, 46.72376, 46.72376], scale: [0.03294, 0.03294, 0.38]}
+            - {t: 11, offset: [-0.41, 0.38986, 2.9], turn: [80.92793, 46.72376, 46.72376], scale: [0.02824, 0.02824, 0.38]}
+            - {t: 12, offset: [-0.41, 0.38986, 2.9], turn: [80.92793, 46.72376, 46.72376], scale: [0.02353, 0.02353, 0.38]}
+            - {t: 13, offset: [-0.41, 0.38986, 2.9], turn: [80.92793, 46.72376, 46.72376], scale: [0.01882, 0.01882, 0.38], block: orange_concrete}
+            - {t: 14, offset: [-0.41, 0.38986, 2.9], turn: [80.92793, 46.72376, 46.72376], scale: [0.01412, 0.01412, 0.38]}
+            - {t: 15, offset: [-0.41, 0.38986, 2.9], turn: [80.92793, 46.72376, 46.72376], scale: [0.00941, 0.00941, 0.38]}
+            - {t: 16, offset: [-0.41, 0.38986, 2.9], turn: [80.92793, 46.72376, 46.72376], scale: [0.00471, 0.00471, 0.38]}
+            - {t: 17, offset: [-0.41, 0.38986, 2.9], turn: [80.92793, 46.72376, 46.72376], scale: [0.0, 0.0, 0.38]}
+    - id: fx50
+      at: 50
+      do:
+        - op: block
+          parent: fx6_ember_furnace_blast
+          block: yellow_concrete
+          size: [1.0, 1.0, 1.0]
+          brightness: 15
+          at: "= [vec(0.05809, 1.205, 3.0), vec(-0.06907, 1.175, 3.06328), vec(0.00973, 1.145, 2.88918), vec(0.07244, 1.115, 3.09449), vec(-0.11724, 1.085, 2.97926), vec(0.09386, 1.055, 2.94029), vec(-0.02432, 1.025, 3.09046), vec(-0.02678, 0.995, 2.94844)][int(i)]"
+          turn: "= [vec(-47.52276, 80.60528, 47.52276), vec(-36.40712, -45.64799, -16.02246), vec(-1.46463, 171.84712, 33.44154), vec(-6.92276, 37.42693, 2.34839), vec(5.25608, -99.88519, 6.2674), vec(12.89416, 120.67843, -23.48408), vec(38.4562, -14.46938, 5.07876), vec(19.25152, -133.71762, 78.83641)][int(i)]"
+          times: 8
+          id: fx6_ember_furnace_blast_impact_spokes
+        - id: fx6_ember_furnace_blast_impact_spokes_trk
+          op: track
+          target: fx6_ember_furnace_blast_impact_spokes
+          keys:
+            - {t: 0, scale: [0.06, 0.06, 0.12]}
+            - {t: 1, scale: [0.12, 0.12, 0.85], ease: out_expo}
+            - {t: 11, block: orange_concrete}
+            - {t: 15, scale: [0.02, 0.02, 0.1]}
+        - {op: block, parent: fx6_ember_furnace_blast, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx6_ember_furnace_blast_impact_core}
+        - id: fx6_ember_furnace_blast_impact_core_trk
+          op: track
+          target: fx6_ember_furnace_blast_impact_core
+          keys:
+            - {t: 0, offset: [-0.12, 0.98, 2.88], scale: [0.24, 0.24, 0.24]}
+            - {t: 3, scale: [0.0, 0.0, 0.0]}
+    - id: fx52
+      at: 52
+      do:
+        - id: emit_4
+          op: emit
+          at: fx6_ember_furnace_blast_flame_at
+          particle: ember-fine-spark
+          times: 5
+          shift: "= [vec(0.0, 0.0, 0.8), vec(0.0, 0.0, 1.45), vec(0.0, 0.0, 2.1), vec(0.0, 0.0, 2.75), vec(0.0, 0.0, 3.4)][int(i)]"
+    - id: fx55
+      at: 55
+      do:
+        - id: emit_5
+          op: emit
+          at: fx6_ember_furnace_blast_flame_at
+          particle: ember-fine-spark
+          times: 5
+          shift: "= [vec(0.0, 0.0, 0.8), vec(0.0, 0.0, 1.45), vec(0.0, 0.0, 2.1), vec(0.0, 0.0, 2.75), vec(0.0, 0.0, 3.4)][int(i)]"
+    - id: fx58
+      at: 58
+      do:
+        - id: emit_6
+          op: emit
+          at: fx6_ember_furnace_blast_flame_at
+          particle: ember-fine-spark
+          times: 5
+          shift: "= [vec(0.0, 0.0, 0.8), vec(0.0, 0.0, 1.45), vec(0.0, 0.0, 2.1), vec(0.0, 0.0, 2.75), vec(0.0, 0.0, 3.4)][int(i)]"
+    - id: fx61
+      at: 61
+      do:
+        - id: emit_7
+          op: emit
+          at: fx6_ember_furnace_blast_flame_at
+          particle: ember-fine-spark
+          times: 5
+          shift: "= [vec(0.0, 0.0, 0.8), vec(0.0, 0.0, 1.45), vec(0.0, 0.0, 2.1), vec(0.0, 0.0, 2.75), vec(0.0, 0.0, 3.4)][int(i)]"
+        - {id: rm_9, op: remove, ids: [fx6_ember_furnace_blast_impact_core]}
     - id: fx63
       at: 63
       do:
         - {id: fx8_ember_smoke_puff_vent_atrk, op: track, target: fx8_ember_smoke_puff_vent_at, space: fx8_ember_smoke_puff, keys: [{t: 0, offset: [-0.3, 1.2, 0.5]}]}
         - {id: fx8_ember_smoke_puff_haze_atrk, op: track, target: fx8_ember_smoke_puff_haze_at, space: fx8_ember_smoke_puff, keys: [{t: 0, offset: [0, 1.3, -0.3]}]}
+    - id: fx64
+      at: 64
+      do:
+        - id: emit_8
+          op: emit
+          at: fx6_ember_furnace_blast_flame_at
+          particle: ember-fine-spark
+          times: 5
+          shift: "= [vec(0.0, 0.0, 0.8), vec(0.0, 0.0, 1.45), vec(0.0, 0.0, 2.1), vec(0.0, 0.0, 2.75), vec(0.0, 0.0, 3.4)][int(i)]"
+    - id: fx65
+      at: 65
+      do:
+        - {id: rm_10, op: remove, ids: [fx6_ember_furnace_blast_flame_0, fx6_ember_furnace_blast_flame_1, fx6_ember_furnace_blast_flame_2, fx6_ember_furnace_blast_flame_3, fx6_ember_furnace_blast_flame_4]}
+    - {id: fx66, at: 66, do: [{id: rm_11, op: remove, ids: [fx6_ember_furnace_blast_bloom, fx6_ember_furnace_blast_impact_spokes]}]}
+    - id: fx67
+      at: 67
+      do:
+        - id: emit_9
+          op: emit
+          at: fx6_ember_furnace_blast_flame_at
+          particle: ember-fine-spark
+          times: 5
+          shift: "= [vec(0.0, 0.0, 0.8), vec(0.0, 0.0, 1.45), vec(0.0, 0.0, 2.1), vec(0.0, 0.0, 2.75), vec(0.0, 0.0, 3.4)][int(i)]"
+        - id: rm_12
+          op: remove
+          ids:
+            - fx6_ember_furnace_blast_pressure_hoop_s0
+            - fx6_ember_furnace_blast_pressure_hoop_s1
+            - fx6_ember_furnace_blast_pressure_hoop_s2
+            - fx6_ember_furnace_blast_pressure_hoop_s3
+            - fx6_ember_furnace_blast_pressure_hoop_s4
+            - fx6_ember_furnace_blast_pressure_hoop_s5
+            - fx6_ember_furnace_blast_pressure_hoop_s6
+            - fx6_ember_furnace_blast_pressure_hoop_s7
+            - fx6_ember_furnace_blast_pressure_hoop_s8
+            - fx6_ember_furnace_blast_pressure_hoop_s9
+            - fx6_ember_furnace_blast_pressure_hoop_s10
+            - fx6_ember_furnace_blast_pressure_hoop_s11
+            - fx6_ember_furnace_blast_pressure_hoop_front_s0
+            - fx6_ember_furnace_blast_pressure_hoop_front_s1
+            - fx6_ember_furnace_blast_pressure_hoop_front_s2
+            - fx6_ember_furnace_blast_pressure_hoop_front_s3
+            - fx6_ember_furnace_blast_pressure_hoop_front_s4
+            - fx6_ember_furnace_blast_pressure_hoop_front_s5
+            - fx6_ember_furnace_blast_pressure_hoop_front_s6
+            - fx6_ember_furnace_blast_pressure_hoop_front_s7
+            - fx6_ember_furnace_blast_pressure_hoop_front_s8
+            - fx6_ember_furnace_blast_pressure_hoop_front_s9
+            - fx6_ember_furnace_blast_pressure_hoop_front_s10
+            - fx6_ember_furnace_blast_pressure_hoop_front_s11
+    - id: fxhit_9
+      at: "hit+9"
+      do:
+        - {id: rm_4, op: remove, ids: [fx3_ember_hoop_hit_needle], when: "= event.source == 'sel'"}
+        - {id: rm_8, op: remove, ids: [fx5_ember_hoop_hit_needle], when: "= event.source == 'sel_2'"}
+        - {id: rm_13, op: remove, ids: [fx7_ember_hoop_hit_needle], when: "= event.source == 'sel_3'"}
     - {id: loop1, at: 15, every: 4, for: 10, do: [{id: fx2_ember_sweep_embers, op: emit, at: fx2_ember_sweep_embers_at, particle: ember-fine-spark}]}
     - {id: loop2, at: 15, every: 1, for: 8, do: [{id: fx2_ember_sweep_gauntlet_fire, op: emit, at: pt_fx2_ember_sweep_gauntlet_0_2p65_0, particle: ember-fine-spark}]}
-    - {id: loop3, at: 21, every: 3, for: 12, do: [{id: fx4_ember_punch_flame, op: emit, at: fx4_ember_punch_flame_at, particle: ember-fine-spark}]}
-    - {id: loop4, at: 21, every: 3, for: 10, do: [{id: fx4_ember_punch_soot, op: emit, at: fx4_ember_punch_soot_at, particle: fire-smoke}]}
-    - {id: loop5, at: 49, every: 3, for: 19, do: [{id: fx6_ember_furnace_blast_flame, op: emit, at: fx6_ember_furnace_blast_flame_at, particle: ember-fine-spark}]}
-    - {id: loop6, at: 49, every: 3, for: 17, do: [{id: fx6_ember_furnace_blast_soot, op: emit, at: fx6_ember_furnace_blast_soot_at, particle: fire-smoke}]}
-    - {id: loop7, at: 63, every: 3, for: 12, do: [{id: fx8_ember_smoke_puff_vent, op: emit, at: fx8_ember_smoke_puff_vent_at, particle: fire-smoke}]}
-    - {id: loop8, at: 63, every: 3, for: 15, do: [{id: fx8_ember_smoke_puff_haze, op: emit, at: fx8_ember_smoke_puff_haze_at, particle: gun-smoke}]}
+    - {id: loop3, at: 21, every: 3, for: 10, do: [{id: fx4_ember_punch_soot, op: emit, at: fx4_ember_punch_soot_at, particle: fire-smoke}]}
+    - {id: loop4, at: 49, every: 3, for: 17, do: [{id: fx6_ember_furnace_blast_soot, op: emit, at: fx6_ember_furnace_blast_soot_at, particle: fire-smoke}]}
+    - {id: loop5, at: 63, every: 3, for: 12, do: [{id: fx8_ember_smoke_puff_vent, op: emit, at: fx8_ember_smoke_puff_vent_at, particle: fire-smoke}]}
+    - {id: loop6, at: 63, every: 3, for: 15, do: [{id: fx8_ember_smoke_puff_haze, op: emit, at: fx8_ember_smoke_puff_haze_at, particle: gun-smoke}]}
   "on":
     hit:
+      - op: block
+        parent: fx3_ember_hoop_hit
+        block: orange_stained_glass
+        size: "= vec(1.0, 1.0, 1.0) * (1.0 + (rand('j_fx3_ember_hoop_hit_needle')*2.0-1.0)*0.3)"
+        brightness: 15
+        at: "= [vec(0.06614, 1.275, 0.0), vec(-0.0714, 1.225, 0.0654), vec(0.00846, 1.175, -0.09645), vec(0.04024, 1.125, 0.05249)][int(i)]"
+        turn: "= ([vec(-37.9525, 84.07428, 37.9525), vec(-13.63668, -47.2488, -6.00139), vec(0.96587, 173.62683, -22.0535), vec(46.80381, 35.17185, -15.87715)][int(i)]) + vec((rand('j_fx3_ember_hoop_hit_needle')*2.0-1.0)*8.0, (rand('j_fx3_ember_hoop_hit_needle')*2.0-1.0)*8.0, (rand('j_fx3_ember_hoop_hit_needle')*2.0-1.0)*8.0)"
+        times: 4
+        id: fx3_ember_hoop_hit_needle
+        when: "= event.source == 'sel'"
+      - id: fx3_ember_hoop_hit_needle_trk
+        op: track
+        target: fx3_ember_hoop_hit_needle
+        keys:
+          - {t: 0, offset: [0.0, 0.0, 0.1], scale: [0.03, 0.03, 0.2]}
+          - {t: 2, offset: [0.0, 0.0, 0.7], scale: [0.09, 0.09, 1.1], ease: out_expo}
+          - {t: 4, block: red_stained_glass}
+          - {t: 8, scale: [0.0, 0.0, 1.1], ease: in_quad}
+        when: "= event.source == 'sel'"
       - {id: fx3_ember_hoop_hit_embers_atrk, op: track, target: fx3_ember_hoop_hit_embers_at, space: fx3_ember_hoop_hit, keys: [{t: 0, offset: [0.0, 1.1, 0.0]}], when: "= event.source == 'sel'"}
       - {id: fx3_ember_hoop_hit_embers, op: emit, at: fx3_ember_hoop_hit_embers_at, particle: fire-impact, when: "= event.source == 'sel'"}
       - {id: snd, op: sound, sound: entity.player.attack.strong, at: enemy, volume: 0.7, pitch: 1.1, when: "= event.source == 'sel'"}
+      - op: block
+        parent: fx5_ember_hoop_hit
+        block: orange_stained_glass
+        size: "= vec(1.0, 1.0, 1.0) * (1.0 + (rand('j_fx5_ember_hoop_hit_needle')*2.0-1.0)*0.3)"
+        brightness: 15
+        at: "= [vec(0.06614, 1.275, 0.0), vec(-0.0714, 1.225, 0.0654), vec(0.00846, 1.175, -0.09645), vec(0.04024, 1.125, 0.05249)][int(i)]"
+        turn: "= ([vec(-37.9525, 84.07428, 37.9525), vec(-13.63668, -47.2488, -6.00139), vec(0.96587, 173.62683, -22.0535), vec(46.80381, 35.17185, -15.87715)][int(i)]) + vec((rand('j_fx5_ember_hoop_hit_needle')*2.0-1.0)*8.0, (rand('j_fx5_ember_hoop_hit_needle')*2.0-1.0)*8.0, (rand('j_fx5_ember_hoop_hit_needle')*2.0-1.0)*8.0)"
+        times: 4
+        id: fx5_ember_hoop_hit_needle
+        when: "= event.source == 'sel_2'"
+      - id: fx5_ember_hoop_hit_needle_trk
+        op: track
+        target: fx5_ember_hoop_hit_needle
+        keys:
+          - {t: 0, offset: [0.0, 0.0, 0.1], scale: [0.03, 0.03, 0.2]}
+          - {t: 2, offset: [0.0, 0.0, 0.7], scale: [0.09, 0.09, 1.1], ease: out_expo}
+          - {t: 4, block: red_stained_glass}
+          - {t: 8, scale: [0.0, 0.0, 1.1], ease: in_quad}
+        when: "= event.source == 'sel_2'"
       - {id: fx5_ember_hoop_hit_embers_atrk, op: track, target: fx5_ember_hoop_hit_embers_at, space: fx5_ember_hoop_hit, keys: [{t: 0, offset: [0.0, 1.1, 0.0]}], when: "= event.source == 'sel_2'"}
       - {id: fx5_ember_hoop_hit_embers, op: emit, at: fx5_ember_hoop_hit_embers_at, particle: fire-impact, when: "= event.source == 'sel_2'"}
       - {id: snd_2, op: sound, sound: entity.player.attack.strong, at: enemy, volume: 0.7, pitch: 1.1, when: "= event.source == 'sel_2'"}
+      - op: block
+        parent: fx7_ember_hoop_hit
+        block: orange_stained_glass
+        size: "= vec(1.0, 1.0, 1.0) * (1.0 + (rand('j_fx7_ember_hoop_hit_needle')*2.0-1.0)*0.3)"
+        brightness: 15
+        at: "= [vec(0.06614, 1.275, 0.0), vec(-0.0714, 1.225, 0.0654), vec(0.00846, 1.175, -0.09645), vec(0.04024, 1.125, 0.05249)][int(i)]"
+        turn: "= ([vec(-37.9525, 84.07428, 37.9525), vec(-13.63668, -47.2488, -6.00139), vec(0.96587, 173.62683, -22.0535), vec(46.80381, 35.17185, -15.87715)][int(i)]) + vec((rand('j_fx7_ember_hoop_hit_needle')*2.0-1.0)*8.0, (rand('j_fx7_ember_hoop_hit_needle')*2.0-1.0)*8.0, (rand('j_fx7_ember_hoop_hit_needle')*2.0-1.0)*8.0)"
+        times: 4
+        id: fx7_ember_hoop_hit_needle
+        when: "= event.source == 'sel_3'"
+      - id: fx7_ember_hoop_hit_needle_trk
+        op: track
+        target: fx7_ember_hoop_hit_needle
+        keys:
+          - {t: 0, offset: [0.0, 0.0, 0.1], scale: [0.03, 0.03, 0.2]}
+          - {t: 2, offset: [0.0, 0.0, 0.7], scale: [0.09, 0.09, 1.1], ease: out_expo}
+          - {t: 4, block: red_stained_glass}
+          - {t: 8, scale: [0.0, 0.0, 1.1], ease: in_quad}
+        when: "= event.source == 'sel_3'"
       - {id: fx7_ember_hoop_hit_embers_atrk, op: track, target: fx7_ember_hoop_hit_embers_at, space: fx7_ember_hoop_hit, keys: [{t: 0, offset: [0.0, 1.1, 0.0]}], when: "= event.source == 'sel_3'"}
       - {id: fx7_ember_hoop_hit_embers, op: emit, at: fx7_ember_hoop_hit_embers_at, particle: fire-impact, when: "= event.source == 'sel_3'"}
       - {id: snd_3, op: sound, sound: entity.player.attack.strong, at: enemy, volume: 0.7, pitch: 1.1, when: "= event.source == 'sel_3'"}

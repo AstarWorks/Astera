@@ -49,6 +49,36 @@ public class PaperPlayerFeedbackGateway(
         )
     }
 
+    override fun sendScreenFlash(
+        target: PlayerId,
+        overlay: com.astarworks.astera.core.domain.effect.ScreenOverlay,
+        colorRgb: Int,
+        fadeInTicks: Int,
+        stayTicks: Int,
+        fadeOutTicks: Int,
+    ) {
+        val player = server.getPlayer(target.uuid) ?: return
+        val glyph = Component.text(overlay.glyph.toString())
+            .font(Key.key(com.astarworks.astera.core.domain.effect.ScreenOverlay.FONT_NAMESPACE, com.astarworks.astera.core.domain.effect.ScreenOverlay.FONT_PATH))
+            .color(TextColor.color(colorRgb))
+        player.showTitle(
+            Title.title(
+                glyph,
+                Component.empty(),
+                Title.Times.times(
+                    Ticks.duration(fadeInTicks.toLong()),
+                    Ticks.duration(stayTicks.toLong()),
+                    Ticks.duration(fadeOutTicks.toLong()),
+                ),
+            ),
+        )
+    }
+
+    override fun stopSound(target: PlayerId, sound: String) {
+        val player = server.getPlayer(target.uuid) ?: return
+        player.stopSound(sound)
+    }
+
     override fun cameraKick(target: PlayerId, dx: Double, dy: Double) {
         // Paper's relative Angle sends the delta to the client (forceSetRotation with relative flags), so it is added to the
         // view the player really has; an absolute setRotation would snap to the server's stale copy. No teleport, no

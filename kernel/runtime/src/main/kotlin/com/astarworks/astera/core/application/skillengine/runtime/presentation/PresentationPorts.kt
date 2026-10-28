@@ -21,6 +21,18 @@ public interface ISkillScreenGateway {
     public fun title(viewer: UUID, text: String, subtitle: String?, ticks: Int)
     public fun actionBar(viewer: UUID, text: String)
     public fun cameraShake(viewer: UUID, intensity: Double, ticks: Int)
+
+    /** Full-screen cut-in: [overlay] glyph tinted [colorRgb] (0xRRGGBB), faded over the three phases (ticks). */
+    public fun flash(viewer: UUID, overlay: com.astarworks.astera.core.domain.effect.ScreenOverlay, colorRgb: Int, fadeIn: Int, stay: Int, fadeOut: Int)
+
+    /**
+     * `screen_veil`: a [sprite] quad of [side] blocks, [distance] blocks in front of [viewer]'s eye, shown to [viewer] only,
+     * re-anchored every tick and faded out over [ticks]. At most 2 live veils per viewer (v1 ScreenVeilHandler MAX_CONCURRENT).
+     */
+    public fun veil(viewer: UUID, sprite: String, colorRgb: Int, side: Double, distance: Double, ticks: Int)
+
+    /** Stops [sound] for [viewer] (vanilla `stopSound`). */
+    public fun stopSound(viewer: UUID, sound: String)
 }
 
 /**

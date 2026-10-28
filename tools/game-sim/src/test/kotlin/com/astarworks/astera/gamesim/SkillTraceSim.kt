@@ -176,10 +176,14 @@ internal class Sim(val c: Coin2Collaborators, val catalog: SkillCatalog, val wit
     override fun setPlateFrame(handle: com.astarworks.astera.core.application.skillengine.runtime.port.VisualHandle, frame: Int, tintHex: String?) {}
     override fun setTrailLook(handle: com.astarworks.astera.core.application.skillengine.runtime.port.VisualHandle, fadePower: Double, style: String) {}
     override fun setTrailShape(handle: com.astarworks.astera.core.application.skillengine.runtime.port.VisualHandle, bands: List<com.astarworks.astera.core.domain.skillengine.op.TrailBand>, edge: com.astarworks.astera.core.domain.skillengine.op.TrailEdge?, rim: com.astarworks.astera.core.domain.skillengine.op.TrailRim?, stepDeg: Double, doubleSided: Boolean) {}
-        override fun spawnMesh(castOwner: UUID, item: String, part: String?, pose: VisualPose) =
+        override fun spawnMesh(castOwner: UUID, item: String, part: String?, pose: VisualPose, brightness: Int?) =
             spawn("mesh", buildJsonObject { put("item", item); put("part", part?.let { JsonPrimitive(it) } ?: JsonNull); put("size", vecJsonOf(pose.size)) }, poseObj(pose.frame))
-        override fun spawnPlate(castOwner: UUID, sprite: String, alpha: Double, pose: VisualPose) =
+        override fun spawnPlate(castOwner: UUID, sprite: String, alpha: Double, pose: VisualPose, brightness: Int?) =
             spawn("plate", buildJsonObject { put("sprite", sprite); put("billboard", pose.billboard.name); put("size", pose.size.x); put("alpha", alpha) }, poseObj(pose.frame))
+        override fun spawnBlock(castOwner: UUID, block: String, pose: VisualPose, brightness: Int?) =
+            spawn("block", buildJsonObject { put("block", block); put("size", vecJsonOf(pose.size)); put("brightness", brightness ?: -1) }, poseObj(pose.frame))
+        override fun spawnQuad(castOwner: UUID, colorHex: String, alpha: Double, text: String?, shadow: Boolean, seeThrough: Boolean, pose: VisualPose, brightness: Int?) =
+            spawn("quad", buildJsonObject { put("color", colorHex); put("alpha", alpha); put("text", text?.let { JsonPrimitive(it) } ?: JsonNull); put("size", vecJsonOf(pose.size)) }, poseObj(pose.frame))
         override fun spawnLine(castOwner: UUID, colorHex: String, pose: VisualPose) =
             spawn("line", buildJsonObject { put("thickness", pose.size.y); put("length", pose.size.x); put("color", colorHex) }, poseObj(pose.frame))
         override fun spawnTrail(castOwner: UUID, ticks: Int, widthFrac: Double, colorHex: String, alpha: Double) =

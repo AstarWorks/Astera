@@ -56,6 +56,8 @@ public class SkillExprSpec private constructor(public val spec: ExprEnvSpec, pri
             }
             def.gameplay.expose.forEach { vars.putIfAbsent(it.name, ExprType.NUM) }
             vars["tick"] = ExprType.NUM
+            vars["i"] = ExprType.NUM
+            vars["n"] = ExprType.NUM
             vars["event.name"] = ExprType.STR
             vars["event.source"] = ExprType.STR
             vars["contact.point"] = ExprType.VEC3

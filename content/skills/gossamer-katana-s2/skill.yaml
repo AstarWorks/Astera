@@ -1,6 +1,5 @@
 # Converted from content/skills/gossamer-katana-s2.yaml by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
 # Generated point-frame offsets are [left, up, forward] in the parent frame.
-# CONVERT-TODO sound: dash on_hit sound waits for the engine `dash_hit` event (CastInstance.runWithVictim does not raise it) (x1): entity.player.attack.strong
 apiVersion: "astera/v2"
 kind: Skill
 id: gossamer-katana-s2
@@ -14,6 +13,8 @@ gameplay:
     - {id: damage, param: dmg_physical}
     - {id: radius, param: radius}
   timeline:
+    - {id: t0, at: 0, do: [{id: sel, op: hit, frames: [caster], capsule: {from: aim, to: pt_aim_0_0_12, radius: 0.3}, window: once, ticks: 1}]}
+    - {id: t4, at: 4, do: [{id: sel_2, op: hit, frames: [caster], capsule: {from: aim, to: pt_aim_0_0_12, radius: 0.3}, window: once, ticks: 1}]}
     - {id: t7, at: 7, do: [{id: sel_3, op: hit, frames: [caster], capsule: {from: aim, to: pt_aim_0_0_12, radius: 0.3}, window: once, ticks: 1}]}
     - id: t28
       at: 28
@@ -29,6 +30,9 @@ gameplay:
           follow_pitch: false
           on_hit:
             - {id: dmg_2, op: damage, components: [{kind: physical, amount: "${dmg_physical_2}"}], target: victim, ignore_invulnerability: true}
+            - {id: raise, op: raise_event, name: dash_fx}
+            - {id: sch, op: schedule, after: 9, event: dash_fx9}
+    - {id: t57, at: 57, do: [{id: sel_4, op: hit, frames: [caster], sphere: {at: caster, radius: "${radius}"}, max_count: 1, window: once, ticks: 1}]}
     - {id: t59, at: 59, do: [{id: sel_5, op: hit, frames: [caster], sphere: {at: caster, radius: "${radius}"}, max_count: 1, window: once, ticks: 1}]}
   "on":
     hit:

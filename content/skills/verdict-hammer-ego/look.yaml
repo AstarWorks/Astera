@@ -3,19 +3,9 @@
 # CONVERT-PRESENT vfx follow=false (anchored at world, no place-at-spawn) (x13): verdict-ego-field | verdict-impact
 # CONVERT-PRESENT vfx frame orient (frames carry no orientation / scale) (x13): orient="yaw" | orient="world"
 # CONVERT-PRESENT play_vfx snapshot_pose (no v2 equivalent) (x9): true
-# CONVERT-PRESENT block element (mesh takes an item model, plate takes a sprite: no block / solid-colour primitive) (x44): white_concrete | yellow_concrete
-# CONVERT-PRESENT element brightness (no v2 equivalent) (x64): 15
-# CONVERT-PRESENT screen_flash has no v2 op (x7): {"color": "#FFF4CF", "fade_in": 0, "fade_out": 1, "overlay": "white", "stay": 1} | {"color": "#241E19", "fade_in": 1, "fade_out": 1, "overlay": "vignette", "stay": 20}
 # CONVERT-PRESENT vfx frame scale (frames carry no orientation / scale) (x8): scale=2.5 | scale=4.0
-# CONVERT-PRESENT quad element (plate takes a sprite: no solid-colour quad / glyph) (x20): {"color": "#FFFAD8", "glyph": "✷"} | {"color": "#FFD66B", "glyph": "✦"}
-# CONVERT-PRESENT element group_keyframes (no v2 equivalent) (x4): [{"scale": 0.3, "t": 0}, {"ease": "out_cubic", "scale": 5.8,
-# CONVERT-PRESENT element formation (no v2 equivalent) (x4): {"align": "tangent", "curve": {"radius": 1.0, "type": "circl
-# CONVERT-PRESENT element count (no v2 equivalent) (x4): 8
-# CONVERT-PRESENT play_vfx freeze (no v2 equivalent) (x3): [{"at": 9, "ticks": 2}]
-# CONVERT-PRESENT rig respect_hit_stop / weapon points (x4): {"respect_hit_stop": true}
 # CONVERT-PRESENT rig block parts (mesh takes an item model, not a block + size) (x4): 6 parts
-# CONVERT-PRESENT rig swing without a weapon mesh (track needs a visual to move) (x4): 5 keys
-# CONVERT-PRESENT particle animation ring (emit has no shape / ring / path: one burst at the anchor) (x4): {"end_radius": 5.8, "period_ticks": 6, "points": 16, "start_radius": 0.5}
+# CONVERT-PRESENT rig swing without a weapon mesh (track needs a visual to move) (x4): 23 keys | 21 keys
 apiVersion: "astera/v2"
 kind: Skill
 id: verdict-hammer-ego
@@ -41,26 +31,1622 @@ frames:
   - {id: pt_caster_0_m1p5_8, kind: point, parent: caster, offset: [0.0, -1.5, 8.0]}
 presentation:
   timeline:
+    - id: fx48
+      at: 48
+      do:
+        - {op: block, parent: fx1_verdict_ego_field, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_verdict_ego_field_shaft0}
+        - id: fx1_verdict_ego_field_shaft0_trk
+          op: track
+          target: fx1_verdict_ego_field_shaft0
+          keys:
+            - {t: 0, offset: [2.0, -1.65, 0.0], scale: [0.1, 2.7, 0.1]}
+            - {t: 5, offset: [2.0, 1.5, 0.0], ease: out_cubic}
+            - {t: 150, offset: [2.0, 1.5, 0.0]}
+            - {t: 160, offset: [2.0, -1.65, 0.0], scale: [0.0, 0.0, 0.0], ease: in_quad}
+        - {op: block, parent: fx1_verdict_ego_field, block: yellow_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_verdict_ego_field_cross0}
+        - id: fx1_verdict_ego_field_cross0_trk
+          op: track
+          target: fx1_verdict_ego_field_cross0
+          keys:
+            - {t: 0, offset: [2.0, -0.4, 0.0], scale: [0.12, 0.12, 0.7]}
+            - {t: 5, offset: [2.0, 2.75, 0.0], ease: out_cubic}
+            - {t: 150, offset: [2.0, 2.75, 0.0]}
+            - {t: 160, offset: [2.0, -0.4, 0.0], scale: [0.0, 0.0, 0.0], ease: in_quad}
+        - {op: block, parent: fx1_verdict_ego_field, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_verdict_ego_field_shaft5}
+        - id: fx1_verdict_ego_field_shaft5_trk
+          op: track
+          target: fx1_verdict_ego_field_shaft5
+          keys:
+            - {t: 0, offset: [2.98602, -1.65, -1.89947], scale: [0.1, 2.7, 0.1]}
+            - {t: 5, offset: [2.98602, 1.5, -1.89947], ease: out_cubic}
+            - {t: 150, offset: [2.98602, 1.5, -1.89947]}
+            - {t: 160, offset: [2.98602, -1.65, -1.89947], scale: [0.0, 0.0, 0.0], ease: in_quad}
+        - {op: block, parent: fx1_verdict_ego_field, block: yellow_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_verdict_ego_field_cross5}
+        - id: fx1_verdict_ego_field_cross5_trk
+          op: track
+          target: fx1_verdict_ego_field_cross5
+          keys:
+            - {t: 0, offset: [2.98602, -0.4, -1.89947], scale: [0.12, 0.12, 0.7]}
+            - {t: 5, offset: [2.98602, 2.75, -1.89947], ease: out_cubic}
+            - {t: 150, offset: [2.98602, 2.75, -1.89947]}
+            - {t: 160, offset: [2.98602, -0.4, -1.89947], scale: [0.0, 0.0, 0.0], ease: in_quad}
+        - {op: block, parent: fx1_verdict_ego_field, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_verdict_ego_field_shaft10}
+        - id: fx1_verdict_ego_field_shaft10_trk
+          op: track
+          target: fx1_verdict_ego_field_shaft10
+          keys:
+            - {t: 0, offset: [1.77015, -1.65, -3.78274], scale: [0.1, 2.7, 0.1]}
+            - {t: 5, offset: [1.77015, 1.5, -3.78274], ease: out_cubic}
+            - {t: 150, offset: [1.77015, 1.5, -3.78274]}
+            - {t: 160, offset: [1.77015, -1.65, -3.78274], scale: [0.0, 0.0, 0.0], ease: in_quad}
+        - {op: block, parent: fx1_verdict_ego_field, block: yellow_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_verdict_ego_field_cross10}
+        - id: fx1_verdict_ego_field_cross10_trk
+          op: track
+          target: fx1_verdict_ego_field_cross10
+          keys:
+            - {t: 0, offset: [1.77015, -0.4, -3.78274], scale: [0.12, 0.12, 0.7]}
+            - {t: 5, offset: [1.77015, 2.75, -3.78274], ease: out_cubic}
+            - {t: 150, offset: [1.77015, 2.75, -3.78274]}
+            - {t: 160, offset: [1.77015, -0.4, -3.78274], scale: [0.0, 0.0, 0.0], ease: in_quad}
+        - {op: block, parent: fx1_verdict_ego_field, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_verdict_ego_field_shaft15}
+        - id: fx1_verdict_ego_field_shaft15_trk
+          op: track
+          target: fx1_verdict_ego_field_shaft15
+          keys:
+            - {t: 0, offset: [-0.59959, -1.65, -4.62688], scale: [0.1, 2.7, 0.1]}
+            - {t: 5, offset: [-0.59959, 1.5, -4.62688], ease: out_cubic}
+            - {t: 150, offset: [-0.59959, 1.5, -4.62688]}
+            - {t: 160, offset: [-0.59959, -1.65, -4.62688], scale: [0.0, 0.0, 0.0], ease: in_quad}
+        - {op: block, parent: fx1_verdict_ego_field, block: yellow_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_verdict_ego_field_cross15}
+        - id: fx1_verdict_ego_field_cross15_trk
+          op: track
+          target: fx1_verdict_ego_field_cross15
+          keys:
+            - {t: 0, offset: [-0.59959, -0.4, -4.62688], scale: [0.12, 0.12, 0.7]}
+            - {t: 5, offset: [-0.59959, 2.75, -4.62688], ease: out_cubic}
+            - {t: 150, offset: [-0.59959, 2.75, -4.62688]}
+            - {t: 160, offset: [-0.59959, -0.4, -4.62688], scale: [0.0, 0.0, 0.0], ease: in_quad}
+        - {id: flash_7, op: screen_flash, target: caster, overlay: white, color: "#FFF4CF", fade_in: 0, stay: 1, fade_out: 2}
+    - id: fx49
+      at: 49
+      do:
+        - {op: block, parent: fx1_verdict_ego_field, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_verdict_ego_field_shaft1}
+        - id: fx1_verdict_ego_field_shaft1_trk
+          op: track
+          target: fx1_verdict_ego_field_shaft1
+          keys:
+            - {t: 0, offset: [-1.98223, -1.65, 1.81589], scale: [0.1, 2.7, 0.1]}
+            - {t: 5, offset: [-1.98223, 1.5, 1.81589], ease: out_cubic}
+            - {t: 149, offset: [-1.98223, 1.5, 1.81589]}
+            - {t: 159, offset: [-1.98223, -1.65, 1.81589], scale: [0.0, 0.0, 0.0], ease: in_quad}
+        - {op: block, parent: fx1_verdict_ego_field, block: yellow_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_verdict_ego_field_cross1}
+        - id: fx1_verdict_ego_field_cross1_trk
+          op: track
+          target: fx1_verdict_ego_field_cross1
+          keys:
+            - {t: 0, offset: [-1.98223, -0.4, 1.81589], scale: [0.12, 0.12, 0.7]}
+            - {t: 5, offset: [-1.98223, 2.75, 1.81589], ease: out_cubic}
+            - {t: 149, offset: [-1.98223, 2.75, 1.81589]}
+            - {t: 159, offset: [-1.98223, -0.4, 1.81589], scale: [0.0, 0.0, 0.0], ease: in_quad}
+        - {op: block, parent: fx1_verdict_ego_field, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_verdict_ego_field_shaft6}
+        - id: fx1_verdict_ego_field_shaft6_trk
+          op: track
+          target: fx1_verdict_ego_field_shaft6
+          keys:
+            - {t: 0, offset: [-0.95686, -1.65, 3.55949], scale: [0.1, 2.7, 0.1]}
+            - {t: 5, offset: [-0.95686, 1.5, 3.55949], ease: out_cubic}
+            - {t: 149, offset: [-0.95686, 1.5, 3.55949]}
+            - {t: 159, offset: [-0.95686, -1.65, 3.55949], scale: [0.0, 0.0, 0.0], ease: in_quad}
+        - {op: block, parent: fx1_verdict_ego_field, block: yellow_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_verdict_ego_field_cross6}
+        - id: fx1_verdict_ego_field_cross6_trk
+          op: track
+          target: fx1_verdict_ego_field_cross6
+          keys:
+            - {t: 0, offset: [-0.95686, -0.4, 3.55949], scale: [0.12, 0.12, 0.7]}
+            - {t: 5, offset: [-0.95686, 2.75, 3.55949], ease: out_cubic}
+            - {t: 149, offset: [-0.95686, 2.75, 3.55949]}
+            - {t: 159, offset: [-0.95686, -0.4, 3.55949], scale: [0.0, 0.0, 0.0], ease: in_quad}
+        - {op: block, parent: fx1_verdict_ego_field, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_verdict_ego_field_shaft11}
+        - id: fx1_verdict_ego_field_shaft11_trk
+          op: track
+          target: fx1_verdict_ego_field_shaft11
+          keys:
+            - {t: 0, offset: [1.28174, -1.65, 4.08636], scale: [0.1, 2.7, 0.1]}
+            - {t: 5, offset: [1.28174, 1.5, 4.08636], ease: out_cubic}
+            - {t: 149, offset: [1.28174, 1.5, 4.08636]}
+            - {t: 159, offset: [1.28174, -1.65, 4.08636], scale: [0.0, 0.0, 0.0], ease: in_quad}
+        - {op: block, parent: fx1_verdict_ego_field, block: yellow_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_verdict_ego_field_cross11}
+        - id: fx1_verdict_ego_field_cross11_trk
+          op: track
+          target: fx1_verdict_ego_field_cross11
+          keys:
+            - {t: 0, offset: [1.28174, -0.4, 4.08636], scale: [0.12, 0.12, 0.7]}
+            - {t: 5, offset: [1.28174, 2.75, 4.08636], ease: out_cubic}
+            - {t: 149, offset: [1.28174, 2.75, 4.08636]}
+            - {t: 159, offset: [1.28174, -0.4, 4.08636], scale: [0.0, 0.0, 0.0], ease: in_quad}
+        - {op: block, parent: fx1_verdict_ego_field, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_verdict_ego_field_shaft16}
+        - id: fx1_verdict_ego_field_shaft16_trk
+          op: track
+          target: fx1_verdict_ego_field_shaft16
+          keys:
+            - {t: 0, offset: [3.63438, -1.65, 3.06304], scale: [0.1, 2.7, 0.1]}
+            - {t: 5, offset: [3.63438, 1.5, 3.06304], ease: out_cubic}
+            - {t: 149, offset: [3.63438, 1.5, 3.06304]}
+            - {t: 159, offset: [3.63438, -1.65, 3.06304], scale: [0.0, 0.0, 0.0], ease: in_quad}
+        - {op: block, parent: fx1_verdict_ego_field, block: yellow_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_verdict_ego_field_cross16}
+        - id: fx1_verdict_ego_field_cross16_trk
+          op: track
+          target: fx1_verdict_ego_field_cross16
+          keys:
+            - {t: 0, offset: [3.63438, -0.4, 3.06304], scale: [0.12, 0.12, 0.7]}
+            - {t: 5, offset: [3.63438, 2.75, 3.06304], ease: out_cubic}
+            - {t: 149, offset: [3.63438, 2.75, 3.06304]}
+            - {t: 159, offset: [3.63438, -0.4, 3.06304], scale: [0.0, 0.0, 0.0], ease: in_quad}
+    - id: fx50
+      at: 50
+      do:
+        - {op: block, parent: fx1_verdict_ego_field, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_verdict_ego_field_shaft2}
+        - id: fx1_verdict_ego_field_shaft2_trk
+          op: track
+          target: fx1_verdict_ego_field_shaft2
+          keys:
+            - {t: 0, offset: [0.25994, -1.65, -2.96194], scale: [0.1, 2.7, 0.1]}
+            - {t: 5, offset: [0.25994, 1.5, -2.96194], ease: out_cubic}
+            - {t: 148, offset: [0.25994, 1.5, -2.96194]}
+            - {t: 158, offset: [0.25994, -1.65, -2.96194], scale: [0.0, 0.0, 0.0], ease: in_quad}
+        - {op: block, parent: fx1_verdict_ego_field, block: yellow_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_verdict_ego_field_cross2}
+        - id: fx1_verdict_ego_field_cross2_trk
+          op: track
+          target: fx1_verdict_ego_field_cross2
+          keys:
+            - {t: 0, offset: [0.25994, -0.4, -2.96194], scale: [0.12, 0.12, 0.7]}
+            - {t: 5, offset: [0.25994, 2.75, -2.96194], ease: out_cubic}
+            - {t: 148, offset: [0.25994, 2.75, -2.96194]}
+            - {t: 158, offset: [0.25994, -0.4, -2.96194], scale: [0.0, 0.0, 0.0], ease: in_quad}
+        - {op: block, parent: fx1_verdict_ego_field, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_verdict_ego_field_shaft7}
+        - id: fx1_verdict_ego_field_shaft7_trk
+          op: track
+          target: fx1_verdict_ego_field_shaft7
+          keys:
+            - {t: 0, offset: [-1.7611, -1.65, -3.39088], scale: [0.1, 2.7, 0.1]}
+            - {t: 5, offset: [-1.7611, 1.5, -3.39088], ease: out_cubic}
+            - {t: 148, offset: [-1.7611, 1.5, -3.39088]}
+            - {t: 158, offset: [-1.7611, -1.65, -3.39088], scale: [0.0, 0.0, 0.0], ease: in_quad}
+        - {op: block, parent: fx1_verdict_ego_field, block: yellow_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_verdict_ego_field_cross7}
+        - id: fx1_verdict_ego_field_cross7_trk
+          op: track
+          target: fx1_verdict_ego_field_cross7
+          keys:
+            - {t: 0, offset: [-1.7611, -0.4, -3.39088], scale: [0.12, 0.12, 0.7]}
+            - {t: 5, offset: [-1.7611, 2.75, -3.39088], ease: out_cubic}
+            - {t: 148, offset: [-1.7611, 2.75, -3.39088]}
+            - {t: 158, offset: [-1.7611, -0.4, -3.39088], scale: [0.0, 0.0, 0.0], ease: in_quad}
+        - {op: block, parent: fx1_verdict_ego_field, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_verdict_ego_field_shaft12}
+        - id: fx1_verdict_ego_field_shaft12_trk
+          op: track
+          target: fx1_verdict_ego_field_shaft12
+          keys:
+            - {t: 0, offset: [-3.79323, -1.65, -2.19824], scale: [0.1, 2.7, 0.1]}
+            - {t: 5, offset: [-3.79323, 1.5, -2.19824], ease: out_cubic}
+            - {t: 148, offset: [-3.79323, 1.5, -2.19824]}
+            - {t: 158, offset: [-3.79323, -1.65, -2.19824], scale: [0.0, 0.0, 0.0], ease: in_quad}
+        - {op: block, parent: fx1_verdict_ego_field, block: yellow_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_verdict_ego_field_cross12}
+        - id: fx1_verdict_ego_field_cross12_trk
+          op: track
+          target: fx1_verdict_ego_field_cross12
+          keys:
+            - {t: 0, offset: [-3.79323, -0.4, -2.19824], scale: [0.12, 0.12, 0.7]}
+            - {t: 5, offset: [-3.79323, 2.75, -2.19824], ease: out_cubic}
+            - {t: 148, offset: [-3.79323, 2.75, -2.19824]}
+            - {t: 158, offset: [-3.79323, -0.4, -2.19824], scale: [0.0, 0.0, 0.0], ease: in_quad}
+        - {op: block, parent: fx1_verdict_ego_field, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_verdict_ego_field_shaft17}
+        - id: fx1_verdict_ego_field_shaft17_trk
+          op: track
+          target: fx1_verdict_ego_field_shaft17
+          keys:
+            - {t: 0, offset: [-4.83358, -1.65, 0.1999], scale: [0.1, 2.7, 0.1]}
+            - {t: 5, offset: [-4.83358, 1.5, 0.1999], ease: out_cubic}
+            - {t: 148, offset: [-4.83358, 1.5, 0.1999]}
+            - {t: 158, offset: [-4.83358, -1.65, 0.1999], scale: [0.0, 0.0, 0.0], ease: in_quad}
+        - {op: block, parent: fx1_verdict_ego_field, block: yellow_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_verdict_ego_field_cross17}
+        - id: fx1_verdict_ego_field_cross17_trk
+          op: track
+          target: fx1_verdict_ego_field_cross17
+          keys:
+            - {t: 0, offset: [-4.83358, -0.4, 0.1999], scale: [0.12, 0.12, 0.7]}
+            - {t: 5, offset: [-4.83358, 2.75, 0.1999], ease: out_cubic}
+            - {t: 148, offset: [-4.83358, 2.75, 0.1999]}
+            - {t: 158, offset: [-4.83358, -0.4, 0.1999], scale: [0.0, 0.0, 0.0], ease: in_quad}
+    - id: fx51
+      at: 51
+      do:
+        - {op: block, parent: fx1_verdict_ego_field, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_verdict_ego_field_shaft3}
+        - id: fx1_verdict_ego_field_shaft3_trk
+          op: track
+          target: fx1_verdict_ego_field_shaft3
+          keys:
+            - {t: 0, offset: [1.94219, -1.65, 2.53324], scale: [0.1, 2.7, 0.1]}
+            - {t: 5, offset: [1.94219, 1.5, 2.53324], ease: out_cubic}
+            - {t: 147, offset: [1.94219, 1.5, 2.53324]}
+            - {t: 157, offset: [1.94219, -1.65, 2.53324], scale: [0.0, 0.0, 0.0], ease: in_quad}
+        - {op: block, parent: fx1_verdict_ego_field, block: yellow_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_verdict_ego_field_cross3}
+        - id: fx1_verdict_ego_field_cross3_trk
+          op: track
+          target: fx1_verdict_ego_field_cross3
+          keys:
+            - {t: 0, offset: [1.94219, -0.4, 2.53324], scale: [0.12, 0.12, 0.7]}
+            - {t: 5, offset: [1.94219, 2.75, 2.53324], ease: out_cubic}
+            - {t: 147, offset: [1.94219, 2.75, 2.53324]}
+            - {t: 157, offset: [1.94219, -0.4, 2.53324], scale: [0.0, 0.0, 0.0], ease: in_quad}
+        - {op: block, parent: fx1_verdict_ego_field, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_verdict_ego_field_shaft8}
+        - id: fx1_verdict_ego_field_shaft8_trk
+          op: track
+          target: fx1_verdict_ego_field_shaft8
+          keys:
+            - {t: 0, offset: [3.70718, -1.65, 1.35385], scale: [0.1, 2.7, 0.1]}
+            - {t: 5, offset: [3.70718, 1.5, 1.35385], ease: out_cubic}
+            - {t: 147, offset: [3.70718, 1.5, 1.35385]}
+            - {t: 157, offset: [3.70718, -1.65, 1.35385], scale: [0.0, 0.0, 0.0], ease: in_quad}
+        - {op: block, parent: fx1_verdict_ego_field, block: yellow_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_verdict_ego_field_cross8}
+        - id: fx1_verdict_ego_field_cross8_trk
+          op: track
+          target: fx1_verdict_ego_field_cross8
+          keys:
+            - {t: 0, offset: [3.70718, -0.4, 1.35385], scale: [0.12, 0.12, 0.7]}
+            - {t: 5, offset: [3.70718, 2.75, 1.35385], ease: out_cubic}
+            - {t: 147, offset: [3.70718, 2.75, 1.35385]}
+            - {t: 157, offset: [3.70718, -0.4, 1.35385], scale: [0.0, 0.0, 0.0], ease: in_quad}
+        - {op: block, parent: fx1_verdict_ego_field, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_verdict_ego_field_shaft13}
+        - id: fx1_verdict_ego_field_shaft13_trk
+          op: track
+          target: fx1_verdict_ego_field_shaft13
+          keys:
+            - {t: 0, offset: [4.37698, -1.65, -0.96228], scale: [0.1, 2.7, 0.1]}
+            - {t: 5, offset: [4.37698, 1.5, -0.96228], ease: out_cubic}
+            - {t: 147, offset: [4.37698, 1.5, -0.96228]}
+            - {t: 157, offset: [4.37698, -1.65, -0.96228], scale: [0.0, 0.0, 0.0], ease: in_quad}
+        - {op: block, parent: fx1_verdict_ego_field, block: yellow_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_verdict_ego_field_cross13}
+        - id: fx1_verdict_ego_field_cross13_trk
+          op: track
+          target: fx1_verdict_ego_field_cross13
+          keys:
+            - {t: 0, offset: [4.37698, -0.4, -0.96228], scale: [0.12, 0.12, 0.7]}
+            - {t: 5, offset: [4.37698, 2.75, -0.96228], ease: out_cubic}
+            - {t: 147, offset: [4.37698, 2.75, -0.96228]}
+            - {t: 157, offset: [4.37698, -0.4, -0.96228], scale: [0.0, 0.0, 0.0], ease: in_quad}
+        - {op: block, parent: fx1_verdict_ego_field, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_verdict_ego_field_shaft18}
+        - id: fx1_verdict_ego_field_shaft18_trk
+          op: track
+          target: fx1_verdict_ego_field_shaft18
+          keys:
+            - {t: 0, offset: [3.48742, -1.65, -3.47047], scale: [0.1, 2.7, 0.1]}
+            - {t: 5, offset: [3.48742, 1.5, -3.47047], ease: out_cubic}
+            - {t: 147, offset: [3.48742, 1.5, -3.47047]}
+            - {t: 157, offset: [3.48742, -1.65, -3.47047], scale: [0.0, 0.0, 0.0], ease: in_quad}
+        - {op: block, parent: fx1_verdict_ego_field, block: yellow_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_verdict_ego_field_cross18}
+        - id: fx1_verdict_ego_field_cross18_trk
+          op: track
+          target: fx1_verdict_ego_field_cross18
+          keys:
+            - {t: 0, offset: [3.48742, -0.4, -3.47047], scale: [0.12, 0.12, 0.7]}
+            - {t: 5, offset: [3.48742, 2.75, -3.47047], ease: out_cubic}
+            - {t: 147, offset: [3.48742, 2.75, -3.47047]}
+            - {t: 157, offset: [3.48742, -0.4, -3.47047], scale: [0.0, 0.0, 0.0], ease: in_quad}
+    - id: fx52
+      at: 52
+      do:
+        - {op: block, parent: fx1_verdict_ego_field, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_verdict_ego_field_shaft4}
+        - id: fx1_verdict_ego_field_shaft4_trk
+          op: track
+          target: fx1_verdict_ego_field_shaft4
+          keys:
+            - {t: 0, offset: [-3.32488, -1.65, -0.58812], scale: [0.1, 2.7, 0.1]}
+            - {t: 5, offset: [-3.32488, 1.5, -0.58812], ease: out_cubic}
+            - {t: 146, offset: [-3.32488, 1.5, -0.58812]}
+            - {t: 156, offset: [-3.32488, -1.65, -0.58812], scale: [0.0, 0.0, 0.0], ease: in_quad}
+        - {op: block, parent: fx1_verdict_ego_field, block: yellow_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_verdict_ego_field_cross4}
+        - id: fx1_verdict_ego_field_cross4_trk
+          op: track
+          target: fx1_verdict_ego_field_cross4
+          keys:
+            - {t: 0, offset: [-3.32488, -0.4, -0.58812], scale: [0.12, 0.12, 0.7]}
+            - {t: 5, offset: [-3.32488, 2.75, -0.58812], ease: out_cubic}
+            - {t: 146, offset: [-3.32488, 2.75, -0.58812]}
+            - {t: 156, offset: [-3.32488, -0.4, -0.58812], scale: [0.0, 0.0, 0.0], ease: in_quad}
+        - {op: block, parent: fx1_verdict_ego_field, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_verdict_ego_field_shaft9}
+        - id: fx1_verdict_ego_field_shaft9_trk
+          op: track
+          target: fx1_verdict_ego_field_shaft9
+          keys:
+            - {t: 0, offset: [-3.75722, -1.65, 1.55094], scale: [0.1, 2.7, 0.1]}
+            - {t: 5, offset: [-3.75722, 1.5, 1.55094], ease: out_cubic}
+            - {t: 146, offset: [-3.75722, 1.5, 1.55094]}
+            - {t: 156, offset: [-3.75722, -1.65, 1.55094], scale: [0.0, 0.0, 0.0], ease: in_quad}
+        - {op: block, parent: fx1_verdict_ego_field, block: yellow_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_verdict_ego_field_cross9}
+        - id: fx1_verdict_ego_field_cross9_trk
+          op: track
+          target: fx1_verdict_ego_field_cross9
+          keys:
+            - {t: 0, offset: [-3.75722, -0.4, 1.55094], scale: [0.12, 0.12, 0.7]}
+            - {t: 5, offset: [-3.75722, 2.75, 1.55094], ease: out_cubic}
+            - {t: 146, offset: [-3.75722, 2.75, 1.55094]}
+            - {t: 156, offset: [-3.75722, -0.4, 1.55094], scale: [0.0, 0.0, 0.0], ease: in_quad}
+        - {op: block, parent: fx1_verdict_ego_field, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_verdict_ego_field_shaft14}
+        - id: fx1_verdict_ego_field_shaft14_trk
+          op: track
+          target: fx1_verdict_ego_field_shaft14
+          keys:
+            - {t: 0, offset: [-2.63131, -1.65, 3.7428], scale: [0.1, 2.7, 0.1]}
+            - {t: 5, offset: [-2.63131, 1.5, 3.7428], ease: out_cubic}
+            - {t: 146, offset: [-2.63131, 1.5, 3.7428]}
+            - {t: 156, offset: [-2.63131, -1.65, 3.7428], scale: [0.0, 0.0, 0.0], ease: in_quad}
+        - {op: block, parent: fx1_verdict_ego_field, block: yellow_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_verdict_ego_field_cross14}
+        - id: fx1_verdict_ego_field_cross14_trk
+          op: track
+          target: fx1_verdict_ego_field_cross14
+          keys:
+            - {t: 0, offset: [-2.63131, -0.4, 3.7428], scale: [0.12, 0.12, 0.7]}
+            - {t: 5, offset: [-2.63131, 2.75, 3.7428], ease: out_cubic}
+            - {t: 146, offset: [-2.63131, 2.75, 3.7428]}
+            - {t: 156, offset: [-2.63131, -0.4, 3.7428], scale: [0.0, 0.0, 0.0], ease: in_quad}
+        - {op: block, parent: fx1_verdict_ego_field, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_verdict_ego_field_shaft19}
+        - id: fx1_verdict_ego_field_shaft19_trk
+          op: track
+          target: fx1_verdict_ego_field_shaft19
+          keys:
+            - {t: 0, offset: [-0.23094, -1.65, 4.99466], scale: [0.1, 2.7, 0.1]}
+            - {t: 5, offset: [-0.23094, 1.5, 4.99466], ease: out_cubic}
+            - {t: 146, offset: [-0.23094, 1.5, 4.99466]}
+            - {t: 156, offset: [-0.23094, -1.65, 4.99466], scale: [0.0, 0.0, 0.0], ease: in_quad}
+        - {op: block, parent: fx1_verdict_ego_field, block: yellow_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_verdict_ego_field_cross19}
+        - id: fx1_verdict_ego_field_cross19_trk
+          op: track
+          target: fx1_verdict_ego_field_cross19
+          keys:
+            - {t: 0, offset: [-0.23094, -0.4, 4.99466], scale: [0.12, 0.12, 0.7]}
+            - {t: 5, offset: [-0.23094, 2.75, 4.99466], ease: out_cubic}
+            - {t: 146, offset: [-0.23094, 2.75, 4.99466]}
+            - {t: 156, offset: [-0.23094, -0.4, 4.99466], scale: [0.0, 0.0, 0.0], ease: in_quad}
     - id: fx71
       at: 71
       do:
         - {id: snd, op: sound, sound: entity.player.attack.strong, at: caster, pitch: 0.7}
-        - {id: emit_17, op: emit, at: pt_caster_0_m1p5_8, particle: dust, count: 1, data: "#ffdc6e", data_size: 1.2}
+        - {id: flash, op: screen_flash, target: caster, overlay: white, color: "#FFF4CF", fade_in: 0, stay: 1, fade_out: 1}
+        - {op: quad, parent: fx2_verdict_impact, face: {viewer: center}, size: [1.0, 1.0], color: "#FFFAD8", alpha: 1.0, text: "✷", see_through: true, brightness: 15, id: fx2_verdict_impact_star}
+        - id: fx2_verdict_impact_star_trk
+          op: track
+          target: fx2_verdict_impact_star
+          keys:
+            - {t: 0, offset: [0.0, -1.06, 0.55], scale: [2.4, 2.4, 1.0], alpha: 1.0}
+            - {t: 4, offset: [0.0, -1.06, 0.55], scale: [2.4, 2.4, 1.0], alpha: 1.0}
+            - {t: 10, offset: [0.0, 1.1, 0.55], scale: [0.0, 0.0, 0.0], alpha: 0.0, ease: in_quad}
+        - {op: quad, parent: fx2_verdict_impact, face: {viewer: center}, size: [1.0, 1.0], color: "#FFD66B", alpha: 0.22, text: "✦", see_through: true, brightness: 15, id: fx2_verdict_impact_bloom}
+        - id: fx2_verdict_impact_bloom_trk
+          op: track
+          target: fx2_verdict_impact_bloom
+          keys:
+            - {t: 0, offset: [0.0, -1.87, 0.5], scale: [3.3, 3.3, 1.0], alpha: 0.22}
+            - {t: 9, offset: [0.0, -2.5, 0.5], scale: [4.0, 4.0, 1.0], alpha: 0.0, ease: out_cubic}
+        - {op: block, parent: fx3_verdict_ego_ring, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx3_verdict_ego_ring_ring_s0}
+        - id: fx3_verdict_ego_ring_ring_s0_trk
+          op: track
+          target: fx3_verdict_ego_ring_ring_s0
+          keys:
+            - {t: 0, offset: [0.0, 0.045, 0.3], turn: [0.0, 90.0, 0.0], scale: [0.0105, 0.0075, 0.24]}
+            - {t: 1, offset: [0.0, 0.39257, 2.61713], turn: [0.0, 90.0, 0.0], scale: [0.0916, 0.06543, 2.0937]}
+            - {t: 2, offset: [0.0, 0.62556, 4.17037], turn: [0.0, 90.0, 0.0], scale: [0.14596, 0.10426, 3.3363]}
+            - {t: 3, offset: [0.0, 0.76687, 5.1125], turn: [0.0, 90.0, 0.0], scale: [0.17894, 0.12781, 4.09]}
+            - {t: 4, offset: [0.0, 0.83944, 5.5963], turn: [0.0, 90.0, 0.0], scale: [0.19587, 0.13991, 4.47704]}
+            - {t: 5, offset: [0.0, 0.86618, 5.77454], turn: [0.0, 90.0, 0.0], scale: [0.20211, 0.14436, 4.61963]}
+            - {t: 6, offset: [0.0, 0.87, 5.8], turn: [0.0, 90.0, 0.0], scale: [0.203, 0.145, 4.64]}
+            - {t: 7, offset: [0.0, 0.8745, 5.83], turn: [0.0, 90.0, 0.0], scale: [0.20405, 0.14575, 4.664]}
+            - {t: 8, offset: [0.0, 0.879, 5.86], turn: [0.0, 90.0, 0.0], scale: [0.2051, 0.1465, 4.688], block: yellow_stained_glass}
+            - {t: 9, offset: [0.0, 0.8835, 5.89], turn: [0.0, 90.0, 0.0], scale: [0.20293, 0.14495, 4.63837]}
+            - {t: 10, offset: [0.0, 0.888, 5.92], turn: [0.0, 90.0, 0.0], scale: [0.19425, 0.13875, 4.44]}
+            - {t: 11, offset: [0.0, 0.8925, 5.95], turn: [0.0, 90.0, 0.0], scale: [0.17896, 0.12783, 4.09062]}
+            - {t: 12, offset: [0.0, 0.897, 5.98], turn: [0.0, 90.0, 0.0], scale: [0.15698, 0.11213, 3.588]}
+            - {t: 13, offset: [0.0, 0.9015, 6.01], turn: [0.0, 90.0, 0.0], scale: [0.12818, 0.09156, 2.92988]}
+            - {t: 14, offset: [0.0, 0.906, 6.04], turn: [0.0, 90.0, 0.0], scale: [0.09249, 0.06606, 2.114]}
+            - {t: 15, offset: [0.0, 0.9105, 6.07], turn: [0.0, 90.0, 0.0], scale: [0.04979, 0.03557, 1.13812]}
+        - {op: block, parent: fx3_verdict_ego_ring, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx3_verdict_ego_ring_ring_s1}
+        - id: fx3_verdict_ego_ring_ring_s1_trk
+          op: track
+          target: fx3_verdict_ego_ring_ring_s1
+          keys:
+            - {t: 0, offset: [0.21213, 0.045, 0.21213], turn: [0.0, 135.0, 0.0], scale: [0.0105, 0.0075, 0.24]}
+            - {t: 1, offset: [1.85059, 0.39257, 1.85059], turn: [0.0, 135.0, 0.0], scale: [0.0916, 0.06543, 2.0937]}
+            - {t: 2, offset: [2.9489, 0.62556, 2.9489], turn: [0.0, 135.0, 0.0], scale: [0.14596, 0.10426, 3.3363]}
+            - {t: 3, offset: [3.61508, 0.76687, 3.61508], turn: [0.0, 135.0, 0.0], scale: [0.17894, 0.12781, 4.09]}
+            - {t: 4, offset: [3.95718, 0.83944, 3.95718], turn: [0.0, 135.0, 0.0], scale: [0.19587, 0.13991, 4.47704]}
+            - {t: 5, offset: [4.08321, 0.86618, 4.08321], turn: [0.0, 135.0, 0.0], scale: [0.20211, 0.14436, 4.61963]}
+            - {t: 6, offset: [4.10122, 0.87, 4.10122], turn: [0.0, 135.0, 0.0], scale: [0.203, 0.145, 4.64]}
+            - {t: 7, offset: [4.12243, 0.8745, 4.12243], turn: [0.0, 135.0, 0.0], scale: [0.20405, 0.14575, 4.664]}
+            - {t: 8, offset: [4.14365, 0.879, 4.14365], turn: [0.0, 135.0, 0.0], scale: [0.2051, 0.1465, 4.688], block: yellow_stained_glass}
+            - {t: 9, offset: [4.16486, 0.8835, 4.16486], turn: [0.0, 135.0, 0.0], scale: [0.20293, 0.14495, 4.63837]}
+            - {t: 10, offset: [4.18607, 0.888, 4.18607], turn: [0.0, 135.0, 0.0], scale: [0.19425, 0.13875, 4.44]}
+            - {t: 11, offset: [4.20729, 0.8925, 4.20729], turn: [0.0, 135.0, 0.0], scale: [0.17896, 0.12783, 4.09062]}
+            - {t: 12, offset: [4.2285, 0.897, 4.2285], turn: [0.0, 135.0, 0.0], scale: [0.15698, 0.11213, 3.588]}
+            - {t: 13, offset: [4.24971, 0.9015, 4.24971], turn: [0.0, 135.0, 0.0], scale: [0.12818, 0.09156, 2.92988]}
+            - {t: 14, offset: [4.27092, 0.906, 4.27092], turn: [0.0, 135.0, 0.0], scale: [0.09249, 0.06606, 2.114]}
+            - {t: 15, offset: [4.29214, 0.9105, 4.29214], turn: [0.0, 135.0, 0.0], scale: [0.04979, 0.03557, 1.13812]}
+        - {op: block, parent: fx3_verdict_ego_ring, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx3_verdict_ego_ring_ring_s2}
+        - id: fx3_verdict_ego_ring_ring_s2_trk
+          op: track
+          target: fx3_verdict_ego_ring_ring_s2
+          keys:
+            - {t: 0, offset: [0.3, 0.045, 0.0], turn: [0.0, 180.0, 0.0], scale: [0.0105, 0.0075, 0.24]}
+            - {t: 1, offset: [2.61713, 0.39257, 0.0], turn: [0.0, 180.0, 0.0], scale: [0.0916, 0.06543, 2.0937]}
+            - {t: 2, offset: [4.17037, 0.62556, 0.0], turn: [0.0, 180.0, 0.0], scale: [0.14596, 0.10426, 3.3363]}
+            - {t: 3, offset: [5.1125, 0.76687, 0.0], turn: [0.0, 180.0, 0.0], scale: [0.17894, 0.12781, 4.09]}
+            - {t: 4, offset: [5.5963, 0.83944, 0.0], turn: [0.0, 180.0, 0.0], scale: [0.19587, 0.13991, 4.47704]}
+            - {t: 5, offset: [5.77454, 0.86618, 0.0], turn: [0.0, 180.0, 0.0], scale: [0.20211, 0.14436, 4.61963]}
+            - {t: 6, offset: [5.8, 0.87, 0.0], turn: [0.0, 180.0, 0.0], scale: [0.203, 0.145, 4.64]}
+            - {t: 7, offset: [5.83, 0.8745, 0.0], turn: [0.0, 180.0, 0.0], scale: [0.20405, 0.14575, 4.664]}
+            - {t: 8, offset: [5.86, 0.879, 0.0], turn: [0.0, 180.0, 0.0], scale: [0.2051, 0.1465, 4.688], block: yellow_stained_glass}
+            - {t: 9, offset: [5.89, 0.8835, 0.0], turn: [0.0, 180.0, 0.0], scale: [0.20293, 0.14495, 4.63837]}
+            - {t: 10, offset: [5.92, 0.888, 0.0], turn: [0.0, 180.0, 0.0], scale: [0.19425, 0.13875, 4.44]}
+            - {t: 11, offset: [5.95, 0.8925, 0.0], turn: [0.0, 180.0, 0.0], scale: [0.17896, 0.12783, 4.09062]}
+            - {t: 12, offset: [5.98, 0.897, 0.0], turn: [0.0, 180.0, 0.0], scale: [0.15698, 0.11213, 3.588]}
+            - {t: 13, offset: [6.01, 0.9015, 0.0], turn: [0.0, 180.0, 0.0], scale: [0.12818, 0.09156, 2.92988]}
+            - {t: 14, offset: [6.04, 0.906, 0.0], turn: [0.0, 180.0, 0.0], scale: [0.09249, 0.06606, 2.114]}
+            - {t: 15, offset: [6.07, 0.9105, 0.0], turn: [0.0, 180.0, 0.0], scale: [0.04979, 0.03557, 1.13812]}
+        - {op: block, parent: fx3_verdict_ego_ring, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx3_verdict_ego_ring_ring_s3}
+        - id: fx3_verdict_ego_ring_ring_s3_trk
+          op: track
+          target: fx3_verdict_ego_ring_ring_s3
+          keys:
+            - {t: 0, offset: [0.21213, 0.045, -0.21213], turn: [0.0, -135.0, 0.0], scale: [0.0105, 0.0075, 0.24]}
+            - {t: 1, offset: [1.85059, 0.39257, -1.85059], turn: [0.0, -135.0, 0.0], scale: [0.0916, 0.06543, 2.0937]}
+            - {t: 2, offset: [2.9489, 0.62556, -2.9489], turn: [0.0, -135.0, 0.0], scale: [0.14596, 0.10426, 3.3363]}
+            - {t: 3, offset: [3.61508, 0.76687, -3.61508], turn: [0.0, -135.0, 0.0], scale: [0.17894, 0.12781, 4.09]}
+            - {t: 4, offset: [3.95718, 0.83944, -3.95718], turn: [0.0, -135.0, 0.0], scale: [0.19587, 0.13991, 4.47704]}
+            - {t: 5, offset: [4.08321, 0.86618, -4.08321], turn: [0.0, -135.0, 0.0], scale: [0.20211, 0.14436, 4.61963]}
+            - {t: 6, offset: [4.10122, 0.87, -4.10122], turn: [0.0, -135.0, 0.0], scale: [0.203, 0.145, 4.64]}
+            - {t: 7, offset: [4.12243, 0.8745, -4.12243], turn: [0.0, -135.0, 0.0], scale: [0.20405, 0.14575, 4.664]}
+            - {t: 8, offset: [4.14365, 0.879, -4.14365], turn: [0.0, -135.0, 0.0], scale: [0.2051, 0.1465, 4.688], block: yellow_stained_glass}
+            - {t: 9, offset: [4.16486, 0.8835, -4.16486], turn: [0.0, -135.0, 0.0], scale: [0.20293, 0.14495, 4.63837]}
+            - {t: 10, offset: [4.18607, 0.888, -4.18607], turn: [0.0, -135.0, 0.0], scale: [0.19425, 0.13875, 4.44]}
+            - {t: 11, offset: [4.20729, 0.8925, -4.20729], turn: [0.0, -135.0, 0.0], scale: [0.17896, 0.12783, 4.09062]}
+            - {t: 12, offset: [4.2285, 0.897, -4.2285], turn: [0.0, -135.0, 0.0], scale: [0.15698, 0.11213, 3.588]}
+            - {t: 13, offset: [4.24971, 0.9015, -4.24971], turn: [0.0, -135.0, 0.0], scale: [0.12818, 0.09156, 2.92988]}
+            - {t: 14, offset: [4.27092, 0.906, -4.27092], turn: [0.0, -135.0, 0.0], scale: [0.09249, 0.06606, 2.114]}
+            - {t: 15, offset: [4.29214, 0.9105, -4.29214], turn: [0.0, -135.0, 0.0], scale: [0.04979, 0.03557, 1.13812]}
+        - {op: block, parent: fx3_verdict_ego_ring, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx3_verdict_ego_ring_ring_s4}
+        - id: fx3_verdict_ego_ring_ring_s4_trk
+          op: track
+          target: fx3_verdict_ego_ring_ring_s4
+          keys:
+            - {t: 0, offset: [0.0, 0.045, -0.3], turn: [0.0, -90.0, 0.0], scale: [0.0105, 0.0075, 0.24]}
+            - {t: 1, offset: [0.0, 0.39257, -2.61713], turn: [0.0, -90.0, 0.0], scale: [0.0916, 0.06543, 2.0937]}
+            - {t: 2, offset: [0.0, 0.62556, -4.17037], turn: [0.0, -90.0, 0.0], scale: [0.14596, 0.10426, 3.3363]}
+            - {t: 3, offset: [0.0, 0.76687, -5.1125], turn: [0.0, -90.0, 0.0], scale: [0.17894, 0.12781, 4.09]}
+            - {t: 4, offset: [0.0, 0.83944, -5.5963], turn: [0.0, -90.0, 0.0], scale: [0.19587, 0.13991, 4.47704]}
+            - {t: 5, offset: [0.0, 0.86618, -5.77454], turn: [0.0, -90.0, 0.0], scale: [0.20211, 0.14436, 4.61963]}
+            - {t: 6, offset: [0.0, 0.87, -5.8], turn: [0.0, -90.0, 0.0], scale: [0.203, 0.145, 4.64]}
+            - {t: 7, offset: [0.0, 0.8745, -5.83], turn: [0.0, -90.0, 0.0], scale: [0.20405, 0.14575, 4.664]}
+            - {t: 8, offset: [0.0, 0.879, -5.86], turn: [0.0, -90.0, 0.0], scale: [0.2051, 0.1465, 4.688], block: yellow_stained_glass}
+            - {t: 9, offset: [0.0, 0.8835, -5.89], turn: [0.0, -90.0, 0.0], scale: [0.20293, 0.14495, 4.63837]}
+            - {t: 10, offset: [0.0, 0.888, -5.92], turn: [0.0, -90.0, 0.0], scale: [0.19425, 0.13875, 4.44]}
+            - {t: 11, offset: [0.0, 0.8925, -5.95], turn: [0.0, -90.0, 0.0], scale: [0.17896, 0.12783, 4.09062]}
+            - {t: 12, offset: [0.0, 0.897, -5.98], turn: [0.0, -90.0, 0.0], scale: [0.15698, 0.11213, 3.588]}
+            - {t: 13, offset: [0.0, 0.9015, -6.01], turn: [0.0, -90.0, 0.0], scale: [0.12818, 0.09156, 2.92988]}
+            - {t: 14, offset: [0.0, 0.906, -6.04], turn: [0.0, -90.0, 0.0], scale: [0.09249, 0.06606, 2.114]}
+            - {t: 15, offset: [0.0, 0.9105, -6.07], turn: [0.0, -90.0, 0.0], scale: [0.04979, 0.03557, 1.13812]}
+        - {op: block, parent: fx3_verdict_ego_ring, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx3_verdict_ego_ring_ring_s5}
+        - id: fx3_verdict_ego_ring_ring_s5_trk
+          op: track
+          target: fx3_verdict_ego_ring_ring_s5
+          keys:
+            - {t: 0, offset: [-0.21213, 0.045, -0.21213], turn: [0.0, -45.0, 0.0], scale: [0.0105, 0.0075, 0.24]}
+            - {t: 1, offset: [-1.85059, 0.39257, -1.85059], turn: [0.0, -45.0, 0.0], scale: [0.0916, 0.06543, 2.0937]}
+            - {t: 2, offset: [-2.9489, 0.62556, -2.9489], turn: [0.0, -45.0, 0.0], scale: [0.14596, 0.10426, 3.3363]}
+            - {t: 3, offset: [-3.61508, 0.76687, -3.61508], turn: [0.0, -45.0, 0.0], scale: [0.17894, 0.12781, 4.09]}
+            - {t: 4, offset: [-3.95718, 0.83944, -3.95718], turn: [0.0, -45.0, 0.0], scale: [0.19587, 0.13991, 4.47704]}
+            - {t: 5, offset: [-4.08321, 0.86618, -4.08321], turn: [0.0, -45.0, 0.0], scale: [0.20211, 0.14436, 4.61963]}
+            - {t: 6, offset: [-4.10122, 0.87, -4.10122], turn: [0.0, -45.0, 0.0], scale: [0.203, 0.145, 4.64]}
+            - {t: 7, offset: [-4.12243, 0.8745, -4.12243], turn: [0.0, -45.0, 0.0], scale: [0.20405, 0.14575, 4.664]}
+            - {t: 8, offset: [-4.14365, 0.879, -4.14365], turn: [0.0, -45.0, 0.0], scale: [0.2051, 0.1465, 4.688], block: yellow_stained_glass}
+            - {t: 9, offset: [-4.16486, 0.8835, -4.16486], turn: [0.0, -45.0, 0.0], scale: [0.20293, 0.14495, 4.63837]}
+            - {t: 10, offset: [-4.18607, 0.888, -4.18607], turn: [0.0, -45.0, 0.0], scale: [0.19425, 0.13875, 4.44]}
+            - {t: 11, offset: [-4.20729, 0.8925, -4.20729], turn: [0.0, -45.0, 0.0], scale: [0.17896, 0.12783, 4.09062]}
+            - {t: 12, offset: [-4.2285, 0.897, -4.2285], turn: [0.0, -45.0, 0.0], scale: [0.15698, 0.11213, 3.588]}
+            - {t: 13, offset: [-4.24971, 0.9015, -4.24971], turn: [0.0, -45.0, 0.0], scale: [0.12818, 0.09156, 2.92988]}
+            - {t: 14, offset: [-4.27092, 0.906, -4.27092], turn: [0.0, -45.0, 0.0], scale: [0.09249, 0.06606, 2.114]}
+            - {t: 15, offset: [-4.29214, 0.9105, -4.29214], turn: [0.0, -45.0, 0.0], scale: [0.04979, 0.03557, 1.13812]}
+        - {op: block, parent: fx3_verdict_ego_ring, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx3_verdict_ego_ring_ring_s6}
+        - id: fx3_verdict_ego_ring_ring_s6_trk
+          op: track
+          target: fx3_verdict_ego_ring_ring_s6
+          keys:
+            - {t: 0, offset: [-0.3, 0.045, 0.0], turn: [0.0, 0.0, 0.0], scale: [0.0105, 0.0075, 0.24]}
+            - {t: 1, offset: [-2.61713, 0.39257, 0.0], turn: [0.0, 0.0, 0.0], scale: [0.0916, 0.06543, 2.0937]}
+            - {t: 2, offset: [-4.17037, 0.62556, 0.0], turn: [0.0, 0.0, 0.0], scale: [0.14596, 0.10426, 3.3363]}
+            - {t: 3, offset: [-5.1125, 0.76687, 0.0], turn: [0.0, 0.0, 0.0], scale: [0.17894, 0.12781, 4.09]}
+            - {t: 4, offset: [-5.5963, 0.83944, 0.0], turn: [0.0, 0.0, 0.0], scale: [0.19587, 0.13991, 4.47704]}
+            - {t: 5, offset: [-5.77454, 0.86618, 0.0], turn: [0.0, 0.0, 0.0], scale: [0.20211, 0.14436, 4.61963]}
+            - {t: 6, offset: [-5.8, 0.87, 0.0], turn: [0.0, 0.0, 0.0], scale: [0.203, 0.145, 4.64]}
+            - {t: 7, offset: [-5.83, 0.8745, 0.0], turn: [0.0, 0.0, 0.0], scale: [0.20405, 0.14575, 4.664]}
+            - {t: 8, offset: [-5.86, 0.879, 0.0], turn: [0.0, 0.0, 0.0], scale: [0.2051, 0.1465, 4.688], block: yellow_stained_glass}
+            - {t: 9, offset: [-5.89, 0.8835, 0.0], turn: [0.0, 0.0, 0.0], scale: [0.20293, 0.14495, 4.63837]}
+            - {t: 10, offset: [-5.92, 0.888, 0.0], turn: [0.0, 0.0, 0.0], scale: [0.19425, 0.13875, 4.44]}
+            - {t: 11, offset: [-5.95, 0.8925, 0.0], turn: [0.0, 0.0, 0.0], scale: [0.17896, 0.12783, 4.09062]}
+            - {t: 12, offset: [-5.98, 0.897, 0.0], turn: [0.0, 0.0, 0.0], scale: [0.15698, 0.11213, 3.588]}
+            - {t: 13, offset: [-6.01, 0.9015, 0.0], turn: [0.0, 0.0, 0.0], scale: [0.12818, 0.09156, 2.92988]}
+            - {t: 14, offset: [-6.04, 0.906, 0.0], turn: [0.0, 0.0, 0.0], scale: [0.09249, 0.06606, 2.114]}
+            - {t: 15, offset: [-6.07, 0.9105, 0.0], turn: [0.0, 0.0, 0.0], scale: [0.04979, 0.03557, 1.13812]}
+        - {op: block, parent: fx3_verdict_ego_ring, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx3_verdict_ego_ring_ring_s7}
+        - id: fx3_verdict_ego_ring_ring_s7_trk
+          op: track
+          target: fx3_verdict_ego_ring_ring_s7
+          keys:
+            - {t: 0, offset: [-0.21213, 0.045, 0.21213], turn: [0.0, 45.0, 0.0], scale: [0.0105, 0.0075, 0.24]}
+            - {t: 1, offset: [-1.85059, 0.39257, 1.85059], turn: [0.0, 45.0, 0.0], scale: [0.0916, 0.06543, 2.0937]}
+            - {t: 2, offset: [-2.9489, 0.62556, 2.9489], turn: [0.0, 45.0, 0.0], scale: [0.14596, 0.10426, 3.3363]}
+            - {t: 3, offset: [-3.61508, 0.76687, 3.61508], turn: [0.0, 45.0, 0.0], scale: [0.17894, 0.12781, 4.09]}
+            - {t: 4, offset: [-3.95718, 0.83944, 3.95718], turn: [0.0, 45.0, 0.0], scale: [0.19587, 0.13991, 4.47704]}
+            - {t: 5, offset: [-4.08321, 0.86618, 4.08321], turn: [0.0, 45.0, 0.0], scale: [0.20211, 0.14436, 4.61963]}
+            - {t: 6, offset: [-4.10122, 0.87, 4.10122], turn: [0.0, 45.0, 0.0], scale: [0.203, 0.145, 4.64]}
+            - {t: 7, offset: [-4.12243, 0.8745, 4.12243], turn: [0.0, 45.0, 0.0], scale: [0.20405, 0.14575, 4.664]}
+            - {t: 8, offset: [-4.14365, 0.879, 4.14365], turn: [0.0, 45.0, 0.0], scale: [0.2051, 0.1465, 4.688], block: yellow_stained_glass}
+            - {t: 9, offset: [-4.16486, 0.8835, 4.16486], turn: [0.0, 45.0, 0.0], scale: [0.20293, 0.14495, 4.63837]}
+            - {t: 10, offset: [-4.18607, 0.888, 4.18607], turn: [0.0, 45.0, 0.0], scale: [0.19425, 0.13875, 4.44]}
+            - {t: 11, offset: [-4.20729, 0.8925, 4.20729], turn: [0.0, 45.0, 0.0], scale: [0.17896, 0.12783, 4.09062]}
+            - {t: 12, offset: [-4.2285, 0.897, 4.2285], turn: [0.0, 45.0, 0.0], scale: [0.15698, 0.11213, 3.588]}
+            - {t: 13, offset: [-4.24971, 0.9015, 4.24971], turn: [0.0, 45.0, 0.0], scale: [0.12818, 0.09156, 2.92988]}
+            - {t: 14, offset: [-4.27092, 0.906, 4.27092], turn: [0.0, 45.0, 0.0], scale: [0.09249, 0.06606, 2.114]}
+            - {t: 15, offset: [-4.29214, 0.9105, 4.29214], turn: [0.0, 45.0, 0.0], scale: [0.04979, 0.03557, 1.13812]}
+        - id: emit_17
+          op: emit
+          at: pt_caster_0_m1p5_8
+          particle: dust
+          count: 1
+          data: "#ffdc6e"
+          data_size: 1.2
+          times: 16
+          shift: "= vec(0.5*sin((3.6112 + 6.283185307179586*i/16)), 0.0, 0.5*cos((3.6112 + 6.283185307179586*i/16)))"
+    - id: fx72
+      at: 72
+      do:
+        - {op: quad, parent: fx2_verdict_impact, face: {viewer: center}, size: [1.0, 1.0], color: "#302313", alpha: 1.0, text: "▲", see_through: true, brightness: 15, id: fx2_verdict_impact_dark0}
+        - id: fx2_verdict_impact_dark0_trk
+          op: track
+          target: fx2_verdict_impact_dark0
+          keys:
+            - {t: 0, offset: [0.0, 1.0, 0.0], scale: [0.12, 0.2, 1.0], alpha: 1.0}
+            - {t: 5, offset: [1.3, 1.4, 0.3], scale: [0.16, 0.26, 1.0], ease: out_cubic}
+            - {t: 11, scale: [0.04, 0.04, 1.0], alpha: 0.0}
+        - {op: quad, parent: fx2_verdict_impact, face: {viewer: center}, size: [1.0, 1.0], color: "#302313", alpha: 1.0, text: "▲", see_through: true, brightness: 15, id: fx2_verdict_impact_dark1}
+        - id: fx2_verdict_impact_dark1_trk
+          op: track
+          target: fx2_verdict_impact_dark1
+          keys:
+            - {t: 0, offset: [0.0, 1.0, 0.0], scale: [0.12, 0.2, 1.0], alpha: 1.0}
+            - {t: 5, offset: [0.0, 2.4, 0.3], scale: [0.16, 0.26, 1.0], ease: out_cubic}
+            - {t: 11, scale: [0.04, 0.04, 1.0], alpha: 0.0}
+        - {op: quad, parent: fx2_verdict_impact, face: {viewer: center}, size: [1.0, 1.0], color: "#302313", alpha: 1.0, text: "▲", see_through: true, brightness: 15, id: fx2_verdict_impact_dark2}
+        - id: fx2_verdict_impact_dark2_trk
+          op: track
+          target: fx2_verdict_impact_dark2
+          keys:
+            - {t: 0, offset: [0.0, 1.0, 0.0], scale: [0.12, 0.2, 1.0], alpha: 1.0}
+            - {t: 5, offset: [-1.3, 1.4, 0.3], scale: [0.16, 0.26, 1.0], ease: out_cubic}
+            - {t: 11, scale: [0.04, 0.04, 1.0], alpha: 0.0}
+        - id: emit_18
+          op: emit
+          at: pt_caster_0_m1p5_8
+          particle: dust
+          count: 1
+          data: "#ffdc6e"
+          data_size: 1.2
+          times: 16
+          shift: "= vec(1.56*sin((3.6112 + 6.283185307179586*i/16)), 0.0, 1.56*cos((3.6112 + 6.283185307179586*i/16)))"
+    - id: fx73
+      at: 73
+      do:
+        - id: emit_19
+          op: emit
+          at: pt_caster_0_m1p5_8
+          particle: dust
+          count: 1
+          data: "#ffdc6e"
+          data_size: 1.2
+          times: 16
+          shift: "= vec(2.62*sin((3.6112 + 6.283185307179586*i/16)), 0.0, 2.62*cos((3.6112 + 6.283185307179586*i/16)))"
+    - id: fx74
+      at: 74
+      do:
+        - id: emit_20
+          op: emit
+          at: pt_caster_0_m1p5_8
+          particle: dust
+          count: 1
+          data: "#ffdc6e"
+          data_size: 1.2
+          times: 16
+          shift: "= vec(3.68*sin((3.6112 + 6.283185307179586*i/16)), 0.0, 3.68*cos((3.6112 + 6.283185307179586*i/16)))"
+    - id: fx75
+      at: 75
+      do:
+        - id: emit_21
+          op: emit
+          at: pt_caster_0_m1p5_8
+          particle: dust
+          count: 1
+          data: "#ffdc6e"
+          data_size: 1.2
+          times: 16
+          shift: "= vec(4.74*sin((3.6112 + 6.283185307179586*i/16)), 0.0, 4.74*cos((3.6112 + 6.283185307179586*i/16)))"
+    - id: fx76
+      at: 76
+      do:
+        - id: emit_22
+          op: emit
+          at: pt_caster_0_m1p5_8
+          particle: dust
+          count: 1
+          data: "#ffdc6e"
+          data_size: 1.2
+          times: 16
+          shift: "= vec(5.8*sin((3.6112 + 6.283185307179586*i/16)), 0.0, 5.8*cos((3.6112 + 6.283185307179586*i/16)))"
+    - {id: fx80, at: 80, do: [{id: rm_2, op: remove, ids: [fx2_verdict_impact_bloom]}]}
+    - {id: fx81, at: 81, do: [{id: rm_3, op: remove, ids: [fx2_verdict_impact_star]}]}
+    - {id: fx83, at: 83, do: [{id: rm_4, op: remove, ids: [fx2_verdict_impact_dark0, fx2_verdict_impact_dark1, fx2_verdict_impact_dark2]}]}
+    - id: fx87
+      at: 87
+      do:
+        - id: rm_5
+          op: remove
+          ids:
+            - fx3_verdict_ego_ring_ring_s0
+            - fx3_verdict_ego_ring_ring_s1
+            - fx3_verdict_ego_ring_ring_s2
+            - fx3_verdict_ego_ring_ring_s3
+            - fx3_verdict_ego_ring_ring_s4
+            - fx3_verdict_ego_ring_ring_s5
+            - fx3_verdict_ego_ring_ring_s6
+            - fx3_verdict_ego_ring_ring_s7
     - id: fx102
       at: 102
       do:
         - {id: snd_2, op: sound, sound: entity.player.attack.strong, at: caster, pitch: 0.7}
-        - {id: emit_18, op: emit, at: pt_caster_0_m1p5_8, particle: dust, count: 1, data: "#ffdc6e", data_size: 1.2}
+        - {id: flash_2, op: screen_flash, target: caster, overlay: white, color: "#FFF4CF", fade_in: 0, stay: 1, fade_out: 1}
+        - {op: quad, parent: fx4_verdict_impact, face: {viewer: center}, size: [1.0, 1.0], color: "#FFFAD8", alpha: 1.0, text: "✷", see_through: true, brightness: 15, id: fx4_verdict_impact_star}
+        - id: fx4_verdict_impact_star_trk
+          op: track
+          target: fx4_verdict_impact_star
+          keys:
+            - {t: 0, offset: [0.0, -1.06, 0.55], scale: [2.4, 2.4, 1.0], alpha: 1.0}
+            - {t: 4, offset: [0.0, -1.06, 0.55], scale: [2.4, 2.4, 1.0], alpha: 1.0}
+            - {t: 10, offset: [0.0, 1.1, 0.55], scale: [0.0, 0.0, 0.0], alpha: 0.0, ease: in_quad}
+        - {op: quad, parent: fx4_verdict_impact, face: {viewer: center}, size: [1.0, 1.0], color: "#FFD66B", alpha: 0.22, text: "✦", see_through: true, brightness: 15, id: fx4_verdict_impact_bloom}
+        - id: fx4_verdict_impact_bloom_trk
+          op: track
+          target: fx4_verdict_impact_bloom
+          keys:
+            - {t: 0, offset: [0.0, -1.87, 0.5], scale: [3.3, 3.3, 1.0], alpha: 0.22}
+            - {t: 9, offset: [0.0, -2.5, 0.5], scale: [4.0, 4.0, 1.0], alpha: 0.0, ease: out_cubic}
+        - {op: block, parent: fx5_verdict_ego_ring, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx5_verdict_ego_ring_ring_s0}
+        - id: fx5_verdict_ego_ring_ring_s0_trk
+          op: track
+          target: fx5_verdict_ego_ring_ring_s0
+          keys:
+            - {t: 0, offset: [0.0, 0.045, 0.3], turn: [0.0, 90.0, 0.0], scale: [0.0105, 0.0075, 0.24]}
+            - {t: 1, offset: [0.0, 0.39257, 2.61713], turn: [0.0, 90.0, 0.0], scale: [0.0916, 0.06543, 2.0937]}
+            - {t: 2, offset: [0.0, 0.62556, 4.17037], turn: [0.0, 90.0, 0.0], scale: [0.14596, 0.10426, 3.3363]}
+            - {t: 3, offset: [0.0, 0.76687, 5.1125], turn: [0.0, 90.0, 0.0], scale: [0.17894, 0.12781, 4.09]}
+            - {t: 4, offset: [0.0, 0.83944, 5.5963], turn: [0.0, 90.0, 0.0], scale: [0.19587, 0.13991, 4.47704]}
+            - {t: 5, offset: [0.0, 0.86618, 5.77454], turn: [0.0, 90.0, 0.0], scale: [0.20211, 0.14436, 4.61963]}
+            - {t: 6, offset: [0.0, 0.87, 5.8], turn: [0.0, 90.0, 0.0], scale: [0.203, 0.145, 4.64]}
+            - {t: 7, offset: [0.0, 0.8745, 5.83], turn: [0.0, 90.0, 0.0], scale: [0.20405, 0.14575, 4.664]}
+            - {t: 8, offset: [0.0, 0.879, 5.86], turn: [0.0, 90.0, 0.0], scale: [0.2051, 0.1465, 4.688], block: yellow_stained_glass}
+            - {t: 9, offset: [0.0, 0.8835, 5.89], turn: [0.0, 90.0, 0.0], scale: [0.20293, 0.14495, 4.63837]}
+            - {t: 10, offset: [0.0, 0.888, 5.92], turn: [0.0, 90.0, 0.0], scale: [0.19425, 0.13875, 4.44]}
+            - {t: 11, offset: [0.0, 0.8925, 5.95], turn: [0.0, 90.0, 0.0], scale: [0.17896, 0.12783, 4.09062]}
+            - {t: 12, offset: [0.0, 0.897, 5.98], turn: [0.0, 90.0, 0.0], scale: [0.15698, 0.11213, 3.588]}
+            - {t: 13, offset: [0.0, 0.9015, 6.01], turn: [0.0, 90.0, 0.0], scale: [0.12818, 0.09156, 2.92988]}
+            - {t: 14, offset: [0.0, 0.906, 6.04], turn: [0.0, 90.0, 0.0], scale: [0.09249, 0.06606, 2.114]}
+            - {t: 15, offset: [0.0, 0.9105, 6.07], turn: [0.0, 90.0, 0.0], scale: [0.04979, 0.03557, 1.13812]}
+        - {op: block, parent: fx5_verdict_ego_ring, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx5_verdict_ego_ring_ring_s1}
+        - id: fx5_verdict_ego_ring_ring_s1_trk
+          op: track
+          target: fx5_verdict_ego_ring_ring_s1
+          keys:
+            - {t: 0, offset: [0.21213, 0.045, 0.21213], turn: [0.0, 135.0, 0.0], scale: [0.0105, 0.0075, 0.24]}
+            - {t: 1, offset: [1.85059, 0.39257, 1.85059], turn: [0.0, 135.0, 0.0], scale: [0.0916, 0.06543, 2.0937]}
+            - {t: 2, offset: [2.9489, 0.62556, 2.9489], turn: [0.0, 135.0, 0.0], scale: [0.14596, 0.10426, 3.3363]}
+            - {t: 3, offset: [3.61508, 0.76687, 3.61508], turn: [0.0, 135.0, 0.0], scale: [0.17894, 0.12781, 4.09]}
+            - {t: 4, offset: [3.95718, 0.83944, 3.95718], turn: [0.0, 135.0, 0.0], scale: [0.19587, 0.13991, 4.47704]}
+            - {t: 5, offset: [4.08321, 0.86618, 4.08321], turn: [0.0, 135.0, 0.0], scale: [0.20211, 0.14436, 4.61963]}
+            - {t: 6, offset: [4.10122, 0.87, 4.10122], turn: [0.0, 135.0, 0.0], scale: [0.203, 0.145, 4.64]}
+            - {t: 7, offset: [4.12243, 0.8745, 4.12243], turn: [0.0, 135.0, 0.0], scale: [0.20405, 0.14575, 4.664]}
+            - {t: 8, offset: [4.14365, 0.879, 4.14365], turn: [0.0, 135.0, 0.0], scale: [0.2051, 0.1465, 4.688], block: yellow_stained_glass}
+            - {t: 9, offset: [4.16486, 0.8835, 4.16486], turn: [0.0, 135.0, 0.0], scale: [0.20293, 0.14495, 4.63837]}
+            - {t: 10, offset: [4.18607, 0.888, 4.18607], turn: [0.0, 135.0, 0.0], scale: [0.19425, 0.13875, 4.44]}
+            - {t: 11, offset: [4.20729, 0.8925, 4.20729], turn: [0.0, 135.0, 0.0], scale: [0.17896, 0.12783, 4.09062]}
+            - {t: 12, offset: [4.2285, 0.897, 4.2285], turn: [0.0, 135.0, 0.0], scale: [0.15698, 0.11213, 3.588]}
+            - {t: 13, offset: [4.24971, 0.9015, 4.24971], turn: [0.0, 135.0, 0.0], scale: [0.12818, 0.09156, 2.92988]}
+            - {t: 14, offset: [4.27092, 0.906, 4.27092], turn: [0.0, 135.0, 0.0], scale: [0.09249, 0.06606, 2.114]}
+            - {t: 15, offset: [4.29214, 0.9105, 4.29214], turn: [0.0, 135.0, 0.0], scale: [0.04979, 0.03557, 1.13812]}
+        - {op: block, parent: fx5_verdict_ego_ring, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx5_verdict_ego_ring_ring_s2}
+        - id: fx5_verdict_ego_ring_ring_s2_trk
+          op: track
+          target: fx5_verdict_ego_ring_ring_s2
+          keys:
+            - {t: 0, offset: [0.3, 0.045, 0.0], turn: [0.0, 180.0, 0.0], scale: [0.0105, 0.0075, 0.24]}
+            - {t: 1, offset: [2.61713, 0.39257, 0.0], turn: [0.0, 180.0, 0.0], scale: [0.0916, 0.06543, 2.0937]}
+            - {t: 2, offset: [4.17037, 0.62556, 0.0], turn: [0.0, 180.0, 0.0], scale: [0.14596, 0.10426, 3.3363]}
+            - {t: 3, offset: [5.1125, 0.76687, 0.0], turn: [0.0, 180.0, 0.0], scale: [0.17894, 0.12781, 4.09]}
+            - {t: 4, offset: [5.5963, 0.83944, 0.0], turn: [0.0, 180.0, 0.0], scale: [0.19587, 0.13991, 4.47704]}
+            - {t: 5, offset: [5.77454, 0.86618, 0.0], turn: [0.0, 180.0, 0.0], scale: [0.20211, 0.14436, 4.61963]}
+            - {t: 6, offset: [5.8, 0.87, 0.0], turn: [0.0, 180.0, 0.0], scale: [0.203, 0.145, 4.64]}
+            - {t: 7, offset: [5.83, 0.8745, 0.0], turn: [0.0, 180.0, 0.0], scale: [0.20405, 0.14575, 4.664]}
+            - {t: 8, offset: [5.86, 0.879, 0.0], turn: [0.0, 180.0, 0.0], scale: [0.2051, 0.1465, 4.688], block: yellow_stained_glass}
+            - {t: 9, offset: [5.89, 0.8835, 0.0], turn: [0.0, 180.0, 0.0], scale: [0.20293, 0.14495, 4.63837]}
+            - {t: 10, offset: [5.92, 0.888, 0.0], turn: [0.0, 180.0, 0.0], scale: [0.19425, 0.13875, 4.44]}
+            - {t: 11, offset: [5.95, 0.8925, 0.0], turn: [0.0, 180.0, 0.0], scale: [0.17896, 0.12783, 4.09062]}
+            - {t: 12, offset: [5.98, 0.897, 0.0], turn: [0.0, 180.0, 0.0], scale: [0.15698, 0.11213, 3.588]}
+            - {t: 13, offset: [6.01, 0.9015, 0.0], turn: [0.0, 180.0, 0.0], scale: [0.12818, 0.09156, 2.92988]}
+            - {t: 14, offset: [6.04, 0.906, 0.0], turn: [0.0, 180.0, 0.0], scale: [0.09249, 0.06606, 2.114]}
+            - {t: 15, offset: [6.07, 0.9105, 0.0], turn: [0.0, 180.0, 0.0], scale: [0.04979, 0.03557, 1.13812]}
+        - {op: block, parent: fx5_verdict_ego_ring, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx5_verdict_ego_ring_ring_s3}
+        - id: fx5_verdict_ego_ring_ring_s3_trk
+          op: track
+          target: fx5_verdict_ego_ring_ring_s3
+          keys:
+            - {t: 0, offset: [0.21213, 0.045, -0.21213], turn: [0.0, -135.0, 0.0], scale: [0.0105, 0.0075, 0.24]}
+            - {t: 1, offset: [1.85059, 0.39257, -1.85059], turn: [0.0, -135.0, 0.0], scale: [0.0916, 0.06543, 2.0937]}
+            - {t: 2, offset: [2.9489, 0.62556, -2.9489], turn: [0.0, -135.0, 0.0], scale: [0.14596, 0.10426, 3.3363]}
+            - {t: 3, offset: [3.61508, 0.76687, -3.61508], turn: [0.0, -135.0, 0.0], scale: [0.17894, 0.12781, 4.09]}
+            - {t: 4, offset: [3.95718, 0.83944, -3.95718], turn: [0.0, -135.0, 0.0], scale: [0.19587, 0.13991, 4.47704]}
+            - {t: 5, offset: [4.08321, 0.86618, -4.08321], turn: [0.0, -135.0, 0.0], scale: [0.20211, 0.14436, 4.61963]}
+            - {t: 6, offset: [4.10122, 0.87, -4.10122], turn: [0.0, -135.0, 0.0], scale: [0.203, 0.145, 4.64]}
+            - {t: 7, offset: [4.12243, 0.8745, -4.12243], turn: [0.0, -135.0, 0.0], scale: [0.20405, 0.14575, 4.664]}
+            - {t: 8, offset: [4.14365, 0.879, -4.14365], turn: [0.0, -135.0, 0.0], scale: [0.2051, 0.1465, 4.688], block: yellow_stained_glass}
+            - {t: 9, offset: [4.16486, 0.8835, -4.16486], turn: [0.0, -135.0, 0.0], scale: [0.20293, 0.14495, 4.63837]}
+            - {t: 10, offset: [4.18607, 0.888, -4.18607], turn: [0.0, -135.0, 0.0], scale: [0.19425, 0.13875, 4.44]}
+            - {t: 11, offset: [4.20729, 0.8925, -4.20729], turn: [0.0, -135.0, 0.0], scale: [0.17896, 0.12783, 4.09062]}
+            - {t: 12, offset: [4.2285, 0.897, -4.2285], turn: [0.0, -135.0, 0.0], scale: [0.15698, 0.11213, 3.588]}
+            - {t: 13, offset: [4.24971, 0.9015, -4.24971], turn: [0.0, -135.0, 0.0], scale: [0.12818, 0.09156, 2.92988]}
+            - {t: 14, offset: [4.27092, 0.906, -4.27092], turn: [0.0, -135.0, 0.0], scale: [0.09249, 0.06606, 2.114]}
+            - {t: 15, offset: [4.29214, 0.9105, -4.29214], turn: [0.0, -135.0, 0.0], scale: [0.04979, 0.03557, 1.13812]}
+        - {op: block, parent: fx5_verdict_ego_ring, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx5_verdict_ego_ring_ring_s4}
+        - id: fx5_verdict_ego_ring_ring_s4_trk
+          op: track
+          target: fx5_verdict_ego_ring_ring_s4
+          keys:
+            - {t: 0, offset: [0.0, 0.045, -0.3], turn: [0.0, -90.0, 0.0], scale: [0.0105, 0.0075, 0.24]}
+            - {t: 1, offset: [0.0, 0.39257, -2.61713], turn: [0.0, -90.0, 0.0], scale: [0.0916, 0.06543, 2.0937]}
+            - {t: 2, offset: [0.0, 0.62556, -4.17037], turn: [0.0, -90.0, 0.0], scale: [0.14596, 0.10426, 3.3363]}
+            - {t: 3, offset: [0.0, 0.76687, -5.1125], turn: [0.0, -90.0, 0.0], scale: [0.17894, 0.12781, 4.09]}
+            - {t: 4, offset: [0.0, 0.83944, -5.5963], turn: [0.0, -90.0, 0.0], scale: [0.19587, 0.13991, 4.47704]}
+            - {t: 5, offset: [0.0, 0.86618, -5.77454], turn: [0.0, -90.0, 0.0], scale: [0.20211, 0.14436, 4.61963]}
+            - {t: 6, offset: [0.0, 0.87, -5.8], turn: [0.0, -90.0, 0.0], scale: [0.203, 0.145, 4.64]}
+            - {t: 7, offset: [0.0, 0.8745, -5.83], turn: [0.0, -90.0, 0.0], scale: [0.20405, 0.14575, 4.664]}
+            - {t: 8, offset: [0.0, 0.879, -5.86], turn: [0.0, -90.0, 0.0], scale: [0.2051, 0.1465, 4.688], block: yellow_stained_glass}
+            - {t: 9, offset: [0.0, 0.8835, -5.89], turn: [0.0, -90.0, 0.0], scale: [0.20293, 0.14495, 4.63837]}
+            - {t: 10, offset: [0.0, 0.888, -5.92], turn: [0.0, -90.0, 0.0], scale: [0.19425, 0.13875, 4.44]}
+            - {t: 11, offset: [0.0, 0.8925, -5.95], turn: [0.0, -90.0, 0.0], scale: [0.17896, 0.12783, 4.09062]}
+            - {t: 12, offset: [0.0, 0.897, -5.98], turn: [0.0, -90.0, 0.0], scale: [0.15698, 0.11213, 3.588]}
+            - {t: 13, offset: [0.0, 0.9015, -6.01], turn: [0.0, -90.0, 0.0], scale: [0.12818, 0.09156, 2.92988]}
+            - {t: 14, offset: [0.0, 0.906, -6.04], turn: [0.0, -90.0, 0.0], scale: [0.09249, 0.06606, 2.114]}
+            - {t: 15, offset: [0.0, 0.9105, -6.07], turn: [0.0, -90.0, 0.0], scale: [0.04979, 0.03557, 1.13812]}
+        - {op: block, parent: fx5_verdict_ego_ring, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx5_verdict_ego_ring_ring_s5}
+        - id: fx5_verdict_ego_ring_ring_s5_trk
+          op: track
+          target: fx5_verdict_ego_ring_ring_s5
+          keys:
+            - {t: 0, offset: [-0.21213, 0.045, -0.21213], turn: [0.0, -45.0, 0.0], scale: [0.0105, 0.0075, 0.24]}
+            - {t: 1, offset: [-1.85059, 0.39257, -1.85059], turn: [0.0, -45.0, 0.0], scale: [0.0916, 0.06543, 2.0937]}
+            - {t: 2, offset: [-2.9489, 0.62556, -2.9489], turn: [0.0, -45.0, 0.0], scale: [0.14596, 0.10426, 3.3363]}
+            - {t: 3, offset: [-3.61508, 0.76687, -3.61508], turn: [0.0, -45.0, 0.0], scale: [0.17894, 0.12781, 4.09]}
+            - {t: 4, offset: [-3.95718, 0.83944, -3.95718], turn: [0.0, -45.0, 0.0], scale: [0.19587, 0.13991, 4.47704]}
+            - {t: 5, offset: [-4.08321, 0.86618, -4.08321], turn: [0.0, -45.0, 0.0], scale: [0.20211, 0.14436, 4.61963]}
+            - {t: 6, offset: [-4.10122, 0.87, -4.10122], turn: [0.0, -45.0, 0.0], scale: [0.203, 0.145, 4.64]}
+            - {t: 7, offset: [-4.12243, 0.8745, -4.12243], turn: [0.0, -45.0, 0.0], scale: [0.20405, 0.14575, 4.664]}
+            - {t: 8, offset: [-4.14365, 0.879, -4.14365], turn: [0.0, -45.0, 0.0], scale: [0.2051, 0.1465, 4.688], block: yellow_stained_glass}
+            - {t: 9, offset: [-4.16486, 0.8835, -4.16486], turn: [0.0, -45.0, 0.0], scale: [0.20293, 0.14495, 4.63837]}
+            - {t: 10, offset: [-4.18607, 0.888, -4.18607], turn: [0.0, -45.0, 0.0], scale: [0.19425, 0.13875, 4.44]}
+            - {t: 11, offset: [-4.20729, 0.8925, -4.20729], turn: [0.0, -45.0, 0.0], scale: [0.17896, 0.12783, 4.09062]}
+            - {t: 12, offset: [-4.2285, 0.897, -4.2285], turn: [0.0, -45.0, 0.0], scale: [0.15698, 0.11213, 3.588]}
+            - {t: 13, offset: [-4.24971, 0.9015, -4.24971], turn: [0.0, -45.0, 0.0], scale: [0.12818, 0.09156, 2.92988]}
+            - {t: 14, offset: [-4.27092, 0.906, -4.27092], turn: [0.0, -45.0, 0.0], scale: [0.09249, 0.06606, 2.114]}
+            - {t: 15, offset: [-4.29214, 0.9105, -4.29214], turn: [0.0, -45.0, 0.0], scale: [0.04979, 0.03557, 1.13812]}
+        - {op: block, parent: fx5_verdict_ego_ring, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx5_verdict_ego_ring_ring_s6}
+        - id: fx5_verdict_ego_ring_ring_s6_trk
+          op: track
+          target: fx5_verdict_ego_ring_ring_s6
+          keys:
+            - {t: 0, offset: [-0.3, 0.045, 0.0], turn: [0.0, 0.0, 0.0], scale: [0.0105, 0.0075, 0.24]}
+            - {t: 1, offset: [-2.61713, 0.39257, 0.0], turn: [0.0, 0.0, 0.0], scale: [0.0916, 0.06543, 2.0937]}
+            - {t: 2, offset: [-4.17037, 0.62556, 0.0], turn: [0.0, 0.0, 0.0], scale: [0.14596, 0.10426, 3.3363]}
+            - {t: 3, offset: [-5.1125, 0.76687, 0.0], turn: [0.0, 0.0, 0.0], scale: [0.17894, 0.12781, 4.09]}
+            - {t: 4, offset: [-5.5963, 0.83944, 0.0], turn: [0.0, 0.0, 0.0], scale: [0.19587, 0.13991, 4.47704]}
+            - {t: 5, offset: [-5.77454, 0.86618, 0.0], turn: [0.0, 0.0, 0.0], scale: [0.20211, 0.14436, 4.61963]}
+            - {t: 6, offset: [-5.8, 0.87, 0.0], turn: [0.0, 0.0, 0.0], scale: [0.203, 0.145, 4.64]}
+            - {t: 7, offset: [-5.83, 0.8745, 0.0], turn: [0.0, 0.0, 0.0], scale: [0.20405, 0.14575, 4.664]}
+            - {t: 8, offset: [-5.86, 0.879, 0.0], turn: [0.0, 0.0, 0.0], scale: [0.2051, 0.1465, 4.688], block: yellow_stained_glass}
+            - {t: 9, offset: [-5.89, 0.8835, 0.0], turn: [0.0, 0.0, 0.0], scale: [0.20293, 0.14495, 4.63837]}
+            - {t: 10, offset: [-5.92, 0.888, 0.0], turn: [0.0, 0.0, 0.0], scale: [0.19425, 0.13875, 4.44]}
+            - {t: 11, offset: [-5.95, 0.8925, 0.0], turn: [0.0, 0.0, 0.0], scale: [0.17896, 0.12783, 4.09062]}
+            - {t: 12, offset: [-5.98, 0.897, 0.0], turn: [0.0, 0.0, 0.0], scale: [0.15698, 0.11213, 3.588]}
+            - {t: 13, offset: [-6.01, 0.9015, 0.0], turn: [0.0, 0.0, 0.0], scale: [0.12818, 0.09156, 2.92988]}
+            - {t: 14, offset: [-6.04, 0.906, 0.0], turn: [0.0, 0.0, 0.0], scale: [0.09249, 0.06606, 2.114]}
+            - {t: 15, offset: [-6.07, 0.9105, 0.0], turn: [0.0, 0.0, 0.0], scale: [0.04979, 0.03557, 1.13812]}
+        - {op: block, parent: fx5_verdict_ego_ring, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx5_verdict_ego_ring_ring_s7}
+        - id: fx5_verdict_ego_ring_ring_s7_trk
+          op: track
+          target: fx5_verdict_ego_ring_ring_s7
+          keys:
+            - {t: 0, offset: [-0.21213, 0.045, 0.21213], turn: [0.0, 45.0, 0.0], scale: [0.0105, 0.0075, 0.24]}
+            - {t: 1, offset: [-1.85059, 0.39257, 1.85059], turn: [0.0, 45.0, 0.0], scale: [0.0916, 0.06543, 2.0937]}
+            - {t: 2, offset: [-2.9489, 0.62556, 2.9489], turn: [0.0, 45.0, 0.0], scale: [0.14596, 0.10426, 3.3363]}
+            - {t: 3, offset: [-3.61508, 0.76687, 3.61508], turn: [0.0, 45.0, 0.0], scale: [0.17894, 0.12781, 4.09]}
+            - {t: 4, offset: [-3.95718, 0.83944, 3.95718], turn: [0.0, 45.0, 0.0], scale: [0.19587, 0.13991, 4.47704]}
+            - {t: 5, offset: [-4.08321, 0.86618, 4.08321], turn: [0.0, 45.0, 0.0], scale: [0.20211, 0.14436, 4.61963]}
+            - {t: 6, offset: [-4.10122, 0.87, 4.10122], turn: [0.0, 45.0, 0.0], scale: [0.203, 0.145, 4.64]}
+            - {t: 7, offset: [-4.12243, 0.8745, 4.12243], turn: [0.0, 45.0, 0.0], scale: [0.20405, 0.14575, 4.664]}
+            - {t: 8, offset: [-4.14365, 0.879, 4.14365], turn: [0.0, 45.0, 0.0], scale: [0.2051, 0.1465, 4.688], block: yellow_stained_glass}
+            - {t: 9, offset: [-4.16486, 0.8835, 4.16486], turn: [0.0, 45.0, 0.0], scale: [0.20293, 0.14495, 4.63837]}
+            - {t: 10, offset: [-4.18607, 0.888, 4.18607], turn: [0.0, 45.0, 0.0], scale: [0.19425, 0.13875, 4.44]}
+            - {t: 11, offset: [-4.20729, 0.8925, 4.20729], turn: [0.0, 45.0, 0.0], scale: [0.17896, 0.12783, 4.09062]}
+            - {t: 12, offset: [-4.2285, 0.897, 4.2285], turn: [0.0, 45.0, 0.0], scale: [0.15698, 0.11213, 3.588]}
+            - {t: 13, offset: [-4.24971, 0.9015, 4.24971], turn: [0.0, 45.0, 0.0], scale: [0.12818, 0.09156, 2.92988]}
+            - {t: 14, offset: [-4.27092, 0.906, 4.27092], turn: [0.0, 45.0, 0.0], scale: [0.09249, 0.06606, 2.114]}
+            - {t: 15, offset: [-4.29214, 0.9105, 4.29214], turn: [0.0, 45.0, 0.0], scale: [0.04979, 0.03557, 1.13812]}
+        - id: emit_23
+          op: emit
+          at: pt_caster_0_m1p5_8
+          particle: dust
+          count: 1
+          data: "#ffdc6e"
+          data_size: 1.2
+          times: 16
+          shift: "= vec(0.5*sin((3.6213 + 6.283185307179586*i/16)), 0.0, 0.5*cos((3.6213 + 6.283185307179586*i/16)))"
+    - id: fx103
+      at: 103
+      do:
+        - {op: quad, parent: fx4_verdict_impact, face: {viewer: center}, size: [1.0, 1.0], color: "#302313", alpha: 1.0, text: "▲", see_through: true, brightness: 15, id: fx4_verdict_impact_dark0}
+        - id: fx4_verdict_impact_dark0_trk
+          op: track
+          target: fx4_verdict_impact_dark0
+          keys:
+            - {t: 0, offset: [0.0, 1.0, 0.0], scale: [0.12, 0.2, 1.0], alpha: 1.0}
+            - {t: 5, offset: [1.3, 1.4, 0.3], scale: [0.16, 0.26, 1.0], ease: out_cubic}
+            - {t: 11, scale: [0.04, 0.04, 1.0], alpha: 0.0}
+        - {op: quad, parent: fx4_verdict_impact, face: {viewer: center}, size: [1.0, 1.0], color: "#302313", alpha: 1.0, text: "▲", see_through: true, brightness: 15, id: fx4_verdict_impact_dark1}
+        - id: fx4_verdict_impact_dark1_trk
+          op: track
+          target: fx4_verdict_impact_dark1
+          keys:
+            - {t: 0, offset: [0.0, 1.0, 0.0], scale: [0.12, 0.2, 1.0], alpha: 1.0}
+            - {t: 5, offset: [0.0, 2.4, 0.3], scale: [0.16, 0.26, 1.0], ease: out_cubic}
+            - {t: 11, scale: [0.04, 0.04, 1.0], alpha: 0.0}
+        - {op: quad, parent: fx4_verdict_impact, face: {viewer: center}, size: [1.0, 1.0], color: "#302313", alpha: 1.0, text: "▲", see_through: true, brightness: 15, id: fx4_verdict_impact_dark2}
+        - id: fx4_verdict_impact_dark2_trk
+          op: track
+          target: fx4_verdict_impact_dark2
+          keys:
+            - {t: 0, offset: [0.0, 1.0, 0.0], scale: [0.12, 0.2, 1.0], alpha: 1.0}
+            - {t: 5, offset: [-1.3, 1.4, 0.3], scale: [0.16, 0.26, 1.0], ease: out_cubic}
+            - {t: 11, scale: [0.04, 0.04, 1.0], alpha: 0.0}
+        - id: emit_24
+          op: emit
+          at: pt_caster_0_m1p5_8
+          particle: dust
+          count: 1
+          data: "#ffdc6e"
+          data_size: 1.2
+          times: 16
+          shift: "= vec(1.56*sin((3.6213 + 6.283185307179586*i/16)), 0.0, 1.56*cos((3.6213 + 6.283185307179586*i/16)))"
+    - id: fx104
+      at: 104
+      do:
+        - id: emit_25
+          op: emit
+          at: pt_caster_0_m1p5_8
+          particle: dust
+          count: 1
+          data: "#ffdc6e"
+          data_size: 1.2
+          times: 16
+          shift: "= vec(2.62*sin((3.6213 + 6.283185307179586*i/16)), 0.0, 2.62*cos((3.6213 + 6.283185307179586*i/16)))"
+    - id: fx105
+      at: 105
+      do:
+        - id: emit_26
+          op: emit
+          at: pt_caster_0_m1p5_8
+          particle: dust
+          count: 1
+          data: "#ffdc6e"
+          data_size: 1.2
+          times: 16
+          shift: "= vec(3.68*sin((3.6213 + 6.283185307179586*i/16)), 0.0, 3.68*cos((3.6213 + 6.283185307179586*i/16)))"
+    - id: fx106
+      at: 106
+      do:
+        - id: emit_27
+          op: emit
+          at: pt_caster_0_m1p5_8
+          particle: dust
+          count: 1
+          data: "#ffdc6e"
+          data_size: 1.2
+          times: 16
+          shift: "= vec(4.74*sin((3.6213 + 6.283185307179586*i/16)), 0.0, 4.74*cos((3.6213 + 6.283185307179586*i/16)))"
+    - id: fx107
+      at: 107
+      do:
+        - id: emit_28
+          op: emit
+          at: pt_caster_0_m1p5_8
+          particle: dust
+          count: 1
+          data: "#ffdc6e"
+          data_size: 1.2
+          times: 16
+          shift: "= vec(5.8*sin((3.6213 + 6.283185307179586*i/16)), 0.0, 5.8*cos((3.6213 + 6.283185307179586*i/16)))"
+    - {id: fx111, at: 111, do: [{id: rm_6, op: remove, ids: [fx4_verdict_impact_bloom]}]}
+    - {id: fx112, at: 112, do: [{id: rm_7, op: remove, ids: [fx4_verdict_impact_star]}]}
+    - {id: fx114, at: 114, do: [{id: rm_8, op: remove, ids: [fx4_verdict_impact_dark0, fx4_verdict_impact_dark1, fx4_verdict_impact_dark2]}]}
+    - id: fx118
+      at: 118
+      do:
+        - id: rm_9
+          op: remove
+          ids:
+            - fx5_verdict_ego_ring_ring_s0
+            - fx5_verdict_ego_ring_ring_s1
+            - fx5_verdict_ego_ring_ring_s2
+            - fx5_verdict_ego_ring_ring_s3
+            - fx5_verdict_ego_ring_ring_s4
+            - fx5_verdict_ego_ring_ring_s5
+            - fx5_verdict_ego_ring_ring_s6
+            - fx5_verdict_ego_ring_ring_s7
     - id: fx128
       at: 128
       do:
         - {id: snd_3, op: sound, sound: entity.player.attack.strong, at: caster, pitch: 0.7}
-        - {id: emit_19, op: emit, at: pt_caster_0_m1p5_8, particle: dust, count: 1, data: "#ffdc6e", data_size: 1.2}
+        - {id: flash_3, op: screen_flash, target: caster, overlay: white, color: "#FFF4CF", fade_in: 0, stay: 1, fade_out: 1}
+        - {op: quad, parent: fx6_verdict_impact, face: {viewer: center}, size: [1.0, 1.0], color: "#FFFAD8", alpha: 1.0, text: "✷", see_through: true, brightness: 15, id: fx6_verdict_impact_star}
+        - id: fx6_verdict_impact_star_trk
+          op: track
+          target: fx6_verdict_impact_star
+          keys:
+            - {t: 0, offset: [0.0, -1.06, 0.55], scale: [2.4, 2.4, 1.0], alpha: 1.0}
+            - {t: 4, offset: [0.0, -1.06, 0.55], scale: [2.4, 2.4, 1.0], alpha: 1.0}
+            - {t: 10, offset: [0.0, 1.1, 0.55], scale: [0.0, 0.0, 0.0], alpha: 0.0, ease: in_quad}
+        - {op: quad, parent: fx6_verdict_impact, face: {viewer: center}, size: [1.0, 1.0], color: "#FFD66B", alpha: 0.22, text: "✦", see_through: true, brightness: 15, id: fx6_verdict_impact_bloom}
+        - id: fx6_verdict_impact_bloom_trk
+          op: track
+          target: fx6_verdict_impact_bloom
+          keys:
+            - {t: 0, offset: [0.0, -1.87, 0.5], scale: [3.3, 3.3, 1.0], alpha: 0.22}
+            - {t: 9, offset: [0.0, -2.5, 0.5], scale: [4.0, 4.0, 1.0], alpha: 0.0, ease: out_cubic}
+        - {op: block, parent: fx7_verdict_ego_ring, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx7_verdict_ego_ring_ring_s0}
+        - id: fx7_verdict_ego_ring_ring_s0_trk
+          op: track
+          target: fx7_verdict_ego_ring_ring_s0
+          keys:
+            - {t: 0, offset: [0.0, 0.045, 0.3], turn: [0.0, 90.0, 0.0], scale: [0.0105, 0.0075, 0.24]}
+            - {t: 1, offset: [0.0, 0.39257, 2.61713], turn: [0.0, 90.0, 0.0], scale: [0.0916, 0.06543, 2.0937]}
+            - {t: 2, offset: [0.0, 0.62556, 4.17037], turn: [0.0, 90.0, 0.0], scale: [0.14596, 0.10426, 3.3363]}
+            - {t: 3, offset: [0.0, 0.76687, 5.1125], turn: [0.0, 90.0, 0.0], scale: [0.17894, 0.12781, 4.09]}
+            - {t: 4, offset: [0.0, 0.83944, 5.5963], turn: [0.0, 90.0, 0.0], scale: [0.19587, 0.13991, 4.47704]}
+            - {t: 5, offset: [0.0, 0.86618, 5.77454], turn: [0.0, 90.0, 0.0], scale: [0.20211, 0.14436, 4.61963]}
+            - {t: 6, offset: [0.0, 0.87, 5.8], turn: [0.0, 90.0, 0.0], scale: [0.203, 0.145, 4.64]}
+            - {t: 7, offset: [0.0, 0.8745, 5.83], turn: [0.0, 90.0, 0.0], scale: [0.20405, 0.14575, 4.664]}
+            - {t: 8, offset: [0.0, 0.879, 5.86], turn: [0.0, 90.0, 0.0], scale: [0.2051, 0.1465, 4.688], block: yellow_stained_glass}
+            - {t: 9, offset: [0.0, 0.8835, 5.89], turn: [0.0, 90.0, 0.0], scale: [0.20293, 0.14495, 4.63837]}
+            - {t: 10, offset: [0.0, 0.888, 5.92], turn: [0.0, 90.0, 0.0], scale: [0.19425, 0.13875, 4.44]}
+            - {t: 11, offset: [0.0, 0.8925, 5.95], turn: [0.0, 90.0, 0.0], scale: [0.17896, 0.12783, 4.09062]}
+            - {t: 12, offset: [0.0, 0.897, 5.98], turn: [0.0, 90.0, 0.0], scale: [0.15698, 0.11213, 3.588]}
+            - {t: 13, offset: [0.0, 0.9015, 6.01], turn: [0.0, 90.0, 0.0], scale: [0.12818, 0.09156, 2.92988]}
+            - {t: 14, offset: [0.0, 0.906, 6.04], turn: [0.0, 90.0, 0.0], scale: [0.09249, 0.06606, 2.114]}
+            - {t: 15, offset: [0.0, 0.9105, 6.07], turn: [0.0, 90.0, 0.0], scale: [0.04979, 0.03557, 1.13812]}
+        - {op: block, parent: fx7_verdict_ego_ring, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx7_verdict_ego_ring_ring_s1}
+        - id: fx7_verdict_ego_ring_ring_s1_trk
+          op: track
+          target: fx7_verdict_ego_ring_ring_s1
+          keys:
+            - {t: 0, offset: [0.21213, 0.045, 0.21213], turn: [0.0, 135.0, 0.0], scale: [0.0105, 0.0075, 0.24]}
+            - {t: 1, offset: [1.85059, 0.39257, 1.85059], turn: [0.0, 135.0, 0.0], scale: [0.0916, 0.06543, 2.0937]}
+            - {t: 2, offset: [2.9489, 0.62556, 2.9489], turn: [0.0, 135.0, 0.0], scale: [0.14596, 0.10426, 3.3363]}
+            - {t: 3, offset: [3.61508, 0.76687, 3.61508], turn: [0.0, 135.0, 0.0], scale: [0.17894, 0.12781, 4.09]}
+            - {t: 4, offset: [3.95718, 0.83944, 3.95718], turn: [0.0, 135.0, 0.0], scale: [0.19587, 0.13991, 4.47704]}
+            - {t: 5, offset: [4.08321, 0.86618, 4.08321], turn: [0.0, 135.0, 0.0], scale: [0.20211, 0.14436, 4.61963]}
+            - {t: 6, offset: [4.10122, 0.87, 4.10122], turn: [0.0, 135.0, 0.0], scale: [0.203, 0.145, 4.64]}
+            - {t: 7, offset: [4.12243, 0.8745, 4.12243], turn: [0.0, 135.0, 0.0], scale: [0.20405, 0.14575, 4.664]}
+            - {t: 8, offset: [4.14365, 0.879, 4.14365], turn: [0.0, 135.0, 0.0], scale: [0.2051, 0.1465, 4.688], block: yellow_stained_glass}
+            - {t: 9, offset: [4.16486, 0.8835, 4.16486], turn: [0.0, 135.0, 0.0], scale: [0.20293, 0.14495, 4.63837]}
+            - {t: 10, offset: [4.18607, 0.888, 4.18607], turn: [0.0, 135.0, 0.0], scale: [0.19425, 0.13875, 4.44]}
+            - {t: 11, offset: [4.20729, 0.8925, 4.20729], turn: [0.0, 135.0, 0.0], scale: [0.17896, 0.12783, 4.09062]}
+            - {t: 12, offset: [4.2285, 0.897, 4.2285], turn: [0.0, 135.0, 0.0], scale: [0.15698, 0.11213, 3.588]}
+            - {t: 13, offset: [4.24971, 0.9015, 4.24971], turn: [0.0, 135.0, 0.0], scale: [0.12818, 0.09156, 2.92988]}
+            - {t: 14, offset: [4.27092, 0.906, 4.27092], turn: [0.0, 135.0, 0.0], scale: [0.09249, 0.06606, 2.114]}
+            - {t: 15, offset: [4.29214, 0.9105, 4.29214], turn: [0.0, 135.0, 0.0], scale: [0.04979, 0.03557, 1.13812]}
+        - {op: block, parent: fx7_verdict_ego_ring, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx7_verdict_ego_ring_ring_s2}
+        - id: fx7_verdict_ego_ring_ring_s2_trk
+          op: track
+          target: fx7_verdict_ego_ring_ring_s2
+          keys:
+            - {t: 0, offset: [0.3, 0.045, 0.0], turn: [0.0, 180.0, 0.0], scale: [0.0105, 0.0075, 0.24]}
+            - {t: 1, offset: [2.61713, 0.39257, 0.0], turn: [0.0, 180.0, 0.0], scale: [0.0916, 0.06543, 2.0937]}
+            - {t: 2, offset: [4.17037, 0.62556, 0.0], turn: [0.0, 180.0, 0.0], scale: [0.14596, 0.10426, 3.3363]}
+            - {t: 3, offset: [5.1125, 0.76687, 0.0], turn: [0.0, 180.0, 0.0], scale: [0.17894, 0.12781, 4.09]}
+            - {t: 4, offset: [5.5963, 0.83944, 0.0], turn: [0.0, 180.0, 0.0], scale: [0.19587, 0.13991, 4.47704]}
+            - {t: 5, offset: [5.77454, 0.86618, 0.0], turn: [0.0, 180.0, 0.0], scale: [0.20211, 0.14436, 4.61963]}
+            - {t: 6, offset: [5.8, 0.87, 0.0], turn: [0.0, 180.0, 0.0], scale: [0.203, 0.145, 4.64]}
+            - {t: 7, offset: [5.83, 0.8745, 0.0], turn: [0.0, 180.0, 0.0], scale: [0.20405, 0.14575, 4.664]}
+            - {t: 8, offset: [5.86, 0.879, 0.0], turn: [0.0, 180.0, 0.0], scale: [0.2051, 0.1465, 4.688], block: yellow_stained_glass}
+            - {t: 9, offset: [5.89, 0.8835, 0.0], turn: [0.0, 180.0, 0.0], scale: [0.20293, 0.14495, 4.63837]}
+            - {t: 10, offset: [5.92, 0.888, 0.0], turn: [0.0, 180.0, 0.0], scale: [0.19425, 0.13875, 4.44]}
+            - {t: 11, offset: [5.95, 0.8925, 0.0], turn: [0.0, 180.0, 0.0], scale: [0.17896, 0.12783, 4.09062]}
+            - {t: 12, offset: [5.98, 0.897, 0.0], turn: [0.0, 180.0, 0.0], scale: [0.15698, 0.11213, 3.588]}
+            - {t: 13, offset: [6.01, 0.9015, 0.0], turn: [0.0, 180.0, 0.0], scale: [0.12818, 0.09156, 2.92988]}
+            - {t: 14, offset: [6.04, 0.906, 0.0], turn: [0.0, 180.0, 0.0], scale: [0.09249, 0.06606, 2.114]}
+            - {t: 15, offset: [6.07, 0.9105, 0.0], turn: [0.0, 180.0, 0.0], scale: [0.04979, 0.03557, 1.13812]}
+        - {op: block, parent: fx7_verdict_ego_ring, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx7_verdict_ego_ring_ring_s3}
+        - id: fx7_verdict_ego_ring_ring_s3_trk
+          op: track
+          target: fx7_verdict_ego_ring_ring_s3
+          keys:
+            - {t: 0, offset: [0.21213, 0.045, -0.21213], turn: [0.0, -135.0, 0.0], scale: [0.0105, 0.0075, 0.24]}
+            - {t: 1, offset: [1.85059, 0.39257, -1.85059], turn: [0.0, -135.0, 0.0], scale: [0.0916, 0.06543, 2.0937]}
+            - {t: 2, offset: [2.9489, 0.62556, -2.9489], turn: [0.0, -135.0, 0.0], scale: [0.14596, 0.10426, 3.3363]}
+            - {t: 3, offset: [3.61508, 0.76687, -3.61508], turn: [0.0, -135.0, 0.0], scale: [0.17894, 0.12781, 4.09]}
+            - {t: 4, offset: [3.95718, 0.83944, -3.95718], turn: [0.0, -135.0, 0.0], scale: [0.19587, 0.13991, 4.47704]}
+            - {t: 5, offset: [4.08321, 0.86618, -4.08321], turn: [0.0, -135.0, 0.0], scale: [0.20211, 0.14436, 4.61963]}
+            - {t: 6, offset: [4.10122, 0.87, -4.10122], turn: [0.0, -135.0, 0.0], scale: [0.203, 0.145, 4.64]}
+            - {t: 7, offset: [4.12243, 0.8745, -4.12243], turn: [0.0, -135.0, 0.0], scale: [0.20405, 0.14575, 4.664]}
+            - {t: 8, offset: [4.14365, 0.879, -4.14365], turn: [0.0, -135.0, 0.0], scale: [0.2051, 0.1465, 4.688], block: yellow_stained_glass}
+            - {t: 9, offset: [4.16486, 0.8835, -4.16486], turn: [0.0, -135.0, 0.0], scale: [0.20293, 0.14495, 4.63837]}
+            - {t: 10, offset: [4.18607, 0.888, -4.18607], turn: [0.0, -135.0, 0.0], scale: [0.19425, 0.13875, 4.44]}
+            - {t: 11, offset: [4.20729, 0.8925, -4.20729], turn: [0.0, -135.0, 0.0], scale: [0.17896, 0.12783, 4.09062]}
+            - {t: 12, offset: [4.2285, 0.897, -4.2285], turn: [0.0, -135.0, 0.0], scale: [0.15698, 0.11213, 3.588]}
+            - {t: 13, offset: [4.24971, 0.9015, -4.24971], turn: [0.0, -135.0, 0.0], scale: [0.12818, 0.09156, 2.92988]}
+            - {t: 14, offset: [4.27092, 0.906, -4.27092], turn: [0.0, -135.0, 0.0], scale: [0.09249, 0.06606, 2.114]}
+            - {t: 15, offset: [4.29214, 0.9105, -4.29214], turn: [0.0, -135.0, 0.0], scale: [0.04979, 0.03557, 1.13812]}
+        - {op: block, parent: fx7_verdict_ego_ring, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx7_verdict_ego_ring_ring_s4}
+        - id: fx7_verdict_ego_ring_ring_s4_trk
+          op: track
+          target: fx7_verdict_ego_ring_ring_s4
+          keys:
+            - {t: 0, offset: [0.0, 0.045, -0.3], turn: [0.0, -90.0, 0.0], scale: [0.0105, 0.0075, 0.24]}
+            - {t: 1, offset: [0.0, 0.39257, -2.61713], turn: [0.0, -90.0, 0.0], scale: [0.0916, 0.06543, 2.0937]}
+            - {t: 2, offset: [0.0, 0.62556, -4.17037], turn: [0.0, -90.0, 0.0], scale: [0.14596, 0.10426, 3.3363]}
+            - {t: 3, offset: [0.0, 0.76687, -5.1125], turn: [0.0, -90.0, 0.0], scale: [0.17894, 0.12781, 4.09]}
+            - {t: 4, offset: [0.0, 0.83944, -5.5963], turn: [0.0, -90.0, 0.0], scale: [0.19587, 0.13991, 4.47704]}
+            - {t: 5, offset: [0.0, 0.86618, -5.77454], turn: [0.0, -90.0, 0.0], scale: [0.20211, 0.14436, 4.61963]}
+            - {t: 6, offset: [0.0, 0.87, -5.8], turn: [0.0, -90.0, 0.0], scale: [0.203, 0.145, 4.64]}
+            - {t: 7, offset: [0.0, 0.8745, -5.83], turn: [0.0, -90.0, 0.0], scale: [0.20405, 0.14575, 4.664]}
+            - {t: 8, offset: [0.0, 0.879, -5.86], turn: [0.0, -90.0, 0.0], scale: [0.2051, 0.1465, 4.688], block: yellow_stained_glass}
+            - {t: 9, offset: [0.0, 0.8835, -5.89], turn: [0.0, -90.0, 0.0], scale: [0.20293, 0.14495, 4.63837]}
+            - {t: 10, offset: [0.0, 0.888, -5.92], turn: [0.0, -90.0, 0.0], scale: [0.19425, 0.13875, 4.44]}
+            - {t: 11, offset: [0.0, 0.8925, -5.95], turn: [0.0, -90.0, 0.0], scale: [0.17896, 0.12783, 4.09062]}
+            - {t: 12, offset: [0.0, 0.897, -5.98], turn: [0.0, -90.0, 0.0], scale: [0.15698, 0.11213, 3.588]}
+            - {t: 13, offset: [0.0, 0.9015, -6.01], turn: [0.0, -90.0, 0.0], scale: [0.12818, 0.09156, 2.92988]}
+            - {t: 14, offset: [0.0, 0.906, -6.04], turn: [0.0, -90.0, 0.0], scale: [0.09249, 0.06606, 2.114]}
+            - {t: 15, offset: [0.0, 0.9105, -6.07], turn: [0.0, -90.0, 0.0], scale: [0.04979, 0.03557, 1.13812]}
+        - {op: block, parent: fx7_verdict_ego_ring, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx7_verdict_ego_ring_ring_s5}
+        - id: fx7_verdict_ego_ring_ring_s5_trk
+          op: track
+          target: fx7_verdict_ego_ring_ring_s5
+          keys:
+            - {t: 0, offset: [-0.21213, 0.045, -0.21213], turn: [0.0, -45.0, 0.0], scale: [0.0105, 0.0075, 0.24]}
+            - {t: 1, offset: [-1.85059, 0.39257, -1.85059], turn: [0.0, -45.0, 0.0], scale: [0.0916, 0.06543, 2.0937]}
+            - {t: 2, offset: [-2.9489, 0.62556, -2.9489], turn: [0.0, -45.0, 0.0], scale: [0.14596, 0.10426, 3.3363]}
+            - {t: 3, offset: [-3.61508, 0.76687, -3.61508], turn: [0.0, -45.0, 0.0], scale: [0.17894, 0.12781, 4.09]}
+            - {t: 4, offset: [-3.95718, 0.83944, -3.95718], turn: [0.0, -45.0, 0.0], scale: [0.19587, 0.13991, 4.47704]}
+            - {t: 5, offset: [-4.08321, 0.86618, -4.08321], turn: [0.0, -45.0, 0.0], scale: [0.20211, 0.14436, 4.61963]}
+            - {t: 6, offset: [-4.10122, 0.87, -4.10122], turn: [0.0, -45.0, 0.0], scale: [0.203, 0.145, 4.64]}
+            - {t: 7, offset: [-4.12243, 0.8745, -4.12243], turn: [0.0, -45.0, 0.0], scale: [0.20405, 0.14575, 4.664]}
+            - {t: 8, offset: [-4.14365, 0.879, -4.14365], turn: [0.0, -45.0, 0.0], scale: [0.2051, 0.1465, 4.688], block: yellow_stained_glass}
+            - {t: 9, offset: [-4.16486, 0.8835, -4.16486], turn: [0.0, -45.0, 0.0], scale: [0.20293, 0.14495, 4.63837]}
+            - {t: 10, offset: [-4.18607, 0.888, -4.18607], turn: [0.0, -45.0, 0.0], scale: [0.19425, 0.13875, 4.44]}
+            - {t: 11, offset: [-4.20729, 0.8925, -4.20729], turn: [0.0, -45.0, 0.0], scale: [0.17896, 0.12783, 4.09062]}
+            - {t: 12, offset: [-4.2285, 0.897, -4.2285], turn: [0.0, -45.0, 0.0], scale: [0.15698, 0.11213, 3.588]}
+            - {t: 13, offset: [-4.24971, 0.9015, -4.24971], turn: [0.0, -45.0, 0.0], scale: [0.12818, 0.09156, 2.92988]}
+            - {t: 14, offset: [-4.27092, 0.906, -4.27092], turn: [0.0, -45.0, 0.0], scale: [0.09249, 0.06606, 2.114]}
+            - {t: 15, offset: [-4.29214, 0.9105, -4.29214], turn: [0.0, -45.0, 0.0], scale: [0.04979, 0.03557, 1.13812]}
+        - {op: block, parent: fx7_verdict_ego_ring, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx7_verdict_ego_ring_ring_s6}
+        - id: fx7_verdict_ego_ring_ring_s6_trk
+          op: track
+          target: fx7_verdict_ego_ring_ring_s6
+          keys:
+            - {t: 0, offset: [-0.3, 0.045, 0.0], turn: [0.0, 0.0, 0.0], scale: [0.0105, 0.0075, 0.24]}
+            - {t: 1, offset: [-2.61713, 0.39257, 0.0], turn: [0.0, 0.0, 0.0], scale: [0.0916, 0.06543, 2.0937]}
+            - {t: 2, offset: [-4.17037, 0.62556, 0.0], turn: [0.0, 0.0, 0.0], scale: [0.14596, 0.10426, 3.3363]}
+            - {t: 3, offset: [-5.1125, 0.76687, 0.0], turn: [0.0, 0.0, 0.0], scale: [0.17894, 0.12781, 4.09]}
+            - {t: 4, offset: [-5.5963, 0.83944, 0.0], turn: [0.0, 0.0, 0.0], scale: [0.19587, 0.13991, 4.47704]}
+            - {t: 5, offset: [-5.77454, 0.86618, 0.0], turn: [0.0, 0.0, 0.0], scale: [0.20211, 0.14436, 4.61963]}
+            - {t: 6, offset: [-5.8, 0.87, 0.0], turn: [0.0, 0.0, 0.0], scale: [0.203, 0.145, 4.64]}
+            - {t: 7, offset: [-5.83, 0.8745, 0.0], turn: [0.0, 0.0, 0.0], scale: [0.20405, 0.14575, 4.664]}
+            - {t: 8, offset: [-5.86, 0.879, 0.0], turn: [0.0, 0.0, 0.0], scale: [0.2051, 0.1465, 4.688], block: yellow_stained_glass}
+            - {t: 9, offset: [-5.89, 0.8835, 0.0], turn: [0.0, 0.0, 0.0], scale: [0.20293, 0.14495, 4.63837]}
+            - {t: 10, offset: [-5.92, 0.888, 0.0], turn: [0.0, 0.0, 0.0], scale: [0.19425, 0.13875, 4.44]}
+            - {t: 11, offset: [-5.95, 0.8925, 0.0], turn: [0.0, 0.0, 0.0], scale: [0.17896, 0.12783, 4.09062]}
+            - {t: 12, offset: [-5.98, 0.897, 0.0], turn: [0.0, 0.0, 0.0], scale: [0.15698, 0.11213, 3.588]}
+            - {t: 13, offset: [-6.01, 0.9015, 0.0], turn: [0.0, 0.0, 0.0], scale: [0.12818, 0.09156, 2.92988]}
+            - {t: 14, offset: [-6.04, 0.906, 0.0], turn: [0.0, 0.0, 0.0], scale: [0.09249, 0.06606, 2.114]}
+            - {t: 15, offset: [-6.07, 0.9105, 0.0], turn: [0.0, 0.0, 0.0], scale: [0.04979, 0.03557, 1.13812]}
+        - {op: block, parent: fx7_verdict_ego_ring, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx7_verdict_ego_ring_ring_s7}
+        - id: fx7_verdict_ego_ring_ring_s7_trk
+          op: track
+          target: fx7_verdict_ego_ring_ring_s7
+          keys:
+            - {t: 0, offset: [-0.21213, 0.045, 0.21213], turn: [0.0, 45.0, 0.0], scale: [0.0105, 0.0075, 0.24]}
+            - {t: 1, offset: [-1.85059, 0.39257, 1.85059], turn: [0.0, 45.0, 0.0], scale: [0.0916, 0.06543, 2.0937]}
+            - {t: 2, offset: [-2.9489, 0.62556, 2.9489], turn: [0.0, 45.0, 0.0], scale: [0.14596, 0.10426, 3.3363]}
+            - {t: 3, offset: [-3.61508, 0.76687, 3.61508], turn: [0.0, 45.0, 0.0], scale: [0.17894, 0.12781, 4.09]}
+            - {t: 4, offset: [-3.95718, 0.83944, 3.95718], turn: [0.0, 45.0, 0.0], scale: [0.19587, 0.13991, 4.47704]}
+            - {t: 5, offset: [-4.08321, 0.86618, 4.08321], turn: [0.0, 45.0, 0.0], scale: [0.20211, 0.14436, 4.61963]}
+            - {t: 6, offset: [-4.10122, 0.87, 4.10122], turn: [0.0, 45.0, 0.0], scale: [0.203, 0.145, 4.64]}
+            - {t: 7, offset: [-4.12243, 0.8745, 4.12243], turn: [0.0, 45.0, 0.0], scale: [0.20405, 0.14575, 4.664]}
+            - {t: 8, offset: [-4.14365, 0.879, 4.14365], turn: [0.0, 45.0, 0.0], scale: [0.2051, 0.1465, 4.688], block: yellow_stained_glass}
+            - {t: 9, offset: [-4.16486, 0.8835, 4.16486], turn: [0.0, 45.0, 0.0], scale: [0.20293, 0.14495, 4.63837]}
+            - {t: 10, offset: [-4.18607, 0.888, 4.18607], turn: [0.0, 45.0, 0.0], scale: [0.19425, 0.13875, 4.44]}
+            - {t: 11, offset: [-4.20729, 0.8925, 4.20729], turn: [0.0, 45.0, 0.0], scale: [0.17896, 0.12783, 4.09062]}
+            - {t: 12, offset: [-4.2285, 0.897, 4.2285], turn: [0.0, 45.0, 0.0], scale: [0.15698, 0.11213, 3.588]}
+            - {t: 13, offset: [-4.24971, 0.9015, 4.24971], turn: [0.0, 45.0, 0.0], scale: [0.12818, 0.09156, 2.92988]}
+            - {t: 14, offset: [-4.27092, 0.906, 4.27092], turn: [0.0, 45.0, 0.0], scale: [0.09249, 0.06606, 2.114]}
+            - {t: 15, offset: [-4.29214, 0.9105, 4.29214], turn: [0.0, 45.0, 0.0], scale: [0.04979, 0.03557, 1.13812]}
+        - id: emit_29
+          op: emit
+          at: pt_caster_0_m1p5_8
+          particle: dust
+          count: 1
+          data: "#ffdc6e"
+          data_size: 1.2
+          times: 16
+          shift: "= vec(0.5*sin((2.0382 + 6.283185307179586*i/16)), 0.0, 0.5*cos((2.0382 + 6.283185307179586*i/16)))"
+    - id: fx129
+      at: 129
+      do:
+        - {op: quad, parent: fx6_verdict_impact, face: {viewer: center}, size: [1.0, 1.0], color: "#302313", alpha: 1.0, text: "▲", see_through: true, brightness: 15, id: fx6_verdict_impact_dark0}
+        - id: fx6_verdict_impact_dark0_trk
+          op: track
+          target: fx6_verdict_impact_dark0
+          keys:
+            - {t: 0, offset: [0.0, 1.0, 0.0], scale: [0.12, 0.2, 1.0], alpha: 1.0}
+            - {t: 5, offset: [1.3, 1.4, 0.3], scale: [0.16, 0.26, 1.0], ease: out_cubic}
+            - {t: 11, scale: [0.04, 0.04, 1.0], alpha: 0.0}
+        - {op: quad, parent: fx6_verdict_impact, face: {viewer: center}, size: [1.0, 1.0], color: "#302313", alpha: 1.0, text: "▲", see_through: true, brightness: 15, id: fx6_verdict_impact_dark1}
+        - id: fx6_verdict_impact_dark1_trk
+          op: track
+          target: fx6_verdict_impact_dark1
+          keys:
+            - {t: 0, offset: [0.0, 1.0, 0.0], scale: [0.12, 0.2, 1.0], alpha: 1.0}
+            - {t: 5, offset: [0.0, 2.4, 0.3], scale: [0.16, 0.26, 1.0], ease: out_cubic}
+            - {t: 11, scale: [0.04, 0.04, 1.0], alpha: 0.0}
+        - {op: quad, parent: fx6_verdict_impact, face: {viewer: center}, size: [1.0, 1.0], color: "#302313", alpha: 1.0, text: "▲", see_through: true, brightness: 15, id: fx6_verdict_impact_dark2}
+        - id: fx6_verdict_impact_dark2_trk
+          op: track
+          target: fx6_verdict_impact_dark2
+          keys:
+            - {t: 0, offset: [0.0, 1.0, 0.0], scale: [0.12, 0.2, 1.0], alpha: 1.0}
+            - {t: 5, offset: [-1.3, 1.4, 0.3], scale: [0.16, 0.26, 1.0], ease: out_cubic}
+            - {t: 11, scale: [0.04, 0.04, 1.0], alpha: 0.0}
+        - id: emit_30
+          op: emit
+          at: pt_caster_0_m1p5_8
+          particle: dust
+          count: 1
+          data: "#ffdc6e"
+          data_size: 1.2
+          times: 16
+          shift: "= vec(1.56*sin((2.0382 + 6.283185307179586*i/16)), 0.0, 1.56*cos((2.0382 + 6.283185307179586*i/16)))"
+    - id: fx130
+      at: 130
+      do:
+        - id: emit_31
+          op: emit
+          at: pt_caster_0_m1p5_8
+          particle: dust
+          count: 1
+          data: "#ffdc6e"
+          data_size: 1.2
+          times: 16
+          shift: "= vec(2.62*sin((2.0382 + 6.283185307179586*i/16)), 0.0, 2.62*cos((2.0382 + 6.283185307179586*i/16)))"
+    - id: fx131
+      at: 131
+      do:
+        - id: emit_32
+          op: emit
+          at: pt_caster_0_m1p5_8
+          particle: dust
+          count: 1
+          data: "#ffdc6e"
+          data_size: 1.2
+          times: 16
+          shift: "= vec(3.68*sin((2.0382 + 6.283185307179586*i/16)), 0.0, 3.68*cos((2.0382 + 6.283185307179586*i/16)))"
+    - id: fx132
+      at: 132
+      do:
+        - id: emit_33
+          op: emit
+          at: pt_caster_0_m1p5_8
+          particle: dust
+          count: 1
+          data: "#ffdc6e"
+          data_size: 1.2
+          times: 16
+          shift: "= vec(4.74*sin((2.0382 + 6.283185307179586*i/16)), 0.0, 4.74*cos((2.0382 + 6.283185307179586*i/16)))"
+    - id: fx133
+      at: 133
+      do:
+        - id: emit_34
+          op: emit
+          at: pt_caster_0_m1p5_8
+          particle: dust
+          count: 1
+          data: "#ffdc6e"
+          data_size: 1.2
+          times: 16
+          shift: "= vec(5.8*sin((2.0382 + 6.283185307179586*i/16)), 0.0, 5.8*cos((2.0382 + 6.283185307179586*i/16)))"
+    - {id: fx137, at: 137, do: [{id: rm_10, op: remove, ids: [fx6_verdict_impact_bloom]}]}
+    - {id: fx138, at: 138, do: [{id: rm_11, op: remove, ids: [fx6_verdict_impact_star]}]}
+    - {id: fx140, at: 140, do: [{id: rm_12, op: remove, ids: [fx6_verdict_impact_dark0, fx6_verdict_impact_dark1, fx6_verdict_impact_dark2]}]}
+    - id: fx144
+      at: 144
+      do:
+        - id: rm_13
+          op: remove
+          ids:
+            - fx7_verdict_ego_ring_ring_s0
+            - fx7_verdict_ego_ring_ring_s1
+            - fx7_verdict_ego_ring_ring_s2
+            - fx7_verdict_ego_ring_ring_s3
+            - fx7_verdict_ego_ring_ring_s4
+            - fx7_verdict_ego_ring_ring_s5
+            - fx7_verdict_ego_ring_ring_s6
+            - fx7_verdict_ego_ring_ring_s7
+    - {id: fx166, at: 166, do: [{id: flash_5, op: screen_flash, target: caster, overlay: vignette, color: "#241E19", fade_in: 1, stay: 20, fade_out: 1}]}
+    - {id: fx190, at: 190, do: [{id: flash_6, op: screen_flash, target: caster, overlay: gold_burst, fade_in: 0, stay: 2, fade_out: 2}]}
     - id: fx191
       at: 191
       do:
         - {id: snd_4, op: sound, sound: entity.player.attack.strong, at: caster, pitch: 0.7}
-        - {id: emit_20, op: emit, at: pt_caster_0_m1p5_8, particle: dust, count: 1, data: "#ffdc6e", data_size: 1.2}
+        - {id: flash_4, op: screen_flash, target: caster, overlay: white, color: "#FFF4CF", fade_in: 0, stay: 1, fade_out: 1}
+        - {op: quad, parent: fx8_verdict_impact, face: {viewer: center}, size: [1.0, 1.0], color: "#FFFAD8", alpha: 1.0, text: "✷", see_through: true, brightness: 15, id: fx8_verdict_impact_star}
+        - id: fx8_verdict_impact_star_trk
+          op: track
+          target: fx8_verdict_impact_star
+          keys:
+            - {t: 0, offset: [0.0, -1.06, 0.55], scale: [2.4, 2.4, 1.0], alpha: 1.0}
+            - {t: 4, offset: [0.0, -1.06, 0.55], scale: [2.4, 2.4, 1.0], alpha: 1.0}
+            - {t: 10, offset: [0.0, 1.1, 0.55], scale: [0.0, 0.0, 0.0], alpha: 0.0, ease: in_quad}
+        - {op: quad, parent: fx8_verdict_impact, face: {viewer: center}, size: [1.0, 1.0], color: "#FFD66B", alpha: 0.22, text: "✦", see_through: true, brightness: 15, id: fx8_verdict_impact_bloom}
+        - id: fx8_verdict_impact_bloom_trk
+          op: track
+          target: fx8_verdict_impact_bloom
+          keys:
+            - {t: 0, offset: [0.0, -1.87, 0.5], scale: [3.3, 3.3, 1.0], alpha: 0.22}
+            - {t: 9, offset: [0.0, -2.5, 0.5], scale: [4.0, 4.0, 1.0], alpha: 0.0, ease: out_cubic}
+        - {op: block, parent: fx9_verdict_ego_ring, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx9_verdict_ego_ring_ring_s0}
+        - id: fx9_verdict_ego_ring_ring_s0_trk
+          op: track
+          target: fx9_verdict_ego_ring_ring_s0
+          keys:
+            - {t: 0, offset: [0.0, 0.045, 0.3], turn: [0.0, 90.0, 0.0], scale: [0.0105, 0.0075, 0.24]}
+            - {t: 1, offset: [0.0, 0.39257, 2.61713], turn: [0.0, 90.0, 0.0], scale: [0.0916, 0.06543, 2.0937]}
+            - {t: 2, offset: [0.0, 0.62556, 4.17037], turn: [0.0, 90.0, 0.0], scale: [0.14596, 0.10426, 3.3363]}
+            - {t: 3, offset: [0.0, 0.76687, 5.1125], turn: [0.0, 90.0, 0.0], scale: [0.17894, 0.12781, 4.09]}
+            - {t: 4, offset: [0.0, 0.83944, 5.5963], turn: [0.0, 90.0, 0.0], scale: [0.19587, 0.13991, 4.47704]}
+            - {t: 5, offset: [0.0, 0.86618, 5.77454], turn: [0.0, 90.0, 0.0], scale: [0.20211, 0.14436, 4.61963]}
+            - {t: 6, offset: [0.0, 0.87, 5.8], turn: [0.0, 90.0, 0.0], scale: [0.203, 0.145, 4.64]}
+            - {t: 7, offset: [0.0, 0.8745, 5.83], turn: [0.0, 90.0, 0.0], scale: [0.20405, 0.14575, 4.664]}
+            - {t: 8, offset: [0.0, 0.879, 5.86], turn: [0.0, 90.0, 0.0], scale: [0.2051, 0.1465, 4.688], block: yellow_stained_glass}
+            - {t: 9, offset: [0.0, 0.8835, 5.89], turn: [0.0, 90.0, 0.0], scale: [0.20293, 0.14495, 4.63837]}
+            - {t: 10, offset: [0.0, 0.888, 5.92], turn: [0.0, 90.0, 0.0], scale: [0.19425, 0.13875, 4.44]}
+            - {t: 11, offset: [0.0, 0.8925, 5.95], turn: [0.0, 90.0, 0.0], scale: [0.17896, 0.12783, 4.09062]}
+            - {t: 12, offset: [0.0, 0.897, 5.98], turn: [0.0, 90.0, 0.0], scale: [0.15698, 0.11213, 3.588]}
+            - {t: 13, offset: [0.0, 0.9015, 6.01], turn: [0.0, 90.0, 0.0], scale: [0.12818, 0.09156, 2.92988]}
+            - {t: 14, offset: [0.0, 0.906, 6.04], turn: [0.0, 90.0, 0.0], scale: [0.09249, 0.06606, 2.114]}
+            - {t: 15, offset: [0.0, 0.9105, 6.07], turn: [0.0, 90.0, 0.0], scale: [0.04979, 0.03557, 1.13812]}
+        - {op: block, parent: fx9_verdict_ego_ring, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx9_verdict_ego_ring_ring_s1}
+        - id: fx9_verdict_ego_ring_ring_s1_trk
+          op: track
+          target: fx9_verdict_ego_ring_ring_s1
+          keys:
+            - {t: 0, offset: [0.21213, 0.045, 0.21213], turn: [0.0, 135.0, 0.0], scale: [0.0105, 0.0075, 0.24]}
+            - {t: 1, offset: [1.85059, 0.39257, 1.85059], turn: [0.0, 135.0, 0.0], scale: [0.0916, 0.06543, 2.0937]}
+            - {t: 2, offset: [2.9489, 0.62556, 2.9489], turn: [0.0, 135.0, 0.0], scale: [0.14596, 0.10426, 3.3363]}
+            - {t: 3, offset: [3.61508, 0.76687, 3.61508], turn: [0.0, 135.0, 0.0], scale: [0.17894, 0.12781, 4.09]}
+            - {t: 4, offset: [3.95718, 0.83944, 3.95718], turn: [0.0, 135.0, 0.0], scale: [0.19587, 0.13991, 4.47704]}
+            - {t: 5, offset: [4.08321, 0.86618, 4.08321], turn: [0.0, 135.0, 0.0], scale: [0.20211, 0.14436, 4.61963]}
+            - {t: 6, offset: [4.10122, 0.87, 4.10122], turn: [0.0, 135.0, 0.0], scale: [0.203, 0.145, 4.64]}
+            - {t: 7, offset: [4.12243, 0.8745, 4.12243], turn: [0.0, 135.0, 0.0], scale: [0.20405, 0.14575, 4.664]}
+            - {t: 8, offset: [4.14365, 0.879, 4.14365], turn: [0.0, 135.0, 0.0], scale: [0.2051, 0.1465, 4.688], block: yellow_stained_glass}
+            - {t: 9, offset: [4.16486, 0.8835, 4.16486], turn: [0.0, 135.0, 0.0], scale: [0.20293, 0.14495, 4.63837]}
+            - {t: 10, offset: [4.18607, 0.888, 4.18607], turn: [0.0, 135.0, 0.0], scale: [0.19425, 0.13875, 4.44]}
+            - {t: 11, offset: [4.20729, 0.8925, 4.20729], turn: [0.0, 135.0, 0.0], scale: [0.17896, 0.12783, 4.09062]}
+            - {t: 12, offset: [4.2285, 0.897, 4.2285], turn: [0.0, 135.0, 0.0], scale: [0.15698, 0.11213, 3.588]}
+            - {t: 13, offset: [4.24971, 0.9015, 4.24971], turn: [0.0, 135.0, 0.0], scale: [0.12818, 0.09156, 2.92988]}
+            - {t: 14, offset: [4.27092, 0.906, 4.27092], turn: [0.0, 135.0, 0.0], scale: [0.09249, 0.06606, 2.114]}
+            - {t: 15, offset: [4.29214, 0.9105, 4.29214], turn: [0.0, 135.0, 0.0], scale: [0.04979, 0.03557, 1.13812]}
+        - {op: block, parent: fx9_verdict_ego_ring, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx9_verdict_ego_ring_ring_s2}
+        - id: fx9_verdict_ego_ring_ring_s2_trk
+          op: track
+          target: fx9_verdict_ego_ring_ring_s2
+          keys:
+            - {t: 0, offset: [0.3, 0.045, 0.0], turn: [0.0, 180.0, 0.0], scale: [0.0105, 0.0075, 0.24]}
+            - {t: 1, offset: [2.61713, 0.39257, 0.0], turn: [0.0, 180.0, 0.0], scale: [0.0916, 0.06543, 2.0937]}
+            - {t: 2, offset: [4.17037, 0.62556, 0.0], turn: [0.0, 180.0, 0.0], scale: [0.14596, 0.10426, 3.3363]}
+            - {t: 3, offset: [5.1125, 0.76687, 0.0], turn: [0.0, 180.0, 0.0], scale: [0.17894, 0.12781, 4.09]}
+            - {t: 4, offset: [5.5963, 0.83944, 0.0], turn: [0.0, 180.0, 0.0], scale: [0.19587, 0.13991, 4.47704]}
+            - {t: 5, offset: [5.77454, 0.86618, 0.0], turn: [0.0, 180.0, 0.0], scale: [0.20211, 0.14436, 4.61963]}
+            - {t: 6, offset: [5.8, 0.87, 0.0], turn: [0.0, 180.0, 0.0], scale: [0.203, 0.145, 4.64]}
+            - {t: 7, offset: [5.83, 0.8745, 0.0], turn: [0.0, 180.0, 0.0], scale: [0.20405, 0.14575, 4.664]}
+            - {t: 8, offset: [5.86, 0.879, 0.0], turn: [0.0, 180.0, 0.0], scale: [0.2051, 0.1465, 4.688], block: yellow_stained_glass}
+            - {t: 9, offset: [5.89, 0.8835, 0.0], turn: [0.0, 180.0, 0.0], scale: [0.20293, 0.14495, 4.63837]}
+            - {t: 10, offset: [5.92, 0.888, 0.0], turn: [0.0, 180.0, 0.0], scale: [0.19425, 0.13875, 4.44]}
+            - {t: 11, offset: [5.95, 0.8925, 0.0], turn: [0.0, 180.0, 0.0], scale: [0.17896, 0.12783, 4.09062]}
+            - {t: 12, offset: [5.98, 0.897, 0.0], turn: [0.0, 180.0, 0.0], scale: [0.15698, 0.11213, 3.588]}
+            - {t: 13, offset: [6.01, 0.9015, 0.0], turn: [0.0, 180.0, 0.0], scale: [0.12818, 0.09156, 2.92988]}
+            - {t: 14, offset: [6.04, 0.906, 0.0], turn: [0.0, 180.0, 0.0], scale: [0.09249, 0.06606, 2.114]}
+            - {t: 15, offset: [6.07, 0.9105, 0.0], turn: [0.0, 180.0, 0.0], scale: [0.04979, 0.03557, 1.13812]}
+        - {op: block, parent: fx9_verdict_ego_ring, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx9_verdict_ego_ring_ring_s3}
+        - id: fx9_verdict_ego_ring_ring_s3_trk
+          op: track
+          target: fx9_verdict_ego_ring_ring_s3
+          keys:
+            - {t: 0, offset: [0.21213, 0.045, -0.21213], turn: [0.0, -135.0, 0.0], scale: [0.0105, 0.0075, 0.24]}
+            - {t: 1, offset: [1.85059, 0.39257, -1.85059], turn: [0.0, -135.0, 0.0], scale: [0.0916, 0.06543, 2.0937]}
+            - {t: 2, offset: [2.9489, 0.62556, -2.9489], turn: [0.0, -135.0, 0.0], scale: [0.14596, 0.10426, 3.3363]}
+            - {t: 3, offset: [3.61508, 0.76687, -3.61508], turn: [0.0, -135.0, 0.0], scale: [0.17894, 0.12781, 4.09]}
+            - {t: 4, offset: [3.95718, 0.83944, -3.95718], turn: [0.0, -135.0, 0.0], scale: [0.19587, 0.13991, 4.47704]}
+            - {t: 5, offset: [4.08321, 0.86618, -4.08321], turn: [0.0, -135.0, 0.0], scale: [0.20211, 0.14436, 4.61963]}
+            - {t: 6, offset: [4.10122, 0.87, -4.10122], turn: [0.0, -135.0, 0.0], scale: [0.203, 0.145, 4.64]}
+            - {t: 7, offset: [4.12243, 0.8745, -4.12243], turn: [0.0, -135.0, 0.0], scale: [0.20405, 0.14575, 4.664]}
+            - {t: 8, offset: [4.14365, 0.879, -4.14365], turn: [0.0, -135.0, 0.0], scale: [0.2051, 0.1465, 4.688], block: yellow_stained_glass}
+            - {t: 9, offset: [4.16486, 0.8835, -4.16486], turn: [0.0, -135.0, 0.0], scale: [0.20293, 0.14495, 4.63837]}
+            - {t: 10, offset: [4.18607, 0.888, -4.18607], turn: [0.0, -135.0, 0.0], scale: [0.19425, 0.13875, 4.44]}
+            - {t: 11, offset: [4.20729, 0.8925, -4.20729], turn: [0.0, -135.0, 0.0], scale: [0.17896, 0.12783, 4.09062]}
+            - {t: 12, offset: [4.2285, 0.897, -4.2285], turn: [0.0, -135.0, 0.0], scale: [0.15698, 0.11213, 3.588]}
+            - {t: 13, offset: [4.24971, 0.9015, -4.24971], turn: [0.0, -135.0, 0.0], scale: [0.12818, 0.09156, 2.92988]}
+            - {t: 14, offset: [4.27092, 0.906, -4.27092], turn: [0.0, -135.0, 0.0], scale: [0.09249, 0.06606, 2.114]}
+            - {t: 15, offset: [4.29214, 0.9105, -4.29214], turn: [0.0, -135.0, 0.0], scale: [0.04979, 0.03557, 1.13812]}
+        - {op: block, parent: fx9_verdict_ego_ring, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx9_verdict_ego_ring_ring_s4}
+        - id: fx9_verdict_ego_ring_ring_s4_trk
+          op: track
+          target: fx9_verdict_ego_ring_ring_s4
+          keys:
+            - {t: 0, offset: [0.0, 0.045, -0.3], turn: [0.0, -90.0, 0.0], scale: [0.0105, 0.0075, 0.24]}
+            - {t: 1, offset: [0.0, 0.39257, -2.61713], turn: [0.0, -90.0, 0.0], scale: [0.0916, 0.06543, 2.0937]}
+            - {t: 2, offset: [0.0, 0.62556, -4.17037], turn: [0.0, -90.0, 0.0], scale: [0.14596, 0.10426, 3.3363]}
+            - {t: 3, offset: [0.0, 0.76687, -5.1125], turn: [0.0, -90.0, 0.0], scale: [0.17894, 0.12781, 4.09]}
+            - {t: 4, offset: [0.0, 0.83944, -5.5963], turn: [0.0, -90.0, 0.0], scale: [0.19587, 0.13991, 4.47704]}
+            - {t: 5, offset: [0.0, 0.86618, -5.77454], turn: [0.0, -90.0, 0.0], scale: [0.20211, 0.14436, 4.61963]}
+            - {t: 6, offset: [0.0, 0.87, -5.8], turn: [0.0, -90.0, 0.0], scale: [0.203, 0.145, 4.64]}
+            - {t: 7, offset: [0.0, 0.8745, -5.83], turn: [0.0, -90.0, 0.0], scale: [0.20405, 0.14575, 4.664]}
+            - {t: 8, offset: [0.0, 0.879, -5.86], turn: [0.0, -90.0, 0.0], scale: [0.2051, 0.1465, 4.688], block: yellow_stained_glass}
+            - {t: 9, offset: [0.0, 0.8835, -5.89], turn: [0.0, -90.0, 0.0], scale: [0.20293, 0.14495, 4.63837]}
+            - {t: 10, offset: [0.0, 0.888, -5.92], turn: [0.0, -90.0, 0.0], scale: [0.19425, 0.13875, 4.44]}
+            - {t: 11, offset: [0.0, 0.8925, -5.95], turn: [0.0, -90.0, 0.0], scale: [0.17896, 0.12783, 4.09062]}
+            - {t: 12, offset: [0.0, 0.897, -5.98], turn: [0.0, -90.0, 0.0], scale: [0.15698, 0.11213, 3.588]}
+            - {t: 13, offset: [0.0, 0.9015, -6.01], turn: [0.0, -90.0, 0.0], scale: [0.12818, 0.09156, 2.92988]}
+            - {t: 14, offset: [0.0, 0.906, -6.04], turn: [0.0, -90.0, 0.0], scale: [0.09249, 0.06606, 2.114]}
+            - {t: 15, offset: [0.0, 0.9105, -6.07], turn: [0.0, -90.0, 0.0], scale: [0.04979, 0.03557, 1.13812]}
+        - {op: block, parent: fx9_verdict_ego_ring, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx9_verdict_ego_ring_ring_s5}
+        - id: fx9_verdict_ego_ring_ring_s5_trk
+          op: track
+          target: fx9_verdict_ego_ring_ring_s5
+          keys:
+            - {t: 0, offset: [-0.21213, 0.045, -0.21213], turn: [0.0, -45.0, 0.0], scale: [0.0105, 0.0075, 0.24]}
+            - {t: 1, offset: [-1.85059, 0.39257, -1.85059], turn: [0.0, -45.0, 0.0], scale: [0.0916, 0.06543, 2.0937]}
+            - {t: 2, offset: [-2.9489, 0.62556, -2.9489], turn: [0.0, -45.0, 0.0], scale: [0.14596, 0.10426, 3.3363]}
+            - {t: 3, offset: [-3.61508, 0.76687, -3.61508], turn: [0.0, -45.0, 0.0], scale: [0.17894, 0.12781, 4.09]}
+            - {t: 4, offset: [-3.95718, 0.83944, -3.95718], turn: [0.0, -45.0, 0.0], scale: [0.19587, 0.13991, 4.47704]}
+            - {t: 5, offset: [-4.08321, 0.86618, -4.08321], turn: [0.0, -45.0, 0.0], scale: [0.20211, 0.14436, 4.61963]}
+            - {t: 6, offset: [-4.10122, 0.87, -4.10122], turn: [0.0, -45.0, 0.0], scale: [0.203, 0.145, 4.64]}
+            - {t: 7, offset: [-4.12243, 0.8745, -4.12243], turn: [0.0, -45.0, 0.0], scale: [0.20405, 0.14575, 4.664]}
+            - {t: 8, offset: [-4.14365, 0.879, -4.14365], turn: [0.0, -45.0, 0.0], scale: [0.2051, 0.1465, 4.688], block: yellow_stained_glass}
+            - {t: 9, offset: [-4.16486, 0.8835, -4.16486], turn: [0.0, -45.0, 0.0], scale: [0.20293, 0.14495, 4.63837]}
+            - {t: 10, offset: [-4.18607, 0.888, -4.18607], turn: [0.0, -45.0, 0.0], scale: [0.19425, 0.13875, 4.44]}
+            - {t: 11, offset: [-4.20729, 0.8925, -4.20729], turn: [0.0, -45.0, 0.0], scale: [0.17896, 0.12783, 4.09062]}
+            - {t: 12, offset: [-4.2285, 0.897, -4.2285], turn: [0.0, -45.0, 0.0], scale: [0.15698, 0.11213, 3.588]}
+            - {t: 13, offset: [-4.24971, 0.9015, -4.24971], turn: [0.0, -45.0, 0.0], scale: [0.12818, 0.09156, 2.92988]}
+            - {t: 14, offset: [-4.27092, 0.906, -4.27092], turn: [0.0, -45.0, 0.0], scale: [0.09249, 0.06606, 2.114]}
+            - {t: 15, offset: [-4.29214, 0.9105, -4.29214], turn: [0.0, -45.0, 0.0], scale: [0.04979, 0.03557, 1.13812]}
+        - {op: block, parent: fx9_verdict_ego_ring, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx9_verdict_ego_ring_ring_s6}
+        - id: fx9_verdict_ego_ring_ring_s6_trk
+          op: track
+          target: fx9_verdict_ego_ring_ring_s6
+          keys:
+            - {t: 0, offset: [-0.3, 0.045, 0.0], turn: [0.0, 0.0, 0.0], scale: [0.0105, 0.0075, 0.24]}
+            - {t: 1, offset: [-2.61713, 0.39257, 0.0], turn: [0.0, 0.0, 0.0], scale: [0.0916, 0.06543, 2.0937]}
+            - {t: 2, offset: [-4.17037, 0.62556, 0.0], turn: [0.0, 0.0, 0.0], scale: [0.14596, 0.10426, 3.3363]}
+            - {t: 3, offset: [-5.1125, 0.76687, 0.0], turn: [0.0, 0.0, 0.0], scale: [0.17894, 0.12781, 4.09]}
+            - {t: 4, offset: [-5.5963, 0.83944, 0.0], turn: [0.0, 0.0, 0.0], scale: [0.19587, 0.13991, 4.47704]}
+            - {t: 5, offset: [-5.77454, 0.86618, 0.0], turn: [0.0, 0.0, 0.0], scale: [0.20211, 0.14436, 4.61963]}
+            - {t: 6, offset: [-5.8, 0.87, 0.0], turn: [0.0, 0.0, 0.0], scale: [0.203, 0.145, 4.64]}
+            - {t: 7, offset: [-5.83, 0.8745, 0.0], turn: [0.0, 0.0, 0.0], scale: [0.20405, 0.14575, 4.664]}
+            - {t: 8, offset: [-5.86, 0.879, 0.0], turn: [0.0, 0.0, 0.0], scale: [0.2051, 0.1465, 4.688], block: yellow_stained_glass}
+            - {t: 9, offset: [-5.89, 0.8835, 0.0], turn: [0.0, 0.0, 0.0], scale: [0.20293, 0.14495, 4.63837]}
+            - {t: 10, offset: [-5.92, 0.888, 0.0], turn: [0.0, 0.0, 0.0], scale: [0.19425, 0.13875, 4.44]}
+            - {t: 11, offset: [-5.95, 0.8925, 0.0], turn: [0.0, 0.0, 0.0], scale: [0.17896, 0.12783, 4.09062]}
+            - {t: 12, offset: [-5.98, 0.897, 0.0], turn: [0.0, 0.0, 0.0], scale: [0.15698, 0.11213, 3.588]}
+            - {t: 13, offset: [-6.01, 0.9015, 0.0], turn: [0.0, 0.0, 0.0], scale: [0.12818, 0.09156, 2.92988]}
+            - {t: 14, offset: [-6.04, 0.906, 0.0], turn: [0.0, 0.0, 0.0], scale: [0.09249, 0.06606, 2.114]}
+            - {t: 15, offset: [-6.07, 0.9105, 0.0], turn: [0.0, 0.0, 0.0], scale: [0.04979, 0.03557, 1.13812]}
+        - {op: block, parent: fx9_verdict_ego_ring, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx9_verdict_ego_ring_ring_s7}
+        - id: fx9_verdict_ego_ring_ring_s7_trk
+          op: track
+          target: fx9_verdict_ego_ring_ring_s7
+          keys:
+            - {t: 0, offset: [-0.21213, 0.045, 0.21213], turn: [0.0, 45.0, 0.0], scale: [0.0105, 0.0075, 0.24]}
+            - {t: 1, offset: [-1.85059, 0.39257, 1.85059], turn: [0.0, 45.0, 0.0], scale: [0.0916, 0.06543, 2.0937]}
+            - {t: 2, offset: [-2.9489, 0.62556, 2.9489], turn: [0.0, 45.0, 0.0], scale: [0.14596, 0.10426, 3.3363]}
+            - {t: 3, offset: [-3.61508, 0.76687, 3.61508], turn: [0.0, 45.0, 0.0], scale: [0.17894, 0.12781, 4.09]}
+            - {t: 4, offset: [-3.95718, 0.83944, 3.95718], turn: [0.0, 45.0, 0.0], scale: [0.19587, 0.13991, 4.47704]}
+            - {t: 5, offset: [-4.08321, 0.86618, 4.08321], turn: [0.0, 45.0, 0.0], scale: [0.20211, 0.14436, 4.61963]}
+            - {t: 6, offset: [-4.10122, 0.87, 4.10122], turn: [0.0, 45.0, 0.0], scale: [0.203, 0.145, 4.64]}
+            - {t: 7, offset: [-4.12243, 0.8745, 4.12243], turn: [0.0, 45.0, 0.0], scale: [0.20405, 0.14575, 4.664]}
+            - {t: 8, offset: [-4.14365, 0.879, 4.14365], turn: [0.0, 45.0, 0.0], scale: [0.2051, 0.1465, 4.688], block: yellow_stained_glass}
+            - {t: 9, offset: [-4.16486, 0.8835, 4.16486], turn: [0.0, 45.0, 0.0], scale: [0.20293, 0.14495, 4.63837]}
+            - {t: 10, offset: [-4.18607, 0.888, 4.18607], turn: [0.0, 45.0, 0.0], scale: [0.19425, 0.13875, 4.44]}
+            - {t: 11, offset: [-4.20729, 0.8925, 4.20729], turn: [0.0, 45.0, 0.0], scale: [0.17896, 0.12783, 4.09062]}
+            - {t: 12, offset: [-4.2285, 0.897, 4.2285], turn: [0.0, 45.0, 0.0], scale: [0.15698, 0.11213, 3.588]}
+            - {t: 13, offset: [-4.24971, 0.9015, 4.24971], turn: [0.0, 45.0, 0.0], scale: [0.12818, 0.09156, 2.92988]}
+            - {t: 14, offset: [-4.27092, 0.906, 4.27092], turn: [0.0, 45.0, 0.0], scale: [0.09249, 0.06606, 2.114]}
+            - {t: 15, offset: [-4.29214, 0.9105, 4.29214], turn: [0.0, 45.0, 0.0], scale: [0.04979, 0.03557, 1.13812]}
+        - id: emit_35
+          op: emit
+          at: pt_caster_0_m1p5_8
+          particle: dust
+          count: 1
+          data: "#ffdc6e"
+          data_size: 1.2
+          times: 16
+          shift: "= vec(0.5*sin((4.8493 + 6.283185307179586*i/16)), 0.0, 0.5*cos((4.8493 + 6.283185307179586*i/16)))"
+    - id: fx192
+      at: 192
+      do:
+        - {op: quad, parent: fx8_verdict_impact, face: {viewer: center}, size: [1.0, 1.0], color: "#302313", alpha: 1.0, text: "▲", see_through: true, brightness: 15, id: fx8_verdict_impact_dark0}
+        - id: fx8_verdict_impact_dark0_trk
+          op: track
+          target: fx8_verdict_impact_dark0
+          keys:
+            - {t: 0, offset: [0.0, 1.0, 0.0], scale: [0.12, 0.2, 1.0], alpha: 1.0}
+            - {t: 5, offset: [1.3, 1.4, 0.3], scale: [0.16, 0.26, 1.0], ease: out_cubic}
+            - {t: 11, scale: [0.04, 0.04, 1.0], alpha: 0.0}
+        - {op: quad, parent: fx8_verdict_impact, face: {viewer: center}, size: [1.0, 1.0], color: "#302313", alpha: 1.0, text: "▲", see_through: true, brightness: 15, id: fx8_verdict_impact_dark1}
+        - id: fx8_verdict_impact_dark1_trk
+          op: track
+          target: fx8_verdict_impact_dark1
+          keys:
+            - {t: 0, offset: [0.0, 1.0, 0.0], scale: [0.12, 0.2, 1.0], alpha: 1.0}
+            - {t: 5, offset: [0.0, 2.4, 0.3], scale: [0.16, 0.26, 1.0], ease: out_cubic}
+            - {t: 11, scale: [0.04, 0.04, 1.0], alpha: 0.0}
+        - {op: quad, parent: fx8_verdict_impact, face: {viewer: center}, size: [1.0, 1.0], color: "#302313", alpha: 1.0, text: "▲", see_through: true, brightness: 15, id: fx8_verdict_impact_dark2}
+        - id: fx8_verdict_impact_dark2_trk
+          op: track
+          target: fx8_verdict_impact_dark2
+          keys:
+            - {t: 0, offset: [0.0, 1.0, 0.0], scale: [0.12, 0.2, 1.0], alpha: 1.0}
+            - {t: 5, offset: [-1.3, 1.4, 0.3], scale: [0.16, 0.26, 1.0], ease: out_cubic}
+            - {t: 11, scale: [0.04, 0.04, 1.0], alpha: 0.0}
+        - id: emit_36
+          op: emit
+          at: pt_caster_0_m1p5_8
+          particle: dust
+          count: 1
+          data: "#ffdc6e"
+          data_size: 1.2
+          times: 16
+          shift: "= vec(1.56*sin((4.8493 + 6.283185307179586*i/16)), 0.0, 1.56*cos((4.8493 + 6.283185307179586*i/16)))"
+    - id: fx193
+      at: 193
+      do:
+        - id: emit_37
+          op: emit
+          at: pt_caster_0_m1p5_8
+          particle: dust
+          count: 1
+          data: "#ffdc6e"
+          data_size: 1.2
+          times: 16
+          shift: "= vec(2.62*sin((4.8493 + 6.283185307179586*i/16)), 0.0, 2.62*cos((4.8493 + 6.283185307179586*i/16)))"
+    - id: fx194
+      at: 194
+      do:
+        - id: emit_38
+          op: emit
+          at: pt_caster_0_m1p5_8
+          particle: dust
+          count: 1
+          data: "#ffdc6e"
+          data_size: 1.2
+          times: 16
+          shift: "= vec(3.68*sin((4.8493 + 6.283185307179586*i/16)), 0.0, 3.68*cos((4.8493 + 6.283185307179586*i/16)))"
+    - id: fx195
+      at: 195
+      do:
+        - id: emit_39
+          op: emit
+          at: pt_caster_0_m1p5_8
+          particle: dust
+          count: 1
+          data: "#ffdc6e"
+          data_size: 1.2
+          times: 16
+          shift: "= vec(4.74*sin((4.8493 + 6.283185307179586*i/16)), 0.0, 4.74*cos((4.8493 + 6.283185307179586*i/16)))"
+    - id: fx196
+      at: 196
+      do:
+        - id: emit_40
+          op: emit
+          at: pt_caster_0_m1p5_8
+          particle: dust
+          count: 1
+          data: "#ffdc6e"
+          data_size: 1.2
+          times: 16
+          shift: "= vec(5.8*sin((4.8493 + 6.283185307179586*i/16)), 0.0, 5.8*cos((4.8493 + 6.283185307179586*i/16)))"
+    - {id: fx200, at: 200, do: [{id: rm_14, op: remove, ids: [fx8_verdict_impact_bloom]}]}
+    - {id: fx201, at: 201, do: [{id: rm_15, op: remove, ids: [fx8_verdict_impact_star]}]}
+    - {id: fx203, at: 203, do: [{id: rm_16, op: remove, ids: [fx8_verdict_impact_dark0, fx8_verdict_impact_dark1, fx8_verdict_impact_dark2]}]}
+    - id: fx207
+      at: 207
+      do:
+        - id: rm_17
+          op: remove
+          ids:
+            - fx9_verdict_ego_ring_ring_s0
+            - fx9_verdict_ego_ring_ring_s1
+            - fx9_verdict_ego_ring_ring_s2
+            - fx9_verdict_ego_ring_ring_s3
+            - fx9_verdict_ego_ring_ring_s4
+            - fx9_verdict_ego_ring_ring_s5
+            - fx9_verdict_ego_ring_ring_s6
+            - fx9_verdict_ego_ring_ring_s7
+    - id: fx208
+      at: 208
+      do:
+        - id: rm
+          op: remove
+          ids:
+            - fx1_verdict_ego_field_shaft0
+            - fx1_verdict_ego_field_cross0
+            - fx1_verdict_ego_field_shaft1
+            - fx1_verdict_ego_field_cross1
+            - fx1_verdict_ego_field_shaft2
+            - fx1_verdict_ego_field_cross2
+            - fx1_verdict_ego_field_shaft3
+            - fx1_verdict_ego_field_cross3
+            - fx1_verdict_ego_field_shaft4
+            - fx1_verdict_ego_field_cross4
+            - fx1_verdict_ego_field_shaft5
+            - fx1_verdict_ego_field_cross5
+            - fx1_verdict_ego_field_shaft6
+            - fx1_verdict_ego_field_cross6
+            - fx1_verdict_ego_field_shaft7
+            - fx1_verdict_ego_field_cross7
+            - fx1_verdict_ego_field_shaft8
+            - fx1_verdict_ego_field_cross8
+            - fx1_verdict_ego_field_shaft9
+            - fx1_verdict_ego_field_cross9
+            - fx1_verdict_ego_field_shaft10
+            - fx1_verdict_ego_field_cross10
+            - fx1_verdict_ego_field_shaft11
+            - fx1_verdict_ego_field_cross11
+            - fx1_verdict_ego_field_shaft12
+            - fx1_verdict_ego_field_cross12
+            - fx1_verdict_ego_field_shaft13
+            - fx1_verdict_ego_field_cross13
+            - fx1_verdict_ego_field_shaft14
+            - fx1_verdict_ego_field_cross14
+            - fx1_verdict_ego_field_shaft15
+            - fx1_verdict_ego_field_cross15
+            - fx1_verdict_ego_field_shaft16
+            - fx1_verdict_ego_field_cross16
+            - fx1_verdict_ego_field_shaft17
+            - fx1_verdict_ego_field_cross17
+            - fx1_verdict_ego_field_shaft18
+            - fx1_verdict_ego_field_cross18
+            - fx1_verdict_ego_field_shaft19
+            - fx1_verdict_ego_field_cross19
   "on":
     hit:
       - {id: emit, op: emit, at: contact.point, particle: crit, count: 12, speed: 0.15, when: "= event.source == 'sel'"}

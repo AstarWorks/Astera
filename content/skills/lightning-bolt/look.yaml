@@ -2,8 +2,7 @@
 # Generated point-frame offsets are [left, up, forward] in the parent frame.
 # CONVERT-PRESENT projectile trail shape (emit has none) (x2): line
 # CONVERT-PRESENT projectile display.material used as the mesh item id (unverified); variant dropped (x1): minecraft:end_rod variant=item
-# CONVERT-PRESENT particle animation line (emit has no shape / ring / path: one burst at the anchor) (x1): {"amount": 2, "angle": "down", "jitter": 0.6, "length": 8.0, "points_per_segment": 4, "segments": 10
-# CONVERT-PRESENT particle animation ring (emit has no shape / ring / path: one burst at the anchor) (x2): {"end_radius": 2.5, "period_ticks": 4, "points": 14, "start_radius": 0.5}
+# CONVERT-PRESENT particle animation line (angle / shape without a baked equivalent) (x1): {"amount": 2, "angle": "down", "jitter": 0.6, "length": 8.0, "points_per_segment": 4, "segments": 10
 apiVersion: "astera/v2"
 kind: Skill
 id: lightning-bolt
@@ -20,6 +19,78 @@ presentation:
         - {id: mesh, op: mesh, frame: bolt, item: "minecraft:end_rod", scale: 0.8}
         - {id: snd, op: sound, sound: "astera:skill/wand/cast", at: caster, volume: 0.45, pitch: 1.8}
         - {id: emit, op: emit, at: pt_caster_0_m0p2_1, particle: thunder-cast}
+    - id: fxblock_1
+      at: "block+1"
+      do:
+        - id: emit_14
+          op: emit
+          at: contact.point
+          particle: electric_spark
+          count: 0
+          speed: 0.1
+          times: 14
+          shift: "= vec(1.1667*sin((3.6213 + 6.283185307179586*i/14)), 0.0, 1.1667*cos((3.6213 + 6.283185307179586*i/14)))"
+          offset: "= vec(sin((3.6213 + 6.283185307179586*i/14)), 0, cos((3.6213 + 6.283185307179586*i/14)))"
+    - id: fxblock_2
+      at: "block+2"
+      do:
+        - id: emit_15
+          op: emit
+          at: contact.point
+          particle: electric_spark
+          count: 0
+          speed: 0.1
+          times: 14
+          shift: "= vec(1.8333*sin((3.6213 + 6.283185307179586*i/14)), 0.0, 1.8333*cos((3.6213 + 6.283185307179586*i/14)))"
+          offset: "= vec(sin((3.6213 + 6.283185307179586*i/14)), 0, cos((3.6213 + 6.283185307179586*i/14)))"
+    - id: fxblock_3
+      at: "block+3"
+      do:
+        - id: emit_16
+          op: emit
+          at: contact.point
+          particle: electric_spark
+          count: 0
+          speed: 0.1
+          times: 14
+          shift: "= vec(2.5*sin((3.6213 + 6.283185307179586*i/14)), 0.0, 2.5*cos((3.6213 + 6.283185307179586*i/14)))"
+          offset: "= vec(sin((3.6213 + 6.283185307179586*i/14)), 0, cos((3.6213 + 6.283185307179586*i/14)))"
+    - id: fxhit_1
+      at: "hit+1"
+      do:
+        - id: emit_8
+          op: emit
+          at: pt_enemy_0_0p2_0
+          particle: electric_spark
+          count: 0
+          speed: 0.1
+          times: 14
+          shift: "= vec(1.1667*sin((3.6112 + 6.283185307179586*i/14)), 0.0, 1.1667*cos((3.6112 + 6.283185307179586*i/14)))"
+          offset: "= vec(sin((3.6112 + 6.283185307179586*i/14)), 0, cos((3.6112 + 6.283185307179586*i/14)))"
+    - id: fxhit_2
+      at: "hit+2"
+      do:
+        - id: emit_9
+          op: emit
+          at: pt_enemy_0_0p2_0
+          particle: electric_spark
+          count: 0
+          speed: 0.1
+          times: 14
+          shift: "= vec(1.8333*sin((3.6112 + 6.283185307179586*i/14)), 0.0, 1.8333*cos((3.6112 + 6.283185307179586*i/14)))"
+          offset: "= vec(sin((3.6112 + 6.283185307179586*i/14)), 0, cos((3.6112 + 6.283185307179586*i/14)))"
+    - id: fxhit_3
+      at: "hit+3"
+      do:
+        - id: emit_10
+          op: emit
+          at: pt_enemy_0_0p2_0
+          particle: electric_spark
+          count: 0
+          speed: 0.1
+          times: 14
+          shift: "= vec(2.5*sin((3.6112 + 6.283185307179586*i/14)), 0.0, 2.5*cos((3.6112 + 6.283185307179586*i/14)))"
+          offset: "= vec(sin((3.6112 + 6.283185307179586*i/14)), 0, cos((3.6112 + 6.283185307179586*i/14)))"
     - {id: rep1, at: 0, every: 1, until: end, do: [{id: trail, op: emit, at: bolt, particle: electric_spark, count: 4, spacing: 0.5, offset: [0.15, 0.15, 0.15], speed: 0.05}]}
     - {id: rep2, at: 0, every: 1, until: end, do: [{id: trail_2, op: emit, at: bolt, particle: end_rod, count: 1, spacing: 0.5, offset: [0.02, 0.02, 0.02]}]}
     - {id: rep3, at: 0, every: 1, until: end, do: [{id: trail_3, op: emit, at: bolt, particle: electric_spark, count: 1, spacing: 0.5}]}
@@ -32,11 +103,27 @@ presentation:
       - {id: emit_4, op: emit, at: pt_enemy_0_8_0, particle: end_rod, count: 1}
       - {id: emit_5, op: emit, at: pt_enemy_0_0p2_0, particle: electric_spark, count: 40, speed: 0.35}
       - {id: emit_6, op: emit, at: pt_enemy_0_0p2_0, particle: end_rod, count: 12, speed: 0.25}
-      - {id: emit_7, op: emit, at: pt_enemy_0_0p2_0, particle: electric_spark, count: 0, speed: 0.1}
+      - id: emit_7
+        op: emit
+        at: pt_enemy_0_0p2_0
+        particle: electric_spark
+        count: 0
+        speed: 0.1
+        times: 14
+        shift: "= vec(0.5*sin((3.6112 + 6.283185307179586*i/14)), 0.0, 0.5*cos((3.6112 + 6.283185307179586*i/14)))"
+        offset: "= vec(sin((3.6112 + 6.283185307179586*i/14)), 0, cos((3.6112 + 6.283185307179586*i/14)))"
     block:
       - {id: snd_3, op: sound, sound: "astera:skills/lightning-impact", at: contact.point, volume: 0.5, pitch: 1.6}
-      - {id: emit_8, op: emit, at: contact.point, particle: electric_spark, count: 40, speed: 0.35}
-      - {id: emit_9, op: emit, at: contact.point, particle: end_rod, count: 12, speed: 0.25}
-      - {id: emit_10, op: emit, at: contact.point, particle: electric_spark, count: 0, speed: 0.1}
+      - {id: emit_11, op: emit, at: contact.point, particle: electric_spark, count: 40, speed: 0.35}
+      - {id: emit_12, op: emit, at: contact.point, particle: end_rod, count: 12, speed: 0.25}
+      - id: emit_13
+        op: emit
+        at: contact.point
+        particle: electric_spark
+        count: 0
+        speed: 0.1
+        times: 14
+        shift: "= vec(0.5*sin((3.6213 + 6.283185307179586*i/14)), 0.0, 0.5*cos((3.6213 + 6.283185307179586*i/14)))"
+        offset: "= vec(sin((3.6213 + 6.283185307179586*i/14)), 0, cos((3.6213 + 6.283185307179586*i/14)))"
     expire:
-      - {id: emit_11, op: emit, at: contact.point, particle: thunder-impact-glow}
+      - {id: emit_17, op: emit, at: contact.point, particle: thunder-impact-glow}

@@ -41,7 +41,12 @@ fun main(args: Array<String>) {
         "packRef: ${packRefs.problems.size} unresolved reference(s) over ${packRefs.packFiles} pack files" +
             if (packRefs.vanillaSkipped > 0) " (${packRefs.vanillaSkipped} vanilla references unchecked: no client jar found, set ASTERA_VANILLA_CLIENT_JAR)" else "",
     )
-    exitProcess(if (report.failed == 0 && runtime == 0 && packRefs.problems.isEmpty()) 0 else 1)
+    // Silent-drop checks (SkillStrictLint). `-Pastera.strictSkills=false` downgrades them to warnings; default on.
+    val strictOn = System.getProperty("astera.strictSkills", "true") != "false"
+    val strict = SkillStrictLint(parsed.contentDir, parsed.contentDir.toAbsolutePath().parent).run()
+    strict.forEach { println("strict[${it.cause}]: ${it.file}: ${it.detail}") }
+    println("strict: ${strict.size} silent-drop problem(s)" + if (strictOn) "" else " (reported only: astera.strictSkills=false)")
+    exitProcess(if (report.failed == 0 && runtime == 0 && packRefs.problems.isEmpty() && (strict.isEmpty() || !strictOn)) 0 else 1)
 }
 
 // -----------------------------------------------------------------------------

@@ -2,15 +2,9 @@
 # Generated point-frame offsets are [left, up, forward] in the parent frame.
 # CONVERT-PRESENT vfx frame orient (frames carry no orientation / scale) (x4): orient="yaw" | orient="look"
 # CONVERT-PRESENT rig block parts (mesh takes an item model, not a block + size) (x2): 2 parts | 3 parts
-# CONVERT-PRESENT rig swing without a weapon mesh (track needs a visual to move) (x2): 2 keys | 4 keys
+# CONVERT-PRESENT rig swing without a weapon mesh (track needs a visual to move) (x2): 2 keys | 14 keys
 # CONVERT-PRESENT vfx follow=false (anchored at world, no place-at-spawn) (x2): ember-flare-guard | ember-hoop-hit
-# CONVERT-PRESENT block element (mesh takes an item model, plate takes a sprite: no block / solid-colour primitive) (x7): orange_stained_glass | yellow_stained_glass
-# CONVERT-PRESENT element formation (no v2 equivalent) (x6): {"align": "tangent", "curve": {"radius": 0.5, "type": "circl | {"align": "tangent", "curve": {"radius": 0.8, "type": "circl
-# CONVERT-PRESENT element count (no v2 equivalent) (x6): 20 | 12
-# CONVERT-PRESENT element brightness (no v2 equivalent) (x9): 15
-# CONVERT-PRESENT element group_keyframes (no v2 equivalent) (x2): [{"t": 1}, {"t": 6, "translate": [0.0, 0.0, 4.0]}] | [{"t": 0}, {"ease": "out_quad", "t": 4, "translate": [0, 0, 
-# CONVERT-PRESENT element jitter (no v2 equivalent) (x2): {"position": 0.1, "rotation_deg": 30, "scale": 0.3} | {"rotation_deg": 8, "scale": 0.3}
-# CONVERT-PRESENT element kind text (text) has no v2 op (x3): {"background": "#00000000", "see_through": true, "shadow": false, "text": "<#ffb | {"background": "#00000000", "see_through": true, "shadow": false, "text": "<#FFF
+# CONVERT-PRESENT element kind text has no v2 op (x3): {'type': 'text', 'text': '<#ffb020>✦', 'background': '#00000000', 'shadow': Fals | {'type': 'text', 'text': '<#FFF1A0>✦', 'background': '#00000000', 'shadow': Fals
 apiVersion: "astera/v2"
 kind: Skill
 id: ember-gauntlet-def
@@ -27,10 +21,433 @@ frames:
   - {id: fx4_ember_hoop_hit_embers_at, kind: body, parent: fx4_ember_hoop_hit}
 presentation:
   timeline:
+    - id: fx0
+      at: 0
+      do:
+        - op: block
+          parent: fx2_ember_flare_guard
+          block: orange_stained_glass
+          size: [1.0, 1.0, 1.0]
+          brightness: 15
+          at: "= [vec(0.0, 0.9, 0.5), vec(0.15451, 0.9, 0.47553), vec(0.29389, 0.9, 0.40451), vec(0.40451, 0.9, 0.29389), vec(0.47553, 0.9, 0.15451), vec(0.5, 0.9, 0.0), vec(0.47553, 0.9, -0.15451), vec(0.40451, 0.9, -0.29389), vec(0.29389, 0.9, -0.40451), vec(0.15451, 0.9, -0.47553), vec(0.0, 0.9, -0.5), vec(-0.15451, 0.9, -0.47553), vec(-0.29389, 0.9, -0.40451), vec(-0.40451, 0.9, -0.29389), vec(-0.47553, 0.9, -0.15451), vec(-0.5, 0.9, 0.0), vec(-0.47553, 0.9, 0.15451), vec(-0.40451, 0.9, 0.29389), vec(-0.29389, 0.9, 0.40451), vec(-0.15451, 0.9, 0.47553)][int(i)]"
+          turn: "= [vec(0.0, 90.0, 0.0), vec(0.0, 108.0, 0.0), vec(0.0, 126.0, 0.0), vec(0.0, 144.0, 0.0), vec(0.0, 162.0, 0.0), vec(0.0, 180.0, 0.0), vec(0.0, -162.0, 0.0), vec(0.0, -144.0, 0.0), vec(0.0, -126.0, 0.0), vec(0.0, -108.0, 0.0), vec(0.0, -90.0, 0.0), vec(0.0, -72.0, 0.0), vec(0.0, -54.0, 0.0), vec(0.0, -36.0, 0.0), vec(0.0, -18.0, 0.0), vec(0.0, 0.0, 0.0), vec(0.0, 18.0, 0.0), vec(0.0, 36.0, 0.0), vec(0.0, 54.0, 0.0), vec(0.0, 72.0, 0.0)][int(i)]"
+          times: 20
+          id: fx2_ember_flare_guard_ring
+        - id: fx2_ember_flare_guard_ring_trk
+          op: track
+          target: fx2_ember_flare_guard_ring
+          keys:
+            - {t: 0, scale: [0.12, 0.12, 0.2]}
+            - {t: 4, offset: [-2.7, 0.0, 0.0], scale: [0.2, 0.2, 0.95], ease: out_expo}
+            - {t: 8, block: red_stained_glass}
+            - {t: 10, block: gray_stained_glass}
+            - {t: 14, scale: [0.0, 0.0, 0.95], ease: in_quad}
+    - id: fx1
+      at: 1
+      do:
+        - {op: block, parent: fx2_ember_flare_guard, block: yellow_stained_glass, size: [1.0, 1.0, 1.0], brightness: 15, id: fx2_ember_flare_guard_hoop_s0}
+        - id: fx2_ember_flare_guard_hoop_s0_trk
+          op: track
+          target: fx2_ember_flare_guard_hoop_s0
+          keys:
+            - {t: 0, offset: [0.0, 0.3, 4.6], turn: [69.28203, 69.28203, 69.28203], scale: [0.0, 0.0, 0.0]}
+            - {t: 1, offset: [0.0, 0.3, 4.6], turn: [69.28203, 69.28203, 69.28203], scale: [0.14, 0.14, 0.45]}
+            - {t: 2, offset: [0.0, 0.3, 4.6], turn: [69.28203, 69.28203, 69.28203], scale: [0.13714, 0.13714, 0.44082]}
+            - {t: 3, offset: [0.0, 0.3, 4.6], turn: [69.28203, 69.28203, 69.28203], scale: [0.12857, 0.12857, 0.41327], block: orange_stained_glass}
+            - {t: 4, offset: [0.0, 0.3, 4.6], turn: [69.28203, 69.28203, 69.28203], scale: [0.11429, 0.11429, 0.36735]}
+            - {t: 5, offset: [0.0, 0.3, 4.6], turn: [69.28203, 69.28203, 69.28203], scale: [0.09429, 0.09429, 0.30306]}
+            - {t: 6, offset: [0.0, 0.3, 4.6], turn: [69.28203, 69.28203, 69.28203], scale: [0.06857, 0.06857, 0.22041], block: orange_stained_glass}
+            - {t: 7, offset: [0.0, 0.3, 4.6], turn: [69.28203, 69.28203, 69.28203], scale: [0.03714, 0.03714, 0.11939], block: gray_stained_glass}
+            - {t: 8, offset: [0.0, 0.3, 4.6], turn: [69.28203, 69.28203, 69.28203], scale: [0.0, 0.0, 0.0]}
+        - {op: block, parent: fx2_ember_flare_guard, block: yellow_stained_glass, size: [1.0, 1.0, 1.0], brightness: 15, id: fx2_ember_flare_guard_hoop_s1}
+        - id: fx2_ember_flare_guard_hoop_s1_trk
+          op: track
+          target: fx2_ember_flare_guard_hoop_s1
+          keys:
+            - {t: 0, offset: [0.4, 0.40718, 4.6], turn: [52.38224, 90.7287, 90.7287], scale: [0.0, 0.0, 0.0]}
+            - {t: 1, offset: [0.4, 0.40718, 4.6], turn: [52.38224, 90.7287, 90.7287], scale: [0.14, 0.14, 0.45]}
+            - {t: 2, offset: [0.4, 0.40718, 4.6], turn: [52.38224, 90.7287, 90.7287], scale: [0.13714, 0.13714, 0.44082]}
+            - {t: 3, offset: [0.4, 0.40718, 4.6], turn: [52.38224, 90.7287, 90.7287], scale: [0.12857, 0.12857, 0.41327], block: orange_stained_glass}
+            - {t: 4, offset: [0.4, 0.40718, 4.6], turn: [52.38224, 90.7287, 90.7287], scale: [0.11429, 0.11429, 0.36735]}
+            - {t: 5, offset: [0.4, 0.40718, 4.6], turn: [52.38224, 90.7287, 90.7287], scale: [0.09429, 0.09429, 0.30306]}
+            - {t: 6, offset: [0.4, 0.40718, 4.6], turn: [52.38224, 90.7287, 90.7287], scale: [0.06857, 0.06857, 0.22041], block: orange_stained_glass}
+            - {t: 7, offset: [0.4, 0.40718, 4.6], turn: [52.38224, 90.7287, 90.7287], scale: [0.03714, 0.03714, 0.11939], block: gray_stained_glass}
+            - {t: 8, offset: [0.4, 0.40718, 4.6], turn: [52.38224, 90.7287, 90.7287], scale: [0.0, 0.0, 0.0]}
+        - {op: block, parent: fx2_ember_flare_guard, block: yellow_stained_glass, size: [1.0, 1.0, 1.0], brightness: 15, id: fx2_ember_flare_guard_hoop_s2}
+        - id: fx2_ember_flare_guard_hoop_s2_trk
+          op: track
+          target: fx2_ember_flare_guard_hoop_s2
+          keys:
+            - {t: 0, offset: [0.69282, 0.7, 4.6], turn: [29.58207, 110.40178, 110.40178], scale: [0.0, 0.0, 0.0]}
+            - {t: 1, offset: [0.69282, 0.7, 4.6], turn: [29.58207, 110.40178, 110.40178], scale: [0.14, 0.14, 0.45]}
+            - {t: 2, offset: [0.69282, 0.7, 4.6], turn: [29.58207, 110.40178, 110.40178], scale: [0.13714, 0.13714, 0.44082]}
+            - {t: 3, offset: [0.69282, 0.7, 4.6], turn: [29.58207, 110.40178, 110.40178], scale: [0.12857, 0.12857, 0.41327], block: orange_stained_glass}
+            - {t: 4, offset: [0.69282, 0.7, 4.6], turn: [29.58207, 110.40178, 110.40178], scale: [0.11429, 0.11429, 0.36735]}
+            - {t: 5, offset: [0.69282, 0.7, 4.6], turn: [29.58207, 110.40178, 110.40178], scale: [0.09429, 0.09429, 0.30306]}
+            - {t: 6, offset: [0.69282, 0.7, 4.6], turn: [29.58207, 110.40178, 110.40178], scale: [0.06857, 0.06857, 0.22041], block: orange_stained_glass}
+            - {t: 7, offset: [0.69282, 0.7, 4.6], turn: [29.58207, 110.40178, 110.40178], scale: [0.03714, 0.03714, 0.11939], block: gray_stained_glass}
+            - {t: 8, offset: [0.69282, 0.7, 4.6], turn: [29.58207, 110.40178, 110.40178], scale: [0.0, 0.0, 0.0]}
+        - {op: block, parent: fx2_ember_flare_guard, block: yellow_stained_glass, size: [1.0, 1.0, 1.0], brightness: 15, id: fx2_ember_flare_guard_hoop_s3}
+        - id: fx2_ember_flare_guard_hoop_s3_trk
+          op: track
+          target: fx2_ember_flare_guard_hoop_s3
+          keys:
+            - {t: 0, offset: [0.8, 1.1, 4.6], turn: [0.0, 127.27922, 127.27922], scale: [0.0, 0.0, 0.0]}
+            - {t: 1, offset: [0.8, 1.1, 4.6], turn: [0.0, 127.27922, 127.27922], scale: [0.14, 0.14, 0.45]}
+            - {t: 2, offset: [0.8, 1.1, 4.6], turn: [0.0, 127.27922, 127.27922], scale: [0.13714, 0.13714, 0.44082]}
+            - {t: 3, offset: [0.8, 1.1, 4.6], turn: [0.0, 127.27922, 127.27922], scale: [0.12857, 0.12857, 0.41327], block: orange_stained_glass}
+            - {t: 4, offset: [0.8, 1.1, 4.6], turn: [0.0, 127.27922, 127.27922], scale: [0.11429, 0.11429, 0.36735]}
+            - {t: 5, offset: [0.8, 1.1, 4.6], turn: [0.0, 127.27922, 127.27922], scale: [0.09429, 0.09429, 0.30306]}
+            - {t: 6, offset: [0.8, 1.1, 4.6], turn: [0.0, 127.27922, 127.27922], scale: [0.06857, 0.06857, 0.22041], block: orange_stained_glass}
+            - {t: 7, offset: [0.8, 1.1, 4.6], turn: [0.0, 127.27922, 127.27922], scale: [0.03714, 0.03714, 0.11939], block: gray_stained_glass}
+            - {t: 8, offset: [0.8, 1.1, 4.6], turn: [0.0, 127.27922, 127.27922], scale: [0.0, 0.0, 0.0]}
+        - {op: block, parent: fx2_ember_flare_guard, block: yellow_stained_glass, size: [1.0, 1.0, 1.0], brightness: 15, id: fx2_ember_flare_guard_hoop_s4}
+        - id: fx2_ember_flare_guard_hoop_s4_trk
+          op: track
+          target: fx2_ember_flare_guard_hoop_s4
+          keys:
+            - {t: 0, offset: [0.69282, 1.5, 4.6], turn: [29.58207, -110.40178, -110.40178], scale: [0.0, 0.0, 0.0]}
+            - {t: 1, offset: [0.69282, 1.5, 4.6], turn: [29.58207, -110.40178, -110.40178], scale: [0.14, 0.14, 0.45]}
+            - {t: 2, offset: [0.69282, 1.5, 4.6], turn: [29.58207, -110.40178, -110.40178], scale: [0.13714, 0.13714, 0.44082]}
+            - {t: 3, offset: [0.69282, 1.5, 4.6], turn: [29.58207, -110.40178, -110.40178], scale: [0.12857, 0.12857, 0.41327], block: orange_stained_glass}
+            - {t: 4, offset: [0.69282, 1.5, 4.6], turn: [29.58207, -110.40178, -110.40178], scale: [0.11429, 0.11429, 0.36735]}
+            - {t: 5, offset: [0.69282, 1.5, 4.6], turn: [29.58207, -110.40178, -110.40178], scale: [0.09429, 0.09429, 0.30306]}
+            - {t: 6, offset: [0.69282, 1.5, 4.6], turn: [29.58207, -110.40178, -110.40178], scale: [0.06857, 0.06857, 0.22041], block: orange_stained_glass}
+            - {t: 7, offset: [0.69282, 1.5, 4.6], turn: [29.58207, -110.40178, -110.40178], scale: [0.03714, 0.03714, 0.11939], block: gray_stained_glass}
+            - {t: 8, offset: [0.69282, 1.5, 4.6], turn: [29.58207, -110.40178, -110.40178], scale: [0.0, 0.0, 0.0]}
+        - {op: block, parent: fx2_ember_flare_guard, block: yellow_stained_glass, size: [1.0, 1.0, 1.0], brightness: 15, id: fx2_ember_flare_guard_hoop_s5}
+        - id: fx2_ember_flare_guard_hoop_s5_trk
+          op: track
+          target: fx2_ember_flare_guard_hoop_s5
+          keys:
+            - {t: 0, offset: [0.4, 1.79282, 4.6], turn: [52.38224, -90.7287, -90.7287], scale: [0.0, 0.0, 0.0]}
+            - {t: 1, offset: [0.4, 1.79282, 4.6], turn: [52.38224, -90.7287, -90.7287], scale: [0.14, 0.14, 0.45]}
+            - {t: 2, offset: [0.4, 1.79282, 4.6], turn: [52.38224, -90.7287, -90.7287], scale: [0.13714, 0.13714, 0.44082]}
+            - {t: 3, offset: [0.4, 1.79282, 4.6], turn: [52.38224, -90.7287, -90.7287], scale: [0.12857, 0.12857, 0.41327], block: orange_stained_glass}
+            - {t: 4, offset: [0.4, 1.79282, 4.6], turn: [52.38224, -90.7287, -90.7287], scale: [0.11429, 0.11429, 0.36735]}
+            - {t: 5, offset: [0.4, 1.79282, 4.6], turn: [52.38224, -90.7287, -90.7287], scale: [0.09429, 0.09429, 0.30306]}
+            - {t: 6, offset: [0.4, 1.79282, 4.6], turn: [52.38224, -90.7287, -90.7287], scale: [0.06857, 0.06857, 0.22041], block: orange_stained_glass}
+            - {t: 7, offset: [0.4, 1.79282, 4.6], turn: [52.38224, -90.7287, -90.7287], scale: [0.03714, 0.03714, 0.11939], block: gray_stained_glass}
+            - {t: 8, offset: [0.4, 1.79282, 4.6], turn: [52.38224, -90.7287, -90.7287], scale: [0.0, 0.0, 0.0]}
+        - {op: block, parent: fx2_ember_flare_guard, block: yellow_stained_glass, size: [1.0, 1.0, 1.0], brightness: 15, id: fx2_ember_flare_guard_hoop_s6}
+        - id: fx2_ember_flare_guard_hoop_s6_trk
+          op: track
+          target: fx2_ember_flare_guard_hoop_s6
+          keys:
+            - {t: 0, offset: [0.0, 1.9, 4.6], turn: [69.28203, -69.28203, -69.28203], scale: [0.0, 0.0, 0.0]}
+            - {t: 1, offset: [0.0, 1.9, 4.6], turn: [69.28203, -69.28203, -69.28203], scale: [0.14, 0.14, 0.45]}
+            - {t: 2, offset: [0.0, 1.9, 4.6], turn: [69.28203, -69.28203, -69.28203], scale: [0.13714, 0.13714, 0.44082]}
+            - {t: 3, offset: [0.0, 1.9, 4.6], turn: [69.28203, -69.28203, -69.28203], scale: [0.12857, 0.12857, 0.41327], block: orange_stained_glass}
+            - {t: 4, offset: [0.0, 1.9, 4.6], turn: [69.28203, -69.28203, -69.28203], scale: [0.11429, 0.11429, 0.36735]}
+            - {t: 5, offset: [0.0, 1.9, 4.6], turn: [69.28203, -69.28203, -69.28203], scale: [0.09429, 0.09429, 0.30306]}
+            - {t: 6, offset: [0.0, 1.9, 4.6], turn: [69.28203, -69.28203, -69.28203], scale: [0.06857, 0.06857, 0.22041], block: orange_stained_glass}
+            - {t: 7, offset: [0.0, 1.9, 4.6], turn: [69.28203, -69.28203, -69.28203], scale: [0.03714, 0.03714, 0.11939], block: gray_stained_glass}
+            - {t: 8, offset: [0.0, 1.9, 4.6], turn: [69.28203, -69.28203, -69.28203], scale: [0.0, 0.0, 0.0]}
+        - {op: block, parent: fx2_ember_flare_guard, block: yellow_stained_glass, size: [1.0, 1.0, 1.0], brightness: 15, id: fx2_ember_flare_guard_hoop_s7}
+        - id: fx2_ember_flare_guard_hoop_s7_trk
+          op: track
+          target: fx2_ember_flare_guard_hoop_s7
+          keys:
+            - {t: 0, offset: [-0.4, 1.79282, 4.6], turn: [80.92793, -46.72376, -46.72376], scale: [0.0, 0.0, 0.0]}
+            - {t: 1, offset: [-0.4, 1.79282, 4.6], turn: [80.92793, -46.72376, -46.72376], scale: [0.14, 0.14, 0.45]}
+            - {t: 2, offset: [-0.4, 1.79282, 4.6], turn: [80.92793, -46.72376, -46.72376], scale: [0.13714, 0.13714, 0.44082]}
+            - {t: 3, offset: [-0.4, 1.79282, 4.6], turn: [80.92793, -46.72376, -46.72376], scale: [0.12857, 0.12857, 0.41327], block: orange_stained_glass}
+            - {t: 4, offset: [-0.4, 1.79282, 4.6], turn: [80.92793, -46.72376, -46.72376], scale: [0.11429, 0.11429, 0.36735]}
+            - {t: 5, offset: [-0.4, 1.79282, 4.6], turn: [80.92793, -46.72376, -46.72376], scale: [0.09429, 0.09429, 0.30306]}
+            - {t: 6, offset: [-0.4, 1.79282, 4.6], turn: [80.92793, -46.72376, -46.72376], scale: [0.06857, 0.06857, 0.22041], block: orange_stained_glass}
+            - {t: 7, offset: [-0.4, 1.79282, 4.6], turn: [80.92793, -46.72376, -46.72376], scale: [0.03714, 0.03714, 0.11939], block: gray_stained_glass}
+            - {t: 8, offset: [-0.4, 1.79282, 4.6], turn: [80.92793, -46.72376, -46.72376], scale: [0.0, 0.0, 0.0]}
+        - {op: block, parent: fx2_ember_flare_guard, block: yellow_stained_glass, size: [1.0, 1.0, 1.0], brightness: 15, id: fx2_ember_flare_guard_hoop_s8}
+        - id: fx2_ember_flare_guard_hoop_s8_trk
+          op: track
+          target: fx2_ember_flare_guard_hoop_s8
+          keys:
+            - {t: 0, offset: [-0.69282, 1.5, 4.6], turn: [87.75192, -23.51306, -23.51306], scale: [0.0, 0.0, 0.0]}
+            - {t: 1, offset: [-0.69282, 1.5, 4.6], turn: [87.75192, -23.51306, -23.51306], scale: [0.14, 0.14, 0.45]}
+            - {t: 2, offset: [-0.69282, 1.5, 4.6], turn: [87.75192, -23.51306, -23.51306], scale: [0.13714, 0.13714, 0.44082]}
+            - {t: 3, offset: [-0.69282, 1.5, 4.6], turn: [87.75192, -23.51306, -23.51306], scale: [0.12857, 0.12857, 0.41327], block: orange_stained_glass}
+            - {t: 4, offset: [-0.69282, 1.5, 4.6], turn: [87.75192, -23.51306, -23.51306], scale: [0.11429, 0.11429, 0.36735]}
+            - {t: 5, offset: [-0.69282, 1.5, 4.6], turn: [87.75192, -23.51306, -23.51306], scale: [0.09429, 0.09429, 0.30306]}
+            - {t: 6, offset: [-0.69282, 1.5, 4.6], turn: [87.75192, -23.51306, -23.51306], scale: [0.06857, 0.06857, 0.22041], block: orange_stained_glass}
+            - {t: 7, offset: [-0.69282, 1.5, 4.6], turn: [87.75192, -23.51306, -23.51306], scale: [0.03714, 0.03714, 0.11939], block: gray_stained_glass}
+            - {t: 8, offset: [-0.69282, 1.5, 4.6], turn: [87.75192, -23.51306, -23.51306], scale: [0.0, 0.0, 0.0]}
+        - {op: block, parent: fx2_ember_flare_guard, block: yellow_stained_glass, size: [1.0, 1.0, 1.0], brightness: 15, id: fx2_ember_flare_guard_hoop_s9}
+        - id: fx2_ember_flare_guard_hoop_s9_trk
+          op: track
+          target: fx2_ember_flare_guard_hoop_s9
+          keys:
+            - {t: 0, offset: [-0.8, 1.1, 4.6], turn: [90.0, 0.0, 0.0], scale: [0.0, 0.0, 0.0]}
+            - {t: 1, offset: [-0.8, 1.1, 4.6], turn: [90.0, 0.0, 0.0], scale: [0.14, 0.14, 0.45]}
+            - {t: 2, offset: [-0.8, 1.1, 4.6], turn: [90.0, 0.0, 0.0], scale: [0.13714, 0.13714, 0.44082]}
+            - {t: 3, offset: [-0.8, 1.1, 4.6], turn: [90.0, 0.0, 0.0], scale: [0.12857, 0.12857, 0.41327], block: orange_stained_glass}
+            - {t: 4, offset: [-0.8, 1.1, 4.6], turn: [90.0, 0.0, 0.0], scale: [0.11429, 0.11429, 0.36735]}
+            - {t: 5, offset: [-0.8, 1.1, 4.6], turn: [90.0, 0.0, 0.0], scale: [0.09429, 0.09429, 0.30306]}
+            - {t: 6, offset: [-0.8, 1.1, 4.6], turn: [90.0, 0.0, 0.0], scale: [0.06857, 0.06857, 0.22041], block: orange_stained_glass}
+            - {t: 7, offset: [-0.8, 1.1, 4.6], turn: [90.0, 0.0, 0.0], scale: [0.03714, 0.03714, 0.11939], block: gray_stained_glass}
+            - {t: 8, offset: [-0.8, 1.1, 4.6], turn: [90.0, 0.0, 0.0], scale: [0.0, 0.0, 0.0]}
+        - {op: block, parent: fx2_ember_flare_guard, block: yellow_stained_glass, size: [1.0, 1.0, 1.0], brightness: 15, id: fx2_ember_flare_guard_hoop_s10}
+        - id: fx2_ember_flare_guard_hoop_s10_trk
+          op: track
+          target: fx2_ember_flare_guard_hoop_s10
+          keys:
+            - {t: 0, offset: [-0.69282, 0.7, 4.6], turn: [87.75192, 23.51306, 23.51306], scale: [0.0, 0.0, 0.0]}
+            - {t: 1, offset: [-0.69282, 0.7, 4.6], turn: [87.75192, 23.51306, 23.51306], scale: [0.14, 0.14, 0.45]}
+            - {t: 2, offset: [-0.69282, 0.7, 4.6], turn: [87.75192, 23.51306, 23.51306], scale: [0.13714, 0.13714, 0.44082]}
+            - {t: 3, offset: [-0.69282, 0.7, 4.6], turn: [87.75192, 23.51306, 23.51306], scale: [0.12857, 0.12857, 0.41327], block: orange_stained_glass}
+            - {t: 4, offset: [-0.69282, 0.7, 4.6], turn: [87.75192, 23.51306, 23.51306], scale: [0.11429, 0.11429, 0.36735]}
+            - {t: 5, offset: [-0.69282, 0.7, 4.6], turn: [87.75192, 23.51306, 23.51306], scale: [0.09429, 0.09429, 0.30306]}
+            - {t: 6, offset: [-0.69282, 0.7, 4.6], turn: [87.75192, 23.51306, 23.51306], scale: [0.06857, 0.06857, 0.22041], block: orange_stained_glass}
+            - {t: 7, offset: [-0.69282, 0.7, 4.6], turn: [87.75192, 23.51306, 23.51306], scale: [0.03714, 0.03714, 0.11939], block: gray_stained_glass}
+            - {t: 8, offset: [-0.69282, 0.7, 4.6], turn: [87.75192, 23.51306, 23.51306], scale: [0.0, 0.0, 0.0]}
+        - {op: block, parent: fx2_ember_flare_guard, block: yellow_stained_glass, size: [1.0, 1.0, 1.0], brightness: 15, id: fx2_ember_flare_guard_hoop_s11}
+        - id: fx2_ember_flare_guard_hoop_s11_trk
+          op: track
+          target: fx2_ember_flare_guard_hoop_s11
+          keys:
+            - {t: 0, offset: [-0.4, 0.40718, 4.6], turn: [80.92793, 46.72376, 46.72376], scale: [0.0, 0.0, 0.0]}
+            - {t: 1, offset: [-0.4, 0.40718, 4.6], turn: [80.92793, 46.72376, 46.72376], scale: [0.14, 0.14, 0.45]}
+            - {t: 2, offset: [-0.4, 0.40718, 4.6], turn: [80.92793, 46.72376, 46.72376], scale: [0.13714, 0.13714, 0.44082]}
+            - {t: 3, offset: [-0.4, 0.40718, 4.6], turn: [80.92793, 46.72376, 46.72376], scale: [0.12857, 0.12857, 0.41327], block: orange_stained_glass}
+            - {t: 4, offset: [-0.4, 0.40718, 4.6], turn: [80.92793, 46.72376, 46.72376], scale: [0.11429, 0.11429, 0.36735]}
+            - {t: 5, offset: [-0.4, 0.40718, 4.6], turn: [80.92793, 46.72376, 46.72376], scale: [0.09429, 0.09429, 0.30306]}
+            - {t: 6, offset: [-0.4, 0.40718, 4.6], turn: [80.92793, 46.72376, 46.72376], scale: [0.06857, 0.06857, 0.22041], block: orange_stained_glass}
+            - {t: 7, offset: [-0.4, 0.40718, 4.6], turn: [80.92793, 46.72376, 46.72376], scale: [0.03714, 0.03714, 0.11939], block: gray_stained_glass}
+            - {t: 8, offset: [-0.4, 0.40718, 4.6], turn: [80.92793, 46.72376, 46.72376], scale: [0.0, 0.0, 0.0]}
+    - id: fx3
+      at: 3
+      do:
+        - op: block
+          parent: fx2_ember_flare_guard
+          block: black_stained_glass
+          size: "= vec(1.0, 1.0, 1.0) * (1.0 + (rand('j_fx2_ember_flare_guard_soot')*2.0-1.0)*0.3)"
+          at: "= ([vec(0.0, 1.0, 0.5), vec(0.29389, 1.0, 0.40451), vec(0.47553, 1.0, 0.15451), vec(0.47553, 1.0, -0.15451), vec(0.29389, 1.0, -0.40451), vec(0.0, 1.0, -0.5), vec(-0.29389, 1.0, -0.40451), vec(-0.47553, 1.0, -0.15451), vec(-0.47553, 1.0, 0.15451), vec(-0.29389, 1.0, 0.40451)][int(i)]) + vec((rand('j_fx2_ember_flare_guard_soot')*2.0-1.0)*0.1, (rand('j_fx2_ember_flare_guard_soot')*2.0-1.0)*0.1, (rand('j_fx2_ember_flare_guard_soot')*2.0-1.0)*0.1)"
+          turn: "= ([vec(0.0, 0.0, 0.0), vec(0.0, 36.0, 0.0), vec(0.0, 72.0, 0.0), vec(0.0, 108.0, 0.0), vec(0.0, 144.0, 0.0), vec(0.0, 180.0, 0.0), vec(0.0, -144.0, 0.0), vec(0.0, -108.0, 0.0), vec(0.0, -72.0, 0.0), vec(0.0, -36.0, 0.0)][int(i)]) + vec((rand('j_fx2_ember_flare_guard_soot')*2.0-1.0)*30.0, (rand('j_fx2_ember_flare_guard_soot')*2.0-1.0)*30.0, (rand('j_fx2_ember_flare_guard_soot')*2.0-1.0)*30.0)"
+          times: 10
+          id: fx2_ember_flare_guard_soot
+        - id: fx2_ember_flare_guard_soot_trk
+          op: track
+          target: fx2_ember_flare_guard_soot
+          keys:
+            - {t: 0, scale: [0.12, 0.12, 0.12]}
+            - {t: 5, offset: [0.0, 0.0, 1.4], scale: [0.6, 0.6, 0.6], ease: out_quad}
+            - {t: 9, block: gray_stained_glass}
+            - {t: 15, scale: [0.0, 0.0, 0.0], ease: in_quad}
+    - id: fx10
+      at: 10
+      do:
+        - id: rm
+          op: remove
+          ids:
+            - fx2_ember_flare_guard_hoop_s0
+            - fx2_ember_flare_guard_hoop_s1
+            - fx2_ember_flare_guard_hoop_s2
+            - fx2_ember_flare_guard_hoop_s3
+            - fx2_ember_flare_guard_hoop_s4
+            - fx2_ember_flare_guard_hoop_s5
+            - fx2_ember_flare_guard_hoop_s6
+            - fx2_ember_flare_guard_hoop_s7
+            - fx2_ember_flare_guard_hoop_s8
+            - fx2_ember_flare_guard_hoop_s9
+            - fx2_ember_flare_guard_hoop_s10
+            - fx2_ember_flare_guard_hoop_s11
+    - {id: fx15, at: 15, do: [{id: rm_2, op: remove, ids: [fx2_ember_flare_guard_ring]}]}
+    - {id: fx19, at: 19, do: [{id: rm_3, op: remove, ids: [fx2_ember_flare_guard_soot]}]}
     - id: fx111
       at: 111
       do:
         - {id: fx3_ember_counter_sweep_embers_atrk, op: track, target: fx3_ember_counter_sweep_embers_at, space: fx3_ember_counter_sweep, keys: [{t: 0, offset: [0, 1.1, 2.2]}]}
+        - {op: block, parent: fx3_ember_counter_sweep, block: yellow_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx3_ember_counter_sweep_pressure_hoop_s0}
+        - id: fx3_ember_counter_sweep_pressure_hoop_s0_trk
+          op: track
+          target: fx3_ember_counter_sweep_pressure_hoop_s0
+          keys:
+            - {t: 0, offset: [0.0, 0.4, 1.6], turn: [69.28203, 69.28203, 69.28203], scale: [0.08, 0.08, 0.38]}
+            - {t: 1, offset: [0.0, 0.4, 1.6], turn: [69.28203, 69.28203, 69.28203], scale: [0.072, 0.072, 0.38]}
+            - {t: 2, offset: [0.0, 0.4, 1.6], turn: [69.28203, 69.28203, 69.28203], scale: [0.064, 0.064, 0.38]}
+            - {t: 3, offset: [0.0, 0.4, 1.6], turn: [69.28203, 69.28203, 69.28203], scale: [0.056, 0.056, 0.38]}
+            - {t: 4, offset: [0.0, 0.4, 1.6], turn: [69.28203, 69.28203, 69.28203], scale: [0.048, 0.048, 0.38]}
+            - {t: 5, offset: [0.0, 0.4, 1.6], turn: [69.28203, 69.28203, 69.28203], scale: [0.04, 0.04, 0.38]}
+            - {t: 6, offset: [0.0, 0.4, 1.6], turn: [69.28203, 69.28203, 69.28203], scale: [0.032, 0.032, 0.38], block: orange_concrete}
+            - {t: 7, offset: [0.0, 0.4, 1.6], turn: [69.28203, 69.28203, 69.28203], scale: [0.024, 0.024, 0.38]}
+            - {t: 8, offset: [0.0, 0.4, 1.6], turn: [69.28203, 69.28203, 69.28203], scale: [0.016, 0.016, 0.38]}
+            - {t: 9, offset: [0.0, 0.4, 1.6], turn: [69.28203, 69.28203, 69.28203], scale: [0.008, 0.008, 0.38]}
+            - {t: 10, offset: [0.0, 0.4, 1.6], turn: [69.28203, 69.28203, 69.28203], scale: [0.0, 0.0, 0.38]}
+        - {op: block, parent: fx3_ember_counter_sweep, block: yellow_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx3_ember_counter_sweep_pressure_hoop_s1}
+        - id: fx3_ember_counter_sweep_pressure_hoop_s1_trk
+          op: track
+          target: fx3_ember_counter_sweep_pressure_hoop_s1
+          keys:
+            - {t: 0, offset: [0.35, 0.49378, 1.6], turn: [52.38224, 90.7287, 90.7287], scale: [0.08, 0.08, 0.38]}
+            - {t: 1, offset: [0.35, 0.49378, 1.6], turn: [52.38224, 90.7287, 90.7287], scale: [0.072, 0.072, 0.38]}
+            - {t: 2, offset: [0.35, 0.49378, 1.6], turn: [52.38224, 90.7287, 90.7287], scale: [0.064, 0.064, 0.38]}
+            - {t: 3, offset: [0.35, 0.49378, 1.6], turn: [52.38224, 90.7287, 90.7287], scale: [0.056, 0.056, 0.38]}
+            - {t: 4, offset: [0.35, 0.49378, 1.6], turn: [52.38224, 90.7287, 90.7287], scale: [0.048, 0.048, 0.38]}
+            - {t: 5, offset: [0.35, 0.49378, 1.6], turn: [52.38224, 90.7287, 90.7287], scale: [0.04, 0.04, 0.38]}
+            - {t: 6, offset: [0.35, 0.49378, 1.6], turn: [52.38224, 90.7287, 90.7287], scale: [0.032, 0.032, 0.38], block: orange_concrete}
+            - {t: 7, offset: [0.35, 0.49378, 1.6], turn: [52.38224, 90.7287, 90.7287], scale: [0.024, 0.024, 0.38]}
+            - {t: 8, offset: [0.35, 0.49378, 1.6], turn: [52.38224, 90.7287, 90.7287], scale: [0.016, 0.016, 0.38]}
+            - {t: 9, offset: [0.35, 0.49378, 1.6], turn: [52.38224, 90.7287, 90.7287], scale: [0.008, 0.008, 0.38]}
+            - {t: 10, offset: [0.35, 0.49378, 1.6], turn: [52.38224, 90.7287, 90.7287], scale: [0.0, 0.0, 0.38]}
+        - {op: block, parent: fx3_ember_counter_sweep, block: yellow_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx3_ember_counter_sweep_pressure_hoop_s2}
+        - id: fx3_ember_counter_sweep_pressure_hoop_s2_trk
+          op: track
+          target: fx3_ember_counter_sweep_pressure_hoop_s2
+          keys:
+            - {t: 0, offset: [0.60622, 0.75, 1.6], turn: [29.58207, 110.40178, 110.40178], scale: [0.08, 0.08, 0.38]}
+            - {t: 1, offset: [0.60622, 0.75, 1.6], turn: [29.58207, 110.40178, 110.40178], scale: [0.072, 0.072, 0.38]}
+            - {t: 2, offset: [0.60622, 0.75, 1.6], turn: [29.58207, 110.40178, 110.40178], scale: [0.064, 0.064, 0.38]}
+            - {t: 3, offset: [0.60622, 0.75, 1.6], turn: [29.58207, 110.40178, 110.40178], scale: [0.056, 0.056, 0.38]}
+            - {t: 4, offset: [0.60622, 0.75, 1.6], turn: [29.58207, 110.40178, 110.40178], scale: [0.048, 0.048, 0.38]}
+            - {t: 5, offset: [0.60622, 0.75, 1.6], turn: [29.58207, 110.40178, 110.40178], scale: [0.04, 0.04, 0.38]}
+            - {t: 6, offset: [0.60622, 0.75, 1.6], turn: [29.58207, 110.40178, 110.40178], scale: [0.032, 0.032, 0.38], block: orange_concrete}
+            - {t: 7, offset: [0.60622, 0.75, 1.6], turn: [29.58207, 110.40178, 110.40178], scale: [0.024, 0.024, 0.38]}
+            - {t: 8, offset: [0.60622, 0.75, 1.6], turn: [29.58207, 110.40178, 110.40178], scale: [0.016, 0.016, 0.38]}
+            - {t: 9, offset: [0.60622, 0.75, 1.6], turn: [29.58207, 110.40178, 110.40178], scale: [0.008, 0.008, 0.38]}
+            - {t: 10, offset: [0.60622, 0.75, 1.6], turn: [29.58207, 110.40178, 110.40178], scale: [0.0, 0.0, 0.38]}
+        - {op: block, parent: fx3_ember_counter_sweep, block: yellow_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx3_ember_counter_sweep_pressure_hoop_s3}
+        - id: fx3_ember_counter_sweep_pressure_hoop_s3_trk
+          op: track
+          target: fx3_ember_counter_sweep_pressure_hoop_s3
+          keys:
+            - {t: 0, offset: [0.7, 1.1, 1.6], turn: [0.0, 127.27922, 127.27922], scale: [0.08, 0.08, 0.38]}
+            - {t: 1, offset: [0.7, 1.1, 1.6], turn: [0.0, 127.27922, 127.27922], scale: [0.072, 0.072, 0.38]}
+            - {t: 2, offset: [0.7, 1.1, 1.6], turn: [0.0, 127.27922, 127.27922], scale: [0.064, 0.064, 0.38]}
+            - {t: 3, offset: [0.7, 1.1, 1.6], turn: [0.0, 127.27922, 127.27922], scale: [0.056, 0.056, 0.38]}
+            - {t: 4, offset: [0.7, 1.1, 1.6], turn: [0.0, 127.27922, 127.27922], scale: [0.048, 0.048, 0.38]}
+            - {t: 5, offset: [0.7, 1.1, 1.6], turn: [0.0, 127.27922, 127.27922], scale: [0.04, 0.04, 0.38]}
+            - {t: 6, offset: [0.7, 1.1, 1.6], turn: [0.0, 127.27922, 127.27922], scale: [0.032, 0.032, 0.38], block: orange_concrete}
+            - {t: 7, offset: [0.7, 1.1, 1.6], turn: [0.0, 127.27922, 127.27922], scale: [0.024, 0.024, 0.38]}
+            - {t: 8, offset: [0.7, 1.1, 1.6], turn: [0.0, 127.27922, 127.27922], scale: [0.016, 0.016, 0.38]}
+            - {t: 9, offset: [0.7, 1.1, 1.6], turn: [0.0, 127.27922, 127.27922], scale: [0.008, 0.008, 0.38]}
+            - {t: 10, offset: [0.7, 1.1, 1.6], turn: [0.0, 127.27922, 127.27922], scale: [0.0, 0.0, 0.38]}
+        - {op: block, parent: fx3_ember_counter_sweep, block: yellow_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx3_ember_counter_sweep_pressure_hoop_s4}
+        - id: fx3_ember_counter_sweep_pressure_hoop_s4_trk
+          op: track
+          target: fx3_ember_counter_sweep_pressure_hoop_s4
+          keys:
+            - {t: 0, offset: [0.60622, 1.45, 1.6], turn: [29.58207, -110.40178, -110.40178], scale: [0.08, 0.08, 0.38]}
+            - {t: 1, offset: [0.60622, 1.45, 1.6], turn: [29.58207, -110.40178, -110.40178], scale: [0.072, 0.072, 0.38]}
+            - {t: 2, offset: [0.60622, 1.45, 1.6], turn: [29.58207, -110.40178, -110.40178], scale: [0.064, 0.064, 0.38]}
+            - {t: 3, offset: [0.60622, 1.45, 1.6], turn: [29.58207, -110.40178, -110.40178], scale: [0.056, 0.056, 0.38]}
+            - {t: 4, offset: [0.60622, 1.45, 1.6], turn: [29.58207, -110.40178, -110.40178], scale: [0.048, 0.048, 0.38]}
+            - {t: 5, offset: [0.60622, 1.45, 1.6], turn: [29.58207, -110.40178, -110.40178], scale: [0.04, 0.04, 0.38]}
+            - {t: 6, offset: [0.60622, 1.45, 1.6], turn: [29.58207, -110.40178, -110.40178], scale: [0.032, 0.032, 0.38], block: orange_concrete}
+            - {t: 7, offset: [0.60622, 1.45, 1.6], turn: [29.58207, -110.40178, -110.40178], scale: [0.024, 0.024, 0.38]}
+            - {t: 8, offset: [0.60622, 1.45, 1.6], turn: [29.58207, -110.40178, -110.40178], scale: [0.016, 0.016, 0.38]}
+            - {t: 9, offset: [0.60622, 1.45, 1.6], turn: [29.58207, -110.40178, -110.40178], scale: [0.008, 0.008, 0.38]}
+            - {t: 10, offset: [0.60622, 1.45, 1.6], turn: [29.58207, -110.40178, -110.40178], scale: [0.0, 0.0, 0.38]}
+        - {op: block, parent: fx3_ember_counter_sweep, block: yellow_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx3_ember_counter_sweep_pressure_hoop_s5}
+        - id: fx3_ember_counter_sweep_pressure_hoop_s5_trk
+          op: track
+          target: fx3_ember_counter_sweep_pressure_hoop_s5
+          keys:
+            - {t: 0, offset: [0.35, 1.70622, 1.6], turn: [52.38224, -90.7287, -90.7287], scale: [0.08, 0.08, 0.38]}
+            - {t: 1, offset: [0.35, 1.70622, 1.6], turn: [52.38224, -90.7287, -90.7287], scale: [0.072, 0.072, 0.38]}
+            - {t: 2, offset: [0.35, 1.70622, 1.6], turn: [52.38224, -90.7287, -90.7287], scale: [0.064, 0.064, 0.38]}
+            - {t: 3, offset: [0.35, 1.70622, 1.6], turn: [52.38224, -90.7287, -90.7287], scale: [0.056, 0.056, 0.38]}
+            - {t: 4, offset: [0.35, 1.70622, 1.6], turn: [52.38224, -90.7287, -90.7287], scale: [0.048, 0.048, 0.38]}
+            - {t: 5, offset: [0.35, 1.70622, 1.6], turn: [52.38224, -90.7287, -90.7287], scale: [0.04, 0.04, 0.38]}
+            - {t: 6, offset: [0.35, 1.70622, 1.6], turn: [52.38224, -90.7287, -90.7287], scale: [0.032, 0.032, 0.38], block: orange_concrete}
+            - {t: 7, offset: [0.35, 1.70622, 1.6], turn: [52.38224, -90.7287, -90.7287], scale: [0.024, 0.024, 0.38]}
+            - {t: 8, offset: [0.35, 1.70622, 1.6], turn: [52.38224, -90.7287, -90.7287], scale: [0.016, 0.016, 0.38]}
+            - {t: 9, offset: [0.35, 1.70622, 1.6], turn: [52.38224, -90.7287, -90.7287], scale: [0.008, 0.008, 0.38]}
+            - {t: 10, offset: [0.35, 1.70622, 1.6], turn: [52.38224, -90.7287, -90.7287], scale: [0.0, 0.0, 0.38]}
+        - {op: block, parent: fx3_ember_counter_sweep, block: yellow_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx3_ember_counter_sweep_pressure_hoop_s6}
+        - id: fx3_ember_counter_sweep_pressure_hoop_s6_trk
+          op: track
+          target: fx3_ember_counter_sweep_pressure_hoop_s6
+          keys:
+            - {t: 0, offset: [0.0, 1.8, 1.6], turn: [69.28203, -69.28203, -69.28203], scale: [0.08, 0.08, 0.38]}
+            - {t: 1, offset: [0.0, 1.8, 1.6], turn: [69.28203, -69.28203, -69.28203], scale: [0.072, 0.072, 0.38]}
+            - {t: 2, offset: [0.0, 1.8, 1.6], turn: [69.28203, -69.28203, -69.28203], scale: [0.064, 0.064, 0.38]}
+            - {t: 3, offset: [0.0, 1.8, 1.6], turn: [69.28203, -69.28203, -69.28203], scale: [0.056, 0.056, 0.38]}
+            - {t: 4, offset: [0.0, 1.8, 1.6], turn: [69.28203, -69.28203, -69.28203], scale: [0.048, 0.048, 0.38]}
+            - {t: 5, offset: [0.0, 1.8, 1.6], turn: [69.28203, -69.28203, -69.28203], scale: [0.04, 0.04, 0.38]}
+            - {t: 6, offset: [0.0, 1.8, 1.6], turn: [69.28203, -69.28203, -69.28203], scale: [0.032, 0.032, 0.38], block: orange_concrete}
+            - {t: 7, offset: [0.0, 1.8, 1.6], turn: [69.28203, -69.28203, -69.28203], scale: [0.024, 0.024, 0.38]}
+            - {t: 8, offset: [0.0, 1.8, 1.6], turn: [69.28203, -69.28203, -69.28203], scale: [0.016, 0.016, 0.38]}
+            - {t: 9, offset: [0.0, 1.8, 1.6], turn: [69.28203, -69.28203, -69.28203], scale: [0.008, 0.008, 0.38]}
+            - {t: 10, offset: [0.0, 1.8, 1.6], turn: [69.28203, -69.28203, -69.28203], scale: [0.0, 0.0, 0.38]}
+        - {op: block, parent: fx3_ember_counter_sweep, block: yellow_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx3_ember_counter_sweep_pressure_hoop_s7}
+        - id: fx3_ember_counter_sweep_pressure_hoop_s7_trk
+          op: track
+          target: fx3_ember_counter_sweep_pressure_hoop_s7
+          keys:
+            - {t: 0, offset: [-0.35, 1.70622, 1.6], turn: [80.92793, -46.72376, -46.72376], scale: [0.08, 0.08, 0.38]}
+            - {t: 1, offset: [-0.35, 1.70622, 1.6], turn: [80.92793, -46.72376, -46.72376], scale: [0.072, 0.072, 0.38]}
+            - {t: 2, offset: [-0.35, 1.70622, 1.6], turn: [80.92793, -46.72376, -46.72376], scale: [0.064, 0.064, 0.38]}
+            - {t: 3, offset: [-0.35, 1.70622, 1.6], turn: [80.92793, -46.72376, -46.72376], scale: [0.056, 0.056, 0.38]}
+            - {t: 4, offset: [-0.35, 1.70622, 1.6], turn: [80.92793, -46.72376, -46.72376], scale: [0.048, 0.048, 0.38]}
+            - {t: 5, offset: [-0.35, 1.70622, 1.6], turn: [80.92793, -46.72376, -46.72376], scale: [0.04, 0.04, 0.38]}
+            - {t: 6, offset: [-0.35, 1.70622, 1.6], turn: [80.92793, -46.72376, -46.72376], scale: [0.032, 0.032, 0.38], block: orange_concrete}
+            - {t: 7, offset: [-0.35, 1.70622, 1.6], turn: [80.92793, -46.72376, -46.72376], scale: [0.024, 0.024, 0.38]}
+            - {t: 8, offset: [-0.35, 1.70622, 1.6], turn: [80.92793, -46.72376, -46.72376], scale: [0.016, 0.016, 0.38]}
+            - {t: 9, offset: [-0.35, 1.70622, 1.6], turn: [80.92793, -46.72376, -46.72376], scale: [0.008, 0.008, 0.38]}
+            - {t: 10, offset: [-0.35, 1.70622, 1.6], turn: [80.92793, -46.72376, -46.72376], scale: [0.0, 0.0, 0.38]}
+        - {op: block, parent: fx3_ember_counter_sweep, block: yellow_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx3_ember_counter_sweep_pressure_hoop_s8}
+        - id: fx3_ember_counter_sweep_pressure_hoop_s8_trk
+          op: track
+          target: fx3_ember_counter_sweep_pressure_hoop_s8
+          keys:
+            - {t: 0, offset: [-0.60622, 1.45, 1.6], turn: [87.75192, -23.51306, -23.51306], scale: [0.08, 0.08, 0.38]}
+            - {t: 1, offset: [-0.60622, 1.45, 1.6], turn: [87.75192, -23.51306, -23.51306], scale: [0.072, 0.072, 0.38]}
+            - {t: 2, offset: [-0.60622, 1.45, 1.6], turn: [87.75192, -23.51306, -23.51306], scale: [0.064, 0.064, 0.38]}
+            - {t: 3, offset: [-0.60622, 1.45, 1.6], turn: [87.75192, -23.51306, -23.51306], scale: [0.056, 0.056, 0.38]}
+            - {t: 4, offset: [-0.60622, 1.45, 1.6], turn: [87.75192, -23.51306, -23.51306], scale: [0.048, 0.048, 0.38]}
+            - {t: 5, offset: [-0.60622, 1.45, 1.6], turn: [87.75192, -23.51306, -23.51306], scale: [0.04, 0.04, 0.38]}
+            - {t: 6, offset: [-0.60622, 1.45, 1.6], turn: [87.75192, -23.51306, -23.51306], scale: [0.032, 0.032, 0.38], block: orange_concrete}
+            - {t: 7, offset: [-0.60622, 1.45, 1.6], turn: [87.75192, -23.51306, -23.51306], scale: [0.024, 0.024, 0.38]}
+            - {t: 8, offset: [-0.60622, 1.45, 1.6], turn: [87.75192, -23.51306, -23.51306], scale: [0.016, 0.016, 0.38]}
+            - {t: 9, offset: [-0.60622, 1.45, 1.6], turn: [87.75192, -23.51306, -23.51306], scale: [0.008, 0.008, 0.38]}
+            - {t: 10, offset: [-0.60622, 1.45, 1.6], turn: [87.75192, -23.51306, -23.51306], scale: [0.0, 0.0, 0.38]}
+        - {op: block, parent: fx3_ember_counter_sweep, block: yellow_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx3_ember_counter_sweep_pressure_hoop_s9}
+        - id: fx3_ember_counter_sweep_pressure_hoop_s9_trk
+          op: track
+          target: fx3_ember_counter_sweep_pressure_hoop_s9
+          keys:
+            - {t: 0, offset: [-0.7, 1.1, 1.6], turn: [90.0, 0.0, 0.0], scale: [0.08, 0.08, 0.38]}
+            - {t: 1, offset: [-0.7, 1.1, 1.6], turn: [90.0, 0.0, 0.0], scale: [0.072, 0.072, 0.38]}
+            - {t: 2, offset: [-0.7, 1.1, 1.6], turn: [90.0, 0.0, 0.0], scale: [0.064, 0.064, 0.38]}
+            - {t: 3, offset: [-0.7, 1.1, 1.6], turn: [90.0, 0.0, 0.0], scale: [0.056, 0.056, 0.38]}
+            - {t: 4, offset: [-0.7, 1.1, 1.6], turn: [90.0, 0.0, 0.0], scale: [0.048, 0.048, 0.38]}
+            - {t: 5, offset: [-0.7, 1.1, 1.6], turn: [90.0, 0.0, 0.0], scale: [0.04, 0.04, 0.38]}
+            - {t: 6, offset: [-0.7, 1.1, 1.6], turn: [90.0, 0.0, 0.0], scale: [0.032, 0.032, 0.38], block: orange_concrete}
+            - {t: 7, offset: [-0.7, 1.1, 1.6], turn: [90.0, 0.0, 0.0], scale: [0.024, 0.024, 0.38]}
+            - {t: 8, offset: [-0.7, 1.1, 1.6], turn: [90.0, 0.0, 0.0], scale: [0.016, 0.016, 0.38]}
+            - {t: 9, offset: [-0.7, 1.1, 1.6], turn: [90.0, 0.0, 0.0], scale: [0.008, 0.008, 0.38]}
+            - {t: 10, offset: [-0.7, 1.1, 1.6], turn: [90.0, 0.0, 0.0], scale: [0.0, 0.0, 0.38]}
+        - {op: block, parent: fx3_ember_counter_sweep, block: yellow_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx3_ember_counter_sweep_pressure_hoop_s10}
+        - id: fx3_ember_counter_sweep_pressure_hoop_s10_trk
+          op: track
+          target: fx3_ember_counter_sweep_pressure_hoop_s10
+          keys:
+            - {t: 0, offset: [-0.60622, 0.75, 1.6], turn: [87.75192, 23.51306, 23.51306], scale: [0.08, 0.08, 0.38]}
+            - {t: 1, offset: [-0.60622, 0.75, 1.6], turn: [87.75192, 23.51306, 23.51306], scale: [0.072, 0.072, 0.38]}
+            - {t: 2, offset: [-0.60622, 0.75, 1.6], turn: [87.75192, 23.51306, 23.51306], scale: [0.064, 0.064, 0.38]}
+            - {t: 3, offset: [-0.60622, 0.75, 1.6], turn: [87.75192, 23.51306, 23.51306], scale: [0.056, 0.056, 0.38]}
+            - {t: 4, offset: [-0.60622, 0.75, 1.6], turn: [87.75192, 23.51306, 23.51306], scale: [0.048, 0.048, 0.38]}
+            - {t: 5, offset: [-0.60622, 0.75, 1.6], turn: [87.75192, 23.51306, 23.51306], scale: [0.04, 0.04, 0.38]}
+            - {t: 6, offset: [-0.60622, 0.75, 1.6], turn: [87.75192, 23.51306, 23.51306], scale: [0.032, 0.032, 0.38], block: orange_concrete}
+            - {t: 7, offset: [-0.60622, 0.75, 1.6], turn: [87.75192, 23.51306, 23.51306], scale: [0.024, 0.024, 0.38]}
+            - {t: 8, offset: [-0.60622, 0.75, 1.6], turn: [87.75192, 23.51306, 23.51306], scale: [0.016, 0.016, 0.38]}
+            - {t: 9, offset: [-0.60622, 0.75, 1.6], turn: [87.75192, 23.51306, 23.51306], scale: [0.008, 0.008, 0.38]}
+            - {t: 10, offset: [-0.60622, 0.75, 1.6], turn: [87.75192, 23.51306, 23.51306], scale: [0.0, 0.0, 0.38]}
+        - {op: block, parent: fx3_ember_counter_sweep, block: yellow_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx3_ember_counter_sweep_pressure_hoop_s11}
+        - id: fx3_ember_counter_sweep_pressure_hoop_s11_trk
+          op: track
+          target: fx3_ember_counter_sweep_pressure_hoop_s11
+          keys:
+            - {t: 0, offset: [-0.35, 0.49378, 1.6], turn: [80.92793, 46.72376, 46.72376], scale: [0.08, 0.08, 0.38]}
+            - {t: 1, offset: [-0.35, 0.49378, 1.6], turn: [80.92793, 46.72376, 46.72376], scale: [0.072, 0.072, 0.38]}
+            - {t: 2, offset: [-0.35, 0.49378, 1.6], turn: [80.92793, 46.72376, 46.72376], scale: [0.064, 0.064, 0.38]}
+            - {t: 3, offset: [-0.35, 0.49378, 1.6], turn: [80.92793, 46.72376, 46.72376], scale: [0.056, 0.056, 0.38]}
+            - {t: 4, offset: [-0.35, 0.49378, 1.6], turn: [80.92793, 46.72376, 46.72376], scale: [0.048, 0.048, 0.38]}
+            - {t: 5, offset: [-0.35, 0.49378, 1.6], turn: [80.92793, 46.72376, 46.72376], scale: [0.04, 0.04, 0.38]}
+            - {t: 6, offset: [-0.35, 0.49378, 1.6], turn: [80.92793, 46.72376, 46.72376], scale: [0.032, 0.032, 0.38], block: orange_concrete}
+            - {t: 7, offset: [-0.35, 0.49378, 1.6], turn: [80.92793, 46.72376, 46.72376], scale: [0.024, 0.024, 0.38]}
+            - {t: 8, offset: [-0.35, 0.49378, 1.6], turn: [80.92793, 46.72376, 46.72376], scale: [0.016, 0.016, 0.38]}
+            - {t: 9, offset: [-0.35, 0.49378, 1.6], turn: [80.92793, 46.72376, 46.72376], scale: [0.008, 0.008, 0.38]}
+            - {t: 10, offset: [-0.35, 0.49378, 1.6], turn: [80.92793, 46.72376, 46.72376], scale: [0.0, 0.0, 0.38]}
         - id: fx3_ember_counter_sweep_gauntlet_flame_fan
           op: trail
           of: pt_fx3_ember_counter_sweep_gauntlet_0_2p65_0
@@ -41,11 +458,78 @@ presentation:
             - {from: 0.0, to: 1.0, color: "#ff8f18", alpha: 0.627, color_to: "#e04d08"}
           dark_rim: {color: "#2a170c", alpha: 0.69, width: 0.08}
           step_deg: 36.0
-    - {id: fx123, at: 123, do: [{id: rm, op: remove, ids: [fx3_ember_counter_sweep_gauntlet_flame_fan]}]}
+    - id: fx112
+      at: 112
+      do:
+        - op: block
+          parent: fx3_ember_counter_sweep
+          block: yellow_concrete
+          size: [1.0, 1.0, 1.0]
+          brightness: 15
+          at: "= [vec(0.05809, 1.205, 2.5), vec(-0.06907, 1.175, 2.56328), vec(0.00973, 1.145, 2.38918), vec(0.07244, 1.115, 2.59449), vec(-0.11724, 1.085, 2.47926), vec(0.09386, 1.055, 2.44029), vec(-0.02432, 1.025, 2.59046), vec(-0.02678, 0.995, 2.44844)][int(i)]"
+          turn: "= [vec(-47.52276, 80.60528, 47.52276), vec(-36.40712, -45.64799, -16.02246), vec(-1.46463, 171.84712, 33.44154), vec(-6.92276, 37.42693, 2.34839), vec(5.25608, -99.88519, 6.2674), vec(12.89416, 120.67843, -23.48408), vec(38.4562, -14.46938, 5.07876), vec(19.25152, -133.71762, 78.83641)][int(i)]"
+          times: 8
+          id: fx3_ember_counter_sweep_impact_spokes
+        - id: fx3_ember_counter_sweep_impact_spokes_trk
+          op: track
+          target: fx3_ember_counter_sweep_impact_spokes
+          keys:
+            - {t: 0, scale: [0.06, 0.06, 0.12]}
+            - {t: 1, scale: [0.12, 0.12, 0.85], ease: out_expo}
+            - {t: 4, block: orange_concrete}
+            - {t: 8, scale: [0.02, 0.02, 0.1]}
+        - {op: block, parent: fx3_ember_counter_sweep, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx3_ember_counter_sweep_impact_core}
+        - id: fx3_ember_counter_sweep_impact_core_trk
+          op: track
+          target: fx3_ember_counter_sweep_impact_core
+          keys:
+            - {t: 0, offset: [-0.12, 0.98, 2.38], scale: [0.24, 0.24, 0.24]}
+            - {t: 3, scale: [0.0, 0.0, 0.0]}
+    - {id: fx116, at: 116, do: [{id: rm_4, op: remove, ids: [fx3_ember_counter_sweep_impact_core]}]}
+    - {id: fx121, at: 121, do: [{id: rm_5, op: remove, ids: [fx3_ember_counter_sweep_impact_spokes]}]}
+    - id: fx122
+      at: 122
+      do:
+        - id: rm_6
+          op: remove
+          ids:
+            - fx3_ember_counter_sweep_pressure_hoop_s0
+            - fx3_ember_counter_sweep_pressure_hoop_s1
+            - fx3_ember_counter_sweep_pressure_hoop_s2
+            - fx3_ember_counter_sweep_pressure_hoop_s3
+            - fx3_ember_counter_sweep_pressure_hoop_s4
+            - fx3_ember_counter_sweep_pressure_hoop_s5
+            - fx3_ember_counter_sweep_pressure_hoop_s6
+            - fx3_ember_counter_sweep_pressure_hoop_s7
+            - fx3_ember_counter_sweep_pressure_hoop_s8
+            - fx3_ember_counter_sweep_pressure_hoop_s9
+            - fx3_ember_counter_sweep_pressure_hoop_s10
+            - fx3_ember_counter_sweep_pressure_hoop_s11
+    - {id: fx123, at: 123, do: [{id: rm_7, op: remove, ids: [fx3_ember_counter_sweep_gauntlet_flame_fan]}]}
+    - {id: fxhit_9, at: "hit+9", do: [{id: rm_8, op: remove, ids: [fx4_ember_hoop_hit_needle], when: "= event.source == 'sel'"}]}
     - {id: loop1, at: 111, every: 4, for: 10, do: [{id: fx3_ember_counter_sweep_embers, op: emit, at: fx3_ember_counter_sweep_embers_at, particle: ember-fine-spark}]}
     - {id: loop2, at: 111, every: 1, for: 8, do: [{id: fx3_ember_counter_sweep_gauntlet_fire, op: emit, at: pt_fx3_ember_counter_sweep_gauntlet_0_2p65_0, particle: ember-fine-spark}]}
   "on":
     hit:
+      - op: block
+        parent: fx4_ember_hoop_hit
+        block: orange_stained_glass
+        size: "= vec(1.0, 1.0, 1.0) * (1.0 + (rand('j_fx4_ember_hoop_hit_needle')*2.0-1.0)*0.3)"
+        brightness: 15
+        at: "= [vec(0.06614, 1.275, 0.0), vec(-0.0714, 1.225, 0.0654), vec(0.00846, 1.175, -0.09645), vec(0.04024, 1.125, 0.05249)][int(i)]"
+        turn: "= ([vec(-37.9525, 84.07428, 37.9525), vec(-13.63668, -47.2488, -6.00139), vec(0.96587, 173.62683, -22.0535), vec(46.80381, 35.17185, -15.87715)][int(i)]) + vec((rand('j_fx4_ember_hoop_hit_needle')*2.0-1.0)*8.0, (rand('j_fx4_ember_hoop_hit_needle')*2.0-1.0)*8.0, (rand('j_fx4_ember_hoop_hit_needle')*2.0-1.0)*8.0)"
+        times: 4
+        id: fx4_ember_hoop_hit_needle
+        when: "= event.source == 'sel'"
+      - id: fx4_ember_hoop_hit_needle_trk
+        op: track
+        target: fx4_ember_hoop_hit_needle
+        keys:
+          - {t: 0, offset: [0.0, 0.0, 0.1], scale: [0.03, 0.03, 0.2]}
+          - {t: 2, offset: [0.0, 0.0, 0.7], scale: [0.09, 0.09, 1.1], ease: out_expo}
+          - {t: 4, block: red_stained_glass}
+          - {t: 8, scale: [0.0, 0.0, 1.1], ease: in_quad}
+        when: "= event.source == 'sel'"
       - {id: fx4_ember_hoop_hit_embers_atrk, op: track, target: fx4_ember_hoop_hit_embers_at, space: fx4_ember_hoop_hit, keys: [{t: 0, offset: [0.0, 1.1, 0.0]}], when: "= event.source == 'sel'"}
       - {id: fx4_ember_hoop_hit_embers, op: emit, at: fx4_ember_hoop_hit_embers_at, particle: fire-impact, when: "= event.source == 'sel'"}
       - {id: snd, op: sound, sound: entity.player.attack.strong, at: enemy, volume: 0.7, pitch: 1.1, when: "= event.source == 'sel'"}

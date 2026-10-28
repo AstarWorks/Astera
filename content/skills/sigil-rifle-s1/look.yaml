@@ -1,12 +1,8 @@
 # Converted from content/skills/sigil-rifle-s1.yaml + content/vfx/* by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
 # Generated point-frame offsets are [left, up, forward] in the parent frame.
 # CONVERT-PRESENT vfx frame orient (frames carry no orientation / scale) (x2): orient="yaw"
-# CONVERT-PRESENT quad element (plate takes a sprite: no solid-colour quad / glyph) (x2): {"color": "#FF3614", "glyph": "✦"} | {"color": "#FFC24A", "glyph": "✦"}
-# CONVERT-PRESENT element brightness (no v2 equivalent) (x8): 15
-# CONVERT-PRESENT block element (mesh takes an item model, plate takes a sprite: no block / solid-colour primitive) (x6): red_concrete | orange_concrete
-# CONVERT-PRESENT rig respect_hit_stop / weapon points (x1): {"respect_hit_stop": false}
 # CONVERT-PRESENT rig block parts (mesh takes an item model, not a block + size) (x1): 5 parts
-# CONVERT-PRESENT rig swing without a weapon mesh (track needs a visual to move) (x1): 8 keys
+# CONVERT-PRESENT rig swing without a weapon mesh (track needs a visual to move) (x1): 41 keys
 # CONVERT-PRESENT vfx follow=false (anchored at world, no place-at-spawn) (x1): sigil-rifle-mark
 apiVersion: "astera/v2"
 kind: Skill
@@ -50,7 +46,78 @@ presentation:
           dark_rim: {color: "#190808", alpha: 0.816, width: 0.15}
           step_deg: 25.0
         - {id: rm, op: remove, ids: [fx1_sigil_rifle_dash_rifle_ribbon_5]}
-    - {id: fx31, at: 31, do: [{id: rm_2, op: remove, ids: [fx1_sigil_rifle_dash_rifle_ribbon_20]}]}
+    - id: fx21
+      at: 21
+      do:
+        - {op: quad, parent: fx1_sigil_rifle_dash, face: {viewer: center}, size: [1.0, 1.0], color: "#FF3614", alpha: 1.0, text: "✦", brightness: 15, id: fx1_sigil_rifle_dash_contact}
+        - id: fx1_sigil_rifle_dash_contact_trk
+          op: track
+          target: fx1_sigil_rifle_dash_contact
+          keys:
+            - {t: 0, offset: [0.0, 1.0, 1.8], scale: [1.3, 1.1, 1.0], alpha: 1.0}
+            - {t: 4, scale: [0.0, 0.0, 0.0], alpha: 0.0, ease: in_quad}
+        - {op: quad, parent: fx1_sigil_rifle_dash, face: {viewer: center}, size: [1.0, 1.0], color: "#FFC24A", alpha: 1.0, text: "✦", brightness: 15, id: fx1_sigil_rifle_dash_gold}
+        - id: fx1_sigil_rifle_dash_gold_trk
+          op: track
+          target: fx1_sigil_rifle_dash_gold
+          keys:
+            - {t: 0, offset: [0.0, 1.1, 1.85], scale: [0.8, 0.35, 1.0], alpha: 1.0}
+            - {t: 3, scale: [0.0, 0.0, 0.0], alpha: 0.0, ease: in_quad}
+        - {op: block, parent: fx1_sigil_rifle_dash, block: red_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_sigil_rifle_dash_solid_impact_0}
+        - id: fx1_sigil_rifle_dash_solid_impact_0_trk
+          op: track
+          target: fx1_sigil_rifle_dash_solid_impact_0
+          keys:
+            - {t: 0, offset: [0.0, 1.1, 1.8], scale: [0.055, 0.22, 1.6], turn: [25.0, 0.0, 0.0]}
+            - {t: 7, scale: [0.0, 0.0, 1.6], ease: in_quad}
+        - {op: block, parent: fx1_sigil_rifle_dash, block: red_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_sigil_rifle_dash_solid_impact_1}
+        - id: fx1_sigil_rifle_dash_solid_impact_1_trk
+          op: track
+          target: fx1_sigil_rifle_dash_solid_impact_1
+          keys:
+            - {t: 0, offset: [0.0, 1.1, 1.8], scale: [0.055, 0.12, 1.5], turn: [-25.0, 0.0, 0.0]}
+            - {t: 7, scale: [0.0, 0.0, 1.6], ease: in_quad}
+        - {op: block, parent: fx1_sigil_rifle_dash, block: orange_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_sigil_rifle_dash_solid_impact_2}
+        - id: fx1_sigil_rifle_dash_solid_impact_2_trk
+          op: track
+          target: fx1_sigil_rifle_dash_solid_impact_2
+          keys:
+            - {t: 0, offset: [0.0, 1.1, 1.8], scale: [0.065, 0.055, 1.9], turn: [0.0, 0.0, 0.0]}
+            - {t: 7, scale: [0.0, 0.0, 1.6], ease: in_quad}
+    - {id: fx24, at: 24, do: [{id: rm_2, op: remove, ids: [fx1_sigil_rifle_dash_gold]}]}
+    - {id: fx25, at: 25, do: [{id: rm_3, op: remove, ids: [fx1_sigil_rifle_dash_contact]}]}
+    - {id: fx28, at: 28, do: [{id: rm_4, op: remove, ids: [fx1_sigil_rifle_dash_solid_impact_0, fx1_sigil_rifle_dash_solid_impact_1, fx1_sigil_rifle_dash_solid_impact_2]}]}
+    - {id: fx31, at: 31, do: [{id: rm_5, op: remove, ids: [fx1_sigil_rifle_dash_rifle_ribbon_20]}]}
+    - id: fxhit_7
+      at: "hit+7"
+      do:
+        - {id: rm_6, op: remove, ids: [fx2_sigil_rifle_mark_solid_impact_0, fx2_sigil_rifle_mark_solid_impact_1, fx2_sigil_rifle_mark_solid_impact_2], when: "= event.source == 'sel'"}
     - {id: loop1, at: 7, every: 1, for: 5, do: [{id: fx1_sigil_rifle_dash_rifle_embers_7, op: emit, at: pt_fx1_sigil_rifle_dash_rifle_0_1p65_0, particle: sigil-rifle-embers}]}
     - {id: loop2, at: 20, every: 1, for: 3, do: [{id: fx1_sigil_rifle_dash_rifle_embers_20, op: emit, at: pt_fx1_sigil_rifle_dash_rifle_0_1p65_0, particle: sigil-rifle-embers}]}
-  "on": {hit: [{id: snd, op: sound, sound: entity.player.attack.strong, at: enemy, volume: 0.7, pitch: 1.1, when: "= event.source == 'sel'"}]}
+  "on":
+    hit:
+      - {op: block, parent: fx2_sigil_rifle_mark, block: red_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx2_sigil_rifle_mark_solid_impact_0, when: "= event.source == 'sel'"}
+      - id: fx2_sigil_rifle_mark_solid_impact_0_trk
+        op: track
+        target: fx2_sigil_rifle_mark_solid_impact_0
+        keys:
+          - {t: 0, offset: [0.0, 1.1, 0.0], scale: [0.055, 0.12, 1.6], turn: [25.0, 0.0, 0.0]}
+          - {t: 7, scale: [0.0, 0.0, 1.6], ease: in_quad}
+        when: "= event.source == 'sel'"
+      - {op: block, parent: fx2_sigil_rifle_mark, block: red_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx2_sigil_rifle_mark_solid_impact_1, when: "= event.source == 'sel'"}
+      - id: fx2_sigil_rifle_mark_solid_impact_1_trk
+        op: track
+        target: fx2_sigil_rifle_mark_solid_impact_1
+        keys:
+          - {t: 0, offset: [0.0, 1.1, 0.0], scale: [0.055, 0.08, 1.5], turn: [-25.0, 0.0, 0.0]}
+          - {t: 7, scale: [0.0, 0.0, 1.6], ease: in_quad}
+        when: "= event.source == 'sel'"
+      - {op: block, parent: fx2_sigil_rifle_mark, block: yellow_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx2_sigil_rifle_mark_solid_impact_2, when: "= event.source == 'sel'"}
+      - id: fx2_sigil_rifle_mark_solid_impact_2_trk
+        op: track
+        target: fx2_sigil_rifle_mark_solid_impact_2
+        keys:
+          - {t: 0, offset: [0.0, 1.1, 0.0], scale: [0.065, 0.1, 1.9], turn: [0.0, 0.0, 0.0]}
+          - {t: 7, scale: [0.0, 0.0, 1.6], ease: in_quad}
+        when: "= event.source == 'sel'"
+      - {id: snd, op: sound, sound: entity.player.attack.strong, at: enemy, volume: 0.7, pitch: 1.1, when: "= event.source == 'sel'"}

@@ -1,6 +1,5 @@
 # Converted from content/skills/iron-blade-lunge.yaml by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
 # Generated point-frame offsets are [left, up, forward] in the parent frame.
-# CONVERT-TODO sound: dash on_hit sound waits for the engine `dash_hit` event (CastInstance.runWithVictim does not raise it) (x1): astera:weapons/blade-hit
 apiVersion: "astera/v2"
 kind: Skill
 id: iron-blade-lunge
@@ -25,3 +24,4 @@ gameplay:
           follow_pitch: false
           on_hit:
             - {id: dmg, op: damage, components: [{kind: physical, amount: "${dmg_physical}"}], target: victim}
+            - {id: raise, op: raise_event, name: dash_fx}

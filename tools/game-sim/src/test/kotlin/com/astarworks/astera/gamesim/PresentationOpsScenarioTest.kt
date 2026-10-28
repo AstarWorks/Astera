@@ -133,10 +133,12 @@ class PresentationOpsScenarioTest {
     private val visuals = object : ISkillVisualGateway {
     override fun setTrailShape(handle: com.astarworks.astera.core.application.skillengine.runtime.port.VisualHandle, bands: List<com.astarworks.astera.core.domain.skillengine.op.TrailBand>, edge: com.astarworks.astera.core.domain.skillengine.op.TrailEdge?, rim: com.astarworks.astera.core.domain.skillengine.op.TrailRim?, stepDeg: Double, doubleSided: Boolean) {}
         private fun h(kind: String): VisualHandle { calls += kind; return VisualHandle(nextHandle++) }
-        override fun spawnMesh(castOwner: UUID, item: String, part: String?, pose: VisualPose) =
+        override fun spawnMesh(castOwner: UUID, item: String, part: String?, pose: VisualPose, brightness: Int?) =
             h("mesh:$item").also { poses[it.id] = pose.frame; scales[it.id] = pose.size.x }
-        override fun spawnPlate(castOwner: UUID, sprite: String, alpha: Double, pose: VisualPose) =
+        override fun spawnPlate(castOwner: UUID, sprite: String, alpha: Double, pose: VisualPose, brightness: Int?) =
             h("plate:$sprite").also { poses[it.id] = pose.frame; scales[it.id] = pose.size.x; spawnedBillboards[it.id] = pose.billboard }
+        override fun spawnBlock(castOwner: UUID, block: String, pose: VisualPose, brightness: Int?) = h("block").also { poses[it.id] = pose.frame; scales[it.id] = pose.size.x }
+        override fun spawnQuad(castOwner: UUID, colorHex: String, alpha: Double, text: String?, shadow: Boolean, seeThrough: Boolean, pose: VisualPose, brightness: Int?) = h("quad").also { poses[it.id] = pose.frame; scales[it.id] = pose.size.x }
         override fun spawnLine(castOwner: UUID, colorHex: String, pose: VisualPose) =
             h("line:$colorHex").also { lineEnds[it.id] = ends(pose); lines += it.id }
         override fun spawnTrail(castOwner: UUID, ticks: Int, widthFrac: Double, colorHex: String, alpha: Double) = h("trail")
@@ -201,6 +203,13 @@ class PresentationOpsScenarioTest {
             override fun title(viewer: UUID, text: String, subtitle: String?, ticks: Int) { calls += "title:$text:$subtitle:$ticks" }
             override fun actionBar(viewer: UUID, text: String) { calls += "action_bar:$text" }
             override fun cameraShake(viewer: UUID, intensity: Double, ticks: Int) { calls += "shake:$intensity:$ticks" }
+            override fun flash(viewer: UUID, overlay: com.astarworks.astera.core.domain.effect.ScreenOverlay, colorRgb: Int, fadeIn: Int, stay: Int, fadeOut: Int) {
+                calls += "flash:${overlay.yamlName}:${colorRgb.toString(16)}:$fadeIn:$stay:$fadeOut"
+            }
+            override fun veil(viewer: UUID, sprite: String, colorRgb: Int, side: Double, distance: Double, ticks: Int) {
+                calls += "veil:$sprite:${colorRgb.toString(16)}:$side:$distance:$ticks"
+            }
+            override fun stopSound(viewer: UUID, sound: String) { calls += "stop_sound:$sound" }
         },
     )
 
@@ -280,8 +289,8 @@ class PresentationOpsScenarioTest {
     fun `decoders cover every presentation op and a plate has exactly two face modes`() {
         val names = presentationDecoders().flatMap { it.opNames }.toSet()
         assertThat(names).containsExactlyInAnyOrder(
-            "mesh", "plate", "line", "trail", "track", "remove", "emit", "sound",
-            "victim_anim", "caster_anim", "title", "action_bar", "camera_shake",
+            "mesh", "plate", "block", "quad", "line", "trail", "track", "remove", "emit", "sound",
+            "victim_anim", "caster_anim", "title", "action_bar", "camera_shake", "screen_flash", "screen_veil", "stop_sound",
         )
         val viewer = decode("plate", mapOf("parent" to "volley", "sprite" to "slash_fan", "face" to mapOf("viewer" to "vertical"))) as VisualOp.Plate
         assertThat(viewer.face).isEqualTo(PlateFace.ViewerVertical)
@@ -311,7 +320,7 @@ class PresentationOpsScenarioTest {
                 "target" to "m", "space" to "world",
                 "keys" to listOf(
                     mapOf("t" to 0, "offset" to listOf(0, 0, 0)),
-                    mapOf("t" to 4, "offset" to listOf(0, 2, 0), "scale" to "\${n}", "ease" to "ease_out"),
+                    mapOf("t" to 4, "offset" to listOf(0, 2, 0), "scale" to "\${n}", "ease" to "out_quad"),
                 ),
             ),
         ) as VisualOp.Track
@@ -448,6 +457,17 @@ class PresentationOpsScenarioTest {
         run(VisualOp.Mesh("m", null, "shears", "couture-shears", null, null))
         rt.endCast(ctx.cast)
         assertThat(removed).hasSize(1)
+    }
+
+    @Test
+    fun `screen_veil clamps distance and side like v1 ScreenVeilMath and defaults the colour to white`() {
+        val math = com.astarworks.astera.core.domain.effect.ScreenVeilMath
+        run(ScreenOp.Veil("v", null, TargetRef.Caster, "burst", 0xFFC84A, lit(0.4), lit(1.4), lit(0.15), 5))
+        run(ScreenOp.Veil("v2", null, TargetRef.Caster, "burst", null, lit(5.0), lit(20.0), lit(0.9), 3))
+        val near = math.clampSide(0.2 * 1.4, 0.4, 0.15)
+        val far = math.clampSide(0.2 * 20.0, 1.0, 0.9)
+        assertThat(calls).containsExactly("veil:burst:ffc84a:$near:0.4:5", "veil:burst:ffffff:$far:1.0:3")
+        assertThat(far).isLessThan(4.0) // the hard 0.18 screen-fraction cap, not the requested side
     }
 
     // ---- SKL-14 restored v1 behaviour --------------------------------------------------------------
