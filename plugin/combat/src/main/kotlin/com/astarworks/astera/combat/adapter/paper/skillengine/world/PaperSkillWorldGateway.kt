@@ -6,6 +6,7 @@ import com.astarworks.astera.combat.application.service.SkillWorldRules
 import com.astarworks.astera.core.application.port.outbound.IBlockStateGateway
 import com.astarworks.astera.core.application.port.outbound.ICustomBlockRegistry
 import com.astarworks.astera.core.application.port.outbound.IStructureTargets
+import com.astarworks.astera.core.application.port.outbound.lobby.ILobbyToolBay
 import com.astarworks.astera.core.application.skillengine.runtime.port.BlockDamageOutcome
 import com.astarworks.astera.core.application.skillengine.runtime.port.CastRef
 import com.astarworks.astera.core.application.skillengine.runtime.port.ISkillBlockAccess
@@ -37,8 +38,9 @@ public class PaperSkillWorldGateway(
     blockStates: () -> IBlockStateGateway?,
     covers: () -> ICustomBlockRegistry?,
     structures: () -> IStructureTargets?,
+    toolBay: () -> ILobbyToolBay?,
     private val lightning: () -> ILightningGateway?,
-) : LedgerWorldGateway(PaperBlockAccess(server, guard, blockStates, covers, structures)) {
+) : LedgerWorldGateway(PaperBlockAccess(server, guard, blockStates, covers, structures, toolBay)) {
 
     override fun explode(cast: CastRef, at: Vec3, power: Double, breakBlocks: Boolean, fire: Boolean) {
         val owner = server.getEntity(cast.caster) ?: return
@@ -67,6 +69,8 @@ internal class PaperBlockAccess(
     private val covers: () -> ICustomBlockRegistry?,
     /** Lazy: Match registers the structure targets (Annihilation pillars) after Combat wires. */
     private val structures: () -> IStructureTargets?,
+    /** Lazy: Core registers the lobby tool bay (MAP-A6) on lobby-hosting backends only. */
+    private val toolBay: () -> ILobbyToolBay?,
 ) : ISkillBlockAccess {
 
     private fun worldOf(cast: CastRef): World? = server.getWorld(cast.world.value)
@@ -78,6 +82,8 @@ internal class PaperBlockAccess(
 
     override fun canEdit(cast: CastRef, cell: BlockCell, outsideArena: Boolean): Boolean {
         val w = worldOf(cast) ?: return false
+        // The lobby is protected except for the tool bay (MAP-A6): the bay policy outranks the outside-arena shortcut.
+        toolBay()?.editPolicy(worldId(w), cell.x, cell.y, cell.z)?.let { return it }
         if (outsideArena) return true
         return guard()?.canEdit(PlayerId(cast.caster), worldId(w), pos(cell)) ?: true
     }
@@ -92,11 +98,19 @@ internal class PaperBlockAccess(
 
     override fun place(cast: CastRef, cell: BlockCell, blockKey: String) {
         val material = Material.matchMaterial(blockKey) ?: return
+        remember(cast, cell)
         block(cast, cell)?.setType(material, false)
     }
 
     override fun remove(cast: CastRef, cell: BlockCell) {
+        remember(cast, cell)
         block(cast, cell)?.setType(Material.AIR, false)
+    }
+
+    /** Journals a bay block before a raw edit so the bay restores it (no-op outside the bay). */
+    private fun remember(cast: CastRef, cell: BlockCell) {
+        val w = worldOf(cast) ?: return
+        toolBay()?.remember(worldId(w), cell.x, cell.y, cell.z)
     }
 
     override fun placeCover(cast: CastRef, cell: BlockCell, blockKey: String): Boolean {

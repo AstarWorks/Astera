@@ -1901,6 +1901,12 @@ astera:
           staff:
             title: "<light_purple><bold>杖</bold></light_purple>"
             hint: "<dark_gray>的に魔法を撃とう</dark_gray>"
+          tools:
+            title: "<gold><bold>ツール試験場</bold></gold>"
+            hint: "<dark_gray>北=石 南=土 東=木</dark_gray>"
+          reset:
+            title: "<red><bold>リセット</bold></red>"
+            hint: "<dark_gray>ブロックを元に戻す</dark_gray>"
     # F3-1 — キューのレーン床: 床の上のホログラムと参加の確認表示。
     lane:
       board:
@@ -1933,6 +1939,8 @@ astera:
         unknown: "<red>その武器はラックにありません。</red>"
         already-held: "<yellow><white>{item}</white> はすでに所持しています。</yellow>"
         full: "<red>インベントリがいっぱいです。</red>"
+    toolbay:
+      reset: "<green>試験場を元に戻しました <gray>({count} ブロック)</gray></green>"
 
   # F3-11 — ロビーの訓練用ダミー: 名札と HP / DPS の表示。
   training:
