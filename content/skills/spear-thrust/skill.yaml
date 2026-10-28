@@ -10,7 +10,7 @@ meta:
   tags: [melee, physical]
 anchors:
   - {id: stab_pt, anchor: caster, offset: {up: -0.2, forward: 1.4}}
-  - {id: heart, anchor: victim.root, offset: {up: 1.2}}  # GAP(Q2): v2 enemy frame origin = feet+0.8 fixed; victim.body (live hitbox centre, 0.9) or a fixed chest point is the founder's choice (Q2)
+  - {id: heart, anchor: victim.root, offset: {up: 1.2}}  # was pt_enemy_0_1p2_0 (v2 enemy frame = victim feet)
 machine:
   start: swing
   states:
