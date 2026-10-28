@@ -22,6 +22,7 @@ import com.astarworks.astera.core.domain.skillengine.op.OpSection
 import com.astarworks.astera.core.domain.skillengine.table.Action
 import com.astarworks.astera.core.domain.skillengine.table.InstanceId
 import com.astarworks.astera.core.domain.skillengine.table.LockEnd
+import com.astarworks.astera.core.domain.skillengine.table.LockMove
 import com.astarworks.astera.core.domain.skillengine.table.OpId
 import com.astarworks.astera.core.domain.skillengine.table.SrcPath
 import com.astarworks.astera.core.domain.skillengine.table.Row
@@ -32,13 +33,13 @@ public class LockOp(
     override val src: SrcPath,
     override val whenExpr: WhenRef?,
     override val timing: Timing?,
-    public val move: Boolean,
+    public val move: LockMove,
     public val pitch: Boolean,
     public val yaw: Boolean,
 ) : OpNode
 
 public object LockOpSpec : OpSpec<LockOp> {
-    private val move = Field.optional("move", Types.bool, Value.Literal(false), "true: the caster cannot walk or jump for the window")
+    private val move = Field.identity("move", Types.enumOf("none", "walk", "all"), "none", "walk: the caster cannot walk, a jump still works; all: neither walk nor jump; none: feet free")
     private val pitch = Field.optional("pitch", Types.bool, Value.Literal(false), "true: look pitch held at its value on the first tick")
     private val yaw = Field.optional("yaw", Types.bool, Value.Literal(false), "true: look yaw held at its value on the first tick")
 
@@ -56,10 +57,10 @@ public object LockOpSpec : OpSpec<LockOp> {
                     ?: ctx.fail("$path.${f.name}", "'\${${v.name}}' must be a boolean parameter")
                 is Value.Expr -> ctx.fail("$path.${f.name}", "a lock field is fixed at load; use true or false")
             }
-            val m = flag(move)
+            val m = LockMove.valueOf(values[move].uppercase())
             val p = flag(pitch)
             val y = flag(yaw)
-            if (!m && !p && !y) ctx.fail(path, "a lock must set at least one of move, pitch, yaw to true")
+            if (m == LockMove.NONE && !p && !y) ctx.fail(path, "a lock must set move (walk or all), pitch or yaw")
             if (timing == null || (timing.span == null && timing.until == null)) {
                 ctx.fail(path, "a lock needs for or until: the window ends it, there is no unlock op")
             }

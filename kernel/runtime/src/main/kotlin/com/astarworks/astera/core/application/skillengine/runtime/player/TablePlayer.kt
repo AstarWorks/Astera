@@ -34,6 +34,7 @@ import com.astarworks.astera.core.domain.skillengine.table.EntityRef
 import com.astarworks.astera.core.domain.skillengine.table.EventPath
 import com.astarworks.astera.core.domain.skillengine.table.ExitReason
 import com.astarworks.astera.core.domain.skillengine.table.Guard
+import com.astarworks.astera.core.domain.skillengine.table.LockMove
 import com.astarworks.astera.core.domain.skillengine.table.HitShape
 import com.astarworks.astera.core.domain.skillengine.table.InstanceId
 import com.astarworks.astera.core.domain.skillengine.table.Look
@@ -70,9 +71,9 @@ public interface PlayerHooks {
     public fun guard(cast: CastHandle, guard: Guard, conditions: Map<String, String>, binding: EventBinding?, localTick: Int): Boolean? = null
 
     /** Starts holding the caster's inputs until server tick [untilTick] (absolute); false = unsupported. */
-    public fun lock(caster: UUID, move: Boolean, pitch: Boolean, yaw: Boolean, untilTick: Int): Boolean = false
+    public fun lock(caster: UUID, move: LockMove, pitch: Boolean, yaw: Boolean, untilTick: Int): Boolean = false
 
-    public fun unlock(caster: UUID, move: Boolean, pitch: Boolean, yaw: Boolean) {}
+    public fun unlock(caster: UUID, move: LockMove, pitch: Boolean, yaw: Boolean) {}
 }
 
 private object NoHooks : PlayerHooks
@@ -764,7 +765,7 @@ public class TablePlayer(
 
     private class PoseV(val pos: Vector3d, val rot: Quaterniond, val scale: Vector3d)
 
-    private class LockRec(val owner: StatePath?, val move: Boolean, val pitch: Boolean, val yaw: Boolean, val untilAbs: Int)
+    private class LockRec(val owner: StatePath?, val move: LockMove, val pitch: Boolean, val yaw: Boolean, val untilAbs: Int)
 
     /** A live thing: its local pose moves along one interpolation segment (closed form, same as the client's). */
     private class Rec(

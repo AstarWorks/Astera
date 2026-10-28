@@ -1,0 +1,126 @@
+package com.astarworks.astera.gamesim.skillengine
+
+import com.astarworks.astera.core.domain.Result
+import com.astarworks.astera.core.domain.skillengine.table.Action
+import com.astarworks.astera.core.domain.skillengine.table.CompiledSkill
+import com.astarworks.astera.core.domain.skillengine.table.LockMove
+import com.astarworks.astera.core.domain.skillengine.table.Row
+import com.astarworks.astera.core.domain.skillengine.table.Val
+import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.Test
+
+/**
+ * W2-02 acceptance (wave2-resolutions section 3: R5, R6, R9, R24, R25, R26, R32, R39, R41): the caster / target effect ops
+ * lower to the rows the player and gateway read. The table-level cases need only the loader; driving the Effect rows into the
+ * gateways needs the TablePlayer arms requested from w1b-02d / 02i.
+ */
+class EffectOpScenarioTest : SkillEngineScenario() {
+
+    private fun skill(vararg ops: String, anchors: String = ""): String = (
+        listOf(
+            "apiVersion: astera/v3", "kind: Skill", "id: effect-probe", "item: any",
+        ) + (if (anchors.isEmpty()) emptyList() else listOf("anchors:", "  - $anchors")) +
+            listOf("machine:", "  start: s", "  states:", "    s:", "      for: 40", "      do:") + ops.map { "        - $it" }
+        ).joinToString("\n") + "\n"
+
+    private fun compile(yaml: String): CompiledSkill = when (val r = loadInline(yaml)) {
+        is Result.Success -> r.value
+        is Result.Failure -> error("expected to load: ${r.error.message}")
+    }
+
+    private fun fails(yaml: String): Boolean = loadInline(yaml) is Result.Failure
+
+    private fun rows(s: CompiledSkill): List<Row> = s.table.states.flatMap { it.rows }
+
+    private fun effect(s: CompiledSkill, op: String): Action.Effect =
+        rows(s).map { it.action }.filterIsInstance<Action.Effect>().first { it.op.value == op }
+
+    @Test
+    fun impulseFrameVecResolvesCasterAxes() {
+        val s = compile(skill("{op: impulse, at: 2, target: caster, vector: {of: me, forward: 1.5, up: 0.5}}", anchors = "{id: me, anchor: caster.hand_r}"))
+        val v = effect(s, "impulse").payload.getValue("vector") as Val.Live<*>
+        assertThat(v.name).startsWith("= ").contains("forward(").contains("up(").doesNotContain("left(")
+        assertThat(fails(skill("{op: impulse, target: caster, vector: {of: nowhere, forward: 1}}"))).isTrue()
+    }
+
+    @Test
+    fun impulseWorldVec() {
+        val s = compile(skill("{op: impulse, target: caster, vector: {x: 0, y: 1.2, z: 0}}"))
+        assertThat(effect(s, "impulse").payload.getValue("vector")).isInstanceOf(Val.Known::class.java)
+        assertThat(fails(skill("{op: impulse, target: caster, vector: [0, 1, 0]}"))).`as`("positional vectors are rejected").isTrue()
+    }
+
+    @Test
+    fun cleanseNegativeOnly() {
+        val s = compile(skill("{op: cleanse, at: 1, target: caster, negative_only: true}"))
+        assertThat(effect(s, "cleanse").payload.getValue("negative_only")).isEqualTo(Val.Known(true))
+        assertThat(fails(skill("{op: cleanse, target: caster}"))).`as`("negative_only is required").isTrue()
+    }
+
+    @Test
+    fun consumeItemCount() {
+        val s = compile(skill("{op: consume_item, target: caster, item: arrow, count: 3}"))
+        val p = effect(s, "consume_item").payload
+        assertThat(p.getValue("item")).isEqualTo(Val.Known("arrow"))
+        assertThat(p.getValue("count")).isEqualTo(Val.Known(3.0))
+        assertThat(fails(skill("{op: consume_item, target: caster, item: arrow, count: 0}"))).isTrue()
+        val st = compile(skill("{op: consume_status, target: caster, status: focus}"))
+        assertThat(effect(st, "consume_status").payload.getValue("status")).isEqualTo(Val.Known("focus"))
+    }
+
+    @Test
+    fun dashRequiredFlagsMissingIsLoadError() {
+        val flags = "follow_pitch: false, stop_on_block: true, invulnerable: false, face_movement: false"
+        assertThat(fails(skill("{id: d, op: dash, speed: 1.2, for: 8, $flags}"))).isFalse()
+        for (missing in listOf("follow_pitch: false, ", "stop_on_block: true, ", "invulnerable: false, ", "face_movement: false")) {
+            assertThat(fails(skill("{id: d, op: dash, speed: 1.2, for: 8, ${flags.replace(missing, "")}}"))).`as`("without $missing").isTrue()
+        }
+        assertThat(fails(skill("{id: d, op: dash, speed: 1.2, for: 8, radius: 2, $flags}"))).`as`("radius was removed").isTrue()
+    }
+
+    @Test
+    fun dashUntilHitEndsEarly() {
+        val flags = "follow_pitch: false, stop_on_block: true, invulnerable: false, face_movement: false"
+        val s = compile(skill("{id: d, op: dash, speed: 1.2, for: 8, until: hit, $flags}"))
+        // the static window stays the upper bound; ending at the event is the player's job (request to w1b-02d)
+        val ends = rows(s).filter { it.action is Action.Effect && (it.action as Action.Effect).payload["kind"] == Val.Known("dash.end") }
+        assertThat(ends.map { it.tick }).containsExactly(8)
+    }
+
+    @Test
+    fun freezeHoldsEntitiesNotClock() {
+        val s = compile(skill("{op: freeze, at: 4, ticks: 10, scope: [caster, event.victim]}"))
+        val e = effect(s, "freeze")
+        assertThat(e.payload.getValue("ticks")).isEqualTo(Val.Known(10.0))
+        assertThat(e.payload.getValue("scope")).isEqualTo(Val.Known(listOf("caster", "event.victim")))
+        assertThat(rows(s).none { it.action is Action.Lock }).`as`("no clock lock").isTrue()
+        assertThat(fails(skill("{op: freeze, ticks: 10, scope: []}"))).isTrue()
+    }
+
+    @Test
+    fun lockWalkLeavesJump() {
+        val walk = compile(skill("{id: l, op: lock, move: walk, at: 0, for: 6}"))
+        assertThat(rows(walk).map { it.action }.filterIsInstance<Action.Lock>().single().move).isEqualTo(LockMove.WALK)
+        assertThat(fails(skill("{id: l, op: lock, move: true, at: 0, for: 6}"))).`as`("the old boolean spelling is gone").isTrue()
+    }
+
+    @Test
+    fun cameraShakeFromHit() {
+        val s = compile(skill("{op: camera_shake, at: 1, target: caster, intensity: 0.4, for: 6, direction: from_hit}"))
+        val p = effect(s, "camera_shake").payload
+        assertThat(p.getValue("ticks")).isEqualTo(Val.Known(6.0))
+        assertThat(p.getValue("direction")).isEqualTo(Val.Known("from_hit"))
+        assertThat(fails(skill("{op: camera_shake, target: caster, intensity: 0.4}"))).`as`("needs a span").isTrue()
+        val stop = compile(skill("{op: stop_sound, target: caster, sound: entity.player.attack.sweep}"))
+        assertThat(effect(stop, "stop_sound").payload.getValue("sound")).isEqualTo(Val.Known("entity.player.attack.sweep"))
+    }
+
+    @Test
+    fun bodyClipEndsAtFor() {
+        val s = compile(skill("{id: b, op: body, at: 2, anim: slash_a, speed: 1.5, for: 9}"))
+        val start = rows(s).single { it.action is Action.Effect && (it.action as Action.Effect).op.value == "body" }
+        val end = rows(s).single { it.action is Action.End && it.instance == start.instance }
+        assertThat(end.tick - start.tick).isEqualTo(9)
+        assertThat(fails(skill("{id: b, op: body, anim: slash_a}"))).`as`("needs for or until").isTrue()
+    }
+}

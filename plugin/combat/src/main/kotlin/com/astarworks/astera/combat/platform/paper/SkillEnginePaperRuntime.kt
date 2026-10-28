@@ -121,6 +121,10 @@ internal class SkillEnginePaperRuntime(
             scheduler = scheduler,
             randomizer = services.getOrThrow<IDamageRandomizer>(),
             resourcePool = { services.get<IResourcePoolService>() },
+            feedback = { ports.playerFeedbackGateway?.invoke(services) },
+            bodyRigs = { services.get<com.astarworks.astera.core.application.port.outbound.animation.ISkinRigAnimator>() },
+            bodyRegistry = { services.get<com.astarworks.astera.core.application.port.outbound.ISkinRigRegistry>() },
+            bodyPoses = { services.get<com.astarworks.astera.core.application.port.outbound.animation.IPlayerAnimationGateway>() },
         )
         val live = PaperLiveValueSource(server, scheduler)
         val player = TablePlayer(

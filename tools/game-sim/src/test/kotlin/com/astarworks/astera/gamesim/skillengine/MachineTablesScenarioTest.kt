@@ -131,7 +131,7 @@ class MachineTablesScenarioTest : SkillEngineScenario() {
                   for: 20
                   then: done
                   do:
-                    - {id: plant, op: lock, move: true, at: 3, for: 5}
+                    - {id: plant, op: lock, move: all, at: 3, for: 5}
                 done: { final: true }
             """.trimIndent(),
         )
