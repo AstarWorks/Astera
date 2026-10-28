@@ -45,7 +45,7 @@ machine:
         - {id: held, op: frame, anchor: shears, part: held, for: 4, motion: [{law: move, velocity: {up: 0.9}, at: 0, for: 6, ease: out_quad}]}
             # GAP: v2 pose align {axis: shears.axis, to: world.up, up: caster.forward} over 6 ticks (ease_out) -> none (rotation to a world axis; the amount follows the hand pose)
         - {id: held_m, op: display, kind: item, item: "astera:couture-rapier", anchor: held, for: 4}
-        - {id: piece_body, op: frame, anchor: shears, part: body, at: 4, for: 30, motion: [{law: spin, axis: left, deg_per_tick: "${spin_dpt}", at: 0, for: 30}]}
+        - {id: piece_body, op: frame, anchor: shears, part: body, at: 4, for: 30, motion: [{law: spin, axis: left, deg_per_tick: 54, at: 0, for: 30}]}
         - {id: piece_body_m, op: display, kind: item, item: "astera:couture-s2-body", anchor: piece_body, at: 4, for: 30}
         - id: piece_a
           op: frame
@@ -54,7 +54,7 @@ machine:
           at: 4
           for: 30
           motion:
-            - {law: spin, axis: left, deg_per_tick: "${spin_dpt}", at: 0, for: 30}
+            - {law: spin, axis: left, deg_per_tick: 54, at: 0, for: 30}
             - {law: keys, keys: [{t: 0, pose: []}, {t: 4, pose: [{axis: edge, deg: 35}]}]}      # open_deg / 2
         - {id: piece_a_m, op: display, kind: item, item: "astera:couture-rapier-blade-a", anchor: piece_a, at: 4, for: 30}
         - id: piece_b
@@ -64,7 +64,7 @@ machine:
           at: 4
           for: 30
           motion:
-            - {law: spin, axis: left, deg_per_tick: "${spin_dpt}", at: 0, for: 30}
+            - {law: spin, axis: left, deg_per_tick: 54, at: 0, for: 30}
             - {law: keys, keys: [{t: 0, pose: []}, {t: 4, pose: [{axis: edge, deg: -35}]}]}     # -open_deg / 2
         - {id: piece_b_m, op: display, kind: item, item: "astera:couture-rapier-blade-b", anchor: piece_b, at: 4, for: 30}
         # v2 spin op on the shears frame (54 deg/tick about caster.left, ticks 4-34): carried by the spin law on each piece above (R34: laws live on displays / the projectile body, never on an anchor).
@@ -1169,7 +1169,7 @@ machine:
           # GAP: v2 lane_a/lane_b blade offsets +-left * blade_len * lane -> none (blade_len is a frame-table value)
           # GAP: v2 align velocity axis with world.up reference -> default
           motion:
-            - {law: spin, axis: left, deg_per_tick: "${spin_dpt}"}
+            - {law: spin, axis: left, deg_per_tick: 54}
           on:
             hit:
               - {id: throw_dmg, op: damage, at: 0, target: event.victim, damage: {physical: "= dmg_throw"}}
