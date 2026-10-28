@@ -239,7 +239,11 @@ public object MotionLaws {
     /** `orbit`, `align`, `follow`, `stretch`: no TrackKey form, only [readLaws]. */
     private fun extraOf(name: String, v: FieldValues, ctx: GrammarContext, n: LawNumbers, path: String, order: Int): Lowered {
         val from = n.ticks(v[atF], "$path.at")
-        val span = v[TimingSpec.forSpan] ?: ctx.abortMissing(path, "for")
+        // ADR-0303 3: `for` defaults to the end of the instance. A reactive law (written every `step` ticks) simply stops with its object,
+        // so its default window is the longest an instance can live; the other laws here keep `for` required.
+        val span = v[TimingSpec.forSpan]
+            ?: if (name == "follow" || name == "align" || name == "stretch") Span.Ticks(Value.Literal(com.astarworks.astera.core.domain.skillengine.model.EngineConfig().maxLifeTicks.toDouble()))
+            else ctx.abortMissing(path, "for")
         val forTicks = when (span) {
             is Span.Ticks -> n.ticks(span.ticks, "$path.for").also { if (it < 1) ctx.fail("$path.for", "a law runs for at least 1 tick") }
             Span.UntilCastEnds -> ctx.fail("$path.for", "a law needs a finite window in ticks; 'cast' cannot be lowered")
