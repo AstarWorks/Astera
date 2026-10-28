@@ -470,7 +470,7 @@ presentation:
     - {id: loop1, at: 0, every: 1, for: 22, do: [{id: fx1_orrery_poise_staff_embers, op: emit, at: pt_fx1_orrery_poise_staff_0_1p65_0, particle: orrery-ember}]}
   "on":
     hit:
-      - {id: anchor_6, op: anchor, frame: fx6_orrery_ring_hit, at: contact.point, orient: to_target, teleport_ticks: 2, when: "= event.source == 'sel'"}
+      - {id: anchor_6, op: anchor, frame: fx6_orrery_ring_hit, at: enemy, orient: to_target, follow: true, teleport_ticks: 2, when: "= event.source == 'sel'"}
       - op: block
         parent: fx6_orrery_ring_hit
         block: gold_block

@@ -588,7 +588,7 @@ presentation:
     - {id: loop5, at: 35, every: 3, for: 15, do: [{id: fx6_ember_smoke_puff_haze, op: emit, at: fx6_ember_smoke_puff_haze_at, particle: gun-smoke}]}
   "on":
     hit:
-      - {id: anchor_3, op: anchor, frame: fx3_ember_hoop_hit, at: contact.point, orient: look, when: "= event.source == 'sel'"}
+      - {id: anchor_3, op: anchor, frame: fx3_ember_hoop_hit, at: enemy, orient: look, when: "= event.source == 'sel'"}
       - {op: text, parent: fx3_ember_hoop_hit, face: {viewer: center}, size: [0.2, 0.2], text: "<#ffb020>✦", see_through: true, brightness: 15, id: fx3_ember_hoop_hit_flare, when: "= event.source == 'sel'"}
       - id: fx3_ember_hoop_hit_flare_trk
         op: track
@@ -620,7 +620,7 @@ presentation:
       - {id: fx3_ember_hoop_hit_embers_atrk, op: track, target: fx3_ember_hoop_hit_embers_at, space: fx3_ember_hoop_hit, keys: [{t: 0, offset: [0.0, 1.1, 0.0]}], when: "= event.source == 'sel'"}
       - {id: fx3_ember_hoop_hit_embers, op: emit, at: fx3_ember_hoop_hit_embers_at, particle: fire-impact, when: "= event.source == 'sel'"}
       - {id: snd, op: sound, sound: entity.player.attack.strong, at: enemy, volume: 0.7, pitch: 1.1, when: "= event.source == 'sel'"}
-      - {id: anchor_5, op: anchor, frame: fx5_ember_hoop_hit, at: contact.point, orient: look, when: "= event.source == 'sel_2'"}
+      - {id: anchor_5, op: anchor, frame: fx5_ember_hoop_hit, at: enemy, orient: look, when: "= event.source == 'sel_2'"}
       - {op: text, parent: fx5_ember_hoop_hit, face: {viewer: center}, size: [0.2, 0.2], text: "<#ffb020>✦", see_through: true, brightness: 15, id: fx5_ember_hoop_hit_flare, when: "= event.source == 'sel_2'"}
       - id: fx5_ember_hoop_hit_flare_trk
         op: track

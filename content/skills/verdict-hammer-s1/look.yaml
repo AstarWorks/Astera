@@ -283,7 +283,7 @@ presentation:
     - {id: fxhit_12, at: "hit+12", do: [{id: rm_5, op: remove, ids: [fx2_verdict_impact_dark0, fx2_verdict_impact_dark1, fx2_verdict_impact_dark2], when: "= event.source == 'sel'"}]}
   "on":
     hit:
-      - {id: anchor_2, op: anchor, frame: fx2_verdict_impact, at: contact.point, orient: world, when: "= event.source == 'sel'"}
+      - {id: anchor_2, op: anchor, frame: fx2_verdict_impact, at: enemy, orient: world, when: "= event.source == 'sel'"}
       - op: quad
         parent: fx2_verdict_impact
         face: {viewer: center}

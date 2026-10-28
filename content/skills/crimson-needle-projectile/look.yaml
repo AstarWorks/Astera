@@ -34,7 +34,7 @@ presentation:
     - {id: rep1, at: 0, every: 1, until: end, do: [{id: trail, op: emit, at: bolt, particle: dust, count: 1, spacing: 0.2, data: "#f02341", data_size: 0.65}]}
   "on":
     hit:
-      - {id: anchor, op: anchor, frame: fx1_crimson_chain_axe_impact, at: contact.point, orient: yaw}
+      - {id: anchor, op: anchor, frame: fx1_crimson_chain_axe_impact, at: enemy, orient: yaw}
       - {op: block, parent: fx1_crimson_chain_axe_impact, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_crimson_chain_axe_impact_ray_0_0}
       - id: fx1_crimson_chain_axe_impact_ray_0_0_trk
         op: track

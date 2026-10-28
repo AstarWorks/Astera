@@ -215,7 +215,7 @@ presentation:
     - {id: loop2, at: 20, every: 1, for: 3, do: [{id: fx1_sigil_rifle_dash_rifle_embers_20, op: emit, at: pt_fx1_sigil_rifle_dash_rifle_0_1p65_0, particle: sigil-rifle-embers}]}
   "on":
     hit:
-      - {id: anchor_2, op: anchor, frame: fx2_sigil_rifle_mark, at: contact.point, orient: yaw, when: "= event.source == 'sel'"}
+      - {id: anchor_2, op: anchor, frame: fx2_sigil_rifle_mark, at: enemy, orient: yaw, when: "= event.source == 'sel'"}
       - {op: block, parent: fx2_sigil_rifle_mark, block: red_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx2_sigil_rifle_mark_solid_impact_0, when: "= event.source == 'sel'"}
       - id: fx2_sigil_rifle_mark_solid_impact_0_trk
         op: track

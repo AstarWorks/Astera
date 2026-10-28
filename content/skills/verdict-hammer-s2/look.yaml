@@ -86,7 +86,7 @@ presentation:
           when: "= event.source == 'sel'"
   "on":
     hit:
-      - {id: anchor, op: anchor, frame: fx1_verdict_summoned_nails, at: contact.point, orient: yaw, when: "= event.source == 'sel'"}
+      - {id: anchor, op: anchor, frame: fx1_verdict_summoned_nails, at: enemy, orient: yaw, when: "= event.source == 'sel'"}
       - {op: block, parent: fx1_verdict_summoned_nails, block: iron_block, size: [1.0, 1.0, 1.0], id: fx1_verdict_summoned_nails_nail__1_shaft, when: "= event.source == 'sel'"}
       - id: fx1_verdict_summoned_nails_nail__1_shaft_trk
         op: track
@@ -147,7 +147,7 @@ presentation:
           - {t: 27, offset: [0.3, 2.3, 0.0], scale: [0.45, 0.18, 0.45]}
           - {t: 34, offset: [0.3, 2.3, 0.0], scale: [0.0, 0.0, 0.0]}
         when: "= event.source == 'sel'"
-      - {id: anchor_2, op: anchor, frame: fx2_verdict_impact, at: contact.point, orient: world, when: "= event.source == 'sel_2'"}
+      - {id: anchor_2, op: anchor, frame: fx2_verdict_impact, at: enemy, orient: world, when: "= event.source == 'sel_2'"}
       - op: quad
         parent: fx2_verdict_impact
         face: {viewer: center}

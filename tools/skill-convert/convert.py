@@ -1289,7 +1289,9 @@ class Conv:
         fid = "fx%d_%s" % (self.vfx_n, sid(vid))
         snap = self.snapshot_frame() if V(m.get("snapshot_pose", False)) else None
         self.cref = snap or "caster"
-        want = self.point(tg, where, "p") if tg else self.cref
+        # v1 anchors a `target` play_vfx at the entity's position, its feet (VfxMechanics.kt:43-46 poseOf(id).position, kept live by
+        # the anchor lambda), never at the hit's contact point (the body centre): `enemy`, like sound_at.
+        want = ("enemy" if tg and tg.get("type") == "target" else self.point(tg, where, "p")) if tg else self.cref
         self.cref = "caster"
         follow = bool(V(m.get("follow", d.get("follow", True))))
         # v1 places the instance at the play point with VfxOrient.frame (VfxDefinition.kt:33-60) and moves only a follow=true one

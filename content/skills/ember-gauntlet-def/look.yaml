@@ -775,7 +775,7 @@ presentation:
     - {id: loop2, at: 111, every: 1, for: 8, do: [{id: fx3_ember_counter_sweep_gauntlet_fire, op: emit, at: pt_fx3_ember_counter_sweep_gauntlet_0_2p65_0, particle: ember-fine-spark}]}
   "on":
     hit:
-      - {id: anchor_4, op: anchor, frame: fx4_ember_hoop_hit, at: contact.point, orient: look, when: "= event.source == 'sel'"}
+      - {id: anchor_4, op: anchor, frame: fx4_ember_hoop_hit, at: enemy, orient: look, when: "= event.source == 'sel'"}
       - {op: text, parent: fx4_ember_hoop_hit, face: {viewer: center}, size: [0.2, 0.2], text: "<#ffb020>✦", see_through: true, brightness: 15, id: fx4_ember_hoop_hit_flare, when: "= event.source == 'sel'"}
       - id: fx4_ember_hoop_hit_flare_trk
         op: track

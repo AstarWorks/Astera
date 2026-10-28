@@ -1041,7 +1041,7 @@ presentation:
             - {t: 9, scale: [0.025, 0.025, 4.0611]}
             - {t: 10, scale: [0.0, 0.0, 4.0611]}
           when: "= event.source == 'sel'"
-        - {id: anchor_2, op: anchor, frame: fx2_orrery_ring_hit_target, at: contact.point, orient: to_target, when: "= event.source == 'sel'"}
+        - {id: anchor_2, op: anchor, frame: fx2_orrery_ring_hit_target, at: enemy, orient: to_target, when: "= event.source == 'sel'"}
         - id: fx2_orrery_ring_hit_target_shard_pull
           op: pull
           target: fx2_orrery_ring_hit_target_shard
@@ -1156,7 +1156,7 @@ presentation:
             - {t: 9, scale: [0.025, 0.025, 4.0611]}
             - {t: 10, scale: [0.0, 0.0, 4.0611]}
           when: "= event.source == 'sel'"
-        - {id: anchor_4, op: anchor, frame: fx4_orrery_ring_hit_target, at: contact.point, orient: to_target, when: "= event.source == 'sel'"}
+        - {id: anchor_4, op: anchor, frame: fx4_orrery_ring_hit_target, at: enemy, orient: to_target, when: "= event.source == 'sel'"}
         - id: fx4_orrery_ring_hit_target_shard_pull
           op: pull
           target: fx4_orrery_ring_hit_target_shard
@@ -1271,7 +1271,7 @@ presentation:
             - {t: 9, scale: [0.025, 0.025, 4.0611]}
             - {t: 10, scale: [0.0, 0.0, 4.0611]}
           when: "= event.source == 'sel'"
-        - {id: anchor_6, op: anchor, frame: fx6_orrery_ring_hit_target, at: contact.point, orient: to_target, when: "= event.source == 'sel'"}
+        - {id: anchor_6, op: anchor, frame: fx6_orrery_ring_hit_target, at: enemy, orient: to_target, when: "= event.source == 'sel'"}
         - id: fx6_orrery_ring_hit_target_shard_pull
           op: pull
           target: fx6_orrery_ring_hit_target_shard
@@ -1386,7 +1386,7 @@ presentation:
             - {t: 29, scale: [0.025, 0.025, 4.0611]}
             - {t: 35, scale: [0.0, 0.0, 4.0611]}
           when: "= event.source == 'sel'"
-        - {id: anchor_8, op: anchor, frame: fx8_orrery_ring_hit_target_long, at: contact.point, orient: to_target, when: "= event.source == 'sel'"}
+        - {id: anchor_8, op: anchor, frame: fx8_orrery_ring_hit_target_long, at: enemy, orient: to_target, when: "= event.source == 'sel'"}
         - id: fx8_orrery_ring_hit_target_long_shard_pull
           op: pull
           target: fx8_orrery_ring_hit_target_long_shard

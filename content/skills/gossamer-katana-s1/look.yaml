@@ -504,7 +504,7 @@ presentation:
           - fx2_gossamer_katana_petals_ink_2
           - fx2_gossamer_katana_petals_ink_3
     hit:
-      - {id: anchor_5, op: anchor, frame: fx5_gossamer_katana_petals, at: contact.point, orient: yaw, when: "= event.source == 'sel'"}
+      - {id: anchor_5, op: anchor, frame: fx5_gossamer_katana_petals, at: enemy, orient: yaw, when: "= event.source == 'sel'"}
       - id: fx5_gossamer_katana_petals_petals_0
         op: quad
         parent: fx5_gossamer_katana_petals

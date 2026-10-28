@@ -271,7 +271,7 @@ presentation:
     - {id: loop2, at: hit, every: 3, for: 4, do: [{id: fx5_couture_rapier_cross_sparks, op: emit, at: fx5_couture_rapier_cross_sparks_at, particle: stab-spark, when: "= event.source == 'sel_4'"}]}
   "on":
     hit:
-      - {id: anchor_2, op: anchor, frame: fx2_couture_shears_falling, at: contact.point, orient: yaw, when: "= event.source == 'sel'"}
+      - {id: anchor_2, op: anchor, frame: fx2_couture_shears_falling, at: enemy, orient: yaw, when: "= event.source == 'sel'"}
       - {op: block, parent: fx2_couture_shears_falling, block: gray_concrete, size: [1.0, 1.0, 1.0], id: fx2_couture_shears_falling_1_blade_0, when: "= event.source == 'sel'"}
       - id: fx2_couture_shears_falling_1_blade_0_trk
         op: track
@@ -602,7 +602,7 @@ presentation:
           - {t: 16, offset: [0.0, 2.56, 0.0], scale: [0.3, 0.3, 0.24]}
           - {t: 20, offset: [0.0, 2.56, 0.0], scale: [0.0, 0.0, 0.0]}
         when: "= event.source == 'sel'"
-      - {id: anchor_3, op: anchor, frame: fx3_couture_rapier_cross, at: contact.point, orient: yaw, when: "= event.source == 'sel_2'"}
+      - {id: anchor_3, op: anchor, frame: fx3_couture_rapier_cross, at: enemy, orient: yaw, when: "= event.source == 'sel_2'"}
       - {op: block, parent: fx3_couture_rapier_cross, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx3_couture_rapier_cross_cross_0, when: "= event.source == 'sel_2'"}
       - id: fx3_couture_rapier_cross_cross_0_trk
         op: track
@@ -915,7 +915,7 @@ presentation:
           - {t: 6, scale: [0.2, 0.2, 1.0], alpha: 0.0, ease: in_quad}
         when: "= event.source == 'sel_2'"
       - {id: snd, op: sound, sound: entity.player.attack.strong, at: enemy, volume: 0.7, pitch: 1.1, when: "= event.source == 'sel_2'"}
-      - {id: anchor_4, op: anchor, frame: fx4_couture_shears_falling, at: contact.point, orient: yaw, when: "= event.source == 'sel_3'"}
+      - {id: anchor_4, op: anchor, frame: fx4_couture_shears_falling, at: enemy, orient: yaw, when: "= event.source == 'sel_3'"}
       - {op: block, parent: fx4_couture_shears_falling, block: gray_concrete, size: [1.0, 1.0, 1.0], id: fx4_couture_shears_falling_1_blade_0, when: "= event.source == 'sel_3'"}
       - id: fx4_couture_shears_falling_1_blade_0_trk
         op: track
@@ -1246,7 +1246,7 @@ presentation:
           - {t: 16, offset: [0.0, 2.56, 0.0], scale: [0.3, 0.3, 0.24]}
           - {t: 20, offset: [0.0, 2.56, 0.0], scale: [0.0, 0.0, 0.0]}
         when: "= event.source == 'sel_3'"
-      - {id: anchor_5, op: anchor, frame: fx5_couture_rapier_cross, at: contact.point, orient: yaw, when: "= event.source == 'sel_4'"}
+      - {id: anchor_5, op: anchor, frame: fx5_couture_rapier_cross, at: enemy, orient: yaw, when: "= event.source == 'sel_4'"}
       - {op: block, parent: fx5_couture_rapier_cross, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx5_couture_rapier_cross_cross_0, when: "= event.source == 'sel_4'"}
       - id: fx5_couture_rapier_cross_cross_0_trk
         op: track
@@ -1559,7 +1559,7 @@ presentation:
           - {t: 6, scale: [0.2, 0.2, 1.0], alpha: 0.0, ease: in_quad}
         when: "= event.source == 'sel_4'"
       - {id: snd_2, op: sound, sound: entity.player.attack.strong, at: enemy, volume: 0.7, pitch: 1.1, when: "= event.source == 'sel_4'"}
-      - {id: anchor_6, op: anchor, frame: fx6_couture_target_rosette, at: contact.point, orient: yaw, when: "= event.source == 'sel_5'"}
+      - {id: anchor_6, op: anchor, frame: fx6_couture_target_rosette, at: enemy, orient: yaw, when: "= event.source == 'sel_5'"}
       - {op: block, parent: fx6_couture_target_rosette, block: pink_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx6_couture_target_rosette_arc_0, when: "= event.source == 'sel_5'"}
       - id: fx6_couture_target_rosette_arc_0_trk
         op: track
