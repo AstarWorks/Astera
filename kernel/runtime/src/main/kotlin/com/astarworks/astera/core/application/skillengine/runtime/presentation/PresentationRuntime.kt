@@ -47,6 +47,9 @@ public class PresentationRuntime(
         /** Client interpolation length of every per-tick display write. */
         const val DISPLAY_TICKS: Int = 1
 
+        /** v1 `WorldMechanics.MAX_DISPLAYS_PER_CAST` (:631): text displays one cast may spawn. */
+        const val MAX_TEXT_PER_CAST: Int = 32
+
         /** The client shows a write one tick later (interpolation), so a track is sampled one tick ahead: key N is on screen at tick N (v1 SKL-14). */
         const val DISPLAY_LEAD: Int = 1
         const val MAX_FRAME_DEPTH: Int = 64
@@ -139,6 +142,7 @@ public class PresentationRuntime(
     internal class CastState(val ctx: OpContext) {
         val anims = ArrayList<AnimRun>()
         var tick: Int = 0
+        var textSpawned: Int = 0
         val live = LinkedHashMap<String, Live>()
         val sounds = LinkedHashMap<String, SoundTask>()
         val tracks = LinkedHashMap<String, TrackState>()

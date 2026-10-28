@@ -68,6 +68,8 @@ public class PaperSkillVisualGateway(
     private val spriteInfo: (String) -> SpriteInfo = { SpriteInfo(1, 32) },
     /** Hides the real held item while a `main_hand` mesh stands in for it (ADR-0276: one weapon on screen, never two). */
     private val presentation: () -> IPlayerPresentation? = { null },
+    /** Resolves a localized text for the caster (v1 `messageRenderer.renderText(actorId, ...)`); null = English. */
+    private val messages: () -> com.astarworks.astera.core.application.port.outbound.IMessageRenderer? = { null },
 ) : ISkillVisualGateway {
 
     private val log = LoggerFactory.getLogger(javaClass)
@@ -214,6 +216,11 @@ public class PaperSkillVisualGateway(
     override fun setBlock(handle: VisualHandle, block: String) {
         val e = entries[handle.id] as? BlockEntry ?: return
         displays.setBlock(e.handle, block)
+    }
+
+    override fun localize(castOwner: UUID, byLocale: Map<String, String>): String {
+        val renderer = messages() ?: return super.localize(castOwner, byLocale)
+        return renderer.renderText(PlayerId(castOwner), LocalizedText(byLocale.mapKeys { (k, _) -> LocaleCode.parse(k) }))
     }
 
     override fun setText(handle: VisualHandle, text: String) {

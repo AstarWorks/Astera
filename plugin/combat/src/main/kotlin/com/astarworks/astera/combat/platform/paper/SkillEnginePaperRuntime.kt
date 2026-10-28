@@ -111,7 +111,8 @@ internal class SkillEnginePaperRuntime(
         val visuals = PaperSkillVisualGateway(server, displays, tables, spriteInfo = { id ->
             sprites?.find(com.astarworks.astera.core.domain.sprite.SpriteId(id))?.let { com.astarworks.astera.core.application.skillengine.runtime.port.SpriteInfo(it.frames, it.size) }
                 ?: error("skill engine: sprite '$id' is not registered")
-        }, presentation = { services.get<com.astarworks.astera.core.application.port.outbound.presentation.IPlayerPresentation>() })
+        }, presentation = { services.get<com.astarworks.astera.core.application.port.outbound.presentation.IPlayerPresentation>() },
+            messages = { services.get<com.astarworks.astera.core.application.port.outbound.IMessageRenderer>() })
         visualGateway = visuals
         val orphans = visuals.sweepOrphans()
         if (orphans > 0) log.info("skill engine v2 removed {} orphaned ribbon displays left by an earlier run", orphans)

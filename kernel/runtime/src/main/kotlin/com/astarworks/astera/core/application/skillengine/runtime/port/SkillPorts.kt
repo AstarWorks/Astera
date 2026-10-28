@@ -94,6 +94,9 @@ public interface ISkillVisualGateway {
     /** A text display switches to the MiniMessage [text] (a track key's `text`); called only on change. */
     public fun setText(handle: VisualHandle, text: String) {}
 
+    /** The markup of [byLocale] for the cast owner's locale (v1 `messageRenderer.renderText(actorId, ...)`); `en`, else the first entry. */
+    public fun localize(castOwner: UUID, byLocale: Map<String, String>): String = byLocale["en"] ?: byLocale.values.firstOrNull().orEmpty()
+
     /** Ribbon look: alpha follows `(1 - age/ticks) ^ fadePower`; [style] is `soft`, `crisp` or `both`. Called once after [spawnTrail]. */
     public fun setTrailLook(handle: VisualHandle, fadePower: Double, style: String)
 

@@ -235,12 +235,17 @@ private object VisualOpDecoder : OpDecoder {
                 colorOr("color", "#ffffff"), numberOr("alpha", 1.0), string("text"), bool("shadow") ?: false, bool("see_through") ?: false,
                 vec3("at"), vec3("turn"), brightness(), repeat(),
             )
-            "text" -> VisualOp.Text(
-                id, whenExpr, requireString("parent"), face(PlateFace.ViewerCenter), sizeVec("size", uniform = false),
-                requireString("text"), colorOr("background", "#000000"), numberOr("background_alpha", 0.0),
-                bool("shadow") ?: false, bool("see_through") ?: false,
-                vec3("at"), vec3("turn"), brightness(), repeat(),
-            )
+            "text" -> {
+                val byLocale = mapOf("text_by_locale")?.mapValues { (k, v) -> v as? String ?: fail("text_by_locale.$k must be a string") }
+                if (byLocale != null && byLocale.isEmpty()) fail("text_by_locale must not be empty")
+                VisualOp.Text(
+                    id, whenExpr, requireString("parent"), face(PlateFace.ViewerCenter), sizeVec("size", uniform = false),
+                    if (byLocale == null) requireString("text") else string("text") ?: byLocale["en"] ?: byLocale.values.first(),
+                    colorOr("background", "#000000"), numberOr("background_alpha", 0.0),
+                    bool("shadow") ?: false, bool("see_through") ?: false,
+                    vec3("at"), vec3("turn"), brightness(), repeat(), byLocale ?: emptyMap(),
+                )
+            }
             "line" -> VisualOp.Line(
                 id, whenExpr, requirePoint("from"), requirePoint("to"), numberOr("thickness", 0.05),
                 colorOr("color", "#ffffff"), face(PlateFace.ViewerAxis(AxisRef("line.along"))),

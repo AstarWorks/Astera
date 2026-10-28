@@ -132,8 +132,13 @@ internal class TextExecutor(private val rt: PresentationRuntime) : OpExecutor<Vi
                 op.at?.let { ctx.values.vec3(it) } ?: Vec3.ZERO, op.turn?.let { turn(ctx.values.vec3(it)) } ?: Quaternion.IDENTITY,
             )
             val pose = rt.spawnNode(s, live, par) ?: run { ctx.host.fail(op.id, "text: parent frame '$par' is not in the frame tree"); return@repeated null }
+            // v1 WorldMechanics.display (:459-478) spawns at most MAX_DISPLAYS_PER_CAST (:631) displays per cast
+            if (s.textSpawned >= PresentationRuntime.MAX_TEXT_PER_CAST) { ctx.host.fail(op.id, "text: more than ${PresentationRuntime.MAX_TEXT_PER_CAST} text displays in one cast"); return@repeated null }
+            s.textSpawned++
+            val owner = rt.info.owner(ctx.cast)
+            val markup = if (op.textByLocale.isEmpty()) op.text else ctx.ports.visuals.localize(owner, op.textByLocale)
             live.handle = ctx.ports.visuals.spawnText(
-                rt.info.owner(ctx.cast), op.text, ctx.values.text(op.background), ctx.values.num(op.backgroundAlpha), op.shadow, op.seeThrough, pose, op.brightness,
+                owner, markup, ctx.values.text(op.background), ctx.values.num(op.backgroundAlpha), op.shadow, op.seeThrough, pose, op.brightness,
             )
             rt.register(s, live)
             live

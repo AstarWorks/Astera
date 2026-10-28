@@ -151,6 +151,7 @@ class PresentationOpsScenarioTest {
             textSpawns += listOf(text, backgroundHex, backgroundAlpha, shadow, seeThrough)
         }
         override fun setText(handle: VisualHandle, text: String) { textSwaps += handle.id.toInt() to text }
+        override fun localize(castOwner: UUID, byLocale: Map<String, String>): String = byLocale["ja"] ?: super.localize(castOwner, byLocale)
         override fun spawnLine(castOwner: UUID, colorHex: String, pose: VisualPose) =
             h("line:$colorHex").also { lineEnds[it.id] = ends(pose); lines += it.id }
         override fun spawnTrail(castOwner: UUID, ticks: Int, widthFrac: Double, colorHex: String, alpha: Double) = h("trail")
@@ -521,6 +522,19 @@ class PresentationOpsScenarioTest {
         run(VisualOp.Track("t", null, "cipher", listOf(TrackKey(0, v(0.0, 0.0, 0.0), null, null, null), TrackKey(2, null, null, null, null, text = "CLEAR")), null))
         tick(4)
         assertThat(textSwaps.map { it.second }.distinct()).containsExactly("CLEAR")
+    }
+
+    @Test
+    fun `text op - text_by_locale is picked by the gateway for the cast owner and one cast spawns at most 32 texts`() {
+        val d = decode("text", mapOf("parent" to "volley", "size" to listOf(0.2, 0.2), "text_by_locale" to mapOf("en" to "Quake!", "ja" to "クエイク！"))) as VisualOp.Text
+        assertThat(d.text).isEqualTo("Quake!") // the fallback is the English entry
+        assertThat(d.textByLocale).containsEntry("ja", "クエイク！")
+        run(d.copy(id = "q0"))
+        assertThat(textSpawns.map { it.first() }).containsExactly("クエイク！") // v1 messageRenderer.renderText(actorId, ..): the owner's locale
+        for (k in 1 until 32) run(d.copy(id = "q$k"))
+        assertThat(textSpawns).hasSize(32)
+        assertThatThrownBy { run(d.copy(id = "q32")) }.isInstanceOf(IllegalStateException::class.java) // v1 MAX_DISPLAYS_PER_CAST = 32
+        assertThat(textSpawns).hasSize(32)
     }
 
     @Test

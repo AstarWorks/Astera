@@ -138,6 +138,8 @@ public sealed interface VisualOp : PresentationOp {
         val turn: Value<Vec3>? = null,
         val brightness: Int? = null,
         val repeat: Repeat? = null,
+        /** Markup per locale code (`en`, `ja`); non-empty = the gateway picks the cast owner's locale and [text] is the fallback. */
+        val textByLocale: Map<String, String> = emptyMap(),
     ) : VisualOp
 
     /** Ribbon between two points; length follows them every tick. */

@@ -47,7 +47,7 @@ GAMEPLAY = {"damage", "apply_status", "knockback", "propel", "hit_stop", "cast_s
             "place_shape", "heal", "cleanse", "consume_item", "summon_lightning", "leap", "modify_attribute",
             "dash_strike", "counter"}
 PRESENT = {"play_sound", "spawn_particle", "schedule_particle_animation", "play_vfx", "camera_shake", "screen_flash",
-           "screen_veil", "telegraph", "play_animation", "stop_sound", "hide_held_item"}
+           "screen_veil", "telegraph", "play_animation", "stop_sound", "hide_held_item", "spawn_display"}
 AREA = {"cone", "nearby_entities", "forward_ray", "enemies", "allies"}
 SHAPES_BREAK = {"sphere", "line", "box"}
 SHAPES_BUILD = {"wall", "bridge", "pillar", "platform"}
@@ -824,6 +824,8 @@ class Conv:
             W(op)
         elif t == "telegraph":
             self.telegraph(m, tg, where, delay, when)
+        elif t == "spawn_display":
+            self.spawn_display(m, tg, where, delay, when)
         else:
             frag = {k: V(v) for k, v in m.items() if k not in ("type", "targets", "delay_ticks")}
             self.present("%s has no v2 op" % t, short(frag, 160))
@@ -945,6 +947,73 @@ class Conv:
         ok = parent in ("world", "caster", "enemy") or parent.startswith("caster.") or parent in self.frames or parent in self.look_frames \
             or (parent == "bolt" and self.has_bolt)
         return parent if ok else None
+
+    SPAWN_DISPLAY_KEYS = {"display", "viewers", "period_ticks", "duration_ticks", "snapshot_pose"}
+    SPAWN_DISPLAY_TEXT_KEYS = {"type", "lines", "background_argb"}
+
+    def spawn_display(self, m, tg, where, delay, when):
+        """v1 Mechanic.SpawnDisplay, text kind (WorldMechanics.display :459-478).
+
+        v1 renders every `lines` entry for the caster's locale (messageRenderer.renderText(actorId, ..)), joins them with newlines,
+        spawns a TextDisplay at the resolved location (billboard FIXED unless set, vanilla text scale 1 = 0.2 blocks, background
+        `background_argb` default 0x40000000, shadow / see_through off) and removes it `lifetime_ticks` later (scheduler.runLaterTicks).
+        At most MAX_DISPLAYS_PER_CAST (32, :631) displays per cast; the v2 text op enforces the same cap."""
+        extra = sorted(set(m) - self.SPAWN_DISPLAY_KEYS - self.COMMON_MECH_KEYS)
+        if extra:
+            raise ValueError("%s: spawn_display carries field(s) %s that v2 cannot express; extend the op before converting"
+                             % (self.sid_hint(), extra))
+        disp = m["display"]
+        kind = disp["kind"]
+        if kind.get("type") != "text":
+            self.present("spawn_display kind %s has no v2 op" % kind.get("type"), short(kind, 80))
+            return
+        extra = sorted(set(kind) - self.SPAWN_DISPLAY_TEXT_KEYS)
+        if extra:
+            raise ValueError("%s: spawn_display text carries field(s) %s that v2 cannot express" % (self.sid_hint(), extra))
+        extra = sorted(set(disp) - {"kind", "transform", "lifetime_ticks", "billboard"})
+        if extra:
+            raise ValueError("%s: spawn_display display carries field(s) %s that v2 cannot express" % (self.sid_hint(), extra))
+        if str(V(m.get("viewers", "all"))).lower() != "all":
+            self.present("spawn_display viewers (v2 displays are shown to everyone)", short(V(m["viewers"]), 30))
+        for k in ("period_ticks", "duration_ticks"):
+            if k in m and V(m[k]):
+                self.present("spawn_display %s (v1 respawns on a period; the v2 text op spawns once)" % k, str(V(m[k])))
+        if V(m.get("snapshot_pose", False)):
+            self.present("spawn_display snapshot_pose", "true")
+        lines = kind["lines"]
+        locales = sorted({loc for ln in lines for loc in ln})
+        by_locale = {loc: "\n".join(ln.get(loc, ln.get("en", next(iter(ln.values())))) for ln in lines) for loc in locales}
+        tr = disp.get("transform") or {}
+        sc = vec3(tr["scale"]) if "scale" in tr else [1.0, 1.0, 1.0]
+        size = [round(0.2 * float(sc[0]), 4), round(0.2 * float(sc[1]), 4)]
+        at = self.point(tg, where, "p")
+        parent = self.frame_parent(at)
+        if parent is None:
+            self.present("spawn_display anchored at a runtime point (frame parent must exist at cast start): anchored at world", at)
+            parent = "world"
+        bb = str(disp.get("billboard", "fixed")).lower()
+        if bb == "fixed":
+            face = {"plane": {"frame": parent, "axes": ["left", "up"]}}
+        elif bb in ("center", "vertical"):
+            face = {"viewer": bb}
+        else:
+            self.present("spawn_display billboard %s (v2 faces: fixed, center, vertical)" % bb)
+            face = {"plane": {"frame": parent, "axes": ["left", "up"]}}
+        rot = tr.get("rotation")
+        if rot and any(abs(float(V(rot.get(a, 0.0)))) > 1e-9 for a in ("x", "y", "z")):
+            self.present("spawn_display transform.rotation", short(rot, 60))
+        argb = int(V(kind.get("background_argb", 0x40000000))) & 0xFFFFFFFF
+        eid = self.oid("display")
+        op = {"id": eid, "op": "text", "parent": parent, "face": face, "size": size, "text_by_locale": by_locale}
+        if "translation" in tr:
+            off = vec3(tr["translation"])
+            if any(abs(float(x)) > 1e-9 for x in off):
+                op["at"] = off
+        if argb >> 24:
+            op["background"] = "#%06x" % (argb & 0xFFFFFF)
+            op["background_alpha"] = round((argb >> 24) / 255.0, 3)
+        self.p(where, delay, self._w(op, when))
+        self.p(where, delay + int(V(disp["lifetime_ticks"])), self._w({"id": self.oid("rm"), "op": "remove", "ids": [eid]}, when))
 
     def vfx(self, m, tg, where, delay, when, d=None, parent=None):
         vid = m["vfx_id"]
