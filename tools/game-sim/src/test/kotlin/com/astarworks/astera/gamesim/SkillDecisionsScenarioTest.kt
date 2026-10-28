@@ -70,7 +70,8 @@ class SkillDecisionsScenarioTest {
         val near = CastSim(victims = mapOf(attacker to Vec3(0.0, 0.0, 3.0)))
         near.cast("bastion-greatsword-s1", 45)
         assertThat(near.statuses.filter { it.third == "charge" }).hasSize(1)
-        val far = CastSim(victims = mapOf(attacker to Vec3(0.0, 0.0, 4.5)))
+        // The caster dashes 2.4 forward before the check (casterFeet follows teleports), so "far" is measured from where it stands then.
+        val far = CastSim(victims = mapOf(attacker to Vec3(0.0, 0.0, 7.5)))
         far.cast("bastion-greatsword-s1", 45)
         assertThat(far.statuses.filter { it.third == "charge" }).isEmpty()
     }
