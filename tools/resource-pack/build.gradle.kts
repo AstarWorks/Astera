@@ -27,6 +27,7 @@ dependencies {
     implementation(libs.slf4j.api)
     runtimeOnly(libs.logback.classic)
 
+    implementation(project(":kernel:runtime"))
     testImplementation(libs.junit.jupiter)
     testImplementation(libs.assertj.core)
     testRuntimeOnly(libs.junit.platform.launcher)
@@ -53,6 +54,10 @@ val buildResourcePack = tasks.register<JavaExec>("buildResourcePack") {
     inputs.dir("$rootDir/content/hud")
     inputs.dir("$rootDir/content/pack-assets")
     inputs.dir("$rootDir/content/shader-patches")
+    // Shader effect model variants follow composed mesh references, including patches and point tables.
+    inputs.dir("$rootDir/content/skills")
+    inputs.dir("$rootDir/content/vfx")
+    inputs.dir("$rootDir/content/frames")
     outputs.dir(packDir)
 }
 

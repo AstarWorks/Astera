@@ -1,8 +1,6 @@
-# Astera skin rig (ADR-0250): our own additions to Mojang's core/entity.vsh, applied at pack build time to the
-# vanilla shader taken from the client jar (never committed). Format: `@@ before|after|replace: <anchor>`,
-# anchor = one whole vanilla line (trimmed), must match exactly once or the pack build fails.
-# The body runs to the next `@@` line (or the end of file).
-@@ before: void main() {
+# Astera skin-rig: named hooks from content/shader-patches/hooks.yaml (ADR-0305).
+# Shader bodies and marker semantics are preserved from ADR-0275 / ADR-0298.
+@@ hook: skin_rig_0
 // Astera skin rig (ADR-0250). A player_head ItemDisplay with brightness override (block 14, sky = payload)
 // is one bone of an animated player body. The server writes payload = bone id (0 head, 1 body, 2 right arm,
 // 3 left arm, 4 right leg, 5 left leg) + 8 for a slim arm. -1 = an ordinary entity. entity.fsh remaps the
@@ -20,7 +18,7 @@ layout(location = 11) out vec4 rigLightColor;
 // the rig's mirrored winding (gl_FrontFacing against the vertex normal) and only then treats it as a rig; until then the entity
 // keeps its own light (lightMapColor) and the fullbright rig light waits in rigLightColor.
 
-@@ after: void main() {
+@@ hook: skin_rig_1
     rigPart = -1;
     rigViewPos = vec3(0.0);
     rigViewNormal = vec3(0.0);
@@ -44,7 +42,7 @@ layout(location = 11) out vec4 rigLightColor;
         rigViewNormal = (ModelViewMat * vec4(Normal, 0.0)).xyz;
     }
 
-@@ replace: lightMapColor = sample_lightmap(Sampler2, UV2);
+@@ hook: skin_rig_2
     lightMapColor = sample_lightmap(Sampler2, UV2);
     // Rig displays are lit as if beside a light-15 source, whatever payload their brightness carries (entity.fsh picks this
     // once the candidate is confirmed as a rig).

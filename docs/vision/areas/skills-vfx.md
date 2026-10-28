@@ -9,8 +9,9 @@ Owner track `wp/skills-vfx`. Items: Board prefix `SKL-`. Sources: handoff `limbu
 - **Done = reviewer PASS + founder approval.** The reviewer judges motion match per beat against the reference and the founder's words, never particle counts.
 
 ## 現状
+- ADR-0305: `content/shader-patches/effects/<id>/` composes named shader hooks and validates marker allocation. Pack mesh ops select `shader_effect`; three playable `content/vfx/demo-shader-*` examples cover dissolve, procedural UV flow and emissive pulse. Markers combine isolated model tint with brightness (13,11); existing skin/weapon rig encodings are unchanged. Compile/pack and capture evidence are tracked in the implementation report; integration tests await the manager window.
 - `make live-view SKILL=<id>` provides a real Java-client browser stream with isolated game audio, Cast/Recast, content reload, caster/side/compare cameras, HUD, PNG snapshots and recent MP4 clips; see `tools/live-view/README.md`. Capture only, one vfx-shot slot for the session lifetime.
-- 85 skills, 211 vfx YAMLs in 10 families (bastion, couture, crimson, edict, ember, gossamer, orrery, sigil, vendetta, verdict). Tools: `make vfx-shot`, `make anim-shot`, skill-lint, skill-compare page.
+- 151 skill definitions plus 3 playable shader demos; per-skill presentation is engine-v2 YAML (the former standalone VFX library is no longer shipped) (bastion, couture, crimson, edict, ember, gossamer, orrery, sigil, vendetta, verdict). Tools: `make vfx-shot`, `make anim-shot`, skill-lint, skill-compare page.
 - bastion S1 content r1-r26 rejected by the founder ("S1 got worse": near-zero particles, wrong swing/roll, 26 rounds of technical-only checks).
 - ADR-0276 one-sword performance runtime (IPlayerPresentation lease, body planner, weapon on main hand) and skill-lint are merged on the Limbus branch but NOT verified in a real client; side effect: pose pinned STANDING during a skill.
 - The other 9 families have never been reviewed against this standard (推測). Sound quality for these skills remains unreviewed (batch captures are silent); live-view verifies audible real-client capture for bastion S1. 25 of 84 skills have no sound.

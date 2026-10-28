@@ -39,7 +39,7 @@ public data class BuiltPack(val zip: Path, val sha1: String, val entryCount: Int
  * | `content/pack-assets/assets/<path>`          | `assets/<path>` unchanged (skin-rig item definition, ADR-0250) |
  * | `content/particle-skins/generated/<frame>.png` | `assets/minecraft/textures/particle/` (retextured vanilla particle frames, ADR-0274) |
  * | `content/particle-skins/generated/<type>.json` | `assets/minecraft/particles/<type>.json` (sprite list; a missing PNG fails the build) |
- * | `content/shader-patches/core/<file>.patch`   | `assets/minecraft/shaders/core/<file>`: vanilla shader from the client jar + our patch (ADR-0250) |
+ * | `content/shader-patches/effects/<id>/<file>.patch`   | `assets/minecraft/shaders/core/<file>`: vanilla shader from the client jar + our patch (ADR-0250) |
  * | `content/textures/sources/` (all of it)     | not shipped (raster sources for `:tools:item-art`, ADR-0238) |
  * | (generated)                              | transparent sprites hiding the vanilla hearts / armor bar |
  *
@@ -366,21 +366,12 @@ public class ResourcePackBuilder(
     }
 
     /**
-     * Core shader overrides (ADR-0250): `content/shader-patches/core/<file>.patch` holds only Astera's additions
+     * Core shader overrides (ADR-0250): `content/shader-patches/effects/<id>/<file>.patch` holds only Astera's additions
      * and anchors; it is applied to the vanilla `core/<file>` of the target client at build time, so no Mojang
      * source is committed. A missing or ambiguous anchor fails the build.
      */
     private fun addPatchedShaders(files: MutableMap<String, ByteArray>) {
-        val root = contentDir.resolve(PATCH_DIR)
-        for (file in filesUnder(PATCH_DIR)) {
-            if (!file.name.endsWith(".patch")) continue
-            val rel = file.relativeTo(root).invariantSeparatorsPathString.removeSuffix(".patch")
-            check(rel.startsWith("core/") && rel.count { it == '/' } == 1) { "content/$PATCH_DIR/$rel.patch must be core/<shader file>.patch" }
-            val shader = rel.removePrefix("core/")
-            val key = "assets/minecraft/shaders/$rel"
-            check(key !in files) { "content/$PATCH_DIR/$rel.patch collides with a pack file already built" }
-            files[key] = ShaderPatch.apply(shader, vanilla.coreShader(shader), Files.readString(file)).toByteArray()
-        }
+        ShaderEffects.compose(contentDir.resolve("$PATCH_DIR/effects"), vanilla, files)
     }
 
     /** Fully transparent sprites over the vanilla hearts and armor bar: the status HUD draws HP itself. */

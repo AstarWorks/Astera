@@ -38,8 +38,9 @@ public object SkillDisplaySpecs {
         MeshModel.HeldItem -> null
     }
 
-    public fun mesh(kind: DisplayKind.Item, first: DisplayTransform): DisplaySpec =
-        DisplaySpec(kind = kind, transform = first, lifetimeTicks = LIFETIME, billboard = DisplayBillboard.FIXED, weaponRigShading = true)
+    public fun mesh(kind: DisplayKind.Item, first: DisplayTransform, effect: String? = null): DisplaySpec =
+        DisplaySpec(kind = kind, transform = first, lifetimeTicks = LIFETIME, billboard = DisplayBillboard.FIXED,
+            weaponRigShading = effect == null, shaderEffect = effect)
 
     public fun plate(glyph: String, alpha: Double, first: DisplayTransform, billboard: DisplayBillboard): DisplaySpec =
         DisplaySpec(

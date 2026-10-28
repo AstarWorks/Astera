@@ -188,7 +188,7 @@ private object VisualOpDecoder : OpDecoder {
     override fun decode(op: String, id: String, whenExpr: Value<Boolean>?, reader: OpReader): SkillOp = with(reader) {
         when (op) {
             "mesh" -> VisualOp.Mesh(id, whenExpr, requireString("frame"), requireString("item"), string("part"), number("scale"),
-                vec3("pivot"), vec3("rest_turn"), vec3("tilt_turn"))
+                vec3("pivot"), vec3("rest_turn"), vec3("tilt_turn"), string("shader_effect"))
             "plate" -> VisualOp.Plate(
                 id, whenExpr, requireString("parent"), face(null), requireString("sprite"),
                 numberOr("size", 1.0), numberOr("alpha", 1.0),

@@ -114,7 +114,7 @@ public class PaperSkillVisualGateway(
             DisplayKind.Item(ItemId(held.type.key.key.replace('_', '-')), DisplayItemMode.FIXED, held.itemMeta?.takeIf { it.hasItemModel() }?.itemModel?.toString())
         }
         val first = toDisplayWrite(pose.frame, pose.size, Intrinsic.ITEM_FIXED, pose.billboard, 0)
-        val spec = SkillDisplaySpecs.mesh(kind, first.transform)
+        val spec = SkillDisplaySpecs.mesh(kind, first.transform, pose.shaderEffect)
         val handle = spawnDisplay(world, castOwner, pose.frame.origin, spec, emptyList(), pose.anchorFeet != null) ?: return dead("mesh $item")
         if (heldItem) hideHand(castOwner)
         return register(castOwner, MeshEntry(handle, castOwner, heldItem))

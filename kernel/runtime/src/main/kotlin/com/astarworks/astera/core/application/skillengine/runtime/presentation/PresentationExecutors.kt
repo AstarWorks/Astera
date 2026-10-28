@@ -53,7 +53,7 @@ internal class MeshExecutor(private val rt: PresentationRuntime) : OpExecutor<Vi
         // The node carries the model's points (scaled to blocks), so `<mesh id>.tip` follows the swing.
         val pts = rt.points.points(op.item, op.part).map { FramePoint(live.node, it.name, it.offset * scale, it.axis) }
         val pose = rt.spawnNode(s, live, op.frame, pts) ?: return
-        live.handle = ctx.ports.visuals.spawnMesh(rt.info.owner(ctx.cast), op.item, op.part, pose)
+        live.handle = ctx.ports.visuals.spawnMesh(rt.info.owner(ctx.cast), op.item, op.part, pose.copy(shaderEffect = op.shaderEffect))
         rt.register(s, live)
     }
 }
