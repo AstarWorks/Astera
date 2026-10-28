@@ -1,6 +1,7 @@
 package com.astarworks.astera.core.adapter.paper.inventory
 
 import com.astarworks.astera.core.adapter.paper.item.PaperStoredItemCodec
+import com.astarworks.astera.core.adapter.paper.lobby.MatchCompassTag
 import com.astarworks.astera.core.adapter.paper.lobby.MenuKitTag
 import com.astarworks.astera.core.adapter.paper.lobby.TrainingItemTag
 import com.astarworks.astera.core.domain.player.InventoryItemSlot
@@ -129,7 +130,7 @@ public class PaperInventorySnapshotSerializer(
 
     /** Encode a single `ItemStack?` to its id-based slot; empty, kit and training stacks return `null`. */
     private fun encodeSlot(item: ItemStack?, where: String): InventoryItemSlot? {
-        if (item == null || item.isEmpty || MenuKitTag.isKit(item) || TrainingItemTag.isTraining(item)) return null
+        if (item == null || item.isEmpty || MenuKitTag.isKit(item) || MatchCompassTag.isCompass(item) || TrainingItemTag.isTraining(item)) return null
         return try {
             val stored = codec.encode(item) ?: return null
             if (stored.vanilla) {

@@ -11,6 +11,7 @@ import com.astarworks.astera.core.domain.match.TeamId
 import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.domain.presentation.PresentationMoments
 import com.astarworks.astera.core.domain.world.WorldId
+import com.astarworks.astera.match.application.port.outbound.IMatchCompass
 import com.astarworks.astera.match.application.port.outbound.ObjectiveBarColor
 import com.astarworks.astera.match.application.port.outbound.ObjectiveLook
 import kotlin.math.PI
@@ -31,7 +32,15 @@ import kotlin.math.sin
  * `channel_ticks`, `drop_return_seconds`, `pickup_radius`, `warn_distance`, `carrier_slow_pct_per_item`,
  * `carrier_min_speed_pct`.
  */
-public class ObjectiveKit(private val env: SiegeEnv, private val modeKey: String) {
+public class ObjectiveKit(
+    private val env: SiegeEnv,
+    private val modeKey: String,
+    /**
+     * True when the mode hands out the hotbar navigation compass ([IMatchCompass]): [compass] then shows the action-bar
+     * arrow and the hologram guide only while the player holds it. False (default) = always on, as before.
+     */
+    private val compassItem: Boolean = false,
+) {
 
     private class Channel(val key: String, val startedAt: Long)
 
@@ -232,6 +241,10 @@ public class ObjectiveKit(private val env: SiegeEnv, private val modeKey: String
 
     /** Action-bar line [key] with `{arrow}` (where [target] lies relative to where [player] looks) and `{dist}` (blocks). */
     public fun compass(player: PlayerId, target: Vec3, key: MessageKey, params: Map<String, String> = emptyMap()) {
+        if (compassItem && env.compass()?.isHeld(player) == false) {
+            env.guide()?.hide(player)
+            return
+        }
         val pose = env.poses()?.poseOf(player)
         val from = pose?.position ?: positionOf(player) ?: return
         val dx = target.x - from.x

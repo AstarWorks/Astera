@@ -2882,3 +2882,5 @@ astera:
   match.nav.capture-wool.zone: "<yellow>確保するエリア</yellow>"
   match.nav.annihilation.attack: "<red>敵の柱 (Tier {tier})</red>"
   match.nav.annihilation.defend: "<green>自軍の柱を守れ!</green>"
+  match.compass.name: "<gold>ナビコンパス</gold>"
+  match.compass.lore: "<gray>持つと敵の柱の方角が表示される。</gray>"

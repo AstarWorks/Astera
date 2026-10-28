@@ -512,6 +512,7 @@ public object MatchWiring {
                 services.get<com.astarworks.astera.core.application.port.outbound.IPlayerLocationLookup>()
             }
         val objectiveStage = ports.objectiveStage?.invoke(services)
+        val matchCompass = ports.matchCompass?.invoke(services)
         val siegeEnv = { id: com.astarworks.astera.match.domain.mode.GameModeId ->
             SiegeEnv(
                 eventBus = eventBus,
@@ -533,6 +534,7 @@ public object MatchWiring {
                 guide = { services.get<com.astarworks.astera.core.application.port.outbound.IHologramGuide>() },
                 settings = { services.get<com.astarworks.astera.core.application.port.outbound.IPlayerSettingsRepository>() },
                 labels = { worldLabels },
+                compass = { matchCompass },
             )
         }
         gameModeFrameworkRegistry.register(

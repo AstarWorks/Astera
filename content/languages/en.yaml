@@ -2894,3 +2894,5 @@ astera:
   match.nav.capture-wool.zone: "<yellow>Zone to capture</yellow>"
   match.nav.annihilation.attack: "<red>Enemy pillar (Tier {tier})</red>"
   match.nav.annihilation.defend: "<green>Defend your pillar!</green>"
+  match.compass.name: "<gold>Navigation Compass</gold>"
+  match.compass.lore: "<gray>Hold it to see where the enemy pillars are.</gray>"
