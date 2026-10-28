@@ -238,7 +238,7 @@ public class PaperSkillVisualGateway(
     override fun updateLine(handle: VisualHandle, from: Vec3, to: Vec3) {
         val e = entries[handle.id] as? LineEntry ?: return
         val mid = (from + to) * 0.5
-        e.display.teleport(Location(e.world, mid.x, mid.y, mid.z))
+        e.display.teleportAsync(Location(e.world, mid.x, mid.y, mid.z))
         e.display.interpolationDelay = 0
         e.display.setTransformationMatrix(lineMatrix(from, to, e.thickness, eyeOf(e.owner, mid)))
     }
