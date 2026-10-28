@@ -4,7 +4,7 @@ id: scythe-pull
 item: scythe
 meta: {name: {ja: "引き寄せ", en: Pull}, description: {ja: "前方の相手を手前へ引き寄せる。", en: "Drags the targets in front of you toward you."}, cooldown_ticks: 130, resource_cost: 12, tags: [melee, control]}
 anchors:
-  - {id: sweep, anchor: caster.eye, offset: {up: -0.1, forward: 2.0}}
+  - {id: sweep, anchor: caster, offset: {up: -0.1, forward: 2.0}}
 machine:
   start: cast
   states:
@@ -27,5 +27,5 @@ machine:
           on:
             hit:
               - {id: kb, op: knockback, target: event.victim, direction: "= normalize(pos(caster) - pos(event.victim)) + vec(0.0, 0.2, 0.0)", strength: 1.3}
-              - {id: dmg, op: damage, target: event.victim, components: [{kind: physical, amount: 14.0}]}
+              - {id: dmg, op: damage, target: event.victim, damage: {physical: 14.0}}
     end: {final: true}

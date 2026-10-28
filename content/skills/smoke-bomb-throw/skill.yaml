@@ -11,13 +11,13 @@ meta:
 anchors:
   - {id: muzzle, anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}
   - {id: foe,    anchor: victim.root}
-  - {id: flash,  anchor: caster.eye, offset: {up: -0.25, forward: 0.9}}
+  - {id: flash,  anchor: caster, offset: {up: -0.25, forward: 0.9}}  # v2 pt_caster (feet, yaw-only)
   - {id: smoke_hit, anchor: victim.root, offset: {up: 0.5}}
 machine:
   start: fly
   states:
     fly:
-      for: 61      # max flight 50 + 10 ring ticks + 1 (state horizon bounds the repeating rows; bolt.end ends the cast first)
+      for: 51      # max flight 50 + 1 (state horizon bounds the repeating trail row; bolt.end ends the cast first)
       then: end
       on:
         - {event: bolt.end, to: end}      # v2: the cast ends when the projectile body ends (manager ruling 2026-10-29)
@@ -37,25 +37,14 @@ machine:
               # GAP(Q1): max_count spelling A (required, `all` = v2 unlimited); under B delete the key
               - {id: st_evasive, op: status, target: {kind: allies, around: foe, radius: 4.0, max_count: all, include_self: true}, status: evasive, stacks: 1, for: 80}
               - {id: snd_hit, op: sound, sound: entity.generic.extinguish_fire, anchor: contact, volume: 0.8, pitch: 0.7}
-              # ten expanding rings, one per tick, radius 0.4 + 0.4 * k; large_smoke and smoke, 16 emits each
-              - id: ring
-                at: 0
-                every: 1
-                times: 10
-                do:
-                  - {id: big,   op: particle, particle: large_smoke, times: 16, at: 0, count: 0, offset: "= vec(cos((2*PI*i/16 + draw('shape_2_ph')*2*PI)), 0.0, -sin((2*PI*i/16 + draw('shape_2_ph')*2*PI)))", extra: 0.01, anchor: smoke_hit, shift: {left: "= (0.4 + 0.4 * parent.i) * cos((2*PI*i/16 + draw('shape_2_ph')*2*PI))", forward: "= -(0.4 + 0.4 * parent.i) * sin((2*PI*i/16 + draw('shape_2_ph')*2*PI))"}}
-                  - {id: small, op: particle, particle: smoke,       times: 16, at: 0, count: 0, offset: "= vec(cos((2*PI*i/16 + draw('shape_2_ph')*2*PI)), 0.0, -sin((2*PI*i/16 + draw('shape_2_ph')*2*PI)))", extra: 0.01, anchor: smoke_hit, shift: {left: "= (0.4 + 0.4 * parent.i) * cos((2*PI*i/16 + draw('shape_2_ph')*2*PI))", forward: "= -(0.4 + 0.4 * parent.i) * sin((2*PI*i/16 + draw('shape_2_ph')*2*PI))"}}
+              - {id: fx_big, op: particle, particle: large_smoke, anchor: smoke_hit, count: 0, extra: 0.01}
+              - {id: fx_small, op: particle, particle: smoke, anchor: smoke_hit, count: 0, extra: 0.01}
             block:
               # GAP(Q1): max_count spelling A (required, `all` = v2 unlimited); under B delete the key
               - {id: st_evasive, op: status, target: {kind: allies, around: contact, radius: 4.0, max_count: all, include_self: true}, status: evasive, stacks: 1, for: 80}
               - {id: snd_blk, op: sound, sound: entity.generic.extinguish_fire, anchor: contact, volume: 0.8, pitch: 0.7}
-              - id: ring
-                at: 0
-                every: 1
-                times: 10
-                do:
-                  - {id: big,   op: particle, particle: large_smoke, times: 16, at: 0, count: 0, offset: "= vec(cos((2*PI*i/16 + draw('shape_2_ph')*2*PI)), 0.0, -sin((2*PI*i/16 + draw('shape_2_ph')*2*PI)))", extra: 0.01, anchor: contact, shift: {left: "= (0.4 + 0.4 * parent.i) * cos((2*PI*i/16 + draw('shape_2_ph')*2*PI))", forward: "= -(0.4 + 0.4 * parent.i) * sin((2*PI*i/16 + draw('shape_2_ph')*2*PI))"}}
-                  - {id: small, op: particle, particle: smoke,       times: 16, at: 0, count: 0, offset: "= vec(cos((2*PI*i/16 + draw('shape_2_ph')*2*PI)), 0.0, -sin((2*PI*i/16 + draw('shape_2_ph')*2*PI)))", extra: 0.01, anchor: contact, shift: {left: "= (0.4 + 0.4 * parent.i) * cos((2*PI*i/16 + draw('shape_2_ph')*2*PI))", forward: "= -(0.4 + 0.4 * parent.i) * sin((2*PI*i/16 + draw('shape_2_ph')*2*PI))"}}
+              - {id: fx_big_blk, op: particle, particle: large_smoke, anchor: contact, count: 0, extra: 0.01}
+              - {id: fx_small_blk, op: particle, particle: smoke, anchor: contact, count: 0, extra: 0.01}
       do:
         - {id: trail, op: particle, particle: smoke, anchor: {of: bolt, sweep: 0.4}, count: 1, offset: [0.04, 0.04, 0.04], at: 0, every: 1, until: bolt.end}
     end: {final: true}
