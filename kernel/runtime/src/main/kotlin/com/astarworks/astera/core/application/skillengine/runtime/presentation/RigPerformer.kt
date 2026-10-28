@@ -353,9 +353,17 @@ internal class RigPerformer(
      */
     fun <T> atPartChunk(s: PresentationRuntime.CastState, f: (Int) -> T?): T? {
         val due = partDue ?: return null
-        applyRig(s, due.first)
+        return withPartFrame(s, due.first) { f(due.second) }
+    }
+
+    /**
+     * Runs [f] with the rig frame the way v1 poses a part at rig tick [rigTick]: the fixed pivot and the wrist rotation only, the
+     * arm never carries a part (v1 VfxRigPlanner.kt:263-268 `at(r)` uses `pivotWorld` and `rotationAt`, not `armAt`).
+     */
+    fun <T> withPartFrame(s: PresentationRuntime.CastState, rigTick: Int, f: () -> T): T {
+        s.ctx.tree.setLocal(FrameId(op.frame), Frame(op.pivot, motion.rotationAt(rigTick.toDouble())))
         try {
-            return f(due.second)
+            return f()
         } finally {
             applyRig(s, curRigTick)
         }

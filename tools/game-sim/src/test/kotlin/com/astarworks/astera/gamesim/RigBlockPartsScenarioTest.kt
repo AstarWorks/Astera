@@ -29,7 +29,7 @@ class RigBlockPartsScenarioTest {
         Triple(18, 2, doubleArrayOf(0.2418, 0.6645, -0.5417, 0.4545)),
     )
 
-    private fun skill(id: String, swingModels: String) = id to """
+    private fun skill(id: String, swingModels: String, hand: Boolean = false) = id to """
         apiVersion: "astera/v2"
         kind: Skill
         id: $id
@@ -51,7 +51,7 @@ class RigBlockPartsScenarioTest {
                   frame: sword
                   parent: at
                   duration: 22
-                  hand: false
+                  hand: $hand
                   pivot: [1.20091, 0.346845, 0.296323]
                   tilt: [0.0, 0.0, 20.0]
                   rest: [90.0, 0.0, 0.0]
@@ -82,12 +82,12 @@ class RigBlockPartsScenarioTest {
             - {id: fx22, at: 22, do: [{id: rm, op: remove, ids: [blade]}]}
     """.trimIndent()
 
-    private fun run(id: String, models: String = ""): Pair<CastSim, RecordingVisuals> {
+    private fun run(id: String, models: String = "", hand: Boolean = false): Pair<CastSim, RecordingVisuals> {
         lateinit var sim: CastSim
         val visuals = RecordingVisuals(now = { sim.now }, casterFeet = { Vec3.ZERO })
         sim = CastSim(
             victims = mapOf(simVictim(1) to Vec3(0.0, 0.0, 5.0)),
-            extraSkills = mapOf(skill(id, models)),
+            extraSkills = mapOf(skill(id, models, hand)),
             visualGateway = visuals,
         )
         sim.cast(id, 24)
@@ -110,6 +110,22 @@ class RigBlockPartsScenarioTest {
             assertThat(w.write.transform.scale.x).isEqualTo(0.4)
             assertThat(w.write.transform.scale.y).isEqualTo(2.6)
         }
+    }
+
+    @Test
+    fun `a hand rig's parts ignore the arm like v1 partPlan`() {
+        // v1 VfxRigPlanner.kt:263-268: part pose = pivotWorld + wrist rotation, never the arm (armAt is the weapon's only).
+        fun writes(v: RecordingVisuals): List<Triple<Int, Int, List<Double>>> {
+            val blade = v.calls.first { it.spawn }.handle
+            return v.calls.filter { it.handle == blade }.map {
+                val t = it.write.transform
+                Triple(it.tick, it.write.interpolationDuration, listOf(t.rotation.x, t.rotation.y, t.rotation.z, t.rotation.w, t.translation.x, t.translation.y, t.translation.z))
+            }
+        }
+        val flat = writes(run("t-rig-flat").second)
+        val hand = writes(run("t-rig-hand", hand = true).second)
+        assertThat(hand.map { it.first to it.second }).isEqualTo(flat.map { it.first to it.second })
+        for ((a, b) in flat.zip(hand)) for (i in a.third.indices) assertThat(b.third[i]).isCloseTo(a.third[i], org.assertj.core.data.Offset.offset(1e-9))
     }
 
     @Test
