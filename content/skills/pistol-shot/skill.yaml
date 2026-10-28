@@ -7,14 +7,14 @@ item: pistol
 meta: {name: {ja: "ピストル射撃", en: "Pistol Shot"}, description: {ja: "高速で直進する弾を撃つ。", en: "Fires a fast, flat-flying bullet."}, cooldown_ticks: 8, resource_cost: 1, tags: [ranged, gun]}
 frames:
   - {id: bolt, kind: body, parent: world, inactive: true}
-  - {id: pt_caster_eye_0_0_0p5, kind: point, parent: caster.eye, offset: [0.0, 0.0, 0.5]}
+  - {id: pt_aim_0_0_0p5, kind: point, parent: aim, offset: [0.0, 0.0, 0.5]}
 gameplay:
   params: {launch_speed: 3.2, max_lifetime_ticks: 30, dmg_physical: 25.0}
   expose:
     - {id: damage, param: dmg_physical}
     - {id: flight_speed, param: launch_speed}
   timeline:
-    - {id: t0, at: 0, do: [{id: bolt, op: projectile, body: bolt, from: pt_caster_eye_0_0_0p5, velocity: "= look(caster) * launch_speed", max_ticks: "${max_lifetime_ticks}", radius: 0.5}]}
+    - {id: t0, at: 0, do: [{id: bolt, op: projectile, body: bolt, from: pt_aim_0_0_0p5, velocity: "= look(caster) * launch_speed", max_ticks: "${max_lifetime_ticks}", radius: 0.5}]}
   "on":
     hit:
       - {id: dmg, op: damage, components: [{kind: physical, amount: "${dmg_physical}"}], target: victim}

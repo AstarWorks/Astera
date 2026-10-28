@@ -82,31 +82,31 @@ presentation:
           space: fx2_bastion_s2_fx_ring
           keys:
             - {t: 0, offset: [0.98, 0.77, -1.029], rotation: [136.0, -84.5, 45.87], scale: [0.4141, 0.4141, 1.0]}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_sheath_0, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-sheath, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_sheath_1, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-sheath, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_sheath_2, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-sheath, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_sheath_3, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-sheath, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_sheath_4, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-sheath, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_hot_0, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-sheath-hot, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_mid_0, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-sheath, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_steel_0, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-steel, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_steel_1, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-steel, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_fleck_0, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-fleck, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_trail, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-trail, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_csteel, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-steel, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_slash, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-slash, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_trail_2, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-trail, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_trail_3, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-trail, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_trail_4, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-trail, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_csteel_2, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-steel, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_tcrit, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-trail-crit, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_trail_5, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-trail, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_trail_6, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-trail, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_slash_2, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-slash, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_gather, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-gather-2, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_gather_2, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-gather-2, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_gather_3, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-gather-3, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_gather_4, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-gather-3, count: 1}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_sheath_0, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-sheath}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_sheath_1, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-sheath}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_sheath_2, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-sheath}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_sheath_3, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-sheath}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_sheath_4, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-sheath}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_hot_0, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-sheath-hot}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_mid_0, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-sheath}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_steel_0, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-steel}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_steel_1, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-steel}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_fleck_0, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-fleck}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_trail, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-trail}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_csteel, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-steel}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_slash, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-slash}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_trail_2, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-trail}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_trail_3, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-trail}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_trail_4, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-trail}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_csteel_2, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-steel}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_tcrit, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-trail-crit}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_trail_5, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-trail}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_trail_6, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-trail}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_slash_2, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-slash}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_gather, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-gather-2}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_gather_2, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-gather-2}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_gather_3, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-gather-3}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_gather_4, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-gather-3}
     - id: fx11
       at: 11
       do:
@@ -136,29 +136,29 @@ presentation:
             - {t: 0, offset: [0.5, 0.6, 1.2], rotation: [0, 0, 0], scale: [0.07812, 0.1, 1.0]}
             - {t: 1, offset: [0.5, 0.6, 1.2], rotation: [0, 0, 0], scale: [0.375, 0.1, 1.0]}
             - {t: 2, offset: [0.5, 0.6, 1.2], rotation: [0, 0, 0], scale: [0.2625, 0.02, 1.0]}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_trail_7, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-trail, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_csteel_3, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-steel, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_tcrit_2, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-trail-crit, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_slash_3, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-slash, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_trail_8, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-trail, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_trail_9, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-trail, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_trail_10, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-trail, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_csteel_4, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-steel, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_tcrit_3, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-trail-crit, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_trail_11, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-trail, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_trail_12, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-trail, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_slash_4, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-slash, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_trail_13, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-trail, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_csteel_5, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-steel, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_tcrit_4, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-trail-crit, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_trail_14, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-trail, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_trail_15, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-trail, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_trail_16, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-trail, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_csteel_6, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-steel, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_tcrit_5, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-trail-crit, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_slash_5, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-slash, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_gather_5, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-gather-1, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_gather_6, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-gather-1, count: 1}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_trail_7, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-trail}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_csteel_3, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-steel}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_tcrit_2, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-trail-crit}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_slash_3, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-slash}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_trail_8, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-trail}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_trail_9, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-trail}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_trail_10, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-trail}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_csteel_4, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-steel}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_tcrit_3, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-trail-crit}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_trail_11, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-trail}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_trail_12, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-trail}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_slash_4, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-slash}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_trail_13, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-trail}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_csteel_5, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-steel}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_tcrit_4, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-trail-crit}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_trail_14, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-trail}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_trail_15, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-trail}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_trail_16, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-trail}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_csteel_6, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-steel}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_tcrit_5, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-trail-crit}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_slash_5, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-slash}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_gather_5, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-gather-1}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_gather_6, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-gather-1}
     - id: fx13
       at: 13
       do:
@@ -223,46 +223,46 @@ presentation:
             - {t: 0, offset: [0.062, 1.773, 1.604], rotation: [0, 90, -4], scale: [0.09375, 0.32, 1.0]}
             - {t: 1, offset: [0.062, 1.773, 1.604], rotation: [0, 90, -4], scale: [0.875, 0.32, 1.0]}
             - {t: 6, offset: [0.062, 1.773, 1.604], rotation: [0, 90, -4], scale: [0.5625, 0.04, 1.0]}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_trail_17, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-trail, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_csteel_7, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-steel, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_tcrit_6, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-trail-crit, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_slash_6, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-slash, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_trail_18, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-trail, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_trail_19, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-trail, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_trail_20, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-trail, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_csteel_8, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-steel, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_tcrit_7, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-trail-crit, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_trail_21, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-trail, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_trail_22, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-trail, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_slash_7, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-slash, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_trail_23, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-trail, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_csteel_9, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-steel, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_tcrit_8, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-trail-crit, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_trail_24, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-trail, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_trail_25, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-trail, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_trail_26, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-trail, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_csteel_10, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-steel, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_tcrit_9, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-trail-crit, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_slash_8, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-slash, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_impact_dust, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-impact-dust, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_impact_crit, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-impact-crit, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_impact_ench, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-impact-enchant, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_impact_dust_2, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-impact-dust, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_impact_crit_2, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-impact-crit, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_impact_dust_3, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-impact-dust, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_impact_crit_3, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-impact-crit, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_puff, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-puff, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_poof, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-poof, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_ring, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-ring-crit, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_ring_2, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-ring-crit, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_ring_3, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-ring-crit, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_ring_4, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-ring-crit, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_ring_5, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-ring-crit, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_ring_6, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-ring-crit, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_ring_7, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-ring-crit, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_ring_8, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-ring-crit, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_ring_9, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-ring-crit, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_ring_10, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-ring-crit, count: 1}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_trail_17, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-trail}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_csteel_7, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-steel}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_tcrit_6, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-trail-crit}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_slash_6, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-slash}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_trail_18, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-trail}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_trail_19, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-trail}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_trail_20, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-trail}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_csteel_8, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-steel}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_tcrit_7, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-trail-crit}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_trail_21, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-trail}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_trail_22, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-trail}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_slash_7, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-slash}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_trail_23, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-trail}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_csteel_9, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-steel}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_tcrit_8, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-trail-crit}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_trail_24, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-trail}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_trail_25, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-trail}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_trail_26, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-trail}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_csteel_10, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-steel}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_tcrit_9, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-trail-crit}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_slash_8, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-slash}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_impact_dust, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-impact-dust}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_impact_crit, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-impact-crit}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_impact_ench, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-impact-enchant}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_impact_dust_2, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-impact-dust}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_impact_crit_2, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-impact-crit}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_impact_dust_3, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-impact-dust}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_impact_crit_3, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-impact-crit}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_puff, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-puff}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_poof, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-poof}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_ring, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-ring-crit}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_ring_2, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-ring-crit}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_ring_3, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-ring-crit}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_ring_4, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-ring-crit}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_ring_5, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-ring-crit}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_ring_6, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-ring-crit}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_ring_7, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-ring-crit}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_ring_8, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-ring-crit}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_ring_9, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-ring-crit}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_ring_10, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-ring-crit}
         - {id: snd_7, op: sound, sound: item.mace.smash_ground_heavy, at: caster, volume: 1.0, pitch: 0.9}
         - {id: snd_8, op: sound, sound: block.anvil.land, at: caster, volume: 0.8, pitch: 0.6}
         - {id: snd_9, op: sound, sound: entity.player.attack.crit, at: caster, volume: 1.0, pitch: 0.8}
@@ -276,16 +276,16 @@ presentation:
           space: fx2_bastion_s2_fx_ring
           keys:
             - {t: 0, offset: [-1.664, 0.593, -1.029], rotation: [136.0, -84.5, 45.87], scale: [0.4141, 0.4141, 1.0]}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_ring_11, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-ring-crit, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_ring_12, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-ring-crit, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_ring_13, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-ring-crit, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_ring_14, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-ring-crit, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_ring_15, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-ring-crit, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_ring_16, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-ring-crit, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_ring_17, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-ring-crit, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_ring_18, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-ring-crit, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_ring_19, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-ring-crit, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_ring_20, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-ring-crit, count: 1}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_ring_11, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-ring-crit}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_ring_12, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-ring-crit}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_ring_13, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-ring-crit}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_ring_14, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-ring-crit}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_ring_15, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-ring-crit}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_ring_16, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-ring-crit}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_ring_17, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-ring-crit}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_ring_18, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-ring-crit}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_ring_19, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-ring-crit}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_ring_20, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-ring-crit}
         - {id: rm_2, op: remove, ids: [fx2_bastion_s2_fx_ring_s2r_floor_fill]}
         - {id: snd_10, op: sound, sound: item.armor.equip_netherite, at: caster, volume: 0.9, pitch: 0.6}
         - {id: snd_11, op: sound, sound: block.chain.place, at: caster, volume: 0.8, pitch: 0.6}
@@ -299,99 +299,99 @@ presentation:
           space: fx2_bastion_s2_fx_ring
           keys:
             - {t: 0, offset: [-1.676, 0.776, 1.615], rotation: [136.0, -84.5, 45.87], scale: [0.4141, 0.4141, 1.0]}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_ring_21, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-ring-crit, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_ring_22, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-ring-crit, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_ring_23, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-ring-crit, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_ring_24, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-ring-crit, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_ring_25, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-ring-crit, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_ring_26, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-ring-crit, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_ring_27, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-ring-crit, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_ring_28, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-ring-crit, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_ring_29, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-ring-crit, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_ring_30, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-ring-crit, count: 1}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_ring_21, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-ring-crit}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_ring_22, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-ring-crit}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_ring_23, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-ring-crit}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_ring_24, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-ring-crit}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_ring_25, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-ring-crit}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_ring_26, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-ring-crit}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_ring_27, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-ring-crit}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_ring_28, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-ring-crit}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_ring_29, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-ring-crit}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_ring_30, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-ring-crit}
         - {id: rm_3, op: remove, ids: [fx2_bastion_s2_fx_ring_s2r_ink, fx2_bastion_s2_fx_ring_s2r_line_1]}
     - {id: fx16, at: 16, do: [{id: rm_4, op: remove, ids: [fx2_bastion_s2_fx_ring_s2r_line_2]}]}
     - {id: fx17, at: 17, do: [{id: rm_5, op: remove, ids: [fx2_bastion_s2_fx_ring_s2r_flash, fx2_bastion_s2_fx_ring_s2r_flash_x, fx2_bastion_s2_fx_ring_s2r_flash_f]}]}
     - id: fx18
       at: 18
       do:
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_gather_7, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-gather-3, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_gather_8, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-gather-3, count: 1}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_gather_7, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-gather-3}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_gather_8, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-gather-3}
     - id: fx19
       at: 19
       do:
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_gather_9, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-gather-2, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_gather_10, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-gather-2, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_gather_13, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-gather-3, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_gather_14, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-gather-3, count: 1}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_gather_9, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-gather-2}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_gather_10, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-gather-2}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_gather_13, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-gather-3}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_gather_14, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-gather-3}
         - {id: rm_6, op: remove, ids: [fx2_bastion_s2_fx_ring_s2r_streak_main, fx2_bastion_s2_fx_ring_s2r_streak_x]}
     - id: fx20
       at: 20
       do:
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_gather_11, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-gather-1, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_gather_12, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-gather-1, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_gather_15, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-gather-2, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_gather_16, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-gather-2, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_gather_19, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-gather-3, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_gather_20, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-gather-3, count: 1}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_gather_11, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-gather-1}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_gather_12, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-gather-1}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_gather_15, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-gather-2}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_gather_16, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-gather-2}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_gather_19, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-gather-3}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_gather_20, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-gather-3}
     - id: fx21
       at: 21
       do:
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_trail_27, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-trail, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_csteel_11, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-steel, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_tcrit_10, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-trail-crit, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_slash_9, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-slash, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_trail_28, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-trail, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_trail_29, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-trail, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_trail_30, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-trail, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_csteel_12, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-steel, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_tcrit_11, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-trail-crit, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_trail_31, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-trail, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_trail_32, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-trail, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_slash_10, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-slash, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_trail_33, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-trail, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_csteel_13, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-steel, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_tcrit_12, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-trail-crit, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_trail_34, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-trail, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_trail_35, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-trail, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_gather_17, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-gather-1, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_gather_18, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-gather-1, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_gather_21, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-gather-2, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_gather_22, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-gather-2, count: 1}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_trail_27, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-trail}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_csteel_11, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-steel}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_tcrit_10, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-trail-crit}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_slash_9, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-slash}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_trail_28, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-trail}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_trail_29, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-trail}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_trail_30, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-trail}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_csteel_12, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-steel}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_tcrit_11, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-trail-crit}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_trail_31, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-trail}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_trail_32, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-trail}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_slash_10, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-slash}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_trail_33, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-trail}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_csteel_13, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-steel}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_tcrit_12, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-trail-crit}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_trail_34, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-trail}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_trail_35, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-trail}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_gather_17, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-gather-1}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_gather_18, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-gather-1}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_gather_21, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-gather-2}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_gather_22, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-gather-2}
     - id: fx22
       at: 22
       do:
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_trail_36, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-trail, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_csteel_14, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-steel, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_tcrit_13, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-trail-crit, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_slash_11, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-slash, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_trail_37, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-trail, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_trail_38, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-trail, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_trail_39, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-trail, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_csteel_15, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-steel, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_tcrit_14, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-trail-crit, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_trail_40, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-trail, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_trail_41, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-trail, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_slash_12, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-slash, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_trail_42, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-trail, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_csteel_16, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-steel, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_tcrit_15, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-trail-crit, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_gather_23, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-gather-1, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_gather_24, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-gather-1, count: 1}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_trail_36, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-trail}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_csteel_14, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-steel}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_tcrit_13, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-trail-crit}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_slash_11, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-slash}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_trail_37, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-trail}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_trail_38, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-trail}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_trail_39, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-trail}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_csteel_15, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-steel}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_tcrit_14, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-trail-crit}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_trail_40, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-trail}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_trail_41, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-trail}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_slash_12, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-slash}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_trail_42, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-trail}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_csteel_16, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-steel}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_tcrit_15, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-trail-crit}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_gather_23, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-gather-1}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_gather_24, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-gather-1}
     - id: fx23
       at: 23
       do:
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_trail_43, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-trail, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_csteel_17, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-steel, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_tcrit_16, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-trail-crit, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_slash_13, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-slash, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_trail_44, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-trail, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_trail_45, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-trail, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_trail_46, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-trail, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_csteel_18, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-steel, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_tcrit_17, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-trail-crit, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_trail_47, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-trail, count: 1}
-        - {id: fx2_bastion_s2_fx_ring_s2r_p_slash_14, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-slash, count: 1}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_trail_43, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-trail}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_csteel_17, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-steel}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_tcrit_16, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-trail-crit}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_slash_13, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-slash}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_trail_44, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-trail}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_trail_45, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-trail}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_trail_46, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-trail}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_csteel_18, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-steel}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_tcrit_17, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-trail-crit}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_trail_47, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-trail}
+        - {id: fx2_bastion_s2_fx_ring_s2r_p_slash_14, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-slash}
         - {id: snd_12, op: sound, sound: item.armor.equip_iron, at: caster, volume: 1.0, pitch: 0.8}
     - {id: fx24, at: 24, do: [{id: rm_7, op: remove, ids: [fx2_bastion_s2_fx_ring_s2r_ring_q0, fx2_bastion_s2_fx_ring_s2r_ring_q1, fx2_bastion_s2_fx_ring_s2r_ring_q2, fx2_bastion_s2_fx_ring_s2r_ring_q3]}]}
     - id: fx27
@@ -415,31 +415,31 @@ presentation:
           space: fx3_bastion_s2_fx_ring
           keys:
             - {t: 0, offset: [0.98, 0.77, -1.029], rotation: [136.0, -84.5, 45.87], scale: [0.4141, 0.4141, 1.0]}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_sheath_0, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-sheath, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_sheath_1, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-sheath, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_sheath_2, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-sheath, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_sheath_3, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-sheath, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_sheath_4, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-sheath, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_hot_0, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-sheath-hot, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_mid_0, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-sheath, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_steel_0, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-steel, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_steel_1, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-steel, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_fleck_0, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-fleck, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_trail, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-trail, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_csteel, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-steel, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_slash, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-slash, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_trail_2, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-trail, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_trail_3, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-trail, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_trail_4, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-trail, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_csteel_2, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-steel, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_tcrit, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-trail-crit, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_trail_5, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-trail, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_trail_6, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-trail, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_slash_2, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-slash, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_gather, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-gather-2, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_gather_2, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-gather-2, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_gather_3, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-gather-3, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_gather_4, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-gather-3, count: 1}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_sheath_0, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-sheath}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_sheath_1, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-sheath}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_sheath_2, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-sheath}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_sheath_3, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-sheath}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_sheath_4, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-sheath}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_hot_0, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-sheath-hot}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_mid_0, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-sheath}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_steel_0, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-steel}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_steel_1, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-steel}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_fleck_0, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-fleck}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_trail, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-trail}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_csteel, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-steel}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_slash, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-slash}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_trail_2, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-trail}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_trail_3, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-trail}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_trail_4, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-trail}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_csteel_2, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-steel}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_tcrit, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-trail-crit}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_trail_5, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-trail}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_trail_6, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-trail}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_slash_2, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-slash}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_gather, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-gather-2}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_gather_2, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-gather-2}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_gather_3, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-gather-3}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_gather_4, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-gather-3}
     - id: fx30
       at: 30
       do:
@@ -469,29 +469,29 @@ presentation:
             - {t: 0, offset: [0.5, 0.6, 1.2], rotation: [0, 0, 0], scale: [0.07812, 0.1, 1.0]}
             - {t: 1, offset: [0.5, 0.6, 1.2], rotation: [0, 0, 0], scale: [0.375, 0.1, 1.0]}
             - {t: 2, offset: [0.5, 0.6, 1.2], rotation: [0, 0, 0], scale: [0.2625, 0.02, 1.0]}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_trail_7, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-trail, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_csteel_3, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-steel, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_tcrit_2, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-trail-crit, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_slash_3, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-slash, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_trail_8, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-trail, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_trail_9, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-trail, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_trail_10, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-trail, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_csteel_4, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-steel, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_tcrit_3, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-trail-crit, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_trail_11, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-trail, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_trail_12, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-trail, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_slash_4, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-slash, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_trail_13, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-trail, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_csteel_5, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-steel, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_tcrit_4, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-trail-crit, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_trail_14, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-trail, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_trail_15, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-trail, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_trail_16, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-trail, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_csteel_6, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-steel, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_tcrit_5, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-trail-crit, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_slash_5, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-slash, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_gather_5, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-gather-1, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_gather_6, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-gather-1, count: 1}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_trail_7, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-trail}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_csteel_3, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-steel}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_tcrit_2, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-trail-crit}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_slash_3, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-slash}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_trail_8, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-trail}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_trail_9, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-trail}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_trail_10, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-trail}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_csteel_4, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-steel}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_tcrit_3, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-trail-crit}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_trail_11, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-trail}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_trail_12, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-trail}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_slash_4, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-slash}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_trail_13, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-trail}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_csteel_5, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-steel}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_tcrit_4, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-trail-crit}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_trail_14, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-trail}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_trail_15, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-trail}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_trail_16, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-trail}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_csteel_6, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-steel}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_tcrit_5, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-trail-crit}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_slash_5, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-slash}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_gather_5, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-gather-1}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_gather_6, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-gather-1}
     - id: fx32
       at: 32
       do:
@@ -556,46 +556,46 @@ presentation:
             - {t: 0, offset: [0.062, 1.773, 1.604], rotation: [0, 90, -4], scale: [0.09375, 0.32, 1.0]}
             - {t: 1, offset: [0.062, 1.773, 1.604], rotation: [0, 90, -4], scale: [0.875, 0.32, 1.0]}
             - {t: 6, offset: [0.062, 1.773, 1.604], rotation: [0, 90, -4], scale: [0.5625, 0.04, 1.0]}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_trail_17, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-trail, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_csteel_7, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-steel, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_tcrit_6, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-trail-crit, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_slash_6, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-slash, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_trail_18, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-trail, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_trail_19, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-trail, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_trail_20, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-trail, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_csteel_8, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-steel, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_tcrit_7, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-trail-crit, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_trail_21, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-trail, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_trail_22, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-trail, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_slash_7, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-slash, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_trail_23, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-trail, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_csteel_9, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-steel, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_tcrit_8, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-trail-crit, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_trail_24, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-trail, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_trail_25, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-trail, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_trail_26, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-trail, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_csteel_10, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-steel, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_tcrit_9, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-trail-crit, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_slash_8, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-slash, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_impact_dust, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-impact-dust, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_impact_crit, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-impact-crit, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_impact_ench, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-impact-enchant, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_impact_dust_2, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-impact-dust, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_impact_crit_2, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-impact-crit, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_impact_dust_3, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-impact-dust, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_impact_crit_3, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-impact-crit, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_puff, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-puff, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_poof, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-poof, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_ring, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-ring-crit, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_ring_2, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-ring-crit, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_ring_3, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-ring-crit, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_ring_4, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-ring-crit, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_ring_5, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-ring-crit, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_ring_6, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-ring-crit, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_ring_7, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-ring-crit, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_ring_8, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-ring-crit, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_ring_9, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-ring-crit, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_ring_10, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-ring-crit, count: 1}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_trail_17, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-trail}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_csteel_7, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-steel}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_tcrit_6, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-trail-crit}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_slash_6, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-slash}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_trail_18, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-trail}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_trail_19, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-trail}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_trail_20, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-trail}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_csteel_8, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-steel}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_tcrit_7, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-trail-crit}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_trail_21, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-trail}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_trail_22, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-trail}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_slash_7, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-slash}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_trail_23, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-trail}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_csteel_9, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-steel}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_tcrit_8, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-trail-crit}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_trail_24, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-trail}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_trail_25, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-trail}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_trail_26, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-trail}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_csteel_10, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-steel}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_tcrit_9, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-trail-crit}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_slash_8, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-slash}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_impact_dust, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-impact-dust}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_impact_crit, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-impact-crit}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_impact_ench, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-impact-enchant}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_impact_dust_2, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-impact-dust}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_impact_crit_2, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-impact-crit}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_impact_dust_3, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-impact-dust}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_impact_crit_3, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-impact-crit}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_puff, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-puff}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_poof, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-poof}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_ring, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-ring-crit}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_ring_2, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-ring-crit}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_ring_3, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-ring-crit}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_ring_4, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-ring-crit}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_ring_5, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-ring-crit}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_ring_6, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-ring-crit}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_ring_7, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-ring-crit}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_ring_8, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-ring-crit}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_ring_9, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-ring-crit}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_ring_10, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-ring-crit}
         - {id: snd_18, op: sound, sound: item.mace.smash_ground_heavy, at: caster, volume: 1.0, pitch: 0.7}
         - {id: snd_19, op: sound, sound: block.anvil.land, at: caster, volume: 0.8, pitch: 0.5}
         - {id: snd_20, op: sound, sound: entity.player.attack.crit, at: caster, volume: 1.0, pitch: 0.65}
@@ -611,16 +611,16 @@ presentation:
           space: fx3_bastion_s2_fx_ring
           keys:
             - {t: 0, offset: [-1.664, 0.593, -1.029], rotation: [136.0, -84.5, 45.87], scale: [0.4141, 0.4141, 1.0]}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_ring_11, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-ring-crit, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_ring_12, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-ring-crit, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_ring_13, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-ring-crit, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_ring_14, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-ring-crit, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_ring_15, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-ring-crit, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_ring_16, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-ring-crit, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_ring_17, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-ring-crit, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_ring_18, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-ring-crit, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_ring_19, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-ring-crit, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_ring_20, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-ring-crit, count: 1}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_ring_11, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-ring-crit}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_ring_12, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-ring-crit}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_ring_13, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-ring-crit}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_ring_14, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-ring-crit}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_ring_15, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-ring-crit}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_ring_16, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-ring-crit}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_ring_17, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-ring-crit}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_ring_18, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-ring-crit}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_ring_19, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-ring-crit}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_ring_20, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-ring-crit}
         - {id: rm_8, op: remove, ids: [fx3_bastion_s2_fx_ring_s2r_floor_fill]}
         - {id: snd_23, op: sound, sound: item.armor.equip_netherite, at: caster, volume: 0.9, pitch: 0.6}
         - {id: snd_24, op: sound, sound: block.chain.place, at: caster, volume: 0.8, pitch: 0.6}
@@ -634,100 +634,100 @@ presentation:
           space: fx3_bastion_s2_fx_ring
           keys:
             - {t: 0, offset: [-1.676, 0.776, 1.615], rotation: [136.0, -84.5, 45.87], scale: [0.4141, 0.4141, 1.0]}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_ring_21, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-ring-crit, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_ring_22, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-ring-crit, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_ring_23, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-ring-crit, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_ring_24, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-ring-crit, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_ring_25, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-ring-crit, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_ring_26, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-ring-crit, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_ring_27, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-ring-crit, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_ring_28, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-ring-crit, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_ring_29, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-ring-crit, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_ring_30, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-ring-crit, count: 1}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_ring_21, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-ring-crit}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_ring_22, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-ring-crit}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_ring_23, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-ring-crit}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_ring_24, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-ring-crit}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_ring_25, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-ring-crit}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_ring_26, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-ring-crit}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_ring_27, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-ring-crit}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_ring_28, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-ring-crit}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_ring_29, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-ring-crit}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_ring_30, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-ring-crit}
         - {id: rm_9, op: remove, ids: [fx3_bastion_s2_fx_ring_s2r_ink, fx3_bastion_s2_fx_ring_s2r_line_1]}
     - {id: fx35, at: 35, do: [{id: rm_10, op: remove, ids: [fx3_bastion_s2_fx_ring_s2r_line_2]}]}
     - {id: fx36, at: 36, do: [{id: rm_11, op: remove, ids: [fx3_bastion_s2_fx_ring_s2r_flash, fx3_bastion_s2_fx_ring_s2r_flash_x, fx3_bastion_s2_fx_ring_s2r_flash_f]}]}
     - id: fx37
       at: 37
       do:
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_gather_7, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-gather-3, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_gather_8, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-gather-3, count: 1}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_gather_7, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-gather-3}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_gather_8, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-gather-3}
     - id: fx38
       at: 38
       do:
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_gather_9, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-gather-2, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_gather_10, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-gather-2, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_gather_13, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-gather-3, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_gather_14, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-gather-3, count: 1}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_gather_9, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-gather-2}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_gather_10, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-gather-2}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_gather_13, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-gather-3}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_gather_14, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-gather-3}
         - {id: rm_12, op: remove, ids: [fx3_bastion_s2_fx_ring_s2r_streak_main, fx3_bastion_s2_fx_ring_s2r_streak_x]}
     - id: fx39
       at: 39
       do:
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_gather_11, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-gather-1, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_gather_12, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-gather-1, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_gather_15, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-gather-2, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_gather_16, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-gather-2, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_gather_19, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-gather-3, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_gather_20, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-gather-3, count: 1}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_gather_11, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-gather-1}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_gather_12, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-gather-1}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_gather_15, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-gather-2}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_gather_16, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-gather-2}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_gather_19, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-gather-3}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_gather_20, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-gather-3}
     - id: fx40
       at: 40
       do:
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_trail_27, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-trail, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_csteel_11, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-steel, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_tcrit_10, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-trail-crit, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_slash_9, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-slash, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_trail_28, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-trail, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_trail_29, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-trail, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_trail_30, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-trail, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_csteel_12, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-steel, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_tcrit_11, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-trail-crit, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_trail_31, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-trail, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_trail_32, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-trail, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_slash_10, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-slash, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_trail_33, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-trail, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_csteel_13, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-steel, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_tcrit_12, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-trail-crit, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_trail_34, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-trail, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_trail_35, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-trail, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_gather_17, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-gather-1, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_gather_18, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-gather-1, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_gather_21, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-gather-2, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_gather_22, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-gather-2, count: 1}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_trail_27, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-trail}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_csteel_11, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-steel}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_tcrit_10, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-trail-crit}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_slash_9, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-slash}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_trail_28, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-trail}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_trail_29, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-trail}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_trail_30, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-trail}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_csteel_12, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-steel}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_tcrit_11, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-trail-crit}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_trail_31, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-trail}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_trail_32, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-trail}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_slash_10, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-slash}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_trail_33, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-trail}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_csteel_13, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-steel}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_tcrit_12, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-trail-crit}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_trail_34, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-trail}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_trail_35, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-trail}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_gather_17, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-gather-1}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_gather_18, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-gather-1}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_gather_21, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-gather-2}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_gather_22, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-gather-2}
     - id: fx41
       at: 41
       do:
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_trail_36, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-trail, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_csteel_14, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-steel, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_tcrit_13, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-trail-crit, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_slash_11, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-slash, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_trail_37, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-trail, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_trail_38, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-trail, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_trail_39, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-trail, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_csteel_15, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-steel, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_tcrit_14, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-trail-crit, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_trail_40, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-trail, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_trail_41, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-trail, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_slash_12, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-slash, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_trail_42, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-trail, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_csteel_16, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-steel, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_tcrit_15, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-trail-crit, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_gather_23, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-gather-1, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_gather_24, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-gather-1, count: 1}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_trail_36, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-trail}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_csteel_14, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-steel}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_tcrit_13, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-trail-crit}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_slash_11, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-slash}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_trail_37, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-trail}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_trail_38, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-trail}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_trail_39, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-trail}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_csteel_15, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-steel}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_tcrit_14, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-trail-crit}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_trail_40, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-trail}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_trail_41, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-trail}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_slash_12, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-slash}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_trail_42, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-trail}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_csteel_16, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-steel}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_tcrit_15, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-trail-crit}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_gather_23, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-gather-1}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_gather_24, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-gather-1}
         - {id: snd_25, op: sound, sound: item.armor.equip_netherite, at: caster, volume: 0.9, pitch: 0.5}
     - id: fx42
       at: 42
       do:
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_trail_43, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-trail, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_csteel_17, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-steel, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_tcrit_16, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-trail-crit, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_slash_13, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-slash, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_trail_44, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-trail, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_trail_45, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-trail, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_trail_46, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-trail, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_csteel_18, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-steel, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_tcrit_17, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-trail-crit, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_trail_47, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-trail, count: 1}
-        - {id: fx3_bastion_s2_fx_ring_s2r_p_slash_14, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-slash, count: 1}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_trail_43, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-trail}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_csteel_17, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-steel}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_tcrit_16, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-trail-crit}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_slash_13, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-slash}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_trail_44, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-trail}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_trail_45, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-trail}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_trail_46, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-trail}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_csteel_18, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-steel}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_tcrit_17, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-trail-crit}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_trail_47, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-trail}
+        - {id: fx3_bastion_s2_fx_ring_s2r_p_slash_14, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-slash}
         - {id: snd_26, op: sound, sound: block.chain.place, at: caster, volume: 0.8, pitch: 0.5}
     - id: fx43
       at: 43
@@ -742,7 +742,7 @@ presentation:
     - id: fx50
       at: 50
       do:
-        - {id: fx4_bastion_s2_fx_chop_s2c_p_steel_top, op: emit, at: fx4_bastion_s2_fx_chop, particle: bastion-s1-p-steel, count: 1}
+        - {id: fx4_bastion_s2_fx_chop_s2c_p_steel_top, op: emit, at: fx4_bastion_s2_fx_chop, particle: bastion-s1-p-steel}
         - {id: snd_30, op: sound, sound: entity.player.attack.sweep, at: caster, volume: 1.0, pitch: 0.4}
         - {id: snd_31, op: sound, sound: item.trident.throw, at: caster, volume: 0.9, pitch: 0.4}
         - {id: snd_32, op: sound, sound: entity.ravager.roar, at: caster, volume: 0.5, pitch: 0.5}
@@ -767,7 +767,7 @@ presentation:
             - {t: 0, offset: [0.0, 2.6, 0.3], rotation: [0, -90, 90], scale: [0.05, 0.2, 1.0]}
             - {t: 2, offset: [0.0, 1.6, 1.3], rotation: [0, -90, 90], scale: [0.8, 0.3, 1.0]}
             - {t: 7, offset: [0.0, 1.2, 1.6], rotation: [0, -90, 90], scale: [0.6, 0.03, 1.0]}
-        - {id: fx4_bastion_s2_fx_chop_s2c_p_steel_mid, op: emit, at: fx4_bastion_s2_fx_chop, particle: bastion-s1-p-steel, count: 1}
+        - {id: fx4_bastion_s2_fx_chop_s2c_p_steel_mid, op: emit, at: fx4_bastion_s2_fx_chop, particle: bastion-s1-p-steel}
     - id: fx52
       at: 52
       do:
@@ -789,7 +789,7 @@ presentation:
             - {t: 0, offset: [0.0, 1.5, 1.55], rotation: [0, -90, -90], scale: [0.3, 0.3, 1.0]}
             - {t: 1, offset: [0.0, 1.5, 1.6], rotation: [0, -90, -90], scale: [0.5, 0.5, 1.0]}
             - {t: 7, offset: [0.0, 1.2, 1.7], rotation: [0, -90, -90], scale: [0.46, 0.2, 1.0]}
-        - {id: fx4_bastion_s2_fx_chop_s2c_p_steel_low, op: emit, at: fx4_bastion_s2_fx_chop, particle: bastion-s1-p-steel, count: 1}
+        - {id: fx4_bastion_s2_fx_chop_s2c_p_steel_low, op: emit, at: fx4_bastion_s2_fx_chop, particle: bastion-s1-p-steel}
     - id: fx53
       at: 53
       do:
@@ -823,7 +823,7 @@ presentation:
           space: fx4_bastion_s2_fx_chop
           keys:
             - {t: 0, offset: [0.0, 0.03, 2.2], rotation: [-90, 0, 0], scale: [0.6, 0.6, 1.0]}
-        - {id: fx4_bastion_s2_fx_chop_s2c_p_crit, op: emit, at: fx4_bastion_s2_fx_chop, particle: bastion-s1-p-impact-crit, count: 1}
+        - {id: fx4_bastion_s2_fx_chop_s2c_p_crit, op: emit, at: fx4_bastion_s2_fx_chop, particle: bastion-s1-p-impact-crit}
         - {id: snd_33, op: sound, sound: item.mace.smash_ground_heavy, at: caster, volume: 1.0, pitch: 0.6}
         - {id: snd_34, op: sound, sound: block.anvil.land, at: caster, volume: 1.0, pitch: 0.45}
         - {id: snd_35, op: sound, sound: entity.player.attack.crit, at: caster, volume: 1.0, pitch: 0.55}
@@ -844,31 +844,31 @@ presentation:
     - {id: fx59, at: 59, do: [{id: rm_18, op: remove, ids: [fx4_bastion_s2_fx_chop_s2c_cres_a, fx4_bastion_s2_fx_chop_s2c_cres_b]}]}
     - {id: fx64, at: 64, do: [{id: snd_42, op: sound, sound: item.armor.equip_iron, at: caster, volume: 0.9, pitch: 0.6}]}
     - {id: fx80, at: 80, do: [{id: rm, op: remove, ids: [fx1_bastion_s2_rig_sword_weapon]}]}
-    - {id: loop1, at: 12, every: 1, for: 12, do: [{id: fx2_bastion_s2_fx_ring_s2r_p_sheath_0_2, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-sheath, count: 1}]}
-    - {id: loop2, at: 12, every: 1, for: 12, do: [{id: fx2_bastion_s2_fx_ring_s2r_p_sheath_1_2, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-sheath, count: 1}]}
-    - {id: loop3, at: 12, every: 1, for: 12, do: [{id: fx2_bastion_s2_fx_ring_s2r_p_sheath_2_2, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-sheath, count: 1}]}
-    - {id: loop4, at: 12, every: 1, for: 12, do: [{id: fx2_bastion_s2_fx_ring_s2r_p_sheath_3_2, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-sheath, count: 1}]}
-    - {id: loop5, at: 12, every: 1, for: 11, do: [{id: fx2_bastion_s2_fx_ring_s2r_p_sheath_4_2, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-sheath, count: 1}]}
-    - {id: loop6, at: 12, every: 1, for: 12, do: [{id: fx2_bastion_s2_fx_ring_s2r_p_hot_0_2, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-sheath-hot, count: 1}]}
-    - {id: loop7, at: 12, every: 1, for: 12, do: [{id: fx2_bastion_s2_fx_ring_s2r_p_mid_0_2, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-sheath, count: 1}]}
-    - {id: loop8, at: 12, every: 1, for: 12, do: [{id: fx2_bastion_s2_fx_ring_s2r_p_steel_0_2, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-steel, count: 1}]}
-    - {id: loop9, at: 12, every: 1, for: 12, do: [{id: fx2_bastion_s2_fx_ring_s2r_p_steel_1_2, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-steel, count: 1}]}
-    - {id: loop10, at: 12, every: 1, for: 12, do: [{id: fx2_bastion_s2_fx_ring_s2r_p_fleck_0_2, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-fleck, count: 1}]}
-    - {id: loop11, at: 31, every: 1, for: 12, do: [{id: fx3_bastion_s2_fx_ring_s2r_p_sheath_0_2, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-sheath, count: 1}]}
-    - {id: loop12, at: 31, every: 1, for: 12, do: [{id: fx3_bastion_s2_fx_ring_s2r_p_sheath_1_2, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-sheath, count: 1}]}
-    - {id: loop13, at: 31, every: 1, for: 12, do: [{id: fx3_bastion_s2_fx_ring_s2r_p_sheath_2_2, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-sheath, count: 1}]}
-    - {id: loop14, at: 31, every: 1, for: 12, do: [{id: fx3_bastion_s2_fx_ring_s2r_p_sheath_3_2, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-sheath, count: 1}]}
-    - {id: loop15, at: 31, every: 1, for: 11, do: [{id: fx3_bastion_s2_fx_ring_s2r_p_sheath_4_2, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-sheath, count: 1}]}
-    - {id: loop16, at: 31, every: 1, for: 12, do: [{id: fx3_bastion_s2_fx_ring_s2r_p_hot_0_2, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-sheath-hot, count: 1}]}
-    - {id: loop17, at: 31, every: 1, for: 12, do: [{id: fx3_bastion_s2_fx_ring_s2r_p_mid_0_2, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-sheath, count: 1}]}
-    - {id: loop18, at: 31, every: 1, for: 12, do: [{id: fx3_bastion_s2_fx_ring_s2r_p_steel_0_2, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-steel, count: 1}]}
-    - {id: loop19, at: 31, every: 1, for: 12, do: [{id: fx3_bastion_s2_fx_ring_s2r_p_steel_1_2, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-steel, count: 1}]}
-    - {id: loop20, at: 31, every: 1, for: 12, do: [{id: fx3_bastion_s2_fx_ring_s2r_p_fleck_0_2, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-fleck, count: 1}]}
-    - {id: loop21, at: 49, every: 1, for: 3, do: [{id: fx4_bastion_s2_fx_chop_s2c_p_gather, op: emit, at: fx4_bastion_s2_fx_chop, particle: bastion-s1-p-gather-1, count: 1}]}
-    - {id: loop22, at: 51, every: 1, for: 3, do: [{id: fx4_bastion_s2_fx_chop_s2c_p_trail_crit, op: emit, at: fx4_bastion_s2_fx_chop, particle: bastion-s1-p-trail-crit, count: 1}]}
-    - {id: loop23, at: 53, every: 1, for: 2, do: [{id: fx4_bastion_s2_fx_chop_s2c_p_flame, op: emit, at: fx4_bastion_s2_fx_chop, particle: bastion-s1-p-impact-flame, count: 1}]}
-    - {id: loop24, at: 53, every: 1, for: 3, do: [{id: fx4_bastion_s2_fx_chop_s2c_p_enchant, op: emit, at: fx4_bastion_s2_fx_chop, particle: bastion-s1-p-impact-enchant, count: 1}]}
-    - {id: loop25, at: 53, every: 1, for: 2, do: [{id: fx4_bastion_s2_fx_chop_s2c_p_dust, op: emit, at: fx4_bastion_s2_fx_chop, particle: bastion-s1-p-impact-dust, count: 1}]}
-    - {id: loop26, at: 54, every: 2, for: 4, do: [{id: fx4_bastion_s2_fx_chop_s2c_p_smoke, op: emit, at: fx4_bastion_s2_fx_chop, particle: bastion-s1-p-impact-smoke, count: 1}]}
-    - {id: loop27, at: 54, every: 2, for: 7, do: [{id: fx4_bastion_s2_fx_chop_s2c_p_ash, op: emit, at: fx4_bastion_s2_fx_chop, particle: bastion-s1-p-ash, count: 1}]}
-    - {id: loop28, at: 54, every: 2, for: 5, do: [{id: fx4_bastion_s2_fx_chop_s2c_p_after, op: emit, at: fx4_bastion_s2_fx_chop, particle: bastion-s1-p-afterglow, count: 1}]}
+    - {id: loop1, at: 12, every: 1, for: 12, do: [{id: fx2_bastion_s2_fx_ring_s2r_p_sheath_0_2, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-sheath}]}
+    - {id: loop2, at: 12, every: 1, for: 12, do: [{id: fx2_bastion_s2_fx_ring_s2r_p_sheath_1_2, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-sheath}]}
+    - {id: loop3, at: 12, every: 1, for: 12, do: [{id: fx2_bastion_s2_fx_ring_s2r_p_sheath_2_2, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-sheath}]}
+    - {id: loop4, at: 12, every: 1, for: 12, do: [{id: fx2_bastion_s2_fx_ring_s2r_p_sheath_3_2, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-sheath}]}
+    - {id: loop5, at: 12, every: 1, for: 11, do: [{id: fx2_bastion_s2_fx_ring_s2r_p_sheath_4_2, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-sheath}]}
+    - {id: loop6, at: 12, every: 1, for: 12, do: [{id: fx2_bastion_s2_fx_ring_s2r_p_hot_0_2, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-sheath-hot}]}
+    - {id: loop7, at: 12, every: 1, for: 12, do: [{id: fx2_bastion_s2_fx_ring_s2r_p_mid_0_2, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-sheath}]}
+    - {id: loop8, at: 12, every: 1, for: 12, do: [{id: fx2_bastion_s2_fx_ring_s2r_p_steel_0_2, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-steel}]}
+    - {id: loop9, at: 12, every: 1, for: 12, do: [{id: fx2_bastion_s2_fx_ring_s2r_p_steel_1_2, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-steel}]}
+    - {id: loop10, at: 12, every: 1, for: 12, do: [{id: fx2_bastion_s2_fx_ring_s2r_p_fleck_0_2, op: emit, at: fx2_bastion_s2_fx_ring, particle: bastion-s1-p-fleck}]}
+    - {id: loop11, at: 31, every: 1, for: 12, do: [{id: fx3_bastion_s2_fx_ring_s2r_p_sheath_0_2, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-sheath}]}
+    - {id: loop12, at: 31, every: 1, for: 12, do: [{id: fx3_bastion_s2_fx_ring_s2r_p_sheath_1_2, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-sheath}]}
+    - {id: loop13, at: 31, every: 1, for: 12, do: [{id: fx3_bastion_s2_fx_ring_s2r_p_sheath_2_2, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-sheath}]}
+    - {id: loop14, at: 31, every: 1, for: 12, do: [{id: fx3_bastion_s2_fx_ring_s2r_p_sheath_3_2, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-sheath}]}
+    - {id: loop15, at: 31, every: 1, for: 11, do: [{id: fx3_bastion_s2_fx_ring_s2r_p_sheath_4_2, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-sheath}]}
+    - {id: loop16, at: 31, every: 1, for: 12, do: [{id: fx3_bastion_s2_fx_ring_s2r_p_hot_0_2, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-sheath-hot}]}
+    - {id: loop17, at: 31, every: 1, for: 12, do: [{id: fx3_bastion_s2_fx_ring_s2r_p_mid_0_2, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-sheath}]}
+    - {id: loop18, at: 31, every: 1, for: 12, do: [{id: fx3_bastion_s2_fx_ring_s2r_p_steel_0_2, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-steel}]}
+    - {id: loop19, at: 31, every: 1, for: 12, do: [{id: fx3_bastion_s2_fx_ring_s2r_p_steel_1_2, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-steel}]}
+    - {id: loop20, at: 31, every: 1, for: 12, do: [{id: fx3_bastion_s2_fx_ring_s2r_p_fleck_0_2, op: emit, at: fx3_bastion_s2_fx_ring, particle: bastion-s1-p-fleck}]}
+    - {id: loop21, at: 49, every: 1, for: 3, do: [{id: fx4_bastion_s2_fx_chop_s2c_p_gather, op: emit, at: fx4_bastion_s2_fx_chop, particle: bastion-s1-p-gather-1}]}
+    - {id: loop22, at: 51, every: 1, for: 3, do: [{id: fx4_bastion_s2_fx_chop_s2c_p_trail_crit, op: emit, at: fx4_bastion_s2_fx_chop, particle: bastion-s1-p-trail-crit}]}
+    - {id: loop23, at: 53, every: 1, for: 2, do: [{id: fx4_bastion_s2_fx_chop_s2c_p_flame, op: emit, at: fx4_bastion_s2_fx_chop, particle: bastion-s1-p-impact-flame}]}
+    - {id: loop24, at: 53, every: 1, for: 3, do: [{id: fx4_bastion_s2_fx_chop_s2c_p_enchant, op: emit, at: fx4_bastion_s2_fx_chop, particle: bastion-s1-p-impact-enchant}]}
+    - {id: loop25, at: 53, every: 1, for: 2, do: [{id: fx4_bastion_s2_fx_chop_s2c_p_dust, op: emit, at: fx4_bastion_s2_fx_chop, particle: bastion-s1-p-impact-dust}]}
+    - {id: loop26, at: 54, every: 2, for: 4, do: [{id: fx4_bastion_s2_fx_chop_s2c_p_smoke, op: emit, at: fx4_bastion_s2_fx_chop, particle: bastion-s1-p-impact-smoke}]}
+    - {id: loop27, at: 54, every: 2, for: 7, do: [{id: fx4_bastion_s2_fx_chop_s2c_p_ash, op: emit, at: fx4_bastion_s2_fx_chop, particle: bastion-s1-p-ash}]}
+    - {id: loop28, at: 54, every: 2, for: 5, do: [{id: fx4_bastion_s2_fx_chop_s2c_p_after, op: emit, at: fx4_bastion_s2_fx_chop, particle: bastion-s1-p-afterglow}]}

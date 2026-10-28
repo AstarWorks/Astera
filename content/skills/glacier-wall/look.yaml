@@ -5,6 +5,4 @@ kind: Skill
 id: glacier-wall
 frames:
   - {id: pt_caster_0_0p2_2, kind: point, parent: caster, offset: [0.0, 0.2, 2.0]}
-presentation:
-  timeline:
-    - {id: fx0, at: 0, do: [{id: snd, op: sound, sound: "astera:skills/frost-cast", at: caster, volume: 1.0, pitch: 1.0}, {id: emit, op: emit, at: pt_caster_0_0p2_2, particle: frost-cast, count: 1}]}
+presentation: {timeline: [{id: fx0, at: 0, do: [{id: snd, op: sound, sound: "astera:skills/frost-cast", at: caster, volume: 1.0, pitch: 1.0}, {id: emit, op: emit, at: pt_caster_0_0p2_2, particle: frost-cast}]}]}

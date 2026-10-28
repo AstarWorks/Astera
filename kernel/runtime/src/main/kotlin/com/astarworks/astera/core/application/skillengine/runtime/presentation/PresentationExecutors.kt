@@ -129,16 +129,16 @@ internal class EmitExecutor(private val rt: PresentationRuntime) : OpExecutor<Fx
         val s = rt.state(ctx)
         val at = rt.pointWorld(s, op.at) ?: return
         val inherit = op.inheritVelocity?.let { ctx.values.num(it) }
-        val count = ctx.values.num(op.count).roundToInt().coerceAtLeast(0)
+        val count = op.count?.let { ctx.values.num(it).roundToInt().coerceAtLeast(0) }
         val dir = op.dir?.let { ctx.values.vec3(it) }
         val spreadDeg = ctx.num(op.spreadDeg, 0.0)
-        val speed = ctx.num(op.speed, 0.3)
+        val speed = ctx.num(op.speed, 0.0)
         val inheritVelocity = inherit?.let { rt.velocityOf(s, op.at.frame) * it }
-        val colorHex = op.color?.let { ctx.values.text(it) }
+        val colorHex = op.data?.let { ctx.values.text(it) }
+        val dataSize = op.dataSize?.let { ctx.values.num(it) }
         val seed = ctx.cast.value * 31L + (op.seed ?: op.id).hashCode().toLong()
-        val vanilla = op.extra != null || op.offset != null
-        val offset = op.offset?.let { ctx.values.vec3(it) }
-        val extra = ctx.num(op.extra, 0.0)
+        val offset = op.offset?.let { ctx.values.vec3(it) } ?: Vec3(0.0, 0.0, 0.0)
+        val look = ctx.host.lookDirection()
         val spacing = op.spacing?.let { ctx.values.num(it) } ?: 0.0
         val sweep = if (spacing > 0.0) rt.velocityOf(s, op.at.frame) else Vec3(0.0, 0.0, 0.0)
         val distance = sweep.length()
@@ -148,9 +148,9 @@ internal class EmitExecutor(private val rt: PresentationRuntime) : OpExecutor<Fx
             val where = if (steps == 1) at else at - sweep * (1.0 - i.toDouble() / steps)
             ctx.ports.particles.emit(
                 ParticleBurst(
-                    particle = op.particle, at = where, count = count, dir = dir, spreadDeg = spreadDeg, speed = speed,
-                    inheritVelocity = inheritVelocity, colorHex = colorHex, seed = seed + (i - 1),
-                    vanilla = vanilla, offset = offset, extra = extra,
+                    particle = op.particle, at = where, count = count, offset = offset, speed = speed,
+                    colorHex = colorHex, dataSize = dataSize, dir = dir, spreadDeg = spreadDeg,
+                    inheritVelocity = inheritVelocity, look = look, seed = seed + (i - 1),
                 ),
             )
         }
@@ -165,7 +165,7 @@ internal class SoundExecutor(private val rt: PresentationRuntime) : OpExecutor<F
         val until = op.untilEvent
         if (until != null && rt.info.hasRaised(ctx.cast, until)) return
         val startTick = s.tick
-        val play = {
+        val play = { elapsed: Int ->
             val at = rt.pointWorld(s, op.at)
             if (at != null) {
                 val from = ctx.num(op.pitch, 1.0)
@@ -173,17 +173,17 @@ internal class SoundExecutor(private val rt: PresentationRuntime) : OpExecutor<F
                 val pitch = if (op.pitchTo != null && over != null && over > 0) {
                     // v1 PitchArc exactly: eased glide, clamped to the vanilla 0.5..2.0 range.
                     val ease = op.pitchEase?.let { Easing.fromKey(it) } ?: Easing.LINEAR
-                    SoundPlanner.pitchAt(PitchArc(from, ctx.num(op.pitchTo, from), over, ease), s.tick - startTick)
+                    SoundPlanner.pitchAt(PitchArc(from, ctx.num(op.pitchTo, from), over, ease), elapsed)
                 } else from
                 ctx.ports.sounds.play(op.sound, at, ctx.num(op.volume, 1.0).coerceAtLeast(0.0), pitch)
             }
         }
-        play()
+        play(0)
         val every = op.everyTicks
         if (every != null && every > 0) {
             val arcOver = op.overTicks
             val arcEnd = if (op.pitchTo != null && arcOver != null && arcOver > 0) startTick + arcOver else null
-            s.sounds[op.id] = PresentationRuntime.SoundTask(op.id, every, until, minOf(s.tick + every, arcEnd ?: Int.MAX_VALUE), play, arcEnd)
+            s.sounds[op.id] = PresentationRuntime.SoundTask(op.id, every, until, startTick, minOf(startTick + every, arcEnd ?: Int.MAX_VALUE), play, arcEnd)
         }
     }
 }

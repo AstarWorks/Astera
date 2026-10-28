@@ -8,9 +8,9 @@ frames:
   - {id: pt_enemy_0_1p2_0, kind: point, parent: enemy, offset: [0.0, 1.2, 0.0]}
 presentation:
   timeline:
-    - {id: fx0, at: 0, do: [{id: snd, op: sound, sound: "astera:weapons/sword-swing", at: caster}, {id: emit, op: emit, at: pt_caster_0_m0p3_1p6, particle: slash-sweep, count: 1}]}
+    - {id: fx0, at: 0, do: [{id: snd, op: sound, sound: "astera:weapons/sword-swing", at: caster}, {id: emit, op: emit, at: pt_caster_0_m0p3_1p6, particle: slash-sweep}]}
     - {id: fx2, at: 2, do: [{id: snd_3, op: sound, sound: "astera:weapons/blade-miss", at: caster, when: "= counter('swing_hits') == 0.0"}]}
   "on":
     hit:
       - {id: snd_2, op: sound, sound: "astera:weapons/blade-hit", at: contact.point, when: "= event.source == 'swing'"}
-      - {id: emit_2, op: emit, at: pt_enemy_0_1p2_0, particle: hit-spark, count: 1, when: "= event.source == 'swing'"}
+      - {id: emit_2, op: emit, at: pt_enemy_0_1p2_0, particle: hit-spark, when: "= event.source == 'swing'"}

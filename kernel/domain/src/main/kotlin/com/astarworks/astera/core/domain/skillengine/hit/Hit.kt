@@ -10,8 +10,14 @@ import java.util.UUID
 public sealed interface HitVolume {
     public data class Capsule(val from: PointRef, val to: PointRef, val radius: Value<Double>) : HitVolume
     public data class Sphere(val at: PointRef, val radius: Value<Double>) : HitVolume
+    /**
+     * A wedge in the plane spanned by [forward] and [left], apex at point [at] of [frame] (null = the frame origin),
+     * opening [angleDeg], radius [range], and [height] = total thickness of the slab perpendicular to that plane,
+     * centred on it. With `forward: caster.forward` (look incl. pitch) from `at: eye` the wedge follows the aim.
+     */
     public data class Sector(
         val frame: String,
+        val at: String?,
         val forward: AxisRef,
         val left: AxisRef,
         val angleDeg: Value<Double>,

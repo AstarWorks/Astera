@@ -39,5 +39,5 @@ presentation:
           dark_rim: {color: "#190808", alpha: 0.816, width: 0.15}
           step_deg: 25.0
     - {id: fx31, at: 31, do: [{id: rm, op: remove, ids: [fx1_sigil_rifle_s3_rig_rifle_shoulder_ribbon]}]}
-    - {id: loop1, at: 18, every: 1, for: 5, do: [{id: fx1_sigil_rifle_s3_rig_rifle_embers_18, op: emit, at: pt_fx1_sigil_rifle_s3_rig_rifle_0_1p65_0, particle: sigil-rifle-embers, count: 1}]}
+    - {id: loop1, at: 18, every: 1, for: 5, do: [{id: fx1_sigil_rifle_s3_rig_rifle_embers_18, op: emit, at: pt_fx1_sigil_rifle_s3_rig_rifle_0_1p65_0, particle: sigil-rifle-embers}]}
   "on": {hit: [{id: snd, op: sound, sound: entity.player.attack.strong, at: contact.point, volume: 0.7, pitch: 1.1, when: "= event.source == 'sel_2'"}]}

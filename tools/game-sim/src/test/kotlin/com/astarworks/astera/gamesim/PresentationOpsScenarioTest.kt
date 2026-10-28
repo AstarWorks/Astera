@@ -209,8 +209,14 @@ class PresentationOpsScenarioTest {
     private val executors: Map<Class<*>, OpExecutor<*>> =
         presentationExecutors(rt).associateBy { it.opClass.java }
 
+    /** Presentation ops reach the cast host only for the caster look (emit); everything else would be a bug here. */
+    private val lookOnlyHost: com.astarworks.astera.core.application.skillengine.runtime.OpHost = java.lang.reflect.Proxy.newProxyInstance(
+        com.astarworks.astera.core.application.skillengine.runtime.OpHost::class.java.classLoader,
+        arrayOf(com.astarworks.astera.core.application.skillengine.runtime.OpHost::class.java),
+    ) { _, m, _ -> if (m.name == "lookDirection") Vec3(0.0, 0.0, 1.0) else error("this scenario never reaches the cast host (${m.name})") } as com.astarworks.astera.core.application.skillengine.runtime.OpHost
+
     private val ctx = object : OpContext {
-        override val host: com.astarworks.astera.core.application.skillengine.runtime.OpHost get() = error("this scenario never reaches the cast host")
+        override val host: com.astarworks.astera.core.application.skillengine.runtime.OpHost get() = lookOnlyHost
         override val cast = CastId(7)
         override val tree: FrameTree = this@PresentationOpsScenarioTest.tree
         override val values: ValueResolver = Resolver(params = mapOf("n" to 6.0), texts = mapOf("c" to "#ff5fa2"))
@@ -396,11 +402,11 @@ class PresentationOpsScenarioTest {
         assertThat(sounds).hasSize(3)
 
         tree.setLocal(FrameId("palm"), Frame(Vec3(0.0, 1.0, 0.0)))
-        run(FxOp.Emit("puff", null, PointRef("palm"), "dust", lit(6.0), v(0.0, 0.0, -1.0), lit(20.0), null, lit(0.5), Value.ParamRef("c"), "s"))
+        run(FxOp.Emit("puff", null, PointRef("palm"), "dust", lit(6.0), null, null, Value.ParamRef("c"), null, v(0.0, 0.0, -1.0), lit(20.0), lit(0.5), "s"))
         tick()
         tree.setLocal(FrameId("palm"), Frame(Vec3(0.0, 1.0, 2.0)))
         tick()
-        run(FxOp.Emit("puff", null, PointRef("palm"), "dust", lit(6.0), v(0.0, 0.0, -1.0), lit(20.0), null, lit(0.5), Value.ParamRef("c"), "s"))
+        run(FxOp.Emit("puff", null, PointRef("palm"), "dust", lit(6.0), null, null, Value.ParamRef("c"), null, v(0.0, 0.0, -1.0), lit(20.0), lit(0.5), "s"))
         assertThat(bursts).hasSize(2)
         assertThat(bursts[0].count).isEqualTo(6)
         assertThat(bursts[0].colorHex).isEqualTo("#ff5fa2")

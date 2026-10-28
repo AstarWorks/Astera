@@ -7,12 +7,12 @@ item: repeater-crossbow
 meta: {name: {ja: "重ボルト", en: "Heavy Bolt"}, description: {ja: "重いボルトを強く撃ち込む。", en: "One heavy, hard-hitting bolt."}, cooldown_ticks: 100, resource_cost: 8, tags: [ranged, physical]}
 frames:
   - {id: bolt, kind: body, parent: world, inactive: true}
-  - {id: pt_caster_eye_0_0_0p5, kind: point, parent: caster.eye, offset: [0.0, 0.0, 0.5]}
+  - {id: pt_aim_0_0_0p5, kind: point, parent: aim, offset: [0.0, 0.0, 0.5]}
 gameplay:
   params: {launch_speed: 3.4, max_lifetime_ticks: 40, dmg_physical: 26}
   expose:
     - {id: damage, param: dmg_physical}
     - {id: flight_speed, param: launch_speed}
   timeline:
-    - {id: t0, at: 0, do: [{id: bolt, op: projectile, body: bolt, from: pt_caster_eye_0_0_0p5, velocity: "= look(caster) * launch_speed", max_ticks: "${max_lifetime_ticks}", radius: 0.5}]}
+    - {id: t0, at: 0, do: [{id: bolt, op: projectile, body: bolt, from: pt_aim_0_0_0p5, velocity: "= look(caster) * launch_speed", max_ticks: "${max_lifetime_ticks}", radius: 0.5}]}
   "on": {hit: [{id: dmg, op: damage, components: [{kind: physical, amount: "${dmg_physical}"}], target: victim}]}

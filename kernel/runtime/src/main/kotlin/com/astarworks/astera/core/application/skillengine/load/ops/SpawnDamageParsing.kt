@@ -54,6 +54,7 @@ internal fun OpReader.hitVolume(allowRadiusShorthand: Boolean): HitVolume {
         )
         sector != null -> HitVolume.Sector(
             frame = sector["frame"]?.toString() ?: "self",
+            at = sector["at"]?.toString(),
             forward = AxisRef(sector["forward"]?.toString() ?: "self.forward"),
             left = AxisRef(sector["left"]?.toString() ?: "self.left"),
             angleDeg = parseNumber(sector["angle_deg"]) ?: fail("sector.angle_deg missing"),

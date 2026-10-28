@@ -65,23 +65,24 @@ public interface ISkillVisualGateway {
     public fun setTrailShape(handle: VisualHandle, bands: List<TrailBand>, edge: TrailEdge?, rim: TrailRim?, stepDeg: Double, doubleSided: Boolean) {}
 }
 
+/** One emit op as vanilla `spawnParticle` arguments plus the optional `dir` sugar (see [com.astarworks.astera.core.domain.skillengine.op.FxOp.Emit]). */
 public data class ParticleBurst(
     val particle: String,
     val at: Vec3,
-    val count: Int,
+    /** null = unset: vanilla 1, or the custom definition's own count. */
+    val count: Int?,
+    val offset: Vec3,
+    /** Vanilla `extra`. */
+    val speed: Double,
+    val colorHex: String?,
+    val dataSize: Double?,
+    /** `dir` sugar; null = plain vanilla spawn. */
     val dir: Vec3?,
     val spreadDeg: Double,
-    val speed: Double,
     val inheritVelocity: Vec3?,
-    val colorHex: String?,
+    /** The caster's full look direction: orients a custom definition's shape when [dir] is null. */
+    val look: Vec3,
     val seed: Long,
-    /**
-     * The op set `offset` or `extra`: spawn a vanilla `spawnParticle` (count, [offset] spread, [extra] speed) instead of
-     * the dir / speed model. Custom particle definitions ignore it.
-     */
-    val vanilla: Boolean = false,
-    val offset: Vec3? = null,
-    val extra: Double = 0.0,
 )
 
 public interface ISkillParticleGateway {

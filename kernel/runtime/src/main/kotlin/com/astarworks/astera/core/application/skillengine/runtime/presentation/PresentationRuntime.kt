@@ -84,8 +84,8 @@ public class PresentationRuntime(
     }
 
     internal class SoundTask(
-        val opId: String, val every: Int, val until: String?, var next: Int, val play: () -> Unit,
-        /** Last play tick (a pitch glide ends there, including a final play exactly on it). */
+        val opId: String, val every: Int, val until: String?, val startTick: Int, var next: Int, val play: (elapsed: Int) -> Unit,
+        /** Last play tick, in cast ticks (a pitch glide ends there, including a final play exactly on it). */
         val endTick: Int? = null,
     )
 
@@ -183,14 +183,17 @@ public class PresentationRuntime(
             for (a in done) casterAnim.stop(a.owner, a.anim)
             s.anims.removeAll(done)
         }
+        // `s.tick` was advanced at the top of this call, so the cast tick being processed is one less
+        val castTick = s.tick - 1
         for (t in s.sounds.values.toList()) {
             if (t.until != null && info.hasRaised(cast, t.until)) {
                 s.sounds.remove(t.opId)
-            } else if (s.tick >= t.next) {
-                t.next = s.tick + t.every
+            } else if (castTick >= t.next) {
+                // exact multiples of `every` from the op's own tick (0, N, 2N ...), never drifting with a late tick
+                t.next = t.next + t.every
                 if (t.endTick != null) t.next = minOf(t.next, t.endTick)
-                t.play()
-                if (t.endTick != null && s.tick >= t.endTick) s.sounds.remove(t.opId)
+                t.play(castTick - t.startTick)
+                if (t.endTick != null && castTick >= t.endTick) s.sounds.remove(t.opId)
             }
         }
     }

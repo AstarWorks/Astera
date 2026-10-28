@@ -54,4 +54,4 @@ presentation:
           step_deg: 20.0
     - {id: fx52, at: 52, do: [{id: rm_2, op: remove, ids: [fx5_gossamer_katana_slash_down_katana_crescent]}]}
     - {id: fx60, at: 60, do: [{id: snd, op: sound, sound: entity.player.attack.crit, at: caster, pitch: 1.3}]}
-  "on": {hit: [{id: emit, op: emit, at: contact.point, particle: hit-spark, count: 1, when: "= event.source == 'sel'"}]}
+  "on": {hit: [{id: emit, op: emit, at: contact.point, particle: hit-spark, when: "= event.source == 'sel'"}]}

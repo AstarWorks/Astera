@@ -221,9 +221,9 @@ private object FxOpDecoder : OpDecoder {
     override fun decode(op: String, id: String, whenExpr: Value<Boolean>?, reader: OpReader): SkillOp = with(reader) {
         when (op) {
             "emit" -> FxOp.Emit(
-                id, whenExpr, requirePoint("at"), requireString("particle"), numberOr("count", 1.0),
-                vec3("dir"), number("spread_deg"), number("speed"), number("inherit_velocity"),
-                stringValue("color"), string("seed"), number("spacing"), vec3("offset"), number("extra"),
+                id, whenExpr, requirePoint("at"), requireString("particle"), number("count"),
+                vec3("offset"), number("speed"), stringValue("data"), number("data_size"),
+                vec3("dir"), number("spread_deg"), number("inherit_velocity"), string("seed"), number("spacing"),
             )
             "sound" -> FxOp.Sound(
                 id, whenExpr, requireString("sound"), requirePoint("at"), number("volume"), number("pitch"),

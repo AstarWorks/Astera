@@ -1,7 +1,6 @@
 # Converted from content/skills/sanctuary-heal.yaml + content/vfx/* by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
 # Generated point-frame offsets are [left, up, forward] in the parent frame.
 # CONVERT-PRESENT particle animation ring (emit has no shape / ring / path: one burst at the anchor) (x1): {"end_radius": 4.0, "period_ticks": 8, "points": 16, "start_radius": 0.4}
-# CONVERT-PRESENT particle scale (dust size; emit has none) (x1): 1.4
 apiVersion: "astera/v2"
 kind: Skill
 id: sanctuary-heal
@@ -14,6 +13,6 @@ presentation:
       at: 0
       do:
         - {id: snd, op: sound, sound: "astera:skills/heal-chime", at: caster, volume: 0.7, pitch: 1.0}
-        - {id: emit, op: emit, at: pt_caster_0_0p15_0, particle: happy_villager, count: 0, extra: 0.02}
-        - {id: emit_2, op: emit, at: pt_caster_0_0p15_0, particle: dust, count: 1, color: "#5ae65a", extra: 0.0}
-        - {id: emit_3, op: emit, at: pt_caster_0_1_0, particle: verdant-heal, count: 1}
+        - {id: emit, op: emit, at: pt_caster_0_0p15_0, particle: happy_villager, count: 0, speed: 0.02}
+        - {id: emit_2, op: emit, at: pt_caster_0_0p15_0, particle: dust, count: 1, data: "#5ae65a", data_size: 1.4}
+        - {id: emit_3, op: emit, at: pt_caster_0_1_0, particle: verdant-heal}

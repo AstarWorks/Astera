@@ -5,6 +5,4 @@ kind: Skill
 id: throwing-knives-slip
 frames:
   - {id: pt_caster_0_0p2_0, kind: point, parent: caster, offset: [0.0, 0.2, 0.0]}
-presentation:
-  timeline:
-    - {id: fx0, at: 0, do: [{id: snd, op: sound, sound: "astera:weapons/dash-whoosh", at: caster, volume: 0.8, pitch: 1.3}, {id: emit, op: emit, at: pt_caster_0_0p2_0, particle: dash-cloud, count: 1}]}
+presentation: {timeline: [{id: fx0, at: 0, do: [{id: snd, op: sound, sound: "astera:weapons/dash-whoosh", at: caster, volume: 0.8, pitch: 1.3}, {id: emit, op: emit, at: pt_caster_0_0p2_0, particle: dash-cloud}]}]}

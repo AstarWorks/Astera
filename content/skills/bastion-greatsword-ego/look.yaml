@@ -100,4 +100,4 @@ presentation:
         - {id: snd_5, op: sound, sound: entity.generic.explode, at: caster, pitch: 0.6}
     - {id: fx34, at: 34, do: [{id: rm_2, op: remove, ids: [fx2_bastion_ego_trail_beads]}]}
     - {id: fx49, at: 49, do: [{id: rm_3, op: remove, ids: [fx3_bastion_ego_slam_dust]}]}
-  "on": {hit: [{id: emit, op: emit, at: contact.point, particle: bastion-s3-hit-crit, count: 1, when: "= event.source == 'sel'"}]}
+  "on": {hit: [{id: emit, op: emit, at: contact.point, particle: bastion-s3-hit-crit, when: "= event.source == 'sel'"}]}

@@ -11,7 +11,10 @@ gameplay:
     - {id: damage, param: dmg_physical}
     - {id: range, param: reach}
   timeline:
-    - {id: t0, at: 0, do: [{id: sel, op: hit, frames: [caster], sector: {frame: caster, forward: caster.forward, left: caster.left, angle_deg: "${arc_deg}", range: "${reach}", height: 2.0}, window: once}]}
+    - id: t0
+      at: 0
+      do:
+        - {id: sel, op: hit, frames: [caster], sector: {frame: caster, at: eye, forward: caster.forward, left: caster.left, angle_deg: "${arc_deg}", range: "${reach}", height: 2.0}, window: once}
   "on":
     hit:
       - {id: kb, op: knockback, direction: "= normalize(pos(victim) - pos(caster)) + vec(0.0, 0.2, 0.0)", strength: "${knockback}", when: "= event.source == 'sel'"}

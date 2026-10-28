@@ -7,4 +7,4 @@ frames:
   - {id: pt_caster_0_0_2, kind: point, parent: caster, offset: [0.0, 0.0, 2.0]}
 presentation:
   timeline:
-    - {id: fx0, at: 0, do: [{id: snd, op: sound, sound: "astera:weapons/gun-impact-block", at: caster, volume: 1.0, pitch: 0.5}, {id: emit, op: emit, at: pt_caster_0_0_2, particle: hit-spark, count: 1}]}
+    - {id: fx0, at: 0, do: [{id: snd, op: sound, sound: "astera:weapons/gun-impact-block", at: caster, volume: 1.0, pitch: 0.5}, {id: emit, op: emit, at: pt_caster_0_0_2, particle: hit-spark}]}

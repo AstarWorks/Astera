@@ -22,7 +22,7 @@ internal object SectionRules {
     )
 
     /** Frames that exist without a `frames:` entry, plus the per-op pseudo frames `self` (hit volumes) and `line`. */
-    val BUILTIN_FRAMES = setOf("world", "caster", "enemy", "contact", "self", "line")
+    val BUILTIN_FRAMES = setOf("world", "caster", "aim", "enemy", "contact", "self", "line")
 
     private val AT_EVENT = Regex("""^([A-Za-z_][A-Za-z0-9_]*)\s*(?:([+-])\s*(\d+))?$""")
 

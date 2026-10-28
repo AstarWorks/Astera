@@ -16,9 +16,15 @@ import kotlin.math.sin
 import kotlin.math.tan
 
 /**
- * Paper [ISkillParticleGateway] (ADR-0301). Each particle is emitted with its own velocity (count 0 + offset = direction,
- * extra 1), so a burst can fan inside a cone and inherit the velocity of the point it was emitted from. The sequence is
- * deterministic from [ParticleBurst.seed]. Particle delivery is the shared [IWorldGateway.spawnParticle].
+ * Paper [ISkillParticleGateway] (ADR-0301). A vanilla emit is a thin 1:1 mapping onto
+ * [IWorldGateway.spawnParticle]: `ParticleSpec(key, count, offset, extra = speed, dust colour / size)` with the op's
+ * values untouched (vanilla `count 0` keeps its direction meaning). Nothing is added: an unset field is the vanilla
+ * default.
+ *
+ * The only expansion is the explicit `dir` sugar: `count` spawns of (`count 0`, `offset = jitter(dir, spread) * speed +
+ * inherited velocity`, `extra 1`), deterministic from [ParticleBurst.seed]. A custom particle definition
+ * ([ParticleEmitter.plan]) owns shape, velocity and vanilla type; the burst's `count`, when set, is the number of
+ * particles (replaces the definition's count) and its shape faces `dir`, else the caster look.
  *
  * The port carries no world; [worldId] supplies the world of the cast being ticked.
  */
@@ -37,42 +43,26 @@ public class PaperSkillParticleGateway(
             return
         }
         val color = burst.colorHex?.let(::color)
-        if (burst.vanilla) {
-            world.spawnParticle(w, burst.at, ParticleSpec(burst.particle, count = burst.count.coerceIn(0, MAX_PER_BURST), offset = burst.offset ?: Vec3.ZERO, extra = burst.extra, color = color))
+        val scale = burst.dataSize?.toFloat() ?: 1.0f
+        val dir = burst.dir
+        if (dir == null) {
+            world.spawnParticle(w, burst.at, ParticleSpec(burst.particle, count = burst.count ?: 1, offset = burst.offset, extra = burst.speed, color = color, scale = scale))
             return
         }
         val rng = Random(burst.seed)
-        val axis = burst.dir?.normalize()?.takeIf { it.lengthSquared() > 0.0 }
-        val count = burst.count.coerceIn(0, MAX_PER_BURST)
-        repeat(count) {
-            val direction = when {
-                axis != null -> cone(axis, burst.spreadDeg, rng)
-                burst.speed > 0.0 -> sphere(rng)
-                else -> Vec3.ZERO
-            }
+        val axis = dir.normalize().takeIf { it.lengthSquared() > 0.0 }
+        repeat((burst.count ?: 1).coerceIn(0, MAX_PER_BURST)) {
+            val direction = if (axis != null) cone(axis, burst.spreadDeg, rng) else Vec3.ZERO
             val velocity = direction * burst.speed + (burst.inheritVelocity ?: Vec3.ZERO)
-            val spec = if (velocity.lengthSquared() == 0.0) {
-                ParticleSpec(burst.particle, count = 1, color = color)
-            } else {
-                ParticleSpec(burst.particle, count = 0, offset = velocity, extra = 1.0, color = color)
-            }
-            world.spawnParticle(w, burst.at, spec)
+            world.spawnParticle(w, burst.at, ParticleSpec(burst.particle, count = 0, offset = velocity, extra = 1.0, color = color, scale = scale))
         }
     }
 
-    /**
-     * A custom particle expands through the same planner the rest of the game uses ([ParticleEmitter.plan]): the
-     * definition owns count, shape, speed and vanilla type; the burst contributes position, look direction and an
-     * optional colour. [ParticleBurst.count] repeats the preset.
-     */
     private fun emitDefinition(w: WorldId, definition: ParticleDefinition, burst: ParticleBurst) {
         val color = burst.colorHex?.let(::color)
-        val rng = kotlin.random.Random(burst.seed)
-        val ctx = ParticleEmitContext(look = burst.dir, random = rng)
-        repeat(burst.count.coerceIn(0, MAX_PER_BURST)) {
-            for (planned in ParticleEmitter.plan(definition, burst.at, ctx)) {
-                world.spawnParticle(w, planned.at, if (color != null) planned.spec.copy(color = color) else planned.spec)
-            }
+        val ctx = ParticleEmitContext(look = burst.dir ?: burst.look, random = kotlin.random.Random(burst.seed))
+        for (planned in ParticleEmitter.plan(definition, burst.at, ctx, countOverride = burst.count)) {
+            world.spawnParticle(w, planned.at, if (color != null) planned.spec.copy(color = color) else planned.spec)
         }
     }
 
@@ -86,13 +76,6 @@ public class PaperSkillParticleGateway(
         val a = axis.cross(helper).normalize()
         val b = axis.cross(a)
         return (axis + a * (r * cos(phi)) + b * (r * sin(phi))).normalize()
-    }
-
-    private fun sphere(rng: Random): Vec3 {
-        val z = rng.nextDouble() * 2.0 - 1.0
-        val phi = rng.nextDouble() * 2.0 * Math.PI
-        val r = kotlin.math.sqrt(1.0 - z * z)
-        return Vec3(r * cos(phi), z, r * sin(phi))
     }
 
     private fun color(hex: String): ParticleColor? {

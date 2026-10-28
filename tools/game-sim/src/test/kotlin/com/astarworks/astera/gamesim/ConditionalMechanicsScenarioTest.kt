@@ -18,11 +18,11 @@ class ConditionalMechanicsScenarioTest {
     )
 
     @Test
-    fun `parry answers a close hit inside the window with the v1 riposte and leaves the hit alone`() {
+    fun `parry answers a close hit inside the window with the riposte and negates the hit`() {
         val sim = parrySim()
         sim.start("couture-rapier-def")
         sim.step(5)
-        assertThat(sim.incoming(attacker, 12.0)).describedAs("v1 counter does not negate the hit").isEqualTo(1.0)
+        assertThat(sim.incoming(attacker, 12.0)).describedAs("the parried hit is negated (SKL-15 row 1)").isEqualTo(0.0)
         sim.step(30)
         val riposte = sim.dealt.filter { it.victim == attacker }
         assertThat(riposte).describedAs("riposte lands on the attacker").hasSize(1)

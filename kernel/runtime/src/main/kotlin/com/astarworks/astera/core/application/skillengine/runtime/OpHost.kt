@@ -38,6 +38,9 @@ public interface OpHost {
     /** World-space normal of the current contact, if a hit/block is being handled. */
     public val contactNormal: Vec3?
 
+    /** The caster's look direction including pitch. */
+    public fun lookDirection(): Vec3
+
     public fun registerHit(registration: HitRegistration)
 
     /** Start a motion law on [frame] (the runner owns the factory and the per-tick stepping). */

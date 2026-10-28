@@ -12,15 +12,15 @@ presentation:
       at: 0
       do:
         - {id: snd, op: sound, sound: "astera:weapons/rifle-crack", at: caster, volume: 1.0, pitch: 0.7}
-        - {id: emit, op: emit, at: pt_caster_0_m0p25_0p9, particle: gun-muzzle-flash, count: 1}
-        - {id: emit_2, op: emit, at: pt_caster_0_m0p25_0p9, particle: gun-muzzle-smoke, count: 1}
-    - {id: rep1, at: 0, every: 1, until: end, do: [{id: trail, op: emit, at: bolt, particle: crit, count: 1, spacing: 0.5, extra: 0.0}]}
-    - {id: rep2, at: 0, every: 1, until: end, do: [{id: trail_2, op: emit, at: bolt, particle: white_smoke, count: 1, spacing: 0.5, offset: [0.02, 0.02, 0.02], extra: 0.0}]}
+        - {id: emit, op: emit, at: pt_caster_0_m0p25_0p9, particle: gun-muzzle-flash}
+        - {id: emit_2, op: emit, at: pt_caster_0_m0p25_0p9, particle: gun-muzzle-smoke}
+    - {id: rep1, at: 0, every: 1, until: end, do: [{id: trail, op: emit, at: bolt, particle: crit, count: 1, spacing: 0.5}]}
+    - {id: rep2, at: 0, every: 1, until: end, do: [{id: trail_2, op: emit, at: bolt, particle: white_smoke, count: 1, spacing: 0.5, offset: [0.02, 0.02, 0.02]}]}
   "on":
     hit:
       - {id: snd_2, op: sound, sound: "astera:weapons/gun-impact", at: contact.point}
-      - {id: emit_3, op: emit, at: pt_enemy_0_1p2_0, particle: gun-impact, count: 1}
+      - {id: emit_3, op: emit, at: pt_enemy_0_1p2_0, particle: gun-impact}
     block:
       - {id: snd_3, op: sound, sound: "astera:weapons/gun-impact-block", at: contact.point, volume: 0.6, pitch: 1.6}
-      - {id: emit_4, op: emit, at: contact.point, particle: gun-impact, count: 1}
-      - {id: emit_5, op: emit, at: contact.point, particle: gun-impact-smoke, count: 1}
+      - {id: emit_4, op: emit, at: contact.point, particle: gun-impact}
+      - {id: emit_5, op: emit, at: contact.point, particle: gun-impact-smoke}

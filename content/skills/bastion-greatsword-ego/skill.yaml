@@ -17,6 +17,7 @@ gameplay:
     - {id: damage, param: dmg_physical}
     - {id: range, param: reach}
   timeline:
+    - {id: t0, at: 0, do: [{id: windup_lock, op: lock, target: caster, speed: 0.0, ticks: 20}]}
     - id: t20
       at: 20
       do:
@@ -25,7 +26,7 @@ gameplay:
     - id: t31
       at: 31
       do:
-        - {id: sel, op: hit, frames: [caster], sector: {frame: caster, forward: caster.forward, left: caster.left, angle_deg: "${arc_deg}", range: "${reach}", height: 2.0}, max_count: 1, window: once}
+        - {id: sel, op: hit, frames: [caster], sector: {frame: caster, at: eye, forward: caster.forward, left: caster.left, angle_deg: "${arc_deg}", range: "${reach}", height: 2.0}, max_count: 1, window: once}
   "on":
     hit:
       - id: dmg

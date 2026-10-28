@@ -25,15 +25,15 @@ frames:
   - {id: fx6_ember_smoke_puff, kind: body, parent: world}
 presentation:
   timeline:
-    - {id: loop1, at: 3, every: 3, for: 12, do: [{id: fx2_ember_punch_flame, op: emit, at: fx2_ember_punch, particle: ember-fine-spark, count: 1}]}
-    - {id: loop2, at: 3, every: 3, for: 10, do: [{id: fx2_ember_punch_soot, op: emit, at: fx2_ember_punch, particle: fire-smoke, count: 1}]}
-    - {id: loop3, at: 19, every: 3, for: 12, do: [{id: fx4_ember_punch_flame, op: emit, at: fx4_ember_punch, particle: ember-fine-spark, count: 1}]}
-    - {id: loop4, at: 19, every: 3, for: 10, do: [{id: fx4_ember_punch_soot, op: emit, at: fx4_ember_punch, particle: fire-smoke, count: 1}]}
-    - {id: loop5, at: 33, every: 3, for: 12, do: [{id: fx6_ember_smoke_puff_vent, op: emit, at: fx6_ember_smoke_puff, particle: fire-smoke, count: 1}]}
-    - {id: loop6, at: 33, every: 3, for: 15, do: [{id: fx6_ember_smoke_puff_haze, op: emit, at: fx6_ember_smoke_puff, particle: gun-smoke, count: 1}]}
+    - {id: loop1, at: 3, every: 3, for: 12, do: [{id: fx2_ember_punch_flame, op: emit, at: fx2_ember_punch, particle: ember-fine-spark}]}
+    - {id: loop2, at: 3, every: 3, for: 10, do: [{id: fx2_ember_punch_soot, op: emit, at: fx2_ember_punch, particle: fire-smoke}]}
+    - {id: loop3, at: 19, every: 3, for: 12, do: [{id: fx4_ember_punch_flame, op: emit, at: fx4_ember_punch, particle: ember-fine-spark}]}
+    - {id: loop4, at: 19, every: 3, for: 10, do: [{id: fx4_ember_punch_soot, op: emit, at: fx4_ember_punch, particle: fire-smoke}]}
+    - {id: loop5, at: 33, every: 3, for: 12, do: [{id: fx6_ember_smoke_puff_vent, op: emit, at: fx6_ember_smoke_puff, particle: fire-smoke}]}
+    - {id: loop6, at: 33, every: 3, for: 15, do: [{id: fx6_ember_smoke_puff_haze, op: emit, at: fx6_ember_smoke_puff, particle: gun-smoke}]}
   "on":
     hit:
-      - {id: fx3_ember_hoop_hit_embers, op: emit, at: fx3_ember_hoop_hit, particle: fire-impact, count: 1, when: "= event.source == 'sel'"}
+      - {id: fx3_ember_hoop_hit_embers, op: emit, at: fx3_ember_hoop_hit, particle: fire-impact, when: "= event.source == 'sel'"}
       - {id: snd, op: sound, sound: entity.player.attack.strong, at: contact.point, volume: 0.7, pitch: 1.1, when: "= event.source == 'sel'"}
-      - {id: fx5_ember_hoop_hit_embers, op: emit, at: fx5_ember_hoop_hit, particle: fire-impact, count: 1, when: "= event.source == 'sel_2'"}
+      - {id: fx5_ember_hoop_hit_embers, op: emit, at: fx5_ember_hoop_hit, particle: fire-impact, when: "= event.source == 'sel_2'"}
       - {id: snd_2, op: sound, sound: entity.player.attack.strong, at: contact.point, volume: 0.7, pitch: 1.1, when: "= event.source == 'sel_2'"}

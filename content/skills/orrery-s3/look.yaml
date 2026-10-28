@@ -95,8 +95,8 @@ presentation:
     - {id: fxhit_60, at: "hit+60", do: [{id: snd_2, op: sound, sound: entity.player.attack.strong, at: contact.point, volume: 0.7, pitch: 1.1, when: "= event.source == 'sel'"}]}
     - {id: fxhit_72, at: "hit+72", do: [{id: snd_3, op: sound, sound: entity.player.attack.strong, at: contact.point, volume: 0.7, pitch: 1.1, when: "= event.source == 'sel'"}]}
     - {id: fxhit_143, at: "hit+143", do: [{id: snd_4, op: sound, sound: entity.player.attack.strong, at: contact.point, volume: 0.7, pitch: 1.1, when: "= event.source == 'sel'"}]}
-    - {id: loop1, at: 5, every: 1, for: 2, do: [{id: fx9_orrery_channel_staff_embers, op: emit, at: pt_fx9_orrery_channel_staff_0_1p65_0, particle: orrery-ember, count: 1}]}
-    - {id: loop2, at: 45, every: 1, for: 7, do: [{id: fx11_orrery_seal_front_clock_sparks, op: emit, at: fx11_orrery_seal_front, particle: orrery-ember, count: 1}]}
-    - {id: loop3, at: 60, every: 1, for: 7, do: [{id: fx12_orrery_seal_front_clock_sparks, op: emit, at: fx12_orrery_seal_front, particle: orrery-ember, count: 1}]}
-    - {id: loop4, at: 72, every: 1, for: 7, do: [{id: fx13_orrery_seal_front_clock_sparks, op: emit, at: fx13_orrery_seal_front, particle: orrery-ember, count: 1}]}
-    - {id: loop5, at: 143, every: 1, for: 7, do: [{id: fx14_orrery_seal_front_clock_sparks, op: emit, at: fx14_orrery_seal_front, particle: orrery-ember, count: 1}]}
+    - {id: loop1, at: 5, every: 1, for: 2, do: [{id: fx9_orrery_channel_staff_embers, op: emit, at: pt_fx9_orrery_channel_staff_0_1p65_0, particle: orrery-ember}]}
+    - {id: loop2, at: 45, every: 1, for: 7, do: [{id: fx11_orrery_seal_front_clock_sparks, op: emit, at: fx11_orrery_seal_front, particle: orrery-ember}]}
+    - {id: loop3, at: 60, every: 1, for: 7, do: [{id: fx12_orrery_seal_front_clock_sparks, op: emit, at: fx12_orrery_seal_front, particle: orrery-ember}]}
+    - {id: loop4, at: 72, every: 1, for: 7, do: [{id: fx13_orrery_seal_front_clock_sparks, op: emit, at: fx13_orrery_seal_front, particle: orrery-ember}]}
+    - {id: loop5, at: 143, every: 1, for: 7, do: [{id: fx14_orrery_seal_front_clock_sparks, op: emit, at: fx14_orrery_seal_front, particle: orrery-ember}]}
