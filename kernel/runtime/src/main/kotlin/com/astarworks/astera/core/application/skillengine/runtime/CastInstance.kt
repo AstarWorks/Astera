@@ -165,7 +165,7 @@ internal class CastInstance(
             val next = ArrayList<FrameDecl>()
             var progressed = false
             for (d in pending) {
-                if (d.parent.frame !in nodeNames) {
+                if (d.parent.frame !in nodeNames || d.orient?.let { it.look !in nodeNames || it.reference !in nodeNames } == true) {
                     next += d
                     continue
                 }
@@ -189,7 +189,7 @@ internal class CastInstance(
                 ?: return CastError.FrameSetup("frame '${d.id}': parent point '${d.parent}' is not defined")
         } ?: Vec3.ZERO
         val local = Frame(parentOffset + (d.offset ?: Vec3.ZERO))
-        addNode(FrameNode(FrameId(d.id), d.kind, FrameId(d.parent.frame), local))?.let { return it }
+        addNode(FrameNode(FrameId(d.id), d.kind, FrameId(d.parent.frame), local, d.orient))?.let { return it }
         val model = d.model ?: models[d.parent.frame]
         models[d.id] = model
         if ((d.kind == FrameKind.ITEM || d.kind == FrameKind.PART) && model != null) {

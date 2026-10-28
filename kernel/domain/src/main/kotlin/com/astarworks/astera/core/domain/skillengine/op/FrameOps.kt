@@ -1,6 +1,7 @@
 package com.astarworks.astera.core.domain.skillengine.op
 
 import com.astarworks.astera.core.domain.geometry.Vec3
+import com.astarworks.astera.core.domain.skillengine.frame.FrameOrient
 import com.astarworks.astera.core.domain.skillengine.model.PointRef
 import com.astarworks.astera.core.domain.skillengine.model.Value
 import com.astarworks.astera.core.domain.skillengine.motion.MotionSpec
@@ -26,13 +27,17 @@ public sealed interface FrameOp : GameplayOp {
         val snap: SnapSpec?,
     ) : FrameOp
 
-    /** Set the world pose of [frame] equal to the world pose of [like] (plus [offset] in [like]'s frame). */
+    /**
+     * Set the world pose of [frame] equal to the world pose of [like] (plus [offset] in [like]'s frame). With an [orient] the
+     * rotation is the one it picks, read once now (a frame that stays where it was put), instead of [like]'s.
+     */
     public data class Place(
         override val id: String,
         override val whenExpr: Value<Boolean>?,
         val frame: String,
         val like: String,
         val offset: Value<Vec3>?,
+        val orient: FrameOrient? = null,
     ) : FrameOp
 }
 
