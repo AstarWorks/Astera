@@ -177,6 +177,9 @@ public class SkillCompiler(
         private val grammar = GrammarContext(original.id, null, exprs, V3Bindings.spec(DEEP, ExprEnvSpec(frames = flat.anchors.map { it.id }.toSet() + flat.framesIn.keys)))
         private val documents: Map<String, AnchorDecl> = flat.anchors.associateBy { it.id }
         private val registries = HashMap<String, AnchorRegistry>()
+
+        /** Latest `<op>.end` tick of the bodies a state without `for:` has spawned so far (its natural length). */
+        private val bodyHorizon = HashMap<String, Int>()
         private val callStack = ArrayList<String>().apply { add(SkillCallInliner.PREFIX + original.id) }
         private val statesById: Map<String, MachineState> = flat.machine.states.values.associateBy { it.id }
         private val specByNode: Map<Class<*>, OpSpec<*>> = buildMap {
@@ -213,15 +216,23 @@ public class SkillCompiler(
         val sections: SectionLowerer = SectionLowerer { state, section, ops ->
             val st = statesById[state.value]
             val nodes = decodeList(ops, "machine.states.${state.value}.$section").getOr { return@SectionLowerer Result.Failure(it) }
-            // a state without `for:` lasts as long as the longest projectile body it spawns (`until: <body>.end` closes against it)
+            // a state without `for:` lasts as long as the longest body it spawns (`until: <body>.end` closes against it): bodies of the
+            // sections lowered before this one, and projectiles written earlier in this one
             val horizon = (st?.forTicks as? Number)?.toInt()
-                ?: nodes.filterIsInstance<ProjectileOp>().mapNotNull { ((it.timing?.span as? Span.Ticks)?.ticks as? Value.Literal)?.value?.toInt() }.maxOrNull()
+                ?: listOfNotNull(
+                    bodyHorizon[state.value],
+                    nodes.filterIsInstance<ProjectileOp>().mapNotNull { ((it.timing?.span as? Span.Ticks)?.ticks as? Value.Literal)?.value?.toInt() }.maxOrNull(),
+                ).maxOrNull()
             val registry = registries.getOrPut(state.value) { DefaultAnchorScope(Occurrence(0, 1, null), documents) }
             var acc = Lowered(emptyList())
             for (n in nodes) {
                 val base = rootContext(state, registry).with(src = n.src)
                 val lo = GroupUnroller.unroll(n, base, horizon, childLowering).getOr { return@SectionLowerer Result.Failure(it) }
                 acc = merge(acc, lo)
+            }
+            if (st?.forTicks == null) {
+                acc.subTables.filter { it.event.value.endsWith(".end") }.maxOfOrNull { it.window.max }
+                    ?.let { bodyHorizon[state.value] = maxOf(it, bodyHorizon[state.value] ?: 0) }
             }
             Result.Success(acc)
         }
