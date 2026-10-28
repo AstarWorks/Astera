@@ -300,7 +300,11 @@ class TablePlayerRulesScenarioTest {
         )
         val hooks = LockHooks()
         val fx = Fx(s, hooks = hooks)
-        fx.run(5, mapOf(4 to listOf("go")))
+        // LockHooks.now is the test's clock: drive it per tick. The lock is entered at tick 4 (state base) with AtTick(10) = base + 10 = 14 (Action.kt: "relative to the state base")
+        for (t in 0..5) {
+            hooks.now = t
+            fx.run(t, if (t == 4) mapOf(4 to listOf("go")) else emptyMap())
+        }
         assertThat(hooks.log).contains("lock:14@4")
     }
 
@@ -616,10 +620,11 @@ class TablePlayerRulesScenarioTest {
         val pose = Pose(Val.Known(Vector3d()), Val.Known(Quaterniond()), Val.Known(Vector3d(1.0, 1.0, 1.0)))
         val state = hitState(
             row(0, Action.Spawn(SpawnKind.PROJECTILE_BODY, null, "", pose, Look(look)), body),
-            hitRow(3, HitShape.Sphere(Val.Known(Vector3d()), Val.Known(1.0)), anchor = body),
+            // the shape point is the body's live position (a lowered cell is world space, ADR-0303 hit: "points are in the anchor frame"); ADR-0303 10.2 tick order: state rows (1) run before projectile motion (2), so a hit row at tick 4 sees the body after 3 flight steps
+            hitRow(4, HitShape.Sphere(Val.Live("anchor:ball.position", null), Val.Known(1.0)), anchor = body),
         )
         val fx = Fx(skill("a", listOf(state), listOf(onHit)), rec)
-        fx.run(4)
+        fx.run(5)
         assertThat(fx.player.faults()).isEmpty()
         return fx.sounds().size
     }
@@ -627,7 +632,7 @@ class TablePlayerRulesScenarioTest {
     @Test
     fun projectileBodyFliesAtConstantSpeedAndAlongTheRamp() {
         val v = Val.Known(Vector3d(0.0, 0.0, 1.0)) as Val<Any>
-        // constant 2 blocks per tick: z = 6 at tick 3
+        // constant 2 blocks per tick: z = 6 after 3 steps
         assertThat(bodyHits(mapOf("velocity" to v, "speed" to Val.Known(2.0)))).isEqualTo(1)
         // a ramp 0 -> 4 over 3 ticks (linear) covers 6 blocks in 3 ticks
         assertThat(
