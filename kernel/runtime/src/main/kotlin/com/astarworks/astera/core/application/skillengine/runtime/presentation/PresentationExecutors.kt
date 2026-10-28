@@ -100,6 +100,7 @@ internal class BlockExecutor(private val rt: PresentationRuntime) : OpExecutor<V
             )
             val pose = rt.spawnNode(s, live, par) ?: run { ctx.host.fail(op.id, "block: parent frame '$par' is not in the frame tree"); return@repeated null }
             live.handle = ctx.ports.visuals.spawnBlock(rt.info.owner(ctx.cast), op.block, pose, op.brightness, op.rigShading)
+            rt.driverOf(s, par)?.changed(id, pose)
             rt.register(s, live)
             live
         }

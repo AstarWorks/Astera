@@ -432,7 +432,15 @@ public class PresentationRuntime(
                     tickFlipbook(s, l)
                     tickLook(s, l)
                 }
-                is Live.Block, is Live.Quad -> {
+                is Live.Block -> {
+                    update(s, l)?.let { pose ->
+                        val driver = driverOf(s, l.parent)
+                        if (driver == null) visuals.write(l.handle, pose, DISPLAY_TICKS)
+                        else driver.driven?.let { interp -> if (driver.changed(l.opId, pose)) visuals.write(l.handle, pose, interp) }
+                    }
+                    tickLook(s, l)
+                }
+                is Live.Quad -> {
                     update(s, l)?.let { visuals.write(l.handle, it, DISPLAY_TICKS) }
                     tickLook(s, l)
                 }
