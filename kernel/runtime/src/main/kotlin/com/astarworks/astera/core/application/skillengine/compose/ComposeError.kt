@@ -12,7 +12,7 @@ sealed interface ComposeError {
     /** The file is not parseable YAML (syntax error, duplicate key, unreadable). */
     data class ParseError(override val file: String, override val path: String, override val reason: String) : ComposeError
 
-    /** A `astera/v2` document is structurally invalid (unknown kind, missing id / target / patchKind, bad id). */
+    /** An `astera/v3` document is structurally invalid (unknown kind, missing id / target / patchKind, bad id). */
     data class InvalidDocument(override val file: String, override val path: String, override val reason: String) : ComposeError
 
     /** Two `kind: Skill` documents with the same id live in different files / directories. */
@@ -20,9 +20,9 @@ sealed interface ComposeError {
 
     /** Failures raised while applying a `kind: Patch` document. */
     sealed interface PatchError : ComposeError {
-        /** A skin patch touched something outside `presentation.*`. [path] is the first offending leaf path. */
+        /** A skin patch touched something other than the fields of a presentation op. [path] is the first offending leaf path. */
         data class ForbiddenPath(override val file: String, override val path: String) : PatchError {
-            override val reason: String get() = "skin patches may only touch presentation.*, but touch '$path'"
+            override val reason: String get() = "skin patches may only touch presentation ops (machine.states.*.{enter,do,exit}[<id>]), but touch '$path'"
         }
 
         /** The patch `target` has no `kind: Skill` document. */

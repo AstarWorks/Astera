@@ -1,8 +1,0 @@
-# EXAMPLE patch (test fixture, not shipped, bound to no item): recolour. Only presentation params change.
-apiVersion: astera/v2
-kind: Patch
-target: couture-rapier-s2
-variant: example_recolour
-patchKind: skin
-presentation:
-  params: {thread_color: "#3a7bff"}
