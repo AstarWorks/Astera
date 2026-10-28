@@ -4,7 +4,7 @@ apiVersion: "astera/v2"
 kind: Skill
 id: pistol-shot
 frames:
-  - {id: pt_caster_0_m0p25_0p9, kind: point, parent: caster, offset: [0.0, -0.25, 0.9]}
+  - {id: pt_aim_0_m0p25_0p9, kind: point, parent: aim, offset: [0.0, -0.25, 0.9]}
   - {id: pt_enemy_0_1p2_0, kind: point, parent: enemy, offset: [0.0, 1.2, 0.0]}
 presentation:
   timeline:
@@ -12,8 +12,8 @@ presentation:
       at: 0
       do:
         - {id: snd, op: sound, sound: "astera:weapons/gun-shot", at: caster, volume: 0.8, pitch: 1.2}
-        - {id: emit, op: emit, at: pt_caster_0_m0p25_0p9, particle: gun-muzzle-flash}
-        - {id: emit_2, op: emit, at: pt_caster_0_m0p25_0p9, particle: gun-muzzle-smoke}
+        - {id: emit, op: emit, at: pt_aim_0_m0p25_0p9, particle: gun-muzzle-flash}
+        - {id: emit_2, op: emit, at: pt_aim_0_m0p25_0p9, particle: gun-muzzle-smoke}
     - {id: rep1, at: 0, every: 1, until: end, do: [{id: trail, op: emit, at: bolt, particle: crit, count: 1, spacing: 0.5}]}
     - {id: rep2, at: 0, every: 1, until: end, do: [{id: trail_2, op: emit, at: bolt, particle: white_smoke, count: 1, spacing: 0.5, offset: [0.02, 0.02, 0.02]}]}
   "on":

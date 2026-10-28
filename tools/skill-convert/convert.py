@@ -284,7 +284,9 @@ class Conv:
         if t == "hit_location":
             return "contact.point"
         if t == "caster_forward":
-            return self.pframe("caster", [0.0, V(tg.get("height", 0.0)), V(tg.get("distance", 0.0))], side)
+            # v1 TargeterResolver.casterForward: eye + look direction * distance + (0, height, 0). The `aim` frame is the
+            # eye with the full look rotation, so distance is exact; height is along the aim up (world up at pitch 0).
+            return self.pframe("aim", [0.0, V(tg.get("height", 0.0)), V(tg.get("distance", 0.0))], side)
         if t == "caster_offset":
             return self.pframe("caster", vec3(tg["offset"]), side)
         if t == "target_offset":
@@ -666,13 +668,104 @@ class Conv:
         if t == "ring" and str(a.get("angle", "vertical")).lower() == "vertical":
             self.ring(a, at, where, d2, when)
             return
-        if t in ("ring", "circle", "line"):
-            self.present("particle animation %s (angle / shape without a baked equivalent)" % t,
-                         "%s" % short({k: a[k] for k in a if k not in ("particles", "type")}, 100))
-        for part in a.get("particles", []) or []:
+        if t == "point":
+            for part in a.get("particles", []) or []:
+                op = emit_op(self.oid("emit"), at, part["id"], part.get("count", 1))
+                particle_vanilla(op, part)
+                self.p(where, d2, self._w(op, when))
+            return
+        for step, part, times, shift, offset in self.shape_emits(a):
             op = emit_op(self.oid("emit"), at, part["id"], part.get("count", 1))
             particle_vanilla(op, part)
-            self.p(where, d2, self._w(op, when))
+            if times != 1:
+                op["times"] = times
+            op["shift"] = shift
+            if offset is not None:
+                op["offset"] = offset
+            self.p(where, d2 + int(V(part.get("delay_ticks", 0)) or 0) + step, self._w(op, when))
+
+    def shape_emits(self, a):
+        """Bake a v1 non-default AnimatedShape (ring in any plane, line, circle) into `(tick, part, times, shift, offset)` emit
+        rows. The shape lives in the `at` frame's [left, up, forward] axes; v1's per-instance random draws (axis, phase,
+        jitter, orbit start / sign / radius) are fixed constants per instance (deterministic bake, same as `ring`)."""
+        t = a["type"]
+        if t not in ("ring", "line", "circle"):
+            self.todo("particle animation shape %s" % t)
+            return []
+        rows = []
+        for inst in range(int(a.get("amount", 1))):
+            rng = random.Random("%s/%s/%d" % (self.oid("shape"), t, inst))
+            axis = self._angle_axis(str(a.get("angle", "vertical" if t == "ring" else "raw")).lower(), rng)
+            u = _unit(axis)
+            pa = _unit(_cross(u, _perp(u)))
+            pb = _unit(_cross(u, pa))
+            parts = a.get("particles", []) or []
+            if t == "ring":
+                n = int(a.get("points", 16))
+                period = int(a.get("period_ticks", 1))
+                sr, er = float(a.get("start_radius", 0.0)), float(a.get("end_radius", 0.0))
+                phase = round(rng.uniform(0.0, 2 * math.pi), 4)
+                ph = "(%s + 6.283185307179586*i/%d)" % (phase, n)
+                for step in range(period):
+                    tt = 1.0 if period == 1 else step / (period - 1)
+                    r = sr + (er - sr) * tt
+                    rise = float(a.get("rise", 0.0)) * tt
+                    comp = ["%s*(%s*cos(%s) + %s*sin(%s)) + %s" % (fmt(round(r, 4)), fmt(round(pa[c], 4)), ph, fmt(round(pb[c], 4)), ph, fmt(round(rise * u[c], 4)))
+                            for c in range(3)]
+                    out = "= vec(%s)" % ", ".join("%s*cos(%s) + %s*sin(%s)" % (fmt(round(pa[c], 4)), ph, fmt(round(pb[c], 4)), ph) for c in range(3))
+                    for part in parts:
+                        rows.append((step, part, n, "= vec(%s)" % ", ".join(comp), out if part.get("count", 1) == 0 else None))
+            elif t == "line":
+                segs = int(a["segments"])
+                pps = int(a["points_per_segment"])
+                length, jit = float(a["length"]), float(a.get("jitter", 0.0))
+                verts = []
+                for i in range(segs + 1):
+                    side = (0.0, 0.0, 0.0)
+                    if 0 < i < segs and jit > 0.0:
+                        j1, j2 = rng.uniform(-jit, jit), rng.uniform(-jit, jit)
+                        side = tuple(pa[c] * j1 + pb[c] * j2 for c in range(3))
+                    verts.append(tuple(u[c] * length * i / segs + side[c] for c in range(3)))
+                for part in parts:
+                    for si in range(segs):
+                        v0, v1 = verts[si], verts[si + 1]
+                        sh = "= lerp(%s, %s, i/%d.0)" % (_vec(v0), _vec(v1), pps)
+                        rows.append((0, part, pps, sh, None))
+                    rows.append((0, part, 1, "= " + _vec(verts[-1]), None))
+            else:  # circle
+                steps = int(a.get("period_ticks", 1))
+                speed, acc = int(a.get("speed", 0)), int(a.get("acceleration", 1))
+                rmin, rmax = float(a.get("min_radius", 0.0)), float(a.get("max_radius", 0.0))
+                if float(a.get("radius_acceleration", 0.0)) != 0.0:
+                    self.todo("circle radius_acceleration", str(a.get("radius_acceleration")))
+                radius = round(rng.uniform(rmin, rmax) if rmax > rmin else rmin, 4)
+                deg0 = rng.randrange(360)
+                sign = 1 if rng.random() < 0.5 else -1
+                w = _unit(_cross(u, _perp(u)))
+                for step in range(steps):
+                    for part in parts:
+                        first = step * acc + 1
+                        ang = "(%s + %s*(i + %d))" % (fmt(round(math.radians(deg0), 6)), fmt(round(math.radians(sign * speed), 6)), first)
+                        comp = ["%s*cos(%s) + %s*sin(%s)" % (fmt(round(radius * u[c], 4)), ang, fmt(round(radius * w[c], 4)), ang) for c in range(3)]
+                        sh = "= vec(%s)" % ", ".join(comp)
+                        out = "= normalize(%s)" % sh[2:] if part.get("count", 1) == 0 else None
+                        rows.append((step, part, acc, sh, out))
+        return rows
+
+    def _angle_axis(self, angle, rng):
+        if angle in ("raw", "horizontal"):
+            return (0.0, 0.0, 1.0)
+        if angle == "vertical":
+            return (0.0, 1.0, 0.0)
+        if angle == "down":
+            return (0.0, -1.0, 0.0)
+        if angle == "random":
+            while True:
+                v = (rng.uniform(-1, 1), rng.uniform(-1, 1), rng.uniform(-1, 1))
+                if 1e-4 < sum(x * x for x in v) <= 1.0:
+                    return _unit(v)
+        self.todo("particle angle %s" % angle)
+        return (0.0, 1.0, 0.0)
 
     def ring(self, a, at, where, delay, when):
         """v1 AnimatedShape.Ring: each tick of the period drops `points` points on a flat circle, radius lerping
@@ -928,6 +1021,25 @@ def _custom_count(pid):
     return _PARTICLE_COUNTS[pid]
 
 
+def _unit(v):
+    n = math.sqrt(sum(x * x for x in v)) or 1.0
+    return tuple(x / n for x in v)
+
+
+def _cross(a, b):
+    return (a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0])
+
+
+def _perp(u):
+    """v1 PlaneBasis / CircleCursor perpendicular: (-y, x, 0) when |x| > |y| else (0, -z, y)."""
+    return (-u[1], u[0], 0.0) if abs(u[0]) > abs(u[1]) else (0.0, -u[2], u[1])
+
+
+def _vec(v):
+    return "vec(%s, %s, %s)" % tuple(fmt(round(x, 4)) for x in v)
+
+
+
 def emit_op(oid, at, pid, v1_count):
     """An `emit` op. Vanilla key: `count` is the vanilla particle count. Custom definition: `count` is the number of
     particles, so a v1 repeat of N (N whole definitions) becomes N * the definition's own count; one repeat leaves it unset."""
@@ -1064,13 +1176,24 @@ def convert_skill(d, vfx_dir, item):
         we = Where("handler", "expire", guard)
         vis = params.get("visual") or {}
         for tr in vis.get("trail") or []:
+            if tr["type"] != "point":
+                for _, part, times, shift, offset in c.shape_emits(tr):
+                    op = emit_op(c.oid("trail"), "bolt", part["id"], part.get("count", 1))
+                    if vis.get("trail_spacing", 0.5) > 0:
+                        op["spacing"] = vis.get("trail_spacing", 0.5)
+                    particle_vanilla(op, part)
+                    if times != 1:
+                        op["times"] = times
+                    op["shift"] = shift
+                    if offset is not None:
+                        op["offset"] = offset
+                    c.p_rows.setdefault(("rep", 1), []).append(op)
+                continue
             for part in tr.get("particles", []):
                 op = emit_op(c.oid("trail"), "bolt", part["id"], part.get("count", 1))
                 if vis.get("trail_spacing", 0.5) > 0:
                     op["spacing"] = vis.get("trail_spacing", 0.5)
                 particle_vanilla(op, part)
-                if tr["type"] == "line":
-                    c.present("projectile trail shape (emit has none)", tr["type"])
                 c.p_rows.setdefault(("rep", 1), []).append(op)
         if vis.get("display"):
             disp = vis["display"]
