@@ -1,5 +1,7 @@
 package com.astarworks.astera.core.domain.skillengine.op
 
+import com.astarworks.astera.core.domain.effect.Audience
+import com.astarworks.astera.core.domain.effect.VfxLane
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.skillengine.model.AxisRef
 import com.astarworks.astera.core.domain.skillengine.model.PointRef
@@ -25,6 +27,12 @@ public sealed interface PlateFace {
  * it spawned (null = stays until removed). Inside the op's values `i` is the copy index and `n` the copy count. Copies are the
  * children `<id>#<k>` of a plain group node named `<id>`, so a `track` or `remove` on `<id>` moves / removes the group.
  */
+/**
+ * Who sees a display and in which quality lane (v1 `play_vfx viewers:` and element `lane:`): [audience] is relative to the
+ * caster and the victim in scope, [lane] is dropped for a viewer whose own `vfx_intensity` does not admit it.
+ */
+public data class ViewScope(val audience: Audience = Audience.ALL, val lane: VfxLane = VfxLane.CORE)
+
 public data class Repeat(val times: Value<Double>, val every: Int = 0, val life: Int? = null)
 
 /** Display objects attached to frames. Family owner: visual (mesh/plate/line/trail) worker. */
@@ -50,6 +58,7 @@ public sealed interface VisualOp : PresentationOp {
         val tilt: Value<Vec3>? = null,
         /** Vanilla Display.brightness 0..15 (block and sky light together); null = lit by the world. */
         val brightness: Int? = null,
+        val view: ViewScope = ViewScope(),
     ) : VisualOp
 
     /** A sprite quad as a NODE of the frame tree named [id], child of [parent]; [size] is its edge length in BLOCKS. */
@@ -75,6 +84,7 @@ public sealed interface VisualOp : PresentationOp {
         /** Vanilla Display.brightness 0..15; 15 (full bright) when null. */
         val brightness: Int? = null,
         val repeat: Repeat? = null,
+        val view: ViewScope = ViewScope(),
     ) : VisualOp
 
     /**
@@ -91,6 +101,7 @@ public sealed interface VisualOp : PresentationOp {
         val turn: Value<Vec3>? = null,
         val brightness: Int? = null,
         val repeat: Repeat? = null,
+        val view: ViewScope = ViewScope(),
     ) : VisualOp
 
     /**
@@ -114,6 +125,7 @@ public sealed interface VisualOp : PresentationOp {
         val turn: Value<Vec3>? = null,
         val brightness: Int? = null,
         val repeat: Repeat? = null,
+        val view: ViewScope = ViewScope(),
     ) : VisualOp
 
     /** Ribbon between two points; length follows them every tick. */
@@ -125,6 +137,7 @@ public sealed interface VisualOp : PresentationOp {
         val thickness: Value<Double>,
         val color: Value<String>,
         val face: PlateFace,
+        val view: ViewScope = ViewScope(),
     ) : VisualOp
 
     /** Ribbon from the history of [of] (and [root], if given: fan from root to tip). */

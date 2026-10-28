@@ -602,7 +602,7 @@ def keys_shift(keys):
 
 
 # ------------------------------------------------------------------ display elements
-UNSUPPORTED = ("target_track", "lane", "glow_color", "target_line", "respect_hit_stop", "view_range")
+UNSUPPORTED = ("target_track", "glow_color", "target_line", "respect_hit_stop", "view_range")
 
 
 def hexc(col):

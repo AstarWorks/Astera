@@ -3,6 +3,7 @@ package com.astarworks.astera.combat.application.port.outbound
 import com.astarworks.astera.core.domain.effect.Audience
 import com.astarworks.astera.core.domain.effect.DisplaySpec
 import com.astarworks.astera.core.domain.effect.DisplayTransform
+import com.astarworks.astera.core.domain.effect.VfxLane
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.domain.world.WorldId
@@ -27,6 +28,21 @@ public interface IDisplayEntityGateway {
      * Like [spawn], but the display is visible to [viewer] only (spawned hidden by default, then revealed to that one player;
      * `screen_veil`). Null when the world is not loaded, the viewer is offline or the kind is unsupported.
      */
+    /**
+     * Audience-scoped spawn (v1 `spawn(..., audience, caster, target, lane)`): only the viewers selected by [audience]
+     * (relative to [caster] / [target]) see the display, and only those whose own `vfx_intensity` admits [lane].
+     */
+    public fun spawn(
+        world: WorldId,
+        at: Vec3,
+        spec: DisplaySpec,
+        renderedLines: List<String>,
+        audience: Audience,
+        caster: PlayerId?,
+        target: PlayerId?,
+        lane: VfxLane,
+    ): DisplayHandle?
+
     public fun spawnFor(world: WorldId, at: Vec3, spec: DisplaySpec, renderedLines: List<String>, viewer: PlayerId): DisplayHandle?
 
     /**
@@ -71,6 +87,7 @@ public interface IDisplayEntityGateway {
         renderedLines: List<String>,
         anchor: PlayerId,
         offset: Vec3,
+        scope: DisplayScope? = null,
     ): DisplayHandle? = null
 
     /** Whether this live display is still riding the requested anchor in the requested world. */
@@ -89,6 +106,9 @@ public interface IDisplayEntityGateway {
     public fun remove(handle: DisplayHandle)
 
     /** One display write (see [place]). Rotation lives in the transformation; entity yaw / pitch are free. */
+    /** Who sees a display spawned riding a player (see the audience-scoped [spawn]). */
+    public data class DisplayScope(val audience: Audience, val caster: PlayerId?, val target: PlayerId?, val lane: VfxLane)
+
     public data class DisplayWrite(
         val at: Vec3,
         val yaw: Float,

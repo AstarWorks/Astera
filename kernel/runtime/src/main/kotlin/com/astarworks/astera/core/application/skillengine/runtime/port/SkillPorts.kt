@@ -32,6 +32,16 @@ public data class VisualPose(
     val anchorFeet: Vec3? = null,
 )
 
+/**
+ * Who sees a display (v1 `Audience` / `VfxLane`): [audience] relative to the caster and the [target] (the victim in scope, or null),
+ * [lane] dropped for viewers whose `vfx_intensity` does not admit it. Resolved by the adapter when the display is created.
+ */
+public data class DisplayView(
+    val audience: com.astarworks.astera.core.domain.effect.Audience = com.astarworks.astera.core.domain.effect.Audience.ALL,
+    val lane: com.astarworks.astera.core.domain.effect.VfxLane = com.astarworks.astera.core.domain.effect.VfxLane.CORE,
+    val target: UUID? = null,
+)
+
 /** A sprite's flipbook length and texture edge in pixels (its natural size is `px * 0.025` blocks). */
 public data class SpriteInfo(val frames: Int, val px: Int)
 
@@ -42,7 +52,7 @@ public data class SpriteInfo(val frames: Int, val px: Int)
  */
 public interface ISkillVisualGateway {
     /** An item model; [pose].size is the model scale in blocks per model unit. */
-    public fun spawnMesh(castOwner: UUID, item: String, part: String?, pose: VisualPose, brightness: Int? = null): VisualHandle
+    public fun spawnMesh(castOwner: UUID, item: String, part: String?, pose: VisualPose, brightness: Int? = null, view: DisplayView = DisplayView()): VisualHandle
 
     /**
      * One bone of the caster's own skin rig (ADR-0303 skin-rig section): a skull display wearing the caster's skin, [ghost] = a
@@ -52,19 +62,19 @@ public interface ISkillVisualGateway {
     public fun spawnSkinBone(castOwner: UUID, bone: com.astarworks.astera.core.domain.animation.skinrig.SkinRigBone, slim: Boolean, ghost: Boolean, pose: VisualPose): VisualHandle
 
     /** A sprite quad; [pose].size.x / .y are its width and height in blocks. [brightness] null = full bright (15). */
-    public fun spawnPlate(castOwner: UUID, sprite: String, alpha: Double, pose: VisualPose, brightness: Int? = null): VisualHandle
+    public fun spawnPlate(castOwner: UUID, sprite: String, alpha: Double, pose: VisualPose, brightness: Int? = null, view: DisplayView = DisplayView()): VisualHandle
 
     /** A block display of vanilla block [block] (`gold_block`); [pose].size is its edge per axis in blocks, centred on the pose origin. */
-    public fun spawnBlock(castOwner: UUID, block: String, pose: VisualPose, brightness: Int?): VisualHandle
+    public fun spawnBlock(castOwner: UUID, block: String, pose: VisualPose, brightness: Int?, view: DisplayView = DisplayView()): VisualHandle
 
     /**
      * A text-display quad: [text] null = a solid [colorHex] background at [alpha] ([pose].size.x / .y = width / height in blocks);
      * else the MiniMessage [text] over that background, [pose].size = blocks per text unit.
      */
-    public fun spawnQuad(castOwner: UUID, colorHex: String, alpha: Double, text: String?, shadow: Boolean, seeThrough: Boolean, pose: VisualPose, brightness: Int?): VisualHandle
+    public fun spawnQuad(castOwner: UUID, colorHex: String, alpha: Double, text: String?, shadow: Boolean, seeThrough: Boolean, pose: VisualPose, brightness: Int?, view: DisplayView = DisplayView()): VisualHandle
 
     /** A solid ribbon; [pose] is its centre, basis (x along the line) and size (length, thickness). */
-    public fun spawnLine(castOwner: UUID, colorHex: String, pose: VisualPose): VisualHandle
+    public fun spawnLine(castOwner: UUID, colorHex: String, pose: VisualPose, view: DisplayView = DisplayView()): VisualHandle
 
     public fun spawnTrail(castOwner: UUID, ticks: Int, widthFrac: Double, colorHex: String, alpha: Double): VisualHandle
 

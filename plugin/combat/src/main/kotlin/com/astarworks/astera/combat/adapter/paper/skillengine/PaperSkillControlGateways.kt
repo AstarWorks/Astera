@@ -15,11 +15,10 @@ import com.astarworks.astera.core.application.port.outbound.animation.ISkinRigAn
 import com.astarworks.astera.core.application.skillengine.runtime.presentation.ISkillCasterAnimGateway
 import com.astarworks.astera.core.domain.animation.player.CustomAnimationId
 import org.slf4j.LoggerFactory
+import com.astarworks.astera.core.application.skillengine.runtime.presentation.CameraShakeRequest
 import com.astarworks.astera.core.application.skillengine.runtime.presentation.ISkillScreenGateway
 import com.astarworks.astera.core.domain.cooldown.CooldownKey
-import com.astarworks.astera.core.domain.effect.camera.ShakeDirection
 import com.astarworks.astera.core.domain.effect.camera.ShakeProfile
-import com.astarworks.astera.core.domain.effect.camera.ShakeShape
 import com.astarworks.astera.core.domain.item.ItemId
 import com.astarworks.astera.core.domain.player.PlayerId
 import org.bukkit.Server
@@ -170,15 +169,30 @@ public class PaperSkillScreenGateway(
         const val MAX_LIVE_VEILS = 2
     }
 
-    override fun cameraShake(viewer: UUID, intensity: Double, ticks: Int) {
-        val seed = viewer.leastSignificantBits xor ticks.toLong()
-        val pulses = ShakeProfile.plan(ShakeShape.DECAY, ShakeDirection.NONE, intensity, ticks, seed = seed)
+    /** v1 WorldMechanics.cameraShake (WM:614): the plan from [ShakeProfile] with the hit direction read in the viewer's own frame. */
+    override fun cameraShake(viewer: UUID, shake: CameraShakeRequest) {
+        val hit = shake.hitFrom?.let { hitDirection(viewer, it) }
+        val pulses = ShakeProfile.plan(shake.shape, shake.direction, shake.intensity, shake.ticks, shake.frequencyHz, hit, shake.seed)
         for (p in pulses) {
             if (p.tick <= 0) feedback.cameraKick(PlayerId(viewer), p.dx, p.dy)
             else scheduler.runLaterTicks(ExecutionScope.Entity(viewer), p.tick.toLong()) {
                 feedback.cameraKick(PlayerId(viewer), p.dx, p.dy)
             }
         }
+    }
+
+    /** Where the hit came from in [viewer]'s view frame (the caster is the source); null for an unknown pose or a straight-up look (v1 hitDirection). */
+    private fun hitDirection(viewer: UUID, source: UUID): ShakeProfile.HitDirection? {
+        val pose = server.getPlayer(viewer) ?: return null
+        val from = server.getPlayer(source)?.location ?: return null
+        val look = pose.location.direction
+        val flat = kotlin.math.hypot(look.x, look.z)
+        if (flat < 1e-6) return null
+        val fx = look.x / flat
+        val fz = look.z / flat
+        val sx = from.x - pose.location.x
+        val sz = from.z - pose.location.z
+        return ShakeProfile.HitDirection(right = sx * -fz + sz * fx, forward = sx * fx + sz * fz)
     }
 }
 

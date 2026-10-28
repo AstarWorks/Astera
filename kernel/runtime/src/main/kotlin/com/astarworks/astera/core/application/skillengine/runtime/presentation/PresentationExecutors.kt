@@ -1,5 +1,10 @@
 package com.astarworks.astera.core.application.skillengine.runtime.presentation
 
+import com.astarworks.astera.core.domain.player.PlayerId
+import com.astarworks.astera.core.domain.effect.camera.ShakeDirection
+import com.astarworks.astera.core.domain.effect.AudienceResolver
+import com.astarworks.astera.core.domain.skillengine.op.ViewScope
+import com.astarworks.astera.core.application.skillengine.runtime.port.DisplayView
 import com.astarworks.astera.core.domain.animation.Easing
 import com.astarworks.astera.core.domain.effect.sound.PitchArc
 import com.astarworks.astera.core.domain.effect.sound.SoundPlanner
@@ -40,6 +45,9 @@ private fun OpContext.num(v: Value<Double>?, default: Double): Double = v?.let {
 /** A rotation vector (axis direction, length = degrees, right-hand): the only authored form of an orientation. */
 private fun turn(v: Vec3): Quaternion = Quaternion.fromRotationVector(v)
 
+/** The display scope of a visual op: its audience / lane, with the victim in scope as the `target` viewers (v1 VfxPlayer `targetPlayer`). */
+private fun viewOf(view: ViewScope, ctx: OpContext): DisplayView = DisplayView(view.audience, view.lane, ctx.host.currentVictim)
+
 internal class MeshExecutor(private val rt: PresentationRuntime) : OpExecutor<VisualOp.Mesh> {
     override val opClass: KClass<VisualOp.Mesh> = VisualOp.Mesh::class
     override fun execute(op: VisualOp.Mesh, ctx: OpContext) {
@@ -53,7 +61,7 @@ internal class MeshExecutor(private val rt: PresentationRuntime) : OpExecutor<Vi
         // The node carries the model's points (scaled to blocks), so `<mesh id>.tip` follows the swing.
         val pts = rt.points.points(op.item, op.part).map { FramePoint(live.node, it.name, it.offset * scale, it.axis) }
         val pose = rt.spawnNode(s, live, op.frame, pts) ?: return ctx.host.fail(op.id, "mesh: parent frame '${op.frame}' is not in the frame tree")
-        live.handle = ctx.ports.visuals.spawnMesh(rt.info.owner(ctx.cast), op.item, op.part, pose, op.brightness)
+        live.handle = ctx.ports.visuals.spawnMesh(rt.info.owner(ctx.cast), op.item, op.part, pose, op.brightness, viewOf(op.view, ctx))
         rt.driverOf(s, op.frame)?.changed(op.id, pose)
         rt.register(s, live)
     }
@@ -74,7 +82,7 @@ internal class PlateExecutor(private val rt: PresentationRuntime) : OpExecutor<V
                 op.at?.let { ctx.values.vec3(it) } ?: Vec3.ZERO, op.turn?.let { turn(ctx.values.vec3(it)) } ?: Quaternion.IDENTITY,
             )
             val pose = rt.spawnNode(s, live, par) ?: run { ctx.host.fail(op.id, "plate: parent frame '$par' is not in the frame tree"); return@repeated null }
-            live.handle = ctx.ports.visuals.spawnPlate(rt.info.owner(ctx.cast), op.sprite, ctx.values.num(op.alpha), pose, op.brightness)
+            live.handle = ctx.ports.visuals.spawnPlate(rt.info.owner(ctx.cast), op.sprite, ctx.values.num(op.alpha), pose, op.brightness, viewOf(op.view, ctx))
             if (tint != null) ctx.ports.visuals.setPlateFrame(live.handle, 0, tint)
             rt.register(s, live)
             live
@@ -94,7 +102,7 @@ internal class BlockExecutor(private val rt: PresentationRuntime) : OpExecutor<V
                 op.at?.let { ctx.values.vec3(it) } ?: Vec3.ZERO, op.turn?.let { turn(ctx.values.vec3(it)) } ?: Quaternion.IDENTITY,
             )
             val pose = rt.spawnNode(s, live, par) ?: run { ctx.host.fail(op.id, "block: parent frame '$par' is not in the frame tree"); return@repeated null }
-            live.handle = ctx.ports.visuals.spawnBlock(rt.info.owner(ctx.cast), op.block, pose, op.brightness)
+            live.handle = ctx.ports.visuals.spawnBlock(rt.info.owner(ctx.cast), op.block, pose, op.brightness, viewOf(op.view, ctx))
             rt.register(s, live)
             live
         }
@@ -114,7 +122,7 @@ internal class QuadExecutor(private val rt: PresentationRuntime) : OpExecutor<Vi
             )
             val pose = rt.spawnNode(s, live, par) ?: run { ctx.host.fail(op.id, "quad: parent frame '$par' is not in the frame tree"); return@repeated null }
             live.handle = ctx.ports.visuals.spawnQuad(
-                rt.info.owner(ctx.cast), ctx.values.text(op.color), ctx.values.num(op.alpha), op.text, op.shadow, op.seeThrough, pose, op.brightness,
+                rt.info.owner(ctx.cast), ctx.values.text(op.color), ctx.values.num(op.alpha), op.text, op.shadow, op.seeThrough, pose, op.brightness, viewOf(op.view, ctx),
             )
             rt.register(s, live)
             live
@@ -129,7 +137,7 @@ internal class LineExecutor(private val rt: PresentationRuntime) : OpExecutor<Vi
         val s = rt.state(ctx)
         val live = PresentationRuntime.Live.Line(op.id, op.from, op.to, ctx.values.num(op.thickness), op.face)
         val pose = rt.linePose(s, live) ?: return ctx.host.fail(op.id, "line: ${op.from} -> ${op.to} does not resolve to two distinct points")
-        live.handle = ctx.ports.visuals.spawnLine(rt.info.owner(ctx.cast), ctx.values.text(op.color), pose)
+        live.handle = ctx.ports.visuals.spawnLine(rt.info.owner(ctx.cast), ctx.values.text(op.color), pose, viewOf(op.view, ctx))
         rt.register(s, live)
     }
 }
@@ -315,7 +323,24 @@ internal class CameraShakeExecutor(private val rt: PresentationRuntime) : OpExec
     override val opClass: KClass<ScreenOp.CameraShake> = ScreenOp.CameraShake::class
     override fun execute(op: ScreenOp.CameraShake, ctx: OpContext) {
         if (!ctx.passes(op)) return
-        val intensity = ctx.values.num(op.intensity)
-        for (v in rt.info.targets(ctx.cast, op.target)) rt.screen.cameraShake(v, intensity, op.ticks)
+        // v1 WorldMechanics.cameraShake (WM:614): intensity clamped to 0..1, nothing for a non-positive duration / intensity,
+        // viewers = the audience selected from the resolved players relative to the caster and the victim in scope.
+        val intensity = ctx.values.num(op.intensity).coerceIn(0.0, 1.0)
+        if (op.ticks <= 0 || intensity <= 0.0) return
+        val frequency = op.frequency?.let { ctx.values.num(it) } ?: 0.0
+        val caster = ctx.host.caster
+        val victim = ctx.host.currentVictim
+        val viewers = AudienceResolver.select(rt.info.targets(ctx.cast, op.target).map(::PlayerId), op.viewers, PlayerId(caster), victim?.let(::PlayerId))
+        for (viewer in viewers) {
+            val request = CameraShakeRequest(
+                intensity, op.ticks, op.shape, op.direction, frequency,
+                hitFrom = caster.takeIf { op.direction == ShakeDirection.FROM_HIT && viewer.uuid != caster },
+                seed = ctx.host.tick * SHAKE_SEED_MIX + viewer.uuid.leastSignificantBits,
+            )
+            rt.screen.cameraShake(viewer.uuid, request)
+        }
     }
 }
+
+/** v1 `WorldMechanics.SHAKE_SEED_MIX` (the golden-ratio mix of the cast tick into the shake seed). */
+private const val SHAKE_SEED_MIX: Long = -0x61c8864680b583ebL

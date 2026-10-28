@@ -1,5 +1,6 @@
 package com.astarworks.astera.gamesim
 
+import com.astarworks.astera.core.application.skillengine.runtime.presentation.CameraShakeRequest
 import com.astarworks.astera.core.application.skillengine.load.OpReader
 import com.astarworks.astera.core.application.skillengine.load.presentation.presentationDecoders
 import com.astarworks.astera.core.application.skillengine.runtime.CastId
@@ -12,6 +13,7 @@ import com.astarworks.astera.core.application.skillengine.runtime.port.ISkillGam
 import com.astarworks.astera.core.application.skillengine.runtime.port.ISkillParticleGateway
 import com.astarworks.astera.core.application.skillengine.runtime.port.ISkillSoundGateway
 import com.astarworks.astera.core.application.skillengine.runtime.port.ISkillVictimAnimGateway
+import com.astarworks.astera.core.application.skillengine.runtime.port.DisplayView
 import com.astarworks.astera.core.application.skillengine.runtime.port.VisualPose
 import com.astarworks.astera.core.application.skillengine.runtime.port.SpriteInfo
 import com.astarworks.astera.core.application.skillengine.runtime.port.ISkillVisualGateway
@@ -133,15 +135,15 @@ class PresentationOpsScenarioTest {
     private val visuals = object : ISkillVisualGateway {
     override fun setTrailShape(handle: com.astarworks.astera.core.application.skillengine.runtime.port.VisualHandle, bands: List<com.astarworks.astera.core.domain.skillengine.op.TrailBand>, edge: com.astarworks.astera.core.domain.skillengine.op.TrailEdge?, rim: com.astarworks.astera.core.domain.skillengine.op.TrailRim?, stepDeg: Double, doubleSided: Boolean) {}
         private fun h(kind: String): VisualHandle { calls += kind; return VisualHandle(nextHandle++) }
-        override fun spawnMesh(castOwner: UUID, item: String, part: String?, pose: VisualPose, brightness: Int?) =
+        override fun spawnMesh(castOwner: UUID, item: String, part: String?, pose: VisualPose, brightness: Int?, view: DisplayView) =
             h("mesh:$item").also { poses[it.id] = pose.frame; scales[it.id] = pose.size.x }
         override fun spawnSkinBone(castOwner: UUID, bone: com.astarworks.astera.core.domain.animation.skinrig.SkinRigBone, slim: Boolean, ghost: Boolean, pose: VisualPose) =
             h("skin_bone:${bone.yamlName}").also { poses[it.id] = pose.frame; scales[it.id] = pose.size.x }
-        override fun spawnPlate(castOwner: UUID, sprite: String, alpha: Double, pose: VisualPose, brightness: Int?) =
+        override fun spawnPlate(castOwner: UUID, sprite: String, alpha: Double, pose: VisualPose, brightness: Int?, view: DisplayView) =
             h("plate:$sprite").also { poses[it.id] = pose.frame; scales[it.id] = pose.size.x; spawnedBillboards[it.id] = pose.billboard }
-        override fun spawnBlock(castOwner: UUID, block: String, pose: VisualPose, brightness: Int?) = h("block").also { poses[it.id] = pose.frame; scales[it.id] = pose.size.x }
-        override fun spawnQuad(castOwner: UUID, colorHex: String, alpha: Double, text: String?, shadow: Boolean, seeThrough: Boolean, pose: VisualPose, brightness: Int?) = h("quad").also { poses[it.id] = pose.frame; scales[it.id] = pose.size.x }
-        override fun spawnLine(castOwner: UUID, colorHex: String, pose: VisualPose) =
+        override fun spawnBlock(castOwner: UUID, block: String, pose: VisualPose, brightness: Int?, view: DisplayView) = h("block").also { poses[it.id] = pose.frame; scales[it.id] = pose.size.x }
+        override fun spawnQuad(castOwner: UUID, colorHex: String, alpha: Double, text: String?, shadow: Boolean, seeThrough: Boolean, pose: VisualPose, brightness: Int?, view: DisplayView) = h("quad").also { poses[it.id] = pose.frame; scales[it.id] = pose.size.x }
+        override fun spawnLine(castOwner: UUID, colorHex: String, pose: VisualPose, view: DisplayView) =
             h("line:$colorHex").also { lineEnds[it.id] = ends(pose); lines += it.id }
         override fun spawnTrail(castOwner: UUID, ticks: Int, widthFrac: Double, colorHex: String, alpha: Double) = h("trail")
         override fun write(handle: VisualHandle, pose: VisualPose, interpolationTicks: Int) {
@@ -206,7 +208,7 @@ class PresentationOpsScenarioTest {
         object : ISkillScreenGateway {
             override fun title(viewer: UUID, text: String, subtitle: String?, ticks: Int) { calls += "title:$text:$subtitle:$ticks" }
             override fun actionBar(viewer: UUID, text: String) { calls += "action_bar:$text" }
-            override fun cameraShake(viewer: UUID, intensity: Double, ticks: Int) { calls += "shake:$intensity:$ticks" }
+            override fun cameraShake(viewer: UUID, shake: CameraShakeRequest) { calls += "shake:${shake.intensity}:${shake.ticks}" }
             override fun flash(viewer: UUID, overlay: com.astarworks.astera.core.domain.effect.ScreenOverlay, colorRgb: Int, fadeIn: Int, stay: Int, fadeOut: Int) {
                 calls += "flash:${overlay.yamlName}:${colorRgb.toString(16)}:$fadeIn:$stay:$fadeOut"
             }
@@ -231,11 +233,11 @@ class PresentationOpsScenarioTest {
     private val executors: Map<Class<*>, OpExecutor<*>> =
         presentationExecutors(rt).associateBy { it.opClass.java }
 
-    /** Presentation ops reach the cast host only for the caster look (emit); everything else would be a bug here. */
+    /** Presentation ops reach the cast host only for the caster look (emit), the caster id and the bound victim and the tick (display audience, camera shake); everything else would be a bug here. */
     private val lookOnlyHost: com.astarworks.astera.core.application.skillengine.runtime.OpHost = java.lang.reflect.Proxy.newProxyInstance(
         com.astarworks.astera.core.application.skillengine.runtime.OpHost::class.java.classLoader,
         arrayOf(com.astarworks.astera.core.application.skillengine.runtime.OpHost::class.java),
-    ) { _, m, _ -> if (m.name == "lookDirection") Vec3(0.0, 0.0, 1.0) else error("this scenario never reaches the cast host (${m.name})") } as com.astarworks.astera.core.application.skillengine.runtime.OpHost
+    ) { _, m, _ -> if (m.name == "lookDirection") Vec3(0.0, 0.0, 1.0) else if (m.name == "getCurrentVictim") null else if (m.name == "getCaster") SIM_CASTER else if (m.name == "getTick") 0 else error("this scenario never reaches the cast host (${m.name})") } as com.astarworks.astera.core.application.skillengine.runtime.OpHost
 
     private val ctx = object : OpContext {
         override val host: com.astarworks.astera.core.application.skillengine.runtime.OpHost get() = lookOnlyHost

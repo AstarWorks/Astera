@@ -1,5 +1,9 @@
 package com.astarworks.astera.gamesim
 
+import com.astarworks.astera.core.domain.effect.VfxQualityProfile
+import com.astarworks.astera.core.domain.effect.VfxIntensity
+import com.astarworks.astera.core.domain.effect.AudienceResolver
+import com.astarworks.astera.core.application.skillengine.runtime.presentation.CameraShakeRequest
 import com.astarworks.astera.combat.adapter.paper.skillengine.PaperSkillGameplayGateway
 import com.astarworks.astera.combat.application.port.outbound.IEntityEffectsGateway
 import com.astarworks.astera.combat.application.port.outbound.IKnockbackGateway
@@ -52,6 +56,7 @@ import com.astarworks.astera.core.application.skillengine.runtime.port.ParticleB
 import com.astarworks.astera.core.application.skillengine.runtime.port.SkillRuntimePorts
 import com.astarworks.astera.core.application.skillengine.runtime.port.SpriteInfo
 import com.astarworks.astera.core.application.skillengine.runtime.port.VisualHandle
+import com.astarworks.astera.core.application.skillengine.runtime.port.DisplayView
 import com.astarworks.astera.core.application.skillengine.runtime.port.VisualPose
 import com.astarworks.astera.core.application.skillengine.runtime.presentation.ISkillCasterAnimGateway
 import com.astarworks.astera.core.application.skillengine.runtime.presentation.ISkillScreenGateway
@@ -108,6 +113,7 @@ public class SimSkillEngine private constructor(
     public val recording: SimSkillRecording,
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
+    init { recording.nearbyPlayers = { world.players() } }
     private val notPorted = ConcurrentHashMap.newKeySet<String>()
     private var seenDiagnostics = 0
     private var stopTicking: () -> Unit = {}
@@ -196,7 +202,7 @@ public class SimSkillEngine private constructor(
             screen = object : ISkillScreenGateway {
                 override fun title(viewer: UUID, text: String, subtitle: String?, ticks: Int) { recording.screens += "title $text" }
                 override fun actionBar(viewer: UUID, text: String) { recording.screens += "actionbar $text" }
-                override fun cameraShake(viewer: UUID, intensity: Double, ticks: Int) { recording.screens += "shake $intensity" }
+                override fun cameraShake(viewer: UUID, shake: CameraShakeRequest) { recording.screens += "shake ${shake.intensity}"; recording.shakes += SimShake(PlayerId(viewer), shake) }
                 override fun flash(viewer: UUID, overlay: com.astarworks.astera.core.domain.effect.ScreenOverlay, colorRgb: Int, fadeIn: Int, stay: Int, fadeOut: Int) { recording.screens += "flash $overlay" }
                 override fun veil(viewer: UUID, sprite: String, colorRgb: Int, side: Double, distance: Double, ticks: Int) { recording.screens += "veil $sprite" }
                 override fun stopSound(viewer: UUID, sound: String) { recording.screens += "stop_sound $sound" }
@@ -377,6 +383,18 @@ public class SimSkillRecording {
     public val particles: MutableList<String> = mutableListOf()
     public val casterAnims: MutableList<String> = mutableListOf()
     public val screens: MutableList<String> = mutableListOf()
+
+    /** Players that could see a world display (the sim has no range; every online player is "near"). Wired by [SimSkillEngine]. */
+    public var nearbyPlayers: () -> Collection<PlayerId> = { emptyList() }
+
+    /** Per-viewer `vfx_intensity`; absent = full. Scenarios set it, mirroring the player's settings. */
+    public val intensity: MutableMap<PlayerId, VfxIntensity> = linkedMapOf()
+
+    /** Every display a skill spawned, with who the Paper gateway would reveal it to. */
+    public val displays: MutableList<SimShownDisplay> = mutableListOf()
+
+    /** Every camera shake delivered, in order (one entry per receiving viewer). */
+    public val shakes: MutableList<SimShake> = mutableListOf()
     public val effects: MutableList<String> = mutableListOf()
 
     /** Display handles spawned / still alive. */
@@ -384,25 +402,39 @@ public class SimSkillRecording {
     public val liveVisuals: MutableSet<Long> = linkedSetOf()
 }
 
+/** A camera shake a viewer received. */
+public data class SimShake(val viewer: PlayerId, val request: CameraShakeRequest)
+
+/** A skill display and its resolved viewers (v1 `AudienceResolver.select` then `VfxQualityProfile.filterViewers`, as the Paper gateway reveals it). */
+public data class SimShownDisplay(val handle: VisualHandle, val kind: String, val view: DisplayView, val viewers: Set<PlayerId>)
+
 private class SimSkillVisuals(
     private val recording: SimSkillRecording,
     private val spriteInfo: (String) -> SpriteInfo,
 ) : ISkillVisualGateway {
     private val next = AtomicLong(1)
 
-    private fun spawn(): VisualHandle {
+    private fun spawn(kind: String = "", castOwner: UUID? = null, view: DisplayView = DisplayView()): VisualHandle {
         val handle = VisualHandle(next.getAndIncrement())
         recording.visualsSpawned++
         recording.liveVisuals += handle.id
+        if (castOwner != null) {
+            val caster = PlayerId(castOwner)
+            val target = view.target?.let(::PlayerId)
+            val pool = AudienceResolver.displayPool(recording.nearbyPlayers(), caster, target)
+            val selected = AudienceResolver.select(pool, view.audience, caster, target)
+            val shown = VfxQualityProfile.filterViewers(selected, view.lane, { recording.intensity[it] ?: VfxIntensity.FULL })
+            recording.displays += SimShownDisplay(handle, kind, view, shown)
+        }
         return handle
     }
 
-    override fun spawnMesh(castOwner: UUID, item: String, part: String?, pose: VisualPose, brightness: Int?) = spawn()
+    override fun spawnMesh(castOwner: UUID, item: String, part: String?, pose: VisualPose, brightness: Int?, view: DisplayView) = spawn("mesh", castOwner, view)
     override fun spawnSkinBone(castOwner: UUID, bone: com.astarworks.astera.core.domain.animation.skinrig.SkinRigBone, slim: Boolean, ghost: Boolean, pose: VisualPose) = spawn()
-    override fun spawnPlate(castOwner: UUID, sprite: String, alpha: Double, pose: VisualPose, brightness: Int?) = spawn()
-    override fun spawnBlock(castOwner: UUID, block: String, pose: VisualPose, brightness: Int?) = spawn()
-    override fun spawnQuad(castOwner: UUID, colorHex: String, alpha: Double, text: String?, shadow: Boolean, seeThrough: Boolean, pose: VisualPose, brightness: Int?) = spawn()
-    override fun spawnLine(castOwner: UUID, colorHex: String, pose: VisualPose) = spawn()
+    override fun spawnPlate(castOwner: UUID, sprite: String, alpha: Double, pose: VisualPose, brightness: Int?, view: DisplayView) = spawn("plate", castOwner, view)
+    override fun spawnBlock(castOwner: UUID, block: String, pose: VisualPose, brightness: Int?, view: DisplayView) = spawn("block " + block, castOwner, view)
+    override fun spawnQuad(castOwner: UUID, colorHex: String, alpha: Double, text: String?, shadow: Boolean, seeThrough: Boolean, pose: VisualPose, brightness: Int?, view: DisplayView) = spawn("quad", castOwner, view)
+    override fun spawnLine(castOwner: UUID, colorHex: String, pose: VisualPose, view: DisplayView) = spawn("line", castOwner, view)
     override fun spawnTrail(castOwner: UUID, ticks: Int, widthFrac: Double, colorHex: String, alpha: Double) = spawn()
     override fun write(handle: VisualHandle, pose: VisualPose, interpolationTicks: Int) {}
     override fun pushTrailPoint(handle: VisualHandle, root: Vec3, tip: Vec3) {}

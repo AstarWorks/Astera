@@ -95,6 +95,8 @@ class CastSim(
     val combat: CombatLink? = null,
     /** Victims that are not players (mobs): the `glow` op skips them. */
     val nonPlayers: Set<UUID> = emptySet(),
+    /** Receives `title` / `camera_shake` / veil calls; null = they are dropped. */
+    private val screenGateway: ISkillScreenGateway? = null,
 ) {
     /** World each sound / particle burst / entity query was bound to, in call order. */
     val soundWorlds = ArrayList<WorldId>()
@@ -391,7 +393,7 @@ class CastSim(
                 override fun stop(caster: UUID, anim: String) { casterAnims += CasterAnimCall(now, "stop", anim, 0) }
                 override fun release(caster: UUID, anim: String) { casterAnims += CasterAnimCall(now, "release", anim, 0) }
             },
-            screen = noop<ISkillScreenGateway>(),
+            screen = screenGateway ?: noop<ISkillScreenGateway>(),
             cooldowns = noop<ISkillCooldownGateway>(),
             items = noop<ISkillItemGateway>(),
             effects = worldEffects,

@@ -22,11 +22,25 @@ public interface ISkillCasterAnimGateway {
     public fun release(caster: UUID, anim: String)
 }
 
+/**
+ * One camera shake for one viewer (v1 `ShakeProfile.plan` inputs). [hitFrom] is the entity the kick points away from when
+ * [direction] is `FROM_HIT` (the caster; null for the caster's own screen); the adapter reads both poses and builds the plan.
+ */
+public data class CameraShakeRequest(
+    val intensity: Double,
+    val ticks: Int,
+    val shape: com.astarworks.astera.core.domain.effect.camera.ShakeShape,
+    val direction: com.astarworks.astera.core.domain.effect.camera.ShakeDirection,
+    val frequencyHz: Double,
+    val hitFrom: UUID?,
+    val seed: Long,
+)
+
 /** Viewer-screen effects: titles, action bar, camera shake. Always addressed to concrete players. */
 public interface ISkillScreenGateway {
     public fun title(viewer: UUID, text: String, subtitle: String?, ticks: Int)
     public fun actionBar(viewer: UUID, text: String)
-    public fun cameraShake(viewer: UUID, intensity: Double, ticks: Int)
+    public fun cameraShake(viewer: UUID, shake: CameraShakeRequest)
 
     /** Full-screen cut-in: [overlay] glyph tinted [colorRgb] (0xRRGGBB), faded over the three phases (ticks). */
     public fun flash(viewer: UUID, overlay: com.astarworks.astera.core.domain.effect.ScreenOverlay, colorRgb: Int, fadeIn: Int, stay: Int, fadeOut: Int)

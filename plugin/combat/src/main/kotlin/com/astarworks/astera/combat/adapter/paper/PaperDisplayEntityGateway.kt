@@ -10,6 +10,8 @@ import com.astarworks.astera.core.application.port.outbound.ticks
 import com.astarworks.astera.core.domain.effect.Audience
 import com.astarworks.astera.core.domain.effect.AudienceResolver
 import com.astarworks.astera.core.domain.effect.VfxIntensity
+import com.astarworks.astera.core.domain.effect.VfxLane
+import com.astarworks.astera.core.domain.effect.VfxQualityProfile
 import com.astarworks.astera.core.domain.animation.skinrig.SkinRigBone
 import com.astarworks.astera.core.domain.animation.skinrig.SkinRigMarker
 import com.astarworks.astera.core.domain.effect.DisplayBillboard
@@ -67,7 +69,7 @@ public class PaperDisplayEntityGateway(
     private val attachments = mutableMapOf<DisplayHandle, Attachment>()
     private val weaponStacks = mutableMapOf<DisplayHandle, ItemStack>()
 
-    override fun spawnAttached(world: WorldId, spec: DisplaySpec, renderedLines: List<String>, anchor: PlayerId, offset: Vec3): DisplayHandle? {
+    override fun spawnAttached(world: WorldId, spec: DisplaySpec, renderedLines: List<String>, anchor: PlayerId, offset: Vec3, scope: IDisplayEntityGateway.DisplayScope?): DisplayHandle? {
         val player = server.getPlayer(anchor.uuid) ?: return null
         if (spec.billboard != DisplayBillboard.FIXED || player.world.name != world.value) return null
         val location = player.location
@@ -76,12 +78,13 @@ public class PaperDisplayEntityGateway(
         // Both the spawn position and its first metadata must already use the riding origin:
         // a post-spawn correction can otherwise render a frame below the player's feet.
         val initial = spec.transform.copy(translation = spec.transform.translation + offset - Vec3(0.0, height, 0.0))
-        val handle = spawn(world, origin, spec.copy(transform = initial), renderedLines, player) ?: return null
+        val handle = spawn(world, origin, spec.copy(transform = initial), renderedLines, player, hidden = scope != null && !scope.isOpen()) ?: return null
         val display = server.getEntity(handle.id) as? Display ?: return null
         if (!player.addPassenger(display)) {
             remove(handle)
             return null
         }
+        if (scope != null && !scope.isOpen()) reveal(display, player.world, origin, scope.audience, scope.caster, scope.target, scope.lane)
         attachments[handle] = Attachment(anchor, player.world, offset, spec.transform, height, spec.kind is DisplayKind.SkinBone)
         return handle
     }
@@ -107,6 +110,42 @@ public class PaperDisplayEntityGateway(
 
     override fun spawn(world: WorldId, at: Vec3, spec: DisplaySpec, renderedLines: List<String>): DisplayHandle? =
         spawn(world, at, spec, renderedLines, null)
+
+    private fun IDisplayEntityGateway.DisplayScope.isOpen(): Boolean = audience == Audience.ALL && lane == VfxLane.CORE
+
+    /**
+     * Audience-scoped spawn (v1 PaperDisplayEntityGateway). The display is created `visibleByDefault = false` (before it is
+     * added to the world, so no tracker ever sends it unasked) and revealed with `Player.showEntity` to exactly the resolved
+     * viewers: the audience relative to the caster / target, minus viewers whose `vfx_intensity` drops [lane]. Candidates are
+     * the players near the display plus the caster and target; each reveal runs on that viewer's entity scheduler.
+     */
+    override fun spawn(
+        world: WorldId,
+        at: Vec3,
+        spec: DisplaySpec,
+        renderedLines: List<String>,
+        audience: Audience,
+        caster: PlayerId?,
+        target: PlayerId?,
+        lane: VfxLane,
+    ): DisplayHandle? {
+        if (audience == Audience.ALL && lane == VfxLane.CORE) return spawn(world, at, spec, renderedLines)
+        val bukkitWorld = server.getWorld(world.value) ?: return null
+        val handle = spawn(world, at, spec, renderedLines, null, hidden = true) ?: return null
+        val display = server.getEntity(handle.id) as? Display ?: return handle
+        reveal(display, bukkitWorld, at, audience, caster, target, lane)
+        return handle
+    }
+
+    private fun reveal(display: Display, bukkitWorld: org.bukkit.World, at: Vec3, audience: Audience, caster: PlayerId?, target: PlayerId?, lane: VfxLane) {
+        val nearby = bukkitWorld.getNearbyPlayers(Location(bukkitWorld, at.x, at.y, at.z), VIEWER_RADIUS).map { PlayerId(it.uniqueId) }
+        val candidates = AudienceResolver.select(AudienceResolver.displayPool(nearby, caster, target), audience, caster, target)
+        for (viewer in VfxQualityProfile.filterViewers(candidates, lane, intensityOf)) {
+            scheduler.run(ExecutionScope.Entity(viewer.uuid), ticks(0)) {
+                server.getPlayer(viewer.uuid)?.takeIf { display.isValid }?.showEntity(plugin, display)
+            }
+        }
+    }
 
     override fun spawnFor(world: WorldId, at: Vec3, spec: DisplaySpec, renderedLines: List<String>, viewer: PlayerId): DisplayHandle? {
         val player = server.getPlayer(viewer.uuid) ?: return null

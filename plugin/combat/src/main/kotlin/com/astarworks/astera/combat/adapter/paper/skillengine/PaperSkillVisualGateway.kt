@@ -1,6 +1,7 @@
 package com.astarworks.astera.combat.adapter.paper.skillengine
 
 import com.astarworks.astera.combat.application.port.outbound.IDisplayEntityGateway
+import com.astarworks.astera.combat.application.port.outbound.IDisplayEntityGateway.DisplayScope
 import com.astarworks.astera.combat.application.port.outbound.IDisplayEntityGateway.DisplayHandle
 import com.astarworks.astera.core.adapter.paper.entity.PaperManagedEntities
 import com.astarworks.astera.core.application.skillengine.load.ItemFrames
@@ -9,6 +10,7 @@ import com.astarworks.astera.core.application.skillengine.load.MeshModels
 import com.astarworks.astera.core.application.skillengine.runtime.port.ISkillVisualGateway
 import com.astarworks.astera.core.application.skillengine.runtime.port.SpriteInfo
 import com.astarworks.astera.core.application.skillengine.runtime.port.VisualHandle
+import com.astarworks.astera.core.application.skillengine.runtime.port.DisplayView
 import com.astarworks.astera.core.application.skillengine.runtime.port.VisualPose
 import com.astarworks.astera.core.domain.effect.DisplayBillboard
 import com.astarworks.astera.core.domain.effect.DisplayItemMode
@@ -104,7 +106,7 @@ public class PaperSkillVisualGateway(
         val segments = ArrayDeque<Seg>()
     }
 
-    override fun spawnMesh(castOwner: UUID, item: String, part: String?, pose: VisualPose, brightness: Int?): VisualHandle {
+    override fun spawnMesh(castOwner: UUID, item: String, part: String?, pose: VisualPose, brightness: Int?, view: DisplayView): VisualHandle {
         val world = worldOf(castOwner) ?: return dead("mesh $item")
         val heldItem = SkillDisplaySpecs.meshKind(MeshModels.resolve(item, part, frameTables)) == null
         val kind = SkillDisplaySpecs.meshKind(MeshModels.resolve(item, part, frameTables)) ?: run {
@@ -114,7 +116,7 @@ public class PaperSkillVisualGateway(
         }
         val first = toDisplayWrite(pose.frame, pose.size, Intrinsic.ITEM_FIXED, pose.billboard, 0)
         val spec = SkillDisplaySpecs.mesh(kind, first.transform, brightness)
-        val handle = spawnDisplay(world, castOwner, pose.frame.origin, spec, emptyList(), pose.anchorFeet != null) ?: return dead("mesh $item")
+        val handle = spawnDisplay(world, castOwner, pose.frame.origin, spec, emptyList(), pose.anchorFeet != null, view) ?: return dead("mesh $item")
         if (heldItem) hideHand(castOwner)
         return register(castOwner, MeshEntry(handle, castOwner, heldItem))
     }
@@ -164,40 +166,40 @@ public class PaperSkillVisualGateway(
         presentation()?.release(hide.lease)
     }
 
-    override fun spawnPlate(castOwner: UUID, sprite: String, alpha: Double, pose: VisualPose, brightness: Int?): VisualHandle {
+    override fun spawnPlate(castOwner: UUID, sprite: String, alpha: Double, pose: VisualPose, brightness: Int?, view: DisplayView): VisualHandle {
         val world = worldOf(castOwner) ?: return dead("plate $sprite")
         val glyph = SpriteGlyphs.text(SpriteId(sprite), 0)
         val intrinsic = Intrinsic.textGlyph(spriteInfo(sprite).px)
         val first = toDisplayWrite(pose.frame, pose.size, intrinsic, pose.billboard, 0)
         val spec = SkillDisplaySpecs.plate(glyph, alpha, first.transform, pose.billboard, brightness ?: 15)
-        val handle = spawnDisplay(world, castOwner, pose.frame.origin, spec, listOf(glyph), pose.anchorFeet != null && pose.billboard == DisplayBillboard.FIXED)
+        val handle = spawnDisplay(world, castOwner, pose.frame.origin, spec, listOf(glyph), pose.anchorFeet != null && pose.billboard == DisplayBillboard.FIXED, view)
             ?: return dead("plate $sprite")
         return register(castOwner, PlateEntry(handle, castOwner, sprite, intrinsic))
     }
 
-    override fun spawnBlock(castOwner: UUID, block: String, pose: VisualPose, brightness: Int?): VisualHandle {
+    override fun spawnBlock(castOwner: UUID, block: String, pose: VisualPose, brightness: Int?, view: DisplayView): VisualHandle {
         val world = worldOf(castOwner) ?: return dead("block $block")
         val first = toDisplayWrite(pose.frame, pose.size, Intrinsic.BLOCK, DisplayBillboard.FIXED, 0)
         val spec = SkillDisplaySpecs.block(block, first.transform, brightness)
-        val handle = spawnDisplay(world, castOwner, pose.frame.origin, spec, emptyList(), pose.anchorFeet != null) ?: return dead("block $block")
+        val handle = spawnDisplay(world, castOwner, pose.frame.origin, spec, emptyList(), pose.anchorFeet != null, view) ?: return dead("block $block")
         return register(castOwner, BlockEntry(handle, castOwner))
     }
 
-    override fun spawnQuad(castOwner: UUID, colorHex: String, alpha: Double, text: String?, shadow: Boolean, seeThrough: Boolean, pose: VisualPose, brightness: Int?): VisualHandle {
+    override fun spawnQuad(castOwner: UUID, colorHex: String, alpha: Double, text: String?, shadow: Boolean, seeThrough: Boolean, pose: VisualPose, brightness: Int?, view: DisplayView): VisualHandle {
         val world = worldOf(castOwner) ?: return dead("quad")
         val intrinsic = if (text == null) Intrinsic.TEXT_SOLID else Intrinsic.textGlyph(QUAD_TEXT_PX)
         val first = toDisplayWrite(pose.frame, pose.size, intrinsic, pose.billboard, 0)
         val spec = SkillDisplaySpecs.quad(colorHex, alpha, text, shadow, seeThrough, first.transform, pose.billboard, brightness)
-        val handle = spawnDisplay(world, castOwner, pose.frame.origin, spec, listOf(text ?: " "), pose.anchorFeet != null && pose.billboard == DisplayBillboard.FIXED)
+        val handle = spawnDisplay(world, castOwner, pose.frame.origin, spec, listOf(text ?: " "), pose.anchorFeet != null && pose.billboard == DisplayBillboard.FIXED, view)
             ?: return dead("quad")
         return register(castOwner, QuadEntry(handle, castOwner, intrinsic, colorHex, alpha))
     }
 
-    override fun spawnLine(castOwner: UUID, colorHex: String, pose: VisualPose): VisualHandle {
+    override fun spawnLine(castOwner: UUID, colorHex: String, pose: VisualPose, view: DisplayView): VisualHandle {
         val world = worldOf(castOwner) ?: return dead("line")
         val first = toDisplayWrite(pose.frame, pose.size, Intrinsic.TEXT_SOLID, DisplayBillboard.FIXED, 0)
         val spec = SkillDisplaySpecs.line(colorHex, first.transform)
-        val handle = displays.spawn(WorldId(world.name), pose.frame.origin, spec, listOf(" ")) ?: return dead("line")
+        val handle = spawnDisplay(world, castOwner, pose.frame.origin, spec, listOf(" "), false, view) ?: return dead("line")
         return register(castOwner, LineEntry(handle))
     }
 
@@ -403,13 +405,16 @@ public class PaperSkillVisualGateway(
         if (feet != null && server.getPlayer(owner) != null) DisplayWrite.Anchor(PlayerId(owner), feet) else null
 
     /** Spawns a display; an anchored one is born riding the caster (no frame at the wrong place), with the plain spawn as fallback. */
-    private fun spawnDisplay(world: World, owner: UUID, at: Vec3, spec: DisplaySpec, lines: List<String>, anchored: Boolean): DisplayHandle? {
+    private fun spawnDisplay(world: World, owner: UUID, at: Vec3, spec: DisplaySpec, lines: List<String>, anchored: Boolean, view: DisplayView = DisplayView()): DisplayHandle? {
         val player = if (anchored) server.getPlayer(owner) else null
+        val caster = PlayerId(owner)
+        val target = view.target?.let(::PlayerId)
         if (player != null) {
             val feet = player.location
-            displays.spawnAttached(WorldId(world.name), spec, lines, PlayerId(owner), at - Vec3(feet.x, feet.y, feet.z))?.let { return it }
+            val scope = DisplayScope(view.audience, caster, target, view.lane)
+            displays.spawnAttached(WorldId(world.name), spec, lines, caster, at - Vec3(feet.x, feet.y, feet.z), scope)?.let { return it }
         }
-        return displays.spawn(WorldId(world.name), at, spec, lines)
+        return displays.spawn(WorldId(world.name), at, spec, lines, view.audience, caster, target, view.lane)
     }
 
     private fun register(owner: UUID, entry: Entry): VisualHandle {
