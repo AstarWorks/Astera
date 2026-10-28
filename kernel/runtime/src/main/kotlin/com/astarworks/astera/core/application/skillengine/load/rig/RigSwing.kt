@@ -37,11 +37,13 @@ public data class SwingStep(
     val ticks: Int,
     val from: Vec3?,
     val via: Vec3?,
-    val to: Vec3,
-    val edge: SwingEdge,
+    val to: Vec3?,
+    val edge: SwingEdge?,
     val turns: Int,
     val easeName: String,
     val roll: Double,
+    /** R30: a `{at, reset: true}` step is a duration-0 write of the rest pose at [at] (no tip path, so [to] / [edge] / [from] / [ticks] are absent). */
+    val reset: Boolean = false,
 )
 
 /**
@@ -77,13 +79,14 @@ public object RigSwings {
 
     private val from: Field<FrameVec?> = Field.optional("from", Types.nullable(FrameVecs.type), null, "tip direction at the start; absent = previous step's 'to'")
     private val via: Field<FrameVec?> = Field.optional("via", Types.nullable(FrameVecs.type), null, "optional tip direction passed on the way; the tip follows from-via and via-to great-circle arcs")
-    private val to: Field<FrameVec> = Field.required("to", FrameVecs.type, "tip direction at the end")
-    private val edge: Field<String> = Field.required("edge", Types.enumOf("leading", "trailing"), "the cutting edge faces the tip's travel direction (leading) or against it (trailing)")
+    private val to: Field<FrameVec?> = Field.optional("to", Types.nullable(FrameVecs.type), null, "tip direction at the end (required unless reset)")
+    private val edge: Field<String?> = Field.optional("edge", Types.nullable(Types.enumOf("leading", "trailing")), null, "the cutting edge faces the tip's travel direction (leading) or against it (trailing); required unless reset")
+    private val reset: Field<Value<Boolean>> = Field.optional("reset", Types.bool, Value.Literal(false), "true = a duration-0 write of the rest pose at 'at'; takes no other swing field")
     private val turns: Field<Value<Double>> = Field.optional("turns", Types.number, Value.Literal(0.0), "extra full revolutions of the swing circle (integer >= 0)")
     private val ease: Field<String> = Field.optional("ease", Types.id, "linear", "easing of the whole segment (any v1 easing name except step)")
     private val roll: Field<Value<Double>> = Field.optional("roll", Types.number, Value.Literal(0.0), "extra degrees of roll about the blade's long axis reached at the end (right-handed)")
 
-    public val step: Fields = Fields.of("rig-swing-step", from, via, to, edge, turns, TimingSpec.at, TimingSpec.forSpan, ease, roll)
+    public val step: Fields = Fields.of("rig-swing-step", from, via, to, edge, turns, TimingSpec.at, TimingSpec.forSpan, ease, roll, reset)
 
     public val type: FieldType<List<SwingStep>> = object : FieldType<List<SwingStep>> {
         override val label = "list of {from, via, to, edge, turns, at, for, ease, roll}"
@@ -101,6 +104,17 @@ public object RigSwings {
             is TimeAt.Event -> ctx.fail("$path.at", "a swing step starts at a tick of the rig, not an event")
             is TimeAt.Tick -> tick(a.ticks, ctx, "$path.at", min = 0)
         }
+        val resetFlag = (v[reset] as? Value.Literal)?.value ?: ctx.fail("$path.reset", "reset must be a literal true / false")
+        if (resetFlag) {
+            if (at == null) ctx.fail("$path.at", "a reset step needs 'at' (the rig tick of the rest-pose write)")
+            for (f in listOf<Field<*>>(from, via, to, edge, TimingSpec.forSpan)) {
+                if (v.isPresent(f)) ctx.fail("$path.${f.name}", "a reset step is a duration-0 write of the rest pose: it takes only 'at' and 'reset'")
+            }
+            if (v.isPresent(turns) || v.isPresent(ease) || v.isPresent(roll)) {
+                ctx.fail(path, "a reset step is a duration-0 write of the rest pose: it takes only 'at' and 'reset'")
+            }
+            return SwingStep(at, 0, null, null, null, null, 0, "linear", 0.0, reset = true)
+        }
         val span = v[TimingSpec.forSpan] ?: ctx.fail(path, "swing step needs 'for' (ticks)")
         val ticks = when (span) {
             is Span.Ticks -> tick(span.ticks, ctx, "$path.for", min = 1)
@@ -117,8 +131,12 @@ public object RigSwings {
             ticks = ticks,
             from = v[from]?.let { dir(it, ctx, "$path.from") },
             via = v[via]?.let { dir(it, ctx, "$path.via") },
-            to = dir(v[to], ctx, "$path.to"),
-            edge = if (v[edge] == "leading") SwingEdge.LEADING else SwingEdge.TRAILING,
+            to = dir(v[to] ?: ctx.fail("$path.to", "swing step needs 'to' (the tip direction at the end)"), ctx, "$path.to"),
+            edge = when (v[edge]) {
+                "leading" -> SwingEdge.LEADING
+                "trailing" -> SwingEdge.TRAILING
+                else -> ctx.fail("$path.edge", "swing step needs 'edge: leading|trailing'")
+            },
             turns = turnsN.toInt(),
             easeName = easeName,
             roll = number(v[roll], ctx, "$path.roll"),
@@ -174,6 +192,14 @@ public object RigSwings {
             val p = "$path[$i]"
             val start = s.at ?: (if (prevEndTick >= 0) prevEndTick else 0)
             if (start < prevEndTick) ctx.fail("$p.at", "step starts at $start but the previous step runs until $prevEndTick")
+            if (s.reset) {
+                // R30: the rest pose is wrist = identity (rig frame = tilt * wrist * rest); a cut, never a sweep, so MAX_STEP_DEG does not apply.
+                keys += RigSwingKey(start, Vec3(0.0, 0.0, 0.0), if (keys.isEmpty()) "linear" else "step")
+                prevEndTick = start
+                prevEndQ = null
+                prevTo = null
+                return@forEachIndexed
+            }
             val fromDir = s.from ?: prevTo ?: ctx.fail("$p.from", "the first swing step needs 'from'")
             val arcs = arcs(fromDir, s, long, edgeAxis, ctx, p)
             val total = arcs.last().offset + arcs.last().angle

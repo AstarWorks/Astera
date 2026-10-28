@@ -9,6 +9,7 @@ import com.astarworks.astera.core.application.skillengine.runtime.player.EventBi
 import com.astarworks.astera.core.application.skillengine.runtime.player.LiveValueSource
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.geometry.Vec3
+import com.astarworks.astera.core.domain.skillengine.frame.ContactBasis
 import com.astarworks.astera.core.domain.geometry.math.Frame
 import com.astarworks.astera.core.domain.geometry.math.Quaternion
 import com.astarworks.astera.core.domain.skillengine.expr.CompiledExpr
@@ -66,15 +67,22 @@ public class PaperLiveValueSource(
             target = victimOf(binding),
         )
 
-    public fun frames(cast: CastHandle): FrameLookup {
+    public fun frames(cast: CastHandle, binding: EventBinding? = null): FrameLookup {
         val request = request(cast)
         return object : FrameLookup {
             override fun worldPose(frame: String, point: String?): Frame? {
+                if (frame == "contact") {
+                    val c = binding?.contact ?: return null
+                    val p = casterPose(request)
+                    val fwd = Frame.fromYawPitch(p.feet, p.yaw, p.pitch).forward()
+                    return ContactBasis.frame(Vec3(c.point.x, c.point.y, c.point.z), Vec3(c.normal.x, c.normal.y, c.normal.z), fwd)
+                }
                 if (frame != CASTER) return null
                 val p = casterPose(request)
                 return when (point) {
                     null, "feet" -> Frame.fromYawPitch(p.feet, p.yaw, p.pitch)
                     "eye" -> Frame.fromYawPitch(p.eye, p.yaw, p.pitch)
+                    "look" -> Frame.fromYawPitch(p.feet, p.yaw, p.pitch)
                     else -> null
                 }
             }
@@ -147,10 +155,10 @@ public class PaperLiveValueSource(
         if (name != CASTER && !name.startsWith("$CASTER.")) return null
         val p = casterPose(request)
         val v = when (name.removePrefix(CASTER).removePrefix(".")) {
-            "", "feet", "pos", "position" -> p.feet
+            "", "feet", "pos", "position", "look" -> p.feet
             "eye" -> p.eye
             "forward" -> Frame.fromYawPitch(p.feet, p.yaw, p.pitch).forward()
-            else -> throw IllegalArgumentException("caster field '$name' is not one of feet, eye, forward")
+            else -> throw IllegalArgumentException("caster field '$name' is not one of feet, eye, look, forward")
         }
         return Vector3d(v.x, v.y, v.z)
     }

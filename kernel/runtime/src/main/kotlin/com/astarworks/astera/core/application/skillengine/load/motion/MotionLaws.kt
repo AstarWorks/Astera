@@ -98,8 +98,9 @@ public object MotionLaws {
     private val keyPoseF = Field.optional("pose", Types.nullable(Rotations.type), null, "absolute orientation [{axis, deg}, ...] (literal angles)")
     private val keyScaleF = Field.optional("scale", Types.nullable(ScaleType(strict = true)), null, "absolute scale")
     private val keyAlphaF = Field.optional("alpha", Types.nullable(Types.number), null, "absolute opacity 0..1")
+    private val keyColorF = Field.optional("color", Types.nullable(Types.text), null, "absolute colour #rrggbb of a text / sprite display (lerped per channel)")
     private val keyEaseF = Field.optional("ease", Types.nullable(Types.id), null, "easing of the segment ENDING at this key (step allowed)")
-    private val keyFields = Fields.of("motion-key", tF, keyOffsetF, keyPoseF, keyScaleF, keyAlphaF, keyEaseF)
+    private val keyFields = Fields.of("motion-key", tF, keyOffsetF, keyPoseF, keyScaleF, keyAlphaF, keyColorF, keyEaseF)
     private val keysF = Field.required("keys", Types.list(Types.nested(keyFields)), "irregular choreography only")
 
     // orbit (ADR-0303 section 3; center is a literal frame-local pivot, see LawSegmenter)
@@ -108,7 +109,8 @@ public object MotionLaws {
     private val faceF = Field.optional("face", Types.enumOf("keep", "tangent", "center"), "keep", "keep = the object does not turn; center / tangent = it turns with the orbit")
 
     // align
-    private val alignToF = Field.required("to", Types.id, "'velocity' (of the attached move laws) or the name of an anchor to face")
+    private val alignToF = Field.required("to", Types.id, "'velocity' (of the attached move laws), the name of an anchor to face, or a named direction (`world.up`, `world.forward`, `<anchor>.<axis>`)")
+    private val alignUpF = Field.optional("up", Types.id, "world.up", "the named direction the object's up is kept toward (Basis.facing(direction, up)); applies to every `to` form")
     private val alignAxisF = Field.optional("axis", Types.id, "forward", "the object axis that is pointed at the target")
 
     // follow / stretch (reactive: written every step ticks)
@@ -123,7 +125,7 @@ public object MotionLaws {
         "move" to (Fields.of("move-law", lawField("move")) + window + Fields.of("move", velocityF, speedF, moveStartF)),
         "orbit" to (Fields.of("orbit-law", lawField("orbit")) + window + Fields.of("orbit", centerF, axisF, degPerTickF, phaseF, faceF)),
         "grow" to (Fields.of("grow-law", lawField("grow")) + window + Fields.of("grow", growStartF, perTickF, toF, growAccelF)),
-        "align" to (Fields.of("align-law", lawField("align")) + window + Fields.of("align", alignToF, alignAxisF, stepF)),
+        "align" to (Fields.of("align-law", lawField("align")) + window + Fields.of("align", alignToF, alignAxisF, alignUpF, stepF)),
         "follow" to (Fields.of("follow-law", lawField("follow")) + window + Fields.of("follow", targetF, stepF)),
         "stretch" to (Fields.of("stretch-law", lawField("stretch")) + window + Fields.of("stretch", baseF, tipF, stretchAxisF, stepF)),
         "fade" to (Fields.of("fade-law", lawField("fade")) + window + Fields.of("fade", fadeStartF, fadeToF, exponentF)),
@@ -269,9 +271,12 @@ public object MotionLaws {
             "align" -> {
                 val axis = axisOf(alignAxisF)
                 val to = v[alignToF]
+                if (to == "velocity" && v[alignUpF] != "world.up") {
+                    ctx.fail("$path.up", "align to velocity keeps the heading's up at world.up (the velocity is a literal direction); '${v[alignUpF]}' is only valid with an anchor or a named direction")
+                }
                 val step = stepOf()
                 for (s in starts) {
-                    laws += AlignMotion(s, forTicks, axis, v[alignAxisF], to == "velocity", to, step, ease, order, path)
+                    laws += AlignMotion(s, forTicks, axis, v[alignAxisF], to == "velocity", to, v[alignUpF], step, ease, order, path)
                     pieces += Piece(path, "turn", s, s + forTicks, order, emptyList(), reactive = to != "velocity")
                 }
             }
@@ -316,7 +321,7 @@ public object MotionLaws {
             velocity = velocity.normalize() * speed
         }
         val start = n.frameVec(v[moveStartF], "$path.start")
-        return { s -> MoveRate(s, forTicks, start, velocity, 0.0, ease) }
+        return { s -> MoveRate(s, forTicks, start, velocity, ease) }
     }
 
     private fun grow(v: FieldValues, ease: String?, forTicks: Int, ctx: GrammarContext, n: LawNumbers, path: String): (Int) -> RateLaw {
@@ -394,12 +399,22 @@ public object MotionLaws {
             }
             val scale = k[keyScaleF]?.toValue()
             val alpha = k[keyAlphaF]
+            val colorText = k[keyColorF]?.let { c ->
+                val lit = (c as? Value.Literal)?.value ?: ctx.fail("$p.color", "a key colour is lowered at load, so it must be a literal #rrggbb")
+                val h = lit.removePrefix("#")
+                if (!lit.startsWith("#") || h.length != 6 || h.toIntOrNull(16) == null) ctx.fail("$p.color", "'$lit' is not #rrggbb")
+                lit.lowercase()
+            }
+            val color = colorText?.let { c ->
+                val v = c.removePrefix("#").toInt(16)
+                Vec3(((v shr 16) and 0xff).toDouble(), ((v shr 8) and 0xff).toDouble(), (v and 0xff).toDouble())
+            }
             val ease = LawEase.forKey(k[keyEaseF], ctx, "$p.ease", allowStep = true)
             val channels = listOfNotNull(
-                "offset".takeIf { offset != null }, "turn".takeIf { turn != null }, "scale".takeIf { scale != null }, "alpha".takeIf { alpha != null },
+                "offset".takeIf { offset != null }, "turn".takeIf { turn != null }, "scale".takeIf { scale != null }, "alpha".takeIf { alpha != null }, "color".takeIf { color != null },
             )
-            if (channels.isEmpty()) ctx.fail(p, "a key sets at least one of offset, pose, scale, alpha")
-            keys += TrackKey(tick, offset, turn, scale, ease, alpha)
+            if (channels.isEmpty()) ctx.fail(p, "a key sets at least one of offset, pose, scale, alpha, color")
+            keys += TrackKey(tick, offset, turn, scale, ease, alpha, colorText)
             lawKeys += LawKey(
                 tick,
                 k[keyOffsetF]?.let { n.frameVec(it, "$p.offset") },
@@ -407,6 +422,7 @@ public object MotionLaws {
                 k[keyScaleF]?.let { n.scale(it, "$p.scale") },
                 alpha?.let { n.num(it, "$p.alpha") },
                 ease,
+                color,
             )
             channels.forEach { pieces += Piece(p, it, tick, tick, order, null) }
         }
@@ -542,8 +558,8 @@ public sealed interface MotionLaw {
 /** `spin` / `move` / `grow` / `fade`: the domain rate law, one copy. */
 public data class RateMotion(val rate: RateLaw, override val order: Int, override val path: String) : MotionLaw
 
-/** One key of a `keys` law; a null channel is not keyed. [pose] is a rotation vector (axis * degrees). */
-public data class LawKey(val tick: Int, val offset: Vec3?, val pose: Vec3?, val scale: Vec3?, val alpha: Double?, val ease: String?)
+/** One key of a `keys` law; a null channel is not keyed. [pose] is a rotation vector (axis * degrees); [color] is rgb 0..255. */
+public data class LawKey(val tick: Int, val offset: Vec3?, val pose: Vec3?, val scale: Vec3?, val alpha: Double?, val ease: String?, val color: Vec3? = null)
 
 public data class KeysMotion(val keys: List<LawKey>, override val order: Int, override val path: String) : MotionLaw
 
@@ -553,9 +569,9 @@ public data class OrbitMotion(
     val face: String, val ease: String?, override val order: Int, override val path: String,
 ) : MotionLaw
 
-/** [toVelocity] points [axis] along the direction of the move laws; otherwise [target] names an anchor (live, re-sent every [step] ticks). */
+/** [toVelocity] points [axis] along the direction of the move laws; otherwise [target] names an anchor or a direction (live, re-sent every [step] ticks). [up] is the named direction the object's up faces. */
 public data class AlignMotion(
-    val at: Int, val forTicks: Int, val axis: Vec3, val axisName: String, val toVelocity: Boolean, val target: String, val step: Int, val ease: String?,
+    val at: Int, val forTicks: Int, val axis: Vec3, val axisName: String, val toVelocity: Boolean, val target: String, val up: String, val step: Int, val ease: String?,
     override val order: Int, override val path: String,
 ) : MotionLaw
 

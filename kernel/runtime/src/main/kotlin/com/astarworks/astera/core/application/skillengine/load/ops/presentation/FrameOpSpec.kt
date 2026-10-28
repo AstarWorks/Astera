@@ -72,6 +72,8 @@ public class FrameOp(
     public val offset: FrameVec,
     public val turn: Rotation,
     public val mode: FrameMode,
+    /** R23: whose axes the frame takes (`caster` / `victim` / `world`); null = the anchor's own axes. Re-read per send (follow) or once (snapshot). */
+    public val axes: String?,
     /** Rate laws already lowered to key tables by [MotionLaws]; null = a still frame. */
     public val motion: List<TrackKey>?,
 ) : OpNode
@@ -86,9 +88,10 @@ public object FrameOpSpec : OpSpec<FrameOp> {
     private val offsetF = Field.optional("offset", FrameVecs.type, FrameVec.Parts(Value.Literal(0.0), Value.Literal(0.0), Value.Literal(0.0)), "initial position in the parent's axes {forward, up, left}")
     private val turnF = Field.optional("turn", Rotations.type, Rotation.Turns(emptyList()), "initial orientation relative to the parent basis, [{axis, deg}, ...] (axes long/edge/face need part)")
     private val modeF = Field.optional("mode", Types.enumOf("follow", "snapshot"), "follow", "follow: re-read the parent at every send; snapshot: copy the pose once")
+    private val axesF = Field.optional("axes", Types.nullable(Types.enumOf("caster", "victim", "world")), null, "whose axes the frame takes: caster | victim | world; absent = the anchor's own axes")
     private val motionF = Field.optional("motion", Types.nullable(MotionType), null, "laws on the origin and the axes (ADR-0303 3)")
 
-    override val fields: Fields = Fields.of("frame", anchorF, partF, offsetF, turnF, modeF, motionF)
+    override val fields: Fields = Fields.of("frame", anchorF, partF, offsetF, turnF, modeF, axesF, motionF)
 
     private object MotionType : FieldType<List<TrackKey>> {
         override val label = "list of laws"
@@ -107,7 +110,7 @@ public object FrameOpSpec : OpSpec<FrameOp> {
                 id, src, whenExpr, timing,
                 values[anchorF], values[partF], values[offsetF], values[turnF],
                 if (values[modeF] == "snapshot") FrameMode.SNAPSHOT else FrameMode.FOLLOW,
-                values[motionF],
+                values[axesF], values[motionF],
             )
         }
 
@@ -153,6 +156,7 @@ public object FrameOpSpec : OpSpec<FrameOp> {
 
             val look = LinkedHashMap<String, Val<Any>>()
             look["mode"] = Val.Known(if (op.mode == FrameMode.SNAPSHOT) "snapshot" else "follow")
+            op.axes?.let { look["axes"] = Val.Known(it) }
             if (item != null) look["item"] = Val.Known(item)
             if (op.part != null) look["part"] = Val.Known(op.part)
             rows += Row(

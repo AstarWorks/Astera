@@ -103,9 +103,12 @@ internal object LawEase {
             if (!allowStep) ctx.fail(path, "ease 'step' is a pose cut, write keys")
             return name
         }
+        if (EaseCurves.isSteps(name)) {
+            ctx.fail(path, "ease '$name': steps(n) is a pose cut, not a law ease; write keys (steps(n) is valid only in `every` ranges and CEL ease())")
+        }
         curve(name, ctx, path)
         if (Easing.fromKey(name) == null) {
-            ctx.fail(path, "ease '$name' is a valid curve but a law lowers to key eases (known: $KNOWN)")
+            ctx.fail(path, "ease '$name' is a valid curve but a law lowers to key eases (known: $KNOWN; cubic_bezier is not a key ease)")
         }
         return name
     }

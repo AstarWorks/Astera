@@ -81,6 +81,9 @@ public interface PlayerHooks {
      * false = unsupported. `count` and `volume` never reach here: the player folds them into the instance's later particle / sound rows.
      */
     public fun setDisplayField(handle: VisualHandle, field: String, value: Double): Boolean = false
+
+    /** One `set` row whose value is text: `color` (`#rrggbb`) and `text` (a sprite flipbook glyph). false = unsupported. */
+    public fun setDisplayText(handle: VisualHandle, field: String, value: String): Boolean = false
 }
 
 private object NoHooks : PlayerHooks
@@ -482,6 +485,13 @@ public class TablePlayer(
             pp = live.vec(run.cursor.handle, rec.anchorName, binding)
             pr = live.rot(run.cursor.handle, rec.anchorName, binding)
         }
+        if (parent == null) {
+            when (rec.axes) {
+                "world" -> pr = Quaterniond()
+                "caster" -> pr = live.rot(run.cursor.handle, "caster", binding)
+                "victim" -> pr = live.rot(run.cursor.handle, "target", binding)
+            }
+        }
         return PoseV(Vector3d(local.pos).rotate(pr).add(pp), Quaterniond(pr).mul(local.rot), Vector3d(local.scale))
     }
 
@@ -575,6 +585,7 @@ public class TablePlayer(
         val body = a.kind == SpawnKind.PROJECTILE_BODY
         val rec = Rec(a.kind, if (body) null else a.anchor, if (body) "" else a.anchorName, now, ctx.owner, local)
         rec.billboard = a.look.fields["billboard"]?.let { runCatching { DisplayBillboard.valueOf(strOf(run, it, ctx).uppercase()) }.getOrNull() } ?: DisplayBillboard.FIXED
+        rec.axes = a.look.fields["axes"]?.let { strOf(run, it, ctx) }
         run.recs[id] = rec
         if (body) {
             rec.flight = flightOf(run, a.look, local, ctx)
@@ -615,7 +626,7 @@ public class TablePlayer(
             )
             SpawnKind.SPRITE -> visual.spawnPlate(
                 owner, req(run, look, "sprite", ctx), look.fields["alpha"]?.let { dbl(run, it, ctx) } ?: 1.0,
-                look.fields["tint"]?.let { strOf(run, it, ctx) }, flag(run, look, "see_through", ctx), pose, brightness, glow = glow,
+                look.fields["color"]?.let { strOf(run, it, ctx) }, flag(run, look, "see_through", ctx), pose, brightness, glow = glow,
             )
             SpawnKind.RIBBON -> visual.spawnTrail(
                 owner, dbl(run, look.fields["ticks"] ?: throw IllegalArgumentException("ribbon look needs 'ticks'"), ctx).toInt(),
@@ -705,6 +716,15 @@ public class TablePlayer(
 
     /** One `set` row (item 15c): `count` / `volume` are folded into the instance's later particle / sound rows, `text_opacity` goes to the display. */
     private fun set(run: Run, row: Row, a: Action.Set, ctx: RowCtx, now: Int, src: String) {
+        if (a.field == "color" || a.field == "text") {
+            val rec = run.recs[row.instance]
+            val handle = rec?.real
+            if (rec != null && rec.kind != SpawnKind.TEXT && rec.kind != SpawnKind.SPRITE) {
+                fault(run, now, src, "set ${a.field}: '${row.instance.text}' is a ${rec.kind.name.lowercase()} display; it is for text and sprite displays")
+            } else if (handle == null) fault(run, now, src, "set ${a.field}: '${row.instance.text}' has no display handle")
+            else if (!hooks.setDisplayText(handle, a.field, strOf(run, a.value, ctx))) fault(run, now, src, "set ${a.field}: no display sink in PlayerHooks")
+            return
+        }
         val value = dbl(run, a.value, ctx)
         when (a.field) {
             "count", "volume" -> run.fields.getOrPut(row.instance) { HashMap() }[a.field] = value
@@ -1126,6 +1146,8 @@ public class TablePlayer(
         var hitTimes: Int = 0
         val hitVictims: MutableSet<UUID> = HashSet()
         var billboard: DisplayBillboard = DisplayBillboard.FIXED
+        /** `frame axes`: which rotation a root frame takes (null = its anchor's own). */
+        var axes: String? = null
         private var from: PoseV = to
         private var segStart: Int = spawnTick
         private var segDur: Int = 0

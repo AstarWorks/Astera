@@ -130,6 +130,7 @@ public class SkillCompiler(
 
     private object NoSprites : SpriteCatalog {
         override fun natural(id: String): Vec2Px? = null
+        override fun frames(id: String): Int? = null
     }
 
     private object NoFrames : FrameLookup {
