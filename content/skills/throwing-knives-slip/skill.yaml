@@ -1,17 +1,26 @@
-# Converted from content/skills/throwing-knives-slip.yaml by tools/skill-convert/convert.py (v1 archetype: buff). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
-# Generated point-frame offsets are [left, up, forward] in the parent frame.
-apiVersion: "astera/v2"
+apiVersion: astera/v3
 kind: Skill
 id: throwing-knives-slip
 item: throwing-knives
-meta: {name: {ja: "すり抜け", en: "Slip Away"}, description: {ja: "後ろへ跳んで間合いを取る。", en: "Hops back to break contact."}, cooldown_ticks: 120, resource_cost: 0, tags: [buff, movement]}
-gameplay:
-  params: {evasive_ticks: 25, propel: -1.0}
-  expose:
-    - {id: duration, param: evasive_ticks}
-  timeline:
-    - id: t0
-      at: 0
+meta:
+  name: {ja: "すり抜け", en: "Slip Away"}
+  description: {ja: "後ろへ跳んで間合いを取る。", en: "Hops back to break contact."}
+  cooldown_ticks: 120
+  resource_cost: 0
+  tags: [buff, movement]
+# GAP: gameplay.expose (duration <- evasive_ticks) -> none (inline literal)
+anchors:
+  - {id: puff_pt, anchor: caster, offset: {up: 0.2}}
+machine:
+  start: main
+  states:
+    main:
+      for: 1
+      then: end
       do:
-        - {id: buff, op: status, target: caster, status: evasive, duration_ticks: "${evasive_ticks}"}
-        - {id: propel, op: propel, direction: "= axis(caster, \"forward\")", strength: "${propel}"}
+        - {id: buff, op: status, target: caster, status: evasive, stacks: 1, for: 25}
+        # GAP: propel {direction: axis(caster,"forward"), strength: -1.0} -> impulse (fields not spelled in ADR 10.1b); row below is the closest form
+        - {id: propel, op: impulse, target: caster, direction: "= axis(caster, \"forward\")", strength: -1.0}
+        - {id: snd, op: sound, sound: "astera:weapons/dash-whoosh", anchor: caster, volume: 0.8, pitch: 1.3}
+        - {id: puff, op: particle_def, def: dash-cloud, anchor: puff_pt}
+    end: {final: true}

@@ -1,26 +1,37 @@
-# Converted from content/skills/sword-slash.yaml by tools/skill-convert/convert.py (v1 archetype: melee). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
-# Generated point-frame offsets are [left, up, forward] in the parent frame.
-# CONVERT-V1-NOOP melee params.knockback (x1): knockback: 0.4 (v1 MeleeHandler ignores it; the plain-hit push is the combat pipeline's)
-apiVersion: "astera/v2"
+apiVersion: astera/v3
 kind: Skill
 id: sword-slash
 item: knight-sword
 meta:
   name: {ja: "斬撃", en: "Sword Slash"}
-  description: {ja: "前方の扇状の範囲を斬りつけ、命中した対象に物理ダメージを与える。", en: "Slashes a forward arc, dealing physical damage to everything it catches."}
+  description: {ja: "前方を薙ぎ払う基本の斬撃。", en: "A basic sweeping slash."}
   cooldown_ticks: 10
   tags: [melee, physical]
-gameplay:
-  params: {arc_deg: 100.0, range: 3.5, dmg_physical: 40.0}
-  expose:
-    - {id: damage, param: dmg_physical}
-    - {id: range, param: range}
-  timeline:
-    - id: t0
-      at: 0
+# GAP: gameplay.expose (damage <- dmg_physical, arc_deg, range) -> none (inline literals)
+anchors:
+  - {id: sweep_pt, anchor: caster.eye, offset: {up: -0.3, forward: 1.6}}
+  - {id: foe,   anchor: victim.root}
+  - {id: heart, anchor: victim.root, offset: {up: 1.2}}
+machine:
+  start: swing
+  states:
+    swing:
+      for: 1
+      then: end
       do:
-        - {id: swing, op: hit, frames: [caster], sector: {frame: caster, at: eye, forward: caster.forward, left: caster.left, angle_deg: "${arc_deg}", range: "${range}", height: 2.0}, window: once, ticks: 1}
-  "on":
-    hit:
-      - {id: dmg, op: damage, target: victim, components: [{kind: physical, amount: "${dmg_physical}"}], when: "= event.source == 'swing'"}
-      - {id: swing_hit_count, op: counter, key: swing_hits, when: "= event.source == 'swing'"}
+        - id: swing
+          op: hit
+          at: 0
+          anchor: caster.eye
+          shape: {sector: {deg: 100, range: 3.5, height: 2.0}}
+          targets: enemies
+          damage: {physical: 40.0}
+          window: once
+          on:
+            hit:
+              - {id: snd_hit, op: sound, sound: "astera:weapons/blade-hit", anchor: foe}
+              - {id: fx_hit, op: particle_def, def: hit-spark, anchor: heart}
+        - {id: snd, op: sound, sound: "astera:weapons/sword-swing", anchor: caster}
+        - {id: fx, op: particle_def, def: slash-sweep, anchor: sweep_pt}
+        # GAP: counter swing_hits (+1 per hit) and sound blade-miss when counter('swing_hits') == 0.0 (miss cue) -> none (no counter op; class-L when is not allowed on a sound)
+    end: {final: true}

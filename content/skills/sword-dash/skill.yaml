@@ -1,14 +1,26 @@
-# Converted from content/skills/sword-dash.yaml by tools/skill-convert/convert.py (v1 archetype: buff). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
-# Generated point-frame offsets are [left, up, forward] in the parent frame.
-# also bound to items: knight-sword
-apiVersion: "astera/v2"
+apiVersion: astera/v3
 kind: Skill
 id: sword-dash
 item: dagger
-meta: {name: {ja: "ダッシュ", en: Dash}, description: {ja: "一瞬だけ素早く駆け出す。", en: "A brief burst of speed."}, cooldown_ticks: 100, resource_cost: 30, tags: [buff, movement, sword]}
-gameplay:
-  params: {dash_ticks: 20, propel: 1.1}
-  expose:
-    - {id: duration, param: dash_ticks}
-  timeline:
-    - {id: t0, at: 0, do: [{id: buff, op: status, target: caster, status: dash, duration_ticks: "${dash_ticks}"}, {id: propel, op: propel, direction: "= axis(caster, \"forward\")", strength: "${propel}"}]}
+meta:
+  name: {ja: "ダッシュ", en: "Dash"}
+  description: {ja: "一瞬だけ素早く駆け出す。", en: "A brief burst of speed."}
+  cooldown_ticks: 100
+  resource_cost: 30
+  tags: [buff, movement, sword]
+# GAP: gameplay.expose (duration <- dash_ticks) -> none (inline literal)
+anchors:
+  - {id: puff_pt, anchor: caster, offset: {up: 0.2}}
+machine:
+  start: main
+  states:
+    main:
+      for: 1
+      then: end
+      do:
+        - {id: buff, op: status, target: caster, status: dash, stacks: 1, for: 20}
+        # GAP: propel {direction: axis(caster,"forward"), strength: 1.1} -> impulse (fields not spelled in ADR 10.1b); row below is the closest form
+        - {id: propel, op: impulse, target: caster, direction: "= axis(caster, \"forward\")", strength: 1.1}
+        - {id: snd, op: sound, sound: "astera:weapons/dash-whoosh", anchor: caster}
+        - {id: puff, op: particle_def, def: dash-cloud, anchor: puff_pt}
+    end: {final: true}

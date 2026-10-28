@@ -1,6 +1,4 @@
-# Converted from content/skills/swift-powder-use.yaml by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
-# Generated point-frame offsets are [left, up, forward] in the parent frame.
-apiVersion: "astera/v2"
+apiVersion: astera/v3
 kind: Skill
 id: swift-powder-use
 item: swift-powder
@@ -10,11 +8,17 @@ meta:
   cooldown_ticks: 200
   resource_cost: 0
   tags: [support, movement, consumable]
-gameplay:
-  params: {swift_ticks: 160, swift_stacks: 1}
-  timeline:
-    - id: t0
-      at: 0
+anchors:
+  - {id: puff_pt, anchor: caster, offset: {up: 0.2}}
+machine:
+  start: main
+  states:
+    main:
+      for: 1
+      then: end
       do:
-        - {id: consume, op: consume_item, target: caster, item: swift-powder, count: 1}
-        - {id: st_swift, op: status, status: swift, duration_ticks: "${swift_ticks}", target: caster, stacks: "${swift_stacks}"}
+        # GAP: consume_item {target: caster, item: swift-powder, count: 1} -> none (no item-consume op in ADR 10.1b)
+        - {id: st_swift, op: status, target: caster, status: swift, stacks: 1, for: 160}
+        - {id: snd, op: sound, sound: entity.player.attack.knockback, anchor: caster, pitch: 1.4}
+        - {id: puff, op: particle_def, def: dash-cloud, anchor: puff_pt}
+    end: {final: true}
