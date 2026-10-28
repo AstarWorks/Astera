@@ -20,5 +20,4 @@ gameplay:
   timeline:
     - at: 0
       do:
-        # GAP: place_shape (shape wall, block astera:tempered_glass, width 3, height 3, revert_after 160) -> none in v3 gameplay ops; kept verbatim
-        - {id: place, op: place_shape, shape: wall, block: "astera:tempered_glass", width: 3, height: 3, revert_after: 160}
+        - {id: place, op: place_shape, at: 0, anchor: caster, shape: {wall: {width: 3, height: 3}}, block: "astera:tempered_glass", consume: none, ripple: 29, revert: 160, outside_arena: false}

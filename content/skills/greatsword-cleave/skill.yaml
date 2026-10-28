@@ -26,11 +26,15 @@ gameplay:
           op: hit
           anchor: caster.eye
           targets: enemies
-          shape: {sector: {deg: 150.0, range: 4.2, height: 2.0}}
+          shape: {sector: {deg: 150.0, range: 4.2, height: 2.0, forward: look}}
+          window: once
+          ignore_invulnerability: false
           damage: {physical: 65.0}
           on:
             hit:
               - {id: snd_hit, op: sound, sound: "astera:weapons/blade-crit", anchor: victim.body, volume: 1.0, pitch: 1.0}
               - {id: fx_hit, op: particle_def, def: hit-spark, anchor: heart}
               - {id: fx_ind, op: particle_def, def: hit-indicator, anchor: head}
-              # GAP: counter swing_hits (+ miss sound when counter == 0) -> none in v3; the astera:weapons/blade-miss sound on a whiff is lost, nothing in v3 reads 'no hit' (hit.on has only hit)
+              - {id: kb, op: knockback, target: event.victim, direction: "= normalize(pos(event.victim) - pos(caster))", strength: 1.3}
+            miss:
+              - {id: whiff, op: sound, sound: "astera:weapons/blade-miss", anchor: caster, volume: 1.0, pitch: 1.0}

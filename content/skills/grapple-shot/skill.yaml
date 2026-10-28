@@ -35,12 +35,11 @@ gameplay:
           block: {mode: despawn}
           on:
             hit:
-              - {id: dmg, op: damage, target: event.victim, components: [{kind: physical, amount: 5}]}
+              - {id: dmg, op: damage, target: event.victim, damage: {physical: 5}}
               - {id: kb, op: knockback, target: event.victim, direction: "= normalize(flat(pos(caster) - pos(event.victim))) + vec(0.0, 0.2, 0.0)", strength: 1.2}
               - {id: snd_hit, op: sound, sound: "block.chain.place", anchor: heart, volume: 0.8, pitch: 0.8}
               - {id: fx_hit, op: particle_def, def: hit-spark, anchor: heart}
             block:
-              # GAP: propel (forward 1.3 then up 0.4, two ops) -> impulse is the closest op; propel semantics unverified
-              - {id: pull, op: impulse, target: caster, vector: "= look(caster) * 1.3 + vec(0.0, 0.4, 0.0)"}
+              - {id: pull, op: impulse, at: 0, target: caster, vector: {of: caster, forward: 1.3, up: 0.4}}
               - {id: snd_blk, op: sound, sound: "block.chain.place", anchor: contact.point, volume: 0.8, pitch: 0.8}
               - {id: fx_blk, op: particle_def, def: hit-spark, anchor: contact.point}

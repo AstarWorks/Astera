@@ -30,7 +30,7 @@ gameplay:
           block: {mode: despawn}
           on:
             hit:
-              - {id: dmg, op: damage, target: event.victim, components: [{kind: water, amount: 15}]}
+              - {id: dmg, op: damage, target: event.victim, damage: {water: 15}}
               - {id: st_sinking, op: status, target: event.victim, status: sinking, stacks: 1, for: 60}
               - {id: snd_hit, op: sound, sound: "astera:skills/frost-impact", anchor: heart, volume: 0.7, pitch: 1.1}
               - {id: fx_hit, op: particle_def, def: frost-impact, anchor: heart}
