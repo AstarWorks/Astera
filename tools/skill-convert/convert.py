@@ -858,10 +858,14 @@ def convert_skill(d, vfx_dir, item):
         muzzle = c.pframe("caster.eye", [0.0, up, fw], "g")
         speed = c.param("launch_speed", params["launch_speed"])
         life = c.param("max_lifetime_ticks", params["max_lifetime_ticks"])
-        aim = c.param("aim_distance", V(params.get("aim_distance", 50.0)))
-        c.g(CAST, 0, {"id": "bolt", "op": "projectile", "body": "bolt", "from": muzzle,
-                      "velocity": "= normalize(aim_point(caster, %s) - pos(%s)) * %s" % (c.pname(aim), muzzle, c.pname(speed)),
-                      "max_ticks": life, "radius": V(params.get("hit_radius", 0.3))})
+        # v1: aim_distance 0 (default) = parallel to the look direction; > 0 = toward eye + look * d, unclamped.
+        if float(params.get("aim_distance", 0.0)) > 0.0:
+            aim = c.param("aim_distance", V(params["aim_distance"]))
+            vel = "= normalize(aim_point(caster, %s) - pos(%s)) * %s" % (c.pname(aim), muzzle, c.pname(speed))
+        else:
+            vel = "= look_dir(caster) * %s" % c.pname(speed)
+        c.g(CAST, 0, {"id": "bolt", "op": "projectile", "body": "bolt", "from": muzzle, "velocity": vel,
+                      "max_ticks": life, "radius": V(params.get("hit_radius", 0.5))})
         guard = "= event.source == 'bolt'" if guard_proj else None
         wh = Where("handler", "hit", guard)
         wb = Where("handler", "block", guard)
@@ -869,7 +873,7 @@ def convert_skill(d, vfx_dir, item):
         vis = params.get("visual") or {}
         for tr in vis.get("trail") or []:
             for part in tr.get("particles", []):
-                op = {"id": c.oid("trail"), "op": "emit", "at": "bolt", "particle": part["id"], "count": part.get("count", 1)}
+                op = {"id": c.oid("trail"), "op": "emit", "at": "bolt", "spacing": V(vis.get("trail_spacing", 0.5)), "particle": part["id"], "count": part.get("count", 1)}
                 if "color" in part:
                     op["color"] = color_hex(part["color"])
                 if tr["type"] == "line" or "scale" in part or part.get("offset"):

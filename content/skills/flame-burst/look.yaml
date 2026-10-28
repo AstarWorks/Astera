@@ -18,10 +18,10 @@ presentation:
         - {id: mesh, op: mesh, frame: bolt, item: "minecraft:fire_charge", scale: 0.9}
         - {id: snd, op: sound, sound: "astera:skill/wand/cast", at: caster, volume: 0.8, pitch: 1.1}
         - {id: emit, op: emit, at: pt_caster_0_m0p2_1, particle: fire-cast, count: 1}
-    - {id: rep1, at: 0, every: 1, until: end, do: [{id: trail, op: emit, at: bolt, particle: flame, count: 3}]}
-    - {id: rep2, at: 0, every: 1, until: end, do: [{id: trail_2, op: emit, at: bolt, particle: dust, count: 2, color: "#ff7814"}]}
-    - {id: rep3, at: 0, every: 1, until: end, do: [{id: trail_3, op: emit, at: bolt, particle: lava, count: 1}]}
-    - {id: rep4, at: 0, every: 1, until: end, do: [{id: trail_4, op: emit, at: bolt, particle: smoke, count: 1}]}
+    - {id: rep1, at: 0, every: 1, until: end, do: [{id: trail, op: emit, at: bolt, spacing: 0.3, particle: flame, count: 3}]}
+    - {id: rep2, at: 0, every: 1, until: end, do: [{id: trail_2, op: emit, at: bolt, spacing: 0.3, particle: dust, count: 2, color: "#ff7814"}]}
+    - {id: rep3, at: 0, every: 1, until: end, do: [{id: trail_3, op: emit, at: bolt, spacing: 0.3, particle: lava, count: 1}]}
+    - {id: rep4, at: 0, every: 1, until: end, do: [{id: trail_4, op: emit, at: bolt, spacing: 0.3, particle: smoke, count: 1}]}
   "on":
     hit:
       - {id: snd_2, op: sound, sound: "astera:skills/fire-impact", at: contact.point, volume: 0.5, pitch: 1.3}

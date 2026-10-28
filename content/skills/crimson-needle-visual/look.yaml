@@ -8,4 +8,4 @@ id: crimson-needle-visual
 presentation:
   timeline:
     - {id: fx0, at: 0, do: [{id: mesh, op: mesh, frame: bolt, item: "minecraft:redstone", scale: 0.35}]}
-    - {id: rep1, at: 0, every: 1, until: end, do: [{id: trail, op: emit, at: bolt, particle: dust, count: 1, color: "#f02341"}]}
+    - {id: rep1, at: 0, every: 1, until: end, do: [{id: trail, op: emit, at: bolt, spacing: 0.2, particle: dust, count: 1, color: "#f02341"}]}

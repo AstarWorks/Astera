@@ -63,6 +63,8 @@ public class PresentationRuntime(
         val live = LinkedHashMap<String, Live>()
         val sounds = LinkedHashMap<String, SoundTask>()
         val tracks = LinkedHashMap<String, TrackState>()
+        /** Last world position an `emit` with `spacing` ran at, per op id. */
+        val lastEmitAt = HashMap<String, Vec3>()
         val lastOrigin = HashMap<String, Vec3>()
         val velocity = HashMap<String, Vec3>()
         val watched = LinkedHashSet<String>()

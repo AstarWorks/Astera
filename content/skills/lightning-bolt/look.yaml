@@ -20,10 +20,10 @@ presentation:
         - {id: mesh, op: mesh, frame: bolt, item: "minecraft:end_rod", scale: 0.8}
         - {id: snd, op: sound, sound: "astera:skill/wand/cast", at: caster, volume: 0.45, pitch: 1.8}
         - {id: emit, op: emit, at: pt_caster_0_m0p2_1, particle: thunder-cast, count: 1}
-    - {id: rep1, at: 0, every: 1, until: end, do: [{id: trail, op: emit, at: bolt, particle: electric_spark, count: 4}]}
-    - {id: rep2, at: 0, every: 1, until: end, do: [{id: trail_2, op: emit, at: bolt, particle: end_rod, count: 1}]}
-    - {id: rep3, at: 0, every: 1, until: end, do: [{id: trail_3, op: emit, at: bolt, particle: electric_spark, count: 1}]}
-    - {id: rep4, at: 0, every: 1, until: end, do: [{id: trail_4, op: emit, at: bolt, particle: end_rod, count: 1}]}
+    - {id: rep1, at: 0, every: 1, until: end, do: [{id: trail, op: emit, at: bolt, spacing: 0.5, particle: electric_spark, count: 4}]}
+    - {id: rep2, at: 0, every: 1, until: end, do: [{id: trail_2, op: emit, at: bolt, spacing: 0.5, particle: end_rod, count: 1}]}
+    - {id: rep3, at: 0, every: 1, until: end, do: [{id: trail_3, op: emit, at: bolt, spacing: 0.5, particle: electric_spark, count: 1}]}
+    - {id: rep4, at: 0, every: 1, until: end, do: [{id: trail_4, op: emit, at: bolt, spacing: 0.5, particle: end_rod, count: 1}]}
   "on":
     hit:
       - {id: snd_2, op: sound, sound: "astera:skills/lightning-impact", at: contact.point, volume: 0.7, pitch: 1.3}

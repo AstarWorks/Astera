@@ -19,6 +19,8 @@ public sealed interface FxOp : PresentationOp {
         val inheritVelocity: Value<Double>?,
         val color: Value<String>?,
         val seed: String?,
+        /** Trail density: with a spacing above 0 the burst repeats every [spacing] blocks along the path `at` travelled since the last run (v1 `trail_spacing`). */
+        val spacing: Value<Double>? = null,
     ) : FxOp
 
     /** Positional sound: `at` is required, there are no unlocated sounds. */

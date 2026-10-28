@@ -63,6 +63,9 @@ public interface ExprHost {
     /** Point on the look ray of [caster] at [range] blocks, clamped to the first block or entity the ray meets. */
     public fun aimPoint(caster: ExprValue.Ref, range: Double): GeoVec3
 
+    /** Unit look direction of [caster] (eye pitch included, nothing clamped): the v1 projectile aim. */
+    public fun lookDir(caster: ExprValue.Ref): GeoVec3
+
     /** Grip-to-tip (or root-to-tip) distance of the item point table of [frame]. */
     public fun bladeLen(frame: ExprValue.Ref): Double
 

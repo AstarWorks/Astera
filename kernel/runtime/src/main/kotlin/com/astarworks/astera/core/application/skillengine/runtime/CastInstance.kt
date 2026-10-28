@@ -377,7 +377,9 @@ internal class CastInstance(
 
     override fun registerHit(registration: HitRegistration) {
         hitRegs.removeAll { it.reg.id == registration.id && it.reg.frame == registration.frame }
-        hitRegs += HitReg(registration)
+        // Seed the sweep origin so the very first segment (muzzle -> first position) is block-tested and swept too (v1 probed from the spawn point).
+        val seed = try { resolveVolume(registration)?.let { anchorOf(it) } } catch (e: ValueResolveException) { null }
+        hitRegs += HitReg(registration, seed)
     }
 
     override fun startMotion(frame: FrameId, spec: MotionSpec) {
@@ -545,7 +547,22 @@ internal class CastInstance(
             val hitterVel = hitterVelocity(reg.reg.frame)
             val volume = sweep(reg, rawVolume)
             val candidates = ports.entities.nearby(volume.broadCenter, volume.broadRadius, request.caster)
-            val found = deps.contacts.narrow(reg.reg.id, tick, reg.reg.frame, volume, hitterVel, candidates)
+            val anchor = anchorOf(volume)
+            val prev = reg.prevAnchor
+            reg.prevAnchor = anchor
+            // v1: the wall is probed first and an entity only counts if it is nearer than the wall along the segment.
+            val wall = if (prev != null && anchor != null && prev != anchor && reg.reg.id !in blockedOps) {
+                ports.entities.raycastBlock(prev, anchor)
+            } else {
+                null
+            }
+            val narrowed = deps.contacts.narrow(reg.reg.id, tick, reg.reg.frame, volume, hitterVel, candidates)
+            val found = if (wall != null && prev != null) {
+                val limit = prev.distance(wall.point)
+                narrowed.filter { prev.distance(it.pointWorld) <= limit }
+            } else {
+                narrowed
+            }
             var contacted = false
             val cap = reg.reg.maxCount
             val nearestFirst = if (cap == null) found else found.sortedBy { it.pointWorld.distanceSquared(volume.broadCenter) }
@@ -557,18 +574,20 @@ internal class CastInstance(
                 contactedOps += reg.reg.id
                 queue += CastEvent(SkillEvents.HIT, tick, source = reg.reg.id, contact = c)
             }
-            val anchor = anchorOf(volume)
-            val prev = reg.prevAnchor
-            reg.prevAnchor = anchor
-            if (!contacted && prev != null && anchor != null && prev != anchor &&
-                reg.reg.id !in contactedOps && reg.reg.id !in blockedOps
-            ) {
-                ports.entities.raycastBlock(prev, anchor)?.let { hit ->
-                    blockedOps += reg.reg.id
-                    queue += CastEvent(SkillEvents.BLOCK, tick, source = reg.reg.id, contact = blockContact(reg.reg, hit.point, hit.normal, hit.blockKey, hitterVel))
-                }
+            if (!contacted && wall != null) {
+                blockedOps += reg.reg.id
+                snapBody(reg.reg.frame, wall.point)
+                queue += CastEvent(SkillEvents.BLOCK, tick, source = reg.reg.id, contact = blockContact(reg.reg, wall.point, wall.normal, wall.blockKey, hitterVel))
             }
         }
+    }
+
+    /** v1 `flight.position = contact.at`: the body stops at the face instead of overshooting into the wall. */
+    private fun snapBody(frame: String, at: Vec3) {
+        val id = FrameId(frame)
+        val node = tree.node(id) ?: return
+        val world = tree.worldOf(id).getOrNull() ?: return
+        tree.setLocal(id, node.local.copy(origin = node.local.origin + (at - world.origin)))
     }
 
     private fun blockContact(reg: HitRegistration, point: Vec3, normal: Vec3, key: String, vel: Vec3) = ContactEvent(
@@ -686,6 +705,8 @@ internal class CastInstance(
         val existing = tree.node(contact)
         if (existing == null) {
             addNode(FrameNode(contact, FrameKind.CONTACT, parent, local))?.let { report(null, "contact frame: ${it.reasonText()}") }
+            // `at: contact.point` in presentation ops (impact sound / particles) names this point; without it the ref never resolved.
+            tree.definePoint(FramePoint(contact, "point", Vec3.ZERO))
             return
         }
         val kids = tree.children(contact)
@@ -769,6 +790,8 @@ internal class CastInstance(
 
     private val exprHost = object : ExprHost {
         override fun aimPoint(caster: ExprValue.Ref, range: Double): Vec3 = aimAt(range)
+
+        override fun lookDir(caster: ExprValue.Ref): Vec3 = lookDirection()
 
         override fun counter(key: String): Double = counters[key] ?: 0.0
 

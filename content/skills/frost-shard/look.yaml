@@ -18,9 +18,9 @@ presentation:
         - {id: mesh, op: mesh, frame: bolt, item: "minecraft:prismarine_shard", scale: 0.9}
         - {id: snd, op: sound, sound: "astera:skills/frost-cast", at: caster, volume: 0.8, pitch: 1.4}
         - {id: emit, op: emit, at: pt_caster_0_m0p2_1, particle: frost-cast, count: 1}
-    - {id: rep1, at: 0, every: 1, until: end, do: [{id: trail, op: emit, at: bolt, particle: snowflake, count: 2}]}
-    - {id: rep2, at: 0, every: 1, until: end, do: [{id: trail_2, op: emit, at: bolt, particle: dust, count: 2, color: "#ebf5ff"}]}
-    - {id: rep3, at: 0, every: 1, until: end, do: [{id: trail_3, op: emit, at: bolt, particle: end_rod, count: 1}]}
+    - {id: rep1, at: 0, every: 1, until: end, do: [{id: trail, op: emit, at: bolt, spacing: 0.3, particle: snowflake, count: 2}]}
+    - {id: rep2, at: 0, every: 1, until: end, do: [{id: trail_2, op: emit, at: bolt, spacing: 0.3, particle: dust, count: 2, color: "#ebf5ff"}]}
+    - {id: rep3, at: 0, every: 1, until: end, do: [{id: trail_3, op: emit, at: bolt, spacing: 0.3, particle: end_rod, count: 1}]}
   "on":
     hit:
       - {id: snd_2, op: sound, sound: "astera:skills/frost-impact", at: contact.point, volume: 0.7, pitch: 1.5}

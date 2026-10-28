@@ -156,7 +156,9 @@ class CastSim(
                 return BlockHit(from + (to - from) * t, Vec3(0.0, 1.0, 0.0), "minecraft:grass_block")
             }
             val z = blockAtZ ?: return null
-            return if (from.z <= z && to.z >= z) BlockHit(Vec3(origin.x, origin.y + 1.0, z), Vec3(0.0, 0.0, -1.0), "minecraft:stone") else null
+            if (from.z > z || to.z < z || from.z == to.z) return null
+            // Exact crossing of the wall plane along the segment (Paper: the face point of the ray trace).
+            return BlockHit(from + (to - from) * ((z - from.z) / (to.z - from.z)), Vec3(0.0, 0.0, -1.0), "minecraft:stone")
         }
     }
 

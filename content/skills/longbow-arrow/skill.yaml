@@ -9,7 +9,7 @@ frames:
   - {id: bolt, kind: body, parent: world, inactive: true}
   - {id: pt_caster_eye_0_0_0p5, kind: point, parent: caster.eye, offset: [0.0, 0.0, 0.5]}
 gameplay:
-  params: {launch_speed: 3.4, max_lifetime_ticks: 60, aim_distance: 50.0, dmg_physical: 24.0}
+  params: {launch_speed: 3.4, max_lifetime_ticks: 60, dmg_physical: 24.0}
   expose:
     - {id: damage, param: dmg_physical}
     - {id: flight_speed, param: launch_speed}
@@ -21,7 +21,7 @@ gameplay:
           op: projectile
           body: bolt
           from: pt_caster_eye_0_0_0p5
-          velocity: "= normalize(aim_point(caster, aim_distance) - pos(pt_caster_eye_0_0_0p5)) * launch_speed"
+          velocity: "= look_dir(caster) * launch_speed"
           max_ticks: "${max_lifetime_ticks}"
-          radius: 0.3
+          radius: 0.5
   "on": {hit: [{id: dmg, op: damage, components: [{kind: physical, amount: "${dmg_physical}"}], target: victim}]}

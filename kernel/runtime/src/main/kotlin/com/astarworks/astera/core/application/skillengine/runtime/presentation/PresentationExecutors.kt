@@ -105,8 +105,23 @@ internal class EmitExecutor(private val rt: PresentationRuntime) : OpExecutor<Fx
         if (!ctx.passes(op)) return
         val s = rt.state(ctx)
         val at = rt.pointWorld(s, op.at) ?: return
+        val spacing = op.spacing?.let { ctx.values.num(it) } ?: 0.0
+        val prev = if (spacing > 0.0) s.lastEmitAt.put(op.id, at) else null
+        if (prev != null && prev.distance(at) > spacing && prev.distance(at) < MAX_TRAIL_SPAN) {
+            // v1 trail: replay the burst every `spacing` blocks along the segment covered since the last run (a continuous beam).
+            val len = prev.distance(at)
+            val steps = kotlin.math.floor(len / spacing).toInt()
+            for (i in 1 until steps + 1) {
+                val p = prev + (at - prev) * ((i * spacing) / len).coerceAtMost(1.0)
+                if (p != at) ctx.ports.particles.emit(burstAt(op, ctx, s, p, i))
+            }
+        }
+        ctx.ports.particles.emit(burstAt(op, ctx, s, at, 0))
+    }
+
+    private fun burstAt(op: FxOp.Emit, ctx: OpContext, s: PresentationRuntime.CastState, at: Vec3, step: Int): ParticleBurst {
         val inherit = op.inheritVelocity?.let { ctx.values.num(it) }
-        val burst = ParticleBurst(
+        return ParticleBurst(
             particle = op.particle,
             at = at,
             count = ctx.values.num(op.count).roundToInt().coerceAtLeast(0),
@@ -115,9 +130,13 @@ internal class EmitExecutor(private val rt: PresentationRuntime) : OpExecutor<Fx
             speed = ctx.num(op.speed, 0.3),
             inheritVelocity = inherit?.let { rt.velocityOf(s, op.at.frame) * it },
             colorHex = op.color?.let { ctx.values.text(it) },
-            seed = ctx.cast.value * 31L + (op.seed ?: op.id).hashCode().toLong(),
+            seed = ctx.cast.value * 31L + (op.seed ?: op.id).hashCode().toLong() + step,
         )
-        ctx.ports.particles.emit(burst)
+    }
+
+    private companion object {
+        /** A position jump longer than this is a teleport, not a flight: no trail is drawn across it. */
+        const val MAX_TRAIL_SPAN = 24.0
     }
 }
 

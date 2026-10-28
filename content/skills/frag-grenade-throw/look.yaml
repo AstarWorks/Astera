@@ -10,8 +10,8 @@ frames:
 presentation:
   timeline:
     - {id: fx0, at: 0, do: [{id: snd, op: sound, sound: entity.snowball.throw, at: caster, volume: 0.9, pitch: 0.7}, {id: emit, op: emit, at: pt_caster_0_m0p25_0p9, particle: gun-muzzle-smoke, count: 1}]}
-    - {id: rep1, at: 0, every: 1, until: end, do: [{id: trail, op: emit, at: bolt, particle: smoke, count: 1}]}
-    - {id: rep2, at: 0, every: 1, until: end, do: [{id: trail_2, op: emit, at: bolt, particle: crit, count: 1}]}
+    - {id: rep1, at: 0, every: 1, until: end, do: [{id: trail, op: emit, at: bolt, spacing: 0.4, particle: smoke, count: 1}]}
+    - {id: rep2, at: 0, every: 1, until: end, do: [{id: trail_2, op: emit, at: bolt, spacing: 0.4, particle: crit, count: 1}]}
   "on":
     hit:
       - {id: snd_2, op: sound, sound: entity.generic.explode, at: contact.point, volume: 0.7, pitch: 1.2}
