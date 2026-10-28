@@ -1,24 +1,21 @@
-apiVersion: "astera/v3"
+apiVersion: astera/v3
 kind: Skill
 id: glacier-spike
 item: glacier-wand
 meta: {name: {ja: "氷柱", en: "Ice Spike"}, description: {ja: "氷の礫を飛ばし、相手の足を鈍らせる。", en: "Flings a shard of ice that slows the target."}, cooldown_ticks: 50, resource_cost: 10, tags: [ranged, water, magic]}
 anchors:
-  muzzle: {anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}
-  cast_fx: {anchor: caster.eye, offset: {up: -0.25, forward: 0.9}, mode: snapshot}
-  heart: {anchor: victim.body, offset: {up: 0.4}}
-# anchor note: v2 enemy point offset Y minus 0.8 (example b maps 1.0 -> up 0.2)
-presentation:
-  timeline:
-    - at: 0
-      do:
+  - {id: muzzle,  anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}
+  - {id: cast_fx, anchor: caster.eye, offset: {up: -0.25, forward: 0.9}, mode: snapshot}
+  - {id: heart,   anchor: victim.body, offset: {up: 0.4}}   # v2 enemy point offset Y minus 0.8 (example b maps 1.0 -> up 0.2)
+machine:
+  start: fly
+  states:
+    fly:
+      for: 40                       # = v2 max_lifetime_ticks; covers the whole flight
+      then: end
+      enter:
         - {id: snd, op: sound, sound: "astera:skills/frost-cast", anchor: caster, volume: 0.7, pitch: 1.3}
         - {id: fx, op: particle_def, def: frost-cast, anchor: cast_fx}
-    - {at: 0, every: 1, until: bolt.end, do: [{op: particle, particle: snowflake, anchor: {of: bolt, sweep: 0.4}, count: 1, offset: [0.04, 0.04, 0.04]}]}
-    - {at: 0, every: 1, until: bolt.end, do: [{op: particle, particle: dust, anchor: {of: bolt, sweep: 0.4}, count: 1, offset: [0.0, 0.0, 0.0], color: "#bee6ff", size: 1.0}]}
-gameplay:
-  timeline:
-    - at: 0
       do:
         - id: bolt
           op: projectile
@@ -37,3 +34,6 @@ gameplay:
             block:
               - {id: snd_blk, op: sound, sound: "astera:weapons/gun-impact-block", anchor: contact.point, volume: 0.5, pitch: 1.5}
               - {id: fx_blk, op: particle_def, def: hit-spark, anchor: contact.point}
+        - {id: trail_snow, op: particle, particle: snowflake, anchor: {of: bolt, sweep: 0.4}, count: 1, offset: [0.04, 0.04, 0.04], every: 1, until: bolt.end}
+        - {id: trail_dust, op: particle, particle: dust, anchor: {of: bolt, sweep: 0.4}, count: 1, offset: [0.0, 0.0, 0.0], color: "#bee6ff", size: 1.0, every: 1, until: bolt.end}
+    end: {final: true}
