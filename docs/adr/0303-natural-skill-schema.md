@@ -815,6 +815,19 @@ worst-case path exceeds `max_cast_ticks` fails), and the Board's per-item "durat
 3. **Sprite authoring unit**: blocks (`size`, taken here) vs vanilla scale.
 4. `ribbon`/`trail` internals (segment count, the history sampler) are deliberately thin here and need a follow-up.
 
+## Skin rig (SKL-17)
+
+A weapon performance is one `rig` op, not a `caster_anim` plus a static hand point. `rig` plays a skin-rig clip (`anim`) as a tree of frames: the
+body, arm and hand bones are frames carrying v1's per-tick motion; the skin displays (`spawnSkinBone`) ride them through `toDisplayWrite`; the
+weapon `mesh` is a child of the animated hand frame (hand origin = arm position + arm rotation * (grip offset + pivot), rotation = arm * tilt *
+wrist * rest, scale 0.9375). The real body is hidden under a `BODY` lease for the duration. The wrist `swing` keys are rotation vectors; the
+runtime holds no angles in degrees or Euler triples. `tools/skill-convert` bakes v1's component-wise eased wrist keys into one rotation-vector
+key per tick (`sample: true` marks the in-between ticks, which are not chunk boundaries of the rig clock). Anything the rig op cannot say (a
+swapped `weapon_model`, `ghost_bodies`, block parts without the block op) is a converter error, never dropped.
+
+The v2 tilt seen on dev (2026-10-28) came from `main_hand` hanging off the static `caster.right_hand` point at scale 1.0 while `caster_anim`
+animated the arm outside the engine; v1 hung the weapon from the animated hand. Rider displays never teleport (teleport 0, interpolation N), as in v1.
+
 ## References
 
 - 関連 ADR: [[adr/0301-skill-engine-v2-frame-tree]], [[adr/0290-generic-vfx-primitives]], [[adr/0276-skill-performance-one-body-one-weapon-one-lease]] (v1 passenger transport), [[adr/0239-custom-particle-sprites-as-textdisplay-glyphs]]
