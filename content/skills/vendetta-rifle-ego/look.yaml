@@ -1,21 +1,21 @@
 # Converted from content/skills/vendetta-rifle-ego.yaml + content/vfx/* by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
 # Generated point-frame offsets are [left, up, forward] in the parent frame.
 # CONVERT-PRESENT vfx frame orient (frames carry no orientation / scale) (x18): orient="yaw"
-# CONVERT-PRESENT rig respect_hit_stop / weapon points (x6): {"respect_hit_stop": true}
 # CONVERT-PRESENT vfx follow=false (anchored at world, no place-at-spawn) (x17): vendetta-slash-b | vendetta-thrust-flash
-# CONVERT-PRESENT play_vfx freeze (no v2 equivalent) (x5): [{"at": 5, "ticks": 2}]
 # CONVERT-PRESENT vfx frame scale (frames carry no orientation / scale) (x2): scale=0.65
 apiVersion: "astera/v2"
 kind: Skill
 id: vendetta-rifle-ego
 frames:
   - {id: fx1_vendetta_ready, kind: body, parent: caster}
-  - {id: fx1_vendetta_ready_bayonet, kind: body, parent: caster.right_hand}
+  - {id: fx1_vendetta_ready_bayonet, kind: body, parent: caster}
+  - {id: fx1_vendetta_ready_bayonet_parts, kind: body, parent: caster}
   - {id: pt_fx1_vendetta_ready_bayonet_0_1p5_0, kind: point, parent: fx1_vendetta_ready_bayonet, offset: [0.0, 1.5, 0.0]}
   - {id: fx2_vendetta_slash_b, kind: body, parent: world}
   - {id: fx2_vendetta_slash_b_contact_at, kind: body, parent: fx2_vendetta_slash_b}
   - {id: fx2_vendetta_slash_b_petals_at, kind: body, parent: fx2_vendetta_slash_b}
-  - {id: fx2_vendetta_slash_b_bayonet, kind: body, parent: caster.right_hand}
+  - {id: fx2_vendetta_slash_b_bayonet, kind: body, parent: caster}
+  - {id: fx2_vendetta_slash_b_bayonet_parts, kind: body, parent: caster}
   - {id: pt_fx2_vendetta_slash_b_bayonet_0_0p55_0, kind: point, parent: fx2_vendetta_slash_b_bayonet, offset: [0.0, 0.55, 0.0]}
   - {id: pt_fx2_vendetta_slash_b_bayonet_0_2p1_0, kind: point, parent: fx2_vendetta_slash_b_bayonet, offset: [0.0, 2.1, 0.0]}
   - {id: fx3_vendetta_thrust_flash, kind: body, parent: world}
@@ -29,7 +29,8 @@ frames:
   - {id: fx5_vendetta_slash_b, kind: body, parent: world}
   - {id: fx5_vendetta_slash_b_contact_at, kind: body, parent: fx5_vendetta_slash_b}
   - {id: fx5_vendetta_slash_b_petals_at, kind: body, parent: fx5_vendetta_slash_b}
-  - {id: fx5_vendetta_slash_b_bayonet, kind: body, parent: caster.right_hand}
+  - {id: fx5_vendetta_slash_b_bayonet, kind: body, parent: caster}
+  - {id: fx5_vendetta_slash_b_bayonet_parts, kind: body, parent: caster}
   - {id: pt_fx5_vendetta_slash_b_bayonet_0_0p55_0, kind: point, parent: fx5_vendetta_slash_b_bayonet, offset: [0.0, 0.55, 0.0]}
   - {id: pt_fx5_vendetta_slash_b_bayonet_0_2p1_0, kind: point, parent: fx5_vendetta_slash_b_bayonet, offset: [0.0, 2.1, 0.0]}
   - {id: fx6_vendetta_thrust_flash, kind: body, parent: world}
@@ -43,7 +44,8 @@ frames:
   - {id: fx8_vendetta_slash_a, kind: body, parent: world}
   - {id: fx8_vendetta_slash_a_contact_at, kind: body, parent: fx8_vendetta_slash_a}
   - {id: fx8_vendetta_slash_a_petals_at, kind: body, parent: fx8_vendetta_slash_a}
-  - {id: fx8_vendetta_slash_a_bayonet, kind: body, parent: caster.right_hand}
+  - {id: fx8_vendetta_slash_a_bayonet, kind: body, parent: caster}
+  - {id: fx8_vendetta_slash_a_bayonet_parts, kind: body, parent: caster}
   - {id: pt_fx8_vendetta_slash_a_bayonet_0_0p55_0, kind: point, parent: fx8_vendetta_slash_a_bayonet, offset: [0.0, 0.55, 0.0]}
   - {id: pt_fx8_vendetta_slash_a_bayonet_0_2p1_0, kind: point, parent: fx8_vendetta_slash_a_bayonet, offset: [0.0, 2.1, 0.0]}
   - {id: fx9_vendetta_thrust_flash, kind: body, parent: world}
@@ -57,7 +59,8 @@ frames:
   - {id: fx11_vendetta_slash_b, kind: body, parent: world}
   - {id: fx11_vendetta_slash_b_contact_at, kind: body, parent: fx11_vendetta_slash_b}
   - {id: fx11_vendetta_slash_b_petals_at, kind: body, parent: fx11_vendetta_slash_b}
-  - {id: fx11_vendetta_slash_b_bayonet, kind: body, parent: caster.right_hand}
+  - {id: fx11_vendetta_slash_b_bayonet, kind: body, parent: caster}
+  - {id: fx11_vendetta_slash_b_bayonet_parts, kind: body, parent: caster}
   - {id: pt_fx11_vendetta_slash_b_bayonet_0_0p55_0, kind: point, parent: fx11_vendetta_slash_b_bayonet, offset: [0.0, 0.55, 0.0]}
   - {id: pt_fx11_vendetta_slash_b_bayonet_0_2p1_0, kind: point, parent: fx11_vendetta_slash_b_bayonet, offset: [0.0, 2.1, 0.0]}
   - {id: fx12_vendetta_thrust_flash, kind: body, parent: world}
@@ -71,7 +74,8 @@ frames:
   - {id: fx14_vendetta_slash_a, kind: body, parent: world}
   - {id: fx14_vendetta_slash_a_contact_at, kind: body, parent: fx14_vendetta_slash_a}
   - {id: fx14_vendetta_slash_a_petals_at, kind: body, parent: fx14_vendetta_slash_a}
-  - {id: fx14_vendetta_slash_a_bayonet, kind: body, parent: caster.right_hand}
+  - {id: fx14_vendetta_slash_a_bayonet, kind: body, parent: caster}
+  - {id: fx14_vendetta_slash_a_bayonet_parts, kind: body, parent: caster}
   - {id: pt_fx14_vendetta_slash_a_bayonet_0_0p55_0, kind: point, parent: fx14_vendetta_slash_a_bayonet, offset: [0.0, 0.55, 0.0]}
   - {id: pt_fx14_vendetta_slash_a_bayonet_0_2p1_0, kind: point, parent: fx14_vendetta_slash_a_bayonet, offset: [0.0, 2.1, 0.0]}
   - {id: fx15_vendetta_thrust_flash, kind: body, parent: world}
@@ -102,360 +106,88 @@ presentation:
     - id: fx1
       at: 1
       do:
-        - id: fx1_vendetta_ready_bayonet_heel
-          op: block
-          parent: fx1_vendetta_ready_bayonet
-          block: nether_bricks
-          size: [0.2, 0.8, 0.16]
-          at: [0.0, 0.4, 0.0]
-          pivot: [0.35, 1.05, 0.25]
-          rest_turn: [90.0, 0.0, 0.0]
-          tilt_turn: [0.0, 0.0, 30.0]
-          rig_shading: true
+        - id: fx1_vendetta_ready_bayonet_rig
+          op: rig
+          frame: fx1_vendetta_ready_bayonet
+          parent: caster
+          duration: 19
+          pivot: [1.049232, -0.35228, 0.253199]
+          tilt: [0.0, 0.0, 30.0]
+          rest: [90.0, 0.0, 0.0]
+          swing:
+            - {t: 0, rotate: [-65.0, 0.0, 0.0]}
+            - {t: 1, rotate: [-65.78125, 0.0, 0.0], sample: true}
+            - {t: 2, rotate: [-68.125, 0.0, 0.0], sample: true}
+            - {t: 3, rotate: [-72.03125, 0.0, 0.0], sample: true}
+            - {t: 4, rotate: [-77.5, 0.0, 0.0], sample: true}
+            - {t: 5, rotate: [-82.96875, 0.0, 0.0], sample: true}
+            - {t: 6, rotate: [-86.875, 0.0, 0.0], sample: true}
+            - {t: 7, rotate: [-89.21875, 0.0, 0.0], sample: true}
+            - {t: 8, rotate: [-90.0, 0.0, 0.0]}
+            - {t: 9, rotate: [-87.5, 0.0, 0.0], sample: true}
+            - {t: 10, rotate: [-85.0, 0.0, 0.0], sample: true}
+            - {t: 11, rotate: [-82.5, 0.0, 0.0], sample: true}
+            - {t: 12, rotate: [-80.0, 0.0, 0.0], sample: true}
+            - {t: 13, rotate: [-77.5, 0.0, 0.0], sample: true}
+            - {t: 14, rotate: [-75.0, 0.0, 0.0], sample: true}
+            - {t: 15, rotate: [-72.5, 0.0, 0.0], sample: true}
+            - {t: 16, rotate: [-70.0, 0.0, 0.0]}
+          sample_ticks: 1
+          respect_hit_stop: true
+        - id: fx1_vendetta_ready_bayonet_parts_rig
+          op: rig
+          frame: fx1_vendetta_ready_bayonet_parts
+          parent: caster
+          duration: 19
+          hand: false
+          pivot: [1.049232, -0.35228, 0.253199]
+          tilt: [0.0, 0.0, 30.0]
+          rest: [90.0, 0.0, 0.0]
+          swing:
+            - {t: 0, rotate: [-65.0, 0.0, 0.0]}
+            - {t: 1, rotate: [-65.78125, 0.0, 0.0], sample: true}
+            - {t: 2, rotate: [-68.125, 0.0, 0.0], sample: true}
+            - {t: 3, rotate: [-72.03125, 0.0, 0.0], sample: true}
+            - {t: 4, rotate: [-77.5, 0.0, 0.0], sample: true}
+            - {t: 5, rotate: [-82.96875, 0.0, 0.0], sample: true}
+            - {t: 6, rotate: [-86.875, 0.0, 0.0], sample: true}
+            - {t: 7, rotate: [-89.21875, 0.0, 0.0], sample: true}
+            - {t: 8, rotate: [-90.0, 0.0, 0.0]}
+            - {t: 9, rotate: [-87.5, 0.0, 0.0], sample: true}
+            - {t: 10, rotate: [-85.0, 0.0, 0.0], sample: true}
+            - {t: 11, rotate: [-82.5, 0.0, 0.0], sample: true}
+            - {t: 12, rotate: [-80.0, 0.0, 0.0], sample: true}
+            - {t: 13, rotate: [-77.5, 0.0, 0.0], sample: true}
+            - {t: 14, rotate: [-75.0, 0.0, 0.0], sample: true}
+            - {t: 15, rotate: [-72.5, 0.0, 0.0], sample: true}
+            - {t: 16, rotate: [-70.0, 0.0, 0.0]}
+          sample_ticks: 1
+          respect_hit_stop: true
+        - {id: fx1_vendetta_ready_bayonet_heel, op: block, parent: fx1_vendetta_ready_bayonet_parts, block: nether_bricks, size: [0.2, 0.8, 0.16], at: [0.0, 0.4, 0.0], rig_shading: true}
         - id: fx1_vendetta_ready_bayonet_spine
           op: block
-          parent: fx1_vendetta_ready_bayonet
+          parent: fx1_vendetta_ready_bayonet_parts
           block: nether_bricks
           size: [0.24, 0.5, 0.16]
           at: [-0.03, 1.0, 0.0]
-          pivot: [0.35, 1.05, 0.25]
           turn: [0.0, 0.0, 5.0]
-          rest_turn: [90.0, 0.0, 0.0]
-          tilt_turn: [0.0, 0.0, 30.0]
           rig_shading: true
         - id: fx1_vendetta_ready_bayonet_tip
           op: block
-          parent: fx1_vendetta_ready_bayonet
+          parent: fx1_vendetta_ready_bayonet_parts
           block: nether_bricks
           size: [0.24, 0.35, 0.16]
           at: [-0.11, 1.35, 0.0]
-          pivot: [0.35, 1.05, 0.25]
           turn: [0.0, 0.0, 18.0]
-          rest_turn: [90.0, 0.0, 0.0]
-          tilt_turn: [0.0, 0.0, 30.0]
           rig_shading: true
-        - id: fx1_vendetta_ready_bayonet_grip
-          op: block
-          parent: fx1_vendetta_ready_bayonet
-          block: black_concrete
-          size: [0.13, 0.4, 0.13]
-          at: [0.0, -0.2, 0.0]
-          pivot: [0.35, 1.05, 0.25]
-          rest_turn: [90.0, 0.0, 0.0]
-          tilt_turn: [0.0, 0.0, 30.0]
-          rig_shading: true
-        - id: fx1_vendetta_ready_bayonet_rib_0
-          op: block
-          parent: fx1_vendetta_ready_bayonet
-          block: bone_block
-          size: [0.28, 0.045, 0.18]
-          at: [0.0, 0.22, 0.0]
-          pivot: [0.35, 1.05, 0.25]
-          rest_turn: [90.0, 0.0, 0.0]
-          tilt_turn: [0.0, 0.0, 30.0]
-          brightness: 15
-        - id: fx1_vendetta_ready_bayonet_rib_1
-          op: block
-          parent: fx1_vendetta_ready_bayonet
-          block: bone_block
-          size: [0.28, 0.045, 0.18]
-          at: [0.0, 0.41, 0.0]
-          pivot: [0.35, 1.05, 0.25]
-          rest_turn: [90.0, 0.0, 0.0]
-          tilt_turn: [0.0, 0.0, 30.0]
-          brightness: 15
-        - id: fx1_vendetta_ready_bayonet_rib_2
-          op: block
-          parent: fx1_vendetta_ready_bayonet
-          block: bone_block
-          size: [0.28, 0.045, 0.18]
-          at: [0.0, 0.6, 0.0]
-          pivot: [0.35, 1.05, 0.25]
-          rest_turn: [90.0, 0.0, 0.0]
-          tilt_turn: [0.0, 0.0, 30.0]
-          brightness: 15
-        - id: fx1_vendetta_ready_bayonet_rib_3
-          op: block
-          parent: fx1_vendetta_ready_bayonet
-          block: bone_block
-          size: [0.28, 0.045, 0.18]
-          at: [-0.019, 0.79, 0.0]
-          pivot: [0.35, 1.05, 0.25]
-          rest_turn: [90.0, 0.0, 0.0]
-          tilt_turn: [0.0, 0.0, 30.0]
-          brightness: 15
-        - id: fx1_vendetta_ready_bayonet_rib_4
-          op: block
-          parent: fx1_vendetta_ready_bayonet
-          block: bone_block
-          size: [0.28, 0.045, 0.18]
-          at: [-0.038, 0.98, 0.0]
-          pivot: [0.35, 1.05, 0.25]
-          rest_turn: [90.0, 0.0, 0.0]
-          tilt_turn: [0.0, 0.0, 30.0]
-          brightness: 15
-        - id: fx1_vendetta_ready_bayonet_rib_5
-          op: block
-          parent: fx1_vendetta_ready_bayonet
-          block: bone_block
-          size: [0.28, 0.045, 0.18]
-          at: [-0.057, 1.17, 0.0]
-          pivot: [0.35, 1.05, 0.25]
-          rest_turn: [90.0, 0.0, 0.0]
-          tilt_turn: [0.0, 0.0, 30.0]
-          brightness: 15
-        - id: fx1_vendetta_ready_bayonet_rib_6
-          op: block
-          parent: fx1_vendetta_ready_bayonet
-          block: bone_block
-          size: [0.28, 0.045, 0.18]
-          at: [-0.076, 1.36, 0.0]
-          pivot: [0.35, 1.05, 0.25]
-          rest_turn: [90.0, 0.0, 0.0]
-          tilt_turn: [0.0, 0.0, 30.0]
-          brightness: 15
-        - id: fx1_vendetta_ready_bayonet_swing
-          op: track
-          target: fx1_vendetta_ready_bayonet_heel
-          space: caster.right_hand
-          keys:
-            - {t: 0, turn: [-65.0, 0.0, 0.0]}
-            - {t: 1, turn: [-65.78125, 0.0, 0.0]}
-            - {t: 2, turn: [-68.125, 0.0, 0.0]}
-            - {t: 3, turn: [-72.03125, 0.0, 0.0]}
-            - {t: 4, turn: [-77.5, 0.0, 0.0]}
-            - {t: 5, turn: [-82.96875, 0.0, 0.0]}
-            - {t: 6, turn: [-86.875, 0.0, 0.0]}
-            - {t: 7, turn: [-89.21875, 0.0, 0.0]}
-            - {t: 8, ease: in_out_quad, turn: [-90.0, 0.0, 0.0]}
-            - {t: 9, turn: [-87.5, 0.0, 0.0]}
-            - {t: 10, turn: [-85.0, 0.0, 0.0]}
-            - {t: 11, turn: [-82.5, 0.0, 0.0]}
-            - {t: 12, turn: [-80.0, 0.0, 0.0]}
-            - {t: 13, turn: [-77.5, 0.0, 0.0]}
-            - {t: 14, turn: [-75.0, 0.0, 0.0]}
-            - {t: 15, turn: [-72.5, 0.0, 0.0]}
-            - {t: 16, turn: [-70.0, 0.0, 0.0]}
-        - id: fx1_vendetta_ready_bayonet_swing_1
-          op: track
-          target: fx1_vendetta_ready_bayonet_spine
-          space: caster.right_hand
-          keys:
-            - {t: 0, turn: [-65.0, 0.0, 0.0]}
-            - {t: 1, turn: [-65.78125, 0.0, 0.0]}
-            - {t: 2, turn: [-68.125, 0.0, 0.0]}
-            - {t: 3, turn: [-72.03125, 0.0, 0.0]}
-            - {t: 4, turn: [-77.5, 0.0, 0.0]}
-            - {t: 5, turn: [-82.96875, 0.0, 0.0]}
-            - {t: 6, turn: [-86.875, 0.0, 0.0]}
-            - {t: 7, turn: [-89.21875, 0.0, 0.0]}
-            - {t: 8, ease: in_out_quad, turn: [-90.0, 0.0, 0.0]}
-            - {t: 9, turn: [-87.5, 0.0, 0.0]}
-            - {t: 10, turn: [-85.0, 0.0, 0.0]}
-            - {t: 11, turn: [-82.5, 0.0, 0.0]}
-            - {t: 12, turn: [-80.0, 0.0, 0.0]}
-            - {t: 13, turn: [-77.5, 0.0, 0.0]}
-            - {t: 14, turn: [-75.0, 0.0, 0.0]}
-            - {t: 15, turn: [-72.5, 0.0, 0.0]}
-            - {t: 16, turn: [-70.0, 0.0, 0.0]}
-        - id: fx1_vendetta_ready_bayonet_swing_2
-          op: track
-          target: fx1_vendetta_ready_bayonet_tip
-          space: caster.right_hand
-          keys:
-            - {t: 0, turn: [-65.0, 0.0, 0.0]}
-            - {t: 1, turn: [-65.78125, 0.0, 0.0]}
-            - {t: 2, turn: [-68.125, 0.0, 0.0]}
-            - {t: 3, turn: [-72.03125, 0.0, 0.0]}
-            - {t: 4, turn: [-77.5, 0.0, 0.0]}
-            - {t: 5, turn: [-82.96875, 0.0, 0.0]}
-            - {t: 6, turn: [-86.875, 0.0, 0.0]}
-            - {t: 7, turn: [-89.21875, 0.0, 0.0]}
-            - {t: 8, ease: in_out_quad, turn: [-90.0, 0.0, 0.0]}
-            - {t: 9, turn: [-87.5, 0.0, 0.0]}
-            - {t: 10, turn: [-85.0, 0.0, 0.0]}
-            - {t: 11, turn: [-82.5, 0.0, 0.0]}
-            - {t: 12, turn: [-80.0, 0.0, 0.0]}
-            - {t: 13, turn: [-77.5, 0.0, 0.0]}
-            - {t: 14, turn: [-75.0, 0.0, 0.0]}
-            - {t: 15, turn: [-72.5, 0.0, 0.0]}
-            - {t: 16, turn: [-70.0, 0.0, 0.0]}
-        - id: fx1_vendetta_ready_bayonet_swing_3
-          op: track
-          target: fx1_vendetta_ready_bayonet_grip
-          space: caster.right_hand
-          keys:
-            - {t: 0, turn: [-65.0, 0.0, 0.0]}
-            - {t: 1, turn: [-65.78125, 0.0, 0.0]}
-            - {t: 2, turn: [-68.125, 0.0, 0.0]}
-            - {t: 3, turn: [-72.03125, 0.0, 0.0]}
-            - {t: 4, turn: [-77.5, 0.0, 0.0]}
-            - {t: 5, turn: [-82.96875, 0.0, 0.0]}
-            - {t: 6, turn: [-86.875, 0.0, 0.0]}
-            - {t: 7, turn: [-89.21875, 0.0, 0.0]}
-            - {t: 8, ease: in_out_quad, turn: [-90.0, 0.0, 0.0]}
-            - {t: 9, turn: [-87.5, 0.0, 0.0]}
-            - {t: 10, turn: [-85.0, 0.0, 0.0]}
-            - {t: 11, turn: [-82.5, 0.0, 0.0]}
-            - {t: 12, turn: [-80.0, 0.0, 0.0]}
-            - {t: 13, turn: [-77.5, 0.0, 0.0]}
-            - {t: 14, turn: [-75.0, 0.0, 0.0]}
-            - {t: 15, turn: [-72.5, 0.0, 0.0]}
-            - {t: 16, turn: [-70.0, 0.0, 0.0]}
-        - id: fx1_vendetta_ready_bayonet_swing_4
-          op: track
-          target: fx1_vendetta_ready_bayonet_rib_0
-          space: caster.right_hand
-          keys:
-            - {t: 0, turn: [-65.0, 0.0, 0.0]}
-            - {t: 1, turn: [-65.78125, 0.0, 0.0]}
-            - {t: 2, turn: [-68.125, 0.0, 0.0]}
-            - {t: 3, turn: [-72.03125, 0.0, 0.0]}
-            - {t: 4, turn: [-77.5, 0.0, 0.0]}
-            - {t: 5, turn: [-82.96875, 0.0, 0.0]}
-            - {t: 6, turn: [-86.875, 0.0, 0.0]}
-            - {t: 7, turn: [-89.21875, 0.0, 0.0]}
-            - {t: 8, ease: in_out_quad, turn: [-90.0, 0.0, 0.0]}
-            - {t: 9, turn: [-87.5, 0.0, 0.0]}
-            - {t: 10, turn: [-85.0, 0.0, 0.0]}
-            - {t: 11, turn: [-82.5, 0.0, 0.0]}
-            - {t: 12, turn: [-80.0, 0.0, 0.0]}
-            - {t: 13, turn: [-77.5, 0.0, 0.0]}
-            - {t: 14, turn: [-75.0, 0.0, 0.0]}
-            - {t: 15, turn: [-72.5, 0.0, 0.0]}
-            - {t: 16, turn: [-70.0, 0.0, 0.0]}
-        - id: fx1_vendetta_ready_bayonet_swing_5
-          op: track
-          target: fx1_vendetta_ready_bayonet_rib_1
-          space: caster.right_hand
-          keys:
-            - {t: 0, turn: [-65.0, 0.0, 0.0]}
-            - {t: 1, turn: [-65.78125, 0.0, 0.0]}
-            - {t: 2, turn: [-68.125, 0.0, 0.0]}
-            - {t: 3, turn: [-72.03125, 0.0, 0.0]}
-            - {t: 4, turn: [-77.5, 0.0, 0.0]}
-            - {t: 5, turn: [-82.96875, 0.0, 0.0]}
-            - {t: 6, turn: [-86.875, 0.0, 0.0]}
-            - {t: 7, turn: [-89.21875, 0.0, 0.0]}
-            - {t: 8, ease: in_out_quad, turn: [-90.0, 0.0, 0.0]}
-            - {t: 9, turn: [-87.5, 0.0, 0.0]}
-            - {t: 10, turn: [-85.0, 0.0, 0.0]}
-            - {t: 11, turn: [-82.5, 0.0, 0.0]}
-            - {t: 12, turn: [-80.0, 0.0, 0.0]}
-            - {t: 13, turn: [-77.5, 0.0, 0.0]}
-            - {t: 14, turn: [-75.0, 0.0, 0.0]}
-            - {t: 15, turn: [-72.5, 0.0, 0.0]}
-            - {t: 16, turn: [-70.0, 0.0, 0.0]}
-        - id: fx1_vendetta_ready_bayonet_swing_6
-          op: track
-          target: fx1_vendetta_ready_bayonet_rib_2
-          space: caster.right_hand
-          keys:
-            - {t: 0, turn: [-65.0, 0.0, 0.0]}
-            - {t: 1, turn: [-65.78125, 0.0, 0.0]}
-            - {t: 2, turn: [-68.125, 0.0, 0.0]}
-            - {t: 3, turn: [-72.03125, 0.0, 0.0]}
-            - {t: 4, turn: [-77.5, 0.0, 0.0]}
-            - {t: 5, turn: [-82.96875, 0.0, 0.0]}
-            - {t: 6, turn: [-86.875, 0.0, 0.0]}
-            - {t: 7, turn: [-89.21875, 0.0, 0.0]}
-            - {t: 8, ease: in_out_quad, turn: [-90.0, 0.0, 0.0]}
-            - {t: 9, turn: [-87.5, 0.0, 0.0]}
-            - {t: 10, turn: [-85.0, 0.0, 0.0]}
-            - {t: 11, turn: [-82.5, 0.0, 0.0]}
-            - {t: 12, turn: [-80.0, 0.0, 0.0]}
-            - {t: 13, turn: [-77.5, 0.0, 0.0]}
-            - {t: 14, turn: [-75.0, 0.0, 0.0]}
-            - {t: 15, turn: [-72.5, 0.0, 0.0]}
-            - {t: 16, turn: [-70.0, 0.0, 0.0]}
-        - id: fx1_vendetta_ready_bayonet_swing_7
-          op: track
-          target: fx1_vendetta_ready_bayonet_rib_3
-          space: caster.right_hand
-          keys:
-            - {t: 0, turn: [-65.0, 0.0, 0.0]}
-            - {t: 1, turn: [-65.78125, 0.0, 0.0]}
-            - {t: 2, turn: [-68.125, 0.0, 0.0]}
-            - {t: 3, turn: [-72.03125, 0.0, 0.0]}
-            - {t: 4, turn: [-77.5, 0.0, 0.0]}
-            - {t: 5, turn: [-82.96875, 0.0, 0.0]}
-            - {t: 6, turn: [-86.875, 0.0, 0.0]}
-            - {t: 7, turn: [-89.21875, 0.0, 0.0]}
-            - {t: 8, ease: in_out_quad, turn: [-90.0, 0.0, 0.0]}
-            - {t: 9, turn: [-87.5, 0.0, 0.0]}
-            - {t: 10, turn: [-85.0, 0.0, 0.0]}
-            - {t: 11, turn: [-82.5, 0.0, 0.0]}
-            - {t: 12, turn: [-80.0, 0.0, 0.0]}
-            - {t: 13, turn: [-77.5, 0.0, 0.0]}
-            - {t: 14, turn: [-75.0, 0.0, 0.0]}
-            - {t: 15, turn: [-72.5, 0.0, 0.0]}
-            - {t: 16, turn: [-70.0, 0.0, 0.0]}
-        - id: fx1_vendetta_ready_bayonet_swing_8
-          op: track
-          target: fx1_vendetta_ready_bayonet_rib_4
-          space: caster.right_hand
-          keys:
-            - {t: 0, turn: [-65.0, 0.0, 0.0]}
-            - {t: 1, turn: [-65.78125, 0.0, 0.0]}
-            - {t: 2, turn: [-68.125, 0.0, 0.0]}
-            - {t: 3, turn: [-72.03125, 0.0, 0.0]}
-            - {t: 4, turn: [-77.5, 0.0, 0.0]}
-            - {t: 5, turn: [-82.96875, 0.0, 0.0]}
-            - {t: 6, turn: [-86.875, 0.0, 0.0]}
-            - {t: 7, turn: [-89.21875, 0.0, 0.0]}
-            - {t: 8, ease: in_out_quad, turn: [-90.0, 0.0, 0.0]}
-            - {t: 9, turn: [-87.5, 0.0, 0.0]}
-            - {t: 10, turn: [-85.0, 0.0, 0.0]}
-            - {t: 11, turn: [-82.5, 0.0, 0.0]}
-            - {t: 12, turn: [-80.0, 0.0, 0.0]}
-            - {t: 13, turn: [-77.5, 0.0, 0.0]}
-            - {t: 14, turn: [-75.0, 0.0, 0.0]}
-            - {t: 15, turn: [-72.5, 0.0, 0.0]}
-            - {t: 16, turn: [-70.0, 0.0, 0.0]}
-        - id: fx1_vendetta_ready_bayonet_swing_9
-          op: track
-          target: fx1_vendetta_ready_bayonet_rib_5
-          space: caster.right_hand
-          keys:
-            - {t: 0, turn: [-65.0, 0.0, 0.0]}
-            - {t: 1, turn: [-65.78125, 0.0, 0.0]}
-            - {t: 2, turn: [-68.125, 0.0, 0.0]}
-            - {t: 3, turn: [-72.03125, 0.0, 0.0]}
-            - {t: 4, turn: [-77.5, 0.0, 0.0]}
-            - {t: 5, turn: [-82.96875, 0.0, 0.0]}
-            - {t: 6, turn: [-86.875, 0.0, 0.0]}
-            - {t: 7, turn: [-89.21875, 0.0, 0.0]}
-            - {t: 8, ease: in_out_quad, turn: [-90.0, 0.0, 0.0]}
-            - {t: 9, turn: [-87.5, 0.0, 0.0]}
-            - {t: 10, turn: [-85.0, 0.0, 0.0]}
-            - {t: 11, turn: [-82.5, 0.0, 0.0]}
-            - {t: 12, turn: [-80.0, 0.0, 0.0]}
-            - {t: 13, turn: [-77.5, 0.0, 0.0]}
-            - {t: 14, turn: [-75.0, 0.0, 0.0]}
-            - {t: 15, turn: [-72.5, 0.0, 0.0]}
-            - {t: 16, turn: [-70.0, 0.0, 0.0]}
-        - id: fx1_vendetta_ready_bayonet_swing_10
-          op: track
-          target: fx1_vendetta_ready_bayonet_rib_6
-          space: caster.right_hand
-          keys:
-            - {t: 0, turn: [-65.0, 0.0, 0.0]}
-            - {t: 1, turn: [-65.78125, 0.0, 0.0]}
-            - {t: 2, turn: [-68.125, 0.0, 0.0]}
-            - {t: 3, turn: [-72.03125, 0.0, 0.0]}
-            - {t: 4, turn: [-77.5, 0.0, 0.0]}
-            - {t: 5, turn: [-82.96875, 0.0, 0.0]}
-            - {t: 6, turn: [-86.875, 0.0, 0.0]}
-            - {t: 7, turn: [-89.21875, 0.0, 0.0]}
-            - {t: 8, ease: in_out_quad, turn: [-90.0, 0.0, 0.0]}
-            - {t: 9, turn: [-87.5, 0.0, 0.0]}
-            - {t: 10, turn: [-85.0, 0.0, 0.0]}
-            - {t: 11, turn: [-82.5, 0.0, 0.0]}
-            - {t: 12, turn: [-80.0, 0.0, 0.0]}
-            - {t: 13, turn: [-77.5, 0.0, 0.0]}
-            - {t: 14, turn: [-75.0, 0.0, 0.0]}
-            - {t: 15, turn: [-72.5, 0.0, 0.0]}
-            - {t: 16, turn: [-70.0, 0.0, 0.0]}
+        - {id: fx1_vendetta_ready_bayonet_grip, op: block, parent: fx1_vendetta_ready_bayonet_parts, block: black_concrete, size: [0.13, 0.4, 0.13], at: [0.0, -0.2, 0.0], rig_shading: true}
+        - {id: fx1_vendetta_ready_bayonet_rib_0, op: block, parent: fx1_vendetta_ready_bayonet_parts, block: bone_block, size: [0.28, 0.045, 0.18], at: [0.0, 0.22, 0.0], brightness: 15}
+        - {id: fx1_vendetta_ready_bayonet_rib_1, op: block, parent: fx1_vendetta_ready_bayonet_parts, block: bone_block, size: [0.28, 0.045, 0.18], at: [0.0, 0.41, 0.0], brightness: 15}
+        - {id: fx1_vendetta_ready_bayonet_rib_2, op: block, parent: fx1_vendetta_ready_bayonet_parts, block: bone_block, size: [0.28, 0.045, 0.18], at: [0.0, 0.6, 0.0], brightness: 15}
+        - {id: fx1_vendetta_ready_bayonet_rib_3, op: block, parent: fx1_vendetta_ready_bayonet_parts, block: bone_block, size: [0.28, 0.045, 0.18], at: [-0.019, 0.79, 0.0], brightness: 15}
+        - {id: fx1_vendetta_ready_bayonet_rib_4, op: block, parent: fx1_vendetta_ready_bayonet_parts, block: bone_block, size: [0.28, 0.045, 0.18], at: [-0.038, 0.98, 0.0], brightness: 15}
+        - {id: fx1_vendetta_ready_bayonet_rib_5, op: block, parent: fx1_vendetta_ready_bayonet_parts, block: bone_block, size: [0.28, 0.045, 0.18], at: [-0.057, 1.17, 0.0], brightness: 15}
+        - {id: fx1_vendetta_ready_bayonet_rib_6, op: block, parent: fx1_vendetta_ready_bayonet_parts, block: bone_block, size: [0.28, 0.045, 0.18], at: [-0.076, 1.36, 0.0], brightness: 15}
     - id: fx20
       at: 20
       do:
@@ -712,360 +444,92 @@ presentation:
     - id: fx48
       at: 48
       do:
-        - id: fx2_vendetta_slash_b_bayonet_heel
-          op: block
-          parent: fx2_vendetta_slash_b_bayonet
-          block: nether_bricks
-          size: [0.2, 0.8, 0.16]
-          at: [0.0, 0.4, 0.0]
-          pivot: [0.35, 1.05, 0.25]
-          rest_turn: [90.0, 0.0, 0.0]
-          tilt_turn: [0.0, 0.0, 25.0]
-          rig_shading: true
+        - id: fx2_vendetta_slash_b_bayonet_rig
+          op: rig
+          frame: fx2_vendetta_slash_b_bayonet
+          parent: caster
+          duration: 8
+          pivot: [1.049232, -0.35228, 0.253199]
+          tilt: [0.0, 0.0, 25.0]
+          rest: [90.0, 0.0, 0.0]
+          swing:
+            - {t: 0, rotate: [0.0, 100.0, 0.0]}
+            - {t: 1, rotate: [0.0, 115.0, 0.0]}
+            - {t: 2, rotate: [0.0, 27.5, 0.0], sample: true}
+            - {t: 3, rotate: [0.0, -35.0, 0.0], sample: true}
+            - {t: 4, rotate: [0.0, -72.5, 0.0], sample: true}
+            - {t: 5, rotate: [0.0, -85.0, 0.0]}
+            - {t: 6, rotate: [0.0, -93.671875, 0.0], sample: true}
+            - {t: 7, rotate: [0.0, -98.125, 0.0], sample: true}
+            - {t: 8, rotate: [0.0, -99.765625, 0.0], sample: true}
+            - {t: 9, rotate: [0.0, -100.0, 0.0]}
+            - {t: 10, rotate: [-1.694336, -95.904824, -1.879057], sample: true}
+            - {t: 11, rotate: [-7.322769, -83.488976, -6.555764], sample: true}
+            - {t: 12, rotate: [-18.100329, -62.580704, -11.149621], sample: true}
+            - {t: 13, rotate: [-33.581188, -35.583249, -11.149722], sample: true}
+            - {t: 14, rotate: [-45.701764, -15.436895, -6.555818], sample: true}
+            - {t: 15, rotate: [-52.73214, -3.789067, -1.879059], sample: true}
+            - {t: 16, rotate: [-55.0, 0.0, 0.0]}
+          sample_ticks: 1
+          respect_hit_stop: true
+          freezes:
+            - {at: 5, ticks: 2}
+        - id: fx2_vendetta_slash_b_bayonet_parts_rig
+          op: rig
+          frame: fx2_vendetta_slash_b_bayonet_parts
+          parent: caster
+          duration: 8
+          hand: false
+          pivot: [1.049232, -0.35228, 0.253199]
+          tilt: [0.0, 0.0, 25.0]
+          rest: [90.0, 0.0, 0.0]
+          swing:
+            - {t: 0, rotate: [0.0, 100.0, 0.0]}
+            - {t: 1, rotate: [0.0, 115.0, 0.0]}
+            - {t: 2, rotate: [0.0, 27.5, 0.0], sample: true}
+            - {t: 3, rotate: [0.0, -35.0, 0.0], sample: true}
+            - {t: 4, rotate: [0.0, -72.5, 0.0], sample: true}
+            - {t: 5, rotate: [0.0, -85.0, 0.0]}
+            - {t: 6, rotate: [0.0, -93.671875, 0.0], sample: true}
+            - {t: 7, rotate: [0.0, -98.125, 0.0], sample: true}
+            - {t: 8, rotate: [0.0, -99.765625, 0.0], sample: true}
+            - {t: 9, rotate: [0.0, -100.0, 0.0]}
+            - {t: 10, rotate: [-1.694336, -95.904824, -1.879057], sample: true}
+            - {t: 11, rotate: [-7.322769, -83.488976, -6.555764], sample: true}
+            - {t: 12, rotate: [-18.100329, -62.580704, -11.149621], sample: true}
+            - {t: 13, rotate: [-33.581188, -35.583249, -11.149722], sample: true}
+            - {t: 14, rotate: [-45.701764, -15.436895, -6.555818], sample: true}
+            - {t: 15, rotate: [-52.73214, -3.789067, -1.879059], sample: true}
+            - {t: 16, rotate: [-55.0, 0.0, 0.0]}
+          sample_ticks: 1
+          respect_hit_stop: true
+          freezes:
+            - {at: 5, ticks: 2}
+        - {id: fx2_vendetta_slash_b_bayonet_heel, op: block, parent: fx2_vendetta_slash_b_bayonet_parts, block: nether_bricks, size: [0.2, 0.8, 0.16], at: [0.0, 0.4, 0.0], rig_shading: true}
         - id: fx2_vendetta_slash_b_bayonet_spine
           op: block
-          parent: fx2_vendetta_slash_b_bayonet
+          parent: fx2_vendetta_slash_b_bayonet_parts
           block: nether_bricks
           size: [0.24, 0.5, 0.16]
           at: [-0.03, 1.0, 0.0]
-          pivot: [0.35, 1.05, 0.25]
           turn: [0.0, 0.0, 5.0]
-          rest_turn: [90.0, 0.0, 0.0]
-          tilt_turn: [0.0, 0.0, 25.0]
           rig_shading: true
         - id: fx2_vendetta_slash_b_bayonet_tip
           op: block
-          parent: fx2_vendetta_slash_b_bayonet
+          parent: fx2_vendetta_slash_b_bayonet_parts
           block: nether_bricks
           size: [0.24, 0.35, 0.16]
           at: [-0.11, 1.35, 0.0]
-          pivot: [0.35, 1.05, 0.25]
           turn: [0.0, 0.0, 18.0]
-          rest_turn: [90.0, 0.0, 0.0]
-          tilt_turn: [0.0, 0.0, 25.0]
           rig_shading: true
-        - id: fx2_vendetta_slash_b_bayonet_grip
-          op: block
-          parent: fx2_vendetta_slash_b_bayonet
-          block: black_concrete
-          size: [0.13, 0.4, 0.13]
-          at: [0.0, -0.2, 0.0]
-          pivot: [0.35, 1.05, 0.25]
-          rest_turn: [90.0, 0.0, 0.0]
-          tilt_turn: [0.0, 0.0, 25.0]
-          rig_shading: true
-        - id: fx2_vendetta_slash_b_bayonet_rib_0
-          op: block
-          parent: fx2_vendetta_slash_b_bayonet
-          block: bone_block
-          size: [0.28, 0.045, 0.18]
-          at: [0.0, 0.22, 0.0]
-          pivot: [0.35, 1.05, 0.25]
-          rest_turn: [90.0, 0.0, 0.0]
-          tilt_turn: [0.0, 0.0, 25.0]
-          brightness: 15
-        - id: fx2_vendetta_slash_b_bayonet_rib_1
-          op: block
-          parent: fx2_vendetta_slash_b_bayonet
-          block: bone_block
-          size: [0.28, 0.045, 0.18]
-          at: [0.0, 0.41, 0.0]
-          pivot: [0.35, 1.05, 0.25]
-          rest_turn: [90.0, 0.0, 0.0]
-          tilt_turn: [0.0, 0.0, 25.0]
-          brightness: 15
-        - id: fx2_vendetta_slash_b_bayonet_rib_2
-          op: block
-          parent: fx2_vendetta_slash_b_bayonet
-          block: bone_block
-          size: [0.28, 0.045, 0.18]
-          at: [0.0, 0.6, 0.0]
-          pivot: [0.35, 1.05, 0.25]
-          rest_turn: [90.0, 0.0, 0.0]
-          tilt_turn: [0.0, 0.0, 25.0]
-          brightness: 15
-        - id: fx2_vendetta_slash_b_bayonet_rib_3
-          op: block
-          parent: fx2_vendetta_slash_b_bayonet
-          block: bone_block
-          size: [0.28, 0.045, 0.18]
-          at: [-0.019, 0.79, 0.0]
-          pivot: [0.35, 1.05, 0.25]
-          rest_turn: [90.0, 0.0, 0.0]
-          tilt_turn: [0.0, 0.0, 25.0]
-          brightness: 15
-        - id: fx2_vendetta_slash_b_bayonet_rib_4
-          op: block
-          parent: fx2_vendetta_slash_b_bayonet
-          block: bone_block
-          size: [0.28, 0.045, 0.18]
-          at: [-0.038, 0.98, 0.0]
-          pivot: [0.35, 1.05, 0.25]
-          rest_turn: [90.0, 0.0, 0.0]
-          tilt_turn: [0.0, 0.0, 25.0]
-          brightness: 15
-        - id: fx2_vendetta_slash_b_bayonet_rib_5
-          op: block
-          parent: fx2_vendetta_slash_b_bayonet
-          block: bone_block
-          size: [0.28, 0.045, 0.18]
-          at: [-0.057, 1.17, 0.0]
-          pivot: [0.35, 1.05, 0.25]
-          rest_turn: [90.0, 0.0, 0.0]
-          tilt_turn: [0.0, 0.0, 25.0]
-          brightness: 15
-        - id: fx2_vendetta_slash_b_bayonet_rib_6
-          op: block
-          parent: fx2_vendetta_slash_b_bayonet
-          block: bone_block
-          size: [0.28, 0.045, 0.18]
-          at: [-0.076, 1.36, 0.0]
-          pivot: [0.35, 1.05, 0.25]
-          rest_turn: [90.0, 0.0, 0.0]
-          tilt_turn: [0.0, 0.0, 25.0]
-          brightness: 15
-        - id: fx2_vendetta_slash_b_bayonet_swing
-          op: track
-          target: fx2_vendetta_slash_b_bayonet_heel
-          space: caster.right_hand
-          keys:
-            - {t: 0, turn: [0.0, 100.0, 0.0]}
-            - {t: 1, turn: [0.0, 115.0, 0.0]}
-            - {t: 2, turn: [0.0, 27.5, 0.0]}
-            - {t: 3, turn: [0.0, -35.0, 0.0]}
-            - {t: 4, turn: [0.0, -72.5, 0.0]}
-            - {t: 5, ease: out_quad, turn: [0.0, -85.0, 0.0]}
-            - {t: 6, turn: [0.0, -93.671875, 0.0]}
-            - {t: 7, turn: [0.0, -98.125, 0.0]}
-            - {t: 8, turn: [0.0, -99.765625, 0.0]}
-            - {t: 9, ease: out_cubic, turn: [0.0, -100.0, 0.0]}
-            - {t: 10, turn: [-1.694336, -95.904824, -1.879057]}
-            - {t: 11, turn: [-7.322769, -83.488976, -6.555764]}
-            - {t: 12, turn: [-18.100329, -62.580704, -11.149621]}
-            - {t: 13, turn: [-33.581188, -35.583249, -11.149722]}
-            - {t: 14, turn: [-45.701764, -15.436895, -6.555818]}
-            - {t: 15, turn: [-52.73214, -3.789067, -1.879059]}
-            - {t: 16, ease: in_out_quad, turn: [-55.0, 0.0, 0.0]}
-        - id: fx2_vendetta_slash_b_bayonet_swing_1
-          op: track
-          target: fx2_vendetta_slash_b_bayonet_spine
-          space: caster.right_hand
-          keys:
-            - {t: 0, turn: [0.0, 100.0, 0.0]}
-            - {t: 1, turn: [0.0, 115.0, 0.0]}
-            - {t: 2, turn: [0.0, 27.5, 0.0]}
-            - {t: 3, turn: [0.0, -35.0, 0.0]}
-            - {t: 4, turn: [0.0, -72.5, 0.0]}
-            - {t: 5, ease: out_quad, turn: [0.0, -85.0, 0.0]}
-            - {t: 6, turn: [0.0, -93.671875, 0.0]}
-            - {t: 7, turn: [0.0, -98.125, 0.0]}
-            - {t: 8, turn: [0.0, -99.765625, 0.0]}
-            - {t: 9, ease: out_cubic, turn: [0.0, -100.0, 0.0]}
-            - {t: 10, turn: [-1.694336, -95.904824, -1.879057]}
-            - {t: 11, turn: [-7.322769, -83.488976, -6.555764]}
-            - {t: 12, turn: [-18.100329, -62.580704, -11.149621]}
-            - {t: 13, turn: [-33.581188, -35.583249, -11.149722]}
-            - {t: 14, turn: [-45.701764, -15.436895, -6.555818]}
-            - {t: 15, turn: [-52.73214, -3.789067, -1.879059]}
-            - {t: 16, ease: in_out_quad, turn: [-55.0, 0.0, 0.0]}
-        - id: fx2_vendetta_slash_b_bayonet_swing_2
-          op: track
-          target: fx2_vendetta_slash_b_bayonet_tip
-          space: caster.right_hand
-          keys:
-            - {t: 0, turn: [0.0, 100.0, 0.0]}
-            - {t: 1, turn: [0.0, 115.0, 0.0]}
-            - {t: 2, turn: [0.0, 27.5, 0.0]}
-            - {t: 3, turn: [0.0, -35.0, 0.0]}
-            - {t: 4, turn: [0.0, -72.5, 0.0]}
-            - {t: 5, ease: out_quad, turn: [0.0, -85.0, 0.0]}
-            - {t: 6, turn: [0.0, -93.671875, 0.0]}
-            - {t: 7, turn: [0.0, -98.125, 0.0]}
-            - {t: 8, turn: [0.0, -99.765625, 0.0]}
-            - {t: 9, ease: out_cubic, turn: [0.0, -100.0, 0.0]}
-            - {t: 10, turn: [-1.694336, -95.904824, -1.879057]}
-            - {t: 11, turn: [-7.322769, -83.488976, -6.555764]}
-            - {t: 12, turn: [-18.100329, -62.580704, -11.149621]}
-            - {t: 13, turn: [-33.581188, -35.583249, -11.149722]}
-            - {t: 14, turn: [-45.701764, -15.436895, -6.555818]}
-            - {t: 15, turn: [-52.73214, -3.789067, -1.879059]}
-            - {t: 16, ease: in_out_quad, turn: [-55.0, 0.0, 0.0]}
-        - id: fx2_vendetta_slash_b_bayonet_swing_3
-          op: track
-          target: fx2_vendetta_slash_b_bayonet_grip
-          space: caster.right_hand
-          keys:
-            - {t: 0, turn: [0.0, 100.0, 0.0]}
-            - {t: 1, turn: [0.0, 115.0, 0.0]}
-            - {t: 2, turn: [0.0, 27.5, 0.0]}
-            - {t: 3, turn: [0.0, -35.0, 0.0]}
-            - {t: 4, turn: [0.0, -72.5, 0.0]}
-            - {t: 5, ease: out_quad, turn: [0.0, -85.0, 0.0]}
-            - {t: 6, turn: [0.0, -93.671875, 0.0]}
-            - {t: 7, turn: [0.0, -98.125, 0.0]}
-            - {t: 8, turn: [0.0, -99.765625, 0.0]}
-            - {t: 9, ease: out_cubic, turn: [0.0, -100.0, 0.0]}
-            - {t: 10, turn: [-1.694336, -95.904824, -1.879057]}
-            - {t: 11, turn: [-7.322769, -83.488976, -6.555764]}
-            - {t: 12, turn: [-18.100329, -62.580704, -11.149621]}
-            - {t: 13, turn: [-33.581188, -35.583249, -11.149722]}
-            - {t: 14, turn: [-45.701764, -15.436895, -6.555818]}
-            - {t: 15, turn: [-52.73214, -3.789067, -1.879059]}
-            - {t: 16, ease: in_out_quad, turn: [-55.0, 0.0, 0.0]}
-        - id: fx2_vendetta_slash_b_bayonet_swing_4
-          op: track
-          target: fx2_vendetta_slash_b_bayonet_rib_0
-          space: caster.right_hand
-          keys:
-            - {t: 0, turn: [0.0, 100.0, 0.0]}
-            - {t: 1, turn: [0.0, 115.0, 0.0]}
-            - {t: 2, turn: [0.0, 27.5, 0.0]}
-            - {t: 3, turn: [0.0, -35.0, 0.0]}
-            - {t: 4, turn: [0.0, -72.5, 0.0]}
-            - {t: 5, ease: out_quad, turn: [0.0, -85.0, 0.0]}
-            - {t: 6, turn: [0.0, -93.671875, 0.0]}
-            - {t: 7, turn: [0.0, -98.125, 0.0]}
-            - {t: 8, turn: [0.0, -99.765625, 0.0]}
-            - {t: 9, ease: out_cubic, turn: [0.0, -100.0, 0.0]}
-            - {t: 10, turn: [-1.694336, -95.904824, -1.879057]}
-            - {t: 11, turn: [-7.322769, -83.488976, -6.555764]}
-            - {t: 12, turn: [-18.100329, -62.580704, -11.149621]}
-            - {t: 13, turn: [-33.581188, -35.583249, -11.149722]}
-            - {t: 14, turn: [-45.701764, -15.436895, -6.555818]}
-            - {t: 15, turn: [-52.73214, -3.789067, -1.879059]}
-            - {t: 16, ease: in_out_quad, turn: [-55.0, 0.0, 0.0]}
-        - id: fx2_vendetta_slash_b_bayonet_swing_5
-          op: track
-          target: fx2_vendetta_slash_b_bayonet_rib_1
-          space: caster.right_hand
-          keys:
-            - {t: 0, turn: [0.0, 100.0, 0.0]}
-            - {t: 1, turn: [0.0, 115.0, 0.0]}
-            - {t: 2, turn: [0.0, 27.5, 0.0]}
-            - {t: 3, turn: [0.0, -35.0, 0.0]}
-            - {t: 4, turn: [0.0, -72.5, 0.0]}
-            - {t: 5, ease: out_quad, turn: [0.0, -85.0, 0.0]}
-            - {t: 6, turn: [0.0, -93.671875, 0.0]}
-            - {t: 7, turn: [0.0, -98.125, 0.0]}
-            - {t: 8, turn: [0.0, -99.765625, 0.0]}
-            - {t: 9, ease: out_cubic, turn: [0.0, -100.0, 0.0]}
-            - {t: 10, turn: [-1.694336, -95.904824, -1.879057]}
-            - {t: 11, turn: [-7.322769, -83.488976, -6.555764]}
-            - {t: 12, turn: [-18.100329, -62.580704, -11.149621]}
-            - {t: 13, turn: [-33.581188, -35.583249, -11.149722]}
-            - {t: 14, turn: [-45.701764, -15.436895, -6.555818]}
-            - {t: 15, turn: [-52.73214, -3.789067, -1.879059]}
-            - {t: 16, ease: in_out_quad, turn: [-55.0, 0.0, 0.0]}
-        - id: fx2_vendetta_slash_b_bayonet_swing_6
-          op: track
-          target: fx2_vendetta_slash_b_bayonet_rib_2
-          space: caster.right_hand
-          keys:
-            - {t: 0, turn: [0.0, 100.0, 0.0]}
-            - {t: 1, turn: [0.0, 115.0, 0.0]}
-            - {t: 2, turn: [0.0, 27.5, 0.0]}
-            - {t: 3, turn: [0.0, -35.0, 0.0]}
-            - {t: 4, turn: [0.0, -72.5, 0.0]}
-            - {t: 5, ease: out_quad, turn: [0.0, -85.0, 0.0]}
-            - {t: 6, turn: [0.0, -93.671875, 0.0]}
-            - {t: 7, turn: [0.0, -98.125, 0.0]}
-            - {t: 8, turn: [0.0, -99.765625, 0.0]}
-            - {t: 9, ease: out_cubic, turn: [0.0, -100.0, 0.0]}
-            - {t: 10, turn: [-1.694336, -95.904824, -1.879057]}
-            - {t: 11, turn: [-7.322769, -83.488976, -6.555764]}
-            - {t: 12, turn: [-18.100329, -62.580704, -11.149621]}
-            - {t: 13, turn: [-33.581188, -35.583249, -11.149722]}
-            - {t: 14, turn: [-45.701764, -15.436895, -6.555818]}
-            - {t: 15, turn: [-52.73214, -3.789067, -1.879059]}
-            - {t: 16, ease: in_out_quad, turn: [-55.0, 0.0, 0.0]}
-        - id: fx2_vendetta_slash_b_bayonet_swing_7
-          op: track
-          target: fx2_vendetta_slash_b_bayonet_rib_3
-          space: caster.right_hand
-          keys:
-            - {t: 0, turn: [0.0, 100.0, 0.0]}
-            - {t: 1, turn: [0.0, 115.0, 0.0]}
-            - {t: 2, turn: [0.0, 27.5, 0.0]}
-            - {t: 3, turn: [0.0, -35.0, 0.0]}
-            - {t: 4, turn: [0.0, -72.5, 0.0]}
-            - {t: 5, ease: out_quad, turn: [0.0, -85.0, 0.0]}
-            - {t: 6, turn: [0.0, -93.671875, 0.0]}
-            - {t: 7, turn: [0.0, -98.125, 0.0]}
-            - {t: 8, turn: [0.0, -99.765625, 0.0]}
-            - {t: 9, ease: out_cubic, turn: [0.0, -100.0, 0.0]}
-            - {t: 10, turn: [-1.694336, -95.904824, -1.879057]}
-            - {t: 11, turn: [-7.322769, -83.488976, -6.555764]}
-            - {t: 12, turn: [-18.100329, -62.580704, -11.149621]}
-            - {t: 13, turn: [-33.581188, -35.583249, -11.149722]}
-            - {t: 14, turn: [-45.701764, -15.436895, -6.555818]}
-            - {t: 15, turn: [-52.73214, -3.789067, -1.879059]}
-            - {t: 16, ease: in_out_quad, turn: [-55.0, 0.0, 0.0]}
-        - id: fx2_vendetta_slash_b_bayonet_swing_8
-          op: track
-          target: fx2_vendetta_slash_b_bayonet_rib_4
-          space: caster.right_hand
-          keys:
-            - {t: 0, turn: [0.0, 100.0, 0.0]}
-            - {t: 1, turn: [0.0, 115.0, 0.0]}
-            - {t: 2, turn: [0.0, 27.5, 0.0]}
-            - {t: 3, turn: [0.0, -35.0, 0.0]}
-            - {t: 4, turn: [0.0, -72.5, 0.0]}
-            - {t: 5, ease: out_quad, turn: [0.0, -85.0, 0.0]}
-            - {t: 6, turn: [0.0, -93.671875, 0.0]}
-            - {t: 7, turn: [0.0, -98.125, 0.0]}
-            - {t: 8, turn: [0.0, -99.765625, 0.0]}
-            - {t: 9, ease: out_cubic, turn: [0.0, -100.0, 0.0]}
-            - {t: 10, turn: [-1.694336, -95.904824, -1.879057]}
-            - {t: 11, turn: [-7.322769, -83.488976, -6.555764]}
-            - {t: 12, turn: [-18.100329, -62.580704, -11.149621]}
-            - {t: 13, turn: [-33.581188, -35.583249, -11.149722]}
-            - {t: 14, turn: [-45.701764, -15.436895, -6.555818]}
-            - {t: 15, turn: [-52.73214, -3.789067, -1.879059]}
-            - {t: 16, ease: in_out_quad, turn: [-55.0, 0.0, 0.0]}
-        - id: fx2_vendetta_slash_b_bayonet_swing_9
-          op: track
-          target: fx2_vendetta_slash_b_bayonet_rib_5
-          space: caster.right_hand
-          keys:
-            - {t: 0, turn: [0.0, 100.0, 0.0]}
-            - {t: 1, turn: [0.0, 115.0, 0.0]}
-            - {t: 2, turn: [0.0, 27.5, 0.0]}
-            - {t: 3, turn: [0.0, -35.0, 0.0]}
-            - {t: 4, turn: [0.0, -72.5, 0.0]}
-            - {t: 5, ease: out_quad, turn: [0.0, -85.0, 0.0]}
-            - {t: 6, turn: [0.0, -93.671875, 0.0]}
-            - {t: 7, turn: [0.0, -98.125, 0.0]}
-            - {t: 8, turn: [0.0, -99.765625, 0.0]}
-            - {t: 9, ease: out_cubic, turn: [0.0, -100.0, 0.0]}
-            - {t: 10, turn: [-1.694336, -95.904824, -1.879057]}
-            - {t: 11, turn: [-7.322769, -83.488976, -6.555764]}
-            - {t: 12, turn: [-18.100329, -62.580704, -11.149621]}
-            - {t: 13, turn: [-33.581188, -35.583249, -11.149722]}
-            - {t: 14, turn: [-45.701764, -15.436895, -6.555818]}
-            - {t: 15, turn: [-52.73214, -3.789067, -1.879059]}
-            - {t: 16, ease: in_out_quad, turn: [-55.0, 0.0, 0.0]}
-        - id: fx2_vendetta_slash_b_bayonet_swing_10
-          op: track
-          target: fx2_vendetta_slash_b_bayonet_rib_6
-          space: caster.right_hand
-          keys:
-            - {t: 0, turn: [0.0, 100.0, 0.0]}
-            - {t: 1, turn: [0.0, 115.0, 0.0]}
-            - {t: 2, turn: [0.0, 27.5, 0.0]}
-            - {t: 3, turn: [0.0, -35.0, 0.0]}
-            - {t: 4, turn: [0.0, -72.5, 0.0]}
-            - {t: 5, ease: out_quad, turn: [0.0, -85.0, 0.0]}
-            - {t: 6, turn: [0.0, -93.671875, 0.0]}
-            - {t: 7, turn: [0.0, -98.125, 0.0]}
-            - {t: 8, turn: [0.0, -99.765625, 0.0]}
-            - {t: 9, ease: out_cubic, turn: [0.0, -100.0, 0.0]}
-            - {t: 10, turn: [-1.694336, -95.904824, -1.879057]}
-            - {t: 11, turn: [-7.322769, -83.488976, -6.555764]}
-            - {t: 12, turn: [-18.100329, -62.580704, -11.149621]}
-            - {t: 13, turn: [-33.581188, -35.583249, -11.149722]}
-            - {t: 14, turn: [-45.701764, -15.436895, -6.555818]}
-            - {t: 15, turn: [-52.73214, -3.789067, -1.879059]}
-            - {t: 16, ease: in_out_quad, turn: [-55.0, 0.0, 0.0]}
+        - {id: fx2_vendetta_slash_b_bayonet_grip, op: block, parent: fx2_vendetta_slash_b_bayonet_parts, block: black_concrete, size: [0.13, 0.4, 0.13], at: [0.0, -0.2, 0.0], rig_shading: true}
+        - {id: fx2_vendetta_slash_b_bayonet_rib_0, op: block, parent: fx2_vendetta_slash_b_bayonet_parts, block: bone_block, size: [0.28, 0.045, 0.18], at: [0.0, 0.22, 0.0], brightness: 15}
+        - {id: fx2_vendetta_slash_b_bayonet_rib_1, op: block, parent: fx2_vendetta_slash_b_bayonet_parts, block: bone_block, size: [0.28, 0.045, 0.18], at: [0.0, 0.41, 0.0], brightness: 15}
+        - {id: fx2_vendetta_slash_b_bayonet_rib_2, op: block, parent: fx2_vendetta_slash_b_bayonet_parts, block: bone_block, size: [0.28, 0.045, 0.18], at: [0.0, 0.6, 0.0], brightness: 15}
+        - {id: fx2_vendetta_slash_b_bayonet_rib_3, op: block, parent: fx2_vendetta_slash_b_bayonet_parts, block: bone_block, size: [0.28, 0.045, 0.18], at: [-0.019, 0.79, 0.0], brightness: 15}
+        - {id: fx2_vendetta_slash_b_bayonet_rib_4, op: block, parent: fx2_vendetta_slash_b_bayonet_parts, block: bone_block, size: [0.28, 0.045, 0.18], at: [-0.038, 0.98, 0.0], brightness: 15}
+        - {id: fx2_vendetta_slash_b_bayonet_rib_5, op: block, parent: fx2_vendetta_slash_b_bayonet_parts, block: bone_block, size: [0.28, 0.045, 0.18], at: [-0.057, 1.17, 0.0], brightness: 15}
+        - {id: fx2_vendetta_slash_b_bayonet_rib_6, op: block, parent: fx2_vendetta_slash_b_bayonet_parts, block: bone_block, size: [0.28, 0.045, 0.18], at: [-0.076, 1.36, 0.0], brightness: 15}
     - id: fx49
       at: 49
       do:
@@ -1369,360 +833,92 @@ presentation:
     - id: fx66
       at: 66
       do:
-        - id: fx5_vendetta_slash_b_bayonet_heel
-          op: block
-          parent: fx5_vendetta_slash_b_bayonet
-          block: nether_bricks
-          size: [0.2, 0.8, 0.16]
-          at: [0.0, 0.4, 0.0]
-          pivot: [0.35, 1.05, 0.25]
-          rest_turn: [90.0, 0.0, 0.0]
-          tilt_turn: [0.0, 0.0, 25.0]
-          rig_shading: true
+        - id: fx5_vendetta_slash_b_bayonet_rig
+          op: rig
+          frame: fx5_vendetta_slash_b_bayonet
+          parent: caster
+          duration: 8
+          pivot: [1.049232, -0.35228, 0.253199]
+          tilt: [0.0, 0.0, 25.0]
+          rest: [90.0, 0.0, 0.0]
+          swing:
+            - {t: 0, rotate: [0.0, 100.0, 0.0]}
+            - {t: 1, rotate: [0.0, 115.0, 0.0]}
+            - {t: 2, rotate: [0.0, 27.5, 0.0], sample: true}
+            - {t: 3, rotate: [0.0, -35.0, 0.0], sample: true}
+            - {t: 4, rotate: [0.0, -72.5, 0.0], sample: true}
+            - {t: 5, rotate: [0.0, -85.0, 0.0]}
+            - {t: 6, rotate: [0.0, -93.671875, 0.0], sample: true}
+            - {t: 7, rotate: [0.0, -98.125, 0.0], sample: true}
+            - {t: 8, rotate: [0.0, -99.765625, 0.0], sample: true}
+            - {t: 9, rotate: [0.0, -100.0, 0.0]}
+            - {t: 10, rotate: [-1.694336, -95.904824, -1.879057], sample: true}
+            - {t: 11, rotate: [-7.322769, -83.488976, -6.555764], sample: true}
+            - {t: 12, rotate: [-18.100329, -62.580704, -11.149621], sample: true}
+            - {t: 13, rotate: [-33.581188, -35.583249, -11.149722], sample: true}
+            - {t: 14, rotate: [-45.701764, -15.436895, -6.555818], sample: true}
+            - {t: 15, rotate: [-52.73214, -3.789067, -1.879059], sample: true}
+            - {t: 16, rotate: [-55.0, 0.0, 0.0]}
+          sample_ticks: 1
+          respect_hit_stop: true
+          freezes:
+            - {at: 5, ticks: 2}
+        - id: fx5_vendetta_slash_b_bayonet_parts_rig
+          op: rig
+          frame: fx5_vendetta_slash_b_bayonet_parts
+          parent: caster
+          duration: 8
+          hand: false
+          pivot: [1.049232, -0.35228, 0.253199]
+          tilt: [0.0, 0.0, 25.0]
+          rest: [90.0, 0.0, 0.0]
+          swing:
+            - {t: 0, rotate: [0.0, 100.0, 0.0]}
+            - {t: 1, rotate: [0.0, 115.0, 0.0]}
+            - {t: 2, rotate: [0.0, 27.5, 0.0], sample: true}
+            - {t: 3, rotate: [0.0, -35.0, 0.0], sample: true}
+            - {t: 4, rotate: [0.0, -72.5, 0.0], sample: true}
+            - {t: 5, rotate: [0.0, -85.0, 0.0]}
+            - {t: 6, rotate: [0.0, -93.671875, 0.0], sample: true}
+            - {t: 7, rotate: [0.0, -98.125, 0.0], sample: true}
+            - {t: 8, rotate: [0.0, -99.765625, 0.0], sample: true}
+            - {t: 9, rotate: [0.0, -100.0, 0.0]}
+            - {t: 10, rotate: [-1.694336, -95.904824, -1.879057], sample: true}
+            - {t: 11, rotate: [-7.322769, -83.488976, -6.555764], sample: true}
+            - {t: 12, rotate: [-18.100329, -62.580704, -11.149621], sample: true}
+            - {t: 13, rotate: [-33.581188, -35.583249, -11.149722], sample: true}
+            - {t: 14, rotate: [-45.701764, -15.436895, -6.555818], sample: true}
+            - {t: 15, rotate: [-52.73214, -3.789067, -1.879059], sample: true}
+            - {t: 16, rotate: [-55.0, 0.0, 0.0]}
+          sample_ticks: 1
+          respect_hit_stop: true
+          freezes:
+            - {at: 5, ticks: 2}
+        - {id: fx5_vendetta_slash_b_bayonet_heel, op: block, parent: fx5_vendetta_slash_b_bayonet_parts, block: nether_bricks, size: [0.2, 0.8, 0.16], at: [0.0, 0.4, 0.0], rig_shading: true}
         - id: fx5_vendetta_slash_b_bayonet_spine
           op: block
-          parent: fx5_vendetta_slash_b_bayonet
+          parent: fx5_vendetta_slash_b_bayonet_parts
           block: nether_bricks
           size: [0.24, 0.5, 0.16]
           at: [-0.03, 1.0, 0.0]
-          pivot: [0.35, 1.05, 0.25]
           turn: [0.0, 0.0, 5.0]
-          rest_turn: [90.0, 0.0, 0.0]
-          tilt_turn: [0.0, 0.0, 25.0]
           rig_shading: true
         - id: fx5_vendetta_slash_b_bayonet_tip
           op: block
-          parent: fx5_vendetta_slash_b_bayonet
+          parent: fx5_vendetta_slash_b_bayonet_parts
           block: nether_bricks
           size: [0.24, 0.35, 0.16]
           at: [-0.11, 1.35, 0.0]
-          pivot: [0.35, 1.05, 0.25]
           turn: [0.0, 0.0, 18.0]
-          rest_turn: [90.0, 0.0, 0.0]
-          tilt_turn: [0.0, 0.0, 25.0]
           rig_shading: true
-        - id: fx5_vendetta_slash_b_bayonet_grip
-          op: block
-          parent: fx5_vendetta_slash_b_bayonet
-          block: black_concrete
-          size: [0.13, 0.4, 0.13]
-          at: [0.0, -0.2, 0.0]
-          pivot: [0.35, 1.05, 0.25]
-          rest_turn: [90.0, 0.0, 0.0]
-          tilt_turn: [0.0, 0.0, 25.0]
-          rig_shading: true
-        - id: fx5_vendetta_slash_b_bayonet_rib_0
-          op: block
-          parent: fx5_vendetta_slash_b_bayonet
-          block: bone_block
-          size: [0.28, 0.045, 0.18]
-          at: [0.0, 0.22, 0.0]
-          pivot: [0.35, 1.05, 0.25]
-          rest_turn: [90.0, 0.0, 0.0]
-          tilt_turn: [0.0, 0.0, 25.0]
-          brightness: 15
-        - id: fx5_vendetta_slash_b_bayonet_rib_1
-          op: block
-          parent: fx5_vendetta_slash_b_bayonet
-          block: bone_block
-          size: [0.28, 0.045, 0.18]
-          at: [0.0, 0.41, 0.0]
-          pivot: [0.35, 1.05, 0.25]
-          rest_turn: [90.0, 0.0, 0.0]
-          tilt_turn: [0.0, 0.0, 25.0]
-          brightness: 15
-        - id: fx5_vendetta_slash_b_bayonet_rib_2
-          op: block
-          parent: fx5_vendetta_slash_b_bayonet
-          block: bone_block
-          size: [0.28, 0.045, 0.18]
-          at: [0.0, 0.6, 0.0]
-          pivot: [0.35, 1.05, 0.25]
-          rest_turn: [90.0, 0.0, 0.0]
-          tilt_turn: [0.0, 0.0, 25.0]
-          brightness: 15
-        - id: fx5_vendetta_slash_b_bayonet_rib_3
-          op: block
-          parent: fx5_vendetta_slash_b_bayonet
-          block: bone_block
-          size: [0.28, 0.045, 0.18]
-          at: [-0.019, 0.79, 0.0]
-          pivot: [0.35, 1.05, 0.25]
-          rest_turn: [90.0, 0.0, 0.0]
-          tilt_turn: [0.0, 0.0, 25.0]
-          brightness: 15
-        - id: fx5_vendetta_slash_b_bayonet_rib_4
-          op: block
-          parent: fx5_vendetta_slash_b_bayonet
-          block: bone_block
-          size: [0.28, 0.045, 0.18]
-          at: [-0.038, 0.98, 0.0]
-          pivot: [0.35, 1.05, 0.25]
-          rest_turn: [90.0, 0.0, 0.0]
-          tilt_turn: [0.0, 0.0, 25.0]
-          brightness: 15
-        - id: fx5_vendetta_slash_b_bayonet_rib_5
-          op: block
-          parent: fx5_vendetta_slash_b_bayonet
-          block: bone_block
-          size: [0.28, 0.045, 0.18]
-          at: [-0.057, 1.17, 0.0]
-          pivot: [0.35, 1.05, 0.25]
-          rest_turn: [90.0, 0.0, 0.0]
-          tilt_turn: [0.0, 0.0, 25.0]
-          brightness: 15
-        - id: fx5_vendetta_slash_b_bayonet_rib_6
-          op: block
-          parent: fx5_vendetta_slash_b_bayonet
-          block: bone_block
-          size: [0.28, 0.045, 0.18]
-          at: [-0.076, 1.36, 0.0]
-          pivot: [0.35, 1.05, 0.25]
-          rest_turn: [90.0, 0.0, 0.0]
-          tilt_turn: [0.0, 0.0, 25.0]
-          brightness: 15
-        - id: fx5_vendetta_slash_b_bayonet_swing
-          op: track
-          target: fx5_vendetta_slash_b_bayonet_heel
-          space: caster.right_hand
-          keys:
-            - {t: 0, turn: [0.0, 100.0, 0.0]}
-            - {t: 1, turn: [0.0, 115.0, 0.0]}
-            - {t: 2, turn: [0.0, 27.5, 0.0]}
-            - {t: 3, turn: [0.0, -35.0, 0.0]}
-            - {t: 4, turn: [0.0, -72.5, 0.0]}
-            - {t: 5, ease: out_quad, turn: [0.0, -85.0, 0.0]}
-            - {t: 6, turn: [0.0, -93.671875, 0.0]}
-            - {t: 7, turn: [0.0, -98.125, 0.0]}
-            - {t: 8, turn: [0.0, -99.765625, 0.0]}
-            - {t: 9, ease: out_cubic, turn: [0.0, -100.0, 0.0]}
-            - {t: 10, turn: [-1.694336, -95.904824, -1.879057]}
-            - {t: 11, turn: [-7.322769, -83.488976, -6.555764]}
-            - {t: 12, turn: [-18.100329, -62.580704, -11.149621]}
-            - {t: 13, turn: [-33.581188, -35.583249, -11.149722]}
-            - {t: 14, turn: [-45.701764, -15.436895, -6.555818]}
-            - {t: 15, turn: [-52.73214, -3.789067, -1.879059]}
-            - {t: 16, ease: in_out_quad, turn: [-55.0, 0.0, 0.0]}
-        - id: fx5_vendetta_slash_b_bayonet_swing_1
-          op: track
-          target: fx5_vendetta_slash_b_bayonet_spine
-          space: caster.right_hand
-          keys:
-            - {t: 0, turn: [0.0, 100.0, 0.0]}
-            - {t: 1, turn: [0.0, 115.0, 0.0]}
-            - {t: 2, turn: [0.0, 27.5, 0.0]}
-            - {t: 3, turn: [0.0, -35.0, 0.0]}
-            - {t: 4, turn: [0.0, -72.5, 0.0]}
-            - {t: 5, ease: out_quad, turn: [0.0, -85.0, 0.0]}
-            - {t: 6, turn: [0.0, -93.671875, 0.0]}
-            - {t: 7, turn: [0.0, -98.125, 0.0]}
-            - {t: 8, turn: [0.0, -99.765625, 0.0]}
-            - {t: 9, ease: out_cubic, turn: [0.0, -100.0, 0.0]}
-            - {t: 10, turn: [-1.694336, -95.904824, -1.879057]}
-            - {t: 11, turn: [-7.322769, -83.488976, -6.555764]}
-            - {t: 12, turn: [-18.100329, -62.580704, -11.149621]}
-            - {t: 13, turn: [-33.581188, -35.583249, -11.149722]}
-            - {t: 14, turn: [-45.701764, -15.436895, -6.555818]}
-            - {t: 15, turn: [-52.73214, -3.789067, -1.879059]}
-            - {t: 16, ease: in_out_quad, turn: [-55.0, 0.0, 0.0]}
-        - id: fx5_vendetta_slash_b_bayonet_swing_2
-          op: track
-          target: fx5_vendetta_slash_b_bayonet_tip
-          space: caster.right_hand
-          keys:
-            - {t: 0, turn: [0.0, 100.0, 0.0]}
-            - {t: 1, turn: [0.0, 115.0, 0.0]}
-            - {t: 2, turn: [0.0, 27.5, 0.0]}
-            - {t: 3, turn: [0.0, -35.0, 0.0]}
-            - {t: 4, turn: [0.0, -72.5, 0.0]}
-            - {t: 5, ease: out_quad, turn: [0.0, -85.0, 0.0]}
-            - {t: 6, turn: [0.0, -93.671875, 0.0]}
-            - {t: 7, turn: [0.0, -98.125, 0.0]}
-            - {t: 8, turn: [0.0, -99.765625, 0.0]}
-            - {t: 9, ease: out_cubic, turn: [0.0, -100.0, 0.0]}
-            - {t: 10, turn: [-1.694336, -95.904824, -1.879057]}
-            - {t: 11, turn: [-7.322769, -83.488976, -6.555764]}
-            - {t: 12, turn: [-18.100329, -62.580704, -11.149621]}
-            - {t: 13, turn: [-33.581188, -35.583249, -11.149722]}
-            - {t: 14, turn: [-45.701764, -15.436895, -6.555818]}
-            - {t: 15, turn: [-52.73214, -3.789067, -1.879059]}
-            - {t: 16, ease: in_out_quad, turn: [-55.0, 0.0, 0.0]}
-        - id: fx5_vendetta_slash_b_bayonet_swing_3
-          op: track
-          target: fx5_vendetta_slash_b_bayonet_grip
-          space: caster.right_hand
-          keys:
-            - {t: 0, turn: [0.0, 100.0, 0.0]}
-            - {t: 1, turn: [0.0, 115.0, 0.0]}
-            - {t: 2, turn: [0.0, 27.5, 0.0]}
-            - {t: 3, turn: [0.0, -35.0, 0.0]}
-            - {t: 4, turn: [0.0, -72.5, 0.0]}
-            - {t: 5, ease: out_quad, turn: [0.0, -85.0, 0.0]}
-            - {t: 6, turn: [0.0, -93.671875, 0.0]}
-            - {t: 7, turn: [0.0, -98.125, 0.0]}
-            - {t: 8, turn: [0.0, -99.765625, 0.0]}
-            - {t: 9, ease: out_cubic, turn: [0.0, -100.0, 0.0]}
-            - {t: 10, turn: [-1.694336, -95.904824, -1.879057]}
-            - {t: 11, turn: [-7.322769, -83.488976, -6.555764]}
-            - {t: 12, turn: [-18.100329, -62.580704, -11.149621]}
-            - {t: 13, turn: [-33.581188, -35.583249, -11.149722]}
-            - {t: 14, turn: [-45.701764, -15.436895, -6.555818]}
-            - {t: 15, turn: [-52.73214, -3.789067, -1.879059]}
-            - {t: 16, ease: in_out_quad, turn: [-55.0, 0.0, 0.0]}
-        - id: fx5_vendetta_slash_b_bayonet_swing_4
-          op: track
-          target: fx5_vendetta_slash_b_bayonet_rib_0
-          space: caster.right_hand
-          keys:
-            - {t: 0, turn: [0.0, 100.0, 0.0]}
-            - {t: 1, turn: [0.0, 115.0, 0.0]}
-            - {t: 2, turn: [0.0, 27.5, 0.0]}
-            - {t: 3, turn: [0.0, -35.0, 0.0]}
-            - {t: 4, turn: [0.0, -72.5, 0.0]}
-            - {t: 5, ease: out_quad, turn: [0.0, -85.0, 0.0]}
-            - {t: 6, turn: [0.0, -93.671875, 0.0]}
-            - {t: 7, turn: [0.0, -98.125, 0.0]}
-            - {t: 8, turn: [0.0, -99.765625, 0.0]}
-            - {t: 9, ease: out_cubic, turn: [0.0, -100.0, 0.0]}
-            - {t: 10, turn: [-1.694336, -95.904824, -1.879057]}
-            - {t: 11, turn: [-7.322769, -83.488976, -6.555764]}
-            - {t: 12, turn: [-18.100329, -62.580704, -11.149621]}
-            - {t: 13, turn: [-33.581188, -35.583249, -11.149722]}
-            - {t: 14, turn: [-45.701764, -15.436895, -6.555818]}
-            - {t: 15, turn: [-52.73214, -3.789067, -1.879059]}
-            - {t: 16, ease: in_out_quad, turn: [-55.0, 0.0, 0.0]}
-        - id: fx5_vendetta_slash_b_bayonet_swing_5
-          op: track
-          target: fx5_vendetta_slash_b_bayonet_rib_1
-          space: caster.right_hand
-          keys:
-            - {t: 0, turn: [0.0, 100.0, 0.0]}
-            - {t: 1, turn: [0.0, 115.0, 0.0]}
-            - {t: 2, turn: [0.0, 27.5, 0.0]}
-            - {t: 3, turn: [0.0, -35.0, 0.0]}
-            - {t: 4, turn: [0.0, -72.5, 0.0]}
-            - {t: 5, ease: out_quad, turn: [0.0, -85.0, 0.0]}
-            - {t: 6, turn: [0.0, -93.671875, 0.0]}
-            - {t: 7, turn: [0.0, -98.125, 0.0]}
-            - {t: 8, turn: [0.0, -99.765625, 0.0]}
-            - {t: 9, ease: out_cubic, turn: [0.0, -100.0, 0.0]}
-            - {t: 10, turn: [-1.694336, -95.904824, -1.879057]}
-            - {t: 11, turn: [-7.322769, -83.488976, -6.555764]}
-            - {t: 12, turn: [-18.100329, -62.580704, -11.149621]}
-            - {t: 13, turn: [-33.581188, -35.583249, -11.149722]}
-            - {t: 14, turn: [-45.701764, -15.436895, -6.555818]}
-            - {t: 15, turn: [-52.73214, -3.789067, -1.879059]}
-            - {t: 16, ease: in_out_quad, turn: [-55.0, 0.0, 0.0]}
-        - id: fx5_vendetta_slash_b_bayonet_swing_6
-          op: track
-          target: fx5_vendetta_slash_b_bayonet_rib_2
-          space: caster.right_hand
-          keys:
-            - {t: 0, turn: [0.0, 100.0, 0.0]}
-            - {t: 1, turn: [0.0, 115.0, 0.0]}
-            - {t: 2, turn: [0.0, 27.5, 0.0]}
-            - {t: 3, turn: [0.0, -35.0, 0.0]}
-            - {t: 4, turn: [0.0, -72.5, 0.0]}
-            - {t: 5, ease: out_quad, turn: [0.0, -85.0, 0.0]}
-            - {t: 6, turn: [0.0, -93.671875, 0.0]}
-            - {t: 7, turn: [0.0, -98.125, 0.0]}
-            - {t: 8, turn: [0.0, -99.765625, 0.0]}
-            - {t: 9, ease: out_cubic, turn: [0.0, -100.0, 0.0]}
-            - {t: 10, turn: [-1.694336, -95.904824, -1.879057]}
-            - {t: 11, turn: [-7.322769, -83.488976, -6.555764]}
-            - {t: 12, turn: [-18.100329, -62.580704, -11.149621]}
-            - {t: 13, turn: [-33.581188, -35.583249, -11.149722]}
-            - {t: 14, turn: [-45.701764, -15.436895, -6.555818]}
-            - {t: 15, turn: [-52.73214, -3.789067, -1.879059]}
-            - {t: 16, ease: in_out_quad, turn: [-55.0, 0.0, 0.0]}
-        - id: fx5_vendetta_slash_b_bayonet_swing_7
-          op: track
-          target: fx5_vendetta_slash_b_bayonet_rib_3
-          space: caster.right_hand
-          keys:
-            - {t: 0, turn: [0.0, 100.0, 0.0]}
-            - {t: 1, turn: [0.0, 115.0, 0.0]}
-            - {t: 2, turn: [0.0, 27.5, 0.0]}
-            - {t: 3, turn: [0.0, -35.0, 0.0]}
-            - {t: 4, turn: [0.0, -72.5, 0.0]}
-            - {t: 5, ease: out_quad, turn: [0.0, -85.0, 0.0]}
-            - {t: 6, turn: [0.0, -93.671875, 0.0]}
-            - {t: 7, turn: [0.0, -98.125, 0.0]}
-            - {t: 8, turn: [0.0, -99.765625, 0.0]}
-            - {t: 9, ease: out_cubic, turn: [0.0, -100.0, 0.0]}
-            - {t: 10, turn: [-1.694336, -95.904824, -1.879057]}
-            - {t: 11, turn: [-7.322769, -83.488976, -6.555764]}
-            - {t: 12, turn: [-18.100329, -62.580704, -11.149621]}
-            - {t: 13, turn: [-33.581188, -35.583249, -11.149722]}
-            - {t: 14, turn: [-45.701764, -15.436895, -6.555818]}
-            - {t: 15, turn: [-52.73214, -3.789067, -1.879059]}
-            - {t: 16, ease: in_out_quad, turn: [-55.0, 0.0, 0.0]}
-        - id: fx5_vendetta_slash_b_bayonet_swing_8
-          op: track
-          target: fx5_vendetta_slash_b_bayonet_rib_4
-          space: caster.right_hand
-          keys:
-            - {t: 0, turn: [0.0, 100.0, 0.0]}
-            - {t: 1, turn: [0.0, 115.0, 0.0]}
-            - {t: 2, turn: [0.0, 27.5, 0.0]}
-            - {t: 3, turn: [0.0, -35.0, 0.0]}
-            - {t: 4, turn: [0.0, -72.5, 0.0]}
-            - {t: 5, ease: out_quad, turn: [0.0, -85.0, 0.0]}
-            - {t: 6, turn: [0.0, -93.671875, 0.0]}
-            - {t: 7, turn: [0.0, -98.125, 0.0]}
-            - {t: 8, turn: [0.0, -99.765625, 0.0]}
-            - {t: 9, ease: out_cubic, turn: [0.0, -100.0, 0.0]}
-            - {t: 10, turn: [-1.694336, -95.904824, -1.879057]}
-            - {t: 11, turn: [-7.322769, -83.488976, -6.555764]}
-            - {t: 12, turn: [-18.100329, -62.580704, -11.149621]}
-            - {t: 13, turn: [-33.581188, -35.583249, -11.149722]}
-            - {t: 14, turn: [-45.701764, -15.436895, -6.555818]}
-            - {t: 15, turn: [-52.73214, -3.789067, -1.879059]}
-            - {t: 16, ease: in_out_quad, turn: [-55.0, 0.0, 0.0]}
-        - id: fx5_vendetta_slash_b_bayonet_swing_9
-          op: track
-          target: fx5_vendetta_slash_b_bayonet_rib_5
-          space: caster.right_hand
-          keys:
-            - {t: 0, turn: [0.0, 100.0, 0.0]}
-            - {t: 1, turn: [0.0, 115.0, 0.0]}
-            - {t: 2, turn: [0.0, 27.5, 0.0]}
-            - {t: 3, turn: [0.0, -35.0, 0.0]}
-            - {t: 4, turn: [0.0, -72.5, 0.0]}
-            - {t: 5, ease: out_quad, turn: [0.0, -85.0, 0.0]}
-            - {t: 6, turn: [0.0, -93.671875, 0.0]}
-            - {t: 7, turn: [0.0, -98.125, 0.0]}
-            - {t: 8, turn: [0.0, -99.765625, 0.0]}
-            - {t: 9, ease: out_cubic, turn: [0.0, -100.0, 0.0]}
-            - {t: 10, turn: [-1.694336, -95.904824, -1.879057]}
-            - {t: 11, turn: [-7.322769, -83.488976, -6.555764]}
-            - {t: 12, turn: [-18.100329, -62.580704, -11.149621]}
-            - {t: 13, turn: [-33.581188, -35.583249, -11.149722]}
-            - {t: 14, turn: [-45.701764, -15.436895, -6.555818]}
-            - {t: 15, turn: [-52.73214, -3.789067, -1.879059]}
-            - {t: 16, ease: in_out_quad, turn: [-55.0, 0.0, 0.0]}
-        - id: fx5_vendetta_slash_b_bayonet_swing_10
-          op: track
-          target: fx5_vendetta_slash_b_bayonet_rib_6
-          space: caster.right_hand
-          keys:
-            - {t: 0, turn: [0.0, 100.0, 0.0]}
-            - {t: 1, turn: [0.0, 115.0, 0.0]}
-            - {t: 2, turn: [0.0, 27.5, 0.0]}
-            - {t: 3, turn: [0.0, -35.0, 0.0]}
-            - {t: 4, turn: [0.0, -72.5, 0.0]}
-            - {t: 5, ease: out_quad, turn: [0.0, -85.0, 0.0]}
-            - {t: 6, turn: [0.0, -93.671875, 0.0]}
-            - {t: 7, turn: [0.0, -98.125, 0.0]}
-            - {t: 8, turn: [0.0, -99.765625, 0.0]}
-            - {t: 9, ease: out_cubic, turn: [0.0, -100.0, 0.0]}
-            - {t: 10, turn: [-1.694336, -95.904824, -1.879057]}
-            - {t: 11, turn: [-7.322769, -83.488976, -6.555764]}
-            - {t: 12, turn: [-18.100329, -62.580704, -11.149621]}
-            - {t: 13, turn: [-33.581188, -35.583249, -11.149722]}
-            - {t: 14, turn: [-45.701764, -15.436895, -6.555818]}
-            - {t: 15, turn: [-52.73214, -3.789067, -1.879059]}
-            - {t: 16, ease: in_out_quad, turn: [-55.0, 0.0, 0.0]}
+        - {id: fx5_vendetta_slash_b_bayonet_grip, op: block, parent: fx5_vendetta_slash_b_bayonet_parts, block: black_concrete, size: [0.13, 0.4, 0.13], at: [0.0, -0.2, 0.0], rig_shading: true}
+        - {id: fx5_vendetta_slash_b_bayonet_rib_0, op: block, parent: fx5_vendetta_slash_b_bayonet_parts, block: bone_block, size: [0.28, 0.045, 0.18], at: [0.0, 0.22, 0.0], brightness: 15}
+        - {id: fx5_vendetta_slash_b_bayonet_rib_1, op: block, parent: fx5_vendetta_slash_b_bayonet_parts, block: bone_block, size: [0.28, 0.045, 0.18], at: [0.0, 0.41, 0.0], brightness: 15}
+        - {id: fx5_vendetta_slash_b_bayonet_rib_2, op: block, parent: fx5_vendetta_slash_b_bayonet_parts, block: bone_block, size: [0.28, 0.045, 0.18], at: [0.0, 0.6, 0.0], brightness: 15}
+        - {id: fx5_vendetta_slash_b_bayonet_rib_3, op: block, parent: fx5_vendetta_slash_b_bayonet_parts, block: bone_block, size: [0.28, 0.045, 0.18], at: [-0.019, 0.79, 0.0], brightness: 15}
+        - {id: fx5_vendetta_slash_b_bayonet_rib_4, op: block, parent: fx5_vendetta_slash_b_bayonet_parts, block: bone_block, size: [0.28, 0.045, 0.18], at: [-0.038, 0.98, 0.0], brightness: 15}
+        - {id: fx5_vendetta_slash_b_bayonet_rib_5, op: block, parent: fx5_vendetta_slash_b_bayonet_parts, block: bone_block, size: [0.28, 0.045, 0.18], at: [-0.057, 1.17, 0.0], brightness: 15}
+        - {id: fx5_vendetta_slash_b_bayonet_rib_6, op: block, parent: fx5_vendetta_slash_b_bayonet_parts, block: bone_block, size: [0.28, 0.045, 0.18], at: [-0.076, 1.36, 0.0], brightness: 15}
     - id: fx67
       at: 67
       do:
@@ -2026,360 +1222,92 @@ presentation:
     - id: fx103
       at: 103
       do:
-        - id: fx8_vendetta_slash_a_bayonet_heel
-          op: block
-          parent: fx8_vendetta_slash_a_bayonet
-          block: nether_bricks
-          size: [0.2, 0.8, 0.16]
-          at: [0.0, 0.4, 0.0]
-          pivot: [0.35, 1.05, 0.25]
-          rest_turn: [90.0, 0.0, 0.0]
-          tilt_turn: [0.0, 0.0, 65.0]
-          rig_shading: true
+        - id: fx8_vendetta_slash_a_bayonet_rig
+          op: rig
+          frame: fx8_vendetta_slash_a_bayonet
+          parent: caster
+          duration: 8
+          pivot: [1.049232, -0.35228, 0.253199]
+          tilt: [0.0, 0.0, 65.0]
+          rest: [90.0, 0.0, 0.0]
+          swing:
+            - {t: 0, rotate: [0.0, -110.0, 0.0]}
+            - {t: 1, rotate: [0.0, -125.0, 0.0]}
+            - {t: 2, rotate: [0.0, -37.5, 0.0], sample: true}
+            - {t: 3, rotate: [0.0, 25.0, 0.0], sample: true}
+            - {t: 4, rotate: [0.0, 62.5, 0.0], sample: true}
+            - {t: 5, rotate: [0.0, 75.0, 0.0]}
+            - {t: 6, rotate: [0.0, 83.671875, 0.0], sample: true}
+            - {t: 7, rotate: [0.0, 88.125, 0.0], sample: true}
+            - {t: 8, rotate: [0.0, 89.765625, 0.0], sample: true}
+            - {t: 9, rotate: [0.0, 90.0, 0.0]}
+            - {t: 10, rotate: [-1.803214, 86.314578, 1.691156], sample: true}
+            - {t: 11, rotate: [-7.647134, 75.142474, 5.900376], sample: true}
+            - {t: 12, rotate: [-18.506724, 56.327536, 10.035532], sample: true}
+            - {t: 13, rotate: [-33.813218, 32.02759, 10.035586], sample: true}
+            - {t: 14, rotate: [-45.762368, 13.8936, 5.900404], sample: true}
+            - {t: 15, rotate: [-52.736503, 3.410168, 1.691157], sample: true}
+            - {t: 16, rotate: [-55.0, 0.0, 0.0]}
+          sample_ticks: 1
+          respect_hit_stop: true
+          freezes:
+            - {at: 5, ticks: 2}
+        - id: fx8_vendetta_slash_a_bayonet_parts_rig
+          op: rig
+          frame: fx8_vendetta_slash_a_bayonet_parts
+          parent: caster
+          duration: 8
+          hand: false
+          pivot: [1.049232, -0.35228, 0.253199]
+          tilt: [0.0, 0.0, 65.0]
+          rest: [90.0, 0.0, 0.0]
+          swing:
+            - {t: 0, rotate: [0.0, -110.0, 0.0]}
+            - {t: 1, rotate: [0.0, -125.0, 0.0]}
+            - {t: 2, rotate: [0.0, -37.5, 0.0], sample: true}
+            - {t: 3, rotate: [0.0, 25.0, 0.0], sample: true}
+            - {t: 4, rotate: [0.0, 62.5, 0.0], sample: true}
+            - {t: 5, rotate: [0.0, 75.0, 0.0]}
+            - {t: 6, rotate: [0.0, 83.671875, 0.0], sample: true}
+            - {t: 7, rotate: [0.0, 88.125, 0.0], sample: true}
+            - {t: 8, rotate: [0.0, 89.765625, 0.0], sample: true}
+            - {t: 9, rotate: [0.0, 90.0, 0.0]}
+            - {t: 10, rotate: [-1.803214, 86.314578, 1.691156], sample: true}
+            - {t: 11, rotate: [-7.647134, 75.142474, 5.900376], sample: true}
+            - {t: 12, rotate: [-18.506724, 56.327536, 10.035532], sample: true}
+            - {t: 13, rotate: [-33.813218, 32.02759, 10.035586], sample: true}
+            - {t: 14, rotate: [-45.762368, 13.8936, 5.900404], sample: true}
+            - {t: 15, rotate: [-52.736503, 3.410168, 1.691157], sample: true}
+            - {t: 16, rotate: [-55.0, 0.0, 0.0]}
+          sample_ticks: 1
+          respect_hit_stop: true
+          freezes:
+            - {at: 5, ticks: 2}
+        - {id: fx8_vendetta_slash_a_bayonet_heel, op: block, parent: fx8_vendetta_slash_a_bayonet_parts, block: nether_bricks, size: [0.2, 0.8, 0.16], at: [0.0, 0.4, 0.0], rig_shading: true}
         - id: fx8_vendetta_slash_a_bayonet_spine
           op: block
-          parent: fx8_vendetta_slash_a_bayonet
+          parent: fx8_vendetta_slash_a_bayonet_parts
           block: nether_bricks
           size: [0.24, 0.5, 0.16]
           at: [-0.03, 1.0, 0.0]
-          pivot: [0.35, 1.05, 0.25]
           turn: [0.0, 0.0, 5.0]
-          rest_turn: [90.0, 0.0, 0.0]
-          tilt_turn: [0.0, 0.0, 65.0]
           rig_shading: true
         - id: fx8_vendetta_slash_a_bayonet_tip
           op: block
-          parent: fx8_vendetta_slash_a_bayonet
+          parent: fx8_vendetta_slash_a_bayonet_parts
           block: nether_bricks
           size: [0.24, 0.35, 0.16]
           at: [-0.11, 1.35, 0.0]
-          pivot: [0.35, 1.05, 0.25]
           turn: [0.0, 0.0, 18.0]
-          rest_turn: [90.0, 0.0, 0.0]
-          tilt_turn: [0.0, 0.0, 65.0]
           rig_shading: true
-        - id: fx8_vendetta_slash_a_bayonet_grip
-          op: block
-          parent: fx8_vendetta_slash_a_bayonet
-          block: black_concrete
-          size: [0.13, 0.4, 0.13]
-          at: [0.0, -0.2, 0.0]
-          pivot: [0.35, 1.05, 0.25]
-          rest_turn: [90.0, 0.0, 0.0]
-          tilt_turn: [0.0, 0.0, 65.0]
-          rig_shading: true
-        - id: fx8_vendetta_slash_a_bayonet_rib_0
-          op: block
-          parent: fx8_vendetta_slash_a_bayonet
-          block: bone_block
-          size: [0.28, 0.045, 0.18]
-          at: [0.0, 0.22, 0.0]
-          pivot: [0.35, 1.05, 0.25]
-          rest_turn: [90.0, 0.0, 0.0]
-          tilt_turn: [0.0, 0.0, 65.0]
-          brightness: 15
-        - id: fx8_vendetta_slash_a_bayonet_rib_1
-          op: block
-          parent: fx8_vendetta_slash_a_bayonet
-          block: bone_block
-          size: [0.28, 0.045, 0.18]
-          at: [0.0, 0.41, 0.0]
-          pivot: [0.35, 1.05, 0.25]
-          rest_turn: [90.0, 0.0, 0.0]
-          tilt_turn: [0.0, 0.0, 65.0]
-          brightness: 15
-        - id: fx8_vendetta_slash_a_bayonet_rib_2
-          op: block
-          parent: fx8_vendetta_slash_a_bayonet
-          block: bone_block
-          size: [0.28, 0.045, 0.18]
-          at: [0.0, 0.6, 0.0]
-          pivot: [0.35, 1.05, 0.25]
-          rest_turn: [90.0, 0.0, 0.0]
-          tilt_turn: [0.0, 0.0, 65.0]
-          brightness: 15
-        - id: fx8_vendetta_slash_a_bayonet_rib_3
-          op: block
-          parent: fx8_vendetta_slash_a_bayonet
-          block: bone_block
-          size: [0.28, 0.045, 0.18]
-          at: [-0.019, 0.79, 0.0]
-          pivot: [0.35, 1.05, 0.25]
-          rest_turn: [90.0, 0.0, 0.0]
-          tilt_turn: [0.0, 0.0, 65.0]
-          brightness: 15
-        - id: fx8_vendetta_slash_a_bayonet_rib_4
-          op: block
-          parent: fx8_vendetta_slash_a_bayonet
-          block: bone_block
-          size: [0.28, 0.045, 0.18]
-          at: [-0.038, 0.98, 0.0]
-          pivot: [0.35, 1.05, 0.25]
-          rest_turn: [90.0, 0.0, 0.0]
-          tilt_turn: [0.0, 0.0, 65.0]
-          brightness: 15
-        - id: fx8_vendetta_slash_a_bayonet_rib_5
-          op: block
-          parent: fx8_vendetta_slash_a_bayonet
-          block: bone_block
-          size: [0.28, 0.045, 0.18]
-          at: [-0.057, 1.17, 0.0]
-          pivot: [0.35, 1.05, 0.25]
-          rest_turn: [90.0, 0.0, 0.0]
-          tilt_turn: [0.0, 0.0, 65.0]
-          brightness: 15
-        - id: fx8_vendetta_slash_a_bayonet_rib_6
-          op: block
-          parent: fx8_vendetta_slash_a_bayonet
-          block: bone_block
-          size: [0.28, 0.045, 0.18]
-          at: [-0.076, 1.36, 0.0]
-          pivot: [0.35, 1.05, 0.25]
-          rest_turn: [90.0, 0.0, 0.0]
-          tilt_turn: [0.0, 0.0, 65.0]
-          brightness: 15
-        - id: fx8_vendetta_slash_a_bayonet_swing
-          op: track
-          target: fx8_vendetta_slash_a_bayonet_heel
-          space: caster.right_hand
-          keys:
-            - {t: 0, turn: [0.0, -110.0, 0.0]}
-            - {t: 1, turn: [0.0, -125.0, 0.0]}
-            - {t: 2, turn: [0.0, -37.5, 0.0]}
-            - {t: 3, turn: [0.0, 25.0, 0.0]}
-            - {t: 4, turn: [0.0, 62.5, 0.0]}
-            - {t: 5, ease: out_quad, turn: [0.0, 75.0, 0.0]}
-            - {t: 6, turn: [0.0, 83.671875, 0.0]}
-            - {t: 7, turn: [0.0, 88.125, 0.0]}
-            - {t: 8, turn: [0.0, 89.765625, 0.0]}
-            - {t: 9, ease: out_cubic, turn: [0.0, 90.0, 0.0]}
-            - {t: 10, turn: [-1.803214, 86.314578, 1.691156]}
-            - {t: 11, turn: [-7.647134, 75.142474, 5.900376]}
-            - {t: 12, turn: [-18.506724, 56.327536, 10.035532]}
-            - {t: 13, turn: [-33.813218, 32.02759, 10.035586]}
-            - {t: 14, turn: [-45.762368, 13.8936, 5.900404]}
-            - {t: 15, turn: [-52.736503, 3.410168, 1.691157]}
-            - {t: 16, ease: in_out_quad, turn: [-55.0, 0.0, 0.0]}
-        - id: fx8_vendetta_slash_a_bayonet_swing_1
-          op: track
-          target: fx8_vendetta_slash_a_bayonet_spine
-          space: caster.right_hand
-          keys:
-            - {t: 0, turn: [0.0, -110.0, 0.0]}
-            - {t: 1, turn: [0.0, -125.0, 0.0]}
-            - {t: 2, turn: [0.0, -37.5, 0.0]}
-            - {t: 3, turn: [0.0, 25.0, 0.0]}
-            - {t: 4, turn: [0.0, 62.5, 0.0]}
-            - {t: 5, ease: out_quad, turn: [0.0, 75.0, 0.0]}
-            - {t: 6, turn: [0.0, 83.671875, 0.0]}
-            - {t: 7, turn: [0.0, 88.125, 0.0]}
-            - {t: 8, turn: [0.0, 89.765625, 0.0]}
-            - {t: 9, ease: out_cubic, turn: [0.0, 90.0, 0.0]}
-            - {t: 10, turn: [-1.803214, 86.314578, 1.691156]}
-            - {t: 11, turn: [-7.647134, 75.142474, 5.900376]}
-            - {t: 12, turn: [-18.506724, 56.327536, 10.035532]}
-            - {t: 13, turn: [-33.813218, 32.02759, 10.035586]}
-            - {t: 14, turn: [-45.762368, 13.8936, 5.900404]}
-            - {t: 15, turn: [-52.736503, 3.410168, 1.691157]}
-            - {t: 16, ease: in_out_quad, turn: [-55.0, 0.0, 0.0]}
-        - id: fx8_vendetta_slash_a_bayonet_swing_2
-          op: track
-          target: fx8_vendetta_slash_a_bayonet_tip
-          space: caster.right_hand
-          keys:
-            - {t: 0, turn: [0.0, -110.0, 0.0]}
-            - {t: 1, turn: [0.0, -125.0, 0.0]}
-            - {t: 2, turn: [0.0, -37.5, 0.0]}
-            - {t: 3, turn: [0.0, 25.0, 0.0]}
-            - {t: 4, turn: [0.0, 62.5, 0.0]}
-            - {t: 5, ease: out_quad, turn: [0.0, 75.0, 0.0]}
-            - {t: 6, turn: [0.0, 83.671875, 0.0]}
-            - {t: 7, turn: [0.0, 88.125, 0.0]}
-            - {t: 8, turn: [0.0, 89.765625, 0.0]}
-            - {t: 9, ease: out_cubic, turn: [0.0, 90.0, 0.0]}
-            - {t: 10, turn: [-1.803214, 86.314578, 1.691156]}
-            - {t: 11, turn: [-7.647134, 75.142474, 5.900376]}
-            - {t: 12, turn: [-18.506724, 56.327536, 10.035532]}
-            - {t: 13, turn: [-33.813218, 32.02759, 10.035586]}
-            - {t: 14, turn: [-45.762368, 13.8936, 5.900404]}
-            - {t: 15, turn: [-52.736503, 3.410168, 1.691157]}
-            - {t: 16, ease: in_out_quad, turn: [-55.0, 0.0, 0.0]}
-        - id: fx8_vendetta_slash_a_bayonet_swing_3
-          op: track
-          target: fx8_vendetta_slash_a_bayonet_grip
-          space: caster.right_hand
-          keys:
-            - {t: 0, turn: [0.0, -110.0, 0.0]}
-            - {t: 1, turn: [0.0, -125.0, 0.0]}
-            - {t: 2, turn: [0.0, -37.5, 0.0]}
-            - {t: 3, turn: [0.0, 25.0, 0.0]}
-            - {t: 4, turn: [0.0, 62.5, 0.0]}
-            - {t: 5, ease: out_quad, turn: [0.0, 75.0, 0.0]}
-            - {t: 6, turn: [0.0, 83.671875, 0.0]}
-            - {t: 7, turn: [0.0, 88.125, 0.0]}
-            - {t: 8, turn: [0.0, 89.765625, 0.0]}
-            - {t: 9, ease: out_cubic, turn: [0.0, 90.0, 0.0]}
-            - {t: 10, turn: [-1.803214, 86.314578, 1.691156]}
-            - {t: 11, turn: [-7.647134, 75.142474, 5.900376]}
-            - {t: 12, turn: [-18.506724, 56.327536, 10.035532]}
-            - {t: 13, turn: [-33.813218, 32.02759, 10.035586]}
-            - {t: 14, turn: [-45.762368, 13.8936, 5.900404]}
-            - {t: 15, turn: [-52.736503, 3.410168, 1.691157]}
-            - {t: 16, ease: in_out_quad, turn: [-55.0, 0.0, 0.0]}
-        - id: fx8_vendetta_slash_a_bayonet_swing_4
-          op: track
-          target: fx8_vendetta_slash_a_bayonet_rib_0
-          space: caster.right_hand
-          keys:
-            - {t: 0, turn: [0.0, -110.0, 0.0]}
-            - {t: 1, turn: [0.0, -125.0, 0.0]}
-            - {t: 2, turn: [0.0, -37.5, 0.0]}
-            - {t: 3, turn: [0.0, 25.0, 0.0]}
-            - {t: 4, turn: [0.0, 62.5, 0.0]}
-            - {t: 5, ease: out_quad, turn: [0.0, 75.0, 0.0]}
-            - {t: 6, turn: [0.0, 83.671875, 0.0]}
-            - {t: 7, turn: [0.0, 88.125, 0.0]}
-            - {t: 8, turn: [0.0, 89.765625, 0.0]}
-            - {t: 9, ease: out_cubic, turn: [0.0, 90.0, 0.0]}
-            - {t: 10, turn: [-1.803214, 86.314578, 1.691156]}
-            - {t: 11, turn: [-7.647134, 75.142474, 5.900376]}
-            - {t: 12, turn: [-18.506724, 56.327536, 10.035532]}
-            - {t: 13, turn: [-33.813218, 32.02759, 10.035586]}
-            - {t: 14, turn: [-45.762368, 13.8936, 5.900404]}
-            - {t: 15, turn: [-52.736503, 3.410168, 1.691157]}
-            - {t: 16, ease: in_out_quad, turn: [-55.0, 0.0, 0.0]}
-        - id: fx8_vendetta_slash_a_bayonet_swing_5
-          op: track
-          target: fx8_vendetta_slash_a_bayonet_rib_1
-          space: caster.right_hand
-          keys:
-            - {t: 0, turn: [0.0, -110.0, 0.0]}
-            - {t: 1, turn: [0.0, -125.0, 0.0]}
-            - {t: 2, turn: [0.0, -37.5, 0.0]}
-            - {t: 3, turn: [0.0, 25.0, 0.0]}
-            - {t: 4, turn: [0.0, 62.5, 0.0]}
-            - {t: 5, ease: out_quad, turn: [0.0, 75.0, 0.0]}
-            - {t: 6, turn: [0.0, 83.671875, 0.0]}
-            - {t: 7, turn: [0.0, 88.125, 0.0]}
-            - {t: 8, turn: [0.0, 89.765625, 0.0]}
-            - {t: 9, ease: out_cubic, turn: [0.0, 90.0, 0.0]}
-            - {t: 10, turn: [-1.803214, 86.314578, 1.691156]}
-            - {t: 11, turn: [-7.647134, 75.142474, 5.900376]}
-            - {t: 12, turn: [-18.506724, 56.327536, 10.035532]}
-            - {t: 13, turn: [-33.813218, 32.02759, 10.035586]}
-            - {t: 14, turn: [-45.762368, 13.8936, 5.900404]}
-            - {t: 15, turn: [-52.736503, 3.410168, 1.691157]}
-            - {t: 16, ease: in_out_quad, turn: [-55.0, 0.0, 0.0]}
-        - id: fx8_vendetta_slash_a_bayonet_swing_6
-          op: track
-          target: fx8_vendetta_slash_a_bayonet_rib_2
-          space: caster.right_hand
-          keys:
-            - {t: 0, turn: [0.0, -110.0, 0.0]}
-            - {t: 1, turn: [0.0, -125.0, 0.0]}
-            - {t: 2, turn: [0.0, -37.5, 0.0]}
-            - {t: 3, turn: [0.0, 25.0, 0.0]}
-            - {t: 4, turn: [0.0, 62.5, 0.0]}
-            - {t: 5, ease: out_quad, turn: [0.0, 75.0, 0.0]}
-            - {t: 6, turn: [0.0, 83.671875, 0.0]}
-            - {t: 7, turn: [0.0, 88.125, 0.0]}
-            - {t: 8, turn: [0.0, 89.765625, 0.0]}
-            - {t: 9, ease: out_cubic, turn: [0.0, 90.0, 0.0]}
-            - {t: 10, turn: [-1.803214, 86.314578, 1.691156]}
-            - {t: 11, turn: [-7.647134, 75.142474, 5.900376]}
-            - {t: 12, turn: [-18.506724, 56.327536, 10.035532]}
-            - {t: 13, turn: [-33.813218, 32.02759, 10.035586]}
-            - {t: 14, turn: [-45.762368, 13.8936, 5.900404]}
-            - {t: 15, turn: [-52.736503, 3.410168, 1.691157]}
-            - {t: 16, ease: in_out_quad, turn: [-55.0, 0.0, 0.0]}
-        - id: fx8_vendetta_slash_a_bayonet_swing_7
-          op: track
-          target: fx8_vendetta_slash_a_bayonet_rib_3
-          space: caster.right_hand
-          keys:
-            - {t: 0, turn: [0.0, -110.0, 0.0]}
-            - {t: 1, turn: [0.0, -125.0, 0.0]}
-            - {t: 2, turn: [0.0, -37.5, 0.0]}
-            - {t: 3, turn: [0.0, 25.0, 0.0]}
-            - {t: 4, turn: [0.0, 62.5, 0.0]}
-            - {t: 5, ease: out_quad, turn: [0.0, 75.0, 0.0]}
-            - {t: 6, turn: [0.0, 83.671875, 0.0]}
-            - {t: 7, turn: [0.0, 88.125, 0.0]}
-            - {t: 8, turn: [0.0, 89.765625, 0.0]}
-            - {t: 9, ease: out_cubic, turn: [0.0, 90.0, 0.0]}
-            - {t: 10, turn: [-1.803214, 86.314578, 1.691156]}
-            - {t: 11, turn: [-7.647134, 75.142474, 5.900376]}
-            - {t: 12, turn: [-18.506724, 56.327536, 10.035532]}
-            - {t: 13, turn: [-33.813218, 32.02759, 10.035586]}
-            - {t: 14, turn: [-45.762368, 13.8936, 5.900404]}
-            - {t: 15, turn: [-52.736503, 3.410168, 1.691157]}
-            - {t: 16, ease: in_out_quad, turn: [-55.0, 0.0, 0.0]}
-        - id: fx8_vendetta_slash_a_bayonet_swing_8
-          op: track
-          target: fx8_vendetta_slash_a_bayonet_rib_4
-          space: caster.right_hand
-          keys:
-            - {t: 0, turn: [0.0, -110.0, 0.0]}
-            - {t: 1, turn: [0.0, -125.0, 0.0]}
-            - {t: 2, turn: [0.0, -37.5, 0.0]}
-            - {t: 3, turn: [0.0, 25.0, 0.0]}
-            - {t: 4, turn: [0.0, 62.5, 0.0]}
-            - {t: 5, ease: out_quad, turn: [0.0, 75.0, 0.0]}
-            - {t: 6, turn: [0.0, 83.671875, 0.0]}
-            - {t: 7, turn: [0.0, 88.125, 0.0]}
-            - {t: 8, turn: [0.0, 89.765625, 0.0]}
-            - {t: 9, ease: out_cubic, turn: [0.0, 90.0, 0.0]}
-            - {t: 10, turn: [-1.803214, 86.314578, 1.691156]}
-            - {t: 11, turn: [-7.647134, 75.142474, 5.900376]}
-            - {t: 12, turn: [-18.506724, 56.327536, 10.035532]}
-            - {t: 13, turn: [-33.813218, 32.02759, 10.035586]}
-            - {t: 14, turn: [-45.762368, 13.8936, 5.900404]}
-            - {t: 15, turn: [-52.736503, 3.410168, 1.691157]}
-            - {t: 16, ease: in_out_quad, turn: [-55.0, 0.0, 0.0]}
-        - id: fx8_vendetta_slash_a_bayonet_swing_9
-          op: track
-          target: fx8_vendetta_slash_a_bayonet_rib_5
-          space: caster.right_hand
-          keys:
-            - {t: 0, turn: [0.0, -110.0, 0.0]}
-            - {t: 1, turn: [0.0, -125.0, 0.0]}
-            - {t: 2, turn: [0.0, -37.5, 0.0]}
-            - {t: 3, turn: [0.0, 25.0, 0.0]}
-            - {t: 4, turn: [0.0, 62.5, 0.0]}
-            - {t: 5, ease: out_quad, turn: [0.0, 75.0, 0.0]}
-            - {t: 6, turn: [0.0, 83.671875, 0.0]}
-            - {t: 7, turn: [0.0, 88.125, 0.0]}
-            - {t: 8, turn: [0.0, 89.765625, 0.0]}
-            - {t: 9, ease: out_cubic, turn: [0.0, 90.0, 0.0]}
-            - {t: 10, turn: [-1.803214, 86.314578, 1.691156]}
-            - {t: 11, turn: [-7.647134, 75.142474, 5.900376]}
-            - {t: 12, turn: [-18.506724, 56.327536, 10.035532]}
-            - {t: 13, turn: [-33.813218, 32.02759, 10.035586]}
-            - {t: 14, turn: [-45.762368, 13.8936, 5.900404]}
-            - {t: 15, turn: [-52.736503, 3.410168, 1.691157]}
-            - {t: 16, ease: in_out_quad, turn: [-55.0, 0.0, 0.0]}
-        - id: fx8_vendetta_slash_a_bayonet_swing_10
-          op: track
-          target: fx8_vendetta_slash_a_bayonet_rib_6
-          space: caster.right_hand
-          keys:
-            - {t: 0, turn: [0.0, -110.0, 0.0]}
-            - {t: 1, turn: [0.0, -125.0, 0.0]}
-            - {t: 2, turn: [0.0, -37.5, 0.0]}
-            - {t: 3, turn: [0.0, 25.0, 0.0]}
-            - {t: 4, turn: [0.0, 62.5, 0.0]}
-            - {t: 5, ease: out_quad, turn: [0.0, 75.0, 0.0]}
-            - {t: 6, turn: [0.0, 83.671875, 0.0]}
-            - {t: 7, turn: [0.0, 88.125, 0.0]}
-            - {t: 8, turn: [0.0, 89.765625, 0.0]}
-            - {t: 9, ease: out_cubic, turn: [0.0, 90.0, 0.0]}
-            - {t: 10, turn: [-1.803214, 86.314578, 1.691156]}
-            - {t: 11, turn: [-7.647134, 75.142474, 5.900376]}
-            - {t: 12, turn: [-18.506724, 56.327536, 10.035532]}
-            - {t: 13, turn: [-33.813218, 32.02759, 10.035586]}
-            - {t: 14, turn: [-45.762368, 13.8936, 5.900404]}
-            - {t: 15, turn: [-52.736503, 3.410168, 1.691157]}
-            - {t: 16, ease: in_out_quad, turn: [-55.0, 0.0, 0.0]}
+        - {id: fx8_vendetta_slash_a_bayonet_grip, op: block, parent: fx8_vendetta_slash_a_bayonet_parts, block: black_concrete, size: [0.13, 0.4, 0.13], at: [0.0, -0.2, 0.0], rig_shading: true}
+        - {id: fx8_vendetta_slash_a_bayonet_rib_0, op: block, parent: fx8_vendetta_slash_a_bayonet_parts, block: bone_block, size: [0.28, 0.045, 0.18], at: [0.0, 0.22, 0.0], brightness: 15}
+        - {id: fx8_vendetta_slash_a_bayonet_rib_1, op: block, parent: fx8_vendetta_slash_a_bayonet_parts, block: bone_block, size: [0.28, 0.045, 0.18], at: [0.0, 0.41, 0.0], brightness: 15}
+        - {id: fx8_vendetta_slash_a_bayonet_rib_2, op: block, parent: fx8_vendetta_slash_a_bayonet_parts, block: bone_block, size: [0.28, 0.045, 0.18], at: [0.0, 0.6, 0.0], brightness: 15}
+        - {id: fx8_vendetta_slash_a_bayonet_rib_3, op: block, parent: fx8_vendetta_slash_a_bayonet_parts, block: bone_block, size: [0.28, 0.045, 0.18], at: [-0.019, 0.79, 0.0], brightness: 15}
+        - {id: fx8_vendetta_slash_a_bayonet_rib_4, op: block, parent: fx8_vendetta_slash_a_bayonet_parts, block: bone_block, size: [0.28, 0.045, 0.18], at: [-0.038, 0.98, 0.0], brightness: 15}
+        - {id: fx8_vendetta_slash_a_bayonet_rib_5, op: block, parent: fx8_vendetta_slash_a_bayonet_parts, block: bone_block, size: [0.28, 0.045, 0.18], at: [-0.057, 1.17, 0.0], brightness: 15}
+        - {id: fx8_vendetta_slash_a_bayonet_rib_6, op: block, parent: fx8_vendetta_slash_a_bayonet_parts, block: bone_block, size: [0.28, 0.045, 0.18], at: [-0.076, 1.36, 0.0], brightness: 15}
     - id: fx104
       at: 104
       do:
@@ -2683,360 +1611,92 @@ presentation:
     - id: fx136
       at: 136
       do:
-        - id: fx11_vendetta_slash_b_bayonet_heel
-          op: block
-          parent: fx11_vendetta_slash_b_bayonet
-          block: nether_bricks
-          size: [0.2, 0.8, 0.16]
-          at: [0.0, 0.4, 0.0]
-          pivot: [0.35, 1.05, 0.25]
-          rest_turn: [90.0, 0.0, 0.0]
-          tilt_turn: [0.0, 0.0, 25.0]
-          rig_shading: true
+        - id: fx11_vendetta_slash_b_bayonet_rig
+          op: rig
+          frame: fx11_vendetta_slash_b_bayonet
+          parent: caster
+          duration: 8
+          pivot: [1.049232, -0.35228, 0.253199]
+          tilt: [0.0, 0.0, 25.0]
+          rest: [90.0, 0.0, 0.0]
+          swing:
+            - {t: 0, rotate: [0.0, 100.0, 0.0]}
+            - {t: 1, rotate: [0.0, 115.0, 0.0]}
+            - {t: 2, rotate: [0.0, 27.5, 0.0], sample: true}
+            - {t: 3, rotate: [0.0, -35.0, 0.0], sample: true}
+            - {t: 4, rotate: [0.0, -72.5, 0.0], sample: true}
+            - {t: 5, rotate: [0.0, -85.0, 0.0]}
+            - {t: 6, rotate: [0.0, -93.671875, 0.0], sample: true}
+            - {t: 7, rotate: [0.0, -98.125, 0.0], sample: true}
+            - {t: 8, rotate: [0.0, -99.765625, 0.0], sample: true}
+            - {t: 9, rotate: [0.0, -100.0, 0.0]}
+            - {t: 10, rotate: [-1.694336, -95.904824, -1.879057], sample: true}
+            - {t: 11, rotate: [-7.322769, -83.488976, -6.555764], sample: true}
+            - {t: 12, rotate: [-18.100329, -62.580704, -11.149621], sample: true}
+            - {t: 13, rotate: [-33.581188, -35.583249, -11.149722], sample: true}
+            - {t: 14, rotate: [-45.701764, -15.436895, -6.555818], sample: true}
+            - {t: 15, rotate: [-52.73214, -3.789067, -1.879059], sample: true}
+            - {t: 16, rotate: [-55.0, 0.0, 0.0]}
+          sample_ticks: 1
+          respect_hit_stop: true
+          freezes:
+            - {at: 5, ticks: 2}
+        - id: fx11_vendetta_slash_b_bayonet_parts_rig
+          op: rig
+          frame: fx11_vendetta_slash_b_bayonet_parts
+          parent: caster
+          duration: 8
+          hand: false
+          pivot: [1.049232, -0.35228, 0.253199]
+          tilt: [0.0, 0.0, 25.0]
+          rest: [90.0, 0.0, 0.0]
+          swing:
+            - {t: 0, rotate: [0.0, 100.0, 0.0]}
+            - {t: 1, rotate: [0.0, 115.0, 0.0]}
+            - {t: 2, rotate: [0.0, 27.5, 0.0], sample: true}
+            - {t: 3, rotate: [0.0, -35.0, 0.0], sample: true}
+            - {t: 4, rotate: [0.0, -72.5, 0.0], sample: true}
+            - {t: 5, rotate: [0.0, -85.0, 0.0]}
+            - {t: 6, rotate: [0.0, -93.671875, 0.0], sample: true}
+            - {t: 7, rotate: [0.0, -98.125, 0.0], sample: true}
+            - {t: 8, rotate: [0.0, -99.765625, 0.0], sample: true}
+            - {t: 9, rotate: [0.0, -100.0, 0.0]}
+            - {t: 10, rotate: [-1.694336, -95.904824, -1.879057], sample: true}
+            - {t: 11, rotate: [-7.322769, -83.488976, -6.555764], sample: true}
+            - {t: 12, rotate: [-18.100329, -62.580704, -11.149621], sample: true}
+            - {t: 13, rotate: [-33.581188, -35.583249, -11.149722], sample: true}
+            - {t: 14, rotate: [-45.701764, -15.436895, -6.555818], sample: true}
+            - {t: 15, rotate: [-52.73214, -3.789067, -1.879059], sample: true}
+            - {t: 16, rotate: [-55.0, 0.0, 0.0]}
+          sample_ticks: 1
+          respect_hit_stop: true
+          freezes:
+            - {at: 5, ticks: 2}
+        - {id: fx11_vendetta_slash_b_bayonet_heel, op: block, parent: fx11_vendetta_slash_b_bayonet_parts, block: nether_bricks, size: [0.2, 0.8, 0.16], at: [0.0, 0.4, 0.0], rig_shading: true}
         - id: fx11_vendetta_slash_b_bayonet_spine
           op: block
-          parent: fx11_vendetta_slash_b_bayonet
+          parent: fx11_vendetta_slash_b_bayonet_parts
           block: nether_bricks
           size: [0.24, 0.5, 0.16]
           at: [-0.03, 1.0, 0.0]
-          pivot: [0.35, 1.05, 0.25]
           turn: [0.0, 0.0, 5.0]
-          rest_turn: [90.0, 0.0, 0.0]
-          tilt_turn: [0.0, 0.0, 25.0]
           rig_shading: true
         - id: fx11_vendetta_slash_b_bayonet_tip
           op: block
-          parent: fx11_vendetta_slash_b_bayonet
+          parent: fx11_vendetta_slash_b_bayonet_parts
           block: nether_bricks
           size: [0.24, 0.35, 0.16]
           at: [-0.11, 1.35, 0.0]
-          pivot: [0.35, 1.05, 0.25]
           turn: [0.0, 0.0, 18.0]
-          rest_turn: [90.0, 0.0, 0.0]
-          tilt_turn: [0.0, 0.0, 25.0]
           rig_shading: true
-        - id: fx11_vendetta_slash_b_bayonet_grip
-          op: block
-          parent: fx11_vendetta_slash_b_bayonet
-          block: black_concrete
-          size: [0.13, 0.4, 0.13]
-          at: [0.0, -0.2, 0.0]
-          pivot: [0.35, 1.05, 0.25]
-          rest_turn: [90.0, 0.0, 0.0]
-          tilt_turn: [0.0, 0.0, 25.0]
-          rig_shading: true
-        - id: fx11_vendetta_slash_b_bayonet_rib_0
-          op: block
-          parent: fx11_vendetta_slash_b_bayonet
-          block: bone_block
-          size: [0.28, 0.045, 0.18]
-          at: [0.0, 0.22, 0.0]
-          pivot: [0.35, 1.05, 0.25]
-          rest_turn: [90.0, 0.0, 0.0]
-          tilt_turn: [0.0, 0.0, 25.0]
-          brightness: 15
-        - id: fx11_vendetta_slash_b_bayonet_rib_1
-          op: block
-          parent: fx11_vendetta_slash_b_bayonet
-          block: bone_block
-          size: [0.28, 0.045, 0.18]
-          at: [0.0, 0.41, 0.0]
-          pivot: [0.35, 1.05, 0.25]
-          rest_turn: [90.0, 0.0, 0.0]
-          tilt_turn: [0.0, 0.0, 25.0]
-          brightness: 15
-        - id: fx11_vendetta_slash_b_bayonet_rib_2
-          op: block
-          parent: fx11_vendetta_slash_b_bayonet
-          block: bone_block
-          size: [0.28, 0.045, 0.18]
-          at: [0.0, 0.6, 0.0]
-          pivot: [0.35, 1.05, 0.25]
-          rest_turn: [90.0, 0.0, 0.0]
-          tilt_turn: [0.0, 0.0, 25.0]
-          brightness: 15
-        - id: fx11_vendetta_slash_b_bayonet_rib_3
-          op: block
-          parent: fx11_vendetta_slash_b_bayonet
-          block: bone_block
-          size: [0.28, 0.045, 0.18]
-          at: [-0.019, 0.79, 0.0]
-          pivot: [0.35, 1.05, 0.25]
-          rest_turn: [90.0, 0.0, 0.0]
-          tilt_turn: [0.0, 0.0, 25.0]
-          brightness: 15
-        - id: fx11_vendetta_slash_b_bayonet_rib_4
-          op: block
-          parent: fx11_vendetta_slash_b_bayonet
-          block: bone_block
-          size: [0.28, 0.045, 0.18]
-          at: [-0.038, 0.98, 0.0]
-          pivot: [0.35, 1.05, 0.25]
-          rest_turn: [90.0, 0.0, 0.0]
-          tilt_turn: [0.0, 0.0, 25.0]
-          brightness: 15
-        - id: fx11_vendetta_slash_b_bayonet_rib_5
-          op: block
-          parent: fx11_vendetta_slash_b_bayonet
-          block: bone_block
-          size: [0.28, 0.045, 0.18]
-          at: [-0.057, 1.17, 0.0]
-          pivot: [0.35, 1.05, 0.25]
-          rest_turn: [90.0, 0.0, 0.0]
-          tilt_turn: [0.0, 0.0, 25.0]
-          brightness: 15
-        - id: fx11_vendetta_slash_b_bayonet_rib_6
-          op: block
-          parent: fx11_vendetta_slash_b_bayonet
-          block: bone_block
-          size: [0.28, 0.045, 0.18]
-          at: [-0.076, 1.36, 0.0]
-          pivot: [0.35, 1.05, 0.25]
-          rest_turn: [90.0, 0.0, 0.0]
-          tilt_turn: [0.0, 0.0, 25.0]
-          brightness: 15
-        - id: fx11_vendetta_slash_b_bayonet_swing
-          op: track
-          target: fx11_vendetta_slash_b_bayonet_heel
-          space: caster.right_hand
-          keys:
-            - {t: 0, turn: [0.0, 100.0, 0.0]}
-            - {t: 1, turn: [0.0, 115.0, 0.0]}
-            - {t: 2, turn: [0.0, 27.5, 0.0]}
-            - {t: 3, turn: [0.0, -35.0, 0.0]}
-            - {t: 4, turn: [0.0, -72.5, 0.0]}
-            - {t: 5, ease: out_quad, turn: [0.0, -85.0, 0.0]}
-            - {t: 6, turn: [0.0, -93.671875, 0.0]}
-            - {t: 7, turn: [0.0, -98.125, 0.0]}
-            - {t: 8, turn: [0.0, -99.765625, 0.0]}
-            - {t: 9, ease: out_cubic, turn: [0.0, -100.0, 0.0]}
-            - {t: 10, turn: [-1.694336, -95.904824, -1.879057]}
-            - {t: 11, turn: [-7.322769, -83.488976, -6.555764]}
-            - {t: 12, turn: [-18.100329, -62.580704, -11.149621]}
-            - {t: 13, turn: [-33.581188, -35.583249, -11.149722]}
-            - {t: 14, turn: [-45.701764, -15.436895, -6.555818]}
-            - {t: 15, turn: [-52.73214, -3.789067, -1.879059]}
-            - {t: 16, ease: in_out_quad, turn: [-55.0, 0.0, 0.0]}
-        - id: fx11_vendetta_slash_b_bayonet_swing_1
-          op: track
-          target: fx11_vendetta_slash_b_bayonet_spine
-          space: caster.right_hand
-          keys:
-            - {t: 0, turn: [0.0, 100.0, 0.0]}
-            - {t: 1, turn: [0.0, 115.0, 0.0]}
-            - {t: 2, turn: [0.0, 27.5, 0.0]}
-            - {t: 3, turn: [0.0, -35.0, 0.0]}
-            - {t: 4, turn: [0.0, -72.5, 0.0]}
-            - {t: 5, ease: out_quad, turn: [0.0, -85.0, 0.0]}
-            - {t: 6, turn: [0.0, -93.671875, 0.0]}
-            - {t: 7, turn: [0.0, -98.125, 0.0]}
-            - {t: 8, turn: [0.0, -99.765625, 0.0]}
-            - {t: 9, ease: out_cubic, turn: [0.0, -100.0, 0.0]}
-            - {t: 10, turn: [-1.694336, -95.904824, -1.879057]}
-            - {t: 11, turn: [-7.322769, -83.488976, -6.555764]}
-            - {t: 12, turn: [-18.100329, -62.580704, -11.149621]}
-            - {t: 13, turn: [-33.581188, -35.583249, -11.149722]}
-            - {t: 14, turn: [-45.701764, -15.436895, -6.555818]}
-            - {t: 15, turn: [-52.73214, -3.789067, -1.879059]}
-            - {t: 16, ease: in_out_quad, turn: [-55.0, 0.0, 0.0]}
-        - id: fx11_vendetta_slash_b_bayonet_swing_2
-          op: track
-          target: fx11_vendetta_slash_b_bayonet_tip
-          space: caster.right_hand
-          keys:
-            - {t: 0, turn: [0.0, 100.0, 0.0]}
-            - {t: 1, turn: [0.0, 115.0, 0.0]}
-            - {t: 2, turn: [0.0, 27.5, 0.0]}
-            - {t: 3, turn: [0.0, -35.0, 0.0]}
-            - {t: 4, turn: [0.0, -72.5, 0.0]}
-            - {t: 5, ease: out_quad, turn: [0.0, -85.0, 0.0]}
-            - {t: 6, turn: [0.0, -93.671875, 0.0]}
-            - {t: 7, turn: [0.0, -98.125, 0.0]}
-            - {t: 8, turn: [0.0, -99.765625, 0.0]}
-            - {t: 9, ease: out_cubic, turn: [0.0, -100.0, 0.0]}
-            - {t: 10, turn: [-1.694336, -95.904824, -1.879057]}
-            - {t: 11, turn: [-7.322769, -83.488976, -6.555764]}
-            - {t: 12, turn: [-18.100329, -62.580704, -11.149621]}
-            - {t: 13, turn: [-33.581188, -35.583249, -11.149722]}
-            - {t: 14, turn: [-45.701764, -15.436895, -6.555818]}
-            - {t: 15, turn: [-52.73214, -3.789067, -1.879059]}
-            - {t: 16, ease: in_out_quad, turn: [-55.0, 0.0, 0.0]}
-        - id: fx11_vendetta_slash_b_bayonet_swing_3
-          op: track
-          target: fx11_vendetta_slash_b_bayonet_grip
-          space: caster.right_hand
-          keys:
-            - {t: 0, turn: [0.0, 100.0, 0.0]}
-            - {t: 1, turn: [0.0, 115.0, 0.0]}
-            - {t: 2, turn: [0.0, 27.5, 0.0]}
-            - {t: 3, turn: [0.0, -35.0, 0.0]}
-            - {t: 4, turn: [0.0, -72.5, 0.0]}
-            - {t: 5, ease: out_quad, turn: [0.0, -85.0, 0.0]}
-            - {t: 6, turn: [0.0, -93.671875, 0.0]}
-            - {t: 7, turn: [0.0, -98.125, 0.0]}
-            - {t: 8, turn: [0.0, -99.765625, 0.0]}
-            - {t: 9, ease: out_cubic, turn: [0.0, -100.0, 0.0]}
-            - {t: 10, turn: [-1.694336, -95.904824, -1.879057]}
-            - {t: 11, turn: [-7.322769, -83.488976, -6.555764]}
-            - {t: 12, turn: [-18.100329, -62.580704, -11.149621]}
-            - {t: 13, turn: [-33.581188, -35.583249, -11.149722]}
-            - {t: 14, turn: [-45.701764, -15.436895, -6.555818]}
-            - {t: 15, turn: [-52.73214, -3.789067, -1.879059]}
-            - {t: 16, ease: in_out_quad, turn: [-55.0, 0.0, 0.0]}
-        - id: fx11_vendetta_slash_b_bayonet_swing_4
-          op: track
-          target: fx11_vendetta_slash_b_bayonet_rib_0
-          space: caster.right_hand
-          keys:
-            - {t: 0, turn: [0.0, 100.0, 0.0]}
-            - {t: 1, turn: [0.0, 115.0, 0.0]}
-            - {t: 2, turn: [0.0, 27.5, 0.0]}
-            - {t: 3, turn: [0.0, -35.0, 0.0]}
-            - {t: 4, turn: [0.0, -72.5, 0.0]}
-            - {t: 5, ease: out_quad, turn: [0.0, -85.0, 0.0]}
-            - {t: 6, turn: [0.0, -93.671875, 0.0]}
-            - {t: 7, turn: [0.0, -98.125, 0.0]}
-            - {t: 8, turn: [0.0, -99.765625, 0.0]}
-            - {t: 9, ease: out_cubic, turn: [0.0, -100.0, 0.0]}
-            - {t: 10, turn: [-1.694336, -95.904824, -1.879057]}
-            - {t: 11, turn: [-7.322769, -83.488976, -6.555764]}
-            - {t: 12, turn: [-18.100329, -62.580704, -11.149621]}
-            - {t: 13, turn: [-33.581188, -35.583249, -11.149722]}
-            - {t: 14, turn: [-45.701764, -15.436895, -6.555818]}
-            - {t: 15, turn: [-52.73214, -3.789067, -1.879059]}
-            - {t: 16, ease: in_out_quad, turn: [-55.0, 0.0, 0.0]}
-        - id: fx11_vendetta_slash_b_bayonet_swing_5
-          op: track
-          target: fx11_vendetta_slash_b_bayonet_rib_1
-          space: caster.right_hand
-          keys:
-            - {t: 0, turn: [0.0, 100.0, 0.0]}
-            - {t: 1, turn: [0.0, 115.0, 0.0]}
-            - {t: 2, turn: [0.0, 27.5, 0.0]}
-            - {t: 3, turn: [0.0, -35.0, 0.0]}
-            - {t: 4, turn: [0.0, -72.5, 0.0]}
-            - {t: 5, ease: out_quad, turn: [0.0, -85.0, 0.0]}
-            - {t: 6, turn: [0.0, -93.671875, 0.0]}
-            - {t: 7, turn: [0.0, -98.125, 0.0]}
-            - {t: 8, turn: [0.0, -99.765625, 0.0]}
-            - {t: 9, ease: out_cubic, turn: [0.0, -100.0, 0.0]}
-            - {t: 10, turn: [-1.694336, -95.904824, -1.879057]}
-            - {t: 11, turn: [-7.322769, -83.488976, -6.555764]}
-            - {t: 12, turn: [-18.100329, -62.580704, -11.149621]}
-            - {t: 13, turn: [-33.581188, -35.583249, -11.149722]}
-            - {t: 14, turn: [-45.701764, -15.436895, -6.555818]}
-            - {t: 15, turn: [-52.73214, -3.789067, -1.879059]}
-            - {t: 16, ease: in_out_quad, turn: [-55.0, 0.0, 0.0]}
-        - id: fx11_vendetta_slash_b_bayonet_swing_6
-          op: track
-          target: fx11_vendetta_slash_b_bayonet_rib_2
-          space: caster.right_hand
-          keys:
-            - {t: 0, turn: [0.0, 100.0, 0.0]}
-            - {t: 1, turn: [0.0, 115.0, 0.0]}
-            - {t: 2, turn: [0.0, 27.5, 0.0]}
-            - {t: 3, turn: [0.0, -35.0, 0.0]}
-            - {t: 4, turn: [0.0, -72.5, 0.0]}
-            - {t: 5, ease: out_quad, turn: [0.0, -85.0, 0.0]}
-            - {t: 6, turn: [0.0, -93.671875, 0.0]}
-            - {t: 7, turn: [0.0, -98.125, 0.0]}
-            - {t: 8, turn: [0.0, -99.765625, 0.0]}
-            - {t: 9, ease: out_cubic, turn: [0.0, -100.0, 0.0]}
-            - {t: 10, turn: [-1.694336, -95.904824, -1.879057]}
-            - {t: 11, turn: [-7.322769, -83.488976, -6.555764]}
-            - {t: 12, turn: [-18.100329, -62.580704, -11.149621]}
-            - {t: 13, turn: [-33.581188, -35.583249, -11.149722]}
-            - {t: 14, turn: [-45.701764, -15.436895, -6.555818]}
-            - {t: 15, turn: [-52.73214, -3.789067, -1.879059]}
-            - {t: 16, ease: in_out_quad, turn: [-55.0, 0.0, 0.0]}
-        - id: fx11_vendetta_slash_b_bayonet_swing_7
-          op: track
-          target: fx11_vendetta_slash_b_bayonet_rib_3
-          space: caster.right_hand
-          keys:
-            - {t: 0, turn: [0.0, 100.0, 0.0]}
-            - {t: 1, turn: [0.0, 115.0, 0.0]}
-            - {t: 2, turn: [0.0, 27.5, 0.0]}
-            - {t: 3, turn: [0.0, -35.0, 0.0]}
-            - {t: 4, turn: [0.0, -72.5, 0.0]}
-            - {t: 5, ease: out_quad, turn: [0.0, -85.0, 0.0]}
-            - {t: 6, turn: [0.0, -93.671875, 0.0]}
-            - {t: 7, turn: [0.0, -98.125, 0.0]}
-            - {t: 8, turn: [0.0, -99.765625, 0.0]}
-            - {t: 9, ease: out_cubic, turn: [0.0, -100.0, 0.0]}
-            - {t: 10, turn: [-1.694336, -95.904824, -1.879057]}
-            - {t: 11, turn: [-7.322769, -83.488976, -6.555764]}
-            - {t: 12, turn: [-18.100329, -62.580704, -11.149621]}
-            - {t: 13, turn: [-33.581188, -35.583249, -11.149722]}
-            - {t: 14, turn: [-45.701764, -15.436895, -6.555818]}
-            - {t: 15, turn: [-52.73214, -3.789067, -1.879059]}
-            - {t: 16, ease: in_out_quad, turn: [-55.0, 0.0, 0.0]}
-        - id: fx11_vendetta_slash_b_bayonet_swing_8
-          op: track
-          target: fx11_vendetta_slash_b_bayonet_rib_4
-          space: caster.right_hand
-          keys:
-            - {t: 0, turn: [0.0, 100.0, 0.0]}
-            - {t: 1, turn: [0.0, 115.0, 0.0]}
-            - {t: 2, turn: [0.0, 27.5, 0.0]}
-            - {t: 3, turn: [0.0, -35.0, 0.0]}
-            - {t: 4, turn: [0.0, -72.5, 0.0]}
-            - {t: 5, ease: out_quad, turn: [0.0, -85.0, 0.0]}
-            - {t: 6, turn: [0.0, -93.671875, 0.0]}
-            - {t: 7, turn: [0.0, -98.125, 0.0]}
-            - {t: 8, turn: [0.0, -99.765625, 0.0]}
-            - {t: 9, ease: out_cubic, turn: [0.0, -100.0, 0.0]}
-            - {t: 10, turn: [-1.694336, -95.904824, -1.879057]}
-            - {t: 11, turn: [-7.322769, -83.488976, -6.555764]}
-            - {t: 12, turn: [-18.100329, -62.580704, -11.149621]}
-            - {t: 13, turn: [-33.581188, -35.583249, -11.149722]}
-            - {t: 14, turn: [-45.701764, -15.436895, -6.555818]}
-            - {t: 15, turn: [-52.73214, -3.789067, -1.879059]}
-            - {t: 16, ease: in_out_quad, turn: [-55.0, 0.0, 0.0]}
-        - id: fx11_vendetta_slash_b_bayonet_swing_9
-          op: track
-          target: fx11_vendetta_slash_b_bayonet_rib_5
-          space: caster.right_hand
-          keys:
-            - {t: 0, turn: [0.0, 100.0, 0.0]}
-            - {t: 1, turn: [0.0, 115.0, 0.0]}
-            - {t: 2, turn: [0.0, 27.5, 0.0]}
-            - {t: 3, turn: [0.0, -35.0, 0.0]}
-            - {t: 4, turn: [0.0, -72.5, 0.0]}
-            - {t: 5, ease: out_quad, turn: [0.0, -85.0, 0.0]}
-            - {t: 6, turn: [0.0, -93.671875, 0.0]}
-            - {t: 7, turn: [0.0, -98.125, 0.0]}
-            - {t: 8, turn: [0.0, -99.765625, 0.0]}
-            - {t: 9, ease: out_cubic, turn: [0.0, -100.0, 0.0]}
-            - {t: 10, turn: [-1.694336, -95.904824, -1.879057]}
-            - {t: 11, turn: [-7.322769, -83.488976, -6.555764]}
-            - {t: 12, turn: [-18.100329, -62.580704, -11.149621]}
-            - {t: 13, turn: [-33.581188, -35.583249, -11.149722]}
-            - {t: 14, turn: [-45.701764, -15.436895, -6.555818]}
-            - {t: 15, turn: [-52.73214, -3.789067, -1.879059]}
-            - {t: 16, ease: in_out_quad, turn: [-55.0, 0.0, 0.0]}
-        - id: fx11_vendetta_slash_b_bayonet_swing_10
-          op: track
-          target: fx11_vendetta_slash_b_bayonet_rib_6
-          space: caster.right_hand
-          keys:
-            - {t: 0, turn: [0.0, 100.0, 0.0]}
-            - {t: 1, turn: [0.0, 115.0, 0.0]}
-            - {t: 2, turn: [0.0, 27.5, 0.0]}
-            - {t: 3, turn: [0.0, -35.0, 0.0]}
-            - {t: 4, turn: [0.0, -72.5, 0.0]}
-            - {t: 5, ease: out_quad, turn: [0.0, -85.0, 0.0]}
-            - {t: 6, turn: [0.0, -93.671875, 0.0]}
-            - {t: 7, turn: [0.0, -98.125, 0.0]}
-            - {t: 8, turn: [0.0, -99.765625, 0.0]}
-            - {t: 9, ease: out_cubic, turn: [0.0, -100.0, 0.0]}
-            - {t: 10, turn: [-1.694336, -95.904824, -1.879057]}
-            - {t: 11, turn: [-7.322769, -83.488976, -6.555764]}
-            - {t: 12, turn: [-18.100329, -62.580704, -11.149621]}
-            - {t: 13, turn: [-33.581188, -35.583249, -11.149722]}
-            - {t: 14, turn: [-45.701764, -15.436895, -6.555818]}
-            - {t: 15, turn: [-52.73214, -3.789067, -1.879059]}
-            - {t: 16, ease: in_out_quad, turn: [-55.0, 0.0, 0.0]}
+        - {id: fx11_vendetta_slash_b_bayonet_grip, op: block, parent: fx11_vendetta_slash_b_bayonet_parts, block: black_concrete, size: [0.13, 0.4, 0.13], at: [0.0, -0.2, 0.0], rig_shading: true}
+        - {id: fx11_vendetta_slash_b_bayonet_rib_0, op: block, parent: fx11_vendetta_slash_b_bayonet_parts, block: bone_block, size: [0.28, 0.045, 0.18], at: [0.0, 0.22, 0.0], brightness: 15}
+        - {id: fx11_vendetta_slash_b_bayonet_rib_1, op: block, parent: fx11_vendetta_slash_b_bayonet_parts, block: bone_block, size: [0.28, 0.045, 0.18], at: [0.0, 0.41, 0.0], brightness: 15}
+        - {id: fx11_vendetta_slash_b_bayonet_rib_2, op: block, parent: fx11_vendetta_slash_b_bayonet_parts, block: bone_block, size: [0.28, 0.045, 0.18], at: [0.0, 0.6, 0.0], brightness: 15}
+        - {id: fx11_vendetta_slash_b_bayonet_rib_3, op: block, parent: fx11_vendetta_slash_b_bayonet_parts, block: bone_block, size: [0.28, 0.045, 0.18], at: [-0.019, 0.79, 0.0], brightness: 15}
+        - {id: fx11_vendetta_slash_b_bayonet_rib_4, op: block, parent: fx11_vendetta_slash_b_bayonet_parts, block: bone_block, size: [0.28, 0.045, 0.18], at: [-0.038, 0.98, 0.0], brightness: 15}
+        - {id: fx11_vendetta_slash_b_bayonet_rib_5, op: block, parent: fx11_vendetta_slash_b_bayonet_parts, block: bone_block, size: [0.28, 0.045, 0.18], at: [-0.057, 1.17, 0.0], brightness: 15}
+        - {id: fx11_vendetta_slash_b_bayonet_rib_6, op: block, parent: fx11_vendetta_slash_b_bayonet_parts, block: bone_block, size: [0.28, 0.045, 0.18], at: [-0.076, 1.36, 0.0], brightness: 15}
     - id: fx137
       at: 137
       do:
@@ -3576,360 +2236,92 @@ presentation:
     - id: fx226
       at: 226
       do:
-        - id: fx14_vendetta_slash_a_bayonet_heel
-          op: block
-          parent: fx14_vendetta_slash_a_bayonet
-          block: nether_bricks
-          size: [0.2, 0.8, 0.16]
-          at: [0.0, 0.4, 0.0]
-          pivot: [0.35, 1.05, 0.25]
-          rest_turn: [90.0, 0.0, 0.0]
-          tilt_turn: [0.0, 0.0, 65.0]
-          rig_shading: true
+        - id: fx14_vendetta_slash_a_bayonet_rig
+          op: rig
+          frame: fx14_vendetta_slash_a_bayonet
+          parent: caster
+          duration: 8
+          pivot: [1.049232, -0.35228, 0.253199]
+          tilt: [0.0, 0.0, 65.0]
+          rest: [90.0, 0.0, 0.0]
+          swing:
+            - {t: 0, rotate: [0.0, -110.0, 0.0]}
+            - {t: 1, rotate: [0.0, -125.0, 0.0]}
+            - {t: 2, rotate: [0.0, -37.5, 0.0], sample: true}
+            - {t: 3, rotate: [0.0, 25.0, 0.0], sample: true}
+            - {t: 4, rotate: [0.0, 62.5, 0.0], sample: true}
+            - {t: 5, rotate: [0.0, 75.0, 0.0]}
+            - {t: 6, rotate: [0.0, 83.671875, 0.0], sample: true}
+            - {t: 7, rotate: [0.0, 88.125, 0.0], sample: true}
+            - {t: 8, rotate: [0.0, 89.765625, 0.0], sample: true}
+            - {t: 9, rotate: [0.0, 90.0, 0.0]}
+            - {t: 10, rotate: [-1.803214, 86.314578, 1.691156], sample: true}
+            - {t: 11, rotate: [-7.647134, 75.142474, 5.900376], sample: true}
+            - {t: 12, rotate: [-18.506724, 56.327536, 10.035532], sample: true}
+            - {t: 13, rotate: [-33.813218, 32.02759, 10.035586], sample: true}
+            - {t: 14, rotate: [-45.762368, 13.8936, 5.900404], sample: true}
+            - {t: 15, rotate: [-52.736503, 3.410168, 1.691157], sample: true}
+            - {t: 16, rotate: [-55.0, 0.0, 0.0]}
+          sample_ticks: 1
+          respect_hit_stop: true
+          freezes:
+            - {at: 5, ticks: 2}
+        - id: fx14_vendetta_slash_a_bayonet_parts_rig
+          op: rig
+          frame: fx14_vendetta_slash_a_bayonet_parts
+          parent: caster
+          duration: 8
+          hand: false
+          pivot: [1.049232, -0.35228, 0.253199]
+          tilt: [0.0, 0.0, 65.0]
+          rest: [90.0, 0.0, 0.0]
+          swing:
+            - {t: 0, rotate: [0.0, -110.0, 0.0]}
+            - {t: 1, rotate: [0.0, -125.0, 0.0]}
+            - {t: 2, rotate: [0.0, -37.5, 0.0], sample: true}
+            - {t: 3, rotate: [0.0, 25.0, 0.0], sample: true}
+            - {t: 4, rotate: [0.0, 62.5, 0.0], sample: true}
+            - {t: 5, rotate: [0.0, 75.0, 0.0]}
+            - {t: 6, rotate: [0.0, 83.671875, 0.0], sample: true}
+            - {t: 7, rotate: [0.0, 88.125, 0.0], sample: true}
+            - {t: 8, rotate: [0.0, 89.765625, 0.0], sample: true}
+            - {t: 9, rotate: [0.0, 90.0, 0.0]}
+            - {t: 10, rotate: [-1.803214, 86.314578, 1.691156], sample: true}
+            - {t: 11, rotate: [-7.647134, 75.142474, 5.900376], sample: true}
+            - {t: 12, rotate: [-18.506724, 56.327536, 10.035532], sample: true}
+            - {t: 13, rotate: [-33.813218, 32.02759, 10.035586], sample: true}
+            - {t: 14, rotate: [-45.762368, 13.8936, 5.900404], sample: true}
+            - {t: 15, rotate: [-52.736503, 3.410168, 1.691157], sample: true}
+            - {t: 16, rotate: [-55.0, 0.0, 0.0]}
+          sample_ticks: 1
+          respect_hit_stop: true
+          freezes:
+            - {at: 5, ticks: 2}
+        - {id: fx14_vendetta_slash_a_bayonet_heel, op: block, parent: fx14_vendetta_slash_a_bayonet_parts, block: nether_bricks, size: [0.2, 0.8, 0.16], at: [0.0, 0.4, 0.0], rig_shading: true}
         - id: fx14_vendetta_slash_a_bayonet_spine
           op: block
-          parent: fx14_vendetta_slash_a_bayonet
+          parent: fx14_vendetta_slash_a_bayonet_parts
           block: nether_bricks
           size: [0.24, 0.5, 0.16]
           at: [-0.03, 1.0, 0.0]
-          pivot: [0.35, 1.05, 0.25]
           turn: [0.0, 0.0, 5.0]
-          rest_turn: [90.0, 0.0, 0.0]
-          tilt_turn: [0.0, 0.0, 65.0]
           rig_shading: true
         - id: fx14_vendetta_slash_a_bayonet_tip
           op: block
-          parent: fx14_vendetta_slash_a_bayonet
+          parent: fx14_vendetta_slash_a_bayonet_parts
           block: nether_bricks
           size: [0.24, 0.35, 0.16]
           at: [-0.11, 1.35, 0.0]
-          pivot: [0.35, 1.05, 0.25]
           turn: [0.0, 0.0, 18.0]
-          rest_turn: [90.0, 0.0, 0.0]
-          tilt_turn: [0.0, 0.0, 65.0]
           rig_shading: true
-        - id: fx14_vendetta_slash_a_bayonet_grip
-          op: block
-          parent: fx14_vendetta_slash_a_bayonet
-          block: black_concrete
-          size: [0.13, 0.4, 0.13]
-          at: [0.0, -0.2, 0.0]
-          pivot: [0.35, 1.05, 0.25]
-          rest_turn: [90.0, 0.0, 0.0]
-          tilt_turn: [0.0, 0.0, 65.0]
-          rig_shading: true
-        - id: fx14_vendetta_slash_a_bayonet_rib_0
-          op: block
-          parent: fx14_vendetta_slash_a_bayonet
-          block: bone_block
-          size: [0.28, 0.045, 0.18]
-          at: [0.0, 0.22, 0.0]
-          pivot: [0.35, 1.05, 0.25]
-          rest_turn: [90.0, 0.0, 0.0]
-          tilt_turn: [0.0, 0.0, 65.0]
-          brightness: 15
-        - id: fx14_vendetta_slash_a_bayonet_rib_1
-          op: block
-          parent: fx14_vendetta_slash_a_bayonet
-          block: bone_block
-          size: [0.28, 0.045, 0.18]
-          at: [0.0, 0.41, 0.0]
-          pivot: [0.35, 1.05, 0.25]
-          rest_turn: [90.0, 0.0, 0.0]
-          tilt_turn: [0.0, 0.0, 65.0]
-          brightness: 15
-        - id: fx14_vendetta_slash_a_bayonet_rib_2
-          op: block
-          parent: fx14_vendetta_slash_a_bayonet
-          block: bone_block
-          size: [0.28, 0.045, 0.18]
-          at: [0.0, 0.6, 0.0]
-          pivot: [0.35, 1.05, 0.25]
-          rest_turn: [90.0, 0.0, 0.0]
-          tilt_turn: [0.0, 0.0, 65.0]
-          brightness: 15
-        - id: fx14_vendetta_slash_a_bayonet_rib_3
-          op: block
-          parent: fx14_vendetta_slash_a_bayonet
-          block: bone_block
-          size: [0.28, 0.045, 0.18]
-          at: [-0.019, 0.79, 0.0]
-          pivot: [0.35, 1.05, 0.25]
-          rest_turn: [90.0, 0.0, 0.0]
-          tilt_turn: [0.0, 0.0, 65.0]
-          brightness: 15
-        - id: fx14_vendetta_slash_a_bayonet_rib_4
-          op: block
-          parent: fx14_vendetta_slash_a_bayonet
-          block: bone_block
-          size: [0.28, 0.045, 0.18]
-          at: [-0.038, 0.98, 0.0]
-          pivot: [0.35, 1.05, 0.25]
-          rest_turn: [90.0, 0.0, 0.0]
-          tilt_turn: [0.0, 0.0, 65.0]
-          brightness: 15
-        - id: fx14_vendetta_slash_a_bayonet_rib_5
-          op: block
-          parent: fx14_vendetta_slash_a_bayonet
-          block: bone_block
-          size: [0.28, 0.045, 0.18]
-          at: [-0.057, 1.17, 0.0]
-          pivot: [0.35, 1.05, 0.25]
-          rest_turn: [90.0, 0.0, 0.0]
-          tilt_turn: [0.0, 0.0, 65.0]
-          brightness: 15
-        - id: fx14_vendetta_slash_a_bayonet_rib_6
-          op: block
-          parent: fx14_vendetta_slash_a_bayonet
-          block: bone_block
-          size: [0.28, 0.045, 0.18]
-          at: [-0.076, 1.36, 0.0]
-          pivot: [0.35, 1.05, 0.25]
-          rest_turn: [90.0, 0.0, 0.0]
-          tilt_turn: [0.0, 0.0, 65.0]
-          brightness: 15
-        - id: fx14_vendetta_slash_a_bayonet_swing
-          op: track
-          target: fx14_vendetta_slash_a_bayonet_heel
-          space: caster.right_hand
-          keys:
-            - {t: 0, turn: [0.0, -110.0, 0.0]}
-            - {t: 1, turn: [0.0, -125.0, 0.0]}
-            - {t: 2, turn: [0.0, -37.5, 0.0]}
-            - {t: 3, turn: [0.0, 25.0, 0.0]}
-            - {t: 4, turn: [0.0, 62.5, 0.0]}
-            - {t: 5, ease: out_quad, turn: [0.0, 75.0, 0.0]}
-            - {t: 6, turn: [0.0, 83.671875, 0.0]}
-            - {t: 7, turn: [0.0, 88.125, 0.0]}
-            - {t: 8, turn: [0.0, 89.765625, 0.0]}
-            - {t: 9, ease: out_cubic, turn: [0.0, 90.0, 0.0]}
-            - {t: 10, turn: [-1.803214, 86.314578, 1.691156]}
-            - {t: 11, turn: [-7.647134, 75.142474, 5.900376]}
-            - {t: 12, turn: [-18.506724, 56.327536, 10.035532]}
-            - {t: 13, turn: [-33.813218, 32.02759, 10.035586]}
-            - {t: 14, turn: [-45.762368, 13.8936, 5.900404]}
-            - {t: 15, turn: [-52.736503, 3.410168, 1.691157]}
-            - {t: 16, ease: in_out_quad, turn: [-55.0, 0.0, 0.0]}
-        - id: fx14_vendetta_slash_a_bayonet_swing_1
-          op: track
-          target: fx14_vendetta_slash_a_bayonet_spine
-          space: caster.right_hand
-          keys:
-            - {t: 0, turn: [0.0, -110.0, 0.0]}
-            - {t: 1, turn: [0.0, -125.0, 0.0]}
-            - {t: 2, turn: [0.0, -37.5, 0.0]}
-            - {t: 3, turn: [0.0, 25.0, 0.0]}
-            - {t: 4, turn: [0.0, 62.5, 0.0]}
-            - {t: 5, ease: out_quad, turn: [0.0, 75.0, 0.0]}
-            - {t: 6, turn: [0.0, 83.671875, 0.0]}
-            - {t: 7, turn: [0.0, 88.125, 0.0]}
-            - {t: 8, turn: [0.0, 89.765625, 0.0]}
-            - {t: 9, ease: out_cubic, turn: [0.0, 90.0, 0.0]}
-            - {t: 10, turn: [-1.803214, 86.314578, 1.691156]}
-            - {t: 11, turn: [-7.647134, 75.142474, 5.900376]}
-            - {t: 12, turn: [-18.506724, 56.327536, 10.035532]}
-            - {t: 13, turn: [-33.813218, 32.02759, 10.035586]}
-            - {t: 14, turn: [-45.762368, 13.8936, 5.900404]}
-            - {t: 15, turn: [-52.736503, 3.410168, 1.691157]}
-            - {t: 16, ease: in_out_quad, turn: [-55.0, 0.0, 0.0]}
-        - id: fx14_vendetta_slash_a_bayonet_swing_2
-          op: track
-          target: fx14_vendetta_slash_a_bayonet_tip
-          space: caster.right_hand
-          keys:
-            - {t: 0, turn: [0.0, -110.0, 0.0]}
-            - {t: 1, turn: [0.0, -125.0, 0.0]}
-            - {t: 2, turn: [0.0, -37.5, 0.0]}
-            - {t: 3, turn: [0.0, 25.0, 0.0]}
-            - {t: 4, turn: [0.0, 62.5, 0.0]}
-            - {t: 5, ease: out_quad, turn: [0.0, 75.0, 0.0]}
-            - {t: 6, turn: [0.0, 83.671875, 0.0]}
-            - {t: 7, turn: [0.0, 88.125, 0.0]}
-            - {t: 8, turn: [0.0, 89.765625, 0.0]}
-            - {t: 9, ease: out_cubic, turn: [0.0, 90.0, 0.0]}
-            - {t: 10, turn: [-1.803214, 86.314578, 1.691156]}
-            - {t: 11, turn: [-7.647134, 75.142474, 5.900376]}
-            - {t: 12, turn: [-18.506724, 56.327536, 10.035532]}
-            - {t: 13, turn: [-33.813218, 32.02759, 10.035586]}
-            - {t: 14, turn: [-45.762368, 13.8936, 5.900404]}
-            - {t: 15, turn: [-52.736503, 3.410168, 1.691157]}
-            - {t: 16, ease: in_out_quad, turn: [-55.0, 0.0, 0.0]}
-        - id: fx14_vendetta_slash_a_bayonet_swing_3
-          op: track
-          target: fx14_vendetta_slash_a_bayonet_grip
-          space: caster.right_hand
-          keys:
-            - {t: 0, turn: [0.0, -110.0, 0.0]}
-            - {t: 1, turn: [0.0, -125.0, 0.0]}
-            - {t: 2, turn: [0.0, -37.5, 0.0]}
-            - {t: 3, turn: [0.0, 25.0, 0.0]}
-            - {t: 4, turn: [0.0, 62.5, 0.0]}
-            - {t: 5, ease: out_quad, turn: [0.0, 75.0, 0.0]}
-            - {t: 6, turn: [0.0, 83.671875, 0.0]}
-            - {t: 7, turn: [0.0, 88.125, 0.0]}
-            - {t: 8, turn: [0.0, 89.765625, 0.0]}
-            - {t: 9, ease: out_cubic, turn: [0.0, 90.0, 0.0]}
-            - {t: 10, turn: [-1.803214, 86.314578, 1.691156]}
-            - {t: 11, turn: [-7.647134, 75.142474, 5.900376]}
-            - {t: 12, turn: [-18.506724, 56.327536, 10.035532]}
-            - {t: 13, turn: [-33.813218, 32.02759, 10.035586]}
-            - {t: 14, turn: [-45.762368, 13.8936, 5.900404]}
-            - {t: 15, turn: [-52.736503, 3.410168, 1.691157]}
-            - {t: 16, ease: in_out_quad, turn: [-55.0, 0.0, 0.0]}
-        - id: fx14_vendetta_slash_a_bayonet_swing_4
-          op: track
-          target: fx14_vendetta_slash_a_bayonet_rib_0
-          space: caster.right_hand
-          keys:
-            - {t: 0, turn: [0.0, -110.0, 0.0]}
-            - {t: 1, turn: [0.0, -125.0, 0.0]}
-            - {t: 2, turn: [0.0, -37.5, 0.0]}
-            - {t: 3, turn: [0.0, 25.0, 0.0]}
-            - {t: 4, turn: [0.0, 62.5, 0.0]}
-            - {t: 5, ease: out_quad, turn: [0.0, 75.0, 0.0]}
-            - {t: 6, turn: [0.0, 83.671875, 0.0]}
-            - {t: 7, turn: [0.0, 88.125, 0.0]}
-            - {t: 8, turn: [0.0, 89.765625, 0.0]}
-            - {t: 9, ease: out_cubic, turn: [0.0, 90.0, 0.0]}
-            - {t: 10, turn: [-1.803214, 86.314578, 1.691156]}
-            - {t: 11, turn: [-7.647134, 75.142474, 5.900376]}
-            - {t: 12, turn: [-18.506724, 56.327536, 10.035532]}
-            - {t: 13, turn: [-33.813218, 32.02759, 10.035586]}
-            - {t: 14, turn: [-45.762368, 13.8936, 5.900404]}
-            - {t: 15, turn: [-52.736503, 3.410168, 1.691157]}
-            - {t: 16, ease: in_out_quad, turn: [-55.0, 0.0, 0.0]}
-        - id: fx14_vendetta_slash_a_bayonet_swing_5
-          op: track
-          target: fx14_vendetta_slash_a_bayonet_rib_1
-          space: caster.right_hand
-          keys:
-            - {t: 0, turn: [0.0, -110.0, 0.0]}
-            - {t: 1, turn: [0.0, -125.0, 0.0]}
-            - {t: 2, turn: [0.0, -37.5, 0.0]}
-            - {t: 3, turn: [0.0, 25.0, 0.0]}
-            - {t: 4, turn: [0.0, 62.5, 0.0]}
-            - {t: 5, ease: out_quad, turn: [0.0, 75.0, 0.0]}
-            - {t: 6, turn: [0.0, 83.671875, 0.0]}
-            - {t: 7, turn: [0.0, 88.125, 0.0]}
-            - {t: 8, turn: [0.0, 89.765625, 0.0]}
-            - {t: 9, ease: out_cubic, turn: [0.0, 90.0, 0.0]}
-            - {t: 10, turn: [-1.803214, 86.314578, 1.691156]}
-            - {t: 11, turn: [-7.647134, 75.142474, 5.900376]}
-            - {t: 12, turn: [-18.506724, 56.327536, 10.035532]}
-            - {t: 13, turn: [-33.813218, 32.02759, 10.035586]}
-            - {t: 14, turn: [-45.762368, 13.8936, 5.900404]}
-            - {t: 15, turn: [-52.736503, 3.410168, 1.691157]}
-            - {t: 16, ease: in_out_quad, turn: [-55.0, 0.0, 0.0]}
-        - id: fx14_vendetta_slash_a_bayonet_swing_6
-          op: track
-          target: fx14_vendetta_slash_a_bayonet_rib_2
-          space: caster.right_hand
-          keys:
-            - {t: 0, turn: [0.0, -110.0, 0.0]}
-            - {t: 1, turn: [0.0, -125.0, 0.0]}
-            - {t: 2, turn: [0.0, -37.5, 0.0]}
-            - {t: 3, turn: [0.0, 25.0, 0.0]}
-            - {t: 4, turn: [0.0, 62.5, 0.0]}
-            - {t: 5, ease: out_quad, turn: [0.0, 75.0, 0.0]}
-            - {t: 6, turn: [0.0, 83.671875, 0.0]}
-            - {t: 7, turn: [0.0, 88.125, 0.0]}
-            - {t: 8, turn: [0.0, 89.765625, 0.0]}
-            - {t: 9, ease: out_cubic, turn: [0.0, 90.0, 0.0]}
-            - {t: 10, turn: [-1.803214, 86.314578, 1.691156]}
-            - {t: 11, turn: [-7.647134, 75.142474, 5.900376]}
-            - {t: 12, turn: [-18.506724, 56.327536, 10.035532]}
-            - {t: 13, turn: [-33.813218, 32.02759, 10.035586]}
-            - {t: 14, turn: [-45.762368, 13.8936, 5.900404]}
-            - {t: 15, turn: [-52.736503, 3.410168, 1.691157]}
-            - {t: 16, ease: in_out_quad, turn: [-55.0, 0.0, 0.0]}
-        - id: fx14_vendetta_slash_a_bayonet_swing_7
-          op: track
-          target: fx14_vendetta_slash_a_bayonet_rib_3
-          space: caster.right_hand
-          keys:
-            - {t: 0, turn: [0.0, -110.0, 0.0]}
-            - {t: 1, turn: [0.0, -125.0, 0.0]}
-            - {t: 2, turn: [0.0, -37.5, 0.0]}
-            - {t: 3, turn: [0.0, 25.0, 0.0]}
-            - {t: 4, turn: [0.0, 62.5, 0.0]}
-            - {t: 5, ease: out_quad, turn: [0.0, 75.0, 0.0]}
-            - {t: 6, turn: [0.0, 83.671875, 0.0]}
-            - {t: 7, turn: [0.0, 88.125, 0.0]}
-            - {t: 8, turn: [0.0, 89.765625, 0.0]}
-            - {t: 9, ease: out_cubic, turn: [0.0, 90.0, 0.0]}
-            - {t: 10, turn: [-1.803214, 86.314578, 1.691156]}
-            - {t: 11, turn: [-7.647134, 75.142474, 5.900376]}
-            - {t: 12, turn: [-18.506724, 56.327536, 10.035532]}
-            - {t: 13, turn: [-33.813218, 32.02759, 10.035586]}
-            - {t: 14, turn: [-45.762368, 13.8936, 5.900404]}
-            - {t: 15, turn: [-52.736503, 3.410168, 1.691157]}
-            - {t: 16, ease: in_out_quad, turn: [-55.0, 0.0, 0.0]}
-        - id: fx14_vendetta_slash_a_bayonet_swing_8
-          op: track
-          target: fx14_vendetta_slash_a_bayonet_rib_4
-          space: caster.right_hand
-          keys:
-            - {t: 0, turn: [0.0, -110.0, 0.0]}
-            - {t: 1, turn: [0.0, -125.0, 0.0]}
-            - {t: 2, turn: [0.0, -37.5, 0.0]}
-            - {t: 3, turn: [0.0, 25.0, 0.0]}
-            - {t: 4, turn: [0.0, 62.5, 0.0]}
-            - {t: 5, ease: out_quad, turn: [0.0, 75.0, 0.0]}
-            - {t: 6, turn: [0.0, 83.671875, 0.0]}
-            - {t: 7, turn: [0.0, 88.125, 0.0]}
-            - {t: 8, turn: [0.0, 89.765625, 0.0]}
-            - {t: 9, ease: out_cubic, turn: [0.0, 90.0, 0.0]}
-            - {t: 10, turn: [-1.803214, 86.314578, 1.691156]}
-            - {t: 11, turn: [-7.647134, 75.142474, 5.900376]}
-            - {t: 12, turn: [-18.506724, 56.327536, 10.035532]}
-            - {t: 13, turn: [-33.813218, 32.02759, 10.035586]}
-            - {t: 14, turn: [-45.762368, 13.8936, 5.900404]}
-            - {t: 15, turn: [-52.736503, 3.410168, 1.691157]}
-            - {t: 16, ease: in_out_quad, turn: [-55.0, 0.0, 0.0]}
-        - id: fx14_vendetta_slash_a_bayonet_swing_9
-          op: track
-          target: fx14_vendetta_slash_a_bayonet_rib_5
-          space: caster.right_hand
-          keys:
-            - {t: 0, turn: [0.0, -110.0, 0.0]}
-            - {t: 1, turn: [0.0, -125.0, 0.0]}
-            - {t: 2, turn: [0.0, -37.5, 0.0]}
-            - {t: 3, turn: [0.0, 25.0, 0.0]}
-            - {t: 4, turn: [0.0, 62.5, 0.0]}
-            - {t: 5, ease: out_quad, turn: [0.0, 75.0, 0.0]}
-            - {t: 6, turn: [0.0, 83.671875, 0.0]}
-            - {t: 7, turn: [0.0, 88.125, 0.0]}
-            - {t: 8, turn: [0.0, 89.765625, 0.0]}
-            - {t: 9, ease: out_cubic, turn: [0.0, 90.0, 0.0]}
-            - {t: 10, turn: [-1.803214, 86.314578, 1.691156]}
-            - {t: 11, turn: [-7.647134, 75.142474, 5.900376]}
-            - {t: 12, turn: [-18.506724, 56.327536, 10.035532]}
-            - {t: 13, turn: [-33.813218, 32.02759, 10.035586]}
-            - {t: 14, turn: [-45.762368, 13.8936, 5.900404]}
-            - {t: 15, turn: [-52.736503, 3.410168, 1.691157]}
-            - {t: 16, ease: in_out_quad, turn: [-55.0, 0.0, 0.0]}
-        - id: fx14_vendetta_slash_a_bayonet_swing_10
-          op: track
-          target: fx14_vendetta_slash_a_bayonet_rib_6
-          space: caster.right_hand
-          keys:
-            - {t: 0, turn: [0.0, -110.0, 0.0]}
-            - {t: 1, turn: [0.0, -125.0, 0.0]}
-            - {t: 2, turn: [0.0, -37.5, 0.0]}
-            - {t: 3, turn: [0.0, 25.0, 0.0]}
-            - {t: 4, turn: [0.0, 62.5, 0.0]}
-            - {t: 5, ease: out_quad, turn: [0.0, 75.0, 0.0]}
-            - {t: 6, turn: [0.0, 83.671875, 0.0]}
-            - {t: 7, turn: [0.0, 88.125, 0.0]}
-            - {t: 8, turn: [0.0, 89.765625, 0.0]}
-            - {t: 9, ease: out_cubic, turn: [0.0, 90.0, 0.0]}
-            - {t: 10, turn: [-1.803214, 86.314578, 1.691156]}
-            - {t: 11, turn: [-7.647134, 75.142474, 5.900376]}
-            - {t: 12, turn: [-18.506724, 56.327536, 10.035532]}
-            - {t: 13, turn: [-33.813218, 32.02759, 10.035586]}
-            - {t: 14, turn: [-45.762368, 13.8936, 5.900404]}
-            - {t: 15, turn: [-52.736503, 3.410168, 1.691157]}
-            - {t: 16, ease: in_out_quad, turn: [-55.0, 0.0, 0.0]}
+        - {id: fx14_vendetta_slash_a_bayonet_grip, op: block, parent: fx14_vendetta_slash_a_bayonet_parts, block: black_concrete, size: [0.13, 0.4, 0.13], at: [0.0, -0.2, 0.0], rig_shading: true}
+        - {id: fx14_vendetta_slash_a_bayonet_rib_0, op: block, parent: fx14_vendetta_slash_a_bayonet_parts, block: bone_block, size: [0.28, 0.045, 0.18], at: [0.0, 0.22, 0.0], brightness: 15}
+        - {id: fx14_vendetta_slash_a_bayonet_rib_1, op: block, parent: fx14_vendetta_slash_a_bayonet_parts, block: bone_block, size: [0.28, 0.045, 0.18], at: [0.0, 0.41, 0.0], brightness: 15}
+        - {id: fx14_vendetta_slash_a_bayonet_rib_2, op: block, parent: fx14_vendetta_slash_a_bayonet_parts, block: bone_block, size: [0.28, 0.045, 0.18], at: [0.0, 0.6, 0.0], brightness: 15}
+        - {id: fx14_vendetta_slash_a_bayonet_rib_3, op: block, parent: fx14_vendetta_slash_a_bayonet_parts, block: bone_block, size: [0.28, 0.045, 0.18], at: [-0.019, 0.79, 0.0], brightness: 15}
+        - {id: fx14_vendetta_slash_a_bayonet_rib_4, op: block, parent: fx14_vendetta_slash_a_bayonet_parts, block: bone_block, size: [0.28, 0.045, 0.18], at: [-0.038, 0.98, 0.0], brightness: 15}
+        - {id: fx14_vendetta_slash_a_bayonet_rib_5, op: block, parent: fx14_vendetta_slash_a_bayonet_parts, block: bone_block, size: [0.28, 0.045, 0.18], at: [-0.057, 1.17, 0.0], brightness: 15}
+        - {id: fx14_vendetta_slash_a_bayonet_rib_6, op: block, parent: fx14_vendetta_slash_a_bayonet_parts, block: bone_block, size: [0.28, 0.045, 0.18], at: [-0.076, 1.36, 0.0], brightness: 15}
     - id: fx227
       at: 227
       do:

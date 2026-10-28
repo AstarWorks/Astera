@@ -9,24 +9,29 @@ kind: Skill
 id: ember-gauntlet-ego
 frames:
   - {id: fx1_ember_harness, kind: body, parent: caster}
-  - {id: fx1_ember_harness_furnace_pack, kind: body, parent: caster.right_hand}
+  - {id: fx1_ember_harness_furnace_pack, kind: body, parent: caster}
+  - {id: fx1_ember_harness_furnace_pack_parts, kind: body, parent: caster}
   - {id: fx2_ember_ignition, kind: body, parent: caster}
   - {id: fx2_ember_ignition_pilot_at, kind: body, parent: fx2_ember_ignition}
   - {id: fx2_ember_ignition_smoke_at, kind: body, parent: fx2_ember_ignition}
-  - {id: fx2_ember_ignition_gauntlet, kind: body, parent: caster.right_hand}
+  - {id: fx2_ember_ignition_gauntlet, kind: body, parent: caster}
+  - {id: fx2_ember_ignition_gauntlet_parts, kind: body, parent: caster}
   - {id: fx3_ember_sweep, kind: body, parent: caster}
   - {id: fx3_ember_sweep_embers_at, kind: body, parent: fx3_ember_sweep}
-  - {id: fx3_ember_sweep_gauntlet, kind: body, parent: caster.right_hand}
+  - {id: fx3_ember_sweep_gauntlet, kind: body, parent: caster}
+  - {id: fx3_ember_sweep_gauntlet_parts, kind: body, parent: caster}
   - {id: pt_fx3_ember_sweep_gauntlet_0_1p95_0, kind: point, parent: fx3_ember_sweep_gauntlet, offset: [0.0, 1.95, 0.0]}
   - {id: pt_fx3_ember_sweep_gauntlet_0_2p65_0, kind: point, parent: fx3_ember_sweep_gauntlet, offset: [0.0, 2.65, 0.0]}
   - {id: fx4_ember_punch, kind: body, parent: caster}
   - {id: fx4_ember_punch_flame_at, kind: body, parent: fx4_ember_punch}
   - {id: fx4_ember_punch_soot_at, kind: body, parent: fx4_ember_punch}
-  - {id: fx4_ember_punch_gauntlet, kind: body, parent: caster.right_hand}
+  - {id: fx4_ember_punch_gauntlet, kind: body, parent: caster}
+  - {id: fx4_ember_punch_gauntlet_parts, kind: body, parent: caster}
   - {id: fx5_ember_furnace_blast, kind: body, parent: caster}
   - {id: fx5_ember_furnace_blast_flame_at, kind: body, parent: fx5_ember_furnace_blast}
   - {id: fx5_ember_furnace_blast_soot_at, kind: body, parent: fx5_ember_furnace_blast}
-  - {id: fx5_ember_furnace_blast_gauntlet, kind: body, parent: caster.right_hand}
+  - {id: fx5_ember_furnace_blast_gauntlet, kind: body, parent: caster}
+  - {id: fx5_ember_furnace_blast_gauntlet_parts, kind: body, parent: caster}
   - {id: fx6_ember_smoke_puff, kind: body, parent: world}
   - {id: fx6_ember_smoke_puff_vent_at, kind: body, parent: fx6_ember_smoke_puff}
   - {id: fx6_ember_smoke_puff_haze_at, kind: body, parent: fx6_ember_smoke_puff}
@@ -35,202 +40,312 @@ presentation:
     - id: fx0
       at: 0
       do:
-        - id: fx1_ember_harness_furnace_pack_shell
-          op: block
-          parent: fx1_ember_harness_furnace_pack
-          block: black_concrete
-          size: [0.5, 0.85, 0.3]
-          at: [0.0, 0.0, 0.0]
-          pivot: [0.0, 1.1, -0.36]
-          rig_shading: true
-        - id: fx1_ember_harness_furnace_pack_clasp
-          op: block
-          parent: fx1_ember_harness_furnace_pack
-          block: raw_gold_block
-          size: [0.32, 0.12, 0.34]
-          at: [0.0, 0.32, -0.02]
-          pivot: [0.0, 1.1, -0.36]
-          rig_shading: true
-        - {id: fx1_ember_harness_furnace_pack_swing, op: track, target: fx1_ember_harness_furnace_pack_shell, space: caster.right_hand, keys: [{t: 0, turn: [0.0, 0.0, 0.0]}, {t: 85, turn: [0.0, 0.0, 0.0]}]}
-        - {id: fx1_ember_harness_furnace_pack_swing_1, op: track, target: fx1_ember_harness_furnace_pack_clasp, space: caster.right_hand, keys: [{t: 0, turn: [0.0, 0.0, 0.0]}, {t: 85, turn: [0.0, 0.0, 0.0]}]}
+        - id: fx1_ember_harness_furnace_pack_rig
+          op: rig
+          frame: fx1_ember_harness_furnace_pack
+          parent: caster
+          duration: 85
+          pivot: [1.099996, 0.003456, -0.359989]
+          swing:
+            - {t: 0, rotate: [0.0, 0.0, 0.0]}
+            - {t: 1, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 2, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 3, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 4, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 5, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 6, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 7, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 8, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 9, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 10, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 11, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 12, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 13, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 14, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 15, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 16, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 17, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 18, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 19, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 20, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 21, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 22, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 23, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 24, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 25, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 26, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 27, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 28, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 29, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 30, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 31, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 32, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 33, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 34, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 35, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 36, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 37, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 38, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 39, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 40, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 41, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 42, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 43, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 44, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 45, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 46, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 47, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 48, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 49, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 50, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 51, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 52, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 53, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 54, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 55, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 56, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 57, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 58, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 59, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 60, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 61, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 62, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 63, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 64, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 65, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 66, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 67, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 68, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 69, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 70, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 71, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 72, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 73, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 74, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 75, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 76, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 77, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 78, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 79, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 80, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 81, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 82, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 83, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 84, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 85, rotate: [0.0, 0.0, 0.0]}
+          sample_ticks: 1
+        - id: fx1_ember_harness_furnace_pack_parts_rig
+          op: rig
+          frame: fx1_ember_harness_furnace_pack_parts
+          parent: caster
+          duration: 85
+          hand: false
+          pivot: [1.099996, 0.003456, -0.359989]
+          swing:
+            - {t: 0, rotate: [0.0, 0.0, 0.0]}
+            - {t: 1, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 2, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 3, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 4, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 5, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 6, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 7, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 8, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 9, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 10, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 11, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 12, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 13, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 14, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 15, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 16, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 17, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 18, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 19, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 20, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 21, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 22, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 23, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 24, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 25, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 26, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 27, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 28, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 29, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 30, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 31, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 32, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 33, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 34, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 35, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 36, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 37, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 38, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 39, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 40, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 41, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 42, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 43, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 44, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 45, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 46, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 47, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 48, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 49, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 50, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 51, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 52, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 53, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 54, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 55, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 56, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 57, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 58, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 59, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 60, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 61, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 62, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 63, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 64, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 65, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 66, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 67, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 68, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 69, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 70, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 71, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 72, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 73, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 74, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 75, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 76, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 77, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 78, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 79, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 80, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 81, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 82, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 83, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 84, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 85, rotate: [0.0, 0.0, 0.0]}
+          sample_ticks: 1
+        - {id: fx1_ember_harness_furnace_pack_shell, op: block, parent: fx1_ember_harness_furnace_pack_parts, block: black_concrete, size: [0.5, 0.85, 0.3], at: [0.0, 0.0, 0.0], rig_shading: true}
+        - {id: fx1_ember_harness_furnace_pack_clasp, op: block, parent: fx1_ember_harness_furnace_pack_parts, block: raw_gold_block, size: [0.32, 0.12, 0.34], at: [0.0, 0.32, -0.02], rig_shading: true}
         - {id: fx2_ember_ignition_pilot_atrk, op: track, target: fx2_ember_ignition_pilot_at, space: fx2_ember_ignition, keys: [{t: 0, offset: [-0.3, 0.4, 0.3]}]}
         - {id: fx2_ember_ignition_smoke_atrk, op: track, target: fx2_ember_ignition_smoke_at, space: fx2_ember_ignition, keys: [{t: 0, offset: [0, 0.2, -0.4]}]}
-        - id: fx2_ember_ignition_gauntlet_cuff
-          op: block
-          parent: fx2_ember_ignition_gauntlet
-          block: black_concrete
-          size: [0.38, 0.45, 0.38]
-          at: [0.0, 0.18, 0.0]
-          pivot: [-0.35, 1.05, 0.25]
-          rest_turn: [90.0, 0.0, 0.0]
-          tilt_turn: [0.0, 0.0, 12.0]
-          rig_shading: true
-        - id: fx2_ember_ignition_gauntlet_fist
-          op: block
-          parent: fx2_ember_ignition_gauntlet
-          block: gray_concrete
-          size: [0.45, 0.4, 0.42]
-          at: [0.0, 0.56, 0.0]
-          pivot: [-0.35, 1.05, 0.25]
-          rest_turn: [90.0, 0.0, 0.0]
-          tilt_turn: [0.0, 0.0, 12.0]
-          rig_shading: true
-        - id: fx2_ember_ignition_gauntlet_nozzle
-          op: block
-          parent: fx2_ember_ignition_gauntlet
-          block: gold_block
-          size: [0.25, 0.14, 0.25]
-          at: [0.0, 0.8, 0.0]
-          pivot: [-0.35, 1.05, 0.25]
-          rest_turn: [90.0, 0.0, 0.0]
-          tilt_turn: [0.0, 0.0, 12.0]
-          brightness: 15
-        - id: fx2_ember_ignition_gauntlet_swing
-          op: track
-          target: fx2_ember_ignition_gauntlet_cuff
-          space: caster.right_hand
-          keys:
-            - {t: 0, turn: [-25.0, 0.0, 0.0]}
-            - {t: 1, turn: [-11.111111, 0.0, 0.0]}
-            - {t: 2, turn: [-2.777778, 0.0, 0.0]}
-            - {t: 3, ease: out_quad, turn: [0.0, 0.0, 0.0]}
-            - {t: 7, turn: [0.0, 0.0, 0.0]}
-            - {t: 8, turn: [-1.09375, 0.0, 0.0]}
-            - {t: 9, turn: [-4.375, 0.0, 0.0]}
-            - {t: 10, turn: [-9.84375, 0.0, 0.0]}
-            - {t: 11, turn: [-17.5, 0.0, 0.0]}
-            - {t: 12, turn: [-25.15625, 0.0, 0.0]}
-            - {t: 13, turn: [-30.625, 0.0, 0.0]}
-            - {t: 14, turn: [-33.90625, 0.0, 0.0]}
-            - {t: 15, ease: in_out_quad, turn: [-35.0, 0.0, 0.0]}
-        - id: fx2_ember_ignition_gauntlet_swing_1
-          op: track
-          target: fx2_ember_ignition_gauntlet_fist
-          space: caster.right_hand
-          keys:
-            - {t: 0, turn: [-25.0, 0.0, 0.0]}
-            - {t: 1, turn: [-11.111111, 0.0, 0.0]}
-            - {t: 2, turn: [-2.777778, 0.0, 0.0]}
-            - {t: 3, ease: out_quad, turn: [0.0, 0.0, 0.0]}
-            - {t: 7, turn: [0.0, 0.0, 0.0]}
-            - {t: 8, turn: [-1.09375, 0.0, 0.0]}
-            - {t: 9, turn: [-4.375, 0.0, 0.0]}
-            - {t: 10, turn: [-9.84375, 0.0, 0.0]}
-            - {t: 11, turn: [-17.5, 0.0, 0.0]}
-            - {t: 12, turn: [-25.15625, 0.0, 0.0]}
-            - {t: 13, turn: [-30.625, 0.0, 0.0]}
-            - {t: 14, turn: [-33.90625, 0.0, 0.0]}
-            - {t: 15, ease: in_out_quad, turn: [-35.0, 0.0, 0.0]}
-        - id: fx2_ember_ignition_gauntlet_swing_2
-          op: track
-          target: fx2_ember_ignition_gauntlet_nozzle
-          space: caster.right_hand
-          keys:
-            - {t: 0, turn: [-25.0, 0.0, 0.0]}
-            - {t: 1, turn: [-11.111111, 0.0, 0.0]}
-            - {t: 2, turn: [-2.777778, 0.0, 0.0]}
-            - {t: 3, ease: out_quad, turn: [0.0, 0.0, 0.0]}
-            - {t: 7, turn: [0.0, 0.0, 0.0]}
-            - {t: 8, turn: [-1.09375, 0.0, 0.0]}
-            - {t: 9, turn: [-4.375, 0.0, 0.0]}
-            - {t: 10, turn: [-9.84375, 0.0, 0.0]}
-            - {t: 11, turn: [-17.5, 0.0, 0.0]}
-            - {t: 12, turn: [-25.15625, 0.0, 0.0]}
-            - {t: 13, turn: [-30.625, 0.0, 0.0]}
-            - {t: 14, turn: [-33.90625, 0.0, 0.0]}
-            - {t: 15, ease: in_out_quad, turn: [-35.0, 0.0, 0.0]}
+        - id: fx2_ember_ignition_gauntlet_rig
+          op: rig
+          frame: fx2_ember_ignition_gauntlet
+          parent: caster
+          duration: 16
+          pivot: [1.050759, 0.347699, 0.246785]
+          tilt: [0.0, 0.0, 12.0]
+          rest: [90.0, 0.0, 0.0]
+          swing:
+            - {t: 0, rotate: [-25.0, 0.0, 0.0]}
+            - {t: 1, rotate: [-11.111111, 0.0, 0.0], sample: true}
+            - {t: 2, rotate: [-2.777778, 0.0, 0.0], sample: true}
+            - {t: 3, rotate: [0.0, 0.0, 0.0]}
+            - {t: 4, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 5, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 6, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 7, rotate: [0.0, 0.0, 0.0]}
+            - {t: 8, rotate: [-1.09375, 0.0, 0.0], sample: true}
+            - {t: 9, rotate: [-4.375, 0.0, 0.0], sample: true}
+            - {t: 10, rotate: [-9.84375, 0.0, 0.0], sample: true}
+            - {t: 11, rotate: [-17.5, 0.0, 0.0], sample: true}
+            - {t: 12, rotate: [-25.15625, 0.0, 0.0], sample: true}
+            - {t: 13, rotate: [-30.625, 0.0, 0.0], sample: true}
+            - {t: 14, rotate: [-33.90625, 0.0, 0.0], sample: true}
+            - {t: 15, rotate: [-35.0, 0.0, 0.0]}
+          sample_ticks: 1
+        - id: fx2_ember_ignition_gauntlet_parts_rig
+          op: rig
+          frame: fx2_ember_ignition_gauntlet_parts
+          parent: caster
+          duration: 16
+          hand: false
+          pivot: [1.050759, 0.347699, 0.246785]
+          tilt: [0.0, 0.0, 12.0]
+          rest: [90.0, 0.0, 0.0]
+          swing:
+            - {t: 0, rotate: [-25.0, 0.0, 0.0]}
+            - {t: 1, rotate: [-11.111111, 0.0, 0.0], sample: true}
+            - {t: 2, rotate: [-2.777778, 0.0, 0.0], sample: true}
+            - {t: 3, rotate: [0.0, 0.0, 0.0]}
+            - {t: 4, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 5, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 6, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 7, rotate: [0.0, 0.0, 0.0]}
+            - {t: 8, rotate: [-1.09375, 0.0, 0.0], sample: true}
+            - {t: 9, rotate: [-4.375, 0.0, 0.0], sample: true}
+            - {t: 10, rotate: [-9.84375, 0.0, 0.0], sample: true}
+            - {t: 11, rotate: [-17.5, 0.0, 0.0], sample: true}
+            - {t: 12, rotate: [-25.15625, 0.0, 0.0], sample: true}
+            - {t: 13, rotate: [-30.625, 0.0, 0.0], sample: true}
+            - {t: 14, rotate: [-33.90625, 0.0, 0.0], sample: true}
+            - {t: 15, rotate: [-35.0, 0.0, 0.0]}
+          sample_ticks: 1
+        - {id: fx2_ember_ignition_gauntlet_cuff, op: block, parent: fx2_ember_ignition_gauntlet_parts, block: black_concrete, size: [0.38, 0.45, 0.38], at: [0.0, 0.18, 0.0], rig_shading: true}
+        - {id: fx2_ember_ignition_gauntlet_fist, op: block, parent: fx2_ember_ignition_gauntlet_parts, block: gray_concrete, size: [0.45, 0.4, 0.42], at: [0.0, 0.56, 0.0], rig_shading: true}
+        - {id: fx2_ember_ignition_gauntlet_nozzle, op: block, parent: fx2_ember_ignition_gauntlet_parts, block: gold_block, size: [0.25, 0.14, 0.25], at: [0.0, 0.8, 0.0], brightness: 15}
     - {id: fx16, at: 16, do: [{id: rm_2, op: remove, ids: [fx2_ember_ignition_gauntlet_cuff, fx2_ember_ignition_gauntlet_fist, fx2_ember_ignition_gauntlet_nozzle]}]}
     - id: fx17
       at: 17
       do:
         - {id: fx3_ember_sweep_embers_atrk, op: track, target: fx3_ember_sweep_embers_at, space: fx3_ember_sweep, keys: [{t: 0, offset: [0, 1.1, 2.2]}]}
-        - id: fx3_ember_sweep_gauntlet_cuff
-          op: block
-          parent: fx3_ember_sweep_gauntlet
-          block: black_concrete
-          size: [0.38, 0.45, 0.38]
-          at: [0.0, 0.18, 0.0]
-          pivot: [-0.35, 1.05, 0.25]
-          rest_turn: [90.0, 0.0, 0.0]
-          tilt_turn: [0.0, 0.0, 8.0]
-          rig_shading: true
-        - id: fx3_ember_sweep_gauntlet_fist
-          op: block
-          parent: fx3_ember_sweep_gauntlet
-          block: gray_concrete
-          size: [0.45, 0.4, 0.42]
-          at: [0.0, 0.56, 0.0]
-          pivot: [-0.35, 1.05, 0.25]
-          rest_turn: [90.0, 0.0, 0.0]
-          tilt_turn: [0.0, 0.0, 8.0]
-          rig_shading: true
-        - id: fx3_ember_sweep_gauntlet_nozzle
-          op: block
-          parent: fx3_ember_sweep_gauntlet
-          block: gold_block
-          size: [0.25, 0.14, 0.25]
-          at: [0.0, 0.8, 0.0]
-          pivot: [-0.35, 1.05, 0.25]
-          rest_turn: [90.0, 0.0, 0.0]
-          tilt_turn: [0.0, 0.0, 8.0]
-          brightness: 15
-        - id: fx3_ember_sweep_gauntlet_swing
-          op: track
-          target: fx3_ember_sweep_gauntlet_cuff
-          space: caster.right_hand
-          keys:
-            - {t: 0, turn: [-18.273096, -98.229824, -21.777028]}
-            - {t: 1, turn: [-10.89235, 27.689983, 2.693343]}
-            - {t: 2, turn: [-1.962249, 104.421418, 2.531743]}
-            - {t: 3, ease: out_quad, turn: [0.0, 130.0, 0.0]}
-            - {t: 4, turn: [0.0, 133.75, 0.0]}
-            - {t: 5, turn: [0.0, 137.5, 0.0]}
-            - {t: 6, turn: [0.0, 141.25, 0.0]}
-            - {t: 7, turn: [0.0, 145.0, 0.0]}
-            - {t: 8, turn: [-0.916626, 136.928169, 2.323686]}
-            - {t: 9, turn: [-5.08672, 112.578654, 7.65291]}
-            - {t: 10, turn: [-15.093548, 71.90376, 11.067047]}
-            - {t: 11, turn: [-26.495577, 31.607394, 7.653122]}
-            - {t: 12, turn: [-33.000475, 7.830723, 2.323696]}
-            - {t: 13, ease: in_out_quad, turn: [-35.0, 0.0, 0.0]}
-        - id: fx3_ember_sweep_gauntlet_swing_1
-          op: track
-          target: fx3_ember_sweep_gauntlet_fist
-          space: caster.right_hand
-          keys:
-            - {t: 0, turn: [-18.273096, -98.229824, -21.777028]}
-            - {t: 1, turn: [-10.89235, 27.689983, 2.693343]}
-            - {t: 2, turn: [-1.962249, 104.421418, 2.531743]}
-            - {t: 3, ease: out_quad, turn: [0.0, 130.0, 0.0]}
-            - {t: 4, turn: [0.0, 133.75, 0.0]}
-            - {t: 5, turn: [0.0, 137.5, 0.0]}
-            - {t: 6, turn: [0.0, 141.25, 0.0]}
-            - {t: 7, turn: [0.0, 145.0, 0.0]}
-            - {t: 8, turn: [-0.916626, 136.928169, 2.323686]}
-            - {t: 9, turn: [-5.08672, 112.578654, 7.65291]}
-            - {t: 10, turn: [-15.093548, 71.90376, 11.067047]}
-            - {t: 11, turn: [-26.495577, 31.607394, 7.653122]}
-            - {t: 12, turn: [-33.000475, 7.830723, 2.323696]}
-            - {t: 13, ease: in_out_quad, turn: [-35.0, 0.0, 0.0]}
-        - id: fx3_ember_sweep_gauntlet_swing_2
-          op: track
-          target: fx3_ember_sweep_gauntlet_nozzle
-          space: caster.right_hand
-          keys:
-            - {t: 0, turn: [-18.273096, -98.229824, -21.777028]}
-            - {t: 1, turn: [-10.89235, 27.689983, 2.693343]}
-            - {t: 2, turn: [-1.962249, 104.421418, 2.531743]}
-            - {t: 3, ease: out_quad, turn: [0.0, 130.0, 0.0]}
-            - {t: 4, turn: [0.0, 133.75, 0.0]}
-            - {t: 5, turn: [0.0, 137.5, 0.0]}
-            - {t: 6, turn: [0.0, 141.25, 0.0]}
-            - {t: 7, turn: [0.0, 145.0, 0.0]}
-            - {t: 8, turn: [-0.916626, 136.928169, 2.323686]}
-            - {t: 9, turn: [-5.08672, 112.578654, 7.65291]}
-            - {t: 10, turn: [-15.093548, 71.90376, 11.067047]}
-            - {t: 11, turn: [-26.495577, 31.607394, 7.653122]}
-            - {t: 12, turn: [-33.000475, 7.830723, 2.323696]}
-            - {t: 13, ease: in_out_quad, turn: [-35.0, 0.0, 0.0]}
+        - id: fx3_ember_sweep_gauntlet_rig
+          op: rig
+          frame: fx3_ember_sweep_gauntlet
+          parent: caster
+          duration: 14
+          pivot: [1.050759, 0.347699, 0.246785]
+          tilt: [0.0, 0.0, 8.0]
+          rest: [90.0, 0.0, 0.0]
+          swing:
+            - {t: 0, rotate: [-18.273096, -98.229824, -21.777028]}
+            - {t: 1, rotate: [-10.89235, 27.689983, 2.693343], sample: true}
+            - {t: 2, rotate: [-1.962249, 104.421418, 2.531743], sample: true}
+            - {t: 3, rotate: [0.0, 130.0, 0.0]}
+            - {t: 4, rotate: [0.0, 133.75, 0.0], sample: true}
+            - {t: 5, rotate: [0.0, 137.5, 0.0], sample: true}
+            - {t: 6, rotate: [0.0, 141.25, 0.0], sample: true}
+            - {t: 7, rotate: [0.0, 145.0, 0.0]}
+            - {t: 8, rotate: [-0.916626, 136.928169, 2.323686], sample: true}
+            - {t: 9, rotate: [-5.08672, 112.578654, 7.65291], sample: true}
+            - {t: 10, rotate: [-15.093548, 71.90376, 11.067047], sample: true}
+            - {t: 11, rotate: [-26.495577, 31.607394, 7.653122], sample: true}
+            - {t: 12, rotate: [-33.000475, 7.830723, 2.323696], sample: true}
+            - {t: 13, rotate: [-35.0, 0.0, 0.0]}
+          sample_ticks: 1
+        - id: fx3_ember_sweep_gauntlet_parts_rig
+          op: rig
+          frame: fx3_ember_sweep_gauntlet_parts
+          parent: caster
+          duration: 14
+          hand: false
+          pivot: [1.050759, 0.347699, 0.246785]
+          tilt: [0.0, 0.0, 8.0]
+          rest: [90.0, 0.0, 0.0]
+          swing:
+            - {t: 0, rotate: [-18.273096, -98.229824, -21.777028]}
+            - {t: 1, rotate: [-10.89235, 27.689983, 2.693343], sample: true}
+            - {t: 2, rotate: [-1.962249, 104.421418, 2.531743], sample: true}
+            - {t: 3, rotate: [0.0, 130.0, 0.0]}
+            - {t: 4, rotate: [0.0, 133.75, 0.0], sample: true}
+            - {t: 5, rotate: [0.0, 137.5, 0.0], sample: true}
+            - {t: 6, rotate: [0.0, 141.25, 0.0], sample: true}
+            - {t: 7, rotate: [0.0, 145.0, 0.0]}
+            - {t: 8, rotate: [-0.916626, 136.928169, 2.323686], sample: true}
+            - {t: 9, rotate: [-5.08672, 112.578654, 7.65291], sample: true}
+            - {t: 10, rotate: [-15.093548, 71.90376, 11.067047], sample: true}
+            - {t: 11, rotate: [-26.495577, 31.607394, 7.653122], sample: true}
+            - {t: 12, rotate: [-33.000475, 7.830723, 2.323696], sample: true}
+            - {t: 13, rotate: [-35.0, 0.0, 0.0]}
+          sample_ticks: 1
+        - {id: fx3_ember_sweep_gauntlet_cuff, op: block, parent: fx3_ember_sweep_gauntlet_parts, block: black_concrete, size: [0.38, 0.45, 0.38], at: [0.0, 0.18, 0.0], rig_shading: true}
+        - {id: fx3_ember_sweep_gauntlet_fist, op: block, parent: fx3_ember_sweep_gauntlet_parts, block: gray_concrete, size: [0.45, 0.4, 0.42], at: [0.0, 0.56, 0.0], rig_shading: true}
+        - {id: fx3_ember_sweep_gauntlet_nozzle, op: block, parent: fx3_ember_sweep_gauntlet_parts, block: gold_block, size: [0.25, 0.14, 0.25], at: [0.0, 0.8, 0.0], brightness: 15}
         - id: fx3_ember_sweep_gauntlet_flame_fan
           op: trail
           of: pt_fx3_ember_sweep_gauntlet_0_2p65_0
@@ -329,90 +444,62 @@ presentation:
           times: 5
           shift: "= [vec(0.0, 0.0, 0.8), vec(0.0, 0.0, 1.45), vec(0.0, 0.0, 2.1), vec(0.0, 0.0, 2.75), vec(0.0, 0.0, 3.4)][int(i)]"
         - {id: fx4_ember_punch_soot_atrk, op: track, target: fx4_ember_punch_soot_at, space: fx4_ember_punch, keys: [{t: 0, offset: [0, 1.15, 0.8]}]}
-        - id: fx4_ember_punch_gauntlet_cuff
-          op: block
-          parent: fx4_ember_punch_gauntlet
-          block: black_concrete
-          size: [0.38, 0.45, 0.38]
-          at: [0.0, 0.18, 0.0]
-          pivot: [-0.35, 1.05, 0.25]
-          rest_turn: [90.0, 0.0, 0.0]
-          tilt_turn: [0.0, 0.0, 12.0]
-          rig_shading: true
-        - id: fx4_ember_punch_gauntlet_fist
-          op: block
-          parent: fx4_ember_punch_gauntlet
-          block: gray_concrete
-          size: [0.45, 0.4, 0.42]
-          at: [0.0, 0.56, 0.0]
-          pivot: [-0.35, 1.05, 0.25]
-          rest_turn: [90.0, 0.0, 0.0]
-          tilt_turn: [0.0, 0.0, 12.0]
-          rig_shading: true
-        - id: fx4_ember_punch_gauntlet_nozzle
-          op: block
-          parent: fx4_ember_punch_gauntlet
-          block: gold_block
-          size: [0.25, 0.14, 0.25]
-          at: [0.0, 0.8, 0.0]
-          pivot: [-0.35, 1.05, 0.25]
-          rest_turn: [90.0, 0.0, 0.0]
-          tilt_turn: [0.0, 0.0, 12.0]
-          brightness: 15
-        - id: fx4_ember_punch_gauntlet_swing
-          op: track
-          target: fx4_ember_punch_gauntlet_cuff
-          space: caster.right_hand
-          keys:
-            - {t: 0, turn: [-25.0, 0.0, 0.0]}
-            - {t: 1, turn: [-11.111111, 0.0, 0.0]}
-            - {t: 2, turn: [-2.777778, 0.0, 0.0]}
-            - {t: 3, ease: out_quad, turn: [0.0, 0.0, 0.0]}
-            - {t: 7, turn: [0.0, 0.0, 0.0]}
-            - {t: 8, turn: [-1.09375, 0.0, 0.0]}
-            - {t: 9, turn: [-4.375, 0.0, 0.0]}
-            - {t: 10, turn: [-9.84375, 0.0, 0.0]}
-            - {t: 11, turn: [-17.5, 0.0, 0.0]}
-            - {t: 12, turn: [-25.15625, 0.0, 0.0]}
-            - {t: 13, turn: [-30.625, 0.0, 0.0]}
-            - {t: 14, turn: [-33.90625, 0.0, 0.0]}
-            - {t: 15, ease: in_out_quad, turn: [-35.0, 0.0, 0.0]}
-        - id: fx4_ember_punch_gauntlet_swing_1
-          op: track
-          target: fx4_ember_punch_gauntlet_fist
-          space: caster.right_hand
-          keys:
-            - {t: 0, turn: [-25.0, 0.0, 0.0]}
-            - {t: 1, turn: [-11.111111, 0.0, 0.0]}
-            - {t: 2, turn: [-2.777778, 0.0, 0.0]}
-            - {t: 3, ease: out_quad, turn: [0.0, 0.0, 0.0]}
-            - {t: 7, turn: [0.0, 0.0, 0.0]}
-            - {t: 8, turn: [-1.09375, 0.0, 0.0]}
-            - {t: 9, turn: [-4.375, 0.0, 0.0]}
-            - {t: 10, turn: [-9.84375, 0.0, 0.0]}
-            - {t: 11, turn: [-17.5, 0.0, 0.0]}
-            - {t: 12, turn: [-25.15625, 0.0, 0.0]}
-            - {t: 13, turn: [-30.625, 0.0, 0.0]}
-            - {t: 14, turn: [-33.90625, 0.0, 0.0]}
-            - {t: 15, ease: in_out_quad, turn: [-35.0, 0.0, 0.0]}
-        - id: fx4_ember_punch_gauntlet_swing_2
-          op: track
-          target: fx4_ember_punch_gauntlet_nozzle
-          space: caster.right_hand
-          keys:
-            - {t: 0, turn: [-25.0, 0.0, 0.0]}
-            - {t: 1, turn: [-11.111111, 0.0, 0.0]}
-            - {t: 2, turn: [-2.777778, 0.0, 0.0]}
-            - {t: 3, ease: out_quad, turn: [0.0, 0.0, 0.0]}
-            - {t: 7, turn: [0.0, 0.0, 0.0]}
-            - {t: 8, turn: [-1.09375, 0.0, 0.0]}
-            - {t: 9, turn: [-4.375, 0.0, 0.0]}
-            - {t: 10, turn: [-9.84375, 0.0, 0.0]}
-            - {t: 11, turn: [-17.5, 0.0, 0.0]}
-            - {t: 12, turn: [-25.15625, 0.0, 0.0]}
-            - {t: 13, turn: [-30.625, 0.0, 0.0]}
-            - {t: 14, turn: [-33.90625, 0.0, 0.0]}
-            - {t: 15, ease: in_out_quad, turn: [-35.0, 0.0, 0.0]}
+        - id: fx4_ember_punch_gauntlet_rig
+          op: rig
+          frame: fx4_ember_punch_gauntlet
+          parent: caster
+          duration: 16
+          pivot: [1.050759, 0.347699, 0.246785]
+          tilt: [0.0, 0.0, 12.0]
+          rest: [90.0, 0.0, 0.0]
+          swing:
+            - {t: 0, rotate: [-25.0, 0.0, 0.0]}
+            - {t: 1, rotate: [-11.111111, 0.0, 0.0], sample: true}
+            - {t: 2, rotate: [-2.777778, 0.0, 0.0], sample: true}
+            - {t: 3, rotate: [0.0, 0.0, 0.0]}
+            - {t: 4, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 5, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 6, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 7, rotate: [0.0, 0.0, 0.0]}
+            - {t: 8, rotate: [-1.09375, 0.0, 0.0], sample: true}
+            - {t: 9, rotate: [-4.375, 0.0, 0.0], sample: true}
+            - {t: 10, rotate: [-9.84375, 0.0, 0.0], sample: true}
+            - {t: 11, rotate: [-17.5, 0.0, 0.0], sample: true}
+            - {t: 12, rotate: [-25.15625, 0.0, 0.0], sample: true}
+            - {t: 13, rotate: [-30.625, 0.0, 0.0], sample: true}
+            - {t: 14, rotate: [-33.90625, 0.0, 0.0], sample: true}
+            - {t: 15, rotate: [-35.0, 0.0, 0.0]}
+          sample_ticks: 1
+        - id: fx4_ember_punch_gauntlet_parts_rig
+          op: rig
+          frame: fx4_ember_punch_gauntlet_parts
+          parent: caster
+          duration: 16
+          hand: false
+          pivot: [1.050759, 0.347699, 0.246785]
+          tilt: [0.0, 0.0, 12.0]
+          rest: [90.0, 0.0, 0.0]
+          swing:
+            - {t: 0, rotate: [-25.0, 0.0, 0.0]}
+            - {t: 1, rotate: [-11.111111, 0.0, 0.0], sample: true}
+            - {t: 2, rotate: [-2.777778, 0.0, 0.0], sample: true}
+            - {t: 3, rotate: [0.0, 0.0, 0.0]}
+            - {t: 4, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 5, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 6, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 7, rotate: [0.0, 0.0, 0.0]}
+            - {t: 8, rotate: [-1.09375, 0.0, 0.0], sample: true}
+            - {t: 9, rotate: [-4.375, 0.0, 0.0], sample: true}
+            - {t: 10, rotate: [-9.84375, 0.0, 0.0], sample: true}
+            - {t: 11, rotate: [-17.5, 0.0, 0.0], sample: true}
+            - {t: 12, rotate: [-25.15625, 0.0, 0.0], sample: true}
+            - {t: 13, rotate: [-30.625, 0.0, 0.0], sample: true}
+            - {t: 14, rotate: [-33.90625, 0.0, 0.0], sample: true}
+            - {t: 15, rotate: [-35.0, 0.0, 0.0]}
+          sample_ticks: 1
+        - {id: fx4_ember_punch_gauntlet_cuff, op: block, parent: fx4_ember_punch_gauntlet_parts, block: black_concrete, size: [0.38, 0.45, 0.38], at: [0.0, 0.18, 0.0], rig_shading: true}
+        - {id: fx4_ember_punch_gauntlet_fist, op: block, parent: fx4_ember_punch_gauntlet_parts, block: gray_concrete, size: [0.45, 0.4, 0.42], at: [0.0, 0.56, 0.0], rig_shading: true}
+        - {id: fx4_ember_punch_gauntlet_nozzle, op: block, parent: fx4_ember_punch_gauntlet_parts, block: gold_block, size: [0.25, 0.14, 0.25], at: [0.0, 0.8, 0.0], brightness: 15}
     - id: fx25
       at: 25
       do:
@@ -1088,105 +1175,72 @@ presentation:
             - {t: 15, offset: [-0.41, 0.38986, 2.9], turn: [80.92793, 46.72376, 46.72376], scale: [0.00941, 0.00941, 0.38]}
             - {t: 16, offset: [-0.41, 0.38986, 2.9], turn: [80.92793, 46.72376, 46.72376], scale: [0.00471, 0.00471, 0.38]}
             - {t: 17, offset: [-0.41, 0.38986, 2.9], turn: [80.92793, 46.72376, 46.72376], scale: [0.0, 0.0, 0.38]}
-        - id: fx5_ember_furnace_blast_gauntlet_cuff
-          op: block
-          parent: fx5_ember_furnace_blast_gauntlet
-          block: black_concrete
-          size: [0.38, 0.45, 0.38]
-          at: [0.0, 0.18, 0.0]
-          pivot: [-0.35, 1.05, 0.25]
-          rest_turn: [90.0, 0.0, 0.0]
-          tilt_turn: [0.0, 0.0, 12.0]
-          rig_shading: true
-        - id: fx5_ember_furnace_blast_gauntlet_fist
-          op: block
-          parent: fx5_ember_furnace_blast_gauntlet
-          block: gray_concrete
-          size: [0.45, 0.4, 0.42]
-          at: [0.0, 0.56, 0.0]
-          pivot: [-0.35, 1.05, 0.25]
-          rest_turn: [90.0, 0.0, 0.0]
-          tilt_turn: [0.0, 0.0, 12.0]
-          rig_shading: true
-        - id: fx5_ember_furnace_blast_gauntlet_nozzle
-          op: block
-          parent: fx5_ember_furnace_blast_gauntlet
-          block: gold_block
-          size: [0.25, 0.14, 0.25]
-          at: [0.0, 0.8, 0.0]
-          pivot: [-0.35, 1.05, 0.25]
-          rest_turn: [90.0, 0.0, 0.0]
-          tilt_turn: [0.0, 0.0, 12.0]
-          brightness: 15
-        - id: fx5_ember_furnace_blast_gauntlet_swing
-          op: track
-          target: fx5_ember_furnace_blast_gauntlet_cuff
-          space: caster.right_hand
-          keys:
-            - {t: 0, turn: [-25.0, 0.0, 0.0]}
-            - {t: 1, turn: [-11.111111, 0.0, 0.0]}
-            - {t: 2, turn: [-2.777778, 0.0, 0.0]}
-            - {t: 3, ease: out_quad, turn: [0.0, 0.0, 0.0]}
-            - {t: 7, turn: [0.0, 0.0, 0.0]}
-            - {t: 8, turn: [-0.414201, 0.0, 0.0]}
-            - {t: 9, turn: [-1.656805, 0.0, 0.0]}
-            - {t: 10, turn: [-3.727811, 0.0, 0.0]}
-            - {t: 11, turn: [-6.627219, 0.0, 0.0]}
-            - {t: 12, turn: [-10.35503, 0.0, 0.0]}
-            - {t: 13, turn: [-14.911243, 0.0, 0.0]}
-            - {t: 14, turn: [-20.088757, 0.0, 0.0]}
-            - {t: 15, turn: [-24.64497, 0.0, 0.0]}
-            - {t: 16, turn: [-28.372781, 0.0, 0.0]}
-            - {t: 17, turn: [-31.272189, 0.0, 0.0]}
-            - {t: 18, turn: [-33.343195, 0.0, 0.0]}
-            - {t: 19, turn: [-34.585799, 0.0, 0.0]}
-            - {t: 20, ease: in_out_quad, turn: [-35.0, 0.0, 0.0]}
-        - id: fx5_ember_furnace_blast_gauntlet_swing_1
-          op: track
-          target: fx5_ember_furnace_blast_gauntlet_fist
-          space: caster.right_hand
-          keys:
-            - {t: 0, turn: [-25.0, 0.0, 0.0]}
-            - {t: 1, turn: [-11.111111, 0.0, 0.0]}
-            - {t: 2, turn: [-2.777778, 0.0, 0.0]}
-            - {t: 3, ease: out_quad, turn: [0.0, 0.0, 0.0]}
-            - {t: 7, turn: [0.0, 0.0, 0.0]}
-            - {t: 8, turn: [-0.414201, 0.0, 0.0]}
-            - {t: 9, turn: [-1.656805, 0.0, 0.0]}
-            - {t: 10, turn: [-3.727811, 0.0, 0.0]}
-            - {t: 11, turn: [-6.627219, 0.0, 0.0]}
-            - {t: 12, turn: [-10.35503, 0.0, 0.0]}
-            - {t: 13, turn: [-14.911243, 0.0, 0.0]}
-            - {t: 14, turn: [-20.088757, 0.0, 0.0]}
-            - {t: 15, turn: [-24.64497, 0.0, 0.0]}
-            - {t: 16, turn: [-28.372781, 0.0, 0.0]}
-            - {t: 17, turn: [-31.272189, 0.0, 0.0]}
-            - {t: 18, turn: [-33.343195, 0.0, 0.0]}
-            - {t: 19, turn: [-34.585799, 0.0, 0.0]}
-            - {t: 20, ease: in_out_quad, turn: [-35.0, 0.0, 0.0]}
-        - id: fx5_ember_furnace_blast_gauntlet_swing_2
-          op: track
-          target: fx5_ember_furnace_blast_gauntlet_nozzle
-          space: caster.right_hand
-          keys:
-            - {t: 0, turn: [-25.0, 0.0, 0.0]}
-            - {t: 1, turn: [-11.111111, 0.0, 0.0]}
-            - {t: 2, turn: [-2.777778, 0.0, 0.0]}
-            - {t: 3, ease: out_quad, turn: [0.0, 0.0, 0.0]}
-            - {t: 7, turn: [0.0, 0.0, 0.0]}
-            - {t: 8, turn: [-0.414201, 0.0, 0.0]}
-            - {t: 9, turn: [-1.656805, 0.0, 0.0]}
-            - {t: 10, turn: [-3.727811, 0.0, 0.0]}
-            - {t: 11, turn: [-6.627219, 0.0, 0.0]}
-            - {t: 12, turn: [-10.35503, 0.0, 0.0]}
-            - {t: 13, turn: [-14.911243, 0.0, 0.0]}
-            - {t: 14, turn: [-20.088757, 0.0, 0.0]}
-            - {t: 15, turn: [-24.64497, 0.0, 0.0]}
-            - {t: 16, turn: [-28.372781, 0.0, 0.0]}
-            - {t: 17, turn: [-31.272189, 0.0, 0.0]}
-            - {t: 18, turn: [-33.343195, 0.0, 0.0]}
-            - {t: 19, turn: [-34.585799, 0.0, 0.0]}
-            - {t: 20, ease: in_out_quad, turn: [-35.0, 0.0, 0.0]}
+        - id: fx5_ember_furnace_blast_gauntlet_rig
+          op: rig
+          frame: fx5_ember_furnace_blast_gauntlet
+          parent: caster
+          duration: 21
+          pivot: [1.050759, 0.347699, 0.246785]
+          tilt: [0.0, 0.0, 12.0]
+          rest: [90.0, 0.0, 0.0]
+          swing:
+            - {t: 0, rotate: [-25.0, 0.0, 0.0]}
+            - {t: 1, rotate: [-11.111111, 0.0, 0.0], sample: true}
+            - {t: 2, rotate: [-2.777778, 0.0, 0.0], sample: true}
+            - {t: 3, rotate: [0.0, 0.0, 0.0]}
+            - {t: 4, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 5, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 6, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 7, rotate: [0.0, 0.0, 0.0]}
+            - {t: 8, rotate: [-0.414201, 0.0, 0.0], sample: true}
+            - {t: 9, rotate: [-1.656805, 0.0, 0.0], sample: true}
+            - {t: 10, rotate: [-3.727811, 0.0, 0.0], sample: true}
+            - {t: 11, rotate: [-6.627219, 0.0, 0.0], sample: true}
+            - {t: 12, rotate: [-10.35503, 0.0, 0.0], sample: true}
+            - {t: 13, rotate: [-14.911243, 0.0, 0.0], sample: true}
+            - {t: 14, rotate: [-20.088757, 0.0, 0.0], sample: true}
+            - {t: 15, rotate: [-24.64497, 0.0, 0.0], sample: true}
+            - {t: 16, rotate: [-28.372781, 0.0, 0.0], sample: true}
+            - {t: 17, rotate: [-31.272189, 0.0, 0.0], sample: true}
+            - {t: 18, rotate: [-33.343195, 0.0, 0.0], sample: true}
+            - {t: 19, rotate: [-34.585799, 0.0, 0.0], sample: true}
+            - {t: 20, rotate: [-35.0, 0.0, 0.0]}
+          sample_ticks: 1
+        - id: fx5_ember_furnace_blast_gauntlet_parts_rig
+          op: rig
+          frame: fx5_ember_furnace_blast_gauntlet_parts
+          parent: caster
+          duration: 21
+          hand: false
+          pivot: [1.050759, 0.347699, 0.246785]
+          tilt: [0.0, 0.0, 12.0]
+          rest: [90.0, 0.0, 0.0]
+          swing:
+            - {t: 0, rotate: [-25.0, 0.0, 0.0]}
+            - {t: 1, rotate: [-11.111111, 0.0, 0.0], sample: true}
+            - {t: 2, rotate: [-2.777778, 0.0, 0.0], sample: true}
+            - {t: 3, rotate: [0.0, 0.0, 0.0]}
+            - {t: 4, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 5, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 6, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 7, rotate: [0.0, 0.0, 0.0]}
+            - {t: 8, rotate: [-0.414201, 0.0, 0.0], sample: true}
+            - {t: 9, rotate: [-1.656805, 0.0, 0.0], sample: true}
+            - {t: 10, rotate: [-3.727811, 0.0, 0.0], sample: true}
+            - {t: 11, rotate: [-6.627219, 0.0, 0.0], sample: true}
+            - {t: 12, rotate: [-10.35503, 0.0, 0.0], sample: true}
+            - {t: 13, rotate: [-14.911243, 0.0, 0.0], sample: true}
+            - {t: 14, rotate: [-20.088757, 0.0, 0.0], sample: true}
+            - {t: 15, rotate: [-24.64497, 0.0, 0.0], sample: true}
+            - {t: 16, rotate: [-28.372781, 0.0, 0.0], sample: true}
+            - {t: 17, rotate: [-31.272189, 0.0, 0.0], sample: true}
+            - {t: 18, rotate: [-33.343195, 0.0, 0.0], sample: true}
+            - {t: 19, rotate: [-34.585799, 0.0, 0.0], sample: true}
+            - {t: 20, rotate: [-35.0, 0.0, 0.0]}
+          sample_ticks: 1
+        - {id: fx5_ember_furnace_blast_gauntlet_cuff, op: block, parent: fx5_ember_furnace_blast_gauntlet_parts, block: black_concrete, size: [0.38, 0.45, 0.38], at: [0.0, 0.18, 0.0], rig_shading: true}
+        - {id: fx5_ember_furnace_blast_gauntlet_fist, op: block, parent: fx5_ember_furnace_blast_gauntlet_parts, block: gray_concrete, size: [0.45, 0.4, 0.42], at: [0.0, 0.56, 0.0], rig_shading: true}
+        - {id: fx5_ember_furnace_blast_gauntlet_nozzle, op: block, parent: fx5_ember_furnace_blast_gauntlet_parts, block: gold_block, size: [0.25, 0.14, 0.25], at: [0.0, 0.8, 0.0], brightness: 15}
     - id: fx55
       at: 55
       do:

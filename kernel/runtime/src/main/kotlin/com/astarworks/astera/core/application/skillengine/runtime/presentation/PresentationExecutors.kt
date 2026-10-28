@@ -25,7 +25,7 @@ import kotlin.reflect.KClass
 /** All presentation executors, bound to one [PresentationRuntime]. The manager registers them. */
 public fun presentationExecutors(rt: PresentationRuntime): List<OpExecutor<*>> = listOf(
     MeshExecutor(rt), PlateExecutor(rt), BlockExecutor(rt), QuadExecutor(rt), LineExecutor(rt), TrailExecutor(rt), TrackExecutor(rt), RemoveExecutor(rt),
-    EmitExecutor(rt), SoundExecutor(rt),
+    RigExecutor(rt), EmitExecutor(rt), SoundExecutor(rt),
     VictimAnimExecutor(rt), CasterAnimExecutor(rt),
     TitleExecutor(rt), ActionBarExecutor(rt), CameraShakeExecutor(rt), FlashExecutor(rt), StopSoundExecutor(rt),
 )
@@ -59,6 +59,7 @@ internal class MeshExecutor(private val rt: PresentationRuntime) : OpExecutor<Vi
             rt.info.owner(ctx.cast), op.item, op.part, pose, op.brightness,
             MeshLook(op.itemModel, op.displayMode ?: DisplayItemMode.FIXED, op.rigShading),
         )
+        rt.driverOf(s, op.frame)?.changed(op.id, pose)
         rt.register(s, live)
     }
 }
@@ -96,9 +97,6 @@ internal class BlockExecutor(private val rt: PresentationRuntime) : OpExecutor<V
             val live = PresentationRuntime.Live.Block(
                 id, par, ctx.values.vec3(op.size),
                 op.at?.let { ctx.values.vec3(it) } ?: Vec3.ZERO, op.turn?.let { turn(ctx.values.vec3(it)) } ?: Quaternion.IDENTITY,
-                op.pivot?.let { ctx.values.vec3(it) },
-                op.tilt?.let { turn(ctx.values.vec3(it)) } ?: Quaternion.IDENTITY,
-                op.rest?.let { turn(ctx.values.vec3(it)) } ?: Quaternion.IDENTITY,
             )
             val pose = rt.spawnNode(s, live, par) ?: run { ctx.host.fail(op.id, "block: parent frame '$par' is not in the frame tree"); return@repeated null }
             live.handle = ctx.ports.visuals.spawnBlock(rt.info.owner(ctx.cast), op.block, pose, op.brightness, op.rigShading)

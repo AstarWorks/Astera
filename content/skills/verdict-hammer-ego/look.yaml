@@ -2,248 +2,108 @@
 # Generated point-frame offsets are [left, up, forward] in the parent frame.
 # CONVERT-PRESENT vfx follow=false (anchored at world, no place-at-spawn) (x13): verdict-ego-field | verdict-impact
 # CONVERT-PRESENT vfx frame orient (frames carry no orientation / scale) (x13): orient="yaw" | orient="world"
-# CONVERT-PRESENT play_vfx snapshot_pose (no v2 equivalent) (x9): true
 # CONVERT-PRESENT vfx frame scale (frames carry no orientation / scale) (x8): scale=2.5 | scale=4.0
-# CONVERT-PRESENT play_vfx freeze (no v2 equivalent) (x3): [{"at": 9, "ticks": 2}]
-# CONVERT-PRESENT rig respect_hit_stop / weapon points (x4): {"respect_hit_stop": true}
 apiVersion: "astera/v2"
 kind: Skill
 id: verdict-hammer-ego
 frames:
   - {id: pt_caster_0_m1p62_8, kind: point, parent: caster, offset: [0.0, -1.62, 8.0]}
-  - {id: fx1_verdict_ego_field, kind: body, parent: world}
-  - {id: fx2_verdict_impact, kind: body, parent: world}
-  - {id: fx3_verdict_ego_ring, kind: body, parent: world}
-  - {id: fx4_verdict_impact, kind: body, parent: world}
-  - {id: fx5_verdict_ego_ring, kind: body, parent: world}
-  - {id: fx6_verdict_impact, kind: body, parent: world}
-  - {id: fx7_verdict_ego_ring, kind: body, parent: world}
-  - {id: fx8_verdict_impact, kind: body, parent: world}
-  - {id: fx9_verdict_ego_ring, kind: body, parent: world}
+  - {id: fx1_verdict_ego_field, kind: body, parent: world, inactive: true}
+  - {id: fx2_verdict_impact, kind: body, parent: world, inactive: true}
+  - {id: fx3_verdict_ego_ring, kind: body, parent: world, inactive: true}
+  - {id: fx4_verdict_impact, kind: body, parent: world, inactive: true}
+  - {id: fx5_verdict_ego_ring, kind: body, parent: world, inactive: true}
+  - {id: fx6_verdict_impact, kind: body, parent: world, inactive: true}
+  - {id: fx7_verdict_ego_ring, kind: body, parent: world, inactive: true}
+  - {id: fx8_verdict_impact, kind: body, parent: world, inactive: true}
+  - {id: fx9_verdict_ego_ring, kind: body, parent: world, inactive: true}
   - {id: fx10_verdict_ego_hammer, kind: body, parent: world}
-  - {id: fx10_verdict_ego_hammer_hammer, kind: body, parent: caster.right_hand}
+  - {id: fx10_verdict_ego_hammer_hammer, kind: body, parent: caster}
+  - {id: fx10_verdict_ego_hammer_hammer_parts, kind: body, parent: caster}
   - {id: fx11_verdict_ego_hammer, kind: body, parent: world}
-  - {id: fx11_verdict_ego_hammer_hammer, kind: body, parent: caster.right_hand}
+  - {id: fx11_verdict_ego_hammer_hammer, kind: body, parent: caster}
+  - {id: fx11_verdict_ego_hammer_hammer_parts, kind: body, parent: caster}
   - {id: fx12_verdict_ego_hammer, kind: body, parent: world}
-  - {id: fx12_verdict_ego_hammer_hammer, kind: body, parent: caster.right_hand}
+  - {id: fx12_verdict_ego_hammer_hammer, kind: body, parent: caster}
+  - {id: fx12_verdict_ego_hammer_hammer_parts, kind: body, parent: caster}
   - {id: fx13_verdict_ego_hammer, kind: body, parent: world}
-  - {id: fx13_verdict_ego_hammer_hammer, kind: body, parent: caster.right_hand}
+  - {id: fx13_verdict_ego_hammer_hammer, kind: body, parent: caster}
+  - {id: fx13_verdict_ego_hammer_hammer_parts, kind: body, parent: caster}
   - {id: pt_caster_0_m1p5_8, kind: point, parent: caster, offset: [0.0, -1.5, 8.0]}
 presentation:
   timeline:
     - id: fx32
       at: 32
       do:
-        - id: fx13_verdict_ego_hammer_hammer_haft
-          op: block
-          parent: fx13_verdict_ego_hammer_hammer
-          block: black_concrete
-          size: [0.12, 1.8, 0.12]
-          at: [0.0, 0.8, 0.0]
-          pivot: [-0.25, 1.0, 0.15]
-          tilt_turn: [0.0, 0.0, 22.0]
-          brightness: 15
-        - id: fx13_verdict_ego_hammer_hammer_head
-          op: block
-          parent: fx13_verdict_ego_hammer_hammer
-          block: black_concrete
-          size: [1.2, 0.7, 0.65]
-          at: [0.0, 2.0, 0.0]
-          pivot: [-0.25, 1.0, 0.15]
-          tilt_turn: [0.0, 0.0, 22.0]
-          brightness: 15
-        - id: fx13_verdict_ego_hammer_hammer_cap_0_53
-          op: block
-          parent: fx13_verdict_ego_hammer_hammer
-          block: yellow_concrete
-          size: [0.12, 0.74, 0.69]
-          at: [-0.53, 2.0, 0.0]
-          pivot: [-0.25, 1.0, 0.15]
-          tilt_turn: [0.0, 0.0, 22.0]
-          brightness: 15
-        - id: fx13_verdict_ego_hammer_hammer_cap0_53
-          op: block
-          parent: fx13_verdict_ego_hammer_hammer
-          block: yellow_concrete
-          size: [0.12, 0.74, 0.69]
-          at: [0.53, 2.0, 0.0]
-          pivot: [-0.25, 1.0, 0.15]
-          tilt_turn: [0.0, 0.0, 22.0]
-          brightness: 15
-        - id: fx13_verdict_ego_hammer_hammer_stripe1_78
-          op: block
-          parent: fx13_verdict_ego_hammer_hammer
-          block: yellow_concrete
-          size: [1.05, 0.045, 0.02]
-          at: [0.0, 1.78, 0.34]
-          pivot: [-0.25, 1.0, 0.15]
-          tilt_turn: [0.0, 0.0, 22.0]
-          brightness: 15
-        - id: fx13_verdict_ego_hammer_hammer_stripe2_22
-          op: block
-          parent: fx13_verdict_ego_hammer_hammer
-          block: yellow_concrete
-          size: [1.05, 0.045, 0.02]
-          at: [0.0, 2.22, 0.34]
-          pivot: [-0.25, 1.0, 0.15]
-          tilt_turn: [0.0, 0.0, 22.0]
-          brightness: 15
-        - id: fx13_verdict_ego_hammer_hammer_swing
-          op: track
-          target: fx13_verdict_ego_hammer_hammer_haft
-          space: caster.right_hand
-          keys:
-            - {t: 0, turn: [-35.0, 0.0, 0.0]}
-            - {t: 1, turn: [-37.0, 0.0, 0.0]}
-            - {t: 2, turn: [-43.0, 0.0, 0.0]}
-            - {t: 3, turn: [-52.0, 0.0, 0.0]}
-            - {t: 4, turn: [-58.0, 0.0, 0.0]}
-            - {t: 5, ease: in_out_quad, turn: [-60.0, 0.0, 0.0]}
-            - {t: 6, turn: [16.5625, 0.0, 0.0]}
-            - {t: 7, turn: [71.25, 0.0, 0.0]}
-            - {t: 8, turn: [104.0625, 0.0, 0.0]}
-            - {t: 9, ease: out_quad, turn: [115.0, 0.0, 0.0]}
-            - {t: 10, turn: [117.5, 0.0, 0.0]}
-            - {t: 11, turn: [120.0, 0.0, 0.0]}
-            - {t: 12, turn: [122.5, 0.0, 0.0]}
-            - {t: 13, turn: [125.0, 0.0, 0.0]}
-            - {t: 14, turn: [120.918367, 0.0, 0.0]}
-            - {t: 15, turn: [108.673469, 0.0, 0.0]}
-            - {t: 16, turn: [88.265306, 0.0, 0.0]}
-            - {t: 17, turn: [61.734694, 0.0, 0.0]}
-            - {t: 18, turn: [41.326531, 0.0, 0.0]}
-            - {t: 19, turn: [29.081633, 0.0, 0.0]}
-            - {t: 20, ease: in_out_quad, turn: [25.0, 0.0, 0.0]}
-        - id: fx13_verdict_ego_hammer_hammer_swing_1
-          op: track
-          target: fx13_verdict_ego_hammer_hammer_head
-          space: caster.right_hand
-          keys:
-            - {t: 0, turn: [-35.0, 0.0, 0.0]}
-            - {t: 1, turn: [-37.0, 0.0, 0.0]}
-            - {t: 2, turn: [-43.0, 0.0, 0.0]}
-            - {t: 3, turn: [-52.0, 0.0, 0.0]}
-            - {t: 4, turn: [-58.0, 0.0, 0.0]}
-            - {t: 5, ease: in_out_quad, turn: [-60.0, 0.0, 0.0]}
-            - {t: 6, turn: [16.5625, 0.0, 0.0]}
-            - {t: 7, turn: [71.25, 0.0, 0.0]}
-            - {t: 8, turn: [104.0625, 0.0, 0.0]}
-            - {t: 9, ease: out_quad, turn: [115.0, 0.0, 0.0]}
-            - {t: 10, turn: [117.5, 0.0, 0.0]}
-            - {t: 11, turn: [120.0, 0.0, 0.0]}
-            - {t: 12, turn: [122.5, 0.0, 0.0]}
-            - {t: 13, turn: [125.0, 0.0, 0.0]}
-            - {t: 14, turn: [120.918367, 0.0, 0.0]}
-            - {t: 15, turn: [108.673469, 0.0, 0.0]}
-            - {t: 16, turn: [88.265306, 0.0, 0.0]}
-            - {t: 17, turn: [61.734694, 0.0, 0.0]}
-            - {t: 18, turn: [41.326531, 0.0, 0.0]}
-            - {t: 19, turn: [29.081633, 0.0, 0.0]}
-            - {t: 20, ease: in_out_quad, turn: [25.0, 0.0, 0.0]}
-        - id: fx13_verdict_ego_hammer_hammer_swing_2
-          op: track
-          target: fx13_verdict_ego_hammer_hammer_cap_0_53
-          space: caster.right_hand
-          keys:
-            - {t: 0, turn: [-35.0, 0.0, 0.0]}
-            - {t: 1, turn: [-37.0, 0.0, 0.0]}
-            - {t: 2, turn: [-43.0, 0.0, 0.0]}
-            - {t: 3, turn: [-52.0, 0.0, 0.0]}
-            - {t: 4, turn: [-58.0, 0.0, 0.0]}
-            - {t: 5, ease: in_out_quad, turn: [-60.0, 0.0, 0.0]}
-            - {t: 6, turn: [16.5625, 0.0, 0.0]}
-            - {t: 7, turn: [71.25, 0.0, 0.0]}
-            - {t: 8, turn: [104.0625, 0.0, 0.0]}
-            - {t: 9, ease: out_quad, turn: [115.0, 0.0, 0.0]}
-            - {t: 10, turn: [117.5, 0.0, 0.0]}
-            - {t: 11, turn: [120.0, 0.0, 0.0]}
-            - {t: 12, turn: [122.5, 0.0, 0.0]}
-            - {t: 13, turn: [125.0, 0.0, 0.0]}
-            - {t: 14, turn: [120.918367, 0.0, 0.0]}
-            - {t: 15, turn: [108.673469, 0.0, 0.0]}
-            - {t: 16, turn: [88.265306, 0.0, 0.0]}
-            - {t: 17, turn: [61.734694, 0.0, 0.0]}
-            - {t: 18, turn: [41.326531, 0.0, 0.0]}
-            - {t: 19, turn: [29.081633, 0.0, 0.0]}
-            - {t: 20, ease: in_out_quad, turn: [25.0, 0.0, 0.0]}
-        - id: fx13_verdict_ego_hammer_hammer_swing_3
-          op: track
-          target: fx13_verdict_ego_hammer_hammer_cap0_53
-          space: caster.right_hand
-          keys:
-            - {t: 0, turn: [-35.0, 0.0, 0.0]}
-            - {t: 1, turn: [-37.0, 0.0, 0.0]}
-            - {t: 2, turn: [-43.0, 0.0, 0.0]}
-            - {t: 3, turn: [-52.0, 0.0, 0.0]}
-            - {t: 4, turn: [-58.0, 0.0, 0.0]}
-            - {t: 5, ease: in_out_quad, turn: [-60.0, 0.0, 0.0]}
-            - {t: 6, turn: [16.5625, 0.0, 0.0]}
-            - {t: 7, turn: [71.25, 0.0, 0.0]}
-            - {t: 8, turn: [104.0625, 0.0, 0.0]}
-            - {t: 9, ease: out_quad, turn: [115.0, 0.0, 0.0]}
-            - {t: 10, turn: [117.5, 0.0, 0.0]}
-            - {t: 11, turn: [120.0, 0.0, 0.0]}
-            - {t: 12, turn: [122.5, 0.0, 0.0]}
-            - {t: 13, turn: [125.0, 0.0, 0.0]}
-            - {t: 14, turn: [120.918367, 0.0, 0.0]}
-            - {t: 15, turn: [108.673469, 0.0, 0.0]}
-            - {t: 16, turn: [88.265306, 0.0, 0.0]}
-            - {t: 17, turn: [61.734694, 0.0, 0.0]}
-            - {t: 18, turn: [41.326531, 0.0, 0.0]}
-            - {t: 19, turn: [29.081633, 0.0, 0.0]}
-            - {t: 20, ease: in_out_quad, turn: [25.0, 0.0, 0.0]}
-        - id: fx13_verdict_ego_hammer_hammer_swing_4
-          op: track
-          target: fx13_verdict_ego_hammer_hammer_stripe1_78
-          space: caster.right_hand
-          keys:
-            - {t: 0, turn: [-35.0, 0.0, 0.0]}
-            - {t: 1, turn: [-37.0, 0.0, 0.0]}
-            - {t: 2, turn: [-43.0, 0.0, 0.0]}
-            - {t: 3, turn: [-52.0, 0.0, 0.0]}
-            - {t: 4, turn: [-58.0, 0.0, 0.0]}
-            - {t: 5, ease: in_out_quad, turn: [-60.0, 0.0, 0.0]}
-            - {t: 6, turn: [16.5625, 0.0, 0.0]}
-            - {t: 7, turn: [71.25, 0.0, 0.0]}
-            - {t: 8, turn: [104.0625, 0.0, 0.0]}
-            - {t: 9, ease: out_quad, turn: [115.0, 0.0, 0.0]}
-            - {t: 10, turn: [117.5, 0.0, 0.0]}
-            - {t: 11, turn: [120.0, 0.0, 0.0]}
-            - {t: 12, turn: [122.5, 0.0, 0.0]}
-            - {t: 13, turn: [125.0, 0.0, 0.0]}
-            - {t: 14, turn: [120.918367, 0.0, 0.0]}
-            - {t: 15, turn: [108.673469, 0.0, 0.0]}
-            - {t: 16, turn: [88.265306, 0.0, 0.0]}
-            - {t: 17, turn: [61.734694, 0.0, 0.0]}
-            - {t: 18, turn: [41.326531, 0.0, 0.0]}
-            - {t: 19, turn: [29.081633, 0.0, 0.0]}
-            - {t: 20, ease: in_out_quad, turn: [25.0, 0.0, 0.0]}
-        - id: fx13_verdict_ego_hammer_hammer_swing_5
-          op: track
-          target: fx13_verdict_ego_hammer_hammer_stripe2_22
-          space: caster.right_hand
-          keys:
-            - {t: 0, turn: [-35.0, 0.0, 0.0]}
-            - {t: 1, turn: [-37.0, 0.0, 0.0]}
-            - {t: 2, turn: [-43.0, 0.0, 0.0]}
-            - {t: 3, turn: [-52.0, 0.0, 0.0]}
-            - {t: 4, turn: [-58.0, 0.0, 0.0]}
-            - {t: 5, ease: in_out_quad, turn: [-60.0, 0.0, 0.0]}
-            - {t: 6, turn: [16.5625, 0.0, 0.0]}
-            - {t: 7, turn: [71.25, 0.0, 0.0]}
-            - {t: 8, turn: [104.0625, 0.0, 0.0]}
-            - {t: 9, ease: out_quad, turn: [115.0, 0.0, 0.0]}
-            - {t: 10, turn: [117.5, 0.0, 0.0]}
-            - {t: 11, turn: [120.0, 0.0, 0.0]}
-            - {t: 12, turn: [122.5, 0.0, 0.0]}
-            - {t: 13, turn: [125.0, 0.0, 0.0]}
-            - {t: 14, turn: [120.918367, 0.0, 0.0]}
-            - {t: 15, turn: [108.673469, 0.0, 0.0]}
-            - {t: 16, turn: [88.265306, 0.0, 0.0]}
-            - {t: 17, turn: [61.734694, 0.0, 0.0]}
-            - {t: 18, turn: [41.326531, 0.0, 0.0]}
-            - {t: 19, turn: [29.081633, 0.0, 0.0]}
-            - {t: 20, ease: in_out_quad, turn: [25.0, 0.0, 0.0]}
+        - id: fx13_verdict_ego_hammer_hammer_rig
+          op: rig
+          frame: fx13_verdict_ego_hammer_hammer
+          parent: caster
+          duration: 23
+          pivot: [1.000325, 0.248685, 0.147814]
+          tilt: [0.0, 0.0, 22.0]
+          swing:
+            - {t: 0, rotate: [-35.0, 0.0, 0.0]}
+            - {t: 1, rotate: [-37.0, 0.0, 0.0], sample: true}
+            - {t: 2, rotate: [-43.0, 0.0, 0.0], sample: true}
+            - {t: 3, rotate: [-52.0, 0.0, 0.0], sample: true}
+            - {t: 4, rotate: [-58.0, 0.0, 0.0], sample: true}
+            - {t: 5, rotate: [-60.0, 0.0, 0.0]}
+            - {t: 6, rotate: [16.5625, 0.0, 0.0], sample: true}
+            - {t: 7, rotate: [71.25, 0.0, 0.0], sample: true}
+            - {t: 8, rotate: [104.0625, 0.0, 0.0], sample: true}
+            - {t: 9, rotate: [115.0, 0.0, 0.0]}
+            - {t: 10, rotate: [117.5, 0.0, 0.0], sample: true}
+            - {t: 11, rotate: [120.0, 0.0, 0.0], sample: true}
+            - {t: 12, rotate: [122.5, 0.0, 0.0], sample: true}
+            - {t: 13, rotate: [125.0, 0.0, 0.0]}
+            - {t: 14, rotate: [120.918367, 0.0, 0.0], sample: true}
+            - {t: 15, rotate: [108.673469, 0.0, 0.0], sample: true}
+            - {t: 16, rotate: [88.265306, 0.0, 0.0], sample: true}
+            - {t: 17, rotate: [61.734694, 0.0, 0.0], sample: true}
+            - {t: 18, rotate: [41.326531, 0.0, 0.0], sample: true}
+            - {t: 19, rotate: [29.081633, 0.0, 0.0], sample: true}
+            - {t: 20, rotate: [25.0, 0.0, 0.0]}
+          sample_ticks: 1
+          respect_hit_stop: true
+        - id: fx13_verdict_ego_hammer_hammer_parts_rig
+          op: rig
+          frame: fx13_verdict_ego_hammer_hammer_parts
+          parent: caster
+          duration: 23
+          hand: false
+          pivot: [1.000325, 0.248685, 0.147814]
+          tilt: [0.0, 0.0, 22.0]
+          swing:
+            - {t: 0, rotate: [-35.0, 0.0, 0.0]}
+            - {t: 1, rotate: [-37.0, 0.0, 0.0], sample: true}
+            - {t: 2, rotate: [-43.0, 0.0, 0.0], sample: true}
+            - {t: 3, rotate: [-52.0, 0.0, 0.0], sample: true}
+            - {t: 4, rotate: [-58.0, 0.0, 0.0], sample: true}
+            - {t: 5, rotate: [-60.0, 0.0, 0.0]}
+            - {t: 6, rotate: [16.5625, 0.0, 0.0], sample: true}
+            - {t: 7, rotate: [71.25, 0.0, 0.0], sample: true}
+            - {t: 8, rotate: [104.0625, 0.0, 0.0], sample: true}
+            - {t: 9, rotate: [115.0, 0.0, 0.0]}
+            - {t: 10, rotate: [117.5, 0.0, 0.0], sample: true}
+            - {t: 11, rotate: [120.0, 0.0, 0.0], sample: true}
+            - {t: 12, rotate: [122.5, 0.0, 0.0], sample: true}
+            - {t: 13, rotate: [125.0, 0.0, 0.0]}
+            - {t: 14, rotate: [120.918367, 0.0, 0.0], sample: true}
+            - {t: 15, rotate: [108.673469, 0.0, 0.0], sample: true}
+            - {t: 16, rotate: [88.265306, 0.0, 0.0], sample: true}
+            - {t: 17, rotate: [61.734694, 0.0, 0.0], sample: true}
+            - {t: 18, rotate: [41.326531, 0.0, 0.0], sample: true}
+            - {t: 19, rotate: [29.081633, 0.0, 0.0], sample: true}
+            - {t: 20, rotate: [25.0, 0.0, 0.0]}
+          sample_ticks: 1
+          respect_hit_stop: true
+        - {id: fx13_verdict_ego_hammer_hammer_haft, op: block, parent: fx13_verdict_ego_hammer_hammer_parts, block: black_concrete, size: [0.12, 1.8, 0.12], at: [0.0, 0.8, 0.0], brightness: 15}
+        - {id: fx13_verdict_ego_hammer_hammer_head, op: block, parent: fx13_verdict_ego_hammer_hammer_parts, block: black_concrete, size: [1.2, 0.7, 0.65], at: [0.0, 2.0, 0.0], brightness: 15}
+        - {id: fx13_verdict_ego_hammer_hammer_cap_0_53, op: block, parent: fx13_verdict_ego_hammer_hammer_parts, block: yellow_concrete, size: [0.12, 0.74, 0.69], at: [-0.53, 2.0, 0.0], brightness: 15}
+        - {id: fx13_verdict_ego_hammer_hammer_cap0_53, op: block, parent: fx13_verdict_ego_hammer_hammer_parts, block: yellow_concrete, size: [0.12, 0.74, 0.69], at: [0.53, 2.0, 0.0], brightness: 15}
+        - {id: fx13_verdict_ego_hammer_hammer_stripe1_78, op: block, parent: fx13_verdict_ego_hammer_hammer_parts, block: yellow_concrete, size: [1.05, 0.045, 0.02], at: [0.0, 1.78, 0.34], brightness: 15}
+        - {id: fx13_verdict_ego_hammer_hammer_stripe2_22, op: block, parent: fx13_verdict_ego_hammer_hammer_parts, block: yellow_concrete, size: [1.05, 0.045, 0.02], at: [0.0, 2.22, 0.34], brightness: 15}
     - id: fx48
       at: 48
       do:
@@ -933,216 +793,79 @@ presentation:
     - id: fx93
       at: 93
       do:
-        - id: fx10_verdict_ego_hammer_hammer_haft
-          op: block
-          parent: fx10_verdict_ego_hammer_hammer
-          block: black_concrete
-          size: [0.12, 1.8, 0.12]
-          at: [0.0, 0.8, 0.0]
-          pivot: [-0.25, 1.0, 0.15]
-          tilt_turn: [0.0, 0.0, 22.0]
-          brightness: 15
-        - id: fx10_verdict_ego_hammer_hammer_head
-          op: block
-          parent: fx10_verdict_ego_hammer_hammer
-          block: black_concrete
-          size: [1.2, 0.7, 0.65]
-          at: [0.0, 2.0, 0.0]
-          pivot: [-0.25, 1.0, 0.15]
-          tilt_turn: [0.0, 0.0, 22.0]
-          brightness: 15
-        - id: fx10_verdict_ego_hammer_hammer_cap_0_53
-          op: block
-          parent: fx10_verdict_ego_hammer_hammer
-          block: yellow_concrete
-          size: [0.12, 0.74, 0.69]
-          at: [-0.53, 2.0, 0.0]
-          pivot: [-0.25, 1.0, 0.15]
-          tilt_turn: [0.0, 0.0, 22.0]
-          brightness: 15
-        - id: fx10_verdict_ego_hammer_hammer_cap0_53
-          op: block
-          parent: fx10_verdict_ego_hammer_hammer
-          block: yellow_concrete
-          size: [0.12, 0.74, 0.69]
-          at: [0.53, 2.0, 0.0]
-          pivot: [-0.25, 1.0, 0.15]
-          tilt_turn: [0.0, 0.0, 22.0]
-          brightness: 15
-        - id: fx10_verdict_ego_hammer_hammer_stripe1_78
-          op: block
-          parent: fx10_verdict_ego_hammer_hammer
-          block: yellow_concrete
-          size: [1.05, 0.045, 0.02]
-          at: [0.0, 1.78, 0.34]
-          pivot: [-0.25, 1.0, 0.15]
-          tilt_turn: [0.0, 0.0, 22.0]
-          brightness: 15
-        - id: fx10_verdict_ego_hammer_hammer_stripe2_22
-          op: block
-          parent: fx10_verdict_ego_hammer_hammer
-          block: yellow_concrete
-          size: [1.05, 0.045, 0.02]
-          at: [0.0, 2.22, 0.34]
-          pivot: [-0.25, 1.0, 0.15]
-          tilt_turn: [0.0, 0.0, 22.0]
-          brightness: 15
-        - id: fx10_verdict_ego_hammer_hammer_swing
-          op: track
-          target: fx10_verdict_ego_hammer_hammer_haft
-          space: caster.right_hand
-          keys:
-            - {t: 0, turn: [-35.0, 0.0, 0.0]}
-            - {t: 1, turn: [-37.0, 0.0, 0.0]}
-            - {t: 2, turn: [-43.0, 0.0, 0.0]}
-            - {t: 3, turn: [-52.0, 0.0, 0.0]}
-            - {t: 4, turn: [-58.0, 0.0, 0.0]}
-            - {t: 5, ease: in_out_quad, turn: [-60.0, 0.0, 0.0]}
-            - {t: 6, turn: [16.5625, 0.0, 0.0]}
-            - {t: 7, turn: [71.25, 0.0, 0.0]}
-            - {t: 8, turn: [104.0625, 0.0, 0.0]}
-            - {t: 9, ease: out_quad, turn: [115.0, 0.0, 0.0]}
-            - {t: 10, turn: [117.5, 0.0, 0.0]}
-            - {t: 11, turn: [120.0, 0.0, 0.0]}
-            - {t: 12, turn: [122.5, 0.0, 0.0]}
-            - {t: 13, turn: [125.0, 0.0, 0.0]}
-            - {t: 14, turn: [120.918367, 0.0, 0.0]}
-            - {t: 15, turn: [108.673469, 0.0, 0.0]}
-            - {t: 16, turn: [88.265306, 0.0, 0.0]}
-            - {t: 17, turn: [61.734694, 0.0, 0.0]}
-            - {t: 18, turn: [41.326531, 0.0, 0.0]}
-            - {t: 19, turn: [29.081633, 0.0, 0.0]}
-            - {t: 20, ease: in_out_quad, turn: [25.0, 0.0, 0.0]}
-        - id: fx10_verdict_ego_hammer_hammer_swing_1
-          op: track
-          target: fx10_verdict_ego_hammer_hammer_head
-          space: caster.right_hand
-          keys:
-            - {t: 0, turn: [-35.0, 0.0, 0.0]}
-            - {t: 1, turn: [-37.0, 0.0, 0.0]}
-            - {t: 2, turn: [-43.0, 0.0, 0.0]}
-            - {t: 3, turn: [-52.0, 0.0, 0.0]}
-            - {t: 4, turn: [-58.0, 0.0, 0.0]}
-            - {t: 5, ease: in_out_quad, turn: [-60.0, 0.0, 0.0]}
-            - {t: 6, turn: [16.5625, 0.0, 0.0]}
-            - {t: 7, turn: [71.25, 0.0, 0.0]}
-            - {t: 8, turn: [104.0625, 0.0, 0.0]}
-            - {t: 9, ease: out_quad, turn: [115.0, 0.0, 0.0]}
-            - {t: 10, turn: [117.5, 0.0, 0.0]}
-            - {t: 11, turn: [120.0, 0.0, 0.0]}
-            - {t: 12, turn: [122.5, 0.0, 0.0]}
-            - {t: 13, turn: [125.0, 0.0, 0.0]}
-            - {t: 14, turn: [120.918367, 0.0, 0.0]}
-            - {t: 15, turn: [108.673469, 0.0, 0.0]}
-            - {t: 16, turn: [88.265306, 0.0, 0.0]}
-            - {t: 17, turn: [61.734694, 0.0, 0.0]}
-            - {t: 18, turn: [41.326531, 0.0, 0.0]}
-            - {t: 19, turn: [29.081633, 0.0, 0.0]}
-            - {t: 20, ease: in_out_quad, turn: [25.0, 0.0, 0.0]}
-        - id: fx10_verdict_ego_hammer_hammer_swing_2
-          op: track
-          target: fx10_verdict_ego_hammer_hammer_cap_0_53
-          space: caster.right_hand
-          keys:
-            - {t: 0, turn: [-35.0, 0.0, 0.0]}
-            - {t: 1, turn: [-37.0, 0.0, 0.0]}
-            - {t: 2, turn: [-43.0, 0.0, 0.0]}
-            - {t: 3, turn: [-52.0, 0.0, 0.0]}
-            - {t: 4, turn: [-58.0, 0.0, 0.0]}
-            - {t: 5, ease: in_out_quad, turn: [-60.0, 0.0, 0.0]}
-            - {t: 6, turn: [16.5625, 0.0, 0.0]}
-            - {t: 7, turn: [71.25, 0.0, 0.0]}
-            - {t: 8, turn: [104.0625, 0.0, 0.0]}
-            - {t: 9, ease: out_quad, turn: [115.0, 0.0, 0.0]}
-            - {t: 10, turn: [117.5, 0.0, 0.0]}
-            - {t: 11, turn: [120.0, 0.0, 0.0]}
-            - {t: 12, turn: [122.5, 0.0, 0.0]}
-            - {t: 13, turn: [125.0, 0.0, 0.0]}
-            - {t: 14, turn: [120.918367, 0.0, 0.0]}
-            - {t: 15, turn: [108.673469, 0.0, 0.0]}
-            - {t: 16, turn: [88.265306, 0.0, 0.0]}
-            - {t: 17, turn: [61.734694, 0.0, 0.0]}
-            - {t: 18, turn: [41.326531, 0.0, 0.0]}
-            - {t: 19, turn: [29.081633, 0.0, 0.0]}
-            - {t: 20, ease: in_out_quad, turn: [25.0, 0.0, 0.0]}
-        - id: fx10_verdict_ego_hammer_hammer_swing_3
-          op: track
-          target: fx10_verdict_ego_hammer_hammer_cap0_53
-          space: caster.right_hand
-          keys:
-            - {t: 0, turn: [-35.0, 0.0, 0.0]}
-            - {t: 1, turn: [-37.0, 0.0, 0.0]}
-            - {t: 2, turn: [-43.0, 0.0, 0.0]}
-            - {t: 3, turn: [-52.0, 0.0, 0.0]}
-            - {t: 4, turn: [-58.0, 0.0, 0.0]}
-            - {t: 5, ease: in_out_quad, turn: [-60.0, 0.0, 0.0]}
-            - {t: 6, turn: [16.5625, 0.0, 0.0]}
-            - {t: 7, turn: [71.25, 0.0, 0.0]}
-            - {t: 8, turn: [104.0625, 0.0, 0.0]}
-            - {t: 9, ease: out_quad, turn: [115.0, 0.0, 0.0]}
-            - {t: 10, turn: [117.5, 0.0, 0.0]}
-            - {t: 11, turn: [120.0, 0.0, 0.0]}
-            - {t: 12, turn: [122.5, 0.0, 0.0]}
-            - {t: 13, turn: [125.0, 0.0, 0.0]}
-            - {t: 14, turn: [120.918367, 0.0, 0.0]}
-            - {t: 15, turn: [108.673469, 0.0, 0.0]}
-            - {t: 16, turn: [88.265306, 0.0, 0.0]}
-            - {t: 17, turn: [61.734694, 0.0, 0.0]}
-            - {t: 18, turn: [41.326531, 0.0, 0.0]}
-            - {t: 19, turn: [29.081633, 0.0, 0.0]}
-            - {t: 20, ease: in_out_quad, turn: [25.0, 0.0, 0.0]}
-        - id: fx10_verdict_ego_hammer_hammer_swing_4
-          op: track
-          target: fx10_verdict_ego_hammer_hammer_stripe1_78
-          space: caster.right_hand
-          keys:
-            - {t: 0, turn: [-35.0, 0.0, 0.0]}
-            - {t: 1, turn: [-37.0, 0.0, 0.0]}
-            - {t: 2, turn: [-43.0, 0.0, 0.0]}
-            - {t: 3, turn: [-52.0, 0.0, 0.0]}
-            - {t: 4, turn: [-58.0, 0.0, 0.0]}
-            - {t: 5, ease: in_out_quad, turn: [-60.0, 0.0, 0.0]}
-            - {t: 6, turn: [16.5625, 0.0, 0.0]}
-            - {t: 7, turn: [71.25, 0.0, 0.0]}
-            - {t: 8, turn: [104.0625, 0.0, 0.0]}
-            - {t: 9, ease: out_quad, turn: [115.0, 0.0, 0.0]}
-            - {t: 10, turn: [117.5, 0.0, 0.0]}
-            - {t: 11, turn: [120.0, 0.0, 0.0]}
-            - {t: 12, turn: [122.5, 0.0, 0.0]}
-            - {t: 13, turn: [125.0, 0.0, 0.0]}
-            - {t: 14, turn: [120.918367, 0.0, 0.0]}
-            - {t: 15, turn: [108.673469, 0.0, 0.0]}
-            - {t: 16, turn: [88.265306, 0.0, 0.0]}
-            - {t: 17, turn: [61.734694, 0.0, 0.0]}
-            - {t: 18, turn: [41.326531, 0.0, 0.0]}
-            - {t: 19, turn: [29.081633, 0.0, 0.0]}
-            - {t: 20, ease: in_out_quad, turn: [25.0, 0.0, 0.0]}
-        - id: fx10_verdict_ego_hammer_hammer_swing_5
-          op: track
-          target: fx10_verdict_ego_hammer_hammer_stripe2_22
-          space: caster.right_hand
-          keys:
-            - {t: 0, turn: [-35.0, 0.0, 0.0]}
-            - {t: 1, turn: [-37.0, 0.0, 0.0]}
-            - {t: 2, turn: [-43.0, 0.0, 0.0]}
-            - {t: 3, turn: [-52.0, 0.0, 0.0]}
-            - {t: 4, turn: [-58.0, 0.0, 0.0]}
-            - {t: 5, ease: in_out_quad, turn: [-60.0, 0.0, 0.0]}
-            - {t: 6, turn: [16.5625, 0.0, 0.0]}
-            - {t: 7, turn: [71.25, 0.0, 0.0]}
-            - {t: 8, turn: [104.0625, 0.0, 0.0]}
-            - {t: 9, ease: out_quad, turn: [115.0, 0.0, 0.0]}
-            - {t: 10, turn: [117.5, 0.0, 0.0]}
-            - {t: 11, turn: [120.0, 0.0, 0.0]}
-            - {t: 12, turn: [122.5, 0.0, 0.0]}
-            - {t: 13, turn: [125.0, 0.0, 0.0]}
-            - {t: 14, turn: [120.918367, 0.0, 0.0]}
-            - {t: 15, turn: [108.673469, 0.0, 0.0]}
-            - {t: 16, turn: [88.265306, 0.0, 0.0]}
-            - {t: 17, turn: [61.734694, 0.0, 0.0]}
-            - {t: 18, turn: [41.326531, 0.0, 0.0]}
-            - {t: 19, turn: [29.081633, 0.0, 0.0]}
-            - {t: 20, ease: in_out_quad, turn: [25.0, 0.0, 0.0]}
+        - id: fx10_verdict_ego_hammer_hammer_rig
+          op: rig
+          frame: fx10_verdict_ego_hammer_hammer
+          parent: caster
+          duration: 23
+          pivot: [1.000325, 0.248685, 0.147814]
+          tilt: [0.0, 0.0, 22.0]
+          swing:
+            - {t: 0, rotate: [-35.0, 0.0, 0.0]}
+            - {t: 1, rotate: [-37.0, 0.0, 0.0], sample: true}
+            - {t: 2, rotate: [-43.0, 0.0, 0.0], sample: true}
+            - {t: 3, rotate: [-52.0, 0.0, 0.0], sample: true}
+            - {t: 4, rotate: [-58.0, 0.0, 0.0], sample: true}
+            - {t: 5, rotate: [-60.0, 0.0, 0.0]}
+            - {t: 6, rotate: [16.5625, 0.0, 0.0], sample: true}
+            - {t: 7, rotate: [71.25, 0.0, 0.0], sample: true}
+            - {t: 8, rotate: [104.0625, 0.0, 0.0], sample: true}
+            - {t: 9, rotate: [115.0, 0.0, 0.0]}
+            - {t: 10, rotate: [117.5, 0.0, 0.0], sample: true}
+            - {t: 11, rotate: [120.0, 0.0, 0.0], sample: true}
+            - {t: 12, rotate: [122.5, 0.0, 0.0], sample: true}
+            - {t: 13, rotate: [125.0, 0.0, 0.0]}
+            - {t: 14, rotate: [120.918367, 0.0, 0.0], sample: true}
+            - {t: 15, rotate: [108.673469, 0.0, 0.0], sample: true}
+            - {t: 16, rotate: [88.265306, 0.0, 0.0], sample: true}
+            - {t: 17, rotate: [61.734694, 0.0, 0.0], sample: true}
+            - {t: 18, rotate: [41.326531, 0.0, 0.0], sample: true}
+            - {t: 19, rotate: [29.081633, 0.0, 0.0], sample: true}
+            - {t: 20, rotate: [25.0, 0.0, 0.0]}
+          sample_ticks: 1
+          respect_hit_stop: true
+          freezes:
+            - {at: 9, ticks: 2}
+        - id: fx10_verdict_ego_hammer_hammer_parts_rig
+          op: rig
+          frame: fx10_verdict_ego_hammer_hammer_parts
+          parent: caster
+          duration: 23
+          hand: false
+          pivot: [1.000325, 0.248685, 0.147814]
+          tilt: [0.0, 0.0, 22.0]
+          swing:
+            - {t: 0, rotate: [-35.0, 0.0, 0.0]}
+            - {t: 1, rotate: [-37.0, 0.0, 0.0], sample: true}
+            - {t: 2, rotate: [-43.0, 0.0, 0.0], sample: true}
+            - {t: 3, rotate: [-52.0, 0.0, 0.0], sample: true}
+            - {t: 4, rotate: [-58.0, 0.0, 0.0], sample: true}
+            - {t: 5, rotate: [-60.0, 0.0, 0.0]}
+            - {t: 6, rotate: [16.5625, 0.0, 0.0], sample: true}
+            - {t: 7, rotate: [71.25, 0.0, 0.0], sample: true}
+            - {t: 8, rotate: [104.0625, 0.0, 0.0], sample: true}
+            - {t: 9, rotate: [115.0, 0.0, 0.0]}
+            - {t: 10, rotate: [117.5, 0.0, 0.0], sample: true}
+            - {t: 11, rotate: [120.0, 0.0, 0.0], sample: true}
+            - {t: 12, rotate: [122.5, 0.0, 0.0], sample: true}
+            - {t: 13, rotate: [125.0, 0.0, 0.0]}
+            - {t: 14, rotate: [120.918367, 0.0, 0.0], sample: true}
+            - {t: 15, rotate: [108.673469, 0.0, 0.0], sample: true}
+            - {t: 16, rotate: [88.265306, 0.0, 0.0], sample: true}
+            - {t: 17, rotate: [61.734694, 0.0, 0.0], sample: true}
+            - {t: 18, rotate: [41.326531, 0.0, 0.0], sample: true}
+            - {t: 19, rotate: [29.081633, 0.0, 0.0], sample: true}
+            - {t: 20, rotate: [25.0, 0.0, 0.0]}
+          sample_ticks: 1
+          respect_hit_stop: true
+          freezes:
+            - {at: 9, ticks: 2}
+        - {id: fx10_verdict_ego_hammer_hammer_haft, op: block, parent: fx10_verdict_ego_hammer_hammer_parts, block: black_concrete, size: [0.12, 1.8, 0.12], at: [0.0, 0.8, 0.0], brightness: 15}
+        - {id: fx10_verdict_ego_hammer_hammer_head, op: block, parent: fx10_verdict_ego_hammer_hammer_parts, block: black_concrete, size: [1.2, 0.7, 0.65], at: [0.0, 2.0, 0.0], brightness: 15}
+        - {id: fx10_verdict_ego_hammer_hammer_cap_0_53, op: block, parent: fx10_verdict_ego_hammer_hammer_parts, block: yellow_concrete, size: [0.12, 0.74, 0.69], at: [-0.53, 2.0, 0.0], brightness: 15}
+        - {id: fx10_verdict_ego_hammer_hammer_cap0_53, op: block, parent: fx10_verdict_ego_hammer_hammer_parts, block: yellow_concrete, size: [0.12, 0.74, 0.69], at: [0.53, 2.0, 0.0], brightness: 15}
+        - {id: fx10_verdict_ego_hammer_hammer_stripe1_78, op: block, parent: fx10_verdict_ego_hammer_hammer_parts, block: yellow_concrete, size: [1.05, 0.045, 0.02], at: [0.0, 1.78, 0.34], brightness: 15}
+        - {id: fx10_verdict_ego_hammer_hammer_stripe2_22, op: block, parent: fx10_verdict_ego_hammer_hammer_parts, block: yellow_concrete, size: [1.05, 0.045, 0.02], at: [0.0, 2.22, 0.34], brightness: 15}
     - id: fx102
       at: 102
       do:
@@ -1456,216 +1179,79 @@ presentation:
     - id: fx119
       at: 119
       do:
-        - id: fx11_verdict_ego_hammer_hammer_haft
-          op: block
-          parent: fx11_verdict_ego_hammer_hammer
-          block: black_concrete
-          size: [0.12, 1.8, 0.12]
-          at: [0.0, 0.8, 0.0]
-          pivot: [-0.25, 1.0, 0.15]
-          tilt_turn: [0.0, 0.0, 22.0]
-          brightness: 15
-        - id: fx11_verdict_ego_hammer_hammer_head
-          op: block
-          parent: fx11_verdict_ego_hammer_hammer
-          block: black_concrete
-          size: [1.2, 0.7, 0.65]
-          at: [0.0, 2.0, 0.0]
-          pivot: [-0.25, 1.0, 0.15]
-          tilt_turn: [0.0, 0.0, 22.0]
-          brightness: 15
-        - id: fx11_verdict_ego_hammer_hammer_cap_0_53
-          op: block
-          parent: fx11_verdict_ego_hammer_hammer
-          block: yellow_concrete
-          size: [0.12, 0.74, 0.69]
-          at: [-0.53, 2.0, 0.0]
-          pivot: [-0.25, 1.0, 0.15]
-          tilt_turn: [0.0, 0.0, 22.0]
-          brightness: 15
-        - id: fx11_verdict_ego_hammer_hammer_cap0_53
-          op: block
-          parent: fx11_verdict_ego_hammer_hammer
-          block: yellow_concrete
-          size: [0.12, 0.74, 0.69]
-          at: [0.53, 2.0, 0.0]
-          pivot: [-0.25, 1.0, 0.15]
-          tilt_turn: [0.0, 0.0, 22.0]
-          brightness: 15
-        - id: fx11_verdict_ego_hammer_hammer_stripe1_78
-          op: block
-          parent: fx11_verdict_ego_hammer_hammer
-          block: yellow_concrete
-          size: [1.05, 0.045, 0.02]
-          at: [0.0, 1.78, 0.34]
-          pivot: [-0.25, 1.0, 0.15]
-          tilt_turn: [0.0, 0.0, 22.0]
-          brightness: 15
-        - id: fx11_verdict_ego_hammer_hammer_stripe2_22
-          op: block
-          parent: fx11_verdict_ego_hammer_hammer
-          block: yellow_concrete
-          size: [1.05, 0.045, 0.02]
-          at: [0.0, 2.22, 0.34]
-          pivot: [-0.25, 1.0, 0.15]
-          tilt_turn: [0.0, 0.0, 22.0]
-          brightness: 15
-        - id: fx11_verdict_ego_hammer_hammer_swing
-          op: track
-          target: fx11_verdict_ego_hammer_hammer_haft
-          space: caster.right_hand
-          keys:
-            - {t: 0, turn: [-35.0, 0.0, 0.0]}
-            - {t: 1, turn: [-37.0, 0.0, 0.0]}
-            - {t: 2, turn: [-43.0, 0.0, 0.0]}
-            - {t: 3, turn: [-52.0, 0.0, 0.0]}
-            - {t: 4, turn: [-58.0, 0.0, 0.0]}
-            - {t: 5, ease: in_out_quad, turn: [-60.0, 0.0, 0.0]}
-            - {t: 6, turn: [16.5625, 0.0, 0.0]}
-            - {t: 7, turn: [71.25, 0.0, 0.0]}
-            - {t: 8, turn: [104.0625, 0.0, 0.0]}
-            - {t: 9, ease: out_quad, turn: [115.0, 0.0, 0.0]}
-            - {t: 10, turn: [117.5, 0.0, 0.0]}
-            - {t: 11, turn: [120.0, 0.0, 0.0]}
-            - {t: 12, turn: [122.5, 0.0, 0.0]}
-            - {t: 13, turn: [125.0, 0.0, 0.0]}
-            - {t: 14, turn: [120.918367, 0.0, 0.0]}
-            - {t: 15, turn: [108.673469, 0.0, 0.0]}
-            - {t: 16, turn: [88.265306, 0.0, 0.0]}
-            - {t: 17, turn: [61.734694, 0.0, 0.0]}
-            - {t: 18, turn: [41.326531, 0.0, 0.0]}
-            - {t: 19, turn: [29.081633, 0.0, 0.0]}
-            - {t: 20, ease: in_out_quad, turn: [25.0, 0.0, 0.0]}
-        - id: fx11_verdict_ego_hammer_hammer_swing_1
-          op: track
-          target: fx11_verdict_ego_hammer_hammer_head
-          space: caster.right_hand
-          keys:
-            - {t: 0, turn: [-35.0, 0.0, 0.0]}
-            - {t: 1, turn: [-37.0, 0.0, 0.0]}
-            - {t: 2, turn: [-43.0, 0.0, 0.0]}
-            - {t: 3, turn: [-52.0, 0.0, 0.0]}
-            - {t: 4, turn: [-58.0, 0.0, 0.0]}
-            - {t: 5, ease: in_out_quad, turn: [-60.0, 0.0, 0.0]}
-            - {t: 6, turn: [16.5625, 0.0, 0.0]}
-            - {t: 7, turn: [71.25, 0.0, 0.0]}
-            - {t: 8, turn: [104.0625, 0.0, 0.0]}
-            - {t: 9, ease: out_quad, turn: [115.0, 0.0, 0.0]}
-            - {t: 10, turn: [117.5, 0.0, 0.0]}
-            - {t: 11, turn: [120.0, 0.0, 0.0]}
-            - {t: 12, turn: [122.5, 0.0, 0.0]}
-            - {t: 13, turn: [125.0, 0.0, 0.0]}
-            - {t: 14, turn: [120.918367, 0.0, 0.0]}
-            - {t: 15, turn: [108.673469, 0.0, 0.0]}
-            - {t: 16, turn: [88.265306, 0.0, 0.0]}
-            - {t: 17, turn: [61.734694, 0.0, 0.0]}
-            - {t: 18, turn: [41.326531, 0.0, 0.0]}
-            - {t: 19, turn: [29.081633, 0.0, 0.0]}
-            - {t: 20, ease: in_out_quad, turn: [25.0, 0.0, 0.0]}
-        - id: fx11_verdict_ego_hammer_hammer_swing_2
-          op: track
-          target: fx11_verdict_ego_hammer_hammer_cap_0_53
-          space: caster.right_hand
-          keys:
-            - {t: 0, turn: [-35.0, 0.0, 0.0]}
-            - {t: 1, turn: [-37.0, 0.0, 0.0]}
-            - {t: 2, turn: [-43.0, 0.0, 0.0]}
-            - {t: 3, turn: [-52.0, 0.0, 0.0]}
-            - {t: 4, turn: [-58.0, 0.0, 0.0]}
-            - {t: 5, ease: in_out_quad, turn: [-60.0, 0.0, 0.0]}
-            - {t: 6, turn: [16.5625, 0.0, 0.0]}
-            - {t: 7, turn: [71.25, 0.0, 0.0]}
-            - {t: 8, turn: [104.0625, 0.0, 0.0]}
-            - {t: 9, ease: out_quad, turn: [115.0, 0.0, 0.0]}
-            - {t: 10, turn: [117.5, 0.0, 0.0]}
-            - {t: 11, turn: [120.0, 0.0, 0.0]}
-            - {t: 12, turn: [122.5, 0.0, 0.0]}
-            - {t: 13, turn: [125.0, 0.0, 0.0]}
-            - {t: 14, turn: [120.918367, 0.0, 0.0]}
-            - {t: 15, turn: [108.673469, 0.0, 0.0]}
-            - {t: 16, turn: [88.265306, 0.0, 0.0]}
-            - {t: 17, turn: [61.734694, 0.0, 0.0]}
-            - {t: 18, turn: [41.326531, 0.0, 0.0]}
-            - {t: 19, turn: [29.081633, 0.0, 0.0]}
-            - {t: 20, ease: in_out_quad, turn: [25.0, 0.0, 0.0]}
-        - id: fx11_verdict_ego_hammer_hammer_swing_3
-          op: track
-          target: fx11_verdict_ego_hammer_hammer_cap0_53
-          space: caster.right_hand
-          keys:
-            - {t: 0, turn: [-35.0, 0.0, 0.0]}
-            - {t: 1, turn: [-37.0, 0.0, 0.0]}
-            - {t: 2, turn: [-43.0, 0.0, 0.0]}
-            - {t: 3, turn: [-52.0, 0.0, 0.0]}
-            - {t: 4, turn: [-58.0, 0.0, 0.0]}
-            - {t: 5, ease: in_out_quad, turn: [-60.0, 0.0, 0.0]}
-            - {t: 6, turn: [16.5625, 0.0, 0.0]}
-            - {t: 7, turn: [71.25, 0.0, 0.0]}
-            - {t: 8, turn: [104.0625, 0.0, 0.0]}
-            - {t: 9, ease: out_quad, turn: [115.0, 0.0, 0.0]}
-            - {t: 10, turn: [117.5, 0.0, 0.0]}
-            - {t: 11, turn: [120.0, 0.0, 0.0]}
-            - {t: 12, turn: [122.5, 0.0, 0.0]}
-            - {t: 13, turn: [125.0, 0.0, 0.0]}
-            - {t: 14, turn: [120.918367, 0.0, 0.0]}
-            - {t: 15, turn: [108.673469, 0.0, 0.0]}
-            - {t: 16, turn: [88.265306, 0.0, 0.0]}
-            - {t: 17, turn: [61.734694, 0.0, 0.0]}
-            - {t: 18, turn: [41.326531, 0.0, 0.0]}
-            - {t: 19, turn: [29.081633, 0.0, 0.0]}
-            - {t: 20, ease: in_out_quad, turn: [25.0, 0.0, 0.0]}
-        - id: fx11_verdict_ego_hammer_hammer_swing_4
-          op: track
-          target: fx11_verdict_ego_hammer_hammer_stripe1_78
-          space: caster.right_hand
-          keys:
-            - {t: 0, turn: [-35.0, 0.0, 0.0]}
-            - {t: 1, turn: [-37.0, 0.0, 0.0]}
-            - {t: 2, turn: [-43.0, 0.0, 0.0]}
-            - {t: 3, turn: [-52.0, 0.0, 0.0]}
-            - {t: 4, turn: [-58.0, 0.0, 0.0]}
-            - {t: 5, ease: in_out_quad, turn: [-60.0, 0.0, 0.0]}
-            - {t: 6, turn: [16.5625, 0.0, 0.0]}
-            - {t: 7, turn: [71.25, 0.0, 0.0]}
-            - {t: 8, turn: [104.0625, 0.0, 0.0]}
-            - {t: 9, ease: out_quad, turn: [115.0, 0.0, 0.0]}
-            - {t: 10, turn: [117.5, 0.0, 0.0]}
-            - {t: 11, turn: [120.0, 0.0, 0.0]}
-            - {t: 12, turn: [122.5, 0.0, 0.0]}
-            - {t: 13, turn: [125.0, 0.0, 0.0]}
-            - {t: 14, turn: [120.918367, 0.0, 0.0]}
-            - {t: 15, turn: [108.673469, 0.0, 0.0]}
-            - {t: 16, turn: [88.265306, 0.0, 0.0]}
-            - {t: 17, turn: [61.734694, 0.0, 0.0]}
-            - {t: 18, turn: [41.326531, 0.0, 0.0]}
-            - {t: 19, turn: [29.081633, 0.0, 0.0]}
-            - {t: 20, ease: in_out_quad, turn: [25.0, 0.0, 0.0]}
-        - id: fx11_verdict_ego_hammer_hammer_swing_5
-          op: track
-          target: fx11_verdict_ego_hammer_hammer_stripe2_22
-          space: caster.right_hand
-          keys:
-            - {t: 0, turn: [-35.0, 0.0, 0.0]}
-            - {t: 1, turn: [-37.0, 0.0, 0.0]}
-            - {t: 2, turn: [-43.0, 0.0, 0.0]}
-            - {t: 3, turn: [-52.0, 0.0, 0.0]}
-            - {t: 4, turn: [-58.0, 0.0, 0.0]}
-            - {t: 5, ease: in_out_quad, turn: [-60.0, 0.0, 0.0]}
-            - {t: 6, turn: [16.5625, 0.0, 0.0]}
-            - {t: 7, turn: [71.25, 0.0, 0.0]}
-            - {t: 8, turn: [104.0625, 0.0, 0.0]}
-            - {t: 9, ease: out_quad, turn: [115.0, 0.0, 0.0]}
-            - {t: 10, turn: [117.5, 0.0, 0.0]}
-            - {t: 11, turn: [120.0, 0.0, 0.0]}
-            - {t: 12, turn: [122.5, 0.0, 0.0]}
-            - {t: 13, turn: [125.0, 0.0, 0.0]}
-            - {t: 14, turn: [120.918367, 0.0, 0.0]}
-            - {t: 15, turn: [108.673469, 0.0, 0.0]}
-            - {t: 16, turn: [88.265306, 0.0, 0.0]}
-            - {t: 17, turn: [61.734694, 0.0, 0.0]}
-            - {t: 18, turn: [41.326531, 0.0, 0.0]}
-            - {t: 19, turn: [29.081633, 0.0, 0.0]}
-            - {t: 20, ease: in_out_quad, turn: [25.0, 0.0, 0.0]}
+        - id: fx11_verdict_ego_hammer_hammer_rig
+          op: rig
+          frame: fx11_verdict_ego_hammer_hammer
+          parent: caster
+          duration: 23
+          pivot: [1.000325, 0.248685, 0.147814]
+          tilt: [0.0, 0.0, 22.0]
+          swing:
+            - {t: 0, rotate: [-35.0, 0.0, 0.0]}
+            - {t: 1, rotate: [-37.0, 0.0, 0.0], sample: true}
+            - {t: 2, rotate: [-43.0, 0.0, 0.0], sample: true}
+            - {t: 3, rotate: [-52.0, 0.0, 0.0], sample: true}
+            - {t: 4, rotate: [-58.0, 0.0, 0.0], sample: true}
+            - {t: 5, rotate: [-60.0, 0.0, 0.0]}
+            - {t: 6, rotate: [16.5625, 0.0, 0.0], sample: true}
+            - {t: 7, rotate: [71.25, 0.0, 0.0], sample: true}
+            - {t: 8, rotate: [104.0625, 0.0, 0.0], sample: true}
+            - {t: 9, rotate: [115.0, 0.0, 0.0]}
+            - {t: 10, rotate: [117.5, 0.0, 0.0], sample: true}
+            - {t: 11, rotate: [120.0, 0.0, 0.0], sample: true}
+            - {t: 12, rotate: [122.5, 0.0, 0.0], sample: true}
+            - {t: 13, rotate: [125.0, 0.0, 0.0]}
+            - {t: 14, rotate: [120.918367, 0.0, 0.0], sample: true}
+            - {t: 15, rotate: [108.673469, 0.0, 0.0], sample: true}
+            - {t: 16, rotate: [88.265306, 0.0, 0.0], sample: true}
+            - {t: 17, rotate: [61.734694, 0.0, 0.0], sample: true}
+            - {t: 18, rotate: [41.326531, 0.0, 0.0], sample: true}
+            - {t: 19, rotate: [29.081633, 0.0, 0.0], sample: true}
+            - {t: 20, rotate: [25.0, 0.0, 0.0]}
+          sample_ticks: 1
+          respect_hit_stop: true
+          freezes:
+            - {at: 9, ticks: 2}
+        - id: fx11_verdict_ego_hammer_hammer_parts_rig
+          op: rig
+          frame: fx11_verdict_ego_hammer_hammer_parts
+          parent: caster
+          duration: 23
+          hand: false
+          pivot: [1.000325, 0.248685, 0.147814]
+          tilt: [0.0, 0.0, 22.0]
+          swing:
+            - {t: 0, rotate: [-35.0, 0.0, 0.0]}
+            - {t: 1, rotate: [-37.0, 0.0, 0.0], sample: true}
+            - {t: 2, rotate: [-43.0, 0.0, 0.0], sample: true}
+            - {t: 3, rotate: [-52.0, 0.0, 0.0], sample: true}
+            - {t: 4, rotate: [-58.0, 0.0, 0.0], sample: true}
+            - {t: 5, rotate: [-60.0, 0.0, 0.0]}
+            - {t: 6, rotate: [16.5625, 0.0, 0.0], sample: true}
+            - {t: 7, rotate: [71.25, 0.0, 0.0], sample: true}
+            - {t: 8, rotate: [104.0625, 0.0, 0.0], sample: true}
+            - {t: 9, rotate: [115.0, 0.0, 0.0]}
+            - {t: 10, rotate: [117.5, 0.0, 0.0], sample: true}
+            - {t: 11, rotate: [120.0, 0.0, 0.0], sample: true}
+            - {t: 12, rotate: [122.5, 0.0, 0.0], sample: true}
+            - {t: 13, rotate: [125.0, 0.0, 0.0]}
+            - {t: 14, rotate: [120.918367, 0.0, 0.0], sample: true}
+            - {t: 15, rotate: [108.673469, 0.0, 0.0], sample: true}
+            - {t: 16, rotate: [88.265306, 0.0, 0.0], sample: true}
+            - {t: 17, rotate: [61.734694, 0.0, 0.0], sample: true}
+            - {t: 18, rotate: [41.326531, 0.0, 0.0], sample: true}
+            - {t: 19, rotate: [29.081633, 0.0, 0.0], sample: true}
+            - {t: 20, rotate: [25.0, 0.0, 0.0]}
+          sample_ticks: 1
+          respect_hit_stop: true
+          freezes:
+            - {at: 9, ticks: 2}
+        - {id: fx11_verdict_ego_hammer_hammer_haft, op: block, parent: fx11_verdict_ego_hammer_hammer_parts, block: black_concrete, size: [0.12, 1.8, 0.12], at: [0.0, 0.8, 0.0], brightness: 15}
+        - {id: fx11_verdict_ego_hammer_hammer_head, op: block, parent: fx11_verdict_ego_hammer_hammer_parts, block: black_concrete, size: [1.2, 0.7, 0.65], at: [0.0, 2.0, 0.0], brightness: 15}
+        - {id: fx11_verdict_ego_hammer_hammer_cap_0_53, op: block, parent: fx11_verdict_ego_hammer_hammer_parts, block: yellow_concrete, size: [0.12, 0.74, 0.69], at: [-0.53, 2.0, 0.0], brightness: 15}
+        - {id: fx11_verdict_ego_hammer_hammer_cap0_53, op: block, parent: fx11_verdict_ego_hammer_hammer_parts, block: yellow_concrete, size: [0.12, 0.74, 0.69], at: [0.53, 2.0, 0.0], brightness: 15}
+        - {id: fx11_verdict_ego_hammer_hammer_stripe1_78, op: block, parent: fx11_verdict_ego_hammer_hammer_parts, block: yellow_concrete, size: [1.05, 0.045, 0.02], at: [0.0, 1.78, 0.34], brightness: 15}
+        - {id: fx11_verdict_ego_hammer_hammer_stripe2_22, op: block, parent: fx11_verdict_ego_hammer_hammer_parts, block: yellow_concrete, size: [1.05, 0.045, 0.02], at: [0.0, 2.22, 0.34], brightness: 15}
     - id: fx128
       at: 128
       do:
@@ -1980,216 +1566,79 @@ presentation:
     - id: fx182
       at: 182
       do:
-        - id: fx12_verdict_ego_hammer_hammer_haft
-          op: block
-          parent: fx12_verdict_ego_hammer_hammer
-          block: black_concrete
-          size: [0.12, 1.8, 0.12]
-          at: [0.0, 0.8, 0.0]
-          pivot: [-0.25, 1.0, 0.15]
-          tilt_turn: [0.0, 0.0, 22.0]
-          brightness: 15
-        - id: fx12_verdict_ego_hammer_hammer_head
-          op: block
-          parent: fx12_verdict_ego_hammer_hammer
-          block: black_concrete
-          size: [1.2, 0.7, 0.65]
-          at: [0.0, 2.0, 0.0]
-          pivot: [-0.25, 1.0, 0.15]
-          tilt_turn: [0.0, 0.0, 22.0]
-          brightness: 15
-        - id: fx12_verdict_ego_hammer_hammer_cap_0_53
-          op: block
-          parent: fx12_verdict_ego_hammer_hammer
-          block: yellow_concrete
-          size: [0.12, 0.74, 0.69]
-          at: [-0.53, 2.0, 0.0]
-          pivot: [-0.25, 1.0, 0.15]
-          tilt_turn: [0.0, 0.0, 22.0]
-          brightness: 15
-        - id: fx12_verdict_ego_hammer_hammer_cap0_53
-          op: block
-          parent: fx12_verdict_ego_hammer_hammer
-          block: yellow_concrete
-          size: [0.12, 0.74, 0.69]
-          at: [0.53, 2.0, 0.0]
-          pivot: [-0.25, 1.0, 0.15]
-          tilt_turn: [0.0, 0.0, 22.0]
-          brightness: 15
-        - id: fx12_verdict_ego_hammer_hammer_stripe1_78
-          op: block
-          parent: fx12_verdict_ego_hammer_hammer
-          block: yellow_concrete
-          size: [1.05, 0.045, 0.02]
-          at: [0.0, 1.78, 0.34]
-          pivot: [-0.25, 1.0, 0.15]
-          tilt_turn: [0.0, 0.0, 22.0]
-          brightness: 15
-        - id: fx12_verdict_ego_hammer_hammer_stripe2_22
-          op: block
-          parent: fx12_verdict_ego_hammer_hammer
-          block: yellow_concrete
-          size: [1.05, 0.045, 0.02]
-          at: [0.0, 2.22, 0.34]
-          pivot: [-0.25, 1.0, 0.15]
-          tilt_turn: [0.0, 0.0, 22.0]
-          brightness: 15
-        - id: fx12_verdict_ego_hammer_hammer_swing
-          op: track
-          target: fx12_verdict_ego_hammer_hammer_haft
-          space: caster.right_hand
-          keys:
-            - {t: 0, turn: [-35.0, 0.0, 0.0]}
-            - {t: 1, turn: [-37.0, 0.0, 0.0]}
-            - {t: 2, turn: [-43.0, 0.0, 0.0]}
-            - {t: 3, turn: [-52.0, 0.0, 0.0]}
-            - {t: 4, turn: [-58.0, 0.0, 0.0]}
-            - {t: 5, ease: in_out_quad, turn: [-60.0, 0.0, 0.0]}
-            - {t: 6, turn: [16.5625, 0.0, 0.0]}
-            - {t: 7, turn: [71.25, 0.0, 0.0]}
-            - {t: 8, turn: [104.0625, 0.0, 0.0]}
-            - {t: 9, ease: out_quad, turn: [115.0, 0.0, 0.0]}
-            - {t: 10, turn: [117.5, 0.0, 0.0]}
-            - {t: 11, turn: [120.0, 0.0, 0.0]}
-            - {t: 12, turn: [122.5, 0.0, 0.0]}
-            - {t: 13, turn: [125.0, 0.0, 0.0]}
-            - {t: 14, turn: [120.918367, 0.0, 0.0]}
-            - {t: 15, turn: [108.673469, 0.0, 0.0]}
-            - {t: 16, turn: [88.265306, 0.0, 0.0]}
-            - {t: 17, turn: [61.734694, 0.0, 0.0]}
-            - {t: 18, turn: [41.326531, 0.0, 0.0]}
-            - {t: 19, turn: [29.081633, 0.0, 0.0]}
-            - {t: 20, ease: in_out_quad, turn: [25.0, 0.0, 0.0]}
-        - id: fx12_verdict_ego_hammer_hammer_swing_1
-          op: track
-          target: fx12_verdict_ego_hammer_hammer_head
-          space: caster.right_hand
-          keys:
-            - {t: 0, turn: [-35.0, 0.0, 0.0]}
-            - {t: 1, turn: [-37.0, 0.0, 0.0]}
-            - {t: 2, turn: [-43.0, 0.0, 0.0]}
-            - {t: 3, turn: [-52.0, 0.0, 0.0]}
-            - {t: 4, turn: [-58.0, 0.0, 0.0]}
-            - {t: 5, ease: in_out_quad, turn: [-60.0, 0.0, 0.0]}
-            - {t: 6, turn: [16.5625, 0.0, 0.0]}
-            - {t: 7, turn: [71.25, 0.0, 0.0]}
-            - {t: 8, turn: [104.0625, 0.0, 0.0]}
-            - {t: 9, ease: out_quad, turn: [115.0, 0.0, 0.0]}
-            - {t: 10, turn: [117.5, 0.0, 0.0]}
-            - {t: 11, turn: [120.0, 0.0, 0.0]}
-            - {t: 12, turn: [122.5, 0.0, 0.0]}
-            - {t: 13, turn: [125.0, 0.0, 0.0]}
-            - {t: 14, turn: [120.918367, 0.0, 0.0]}
-            - {t: 15, turn: [108.673469, 0.0, 0.0]}
-            - {t: 16, turn: [88.265306, 0.0, 0.0]}
-            - {t: 17, turn: [61.734694, 0.0, 0.0]}
-            - {t: 18, turn: [41.326531, 0.0, 0.0]}
-            - {t: 19, turn: [29.081633, 0.0, 0.0]}
-            - {t: 20, ease: in_out_quad, turn: [25.0, 0.0, 0.0]}
-        - id: fx12_verdict_ego_hammer_hammer_swing_2
-          op: track
-          target: fx12_verdict_ego_hammer_hammer_cap_0_53
-          space: caster.right_hand
-          keys:
-            - {t: 0, turn: [-35.0, 0.0, 0.0]}
-            - {t: 1, turn: [-37.0, 0.0, 0.0]}
-            - {t: 2, turn: [-43.0, 0.0, 0.0]}
-            - {t: 3, turn: [-52.0, 0.0, 0.0]}
-            - {t: 4, turn: [-58.0, 0.0, 0.0]}
-            - {t: 5, ease: in_out_quad, turn: [-60.0, 0.0, 0.0]}
-            - {t: 6, turn: [16.5625, 0.0, 0.0]}
-            - {t: 7, turn: [71.25, 0.0, 0.0]}
-            - {t: 8, turn: [104.0625, 0.0, 0.0]}
-            - {t: 9, ease: out_quad, turn: [115.0, 0.0, 0.0]}
-            - {t: 10, turn: [117.5, 0.0, 0.0]}
-            - {t: 11, turn: [120.0, 0.0, 0.0]}
-            - {t: 12, turn: [122.5, 0.0, 0.0]}
-            - {t: 13, turn: [125.0, 0.0, 0.0]}
-            - {t: 14, turn: [120.918367, 0.0, 0.0]}
-            - {t: 15, turn: [108.673469, 0.0, 0.0]}
-            - {t: 16, turn: [88.265306, 0.0, 0.0]}
-            - {t: 17, turn: [61.734694, 0.0, 0.0]}
-            - {t: 18, turn: [41.326531, 0.0, 0.0]}
-            - {t: 19, turn: [29.081633, 0.0, 0.0]}
-            - {t: 20, ease: in_out_quad, turn: [25.0, 0.0, 0.0]}
-        - id: fx12_verdict_ego_hammer_hammer_swing_3
-          op: track
-          target: fx12_verdict_ego_hammer_hammer_cap0_53
-          space: caster.right_hand
-          keys:
-            - {t: 0, turn: [-35.0, 0.0, 0.0]}
-            - {t: 1, turn: [-37.0, 0.0, 0.0]}
-            - {t: 2, turn: [-43.0, 0.0, 0.0]}
-            - {t: 3, turn: [-52.0, 0.0, 0.0]}
-            - {t: 4, turn: [-58.0, 0.0, 0.0]}
-            - {t: 5, ease: in_out_quad, turn: [-60.0, 0.0, 0.0]}
-            - {t: 6, turn: [16.5625, 0.0, 0.0]}
-            - {t: 7, turn: [71.25, 0.0, 0.0]}
-            - {t: 8, turn: [104.0625, 0.0, 0.0]}
-            - {t: 9, ease: out_quad, turn: [115.0, 0.0, 0.0]}
-            - {t: 10, turn: [117.5, 0.0, 0.0]}
-            - {t: 11, turn: [120.0, 0.0, 0.0]}
-            - {t: 12, turn: [122.5, 0.0, 0.0]}
-            - {t: 13, turn: [125.0, 0.0, 0.0]}
-            - {t: 14, turn: [120.918367, 0.0, 0.0]}
-            - {t: 15, turn: [108.673469, 0.0, 0.0]}
-            - {t: 16, turn: [88.265306, 0.0, 0.0]}
-            - {t: 17, turn: [61.734694, 0.0, 0.0]}
-            - {t: 18, turn: [41.326531, 0.0, 0.0]}
-            - {t: 19, turn: [29.081633, 0.0, 0.0]}
-            - {t: 20, ease: in_out_quad, turn: [25.0, 0.0, 0.0]}
-        - id: fx12_verdict_ego_hammer_hammer_swing_4
-          op: track
-          target: fx12_verdict_ego_hammer_hammer_stripe1_78
-          space: caster.right_hand
-          keys:
-            - {t: 0, turn: [-35.0, 0.0, 0.0]}
-            - {t: 1, turn: [-37.0, 0.0, 0.0]}
-            - {t: 2, turn: [-43.0, 0.0, 0.0]}
-            - {t: 3, turn: [-52.0, 0.0, 0.0]}
-            - {t: 4, turn: [-58.0, 0.0, 0.0]}
-            - {t: 5, ease: in_out_quad, turn: [-60.0, 0.0, 0.0]}
-            - {t: 6, turn: [16.5625, 0.0, 0.0]}
-            - {t: 7, turn: [71.25, 0.0, 0.0]}
-            - {t: 8, turn: [104.0625, 0.0, 0.0]}
-            - {t: 9, ease: out_quad, turn: [115.0, 0.0, 0.0]}
-            - {t: 10, turn: [117.5, 0.0, 0.0]}
-            - {t: 11, turn: [120.0, 0.0, 0.0]}
-            - {t: 12, turn: [122.5, 0.0, 0.0]}
-            - {t: 13, turn: [125.0, 0.0, 0.0]}
-            - {t: 14, turn: [120.918367, 0.0, 0.0]}
-            - {t: 15, turn: [108.673469, 0.0, 0.0]}
-            - {t: 16, turn: [88.265306, 0.0, 0.0]}
-            - {t: 17, turn: [61.734694, 0.0, 0.0]}
-            - {t: 18, turn: [41.326531, 0.0, 0.0]}
-            - {t: 19, turn: [29.081633, 0.0, 0.0]}
-            - {t: 20, ease: in_out_quad, turn: [25.0, 0.0, 0.0]}
-        - id: fx12_verdict_ego_hammer_hammer_swing_5
-          op: track
-          target: fx12_verdict_ego_hammer_hammer_stripe2_22
-          space: caster.right_hand
-          keys:
-            - {t: 0, turn: [-35.0, 0.0, 0.0]}
-            - {t: 1, turn: [-37.0, 0.0, 0.0]}
-            - {t: 2, turn: [-43.0, 0.0, 0.0]}
-            - {t: 3, turn: [-52.0, 0.0, 0.0]}
-            - {t: 4, turn: [-58.0, 0.0, 0.0]}
-            - {t: 5, ease: in_out_quad, turn: [-60.0, 0.0, 0.0]}
-            - {t: 6, turn: [16.5625, 0.0, 0.0]}
-            - {t: 7, turn: [71.25, 0.0, 0.0]}
-            - {t: 8, turn: [104.0625, 0.0, 0.0]}
-            - {t: 9, ease: out_quad, turn: [115.0, 0.0, 0.0]}
-            - {t: 10, turn: [117.5, 0.0, 0.0]}
-            - {t: 11, turn: [120.0, 0.0, 0.0]}
-            - {t: 12, turn: [122.5, 0.0, 0.0]}
-            - {t: 13, turn: [125.0, 0.0, 0.0]}
-            - {t: 14, turn: [120.918367, 0.0, 0.0]}
-            - {t: 15, turn: [108.673469, 0.0, 0.0]}
-            - {t: 16, turn: [88.265306, 0.0, 0.0]}
-            - {t: 17, turn: [61.734694, 0.0, 0.0]}
-            - {t: 18, turn: [41.326531, 0.0, 0.0]}
-            - {t: 19, turn: [29.081633, 0.0, 0.0]}
-            - {t: 20, ease: in_out_quad, turn: [25.0, 0.0, 0.0]}
+        - id: fx12_verdict_ego_hammer_hammer_rig
+          op: rig
+          frame: fx12_verdict_ego_hammer_hammer
+          parent: caster
+          duration: 23
+          pivot: [1.000325, 0.248685, 0.147814]
+          tilt: [0.0, 0.0, 22.0]
+          swing:
+            - {t: 0, rotate: [-35.0, 0.0, 0.0]}
+            - {t: 1, rotate: [-37.0, 0.0, 0.0], sample: true}
+            - {t: 2, rotate: [-43.0, 0.0, 0.0], sample: true}
+            - {t: 3, rotate: [-52.0, 0.0, 0.0], sample: true}
+            - {t: 4, rotate: [-58.0, 0.0, 0.0], sample: true}
+            - {t: 5, rotate: [-60.0, 0.0, 0.0]}
+            - {t: 6, rotate: [16.5625, 0.0, 0.0], sample: true}
+            - {t: 7, rotate: [71.25, 0.0, 0.0], sample: true}
+            - {t: 8, rotate: [104.0625, 0.0, 0.0], sample: true}
+            - {t: 9, rotate: [115.0, 0.0, 0.0]}
+            - {t: 10, rotate: [117.5, 0.0, 0.0], sample: true}
+            - {t: 11, rotate: [120.0, 0.0, 0.0], sample: true}
+            - {t: 12, rotate: [122.5, 0.0, 0.0], sample: true}
+            - {t: 13, rotate: [125.0, 0.0, 0.0]}
+            - {t: 14, rotate: [120.918367, 0.0, 0.0], sample: true}
+            - {t: 15, rotate: [108.673469, 0.0, 0.0], sample: true}
+            - {t: 16, rotate: [88.265306, 0.0, 0.0], sample: true}
+            - {t: 17, rotate: [61.734694, 0.0, 0.0], sample: true}
+            - {t: 18, rotate: [41.326531, 0.0, 0.0], sample: true}
+            - {t: 19, rotate: [29.081633, 0.0, 0.0], sample: true}
+            - {t: 20, rotate: [25.0, 0.0, 0.0]}
+          sample_ticks: 1
+          respect_hit_stop: true
+          freezes:
+            - {at: 9, ticks: 2}
+        - id: fx12_verdict_ego_hammer_hammer_parts_rig
+          op: rig
+          frame: fx12_verdict_ego_hammer_hammer_parts
+          parent: caster
+          duration: 23
+          hand: false
+          pivot: [1.000325, 0.248685, 0.147814]
+          tilt: [0.0, 0.0, 22.0]
+          swing:
+            - {t: 0, rotate: [-35.0, 0.0, 0.0]}
+            - {t: 1, rotate: [-37.0, 0.0, 0.0], sample: true}
+            - {t: 2, rotate: [-43.0, 0.0, 0.0], sample: true}
+            - {t: 3, rotate: [-52.0, 0.0, 0.0], sample: true}
+            - {t: 4, rotate: [-58.0, 0.0, 0.0], sample: true}
+            - {t: 5, rotate: [-60.0, 0.0, 0.0]}
+            - {t: 6, rotate: [16.5625, 0.0, 0.0], sample: true}
+            - {t: 7, rotate: [71.25, 0.0, 0.0], sample: true}
+            - {t: 8, rotate: [104.0625, 0.0, 0.0], sample: true}
+            - {t: 9, rotate: [115.0, 0.0, 0.0]}
+            - {t: 10, rotate: [117.5, 0.0, 0.0], sample: true}
+            - {t: 11, rotate: [120.0, 0.0, 0.0], sample: true}
+            - {t: 12, rotate: [122.5, 0.0, 0.0], sample: true}
+            - {t: 13, rotate: [125.0, 0.0, 0.0]}
+            - {t: 14, rotate: [120.918367, 0.0, 0.0], sample: true}
+            - {t: 15, rotate: [108.673469, 0.0, 0.0], sample: true}
+            - {t: 16, rotate: [88.265306, 0.0, 0.0], sample: true}
+            - {t: 17, rotate: [61.734694, 0.0, 0.0], sample: true}
+            - {t: 18, rotate: [41.326531, 0.0, 0.0], sample: true}
+            - {t: 19, rotate: [29.081633, 0.0, 0.0], sample: true}
+            - {t: 20, rotate: [25.0, 0.0, 0.0]}
+          sample_ticks: 1
+          respect_hit_stop: true
+          freezes:
+            - {at: 9, ticks: 2}
+        - {id: fx12_verdict_ego_hammer_hammer_haft, op: block, parent: fx12_verdict_ego_hammer_hammer_parts, block: black_concrete, size: [0.12, 1.8, 0.12], at: [0.0, 0.8, 0.0], brightness: 15}
+        - {id: fx12_verdict_ego_hammer_hammer_head, op: block, parent: fx12_verdict_ego_hammer_hammer_parts, block: black_concrete, size: [1.2, 0.7, 0.65], at: [0.0, 2.0, 0.0], brightness: 15}
+        - {id: fx12_verdict_ego_hammer_hammer_cap_0_53, op: block, parent: fx12_verdict_ego_hammer_hammer_parts, block: yellow_concrete, size: [0.12, 0.74, 0.69], at: [-0.53, 2.0, 0.0], brightness: 15}
+        - {id: fx12_verdict_ego_hammer_hammer_cap0_53, op: block, parent: fx12_verdict_ego_hammer_hammer_parts, block: yellow_concrete, size: [0.12, 0.74, 0.69], at: [0.53, 2.0, 0.0], brightness: 15}
+        - {id: fx12_verdict_ego_hammer_hammer_stripe1_78, op: block, parent: fx12_verdict_ego_hammer_hammer_parts, block: yellow_concrete, size: [1.05, 0.045, 0.02], at: [0.0, 1.78, 0.34], brightness: 15}
+        - {id: fx12_verdict_ego_hammer_hammer_stripe2_22, op: block, parent: fx12_verdict_ego_hammer_hammer_parts, block: yellow_concrete, size: [1.05, 0.045, 0.02], at: [0.0, 2.22, 0.34], brightness: 15}
     - {id: fx190, at: 190, do: [{id: flash_6, op: screen_flash, target: caster, overlay: gold_burst, fade_in: 0, stay: 2, fade_out: 2}]}
     - id: fx191
       at: 191

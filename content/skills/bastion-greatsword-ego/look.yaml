@@ -8,7 +8,6 @@
 # CONVERT-PRESENT element brightness (no v2 equivalent) (x1): 15
 # CONVERT-PRESENT element keyframes without a transform (alpha / colour only) (x1)
 # CONVERT-PRESENT element respect_hit_stop (no v2 equivalent) (x2): True | False
-# CONVERT-PRESENT rig respect_hit_stop / weapon points (x1): {"respect_hit_stop": true}
 # CONVERT-PRESENT camera_shake shape (engine shake is intensity + ticks only) (x2): shape="decay"
 # CONVERT-PRESENT camera_shake direction (engine shake is intensity + ticks only) (x2): direction="from_hit" | direction="none"
 # CONVERT-PRESENT camera_shake viewers (engine shake is intensity + ticks only) (x2): viewers="all" | viewers="caster"
@@ -22,7 +21,8 @@ frames:
   - {id: pt_fx2_bastion_ego_trail_0_1_0p2, kind: point, parent: fx2_bastion_ego_trail, offset: [0.0, 1.0, 0.2]}
   - {id: pt_fx2_bastion_ego_trail_0_1p4_3, kind: point, parent: fx2_bastion_ego_trail, offset: [0.0, 1.4, 3.0]}
   - {id: fx3_bastion_ego_slam, kind: body, parent: world}
-  - {id: fx3_bastion_ego_slam_sword, kind: body, parent: caster.right_hand}
+  - {id: fx3_bastion_ego_slam_sword, kind: body, parent: caster}
+  - {id: fx3_bastion_ego_slam_sword_parts, kind: body, parent: caster}
 presentation:
   timeline:
     - id: fx0
@@ -96,180 +96,123 @@ presentation:
     - id: fx20
       at: 20
       do:
-        - {id: hidehand, op: caster_anim, anim: hide-main-hand, ticks: 24}
+        - {id: hide_hand, op: caster_anim, anim: hide-main-hand, ticks: 24}
         - {id: snd_2, op: sound, sound: item.shield.block, at: caster, pitch: 0.8}
         - {id: fx2_bastion_ego_trail_beads, op: line, from: pt_fx2_bastion_ego_trail_0_1_0p2, to: pt_fx2_bastion_ego_trail_0_1p4_3, thickness: 0.28, color: "#FFE08A", face: {viewer: axis, axis: line.along}}
     - id: fx27
       at: 27
       do:
-        - id: fx3_bastion_ego_slam_sword_face
-          op: block
-          parent: fx3_bastion_ego_slam_sword
-          block: gray_concrete
-          size: [0.46, 1.9, 0.07]
-          at: [0.0, 1.55, 0.0]
-          pivot: [0.0, 1.4, 0.3]
-          rest_turn: [90.0, 0.0, 0.0]
-          rig_shading: true
-        - id: fx3_bastion_ego_slam_sword_rim_l
-          op: block
-          parent: fx3_bastion_ego_slam_sword
-          block: white_concrete
-          size: [0.07, 1.9, 0.12]
-          at: [0.25, 1.55, 0.0]
-          pivot: [0.0, 1.4, 0.3]
-          rest_turn: [90.0, 0.0, 0.0]
-          rig_shading: true
-        - id: fx3_bastion_ego_slam_sword_rim_r
-          op: block
-          parent: fx3_bastion_ego_slam_sword
-          block: white_concrete
-          size: [0.07, 1.9, 0.12]
-          at: [-0.25, 1.55, 0.0]
-          pivot: [0.0, 1.4, 0.3]
-          rest_turn: [90.0, 0.0, 0.0]
-          rig_shading: true
-        - id: fx3_bastion_ego_slam_sword_tip
-          op: block
-          parent: fx3_bastion_ego_slam_sword
-          block: white_concrete
-          size: [0.58, 0.08, 0.12]
-          at: [0.0, 2.5, 0.0]
-          pivot: [0.0, 1.4, 0.3]
-          rest_turn: [90.0, 0.0, 0.0]
-          rig_shading: true
-        - id: fx3_bastion_ego_slam_sword_base
-          op: block
-          parent: fx3_bastion_ego_slam_sword
-          block: white_concrete
-          size: [0.58, 0.08, 0.12]
-          at: [0.0, 0.62, 0.0]
-          pivot: [0.0, 1.4, 0.3]
-          rest_turn: [90.0, 0.0, 0.0]
-          rig_shading: true
-        - id: fx3_bastion_ego_slam_sword_inset
-          op: block
-          parent: fx3_bastion_ego_slam_sword
-          block: yellow_concrete
-          size: [0.09, 0.2, 0.09]
-          at: [0.0, 0.86, 0.0]
-          pivot: [0.0, 1.4, 0.3]
-          rest_turn: [90.0, 0.0, 0.0]
-          rig_shading: true
-        - id: fx3_bastion_ego_slam_sword_guard
-          op: block
-          parent: fx3_bastion_ego_slam_sword
-          block: black_concrete
-          size: [0.62, 0.1, 0.18]
-          at: [0.0, 0.5, 0.0]
-          pivot: [0.0, 1.4, 0.3]
-          rest_turn: [90.0, 0.0, 0.0]
-          rig_shading: true
-        - id: fx3_bastion_ego_slam_sword_grip
-          op: block
-          parent: fx3_bastion_ego_slam_sword
-          block: black_concrete
-          size: [0.09, 0.8, 0.09]
-          at: [0.0, 0.05, 0.0]
-          pivot: [0.0, 1.4, 0.3]
-          rest_turn: [90.0, 0.0, 0.0]
-          rig_shading: true
-        - id: fx3_bastion_ego_slam_sword_swing
-          op: track
-          target: fx3_bastion_ego_slam_sword_face
-          space: caster.right_hand
-          keys:
-            - {t: 0, turn: [-125.0, 0.0, 0.0]}
-            - {t: 1, ease: in_out_quad, turn: [-150.0, 0.0, 0.0]}
-            - {t: 2, turn: [-97.0, 0.0, 0.0]}
-            - {t: 3, ease: in_quad, turn: [62.0, 0.0, 0.0]}
-            - {t: 4, turn: [65.5, 0.0, 0.0]}
-            - {t: 5, ease: out_cubic, turn: [66.0, 0.0, 0.0]}
-            - {t: 40, turn: [66.0, 0.0, 0.0]}
-        - id: fx3_bastion_ego_slam_sword_swing_1
-          op: track
-          target: fx3_bastion_ego_slam_sword_rim_l
-          space: caster.right_hand
-          keys:
-            - {t: 0, turn: [-125.0, 0.0, 0.0]}
-            - {t: 1, ease: in_out_quad, turn: [-150.0, 0.0, 0.0]}
-            - {t: 2, turn: [-97.0, 0.0, 0.0]}
-            - {t: 3, ease: in_quad, turn: [62.0, 0.0, 0.0]}
-            - {t: 4, turn: [65.5, 0.0, 0.0]}
-            - {t: 5, ease: out_cubic, turn: [66.0, 0.0, 0.0]}
-            - {t: 40, turn: [66.0, 0.0, 0.0]}
-        - id: fx3_bastion_ego_slam_sword_swing_2
-          op: track
-          target: fx3_bastion_ego_slam_sword_rim_r
-          space: caster.right_hand
-          keys:
-            - {t: 0, turn: [-125.0, 0.0, 0.0]}
-            - {t: 1, ease: in_out_quad, turn: [-150.0, 0.0, 0.0]}
-            - {t: 2, turn: [-97.0, 0.0, 0.0]}
-            - {t: 3, ease: in_quad, turn: [62.0, 0.0, 0.0]}
-            - {t: 4, turn: [65.5, 0.0, 0.0]}
-            - {t: 5, ease: out_cubic, turn: [66.0, 0.0, 0.0]}
-            - {t: 40, turn: [66.0, 0.0, 0.0]}
-        - id: fx3_bastion_ego_slam_sword_swing_3
-          op: track
-          target: fx3_bastion_ego_slam_sword_tip
-          space: caster.right_hand
-          keys:
-            - {t: 0, turn: [-125.0, 0.0, 0.0]}
-            - {t: 1, ease: in_out_quad, turn: [-150.0, 0.0, 0.0]}
-            - {t: 2, turn: [-97.0, 0.0, 0.0]}
-            - {t: 3, ease: in_quad, turn: [62.0, 0.0, 0.0]}
-            - {t: 4, turn: [65.5, 0.0, 0.0]}
-            - {t: 5, ease: out_cubic, turn: [66.0, 0.0, 0.0]}
-            - {t: 40, turn: [66.0, 0.0, 0.0]}
-        - id: fx3_bastion_ego_slam_sword_swing_4
-          op: track
-          target: fx3_bastion_ego_slam_sword_base
-          space: caster.right_hand
-          keys:
-            - {t: 0, turn: [-125.0, 0.0, 0.0]}
-            - {t: 1, ease: in_out_quad, turn: [-150.0, 0.0, 0.0]}
-            - {t: 2, turn: [-97.0, 0.0, 0.0]}
-            - {t: 3, ease: in_quad, turn: [62.0, 0.0, 0.0]}
-            - {t: 4, turn: [65.5, 0.0, 0.0]}
-            - {t: 5, ease: out_cubic, turn: [66.0, 0.0, 0.0]}
-            - {t: 40, turn: [66.0, 0.0, 0.0]}
-        - id: fx3_bastion_ego_slam_sword_swing_5
-          op: track
-          target: fx3_bastion_ego_slam_sword_inset
-          space: caster.right_hand
-          keys:
-            - {t: 0, turn: [-125.0, 0.0, 0.0]}
-            - {t: 1, ease: in_out_quad, turn: [-150.0, 0.0, 0.0]}
-            - {t: 2, turn: [-97.0, 0.0, 0.0]}
-            - {t: 3, ease: in_quad, turn: [62.0, 0.0, 0.0]}
-            - {t: 4, turn: [65.5, 0.0, 0.0]}
-            - {t: 5, ease: out_cubic, turn: [66.0, 0.0, 0.0]}
-            - {t: 40, turn: [66.0, 0.0, 0.0]}
-        - id: fx3_bastion_ego_slam_sword_swing_6
-          op: track
-          target: fx3_bastion_ego_slam_sword_guard
-          space: caster.right_hand
-          keys:
-            - {t: 0, turn: [-125.0, 0.0, 0.0]}
-            - {t: 1, ease: in_out_quad, turn: [-150.0, 0.0, 0.0]}
-            - {t: 2, turn: [-97.0, 0.0, 0.0]}
-            - {t: 3, ease: in_quad, turn: [62.0, 0.0, 0.0]}
-            - {t: 4, turn: [65.5, 0.0, 0.0]}
-            - {t: 5, ease: out_cubic, turn: [66.0, 0.0, 0.0]}
-            - {t: 40, turn: [66.0, 0.0, 0.0]}
-        - id: fx3_bastion_ego_slam_sword_swing_7
-          op: track
-          target: fx3_bastion_ego_slam_sword_grip
-          space: caster.right_hand
-          keys:
-            - {t: 0, turn: [-125.0, 0.0, 0.0]}
-            - {t: 1, ease: in_out_quad, turn: [-150.0, 0.0, 0.0]}
-            - {t: 2, turn: [-97.0, 0.0, 0.0]}
-            - {t: 3, ease: in_quad, turn: [62.0, 0.0, 0.0]}
-            - {t: 4, turn: [65.5, 0.0, 0.0]}
-            - {t: 5, ease: out_cubic, turn: [66.0, 0.0, 0.0]}
-            - {t: 40, turn: [66.0, 0.0, 0.0]}
+        - id: fx3_bastion_ego_slam_sword_rig
+          op: rig
+          frame: fx3_bastion_ego_slam_sword
+          parent: caster
+          duration: 43
+          pivot: [1.399997, -0.003665, 0.299985]
+          rest: [90.0, 0.0, 0.0]
+          swing:
+            - {t: 0, rotate: [-125.0, 0.0, 0.0]}
+            - {t: 1, rotate: [-150.0, 0.0, 0.0]}
+            - {t: 2, rotate: [-97.0, 0.0, 0.0], sample: true}
+            - {t: 3, rotate: [62.0, 0.0, 0.0]}
+            - {t: 4, rotate: [65.5, 0.0, 0.0], sample: true}
+            - {t: 5, rotate: [66.0, 0.0, 0.0]}
+            - {t: 6, rotate: [66.0, 0.0, 0.0], sample: true}
+            - {t: 7, rotate: [66.0, 0.0, 0.0], sample: true}
+            - {t: 8, rotate: [66.0, 0.0, 0.0], sample: true}
+            - {t: 9, rotate: [66.0, 0.0, 0.0], sample: true}
+            - {t: 10, rotate: [66.0, 0.0, 0.0], sample: true}
+            - {t: 11, rotate: [66.0, 0.0, 0.0], sample: true}
+            - {t: 12, rotate: [66.0, 0.0, 0.0], sample: true}
+            - {t: 13, rotate: [66.0, 0.0, 0.0], sample: true}
+            - {t: 14, rotate: [66.0, 0.0, 0.0], sample: true}
+            - {t: 15, rotate: [66.0, 0.0, 0.0], sample: true}
+            - {t: 16, rotate: [66.0, 0.0, 0.0], sample: true}
+            - {t: 17, rotate: [66.0, 0.0, 0.0], sample: true}
+            - {t: 18, rotate: [66.0, 0.0, 0.0], sample: true}
+            - {t: 19, rotate: [66.0, 0.0, 0.0], sample: true}
+            - {t: 20, rotate: [66.0, 0.0, 0.0], sample: true}
+            - {t: 21, rotate: [66.0, 0.0, 0.0], sample: true}
+            - {t: 22, rotate: [66.0, 0.0, 0.0], sample: true}
+            - {t: 23, rotate: [66.0, 0.0, 0.0], sample: true}
+            - {t: 24, rotate: [66.0, 0.0, 0.0], sample: true}
+            - {t: 25, rotate: [66.0, 0.0, 0.0], sample: true}
+            - {t: 26, rotate: [66.0, 0.0, 0.0], sample: true}
+            - {t: 27, rotate: [66.0, 0.0, 0.0], sample: true}
+            - {t: 28, rotate: [66.0, 0.0, 0.0], sample: true}
+            - {t: 29, rotate: [66.0, 0.0, 0.0], sample: true}
+            - {t: 30, rotate: [66.0, 0.0, 0.0], sample: true}
+            - {t: 31, rotate: [66.0, 0.0, 0.0], sample: true}
+            - {t: 32, rotate: [66.0, 0.0, 0.0], sample: true}
+            - {t: 33, rotate: [66.0, 0.0, 0.0], sample: true}
+            - {t: 34, rotate: [66.0, 0.0, 0.0], sample: true}
+            - {t: 35, rotate: [66.0, 0.0, 0.0], sample: true}
+            - {t: 36, rotate: [66.0, 0.0, 0.0], sample: true}
+            - {t: 37, rotate: [66.0, 0.0, 0.0], sample: true}
+            - {t: 38, rotate: [66.0, 0.0, 0.0], sample: true}
+            - {t: 39, rotate: [66.0, 0.0, 0.0], sample: true}
+            - {t: 40, rotate: [66.0, 0.0, 0.0]}
+          sample_ticks: 1
+          respect_hit_stop: true
+        - id: fx3_bastion_ego_slam_sword_parts_rig
+          op: rig
+          frame: fx3_bastion_ego_slam_sword_parts
+          parent: caster
+          duration: 43
+          hand: false
+          pivot: [1.399997, -0.003665, 0.299985]
+          rest: [90.0, 0.0, 0.0]
+          swing:
+            - {t: 0, rotate: [-125.0, 0.0, 0.0]}
+            - {t: 1, rotate: [-150.0, 0.0, 0.0]}
+            - {t: 2, rotate: [-97.0, 0.0, 0.0], sample: true}
+            - {t: 3, rotate: [62.0, 0.0, 0.0]}
+            - {t: 4, rotate: [65.5, 0.0, 0.0], sample: true}
+            - {t: 5, rotate: [66.0, 0.0, 0.0]}
+            - {t: 6, rotate: [66.0, 0.0, 0.0], sample: true}
+            - {t: 7, rotate: [66.0, 0.0, 0.0], sample: true}
+            - {t: 8, rotate: [66.0, 0.0, 0.0], sample: true}
+            - {t: 9, rotate: [66.0, 0.0, 0.0], sample: true}
+            - {t: 10, rotate: [66.0, 0.0, 0.0], sample: true}
+            - {t: 11, rotate: [66.0, 0.0, 0.0], sample: true}
+            - {t: 12, rotate: [66.0, 0.0, 0.0], sample: true}
+            - {t: 13, rotate: [66.0, 0.0, 0.0], sample: true}
+            - {t: 14, rotate: [66.0, 0.0, 0.0], sample: true}
+            - {t: 15, rotate: [66.0, 0.0, 0.0], sample: true}
+            - {t: 16, rotate: [66.0, 0.0, 0.0], sample: true}
+            - {t: 17, rotate: [66.0, 0.0, 0.0], sample: true}
+            - {t: 18, rotate: [66.0, 0.0, 0.0], sample: true}
+            - {t: 19, rotate: [66.0, 0.0, 0.0], sample: true}
+            - {t: 20, rotate: [66.0, 0.0, 0.0], sample: true}
+            - {t: 21, rotate: [66.0, 0.0, 0.0], sample: true}
+            - {t: 22, rotate: [66.0, 0.0, 0.0], sample: true}
+            - {t: 23, rotate: [66.0, 0.0, 0.0], sample: true}
+            - {t: 24, rotate: [66.0, 0.0, 0.0], sample: true}
+            - {t: 25, rotate: [66.0, 0.0, 0.0], sample: true}
+            - {t: 26, rotate: [66.0, 0.0, 0.0], sample: true}
+            - {t: 27, rotate: [66.0, 0.0, 0.0], sample: true}
+            - {t: 28, rotate: [66.0, 0.0, 0.0], sample: true}
+            - {t: 29, rotate: [66.0, 0.0, 0.0], sample: true}
+            - {t: 30, rotate: [66.0, 0.0, 0.0], sample: true}
+            - {t: 31, rotate: [66.0, 0.0, 0.0], sample: true}
+            - {t: 32, rotate: [66.0, 0.0, 0.0], sample: true}
+            - {t: 33, rotate: [66.0, 0.0, 0.0], sample: true}
+            - {t: 34, rotate: [66.0, 0.0, 0.0], sample: true}
+            - {t: 35, rotate: [66.0, 0.0, 0.0], sample: true}
+            - {t: 36, rotate: [66.0, 0.0, 0.0], sample: true}
+            - {t: 37, rotate: [66.0, 0.0, 0.0], sample: true}
+            - {t: 38, rotate: [66.0, 0.0, 0.0], sample: true}
+            - {t: 39, rotate: [66.0, 0.0, 0.0], sample: true}
+            - {t: 40, rotate: [66.0, 0.0, 0.0]}
+          sample_ticks: 1
+          respect_hit_stop: true
+        - {id: fx3_bastion_ego_slam_sword_face, op: block, parent: fx3_bastion_ego_slam_sword_parts, block: gray_concrete, size: [0.46, 1.9, 0.07], at: [0.0, 1.55, 0.0], rig_shading: true}
+        - {id: fx3_bastion_ego_slam_sword_rim_l, op: block, parent: fx3_bastion_ego_slam_sword_parts, block: white_concrete, size: [0.07, 1.9, 0.12], at: [0.25, 1.55, 0.0], rig_shading: true}
+        - {id: fx3_bastion_ego_slam_sword_rim_r, op: block, parent: fx3_bastion_ego_slam_sword_parts, block: white_concrete, size: [0.07, 1.9, 0.12], at: [-0.25, 1.55, 0.0], rig_shading: true}
+        - {id: fx3_bastion_ego_slam_sword_tip, op: block, parent: fx3_bastion_ego_slam_sword_parts, block: white_concrete, size: [0.58, 0.08, 0.12], at: [0.0, 2.5, 0.0], rig_shading: true}
+        - {id: fx3_bastion_ego_slam_sword_base, op: block, parent: fx3_bastion_ego_slam_sword_parts, block: white_concrete, size: [0.58, 0.08, 0.12], at: [0.0, 0.62, 0.0], rig_shading: true}
+        - {id: fx3_bastion_ego_slam_sword_inset, op: block, parent: fx3_bastion_ego_slam_sword_parts, block: yellow_concrete, size: [0.09, 0.2, 0.09], at: [0.0, 0.86, 0.0], rig_shading: true}
+        - {id: fx3_bastion_ego_slam_sword_guard, op: block, parent: fx3_bastion_ego_slam_sword_parts, block: black_concrete, size: [0.62, 0.1, 0.18], at: [0.0, 0.5, 0.0], rig_shading: true}
+        - {id: fx3_bastion_ego_slam_sword_grip, op: block, parent: fx3_bastion_ego_slam_sword_parts, block: black_concrete, size: [0.09, 0.8, 0.09], at: [0.0, 0.05, 0.0], rig_shading: true}
         - {id: snd_3, op: sound, sound: item.trident.return, at: caster, volume: 0.8, pitch: 0.6}
     - id: fx30
       at: 30

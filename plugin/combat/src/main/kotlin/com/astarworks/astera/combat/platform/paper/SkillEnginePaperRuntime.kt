@@ -162,6 +162,7 @@ internal class SkillEnginePaperRuntime(
                 rigs = { services.get<com.astarworks.astera.core.application.port.outbound.animation.ISkinRigAnimator>() },
                 registry = { services.get<com.astarworks.astera.core.application.port.outbound.ISkinRigRegistry>() },
                 poses = { services.get<com.astarworks.astera.core.application.port.outbound.animation.IPlayerAnimationGateway>() },
+                slim = { { uuid -> displays.isSlimSkin(com.astarworks.astera.core.domain.player.PlayerId(uuid)) } },
             ),
             screen = PaperSkillScreenGateway(feedback, scheduler),
             cooldowns = PaperSkillCooldownGateway { services.get<ICooldownTracker>() },
