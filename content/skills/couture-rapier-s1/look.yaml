@@ -1,19 +1,18 @@
 # Converted from content/skills/couture-rapier-s1.yaml + content/vfx/* by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
 # Generated point-frame offsets are [left, up, forward] in the parent frame.
-# CONVERT-PRESENT vfx follow=false (anchored at world, no place-at-spawn) (x2): couture-passage-windup | couture-passage-contact
-# CONVERT-PRESENT vfx frame orient (frames carry no orientation / scale) (x4): orient="yaw"
 # CONVERT-PRESENT element brightness (no v2 equivalent) (x1): 15
 apiVersion: "astera/v2"
 kind: Skill
 id: couture-rapier-s1
 frames:
   - {id: fx1_couture_passage_windup, kind: body, parent: world}
-  - {id: fx2_couture_shears_snip, kind: body, parent: caster}
+  - {id: fx2_couture_shears_snip, kind: body, parent: world}
   - {id: fx3_couture_passage_contact, kind: body, parent: world}
   - {id: fx3_couture_passage_contact_sparks_at, kind: body, parent: fx3_couture_passage_contact}
-  - {id: fx4_couture_shear_passage, kind: body, parent: caster}
+  - {id: fx4_couture_shear_passage, kind: body, parent: world}
 presentation:
   timeline:
+    - {id: fx0, at: 0, do: [{id: anchor, op: anchor, frame: fx1_couture_passage_windup, at: caster, orient: yaw}]}
     - id: fx2
       at: 2
       do:
@@ -74,6 +73,7 @@ presentation:
     - id: fx6
       at: 6
       do:
+        - {id: anchor_2, op: anchor, frame: fx2_couture_shears_snip, at: caster, orient: yaw, follow: true, teleport_ticks: 2}
         - {op: block, parent: fx2_couture_shears_snip, block: gray_concrete, size: [1.0, 1.0, 1.0], id: fx2_couture_shears_snip_1_blade_0}
         - id: fx2_couture_shears_snip_1_blade_0_trk
           op: track
@@ -579,6 +579,7 @@ presentation:
     - id: fx13
       at: 13
       do:
+        - {id: anchor_4, op: anchor, frame: fx4_couture_shear_passage, at: caster, orient: yaw, follow: true, teleport_ticks: 2}
         - {op: plate, parent: fx4_couture_shear_passage, face: {viewer: center}, sprite: couture-cut, size: 3.2, frame_ticks: 2, brightness: 15, id: fx4_couture_shear_passage_passage_crescent}
         - id: fx4_couture_shear_passage_passage_crescent_trk
           op: track
@@ -634,6 +635,7 @@ presentation:
         - {id: rm_7, op: remove, ids: [fx4_couture_shear_passage_passage_crescent]}
   "on":
     dash_fx:
+      - {id: anchor_3, op: anchor, frame: fx3_couture_passage_contact, at: enemy, orient: yaw}
       - {op: block, parent: fx3_couture_passage_contact, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx3_couture_passage_contact_cross_0}
       - id: fx3_couture_passage_contact_cross_0_trk
         op: track

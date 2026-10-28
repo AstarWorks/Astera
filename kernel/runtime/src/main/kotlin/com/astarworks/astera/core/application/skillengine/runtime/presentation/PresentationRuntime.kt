@@ -3,6 +3,7 @@ package com.astarworks.astera.core.application.skillengine.runtime.presentation
 import com.astarworks.astera.core.application.skillengine.runtime.CastId
 import com.astarworks.astera.core.application.skillengine.runtime.ModelPointSource
 import com.astarworks.astera.core.application.skillengine.runtime.OpContext
+import com.astarworks.astera.core.application.skillengine.runtime.port.ISkillVisualGateway
 import com.astarworks.astera.core.application.skillengine.runtime.port.VisualHandle
 import com.astarworks.astera.core.application.skillengine.runtime.port.VisualPose
 import com.astarworks.astera.core.domain.effect.DisplayBillboard
@@ -15,6 +16,7 @@ import com.astarworks.astera.core.domain.skillengine.frame.FrameId
 import com.astarworks.astera.core.domain.skillengine.frame.FrameKind
 import com.astarworks.astera.core.domain.skillengine.frame.FrameNode
 import com.astarworks.astera.core.domain.skillengine.frame.FramePoint
+import com.astarworks.astera.core.domain.skillengine.frame.relativeTo
 import com.astarworks.astera.core.domain.skillengine.model.AxisRef
 import com.astarworks.astera.core.domain.skillengine.model.PointRef
 import com.astarworks.astera.core.domain.skillengine.model.Value
@@ -47,8 +49,8 @@ public class PresentationRuntime(
         /** Client interpolation length of every per-tick display write. */
         const val DISPLAY_TICKS: Int = 1
 
-        /** The client shows a write one tick later (interpolation), so a track is sampled one tick ahead: key N is on screen at tick N (v1 SKL-14). */
-        const val DISPLAY_LEAD: Int = 1
+        /** v1 `VfxTimeline.ANIMATION_DELAY_TICKS`: a target weight is read one tick behind the element clock (VfxPlayer.kt:426). */
+        const val PULL_DELAY: Int = 1
         const val MAX_FRAME_DEPTH: Int = 64
         private val UPRIGHT = 0.7071
         private val ONE = Vec3(1.0, 1.0, 1.0)
@@ -56,6 +58,11 @@ public class PresentationRuntime(
     }
 
     internal class TrackState(val op: VisualOp.Track, val startTick: Int)
+
+    internal class PullState(val op: VisualOp.Pull, val startTick: Int)
+
+    /** A following [VisualOp.Anchor]: [rotation] is the spawn rotation the frame keeps while its origin tracks the point. */
+    internal class AnchorFollow(val op: VisualOp.Anchor, val rotation: Quaternion)
 
     internal sealed class Live {
         abstract val opId: String
@@ -66,6 +73,12 @@ public class PresentationRuntime(
 
         /** Cast tick at which a repeated copy is removed (Repeat.life); null = stays. */
         var dieAt: Int? = null
+
+        /** True while a target pull moved this display on the last update: it is written with interpolation 0 (v1 teleports it). */
+        var pulledNow: Boolean = false
+
+        /** Pose last sent to the gateway; null until the spawn tick's first write. */
+        var shown: VisualPose? = null
 
         /** Last look a track key pushed to the gateway (writes only on change). */
         var shownAlpha: Double? = null
@@ -104,7 +117,9 @@ public class PresentationRuntime(
         }
 
         /** A block display on a node: per-axis [size] in blocks, base local origin [at] and base turn [turn]. */
-        class Block(override val opId: String, val parent: String, val size: Vec3, val at: Vec3, val turn: Quaternion) : Live()
+        class Block(
+            override val opId: String, val parent: String, val size: Vec3, val at: Vec3, val turn: Quaternion,
+        ) : Live()
 
         /** A text-display quad on a node: [size] = (width, height) in blocks (a text glyph: blocks per text unit). */
         class Quad(
@@ -141,6 +156,11 @@ public class PresentationRuntime(
         val live = LinkedHashMap<String, Live>()
         val sounds = LinkedHashMap<String, SoundTask>()
         val tracks = LinkedHashMap<String, TrackState>()
+        val pulls = LinkedHashMap<String, PullState>()
+        val anchors = LinkedHashMap<String, AnchorFollow>()
+
+        /** Anchor frame -> `teleport_duration` of the displays under it (see [VisualOp.Anchor.teleportTicks]). */
+        val teleports = HashMap<String, Int>()
         val lastOrigin = HashMap<String, Vec3>()
         val velocity = HashMap<String, Vec3>()
         val watched = LinkedHashSet<String>()
@@ -150,6 +170,7 @@ public class PresentationRuntime(
 
         /** Ids of the group nodes made for repeated displays. */
         val groups = LinkedHashSet<String>()
+
         val rigs = ArrayList<RigPerformer>()
     }
 
@@ -231,7 +252,8 @@ public class PresentationRuntime(
             is Live.Mesh -> {
                 val parentW = frameWorld(s, live.parent) ?: return null
                 val t = tracked(s, live.opId, parentW, live.group)
-                tree.setLocal(live.node, Frame(live.pivot + t.offset, (live.tilt * t.turn * live.rest).normalized()))
+                val pull = pullOf(s, live)
+                tree.setLocal(live.node, Frame(live.pivot + t.offset + pullShift(pull, parentW), (live.tilt * t.turn * live.rest).normalized()))
                 val world = tree.worldOf(live.node).getOrNull() ?: return null
                 val k = live.scale
                 return VisualPose(world, Vec3(k * t.scale.x, k * t.scale.y, k * t.scale.z), DisplayBillboard.FIXED, anchorFeet(s, live.parent))
@@ -241,7 +263,8 @@ public class PresentationRuntime(
                 val t = tracked(s, live.opId, parentW, live.group)
                 val base = (live.face as? PlateFace.Plane)?.let { planeRotation(s, it) }
                     ?.let { parentW.rotation.conjugate() * it } ?: Quaternion.IDENTITY
-                tree.setLocal(live.node, Frame(live.at + live.turn.rotate(t.offset), (base * live.turn * t.turn).normalized()))
+                val pull = pullOf(s, live)
+                tree.setLocal(live.node, Frame(live.at + live.turn.rotate(t.offset) + pullShift(pull, parentW), (base * live.turn * t.turn).normalized()))
                 val world = tree.worldOf(live.node).getOrNull() ?: return null
                 val frame = billboardFrame(s, live.opId, parentW, world, live.billboard, live.turn)
                 return VisualPose(frame, Vec3(live.size * t.scale.x, live.size * t.scale.y, 1.0), live.billboard, anchorFeet(s, live.parent))
@@ -249,16 +272,20 @@ public class PresentationRuntime(
             is Live.Block -> {
                 val parentW = frameWorld(s, live.parent) ?: return null
                 val t = tracked(s, live.opId, parentW, live.group)
-                tree.setLocal(live.node, Frame(live.at + live.turn.rotate(t.offset), (live.turn * t.turn).normalized()))
+                val pull = pullOf(s, live)
+                tree.setLocal(live.node, Frame(live.at + live.turn.rotate(t.offset) + pullShift(pull, parentW), (live.turn * t.turn).normalized()))
                 val world = tree.worldOf(live.node).getOrNull() ?: return null
-                return VisualPose(world, Vec3(live.size.x * t.scale.x, live.size.y * t.scale.y, live.size.z * t.scale.z), DisplayBillboard.FIXED, anchorFeet(s, live.parent))
+                val size = Vec3(live.size.x * t.scale.x, live.size.y * t.scale.y, live.size.z * t.scale.z)
+                if (pull != null && pull.line) return pulledLine(world, size, pull.correction, anchorFeet(s, live.parent))
+                return VisualPose(world, size, DisplayBillboard.FIXED, anchorFeet(s, live.parent))
             }
             is Live.Quad -> {
                 val parentW = frameWorld(s, live.parent) ?: return null
                 val t = tracked(s, live.opId, parentW, live.group)
                 val base = (live.face as? PlateFace.Plane)?.let { planeRotation(s, it) }
                     ?.let { parentW.rotation.conjugate() * it } ?: Quaternion.IDENTITY
-                tree.setLocal(live.node, Frame(live.at + live.turn.rotate(t.offset), (base * live.turn * t.turn).normalized()))
+                val pull = pullOf(s, live)
+                tree.setLocal(live.node, Frame(live.at + live.turn.rotate(t.offset) + pullShift(pull, parentW), (base * live.turn * t.turn).normalized()))
                 val world = tree.worldOf(live.node).getOrNull() ?: return null
                 val frame = billboardFrame(s, live.opId, parentW, world, live.billboard, live.turn)
                 return VisualPose(frame, Vec3(live.size.x * t.scale.x, live.size.y * t.scale.y, 1.0), live.billboard, anchorFeet(s, live.parent))
@@ -278,6 +305,51 @@ public class PresentationRuntime(
     ): Frame = when (billboard) {
         DisplayBillboard.FIXED, DisplayBillboard.VERTICAL -> world
         else -> Frame(world.origin, (baseTurn * tracked(s, id, parentW).turn).normalized())
+    }
+
+    private class Pulled(val correction: Vec3, val weight: Double, val line: Boolean)
+
+    /**
+     * v1 target tracking of [live] (VfxPlayer.kt:405-429): the correction `to - ref` and this tick's weight (the key clock is
+     * the pull's own, one tick behind). Null when no pull targets it or its points no longer resolve.
+     */
+    private fun pullOf(s: CastState, live: Live): Pulled? {
+        live.pulledNow = false
+        if (s.pulls.isEmpty()) return null
+        val p = s.pulls.values.firstOrNull { it.op.target == live.opId || it.op.target == live.group } ?: return null
+        val ref = pointWorld(s, p.op.ref) ?: return null
+        val to = pointWorld(s, p.op.to) ?: return null
+        live.pulledNow = true
+        return Pulled(to - ref, pullWeight(p.op.keys, s.tick - p.startTick - PULL_DELAY), p.op.line)
+    }
+
+    /** World offset of a plain pull, in the parent's axes; zero for a line pull (it stretches instead) or no pull. */
+    private fun pullShift(pull: Pulled?, parentW: Frame): Vec3 =
+        if (pull == null || pull.line) Vec3.ZERO else parentW.rotation.conjugate().rotate(pull.correction * pull.weight)
+
+    /** v1 `targetWeightAt` (VfxTargetKey.kt:12): linear, holding the first / last weight outside the keyed interval. */
+    private fun pullWeight(keys: List<com.astarworks.astera.core.domain.skillengine.op.PullKey>, t: Int): Double {
+        if (keys.isEmpty() || t <= keys.first().tick) return keys.firstOrNull()?.weight ?: 0.0
+        val next = keys.indexOfFirst { it.tick > t }
+        if (next < 0) return keys.last().weight
+        val a = keys[next - 1]
+        val b = keys[next]
+        return a.weight + (b.weight - a.weight) * (t - a.tick).toDouble() / (b.tick - a.tick)
+    }
+
+    /**
+     * v1 `lineTransform` (VfxPlayer.kt:612): the display's length axis (z, [size].z long, centred on [world]) keeps its start
+     * and its far end moves by [correction]; the display is re-aimed and stretched to the new length, up hint kept.
+     */
+    private fun pulledLine(world: Frame, size: Vec3, correction: Vec3, anchorFeet: Vec3?): VisualPose {
+        val half = world.rotation.rotate(Vec3(0.0, 0.0, size.z * 0.5))
+        val start = world.origin - half
+        val end = world.origin + half + correction
+        val delta = end - start
+        val length = delta.length()
+        if (length < 1e-9) return VisualPose(world, size, DisplayBillboard.FIXED, anchorFeet)
+        val rot = Basis.facing(delta, world.rotation.rotate(Vec3(0.0, 1.0, 0.0)))
+        return VisualPose(Frame((start + end) * 0.5, rot), Vec3(size.x, size.y, length), DisplayBillboard.FIXED, anchorFeet)
     }
 
     /** World rotation of a plane face: local x = axis A, local y = axis B's part perpendicular to A. */
@@ -318,6 +390,12 @@ public class PresentationRuntime(
 
     private class Tracked(val offset: Vec3, val turn: Quaternion, val scale: Vec3)
 
+    /**
+     * Ticks since [t] started, on the cast tick being processed (`s.tick` was advanced at the top of [tickCast]): the key of tick N is
+     * the value written on tick N, as v1's element clock does (VfxPlayer.kt:335-338 ticker, :365-375 `age++`, :429 `u.tick <= age`).
+     */
+    private fun castElapsed(s: CastState, t: TrackState): Int = s.tick - 1 - t.startTick
+
     /** Sum of every track on [target] at this tick; offsets are expressed in the track's space and returned in the parent's axes. */
     private fun tracked(s: CastState, target: String, parentW: Frame, group: String? = null): Tracked {
         var offset = Vec3.ZERO
@@ -325,7 +403,7 @@ public class PresentationRuntime(
         var scale = ONE
         for (t in s.tracks.values) {
             if (t.op.target != target && (group == null || t.op.target != group)) continue
-            val sample = sampleTrack(s, t, s.tick - t.startTick + DISPLAY_LEAD)
+            val sample = sampleTrack(s, t, castElapsed(s, t))
             val space = t.op.space?.let { frameWorld(s, it) } ?: parentW
             offset += parentW.rotation.conjugate().rotate(space.directionToWorld(sample.offset))
             turn = (turn * sample.turn).normalized()
@@ -387,6 +465,7 @@ public class PresentationRuntime(
             }
             s.sounds.remove(id)
             s.tracks.remove(id)
+            s.pulls.remove(id)
         }
     }
 
@@ -405,6 +484,17 @@ public class PresentationRuntime(
         removeIds(s, gone.map { it.opId })
     }
 
+    /**
+     * v1 sends a display only when it changes (VfxPlayer.kt:430-441, an element's updates) and a display spawns at its final
+     * transform, so the first write of a display carries interpolation 0 and an unchanged pose is not sent again.
+     */
+    private fun put(visuals: ISkillVisualGateway, l: Live, pose: VisualPose, ticks: Int) {
+        val last = l.shown
+        if (last == pose) return
+        l.shown = pose
+        visuals.write(l.handle, pose, if (last == null) 0 else ticks)
+    }
+
     public fun tickCast(cast: CastId) {
         val s = casts[cast] ?: return
         s.tick++
@@ -420,6 +510,20 @@ public class PresentationRuntime(
         }
         for (l in s.live.values.filter { val d = it.dieAt; d != null && s.tick - 1 >= d }) removeIds(s, listOf(l.opId))
         for (target in s.tracks.values.map { it.op.target }.distinct()) if (!s.live.containsKey(target) && target !in s.groups) settleFrame(s, target)
+        // v1 moves a following instance to its anchor every tick, the yaw baked at spawn (VfxPlayer.kt:414-420).
+        for (a in s.anchors.values) {
+            val node = s.ctx.tree.node(FrameId(a.op.frame)) ?: continue
+            val origin = pointWorld(s, a.op.at) ?: continue
+            val parentWorld = node.parent?.let { frameWorld(s, it.value) } ?: Frame(Vec3.ZERO)
+            s.ctx.tree.setLocal(FrameId(a.op.frame), relativeTo(parentWorld, Frame(origin, a.rotation)))
+        }
+        // v1 ends the whole instance when its tracked target is gone (VfxPlayer.kt:407).
+        for (p in s.pulls.values.toList()) {
+            if (pointWorld(s, p.op.to) == null || pointWorld(s, p.op.ref) == null) {
+                s.pulls.remove(p.op.id)
+                removeIds(s, p.op.ends + p.op.target)
+            }
+        }
         val visuals = s.ctx.ports.visuals
         for (r in s.rigs.toList()) {
             if (!r.tick(s, visuals, s.tick - 1 - r.startTick)) {
@@ -431,19 +535,27 @@ public class PresentationRuntime(
             when (l) {
                 is Live.Mesh -> update(s, l)?.let { pose ->
                     val driver = driverOf(s, l.parent)
-                    if (driver == null) visuals.write(l.handle, pose, DISPLAY_TICKS)
+                    if (driver == null) put(visuals, l, followed(s, pose, l.parent, l), if (l.pulledNow) 0 else DISPLAY_TICKS)
                     else driver.driven?.let { interp -> if (driver.changed(l.opId, pose)) visuals.write(l.handle, pose, interp) }
                 }
                 is Live.Plate -> {
-                    update(s, l)?.let { visuals.write(l.handle, it, DISPLAY_TICKS) }
+                    update(s, l)?.let { put(visuals, l, followed(s, it, l.parent, l), if (l.pulledNow) 0 else DISPLAY_TICKS) }
                     tickFlipbook(s, l)
                     tickLook(s, l)
                 }
-                is Live.Block, is Live.Quad -> {
-                    update(s, l)?.let { visuals.write(l.handle, it, DISPLAY_TICKS) }
+                is Live.Block -> {
+                    update(s, l)?.let { pose ->
+                        val driver = driverOf(s, l.parent)
+                        if (driver == null) put(visuals, l, followed(s, pose, l.parent, l), if (l.pulledNow) 0 else DISPLAY_TICKS)
+                        else driver.driven?.let { interp -> if (driver.changed(l.opId, pose)) visuals.write(l.handle, pose, interp) }
+                    }
                     tickLook(s, l)
                 }
-                is Live.Line -> linePose(s, l)?.let { visuals.write(l.handle, it, DISPLAY_TICKS) }
+                is Live.Quad -> {
+                    update(s, l)?.let { put(visuals, l, followed(s, it, l.parent, l), if (l.pulledNow) 0 else DISPLAY_TICKS) }
+                    tickLook(s, l)
+                }
+                is Live.Line -> linePose(s, l)?.let { put(visuals, l, it, DISPLAY_TICKS) }
                 is Live.Trail -> tickTrail(s, l)
             }
         }
@@ -505,7 +617,7 @@ public class PresentationRuntime(
         var block: String? = null
         for (t in s.tracks.values) {
             if (t.op.target != l.opId && (group == null || t.op.target != group)) continue
-            val look = sampleLook(s, t, s.tick - t.startTick + DISPLAY_LEAD)
+            val look = sampleLook(s, t, castElapsed(s, t))
             look.alpha?.let { alpha = it }
             look.color?.let { color = it }
             look.block?.let { block = it }
@@ -550,6 +662,27 @@ public class PresentationRuntime(
      * display rides the caster natively (v1 ADR-0276) so a dash or knockback cannot leave it behind. A frame re-parented to
      * the world (a thrown piece) is not anchored from that tick on.
      */
+    /**
+     * The pose with the `teleport_duration` of the followed anchor above [frame]; native passengers (caster-anchored) keep theirs,
+     * and so does a display a track moves (v1 `selfMoving`: an element with position updates is not follow-teleported,
+     * VfxPlayer.kt:163, :419).
+     */
+    private fun followed(s: CastState, pose: VisualPose, frame: String, l: Live): VisualPose {
+        if (s.teleports.isEmpty() || pose.anchorFeet != null || selfMoving(s, l)) return pose
+        var cur: FrameId? = FrameId(frame)
+        var hops = 0
+        while (cur != null && hops++ < MAX_FRAME_DEPTH) {
+            s.teleports[cur.value]?.let { return pose.copy(teleportTicks = it) }
+            cur = s.ctx.tree.node(cur)?.parent
+        }
+        return pose
+    }
+
+    private fun selfMoving(s: CastState, l: Live): Boolean {
+        val group = l.group
+        return s.tracks.values.any { t -> (t.op.target == l.opId || (group != null && t.op.target == group)) && t.op.keys.any { it.offset != null } }
+    }
+
     internal fun anchorFeet(s: CastState, frame: String): Vec3? =
         if (casterAnchored(s, frame)) s.ctx.tree.worldOf(FrameId("caster")).getOrNull()?.origin else null
 

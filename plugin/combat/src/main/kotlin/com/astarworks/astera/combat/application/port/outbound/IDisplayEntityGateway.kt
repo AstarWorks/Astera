@@ -3,6 +3,7 @@ package com.astarworks.astera.combat.application.port.outbound
 import com.astarworks.astera.core.domain.effect.Audience
 import com.astarworks.astera.core.domain.effect.DisplaySpec
 import com.astarworks.astera.core.domain.effect.DisplayTransform
+import com.astarworks.astera.core.domain.effect.vfx.VfxLane
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.domain.world.WorldId
@@ -22,6 +23,14 @@ public interface IDisplayEntityGateway {
      * handle, or `null` when the world is not loaded or the kind is unsupported.
      */
     public fun spawn(world: WorldId, at: Vec3, spec: DisplaySpec, renderedLines: List<String>): DisplayHandle?
+
+    /**
+     * Like [spawn], shown only to the viewers whose `vfx_intensity` admits [lane] (v1 `lane`, VfxQualityProfile.admits): the
+     * candidates are the players near the display plus [owner]. A [VfxLane.CORE] display is the plain [spawn]. Hosts without
+     * per-viewer visibility show everybody.
+     */
+    public fun spawnLaned(world: WorldId, at: Vec3, spec: DisplaySpec, renderedLines: List<String>, lane: VfxLane, owner: PlayerId?): DisplayHandle? =
+        spawn(world, at, spec, renderedLines)
 
     /**
      * Like [spawn], but the display is visible to [viewer] only (spawned hidden by default, then revealed to that one player;
@@ -71,6 +80,7 @@ public interface IDisplayEntityGateway {
         renderedLines: List<String>,
         anchor: PlayerId,
         offset: Vec3,
+        lane: VfxLane = VfxLane.CORE,
     ): DisplayHandle? = null
 
     /** Whether this live display is still riding the requested anchor in the requested world. */

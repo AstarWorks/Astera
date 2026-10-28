@@ -72,6 +72,7 @@ public fun toDisplayWrite(
     billboard: DisplayBillboard,
     ticks: Int,
     anchor: DisplayWrite.Anchor? = null,
+    teleportTicks: Int? = null,
 ): DisplayWrite {
     val scale = Vec3(size.x / intrinsic.unit.x, size.y / intrinsic.unit.y, size.z / intrinsic.unit.z)
     val centre = Vec3(intrinsic.centre.x * scale.x, intrinsic.centre.y * scale.y, intrinsic.centre.z * scale.z)
@@ -80,7 +81,7 @@ public fun toDisplayWrite(
         transform = DisplayTransform(world.rotation.rotate(centre), world.rotation, scale),
         billboard = billboard,
         interpolationDelay = 0, interpolationDuration = ticks,
-        teleportDuration = if (anchor != null && billboard == DisplayBillboard.FIXED) 0 else ticks, // a rider never teleports (v1)
+        teleportDuration = if (anchor != null && billboard == DisplayBillboard.FIXED) 0 else teleportTicks ?: ticks, // a rider never teleports (v1)
         anchor = anchor.takeIf { billboard == DisplayBillboard.FIXED },
     )
 }

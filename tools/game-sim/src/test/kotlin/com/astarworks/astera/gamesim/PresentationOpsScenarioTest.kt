@@ -28,6 +28,8 @@ import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.geometry.math.Frame
 import com.astarworks.astera.core.domain.geometry.math.Quaternion
+import com.astarworks.astera.core.domain.skillengine.op.AnchorOrient
+import com.astarworks.astera.core.domain.skillengine.op.PullKey
 import com.astarworks.astera.core.domain.skillengine.frame.FrameError
 import com.astarworks.astera.core.domain.skillengine.frame.FrameId
 import com.astarworks.astera.core.domain.skillengine.frame.FrameKind
@@ -113,8 +115,12 @@ class PresentationOpsScenarioTest {
     private var nextHandle = 1L
     private val poses = HashMap<Long, Frame>()
     private val scales = HashMap<Long, Double>()
+    private val lanes = HashMap<Long, com.astarworks.astera.core.domain.effect.vfx.VfxLane>()
+    private val teleports = HashMap<Long, Int?>()
     private val spawnedBillboards = HashMap<Long, com.astarworks.astera.core.domain.effect.DisplayBillboard>()
     private val lines = HashSet<Long>()
+    private val meshLooks = ArrayList<com.astarworks.astera.core.application.skillengine.runtime.port.MeshLook>()
+    private val blockShading = ArrayList<Boolean>()
     private fun ends(pose: VisualPose): Pair<Vec3, Vec3> {
         val half = pose.frame.directionToWorld(Vec3(1.0, 0.0, 0.0)) * (pose.size.x / 2.0)
         return (pose.frame.origin - half) to (pose.frame.origin + half)
@@ -133,18 +139,19 @@ class PresentationOpsScenarioTest {
     private val visuals = object : ISkillVisualGateway {
     override fun setTrailShape(handle: com.astarworks.astera.core.application.skillengine.runtime.port.VisualHandle, bands: List<com.astarworks.astera.core.domain.skillengine.op.TrailBand>, edge: com.astarworks.astera.core.domain.skillengine.op.TrailEdge?, rim: com.astarworks.astera.core.domain.skillengine.op.TrailRim?, stepDeg: Double, doubleSided: Boolean) {}
         private fun h(kind: String): VisualHandle { calls += kind; return VisualHandle(nextHandle++) }
-        override fun spawnMesh(castOwner: UUID, item: String, part: String?, pose: VisualPose, brightness: Int?) =
-            h("mesh:$item").also { poses[it.id] = pose.frame; scales[it.id] = pose.size.x }
+        override fun spawnMesh(castOwner: UUID, item: String, part: String?, pose: VisualPose, brightness: Int?, look: com.astarworks.astera.core.application.skillengine.runtime.port.MeshLook) =
+            h("mesh:$item").also { poses[it.id] = pose.frame; scales[it.id] = pose.size.x; meshLooks += look; lanes[it.id] = pose.lane }
         override fun spawnSkinBone(castOwner: UUID, bone: com.astarworks.astera.core.domain.animation.skinrig.SkinRigBone, slim: Boolean, ghost: Boolean, pose: VisualPose) =
             h("skin_bone:${bone.yamlName}").also { poses[it.id] = pose.frame; scales[it.id] = pose.size.x }
         override fun spawnPlate(castOwner: UUID, sprite: String, alpha: Double, pose: VisualPose, brightness: Int?) =
             h("plate:$sprite").also { poses[it.id] = pose.frame; scales[it.id] = pose.size.x; spawnedBillboards[it.id] = pose.billboard }
-        override fun spawnBlock(castOwner: UUID, block: String, pose: VisualPose, brightness: Int?) = h("block").also { poses[it.id] = pose.frame; scales[it.id] = pose.size.x }
+        override fun spawnBlock(castOwner: UUID, block: String, pose: VisualPose, brightness: Int?, rigShading: Boolean) = h("block").also { poses[it.id] = pose.frame; scales[it.id] = pose.size.x; blockShading += rigShading }
         override fun spawnQuad(castOwner: UUID, colorHex: String, alpha: Double, text: String?, shadow: Boolean, seeThrough: Boolean, pose: VisualPose, brightness: Int?) = h("quad").also { poses[it.id] = pose.frame; scales[it.id] = pose.size.x }
         override fun spawnLine(castOwner: UUID, colorHex: String, pose: VisualPose) =
             h("line:$colorHex").also { lineEnds[it.id] = ends(pose); lines += it.id }
         override fun spawnTrail(castOwner: UUID, ticks: Int, widthFrac: Double, colorHex: String, alpha: Double) = h("trail")
         override fun write(handle: VisualHandle, pose: VisualPose, interpolationTicks: Int) {
+            teleports[handle.id] = pose.teleportTicks
             if (handle.id in lines) lineEnds[handle.id] = ends(pose) else { poses[handle.id] = pose.frame; scales[handle.id] = pose.size.x }
         }
         override fun pushTrailPoint(handle: VisualHandle, root: Vec3, tip: Vec3) { trailPoints += root to tip }
@@ -290,11 +297,34 @@ class PresentationOpsScenarioTest {
     }
 
     @Test
+    fun `mesh carries item_model display_mode and rig_shading to the gateway and a rig part block sits at its offset`() {
+        val mesh = decode("mesh", mapOf("frame" to "volley", "item" to "minecraft:iron_nugget", "item_model" to "astera:bolt", "display_mode" to "none", "rig_shading" to false)) as VisualOp.Mesh
+        assertThat(mesh.itemModel).isEqualTo("astera:bolt")
+        assertThat(mesh.displayMode).isEqualTo(com.astarworks.astera.core.domain.effect.DisplayItemMode.NONE)
+        assertThatThrownBy { decode("mesh", mapOf("frame" to "volley", "item" to "minecraft:stick", "display_mode" to "sideways")) }.isInstanceOf(IllegalArgumentException::class.java)
+        run(mesh)
+        val look = meshLooks.single()
+        assertThat(look.itemModel).isEqualTo("astera:bolt")
+        assertThat(look.mode).isEqualTo(com.astarworks.astera.core.domain.effect.DisplayItemMode.NONE)
+        assertThat(look.rigShading).isFalse()
+
+        // A rig part: a block at `at` in its rig frame, lit by the weapon-rig shader rule.
+        val part = decode("block", mapOf("id" to "part", "parent" to "volley", "block" to "iron_block", "size" to listOf(1.0, 1.0, 1.0),
+            "at" to listOf(0.0, 0.0, 2.0), "rig_shading" to true)) as VisualOp.Block
+        run(part)
+        assertThat(blockShading.single()).isTrue()
+        val origin = poses.getValue(2L).origin
+        near(origin.x, 5.0)
+        near(origin.y, 2.0)
+        near(origin.z, 2.0)
+    }
+
+    @Test
     fun `decoders cover every presentation op and a plate has exactly two face modes`() {
         val names = presentationDecoders().flatMap { it.opNames }.toSet()
         assertThat(names).containsExactlyInAnyOrder(
             "mesh", "plate", "block", "quad", "line", "trail", "track", "remove", "rig", "emit", "sound",
-            "victim_anim", "caster_anim", "glow", "title", "action_bar", "camera_shake", "screen_flash", "screen_veil", "stop_sound",
+            "victim_anim", "caster_anim", "glow", "title", "action_bar", "camera_shake", "screen_flash", "screen_veil", "stop_sound", "anchor", "pull",
         )
         val viewer = decode("plate", mapOf("parent" to "volley", "sprite" to "slash_fan", "face" to mapOf("viewer" to "vertical"))) as VisualOp.Plate
         assertThat(viewer.face).isEqualTo(PlateFace.ViewerVertical)
@@ -399,7 +429,7 @@ class PresentationOpsScenarioTest {
             ),
         )
         val frames = tree.snapshot()
-        tick(1) // the pose pushed now is on screen next tick, so it already carries tick 2 of the track
+        tick(3) // cast tick 2 pushes the value of key tick 2 (v1 VfxPlayer.kt:365-375 age++, :429 `u.tick <= age`)
         assertThat(poses[1]!!.origin.y).isCloseTo(3.0, Offset.offset(1e-9)) // 2.0 base + 1.0 (half of 2.0)
         near(scales[1]!!, 2.0)
         tick(10)
@@ -477,15 +507,12 @@ class PresentationOpsScenarioTest {
     // ---- SKL-14 restored v1 behaviour --------------------------------------------------------------
 
     @Test
-    fun `pose lag - a keyframe at tick N is the pose pushed on tick N-1 so the player sees it at tick N`() {
+    fun `track clock - a keyframe at tick N is the pose pushed on tick N`() {
         run(VisualOp.Mesh("m", null, "shears", "couture-shears", null, null))
         run(VisualOp.Track("t", null, "m", listOf(TrackKey(0, v(0.0, 0.0, 0.0), null, null, null), TrackKey(5, v(0.0, 5.0, 0.0), null, null, null)), null))
-        // the gateway interpolates one tick: what is pushed during tick k is displayed at tick k+1
-        val shown = (1..6).map { tick(); near(0.0, 0.0); poses[1]!!.origin.y - 2.0 }
-        // pushed at tick 1..6 -> shown at tick 2..7: tick N shows key value N (offset N), capped at the last key (5)
-        assertThat(shown.map { Math.round(it * 1000) / 1000.0 }).containsExactly(2.0, 3.0, 4.0, 5.0, 5.0, 5.0)
-        // and tick 1 shows 1.0: it was the spawn pose + the tick-0 push, i.e. the first push already looks one tick ahead
-        assertThat(shown.first()).isEqualTo(2.0)
+        // v1 advances the element age once per tick and pushes every update with `tick <= age` on that tick (VfxPlayer.kt:365-375, :429)
+        val shown = (1..6).map { tick(); poses[1]!!.origin.y - 2.0 }
+        assertThat(shown.map { Math.round(it * 1000) / 1000.0 }).containsExactly(0.0, 1.0, 2.0, 3.0, 4.0, 5.0)
     }
 
     @Test
@@ -527,5 +554,93 @@ class PresentationOpsScenarioTest {
         assertThat(trailLooks).containsExactly(Triple(2L, 0.3, "both"))
         assertThat((decode("trail", mapOf("of" to "shears.tip", "ticks" to 5, "fade" to 0.3, "style" to "crisp")) as VisualOp.Trail).style).isEqualTo("crisp")
         assertThatThrownBy { decode("trail", mapOf("of" to "shears.tip", "ticks" to 5, "style" to "neon")) }.isInstanceOf(IllegalArgumentException::class.java)
+    }
+
+    @Test
+    fun `anchor places a world frame by v1 orient, follow keeps the spawn rotation`() {
+        tree.put("caster", "world", Vec3(0.0, 1.0, -4.0), FrameKind.CASTER)
+        run(VisualOp.Anchor("a1", null, "volley", PointRef("contact"), AnchorOrient.WORLD))
+        assertThat(tree.nodes.getValue("volley").local).isEqualTo(Frame(Vec3(6.0, 1.0, 0.0)))
+
+        run(VisualOp.Anchor("a2", null, "volley", PointRef("contact"), AnchorOrient.YAW))
+        val yaw = tree.worldOf(FrameId("volley")).getOrNull()!!
+        near(yaw.forward().x, 0.0); near(yaw.forward().z, 1.0) // caster look (0,0,1), flattened
+
+        run(VisualOp.Anchor("a3", null, "volley", PointRef("contact"), AnchorOrient.TO_TARGET))
+        val toward = tree.worldOf(FrameId("volley")).getOrNull()!!.forward()
+        val len = Math.sqrt(6.0 * 6.0 + 4.0 * 4.0)
+        near(toward.x, 6.0 / len); near(toward.y, 0.0); near(toward.z, 4.0 / len)
+
+        run(VisualOp.Anchor("a4", null, "volley", PointRef("contact"), AnchorOrient.TO_TARGET, follow = true))
+        val spawnRotation = tree.worldOf(FrameId("volley")).getOrNull()!!.rotation
+        tree.setLocal(FrameId("contact"), Frame(Vec3(9.0, 1.0, 3.0)))
+        tick()
+        val followed = tree.worldOf(FrameId("volley")).getOrNull()!!
+        assertThat(followed.origin).isEqualTo(Vec3(9.0, 1.0, 3.0))
+        assertThat(followed.rotation).isEqualTo(spawnRotation)
+
+        run(VisualOp.Anchor("a5", null, "volley", PointRef("contact"), AnchorOrient.WORLD)) // not following any more
+        tree.setLocal(FrameId("contact"), Frame(Vec3(1.0, 1.0, 1.0)))
+        tick()
+        assertThat(tree.worldOf(FrameId("volley")).getOrNull()!!.origin).isEqualTo(Vec3(9.0, 1.0, 3.0))
+
+        val d = decode("anchor", mapOf("frame" to "volley", "at" to "contact", "orient" to "to_target", "follow" to true)) as VisualOp.Anchor
+        assertThat(d.orient).isEqualTo(AnchorOrient.TO_TARGET)
+        assertThat(d.follow).isTrue()
+        assertThatThrownBy { decode("anchor", mapOf("frame" to "volley", "at" to "contact", "orient" to "sideways")) }.isInstanceOf(IllegalArgumentException::class.java)
+    }
+
+    @Test
+    fun `pull shifts its target toward the tracked point by the keyed weight`() {
+        run(VisualOp.Mesh("m", null, "shears", "couture-shears", null, null))
+        run(VisualOp.Pull("m_pull", null, "m", PointRef("palm"), PointRef("contact"), listOf(PullKey(0, 0.0), PullKey(4, 1.0)), false, emptyList()))
+        tick()
+        val early = poses[1]!!.origin.x
+        tick(12)
+        // palm (0,1,0) -> contact (6,1,0): the held weight is 1.0, the mesh sits 6 along +X from its frame
+        near(poses[1]!!.origin.x, 6.0)
+        near(poses[1]!!.origin.y, 2.0)
+        assertThat(early).isLessThan(6.0)
+    }
+
+    @Test
+    fun `lane reaches the spawned pose and decodes`() {
+        run(VisualOp.Mesh("core", null, "shears", "couture-shears", null, null))
+        run(VisualOp.Mesh("amb", null, "shears", "couture-shears", null, null, lane = com.astarworks.astera.core.domain.effect.vfx.VfxLane.AMBIENT))
+        assertThat(lanes[1]).isEqualTo(com.astarworks.astera.core.domain.effect.vfx.VfxLane.CORE)
+        assertThat(lanes[2]).isEqualTo(com.astarworks.astera.core.domain.effect.vfx.VfxLane.AMBIENT)
+        val d = decode("mesh", mapOf("frame" to "shears", "item" to "x", "lane" to "accent")) as VisualOp.Mesh
+        assertThat(d.lane).isEqualTo(com.astarworks.astera.core.domain.effect.vfx.VfxLane.ACCENT)
+        assertThatThrownBy { decode("mesh", mapOf("frame" to "shears", "item" to "x", "lane" to "loud")) }.isInstanceOf(IllegalArgumentException::class.java)
+    }
+
+    @Test
+    fun `followed anchor teleports its displays over teleport_ticks and the live pose is read only without pose`() {
+        run(VisualOp.Anchor("a", null, "volley", PointRef("contact"), AnchorOrient.WORLD, follow = true, teleportTicks = 2))
+        run(VisualOp.Mesh("m", null, "volley", "couture-shears", null, null))
+        tick()
+        assertThat(teleports[1]).isEqualTo(2)
+        run(VisualOp.Anchor("b", null, "volley", PointRef("contact"), AnchorOrient.WORLD))
+        tick()
+        assertThat(teleports[1]).isNull()
+
+        val d = decode("anchor", mapOf("frame" to "volley", "at" to "contact", "follow" to true, "pitch" to true, "pose" to "snap", "teleport_ticks" to 3)) as VisualOp.Anchor
+        assertThat(d.pitch).isTrue()
+        assertThat(d.pose).isEqualTo("snap")
+        assertThat(d.teleportTicks).isEqualTo(3)
+        assertThatThrownBy { decode("anchor", mapOf("frame" to "volley", "at" to "contact", "teleport_ticks" to 60)) }.isInstanceOf(IllegalArgumentException::class.java)
+    }
+
+    @Test
+    fun `server floor drops ambient then accent lanes as the live-display budget fills`() {
+        val q = com.astarworks.astera.core.domain.effect.vfx.VfxQualityProfile
+        val full = com.astarworks.astera.core.domain.effect.VfxIntensity.FULL
+        val lane = com.astarworks.astera.core.domain.effect.vfx.VfxLane.entries.associateBy { it.name }
+        assertThat(q.serverFloor(0, 100)).isEqualTo(full)
+        assertThat(q.admits(q.serverFloor(70, 100), lane.getValue("AMBIENT"))).isFalse()
+        assertThat(q.admits(q.serverFloor(70, 100), lane.getValue("ACCENT"))).isTrue()
+        assertThat(q.admits(q.serverFloor(90, 100), lane.getValue("ACCENT"))).isFalse()
+        assertThat(q.admits(q.serverFloor(90, 100), lane.getValue("CORE"))).isTrue()
+        assertThat(q.admits(q.serverFloor(1, 0), lane.getValue("CORE"))).isTrue()
     }
 }

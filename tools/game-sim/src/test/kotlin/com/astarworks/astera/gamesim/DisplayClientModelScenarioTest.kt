@@ -35,7 +35,8 @@ class DisplayClientModelScenarioTest {
         assertThat(rec.calls).isNotEmpty
         val perTick = rec.calls.filter { !it.spawn }.groupBy { it.handle to it.tick }.filterValues { it.size > 1 }
         assertThat(perTick.keys).describedAs("split writes (handle, tick)").isEmpty()
-        val laggy = rec.calls.filter { it.write.anchor == null && it.write.interpolationDuration != it.write.teleportDuration || it.write.interpolationDelay != 0 }
+        // a followed effect teleports its position over follow_teleport_ticks while rotation/scale interpolate (v1 VfxPlayer.kt:416-419); a rider never teleports
+        val laggy = rec.calls.filter { (it.write.anchor == null && !it.followed && it.write.interpolationDuration != it.write.teleportDuration) || it.write.interpolationDelay != 0 }
         assertThat(laggy.map { "h${it.handle} t${it.tick}" }).describedAs("rotation/scale interpolation differs from position").isEmpty()
     }
 

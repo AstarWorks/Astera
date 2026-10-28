@@ -1,21 +1,20 @@
 # Converted from content/skills/vendetta-rifle-def.yaml + content/vfx/* by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
 # Generated point-frame offsets are [left, up, forward] in the parent frame.
-# CONVERT-PRESENT vfx frame orient (frames carry no orientation / scale) (x2): orient="yaw"
-# CONVERT-PRESENT vfx follow=false (anchored at world, no place-at-spawn) (x1): vendetta-parry-ring
 apiVersion: "astera/v2"
 kind: Skill
 id: vendetta-rifle-def
 frames:
-  - {id: fx1_vendetta_bayonet_thrust, kind: body, parent: caster}
+  - {id: fx1_vendetta_bayonet_thrust, kind: body, parent: world}
   - {id: fx2_vendetta_parry_ring, kind: body, parent: world}
   - {id: fx2_vendetta_parry_ring_petals_at, kind: body, parent: fx2_vendetta_parry_ring}
-  - {id: fx2_vendetta_parry_ring_bayonet_at, kind: body, parent: caster.right_hand}
-  - {id: fx2_vendetta_parry_ring_bayonet, kind: body, parent: fx2_vendetta_parry_ring_bayonet_at}
+  - {id: fx2_vendetta_parry_ring_bayonet, kind: body, parent: caster}
+  - {id: fx2_vendetta_parry_ring_bayonet_parts, kind: body, parent: caster}
 presentation:
   timeline:
     - id: fx0
       at: 0
       do:
+        - {id: anchor, op: anchor, frame: fx1_vendetta_bayonet_thrust, at: caster, orient: yaw, follow: true, teleport_ticks: 2}
         - {op: block, parent: fx1_vendetta_bayonet_thrust, block: brown_terracotta, size: [1.0, 1.0, 1.0], id: fx1_vendetta_bayonet_thrust_stock}
         - id: fx1_vendetta_bayonet_thrust_stock_trk
           op: track
@@ -91,6 +90,7 @@ presentation:
             - {t: 9, turn: [-12.0, 0.0, 0.0]}
             - {t: 10, turn: [-16.0, 0.0, 0.0]}
             - {t: 11, offset: [0.09, 1.75495, 1.74099], scale: [0.03, 0.045, 0.18], turn: [-20.0, 0.0, 0.0]}
+        - {id: anchor_2, op: anchor, frame: fx2_vendetta_parry_ring, at: caster, orient: yaw}
         - {op: quad, parent: fx2_vendetta_parry_ring, face: {viewer: center}, size: [1.0, 1.0], color: "#FFCE66", alpha: 1.0, text: "✦", brightness: 15, id: fx2_vendetta_parry_ring_clash}
         - id: fx2_vendetta_parry_ring_clash_trk
           op: track
@@ -102,10 +102,9 @@ presentation:
         - id: fx2_vendetta_parry_ring_bayonet_rig
           op: rig
           frame: fx2_vendetta_parry_ring_bayonet
-          parent: fx2_vendetta_parry_ring_bayonet_at
+          parent: caster
           duration: 11
-          hand: false
-          pivot: [1.049232, -0.35228, 0.253199]
+          pivot: [0.35, 1.05, 0.25]
           tilt: [0.0, 0.0, 30.0]
           rest: [90.0, 0.0, 0.0]
           swing:
@@ -119,17 +118,53 @@ presentation:
             - {t: 7, rotate: [-70.0, 0.0, 0.0], sample: true}
             - {t: 8, rotate: [-65.0, 0.0, 0.0]}
           sample_ticks: 1
-        - {id: fx2_vendetta_parry_ring_bayonet_heel, op: block, parent: fx2_vendetta_parry_ring_bayonet, block: nether_bricks, size: [0.2, 0.8, 0.16], at: [0.0, 0.4, 0.0]}
-        - {id: fx2_vendetta_parry_ring_bayonet_spine, op: block, parent: fx2_vendetta_parry_ring_bayonet, block: nether_bricks, size: [0.24, 0.5, 0.16], at: [-0.03, 1.0, 0.0], turn: [0.0, 0.0, 5.0]}
-        - {id: fx2_vendetta_parry_ring_bayonet_tip, op: block, parent: fx2_vendetta_parry_ring_bayonet, block: nether_bricks, size: [0.24, 0.35, 0.16], at: [-0.11, 1.35, 0.0], turn: [0.0, 0.0, 18.0]}
-        - {id: fx2_vendetta_parry_ring_bayonet_grip, op: block, parent: fx2_vendetta_parry_ring_bayonet, block: black_concrete, size: [0.13, 0.4, 0.13], at: [0.0, -0.2, 0.0]}
-        - {id: fx2_vendetta_parry_ring_bayonet_rib_0, op: block, parent: fx2_vendetta_parry_ring_bayonet, block: bone_block, size: [0.28, 0.045, 0.18], at: [0.0, 0.22, 0.0], brightness: 15}
-        - {id: fx2_vendetta_parry_ring_bayonet_rib_1, op: block, parent: fx2_vendetta_parry_ring_bayonet, block: bone_block, size: [0.28, 0.045, 0.18], at: [0.0, 0.41, 0.0], brightness: 15}
-        - {id: fx2_vendetta_parry_ring_bayonet_rib_2, op: block, parent: fx2_vendetta_parry_ring_bayonet, block: bone_block, size: [0.28, 0.045, 0.18], at: [0.0, 0.6, 0.0], brightness: 15}
-        - {id: fx2_vendetta_parry_ring_bayonet_rib_3, op: block, parent: fx2_vendetta_parry_ring_bayonet, block: bone_block, size: [0.28, 0.045, 0.18], at: [-0.019, 0.79, 0.0], brightness: 15}
-        - {id: fx2_vendetta_parry_ring_bayonet_rib_4, op: block, parent: fx2_vendetta_parry_ring_bayonet, block: bone_block, size: [0.28, 0.045, 0.18], at: [-0.038, 0.98, 0.0], brightness: 15}
-        - {id: fx2_vendetta_parry_ring_bayonet_rib_5, op: block, parent: fx2_vendetta_parry_ring_bayonet, block: bone_block, size: [0.28, 0.045, 0.18], at: [-0.057, 1.17, 0.0], brightness: 15}
-        - {id: fx2_vendetta_parry_ring_bayonet_rib_6, op: block, parent: fx2_vendetta_parry_ring_bayonet, block: bone_block, size: [0.28, 0.045, 0.18], at: [-0.076, 1.36, 0.0], brightness: 15}
+          respect_hit_stop: true
+        - id: fx2_vendetta_parry_ring_bayonet_parts_rig
+          op: rig
+          frame: fx2_vendetta_parry_ring_bayonet_parts
+          parent: caster
+          duration: 11
+          hand: false
+          pivot: [0.35, 1.05, 0.25]
+          tilt: [0.0, 0.0, 30.0]
+          rest: [90.0, 0.0, 0.0]
+          swing:
+            - {t: 0, rotate: [-50.0, 0.0, 0.0]}
+            - {t: 1, rotate: [-83.75, 0.0, 0.0], sample: true}
+            - {t: 2, rotate: [-95.0, 0.0, 0.0]}
+            - {t: 3, rotate: [-90.0, 0.0, 0.0], sample: true}
+            - {t: 4, rotate: [-85.0, 0.0, 0.0], sample: true}
+            - {t: 5, rotate: [-80.0, 0.0, 0.0], sample: true}
+            - {t: 6, rotate: [-75.0, 0.0, 0.0], sample: true}
+            - {t: 7, rotate: [-70.0, 0.0, 0.0], sample: true}
+            - {t: 8, rotate: [-65.0, 0.0, 0.0]}
+          sample_ticks: 1
+          respect_hit_stop: true
+        - {id: fx2_vendetta_parry_ring_bayonet_heel, op: block, parent: fx2_vendetta_parry_ring_bayonet_parts, block: nether_bricks, size: [0.2, 0.8, 0.16], at: [0.0, 0.4, 0.0], rig_shading: true}
+        - id: fx2_vendetta_parry_ring_bayonet_spine
+          op: block
+          parent: fx2_vendetta_parry_ring_bayonet_parts
+          block: nether_bricks
+          size: [0.24, 0.5, 0.16]
+          at: [-0.03, 1.0, 0.0]
+          turn: [0.0, 0.0, 5.0]
+          rig_shading: true
+        - id: fx2_vendetta_parry_ring_bayonet_tip
+          op: block
+          parent: fx2_vendetta_parry_ring_bayonet_parts
+          block: nether_bricks
+          size: [0.24, 0.35, 0.16]
+          at: [-0.11, 1.35, 0.0]
+          turn: [0.0, 0.0, 18.0]
+          rig_shading: true
+        - {id: fx2_vendetta_parry_ring_bayonet_grip, op: block, parent: fx2_vendetta_parry_ring_bayonet_parts, block: black_concrete, size: [0.13, 0.4, 0.13], at: [0.0, -0.2, 0.0], rig_shading: true}
+        - {id: fx2_vendetta_parry_ring_bayonet_rib_0, op: block, parent: fx2_vendetta_parry_ring_bayonet_parts, block: bone_block, size: [0.28, 0.045, 0.18], at: [0.0, 0.22, 0.0], brightness: 15}
+        - {id: fx2_vendetta_parry_ring_bayonet_rib_1, op: block, parent: fx2_vendetta_parry_ring_bayonet_parts, block: bone_block, size: [0.28, 0.045, 0.18], at: [0.0, 0.41, 0.0], brightness: 15}
+        - {id: fx2_vendetta_parry_ring_bayonet_rib_2, op: block, parent: fx2_vendetta_parry_ring_bayonet_parts, block: bone_block, size: [0.28, 0.045, 0.18], at: [0.0, 0.6, 0.0], brightness: 15}
+        - {id: fx2_vendetta_parry_ring_bayonet_rib_3, op: block, parent: fx2_vendetta_parry_ring_bayonet_parts, block: bone_block, size: [0.28, 0.045, 0.18], at: [-0.019, 0.79, 0.0], brightness: 15}
+        - {id: fx2_vendetta_parry_ring_bayonet_rib_4, op: block, parent: fx2_vendetta_parry_ring_bayonet_parts, block: bone_block, size: [0.28, 0.045, 0.18], at: [-0.038, 0.98, 0.0], brightness: 15}
+        - {id: fx2_vendetta_parry_ring_bayonet_rib_5, op: block, parent: fx2_vendetta_parry_ring_bayonet_parts, block: bone_block, size: [0.28, 0.045, 0.18], at: [-0.057, 1.17, 0.0], brightness: 15}
+        - {id: fx2_vendetta_parry_ring_bayonet_rib_6, op: block, parent: fx2_vendetta_parry_ring_bayonet_parts, block: bone_block, size: [0.28, 0.045, 0.18], at: [-0.076, 1.36, 0.0], brightness: 15}
     - {id: fx1, at: 1, do: [{id: fx2_vendetta_parry_ring_petals_atrk, op: track, target: fx2_vendetta_parry_ring_petals_at, space: fx2_vendetta_parry_ring, keys: [{t: 0, offset: [0, 1.1, 1.2]}]}]}
     - {id: fx5, at: 5, do: [{id: rm_2, op: remove, ids: [fx2_vendetta_parry_ring_clash]}]}
     - id: fx11
