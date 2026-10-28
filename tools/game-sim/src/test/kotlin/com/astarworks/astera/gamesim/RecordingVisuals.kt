@@ -182,6 +182,16 @@ class RecordingVisuals(
 
     override fun setPlateFrame(handle: VisualHandle, frame: Int, tintHex: String?) { plateFrames += Triple(now(), handle.id, frame to tintHex) }
 
+    /** Every alpha / colour change a track key pushed: (tick, handle, alpha, colour). */
+    val looks = ArrayList<Triple<Int, Long, Pair<Double?, String?>>>()
+
+    /** Every block switch a track key pushed: (tick, handle, block). */
+    val blockSwaps = ArrayList<Triple<Int, Long, String>>()
+
+    override fun setLook(handle: VisualHandle, alpha: Double?, colorHex: String?) { looks += Triple(now(), handle.id, alpha to colorHex) }
+
+    override fun setBlock(handle: VisualHandle, block: String) { blockSwaps += Triple(now(), handle.id, block) }
+
     override fun sprite(sprite: String): SpriteInfo = SpriteInfo(spriteFrames(sprite), spritePixels(sprite))
 
     override fun write(handle: VisualHandle, pose: VisualPose, interpolationTicks: Int) {

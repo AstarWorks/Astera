@@ -73,6 +73,12 @@ public interface ISkillVisualGateway {
     /** Show flipbook [frame] of a plate's sprite, multiplied by [tintHex] (`#rrggbb`) when not null. */
     public fun setPlateFrame(handle: VisualHandle, frame: Int, tintHex: String?) {}
 
+    /** A plate's or quad's opacity 0..1 and, for a quad, its colour `#rrggbb` (null = unchanged); called only when a track key changes them. */
+    public fun setLook(handle: VisualHandle, alpha: Double?, colorHex: String?) {}
+
+    /** A block display switches to vanilla block [block]. */
+    public fun setBlock(handle: VisualHandle, block: String) {}
+
     /** Ribbon look: alpha follows `(1 - age/ticks) ^ fadePower`; [style] is `soft`, `crisp` or `both`. Called once after [spawnTrail]. */
     public fun setTrailLook(handle: VisualHandle, fadePower: Double, style: String) {}
 

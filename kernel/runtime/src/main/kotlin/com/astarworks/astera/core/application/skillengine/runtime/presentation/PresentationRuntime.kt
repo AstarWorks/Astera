@@ -67,6 +67,11 @@ public class PresentationRuntime(
         /** Cast tick at which a repeated copy is removed (Repeat.life); null = stays. */
         var dieAt: Int? = null
 
+        /** Last look a track key pushed to the gateway (writes only on change). */
+        var shownAlpha: Double? = null
+        var shownColor: String? = null
+        var shownBlock: String? = null
+
         /** Id of the repeated op this is a copy of; a track on that id moves every copy in its own slot axes. */
         val group: String? get() = if (opId.contains('#')) opId.substringBeforeLast('#') else null
 
@@ -397,8 +402,12 @@ public class PresentationRuntime(
                 is Live.Plate -> {
                     update(s, l)?.let { visuals.write(l.handle, it, DISPLAY_TICKS) }
                     tickFlipbook(s, l)
+                    tickLook(s, l)
                 }
-                is Live.Block, is Live.Quad -> update(s, l)?.let { visuals.write(l.handle, it, DISPLAY_TICKS) }
+                is Live.Block, is Live.Quad -> {
+                    update(s, l)?.let { visuals.write(l.handle, it, DISPLAY_TICKS) }
+                    tickLook(s, l)
+                }
                 is Live.Line -> linePose(s, l)?.let { visuals.write(l.handle, it, DISPLAY_TICKS) }
                 is Live.Trail -> tickTrail(s, l)
             }
@@ -452,6 +461,47 @@ public class PresentationRuntime(
         val raw = max(0, age) / frameTicks
         return if (loop) raw % frames else minOf(raw, frames - 1)
     }
+
+    /** Pushes the alpha / colour / block a track key sets on [l] (the last track that keys a channel wins); only on change. */
+    private fun tickLook(s: CastState, l: Live) {
+        val group = l.group
+        var alpha: Double? = null
+        var color: String? = null
+        var block: String? = null
+        for (t in s.tracks.values) {
+            if (t.op.target != l.opId && (group == null || t.op.target != group)) continue
+            val look = sampleLook(s, t, s.tick - t.startTick + DISPLAY_LEAD)
+            look.alpha?.let { alpha = it }
+            look.color?.let { color = it }
+            look.block?.let { block = it }
+        }
+        val visuals = s.ctx.ports.visuals
+        val a = alpha?.takeIf { it != l.shownAlpha }
+        val c = color?.takeIf { it != l.shownColor }
+        if (a != null || c != null) {
+            visuals.setLook(l.handle, a, c)
+            if (a != null) l.shownAlpha = a
+            if (c != null) l.shownColor = c
+        }
+        block?.takeIf { it != l.shownBlock }?.let { visuals.setBlock(l.handle, it); l.shownBlock = it }
+    }
+
+    private class Look(val alpha: Double?, val color: String?, val block: String?)
+
+    private fun sampleLook(s: CastState, t: TrackState, elapsed: Int): Look {
+        val keys = t.op.keys.sortedBy { it.tick }
+        val v = s.ctx.values
+        val alphaKeys = keys.filter { it.alpha != null }
+        val alpha = if (alphaKeys.isEmpty()) null else channel(alphaKeys, elapsed, { v.num(it.alpha!!) }, 1.0) { a, b, f -> a + (b - a) * f }
+        val colorKeys = keys.filter { it.color != null }
+        val color = if (colorKeys.isEmpty()) null else channel(colorKeys, elapsed, { rgbOf(it.color!!) }, Vec3(1.0, 1.0, 1.0)) { a, b, f -> a + (b - a) * f }
+            .let { c -> "#%02x%02x%02x".format(Math.round(c.x).toInt().coerceIn(0, 255), Math.round(c.y).toInt().coerceIn(0, 255), Math.round(c.z).toInt().coerceIn(0, 255)) }
+        val block = keys.lastOrNull { it.block != null && it.tick <= elapsed }?.block
+            ?: keys.firstOrNull { it.block != null }?.block
+        return Look(alpha, color, block)
+    }
+
+    private fun rgbOf(hex: String): Vec3 = Vec3(hex.substring(1, 3).toInt(16).toDouble(), hex.substring(3, 5).toInt(16).toDouble(), hex.substring(5, 7).toInt(16).toDouble())
 
     private fun tickFlipbook(s: CastState, l: Live.Plate) {
         val frame = flipbookFrame(l.frames, l.frameTicks, l.loop, s.tick - l.spawnTick)

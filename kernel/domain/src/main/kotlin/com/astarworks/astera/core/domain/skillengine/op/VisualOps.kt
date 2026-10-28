@@ -193,6 +193,12 @@ public data class TrackKey(
     val scale: Value<com.astarworks.astera.core.domain.geometry.Vec3>?,
     /** `linear` (default), `ease_in`, `ease_out`, `ease_in_out`: easing of the segment ENDING at this key. */
     val ease: String?,
+    /** Absolute opacity 0..1 of a plate / quad (lerped between keyed neighbours); not for a mesh or block. */
+    val alpha: Value<Double>? = null,
+    /** Absolute colour `#rrggbb` of a quad (lerped per channel between keyed neighbours). */
+    val color: String? = null,
+    /** Vanilla block id a block display switches to from this key on (a step, never blended). */
+    val block: String? = null,
 )
 
 /** One radial band of a [VisualOp.Trail]: colour `#rrggbb`, peak [alpha] 0..1, optional [colorTo] it has faded to at the end of the life. */

@@ -89,7 +89,7 @@ public class PaperSkillVisualGateway(
     private class PlateEntry(val handle: DisplayHandle, val owner: UUID, val sprite: String, val intrinsic: Intrinsic) : Entry
     private class LineEntry(val handle: DisplayHandle) : Entry
     private class BlockEntry(val handle: DisplayHandle, val owner: UUID) : Entry
-    private class QuadEntry(val handle: DisplayHandle, val owner: UUID, val intrinsic: Intrinsic) : Entry
+    private class QuadEntry(val handle: DisplayHandle, val owner: UUID, val intrinsic: Intrinsic, var colorHex: String, var alpha: Double) : Entry
     /** Colour of one ribbon quad: peak [alpha], the [rgbTo] it has faded to at the end of its life, and whether it keeps its alpha until then. */
     private class PieceStyle(val rgb: Int, val alpha: Double, val rgbTo: Int?, val crisp: Boolean)
     private class Seg(val display: UUID, var age: Int, val style: PieceStyle)
@@ -166,7 +166,7 @@ public class PaperSkillVisualGateway(
         val spec = SkillDisplaySpecs.quad(colorHex, alpha, text, shadow, seeThrough, first.transform, pose.billboard, brightness)
         val handle = spawnDisplay(world, castOwner, pose.frame.origin, spec, listOf(text ?: " "), pose.anchorFeet != null && pose.billboard == DisplayBillboard.FIXED)
             ?: return dead("quad")
-        return register(castOwner, QuadEntry(handle, castOwner, intrinsic))
+        return register(castOwner, QuadEntry(handle, castOwner, intrinsic, colorHex, alpha))
     }
 
     override fun spawnLine(castOwner: UUID, colorHex: String, pose: VisualPose): VisualHandle {
@@ -189,6 +189,24 @@ public class PaperSkillVisualGateway(
         val e = entries[handle.id] as? PlateEntry ?: return
         val rgb = tintHex?.let { argb(it) and 0xFFFFFF }
         displays.setText(e.handle, listOf(SpriteGlyphs.text(SpriteId(e.sprite), frame, rgb)))
+    }
+
+    override fun setLook(handle: VisualHandle, alpha: Double?, colorHex: String?) {
+        when (val e = entries[handle.id]) {
+            is PlateEntry -> if (alpha != null) displays.setTextStyle(e.handle, 0, SkillDisplaySpecs.opacity(alpha), null)
+            is QuadEntry -> {
+                alpha?.let { e.alpha = it }
+                colorHex?.let { e.colorHex = it }
+                val a = (e.alpha.coerceIn(0.0, 1.0) * 255.0).roundToInt()
+                displays.setTextStyle(e.handle, (a shl 24) or (argb(e.colorHex) and 0xFFFFFF), 255, null)
+            }
+            else -> {}
+        }
+    }
+
+    override fun setBlock(handle: VisualHandle, block: String) {
+        val e = entries[handle.id] as? BlockEntry ?: return
+        displays.setBlock(e.handle, block)
     }
 
     override fun setTrailLook(handle: VisualHandle, fadePower: Double, style: String) {
