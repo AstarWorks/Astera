@@ -16,7 +16,8 @@ params:
   knockback:    {type: number, default: 0.4}
 anchors:
   - {id: eye, anchor: caster.eye}
-  - {id: sweep, anchor: caster.eye, offset: {up: -0.2, forward: 1.4}, mode: snapshot}   # was pt_aim_0_m0p2_1p4
+  - {id: heart, anchor: victim.root, offset: {up: 1.2}}   # GAP(Q2): v2 pt_enemy_0_1p2_0 = enemy origin (feet+0.8) + 1.2; same mapping as rifle-shot
+  - {id: sweep, anchor: caster, offset: {up: -0.2, forward: 1.4}, mode: snapshot}   # v2 pt_caster_0_m0p2_1p4: caster frame (feet, yaw-only)
 machine:
   start: swing
   states:
@@ -41,5 +42,5 @@ machine:
             hit:
               - {id: kb, op: knockback, target: event.victim, direction: "= normalize(pos(event.victim) - pos(caster))", strength: "${knockback}"}
               - {id: snd_hit, op: sound, sound: "astera:weapons/blade-hit", anchor: contact, volume: 0.7, pitch: 1.2}
-              - {id: fx_hit, op: particle_def, def: hit-spark, anchor: contact}
+              - {id: fx_hit, op: particle_def, def: hit-spark, anchor: heart}
     end: {final: true}
