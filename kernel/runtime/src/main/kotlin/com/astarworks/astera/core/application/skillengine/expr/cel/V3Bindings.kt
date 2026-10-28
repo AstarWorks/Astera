@@ -9,7 +9,7 @@ import com.astarworks.astera.core.domain.skillengine.table.OpId
 
 /**
  * Variables the v3 grammar adds to CEL (ADR-0303 3.5): `i`, `n`, the `parent.i` / `parent.n` chain (2.0a), `t` / `lt`,
- * `cast.t` / `state.t`, `event.i`, `exit.reason` (class S, one value per exit sub-table, 10.2), and the `contact` / `target`
+ * `cast.t` / `state.t`, `event.i`, `event.victim` (feet point), `exit.reason` (class S, one value per exit sub-table, 10.2), and the `contact` / `target`
  * binding objects (`.pos`, `.forward`, `.eye`, plus `.normal` / `.point` on `contact`). Dotted names are CEL qualified
  * identifiers: the checker prefers the longest declared name, so `contact.point` is the variable and a bare `contact` stays the frame.
  */
@@ -44,6 +44,7 @@ public object V3Bindings {
             v["target.$f"] = ExprType.VEC3
         }
         for (f in CONTACT_ONLY_VEC3) v["contact.$f"] = ExprType.VEC3
+        v["event.victim"] = ExprType.VEC3
         return ExprEnvSpec(v, base.frames)
     }
 
@@ -84,6 +85,8 @@ public object V3Bindings {
             out["$root.forward"] = ExprValue.Vec3(b.forward)
             out["$root.eye"] = ExprValue.Vec3(b.eye)
         }
+        // `event.victim` is the victim's feet (its Ref form stays `target`/`victim`); `dist(event.victim, caster)` reads it as a point
+        out["event.victim"] = ExprValue.Vec3(target.pos)
         out["contact.normal"] = ExprValue.Vec3(contact.normal)
         out["contact.point"] = ExprValue.Vec3(contact.point)
         return out

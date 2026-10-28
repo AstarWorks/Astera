@@ -228,7 +228,7 @@ public object ExpansionDump {
         is Action.ParticleDef -> listOf("def" to a.def, "pos" to a.position)
         is Action.Set -> listOf("field" to a.field, "value" to a.value)
         is Action.Sound -> listOf("sound" to a.sound, "volume" to a.volume, "pitch" to a.pitch, "pos" to a.position, "category" to a.category)
-        is Action.Hit -> listOf("shape" to a.shape, "anchor" to a.anchor, "anchorName" to a.anchorName, "targets" to a.targets, "window" to a.window, "damage" to a.damage)
+        is Action.Hit -> listOf("shape" to a.shape, "anchor" to a.anchor, "anchorName" to a.anchorName, "targets" to a.targets, "window" to a.window, "ignoreInvulnerability" to a.ignoreInvulnerability, "finalDetection" to a.finalDetection, "damage" to a.damage)
         is Action.Damage -> listOf("targets" to a.targets, "components" to a.components, "ignoreInvulnerability" to a.ignoreInvulnerability)
         is Action.Status -> listOf("targets" to a.targets, "status" to a.status, "stacks" to a.stacks, "for" to a.forTicks)
         is Action.Effect -> listOf("op" to a.op, "payload" to a.payload)

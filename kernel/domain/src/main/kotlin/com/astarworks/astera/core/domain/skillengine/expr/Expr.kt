@@ -75,8 +75,9 @@ public interface ExprHost {
     /** Grip-to-tip (or root-to-tip) distance of the item point table of [frame]. */
     public fun bladeLen(frame: ExprValue.Ref): Double
 
-    /** Value of the cast counter [key] (see the `counter` op); 0 when never bumped. */
-    public fun counter(key: String): Double
+    /** Stack count of status [status] on the entity behind [entity] (`caster`, `victim`); 0 when it has none. A host that cannot answer fails loudly. */
+    public fun stacks(entity: ExprValue.Ref, status: String): Double =
+        throw ExprEvalException("stacks('$status') needs a cast host that reads status stacks")
 
     /** Distance from [from] to the feet position of the nearest enemy of the caster, or [Double.MAX_VALUE] when none within 64 blocks. */
     public fun nearestEnemyDist(from: GeoVec3): Double = Double.MAX_VALUE

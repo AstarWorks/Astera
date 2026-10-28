@@ -674,7 +674,9 @@ public class TablePlayer(
         }
     }
 
-    // hit: broad phase from the query, narrow phase from the domain resolver, swept along the frame's last-tick displacement (no tunnelling)
+    // hit: broad phase from the query, narrow phase from the domain resolver, swept along the frame's last-tick displacement (no tunnelling).
+    // Victims are ordered nearest-first from the shape origin, cut to targets.maxCount, damaged (every amount read before any damage lands), then the
+    // `<op>.hit` handlers start (one event per victim, index = victim ordinal). `<op>.miss` fires once, on the op's final detection, if nothing was ever hit.
     private fun hit(run: Run, row: Row, a: Action.Hit, ctx: RowCtx, now: Int) {
         val caster = run.request.caster
         val delta = a.anchor?.let { run.recs[it] }?.let { r ->
@@ -684,11 +686,13 @@ public class TablePlayer(
         } ?: Vector3d()
         fun back(p: Vector3d, k: Double) = Vec3(p.x - delta.x * k, p.y - delta.y * k, p.z - delta.z * k)
         var sweepRadius: Double
+        val origin: Vector3d
         val volumes: (Double) -> ResolvedVolume = when (val s = a.shape) {
             is HitShape.Sphere -> {
                 val c = vec(run, s.center, ctx)
                 val r = num(run, s.radius, ctx)
                 sweepRadius = r
+                origin = c
                 ({ k -> ResolvedVolume.Sphere(back(c, k), r) })
             }
             is HitShape.Capsule -> {
@@ -696,11 +700,15 @@ public class TablePlayer(
                 val t = vec(run, s.to, ctx)
                 val r = num(run, s.radius, ctx)
                 sweepRadius = r
+                origin = f
                 ({ k -> ResolvedVolume.Capsule(back(f, k), back(t, k), r) })
             }
             is HitShape.Sector -> {
                 val o = vec(run, s.origin, ctx)
-                val fwd = vec(run, s.forward, ctx).normalize()
+                val raw = vec(run, s.forward, ctx)
+                if (s.flat) raw.y = 0.0
+                if (raw.lengthSquared() < 1e-12) throw IllegalArgumentException("sector forward has no horizontal component (${if (s.flat) "forward: yaw" else "forward: look"} of a vertical anchor)")
+                val fwd = raw.normalize()
                 val up = if (kotlin.math.abs(fwd.y) > 0.999) Vector3d(0.0, 0.0, -1.0) else Vector3d(0.0, 1.0, 0.0)
                 // the domain derives up = forward x left, so left = up x forward
                 val left = Vector3d(up).cross(fwd).normalize()
@@ -708,6 +716,7 @@ public class TablePlayer(
                 val range = num(run, s.range, ctx)
                 val height = num(run, s.height, ctx)
                 sweepRadius = range
+                origin = o
                 ({ k ->
                     ResolvedVolume.Sector(back(o, k), Vec3(fwd.x, fwd.y, fwd.z), Vec3(left.x, left.y, left.z), deg, range, height)
                 })
@@ -717,41 +726,60 @@ public class TablePlayer(
                 val h = vec(run, s.halfExtents, ctx)
                 val rot = quat(run, s.rotation, ctx)
                 sweepRadius = min(h.x, min(h.y, h.z))
+                origin = c
                 ({ k -> ResolvedVolume.Box(back(c, k), Vec3(h.x, h.y, h.z), Quaterniond(rot)) })
             }
         }
-        val rule = a.targets
-        val allowed = ruleTargets(run, rule, ctx).toSet()
+        if (a.targets.kind == "allies") throw IllegalArgumentException("hit targets 'allies': no team port in the query (only 'enemies' and 'all' are resolvable)")
         // item 14.7: poses = min(maxSweepSteps, ceil(travel / radius) + 1); the last one is the current tick
         val travel = delta.length()
         val poses = if (travel < 1e-9) 1 else min(config.maxSweepSteps.toDouble(), ceil(travel / max(sweepRadius, 1e-6)) + 1.0).toInt().coerceAtLeast(1)
-        val seen = LinkedHashMap<UUID, Pair<Vec3, Vec3>>()
-        val once = run.hitOnce.getOrPut(row.instance) { HashSet() }
-        val last = run.hitLast.getOrPut(row.instance) { HashMap() }
+        // hit state belongs to the op, not to one occurrence of it: a repeating hit shares its `once` / `every` window and its one event path
+        val opKey = InstanceId(row.instance.path.dropLast(1) + row.instance.path.last().copy(index = null))
+        val once = run.hitOnce.getOrPut(opKey) { HashSet() }
+        val last = run.hitLast.getOrPut(opKey) { HashMap() }
         val window = a.window
         fun blocked(victim: UUID): Boolean = when (window) {
             HitWindow.Once -> victim in once
             is HitWindow.Every -> last[victim]?.let { now - it < window.ticks } ?: false
         }
-        val excluded = if ((rule is TargetRule.Entity && rule.ref == "caster") || (rule is TargetRule.Area && rule.includeSelf)) null else caster
+        val seen = LinkedHashMap<UUID, Pair<Vec3, Vec3>>()
+        val feetOf = HashMap<UUID, Vec3>()
         for (i in 0 until poses) {
             val k = if (poses == 1) 0.0 else (poses - 1 - i).toDouble() / (poses - 1)
             val vol = volumes(k)
-            val cands = query.nearby(vol.broadCenter, vol.broadRadius, excluded).filter { it.entityId in allowed && it.entityId !in seen }
+            val cands = query.nearby(vol.broadCenter, vol.broadRadius, caster).filter { it.entityId !in seen }
+            for (c in cands) feetOf[c.entityId] = c.feet
             for (ce in resolver.narrow(row.instance.text, now, row.instance.text, vol, Vec3(delta.x, delta.y, delta.z), cands)) {
                 if (blocked(ce.victim)) continue
                 seen.putIfAbsent(ce.victim, ce.pointWorld to ce.normalWorld)
             }
         }
-        val comps = a.damage.map { c -> SkillDamage(c.attribute.name.lowercase(), literalAmount(c)) }
-        for ((victim, pn) in seen) {
+        val originVec = Vec3(origin.x, origin.y, origin.z)
+        val nearest = seen.entries
+            .sortedWith(compareBy({ feetOf.getValue(it.key).distance(originVec) }, { it.key }))
+            .let { all -> a.targets.maxCount?.let { all.take(it) } ?: all }
+        val hitPath = EventPath(opKey.text + ".hit")
+        val bindings = nearest.mapIndexed { idx, e ->
+            val contact = ContactInfo(Vector3d(e.value.first.x, e.value.first.y, e.value.first.z), Vector3d(e.value.second.x, e.value.second.y, e.value.second.z))
+            e.key to EventBinding(hitPath, idx, contact, EntityRef(e.key))
+        }
+        // every amount is read first (so a `stacks(...)` read sees the stacks as they were before any damage or consume), then the damage lands
+        val amounts = bindings.map { (_, b) ->
+            val vctx = RowCtx(ctx.base, b, ctx.owner, ctx.level)
+            a.damage.map { c -> SkillDamage(c.attribute.name.lowercase(), num(run, c.amount, vctx)) }
+        }
+        for ((n, pair) in bindings.withIndex()) {
+            val victim = pair.first
             once += victim
             last[victim] = now
-            if (comps.isNotEmpty()) gameplay.damage(run.cursor.skill.def.id, caster, victim, comps, pn.first, false, false)
-            run.pending += RuntimeEvent(
-                EventPath(row.instance.text + ".hit"), now, row.instance.path.lastOrNull()?.index,
-                ContactInfo(Vector3d(pn.first.x, pn.first.y, pn.first.z), Vector3d(pn.second.x, pn.second.y, pn.second.z)), EntityRef(victim),
-            )
+            val comps = amounts[n]
+            if (comps.isNotEmpty()) gameplay.damage(run.cursor.skill.def.id, caster, victim, comps, seen.getValue(victim).first, a.ignoreInvulnerability, false)
+        }
+        for ((_, b) in bindings) run.pending += RuntimeEvent(hitPath, now, b.index, b.contact, b.victim)
+        if (bindings.isNotEmpty()) run.hitEver += opKey
+        else if (a.finalDetection && opKey !in run.hitEver && run.missFired.add(opKey)) {
+            run.pending += RuntimeEvent(EventPath(opKey.text + ".miss"), now, null, null, null)
         }
     }
 
@@ -877,7 +905,7 @@ public class TablePlayer(
     /** `anchor:<instance>[.position|.rotation]` (or the bare instance text): the live instance and the requested part. */
     private fun anchorOf(run: Run, name: String): Pair<Rec, String>? {
         val bare = name.removePrefix("anchor:")
-        for (part in listOf("position", "rotation", "")) {
+        for (part in listOf("position", "rotation", "forward", "")) {
             val base = if (part.isEmpty()) bare else if (bare.endsWith(".$part")) bare.removeSuffix(".$part") else continue
             val id = run.recs.keys.firstOrNull { it.text == base } ?: continue
             return run.recs.getValue(id) to part
@@ -889,7 +917,8 @@ public class TablePlayer(
         paramOf(run, name)?.let { return toVector(it, name) }
         anchorOf(run, name)?.let { (rec, part) ->
             if (part == "rotation") throw IllegalArgumentException("'$name' is a rotation, not a vector")
-            return worldOf(run, rec, rec.localAt(lastTick), ctx.binding, lastTick).pos
+            val w = worldOf(run, rec, rec.localAt(lastTick), ctx.binding, lastTick)
+            return if (part == "forward") Vector3d(0.0, 0.0, 1.0).rotate(w.rot) else w.pos
         }
         return live.vec(run.cursor.handle, name, ctx.binding)
     }
@@ -899,7 +928,7 @@ public class TablePlayer(
         if (name == "motion.turn") return Quaterniond()
         paramOf(run, name)?.let { v -> return (v as? Quaterniond)?.let { Quaterniond(it) } ?: throw IllegalArgumentException("param '$name' is not a rotation") }
         anchorOf(run, name)?.let { (rec, part) ->
-            if (part == "position") throw IllegalArgumentException("'$name' is a position, not a rotation")
+            if (part == "position" || part == "forward") throw IllegalArgumentException("'$name' is a ${part}, not a rotation")
             return worldOf(run, rec, rec.localAt(lastTick), ctx.binding, lastTick).rot
         }
         return live.rot(run.cursor.handle, name, ctx.binding)
@@ -940,7 +969,7 @@ public class TablePlayer(
         val center = Vec3(c.x, c.y, c.z)
         val found = query.nearby(center, num(run, rule.radius, ctx), if (rule.includeSelf) null else run.request.caster)
             .sortedWith(compareBy({ it.feet.distance(center) }, { it.entityId }))
-        val limited = if (rule.maxCount > 0) found.take(rule.maxCount) else found
+        val limited = rule.maxCount?.let { found.take(it) } ?: found
         return limited.map { it.entityId }
     }
 
@@ -1017,6 +1046,10 @@ public class TablePlayer(
         val external = ConcurrentLinkedQueue<RuntimeEvent>()
         val firings = HashMap<EventPath, Int>()
         val hitOnce = HashMap<InstanceId, MutableSet<UUID>>()
+
+        /** Ops (identity without the occurrence index) that have found a victim at least once / already raised `miss`. */
+        val hitEver = HashSet<InstanceId>()
+        val missFired = HashSet<InstanceId>()
         val pendingEnds = ArrayList<InstanceId>()
         val locks = ArrayList<LockRec>()
 

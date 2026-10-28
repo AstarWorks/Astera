@@ -39,7 +39,7 @@ import com.astarworks.astera.core.domain.skillengine.table.SrcPath
 import com.astarworks.astera.core.domain.skillengine.table.StatePath
 import com.astarworks.astera.core.domain.skillengine.table.StateTable
 import com.astarworks.astera.core.domain.skillengine.table.SubTable
-import com.astarworks.astera.core.domain.skillengine.table.TargetRule
+import com.astarworks.astera.core.domain.skillengine.table.HitTargets
 import com.astarworks.astera.core.domain.skillengine.table.TickRange
 import com.astarworks.astera.core.domain.skillengine.table.Val
 import com.astarworks.astera.core.domain.world.WorldId
@@ -413,10 +413,10 @@ class TablePlayerRulesScenarioTest {
         UUID.randomUUID(), feet, 0.0, HitBox(Vec3(feet.x - 0.3, feet.y, feet.z - 0.3), Vec3(feet.x + 0.3, feet.y + 1.8, feet.z + 0.3)),
     )
 
-    private val everyone = TargetRule.Area("enemies", null, "caster", Val.Known(50.0), 10, false)
+    private val everyone = HitTargets("enemies", null)
 
-    private fun hitRow(tick: Int, shape: HitShape, window: HitWindow = HitWindow.Once, anchor: InstanceId? = null, rule: TargetRule = everyone) =
-        row(tick, Action.Hit(shape, anchor, "", rule, window, emptyList()), id("hit1"))
+    private fun hitRow(tick: Int, shape: HitShape, window: HitWindow = HitWindow.Once, anchor: InstanceId? = null, rule: HitTargets = everyone) =
+        row(tick, Action.Hit(shape, anchor, "", rule, window, false, true, emptyList()), id("hit1"))
 
     private fun hitState(vararg rows: Row, extra: List<Row> = emptyList()) =
         st("a", listOf(enter("a")) + extra + rows.toList())
@@ -424,7 +424,7 @@ class TablePlayerRulesScenarioTest {
     private val onHit = sub("hit1.hit", "a", row(0, sound("hit")))
 
     private fun sector(height: Double) = HitShape.Sector(
-        Val.Known(Vector3d(0.0, 0.0, 0.0)), Val.Known(Vector3d(0.0, 0.0, 1.0)), Val.Known(90.0), Val.Known(6.0), Val.Known(height),
+        Val.Known(Vector3d(0.0, 0.0, 0.0)), Val.Known(Vector3d(0.0, 0.0, 1.0)), Val.Known(90.0), Val.Known(6.0), Val.Known(height), false,
     )
 
     @Test
@@ -453,7 +453,7 @@ class TablePlayerRulesScenarioTest {
             val state = hitState(
                 row(0, Action.Spawn(SpawnKind.FRAME, null, "", pose, Look(emptyMap())), frame),
                 row(0, Action.Key(frame, 1, Val.Known(Vector3d(0.0, 0.0, travel)), Val.Known(Quaterniond()), Val.Known(Vector3d(1.0, 1.0, 1.0))), frame),
-                hitRow(1, HitShape.Sphere(Val.Known(Vector3d(0.0, 0.0, travel)), Val.Known(1.0)), anchor = frame, rule = TargetRule.Entity("caster")),
+                hitRow(1, HitShape.Sphere(Val.Known(Vector3d(0.0, 0.0, travel)), Val.Known(1.0)), anchor = frame),
             )
             val fx = Fx(skill("a", listOf(state)), rec, query = counting)
             fx.run(2)
