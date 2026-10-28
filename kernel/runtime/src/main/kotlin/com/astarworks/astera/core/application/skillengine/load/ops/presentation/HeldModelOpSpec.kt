@@ -27,7 +27,7 @@ import com.astarworks.astera.core.domain.skillengine.table.SrcPath
 import com.astarworks.astera.core.domain.skillengine.table.Val
 
 /**
- * Decoded `held_model` op (ADR-0303 rev4.5): shows the item model [model] on the weapon the caster holds for the span, then puts the
+ * Decoded `held_model` op (ADR-0303 rev4.6): shows the item model [model] on the weapon the caster holds for the span, then puts the
  * item's own model back. The swap ends with the op's instance, so `for: N` lowers to an `End` row at tick N; `until: <event>` ends it at the event.
  */
 public class HeldModelOp(

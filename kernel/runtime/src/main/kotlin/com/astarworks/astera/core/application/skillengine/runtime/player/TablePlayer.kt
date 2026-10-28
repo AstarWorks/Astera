@@ -801,6 +801,12 @@ public class TablePlayer(
         }
         val value = dbl(run, a.value, ctx)
         when (a.field) {
+            "width", "width_frac" -> {
+                val rec = run.recs[row.instance]
+                val handle = rec?.real
+                if (rec != null && rec.kind != SpawnKind.RIBBON) fault(run, now, src, "set ${a.field}: '${row.instance.text}' is a ${rec.kind.name.lowercase()} display; it is for ribbons")
+                else if (handle != null) visual.setTrailWidth(handle, value)
+            }
             "count", "volume" -> run.fields.getOrPut(row.instance) { HashMap() }[a.field] = value
             "text_opacity" -> {
                 val rec = run.recs[row.instance]

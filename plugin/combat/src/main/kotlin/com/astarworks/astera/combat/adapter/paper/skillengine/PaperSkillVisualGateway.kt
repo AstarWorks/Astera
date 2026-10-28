@@ -98,7 +98,7 @@ public class PaperSkillVisualGateway(
     private class Slab(val axes: RibbonMesh.SlabAxes, val edge: Boolean, val thickness: Double)
     private class Seg(val display: UUID, var age: Int, val style: PieceStyle?, val slab: Slab?)
     private class TrailEntry(
-        val world: World, val ticks: Int, val widthFrac: Double, val rgb: Int, val alpha: Double,
+        val world: World, val ticks: Int, var widthFrac: Double, val rgb: Int, val alpha: Double,
     ) : Entry {
         var fadePower: Double = 1.0
         var style: String = "soft"
@@ -270,6 +270,11 @@ public class PaperSkillVisualGateway(
         t.rim = rim
         t.stepDeg = stepDeg
         t.doubleSided = doubleSided
+    }
+
+    override fun setTrailWidth(handle: VisualHandle, widthFrac: Double) {
+        val t = entries[handle.id] as? TrailEntry ?: return
+        t.widthFrac = widthFrac.coerceAtLeast(0.0)
     }
 
     override fun write(handle: VisualHandle, pose: VisualPose, interpolationTicks: Int) {

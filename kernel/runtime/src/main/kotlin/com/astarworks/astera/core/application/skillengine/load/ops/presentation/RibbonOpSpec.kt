@@ -33,6 +33,8 @@ import com.astarworks.astera.core.domain.skillengine.table.SpawnKind
 import com.astarworks.astera.core.domain.skillengine.table.Val
 import com.astarworks.astera.core.domain.skillengine.math.Quaterniond
 import com.astarworks.astera.core.domain.skillengine.math.Vector3d
+import com.astarworks.astera.core.domain.animation.Easing
+import kotlin.math.abs
 
 /** Trail width: a fraction of the root-to-tip length, or an absolute size in blocks. */
 public sealed interface RibbonWidth {
@@ -63,9 +65,20 @@ public class RibbonOp(
     public val stepDeg: Value<Double>,
     public val lagTicks: Value<Double>,
     public val doubleSided: Value<Boolean>,
-    /** Raw `motion:` list; lowered by LawSegmenter (W1-08). Null when absent. */
-    public val motion: List<Any?>?,
+    /** `motion:` laws on the trail width (ADR-0303 3.4 `{law: grow, prop: width}`). Null when absent. */
+    public val motion: List<RibbonWidthLaw>?,
 ) : OpNode
+
+/** `{law: grow, prop: width, to | per_tick, at, for, ease}`: the trail width moves by [total] (to - width) or [perTick] x for over `[at, at+for]`; ease shapes the TOTAL (ADR-0303 3.7). Laws add. */
+public data class RibbonWidthLaw(val to: Double?, val perTick: Double?, val at: Int, val forTicks: Int, val ease: String?) {
+    /** The change this law has contributed to [base] by tick [t]. */
+    internal fun contribution(base: Double, t: Int): Double {
+        val delta = to?.let { it - base } ?: (perTick!! * forTicks)
+        val u = ((t - at).toDouble() / forTicks).coerceIn(0.0, 1.0)
+        val e = ease?.let { n -> if (n.trim().lowercase() == "step") (if (u >= 1.0) 1.0 else 0.0) else Easing.fromKey(n)?.apply(u) } ?: u
+        return delta * e
+    }
+}
 
 public object RibbonOpSpec : OpSpec<RibbonOp> {
     override val name: String = "ribbon"
@@ -141,8 +154,32 @@ public object RibbonOpSpec : OpSpec<RibbonOp> {
             val argb = if (digits.length == 6) (0xFF shl 24) or digits.toInt(16) else digits.toLong(16).toInt()
             val deg = ctx.resolveNumber(values[stepDeg])
             if (deg != null && deg !in 5.0..90.0) ctx.fail("$p.step_deg", "step_deg $deg is outside 5..90")
-            RibbonOp(id, src, whenExpr, timing, shape, argb, values[fade], values[stepDeg], values[lagTicks], values[doubleSided], values[motion])
+            val laws = values[motion]?.let { raw ->
+                if (shape !is RibbonShape.Trail) ctx.fail("$p.motion", "motion laws move the width of a trail; a line ribbon has none")
+                if (raw.isEmpty()) ctx.fail("$p.motion", "motion must not be empty (omit it for a constant width)")
+                raw.mapIndexed { i, l -> widthLaw(l, ctx, "$p.motion[$i]") }
+            }
+            RibbonOp(id, src, whenExpr, timing, shape, argb, values[fade], values[stepDeg], values[lagTicks], values[doubleSided], laws)
         }
+
+    private val LAW_KEYS = setOf("law", "prop", "to", "per_tick", "at", "for", "ease")
+
+    private fun widthLaw(raw: Any?, ctx: GrammarContext, path: String): RibbonWidthLaw {
+        val m = raw as? Map<*, *> ?: ctx.mismatch(path, "{law: grow, prop: width, ...}", raw)
+        m.keys.forEach { if (it !in LAW_KEYS) ctx.fail("$path.$it", "unknown key on a ribbon width law (allowed: ${LAW_KEYS.joinToString()})") }
+        if (m["law"] != "grow" || m["prop"] != "width") ctx.fail(path, "a ribbon takes only {law: grow, prop: width} (ADR-0303 3.4); its pose is its anchors'")
+        fun num(k: String): Double? = m[k]?.let { (it as? Number)?.toDouble() ?: ctx.mismatch("$path.$k", "a number", it) }
+        val to = num("to")
+        val perTick = num("per_tick")
+        if ((to == null) == (perTick == null)) ctx.fail(path, "exactly one of to, per_tick")
+        val forTicks = num("for") ?: ctx.fail("$path.for", "a width law needs a window: for (ticks)")
+        if (forTicks < 1.0 || forTicks != Math.floor(forTicks)) ctx.fail("$path.for", "for must be a positive whole number of ticks")
+        val at = num("at") ?: 0.0
+        if (at < 0.0 || at != Math.floor(at)) ctx.fail("$path.at", "at must be a non-negative whole number of ticks")
+        val ease = m["ease"]?.let { it as? String ?: ctx.mismatch("$path.ease", "an easing name", it) }
+        if (ease != null && ease.trim().lowercase() != "step" && Easing.fromKey(ease) == null) ctx.fail("$path.ease", "unknown easing '$ease'")
+        return RibbonWidthLaw(to, perTick, at.toInt(), forTicks.toInt(), ease)
+    }
 
     private fun known(v: Value<Double>, path: String, lc: LowerContext): Result<Val<Double>, SkillDecodeError> =
         when (v) {
@@ -168,10 +205,6 @@ public object RibbonOpSpec : OpSpec<RibbonOp> {
     override fun lower(op: RibbonOp, lc: LowerContext): Result<Lowered, SkillDecodeError> {
         val p = lc.src.value
         val timing = op.timing ?: return Result.Failure(SkillDecodeError.Invalid(lc.skillId, p, "ribbon has no timing"))
-        if (op.motion != null) {
-            // TODO(W1-08): replace by LawSegmenter.segments(instance, laws, lc) once MotionLaws.type is wired into this op.
-            return Result.Failure(SkillDecodeError.Invalid(lc.skillId, "$p.motion", "ribbon motion laws need the law segmenter (W1-08), which is not merged"))
-        }
         val span = timing.span
         val life = when (span) {
             is Span.Ticks -> when (val r = lc.requireStaticTiming("$p.for", "for", span.ticks)) {
@@ -230,6 +263,17 @@ public object RibbonOpSpec : OpSpec<RibbonOp> {
 
             val pose = Pose(Val.Known(Vector3d()), Val.Known(Quaterniond()), Val.Known(Vector3d(1.0, 1.0, 1.0)))
             rows += Row(0, self, Action.Spawn(SpawnKind.RIBBON, tipAnchor, tipName, pose, Look(look)), lc.src)
+            // ADR-0303 3.4 / 3.7: a width law is one `set` of the width per tick where it changes (as fade is), which the player hands to the trail
+            op.motion?.let { laws ->
+                val field = if (look.containsKey("width_frac")) "width_frac" else "width"
+                val base = ((look[field] as Val.Known<*>).value as Number).toDouble()
+                var prev = base
+                for (t in 0 until life) {
+                    val w = base + laws.sumOf { it.contribution(base, t) }
+                    if (w < 0.0) return Result.Failure(SkillDecodeError.Invalid(lc.skillId, "$p.motion", "the width law drives the width below zero at tick $t"))
+                    if (abs(w - prev) > 1e-9) { rows += Row(t, self, Action.Set(field, Val.Known(w)), lc.src); prev = w }
+                }
+            }
             if (op.shape is RibbonShape.Trail) {
                 for (t in 0 until life!!) {
                     rows += Row(t, self, Action.TrailPoint(self, Val.Live("anchor:$tipName", null)), lc.src)

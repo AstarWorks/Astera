@@ -69,6 +69,22 @@ class LockCancelScenarioTest : SkillEngineScenario() {
         assertThat(reject(skill("- {id: open, op: lock, move: all, at: 0}"))).isInstanceOf(SkillDecodeError.Invalid::class.java)
     }
 
+    /** Founder 10/28: the look lock is a lock field next to `move`; the player hands it to `lockLook` / `unlockLook` at the window ticks. */
+    @Test
+    fun lookLockReachesTheLookPortOverItsWindowAndMoveOnlyDoesNot() {
+        val look = compile(skill("- {id: aim, op: lock, pitch: true, at: 2, for: 6}"))
+        val calls = play(look, seed = 1L, ticks = 12)
+        assertThat(calls.filter { it.verb == "lock" }.map { it.tick to it.payload }).containsExactly(2 to "pitch=true yaw=false until=8")
+        assertThat(calls.filter { it.verb == "unlock" }.map { it.tick }).containsExactly(8)
+
+        val both = compile(skill("- {id: aim, op: lock, move: walk, pitch: true, yaw: true, at: 0, for: 4}"))
+        assertThat(play(both, seed = 1L, ticks = 8).filter { it.verb == "lock" }.map { it.payload }).containsExactly("pitch=true yaw=true until=4")
+
+        // move alone never touches the look port
+        val move = compile(skill("- {id: plant, op: lock, move: all, at: 0, for: 4}"))
+        assertThat(play(move, seed = 1L, ticks = 8).filter { it.verb == "lock" || it.verb == "unlock" }).isEmpty()
+    }
+
     @Test
     fun cancelCastEmitsCancelThenEnd() {
         val s = compile(skill("- {id: g, at: 3, do: [{id: stop, op: cancel, scope: cast}]}"))
@@ -109,6 +125,14 @@ class LockCancelScenarioTest : SkillEngineScenario() {
         // GatewayRecorder names a visual `#<spawn ordinal>`: the marker is the only spawn, and its End row plays as the remove call at the cancel tick
         assertThat(calls.filter { it.verb == "spawn" }.map { it.instance }).containsExactly("#0")
         assertThat(calls.filter { it.instance == "#0" && it.verb == "remove" }.map { it.tick }).containsExactly(4)
+    }
+
+    @Test
+    fun cancelOfAnUnresolvedNameIsANamedLoadError() {
+        // ADR-0303 line 817: an unresolved cancel name is a load error, named after the cancel row and the name
+        val e = reject(skill("- {id: g, at: 4, do: [{id: drop, op: cancel, scope: nothing}]}"))
+        assertThat(e).isInstanceOf(SkillDecodeError.UndefinedReference::class.java)
+        assertThat((e as SkillDecodeError.UndefinedReference).ref).contains("nothing")
     }
 
     @Test

@@ -7,7 +7,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
 /**
- * ADR-0303 rev4.5: a later state names an instance an earlier state spawned as `/<state>/<id>`; an instance gone by then is a named
+ * ADR-0303 rev4.6: a later state names an instance an earlier state spawned as `/<state>/<id>`; an instance gone by then is a named
  * load error, a bare name never looks into another state. `ribbon` takes `until:`; `held_model` swaps the caster's weapon model.
  */
 class CrossStateRefScenarioTest : SkillEngineScenario() {

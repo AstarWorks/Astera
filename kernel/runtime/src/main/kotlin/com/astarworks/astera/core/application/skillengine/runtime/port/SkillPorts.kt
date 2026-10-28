@@ -112,6 +112,9 @@ public interface ISkillVisualGateway {
      * turn limit per quad and a reversed face when [doubleSided]. Called once after [spawnTrail], only for a trail that sets any of them.
      */
     public fun setTrailShape(handle: VisualHandle, bands: List<TrailBand>, edge: TrailEdge?, rim: TrailRim?, stepDeg: Double, doubleSided: Boolean)
+
+    /** The width (same unit as [spawnTrail]'s `widthFrac`) of the points pushed from now on: a ribbon `grow prop: width` law (ADR-0303 3.4). */
+    public fun setTrailWidth(handle: VisualHandle, widthFrac: Double)
 }
 
 /** One emit op as vanilla `spawnParticle` arguments plus the optional `dir` sugar (see [com.astarworks.astera.core.domain.skillengine.op.FxOp.Emit]). */
@@ -228,7 +231,7 @@ public interface ISkillGameplayGateway {
     /** Ends the [anim] clip on [caster] (the `body` window closed). A clip that is not playing is a no-op. */
     public fun stopBodyClip(cast: CastRef, caster: UUID, anim: String)
 
-    /** `held_model` (ADR-0303 rev4.5): shows the item model [model] on the weapon [caster] holds. The item's own model is remembered on the first call. */
+    /** `held_model` (ADR-0303 rev4.6): shows the item model [model] on the weapon [caster] holds. The item's own model is remembered on the first call. */
     public fun setHeldModel(cast: CastRef, caster: UUID, model: String)
 
     /** Ends a `held_model` window: the weapon [caster] holds shows its own model again. No swap active is a no-op. */
