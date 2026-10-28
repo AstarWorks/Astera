@@ -16,7 +16,7 @@ params:
   knockback: {type: number, default: 1.0}
 anchors:
   - {id: eye, anchor: caster.eye}
-  - {id: sweep, anchor: caster.eye, offset: {up: -0.2, forward: 1.4}, mode: snapshot}   # was pt_aim_0_m0p2_1p4
+  - {id: sweep, anchor: caster, offset: {up: -0.2, forward: 1.4}, mode: snapshot}   # was pt_caster_0_m0p2_1p4
 machine:
   start: swing
   states:
