@@ -11,8 +11,8 @@ frames:
   - {id: fx2_telegraph_cone_2, kind: body, parent: world}
   - {id: fx3_bastion_ego_trail, kind: body, parent: world}
   - {id: fx4_bastion_ego_slam, kind: body, parent: world}
-  - {id: fx4_bastion_ego_slam_sword, kind: body, parent: caster}
-  - {id: fx4_bastion_ego_slam_sword_parts, kind: body, parent: caster}
+  - {id: fx4_bastion_ego_slam_sword, kind: body, parent: caster, passenger: false}
+  - {id: fx4_bastion_ego_slam_sword_parts, kind: body, parent: caster, passenger: false}
 presentation:
   timeline:
     - id: fx0

@@ -5,18 +5,18 @@ kind: Skill
 id: gossamer-katana-ego
 frames:
   - {id: fx1_gossamer_katana_draw, kind: body, parent: world}
-  - {id: fx1_gossamer_katana_draw_katana, kind: body, parent: caster}
-  - {id: fx1_gossamer_katana_draw_katana_parts, kind: body, parent: caster}
+  - {id: fx1_gossamer_katana_draw_katana, kind: body, parent: caster, passenger: false, teleport_ticks: 2}
+  - {id: fx1_gossamer_katana_draw_katana_parts, kind: body, parent: caster, passenger: false, teleport_ticks: 2}
   - {id: fx2_gossamer_katana_guard, kind: body, parent: world}
   - {id: fx3_gossamer_katana_iaido_line, kind: body, parent: world}
   - {id: fx4_gossamer_katana_slash_up, kind: body, parent: world}
-  - {id: fx4_gossamer_katana_slash_up_katana, kind: body, parent: caster}
-  - {id: fx4_gossamer_katana_slash_up_katana_parts, kind: body, parent: caster}
+  - {id: fx4_gossamer_katana_slash_up_katana, kind: body, parent: caster, passenger: false}
+  - {id: fx4_gossamer_katana_slash_up_katana_parts, kind: body, parent: caster, passenger: false}
   - {id: pt_fx4_gossamer_katana_slash_up_katana_0_1p25_0, kind: point, parent: fx4_gossamer_katana_slash_up_katana, offset: [0.0, 1.25, 0.0]}
   - {id: pt_fx4_gossamer_katana_slash_up_katana_0_2p1_0, kind: point, parent: fx4_gossamer_katana_slash_up_katana, offset: [0.0, 2.1, 0.0]}
   - {id: fx5_gossamer_katana_slash_down, kind: body, parent: world}
-  - {id: fx5_gossamer_katana_slash_down_katana, kind: body, parent: caster}
-  - {id: fx5_gossamer_katana_slash_down_katana_parts, kind: body, parent: caster}
+  - {id: fx5_gossamer_katana_slash_down_katana, kind: body, parent: caster, passenger: false}
+  - {id: fx5_gossamer_katana_slash_down_katana_parts, kind: body, parent: caster, passenger: false}
   - {id: pt_fx5_gossamer_katana_slash_down_katana_0_1p25_0, kind: point, parent: fx5_gossamer_katana_slash_down_katana, offset: [0.0, 1.25, 0.0]}
   - {id: pt_fx5_gossamer_katana_slash_down_katana_0_2p1_0, kind: point, parent: fx5_gossamer_katana_slash_down_katana, offset: [0.0, 2.1, 0.0]}
   - {id: pt_caster_0_m1p62_3p6, kind: point, parent: caster, offset: [0.0, -1.62, 3.6]}

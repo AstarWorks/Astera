@@ -2,6 +2,7 @@ package com.astarworks.astera.core.application.skillengine.load
 
 import com.astarworks.astera.core.application.skillengine.compose.ComposedSkill
 import com.astarworks.astera.core.domain.Result
+import com.astarworks.astera.core.domain.skillengine.frame.FrameKind
 import com.astarworks.astera.core.domain.skillengine.model.FrameDecl
 import com.astarworks.astera.core.domain.skillengine.model.GameplaySection
 import com.astarworks.astera.core.domain.skillengine.model.ParamValue
@@ -116,6 +117,20 @@ public class YamlSkillDecoder(private val registry: OpDecoderRegistry) : SkillDe
                 val kind = SectionRules.DECLARABLE_KINDS[kindName]
                     ?: ValueDecoding.mismatch(skillId, "$path.kind", SectionRules.DECLARABLE_KINDS.keys.joinToString("|"), kindName)
                 val parent = entry.point("parent") ?: entry.missing("parent")
+                // A body frame on the caster says whether its displays ride the caster as native passengers or follow by teleport
+                // (v1 attach_to_anchor); there is no default. Anywhere else the key has no meaning.
+                val onCaster = parent.frame == "caster" || parent.frame == "aim"
+                val passenger = entry.bool("passenger")
+                if (kind == FrameKind.BODY && onCaster && passenger == null) entry.missing("passenger")
+                if (passenger != null && !(kind == FrameKind.BODY && onCaster)) {
+                    ValueDecoding.mismatch(skillId, "$path.passenger", "only on a body frame whose parent is the caster", passenger)
+                }
+                val teleportTicks = entry.int("teleport_ticks")
+                val movingTeleportTicks = entry.int("moving_teleport_ticks")
+                if ((teleportTicks != null || movingTeleportTicks != null) && passenger != false) {
+                    ValueDecoding.mismatch(skillId, "$path.teleport_ticks", "only with passenger: false", passenger)
+                }
+                if (movingTeleportTicks != null && teleportTicks == null) entry.missing("teleport_ticks")
                 val decl = FrameDecl(
                     id = id,
                     kind = kind,
@@ -124,6 +139,9 @@ public class YamlSkillDecoder(private val registry: OpDecoderRegistry) : SkillDe
                     part = entry.string("part"),
                     offset = entry.literalVec3("offset"),
                     inactive = entry.bool("inactive") ?: false,
+                    passenger = passenger,
+                    teleportTicks = teleportTicks,
+                    movingTeleportTicks = movingTeleportTicks,
                 )
                 entry.consume("id")
                 entry.failOnUnconsumed()

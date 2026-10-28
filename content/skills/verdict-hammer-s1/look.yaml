@@ -5,14 +5,14 @@ kind: Skill
 id: verdict-hammer-s1
 frames:
   - {id: fx1_verdict_s1_gavel, kind: body, parent: world}
-  - {id: fx1_verdict_s1_gavel_hammer, kind: body, parent: caster}
-  - {id: fx1_verdict_s1_gavel_hammer_parts, kind: body, parent: caster}
+  - {id: fx1_verdict_s1_gavel_hammer, kind: body, parent: caster, passenger: false}
+  - {id: fx1_verdict_s1_gavel_hammer_parts, kind: body, parent: caster, passenger: false}
   - {id: pt_fx1_verdict_s1_gavel_hammer_0_0p9_0, kind: point, parent: fx1_verdict_s1_gavel_hammer, offset: [0.0, 0.9, 0.0]}
   - {id: pt_fx1_verdict_s1_gavel_hammer_0_3_0, kind: point, parent: fx1_verdict_s1_gavel_hammer, offset: [0.0, 3.0, 0.0]}
   - {id: fx2_verdict_impact, kind: body, parent: world}
   - {id: fx3_verdict_s1_echo, kind: body, parent: world}
-  - {id: fx3_verdict_s1_echo_hammer, kind: body, parent: caster}
-  - {id: fx3_verdict_s1_echo_hammer_parts, kind: body, parent: caster}
+  - {id: fx3_verdict_s1_echo_hammer, kind: body, parent: caster, passenger: false}
+  - {id: fx3_verdict_s1_echo_hammer_parts, kind: body, parent: caster, passenger: false}
   - {id: pt_fx3_verdict_s1_echo_hammer_0_0p9_0, kind: point, parent: fx3_verdict_s1_echo_hammer, offset: [0.0, 0.9, 0.0]}
   - {id: pt_fx3_verdict_s1_echo_hammer_0_3_0, kind: point, parent: fx3_verdict_s1_echo_hammer, offset: [0.0, 3.0, 0.0]}
   - {id: fx4_verdict_impact, kind: body, parent: world}

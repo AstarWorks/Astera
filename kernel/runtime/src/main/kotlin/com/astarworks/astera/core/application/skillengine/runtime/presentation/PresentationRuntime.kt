@@ -668,18 +668,20 @@ public class PresentationRuntime(
      * VfxPlayer.kt:163, :419).
      */
     private fun followed(s: CastState, pose: VisualPose, frame: String, l: Live): VisualPose {
-        if (s.teleports.isEmpty() || pose.anchorFeet != null) return pose
+        if (pose.anchorFeet != null) return pose
         val moving = selfMoving(s, l)
         var cur: FrameId? = FrameId(frame)
         var hops = 0
         while (cur != null && hops++ < MAX_FRAME_DEPTH) {
-            val ticks = s.teleports[cur.value]
+            val node = s.ctx.tree.node(cur)
+            // An anchor op's frame, or a non-passenger body frame on the caster (its own `teleport_ticks`).
+            val ticks = s.teleports[cur.value] ?: node?.teleportTicks
             if (ticks != null) {
                 // v1 VfxPlayer.kt:442: a self-moving element's position write takes the vfx's explicit value, else its own length.
-                val use = if (moving) s.movingTeleports[cur.value] else ticks
+                val use = if (moving) (s.movingTeleports[cur.value] ?: node?.movingTeleportTicks) else ticks
                 return if (use != null) pose.copy(teleportTicks = use) else pose
             }
-            cur = s.ctx.tree.node(cur)?.parent
+            cur = node?.parent
         }
         return pose
     }
@@ -705,6 +707,7 @@ public class PresentationRuntime(
             val node = s.ctx.tree.node(cur) ?: return false
             when (node.kind) {
                 FrameKind.CASTER -> return true
+                FrameKind.BODY -> { node.passenger?.let { return it }; cur = node.parent }
                 FrameKind.WORLD, FrameKind.ENEMY, FrameKind.CONTACT -> return false
                 else -> cur = node.parent
             }

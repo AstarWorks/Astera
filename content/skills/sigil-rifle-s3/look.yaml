@@ -5,8 +5,8 @@ kind: Skill
 id: sigil-rifle-s3
 frames:
   - {id: fx1_sigil_rifle_s3_rig, kind: body, parent: world}
-  - {id: fx1_sigil_rifle_s3_rig_rifle, kind: body, parent: caster}
-  - {id: fx1_sigil_rifle_s3_rig_rifle_parts, kind: body, parent: caster}
+  - {id: fx1_sigil_rifle_s3_rig_rifle, kind: body, parent: caster, passenger: false, teleport_ticks: 2}
+  - {id: fx1_sigil_rifle_s3_rig_rifle_parts, kind: body, parent: caster, passenger: false, teleport_ticks: 2}
   - {id: pt_fx1_sigil_rifle_s3_rig_rifle_0_0p55_0, kind: point, parent: fx1_sigil_rifle_s3_rig_rifle, offset: [0.0, 0.55, 0.0]}
   - {id: pt_fx1_sigil_rifle_s3_rig_rifle_0_1p65_0, kind: point, parent: fx1_sigil_rifle_s3_rig_rifle, offset: [0.0, 1.65, 0.0]}
   - {id: fx2_sigil_rifle_shot, kind: body, parent: world}

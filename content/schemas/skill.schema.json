@@ -308,6 +308,15 @@
                 },
                 "inactive": {
                     "type": "boolean"
+                },
+                "teleport_ticks": {
+                    "type": "integer"
+                },
+                "moving_teleport_ticks": {
+                    "type": "integer"
+                },
+                "passenger": {
+                    "type": "boolean"
                 }
             },
             "required": [

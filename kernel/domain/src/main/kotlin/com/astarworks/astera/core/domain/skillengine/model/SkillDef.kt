@@ -32,6 +32,11 @@ public data class FrameDecl(
     val offset: Vec3? = null,
     /** Declared but not attached until a reparent op moves things under it. */
     val inactive: Boolean = false,
+    /** Required on a `body` frame whose parent is the caster / aim (and forbidden elsewhere): whether its displays ride the caster as native passengers (v1 `attach_to_anchor`) or follow by teleport. */
+    val passenger: Boolean? = null,
+    /** Only with `passenger: false`: `teleport_duration` of the followed displays (see [com.astarworks.astera.core.domain.skillengine.frame.FrameNode.teleportTicks]). */
+    val teleportTicks: Int? = null,
+    val movingTeleportTicks: Int? = null,
 )
 
 /** `at:` of a timeline row: absolute tick since cast start, or an event plus an offset. */

@@ -15,17 +15,17 @@ frames:
   - {id: fx8_verdict_impact, kind: body, parent: world}
   - {id: fx9_verdict_ego_ring, kind: body, parent: world}
   - {id: fx10_verdict_ego_hammer, kind: body, parent: world}
-  - {id: fx10_verdict_ego_hammer_hammer, kind: body, parent: caster}
-  - {id: fx10_verdict_ego_hammer_hammer_parts, kind: body, parent: caster}
+  - {id: fx10_verdict_ego_hammer_hammer, kind: body, parent: caster, passenger: false}
+  - {id: fx10_verdict_ego_hammer_hammer_parts, kind: body, parent: caster, passenger: false}
   - {id: fx11_verdict_ego_hammer, kind: body, parent: world}
-  - {id: fx11_verdict_ego_hammer_hammer, kind: body, parent: caster}
-  - {id: fx11_verdict_ego_hammer_hammer_parts, kind: body, parent: caster}
+  - {id: fx11_verdict_ego_hammer_hammer, kind: body, parent: caster, passenger: false}
+  - {id: fx11_verdict_ego_hammer_hammer_parts, kind: body, parent: caster, passenger: false}
   - {id: fx12_verdict_ego_hammer, kind: body, parent: world}
-  - {id: fx12_verdict_ego_hammer_hammer, kind: body, parent: caster}
-  - {id: fx12_verdict_ego_hammer_hammer_parts, kind: body, parent: caster}
+  - {id: fx12_verdict_ego_hammer_hammer, kind: body, parent: caster, passenger: false}
+  - {id: fx12_verdict_ego_hammer_hammer_parts, kind: body, parent: caster, passenger: false}
   - {id: fx13_verdict_ego_hammer, kind: body, parent: world}
-  - {id: fx13_verdict_ego_hammer_hammer, kind: body, parent: caster}
-  - {id: fx13_verdict_ego_hammer_hammer_parts, kind: body, parent: caster}
+  - {id: fx13_verdict_ego_hammer_hammer, kind: body, parent: caster, passenger: false}
+  - {id: fx13_verdict_ego_hammer_hammer_parts, kind: body, parent: caster, passenger: false}
   - {id: pt_caster_0_m1p5_8, kind: point, parent: caster, offset: [0.0, -1.5, 8.0]}
 presentation:
   timeline:
