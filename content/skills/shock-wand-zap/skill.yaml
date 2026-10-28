@@ -14,6 +14,8 @@ machine:
     fly:
       for: 40
       then: end
+      on:
+        - {event: bolt.end, to: end}      # v2: the cast ends when the projectile body ends
       do:
         - {id: snd, op: sound, sound: "astera:skill/wand/cast", anchor: caster, volume: 0.8, pitch: 1.4}
         - {id: fx, op: particle_def, def: thunder-cast, anchor: cast_fx}
