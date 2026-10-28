@@ -36,6 +36,7 @@ class LeakTrackingVisuals(private val clock: () -> Int = { 0 }) : ISkillVisualGa
     }
 
     override fun spawnMesh(castOwner: UUID, item: String, part: String?, pose: VisualPose) = open("mesh $item/$part")
+    override fun spawnSkinBone(castOwner: UUID, bone: com.astarworks.astera.core.domain.animation.skinrig.SkinRigBone, slim: Boolean, ghost: Boolean, pose: VisualPose) = open("skin_bone ${bone.yamlName}")
     override fun spawnPlate(castOwner: UUID, sprite: String, alpha: Double, pose: VisualPose) = open("plate $sprite")
     override fun spawnLine(castOwner: UUID, colorHex: String, pose: VisualPose) = open("line")
     override fun spawnTrail(castOwner: UUID, ticks: Int, widthFrac: Double, colorHex: String, alpha: Double) = open("trail")

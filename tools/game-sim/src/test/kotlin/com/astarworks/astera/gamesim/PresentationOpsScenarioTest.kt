@@ -134,6 +134,8 @@ class PresentationOpsScenarioTest {
         private fun h(kind: String): VisualHandle { calls += kind; return VisualHandle(nextHandle++) }
         override fun spawnMesh(castOwner: UUID, item: String, part: String?, pose: VisualPose) =
             h("mesh:$item").also { poses[it.id] = pose.frame; scales[it.id] = pose.size.x }
+        override fun spawnSkinBone(castOwner: UUID, bone: com.astarworks.astera.core.domain.animation.skinrig.SkinRigBone, slim: Boolean, ghost: Boolean, pose: VisualPose) =
+            h("skin_bone:${bone.yamlName}").also { poses[it.id] = pose.frame; scales[it.id] = pose.size.x }
         override fun spawnPlate(castOwner: UUID, sprite: String, alpha: Double, pose: VisualPose) =
             h("plate:$sprite").also { poses[it.id] = pose.frame; scales[it.id] = pose.size.x; spawnedBillboards[it.id] = pose.billboard }
         override fun spawnLine(castOwner: UUID, colorHex: String, pose: VisualPose) =
@@ -190,6 +192,8 @@ class PresentationOpsScenarioTest {
     private val rt = PresentationRuntime(
         info,
         object : ISkillCasterAnimGateway {
+            override fun clip(anim: String): com.astarworks.astera.core.domain.animation.skinrig.SkinRigAnimation? = SimClips.clip(anim)
+            override fun isSlim(caster: UUID) = false
             override fun play(caster: UUID, anim: String, speed: Double, ticks: Int) { calls += "caster_anim:$anim:$speed" }
             override fun stop(caster: UUID, anim: String) { calls += "caster_anim_stop:$anim" }
             override fun release(caster: UUID, anim: String) { calls += "caster_anim_release:$anim" }
@@ -276,7 +280,7 @@ class PresentationOpsScenarioTest {
     fun `decoders cover every presentation op and a plate has exactly two face modes`() {
         val names = presentationDecoders().flatMap { it.opNames }.toSet()
         assertThat(names).containsExactlyInAnyOrder(
-            "mesh", "plate", "line", "trail", "track", "remove", "emit", "sound",
+            "mesh", "plate", "line", "trail", "track", "remove", "rig", "emit", "sound",
             "victim_anim", "caster_anim", "title", "action_bar", "camera_shake",
         )
         val viewer = decode("plate", mapOf("parent" to "volley", "sprite" to "slash_fan", "face" to mapOf("viewer" to "vertical"))) as VisualOp.Plate

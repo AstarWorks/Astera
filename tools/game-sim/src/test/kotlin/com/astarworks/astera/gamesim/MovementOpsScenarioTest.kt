@@ -116,6 +116,7 @@ class MovementOpsScenarioTest {
         }
         val visuals = object : ISkillVisualGateway {
             override fun spawnMesh(castOwner: UUID, item: String, part: String?, pose: VisualPose) = VisualHandle(0)
+            override fun spawnSkinBone(castOwner: UUID, bone: com.astarworks.astera.core.domain.animation.skinrig.SkinRigBone, slim: Boolean, ghost: Boolean, pose: VisualPose) = VisualHandle(0)
             override fun spawnPlate(castOwner: UUID, sprite: String, alpha: Double, pose: VisualPose) = VisualHandle(0)
             override fun spawnLine(castOwner: UUID, colorHex: String, pose: VisualPose) = VisualHandle(0)
             override fun spawnTrail(castOwner: UUID, ticks: Int, widthFrac: Double, colorHex: String, alpha: Double) = VisualHandle(0)
