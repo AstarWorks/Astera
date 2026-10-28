@@ -34,7 +34,7 @@ machine:
           block: {mode: despawn}
           on:
             hit:
-              - {id: explode, op: explode, at: 0, anchor: foe, power: 1.5, break_blocks: false, fire: false}
+              - {id: explode, op: explode, at: 0, anchor: victim.root, power: 1.5, break_blocks: false, fire: false}
               # GAP(Q1): max_count spelling A (required, `all` = v2 unlimited); under B delete the key
               - {id: blast, op: damage, at: 0, target: {kind: enemies, around: foe, radius: 3.0, max_count: all}, damage: {fire: 30.0}}
               - {id: chip, op: break_area, at: 0, anchor: contact, shape: {sphere: {radius: 1.0, ahead: 0.0}}, tool: none, block_damage: 25, ripple: 0, revert: 200, outside_arena: false}
