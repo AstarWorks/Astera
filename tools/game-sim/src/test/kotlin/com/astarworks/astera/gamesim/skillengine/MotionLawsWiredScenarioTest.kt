@@ -145,7 +145,7 @@ class MotionLawsWiredScenarioTest : SkillEngineScenario() {
 
     @Test
     fun follow() {
-        val rows = lowerRows("- {law: follow, target: owner, for: 6, step: 3}")
+        val rows = lowerRows("- {law: follow, anchor: owner, for: 6, step: 3}")
         assertThat(rows.map { it.tick }).containsExactly(0, 3)
         rows.forEach { assertThat(((it.action as Action.Key).translation as Val.Live).name).isEqualTo("follow:owner") }
     }

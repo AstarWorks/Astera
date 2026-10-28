@@ -114,7 +114,7 @@ public object MotionLaws {
     private val alignAxisF = Field.optional("axis", Types.id, "forward", "the object axis that is pointed at the target")
 
     // follow / stretch (reactive: written every step ticks)
-    private val targetF = Field.required("target", Types.id, "anchor whose position is tracked")
+    private val targetF = Field.required("anchor", Types.id, "anchor whose position is tracked")
     private val baseF = Field.required("base", Types.id, "anchor at the start of the stretched object")
     private val tipF = Field.required("tip", Types.id, "anchor at the end of the stretched object")
     private val stretchAxisF = Field.optional("axis", Types.id, "forward", "the object axis whose length equals the anchor distance")
