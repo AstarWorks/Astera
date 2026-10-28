@@ -74,12 +74,13 @@ public object DamageOpSpec : OpSpec<DamageOp> {
     override fun lower(op: DamageOp, lc: LowerContext): Result<Lowered, SkillDecodeError> {
         val path = lc.src.value
         return GameplayOps.targetRule(op.target, lc, path).flatMap { targets ->
-            val components = ArrayList<DamageComponent>(op.components.size)
-            for (c in op.components) {
-                when (val amount = GameplayOps.literal(c.amount, lc, "$path.damage")) {
-                    is Result.Failure -> return@flatMap Result.Failure(amount.error)
-                    is Result.Success -> components += DamageComponent(NumericValue.Literal(amount.value), c.attribute)
+            val components = op.components.map { c ->
+                val base = when (val v = c.amount) {
+                    is Value.Literal -> NumericValue.Literal(v.value)
+                    is Value.ParamRef -> NumericValue.Cel("\${${v.name}}")
+                    is Value.Expr -> NumericValue.Cel(v.source)
                 }
+                DamageComponent(base, c.attribute)
             }
             Result.Success(GameplayOps.lowered(lc, Action.Damage(targets, components, op.ignoreInvulnerability)))
         }

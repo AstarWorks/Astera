@@ -1,6 +1,7 @@
 package com.astarworks.astera.core.application.skillengine.load.ops.gameplay
 
 import com.astarworks.astera.core.application.skillengine.compose.LowerContext
+import com.astarworks.astera.core.application.skillengine.expr.cel.V3Bindings
 import com.astarworks.astera.core.application.skillengine.load.SkillDecodeError
 import com.astarworks.astera.core.application.skillengine.load.grammar.Field
 import com.astarworks.astera.core.application.skillengine.load.grammar.FieldValues
@@ -65,7 +66,7 @@ public object ImpulseOpSpec : OpSpec<ImpulseOp> {
         )
         is OffsetVec.InAnchor -> {
             val name = v.of.of
-            if (lc.anchors.resolve(name) == null) {
+            if (name !in V3Bindings.BUILTIN_FRAMES && lc.anchors.resolve(name) == null && lc.anchors.document(name) == null) {
                 Result.Failure(SkillDecodeError.UndefinedReference(lc.skillId, "$path.of", name))
             } else {
                 // The anchor's axes are read at the row's tick (class L), so the sum stays a live expression.
