@@ -5,6 +5,7 @@ import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.skillengine.expr.CompiledExpr
 import com.astarworks.astera.core.domain.skillengine.expr.ExprCompiler
 import com.astarworks.astera.core.domain.skillengine.expr.ExprEnvSpec
+import com.astarworks.astera.core.domain.skillengine.expr.ExprType
 import com.astarworks.astera.core.domain.skillengine.frame.FrameKind
 import com.astarworks.astera.core.domain.skillengine.motion.AlignSpec
 import com.astarworks.astera.core.domain.skillengine.model.FrameDecl
@@ -13,6 +14,9 @@ import com.astarworks.astera.core.domain.skillengine.model.SkillDef
 import com.astarworks.astera.core.domain.skillengine.model.Value
 import com.astarworks.astera.core.domain.skillengine.op.SkillOp
 import java.lang.reflect.Modifier
+import java.lang.reflect.ParameterizedType
+import java.lang.reflect.Type
+import java.lang.reflect.WildcardType
 
 /**
  * Compiles every `Value.Expr` once and checks `${param}`, frame and point references.
@@ -81,29 +85,31 @@ public class DefaultSkillCompiler(
             if (point !in part.points && point !in part.axes && point != "axis") undefined(path, ref.toString())
         }
 
-        fun checkExpr(source: String, path: String) {
-            val c = cache[source] ?: when (val r = exprs.compile(exprSpec.rewrite(source), spec)) {
-                is Result.Success -> r.value.also { cache[source] = it }
+        fun checkExpr(source: String, path: String, expected: ExprType?) {
+            val key = "$expected|$source"
+            val c = cache[key] ?: when (val r = exprs.compile(exprSpec.rewrite(source), spec, expected)) {
+                is Result.Success -> r.value.also { cache[key] = it }
                 is Result.Failure -> throw DecodeAbort(SkillDecodeError.BadExpr(def.id, path, r.error))
             }
             compiled[path] = c
         }
 
-        fun walk(node: Any?, path: String) {
+        /** [type] is the declared (generic) type of the slot [node] sits in; it tells a `Value.Expr` what result it must produce. */
+        fun walk(node: Any?, path: String, type: Type? = null) {
             when (node) {
                 null, is String, is Number, is Boolean, is Enum<*> -> Unit
-                is Value.Expr -> checkExpr(node.source, path)
+                is Value.Expr -> checkExpr(node.source, path, expectedOf(type))
                 is Value.ParamRef -> if (node.name !in paramNames) undefined(path, "\${${node.name}}")
                 is Value.Literal<*> -> Unit
                 is PointRef -> checkPoint(node, path)
                 is List<*> -> node.forEachIndexed { i, e ->
                     val seg = if (e is SkillOp) "[${e.id}]" else "[$i]"
-                    walk(e, path + seg)
+                    walk(e, path + seg, typeArg(type, 0))
                 }
-                is Map<*, *> -> node.forEach { (k, v) -> walk(v, "$path.$k") }
+                is Map<*, *> -> node.forEach { (k, v) -> walk(v, "$path.$k", typeArg(type, 1)) }
                 is Pair<*, *> -> {
-                    walk(node.first, "$path.first")
-                    walk(node.second, "$path.second")
+                    walk(node.first, "$path.first", typeArg(type, 0))
+                    walk(node.second, "$path.second", typeArg(type, 1))
                 }
                 else -> if (node::class.java.name.startsWith(ENGINE_PACKAGE)) walkFields(node, path)
             }
@@ -119,7 +125,7 @@ public class DefaultSkillCompiler(
                     val p = "$path.${f.name}"
                     // AlignSpec.to is an axis name (world.up, velocity, shears.axis), not a frame.
                     if (f.name in FRAME_NAME_FIELDS && node !is AlignSpec) checkFrameNames(v, p)
-                    walk(v, p)
+                    walk(v, p, f.genericType)
                 }
                 cls = cls.superclass
             }
@@ -130,6 +136,24 @@ public class DefaultSkillCompiler(
                 is String -> checkFrame(v, path)
                 is List<*> -> v.forEachIndexed { i, e -> if (e is String) checkFrame(e, "$path[$i]") }
             }
+        }
+    }
+
+    private fun upper(t: Type?): Type? = if (t is WildcardType) t.upperBounds.firstOrNull() else t
+
+    private fun typeArg(t: Type?, i: Int): Type? = (upper(t) as? ParameterizedType)?.actualTypeArguments?.getOrNull(i)
+
+    /** `Value<Double>` -> NUM, `Value<Boolean>` -> BOOL, `Value<String>` -> STR, `Value<Vec3>` -> VEC3, `Value<Quaternion>` -> QUAT; anything else: no expectation. */
+    private fun expectedOf(t: Type?): ExprType? {
+        val p = upper(t) as? ParameterizedType ?: return null
+        if (p.rawType != Value::class.java) return null
+        return when ((upper(p.actualTypeArguments.firstOrNull()) as? Class<*>)?.name) {
+            "java.lang.Double", "java.lang.Float", "java.lang.Integer", "java.lang.Long", "java.lang.Number" -> ExprType.NUM
+            "java.lang.Boolean" -> ExprType.BOOL
+            "java.lang.String" -> ExprType.STR
+            "com.astarworks.astera.core.domain.geometry.Vec3" -> ExprType.VEC3
+            "com.astarworks.astera.core.domain.geometry.math.Quaternion" -> ExprType.QUAT
+            else -> null
         }
     }
 
