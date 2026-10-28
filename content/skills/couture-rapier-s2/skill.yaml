@@ -68,9 +68,9 @@ machine:
             - {law: keys, keys: [{t: 0, pose: []}, {t: 4, pose: [{axis: edge, deg: -35}]}]}     # -open_deg / 2
         - {id: piece_b_m, op: display, kind: item, item: "astera:couture-rapier-blade-b", anchor: piece_b, at: 4, for: 30}
         # v2 spin op on the shears frame (54 deg/tick about caster.left, ticks 4-34): carried by the spin law on each piece above (R34: laws live on displays / the projectile body, never on an anchor).
-        # v1 trail: ticks 6, width_frac 0.6, alpha 0.35 (GAP: ribbon has no alpha field; colour carries it only as #AARRGGBB, thread_color is a #RRGGBB param), fade_power default 1.5 (ADR-0303 s.260); colour is the literal thread_color default (ribbon colour takes no param), crimson patches it.
-        - {id: trail_a, op: ribbon, of: piece_a.tip, root: piece_a.root, history: 6, style: soft, width_frac: 0.6, fade: 1.5, color: "#ff5fa2", at: 4, for: 30}
-        - {id: trail_b, op: ribbon, of: piece_b.tip, root: piece_b.root, history: 6, style: soft, width_frac: 0.6, fade: 1.5, color: "#ff5fa2", at: 4, for: 30}
+        # v1 trail: ticks 6, width_frac 0.6, alpha 0.35 = byte 0x59 of the colour (ribbon opacity is the colour alpha byte), fade_power default 1.5 (ADR-0303 s.260); the colour is a literal (ribbon colour takes no param), crimson patches it.
+        - {id: trail_a, op: ribbon, of: piece_a.tip, root: piece_a.root, history: 6, style: soft, width_frac: 0.6, fade: 1.5, color: "#59ff5fa2", at: 4, for: 30}
+        - {id: trail_b, op: ribbon, of: piece_b.tip, root: piece_b.root, history: 6, style: soft, width_frac: 0.6, fade: 1.5, color: "#59ff5fa2", at: 4, for: 30}
         # GAP(ENGINE): v1 volume used speed(shears.tip). Expressions only know the `anchors:` ids as refs: `shears.tip` is "ref has no field selection" and frame-op ids (piece_a) are "undeclared reference". speed(shears) is the HAND speed, not the tip speed; restore the tip once expressions can name frame-op points.
         - {id: whoosh,op: sound, sound: couture.whoosh, anchor: shears, at: 4, every: 4, for: 30, volume: "= clamp(speed(shears) / 1.5, 0.2, 1.0)", pitch: "= 0.9 + 0.3 * clamp(speed(shears) / 2.0, 0.0, 1.0)"}
         # coin1: 30 degree / 9 block cone around the caster pose of tick 8; damage lands one tick after the selector (v2 delay op)
