@@ -1,4 +1,4 @@
-apiVersion: "astera/v3"
+apiVersion: astera/v3
 kind: Skill
 id: flame-burst
 item: fire-staff
@@ -9,25 +9,25 @@ meta:
   resource_cost: 25
   tags: [ranged, fire-family, aoe]
 anchors:
-  muzzle: {anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}
-  cast_fx: {anchor: caster.eye, offset: {up: -0.2, forward: 1.0}, mode: snapshot}
-  heart: {anchor: victim.body, offset: {up: 0.2}}
-# anchor note: v2 enemy point offset Y minus 0.8 (example b maps 1.0 -> up 0.2)
-presentation:
-  timeline:
-    - at: 0
+  - {id: muzzle,  anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}
+  - {id: cast_fx, anchor: caster.eye, offset: {up: -0.2, forward: 1.0}, mode: snapshot}
+  - {id: heart,   anchor: victim.body, offset: {up: 0.2}}   # v2 pt_enemy_0_1_0; same Q2 mapping as frost-shard
+machine:
+  start: fly
+  states:
+    fly:
+      for: 51      # body for 50; the cast ends when the body ends (manager ruling 10/29)
+      then: end
+      on:
+        - {event: bolt.end, to: tail}
       do:
-        - {id: shell, op: display, kind: item, item: "minecraft:fire_charge", context: fixed, anchor: bolt, scale: 0.9, at: 0, until: bolt.end}
+        - {id: shell, op: display, kind: item, item: "minecraft:fire_charge", context: fixed, anchor: bolt, scale: [0.9, 0.9, 0.9], at: 0, until: bolt.end}
         - {id: snd, op: sound, sound: "astera:skill/wand/cast", anchor: caster, volume: 0.8, pitch: 1.1}
         - {id: fx, op: particle_def, def: fire-cast, anchor: cast_fx}
-    - {at: 0, every: 1, until: bolt.end, do: [{op: particle, particle: flame, anchor: {of: bolt, sweep: 0.3}, count: 3, offset: [0.12, 0.12, 0.12], extra: 0.02}]}
-    - {at: 0, every: 1, until: bolt.end, do: [{op: particle, particle: dust, anchor: {of: bolt, sweep: 0.3}, count: 2, offset: [0.1, 0.1, 0.1], color: "#ff7814", size: 1.6}]}
-    - {at: 0, every: 1, until: bolt.end, do: [{op: particle, particle: lava, anchor: {of: bolt, sweep: 0.3}, count: 1, offset: [0.08, 0.08, 0.08]}]}
-    - {at: 0, every: 1, until: bolt.end, do: [{op: particle, particle: smoke, anchor: {of: bolt, sweep: 0.3}, count: 1, offset: [0.05, 0.05, 0.05]}]}
-gameplay:
-  timeline:
-    - at: 0
-      do:
+        - {id: trail_flame, op: particle, particle: flame, anchor: {of: bolt, sweep: 0.3}, count: 3, offset: [0.12, 0.12, 0.12], extra: 0.02, at: 0, every: 1, until: bolt.end}
+        - {id: trail_dust, op: particle, particle: dust, anchor: {of: bolt, sweep: 0.3}, count: 2, offset: [0.1, 0.1, 0.1], color: "#ff7814", size: 1.6, at: 0, every: 1, until: bolt.end}
+        - {id: trail_lava, op: particle, particle: lava, anchor: {of: bolt, sweep: 0.3}, count: 1, offset: [0.08, 0.08, 0.08], at: 0, every: 1, until: bolt.end}
+        - {id: trail_smoke, op: particle, particle: smoke, anchor: {of: bolt, sweep: 0.3}, count: 1, offset: [0.05, 0.05, 0.05], at: 0, every: 1, until: bolt.end}
         - id: bolt
           op: projectile
           origin: muzzle
@@ -40,8 +40,8 @@ gameplay:
             hit:
               - {id: dmg, op: damage, target: event.victim, damage: {fire: 40}}
               - {id: st_burn, op: status, target: event.victim, status: burn, stacks: 1, for: 20, when: "= rand() < 0.85"}
-              - {id: chip, op: break_area, at: 0, anchor: contact, shape: {sphere: {radius: 1.5, ahead: 0.0}}, tool: none, block_damage: 35, ripple: 0, revert: 200, outside_arena: false}
-              - {id: snd_hit, op: sound, sound: "astera:skills/fire-impact", anchor: heart, volume: 0.5, pitch: 1.3}
+              - {id: chip, op: break_area, at: 0, anchor: contact, shape: {sphere: {radius: 1.5, ahead: 0.0}}, tool: none, block_damage: 35, ripple: 29, revert: 200, outside_arena: false}
+              - {id: snd_hit, op: sound, sound: "astera:skills/fire-impact", anchor: contact, volume: 0.5, pitch: 1.3}
               - {id: fx_boom, op: particle, particle: explosion, anchor: heart, count: 1}
               - {id: fx_flame, op: particle, particle: flame, anchor: heart, count: 60, extra: 0.25}
               - {id: fx_lava, op: particle, particle: lava, anchor: heart, count: 12, extra: 0.1}
@@ -56,7 +56,7 @@ gameplay:
                   - {op: particle, times: 16, anchor: 'hit_rings_pt[i]', particle: flame, count: 0, offset: "= anchor.forward", extra: 0.08}
                   - {op: particle, times: 16, anchor: 'hit_rings_pt[i]', particle: dust, count: 1, color: "#ff6e14", size: 2.0}
             block:
-              - {id: chip_2, op: break_area, at: 0, anchor: contact, shape: {sphere: {radius: 1.5, ahead: 0.0}}, tool: none, block_damage: 35, ripple: 0, revert: 200, outside_arena: false}
+              - {id: chip_2, op: break_area, at: 0, anchor: contact, shape: {sphere: {radius: 1.5, ahead: 0.0}}, tool: none, block_damage: 35, ripple: 29, revert: 200, outside_arena: false}
               - {id: snd_blk, op: sound, sound: "astera:skills/fire-impact", anchor: contact.point, volume: 0.4, pitch: 1.4}
               - {id: fx_boom, op: particle, particle: explosion, anchor: contact.point, count: 1}
               - {id: fx_flame, op: particle, particle: flame, anchor: contact.point, count: 50, extra: 0.22}
@@ -70,6 +70,10 @@ gameplay:
                   - {id: blk_rings_pt, op: frame, times: 16, anchor: blk_base, turn: [{axis: up, deg: "= 360 * i / 16 + 90"}], offset: {forward: "= 0.5 + 0.4 * parent.i"}, for: 1}
                   - {op: particle, times: 16, anchor: 'blk_rings_pt[i]', particle: flame, count: 0, offset: "= anchor.forward", extra: 0.08}
                   - {op: particle, times: 16, anchor: 'blk_rings_pt[i]', particle: dust, count: 1, color: "#ff6e14", size: 2.0}
-            end:
+            expire:
               - {id: snd_end, op: sound, sound: "astera:skills/fire-impact", anchor: contact.point, volume: 0.4, pitch: 1.2}
               - {id: fx_end, op: particle_def, def: fire-impact-smoke, anchor: contact.point}
+    tail:
+      for: 6       # hit/block ring rows run ticks 0..5 after the event (v2 presentation outlived the body)
+      then: end
+    end: {final: true}

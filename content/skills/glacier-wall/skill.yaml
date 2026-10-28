@@ -1,4 +1,4 @@
-apiVersion: "astera/v3"
+apiVersion: astera/v3
 kind: Skill
 id: glacier-wall
 item: glacier-wand
@@ -9,15 +9,15 @@ meta:
   resource_cost: 20
   tags: [magic, water, cover]
 anchors:
-  cast_fx: {anchor: caster.eye, offset: {up: 0.2, forward: 2.0}, mode: snapshot}
-presentation:
-  timeline:
-    - at: 0
+  - {id: cast_fx, anchor: caster, offset: {up: 0.2, forward: 2.0}, mode: snapshot}   # v2 pt_caster_0_0p2_2: parent caster (feet), not eye
+machine:
+  start: cast
+  states:
+    cast:
+      for: 1
+      then: end
       do:
         - {id: snd, op: sound, sound: "astera:skills/frost-cast", anchor: caster, volume: 1.0, pitch: 1.0}
         - {id: fx, op: particle_def, def: frost-cast, anchor: cast_fx}
-gameplay:
-  timeline:
-    - at: 0
-      do:
         - {id: place, op: place_shape, at: 0, anchor: caster, shape: {wall: {width: 3, height: 3}}, block: "astera:tempered_glass", consume: none, ripple: 29, revert: 160, outside_arena: false}
+    end: {final: true}
