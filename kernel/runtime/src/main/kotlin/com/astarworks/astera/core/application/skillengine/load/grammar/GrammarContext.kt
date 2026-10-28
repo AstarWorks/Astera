@@ -8,6 +8,7 @@ import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.skillengine.expr.ExprCompiler
 import com.astarworks.astera.core.domain.skillengine.expr.ExprEnvSpec
 import com.astarworks.astera.core.domain.skillengine.expr.ExprType
+import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.skillengine.model.ParamValue
 import com.astarworks.astera.core.domain.skillengine.model.Value
 
@@ -32,9 +33,24 @@ public class GrammarContext(
     public val env: ExprEnvSpec = ExprEnvSpec(),
     /** The decoder that nested op lists (a group's `do:`, a projectile's `on:`) resolve through; null outside an op-list decode. */
     public val opLists: OpListDecoder? = null,
+    /**
+     * The skill's declared `params:` defaults (null = unknown). A frame op's motion laws are lowered at load, so they read their `${param}` numbers
+     * from here ([params] stays null so the other ops keep their run-time param refs).
+     */
+    public val paramDefaults: Map<String, ParamValue>? = null,
+    /** `part -> long/edge points of that part` of the skill item's `content/frames/<item>.yaml`; null = no item frame table. */
+    public val partAxes: ((String) -> Map<String, Vec3>?)? = null,
 ) {
     /** The same context with [decoder] as the nested-list decoder. */
-    public fun withOpLists(decoder: OpListDecoder): GrammarContext = GrammarContext(file, params, exprs, env, decoder)
+    public fun withOpLists(decoder: OpListDecoder): GrammarContext = GrammarContext(file, params, exprs, env, decoder, paramDefaults, partAxes)
+
+    /** The context a load-time law is read with: the skill's param defaults are known, and [axes] are the object's own (item part) axes. */
+    public fun forLaws(axes: AxisResolver): GrammarContext =
+        GrammarContext(file, paramDefaults ?: params, exprs, env, opLists, paramDefaults, partAxes).also { it.axes = axes }
+
+    /** Axis names a rotation / law of this context can resolve; [LocalAxes] unless [forLaws] widened it. */
+    public var axes: AxisResolver = LocalAxes
+        private set
 
     /** Aborts the current [Grammar.guard] block with a [SkillDecodeError.Invalid] at [path]. */
     public fun fail(path: String, message: String): Nothing =
@@ -75,6 +91,17 @@ public class GrammarContext(
         is Value.Expr -> null
     }
 }
+
+/** The declared defaults of a skill's `params:` as load-time values (a required param has none): what a frame's motion laws read `${param}` from. */
+public fun loadTimeDefaults(params: Map<String, com.astarworks.astera.core.domain.skillengine.part.ParamSpec>): Map<String, ParamValue> =
+    params.values.mapNotNull { p ->
+        when (val d = p.default) {
+            is Number -> p.name to ParamValue.Num(d.toDouble())
+            is Boolean -> p.name to ParamValue.Flag(d)
+            is String -> p.name to ParamValue.Text(d)
+            else -> null
+        }
+    }.toMap()
 
 public object Grammar {
     /** Runs a grammar read; every load error of the block comes back as a value (application API rule: no throwables). */

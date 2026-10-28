@@ -92,13 +92,16 @@ public object FrameOpSpec : OpSpec<FrameOp> {
     private val turnF = Field.optional("turn", Rotations.type, Rotation.Turns(emptyList()), "initial orientation relative to the parent basis, [{axis, deg}, ...] (axes long/edge/face need part)")
     private val modeF = Field.optional("mode", Types.enumOf("follow", "snapshot"), "follow", "follow: re-read the parent at every send; snapshot: copy the pose once")
     private val axesF = Field.optional("axes", Types.nullable(Types.enumOf("caster", "victim", "world")), null, "whose axes the frame takes: caster | victim | world; absent = the anchor's own axes")
-    private val motionF = Field.optional("motion", Types.nullable(MotionType), null, "laws on the origin and the axes (ADR-0303 3)")
+    private val motionF = Field.optional<RawMotion?>("motion", Types.nullable(MotionType), null, "laws on the origin and the axes (ADR-0303 3)")
 
     override val fields: Fields = Fields.of("frame", anchorF, partF, offsetF, turnF, modeF, axesF, motionF)
 
-    private object MotionType : FieldType<List<MotionLaw>> {
+    /** The raw `motion:` list: the laws are read in [decode], once the sibling `part:` (so `long` / `edge` / `face`) and the param defaults are known. */
+    private class RawMotion(val raw: Any?, val path: String)
+
+    private object MotionType : FieldType<RawMotion> {
         override val label = "list of laws"
-        override fun decode(raw: Any?, ctx: GrammarContext, path: String): List<MotionLaw> = MotionLaws.readLaws(raw, ctx, path)
+        override fun decode(raw: Any?, ctx: GrammarContext, path: String): RawMotion = RawMotion(raw, path)
         override fun schema(): Map<String, Any?> = MotionLaws.jsonSchema()
     }
 
@@ -113,9 +116,19 @@ public object FrameOpSpec : OpSpec<FrameOp> {
                 id, src, whenExpr, timing,
                 values[anchorF], values[partF], values[offsetF], values[turnF],
                 if (values[modeF] == "snapshot") FrameMode.SNAPSHOT else FrameMode.FOLLOW,
-                values[axesF], values[motionF],
+                values[axesF], values[motionF]?.let { m -> MotionLaws.readLaws(m.raw, ctx.forLaws(AxisResolver(lawAxes(values[partF], ctx))), m.path) },
             )
         }
+
+    /**
+     * `long` / `edge` of the frame's `part`. The compiler's decode has the item frame table and gets the part's real axes (absent part = no axes);
+     * the document decoder has no table, so it only validates the law grammar against stand-in axes (the compile-time decode re-reads the laws).
+     */
+    private fun lawAxes(part: String?, ctx: GrammarContext): Map<String, Vec3> {
+        if (part == null) return emptyMap()
+        val table = ctx.partAxes ?: return mapOf("long" to Vec3(0.0, 1.0, 0.0), "edge" to Vec3(1.0, 0.0, 0.0))
+        return table(part) ?: emptyMap()
+    }
 
     override fun lower(op: FrameOp, lc: LowerContext): Result<Lowered, SkillDecodeError> {
         val ctx = GrammarContext(lc.skillId)
