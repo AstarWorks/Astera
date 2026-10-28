@@ -1,21 +1,20 @@
-# v3 hand port of the v2 skill (ADR-0303 rev4.2). one break_area at tick 0, kept field for field.
+# v3 hand port of the v2 skill (ADR-0303 rev4.3). one break_area at tick 0, kept field for field.
 apiVersion: astera/v3
 kind: Skill
 id: pickaxe-shatter-diamond
 item: diamond-pickaxe
 meta: {name: {ja: "ダイヤの粉砕", en: "Diamond Shatter"}, description: {ja: "視線の先のブロックを球状に砕く。", en: "Shatters blocks in a sphere where you look."}, cooldown_ticks: 160, resource_cost: 0, tags: [tool, cover]}
 anchors:
-  - {id: eye,   anchor: caster.eye}                                   # was aim
+  - {id: aim,   anchor: caster.eye, mode: snapshot}
   - {id: spark, anchor: caster.eye, offset: {forward: 2.0}, mode: snapshot}   # was pt_aim_0_0_2
 machine:
   start: smash
   states:
     smash:
-      for: 1                         # RISK: the break ripple (ADR-0297) may outlive this state; verify on dev
+      for: 1
       then: end
-      enter:
-        - {id: snd, op: sound, sound: "astera:weapons/gun-impact-block", anchor: caster, volume: 1.0, pitch: 0.4}
-        - {id: fx, op: particle_def, def: hit-spark, anchor: spark}
       do:
-        - {id: break, op: break_area, at: 0, anchor: eye, shape: {sphere: {radius: 4, ahead: 4.0}}, tool: pickaxe, block_damage: 100, ripple: 29, revert: 200, outside_arena: false}
+        - {id: break, op: break_area, at: 0, anchor: aim, shape: {sphere: {radius: 4, ahead: 4.0}}, tool: pickaxe, block_damage: 100, ripple: 29, revert: 200, outside_arena: false}
+        - {id: snd, op: sound, at: 0, sound: "astera:weapons/gun-impact-block", anchor: caster, volume: 1.0, pitch: 0.4}
+        - {id: fx, op: particle_def, at: 0, def: hit-spark, anchor: spark}
     end: {final: true}
