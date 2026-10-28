@@ -1,27 +1,64 @@
-# Converted from content/skills/chain-lightning.yaml by tools/skill-convert/convert.py (v1 archetype: projectile). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
-# Generated point-frame offsets are [left, up, forward] in the parent frame.
-apiVersion: "astera/v2"
+apiVersion: astera/v3
 kind: Skill
 id: chain-lightning
 item: chain-rod
 meta:
-  name: {ja: "連鎖雷", en: "Chain Lightning"}
+  name: {ja: 連鎖雷, en: Chain Lightning}
   description: {ja: "着弾点から周囲の敵へ雷が走る。", en: "Lightning arcs from the impact to nearby enemies."}
   cooldown_ticks: 90
   resource_cost: 18
   tags: [ranged, electric, magic]
-frames:
-  - {id: bolt, kind: body, parent: world, inactive: true}
-  - {id: pt_aim_0_0_0p5, kind: point, parent: aim, offset: [0.0, 0.0, 0.5]}
-gameplay:
-  params: {launch_speed: 2.6, max_lifetime_ticks: 40, radius: 4.5, dmg_electric: 18, shock_ticks: 20}
-  expose:
-    - {id: damage, param: dmg_electric}
-    - {id: flight_speed, param: launch_speed}
-    - {id: radius, param: radius}
+params:
+  launch_speed:       {type: number, default: 2.6}
+  max_lifetime_ticks: {type: ticks, default: 40}
+  radius:             {type: blocks, default: 4.5}
+  dmg_electric:       {type: number, default: 18}
+  shock_ticks:        {type: ticks, default: 20}
+anchors:
+  - {id: muzzle, anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}
+  - {id: fx, anchor: caster.eye, offset: {forward: 1.0, up: -0.2}}
+  - {id: enemy, anchor: victim.body, offset: {up: 1.2}}
+presentation:
   timeline:
-    - {id: t0, at: 0, do: [{id: bolt, op: projectile, body: bolt, from: pt_aim_0_0_0p5, velocity: "= look(caster) * launch_speed", max_ticks: "${max_lifetime_ticks}", radius: 0.5}]}
+    - id: cast
+      at: 0
+      do:
+        - {id: snd, op: sound, sound: "astera:skill/wand/cast", anchor: caster, volume: 0.5, pitch: 1.7}
+        - {id: fx1, op: emit, effect: thunder-cast, anchor: fx}
+    - id: trail
+      at: 0
+      every: 1
+      until: bolt.end
+      do:
+        # GAP: v2 trail spacing 0.4 -> v3 sweep anchor {of: bolt, sweep: 0.4}; spacing semantics assumed equal
+        - {id: t1, op: particle, particle: electric_spark, anchor: {of: bolt, sweep: 0.4}, count: 3, offset: [0.12, 0.12, 0.12], extra: 0.05}
+        - {id: t2, op: particle, particle: end_rod, anchor: {of: bolt, sweep: 0.4}, count: 1, offset: [0.02, 0.02, 0.02], extra: 0}
   "on":
     hit:
-      - {id: dmg, op: damage, components: [{kind: electric, amount: "${dmg_electric}"}], target: {enemies: {around: enemy, radius: "${radius}"}}}
-      - {id: st_shock, op: status, status: shock, duration_ticks: "${shock_ticks}", target: victim, chance: 0.4}
+      - {id: snd_hit, op: sound, sound: "astera:skills/lightning-impact", anchor: enemy, volume: 0.7, pitch: 1.2}
+      - {id: imp, op: emit, effect: thunder-impact, anchor: enemy}
+    block:
+      - {id: snd_blk, op: sound, sound: "astera:weapons/gun-impact-block", anchor: contact.point, volume: 0.5, pitch: 1.5}
+      - {id: spark, op: emit, effect: hit-spark, anchor: contact.point}
+machine:
+  start: cast
+  states:
+    cast:
+      for: 41
+      then: done
+      enter:
+        - id: bolt
+          op: projectile
+          origin: muzzle
+          velocity: "= look(caster) * ${launch_speed}"
+          speed: "${launch_speed}"
+          for: "${max_lifetime_ticks}"
+          radius: 0.5
+          hit: {targets: enemies, once: true}
+          block: {mode: despawn}
+          on:
+            hit:
+              # GAP: v2 area target has no max_count -> v3 requires it; 8 chosen as placeholder (example j), needs founder/engine value
+              - {id: dmg, op: damage, target: {kind: enemies, around: contact, radius: "${radius}", max_count: 8, include_self: false}, components: [{kind: electric, amount: "${dmg_electric}"}]}
+              - {id: shock, op: status, target: event.victim, status: shock, stacks: 1, for: "${shock_ticks}", when: "= rand() < 0.4"}
+    done: {final: true}
