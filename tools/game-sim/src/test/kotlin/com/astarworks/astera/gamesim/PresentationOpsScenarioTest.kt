@@ -131,6 +131,7 @@ class PresentationOpsScenarioTest {
     private val victim = UUID.randomUUID()
 
     private val visuals = object : ISkillVisualGateway {
+    override fun setTrailShape(handle: com.astarworks.astera.core.application.skillengine.runtime.port.VisualHandle, bands: List<com.astarworks.astera.core.domain.skillengine.op.TrailBand>, edge: com.astarworks.astera.core.domain.skillengine.op.TrailEdge?, rim: com.astarworks.astera.core.domain.skillengine.op.TrailRim?, stepDeg: Double, doubleSided: Boolean) {}
         private fun h(kind: String): VisualHandle { calls += kind; return VisualHandle(nextHandle++) }
         override fun spawnMesh(castOwner: UUID, item: String, part: String?, pose: VisualPose) =
             h("mesh:$item").also { poses[it.id] = pose.frame; scales[it.id] = pose.size.x }
@@ -156,6 +157,7 @@ class PresentationOpsScenarioTest {
             override fun play(sound: String, at: Vec3, volume: Double, pitch: Double) { sounds += Triple(sound, at, volume to pitch) }
         },
         gameplay = object : ISkillGameplayGateway {
+    override fun statusStacks(entity: UUID, statusId: String): Int = 0
             override fun removeStatus(victim: UUID, statusId: String) = Unit
             override fun cleanse(victim: UUID, negativeOnly: Boolean) = Unit
             override fun ignite(caster: UUID, victim: UUID, durationTicks: Int) = Unit
@@ -168,6 +170,7 @@ class PresentationOpsScenarioTest {
             override fun freezeEntities(entities: List<UUID>, ticks: Int) = error("gameplay")
         },
         entities = object : ISkillEntityQuery {
+    override fun healthRatio(entity: UUID): Double = error("hp_ratio: this fake has no entity $entity")
             override fun nearby(point: Vec3, radius: Double, excluding: UUID?): List<HitCandidate> = emptyList()
             override fun rootOf(entity: UUID): EntityRoot? = null
             override fun raycastBlock(from: Vec3, to: Vec3): BlockHit? = null
@@ -224,6 +227,7 @@ class PresentationOpsScenarioTest {
     private val ctx = object : OpContext {
         override val host: com.astarworks.astera.core.application.skillengine.runtime.OpHost get() = lookOnlyHost
         override val cast = CastId(7)
+        override val world = com.astarworks.astera.core.domain.world.WorldId("world")
         override val tree: FrameTree = this@PresentationOpsScenarioTest.tree
         override val values: ValueResolver = Resolver(params = mapOf("n" to 6.0), texts = mapOf("c" to "#ff5fa2"))
         override val ports = this@PresentationOpsScenarioTest.ports

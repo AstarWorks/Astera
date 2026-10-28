@@ -32,7 +32,7 @@ presentation:
         keys:
           - {t: 0, offset: [0, 1.1, 0]}
         when: "= event.source == 'sel_2'"
-      - {id: snd, op: sound, sound: entity.player.attack.strong, at: contact.point, volume: 0.7, pitch: 1.1, when: "= event.source == 'sel_2'"}
+      - {id: snd, op: sound, sound: entity.player.attack.strong, at: enemy, volume: 0.7, pitch: 1.1, when: "= event.source == 'sel_2'"}
       - id: fx5_couture_rapier_cross_sparks_atrk
         op: track
         target: fx5_couture_rapier_cross_sparks_at
@@ -40,4 +40,4 @@ presentation:
         keys:
           - {t: 0, offset: [0, 1.1, 0]}
         when: "= event.source == 'sel_4'"
-      - {id: snd_2, op: sound, sound: entity.player.attack.strong, at: contact.point, volume: 0.7, pitch: 1.1, when: "= event.source == 'sel_4'"}
+      - {id: snd_2, op: sound, sound: entity.player.attack.strong, at: enemy, volume: 0.7, pitch: 1.1, when: "= event.source == 'sel_4'"}

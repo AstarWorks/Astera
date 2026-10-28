@@ -174,7 +174,8 @@ internal class SoundExecutor(private val rt: PresentationRuntime) : OpExecutor<F
                     val ease = op.pitchEase?.let { Easing.fromKey(it) } ?: Easing.LINEAR
                     SoundPlanner.pitchAt(PitchArc(from, ctx.num(op.pitchTo, from), over, ease), elapsed)
                 } else from
-                ctx.ports.sounds.play(op.sound, at, ctx.num(op.volume, 1.0).coerceAtLeast(0.0), pitch)
+                // Vanilla pitch range, as v1 played it: 0.45 sounds at 0.5.
+                ctx.ports.sounds.play(op.sound, at, ctx.num(op.volume, 1.0).coerceAtLeast(0.0), pitch.coerceIn(0.5, 2.0))
             }
         }
         play(0)

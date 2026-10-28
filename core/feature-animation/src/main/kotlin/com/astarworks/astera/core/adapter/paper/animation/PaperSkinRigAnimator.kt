@@ -100,7 +100,7 @@ public class PaperSkinRigAnimator(
         task = null
     }
 
-    override fun play(playerId: PlayerId, animation: CustomAnimationId): Result<Unit, SkinRigError> {
+    override fun play(playerId: PlayerId, animation: CustomAnimationId, speed: Double): Result<Unit, SkinRigError> {
         if (server.getPlayer(playerId.uuid)?.let { org.bukkit.Bukkit.isOwnedByCurrentRegion(it) } != true) return Result.failure(SkinRigError.Platform("off-main"))
         val definition = registry()?.find(animation) ?: return Result.failure(SkinRigError.UnknownAnimation(animation))
         val player = server.getPlayer(playerId.uuid) ?: return Result.failure(SkinRigError.UnknownPlayer(playerId))
@@ -122,7 +122,7 @@ public class PaperSkinRigAnimator(
                 meta.itemModel = ITEM_MODEL
             }
         }
-        val playback = SkinRigPlayback(definition)
+        val playback = SkinRigPlayback(definition, speed)
         val owner = "skinrig:${playerId.uuid}"
         val origin = player.location.also { it.pitch = 0f }
         val rest = SkinRigTransforms.compute(playback.frame(), slim, Vec3.ZERO)

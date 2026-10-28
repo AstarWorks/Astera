@@ -68,6 +68,7 @@ public class ArmorReductionModifier(
         defenderContainer: IAttributeContainer?,
         randomizer: IDamageRandomizer,
     ): WorkingDamage {
+        if (attempt.ignoreArmor) return working
         // Unarmored defenders still carry resist.<attribute> on their container (status buffs, skills).
         val equipped = armor?.equipped.orEmpty()
         if (equipped.isEmpty() && defenderContainer == null) return working

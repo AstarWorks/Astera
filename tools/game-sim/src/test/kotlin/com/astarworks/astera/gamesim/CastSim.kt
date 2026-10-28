@@ -40,6 +40,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import java.nio.file.Path
 import java.util.UUID
+import com.astarworks.astera.core.domain.world.WorldId
 
 /** The point `dist` in front of / `side` left of / `up` above [origin] for a caster facing [yawDeg] (Minecraft: yaw 0 faces +Z, left is +X). */
 fun ahead(origin: Vec3, yawDeg: Double, dist: Double, side: Double = 0.0, up: Double = 0.0): Vec3 {
@@ -58,9 +59,11 @@ fun simVictim(n: Int): UUID = UUID.fromString("00000000-0000-0000-0000-0000000d%
  * with fake ports: damage is recorded, the entity query returns the given victims, nothing else happens. Shared by the
  * ported-grammar and the cast-smoke scenarios (SKL-09).
  */
-class CasterAnimCall(val tick: Int, val verb: String, val anim: String, val ticks: Int)
+class CasterAnimCall(val tick: Int, val verb: String, val anim: String, val ticks: Int, val speed: Double = 1.0)
 
-class Dealt(val tick: Int, val victim: UUID, val amount: Double, val ignoreInvulnerability: Boolean, val skill: String = "")
+class VictimAnimCall(val tick: Int, val victim: UUID, val anim: String, val strength: Double)
+
+class Dealt(val tick: Int, val victim: UUID, val amount: Double, val ignoreInvulnerability: Boolean, val skill: String = "", val ignoreArmor: Boolean = false)
 
 class CastSim(
     val victims: Map<UUID, Vec3>,
@@ -82,7 +85,18 @@ class CastSim(
     val pitchDeg: Double = 0.0,
     /** Extra skills for grammar scenarios: id -> `skill.yaml` text, composed beside a copy of the shipped skills. */
     extraSkills: Map<String, String> = emptyMap(),
+    /** The world the caster stands in; sound, particles and entity queries must be bound to it (see [soundWorlds]). */
+    val castWorld: WorldId = WorldId("world"),
+    /** Status stacks held by other entities (entity -> status -> stacks). */
+    val entityStacks: Map<UUID, Map<String, Int>> = emptyMap(),
+    /** Entities on the caster's team. */
+    val allies: Set<UUID> = emptySet(),
 ) {
+    /** World each sound / particle burst / entity query was bound to, in call order. */
+    val soundWorlds = ArrayList<WorldId>()
+    val particleWorlds = ArrayList<WorldId>()
+    val queryWorlds = ArrayList<WorldId>()
+
     /** Every live frame's world position after each tick: (tick, frame id, position). */
     val frameTrace = ArrayList<Triple<Int, String, Vec3>>()
 
@@ -134,6 +148,18 @@ class CastSim(
     val removed = ArrayList<Pair<UUID, String>>()
     /** Caster body animation calls in order: tick, verb (play / stop / release), clip, hold ticks. */
     val casterAnims = ArrayList<CasterAnimCall>()
+    /** Victim reactions played through `victim_anim`. */
+    val victimAnims = ArrayList<VictimAnimCall>()
+    /** Flip to false to simulate the caster dying or quitting (the movement gateway then reports it gone). */
+    var casterAlive: Boolean = true
+    /**
+     * Opt-in hit points for every victim (null = victims are immortal, as in the ordinary scenarios). A victim whose hp
+     * reaches 0 logs `death`, stops being a target and is parked at the origin: v1's reference world respawns a dead
+     * dummy at the spawn point, which the gameplay parity dump has to reproduce to line up.
+     */
+    var victimHp: Double? = null
+    private val hp = HashMap<UUID, Double>()
+    private val dead = HashSet<UUID>()
     /** Statuses applied through the gameplay gateway: (tick, victim, status id). */
     val statuses = ArrayList<Triple<Int, UUID, String>>()
     /** Hit-stop calls: (tick, frozen entities, ticks). */
@@ -174,7 +200,7 @@ class CastSim(
         private set
 
     private val movement = object : ISkillMovementGateway by noop() {
-        override fun isAlive(entity: UUID): Boolean = true
+        override fun isAlive(entity: UUID): Boolean = if (entity == caster) casterAlive else entity !in dead
         override fun teleport(entity: UUID, to: Vec3, yawDeg: Double?): Boolean {
             if (entity == caster) casterFeet = to
             standing[entity] = to
@@ -194,17 +220,30 @@ class CastSim(
             damage(caster, victim, components, hitPoint, false)
         override fun damage(caster: UUID, victim: UUID, components: List<SkillDamage>, hitPoint: Vec3, ignoreInvulnerability: Boolean) =
             damage("", caster, victim, components, hitPoint, ignoreInvulnerability)
-        override fun damage(skillId: String, caster: UUID, victim: UUID, components: List<SkillDamage>, hitPoint: Vec3, ignoreInvulnerability: Boolean) {
+        override fun damage(skillId: String, caster: UUID, victim: UUID, components: List<SkillDamage>, hitPoint: Vec3, ignoreInvulnerability: Boolean) =
+            damage(skillId, caster, victim, components, hitPoint, ignoreInvulnerability, false)
+        override fun damage(skillId: String, caster: UUID, victim: UUID, components: List<SkillDamage>, hitPoint: Vec3, ignoreInvulnerability: Boolean, ignoreArmor: Boolean) {
             for (c in components) {
-                dealt += Dealt(now, victim, c.amount, ignoreInvulnerability, skillId)
+                dealt += Dealt(now, victim, c.amount, ignoreInvulnerability, skillId, ignoreArmor)
                 gpLine("damage", "\"v\":\"${whoOf(victim)}\",\"amt\":${r(c.amount)},\"src\":${jq(skillId)},\"hit\":{${rel(hitPoint)}},\"ignoreIframes\":$ignoreInvulnerability")
+                val max = victimHp
+                if (max != null && victim != caster && victim !in dead) {
+                    val left = (hp[victim] ?: max) - c.amount
+                    hp[victim] = left
+                    if (left <= 0.0) {
+                        dead += victim
+                        standing[victim] = origin
+                        gpLine("tp", "\"who\":\"${whoOf(victim)}\",${rel(origin)}")
+                        gpLine("death", "\"who\":\"${whoOf(victim)}\"")
+                    }
+                }
             }
         }
         override fun freezeEntities(entities: List<UUID>, ticks: Int) {
             frozen += Triple(now, entities, ticks)
             gpLine("freeze", "\"who\":${entities.joinToString(",", "[", "]") { jq(whoOf(it)) }},\"ticks\":$ticks")
         }
-        override fun statusStacks(entity: UUID, statusId: String): Int = if (entity == caster) casterStacks[statusId] ?: 0 else 0
+        override fun statusStacks(entity: UUID, statusId: String): Int = (if (entity == caster) casterStacks else entityStacks[entity] ?: emptyMap())[statusId] ?: 0
         override fun removeStatus(victim: UUID, statusId: String) {
             removed += victim to statusId
             gpLine("status", "\"who\":\"${whoOf(victim)}\",\"id\":${jq(statusId)},\"op\":\"removed\"")
@@ -223,21 +262,30 @@ class CastSim(
             gpLine("resource", "\"who\":\"${whoOf(victim)}\",\"res\":${jq(resource)},\"amount\":${r(amount)}")
         }
         override fun impulse(victim: UUID, vector: Vec3) {
+            velocities[victim] = (velocities[victim] ?: Vec3.ZERO) + vector
             gpLine("kb", "\"who\":\"${whoOf(victim)}\",\"strength\":${r(vector.length())},\"vec\":[${r(vector.x)},${r(vector.y)},${r(vector.z)}],\"via\":\"impulse\"")
         }
     }
 
-    private val sound = object : ISkillSoundGateway {
+    private fun soundIn(w: WorldId) = object : ISkillSoundGateway {
         override fun play(sound: String, at: Vec3, volume: Double, pitch: Double) {
-            sounds += now to sound; soundPitches += Triple(now, sound, pitch)
+            sounds += now to sound; soundPitches += Triple(now, sound, pitch); soundWorlds += w
             gpLine("sound", "\"key\":${jq(sound)},${rel(at)},\"vol\":${r(volume)},\"pitch\":${r(pitch)}")
         }
     }
 
-    private val entities = object : ISkillEntityQuery {
+    private fun particlesIn(w: WorldId): ISkillParticleGateway {
+        val inner = particleGateway ?: noop<ISkillParticleGateway>()
+        return object : ISkillParticleGateway { override fun emit(burst: ParticleBurst) { particleWorlds += w; inner.emit(burst) } }
+    }
+
+    private fun entitiesIn(w: WorldId) = object : ISkillEntityQuery {
+        override fun healthRatio(entity: UUID): Double = 1.0
         private fun box(feet: Vec3) = HitBox(Vec3(feet.x - halfWidth, feet.y, feet.z - halfWidth), Vec3(feet.x + halfWidth, feet.y + boxHeight, feet.z + halfWidth))
-        override fun nearby(point: Vec3, radius: Double, excluding: UUID?): List<HitCandidate> =
-            victims.filter { (id, feet) ->
+        override fun nearby(point: Vec3, radius: Double, excluding: UUID?): List<HitCandidate> {
+            queryWorlds += w
+            return victims.filter { (id, feet) ->
+                if (id in dead) return@filter false
                 // Paper's getNearbyLivingEntities: the cube of half-size radius around the point must overlap the entity box.
                 val b = box(feet)
                 id != excluding && b.min.x <= point.x + radius && b.max.x >= point.x - radius &&
@@ -245,6 +293,7 @@ class CastSim(
                     b.min.z <= point.z + radius && b.max.z >= point.z - radius
             }
                 .map { (id, feet) -> HitCandidate(id, feet, 0.0, box(feet)) }
+        }
         override fun rootOf(entity: UUID): EntityRoot? =
             if (entity == caster) EntityRoot(casterFeet, yawDeg, pitchDeg, 1.62, 1.8) else victims[entity]?.let { EntityRoot(it, 0.0, 0.0, 1.62, 1.8) }
         override fun raycastBlock(from: Vec3, to: Vec3): BlockHit? {
@@ -271,7 +320,10 @@ class CastSim(
             gpLine("block", "\"k\":\"damage\",${cellAt(cell)},\"amount\":$blockDamage,\"tool\":${toolClass?.let { jq(it) }}")
             return BlockDamageOutcome.CHIPPED
         }
-        override fun place(cell: BlockCell, blockKey: String): Boolean { gpLine("block", "\"k\":\"place\",${cellAt(cell)},\"block\":${jq(blockKey)}"); return true }
+        override fun place(cell: BlockCell, blockKey: String): Boolean {
+            gpLine("block", "\"k\":\"place\",${cellAt(cell)},\"block\":${jq(blockKey)}")
+            return true
+        }
         override fun remove(cell: BlockCell) { gpLine("block", "\"k\":\"break\",${cellAt(cell)}") }
         override fun placeCover(cast: CastId, cell: BlockCell, blockKey: String): Boolean {
             gpLine("block", "\"k\":\"place\",${cellAt(cell)},\"block\":${jq(blockKey)},\"cover\":true")
@@ -282,7 +334,20 @@ class CastSim(
     private val victimAnim = object : ISkillVictimAnimGateway {
         override fun play(victim: UUID, anim: String, strength: Double, awayFrom: Vec3) {
             gpLine("kb", "\"who\":\"${whoOf(victim)}\",\"strength\":${r(strength)},\"anim\":${jq(anim)},\"from\":{${rel(awayFrom)}},\"via\":\"victimAnim\"")
+            victimAnims += VictimAnimCall(now, victim, anim, strength)
         }
+    }
+
+    private val worldEffects = object : ISkillWorldEffectGateway {
+        override fun heal(caster: UUID, victim: UUID, amount: Double) { gpLine("world", "\"k\":\"heal\",\"detail\":\"${whoOf(victim)} ${r(amount)}\"") }
+        override fun resurrect(caster: UUID, victim: UUID, healthFraction: Double) { gpLine("world", "\"k\":\"resurrect\",\"detail\":\"${whoOf(victim)} ${r(healthFraction)}\"") }
+        override fun explode(caster: UUID, at: Vec3, power: Double, breakBlocks: Boolean, incendiary: Boolean) {
+            gpLine("world", "\"k\":\"explosion\",${rel(at)},\"detail\":\"power=${r(power)} blocks=$breakBlocks fire=$incendiary\"")
+        }
+        override fun summon(caster: UUID, at: Vec3, entityType: String, count: Int, lifetimeTicks: Int) {
+            gpLine("world", "\"k\":\"summon\",${rel(at)},\"detail\":\"$entityType x$count life=$lifetimeTicks\"")
+        }
+        override fun lightning(caster: UUID, at: Vec3, visualOnly: Boolean) { gpLine("world", "\"k\":\"lightning\",${rel(at)},\"detail\":\"visualOnly=$visualOnly\"") }
     }
 
     private val c = Coin2CastWiring.collaborators()
@@ -293,29 +358,36 @@ class CastSim(
         assertThat(report.failed).describedAs("shipped skills load: ${report.failures}").isZero()
     }
 
+    private val visuals: ISkillVisualGateway = visualGateway ?: object : ISkillVisualGateway by noop() {
+        override fun sprite(sprite: String) = com.astarworks.astera.core.application.skillengine.runtime.port.SpriteInfo(1, 32)
+        override fun setPlateFrame(handle: VisualHandle, frame: Int, tintHex: String?) {}
+        override fun setTrailLook(handle: VisualHandle, fadePower: Double, style: String) {}
+    }
+
     val kit: SkillEngineKit = SkillEngineKit.build(
         gateways = SkillEngineGateways(
-            ports = SkillRuntimePorts(visualGateway ?: object : ISkillVisualGateway by noop() { override fun sprite(sprite: String) = com.astarworks.astera.core.application.skillengine.runtime.port.SpriteInfo(1, 32) }, particleGateway ?: noop<ISkillParticleGateway>(), sound, gameplay, entities, victimAnim),
+            portsIn = { w -> SkillRuntimePorts(visuals, particlesIn(w), soundIn(w), gameplay, entitiesIn(w), victimAnim) },
             movement = movement,
-            world = world,
+            worldIn = { _ -> world },
             casterAnim = object : ISkillCasterAnimGateway {
-                override fun play(caster: UUID, anim: String, speed: Double, ticks: Int) { casterAnims += CasterAnimCall(now, "play", anim, ticks) }
+                override fun play(caster: UUID, anim: String, speed: Double, ticks: Int) { casterAnims += CasterAnimCall(now, "play", anim, ticks, speed) }
                 override fun stop(caster: UUID, anim: String) { casterAnims += CasterAnimCall(now, "stop", anim, 0) }
                 override fun release(caster: UUID, anim: String) { casterAnims += CasterAnimCall(now, "release", anim, 0) }
             },
             screen = noop<ISkillScreenGateway>(),
             cooldowns = noop<ISkillCooldownGateway>(),
             items = noop<ISkillItemGateway>(),
-            effects = noop<ISkillWorldEffectGateway>(),
+            effects = worldEffects,
         ),
         newTree = c.newTree, motion = c.motion, contacts = c.contacts, exprs = c.exprs, points = c.points,
         skills = catalog::get, observer = farObserver,
+        isAlly = { a, b -> a == b || b in allies },
     )
 
     /** Starts [id] at the current tick without ticking; drive it with [step]. */
     fun start(id: String): CastId {
         val skill = requireNotNull(catalog.get(id)) { "skill $id not loaded" }
-        val req = CastRequest(skill, caster, origin, yawDeg, pitchDeg, seed = 7L, startTick = now)
+        val req = CastRequest(skill, caster, castWorld, origin, yawDeg, pitchDeg, seed = 7L, startTick = now)
         return when (val r = kit.runner.start(req)) {
             is Result.Success -> r.value
             is Result.Failure -> error("cast did not start: ${r.error}")
@@ -336,7 +408,7 @@ class CastSim(
 
     fun cast(id: String, ticks: Int): CastId {
         val skill = requireNotNull(catalog.get(id)) { "skill $id not loaded" }
-        val req = CastRequest(skill, caster, origin, yawDeg, pitchDeg, seed = 7L, startTick = 0)
+        val req = CastRequest(skill, caster, castWorld, origin, yawDeg, pitchDeg, seed = 7L, startTick = 0)
         val cast = when (val r = kit.runner.start(req)) {
             is Result.Success -> r.value
             is Result.Failure -> error("cast did not start: ${r.error}")

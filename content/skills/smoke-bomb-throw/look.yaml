@@ -15,7 +15,7 @@ presentation:
     hit:
       - {id: emit_2, op: emit, at: pt_enemy_0_0p5_0, particle: large_smoke, count: 0, speed: 0.01}
       - {id: emit_3, op: emit, at: pt_enemy_0_0p5_0, particle: smoke, count: 0, speed: 0.01}
-      - {id: snd_2, op: sound, sound: entity.generic.extinguish_fire, at: contact.point, volume: 0.8, pitch: 0.7}
+      - {id: snd_2, op: sound, sound: entity.generic.extinguish_fire, at: enemy, volume: 0.8, pitch: 0.7}
     block:
       - {id: emit_4, op: emit, at: contact.point, particle: large_smoke, count: 0, speed: 0.01}
       - {id: emit_5, op: emit, at: contact.point, particle: smoke, count: 0, speed: 0.01}

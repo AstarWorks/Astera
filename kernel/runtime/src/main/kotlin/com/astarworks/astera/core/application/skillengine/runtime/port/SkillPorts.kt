@@ -10,7 +10,9 @@ import com.astarworks.astera.core.domain.skillengine.op.TrailRim
 import java.util.UUID
 
 /**
- * Outbound ports of the skill engine (ADR-0301). All inputs are already evaluated numbers and
+ * Outbound ports of the skill engine (ADR-0301). The sound, particle and entity-query ports are bound to ONE world
+ * (the casting entity's): the runner builds them per cast through [SkillRuntimePorts] factories, so a call can never
+ * land in another world. All inputs are already evaluated numbers and
  * world-space poses; no frame or expression types cross the boundary. Paper implementations live in
  * `plugin/combat/.../adapter/paper/skillengine/`.
  */
@@ -58,20 +60,20 @@ public interface ISkillVisualGateway {
 
     public fun remove(handle: VisualHandle)
 
-    /** Flipbook length and texture size of a sprite (1 frame, 32 px when unknown). */
-    public fun sprite(sprite: String): SpriteInfo = SpriteInfo(1, 32)
+    /** Flipbook length and texture size of a sprite. An unknown sprite is an error, never a guessed size. */
+    public fun sprite(sprite: String): SpriteInfo
 
     /** Show flipbook [frame] of a plate's sprite, multiplied by [tintHex] (`#rrggbb`) when not null. */
-    public fun setPlateFrame(handle: VisualHandle, frame: Int, tintHex: String?) {}
+    public fun setPlateFrame(handle: VisualHandle, frame: Int, tintHex: String?)
 
     /** Ribbon look: alpha follows `(1 - age/ticks) ^ fadePower`; [style] is `soft`, `crisp` or `both`. Called once after [spawnTrail]. */
-    public fun setTrailLook(handle: VisualHandle, fadePower: Double, style: String) {}
+    public fun setTrailLook(handle: VisualHandle, fadePower: Double, style: String)
 
     /**
      * Ribbon shape: [bands] (empty = one band in the colour [spawnTrail] got), leading [edge], dark [rim], the [stepDeg]
      * turn limit per quad and a reversed face when [doubleSided]. Called once after [spawnTrail], only for a trail that sets any of them.
      */
-    public fun setTrailShape(handle: VisualHandle, bands: List<TrailBand>, edge: TrailEdge?, rim: TrailRim?, stepDeg: Double, doubleSided: Boolean) {}
+    public fun setTrailShape(handle: VisualHandle, bands: List<TrailBand>, edge: TrailEdge?, rim: TrailRim?, stepDeg: Double, doubleSided: Boolean)
 }
 
 /** One emit op as vanilla `spawnParticle` arguments plus the optional `dir` sugar (see [com.astarworks.astera.core.domain.skillengine.op.FxOp.Emit]). */
@@ -122,8 +124,19 @@ public interface ISkillGameplayGateway {
         if (ignoreInvulnerability) damage(caster, victim, components, hitPoint, true) else damage(caster, victim, components, hitPoint)
     }
 
-    /** Current stacks of [statusId] on [entity] (0 when absent). */
-    public fun statusStacks(entity: UUID, statusId: String): Int = 0
+    /**
+     * [damage] that may also skip the victim's armor / resist reduction. Gateways that model armor override this;
+     * the default forwards to the overload without it.
+     */
+    public fun damage(
+        skillId: String, caster: UUID, victim: UUID, components: List<SkillDamage>, hitPoint: Vec3,
+        ignoreInvulnerability: Boolean, ignoreArmor: Boolean,
+    ) {
+        damage(skillId, caster, victim, components, hitPoint, ignoreInvulnerability)
+    }
+
+    /** Current stacks of [statusId] on [entity] (0 when the entity does not carry it). */
+    public fun statusStacks(entity: UUID, statusId: String): Int
     public fun applyStatus(caster: UUID, victim: UUID, statusId: String, stacks: Int, durationTicks: Int)
 
     /** Remove one status (all stacks) from [victim]. Missing status is a no-op. */
@@ -163,8 +176,8 @@ public interface ISkillEntityQuery {
     /** Where blocks stop a moving body: first solid hit on segment [from]->[to], or null. */
     public fun raycastBlock(from: Vec3, to: Vec3): BlockHit?
 
-    /** Health fraction 0..1 of a living entity; 1 when unknown (expression `hp_ratio`). */
-    public fun healthRatio(entity: UUID): Double = 1.0
+    /** Health fraction 0..1 of a living entity (expression `hp_ratio`); an entity that is unknown or not living is an error. */
+    public fun healthRatio(entity: UUID): Double
 }
 
 public data class EntityRoot(val feet: Vec3, val yawDeg: Double, val pitchDeg: Double, val eyeHeight: Double, val height: Double)

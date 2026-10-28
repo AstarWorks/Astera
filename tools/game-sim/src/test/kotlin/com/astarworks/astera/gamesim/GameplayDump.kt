@@ -12,6 +12,8 @@ import java.io.File
  */
 object GameplayDump {
     const val TICKS = 120
+    /** The v1 reference dummy has 100 hp (its first 35-damage hit reports hp 65). */
+    const val DUMMY_HP = 100.0
 
     private fun r(d: Double): String {
         val v = Math.round(d * 1e3) / 1e3
@@ -42,7 +44,8 @@ object GameplayDump {
     fun dump(id: String, ticks: Int = TICKS): List<String> {
         val lines = ArrayList<String>()
         val feet = Vec3.ZERO
-        val sim = CastSim(mapOf(simVictim(1) to ahead(feet, 0.0, 5.0)), blockAtZ = (System.getenv("ASTERA_WALL_Z") ?: "8").toDouble(), floorY = 0.0)
+        val sim = CastSim(mapOf(simVictim(1) to ahead(feet, 0.0, 5.0)), blockAtZ = (System.getenv("ASTERA_WALL_Z") ?: "8").toDouble(), floorY = 0.0, halfWidth = 0.3)
+        sim.victimHp = DUMMY_HP
         val item = itemOf(id)
         lines += "{\"e\":\"meta\",\"id\":\"$id\",\"item\":\"${item?.first}\"}"
         val meta = sim.catalog.get(id)?.def?.meta
@@ -60,13 +63,14 @@ object GameplayDump {
         try {
             sim.start(id)
             for (i in 0 until ticks) {
+                // State AFTER tick i has run (v1's reference samples the same way: its start runs tick 0 before the first sample).
+                sim.step(i + 1)
                 for ((n, uuid) in listOf("caster" to SIM_CASTER, "dummy" to dummy)) {
                     val p = if (uuid == SIM_CASTER) sim.casterFeet else sim.standing[uuid] ?: Vec3.ZERO
                     val v = sim.velocities[uuid] ?: Vec3.ZERO
                     lines += "{\"t\":$i,\"e\":\"pos\",\"who\":\"$n\",${sim.rel(p)},\"vx\":${r(v.x)},\"vy\":${r(v.y)},\"vz\":${r(v.z)}}"
                     if (lastVel.put(n, v) != v) lines += "{\"t\":$i,\"e\":\"vel\",\"who\":\"$n\",\"x\":${r(v.x)},\"y\":${r(v.y)},\"z\":${r(v.z)}}"
                 }
-                sim.step(i + 1)
             }
         } catch (e: Throwable) {
             lines += "{\"e\":\"error\",\"msg\":\"${((e::class.simpleName ?: "") + ": " + e.message.orEmpty()).take(200).replace("\"", "'").replace("\\", "/").replace("\n", " ")}\"}"

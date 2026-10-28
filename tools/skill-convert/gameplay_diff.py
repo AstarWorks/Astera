@@ -112,7 +112,9 @@ def vel_series(rows, who):
 
 def activity_end(rows):
     """Last tick with any action (v1 has no cast-end event): sounds, damage, status, kb, tp, block, projectile, death."""
-    ts = [r["t"] for r in rows if r.get("e") in ("sound", "damage", "status", "kb", "tp", "block", "proj", "projpos", "death") and "t" in r]
+    # status expiry / removal is a timer, not a cast action; world effects (explosions) are
+    ts = [r["t"] for r in rows if r.get("e") in ("sound", "damage", "status", "kb", "tp", "block", "proj", "projpos", "death", "world") and "t" in r
+          and not (r.get("e") == "status" and r.get("op") in ("expired", "removed"))]
     return max(ts) if ts else -1
 
 
@@ -179,7 +181,8 @@ def compare_skill(d, skill, v1, hd):
     # projectiles (v1 only has them; HEAD has frames, seen through hit/block phases)
     spawns = [r for r in by(v1, "proj") if r["k"] == "spawn"]
     ends = [r for r in by(v1, "proj") if r["k"] != "spawn"]
-    hphase = [r for r in by(hd, "phase") if r["name"] in ("hit", "block")]
+    # `sel*` hits are target selectors (cones, spheres), not projectile frames; only flying volumes compare with v1 projectiles
+    hphase = [r for r in by(hd, "phase") if r["name"] in ("hit", "block") and not str(r.get("source", "")).startswith("sel")]
     if spawns:
         v1_hit = min((r["t"] for r in ends if r["k"].startswith("hit")), default=None)
         hd_hit = min((r["t"] for r in hphase), default=None)
@@ -222,11 +225,12 @@ def compare_skill(d, skill, v1, hd):
                   f"v1 t{nz1[0]} {tuple(round(c, 2) for c in w1[nz1[0]])} vs HEAD t{nz2[0]} {tuple(round(c, 2) for c in w2[nz2[0]])}")
 
     # cast end
-    ends_hd = [r["t"] for r in by(hd, "phase") if r["name"] == "end"]
+    # chain casts raise one `end` per child; the parent's is the last one
+    ends_hd = [r["t"] for r in by(hd, "phase") if r["name"] == "end"][-1:]
     a1, a2 = activity_end(v1), activity_end(hd)
     end_hd = ends_hd[0] if ends_hd else None
     if end_hd is None:
-        d.add("cast end: HEAD cast never ends within 120 ticks", skill, 120, 1, f"v1 last action t{a1}")
+        d.add("cast end: not yet ended at the 120-tick horizon (not a defect)", skill, 120, 1, f"v1 last action t{a1}")
     elif a1 >= 0 and abs(a1 - end_hd) > 2:
         d.add("cast end: HEAD ends " + ("earlier" if end_hd < a1 else "later") + " than v1's last action", skill, min(a1, end_hd), abs(a1 - end_hd),
               f"v1 last action t{a1} vs HEAD end t{end_hd}")

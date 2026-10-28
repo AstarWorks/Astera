@@ -63,7 +63,7 @@ internal object RuntimeDecode {
             // Skill engine v2 (ADR-0301): the same compose -> decode -> compile path the combat plugin runs at boot.
             "skills" to { d ->
                 val (tables, frameErrors) = SkillEngineRegistries.frameTables(contentDir.resolve("frames"))
-                val report = SkillEngineContents(SkillEngineRegistries.catalog(tables)).reload(d)
+                val report = SkillEngineContents(SkillEngineRegistries.catalog(tables, com.astarworks.astera.core.application.skillengine.load.IBlockKeyCatalog.Unchecked)).reload(d)
                 val frameFailures = frameErrors.map { ContentLoader.LoadFailure(contentDir.resolve("frames"), "${it.path}: ${it.message}") }
                 ContentLoader.LoadReport(report.loaded, report.failed + frameFailures.size, report.failures + frameFailures)
             },
