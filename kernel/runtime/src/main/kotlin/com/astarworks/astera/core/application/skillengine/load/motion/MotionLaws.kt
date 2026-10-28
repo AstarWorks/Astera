@@ -57,7 +57,9 @@ import kotlin.math.floor
  * on one tick of one channel, stays a load error naming both.
  */
 public object MotionLaws {
-    private val LAWS = listOf("spin", "move", "grow", "fade", "keys")
+    private val LAWS = listOf("spin", "move", "orbit", "grow", "fade", "align", "follow", "stretch", "keys")
+
+    private val CLOSED_FORM_ONLY = setOf("orbit", "align", "follow", "stretch")
 
     private fun lawField(name: String) = Field.required("law", Types.enumOf(name), "rate law kind: ${LAWS.joinToString(", ")}")
     private val atF = Field.optional("at", Types.number, Value.Literal(0.0), "start tick of the law's window (ticks since the instance started)")
@@ -98,10 +100,30 @@ public object MotionLaws {
     private val keyFields = Fields.of("motion-key", tF, keyOffsetF, keyPoseF, keyScaleF, keyAlphaF, keyEaseF)
     private val keysF = Field.required("keys", Types.list(Types.nested(keyFields)), "irregular choreography only")
 
+    // orbit (ADR-0303 section 3; center is a literal frame-local pivot, see LawSegmenter)
+    private val centerF = Field.required("center", FrameVecs.type, "pivot the position rotates about, {forward, up, left} in the parent basis (literal)")
+    private val phaseF = Field.optional("phase_deg", Types.number, Value.Literal(0.0), "angle the orbit starts at")
+    private val faceF = Field.optional("face", Types.enumOf("keep", "tangent", "center"), "keep", "keep = the object does not turn; center / tangent = it turns with the orbit")
+
+    // align
+    private val alignToF = Field.required("to", Types.id, "'velocity' (of the attached move laws) or the name of an anchor to face")
+    private val alignAxisF = Field.optional("axis", Types.id, "forward", "the object axis that is pointed at the target")
+
+    // follow / stretch (reactive: written every step ticks)
+    private val targetF = Field.required("target", Types.id, "anchor whose position is tracked")
+    private val baseF = Field.required("base", Types.id, "anchor at the start of the stretched object")
+    private val tipF = Field.required("tip", Types.id, "anchor at the end of the stretched object")
+    private val stretchAxisF = Field.optional("axis", Types.id, "forward", "the object axis whose length equals the anchor distance")
+    private val stepF = Field.optional("step", Types.number, Value.Literal(2.0), "ticks between re-sends of a reactive law (minimum 1)")
+
     private val specs: Map<String, Fields> = mapOf(
         "spin" to (Fields.of("spin-law", lawField("spin")) + window + Fields.of("spin", axisF, degPerTickF, spinStartF, spinAccelF)),
         "move" to (Fields.of("move-law", lawField("move")) + window + Fields.of("move", velocityF, speedF, moveStartF, moveAccelF)),
+        "orbit" to (Fields.of("orbit-law", lawField("orbit")) + window + Fields.of("orbit", centerF, axisF, degPerTickF, phaseF, faceF)),
         "grow" to (Fields.of("grow-law", lawField("grow")) + window + Fields.of("grow", growStartF, perTickF, toF, growAccelF)),
+        "align" to (Fields.of("align-law", lawField("align")) + window + Fields.of("align", alignToF, alignAxisF, stepF)),
+        "follow" to (Fields.of("follow-law", lawField("follow")) + window + Fields.of("follow", targetF, stepF)),
+        "stretch" to (Fields.of("stretch-law", lawField("stretch")) + window + Fields.of("stretch", baseF, tipF, stretchAxisF, stepF)),
         "fade" to (Fields.of("fade-law", lawField("fade")) + window + Fields.of("fade", fadeStartF, fadeToF, exponentF)),
         "keys" to Fields.of("keys-law", lawField("keys"), keysF),
     )
@@ -110,16 +132,19 @@ public object MotionLaws {
      * One window (rate law copy: [keys] is its own expanded table) or one key tick ([keys] null, `from == to`) on one channel of the lowered
      * track. [order] is the index of the law in the `motion:` list: it fixes the composition order of turns.
      */
-    private class Piece(val path: String, val channel: String, val from: Int, val to: Int, val order: Int, val keys: List<TrackKey>?)
+    private class Piece(
+        val path: String, val channel: String, val from: Int, val to: Int, val order: Int, val keys: List<TrackKey>?,
+        val reactive: Boolean = false,
+    )
 
-    private class Lowered(val keys: List<TrackKey>, val pieces: List<Piece>)
+    private class Lowered(val keys: List<TrackKey>, val pieces: List<Piece>, val laws: List<MotionLaw> = emptyList())
 
     /** Reads and lowers [raw] (the YAML list under `motion:`) at [path]. Call under [Grammar.guard], or use [decode]. */
     public fun read(raw: Any?, ctx: GrammarContext, path: String): List<TrackKey> {
         val list = raw as? List<*> ?: ctx.mismatch(path, "list of laws {law: spin|move|grow|fade|keys, ...}", raw)
         if (list.isEmpty()) ctx.fail(path, "motion must not be empty (omit it for a still object)")
         val n = LawNumbers(ctx)
-        val lowered = list.mapIndexed { i, item -> lawOf(item, ctx, n, "$path[$i]", i) }
+        val lowered = list.mapIndexed { i, item -> lawOf(item, ctx, n, "$path[$i]", i, closedForm = false) }
         val pieces = lowered.flatMap { it.pieces }
         checkAbsolute(pieces, ctx)
         val composed = compose(pieces, n)
@@ -131,6 +156,31 @@ public object MotionLaws {
     public fun decode(raw: Any?, ctx: GrammarContext, path: String): Result<List<TrackKey>, SkillDecodeError> =
         Grammar.guard { read(raw, ctx, path) }
 
+    /**
+     * The closed-form reading of the same `motion:` list (ADR-0303 section 3): the laws stay laws (windows, eases, `every`/`times` copies expanded)
+     * and [com.astarworks.astera.core.application.skillengine.compose.LawSegmenter] turns them into segments. Beyond [read] it accepts `orbit`,
+     * `align`, `follow` and `stretch`, and `from` on a law is a plain unknown key.
+     */
+    public fun readLaws(raw: Any?, ctx: GrammarContext, path: String): List<MotionLaw> {
+        val list = raw as? List<*> ?: ctx.mismatch(path, "list of laws {law: ${LAWS.joinToString("|")}, ...}", raw)
+        if (list.isEmpty()) ctx.fail(path, "motion must not be empty (omit it for a still object)")
+        val n = LawNumbers(ctx)
+        val lowered = list.mapIndexed { i, item -> lawOf(item, ctx, n, "$path[$i]", i, closedForm = true) }
+        val pieces = lowered.flatMap { it.pieces }
+        checkAbsolute(pieces, ctx)
+        checkReactive(pieces, ctx)
+        val laws = lowered.flatMap { it.laws }
+        for (a in laws.filterIsInstance<AlignMotion>().filter { it.toVelocity }) {
+            if (laws.none { it is RateMotion && it.rate is MoveRate && it.rate.from < a.at + a.forTicks && it.rate.from + it.rate.forTicks > a.at }) {
+                ctx.fail("${a.path}.to", "align to velocity needs a move law whose window overlaps this one (nothing moves, so there is no direction)")
+            }
+        }
+        return laws
+    }
+
+    public fun decodeLaws(raw: Any?, ctx: GrammarContext, path: String): Result<List<MotionLaw>, SkillDecodeError> =
+        Grammar.guard { readLaws(raw, ctx, path) }
+
     /** JSON-schema fragment of the whole `motion:` list, from the same field specs (input for the generated skill schema, E10). */
     public fun jsonSchema(): Map<String, Any?> = linkedMapOf(
         "type" to "array",
@@ -138,13 +188,18 @@ public object MotionLaws {
         "items" to linkedMapOf("oneOf" to specs.values.map { it.jsonSchema() }),
     )
 
-    private fun lawOf(raw: Any?, ctx: GrammarContext, n: LawNumbers, path: String, order: Int): Lowered {
+    private fun lawOf(raw: Any?, ctx: GrammarContext, n: LawNumbers, path: String, order: Int, closedForm: Boolean): Lowered {
         val map = raw as? Map<*, *> ?: ctx.mismatch(path, "law map {law: ${LAWS.joinToString("|")}, ...}", raw)
-        if ("from" in map && map["law"] != "keys") ctx.fail("$path.from", "'from' is not a law field any more: write 'at' for the start tick of the window")
+        if (!closedForm && "from" in map && map["law"] != "keys") ctx.fail("$path.from", "'from' is not a law field any more: write 'at' for the start tick of the window")
         val name = map["law"] as? String ?: ctx.fail("$path.law", "every motion entry names its kind: law: ${LAWS.joinToString("|")}")
         val spec = specs[name] ?: ctx.fail("$path.law", "unknown law '$name' (known: ${LAWS.joinToString(", ")})")
+        if (!closedForm && name in CLOSED_FORM_ONLY) ctx.fail("$path.law", "law '$name' is closed-form only: read it with MotionLaws.readLaws")
         val v = spec.read(raw, ctx, path)
-        return if (name == "keys") keysOf(v, ctx, n, path, order) else rateOf(name, v, ctx, n, path, order)
+        return when (name) {
+            "keys" -> keysOf(v, ctx, n, path, order)
+            in CLOSED_FORM_ONLY -> extraOf(name, v, ctx, n, path, order)
+            else -> rateOf(name, v, ctx, n, path, order)
+        }
     }
 
     // ------------------------------------------------------------------------------------------ rate laws
@@ -174,7 +229,67 @@ public object MotionLaws {
             }
         }
         val pieces = starts.zip(laws) { s, law -> Piece(path, channel, s, s + forTicks, order, RateLawExpander.expand(law)) }
-        return Lowered(pieces.flatMap { it.keys!! }, pieces)
+        return Lowered(pieces.flatMap { it.keys!! }, pieces, laws.map { RateMotion(it, order, path) })
+    }
+
+    /** `orbit`, `align`, `follow`, `stretch`: no TrackKey form, only [readLaws]. */
+    private fun extraOf(name: String, v: FieldValues, ctx: GrammarContext, n: LawNumbers, path: String, order: Int): Lowered {
+        val from = n.ticks(v[atF], "$path.at")
+        val span = v[TimingSpec.forSpan] ?: ctx.abortMissing(path, "for")
+        val forTicks = when (span) {
+            is Span.Ticks -> n.ticks(span.ticks, "$path.for").also { if (it < 1) ctx.fail("$path.for", "a law runs for at least 1 tick") }
+            Span.UntilCastEnds -> ctx.fail("$path.for", "a law needs a finite window in ticks; 'cast' cannot be lowered")
+        }
+        val ease = LawEase.forKey(v[easeF], ctx, "$path.ease", allowStep = false)
+        val starts = starts(v, from, forTicks, ctx, n, path)
+        val laws = ArrayList<MotionLaw>()
+        val pieces = ArrayList<Piece>()
+        fun stepOf(): Int = n.ticks(v[stepF], "$path.step").also { if (it < 1) ctx.fail("$path.step", "step is at least 1 tick") }
+        fun axisOf(f: Field<String>): Vec3 {
+            val axisName = v[f]
+            val base = LocalAxes.axis(axisName.removePrefix("-"))
+                ?: ctx.fail("$path.axis", "axis '$axisName' cannot be resolved here (known: forward back up down left right, '-' negated)")
+            return if (axisName.startsWith("-")) base * -1.0 else base
+        }
+        when (name) {
+            "orbit" -> {
+                val axis = axisOf(axisF)
+                val rate = n.num(v[degPerTickF], "$path.deg_per_tick")
+                val pivot = n.frameVec(v[centerF], "$path.center")
+                val phase = n.num(v[phaseF], "$path.phase_deg")
+                val face = v[faceF]
+                for (s in starts) {
+                    laws += OrbitMotion(s, forTicks, pivot, axis, rate, phase, face, ease, order, path)
+                    pieces += Piece(path, "offset", s, s + forTicks, order, emptyList())
+                    if (face != "keep") pieces += Piece(path, "turn", s, s + forTicks, order, emptyList())
+                }
+            }
+            "align" -> {
+                val axis = axisOf(alignAxisF)
+                val to = v[alignToF]
+                val step = stepOf()
+                for (s in starts) {
+                    laws += AlignMotion(s, forTicks, axis, to == "velocity", to, step, ease, order, path)
+                    pieces += Piece(path, "turn", s, s + forTicks, order, emptyList(), reactive = to != "velocity")
+                }
+            }
+            "follow" -> {
+                val step = stepOf()
+                for (s in starts) {
+                    laws += FollowMotion(s, forTicks, v[targetF], step, ease, order, path)
+                    pieces += Piece(path, "offset", s, s + forTicks, order, emptyList(), reactive = true)
+                }
+            }
+            else -> {
+                val axis = axisOf(stretchAxisF)
+                val step = stepOf()
+                for (s in starts) {
+                    laws += StretchMotion(s, forTicks, axis, v[baseF], v[tipF], step, ease, order, path)
+                    listOf("offset", "scale", "turn").forEach { pieces += Piece(path, it, s, s + forTicks, order, emptyList(), reactive = true) }
+                }
+            }
+        }
+        return Lowered(emptyList(), pieces, laws)
     }
 
     private fun spin(v: FieldValues, ease: String?, forTicks: Int, ctx: GrammarContext, n: LawNumbers, path: String): (Int) -> RateLaw {
@@ -265,6 +380,7 @@ public object MotionLaws {
         if (items.isEmpty()) ctx.fail("$path.keys", "keys must not be empty")
         val keys = ArrayList<TrackKey>()
         val pieces = ArrayList<Piece>()
+        val lawKeys = ArrayList<LawKey>()
         var last = -1
         items.forEachIndexed { i, k ->
             val p = "$path.keys[$i]"
@@ -285,12 +401,30 @@ public object MotionLaws {
             )
             if (channels.isEmpty()) ctx.fail(p, "a key sets at least one of offset, pose, scale, alpha")
             keys += TrackKey(tick, offset, turn, scale, ease, alpha)
+            lawKeys += LawKey(
+                tick,
+                k[keyOffsetF]?.let { n.frameVec(it, "$p.offset") },
+                (turn as? Value.Literal)?.value,
+                k[keyScaleF]?.let { n.scale(it, "$p.scale") },
+                alpha?.let { n.num(it, "$p.alpha") },
+                ease,
+            )
             channels.forEach { pieces += Piece(p, it, tick, tick, order, null) }
         }
-        return Lowered(keys, pieces)
+        return Lowered(keys, pieces, listOf(KeysMotion(lawKeys, order, path)))
     }
 
     // ------------------------------------------------------------------------------------------ cross-law
+
+    /** A reactive law owns its channel: another law on the same channel and ticks has no defined composition with a live value. */
+    private fun checkReactive(pieces: List<Piece>, ctx: GrammarContext) {
+        for (r in pieces.filter { it.reactive }) for (o in pieces) {
+            if (o === r || o.order == r.order || o.channel != r.channel || o.from > r.to || o.to < r.from) continue
+            val late = if (o.order > r.order) o else r
+            val early = if (o.order > r.order) r else o
+            ctx.fail(late.path, "overlaps reactive ${r.path} on the ${r.channel} channel (ticks ${early.from}..${early.to} and ${late.from}..${late.to}); a live law owns its channel while it runs")
+        }
+    }
 
     /** Keys are absolute: a key tick inside a rate window, or two key ticks of different laws on one channel and tick, cannot be combined. */
     private fun checkAbsolute(pieces: List<Piece>, ctx: GrammarContext) {
@@ -385,3 +519,41 @@ public object MotionLaws {
     private fun GrammarContext.abortMissing(path: String, field: String): Nothing =
         abort(SkillDecodeError.MissingField(file, path, field))
 }
+
+/**
+ * One law of a `motion:` list as the closed-form reading keeps it (ADR-0303 section 3): `every` + `times` already expanded into copies,
+ * every number literal. [order] is the index in the list (it fixes the composition order of rotations, 3.2), [path] the YAML path for messages.
+ */
+public sealed interface MotionLaw {
+    public val order: Int
+    public val path: String
+}
+
+/** `spin` / `move` / `grow` / `fade`: the domain rate law, one copy. */
+public data class RateMotion(val rate: RateLaw, override val order: Int, override val path: String) : MotionLaw
+
+/** One key of a `keys` law; a null channel is not keyed. [pose] is a rotation vector (axis * degrees). */
+public data class LawKey(val tick: Int, val offset: Vec3?, val pose: Vec3?, val scale: Vec3?, val alpha: Double?, val ease: String?)
+
+public data class KeysMotion(val keys: List<LawKey>, override val order: Int, override val path: String) : MotionLaw
+
+/** Position rotates about the frame-local [pivot] along [axis]; [face] `center` / `tangent` also turns the object with the orbit. */
+public data class OrbitMotion(
+    val at: Int, val forTicks: Int, val pivot: Vec3, val axis: Vec3, val degPerTick: Double, val phaseDeg: Double,
+    val face: String, val ease: String?, override val order: Int, override val path: String,
+) : MotionLaw
+
+/** [toVelocity] points [axis] along the direction of the move laws; otherwise [target] names an anchor (live, re-sent every [step] ticks). */
+public data class AlignMotion(
+    val at: Int, val forTicks: Int, val axis: Vec3, val toVelocity: Boolean, val target: String, val step: Int, val ease: String?,
+    override val order: Int, override val path: String,
+) : MotionLaw
+
+public data class FollowMotion(
+    val at: Int, val forTicks: Int, val anchor: String, val step: Int, val ease: String?, override val order: Int, override val path: String,
+) : MotionLaw
+
+public data class StretchMotion(
+    val at: Int, val forTicks: Int, val axis: Vec3, val base: String, val tip: String, val step: Int, val ease: String?,
+    override val order: Int, override val path: String,
+) : MotionLaw
