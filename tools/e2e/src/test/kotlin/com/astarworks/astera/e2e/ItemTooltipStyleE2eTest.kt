@@ -29,8 +29,11 @@ class ItemTooltipStyleE2eTest : E2eBase() {
                 "$id hides attribute/enchant/unbreakable/dye, keeps name+lore"
             }
             // Preserve the real stack's item PDC while deliberately replacing only the style.
-            rcon("item modify entity ${b.name} hotbar.0 {function:\"minecraft:set_components\",components:{\"minecraft:tooltip_style\":\"minecraft:wrong\"}}")
-            assertThat(component()).contains("minecraft:wrong")
+            val modifyReply = rcon("item modify entity ${b.name} hotbar.0 {function:\"minecraft:set_components\",components:{\"minecraft:tooltip_style\":\"minecraft:wrong\"}}")
+            E2eReport.check("Item tooltip", "$id style can be corrupted for the refresh check", "item modify + Inventory component") {
+                assertThat(component()).describedAs("modify reply: $modifyReply").contains("minecraft:wrong")
+                "$id -> minecraft:wrong"
+            }
             rcon("astera items refresh")
             val repaired = b.waitUntil(5_000) { component().contains("astera:$rarity") }
             E2eReport.check("Item tooltip", "$id refresh restores its rarity frame", "items refresh + Inventory component") {
