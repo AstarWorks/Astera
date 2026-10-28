@@ -5,6 +5,8 @@ package com.astarworks.astera.core.application.skillengine.compose
  *
  *  - maps merge deep; scalars replace; a `null` patch value replaces with null;
  *  - lists containing maps merge by their `id` key (base order kept, new ids appended); lists of scalars replace;
+ *    a list of maps where NO entry (base or patch) has an `id` (transitions `on:`, `motion:` laws) is replaced whole;
+ *    a list mixing entries with and without `id` is a [ComposeError.PatchError.MissingId];
  *  - `$patch: delete` inside a map removes that entry (list item by id, or map value by key); deleting something the
  *    base does not have is a [ComposeError.PatchError.TargetNotFound], never silently ignored;
  *  - `$patch: replace` inside a map replaces the base value with the rest of the patch map.
@@ -50,8 +52,8 @@ internal object StrategicMerge {
 
     @Suppress("UNCHECKED_CAST")
     private fun mergeLists(base: List<*>, patch: List<*>, path: String, fail: Array<MergeFailure?>): List<Any?> {
-        val keyed = patch.any { it is Map<*, *> } || base.any { it is Map<*, *> }
-        if (!keyed) return patch.map { stripDirectives(it) }
+        val maps = (base + patch).filterIsInstance<Map<*, *>>()
+        if (maps.none { it[ID] is String }) return patch.map { stripDirectives(it) }
         val out = ArrayList<Any?>()
         base.forEachIndexed { i, e ->
             if (e !is Map<*, *> || e[ID] !is String) {
