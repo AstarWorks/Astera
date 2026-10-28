@@ -37,27 +37,18 @@ public data class Intrinsic(val unit: Vec3, val centre: Vec3 = Vec3.ZERO) {
         public const val CENTER_X_PER_SCALE: Double = 0.0125
         public const val CENTER_Y_PER_SCALE: Double = 0.125
 
-        /** A `text_display` with a background and one blank line: an 1/8 x 1/4 block quad whose middle is off the origin. */
-        public val TEXT_SOLID: Intrinsic = Intrinsic(
-            Vec3(1.0 / SOLID_SCALE_X, 1.0 / SOLID_SCALE_Y, 1.0), Vec3(-CENTER_X_PER_SCALE, -CENTER_Y_PER_SCALE, 0.0),
-        )
-
         /**
-         * A `text_display` quad drawing a glyph (v1 VfxQuad.kt:44-46,59-60: scale = size x 5 = size / 0.2, and the SAME native-centre
-         * correction as the solid quad is applied to every quad, glyph or not).
+         * `kind: text` (ADR-0303 2.1: the author writes the plain vanilla `scale`, so [unit] is 1): a one-line text box whose middle is
+         * off the entity origin by (+.0125, +.125) blocks per scale unit (MC 26.3 TextDisplayRenderer, calibrated against a client capture).
+         * [toDisplayWrite] puts `translation = rotation * (-centre * scale)` before the rotation and scale, which is v1 `VfxQuad.transform`
+         * (`VfxQuad.kt:49-53`) for solid quads and glyph quads alike, so the quad's middle lands on the entity position.
          */
-        public val QUAD_GLYPH: Intrinsic = Intrinsic(Vec3(0.2, 0.2, 1.0), Vec3(-CENTER_X_PER_SCALE, -CENTER_Y_PER_SCALE, 0.0))
+        public val TEXT_QUAD: Intrinsic = Intrinsic(Vec3(1.0, 1.0, 1.0), Vec3(-CENTER_X_PER_SCALE, -CENTER_Y_PER_SCALE, 0.0))
 
         /** Size of one scale unit of a sprite glyph: font height [px] pixels x 0.025 blocks (256 px = 6.4 blocks). */
         public fun textGlyph(px: Int): Intrinsic {
             val edge = px * 0.025
             return Intrinsic(Vec3(edge, edge, 1.0))
-        }
-
-        /** A glyph drawn by a quad: the same one-line text box as [TEXT_SOLID], so its middle is off the origin by the same amount (v1 `VfxQuad.transform`; sprites and text elements are not compensated). */
-        public fun glyphQuad(px: Int): Intrinsic {
-            val edge = px * 0.025
-            return Intrinsic(Vec3(edge, edge, 1.0), Vec3(-CENTER_X_PER_SCALE, -CENTER_Y_PER_SCALE, 0.0))
         }
     }
 }
