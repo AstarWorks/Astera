@@ -22,6 +22,9 @@ import com.astarworks.astera.core.domain.skillengine.op.OpSection
 import com.astarworks.astera.core.domain.skillengine.table.Action
 import com.astarworks.astera.core.domain.skillengine.table.OpId
 import com.astarworks.astera.core.domain.skillengine.table.Row
+import com.astarworks.astera.core.domain.skillengine.table.EventPath
+import com.astarworks.astera.core.domain.skillengine.table.SubTable
+import com.astarworks.astera.core.domain.skillengine.table.TickRange
 import com.astarworks.astera.core.domain.skillengine.table.SrcPath
 import com.astarworks.astera.core.domain.skillengine.table.Val
 
@@ -62,15 +65,21 @@ public object BodyOpSpec : OpSpec<BodyOp> {
             Action.Effect(OpId("body"), mapOf<String, Val<Any>>("anim" to Val.Known(op.anim), "speed" to CasterMotion.num(op.speed))),
             lc.src,
         )
+        var end: Int? = null
         val rows = when (op.timing?.span) {
             is Span.Ticks -> GameplayOps.duration(op.timing, lc, path, "for").let { d ->
                 when (d) {
                     is Result.Failure -> return d
-                    is Result.Success -> listOf(start, Row(d.value, lc.self, Action.End(lc.self), lc.src))
+                    is Result.Success -> { end = d.value; listOf(start, Row(d.value, lc.self, Action.End(lc.self), lc.src)) }
                 }
             }
             else -> listOf(start)
         }
-        return Result.Success(Lowered(rows = rows, instances = listOf(lc.self)))
+        // `until` is a mask (2.0), like a display's: the event's sub-table ends the clip the first time the event fires.
+        val subTables = op.timing?.until?.let { ev ->
+            val hi = lc.clockOffset + (end ?: lc.config.maxLifeTicks)
+            listOf(SubTable(EventPath(ev), lc.state, TickRange(lc.clockOffset, maxOf(lc.clockOffset, hi)), 1, listOf(Row(0, lc.self, Action.End(lc.self), lc.src)), emptyList()))
+        }.orEmpty()
+        return Result.Success(Lowered(rows = rows, subTables = subTables, instances = listOf(lc.self)))
     }
 }

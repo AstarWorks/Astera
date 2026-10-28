@@ -78,4 +78,9 @@ public data class ExpansionTable(
     val conditions: Map<String, String>,
     /** The caps this table was compiled under; printed as the `# engine:` header of the dump. */
     val config: EngineConfig,
+    /**
+     * R45 `machine.world:` rows, owned by the machine root (not by the start state): ticks count from the cast start, nothing ends them on a
+     * state exit, only their own `End` rows, the cast's end or its cancel. Check 8 bounds them by the machine's worst-case path.
+     */
+    val worldRows: List<Row> = emptyList(),
 )

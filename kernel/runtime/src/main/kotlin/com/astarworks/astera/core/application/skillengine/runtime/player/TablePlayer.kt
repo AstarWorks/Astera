@@ -2,6 +2,8 @@ package com.astarworks.astera.core.application.skillengine.runtime.player
 
 import com.astarworks.astera.core.application.skillengine.runtime.CastError
 import com.astarworks.astera.core.application.skillengine.runtime.CastRequest
+import com.astarworks.astera.core.application.skillengine.runtime.port.CastRef
+import com.astarworks.astera.core.application.skillengine.runtime.port.ISkillItemGateway
 import com.astarworks.astera.core.application.skillengine.runtime.port.ISkillEntityQuery
 import com.astarworks.astera.core.application.skillengine.runtime.port.ISkillGameplayGateway
 import com.astarworks.astera.core.application.skillengine.runtime.port.ISkillParticleGateway
@@ -109,6 +111,9 @@ public class TablePlayer(
 
     public var hooks: PlayerHooks = NoHooks
 
+    /** `consume_item` goes through this port; null = the op faults loudly (the platform wires it with [ISkillItemGateway]). */
+    public var items: ISkillItemGateway? = null
+
     private val runs = LinkedHashMap<Long, Run>()
     private val faultLog = ArrayList<PlayerFault>()
     private var nextCast = 1L
@@ -173,6 +178,8 @@ public class TablePlayer(
         }
         run.pending += run.external.toList().also { run.external.clear() }
         run.inTick = true
+        // 0. R45: the machine-root `world` rows ride the cast clock, owned by no state
+        advanceWorld(run, now)
         // 1. state rows (every level), then the later rows of sub-tables pasted on earlier ticks
         for (lvl in run.cursor.levels.toList()) if (lvl in run.cursor.levels) advanceLevel(run, lvl, now)
         for (sc in run.cursor.subCursors.toList()) advanceSub(run, sc, now)
@@ -184,6 +191,12 @@ public class TablePlayer(
         // 5. cleanup
         run.inTick = false
         cleanup(run, now)
+    }
+
+    private fun advanceWorld(run: Run, now: Int) {
+        val rows = run.cursor.skill.table.worldRows
+        val ctx = RowCtx(run.request.startTick, null, null, null)
+        while (run.nextWorld < rows.size && rows[run.nextWorld].tick <= now - ctx.base) playRow(run, rows[run.nextWorld++], ctx, now)
     }
 
     /** Used by [cancel] outside a tick: events produced by the exit rows, then cleanup. */
@@ -470,6 +483,7 @@ public class TablePlayer(
         for (k in doomed.asReversed()) {
             val rec = run.recs.remove(k) ?: continue
             run.cursor.instances.remove(k)
+            run.bodyClips.remove(k)?.let { gameplay.stopBodyClip(castRef(run), run.request.caster, it) }
             rec.real?.let { visual.remove(it) }
         }
     }
@@ -964,7 +978,7 @@ public class TablePlayer(
     private fun effect(run: Run, row: Row, a: Action.Effect, ctx: RowCtx, now: Int, src: String) {
         val p = a.payload
         val kind = p["kind"]?.let { strOf(run, it, ctx) } ?: a.op.value
-        val victims = p["targets"]?.let { v ->
+        val victims = p["target"]?.let { v ->
             @Suppress("UNCHECKED_CAST")
             targets(run, v as Val<TargetSet>, ctx)
         } ?: listOf(run.request.caster)
@@ -986,6 +1000,46 @@ public class TablePlayer(
                 @Suppress("UNCHECKED_CAST")
                 val dur = p["for"]?.let { int(run, it as Val<Int>, ctx) }
                 victims.forEach { gameplay.modifyAttribute(caster, it, s("attribute"), s("operation"), d("amount"), dur) }
+            }
+            "cleanse" -> victims.forEach { gameplay.cleanse(it, any(run, cell("negative_only"), ctx) as Boolean) }
+            "consume_item" -> {
+                val port = items ?: throw IllegalStateException("consume_item needs the item gateway (TablePlayer.items is not wired)")
+                val item = s("item")
+                val count = d("count").toInt()
+                // v2 ConsumeItemOpExecutor (9d4c4a3db:kernel/runtime/.../runtime/ops/ControlOpExecutors.kt:171): a zero count is a no-op
+                if (count > 0) victims.forEach { port.consume(castRef(run), it, item, count) }
+            }
+            "consume_status" -> victims.forEach { gameplay.consumeStatus(castRef(run), it, s("status")) }
+            "freeze" -> {
+                val ticks = d("ticks").toInt()
+                val entities = LinkedHashSet<UUID>()
+                for (name in any(run, cell("scope"), ctx) as List<*>) when (val n = name.toString()) {
+                    "caster" -> entities += caster
+                    "event.victim" -> entities += targets(run, Val.Live("event.victim", null), ctx)
+                    else -> fault(run, now, src, "freeze scope '$n': the gateway holds entities only, a frame instance has no entity to hold")
+                }
+                if (ticks > 0 && entities.isNotEmpty()) gameplay.freezeEntities(entities.toList(), ticks)
+            }
+            "camera_shake" -> {
+                val ticks = d("ticks").toInt()
+                val dir = s("direction")
+                val from = if (dir == "from_hit") liveVec(run, "event.victim", ctx).let { Vec3(it.x, it.y, it.z) } else null
+                victims.forEach { gameplay.cameraShake(castRef(run), it, d("intensity"), ticks, from) }
+            }
+            "stop_sound" -> victims.forEach { gameplay.stopSound(castRef(run), it, s("sound")) }
+            "body" -> {
+                val id = row.instance
+                run.recs[id]?.let { endInstance(run, id) }
+                // the clip lives as long as its instance: End / state exit / cast end all go through endInstance
+                run.recs[id] = Rec(SpawnKind.FRAME, null, "", now, ctx.owner, PoseV(Vector3d(), Quaterniond(), Vector3d(1.0, 1.0, 1.0)))
+                run.cursor.instances[id] = GatewayHandle(nextSynthetic--)
+                val anim = s("anim")
+                run.bodyClips[id] = anim
+                gameplay.playBodyClip(castRef(run), caster, anim, d("speed"))
+            }
+            "hurt" -> {
+                val at = liveVec(run, s("from").removePrefix("instance:"), ctx)
+                victims.forEach { gameplay.hurt(castRef(run), it, Vec3(at.x, at.y, at.z)) }
             }
             else -> fault(run, now, src, "effect '$kind' has no handler in TablePlayer")
         }
@@ -1031,6 +1085,8 @@ public class TablePlayer(
     }
 
     /** `anchor:<instance>[.position|.rotation]` (or the bare instance text): the live instance and the requested part. */
+    private fun castRef(run: Run) = CastRef(run.cursor.handle.value, run.request.caster, run.request.world)
+
     private fun anchorOf(run: Run, name: String): Pair<Rec, String>? {
         val bare = name.removePrefix("anchor:")
         for (part in listOf("position", "rotation", "")) {
@@ -1223,6 +1279,10 @@ public class TablePlayer(
         val hitOnce = HashMap<InstanceId, MutableSet<UUID>>()
         val pendingEnds = ArrayList<InstanceId>()
         val locks = ArrayList<LockRec>()
+
+        /** R45: how many machine-root `world` rows have been played; and the body clip each live `body` instance plays. */
+        var nextWorld = 0
+        val bodyClips = HashMap<InstanceId, String>()
 
         /** Final regions seen per parallel parent (`<parent>.end` is published when all are final). */
         val regionEnds = HashMap<StatePath, Int>()

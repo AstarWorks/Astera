@@ -28,6 +28,7 @@ public object TableAssembler {
         writes: Map<InstanceId, WriteStats>,
         conditions: Map<String, String>,
         config: EngineConfig,
+        worldRows: List<Row> = emptyList(),
     ): ExpansionTable = ExpansionTable(
         skillId = skillId,
         sampleSeed = sampleSeed,
@@ -38,5 +39,6 @@ public object TableAssembler {
         writes = writes,
         conditions = conditions,
         config = config,
+        worldRows = sortRows(worldRows),
     )
 }

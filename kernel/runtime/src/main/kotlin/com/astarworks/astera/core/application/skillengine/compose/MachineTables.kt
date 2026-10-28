@@ -35,6 +35,8 @@ public data class MachineLowering(
     val instances: List<InstanceId>,
     val writes: Map<InstanceId, WriteStats>,
     val emitted: Set<EventPath>,
+    /** R45: the `machine.world` rows, owned by the machine root (ticks from the cast start). */
+    val world: List<Row> = emptyList(),
 )
 
 /**
@@ -143,6 +145,16 @@ public object MachineTables {
             return listOf("$id/$start")
         }
 
+        // R45: the cast-level `world:` rows are lowered once, at the cast's tick 0, as a machine-root section (ADR-0303 10.1): the start state
+        // supplies only the anchor scope; the rows are not part of any state's table, so a state exit never ends them.
+        var worldRows: List<Row> = emptyList()
+        if (machine.world.isNotEmpty()) {
+            when (val r = section(all.getValue(machine.start), "world", machine.world, null)) {
+                is Result.Failure -> return r
+                is Result.Success -> worldRows = r.value
+            }
+        }
+
         for ((id, st) in all) {
             val hasKids = all.keys.any { it != id && parentOf(it)?.id == id }
             if (hasKids && st.start == null && id !in flat.regionStarts) return Result.Failure(SkillDecodeError.NestedStartMissing(skillId, id))
@@ -166,14 +178,6 @@ public object MachineTables {
             rows += row(0, Action.Enter(path), "$where.enter")
             for ((sec, ops) in listOf("enter" to st.enter, "do" to st.doOps)) {
                 when (val r = section(st, sec, ops, null)) {
-                    is Result.Failure -> return r
-                    is Result.Success -> rows += r.value
-                }
-            }
-            // R45: the cast-level `world:` rows are lowered at the cast's tick 0, beside the start state's own. They are still bounded by that
-            // state's table until the static checks learn a machine-root owner (StaticChecks spawnScope), see ADR-0303 10.1.
-            if (id == machine.start && machine.world.isNotEmpty()) {
-                when (val r = section(st, "world", machine.world, null)) {
                     is Result.Failure -> return r
                     is Result.Success -> rows += r.value
                 }
@@ -241,7 +245,7 @@ public object MachineTables {
             }
             states += StateTable(path, duration, st.then?.let(::StatePath), st.final, rows, branches)
         }
-        return Result.Success(MachineLowering(states, subs, instances, writes, emitted))
+        return Result.Success(MachineLowering(states, subs, instances, writes, emitted, worldRows))
     }
 
     /** Resolves an `exit.reason` guard on [op] for [reason]: null = drop the op, else the op with the guard removed. */
