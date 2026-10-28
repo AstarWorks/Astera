@@ -1,6 +1,6 @@
-# Converted from content/skills/simple-shoot.yaml by tools/skill-convert/convert.py (v1 archetype: projectile). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
-# Generated point-frame offsets are [left, up, forward] in the parent frame.
-apiVersion: "astera/v2"
+# astera/v3 hand port of the v2 skill.yaml + look.yaml (tick for tick).
+# The impact (ring r=0.4 + 3 random-plane spirals, v2 `circle` angle random, radius 0.9..1.5) is identical for hit, block and expire; hit also plays the impact sound. Kept inline in each handler.
+apiVersion: astera/v3
 kind: Skill
 id: simple-shoot
 item: rtm-blaster
@@ -8,15 +8,88 @@ meta:
   name: {ja: "シンプルシュート", en: "Simple Shoot"}
   description: {ja: "炎と橙色の粉塵の光線を撃ち、着弾点で輪状に弾ける。", en: "Fires a dense flame-and-ember beam that bursts into a ring where it lands."}
   cooldown_ticks: 4
+  resource_cost: 0   # v2 had no resource_cost (identity 0)
   tags: [ranged, fire-family]
-frames:
-  - {id: bolt, kind: body, parent: world, inactive: true}
-  - {id: pt_aim_0_0_0p5, kind: point, parent: aim, offset: [0.0, 0.0, 0.5]}
-gameplay:
-  params: {launch_speed: 2.0, max_lifetime_ticks: 40, dmg_fire: 25.0}
-  expose:
-    - {id: damage, param: dmg_fire}
-    - {id: flight_speed, param: launch_speed}
-  timeline:
-    - {id: t0, at: 0, do: [{id: bolt, op: projectile, body: bolt, from: pt_aim_0_0_0p5, velocity: "= look(caster) * launch_speed", max_ticks: "${max_lifetime_ticks}", radius: 0.5}]}
-  "on": {hit: [{id: dmg, op: damage, components: [{kind: fire, amount: "${dmg_fire}"}], target: victim}]}
+anchors:
+  - {id: muzzle, anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}   # projectile origin
+  - {id: front,  anchor: caster.eye, offset: {forward: 1.2}}                    # cast burst, was pt_aim_0_0_1p2
+machine:
+  start: fly
+  states:
+    fly:
+      for: 44   # 40 flight ticks + impact tails (rings at +0..+3)
+      then: end
+      do:
+        - {id: snd, op: sound, sound: "astera:skill/wand/cast", anchor: caster}
+        - {id: cast_flame, op: particle, particle: flame, count: 50, extra: 0.2, anchor: front}
+        - {id: cast_dust, op: particle, particle: dust, count: 20, offset: [0.2, 0.2, 0.2], extra: 0, color: "#ff6414", size: 1.6, anchor: front}
+        - id: beam
+          op: projectile
+          origin: muzzle
+          velocity: "= look(caster) * 2.0"
+          for: 40
+          radius: 0.5
+          hit: {targets: enemies, once: true}
+          block: {mode: despawn}
+          on:
+            hit:
+              - {id: dmg, op: damage, target: event.victim, damage: {fire: 25.0}}
+              - {id: snd_hit, op: sound, sound: "astera:skills/fire-impact", anchor: contact}
+              - {id: flame, op: particle, particle: flame, count: 60, extra: 0.2, anchor: contact}
+              - {id: lava, op: particle, particle: lava, count: 8, extra: 0.1, anchor: contact}
+              # Ring waves at +0..+3: radius 0.4 + 0.46667 * wave (0.4, 0.8667, 1.3333, 1.8), 16 points.
+              - id: ring
+                at: 0
+                every: 1
+                times: 4
+                do:
+                  - {id: ring_flame, op: particle, particle: flame, count: 0, extra: 0.06, times: 16, offset: ["= cos(2 * pi * i / 16)", 0, "= -sin(2 * pi * i / 16)"], anchor: contact, shift: {left: "= (0.4 + 0.46667 * parent.i) * cos(2 * pi * i / 16)", forward: "= -(0.4 + 0.46667 * parent.i) * sin(2 * pi * i / 16)"}}
+                  - {id: ring_dust, op: particle, particle: dust, count: 1, color: "#ff6414", size: 2.5, times: 16, anchor: contact, shift: {left: "= (0.4 + 0.46667 * parent.i) * cos(2 * pi * i / 16)", forward: "= -(0.4 + 0.46667 * parent.i) * sin(2 * pi * i / 16)"}}
+              # Spirals: +0 uses angle index i+1, +1 continues with i+16 (15 points each, 10 deg apart); each spiral has its own per-cast random plane, start, sign and radius.
+              - id: spiral
+                at: 0
+                every: 1
+                times: 2
+                do:
+                  - {id: sp_a, op: particle, particle: dust, count: 1, color: "#ff6414", size: 2.0, times: 15, anchor: contact, shift: "= plane_a(draw_unit('sp_ax_a')) * (0.9 + 0.6 * draw('sp_r_a')) * cos((draw('sp_sg_a') < 0.5 ? -1 : 1) * radians(10 * (15 * parent.i + i + 1)) + draw('sp_st_a') * 2 * pi) + plane_b(draw_unit('sp_ax_a')) * (0.9 + 0.6 * draw('sp_r_a')) * sin((draw('sp_sg_a') < 0.5 ? -1 : 1) * radians(10 * (15 * parent.i + i + 1)) + draw('sp_st_a') * 2 * pi)"}
+                  - {id: sp_b, op: particle, particle: dust, count: 1, color: "#ff6414", size: 2.0, times: 15, anchor: contact, shift: "= plane_a(draw_unit('sp_ax_b')) * (0.9 + 0.6 * draw('sp_r_b')) * cos((draw('sp_sg_b') < 0.5 ? -1 : 1) * radians(10 * (15 * parent.i + i + 1)) + draw('sp_st_b') * 2 * pi) + plane_b(draw_unit('sp_ax_b')) * (0.9 + 0.6 * draw('sp_r_b')) * sin((draw('sp_sg_b') < 0.5 ? -1 : 1) * radians(10 * (15 * parent.i + i + 1)) + draw('sp_st_b') * 2 * pi)"}
+                  - {id: sp_c, op: particle, particle: dust, count: 1, color: "#ff6414", size: 2.0, times: 15, anchor: contact, shift: "= plane_a(draw_unit('sp_ax_c')) * (0.9 + 0.6 * draw('sp_r_c')) * cos((draw('sp_sg_c') < 0.5 ? -1 : 1) * radians(10 * (15 * parent.i + i + 1)) + draw('sp_st_c') * 2 * pi) + plane_b(draw_unit('sp_ax_c')) * (0.9 + 0.6 * draw('sp_r_c')) * sin((draw('sp_sg_c') < 0.5 ? -1 : 1) * radians(10 * (15 * parent.i + i + 1)) + draw('sp_st_c') * 2 * pi)"}
+            block:
+              - {id: flame, op: particle, particle: flame, count: 60, extra: 0.2, anchor: contact}
+              - {id: lava, op: particle, particle: lava, count: 8, extra: 0.1, anchor: contact}
+              - id: ring
+                at: 0
+                every: 1
+                times: 4
+                do:
+                  - {id: ring_flame, op: particle, particle: flame, count: 0, extra: 0.06, times: 16, offset: ["= cos(2 * pi * i / 16)", 0, "= -sin(2 * pi * i / 16)"], anchor: contact, shift: {left: "= (0.4 + 0.46667 * parent.i) * cos(2 * pi * i / 16)", forward: "= -(0.4 + 0.46667 * parent.i) * sin(2 * pi * i / 16)"}}
+                  - {id: ring_dust, op: particle, particle: dust, count: 1, color: "#ff6414", size: 2.5, times: 16, anchor: contact, shift: {left: "= (0.4 + 0.46667 * parent.i) * cos(2 * pi * i / 16)", forward: "= -(0.4 + 0.46667 * parent.i) * sin(2 * pi * i / 16)"}}
+              - id: spiral
+                at: 0
+                every: 1
+                times: 2
+                do:
+                  - {id: sp_a, op: particle, particle: dust, count: 1, color: "#ff6414", size: 2.0, times: 15, anchor: contact, shift: "= plane_a(draw_unit('sp_ax_a')) * (0.9 + 0.6 * draw('sp_r_a')) * cos((draw('sp_sg_a') < 0.5 ? -1 : 1) * radians(10 * (15 * parent.i + i + 1)) + draw('sp_st_a') * 2 * pi) + plane_b(draw_unit('sp_ax_a')) * (0.9 + 0.6 * draw('sp_r_a')) * sin((draw('sp_sg_a') < 0.5 ? -1 : 1) * radians(10 * (15 * parent.i + i + 1)) + draw('sp_st_a') * 2 * pi)"}
+                  - {id: sp_b, op: particle, particle: dust, count: 1, color: "#ff6414", size: 2.0, times: 15, anchor: contact, shift: "= plane_a(draw_unit('sp_ax_b')) * (0.9 + 0.6 * draw('sp_r_b')) * cos((draw('sp_sg_b') < 0.5 ? -1 : 1) * radians(10 * (15 * parent.i + i + 1)) + draw('sp_st_b') * 2 * pi) + plane_b(draw_unit('sp_ax_b')) * (0.9 + 0.6 * draw('sp_r_b')) * sin((draw('sp_sg_b') < 0.5 ? -1 : 1) * radians(10 * (15 * parent.i + i + 1)) + draw('sp_st_b') * 2 * pi)"}
+                  - {id: sp_c, op: particle, particle: dust, count: 1, color: "#ff6414", size: 2.0, times: 15, anchor: contact, shift: "= plane_a(draw_unit('sp_ax_c')) * (0.9 + 0.6 * draw('sp_r_c')) * cos((draw('sp_sg_c') < 0.5 ? -1 : 1) * radians(10 * (15 * parent.i + i + 1)) + draw('sp_st_c') * 2 * pi) + plane_b(draw_unit('sp_ax_c')) * (0.9 + 0.6 * draw('sp_r_c')) * sin((draw('sp_sg_c') < 0.5 ? -1 : 1) * radians(10 * (15 * parent.i + i + 1)) + draw('sp_st_c') * 2 * pi)"}
+            expire:
+              - {id: flame, op: particle, particle: flame, count: 60, extra: 0.2, anchor: contact}
+              - {id: lava, op: particle, particle: lava, count: 8, extra: 0.1, anchor: contact}
+              - id: ring
+                at: 0
+                every: 1
+                times: 4
+                do:
+                  - {id: ring_flame, op: particle, particle: flame, count: 0, extra: 0.06, times: 16, offset: ["= cos(2 * pi * i / 16)", 0, "= -sin(2 * pi * i / 16)"], anchor: contact, shift: {left: "= (0.4 + 0.46667 * parent.i) * cos(2 * pi * i / 16)", forward: "= -(0.4 + 0.46667 * parent.i) * sin(2 * pi * i / 16)"}}
+                  - {id: ring_dust, op: particle, particle: dust, count: 1, color: "#ff6414", size: 2.5, times: 16, anchor: contact, shift: {left: "= (0.4 + 0.46667 * parent.i) * cos(2 * pi * i / 16)", forward: "= -(0.4 + 0.46667 * parent.i) * sin(2 * pi * i / 16)"}}
+              - id: spiral
+                at: 0
+                every: 1
+                times: 2
+                do:
+                  - {id: sp_a, op: particle, particle: dust, count: 1, color: "#ff6414", size: 2.0, times: 15, anchor: contact, shift: "= plane_a(draw_unit('sp_ax_a')) * (0.9 + 0.6 * draw('sp_r_a')) * cos((draw('sp_sg_a') < 0.5 ? -1 : 1) * radians(10 * (15 * parent.i + i + 1)) + draw('sp_st_a') * 2 * pi) + plane_b(draw_unit('sp_ax_a')) * (0.9 + 0.6 * draw('sp_r_a')) * sin((draw('sp_sg_a') < 0.5 ? -1 : 1) * radians(10 * (15 * parent.i + i + 1)) + draw('sp_st_a') * 2 * pi)"}
+                  - {id: sp_b, op: particle, particle: dust, count: 1, color: "#ff6414", size: 2.0, times: 15, anchor: contact, shift: "= plane_a(draw_unit('sp_ax_b')) * (0.9 + 0.6 * draw('sp_r_b')) * cos((draw('sp_sg_b') < 0.5 ? -1 : 1) * radians(10 * (15 * parent.i + i + 1)) + draw('sp_st_b') * 2 * pi) + plane_b(draw_unit('sp_ax_b')) * (0.9 + 0.6 * draw('sp_r_b')) * sin((draw('sp_sg_b') < 0.5 ? -1 : 1) * radians(10 * (15 * parent.i + i + 1)) + draw('sp_st_b') * 2 * pi)"}
+                  - {id: sp_c, op: particle, particle: dust, count: 1, color: "#ff6414", size: 2.0, times: 15, anchor: contact, shift: "= plane_a(draw_unit('sp_ax_c')) * (0.9 + 0.6 * draw('sp_r_c')) * cos((draw('sp_sg_c') < 0.5 ? -1 : 1) * radians(10 * (15 * parent.i + i + 1)) + draw('sp_st_c') * 2 * pi) + plane_b(draw_unit('sp_ax_c')) * (0.9 + 0.6 * draw('sp_r_c')) * sin((draw('sp_sg_c') < 0.5 ? -1 : 1) * radians(10 * (15 * parent.i + i + 1)) + draw('sp_st_c') * 2 * pi)"}
+        - {id: trail_flame, op: particle, particle: flame, count: 1, anchor: {of: beam, sweep: 0.25}, every: 1, until: beam.end}
+        - {id: trail_dust, op: particle, particle: dust, count: 1, color: "#ff6414", size: 1.5, anchor: {of: beam, sweep: 0.25}, every: 1, until: beam.end}
+    end: {final: true}

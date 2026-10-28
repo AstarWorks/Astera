@@ -1,8 +1,21 @@
-# Converted from content/skills/pickaxe-shatter-stone.yaml by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
-# Generated point-frame offsets are [left, up, forward] in the parent frame.
-apiVersion: "astera/v2"
+# v3 hand port of the v2 skill (ADR-0303 rev4.2). one break_area at tick 0, kept field for field.
+apiVersion: astera/v3
 kind: Skill
 id: pickaxe-shatter-stone
 item: stone-pickaxe
 meta: {name: {ja: "石の粉砕", en: "Stone Shatter"}, description: {ja: "視線の先のブロックを球状に砕く。", en: "Shatters blocks in a sphere where you look."}, cooldown_ticks: 240, resource_cost: 0, tags: [tool, cover]}
-gameplay: {timeline: [{id: t0, at: 0, do: [{id: break, op: break_area, shape: sphere, radius: 2, tool_class: PICKAXE, block_damage: 100}]}]}
+anchors:
+  - {id: eye,   anchor: caster.eye}                                   # was aim
+  - {id: spark, anchor: caster.eye, offset: {forward: 2.0}, mode: snapshot}   # was pt_aim_0_0_2
+machine:
+  start: smash
+  states:
+    smash:
+      for: 1                         # RISK: the break ripple (ADR-0297) may outlive this state; verify on dev
+      then: end
+      enter:
+        - {id: snd, op: sound, sound: "astera:weapons/gun-impact-block", anchor: caster, volume: 1.0, pitch: 0.4}
+        - {id: fx, op: particle_def, def: hit-spark, anchor: spark}
+      do:
+        - {id: break, op: break_area, at: 0, anchor: eye, shape: {sphere: {radius: 2, ahead: 4.0}}, tool: pickaxe, block_damage: 100, ripple: 29, revert: 200, outside_arena: false}
+    end: {final: true}

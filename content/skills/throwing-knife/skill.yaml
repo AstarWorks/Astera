@@ -1,18 +1,42 @@
-# Converted from content/skills/throwing-knife.yaml by tools/skill-convert/convert.py (v1 archetype: projectile). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
-# Generated point-frame offsets are [left, up, forward] in the parent frame.
-apiVersion: "astera/v2"
+apiVersion: astera/v3
 kind: Skill
 id: throwing-knife
 item: throwing-knives
-meta: {name: {ja: "投げナイフ", en: "Throwing Knife"}, description: {ja: "素早く真っすぐ飛ぶナイフを投げる。", en: "Throws a fast, flat knife."}, cooldown_ticks: 10, resource_cost: 5, tags: [ranged, physical]}
-frames:
-  - {id: bolt, kind: body, parent: world, inactive: true}
-  - {id: pt_aim_0_0_0p5, kind: point, parent: aim, offset: [0.0, 0.0, 0.5]}
-gameplay:
-  params: {launch_speed: 2.8, max_lifetime_ticks: 30, dmg_physical: 14.0}
-  expose:
-    - {id: damage, param: dmg_physical}
-    - {id: flight_speed, param: launch_speed}
-  timeline:
-    - {id: t0, at: 0, do: [{id: bolt, op: projectile, body: bolt, from: pt_aim_0_0_0p5, velocity: "= look(caster) * launch_speed", max_ticks: "${max_lifetime_ticks}", radius: 0.5}]}
-  "on": {hit: [{id: dmg, op: damage, components: [{kind: physical, amount: "${dmg_physical}"}], target: victim}]}
+meta:
+  name: {ja: "投げナイフ", en: "Throwing Knife"}
+  description: {ja: "素早く真っすぐ飛ぶナイフを投げる。", en: "Throws a fast, flat knife."}
+  cooldown_ticks: 10
+  resource_cost: 5
+  tags: [ranged, physical]
+anchors:
+  - {id: muzzle, anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}
+  - {id: flash,  anchor: caster.eye, offset: {up: -0.25, forward: 0.9}}
+  - {id: heart,  anchor: victim.root, offset: {up: 1.2}}  # GAP(Q2): v2 enemy frame origin = feet+0.8 fixed; victim.body (live hitbox centre, 0.9) or a fixed chest point is the founder's choice (Q2)
+machine:
+  start: fly
+  states:
+    fly:
+      for: 31      # max flight 30 + 1 so the end handlers fit
+      then: end
+      do:
+        - {id: snd, op: sound, sound: "astera:weapons/sword-swing", anchor: caster, volume: 0.8, pitch: 1.8}
+        - {id: puff, op: particle_def, def: stab-spark, anchor: flash}
+        - id: bolt
+          op: projectile
+          origin: muzzle
+          velocity: "= look(caster) * 2.8"
+          for: 30
+          radius: 0.5
+          hit: {targets: enemies, once: true}     # v2 projectile ended on its first victim
+          block: {mode: despawn}
+          on:
+            hit:
+              - {id: dmg, op: damage, target: event.victim, damage: {physical: 14.0}}
+              - {id: snd_hit, op: sound, sound: "astera:weapons/gun-impact", anchor: contact, volume: 0.7, pitch: 1.2}
+              - {id: fx_hit, op: particle_def, def: hit-spark, anchor: heart}
+            block:
+              - {id: snd_blk, op: sound, sound: "astera:weapons/gun-impact-block", anchor: contact, volume: 0.5, pitch: 1.5}
+              - {id: fx_blk, op: particle_def, def: hit-spark, anchor: contact}
+        - {id: trail,   op: particle, particle: crit, anchor: {of: bolt, sweep: 0.4}, count: 1, offset: [0.04, 0.04, 0.04], at: 0, every: 1, until: bolt.end}
+        - {id: trail_2, op: particle, particle: dust, anchor: {of: bolt, sweep: 0.4}, count: 1, color: "#e6e6e6", size: 1.0, at: 0, every: 1, until: bolt.end}
+    end: {final: true}

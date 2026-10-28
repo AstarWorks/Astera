@@ -128,7 +128,7 @@ public class GameSim private constructor(
     public lateinit var items: ItemsWiringResult
         private set
     public lateinit var combat: CombatWiringResult
-        private set
+
     public lateinit var match: MatchWiringResult
         private set
     /** Spectator-mode recorder behind the `ISpectator` port (death cam / eliminated teams). */
@@ -631,6 +631,7 @@ public class GameSim private constructor(
                     healthGateway = { services.get<IPlayerHealthGateway>() },
                 )
             }
+            services.register<com.astarworks.astera.combat.application.port.outbound.IKnockbackGateway>(SimKnockbackGateway(world), priority = 100)
             sim.combat = CombatWiring.install(
                 context(),
                 CombatPlatformPorts(

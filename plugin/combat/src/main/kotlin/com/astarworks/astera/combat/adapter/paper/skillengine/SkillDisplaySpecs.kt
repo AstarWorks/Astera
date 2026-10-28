@@ -1,6 +1,7 @@
 package com.astarworks.astera.combat.adapter.paper.skillengine
 
 import com.astarworks.astera.core.application.skillengine.load.MeshModel
+import com.astarworks.astera.core.application.skillengine.runtime.port.MeshLook
 import com.astarworks.astera.core.domain.effect.DisplayBillboard
 import com.astarworks.astera.core.domain.effect.DisplayItemMode
 import com.astarworks.astera.core.domain.effect.DisplayKind
@@ -31,24 +32,72 @@ public object SkillDisplaySpecs {
         return (a shl 24) or rgb
     }
 
-    /** The item a pack or vanilla mesh model draws; null for the caster's held item (needs the caster). */
-    public fun meshKind(model: MeshModel): DisplayKind.Item? = when (model) {
-        is MeshModel.Pack -> DisplayKind.Item(ItemId("paper"), DisplayItemMode.FIXED, model.key)
-        is MeshModel.Vanilla -> DisplayKind.Item(ItemId(model.material.replace('_', '-')), DisplayItemMode.FIXED, null)
-        MeshModel.HeldItem -> null
+    /** v1 glow_color: `#rrggbb` or `#aarrggbb` (alpha first), VfxYamlConfig.parseArgb; null stays unglowing. */
+    public fun glowArgb(hex: String?): Int? {
+        val h = hex?.removePrefix("#") ?: return null
+        val v = h.toLongOrNull(16) ?: return null
+        return if (h.length == 6) (0xFF000000L or v).toInt() else v.toInt()
     }
 
-    public fun mesh(kind: DisplayKind.Item, first: DisplayTransform, effect: String? = null): DisplaySpec =
-        DisplaySpec(kind = kind, transform = first, lifetimeTicks = LIFETIME, billboard = DisplayBillboard.FIXED,
-            weaponRigShading = effect == null, shaderEffect = effect)
+    /** The item a pack or vanilla mesh model draws; null for the caster's held item (needs the caster). */
+    public fun meshKind(model: MeshModel, look: MeshLook = MeshLook()): DisplayKind = when (model) {
+        is MeshModel.Pack -> DisplayKind.Item(ItemId("paper"), look.mode, look.itemModel ?: model.key)
+        is MeshModel.Vanilla -> DisplayKind.Item(ItemId(model.material.replace('_', '-')), look.mode, look.itemModel ?: model.itemModel)
+        MeshModel.HeldItem -> DisplayKind.AnchorMainHand // v1 AnchorMainHand: the caster's real stack in THIRDPERSON_RIGHTHAND (PaperDisplayEntityGateway.kt:192-199)
+    }
 
-    public fun plate(glyph: String, alpha: Double, first: DisplayTransform, billboard: DisplayBillboard): DisplaySpec =
+    public fun mesh(kind: DisplayKind, first: DisplayTransform, brightness: Int? = null, rigShading: Boolean = true): DisplaySpec =
+        DisplaySpec(kind = kind, transform = first, lifetimeTicks = LIFETIME, billboard = DisplayBillboard.FIXED, brightness = brightness, weaponRigShading = rigShading && brightness == null)
+
+    public fun block(blockKey: String, first: DisplayTransform, brightness: Int?, rigShading: Boolean = false): DisplaySpec =
+        DisplaySpec(kind = DisplayKind.Block(blockKey), transform = first, lifetimeTicks = LIFETIME, billboard = DisplayBillboard.FIXED, brightness = brightness, weaponRigShading = rigShading && brightness == null)
+
+    /** A solid-colour quad (`text` null: one blank line on a background of [colorHex] at [alpha]) or a text glyph drawn over it. */
+    public fun quad(colorHex: String, alpha: Double, text: String?, shadow: Boolean, seeThrough: Boolean, first: DisplayTransform, billboard: DisplayBillboard, brightness: Int?): DisplaySpec {
+        val a = (alpha.coerceIn(0.0, 1.0) * 255.0).roundToInt()
+        val rgb = argb(colorHex) and 0xFFFFFF
+        val shown = text ?: " "
+        // v1 split (VfxQuad.style): a solid quad paints its background, a glyph quad keeps no box and tints / fades the glyph itself.
+        val kind = if (text == null) {
+            DisplayKind.Text(
+                lines = listOf(LocalizedText(mapOf(LocaleCode.EN to shown, LocaleCode.JA to shown))),
+                backgroundArgb = (a shl 24) or rgb, shadow = shadow, seeThrough = seeThrough, textOpacity = 255,
+            )
+        } else {
+            DisplayKind.Text(
+                lines = listOf(LocalizedText(mapOf(LocaleCode.EN to shown, LocaleCode.JA to shown))),
+                backgroundArgb = 0, shadow = shadow, seeThrough = seeThrough, textOpacity = a.coerceAtLeast(MIN_TEXT_OPACITY), textRgb = rgb,
+            )
+        }
+        return DisplaySpec(
+            kind = kind,
+            transform = first, lifetimeTicks = LIFETIME, billboard = billboard, brightness = brightness,
+        )
+    }
+
+    /** A MiniMessage [text] display with a [backgroundHex] box at [backgroundAlpha]; the text keeps its own colour and full opacity. */
+    public fun text(text: String, backgroundHex: String, backgroundAlpha: Double, shadow: Boolean, seeThrough: Boolean, first: DisplayTransform, billboard: DisplayBillboard, brightness: Int?): DisplaySpec {
+        val a = (backgroundAlpha.coerceIn(0.0, 1.0) * 255.0).roundToInt()
+        return DisplaySpec(
+            kind = DisplayKind.Text(
+                lines = listOf(LocalizedText(mapOf(LocaleCode.EN to text, LocaleCode.JA to text))),
+                backgroundArgb = (a shl 24) or (argb(backgroundHex) and 0xFFFFFF), shadow = shadow, seeThrough = seeThrough, textOpacity = 255,
+            ),
+            transform = first, lifetimeTicks = LIFETIME, billboard = billboard, brightness = brightness,
+        )
+    }
+
+    /** One skin-rig bone: a skull display wearing the owner's skin (ADR-0303 skin-rig section). */
+    public fun skinBone(kind: DisplayKind.SkinBone, first: DisplayTransform): DisplaySpec =
+        DisplaySpec(kind = kind, transform = first, lifetimeTicks = LIFETIME, billboard = DisplayBillboard.FIXED)
+
+    public fun plate(glyph: String, alpha: Double, seeThrough: Boolean, first: DisplayTransform, billboard: DisplayBillboard, brightness: Int? = 15): DisplaySpec =
         DisplaySpec(
             kind = DisplayKind.Text(
                 lines = listOf(LocalizedText(mapOf(LocaleCode.EN to glyph, LocaleCode.JA to glyph))),
-                backgroundArgb = 0, shadow = false, seeThrough = false, textOpacity = opacity(alpha),
+                backgroundArgb = 0, shadow = false, seeThrough = seeThrough, textOpacity = opacity(alpha),
             ),
-            transform = first, lifetimeTicks = LIFETIME, billboard = billboard, brightness = 15,
+            transform = first, lifetimeTicks = LIFETIME, billboard = billboard, brightness = brightness,
         )
 
     public fun line(colorHex: String, first: DisplayTransform): DisplaySpec =

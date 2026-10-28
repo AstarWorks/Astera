@@ -1,5 +1,8 @@
 package com.astarworks.astera.core.application.skillengine.compose
 
+import com.astarworks.astera.core.application.skillengine.part.PatchApplier
+import com.astarworks.astera.core.application.skillengine.part.PatchOp
+import com.astarworks.astera.core.domain.Result
 import org.yaml.snakeyaml.DumperOptions
 import org.yaml.snakeyaml.LoaderOptions
 import org.yaml.snakeyaml.Yaml
@@ -9,22 +12,27 @@ import org.yaml.snakeyaml.nodes.Tag
 import org.yaml.snakeyaml.representer.Representer
 import org.yaml.snakeyaml.resolver.Resolver
 
-internal const val API_VERSION = "astera/v2"
+internal const val API_VERSION = "astera/v3"
 
-/** One validated `astera/v2` document. [group] is the file stem (single-file skill) or directory name (split skill). */
+/** One validated `astera/v3` document. [group] is the file stem (single-file skill) or directory name (split skill). */
 internal data class Doc(
     val file: String,
     val group: String,
     val index: Int,
     val kind: Kind,
-    /** Skill id (kind Skill) or patch target (kind Patch). */
+    /** Skill / part id (kind Skill / Part) or patch target (kind Patch). */
     val baseId: String,
     val variant: String?,
     val patchKind: String?,
-    /** The document minus apiVersion / kind / target / variant / patchKind. */
+    /** The document minus apiVersion / kind (Skill / Part); empty for a Patch. */
     val body: Map<String, Any?>,
+    /** The ops of a Patch document (R35), decoded by `PatchApplier.decode`; empty for Skill / Part. */
+    val ops: List<PatchOp> = emptyList(),
 ) {
-    enum class Kind { Skill, Patch }
+    /** Composition key: the id, or `part:<id>` for a part (skills and parts have separate id spaces). */
+    val key: String get() = if (kind == Kind.Part) "part:$baseId" else baseId
+
+    enum class Kind { Skill, Part, Patch }
 }
 
 /**
@@ -34,10 +42,10 @@ internal data class Doc(
  * so an alias cannot reach across a `---` separator or across files. Use a patch (or a split skill) for sharing.
  * The YAML 1.1 words `on` / `off` / `yes` / `no` are NOT booleans here (so `on:` is a plain string key); only
  * `true` / `false` are. Timestamps stay strings. Duplicate map keys are an error.
- * Files without an `apiVersion: astera/v2` line are skipped without being parsed (old v1 files).
+ * A file without an `apiVersion: astera/v3` line is an error, never skipped (no old-schema support).
  */
 internal object YamlDocs {
-    private val v2Marker = Regex("""(?m)^apiVersion:\s*["']?astera/v2""")
+    private val v3Marker = Regex("""(?m)^apiVersion:\s*["']?astera/v3""")
 
     private class StrictResolver : Resolver() {
         override fun addImplicitResolvers() {
@@ -62,47 +70,55 @@ internal object YamlDocs {
 
     @Suppress("UNCHECKED_CAST")
     fun parse(file: String, group: String, text: String): Pair<List<Doc>, List<ComposeError>> {
-        if (!v2Marker.containsMatchIn(text)) return emptyList<Doc>() to emptyList()
+        if (text.isBlank()) return emptyList<Doc>() to emptyList()
+        if (!v3Marker.containsMatchIn(text)) {
+            return emptyList<Doc>() to listOf(ComposeError.InvalidDocument(file, "apiVersion", "no 'apiVersion: astera/v3' document in this file (a skill file that is not v3 is an error, never skipped)"))
+        }
         val raw = try {
             newYaml().loadAll(text).toList()
         } catch (e: YAMLException) {
-            val first = e.message?.lineSequence()?.firstOrNull() ?: "invalid YAML"
+            val first = (e.message?.lineSequence()?.firstOrNull() ?: "invalid YAML").let {
+                if (it.contains("undefined alias") || it.contains("undefined anchor")) {
+                    "$it (YAML anchors and aliases work inside ONE document only; an alias cannot reach into another file or across a '---' separator. Share values through params or a patch instead)"
+                } else {
+                    it
+                }
+            }
             return emptyList<Doc>() to listOf(ComposeError.ParseError(file, "", first))
         }
         val docs = ArrayList<Doc>()
         val errors = ArrayList<ComposeError>()
         raw.forEachIndexed { i, any ->
-            val m = any as? Map<*, *> ?: return@forEachIndexed
-            if (m["apiVersion"] != API_VERSION) return@forEachIndexed
+            if (any == null) return@forEachIndexed
+            val m = any as? Map<*, *>
+            if (m == null) {
+                errors += ComposeError.InvalidDocument(file, "", "document #${i + 1}: expected a mapping at the document root")
+                return@forEachIndexed
+            }
+            if (m["apiVersion"] != API_VERSION) {
+                errors += ComposeError.InvalidDocument(file, "apiVersion", "document #${i + 1}: apiVersion must be $API_VERSION, was '${m["apiVersion"]}'")
+                return@forEachIndexed
+            }
             val tree = normalize(m) as Map<String, Any?>
             val body = LinkedHashMap(tree)
-            listOf("apiVersion", "kind", "target", "variant", "patchKind").forEach { body.remove(it) }
+            body.remove("apiVersion")
+            body.remove("kind")
             val where = "document #${i + 1}"
             when (val kind = tree["kind"]) {
-                "Skill" -> {
+                "Skill", "Part" -> {
                     val id = (tree["id"] as? String) ?: group
                     if (id.isBlank() || '@' in id) {
-                        errors += ComposeError.InvalidDocument(file, "id", "$where: skill id '$id' must be non-blank and contain no '@'")
+                        errors += ComposeError.InvalidDocument(file, "id", "$where: $kind id '$id' must be non-blank and contain no '@'")
                     } else {
                         body["id"] = id
-                        docs += Doc(file, group, i, Doc.Kind.Skill, id, null, null, body)
+                        docs += Doc(file, group, i, if (kind == "Part") Doc.Kind.Part else Doc.Kind.Skill, id, null, null, body)
                     }
                 }
-                "Patch" -> {
-                    val target = tree["target"] as? String
-                    val patchKind = tree["patchKind"] as? String
-                    val variant = tree["variant"]?.toString()
-                    when {
-                        target.isNullOrBlank() ->
-                            errors += ComposeError.InvalidDocument(file, "target", "$where: Patch needs a string 'target'")
-                        patchKind != "skin" && patchKind != "balance" ->
-                            errors += ComposeError.InvalidDocument(file, "patchKind", "$where: patchKind must be skin or balance, was '$patchKind'")
-                        variant != null && (variant.isBlank() || '@' in variant) ->
-                            errors += ComposeError.InvalidDocument(file, "variant", "$where: variant '$variant' must be non-blank and contain no '@'")
-                        else -> docs += Doc(file, group, i, Doc.Kind.Patch, target, variant, patchKind, body)
-                    }
+                "Patch" -> when (val r = PatchApplier.decode(tree, where)) {
+                    is Result.Failure -> errors += ComposeError.InvalidDocument(file, r.error.path, r.error.message)
+                    is Result.Success -> r.value.let { p -> docs += Doc(file, group, i, Doc.Kind.Patch, p.target, p.variant, p.patchKind, emptyMap(), p.ops) }
                 }
-                else -> errors += ComposeError.InvalidDocument(file, "kind", "$where: kind must be Skill or Patch, was '$kind'")
+                else -> errors += ComposeError.InvalidDocument(file, "kind", "$where: kind must be Skill, Part or Patch, was '$kind'")
             }
         }
         return docs to errors

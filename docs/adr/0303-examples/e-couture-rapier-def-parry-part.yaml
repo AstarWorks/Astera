@@ -20,6 +20,7 @@ machine:
       for: "= window"
       then: whiff
       enter:
+        # pending founder Q5 (couture absorb): (A) transition absorb: true; (B) this modify_attribute row; (C) a parry {for, scale: 0} op. Not chosen here.
         - {id: resist, op: modify_attribute, attribute: resist.physical, operation: add, amount: "= resist", target: caster, for: "= window"}
         - {id: snd_guard, op: sound, sound: item.shield.block, anchor: caster, volume: 0.6, pitch: 1.5}
       do:
@@ -31,7 +32,7 @@ machine:
           billboard: center
           size: [0.8, 0.8]
           for: "= window"
-          motion: [{law: spin, axis: face, deg_per_tick: 12}, {law: fade, exponent: 1.0, from: 20, for: 10}]
+          motion: [{law: spin, axis: face, deg_per_tick: 12}, {law: fade, exponent: 1.0, at: 20, for: 10}]
       on:
         - {event: hurt, when: "= dist(caster, event.attacker) <= range", to: riposte, do: [{emit: parried}]}
     riposte:
@@ -39,9 +40,9 @@ machine:
       then: end
       do:
         - {id: wind, op: sound, sound: item.trident.riptide_1, anchor: caster, volume: 0.7, pitch: 1.6}
-      exit:                                          # the hit lands as the state ends (7 ticks after the parry), on every way out except cancel
-        - {id: riposte_hit, op: damage, target: event.attacker, components: [{kind: physical, amount: "= riposte_dmg"}],
-           ignore_invulnerability: true, when: "= dist(caster, event.attacker) < range"}
+      exit:                                          # the hit lands as the state ends (7 ticks after the parry), on every way out except cancel:
+        - {id: riposte_hit, op: damage, target: event.attacker, components: [{kind: physical, amount: "= riposte_dmg"}],   # `exit.reason` (10.2) is class S,
+           ignore_invulnerability: true, when: "= exit.reason != 'cancel' && dist(caster, event.attacker) < range"}     # so the cancel sub-table has no such row
     whiff: {for: 6, then: end, do: [{id: snd_whiff, op: sound, sound: block.wool.break, anchor: caster, volume: 0.3, pitch: 1.0}]}
     end: {final: true}
 ---

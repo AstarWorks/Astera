@@ -1,18 +1,38 @@
-# Converted from content/skills/shortbow-arrow.yaml by tools/skill-convert/convert.py (v1 archetype: projectile). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
-# Generated point-frame offsets are [left, up, forward] in the parent frame.
-apiVersion: "astera/v2"
+# astera/v3 hand port of the v2 skill.yaml + look.yaml (tick for tick).
+apiVersion: astera/v3
 kind: Skill
 id: shortbow-arrow
 item: shortbow
 meta: {name: {ja: "短弓の矢", en: "Shortbow Shot"}, description: {ja: "素早く放てる軽い矢。", en: "A light, quick arrow."}, cooldown_ticks: 12, resource_cost: 4, tags: [ranged, physical]}
-frames:
-  - {id: bolt, kind: body, parent: world, inactive: true}
-  - {id: pt_aim_0_0_0p5, kind: point, parent: aim, offset: [0.0, 0.0, 0.5]}
-gameplay:
-  params: {launch_speed: 2.6, max_lifetime_ticks: 40, dmg_physical: 14}
-  expose:
-    - {id: damage, param: dmg_physical}
-    - {id: flight_speed, param: launch_speed}
-  timeline:
-    - {id: t0, at: 0, do: [{id: bolt, op: projectile, body: bolt, from: pt_aim_0_0_0p5, velocity: "= look(caster) * launch_speed", max_ticks: "${max_lifetime_ticks}", radius: 0.5}]}
-  "on": {hit: [{id: dmg, op: damage, components: [{kind: physical, amount: "${dmg_physical}"}], target: victim}]}
+anchors:
+  - {id: muzzle,  anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}   # projectile origin
+  - {id: cast_fx, anchor: caster.eye, offset: {up: -0.25, forward: 0.9}}        # was pt_aim_0_m0p25_0p9
+  - {id: heart,   anchor: victim, offset: {up: 1.2}}                            # GAP(Q2): v2 enemy frame (feet +0.8 fixed) vs v3 victim anchors; was pt_enemy_0_1p2_0
+machine:
+  start: fly
+  states:
+    fly:
+      for: 40
+      then: end
+      do:
+        - {id: snd, op: sound, sound: "astera:weapons/sword-swing", anchor: caster, volume: 0.7, pitch: 1.3}
+        - {id: fx, op: particle_def, def: gun-muzzle-smoke, anchor: cast_fx}
+        - id: arrow
+          op: projectile
+          origin: muzzle
+          velocity: "= look(caster) * 2.6"
+          for: 40
+          radius: 0.5
+          hit: {targets: enemies, once: true}
+          block: {mode: despawn}
+          on:
+            hit:
+              - {id: dmg, op: damage, target: event.victim, damage: {physical: 14.0}}
+              - {id: snd_hit, op: sound, sound: "astera:weapons/blade-hit", anchor: victim, volume: 0.7, pitch: 1.2}
+              - {id: fx_hit, op: particle_def, def: hit-spark, anchor: heart}
+            block:
+              - {id: snd_block, op: sound, sound: "astera:weapons/gun-impact-block", anchor: contact.point, volume: 0.5, pitch: 1.5}
+              - {id: fx_block, op: particle_def, def: hit-spark, anchor: contact.point}
+        - {id: trail_crit, op: particle, particle: crit, count: 1, offset: [0.04, 0.04, 0.04], anchor: {of: arrow, sweep: 0.4}, every: 1, until: arrow.end}
+        - {id: trail_dust, op: particle, particle: dust, count: 1, color: "#bea064", size: 0.9, anchor: {of: arrow, sweep: 0.4}, every: 1, until: arrow.end}
+    end: {final: true}

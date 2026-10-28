@@ -13,6 +13,7 @@ import com.astarworks.astera.core.domain.skillengine.expr.ExprType
 import com.astarworks.astera.core.domain.skillengine.expr.ExprValue
 import dev.cel.common.CelException
 import dev.cel.common.CelIssue
+import dev.cel.common.types.CelKind
 import dev.cel.common.types.CelType
 import dev.cel.common.types.SimpleType
 import dev.cel.compiler.CelCompiler
@@ -33,18 +34,48 @@ public class CelExprCompiler : ExprCompiler {
         val b = CelCompilerFactory.standardCelCompilerBuilder()
         for ((name, type) in spec.variables) b.addVar(name, celType(type))
         for (frame in spec.frames) b.addVar(frame, CelFunctions.REF)
+        b.addVar("PI", SimpleType.DOUBLE)
         b.addFunctionDeclarations(CelFunctions.declarations())
         b.build()
     }
 
-    override fun compile(source: String, env: ExprEnvSpec): Result<CompiledExpr, ExprError> {
+    override fun compile(source: String, env: ExprEnvSpec, expected: ExprType?): Result<CompiledExpr, ExprError> {
         val compiler = compilerFor(env)
-        val parsed = compiler.parse(normalise(source))
+        val parsed = compiler.parse(numberCallSites(normalise(source)))
         if (parsed.hasError()) return Result.Failure(error(parsed.errors.first(), syntax = true))
         val checked = compiler.check(parsed.ast)
         if (checked.hasError()) return Result.Failure(error(checked.errors.first(), syntax = false))
+        checkResultType(checked.ast.resultType, expected)?.let { return Result.Failure(ExprError.Type(it, 1)) }
+        CelFunctions.checkStatic(checked.ast.expr)?.let { return Result.Failure(ExprError.Type(it, 1)) }
         return Result.Success(CelCompiled(source, runtime.createProgram(checked.ast), env.frames))
     }
+
+    /**
+     * Null when [t] is a type [fromRaw] can turn into an [ExprValue] and, when [expected] is given, one that field accepts;
+     * otherwise the load-time message. A `dyn` result cannot be decided statically and is accepted.
+     */
+    private fun checkResultType(t: CelType, expected: ExprType?): String? {
+        val actual = when (t.kind()) {
+            CelKind.DOUBLE, CelKind.INT, CelKind.UINT -> ExprType.NUM
+            CelKind.BOOL -> ExprType.BOOL
+            CelKind.STRING -> ExprType.STR
+            CelKind.DYN -> return null
+            CelKind.OPAQUE -> when (t) {
+                CelFunctions.VEC3 -> ExprType.VEC3
+                CelFunctions.QUAT -> ExprType.QUAT
+                CelFunctions.REF -> ExprType.REF
+                else -> null
+            }
+            else -> null
+        } ?: return unsupported(t)
+        if (expected != null && actual != expected) {
+            return "expression result is ${actual.name.lowercase()} but this field expects ${expected.name.lowercase()}"
+        }
+        return null
+    }
+
+    private fun unsupported(t: CelType) =
+        "unsupported expression result type '${t.name()}' (expected number, bool, string, vec3, quat or frame)"
 
     private fun error(issue: CelIssue, syntax: Boolean): ExprError {
         val col = issue.sourceLocation.column + 1
@@ -61,6 +92,7 @@ public class CelExprCompiler : ExprCompiler {
         override fun eval(env: ExprEnv): ExprValue {
             val activation = HashMap<String, Any?>(env.variables.size + frameRefs.size)
             activation.putAll(frameRefs)
+            activation["PI"] = Math.PI
             for ((k, v) in env.variables) activation[k] = toRaw(v)
             CelFunctions.beginEval(env)
             try {
@@ -103,6 +135,17 @@ public class CelExprCompiler : ExprCompiler {
             is Quaternion -> ExprValue.Quat(o)
             is ExprValue.Ref -> o
             else -> throw ExprEvalException("unsupported expression result: $o")
+        }
+
+        private val EMPTY_RAND = Regex("""(?<![A-Za-z0-9_.])rand\s*\(\s*\)""")
+
+        /**
+         * `rand()` (ADR-0303 3.5) becomes `rand("@k")` for the k-th call site of the source, so each site is its own
+         * stream and the draws depend only on (cast, op, i, call site) through [ExprEnv.seed].
+         */
+        fun numberCallSites(source: String): String {
+            var k = 0
+            return EMPTY_RAND.replace(source) { "rand(\"@" + k++ + "\")" }
         }
 
         /**

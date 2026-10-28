@@ -1,18 +1,56 @@
-# Converted from content/skills/shock-wand-arc.yaml by tools/skill-convert/convert.py (v1 archetype: aoe). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
-# Generated point-frame offsets are [left, up, forward] in the parent frame.
-apiVersion: "astera/v2"
+# astera/v3 hand port of the v2 skill.yaml + look.yaml (tick for tick).
+apiVersion: astera/v3
 kind: Skill
 id: shock-wand-arc
 item: shock-wand
 meta: {name: {ja: "放電", en: "Arc Burst"}, description: {ja: "周囲へ放電し、敵を痺れさせる。", en: "Releases a ring of lightning around you."}, cooldown_ticks: 140, resource_cost: 16, tags: [aoe, electric]}
-gameplay:
-  params: {radius: 3.5, dmg_electric: 15.0, shock_ticks: 30}
-  expose:
-    - {id: damage, param: dmg_electric}
-    - {id: radius, param: radius}
-  timeline:
-    - {id: t0, at: 0, do: [{id: burst, op: hit, frames: [caster], sphere: {at: caster, radius: "${radius}"}, window: once}]}
-  "on":
-    hit:
-      - {id: dmg, op: damage, target: victim, components: [{kind: electric, amount: "= dmg_electric * (1.0 - 0.5 * dist(pos(caster), pos(victim)) / radius)"}], when: "= event.source == 'burst'"}
-      - {id: st_shock, op: status, status: shock, duration_ticks: "${shock_ticks}", target: victim, chance: 0.5, when: "= event.source == 'burst'"}
+anchors:
+  - {id: ring,  anchor: caster, offset: {up: 0.15}}   # ring origin (caster + 0.15 up)
+  - {id: heart, anchor: victim, offset: {up: 1.2}}   # GAP(Q2): v2 enemy frame (feet +0.8 fixed) vs v3 victim anchors
+machine:
+  start: burst
+  states:
+    burst:
+      for: 6   # ring waves at ticks 0..5
+      then: end
+      do:
+        - {id: snd, op: sound, sound: "astera:skill/wand/cast", anchor: caster, volume: 1.0, pitch: 1.1}
+        - id: area
+          op: hit
+          at: 0
+          anchor: caster
+          shape: {sphere: 3.5}
+          targets: enemies
+          # GAP(Q1): v2 has no cap (unlimited, nearest-first); spelling A `max_count: all`, B omitted
+          window: once
+          ignore_invulnerability: false
+          damage: {electric: "= 15.0 * (1.0 - 0.5 * dist(event.victim, caster) / 3.5)"}
+          on:
+            hit:
+              - {id: st_shock, op: status, target: event.victim, status: shock, stacks: 1, for: 30, when: "= rand() < 0.5"}
+              - {id: snd_hit, op: sound, sound: "astera:weapons/blade-hit", anchor: contact, volume: 0.7, pitch: 1.0}
+        # Ring waves: radius 0.5 + 0.6 * wave (0.5 .. 3.5), 16 points, angle a = 2*pi*i/16 + per-cast random phase (v2 draw('shape_ph')).
+        - id: wave
+          at: 0
+          every: 1
+          times: 6
+          do:
+            - id: spark
+              op: particle
+              particle: electric_spark
+              count: 0
+              extra: 0.03
+              times: 16
+              offset: ["= cos(2 * pi * i / 16 + draw('shape_ph') * 2 * pi)", 0, "= -sin(2 * pi * i / 16 + draw('shape_ph') * 2 * pi)"]   # [left, up, forward] direction
+              anchor: ring
+              shift: {left: "= (0.5 + 0.6 * parent.i) * cos(2 * pi * i / 16 + draw('shape_ph') * 2 * pi)", forward: "= -(0.5 + 0.6 * parent.i) * sin(2 * pi * i / 16 + draw('shape_ph') * 2 * pi)"}
+            - id: dust
+              op: particle
+              particle: dust
+              count: 1
+              color: "#fff078"
+              size: 1.4
+              times: 16
+              anchor: ring
+              shift: {left: "= (0.5 + 0.6 * parent.i) * cos(2 * pi * i / 16 + draw('shape_ph') * 2 * pi)", forward: "= -(0.5 + 0.6 * parent.i) * sin(2 * pi * i / 16 + draw('shape_ph') * 2 * pi)"}
+    end: {final: true}

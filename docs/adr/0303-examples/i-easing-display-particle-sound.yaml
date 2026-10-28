@@ -25,8 +25,8 @@ machine:
           size: [0.2, 0.2]
           for: 20
           motion:
-            - {law: spin, axis: face, deg_per_tick: 18, from: 0, for: 20, ease: out_cubic}              # 18 * 20 = 360 total, E(u) = out_cubic
-            - {law: grow, prop: size, to: [1.0, 1.0], from: 0, for: 20, ease: out_back}
+            - {law: spin, axis: face, deg_per_tick: 18, at: 0, for: 20, ease: out_cubic}              # 18 * 20 = 360 total, E(u) = out_cubic
+            - {law: grow, prop: size, to: [1.0, 1.0], at: 0, for: 20, ease: out_back}
         # PARTICLE: the emit count climbs in_out_sine across the window (sampled at each occurrence; no segments needed)
         - id: motes
           op: particle
@@ -38,7 +38,7 @@ machine:
           offset: [0.2, 0.2, 0.2]
           extra: 0.02
           motion:
-            - {law: grow, prop: count, to: 12, from: 0, for: 20, ease: in_out_sine}                     # count = 1 + 11 * E(u), rounded per occurrence
+            - {law: grow, prop: count, to: 12, at: 0, for: 20, ease: in_out_sine}                     # count = 1 + 11 * E(u), rounded per occurrence
         # SOUND: pitch rises 0.7 -> 1.5 with a stepped ease (4 notes), volume fades with the CEL form of the same easing
         - id: chime
           op: sound
@@ -49,7 +49,7 @@ machine:
           pitch: 0.7
           volume: "= 0.6 * (1 - ease('in_quad', t / 20))"                                              # CEL: class T, sampled per occurrence
           motion:
-            - {law: grow, prop: pitch, to: 1.5, from: 0, for: 20, ease: "steps(4)"}
+            - {law: grow, prop: pitch, to: 1.5, at: 0, for: 20, ease: linear}
     # Timing ease: the SAME rule on the spacing of `every` and on speed. A sound repeat that speeds up (period 6 -> 2 over 20 ticks, in_quad)
     # and a dash that eases out, a shot that accelerates in. Fire ticks are static (listed below), not decided at runtime.
     rush:
@@ -57,14 +57,14 @@ machine:
       then: end
       do:
         - {id: tick, op: sound, sound: block.note_block.hat, anchor: caster, every: {from: 6, to: 2, ease: in_quad}, for: 20, volume: 0.5, pitch: 1.4}
-        - {id: lunge, op: dash, speed: 1.6, for: 10, motion: [{law: move, velocity: {forward: 1.0}, speed: 1.6, for: 10, ease: out_cubic}]}   # decelerating dash, total = 16 blocks
-        - {id: bolt, op: projectile, from: palm, velocity: "= look(caster) * 1.0", speed: {from: 0.4, to: 2.0, for: 12, ease: in_quad}, for: 20, radius: 0.4,
+        - {id: lunge, op: dash, speed: 1.6, for: 10, ease: out_cubic}   # decelerating dash, total = 16 blocks (speed x for)
+        - {id: bolt, op: projectile, origin: palm, velocity: "= look(caster) * 1.0", speed: {from: 0.4, to: 2.0, for: 12, ease: in_quad}, for: 20, radius: 0.4,
            block: {mode: despawn}}                                                                  # accelerates in
-        - {id: edge, op: ribbon, of: bolt, root: bolt, lasts: 4, color: "#EE88CCFF", for: 20,
-           motion: [{law: grow, prop: width_frac, to: 0.0, from: 0, for: 20, ease: out_quad}]}           # ribbon width thins with its own ease
+        - {id: edge, op: ribbon, of: bolt, history: 4, style: soft, width: 0.3, color: "#EE88CCFF", for: 20,
+           motion: [{law: grow, prop: width, to: 0.0, at: 0, for: 20, ease: out_quad}]}           # ribbon width thins with its own ease
     end: {final: true}
 # Expanded table (generated):
-#   bloom  ticks 0-20   firings: motes @0,2,..,18 x10 (count 1,1,2,3,5,7,9,10,11,11), chime @0..18 x10 (pitch 0.7,0.7,0.7,0.7,0.7,1.1.. in 4 steps)
+#   bloom  ticks 0-20   firings: motes @0,2,..,18 x10 (count 1,1,2,3,5,7,9,10,11,11), chime @0..18 x10 (pitch 0.70,0.78,0.86,0.94,1.02,1.10,1.18,1.26,1.34,1.42 linear)
 #   petal display 0-20 | spin out_cubic: m=4 h=5 err 1.6 deg writes 5 | grow out_back: m=20 (per tick) writes 21 -> shared boundaries: 21 writes
 #   rush   ticks 0-20   tick (sound) @0,6,12,17 x4   [period 6,6,5,3: t0=0; t1=0+round(6-4*E(0))=6; t2=6+round(6-4*E(0.3))=12 (5.64->6); t3=12+round(6-4*E(0.6))=17 (4.56->5); next 20 >= for, stop]
 #          lunge: 16 blocks, out_cubic: at lt=5 covers 14 blocks, writes 5  | bolt speed 0.4->2.0 over 12 ticks (in_quad), then 2.0 | edge width out_quad m=4

@@ -1,6 +1,4 @@
-# Converted from content/skills/glacier-wall.yaml by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
-# Generated point-frame offsets are [left, up, forward] in the parent frame.
-apiVersion: "astera/v2"
+apiVersion: "astera/v3"
 kind: Skill
 id: glacier-wall
 item: glacier-wand
@@ -10,4 +8,16 @@ meta:
   cooldown_ticks: 200
   resource_cost: 20
   tags: [magic, water, cover]
-gameplay: {timeline: [{id: t0, at: 0, do: [{id: place, op: place_shape, shape: wall, block: "astera:tempered_glass", width: 3, height: 3, revert_after: 160}]}]}
+anchors:
+  cast_fx: {anchor: caster.eye, offset: {up: 0.2, forward: 2.0}, mode: snapshot}
+presentation:
+  timeline:
+    - at: 0
+      do:
+        - {id: snd, op: sound, sound: "astera:skills/frost-cast", anchor: caster, volume: 1.0, pitch: 1.0}
+        - {id: fx, op: particle_def, def: frost-cast, anchor: cast_fx}
+gameplay:
+  timeline:
+    - at: 0
+      do:
+        - {id: place, op: place_shape, at: 0, anchor: caster, shape: {wall: {width: 3, height: 3}}, block: "astera:tempered_glass", consume: none, ripple: 29, revert: 160, outside_arena: false}

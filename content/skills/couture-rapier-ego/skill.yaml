@@ -1,40 +1,2075 @@
-# Converted from content/skills/couture-rapier-ego.yaml by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
-# Generated point-frame offsets are [left, up, forward] in the parent frame.
-apiVersion: "astera/v2"
+# v3 draft (wave 2, w2-couture). Hand-ported from the v2 skill.yaml + look.yaml; per-tick values come from the v2 tracks.
+# Each linear run of a v2 track channel is one law (laws sum and hold).
+apiVersion: astera/v3
 kind: Skill
 id: couture-rapier-ego
 item: couture-rapier
-meta:
-  name: {ja: "落花の裁断", en: "Falling Cutout"}
-  description: {ja: "E.G.Oを使い切り、鋏で強烈な連続斬りを叩き込む。", en: "Spend the full E.G.O gauge for a heavy shearing combo."}
-  cooldown_ticks: 220
-  resource_cost: 0
-  ego_cost: 100
-gameplay:
-  params: {arc_deg: 45, reach: 12, dmg_physical: 75, dmg_physical_2: 100}
-  expose:
-    - {id: damage, param: dmg_physical}
-    - {id: range, param: reach}
+meta: {name: {ja: "落花の裁断", en: "Falling Cutout"}, description: {ja: "E.G.Oを使い切り、鋏で強烈な連続斬りを叩き込む。", en: "Spend the full E.G.O gauge for a heavy shearing combo."}, cooldown_ticks: 220, resource_cost: 0, ego_cost: 100}
+params: {arc_deg: 45, reach: 12, dmg_physical: 75, dmg_physical_2: 100}
+presentation:
   timeline:
-    - id: t29
-      at: 29
+    - id: p0
+      at: 0
       do:
-        - id: sel_2
-          op: hit
-          frames: [caster]
-          sector: {frame: caster, at: eye, forward: caster.forward, left: caster.left, angle_deg: "${arc_deg}", range: "${reach}", height: 2.0}
-          max_count: 1
-          window: once
-    - id: t59
-      at: 59
+        - id: fx1_couture_shear_overhead
+          op: frame
+          anchor: caster
+          mode: snapshot
+          for: 19
+        - id: fx1_couture_shear_overhead_arc_0
+          op: display
+          kind: block
+          block: white_stained_glass
+          anchor: fx1_couture_shear_overhead
+          offset: {left: 0, up: -0.57417, forward: 0.6952}
+          rotate: [{axis: left, deg: -10}]
+          scale: [0, 0, 0]
+          brightness: {block: 15, sky: 15}
+          for: 19
+          motion:
+            - {law: grow, prop: scale, per_tick: [0.025, 0.02686, 0.294685], at: 0, for: 2}
+            - {law: grow, prop: scale, per_tick: [-0.002941, -0.00316, -0.013868], at: 2, for: 17}
+        - id: fx1_couture_shear_overhead_arc_1
+          op: display
+          kind: block
+          block: white_stained_glass
+          anchor: fx1_couture_shear_overhead
+          offset: {left: 0, up: -0.41102, forward: 1.17899}
+          rotate: [{axis: left, deg: -27.27273}]
+          scale: [0, 0, 0]
+          brightness: {block: 15, sky: 15}
+          for: 19
+          motion:
+            - {law: grow, prop: scale, per_tick: [0.025, 0.040385, 0.294685], at: 0, for: 2}
+            - {law: grow, prop: scale, per_tick: [-0.002941, -0.004751, -0.013868], at: 2, for: 17}
+        - id: fx1_couture_shear_overhead_arc_2
+          op: display
+          kind: block
+          block: white_stained_glass
+          anchor: fx1_couture_shear_overhead
+          offset: {left: 0, up: -0.11158, forward: 1.59251}
+          rotate: [{axis: left, deg: -44.54545}]
+          scale: [0, 0, 0]
+          brightness: {block: 15, sky: 15}
+          for: 19
+          motion:
+            - {law: grow, prop: scale, per_tick: [0.025, 0.052285, 0.294685], at: 0, for: 2}
+            - {law: grow, prop: scale, per_tick: [-0.002941, -0.006151, -0.013868], at: 2, for: 17}
+        - id: fx1_couture_shear_overhead_arc_3
+          op: display
+          kind: block
+          block: white_stained_glass
+          anchor: fx1_couture_shear_overhead
+          offset: {left: 0, up: 0.29714, forward: 1.89847}
+          rotate: [{axis: left, deg: -61.81818}]
+          scale: [0, 0, 0]
+          brightness: {block: 15, sky: 15}
+          for: 19
+          motion:
+            - {law: grow, prop: scale, per_tick: [0.025, 0.06188, 0.294685], at: 0, for: 2}
+            - {law: grow, prop: scale, per_tick: [-0.002941, -0.00728, -0.013868], at: 2, for: 17}
+        - id: fx1_couture_shear_overhead_arc_4
+          op: display
+          kind: block
+          block: white_stained_glass
+          anchor: fx1_couture_shear_overhead
+          offset: {left: 0, up: 0.77827, forward: 2.06928}
+          rotate: [{axis: left, deg: -79.09091}]
+          scale: [0, 0, 0]
+          brightness: {block: 15, sky: 15}
+          for: 19
+          motion:
+            - {law: grow, prop: scale, per_tick: [0.025, 0.0686, 0.294685], at: 0, for: 2}
+            - {law: grow, prop: scale, per_tick: [-0.002941, -0.008071, -0.013868], at: 2, for: 17}
+        - id: fx1_couture_shear_overhead_arc_5
+          op: display
+          kind: block
+          block: white_stained_glass
+          anchor: fx1_couture_shear_overhead
+          offset: {left: 0, up: 1.28842, forward: 2.08953}
+          rotate: [{axis: left, deg: -96.36364}]
+          scale: [0, 0, 0]
+          brightness: {block: 15, sky: 15}
+          for: 19
+          motion:
+            - {law: grow, prop: scale, per_tick: [0.025, 0.072065, 0.294685], at: 0, for: 2}
+            - {law: grow, prop: scale, per_tick: [-0.002941, -0.008478, -0.013868], at: 2, for: 17}
+        - id: fx1_couture_shear_overhead_arc_6
+          op: display
+          kind: block
+          block: white_stained_glass
+          anchor: fx1_couture_shear_overhead
+          offset: {left: 0, up: 1.78158, forward: 1.95738}
+          rotate: [{axis: left, deg: -113.63636}]
+          scale: [0, 0, 0]
+          brightness: {block: 15, sky: 15}
+          for: 19
+          motion:
+            - {law: grow, prop: scale, per_tick: [0.025, 0.072065, 0.294685], at: 0, for: 2}
+            - {law: grow, prop: scale, per_tick: [-0.002941, -0.008478, -0.013868], at: 2, for: 17}
+        - id: fx1_couture_shear_overhead_arc_7
+          op: display
+          kind: block
+          block: white_stained_glass
+          anchor: fx1_couture_shear_overhead
+          offset: {left: 0, up: 2.21326, forward: 1.68477}
+          rotate: [{axis: left, deg: -130.90909}]
+          scale: [0, 0, 0]
+          brightness: {block: 15, sky: 15}
+          for: 19
+          motion:
+            - {law: grow, prop: scale, per_tick: [0.025, 0.0686, 0.294685], at: 0, for: 2}
+            - {law: grow, prop: scale, per_tick: [-0.002941, -0.008071, -0.013868], at: 2, for: 17}
+        - id: fx1_couture_shear_overhead_arc_8
+          op: display
+          kind: block
+          block: white_stained_glass
+          anchor: fx1_couture_shear_overhead
+          offset: {left: 0, up: 2.54453, forward: 1.29628}
+          rotate: [{axis: left, deg: -148.18182}]
+          scale: [0, 0, 0]
+          brightness: {block: 15, sky: 15}
+          for: 19
+          motion:
+            - {law: grow, prop: scale, per_tick: [0.025, 0.06188, 0.294685], at: 0, for: 2}
+            - {law: grow, prop: scale, per_tick: [-0.002941, -0.00728, -0.013868], at: 2, for: 17}
+        - id: fx1_couture_shear_overhead_arc_9
+          op: display
+          kind: block
+          block: white_stained_glass
+          anchor: fx1_couture_shear_overhead
+          offset: {left: 0, up: 2.74551, forward: 0.82695}
+          rotate: [{axis: left, deg: -165.45455}]
+          scale: [0, 0, 0]
+          brightness: {block: 15, sky: 15}
+          for: 19
+          motion:
+            - {law: grow, prop: scale, per_tick: [0.025, 0.052285, 0.294685], at: 0, for: 2}
+            - {law: grow, prop: scale, per_tick: [-0.002941, -0.006151, -0.013868], at: 2, for: 17}
+        - id: fx1_couture_shear_overhead_arc_10
+          op: display
+          kind: block
+          block: white_stained_glass
+          anchor: fx1_couture_shear_overhead
+          offset: {left: 0, up: 2.79807, forward: 0.31911}
+          rotate: [{axis: left, deg: 177.27273}]
+          scale: [0, 0, 0]
+          brightness: {block: 15, sky: 15}
+          for: 19
+          motion:
+            - {law: grow, prop: scale, per_tick: [0.025, 0.040385, 0.294685], at: 0, for: 2}
+            - {law: grow, prop: scale, per_tick: [-0.002941, -0.004751, -0.013868], at: 2, for: 17}
+        - id: fx1_couture_shear_overhead_arc_11
+          op: display
+          kind: block
+          block: white_stained_glass
+          anchor: fx1_couture_shear_overhead
+          offset: {left: 0, up: 2.69748, forward: -0.18143}
+          rotate: [{axis: left, deg: 160}]
+          scale: [0, 0, 0]
+          brightness: {block: 15, sky: 15}
+          for: 19
+          motion:
+            - {law: grow, prop: scale, per_tick: [0.025, 0.02686, 0.294685], at: 0, for: 2}
+            - {law: grow, prop: scale, per_tick: [-0.002941, -0.00316, -0.013868], at: 2, for: 17}
+machine:
+  start: cast
+  states:
+    cast:
+      for: 73
+      then: end
       do:
-        - id: sel_4
-          op: hit
-          frames: [caster]
-          sector: {frame: caster, at: eye, forward: caster.forward, left: caster.left, angle_deg: "${arc_deg}", range: "${reach}", height: 2.0}
-          max_count: 1
-          window: once
-  "on":
-    hit:
-      - {id: dmg, op: damage, components: [{kind: physical, amount: "${dmg_physical}"}], target: victim, ignore_invulnerability: true, when: "= event.source == 'sel_2'"}
-      - {id: dmg_2, op: damage, components: [{kind: physical, amount: "${dmg_physical_2}"}], target: victim, ignore_invulnerability: true, when: "= event.source == 'sel_4'"}
+        # v2: origin eye, yaw-only forward (R31), sector angle_deg 45 = full opening (R24), ignore_invulnerability true; trigger-only hits omit damage (R24).
+        # GAP(Q1): max_count spelling (required int/`all` vs optional); best-effort `max_count: 1` kept as v2 caps each selector at 1 victim.
+        - {id: sel, op: hit, at: 18, anchor: caster.eye, targets: enemies, max_count: 1, shape: {sector: {deg: "= arc_deg", range: "= reach", height: 2.0, forward: yaw}}, window: once, ignore_invulnerability: true}
+        - {id: sel_2, op: hit, at: 29, anchor: caster.eye, targets: enemies, max_count: 1, shape: {sector: {deg: "= arc_deg", range: "= reach", height: 2.0, forward: yaw}}, window: once, damage: {physical: "= dmg_physical"}, ignore_invulnerability: true}
+        - {id: sel_3, op: hit, at: 29, anchor: caster.eye, targets: enemies, max_count: 1, shape: {sector: {deg: "= arc_deg", range: "= reach", height: 2.0, forward: yaw}}, window: once, ignore_invulnerability: true}
+        - {id: sel_4, op: hit, at: 48, anchor: caster.eye, targets: enemies, max_count: 1, shape: {sector: {deg: "= arc_deg", range: "= reach", height: 2.0, forward: yaw}}, window: once, ignore_invulnerability: true}
+        - {id: sel_5, op: hit, at: 59, anchor: caster.eye, targets: enemies, max_count: 1, shape: {sector: {deg: "= arc_deg", range: "= reach", height: 2.0, forward: yaw}}, window: once, damage: {physical: "= dmg_physical_2"}, ignore_invulnerability: true}
+        - {id: sel_6, op: hit, at: 59, anchor: caster.eye, targets: enemies, max_count: 1, shape: {sector: {deg: "= arc_deg", range: "= reach", height: 2.0, forward: yaw}}, window: once, ignore_invulnerability: true}
+        - {id: sel_7, op: hit, at: 62, anchor: caster.eye, targets: enemies, max_count: 1, shape: {sector: {deg: "= arc_deg", range: "= reach", height: 2.0, forward: yaw}}, window: once, ignore_invulnerability: true}
+      on:
+        - event: sel.hit
+          do:
+            - id: h0
+              at: 0
+              do:
+                - id: fx2_couture_shears_falling
+                  op: frame
+                  anchor: victim
+                  axes: caster
+                  mode: snapshot
+                  for: 21
+                - id: fx2_couture_shears_falling_1_blade_0
+                  op: display
+                  kind: block
+                  block: gray_concrete
+                  anchor: fx2_couture_shears_falling
+                  offset: {left: -0.09, up: 5.80718, forward: -0.4}
+                  rotate: [{axis: left, deg: 120}]
+                  scale: [0.12, 0.38, 1.6]
+                  for: 21
+                  motion:
+                    - {law: move, velocity: {left: 0, up: -0.4625, forward: 0}, at: 0, for: 8}
+                    - {law: move, velocity: {left: 0, up: -0.035563, forward: 0.124027}, at: 8, for: 3}
+                    - {law: spin, axis: left, deg_per_tick: -9.33333, at: 8, for: 1}
+                    - {law: spin, axis: left, deg_per_tick: -9.33334, at: 9, for: 1}
+                    - {law: spin, axis: left, deg_per_tick: -9.33333, at: 10, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.03, -0.095, -0.4], at: 16, for: 4}
+                - id: fx2_couture_shears_falling_1_edge_0
+                  op: display
+                  kind: block
+                  block: iron_block
+                  anchor: fx2_couture_shears_falling
+                  offset: {left: -0.09, up: 5.74733, forward: -0.29634}
+                  rotate: [{axis: left, deg: 123.66907}]
+                  scale: [0.12, 0.05, 1.60329]
+                  for: 21
+                  motion:
+                    - {law: move, velocity: {left: 0, up: -0.4625, forward: 0}, at: 0, for: 8}
+                    - {law: move, velocity: {left: 0, up: -0.017007, forward: 0.12935}, at: 8, for: 3}
+                    - {law: spin, axis: left, deg_per_tick: -9.33334, at: 8, for: 1}
+                    - {law: spin, axis: left, deg_per_tick: -9.33333, at: 9, for: 2}
+                    - {law: grow, prop: scale, per_tick: [-0.03, -0.0125, -0.400823], at: 16, for: 4}
+                - id: fx2_couture_shears_falling_1_blade_1
+                  op: display
+                  kind: block
+                  block: gray_concrete
+                  anchor: fx2_couture_shears_falling
+                  offset: {left: -0.09, up: 4.59474, forward: -1.1}
+                  rotate: [{axis: left, deg: 120}]
+                  scale: [0.12, 0.24, 1.2]
+                  for: 21
+                  motion:
+                    - {law: move, velocity: {left: 0, up: -0.4625, forward: 0}, at: 0, for: 8}
+                    - {law: move, velocity: {left: 0, up: -0.0978, forward: 0.341073}, at: 8, for: 3}
+                    - {law: spin, axis: left, deg_per_tick: -9.33333, at: 8, for: 1}
+                    - {law: spin, axis: left, deg_per_tick: -9.33334, at: 9, for: 1}
+                    - {law: spin, axis: left, deg_per_tick: -9.33333, at: 10, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.03, -0.06, -0.3], at: 16, for: 4}
+                - id: fx2_couture_shears_falling_1_edge_1
+                  op: display
+                  kind: block
+                  block: iron_block
+                  anchor: fx2_couture_shears_falling
+                  offset: {left: -0.09, up: 4.55694, forward: -1.03453}
+                  rotate: [{axis: left, deg: 123.09097}]
+                  scale: [0.12, 0.05, 1.20175]
+                  for: 21
+                  motion:
+                    - {law: move, velocity: {left: 0, up: -0.4625, forward: 0}, at: 0, for: 8}
+                    - {law: move, velocity: {left: 0, up: -0.08608, forward: 0.344437}, at: 8, for: 3}
+                    - {law: spin, axis: left, deg_per_tick: -9.33333, at: 8, for: 1}
+                    - {law: spin, axis: left, deg_per_tick: -9.33334, at: 9, for: 1}
+                    - {law: spin, axis: left, deg_per_tick: -9.33333, at: 10, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.03, -0.0125, -0.300438], at: 16, for: 4}
+                - id: fx2_couture_shears_falling_1_blade_2
+                  op: display
+                  kind: block
+                  block: gray_concrete
+                  anchor: fx2_couture_shears_falling
+                  offset: {left: -0.09, up: 3.72872, forward: -1.6}
+                  rotate: [{axis: left, deg: 120}]
+                  scale: [0.12, 0.09, 0.8]
+                  for: 21
+                  motion:
+                    - {law: move, velocity: {left: 0, up: -0.4625, forward: 0}, at: 0, for: 8}
+                    - {law: move, velocity: {left: 0, up: -0.142257, forward: 0.496107}, at: 8, for: 3}
+                    - {law: spin, axis: left, deg_per_tick: -9.33333, at: 8, for: 1}
+                    - {law: spin, axis: left, deg_per_tick: -9.33334, at: 9, for: 1}
+                    - {law: spin, axis: left, deg_per_tick: -9.33333, at: 10, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.03, -0.0225, -0.2], at: 16, for: 4}
+                - id: fx2_couture_shears_falling_1_edge_2
+                  op: display
+                  kind: block
+                  block: iron_block
+                  anchor: fx2_couture_shears_falling
+                  offset: {left: -0.09, up: 3.71454, forward: -1.57545}
+                  rotate: [{axis: left, deg: 121.73982}]
+                  scale: [0.12, 0.05, 0.80037]
+                  for: 21
+                  motion:
+                    - {law: move, velocity: {left: 0, up: -0.4625, forward: 0}, at: 0, for: 8}
+                    - {law: move, velocity: {left: 0, up: -0.13786, forward: 0.497367}, at: 8, for: 3}
+                    - {law: spin, axis: left, deg_per_tick: -9.33333, at: 8, for: 2}
+                    - {law: spin, axis: left, deg_per_tick: -9.33334, at: 10, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.03, -0.0125, -0.200093], at: 16, for: 4}
+                - id: fx2_couture_shears_falling_1_handle_0
+                  op: display
+                  kind: block
+                  block: black_concrete
+                  anchor: fx2_couture_shears_falling
+                  offset: {left: -0.09, up: 6.71909, forward: 0.38053}
+                  rotate: [{axis: left, deg: -15}]
+                  scale: [0.12, 0.09, 0.62225]
+                  for: 21
+                  motion:
+                    - {law: move, velocity: {left: 0, up: -0.4625, forward: 0}, at: 0, for: 8}
+                    - {law: move, velocity: {left: 0, up: 0.051, forward: -0.049133}, at: 8, for: 3}
+                    - {law: spin, axis: left, deg_per_tick: -9.33333, at: 8, for: 1}
+                    - {law: spin, axis: left, deg_per_tick: -9.33334, at: 9, for: 1}
+                    - {law: spin, axis: left, deg_per_tick: -9.33333, at: 10, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.03, -0.0225, -0.155562], at: 16, for: 4}
+                - id: fx2_couture_shears_falling_1_handle_1
+                  op: display
+                  kind: block
+                  block: black_concrete
+                  anchor: fx2_couture_shears_falling
+                  offset: {left: -0.09, up: 7.20433, forward: 0.88007}
+                  rotate: [{axis: left, deg: -63.81407}]
+                  scale: [0.12, 0.09, 0.902]
+                  for: 21
+                  motion:
+                    - {law: move, velocity: {left: 0, up: -0.4625, forward: 0}, at: 0, for: 8}
+                    - {law: move, velocity: {left: 0, up: 0.11024, forward: -0.14456}, at: 8, for: 3}
+                    - {law: spin, axis: left, deg_per_tick: -9.33334, at: 8, for: 1}
+                    - {law: spin, axis: left, deg_per_tick: -9.33333, at: 9, for: 2}
+                    - {law: grow, prop: scale, per_tick: [-0.03, -0.0225, -0.2255], at: 16, for: 4}
+                - id: fx2_couture_shears_falling_1_handle_2
+                  op: display
+                  kind: block
+                  block: black_concrete
+                  anchor: fx2_couture_shears_falling
+                  offset: {left: -0.09, up: 7.7993, forward: 0.96954}
+                  rotate: [{axis: left, deg: -119.93142}]
+                  scale: [0.12, 0.09, 0.43909]
+                  for: 21
+                  motion:
+                    - {law: move, velocity: {left: 0, up: -0.4625, forward: 0}, at: 0, for: 8}
+                    - {law: move, velocity: {left: 0, up: 0.10103, forward: -0.241157}, at: 8, for: 3}
+                    - {law: spin, axis: left, deg_per_tick: -9.33333, at: 8, for: 2}
+                    - {law: spin, axis: left, deg_per_tick: -9.33334, at: 10, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.03, -0.0225, -0.109772], at: 16, for: 4}
+                - id: fx2_couture_shears_falling_1_handle_3
+                  op: display
+                  kind: block
+                  block: black_concrete
+                  anchor: fx2_couture_shears_falling
+                  offset: {left: -0.09, up: 7.75181, forward: 0.49179}
+                  rotate: [{axis: left, deg: 147.14968}]
+                  scale: [0.12, 0.09, 0.87658]
+                  for: 21
+                  motion:
+                    - {law: move, velocity: {left: 0, up: -0.4625, forward: 0}, at: 0, for: 8}
+                    - {law: move, velocity: {left: 0, up: 0.02812, forward: -0.215083}, at: 8, for: 3}
+                    - {law: spin, axis: left, deg_per_tick: -9.33333, at: 8, for: 2}
+                    - {law: spin, axis: left, deg_per_tick: -9.33334, at: 10, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.03, -0.0225, -0.219145], at: 16, for: 4}
+                - id: fx2_couture_shears_falling_1_handle_4
+                  op: display
+                  kind: block
+                  block: black_concrete
+                  anchor: fx2_couture_shears_falling
+                  offset: {left: -0.09, up: 7.07631, forward: 0.10179}
+                  rotate: [{axis: left, deg: 92.85032}]
+                  scale: [0.12, 0.09, 0.87658]
+                  for: 21
+                  motion:
+                    - {law: move, velocity: {left: 0, up: -0.4625, forward: 0}, at: 0, for: 8}
+                    - {law: move, velocity: {left: 0, up: -0.006557, forward: -0.094157}, at: 8, for: 3}
+                    - {law: spin, axis: left, deg_per_tick: -9.33334, at: 8, for: 1}
+                    - {law: spin, axis: left, deg_per_tick: -9.33333, at: 9, for: 2}
+                    - {law: grow, prop: scale, per_tick: [-0.03, -0.0225, -0.219145], at: 16, for: 4}
+                - id: fx2_couture_shears_falling_1_blade_0_2
+                  op: display
+                  kind: block
+                  block: gray_concrete
+                  anchor: fx2_couture_shears_falling
+                  offset: {left: 0.09, up: 5.80718, forward: 0.4}
+                  rotate: [{axis: left, deg: 60}]
+                  scale: [0.12, 0.38, 1.6]
+                  for: 21
+                  motion:
+                    - {law: move, velocity: {left: 0, up: -0.4625, forward: 0}, at: 0, for: 8}
+                    - {law: move, velocity: {left: 0, up: -0.035563, forward: -0.124027}, at: 8, for: 3}
+                    - {law: spin, axis: left, deg_per_tick: 9.33333, at: 8, for: 1}
+                    - {law: spin, axis: left, deg_per_tick: 9.33334, at: 9, for: 1}
+                    - {law: spin, axis: left, deg_per_tick: 9.33333, at: 10, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.03, -0.095, -0.4], at: 16, for: 4}
+                - id: fx2_couture_shears_falling_1_edge_0_2
+                  op: display
+                  kind: block
+                  block: iron_block
+                  anchor: fx2_couture_shears_falling
+                  offset: {left: 0.09, up: 5.86703, forward: 0.50366}
+                  rotate: [{axis: left, deg: 63.66907}]
+                  scale: [0.12, 0.05, 1.60329]
+                  for: 21
+                  motion:
+                    - {law: move, velocity: {left: 0, up: -0.4625, forward: 0}, at: 0, for: 8}
+                    - {law: move, velocity: {left: 0, up: -0.054123, forward: -0.118703}, at: 8, for: 3}
+                    - {law: spin, axis: left, deg_per_tick: 9.33333, at: 8, for: 2}
+                    - {law: spin, axis: left, deg_per_tick: 9.33334, at: 10, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.03, -0.0125, -0.400823], at: 16, for: 4}
+                - id: fx2_couture_shears_falling_1_blade_1_2
+                  op: display
+                  kind: block
+                  block: gray_concrete
+                  anchor: fx2_couture_shears_falling
+                  offset: {left: 0.09, up: 4.59474, forward: 1.1}
+                  rotate: [{axis: left, deg: 60}]
+                  scale: [0.12, 0.24, 1.2]
+                  for: 21
+                  motion:
+                    - {law: move, velocity: {left: 0, up: -0.4625, forward: 0}, at: 0, for: 8}
+                    - {law: move, velocity: {left: 0, up: -0.0978, forward: -0.341073}, at: 8, for: 3}
+                    - {law: spin, axis: left, deg_per_tick: 9.33333, at: 8, for: 1}
+                    - {law: spin, axis: left, deg_per_tick: 9.33334, at: 9, for: 1}
+                    - {law: spin, axis: left, deg_per_tick: 9.33333, at: 10, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.03, -0.06, -0.3], at: 16, for: 4}
+                - id: fx2_couture_shears_falling_1_edge_1_2
+                  op: display
+                  kind: block
+                  block: iron_block
+                  anchor: fx2_couture_shears_falling
+                  offset: {left: 0.09, up: 4.63254, forward: 1.16547}
+                  rotate: [{axis: left, deg: 63.09097}]
+                  scale: [0.12, 0.05, 1.20175]
+                  for: 21
+                  motion:
+                    - {law: move, velocity: {left: 0, up: -0.4625, forward: 0}, at: 0, for: 8}
+                    - {law: move, velocity: {left: 0, up: -0.10952, forward: -0.337713}, at: 8, for: 3}
+                    - {law: spin, axis: left, deg_per_tick: 9.33333, at: 8, for: 1}
+                    - {law: spin, axis: left, deg_per_tick: 9.33334, at: 9, for: 1}
+                    - {law: spin, axis: left, deg_per_tick: 9.33333, at: 10, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.03, -0.0125, -0.300438], at: 16, for: 4}
+                - id: fx2_couture_shears_falling_1_blade_2_2
+                  op: display
+                  kind: block
+                  block: gray_concrete
+                  anchor: fx2_couture_shears_falling
+                  offset: {left: 0.09, up: 3.72872, forward: 1.6}
+                  rotate: [{axis: left, deg: 60}]
+                  scale: [0.12, 0.09, 0.8]
+                  for: 21
+                  motion:
+                    - {law: move, velocity: {left: 0, up: -0.4625, forward: 0}, at: 0, for: 8}
+                    - {law: move, velocity: {left: 0, up: -0.142257, forward: -0.496107}, at: 8, for: 3}
+                    - {law: spin, axis: left, deg_per_tick: 9.33333, at: 8, for: 1}
+                    - {law: spin, axis: left, deg_per_tick: 9.33334, at: 9, for: 1}
+                    - {law: spin, axis: left, deg_per_tick: 9.33333, at: 10, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.03, -0.0225, -0.2], at: 16, for: 4}
+                - id: fx2_couture_shears_falling_1_edge_2_2
+                  op: display
+                  kind: block
+                  block: iron_block
+                  anchor: fx2_couture_shears_falling
+                  offset: {left: 0.09, up: 3.74289, forward: 1.62455}
+                  rotate: [{axis: left, deg: 61.73982}]
+                  scale: [0.12, 0.05, 0.80037]
+                  for: 21
+                  motion:
+                    - {law: move, velocity: {left: 0, up: -0.4625, forward: 0}, at: 0, for: 8}
+                    - {law: move, velocity: {left: 0, up: -0.14665, forward: -0.494847}, at: 8, for: 3}
+                    - {law: spin, axis: left, deg_per_tick: 9.33334, at: 8, for: 1}
+                    - {law: spin, axis: left, deg_per_tick: 9.33333, at: 9, for: 2}
+                    - {law: grow, prop: scale, per_tick: [-0.03, -0.0125, -0.200093], at: 16, for: 4}
+                - id: fx2_couture_shears_falling_1_handle_0_2
+                  op: display
+                  kind: block
+                  block: black_concrete
+                  anchor: fx2_couture_shears_falling
+                  offset: {left: 0.09, up: 6.93909, forward: 0.00053}
+                  rotate: [{axis: left, deg: -75}]
+                  scale: [0.12, 0.09, 0.62225]
+                  for: 21
+                  motion:
+                    - {law: move, velocity: {left: 0, up: -0.4625, forward: 0}, at: 0, for: 8}
+                    - {law: move, velocity: {left: 0, up: -0.017213, forward: 0.06869}, at: 8, for: 3}
+                    - {law: spin, axis: left, deg_per_tick: 9.33333, at: 8, for: 1}
+                    - {law: spin, axis: left, deg_per_tick: 9.33334, at: 9, for: 1}
+                    - {law: spin, axis: left, deg_per_tick: 9.33333, at: 10, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.03, -0.0225, -0.155562], at: 16, for: 4}
+                - id: fx2_couture_shears_falling_1_handle_1_2
+                  op: display
+                  kind: block
+                  block: black_concrete
+                  anchor: fx2_couture_shears_falling
+                  offset: {left: 0.09, up: 7.61433, forward: -0.16993}
+                  rotate: [{axis: left, deg: -123.81407}]
+                  scale: [0.12, 0.09, 0.902]
+                  for: 21
+                  motion:
+                    - {law: move, velocity: {left: 0, up: -0.4625, forward: 0}, at: 0, for: 8}
+                    - {law: move, velocity: {left: 0, up: -0.016887, forward: 0.181013}, at: 8, for: 3}
+                    - {law: spin, axis: left, deg_per_tick: 9.33333, at: 8, for: 2}
+                    - {law: spin, axis: left, deg_per_tick: 9.33334, at: 10, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.03, -0.0225, -0.2255], at: 16, for: 4}
+                - id: fx2_couture_shears_falling_1_handle_2_2
+                  op: display
+                  kind: block
+                  block: black_concrete
+                  anchor: fx2_couture_shears_falling
+                  offset: {left: 0.09, up: 7.9893, forward: -0.64046}
+                  rotate: [{axis: left, deg: -179.93142}]
+                  scale: [0.12, 0.09, 0.43909]
+                  for: 21
+                  motion:
+                    - {law: move, velocity: {left: 0, up: -0.4625, forward: 0}, at: 0, for: 8}
+                    - {law: move, velocity: {left: 0, up: 0.042117, forward: 0.258053}, at: 8, for: 3}
+                    - {law: spin, axis: left, deg_per_tick: 9.33334, at: 8, for: 1}
+                    - {law: spin, axis: left, deg_per_tick: 9.33333, at: 9, for: 2}
+                    - {law: grow, prop: scale, per_tick: [-0.03, -0.0225, -0.109772], at: 16, for: 4}
+                - id: fx2_couture_shears_falling_1_handle_3_2
+                  op: display
+                  kind: block
+                  block: black_concrete
+                  anchor: fx2_couture_shears_falling
+                  offset: {left: 0.09, up: 7.55181, forward: -0.83821}
+                  rotate: [{axis: left, deg: 87.14968}]
+                  scale: [0.12, 0.09, 0.87658]
+                  for: 21
+                  motion:
+                    - {law: move, velocity: {left: 0, up: -0.4625, forward: 0}, at: 0, for: 8}
+                    - {law: move, velocity: {left: 0, up: 0.090133, forward: 0.197307}, at: 8, for: 3}
+                    - {law: spin, axis: left, deg_per_tick: 9.33334, at: 8, for: 1}
+                    - {law: spin, axis: left, deg_per_tick: 9.33333, at: 9, for: 2}
+                    - {law: grow, prop: scale, per_tick: [-0.03, -0.0225, -0.219145], at: 16, for: 4}
+                - id: fx2_couture_shears_falling_1_handle_4_2
+                  op: display
+                  kind: block
+                  block: black_concrete
+                  anchor: fx2_couture_shears_falling
+                  offset: {left: 0.09, up: 6.87631, forward: -0.44821}
+                  rotate: [{axis: left, deg: 32.85032}]
+                  scale: [0.12, 0.09, 0.87658]
+                  for: 21
+                  motion:
+                    - {law: move, velocity: {left: 0, up: -0.4625, forward: 0}, at: 0, for: 8}
+                    - {law: move, velocity: {left: 0, up: 0.05546, forward: 0.07638}, at: 8, for: 3}
+                    - {law: spin, axis: left, deg_per_tick: 9.33333, at: 8, for: 2}
+                    - {law: spin, axis: left, deg_per_tick: 9.33334, at: 10, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.03, -0.0225, -0.219145], at: 16, for: 4}
+                - id: fx2_couture_shears_falling_hinge_flower_0
+                  op: display
+                  kind: block
+                  block: white_concrete
+                  anchor: fx2_couture_shears_falling
+                  offset: {left: -0.24, up: 6.5, forward: 0}
+                  scale: [0.3, 0.3, 0.24]
+                  for: 21
+                  motion:
+                    - {law: move, velocity: {left: 0, up: -0.4625, forward: 0}, at: 0, for: 8}
+                    - {law: grow, prop: scale, per_tick: [-0.075, -0.075, -0.06], at: 16, for: 4}
+                - id: fx2_couture_shears_falling_hinge_flower_1
+                  op: display
+                  kind: block
+                  block: white_concrete
+                  anchor: fx2_couture_shears_falling
+                  offset: {left: 0.24, up: 6.5, forward: 0}
+                  scale: [0.3, 0.3, 0.24]
+                  for: 21
+                  motion:
+                    - {law: move, velocity: {left: 0, up: -0.4625, forward: 0}, at: 0, for: 8}
+                    - {law: grow, prop: scale, per_tick: [-0.075, -0.075, -0.06], at: 16, for: 4}
+                - id: fx2_couture_shears_falling_hinge_flower_2
+                  op: display
+                  kind: block
+                  block: white_concrete
+                  anchor: fx2_couture_shears_falling
+                  offset: {left: 0, up: 6.74, forward: 0}
+                  scale: [0.3, 0.3, 0.24]
+                  for: 21
+                  motion:
+                    - {law: move, velocity: {left: 0, up: -0.4625, forward: 0}, at: 0, for: 8}
+                    - {law: grow, prop: scale, per_tick: [-0.075, -0.075, -0.06], at: 16, for: 4}
+                - id: fx2_couture_shears_falling_hinge_flower_3
+                  op: display
+                  kind: block
+                  block: white_concrete
+                  anchor: fx2_couture_shears_falling
+                  offset: {left: 0, up: 6.26, forward: 0}
+                  scale: [0.3, 0.3, 0.24]
+                  for: 21
+                  motion:
+                    - {law: move, velocity: {left: 0, up: -0.4625, forward: 0}, at: 0, for: 8}
+                    - {law: grow, prop: scale, per_tick: [-0.075, -0.075, -0.06], at: 16, for: 4}
+        - event: sel_3.hit
+          do:
+            - id: h0
+              at: 0
+              do:
+                - id: fx3_couture_rapier_cross_sparks
+                  op: particle_def
+                  def: stab-spark
+                  anchor: fx3_couture_rapier_cross_sparks_at
+                  every: 3
+                  times: 2
+                - id: fx3_couture_rapier_cross
+                  op: frame
+                  anchor: victim
+                  axes: caster
+                  mode: snapshot
+                  for: 9
+                - id: fx3_couture_rapier_cross_cross_0
+                  op: display
+                  kind: block
+                  block: white_concrete
+                  anchor: fx3_couture_rapier_cross
+                  offset: {left: 0, up: 1.05, forward: 0}
+                  rotate: [{axis: left, deg: -45}]
+                  scale: [0.05, 3.3, 0.06]
+                  brightness: {block: 15, sky: 15}
+                  for: 9
+                  motion:
+                    - {law: grow, prop: scale, per_tick: [-0.005, 0, -0.006667], at: 0, for: 3}
+                    - {law: grow, prop: scale, per_tick: [-0.007, 0, -0.008], at: 3, for: 5, ease: in_quad}
+                - id: fx3_couture_rapier_cross_cross_1
+                  op: display
+                  kind: block
+                  block: white_concrete
+                  anchor: fx3_couture_rapier_cross
+                  offset: {left: 0, up: 1.05, forward: 0}
+                  rotate: [{axis: left, deg: 45}]
+                  scale: [0.05, 3.3, 0.06]
+                  brightness: {block: 15, sky: 15}
+                  for: 9
+                  motion:
+                    - {law: grow, prop: scale, per_tick: [-0.005, 0, -0.006667], at: 0, for: 3}
+                    - {law: grow, prop: scale, per_tick: [-0.007, 0, -0.008], at: 3, for: 5, ease: in_quad}
+                - id: fx3_couture_rapier_cross_cross_2
+                  op: display
+                  kind: block
+                  block: white_concrete
+                  anchor: fx3_couture_rapier_cross
+                  offset: {left: 0, up: 1.05, forward: 0}
+                  scale: [0.05, 3.3, 0.06]
+                  brightness: {block: 15, sky: 15}
+                  for: 9
+                  motion:
+                    - {law: grow, prop: scale, per_tick: [-0.005, 0, -0.006667], at: 0, for: 3}
+                    - {law: grow, prop: scale, per_tick: [-0.007, 0, -0.008], at: 3, for: 5, ease: in_quad}
+                - id: fx3_couture_rapier_cross_dark_0
+                  op: display
+                  kind: text
+                  text: " "
+                  # v2 solid quad: blank text on a solid background (1/8 x 1/4 block per scale unit)
+                  background: "#28201C"
+                  anchor: fx3_couture_rapier_cross
+                  offset: {left: 0, up: 1.1, forward: 0}
+                  scale: [0.96, 0.64, 1]
+                  alpha: 1
+                  billboard: center
+                  brightness: {block: 15, sky: 15}
+                  for: 7
+                  motion:
+                    - {law: move, velocity: {left: 0, up: -0.133333, forward: -0.15}, at: 0, for: 6, ease: out_cubic}
+                    - {law: grow, prop: scale, per_tick: [-0.093333, -0.053333, 0], at: 0, for: 6, ease: out_cubic}
+                    - {law: grow, prop: alpha, per_tick: -0.166667, at: 0, for: 6, ease: out_cubic}
+                - id: fx3_couture_rapier_cross_dark_1
+                  op: display
+                  kind: text
+                  text: " "
+                  # v2 solid quad: blank text on a solid background (1/8 x 1/4 block per scale unit)
+                  background: "#28201C"
+                  anchor: fx3_couture_rapier_cross
+                  offset: {left: 0, up: 1.1, forward: 0}
+                  rotate: [{axis: forward, deg: 60}]
+                  scale: [0.96, 0.64, 1]
+                  alpha: 1
+                  billboard: center
+                  brightness: {block: 15, sky: 15}
+                  for: 7
+                  motion:
+                    - {law: move, velocity: {left: 0, up: -0.083333, forward: -0.05}, at: 0, for: 6, ease: out_cubic}
+                    - {law: grow, prop: scale, per_tick: [-0.093333, -0.053333, 0], at: 0, for: 6, ease: out_cubic}
+                    - {law: grow, prop: alpha, per_tick: -0.166667, at: 0, for: 6, ease: out_cubic}
+                - id: fx3_couture_rapier_cross_dark_2
+                  op: display
+                  kind: text
+                  text: " "
+                  # v2 solid quad: blank text on a solid background (1/8 x 1/4 block per scale unit)
+                  background: "#28201C"
+                  anchor: fx3_couture_rapier_cross
+                  offset: {left: 0, up: 1.1, forward: 0}
+                  rotate: [{axis: forward, deg: 120}]
+                  scale: [0.96, 0.64, 1]
+                  alpha: 1
+                  billboard: center
+                  brightness: {block: 15, sky: 15}
+                  for: 7
+                  motion:
+                    - {law: move, velocity: {left: 0, up: -0.033333, forward: 0.05}, at: 0, for: 6, ease: out_cubic}
+                    - {law: grow, prop: scale, per_tick: [-0.093333, -0.053333, 0], at: 0, for: 6, ease: out_cubic}
+                    - {law: grow, prop: alpha, per_tick: -0.166667, at: 0, for: 6, ease: out_cubic}
+                - id: fx3_couture_rapier_cross_dark_3
+                  op: display
+                  kind: text
+                  text: " "
+                  # v2 solid quad: blank text on a solid background (1/8 x 1/4 block per scale unit)
+                  background: "#28201C"
+                  anchor: fx3_couture_rapier_cross
+                  offset: {left: 0, up: 1.1, forward: 0}
+                  rotate: [{axis: forward, deg: 180}]
+                  scale: [0.96, 0.64, 1]
+                  alpha: 1
+                  billboard: center
+                  brightness: {block: 15, sky: 15}
+                  for: 7
+                  motion:
+                    - {law: move, velocity: {left: 0, up: 0.016667, forward: 0.15}, at: 0, for: 6, ease: out_cubic}
+                    - {law: grow, prop: scale, per_tick: [-0.093333, -0.053333, 0], at: 0, for: 6, ease: out_cubic}
+                    - {law: grow, prop: alpha, per_tick: -0.166667, at: 0, for: 6, ease: out_cubic}
+                - id: fx3_couture_rapier_cross_bloom
+                  op: display
+                  kind: text
+                  text: " "
+                  # v2 solid quad: blank text on a solid background (1/8 x 1/4 block per scale unit)
+                  background: "#EAD9B0"
+                  anchor: fx3_couture_rapier_cross
+                  offset: {left: 0, up: 1.1, forward: 0}
+                  scale: [4, 2, 1]
+                  alpha: 0.2
+                  billboard: center
+                  brightness: {block: 15, sky: 15}
+                  for: 6
+                  motion:
+                    - {law: grow, prop: scale, per_tick: [8, 4, 0], at: 0, for: 1}
+                    - {law: grow, prop: scale, per_tick: [1, 0.5, 0], at: 1, for: 4}
+                    - {law: grow, prop: alpha, per_tick: -0.04, at: 0, for: 5}
+                - id: fx3_couture_rapier_cross_petals_0
+                  op: display
+                  kind: text
+                  text: " "
+                  # v2 solid quad: blank text on a solid background (1/8 x 1/4 block per scale unit)
+                  background: "#FFF5E9"
+                  anchor: fx3_couture_rapier_cross
+                  offset: {left: 0, up: 1.1, forward: 0}
+                  scale: [0.58, 0.29, 1]
+                  alpha: 1
+                  billboard: center
+                  brightness: {block: 15, sky: 15}
+                  for: 8
+                  motion:
+                    - {law: move, velocity: {left: 0.06303, up: 0.10649, forward: 0}, at: 0, for: 1}
+                    - {law: move, velocity: {left: 0.05862, up: 0.09159, forward: 0}, at: 1, for: 1}
+                    - {law: move, velocity: {left: 0.05452, up: 0.07774, forward: 0}, at: 2, for: 1}
+                    - {law: move, velocity: {left: 0.0507, up: 0.06485, forward: 0}, at: 3, for: 1}
+                    - {law: move, velocity: {left: 0.04715, up: 0.05288, forward: 0}, at: 4, for: 1}
+                    - {law: move, velocity: {left: 0.04385, up: 0.04174, forward: 0}, at: 5, for: 1}
+                    - {law: move, velocity: {left: 0.04079, up: 0.03137, forward: 0}, at: 6, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.074568, -0.037284, 0], at: 0, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.074576, -0.037288, 0], at: 1, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.074568, -0.037284, 0], at: 2, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.074576, -0.037288, 0], at: 3, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.074568, -0.037284, 0], at: 4, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.074576, -0.037288, 0], at: 5, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.074568, -0.037284, 0], at: 6, for: 1}
+                    - {law: grow, prop: alpha, per_tick: -0.14286, at: 0, for: 1}
+                    - {law: grow, prop: alpha, per_tick: -0.14285, at: 1, for: 1}
+                    - {law: grow, prop: alpha, per_tick: -0.14286, at: 2, for: 3}
+                    - {law: grow, prop: alpha, per_tick: -0.14285, at: 5, for: 1}
+                    - {law: grow, prop: alpha, per_tick: -0.14286, at: 6, for: 1}
+                - id: fx3_couture_rapier_cross_petals_1
+                  op: display
+                  kind: text
+                  text: " "
+                  # v2 solid quad: blank text on a solid background (1/8 x 1/4 block per scale unit)
+                  background: "#FFF5E9"
+                  anchor: fx3_couture_rapier_cross
+                  offset: {left: 0, up: 1.1, forward: 0}
+                  scale: [0.58, 0.29, 1]
+                  alpha: 1
+                  billboard: center
+                  brightness: {block: 15, sky: 15}
+                  for: 8
+                  motion:
+                    - {law: move, velocity: {left: -0.07494, up: 0.07394, forward: 0.06866}, at: 0, for: 1}
+                    - {law: move, velocity: {left: -0.0697, up: 0.06131, forward: 0.06384}, at: 1, for: 1}
+                    - {law: move, velocity: {left: -0.06482, up: 0.04959, forward: 0.05938}, at: 2, for: 1}
+                    - {law: move, velocity: {left: -0.06028, up: 0.03868, forward: 0.05523}, at: 3, for: 1}
+                    - {law: move, velocity: {left: -0.05607, up: 0.02853, forward: 0.05135}, at: 4, for: 1}
+                    - {law: move, velocity: {left: -0.05213, up: 0.01909, forward: 0.04777}, at: 5, for: 1}
+                    - {law: move, velocity: {left: -0.04849, up: 0.01031, forward: 0.04442}, at: 6, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.074568, -0.037284, 0], at: 0, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.074576, -0.037288, 0], at: 1, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.074568, -0.037284, 0], at: 2, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.074576, -0.037288, 0], at: 3, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.074568, -0.037284, 0], at: 4, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.074576, -0.037288, 0], at: 5, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.074568, -0.037284, 0], at: 6, for: 1}
+                    - {law: grow, prop: alpha, per_tick: -0.14286, at: 0, for: 1}
+                    - {law: grow, prop: alpha, per_tick: -0.14285, at: 1, for: 1}
+                    - {law: grow, prop: alpha, per_tick: -0.14286, at: 2, for: 3}
+                    - {law: grow, prop: alpha, per_tick: -0.14285, at: 5, for: 1}
+                    - {law: grow, prop: alpha, per_tick: -0.14286, at: 6, for: 1}
+                - id: fx3_couture_rapier_cross_petals_2
+                  op: display
+                  kind: text
+                  text: " "
+                  # v2 solid quad: blank text on a solid background (1/8 x 1/4 block per scale unit)
+                  background: "#FFF5E9"
+                  anchor: fx3_couture_rapier_cross
+                  offset: {left: 0, up: 1.1, forward: 0}
+                  scale: [0.58, 0.29, 1]
+                  alpha: 1
+                  billboard: center
+                  brightness: {block: 15, sky: 15}
+                  for: 8
+                  motion:
+                    - {law: move, velocity: {left: 0.01055, up: 0.04139, forward: -0.12024}, at: 0, for: 1}
+                    - {law: move, velocity: {left: 0.00982, up: 0.03104, forward: -0.11182}, at: 1, for: 1}
+                    - {law: move, velocity: {left: 0.00912, up: 0.02144, forward: -0.10399}, at: 2, for: 1}
+                    - {law: move, velocity: {left: 0.00849, up: 0.01249, forward: -0.09671}, at: 3, for: 1}
+                    - {law: move, velocity: {left: 0.00789, up: 0.00418, forward: -0.08995}, at: 4, for: 1}
+                    - {law: move, velocity: {left: 0.00734, up: -0.00355, forward: -0.08364}, at: 5, for: 1}
+                    - {law: move, velocity: {left: 0.00683, up: -0.01075, forward: -0.07779}, at: 6, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.074568, -0.037284, 0], at: 0, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.074576, -0.037288, 0], at: 1, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.074568, -0.037284, 0], at: 2, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.074576, -0.037288, 0], at: 3, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.074568, -0.037284, 0], at: 4, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.074576, -0.037288, 0], at: 5, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.074568, -0.037284, 0], at: 6, for: 1}
+                    - {law: grow, prop: alpha, per_tick: -0.14286, at: 0, for: 1}
+                    - {law: grow, prop: alpha, per_tick: -0.14285, at: 1, for: 1}
+                    - {law: grow, prop: alpha, per_tick: -0.14286, at: 2, for: 3}
+                    - {law: grow, prop: alpha, per_tick: -0.14285, at: 5, for: 1}
+                    - {law: grow, prop: alpha, per_tick: -0.14286, at: 6, for: 1}
+                - id: fx3_couture_rapier_cross_petals_3
+                  op: display
+                  kind: text
+                  text: " "
+                  # v2 solid quad: blank text on a solid background (1/8 x 1/4 block per scale unit)
+                  background: "#FFF5E9"
+                  anchor: fx3_couture_rapier_cross
+                  offset: {left: 0, up: 1.1, forward: 0}
+                  scale: [0.58, 0.29, 1]
+                  alpha: 1
+                  billboard: center
+                  brightness: {block: 15, sky: 15}
+                  for: 8
+                  motion:
+                    - {law: move, velocity: {left: 0.0786, up: 0.00884, forward: 0.10252}, at: 0, for: 1}
+                    - {law: move, velocity: {left: 0.07309, up: 0.00077, forward: 0.09534}, at: 1, for: 1}
+                    - {law: move, velocity: {left: 0.06798, up: -0.00672, forward: 0.08866}, at: 2, for: 1}
+                    - {law: move, velocity: {left: 0.06322, up: -0.01368, forward: 0.08246}, at: 3, for: 1}
+                    - {law: move, velocity: {left: 0.0588, up: -0.02017, forward: 0.07669}, at: 4, for: 1}
+                    - {law: move, velocity: {left: 0.05468, up: -0.0262, forward: 0.07132}, at: 5, for: 1}
+                    - {law: move, velocity: {left: 0.05085, up: -0.0318, forward: 0.06633}, at: 6, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.074568, -0.037284, 0], at: 0, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.074576, -0.037288, 0], at: 1, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.074568, -0.037284, 0], at: 2, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.074576, -0.037288, 0], at: 3, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.074568, -0.037284, 0], at: 4, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.074576, -0.037288, 0], at: 5, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.074568, -0.037284, 0], at: 6, for: 1}
+                    - {law: grow, prop: alpha, per_tick: -0.14286, at: 0, for: 1}
+                    - {law: grow, prop: alpha, per_tick: -0.14285, at: 1, for: 1}
+                    - {law: grow, prop: alpha, per_tick: -0.14286, at: 2, for: 3}
+                    - {law: grow, prop: alpha, per_tick: -0.14285, at: 5, for: 1}
+                    - {law: grow, prop: alpha, per_tick: -0.14286, at: 6, for: 1}
+                - id: fx3_couture_rapier_cross_petals_4
+                  op: display
+                  kind: text
+                  text: " "
+                  # v2 solid quad: blank text on a solid background (1/8 x 1/4 block per scale unit)
+                  background: "#FFF5E9"
+                  anchor: fx3_couture_rapier_cross
+                  offset: {left: 0, up: 1.1, forward: 0}
+                  scale: [0.58, 0.29, 1]
+                  alpha: 1
+                  billboard: center
+                  brightness: {block: 15, sky: 15}
+                  for: 8
+                  motion:
+                    - {law: move, velocity: {left: -0.1272, up: -0.02371, forward: -0.0225}, at: 0, for: 1}
+                    - {law: move, velocity: {left: -0.1183, up: -0.0295, forward: -0.02093}, at: 1, for: 1}
+                    - {law: move, velocity: {left: -0.11002, up: -0.03487, forward: -0.01946}, at: 2, for: 1}
+                    - {law: move, velocity: {left: -0.10232, up: -0.03987, forward: -0.0181}, at: 3, for: 1}
+                    - {law: move, velocity: {left: -0.09516, up: -0.04452, forward: -0.01683}, at: 4, for: 1}
+                    - {law: move, velocity: {left: -0.08849, up: -0.04884, forward: -0.01565}, at: 5, for: 1}
+                    - {law: move, velocity: {left: -0.0823, up: -0.05286, forward: -0.01456}, at: 6, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.074568, -0.037284, 0], at: 0, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.074576, -0.037288, 0], at: 1, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.074568, -0.037284, 0], at: 2, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.074576, -0.037288, 0], at: 3, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.074568, -0.037284, 0], at: 4, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.074576, -0.037288, 0], at: 5, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.074568, -0.037284, 0], at: 6, for: 1}
+                    - {law: grow, prop: alpha, per_tick: -0.14286, at: 0, for: 1}
+                    - {law: grow, prop: alpha, per_tick: -0.14285, at: 1, for: 1}
+                    - {law: grow, prop: alpha, per_tick: -0.14286, at: 2, for: 3}
+                    - {law: grow, prop: alpha, per_tick: -0.14285, at: 5, for: 1}
+                    - {law: grow, prop: alpha, per_tick: -0.14286, at: 6, for: 1}
+                - id: fx3_couture_rapier_cross_petals_5
+                  op: display
+                  kind: text
+                  text: " "
+                  # v2 solid quad: blank text on a solid background (1/8 x 1/4 block per scale unit)
+                  background: "#FFF5E9"
+                  anchor: fx3_couture_rapier_cross
+                  offset: {left: 0, up: 1.1, forward: 0}
+                  scale: [0.58, 0.29, 1]
+                  alpha: 1
+                  billboard: center
+                  brightness: {block: 15, sky: 15}
+                  for: 8
+                  motion:
+                    - {law: move, velocity: {left: 0.10184, up: -0.05626, forward: -0.06478}, at: 0, for: 1}
+                    - {law: move, velocity: {left: 0.09471, up: -0.05977, forward: -0.06025}, at: 1, for: 1}
+                    - {law: move, velocity: {left: 0.08808, up: -0.06302, forward: -0.05603}, at: 2, for: 1}
+                    - {law: move, velocity: {left: 0.08192, up: -0.06606, forward: -0.05211}, at: 3, for: 1}
+                    - {law: move, velocity: {left: 0.07618, up: -0.06886, forward: -0.04846}, at: 4, for: 1}
+                    - {law: move, velocity: {left: 0.07085, up: -0.07149, forward: -0.04507}, at: 5, for: 1}
+                    - {law: move, velocity: {left: 0.06589, up: -0.07392, forward: -0.04191}, at: 6, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.074568, -0.037284, 0], at: 0, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.074576, -0.037288, 0], at: 1, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.074568, -0.037284, 0], at: 2, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.074576, -0.037288, 0], at: 3, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.074568, -0.037284, 0], at: 4, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.074576, -0.037288, 0], at: 5, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.074568, -0.037284, 0], at: 6, for: 1}
+                    - {law: grow, prop: alpha, per_tick: -0.14286, at: 0, for: 1}
+                    - {law: grow, prop: alpha, per_tick: -0.14285, at: 1, for: 1}
+                    - {law: grow, prop: alpha, per_tick: -0.14286, at: 2, for: 3}
+                    - {law: grow, prop: alpha, per_tick: -0.14285, at: 5, for: 1}
+                    - {law: grow, prop: alpha, per_tick: -0.14286, at: 6, for: 1}
+                - id: fx3_couture_rapier_cross_petals_6
+                  op: display
+                  kind: text
+                  text: " "
+                  # v2 solid quad: blank text on a solid background (1/8 x 1/4 block per scale unit)
+                  background: "#FFF5E9"
+                  anchor: fx3_couture_rapier_cross
+                  offset: {left: 0, up: 1.1, forward: 0}
+                  scale: [0.58, 0.29, 1]
+                  alpha: 1
+                  billboard: center
+                  brightness: {block: 15, sky: 15}
+                  for: 8
+                  motion:
+                    - {law: move, velocity: {left: -0.02639, up: -0.08881, forward: 0.09815}, at: 0, for: 1}
+                    - {law: move, velocity: {left: -0.02453, up: -0.09004, forward: 0.09128}, at: 1, for: 1}
+                    - {law: move, velocity: {left: -0.02282, up: -0.09118, forward: 0.0849}, at: 2, for: 1}
+                    - {law: move, velocity: {left: -0.02123, up: -0.09223, forward: 0.07895}, at: 3, for: 1}
+                    - {law: move, velocity: {left: -0.01974, up: -0.09322, forward: 0.07342}, at: 4, for: 1}
+                    - {law: move, velocity: {left: -0.01835, up: -0.09413, forward: 0.06828}, at: 5, for: 1}
+                    - {law: move, velocity: {left: -0.01707, up: -0.09498, forward: 0.06351}, at: 6, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.074568, -0.037284, 0], at: 0, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.074576, -0.037288, 0], at: 1, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.074568, -0.037284, 0], at: 2, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.074576, -0.037288, 0], at: 3, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.074568, -0.037284, 0], at: 4, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.074576, -0.037288, 0], at: 5, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.074568, -0.037284, 0], at: 6, for: 1}
+                    - {law: grow, prop: alpha, per_tick: -0.14286, at: 0, for: 1}
+                    - {law: grow, prop: alpha, per_tick: -0.14285, at: 1, for: 1}
+                    - {law: grow, prop: alpha, per_tick: -0.14286, at: 2, for: 3}
+                    - {law: grow, prop: alpha, per_tick: -0.14285, at: 5, for: 1}
+                    - {law: grow, prop: alpha, per_tick: -0.14286, at: 6, for: 1}
+                - id: fx3_couture_rapier_cross_petals_7
+                  op: display
+                  kind: text
+                  text: " "
+                  # v2 solid quad: blank text on a solid background (1/8 x 1/4 block per scale unit)
+                  background: "#FFF5E9"
+                  anchor: fx3_couture_rapier_cross
+                  offset: {left: 0, up: 1.1, forward: 0}
+                  scale: [0.58, 0.29, 1]
+                  alpha: 1
+                  billboard: center
+                  brightness: {block: 15, sky: 15}
+                  for: 8
+                  motion:
+                    - {law: move, velocity: {left: -0.02905, up: -0.12136, forward: -0.05594}, at: 0, for: 1}
+                    - {law: move, velocity: {left: -0.02702, up: -0.12031, forward: -0.05202}, at: 1, for: 1}
+                    - {law: move, velocity: {left: -0.02513, up: -0.11933, forward: -0.04838}, at: 2, for: 1}
+                    - {law: move, velocity: {left: -0.02337, up: -0.11842, forward: -0.045}, at: 3, for: 1}
+                    - {law: move, velocity: {left: -0.02173, up: -0.11756, forward: -0.04184}, at: 4, for: 1}
+                    - {law: move, velocity: {left: -0.02021, up: -0.11678, forward: -0.03892}, at: 5, for: 1}
+                    - {law: move, velocity: {left: -0.0188, up: -0.11604, forward: -0.03619}, at: 6, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.074568, -0.037284, 0], at: 0, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.074576, -0.037288, 0], at: 1, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.074568, -0.037284, 0], at: 2, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.074576, -0.037288, 0], at: 3, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.074568, -0.037284, 0], at: 4, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.074576, -0.037288, 0], at: 5, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.074568, -0.037284, 0], at: 6, for: 1}
+                    - {law: grow, prop: alpha, per_tick: -0.14286, at: 0, for: 1}
+                    - {law: grow, prop: alpha, per_tick: -0.14285, at: 1, for: 1}
+                    - {law: grow, prop: alpha, per_tick: -0.14286, at: 2, for: 3}
+                    - {law: grow, prop: alpha, per_tick: -0.14285, at: 5, for: 1}
+                    - {law: grow, prop: alpha, per_tick: -0.14286, at: 6, for: 1}
+                - id: fx3_couture_rapier_cross_sparks_at
+                  op: frame
+                  anchor: fx3_couture_rapier_cross
+                  mode: follow
+                  offset: {left: 0, up: 1.1, forward: 0}
+                  for: 1
+                - id: fx3_couture_rapier_cross_contact_fill
+                  op: display
+                  kind: text
+                  text: "✦"
+                  color: "#FFF8ED"
+                  see_through: true
+                  anchor: fx3_couture_rapier_cross
+                  offset: {left: 0, up: 1.1, forward: 0}
+                  scale: [0.5, 0.5, 1]
+                  alpha: 1
+                  billboard: center
+                  brightness: {block: 15, sky: 15}
+                  for: 7
+                  motion:
+                    - {law: grow, prop: scale, per_tick: [8.5, 8.5, 0], at: 0, for: 1, ease: out_expo}
+                    - {law: grow, prop: scale, per_tick: [-0.5, -0.5, 0], at: 1, for: 2}
+                    - {law: grow, prop: scale, per_tick: [-2.333333, -2.333333, 0], at: 3, for: 3, ease: in_quad}
+                    - {law: grow, prop: alpha, per_tick: -0.166667, at: 0, for: 6, ease: in_quad}
+                - id: snd
+                  op: sound
+                  sound: entity.player.attack.strong
+                  anchor: contact
+                  volume: 0.7
+                  pitch: 1.1
+        - event: sel_4.hit
+          do:
+            - id: h0
+              at: 0
+              do:
+                - id: fx4_couture_shears_falling
+                  op: frame
+                  anchor: victim
+                  axes: caster
+                  mode: snapshot
+                  for: 21
+                - id: fx4_couture_shears_falling_1_blade_0
+                  op: display
+                  kind: block
+                  block: gray_concrete
+                  anchor: fx4_couture_shears_falling
+                  offset: {left: -0.09, up: 5.80718, forward: -0.4}
+                  rotate: [{axis: left, deg: 120}]
+                  scale: [0.12, 0.38, 1.6]
+                  for: 21
+                  motion:
+                    - {law: move, velocity: {left: 0, up: -0.4625, forward: 0}, at: 0, for: 8}
+                    - {law: move, velocity: {left: 0, up: -0.035563, forward: 0.124027}, at: 8, for: 3}
+                    - {law: spin, axis: left, deg_per_tick: -9.33333, at: 8, for: 1}
+                    - {law: spin, axis: left, deg_per_tick: -9.33334, at: 9, for: 1}
+                    - {law: spin, axis: left, deg_per_tick: -9.33333, at: 10, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.03, -0.095, -0.4], at: 16, for: 4}
+                - id: fx4_couture_shears_falling_1_edge_0
+                  op: display
+                  kind: block
+                  block: iron_block
+                  anchor: fx4_couture_shears_falling
+                  offset: {left: -0.09, up: 5.74733, forward: -0.29634}
+                  rotate: [{axis: left, deg: 123.66907}]
+                  scale: [0.12, 0.05, 1.60329]
+                  for: 21
+                  motion:
+                    - {law: move, velocity: {left: 0, up: -0.4625, forward: 0}, at: 0, for: 8}
+                    - {law: move, velocity: {left: 0, up: -0.017007, forward: 0.12935}, at: 8, for: 3}
+                    - {law: spin, axis: left, deg_per_tick: -9.33334, at: 8, for: 1}
+                    - {law: spin, axis: left, deg_per_tick: -9.33333, at: 9, for: 2}
+                    - {law: grow, prop: scale, per_tick: [-0.03, -0.0125, -0.400823], at: 16, for: 4}
+                - id: fx4_couture_shears_falling_1_blade_1
+                  op: display
+                  kind: block
+                  block: gray_concrete
+                  anchor: fx4_couture_shears_falling
+                  offset: {left: -0.09, up: 4.59474, forward: -1.1}
+                  rotate: [{axis: left, deg: 120}]
+                  scale: [0.12, 0.24, 1.2]
+                  for: 21
+                  motion:
+                    - {law: move, velocity: {left: 0, up: -0.4625, forward: 0}, at: 0, for: 8}
+                    - {law: move, velocity: {left: 0, up: -0.0978, forward: 0.341073}, at: 8, for: 3}
+                    - {law: spin, axis: left, deg_per_tick: -9.33333, at: 8, for: 1}
+                    - {law: spin, axis: left, deg_per_tick: -9.33334, at: 9, for: 1}
+                    - {law: spin, axis: left, deg_per_tick: -9.33333, at: 10, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.03, -0.06, -0.3], at: 16, for: 4}
+                - id: fx4_couture_shears_falling_1_edge_1
+                  op: display
+                  kind: block
+                  block: iron_block
+                  anchor: fx4_couture_shears_falling
+                  offset: {left: -0.09, up: 4.55694, forward: -1.03453}
+                  rotate: [{axis: left, deg: 123.09097}]
+                  scale: [0.12, 0.05, 1.20175]
+                  for: 21
+                  motion:
+                    - {law: move, velocity: {left: 0, up: -0.4625, forward: 0}, at: 0, for: 8}
+                    - {law: move, velocity: {left: 0, up: -0.08608, forward: 0.344437}, at: 8, for: 3}
+                    - {law: spin, axis: left, deg_per_tick: -9.33333, at: 8, for: 1}
+                    - {law: spin, axis: left, deg_per_tick: -9.33334, at: 9, for: 1}
+                    - {law: spin, axis: left, deg_per_tick: -9.33333, at: 10, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.03, -0.0125, -0.300438], at: 16, for: 4}
+                - id: fx4_couture_shears_falling_1_blade_2
+                  op: display
+                  kind: block
+                  block: gray_concrete
+                  anchor: fx4_couture_shears_falling
+                  offset: {left: -0.09, up: 3.72872, forward: -1.6}
+                  rotate: [{axis: left, deg: 120}]
+                  scale: [0.12, 0.09, 0.8]
+                  for: 21
+                  motion:
+                    - {law: move, velocity: {left: 0, up: -0.4625, forward: 0}, at: 0, for: 8}
+                    - {law: move, velocity: {left: 0, up: -0.142257, forward: 0.496107}, at: 8, for: 3}
+                    - {law: spin, axis: left, deg_per_tick: -9.33333, at: 8, for: 1}
+                    - {law: spin, axis: left, deg_per_tick: -9.33334, at: 9, for: 1}
+                    - {law: spin, axis: left, deg_per_tick: -9.33333, at: 10, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.03, -0.0225, -0.2], at: 16, for: 4}
+                - id: fx4_couture_shears_falling_1_edge_2
+                  op: display
+                  kind: block
+                  block: iron_block
+                  anchor: fx4_couture_shears_falling
+                  offset: {left: -0.09, up: 3.71454, forward: -1.57545}
+                  rotate: [{axis: left, deg: 121.73982}]
+                  scale: [0.12, 0.05, 0.80037]
+                  for: 21
+                  motion:
+                    - {law: move, velocity: {left: 0, up: -0.4625, forward: 0}, at: 0, for: 8}
+                    - {law: move, velocity: {left: 0, up: -0.13786, forward: 0.497367}, at: 8, for: 3}
+                    - {law: spin, axis: left, deg_per_tick: -9.33333, at: 8, for: 2}
+                    - {law: spin, axis: left, deg_per_tick: -9.33334, at: 10, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.03, -0.0125, -0.200093], at: 16, for: 4}
+                - id: fx4_couture_shears_falling_1_handle_0
+                  op: display
+                  kind: block
+                  block: black_concrete
+                  anchor: fx4_couture_shears_falling
+                  offset: {left: -0.09, up: 6.71909, forward: 0.38053}
+                  rotate: [{axis: left, deg: -15}]
+                  scale: [0.12, 0.09, 0.62225]
+                  for: 21
+                  motion:
+                    - {law: move, velocity: {left: 0, up: -0.4625, forward: 0}, at: 0, for: 8}
+                    - {law: move, velocity: {left: 0, up: 0.051, forward: -0.049133}, at: 8, for: 3}
+                    - {law: spin, axis: left, deg_per_tick: -9.33333, at: 8, for: 1}
+                    - {law: spin, axis: left, deg_per_tick: -9.33334, at: 9, for: 1}
+                    - {law: spin, axis: left, deg_per_tick: -9.33333, at: 10, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.03, -0.0225, -0.155562], at: 16, for: 4}
+                - id: fx4_couture_shears_falling_1_handle_1
+                  op: display
+                  kind: block
+                  block: black_concrete
+                  anchor: fx4_couture_shears_falling
+                  offset: {left: -0.09, up: 7.20433, forward: 0.88007}
+                  rotate: [{axis: left, deg: -63.81407}]
+                  scale: [0.12, 0.09, 0.902]
+                  for: 21
+                  motion:
+                    - {law: move, velocity: {left: 0, up: -0.4625, forward: 0}, at: 0, for: 8}
+                    - {law: move, velocity: {left: 0, up: 0.11024, forward: -0.14456}, at: 8, for: 3}
+                    - {law: spin, axis: left, deg_per_tick: -9.33334, at: 8, for: 1}
+                    - {law: spin, axis: left, deg_per_tick: -9.33333, at: 9, for: 2}
+                    - {law: grow, prop: scale, per_tick: [-0.03, -0.0225, -0.2255], at: 16, for: 4}
+                - id: fx4_couture_shears_falling_1_handle_2
+                  op: display
+                  kind: block
+                  block: black_concrete
+                  anchor: fx4_couture_shears_falling
+                  offset: {left: -0.09, up: 7.7993, forward: 0.96954}
+                  rotate: [{axis: left, deg: -119.93142}]
+                  scale: [0.12, 0.09, 0.43909]
+                  for: 21
+                  motion:
+                    - {law: move, velocity: {left: 0, up: -0.4625, forward: 0}, at: 0, for: 8}
+                    - {law: move, velocity: {left: 0, up: 0.10103, forward: -0.241157}, at: 8, for: 3}
+                    - {law: spin, axis: left, deg_per_tick: -9.33333, at: 8, for: 2}
+                    - {law: spin, axis: left, deg_per_tick: -9.33334, at: 10, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.03, -0.0225, -0.109772], at: 16, for: 4}
+                - id: fx4_couture_shears_falling_1_handle_3
+                  op: display
+                  kind: block
+                  block: black_concrete
+                  anchor: fx4_couture_shears_falling
+                  offset: {left: -0.09, up: 7.75181, forward: 0.49179}
+                  rotate: [{axis: left, deg: 147.14968}]
+                  scale: [0.12, 0.09, 0.87658]
+                  for: 21
+                  motion:
+                    - {law: move, velocity: {left: 0, up: -0.4625, forward: 0}, at: 0, for: 8}
+                    - {law: move, velocity: {left: 0, up: 0.02812, forward: -0.215083}, at: 8, for: 3}
+                    - {law: spin, axis: left, deg_per_tick: -9.33333, at: 8, for: 2}
+                    - {law: spin, axis: left, deg_per_tick: -9.33334, at: 10, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.03, -0.0225, -0.219145], at: 16, for: 4}
+                - id: fx4_couture_shears_falling_1_handle_4
+                  op: display
+                  kind: block
+                  block: black_concrete
+                  anchor: fx4_couture_shears_falling
+                  offset: {left: -0.09, up: 7.07631, forward: 0.10179}
+                  rotate: [{axis: left, deg: 92.85032}]
+                  scale: [0.12, 0.09, 0.87658]
+                  for: 21
+                  motion:
+                    - {law: move, velocity: {left: 0, up: -0.4625, forward: 0}, at: 0, for: 8}
+                    - {law: move, velocity: {left: 0, up: -0.006557, forward: -0.094157}, at: 8, for: 3}
+                    - {law: spin, axis: left, deg_per_tick: -9.33334, at: 8, for: 1}
+                    - {law: spin, axis: left, deg_per_tick: -9.33333, at: 9, for: 2}
+                    - {law: grow, prop: scale, per_tick: [-0.03, -0.0225, -0.219145], at: 16, for: 4}
+                - id: fx4_couture_shears_falling_1_blade_0_2
+                  op: display
+                  kind: block
+                  block: gray_concrete
+                  anchor: fx4_couture_shears_falling
+                  offset: {left: 0.09, up: 5.80718, forward: 0.4}
+                  rotate: [{axis: left, deg: 60}]
+                  scale: [0.12, 0.38, 1.6]
+                  for: 21
+                  motion:
+                    - {law: move, velocity: {left: 0, up: -0.4625, forward: 0}, at: 0, for: 8}
+                    - {law: move, velocity: {left: 0, up: -0.035563, forward: -0.124027}, at: 8, for: 3}
+                    - {law: spin, axis: left, deg_per_tick: 9.33333, at: 8, for: 1}
+                    - {law: spin, axis: left, deg_per_tick: 9.33334, at: 9, for: 1}
+                    - {law: spin, axis: left, deg_per_tick: 9.33333, at: 10, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.03, -0.095, -0.4], at: 16, for: 4}
+                - id: fx4_couture_shears_falling_1_edge_0_2
+                  op: display
+                  kind: block
+                  block: iron_block
+                  anchor: fx4_couture_shears_falling
+                  offset: {left: 0.09, up: 5.86703, forward: 0.50366}
+                  rotate: [{axis: left, deg: 63.66907}]
+                  scale: [0.12, 0.05, 1.60329]
+                  for: 21
+                  motion:
+                    - {law: move, velocity: {left: 0, up: -0.4625, forward: 0}, at: 0, for: 8}
+                    - {law: move, velocity: {left: 0, up: -0.054123, forward: -0.118703}, at: 8, for: 3}
+                    - {law: spin, axis: left, deg_per_tick: 9.33333, at: 8, for: 2}
+                    - {law: spin, axis: left, deg_per_tick: 9.33334, at: 10, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.03, -0.0125, -0.400823], at: 16, for: 4}
+                - id: fx4_couture_shears_falling_1_blade_1_2
+                  op: display
+                  kind: block
+                  block: gray_concrete
+                  anchor: fx4_couture_shears_falling
+                  offset: {left: 0.09, up: 4.59474, forward: 1.1}
+                  rotate: [{axis: left, deg: 60}]
+                  scale: [0.12, 0.24, 1.2]
+                  for: 21
+                  motion:
+                    - {law: move, velocity: {left: 0, up: -0.4625, forward: 0}, at: 0, for: 8}
+                    - {law: move, velocity: {left: 0, up: -0.0978, forward: -0.341073}, at: 8, for: 3}
+                    - {law: spin, axis: left, deg_per_tick: 9.33333, at: 8, for: 1}
+                    - {law: spin, axis: left, deg_per_tick: 9.33334, at: 9, for: 1}
+                    - {law: spin, axis: left, deg_per_tick: 9.33333, at: 10, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.03, -0.06, -0.3], at: 16, for: 4}
+                - id: fx4_couture_shears_falling_1_edge_1_2
+                  op: display
+                  kind: block
+                  block: iron_block
+                  anchor: fx4_couture_shears_falling
+                  offset: {left: 0.09, up: 4.63254, forward: 1.16547}
+                  rotate: [{axis: left, deg: 63.09097}]
+                  scale: [0.12, 0.05, 1.20175]
+                  for: 21
+                  motion:
+                    - {law: move, velocity: {left: 0, up: -0.4625, forward: 0}, at: 0, for: 8}
+                    - {law: move, velocity: {left: 0, up: -0.10952, forward: -0.337713}, at: 8, for: 3}
+                    - {law: spin, axis: left, deg_per_tick: 9.33333, at: 8, for: 1}
+                    - {law: spin, axis: left, deg_per_tick: 9.33334, at: 9, for: 1}
+                    - {law: spin, axis: left, deg_per_tick: 9.33333, at: 10, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.03, -0.0125, -0.300438], at: 16, for: 4}
+                - id: fx4_couture_shears_falling_1_blade_2_2
+                  op: display
+                  kind: block
+                  block: gray_concrete
+                  anchor: fx4_couture_shears_falling
+                  offset: {left: 0.09, up: 3.72872, forward: 1.6}
+                  rotate: [{axis: left, deg: 60}]
+                  scale: [0.12, 0.09, 0.8]
+                  for: 21
+                  motion:
+                    - {law: move, velocity: {left: 0, up: -0.4625, forward: 0}, at: 0, for: 8}
+                    - {law: move, velocity: {left: 0, up: -0.142257, forward: -0.496107}, at: 8, for: 3}
+                    - {law: spin, axis: left, deg_per_tick: 9.33333, at: 8, for: 1}
+                    - {law: spin, axis: left, deg_per_tick: 9.33334, at: 9, for: 1}
+                    - {law: spin, axis: left, deg_per_tick: 9.33333, at: 10, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.03, -0.0225, -0.2], at: 16, for: 4}
+                - id: fx4_couture_shears_falling_1_edge_2_2
+                  op: display
+                  kind: block
+                  block: iron_block
+                  anchor: fx4_couture_shears_falling
+                  offset: {left: 0.09, up: 3.74289, forward: 1.62455}
+                  rotate: [{axis: left, deg: 61.73982}]
+                  scale: [0.12, 0.05, 0.80037]
+                  for: 21
+                  motion:
+                    - {law: move, velocity: {left: 0, up: -0.4625, forward: 0}, at: 0, for: 8}
+                    - {law: move, velocity: {left: 0, up: -0.14665, forward: -0.494847}, at: 8, for: 3}
+                    - {law: spin, axis: left, deg_per_tick: 9.33334, at: 8, for: 1}
+                    - {law: spin, axis: left, deg_per_tick: 9.33333, at: 9, for: 2}
+                    - {law: grow, prop: scale, per_tick: [-0.03, -0.0125, -0.200093], at: 16, for: 4}
+                - id: fx4_couture_shears_falling_1_handle_0_2
+                  op: display
+                  kind: block
+                  block: black_concrete
+                  anchor: fx4_couture_shears_falling
+                  offset: {left: 0.09, up: 6.93909, forward: 0.00053}
+                  rotate: [{axis: left, deg: -75}]
+                  scale: [0.12, 0.09, 0.62225]
+                  for: 21
+                  motion:
+                    - {law: move, velocity: {left: 0, up: -0.4625, forward: 0}, at: 0, for: 8}
+                    - {law: move, velocity: {left: 0, up: -0.017213, forward: 0.06869}, at: 8, for: 3}
+                    - {law: spin, axis: left, deg_per_tick: 9.33333, at: 8, for: 1}
+                    - {law: spin, axis: left, deg_per_tick: 9.33334, at: 9, for: 1}
+                    - {law: spin, axis: left, deg_per_tick: 9.33333, at: 10, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.03, -0.0225, -0.155562], at: 16, for: 4}
+                - id: fx4_couture_shears_falling_1_handle_1_2
+                  op: display
+                  kind: block
+                  block: black_concrete
+                  anchor: fx4_couture_shears_falling
+                  offset: {left: 0.09, up: 7.61433, forward: -0.16993}
+                  rotate: [{axis: left, deg: -123.81407}]
+                  scale: [0.12, 0.09, 0.902]
+                  for: 21
+                  motion:
+                    - {law: move, velocity: {left: 0, up: -0.4625, forward: 0}, at: 0, for: 8}
+                    - {law: move, velocity: {left: 0, up: -0.016887, forward: 0.181013}, at: 8, for: 3}
+                    - {law: spin, axis: left, deg_per_tick: 9.33333, at: 8, for: 2}
+                    - {law: spin, axis: left, deg_per_tick: 9.33334, at: 10, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.03, -0.0225, -0.2255], at: 16, for: 4}
+                - id: fx4_couture_shears_falling_1_handle_2_2
+                  op: display
+                  kind: block
+                  block: black_concrete
+                  anchor: fx4_couture_shears_falling
+                  offset: {left: 0.09, up: 7.9893, forward: -0.64046}
+                  rotate: [{axis: left, deg: -179.93142}]
+                  scale: [0.12, 0.09, 0.43909]
+                  for: 21
+                  motion:
+                    - {law: move, velocity: {left: 0, up: -0.4625, forward: 0}, at: 0, for: 8}
+                    - {law: move, velocity: {left: 0, up: 0.042117, forward: 0.258053}, at: 8, for: 3}
+                    - {law: spin, axis: left, deg_per_tick: 9.33334, at: 8, for: 1}
+                    - {law: spin, axis: left, deg_per_tick: 9.33333, at: 9, for: 2}
+                    - {law: grow, prop: scale, per_tick: [-0.03, -0.0225, -0.109772], at: 16, for: 4}
+                - id: fx4_couture_shears_falling_1_handle_3_2
+                  op: display
+                  kind: block
+                  block: black_concrete
+                  anchor: fx4_couture_shears_falling
+                  offset: {left: 0.09, up: 7.55181, forward: -0.83821}
+                  rotate: [{axis: left, deg: 87.14968}]
+                  scale: [0.12, 0.09, 0.87658]
+                  for: 21
+                  motion:
+                    - {law: move, velocity: {left: 0, up: -0.4625, forward: 0}, at: 0, for: 8}
+                    - {law: move, velocity: {left: 0, up: 0.090133, forward: 0.197307}, at: 8, for: 3}
+                    - {law: spin, axis: left, deg_per_tick: 9.33334, at: 8, for: 1}
+                    - {law: spin, axis: left, deg_per_tick: 9.33333, at: 9, for: 2}
+                    - {law: grow, prop: scale, per_tick: [-0.03, -0.0225, -0.219145], at: 16, for: 4}
+                - id: fx4_couture_shears_falling_1_handle_4_2
+                  op: display
+                  kind: block
+                  block: black_concrete
+                  anchor: fx4_couture_shears_falling
+                  offset: {left: 0.09, up: 6.87631, forward: -0.44821}
+                  rotate: [{axis: left, deg: 32.85032}]
+                  scale: [0.12, 0.09, 0.87658]
+                  for: 21
+                  motion:
+                    - {law: move, velocity: {left: 0, up: -0.4625, forward: 0}, at: 0, for: 8}
+                    - {law: move, velocity: {left: 0, up: 0.05546, forward: 0.07638}, at: 8, for: 3}
+                    - {law: spin, axis: left, deg_per_tick: 9.33333, at: 8, for: 2}
+                    - {law: spin, axis: left, deg_per_tick: 9.33334, at: 10, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.03, -0.0225, -0.219145], at: 16, for: 4}
+                - id: fx4_couture_shears_falling_hinge_flower_0
+                  op: display
+                  kind: block
+                  block: white_concrete
+                  anchor: fx4_couture_shears_falling
+                  offset: {left: -0.24, up: 6.5, forward: 0}
+                  scale: [0.3, 0.3, 0.24]
+                  for: 21
+                  motion:
+                    - {law: move, velocity: {left: 0, up: -0.4625, forward: 0}, at: 0, for: 8}
+                    - {law: grow, prop: scale, per_tick: [-0.075, -0.075, -0.06], at: 16, for: 4}
+                - id: fx4_couture_shears_falling_hinge_flower_1
+                  op: display
+                  kind: block
+                  block: white_concrete
+                  anchor: fx4_couture_shears_falling
+                  offset: {left: 0.24, up: 6.5, forward: 0}
+                  scale: [0.3, 0.3, 0.24]
+                  for: 21
+                  motion:
+                    - {law: move, velocity: {left: 0, up: -0.4625, forward: 0}, at: 0, for: 8}
+                    - {law: grow, prop: scale, per_tick: [-0.075, -0.075, -0.06], at: 16, for: 4}
+                - id: fx4_couture_shears_falling_hinge_flower_2
+                  op: display
+                  kind: block
+                  block: white_concrete
+                  anchor: fx4_couture_shears_falling
+                  offset: {left: 0, up: 6.74, forward: 0}
+                  scale: [0.3, 0.3, 0.24]
+                  for: 21
+                  motion:
+                    - {law: move, velocity: {left: 0, up: -0.4625, forward: 0}, at: 0, for: 8}
+                    - {law: grow, prop: scale, per_tick: [-0.075, -0.075, -0.06], at: 16, for: 4}
+                - id: fx4_couture_shears_falling_hinge_flower_3
+                  op: display
+                  kind: block
+                  block: white_concrete
+                  anchor: fx4_couture_shears_falling
+                  offset: {left: 0, up: 6.26, forward: 0}
+                  scale: [0.3, 0.3, 0.24]
+                  for: 21
+                  motion:
+                    - {law: move, velocity: {left: 0, up: -0.4625, forward: 0}, at: 0, for: 8}
+                    - {law: grow, prop: scale, per_tick: [-0.075, -0.075, -0.06], at: 16, for: 4}
+        - event: sel_6.hit
+          do:
+            - id: h0
+              at: 0
+              do:
+                - id: fx5_couture_rapier_cross_sparks
+                  op: particle_def
+                  def: stab-spark
+                  anchor: fx5_couture_rapier_cross_sparks_at
+                  every: 3
+                  times: 2
+                - id: fx5_couture_rapier_cross
+                  op: frame
+                  anchor: victim
+                  axes: caster
+                  mode: snapshot
+                  for: 9
+                - id: fx5_couture_rapier_cross_cross_0
+                  op: display
+                  kind: block
+                  block: white_concrete
+                  anchor: fx5_couture_rapier_cross
+                  offset: {left: 0, up: 1.05, forward: 0}
+                  rotate: [{axis: left, deg: -45}]
+                  scale: [0.05, 3.3, 0.06]
+                  brightness: {block: 15, sky: 15}
+                  for: 9
+                  motion:
+                    - {law: grow, prop: scale, per_tick: [-0.005, 0, -0.006667], at: 0, for: 3}
+                    - {law: grow, prop: scale, per_tick: [-0.007, 0, -0.008], at: 3, for: 5, ease: in_quad}
+                - id: fx5_couture_rapier_cross_cross_1
+                  op: display
+                  kind: block
+                  block: white_concrete
+                  anchor: fx5_couture_rapier_cross
+                  offset: {left: 0, up: 1.05, forward: 0}
+                  rotate: [{axis: left, deg: 45}]
+                  scale: [0.05, 3.3, 0.06]
+                  brightness: {block: 15, sky: 15}
+                  for: 9
+                  motion:
+                    - {law: grow, prop: scale, per_tick: [-0.005, 0, -0.006667], at: 0, for: 3}
+                    - {law: grow, prop: scale, per_tick: [-0.007, 0, -0.008], at: 3, for: 5, ease: in_quad}
+                - id: fx5_couture_rapier_cross_cross_2
+                  op: display
+                  kind: block
+                  block: white_concrete
+                  anchor: fx5_couture_rapier_cross
+                  offset: {left: 0, up: 1.05, forward: 0}
+                  scale: [0.05, 3.3, 0.06]
+                  brightness: {block: 15, sky: 15}
+                  for: 9
+                  motion:
+                    - {law: grow, prop: scale, per_tick: [-0.005, 0, -0.006667], at: 0, for: 3}
+                    - {law: grow, prop: scale, per_tick: [-0.007, 0, -0.008], at: 3, for: 5, ease: in_quad}
+                - id: fx5_couture_rapier_cross_dark_0
+                  op: display
+                  kind: text
+                  text: " "
+                  # v2 solid quad: blank text on a solid background (1/8 x 1/4 block per scale unit)
+                  background: "#28201C"
+                  anchor: fx5_couture_rapier_cross
+                  offset: {left: 0, up: 1.1, forward: 0}
+                  scale: [0.96, 0.64, 1]
+                  alpha: 1
+                  billboard: center
+                  brightness: {block: 15, sky: 15}
+                  for: 7
+                  motion:
+                    - {law: move, velocity: {left: 0, up: -0.133333, forward: -0.15}, at: 0, for: 6, ease: out_cubic}
+                    - {law: grow, prop: scale, per_tick: [-0.093333, -0.053333, 0], at: 0, for: 6, ease: out_cubic}
+                    - {law: grow, prop: alpha, per_tick: -0.166667, at: 0, for: 6, ease: out_cubic}
+                - id: fx5_couture_rapier_cross_dark_1
+                  op: display
+                  kind: text
+                  text: " "
+                  # v2 solid quad: blank text on a solid background (1/8 x 1/4 block per scale unit)
+                  background: "#28201C"
+                  anchor: fx5_couture_rapier_cross
+                  offset: {left: 0, up: 1.1, forward: 0}
+                  rotate: [{axis: forward, deg: 60}]
+                  scale: [0.96, 0.64, 1]
+                  alpha: 1
+                  billboard: center
+                  brightness: {block: 15, sky: 15}
+                  for: 7
+                  motion:
+                    - {law: move, velocity: {left: 0, up: -0.083333, forward: -0.05}, at: 0, for: 6, ease: out_cubic}
+                    - {law: grow, prop: scale, per_tick: [-0.093333, -0.053333, 0], at: 0, for: 6, ease: out_cubic}
+                    - {law: grow, prop: alpha, per_tick: -0.166667, at: 0, for: 6, ease: out_cubic}
+                - id: fx5_couture_rapier_cross_dark_2
+                  op: display
+                  kind: text
+                  text: " "
+                  # v2 solid quad: blank text on a solid background (1/8 x 1/4 block per scale unit)
+                  background: "#28201C"
+                  anchor: fx5_couture_rapier_cross
+                  offset: {left: 0, up: 1.1, forward: 0}
+                  rotate: [{axis: forward, deg: 120}]
+                  scale: [0.96, 0.64, 1]
+                  alpha: 1
+                  billboard: center
+                  brightness: {block: 15, sky: 15}
+                  for: 7
+                  motion:
+                    - {law: move, velocity: {left: 0, up: -0.033333, forward: 0.05}, at: 0, for: 6, ease: out_cubic}
+                    - {law: grow, prop: scale, per_tick: [-0.093333, -0.053333, 0], at: 0, for: 6, ease: out_cubic}
+                    - {law: grow, prop: alpha, per_tick: -0.166667, at: 0, for: 6, ease: out_cubic}
+                - id: fx5_couture_rapier_cross_dark_3
+                  op: display
+                  kind: text
+                  text: " "
+                  # v2 solid quad: blank text on a solid background (1/8 x 1/4 block per scale unit)
+                  background: "#28201C"
+                  anchor: fx5_couture_rapier_cross
+                  offset: {left: 0, up: 1.1, forward: 0}
+                  rotate: [{axis: forward, deg: 180}]
+                  scale: [0.96, 0.64, 1]
+                  alpha: 1
+                  billboard: center
+                  brightness: {block: 15, sky: 15}
+                  for: 7
+                  motion:
+                    - {law: move, velocity: {left: 0, up: 0.016667, forward: 0.15}, at: 0, for: 6, ease: out_cubic}
+                    - {law: grow, prop: scale, per_tick: [-0.093333, -0.053333, 0], at: 0, for: 6, ease: out_cubic}
+                    - {law: grow, prop: alpha, per_tick: -0.166667, at: 0, for: 6, ease: out_cubic}
+                - id: fx5_couture_rapier_cross_bloom
+                  op: display
+                  kind: text
+                  text: " "
+                  # v2 solid quad: blank text on a solid background (1/8 x 1/4 block per scale unit)
+                  background: "#EAD9B0"
+                  anchor: fx5_couture_rapier_cross
+                  offset: {left: 0, up: 1.1, forward: 0}
+                  scale: [4, 2, 1]
+                  alpha: 0.2
+                  billboard: center
+                  brightness: {block: 15, sky: 15}
+                  for: 6
+                  motion:
+                    - {law: grow, prop: scale, per_tick: [8, 4, 0], at: 0, for: 1}
+                    - {law: grow, prop: scale, per_tick: [1, 0.5, 0], at: 1, for: 4}
+                    - {law: grow, prop: alpha, per_tick: -0.04, at: 0, for: 5}
+                - id: fx5_couture_rapier_cross_petals_0
+                  op: display
+                  kind: text
+                  text: " "
+                  # v2 solid quad: blank text on a solid background (1/8 x 1/4 block per scale unit)
+                  background: "#FFF5E9"
+                  anchor: fx5_couture_rapier_cross
+                  offset: {left: 0, up: 1.1, forward: 0}
+                  scale: [0.58, 0.29, 1]
+                  alpha: 1
+                  billboard: center
+                  brightness: {block: 15, sky: 15}
+                  for: 8
+                  motion:
+                    - {law: move, velocity: {left: 0.06303, up: 0.10649, forward: 0}, at: 0, for: 1}
+                    - {law: move, velocity: {left: 0.05862, up: 0.09159, forward: 0}, at: 1, for: 1}
+                    - {law: move, velocity: {left: 0.05452, up: 0.07774, forward: 0}, at: 2, for: 1}
+                    - {law: move, velocity: {left: 0.0507, up: 0.06485, forward: 0}, at: 3, for: 1}
+                    - {law: move, velocity: {left: 0.04715, up: 0.05288, forward: 0}, at: 4, for: 1}
+                    - {law: move, velocity: {left: 0.04385, up: 0.04174, forward: 0}, at: 5, for: 1}
+                    - {law: move, velocity: {left: 0.04079, up: 0.03137, forward: 0}, at: 6, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.074568, -0.037284, 0], at: 0, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.074576, -0.037288, 0], at: 1, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.074568, -0.037284, 0], at: 2, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.074576, -0.037288, 0], at: 3, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.074568, -0.037284, 0], at: 4, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.074576, -0.037288, 0], at: 5, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.074568, -0.037284, 0], at: 6, for: 1}
+                    - {law: grow, prop: alpha, per_tick: -0.14286, at: 0, for: 1}
+                    - {law: grow, prop: alpha, per_tick: -0.14285, at: 1, for: 1}
+                    - {law: grow, prop: alpha, per_tick: -0.14286, at: 2, for: 3}
+                    - {law: grow, prop: alpha, per_tick: -0.14285, at: 5, for: 1}
+                    - {law: grow, prop: alpha, per_tick: -0.14286, at: 6, for: 1}
+                - id: fx5_couture_rapier_cross_petals_1
+                  op: display
+                  kind: text
+                  text: " "
+                  # v2 solid quad: blank text on a solid background (1/8 x 1/4 block per scale unit)
+                  background: "#FFF5E9"
+                  anchor: fx5_couture_rapier_cross
+                  offset: {left: 0, up: 1.1, forward: 0}
+                  scale: [0.58, 0.29, 1]
+                  alpha: 1
+                  billboard: center
+                  brightness: {block: 15, sky: 15}
+                  for: 8
+                  motion:
+                    - {law: move, velocity: {left: -0.07494, up: 0.07394, forward: 0.06866}, at: 0, for: 1}
+                    - {law: move, velocity: {left: -0.0697, up: 0.06131, forward: 0.06384}, at: 1, for: 1}
+                    - {law: move, velocity: {left: -0.06482, up: 0.04959, forward: 0.05938}, at: 2, for: 1}
+                    - {law: move, velocity: {left: -0.06028, up: 0.03868, forward: 0.05523}, at: 3, for: 1}
+                    - {law: move, velocity: {left: -0.05607, up: 0.02853, forward: 0.05135}, at: 4, for: 1}
+                    - {law: move, velocity: {left: -0.05213, up: 0.01909, forward: 0.04777}, at: 5, for: 1}
+                    - {law: move, velocity: {left: -0.04849, up: 0.01031, forward: 0.04442}, at: 6, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.074568, -0.037284, 0], at: 0, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.074576, -0.037288, 0], at: 1, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.074568, -0.037284, 0], at: 2, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.074576, -0.037288, 0], at: 3, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.074568, -0.037284, 0], at: 4, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.074576, -0.037288, 0], at: 5, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.074568, -0.037284, 0], at: 6, for: 1}
+                    - {law: grow, prop: alpha, per_tick: -0.14286, at: 0, for: 1}
+                    - {law: grow, prop: alpha, per_tick: -0.14285, at: 1, for: 1}
+                    - {law: grow, prop: alpha, per_tick: -0.14286, at: 2, for: 3}
+                    - {law: grow, prop: alpha, per_tick: -0.14285, at: 5, for: 1}
+                    - {law: grow, prop: alpha, per_tick: -0.14286, at: 6, for: 1}
+                - id: fx5_couture_rapier_cross_petals_2
+                  op: display
+                  kind: text
+                  text: " "
+                  # v2 solid quad: blank text on a solid background (1/8 x 1/4 block per scale unit)
+                  background: "#FFF5E9"
+                  anchor: fx5_couture_rapier_cross
+                  offset: {left: 0, up: 1.1, forward: 0}
+                  scale: [0.58, 0.29, 1]
+                  alpha: 1
+                  billboard: center
+                  brightness: {block: 15, sky: 15}
+                  for: 8
+                  motion:
+                    - {law: move, velocity: {left: 0.01055, up: 0.04139, forward: -0.12024}, at: 0, for: 1}
+                    - {law: move, velocity: {left: 0.00982, up: 0.03104, forward: -0.11182}, at: 1, for: 1}
+                    - {law: move, velocity: {left: 0.00912, up: 0.02144, forward: -0.10399}, at: 2, for: 1}
+                    - {law: move, velocity: {left: 0.00849, up: 0.01249, forward: -0.09671}, at: 3, for: 1}
+                    - {law: move, velocity: {left: 0.00789, up: 0.00418, forward: -0.08995}, at: 4, for: 1}
+                    - {law: move, velocity: {left: 0.00734, up: -0.00355, forward: -0.08364}, at: 5, for: 1}
+                    - {law: move, velocity: {left: 0.00683, up: -0.01075, forward: -0.07779}, at: 6, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.074568, -0.037284, 0], at: 0, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.074576, -0.037288, 0], at: 1, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.074568, -0.037284, 0], at: 2, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.074576, -0.037288, 0], at: 3, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.074568, -0.037284, 0], at: 4, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.074576, -0.037288, 0], at: 5, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.074568, -0.037284, 0], at: 6, for: 1}
+                    - {law: grow, prop: alpha, per_tick: -0.14286, at: 0, for: 1}
+                    - {law: grow, prop: alpha, per_tick: -0.14285, at: 1, for: 1}
+                    - {law: grow, prop: alpha, per_tick: -0.14286, at: 2, for: 3}
+                    - {law: grow, prop: alpha, per_tick: -0.14285, at: 5, for: 1}
+                    - {law: grow, prop: alpha, per_tick: -0.14286, at: 6, for: 1}
+                - id: fx5_couture_rapier_cross_petals_3
+                  op: display
+                  kind: text
+                  text: " "
+                  # v2 solid quad: blank text on a solid background (1/8 x 1/4 block per scale unit)
+                  background: "#FFF5E9"
+                  anchor: fx5_couture_rapier_cross
+                  offset: {left: 0, up: 1.1, forward: 0}
+                  scale: [0.58, 0.29, 1]
+                  alpha: 1
+                  billboard: center
+                  brightness: {block: 15, sky: 15}
+                  for: 8
+                  motion:
+                    - {law: move, velocity: {left: 0.0786, up: 0.00884, forward: 0.10252}, at: 0, for: 1}
+                    - {law: move, velocity: {left: 0.07309, up: 0.00077, forward: 0.09534}, at: 1, for: 1}
+                    - {law: move, velocity: {left: 0.06798, up: -0.00672, forward: 0.08866}, at: 2, for: 1}
+                    - {law: move, velocity: {left: 0.06322, up: -0.01368, forward: 0.08246}, at: 3, for: 1}
+                    - {law: move, velocity: {left: 0.0588, up: -0.02017, forward: 0.07669}, at: 4, for: 1}
+                    - {law: move, velocity: {left: 0.05468, up: -0.0262, forward: 0.07132}, at: 5, for: 1}
+                    - {law: move, velocity: {left: 0.05085, up: -0.0318, forward: 0.06633}, at: 6, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.074568, -0.037284, 0], at: 0, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.074576, -0.037288, 0], at: 1, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.074568, -0.037284, 0], at: 2, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.074576, -0.037288, 0], at: 3, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.074568, -0.037284, 0], at: 4, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.074576, -0.037288, 0], at: 5, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.074568, -0.037284, 0], at: 6, for: 1}
+                    - {law: grow, prop: alpha, per_tick: -0.14286, at: 0, for: 1}
+                    - {law: grow, prop: alpha, per_tick: -0.14285, at: 1, for: 1}
+                    - {law: grow, prop: alpha, per_tick: -0.14286, at: 2, for: 3}
+                    - {law: grow, prop: alpha, per_tick: -0.14285, at: 5, for: 1}
+                    - {law: grow, prop: alpha, per_tick: -0.14286, at: 6, for: 1}
+                - id: fx5_couture_rapier_cross_petals_4
+                  op: display
+                  kind: text
+                  text: " "
+                  # v2 solid quad: blank text on a solid background (1/8 x 1/4 block per scale unit)
+                  background: "#FFF5E9"
+                  anchor: fx5_couture_rapier_cross
+                  offset: {left: 0, up: 1.1, forward: 0}
+                  scale: [0.58, 0.29, 1]
+                  alpha: 1
+                  billboard: center
+                  brightness: {block: 15, sky: 15}
+                  for: 8
+                  motion:
+                    - {law: move, velocity: {left: -0.1272, up: -0.02371, forward: -0.0225}, at: 0, for: 1}
+                    - {law: move, velocity: {left: -0.1183, up: -0.0295, forward: -0.02093}, at: 1, for: 1}
+                    - {law: move, velocity: {left: -0.11002, up: -0.03487, forward: -0.01946}, at: 2, for: 1}
+                    - {law: move, velocity: {left: -0.10232, up: -0.03987, forward: -0.0181}, at: 3, for: 1}
+                    - {law: move, velocity: {left: -0.09516, up: -0.04452, forward: -0.01683}, at: 4, for: 1}
+                    - {law: move, velocity: {left: -0.08849, up: -0.04884, forward: -0.01565}, at: 5, for: 1}
+                    - {law: move, velocity: {left: -0.0823, up: -0.05286, forward: -0.01456}, at: 6, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.074568, -0.037284, 0], at: 0, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.074576, -0.037288, 0], at: 1, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.074568, -0.037284, 0], at: 2, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.074576, -0.037288, 0], at: 3, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.074568, -0.037284, 0], at: 4, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.074576, -0.037288, 0], at: 5, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.074568, -0.037284, 0], at: 6, for: 1}
+                    - {law: grow, prop: alpha, per_tick: -0.14286, at: 0, for: 1}
+                    - {law: grow, prop: alpha, per_tick: -0.14285, at: 1, for: 1}
+                    - {law: grow, prop: alpha, per_tick: -0.14286, at: 2, for: 3}
+                    - {law: grow, prop: alpha, per_tick: -0.14285, at: 5, for: 1}
+                    - {law: grow, prop: alpha, per_tick: -0.14286, at: 6, for: 1}
+                - id: fx5_couture_rapier_cross_petals_5
+                  op: display
+                  kind: text
+                  text: " "
+                  # v2 solid quad: blank text on a solid background (1/8 x 1/4 block per scale unit)
+                  background: "#FFF5E9"
+                  anchor: fx5_couture_rapier_cross
+                  offset: {left: 0, up: 1.1, forward: 0}
+                  scale: [0.58, 0.29, 1]
+                  alpha: 1
+                  billboard: center
+                  brightness: {block: 15, sky: 15}
+                  for: 8
+                  motion:
+                    - {law: move, velocity: {left: 0.10184, up: -0.05626, forward: -0.06478}, at: 0, for: 1}
+                    - {law: move, velocity: {left: 0.09471, up: -0.05977, forward: -0.06025}, at: 1, for: 1}
+                    - {law: move, velocity: {left: 0.08808, up: -0.06302, forward: -0.05603}, at: 2, for: 1}
+                    - {law: move, velocity: {left: 0.08192, up: -0.06606, forward: -0.05211}, at: 3, for: 1}
+                    - {law: move, velocity: {left: 0.07618, up: -0.06886, forward: -0.04846}, at: 4, for: 1}
+                    - {law: move, velocity: {left: 0.07085, up: -0.07149, forward: -0.04507}, at: 5, for: 1}
+                    - {law: move, velocity: {left: 0.06589, up: -0.07392, forward: -0.04191}, at: 6, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.074568, -0.037284, 0], at: 0, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.074576, -0.037288, 0], at: 1, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.074568, -0.037284, 0], at: 2, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.074576, -0.037288, 0], at: 3, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.074568, -0.037284, 0], at: 4, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.074576, -0.037288, 0], at: 5, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.074568, -0.037284, 0], at: 6, for: 1}
+                    - {law: grow, prop: alpha, per_tick: -0.14286, at: 0, for: 1}
+                    - {law: grow, prop: alpha, per_tick: -0.14285, at: 1, for: 1}
+                    - {law: grow, prop: alpha, per_tick: -0.14286, at: 2, for: 3}
+                    - {law: grow, prop: alpha, per_tick: -0.14285, at: 5, for: 1}
+                    - {law: grow, prop: alpha, per_tick: -0.14286, at: 6, for: 1}
+                - id: fx5_couture_rapier_cross_petals_6
+                  op: display
+                  kind: text
+                  text: " "
+                  # v2 solid quad: blank text on a solid background (1/8 x 1/4 block per scale unit)
+                  background: "#FFF5E9"
+                  anchor: fx5_couture_rapier_cross
+                  offset: {left: 0, up: 1.1, forward: 0}
+                  scale: [0.58, 0.29, 1]
+                  alpha: 1
+                  billboard: center
+                  brightness: {block: 15, sky: 15}
+                  for: 8
+                  motion:
+                    - {law: move, velocity: {left: -0.02639, up: -0.08881, forward: 0.09815}, at: 0, for: 1}
+                    - {law: move, velocity: {left: -0.02453, up: -0.09004, forward: 0.09128}, at: 1, for: 1}
+                    - {law: move, velocity: {left: -0.02282, up: -0.09118, forward: 0.0849}, at: 2, for: 1}
+                    - {law: move, velocity: {left: -0.02123, up: -0.09223, forward: 0.07895}, at: 3, for: 1}
+                    - {law: move, velocity: {left: -0.01974, up: -0.09322, forward: 0.07342}, at: 4, for: 1}
+                    - {law: move, velocity: {left: -0.01835, up: -0.09413, forward: 0.06828}, at: 5, for: 1}
+                    - {law: move, velocity: {left: -0.01707, up: -0.09498, forward: 0.06351}, at: 6, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.074568, -0.037284, 0], at: 0, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.074576, -0.037288, 0], at: 1, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.074568, -0.037284, 0], at: 2, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.074576, -0.037288, 0], at: 3, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.074568, -0.037284, 0], at: 4, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.074576, -0.037288, 0], at: 5, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.074568, -0.037284, 0], at: 6, for: 1}
+                    - {law: grow, prop: alpha, per_tick: -0.14286, at: 0, for: 1}
+                    - {law: grow, prop: alpha, per_tick: -0.14285, at: 1, for: 1}
+                    - {law: grow, prop: alpha, per_tick: -0.14286, at: 2, for: 3}
+                    - {law: grow, prop: alpha, per_tick: -0.14285, at: 5, for: 1}
+                    - {law: grow, prop: alpha, per_tick: -0.14286, at: 6, for: 1}
+                - id: fx5_couture_rapier_cross_petals_7
+                  op: display
+                  kind: text
+                  text: " "
+                  # v2 solid quad: blank text on a solid background (1/8 x 1/4 block per scale unit)
+                  background: "#FFF5E9"
+                  anchor: fx5_couture_rapier_cross
+                  offset: {left: 0, up: 1.1, forward: 0}
+                  scale: [0.58, 0.29, 1]
+                  alpha: 1
+                  billboard: center
+                  brightness: {block: 15, sky: 15}
+                  for: 8
+                  motion:
+                    - {law: move, velocity: {left: -0.02905, up: -0.12136, forward: -0.05594}, at: 0, for: 1}
+                    - {law: move, velocity: {left: -0.02702, up: -0.12031, forward: -0.05202}, at: 1, for: 1}
+                    - {law: move, velocity: {left: -0.02513, up: -0.11933, forward: -0.04838}, at: 2, for: 1}
+                    - {law: move, velocity: {left: -0.02337, up: -0.11842, forward: -0.045}, at: 3, for: 1}
+                    - {law: move, velocity: {left: -0.02173, up: -0.11756, forward: -0.04184}, at: 4, for: 1}
+                    - {law: move, velocity: {left: -0.02021, up: -0.11678, forward: -0.03892}, at: 5, for: 1}
+                    - {law: move, velocity: {left: -0.0188, up: -0.11604, forward: -0.03619}, at: 6, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.074568, -0.037284, 0], at: 0, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.074576, -0.037288, 0], at: 1, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.074568, -0.037284, 0], at: 2, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.074576, -0.037288, 0], at: 3, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.074568, -0.037284, 0], at: 4, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.074576, -0.037288, 0], at: 5, for: 1}
+                    - {law: grow, prop: scale, per_tick: [-0.074568, -0.037284, 0], at: 6, for: 1}
+                    - {law: grow, prop: alpha, per_tick: -0.14286, at: 0, for: 1}
+                    - {law: grow, prop: alpha, per_tick: -0.14285, at: 1, for: 1}
+                    - {law: grow, prop: alpha, per_tick: -0.14286, at: 2, for: 3}
+                    - {law: grow, prop: alpha, per_tick: -0.14285, at: 5, for: 1}
+                    - {law: grow, prop: alpha, per_tick: -0.14286, at: 6, for: 1}
+                - id: fx5_couture_rapier_cross_sparks_at
+                  op: frame
+                  anchor: fx5_couture_rapier_cross
+                  mode: follow
+                  offset: {left: 0, up: 1.1, forward: 0}
+                  for: 1
+                - id: fx5_couture_rapier_cross_contact_fill
+                  op: display
+                  kind: text
+                  text: "✦"
+                  color: "#FFF8ED"
+                  see_through: true
+                  anchor: fx5_couture_rapier_cross
+                  offset: {left: 0, up: 1.1, forward: 0}
+                  scale: [0.5, 0.5, 1]
+                  alpha: 1
+                  billboard: center
+                  brightness: {block: 15, sky: 15}
+                  for: 7
+                  motion:
+                    - {law: grow, prop: scale, per_tick: [8.5, 8.5, 0], at: 0, for: 1, ease: out_expo}
+                    - {law: grow, prop: scale, per_tick: [-0.5, -0.5, 0], at: 1, for: 2}
+                    - {law: grow, prop: scale, per_tick: [-2.333333, -2.333333, 0], at: 3, for: 3, ease: in_quad}
+                    - {law: grow, prop: alpha, per_tick: -0.166667, at: 0, for: 6, ease: in_quad}
+                - id: snd_2
+                  op: sound
+                  sound: entity.player.attack.strong
+                  anchor: contact
+                  volume: 0.7
+                  pitch: 1.1
+        - event: sel_7.hit
+          do:
+            - id: h0
+              at: 0
+              do:
+                - id: fx6_couture_target_rosette
+                  op: frame
+                  anchor: victim
+                  axes: caster
+                  mode: snapshot
+                  for: 11
+                - id: fx6_couture_target_rosette_arc_0
+                  op: display
+                  kind: block
+                  block: pink_concrete
+                  anchor: fx6_couture_target_rosette
+                  offset: {left: 0, up: 1.1, forward: 3}
+                  rotate: [{axis: left, deg: -90}]
+                  scale: [0, 0, 0]
+                  brightness: {block: 15, sky: 15}
+                  for: 11
+                  motion:
+                    - {law: grow, prop: scale, per_tick: [0.025, 0.023525, 0.626225], at: 0, for: 2}
+                    - {law: grow, prop: scale, per_tick: [-0.005556, -0.005228, -0.055664], at: 2, for: 9}
+                - id: fx6_couture_target_rosette_arc_1
+                  op: display
+                  kind: block
+                  block: pink_concrete
+                  anchor: fx6_couture_target_rosette
+                  offset: {left: 0, up: 2.15752, forward: 2.77522}
+                  rotate: [{axis: left, deg: -114}]
+                  scale: [0, 0, 0]
+                  brightness: {block: 15, sky: 15}
+                  for: 11
+                  motion:
+                    - {law: grow, prop: scale, per_tick: [0.025, 0.034175, 0.626225], at: 0, for: 2}
+                    - {law: grow, prop: scale, per_tick: [-0.005556, -0.007594, -0.055664], at: 2, for: 9}
+                - id: fx6_couture_target_rosette_arc_2
+                  op: display
+                  kind: block
+                  block: pink_concrete
+                  anchor: fx6_couture_target_rosette
+                  offset: {left: 0, up: 3.03218, forward: 2.13974}
+                  rotate: [{axis: left, deg: -138}]
+                  scale: [0, 0, 0]
+                  brightness: {block: 15, sky: 15}
+                  for: 11
+                  motion:
+                    - {law: grow, prop: scale, per_tick: [0.025, 0.044085, 0.626225], at: 0, for: 2}
+                    - {law: grow, prop: scale, per_tick: [-0.005556, -0.009797, -0.055664], at: 2, for: 9}
+                - id: fx6_couture_target_rosette_arc_3
+                  op: display
+                  kind: block
+                  block: pink_concrete
+                  anchor: fx6_couture_target_rosette
+                  offset: {left: 0, up: 3.57275, forward: 1.20344}
+                  rotate: [{axis: left, deg: -162}]
+                  scale: [0, 0, 0]
+                  brightness: {block: 15, sky: 15}
+                  for: 11
+                  motion:
+                    - {law: grow, prop: scale, per_tick: [0.025, 0.05292, 0.626225], at: 0, for: 2}
+                    - {law: grow, prop: scale, per_tick: [-0.005556, -0.01176, -0.055664], at: 2, for: 9}
+                - id: fx6_couture_target_rosette_arc_4
+                  op: display
+                  kind: block
+                  block: pink_concrete
+                  anchor: fx6_couture_target_rosette
+                  offset: {left: 0, up: 3.68576, forward: 0.12823}
+                  rotate: [{axis: left, deg: 174}]
+                  scale: [0, 0, 0]
+                  brightness: {block: 15, sky: 15}
+                  for: 11
+                  motion:
+                    - {law: grow, prop: scale, per_tick: [0.025, 0.06038, 0.626225], at: 0, for: 2}
+                    - {law: grow, prop: scale, per_tick: [-0.005556, -0.013418, -0.055664], at: 2, for: 9}
+                - id: fx6_couture_target_rosette_arc_5
+                  op: display
+                  kind: block
+                  block: pink_concrete
+                  anchor: fx6_couture_target_rosette
+                  offset: {left: 0, up: 3.35167, forward: -0.9}
+                  rotate: [{axis: left, deg: 150}]
+                  scale: [0, 0, 0]
+                  brightness: {block: 15, sky: 15}
+                  for: 11
+                  motion:
+                    - {law: grow, prop: scale, per_tick: [0.025, 0.06621, 0.626225], at: 0, for: 2}
+                    - {law: grow, prop: scale, per_tick: [-0.005556, -0.014713, -0.055664], at: 2, for: 9}
+                - id: fx6_couture_target_rosette_arc_6
+                  op: display
+                  kind: block
+                  block: pink_concrete
+                  anchor: fx6_couture_target_rosette
+                  offset: {left: 0, up: 2.62824, forward: -1.70344}
+                  rotate: [{axis: left, deg: 126}]
+                  scale: [0, 0, 0]
+                  brightness: {block: 15, sky: 15}
+                  for: 11
+                  motion:
+                    - {law: grow, prop: scale, per_tick: [0.025, 0.07021, 0.626225], at: 0, for: 2}
+                    - {law: grow, prop: scale, per_tick: [-0.005556, -0.015602, -0.055664], at: 2, for: 9}
+                - id: fx6_couture_target_rosette_arc_7
+                  op: display
+                  kind: block
+                  block: pink_concrete
+                  anchor: fx6_couture_target_rosette
+                  offset: {left: 0, up: 1.64057, forward: -2.14318}
+                  rotate: [{axis: left, deg: 102}]
+                  scale: [0, 0, 0]
+                  brightness: {block: 15, sky: 15}
+                  for: 11
+                  motion:
+                    - {law: grow, prop: scale, per_tick: [0.025, 0.072245, 0.626225], at: 0, for: 2}
+                    - {law: grow, prop: scale, per_tick: [-0.005556, -0.016054, -0.055664], at: 2, for: 9}
+                - id: fx6_couture_target_rosette_arc_8
+                  op: display
+                  kind: block
+                  block: pink_concrete
+                  anchor: fx6_couture_target_rosette
+                  offset: {left: 0, up: 0.55943, forward: -2.14318}
+                  rotate: [{axis: left, deg: 78}]
+                  scale: [0, 0, 0]
+                  brightness: {block: 15, sky: 15}
+                  for: 11
+                  motion:
+                    - {law: grow, prop: scale, per_tick: [0.025, 0.072245, 0.626225], at: 0, for: 2}
+                    - {law: grow, prop: scale, per_tick: [-0.005556, -0.016054, -0.055664], at: 2, for: 9}
+                - id: fx6_couture_target_rosette_arc_9
+                  op: display
+                  kind: block
+                  block: pink_concrete
+                  anchor: fx6_couture_target_rosette
+                  offset: {left: 0, up: -0.42824, forward: -1.70344}
+                  rotate: [{axis: left, deg: 54}]
+                  scale: [0, 0, 0]
+                  brightness: {block: 15, sky: 15}
+                  for: 11
+                  motion:
+                    - {law: grow, prop: scale, per_tick: [0.025, 0.07021, 0.626225], at: 0, for: 2}
+                    - {law: grow, prop: scale, per_tick: [-0.005556, -0.015602, -0.055664], at: 2, for: 9}
+                - id: fx6_couture_target_rosette_arc_10
+                  op: display
+                  kind: block
+                  block: pink_concrete
+                  anchor: fx6_couture_target_rosette
+                  offset: {left: 0, up: -1.15167, forward: -0.9}
+                  rotate: [{axis: left, deg: 30}]
+                  scale: [0, 0, 0]
+                  brightness: {block: 15, sky: 15}
+                  for: 11
+                  motion:
+                    - {law: grow, prop: scale, per_tick: [0.025, 0.06621, 0.626225], at: 0, for: 2}
+                    - {law: grow, prop: scale, per_tick: [-0.005556, -0.014713, -0.055664], at: 2, for: 9}
+                - id: fx6_couture_target_rosette_arc_11
+                  op: display
+                  kind: block
+                  block: pink_concrete
+                  anchor: fx6_couture_target_rosette
+                  offset: {left: 0, up: -1.48576, forward: 0.12823}
+                  rotate: [{axis: left, deg: 6}]
+                  scale: [0, 0, 0]
+                  brightness: {block: 15, sky: 15}
+                  for: 11
+                  motion:
+                    - {law: grow, prop: scale, per_tick: [0.025, 0.06038, 0.626225], at: 0, for: 2}
+                    - {law: grow, prop: scale, per_tick: [-0.005556, -0.013418, -0.055664], at: 2, for: 9}
+                - id: fx6_couture_target_rosette_arc_12
+                  op: display
+                  kind: block
+                  block: pink_concrete
+                  anchor: fx6_couture_target_rosette
+                  offset: {left: 0, up: -1.37275, forward: 1.20344}
+                  rotate: [{axis: left, deg: -18}]
+                  scale: [0, 0, 0]
+                  brightness: {block: 15, sky: 15}
+                  for: 11
+                  motion:
+                    - {law: grow, prop: scale, per_tick: [0.025, 0.05292, 0.626225], at: 0, for: 2}
+                    - {law: grow, prop: scale, per_tick: [-0.005556, -0.01176, -0.055664], at: 2, for: 9}
+                - id: fx6_couture_target_rosette_arc_13
+                  op: display
+                  kind: block
+                  block: pink_concrete
+                  anchor: fx6_couture_target_rosette
+                  offset: {left: 0, up: -0.83218, forward: 2.13974}
+                  rotate: [{axis: left, deg: -42}]
+                  scale: [0, 0, 0]
+                  brightness: {block: 15, sky: 15}
+                  for: 11
+                  motion:
+                    - {law: grow, prop: scale, per_tick: [0.025, 0.044085, 0.626225], at: 0, for: 2}
+                    - {law: grow, prop: scale, per_tick: [-0.005556, -0.009797, -0.055664], at: 2, for: 9}
+                - id: fx6_couture_target_rosette_arc_14
+                  op: display
+                  kind: block
+                  block: pink_concrete
+                  anchor: fx6_couture_target_rosette
+                  offset: {left: 0, up: 0.04248, forward: 2.77522}
+                  rotate: [{axis: left, deg: -66}]
+                  scale: [0, 0, 0]
+                  brightness: {block: 15, sky: 15}
+                  for: 11
+                  motion:
+                    - {law: grow, prop: scale, per_tick: [0.025, 0.034175, 0.626225], at: 0, for: 2}
+                    - {law: grow, prop: scale, per_tick: [-0.005556, -0.007594, -0.055664], at: 2, for: 9}
+                - id: fx6_couture_target_rosette_arc_15
+                  op: display
+                  kind: block
+                  block: pink_concrete
+                  anchor: fx6_couture_target_rosette
+                  offset: {left: 0, up: 1.1, forward: 3}
+                  rotate: [{axis: left, deg: -90}]
+                  scale: [0, 0, 0]
+                  brightness: {block: 15, sky: 15}
+                  for: 11
+                  motion:
+                    - {law: grow, prop: scale, per_tick: [0.025, 0.023525, 0.626225], at: 0, for: 2}
+                    - {law: grow, prop: scale, per_tick: [-0.005556, -0.005228, -0.055664], at: 2, for: 9}
+    end: {final: true}

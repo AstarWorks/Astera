@@ -1,26 +1,40 @@
-# Converted from content/skills/spear-charge.yaml by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
-# Generated point-frame offsets are [left, up, forward] in the parent frame.
-apiVersion: "astera/v2"
+apiVersion: astera/v3
 kind: Skill
 id: spear-charge
 item: spear
-meta: {name: {ja: "突撃", en: Charge}, description: {ja: "遠くまで駆け抜けて突き刺す。", en: "Charges far forward, hitting the first target."}, cooldown_ticks: 140, resource_cost: 14, tags: [melee, movement, physical]}
-gameplay:
-  params: {dash_distance: 6, dmg_physical: 40.0}
-  expose:
-    - {id: damage, param: dmg_physical}
-  timeline:
-    - id: t0
-      at: 0
+meta:
+  name: {ja: "突撃", en: "Charge"}
+  description: {ja: "遠くまで駆け抜けて突き刺す。", en: "Charges far forward, hitting the first target."}
+  cooldown_ticks: 140
+  resource_cost: 14
+  tags: [melee, movement, physical]
+anchors:
+  - {id: puff_pt, anchor: caster, offset: {up: 0.2}}
+machine:
+  start: charge
+  states:
+    charge:
+      for: 6
+      then: end
       do:
-        - id: dash
-          op: dash_strike
-          distance: "${dash_distance}"
-          ticks: 6
-          radius: 1.0
-          hit_once: true
-          invulnerable: false
-          stop_on_block: true
-          follow_pitch: false
-          on_hit:
-            - {id: dmg, op: damage, components: [{kind: physical, amount: "${dmg_physical}"}], target: victim}
+        - {id: snd, op: sound, sound: "astera:weapons/dash-whoosh", anchor: caster, volume: 1.0, pitch: 1.1}
+        - {id: puff, op: particle_def, def: dash-cloud, anchor: puff_pt}
+        # v2 dash_strike distance 6 over 6 ticks = 1.0 block per tick
+        - {id: dash, op: dash, at: 0, speed: 1.0, for: 6, until: strike.hit, direction: forward, follow_pitch: false, stop_on_block: true, invulnerable: false, face_movement: false}
+        - id: strike
+          op: hit
+          at: 0
+          every: 1
+          for: 6
+          anchor: caster.body
+          shape: {sphere: 1.0}
+          targets: enemies
+          max_count: all  # GAP(Q1): spelling A (required, `all` = v2 unlimited); under B delete this line
+          ignore_invulnerability: false
+          damage: {physical: 40.0}
+          window: once
+          on:
+            hit:
+              # v2 raise_event dash_fx: its only listener played blade-hit at the enemy, inlined here
+              - {id: snd_hit, op: sound, sound: "astera:weapons/blade-hit", anchor: contact}
+    end: {final: true}

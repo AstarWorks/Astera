@@ -1,6 +1,4 @@
-# Converted from content/skills/smoke-bomb-throw.yaml by tools/skill-convert/convert.py (v1 archetype: projectile). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
-# Generated point-frame offsets are [left, up, forward] in the parent frame.
-apiVersion: "astera/v2"
+apiVersion: astera/v3
 kind: Skill
 id: smoke-bomb-throw
 item: smoke-bomb
@@ -10,18 +8,50 @@ meta:
   cooldown_ticks: 200
   resource_cost: 12
   tags: [ranged, utility, support]
-frames:
-  - {id: bolt, kind: body, parent: world, inactive: true}
-  - {id: pt_aim_0_0_0p5, kind: point, parent: aim, offset: [0.0, 0.0, 0.5]}
-gameplay:
-  params: {launch_speed: 1.2, max_lifetime_ticks: 50, radius: 4.0, evasive_ticks: 80}
-  expose:
-    - {id: flight_speed, param: launch_speed}
-    - {id: radius, param: radius}
-  timeline:
-    - {id: t0, at: 0, do: [{id: bolt, op: projectile, body: bolt, from: pt_aim_0_0_0p5, velocity: "= look(caster) * launch_speed", max_ticks: "${max_lifetime_ticks}", radius: 0.5}]}
-  "on":
-    hit:
-      - {id: st_evasive, op: status, status: evasive, duration_ticks: "${evasive_ticks}", target: {allies: {around: enemy, radius: "${radius}"}}}
-    block:
-      - {id: st_evasive_2, op: status, status: evasive, duration_ticks: "${evasive_ticks}", target: {allies: {around: contact.point, radius: "${radius}"}}}
+anchors:
+  - {id: muzzle, anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}
+  - {id: foe,    anchor: victim.root}
+  - {id: flash,  anchor: caster.eye, offset: {up: -0.25, forward: 0.9}}
+  - {id: smoke_hit, anchor: victim.root, offset: {up: 0.5}}
+machine:
+  start: fly
+  states:
+    fly:
+      for: 61      # max flight 50 + 10 ring ticks + 1
+      then: end
+      do:
+        - {id: snd, op: sound, sound: entity.generic.extinguish_fire, anchor: caster, volume: 0.9, pitch: 1.0}
+        - {id: puff, op: particle_def, def: gun-muzzle-smoke, anchor: flash}
+        - id: bolt
+          op: projectile
+          origin: muzzle
+          velocity: "= look(caster) * 1.2"
+          for: 50
+          radius: 0.5
+          hit: {targets: enemies, once: true}
+          block: {mode: despawn}
+          on:
+            hit:
+              # GAP(Q1): max_count spelling A (required, `all` = v2 unlimited); under B delete the key
+              - {id: st_evasive, op: status, target: {kind: allies, around: foe, radius: 4.0, max_count: all, include_self: true}, status: evasive, stacks: 1, for: 80}
+              - {id: snd_hit, op: sound, sound: entity.generic.extinguish_fire, anchor: contact, volume: 0.8, pitch: 0.7}
+              # ten expanding rings, one per tick, radius 0.4 + 0.4 * k; large_smoke and smoke, 16 emits each
+              - id: ring
+                at: 0
+                every: 1
+                times: 10
+                do:
+                  - {id: big,   op: particle, particle: large_smoke, times: 16, at: 0, count: 0, offset: "= [cos((2*PI*i/16 + draw('shape_2_ph')*2*PI)), 0.0, -sin((2*PI*i/16 + draw('shape_2_ph')*2*PI))]", extra: 0.01, anchor: smoke_hit, shift: {left: "= (0.4 + 0.4 * parent.i) * cos((2*PI*i/16 + draw('shape_2_ph')*2*PI))", forward: "= -(0.4 + 0.4 * parent.i) * sin((2*PI*i/16 + draw('shape_2_ph')*2*PI))"}}
+                  - {id: small, op: particle, particle: smoke,       times: 16, at: 0, count: 0, offset: "= [cos((2*PI*i/16 + draw('shape_2_ph')*2*PI)), 0.0, -sin((2*PI*i/16 + draw('shape_2_ph')*2*PI))]", extra: 0.01, anchor: smoke_hit, shift: {left: "= (0.4 + 0.4 * parent.i) * cos((2*PI*i/16 + draw('shape_2_ph')*2*PI))", forward: "= -(0.4 + 0.4 * parent.i) * sin((2*PI*i/16 + draw('shape_2_ph')*2*PI))"}}
+            block:
+              # GAP(Q1): max_count spelling A (required, `all` = v2 unlimited); under B delete the key
+              - {id: st_evasive, op: status, target: {kind: allies, around: contact, radius: 4.0, max_count: all, include_self: true}, status: evasive, stacks: 1, for: 80}
+              - {id: snd_blk, op: sound, sound: entity.generic.extinguish_fire, anchor: contact, volume: 0.8, pitch: 0.7}
+              - id: ring
+                at: 0
+                every: 1
+                times: 10
+                do:
+                  - {id: big,   op: particle, particle: large_smoke, times: 16, at: 0, count: 0, offset: "= [cos((2*PI*i/16 + draw('shape_2_ph')*2*PI)), 0.0, -sin((2*PI*i/16 + draw('shape_2_ph')*2*PI))]", extra: 0.01, anchor: contact, shift: {left: "= (0.4 + 0.4 * parent.i) * cos((2*PI*i/16 + draw('shape_2_ph')*2*PI))", forward: "= -(0.4 + 0.4 * parent.i) * sin((2*PI*i/16 + draw('shape_2_ph')*2*PI))"}}
+                  - {id: small, op: particle, particle: smoke,       times: 16, at: 0, count: 0, offset: "= [cos((2*PI*i/16 + draw('shape_2_ph')*2*PI)), 0.0, -sin((2*PI*i/16 + draw('shape_2_ph')*2*PI))]", extra: 0.01, anchor: contact, shift: {left: "= (0.4 + 0.4 * parent.i) * cos((2*PI*i/16 + draw('shape_2_ph')*2*PI))", forward: "= -(0.4 + 0.4 * parent.i) * sin((2*PI*i/16 + draw('shape_2_ph')*2*PI))"}}
+    end: {final: true}

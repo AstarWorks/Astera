@@ -1,26 +1,40 @@
-# Converted from content/skills/sword-slash.yaml by tools/skill-convert/convert.py (v1 archetype: melee). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
-# Generated point-frame offsets are [left, up, forward] in the parent frame.
-apiVersion: "astera/v2"
+apiVersion: astera/v3
 kind: Skill
 id: sword-slash
 item: knight-sword
 meta:
   name: {ja: "斬撃", en: "Sword Slash"}
-  description: {ja: "前方の扇状の範囲を斬りつけ、命中した対象に物理ダメージを与える。", en: "Slashes a forward arc, dealing physical damage to everything it catches."}
+  description: {ja: "前方を薙ぎ払う基本の斬撃。", en: "A basic sweeping slash."}
   cooldown_ticks: 10
   tags: [melee, physical]
-gameplay:
-  params: {arc_deg: 100.0, range: 3.5, dmg_physical: 40.0, knockback: 0.4}
-  expose:
-    - {id: damage, param: dmg_physical}
-    - {id: range, param: range}
-  timeline:
-    - id: t0
-      at: 0
+anchors:
+  - {id: sweep_pt, anchor: caster.eye, offset: {up: -0.3, forward: 1.6}}
+  - {id: heart, anchor: victim.root, offset: {up: 1.2}}  # GAP(Q2): v2 enemy frame origin = feet+0.8 fixed; victim.body (live hitbox centre, 0.9) or a fixed chest point is the founder's choice (Q2)
+machine:
+  start: swing
+  states:
+    swing:
+      for: 1
+      then: end
       do:
-        - {id: swing, op: hit, frames: [caster], sector: {frame: caster, at: eye, forward: caster.forward, left: caster.left, angle_deg: "${arc_deg}", range: "${range}", height: 2.0}, window: once}
-  "on":
-    hit:
-      - {id: dmg, op: damage, target: victim, components: [{kind: physical, amount: "${dmg_physical}"}], when: "= event.source == 'swing'"}
-      - {id: kb, op: knockback, direction: "= normalize(pos(victim) - pos(caster))", strength: "${knockback}", when: "= event.source == 'swing'"}
-      - {id: swing_hit_count, op: counter, key: swing_hits, when: "= event.source == 'swing'"}
+        - id: swing
+          op: hit
+          at: 0
+          anchor: caster.eye
+          shape: {sector: {deg: 100, range: 3.5, height: 2.0, forward: look}}
+          targets: enemies
+          max_count: all  # GAP(Q1): spelling A (required, `all` = v2 unlimited); under B delete this line
+          ignore_invulnerability: false
+          damage: {physical: 40.0}
+          window: once
+          on:
+            hit:
+              - {id: kb, op: knockback, target: event.victim, direction: "= normalize(pos(event.victim) - pos(caster))", strength: 0.4}
+              - {id: snd_hit, op: sound, sound: "astera:weapons/blade-hit", anchor: contact}
+              - {id: fx_hit, op: particle_def, def: hit-spark, anchor: heart}
+            # v2 miss cue: sound at tick 2 when counter('swing_hits') == 0
+            miss:
+              - {id: snd_miss, op: sound, at: 2, sound: "astera:weapons/blade-miss", anchor: caster}
+        - {id: snd, op: sound, sound: "astera:weapons/sword-swing", anchor: caster}
+        - {id: fx, op: particle_def, def: slash-sweep, anchor: sweep_pt}
+    end: {final: true}

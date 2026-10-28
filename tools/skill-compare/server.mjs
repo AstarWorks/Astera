@@ -442,6 +442,11 @@ export function makeHandler(opts = {}) {
     if (p === "/case.css") return file(join(publicDir, "case.css"), "text/css");
     if (p === "/api/cases" && req.method === "GET") return json(listCases());
     if (p === "/api/index" && req.method === "GET") return json(buildIndex({ repo, S, mcInfo }));
+    // `astera skill expand all` writes build/skill-expand/<id>.json (ExpansionDump.json): the table panel of the case page.
+    if ((m = /^\/api\/expand\/([a-z0-9-]+)$/.exec(p)) && req.method === "GET") {
+      const f = join(repo, "build", "skill-expand", m[1] + ".json");
+      return existsSync(f) ? file(f, "application/json; charset=utf-8") : err(404, "no expansion dump: run `astera skill expand " + m[1] + "`");
+    }
     if ((m = /^\/icon\/([a-z0-9-]+)\.png$/.exec(p))) return file(join(repo, "content", "textures", "generated", "items", m[1] + ".png"), "image/png");
     if ((m = /^\/api\/cases\/([a-z0-9-]+)\/founder$/.exec(p))) {
       if (!CASE_ID_RE.test(m[1])) return err(400, "bad id");

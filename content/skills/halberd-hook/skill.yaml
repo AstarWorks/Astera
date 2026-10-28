@@ -1,22 +1,29 @@
-# Converted from content/skills/halberd-hook.yaml by tools/skill-convert/convert.py (v1 archetype: melee). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
-# Generated point-frame offsets are [left, up, forward] in the parent frame.
-apiVersion: "astera/v2"
+apiVersion: "astera/v3"
 kind: Skill
 id: halberd-hook
 item: halberd
 meta: {name: {ja: "引っ掛け", en: "Halberd Hook"}, description: {ja: "穂先で足を払い、相手の体勢を崩す。", en: "Hooks the legs and shakes the target."}, cooldown_ticks: 110, resource_cost: 12, tags: [melee, physical, control]}
-gameplay:
-  params: {arc_deg: 50.0, range: 3.6, dmg_physical: 22.0, knockback: 0.2, tremor_ticks: 40}
-  expose:
-    - {id: damage, param: dmg_physical}
-    - {id: range, param: range}
+anchors:
+  cast_fx: {anchor: caster.eye, offset: {up: -0.1, forward: 1.6}, mode: snapshot}
+  heart: {anchor: victim.body, offset: {up: 0.4}}
+presentation:
   timeline:
-    - id: t0
-      at: 0
+    - at: 0
       do:
-        - {id: swing, op: hit, frames: [caster], sector: {frame: caster, at: eye, forward: caster.forward, left: caster.left, angle_deg: "${arc_deg}", range: "${range}", height: 2.0}, window: once}
-  "on":
-    hit:
-      - {id: dmg, op: damage, target: victim, components: [{kind: physical, amount: "${dmg_physical}"}], when: "= event.source == 'swing'"}
-      - {id: kb, op: knockback, direction: "= normalize(pos(victim) - pos(caster))", strength: "${knockback}", when: "= event.source == 'swing'"}
-      - {id: st_tremor, op: status, status: tremor, duration_ticks: "${tremor_ticks}", target: victim, when: "= event.source == 'swing'"}
+        - {id: snd, op: sound, sound: "entity.player.attack.sweep", anchor: caster, volume: 1.0, pitch: 0.8}
+        - {id: fx, op: particle_def, def: stab-spark, anchor: cast_fx}
+gameplay:
+  timeline:
+    - at: 0
+      do:
+        - id: swing
+          op: hit
+          anchor: caster.eye
+          targets: enemies
+          shape: {sector: {deg: 50.0, range: 3.6, height: 2.0}}
+          damage: {physical: 22.0}
+          on:
+            hit:
+              - {id: st_tremor, op: status, target: event.victim, status: tremor, stacks: 1, for: 40}
+              - {id: snd_hit, op: sound, sound: "astera:weapons/blade-hit", anchor: victim.body, volume: 0.7, pitch: 1.2}
+              - {id: fx_hit, op: particle_def, def: hit-spark, anchor: heart}

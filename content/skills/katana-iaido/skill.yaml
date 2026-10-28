@@ -1,26 +1,45 @@
-# Converted from content/skills/katana-iaido.yaml by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
-# Generated point-frame offsets are [left, up, forward] in the parent frame.
-apiVersion: "astera/v2"
+# Wave 2 v3 draft (basic-ac): ported 1:1 from the v2 skill.yaml + look.yaml. GAP comments mark what v3 cannot spell yet.
+apiVersion: astera/v3
 kind: Skill
 id: katana-iaido
 item: katana
-meta: {name: {ja: "抜刀斬り", en: Iaido}, description: {ja: "一瞬で踏み込み、すれ違いざまに斬る。", en: "Snaps forward and cuts whoever you pass."}, cooldown_ticks: 110, resource_cost: 10, tags: [melee, movement, physical]}
-gameplay:
-  params: {dash_distance: 4, dmg_physical: 40.0}
-  expose:
-    - {id: damage, param: dmg_physical}
-  timeline:
-    - id: t0
-      at: 0
-      do:
-        - id: dash
-          op: dash_strike
-          distance: "${dash_distance}"
-          ticks: 3
-          radius: 1.0
-          hit_once: true
-          invulnerable: false
-          stop_on_block: true
-          follow_pitch: false
-          on_hit:
-            - {id: dmg, op: damage, components: [{kind: physical, amount: "${dmg_physical}"}], target: victim}
+meta:
+  name: {ja: "抜刀斬り", en: "Iaido"}
+  description: {ja: "一瞬で踏み込み、すれ違いざまに斬る。", en: "Snaps forward and cuts whoever you pass."}
+  cooldown_ticks: 110
+  resource_cost: 10
+  tags: [melee, movement, physical]
+params:
+  dash_distance: {type: blocks, default: 4}
+  dash_ticks: {type: ticks, default: 3}
+  dmg_physical: {type: number, default: 40.0}
+anchors:
+  - {id: feet, anchor: caster, offset: {up: 0.2}, mode: snapshot}                  # was pt_caster_0_0p2_0
+machine:
+  start: dash
+  states:
+    dash:
+      for: "= dash_ticks"
+      then: end
+      enter:
+        - {id: snd_dash, op: sound, sound: "astera:weapons/dash-whoosh", anchor: caster, volume: 1.0, pitch: 1.4}
+        - {id: fx_dash, op: particle_def, def: dash-cloud, anchor: feet}
+        - {id: lunge, op: dash, speed: "= dash_distance / dash_ticks", for: "= dash_ticks", direction: forward, follow_pitch: false, stop_on_block: true, invulnerable: false, face_movement: false}
+        # GAP(Q1): max_count spelling (A: required int|all, B: optional); v2 had no cap, so `all` = unlimited.
+        # v2 dash_strike corridor: capsule radius 1.0, hit_once, no early end (the dash runs through everyone); `until` omitted for 1:1.
+        - id: strike
+          op: hit
+          anchor: caster
+          at: 0
+          every: 1
+          for: "= dash_ticks"
+          shape: {sphere: {center: caster.body, radius: 1.0}}
+          targets: enemies
+          max_count: all
+          window: once
+          ignore_invulnerability: false
+          damage: {physical: "= dmg_physical"}
+          on:
+            hit:
+              - {id: snd_hit, op: sound, sound: "astera:weapons/blade-hit", anchor: contact, volume: 1.0, pitch: 1.0}
+    end: {final: true}

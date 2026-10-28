@@ -77,7 +77,13 @@ internal class PackRefLint(private val contentDir: Path) {
                                         problems += "$file: mesh '$id' (item $item${part?.let { ", part $it" } ?: ""}) draws '$key', which has no item definition in the pack"
                                     }
                                 }
-                                is MeshModel.Vanilla, MeshModel.HeldItem -> Unit
+                                is MeshModel.Vanilla -> {
+                                    val key = model.itemModel
+                                    if (key != null && key.startsWith("astera:") && "assets/astera/items/${key.removePrefix("astera:")}.json" !in pack) {
+                                        problems += "$file: mesh '$id' (item $item, item_model $key) has no item definition in the pack"
+                                    }
+                                }
+                                MeshModel.HeldItem -> Unit
                             }
                         }
                     }

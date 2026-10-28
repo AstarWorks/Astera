@@ -1,17 +1,24 @@
-# Converted from content/skills/twin-daggers-shadowstep.yaml by tools/skill-convert/convert.py (v1 archetype: buff). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
-# Generated point-frame offsets are [left, up, forward] in the parent frame.
-apiVersion: "astera/v2"
+apiVersion: astera/v3
 kind: Skill
 id: twin-daggers-shadowstep
 item: twin-daggers
-meta: {name: {ja: "影走り", en: "Shadow Step"}, description: {ja: "後ろへ跳んで短時間走り抜ける。", en: "Hops back and sprints for a moment."}, cooldown_ticks: 100, resource_cost: 0, tags: [buff, movement]}
-gameplay:
-  params: {swift_ticks: 40, propel: -1.0}
-  expose:
-    - {id: duration, param: swift_ticks}
-  timeline:
-    - id: t0
-      at: 0
+meta:
+  name: {ja: "影走り", en: "Shadow Step"}
+  description: {ja: "後ろへ跳んで短時間走り抜ける。", en: "Hops back and sprints for a moment."}
+  cooldown_ticks: 100
+  resource_cost: 0
+  tags: [buff, movement]
+anchors:
+  - {id: puff_pt, anchor: caster, offset: {up: 0.2}}
+machine:
+  start: main
+  states:
+    main:
+      for: 1
+      then: end
       do:
-        - {id: buff, op: status, target: caster, status: swift, duration_ticks: "${swift_ticks}"}
-        - {id: propel, op: propel, direction: "= axis(caster, \"forward\")", strength: "${propel}"}
+        - {id: buff, op: status, target: caster, status: swift, stacks: 1, for: 40}
+        - {id: propel, op: impulse, at: 0, target: caster, vector: {of: caster, forward: -1.0}}
+        - {id: snd, op: sound, sound: "astera:weapons/dash-whoosh", anchor: caster, volume: 0.8, pitch: 1.3}
+        - {id: puff, op: particle_def, def: dash-cloud, anchor: puff_pt}
+    end: {final: true}

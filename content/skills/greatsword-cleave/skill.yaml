@@ -1,6 +1,4 @@
-# Converted from content/skills/greatsword-cleave.yaml by tools/skill-convert/convert.py (v1 archetype: melee). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
-# Generated point-frame offsets are [left, up, forward] in the parent frame.
-apiVersion: "astera/v2"
+apiVersion: "astera/v3"
 kind: Skill
 id: greatsword-cleave
 item: greatsword
@@ -10,18 +8,33 @@ meta:
   cooldown_ticks: 28
   resource_cost: 35
   tags: [melee, physical, burst]
-gameplay:
-  params: {arc_deg: 150.0, range: 4.2, dmg_physical: 65.0, knockback: 1.3}
-  expose:
-    - {id: damage, param: dmg_physical}
-    - {id: range, param: range}
+anchors:
+  cast_fx: {anchor: caster.eye, offset: {up: -0.3, forward: 2.4}, mode: snapshot}
+  heart: {anchor: victim.body, offset: {up: 0.4}}
+  head: {anchor: victim.body, offset: {up: 0.8}}
+presentation:
   timeline:
-    - id: t0
-      at: 0
+    - at: 0
       do:
-        - {id: swing, op: hit, frames: [caster], sector: {frame: caster, at: eye, forward: caster.forward, left: caster.left, angle_deg: "${arc_deg}", range: "${range}", height: 2.0}, window: once}
-  "on":
-    hit:
-      - {id: dmg, op: damage, target: victim, components: [{kind: physical, amount: "${dmg_physical}"}], when: "= event.source == 'swing'"}
-      - {id: kb, op: knockback, direction: "= normalize(pos(victim) - pos(caster))", strength: "${knockback}", when: "= event.source == 'swing'"}
-      - {id: swing_hit_count, op: counter, key: swing_hits, when: "= event.source == 'swing'"}
+        - {id: snd, op: sound, sound: "astera:weapons/blade-heavy-swing", anchor: caster, volume: 1.0, pitch: 0.6}
+        - {id: fx, op: particle_def, def: cleave-sweep, anchor: cast_fx}
+gameplay:
+  timeline:
+    - at: 0
+      do:
+        - id: swing
+          op: hit
+          anchor: caster.eye
+          targets: enemies
+          shape: {sector: {deg: 150.0, range: 4.2, height: 2.0, forward: look}}
+          window: once
+          ignore_invulnerability: false
+          damage: {physical: 65.0}
+          on:
+            hit:
+              - {id: snd_hit, op: sound, sound: "astera:weapons/blade-crit", anchor: victim.body, volume: 1.0, pitch: 1.0}
+              - {id: fx_hit, op: particle_def, def: hit-spark, anchor: heart}
+              - {id: fx_ind, op: particle_def, def: hit-indicator, anchor: head}
+              - {id: kb, op: knockback, target: event.victim, direction: "= normalize(pos(event.victim) - pos(caster))", strength: 1.3}
+            miss:
+              - {id: whiff, op: sound, sound: "astera:weapons/blade-miss", anchor: caster, volume: 1.0, pitch: 1.0}

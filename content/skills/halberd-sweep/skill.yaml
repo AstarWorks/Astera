@@ -1,21 +1,28 @@
-# Converted from content/skills/halberd-sweep.yaml by tools/skill-convert/convert.py (v1 archetype: melee). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
-# Generated point-frame offsets are [left, up, forward] in the parent frame.
-apiVersion: "astera/v2"
+apiVersion: "astera/v3"
 kind: Skill
 id: halberd-sweep
 item: halberd
 meta: {name: {ja: "薙ぎ払い", en: "Halberd Sweep"}, description: {ja: "広い弧で前方を薙ぎ払う。", en: "A wide sweeping arc."}, cooldown_ticks: 24, resource_cost: 12, tags: [melee, physical]}
-gameplay:
-  params: {arc_deg: 160.0, range: 3.8, dmg_physical: 38.0, knockback: 0.6}
-  expose:
-    - {id: damage, param: dmg_physical}
-    - {id: range, param: range}
+anchors:
+  cast_fx: {anchor: caster.eye, offset: {up: -0.1, forward: 1.6}, mode: snapshot}
+  heart: {anchor: victim.body, offset: {up: 0.4}}
+presentation:
   timeline:
-    - id: t0
-      at: 0
+    - at: 0
       do:
-        - {id: swing, op: hit, frames: [caster], sector: {frame: caster, at: eye, forward: caster.forward, left: caster.left, angle_deg: "${arc_deg}", range: "${range}", height: 2.0}, window: once}
-  "on":
-    hit:
-      - {id: dmg, op: damage, target: victim, components: [{kind: physical, amount: "${dmg_physical}"}], when: "= event.source == 'swing'"}
-      - {id: kb, op: knockback, direction: "= normalize(pos(victim) - pos(caster))", strength: "${knockback}", when: "= event.source == 'swing'"}
+        - {id: snd, op: sound, sound: "astera:weapons/blade-heavy-swing", anchor: caster, volume: 1.0, pitch: 0.9}
+        - {id: fx, op: particle_def, def: slash-sweep, anchor: cast_fx}
+gameplay:
+  timeline:
+    - at: 0
+      do:
+        - id: swing
+          op: hit
+          anchor: caster.eye
+          targets: enemies
+          shape: {sector: {deg: 160.0, range: 3.8, height: 2.0}}
+          damage: {physical: 38.0}
+          on:
+            hit:
+              - {id: snd_hit, op: sound, sound: "astera:weapons/blade-hit", anchor: victim.body, volume: 0.7, pitch: 1.2}
+              - {id: fx_hit, op: particle_def, def: hit-spark, anchor: heart}

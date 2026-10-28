@@ -1,8 +1,0 @@
-# Converted from content/skills/crimson-chain-axe-s2.yaml by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
-# Generated point-frame offsets are [left, up, forward] in the parent frame.
-apiVersion: "astera/v2"
-kind: Skill
-id: crimson-chain-axe-s2
-item: crimson-chain-axe
-meta: {name: {ja: "二重の刺繍", en: "Double Embroidery"}, description: {ja: "緋色の針を二本続けて撃つ。", en: "Fire two crimson needles in a row."}, cooldown_ticks: 130, resource_cost: 18}
-gameplay: {timeline: [{id: t27, at: 27, do: [{id: cast, op: cast_skill, skill: crimson-needle-projectile}]}, {id: t54, at: 54, do: [{id: cast_2, op: cast_skill, skill: crimson-needle-projectile}]}]}

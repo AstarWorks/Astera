@@ -1,17 +1,20 @@
-# Converted from content/skills/rapier-sidestep.yaml by tools/skill-convert/convert.py (v1 archetype: buff). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
-# Generated point-frame offsets are [left, up, forward] in the parent frame.
-apiVersion: "astera/v2"
+# v3 hand port of the v2 skill (ADR-0303 rev4.2). v2 params evasive_ticks 20, propel -0.9.
+apiVersion: astera/v3
 kind: Skill
 id: rapier-sidestep
 item: rapier
 meta: {name: {ja: "受け流し", en: "Parry Step"}, description: {ja: "後方へ軽く身を引き、素早く動ける。", en: "A light backstep followed by a short sprint."}, cooldown_ticks: 120, resource_cost: 0, tags: [melee, movement]}
-gameplay:
-  params: {evasive_ticks: 20, propel: -0.9}
-  expose:
-    - {id: duration, param: evasive_ticks}
-  timeline:
-    - id: t0
-      at: 0
-      do:
-        - {id: buff, op: status, target: caster, status: evasive, duration_ticks: "${evasive_ticks}"}
-        - {id: propel, op: propel, direction: "= axis(caster, \"forward\")", strength: "${propel}"}
+anchors:
+  - {id: feet, anchor: caster, offset: {up: 0.2}}                      # was pt_caster_0_0p2_0
+machine:
+  start: step
+  states:
+    step:
+      for: 1
+      then: end
+      enter:
+        - {id: buff, op: status, target: caster, status: evasive, stacks: 1, for: 20}   # stacks: 1 assumed
+        - {id: back, op: impulse, target: caster, vector: {of: caster, forward: -0.9}}
+        - {id: snd, op: sound, sound: "astera:weapons/dash-whoosh", anchor: caster, volume: 0.8, pitch: 1.4}
+        - {id: fx, op: particle_def, def: dash-cloud, anchor: feet}
+    end: {final: true}

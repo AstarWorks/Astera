@@ -1,0 +1,22 @@
+# error: SkillDecodeError.MissingField   (2.0a: a repeating group whose extended child has no end of its own must say `lasts`; field `lasts`)
+apiVersion: astera/v3
+kind: Skill
+id: rejected-r8
+item: couture-rapier
+meta: {cooldown_ticks: 10, resource_cost: 0}
+anchors:
+  - {id: hand, anchor: caster.hand_r}
+machine:
+  start: s
+  states:
+    s:
+      for: 30
+      then: end
+      do:
+        - id: pulse
+          at: 0
+          every: 5
+          for: 20
+          do:
+            - {id: glyph, op: display, kind: sprite, sprite: slash_arc, anchor: hand, size: [0.5, 0.5], billboard: center, at: 0}
+    end: {final: true}

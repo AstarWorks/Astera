@@ -1,6 +1,5 @@
-# Converted from content/skills/rifle-shot.yaml by tools/skill-convert/convert.py (v1 archetype: projectile). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
-# Generated point-frame offsets are [left, up, forward] in the parent frame.
-apiVersion: "astera/v2"
+# v3 hand port of the v2 skill (ADR-0303 rev4.2). v2 params launch_speed 4.5, max_lifetime_ticks 40, dmg_physical 25.0.
+apiVersion: astera/v3
 kind: Skill
 id: rifle-shot
 item: rifle
@@ -10,19 +9,42 @@ meta:
   cooldown_ticks: 14
   resource_cost: 1
   tags: [ranged, gun, sustain]
-frames:
-  - {id: bolt, kind: body, parent: world, inactive: true}
-  - {id: pt_aim_0_0_0p5, kind: point, parent: aim, offset: [0.0, 0.0, 0.5]}
-gameplay:
-  params: {launch_speed: 4.5, max_lifetime_ticks: 40, dmg_physical: 25.0}
-  expose:
-    - {id: damage, param: dmg_physical}
-    - {id: flight_speed, param: launch_speed}
-  timeline:
-    - {id: t0, at: 0, do: [{id: bolt, op: projectile, body: bolt, from: pt_aim_0_0_0p5, velocity: "= look(caster) * launch_speed", max_ticks: "${max_lifetime_ticks}", radius: 0.5}]}
-  "on":
-    hit:
-      - {id: dmg, op: damage, components: [{kind: physical, amount: "${dmg_physical}"}], target: victim}
-      - {op: break_area, shape: sphere, radius: 0.5, block_damage: 20, breaks: true, id: chip, at: "= contact.point"}
-    block:
-      - {op: break_area, shape: sphere, radius: 0.5, block_damage: 20, breaks: true, id: chip_2, at: "= contact.point"}
+anchors:
+  - {id: start,  anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}            # was pt_aim_0_0_0p5
+  - {id: muzzle, anchor: caster.eye, offset: {up: -0.25, forward: 0.9}, mode: snapshot} # was pt_aim_0_m0p25_0p9
+  - {id: foe,    anchor: victim.root}   # GAP(Q2): v2 enemy frame origin = feet+0.8; victim.root = feet
+  - {id: heart,  anchor: victim.root, offset: {up: 1.2}}   # GAP(Q2): v2 enemy frame origin = feet+0.8; victim.root = feet
+machine:
+  start: fire
+  states:
+    fire:
+      for: 40                       # = max_lifetime_ticks; covers the whole flight
+      then: end
+      enter:
+        - {id: snd, op: sound, sound: "astera:weapons/rifle-crack", anchor: caster, volume: 1.0, pitch: 0.7}
+        - {id: fl0, op: particle_def, def: gun-muzzle-flash, anchor: muzzle}
+        - {id: fl1, op: particle_def, def: gun-muzzle-smoke, anchor: muzzle}
+      do:
+        - id: bolt
+          op: projectile
+          origin: start
+          velocity: "= look(caster) * 4.5"
+          for: 40
+          radius: 0.5
+          hit: {targets: enemies, once: true}
+          block: {mode: despawn}
+          on:
+            hit:
+              - {id: dmg, op: damage, target: event.victim, damage: {physical: 25.0}}
+              - {id: chip, op: break_area, anchor: contact, shape: {sphere: {radius: 0.5, ahead: 4.0}}, tool: none, block_damage: 20, ripple: 29, revert: 200, outside_arena: false}
+              - {id: snd_hit, op: sound, sound: "astera:weapons/gun-impact", anchor: foe}
+              - {id: fx_hit, op: particle_def, def: gun-impact, anchor: heart}
+            block:
+              - {id: chip_b, op: break_area, anchor: contact, shape: {sphere: {radius: 0.5, ahead: 4.0}}, tool: none, block_damage: 20, ripple: 29, revert: 200, outside_arena: false}
+              - {id: snd_blk, op: sound, sound: "astera:weapons/gun-impact-block", anchor: contact, volume: 0.6, pitch: 1.6}
+              - {id: fx_blk0, op: particle_def, def: gun-impact, anchor: contact}
+              - {id: fx_blk1, op: particle_def, def: gun-impact-smoke, anchor: contact}
+        # trail: one call per `spacing` blocks of bolt travel
+        - {id: trail0, op: particle, particle: crit, anchor: {of: bolt, sweep: 0.5}, count: 1, offset: [0, 0, 0], extra: 0, every: 1, until: bolt.end}
+        - {id: trail1, op: particle, particle: white_smoke, anchor: {of: bolt, sweep: 0.5}, count: 1, offset: [0.02, 0.02, 0.02], extra: 0, every: 1, until: bolt.end}
+    end: {final: true}

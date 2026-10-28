@@ -47,7 +47,8 @@
 .ctl #scrub { flex: 1 1 220px; min-width: 160px; }
 .ctl .read { font-variant-numeric: tabular-nums; white-space: nowrap; }
 
-.beats-sec, .sound-sec { margin-top: 22px; }
+.beats-sec, .sound-sec, .expand-sec { margin-top: 22px; }
+.expt td { font-family: ui-monospace, monospace; font-size: .8rem; overflow-wrap: anywhere; }
 .beats-head { display: flex; flex-wrap: wrap; gap: 8px 20px; align-items: baseline; }
 .beats-sum { display: flex; gap: 16px; flex-wrap: wrap; }
 .sumitem small { opacity: .65; margin-right: 4px; }

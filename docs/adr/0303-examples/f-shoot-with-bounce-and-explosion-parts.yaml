@@ -18,7 +18,7 @@ machine:
       for: "= max_ticks"
       then: end
       enter:
-        - {id: bolt, op: projectile, from: muzzle, velocity: "= look(caster) * speed", for: "= max_ticks", radius: "= radius", block: "= block"}
+        - {id: bolt, op: projectile, origin: muzzle, velocity: "= look(caster) * speed", for: "= max_ticks", radius: "= radius", block: "= block"}
       on:
         - {event: hit,    to: end, do: [{emit: hit}, {emit: contact}]}
         - {event: bounce, to: flying, when: "= event.i < block.times", do: [{emit: bounce}]}   # re-enter keeps the body; guard bounds the loop (10.4 check 3)
@@ -41,13 +41,13 @@ machine:
       then: end
       enter:
         - {id: boom, op: sound, sound: entity.generic.explode, anchor: center, volume: 0.8, pitch: 1.2}
-        - {id: dmg, op: hit, at: 0, shape: {sphere: "= radius"}, damage: "= damage"}
+        - {id: dmg, op: hit, at: 0, anchor: center, targets: enemies, shape: {sphere: "= radius"}, damage: {physical: "= damage"}}
       do:
         - id: ring
           op: display
           kind: sprite
           sprite: ring-flash
-          anchor: at
+          anchor: center
           billboard: center
           size: [0.3, 0.3]
           for: "= ring_for"
@@ -74,7 +74,6 @@ machine:
       use: explosion
       with: {radius: 3, damage: 24, ring_for: 8}
       frames: {center: fly.bolt}                          # read frame from the finished child (snapshot of its last pose)
-      then_event: boom.end
       on: [{event: boom.end, to: done}]
     done: {final: true}
 # Expanded table:

@@ -1,0 +1,49 @@
+# Hand-inlined form of docs/adr/0303-examples/e-couture-rapier-def-parry-part.yaml (skill couture-rapier-def calling part parry with
+# window 30, range 3.5, resist 0.7, delay 7, riposte_dmg 30), written directly in existing v2 ops. The whiff branch (timer vs hurt race)
+# is intentionally absent: it needs the D4 Transition op. PartMachineScenarioTest proves expand + lower produces exactly this.
+---
+apiVersion: astera/v3
+kind: Skill
+id: couture-rapier-def
+item: couture-rapier
+meta: {cooldown_ticks: 85, resource_cost: 10}
+anchors:
+  - {id: blade, anchor: caster.hand_r, mount: caster}
+gameplay:
+  timeline:
+    - id: t0
+      at: 0
+      do:
+        - {id: guard_parry_window_resist, op: modify_attribute, attribute: resist.physical, operation: add, amount: 0.7, target: caster, for: 30}
+        - {id: guard_parry_window_fx_enter, op: raise_event, name: "guard.parry_window@enter"}
+        - id: guard_parry_window_win
+          op: window
+          listen: incoming_hit
+          ticks: 30
+          once: true
+          filter: "= dist(caster, victim) <= 3.5"
+          do:
+            - {id: guard_parry_window_emit_guard_parried, op: raise_event, name: guard.parried}
+            - {id: guard_riposte_fx_enter, op: raise_event, name: "guard.riposte@enter"}
+            - id: guard_riposte_delay
+              op: delay
+              after: 7
+              do:
+                - {id: guard_riposte_riposte_hit, op: damage, target: victim, components: [{kind: physical, amount: 30}], ignore_invulnerability: true, when: "= dist(caster, victim) < 3.5"}
+                - {id: guard_end_emit_guard_end, op: raise_event, name: guard.end}
+                - {id: done_emit_end, op: raise_event, name: end}
+presentation:
+  on:
+    "guard.parry_window@enter":
+      - {id: guard_parry_window_snd_guard, op: sound, sound: item.shield.block, anchor: caster, volume: 0.6, pitch: 1.5}
+      - id: guard_parry_window_guard_plate
+        op: display
+        kind: sprite
+        sprite: guard-arc
+        anchor: blade.tip
+        billboard: center
+        size: [0.8, 0.8]
+        for: 30
+        motion: [{law: spin, axis: face, deg_per_tick: 12}, {law: fade, exponent: 1.0, from: 20, for: 10}]
+    "guard.riposte@enter":
+      - {id: guard_riposte_wind, op: sound, sound: item.trident.riptide_1, anchor: caster, volume: 0.7, pitch: 1.6}

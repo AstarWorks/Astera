@@ -1,21 +1,43 @@
-# Converted from content/skills/iron-blade-slash.yaml by tools/skill-convert/convert.py (v1 archetype: melee). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
-# Generated point-frame offsets are [left, up, forward] in the parent frame.
-apiVersion: "astera/v2"
+# Wave 2 v3 draft (basic-ac): ported 1:1 from the v2 skill.yaml + look.yaml. GAP comments mark what v3 cannot spell yet.
+apiVersion: astera/v3
 kind: Skill
 id: iron-blade-slash
 item: iron-blade
-meta: {name: {ja: "鉄の斬撃", en: "Iron Slash"}, description: {ja: "前方を斬りつける。", en: "A clean forward slash."}, cooldown_ticks: 10, resource_cost: 6, tags: [melee, physical]}
-gameplay:
-  params: {arc_deg: 90.0, range: 3.4, dmg_physical: 36.0, knockback: 0.4}
-  expose:
-    - {id: damage, param: dmg_physical}
-    - {id: range, param: range}
-  timeline:
-    - id: t0
-      at: 0
-      do:
-        - {id: swing, op: hit, frames: [caster], sector: {frame: caster, at: eye, forward: caster.forward, left: caster.left, angle_deg: "${arc_deg}", range: "${range}", height: 2.0}, window: once}
-  "on":
-    hit:
-      - {id: dmg, op: damage, target: victim, components: [{kind: physical, amount: "${dmg_physical}"}], when: "= event.source == 'swing'"}
-      - {id: kb, op: knockback, direction: "= normalize(pos(victim) - pos(caster))", strength: "${knockback}", when: "= event.source == 'swing'"}
+meta:
+  name: {ja: "鉄の斬撃", en: "Iron Slash"}
+  description: {ja: "前方を斬りつける。", en: "A clean forward slash."}
+  cooldown_ticks: 10
+  resource_cost: 6
+  tags: [melee, physical]
+params:
+  arc_deg: {type: number, default: 90}
+  range: {type: blocks, default: 3.4}
+  dmg_physical: {type: number, default: 36.0}
+anchors:
+  - {id: eye, anchor: caster.eye}
+  - {id: sweep, anchor: caster.eye, offset: {up: -0.2, forward: 1.4}, mode: snapshot}   # was pt_aim_0_m0p2_1p4
+machine:
+  start: swing
+  states:
+    swing:
+      for: 1
+      then: end
+      enter:
+        - {id: snd_swing, op: sound, sound: "astera:weapons/sword-swing", anchor: caster, volume: 1.0, pitch: 1.0}
+        - {id: fx_swing, op: particle_def, def: slash-sweep, anchor: sweep}
+        # GAP(Q1): max_count spelling (A: required int|all, B: optional); v2 had no cap, so `all` = unlimited.
+        - id: swing
+          op: hit
+          anchor: eye
+          at: 0
+          shape: {sector: {deg: "= arc_deg", range: "= range", height: 2.0, forward: look}}
+          targets: enemies
+          max_count: all
+          window: once
+          ignore_invulnerability: false
+          damage: {physical: "= dmg_physical"}
+          on:
+            hit:
+              - {id: snd_hit, op: sound, sound: "astera:weapons/blade-hit", anchor: contact, volume: 0.7, pitch: 1.2}
+              - {id: fx_hit, op: particle_def, def: hit-spark, anchor: contact}
+    end: {final: true}

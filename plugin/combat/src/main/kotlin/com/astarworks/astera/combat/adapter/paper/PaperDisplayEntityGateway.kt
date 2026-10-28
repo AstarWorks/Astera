@@ -10,6 +10,8 @@ import com.astarworks.astera.core.application.port.outbound.ticks
 import com.astarworks.astera.core.domain.effect.Audience
 import com.astarworks.astera.core.domain.effect.AudienceResolver
 import com.astarworks.astera.core.domain.effect.VfxIntensity
+import com.astarworks.astera.core.domain.effect.VfxLane
+import com.astarworks.astera.core.domain.effect.VfxQualityProfile
 import com.astarworks.astera.core.domain.animation.skinrig.SkinRigBone
 import com.astarworks.astera.core.domain.animation.skinrig.SkinRigMarker
 import com.astarworks.astera.core.domain.effect.DisplayBillboard
@@ -54,6 +56,8 @@ public class PaperDisplayEntityGateway(
     private val scheduler: IScheduler,
     /** A viewer's own `vfx_intensity`; read when the display is spawned. */
     private val intensityOf: (PlayerId) -> VfxIntensity = { VfxIntensity.FULL },
+    /** Server-wide cap on live skill displays (v1 `VfxPlayer.MAX_LIVE_DISPLAYS`); the quality floor and the hard stop derive from it. */
+    private val maxLiveDisplays: Int = MAX_LIVE_DISPLAYS,
 ) : IDisplayEntityGateway {
 
     private val log = LoggerFactory.getLogger(javaClass)
@@ -67,21 +71,43 @@ public class PaperDisplayEntityGateway(
     private val attachments = mutableMapOf<DisplayHandle, Attachment>()
     private val weaponStacks = mutableMapOf<DisplayHandle, ItemStack>()
 
-    override fun spawnAttached(world: WorldId, spec: DisplaySpec, renderedLines: List<String>, anchor: PlayerId, offset: Vec3): DisplayHandle? {
+    /** Displays this gateway spawned and has not removed; pruned of dead entities once per tick. */
+    private val live = LinkedHashSet<DisplayHandle>()
+    private var prunedAt = -1L
+
+    /** The live-display budget (v1 `reserved` of `maxLiveDisplays`): count of valid displays after dropping the ones that expired. */
+    private fun liveCount(): Int {
+        val now = scheduler.currentTick()
+        if (now != prunedAt) {
+            prunedAt = now
+            live.removeIf { (server.getEntity(it.id)?.isValid) != true }
+        }
+        return live.size
+    }
+
+    /** v1 VfxPlayer.spawn:593 -- budget pressure downgrades everyone: ambient (then accent) displays are not spawned at all. */
+    private fun budgetAdmits(lane: VfxLane): Boolean {
+        val used = liveCount()
+        return used < maxLiveDisplays && VfxQualityProfile.admits(VfxQualityProfile.serverFloor(used, maxLiveDisplays), lane)
+    }
+
+    override fun spawnAttached(world: WorldId, spec: DisplaySpec, renderedLines: List<String>, anchor: PlayerId, offset: Vec3, scope: IDisplayEntityGateway.DisplayScope?): DisplayHandle? {
         val player = server.getPlayer(anchor.uuid) ?: return null
         if (spec.billboard != DisplayBillboard.FIXED || player.world.name != world.value) return null
+        if (!budgetAdmits(scope?.lane ?: VfxLane.CORE)) return null
         val location = player.location
         val height = player.height
         val origin = Vec3(location.x, location.y + height, location.z)
         // Both the spawn position and its first metadata must already use the riding origin:
         // a post-spawn correction can otherwise render a frame below the player's feet.
         val initial = spec.transform.copy(translation = spec.transform.translation + offset - Vec3(0.0, height, 0.0))
-        val handle = spawn(world, origin, spec.copy(transform = initial), renderedLines, player) ?: return null
+        val handle = spawn(world, origin, spec.copy(transform = initial), renderedLines, player, hidden = scope != null && !scope.isOpen()) ?: return null
         val display = server.getEntity(handle.id) as? Display ?: return null
         if (!player.addPassenger(display)) {
             remove(handle)
             return null
         }
+        if (scope != null && !scope.isOpen()) reveal(display, player.world, origin, scope.audience, scope.caster, scope.target, scope.lane)
         attachments[handle] = Attachment(anchor, player.world, offset, spec.transform, height, spec.kind is DisplayKind.SkinBone)
         return handle
     }
@@ -107,6 +133,52 @@ public class PaperDisplayEntityGateway(
 
     override fun spawn(world: WorldId, at: Vec3, spec: DisplaySpec, renderedLines: List<String>): DisplayHandle? =
         spawn(world, at, spec, renderedLines, null)
+
+    private fun IDisplayEntityGateway.DisplayScope.isOpen(): Boolean = audience == Audience.ALL && lane == VfxLane.CORE
+
+    /**
+     * Audience-scoped spawn (v1 PaperDisplayEntityGateway). The display is created `visibleByDefault = false` (before it is
+     * added to the world, so no tracker ever sends it unasked) and revealed with `Player.showEntity` to exactly the resolved
+     * viewers: the audience relative to the caster / target, minus viewers whose `vfx_intensity` drops [lane]. Candidates are
+     * the players near the display plus the caster and target; each reveal runs on that viewer's entity scheduler.
+     */
+    override fun spawn(
+        world: WorldId,
+        at: Vec3,
+        spec: DisplaySpec,
+        renderedLines: List<String>,
+        audience: Audience,
+        caster: PlayerId?,
+        target: PlayerId?,
+        lane: VfxLane,
+    ): DisplayHandle? {
+        if (!budgetAdmits(lane)) return null
+        if (audience == Audience.ALL && lane == VfxLane.CORE) return spawn(world, at, spec, renderedLines)
+        val bukkitWorld = server.getWorld(world.value) ?: return null
+        val handle = spawn(world, at, spec, renderedLines, null, hidden = true) ?: return null
+        val display = server.getEntity(handle.id) as? Display ?: return handle
+        reveal(display, bukkitWorld, at, audience, caster, target, lane)
+        return handle
+    }
+
+    private fun reveal(display: Display, bukkitWorld: org.bukkit.World, at: Vec3, audience: Audience, caster: PlayerId?, target: PlayerId?, lane: VfxLane) {
+        val nearby = bukkitWorld.getNearbyPlayers(Location(bukkitWorld, at.x, at.y, at.z), VIEWER_RADIUS).map { PlayerId(it.uniqueId) }
+        val candidates = AudienceResolver.select(AudienceResolver.displayPool(nearby, caster, target), audience, caster, target)
+        val floor = VfxQualityProfile.serverFloor(live.size, maxLiveDisplays)
+        for (viewer in VfxQualityProfile.filterViewers(candidates, lane, intensityOf, floor)) {
+            scheduler.run(ExecutionScope.Entity(viewer.uuid), ticks(0)) {
+                server.getPlayer(viewer.uuid)?.takeIf { display.isValid }?.showEntity(plugin, display)
+            }
+        }
+    }
+
+    override fun spawnFor(world: WorldId, at: Vec3, spec: DisplaySpec, renderedLines: List<String>, viewer: PlayerId): DisplayHandle? {
+        val player = server.getPlayer(viewer.uuid) ?: return null
+        val handle = spawn(world, at, spec, renderedLines, null, hidden = true) ?: return null
+        val display = server.getEntity(handle.id) ?: return null
+        player.showEntity(plugin, display)
+        return handle
+    }
 
     private fun spawn(world: WorldId, at: Vec3, spec: DisplaySpec, renderedLines: List<String>, owner: Player?, hidden: Boolean = false): DisplayHandle? {
         val bukkitWorld = server.getWorld(world.value) ?: return null
@@ -182,7 +254,7 @@ public class PaperDisplayEntityGateway(
                 configure(text, spec, hidden)
             }
         }
-        return DisplayHandle(display.uniqueId)
+        return DisplayHandle(display.uniqueId).also { live += it }
     }
 
     /** Initialize before the entity is added to the world and starts being tracked. */
@@ -342,6 +414,7 @@ public class PaperDisplayEntityGateway(
     override fun remove(handle: DisplayHandle) {
         attachments.remove(handle)
         weaponStacks.remove(handle)
+        live.remove(handle)
         ConcealedDisplays.remove(handle.id)
         server.getEntity(handle.id)?.remove()
     }
@@ -353,12 +426,12 @@ public class PaperDisplayEntityGateway(
 
         /** Players within this many blocks of an audience-scoped display are revealed candidates (beyond any display view range). */
         const val VIEWER_RADIUS = 128.0
+
+        /** Server-wide cap on live skill displays (v1 `VfxPlayer.MAX_LIVE_DISPLAYS`). */
+        const val MAX_LIVE_DISPLAYS = 600
     }
 
     private fun blockKey(key: String): String = if (':' in key) key else "minecraft:$key"
 
-    private fun unsupported(reason: String): DisplayHandle? {
-        log.warn("SpawnDisplay dropped: {}", reason)
-        return null
-    }
+    private fun unsupported(reason: String): Nothing = error("SpawnDisplay refused: $reason")
 }

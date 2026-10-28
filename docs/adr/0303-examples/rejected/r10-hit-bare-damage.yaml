@@ -1,0 +1,17 @@
+# error: SkillDecodeError.Invalid   (10.1b: `damage` is a map kind -> amount; a bare number hides the kind)
+apiVersion: astera/v3
+kind: Skill
+id: rejected-r10
+item: couture-rapier
+meta: {cooldown_ticks: 10, resource_cost: 0}
+anchors:
+  - {id: hand, anchor: caster.hand_r}
+machine:
+  start: s
+  states:
+    s:
+      for: 12
+      then: end
+      do:
+        - {id: cut, op: hit, at: 4, anchor: caster, targets: enemies, shape: {sector: {deg: 90, range: 4, height: 2.0}}, damage: 12}
+    end: {final: true}

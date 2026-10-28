@@ -1,6 +1,7 @@
 package com.astarworks.astera.core.application.skillengine.load
 
 import com.astarworks.astera.core.application.skillengine.compose.ComposedSkill
+import com.astarworks.astera.core.domain.skillengine.table.CompiledSkill
 
 /** Result of reloading one skill (and, for a base, its variants). */
 public data class SkillLoadReport(
@@ -13,7 +14,7 @@ public data class SkillLoadReport(
  * definition; casts in progress hold their [CompiledSkill] and finish on it.
  */
 public interface SkillCatalog {
-    public fun get(skillId: String): CompiledSkill?
+    public fun get(id: String): CompiledSkill?
     public fun ids(): Set<String>
 
     /** Decode + compile + swap atomically for the given composed skills; others are untouched. */
