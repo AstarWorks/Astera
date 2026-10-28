@@ -62,41 +62,50 @@ pillars:
   - team: red
     tier: 1
     position: { x: -9.0, y: 65.0, z: -55.0 }
-    block: minecraft:obsidian
+    block: minecraft:stripped_dark_oak_wood
+    affinity: axe
   - team: red
     tier: 2
     position: { x: 9.0, y: 65.0, z: -55.0 }
-    block: minecraft:crying_obsidian
+    block: minecraft:coarse_dirt
+    affinity: shovel
   - team: red
     tier: 3
     position: { x: 0.0, y: 65.0, z: -66.0 }
-    block: minecraft:beacon
+    block: minecraft:polished_deepslate
+    affinity: pickaxe
     hp: 800
   - team: blue
     tier: 1
     position: { x: 52.0, y: 65.0, z: 20.0 }
-    block: minecraft:obsidian
+    block: minecraft:stripped_dark_oak_wood
+    affinity: axe
   - team: blue
     tier: 2
     position: { x: 43.0, y: 65.0, z: 35.0 }
-    block: minecraft:crying_obsidian
+    block: minecraft:coarse_dirt
+    affinity: shovel
   - team: blue
     tier: 3
     position: { x: 57.0, y: 65.0, z: 33.0 }
-    block: minecraft:beacon
+    block: minecraft:polished_deepslate
+    affinity: pickaxe
     hp: 800
   - team: yellow
     tier: 1
     position: { x: -43.0, y: 65.0, z: 35.0 }
-    block: minecraft:obsidian
+    block: minecraft:stripped_dark_oak_wood
+    affinity: axe
   - team: yellow
     tier: 2
     position: { x: -52.0, y: 65.0, z: 20.0 }
-    block: minecraft:crying_obsidian
+    block: minecraft:coarse_dirt
+    affinity: shovel
   - team: yellow
     tier: 3
     position: { x: -57.0, y: 65.0, z: 33.0 }
-    block: minecraft:beacon
+    block: minecraft:polished_deepslate
+    affinity: pickaxe
     hp: 800
 
 spawn_points:

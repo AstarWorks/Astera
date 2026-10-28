@@ -18,7 +18,11 @@ import com.astarworks.astera.core.domain.stage.StagePillar
 import com.astarworks.astera.match.application.gamemode.annihilation.AnnihilationPillarTargets
 import com.astarworks.astera.match.application.port.inbound.IMatchLifecycle
 import com.astarworks.astera.match.domain.gamemode.annihilation.AnnihilationConfig
+import com.astarworks.astera.match.domain.gamemode.annihilation.PillarDamageTuning
 import com.astarworks.astera.match.domain.match.MatchStateMachine
+import com.astarworks.astera.core.domain.world.ToolKind
+import com.astarworks.astera.core.application.port.outbound.IStructureTargets.DamageKind
+import com.astarworks.astera.core.application.port.outbound.IStructureTargets.DamageSource
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -31,6 +35,8 @@ class AnnihilationPillarScenarioTest {
 
     private val config = AnnihilationConfig(
         pillarHp = 40,
+        // The siege test casts a plain weapon skill from 5 blocks: count it in full so 40 HP stays a handful of casts.
+        pillarDamage = PillarDamageTuning(weaponMult = 1.0),
         buildPhaseTicks = 200,
         engagePhaseTicks = 100_000,
         tier3PhaseTicks = 100_000,
@@ -134,6 +140,87 @@ class AnnihilationPillarScenarioTest {
             assertThat(ended.reason).isEqualTo(EndReason.TeamVictory(TeamId("red")))
             // Red's own pillars were never touched.
             assertThat(destroyed().none { it.owningTeam.value == "red" }).isTrue()
+        }
+    }
+
+    /**
+     * MODE-A1/A2: pillars are mining blocks. A tool skill of the pillar's affinity beats a tool of another class, which beats a
+     * weapon; a shot from beyond the far radius does nothing; tier 3 (hard stone / pickaxe) falls to a tool skill like the others.
+     * The shipped stage declares tier 1 axe, tier 2 shovel, tier 3 pickaxe; tuning is the shipped default.
+     */
+    @Test
+    fun `matching tool skill beats other tool beats weapon and far hits do nothing`() {
+        val mining = AnnihilationConfig(
+            pillarHp = 900,
+            pillarHpTier2 = 300,
+            pillarHpTier3 = 100_000,
+            buildPhaseTicks = 200,
+            engagePhaseTicks = 100_000,
+            tier3PhaseTicks = 100_000,
+        )
+        scenario("annihilation-pillar-mining", mining) {
+            val red = player("red-1", team = "red")
+            val blue = player("blue-1", team = "blue")
+            val yellow = player("yellow-1", team = "yellow")
+            val lifecycle = sim.services.getOrThrow<IMatchLifecycle>()
+            val matchId = (lifecycle.start(StageId("annihilation-arena"), "annihilation") as Result.Success).value
+            lifecycle.entry(matchId, red.id, TeamId("red"))
+            lifecycle.entry(matchId, blue.id, TeamId("blue"))
+            lifecycle.entry(matchId, yellow.id, TeamId("yellow"))
+            lifecycle.switchPhase(matchId, MatchStateMachine.TransitionTrigger.CountdownComplete)
+            advance(40)
+            val stage = checkNotNull(sim.services.getOrThrow<IStageRegistry>().find(StageId("annihilation-arena")))
+            val targets = sim.services.getOrThrow<IStructureTargets>()
+            val pillars = stage.pillars.associateBy { it.team.value to it.tier }
+            fun pillar(team: String, tier: NexusPillarTier): StagePillar = checkNotNull(pillars[team to tier])
+            fun id(team: String, tier: NexusPillarTier) =
+                AnnihilationPillarTargets.idOf("${matchId.value}-$team-${tier.ordinalValue}")
+            fun hp(team: String, tier: NexusPillarTier): Double = checkNotNull(targets.hitPoints(id(team, tier)))
+            blue.position = Vec3(0.0, groundY, 0.0)
+            yellow.position = Vec3(0.0, groundY, 1.0)
+
+            assertThat(pillar("blue", NexusPillarTier.TIER_1).affinity).isEqualTo(ToolKind.AXE)
+            assertThat(pillar("blue", NexusPillarTier.TIER_2).affinity).isEqualTo(ToolKind.SHOVEL)
+            assertThat(pillar("blue", NexusPillarTier.TIER_3).affinity).isEqualTo(ToolKind.PICKAXE)
+
+            advance(200) // Build ends -> Tier 1 opens
+            val t1 = pillar("blue", NexusPillarTier.TIER_1)
+            val near = Vec3(t1.centre.x, t1.position.y, t1.centre.z + 5.0)
+            val far = Vec3(t1.centre.x, t1.position.y, t1.centre.z + 40.0)
+            /** One hit of raw 100 (a tool skill's break_area block_damage) and the HP it removed; null when rejected. */
+            fun hit(kind: DamageKind, tool: ToolKind, from: Vec3): Double? {
+                val before = hp("blue", NexusPillarTier.TIER_1)
+                val r = targets.damage(id("blue", NexusPillarTier.TIER_1), red.id, 100.0, DamageSource(kind, tool, from))
+                return if (r is Result.Success) before - r.value else null
+            }
+
+            val matching = checkNotNull(hit(DamageKind.TOOL_SKILL, ToolKind.AXE, near))
+            val otherTool = checkNotNull(hit(DamageKind.TOOL_SKILL, ToolKind.PICKAXE, near))
+            val weapon = checkNotNull(hit(DamageKind.WEAPON, ToolKind.NONE, near))
+            assertThat(matching).`as`("matching tool skill").isEqualTo(300.0)
+            assertThat(otherTool).`as`("non-matching tool skill").isEqualTo(100.0)
+            assertThat(weapon).`as`("weapon hit").isLessThan(otherTool).isGreaterThan(0.0)
+            assertThat(matching).isGreaterThan(otherTool)
+            val hpBeforeFar = hp("blue", NexusPillarTier.TIER_1)
+            assertThat(hit(DamageKind.TOOL_SKILL, ToolKind.AXE, far)).`as`("beyond the far radius").isNull()
+            assertThat(hit(DamageKind.WEAPON, ToolKind.NONE, far)).isNull()
+            assertThat(hp("blue", NexusPillarTier.TIER_1)).isEqualTo(hpBeforeFar)
+            // Between near (8) and far (32) the damage falls off linearly: 20 blocks = half.
+            val mid = Vec3(t1.centre.x, t1.position.y, t1.centre.z + 20.0)
+            assertThat(checkNotNull(hit(DamageKind.TOOL_SKILL, ToolKind.AXE, mid))).isEqualTo(150.0)
+
+            // Fell tier 1 and tier 2 with their matching tools, then tier 3 (hard stone) takes a pickaxe skill.
+            while ((targets.hitPoints(id("blue", NexusPillarTier.TIER_1)) ?: 0.0) > 0.0) hit(DamageKind.TOOL_SKILL, ToolKind.AXE, near)
+            val t2 = pillar("blue", NexusPillarTier.TIER_2)
+            val t2Id = id("blue", NexusPillarTier.TIER_2)
+            targets.damage(t2Id, red.id, 100.0, DamageSource(DamageKind.TOOL_SKILL, ToolKind.SHOVEL, Vec3(t2.centre.x, t2.position.y, t2.centre.z + 5.0)))
+            advance(40) // the mode tick notices the cascade -> Phase 3 -> Tier 3 opens
+            val t3 = pillar("blue", NexusPillarTier.TIER_3)
+            val t3Id = id("blue", NexusPillarTier.TIER_3)
+            val t3Before = hp("blue", NexusPillarTier.TIER_3)
+            val r = targets.damage(t3Id, red.id, 100.0, DamageSource(DamageKind.TOOL_SKILL, ToolKind.PICKAXE, Vec3(t3.centre.x, t3.position.y, t3.centre.z + 5.0)))
+            assertThat(r).isInstanceOf(Result.Success::class.java)
+            assertThat(t3Before - hp("blue", NexusPillarTier.TIER_3)).`as`("pickaxe skill on a hard stone pillar").isEqualTo(300.0)
         }
     }
 

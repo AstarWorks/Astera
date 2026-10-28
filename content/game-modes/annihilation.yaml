@@ -32,13 +32,24 @@ default_config:
   respawn_delay_seconds: "5"
   death_cam_seconds: "2"
   spawn_protection_seconds: "3"
-  # Pillar HP per tier. Sizing (damage lands on a pillar with no invulnerability frames; sustained numbers):
-  # pistol ~118 dps (12-round mag + 1.5 s reload), knight-sword ~44 dps (energy-limited), epic s1 ~55-65 dps => a mixed squad of 4
-  # at ~70% uptime puts ~220 dps on a pillar: Tier 1 10000 = ~45 s, Tier 2 15000 = ~70 s, Tier 3 20000 = ~90 s. A lone pistol
-  # needs ~2 min on Tier 1, a lone sword ~5 min. The tier-3 phase (5 min) must still fit Tier 2 + Tier 3 (35000 = ~160 s).
-  pillar_hp: "10000"
-  pillar_hp_tier2: "15000"
-  pillar_hp_tier3: "20000"
+  # Pillar HP per tier. Pillars are mining-type blocks (tier 1 hard wood / axe, tier 2 hard dirt / shovel, tier 3 hard stone /
+  # pickaxe; the matching tool is the stage pillar's `affinity`). Sizing, sustained numbers for ONE player:
+  #   tool skill = break_area block_damage 100 x pillar_tool_skill_match_mult 3 = 300 per cast (iron fell/excavate ~5.5 s cooldown
+  #   => ~55 dps; bore + shatter ~80 dps); matching-tool hand break 8 x 2 = 16 per break at ~2 breaks/s => ~32 dps.
+  #   Tier 1 3200 = ~37 s, Tier 2 4800 = ~48 s, Tier 3 6000 = ~61 s (tier 2 + 3 = ~110 s fits the 5 min tier-3 phase).
+  # A weapon hit counts pillar_weapon_mult 0.18: pistol ~118 dps raw = ~21 dps => Tier 1 ~150 s (about 4x slower than tools).
+  # Damage falls off linearly from full at pillar_falloff_near blocks to 0 at pillar_falloff_far blocks (distance attacker -> pillar
+  # centre), so a sniper cannot kill a pillar from afar.
+  pillar_hp: "3200"
+  pillar_hp_tier2: "4800"
+  pillar_hp_tier3: "6000"
+  pillar_break_damage: "8"
+  pillar_hand_match_mult: "2.0"
+  pillar_tool_skill_match_mult: "3.0"
+  pillar_tool_skill_other_mult: "1.0"
+  pillar_weapon_mult: "0.18"
+  pillar_falloff_near: "8.0"
+  pillar_falloff_far: "32.0"
   build_phase_ticks: "1200"
   engage_phase_ticks: "12000"
   tier3_phase_ticks: "6000"
