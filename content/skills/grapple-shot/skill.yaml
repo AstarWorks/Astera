@@ -17,8 +17,8 @@ params:
   propel_2:           {type: number, default: 0.4}
 anchors:
   - {id: muzzle, anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}
-  - {id: cast_fx, anchor: caster.eye, offset: {up: -0.25, forward: 0.9}, mode: snapshot}
-  - {id: heart, anchor: victim.root, offset: {up: 1.2}}   # GAP(Q2): v2 pt_enemy_0_1p2_0 = enemy frame origin (feet+0.8) + 1.2; victim.root = feet
+  - {id: cast_fx, anchor: caster, offset: {up: -0.25, forward: 0.9}, mode: snapshot}
+  - {id: heart, anchor: victim.root, offset: {up: 1.2}}
 machine:
   start: cast
   states:
