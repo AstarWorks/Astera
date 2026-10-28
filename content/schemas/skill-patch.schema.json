@@ -1855,6 +1855,9 @@
                 },
                 "text": {
                     "type": "string"
+                },
+                "sample": {
+                    "type": "boolean"
                 }
             },
             "additionalProperties": true

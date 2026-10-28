@@ -90,6 +90,10 @@ public class PresentationRuntime(
         /** Pose last sent to the gateway; null until the spawn tick's first write. */
         var shown: VisualPose? = null
 
+        /** Interpolation the last write asked for, and the chunk length of the tick being processed (null outside a `sample_ticks` chunk). */
+        var shownTicks: Int = 0
+        var chunkTicks: Int? = null
+
         /** Last look a track key pushed to the gateway (writes only on change). */
         var shownAlpha: Double? = null
         var shownColor: String? = null
@@ -140,6 +144,8 @@ public class PresentationRuntime(
         class Quad(
             override val opId: String, val parent: String, val face: PlateFace, val size: Vec3, val billboard: DisplayBillboard,
             val at: Vec3, val turn: Quaternion,
+            /** An `op: text` display is a v1 Text element: its updates carry no position (only a v1 Quad's do, VfxTimeline.kt:449-461). */
+            val plainText: Boolean = false,
         ) : Live()
 
         class Line(override val opId: String, val from: PointRef, val to: PointRef, val thickness: Double, val face: PlateFace) : Live()
@@ -284,7 +290,7 @@ public class PresentationRuntime(
         when (live) {
             is Live.Mesh -> {
                 val parentW = frameWorld(s, live.parent) ?: return null
-                val t = tracked(s, live.opId, parentW, live.group)
+                val t = tracked(s, live.opId, parentW, live.group).also { live.chunkTicks = it.ticks }
                 val pull = pullOf(s, live)
                 tree.setLocal(live.node, Frame(live.pivot + t.offset + pullShift(pull, parentW), (live.tilt * t.turn * live.rest).normalized()))
                 val world = tree.worldOf(live.node).getOrNull() ?: return null
@@ -293,7 +299,7 @@ public class PresentationRuntime(
             }
             is Live.Plate -> {
                 val parentW = frameWorld(s, live.parent) ?: return null
-                val t = tracked(s, live.opId, parentW, live.group)
+                val t = tracked(s, live.opId, parentW, live.group).also { live.chunkTicks = it.ticks }
                 val base = (live.face as? PlateFace.Plane)?.let { planeRotation(s, it) }
                     ?.let { parentW.rotation.conjugate() * it } ?: Quaternion.IDENTITY
                 val pull = pullOf(s, live)
@@ -305,7 +311,7 @@ public class PresentationRuntime(
             }
             is Live.Block -> {
                 val parentW = frameWorld(s, live.parent) ?: return null
-                val t = tracked(s, live.opId, parentW, live.group)
+                val t = tracked(s, live.opId, parentW, live.group).also { live.chunkTicks = it.ticks }
                 val pull = pullOf(s, live)
                 tree.setLocal(live.node, Frame(live.at + live.turn.rotate(t.offset) + pullShift(pull, parentW), (live.turn * t.turn).normalized()))
                 val world = tree.worldOf(live.node).getOrNull() ?: return null
@@ -316,7 +322,7 @@ public class PresentationRuntime(
             }
             is Live.Quad -> {
                 val parentW = frameWorld(s, live.parent) ?: return null
-                val t = tracked(s, live.opId, parentW, live.group)
+                val t = tracked(s, live.opId, parentW, live.group).also { live.chunkTicks = it.ticks }
                 val base = (live.face as? PlateFace.Plane)?.let { planeRotation(s, it) }
                     ?.let { parentW.rotation.conjugate() * it } ?: Quaternion.IDENTITY
                 val pull = pullOf(s, live)
@@ -424,7 +430,7 @@ public class PresentationRuntime(
         return VisualPose(Frame((a + b) * 0.5, rot), Vec3(length, l.thickness, 1.0), DisplayBillboard.FIXED, null)
     }
 
-    private class Tracked(val offset: Vec3, val turn: Quaternion, val scale: Vec3)
+    private class Tracked(val offset: Vec3, val turn: Quaternion, val scale: Vec3, val ticks: Int? = null)
 
     /**
      * Ticks since [t] started, on the cast tick being processed (`s.tick` was advanced at the top of [tickCast]): the key of tick N is
@@ -434,9 +440,10 @@ public class PresentationRuntime(
 
     /**
      * Sum of every track on [target] at this tick; offsets are expressed in the track's space and returned in the parent's axes.
-     * A display whose tracks have `sample_ticks` > 1 shows what v1 shows: the client interpolates linearly between the chunk-start and
-     * chunk-end updates (v1 `updatesFor`, VfxTimeline.kt:424-436), so the value at a tick inside a chunk is the lerp (slerp for the
-     * turn) of the two chunk ends, not the eased track value.
+     * A display whose tracks have `sample_ticks` > 1 is written the way v1 writes it: one update at the start of each chunk carrying
+     * the chunk-END transform with interpolation = chunk length (v1 `updatesFor`, VfxTimeline.kt:424-436, the update lands at
+     * `base + step.start`, `transformAt(step.end)`), and nothing inside the chunk, so the client does the lerp. Every tick of a chunk
+     * therefore yields the chunk-end value (the unchanged pose is not written again) and [Tracked.ticks] is the chunk length.
      */
     private fun tracked(s: CastState, target: String, parentW: Frame, group: String? = null): Tracked {
         val tracks = s.tracks.values.filter { it.op.target == target || (group != null && it.op.target == group) }
@@ -444,14 +451,8 @@ public class PresentationRuntime(
         if (steps == null) return trackedAt(s, tracks, parentW, 0)
         val e = castElapsed(s, tracks.first())
         val step = steps.firstOrNull { e > it.start && e <= it.end } ?: return trackedAt(s, tracks, parentW, 0)
-        val a = trackedAt(s, tracks, parentW, step.start - e)
-        val b = trackedAt(s, tracks, parentW, step.end - e)
-        val f = (e - step.start).toDouble() / (step.end - step.start)
-        return Tracked(
-            a.offset + (b.offset - a.offset) * f,
-            Quaternion.slerp(a.turn, b.turn, f),
-            a.scale + (b.scale - a.scale) * f,
-        )
+        val end = trackedAt(s, tracks, parentW, step.end - e)
+        return Tracked(end.offset, end.turn, end.scale, step.end - step.start)
     }
 
     /** The tracks at their own tick plus [shift] (the chunk ends are sampled with it). */
@@ -482,7 +483,7 @@ public class PresentationRuntime(
         var out: ArrayList<Step>? = null
         if (sample > 1 && animated) {
             out = ArrayList()
-            val points = tracks.flatMap { t -> t.op.keys.map { it.tick } }.distinct().sorted()
+            val points = tracks.flatMap { t -> t.op.keys.filter { !it.sample }.map { it.tick } }.distinct().sorted()
             for (k in 1 until points.size) {
                 val a = points[k - 1]
                 val d = points[k] - a
@@ -628,9 +629,23 @@ public class PresentationRuntime(
             pose.teleportTicks == null && last.frame.origin == pose.frame.origin -> pose.copy(teleportTicks = 0)
             else -> pose
         }
-        if (last == sent) return
+        // a chunk start with a new length is a v1 update even when the transform is the same (the interpolation is sticky client-side)
+        if (last == sent && (l.chunkTicks == null || l.shownTicks == ticks)) return
         l.shown = sent
+        l.shownTicks = ticks
         visuals.write(l.handle, sent, if (last == null) 0 else ticks)
+    }
+
+    /**
+     * [put] of a pose carried by the followed frame chain. A self-moving text / sprite (v1 `selfMoving`) teleports on every update with
+     * its own length when the vfx names none (VfxPlayer.kt:442 `positionTicks ?: interpolationTicks`), moved or not (v1 teleports to
+     * the unchanged centre all the same) and that duration stays on the entity until the next update; any other display keeps the duration its follow gives it.
+     */
+    private fun putFollowed(s: CastState, visuals: ISkillVisualGateway, l: Live, pose: VisualPose, frame: String) {
+        val ticks = if (l.pulledNow) 0 else (l.chunkTicks ?: DISPLAY_TICKS)
+        var f = followed(s, pose, frame, l)
+        if (f.teleportTicks == null && keyedMoving(s, l)) f = f.copy(teleportTicks = ticks)
+        put(visuals, l, f, ticks)
     }
 
     public fun tickCast(cast: CastId) {
@@ -678,13 +693,13 @@ public class PresentationRuntime(
                 is Live.Mesh -> {
                     update(s, l)?.let { pose ->
                         val driver = driverOf(s, l.parent)
-                        if (driver == null) put(visuals, l, followed(s, pose, l.parent, l), if (l.pulledNow) 0 else DISPLAY_TICKS)
+                        if (driver == null) putFollowed(s, visuals, l, pose, l.parent)
                         else driver.driven?.let { interp -> if (driver.changed(l.opId, pose)) visuals.write(l.handle, pose, interp) }
                     }
                     tickModel(s, l)
                 }
                 is Live.Plate -> {
-                    update(s, l)?.let { put(visuals, l, followed(s, it, l.parent, l), if (l.pulledNow) 0 else DISPLAY_TICKS) }
+                    update(s, l)?.let { putFollowed(s, visuals, l, it, l.parent) }
                     tickFlipbook(s, l)
                     tickLook(s, l)
                 }
@@ -692,10 +707,8 @@ public class PresentationRuntime(
                     // parts hanging from a rig are written per turning chunk (v1 VfxRigPlanner.partPlan), not per rig tick
                     val parent = if (l is Live.Block) l.parent else (l as Live.Quad).parent
                     val driver = driverOf(s, parent)
-                    if (driver == null) update(s, l)?.let { put(visuals, l, followed(s, it, parent, l), if (l.pulledNow) 0 else DISPLAY_TICKS) }
-                    else driver.atPartChunk(s) { interp ->
-                        update(s, l)?.let { pose -> if (driver.changed(l.opId, pose)) visuals.write(l.handle, pose, interp) }
-                    }
+                    if (driver == null) update(s, l)?.let { putFollowed(s, visuals, l, it, parent) }
+                    else rigPart(s, visuals, l, parent, driver)
                     tickLook(s, l)
                 }
                 is Live.Line -> linePose(s, l)?.let { put(visuals, l, it, DISPLAY_TICKS) }
@@ -720,6 +733,38 @@ public class PresentationRuntime(
                 if (t.endTick != null && castTick >= t.endTick) s.sounds.remove(t.opId)
             }
         }
+    }
+
+    /**
+     * A block / quad hanging from a rig: its transform is written on the rig's part chunks (v1 VfxRigPlanner.partPlan), but a followed
+     * effect teleports every element each tick from tick 1 (VfxPlayer.kt:414-420), so the teleport duration reaches the client on the
+     * first tick after the spawn even when no chunk starts then; the pose shown stays the chunk's.
+     */
+    private fun rigPart(s: CastState, visuals: ISkillVisualGateway, l: Live, parent: String, driver: RigPerformer) {
+        var wrote = false
+        driver.atPartChunk(s) { interp ->
+            update(s, l)?.let { pose ->
+                val f = followed(s, pose, parent, l)
+                if (driver.changed(l.opId, f)) {
+                    visuals.write(l.handle, f, interp)
+                    l.shown = f
+                    l.shownTicks = interp
+                    wrote = true
+                }
+            }
+        }
+        if (wrote) return
+        val shown = l.shown
+        if (shown == null) {
+            // the spawn tick: the display stands at its spawn pose with teleport duration 0 (VfxPlayer.kt:620)
+            l.shown = driver.withPartFrame(s, 0) { update(s, l) }?.copy(teleportTicks = 0)
+            return
+        }
+        val tp = followed(s, shown, parent, l).teleportTicks ?: return
+        if (shown.teleportTicks == tp) return
+        val f = shown.copy(teleportTicks = tp)
+        l.shown = f
+        visuals.write(l.handle, f, l.shownTicks)
     }
 
     private fun tickTrail(s: CastState, t: Live.Trail) {
@@ -849,9 +894,12 @@ public class PresentationRuntime(
      * v1 `selfMoving` (VfxPlayer.kt:163): only a text quad / sprite with updates carries position updates (VfxTimeline.kt:449-461),
      * so a keyed [Live.Plate] / [Live.Quad] (a track key after tick 0, or flipbook frames) moves itself; blocks and models never do.
      */
-    private fun selfMoving(s: CastState, l: Live): Boolean {
-        if (l !is Live.Plate && l !is Live.Quad) return false
-        if (l is Live.Plate && l.frames > 1) return true
+    private fun selfMoving(s: CastState, l: Live): Boolean =
+        (l is Live.Plate && l.frames > 1) || keyedMoving(s, l)
+
+    /** A text quad / sprite a track key after tick 0 moves: its updates carry positions (VfxTimeline.kt:449-461), a flipbook frame's do not. */
+    private fun keyedMoving(s: CastState, l: Live): Boolean {
+        if (l !is Live.Plate && !(l is Live.Quad && !l.plainText)) return false
         val group = l.group
         return s.tracks.values.any { t -> (t.op.target == l.opId || (group != null && t.op.target == group)) && t.op.keys.any { it.tick > 0 } }
     }

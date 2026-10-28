@@ -133,7 +133,7 @@ private fun OpReader.trackKeys(): List<TrackKey> {
     if (list.isEmpty()) fail("track 'keys' must not be empty")
     return list.mapIndexed { i, e ->
         val m = e as? Map<*, *> ?: fail("keys[$i] must be a map")
-        m.keys.firstOrNull { it !in setOf("t", "offset", "turn", "scale", "ease", "alpha", "color", "block", "text") }
+        m.keys.firstOrNull { it !in setOf("t", "offset", "turn", "scale", "ease", "alpha", "color", "block", "text", "sample") }
             ?.let { fail("unknown key '$it' in keys[$i]") }
         val t = (m["t"] as? Number)?.toInt() ?: fail("keys[$i] needs integer 't'")
         val offset = m["offset"]?.let { vecValue(it) ?: fail("keys[$i].offset must be [x,y,z], \${param} or = expr") }
@@ -145,7 +145,7 @@ private fun OpReader.trackKeys(): List<TrackKey> {
         val color = m["color"]?.let { c -> (c as? String)?.takeIf { Regex("#[0-9a-fA-F]{6}").matches(it) } ?: fail("keys[$i].color must be #rrggbb") }
         val block = m["block"]?.let { it as? String ?: fail("keys[$i].block must be a vanilla block id") }
         val text = m["text"]?.let { it as? String ?: fail("keys[$i].text must be a string") }
-        TrackKey(t, offset, turn, scale, ease, alpha, color, block, text)
+        TrackKey(t, offset, turn, scale, ease, alpha, color, block, text, m["sample"] == true)
     }
 }
 

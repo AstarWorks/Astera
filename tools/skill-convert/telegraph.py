@@ -99,4 +99,4 @@ def plan(shape, radius, angle_degrees, width, ticks, impact_tick, rgb, name):
     if grows_as_group:
         for el in fill:
             el["group_keyframes"] = [{"t": 0, "scale": FILL_START_SCALE}, {"t": full_at, "scale": 1.0, "ease": "linear"}]
-    return {"id": "telegraph-%s-%s" % (shape, name), "duration_ticks": ticks, "elements": rim + fill}
+    return {"id": "telegraph-%s-%s" % (shape, name), "duration_ticks": ticks, "sample_ticks": 1, "elements": rim + fill}
