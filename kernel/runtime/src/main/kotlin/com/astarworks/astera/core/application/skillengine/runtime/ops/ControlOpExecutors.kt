@@ -11,7 +11,7 @@ import kotlin.reflect.KClass
 private fun OpContext.ticks(value: com.astarworks.astera.core.domain.skillengine.model.Value<Double>): Int =
     values.num(value).roundToInt().coerceAtLeast(0)
 
-/** Hit-stop: freeze the clock of the listed frame subtrees and/or entities (`caster`, `victim`). */
+/** Hit-stop: freeze the clock of the listed frame subtrees and/or entities: `caster`, and `enemy` = the struck entity of the hit handler (movement and AI held, like v1 `hit_stop`). */
 public class FreezeOpExecutor : OpExecutor<ControlOp.Freeze> {
     override val opClass: KClass<ControlOp.Freeze> = ControlOp.Freeze::class
 
@@ -23,7 +23,7 @@ public class FreezeOpExecutor : OpExecutor<ControlOp.Freeze> {
         for (name in op.scope) {
             when (name) {
                 "caster" -> entities += ctx.host.caster
-                "victim" -> ctx.host.currentVictim?.let { entities += it }
+                "enemy" -> ctx.host.currentVictim?.let { entities += it }
                 else -> frames += name
             }
         }

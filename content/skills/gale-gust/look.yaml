@@ -5,6 +5,4 @@ kind: Skill
 id: gale-gust
 frames:
   - {id: pt_caster_0_0_1p5, kind: point, parent: caster, offset: [0.0, 0.0, 1.5]}
-presentation:
-  timeline:
-    - {id: fx0, at: 0, do: [{id: snd, op: sound, sound: entity.breeze.wind_burst, at: caster, volume: 0.9, pitch: 1.2}, {id: emit, op: emit, at: pt_caster_0_0_1p5, particle: dash-cloud, count: 1}]}
+presentation: {timeline: [{id: fx0, at: 0, do: [{id: snd, op: sound, sound: entity.breeze.wind_burst, at: caster, volume: 0.9, pitch: 1.2}, {id: emit, op: emit, at: pt_caster_0_0_1p5, particle: dash-cloud}]}]}

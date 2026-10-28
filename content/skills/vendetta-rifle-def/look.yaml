@@ -15,4 +15,4 @@ frames:
   - {id: fx1_vendetta_bayonet_thrust, kind: body, parent: caster}
   - {id: fx2_vendetta_parry_ring, kind: body, parent: world}
   - {id: fx2_vendetta_parry_ring_bayonet, kind: body, parent: caster.right_hand}
-presentation: {timeline: [{id: loop1, at: 1, every: 3, for: 4, do: [{id: fx2_vendetta_parry_ring_petals, op: emit, at: fx2_vendetta_parry_ring, particle: vendetta-petals, count: 1}]}]}
+presentation: {timeline: [{id: loop1, at: 1, every: 3, for: 4, do: [{id: fx2_vendetta_parry_ring_petals, op: emit, at: fx2_vendetta_parry_ring, particle: vendetta-petals}]}]}

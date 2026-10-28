@@ -366,6 +366,7 @@ class ControlFlowScenarioTest {
         override val currentVictim: UUID? get() = victim
         override val tick: Int get() = now
         override val contactNormal: Vec3? = null
+        override fun lookDirection(): Vec3 = Vec3(0.0, 0.0, 1.0)
         override fun registerHit(registration: HitRegistration) { hits += registration }
         override fun startMotion(frame: FrameId, spec: MotionSpec) { motions += frame to spec }
         override fun schedule(afterTicks: Int, event: String, source: String) {

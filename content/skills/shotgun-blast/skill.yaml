@@ -11,7 +11,7 @@ meta:
   resource_cost: 1
   tags: [ranged, gun, burst]
 frames:
-  - {id: pt_caster_eye_0_0_4, kind: point, parent: caster.eye, offset: [0.0, 0.0, 4.0]}
+  - {id: pt_aim_0_0_4, kind: point, parent: aim, offset: [0.0, 0.0, 4.0]}
 gameplay:
   params: {arc_deg: 50.0, range: 6.0, dmg_physical: 25.0, knockback: 0.9}
   expose:
@@ -21,8 +21,8 @@ gameplay:
     - id: t0
       at: 0
       do:
-        - {id: swing, op: hit, frames: [caster], sector: {frame: caster, forward: caster.forward, left: caster.left, angle_deg: "${arc_deg}", range: "${range}", height: 2.0}, window: once}
-        - {op: break_area, shape: sphere, radius: 0.5, block_damage: 30, breaks: true, id: chip, at: pt_caster_eye_0_0_4}
+        - {id: swing, op: hit, frames: [caster], sector: {frame: caster, at: eye, forward: caster.forward, left: caster.left, angle_deg: "${arc_deg}", range: "${range}", height: 2.0}, window: once}
+        - {op: break_area, shape: sphere, radius: 0.5, block_damage: 30, breaks: true, id: chip, at: pt_aim_0_0_4}
   "on":
     hit:
       - {id: dmg, op: damage, target: victim, components: [{kind: physical, amount: "${dmg_physical}"}], when: "= event.source == 'swing'"}

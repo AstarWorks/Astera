@@ -7,12 +7,12 @@ item: ember-rod
 meta: {name: {ja: "火花", en: "Ember Spark"}, description: {ja: "小さな火の玉。燃焼させることがある。", en: "A small fireball that may ignite."}, cooldown_ticks: 20, resource_cost: 6, tags: [ranged, fire]}
 frames:
   - {id: bolt, kind: body, parent: world, inactive: true}
-  - {id: pt_caster_eye_0_0_0p5, kind: point, parent: caster.eye, offset: [0.0, 0.0, 0.5]}
+  - {id: pt_aim_0_0_0p5, kind: point, parent: aim, offset: [0.0, 0.0, 0.5]}
 gameplay:
   params: {launch_speed: 2.2, max_lifetime_ticks: 45, dmg_fire: 20.0, burn_ticks: 20}
   expose:
     - {id: damage, param: dmg_fire}
     - {id: flight_speed, param: launch_speed}
   timeline:
-    - {id: t0, at: 0, do: [{id: bolt, op: projectile, body: bolt, from: pt_caster_eye_0_0_0p5, velocity: "= look(caster) * launch_speed", max_ticks: "${max_lifetime_ticks}", radius: 0.5}]}
+    - {id: t0, at: 0, do: [{id: bolt, op: projectile, body: bolt, from: pt_aim_0_0_0p5, velocity: "= look(caster) * launch_speed", max_ticks: "${max_lifetime_ticks}", radius: 0.5}]}
   "on": {hit: [{id: dmg, op: damage, components: [{kind: fire, amount: "${dmg_fire}"}], target: victim}, {id: st_burn, op: status, status: burn, duration_ticks: "${burn_ticks}", target: victim, chance: 0.5}]}

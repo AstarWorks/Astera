@@ -148,6 +148,7 @@ internal class CastInstance(
         val world = FrameNode(FrameId("world"), FrameKind.WORLD, null, Frame(Vec3.ZERO))
         addNode(world)?.let { return it }
         addNode(FrameNode(FrameId("caster"), FrameKind.CASTER, FrameId("world"), casterLocal()))?.let { return it }
+        addNode(FrameNode(FrameId("aim"), FrameKind.CASTER, FrameId("world"), aimLocal()))?.let { return it }
         addNode(FrameNode(FrameId("enemy"), FrameKind.ENEMY, FrameId("world"), Frame(Vec3.ZERO)))?.let { return it }
         for ((name, off) in CASTER_POINTS) tree.definePoint(FramePoint(FrameId("caster"), name, off))
         tree.definePoint(FramePoint(FrameId("caster"), "eye", Vec3(0.0, casterEye, 0.0)))
@@ -200,6 +201,9 @@ internal class CastInstance(
         }
         is Result.Failure -> CastError.FrameSetup("cannot add frame '${node.id.value}': ${r.error}")
     }
+
+    /** The `aim` frame: origin at the eye, rotation = the full look (yaw and pitch); local +Z is forward, +Y the look-perpendicular up. */
+    private fun aimLocal(): Frame = Frame.fromYawPitch(request.casterFeet + Vec3(0.0, casterEye, 0.0), casterYaw, casterPitch)
 
     private fun casterLocal(): Frame = Frame.fromYawPitch(request.casterFeet, casterYaw, 0.0)
 
@@ -704,7 +708,7 @@ internal class CastInstance(
             }
             is HitVolume.Sector -> {
                 val frame = if (v.frame == "self") host else v.frame
-                val origin = tree.pointWorld(FrameId(frame), null).getOrNull()
+                val origin = tree.pointWorld(FrameId(frame), v.at).getOrNull()
                 val fwd = axis(v.forward.name)
                 val left = axis(v.left.name)
                 if (origin == null || fwd == null || left == null) {
@@ -790,13 +794,14 @@ internal class CastInstance(
             casterEye = r.eyeHeight
             tree.setLocal(FrameId("caster"), Frame.fromYawPitch(r.feet, r.yawDeg, 0.0))
             tree.definePoint(FramePoint(FrameId("caster"), "eye", Vec3(0.0, r.eyeHeight, 0.0)))
+            tree.setLocal(FrameId("aim"), Frame.fromYawPitch(Vec3(r.feet.x, r.feet.y + r.eyeHeight, r.feet.z), r.yawDeg, r.pitchDeg))
         }
         for (v in victims) refreshEnemy(v)
     }
 
     // ------------------------------------------------------------ expressions
 
-    fun lookDirection(): Vec3 = Frame.fromYawPitch(Vec3.ZERO, casterYaw, casterPitch).forward()
+    override fun lookDirection(): Vec3 = Frame.fromYawPitch(Vec3.ZERO, casterYaw, casterPitch).forward()
 
     fun eye(): Vec3 = tree.pointWorld(FrameId("caster"), "eye").getOrNull() ?: (request.casterFeet + Vec3(0.0, casterEye, 0.0))
 
@@ -827,7 +832,7 @@ internal class CastInstance(
 
     private val frameLookup = object : FrameLookup {
         override fun worldPose(frame: String, point: String?): Frame? {
-            if (frame == "victim") return victimCentre()?.let { Frame(it) }
+            if (frame == "victim") return if (point == "feet") victimFeet()?.let { Frame(it) } else victimCentre()?.let { Frame(it) }
             val id = FrameId(frame)
             val world = tree.worldOf(id).getOrNull() ?: return null
             if (point == null) return world
@@ -848,13 +853,6 @@ internal class CastInstance(
         private fun enemies(from: Vec3, radius: Double): List<HitCandidate> =
             ports.entities.nearby(from, radius, request.caster).filter { !isAlly(it.entityId) }
 
-        private fun surfaceDist(p: Vec3, box: HitBox): Double {
-            val dx = maxOf(box.min.x - p.x, 0.0, p.x - box.max.x)
-            val dy = maxOf(box.min.y - p.y, 0.0, p.y - box.max.y)
-            val dz = maxOf(box.min.z - p.z, 0.0, p.z - box.max.z)
-            return kotlin.math.sqrt(dx * dx + dy * dy + dz * dz)
-        }
-
         override fun nearestEnemyDist(from: Vec3): Double =
             enemies(from, NEAREST_SCAN).minOfOrNull { it.feet.distance(from) } ?: Double.MAX_VALUE
 
@@ -864,7 +862,7 @@ internal class CastInstance(
             val facing = flat.normalize()
             val cosMin = kotlin.math.cos(Math.toRadians(halfAngleDeg))
             return enemies(from, range + 2.0).any { c ->
-                if (surfaceDist(from, c.box) > range) return@any false
+                if (c.feet.distance(from) > range) return@any false
                 val to = Vec3(c.box.center.x - from.x, 0.0, c.box.center.z - from.z)
                 val len = to.length()
                 len < 1e-6 || facing.dot(to * (1.0 / len)) >= cosMin
@@ -888,6 +886,8 @@ internal class CastInstance(
             return from.distance(tip)
         }
     }
+
+    private fun victimFeet(): Vec3? = currentVictim?.let { ports.entities.rootOf(it)?.feet }
 
     private fun victimCentre(): Vec3? {
         val v = currentVictim ?: return null

@@ -269,9 +269,9 @@ presentation:
             - fx2_couture_s2_hit3_pet_6
             - fx2_couture_s2_hit3_pet_7
     - {id: t_hit3_25, at: "dash_hit+25", do: [{id: rm_7_b, op: remove, ids: [fx2_couture_s2_hit3_dbris_0, fx2_couture_s2_hit3_dbris_1, fx2_couture_s2_hit3_dbris_2, fx2_couture_s2_hit3_dbris_3]}]}
-    - {id: c3_loop_dash, at: "coin3_start+11", every: 1, for: 4, do: [{id: fx8_couture_s2_dash_p_orange, op: emit, at: fx8_couture_s2_dash, particle: couture-s2-p-pink, count: 1}]}
-    - {id: c3_loop_hit_orange, at: dash_hit, every: 1, for: 4, do: [{id: fx2_couture_s2_hit3_p_orange, op: emit, at: fx2_couture_s2_hit3, particle: couture-s2-p-pink, count: 1}]}
-    - {id: c3_loop_hit_spark, at: dash_hit, every: 3, for: 6, do: [{id: fx2_couture_s2_hit3_p_spark, op: emit, at: fx2_couture_s2_hit3, particle: couture-s2-p-spark, count: 1}]}
+    - {id: c3_loop_dash, at: "coin3_start+11", every: 1, for: 4, do: [{id: fx8_couture_s2_dash_p_orange, op: emit, at: fx8_couture_s2_dash, particle: couture-s2-p-pink}]}
+    - {id: c3_loop_hit_orange, at: dash_hit, every: 1, for: 4, do: [{id: fx2_couture_s2_hit3_p_orange, op: emit, at: fx2_couture_s2_hit3, particle: couture-s2-p-pink}]}
+    - {id: c3_loop_hit_spark, at: dash_hit, every: 3, for: 6, do: [{id: fx2_couture_s2_hit3_p_spark, op: emit, at: fx2_couture_s2_hit3, particle: couture-s2-p-spark}]}
   "on":
     dash_hit:
       - {id: fx2_couture_s2_hit3_flash_0, op: plate, parent: fx2_couture_s2_hit3, face: {viewer: center}, sprite: couture-s2-feather}

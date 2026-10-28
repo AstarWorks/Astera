@@ -55,10 +55,11 @@ public class HitOpDecoders : OpDecoder {
             }
             else -> {
                 val m = FrameRawValues.map(sector, reader, "sector")
-                FrameRawValues.onlyKeys(m, setOf("frame", "forward", "left", "angle_deg", "range", "height"), reader, "sector")
+                FrameRawValues.onlyKeys(m, setOf("frame", "at", "forward", "left", "angle_deg", "range", "height"), reader, "sector")
                 fun req(key: String): Any = m[key] ?: reader.fail("sector: missing '$key'")
                 HitVolume.Sector(
                     frame = req("frame") as? String ?: reader.fail("sector.frame: expected a frame name"),
+                    at = m["at"]?.let { it as? String ?: reader.fail("sector.at: expected a point name of the frame") },
                     forward = AxisRef(req("forward") as? String ?: reader.fail("sector.forward: expected an axis ref")),
                     left = AxisRef(req("left") as? String ?: reader.fail("sector.left: expected an axis ref")),
                     angleDeg = FrameRawValues.num(req("angle_deg"), reader, "sector.angle_deg"),

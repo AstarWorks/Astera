@@ -12,13 +12,13 @@ meta:
   ego_cost: 100
   tags: [persona, orrery]
 frames:
-  - {id: pt_caster_eye_0_0_13, kind: point, parent: caster.eye, offset: [0.0, 0.0, 13.0]}
+  - {id: pt_aim_0_0_13, kind: point, parent: aim, offset: [0.0, 0.0, 13.0]}
 gameplay:
   params: {dmg_physical: 56.25, sinking_ticks: 100, sinking_stacks: 1}
   expose:
     - {id: damage, param: dmg_physical}
   timeline:
-    - {id: t24, at: 24, do: [{id: sel, op: hit, frames: [caster], capsule: {from: caster.eye, to: pt_caster_eye_0_0_13, radius: 0.3}, window: once}]}
+    - {id: t24, at: 24, do: [{id: sel, op: hit, frames: [caster], capsule: {from: aim, to: pt_aim_0_0_13, radius: 0.3}, window: once}]}
   "on":
     hit:
       - id: dmg

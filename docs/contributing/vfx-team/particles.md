@@ -77,6 +77,8 @@ Authoring a channel: add `content/particle-skins/<vanilla-type>.yaml`, add/exten
 
 Emitting 30-100 moving particles per contact costs no display: a `kind: particle` fx element (`start_tick..end_tick`, `every_ticks`) plays a particle definition whose `count: N`, `velocity: {direction, speed, spread_degrees, speed_jitter}` and `shape` plan N particles per call through the `count = 0` directed-particle trick. Demo: skill `vfx-demo-particle-skins` (`content/vfx/demo-particle-skins.yaml`, `content/particles/skin-demo-*.yaml`).
 
+v2 `emit` (SKL-15, 2026-10-28): an `emit` op of a custom particle id with `count: N` plans exactly N particles (the definition's own `count` is replaced, not multiplied); unset keeps the definition's. A shaped definition with no `dir` faces `look(caster)` (full yaw and pitch). A vanilla key maps 1:1 to `spawnParticle(count, offset, extra, data)`; see [add-a-skill-yaml.md](../add-a-skill-yaml.md) "emit は vanilla の spawnParticle そのもの".
+
 ## Rejected looks
 
 Particle-related, from the team's list ([README.md](README.md)): fire made of squares (cubes), black `#`-like smoke glyphs, poles for jets, a static ring standing like a wall. Plus (bastion-s1 r2): a vanilla particle beside the caster camera becoming a block grid; `small_flame` as a cartoon flame; end_rod sparks lingering ~60 ticks.

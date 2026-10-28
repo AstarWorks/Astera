@@ -10,11 +10,11 @@ gameplay:
     - id: t0
       at: 0
       do:
-        - {id: attr, op: modify_attribute, attribute: resist.physical, operation: add, amount: 0.7, duration_ticks: 30, target: caster}
-        # v1 counter: window 30 ticks, range 3.5, one shot; the hit itself still lands (reduced by the resist above), the riposte follows 7 ticks later.
+        # v1 counter: window 30 ticks, range 3.5, one shot. The parried hit is negated (absorb: true, SKL-15 row 1); the riposte follows 7 ticks later.
         - id: parry
           op: window
           listen: incoming_hit
+          absorb: true
           ticks: 30
           filter: "= dist(caster, victim) <= 3.5"
           do:

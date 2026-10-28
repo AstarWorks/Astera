@@ -215,7 +215,7 @@ v2 skill (`content/skills/<id>/skill.yaml`) の条件は全部 CEL (`"= ..."`) �
   op: window
   listen: incoming_hit        # 今は incoming_hit のみ (caster が受ける他者の攻撃)
   ticks: 30                   # 窓の長さ。窓が開いている間 cast は終わらない
-  absorb: false               # true: ダメージを 0 にする (scale: 0.5 なら 50%)。既定は素通し (v1 counter と同じ)
+  absorb: true                # true: 受けた hit を無効にする (ダメージ 0、scale: 0.5 なら 50%)。既定 false = 素通し。parry (couture-rapier-def) は true (SKL-15)
   once: true                  # 既定 true: 最初に条件を満たした 1 発で窓を閉じる
   filter: "= dist(caster, victim) < 3.5"   # この式が true の hit だけ対象。victim = 攻撃者、incoming.amount = ダメージ量
   do:                         # 対象になった hit ごとに 1 回、次 tick に victim=攻撃者 で実行 (damage / delay / status ...)
@@ -229,10 +229,12 @@ hit は ダメージパイプライン (`ApplyDamageUseCase`、friendly-fire 判
 
 | 関数 | 意味 |
 |---|---|
-| `nearest_enemy_dist(ref)` | `ref` から最寄りの敵の足元位置までの距離 (v1 `distance_less_than` と同じ測り方)。敵がいなければ非常に大きい値 |
+| `nearest_enemy_dist(ref)` | `ref` から最寄りの敵までの距離。**足元 (feet) から足元 (feet) まで**で、hitbox の表面ではない。敵がいなければ非常に大きい値 |
 | `enemy_in_cone(ref, range, half_angle_deg)` | `ref` の前方 (水平) の扇形内に敵がいるか |
 | `hp_ratio(ref)` | `caster` / `victim` の HP 割合 0..1 (不明は 1) |
-| `dist(a, b)` / `counter("key")` | 既存 |
+| `dist(a, b)` / `counter("key")` | `dist` も entity ref (`caster` / `victim` / `enemy`) は feet to feet。frame / point は原点間 |
+
+距離はすべて feet to feet (SKL-15): `< 3.6` は「足元が 3.6 ブロック未満」。身長や hitbox 幅は効かない。
 
 `window` は gameplay 専用 (presentation には置けない)。Schema: `content/schemas/skill.schema.json` の `op_window`。
 
@@ -284,3 +286,48 @@ particle element / rig emitter はこの形に変換される。
 ```yaml
 - {id: embers, at: 17, every: 1, for: 8, do: [{id: e, op: emit, at: staff_tip, particle: orrery-ember, count: 1}]}
 ```
+
+## v2 SKL-15 の決定 (founder 2026-10-28)
+
+### `emit` は vanilla の `spawnParticle` そのもの
+
+vanilla particle の `emit` は `spawnParticle(count, offset x/y/z, extra, data)` に **1:1** で渡る。隠れた既定値は無い。
+
+| field | vanilla 引数 | 未指定 |
+|---|---|---|
+| `count` | `count` | 1 |
+| `offset: [x, y, z]` | `offsetX/Y/Z` | `[0, 0, 0]` |
+| `speed` | `extra` | 0 |
+| `data` / `data_size` | `data` (dust の色 `"#rrggbb"` と大きさ) | なし |
+
+vanilla の `count: 0` はそのまま効く (`offset` が向き、`speed` が速さ)。`dir` と shape だけが **明示 sugar**:
+
+- `dir: <vec3>` (+ `spread_deg`, `inherit_velocity`, `speed`) = `count` 個の spawn に展開される。各 spawn は `count 0`、
+  `offset = jitter(dir, spread_deg) * speed + inherit_velocity`、`extra 1`。`dir` を書かない emit には何も足されない。
+- custom particle (`content/particles/<id>.yaml`) の `count` は **粒の数** (vanilla と同じ。定義全体の繰り返しではない)。
+  未指定 = 定義自身の count。shape の向きは `dir`、無ければ `look(caster)` (pitch 込みの視線)。
+
+### 繰り返しの tick
+
+repeat する `sound` (`every`) / `emit` row (`every`) は `at`, `at+N`, `at+2N`, ... の tick ちょうどに出る。
+
+### `hit` の sector は目の高さから pitch に沿う
+
+`sector: {frame: caster, at: eye, forward: caster.forward, left: caster.left, angle_deg, range, height}`。`at: eye` で扇の頂点を目に置き、
+`caster.forward` は pitch 込みの視線なので扇は見上げ / 見下ろしに追従する。`angle_deg` = 扇の開き、`range` = 半径、
+`height` = 扇の面に垂直な **スラブの全厚み** (面を中心に上下 height/2)。`at` 省略 = frame 原点 (足元)。
+
+### `aim` frame と投射物の muzzle
+
+builtin frame `aim` = 目の位置 + yaw/pitch 込みの向き。offset は `[left, up, forward]` で、`forward` は視線方向 (pitch 込み)。
+投射物の `from` は `aim` 親の point にする: `{id: pt, kind: point, parent: aim, offset: [0, 0, 0.5]}`。`caster` frame は yaw のみ
+(足元) なので、pitch に従わせたい muzzle / 近接の起点には使わない。
+
+### `freeze` の `enemy` scope
+
+hit handler の `freeze` で `scope: [enemy, caster]` と書くと、当たった相手 (victim) の動きと AI も止まる (v1 `hit_stop` と同じ)。
+
+### `lock` (windup)
+
+`{op: lock, target: caster, speed: 0.0, ticks: 20}` で windup 中に caster を固定する (`speed` = 歩行速度の倍率、0 = 動けない)。
+bastion-greatsword-ego の windup がこれ。

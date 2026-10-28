@@ -6,6 +6,4 @@ kind: Skill
 id: katana-iaido
 frames:
   - {id: pt_caster_0_0p2_0, kind: point, parent: caster, offset: [0.0, 0.2, 0.0]}
-presentation:
-  timeline:
-    - {id: fx0, at: 0, do: [{id: snd, op: sound, sound: "astera:weapons/dash-whoosh", at: caster, volume: 1.0, pitch: 1.4}, {id: emit, op: emit, at: pt_caster_0_0p2_0, particle: dash-cloud, count: 1}]}
+presentation: {timeline: [{id: fx0, at: 0, do: [{id: snd, op: sound, sound: "astera:weapons/dash-whoosh", at: caster, volume: 1.0, pitch: 1.4}, {id: emit, op: emit, at: pt_caster_0_0p2_0, particle: dash-cloud}]}]}

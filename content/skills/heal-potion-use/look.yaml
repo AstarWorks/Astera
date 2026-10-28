@@ -12,4 +12,4 @@ presentation:
       do:
         - {id: snd, op: sound, sound: entity.generic.drink, at: caster}
         - {id: snd_2, op: sound, sound: block.amethyst_block.chime, at: caster, volume: 0.7, pitch: 1.3}
-        - {id: emit, op: emit, at: pt_caster_0_1_0, particle: verdant-heal, count: 1}
+        - {id: emit, op: emit, at: pt_caster_0_1_0, particle: verdant-heal}

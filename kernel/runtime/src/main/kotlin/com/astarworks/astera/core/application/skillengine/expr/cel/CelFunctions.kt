@@ -70,6 +70,14 @@ internal object CelFunctions {
         else -> throw ExprEvalException("expected a vec3 or frame, got $o")
     }
 
+    /** Distance helpers measure feet to feet: a frame operand is its feet (the `victim` frame's pose is its body centre, so its `feet` point), a vec3 is used as given. */
+    private fun feet(o: Any?): Vec3 = when (o) {
+        is Vec3 -> o
+        is ExprValue.Ref ->
+            if (o.name == "victim" && o.point == null) worldPose(o.copy(point = "feet")).origin else worldPose(o).origin
+        else -> throw ExprEvalException("expected a vec3 or frame, got $o")
+    }
+
     private fun worldPose(r: ExprValue.Ref): Frame = env().frames.worldPose(r.name, r.point)
         ?: throw ExprEvalException("unknown frame or point '${r.name}${r.point?.let { ".$it" } ?: ""}'")
 
@@ -214,16 +222,16 @@ internal object CelFunctions {
         def("blade_len", "blade_len_ref", D, listOf(REF), listOf(R)) { host().bladeLen(it[0] as ExprValue.Ref) }
 
         // world queries about the caster's surroundings (cast required)
-        def("nearest_enemy_dist", "nearest_enemy_dist_ref", D, listOf(REF), listOf(R)) { host().nearestEnemyDist(vec(it[0])) }
+        def("nearest_enemy_dist", "nearest_enemy_dist_ref", D, listOf(REF), listOf(R)) { host().nearestEnemyDist(feet(it[0])) }
         def("enemy_in_cone", "enemy_in_cone_ref_num_num", SimpleType.BOOL, listOf(REF, NUM, NUM), listOf(R, OBJ, OBJ)) {
             val ref = it[0] as ExprValue.Ref
-            host().enemyInCone(vec(ref), axisOf(worldPose(ref), "forward"), n(it[1]), n(it[2]))
+            host().enemyInCone(feet(ref), axisOf(worldPose(ref), "forward"), n(it[1]), n(it[2]))
         }
         def("hp_ratio", "hp_ratio_ref", D, listOf(REF), listOf(R)) { host().hpRatio(it[0] as ExprValue.Ref) }
         def("counter", "counter_str", D, listOf(SimpleType.STRING), listOf(STR)) { host().counter(it[0] as String) }
 
         // spatial tests (angles in degrees)
-        def("dist", "dist_any", D, listOf(NUM, NUM), listOf(OBJ, OBJ)) { vec(it[0]).distance(vec(it[1])) }
+        def("dist", "dist_any", D, listOf(NUM, NUM), listOf(OBJ, OBJ)) { feet(it[0]).distance(feet(it[1])) }
         def("angle", "angle_vec3", D, listOf(VEC3, VEC3), listOf(V, V)) {
             val a = (it[0] as Vec3).normalize()
             val b = (it[1] as Vec3).normalize()

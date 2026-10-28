@@ -32,7 +32,7 @@ presentation:
       - {id: thread_body, op: line, from: palm, to: body.pivot, thickness: "${thread_thick}", color: *thread_col, face: *thread_face}
       - {id: flight_fan, op: plate, parent: volley, face: {plane: {frame: volley, axes: [axis, up]}}, sprite: couture-s2-crescent, size_frac: 1.2, alpha: 0.5}
       - {id: throw_snd, op: sound, sound: couture.throw, at: palm, pitch: 1.1}
-      - {id: puff, op: emit, at: palm, particle: dust, color: "${thread_color}", count: 6, dir: "= -forward(volley)", spread_deg: 20, inherit_velocity: 0.5}
+      - {id: puff, op: emit, at: palm, particle: dust, data: "${thread_color}", count: 6, dir: "= -forward(volley)", spread_deg: 20, inherit_velocity: 0.5}
     hit:
       - {id: sparks, op: emit, when: &on_throw "= event.source == 'throw_hit'", at: contact.point, particle: "${spark_particle}", count: "${spark_count}",
          dir: "= contact.normal", spread_deg: 35, speed: "= 0.4 + 0.3 * rand('sparks')", seed: sparks}

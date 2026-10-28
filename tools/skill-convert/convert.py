@@ -34,6 +34,8 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from yamlout import dump_doc  # noqa: E402
 
 REPO = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
+# Skills whose windup holds the caster in place: id -> walk-speed factor (0.0 = rooted). SKL-15 row 13.
+WINDUP_LOCK = {"bastion-greatsword-ego": 0.0}
 PROTECTED = {"couture-rapier-s2", "couture-rapier-s2-shears", "couture-rapier-s2-blade-a", "couture-rapier-s2-blade-b"}
 
 GAMEPLAY = {"damage", "apply_status", "knockback", "propel", "hit_stop", "cast_skill", "explode", "break_area",
@@ -270,7 +272,7 @@ class Conv:
         hid = self.oid("sel")
         op = {"id": hid, "op": "hit", "frames": ["caster"]}
         if t == "cone":
-            op["sector"] = {"frame": "caster", "forward": "caster.forward", "left": "caster.left",
+            op["sector"] = {"frame": "caster", "at": "eye", "forward": "caster.forward", "left": "caster.left",
                             "angle_deg": self.param("arc_deg", V(tg["angle_degrees"])),
                             "range": self.param("reach", V(tg["distance"])), "height": 2.0}
         elif t in ("nearby_entities", "enemies"):
@@ -278,8 +280,8 @@ class Conv:
             if V(tg.get("exclude_caster", True)) is False:
                 self.todo("nearby_entities exclude_caster=false (hit never targets the caster)", t)
         elif t == "forward_ray":
-            to = self.pframe("caster.eye", [0.0, 0.0, V(tg["distance"])], "g")
-            op["capsule"] = {"from": "caster.eye", "to": to, "radius": 0.3}
+            to = self.pframe("aim", [0.0, 0.0, V(tg["distance"])], "g")
+            op["capsule"] = {"from": "aim", "to": to, "radius": 0.3}
         else:
             op["sphere"] = {"at": "caster", "radius": 3.0}
         if "max_count" in tg:
@@ -540,7 +542,7 @@ class Conv:
                 op["pitch"] = V(m["pitch"])
             W(op)
         elif t == "spawn_particle":
-            W({"id": self.oid("emit"), "op": "emit", "at": self.point(tg, where, "p"), "particle": m["particle_id"], "count": 1})
+            W(emit_op(self.oid("emit"), self.point(tg, where, "p"), m["particle_id"], 1))
         elif t == "schedule_particle_animation":
             at = self.point(tg, where, "p")
             for anim in m["animation"]:
@@ -591,12 +593,8 @@ class Conv:
             self.present("particle animation %s (emit has no shape / ring / path: one burst at the anchor)" % t,
                          "%s" % short({k: a[k] for k in a if k not in ("particles", "type")}, 100))
         for part in a.get("particles", []) or []:
-            op = {"id": self.oid("emit"), "op": "emit", "at": at, "particle": part["id"], "count": part.get("count", 1)}
-            if "color" in part:
-                op["color"] = color_hex(part["color"])
+            op = emit_op(self.oid("emit"), at, part["id"], part.get("count", 1))
             particle_vanilla(op, part)
-            if "scale" in part:
-                self.present("particle scale (dust size; emit has none)", short(part["scale"], 60))
             self.p(where, d2, self._w(op, when))
 
     # ---------- vfx inlining ----------
@@ -695,7 +693,7 @@ class Conv:
             if "color" in kind:
                 op["color"] = color_hex(kind["color"])
         elif kt == "particle":
-            op = {"id": eid, "op": "emit", "at": fid, "particle": kind["particle_id"], "count": 1}
+            op = emit_op(eid, fid, kind["particle_id"], 1)
             if "along_path" in kind:
                 self.present("particle along_path", short(kind["along_path"], 60))
         elif kt in ("thin_line", "dotted_line"):
@@ -785,18 +783,49 @@ class Conv:
             removes.setdefault(int(tr["end_t"]) + int(tr["life_ticks"]), []).append(op["id"])
         for em in r.get("emitters", []):
             pt = self.pframe(rid, em["point"], "p")
-            op = {"id": "%s_%s" % (rid, sid(em["id"])), "op": "emit", "at": pt, "particle": em["particle_id"], "count": 1}
+            op = emit_op("%s_%s" % (rid, sid(em["id"])), pt, em["particle_id"], 1)
             self.rep(where, delay + int(em["start_t"]), 1, int(em["end_t"]) - int(em["start_t"]), self._w(op, when))
 
 
 # ---------------------------------------------------------------- skill-level driver
 
+_PARTICLE_COUNTS = {}
+
+
+def _custom_count(pid):
+    """The `count:` of content/particles/<pid>.yaml, or None when pid is a vanilla particle key."""
+    if pid not in _PARTICLE_COUNTS:
+        path = os.path.join(REPO, "content", "particles", pid + ".yaml")
+        _PARTICLE_COUNTS[pid] = None
+        if os.path.exists(path):
+            with open(path) as fh:
+                _PARTICLE_COUNTS[pid] = int((yaml.safe_load(fh) or {}).get("count", 1))
+    return _PARTICLE_COUNTS[pid]
+
+
+def emit_op(oid, at, pid, v1_count):
+    """An `emit` op. Vanilla key: `count` is the vanilla particle count. Custom definition: `count` is the number of
+    particles, so a v1 repeat of N (N whole definitions) becomes N * the definition's own count; one repeat leaves it unset."""
+    op = {"id": oid, "op": "emit", "at": at, "particle": pid}
+    dc = _custom_count(pid)
+    if dc is None:
+        op["count"] = v1_count
+    elif v1_count != 1:
+        op["count"] = int(v1_count) * dc
+    return op
+
+
 def particle_vanilla(op, part):
-    """v1 particle part: vanilla `spawnParticle` offset / extra, carried 1:1 (never mapped onto dir / speed)."""
+    """v1 particle part -> the vanilla `spawnParticle` arguments, 1:1: offset, speed (= extra), data (dust colour) and size."""
     off = part.get("offset")
     if off:
         op["offset"] = [off.get("x", 0.0), off.get("y", 0.0), off.get("z", 0.0)] if isinstance(off, dict) else off
-    op["extra"] = part.get("extra", 0.0)  # always present: it selects the vanilla spawn
+    if "extra" in part:
+        op["speed"] = part["extra"]
+    if "color" in part:
+        op["data"] = color_hex(part["color"])
+    if "scale" in part:
+        op["data_size"] = part["scale"]
 
 
 def _loc(point):
@@ -820,7 +849,7 @@ def block_damage(c, d, arch, on_hit, on_block):
         c.g(CAST, 0, dict(op, id=c.oid("chip"), at="caster"))
     else:
         reach = float(bd.get("reach", 0.0)) or 4.0
-        c.g(CAST, 0, dict(op, id=c.oid("chip"), at=c.pframe("caster.eye", [0.0, 0.0, reach], "g")))
+        c.g(CAST, 0, dict(op, id=c.oid("chip"), at=c.pframe("aim", [0.0, 0.0, reach], "g")))
 
 def convert_skill(d, vfx_dir, item):
     c = Conv(d, vfx_dir)
@@ -846,12 +875,15 @@ def convert_skill(d, vfx_dir, item):
                     "targets": {"type": "caster"}}, CAST)
             if sd.get("pitch_arc"):
                 c.present("windup sound pitch_arc (sound has a fixed pitch)", short(sd["pitch_arc"], 80))
+        if d.get("id") in WINDUP_LOCK:
+            # SKL-15 row 13: commit the caster for the windup (v1 had no lock); the row sits at tick 0, before the offset
+            c.g(CAST, 0, {"id": "windup_lock", "op": "lock", "target": "caster", "speed": WINDUP_LOCK[d["id"]], "ticks": int(V(wu["ticks"]))})
         c.windup = int(V(wu["ticks"]))
 
     if arch == "melee":
         c.id_counts["swing"] = 1
         c.g(CAST, 0, {"id": "swing", "op": "hit", "frames": ["caster"],
-                      "sector": {"frame": "caster", "forward": "caster.forward", "left": "caster.left",
+                      "sector": {"frame": "caster", "at": "eye", "forward": "caster.forward", "left": "caster.left",
                                  "angle_deg": c.param("arc_deg", params["arc_degrees"]), "range": c.param("range", params["range"]),
                                  "height": 2.0},
                       "window": "once"})
@@ -889,7 +921,7 @@ def convert_skill(d, vfx_dir, item):
         c.id_counts["bolt"] = 1
         up = V(params.get("muzzle_up", 0.0))
         fw = V(params.get("muzzle_forward", 0.5))
-        muzzle = c.pframe("caster.eye", [0.0, up, fw], "g")
+        muzzle = c.pframe("aim", [0.0, up, fw], "g")
         speed = c.param("launch_speed", params["launch_speed"])
         life = c.param("max_lifetime_ticks", params["max_lifetime_ticks"])
         # v1: aim_distance 0 (default) = fly parallel to the look ray; > 0 = dive onto the look-ray point.
@@ -907,14 +939,12 @@ def convert_skill(d, vfx_dir, item):
         vis = params.get("visual") or {}
         for tr in vis.get("trail") or []:
             for part in tr.get("particles", []):
-                op = {"id": c.oid("trail"), "op": "emit", "at": "bolt", "particle": part["id"], "count": part.get("count", 1)}
+                op = emit_op(c.oid("trail"), "bolt", part["id"], part.get("count", 1))
                 if vis.get("trail_spacing", 0.5) > 0:
                     op["spacing"] = vis.get("trail_spacing", 0.5)
-                if "color" in part:
-                    op["color"] = color_hex(part["color"])
                 particle_vanilla(op, part)
-                if tr["type"] == "line" or "scale" in part:
-                    c.present("projectile trail shape / scale (emit has none)", tr["type"])
+                if tr["type"] == "line":
+                    c.present("projectile trail shape (emit has none)", tr["type"])
                 c.p_rows.setdefault(("rep", 1), []).append(op)
         if vis.get("display"):
             disp = vis["display"]

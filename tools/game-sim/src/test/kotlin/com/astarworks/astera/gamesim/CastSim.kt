@@ -76,6 +76,10 @@ class CastSim(
     /** Caster feet in world space and yaw (Minecraft degrees: 0 faces +Z). Victims / floor / wall are WORLD coordinates; use [ahead] to place them relative to the caster. */
     val origin: Vec3 = Vec3.ZERO,
     val yawDeg: Double = 0.0,
+    /** Caster look pitch in Minecraft degrees (negative = looking up). */
+    val pitchDeg: Double = 0.0,
+    /** Extra skills for grammar scenarios: id -> `skill.yaml` text, composed beside a copy of the shipped skills. */
+    extraSkills: Map<String, String> = emptyMap(),
 ) {
     /** World point `dist` blocks in front of the caster and `side` to its left, at feet level plus `up`. */
     fun ahead(dist: Double, side: Double = 0.0, up: Double = 0.0): Vec3 = ahead(origin, yawDeg, dist, side, up)
@@ -119,6 +123,8 @@ class CastSim(
     val casterAnims = ArrayList<CasterAnimCall>()
     /** Statuses applied through the gameplay gateway: (tick, victim, status id). */
     val statuses = ArrayList<Triple<Int, UUID, String>>()
+    /** Hit-stop calls: (tick, frozen entities, ticks). */
+    val frozen = ArrayList<Triple<Int, List<UUID>, Int>>()
     val blockStrikes = ArrayList<Triple<Int, Int, String?>>()
 
     private inline fun <reified T> noop(): T = java.lang.reflect.Proxy.newProxyInstance(T::class.java.classLoader, arrayOf(T::class.java)) { _, m, _ ->
@@ -144,6 +150,7 @@ class CastSim(
         override fun damage(skillId: String, caster: UUID, victim: UUID, components: List<SkillDamage>, hitPoint: Vec3, ignoreInvulnerability: Boolean) {
             for (c in components) dealt += Dealt(now, victim, c.amount, ignoreInvulnerability, skillId)
         }
+        override fun freezeEntities(entities: List<UUID>, ticks: Int) { frozen += Triple(now, entities, ticks) }
         override fun statusStacks(entity: UUID, statusId: String): Int = if (entity == caster) casterStacks[statusId] ?: 0 else 0
         override fun removeStatus(victim: UUID, statusId: String) { removed += victim to statusId }
         override fun applyStatus(caster: UUID, victim: UUID, statusId: String, stacks: Int, durationTicks: Int) {
@@ -167,7 +174,7 @@ class CastSim(
             }
                 .map { (id, feet) -> HitCandidate(id, feet, 0.0, box(feet)) }
         override fun rootOf(entity: UUID): EntityRoot? =
-            if (entity == caster) EntityRoot(origin, yawDeg, 0.0, 1.62, 1.8) else victims[entity]?.let { EntityRoot(it, 0.0, 0.0, 1.62, 1.8) }
+            if (entity == caster) EntityRoot(origin, yawDeg, pitchDeg, 1.62, 1.8) else victims[entity]?.let { EntityRoot(it, 0.0, 0.0, 1.62, 1.8) }
         override fun raycastBlock(from: Vec3, to: Vec3): BlockHit? {
             val fy = floorY
             if (fy != null && from.y > fy && to.y <= fy) {
@@ -193,7 +200,7 @@ class CastSim(
 
     private val c = Coin2CastWiring.collaborators()
     val catalog: SkillCatalog = c.newCatalog().also {
-        val dir = c.skillsDir
+        val dir = if (extraSkills.isEmpty()) c.skillsDir else withExtraSkills(c.skillsDir, extraSkills)
         val report = SkillEngineContents(it).reload(dir)
         assertThat(report.failed).describedAs("shipped skills load: ${report.failures}").isZero()
     }
@@ -220,7 +227,7 @@ class CastSim(
     /** Starts [id] at the current tick without ticking; drive it with [step]. */
     fun start(id: String): CastId {
         val skill = requireNotNull(catalog.get(id)) { "skill $id not loaded" }
-        val req = CastRequest(skill, caster, origin, yawDeg, 0.0, seed = 7L, startTick = now)
+        val req = CastRequest(skill, caster, origin, yawDeg, pitchDeg, seed = 7L, startTick = now)
         return when (val r = kit.runner.start(req)) {
             is Result.Success -> r.value
             is Result.Failure -> error("cast did not start: ${r.error}")
@@ -241,7 +248,7 @@ class CastSim(
 
     fun cast(id: String, ticks: Int): CastId {
         val skill = requireNotNull(catalog.get(id)) { "skill $id not loaded" }
-        val req = CastRequest(skill, caster, origin, yawDeg, 0.0, seed = 7L, startTick = 0)
+        val req = CastRequest(skill, caster, origin, yawDeg, pitchDeg, seed = 7L, startTick = 0)
         val cast = when (val r = kit.runner.start(req)) {
             is Result.Success -> r.value
             is Result.Failure -> error("cast did not start: ${r.error}")
@@ -256,3 +263,13 @@ class CastSim(
     }
 }
 
+
+private fun withExtraSkills(shipped: java.nio.file.Path, extra: Map<String, String>): java.nio.file.Path {
+    val dir = java.nio.file.Files.createTempDirectory("sim-skills")
+    shipped.toFile().copyRecursively(dir.toFile(), overwrite = true)
+    for ((id, yaml) in extra) {
+        java.nio.file.Files.createDirectories(dir.resolve(id))
+        java.nio.file.Files.writeString(dir.resolve(id).resolve("skill.yaml"), yaml)
+    }
+    return dir
+}

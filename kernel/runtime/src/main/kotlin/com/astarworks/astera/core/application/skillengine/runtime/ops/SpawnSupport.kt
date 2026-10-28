@@ -78,7 +78,7 @@ internal fun OpContext.resolveVolume(volume: HitVolume, self: FrameId): Resolved
             null
         } else {
             ResolvedVolume.Sector(
-                origin = frame.origin,
+                origin = volume.at?.let { tree.pointWorld(frameId, it).getOrNull() } ?: frame.origin,
                 forward = axisDirection(frame, volume.forward),
                 left = axisDirection(frame, volume.left),
                 angleDeg = values.num(volume.angleDeg),

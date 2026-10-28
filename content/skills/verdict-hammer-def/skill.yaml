@@ -15,7 +15,12 @@ gameplay:
     - id: t97
       at: 97
       do:
-        - {id: sel_2, op: hit, frames: [caster], sector: {frame: caster, forward: caster.forward, left: caster.left, angle_deg: "${arc_deg}", range: "${reach}", height: 2.0}, max_count: 1, window: once}
+        - id: sel_2
+          op: hit
+          frames: [caster]
+          sector: {frame: caster, at: eye, forward: caster.forward, left: caster.left, angle_deg: "${arc_deg}", range: "${reach}", height: 2.0}
+          max_count: 1
+          window: once
     - id: t114
       at: 114
       do:
@@ -23,11 +28,21 @@ gameplay:
     - id: t118
       at: 118
       do:
-        - {id: sel_3, op: hit, frames: [caster], sector: {frame: caster, forward: caster.forward, left: caster.left, angle_deg: "${arc_deg_2}", range: "${reach_2}", height: 2.0}, max_count: 1, window: once}
+        - id: sel_3
+          op: hit
+          frames: [caster]
+          sector: {frame: caster, at: eye, forward: caster.forward, left: caster.left, angle_deg: "${arc_deg_2}", range: "${reach_2}", height: 2.0}
+          max_count: 1
+          window: once
     - id: t127
       at: 127
       do:
-        - {id: sel_4, op: hit, frames: [caster], sector: {frame: caster, forward: caster.forward, left: caster.left, angle_deg: "${arc_deg_2}", range: "${reach_2}", height: 2.0}, max_count: 1, window: once}
+        - id: sel_4
+          op: hit
+          frames: [caster]
+          sector: {frame: caster, at: eye, forward: caster.forward, left: caster.left, angle_deg: "${arc_deg_2}", range: "${reach_2}", height: 2.0}
+          max_count: 1
+          window: once
   "on":
     hit:
       - {id: dmg, op: damage, components: [{kind: physical, amount: "${dmg_physical}"}], target: victim, ignore_invulnerability: true, when: "= event.source == 'sel_2'"}

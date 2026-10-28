@@ -31,9 +31,9 @@ presentation:
       do:
         - {id: fx3_ember_counter_sweep_gauntlet_flame_fan, op: trail, of: pt_fx3_ember_counter_sweep_gauntlet_0_2p65_0, root: pt_fx3_ember_counter_sweep_gauntlet_0_1p95_0, ticks: 9, style: both}
     - {id: fx123, at: 123, do: [{id: rm, op: remove, ids: [fx3_ember_counter_sweep_gauntlet_flame_fan]}]}
-    - {id: loop1, at: 111, every: 4, for: 10, do: [{id: fx3_ember_counter_sweep_embers, op: emit, at: fx3_ember_counter_sweep, particle: ember-fine-spark, count: 1}]}
-    - {id: loop2, at: 111, every: 1, for: 8, do: [{id: fx3_ember_counter_sweep_gauntlet_fire, op: emit, at: pt_fx3_ember_counter_sweep_gauntlet_0_2p65_0, particle: ember-fine-spark, count: 1}]}
+    - {id: loop1, at: 111, every: 4, for: 10, do: [{id: fx3_ember_counter_sweep_embers, op: emit, at: fx3_ember_counter_sweep, particle: ember-fine-spark}]}
+    - {id: loop2, at: 111, every: 1, for: 8, do: [{id: fx3_ember_counter_sweep_gauntlet_fire, op: emit, at: pt_fx3_ember_counter_sweep_gauntlet_0_2p65_0, particle: ember-fine-spark}]}
   "on":
     hit:
-      - {id: fx4_ember_hoop_hit_embers, op: emit, at: fx4_ember_hoop_hit, particle: fire-impact, count: 1, when: "= event.source == 'sel'"}
+      - {id: fx4_ember_hoop_hit_embers, op: emit, at: fx4_ember_hoop_hit, particle: fire-impact, when: "= event.source == 'sel'"}
       - {id: snd, op: sound, sound: entity.player.attack.strong, at: contact.point, volume: 0.7, pitch: 1.1, when: "= event.source == 'sel'"}

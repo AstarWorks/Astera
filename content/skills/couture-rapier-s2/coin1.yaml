@@ -559,20 +559,20 @@ presentation:
     - {id: fx29, at: 29, do: [{id: rm_2, op: remove, ids: [fx1_couture_s2_rig_loop_b, fx1_couture_s2_rig_loop_b_m]}]}
     - {id: fx32, at: 32, do: [{id: rm_3, op: remove, ids: [fx1_couture_s2_rig_loop_gc, fx1_couture_s2_rig_loop_gc_m]}]}
     - {id: fx33, at: 33, do: [{id: snd_13, op: sound, sound: block.amethyst_block.chime, at: caster, volume: 0.6, pitch: 0.7}]}
-    - {id: c1_loop_sp_0, at: 7, every: 1, for: 7, do: [{id: fx3_couture_s2_coin1_sp_0, op: emit, at: fx3_couture_s2_coin1, particle: couture-s2-p-white, count: 1}]}
-    - {id: c1_loop_sp_1, at: 7, every: 1, for: 7, do: [{id: fx3_couture_s2_coin1_sp_1, op: emit, at: fx3_couture_s2_coin1, particle: couture-s2-p-white, count: 1}]}
-    - {id: c1_loop_sp_2, at: 7, every: 1, for: 7, do: [{id: fx3_couture_s2_coin1_sp_2, op: emit, at: fx3_couture_s2_coin1, particle: couture-s2-p-white, count: 1}]}
-    - {id: c1_loop_sp_3, at: 7, every: 1, for: 7, do: [{id: fx3_couture_s2_coin1_sp_3, op: emit, at: fx3_couture_s2_coin1, particle: couture-s2-p-white, count: 1}]}
-    - {id: c1_loop_sp_4, at: 7, every: 1, for: 7, do: [{id: fx3_couture_s2_coin1_sp_4, op: emit, at: fx3_couture_s2_coin1, particle: couture-s2-p-white, count: 1}]}
-    - {id: c1_loop_or_0, at: 7, every: 1, for: 6, do: [{id: fx3_couture_s2_coin1_or_0, op: emit, at: fx3_couture_s2_coin1, particle: couture-s2-p-orange, count: 1}]}
-    - {id: c1_loop_or_1, at: 7, every: 1, for: 6, do: [{id: fx3_couture_s2_coin1_or_1, op: emit, at: fx3_couture_s2_coin1, particle: couture-s2-p-orange, count: 1}]}
-    - {id: c1_loop_hit_orange, at: c1_hit_fx, every: 1, for: 3, do: [{id: fx4_couture_s2_hit1_p_orange, op: emit, at: fx4_couture_s2_hit1, particle: couture-s2-p-orange, count: 1}]}
-    - {id: c1_loop_hit_spark, at: c1_hit_fx, every: 3, for: 4, do: [{id: fx4_couture_s2_hit1_p_spark, op: emit, at: fx4_couture_s2_hit1, particle: couture-s2-p-spark, count: 1}]}
-    - {id: c1_loop_hit_ps_0, at: c1_hit_fx, every: 1, for: 3, do: [{id: fx4_couture_s2_hit1_ps_orange_0, op: emit, at: fx4_couture_s2_hit1, particle: couture-s2-p-orange, count: 1}]}
-    - {id: c1_loop_hit_ps_1, at: c1_hit_fx, every: 1, for: 3, do: [{id: fx4_couture_s2_hit1_ps_orange_1, op: emit, at: fx4_couture_s2_hit1, particle: couture-s2-p-orange, count: 1}]}
-    - {id: c1_loop_hit_ps_2, at: c1_hit_fx, every: 1, for: 3, do: [{id: fx4_couture_s2_hit1_ps_orange_2, op: emit, at: fx4_couture_s2_hit1, particle: couture-s2-p-orange, count: 1}]}
-    - {id: c1_loop_hit_ps_3, at: c1_hit_fx, every: 1, for: 3, do: [{id: fx4_couture_s2_hit1_ps_orange_3, op: emit, at: fx4_couture_s2_hit1, particle: couture-s2-p-orange, count: 1}]}
-    - {id: c1_loop_hit_ps_4, at: c1_hit_fx, every: 1, for: 3, do: [{id: fx4_couture_s2_hit1_ps_orange_4, op: emit, at: fx4_couture_s2_hit1, particle: couture-s2-p-orange, count: 1}]}
+    - {id: c1_loop_sp_0, at: 7, every: 1, for: 7, do: [{id: fx3_couture_s2_coin1_sp_0, op: emit, at: fx3_couture_s2_coin1, particle: couture-s2-p-white}]}
+    - {id: c1_loop_sp_1, at: 7, every: 1, for: 7, do: [{id: fx3_couture_s2_coin1_sp_1, op: emit, at: fx3_couture_s2_coin1, particle: couture-s2-p-white}]}
+    - {id: c1_loop_sp_2, at: 7, every: 1, for: 7, do: [{id: fx3_couture_s2_coin1_sp_2, op: emit, at: fx3_couture_s2_coin1, particle: couture-s2-p-white}]}
+    - {id: c1_loop_sp_3, at: 7, every: 1, for: 7, do: [{id: fx3_couture_s2_coin1_sp_3, op: emit, at: fx3_couture_s2_coin1, particle: couture-s2-p-white}]}
+    - {id: c1_loop_sp_4, at: 7, every: 1, for: 7, do: [{id: fx3_couture_s2_coin1_sp_4, op: emit, at: fx3_couture_s2_coin1, particle: couture-s2-p-white}]}
+    - {id: c1_loop_or_0, at: 7, every: 1, for: 6, do: [{id: fx3_couture_s2_coin1_or_0, op: emit, at: fx3_couture_s2_coin1, particle: couture-s2-p-orange}]}
+    - {id: c1_loop_or_1, at: 7, every: 1, for: 6, do: [{id: fx3_couture_s2_coin1_or_1, op: emit, at: fx3_couture_s2_coin1, particle: couture-s2-p-orange}]}
+    - {id: c1_loop_hit_orange, at: c1_hit_fx, every: 1, for: 3, do: [{id: fx4_couture_s2_hit1_p_orange, op: emit, at: fx4_couture_s2_hit1, particle: couture-s2-p-orange}]}
+    - {id: c1_loop_hit_spark, at: c1_hit_fx, every: 3, for: 4, do: [{id: fx4_couture_s2_hit1_p_spark, op: emit, at: fx4_couture_s2_hit1, particle: couture-s2-p-spark}]}
+    - {id: c1_loop_hit_ps_0, at: c1_hit_fx, every: 1, for: 3, do: [{id: fx4_couture_s2_hit1_ps_orange_0, op: emit, at: fx4_couture_s2_hit1, particle: couture-s2-p-orange}]}
+    - {id: c1_loop_hit_ps_1, at: c1_hit_fx, every: 1, for: 3, do: [{id: fx4_couture_s2_hit1_ps_orange_1, op: emit, at: fx4_couture_s2_hit1, particle: couture-s2-p-orange}]}
+    - {id: c1_loop_hit_ps_2, at: c1_hit_fx, every: 1, for: 3, do: [{id: fx4_couture_s2_hit1_ps_orange_2, op: emit, at: fx4_couture_s2_hit1, particle: couture-s2-p-orange}]}
+    - {id: c1_loop_hit_ps_3, at: c1_hit_fx, every: 1, for: 3, do: [{id: fx4_couture_s2_hit1_ps_orange_3, op: emit, at: fx4_couture_s2_hit1, particle: couture-s2-p-orange}]}
+    - {id: c1_loop_hit_ps_4, at: c1_hit_fx, every: 1, for: 3, do: [{id: fx4_couture_s2_hit1_ps_orange_4, op: emit, at: fx4_couture_s2_hit1, particle: couture-s2-p-orange}]}
   "on":
     hit:
       - {id: fx4_couture_s2_hit1_star_0, op: plate, parent: fx4_couture_s2_hit1, face: {viewer: center}, sprite: couture-s2-feather, when: "= event.source == 'sel'"}
@@ -615,7 +615,7 @@ presentation:
           - {t: 1, offset: [0.0, 1.2, 0.0], rotation: [0, 0, 135], scale: [0.884, 0.208, 1.0]}
           - {t: 6, offset: [0.0, 1.2, 0.0], rotation: [0, 0, 135], scale: [1.144, 0.008, 1.0]}
         when: "= event.source == 'sel'"
-      - {id: fx4_couture_s2_hit1_p_crit, op: emit, at: fx4_couture_s2_hit1, particle: couture-s2-p-crit, count: 1, when: "= event.source == 'sel'"}
-      - {id: fx4_couture_s2_hit1_p_crit2, op: emit, at: fx4_couture_s2_hit1, particle: couture-s2-p-crit, count: 1, when: "= event.source == 'sel'"}
+      - {id: fx4_couture_s2_hit1_p_crit, op: emit, at: fx4_couture_s2_hit1, particle: couture-s2-p-crit, when: "= event.source == 'sel'"}
+      - {id: fx4_couture_s2_hit1_p_crit2, op: emit, at: fx4_couture_s2_hit1, particle: couture-s2-p-crit, when: "= event.source == 'sel'"}
     c1_hit_end:
       - {id: c1_hit_rm, op: remove, ids: [fx4_couture_s2_hit1_star_0, fx4_couture_s2_hit1_star_1, fx4_couture_s2_hit1_star_2, fx4_couture_s2_hit1_star_3]}

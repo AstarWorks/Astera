@@ -8,8 +8,8 @@ frames:
   - {id: pt_enemy_0_1p2_0, kind: point, parent: enemy, offset: [0.0, 1.2, 0.0]}
 presentation:
   timeline:
-    - {id: fx0, at: 0, do: [{id: snd, op: sound, sound: "astera:weapons/sword-swing", at: caster, volume: 1.0, pitch: 1.5}, {id: emit, op: emit, at: pt_caster_0_m0p2_1p4, particle: slash-sweep, count: 1}]}
+    - {id: fx0, at: 0, do: [{id: snd, op: sound, sound: "astera:weapons/sword-swing", at: caster, volume: 1.0, pitch: 1.5}, {id: emit, op: emit, at: pt_caster_0_m0p2_1p4, particle: slash-sweep}]}
   "on":
     hit:
       - {id: snd_2, op: sound, sound: "astera:weapons/blade-hit", at: contact.point, volume: 0.7, pitch: 1.2, when: "= event.source == 'swing'"}
-      - {id: emit_2, op: emit, at: pt_enemy_0_1p2_0, particle: hit-spark, count: 1, when: "= event.source == 'swing'"}
+      - {id: emit_2, op: emit, at: pt_enemy_0_1p2_0, particle: hit-spark, when: "= event.source == 'swing'"}

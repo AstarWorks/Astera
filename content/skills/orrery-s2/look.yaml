@@ -76,7 +76,7 @@ presentation:
         - {id: rm_6, op: remove, ids: [fx5_orrery_s2_impact_long_violet_flash], when: "= event.source == 'sel_2'"}
     - {id: fxhit_15, at: "hit+15", do: [{id: rm_5, op: remove, ids: [fx4_orrery_s2_impact_annulus], when: "= event.source == 'sel'"}]}
     - {id: fxhit_18, at: "hit+18", do: [{id: rm_7, op: remove, ids: [fx5_orrery_s2_impact_long_annulus], when: "= event.source == 'sel_2'"}]}
-    - {id: loop1, at: 7, every: 1, for: 99, do: [{id: fx3_orrery_s2_poise_staff_embers, op: emit, at: pt_fx3_orrery_s2_poise_staff_0_2p1_0, particle: orrery-ember, count: 1}]}
+    - {id: loop1, at: 7, every: 1, for: 99, do: [{id: fx3_orrery_s2_poise_staff_embers, op: emit, at: pt_fx3_orrery_s2_poise_staff_0_2p1_0, particle: orrery-ember}]}
   "on":
     hit:
       - id: fx4_orrery_s2_impact_annulus

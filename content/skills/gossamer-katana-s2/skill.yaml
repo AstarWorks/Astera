@@ -6,14 +6,14 @@ id: gossamer-katana-s2
 item: gossamer-katana
 meta: {name: {ja: "影糸の網", en: "Spectral Web"}, description: {ja: "影の糸を張って斬り、踏み込んで連続で斬る。", en: "Lay shadow threads and cut through in a chain."}, cooldown_ticks: 130, resource_cost: 18}
 frames:
-  - {id: pt_caster_eye_0_0_12, kind: point, parent: caster.eye, offset: [0.0, 0.0, 12.0]}
+  - {id: pt_aim_0_0_12, kind: point, parent: aim, offset: [0.0, 0.0, 12.0]}
 gameplay:
   params: {dmg_physical: 30, dash_distance: 7, dmg_physical_2: 35, radius: 7, dmg_physical_3: 55}
   expose:
     - {id: damage, param: dmg_physical}
     - {id: radius, param: radius}
   timeline:
-    - {id: t7, at: 7, do: [{id: sel_3, op: hit, frames: [caster], capsule: {from: caster.eye, to: pt_caster_eye_0_0_12, radius: 0.3}, window: once}]}
+    - {id: t7, at: 7, do: [{id: sel_3, op: hit, frames: [caster], capsule: {from: aim, to: pt_aim_0_0_12, radius: 0.3}, window: once}]}
     - id: t28
       at: 28
       do:
