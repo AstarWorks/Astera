@@ -62,5 +62,5 @@ machine:
 #   bloom  ticks 0-20   firings: motes @0,2,..,18 x10 (count 1,1,2,3,5,7,9,10,11,11), chime @0..18 x10 (pitch 0.70,0.78,0.86,0.94,1.02,1.10,1.18,1.26,1.34,1.42 linear)
 #   petal display 0-20 | spin out_cubic: m=4 h=5 err 1.6 deg writes 5 | grow out_back: m=20 (per tick) writes 21 -> shared boundaries: 21 writes
 #   rush   ticks 0-20   tick (sound) @0,6,12,17 x4   [period 6,6,5,3: t0=0; t1=0+round(6-4*E(0))=6; t2=6+round(6-4*E(0.3))=12 (5.64->6); t3=12+round(6-4*E(0.6))=17 (4.56->5); next 20 >= for, stop]
-#          lunge: 16 blocks, out_cubic: at lt=5 covers 14 blocks, writes 5  | bolt speed 0.4->2.0 over 12 ticks (in_quad), then 2.0 | edge width out_quad m=4
+#          lunge: 16 blocks, out_cubic: at lt=5 covers 14 blocks, writes 5  | bolt speed 0.4->2.0 over 12 ticks (in_quad), then 2.0 | edge width out_quad: one set per tick (a trail has no client interpolation to fit against, ADR 3.4 fade precedent)
 #   path: bloom(20) -> rush(20) -> end  min 40 max 40
