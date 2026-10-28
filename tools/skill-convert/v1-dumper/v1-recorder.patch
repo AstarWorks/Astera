@@ -1,0 +1,107 @@
+diff --git a/tools/game-sim/src/main/kotlin/com/astarworks/astera/gamesim/SimWorldPorts.kt b/tools/game-sim/src/main/kotlin/com/astarworks/astera/gamesim/SimWorldPorts.kt
+index c185bbe4b..751d83575 100644
+--- a/tools/game-sim/src/main/kotlin/com/astarworks/astera/gamesim/SimWorldPorts.kt
++++ b/tools/game-sim/src/main/kotlin/com/astarworks/astera/gamesim/SimWorldPorts.kt
+@@ -100,6 +100,13 @@ public class SimDisplayGateway(
+     public var peakActive: Int = 0
+         private set
+ 
++    /** Vanilla-parity dump: one JSON line per display call. */
++    public val dump: MutableList<String> = mutableListOf()
++    private var anchoredNext: Boolean = false
++    private val ord = HashMap<IDisplayEntityGateway.DisplayHandle, Int>()
++    private fun q(s: String?): String = if (s == null) "null" else "\"" + s.replace("\\", "\\\\").replace("\"", "\\\"").replace("\n", "\\n") + "\""
++    private fun tf(t: DisplayTransform): String = "\"tr\":[${t.translation.x},${t.translation.y},${t.translation.z}],\"left\":[${t.rotation.x},${t.rotation.y},${t.rotation.z},${t.rotation.w}],\"scale\":[${t.scale.x},${t.scale.y},${t.scale.z}]"
++    private fun idOf(h: IDisplayEntityGateway.DisplayHandle) = ord[h] ?: -1
+     /** Every display ever spawned, in order. */
+     public val spawned: MutableList<Spawned> = mutableListOf()
+ 
+@@ -137,6 +144,18 @@ public class SimDisplayGateway(
+         active[handle] = record
+         peakActive = maxOf(peakActive, active.size)
+         spawned += record
++        ord[handle] = ord.size
++        run {
++            val k = spec.kind
++            val kindJson = when (k) {
++                is DisplayKind.Block -> "\"kind\":\"block\",\"block\":${q(k.blockKey)}"
++                is DisplayKind.Item -> "\"kind\":\"item\",\"item\":${q(k.itemId.value)},\"mode\":${q(k.displayMode.name)},\"model\":${q(k.itemModel)}"
++                is DisplayKind.SkinBone -> "\"kind\":\"skin_bone\",\"bone\":${q(k.bone.yamlName)},\"ghost\":${k.ghost}"
++                DisplayKind.AnchorMainHand -> "\"kind\":\"main_hand\""
++                is DisplayKind.Text -> "\"kind\":\"text\",\"text\":${q(renderedLines.joinToString("|"))},\"bg\":${k.backgroundArgb},\"opacity\":${k.textOpacity},\"rgb\":${k.textRgb},\"seeThrough\":${k.seeThrough},\"shadow\":${k.shadow}"
++            }
++            dump += "{\"t\":${scheduler.currentTick()},\"e\":\"spawn\",\"id\":${ord[handle]},$kindJson,\"x\":${at.x},\"y\":${at.y},\"z\":${at.z},\"anch\":$anchoredNext,${tf(spec.transform)},\"bb\":${q(spec.billboard.name.lowercase())},\"br\":${spec.brightness},\"glow\":${spec.glowArgb},\"vr\":${spec.viewRange},\"rigshade\":${spec.weaponRigShading},\"life\":${spec.lifetimeTicks}}"
++        }
+         val what = when (val kind = spec.kind) {
+             is DisplayKind.Block -> "block ${kind.blockKey}"
+             is DisplayKind.Item -> "item ${kind.itemId.value}"
+@@ -222,7 +241,9 @@ public class SimDisplayGateway(
+         anchor: com.astarworks.astera.core.domain.player.PlayerId,
+         offset: Vec3,
+     ): IDisplayEntityGateway.DisplayHandle {
++        anchoredNext = true
+         val handle = spawn(world, offset, spec, renderedLines)
++        anchoredNext = false
+         attached[handle] = anchor
+         return handle
+     }
+@@ -232,11 +253,13 @@ public class SimDisplayGateway(
+ 
+     override fun setViewRange(handle: IDisplayEntityGateway.DisplayHandle, viewRange: Float) {
+         viewRanges[handle] = viewRange
++        dump += "{\"t\":${scheduler.currentTick()},\"e\":\"viewrange\",\"id\":${idOf(handle)},\"vr\":$viewRange}"
+     }
+ 
+     override fun update(handle: IDisplayEntityGateway.DisplayHandle, transform: DisplayTransform, interpolationTicks: Int) {
+         val record = active[handle] ?: return
+         updates += Update(handle, scheduler.currentTick(), transform, interpolationTicks)
++        dump += "{\"t\":${scheduler.currentTick()},\"e\":\"update\",\"id\":${idOf(handle)},${tf(transform)},\"interp\":$interpolationTicks}"
+         recorder.recordEffect(scheduler.currentTick(), "display_update", record.at, "${handle.id} over=$interpolationTicks scale=${transform.scale}")
+         recorder.recordDisplay(
+             scheduler.currentTick(),
+@@ -247,12 +270,14 @@ public class SimDisplayGateway(
+     override fun setItemModel(handle: IDisplayEntityGateway.DisplayHandle, itemModel: String?) {
+         val record = active[handle] ?: return
+         swaps += Swap(handle, scheduler.currentTick(), "item_model", itemModel ?: "")
++        dump += "{\"t\":${scheduler.currentTick()},\"e\":\"swap\",\"id\":${idOf(handle)},\"what\":\"item_model\",\"v\":${q(itemModel)}}"
+         recorder.recordEffect(scheduler.currentTick(), "display_swap", record.at, "${handle.id} item_model ${itemModel ?: "<held>"}")
+     }
+ 
+     override fun setBlock(handle: IDisplayEntityGateway.DisplayHandle, blockKey: String) {
+         val record = active[handle] ?: return
+         swaps += Swap(handle, scheduler.currentTick(), "block", blockKey)
++        dump += "{\"t\":${scheduler.currentTick()},\"e\":\"swap\",\"id\":${idOf(handle)},\"what\":\"block\",\"v\":${q(blockKey)}}"
+         recorder.recordEffect(scheduler.currentTick(), "display_swap", record.at, "${handle.id} block $blockKey")
+         recorder.recordDisplay(
+             scheduler.currentTick(),
+@@ -263,6 +288,7 @@ public class SimDisplayGateway(
+     override fun setText(handle: IDisplayEntityGateway.DisplayHandle, renderedLines: List<String>) {
+         val record = active[handle] ?: return
+         swaps += Swap(handle, scheduler.currentTick(), "text", renderedLines.joinToString(" / "))
++        dump += "{\"t\":${scheduler.currentTick()},\"e\":\"swap\",\"id\":${idOf(handle)},\"what\":\"text\",\"v\":${q(renderedLines.joinToString("|"))}}"
+         recorder.recordEffect(scheduler.currentTick(), "display_swap", record.at, "${handle.id} text ${renderedLines.joinToString(" / ")}")
+         recorder.recordDisplay(
+             scheduler.currentTick(),
+@@ -276,12 +302,14 @@ public class SimDisplayGateway(
+     override fun setTextStyle(handle: IDisplayEntityGateway.DisplayHandle, backgroundArgb: Int, textOpacity: Int, textRgb: Int?) {
+         val record = active[handle] ?: return
+         styles += Style(handle, scheduler.currentTick(), backgroundArgb, textOpacity, textRgb)
++        dump += "{\"t\":${scheduler.currentTick()},\"e\":\"style\",\"id\":${idOf(handle)},\"bg\":$backgroundArgb,\"opacity\":$textOpacity,\"rgb\":$textRgb}"
+         recorder.recordEffect(scheduler.currentTick(), "display_style", record.at, "${handle.id} bg=${Integer.toHexString(backgroundArgb)} opacity=$textOpacity")
+     }
+ 
+     override fun teleport(handle: IDisplayEntityGateway.DisplayHandle, at: Vec3, yaw: Float, pitch: Float, teleportTicks: Int) {
+         if (handle !in active) return
+         teleports += Teleport(handle, scheduler.currentTick(), at, teleportTicks)
++        dump += "{\"t\":${scheduler.currentTick()},\"e\":\"teleport\",\"id\":${idOf(handle)},\"x\":${at.x},\"y\":${at.y},\"z\":${at.z},\"yaw\":$yaw,\"pitch\":$pitch,\"tp\":$teleportTicks}"
+         recorder.recordEffect(scheduler.currentTick(), "display_teleport", at, "${handle.id} over=$teleportTicks")
+         recorder.recordDisplay(
+             scheduler.currentTick(),
+@@ -295,6 +323,7 @@ public class SimDisplayGateway(
+ 
+     override fun remove(handle: IDisplayEntityGateway.DisplayHandle) {
+         val record = active.remove(handle) ?: return
++        dump += "{\"t\":${scheduler.currentTick()},\"e\":\"remove\",\"id\":${idOf(handle)}}"
+         attached.remove(handle)
+         recorder.recordEffect(scheduler.currentTick(), "display_remove", record.at, record.handle.id.toString())
+         recorder.recordDisplay(scheduler.currentTick(), buildJsonObject { put("op", "remove"); put("id", handle.id.toString()) })

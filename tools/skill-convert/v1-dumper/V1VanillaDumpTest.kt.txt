@@ -1,0 +1,54 @@
+package com.astarworks.astera.gamesim
+
+import com.astarworks.astera.core.domain.geometry.Vec3
+import org.junit.jupiter.api.Test
+import java.io.File
+
+/** Reference dump (throwaway): casts each id from env ASTERA_DUMP_IDS and writes JSONL to ASTERA_DUMP_OUT. */
+class V1VanillaDumpTest {
+    private fun itemOf(skill: String): String? {
+        val dir = File("content/items").let { if (it.isDirectory) it else File("../../content/items") }
+        for (f in dir.listFiles()!!.sortedBy { it.name }) {
+            val t = f.readText()
+            if (Regex("""skill_id:\s*${Regex.escape(skill)}\s*$""", RegexOption.MULTILINE).containsMatchIn(t)) {
+                return Regex("""^id:\s*(\S+)""", RegexOption.MULTILINE).find(t)?.groupValues?.get(1)
+            }
+        }
+        return null
+    }
+
+    @Test
+    fun dump() {
+        val ids = System.getenv("ASTERA_DUMP_IDS")!!.split(",").filter { it.isNotBlank() }
+        val out = File(System.getenv("ASTERA_DUMP_OUT")!!).also { it.mkdirs() }
+        val ticks = (System.getenv("ASTERA_DUMP_TICKS") ?: "120").toInt()
+        for (id in ids) {
+            val lines = ArrayList<String>()
+            try {
+                scenario("dump-$id") {
+                    val caster = player("caster", facing = Vec3(0.0, 0.0, 1.0))
+                    val feet = caster.position
+                    mob("dummy", Vec3(feet.x, feet.y, feet.z + 5.0))
+                    val item = itemOf(id)
+                    if (item != null) runCatching { caster.holds(item) }
+                    val start = sim.scheduler.currentTick()
+                    lines += "{\"e\":\"meta\",\"id\":\"$id\",\"item\":\"$item\",\"feetY\":${feet.y},\"start\":$start}"
+                    caster.cast(id)
+                    for (i in 0 until ticks) {
+                        val p = caster.position
+                        lines += "{\"t\":${sim.scheduler.currentTick()},\"e\":\"caster\",\"x\":${p.x},\"y\":${p.y},\"z\":${p.z}}"
+                        advance(1)
+                    }
+                    lines.addAll(sim.displays.dump)
+                    for (c in sim.recorder.particleCalls()) {
+                        val s = c.spec
+                        lines += "{\"t\":${c.tick},\"e\":\"particle\",\"key\":\"${s.key}\",\"x\":${c.at.x},\"y\":${c.at.y},\"z\":${c.at.z},\"count\":${s.count},\"ox\":${s.offset.x},\"oy\":${s.offset.y},\"oz\":${s.offset.z},\"extra\":${s.extra},\"data\":\"${(s.data?.toString() ?: s.color?.toString() ?: "").replace("\"", "'")}\",\"scale\":${s.scale}}"
+                    }
+                }
+            } catch (e: Throwable) {
+                lines += "{\"e\":\"error\",\"msg\":\"${(e::class.simpleName + ": " + e.message).take(200).replace("\"", "'").replace("\n", " ")}\"}"
+            }
+            File(out, "$id.jsonl").writeText(lines.joinToString("\n") + "\n")
+        }
+    }
+}
