@@ -1,12 +1,10 @@
 # Converted from content/skills/gossamer-katana-s3.yaml + content/vfx/* by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
 # Generated point-frame offsets are [left, up, forward] in the parent frame.
-# CONVERT-PRESENT vfx frame orient (frames carry no orientation / scale) (x3): orient="yaw"
-# CONVERT-PRESENT vfx follow=false (anchored at world, no place-at-spawn) (x2): gossamer-katana-scar | gossamer-katana-iaido-line
 apiVersion: "astera/v2"
 kind: Skill
 id: gossamer-katana-s3
 frames:
-  - {id: fx1_gossamer_katana_draw, kind: body, parent: caster}
+  - {id: fx1_gossamer_katana_draw, kind: body, parent: world}
   - {id: fx1_gossamer_katana_draw_katana, kind: body, parent: caster}
   - {id: fx1_gossamer_katana_draw_katana_parts, kind: body, parent: caster}
   - {id: fx2_gossamer_katana_scar, kind: body, parent: world}
@@ -16,6 +14,7 @@ presentation:
     - id: fx0
       at: 0
       do:
+        - {id: anchor, op: anchor, frame: fx1_gossamer_katana_draw, at: caster, orient: yaw, follow: true, teleport_ticks: 2}
         - id: fx1_gossamer_katana_draw_katana_rig
           op: rig
           frame: fx1_gossamer_katana_draw_katana
@@ -103,6 +102,7 @@ presentation:
     - id: fx5
       at: 5
       do:
+        - {id: anchor_3, op: anchor, frame: fx3_gossamer_katana_iaido_line, at: caster, orient: yaw}
         - {op: block, parent: fx3_gossamer_katana_iaido_line, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx3_gossamer_katana_iaido_line_core}
         - id: fx3_gossamer_katana_iaido_line_core_trk
           op: track
@@ -149,6 +149,7 @@ presentation:
     - {id: fx41, at: 41, do: [{id: rm_7, op: remove, ids: [fx3_gossamer_katana_iaido_line_core]}]}
   "on":
     dash_fx:
+      - {id: anchor_2, op: anchor, frame: fx2_gossamer_katana_scar, at: enemy, orient: yaw}
       - {op: block, parent: fx2_gossamer_katana_scar, block: black_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx2_gossamer_katana_scar_ink}
       - id: fx2_gossamer_katana_scar_ink_trk
         op: track

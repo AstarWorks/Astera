@@ -14,6 +14,7 @@ import com.astarworks.astera.core.application.skillengine.runtime.port.VisualPos
 import com.astarworks.astera.core.domain.effect.DisplayBillboard
 import com.astarworks.astera.core.domain.effect.DisplayKind
 import com.astarworks.astera.core.domain.effect.DisplaySpec
+import com.astarworks.astera.core.domain.effect.vfx.VfxLane
 import com.astarworks.astera.core.domain.effect.DisplayTransform
 import com.astarworks.astera.core.domain.sprite.SpriteGlyphs
 import com.astarworks.astera.core.domain.sprite.SpriteId
@@ -114,7 +115,7 @@ public class PaperSkillVisualGateway(
         }
         val first = toDisplayWrite(pose.frame, pose.size, Intrinsic.ITEM_FIXED, pose.billboard, 0)
         val spec = SkillDisplaySpecs.mesh(kind, first.transform, brightness, look.rigShading)
-        val handle = spawnDisplay(world, castOwner, pose.frame.origin, spec, emptyList(), pose.anchorFeet != null) ?: return dead("mesh $item")
+        val handle = spawnDisplay(world, castOwner, pose.frame.origin, spec, emptyList(), pose.anchorFeet != null, pose.lane) ?: return dead("mesh $item")
         if (heldItem) hideHand(castOwner)
         return register(castOwner, MeshEntry(handle, castOwner, heldItem))
     }
@@ -170,7 +171,7 @@ public class PaperSkillVisualGateway(
         val intrinsic = Intrinsic.textGlyph(spriteInfo(sprite).px)
         val first = toDisplayWrite(pose.frame, pose.size, intrinsic, pose.billboard, 0)
         val spec = SkillDisplaySpecs.plate(glyph, alpha, first.transform, pose.billboard, brightness ?: 15)
-        val handle = spawnDisplay(world, castOwner, pose.frame.origin, spec, listOf(glyph), pose.anchorFeet != null && pose.billboard == DisplayBillboard.FIXED)
+        val handle = spawnDisplay(world, castOwner, pose.frame.origin, spec, listOf(glyph), pose.anchorFeet != null && pose.billboard == DisplayBillboard.FIXED, pose.lane)
             ?: return dead("plate $sprite")
         return register(castOwner, PlateEntry(handle, castOwner, sprite, intrinsic))
     }
@@ -179,7 +180,7 @@ public class PaperSkillVisualGateway(
         val world = worldOf(castOwner) ?: return dead("block $block")
         val first = toDisplayWrite(pose.frame, pose.size, Intrinsic.BLOCK, DisplayBillboard.FIXED, 0)
         val spec = SkillDisplaySpecs.block(block, first.transform, brightness, rigShading)
-        val handle = spawnDisplay(world, castOwner, pose.frame.origin, spec, emptyList(), pose.anchorFeet != null) ?: return dead("block $block")
+        val handle = spawnDisplay(world, castOwner, pose.frame.origin, spec, emptyList(), pose.anchorFeet != null, pose.lane) ?: return dead("block $block")
         return register(castOwner, BlockEntry(handle, castOwner))
     }
 
@@ -188,7 +189,7 @@ public class PaperSkillVisualGateway(
         val intrinsic = if (text == null) Intrinsic.TEXT_SOLID else Intrinsic.textGlyph(QUAD_TEXT_PX)
         val first = toDisplayWrite(pose.frame, pose.size, intrinsic, pose.billboard, 0)
         val spec = SkillDisplaySpecs.quad(colorHex, alpha, text, shadow, seeThrough, first.transform, pose.billboard, brightness)
-        val handle = spawnDisplay(world, castOwner, pose.frame.origin, spec, listOf(text ?: " "), pose.anchorFeet != null && pose.billboard == DisplayBillboard.FIXED)
+        val handle = spawnDisplay(world, castOwner, pose.frame.origin, spec, listOf(text ?: " "), pose.anchorFeet != null && pose.billboard == DisplayBillboard.FIXED, pose.lane)
             ?: return dead("quad")
         return register(castOwner, QuadEntry(handle, castOwner, intrinsic, colorHex, alpha))
     }
@@ -250,11 +251,11 @@ public class PaperSkillVisualGateway(
 
     override fun write(handle: VisualHandle, pose: VisualPose, interpolationTicks: Int) {
         when (val e = entries[handle.id]) {
-            is MeshEntry -> displays.place(e.handle, toDisplayWrite(pose.frame, pose.size, Intrinsic.ITEM_FIXED, pose.billboard, interpolationTicks, anchorOf(e.owner, pose.anchorFeet)))
-            is SkinEntry -> displays.place(e.handle, toDisplayWrite(pose.frame, pose.size, Intrinsic.ITEM_FIXED, pose.billboard, interpolationTicks, anchorOf(e.owner, pose.anchorFeet)))
-            is PlateEntry -> displays.place(e.handle, toDisplayWrite(pose.frame, pose.size, e.intrinsic, pose.billboard, interpolationTicks, anchorOf(e.owner, pose.anchorFeet)))
-            is BlockEntry -> displays.place(e.handle, toDisplayWrite(pose.frame, pose.size, Intrinsic.BLOCK, pose.billboard, interpolationTicks, anchorOf(e.owner, pose.anchorFeet)))
-            is QuadEntry -> displays.place(e.handle, toDisplayWrite(pose.frame, pose.size, e.intrinsic, pose.billboard, interpolationTicks, anchorOf(e.owner, pose.anchorFeet)))
+            is MeshEntry -> displays.place(e.handle, toDisplayWrite(pose.frame, pose.size, Intrinsic.ITEM_FIXED, pose.billboard, interpolationTicks, anchorOf(e.owner, pose.anchorFeet), pose.teleportTicks))
+            is SkinEntry -> displays.place(e.handle, toDisplayWrite(pose.frame, pose.size, Intrinsic.ITEM_FIXED, pose.billboard, interpolationTicks, anchorOf(e.owner, pose.anchorFeet), pose.teleportTicks))
+            is PlateEntry -> displays.place(e.handle, toDisplayWrite(pose.frame, pose.size, e.intrinsic, pose.billboard, interpolationTicks, anchorOf(e.owner, pose.anchorFeet), pose.teleportTicks))
+            is BlockEntry -> displays.place(e.handle, toDisplayWrite(pose.frame, pose.size, Intrinsic.BLOCK, pose.billboard, interpolationTicks, anchorOf(e.owner, pose.anchorFeet), pose.teleportTicks))
+            is QuadEntry -> displays.place(e.handle, toDisplayWrite(pose.frame, pose.size, e.intrinsic, pose.billboard, interpolationTicks, anchorOf(e.owner, pose.anchorFeet), pose.teleportTicks))
             is LineEntry -> displays.place(e.handle, toDisplayWrite(pose.frame, pose.size, Intrinsic.TEXT_SOLID, DisplayBillboard.FIXED, interpolationTicks))
             is TrailEntry -> error("a trail is fed through pushTrailPoint, never written")
             null -> Unit // already removed (owner quit / cast ended): nothing left to move
@@ -403,13 +404,13 @@ public class PaperSkillVisualGateway(
         if (feet != null && server.getPlayer(owner) != null) DisplayWrite.Anchor(PlayerId(owner), feet) else null
 
     /** Spawns a display; an anchored one is born riding the caster (no frame at the wrong place), with the plain spawn as fallback. */
-    private fun spawnDisplay(world: World, owner: UUID, at: Vec3, spec: DisplaySpec, lines: List<String>, anchored: Boolean): DisplayHandle? {
+    private fun spawnDisplay(world: World, owner: UUID, at: Vec3, spec: DisplaySpec, lines: List<String>, anchored: Boolean, lane: VfxLane = VfxLane.CORE): DisplayHandle? {
         val player = if (anchored) server.getPlayer(owner) else null
         if (player != null) {
             val feet = player.location
-            displays.spawnAttached(WorldId(world.name), spec, lines, PlayerId(owner), at - Vec3(feet.x, feet.y, feet.z))?.let { return it }
+            displays.spawnAttached(WorldId(world.name), spec, lines, PlayerId(owner), at - Vec3(feet.x, feet.y, feet.z), lane)?.let { return it }
         }
-        return displays.spawn(WorldId(world.name), at, spec, lines)
+        return displays.spawnLaned(WorldId(world.name), at, spec, lines, lane, PlayerId(owner))
     }
 
     private fun register(owner: UUID, entry: Entry): VisualHandle {

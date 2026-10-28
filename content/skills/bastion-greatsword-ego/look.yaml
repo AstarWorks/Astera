@@ -1,11 +1,5 @@
 # Converted from content/skills/bastion-greatsword-ego.yaml + content/vfx/* by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
 # Generated point-frame offsets are [left, up, forward] in the parent frame.
-# CONVERT-PRESENT vfx frame orient (frames carry no orientation / scale) (x3): orient="yaw"
-# CONVERT-PRESENT vfx follow=false (anchored at world, no place-at-spawn) (x2): bastion-ego-trail | bastion-ego-slam
-# CONVERT-PRESENT dotted_line (line is solid) (x1): {"color": "#FFE08A", "from": [0, 1.0, 0.2], "spacing": 0.28,
-# CONVERT-PRESENT element lane (no v2 equivalent) (x10): "accent" | core
-# CONVERT-PRESENT element brightness (no v2 equivalent) (x1): 15
-# CONVERT-PRESENT element keyframes without a transform (alpha / colour only) (x1)
 # CONVERT-PRESENT camera_shake shape (engine shake is intensity + ticks only) (x2): shape="decay"
 # CONVERT-PRESENT camera_shake direction (engine shake is intensity + ticks only) (x2): direction="from_hit" | direction="none"
 # CONVERT-PRESENT camera_shake viewers (engine shake is intensity + ticks only) (x2): viewers="all" | viewers="caster"
@@ -13,11 +7,9 @@ apiVersion: "astera/v2"
 kind: Skill
 id: bastion-greatsword-ego
 frames:
-  - {id: fx1_bastion_ego_guard, kind: body, parent: caster}
-  - {id: fx2_telegraph_cone_2, kind: body, parent: tele}
+  - {id: fx1_bastion_ego_guard, kind: body, parent: world}
+  - {id: fx2_telegraph_cone_2, kind: body, parent: world}
   - {id: fx3_bastion_ego_trail, kind: body, parent: world}
-  - {id: pt_fx3_bastion_ego_trail_0_1_0p2, kind: point, parent: fx3_bastion_ego_trail, offset: [0.0, 1.0, 0.2]}
-  - {id: pt_fx3_bastion_ego_trail_0_1p4_3, kind: point, parent: fx3_bastion_ego_trail, offset: [0.0, 1.4, 3.0]}
   - {id: fx4_bastion_ego_slam, kind: body, parent: world}
   - {id: fx4_bastion_ego_slam_sword, kind: body, parent: caster}
   - {id: fx4_bastion_ego_slam_sword_parts, kind: body, parent: caster}
@@ -26,6 +18,7 @@ presentation:
     - id: fx0
       at: 0
       do:
+        - {id: anchor, op: anchor, frame: fx1_bastion_ego_guard, at: caster, orient: yaw, follow: true, teleport_ticks: 2}
         - op: plate
           parent: fx1_bastion_ego_guard
           face: {plane: {frame: fx1_bastion_ego_guard, axes: [left, up]}}
@@ -95,6 +88,7 @@ presentation:
       at: 20
       do:
         - {id: hide_hand, op: caster_anim, anim: hide-main-hand, ticks: 24}
+        - {id: anchor_2, op: anchor, frame: fx2_telegraph_cone_2, at: tele, orient: world}
         - op: quad
           parent: fx2_telegraph_cone_2
           face: {plane: {frame: fx2_telegraph_cone_2, axes: [left, up]}}
@@ -566,10 +560,23 @@ presentation:
             - {t: 10, offset: [1.64657, 0.06, 2.62656], turn: [-81.55381, -45.12852, -45.12852], scale: [6.2, 0.59967, 1.0]}
             - {t: 11, offset: [1.64657, 0.06, 2.62656], turn: [-81.55381, -45.12852, -45.12852], scale: [6.2, 0.59967, 1.0]}
         - {id: snd_2, op: sound, sound: item.shield.block, at: caster, pitch: 0.8}
-        - {id: fx3_bastion_ego_trail_beads, op: line, from: pt_fx3_bastion_ego_trail_0_1_0p2, to: pt_fx3_bastion_ego_trail_0_1p4_3, thickness: 0.28, color: "#FFE08A", face: {viewer: axis, axis: line.along}}
+        - {id: anchor_3, op: anchor, frame: fx3_bastion_ego_trail, at: caster, orient: yaw}
+        - op: plate
+          parent: fx3_bastion_ego_trail
+          face: {viewer: center}
+          sprite: dot
+          size: 0.8
+          color: "#FFE08A"
+          lane: accent
+          brightness: 15
+          at: "= [vec(0.0, 1.0, 0.2), vec(0.0, 1.04, 0.48), vec(0.0, 1.08, 0.76), vec(0.0, 1.12, 1.04), vec(0.0, 1.16, 1.32), vec(0.0, 1.2, 1.6), vec(0.0, 1.24, 1.88), vec(0.0, 1.28, 2.16), vec(0.0, 1.32, 2.44), vec(0.0, 1.36, 2.72), vec(0.0, 1.4, 3.0)][int(i)]"
+          times: 11
+          id: fx3_bastion_ego_trail_beads
+        - {id: fx3_bastion_ego_trail_beads_trk, op: track, target: fx3_bastion_ego_trail_beads, keys: [{t: 0, scale: [0.336, 0.336, 0.336], alpha: 1.0}, {t: 14, alpha: 0.0, ease: in_quad}]}
     - id: fx27
       at: 27
       do:
+        - {id: anchor_4, op: anchor, frame: fx4_bastion_ego_slam, at: caster, orient: yaw}
         - id: fx4_bastion_ego_slam_sword_rig
           op: rig
           frame: fx4_bastion_ego_slam_sword
@@ -715,7 +722,7 @@ presentation:
             - {t: 1, scale: [0.5, 10.0, 0.5], ease: out_expo}
             - {t: 10, scale: [0.425, 10.0, 0.425]}
             - {t: 16, scale: [0.0, 10.0, 0.0], ease: in_quad}
-        - {op: block, parent: fx4_bastion_ego_slam, block: yellow_stained_glass, size: [1.0, 1.0, 1.0], brightness: 15, id: fx4_bastion_ego_slam_pilbloom}
+        - {op: block, parent: fx4_bastion_ego_slam, block: yellow_stained_glass, size: [1.0, 1.0, 1.0], lane: accent, brightness: 15, id: fx4_bastion_ego_slam_pilbloom}
         - id: fx4_bastion_ego_slam_pilbloom_trk
           op: track
           target: fx4_bastion_ego_slam_pilbloom
@@ -746,6 +753,7 @@ presentation:
           size: 0.8
           frame_ticks: 6
           color: "#8A8478"
+          lane: ambient
           brightness: 9
           at: "= [vec(0.0, 0.25, 3.2), vec(1.29904, 0.25, 2.45), vec(1.29904, 0.25, 0.95), vec(0.0, 0.25, 0.2), vec(-1.29904, 0.25, 0.95), vec(-1.29904, 0.25, 2.45)][int(i)]"
           times: 6
@@ -798,6 +806,7 @@ presentation:
           parent: fx4_bastion_ego_slam
           block: yellow_concrete
           size: [1.0, 1.0, 1.0]
+          lane: accent
           brightness: 15
           at: "= [vec(0.0, 0.2, 1.7), vec(0.28338, 0.54567, 2.116), vec(0.37053, 0.52729, 2.72576), vec(0.87748, 0.58583, 3.15688), vec(0.9999, 0.55851, 3.75681), vec(1.1658, 1.09569, 4.15121), vec(0.89036, 0.91213, 4.94846), vec(1.29968, 1.4, 5.27083)][int(i)]"
           turn: "= [vec(-36.8789, 40.30813, 14.13381), vec(5.38401, -8.17108, 0.38485), vec(-8.66333, 60.95213, 5.11333), vec(4.75466, 26.17321, -1.10596), vec(0.21391, -2.43576, 0.00455), vec(-62.27711, 43.40012, 28.51233), vec(25.68815, -24.72221, 5.73305), vec(-41.87212, 62.80203, 27.63697)][int(i)]"
@@ -815,6 +824,7 @@ presentation:
           parent: fx4_bastion_ego_slam
           block: white_concrete
           size: [1.0, 1.0, 1.0]
+          lane: accent
           brightness: 15
           at: "= [vec(0.0, 0.2, 1.7), vec(0.65425, 0.05053, 1.49052), vec(1.06442, 0.43574, 1.22748), vec(1.54153, 0.85146, 1.18362), vec(1.93018, 1.13945, 0.74929), vec(2.63746, 1.2519, 0.98778), vec(3.00586, 1.77528, 0.76948), vec(3.57083, 1.7, 0.40032)][int(i)]"
           turn: "= [vec(11.47097, 102.68559, -14.53834), vec(-8.68256, 141.68104, 26.53758), vec(-45.74003, 43.33562, 19.50033), vec(3.57711, 154.9218, -16.62304), vec(-54.2596, 70.20166, 45.25643), vec(14.83104, 68.99845, -10.29516), vec(-17.3927, 136.19214, 79.9154), vec(9.34572, 119.57836, -16.33434)][int(i)]"
@@ -832,6 +842,7 @@ presentation:
           parent: fx4_bastion_ego_slam
           block: yellow_concrete
           size: [1.0, 1.0, 1.0]
+          lane: accent
           brightness: 15
           at: "= [vec(0.0, 0.2, 1.7), vec(0.04154, 0.523, 1.15812), vec(-0.1968, 0.70754, 0.67158), vec(-0.30993, 0.82733, 0.11771), vec(-0.80659, 0.82559, -0.33741), vec(-0.99574, 0.9298, -0.86886), vec(-1.19894, 0.86984, -1.45035), vec(-1.29968, 1.4, -1.87083)][int(i)]"
           turn: "= [vec(-3.78208, 164.60867, 45.8275), vec(-8.18948, -143.24581, -26.18541), vec(-0.20515, -177.81155, -17.07391), vec(-4.42515, -149.66715, -16.7981), vec(5.43281, -120.07999, 9.48095), vec(-3.33776, 165.19193, 31.93148), vec(4.65725, -150.49173, 18.31107), vec(-7.18661, -150.14117, -81.95938)][int(i)]"
@@ -849,6 +860,7 @@ presentation:
           parent: fx4_bastion_ego_slam
           block: white_concrete
           size: [1.0, 1.0, 1.0]
+          lane: accent
           brightness: 15
           at: "= [vec(0.0, 0.2, 1.7), vec(-0.3598, 0.70274, 1.96575), vec(-0.96933, 0.57318, 2.27514), vec(-1.54423, 0.81756, 2.24808), vec(-2.10851, 0.91888, 2.41531), vec(-2.5931, 1.10076, 2.70854), vec(-2.96595, 1.46281, 3.1008), vec(-3.57083, 1.7, 2.99968)][int(i)]"
           turn: "= [vec(-52.90034, -52.18121, -28.91286), vec(20.89648, -41.11729, 7.94474), vec(-13.4473, -132.03481, -32.71594), vec(11.02644, -17.76236, 1.72851), vec(-10.40942, -133.43253, -25.37846), vec(-1.79779, -18.47354, -0.29239), vec(-41.95673, -58.22353, -25.11703), vec(-12.4023, -102.03054, -15.5676)][int(i)]"

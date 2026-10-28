@@ -1,12 +1,10 @@
 # Converted from content/skills/sigil-rifle-s2.yaml + content/vfx/* by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
 # Generated point-frame offsets are [left, up, forward] in the parent frame.
-# CONVERT-PRESENT vfx frame orient (frames carry no orientation / scale) (x3): orient="yaw"
-# CONVERT-PRESENT vfx follow=false (anchored at world, no place-at-spawn) (x2): sigil-rifle-shot
 apiVersion: "astera/v2"
 kind: Skill
 id: sigil-rifle-s2
 frames:
-  - {id: fx1_sigil_rifle_s2_rig, kind: body, parent: caster}
+  - {id: fx1_sigil_rifle_s2_rig, kind: body, parent: world}
   - {id: fx1_sigil_rifle_s2_rig_rifle, kind: body, parent: caster}
   - {id: fx1_sigil_rifle_s2_rig_rifle_parts, kind: body, parent: caster}
   - {id: fx2_sigil_rifle_shot, kind: body, parent: world}
@@ -16,6 +14,7 @@ presentation:
     - id: fx0
       at: 0
       do:
+        - {id: anchor, op: anchor, frame: fx1_sigil_rifle_s2_rig, at: caster, orient: yaw, follow: true, teleport_ticks: 2}
         - id: fx1_sigil_rifle_s2_rig_rifle_rig
           op: rig
           frame: fx1_sigil_rifle_s2_rig_rifle
@@ -183,6 +182,7 @@ presentation:
     - id: fx20
       at: 20
       do:
+        - {id: anchor_2, op: anchor, frame: fx2_sigil_rifle_shot, at: caster, orient: yaw}
         - {op: block, parent: fx2_sigil_rifle_shot, block: red_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx2_sigil_rifle_shot_red_core}
         - id: fx2_sigil_rifle_shot_red_core_trk
           op: track
@@ -234,6 +234,7 @@ presentation:
     - id: fx56
       at: 56
       do:
+        - {id: anchor_3, op: anchor, frame: fx3_sigil_rifle_shot, at: caster, orient: yaw}
         - {op: block, parent: fx3_sigil_rifle_shot, block: red_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx3_sigil_rifle_shot_red_core}
         - id: fx3_sigil_rifle_shot_red_core_trk
           op: track

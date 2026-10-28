@@ -47,7 +47,7 @@ GAMEPLAY = {"damage", "apply_status", "knockback", "propel", "hit_stop", "cast_s
             "place_shape", "heal", "cleanse", "consume_item", "summon_lightning", "leap", "modify_attribute",
             "dash_strike", "counter"}
 PRESENT = {"play_sound", "spawn_particle", "schedule_particle_animation", "play_vfx", "camera_shake", "screen_flash",
-           "screen_veil", "telegraph", "play_animation", "stop_sound", "hide_held_item"}
+           "screen_veil", "telegraph", "play_animation", "stop_sound", "hide_held_item", "glow"}
 AREA = {"cone", "nearby_entities", "forward_ray", "enemies", "allies"}
 SHAPES_BREAK = {"sphere", "line", "box"}
 SHAPES_BUILD = {"wall", "bridge", "pillar", "platform"}
@@ -307,6 +307,7 @@ class Conv:
         self.id_counts = {}
         self.sel = {}
         self.vfx_n = 0
+        self.vfx_pull = None
         self.meta_lines = []
         self.has_bolt = False
         self.todo_gaps = OrderedDict()
@@ -426,18 +427,27 @@ class Conv:
         self.p_reps.append((at, every, span, op))
 
     # ---------- targets ----------
+    def snapshot_frame(self):
+        """v1 `snapshot_pose: true` (MechanicDispatcher.livePose, MechanicDispatcher.kt:560-566): a delayed mechanic reads the caster pose
+        of the cast start instead of the live pose. One inactive body frame, placed `like caster` on the first tick of the cast."""
+        if "snap" not in self.frames:
+            self.frames["snap"] = {"id": "snap", "kind": "body", "parent": "world", "inactive": True}
+            self.g(CAST, 0, {"id": "place_snap", "op": "place", "frame": "snap", "like": "caster"})
+        return "snap"
+
     def point(self, tg, where, side="p"):
         t = tg["type"] if tg else "caster"
+        cref = getattr(self, "cref", "caster")
         if t == "caster":
-            return "caster"
+            return cref
         if t == "target":
             return "contact.point" if side == "p" and where.kind == "handler" and where.event == "hit" else "enemy"
         if t == "hit_location":
             return "contact.point"
         if t == "caster_forward":
-            return self.pframe("caster", [0.0, V(tg.get("height", 0.0)), V(tg.get("distance", 0.0))], side)
+            return self.pframe(cref, [0.0, V(tg.get("height", 0.0)), V(tg.get("distance", 0.0))], side)
         if t == "caster_offset":
-            return self.pframe("caster", vec3(tg["offset"]), side)
+            return self.pframe(cref, vec3(tg["offset"]), side)
         if t == "target_offset":
             return self.pframe("enemy", vec3(tg["offset"]), side)
         if t == "projectile_position":
@@ -532,9 +542,7 @@ class Conv:
         op["ticks"] = 1  # a v1 selection is one query at one tick; without this the volume keeps testing for the whole cast
         if m is not None and V(m.get("snapshot_pose", False)):
             # the volume rides a frozen copy of the caster pose taken at this tick, not the live caster
-            snap = self.oid("snap")
-            self.frames[snap] = {"id": snap, "kind": "body", "parent": "world", "inactive": True}
-            self.g(CAST, delay, {"id": self.oid("place_" + snap), "op": "place", "frame": snap, "like": "caster"})
+            snap = self.snapshot_frame()
             op["frames"] = [snap]
             if "sector" in op:
                 op["sector"].update({"frame": snap, "forward": snap + ".forward", "left": snap + ".left"})
@@ -546,23 +554,6 @@ class Conv:
         w = Where("handler", "hit", f"= event.source == '{hid}'")
         self.sel[key] = w
         return w
-
-    def prune_idle_hits(self):
-        """Drop `hit` volumes nothing listens to. A `hit` only resolves contacts (no damage), so a volume that only
-        presentation handlers (play_vfx / sound on an area target) listen to is kept: those ops fire on its `hit` event."""
-        def mentions(op, hid):
-            return ("'%s'" % hid) in (op.get("when") or "")
-        for rows_key, rows in list(self.g_rows.items()):
-            for op in list(rows):
-                if op.get("op") != "hit":
-                    continue
-                hid = op["id"]
-                served = any(mentions(o, hid) for store in (self.g_on, self.p_on) for lst in store.values() for o in lst) or \
-                    any(mentions(o, hid) for store in (self.g_rows, self.p_rows) for rs in store.values() for o in rs)
-                if not served:
-                    rows.remove(op)
-            if not rows:
-                del self.g_rows[rows_key]
 
     # ---------- conditions ----------
     def cond(self, m):
@@ -635,7 +626,7 @@ class Conv:
         if t == "counter":
             self.counter(m, where, delay)
             return
-        if tg and tg["type"] in AREA and tg["type"] != "allies" and t not in ("camera_shake", "screen_flash", "screen_veil", "stop_sound"):
+        if tg and tg["type"] in AREA and tg["type"] != "allies" and t not in ("camera_shake", "screen_flash", "screen_veil", "stop_sound", "glow"):
             if where.kind == "cast":
                 where = self.select(tg, delay, m)
                 delay = 0
@@ -849,6 +840,13 @@ class Conv:
             for k in ("shape", "direction", "viewers"):
                 if k in m:
                     self.present("camera_shake %s (engine shake is intensity + ticks only)" % k, "%s=%s" % (k, short(V(m[k]), 40)))
+        elif t == "glow":
+            # v1 WorldMechanics.glow (WM:585): outline for `ticks`, living players only, the last writer's end time wins.
+            extra = sorted(set(m) - {"ticks"} - self.COMMON_MECH_KEYS)
+            if extra:
+                raise ValueError("%s: glow mechanic carries field(s) %s that v2 cannot express; extend the op before "
+                                 "converting" % (self.sid_hint(), extra))
+            W({"id": self.oid("glow"), "op": "glow", "target": self.screen_target(tg), "ticks": V(m["ticks"])})
         elif t == "play_animation":
             anim = m["animation"]
             if tg and tg["type"] == "caster":
@@ -1017,34 +1015,57 @@ class Conv:
             self.todo("missing vfx file", vid)
             return
         d = vfxelem.resolve_palette(d)
+        sc = V(m.get("scale", d.get("scale", 1.0)))
+        if not isinstance(sc, (int, float)):
+            raise ValueError("play_vfx scale must be a number, got %r (%s)" % (sc, vid))
+        d = vfxelem.scale_def(d, float(sc))
         self.vfx_n += 1
         fid = "fx%d_%s" % (self.vfx_n, sid(vid))
-        want = self.point(tg, where, "p") if tg else "caster"
+        snap = self.snapshot_frame() if V(m.get("snapshot_pose", False)) else None
+        self.cref = snap or "caster"
+        want = self.point(tg, where, "p") if tg else self.cref
+        self.cref = "caster"
         follow = bool(V(m.get("follow", d.get("follow", True))))
-        parent = parent or (self.frame_parent(want) if follow else "world")
-        if parent is None:
-            self.present("vfx anchored at a runtime point (frame parent must exist at cast start): anchored at world", want)
-            parent = "world"
-        if not follow:
-            self.present("vfx follow=false (anchored at world, no place-at-spawn)", vid)
-        snapshot = bool(V(m.get("snapshot_pose", False)))
-        if snapshot:
-            # the effect stands on a frozen copy of the caster pose taken when it starts, not on the live caster
-            parent = "world"
-        self.look_frames[fid] = {"id": fid, "kind": "body", "parent": parent}
-        if snapshot:
-            # `place` is a frame op (gameplay); the frame is declared inactive so only this row moves it
-            self.look_frames[fid]["inactive"] = True
-            self.g(where, delay, self._w({"id": self.oid("snap"), "op": "place", "frame": fid, "like": "caster"}, when))
-        for k in ("orient", "scale"):
-            if k in d or k in m:
-                self.present("vfx frame %s (frames carry no orientation / scale)" % k, "%s=%s" % (k, short(V(m.get(k, d.get(k))), 30)))
-        for k in ("follow_teleport_ticks", "attach_to_anchor", "replace_group", "follow_pitch", "ghost_bodies",
-                  "target_reference"):
+        # v1 places the instance at the play point with VfxOrient.frame (VfxDefinition.kt:33-60) and moves only a follow=true one
+        # (VfxPlayer.kt:414-420: position tracks the anchor, the spawn rotation stays). Both are one `anchor` op on a
+        # world-parented body frame; `follow` keeps the origin on a point that exists for the whole cast (a frame / caster
+        # point), a point computed at runtime (contact.point, ...) is read once.
+        if parent is not None:
+            # a baked footprint (telegraph) rides the frozen spawn pose of its parent frame, world-fixed
+            want, follow = parent, False
+        tracks = follow and self.frame_parent(want) is not None
+        self.look_frames[fid] = {"id": fid, "kind": "body", "parent": "world"}
+        orient = V(m.get("orient", d.get("orient")))
+        name = str(orient if orient is not None else "world").lower()
+        if name not in ("world", "look", "yaw", "to_target"):
+            self.present("vfx orient %s (anchor orients world / look / yaw / to_target)" % name, vid)
+            name = "world"
+        anchor = {"id": self.oid("anchor"), "op": "anchor", "frame": fid, "at": want, "orient": name}
+        if tracks:
+            anchor["follow"] = True
+        if snap:
+            anchor["pose"] = snap
+        if follow:
+            # a followed effect teleports its non-passenger displays every tick over follow_teleport_ticks (default 2), VfxPlayer.kt:416-419
+            anchor["teleport_ticks"] = int(d.get("follow_teleport_ticks", 2))
+        # v1 tilts only a plain yaw-oriented effect; a performance (body or a weapon rig) never pitches (VfxPlayer.kt:243)
+        performance = d.get("body") is not None or any(r.get("weapon") for r in d.get("rigs", []))
+        if d.get("follow_pitch") and name == "yaw" and not performance:
+            anchor["pitch"] = True
+        self.p(where, delay, self._w(anchor, when))
+        if d.get("attach_to_anchor") and not (want == "caster" or want.startswith("caster.")) :
+            self.present("vfx attach_to_anchor on a non-caster anchor", short(want, 40))
+        self.vfx_pull = None
+        if "target_reference" in d:
+            ref = self.pframe(fid, [float(x) * float(sc) for x in d["target_reference"]], "p")
+            self.vfx_pull = {"ref": ref, "to": "enemy", "ends": []}
+        elif m.get("track_bound_target"):
+            self.present("play_vfx track_bound_target without a vfx target_reference (nothing to track)", vid)
+        for k in ("replace_group", "ghost_bodies"):
             if k in d:
                 self.present("vfx %s (no v2 equivalent)" % k, short(d[k], 60))
         d = hitstop_bake(d, V(m.get("freeze")))
-        for k in ("track_bound_target", "viewers"):
+        for k in ("viewers",):
             if k in m:
                 self.present("play_vfx %s (no v2 equivalent)" % k, short(V(m[k]), 40))
         dur = int(d.get("duration_ticks", 20))
@@ -1060,6 +1081,28 @@ class Conv:
             self.vfx_body_only(body, fid, where, delay, when, dur, d)
         for tick, ids in sorted(removes.items()):
             self.p(where, delay + tick, self._w({"id": self.oid("rm"), "op": "remove", "ids": ids}, when))
+        if self.vfx_pull is not None:
+            self.vfx_pull["ends"].extend(i for ids in removes.values() for i in ids)
+        self.vfx_pull = None
+
+    def pull(self, el, target, op_kind, where, at, when):
+        """target_track / target_line of a v1 element (VfxPlayer.kt:424-429, 472-477): a `pull` op before the element op."""
+        tt, line = el.get("target_track"), bool(el.get("target_line"))
+        if not tt and not line:
+            return
+        ctx = self.vfx_pull
+        if ctx is None:
+            self.present("element target_track / target_line without a tracked target (vfx has no target_reference)", target)
+            return
+        if line and op_kind != "block":
+            self.present("target_line on a %s element (only a block bar is stretched)" % op_kind, target)
+            return
+        keys = [{"t": 0, "weight": 1.0}] if line else [{"t": int(k["t"]), "weight": float(k["weight"])} for k in tt]
+        op = {"id": self.oid(target + "_pull"), "op": "pull", "target": target, "ref": ctx["ref"], "to": ctx["to"],
+              "keys": keys, "ends": ctx["ends"]}
+        if line:
+            op["line"] = True
+        self.p(where, at, self._w(op, when))
 
     @staticmethod
     def sprite_size(sprite):
@@ -1130,13 +1173,14 @@ class Conv:
             op = emit_op(eid, at_frame, kind["particle_id"], 1)
             if "along_path" in kind:
                 self.present("particle along_path", short(kind["along_path"], 60))
-        elif kt in ("thin_line", "dotted_line"):
+        elif kt == "dotted_line":
+            self.dotted_line(el, fid, where, delay, when, dur, removes)
+            return
+        elif kt == "thin_line":
             a = self.pframe(fid, kind["from"], "p")
             b = self.pframe(fid, kind["to"], "p")
             op = {"id": eid, "op": "line", "from": a, "to": b, "thickness": kind.get("width", kind.get("spacing", 0.05)),
                   "color": color_hex(kind["color"]), "face": {"viewer": "axis", "axis": "line.along"}}
-            if kt == "dotted_line":
-                self.present("dotted_line (line is solid)", short(kind, 60))
         else:
             self.present("element kind %s (text) has no v2 op" % kt, short(kind, 80))
         multi = kt == "particle" and int(el.get("count", 1)) > 1
@@ -1147,12 +1191,22 @@ class Conv:
             op["times"] = len(rows)
             op["shift"] = vfxelem.cel_table([r[0] for r in rows])
         skip = ("formation", "count") if kt == "particle" else ()
-        for k in ("group_keyframes", "target_track", "formation", "count", "jitter", "oscillate", "lane", "emit",
-                  "slot_lifetime_ticks", "glow_color", "target_line", "respect_hit_stop", "brightness"):
+        for k in ("group_keyframes", "formation", "count", "jitter", "oscillate", "emit",
+                  "slot_lifetime_ticks", "glow_color", "respect_hit_stop", "brightness"):
             if k in el and k not in skip:
                 self.present("element %s (no v2 equivalent)" % k, short(el[k], 60))
+        if el.get("lane", "core") != "core":
+            if op is not None and op["op"] == "mesh":
+                op["lane"] = el["lane"]
+            else:
+                self.present("element lane on a %s (only display ops carry a lane)" % (op["op"] if op else kt), el["lane"])
         if op is None:
             return
+        if "target_track" in el or el.get("target_line"):
+            if op["op"] == "mesh":
+                self.pull(el, eid, "mesh", where, at, when)
+            else:
+                self.present("element target_track / target_line on a %s (only display ops are pulled)" % op["op"], eid)
         kfs = el.get("keyframes", [])
         if kt == "particle" and multi:
             every = max(1, int(kind.get("every_ticks", 1)))
@@ -1173,6 +1227,37 @@ class Conv:
             self.present("element keyframes without a transform (alpha / colour only)")
         if op["op"] in ("mesh", "plate", "line"):
             removes.setdefault(end, []).append(eid)
+
+    def dotted_line(self, el, fid, where, delay, when, dur, removes):
+        """v1 `dotted_line` (VfxYamlConfig.kt:297-325): a sprite element whose formation is Curve.Line(from, to) with
+        floor(length / spacing) + 1 dots; scale (cell, cell, cell), cell = size or spacing * 1.2, centred billboard."""
+        kind = el["kind"]
+        a = [float(x) for x in kind["from"]]
+        b = [float(x) for x in kind["to"]]
+        spacing = float(kind.get("spacing", 0.3))
+        if spacing <= 0.0:
+            raise ValueError("dotted_line.spacing must be > 0: %s" % spacing)
+        if "formation" in el or "emit" in el or int(el.get("count", 1)) != 1:
+            raise ValueError("dotted_line builds its own formation: omit formation, emit and count")
+        length = math.sqrt(sum((q - p) ** 2 for p, q in zip(a, b)))
+        dots = int(math.floor(length / spacing + 1e-9)) + 1
+        if not 2 <= dots <= 128:
+            raise ValueError("dotted_line yields %d dots, must be 2..128: widen spacing" % dots)
+        cell = float(kind["size"]) if kind.get("size") is not None else spacing * 1.2
+        scale = [cell, cell, cell]
+        kfs = [dict(k) for k in el.get("keyframes", [])]
+        if kfs:
+            first = min(kfs, key=lambda k: k["t"])
+            first.setdefault("scale", scale)
+        else:
+            kfs = [{"t": 0, "scale": scale, "alpha": 1.0}]
+        sprite = {"type": "sprite", "sprite": kind.get("sprite", "dot")}
+        if kind.get("color") is not None:
+            sprite["color"] = kind["color"]
+        syn = dict(el)
+        syn.update({"kind": sprite, "count": dots, "keyframes": kfs, "billboard": el.get("billboard", "center"),
+                    "formation": {"curve": {"type": "line", "from": a, "to": b}, "align": "none"}})
+        vfxelem.display_element(self, syn, fid, where, delay, when, dur, removes)
 
     def rig_op(self, rid, pr, hand, anim, r, rig_dur, vd, freeze):
         """The `rig` op: frame node + skin bones on the v1 performance clock (ADR-0303 skin-rig section)."""
@@ -1556,7 +1641,6 @@ def meta_block(d):
 
 
 def build_docs(c, d, item, items):
-    c.prune_idle_hits()
     sk = OrderedDict()
     sk["apiVersion"] = "astera/v2"
     sk["kind"] = "Skill"

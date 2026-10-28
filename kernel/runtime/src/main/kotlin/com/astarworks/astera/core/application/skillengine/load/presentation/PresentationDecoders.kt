@@ -3,16 +3,19 @@ package com.astarworks.astera.core.application.skillengine.load.presentation
 import com.astarworks.astera.core.application.skillengine.load.OpDecoder
 import com.astarworks.astera.core.application.skillengine.load.OpReader
 import com.astarworks.astera.core.domain.effect.DisplayItemMode
+import com.astarworks.astera.core.domain.effect.vfx.VfxLane
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.skillengine.model.AxisRef
 import com.astarworks.astera.core.domain.skillengine.model.PointRef
 import com.astarworks.astera.core.domain.skillengine.model.TargetRef
 import com.astarworks.astera.core.domain.skillengine.model.Value
+import com.astarworks.astera.core.domain.skillengine.op.AnchorOrient
 import com.astarworks.astera.core.domain.skillengine.model.literal
 import com.astarworks.astera.core.domain.skillengine.op.BodyOp
 import com.astarworks.astera.core.domain.skillengine.op.FxOp
 import com.astarworks.astera.core.domain.skillengine.op.OpSection
 import com.astarworks.astera.core.domain.skillengine.op.PlateFace
+import com.astarworks.astera.core.domain.skillengine.op.PullKey
 import com.astarworks.astera.core.domain.skillengine.op.Repeat
 import com.astarworks.astera.core.domain.skillengine.op.RigFreeze
 import com.astarworks.astera.core.domain.skillengine.op.RigSwingKey
@@ -229,6 +232,25 @@ private fun OpReader.trailRim(): TrailRim? {
 /** `brightness:` is vanilla Display.brightness, 0..15. */
 private fun OpReader.brightness(): Int? = int("brightness")?.also { if (it !in 0..15) fail("brightness must be 0..15") }
 
+/** `lane:` (core | accent | ambient): which viewers a display is shown to; core when absent. */
+private fun OpReader.lane(): VfxLane = string("lane")?.let { runCatching { VfxLane.fromYaml(it) }.getOrElse { e -> fail(e.message ?: "bad lane") } } ?: VfxLane.CORE
+
+/** `keys:` of a pull: `[{t, weight}]`, ticks strictly increasing. */
+private fun OpReader.pullKeys(): List<PullKey> {
+    val list = raw("keys") as? List<*> ?: fail("pull needs 'keys'")
+    if (list.isEmpty()) fail("pull 'keys' must not be empty")
+    val keys = list.mapIndexed { i, e ->
+        val m = e as? Map<*, *> ?: fail("keys[$i] must be a map")
+        m.keys.firstOrNull { it !in setOf("t", "weight") }?.let { fail("unknown key '$it' in keys[$i]") }
+        PullKey(
+            (m["t"] as? Number)?.toInt() ?: fail("keys[$i] needs integer 't'"),
+            (m["weight"] as? Number)?.toDouble() ?: fail("keys[$i] needs numeric 'weight'"),
+        )
+    }
+    keys.zipWithNext().firstOrNull { (a, b) -> b.tick <= a.tick }?.let { fail("pull keys must have strictly increasing t") }
+    return keys
+}
+
 /** `times:` / `every:` / `life:` of a repeated display (see [Repeat]); null when none is given. */
 private fun OpReader.repeat(allowLife: Boolean = true): Repeat? {
     val times = number("times")
@@ -254,7 +276,7 @@ private val TRAIL_STYLES = setOf("soft", "crisp", "both")
 
 private object VisualOpDecoder : OpDecoder {
     override val section = OpSection.PRESENTATION
-    override val opNames = setOf("mesh", "plate", "block", "quad", "line", "trail", "track", "remove", "rig")
+    override val opNames = setOf("mesh", "plate", "block", "quad", "line", "trail", "track", "anchor", "pull", "remove", "rig")
     override fun decode(op: String, id: String, whenExpr: Value<Boolean>?, reader: OpReader): SkillOp = with(reader) {
         when (op) {
             "mesh" -> VisualOp.Mesh(id, whenExpr, requireString("frame"), requireString("item"), string("part"), number("scale"),
@@ -262,22 +284,22 @@ private object VisualOpDecoder : OpDecoder {
                 string("item_model"), string("display_mode")?.let { m ->
                     DisplayItemMode.entries.firstOrNull { it.name.equals(m, ignoreCase = true) }
                         ?: fail("display_mode '$m' is not one of ${DisplayItemMode.entries.joinToString { it.name.lowercase() }}")
-                }, bool("rig_shading") ?: true)
+                }, bool("rig_shading") ?: true, lane())
             "plate" -> VisualOp.Plate(
                 id, whenExpr, requireString("parent"), face(null), requireString("sprite"),
                 numberOr("size", 1.0), numberOr("alpha", 1.0),
                 int("frame_ticks")?.also { if (it < 1) fail("frame_ticks must be >= 1") }, bool("loop") ?: false, stringValue("color"),
-                vec3("at"), vec3("turn"), brightness(), repeat(),
+                vec3("at"), vec3("turn"), brightness(), repeat(), lane(),
             )
             "block" -> VisualOp.Block(
                 id, whenExpr, requireString("parent"), requireString("block"), sizeVec("size", uniform = true),
                 vec3("at"), vec3("turn"), brightness(), repeat(),
-                bool("rig_shading") ?: false,
+                bool("rig_shading") ?: false, lane(),
             )
             "quad" -> VisualOp.Quad(
                 id, whenExpr, requireString("parent"), face(PlateFace.ViewerCenter), sizeVec("size", uniform = false),
                 colorOr("color", "#ffffff"), numberOr("alpha", 1.0), string("text"), bool("shadow") ?: false, bool("see_through") ?: false,
-                vec3("at"), vec3("turn"), brightness(), repeat(),
+                vec3("at"), vec3("turn"), brightness(), repeat(), lane(),
             )
             "line" -> VisualOp.Line(
                 id, whenExpr, requirePoint("from"), requirePoint("to"), numberOr("thickness", 0.05),
@@ -294,6 +316,16 @@ private object VisualOpDecoder : OpDecoder {
                 bool("double_sided") ?: false,
             )
             "track" -> VisualOp.Track(id, whenExpr, requireString("target"), trackKeys(), string("space"))
+            "anchor" -> VisualOp.Anchor(
+                id, whenExpr, requireString("frame"), requirePoint("at"),
+                (string("orient") ?: "world").let { AnchorOrient.fromYaml(it) ?: fail("orient must be one of ${AnchorOrient.entries.joinToString { o -> o.yamlName }}") },
+                bool("follow") ?: false, bool("pitch") ?: false, string("pose"),
+                int("teleport_ticks")?.also { if (it !in 0..59) fail("teleport_ticks must be 0..59") },
+            )
+            "pull" -> VisualOp.Pull(
+                id, whenExpr, requireString("target"), requirePoint("ref"), requirePoint("to"), pullKeys(),
+                bool("line") ?: false, stringList("ends") ?: emptyList(),
+            )
             "remove" -> VisualOp.Remove(id, whenExpr, stringList("ids") ?: fail("missing 'ids'"))
             "rig" -> rig(id, whenExpr)
             else -> fail("not a visual op: $op")
@@ -323,11 +355,12 @@ private object FxOpDecoder : OpDecoder {
 
 private object BodyOpDecoder : OpDecoder {
     override val section = OpSection.PRESENTATION
-    override val opNames = setOf("victim_anim", "caster_anim")
+    override val opNames = setOf("victim_anim", "caster_anim", "glow")
     override fun decode(op: String, id: String, whenExpr: Value<Boolean>?, reader: OpReader): SkillOp = with(reader) {
         when (op) {
             "victim_anim" -> BodyOp.VictimAnim(id, whenExpr, target(TargetRef.Victim), requireString("anim").also { if (it !in BodyOp.VictimAnim.KNOWN) fail("victim_anim: unknown anim '$it' (${BodyOp.VictimAnim.KNOWN.joinToString()})") }, number("strength"))
             "caster_anim" -> BodyOp.CasterAnim(id, whenExpr, requireString("anim"), number("speed"), int("ticks"), string("until"))
+            "glow" -> BodyOp.Glow(id, whenExpr, target(TargetRef.Caster), requireNumber("ticks"))
             else -> fail("not a body op: $op")
         }
     }

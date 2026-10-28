@@ -1,7 +1,5 @@
 # Converted from content/skills/crimson-chain-axe-s3.yaml + content/vfx/* by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
 # Generated point-frame offsets are [left, up, forward] in the parent frame.
-# CONVERT-PRESENT vfx follow=false (anchored at world, no place-at-spawn) (x4): crimson-chain-axe-charge | crimson-hand-nodes
-# CONVERT-PRESENT vfx frame orient (frames carry no orientation / scale) (x4): orient="yaw"
 apiVersion: "astera/v2"
 kind: Skill
 id: crimson-chain-axe-s3
@@ -12,6 +10,7 @@ frames:
   - {id: fx4_crimson_hand_nodes, kind: body, parent: world}
 presentation:
   timeline:
+    - {id: fx0, at: 0, do: [{id: anchor, op: anchor, frame: fx1_crimson_chain_axe_charge, at: caster, orient: yaw}]}
     - id: fx2
       at: 2
       do:
@@ -39,6 +38,7 @@ presentation:
     - id: fx51
       at: 51
       do:
+        - {id: anchor_2, op: anchor, frame: fx2_crimson_hand_nodes, at: caster, orient: yaw}
         - {op: block, parent: fx2_crimson_hand_nodes, block: redstone_block, size: [1.0, 1.0, 1.0], brightness: 15, id: fx2_crimson_hand_nodes_node_0}
         - id: fx2_crimson_hand_nodes_node_0_trk
           op: track
@@ -67,6 +67,7 @@ presentation:
     - id: fx64
       at: 64
       do:
+        - {id: anchor_3, op: anchor, frame: fx3_crimson_hand_nodes, at: caster, orient: yaw}
         - {op: block, parent: fx3_crimson_hand_nodes, block: redstone_block, size: [1.0, 1.0, 1.0], brightness: 15, id: fx3_crimson_hand_nodes_node_0}
         - id: fx3_crimson_hand_nodes_node_0_trk
           op: track
@@ -95,6 +96,7 @@ presentation:
     - id: fx82
       at: 82
       do:
+        - {id: anchor_4, op: anchor, frame: fx4_crimson_hand_nodes, at: caster, orient: yaw}
         - {op: block, parent: fx4_crimson_hand_nodes, block: redstone_block, size: [1.0, 1.0, 1.0], brightness: 15, id: fx4_crimson_hand_nodes_node_0}
         - id: fx4_crimson_hand_nodes_node_0_trk
           op: track

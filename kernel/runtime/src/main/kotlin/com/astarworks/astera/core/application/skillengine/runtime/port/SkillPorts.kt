@@ -2,6 +2,7 @@ package com.astarworks.astera.core.application.skillengine.runtime.port
 
 import com.astarworks.astera.core.domain.effect.DisplayBillboard
 import com.astarworks.astera.core.domain.effect.DisplayItemMode
+import com.astarworks.astera.core.domain.effect.vfx.VfxLane
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.geometry.math.Frame
 import com.astarworks.astera.core.domain.skillengine.hit.HitCandidate
@@ -31,6 +32,10 @@ public data class VisualPose(
     val size: Vec3,
     val billboard: DisplayBillboard = DisplayBillboard.FIXED,
     val anchorFeet: Vec3? = null,
+    /** Per-viewer quality class of the display; read at spawn (a non-core lane is shown to the viewers whose setting admits it). */
+    val lane: VfxLane = VfxLane.CORE,
+    /** `teleport_duration` of the write when it differs from the interpolation length (a followed effect, v1 VfxPlayer.kt:416); null = same. */
+    val teleportTicks: Int? = null,
 )
 
 /** How a mesh item is drawn: pack model key set on the item, ItemDisplayContext, and whether the weapon-rig shader rule lights it. */

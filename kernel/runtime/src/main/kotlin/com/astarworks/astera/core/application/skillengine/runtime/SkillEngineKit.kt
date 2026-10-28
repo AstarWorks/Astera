@@ -3,7 +3,10 @@ package com.astarworks.astera.core.application.skillengine.runtime
 import com.astarworks.astera.core.application.skillengine.load.CompiledSkill
 import com.astarworks.astera.core.application.skillengine.runtime.ops.DashStrikeDriver
 import com.astarworks.astera.core.application.skillengine.runtime.ops.MovementLockDriver
+import com.astarworks.astera.core.application.skillengine.runtime.ops.EntityGlowDriver
+import com.astarworks.astera.core.application.skillengine.runtime.ops.IEntityGlowGateway
 import com.astarworks.astera.core.application.skillengine.runtime.ops.ISkillWorldEffectGateway
+import com.astarworks.astera.core.application.skillengine.runtime.ops.glowExecutors
 import com.astarworks.astera.core.application.skillengine.runtime.ops.damageExecutors
 import com.astarworks.astera.core.application.skillengine.runtime.ops.movementExecutors
 import com.astarworks.astera.core.application.skillengine.runtime.ops.registerControlOpExecutors
@@ -38,6 +41,7 @@ public class SkillEngineGateways(
     public val cooldowns: ISkillCooldownGateway,
     public val items: ISkillItemGateway,
     public val effects: ISkillWorldEffectGateway,
+    public val glow: IEntityGlowGateway,
 )
 
 /**
@@ -52,9 +56,11 @@ public class SkillEngineKit(
     public val locks: MovementLockDriver,
     public val presentation: PresentationRuntime,
     public val hosts: CastHosts,
+    public val glow: EntityGlowDriver,
 ) {
     public fun shutdown() {
         runner.cancelAll()
+        glow.shutdown()
         dashes.shutdown()
         locks.shutdown()
         world.revertAll()
@@ -78,6 +84,7 @@ public class SkillEngineKit(
             val locks = MovementLockDriver(gateways.movement)
             val editor = SkillWorldEditors(gateways.worldIn)
             val presentation = PresentationRuntime(hosts, gateways.casterAnim, gateways.screen, points)
+            val glow = EntityGlowDriver(gateways.glow)
             val registry = DefaultOpExecutorRegistry()
             registerFrameOpExecutors(registry)
             registerHitOpExecutors(registry)
@@ -88,15 +95,16 @@ public class SkillEngineKit(
             registry.registerAll(movementExecutors(hosts, gateways.movement, dashes, locks))
             registry.registerAll(worldExecutors(editor))
             registry.registerAll(presentationExecutors(presentation))
+            registry.registerAll(glowExecutors(hosts, glow))
             val runner = DefaultCastRunner(
                 CastRunnerDeps(
                     portsIn = gateways.portsIn, newTree = newTree, motion = motion, contacts = contacts, exprs = exprs,
                     executors = registry, points = points, hosts = hosts, dashes = dashes, locks = locks, world = editor,
-                    presentation = presentation, cooldowns = gateways.cooldowns, items = gateways.items,
+                    presentation = presentation, glow = glow, cooldowns = gateways.cooldowns, items = gateways.items,
                     effects = gateways.effects, skills = skills, isAlly = isAlly, observer = observer, maxCastTicks = maxCastTicks,
                 ),
             )
-            return SkillEngineKit(runner, editor, dashes, locks, presentation, hosts)
+            return SkillEngineKit(runner, editor, dashes, locks, presentation, hosts, glow)
         }
     }
 }

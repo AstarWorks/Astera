@@ -1,22 +1,19 @@
 # Converted from content/skills/verdict-hammer-ego.yaml + content/vfx/* by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
 # Generated point-frame offsets are [left, up, forward] in the parent frame.
-# CONVERT-PRESENT vfx follow=false (anchored at world, no place-at-spawn) (x13): verdict-ego-field | verdict-impact
-# CONVERT-PRESENT vfx frame orient (frames carry no orientation / scale) (x13): orient="yaw" | orient="world"
-# CONVERT-PRESENT vfx frame scale (frames carry no orientation / scale) (x8): scale=2.5 | scale=4.0
 apiVersion: "astera/v2"
 kind: Skill
 id: verdict-hammer-ego
 frames:
-  - {id: pt_caster_0_m1p62_8, kind: point, parent: caster, offset: [0.0, -1.62, 8.0]}
-  - {id: fx1_verdict_ego_field, kind: body, parent: world, inactive: true}
-  - {id: fx2_verdict_impact, kind: body, parent: world, inactive: true}
-  - {id: fx3_verdict_ego_ring, kind: body, parent: world, inactive: true}
-  - {id: fx4_verdict_impact, kind: body, parent: world, inactive: true}
-  - {id: fx5_verdict_ego_ring, kind: body, parent: world, inactive: true}
-  - {id: fx6_verdict_impact, kind: body, parent: world, inactive: true}
-  - {id: fx7_verdict_ego_ring, kind: body, parent: world, inactive: true}
-  - {id: fx8_verdict_impact, kind: body, parent: world, inactive: true}
-  - {id: fx9_verdict_ego_ring, kind: body, parent: world, inactive: true}
+  - {id: pt_snap_0_m1p62_8, kind: point, parent: snap, offset: [0.0, -1.62, 8.0]}
+  - {id: fx1_verdict_ego_field, kind: body, parent: world}
+  - {id: fx2_verdict_impact, kind: body, parent: world}
+  - {id: fx3_verdict_ego_ring, kind: body, parent: world}
+  - {id: fx4_verdict_impact, kind: body, parent: world}
+  - {id: fx5_verdict_ego_ring, kind: body, parent: world}
+  - {id: fx6_verdict_impact, kind: body, parent: world}
+  - {id: fx7_verdict_ego_ring, kind: body, parent: world}
+  - {id: fx8_verdict_impact, kind: body, parent: world}
+  - {id: fx9_verdict_ego_ring, kind: body, parent: world}
   - {id: fx10_verdict_ego_hammer, kind: body, parent: world}
   - {id: fx10_verdict_ego_hammer_hammer, kind: body, parent: caster}
   - {id: fx10_verdict_ego_hammer_hammer_parts, kind: body, parent: caster}
@@ -32,15 +29,17 @@ frames:
   - {id: pt_caster_0_m1p5_8, kind: point, parent: caster, offset: [0.0, -1.5, 8.0]}
 presentation:
   timeline:
+    - {id: fx18, at: 18, do: [{id: anchor, op: anchor, frame: fx1_verdict_ego_field, at: pt_snap_0_m1p62_8, orient: yaw, pose: snap}]}
     - id: fx32
       at: 32
       do:
+        - {id: anchor_13, op: anchor, frame: fx13_verdict_ego_hammer, at: caster, orient: yaw}
         - id: fx13_verdict_ego_hammer_hammer_rig
           op: rig
           frame: fx13_verdict_ego_hammer_hammer
           parent: caster
           duration: 23
-          pivot: [-0.25, 1.0, 0.15]
+          pivot: [-0.4, 1.6, 0.24]
           tilt: [0.0, 0.0, 22.0]
           swing:
             - {t: 0, rotate: [-35.0, 0.0, 0.0]}
@@ -72,7 +71,7 @@ presentation:
           parent: caster
           duration: 23
           hand: false
-          pivot: [-0.25, 1.0, 0.15]
+          pivot: [-0.4, 1.6, 0.24]
           tilt: [0.0, 0.0, 22.0]
           swing:
             - {t: 0, rotate: [-35.0, 0.0, 0.0]}
@@ -98,12 +97,12 @@ presentation:
             - {t: 20, rotate: [25.0, 0.0, 0.0]}
           sample_ticks: 1
           respect_hit_stop: true
-        - {id: fx13_verdict_ego_hammer_hammer_haft, op: block, parent: fx13_verdict_ego_hammer_hammer_parts, block: black_concrete, size: [0.12, 1.8, 0.12], at: [0.0, 0.8, 0.0], brightness: 15}
-        - {id: fx13_verdict_ego_hammer_hammer_head, op: block, parent: fx13_verdict_ego_hammer_hammer_parts, block: black_concrete, size: [1.2, 0.7, 0.65], at: [0.0, 2.0, 0.0], brightness: 15}
-        - {id: fx13_verdict_ego_hammer_hammer_cap_0_53, op: block, parent: fx13_verdict_ego_hammer_hammer_parts, block: yellow_concrete, size: [0.12, 0.74, 0.69], at: [-0.53, 2.0, 0.0], brightness: 15}
-        - {id: fx13_verdict_ego_hammer_hammer_cap0_53, op: block, parent: fx13_verdict_ego_hammer_hammer_parts, block: yellow_concrete, size: [0.12, 0.74, 0.69], at: [0.53, 2.0, 0.0], brightness: 15}
-        - {id: fx13_verdict_ego_hammer_hammer_stripe1_78, op: block, parent: fx13_verdict_ego_hammer_hammer_parts, block: yellow_concrete, size: [1.05, 0.045, 0.02], at: [0.0, 1.78, 0.34], brightness: 15}
-        - {id: fx13_verdict_ego_hammer_hammer_stripe2_22, op: block, parent: fx13_verdict_ego_hammer_hammer_parts, block: yellow_concrete, size: [1.05, 0.045, 0.02], at: [0.0, 2.22, 0.34], brightness: 15}
+        - {id: fx13_verdict_ego_hammer_hammer_haft, op: block, parent: fx13_verdict_ego_hammer_hammer_parts, block: black_concrete, size: [0.192, 2.88, 0.192], at: [0.0, 1.28, 0.0], brightness: 15}
+        - {id: fx13_verdict_ego_hammer_hammer_head, op: block, parent: fx13_verdict_ego_hammer_hammer_parts, block: black_concrete, size: [1.92, 1.12, 1.04], at: [0.0, 3.2, 0.0], brightness: 15}
+        - {id: fx13_verdict_ego_hammer_hammer_cap_0_53, op: block, parent: fx13_verdict_ego_hammer_hammer_parts, block: yellow_concrete, size: [0.192, 1.184, 1.104], at: [-0.848, 3.2, 0.0], brightness: 15}
+        - {id: fx13_verdict_ego_hammer_hammer_cap0_53, op: block, parent: fx13_verdict_ego_hammer_hammer_parts, block: yellow_concrete, size: [0.192, 1.184, 1.104], at: [0.848, 3.2, 0.0], brightness: 15}
+        - {id: fx13_verdict_ego_hammer_hammer_stripe1_78, op: block, parent: fx13_verdict_ego_hammer_hammer_parts, block: yellow_concrete, size: [1.68, 0.072, 0.032], at: [0.0, 2.848, 0.544], brightness: 15}
+        - {id: fx13_verdict_ego_hammer_hammer_stripe2_22, op: block, parent: fx13_verdict_ego_hammer_hammer_parts, block: yellow_concrete, size: [1.68, 0.072, 0.032], at: [0.0, 3.552, 0.544], brightness: 15}
     - id: fx48
       at: 48
       do:
@@ -497,21 +496,23 @@ presentation:
       do:
         - {id: snd, op: sound, sound: entity.player.attack.strong, at: caster, pitch: 0.7}
         - {id: flash, op: screen_flash, target: caster, overlay: white, color: "#FFF4CF", fade_in: 0, stay: 1, fade_out: 1}
+        - {id: anchor_2, op: anchor, frame: fx2_verdict_impact, at: pt_snap_0_m1p62_8, orient: world, pose: snap}
         - {op: quad, parent: fx2_verdict_impact, face: {viewer: center}, size: [1.0, 1.0], color: "#FFFAD8", alpha: 1.0, text: "✷", see_through: true, brightness: 15, id: fx2_verdict_impact_star}
         - id: fx2_verdict_impact_star_trk
           op: track
           target: fx2_verdict_impact_star
           keys:
-            - {t: 0, offset: [0.0, -1.06, 0.55], scale: [2.4, 2.4, 1.0], alpha: 1.0}
-            - {t: 4, offset: [0.0, -1.06, 0.55], scale: [2.4, 2.4, 1.0], alpha: 1.0}
-            - {t: 10, offset: [0.0, 1.1, 0.55], scale: [0.0, 0.0, 0.0], alpha: 0.0, ease: in_quad}
+            - {t: 0, offset: [0.0, -2.65, 1.375], scale: [6.0, 6.0, 2.5], alpha: 1.0}
+            - {t: 4, offset: [0.0, -2.65, 1.375], scale: [6.0, 6.0, 2.5], alpha: 1.0}
+            - {t: 10, offset: [0.0, 2.75, 1.375], scale: [0.0, 0.0, 0.0], alpha: 0.0, ease: in_quad}
         - {op: quad, parent: fx2_verdict_impact, face: {viewer: center}, size: [1.0, 1.0], color: "#FFD66B", alpha: 0.22, text: "✦", see_through: true, brightness: 15, id: fx2_verdict_impact_bloom}
         - id: fx2_verdict_impact_bloom_trk
           op: track
           target: fx2_verdict_impact_bloom
           keys:
-            - {t: 0, offset: [0.0, -1.87, 0.5], scale: [3.3, 3.3, 1.0], alpha: 0.22}
-            - {t: 9, offset: [0.0, -2.5, 0.5], scale: [4.0, 4.0, 1.0], alpha: 0.0, ease: out_cubic}
+            - {t: 0, offset: [0.0, -4.675, 1.25], scale: [8.25, 8.25, 2.5], alpha: 0.22}
+            - {t: 9, offset: [0.0, -6.25, 1.25], scale: [10.0, 10.0, 2.5], alpha: 0.0, ease: out_cubic}
+        - {id: anchor_3, op: anchor, frame: fx3_verdict_ego_ring, at: pt_snap_0_m1p62_8, orient: yaw, pose: snap}
         - {op: block, parent: fx3_verdict_ego_ring, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx3_verdict_ego_ring_ring_s0}
         - id: fx3_verdict_ego_ring_ring_s0_trk
           op: track
@@ -697,25 +698,25 @@ presentation:
           op: track
           target: fx2_verdict_impact_dark0
           keys:
-            - {t: 0, offset: [0.0, 1.0, 0.0], scale: [0.12, 0.2, 1.0], alpha: 1.0}
-            - {t: 5, offset: [1.3, 1.4, 0.3], scale: [0.16, 0.26, 1.0], ease: out_cubic}
-            - {t: 11, scale: [0.04, 0.04, 1.0], alpha: 0.0}
+            - {t: 0, offset: [0.0, 2.5, 0.0], scale: [0.3, 0.5, 2.5], alpha: 1.0}
+            - {t: 5, offset: [3.25, 3.5, 0.75], scale: [0.4, 0.65, 2.5], ease: out_cubic}
+            - {t: 11, scale: [0.1, 0.1, 2.5], alpha: 0.0}
         - {op: quad, parent: fx2_verdict_impact, face: {viewer: center}, size: [1.0, 1.0], color: "#302313", alpha: 1.0, text: "▲", see_through: true, brightness: 15, id: fx2_verdict_impact_dark1}
         - id: fx2_verdict_impact_dark1_trk
           op: track
           target: fx2_verdict_impact_dark1
           keys:
-            - {t: 0, offset: [0.0, 1.0, 0.0], scale: [0.12, 0.2, 1.0], alpha: 1.0}
-            - {t: 5, offset: [0.0, 2.4, 0.3], scale: [0.16, 0.26, 1.0], ease: out_cubic}
-            - {t: 11, scale: [0.04, 0.04, 1.0], alpha: 0.0}
+            - {t: 0, offset: [0.0, 2.5, 0.0], scale: [0.3, 0.5, 2.5], alpha: 1.0}
+            - {t: 5, offset: [0.0, 6.0, 0.75], scale: [0.4, 0.65, 2.5], ease: out_cubic}
+            - {t: 11, scale: [0.1, 0.1, 2.5], alpha: 0.0}
         - {op: quad, parent: fx2_verdict_impact, face: {viewer: center}, size: [1.0, 1.0], color: "#302313", alpha: 1.0, text: "▲", see_through: true, brightness: 15, id: fx2_verdict_impact_dark2}
         - id: fx2_verdict_impact_dark2_trk
           op: track
           target: fx2_verdict_impact_dark2
           keys:
-            - {t: 0, offset: [0.0, 1.0, 0.0], scale: [0.12, 0.2, 1.0], alpha: 1.0}
-            - {t: 5, offset: [-1.3, 1.4, 0.3], scale: [0.16, 0.26, 1.0], ease: out_cubic}
-            - {t: 11, scale: [0.04, 0.04, 1.0], alpha: 0.0}
+            - {t: 0, offset: [0.0, 2.5, 0.0], scale: [0.3, 0.5, 2.5], alpha: 1.0}
+            - {t: 5, offset: [-3.25, 3.5, 0.75], scale: [0.4, 0.65, 2.5], ease: out_cubic}
+            - {t: 11, scale: [0.1, 0.1, 2.5], alpha: 0.0}
         - id: emit_18
           op: emit
           at: pt_caster_0_m1p5_8
@@ -793,6 +794,7 @@ presentation:
     - id: fx93
       at: 93
       do:
+        - {id: anchor_10, op: anchor, frame: fx10_verdict_ego_hammer, at: caster, orient: yaw}
         - id: fx10_verdict_ego_hammer_hammer_rig
           op: rig
           frame: fx10_verdict_ego_hammer_hammer
@@ -871,21 +873,23 @@ presentation:
       do:
         - {id: snd_2, op: sound, sound: entity.player.attack.strong, at: caster, pitch: 0.7}
         - {id: flash_2, op: screen_flash, target: caster, overlay: white, color: "#FFF4CF", fade_in: 0, stay: 1, fade_out: 1}
+        - {id: anchor_4, op: anchor, frame: fx4_verdict_impact, at: pt_snap_0_m1p62_8, orient: world, pose: snap}
         - {op: quad, parent: fx4_verdict_impact, face: {viewer: center}, size: [1.0, 1.0], color: "#FFFAD8", alpha: 1.0, text: "✷", see_through: true, brightness: 15, id: fx4_verdict_impact_star}
         - id: fx4_verdict_impact_star_trk
           op: track
           target: fx4_verdict_impact_star
           keys:
-            - {t: 0, offset: [0.0, -1.06, 0.55], scale: [2.4, 2.4, 1.0], alpha: 1.0}
-            - {t: 4, offset: [0.0, -1.06, 0.55], scale: [2.4, 2.4, 1.0], alpha: 1.0}
-            - {t: 10, offset: [0.0, 1.1, 0.55], scale: [0.0, 0.0, 0.0], alpha: 0.0, ease: in_quad}
+            - {t: 0, offset: [0.0, -2.65, 1.375], scale: [6.0, 6.0, 2.5], alpha: 1.0}
+            - {t: 4, offset: [0.0, -2.65, 1.375], scale: [6.0, 6.0, 2.5], alpha: 1.0}
+            - {t: 10, offset: [0.0, 2.75, 1.375], scale: [0.0, 0.0, 0.0], alpha: 0.0, ease: in_quad}
         - {op: quad, parent: fx4_verdict_impact, face: {viewer: center}, size: [1.0, 1.0], color: "#FFD66B", alpha: 0.22, text: "✦", see_through: true, brightness: 15, id: fx4_verdict_impact_bloom}
         - id: fx4_verdict_impact_bloom_trk
           op: track
           target: fx4_verdict_impact_bloom
           keys:
-            - {t: 0, offset: [0.0, -1.87, 0.5], scale: [3.3, 3.3, 1.0], alpha: 0.22}
-            - {t: 9, offset: [0.0, -2.5, 0.5], scale: [4.0, 4.0, 1.0], alpha: 0.0, ease: out_cubic}
+            - {t: 0, offset: [0.0, -4.675, 1.25], scale: [8.25, 8.25, 2.5], alpha: 0.22}
+            - {t: 9, offset: [0.0, -6.25, 1.25], scale: [10.0, 10.0, 2.5], alpha: 0.0, ease: out_cubic}
+        - {id: anchor_5, op: anchor, frame: fx5_verdict_ego_ring, at: pt_snap_0_m1p62_8, orient: yaw, pose: snap}
         - {op: block, parent: fx5_verdict_ego_ring, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx5_verdict_ego_ring_ring_s0}
         - id: fx5_verdict_ego_ring_ring_s0_trk
           op: track
@@ -1071,25 +1075,25 @@ presentation:
           op: track
           target: fx4_verdict_impact_dark0
           keys:
-            - {t: 0, offset: [0.0, 1.0, 0.0], scale: [0.12, 0.2, 1.0], alpha: 1.0}
-            - {t: 5, offset: [1.3, 1.4, 0.3], scale: [0.16, 0.26, 1.0], ease: out_cubic}
-            - {t: 11, scale: [0.04, 0.04, 1.0], alpha: 0.0}
+            - {t: 0, offset: [0.0, 2.5, 0.0], scale: [0.3, 0.5, 2.5], alpha: 1.0}
+            - {t: 5, offset: [3.25, 3.5, 0.75], scale: [0.4, 0.65, 2.5], ease: out_cubic}
+            - {t: 11, scale: [0.1, 0.1, 2.5], alpha: 0.0}
         - {op: quad, parent: fx4_verdict_impact, face: {viewer: center}, size: [1.0, 1.0], color: "#302313", alpha: 1.0, text: "▲", see_through: true, brightness: 15, id: fx4_verdict_impact_dark1}
         - id: fx4_verdict_impact_dark1_trk
           op: track
           target: fx4_verdict_impact_dark1
           keys:
-            - {t: 0, offset: [0.0, 1.0, 0.0], scale: [0.12, 0.2, 1.0], alpha: 1.0}
-            - {t: 5, offset: [0.0, 2.4, 0.3], scale: [0.16, 0.26, 1.0], ease: out_cubic}
-            - {t: 11, scale: [0.04, 0.04, 1.0], alpha: 0.0}
+            - {t: 0, offset: [0.0, 2.5, 0.0], scale: [0.3, 0.5, 2.5], alpha: 1.0}
+            - {t: 5, offset: [0.0, 6.0, 0.75], scale: [0.4, 0.65, 2.5], ease: out_cubic}
+            - {t: 11, scale: [0.1, 0.1, 2.5], alpha: 0.0}
         - {op: quad, parent: fx4_verdict_impact, face: {viewer: center}, size: [1.0, 1.0], color: "#302313", alpha: 1.0, text: "▲", see_through: true, brightness: 15, id: fx4_verdict_impact_dark2}
         - id: fx4_verdict_impact_dark2_trk
           op: track
           target: fx4_verdict_impact_dark2
           keys:
-            - {t: 0, offset: [0.0, 1.0, 0.0], scale: [0.12, 0.2, 1.0], alpha: 1.0}
-            - {t: 5, offset: [-1.3, 1.4, 0.3], scale: [0.16, 0.26, 1.0], ease: out_cubic}
-            - {t: 11, scale: [0.04, 0.04, 1.0], alpha: 0.0}
+            - {t: 0, offset: [0.0, 2.5, 0.0], scale: [0.3, 0.5, 2.5], alpha: 1.0}
+            - {t: 5, offset: [-3.25, 3.5, 0.75], scale: [0.4, 0.65, 2.5], ease: out_cubic}
+            - {t: 11, scale: [0.1, 0.1, 2.5], alpha: 0.0}
         - id: emit_24
           op: emit
           at: pt_caster_0_m1p5_8
@@ -1179,6 +1183,7 @@ presentation:
     - id: fx119
       at: 119
       do:
+        - {id: anchor_11, op: anchor, frame: fx11_verdict_ego_hammer, at: caster, orient: yaw}
         - id: fx11_verdict_ego_hammer_hammer_rig
           op: rig
           frame: fx11_verdict_ego_hammer_hammer
@@ -1257,21 +1262,23 @@ presentation:
       do:
         - {id: snd_3, op: sound, sound: entity.player.attack.strong, at: caster, pitch: 0.7}
         - {id: flash_3, op: screen_flash, target: caster, overlay: white, color: "#FFF4CF", fade_in: 0, stay: 1, fade_out: 1}
+        - {id: anchor_6, op: anchor, frame: fx6_verdict_impact, at: pt_snap_0_m1p62_8, orient: world, pose: snap}
         - {op: quad, parent: fx6_verdict_impact, face: {viewer: center}, size: [1.0, 1.0], color: "#FFFAD8", alpha: 1.0, text: "✷", see_through: true, brightness: 15, id: fx6_verdict_impact_star}
         - id: fx6_verdict_impact_star_trk
           op: track
           target: fx6_verdict_impact_star
           keys:
-            - {t: 0, offset: [0.0, -1.06, 0.55], scale: [2.4, 2.4, 1.0], alpha: 1.0}
-            - {t: 4, offset: [0.0, -1.06, 0.55], scale: [2.4, 2.4, 1.0], alpha: 1.0}
-            - {t: 10, offset: [0.0, 1.1, 0.55], scale: [0.0, 0.0, 0.0], alpha: 0.0, ease: in_quad}
+            - {t: 0, offset: [0.0, -2.65, 1.375], scale: [6.0, 6.0, 2.5], alpha: 1.0}
+            - {t: 4, offset: [0.0, -2.65, 1.375], scale: [6.0, 6.0, 2.5], alpha: 1.0}
+            - {t: 10, offset: [0.0, 2.75, 1.375], scale: [0.0, 0.0, 0.0], alpha: 0.0, ease: in_quad}
         - {op: quad, parent: fx6_verdict_impact, face: {viewer: center}, size: [1.0, 1.0], color: "#FFD66B", alpha: 0.22, text: "✦", see_through: true, brightness: 15, id: fx6_verdict_impact_bloom}
         - id: fx6_verdict_impact_bloom_trk
           op: track
           target: fx6_verdict_impact_bloom
           keys:
-            - {t: 0, offset: [0.0, -1.87, 0.5], scale: [3.3, 3.3, 1.0], alpha: 0.22}
-            - {t: 9, offset: [0.0, -2.5, 0.5], scale: [4.0, 4.0, 1.0], alpha: 0.0, ease: out_cubic}
+            - {t: 0, offset: [0.0, -4.675, 1.25], scale: [8.25, 8.25, 2.5], alpha: 0.22}
+            - {t: 9, offset: [0.0, -6.25, 1.25], scale: [10.0, 10.0, 2.5], alpha: 0.0, ease: out_cubic}
+        - {id: anchor_7, op: anchor, frame: fx7_verdict_ego_ring, at: pt_snap_0_m1p62_8, orient: yaw, pose: snap}
         - {op: block, parent: fx7_verdict_ego_ring, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx7_verdict_ego_ring_ring_s0}
         - id: fx7_verdict_ego_ring_ring_s0_trk
           op: track
@@ -1457,25 +1464,25 @@ presentation:
           op: track
           target: fx6_verdict_impact_dark0
           keys:
-            - {t: 0, offset: [0.0, 1.0, 0.0], scale: [0.12, 0.2, 1.0], alpha: 1.0}
-            - {t: 5, offset: [1.3, 1.4, 0.3], scale: [0.16, 0.26, 1.0], ease: out_cubic}
-            - {t: 11, scale: [0.04, 0.04, 1.0], alpha: 0.0}
+            - {t: 0, offset: [0.0, 2.5, 0.0], scale: [0.3, 0.5, 2.5], alpha: 1.0}
+            - {t: 5, offset: [3.25, 3.5, 0.75], scale: [0.4, 0.65, 2.5], ease: out_cubic}
+            - {t: 11, scale: [0.1, 0.1, 2.5], alpha: 0.0}
         - {op: quad, parent: fx6_verdict_impact, face: {viewer: center}, size: [1.0, 1.0], color: "#302313", alpha: 1.0, text: "▲", see_through: true, brightness: 15, id: fx6_verdict_impact_dark1}
         - id: fx6_verdict_impact_dark1_trk
           op: track
           target: fx6_verdict_impact_dark1
           keys:
-            - {t: 0, offset: [0.0, 1.0, 0.0], scale: [0.12, 0.2, 1.0], alpha: 1.0}
-            - {t: 5, offset: [0.0, 2.4, 0.3], scale: [0.16, 0.26, 1.0], ease: out_cubic}
-            - {t: 11, scale: [0.04, 0.04, 1.0], alpha: 0.0}
+            - {t: 0, offset: [0.0, 2.5, 0.0], scale: [0.3, 0.5, 2.5], alpha: 1.0}
+            - {t: 5, offset: [0.0, 6.0, 0.75], scale: [0.4, 0.65, 2.5], ease: out_cubic}
+            - {t: 11, scale: [0.1, 0.1, 2.5], alpha: 0.0}
         - {op: quad, parent: fx6_verdict_impact, face: {viewer: center}, size: [1.0, 1.0], color: "#302313", alpha: 1.0, text: "▲", see_through: true, brightness: 15, id: fx6_verdict_impact_dark2}
         - id: fx6_verdict_impact_dark2_trk
           op: track
           target: fx6_verdict_impact_dark2
           keys:
-            - {t: 0, offset: [0.0, 1.0, 0.0], scale: [0.12, 0.2, 1.0], alpha: 1.0}
-            - {t: 5, offset: [-1.3, 1.4, 0.3], scale: [0.16, 0.26, 1.0], ease: out_cubic}
-            - {t: 11, scale: [0.04, 0.04, 1.0], alpha: 0.0}
+            - {t: 0, offset: [0.0, 2.5, 0.0], scale: [0.3, 0.5, 2.5], alpha: 1.0}
+            - {t: 5, offset: [-3.25, 3.5, 0.75], scale: [0.4, 0.65, 2.5], ease: out_cubic}
+            - {t: 11, scale: [0.1, 0.1, 2.5], alpha: 0.0}
         - id: emit_30
           op: emit
           at: pt_caster_0_m1p5_8
@@ -1566,12 +1573,13 @@ presentation:
     - id: fx182
       at: 182
       do:
+        - {id: anchor_12, op: anchor, frame: fx12_verdict_ego_hammer, at: caster, orient: yaw}
         - id: fx12_verdict_ego_hammer_hammer_rig
           op: rig
           frame: fx12_verdict_ego_hammer_hammer
           parent: caster
           duration: 23
-          pivot: [-0.25, 1.0, 0.15]
+          pivot: [-0.375, 1.5, 0.225]
           tilt: [0.0, 0.0, 22.0]
           swing:
             - {t: 0, rotate: [-35.0, 0.0, 0.0]}
@@ -1605,7 +1613,7 @@ presentation:
           parent: caster
           duration: 23
           hand: false
-          pivot: [-0.25, 1.0, 0.15]
+          pivot: [-0.375, 1.5, 0.225]
           tilt: [0.0, 0.0, 22.0]
           swing:
             - {t: 0, rotate: [-35.0, 0.0, 0.0]}
@@ -1633,33 +1641,35 @@ presentation:
           respect_hit_stop: true
           freezes:
             - {at: 9, ticks: 2}
-        - {id: fx12_verdict_ego_hammer_hammer_haft, op: block, parent: fx12_verdict_ego_hammer_hammer_parts, block: black_concrete, size: [0.12, 1.8, 0.12], at: [0.0, 0.8, 0.0], brightness: 15}
-        - {id: fx12_verdict_ego_hammer_hammer_head, op: block, parent: fx12_verdict_ego_hammer_hammer_parts, block: black_concrete, size: [1.2, 0.7, 0.65], at: [0.0, 2.0, 0.0], brightness: 15}
-        - {id: fx12_verdict_ego_hammer_hammer_cap_0_53, op: block, parent: fx12_verdict_ego_hammer_hammer_parts, block: yellow_concrete, size: [0.12, 0.74, 0.69], at: [-0.53, 2.0, 0.0], brightness: 15}
-        - {id: fx12_verdict_ego_hammer_hammer_cap0_53, op: block, parent: fx12_verdict_ego_hammer_hammer_parts, block: yellow_concrete, size: [0.12, 0.74, 0.69], at: [0.53, 2.0, 0.0], brightness: 15}
-        - {id: fx12_verdict_ego_hammer_hammer_stripe1_78, op: block, parent: fx12_verdict_ego_hammer_hammer_parts, block: yellow_concrete, size: [1.05, 0.045, 0.02], at: [0.0, 1.78, 0.34], brightness: 15}
-        - {id: fx12_verdict_ego_hammer_hammer_stripe2_22, op: block, parent: fx12_verdict_ego_hammer_hammer_parts, block: yellow_concrete, size: [1.05, 0.045, 0.02], at: [0.0, 2.22, 0.34], brightness: 15}
+        - {id: fx12_verdict_ego_hammer_hammer_haft, op: block, parent: fx12_verdict_ego_hammer_hammer_parts, block: black_concrete, size: [0.18, 2.7, 0.18], at: [0.0, 1.2, 0.0], brightness: 15}
+        - {id: fx12_verdict_ego_hammer_hammer_head, op: block, parent: fx12_verdict_ego_hammer_hammer_parts, block: black_concrete, size: [1.8, 1.05, 0.975], at: [0.0, 3.0, 0.0], brightness: 15}
+        - {id: fx12_verdict_ego_hammer_hammer_cap_0_53, op: block, parent: fx12_verdict_ego_hammer_hammer_parts, block: yellow_concrete, size: [0.18, 1.11, 1.035], at: [-0.795, 3.0, 0.0], brightness: 15}
+        - {id: fx12_verdict_ego_hammer_hammer_cap0_53, op: block, parent: fx12_verdict_ego_hammer_hammer_parts, block: yellow_concrete, size: [0.18, 1.11, 1.035], at: [0.795, 3.0, 0.0], brightness: 15}
+        - {id: fx12_verdict_ego_hammer_hammer_stripe1_78, op: block, parent: fx12_verdict_ego_hammer_hammer_parts, block: yellow_concrete, size: [1.575, 0.0675, 0.03], at: [0.0, 2.67, 0.51], brightness: 15}
+        - {id: fx12_verdict_ego_hammer_hammer_stripe2_22, op: block, parent: fx12_verdict_ego_hammer_hammer_parts, block: yellow_concrete, size: [1.575, 0.0675, 0.03], at: [0.0, 3.33, 0.51], brightness: 15}
     - {id: fx190, at: 190, do: [{id: flash_6, op: screen_flash, target: caster, overlay: gold_burst, fade_in: 0, stay: 2, fade_out: 2}]}
     - id: fx191
       at: 191
       do:
         - {id: snd_4, op: sound, sound: entity.player.attack.strong, at: caster, pitch: 0.7}
         - {id: flash_4, op: screen_flash, target: caster, overlay: white, color: "#FFF4CF", fade_in: 0, stay: 1, fade_out: 1}
+        - {id: anchor_8, op: anchor, frame: fx8_verdict_impact, at: pt_snap_0_m1p62_8, orient: world, pose: snap}
         - {op: quad, parent: fx8_verdict_impact, face: {viewer: center}, size: [1.0, 1.0], color: "#FFFAD8", alpha: 1.0, text: "✷", see_through: true, brightness: 15, id: fx8_verdict_impact_star}
         - id: fx8_verdict_impact_star_trk
           op: track
           target: fx8_verdict_impact_star
           keys:
-            - {t: 0, offset: [0.0, -1.06, 0.55], scale: [2.4, 2.4, 1.0], alpha: 1.0}
-            - {t: 4, offset: [0.0, -1.06, 0.55], scale: [2.4, 2.4, 1.0], alpha: 1.0}
-            - {t: 10, offset: [0.0, 1.1, 0.55], scale: [0.0, 0.0, 0.0], alpha: 0.0, ease: in_quad}
+            - {t: 0, offset: [0.0, -4.24, 2.2], scale: [9.6, 9.6, 4.0], alpha: 1.0}
+            - {t: 4, offset: [0.0, -4.24, 2.2], scale: [9.6, 9.6, 4.0], alpha: 1.0}
+            - {t: 10, offset: [0.0, 4.4, 2.2], scale: [0.0, 0.0, 0.0], alpha: 0.0, ease: in_quad}
         - {op: quad, parent: fx8_verdict_impact, face: {viewer: center}, size: [1.0, 1.0], color: "#FFD66B", alpha: 0.22, text: "✦", see_through: true, brightness: 15, id: fx8_verdict_impact_bloom}
         - id: fx8_verdict_impact_bloom_trk
           op: track
           target: fx8_verdict_impact_bloom
           keys:
-            - {t: 0, offset: [0.0, -1.87, 0.5], scale: [3.3, 3.3, 1.0], alpha: 0.22}
-            - {t: 9, offset: [0.0, -2.5, 0.5], scale: [4.0, 4.0, 1.0], alpha: 0.0, ease: out_cubic}
+            - {t: 0, offset: [0.0, -7.48, 2.0], scale: [13.2, 13.2, 4.0], alpha: 0.22}
+            - {t: 9, offset: [0.0, -10.0, 2.0], scale: [16.0, 16.0, 4.0], alpha: 0.0, ease: out_cubic}
+        - {id: anchor_9, op: anchor, frame: fx9_verdict_ego_ring, at: pt_snap_0_m1p62_8, orient: yaw, pose: snap}
         - {op: block, parent: fx9_verdict_ego_ring, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx9_verdict_ego_ring_ring_s0}
         - id: fx9_verdict_ego_ring_ring_s0_trk
           op: track
@@ -1845,25 +1855,25 @@ presentation:
           op: track
           target: fx8_verdict_impact_dark0
           keys:
-            - {t: 0, offset: [0.0, 1.0, 0.0], scale: [0.12, 0.2, 1.0], alpha: 1.0}
-            - {t: 5, offset: [1.3, 1.4, 0.3], scale: [0.16, 0.26, 1.0], ease: out_cubic}
-            - {t: 11, scale: [0.04, 0.04, 1.0], alpha: 0.0}
+            - {t: 0, offset: [0.0, 4.0, 0.0], scale: [0.48, 0.8, 4.0], alpha: 1.0}
+            - {t: 5, offset: [5.2, 5.6, 1.2], scale: [0.64, 1.04, 4.0], ease: out_cubic}
+            - {t: 11, scale: [0.16, 0.16, 4.0], alpha: 0.0}
         - {op: quad, parent: fx8_verdict_impact, face: {viewer: center}, size: [1.0, 1.0], color: "#302313", alpha: 1.0, text: "▲", see_through: true, brightness: 15, id: fx8_verdict_impact_dark1}
         - id: fx8_verdict_impact_dark1_trk
           op: track
           target: fx8_verdict_impact_dark1
           keys:
-            - {t: 0, offset: [0.0, 1.0, 0.0], scale: [0.12, 0.2, 1.0], alpha: 1.0}
-            - {t: 5, offset: [0.0, 2.4, 0.3], scale: [0.16, 0.26, 1.0], ease: out_cubic}
-            - {t: 11, scale: [0.04, 0.04, 1.0], alpha: 0.0}
+            - {t: 0, offset: [0.0, 4.0, 0.0], scale: [0.48, 0.8, 4.0], alpha: 1.0}
+            - {t: 5, offset: [0.0, 9.6, 1.2], scale: [0.64, 1.04, 4.0], ease: out_cubic}
+            - {t: 11, scale: [0.16, 0.16, 4.0], alpha: 0.0}
         - {op: quad, parent: fx8_verdict_impact, face: {viewer: center}, size: [1.0, 1.0], color: "#302313", alpha: 1.0, text: "▲", see_through: true, brightness: 15, id: fx8_verdict_impact_dark2}
         - id: fx8_verdict_impact_dark2_trk
           op: track
           target: fx8_verdict_impact_dark2
           keys:
-            - {t: 0, offset: [0.0, 1.0, 0.0], scale: [0.12, 0.2, 1.0], alpha: 1.0}
-            - {t: 5, offset: [-1.3, 1.4, 0.3], scale: [0.16, 0.26, 1.0], ease: out_cubic}
-            - {t: 11, scale: [0.04, 0.04, 1.0], alpha: 0.0}
+            - {t: 0, offset: [0.0, 4.0, 0.0], scale: [0.48, 0.8, 4.0], alpha: 1.0}
+            - {t: 5, offset: [-5.2, 5.6, 1.2], scale: [0.64, 1.04, 4.0], ease: out_cubic}
+            - {t: 11, scale: [0.16, 0.16, 4.0], alpha: 0.0}
         - id: emit_36
           op: emit
           at: pt_caster_0_m1p5_8
