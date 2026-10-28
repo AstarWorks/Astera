@@ -525,11 +525,15 @@ internal class CastInstance(
         listeners += Listener(event, source, handler)
     }
 
-    override fun endProjectile(source: String, body: FrameId) {
+    override fun endProjectile(source: String, body: FrameId, keepBody: Boolean) {
         hitRegs.removeAll { it.reg.id == source }
-        deps.presentation.endBody(id, body.value)
+        if (!keepBody) deps.presentation.endBody(id, body.value)
         motion.stop(body)
         lawSources.remove(body)
+    }
+
+    override fun removeBody(body: FrameId) {
+        deps.presentation.endBody(id, body.value)
     }
 
     override fun ignoreBlocks(source: String) {

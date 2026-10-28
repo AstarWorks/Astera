@@ -158,7 +158,7 @@ class ProjectileAoeScenarioTest {
             handlers += Triple(event, source, handler)
         }
 
-        override fun endProjectile(source: String, body: FrameId) {
+        override fun endProjectile(source: String, body: FrameId, keepBody: Boolean) {
             hits.remove(source)
             flights.remove(source)
         }

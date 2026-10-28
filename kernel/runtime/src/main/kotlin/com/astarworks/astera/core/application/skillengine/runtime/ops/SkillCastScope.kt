@@ -35,8 +35,14 @@ public interface SkillCastScope {
      */
     public fun onEvent(event: String, source: String, handler: () -> Unit)
 
-    /** Stop a projectile: unregister its hit volume [source] and stop its motion law on [body]. */
-    public fun endProjectile(source: String, body: FrameId)
+    /**
+     * Stop a projectile: unregister its hit volume [source] and stop its motion law on [body]. Unless [keepBody] (a `stick`
+     * projectile stays embedded), the meshes and plates riding [body] are removed with it.
+     */
+    public fun endProjectile(source: String, body: FrameId, keepBody: Boolean = false)
+
+    /** Removes the meshes and plates riding [body] (the end of a `stick`). */
+    public fun removeBody(body: FrameId) {}
 
     /** `block_mode: pass`: the projectile [source] never probes blocks again (no `block` event). */
     public fun ignoreBlocks(source: String) {}

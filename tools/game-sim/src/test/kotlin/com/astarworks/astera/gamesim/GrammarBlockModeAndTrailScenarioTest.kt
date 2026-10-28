@@ -65,6 +65,32 @@ gameplay:
         assertThat(t.keys.max()).isGreaterThanOrEqualTo(hit + 9)
     }
 
+    private fun shotWithMesh(id: String, projectileExtra: String) = shot(id, projectileExtra).let { (i, y) ->
+        i to y + """
+presentation:
+  timeline:
+    - {id: fx0, at: 0, do: [{id: mesh, op: mesh, frame: bolt, item: "minecraft:prismarine_shard", scale: 0.9}]}
+"""
+    }
+
+    @Test
+    fun `a stuck projectile keeps its mesh until stick_end while despawn removes it at the face`(@TempDir tmp: Path) {
+        val dir = skills(tmp, shotWithMesh("m-stick-mesh", "block_mode: stick, stick_ticks: 10"), shotWithMesh("m-despawn-mesh", "block_mode: despawn"))
+        for ((id, sticks) in listOf("m-stick-mesh" to true, "m-despawn-mesh" to false)) {
+            lateinit var s: CastSim
+            val rec = LeakTrackingVisuals { s.now }
+            s = CastSim(emptyMap(), blockAtZ = 6.0, skillsDir = dir, visualGateway = rec)
+            s.cast(id, 60)
+            val mesh = rec.kind.filterValues { it.startsWith("mesh") }.keys.single()
+            val gone = rec.removedAt[mesh]
+            assertThat(gone).describedAs("$id mesh removed").isNotNull()
+            val hit = s.trace("bolt").entries.first { it.value.z >= 6.0 - 1e-6 }.key
+            if (sticks) assertThat(gone!!).describedAs("$id mesh stays embedded until stick_end").isGreaterThanOrEqualTo(hit + 10)
+            else assertThat(gone!!).describedAs("$id mesh goes on the contact tick").isLessThanOrEqualTo(hit + 1)
+            assertThat(rec.live).describedAs("$id nothing live afterwards").isEmpty()
+        }
+    }
+
     @Test
     fun `pass ignores the wall completely`(@TempDir tmp: Path) {
         val dir = skills(tmp, shot("m-pass", "block_mode: pass"))

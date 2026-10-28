@@ -60,7 +60,7 @@ internal object ProjectileExecutor : OpExecutor<SpawnOp.Projectile> {
             when (op.blockMode) {
                 BlockMode.Despawn, BlockMode.Pass -> scope.endProjectile(op.id, body)
                 BlockMode.Stick -> {
-                    scope.endProjectile(op.id, body)
+                    scope.endProjectile(op.id, body, keepBody = true)
                     ctx.host.schedule(ctx.values.num(op.stickTicks).toInt(), "stick_end", op.id)
                 }
                 BlockMode.Bounce -> {
@@ -86,7 +86,10 @@ internal object ProjectileExecutor : OpExecutor<SpawnOp.Projectile> {
                 }
             }
         }
-        scope.onEvent("stick_end", op.id) { ctx.tree.remove(body) }
+        scope.onEvent("stick_end", op.id) {
+            scope.removeBody(body)
+            ctx.tree.remove(body)
+        }
         scope.onEvent("expire", op.id) {
             ctx.run(op.onExpire)
             scope.endProjectile(op.id, body)
