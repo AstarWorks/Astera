@@ -48,9 +48,6 @@ public class PresentationRuntime(
         /** Client interpolation length of every per-tick display write. */
         const val DISPLAY_TICKS: Int = 1
 
-        /** The client shows a write one tick later (interpolation), so a track is sampled one tick ahead: key N is on screen at tick N (v1 SKL-14). */
-        const val DISPLAY_LEAD: Int = 1
-
         /** v1 `VfxTimeline.ANIMATION_DELAY_TICKS`: a target weight is read one tick behind the element clock (VfxPlayer.kt:426). */
         const val PULL_DELAY: Int = 1
         const val MAX_FRAME_DEPTH: Int = 64
@@ -78,6 +75,9 @@ public class PresentationRuntime(
 
         /** True while a target pull moved this display on the last update: it is written with interpolation 0 (v1 teleports it). */
         var pulledNow: Boolean = false
+
+        /** True once any write reached the gateway: the first one is the spawn-tick write (interpolation 0). */
+        var written: Boolean = false
 
         /** Last look a track key pushed to the gateway (writes only on change). */
         var shownAlpha: Double? = null
@@ -379,6 +379,19 @@ public class PresentationRuntime(
 
     private class Tracked(val offset: Vec3, val turn: Quaternion, val scale: Vec3)
 
+    /**
+     * Ticks since [t] started, on the cast tick being processed (`s.tick` was advanced at the top of [tickCast]): the key of tick N is
+     * the value written on tick N, as v1's element clock does (VfxPlayer.kt:335-338 ticker, :365-375 `age++`, :429 `u.tick <= age`).
+     */
+    private fun castElapsed(s: CastState, t: TrackState): Int = s.tick - 1 - t.startTick
+
+    /** Interpolation of the next write to [l]: 0 on its first write (v1 spawn tick `update(handle, initial, 0)`, VfxPlayer.kt:620), then [DISPLAY_TICKS]; 0 while a pull moves it. */
+    private fun nextInterp(l: Live): Int {
+        val first = !l.written
+        l.written = true
+        return if (first || l.pulledNow) 0 else DISPLAY_TICKS
+    }
+
     /** Sum of every track on [target] at this tick; offsets are expressed in the track's space and returned in the parent's axes. */
     private fun tracked(s: CastState, target: String, parentW: Frame, group: String? = null): Tracked {
         var offset = Vec3.ZERO
@@ -386,7 +399,7 @@ public class PresentationRuntime(
         var scale = ONE
         for (t in s.tracks.values) {
             if (t.op.target != target && (group == null || t.op.target != group)) continue
-            val sample = sampleTrack(s, t, s.tick - t.startTick + DISPLAY_LEAD)
+            val sample = sampleTrack(s, t, castElapsed(s, t))
             val space = t.op.space?.let { frameWorld(s, it) } ?: parentW
             offset += parentW.rotation.conjugate().rotate(space.directionToWorld(sample.offset))
             turn = (turn * sample.turn).normalized()
@@ -507,27 +520,27 @@ public class PresentationRuntime(
             when (l) {
                 is Live.Mesh -> update(s, l)?.let { pose ->
                     val driver = driverOf(s, l.parent)
-                    if (driver == null) visuals.write(l.handle, followed(s, pose, l.parent), if (l.pulledNow) 0 else DISPLAY_TICKS)
+                    if (driver == null) visuals.write(l.handle, followed(s, pose, l.parent), nextInterp(l))
                     else driver.driven?.let { interp -> if (driver.changed(l.opId, pose)) visuals.write(l.handle, pose, interp) }
                 }
                 is Live.Plate -> {
-                    update(s, l)?.let { visuals.write(l.handle, followed(s, it, l.parent), if (l.pulledNow) 0 else DISPLAY_TICKS) }
+                    update(s, l)?.let { visuals.write(l.handle, followed(s, it, l.parent), nextInterp(l)) }
                     tickFlipbook(s, l)
                     tickLook(s, l)
                 }
                 is Live.Block -> {
                     update(s, l)?.let { pose ->
                         val driver = driverOf(s, l.parent)
-                        if (driver == null) visuals.write(l.handle, followed(s, pose, l.parent), if (l.pulledNow) 0 else DISPLAY_TICKS)
+                        if (driver == null) visuals.write(l.handle, followed(s, pose, l.parent), nextInterp(l))
                         else driver.driven?.let { interp -> if (driver.changed(l.opId, pose)) visuals.write(l.handle, pose, interp) }
                     }
                     tickLook(s, l)
                 }
                 is Live.Quad -> {
-                    update(s, l)?.let { visuals.write(l.handle, followed(s, it, l.parent), if (l.pulledNow) 0 else DISPLAY_TICKS) }
+                    update(s, l)?.let { visuals.write(l.handle, followed(s, it, l.parent), nextInterp(l)) }
                     tickLook(s, l)
                 }
-                is Live.Line -> linePose(s, l)?.let { visuals.write(l.handle, it, DISPLAY_TICKS) }
+                is Live.Line -> linePose(s, l)?.let { visuals.write(l.handle, it, nextInterp(l)) }
                 is Live.Trail -> tickTrail(s, l)
             }
         }
@@ -589,7 +602,7 @@ public class PresentationRuntime(
         var block: String? = null
         for (t in s.tracks.values) {
             if (t.op.target != l.opId && (group == null || t.op.target != group)) continue
-            val look = sampleLook(s, t, s.tick - t.startTick + DISPLAY_LEAD)
+            val look = sampleLook(s, t, castElapsed(s, t))
             look.alpha?.let { alpha = it }
             look.color?.let { color = it }
             look.block?.let { block = it }

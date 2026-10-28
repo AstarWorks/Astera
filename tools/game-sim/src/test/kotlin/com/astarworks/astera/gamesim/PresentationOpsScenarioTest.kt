@@ -429,7 +429,7 @@ class PresentationOpsScenarioTest {
             ),
         )
         val frames = tree.snapshot()
-        tick(1) // the pose pushed now is on screen next tick, so it already carries tick 2 of the track
+        tick(3) // cast tick 2 pushes the value of key tick 2 (v1 VfxPlayer.kt:365-375 age++, :429 `u.tick <= age`)
         assertThat(poses[1]!!.origin.y).isCloseTo(3.0, Offset.offset(1e-9)) // 2.0 base + 1.0 (half of 2.0)
         near(scales[1]!!, 2.0)
         tick(10)
@@ -507,15 +507,12 @@ class PresentationOpsScenarioTest {
     // ---- SKL-14 restored v1 behaviour --------------------------------------------------------------
 
     @Test
-    fun `pose lag - a keyframe at tick N is the pose pushed on tick N-1 so the player sees it at tick N`() {
+    fun `track clock - a keyframe at tick N is the pose pushed on tick N`() {
         run(VisualOp.Mesh("m", null, "shears", "couture-shears", null, null))
         run(VisualOp.Track("t", null, "m", listOf(TrackKey(0, v(0.0, 0.0, 0.0), null, null, null), TrackKey(5, v(0.0, 5.0, 0.0), null, null, null)), null))
-        // the gateway interpolates one tick: what is pushed during tick k is displayed at tick k+1
-        val shown = (1..6).map { tick(); near(0.0, 0.0); poses[1]!!.origin.y - 2.0 }
-        // pushed at tick 1..6 -> shown at tick 2..7: tick N shows key value N (offset N), capped at the last key (5)
-        assertThat(shown.map { Math.round(it * 1000) / 1000.0 }).containsExactly(2.0, 3.0, 4.0, 5.0, 5.0, 5.0)
-        // and tick 1 shows 1.0: it was the spawn pose + the tick-0 push, i.e. the first push already looks one tick ahead
-        assertThat(shown.first()).isEqualTo(2.0)
+        // v1 advances the element age once per tick and pushes every update with `tick <= age` on that tick (VfxPlayer.kt:365-375, :429)
+        val shown = (1..6).map { tick(); poses[1]!!.origin.y - 2.0 }
+        assertThat(shown.map { Math.round(it * 1000) / 1000.0 }).containsExactly(0.0, 1.0, 2.0, 3.0, 4.0, 5.0)
     }
 
     @Test
