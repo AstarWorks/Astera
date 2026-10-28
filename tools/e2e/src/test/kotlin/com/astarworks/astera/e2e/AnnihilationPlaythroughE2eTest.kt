@@ -45,7 +45,18 @@ class AnnihilationPlaythroughE2eTest : PlaythroughBase() {
         check(byTeam.keys == setOf("Blue", "Yellow", "Red")) { "unexpected pillar teams ${byTeam.keys} in $file" }
         return byTeam.mapValues { (name, tiers) -> (1..3).map { tiers[it] ?: error("stage has no $name tier $it pillar") } }
     }
-    private val pillarBlocks = listOf("minecraft:obsidian", "minecraft:crying_obsidian", "minecraft:beacon")
+    /** The block id of tier 1..3 as the stage YAML declares it (hard wood / hard dirt / hard stone since MODE-A1; one block per tier for every team). */
+    private val pillarBlocks: List<String> = run {
+        val file = java.io.File(System.getProperty("astera.live.contentDir", "/workspace/content"), "stages/annihilation-arena.yaml")
+        val lines = file.readLines().dropWhile { it.trim() != "pillars:" }.drop(1).takeWhile { it.startsWith(" ") || it.startsWith("-") }
+        var t = 0
+        val byTier = sortedMapOf<Int, String>()
+        for (line in lines) {
+            Regex("""tier:\s*(\d+)""").find(line)?.let { t = it.groupValues[1].toInt() }
+            Regex("""block:\s*(\S+)""").find(line)?.let { byTier.putIfAbsent(t, it.groupValues[1]) }
+        }
+        (1..3).map { byTier[it] ?: error("stage has no tier $it pillar block") }
+    }
 
     private fun teamOfBot(b: Bot): String? = localPosOf(b)?.let { (x, _, z) ->
         when {
@@ -182,7 +193,7 @@ class AnnihilationPlaythroughE2eTest : PlaythroughBase() {
             "blue HP $hpBefore -> $hpAfterShots after $shotsToHit shots (~17 per hit)"
         }
 
-        // The pistol (~50 a hit against a pillar since the HP-100 rebalance) can already have felled Tier 1: dig the first pillar still standing.
+        // The pistol (e2e tune: full weapon damage, no falloff) can already have felled Tier 1: dig the first pillar still standing.
         val digCell = pillars.getValue("Blue")[(teamLine(a, "Blue")?.first?.indexOf('●') ?: 0).coerceAtLeast(0)]
         stand(a, digCell)
         rcon("effect give ${a.name} minecraft:haste 600 100 true")
