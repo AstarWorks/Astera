@@ -1,5 +1,6 @@
 package com.astarworks.astera.core.adapter.paper.vault
 
+import com.astarworks.astera.core.adapter.paper.item.PaperStoredItemCodec
 import com.astarworks.astera.core.adapter.paper.text.AsteraTextDeserializer
 import com.astarworks.astera.core.application.command.vaultErrorKey
 import com.astarworks.astera.core.application.port.outbound.IMessageRenderer
@@ -10,7 +11,6 @@ import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.i18n.MessageKey
 import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.domain.vault.PersonalVault
-import java.util.Base64
 import org.bukkit.Material
 import org.bukkit.Server
 import org.bukkit.event.block.Action
@@ -42,8 +42,8 @@ import org.slf4j.LoggerFactory
  *  - Right-click on an `ENDER_CHEST` block (or any vanilla ender chest open)
  *    is cancelled and replaced by [AccessPersonalVaultUseCase.open] so `/astera vault`
  *    and the block behave identically (including the in-match refusal).
- *  - On close, only the open page is encoded (Base64 `ItemStack` bytes in
- *    [PersonalVault.VaultItem.nbt]) and persisted via [SaveVaultUseCase.savePage]; other pages are untouched.
+ *  - On close, only the open page is converted to item ids (`{itemId, count, state}`,
+ *    ADR-0302) and persisted via [SaveVaultUseCase.savePage]; other pages are untouched.
  *  - Navigation buttons occupy the bottom row; every click, drag, number-key swap or double-click gather
  *    that could move or take one is cancelled. Page switching closes (= saves) and reopens next tick.
  *
@@ -55,6 +55,7 @@ public class PaperVaultWindow(
     private val save: SaveVaultUseCase,
     private val access: () -> AccessPersonalVaultUseCase,
     private val messages: IMessageRenderer,
+    private val codec: PaperStoredItemCodec,
 ) : IVaultWindow, Listener {
 
     private val log = LoggerFactory.getLogger(PaperVaultWindow::class.java)
@@ -74,7 +75,7 @@ public class PaperVaultWindow(
         val inventory = server.createInventory(holder, WINDOW_SIZE, title)
         holder.bound = inventory
         for (item in vault.pageItems(shownPage)) {
-            decode(item)?.let { inventory.setItem(item.slot, it) }
+            decode(vault.playerId, item)?.let { inventory.setItem(item.slot, it) }
         }
         paintNavigation(inventory, vault.playerId, shownPage)
         player.openInventory(inventory)
@@ -222,25 +223,25 @@ public class PaperVaultWindow(
         }
     }
 
-    private fun encode(slot: Int, stack: ItemStack): PersonalVault.VaultItem =
-        PersonalVault.VaultItem(
-            slot = slot,
-            itemId = stack.type.key.toString(),
-            count = stack.amount,
-            nbt = Base64.getEncoder().encodeToString(stack.serializeAsBytes()),
-        )
+    /** Items become ids the moment the window closes; ones the codec cannot express are never stored. */
+    private fun encode(slot: Int, stack: ItemStack): PersonalVault.VaultItem? {
+        val stored = codec.encode(stack) ?: return null
+        return PersonalVault.VaultItem(slot = slot, itemId = stored.itemId, count = stored.count, state = stored.state)
+    }
 
-    private fun decode(item: PersonalVault.VaultItem): ItemStack? {
-        val encoded = item.nbt ?: return Material.matchMaterial(item.itemId)?.let { ItemStack(it, item.count) }
-        return try {
-            ItemStack.deserializeBytes(Base64.getDecoder().decode(encoded))
-        } catch (t: Throwable) {
-            log.warn("Vault slot {} ({}) could not be decoded; dropped", item.slot, item.itemId, t)
-            null
-        }
+    /** Rebuilds the stack from the current item definition (deleted ids are dropped with a WARN). */
+    private fun decode(owner: PlayerId, item: PersonalVault.VaultItem): ItemStack? {
+        val stored = PaperStoredItemCodec.Stored(
+            itemId = item.itemId,
+            vanilla = item.itemId.startsWith(VANILLA_PREFIX),
+            count = item.count,
+            state = item.state,
+        )
+        return codec.decode(stored, owner, "vault slot ${item.slot}")
     }
 
     private companion object {
+        const val VANILLA_PREFIX = "minecraft:"
         val TITLE = MessageKey("astera.vault.title")
         val NAV_PREV = MessageKey("astera.vault.nav.prev")
         val NAV_NEXT = MessageKey("astera.vault.nav.next")

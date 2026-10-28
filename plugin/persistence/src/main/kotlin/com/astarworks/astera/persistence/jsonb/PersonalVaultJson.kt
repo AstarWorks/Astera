@@ -32,13 +32,13 @@ public data class VaultItemJson(
     val slot: Int,
     val itemId: String,
     val count: Int,
-    val nbt: String? = null,
+    val state: StoredItemStateJson = StoredItemStateJson(),
 ) {
     public fun toDomain(): PersonalVault.VaultItem =
-        PersonalVault.VaultItem(slot = slot, itemId = itemId, count = count, nbt = nbt)
+        PersonalVault.VaultItem(slot = slot, itemId = itemId, count = count, state = state.toDomain())
 
     public companion object {
         public fun fromDomain(item: PersonalVault.VaultItem): VaultItemJson =
-            VaultItemJson(slot = item.slot, itemId = item.itemId, count = item.count, nbt = item.nbt)
+            VaultItemJson(slot = item.slot, itemId = item.itemId, count = item.count, state = StoredItemStateJson.fromDomain(item.state))
     }
 }

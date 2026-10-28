@@ -1,5 +1,6 @@
 package com.astarworks.astera.persistence.repository
 
+import com.astarworks.astera.core.domain.item.StoredItemState
 import com.astarworks.astera.core.domain.player.InventoryItemSlot
 import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.domain.player.PlayerInventorySnapshot
@@ -34,14 +35,14 @@ public class PostgresPlayerInventorySnapshotRepositoryIT : PostgresIntegrationTe
             hotbar = List(9) { i ->
                 when (i) {
                     0 -> InventoryItemSlot.ContentItem("astera:sword", count = 1)
-                    1 -> InventoryItemSlot.SerializedBukkit("base64-hotbar-1")
+                    1 -> InventoryItemSlot.VanillaItem("minecraft:cobblestone", 5, StoredItemState(damage = 3, enchants = mapOf("minecraft:unbreaking" to 2)))
                     else -> null
                 }
             },
             main = List(27) { i ->
                 if (i == 5) InventoryItemSlot.ContentItem("astera:potion", count = 16) else null
             },
-            offhand = InventoryItemSlot.SerializedBukkit("base64-offhand"),
+            offhand = InventoryItemSlot.VanillaItem("minecraft:shield", 1),
             armor = List(4) { i ->
                 if (i == 0) InventoryItemSlot.ContentItem("astera:helmet", count = 1) else null
             },
@@ -57,10 +58,10 @@ public class PostgresPlayerInventorySnapshotRepositoryIT : PostgresIntegrationTe
         assertThat(found.version).isEqualTo(PlayerInventorySnapshot.CURRENT_VERSION)
         assertThat(found.savedAt).isEqualTo(now)
         assertThat(found.hotbar[0]).isEqualTo(InventoryItemSlot.ContentItem("astera:sword", 1))
-        assertThat(found.hotbar[1]).isEqualTo(InventoryItemSlot.SerializedBukkit("base64-hotbar-1"))
+        assertThat(found.hotbar[1]).isEqualTo(InventoryItemSlot.VanillaItem("minecraft:cobblestone", 5, StoredItemState(damage = 3, enchants = mapOf("minecraft:unbreaking" to 2))))
         assertThat(found.hotbar[2]).isNull()
         assertThat(found.main[5]).isEqualTo(InventoryItemSlot.ContentItem("astera:potion", 16))
-        assertThat(found.offhand).isEqualTo(InventoryItemSlot.SerializedBukkit("base64-offhand"))
+        assertThat(found.offhand).isEqualTo(InventoryItemSlot.VanillaItem("minecraft:shield", 1))
         assertThat(found.armor[0]).isEqualTo(InventoryItemSlot.ContentItem("astera:helmet", 1))
     }
 

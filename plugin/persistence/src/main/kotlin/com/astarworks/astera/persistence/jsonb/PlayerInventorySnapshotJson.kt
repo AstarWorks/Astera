@@ -1,5 +1,6 @@
 package com.astarworks.astera.persistence.jsonb
 
+import com.astarworks.astera.core.domain.item.StoredItemState
 import com.astarworks.astera.core.domain.player.InventoryItemSlot
 import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.domain.player.PlayerInventorySnapshot
@@ -13,7 +14,7 @@ import kotlinx.serialization.json.JsonClassDiscriminator
  *
  * Domain types ([PlayerInventorySnapshot] / [InventoryItemSlot]) stay free of
  * `@Serializable`; this DTO mirrors them with sealed-by-key discriminators
- * (`type: content | bukkit`) — same pattern as [ControlSchemeJson] /
+ * (`type: content | vanilla`) — same pattern as [ControlSchemeJson] /
  * [ParticleVisibilityJson] in [PlayerSettingsJson]. The `version` /
  * `savedAt` columns live on the table, not in the JSONB blob, so they can be
  * indexed without parsing the document.
@@ -58,11 +59,9 @@ public data class PlayerInventorySnapshotJson(
 }
 
 /**
- * Sealed-by-key encoding for [InventoryItemSlot]: `{"type":"content","itemId":…}`
- * or `{"type":"bukkit","serializedItemStack":"<base64>"}`. Adding a new variant
- * means: add a domain `data class`, add a matching DTO branch with
- * `@SerialName`, add `toDomain` / `fromDomain` arms. An unknown discriminator
- * is fatal at decode time — force the deploy to ship matching code.
+ * Sealed-by-key encoding for [InventoryItemSlot] (ADR-0302): `{"type":"content","itemId":…,"count":…}` for Astera
+ * items or `{"type":"vanilla","materialKey":…,"count":…}`, each with an optional [StoredItemStateJson]. An unknown
+ * discriminator is fatal at decode time - force the deploy to ship matching code.
  */
 @OptIn(kotlinx.serialization.ExperimentalSerializationApi::class)
 @JsonClassDiscriminator("type")
@@ -73,20 +72,28 @@ public sealed class InventoryItemSlotJson {
 
     @Serializable
     @SerialName("content")
-    public data class ContentItem(val itemId: String, val count: Int) : InventoryItemSlotJson() {
-        override fun toDomain(): InventoryItemSlot = InventoryItemSlot.ContentItem(itemId = itemId, count = count)
+    public data class ContentItem(
+        val itemId: String,
+        val count: Int,
+        val state: StoredItemStateJson = StoredItemStateJson(),
+    ) : InventoryItemSlotJson() {
+        override fun toDomain(): InventoryItemSlot = InventoryItemSlot.ContentItem(itemId, count, state.toDomain())
     }
 
     @Serializable
-    @SerialName("bukkit")
-    public data class SerializedBukkit(val serializedItemStack: String) : InventoryItemSlotJson() {
-        override fun toDomain(): InventoryItemSlot = InventoryItemSlot.SerializedBukkit(serializedItemStack = serializedItemStack)
+    @SerialName("vanilla")
+    public data class VanillaItem(
+        val materialKey: String,
+        val count: Int,
+        val state: StoredItemStateJson = StoredItemStateJson(),
+    ) : InventoryItemSlotJson() {
+        override fun toDomain(): InventoryItemSlot = InventoryItemSlot.VanillaItem(materialKey, count, state.toDomain())
     }
 
     public companion object {
         public fun fromDomain(slot: InventoryItemSlot): InventoryItemSlotJson = when (slot) {
-            is InventoryItemSlot.ContentItem -> ContentItem(itemId = slot.itemId, count = slot.count)
-            is InventoryItemSlot.SerializedBukkit -> SerializedBukkit(serializedItemStack = slot.serializedItemStack)
+            is InventoryItemSlot.ContentItem -> ContentItem(slot.itemId, slot.count, StoredItemStateJson.fromDomain(slot.state))
+            is InventoryItemSlot.VanillaItem -> VanillaItem(slot.materialKey, slot.count, StoredItemStateJson.fromDomain(slot.state))
         }
     }
 }

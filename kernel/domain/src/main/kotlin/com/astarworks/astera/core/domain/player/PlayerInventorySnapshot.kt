@@ -1,5 +1,6 @@
 package com.astarworks.astera.core.domain.player
 
+import com.astarworks.astera.core.domain.item.StoredItemState
 import java.time.Instant
 
 /**
@@ -7,9 +8,9 @@ import java.time.Instant
  *
  * Persistence target (V10 `player_inventory_snapshots`): one row per player,
  * latest-wins (no history). Wave 5e captures + restores the four canonical
- * regions: hotbar [9] / main [27] / offhand [1] / armor [4]. Wave 6b's
- * `PaperInventorySnapshotSerializer` lifts/lowers between Bukkit
- * `PlayerInventory` and this vendor-neutral form via `BukkitObjectOutputStream`.
+ * regions: hotbar [9] / main [27] / offhand [1] / armor [4]. The Paper
+ * `PaperInventorySnapshotSerializer` lifts/lowers between Bukkit `PlayerInventory`
+ * and this vendor-neutral id-based form (ADR-0302).
  *
  * `version` bumps when [InventoryItemSlot] field shape changes incompatibly
  * — additive optional fields do not require a bump (matches `DomainEvent`
@@ -60,26 +61,28 @@ public data class PlayerInventorySnapshot(
 }
 
 /**
- * Vendor-neutral single inventory slot record (Wave 5e).
+ * Vendor-neutral single inventory slot record (ADR-0302): an item **id**, never an ItemStack.
  *
- * Wave 6b's Paper serializer converts to/from `ItemStack` via
- * `BukkitObjectOutputStream` (Base64-wrapped in [serializedItemStack]).
- * The Wave 5e domain only requires opaque pass-through.
+ * The persisted inventory is `{itemId, count, per-instance state}`; the Paper adapter rebuilds
+ * every stack from the current content definition on restore, so name / lore / tooltip style /
+ * model always follow `content/items` instead of what was saved.
  */
 public sealed interface InventoryItemSlot {
-    /**
-     * Item identified by content-pack id (e.g., `astera:example-pistol`)
-     * plus a count. No NBT detail; sufficient for Wave 5e tests and the
-     * lobby-side restore happy path.
-     */
-    public data class ContentItem(val itemId: String, val count: Int) : InventoryItemSlot {
+    /** Astera item identified by content-pack id (e.g. `pistol`), rebuilt through the item materializer. */
+    public data class ContentItem(
+        val itemId: String,
+        val count: Int,
+        val state: StoredItemState = StoredItemState.NONE,
+    ) : InventoryItemSlot {
         init { require(count in 1..64) { "ContentItem.count must be in 1..64: $count" } }
     }
 
-    /**
-     * Opaque serialized Bukkit ItemStack. Wave 6b populates this from
-     * `BukkitObjectOutputStream` → Base64. Wave 5e domain treats as black
-     * box for round-trip tests.
-     */
-    public data class SerializedBukkit(val serializedItemStack: String) : InventoryItemSlot
+    /** A non-Astera item, stored as its vanilla material key (e.g. `minecraft:stone`); nothing else survives. */
+    public data class VanillaItem(
+        val materialKey: String,
+        val count: Int,
+        val state: StoredItemState = StoredItemState.NONE,
+    ) : InventoryItemSlot {
+        init { require(count in 1..64) { "VanillaItem.count must be in 1..64: $count" } }
+    }
 }
