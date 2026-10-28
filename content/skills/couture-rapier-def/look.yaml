@@ -1,7 +1,5 @@
 # Converted from content/skills/couture-rapier-def.yaml + content/vfx/* by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
 # Generated point-frame offsets are [left, up, forward] in the parent frame.
-# CONVERT-PRESENT vfx follow=false (anchored at world, no place-at-spawn) (x1): couture-rapier-guard
-# CONVERT-PRESENT vfx frame orient (frames carry no orientation / scale) (x1): orient="yaw"
 apiVersion: "astera/v2"
 kind: Skill
 id: couture-rapier-def
@@ -12,6 +10,7 @@ presentation:
     - id: fx0
       at: 0
       do:
+        - {id: anchor, op: anchor, frame: fx1_couture_rapier_guard, at: caster, orient: yaw}
         - {op: block, parent: fx1_couture_rapier_guard, block: black_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_couture_rapier_guard_trailing_thread_0}
         - id: fx1_couture_rapier_guard_trailing_thread_0_trk
           op: track

@@ -12,6 +12,8 @@ import com.astarworks.astera.core.domain.geometry.math.Quaternion
 import com.astarworks.astera.core.domain.skillengine.frame.FrameId
 import com.astarworks.astera.core.domain.skillengine.frame.FramePoint
 import com.astarworks.astera.core.domain.skillengine.model.Value
+import com.astarworks.astera.core.domain.skillengine.frame.relativeTo
+import com.astarworks.astera.core.domain.skillengine.op.AnchorOrient
 import com.astarworks.astera.core.domain.skillengine.op.BodyOp
 import com.astarworks.astera.core.domain.skillengine.op.FxOp
 import com.astarworks.astera.core.domain.skillengine.op.ScreenOp
@@ -22,7 +24,7 @@ import kotlin.reflect.KClass
 
 /** All presentation executors, bound to one [PresentationRuntime]. The manager registers them. */
 public fun presentationExecutors(rt: PresentationRuntime): List<OpExecutor<*>> = listOf(
-    MeshExecutor(rt), PlateExecutor(rt), BlockExecutor(rt), QuadExecutor(rt), LineExecutor(rt), TrailExecutor(rt), TrackExecutor(rt), RemoveExecutor(rt),
+    MeshExecutor(rt), PlateExecutor(rt), BlockExecutor(rt), QuadExecutor(rt), LineExecutor(rt), TrailExecutor(rt), TrackExecutor(rt), AnchorExecutor(rt), PullExecutor(rt), RemoveExecutor(rt),
     EmitExecutor(rt), SoundExecutor(rt),
     VictimAnimExecutor(rt), CasterAnimExecutor(rt),
     TitleExecutor(rt), ActionBarExecutor(rt), CameraShakeExecutor(rt), FlashExecutor(rt), StopSoundExecutor(rt),
@@ -53,7 +55,7 @@ internal class MeshExecutor(private val rt: PresentationRuntime) : OpExecutor<Vi
         // The node carries the model's points (scaled to blocks), so `<mesh id>.tip` follows the swing.
         val pts = rt.points.points(op.item, op.part).map { FramePoint(live.node, it.name, it.offset * scale, it.axis) }
         val pose = rt.spawnNode(s, live, op.frame, pts) ?: return ctx.host.fail(op.id, "mesh: parent frame '${op.frame}' is not in the frame tree")
-        live.handle = ctx.ports.visuals.spawnMesh(rt.info.owner(ctx.cast), op.item, op.part, pose, op.brightness)
+        live.handle = ctx.ports.visuals.spawnMesh(rt.info.owner(ctx.cast), op.item, op.part, pose.copy(lane = op.lane), op.brightness)
         rt.register(s, live)
     }
 }
@@ -73,7 +75,7 @@ internal class PlateExecutor(private val rt: PresentationRuntime) : OpExecutor<V
                 op.at?.let { ctx.values.vec3(it) } ?: Vec3.ZERO, op.turn?.let { turn(ctx.values.vec3(it)) } ?: Quaternion.IDENTITY,
             )
             val pose = rt.spawnNode(s, live, par) ?: run { ctx.host.fail(op.id, "plate: parent frame '$par' is not in the frame tree"); return@repeated null }
-            live.handle = ctx.ports.visuals.spawnPlate(rt.info.owner(ctx.cast), op.sprite, ctx.values.num(op.alpha), pose, op.brightness)
+            live.handle = ctx.ports.visuals.spawnPlate(rt.info.owner(ctx.cast), op.sprite, ctx.values.num(op.alpha), pose.copy(lane = op.lane), op.brightness)
             if (tint != null) ctx.ports.visuals.setPlateFrame(live.handle, 0, tint)
             rt.register(s, live)
             live
@@ -93,7 +95,7 @@ internal class BlockExecutor(private val rt: PresentationRuntime) : OpExecutor<V
                 op.at?.let { ctx.values.vec3(it) } ?: Vec3.ZERO, op.turn?.let { turn(ctx.values.vec3(it)) } ?: Quaternion.IDENTITY,
             )
             val pose = rt.spawnNode(s, live, par) ?: run { ctx.host.fail(op.id, "block: parent frame '$par' is not in the frame tree"); return@repeated null }
-            live.handle = ctx.ports.visuals.spawnBlock(rt.info.owner(ctx.cast), op.block, pose, op.brightness)
+            live.handle = ctx.ports.visuals.spawnBlock(rt.info.owner(ctx.cast), op.block, pose.copy(lane = op.lane), op.brightness)
             rt.register(s, live)
             live
         }
@@ -113,7 +115,7 @@ internal class QuadExecutor(private val rt: PresentationRuntime) : OpExecutor<Vi
             )
             val pose = rt.spawnNode(s, live, par) ?: run { ctx.host.fail(op.id, "quad: parent frame '$par' is not in the frame tree"); return@repeated null }
             live.handle = ctx.ports.visuals.spawnQuad(
-                rt.info.owner(ctx.cast), ctx.values.text(op.color), ctx.values.num(op.alpha), op.text, op.shadow, op.seeThrough, pose, op.brightness,
+                rt.info.owner(ctx.cast), ctx.values.text(op.color), ctx.values.num(op.alpha), op.text, op.shadow, op.seeThrough, pose.copy(lane = op.lane), op.brightness,
             )
             rt.register(s, live)
             live
@@ -155,6 +157,38 @@ internal class TrackExecutor(private val rt: PresentationRuntime) : OpExecutor<V
         if (!ctx.passes(op)) return
         val s = rt.state(ctx)
         s.tracks[op.id] = PresentationRuntime.TrackState(op, s.tick)
+    }
+}
+
+internal class AnchorExecutor(private val rt: PresentationRuntime) : OpExecutor<VisualOp.Anchor> {
+    override val opClass: KClass<VisualOp.Anchor> = VisualOp.Anchor::class
+    override fun execute(op: VisualOp.Anchor, ctx: OpContext) {
+        if (!ctx.passes(op)) return
+        val s = rt.state(ctx)
+        val node = ctx.tree.node(FrameId(op.frame)) ?: return ctx.host.fail(op.id, "anchor: frame '${op.frame}' is not in the frame tree")
+        val parentWorld = node.parent?.let { rt.frameWorld(s, it.value) } ?: Frame(Vec3.ZERO)
+        val origin = rt.pointWorld(s, op.at) ?: return ctx.host.fail(op.id, "anchor: point '${op.at}' does not resolve")
+        // v1 VfxOrient.frame (VfxDefinition.kt:55): world = identity, look = caster look, yaw = look flattened, to_target = caster -> anchor.
+        val look = ctx.host.lookDirection()
+        val toTarget = rt.frameWorld(s, "caster")?.let { origin - it.origin }?.takeIf { it.lengthSquared() > 1e-9 }
+        val dir: Vec3? = when (op.orient) {
+            AnchorOrient.WORLD -> null
+            AnchorOrient.LOOK -> look
+            AnchorOrient.YAW -> Vec3(look.x, 0.0, look.z)
+            AnchorOrient.TO_TARGET -> toTarget ?: look
+        }
+        val target = if (dir == null || dir.lengthSquared() < 1e-9) Frame(origin) else Frame.fromDirection(origin, dir)
+        ctx.tree.setLocal(FrameId(op.frame), relativeTo(parentWorld, target))
+        if (op.follow) s.anchors[op.frame] = PresentationRuntime.AnchorFollow(op, target.rotation) else s.anchors.remove(op.frame)
+    }
+}
+
+internal class PullExecutor(private val rt: PresentationRuntime) : OpExecutor<VisualOp.Pull> {
+    override val opClass: KClass<VisualOp.Pull> = VisualOp.Pull::class
+    override fun execute(op: VisualOp.Pull, ctx: OpContext) {
+        if (!ctx.passes(op)) return
+        val s = rt.state(ctx)
+        s.pulls[op.id] = PresentationRuntime.PullState(op, s.tick)
     }
 }
 

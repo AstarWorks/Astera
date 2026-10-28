@@ -1,16 +1,14 @@
 # Converted from content/skills/bastion-greatsword-s1.yaml + content/vfx/* by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
 # Generated point-frame offsets are [left, up, forward] in the parent frame.
-# CONVERT-PRESENT vfx frame orient (frames carry no orientation / scale) (x3): orient="yaw"
-# CONVERT-PRESENT vfx attach_to_anchor (no v2 equivalent) (x1): true
 # CONVERT-PRESENT play_vfx freeze (no v2 equivalent) (x1): [{"at": 7, "ticks": 2}, {"at": 31, "tick
 # CONVERT-PRESENT rig respect_hit_stop / weapon points (x1): {"respect_hit_stop": true, "weapon_edge": [0.0, -0.6155, 0.7881], "weapon_root":
 apiVersion: "astera/v2"
 kind: Skill
 id: bastion-greatsword-s1
 frames:
-  - {id: fx1_bastion_s1_rig, kind: body, parent: caster}
+  - {id: fx1_bastion_s1_rig, kind: body, parent: world}
   - {id: fx1_bastion_s1_rig_sword, kind: body, parent: caster.right_hand}
-  - {id: fx2_bastion_s1_fx_high, kind: body, parent: caster}
+  - {id: fx2_bastion_s1_fx_high, kind: body, parent: world}
   - {id: fx2_bastion_s1_fx_high_s1h1_p_sheath_0_at, kind: body, parent: fx2_bastion_s1_fx_high}
   - {id: fx2_bastion_s1_fx_high_s1h1_p_sheath_1_at, kind: body, parent: fx2_bastion_s1_fx_high}
   - {id: fx2_bastion_s1_fx_high_s1h1_p_sheath_2_at, kind: body, parent: fx2_bastion_s1_fx_high}
@@ -190,7 +188,7 @@ frames:
   - {id: fx2_bastion_s1_fx_high_s1h1_p_trail_33_at, kind: body, parent: fx2_bastion_s1_fx_high}
   - {id: fx2_bastion_s1_fx_high_s1h1_p_csteel_27_at, kind: body, parent: fx2_bastion_s1_fx_high}
   - {id: fx2_bastion_s1_fx_high_s1h1_p_tcrit_26_at, kind: body, parent: fx2_bastion_s1_fx_high}
-  - {id: fx3_bastion_s1_fx_low, kind: body, parent: caster}
+  - {id: fx3_bastion_s1_fx_low, kind: body, parent: world}
   - {id: fx3_bastion_s1_fx_low_s1h2_p_sheath_0_at, kind: body, parent: fx3_bastion_s1_fx_low}
   - {id: fx3_bastion_s1_fx_low_s1h2_p_sheath_0_2_at, kind: body, parent: fx3_bastion_s1_fx_low}
   - {id: fx3_bastion_s1_fx_low_s1h2_p_sheath_1_at, kind: body, parent: fx3_bastion_s1_fx_low}
@@ -375,6 +373,7 @@ presentation:
     - id: fx0
       at: 0
       do:
+        - {id: anchor, op: anchor, frame: fx1_bastion_s1_rig, at: caster, orient: yaw, follow: true}
         - {id: canim, op: caster_anim, anim: bastion-s1-body}
         - {id: fx1_bastion_s1_rig_sword_weapon, op: mesh, frame: fx1_bastion_s1_rig_sword, item: main_hand}
         - id: fx1_bastion_s1_rig_sword_swing
@@ -432,6 +431,7 @@ presentation:
     - id: fx3
       at: 3
       do:
+        - {id: anchor_2, op: anchor, frame: fx2_bastion_s1_fx_high, at: caster, orient: yaw, follow: true}
         - op: plate
           parent: fx2_bastion_s1_fx_high
           face: {plane: {frame: fx2_bastion_s1_fx_high, axes: [left, up]}}
@@ -1168,6 +1168,7 @@ presentation:
         - {id: snd_15, op: sound, sound: entity.player.attack.sweep, at: caster, volume: 1.0, pitch: 0.45}
         - {id: snd_16, op: sound, sound: entity.breeze.wind_burst, at: caster, volume: 0.6, pitch: 0.5}
         - {id: snd_17, op: sound, sound: item.trident.throw, at: caster, volume: 0.8, pitch: 0.5}
+    - {id: fx27, at: 27, do: [{id: anchor_3, op: anchor, frame: fx3_bastion_s1_fx_low, at: caster, orient: yaw, follow: true}]}
     - id: fx28
       at: 28
       do:

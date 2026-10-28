@@ -1,8 +1,6 @@
 # Converted from content/skills/verdict-hammer-s2.yaml + content/vfx/* by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
 # Generated point-frame offsets are [left, up, forward] in the parent frame.
-# CONVERT-PRESENT vfx follow=false (anchored at world, no place-at-spawn) (x2): verdict-summoned-nails | verdict-impact
-# CONVERT-PRESENT vfx frame orient (frames carry no orientation / scale) (x2): orient="yaw" | orient="world"
-# CONVERT-PRESENT area target used only by presentation ops (no damaging hit volume to attach them to) (x1): sel: 13 presentation op(s) dropped
+# CONVERT-PRESENT area target used only by presentation ops (no damaging hit volume to attach them to) (x1): sel: 14 presentation op(s) dropped
 apiVersion: "astera/v2"
 kind: Skill
 id: verdict-hammer-s2
@@ -77,6 +75,7 @@ presentation:
     - {id: fxhit_35, at: "hit+35", do: []}
   "on":
     hit:
+      - {id: anchor_2, op: anchor, frame: fx2_verdict_impact, at: contact.point, orient: world, when: "= event.source == 'sel_2'"}
       - op: quad
         parent: fx2_verdict_impact
         face: {viewer: center}

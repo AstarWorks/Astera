@@ -1,18 +1,17 @@
 # Converted from content/skills/couture-rapier-s1.yaml + content/vfx/* by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
 # Generated point-frame offsets are [left, up, forward] in the parent frame.
 # CONVERT-PRESENT play_animation ticks (anim ops have no duration) (x1): ticks=35
-# CONVERT-PRESENT vfx follow=false (anchored at world, no place-at-spawn) (x1): couture-passage-windup
-# CONVERT-PRESENT vfx frame orient (frames carry no orientation / scale) (x3): orient="yaw"
 # CONVERT-PRESENT presentation inside a nested gameplay list (dash on_hit has no event hook) (x2): play_vfx | play_sound
 apiVersion: "astera/v2"
 kind: Skill
 id: couture-rapier-s1
 frames:
   - {id: fx1_couture_passage_windup, kind: body, parent: world}
-  - {id: fx2_couture_shears_snip, kind: body, parent: caster}
-  - {id: fx3_couture_shear_passage, kind: body, parent: caster}
+  - {id: fx2_couture_shears_snip, kind: body, parent: world}
+  - {id: fx3_couture_shear_passage, kind: body, parent: world}
 presentation:
   timeline:
+    - {id: fx0, at: 0, do: [{id: anchor, op: anchor, frame: fx1_couture_passage_windup, at: caster, orient: yaw}]}
     - id: fx2
       at: 2
       do:
@@ -73,6 +72,7 @@ presentation:
     - id: fx6
       at: 6
       do:
+        - {id: anchor_2, op: anchor, frame: fx2_couture_shears_snip, at: caster, orient: yaw, follow: true}
         - {op: block, parent: fx2_couture_shears_snip, block: gray_concrete, size: [1.0, 1.0, 1.0], id: fx2_couture_shears_snip_1_blade_0}
         - id: fx2_couture_shears_snip_1_blade_0_trk
           op: track
@@ -578,6 +578,7 @@ presentation:
     - id: fx13
       at: 13
       do:
+        - {id: anchor_3, op: anchor, frame: fx3_couture_shear_passage, at: caster, orient: yaw, follow: true}
         - {op: plate, parent: fx3_couture_shear_passage, face: {viewer: center}, sprite: couture-cut, size: 3.2, frame_ticks: 2, brightness: 15, id: fx3_couture_shear_passage_passage_crescent}
         - id: fx3_couture_shear_passage_passage_crescent_trk
           op: track

@@ -1,16 +1,14 @@
 # Converted from content/skills/gossamer-katana-s1.yaml + content/vfx/* by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
 # Generated point-frame offsets are [left, up, forward] in the parent frame.
-# CONVERT-PRESENT vfx frame orient (frames carry no orientation / scale) (x5): orient="yaw"
 # CONVERT-PRESENT rig respect_hit_stop / weapon points (x3): {"respect_hit_stop": true}
 # CONVERT-PRESENT rig block parts (mesh takes an item model, not a block + size) (x3): 3 parts
 # CONVERT-PRESENT rig swing without a weapon mesh (track needs a visual to move) (x3): 5 keys | 10 keys
 # CONVERT-PRESENT presentation inside a nested gameplay list (dash on_hit has no event hook) (x4): play_vfx | play_sound
-# CONVERT-PRESENT vfx follow=false (anchored at world, no place-at-spawn) (x4): gossamer-katana-slash-up | gossamer-katana-slash-down
 apiVersion: "astera/v2"
 kind: Skill
 id: gossamer-katana-s1
 frames:
-  - {id: fx1_gossamer_katana_draw, kind: body, parent: caster}
+  - {id: fx1_gossamer_katana_draw, kind: body, parent: world}
   - {id: fx1_gossamer_katana_draw_katana, kind: body, parent: caster.right_hand}
   - {id: fx2_gossamer_katana_slash_up, kind: body, parent: world}
   - {id: fx2_gossamer_katana_slash_up_katana, kind: body, parent: caster.right_hand}
@@ -24,6 +22,8 @@ frames:
   - {id: fx5_gossamer_katana_iaido_line, kind: body, parent: world}
 presentation:
   timeline:
+    - {id: fx0, at: 0, do: [{id: anchor, op: anchor, frame: fx1_gossamer_katana_draw, at: caster, orient: yaw, follow: true}]}
+    - {id: fx10, at: 10, do: [{id: anchor_2, op: anchor, frame: fx2_gossamer_katana_slash_up, at: caster, orient: yaw}]}
     - id: fx12
       at: 12
       do:
@@ -36,6 +36,7 @@ presentation:
             - {from: 0.0, to: 1.0, color: "#14245f", alpha: 0.933, color_to: "#7c36a8"}
           step_deg: 20.0
     - {id: fx20, at: 20, do: [{id: rm, op: remove, ids: [fx2_gossamer_katana_slash_up_katana_crescent]}]}
+    - {id: fx22, at: 22, do: [{id: anchor_3, op: anchor, frame: fx3_gossamer_katana_slash_down, at: caster, orient: yaw}]}
     - id: fx24
       at: 24
       do:
@@ -51,6 +52,7 @@ presentation:
     - id: fx39
       at: 39
       do:
+        - {id: anchor_5, op: anchor, frame: fx5_gossamer_katana_iaido_line, at: caster, orient: yaw}
         - {op: block, parent: fx5_gossamer_katana_iaido_line, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx5_gossamer_katana_iaido_line_core}
         - id: fx5_gossamer_katana_iaido_line_core_trk
           op: track
@@ -114,6 +116,7 @@ presentation:
           when: "= event.source == 'sel'"
   "on":
     hit:
+      - {id: anchor_4, op: anchor, frame: fx4_gossamer_katana_petals, at: contact.point, orient: yaw, when: "= event.source == 'sel'"}
       - id: fx4_gossamer_katana_petals_petals_0
         op: quad
         parent: fx4_gossamer_katana_petals

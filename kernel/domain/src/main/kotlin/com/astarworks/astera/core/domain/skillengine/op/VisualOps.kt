@@ -1,5 +1,6 @@
 package com.astarworks.astera.core.domain.skillengine.op
 
+import com.astarworks.astera.core.domain.effect.vfx.VfxLane
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.skillengine.model.AxisRef
 import com.astarworks.astera.core.domain.skillengine.model.PointRef
@@ -50,6 +51,8 @@ public sealed interface VisualOp : PresentationOp {
         val tilt: Value<Vec3>? = null,
         /** Vanilla Display.brightness 0..15 (block and sky light together); null = lit by the world. */
         val brightness: Int? = null,
+        /** Per-viewer quality class (v1 `lane`): which viewers are shown this display. */
+        val lane: VfxLane = VfxLane.CORE,
     ) : VisualOp
 
     /** A sprite quad as a NODE of the frame tree named [id], child of [parent]; [size] is its edge length in BLOCKS. */
@@ -75,6 +78,7 @@ public sealed interface VisualOp : PresentationOp {
         /** Vanilla Display.brightness 0..15; 15 (full bright) when null. */
         val brightness: Int? = null,
         val repeat: Repeat? = null,
+        val lane: VfxLane = VfxLane.CORE,
     ) : VisualOp
 
     /**
@@ -91,6 +95,7 @@ public sealed interface VisualOp : PresentationOp {
         val turn: Value<Vec3>? = null,
         val brightness: Int? = null,
         val repeat: Repeat? = null,
+        val lane: VfxLane = VfxLane.CORE,
     ) : VisualOp
 
     /**
@@ -114,6 +119,7 @@ public sealed interface VisualOp : PresentationOp {
         val turn: Value<Vec3>? = null,
         val brightness: Int? = null,
         val repeat: Repeat? = null,
+        val lane: VfxLane = VfxLane.CORE,
     ) : VisualOp
 
     /** Ribbon between two points; length follows them every tick. */
@@ -172,6 +178,41 @@ public sealed interface VisualOp : PresentationOp {
         val space: String?,
     ) : VisualOp
 
+    /**
+     * Places the body frame [frame] (declared in `frames:` under `world`) at the world point [at] with the rotation [orient]
+     * (v1 `VfxOrient.frame`, VfxDefinition.kt:55) at the moment the op runs: the spawn pose of an effect that does not
+     * follow a frame (v1 `follow: false`, VfxPlayer.kt:274) or is anchored at a point computed at runtime (a hit point).
+     * Everything parented to [frame] then sits in that pose. With [follow] the frame's origin keeps tracking [at] every tick
+     * while its rotation stays the spawn rotation (v1 `follow: true`, VfxPlayer.kt:414-420: the position follows the
+     * anchor, the yaw was baked at spawn).
+     */
+    public data class Anchor(
+        override val id: String,
+        override val whenExpr: Value<Boolean>?,
+        val frame: String,
+        val at: PointRef,
+        val orient: AnchorOrient,
+        val follow: Boolean = false,
+    ) : VisualOp
+
+    /**
+     * v1 target tracking (`target_track` / `target_line` / `target_reference`, VfxPlayer.kt:405-477) of the display [target]
+     * (a node, or a repeated group): every tick the correction `to - ref` is read, the node is moved by `correction * weight`
+     * (key `tick` counts from the moment this op runs; linear, held at both ends), or, with [line], its length axis is
+     * stretched so its far end lands on `correction` further out. When [to] stops resolving the displays [ends] are removed
+     * (v1 ends the instance).
+     */
+    public data class Pull(
+        override val id: String,
+        override val whenExpr: Value<Boolean>?,
+        val target: String,
+        val ref: PointRef,
+        val to: PointRef,
+        val keys: List<PullKey>,
+        val line: Boolean,
+        val ends: List<String>,
+    ) : VisualOp
+
     /** Remove presentation objects created earlier by the listed op ids. */
     public data class Remove(
         override val id: String,
@@ -209,3 +250,26 @@ public data class TrailEdge(val color: String, val width: Double)
 
 /** Dark rim outside the tip of a [VisualOp.Trail]: `#rrggbb` at [alpha], [width] blocks wide. */
 public data class TrailRim(val color: String, val alpha: Double, val width: Double)
+
+/** Rotation an [VisualOp.Anchor] gives the frame: v1 `VfxOrient` (VfxDefinition.kt:33). */
+public enum class AnchorOrient(public val yamlName: String) {
+    /** Identity rotation. */
+    WORLD("world"),
+
+    /** The caster's look direction. */
+    LOOK("look"),
+
+    /** The caster's look direction flattened to the horizon. */
+    YAW("yaw"),
+
+    /** From the caster to the anchor point (falls back to [LOOK]). */
+    TO_TARGET("to_target"),
+    ;
+
+    public companion object {
+        public fun fromYaml(raw: String): AnchorOrient? = entries.firstOrNull { it.yamlName == raw }
+    }
+}
+
+/** One key of a [VisualOp.Pull]: the share [weight] of the correction applied [tick] ticks after the op ran (v1 `VfxTargetKey`). */
+public data class PullKey(val tick: Int, val weight: Double)

@@ -1,9 +1,7 @@
 # Converted from content/skills/verdict-hammer-ego.yaml + content/vfx/* by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
 # Generated point-frame offsets are [left, up, forward] in the parent frame.
-# CONVERT-PRESENT vfx follow=false (anchored at world, no place-at-spawn) (x13): verdict-ego-field | verdict-impact
-# CONVERT-PRESENT vfx frame orient (frames carry no orientation / scale) (x13): orient="yaw" | orient="world"
 # CONVERT-PRESENT play_vfx snapshot_pose (no v2 equivalent) (x9): true
-# CONVERT-PRESENT vfx frame scale (frames carry no orientation / scale) (x8): scale=2.5 | scale=4.0
+# CONVERT-PRESENT vfx frame scale (frames carry no scale) (x8): scale=2.5 | scale=4.0
 # CONVERT-PRESENT play_vfx freeze (no v2 equivalent) (x3): [{"at": 9, "ticks": 2}]
 # CONVERT-PRESENT rig respect_hit_stop / weapon points (x4): {"respect_hit_stop": true}
 # CONVERT-PRESENT rig block parts (mesh takes an item model, not a block + size) (x4): 6 parts
@@ -33,6 +31,8 @@ frames:
   - {id: pt_caster_0_m1p5_8, kind: point, parent: caster, offset: [0.0, -1.5, 8.0]}
 presentation:
   timeline:
+    - {id: fx18, at: 18, do: [{id: anchor, op: anchor, frame: fx1_verdict_ego_field, at: pt_caster_0_m1p62_8, orient: yaw}]}
+    - {id: fx32, at: 32, do: [{id: anchor_13, op: anchor, frame: fx13_verdict_ego_hammer, at: caster, orient: yaw}]}
     - id: fx48
       at: 48
       do:
@@ -414,6 +414,7 @@ presentation:
       do:
         - {id: snd, op: sound, sound: entity.player.attack.strong, at: caster, pitch: 0.7}
         - {id: flash, op: screen_flash, target: caster, overlay: white, color: "#FFF4CF", fade_in: 0, stay: 1, fade_out: 1}
+        - {id: anchor_2, op: anchor, frame: fx2_verdict_impact, at: pt_caster_0_m1p62_8, orient: world}
         - {op: quad, parent: fx2_verdict_impact, face: {viewer: center}, size: [1.0, 1.0], color: "#FFFAD8", alpha: 1.0, text: "✷", see_through: true, brightness: 15, id: fx2_verdict_impact_star}
         - id: fx2_verdict_impact_star_trk
           op: track
@@ -429,6 +430,7 @@ presentation:
           keys:
             - {t: 0, offset: [0.0, -1.87, 0.5], scale: [3.3, 3.3, 1.0], alpha: 0.22}
             - {t: 9, offset: [0.0, -2.5, 0.5], scale: [4.0, 4.0, 1.0], alpha: 0.0, ease: out_cubic}
+        - {id: anchor_3, op: anchor, frame: fx3_verdict_ego_ring, at: pt_caster_0_m1p62_8, orient: yaw}
         - {op: block, parent: fx3_verdict_ego_ring, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx3_verdict_ego_ring_ring_s0}
         - id: fx3_verdict_ego_ring_ring_s0_trk
           op: track
@@ -707,11 +709,13 @@ presentation:
             - fx3_verdict_ego_ring_ring_s5
             - fx3_verdict_ego_ring_ring_s6
             - fx3_verdict_ego_ring_ring_s7
+    - {id: fx93, at: 93, do: [{id: anchor_10, op: anchor, frame: fx10_verdict_ego_hammer, at: caster, orient: yaw}]}
     - id: fx102
       at: 102
       do:
         - {id: snd_2, op: sound, sound: entity.player.attack.strong, at: caster, pitch: 0.7}
         - {id: flash_2, op: screen_flash, target: caster, overlay: white, color: "#FFF4CF", fade_in: 0, stay: 1, fade_out: 1}
+        - {id: anchor_4, op: anchor, frame: fx4_verdict_impact, at: pt_caster_0_m1p62_8, orient: world}
         - {op: quad, parent: fx4_verdict_impact, face: {viewer: center}, size: [1.0, 1.0], color: "#FFFAD8", alpha: 1.0, text: "✷", see_through: true, brightness: 15, id: fx4_verdict_impact_star}
         - id: fx4_verdict_impact_star_trk
           op: track
@@ -727,6 +731,7 @@ presentation:
           keys:
             - {t: 0, offset: [0.0, -1.87, 0.5], scale: [3.3, 3.3, 1.0], alpha: 0.22}
             - {t: 9, offset: [0.0, -2.5, 0.5], scale: [4.0, 4.0, 1.0], alpha: 0.0, ease: out_cubic}
+        - {id: anchor_5, op: anchor, frame: fx5_verdict_ego_ring, at: pt_caster_0_m1p62_8, orient: yaw}
         - {op: block, parent: fx5_verdict_ego_ring, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx5_verdict_ego_ring_ring_s0}
         - id: fx5_verdict_ego_ring_ring_s0_trk
           op: track
@@ -1005,11 +1010,13 @@ presentation:
             - fx5_verdict_ego_ring_ring_s5
             - fx5_verdict_ego_ring_ring_s6
             - fx5_verdict_ego_ring_ring_s7
+    - {id: fx119, at: 119, do: [{id: anchor_11, op: anchor, frame: fx11_verdict_ego_hammer, at: caster, orient: yaw}]}
     - id: fx128
       at: 128
       do:
         - {id: snd_3, op: sound, sound: entity.player.attack.strong, at: caster, pitch: 0.7}
         - {id: flash_3, op: screen_flash, target: caster, overlay: white, color: "#FFF4CF", fade_in: 0, stay: 1, fade_out: 1}
+        - {id: anchor_6, op: anchor, frame: fx6_verdict_impact, at: pt_caster_0_m1p62_8, orient: world}
         - {op: quad, parent: fx6_verdict_impact, face: {viewer: center}, size: [1.0, 1.0], color: "#FFFAD8", alpha: 1.0, text: "✷", see_through: true, brightness: 15, id: fx6_verdict_impact_star}
         - id: fx6_verdict_impact_star_trk
           op: track
@@ -1025,6 +1032,7 @@ presentation:
           keys:
             - {t: 0, offset: [0.0, -1.87, 0.5], scale: [3.3, 3.3, 1.0], alpha: 0.22}
             - {t: 9, offset: [0.0, -2.5, 0.5], scale: [4.0, 4.0, 1.0], alpha: 0.0, ease: out_cubic}
+        - {id: anchor_7, op: anchor, frame: fx7_verdict_ego_ring, at: pt_caster_0_m1p62_8, orient: yaw}
         - {op: block, parent: fx7_verdict_ego_ring, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx7_verdict_ego_ring_ring_s0}
         - id: fx7_verdict_ego_ring_ring_s0_trk
           op: track
@@ -1304,12 +1312,14 @@ presentation:
             - fx7_verdict_ego_ring_ring_s6
             - fx7_verdict_ego_ring_ring_s7
     - {id: fx166, at: 166, do: [{id: flash_5, op: screen_flash, target: caster, overlay: vignette, color: "#241E19", fade_in: 1, stay: 20, fade_out: 1}]}
+    - {id: fx182, at: 182, do: [{id: anchor_12, op: anchor, frame: fx12_verdict_ego_hammer, at: caster, orient: yaw}]}
     - {id: fx190, at: 190, do: [{id: flash_6, op: screen_flash, target: caster, overlay: gold_burst, fade_in: 0, stay: 2, fade_out: 2}]}
     - id: fx191
       at: 191
       do:
         - {id: snd_4, op: sound, sound: entity.player.attack.strong, at: caster, pitch: 0.7}
         - {id: flash_4, op: screen_flash, target: caster, overlay: white, color: "#FFF4CF", fade_in: 0, stay: 1, fade_out: 1}
+        - {id: anchor_8, op: anchor, frame: fx8_verdict_impact, at: pt_caster_0_m1p62_8, orient: world}
         - {op: quad, parent: fx8_verdict_impact, face: {viewer: center}, size: [1.0, 1.0], color: "#FFFAD8", alpha: 1.0, text: "✷", see_through: true, brightness: 15, id: fx8_verdict_impact_star}
         - id: fx8_verdict_impact_star_trk
           op: track
@@ -1325,6 +1335,7 @@ presentation:
           keys:
             - {t: 0, offset: [0.0, -1.87, 0.5], scale: [3.3, 3.3, 1.0], alpha: 0.22}
             - {t: 9, offset: [0.0, -2.5, 0.5], scale: [4.0, 4.0, 1.0], alpha: 0.0, ease: out_cubic}
+        - {id: anchor_9, op: anchor, frame: fx9_verdict_ego_ring, at: pt_caster_0_m1p62_8, orient: yaw}
         - {op: block, parent: fx9_verdict_ego_ring, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx9_verdict_ego_ring_ring_s0}
         - id: fx9_verdict_ego_ring_ring_s0_trk
           op: track

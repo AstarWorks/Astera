@@ -602,7 +602,7 @@ def keys_shift(keys):
 
 
 # ------------------------------------------------------------------ display elements
-UNSUPPORTED = ("target_track", "lane", "glow_color", "target_line", "respect_hit_stop", "view_range")
+UNSUPPORTED = ("glow_color", "respect_hit_stop", "view_range")
 
 
 def hexc(col):
@@ -654,11 +654,16 @@ def display_element(c, el, fid, where, delay, when, dur, removes):
         if k in el:
             c.present("element %s (no v2 equivalent)" % k, str(el[k])[:60])
     if "emit" in el:
+        for k in ("lane", "target_track", "target_line"):
+            if el.get(k) not in (None, "core"):
+                c.present("emit element %s (an emitter has no per-copy lane / pull)" % k, str(el[k])[:60])
         emit_quads(c, el, fid, where, delay, when, dur, removes)
         return
     skel = base_fields(kind, el, c, fid)
     if skel is None:
         return
+    if el.get("lane", "core") != "core":
+        skel["lane"] = el["lane"]
     for k in kind:
         if k not in ("type", "block", "color", "alpha", "glyph", "see_through", "sprite", "frame_ticks", "loop"):
             c.present("element kind field %s" % k)
@@ -742,6 +747,7 @@ def display_element(c, el, fid, where, delay, when, dur, removes):
     op = dict(skel)
     op["id"] = eid
     at = delay + start
+    c.pull(el, eid, skel["op"], where, at, when)
     c.p(where, at, c._w(op, when))
     if keys:
         if stagger and not single:
@@ -794,6 +800,7 @@ def group_slots(c, el, skel, eid, where, delay, when, rows, spawns, life_of, liv
         keys.sort(key=lambda e: e["t"])
         op = dict(skel)
         op["id"] = "%s_s%d" % (eid, k)
+        c.pull(el, op["id"], skel["op"], where, delay + spawns[k], when)
         c.p(where, delay + spawns[k], c._w(op, when))
         c.p(where, delay + spawns[k], c._w({"id": op["id"] + "_trk", "op": "track", "target": op["id"], "keys": keys}, when))
         removes.setdefault(spawns[k] + life, []).append(op["id"])

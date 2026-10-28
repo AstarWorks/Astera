@@ -1,18 +1,16 @@
 # Converted from content/skills/ember-gauntlet-def.yaml + content/vfx/* by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
 # Generated point-frame offsets are [left, up, forward] in the parent frame.
-# CONVERT-PRESENT vfx frame orient (frames carry no orientation / scale) (x4): orient="yaw" | orient="look"
 # CONVERT-PRESENT rig block parts (mesh takes an item model, not a block + size) (x2): 2 parts | 3 parts
 # CONVERT-PRESENT rig swing without a weapon mesh (track needs a visual to move) (x2): 2 keys | 14 keys
-# CONVERT-PRESENT vfx follow=false (anchored at world, no place-at-spawn) (x2): ember-flare-guard | ember-hoop-hit
 # CONVERT-PRESENT element kind text has no v2 op (x3): {'type': 'text', 'text': '<#ffb020>✦', 'background': '#00000000', 'shadow': Fals | {'type': 'text', 'text': '<#FFF1A0>✦', 'background': '#00000000', 'shadow': Fals
 apiVersion: "astera/v2"
 kind: Skill
 id: ember-gauntlet-def
 frames:
-  - {id: fx1_ember_harness, kind: body, parent: caster}
+  - {id: fx1_ember_harness, kind: body, parent: world}
   - {id: fx1_ember_harness_furnace_pack, kind: body, parent: caster.right_hand}
   - {id: fx2_ember_flare_guard, kind: body, parent: world}
-  - {id: fx3_ember_counter_sweep, kind: body, parent: caster}
+  - {id: fx3_ember_counter_sweep, kind: body, parent: world}
   - {id: fx3_ember_counter_sweep_embers_at, kind: body, parent: fx3_ember_counter_sweep}
   - {id: fx3_ember_counter_sweep_gauntlet, kind: body, parent: caster.right_hand}
   - {id: pt_fx3_ember_counter_sweep_gauntlet_0_1p95_0, kind: point, parent: fx3_ember_counter_sweep_gauntlet, offset: [0.0, 1.95, 0.0]}
@@ -24,6 +22,8 @@ presentation:
     - id: fx0
       at: 0
       do:
+        - {id: anchor, op: anchor, frame: fx1_ember_harness, at: caster, orient: yaw, follow: true}
+        - {id: anchor_2, op: anchor, frame: fx2_ember_flare_guard, at: caster, orient: yaw}
         - op: block
           parent: fx2_ember_flare_guard
           block: orange_stained_glass
@@ -255,6 +255,7 @@ presentation:
     - id: fx111
       at: 111
       do:
+        - {id: anchor_3, op: anchor, frame: fx3_ember_counter_sweep, at: caster, orient: yaw, follow: true}
         - {id: fx3_ember_counter_sweep_embers_atrk, op: track, target: fx3_ember_counter_sweep_embers_at, space: fx3_ember_counter_sweep, keys: [{t: 0, offset: [0, 1.1, 2.2]}]}
         - {op: block, parent: fx3_ember_counter_sweep, block: yellow_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx3_ember_counter_sweep_pressure_hoop_s0}
         - id: fx3_ember_counter_sweep_pressure_hoop_s0_trk
@@ -511,6 +512,7 @@ presentation:
     - {id: loop2, at: 111, every: 1, for: 8, do: [{id: fx3_ember_counter_sweep_gauntlet_fire, op: emit, at: pt_fx3_ember_counter_sweep_gauntlet_0_2p65_0, particle: ember-fine-spark}]}
   "on":
     hit:
+      - {id: anchor_4, op: anchor, frame: fx4_ember_hoop_hit, at: contact.point, orient: look, when: "= event.source == 'sel'"}
       - op: block
         parent: fx4_ember_hoop_hit
         block: orange_stained_glass

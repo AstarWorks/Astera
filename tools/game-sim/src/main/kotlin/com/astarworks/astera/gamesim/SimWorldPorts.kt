@@ -14,6 +14,7 @@ import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.effect.DisplayKind
 import com.astarworks.astera.core.domain.effect.DisplaySpec
 import com.astarworks.astera.core.domain.effect.DisplayTransform
+import com.astarworks.astera.core.domain.effect.vfx.VfxLane
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.domain.world.WorldId
@@ -183,9 +184,20 @@ public class SimDisplayGateway(
         renderedLines: List<String>,
         anchor: com.astarworks.astera.core.domain.player.PlayerId,
         offset: Vec3,
+        lane: VfxLane,
     ): IDisplayEntityGateway.DisplayHandle {
         val handle = spawn(world, offset, spec, renderedLines)
         attached[handle] = anchor
+        lanes[handle] = lane
+        return handle
+    }
+
+    /** The lane each display was spawned with (v1 `lane`; the sim shows every viewer everything). */
+    public val lanes: MutableMap<IDisplayEntityGateway.DisplayHandle, VfxLane> = linkedMapOf()
+
+    override fun spawnLaned(world: WorldId, at: Vec3, spec: DisplaySpec, renderedLines: List<String>, lane: VfxLane, owner: com.astarworks.astera.core.domain.player.PlayerId?): IDisplayEntityGateway.DisplayHandle {
+        val handle = spawn(world, at, spec, renderedLines)
+        lanes[handle] = lane
         return handle
     }
 

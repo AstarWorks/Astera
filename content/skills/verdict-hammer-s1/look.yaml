@@ -1,7 +1,5 @@
 # Converted from content/skills/verdict-hammer-s1.yaml + content/vfx/* by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
 # Generated point-frame offsets are [left, up, forward] in the parent frame.
-# CONVERT-PRESENT vfx follow=false (anchored at world, no place-at-spawn) (x3): verdict-s1-gavel | verdict-impact
-# CONVERT-PRESENT vfx frame orient (frames carry no orientation / scale) (x3): orient="yaw" | orient="world"
 # CONVERT-PRESENT rig respect_hit_stop / weapon points (x2): {"respect_hit_stop": true}
 # CONVERT-PRESENT rig block parts (mesh takes an item model, not a block + size) (x2): 6 parts
 # CONVERT-PRESENT rig swing without a weapon mesh (track needs a visual to move) (x2): 21 keys
@@ -21,6 +19,7 @@ frames:
   - {id: pt_fx3_verdict_s1_echo_hammer_0_3_0, kind: point, parent: fx3_verdict_s1_echo_hammer, offset: [0.0, 3.0, 0.0]}
 presentation:
   timeline:
+    - {id: fx0, at: 0, do: [{id: anchor, op: anchor, frame: fx1_verdict_s1_gavel, at: caster, orient: yaw}]}
     - id: fx5
       at: 5
       do:
@@ -34,6 +33,7 @@ presentation:
             - {from: 0.85, to: 1.0, color: "#fff4c7", alpha: 0.937, color_to: "#d5ac60"}
           step_deg: 18.0
     - {id: fx15, at: 15, do: [{id: rm, op: remove, ids: [fx1_verdict_s1_gavel_hammer_gold_fan]}]}
+    - {id: fx16, at: 16, do: [{id: anchor_3, op: anchor, frame: fx3_verdict_s1_echo, at: caster, orient: yaw}]}
     - id: fx21
       at: 21
       do:
@@ -112,6 +112,7 @@ presentation:
     - {id: fxhit_12, at: "hit+12", do: [{id: rm_4, op: remove, ids: [fx2_verdict_impact_dark0, fx2_verdict_impact_dark1, fx2_verdict_impact_dark2], when: "= event.source == 'sel'"}]}
   "on":
     hit:
+      - {id: anchor_2, op: anchor, frame: fx2_verdict_impact, at: contact.point, orient: world, when: "= event.source == 'sel'"}
       - op: quad
         parent: fx2_verdict_impact
         face: {viewer: center}

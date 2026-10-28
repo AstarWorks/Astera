@@ -1,15 +1,13 @@
 # Converted from content/skills/gossamer-katana-ego.yaml + content/vfx/* by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
 # Generated point-frame offsets are [left, up, forward] in the parent frame.
-# CONVERT-PRESENT vfx frame orient (frames carry no orientation / scale) (x6): orient="yaw"
 # CONVERT-PRESENT rig respect_hit_stop / weapon points (x3): {"respect_hit_stop": true}
 # CONVERT-PRESENT rig block parts (mesh takes an item model, not a block + size) (x3): 3 parts
 # CONVERT-PRESENT rig swing without a weapon mesh (track needs a visual to move) (x3): 5 keys | 10 keys
-# CONVERT-PRESENT vfx follow=false (anchored at world, no place-at-spawn) (x5): gossamer-katana-guard | gossamer-katana-iaido-line
 apiVersion: "astera/v2"
 kind: Skill
 id: gossamer-katana-ego
 frames:
-  - {id: fx1_gossamer_katana_draw, kind: body, parent: caster}
+  - {id: fx1_gossamer_katana_draw, kind: body, parent: world}
   - {id: fx1_gossamer_katana_draw_katana, kind: body, parent: caster.right_hand}
   - {id: fx2_gossamer_katana_guard, kind: body, parent: world}
   - {id: fx3_gossamer_katana_iaido_line, kind: body, parent: world}
@@ -28,6 +26,8 @@ presentation:
     - id: fx0
       at: 0
       do:
+        - {id: anchor, op: anchor, frame: fx1_gossamer_katana_draw, at: caster, orient: yaw, follow: true}
+        - {id: anchor_2, op: anchor, frame: fx2_gossamer_katana_guard, at: caster, orient: yaw}
         - {op: block, parent: fx2_gossamer_katana_guard, block: cyan_stained_glass, size: [1.0, 1.0, 1.0], brightness: 15, id: fx2_gossamer_katana_guard_echo_0}
         - id: fx2_gossamer_katana_guard_echo_0_trk
           op: track
@@ -75,6 +75,7 @@ presentation:
     - id: fx20
       at: 20
       do:
+        - {id: anchor_3, op: anchor, frame: fx3_gossamer_katana_iaido_line, at: caster, orient: yaw}
         - {op: block, parent: fx3_gossamer_katana_iaido_line, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx3_gossamer_katana_iaido_line_core}
         - id: fx3_gossamer_katana_iaido_line_core_trk
           op: track
@@ -114,6 +115,7 @@ presentation:
             - {t: 1, scale: [0.08, 2.8, 0.04], ease: out_expo}
             - {t: 5, scale: [0.0, 0.0, 0.0], ease: in_quad}
     - {id: fx26, at: 26, do: [{id: rm_2, op: remove, ids: [fx3_gossamer_katana_iaido_line_glint]}]}
+    - {id: fx30, at: 30, do: [{id: anchor_4, op: anchor, frame: fx4_gossamer_katana_slash_up, at: caster, orient: yaw}]}
     - id: fx32
       at: 32
       do:
@@ -127,6 +129,7 @@ presentation:
             - {from: 0.0, to: 1.0, color: "#14245f", alpha: 0.933, color_to: "#7c36a8"}
           step_deg: 20.0
     - {id: fx40, at: 40, do: [{id: rm_6, op: remove, ids: [fx4_gossamer_katana_slash_up_katana_crescent]}]}
+    - {id: fx42, at: 42, do: [{id: anchor_5, op: anchor, frame: fx5_gossamer_katana_slash_down, at: caster, orient: yaw}]}
     - id: fx44
       at: 44
       do:
@@ -144,6 +147,7 @@ presentation:
     - id: fx60
       at: 60
       do:
+        - {id: anchor_6, op: anchor, frame: fx6_gossamer_katana_scar, at: pt_caster_0_m1p62_3p6, orient: yaw}
         - {op: block, parent: fx6_gossamer_katana_scar, block: black_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx6_gossamer_katana_scar_ink}
         - id: fx6_gossamer_katana_scar_ink_trk
           op: track

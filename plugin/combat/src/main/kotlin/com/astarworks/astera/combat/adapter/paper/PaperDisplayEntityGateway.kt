@@ -18,6 +18,8 @@ import com.astarworks.astera.core.domain.effect.DisplayKind
 import com.astarworks.astera.core.domain.effect.DisplaySpec
 import com.astarworks.astera.core.domain.effect.DisplayTransform
 import com.astarworks.astera.core.domain.effect.WeaponRigShading
+import com.astarworks.astera.core.domain.effect.vfx.VfxLane
+import com.astarworks.astera.core.domain.effect.vfx.VfxQualityProfile
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.world.WorldId
 import com.astarworks.astera.core.domain.player.PlayerId
@@ -67,7 +69,7 @@ public class PaperDisplayEntityGateway(
     private val attachments = mutableMapOf<DisplayHandle, Attachment>()
     private val weaponStacks = mutableMapOf<DisplayHandle, ItemStack>()
 
-    override fun spawnAttached(world: WorldId, spec: DisplaySpec, renderedLines: List<String>, anchor: PlayerId, offset: Vec3): DisplayHandle? {
+    override fun spawnAttached(world: WorldId, spec: DisplaySpec, renderedLines: List<String>, anchor: PlayerId, offset: Vec3, lane: VfxLane): DisplayHandle? {
         val player = server.getPlayer(anchor.uuid) ?: return null
         if (spec.billboard != DisplayBillboard.FIXED || player.world.name != world.value) return null
         val location = player.location
@@ -76,13 +78,14 @@ public class PaperDisplayEntityGateway(
         // Both the spawn position and its first metadata must already use the riding origin:
         // a post-spawn correction can otherwise render a frame below the player's feet.
         val initial = spec.transform.copy(translation = spec.transform.translation + offset - Vec3(0.0, height, 0.0))
-        val handle = spawn(world, origin, spec.copy(transform = initial), renderedLines, player) ?: return null
+        val handle = spawn(world, origin, spec.copy(transform = initial), renderedLines, player, hidden = lane != VfxLane.CORE) ?: return null
         val display = server.getEntity(handle.id) as? Display ?: return null
         if (!player.addPassenger(display)) {
             remove(handle)
             return null
         }
         attachments[handle] = Attachment(anchor, player.world, offset, spec.transform, height, spec.kind is DisplayKind.SkinBone)
+        if (lane != VfxLane.CORE) reveal(display, lane, anchor)
         return handle
     }
 
@@ -107,6 +110,29 @@ public class PaperDisplayEntityGateway(
 
     override fun spawn(world: WorldId, at: Vec3, spec: DisplaySpec, renderedLines: List<String>): DisplayHandle? =
         spawn(world, at, spec, renderedLines, null)
+
+    /**
+     * Lane-scoped spawn (v1 PaperDisplayEntityGateway.spawn(... lane)). The display is created `visibleByDefault = false` (before
+     * it is added to the world, so no tracker sends it unasked) and revealed with `Player.showEntity` to the nearby players and
+     * [owner] whose `vfx_intensity` admits [lane]; each reveal runs on that viewer's entity scheduler.
+     */
+    override fun spawnLaned(world: WorldId, at: Vec3, spec: DisplaySpec, renderedLines: List<String>, lane: VfxLane, owner: PlayerId?): DisplayHandle? {
+        if (lane == VfxLane.CORE) return spawn(world, at, spec, renderedLines)
+        val handle = spawn(world, at, spec, renderedLines, null, hidden = true) ?: return null
+        val display = server.getEntity(handle.id) as? Display ?: return handle
+        reveal(display, lane, owner)
+        return handle
+    }
+
+    private fun reveal(display: Display, lane: VfxLane, owner: PlayerId?) {
+        val nearby = display.world.getNearbyPlayers(display.location, VIEWER_RADIUS).map { PlayerId(it.uniqueId) }
+        val candidates = LinkedHashSet<PlayerId>(nearby).also { if (owner != null) it += owner }
+        for (viewer in VfxQualityProfile.filterViewers(candidates, lane, intensityOf)) {
+            scheduler.run(ExecutionScope.Entity(viewer.uuid), ticks(0)) {
+                server.getPlayer(viewer.uuid)?.takeIf { display.isValid }?.showEntity(plugin, display)
+            }
+        }
+    }
 
     private fun spawn(world: WorldId, at: Vec3, spec: DisplaySpec, renderedLines: List<String>, owner: Player?, hidden: Boolean = false): DisplayHandle? {
         val bukkitWorld = server.getWorld(world.value) ?: return null

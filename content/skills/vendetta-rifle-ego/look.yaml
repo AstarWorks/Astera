@@ -1,17 +1,15 @@
 # Converted from content/skills/vendetta-rifle-ego.yaml + content/vfx/* by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
 # Generated point-frame offsets are [left, up, forward] in the parent frame.
-# CONVERT-PRESENT vfx frame orient (frames carry no orientation / scale) (x18): orient="yaw"
 # CONVERT-PRESENT rig respect_hit_stop / weapon points (x6): {"respect_hit_stop": true}
 # CONVERT-PRESENT rig block parts (mesh takes an item model, not a block + size) (x6): 11 parts
 # CONVERT-PRESENT rig swing without a weapon mesh (track needs a visual to move) (x6): 17 keys
-# CONVERT-PRESENT vfx follow=false (anchored at world, no place-at-spawn) (x17): vendetta-slash-b | vendetta-thrust-flash
 # CONVERT-PRESENT play_vfx freeze (no v2 equivalent) (x5): [{"at": 5, "ticks": 2}]
-# CONVERT-PRESENT vfx frame scale (frames carry no orientation / scale) (x2): scale=0.65
+# CONVERT-PRESENT vfx frame scale (frames carry no scale) (x2): scale=0.65
 apiVersion: "astera/v2"
 kind: Skill
 id: vendetta-rifle-ego
 frames:
-  - {id: fx1_vendetta_ready, kind: body, parent: caster}
+  - {id: fx1_vendetta_ready, kind: body, parent: world}
   - {id: fx1_vendetta_ready_bayonet, kind: body, parent: caster.right_hand}
   - {id: pt_fx1_vendetta_ready_bayonet_0_1p5_0, kind: point, parent: fx1_vendetta_ready_bayonet, offset: [0.0, 1.5, 0.0]}
   - {id: fx2_vendetta_slash_b, kind: body, parent: world}
@@ -101,9 +99,11 @@ frames:
 presentation:
   timeline:
     - {id: fx0, at: 0, do: [{id: snd, op: sound, sound: item.crossbow.loading_end, at: caster, pitch: 0.7}]}
+    - {id: fx1, at: 1, do: [{id: anchor, op: anchor, frame: fx1_vendetta_ready, at: caster, orient: yaw, follow: true}]}
     - id: fx35
       at: 35
       do:
+        - {id: anchor_17, op: anchor, frame: fx17_vendetta_burst, at: caster, orient: yaw}
         - {op: block, parent: fx17_vendetta_burst, block: black_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx17_vendetta_burst_dark_0}
         - id: fx17_vendetta_burst_dark_0_trk
           op: track
@@ -337,6 +337,7 @@ presentation:
             - fx17_vendetta_burst_red_3
             - fx17_vendetta_burst_dark_4
             - fx17_vendetta_burst_red_4
+    - {id: fx48, at: 48, do: [{id: anchor_2, op: anchor, frame: fx2_vendetta_slash_b, at: caster, orient: yaw}]}
     - id: fx49
       at: 49
       do:
@@ -357,6 +358,7 @@ presentation:
         - {id: fx2_vendetta_slash_b_contact_atrk, op: track, target: fx2_vendetta_slash_b_contact_at, space: fx2_vendetta_slash_b, keys: [{t: 0, offset: [0, 1.1, 2.1]}]}
         - {id: fx2_vendetta_slash_b_petals_atrk, op: track, target: fx2_vendetta_slash_b_petals_at, space: fx2_vendetta_slash_b, keys: [{t: 0, offset: [0, 1.1, 2.1]}]}
         - {id: snd_2, op: sound, sound: entity.player.attack.sweep, at: caster, pitch: 1.1}
+        - {id: anchor_3, op: anchor, frame: fx3_vendetta_thrust_flash, at: caster, orient: yaw}
         - {op: block, parent: fx3_vendetta_thrust_flash, block: black_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx3_vendetta_thrust_flash_rim}
         - id: fx3_vendetta_thrust_flash_rim_trk
           op: track
@@ -382,6 +384,7 @@ presentation:
             - {t: 1, scale: [0.06, 0.07, 3.1], ease: out_expo}
             - {t: 7, scale: [0.0, 0.0, 3.1], ease: in_quad}
         - {id: snd_3, op: sound, sound: entity.generic.explode, at: caster, volume: 0.5, pitch: 1.5}
+        - {id: anchor_4, op: anchor, frame: fx4_vendetta_burst, at: caster, orient: yaw}
         - {op: block, parent: fx4_vendetta_burst, block: black_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx4_vendetta_burst_dark_0}
         - id: fx4_vendetta_burst_dark_0_trk
           op: track
@@ -620,6 +623,7 @@ presentation:
             - fx4_vendetta_burst_red_3
             - fx4_vendetta_burst_dark_4
             - fx4_vendetta_burst_red_4
+    - {id: fx66, at: 66, do: [{id: anchor_5, op: anchor, frame: fx5_vendetta_slash_b, at: caster, orient: yaw}]}
     - id: fx67
       at: 67
       do:
@@ -640,6 +644,7 @@ presentation:
         - {id: fx5_vendetta_slash_b_contact_atrk, op: track, target: fx5_vendetta_slash_b_contact_at, space: fx5_vendetta_slash_b, keys: [{t: 0, offset: [0, 1.1, 2.1]}]}
         - {id: fx5_vendetta_slash_b_petals_atrk, op: track, target: fx5_vendetta_slash_b_petals_at, space: fx5_vendetta_slash_b, keys: [{t: 0, offset: [0, 1.1, 2.1]}]}
         - {id: snd_4, op: sound, sound: entity.player.attack.sweep, at: caster, pitch: 1.1}
+        - {id: anchor_6, op: anchor, frame: fx6_vendetta_thrust_flash, at: caster, orient: yaw}
         - {op: block, parent: fx6_vendetta_thrust_flash, block: black_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx6_vendetta_thrust_flash_rim}
         - id: fx6_vendetta_thrust_flash_rim_trk
           op: track
@@ -665,6 +670,7 @@ presentation:
             - {t: 1, scale: [0.06, 0.07, 3.1], ease: out_expo}
             - {t: 7, scale: [0.0, 0.0, 3.1], ease: in_quad}
         - {id: snd_5, op: sound, sound: entity.generic.explode, at: caster, volume: 0.5, pitch: 1.5}
+        - {id: anchor_7, op: anchor, frame: fx7_vendetta_burst, at: caster, orient: yaw}
         - {op: block, parent: fx7_vendetta_burst, block: black_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx7_vendetta_burst_dark_0}
         - id: fx7_vendetta_burst_dark_0_trk
           op: track
@@ -903,6 +909,7 @@ presentation:
             - fx7_vendetta_burst_red_3
             - fx7_vendetta_burst_dark_4
             - fx7_vendetta_burst_red_4
+    - {id: fx103, at: 103, do: [{id: anchor_8, op: anchor, frame: fx8_vendetta_slash_a, at: caster, orient: yaw}]}
     - id: fx104
       at: 104
       do:
@@ -923,6 +930,7 @@ presentation:
         - {id: fx8_vendetta_slash_a_contact_atrk, op: track, target: fx8_vendetta_slash_a_contact_at, space: fx8_vendetta_slash_a, keys: [{t: 0, offset: [0, 1.1, 2.1]}]}
         - {id: fx8_vendetta_slash_a_petals_atrk, op: track, target: fx8_vendetta_slash_a_petals_at, space: fx8_vendetta_slash_a, keys: [{t: 0, offset: [0, 1.1, 2.1]}]}
         - {id: snd_6, op: sound, sound: entity.player.attack.sweep, at: caster, pitch: 1.1}
+        - {id: anchor_9, op: anchor, frame: fx9_vendetta_thrust_flash, at: caster, orient: yaw}
         - {op: block, parent: fx9_vendetta_thrust_flash, block: black_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx9_vendetta_thrust_flash_rim}
         - id: fx9_vendetta_thrust_flash_rim_trk
           op: track
@@ -948,6 +956,7 @@ presentation:
             - {t: 1, scale: [0.06, 0.07, 3.1], ease: out_expo}
             - {t: 7, scale: [0.0, 0.0, 3.1], ease: in_quad}
         - {id: snd_7, op: sound, sound: entity.generic.explode, at: caster, volume: 0.5, pitch: 1.5}
+        - {id: anchor_10, op: anchor, frame: fx10_vendetta_burst, at: caster, orient: yaw}
         - {op: block, parent: fx10_vendetta_burst, block: black_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx10_vendetta_burst_dark_0}
         - id: fx10_vendetta_burst_dark_0_trk
           op: track
@@ -1186,6 +1195,7 @@ presentation:
             - fx10_vendetta_burst_red_3
             - fx10_vendetta_burst_dark_4
             - fx10_vendetta_burst_red_4
+    - {id: fx136, at: 136, do: [{id: anchor_11, op: anchor, frame: fx11_vendetta_slash_b, at: caster, orient: yaw}]}
     - id: fx137
       at: 137
       do:
@@ -1206,6 +1216,7 @@ presentation:
         - {id: fx11_vendetta_slash_b_contact_atrk, op: track, target: fx11_vendetta_slash_b_contact_at, space: fx11_vendetta_slash_b, keys: [{t: 0, offset: [0, 1.1, 2.1]}]}
         - {id: fx11_vendetta_slash_b_petals_atrk, op: track, target: fx11_vendetta_slash_b_petals_at, space: fx11_vendetta_slash_b, keys: [{t: 0, offset: [0, 1.1, 2.1]}]}
         - {id: snd_8, op: sound, sound: entity.player.attack.sweep, at: caster, pitch: 1.1}
+        - {id: anchor_12, op: anchor, frame: fx12_vendetta_thrust_flash, at: caster, orient: yaw}
         - {op: block, parent: fx12_vendetta_thrust_flash, block: black_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx12_vendetta_thrust_flash_rim}
         - id: fx12_vendetta_thrust_flash_rim_trk
           op: track
@@ -1231,6 +1242,7 @@ presentation:
             - {t: 1, scale: [0.06, 0.07, 3.1], ease: out_expo}
             - {t: 7, scale: [0.0, 0.0, 3.1], ease: in_quad}
         - {id: snd_9, op: sound, sound: entity.generic.explode, at: caster, volume: 0.5, pitch: 1.5}
+        - {id: anchor_13, op: anchor, frame: fx13_vendetta_burst, at: caster, orient: yaw}
         - {op: block, parent: fx13_vendetta_burst, block: black_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx13_vendetta_burst_dark_0}
         - id: fx13_vendetta_burst_dark_0_trk
           op: track
@@ -1472,6 +1484,7 @@ presentation:
     - id: fx184
       at: 184
       do:
+        - {id: anchor_18, op: anchor, frame: fx18_vendetta_burst, at: caster, orient: yaw}
         - {op: block, parent: fx18_vendetta_burst, block: black_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx18_vendetta_burst_dark_0}
         - id: fx18_vendetta_burst_dark_0_trk
           op: track
@@ -1705,6 +1718,7 @@ presentation:
             - fx18_vendetta_burst_red_3
             - fx18_vendetta_burst_dark_4
             - fx18_vendetta_burst_red_4
+    - {id: fx226, at: 226, do: [{id: anchor_14, op: anchor, frame: fx14_vendetta_slash_a, at: caster, orient: yaw}]}
     - id: fx227
       at: 227
       do:
@@ -1725,6 +1739,7 @@ presentation:
         - {id: fx14_vendetta_slash_a_contact_atrk, op: track, target: fx14_vendetta_slash_a_contact_at, space: fx14_vendetta_slash_a, keys: [{t: 0, offset: [0, 1.1, 2.1]}]}
         - {id: fx14_vendetta_slash_a_petals_atrk, op: track, target: fx14_vendetta_slash_a_petals_at, space: fx14_vendetta_slash_a, keys: [{t: 0, offset: [0, 1.1, 2.1]}]}
         - {id: snd_10, op: sound, sound: entity.player.attack.sweep, at: caster, pitch: 1.1}
+        - {id: anchor_15, op: anchor, frame: fx15_vendetta_thrust_flash, at: caster, orient: yaw}
         - {op: block, parent: fx15_vendetta_thrust_flash, block: black_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx15_vendetta_thrust_flash_rim}
         - id: fx15_vendetta_thrust_flash_rim_trk
           op: track
@@ -1750,6 +1765,7 @@ presentation:
             - {t: 1, scale: [0.06, 0.07, 3.1], ease: out_expo}
             - {t: 7, scale: [0.0, 0.0, 3.1], ease: in_quad}
         - {id: snd_11, op: sound, sound: entity.generic.explode, at: caster, volume: 0.5, pitch: 1.5}
+        - {id: anchor_16, op: anchor, frame: fx16_vendetta_burst, at: caster, orient: yaw}
         - {op: block, parent: fx16_vendetta_burst, block: black_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx16_vendetta_burst_dark_0}
         - id: fx16_vendetta_burst_dark_0_trk
           op: track
