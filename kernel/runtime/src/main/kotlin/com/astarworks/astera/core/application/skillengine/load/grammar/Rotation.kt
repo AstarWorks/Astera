@@ -6,20 +6,6 @@ import com.astarworks.astera.core.domain.geometry.math.Quaternion
 import com.astarworks.astera.core.domain.skillengine.expr.ExprType
 import com.astarworks.astera.core.domain.skillengine.model.Value
 
-/**
- * The one place that states which way a positive angle turns (ADR-0303 section 0). The founder decides the "clockwise" reference
- * (camera vs top-down); until then it is this constant and nothing else in the loader mentions a direction.
- */
-public object RotationConvention {
-    /** `deg > 0` is the right-hand rule: counter-clockwise looking from the axis tip toward the origin. */
-    public const val POSITIVE_DEG_IS_COUNTER_CLOCKWISE_FROM_AXIS_TIP: Boolean = true
-
-    /** Sign applied to a magnitude to get the signed `deg` of a CLOCKWISE turn seen from the axis tip (the only cw definition). */
-    public const val CW_DEG_SIGN: Double = -1.0
-
-    public fun clockwiseDeg(magnitude: Double): Double = CW_DEG_SIGN * magnitude
-}
-
 /** Resolves the axis name of a turn to a unit vector in the frame's LOCAL basis; null = unknown here. */
 public fun interface AxisResolver {
     public fun axis(name: String): Vec3?
@@ -81,7 +67,7 @@ public object Rotations {
     private val AXIS_NAMES = setOf("forward", "back", "up", "down", "left", "right", "long", "edge", "face")
 
     public val axisField: Field<String> = Field.required("axis", Types.id, "forward|back|up|down|left|right|long|edge|face, optionally '<frame>.' prefixed and '-' negated")
-    public val degField: Field<Value<Double>> = Field.required("deg", Types.number, "degrees, right-handed (see RotationConvention)")
+    public val degField: Field<Value<Double>> = Field.required("deg", Types.number, "degrees, plain right-handed about the axis tip (counter-clockwise looking from the tip toward the origin); a swing direction is not written with this, see RigSwings")
     public val turn: Fields = Fields.of("rotate-step", axisField, degField)
 
     public val type: FieldType<Rotation> = object : FieldType<Rotation> {
