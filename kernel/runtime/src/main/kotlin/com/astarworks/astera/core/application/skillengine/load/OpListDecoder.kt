@@ -116,7 +116,51 @@ public class OpListDecoder(private val specs: OpSpecRegistry) {
             }
             if (own) continue
             if (raw.size != n) ctx.abortWith(SkillDecodeError.Invalid(ctx.file, "$p.${f.name}", "per-index list has ${raw.size} entries but times is $n (one entry per copy)"))
+            if (raw.isNotEmpty() && raw.all { it is Map<*, *> }) {
+                body[f.name] = indexedFrameVec(raw.map { it as Map<*, *> }, ctx, "$p.${f.name}")
+                continue
+            }
+            if (raw.isNotEmpty() && raw.all { e -> e is List<*> && e.isNotEmpty() && e.all { it is Map<*, *> } }) {
+                body[f.name] = indexedTurns(raw.map { e -> (e as List<*>).map { it as Map<*, *> } }, ctx, "$p.${f.name}")
+                continue
+            }
             body[f.name] = "= [" + raw.mapIndexed { k, e -> indexedEntry(e, ctx, "$p.${f.name}[$k]") }.joinToString(", ") + "][int(i)]"
+        }
+    }
+
+    /** A per-index list of frame-vec maps `{left, up, forward}`: one `= [..][int(i)]` per axis (a missing axis is 0), so the field keeps its frame-vec shape. */
+    private fun indexedFrameVec(entries: List<Map<*, *>>, ctx: GrammarContext, path: String): Map<String, Any?> {
+        val axes = listOf("left", "up", "forward")
+        entries.forEachIndexed { k, m ->
+            m.keys.firstOrNull { it !in axes }?.let { ctx.fail("$path[$k]", "unknown frame-vector axis '$it' (expected left, up, forward)") }
+        }
+        val out = linkedMapOf<String, Any?>()
+        for (a in axes) {
+            if (entries.none { a in it }) continue
+            out[a] = "= [" + entries.mapIndexed { k, m -> indexedEntry(m[a] ?: 0.0, ctx, "$path[$k].$a") }.joinToString(", ") + "][int(i)]"
+        }
+        return out
+    }
+
+    /**
+     * A per-index list of rotations (each a turn list): the turns must name the same axes in the same order for every copy
+     * (only the angles differ), so each turn keeps its axis and gets `deg: = [..][int(i)]`.
+     */
+    private fun indexedTurns(entries: List<List<Map<*, *>>>, ctx: GrammarContext, path: String): List<Map<String, Any?>> {
+        val first = entries[0]
+        entries.forEachIndexed { k, turns ->
+            if (turns.size != first.size) ctx.fail("$path[$k]", "per-index rotation has ${turns.size} turns but entry 0 has ${first.size}; every copy turns the same axes")
+            turns.forEachIndexed { t, m ->
+                if (m["axis"] != first[t]["axis"] || m["frame"] != first[t]["frame"]) {
+                    ctx.fail("$path[$k][$t]", "per-index rotation changes axis/frame between copies; only the angle may vary per copy")
+                }
+            }
+        }
+        return first.indices.map { t ->
+            val turn = linkedMapOf<String, Any?>()
+            first[t].forEach { (key, v) -> if (key != "deg") turn[key.toString()] = v }
+            turn["deg"] = "= [" + entries.mapIndexed { k, turns -> indexedEntry(turns[t]["deg"], ctx, "$path[$k][$t].deg") }.joinToString(", ") + "][int(i)]"
+            turn
         }
     }
 
