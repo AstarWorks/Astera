@@ -8,7 +8,8 @@
 Reads  content/skills/<id>.yaml (v1), content/vfx/<id>.yaml, content/items/*.yaml (item binding).
 Writes content/skills/<id>/skill.yaml  (kind: Skill: id, item, frames, gameplay)
        content/skills/<id>/look.yaml   (kind: Skill, same id: frames + presentation; the composer merges by id)
-Never writes content/models, never overwrites a skill that is already v2 (couture-rapier-s2 coin 2 and its children).
+Never writes content/models, never overwrites a hand-built v2 skill (couture-rapier-s2 and its children): for those it
+writes tools/skill-convert/protected-diff.txt, what their v1 data has that the v2 files lack.
 
 The output targets the REAL v2 decoder grammar (kernel/runtime/.../skillengine/load/**): only ops, fields and target
 forms those decoders accept are emitted. Where v1 has something the engine lacks, nothing is emitted for it and a
@@ -102,6 +103,7 @@ class Conv:
         self.look_frames = OrderedDict()
         self.g_rows = {}  # (event|None, tick) -> ops
         self.p_rows = {}
+        self.p_reps = []  # (at, every, for_ticks, op): bounded repeating presentation rows
         self.g_on = OrderedDict()
         self.p_on = OrderedDict()
         self.id_counts = {}
@@ -196,6 +198,19 @@ class Conv:
 
     def p(self, where, delay, op):
         self._put("p", where, delay, op)
+
+    def rep(self, where, delay, every, span, op):
+        """A presentation op that repeats every `every` ticks for `span` ticks (v1 `start..end` element / emitter): a
+        timeline row `{at, every, for}`. At `span <= every` it is one firing and goes through the plain row path."""
+        if span <= every or where.kind == "nested":
+            self._put("p", where, delay, op)
+            return
+        if where.guard:
+            cur = op.get("when")
+            g = where.guard
+            op["when"] = ("= (" + g[2:] + ") && (" + cur[2:] + ")") if cur else g
+        at = delay + self.windup if where.kind == "cast" else (delay if where.event is None else where.event if delay == 0 else "%s+%d" % (where.event, delay))
+        self.p_reps.append((at, every, span, op))
 
     # ---------- targets ----------
     def point(self, tg, where, side="p"):
@@ -673,8 +688,12 @@ class Conv:
             op = {"id": eid, "op": "plate", "parent": fid, "face": face, "sprite": kind["sprite"]}
             if "alpha" in kind:
                 op["alpha"] = kind["alpha"]
-            if kind.get("frame_ticks", 1) != 1 or kind.get("loop") or "color" in kind:
-                self.present("sprite frame_ticks / loop / color (plate has sprite, size_frac, alpha)", short({k: kind.get(k) for k in ("frame_ticks", "loop", "color")}, 60))
+            if kind.get("frame_ticks", 1) != 1:
+                op["frame_ticks"] = int(kind["frame_ticks"])
+            if kind.get("loop"):
+                op["loop"] = True
+            if "color" in kind:
+                op["color"] = color_hex(kind["color"])
         elif kt == "particle":
             op = {"id": eid, "op": "emit", "at": fid, "particle": kind["particle_id"], "count": 1}
             if "along_path" in kind:
@@ -699,7 +718,10 @@ class Conv:
         if op is None:
             return
         kfs = el.get("keyframes", [])
-        self.p(where, at, self._w(op, when))
+        if kt == "particle":
+            self.rep(where, at, max(1, int(kind.get("every_ticks", 1))), end - start, self._w(op, when))
+        else:
+            self.p(where, at, self._w(op, when))
         if kfs and any(x in k for k in kfs for x in ("translate", "rotate", "scale")) and op["op"] in ("mesh", "plate", "line"):
             self.p(where, at, self._w({"id": eid + "_trk", "op": "track", "target": eid, "space": fid, "keys": self.keys(kfs)}, when))
             for k in kfs:
@@ -709,8 +731,6 @@ class Conv:
                         break
         elif kfs and kt != "particle":
             self.present("element keyframes without a transform (alpha / colour only)")
-        if kt == "particle" and end - start > 1:
-            self.present("repeating particle element (emit is one burst)", "every=%s ticks=%s" % (kind.get("every_ticks", 1), end - start))
         if op["op"] in ("mesh", "plate", "line"):
             removes.setdefault(end, []).append(eid)
 
@@ -722,15 +742,20 @@ class Conv:
             self.present("rig parent %s is not a known frame: anchored at caster" % pr)
             pr = "caster"
         self.look_frames[rid] = {"id": rid, "kind": "body", "parent": pr}
-        extras = [k for k in ("pivot", "rest", "tilt", "respect_hit_stop", "weapon_model", "weapon_tip", "weapon_root", "weapon_edge") if k in r]
+        extras = [k for k in ("respect_hit_stop", "weapon_model", "weapon_tip", "weapon_root", "weapon_edge") if k in r]
         if extras:
-            self.present("rig pivot / rest / tilt / respect_hit_stop / weapon points (frames carry no pivot or rest pose)", short({k: r[k] for k in extras}, 80))
+            self.present("rig respect_hit_stop / weapon points", short({k: r[k] for k in extras}, 80))
         start = delay + int(r.get("start_tick", 0))
         end = int(r.get("end_tick", dur))
         first = None
         if r.get("weapon"):
             first = rid + "_weapon"
-            self.p(where, start, self._w({"id": first, "op": "mesh", "frame": rid, "item": r["weapon"]}, when))
+            mesh = {"id": first, "op": "mesh", "frame": rid, "item": r["weapon"]}
+            for key in ("pivot", "rest", "tilt"):
+                val = r.get(key)
+                if val and any(float(x) != 0.0 for x in val):
+                    mesh[key] = [float(x) for x in val]
+            self.p(where, start, self._w(mesh, when))
             removes.setdefault(end, []).append(first)
         if r.get("parts"):
             self.present("rig block parts (mesh takes an item model, not a block + size)", "%d parts" % len(r["parts"]))
@@ -749,16 +774,19 @@ class Conv:
             a = self.pframe(rid, tr["from"], "p")
             b = self.pframe(rid, tr["to"], "p")
             op = {"id": "%s_%s" % (rid, sid(tr["id"])), "op": "trail", "of": b, "root": a, "ticks": tr["life_ticks"]}
-            extra = [k for k in ("style", "step_deg", "bands", "edge", "dark_rim", "fade_power", "lag_ticks", "double_sided") if k in tr]
+            if tr.get("style", "soft") != "soft":
+                op["style"] = tr["style"]
+            if "fade_power" in tr and float(tr["fade_power"]) != 1.0:
+                op["fade"] = float(tr["fade_power"])
+            extra = [k for k in ("step_deg", "bands", "edge", "dark_rim", "lag_ticks", "double_sided") if k in tr]
             if extra:
-                self.present("trail style / bands / edge / fade (trail has width_frac, color, alpha only)", short({k: tr[k] for k in extra}, 80))
+                self.present("trail bands / edge / dark_rim / step_deg / lag_ticks / double_sided (trail has style, fade, width_frac, color, alpha)", short({k: tr[k] for k in extra}, 80))
             self.p(where, delay + int(tr["start_t"]), self._w(op, when))
             removes.setdefault(int(tr["end_t"]) + int(tr["life_ticks"]), []).append(op["id"])
         for em in r.get("emitters", []):
             pt = self.pframe(rid, em["point"], "p")
             op = {"id": "%s_%s" % (rid, sid(em["id"])), "op": "emit", "at": pt, "particle": em["particle_id"], "count": 1}
-            self.p(where, delay + int(em["start_t"]), self._w(op, when))
-            self.present("rig emitter repeats (emit is one burst)", "ticks=%d" % (int(em["end_t"]) - int(em["start_t"])))
+            self.rep(where, delay + int(em["start_t"]), 1, int(em["end_t"]) - int(em["start_t"]), self._w(op, when))
 
 
 # ---------------------------------------------------------------- skill-level driver
@@ -1003,6 +1031,8 @@ def build_docs(c, d, item, items):
     pt = rows_out(prows, "fx")
     for i, op in enumerate(reps):
         pt.append({"id": "rep%d" % (i + 1), "at": 0, "every": 1, "until": "end", "do": [op]})
+    for j, (at, every, span, op) in enumerate(c.p_reps):
+        pt.append({"id": "loop%d" % (j + 1), "at": at, "every": every, "for": span, "do": [op]})
     if pt:
         pres["timeline"] = pt
     if c.p_on:
@@ -1068,10 +1098,60 @@ def closure(repo, bound):
 
 
 def is_v2(path):
+    """A hand-built v2 skill: v2 header and not written by this converter (its output starts with `# Converted from`)."""
     try:
-        return "apiVersion: astera/v2" in open(path).read(400)
+        head = open(path).read(400)
     except OSError:
         return False
+    return "apiVersion: astera/v2" in head and "Converted from" not in head
+
+
+def op_inventory(node, acc=None):
+    """{op name: [count, {field names seen}]} over every dict with an `op` key anywhere in a loaded YAML tree."""
+    acc = {} if acc is None else acc
+    if isinstance(node, dict):
+        if isinstance(node.get("op"), str):
+            e = acc.setdefault(node["op"], [0, set()])
+            e[0] += 1
+            e[1].update(k for k in node if k not in ("id", "op"))
+        for v in node.values():
+            op_inventory(v, acc)
+    elif isinstance(node, list):
+        for v in node:
+            op_inventory(v, acc)
+    return acc
+
+
+def protected_diff(sid_, skill_dir, sk_text, look_text, conv):
+    """What the v1 data of a hand-built (protected) skill would give that the v2 files lack. Reads only; writes nothing.
+
+    Compares the converter's would-be output with every YAML file in the skill's v2 directory: op counts per kind, op
+    fields the converted ops use that no v2 op of that kind uses, and the converter's own unconvertible gaps."""
+    have = {}
+    for fn in sorted(os.listdir(skill_dir)) if os.path.isdir(skill_dir) else []:
+        if fn.endswith(".yaml"):
+            for doc in yaml.safe_load_all(open(os.path.join(skill_dir, fn))):
+                op_inventory(doc, have)
+    want = {}
+    for text in (sk_text, look_text or ""):
+        for doc in yaml.safe_load_all(text):
+            op_inventory(doc, want)
+    lines = ["== %s (protected: not written) ==" % sid_]
+    for name in sorted(set(want) | set(have)):
+        w = want.get(name, [0, set()])
+        h = have.get(name, [0, set()])
+        note = []
+        if w[0] > h[0]:
+            note.append("v1 gives %d, v2 has %d" % (w[0], h[0]))
+        missing = sorted(w[1] - h[1])
+        if missing:
+            note.append("fields only v1 data fills: " + ", ".join(missing))
+        if note:
+            lines.append("  op %-12s %s" % (name, "; ".join(note)))
+    for kind, gaps in (("TODO", conv.todo_gaps), ("PRESENT", conv.present_gaps)):
+        for name in gaps:
+            lines.append("  %s %s" % (kind, name))
+    return lines
 
 
 def main():
@@ -1094,6 +1174,7 @@ def main():
     unbound = sorted(os.path.basename(p)[:-5] for p in os.listdir(os.path.join(repo, "content", "skills"))
                      if p.endswith(".yaml") and os.path.basename(p)[:-5] not in reached)
     rows = []
+    diffs = []
     gap_skills = {}
     for i in todo_ids:
         src = os.path.join(repo, "content", "skills", i + ".yaml")
@@ -1119,6 +1200,8 @@ def main():
                 gap_skills.setdefault((kind, name), []).append(i)
         protected = i in PROTECTED or is_v2(os.path.join(out, i, "skill.yaml"))
         status = "protected" if protected else "ok"
+        if protected:
+            diffs.extend(protected_diff(i, os.path.join(out, i), sk_text, look_text, c))
         if not protected and not a.dry_run:
             os.makedirs(os.path.join(out, i), exist_ok=True)
             open(os.path.join(out, i, "skill.yaml"), "w").write(sk_text)
@@ -1139,6 +1222,12 @@ def main():
             with open(os.path.join(os.path.dirname(rp), "unbound-skills.txt"), "w") as f:
                 f.write("# v1 skills not bound to any item and not reached by cast_skill: deletion candidates (not converted, not deleted)\n")
                 f.write("\n".join(unbound) + "\n")
+    if diffs and not a.dry_run:
+        dp = os.path.join(os.path.dirname(a.report) if a.report else os.path.join(repo, "tools", "skill-convert"), "protected-diff.txt")
+        os.makedirs(os.path.dirname(dp), exist_ok=True)
+        with open(dp, "w") as f:
+            f.write("# Hand-built v2 skills the converter will not overwrite: what their v1 data has that the v2 files lack (read-only diff).\n")
+            f.write("\n".join(diffs) + "\n")
     conv = [r for r in rows if r[1] in ("ok", "protected")]
     clean = [r for r in conv if r[2] == 0 and r[3] == 0]
     print("skills: %d  clean (no TODO, no PRESENT; meta header excluded): %d  zero TODO: %d  protected: %d  errors: %d" % (

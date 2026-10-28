@@ -10,17 +10,15 @@
 # CONVERT-PRESENT element target_track (no v2 equivalent) (x8): [{"t": 0, "weight": 1}]
 # CONVERT-PRESENT element formation (no v2 equivalent) (x20): {"align": "outward", "curve": {"from_deg": 0, "radius": 0.5, | {"align": "tangent", "curve": {"from_deg": 0, "radius": 1.65
 # CONVERT-PRESENT element count (no v2 equivalent) (x20): 8 | 24
-# CONVERT-PRESENT rig pivot / rest / tilt / respect_hit_stop / weapon points (frames carry no pivot or rest pose) (x1): {"pivot": [-0.3, 1.1, 0.3], "respect_hit_stop": true, "rest": [0, 0, 0], "tilt":
+# CONVERT-PRESENT play_animation ticks (anim ops have no duration) (x1): ticks=173
+# CONVERT-PRESENT rig respect_hit_stop / weapon points (x1): {"respect_hit_stop": true}
 # CONVERT-PRESENT rig block parts (mesh takes an item model, not a block + size) (x1): 11 parts
 # CONVERT-PRESENT rig swing without a weapon mesh (track needs a visual to move) (x1): 17 keys
-# CONVERT-PRESENT trail style / bands / edge / fade (trail has width_frac, color, alpha only) (x2): {"bands": [{"color": "#70DC820D", "color_to": "#204E2710", "from": 0.0, "to": 0.
-# CONVERT-PRESENT rig emitter repeats (emit is one burst) (x1): ticks=2
-# CONVERT-PRESENT sprite frame_ticks / loop / color (plate has sprite, size_frac, alpha) (x1): {"color": "#FFFFFF", "frame_ticks": 1, "loop": false}
+# CONVERT-PRESENT trail bands / edge / dark_rim / step_deg / lag_ticks / double_sided (trail has style, fade, width_frac, color, alpha) (x2): {"bands": [{"color": "#70DC820D", "color_to": "#204E2710", "from": 0.0, "to": 0.
 # CONVERT-PRESENT element oscillate (no v2 equivalent) (x1): {"amplitude": 0.015625, "axis": "scale_xyz", "period_ticks":
 # CONVERT-PRESENT keyframe non-uniform scale (track scale is one number; the largest axis is used) (x4): [0.0264062, 0.0264062, 1] | [0.1584375, 0.1584375, 1]
 # CONVERT-PRESENT particle along_path (x4): true
 # CONVERT-PRESENT element jitter (no v2 equivalent) (x4): {"position": 0.08}
-# CONVERT-PRESENT repeating particle element (emit is one burst) (x4): every=1 ticks=7
 apiVersion: "astera/v2"
 kind: Skill
 id: orrery-s3
@@ -45,11 +43,11 @@ frames:
   - {id: fx14_orrery_seal_front, kind: body, parent: caster}
 presentation:
   timeline:
-    - {id: fx5, at: 5, do: [{id: anim, op: caster_anim, anim: hide-main-hand, ticks: 173}, {id: fx9_orrery_channel_staff_embers, op: emit, at: pt_fx9_orrery_channel_staff_0_1p65_0, particle: orrery-ember, count: 1}]}
+    - {id: fx5, at: 5, do: [{id: anim, op: caster_anim, anim: hide-main-hand, ticks: 173}]}
     - id: fx20
       at: 20
       do:
-        - {id: fx10_orrery_orb_core, op: plate, parent: fx10_orrery_orb, face: {viewer: center}, sprite: orrery-orb}
+        - {id: fx10_orrery_orb_core, op: plate, parent: fx10_orrery_orb, face: {viewer: center}, sprite: orrery-orb, color: "#FFFFFF"}
         - id: fx10_orrery_orb_core_trk
           op: track
           target: fx10_orrery_orb_core
@@ -60,16 +58,17 @@ presentation:
             - {t: 16, scale: [0.237656, 0.237656, 1.0]}
             - {t: 38}
             - {t: 44, scale: [0.0, 0.0, 1.0]}
-    - {id: fx45, at: 45, do: [{id: fx11_orrery_seal_front_clock_sparks, op: emit, at: fx11_orrery_seal_front, particle: orrery-ember, count: 1}]}
-    - {id: fx60, at: 60, do: [{id: fx12_orrery_seal_front_clock_sparks, op: emit, at: fx12_orrery_seal_front, particle: orrery-ember, count: 1}]}
     - {id: fx64, at: 64, do: [{id: rm_3, op: remove, ids: [fx10_orrery_orb_core]}]}
-    - {id: fx72, at: 72, do: [{id: fx13_orrery_seal_front_clock_sparks, op: emit, at: fx13_orrery_seal_front, particle: orrery-ember, count: 1}]}
-    - {id: fx75, at: 75, do: [{id: fx9_orrery_channel_staff_flourish_75, op: trail, of: pt_fx9_orrery_channel_staff_0_2p3_0, root: pt_fx9_orrery_channel_staff_0_1_0, ticks: 5}]}
+    - {id: fx75, at: 75, do: [{id: fx9_orrery_channel_staff_flourish_75, op: trail, of: pt_fx9_orrery_channel_staff_0_2p3_0, root: pt_fx9_orrery_channel_staff_0_1_0, ticks: 5, style: both, fade: 0.3}]}
     - {id: fx85, at: 85, do: [{id: rm, op: remove, ids: [fx9_orrery_channel_staff_flourish_75]}]}
-    - {id: fx108, at: 108, do: [{id: fx9_orrery_channel_staff_flourish_108, op: trail, of: pt_fx9_orrery_channel_staff_0_2p3_0, root: pt_fx9_orrery_channel_staff_0_1_0, ticks: 5}]}
+    - {id: fx108, at: 108, do: [{id: fx9_orrery_channel_staff_flourish_108, op: trail, of: pt_fx9_orrery_channel_staff_0_2p3_0, root: pt_fx9_orrery_channel_staff_0_1_0, ticks: 5, style: both, fade: 0.3}]}
     - {id: fx121, at: 121, do: [{id: rm_2, op: remove, ids: [fx9_orrery_channel_staff_flourish_108]}]}
-    - {id: fx143, at: 143, do: [{id: fx14_orrery_seal_front_clock_sparks, op: emit, at: fx14_orrery_seal_front, particle: orrery-ember, count: 1}]}
     - {id: fxhit_45, at: "hit+45", do: [{id: snd, op: sound, sound: entity.player.attack.strong, at: contact.point, volume: 0.7, pitch: 1.1, when: "= event.source == 'sel'"}]}
     - {id: fxhit_60, at: "hit+60", do: [{id: snd_2, op: sound, sound: entity.player.attack.strong, at: contact.point, volume: 0.7, pitch: 1.1, when: "= event.source == 'sel'"}]}
     - {id: fxhit_72, at: "hit+72", do: [{id: snd_3, op: sound, sound: entity.player.attack.strong, at: contact.point, volume: 0.7, pitch: 1.1, when: "= event.source == 'sel'"}]}
     - {id: fxhit_143, at: "hit+143", do: [{id: snd_4, op: sound, sound: entity.player.attack.strong, at: contact.point, volume: 0.7, pitch: 1.1, when: "= event.source == 'sel'"}]}
+    - {id: loop1, at: 5, every: 1, for: 2, do: [{id: fx9_orrery_channel_staff_embers, op: emit, at: pt_fx9_orrery_channel_staff_0_1p65_0, particle: orrery-ember, count: 1}]}
+    - {id: loop2, at: 45, every: 1, for: 7, do: [{id: fx11_orrery_seal_front_clock_sparks, op: emit, at: fx11_orrery_seal_front, particle: orrery-ember, count: 1}]}
+    - {id: loop3, at: 60, every: 1, for: 7, do: [{id: fx12_orrery_seal_front_clock_sparks, op: emit, at: fx12_orrery_seal_front, particle: orrery-ember, count: 1}]}
+    - {id: loop4, at: 72, every: 1, for: 7, do: [{id: fx13_orrery_seal_front_clock_sparks, op: emit, at: fx13_orrery_seal_front, particle: orrery-ember, count: 1}]}
+    - {id: loop5, at: 143, every: 1, for: 7, do: [{id: fx14_orrery_seal_front_clock_sparks, op: emit, at: fx14_orrery_seal_front, particle: orrery-ember, count: 1}]}

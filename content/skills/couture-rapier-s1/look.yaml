@@ -6,8 +6,6 @@
 # CONVERT-PRESENT element brightness (no v2 equivalent) (x7): 15
 # CONVERT-PRESENT block element (mesh takes an item model, plate takes a sprite: no block / solid-colour primitive) (x26): gray_concrete | iron_block
 # CONVERT-PRESENT presentation inside a nested gameplay list (dash on_hit has no event hook) (x2): play_vfx | play_sound
-# CONVERT-PRESENT sprite frame_ticks / loop / color (plate has sprite, size_frac, alpha) (x1): {"color": null, "frame_ticks": 2, "loop": false}
-# CONVERT-PRESENT keyframe non-uniform scale (track scale is one number; the largest axis is used) (x3): [1.625, 1.25, 1] | [1.7, 1.3, 1]
 apiVersion: "astera/v2"
 kind: Skill
 id: couture-rapier-s1
@@ -21,7 +19,7 @@ presentation:
     - id: fx13
       at: 13
       do:
-        - {id: fx3_couture_shear_passage_passage_crescent, op: plate, parent: fx3_couture_shear_passage, face: {viewer: center}, sprite: couture-cut}
+        - {id: fx3_couture_shear_passage_passage_crescent, op: plate, parent: fx3_couture_shear_passage, face: {viewer: center}, sprite: couture-cut, frame_ticks: 2}
         - id: fx3_couture_shear_passage_passage_crescent_trk
           op: track
           target: fx3_couture_shear_passage_passage_crescent

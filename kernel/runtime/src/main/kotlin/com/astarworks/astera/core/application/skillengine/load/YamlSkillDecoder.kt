@@ -179,9 +179,11 @@ public class YamlSkillDecoder(private val registry: OpDecoderRegistry) : SkillDe
                     ?: ValueDecoding.mismatch(skillId, "$path.at", "tick or '<event>[+-N]'", atRaw)
                 val every = r.int("every")
                 val until = r.string("until")
+                val forTicks = r.int("for")?.also { if (it <= 0) r.fail("for must be > 0") }
+                if (forTicks != null && every == null) r.fail("for needs every")
                 val whenExpr = r.boolValue("when")
                 val ops = r.ops("do").map(cast)
-                TimelineEntry(at, ops, every, until, whenExpr)
+                TimelineEntry(at, ops, every, until, whenExpr, forTicks)
             }
         }
 

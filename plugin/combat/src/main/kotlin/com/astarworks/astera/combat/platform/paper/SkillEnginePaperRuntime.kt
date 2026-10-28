@@ -100,7 +100,8 @@ internal class SkillEnginePaperRuntime(
         val catalog = wired.skillCatalog
 
         val entities = PaperSkillEntityQuery(server) { services.get<IStructureTargets>() }
-        val visuals = PaperSkillVisualGateway(server, displays, tables)
+        val sprites = services.get<com.astarworks.astera.core.application.port.outbound.ISpriteRegistry>()
+        val visuals = PaperSkillVisualGateway(server, displays, tables) { id -> sprites?.find(com.astarworks.astera.core.domain.sprite.SpriteId(id))?.frames ?: 1 }
         // Presentation-only casts create no display entity, so the visual gateway alone never learns the world.
         val worldId = { entities.activeWorld()?.let { WorldId(it.name) } ?: visuals.activeWorld() }
         activeEntities = entities

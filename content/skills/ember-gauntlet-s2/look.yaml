@@ -1,14 +1,12 @@
 # Converted from content/skills/ember-gauntlet-s2.yaml + content/vfx/* by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
 # Generated point-frame offsets are [left, up, forward] in the parent frame.
 # CONVERT-PRESENT vfx frame orient (frames carry no orientation / scale) (x6): orient="yaw" | orient="look"
-# CONVERT-PRESENT rig pivot / rest / tilt / respect_hit_stop / weapon points (frames carry no pivot or rest pose) (x3): {"pivot": [0, 1.1, -0.36]} | {"pivot": [-0.35, 1.05, 0.25], "rest": [0, 90, 0], "tilt": [0, 0, 12]}
 # CONVERT-PRESENT rig block parts (mesh takes an item model, not a block + size) (x3): 2 parts | 3 parts
 # CONVERT-PRESENT rig swing without a weapon mesh (track needs a visual to move) (x3): 2 keys | 4 keys
 # CONVERT-PRESENT block element (mesh takes an item model, plate takes a sprite: no block / solid-colour primitive) (x18): yellow_concrete | orange_stained_glass
 # CONVERT-PRESENT element brightness (no v2 equivalent) (x22): 15
 # CONVERT-PRESENT element formation (no v2 equivalent) (x6): {"curve": {"from": [0, 0, 0.8], "to": [0, 0, 3.4], "type": " | {"align": "outward", "curve": {"radius": 0.12, "type": "sphe
 # CONVERT-PRESENT element count (no v2 equivalent) (x6): 5 | 8
-# CONVERT-PRESENT repeating particle element (emit is one burst) (x8): every=3 ticks=12 | every=3 ticks=10
 # CONVERT-PRESENT element kind text (text) has no v2 op (x4): {"background": "#00000000", "see_through": true, "shadow": false, "text": "<#FFF | {"background": "#00000000", "see_through": true, "shadow": false, "text": "<#ffb
 # CONVERT-PRESENT vfx follow=false (anchored at world, no place-at-spawn) (x3): ember-hoop-hit | ember-smoke-puff
 # CONVERT-PRESENT element jitter (no v2 equivalent) (x2): {"rotation_deg": 8, "scale": 0.3}
@@ -27,21 +25,12 @@ frames:
   - {id: fx6_ember_smoke_puff, kind: body, parent: world}
 presentation:
   timeline:
-    - id: fx3
-      at: 3
-      do:
-        - {id: fx2_ember_punch_flame, op: emit, at: fx2_ember_punch, particle: ember-fine-spark, count: 1}
-        - {id: fx2_ember_punch_soot, op: emit, at: fx2_ember_punch, particle: fire-smoke, count: 1}
-    - id: fx19
-      at: 19
-      do:
-        - {id: fx4_ember_punch_flame, op: emit, at: fx4_ember_punch, particle: ember-fine-spark, count: 1}
-        - {id: fx4_ember_punch_soot, op: emit, at: fx4_ember_punch, particle: fire-smoke, count: 1}
-    - id: fx33
-      at: 33
-      do:
-        - {id: fx6_ember_smoke_puff_vent, op: emit, at: fx6_ember_smoke_puff, particle: fire-smoke, count: 1}
-        - {id: fx6_ember_smoke_puff_haze, op: emit, at: fx6_ember_smoke_puff, particle: gun-smoke, count: 1}
+    - {id: loop1, at: 3, every: 3, for: 12, do: [{id: fx2_ember_punch_flame, op: emit, at: fx2_ember_punch, particle: ember-fine-spark, count: 1}]}
+    - {id: loop2, at: 3, every: 3, for: 10, do: [{id: fx2_ember_punch_soot, op: emit, at: fx2_ember_punch, particle: fire-smoke, count: 1}]}
+    - {id: loop3, at: 19, every: 3, for: 12, do: [{id: fx4_ember_punch_flame, op: emit, at: fx4_ember_punch, particle: ember-fine-spark, count: 1}]}
+    - {id: loop4, at: 19, every: 3, for: 10, do: [{id: fx4_ember_punch_soot, op: emit, at: fx4_ember_punch, particle: fire-smoke, count: 1}]}
+    - {id: loop5, at: 33, every: 3, for: 12, do: [{id: fx6_ember_smoke_puff_vent, op: emit, at: fx6_ember_smoke_puff, particle: fire-smoke, count: 1}]}
+    - {id: loop6, at: 33, every: 3, for: 15, do: [{id: fx6_ember_smoke_puff_haze, op: emit, at: fx6_ember_smoke_puff, particle: gun-smoke, count: 1}]}
   "on":
     hit:
       - {id: fx3_ember_hoop_hit_embers, op: emit, at: fx3_ember_hoop_hit, particle: fire-impact, count: 1, when: "= event.source == 'sel'"}

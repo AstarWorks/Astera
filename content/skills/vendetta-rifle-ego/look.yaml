@@ -1,14 +1,12 @@
 # Converted from content/skills/vendetta-rifle-ego.yaml + content/vfx/* by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
 # Generated point-frame offsets are [left, up, forward] in the parent frame.
 # CONVERT-PRESENT vfx frame orient (frames carry no orientation / scale) (x18): orient="yaw"
-# CONVERT-PRESENT rig pivot / rest / tilt / respect_hit_stop / weapon points (frames carry no pivot or rest pose) (x6): {"pivot": [0.35, 1.05, 0.25], "respect_hit_stop": true, "rest": [0, 90, 0], "til
+# CONVERT-PRESENT rig respect_hit_stop / weapon points (x6): {"respect_hit_stop": true}
 # CONVERT-PRESENT rig block parts (mesh takes an item model, not a block + size) (x6): 11 parts
 # CONVERT-PRESENT rig swing without a weapon mesh (track needs a visual to move) (x6): 3 keys | 5 keys
-# CONVERT-PRESENT rig emitter repeats (emit is one burst) (x1): ticks=4
 # CONVERT-PRESENT vfx follow=false (anchored at world, no place-at-spawn) (x17): vendetta-slash-b | vendetta-thrust-flash
 # CONVERT-PRESENT play_vfx freeze (no v2 equivalent) (x5): [{"at": 5, "ticks": 2}]
-# CONVERT-PRESENT repeating particle element (emit is one burst) (x52): every=2 ticks=3 | every=3 ticks=5
-# CONVERT-PRESENT trail style / bands / edge / fade (trail has width_frac, color, alpha only) (x5): {"bands": [{"block": "orange_concrete", "color": "#FFFF8A28", "color_to": "#8049
+# CONVERT-PRESENT trail bands / edge / dark_rim / step_deg / lag_ticks / double_sided (trail has style, fade, width_frac, color, alpha) (x5): {"bands": [{"block": "orange_concrete", "color": "#FFFF8A28", "color_to": "#8049
 # CONVERT-PRESENT block element (mesh takes an item model, plate takes a sprite: no block / solid-colour primitive) (x85): black_concrete | magenta_stained_glass
 # CONVERT-PRESENT element brightness (no v2 equivalent) (x92): 15
 # CONVERT-PRESENT quad element (plate takes a sprite: no solid-colour quad / glyph) (x7): {"color": "#F52952", "glyph": null}
@@ -57,113 +55,99 @@ frames:
 presentation:
   timeline:
     - {id: fx0, at: 0, do: [{id: snd, op: sound, sound: item.crossbow.loading_end, at: caster, pitch: 0.7}]}
-    - {id: fx3, at: 3, do: [{id: fx1_vendetta_ready_bayonet_ignition, op: emit, at: pt_fx1_vendetta_ready_bayonet_0_1p5_0, particle: fire-trail, count: 1}]}
-    - id: fx36
-      at: 36
+    - id: fx49
+      at: 49
       do:
-        - {id: fx17_vendetta_burst_ember_0, op: emit, at: fx17_vendetta_burst, particle: fire-trail, count: 1}
-        - {id: fx17_vendetta_burst_ember_1, op: emit, at: fx17_vendetta_burst, particle: fire-trail, count: 1}
-        - {id: fx17_vendetta_burst_ember_2, op: emit, at: fx17_vendetta_burst, particle: fire-trail, count: 1}
-        - {id: fx17_vendetta_burst_ember_3, op: emit, at: fx17_vendetta_burst, particle: fire-trail, count: 1}
-        - {id: fx17_vendetta_burst_ember_4, op: emit, at: fx17_vendetta_burst, particle: fire-trail, count: 1}
-    - {id: fx43, at: 43, do: [{id: fx17_vendetta_burst_smoke, op: emit, at: fx17_vendetta_burst, particle: dash-cloud, count: 1}]}
-    - {id: fx49, at: 49, do: [{id: fx2_vendetta_slash_b_bayonet_cut, op: trail, of: pt_fx2_vendetta_slash_b_bayonet_0_2p1_0, root: pt_fx2_vendetta_slash_b_bayonet_0_0p55_0, ticks: 6}]}
-    - id: fx53
-      at: 53
-      do:
-        - {id: fx2_vendetta_slash_b_contact, op: emit, at: fx2_vendetta_slash_b, particle: gun-impact, count: 1}
-        - {id: fx2_vendetta_slash_b_petals, op: emit, at: fx2_vendetta_slash_b, particle: vendetta-petals, count: 1}
-        - {id: snd_2, op: sound, sound: entity.player.attack.sweep, at: caster, pitch: 1.1}
-        - {id: snd_3, op: sound, sound: entity.generic.explode, at: caster, volume: 0.5, pitch: 1.5}
-    - id: fx54
-      at: 54
-      do:
-        - {id: fx4_vendetta_burst_ember_0, op: emit, at: fx4_vendetta_burst, particle: fire-trail, count: 1}
-        - {id: fx4_vendetta_burst_ember_1, op: emit, at: fx4_vendetta_burst, particle: fire-trail, count: 1}
-        - {id: fx4_vendetta_burst_ember_2, op: emit, at: fx4_vendetta_burst, particle: fire-trail, count: 1}
-        - {id: fx4_vendetta_burst_ember_3, op: emit, at: fx4_vendetta_burst, particle: fire-trail, count: 1}
-        - {id: fx4_vendetta_burst_ember_4, op: emit, at: fx4_vendetta_burst, particle: fire-trail, count: 1}
+        - {id: fx2_vendetta_slash_b_bayonet_cut, op: trail, of: pt_fx2_vendetta_slash_b_bayonet_0_2p1_0, root: pt_fx2_vendetta_slash_b_bayonet_0_0p55_0, ticks: 6, style: crisp, fade: 0.15}
+    - {id: fx53, at: 53, do: [{id: snd_2, op: sound, sound: entity.player.attack.sweep, at: caster, pitch: 1.1}, {id: snd_3, op: sound, sound: entity.generic.explode, at: caster, volume: 0.5, pitch: 1.5}]}
     - {id: fx59, at: 59, do: [{id: rm, op: remove, ids: [fx2_vendetta_slash_b_bayonet_cut]}]}
-    - {id: fx61, at: 61, do: [{id: fx4_vendetta_burst_smoke, op: emit, at: fx4_vendetta_burst, particle: dash-cloud, count: 1}]}
-    - {id: fx67, at: 67, do: [{id: fx5_vendetta_slash_b_bayonet_cut, op: trail, of: pt_fx5_vendetta_slash_b_bayonet_0_2p1_0, root: pt_fx5_vendetta_slash_b_bayonet_0_0p55_0, ticks: 6}]}
-    - id: fx71
-      at: 71
+    - id: fx67
+      at: 67
       do:
-        - {id: fx5_vendetta_slash_b_contact, op: emit, at: fx5_vendetta_slash_b, particle: gun-impact, count: 1}
-        - {id: fx5_vendetta_slash_b_petals, op: emit, at: fx5_vendetta_slash_b, particle: vendetta-petals, count: 1}
-        - {id: snd_4, op: sound, sound: entity.player.attack.sweep, at: caster, pitch: 1.1}
-        - {id: snd_5, op: sound, sound: entity.generic.explode, at: caster, volume: 0.5, pitch: 1.5}
-    - id: fx72
-      at: 72
-      do:
-        - {id: fx7_vendetta_burst_ember_0, op: emit, at: fx7_vendetta_burst, particle: fire-trail, count: 1}
-        - {id: fx7_vendetta_burst_ember_1, op: emit, at: fx7_vendetta_burst, particle: fire-trail, count: 1}
-        - {id: fx7_vendetta_burst_ember_2, op: emit, at: fx7_vendetta_burst, particle: fire-trail, count: 1}
-        - {id: fx7_vendetta_burst_ember_3, op: emit, at: fx7_vendetta_burst, particle: fire-trail, count: 1}
-        - {id: fx7_vendetta_burst_ember_4, op: emit, at: fx7_vendetta_burst, particle: fire-trail, count: 1}
+        - {id: fx5_vendetta_slash_b_bayonet_cut, op: trail, of: pt_fx5_vendetta_slash_b_bayonet_0_2p1_0, root: pt_fx5_vendetta_slash_b_bayonet_0_0p55_0, ticks: 6, style: crisp, fade: 0.15}
+    - {id: fx71, at: 71, do: [{id: snd_4, op: sound, sound: entity.player.attack.sweep, at: caster, pitch: 1.1}, {id: snd_5, op: sound, sound: entity.generic.explode, at: caster, volume: 0.5, pitch: 1.5}]}
     - {id: fx77, at: 77, do: [{id: rm_2, op: remove, ids: [fx5_vendetta_slash_b_bayonet_cut]}]}
-    - {id: fx79, at: 79, do: [{id: fx7_vendetta_burst_smoke, op: emit, at: fx7_vendetta_burst, particle: dash-cloud, count: 1}]}
-    - {id: fx104, at: 104, do: [{id: fx8_vendetta_slash_a_bayonet_cut, op: trail, of: pt_fx8_vendetta_slash_a_bayonet_0_2p1_0, root: pt_fx8_vendetta_slash_a_bayonet_0_0p55_0, ticks: 6}]}
+    - id: fx104
+      at: 104
+      do:
+        - {id: fx8_vendetta_slash_a_bayonet_cut, op: trail, of: pt_fx8_vendetta_slash_a_bayonet_0_2p1_0, root: pt_fx8_vendetta_slash_a_bayonet_0_0p55_0, ticks: 6, style: crisp, fade: 0.15}
     - id: fx108
       at: 108
       do:
-        - {id: fx8_vendetta_slash_a_contact, op: emit, at: fx8_vendetta_slash_a, particle: gun-impact, count: 1}
-        - {id: fx8_vendetta_slash_a_petals, op: emit, at: fx8_vendetta_slash_a, particle: vendetta-petals, count: 1}
         - {id: snd_6, op: sound, sound: entity.player.attack.sweep, at: caster, pitch: 1.1}
         - {id: snd_7, op: sound, sound: entity.generic.explode, at: caster, volume: 0.5, pitch: 1.5}
-    - id: fx109
-      at: 109
-      do:
-        - {id: fx10_vendetta_burst_ember_0, op: emit, at: fx10_vendetta_burst, particle: fire-trail, count: 1}
-        - {id: fx10_vendetta_burst_ember_1, op: emit, at: fx10_vendetta_burst, particle: fire-trail, count: 1}
-        - {id: fx10_vendetta_burst_ember_2, op: emit, at: fx10_vendetta_burst, particle: fire-trail, count: 1}
-        - {id: fx10_vendetta_burst_ember_3, op: emit, at: fx10_vendetta_burst, particle: fire-trail, count: 1}
-        - {id: fx10_vendetta_burst_ember_4, op: emit, at: fx10_vendetta_burst, particle: fire-trail, count: 1}
     - {id: fx114, at: 114, do: [{id: rm_3, op: remove, ids: [fx8_vendetta_slash_a_bayonet_cut]}]}
-    - {id: fx116, at: 116, do: [{id: fx10_vendetta_burst_smoke, op: emit, at: fx10_vendetta_burst, particle: dash-cloud, count: 1}]}
-    - {id: fx137, at: 137, do: [{id: fx11_vendetta_slash_b_bayonet_cut, op: trail, of: pt_fx11_vendetta_slash_b_bayonet_0_2p1_0, root: pt_fx11_vendetta_slash_b_bayonet_0_0p55_0, ticks: 6}]}
+    - id: fx137
+      at: 137
+      do:
+        - {id: fx11_vendetta_slash_b_bayonet_cut, op: trail, of: pt_fx11_vendetta_slash_b_bayonet_0_2p1_0, root: pt_fx11_vendetta_slash_b_bayonet_0_0p55_0, ticks: 6, style: crisp, fade: 0.15}
     - id: fx141
       at: 141
       do:
-        - {id: fx11_vendetta_slash_b_contact, op: emit, at: fx11_vendetta_slash_b, particle: gun-impact, count: 1}
-        - {id: fx11_vendetta_slash_b_petals, op: emit, at: fx11_vendetta_slash_b, particle: vendetta-petals, count: 1}
         - {id: snd_8, op: sound, sound: entity.player.attack.sweep, at: caster, pitch: 1.1}
         - {id: snd_9, op: sound, sound: entity.generic.explode, at: caster, volume: 0.5, pitch: 1.5}
-    - id: fx142
-      at: 142
-      do:
-        - {id: fx13_vendetta_burst_ember_0, op: emit, at: fx13_vendetta_burst, particle: fire-trail, count: 1}
-        - {id: fx13_vendetta_burst_ember_1, op: emit, at: fx13_vendetta_burst, particle: fire-trail, count: 1}
-        - {id: fx13_vendetta_burst_ember_2, op: emit, at: fx13_vendetta_burst, particle: fire-trail, count: 1}
-        - {id: fx13_vendetta_burst_ember_3, op: emit, at: fx13_vendetta_burst, particle: fire-trail, count: 1}
-        - {id: fx13_vendetta_burst_ember_4, op: emit, at: fx13_vendetta_burst, particle: fire-trail, count: 1}
     - {id: fx147, at: 147, do: [{id: rm_4, op: remove, ids: [fx11_vendetta_slash_b_bayonet_cut]}]}
-    - {id: fx149, at: 149, do: [{id: fx13_vendetta_burst_smoke, op: emit, at: fx13_vendetta_burst, particle: dash-cloud, count: 1}]}
-    - id: fx185
-      at: 185
+    - id: fx227
+      at: 227
       do:
-        - {id: fx18_vendetta_burst_ember_0, op: emit, at: fx18_vendetta_burst, particle: fire-trail, count: 1}
-        - {id: fx18_vendetta_burst_ember_1, op: emit, at: fx18_vendetta_burst, particle: fire-trail, count: 1}
-        - {id: fx18_vendetta_burst_ember_2, op: emit, at: fx18_vendetta_burst, particle: fire-trail, count: 1}
-        - {id: fx18_vendetta_burst_ember_3, op: emit, at: fx18_vendetta_burst, particle: fire-trail, count: 1}
-        - {id: fx18_vendetta_burst_ember_4, op: emit, at: fx18_vendetta_burst, particle: fire-trail, count: 1}
-    - {id: fx192, at: 192, do: [{id: fx18_vendetta_burst_smoke, op: emit, at: fx18_vendetta_burst, particle: dash-cloud, count: 1}]}
-    - {id: fx227, at: 227, do: [{id: fx14_vendetta_slash_a_bayonet_cut, op: trail, of: pt_fx14_vendetta_slash_a_bayonet_0_2p1_0, root: pt_fx14_vendetta_slash_a_bayonet_0_0p55_0, ticks: 6}]}
+        - {id: fx14_vendetta_slash_a_bayonet_cut, op: trail, of: pt_fx14_vendetta_slash_a_bayonet_0_2p1_0, root: pt_fx14_vendetta_slash_a_bayonet_0_0p55_0, ticks: 6, style: crisp, fade: 0.15}
     - id: fx231
       at: 231
       do:
-        - {id: fx14_vendetta_slash_a_contact, op: emit, at: fx14_vendetta_slash_a, particle: gun-impact, count: 1}
-        - {id: fx14_vendetta_slash_a_petals, op: emit, at: fx14_vendetta_slash_a, particle: vendetta-petals, count: 1}
         - {id: snd_10, op: sound, sound: entity.player.attack.sweep, at: caster, pitch: 1.1}
         - {id: snd_11, op: sound, sound: entity.generic.explode, at: caster, volume: 0.5, pitch: 1.5}
         - {id: shake, op: camera_shake, target: caster, intensity: 0.25, ticks: 3}
-    - id: fx232
-      at: 232
-      do:
-        - {id: fx16_vendetta_burst_ember_0, op: emit, at: fx16_vendetta_burst, particle: fire-trail, count: 1}
-        - {id: fx16_vendetta_burst_ember_1, op: emit, at: fx16_vendetta_burst, particle: fire-trail, count: 1}
-        - {id: fx16_vendetta_burst_ember_2, op: emit, at: fx16_vendetta_burst, particle: fire-trail, count: 1}
-        - {id: fx16_vendetta_burst_ember_3, op: emit, at: fx16_vendetta_burst, particle: fire-trail, count: 1}
-        - {id: fx16_vendetta_burst_ember_4, op: emit, at: fx16_vendetta_burst, particle: fire-trail, count: 1}
     - {id: fx237, at: 237, do: [{id: rm_5, op: remove, ids: [fx14_vendetta_slash_a_bayonet_cut]}]}
-    - {id: fx239, at: 239, do: [{id: fx16_vendetta_burst_smoke, op: emit, at: fx16_vendetta_burst, particle: dash-cloud, count: 1}]}
+    - {id: loop1, at: 3, every: 1, for: 4, do: [{id: fx1_vendetta_ready_bayonet_ignition, op: emit, at: pt_fx1_vendetta_ready_bayonet_0_1p5_0, particle: fire-trail, count: 1}]}
+    - {id: loop2, at: 53, every: 2, for: 3, do: [{id: fx2_vendetta_slash_b_contact, op: emit, at: fx2_vendetta_slash_b, particle: gun-impact, count: 1}]}
+    - {id: loop3, at: 53, every: 3, for: 5, do: [{id: fx2_vendetta_slash_b_petals, op: emit, at: fx2_vendetta_slash_b, particle: vendetta-petals, count: 1}]}
+    - {id: loop4, at: 54, every: 2, for: 8, do: [{id: fx4_vendetta_burst_ember_0, op: emit, at: fx4_vendetta_burst, particle: fire-trail, count: 1}]}
+    - {id: loop5, at: 54, every: 2, for: 8, do: [{id: fx4_vendetta_burst_ember_1, op: emit, at: fx4_vendetta_burst, particle: fire-trail, count: 1}]}
+    - {id: loop6, at: 54, every: 2, for: 8, do: [{id: fx4_vendetta_burst_ember_2, op: emit, at: fx4_vendetta_burst, particle: fire-trail, count: 1}]}
+    - {id: loop7, at: 54, every: 2, for: 8, do: [{id: fx4_vendetta_burst_ember_3, op: emit, at: fx4_vendetta_burst, particle: fire-trail, count: 1}]}
+    - {id: loop8, at: 54, every: 2, for: 8, do: [{id: fx4_vendetta_burst_ember_4, op: emit, at: fx4_vendetta_burst, particle: fire-trail, count: 1}]}
+    - {id: loop9, at: 61, every: 3, for: 8, do: [{id: fx4_vendetta_burst_smoke, op: emit, at: fx4_vendetta_burst, particle: dash-cloud, count: 1}]}
+    - {id: loop10, at: 71, every: 2, for: 3, do: [{id: fx5_vendetta_slash_b_contact, op: emit, at: fx5_vendetta_slash_b, particle: gun-impact, count: 1}]}
+    - {id: loop11, at: 71, every: 3, for: 5, do: [{id: fx5_vendetta_slash_b_petals, op: emit, at: fx5_vendetta_slash_b, particle: vendetta-petals, count: 1}]}
+    - {id: loop12, at: 72, every: 2, for: 8, do: [{id: fx7_vendetta_burst_ember_0, op: emit, at: fx7_vendetta_burst, particle: fire-trail, count: 1}]}
+    - {id: loop13, at: 72, every: 2, for: 8, do: [{id: fx7_vendetta_burst_ember_1, op: emit, at: fx7_vendetta_burst, particle: fire-trail, count: 1}]}
+    - {id: loop14, at: 72, every: 2, for: 8, do: [{id: fx7_vendetta_burst_ember_2, op: emit, at: fx7_vendetta_burst, particle: fire-trail, count: 1}]}
+    - {id: loop15, at: 72, every: 2, for: 8, do: [{id: fx7_vendetta_burst_ember_3, op: emit, at: fx7_vendetta_burst, particle: fire-trail, count: 1}]}
+    - {id: loop16, at: 72, every: 2, for: 8, do: [{id: fx7_vendetta_burst_ember_4, op: emit, at: fx7_vendetta_burst, particle: fire-trail, count: 1}]}
+    - {id: loop17, at: 79, every: 3, for: 8, do: [{id: fx7_vendetta_burst_smoke, op: emit, at: fx7_vendetta_burst, particle: dash-cloud, count: 1}]}
+    - {id: loop18, at: 108, every: 2, for: 3, do: [{id: fx8_vendetta_slash_a_contact, op: emit, at: fx8_vendetta_slash_a, particle: gun-impact, count: 1}]}
+    - {id: loop19, at: 108, every: 3, for: 5, do: [{id: fx8_vendetta_slash_a_petals, op: emit, at: fx8_vendetta_slash_a, particle: vendetta-petals, count: 1}]}
+    - {id: loop20, at: 109, every: 2, for: 8, do: [{id: fx10_vendetta_burst_ember_0, op: emit, at: fx10_vendetta_burst, particle: fire-trail, count: 1}]}
+    - {id: loop21, at: 109, every: 2, for: 8, do: [{id: fx10_vendetta_burst_ember_1, op: emit, at: fx10_vendetta_burst, particle: fire-trail, count: 1}]}
+    - {id: loop22, at: 109, every: 2, for: 8, do: [{id: fx10_vendetta_burst_ember_2, op: emit, at: fx10_vendetta_burst, particle: fire-trail, count: 1}]}
+    - {id: loop23, at: 109, every: 2, for: 8, do: [{id: fx10_vendetta_burst_ember_3, op: emit, at: fx10_vendetta_burst, particle: fire-trail, count: 1}]}
+    - {id: loop24, at: 109, every: 2, for: 8, do: [{id: fx10_vendetta_burst_ember_4, op: emit, at: fx10_vendetta_burst, particle: fire-trail, count: 1}]}
+    - {id: loop25, at: 116, every: 3, for: 8, do: [{id: fx10_vendetta_burst_smoke, op: emit, at: fx10_vendetta_burst, particle: dash-cloud, count: 1}]}
+    - {id: loop26, at: 141, every: 2, for: 3, do: [{id: fx11_vendetta_slash_b_contact, op: emit, at: fx11_vendetta_slash_b, particle: gun-impact, count: 1}]}
+    - {id: loop27, at: 141, every: 3, for: 5, do: [{id: fx11_vendetta_slash_b_petals, op: emit, at: fx11_vendetta_slash_b, particle: vendetta-petals, count: 1}]}
+    - {id: loop28, at: 142, every: 2, for: 8, do: [{id: fx13_vendetta_burst_ember_0, op: emit, at: fx13_vendetta_burst, particle: fire-trail, count: 1}]}
+    - {id: loop29, at: 142, every: 2, for: 8, do: [{id: fx13_vendetta_burst_ember_1, op: emit, at: fx13_vendetta_burst, particle: fire-trail, count: 1}]}
+    - {id: loop30, at: 142, every: 2, for: 8, do: [{id: fx13_vendetta_burst_ember_2, op: emit, at: fx13_vendetta_burst, particle: fire-trail, count: 1}]}
+    - {id: loop31, at: 142, every: 2, for: 8, do: [{id: fx13_vendetta_burst_ember_3, op: emit, at: fx13_vendetta_burst, particle: fire-trail, count: 1}]}
+    - {id: loop32, at: 142, every: 2, for: 8, do: [{id: fx13_vendetta_burst_ember_4, op: emit, at: fx13_vendetta_burst, particle: fire-trail, count: 1}]}
+    - {id: loop33, at: 149, every: 3, for: 8, do: [{id: fx13_vendetta_burst_smoke, op: emit, at: fx13_vendetta_burst, particle: dash-cloud, count: 1}]}
+    - {id: loop34, at: 231, every: 2, for: 3, do: [{id: fx14_vendetta_slash_a_contact, op: emit, at: fx14_vendetta_slash_a, particle: gun-impact, count: 1}]}
+    - {id: loop35, at: 231, every: 3, for: 5, do: [{id: fx14_vendetta_slash_a_petals, op: emit, at: fx14_vendetta_slash_a, particle: vendetta-petals, count: 1}]}
+    - {id: loop36, at: 232, every: 2, for: 8, do: [{id: fx16_vendetta_burst_ember_0, op: emit, at: fx16_vendetta_burst, particle: fire-trail, count: 1}]}
+    - {id: loop37, at: 232, every: 2, for: 8, do: [{id: fx16_vendetta_burst_ember_1, op: emit, at: fx16_vendetta_burst, particle: fire-trail, count: 1}]}
+    - {id: loop38, at: 232, every: 2, for: 8, do: [{id: fx16_vendetta_burst_ember_2, op: emit, at: fx16_vendetta_burst, particle: fire-trail, count: 1}]}
+    - {id: loop39, at: 232, every: 2, for: 8, do: [{id: fx16_vendetta_burst_ember_3, op: emit, at: fx16_vendetta_burst, particle: fire-trail, count: 1}]}
+    - {id: loop40, at: 232, every: 2, for: 8, do: [{id: fx16_vendetta_burst_ember_4, op: emit, at: fx16_vendetta_burst, particle: fire-trail, count: 1}]}
+    - {id: loop41, at: 239, every: 3, for: 8, do: [{id: fx16_vendetta_burst_smoke, op: emit, at: fx16_vendetta_burst, particle: dash-cloud, count: 1}]}
+    - {id: loop42, at: 36, every: 2, for: 8, do: [{id: fx17_vendetta_burst_ember_0, op: emit, at: fx17_vendetta_burst, particle: fire-trail, count: 1}]}
+    - {id: loop43, at: 36, every: 2, for: 8, do: [{id: fx17_vendetta_burst_ember_1, op: emit, at: fx17_vendetta_burst, particle: fire-trail, count: 1}]}
+    - {id: loop44, at: 36, every: 2, for: 8, do: [{id: fx17_vendetta_burst_ember_2, op: emit, at: fx17_vendetta_burst, particle: fire-trail, count: 1}]}
+    - {id: loop45, at: 36, every: 2, for: 8, do: [{id: fx17_vendetta_burst_ember_3, op: emit, at: fx17_vendetta_burst, particle: fire-trail, count: 1}]}
+    - {id: loop46, at: 36, every: 2, for: 8, do: [{id: fx17_vendetta_burst_ember_4, op: emit, at: fx17_vendetta_burst, particle: fire-trail, count: 1}]}
+    - {id: loop47, at: 43, every: 3, for: 8, do: [{id: fx17_vendetta_burst_smoke, op: emit, at: fx17_vendetta_burst, particle: dash-cloud, count: 1}]}
+    - {id: loop48, at: 185, every: 2, for: 8, do: [{id: fx18_vendetta_burst_ember_0, op: emit, at: fx18_vendetta_burst, particle: fire-trail, count: 1}]}
+    - {id: loop49, at: 185, every: 2, for: 8, do: [{id: fx18_vendetta_burst_ember_1, op: emit, at: fx18_vendetta_burst, particle: fire-trail, count: 1}]}
+    - {id: loop50, at: 185, every: 2, for: 8, do: [{id: fx18_vendetta_burst_ember_2, op: emit, at: fx18_vendetta_burst, particle: fire-trail, count: 1}]}
+    - {id: loop51, at: 185, every: 2, for: 8, do: [{id: fx18_vendetta_burst_ember_3, op: emit, at: fx18_vendetta_burst, particle: fire-trail, count: 1}]}
+    - {id: loop52, at: 185, every: 2, for: 8, do: [{id: fx18_vendetta_burst_ember_4, op: emit, at: fx18_vendetta_burst, particle: fire-trail, count: 1}]}
+    - {id: loop53, at: 192, every: 3, for: 8, do: [{id: fx18_vendetta_burst_smoke, op: emit, at: fx18_vendetta_burst, particle: dash-cloud, count: 1}]}

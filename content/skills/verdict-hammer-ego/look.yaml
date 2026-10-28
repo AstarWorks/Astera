@@ -12,7 +12,7 @@
 # CONVERT-PRESENT element formation (no v2 equivalent) (x4): {"align": "tangent", "curve": {"radius": 1.0, "type": "circl
 # CONVERT-PRESENT element count (no v2 equivalent) (x4): 8
 # CONVERT-PRESENT play_vfx freeze (no v2 equivalent) (x3): [{"at": 9, "ticks": 2}]
-# CONVERT-PRESENT rig pivot / rest / tilt / respect_hit_stop / weapon points (frames carry no pivot or rest pose) (x4): {"pivot": [-0.25, 1.0, 0.15], "respect_hit_stop": true, "rest": [0, 0, 0], "tilt
+# CONVERT-PRESENT rig respect_hit_stop / weapon points (x4): {"respect_hit_stop": true}
 # CONVERT-PRESENT rig block parts (mesh takes an item model, not a block + size) (x4): 6 parts
 # CONVERT-PRESENT rig swing without a weapon mesh (track needs a visual to move) (x4): 5 keys
 # CONVERT-PRESENT particle animation ring (emit has no shape / ring / path: one burst at the anchor) (x4): {"end_radius": 5.8, "period_ticks": 6, "points": 16, "start_radius": 0.5}

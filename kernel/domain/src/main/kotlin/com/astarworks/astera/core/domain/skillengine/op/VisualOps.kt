@@ -1,5 +1,6 @@
 package com.astarworks.astera.core.domain.skillengine.op
 
+import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.skillengine.model.AxisRef
 import com.astarworks.astera.core.domain.skillengine.model.PointRef
 import com.astarworks.astera.core.domain.skillengine.model.Value
@@ -30,6 +31,12 @@ public sealed interface VisualOp : PresentationOp {
         val item: String,
         val part: String?,
         val scale: Value<Double>?,
+        /** Where the model's origin sits relative to [frame], in the frame's axes `[left, up, forward]` (a held weapon: the grip). */
+        val pivot: Value<Vec3>? = null,
+        /** Orientation `[yaw, pitch, roll]` degrees of the model at track 0, applied INSIDE the track rotation (blade +Y to forward: pitch 90). */
+        val rest: Value<Vec3>? = null,
+        /** `[yaw, pitch, roll]` degrees that tilt the whole swing plane, applied OUTSIDE the track rotation. */
+        val tilt: Value<Vec3>? = null,
     ) : VisualOp
 
     public data class Plate(
@@ -40,6 +47,12 @@ public sealed interface VisualOp : PresentationOp {
         val sprite: String,
         val sizeFrac: Value<Double>,
         val alpha: Value<Double>,
+        /** Ticks each flipbook frame stays; null shows frame 0 only. */
+        val frameTicks: Int? = null,
+        /** After the last frame: true wraps to frame 0, false holds the last frame. */
+        val loop: Boolean = false,
+        /** `#rrggbb` multiplied into the sprite; null keeps the sprite's own colours. */
+        val color: Value<String>? = null,
     ) : VisualOp
 
     /** Ribbon between two points; length follows them every tick. */
@@ -64,6 +77,10 @@ public sealed interface VisualOp : PresentationOp {
         val color: Value<String>,
         val alpha: Value<Double>,
         val untilEvent: String?,
+        /** Alpha at age a = `alpha * (1 - a / ticks) ^ fade`: 1 linear, below 1 holds bright then drops, above 1 drops early. */
+        val fade: Value<Double>? = null,
+        /** `soft` translucent ribbon (default), `crisp` hard ribbon that keeps its alpha until it ends, `both` soft body with a crisp edge. */
+        val style: String = "soft",
     ) : VisualOp
 
     /**

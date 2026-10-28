@@ -7,11 +7,11 @@ import com.astarworks.astera.core.domain.skillengine.op.SkillOp
 /**
  * The rows of one section's `timeline:`. A row fires at an absolute tick since cast start (`at: 4`) or
  * [TimelineAt.AfterEvent] ticks after an event was first raised (`at: release+2`); with `every` it repeats
- * until its `until` event has been raised. [due] is called once per cast tick and returns each row at most once
+ * until its `until` event has been raised or, with `for: N`, N ticks after its first firing (end exclusive: `every: 2, for: 10` fires 5 times). [due] is called once per cast tick and returns each row at most once
  * per tick, in declaration order.
  */
 internal class Timeline<O : SkillOp>(private val rows: List<TimelineEntry<O>>) {
-    private class State(var next: Int? = null, var done: Boolean = false)
+    private class State(var next: Int? = null, var done: Boolean = false, var first: Int? = null)
 
     private val states = rows.map { State() }
 
@@ -38,13 +38,15 @@ internal class Timeline<O : SkillOp>(private val rows: List<TimelineEntry<O>>) {
             val n = st.next ?: continue
             if (since < n) continue
             out += row
+            if (st.first == null) st.first = n
             val every = row.everyTicks
             if (every == null || every <= 0) {
                 st.done = true
             } else {
                 var next = n + every
                 while (next <= since) next += every
-                st.next = next
+                val span = row.forTicks
+                if (span != null && next >= st.first!! + span) st.done = true else st.next = next
             }
         }
         return out

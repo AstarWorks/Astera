@@ -93,6 +93,7 @@ object SkillSchemaGenerator {
         property == "untilEvent" -> "until"
         property == "afterTicks" -> "after"
         property == "everyTicks" -> "every"
+        property == "forTicks" -> "for"
         property == "ops" -> "do"
         owner == com.astarworks.astera.core.domain.skillengine.op.TrackKey::class && property == "tick" -> "t"
         owner == com.astarworks.astera.core.domain.skillengine.op.StatusOp.ApplyStatus::class && property == "statusId" -> "status"
@@ -369,6 +370,7 @@ object SkillSchemaGenerator {
             "do" to arrayOf(ref(opsDef)),
             "every" to obj { put("type", "integer"); put("minimum", 1) },
             "until" to type("string"),
+            "for" to obj { put("type", "integer"); put("minimum", 1) },
             "when" to valueSchema(kotlin.reflect.typeOf<Boolean>()),
         )
         val required = if (ctx.patch) listOf("id") else listOf("id", "at", "do")

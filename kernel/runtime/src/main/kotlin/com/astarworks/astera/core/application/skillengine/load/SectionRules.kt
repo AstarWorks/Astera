@@ -10,7 +10,7 @@ internal object SectionRules {
     val GAMEPLAY_KEYS = setOf("params", "expose", "timeline", "on")
     val PRESENTATION_KEYS = setOf("params", "body_anim", "timeline", "on")
     val EXPOSE_KEYS = setOf("id", "param", "min", "max")
-    val ROW_KEYS = setOf("id", "at", "do", "every", "until", "when")
+    val ROW_KEYS = setOf("id", "at", "do", "every", "for", "until", "when")
 
     /** Frame kinds an author may declare; world/caster/enemy/contact are built in. */
     val DECLARABLE_KINDS: Map<String, FrameKind> = mapOf(
