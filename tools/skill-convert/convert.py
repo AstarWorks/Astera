@@ -1366,12 +1366,14 @@ class Conv:
         self.vfx_scale = fscale
         if fscale != 1.0:
             self.look_frames[fid]["scale"] = fscale
-            # the frame scales translations and display sizes (block / quad / mesh / plate); lengths of these are not covered
+            # the frame scales translations and display sizes (block / quad / mesh / plate); lengths of these are not covered.
+            # Particle elements need nothing more: v1 scales only their position (VfxTimeline.particleSlot :593-595, centerAt),
+            # never the particle. Emitters are baked in local units: v1 scales origin, speed, size and gravity by the same factor
+            # (VfxEmitter.kt :125 :132 :135 :153, drag is unitless), so the baked ballistic path and quad size under the scaled
+            # frame equal v1's.
             for what, bad in (("body", d.get("body") or d.get("ghost_bodies")),
                               ("group track", any(e.get("group_keyframes") for e in d.get("elements", []))),
-                              ("trail", any(r.get("trails") for r in d.get("rigs", []) or [])),
-                              ("particle / emitter speed, size", any((e.get("kind") or {}).get("type") == "particle" or e.get("emit")
-                                                                     for e in d.get("elements", [])))):
+                              ("trail", any(r.get("trails") for r in d.get("rigs", []) or []))):
                 if bad:
                     self.present("vfx scale %s: %s lengths are not scaled by the frame" % (fscale, what), vid)
         if not follow and not snapshot and parent == "world" and want != "world":

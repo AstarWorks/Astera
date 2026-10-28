@@ -1,6 +1,5 @@
 # Converted from content/skills/vendetta-rifle-ego.yaml + content/vfx/* by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
 # Generated point-frame offsets are [left, up, forward] in the parent frame.
-# CONVERT-PRESENT vfx scale 0.65: particle / emitter speed, size lengths are not scaled by the frame (x2): vendetta-burst
 apiVersion: "astera/v2"
 kind: Skill
 id: vendetta-rifle-ego
