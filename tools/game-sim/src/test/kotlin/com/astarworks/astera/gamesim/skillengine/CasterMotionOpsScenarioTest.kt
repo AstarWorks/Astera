@@ -2,6 +2,7 @@ package com.astarworks.astera.gamesim.skillengine
 
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.skillengine.table.Action
+import com.astarworks.astera.core.domain.skillengine.table.Val
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -22,7 +23,7 @@ class CasterMotionOpsScenarioTest : SkillEngineScenario() {
             go:
               for: 12
               do:
-                - {id: dash, op: dash, at: 3, speed: 1.5, for: 6, follow_pitch: false, stop_on_block: true, invulnerable: false, face_movement: false}
+                - {id: dash, op: dash, at: 3, speed: 1.5, for: 6, direction: {forward: 1}, follow_pitch: false, stop_on_block: true, invulnerable: false, face_movement: false}
                 - {emit: done, at: 9}
     """.trimIndent()
 
@@ -30,7 +31,7 @@ class CasterMotionOpsScenarioTest : SkillEngineScenario() {
     fun dashLowersToStartAndEndEffectRows() {
         val skill = (loadInline(dashSkill) as Result.Success).value
         val rows = skill.table.states.flatMap { it.rows }
-        val effects = rows.filter { it.action is Action.Effect && (it.action as Action.Effect).op.value == "dash" }
+        val effects = rows.filter { it.action is Action.Effect && ((it.action as Action.Effect).payload["kind"] as? Val.Known<*>)?.value.toString().startsWith("dash") }
         assertThat(effects.map { it.tick }).containsExactly(3, 9)
     }
 

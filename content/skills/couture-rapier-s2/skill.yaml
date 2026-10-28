@@ -1003,10 +1003,15 @@ machine:
         # v2 dust: vanilla directed form (R34); v2 speed 0 so the velocity is only inherit_velocity 0.5 x the volley velocity.
         - {id: puff, op: particle, particle: dust, anchor: caster.palm, times: 6, count: 0, offset: "= velocity(volley) * 0.5", extra: 1.0, color: "= thread_color", size: 1.0}
         # v2 thread lines palm -> blade_a.root / blade_b.root / body.pivot (R34: live ribbons).
-        - {id: thread_a, op: ribbon, from: {of: caster, offset: palm}, to: fly_a, thickness: "= thread_thick", color: "= thread_color", until: reel.end}
-        - {id: thread_b, op: ribbon, from: {of: caster, offset: palm}, to: fly_b, thickness: "= thread_thick", color: "= thread_color", until: reel.end}
-        - {id: thread_body, op: ribbon, from: {of: caster, offset: palm}, to: fly_body, thickness: "= thread_thick", color: "= thread_color", until: reel.end}
-        # GAP: v2 plate flight_fan (crescent couture-s2-crescent, size 1.9, alpha 0.5, plane [axis, up] of the volley, removed on hit) has no draft yet: the plane rotate for `billboard: fixed` is unverified.
+        - {id: thread_a, op: ribbon, from: {of: caster, offset: palm}, to: fly_a.root, thickness: "= thread_thick", color: "#ff5fa2", until: reel.end}
+        - {id: thread_b, op: ribbon, from: {of: caster, offset: palm}, to: fly_b.root, thickness: "= thread_thick", color: "#ff5fa2", until: reel.end}
+        - {id: thread_body, op: ribbon, from: {of: caster, offset: palm}, to: fly_body.pivot, thickness: "= thread_thick", color: "#ff5fa2", until: reel.end}
+        # v1 plate flight_fan: slash_fan (= couture-s2-crescent) in the plane [axis, up] of the volley, alpha 0.5, removed on hit/block (the throw state ends then). Size 1.9 is the v2 value. ASSUMPTION: a fixed sprite faces +forward, so up 90 lays its x axis along the flight axis.
+        - {id: flight_fan, op: display, kind: sprite, sprite: couture-s2-crescent, size: [1.9, 1.9], color: "#80ffffff", anchor: volley, billboard: fixed, rotate: [{axis: up, deg: 90}], for: 7}
+        # v1 tip-glint (couture-s2-*-flight): couture-s2-p-tip every tick, ticks 3..10, per piece, at the v1 vfx-local lane point. v1 VfxDefinition.kt:372 documents x = left, y = up, z = forward, so offsets are copied unchanged.
+        - {id: tip_glint_a, op: particle_def, def: couture-s2-p-tip, anchor: volley, offset: {left: -0.6, up: 0.12, forward: 0.05}, at: 3, every: 1, times: 8}
+        - {id: tip_glint_b, op: particle_def, def: couture-s2-p-tip, anchor: volley, offset: {left: 0.6, up: -0.1, forward: 0.95}, at: 3, every: 1, times: 8}
+        - {id: tip_glint_body, op: particle_def, def: couture-s2-p-tip, anchor: volley, offset: {left: 0.0, up: 0.0, forward: 0.45}, at: 3, every: 1, times: 8}
       on:
         - {event: volley.hit, to: stuck}
         - {event: volley.block, to: stuck}
@@ -1014,6 +1019,13 @@ machine:
       for: "= stick_ticks"
       then: reel
       do:
+        # v1 stick-spark / stick-pink (couture-s2-*-stuck): ticks 0..2 per piece at the v1 vfx-local point (x lane, y 1.48, z 0.05). same axis mapping as tip-glint; the anchor is the volley, not the hit point.
+        - {id: stick_a_stick, op: particle_def, def: couture-s2-p-stick, anchor: volley, offset: {left: -0.6, up: 1.48, forward: 0.05}, at: 0, every: 1, times: 3}
+        - {id: stick_a_stick_pink, op: particle_def, def: couture-s2-p-stick-pink, anchor: volley, offset: {left: -0.6, up: 1.48, forward: 0.05}, at: 0, every: 1, times: 3}
+        - {id: stick_b_stick, op: particle_def, def: couture-s2-p-stick, anchor: volley, offset: {left: 0.6, up: 1.48, forward: 0.05}, at: 0, every: 1, times: 3}
+        - {id: stick_b_stick_pink, op: particle_def, def: couture-s2-p-stick-pink, anchor: volley, offset: {left: 0.6, up: 1.48, forward: 0.05}, at: 0, every: 1, times: 3}
+        - {id: stick_body_stick, op: particle_def, def: couture-s2-p-stick, anchor: volley, offset: {left: 0.0, up: 1.48, forward: 0.05}, at: 0, every: 1, times: 3}
+        - {id: stick_body_stick_pink, op: particle_def, def: couture-s2-p-stick-pink, anchor: volley, offset: {left: 0.0, up: 1.48, forward: 0.05}, at: 0, every: 1, times: 3}
         - id: t2
           op: group
           at: 2

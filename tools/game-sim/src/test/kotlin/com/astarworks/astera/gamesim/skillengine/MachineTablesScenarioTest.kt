@@ -83,7 +83,7 @@ class MachineTablesScenarioTest : SkillEngineScenario() {
                 p:
                   for: 30
                   then: z
-                  on: [ { event: stop, to: z } ]
+                  on: [ { event: input.use, to: z } ]
                   start: c
                   states:
                     c: { for: 5, then: d }
@@ -96,7 +96,7 @@ class MachineTablesScenarioTest : SkillEngineScenario() {
         val child = s.table.states.first { it.state == StatePath("p/c") }
         assertThat(child.branches.map { it.event.value }).containsExactly("timer(5)")
         val parent = s.table.states.first { it.state == StatePath("p") }
-        assertThat(parent.branches.map { it.event.value }).containsExactlyInAnyOrder("stop", "timer(30)")
+        assertThat(parent.branches.map { it.event.value }).containsExactlyInAnyOrder("input.use", "timer(30)")
         // the child can be preempted, so it has exit[preempt]; the parent has no preempt (no parent of its own)
         assertThat(keys(s)).contains("p/c.exit[preempt]", "p/c.exit[timer]", "p/c.exit[cancel]", "p.exit[event]", "p.exit[timer]")
         assertThat(keys(s)).doesNotContain("p.exit[preempt]")
@@ -208,8 +208,8 @@ class MachineTablesScenarioTest : SkillEngineScenario() {
               for: 10
               then: done
               do:
-                - { id: hit, op: damage, amount: 6 }
-                - { id: spark, op: particle, count: 3 }
+                - { id: hit, op: damage, target: caster, damage: { physical: 6 } }
+                - { id: spark, op: particle, particle: crit, anchor: caster, count: 3 }
             done: { final: true }
     """.trimIndent()
 
@@ -237,19 +237,19 @@ class MachineTablesScenarioTest : SkillEngineScenario() {
 
     @Test
     fun patchReplaceField(@TempDir tmp: Path) {
-        val c = composeWith(tmp, patchDoc("""- {path: "machine.states.cast.do[hit].amount", ${'$'}patch: replace, value: 9}"""))
+        val c = composeWith(tmp, patchDoc("""- {path: "machine.states.cast.do[hit].damage.physical", ${'$'}patch: replace, value: 9}"""))
         assertThat(c.composeAll()).isInstanceOf(Result.Success::class.java)
         val rows = doRows(c)
         assertThat(rows.map { it["id"] }).containsExactly("hit", "spark")
-        assertThat(rows.first()["amount"]).isEqualTo(9)
+        assertThat((rows.first()["damage"] as Map<*, *>)["physical"]).isEqualTo(9)
     }
 
     @Test
     fun patchUnresolvedPathIsLoadError(@TempDir tmp: Path) {
-        val c = composeWith(tmp, patchDoc("""- {path: "machine.states.cast.do[nope].amount", ${'$'}patch: replace, value: 9}"""))
+        val c = composeWith(tmp, patchDoc("""- {path: "machine.states.cast.do[nope].damage.physical", ${'$'}patch: replace, value: 9}"""))
         val errors = (c.composeAll() as Result.Failure).error
         assertThat(errors.single()).isInstanceOf(ComposeError.PatchError.UnresolvedPath::class.java)
-        assertThat((errors.single() as ComposeError.PatchError.UnresolvedPath).path).isEqualTo("machine.states.cast.do[nope].amount")
+        assertThat((errors.single() as ComposeError.PatchError.UnresolvedPath).path).isEqualTo("machine.states.cast.do[nope].damage.physical")
     }
 
     @Test
@@ -286,7 +286,7 @@ class MachineTablesScenarioTest : SkillEngineScenario() {
             machine:
               start: cast
               world:
-                - {id: body, op: damage, amount: 3}
+                - {id: body, op: damage, target: caster, damage: {physical: 3}}
               states:
                 cast:
                   for: 34

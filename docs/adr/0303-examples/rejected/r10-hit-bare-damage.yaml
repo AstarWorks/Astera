@@ -1,4 +1,4 @@
-# error: SkillDecodeError.Invalid   (10.1b: `damage` is a map kind -> amount; a bare number hides the kind)
+# error: SkillDecodeError.TypeMismatch   (10.1b: `damage` is a map kind -> amount; a bare number hides the kind)
 apiVersion: astera/v3
 kind: Skill
 id: rejected-r10
@@ -13,5 +13,5 @@ machine:
       for: 12
       then: end
       do:
-        - {id: cut, op: hit, at: 4, anchor: caster, targets: enemies, shape: {sector: {deg: 90, range: 4, height: 2.0}}, damage: 12}
+        - {id: cut, op: hit, at: 4, anchor: caster, targets: enemies, shape: {sector: {deg: 90, range: 4, height: 2.0, forward: look}}, damage: 12, ignore_invulnerability: false, window: once}
     end: {final: true}

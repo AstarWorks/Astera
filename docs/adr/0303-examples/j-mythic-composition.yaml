@@ -26,7 +26,7 @@ machine:
             - id: ball               # this occurrence's ball; `i` = 0..3 inside this list
               op: projectile
               origin: muzzle
-              velocity: "= forward * 1.0"              # muzzle.forward at the occurrence tick, 1 block/tick
+              velocity: "= look(caster) * 1.0"        # the caster look at the occurrence tick (muzzle forward), 1 block/tick
               speed: 1.0
               range: 12                                # `end` at 12 blocks = tick 12 of the flight unless hit/block earlier
               radius: 0.4

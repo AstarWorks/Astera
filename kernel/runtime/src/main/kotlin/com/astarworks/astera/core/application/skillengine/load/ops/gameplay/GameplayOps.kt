@@ -99,7 +99,8 @@ internal object GameplayOps {
         val v = areaFields.read(raw, ctx, path)
         return when (v[areaKind]) {
             "enemies" -> {
-                if (v.isPresent(areaSelf)) ctx.fail(path, "include_self is only valid for allies")
+                // ADR-0303 3: an area target writes include_self on both kinds; the caster is never an enemy, so only false is meaningful there
+                if (v[areaSelf]) ctx.fail(path, "include_self: true is only valid for allies (the caster is never an enemy)")
                 TargetRef.Enemies(PointRef.parse(v[areaAround]), v[areaRadius], maxCount(v, areaMax, ctx, path))
             }
             else -> TargetRef.Allies(PointRef.parse(v[areaAround]), v[areaRadius], maxCount(v, areaMax, ctx, path), v[areaSelf])

@@ -8,40 +8,47 @@
 apiVersion: astera/v3
 kind: Skill
 id: bastion-greatsword-s1
+item: bastion-greatsword
 anchors:
   - {id: hand, anchor: caster.hand_r, mount: caster}      # the sword is a passenger: it cannot lag the hand while the caster moves (RC2)
-presentation:
-  timeline:
-    - id: swing
-      at: 0
+machine:
+  start: swing
+  states:
+    swing:
+      for: 58
+      then: done
       do:
-        - {id: canim, op: body, at: 0, anim: bastion-s1-body, speed: 1.0, for: 58}   # R41: `body` replaces `caster_anim`
-        - id: sword
-          op: display
-          kind: item
-          item: main_hand                  # resolved to its item_model id at cast start (no cloned stack)
-          context: fixed
-          anchor: hand
-          rotate: [{axis: left, deg: 98}, {axis: up, deg: -12}]        # rest: blade up and out of the fist (replaces pivot/rest/tilt)
-          for: 47
-          motion:
-            - law: keys
-              keys:
-                - {t: 2,  pose: [{axis: left, deg: 98},  {axis: up, deg: -12}]}              # wind-up hold
-                - {t: 5,  pose: [{axis: left, deg: 250}, {axis: up, deg: 20}],  ease: in}    # overhead chop: +deg about `left` takes the tip up -> forward -> down
-                - {t: 8,  pose: [{axis: left, deg: 330}, {axis: up, deg: 40}]}               # follow-through
-                - {t: 16, pose: [{axis: left, deg: 340}, {axis: up, deg: 55}]}               # hold
-                - {t: 27, pose: [{axis: left, deg: 300}, {axis: up, deg: 95}], ease: out}    # recover into the cross-cut
-                - {t: 36, pose: [{axis: left, deg: 240}, {axis: up, deg: 25}]}
-                - {t: 47, pose: []}                                                           # back to rest
-        - {id: snd, op: sound, sound: block.gravel.step, anchor: caster, volume: 1.0, pitch: 0.6}
-        - id: edge_trail
-          op: ribbon
-          of: sword.tip                    # tip / root come from content/frames/<item>.yaml
-          root: sword.grip
-          history: 4                       # ticks of tip history drawn (a ribbon is extended: its window is `for` below)
-          style: soft
-          width_frac: 1.0
-          color: "#EE14245F"
-          at: 3                            # the trail starts when the chop starts, `for` is its window
-          for: 20
+        - id: swing
+          at: 0
+          do:
+            - {id: canim, op: body, at: 0, anim: bastion-s1-body, speed: 1.0, for: 58}   # R41: `body` replaces `caster_anim`
+            - id: sword                       # a frame carries the item's points: sword.tip / sword.grip / sword.root come from content/frames/bastion-greatsword.yaml (part held)
+              op: frame
+              anchor: hand
+              part: held
+              turn: [{axis: left, deg: 98}, {axis: up, deg: -12}]        # rest: blade up and out of the fist (replaces pivot/rest/tilt)
+              for: 47
+              motion:
+                - law: keys
+                  keys:
+                    - {t: 2,  pose: [{axis: left, deg: 98},  {axis: up, deg: -12}]}              # wind-up hold
+                    - {t: 5,  pose: [{axis: left, deg: 250}, {axis: up, deg: 20}],  ease: in_quad}    # overhead chop: +deg about `left` takes the tip up -> forward -> down
+                    - {t: 8,  pose: [{axis: left, deg: 330}, {axis: up, deg: 40}]}               # follow-through
+                    - {t: 16, pose: [{axis: left, deg: 340}, {axis: up, deg: 55}]}               # hold
+                    - {t: 27, pose: [{axis: left, deg: 300}, {axis: up, deg: 95}], ease: out_cubic}    # recover into the cross-cut
+                    - {t: 36, pose: [{axis: left, deg: 240}, {axis: up, deg: 25}]}
+                    - {t: 47, pose: []}                                                           # back to rest
+            - {id: blade, op: display, kind: item, item: bastion-greatsword, context: fixed, anchor: sword, for: 47}   # the item's own model rides the frame
+            - {id: snd, op: sound, sound: block.gravel.step, anchor: caster, volume: 1.0, pitch: 0.6}
+            - id: edge_trail
+              op: ribbon
+              of: sword.tip                    # tip / root come from content/frames/<item>.yaml
+              root: sword.grip
+              history: 4                       # ticks of tip history drawn (a ribbon is extended: its window is `for` below)
+              style: soft
+              width_frac: 1.0
+              color: "#EE14245F"
+              at: 3                            # the trail starts when the chop starts, `for` is its window
+              for: 20
+
+    done: {final: true}

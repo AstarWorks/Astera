@@ -53,7 +53,7 @@ class EffectOpScenarioTest : SkillEngineScenario() {
     @Test
     fun knockbackPlaysDirectionTimesStrength() {
         // v2 MovementOpExecutors: impulse(direction * strength), the direction is not normalised
-        val s = compile(skill("{op: knockback, at: 2, target: caster, direction: {x: 0, y: 0.5, z: 2}, strength: 1.5}"))
+        val s = compile(skill("{op: knockback, at: 2, target: caster, direction: [0, 0.5, 2], strength: 1.5}"))
         val impulses = play(s, 3L).filter { it.verb == "effect" && it.payload.startsWith("impulse") }
         assertThat(impulses.map { it.tick to it.payload }).containsExactly(2 to "impulse x=0 y=0.75 z=3")
     }
@@ -78,9 +78,9 @@ class EffectOpScenarioTest : SkillEngineScenario() {
 
     @Test
     fun dashRequiredFlagsMissingIsLoadError() {
-        val flags = "follow_pitch: false, stop_on_block: true, invulnerable: false, face_movement: false"
+        val flags = "direction: {forward: 1}, follow_pitch: false, stop_on_block: true, invulnerable: false, face_movement: false"
         assertThat(fails(skill("{id: d, op: dash, speed: 1.2, for: 8, $flags}"))).isFalse()
-        for (missing in listOf("follow_pitch: false, ", "stop_on_block: true, ", "invulnerable: false, ", "face_movement: false")) {
+        for (missing in listOf("direction: {forward: 1}, ", "follow_pitch: false, ", "stop_on_block: true, ", "invulnerable: false, ", "face_movement: false")) {
             assertThat(fails(skill("{id: d, op: dash, speed: 1.2, for: 8, ${flags.replace(missing, "")}}"))).`as`("without $missing").isTrue()
         }
         assertThat(fails(skill("{id: d, op: dash, speed: 1.2, for: 8, radius: 2, $flags}"))).`as`("radius was removed").isTrue()
@@ -88,7 +88,7 @@ class EffectOpScenarioTest : SkillEngineScenario() {
 
     @Test
     fun dashUntilHitEndsEarly() {
-        val flags = "follow_pitch: false, stop_on_block: true, invulnerable: false, face_movement: false"
+        val flags = "direction: {forward: 1}, follow_pitch: false, stop_on_block: true, invulnerable: false, face_movement: false"
         val s = compile(skill("{id: d, op: dash, speed: 1.2, for: 8, until: hit, $flags}"))
         // the static window stays the upper bound; ending at the event is the player's job (request to w1b-02d)
         val ends = rows(s).filter { it.action is Action.Effect && (it.action as Action.Effect).payload["kind"] == Val.Known("dash.end") }
@@ -125,7 +125,7 @@ class EffectOpScenarioTest : SkillEngineScenario() {
 
     @Test
     fun hurtFacesAwayFromContact() {
-        val s = compile(skill("{op: hurt, at: 0, target: event.victim, from: contact}", anchors = "{id: contact, anchor: caster.hand_r}"))
+        val s = compile(skill("{id: src, op: frame, anchor: caster.hand_r, for: 10}", "{op: hurt, at: 0, target: event.victim, from: src}"))
         val p = effect(s, "hurt").payload
         assertThat(p.getValue("from")).isInstanceOf(Val.Known::class.java)
         assertThat(p.keys).containsExactlyInAnyOrder("target", "from")
@@ -167,7 +167,7 @@ class EffectOpScenarioTest : SkillEngineScenario() {
 
     @Test
     fun hurtResolvesItsFromInstanceAndCalls() {
-        val s = compile(skill("{op: hurt, at: 2, target: caster, from: contact}", anchors = "{id: contact, anchor: caster.hand_r}"))
+        val s = compile(skill("{id: src, op: frame, anchor: caster.hand_r, for: 10}", "{op: hurt, at: 2, target: caster, from: src}"))
         assertThat(effectCalls(s).map { it.tick to it.payload }).contains(2 to "hurt")
     }
 
@@ -186,7 +186,7 @@ class EffectOpScenarioTest : SkillEngineScenario() {
 
     @Test
     fun dashUntilEventEndsTheInstanceAtThatTick() {
-        val flags = "follow_pitch: false, stop_on_block: true, invulnerable: false, face_movement: false"
+        val flags = "direction: {forward: 1}, follow_pitch: false, stop_on_block: true, invulnerable: false, face_movement: false"
         val s = compile(skill("{id: d, op: dash, speed: 1.2, for: 8, until: hit, $flags}"))
         val sub = s.table.subTables.values.single { it.event.value == "hit" }
         assertThat(sub.rows.map { it.action }.filterIsInstance<Action.End>()).hasSize(1)
@@ -213,7 +213,7 @@ class EffectOpScenarioTest : SkillEngineScenario() {
                 "apiVersion: astera/v3", "kind: Skill", "id: freeze-body", "item: any",
                 "anchors:", "  - {id: muzzle, anchor: caster.eye, offset: {forward: 0.5}}",
                 "machine:", "  start: s", "  states:", "    s:", "      for: 30", "      do:",
-                "        - {id: bolt, op: projectile, origin: muzzle, velocity: \"= forward * 1.0\", speed: 1.0, radius: 0.4, for: 25, hit: {targets: enemies, once: true}, block: {mode: despawn}}",
+                "        - {id: bolt, op: projectile, origin: muzzle, velocity: \"= look(caster) * 1.0\", radius: 0.4, for: 25, hit: {targets: enemies, once: true}, block: {mode: despawn}}",
                 "        - {id: da, op: display, kind: text, text: a, anchor: bolt, at: 3, for: 1}",
                 "        - {id: db, op: display, kind: text, text: b, anchor: bolt, at: 9, for: 1}",
             ) + (if (freeze) listOf("        - {id: fz, op: freeze, at: 4, ticks: 3, scope: [caster, bolt]}") else emptyList())

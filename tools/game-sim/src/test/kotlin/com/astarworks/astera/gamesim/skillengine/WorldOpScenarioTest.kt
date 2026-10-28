@@ -11,6 +11,9 @@ import org.junit.jupiter.api.Test
 import java.util.UUID
 
 /**
+ * Fixture note: terrain cases use `tool: pickaxe`; a toolless `break_area` is a flat chip that only hurts cover (v2 BreakAreaExecutor,
+ * LedgerWorldGateway.breakArea, 5723b74f0), so `tool: none` never breaks the stone these cases assert on.
+ *
  * W2-01 world ops (`break_area`, `place_shape`, `explode`, `lightning`): the op lowers to one `Action.World` row, and the
  * shared ledger gateway (production algorithm over an in-memory block map) spreads, orders and reverts the cells.
  */
@@ -25,10 +28,11 @@ class WorldOpScenarioTest : SkillEngineScenario() {
         id: world-probe
         anchors:
           - {id: body, anchor: caster}
-        gameplay:
-          timeline:
-            - id: t0
-              at: 0
+        machine:
+          start: s
+          states:
+            s:
+              for: 20
               do:
                 - $opLine
         """.trimIndent()
@@ -51,7 +55,7 @@ class WorldOpScenarioTest : SkillEngineScenario() {
     @Test
     fun worldRowSitsAtItsOwnTickNotDoubleShifted() {
         val src = skill("{id: b, op: break_area, anchor: body, shape: {sphere: {radius: 1.0, ahead: 0.0}}, tool: none, block_damage: 100, ripple: 0, revert: 200, outside_arena: false}")
-            .replace("at: 0", "at: 7")
+            .replace("op: break_area,", "op: break_area, at: 7,")
         val r = loadInline(src)
         assertThat(r).isInstanceOf(Result.Success::class.java)
         val ticks = (r as Result.Success).value.table.states.flatMap { it.rows }.filter { it.action is Action.World }.map { it.tick }
@@ -83,7 +87,7 @@ class WorldOpScenarioTest : SkillEngineScenario() {
     fun breakAreaRippleZeroSameTick() {
         val world = FakeSkillWorldGateway()
         stoneBlock(world, -4, 4)
-        run(world, "{id: b, op: break_area, anchor: body, shape: {sphere: {radius: 2.0, ahead: 0.0}}, tool: none, block_damage: 100, ripple: 0, revert: 200, outside_arena: false}")
+        run(world, "{id: b, op: break_area, anchor: body, shape: {sphere: {radius: 2.0, ahead: 0.0}}, tool: pickaxe, block_damage: 100, ripple: 0, revert: 200, outside_arena: false}")
         assertThat(world.strikes).isNotEmpty()
         assertThat(world.strikes.map { it.first }.toSet()).containsExactly(0)
     }
@@ -93,7 +97,7 @@ class WorldOpScenarioTest : SkillEngineScenario() {
         val world = FakeSkillWorldGateway()
         val cell = BlockCell(0, 64, 0)
         world.setBlock(cell, "minecraft:stone")
-        run(world, "{id: b, op: break_area, anchor: body, shape: {sphere: {radius: 0.5, ahead: 0.0}}, tool: none, block_damage: 100, ripple: 0, revert: 5, outside_arena: false}")
+        run(world, "{id: b, op: break_area, anchor: body, shape: {sphere: {radius: 0.5, ahead: 0.0}}, tool: pickaxe, block_damage: 100, ripple: 0, revert: 5, outside_arena: false}")
         assertThat(world.block(cell)).isNull()
         repeat(4) { world.tick() }
         assertThat(world.block(cell)).isNull()

@@ -1,4 +1,4 @@
-# error: SkillDecodeError.MissingField   (2.0a: a repeating group whose extended child has no end of its own must say `lasts`; field `lasts`)
+# error: SkillDecodeError.Invalid   (2.0a: a repeating group whose extended child has no end of its own must say `lasts`; the display has no end)
 apiVersion: astera/v3
 kind: Skill
 id: rejected-r8

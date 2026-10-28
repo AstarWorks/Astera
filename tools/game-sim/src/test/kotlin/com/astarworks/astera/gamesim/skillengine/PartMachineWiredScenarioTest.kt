@@ -16,7 +16,10 @@ class PartMachineWiredScenarioTest : SkillEngineScenario() {
     fun statesForThenTimer() {
         val t = compiled(
             """
+            apiVersion: astera/v3
+            kind: Skill
             id: s1
+            meta: {cooldown_ticks: 0, resource_cost: 0}
             machine:
               start: a
               states:
@@ -34,7 +37,10 @@ class PartMachineWiredScenarioTest : SkillEngineScenario() {
     fun transitionOrderFirstMatch() {
         val t = compiled(
             """
+            apiVersion: astera/v3
+            kind: Skill
             id: s2
+            meta: {cooldown_ticks: 0, resource_cost: 0}
             machine:
               start: a
               states:
@@ -54,31 +60,54 @@ class PartMachineWiredScenarioTest : SkillEngineScenario() {
     fun eventBubblesChildToParent() {
         val t = compiled(
             """
+            apiVersion: astera/v3
+            kind: Skill
             id: s3
+            meta: {cooldown_ticks: 0, resource_cost: 0}
             machine:
-              start: p/c
+              start: p
               states:
-                p: { on: [ { event: stop, to: z } ] }
-                p/c: { }
+                p:
+                  for: 30
+                  then: z
+                  on: [ { event: input.use, to: z } ]
+                  start: c
+                  states:
+                    c: { for: 5, then: d }
+                    d: { final: true }
                 z: { final: true }
             """.trimIndent(),
         )
         // the parent holds the branch; the player offers the event innermost first and bubbles it (item 14.8)
-        assertThat(t.states.first { it.state == StatePath("p") }.branches.first { it.event == EventPath("stop") }.target).isEqualTo(StatePath("z"))
-        assertThat(t.states.first { it.state == StatePath("p/c") }.branches.none { it.event == EventPath("stop") }).isTrue()
+        assertThat(t.states.first { it.state == StatePath("p") }.branches.first { it.event == EventPath("input.use") }.target).isEqualTo(StatePath("z"))
+        assertThat(t.states.first { it.state == StatePath("p/c") }.branches.none { it.event == EventPath("input.use") }).isTrue()
     }
 
     @Test
     fun preemptionExitsChildrenInnermostFirst() {
         val t = compiled(
             """
+            apiVersion: astera/v3
+            kind: Skill
             id: s4
+            meta: {cooldown_ticks: 0, resource_cost: 0}
             machine:
-              start: p/q/c
+              start: p
               states:
-                p: { on: [ { event: stop, to: z } ] }
-                p/q: { }
-                p/q/c: { }
+                p:
+                  for: 30
+                  then: z
+                  on: [ { event: input.use, to: z } ]
+                  start: q
+                  states:
+                    q:
+                      for: 20
+                      then: r
+                      start: c
+                      states:
+                        c: { for: 5, then: d }
+                        d: { final: true }
+                    r: { final: true }
                 z: { final: true }
             """.trimIndent(),
         )
@@ -93,16 +122,21 @@ class PartMachineWiredScenarioTest : SkillEngineScenario() {
 
     @Test
     fun parallelRegionsEndWhenAllFinal() {
-        // Needs MachineState.parallel (request to W0-01): the parent ends when every region has emitted `<region>.end`.
+        // ADR-0303 10.2 `parallel: [machine, ...]`: the parent ends when every region has emitted `<region>.end`.
         val t = compiled(
             """
+            apiVersion: astera/v3
+            kind: Skill
             id: s5
+            meta: {cooldown_ticks: 0, resource_cost: 0}
             machine:
               start: par
               states:
-                par: { parallel: [ra, rb], on: [ { event: par.end, to: z } ] }
-                ra: { final: true }
-                rb: { final: true }
+                par:
+                  parallel:
+                    - { start: ra, states: { ra: { final: true } } }
+                    - { start: rb, states: { rb: { final: true } } }
+                  on: [ { event: par.end, to: z } ]
                 z: { final: true }
             """.trimIndent(),
         )

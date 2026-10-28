@@ -1,4 +1,4 @@
-# error: SkillDecodeError.Invalid   (10.1b: `sector` is `{deg, range, height}`, all required; an absent `height` is a load error)
+# error: SkillDecodeError.MissingField   (field `height`; 10.1b: `sector` is `{deg, range, height}`, all required; an absent `height` is a load error)
 apiVersion: astera/v3
 kind: Skill
 id: rejected-r11
@@ -13,5 +13,5 @@ machine:
       for: 12
       then: end
       do:
-        - {id: cut, op: hit, at: 4, anchor: caster, targets: enemies, shape: {sector: {deg: 90, range: 4}}, damage: {physical: 12}}
+        - {id: cut, op: hit, at: 4, anchor: caster, targets: enemies, shape: {sector: {deg: 90, range: 4, forward: look}}, damage: {physical: 12}, ignore_invulnerability: false, window: once}
     end: {final: true}
