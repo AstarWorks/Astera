@@ -81,7 +81,7 @@ internal class CastInstance(
 
     override val cast: CastId get() = id
     override val tree: FrameTree = deps.newTree()
-    override val ports = deps.ports
+    override val ports: com.astarworks.astera.core.application.skillengine.runtime.port.SkillRuntimePorts = deps.portsIn(request.world)
     override val host: OpHost get() = this
     val bus = InMemoryCastEventBus()
 
@@ -887,7 +887,9 @@ internal class CastInstance(
                 "victim" -> currentVictim
                 else -> null
             } ?: return 1.0
-            return ports.entities.healthRatio(entity).coerceIn(0.0, 1.0)
+            val ratio = ports.entities.healthRatio(entity)
+                ?: throw ValueResolveException("hp_ratio: $entity is not a living entity")
+            return ratio.coerceIn(0.0, 1.0)
         }
 
         override fun bladeLen(frame: ExprValue.Ref): Double {

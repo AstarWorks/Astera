@@ -19,6 +19,7 @@ import com.astarworks.astera.combat.application.port.outbound.IStatusEffectConta
 import com.astarworks.astera.combat.application.usecase.damage.ApplyDamageUseCase
 import com.astarworks.astera.combat.application.usecase.status.ApplyStatusUseCase
 import com.astarworks.astera.combat.domain.event.SkillCast
+import com.astarworks.astera.combat.domain.event.SkillReleased
 import com.astarworks.astera.core.application.port.outbound.IStructureTargets
 import com.astarworks.astera.combat.platform.wiring.CombatPlatformPorts
 import com.astarworks.astera.core.application.port.outbound.IBlockStateGateway
@@ -68,10 +69,21 @@ internal class SkillEnginePaperRuntime(
     private var tickHandle: IScheduler.TaskHandle? = null
     private val notPorted = ConcurrentHashMap.newKeySet<String>()
     private var seenDiagnostics = 0
-    private var activeEntities: PaperSkillEntityQuery? = null
+
+    /**
+     * World the block gateway acts in until `ISkillWorldGateway` carries the cast (its owner's work package): the world of
+     * the most recently started cast. Sound, particle and entity queries do NOT use it; they are bound to the cast's world.
+     */
+    private var worldGatewayWorld: org.bukkit.World? = null
     private var visualGateway: PaperSkillVisualGateway? = null
     private var interruptions: org.bukkit.event.Listener? = null
     private val trace = com.astarworks.astera.combat.adapter.paper.skillengine.SkillEngineTraceObserver()
+
+    /** A missing prerequisite stops the engine from starting: every v2 skill would otherwise silently do nothing. */
+    private fun startFailed(reason: String): Nothing {
+        log.error("skill engine v2 NOT STARTED: {}. No v2 skill will run.", reason)
+        throw IllegalStateException("skill engine v2 not started: $reason")
+    }
 
     fun start(
         ctx: WiringContext,
@@ -83,63 +95,56 @@ internal class SkillEnginePaperRuntime(
         val services = ctx.services
         val scheduler = services.getOrThrow<IScheduler>()
         val eventBus = services.getOrThrow<IDomainEventBus>()
-        val worldGateway = services.getOrThrow<IWorldGateway>()
-        val knockback = services.get<IKnockbackGateway>() ?: run {
-            log.warn("skill engine v2 not started: no IKnockbackGateway"); return
-        }
-        val entityEffects = services.get<com.astarworks.astera.combat.application.port.outbound.IEntityEffectsGateway>() ?: run {
-            log.warn("skill engine v2 not started: no IEntityEffectsGateway"); return
-        }
-        val displays = ports.displayEntityGateway?.invoke(services) ?: run {
-            log.warn("skill engine v2 not started: no display entity gateway"); return
-        }
-        val feedback = ports.playerFeedbackGateway?.invoke(services) ?: run {
-            log.warn("skill engine v2 not started: no player feedback gateway"); return
-        }
+        val worldGateway = services.get<IWorldGateway>() ?: startFailed("no IWorldGateway")
+        val knockback = services.get<IKnockbackGateway>() ?: startFailed("no IKnockbackGateway")
+        val entityEffects = services.get<com.astarworks.astera.combat.application.port.outbound.IEntityEffectsGateway>() ?: startFailed("no IEntityEffectsGateway")
+        val displays = ports.displayEntityGateway?.invoke(services) ?: startFailed("no display entity gateway")
+        val feedback = ports.playerFeedbackGateway?.invoke(services) ?: startFailed("no player feedback gateway")
         val server = plugin.server
 
         val tables = wired.frameTables
         val catalog = wired.skillCatalog
 
-        val entities = PaperSkillEntityQuery(server) { services.get<IStructureTargets>() }
         val sprites = services.get<com.astarworks.astera.core.application.port.outbound.ISpriteRegistry>()
         val visuals = PaperSkillVisualGateway(server, displays, tables, spriteInfo = { id ->
             sprites?.find(com.astarworks.astera.core.domain.sprite.SpriteId(id))?.let { com.astarworks.astera.core.application.skillengine.runtime.port.SpriteInfo(it.frames, it.size) }
-                ?: com.astarworks.astera.core.application.skillengine.runtime.port.SpriteInfo(1, 32)
+                ?: error("skill engine: sprite '$id' is not registered")
         }, presentation = { services.get<com.astarworks.astera.core.application.port.outbound.presentation.IPlayerPresentation>() })
         visualGateway = visuals
         val orphans = visuals.sweepOrphans()
         if (orphans > 0) log.info("skill engine v2 removed {} orphaned ribbon displays left by an earlier run", orphans)
-        // Presentation-only casts create no display entity, so the visual gateway alone never learns the world.
-        val worldId = { entities.activeWorld()?.let { WorldId(it.name) } ?: visuals.activeWorld() }
-        activeEntities = entities
         val particleRegistry = services.get<com.astarworks.astera.core.application.port.outbound.IParticleRegistry>()
         lateinit var built: SkillEngineKit
+        val gameplay = PaperSkillGameplayGateway(
+            applyDamage = applyDamage,
+            applyStatus = applyStatus,
+            knockback = knockback,
+            casterPosition = { uuid -> server.getEntity(uuid)?.location?.let { Vec3(it.x, it.y, it.z) } },
+            holdEntity = { id, ticks -> entityEffects.hold(id, ticks) },
+            statusContainer = statusContainer,
+            entityEffects = entityEffects,
+            attributes = services.getOrThrow<IPlayerAttributeContainerStore>(),
+            scheduler = scheduler,
+            resourcePool = { services.get<IResourcePoolService>() },
+        )
+        val victimAnim = PaperSkillVictimAnimGateway(server, knockback)
         val gateways = SkillEngineGateways(
-            ports = SkillRuntimePorts(
-                visuals = visuals,
-                particles = PaperSkillParticleGateway(worldGateway, worldId) { id ->
-                    particleRegistry?.find(com.astarworks.astera.core.domain.effect.ParticleId(id))
-                },
-                sounds = PaperSkillSoundGateway(worldGateway, worldId),
-                gameplay = PaperSkillGameplayGateway(
-                    applyDamage = applyDamage,
-                    applyStatus = applyStatus,
-                    knockback = knockback,
-                    casterPosition = { uuid -> server.getEntity(uuid)?.location?.let { Vec3(it.x, it.y, it.z) } },
-                    holdEntity = { id, ticks -> entityEffects.hold(id, ticks) },
-                    statusContainer = statusContainer,
-                    entityEffects = entityEffects,
-                    attributes = services.getOrThrow<IPlayerAttributeContainerStore>(),
-                    scheduler = scheduler,
-                    resourcePool = { services.get<IResourcePoolService>() },
-                ),
-                entities = entities,
-                victimAnim = PaperSkillVictimAnimGateway(server, knockback),
-            ),
+            // Sound, particle and entity-query gateways are bound to the world of the cast being started.
+            portsIn = { world ->
+                SkillRuntimePorts(
+                    visuals = visuals,
+                    particles = PaperSkillParticleGateway(worldGateway, world) { id ->
+                        particleRegistry?.find(com.astarworks.astera.core.domain.effect.ParticleId(id))
+                    },
+                    sounds = PaperSkillSoundGateway(worldGateway, world),
+                    gameplay = gameplay,
+                    entities = PaperSkillEntityQuery(server, world) { services.get<IStructureTargets>() },
+                    victimAnim = victimAnim,
+                )
+            },
             movement = PaperSkillMovementGateway(server, applyStatus, statusContainer),
             world = PaperSkillWorldGateway(
-                world = { entities.activeWorld() },
+                world = { worldGatewayWorld },
                 ownerOf = { cast -> built.hosts.owner(cast) },
                 blocks = { services.get<IBlockStateGateway>() },
                 guard = { ports.blockEditGuard?.invoke(services) },
@@ -194,10 +199,11 @@ internal class SkillEnginePaperRuntime(
         tickHandle = scheduler.runRepeatingTicks(ExecutionScope.Global, 1L, 1L) {
             built.runner.tick(scheduler.currentTick().toInt())
             built.world.tick()
+            releaseLetGoHolds(eventBus, scheduler.currentTick())
             val diagnostics = built.runner.diagnostics()
             if (diagnostics.size != seenDiagnostics) {
                 diagnostics.drop(seenDiagnostics).forEach {
-                    log.warn("skill engine v2 cast {} tick {} op {}: {}", it.cast.value, it.tick, it.opId, it.message)
+                    log.error(it.asLogLine())
                 }
                 seenDiagnostics = diagnostics.size
             }
@@ -217,12 +223,37 @@ internal class SkillEnginePaperRuntime(
 
             @org.bukkit.event.EventHandler
             fun onWorld(e: org.bukkit.event.player.PlayerChangedWorldEvent) = interrupt(e.player.uniqueId)
+
+            /** A held right click re-sends every ~4 ticks; the hold ends when the clicks stop (see [releaseLetGoHolds]). */
+            @org.bukkit.event.EventHandler(ignoreCancelled = false)
+            fun onClick(e: org.bukkit.event.player.PlayerInteractEvent) {
+                if (e.action == org.bukkit.event.block.Action.RIGHT_CLICK_AIR || e.action == org.bukkit.event.block.Action.RIGHT_CLICK_BLOCK) {
+                    lastRightClick[e.player.uniqueId] = scheduler.currentTick()
+                }
+            }
         }
         interruptions = listener
         plugin.server.pluginManager.registerEvents(listener, plugin)
 
         ctx.subscriptions += eventBus.subscribe(MatchEnded::class) { built.world.revertAll() }
+        ctx.subscriptions += eventBus.subscribe(SkillReleased::class) { event ->
+            built.runner.raiseAllOf(event.caster.uuid, com.astarworks.astera.core.domain.skillengine.model.SkillEvents.RELEASE, event.atTick.toInt())
+        }
         ctx.subscriptions += eventBus.subscribe(SkillCast::class) { event -> onSkillCast(built, catalog::get, scheduler, event) }
+    }
+
+    /** Right-click ticks per player; a player whose clicks stopped for [HOLD_GAP_TICKS] let go: publish [SkillReleased] once. */
+    private val lastRightClick = ConcurrentHashMap<java.util.UUID, Long>()
+
+    private fun releaseLetGoHolds(eventBus: IDomainEventBus, now: Long) {
+        val it = lastRightClick.entries.iterator()
+        while (it.hasNext()) {
+            val (caster, last) = it.next()
+            if (now - last > HOLD_GAP_TICKS) {
+                it.remove()
+                eventBus.publish(SkillReleased(com.astarworks.astera.core.domain.player.PlayerId(caster), now))
+            }
+        }
     }
 
     private fun onSkillCast(
@@ -234,15 +265,20 @@ internal class SkillEnginePaperRuntime(
         val id = event.skillId.value
         val skill = find(id)
         if (skill == null) {
-            if (notPorted.add(id)) log.debug("skill {} is not ported to engine v2 yet (SKL-09)", id)
+            if (notPorted.add(id)) log.error("[skill-error] skill {} is not in the v2 catalog; the cast did nothing (caster {})", id, event.caster.uuid)
             return
         }
-        val player = plugin.server.getPlayer(event.caster.uuid) ?: return
+        val player = plugin.server.getPlayer(event.caster.uuid)
+        if (player == null) {
+            log.warn("skill engine v2 did not cast {}: caster {} is not online", id, event.caster.uuid)
+            return
+        }
         val loc = player.location
-        activeEntities?.noteWorld(player.world)
+        worldGatewayWorld = player.world
         val request = CastRequest(
             skill = skill,
             caster = event.caster.uuid,
+            world = WorldId(player.world.name),
             casterFeet = Vec3(loc.x, loc.y, loc.z),
             casterYawDeg = loc.yaw.toDouble(),
             casterPitchDeg = loc.pitch.toDouble(),
@@ -260,6 +296,11 @@ internal class SkillEnginePaperRuntime(
                 label, request.caster, loc.x, loc.y, loc.z, loc.yaw, loc.pitch, request.startTick,
             )
         }
+    }
+
+    private companion object {
+        /** Same gap the items plugin uses to call a right click a hold (`ItemInputTriggers.HOLD_GAP_TICKS`). */
+        const val HOLD_GAP_TICKS = 5L
     }
 
     fun stop() {

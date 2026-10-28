@@ -28,7 +28,8 @@ import java.util.UUID
 
 /** Every outbound port the cast runner and its executors use; the Paper plugin implements them. */
 public class SkillEngineGateways(
-    public val ports: SkillRuntimePorts,
+    /** Ports of one cast, built for the cast's world (see [CastRunnerDeps.portsIn]). */
+    public val portsIn: (com.astarworks.astera.core.domain.world.WorldId) -> SkillRuntimePorts,
     public val movement: ISkillMovementGateway,
     public val world: ISkillWorldGateway,
     public val casterAnim: ISkillCasterAnimGateway,
@@ -72,7 +73,7 @@ public class SkillEngineKit(
             maxCastTicks: Int = 1200,
         ): SkillEngineKit {
             val hosts = CastHosts()
-            val dashes = DashStrikeDriver(gateways.ports, gateways.movement, hosts)
+            val dashes = DashStrikeDriver(gateways.movement, hosts)
             val locks = MovementLockDriver(gateways.movement)
             val editor = SkillWorldEditor(gateways.world)
             val presentation = PresentationRuntime(hosts, gateways.casterAnim, gateways.screen, points)
@@ -88,7 +89,7 @@ public class SkillEngineKit(
             registry.registerAll(presentationExecutors(presentation))
             val runner = DefaultCastRunner(
                 CastRunnerDeps(
-                    ports = gateways.ports, newTree = newTree, motion = motion, contacts = contacts, exprs = exprs,
+                    portsIn = gateways.portsIn, newTree = newTree, motion = motion, contacts = contacts, exprs = exprs,
                     executors = registry, points = points, hosts = hosts, dashes = dashes, locks = locks, world = editor,
                     presentation = presentation, cooldowns = gateways.cooldowns, items = gateways.items,
                     effects = gateways.effects, skills = skills, isAlly = isAlly, observer = observer, maxCastTicks = maxCastTicks,

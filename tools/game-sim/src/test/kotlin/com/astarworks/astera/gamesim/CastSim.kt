@@ -40,6 +40,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import java.nio.file.Path
 import java.util.UUID
+import com.astarworks.astera.core.domain.world.WorldId
 
 /** The point `dist` in front of / `side` left of / `up` above [origin] for a caster facing [yawDeg] (Minecraft: yaw 0 faces +Z, left is +X). */
 fun ahead(origin: Vec3, yawDeg: Double, dist: Double, side: Double = 0.0, up: Double = 0.0): Vec3 {
@@ -82,7 +83,14 @@ class CastSim(
     val pitchDeg: Double = 0.0,
     /** Extra skills for grammar scenarios: id -> `skill.yaml` text, composed beside a copy of the shipped skills. */
     extraSkills: Map<String, String> = emptyMap(),
+    /** The world the caster stands in; sound, particles and entity queries must be bound to it (see [soundWorlds]). */
+    val castWorld: WorldId = WorldId("world"),
 ) {
+    /** World each sound / particle burst / entity query was bound to, in call order. */
+    val soundWorlds = ArrayList<WorldId>()
+    val particleWorlds = ArrayList<WorldId>()
+    val queryWorlds = ArrayList<WorldId>()
+
     /** Every live frame's world position after each tick: (tick, frame id, position). */
     val frameTrace = ArrayList<Triple<Int, String, Vec3>>()
 
@@ -176,14 +184,23 @@ class CastSim(
         }
     }
 
-    private val sound = object : ISkillSoundGateway {
-        override fun play(sound: String, at: Vec3, volume: Double, pitch: Double) { sounds += now to sound; soundPitches += Triple(now, sound, pitch) }
+    private fun soundIn(w: WorldId) = object : ISkillSoundGateway {
+        override fun play(sound: String, at: Vec3, volume: Double, pitch: Double) {
+            sounds += now to sound; soundPitches += Triple(now, sound, pitch); soundWorlds += w
+        }
     }
 
-    private val entities = object : ISkillEntityQuery {
+    private fun particlesIn(w: WorldId): ISkillParticleGateway {
+        val inner = particleGateway ?: noop<ISkillParticleGateway>()
+        return object : ISkillParticleGateway { override fun emit(burst: ParticleBurst) { particleWorlds += w; inner.emit(burst) } }
+    }
+
+    private fun entitiesIn(w: WorldId) = object : ISkillEntityQuery {
+        override fun healthRatio(entity: UUID): Double? = 1.0
         private fun box(feet: Vec3) = HitBox(Vec3(feet.x - halfWidth, feet.y, feet.z - halfWidth), Vec3(feet.x + halfWidth, feet.y + boxHeight, feet.z + halfWidth))
-        override fun nearby(point: Vec3, radius: Double, excluding: UUID?): List<HitCandidate> =
-            victims.filter { (id, feet) ->
+        override fun nearby(point: Vec3, radius: Double, excluding: UUID?): List<HitCandidate> {
+            queryWorlds += w
+            return victims.filter { (id, feet) ->
                 // Paper's getNearbyLivingEntities: the cube of half-size radius around the point must overlap the entity box.
                 val b = box(feet)
                 id != excluding && b.min.x <= point.x + radius && b.max.x >= point.x - radius &&
@@ -191,6 +208,7 @@ class CastSim(
                     b.min.z <= point.z + radius && b.max.z >= point.z - radius
             }
                 .map { (id, feet) -> HitCandidate(id, feet, 0.0, box(feet)) }
+        }
         override fun rootOf(entity: UUID): EntityRoot? =
             if (entity == caster) EntityRoot(casterFeet, yawDeg, pitchDeg, 1.62, 1.8) else victims[entity]?.let { EntityRoot(it, 0.0, 0.0, 1.62, 1.8) }
         override fun raycastBlock(from: Vec3, to: Vec3): BlockHit? {
@@ -224,9 +242,15 @@ class CastSim(
         assertThat(report.failed).describedAs("shipped skills load: ${report.failures}").isZero()
     }
 
+    private val visuals: ISkillVisualGateway = visualGateway ?: object : ISkillVisualGateway by noop() {
+        override fun sprite(sprite: String) = com.astarworks.astera.core.application.skillengine.runtime.port.SpriteInfo(1, 32)
+        override fun setPlateFrame(handle: VisualHandle, frame: Int, tintHex: String?) {}
+        override fun setTrailLook(handle: VisualHandle, fadePower: Double, style: String) {}
+    }
+
     val kit: SkillEngineKit = SkillEngineKit.build(
         gateways = SkillEngineGateways(
-            ports = SkillRuntimePorts(visualGateway ?: object : ISkillVisualGateway by noop() { override fun sprite(sprite: String) = com.astarworks.astera.core.application.skillengine.runtime.port.SpriteInfo(1, 32) }, particleGateway ?: noop<ISkillParticleGateway>(), sound, gameplay, entities, noop<ISkillVictimAnimGateway>()),
+            portsIn = { w -> SkillRuntimePorts(visuals, particlesIn(w), soundIn(w), gameplay, entitiesIn(w), noop<ISkillVictimAnimGateway>()) },
             movement = movement,
             world = world,
             casterAnim = object : ISkillCasterAnimGateway {
@@ -246,7 +270,7 @@ class CastSim(
     /** Starts [id] at the current tick without ticking; drive it with [step]. */
     fun start(id: String): CastId {
         val skill = requireNotNull(catalog.get(id)) { "skill $id not loaded" }
-        val req = CastRequest(skill, caster, origin, yawDeg, pitchDeg, seed = 7L, startTick = now)
+        val req = CastRequest(skill, caster, castWorld, origin, yawDeg, pitchDeg, seed = 7L, startTick = now)
         return when (val r = kit.runner.start(req)) {
             is Result.Success -> r.value
             is Result.Failure -> error("cast did not start: ${r.error}")
@@ -267,7 +291,7 @@ class CastSim(
 
     fun cast(id: String, ticks: Int): CastId {
         val skill = requireNotNull(catalog.get(id)) { "skill $id not loaded" }
-        val req = CastRequest(skill, caster, origin, yawDeg, pitchDeg, seed = 7L, startTick = 0)
+        val req = CastRequest(skill, caster, castWorld, origin, yawDeg, pitchDeg, seed = 7L, startTick = 0)
         val cast = when (val r = kit.runner.start(req)) {
             is Result.Success -> r.value
             is Result.Failure -> error("cast did not start: ${r.error}")
