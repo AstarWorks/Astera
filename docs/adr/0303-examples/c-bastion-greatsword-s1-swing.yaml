@@ -39,7 +39,9 @@ presentation:
           op: ribbon
           of: sword.tip                    # tip / root come from content/frames/<item>.yaml
           root: sword.grip
-          lasts: 4                         # ribbon history length (a ribbon is extended: its window is `for` below)
+          history: 4                       # ticks of tip history drawn (a ribbon is extended: its window is `for` below)
+          style: soft
+          width_frac: 1.0
           color: "#EE14245F"
           at: 3                            # the trail starts when the chop starts, `for` is its window
           for: 20

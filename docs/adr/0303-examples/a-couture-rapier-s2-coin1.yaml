@@ -6,7 +6,7 @@ apiVersion: astera/v3
 kind: Skill
 id: couture-rapier-s2
 anchors:
-  - {id: body,  anchor: caster}                         # follows; a display on it with mount: caster is a real passenger
+  - {id: body,  anchor: caster, mount: caster}          # follows; the anchor carries the mount (a rider on it is a real passenger); a display never has `mount`
   - {id: slash, anchor: caster, mode: snapshot}         # coin-1 frame at t7: copied once, world-fixed after the swing starts
 presentation:
   timeline:
@@ -27,12 +27,11 @@ presentation:
           anchor: body
           offset: {up: 0.9, forward: -0.1}
           billboard: center
-          color: "#8A5CFF"
+          tint: "#8A5CFF"
           size: [0.8, 0.8]
           for: 8
           motion:
             - {law: grow, at: 0, for: 3, per_tick: [0.133, 0.133]}      # 0.4 -> 0.8 (size starts [0.4, 0.4]), then holds
-          mount: caster
     - id: fx7
       at: 7
       do:

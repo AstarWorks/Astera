@@ -16,7 +16,7 @@ machine:
       then: raise
       do:
         - {use: slash-arc, at: 7, with: {radius: 9, sector: 30}, frames: {origin: caster}}          # reusable part
-        - {id: hit1, op: hit, at: 8, shape: {sector: {deg: 30, range: 9}}, damage: 30}
+        - {id: hit1, op: hit, at: 8, anchor: caster, targets: enemies, shape: {sector: {deg: 30, range: 9}}, damage: {physical: 30}}
     raise:
       for: 4
       then: throw
@@ -41,8 +41,8 @@ machine:
       do:
         # riders: one display and one hit capsule per blade frame, bound by `blade[i]` (same `times`)
         - {id: blade_model, op: display, kind: item, item: couture-rapier, part: blade_a, anchor: "blade[i]", times: 3, for: 40}
-        - {id: blade_hit, op: hit, anchor: "blade[i]", times: 3, at: 4, every: 1, for: 7, shape: {capsule: 0.22, from: root, to: tip}, damage: "= 18 / 7", window: once}
-        - {id: edge, op: ribbon, of: "blade[i].tip", times: 3, root: "blade[i].root", lasts: 4, color: "#EEE5B9BE", at: 4, for: 7}
+        - {id: blade_hit, op: hit, anchor: "blade[i]", times: 3, at: 4, every: 1, for: 7, targets: enemies, shape: {capsule: 0.22, from: root, to: tip}, damage: {physical: "= 18 / 7"}, window: once}
+        - {id: edge, op: ribbon, of: "blade[i].tip", times: 3, root: "blade[i].root", history: 4, style: crisp, width_frac: 1.0, color: "#EEE5B9BE", at: 4, for: 7}
         - {id: whirr, op: sound, sound: item.trident.throw, anchor: shears, at: 4, every: 3, for: 7, volume: 0.5, pitch: "= 1.0 + 0.05 * i"}
       on:
         - {event: blade_hit, when: "= event.victim != null", to: stuck, do: [{id: bleed, op: status, target: event.victim, status: bleed, stacks: 2, for: 60}]}
@@ -54,7 +54,7 @@ machine:
       then: end
       do:
         - {id: dash, op: dash, at: 9, speed: 1.5, for: 6}
-        - {id: hit3, op: hit, at: 10, every: 1, times: 10, damage: 8}
+        - {id: hit3, op: hit, at: 10, every: 1, times: 10, anchor: caster, targets: enemies, window: {every: 1}, damage: {physical: 8}}
     end: {final: true}
 # Expanded table (generated):
 #   coin1  0-34    hit1 @8 x1; coin1/slash-arc 7-12; streak displays 7-12, petals 8-13
