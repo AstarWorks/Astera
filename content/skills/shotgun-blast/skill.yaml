@@ -11,8 +11,8 @@ meta:
   tags: [ranged, gun, burst]
 anchors:
   - {id: eye,    anchor: caster.eye}
-  - {id: muzzle, anchor: caster.eye, offset: {up: -0.25, forward: 1.2}}   # was pt_aim_0_m0p25_1p2
-  - {id: cone,   anchor: caster.eye, offset: {up: -0.2, forward: 2.4}}    # was pt_aim_0_m0p2_2p4
+  - {id: muzzle, anchor: caster, offset: {up: -0.25, forward: 1.2}}   # v2 pt_caster_0_m0p25_1p2: caster frame (feet, yaw-only)
+  - {id: cone,   anchor: caster, offset: {up: -0.2, forward: 2.4}}   # v2 pt_caster_0_m0p2_2p4: caster frame (feet, yaw-only)
   - {id: heart,  anchor: victim, offset: {up: 1.2}}                       # GAP(Q2): v2 enemy frame (feet +0.8 fixed) vs v3 victim anchors; was pt_enemy_0_1p2_0
 machine:
   start: cast

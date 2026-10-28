@@ -11,13 +11,13 @@ meta:
 anchors:
   - {id: muzzle, anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}
   - {id: foe,    anchor: victim.root}
-  - {id: flash,  anchor: caster.eye, offset: {up: -0.25, forward: 0.9}}
+  - {id: flash,  anchor: caster, offset: {up: -0.25, forward: 0.9}}
   - {id: heart,  anchor: victim.root, offset: {up: 1.2}}  # GAP(Q2): v2 enemy frame origin = feet+0.8 fixed; victim.body (live hitbox centre, 0.9) or a fixed chest point is the founder's choice (Q2)
 machine:
   start: fly
   states:
     fly:
-      for: 61      # max flight 60 + 1 so the end handlers fit
+      for: 60      # v2 max_lifetime_ticks 60
       then: end
       on:
         - {event: bolt.end, to: end}      # v2: the cast ends when the projectile body ends
@@ -34,16 +34,16 @@ machine:
           block: {mode: despawn}
           on:
             hit:
-              - {id: explode, op: explode, at: 0, anchor: foe, power: 1.5, break_blocks: false, fire: false}
+              - {id: explode, op: explode, at: 0, anchor: victim, power: 1.5, break_blocks: false, fire: false}
               # GAP(Q1): max_count spelling A (required, `all` = v2 unlimited); under B delete the key
-              - {id: blast, op: damage, at: 0, target: {kind: enemies, around: foe, radius: 3.0, max_count: all, include_self: false}, damage: {fire: 30.0}}
+              - {id: blast, op: damage, at: 0, target: {kind: enemies, around: foe, radius: 3.0, max_count: all}, damage: {fire: 30.0}}
               - {id: chip, op: break_area, at: 0, anchor: contact, shape: {sphere: {radius: 1.0, ahead: 0.0}}, tool: none, block_damage: 25, ripple: 0, revert: 200, outside_arena: false}
               - {id: snd_hit, op: sound, sound: "astera:skills/fire-impact", anchor: contact, volume: 0.7, pitch: 1.2}
               - {id: fx_hit, op: particle_def, def: hit-spark, anchor: heart}
             block:
               - {id: explode_2, op: explode, at: 0, anchor: contact, power: 1.5, break_blocks: false, fire: false}
               # GAP(Q1): max_count spelling A (required, `all` = v2 unlimited); under B delete the key
-              - {id: blast_2, op: damage, at: 0, target: {kind: enemies, around: contact, radius: 3.0, max_count: all, include_self: false}, damage: {fire: 30.0}}
+              - {id: blast_2, op: damage, at: 0, target: {kind: enemies, around: contact, radius: 3.0, max_count: all}, damage: {fire: 30.0}}
               - {id: chip_2, op: break_area, at: 0, anchor: contact, shape: {sphere: {radius: 1.0, ahead: 0.0}}, tool: none, block_damage: 25, ripple: 0, revert: 200, outside_arena: false}
               - {id: snd_blk, op: sound, sound: "astera:weapons/gun-impact-block", anchor: contact, volume: 0.5, pitch: 1.5}
               - {id: fx_blk, op: particle_def, def: hit-spark, anchor: contact}
