@@ -224,7 +224,6 @@ presentation:
             - {t: 171, rotate: [20.864198, 0.0, 0.0], sample: true}
             - {t: 172, rotate: [20.0, 0.0, 0.0]}
           sample_ticks: 1
-          respect_hit_stop: true
         - {id: fx9_orrery_channel_staff_shaft, op: block, parent: fx9_orrery_channel_staff, block: black_concrete, size: [0.1, 1.9, 0.1], at: [0.0, 0.45, 0.0]}
         - {id: fx9_orrery_channel_staff_lower_collar, op: block, parent: fx9_orrery_channel_staff, block: gray_concrete, size: [0.16, 0.12, 0.16], at: [0.0, -0.25, 0.0]}
         - {id: fx9_orrery_channel_staff_upper_collar, op: block, parent: fx9_orrery_channel_staff, block: gray_concrete, size: [0.16, 0.12, 0.16], at: [0.0, 1.1, 0.0]}

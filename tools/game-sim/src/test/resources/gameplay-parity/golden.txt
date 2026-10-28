@@ -11158,7 +11158,7 @@ rapier-thrust	116	6d7be6ef9399
 rapier-thrust	117	6d7be6ef9399
 rapier-thrust	118	6d7be6ef9399
 rapier-thrust	119	6d7be6ef9399
-regrowth	0	f3b298db4297
+regrowth	0	582e03466181
 regrowth	1	6d7be6ef9399
 regrowth	2	6d7be6ef9399
 regrowth	3	6d7be6ef9399
@@ -15002,7 +15002,7 @@ smoke-bomb-throw	0	081d006aed8e
 smoke-bomb-throw	1	3b172e9ae019
 smoke-bomb-throw	2	6d7be6ef9399
 smoke-bomb-throw	3	6d7be6ef9399
-smoke-bomb-throw	4	4810f6efacbb
+smoke-bomb-throw	4	1632549d468b
 smoke-bomb-throw	5	6d7be6ef9399
 smoke-bomb-throw	6	6d7be6ef9399
 smoke-bomb-throw	7	6d7be6ef9399
@@ -15077,7 +15077,7 @@ smoke-bomb-throw	75	6d7be6ef9399
 smoke-bomb-throw	76	6d7be6ef9399
 smoke-bomb-throw	77	6d7be6ef9399
 smoke-bomb-throw	78	6d7be6ef9399
-smoke-bomb-throw	79	6d7be6ef9399
+smoke-bomb-throw	79	5bf8a5090322
 smoke-bomb-throw	80	6d7be6ef9399
 smoke-bomb-throw	81	6d7be6ef9399
 smoke-bomb-throw	82	6d7be6ef9399

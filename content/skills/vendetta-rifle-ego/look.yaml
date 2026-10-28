@@ -134,7 +134,6 @@ presentation:
             - {t: 15, rotate: [-72.5, 0.0, 0.0], sample: true}
             - {t: 16, rotate: [-70.0, 0.0, 0.0]}
           sample_ticks: 1
-          respect_hit_stop: true
         - {id: fx1_vendetta_ready_bayonet_heel, op: block, parent: fx1_vendetta_ready_bayonet, block: nether_bricks, size: [0.2, 0.8, 0.16], at: [0.0, 0.4, 0.0]}
         - {id: fx1_vendetta_ready_bayonet_spine, op: block, parent: fx1_vendetta_ready_bayonet, block: nether_bricks, size: [0.24, 0.5, 0.16], at: [-0.03, 1.0, 0.0], turn: [0.0, 0.0, 5.0]}
         - {id: fx1_vendetta_ready_bayonet_tip, op: block, parent: fx1_vendetta_ready_bayonet, block: nether_bricks, size: [0.24, 0.35, 0.16], at: [-0.11, 1.35, 0.0], turn: [0.0, 0.0, 18.0]}
@@ -414,23 +413,24 @@ presentation:
           swing:
             - {t: 0, rotate: [0.0, 100.0, 0.0]}
             - {t: 1, rotate: [0.0, 115.0, 0.0]}
-            - {t: 2, rotate: [0.0, 27.5, 0.0], sample: true}
-            - {t: 3, rotate: [0.0, -35.0, 0.0], sample: true}
-            - {t: 4, rotate: [0.0, -72.5, 0.0], sample: true}
-            - {t: 5, rotate: [0.0, -85.0, 0.0]}
-            - {t: 6, rotate: [0.0, -93.671875, 0.0], sample: true}
-            - {t: 7, rotate: [0.0, -98.125, 0.0], sample: true}
-            - {t: 8, rotate: [0.0, -99.765625, 0.0], sample: true}
-            - {t: 9, rotate: [0.0, -100.0, 0.0]}
-            - {t: 10, rotate: [-1.694336, -95.904824, -1.879057], sample: true}
-            - {t: 11, rotate: [-7.322769, -83.488976, -6.555764], sample: true}
-            - {t: 12, rotate: [-18.100329, -62.580704, -11.149621], sample: true}
-            - {t: 13, rotate: [-33.581188, -35.583249, -11.149722], sample: true}
-            - {t: 14, rotate: [-45.701764, -15.436895, -6.555818], sample: true}
-            - {t: 15, rotate: [-52.73214, -3.789067, -1.879059], sample: true}
-            - {t: 16, rotate: [-55.0, 0.0, 0.0]}
+            - {t: 2, rotate: [0.0, 27.5, 0.0]}
+            - {t: 3, rotate: [0.0, -35.0, 0.0]}
+            - {t: 4, rotate: [0.0, -72.5, 0.0]}
+            - {t: 5, rotate: [0.0, -72.5, 0.0]}
+            - {t: 6, rotate: [0.0, -72.5, 0.0]}
+            - {t: 7, rotate: [0.0, -85.0, 0.0]}
+            - {t: 8, rotate: [0.0, -93.671875, 0.0]}
+            - {t: 9, rotate: [0.0, -98.125, 0.0]}
+            - {t: 10, rotate: [0.0, -99.765625, 0.0]}
+            - {t: 11, rotate: [0.0, -100.0, 0.0]}
+            - {t: 12, rotate: [-1.694336, -95.904824, -1.879057]}
+            - {t: 13, rotate: [-7.322769, -83.488976, -6.555764]}
+            - {t: 14, rotate: [-18.100329, -62.580704, -11.149621]}
+            - {t: 15, rotate: [-33.581188, -35.583249, -11.149722]}
+            - {t: 16, rotate: [-45.701764, -15.436895, -6.555818]}
+            - {t: 17, rotate: [-52.73214, -3.789067, -1.879059]}
+            - {t: 18, rotate: [-55.0, 0.0, 0.0]}
           sample_ticks: 1
-          respect_hit_stop: true
           freezes:
             - {at: 5, ticks: 2}
         - {id: fx2_vendetta_slash_b_bayonet_heel, op: block, parent: fx2_vendetta_slash_b_bayonet, block: nether_bricks, size: [0.2, 0.8, 0.16], at: [0.0, 0.4, 0.0]}
@@ -708,10 +708,10 @@ presentation:
             - fx2_vendetta_slash_b_bayonet_rib_4
             - fx2_vendetta_slash_b_bayonet_rib_5
             - fx2_vendetta_slash_b_bayonet_rib_6
-    - {id: fx59, at: 59, do: [{id: rm_3, op: remove, ids: [fx2_vendetta_slash_b_bayonet_cut]}]}
     - id: fx61
       at: 61
       do:
+        - {id: rm_3, op: remove, ids: [fx2_vendetta_slash_b_bayonet_cut]}
         - {id: rm_4, op: remove, ids: [fx3_vendetta_thrust_flash_rim, fx3_vendetta_thrust_flash_bloom, fx3_vendetta_thrust_flash_core]}
         - {id: fx4_vendetta_burst_smoke_atrk, op: track, target: fx4_vendetta_burst_smoke_at, space: fx4_vendetta_burst, keys: [{t: 0, offset: [0, 0.4, 2]}]}
     - id: fx62
@@ -759,23 +759,24 @@ presentation:
           swing:
             - {t: 0, rotate: [0.0, 100.0, 0.0]}
             - {t: 1, rotate: [0.0, 115.0, 0.0]}
-            - {t: 2, rotate: [0.0, 27.5, 0.0], sample: true}
-            - {t: 3, rotate: [0.0, -35.0, 0.0], sample: true}
-            - {t: 4, rotate: [0.0, -72.5, 0.0], sample: true}
-            - {t: 5, rotate: [0.0, -85.0, 0.0]}
-            - {t: 6, rotate: [0.0, -93.671875, 0.0], sample: true}
-            - {t: 7, rotate: [0.0, -98.125, 0.0], sample: true}
-            - {t: 8, rotate: [0.0, -99.765625, 0.0], sample: true}
-            - {t: 9, rotate: [0.0, -100.0, 0.0]}
-            - {t: 10, rotate: [-1.694336, -95.904824, -1.879057], sample: true}
-            - {t: 11, rotate: [-7.322769, -83.488976, -6.555764], sample: true}
-            - {t: 12, rotate: [-18.100329, -62.580704, -11.149621], sample: true}
-            - {t: 13, rotate: [-33.581188, -35.583249, -11.149722], sample: true}
-            - {t: 14, rotate: [-45.701764, -15.436895, -6.555818], sample: true}
-            - {t: 15, rotate: [-52.73214, -3.789067, -1.879059], sample: true}
-            - {t: 16, rotate: [-55.0, 0.0, 0.0]}
+            - {t: 2, rotate: [0.0, 27.5, 0.0]}
+            - {t: 3, rotate: [0.0, -35.0, 0.0]}
+            - {t: 4, rotate: [0.0, -72.5, 0.0]}
+            - {t: 5, rotate: [0.0, -72.5, 0.0]}
+            - {t: 6, rotate: [0.0, -72.5, 0.0]}
+            - {t: 7, rotate: [0.0, -85.0, 0.0]}
+            - {t: 8, rotate: [0.0, -93.671875, 0.0]}
+            - {t: 9, rotate: [0.0, -98.125, 0.0]}
+            - {t: 10, rotate: [0.0, -99.765625, 0.0]}
+            - {t: 11, rotate: [0.0, -100.0, 0.0]}
+            - {t: 12, rotate: [-1.694336, -95.904824, -1.879057]}
+            - {t: 13, rotate: [-7.322769, -83.488976, -6.555764]}
+            - {t: 14, rotate: [-18.100329, -62.580704, -11.149621]}
+            - {t: 15, rotate: [-33.581188, -35.583249, -11.149722]}
+            - {t: 16, rotate: [-45.701764, -15.436895, -6.555818]}
+            - {t: 17, rotate: [-52.73214, -3.789067, -1.879059]}
+            - {t: 18, rotate: [-55.0, 0.0, 0.0]}
           sample_ticks: 1
-          respect_hit_stop: true
           freezes:
             - {at: 5, ticks: 2}
         - {id: fx5_vendetta_slash_b_bayonet_heel, op: block, parent: fx5_vendetta_slash_b_bayonet, block: nether_bricks, size: [0.2, 0.8, 0.16], at: [0.0, 0.4, 0.0]}
@@ -1053,10 +1054,10 @@ presentation:
             - fx5_vendetta_slash_b_bayonet_rib_4
             - fx5_vendetta_slash_b_bayonet_rib_5
             - fx5_vendetta_slash_b_bayonet_rib_6
-    - {id: fx77, at: 77, do: [{id: rm_8, op: remove, ids: [fx5_vendetta_slash_b_bayonet_cut]}]}
     - id: fx79
       at: 79
       do:
+        - {id: rm_8, op: remove, ids: [fx5_vendetta_slash_b_bayonet_cut]}
         - {id: rm_9, op: remove, ids: [fx6_vendetta_thrust_flash_rim, fx6_vendetta_thrust_flash_bloom, fx6_vendetta_thrust_flash_core]}
         - {id: fx7_vendetta_burst_smoke_atrk, op: track, target: fx7_vendetta_burst_smoke_at, space: fx7_vendetta_burst, keys: [{t: 0, offset: [0, 0.4, 2]}]}
     - id: fx80
@@ -1104,23 +1105,24 @@ presentation:
           swing:
             - {t: 0, rotate: [0.0, -110.0, 0.0]}
             - {t: 1, rotate: [0.0, -125.0, 0.0]}
-            - {t: 2, rotate: [0.0, -37.5, 0.0], sample: true}
-            - {t: 3, rotate: [0.0, 25.0, 0.0], sample: true}
-            - {t: 4, rotate: [0.0, 62.5, 0.0], sample: true}
-            - {t: 5, rotate: [0.0, 75.0, 0.0]}
-            - {t: 6, rotate: [0.0, 83.671875, 0.0], sample: true}
-            - {t: 7, rotate: [0.0, 88.125, 0.0], sample: true}
-            - {t: 8, rotate: [0.0, 89.765625, 0.0], sample: true}
-            - {t: 9, rotate: [0.0, 90.0, 0.0]}
-            - {t: 10, rotate: [-1.803214, 86.314578, 1.691156], sample: true}
-            - {t: 11, rotate: [-7.647134, 75.142474, 5.900376], sample: true}
-            - {t: 12, rotate: [-18.506724, 56.327536, 10.035532], sample: true}
-            - {t: 13, rotate: [-33.813218, 32.02759, 10.035586], sample: true}
-            - {t: 14, rotate: [-45.762368, 13.8936, 5.900404], sample: true}
-            - {t: 15, rotate: [-52.736503, 3.410168, 1.691157], sample: true}
-            - {t: 16, rotate: [-55.0, 0.0, 0.0]}
+            - {t: 2, rotate: [0.0, -37.5, 0.0]}
+            - {t: 3, rotate: [0.0, 25.0, 0.0]}
+            - {t: 4, rotate: [0.0, 62.5, 0.0]}
+            - {t: 5, rotate: [0.0, 62.5, 0.0]}
+            - {t: 6, rotate: [0.0, 62.5, 0.0]}
+            - {t: 7, rotate: [0.0, 75.0, 0.0]}
+            - {t: 8, rotate: [0.0, 83.671875, 0.0]}
+            - {t: 9, rotate: [0.0, 88.125, 0.0]}
+            - {t: 10, rotate: [0.0, 89.765625, 0.0]}
+            - {t: 11, rotate: [0.0, 90.0, 0.0]}
+            - {t: 12, rotate: [-1.803214, 86.314578, 1.691156]}
+            - {t: 13, rotate: [-7.647134, 75.142474, 5.900376]}
+            - {t: 14, rotate: [-18.506724, 56.327536, 10.035532]}
+            - {t: 15, rotate: [-33.813218, 32.02759, 10.035586]}
+            - {t: 16, rotate: [-45.762368, 13.8936, 5.900404]}
+            - {t: 17, rotate: [-52.736503, 3.410168, 1.691157]}
+            - {t: 18, rotate: [-55.0, 0.0, 0.0]}
           sample_ticks: 1
-          respect_hit_stop: true
           freezes:
             - {at: 5, ticks: 2}
         - {id: fx8_vendetta_slash_a_bayonet_heel, op: block, parent: fx8_vendetta_slash_a_bayonet, block: nether_bricks, size: [0.2, 0.8, 0.16], at: [0.0, 0.4, 0.0]}
@@ -1398,10 +1400,10 @@ presentation:
             - fx8_vendetta_slash_a_bayonet_rib_4
             - fx8_vendetta_slash_a_bayonet_rib_5
             - fx8_vendetta_slash_a_bayonet_rib_6
-    - {id: fx114, at: 114, do: [{id: rm_13, op: remove, ids: [fx8_vendetta_slash_a_bayonet_cut]}]}
     - id: fx116
       at: 116
       do:
+        - {id: rm_13, op: remove, ids: [fx8_vendetta_slash_a_bayonet_cut]}
         - {id: rm_14, op: remove, ids: [fx9_vendetta_thrust_flash_rim, fx9_vendetta_thrust_flash_bloom, fx9_vendetta_thrust_flash_core]}
         - {id: fx10_vendetta_burst_smoke_atrk, op: track, target: fx10_vendetta_burst_smoke_at, space: fx10_vendetta_burst, keys: [{t: 0, offset: [0, 0.4, 2]}]}
     - id: fx117
@@ -1449,23 +1451,24 @@ presentation:
           swing:
             - {t: 0, rotate: [0.0, 100.0, 0.0]}
             - {t: 1, rotate: [0.0, 115.0, 0.0]}
-            - {t: 2, rotate: [0.0, 27.5, 0.0], sample: true}
-            - {t: 3, rotate: [0.0, -35.0, 0.0], sample: true}
-            - {t: 4, rotate: [0.0, -72.5, 0.0], sample: true}
-            - {t: 5, rotate: [0.0, -85.0, 0.0]}
-            - {t: 6, rotate: [0.0, -93.671875, 0.0], sample: true}
-            - {t: 7, rotate: [0.0, -98.125, 0.0], sample: true}
-            - {t: 8, rotate: [0.0, -99.765625, 0.0], sample: true}
-            - {t: 9, rotate: [0.0, -100.0, 0.0]}
-            - {t: 10, rotate: [-1.694336, -95.904824, -1.879057], sample: true}
-            - {t: 11, rotate: [-7.322769, -83.488976, -6.555764], sample: true}
-            - {t: 12, rotate: [-18.100329, -62.580704, -11.149621], sample: true}
-            - {t: 13, rotate: [-33.581188, -35.583249, -11.149722], sample: true}
-            - {t: 14, rotate: [-45.701764, -15.436895, -6.555818], sample: true}
-            - {t: 15, rotate: [-52.73214, -3.789067, -1.879059], sample: true}
-            - {t: 16, rotate: [-55.0, 0.0, 0.0]}
+            - {t: 2, rotate: [0.0, 27.5, 0.0]}
+            - {t: 3, rotate: [0.0, -35.0, 0.0]}
+            - {t: 4, rotate: [0.0, -72.5, 0.0]}
+            - {t: 5, rotate: [0.0, -72.5, 0.0]}
+            - {t: 6, rotate: [0.0, -72.5, 0.0]}
+            - {t: 7, rotate: [0.0, -85.0, 0.0]}
+            - {t: 8, rotate: [0.0, -93.671875, 0.0]}
+            - {t: 9, rotate: [0.0, -98.125, 0.0]}
+            - {t: 10, rotate: [0.0, -99.765625, 0.0]}
+            - {t: 11, rotate: [0.0, -100.0, 0.0]}
+            - {t: 12, rotate: [-1.694336, -95.904824, -1.879057]}
+            - {t: 13, rotate: [-7.322769, -83.488976, -6.555764]}
+            - {t: 14, rotate: [-18.100329, -62.580704, -11.149621]}
+            - {t: 15, rotate: [-33.581188, -35.583249, -11.149722]}
+            - {t: 16, rotate: [-45.701764, -15.436895, -6.555818]}
+            - {t: 17, rotate: [-52.73214, -3.789067, -1.879059]}
+            - {t: 18, rotate: [-55.0, 0.0, 0.0]}
           sample_ticks: 1
-          respect_hit_stop: true
           freezes:
             - {at: 5, ticks: 2}
         - {id: fx11_vendetta_slash_b_bayonet_heel, op: block, parent: fx11_vendetta_slash_b_bayonet, block: nether_bricks, size: [0.2, 0.8, 0.16], at: [0.0, 0.4, 0.0]}
@@ -1743,10 +1746,10 @@ presentation:
             - fx11_vendetta_slash_b_bayonet_rib_4
             - fx11_vendetta_slash_b_bayonet_rib_5
             - fx11_vendetta_slash_b_bayonet_rib_6
-    - {id: fx147, at: 147, do: [{id: rm_18, op: remove, ids: [fx11_vendetta_slash_b_bayonet_cut]}]}
     - id: fx149
       at: 149
       do:
+        - {id: rm_18, op: remove, ids: [fx11_vendetta_slash_b_bayonet_cut]}
         - {id: rm_19, op: remove, ids: [fx12_vendetta_thrust_flash_rim, fx12_vendetta_thrust_flash_bloom, fx12_vendetta_thrust_flash_core]}
         - {id: fx13_vendetta_burst_smoke_atrk, op: track, target: fx13_vendetta_burst_smoke_at, space: fx13_vendetta_burst, keys: [{t: 0, offset: [0, 0.4, 2]}]}
     - id: fx150
@@ -2030,23 +2033,24 @@ presentation:
           swing:
             - {t: 0, rotate: [0.0, -110.0, 0.0]}
             - {t: 1, rotate: [0.0, -125.0, 0.0]}
-            - {t: 2, rotate: [0.0, -37.5, 0.0], sample: true}
-            - {t: 3, rotate: [0.0, 25.0, 0.0], sample: true}
-            - {t: 4, rotate: [0.0, 62.5, 0.0], sample: true}
-            - {t: 5, rotate: [0.0, 75.0, 0.0]}
-            - {t: 6, rotate: [0.0, 83.671875, 0.0], sample: true}
-            - {t: 7, rotate: [0.0, 88.125, 0.0], sample: true}
-            - {t: 8, rotate: [0.0, 89.765625, 0.0], sample: true}
-            - {t: 9, rotate: [0.0, 90.0, 0.0]}
-            - {t: 10, rotate: [-1.803214, 86.314578, 1.691156], sample: true}
-            - {t: 11, rotate: [-7.647134, 75.142474, 5.900376], sample: true}
-            - {t: 12, rotate: [-18.506724, 56.327536, 10.035532], sample: true}
-            - {t: 13, rotate: [-33.813218, 32.02759, 10.035586], sample: true}
-            - {t: 14, rotate: [-45.762368, 13.8936, 5.900404], sample: true}
-            - {t: 15, rotate: [-52.736503, 3.410168, 1.691157], sample: true}
-            - {t: 16, rotate: [-55.0, 0.0, 0.0]}
+            - {t: 2, rotate: [0.0, -37.5, 0.0]}
+            - {t: 3, rotate: [0.0, 25.0, 0.0]}
+            - {t: 4, rotate: [0.0, 62.5, 0.0]}
+            - {t: 5, rotate: [0.0, 62.5, 0.0]}
+            - {t: 6, rotate: [0.0, 62.5, 0.0]}
+            - {t: 7, rotate: [0.0, 75.0, 0.0]}
+            - {t: 8, rotate: [0.0, 83.671875, 0.0]}
+            - {t: 9, rotate: [0.0, 88.125, 0.0]}
+            - {t: 10, rotate: [0.0, 89.765625, 0.0]}
+            - {t: 11, rotate: [0.0, 90.0, 0.0]}
+            - {t: 12, rotate: [-1.803214, 86.314578, 1.691156]}
+            - {t: 13, rotate: [-7.647134, 75.142474, 5.900376]}
+            - {t: 14, rotate: [-18.506724, 56.327536, 10.035532]}
+            - {t: 15, rotate: [-33.813218, 32.02759, 10.035586]}
+            - {t: 16, rotate: [-45.762368, 13.8936, 5.900404]}
+            - {t: 17, rotate: [-52.736503, 3.410168, 1.691157]}
+            - {t: 18, rotate: [-55.0, 0.0, 0.0]}
           sample_ticks: 1
-          respect_hit_stop: true
           freezes:
             - {at: 5, ticks: 2}
         - {id: fx14_vendetta_slash_a_bayonet_heel, op: block, parent: fx14_vendetta_slash_a_bayonet, block: nether_bricks, size: [0.2, 0.8, 0.16], at: [0.0, 0.4, 0.0]}
@@ -2326,10 +2330,10 @@ presentation:
             - fx14_vendetta_slash_a_bayonet_rib_4
             - fx14_vendetta_slash_a_bayonet_rib_5
             - fx14_vendetta_slash_a_bayonet_rib_6
-    - {id: fx237, at: 237, do: [{id: rm_23, op: remove, ids: [fx14_vendetta_slash_a_bayonet_cut]}]}
     - id: fx239
       at: 239
       do:
+        - {id: rm_23, op: remove, ids: [fx14_vendetta_slash_a_bayonet_cut]}
         - {id: rm_24, op: remove, ids: [fx15_vendetta_thrust_flash_rim, fx15_vendetta_thrust_flash_bloom, fx15_vendetta_thrust_flash_core]}
         - {id: fx16_vendetta_burst_smoke_atrk, op: track, target: fx16_vendetta_burst_smoke_at, space: fx16_vendetta_burst, keys: [{t: 0, offset: [0, 0.4, 2]}]}
     - id: fx240
