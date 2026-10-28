@@ -842,4 +842,4 @@ presentation:
             - fx4_bastion_ego_slam_sword_inset
             - fx4_bastion_ego_slam_sword_guard
             - fx4_bastion_ego_slam_sword_grip
-  "on": {hit: [{id: emit, op: emit, at: contact.point, particle: bastion-s3-hit-crit, when: "= event.source == 'sel'"}]}
+  "on": {hit: [{id: emit, op: emit, at: contact.point, particle: bastion-s3-hit-crit, when: "= (event.source == 'sel') && (hp_ratio(victim) > 0)"}]}

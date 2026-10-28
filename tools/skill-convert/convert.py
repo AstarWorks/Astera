@@ -199,22 +199,17 @@ def hitstop_warp(kfs, stops):
 
 
 def hitstop_bake(d, freezes):
-    """Return the vfx definition `d` with `play_vfx freeze` baked into every element / rig that has `respect_hit_stop`, and the flag
-    dropped everywhere (without a freeze the flag is a no-op in v1)."""
+    """Return the vfx definition `d` with `play_vfx freeze` baked into every element that has `respect_hit_stop` (elements have no clock
+    op), and the flag dropped there; rigs keep it and receive `freezes` on the rig op. Without a freeze the flag is a no-op in v1."""
     d = json.loads(json.dumps(d))
     for el in d.get("elements", []):
         if el.pop("respect_hit_stop", False) and freezes and el.get("keyframes"):
             stops = hitstop_stops(freezes, int(el.get("start_tick", 0)) + 1)
             el["keyframes"] = hitstop_warp(el["keyframes"], stops)
     for r in d.get("rigs", []):
-        if r.pop("respect_hit_stop", False) and freezes:
-            stops = hitstop_stops(freezes, int(r.get("start_tick", 0)) + 1)
-            if r.get("swing"):
-                r["swing"] = hitstop_warp(r["swing"], stops)
-            for tr in r.get("trails", []):
-                tr["start_t"], tr["end_t"] = hitstop_eff(stops, int(tr["start_t"])), hitstop_eff(stops, int(tr["end_t"]))
-            for em in r.get("emitters", []):
-                em["start_t"], em["end_t"] = hitstop_eff(stops, int(em["start_t"])), hitstop_eff(stops, int(em["end_t"]))
+        # rigs keep the flag: the engine's RigPerformer applies the merged `freezes` to the rig clock (v1 VfxRigMotion)
+        if not freezes:
+            r.pop("respect_hit_stop", None)
     return d
 
 
@@ -318,6 +313,7 @@ class Conv:
         self.p_on = OrderedDict()
         self.id_counts = {}
         self.sel = {}
+        self.damaged_sel = set()  # guards of area selections that already carry a v1 `damage` earlier in mechanic order
         self.vfx_n = 0
         self.vfx_pull = None
         self.meta_lines = []
@@ -697,6 +693,8 @@ class Conv:
         vs = where.kind == "handler" and tg is not None and tg.get("type") == "target"
         spec = self.tspec(tg, where)
         if t == "damage":
+            if where.kind == "handler" and where.event == "hit" and where.guard:
+                self.damaged_sel.add(where.guard)
             extra = sorted(set(m) - self.DAMAGE_KEYS - self.COMMON_MECH_KEYS)
             if extra:
                 raise ValueError("%s: damage mechanic carries field(s) %s that v2 cannot express; extend the op before "
@@ -982,6 +980,11 @@ class Conv:
                       short({"kind": kind.get("type"), "billboard": (m.get("display") or {}).get("billboard", "fixed"),
                              "lines": kind.get("lines")}, 160))
         elif t == "spawn_particle":
+            if tg and tg.get("type") == "target" and where.kind == "handler" and where.event == "hit" and where.guard in self.damaged_sel:
+                # v1 TargeterResolver.resolveLocations (TargeterResolver.kt:120-139) resolves LIVING players when the mechanic runs,
+                # after the earlier `damage` of the same row (MechanicDispatcher.kt:841-845): a victim the damage just killed gets none.
+                alive = "hp_ratio(victim) > 0"
+                when = ("= (" + when[2:] + ") && " + alive) if when else "= " + alive
             W(emit_op(self.oid("emit"), self.point(tg, where, "p"), m["particle_id"], 1))
         elif t == "schedule_particle_animation":
             at = self.point(tg, where, "p")
@@ -1271,6 +1274,9 @@ class Conv:
         for k in ("replace_group", "ghost_bodies"):
             if k in d:
                 self.present("vfx %s (no v2 equivalent)" % k, short(d[k], 60))
+        for f in V(m.get("freeze")) or []:
+            if set(f) - {"at", "ticks"}:
+                raise ValueError("play_vfx freeze window %r has fields beyond at / ticks (v1 play_vfx freeze is {at, ticks}); extend the converter" % (f,))
         d = hitstop_bake(d, V(m.get("freeze")))
         for k in ("viewers",):
             if k in m:

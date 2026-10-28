@@ -271,4 +271,4 @@ presentation:
         - {id: snd, op: sound, sound: entity.player.attack.crit, at: caster, pitch: 1.3}
     - {id: fx96, at: 96, do: [{id: rm_11, op: remove, ids: [fx6_gossamer_katana_scar_cut]}]}
     - {id: fx98, at: 98, do: [{id: rm_12, op: remove, ids: [fx6_gossamer_katana_scar_ink]}]}
-  "on": {hit: [{id: emit, op: emit, at: contact.point, particle: hit-spark, when: "= event.source == 'sel'"}]}
+  "on": {hit: [{id: emit, op: emit, at: contact.point, particle: hit-spark, when: "= (event.source == 'sel') && (hp_ratio(victim) > 0)"}]}
