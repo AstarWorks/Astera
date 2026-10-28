@@ -75,7 +75,7 @@ public class SkillEngineKit(
             val dashes = DashStrikeDriver(gateways.ports, gateways.movement, hosts)
             val locks = MovementLockDriver(gateways.movement)
             val editor = SkillWorldEditor(gateways.world)
-            val presentation = PresentationRuntime(hosts, gateways.casterAnim, gateways.screen)
+            val presentation = PresentationRuntime(hosts, gateways.casterAnim, gateways.screen, points)
             val registry = DefaultOpExecutorRegistry()
             registerFrameOpExecutors(registry)
             registerHitOpExecutors(registry)

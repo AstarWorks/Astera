@@ -24,6 +24,8 @@ import com.astarworks.astera.core.application.skillengine.runtime.port.ISkillGam
 import com.astarworks.astera.core.application.skillengine.runtime.port.ISkillParticleGateway
 import com.astarworks.astera.core.application.skillengine.runtime.port.ISkillSoundGateway
 import com.astarworks.astera.core.application.skillengine.runtime.port.ISkillVictimAnimGateway
+import com.astarworks.astera.core.application.skillengine.runtime.port.VisualPose
+import com.astarworks.astera.core.application.skillengine.runtime.port.SpriteInfo
 import com.astarworks.astera.core.application.skillengine.runtime.port.ISkillVisualGateway
 import com.astarworks.astera.core.application.skillengine.runtime.port.ParticleBurst
 import com.astarworks.astera.core.application.skillengine.runtime.port.SkillDamage
@@ -169,18 +171,15 @@ internal class Sim(val c: Coin2Collaborators, val catalog: SkillCatalog, val wit
     }
 
     private val visuals = object : ISkillVisualGateway {
-        override fun spawnMesh(castOwner: UUID, item: String, part: String?, scale: Double, pose: Frame, anchored: Boolean) =
-            spawn("mesh", buildJsonObject { put("item", item); put("part", part?.let { JsonPrimitive(it) } ?: JsonNull); put("scale", scale) }, poseObj(pose))
-        override fun spawnPlate(castOwner: UUID, sprite: String, face: PlateFace, size: Double, alpha: Double, pose: Frame, anchored: Boolean) =
-            spawn("plate", buildJsonObject { put("sprite", sprite); put("face", faceJson(face)); put("size", size); put("alpha", alpha) }, poseObj(pose))
-        override fun spawnLine(castOwner: UUID, from: Vec3, to: Vec3, thickness: Double, colorHex: String, face: PlateFace) =
-            spawn("line", buildJsonObject { put("thickness", thickness); put("color", colorHex); put("face", faceJson(face)) },
-                buildJsonObject { put("from", vecJsonOf(from)); put("to", vecJsonOf(to)) })
+        override fun spawnMesh(castOwner: UUID, item: String, part: String?, pose: VisualPose) =
+            spawn("mesh", buildJsonObject { put("item", item); put("part", part?.let { JsonPrimitive(it) } ?: JsonNull); put("size", vecJsonOf(pose.size)) }, poseObj(pose.frame))
+        override fun spawnPlate(castOwner: UUID, sprite: String, alpha: Double, pose: VisualPose) =
+            spawn("plate", buildJsonObject { put("sprite", sprite); put("billboard", pose.billboard.name); put("size", pose.size.x); put("alpha", alpha) }, poseObj(pose.frame))
+        override fun spawnLine(castOwner: UUID, colorHex: String, pose: VisualPose) =
+            spawn("line", buildJsonObject { put("thickness", pose.size.y); put("length", pose.size.x); put("color", colorHex) }, poseObj(pose.frame))
         override fun spawnTrail(castOwner: UUID, ticks: Int, widthFrac: Double, colorHex: String, alpha: Double) =
             spawn("trail", buildJsonObject { put("ticks", ticks); put("widthFrac", widthFrac); put("color", colorHex); put("alpha", alpha) }, buildJsonObject {})
-        override fun updateDisplay(handle: VisualHandle, pose: Frame, scale: Vec3, interpolationTicks: Int, anchorFeet: Vec3?) = capture.update(handle.id, poseObj(pose, interpolationTicks))
-        override fun updateLine(handle: VisualHandle, from: Vec3, to: Vec3) =
-            capture.update(handle.id, buildJsonObject { put("from", vecJsonOf(from)); put("to", vecJsonOf(to)) })
+        override fun write(handle: VisualHandle, pose: VisualPose, interpolationTicks: Int) = capture.update(handle.id, poseObj(pose.frame, interpolationTicks))
         override fun pushTrailPoint(handle: VisualHandle, root: Vec3, tip: Vec3) =
             capture.update(handle.id, buildJsonObject { put("root", vecJsonOf(root)); put("tip", vecJsonOf(tip)) })
         override fun remove(handle: VisualHandle) {

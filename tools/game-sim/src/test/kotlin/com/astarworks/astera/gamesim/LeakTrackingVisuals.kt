@@ -1,5 +1,7 @@
 package com.astarworks.astera.gamesim
 
+import com.astarworks.astera.core.application.skillengine.runtime.port.VisualPose
+import com.astarworks.astera.core.application.skillengine.runtime.port.SpriteInfo
 import com.astarworks.astera.core.application.skillengine.runtime.port.ISkillVisualGateway
 import com.astarworks.astera.core.application.skillengine.runtime.port.VisualHandle
 import com.astarworks.astera.core.domain.geometry.Vec3
@@ -33,12 +35,11 @@ class LeakTrackingVisuals(private val clock: () -> Int = { 0 }) : ISkillVisualGa
         if (handle.id !in live) stale += "$what on removed handle ${handle.id}"
     }
 
-    override fun spawnMesh(castOwner: UUID, item: String, part: String?, scale: Double, pose: Frame, anchored: Boolean) = open("mesh $item/$part")
-    override fun spawnPlate(castOwner: UUID, sprite: String, face: PlateFace, size: Double, alpha: Double, pose: Frame, anchored: Boolean) = open("plate $sprite")
-    override fun spawnLine(castOwner: UUID, from: Vec3, to: Vec3, thickness: Double, colorHex: String, face: PlateFace) = open("line")
+    override fun spawnMesh(castOwner: UUID, item: String, part: String?, pose: VisualPose) = open("mesh $item/$part")
+    override fun spawnPlate(castOwner: UUID, sprite: String, alpha: Double, pose: VisualPose) = open("plate $sprite")
+    override fun spawnLine(castOwner: UUID, colorHex: String, pose: VisualPose) = open("line")
     override fun spawnTrail(castOwner: UUID, ticks: Int, widthFrac: Double, colorHex: String, alpha: Double) = open("trail")
-    override fun updateDisplay(handle: VisualHandle, pose: Frame, scale: Vec3, interpolationTicks: Int, anchorFeet: Vec3?) { touch(handle, "updateDisplay"); lastOrigin[handle.id] = pose.origin }
-    override fun updateLine(handle: VisualHandle, from: Vec3, to: Vec3) = touch(handle, "updateLine")
+    override fun write(handle: VisualHandle, pose: VisualPose, interpolationTicks: Int) { touch(handle, "write"); lastOrigin[handle.id] = pose.frame.origin }
     override fun pushTrailPoint(handle: VisualHandle, root: Vec3, tip: Vec3) = touch(handle, "pushTrailPoint")
     override fun remove(handle: VisualHandle) {
         removedAt[handle.id] = clock()

@@ -1,5 +1,6 @@
 package com.astarworks.astera.core.application.skillengine.expr.cel
 
+import com.astarworks.astera.core.domain.geometry.math.Basis
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.geometry.math.Frame
 import com.astarworks.astera.core.domain.geometry.math.Quaternion
@@ -81,15 +82,8 @@ internal object CelFunctions {
     private fun worldPose(r: ExprValue.Ref): Frame = env().frames.worldPose(r.name, r.point)
         ?: throw ExprEvalException("unknown frame or point '${r.name}${r.point?.let { ".$it" } ?: ""}'")
 
-    private fun axisOf(f: Frame, which: String): Vec3 = when (which) {
-        "forward" -> f.forward()
-        "up" -> f.up()
-        "left" -> f.left()
-        "right" -> f.right()
-        "back" -> f.forward() * -1.0
-        "down" -> f.up() * -1.0
-        else -> throw ExprEvalException("axis name must be forward|back|up|down|left|right, got '$which'")
-    }
+    private fun axisOf(f: Frame, which: String): Vec3 = Basis.axis(f, which)
+        ?: throw ExprEvalException("axis name must be forward|back|up|down|left|right, got '$which'")
 
     private fun stream(name: String): SeededRandom =
         streams.get().getOrPut(name) { SeededRandom(env().seed xor (name.hashCode().toLong() * -0x61c8864680b583ebL)) }

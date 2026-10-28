@@ -65,10 +65,6 @@ public data class Quaternion(
     public companion object {
         public val IDENTITY: Quaternion = Quaternion(0.0, 0.0, 0.0, 1.0)
 
-        private val UNIT_X = Vec3(1.0, 0.0, 0.0)
-        private val UNIT_Y = Vec3(0.0, 1.0, 0.0)
-        private val UNIT_Z = Vec3(0.0, 0.0, 1.0)
-
         /** Rotation of [radians] about [axis] (need not be unit; zero axis gives identity). */
         public fun axisAngle(axis: Vec3, radians: Double): Quaternion {
             val a = axis.normalize()
@@ -79,52 +75,12 @@ public data class Quaternion(
         }
 
         /**
-         * Minecraft convention. Yaw about +Y (0 = facing +Z/south, 90 = facing
-         * -X/west), pitch about local X (positive = look down), roll about
-         * local Z. Composed as `yaw * pitch * roll`.
+         * Rotation vector: the direction is the axis, the length the angle in degrees (right-hand rule). The authored form of
+         * a track key, so a key is an axis-angle and never an Euler triple. Zero gives identity.
          */
-        public fun fromEulerDegrees(yaw: Double, pitch: Double, roll: Double): Quaternion {
-            val qy = axisAngle(UNIT_Y, Math.toRadians(-yaw))
-            val qp = axisAngle(UNIT_X, Math.toRadians(pitch))
-            val qr = axisAngle(UNIT_Z, Math.toRadians(roll))
-            return (qy * qp * qr).normalized()
-        }
-
-        /**
-         * Orientation mapping local +Z to [forward], with local +Y as close
-         * to [up] as possible (local +X = up x forward, i.e. "left").
-         * A zero [forward] gives identity; a forward parallel to [up] picks
-         * a stable alternate up.
-         */
-        public fun lookRotation(forward: Vec3, up: Vec3 = Vec3(0.0, 1.0, 0.0)): Quaternion {
-            val f = forward.normalize()
-            if (f.lengthSquared() == 0.0) return IDENTITY
-            var left = up.cross(f)
-            if (left.lengthSquared() < 1e-12) {
-                val alt = if (abs(f.x) < 0.9) UNIT_X else UNIT_Z
-                left = alt.cross(f)
-            }
-            left = left.normalize()
-            val u = f.cross(left)
-            // Rotation matrix columns: left (x), u (y), f (z)
-            val m00 = left.x; val m01 = u.x; val m02 = f.x
-            val m10 = left.y; val m11 = u.y; val m12 = f.y
-            val m20 = left.z; val m21 = u.z; val m22 = f.z
-            val trace = m00 + m11 + m22
-            val q = if (trace > 0.0) {
-                val s = sqrt(trace + 1.0) * 2.0
-                Quaternion((m21 - m12) / s, (m02 - m20) / s, (m10 - m01) / s, 0.25 * s)
-            } else if (m00 > m11 && m00 > m22) {
-                val s = sqrt(1.0 + m00 - m11 - m22) * 2.0
-                Quaternion(0.25 * s, (m01 + m10) / s, (m02 + m20) / s, (m21 - m12) / s)
-            } else if (m11 > m22) {
-                val s = sqrt(1.0 + m11 - m00 - m22) * 2.0
-                Quaternion((m01 + m10) / s, 0.25 * s, (m12 + m21) / s, (m02 - m20) / s)
-            } else {
-                val s = sqrt(1.0 + m22 - m00 - m11) * 2.0
-                Quaternion((m02 + m20) / s, (m12 + m21) / s, 0.25 * s, (m10 - m01) / s)
-            }
-            return q.normalized()
+        public fun fromRotationVector(degrees: Vec3): Quaternion {
+            val len = sqrt(degrees.lengthSquared())
+            return if (len < 1e-12) IDENTITY else axisAngle(degrees, Math.toRadians(len))
         }
 
         /** Shortest-path spherical interpolation; `t` is not clamped. */

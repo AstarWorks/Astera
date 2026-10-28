@@ -73,7 +73,7 @@ class FrameMotionScenarioTest {
         val tree = world()
         tree.must(FrameNode(FrameId("caster"), FrameKind.CASTER, FrameId("world"), Frame.fromYawPitch(Vec3(10.0, 64.0, -3.0), 37.0, 12.0)))
         tree.must(FrameNode(FrameId("volley"), FrameKind.PART, FrameId("world"), Frame.fromYawPitch(Vec3(-4.0, 70.0, 8.0), -110.0, -25.0)))
-        tree.must(FrameNode(FrameId("piece"), FrameKind.PART, FrameId("caster"), Frame(Vec3(0.4, 1.3, 0.7), Quaternion.fromEulerDegrees(15.0, 40.0, 75.0))))
+        tree.must(FrameNode(FrameId("piece"), FrameKind.PART, FrameId("caster"), Frame(Vec3(0.4, 1.3, 0.7), Quaternion.fromRotationVector(Vec3(15.0, 40.0, 75.0)))))
         val before = tree.worldOf(FrameId("piece")).getOrNull()!!
 
         assertThat(tree.reparent(FrameId("piece"), FrameId("volley")).isSuccess).isTrue()

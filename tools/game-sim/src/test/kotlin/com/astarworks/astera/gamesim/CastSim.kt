@@ -226,7 +226,7 @@ class CastSim(
 
     val kit: SkillEngineKit = SkillEngineKit.build(
         gateways = SkillEngineGateways(
-            ports = SkillRuntimePorts(visualGateway ?: noop<ISkillVisualGateway>(), particleGateway ?: noop<ISkillParticleGateway>(), sound, gameplay, entities, noop<ISkillVictimAnimGateway>()),
+            ports = SkillRuntimePorts(visualGateway ?: object : ISkillVisualGateway by noop() { override fun sprite(sprite: String) = com.astarworks.astera.core.application.skillengine.runtime.port.SpriteInfo(1, 32) }, particleGateway ?: noop<ISkillParticleGateway>(), sound, gameplay, entities, noop<ISkillVictimAnimGateway>()),
             movement = movement,
             world = world,
             casterAnim = object : ISkillCasterAnimGateway {

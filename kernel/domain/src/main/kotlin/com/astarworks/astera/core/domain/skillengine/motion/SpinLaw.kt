@@ -27,7 +27,7 @@ internal class SpinLaw(
     override fun step(ctx: MotionContext): MotionStep {
         var axis = localAxis
         if (axis == null) {
-            val world = MotionAxes.resolve(spec.axis, ctx) ?: return MotionStep.Hold
+            val world = MotionMath.axis(spec.axis, ctx) ?: return MotionStep.Hold
             axis = ctx.local.rotation.conjugate().rotate(MotionMath.worldDirToLocal(ctx, world)).normalize()
             localAxis = axis
         }

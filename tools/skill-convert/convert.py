@@ -32,6 +32,7 @@ import yaml
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from yamlout import dump_doc  # noqa: E402
+from rotvec import convert_keys, euler_to_vec  # noqa: E402
 
 REPO = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
 # Skills whose windup holds the caster in place: id -> walk-speed factor (0.0 = rooted). SKL-15 row 13.
@@ -152,6 +153,7 @@ CAST = Where("cast")
 class Conv:
     def __init__(self, d, vfx_dir):
         self.d = d
+        self.item = None
         self.vfx_dir = vfx_dir
         self.params = OrderedDict()
         self.frames = OrderedDict()  # gameplay-side frames (skill.yaml)
@@ -701,6 +703,15 @@ class Conv:
         for tick, ids in sorted(removes.items()):
             self.p(where, delay + tick, self._w({"id": self.oid("rm"), "op": "remove", "ids": ids}, when))
 
+    @staticmethod
+    def sprite_size(sprite):
+        """Natural glyph size in blocks: sprite px * 0.025 (a 256 px sprite is 6.4 blocks)."""
+        px = 32
+        f = os.path.join(REPO, "content", "sprites", sprite + ".yaml")
+        if os.path.exists(f):
+            px = int(yaml.safe_load(open(f)).get("size", 32))
+        return round(px * 0.025, 4)
+
     def keys(self, kfs):
         out = []
         for k in kfs:
@@ -718,7 +729,7 @@ class Conv:
             if k.get("ease") in ("linear", "ease_in", "ease_out", "ease_in_out"):
                 e["ease"] = k["ease"]
             out.append(e)
-        return out
+        return convert_keys(out)
 
     def vfx_element(self, el, fid, where, delay, when, dur, removes):
         eid = "%s_%s" % (fid, sid(el["id"]))
@@ -736,7 +747,7 @@ class Conv:
             if kind.get("item_model") or kind.get("display_mode"):
                 self.present("item element item_model / display_mode (mesh has item + part only)", short({k: kind.get(k) for k in ("item_model", "display_mode")}, 60))
         elif kt == "sprite":
-            op = {"id": eid, "op": "plate", "parent": fid, "face": face, "sprite": kind["sprite"]}
+            op = {"id": eid, "op": "plate", "parent": fid, "face": face, "sprite": kind["sprite"], "size": self.sprite_size(kind["sprite"])}
             if "alpha" in kind:
                 op["alpha"] = kind["alpha"]
             if kind.get("frame_ticks", 1) != 1:
@@ -746,7 +757,15 @@ class Conv:
             if "color" in kind:
                 op["color"] = color_hex(kind["color"])
         elif kt == "particle":
-            op = emit_op(eid, fid, kind["particle_id"], 1)
+            at_frame = fid
+            moving = [k for k in el.get("keyframes", []) if "translate" in k]
+            if moving:
+                # The authored per-tick emit position: a frame under the vfx frame that a track moves, the emit sits on it.
+                at_frame = eid + "_at"
+                self.look_frames[at_frame] = {"id": at_frame, "kind": "body", "parent": fid}
+                self.p(where, at, self._w({"id": eid + "_atrk", "op": "track", "target": at_frame, "space": fid,
+                                           "keys": self.keys([{"t": k["t"], "translate": k["translate"], **({"ease": k["ease"]} if "ease" in k else {})} for k in moving])}, when))
+            op = emit_op(eid, at_frame, kind["particle_id"], 1)
             if "along_path" in kind:
                 self.present("particle along_path", short(kind["along_path"], 60))
         elif kt in ("thin_line", "dotted_line"):
@@ -805,7 +824,7 @@ class Conv:
             for key in ("pivot", "rest", "tilt"):
                 val = r.get(key)
                 if val and any(float(x) != 0.0 for x in val):
-                    mesh[key] = [float(x) for x in val]
+                    mesh[key if key == "pivot" else key + "_turn"] = [float(x) for x in (val if key == "pivot" else euler_to_vec(val))]
             self.p(where, start, self._w(mesh, when))
             removes.setdefault(end, []).append(first)
         if r.get("parts"):
@@ -817,6 +836,7 @@ class Conv:
                 if k.get("ease") in ("linear", "ease_in", "ease_out", "ease_in_out"):
                     e["ease"] = k["ease"]
                 keys.append(e)
+            keys = convert_keys(keys)
             if first:
                 self.p(where, start, self._w({"id": rid + "_swing", "op": "track", "target": first, "space": pr, "keys": keys}, when))
             else:
@@ -904,6 +924,7 @@ def block_damage(c, d, arch, on_hit, on_block):
 
 def convert_skill(d, vfx_dir, item):
     c = Conv(d, vfx_dir)
+    c.item = item
     arch = d["archetype"]
     params = d["params"]
     phases = d["phases"]

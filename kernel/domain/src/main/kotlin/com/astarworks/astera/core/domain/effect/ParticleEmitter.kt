@@ -1,5 +1,6 @@
 package com.astarworks.astera.core.domain.effect
 
+import com.astarworks.astera.core.domain.geometry.math.Basis
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.geometry.math.Curve
 import com.astarworks.astera.core.domain.geometry.math.Frame
@@ -128,7 +129,7 @@ public object ParticleEmitter {
         val forward = look?.takeIf { it.lengthSquared() > EPS }
         val yawOnly = forward?.let { Vec3(it.x, 0.0, it.z) }?.takeIf { it.lengthSquared() > EPS } ?: forward
         val direction = if (shape.full) forward else yawOnly
-        val frame = Frame(at, direction?.let { Quaternion.lookRotation(it) } ?: Quaternion.IDENTITY)
+        val frame = Frame(at, direction?.let { Basis.facing(it) } ?: Quaternion.IDENTITY)
         return samples.map { local -> Sample(
             position = frame.toWorld(local.position),
             tangent = frame.directionToWorld(local.tangent),
@@ -150,7 +151,7 @@ public object ParticleEmitter {
         val sinT = sqrt((1.0 - cosT * cosT).coerceAtLeast(0.0))
         val phi = r.nextDouble(0.0, 2.0 * Math.PI)
         val local = Vec3(sinT * cos(phi), sinT * sin(phi), cosT)
-        return Quaternion.lookRotation(dir).rotate(local).normalize()
+        return Basis.facing(dir).rotate(local).normalize()
     }
 
     private val UP = Vec3(0.0, 1.0, 0.0)

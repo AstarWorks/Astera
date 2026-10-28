@@ -1,0 +1,20 @@
+# Point table for the bastion greatsword (SKL-17).
+# Frame and chain as content/frames/couture-rapier.yaml: item-display-local, block units, origin = Display entity origin with an
+# identity entity transform; q = RotY(180) * ( T + Rxyz * ( S * (p/16 - 0.5) ) ) with T/R/S from the model's display.fixed block
+# (rotation [0,180,-35], translation [-1.8,2.771,-1.238], scale 0.582). The chain reproduces couture-rapier's published tip.
+# content/models/items/bastion-greatsword.model.json (130 elements, model +Y = blade direction, +X = broad-face side):
+#   grip  = centre of grip_core (8,-9.38,8): where the hand holds; pivot = grip (a swing turns the sword about the hand)
+#   root  = centre of the blade base at y=-5.198 (8,-5.198,8)
+#   tip   = centre of tip_point at y=17.934 (8,17.934,8)
+#   long  = model +Y (root -> tip); edge = model +X, perpendicular to long in the blade plane
+#   length = pommel bottom y=-12.4696 to tip y=17.934
+apiVersion: astera/v2
+kind: ItemFrames
+item: bastion-greatsword
+parts:
+  held:
+    model: astera:bastion-greatsword
+    display: fixed
+    length: 1.1059
+    points: { grip: [-0.2501, -0.3447, 0.0774], pivot: [-0.2501, -0.3447, 0.0774], root: [-0.1629, -0.2201, 0.0774], tip: [0.3198, 0.4692, 0.0774] }
+    axes: { long: [0.5736, 0.8192, 0], edge: [0.8192, -0.5736, 0] }

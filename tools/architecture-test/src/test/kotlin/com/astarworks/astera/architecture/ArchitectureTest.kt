@@ -62,6 +62,19 @@ class ArchitectureTest {
         }
     }
 
+    @Test
+    fun `skill engine runtime and Quaternion know no Euler angles (ADR-0303)`() {
+        // Rotations are right-hand axis-angle vectors and quaternions; Euler exists only in tools/skill-convert (v1 content).
+        val euler = Regex("""(?i)euler""")
+        projectScope().files
+            .filter {
+                it.path.contains("/src/main/") &&
+                    (it.path.contains("/kernel/runtime/") || it.path.contains("/skillengine/") || it.path.endsWith("/geometry/math/Quaternion.kt") ||
+                        it.path.endsWith("/geometry/math/Frame.kt") || it.path.endsWith("/geometry/math/Basis.kt"))
+            }
+            .assertFalse { file -> euler.containsMatchIn(sourceWithoutComments(file.text)) }
+    }
+
     private fun sourceWithoutComments(text: String): String =
         text.replace(Regex("""/\*.*?\*/|//[^\n]*""", RegexOption.DOT_MATCHES_ALL), " ")
 

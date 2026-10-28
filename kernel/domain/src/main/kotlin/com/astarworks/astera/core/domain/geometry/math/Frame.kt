@@ -26,12 +26,18 @@ public data class Frame(
         Frame(toWorld(local.origin), (rotation * local.rotation).normalized())
 
     public companion object {
-        /** Frame facing as Minecraft yaw/pitch (degrees) with no roll. */
-        public fun fromYawPitch(origin: Vec3, yawDeg: Double, pitchDeg: Double): Frame =
-            Frame(origin, Quaternion.fromEulerDegrees(yawDeg, pitchDeg, 0.0))
+        /**
+         * Frame facing as the HOST reports it: Minecraft yaw / pitch degrees, no roll. Yaw 0 faces +Z (south) and positive yaw
+         * turns toward -X, a NEGATIVE turn about up here; positive pitch looks down, a positive turn about left. A host input
+         * only: authored content never carries yaw / pitch / roll.
+         */
+        public fun fromYawPitch(origin: Vec3, yawDeg: Double, pitchDeg: Double): Frame = Frame(
+            origin,
+            (Quaternion.axisAngle(Vec3(0.0, 1.0, 0.0), Math.toRadians(-yawDeg)) *
+                Quaternion.axisAngle(Vec3(1.0, 0.0, 0.0), Math.toRadians(pitchDeg))).normalized(),
+        )
 
         /** Frame whose forward is [dir], with world-up as the up reference. */
-        public fun fromDirection(origin: Vec3, dir: Vec3): Frame =
-            Frame(origin, Quaternion.lookRotation(dir))
+        public fun fromDirection(origin: Vec3, dir: Vec3): Frame = Frame(origin, Basis.facing(dir))
     }
 }

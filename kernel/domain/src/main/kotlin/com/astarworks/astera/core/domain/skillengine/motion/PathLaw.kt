@@ -1,5 +1,6 @@
 package com.astarworks.astera.core.domain.skillengine.motion
 
+import com.astarworks.astera.core.domain.geometry.math.Basis
 import com.astarworks.astera.core.domain.geometry.math.Curve
 import com.astarworks.astera.core.domain.geometry.math.Frame
 import com.astarworks.astera.core.domain.geometry.math.Quaternion
@@ -30,7 +31,7 @@ internal class PathLaw(
         val pos = origin.toWorld(curve.point(t))
         val rot: Quaternion = if (spec.alignTangent) {
             val tan = curve.tangent(t)
-            if (tan.lengthSquared() > 0.0) Quaternion.lookRotation(origin.directionToWorld(tan)) else origin.rotation
+            if (tan.lengthSquared() > 0.0) Basis.facing(origin.directionToWorld(tan)) else origin.rotation
         } else {
             origin.rotation
         }

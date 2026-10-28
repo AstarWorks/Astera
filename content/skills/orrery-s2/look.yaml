@@ -33,7 +33,7 @@ presentation:
       at: 7
       do:
         - {id: anim_2, op: caster_anim, anim: hide-main-hand, ticks: 100}
-        - {id: fx3_orrery_s2_poise_emitter_light, op: plate, parent: fx3_orrery_s2_poise, face: {viewer: center}, sprite: orrery-orb, color: "#FFFFFF"}
+        - {id: fx3_orrery_s2_poise_emitter_light, op: plate, parent: fx3_orrery_s2_poise, face: {viewer: center}, sprite: orrery-orb, size: 3.2, color: "#FFFFFF"}
         - id: fx3_orrery_s2_poise_emitter_light_trk
           op: track
           target: fx3_orrery_s2_poise_emitter_light
@@ -107,6 +107,7 @@ presentation:
         parent: fx4_orrery_s2_impact
         face: {viewer: center}
         sprite: orrery-impact
+        size: 3.2
         frame_ticks: 2
         loop: true
         color: "#FFFFFF"
@@ -121,7 +122,7 @@ presentation:
           - {t: 11, scale: [0.494, 0.7155, 1.0]}
           - {t: 15, scale: [0.507, 0.7425, 1.0]}
         when: "= event.source == 'sel'"
-      - {id: fx4_orrery_s2_impact_violet_flash, op: plate, parent: fx4_orrery_s2_impact, face: {viewer: center}, sprite: glint, color: "#9A63EE", when: "= event.source == 'sel'"}
+      - {id: fx4_orrery_s2_impact_violet_flash, op: plate, parent: fx4_orrery_s2_impact, face: {viewer: center}, sprite: glint, size: 0.8, color: "#9A63EE", when: "= event.source == 'sel'"}
       - id: fx4_orrery_s2_impact_violet_flash_trk
         op: track
         target: fx4_orrery_s2_impact_violet_flash
@@ -136,6 +137,7 @@ presentation:
         parent: fx5_orrery_s2_impact_long
         face: {viewer: center}
         sprite: orrery-impact
+        size: 3.2
         frame_ticks: 2
         loop: true
         color: "#FFFFFF"
@@ -150,7 +152,7 @@ presentation:
           - {t: 14, scale: [0.494, 0.7155, 1.0]}
           - {t: 18, scale: [0.507, 0.7425, 1.0]}
         when: "= event.source == 'sel_2'"
-      - {id: fx5_orrery_s2_impact_long_violet_flash, op: plate, parent: fx5_orrery_s2_impact_long, face: {viewer: center}, sprite: glint, color: "#9A63EE", when: "= event.source == 'sel_2'"}
+      - {id: fx5_orrery_s2_impact_long_violet_flash, op: plate, parent: fx5_orrery_s2_impact_long, face: {viewer: center}, sprite: glint, size: 0.8, color: "#9A63EE", when: "= event.source == 'sel_2'"}
       - id: fx5_orrery_s2_impact_long_violet_flash_trk
         op: track
         target: fx5_orrery_s2_impact_long_violet_flash

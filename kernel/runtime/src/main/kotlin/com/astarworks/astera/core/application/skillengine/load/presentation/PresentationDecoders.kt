@@ -121,15 +121,15 @@ private fun OpReader.trackKeys(): List<TrackKey> {
     if (list.isEmpty()) fail("track 'keys' must not be empty")
     return list.mapIndexed { i, e ->
         val m = e as? Map<*, *> ?: fail("keys[$i] must be a map")
-        m.keys.firstOrNull { it !in setOf("t", "offset", "rotation", "scale", "ease") }
+        m.keys.firstOrNull { it !in setOf("t", "offset", "turn", "scale", "ease") }
             ?.let { fail("unknown key '$it' in keys[$i]") }
         val t = (m["t"] as? Number)?.toInt() ?: fail("keys[$i] needs integer 't'")
         val offset = m["offset"]?.let { vecValue(it) ?: fail("keys[$i].offset must be [x,y,z], \${param} or = expr") }
-        val rotation = m["rotation"]?.let { vecValue(it) ?: fail("keys[$i].rotation must be [yaw,pitch,roll], \${param} or = expr") }
+        val turn = m["turn"]?.let { vecValue(it) ?: fail("keys[$i].turn must be a rotation vector [x,y,z] (axis * degrees), \${param} or = expr") }
         val scale = m["scale"]?.let { scaleValue(it) ?: fail("keys[$i].scale must be a number, [x,y,z], \${param} or = expr") }
         val ease = m["ease"]?.let { it as? String ?: fail("keys[$i].ease must be a string") }
         if (ease != null && ease !in EASES) fail("keys[$i].ease must be one of $EASES")
-        TrackKey(t, offset, rotation, scale, ease)
+        TrackKey(t, offset, turn, scale, ease)
     }
 }
 
@@ -188,10 +188,10 @@ private object VisualOpDecoder : OpDecoder {
     override fun decode(op: String, id: String, whenExpr: Value<Boolean>?, reader: OpReader): SkillOp = with(reader) {
         when (op) {
             "mesh" -> VisualOp.Mesh(id, whenExpr, requireString("frame"), requireString("item"), string("part"), number("scale"),
-                vec3("pivot"), vec3("rest"), vec3("tilt"))
+                vec3("pivot"), vec3("rest_turn"), vec3("tilt_turn"))
             "plate" -> VisualOp.Plate(
                 id, whenExpr, requireString("parent"), face(null), requireString("sprite"),
-                numberOr("size_frac", 1.0), numberOr("alpha", 1.0),
+                numberOr("size", 1.0), numberOr("alpha", 1.0),
                 int("frame_ticks")?.also { if (it < 1) fail("frame_ticks must be >= 1") }, bool("loop") ?: false, stringValue("color"),
             )
             "line" -> VisualOp.Line(

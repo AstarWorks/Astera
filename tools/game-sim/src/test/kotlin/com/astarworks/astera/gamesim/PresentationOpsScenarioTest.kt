@@ -12,6 +12,8 @@ import com.astarworks.astera.core.application.skillengine.runtime.port.ISkillGam
 import com.astarworks.astera.core.application.skillengine.runtime.port.ISkillParticleGateway
 import com.astarworks.astera.core.application.skillengine.runtime.port.ISkillSoundGateway
 import com.astarworks.astera.core.application.skillengine.runtime.port.ISkillVictimAnimGateway
+import com.astarworks.astera.core.application.skillengine.runtime.port.VisualPose
+import com.astarworks.astera.core.application.skillengine.runtime.port.SpriteInfo
 import com.astarworks.astera.core.application.skillengine.runtime.port.ISkillVisualGateway
 import com.astarworks.astera.core.application.skillengine.runtime.port.ParticleBurst
 import com.astarworks.astera.core.application.skillengine.runtime.port.SkillDamage
@@ -111,7 +113,12 @@ class PresentationOpsScenarioTest {
     private var nextHandle = 1L
     private val poses = HashMap<Long, Frame>()
     private val scales = HashMap<Long, Double>()
-    private val spawnedFaces = HashMap<Long, PlateFace>()
+    private val spawnedBillboards = HashMap<Long, com.astarworks.astera.core.domain.effect.DisplayBillboard>()
+    private val lines = HashSet<Long>()
+    private fun ends(pose: VisualPose): Pair<Vec3, Vec3> {
+        val half = pose.frame.directionToWorld(Vec3(1.0, 0.0, 0.0)) * (pose.size.x / 2.0)
+        return (pose.frame.origin - half) to (pose.frame.origin + half)
+    }
     private val lineEnds = HashMap<Long, Pair<Vec3, Vec3>>()
     private val trailPoints = ArrayList<Pair<Vec3, Vec3>>()
     private val plateFrames = ArrayList<Triple<Long, Int, String?>>()
@@ -125,20 +132,19 @@ class PresentationOpsScenarioTest {
 
     private val visuals = object : ISkillVisualGateway {
         private fun h(kind: String): VisualHandle { calls += kind; return VisualHandle(nextHandle++) }
-        override fun spawnMesh(castOwner: UUID, item: String, part: String?, scale: Double, pose: Frame, anchored: Boolean) =
-            h("mesh:$item").also { poses[it.id] = pose; scales[it.id] = scale }
-        override fun spawnPlate(castOwner: UUID, sprite: String, face: PlateFace, size: Double, alpha: Double, pose: Frame, anchored: Boolean) =
-            h("plate:$sprite").also { poses[it.id] = pose; scales[it.id] = size; spawnedFaces[it.id] = face }
-        override fun spawnLine(castOwner: UUID, from: Vec3, to: Vec3, thickness: Double, colorHex: String, face: PlateFace) =
-            h("line:$colorHex").also { lineEnds[it.id] = from to to; spawnedFaces[it.id] = face }
+        override fun spawnMesh(castOwner: UUID, item: String, part: String?, pose: VisualPose) =
+            h("mesh:$item").also { poses[it.id] = pose.frame; scales[it.id] = pose.size.x }
+        override fun spawnPlate(castOwner: UUID, sprite: String, alpha: Double, pose: VisualPose) =
+            h("plate:$sprite").also { poses[it.id] = pose.frame; scales[it.id] = pose.size.x; spawnedBillboards[it.id] = pose.billboard }
+        override fun spawnLine(castOwner: UUID, colorHex: String, pose: VisualPose) =
+            h("line:$colorHex").also { lineEnds[it.id] = ends(pose); lines += it.id }
         override fun spawnTrail(castOwner: UUID, ticks: Int, widthFrac: Double, colorHex: String, alpha: Double) = h("trail")
-        override fun updateDisplay(handle: VisualHandle, pose: Frame, scale: Vec3, interpolationTicks: Int, anchorFeet: Vec3?) {
-            poses[handle.id] = pose; scales[handle.id] = scale.x
+        override fun write(handle: VisualHandle, pose: VisualPose, interpolationTicks: Int) {
+            if (handle.id in lines) lineEnds[handle.id] = ends(pose) else { poses[handle.id] = pose.frame; scales[handle.id] = pose.size.x }
         }
-        override fun updateLine(handle: VisualHandle, from: Vec3, to: Vec3) { lineEnds[handle.id] = from to to }
         override fun pushTrailPoint(handle: VisualHandle, root: Vec3, tip: Vec3) { trailPoints += root to tip }
         override fun remove(handle: VisualHandle) { removed += handle.id }
-        override fun spriteFrames(sprite: String) = if (sprite == "ring") 6 else 1
+        override fun sprite(sprite: String) = SpriteInfo(if (sprite == "ring") 6 else 1, 32)
         override fun setPlateFrame(handle: VisualHandle, frame: Int, tintHex: String?) { plateFrames += Triple(handle.id, frame, tintHex) }
         override fun setTrailLook(handle: VisualHandle, fadePower: Double, style: String) { trailLooks += Triple(handle.id, fadePower, style) }
     }
@@ -334,8 +340,9 @@ class PresentationOpsScenarioTest {
         near(n.x, -1.0); near(n.y, 0.0); near(n.z, 0.0)
         // viewer plate keeps the parent pose and its face mode is passed to the adapter untouched
         assertThat(poses[3]!!).isEqualTo(Frame(Vec3(5.0, 2.0, 0.0)))
-        assertThat(spawnedFaces[3]).isEqualTo(PlateFace.ViewerCenter)
-        assertThat(lineEnds[4]).isEqualTo(Vec3(0.0, 1.0, 0.0) to Vec3(5.0, 2.0, 0.0))
+        assertThat(spawnedBillboards[3]).isEqualTo(com.astarworks.astera.core.domain.effect.DisplayBillboard.CENTER)
+        near(lineEnds[4]!!.first.x, 0.0); near(lineEnds[4]!!.first.y, 1.0); near(lineEnds[4]!!.first.z, 0.0)
+        assertThat(lineEnds[4]!!.second).isEqualTo(Vec3(5.0, 2.0, 0.0))
 
         // the shears move (gameplay does that); presentation follows next tick
         tree.setLocal(FrameId("shears"), Frame(Vec3(1.0, 3.0, 0.0)))
@@ -346,7 +353,7 @@ class PresentationOpsScenarioTest {
         assertThat(poses[1]!!.origin).isEqualTo(Vec3(1.0, 3.0, 0.0))
         assertThat(lineEnds[4]!!.second).isEqualTo(Vec3(8.0, 2.0, 0.0))
         assertThat(trailPoints.last()).isEqualTo(Vec3(1.0, 3.0, 0.0) to Vec3(1.0, 3.0, 2.0))
-        assertThat(before.keys).isEqualTo(moved.keys)
+        assertThat(moved.keys - setOf("mesh_shears", "fan_plane", "fan_view")).isEqualTo(before.keys) // only the spawned objects joined the tree
 
         // trail stops at `release`, ribbon leaves after its own length
         raised += "release"
@@ -381,7 +388,9 @@ class PresentationOpsScenarioTest {
         tick(10)
         near(poses[1]!!.origin.y, 4.0) // holds the last key
         near(scales[1]!!, 3.0)
-        assertThat(tree.snapshot()).isEqualTo(frames) // the gameplay frame never moved
+        // gameplay frames never move; the tracked object is itself a node and holds the tracked pose (ADR-0303)
+        assertThat(tree.snapshot() - "m").isEqualTo(frames - "m")
+        near(tree.snapshot().getValue("m").origin.y, 2.0) // local to its parent: the track offset
 
         // `space: world` expresses the offset in world axes even when the frame is rotated
         tree.setLocal(FrameId("shears"), Frame(Vec3(0.0, 2.0, 0.0), Quaternion.axisAngle(Vec3(1.0, 0.0, 0.0), Math.PI / 2)))
@@ -459,12 +468,12 @@ class PresentationOpsScenarioTest {
         val tilt = v(0.0, 0.0, 0.0)
         run(VisualOp.Mesh("m", null, "shears", "couture-shears", null, null, pivot, rest, tilt))
         assertThat(poses[1]!!.origin).isEqualTo(Vec3(1.0, 2.0, 0.0))
-        val expect = Quaternion.fromEulerDegrees(90.0, 0.0, 0.0)
+        val expect = Quaternion.axisAngle(Vec3(1.0, 0.0, 0.0), Math.toRadians(90.0))
         assertThat(poses[1]!!.rotation.rotate(Vec3(0.0, 0.0, 1.0)).distance(expect.rotate(Vec3(0.0, 0.0, 1.0)))).isLessThan(1e-9)
         // a swing (track rotation) turns the model about the pivot AFTER rest, so rest stays the model's own orientation
         run(VisualOp.Track("sw", null, "m", listOf(TrackKey(0, null, v(0.0, 0.0, 0.0), null, null), TrackKey(1, null, v(0.0, 90.0, 0.0), null, null)), null))
         tick(3)
-        val swung = Quaternion.fromEulerDegrees(0.0, 90.0, 0.0) * expect
+        val swung = Quaternion.axisAngle(Vec3(0.0, 1.0, 0.0), Math.toRadians(90.0)) * expect
         assertThat(poses[1]!!.rotation.rotate(Vec3(0.0, 0.0, 1.0)).distance(swung.rotate(Vec3(0.0, 0.0, 1.0)))).isLessThan(1e-9)
         assertThat(poses[1]!!.origin).isEqualTo(Vec3(1.0, 2.0, 0.0)) // the pivot did not move
     }

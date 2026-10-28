@@ -1,5 +1,6 @@
 package com.astarworks.astera.core.application.skillengine.load
 
+import com.astarworks.astera.core.domain.skillengine.op.VisualOp
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.skillengine.expr.CompiledExpr
 import com.astarworks.astera.core.domain.skillengine.expr.ExprCompiler
@@ -41,7 +42,12 @@ public class DefaultSkillCompiler(
 
     private inner class Run(val def: SkillDef) {
         val frameDecls: Map<String, FrameDecl> = def.frames.associateBy { it.id }
-        val frameNames: Set<String> = frameDecls.keys + SectionRules.BUILTIN_FRAMES
+        /** A mesh or plate is a node of the frame tree under its op id (ADR-0303), so its id is a valid frame reference. */
+        val displayNodes: Set<String> = LinkedHashSet<String>().also {
+            scanDisplayNodes(def.presentation.timeline, it)
+            scanDisplayNodes(def.presentation.on, it)
+        }
+        val frameNames: Set<String> = frameDecls.keys + SectionRules.BUILTIN_FRAMES + displayNodes
         val paramNames: Set<String> =
             def.gameplay.params.keys + def.presentation.params.keys + def.gameplay.expose.map { it.name }
         val exprSpec: SkillExprSpec = SkillExprSpec.of(def)
@@ -123,6 +129,27 @@ public class DefaultSkillCompiler(
             when (v) {
                 is String -> checkFrame(v, path)
                 is List<*> -> v.forEachIndexed { i, e -> if (e is String) checkFrame(e, "$path[$i]") }
+            }
+        }
+    }
+
+    private fun scanDisplayNodes(node: Any?, out: MutableSet<String>) {
+        when (node) {
+            null, is String, is Number, is Boolean, is Enum<*> -> Unit
+            is VisualOp.Mesh -> out += node.id
+            is VisualOp.Plate -> out += node.id
+            is List<*> -> node.forEach { scanDisplayNodes(it, out) }
+            is Map<*, *> -> node.values.forEach { scanDisplayNodes(it, out) }
+            else -> {
+                var cls: Class<*>? = node::class.java
+                while (cls != null && cls.name.startsWith(ENGINE_PACKAGE)) {
+                    for (f in cls.declaredFields) {
+                        if (Modifier.isStatic(f.modifiers) || f.isSynthetic) continue
+                        f.isAccessible = true
+                        scanDisplayNodes(f.get(node), out)
+                    }
+                    cls = cls.superclass
+                }
             }
         }
     }

@@ -27,13 +27,14 @@ frames:
   - {id: fx3_orrery_orb, kind: body, parent: caster}
   - {id: fx4_orrery_beam, kind: body, parent: caster}
   - {id: fx5_orrery_seal_front, kind: body, parent: caster}
+  - {id: fx5_orrery_seal_front_clock_sparks_at, kind: body, parent: fx5_orrery_seal_front}
   - {id: fx6_orrery_ring_hit, kind: body, parent: world}
 presentation:
   timeline:
     - id: fx0
       at: 0
       do:
-        - {id: fx3_orrery_orb_core, op: plate, parent: fx3_orrery_orb, face: {viewer: center}, sprite: orrery-orb, color: "#FFFFFF"}
+        - {id: fx3_orrery_orb_core, op: plate, parent: fx3_orrery_orb, face: {viewer: center}, sprite: orrery-orb, size: 3.2, color: "#FFFFFF"}
         - id: fx3_orrery_orb_core_trk
           op: track
           target: fx3_orrery_orb_core
@@ -44,8 +45,12 @@ presentation:
             - {t: 16, scale: [0.237656, 0.237656, 1.0]}
             - {t: 38}
             - {t: 44, scale: [0.0, 0.0, 1.0]}
-    - {id: fx24, at: 24, do: [{id: snd, op: sound, sound: entity.player.attack.crit, at: caster, volume: 0.7, pitch: 1.2}]}
+    - id: fx24
+      at: 24
+      do:
+        - {id: fx5_orrery_seal_front_clock_sparks_atrk, op: track, target: fx5_orrery_seal_front_clock_sparks_at, space: fx5_orrery_seal_front, keys: [{t: 7, offset: [0, 0.15, 0]}]}
+        - {id: snd, op: sound, sound: entity.player.attack.crit, at: caster, volume: 0.7, pitch: 1.2}
     - {id: fx44, at: 44, do: [{id: rm, op: remove, ids: [fx3_orrery_orb_core]}]}
     - {id: loop1, at: 0, every: 1, for: 22, do: [{id: fx1_orrery_poise_staff_embers, op: emit, at: pt_fx1_orrery_poise_staff_0_1p65_0, particle: orrery-ember}]}
-    - {id: loop2, at: 24, every: 1, for: 7, do: [{id: fx5_orrery_seal_front_clock_sparks, op: emit, at: fx5_orrery_seal_front, particle: orrery-ember}]}
+    - {id: loop2, at: 24, every: 1, for: 7, do: [{id: fx5_orrery_seal_front_clock_sparks, op: emit, at: fx5_orrery_seal_front_clock_sparks_at, particle: orrery-ember}]}
   "on": {hit: [{id: emit, op: emit, at: contact.point, particle: orrery-sparks, when: "= event.source == 'sel'"}]}
