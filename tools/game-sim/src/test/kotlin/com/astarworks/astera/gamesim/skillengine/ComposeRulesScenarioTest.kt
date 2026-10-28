@@ -56,7 +56,7 @@ $body
     @Test
     fun paramDefaultIsSubstitutedBeforeLowering() {
         val header = "params:\n  gap: {type: ticks, default: 5}"
-        val s = (loadInline(skill(snd("at: 0, every: \${gap}, for: 12"), header)) as Result.Success).value
+        val s = (loadInline(skill(snd("at: 0, every: \"\${gap}\", for: 12"), header)) as Result.Success).value
         val ticks = s.table.states.first { it.state.value == "cast" }.rows.filter { it.action is Action.Sound }.map { it.tick }
         assertThat(ticks).containsExactly(0, 5, 10)
     }
@@ -120,7 +120,8 @@ $body
     fun exampleJCompilesWithItsOpLevelCallSubTables() {
         val s = loadExample("j-mythic-composition")
         writeEvidence("compose-rules-j", s.table)
-        val ids = s.table.subTables.values.flatMap { it.rows }.map { it.instance.text }
-        assertThat(ids.any { it.contains("splash") }).isTrue()
+        val callees = s.table.subTables.values.flatMap { it.rows }.map { it.action }.filterIsInstance<Action.Call>().map { it.callee.toString() }
+        assertThat(callees.any { it.contains("ember-splash") }).isTrue()
+        assertThat(callees.any { it.contains("ember-puff") }).isTrue()
     }
 }
