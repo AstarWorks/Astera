@@ -50,6 +50,8 @@ public class CastHosts : MovementHost, OpTargetResolver, PresentationCastInfo {
     override fun runWithVictim(ctx: OpContext, source: String, victim: UUID, point: Vec3, ops: List<SkillOp>) =
         of(ctx).runWithVictim(ctx, source, victim, point, ops)
 
+    override fun victimBind(ctx: OpContext): com.astarworks.astera.core.application.skillengine.runtime.ops.VictimBind? = of(ctx).victimBind(ctx)
+
     override fun resolve(ctx: OpContext, target: TargetRef): List<UUID> = of(ctx).resolve(ctx, target)
 
     override fun owner(cast: CastId): UUID = live[cast]?.owner(cast) ?: retired[cast]?.owner ?: error("cast ${cast.value} is not running")

@@ -61,6 +61,7 @@ class MovementOpsScenarioTest {
         val feet = HashMap<UUID, Vec3>()
         val alive = HashSet<UUID>()
         val elsewhere = HashSet<UUID>()
+        val binds = HashMap<UUID, com.astarworks.astera.core.application.skillengine.runtime.ops.VictimBind>()
         var casterYaw = 0.0
         var solidFromZ: Double? = null
         val velocities = HashMap<UUID, Vec3>()
@@ -150,6 +151,7 @@ class MovementOpsScenarioTest {
                 TargetRef.Victim -> listOfNotNull(w.victim)
                 else -> emptyList()
             }
+            override fun victimBind(ctx: OpContext) = w.victim?.let { v -> w.binds.getOrPut(v) { com.astarworks.astera.core.application.skillengine.runtime.ops.VictimBind(v, com.astarworks.astera.core.domain.world.WorldId("world")) } }
             override fun location(ctx: OpContext, spec: LocationSpec): Vec3? = (spec as? LocationSpec.AtValue)?.let { ctx.values.vec3(it.value) }
             override fun runWithVictim(ctx: OpContext, source: String, victim: UUID, point: Vec3, ops: List<SkillOp>) {
                 w.hits += victim
@@ -315,6 +317,11 @@ class MovementOpsScenarioTest {
         w.alive += enemyA
         w.elsewhere += enemyA
         run(e, driver, MovementOp.Teleport("t4", null, TargetRef.Victim, dest))
+        assertThat(w.feet.getValue(enemyA)).isEqualTo(Vec3(5.0, 0.0, 5.0))
+
+        // The latch (boundTargetState.cancelled) stays set: a victim that comes back is not teleported again.
+        w.elsewhere -= enemyA
+        run(e, driver, MovementOp.Teleport("t5", null, TargetRef.Victim, dest))
         assertThat(w.feet.getValue(enemyA)).isEqualTo(Vec3(5.0, 0.0, 5.0))
     }
 
