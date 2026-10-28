@@ -1037,13 +1037,15 @@ public class TablePlayer(
      * `align:<axis>><to>^<up>` (R42, v2 `MotionComposer.alignedRotation`): the LOCAL rotation that points the object's [axis] along the
      * named direction `to` with its up toward `up`, i.e. `Basis.facing(dir, up)` in world, expressed in the parent's space
      * (`parentWorld.conjugate * world`). Directions are `world.up`, `world.down` and `<instance|caster>.<axis>` (v2 `Axes.resolve`);
-     * an anchor id has no direction without the object's own position, so it is a loud fault, never a guess.
+     * a bare anchor id is rejected at load (v2 produced no rotation for it), so every `to` here carries a dot.
      */
     private fun alignRot(run: Run, cell: String, ctx: RowCtx, anchor: InstanceId?, anchorName: String): Quaterniond {
         val body = cell.removePrefix("align:")
         val axisName = body.substringBefore('>')
         val to = body.substringAfter('>').substringBefore('^')
         val up = body.substringAfter('^')
+        val parent = anchor?.let { run.recs[it] }?.let { worldOf(run, it, it.localAt(lastTick), ctx.binding, lastTick) }
+            ?: if (anchorName.isNotEmpty() && anchorName != "world") PoseV(live.vec(run.cursor.handle, anchorName, ctx.binding), live.rot(run.cursor.handle, anchorName, ctx.binding), Vector3d(1.0, 1.0, 1.0)) else PoseV(Vector3d(), Quaterniond(), Vector3d(1.0, 1.0, 1.0))
         val dir = namedDirection(run, to, ctx)
         val upDir = namedDirection(run, up, ctx)
         val objAxis = LocalAxes.axis(axisName.removePrefix("-"))?.let { if (axisName.startsWith("-")) it * -1.0 else it }
@@ -1056,16 +1058,14 @@ public class TablePlayer(
             else -> Quaternion.axisAngle(a.cross(z), Math.acos(a.dot(z).coerceIn(-1.0, 1.0)))
         }
         val w = Basis.facing(dir, upDir) * toZ
-        val parentRot = anchor?.let { run.recs[it] }?.let { worldOf(run, it, it.localAt(lastTick), ctx.binding, lastTick).rot }
-            ?: if (anchorName.isNotEmpty() && anchorName != "world") live.rot(run.cursor.handle, anchorName, ctx.binding) else Quaterniond()
-        return Quaterniond(parentRot).conjugate().mul(Quaterniond(w.x, w.y, w.z, w.w)).normalize()
+        return Quaterniond(parent.rot).conjugate().mul(Quaterniond(w.x, w.y, w.z, w.w)).normalize()
     }
 
     private fun namedDirection(run: Run, name: String, ctx: RowCtx): Vec3 {
         if (name == "world.up") return Vec3(0.0, 1.0, 0.0)
         if (name == "world.down") return Vec3(0.0, -1.0, 0.0)
         val dot = name.lastIndexOf('.')
-        if (dot <= 0) throw IllegalArgumentException("align target '$name' is not a direction (world.up, world.down, <frame>.<axis>); facing an anchor by id needs the object's own position")
+        if (dot <= 0) throw IllegalArgumentException("align target '$name' is not a direction (world.up, world.down, <frame>.<axis>)")
         val inst = name.substring(0, dot)
         val axis = name.substring(dot + 1)
         val rot = if (inst == "caster") live.rot(run.cursor.handle, "caster", ctx.binding)
