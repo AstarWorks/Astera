@@ -31,7 +31,13 @@ public class PaperSkillMovementGateway(
 
     private fun living(entity: UUID): LivingEntity? = (server.getEntity(entity) as? LivingEntity)?.takeIf { it.isValid && !it.isDead }
 
+    /** The entity whether dead or alive (v1 teleport moves dead targets); null once it is gone. */
+    private fun present(entity: UUID): LivingEntity? = server.getEntity(entity) as? LivingEntity
+
     override fun isAlive(entity: UUID): Boolean = living(entity) != null
+
+    override fun isInWorld(entity: UUID, world: com.astarworks.astera.core.domain.world.WorldId): Boolean =
+        present(entity)?.world?.name == world.value
 
     override fun setVelocity(entity: UUID, velocity: Vec3) {
         living(entity)?.velocity = Vector(velocity.x, velocity.y, velocity.z)
@@ -43,7 +49,7 @@ public class PaperSkillMovementGateway(
     }
 
     override fun teleport(entity: UUID, to: Vec3, yawDeg: Double?): Boolean {
-        val e = living(entity) ?: return false
+        val e = present(entity) ?: return false
         val at = Location(e.world, to.x, to.y, to.z, yawDeg?.toFloat() ?: e.location.yaw, e.location.pitch)
         e.teleportAsync(at)
         return true

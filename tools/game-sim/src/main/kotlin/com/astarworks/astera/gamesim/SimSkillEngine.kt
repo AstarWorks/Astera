@@ -535,6 +535,9 @@ private class SimSkillMovement(
 
     override fun isAlive(entity: UUID): Boolean = alive(PlayerId(entity))
 
+    override fun isInWorld(entity: UUID, world: com.astarworks.astera.core.domain.world.WorldId): Boolean =
+        this.world.find(PlayerId(entity))?.world == world
+
     override fun setVelocity(entity: UUID, velocity: Vec3) { effects.setVelocity(PlayerId(entity), velocity) }
 
     override fun addVelocity(entity: UUID, delta: Vec3) { effects.addVelocity(PlayerId(entity), delta) }
