@@ -1834,8 +1834,9 @@ def convert_skill(d, vfx_dir, item):
         block_damage(c, d, arch, None, None)
         if phases.get("miss"):
             c.g(w, 0, {"id": "swing_hit_count", "op": "counter", "key": "swing_hits"})
-            # the swing volume is resolved on its first ticks; the miss phase runs once it is clear nothing was hit
-            c.mechanics(phases["miss"], Where("cast", guard="= counter('swing_hits') == 0.0"), 2)
+            # v1 MeleeHandler.handle selects targets and runs `miss` in the cast tick (MeleeHandler.kt: dispatch(phases.miss)). The v2
+            # swing volume resolves in that same tick, before the presentation rows, so the guard is already final at delay 0.
+            c.mechanics(phases["miss"], Where("cast", guard="= counter('swing_hits') == 0.0"), 0)
     elif arch == "aoe":
         c.id_counts["burst"] = 1
         radius = c.param("radius", params["radius"])

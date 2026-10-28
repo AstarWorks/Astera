@@ -9,8 +9,12 @@ frames:
   - {id: pt_enemy_0_1p6_0, kind: point, parent: enemy, offset: [0.0, 1.6, 0.0]}
 presentation:
   timeline:
-    - {id: fx0, at: 0, do: [{id: snd, op: sound, sound: "astera:weapons/blade-heavy-swing", at: caster, pitch: 0.6}, {id: emit, op: emit, at: pt_aim_0_m0p3_2p4, particle: cleave-sweep}]}
-    - {id: fx2, at: 2, do: [{id: snd_3, op: sound, sound: "astera:weapons/blade-miss", at: caster, when: "= counter('swing_hits') == 0.0"}]}
+    - id: fx0
+      at: 0
+      do:
+        - {id: snd, op: sound, sound: "astera:weapons/blade-heavy-swing", at: caster, pitch: 0.6}
+        - {id: emit, op: emit, at: pt_aim_0_m0p3_2p4, particle: cleave-sweep}
+        - {id: snd_3, op: sound, sound: "astera:weapons/blade-miss", at: caster, when: "= counter('swing_hits') == 0.0"}
   "on":
     hit:
       - {id: snd_2, op: sound, sound: "astera:weapons/blade-crit", at: enemy, when: "= event.source == 'swing'"}

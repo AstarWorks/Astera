@@ -243,7 +243,7 @@ internal class CastInstance(
         drain()
 
         // gameplay timeline rows
-        for (row in gameplayTimeline.due(ticksSinceStart, ::eventSince, bus::hasRaised)) runRow(row.whenExpr, row.ops)
+        for (f in gameplayTimeline.due(ticksSinceStart, request.startTick, ::raisesOf, ::eventSince, bus::hasRaised)) runRow(f.row.whenExpr, f.row.ops, f.event)
         drain()
 
         stepMotion()
@@ -254,7 +254,7 @@ internal class CastInstance(
 
         // presentation rows run after the tick's motion and hits: a trail emits at the post-move position and not at all
         // on the tick its projectile ended (v1 emitted from inside the projectile step).
-        for (row in presentationTimeline.due(ticksSinceStart, ::eventSince, bus::hasRaised)) runRow(row.whenExpr, row.ops)
+        for (f in presentationTimeline.due(ticksSinceStart, request.startTick, ::raisesOf, ::eventSince, bus::hasRaised)) runRow(f.row.whenExpr, f.row.ops, f.event)
         drain()
 
         deps.presentation.tickCast(id)
@@ -270,7 +270,19 @@ internal class CastInstance(
 
     private fun eventSince(name: String): Int? = bus.firstRaisedAt(name)?.minus(request.startTick)
 
-    private fun runRow(guard: com.astarworks.astera.core.domain.skillengine.model.Value<Boolean>?, ops: List<SkillOp>) {
+    private fun raisesOf(name: String): List<CastEvent> = bus.history().filter { it.name == name }
+
+    private fun runRow(guard: com.astarworks.astera.core.domain.skillengine.model.Value<Boolean>?, ops: List<SkillOp>, anchor: CastEvent? = null) {
+        val outer = currentEvent
+        if (anchor != null) currentEvent = anchor
+        try {
+            runRowBody(guard, ops)
+        } finally {
+            currentEvent = outer
+        }
+    }
+
+    private fun runRowBody(guard: com.astarworks.astera.core.domain.skillengine.model.Value<Boolean>?, ops: List<SkillOp>) {
         currentOpId = null
         if (guard != null) {
             val ok = try {
@@ -293,7 +305,7 @@ internal class CastInstance(
 
     private fun idle(): Boolean =
         !motion.hasWork() && scheduled.isEmpty() && windows.isEmpty() && queue.isEmpty() && !deps.dashes.isDashing(id) &&
-            !gameplayTimeline.pending(::eventSince) && !presentationTimeline.pending(::eventSince)
+            !gameplayTimeline.pending(::eventSince, ::raisesOf) && !presentationTimeline.pending(::eventSince, ::raisesOf)
 
     private fun finishNow(cancelled: Boolean = false, reason: String? = null) {
         if (ended) return
@@ -320,6 +332,14 @@ internal class CastInstance(
         finishNow(cancelled = true)
         takeSnapshot()
         deps.observer?.onTick(id, tick, tree, nodeNames.toSet(), tickEvents.toList())
+    }
+
+    /**
+     * Delivers what the dash driver raised after this cast's tick (an `on_hit` that raised an event): v1 ran the dash hit
+     * mechanics, sound included, in the dash step's own tick, so the handlers must not wait for the next cast tick.
+     */
+    fun drainAfterDashes() {
+        if (!ended && queue.isNotEmpty()) drain()
     }
 
     fun enqueueExternal(event: CastEvent) {

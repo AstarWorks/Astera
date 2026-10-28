@@ -12,7 +12,10 @@ import com.astarworks.astera.core.domain.skillengine.op.SkillOp
  * per tick, in declaration order.
  */
 internal class Timeline<O : SkillOp>(private val rows: List<TimelineEntry<O>>) {
-    private class State(var next: Int? = null, var done: Boolean = false, var first: Int? = null)
+    private class State(var next: Int? = null, var done: Boolean = false, var first: Int? = null, val firedSources: MutableSet<String?> = HashSet())
+
+    /** A due row and, for a one-shot `event+N` row, the raise it is anchored to (v1 scheduled the delayed mechanics per raise). */
+    class Fire<O : SkillOp>(val row: TimelineEntry<O>, val event: CastEvent?)
 
     private val states = rows.map { State() }
 
@@ -21,11 +24,22 @@ internal class Timeline<O : SkillOp>(private val rows: List<TimelineEntry<O>>) {
      * @param eventSince ticks-since-start at which an event was first raised, or null
      * @param raised whether an event has been raised
      */
-    fun due(since: Int, eventSince: (String) -> Int?, raised: (String) -> Boolean): List<TimelineEntry<O>> {
-        val out = ArrayList<TimelineEntry<O>>()
+    fun due(since: Int, startTick: Int, raises: (String) -> List<CastEvent>, eventSince: (String) -> Int?, raised: (String) -> Boolean): List<Fire<O>> {
+        val out = ArrayList<Fire<O>>()
         for ((i, row) in rows.withIndex()) {
             val st = states[i]
             if (st.done) continue
+            val at0 = row.at
+            if (at0 is TimelineAt.AfterEvent && (row.everyTicks == null || row.everyTicks!! <= 0) && row.untilEvent == null) {
+                // One-shot `event+N`: one firing per raise (per source), each carrying its own raise as the current event.
+                for (e in raises(at0.event)) {
+                    if (e.source in st.firedSources) continue
+                    if (since < e.tick - startTick + at0.offsetTicks) continue
+                    st.firedSources += e.source
+                    out += Fire(row, e)
+                }
+                continue
+            }
             if (row.untilEvent != null && raised(row.untilEvent!!)) {
                 st.done = true
                 continue
@@ -38,7 +52,7 @@ internal class Timeline<O : SkillOp>(private val rows: List<TimelineEntry<O>>) {
             }
             val n = st.next ?: continue
             if (since < n) continue
-            out += row
+            out += Fire(row, null)
             if (st.first == null) st.first = n
             val every = row.everyTicks
             if (every == null || every <= 0) {
@@ -58,7 +72,11 @@ internal class Timeline<O : SkillOp>(private val rows: List<TimelineEntry<O>>) {
      * raised (even in the tick the event was raised after this timeline's [due] ran, e.g. `hit` from the swept resolve),
      * never before.
      */
-    fun pending(eventSince: (String) -> Int?): Boolean = rows.indices.any { i ->
+    fun pending(eventSince: (String) -> Int?, raises: (String) -> List<CastEvent>): Boolean = rows.indices.any { i ->
+        val a = rows[i].at
+        if (a is TimelineAt.AfterEvent && (rows[i].everyTicks == null || rows[i].everyTicks!! <= 0) && rows[i].untilEvent == null) {
+            return@any raises(a.event).any { it.source !in states[i].firedSources }
+        }
         // A row that repeats `until: end` is released by the cast ending, so it must not be what keeps the cast alive.
         val at = rows[i].at
         !states[i].done && rows[i].untilEvent != SkillEvents.END &&

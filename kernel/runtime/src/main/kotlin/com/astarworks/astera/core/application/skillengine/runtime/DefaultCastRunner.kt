@@ -168,6 +168,7 @@ public class DefaultCastRunner(private val deps: CastRunnerDeps) : CastRunner, I
             }
         }
         deps.dashes.tick()
+        for (cast in casts.values.toList()) cast.drainAfterDashes()
         deps.locks.tick()
         deps.world.tick()
         deps.hosts.tick()
