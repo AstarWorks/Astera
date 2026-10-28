@@ -1,14 +1,10 @@
-# Skin variant couture-rapier-s2@crimson: colours and particle only, and the second blade trail is dropped.
+# Skin variant couture-rapier-s2@crimson: the second blade trail is dropped (R35 ops: rows addressed by id).
+# The v2 colour / particle params change is not expressible as a skin patch (params are not presentation rows); it returns when the skin names its rows.
 apiVersion: astera/v3
 kind: Patch
+id: couture-rapier-s2-crimson
 target: couture-rapier-s2
 variant: crimson
 patchKind: skin
-params: {thread_color: "#d0203a", spark_particle: flame}
-# GAP: v2 patched presentation.params and deleted the timeline item trail_b by id ($patch: delete). In v3 the ribbon trail_b lives inside the windup state's `do`
-# (machine.states.windup.do[trail_b]); the Patch addressing form for state-owned ops is not specified in ADR-0303 rev4.2 -> closest: delete by id.
-machine:
-  states:
-    windup:
-      do:
-        - {id: trail_b, $patch: delete}
+ops:
+  - {path: "machine.states.windup.do[trail_b]", $patch: delete}

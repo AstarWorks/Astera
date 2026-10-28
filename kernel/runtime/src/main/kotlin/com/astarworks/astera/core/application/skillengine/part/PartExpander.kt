@@ -78,6 +78,7 @@ public class PartExpander(private val parts: Map<String, Part>, private val maxD
                 exit = qualify(s.exit, path, "exit", evPrefix),
                 on = s.on.mapIndexed { i, t -> remap(t, entry, path, i, evPrefix) },
                 use = null,
+                start = s.start,
             )
         }
 

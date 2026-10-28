@@ -23,6 +23,18 @@ public sealed interface SkillDecodeError {
         override val message: String get() = "op '$op' is not allowed in section '$section'"
     }
 
+    /** R36: a state with `states:` children declares no `start: <child>`. [state] is its flat path. */
+    public data class NestedStartMissing(override val skillId: String, val state: String) : SkillDecodeError {
+        override val path: String get() = "machine.states.$state.start"
+        override val message: String get() = "state '$state' has child states and must declare start: <child>"
+    }
+
+    /** R36: `machine.start` names a child state (`p/c`); it must name a top-level state. */
+    public data class StartNamesChild(override val skillId: String, val start: String) : SkillDecodeError {
+        override val path: String get() = "machine.start"
+        override val message: String get() = "machine.start '$start' names a child state; it must name a top-level state"
+    }
+
     public data class DuplicateId(override val skillId: String, override val path: String, val id: String) : SkillDecodeError {
         override val message: String get() = "duplicate id '$id'"
     }
