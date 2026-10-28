@@ -1,5 +1,5 @@
 # v3 draft (wave 2, w2-couture). Hand-ported from the v2 skill.yaml + look.yaml; per-tick values come from the v2 tracks.
-# Each linear run of a v2 track channel is one law (laws sum and hold). Grep "# GAP:" for what v3 cannot spell.
+# Each linear run of a v2 track channel is one law (laws sum and hold).
 apiVersion: astera/v3
 kind: Skill
 id: couture-rapier-s2
@@ -17,7 +17,7 @@ machine:
       for: 34
       then: throw
       enter:
-        - {id: body_anim, op: caster_anim, anim: couture-s2-body}
+        - {id: body_anim, op: body, anim: couture-s2-body, speed: 1.0, for: 63}
         - {id: raise_snd, op: sound, sound: couture.raise, anchor: shears, volume: 0.6}
       do:
         # v2 mesh_held (held part of the shears) shown ticks 0-4, then the three real pieces; raise 0-6: shears overhead (+0.9 up), long axis to world up, ease_out
@@ -54,18 +54,16 @@ machine:
           motion:
             - {law: spin, axis: left, deg_per_tick: "= spin_dpt", at: 0, for: 30}
             - {law: keys, keys: [{t: 0, pose: []}, {t: 4, pose: [{axis: edge, deg: -35}]}]}     # -open_deg / 2
-        # v2 spin op: 54 deg/tick about caster.left from tick 4 until release (tick 34); the ring lies in the vertical plane through the throw
-        - {id: spin_shears, op: spin_group, anchor: shears, law: {law: spin, axis: left, deg_per_tick: "= spin_dpt", at: 4, for: 30}}
-        # GAP: v2 op spin on the shears frame -> a law on the anchor; v3 puts laws on displays, so the same spin is repeated on each piece (see pieces above) when the engine accepts laws on an anchor
+        # v2 spin op on the shears frame (54 deg/tick about caster.left, ticks 4-34): carried by the spin law on each piece above (R34: laws live on displays / the projectile body, never on an anchor).
         - {id: trail_a, op: ribbon, of: piece_a.tip, root: piece_a.root, lasts: 6, color: "= thread_color", at: 4, for: 30}
         - {id: trail_b, op: ribbon, of: piece_b.tip, root: piece_b.root, lasts: 6, color: "= thread_color", at: 4, for: 30}
-        - {id: whoosh, op: sound, sound: couture.whoosh, anchor: shears, at: 4, every: 4, for: 30, volume: 0.6, pitch: 1.0}
-        # GAP: v2 whoosh volume/pitch = f(speed(shears.tip)) clamp -> constant 0.6 / 1.0 (speed is runtime state)
+        - {id: whoosh, op: sound, sound: couture.whoosh, anchor: shears, at: 4, every: 4, for: 30, volume: "= clamp(speed(shears.tip) / 1.5, 0.2, 1.0)", pitch: "= 0.9 + 0.3 * clamp(speed(shears.tip) / 2.0, 0.0, 1.0)"}
         # coin1: 30 degree / 9 block cone around the caster pose of tick 8; damage lands one tick after the selector (v2 delay op)
         - {id: slash, op: frame, anchor: caster, mode: snapshot, at: 8, for: 1}
-        - {id: c1_hit, op: hit, at: 8, anchor: slash, targets: enemies, shape: {sector: {deg: "= c1_arc_deg", range: "= c1_reach", height: 2.0}}, window: once, damage: {physical: 0}}
-        # GAP: v2 selector has no damage (hit is a trigger, damage follows through delay 1) -> damage {physical: 0}; the real 30 is applied in the handler 1 tick later
-        # GAP: v2 max_count 1 on the coin1 selector -> none
+        - {id: c1_hit, op: hit, at: 8, anchor: slash, targets: enemies, shape: {sector: {deg: "= c1_arc_deg", range: "= c1_reach", height: 2.0, forward: yaw}}, max_count: 1, window: once, ignore_invulnerability: false}
+        # GAP(Q4): trigger-only hit (damage omitted, R24); the 30 lands in the c1_hit.hit handler.
+        # GAP(Q6): v2 delay 1 between hit and damage is the handler row `at: 1` (option A); option B would be `damage_delay: 1` on the hit.
+        # GAP(Q1): max_count spelling pending; `max_count: 1` kept as the v2 selector cap.
         - id: w0
           at: 0
           do:
@@ -88,7 +86,6 @@ machine:
               op: frame
               anchor: caster
               mode: snapshot
-              # GAP: teleport_ticks 2 -> engine default
               for: 8
             - id: fx6_couture_s2_haze_haze_hip
               op: display
@@ -116,7 +113,6 @@ machine:
               op: frame
               anchor: caster
               mode: snapshot
-              # GAP: teleport_ticks 2 -> engine default
               for: 11
             - id: fx3_couture_s2_coin1_streak_0
               op: display
@@ -878,7 +874,6 @@ machine:
               op: frame
               anchor: caster
               mode: snapshot
-              # GAP: teleport_ticks 2 -> engine default
               for: 6
             - id: fx7_couture_s2_trail_wisp
               op: display
@@ -1045,8 +1040,8 @@ machine:
               do:
                 - id: fx4_couture_s2_hit1
                   op: frame
-                  anchor: victim.root
-                  # GAP: anchor like enemy (victim origin, CASTER yaw) -> victim.root snapshot
+                  anchor: victim
+                  axes: caster
                   mode: snapshot
                   for: 6
                 - id: fx4_couture_s2_hit1_p_orange
@@ -1176,21 +1171,26 @@ machine:
             hit:
               - {id: throw_dmg, op: damage, at: 0, target: event.victim, damage: {physical: "= dmg_throw"}}
               - {id: bleed, op: status, at: 0, target: event.victim, status: bleed, stacks: "= bleed_stacks", for: "= bleed_ticks"}
-              # GAP: v2 impulse push -contact.normal*0.35 + up*0.12 on the victim -> none
-              # GAP: v2 freeze 2 ticks on volley and caster -> none (closest: lock {move: true, pitch: true, for: 2} on the caster)
-              - {id: hitstop, op: lock, move: true, pitch: true, at: 0, for: 2}
-              - {id: stab_snd, op: sound, sound: couture.stab, anchor: contact, pitch: 1.0}
-              # GAP: v2 stab pitch = 1.2 - 0.2 * clamp(|rel_velocity| / 2) -> constant 1.0; stagger_back victim_anim strength = clamp(|rel_velocity| / 2) -> none
+              - {id: push, op: impulse, at: 0, target: event.victim, vector: "= -contact.normal * 0.35 + vec(0, 0.12, 0)"}
+              - {id: hitstop, op: freeze, at: 0, ticks: 2, scope: [caster, volley]}
+              - {id: stab_snd, op: sound, sound: couture.stab, anchor: contact, pitch: "= 1.2 - 0.2 * clamp(length(velocity(volley) - velocity(event.victim)) / 2.0, 0.0, 1.0)"}
+              # GAP: v2 victim_anim stagger_back (strength = clamp(|rel_velocity| / 2, 0.3, 1.0)) has no victim body op (R41 covers the caster only)
               - {id: sparks, op: particle, particle: "= spark_particle", anchor: contact, count: "= spark_count", offset: 0.4, extra: 0.4}
             block:
               - {id: crumb, op: particle_def, def: couture-s2-p-crumb, anchor: contact}
               - {id: wall_snd, op: sound, sound: couture.stab_wall, anchor: contact}
-        # GAP: the flying pieces (body, blade_a, blade_b models on the volley, kept through stuck and reel until arrive) are not authored as displays here: their lifetime is the runtime-dependent flight; needs `until: volley.end`-style binding to the reel arrive
+        # v2 flying pieces (R34): displays on the volley, spin inherited from the projectile body `motion`, kept through stuck and reel until the reel ends.
+        - {id: fly_body, op: display, kind: item, item: couture-rapier, part: body, anchor: volley, until: reel.end}
+        - {id: fly_a, op: display, kind: item, item: couture-rapier, part: blade_a, anchor: volley, until: reel.end, motion: [{law: keys, keys: [{t: 0, pose: [{axis: edge, deg: 35}]}]}]}
+        - {id: fly_b, op: display, kind: item, item: couture-rapier, part: blade_b, anchor: volley, until: reel.end, motion: [{law: keys, keys: [{t: 0, pose: [{axis: edge, deg: -35}]}]}]}
         - {id: throw_snd, op: sound, sound: couture.throw, anchor: shears, pitch: 1.1}
-        - {id: puff, op: particle, particle: dust, anchor: shears, count: 6, extra: 0.1}
-        # GAP: v2 dust data = thread_color, dir -forward(volley), spread 20 deg, inherit_velocity 0.5 -> vanilla dust particle (colour from the particle def)
-        # GAP: v2 op line (thread palm -> blade_a.root / blade_b.root / body.pivot, thickness 0.06, viewer-axis facing) and op plate flight_fan (crescent plane-facing, size 1.9, alpha 0.5) -> none; closest: ribbon between two anchors, not available for live anchors
-        - {id: thread, op: ribbon, of: volley, root: shears, lasts: 1, color: "= thread_color"}
+        # v2 dust: vanilla directed form (R34); v2 speed 0 so the velocity is only inherit_velocity 0.5 x the volley velocity.
+        - {id: puff, op: particle, particle: dust, anchor: caster.palm, times: 6, count: 0, offset: "= velocity(volley) * 0.5", extra: 1.0, color: "= thread_color", size: 1.0}
+        # v2 thread lines palm -> blade_a.root / blade_b.root / body.pivot (R34: live ribbons).
+        - {id: thread_a, op: ribbon, from: {of: caster, offset: palm}, to: fly_a, thickness: "= thread_thick", color: "= thread_color", until: reel.end}
+        - {id: thread_b, op: ribbon, from: {of: caster, offset: palm}, to: fly_b, thickness: "= thread_thick", color: "= thread_color", until: reel.end}
+        - {id: thread_body, op: ribbon, from: {of: caster, offset: palm}, to: fly_body, thickness: "= thread_thick", color: "= thread_color", until: reel.end}
+        # GAP: v2 plate flight_fan (crescent couture-s2-crescent, size 1.9, alpha 0.5, plane [axis, up] of the volley, removed on hit) has no draft yet: the plane rotate for `billboard: fixed` is unverified.
       on:
         - {event: volley.hit, to: stuck}
         - {event: volley.block, to: stuck}
@@ -1203,8 +1203,7 @@ machine:
           do:
             - id: fx1_couture_s2_hit2
               op: frame
-              anchor: victim.root
-              # GAP: frame placed like contact (contact point + normal) -> victim.root snapshot; v3 has no contact-point anchor
+              anchor: contact
               mode: snapshot
               for: 25
             - id: fx1_couture_s2_hit2_burst_soft_0
@@ -1573,7 +1572,7 @@ machine:
               rotate: [{axis: up, deg: -90}]
               size: [0.096, 0.096]
               alpha: 1
-              # GAP: face {plane: {axes: [left, up], frame: fx1_couture_s2_hit2}} -> fixed plane (no plane-face spelling in v3; billboard fixed + rotate)
+              billboard: fixed
               for: 19
               motion:
                 - {law: grow, prop: size, per_tick: [1.488, 0.48], at: 0, for: 2}
@@ -1581,33 +1580,33 @@ machine:
                 - {law: grow, prop: size, per_tick: [-0.1664, -0.4896], at: 17, for: 2}
     reel:
       # v2 reel: volley flies back to the palm at reel_speed 0.45 with ease_in; reel_hit capsule (radius 0.2) 6 dmg once; ends on arrive (runtime distance)
-      # GAP: v2 op reel (frame -> palm, speed 0.45, ease_in, ends on arrive) -> none; the state ends on the `arrive` event the engine must emit
       for: 16
       then: coin3
       do:
+        - {id: reel, op: reel, anchor: volley, to: caster.palm, speed: "= reel_speed", ease: in}
         - {id: reel_hit, op: hit, anchor: volley, targets: enemies, shape: {capsule: 0.2, from: root, to: tip}, window: once, damage: {physical: "= dmg_reel"}}
-        # GAP: v2 reel pull impulse normalize(palm - victim) * 0.25 -> none
-        - {id: reel_snd, op: sound, sound: couture.reel, anchor: volley, every: 3, for: 16, volume: 1.0, pitch: 1.0}
-        # GAP: v2 reel pitch = 1.0 + 0.4 * (1 - dist(volley, palm)/range) -> grow law on pitch
+        - {id: reel_snd, op: sound, sound: couture.reel, anchor: volley, every: 3, for: 16, volume: 1.0, pitch: "= 1.0 + 0.4 * (1 - dist(volley, caster.palm) / throw_range)"}
         - {id: catch_snd, op: sound, sound: couture.catch, anchor: shears, at: 15}
       on:
-        - {event: reel_hit.hit, do: [{id: reel_sparks, op: particle, particle: "= spark_particle", anchor: contact, count: 6}, {id: slash_snd, op: sound, sound: couture.slash_light, anchor: contact}]}
+        - {event: reel.end, to: coin3}
+        - {event: reel_hit.hit, do: [{id: pull, op: impulse, target: event.victim, vector: "= normalize(pos(caster.palm) - pos(event.victim)) * 0.25"}, {id: reel_sparks, op: particle, particle: "= spark_particle", anchor: contact, count: 6}, {id: slash_snd, op: sound, sound: couture.slash_light, anchor: contact}]}
     coin3:
       # v2: starts on the coin3_start event (caster_anim body-b at +0, dash at +9, 3 ticks, radius 0.8, hit_once, stop_before_target 1.0)
       for: 37
       then: end
       enter:
-        - {id: dash, op: dash, at: 9, speed: "= c3_dash_distance / 3", for: 3}
-        # GAP: v2 dash_strike stop_before_target 1.0, stop_on_block true, follow_pitch false, invulnerable false -> none
-        - {id: c3_hit, op: hit, at: 9, for: 3, anchor: caster, targets: enemies, shape: {sphere: 0.8}, window: once, damage: {physical: "= dmg_coin3"}}
-        # GAP: v2 dash_strike had no sector so there is no height; sphere used
+        - {id: dash, op: dash, at: 9, speed: "= c3_dash_distance / 3", for: 3, until: c3_hit.hit, direction: forward, follow_pitch: false, stop_on_block: true, invulnerable: false, face_movement: false}
+        # v2 dash_strike radius 0.8 + stop_before_target 1.0: the corridor sphere reaches 0.8 + 1.0 and its first victim ends the dash (R9).
+        - {id: c3_hit, op: hit, at: 9, every: 1, for: 3, anchor: caster, targets: enemies, shape: {sphere: {center: caster.body, radius: 1.8}}, window: once, damage: {physical: "= dmg_coin3"}, ignore_invulnerability: true}
       do:
         - id: k0
           at: 0
           do:
             - id: canim_2
-              op: caster_anim
+              op: body
               anim: couture-s2-body-b
+              speed: 1.0
+              for: 35
         - id: k3
           at: 3
           do:
@@ -1633,7 +1632,6 @@ machine:
               op: frame
               anchor: caster
               mode: snapshot
-              # GAP: teleport_ticks 2 -> engine default
               for: 26
             - id: fx8_couture_s2_dash_streak_0
               op: display
@@ -1810,7 +1808,7 @@ machine:
               rotate: [{axis: left, deg: 90}]
               size: [5.76, 5.76]
               alpha: 1
-              # GAP: face {plane: {axes: [left, up], frame: fx8_couture_s2_dash}} -> fixed plane (no plane-face spelling in v3; billboard fixed + rotate)
+              billboard: fixed
               for: 20
               motion:
                 - {law: move, velocity: {left: 0, up: 0, forward: -0.033333}, at: 0, for: 18}
@@ -1834,7 +1832,7 @@ machine:
                   op: frame
                   anchor: caster
                   offset: {up: 0.9, forward: 1.3}
-                  # GAP: frame placed like dash_hit_anchor (caster-relative 0.9 up, 1.3 forward) at the hit tick: snapshot of the caster basis at that tick
+                  # v2 dash_hit_anchor: caster-relative 0.9 up, 1.3 forward, snapshot of the caster basis at the hit tick
                   mode: snapshot
                   for: 25
                 - id: fx2_couture_s2_hit3_p_orange
@@ -1893,31 +1891,31 @@ machine:
                 - id: c3_snd_0
                   op: sound
                   sound: entity.player.attack.sweep
-                  anchor: victim.root
+                  anchor: victim
                   volume: 1
                   pitch: 0.55
                 - id: c3_snd_1
                   op: sound
                   sound: entity.sheep.shear
-                  anchor: victim.root
+                  anchor: victim
                   volume: 1
                   pitch: 0.7
                 - id: c3_snd_2
                   op: sound
                   sound: item.trident.riptide_1
-                  anchor: victim.root
+                  anchor: victim
                   volume: 0.8
                   pitch: 1.5
                 - id: c3_snd_3
                   op: sound
                   sound: entity.player.attack.crit
-                  anchor: victim.root
+                  anchor: victim
                   volume: 1
                   pitch: 0.6
                 - id: c3_snd_4
                   op: sound
                   sound: block.anvil.land
-                  anchor: victim.root
+                  anchor: victim
                   volume: 0.5
                   pitch: 1.4
             - id: d1

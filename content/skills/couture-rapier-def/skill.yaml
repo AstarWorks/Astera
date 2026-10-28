@@ -1,5 +1,5 @@
 # v3 draft (wave 2, w2-couture). Hand-ported from the v2 skill.yaml + look.yaml; per-tick values come from the v2 tracks.
-# Each linear run of a v2 track channel is one law (laws sum and hold). Grep "# GAP:" for what v3 cannot spell.
+# Each linear run of a v2 track channel is one law (laws sum and hold).
 apiVersion: astera/v3
 kind: Skill
 id: couture-rapier-def
@@ -371,7 +371,7 @@ machine:
   states:
     guard:
       # v2 window: listen incoming_hit, ticks 30, filter dist(caster, victim) <= 3.5
-      # GAP: window absorb true (the parried hit is cancelled) -> none; v3 hurt event only observes. Meaning change unless the engine cancels on a parry transition.
+      # GAP(Q5): v2 window absorb true (the parried hit is cancelled). Current best-effort form is observe-only (hurt -> riposte); founder picks A `absorb: true` on this transition / B resist.physical / C `parry` op.
       # (example e's resist.physical +0.7 is NOT in v2 and is not added here)
       for: 30
       then: end
@@ -392,7 +392,6 @@ machine:
                   op: frame
                   anchor: caster
                   mode: follow
-                  # GAP: teleport_ticks 2 -> engine default
                   for: 16
                 - id: fx2_couture_shears_snip_1_blade_0
                   op: display
@@ -879,8 +878,8 @@ machine:
               do:
                 - id: fx3_couture_rapier_cross
                   op: frame
-                  anchor: victim.root
-                  # GAP: anchor orient yaw at enemy (victim origin, CASTER yaw) -> victim.root snapshot (victim basis)
+                  anchor: victim
+                  axes: caster
                   mode: snapshot
                   for: 9
                 - id: fx3_couture_rapier_cross_cross_0
@@ -1304,7 +1303,7 @@ machine:
                 - id: snd
                   op: sound
                   sound: entity.player.attack.strong
-                  anchor: victim.root
+                  anchor: victim
                   volume: 0.7
                   pitch: 1.1
     end: {final: true}
