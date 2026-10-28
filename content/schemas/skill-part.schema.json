@@ -1,0 +1,102 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "https://astera.astarworks.com/schemas/skill-part.schema.json",
+    "title": "Skill Part (kind Part, content/skill-parts/*.yaml, ADR-0303 section 9-10)",
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["apiVersion", "kind", "id", "machine"],
+    "properties": {
+        "apiVersion": {"const": "astera/v3"},
+        "kind": {"const": "Part"},
+        "id": {"type": "string", "pattern": "^[a-z][a-z0-9_-]*$"},
+        "params": {
+            "type": "object",
+            "additionalProperties": {"$ref": "#/definitions/param"}
+        },
+        "frames_in": {"type": "object", "additionalProperties": {"type": "string"}},
+        "frames_out": {"type": "object", "additionalProperties": {"type": "string"}},
+        "emits": {"type": "array", "items": {"type": "string"}},
+        "machine": {"$ref": "#/definitions/machine"}
+    },
+    "definitions": {
+        "cel": {"type": "string", "pattern": "^= "},
+        "ticks": {
+            "oneOf": [
+                {"type": "integer", "minimum": 0},
+                {"$ref": "#/definitions/cel"}
+            ]
+        },
+        "param": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["type"],
+            "properties": {
+                "type": {"enum": ["ticks", "blocks", "number", "bool", "string"]},
+                "required": {"const": true},
+                "default": {}
+            },
+            "oneOf": [
+                {"required": ["required"], "not": {"required": ["default"]}},
+                {"required": ["default"], "not": {"required": ["required"]}}
+            ]
+        },
+        "op": {
+            "type": "object",
+            "anyOf": [{"required": ["op"]}, {"required": ["emit"]}],
+            "properties": {
+                "id": {"type": "string"},
+                "op": {"type": "string"},
+                "emit": {"type": "string"}
+            }
+        },
+        "ops": {"type": "array", "items": {"$ref": "#/definitions/op"}},
+        "transition": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["to"],
+            "properties": {
+                "event": {"type": "string"},
+                "after": {"$ref": "#/definitions/ticks"},
+                "when": {"$ref": "#/definitions/cel"},
+                "to": {"type": "string"},
+                "do": {"$ref": "#/definitions/ops"}
+            },
+            "oneOf": [{"required": ["event"]}, {"required": ["after"]}]
+        },
+        "state": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "for": {"$ref": "#/definitions/ticks"},
+                "then": {"type": "string"},
+                "final": {"type": "boolean"},
+                "enter": {"$ref": "#/definitions/ops"},
+                "do": {"$ref": "#/definitions/ops"},
+                "exit": {"$ref": "#/definitions/ops"},
+                "on": {"type": "array", "items": {"$ref": "#/definitions/transition"}},
+                "use": {"type": "string"},
+                "with": {"type": "object"},
+                "frames": {"type": "object", "additionalProperties": {"type": "string"}}
+            },
+            "allOf": [
+                {"if": {"required": ["use"]}, "then": {"not": {"anyOf": [{"required": ["for"]}, {"required": ["final"]}, {"required": ["enter"]}, {"required": ["do"]}, {"required": ["exit"]}]}}},
+                {"if": {"not": {"required": ["use"]}}, "then": {"not": {"anyOf": [{"required": ["with"]}, {"required": ["frames"]}]}}},
+                {"if": {"required": ["final"], "properties": {"final": {"const": true}}}, "then": {"not": {"anyOf": [{"required": ["for"]}, {"required": ["then"]}, {"required": ["on"]}, {"required": ["exit"]}]}}}
+            ]
+        },
+        "machine": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["start", "states"],
+            "properties": {
+                "start": {"type": "string"},
+                "states": {
+                    "type": "object",
+                    "minProperties": 1,
+                    "propertyNames": {"pattern": "^[A-Za-z][A-Za-z0-9_-]*$"},
+                    "additionalProperties": {"$ref": "#/definitions/state"}
+                }
+            }
+        }
+    }
+}

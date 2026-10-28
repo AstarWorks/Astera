@@ -144,6 +144,10 @@ class BotVsBotE2eTest : PlaythroughBase() {
             brains.forEachIndexed { i, b -> assertThat(b.swings.get() + b.shots.get()).describedAs("${bots[i].name} never attacked: ${b.summary()}").isGreaterThan(0) }
             brainSummary.joinToString(" | ")
         }
+        E2eReport.check(suite, "the sword is actually swung (the starter kit carries a knight-sword, melee closes in instead of kiting)", "bot counters") {
+            assertThat(brains.sumOf { it.swings.get() }).describedAs("no bot ever swung its sword: $brainSummary").isGreaterThan(0)
+            brains.joinToString(" | ") { "swings=${it.swings.get()}" }
+        }
         E2eReport.check(suite, "the match ends by itself", "RCON astera match list") {
             assertThat(ended).describedAs("match still running after ${(System.currentTimeMillis() - tPlay) / 1000}s: ${matchLines()}; sidebar=${sidebar(bots[0])}").isTrue()
             "match gone after ${(System.currentTimeMillis() - tPlay) / 1000}s"

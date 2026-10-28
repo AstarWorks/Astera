@@ -14,16 +14,5 @@ attributes:
 equip_slot: mainhand
 resource_type: energy
 resource_cost_per_use: 14
-skills:
-- trigger: left_click
-  skill_id: edict-s1
-- trigger: right_click
-  skill_id: edict-s2
-- trigger: sneak_right
-  skill_id: edict-s3
-- trigger: sneak_left
-  skill_id: edict-def
-- trigger: drop
-  skill_id: edict-ego
 pdc_tags:
   astera:rarity: epic

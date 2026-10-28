@@ -1,0 +1,13 @@
+# tool skill hit area (axe: chop arcs); heavier at stone tier
+id: tool-axe-stone
+shape:
+  kind: burst
+  spread_blocks: 0.6
+color:
+  r: 255
+  g: 255
+  b: 255
+count: 1
+lifetime_ticks: 12
+vanilla_particle: sweep_attack
+speed: 0.0

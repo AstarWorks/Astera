@@ -1,0 +1,26 @@
+# error: SkillDecodeError.UnknownKey   (3: a law window starts at `at`; `from` is not a law field)
+apiVersion: astera/v3
+kind: Skill
+id: rejected-r4
+item: couture-rapier
+meta: {cooldown_ticks: 10, resource_cost: 0}
+anchors:
+  - {id: hand, anchor: caster.hand_r}
+machine:
+  start: s
+  states:
+    s:
+      for: 20
+      then: end
+      do:
+        - id: glyph
+          op: display
+          kind: sprite
+          sprite: slash_arc
+          anchor: hand
+          size: [0.8, 0.8]
+          billboard: fixed
+          at: 0
+          for: 20
+          motion: [{law: spin, axis: face, deg_per_tick: 18, from: 0, for: 20}]
+    end: {final: true}

@@ -1,13 +1,25 @@
-# Converted from content/skills/axe-plank-wall-diamond.yaml by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
-# Generated point-frame offsets are [left, up, forward] in the parent frame.
-apiVersion: "astera/v2"
+apiVersion: astera/v3
 kind: Skill
 id: axe-plank-wall-diamond
 item: diamond-axe
 meta:
-  name: {ja: "ダイヤの板壁", en: "Diamond Plank Wall"}
+  name: {ja: ダイヤの板壁, en: Diamond Plank Wall}
   description: {ja: "目の前に補強板の壁を築く。", en: "Raises a wall of reinforced planks in front of you."}
   cooldown_ticks: 200
   resource_cost: 0
   tags: [tool, cover]
-gameplay: {timeline: [{id: t0, at: 0, do: [{id: place, op: place_shape, shape: wall, block: "astera:reinforced_planks", width: 7, height: 3}]}]}
+anchors:
+  - {id: aim, anchor: caster, offset: {forward: 2.0}}
+machine:
+  start: cast
+  states:
+    cast:
+      for: 1
+      then: end
+      do:
+        - {id: wall, op: place_shape, at: 0, anchor: caster, shape: {wall: {width: 7, height: 3}}, block: "astera:reinforced_planks", consume: none, ripple: 29, revert: 200, outside_arena: false}
+        - {id: snd, op: sound, sound: item.axe.strip, anchor: caster, volume: 1.0, pitch: 0.6}
+        - {id: snd_2, op: sound, sound: block.wood.break, anchor: caster, volume: 1.0, pitch: 0.7}
+        - {id: snd_3, op: sound, sound: entity.player.attack.crit, anchor: caster, volume: 0.8, pitch: 0.9}
+        - {id: spark, op: particle_def, def: tool-axe-diamond, anchor: aim}
+    end: {final: true}

@@ -74,7 +74,7 @@ requestAnimationFrame(animate);
 // This is a labelled sprite dimension study, not a simulated skill performance.
 function sampleSheet(item) {
   if (!item.id.startsWith('sample-')) return null;
-  const plate = item.plates?.find(op => op.op === 'plate');
+  const plate = item.plates?.find(op => op.op === 'display' && op.kind === 'sprite');
   const sprite = data.sprites.find(sprite => sprite.id === (plate?.sprite || item.id));
   if (!sprite?.image) return null;
   const canvas = el('canvas', null, 'sheet'); canvas.width = 640; canvas.height = 264;

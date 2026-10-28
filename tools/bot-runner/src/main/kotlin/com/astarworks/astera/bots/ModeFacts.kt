@@ -74,31 +74,65 @@ interface ModeFacts {
     }
 }
 
+/** A player a client sees with the glowing flag set (the carry-tnt carrier glows); [name] null when the Tab list does not show it. */
+data class GlowingPlayer(val name: String?, val x: Double, val z: Double)
+
 /**
- * What a protocol bot can observe on its own: loose objective markers (a dropped TNT), enemy sightings and whether a block
- * of the stage still stands (pillars). Everything else stays unknown until the server-side query is wired in.
+ * What a protocol bot can observe on its own: loose objective markers (a dropped TNT), enemy sightings, whether a block
+ * of the stage still stands (pillars), and the carry-tnt state the mode shows every viewer: the boss bars ("<team> is
+ * carrying the TNT", "TNT shield <n> HP") and the glowing carrier. Everything else stays unknown until the server-side query is wired in.
  */
 class ObservedModeFacts(
     private val modeId: String,
     /** True/false when the world cell is known solid / air, null when its chunk is not loaded. */
     private val solidAt: (Int, Int, Int) -> Boolean?,
     private val pillarBlock: (String, Int) -> Triple<Int, Int, Int>?,
+    /** Where the TNT waits (`tnt-spawn`); the position reported for a carrier that is out of sight. */
+    private val tntSpawn: Pair<Double, Double>? = null,
 ) : ModeFacts {
     @Volatile private var markers: List<Pair<Double, Double>> = emptyList()
     @Volatile private var seen: List<Sighting> = emptyList()
+    @Volatile private var bars: List<String> = emptyList()
+    @Volatile private var glowing: List<GlowingPlayer> = emptyList()
+    @Volatile private var lastCarrier: Pair<Double, Double>? = null
 
     fun update(looseMarkers: List<Pair<Double, Double>>, sightings: List<Sighting>) {
         markers = looseMarkers
         seen = sightings
     }
 
-    override fun tnt(): TntFact? =
-        if (modeId == "carry-tnt") markers.singleOrNull()?.let { TntFact(it.first, it.second) } else null
+    /** [barTitles]: plain titles of the boss bars on screen; [glowingPlayers]: every player with the glowing flag, self included. */
+    fun updateRainmaker(barTitles: List<String>, glowingPlayers: List<GlowingPlayer>) {
+        bars = barTitles
+        glowing = glowingPlayers
+    }
+
+    override fun tnt(): TntFact? {
+        if (modeId != "carry-tnt") return null
+        val team = bars.firstNotNullOfOrNull { CARRIED_BAR.find(it)?.groupValues?.get(1) }
+        if (team == null) {
+            lastCarrier = null
+            return markers.singleOrNull()?.let { TntFact(it.first, it.second) }
+        }
+        val carrier = glowing.minByOrNull { if (it.name != null) 0 else 1 }
+        val at = carrier?.let { it.x to it.z } ?: lastCarrier ?: tntSpawn ?: return null
+        lastCarrier = at
+        return TntFact(at.first, at.second, team, carrier?.name)
+    }
+
+    override fun shieldHp(): Double? =
+        if (modeId == "carry-tnt") bars.firstNotNullOfOrNull { SHIELD_BAR.find(it)?.groupValues?.get(1)?.toDoubleOrNull() } else null
 
     override fun enemies(): List<Sighting> = seen
 
     override fun pillarStanding(team: String, tier: Int): Boolean? =
         pillarBlock(team, tier)?.let { (x, y, z) -> solidAt(x, y, z) }
+
+    private companion object {
+        /** en / ja of `objective.bar.carry-tnt.carried` and `.shield` (content/languages): the team token is the scoreboard team id. */
+        val CARRIED_BAR = Regex("(\\w+) (?:is carrying the TNT|がTNTを運搬中)")
+        val SHIELD_BAR = Regex("(?:TNT shield|TNT シールド)\\s+(\\d+(?:\\.\\d+)?)\\s*HP")
+    }
 }
 
 /** A role a bot plays for its team in a mode. One enum so a trace and a scenario can name it. */

@@ -92,8 +92,12 @@ public class CombatWiringResult(
     public val skillGate: SkillMetaRegistry,
     /** The v2 skill catalog (ADR-0301), loaded from `content/skills` at install; the Paper runtime casts from it. */
     public val skillCatalog: com.astarworks.astera.core.application.skillengine.load.SkillCatalog,
+    /** Reloads `content/skills`; the Paper runtime calls it once the block registries exist so skills that named a custom block retry. */
+    public val reloadSkills: () -> com.astarworks.astera.core.application.service.ContentLoader.LoadReport,
     /** Decoded `content/frames` point tables for the v2 compiler and point source. */
     public val frameTables: Map<String, com.astarworks.astera.core.application.skillengine.load.ItemFrames>,
+    /** `content/engine/skill-engine.yaml`; the Paper runtime hands it to the table player (server caps). */
+    public val engineConfig: com.astarworks.astera.core.domain.skillengine.model.EngineConfig,
     public val statusContents: StatusContents,
     public val armorContents: ArmorContents,
     public val applyDamage: ApplyDamageUseCase?,
@@ -134,15 +138,28 @@ public object CombatWiring {
         // in the unified /astera reload <category> dispatcher.
         val skillsContentDir = ctx.contentDir.resolve("skills")
         val contentCelEvaluator = services.get<ICelEvaluator>() ?: StubCelEvaluator()
-        // Skill engine v2 (ADR-0301): the catalog is the one skill store; the cast gate reads its `meta:` blocks.
+        // Skill engine v3 (ADR-0303): the catalog is the one skill store; the cast gate reads its `meta:` blocks.
         val (frameTables, frameErrors) = com.astarworks.astera.core.application.skillengine.load.SkillEngineRegistries
             .frameTables(ctx.contentDir.resolve("frames"))
         frameErrors.forEach { logger.warning("skill engine frame table: $it") }
-        val skillCatalog = com.astarworks.astera.core.application.skillengine.load.SkillEngineRegistries.catalog(frameTables)
-        val skillEngineContents = com.astarworks.astera.core.application.skillengine.runtime.SkillEngineContents(skillCatalog)
+        val skillParts = when (val r = com.astarworks.astera.core.application.skillengine.part.PartParser.loadDirectory(ctx.contentDir.resolve("skill-parts"))) {
+            is com.astarworks.astera.core.domain.Result.Success -> r.value
+            is com.astarworks.astera.core.domain.Result.Failure -> {
+                r.error.forEach { logger.severe("[skill-error] skill-parts: $it") }
+                emptyMap()
+            }
+        }
+        val engine = com.astarworks.astera.core.application.skillengine.load.EngineConfigLoader().load(ctx.contentDir.resolve("engine/skill-engine.yaml"))
+        if (engine is com.astarworks.astera.core.domain.Result.Failure) logger.severe("[skill-error] engine/skill-engine.yaml: ${engine.error}")
+        val engineConfig = (engine as? com.astarworks.astera.core.domain.Result.Success)?.value
+            ?: com.astarworks.astera.core.domain.skillengine.model.EngineConfig()
+        val skillCatalog = com.astarworks.astera.core.application.skillengine.load.SkillEngineRegistries.catalog(frameTables, skillParts, com.astarworks.astera.core.application.skillengine.compose.ContentSpriteCatalog.load(ctx.contentDir.resolve("sprites")), engineConfig)
+        val skillEngineContents = com.astarworks.astera.core.application.skillengine.runtime.SkillEngineContents(skillCatalog, engineConfig = engine)
         val skillGate = SkillMetaRegistry(skillCatalog)
         val skillReport = skillEngineContents.reload(skillsContentDir)
-        logger.info("Skills (engine v2) loaded: ${skillReport.loaded} ok, ${skillReport.failed} failed")
+        // A skill file that is not a v3 `kind: Skill` document is rejected here and does not run (never skipped silently).
+        skillReport.failures.forEach { logger.severe("[skill-error] ${it.file}: ${it.message}") }
+        logger.info("Skills (engine v3) loaded: ${skillReport.loaded} ok, ${skillReport.failed} failed")
 
         val statusContentDir = ctx.contentDir.resolve("status")
         val statusContents = StatusContents()
@@ -759,6 +776,13 @@ public object CombatWiring {
                 adminSkillCaster,
                 services.getOrThrow<com.astarworks.astera.core.adapter.api.server.IMcServer>(),
                 previewService,
+                reload = { id -> skillEngineContents.reloadSkill(skillsContentDir, id) },
+                knownSkillIds = { skillCatalog.ids() },
+                expand = com.astarworks.astera.combat.adapter.paper.command.skillExpandSubcommand(
+                    ids = { skillCatalog.ids() },
+                    tableOf = { id -> skillCatalog.get(id)?.table },
+                    outDir = java.nio.file.Path.of(engineConfig.expandDir),
+                ),
             ),
         )
         // UI-12: `/astera status [id]` lookup and `/astera status codex` (the status codex GUI).
@@ -780,6 +804,8 @@ public object CombatWiring {
         return CombatWiringResult(
             skillGate = skillGate,
             skillCatalog = skillCatalog,
+            engineConfig = engineConfig,
+            reloadSkills = { skillEngineContents.reload(skillsContentDir) },
             frameTables = frameTables,
             statusContents = statusContents,
             armorContents = armorContents,

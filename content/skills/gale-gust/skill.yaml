@@ -1,21 +1,36 @@
-# Converted from content/skills/gale-gust.yaml by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
-# Generated point-frame offsets are [left, up, forward] in the parent frame.
-apiVersion: "astera/v2"
+apiVersion: astera/v3
 kind: Skill
 id: gale-gust
 item: gale-fan
 meta: {name: {ja: "突風", en: Gust}, description: {ja: "前方の敵を強く押し返す。", en: "Blows enemies in front of you away."}, cooldown_ticks: 70, resource_cost: 12, tags: [magic, wind, control]}
-gameplay:
-  params: {arc_deg: 80, reach: 6.0, knockback: 1.6, dmg_physical: 10.0}
-  expose:
-    - {id: damage, param: dmg_physical}
-    - {id: range, param: reach}
-  timeline:
-    - id: t0
-      at: 0
+params:
+  arc_deg:      {type: number, default: 80}
+  reach:        {type: blocks, default: 6.0}
+  knockback:    {type: number, default: 1.6}
+  dmg_physical: {type: number, default: 10.0}
+anchors:
+  - {id: cast_fx, anchor: caster, offset: {forward: 1.5}}       # was pt_caster_0_0_1p5
+machine:
+  start: cast
+  states:
+    cast:
+      for: 1
+      then: end
       do:
-        - {id: sel, op: hit, frames: [caster], sector: {frame: caster, at: eye, forward: caster.forward, left: caster.left, angle_deg: "${arc_deg}", range: "${reach}", height: 2.0}, window: once}
-  "on":
-    hit:
-      - {id: kb, op: knockback, direction: "= normalize(pos(victim) - pos(caster)) + vec(0.0, 0.2, 0.0)", strength: "${knockback}", when: "= event.source == 'sel'"}
-      - {id: dmg, op: damage, components: [{kind: physical, amount: "${dmg_physical}"}], target: victim, when: "= event.source == 'sel'"}
+        - {id: snd, op: sound, sound: entity.breeze.wind_burst, anchor: caster, volume: 0.9, pitch: 1.2, at: 0}
+        - {id: fx, op: particle_def, def: dash-cloud, anchor: cast_fx, at: 0}
+      enter:
+        - id: sel
+          op: hit
+          at: 0
+          anchor: caster.eye
+          shape: {sector: {deg: "${arc_deg}", range: "${reach}", height: 2.0, forward: look}}
+          targets: enemies
+          max_count: all       # GAP(Q1): max_count spelling (A required int|all / B omit); v2 had no cap
+          window: once
+          ignore_invulnerability: false
+          damage: {physical: "${dmg_physical}"}
+          on:
+            hit:
+              - {id: kb, op: knockback, target: event.victim, direction: "= normalize(event.victim - pos(caster)) + vec(0.0, 0.2, 0.0)", strength: "${knockback}"}
+    end: {final: true}

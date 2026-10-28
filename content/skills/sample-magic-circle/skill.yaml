@@ -1,4 +1,4 @@
-apiVersion: astera/v2
+apiVersion: astera/v3
 kind: Skill
 id: sample-magic-circle
 meta:
@@ -12,5 +12,35 @@ meta:
   resource_cost: 0
   tags:
   - sample
-gameplay:
-  timeline: []
+anchors:
+- id: surface
+  anchor: caster
+  offset:
+    up: 2.4
+    forward: 3
+machine:
+  start: show
+  states:
+    show:
+      for: 40
+      do:
+      - id: surface
+        op: display
+        kind: sprite
+        anchor: surface
+        for: 40
+        sprite: sample-magic-circle
+        size:
+        - 4
+        - 4
+        billboard: center
+        brightness:
+          block: 15
+          sky: 15
+        flipbook:
+          frames: 8
+          every: 1
+          loop: true
+      then: end
+    end:
+      final: true

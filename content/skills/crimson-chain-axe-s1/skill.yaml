@@ -1,8 +1,0 @@
-# Converted from content/skills/crimson-chain-axe-s1.yaml by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
-# Generated point-frame offsets are [left, up, forward] in the parent frame.
-apiVersion: "astera/v2"
-kind: Skill
-id: crimson-chain-axe-s1
-item: crimson-chain-axe
-meta: {name: {ja: "緋針", en: "Crimson Needle"}, description: {ja: "緋色の針を撃ち出す。", en: "Fire a crimson needle."}, cooldown_ticks: 90, resource_cost: 13}
-gameplay: {timeline: [{id: t23, at: 23, do: [{id: cast, op: cast_skill, skill: crimson-needle-projectile}]}]}

@@ -2,6 +2,25 @@
 # content/skills/couture-rapier-s2/{skill,coin1,coin2fx,coin3}.yaml; the 3 blades are a founder-specified variation of the 2-blade original.
 # Coin 1 visuals are example (a); here they are the `do` of the state `coin1`. 125-tick cooldown, 18 cost: gate effects of `use`.
 apiVersion: astera/v3
+kind: Part
+id: slash-arc
+params:
+  radius: {type: blocks, required: true}
+  sector: {type: number, required: true}
+  height: {type: number, required: true}
+frames_in: {origin: anchor}
+emits: [end]
+machine:
+  start: arc
+  states:
+    arc:
+      for: 5
+      then: end
+      do:
+        - {id: arc_sprite, op: display, kind: sprite, sprite: couture-s2-crescent, anchor: origin, billboard: center, size: [0.6, 0.6], for: 5}
+    end: {final: true}
+---
+apiVersion: astera/v3
 kind: Skill
 id: couture-rapier-s2
 item: couture-rapier
@@ -15,8 +34,8 @@ machine:
       for: 34
       then: raise
       do:
-        - {use: slash-arc, at: 7, with: {radius: 9, sector: 30}, frames: {origin: caster}}          # reusable part
-        - {id: hit1, op: hit, at: 8, shape: {sector: {deg: 30, range: 9}}, damage: 30}
+        - {use: slash-arc, at: 7, with: {radius: 9, sector: 30, height: 2.0}, frames: {origin: caster}}          # reusable part
+        - {id: hit1, op: hit, at: 8, anchor: caster, targets: enemies, max_count: all, ignore_invulnerability: false, shape: {sector: {deg: 30, range: 9, height: 2.0, forward: look}}, damage: {physical: 30}}   # max_count: pending founder Q1 (A required int or all; B optional)
     raise:
       for: 4
       then: throw
@@ -34,27 +53,29 @@ machine:
           turn: [{axis: long, deg: "= i * 120"}]
           for: 40
           motion:
-            - {law: spin, axis: forward, deg_per_tick: 54, from: 0, for: 4, ease: in_quad}                  # spin up (total 216 degrees, accelerating)
-            - {law: spin, axis: forward, deg_per_tick: 54, from: 4}                                        # then constant 54 degrees/tick
-            - {law: move, velocity: {forward: 1.0}, speed: 7.0, from: 4, for: 7, ease: out_cubic}          # the ORIGIN flies out 7 blocks, decelerating
-            - {law: move, velocity: {forward: -1.0}, speed: 7.0, from: 32, for: 8, ease: in_quad}          # and is reeled back, accelerating
+            - {law: spin, axis: forward, deg_per_tick: 54, at: 0, for: 4, ease: in_quad}                  # spin up (total 216 degrees, accelerating)
+            - {law: spin, axis: forward, deg_per_tick: 54, at: 4, for: 36}                                      # then constant 54 degrees/tick
+            - {law: move, velocity: {forward: 1.0}, speed: 7.0, at: 4, for: 7, ease: out_cubic}          # the ORIGIN flies out 7 blocks, decelerating
+            - {law: move, velocity: {forward: -1.0}, speed: 7.0, at: 32, for: 8, ease: in_quad}          # and is reeled back, accelerating
       do:
         # riders: one display and one hit capsule per blade frame, bound by `blade[i]` (same `times`)
-        - {id: blade_model, op: display, kind: item, item: couture-rapier, part: blade_a, anchor: "blade[i]", times: 3, for: 40}
-        - {id: blade_hit, op: hit, anchor: "blade[i]", times: 3, at: 4, every: 1, for: 7, shape: {capsule: 0.22, from: root, to: tip}, damage: "= 18 / 7", window: once}
-        - {id: edge, op: ribbon, of: "blade[i].tip", times: 3, root: "blade[i].root", lasts: 4, color: "#EEE5B9BE", at: 4, for: 7}
+        - {id: blade_model, op: display, kind: item, item: couture-rapier, anchor: "blade[i]", times: 3, for: 40}
+        - {id: blade_hit0, op: hit, anchor: "blade[0]", at: 4, every: 1, for: 7, targets: enemies, shape: {capsule: 0.22, from: root, to: tip}, damage: {physical: "= 18 / 7"}, ignore_invulnerability: false, window: once}
+        - {id: blade_hit1, op: hit, anchor: "blade[1]", at: 4, every: 1, for: 7, targets: enemies, shape: {capsule: 0.22, from: root, to: tip}, damage: {physical: "= 18 / 7"}, ignore_invulnerability: false, window: once}
+        - {id: blade_hit2, op: hit, anchor: "blade[2]", at: 4, every: 1, for: 7, targets: enemies, shape: {capsule: 0.22, from: root, to: tip}, damage: {physical: "= 18 / 7"}, ignore_invulnerability: false, window: once}
+        - {id: edge, op: ribbon, of: "blade[i].tip", times: 3, root: "blade[i].root", history: 4, style: crisp, width_frac: 1.0, color: "#EEE5B9BE", at: 4, for: 7}
         - {id: whirr, op: sound, sound: item.trident.throw, anchor: shears, at: 4, every: 3, for: 7, volume: 0.5, pitch: "= 1.0 + 0.05 * i"}
       on:
-        - {event: blade_hit, when: "= event.victim != null", to: stuck, do: [{id: bleed, op: status, target: event.victim, status: bleed, stacks: 2, for: 60}]}
+        - {event: hit, when: "= event.victim != null", to: stuck, do: [{id: bleed, op: status, target: event.victim, status: bleed, stacks: 2, for: 60}]}
     stuck:                                    # reached when a blade hit; the other blades continue under their own laws until the state ends
       for: 12
       then: coin3
     coin3:                                      # dash + 10 hits (coin3.yaml); visuals reference dash_hit
-      for: 16
+      for: 20                                   # rev4: was 16 (the overrun is now rejected/r1-state-overrun.yaml)
       then: end
       do:
-        - {id: dash, op: dash, at: 9, speed: 1.5, for: 6}
-        - {id: hit3, op: hit, at: 10, every: 1, times: 10, damage: 8}
+        - {id: dash, op: dash, at: 9, speed: 1.5, direction: {forward: 1}, follow_pitch: false, stop_on_block: true, invulnerable: false, face_movement: false, for: 6}
+        - {id: hit3, op: hit, at: 10, every: 1, for: 10, anchor: caster, targets: enemies, shape: {sphere: 3.0}, ignore_invulnerability: false, window: {every: 1}, damage: {physical: 8}}
     end: {final: true}
 # Expanded table (generated):
 #   coin1  0-34    hit1 @8 x1; coin1/slash-arc 7-12; streak displays 7-12, petals 8-13
@@ -64,7 +85,5 @@ machine:
 #                  hits: blade_hit @4..10 x7 per blade (x3 blades = 21 firings, window: once per victim); sounds: whirr @4,7,10 x3
 #                  branches: blade_hit[victim] -> stuck | timer(40) -> coin3
 #   stuck  0-12    (entered at 4..10 from throw) FRAMES: none new; blade[i] ended with its owner state `throw`
-#   coin3  0-16    dash @9..15, hit3 @10..19 x10
-#                  INTENTIONAL LINT-ERROR SAMPLE (not a defect): hit3 ends at tick 19 > the state's `for: 16`, so check 8 / 10.4 reports
-#                  "hit3 firing @16..19 lies outside state coin3"; the fix is `for: 20` or `times: 7`. Left as is to show what the expand lint says.
-#   worst-case path: 34 + 4 + 40 + 12(stuck) + 19 = 109 ticks (throw -> stuck -> coin3); best: 34 + 4 + 4(+blade_hit at 4) + 12 + 19 = 73
+#   coin3  0-20    dash @9..15, hit3 @10..19 x10 (last firing 19 < for 20: check 8 passes; the `for: 16` overrun is rejected/r1-state-overrun.yaml)
+#   worst-case path: 34 + 4 + 40 + 12(stuck) + 20 = 110 ticks (throw -> stuck -> coin3); best: 34 + 4 + 4(+blade_hit at 4) + 12 + 20 = 74

@@ -1,0 +1,17 @@
+# error: SkillDecodeError.Invalid   (2.0: `every: write for or times, not both; the smaller one would be dead text`)
+apiVersion: astera/v3
+kind: Skill
+id: rejected-r9
+item: couture-rapier
+meta: {cooldown_ticks: 10, resource_cost: 0}
+anchors:
+  - {id: hand, anchor: caster.hand_r}
+machine:
+  start: s
+  states:
+    s:
+      for: 30
+      then: end
+      do:
+        - {id: tick, op: sound, sound: block.note_block.hat, anchor: hand, at: 0, every: 3, for: 12, times: 6, volume: 0.5, pitch: 1.0}
+    end: {final: true}

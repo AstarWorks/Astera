@@ -1,18 +1,54 @@
-# Converted from content/skills/longbow-heavy-arrow.yaml by tools/skill-convert/convert.py (v1 archetype: projectile). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
-# Generated point-frame offsets are [left, up, forward] in the parent frame.
-apiVersion: "astera/v2"
+# Wave 2 v3 draft (basic-ac): ported 1:1 from the v2 skill.yaml + look.yaml. GAP comments mark what v3 cannot spell yet.
+apiVersion: astera/v3
 kind: Skill
 id: longbow-heavy-arrow
 item: longbow
-meta: {name: {ja: "重矢", en: "Heavy Arrow"}, description: {ja: "次の矢まで時間がかかるが、強烈な一射。", en: "Slow to recover, but hits hard."}, cooldown_ticks: 100, resource_cost: 16, tags: [ranged, physical]}
-frames:
-  - {id: bolt, kind: body, parent: world, inactive: true}
-  - {id: pt_aim_0_0_0p5, kind: point, parent: aim, offset: [0.0, 0.0, 0.5]}
-gameplay:
-  params: {launch_speed: 4.0, max_lifetime_ticks: 60, dmg_physical: 40.0}
-  expose:
-    - {id: damage, param: dmg_physical}
-    - {id: flight_speed, param: launch_speed}
-  timeline:
-    - {id: t0, at: 0, do: [{id: bolt, op: projectile, body: bolt, from: pt_aim_0_0_0p5, velocity: "= look(caster) * launch_speed", max_ticks: "${max_lifetime_ticks}", radius: 0.5}]}
-  "on": {hit: [{id: dmg, op: damage, components: [{kind: physical, amount: "${dmg_physical}"}], target: victim}]}
+meta:
+  name: {ja: "重矢", en: "Heavy Arrow"}
+  description: {ja: "次の矢まで時間がかかるが、強烈な一射。", en: "Slow to recover, but hits hard."}
+  cooldown_ticks: 100
+  resource_cost: 16
+  tags: [ranged, physical]
+params:
+  launch_speed: {type: number, default: 4.0}
+  max_lifetime_ticks: {type: ticks, default: 60}
+  dmg_physical: {type: number, default: 40.0}
+anchors:
+  - {id: origin, anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}       # was pt_aim_0_0_0p5
+  - {id: muzzle, anchor: caster, offset: {up: -0.25, forward: 0.9}, mode: snapshot}   # was pt_aim_0_m0p25_0p9
+  - {id: heart, anchor: victim.root, offset: {up: 1.2}}   # was pt_enemy_0_1p2_0 (v2 enemy frame = victim feet)
+machine:
+  start: fly
+  states:
+    fly:
+      on:
+        - {event: bolt.end, to: end}      # v2 1:1: the cast ends when the projectile body ends
+      enter:
+        - id: bolt
+          op: projectile
+          origin: origin
+          velocity: "= look(caster) * launch_speed"
+          for: "= max_lifetime_ticks"
+          radius: 0.5
+          hit: {targets: enemies, once: true}
+          block: {mode: despawn}
+          on:
+            hit:
+              - {id: dmg, op: damage, target: event.victim, damage: {physical: "= dmg_physical"}}
+              - {id: snd_hit, op: sound, sound: "astera:weapons/blade-crit", anchor: contact, volume: 0.7, pitch: 1.2}
+              - {id: fx_hit, op: particle_def, def: hit-spark, anchor: heart}
+            block:
+              - {id: snd_blk, op: sound, sound: "astera:weapons/gun-impact-block", anchor: contact, volume: 0.5, pitch: 1.5}
+              - {id: fx_blk, op: particle_def, def: hit-spark, anchor: contact}
+      do:
+        - {id: snd_cast, op: sound, sound: "astera:weapons/sword-swing", anchor: caster, at: 0, volume: 0.8, pitch: 0.7}
+        - {id: fx_cast, op: particle_def, def: gun-muzzle-smoke, anchor: muzzle, at: 0}
+        - id: trail
+          op: group
+          at: 0
+          every: 1
+          until: bolt.end
+          do:
+            - {id: tr0, op: particle, anchor: {of: bolt, sweep: 0.4}, particle: crit, count: 1, offset: [0.04, 0.04, 0.04], extra: 0, at: 0}
+            - {id: tr1, op: particle, anchor: {of: bolt, sweep: 0.4}, particle: dust, count: 1, offset: [0, 0, 0], extra: 0, color: "#a07846", size: 1.0, at: 0}
+    end: {final: true}

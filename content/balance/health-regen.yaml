@@ -1,0 +1,5 @@
+# Natural HP regen: slow and gentle. Once a player has neither dealt nor taken a hit for
+# out_of_combat_delay_ticks, HP rises by regen_per_second (of the 100 max) each second.
+# Read by Core's HealthRegenConfigLoader at boot; 0 regen disables it.
+regen_per_second: 1.0
+out_of_combat_delay_ticks: 100   # 5 s

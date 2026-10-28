@@ -1,21 +1,41 @@
-# Converted from content/skills/shock-wand-zap.yaml by tools/skill-convert/convert.py (v1 archetype: projectile). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
-# Generated point-frame offsets are [left, up, forward] in the parent frame.
-apiVersion: "astera/v2"
+# astera/v3 hand port of the v2 skill.yaml + look.yaml (tick for tick).
+apiVersion: astera/v3
 kind: Skill
 id: shock-wand-zap
 item: shock-wand
 meta: {name: {ja: "電撃", en: Zap}, description: {ja: "素早い電撃。麻痺させることがある。", en: "A quick bolt of electricity that can stun."}, cooldown_ticks: 18, resource_cost: 6, tags: [ranged, electric]}
-frames:
-  - {id: bolt, kind: body, parent: world, inactive: true}
-  - {id: pt_aim_0_0_0p5, kind: point, parent: aim, offset: [0.0, 0.0, 0.5]}
-gameplay:
-  params: {launch_speed: 3.2, max_lifetime_ticks: 40, dmg_electric: 16.0, shock_ticks: 30}
-  expose:
-    - {id: damage, param: dmg_electric}
-    - {id: flight_speed, param: launch_speed}
-  timeline:
-    - {id: t0, at: 0, do: [{id: bolt, op: projectile, body: bolt, from: pt_aim_0_0_0p5, velocity: "= look(caster) * launch_speed", max_ticks: "${max_lifetime_ticks}", radius: 0.5}]}
-  "on":
-    hit:
-      - {id: dmg, op: damage, components: [{kind: electric, amount: "${dmg_electric}"}], target: victim}
-      - {id: st_shock, op: status, status: shock, duration_ticks: "${shock_ticks}", target: victim, chance: 0.3}
+anchors:
+  - {id: muzzle,  anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}   # projectile origin
+  - {id: cast_fx, anchor: caster, offset: {up: -0.25, forward: 0.9}}        # was pt_caster_0_m0p25_0p9
+  - {id: heart,   anchor: victim.root, offset: {up: 1.2}}   # v2 pt_enemy_0_1p2_0
+machine:
+  start: fly
+  states:
+    fly:
+      for: 40
+      then: end
+      on:
+        - {event: bolt.end, to: end}      # v2: the cast ends when the projectile body ends
+      do:
+        - {id: snd, op: sound, sound: "astera:skill/wand/cast", anchor: caster, volume: 0.8, pitch: 1.4}
+        - {id: fx, op: particle_def, def: thunder-cast, anchor: cast_fx}
+        - id: bolt
+          op: projectile
+          origin: muzzle
+          velocity: "= look(caster) * 3.2"
+          for: 40
+          radius: 0.5
+          hit: {targets: enemies, once: true}
+          block: {mode: despawn}
+          on:
+            hit:
+              - {id: dmg, op: damage, target: event.victim, damage: {electric: 16.0}}
+              - {id: st_shock, op: status, target: event.victim, status: shock, stacks: 1, for: 30, when: "= rand() < 0.3"}
+              - {id: snd_hit, op: sound, sound: "astera:skills/lightning-impact", anchor: contact, volume: 0.7, pitch: 1.2}
+              - {id: fx_hit, op: particle_def, def: hit-spark, anchor: heart}
+            block:
+              - {id: snd_block, op: sound, sound: "astera:weapons/gun-impact-block", anchor: contact.point, volume: 0.5, pitch: 1.5}
+              - {id: fx_block, op: particle_def, def: hit-spark, anchor: contact.point}
+        - {id: trail_spark, op: particle, particle: electric_spark, count: 1, offset: [0.04, 0.04, 0.04], anchor: {of: bolt, sweep: 0.4}, every: 1, until: bolt.end}
+        - {id: trail_dust, op: particle, particle: dust, count: 1, color: "#fff078", size: 1.0, anchor: {of: bolt, sweep: 0.4}, every: 1, until: bolt.end}
+    end: {final: true}

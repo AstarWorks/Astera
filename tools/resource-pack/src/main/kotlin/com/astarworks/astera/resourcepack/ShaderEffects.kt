@@ -122,7 +122,7 @@ internal object ShaderEffects {
                 is Map<*, *> -> {
                     if ("shader_effect" in value) {
                         val id = value["shader_effect"] as? String ?: error("shader_effect must be a literal id")
-                        require(value["op"] == "mesh") { "$id: shader_effect requires a mesh" }
+                        require(value["op"] == "display" && value["kind"] == "item") { "$id: shader_effect requires an item display" }
                         val model = MeshModels.resolve(value["item"] as? String ?: error("$id: missing mesh item"), value["part"] as? String, tables)
                         require(model is MeshModel.Pack) { "$id: shader_effect requires an Astera pack mesh" }
                         references.getOrPut(id) { sortedSetOf() } += model.key

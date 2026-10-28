@@ -1,10 +1,13 @@
 package com.astarworks.astera.combat.adapter.paper.skillengine
 
+import com.astarworks.astera.core.application.port.outbound.IMatchTeamLookup
 import com.astarworks.astera.core.application.port.outbound.IStructureTargets
 import com.astarworks.astera.core.application.skillengine.runtime.port.BlockHit
+import com.astarworks.astera.core.application.skillengine.runtime.port.CastRef
 import com.astarworks.astera.core.application.skillengine.runtime.port.EntityRoot
 import com.astarworks.astera.core.application.skillengine.runtime.port.ISkillEntityQuery
 import com.astarworks.astera.core.domain.geometry.Vec3
+import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.domain.world.WorldId
 import com.astarworks.astera.core.domain.skillengine.hit.HitBox
 import com.astarworks.astera.core.domain.skillengine.hit.HitCandidate
@@ -24,20 +27,23 @@ import java.util.UUID
  * Hittable = living, valid, not an armor stand / spectator / invulnerable mob (same rule as
  * `PaperNearbyTargetQuery`). Main thread only.
  *
- * The port carries no world id: the world is that of [excluding] (the caster) when given, otherwise
- * the world last seen through this query, otherwise the first world that has players.
+ * The world is [CastRef.world] of each call. A world that is not loaded
+ * is an error, never an empty answer.
  */
 public class PaperSkillEntityQuery(
     private val server: Server,
+    /** Lazy: Match registers the team lookup after Combat wires. */
+    private val teams: () -> IMatchTeamLookup? = { null },
     /** Lazy: Match registers the structure targets (Annihilation pillars) after Combat wires. */
     private val structures: () -> IStructureTargets? = { null },
 ) : ISkillEntityQuery {
 
-    private var lastWorld: World? = null
+    private fun worldOf(cast: CastRef): World =
+        server.getWorld(cast.world.value) ?: error("skill engine: world '${cast.world.value}' of the cast is not loaded")
 
-    override fun nearby(point: Vec3, radius: Double, excluding: UUID?): List<HitCandidate> {
+    override fun nearby(cast: CastRef, point: Vec3, radius: Double, excluding: UUID?): List<HitCandidate> {
         if (radius <= 0.0) return emptyList()
-        val world = worldOf(excluding) ?: return emptyList()
+        val world = worldOf(cast)
         val origin = Location(world, point.x, point.y, point.z)
         val out = ArrayList<HitCandidate>()
         for (e in world.getNearbyLivingEntities(origin, radius)) {
@@ -54,7 +60,7 @@ public class PaperSkillEntityQuery(
         }
         // WP10: standing, damageable structures are hit targets too; they travel under their synthetic combat id and
         // take damage through the entity damage gateway (the v1 projectile resolver did the same).
-        structures()?.findInRadius(point, radius + STRUCTURE_REACH, null)?.forEach { s ->
+        structures()?.findInRadius(point, radius + STRUCTURE_REACH, cast.world)?.forEach { s ->
             val c = s.position
             out += HitCandidate(
                 entityId = s.id.uuid,
@@ -67,9 +73,8 @@ public class PaperSkillEntityQuery(
         return out
     }
 
-    override fun rootOf(entity: UUID): EntityRoot? {
+    override fun rootOf(cast: CastRef, entity: UUID): EntityRoot? {
         val e = server.getEntity(entity) as? LivingEntity ?: return null
-        lastWorld = e.world
         val loc = e.location
         return EntityRoot(
             feet = Vec3(loc.x, loc.y, loc.z),
@@ -80,14 +85,23 @@ public class PaperSkillEntityQuery(
         )
     }
 
-    override fun healthRatio(entity: UUID): Double {
-        val e = server.getEntity(entity) as? LivingEntity ?: return 1.0
-        val max = e.getAttribute(org.bukkit.attribute.Attribute.MAX_HEALTH)?.value ?: return 1.0
-        return if (max <= 0.0) 1.0 else (e.health / max).coerceIn(0.0, 1.0)
+    override fun isAlly(cast: CastRef, a: UUID, b: UUID): Boolean {
+        val lookup = teams() ?: return false
+        val team = lookup.teamOf(PlayerId(a)) ?: return false
+        return lookup.teamOf(PlayerId(b)) == team
     }
 
-    override fun raycastBlock(from: Vec3, to: Vec3): BlockHit? {
-        val world = worldOf(null) ?: return null
+    override fun healthRatio(cast: CastRef, entity: UUID): Double {
+        val e = server.getEntity(entity) ?: error("hp_ratio: entity $entity is not loaded")
+        val living = e as? LivingEntity ?: error("hp_ratio: entity $entity is not a living entity")
+        val max = living.getAttribute(org.bukkit.attribute.Attribute.MAX_HEALTH)?.value
+            ?: error("hp_ratio: entity $entity has no max health")
+        check(max > 0.0) { "hp_ratio: entity $entity has non-positive max health" }
+        return (living.health / max).coerceIn(0.0, 1.0)
+    }
+
+    override fun raycastBlock(cast: CastRef, from: Vec3, to: Vec3): BlockHit? {
+        val world = worldOf(cast)
         val delta = to - from
         val dist = delta.length()
         if (dist < 1.0e-9) return null
@@ -118,20 +132,6 @@ public class PaperSkillEntityQuery(
             remaining -= step
         }
         return null
-    }
-
-    /** The world of the most recent cast owner (the "last seen world" the world-less skill ports share). */
-    public fun activeWorld(): World? = worldOf(null)
-
-    /** A cast started in [world]: the world-less particle and sound ports follow it. */
-    public fun noteWorld(world: World) {
-        lastWorld = world
-    }
-
-    private fun worldOf(excluding: UUID?): World? {
-        val fromEntity = excluding?.let { server.getEntity(it)?.world }
-        if (fromEntity != null) lastWorld = fromEntity
-        return fromEntity ?: lastWorld ?: server.worlds.firstOrNull { it.players.isNotEmpty() } ?: server.worlds.firstOrNull()
     }
 
     private companion object {

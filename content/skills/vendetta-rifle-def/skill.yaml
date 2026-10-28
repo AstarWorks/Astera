@@ -1,8 +1,0 @@
-# Converted from content/skills/vendetta-rifle-def.yaml by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
-# Generated point-frame offsets are [left, up, forward] in the parent frame.
-apiVersion: "astera/v2"
-kind: Skill
-id: vendetta-rifle-def
-item: vendetta-rifle
-meta: {name: {ja: "鉄の構え", en: "Ferrous Guard"}, description: {ja: "銃を構えて身を守る。", en: "Raise the rifle to guard."}, cooldown_ticks: 90, resource_cost: 0}
-gameplay: {timeline: [{id: t0, at: 0, do: [{id: attr, op: modify_attribute, attribute: resist.physical, operation: add, amount: 0.7, duration_ticks: 45, target: caster}]}]}

@@ -1,22 +1,46 @@
-# Converted from content/skills/fireball-cast.yaml by tools/skill-convert/convert.py (v1 archetype: projectile). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
-# Generated point-frame offsets are [left, up, forward] in the parent frame.
-apiVersion: "astera/v2"
+apiVersion: astera/v3
 kind: Skill
 id: fireball-cast
 item: fireball-charge
 meta: {name: {ja: "火球", en: Fireball}, description: {ja: "火の玉を放ち、着弾で爆ぜる。", en: "Hurls a fireball that bursts on impact."}, cooldown_ticks: 70, resource_cost: 16, tags: [ranged, fire, magic]}
-frames:
-  - {id: bolt, kind: body, parent: world, inactive: true}
-  - {id: pt_aim_0_0_0p5, kind: point, parent: aim, offset: [0.0, 0.0, 0.5]}
-gameplay:
-  params: {launch_speed: 1.5, max_lifetime_ticks: 60, explode_power: 1.2, explode_radius: 2.5, explode_fire: 27.5, burn_ticks: 20}
-  expose:
-    - {id: flight_speed, param: launch_speed}
-  timeline:
-    - {id: t0, at: 0, do: [{id: bolt, op: projectile, body: bolt, from: pt_aim_0_0_0p5, velocity: "= look(caster) * launch_speed", max_ticks: "${max_lifetime_ticks}", radius: 0.5}]}
-  "on":
-    hit:
-      - {id: explode, op: explode, power: "${explode_power}", break_blocks: false, radius: "${explode_radius}", components: [{kind: fire, amount: "${explode_fire}"}], target: victim}
-      - {id: st_burn, op: status, status: burn, duration_ticks: "${burn_ticks}", target: victim}
-    block:
-      - {id: explode_2, op: explode, power: "${explode_power}", break_blocks: false, radius: "${explode_radius}", components: [{kind: fire, amount: "${explode_fire}"}], at: "= contact.point"}
+anchors:
+  - {id: muzzle,  anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}
+  - {id: cast_fx, anchor: caster, offset: {up: -0.25, forward: 0.9}, mode: snapshot}
+  - {id: heart,   anchor: victim.root, offset: {up: 1.2}}   # was pt_enemy_0_1p2_0 (victim feet, yaw-only)
+machine:
+  start: fly
+  states:
+    fly:
+      for: 60                       # = v2 max_lifetime_ticks; covers the whole flight
+      then: end
+      on:
+        - {event: bolt.end, to: end}
+      enter:
+        - {id: snd, op: sound, sound: "entity.blaze.shoot", anchor: caster, volume: 0.9, pitch: 0.9}
+        - {id: fx, op: particle_def, def: fire-cast, anchor: cast_fx}
+      do:
+        - id: bolt
+          op: projectile
+          origin: muzzle
+          velocity: "= look(caster) * 1.5"
+          for: 60
+          radius: 0.5
+          hit: {targets: enemies, once: true}
+          block: {mode: despawn}
+          on:
+            hit:
+              - {id: boom, op: explode, at: 0, anchor: victim, power: 1.2, break_blocks: false, fire: false}
+              # GAP(Q1): max_count 64 is invented (v2 had no cap); spelling per founder answer
+              - {id: boom_dmg, op: damage, target: {kind: enemies, around: victim, radius: 2.5, max_count: 64}, damage: {fire: 27.5}}
+              - {id: st_burn, op: status, target: event.victim, status: burn, stacks: 1, for: 20}
+              - {id: snd_hit, op: sound, sound: "astera:skills/fire-impact", anchor: heart, volume: 0.7, pitch: 1.0}
+              - {id: fx_hit, op: particle_def, def: hit-spark, anchor: heart}
+            block:
+              - {id: boom_2, op: explode, at: 0, anchor: contact, power: 1.2, break_blocks: false, fire: false}
+              # GAP(Q1): max_count 64 is invented (v2 had no cap); spelling per founder answer
+              - {id: boom_dmg_2, op: damage, target: {kind: enemies, around: contact, radius: 2.5, max_count: 64}, damage: {fire: 27.5}}
+              - {id: snd_blk, op: sound, sound: "astera:skills/fire-impact", anchor: contact.point, volume: 0.7, pitch: 1.0}
+              - {id: fx_blk, op: particle_def, def: hit-spark, anchor: contact.point}
+        - {id: trail_flame, op: particle, particle: flame, anchor: {of: bolt, sweep: 0.4}, count: 1, offset: [0.08, 0.08, 0.08], every: 1, until: bolt.end}
+        - {id: trail_smoke, op: particle, particle: smoke, anchor: {of: bolt, sweep: 0.4}, count: 1, offset: [0.04, 0.04, 0.04], every: 1, until: bolt.end}
+    end: {final: true}

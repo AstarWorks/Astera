@@ -1,16 +1,13 @@
 package com.astarworks.astera.core.domain.skillengine.model
 
-import com.astarworks.astera.core.domain.geometry.Vec3
-import com.astarworks.astera.core.domain.skillengine.frame.FrameKind
-import com.astarworks.astera.core.domain.skillengine.modifier.ExposedParam
-import com.astarworks.astera.core.domain.skillengine.op.GameplayOp
-import com.astarworks.astera.core.domain.skillengine.op.PresentationOp
-import com.astarworks.astera.core.domain.skillengine.op.SkillOp
+import com.astarworks.astera.core.domain.skillengine.part.Machine
+import com.astarworks.astera.core.domain.skillengine.part.ParamSpec
 
 /** Well-known event names (authors may define more). */
 public object SkillEvents {
     public const val START: String = "start"
-    public const val RELEASE: String = "release"
+    public const val INPUT_USE: String = "input.use"
+    public const val INPUT_RELEASE: String = "input.release"
     public const val HIT: String = "hit"
     public const val BLOCK: String = "block"
     public const val STICK: String = "stick"
@@ -19,51 +16,6 @@ public object SkillEvents {
     public const val EXPIRE: String = "expire"
     public const val END: String = "end"
 }
-
-/** `frames:` entry, shared by both sections. [parent] is a point reference (e.g. `caster.right_hand`). */
-public data class FrameDecl(
-    val id: String,
-    val kind: FrameKind,
-    val parent: PointRef,
-    /** Item/model whose point table (`content/frames/<model>.yaml`, F-3) defines this frame's points. */
-    val model: String? = null,
-    val part: String? = null,
-    val offset: Vec3? = null,
-    /** Declared but not attached until a reparent op moves things under it. */
-    val inactive: Boolean = false,
-)
-
-/** `at:` of a timeline row: absolute tick since cast start, or an event plus an offset. */
-public sealed interface TimelineAt {
-    public data class Tick(val tick: Int) : TimelineAt
-    public data class AfterEvent(val event: String, val offsetTicks: Int = 0) : TimelineAt
-}
-
-public data class TimelineEntry<out O : SkillOp>(
-    val at: TimelineAt,
-    val ops: List<O>,
-    val everyTicks: Int? = null,
-    val untilEvent: String? = null,
-    val whenExpr: Value<Boolean>? = null,
-    /** `for: N` - a repeating row stops after N ticks from its first firing (fires at first, first+every, ... < first+N). */
-    val forTicks: Int? = null,
-)
-
-public data class GameplaySection(
-    val params: Map<String, ParamValue> = emptyMap(),
-    val expose: List<ExposedParam> = emptyList(),
-    val timeline: List<TimelineEntry<GameplayOp>> = emptyList(),
-    /** event name -> ordered op list (each op has a unique id). */
-    val on: Map<String, List<GameplayOp>> = emptyMap(),
-)
-
-public data class PresentationSection(
-    val params: Map<String, ParamValue> = emptyMap(),
-    /** `content/animations/` key set; bone-local rotation keys only. */
-    val bodyAnim: String? = null,
-    val timeline: List<TimelineEntry<PresentationOp>> = emptyList(),
-    val on: Map<String, List<PresentationOp>> = emptyMap(),
-)
 
 /**
  * Skill header: what the cast gate (cooldown, resource, E.G.O, reload) and the UI need, which the timeline cannot
@@ -89,11 +41,32 @@ public data class SkillDef(
     val id: String,
     val item: String?,
     val importance: Int?,
-    val frames: List<FrameDecl>,
-    val gameplay: GameplaySection,
-    val presentation: PresentationSection,
     val meta: SkillMeta = SkillMeta(),
+    val params: Map<String, ParamSpec> = emptyMap(),
+    val framesIn: Map<String, String> = emptyMap(),
+    val emits: List<String> = emptyList(),
+    val anchors: List<AnchorDecl> = emptyList(),
+    /** Named conditions (3.8), CEL source. */
+    val conditions: Map<String, String> = emptyMap(),
+    val machine: Machine = Machine(start = "", states = emptyMap()),
 ) {
     /** Base id without `@variant`. */
     val baseId: String get() = id.substringBefore('@')
 }
+
+/** `anchors:` entry (ADR-0303 1): a named point on the caster or a frame, with an optional offset. */
+public data class AnchorDecl(
+    val id: String,
+    val anchor: PointRef,
+    val offset: Map<String, Double> = emptyMap(),
+    /** `caster` or null (ADR-0303 1). */
+    val mount: String? = null,
+    val mode: AnchorMode = AnchorMode.FOLLOW,
+)
+
+/** `follow` re-reads the parent at every send (the identity); `snapshot` copies the pose once at activation. */
+public enum class AnchorMode { FOLLOW, SNAPSHOT }
+
+/** `importance` of a skill (v3 header). */
+@JvmInline
+public value class Importance(public val value: Int)

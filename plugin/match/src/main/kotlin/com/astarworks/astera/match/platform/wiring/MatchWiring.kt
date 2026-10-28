@@ -470,6 +470,43 @@ public object MatchWiring {
             priority = 0,
         )
 
+        // Bot loadouts: bots are protocol clients and cannot give themselves items, so each gets two weapons of two
+        // families from content/bot-loadouts right after its entry snapshot (Core calls IMatchEntryLoadout). A broken
+        // pool (unknown item, no skill bindings, undecodable file) stops the boot instead of leaving bots unarmed.
+        val botLoadoutDir = ctx.contentDir.resolve("bot-loadouts")
+        val botLoadouts = com.astarworks.astera.match.application.contents.BotLoadoutContents()
+        val botLoadoutReport = botLoadouts.bootstrap(botLoadoutDir)
+        logger.info("Loaded ${botLoadoutReport.loaded} bot loadout pool(s) from $botLoadoutDir (failed: ${botLoadoutReport.failed})")
+        check(botLoadoutReport.failed == 0) { "bot loadout pool failed to load: ${botLoadoutReport.failures}" }
+        reloadRegistry.register(botLoadouts, botLoadoutDir)
+        services.get<com.astarworks.astera.core.application.port.outbound.IItemRegistry>()?.let { itemRegistry ->
+            val botLoadoutService = com.astarworks.astera.match.application.service.loadout.BotLoadoutService(
+                pool = botLoadouts::current,
+                items = itemRegistry,
+                owned = { services.get<com.astarworks.astera.core.application.port.outbound.item.IOwnedItemQuery>() },
+                removal = { services.get<com.astarworks.astera.core.application.port.outbound.item.IOwnedItemRemoval>() },
+                delivery = { services.get<com.astarworks.astera.core.application.port.outbound.item.IItemDelivery>() },
+                server = services.getOrThrow<com.astarworks.astera.core.adapter.api.server.IMcServer>(),
+                matchOf = { playerId -> matches.findMatchOf(playerId)?.id },
+                normaOf = { id -> com.astarworks.astera.match.domain.norma.NormaConfig.parse(modeConfigOf(id)) },
+            )
+            botLoadouts.current()?.let { pool ->
+                val problems = botLoadoutService.validate(pool)
+                check(problems.isEmpty()) { "content/bot-loadouts is invalid: $problems" }
+                logger.info(
+                    "Bot loadout pool (usable at Norma level 1): " + botLoadoutService.eligibleCounts(
+                        pool, com.astarworks.astera.match.domain.norma.NormaConfig.parse(normaLayer.defaults()),
+                    ).entries.joinToString { "${it.key.key}=${it.value}" },
+                )
+            }
+            registrations += services.register<com.astarworks.astera.core.application.port.outbound.item.IMatchEntryLoadout>(
+                botLoadoutService, priority = 0,
+            )
+            subscriptions += eventBus.subscribe(com.astarworks.astera.core.domain.event.MatchEnded::class) {
+                botLoadoutService.onMatchEnded(it.matchId)
+            }
+        }
+
         // Reflective impl resolution (Phase 1 PoC; Koin replaces this in
         // Phase 3 per ADR-0106). Each spec whose impl_class resolves to a
         // concrete IGameMode singleton becomes available via the registry.

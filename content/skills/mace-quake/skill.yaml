@@ -1,18 +1,44 @@
-# Converted from content/skills/mace-quake.yaml by tools/skill-convert/convert.py (v1 archetype: aoe). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
-# Generated point-frame offsets are [left, up, forward] in the parent frame.
-apiVersion: "astera/v2"
+# Wave 2 v3 draft (basic-ac): ported 1:1 from the v2 skill.yaml + look.yaml. GAP comments mark what v3 cannot spell yet.
+apiVersion: astera/v3
 kind: Skill
 id: mace-quake
 item: mace
-meta: {name: {ja: "大地震", en: Quake}, description: {ja: "地面を叩き、周囲の敵を揺さぶる。", en: "Slams the ground, shaking everyone nearby."}, cooldown_ticks: 150, resource_cost: 18, tags: [aoe, physical]}
-gameplay:
-  params: {radius: 3.5, dmg_physical: 30.0, tremor_ticks: 60}
-  expose:
-    - {id: damage, param: dmg_physical}
-    - {id: radius, param: radius}
-  timeline:
-    - {id: t0, at: 0, do: [{id: burst, op: hit, frames: [caster], sphere: {at: caster, radius: "${radius}"}, window: once}]}
-  "on":
-    hit:
-      - {id: dmg, op: damage, target: victim, components: [{kind: physical, amount: "= dmg_physical * (1.0 - 0.5 * dist(pos(caster), pos(victim)) / radius)"}], when: "= event.source == 'burst'"}
-      - {id: st_tremor, op: status, status: tremor, duration_ticks: "${tremor_ticks}", target: victim, when: "= event.source == 'burst'"}
+meta:
+  name: {ja: "大地震", en: Quake}
+  description: {ja: "地面を叩き、周囲の敵を揺さぶる。", en: "Slams the ground, shaking everyone nearby."}
+  cooldown_ticks: 150
+  resource_cost: 18
+  tags: [aoe, physical]
+params:
+  radius: {type: blocks, default: 3.5}
+  dmg_physical: {type: number, default: 30.0}
+  tremor_ticks: {type: ticks, default: 60}
+anchors:
+  - {id: ground, anchor: caster, offset: {up: 0.15}, mode: snapshot}                 # was pt_caster_0_0p15_0
+machine:
+  start: quake
+  states:
+    quake:
+      for: 1   # v2 dev has no explicit cast length; the 6-tick span was the invented ring wave. 1 = v2 timeline (single row at 0), see report
+      then: end
+      enter:
+        - {id: snd_quake, op: sound, sound: "astera:weapons/blade-heavy-swing", anchor: caster, volume: 1.0, pitch: 0.6}
+        # GAP(Q1): max_count spelling (A: required int|all, B: optional); v2 had no cap, so `all` = unlimited.
+        - id: burst
+          op: hit
+          anchor: caster
+          at: 0
+          shape: {sphere: "${radius}"}
+          targets: enemies
+          max_count: all
+          window: once
+          ignore_invulnerability: false
+          damage: {physical: "= dmg_physical * (1.0 - 0.5 * dist(event.victim, caster) / radius)"}
+          on:
+            hit:
+              - {id: st_tremor, op: status, target: event.victim, status: tremor, stacks: 1, for: "= tremor_ticks"}
+              - {id: snd_hit, op: sound, sound: "astera:weapons/blade-hit", anchor: contact, volume: 0.7, pitch: 1.0}
+      do:
+        - {id: fx_crit, op: particle, particle: crit, anchor: ground, at: 0, count: 0, extra: 0.03}
+        - {id: fx_dust, op: particle, particle: dust, anchor: ground, at: 0, count: 1, color: "#96785a", size: 1.4}
+    end: {final: true}

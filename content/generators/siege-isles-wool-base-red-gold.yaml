@@ -1,7 +1,7 @@
 # Team base gold generator of siege-isles-wool: only red can collect it (gold is slow); drops the ore-gold item, not a star.
 id: siege-isles-wool-base-red-gold
 match_stage_id: siege-isles-wool
-position: { x: -81.5, y: 65.0, z: 7.0 }
+position: { x: -101.5, y: 65.0, z: 7.0 }
 period_seconds: 24.0
 amount: 1
 tier: gold

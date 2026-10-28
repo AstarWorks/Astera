@@ -14,6 +14,7 @@ import com.astarworks.astera.core.application.command.CommandContext
 import com.astarworks.astera.core.application.command.CommandResult
 import com.astarworks.astera.core.application.command.CommandSpec
 import com.astarworks.astera.core.application.command.requirePermission
+import com.astarworks.astera.core.application.skillengine.runtime.SkillEngineContents
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.i18n.MessageKey
 import com.astarworks.astera.core.domain.permission.Permission
@@ -35,6 +36,9 @@ internal fun skillCommandSpec(
     caster: AdminSkillCaster,
     server: IMcServer,
     preview: SkillPreviewService? = null,
+    reload: ((String) -> Result<SkillEngineContents.SkillReload, SkillEngineContents.SkillReloadError>)? = null,
+    knownSkillIds: () -> Collection<String> = { emptyList() },
+    expand: CommandSpec.Literal? = null,
 ): CommandSpec.Literal =
     CommandSpec.Literal(
         name = "skill",
@@ -42,7 +46,9 @@ internal fun skillCommandSpec(
             listSubcommand(caster),
             castSubcommand(caster, server),
             traceSubcommand(),
+            reload?.let { reloadSubcommand(it, knownSkillIds) },
             preview?.let { previewSubcommand(caster, it) },
+            expand,
         ),
     )
 
@@ -227,5 +233,38 @@ private fun traceSubcommand(): CommandSpec.Literal = CommandSpec.Literal(
         SkillEngineTrace.enabled = on
         ctx.reply(K_TRACE, mapOf("state" to if (on) "on" else "off"))
         CommandResult.Success
+    },
+).requirePermission(Permission("astera.skill.cast"))
+
+private val K_RELOAD_OK = MessageKey("astera.skill.reload.ok")
+private val K_RELOAD_NOT_LOADED = MessageKey("astera.skill.reload.not-loaded")
+private val K_RELOAD_REJECTED = MessageKey("astera.skill.reload.rejected")
+
+/**
+ * `/astera skill reload <skill-id>`: re-reads only the files of that skill (and its patches / variants), recomposes the
+ * skills they feed and swaps them in. The next cast uses the new values; a broken file is rejected and the old one stays.
+ */
+private fun reloadSubcommand(
+    reload: (String) -> Result<SkillEngineContents.SkillReload, SkillEngineContents.SkillReloadError>,
+    knownSkillIds: () -> Collection<String>,
+): CommandSpec.Literal = CommandSpec.Literal(
+    name = "reload",
+    subcommands = listOf(
+        CommandSpec.Argument(name = "skill-id", type = ArgumentType.ItemIdArg, completer = { _ -> knownSkillIds().toList() }),
+    ),
+    executor = { ctx ->
+        val raw = ctx.required<String>("skill-id")
+        when (val r = reload(raw)) {
+            is Result.Success -> {
+                ctx.reply(K_RELOAD_OK, mapOf("skill" to raw, "ids" to r.value.reloaded.sorted().joinToString(", ").ifEmpty { "nothing changed" }))
+                CommandResult.Success
+            }
+            is Result.Failure -> when (val e = r.error) {
+                SkillEngineContents.SkillReloadError.NotLoaded -> CommandResult.Failure(K_RELOAD_NOT_LOADED)
+                is SkillEngineContents.SkillReloadError.UnknownSkill -> CommandResult.Failure(K_UNKNOWN, mapOf("skill" to e.skillId))
+                is SkillEngineContents.SkillReloadError.Rejected ->
+                    CommandResult.Failure(K_RELOAD_REJECTED, mapOf("skill" to raw, "error" to e.messages.joinToString("; ")))
+            }
+        }
     },
 ).requirePermission(Permission("astera.skill.cast"))

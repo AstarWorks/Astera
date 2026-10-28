@@ -28,8 +28,8 @@ public data class Intrinsic(val unit: Vec3, val centre: Vec3 = Vec3.ZERO) {
         /** `item_display` fixed mode: the model is one block per scale unit, centred on the origin. */
         public val ITEM_FIXED: Intrinsic = Intrinsic(Vec3(1.0, 1.0, 1.0))
 
-        /** `block_display`: one block per scale unit (its origin is a corner, which the callers do not use). */
-        public val BLOCK: Intrinsic = Intrinsic(Vec3(1.0, 1.0, 1.0))
+        /** `block_display`: one block per scale unit; its origin is a corner, so the middle of what is drawn is half a unit toward +x +y +z. */
+        public val BLOCK: Intrinsic = Intrinsic(Vec3(1.0, 1.0, 1.0), Vec3(-0.5, -0.5, -0.5))
 
         /** Ribbon scale units per block of length and thickness; the one-line text quad of MC 26.3, calibrated against a client capture. */
         public const val SOLID_SCALE_X: Double = 8.0
@@ -37,16 +37,20 @@ public data class Intrinsic(val unit: Vec3, val centre: Vec3 = Vec3.ZERO) {
         public const val CENTER_X_PER_SCALE: Double = 0.0125
         public const val CENTER_Y_PER_SCALE: Double = 0.125
 
-        /** A `text_display` with a background and one blank line: an 1/8 x 1/4 block quad whose middle is off the origin. */
-        public val TEXT_SOLID: Intrinsic = Intrinsic(
-            Vec3(1.0 / SOLID_SCALE_X, 1.0 / SOLID_SCALE_Y, 1.0), Vec3(-CENTER_X_PER_SCALE, -CENTER_Y_PER_SCALE, 0.0),
-        )
+        /**
+         * `kind: text` (ADR-0303 2.1: the author writes the plain vanilla `scale`, so [unit] is 1): a one-line text box whose middle is
+         * off the entity origin by (+.0125, +.125) blocks per scale unit (MC 26.3 TextDisplayRenderer, calibrated against a client capture).
+         * [toDisplayWrite] puts `translation = rotation * (-centre * scale)` before the rotation and scale, which is v1 `VfxQuad.transform`
+         * (`VfxQuad.kt:49-53`) for solid quads and glyph quads alike, so the quad's middle lands on the entity position.
+         */
+        public val TEXT_QUAD: Intrinsic = Intrinsic(Vec3(1.0, 1.0, 1.0), Vec3(-CENTER_X_PER_SCALE, -CENTER_Y_PER_SCALE, 0.0))
 
-        /** Size of one scale unit of a sprite glyph: font height [px] pixels x 0.025 blocks (256 px = 6.4 blocks). */
-        public fun textGlyph(px: Int): Intrinsic {
-            val edge = px * 0.025
-            return Intrinsic(Vec3(edge, edge, 1.0))
-        }
+        /**
+         * `kind: sprite` (ADR-0303 2.1): the loader already turned the authored `size` in blocks into the vanilla `scale` (1 = the natural
+         * quad, font height px x 0.025 blocks), so [unit] is 1, and there is no centre: the sprite font's ascent (size/2 - 2, ADR-0239)
+         * puts the glyph's middle on the entity origin, which is v1's zero translation for a sprite and what `pivot: center` means.
+         */
+        public val SPRITE: Intrinsic = Intrinsic(Vec3(1.0, 1.0, 1.0))
     }
 }
 
@@ -66,6 +70,7 @@ public fun toDisplayWrite(
     billboard: DisplayBillboard,
     ticks: Int,
     anchor: DisplayWrite.Anchor? = null,
+    teleportTicks: Int? = null,
 ): DisplayWrite {
     val scale = Vec3(size.x / intrinsic.unit.x, size.y / intrinsic.unit.y, size.z / intrinsic.unit.z)
     val centre = Vec3(intrinsic.centre.x * scale.x, intrinsic.centre.y * scale.y, intrinsic.centre.z * scale.z)
@@ -73,7 +78,8 @@ public fun toDisplayWrite(
         at = world.origin, yaw = 0f, pitch = 0f,
         transform = DisplayTransform(world.rotation.rotate(centre), world.rotation, scale),
         billboard = billboard,
-        interpolationDelay = 0, interpolationDuration = ticks, teleportDuration = ticks,
+        interpolationDelay = 0, interpolationDuration = ticks,
+        teleportDuration = if (anchor != null && billboard == DisplayBillboard.FIXED) 0 else teleportTicks ?: ticks, // a rider never teleports (v1)
         anchor = anchor.takeIf { billboard == DisplayBillboard.FIXED },
     )
 }

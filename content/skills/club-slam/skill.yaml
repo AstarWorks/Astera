@@ -1,23 +1,42 @@
-# Converted from content/skills/club-slam.yaml by tools/skill-convert/convert.py (v1 archetype: aoe). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
-# Generated point-frame offsets are [left, up, forward] in the parent frame.
-apiVersion: "astera/v2"
+apiVersion: astera/v3
 kind: Skill
 id: club-slam
 item: club
 meta:
-  name: {ja: "叩きつけ", en: Slam}
+  name: {ja: 叩きつけ, en: Slam}
   description: {ja: "地面を叩き、周囲を弾き飛ばす。", en: "Slams the ground and shoves everyone around you away."}
   cooldown_ticks: 130
   resource_cost: 14
   tags: [aoe, physical, control]
-gameplay:
-  params: {radius: 3.0, dmg_physical: 16.0, knockback: 1.1}
-  expose:
-    - {id: damage, param: dmg_physical}
-    - {id: radius, param: radius}
-  timeline:
-    - {id: t0, at: 0, do: [{id: burst, op: hit, frames: [caster], sphere: {at: caster, radius: "${radius}"}, window: once}]}
-  "on":
-    hit:
-      - {id: dmg, op: damage, target: victim, components: [{kind: physical, amount: "= dmg_physical * (1.0 - 0.5 * dist(pos(caster), pos(victim)) / radius)"}], when: "= event.source == 'burst'"}
-      - {id: kb, op: knockback, direction: "= normalize(pos(victim) - pos(caster)) + vec(0.0, 0.3, 0.0)", strength: "${knockback}", when: "= event.source == 'burst'"}
+params:
+  radius:       {type: blocks, default: 3.0}
+  dmg_physical: {type: number, default: 16}
+  knockback:    {type: number, default: 1.1}
+anchors:
+  - {id: ground, anchor: caster, offset: {up: 0.15}}
+machine:
+  start: cast
+  states:
+    cast:
+      for: 1
+      then: done
+      do:
+        - {id: snd, op: sound, sound: "item.mace.smash_ground_heavy", anchor: caster, volume: 0.8, pitch: 1.2, at: 0}
+        - {id: crit, op: particle, particle: crit, anchor: ground, count: 0, extra: 0.03, at: 0}
+        - {id: dust, op: particle, particle: dust, anchor: ground, count: 1, color: "#96785a", size: 1.4, at: 0}
+      enter:
+        - id: blast
+          op: hit
+          at: 0
+          anchor: caster
+          shape: {sphere: "${radius}"}
+          targets: enemies
+          max_count: all       # GAP(Q1): max_count spelling (A required int|all / B omit) is a founder question; v2 had no cap
+          window: once
+          ignore_invulnerability: false
+          damage: {physical: "= ${dmg_physical} * (1.0 - 0.5 * dist(event.victim, caster) / ${radius})"}
+          on:
+            hit:
+              - {id: snd_hit, op: sound, sound: "astera:weapons/blade-hit", anchor: contact, volume: 0.7, pitch: 1.0}
+              - {id: kb, op: knockback, target: event.victim, direction: "= normalize(pos(event.victim) - pos(caster)) + vec(0, 0.3, 0)", strength: "${knockback}"}
+    done: {final: true}

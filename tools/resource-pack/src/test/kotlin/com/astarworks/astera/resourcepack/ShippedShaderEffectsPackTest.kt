@@ -1,6 +1,10 @@
 package com.astarworks.astera.resourcepack
 
 import com.astarworks.astera.core.application.skillengine.load.SkillEngineRegistries
+import com.astarworks.astera.core.application.skillengine.load.ItemFrames
+import com.astarworks.astera.core.application.skillengine.compose.ContentSpriteCatalog
+import com.astarworks.astera.core.application.skillengine.part.PartParser
+import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.application.skillengine.runtime.SkillEngineContents
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.assertj.core.api.Assertions.assertThat
@@ -16,6 +20,13 @@ class ShippedShaderEffectsPackTest {
     private val content = Path.of(System.getProperty("astera.contentDir"))
     private val json = ObjectMapper()
     private val pack by lazy { ResourcePackBuilder(content).collect() }
+
+    private fun catalog(tables: Map<String, ItemFrames>) =
+        SkillEngineRegistries.catalog(
+            tables,
+            (PartParser.loadDirectory(content.resolve("skill-parts")) as Result.Success).value,
+            ContentSpriteCatalog.load(content.resolve("sprites")),
+        )
 
     @TempDir
     lateinit var temp: Path
@@ -53,7 +64,7 @@ class ShippedShaderEffectsPackTest {
     @Test
     fun `shipped VFX demos load and unknown effect fails content load`() {
         val (tables, _) = SkillEngineRegistries.frameTables(content.resolve("frames"))
-        val catalog = SkillEngineRegistries.catalog(tables)
+        val catalog = catalog(tables)
         val contents = SkillEngineContents(catalog)
         val report = contents.reload(content.resolve("skills"))
         assertThat(report.failures).isEmpty()
@@ -64,7 +75,7 @@ class ShippedShaderEffectsPackTest {
         val demo = Files.readString(content.resolve("vfx/demo-shader-dissolve.yaml"))
             .replace("shader_effect: dissolve", "shader_effect: missing-effect")
         Files.writeString(temp.resolve("vfx/demo-shader-dissolve.yaml"), demo)
-        val rejected = SkillEngineContents(SkillEngineRegistries.catalog(tables)).reload(temp.resolve("skills"))
+        val rejected = SkillEngineContents(catalog(tables)).reload(temp.resolve("skills"))
         assertThat(rejected.failed).isGreaterThan(0)
         assertThat(rejected.failures.any { it.toString().contains("unknown shader_effect 'missing-effect'") }).isTrue()
     }
@@ -72,7 +83,7 @@ class ShippedShaderEffectsPackTest {
     @Test
     fun `all fourteen samples load and shader combos use animated sprite surfaces`() {
         val (tables, _) = SkillEngineRegistries.frameTables(content.resolve("frames"))
-        val catalog = SkillEngineRegistries.catalog(tables)
+        val catalog = catalog(tables)
         val report = SkillEngineContents(catalog).reload(content.resolve("skills"))
         assertThat(report.failures).isEmpty()
         val samples = Files.list(content.resolve("skills")).use { paths -> paths.filter { it.fileName.toString().startsWith("sample-") }.toList() }

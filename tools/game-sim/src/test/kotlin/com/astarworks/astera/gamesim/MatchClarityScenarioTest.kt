@@ -8,6 +8,8 @@ import com.astarworks.astera.core.domain.event.PlayerRespawned
 import com.astarworks.astera.match.application.port.inbound.IMatchLifecycle
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.ValueSource
 
 /**
  * MODE-18: at match start every mode tells the player where things are and what to do. Floating labels stand over each
@@ -141,6 +143,28 @@ class MatchClarityScenarioTest {
             advance(120)
             assertThat(eventsOf<PlayerRespawned>().any { it.playerId == blue.id }).isTrue()
             assertThat(sim.matchCompass.slotOf(blue.id)).`as`("compass back at index 8 after respawn").isEqualTo(8)
+        }
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @ValueSource(strings = ["carry-tnt", "carry-mini-tnt", "steal-jewelry"])
+    fun `siege modes hand out the navigation compass at index 8 and guide only while it is held`(mode: String) {
+        scenario("clarity-compass-$mode") {
+            val red = player("red-1", team = "red")
+            val blue = player("blue-1", team = "blue")
+            startMatch(mode, mapOf(red to "red", blue to "blue"))
+            advance(45)
+
+            for (who in listOf(red, blue)) {
+                assertThat(sim.matchCompass.slotOf(who.id)).`as`("$mode ${who.name}: compass at index 8").isEqualTo(8)
+            }
+            assertThat(sim.hologramGuide.guideOf(red.id)).`as`("$mode: compass not held, no guide").isNull()
+            sim.matchCompass.select(red.id, true)
+            advance(25)
+            assertThat(sim.hologramGuide.guideOf(red.id)).`as`("$mode: compass held, guide shown").isNotNull()
+            sim.matchCompass.select(red.id, false)
+            advance(25)
+            assertThat(sim.hologramGuide.guideOf(red.id)).`as`("$mode: compass put away, guide hidden").isNull()
         }
     }
 }

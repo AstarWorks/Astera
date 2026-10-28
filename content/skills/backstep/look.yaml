@@ -1,8 +1,0 @@
-# Converted from content/skills/backstep.yaml + content/vfx/* by tools/skill-convert/convert.py (v1 archetype: buff). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
-# Generated point-frame offsets are [left, up, forward] in the parent frame.
-apiVersion: "astera/v2"
-kind: Skill
-id: backstep
-frames:
-  - {id: pt_caster_0_0p2_0, kind: point, parent: caster, offset: [0.0, 0.2, 0.0]}
-presentation: {timeline: [{id: fx0, at: 0, do: [{id: snd, op: sound, sound: "astera:weapons/dash-whoosh", at: caster}, {id: emit, op: emit, at: pt_caster_0_0p2_0, particle: dash-cloud}]}]}

@@ -1,21 +1,36 @@
-# Converted from content/skills/delay-mine-lay.yaml by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
-# Generated point-frame offsets are [left, up, forward] in the parent frame.
-apiVersion: "astera/v2"
+apiVersion: astera/v3
 kind: Skill
 id: delay-mine-lay
 item: delay-mine
 meta:
-  name: {ja: "地雷設置", en: "Lay Mine"}
+  name: {ja: 地雷設置, en: Lay Mine}
   description: {ja: "目の前に地雷を置く。少し後に爆発する。", en: "Plants a mine ahead that detonates after a short delay."}
   cooldown_ticks: 160
   resource_cost: 10
   tags: [utility, explosive, zone]
-frames:
-  - {id: pt_caster_0_0_2p5, kind: point, parent: caster, offset: [0.0, 0.0, 2.5]}
-gameplay:
-  params: {explode_power: 1.0, explode_radius: 2.5, explode_physical: 55.0}
-  timeline:
-    - id: t50
-      at: 50
+params:
+  explode_power:    {type: number, default: 1.0}
+  explode_radius:   {type: blocks, default: 2.5}
+  explode_physical: {type: number, default: 55}
+anchors:
+  - {id: spot, anchor: caster, offset: {forward: 2.5}, mode: snapshot}
+  - {id: smoke_at, anchor: caster, offset: {forward: 2.5, up: 0.1}}
+machine:
+  start: cast
+  states:
+    cast:
+      start: armed
       do:
-        - {id: explode, op: explode, power: "${explode_power}", break_blocks: false, radius: "${explode_radius}", components: [{kind: physical, amount: "${explode_physical}"}], at: pt_caster_0_0_2p5}
+        - {id: snd, op: sound, sound: "block.stone_pressure_plate.click_on", anchor: caster, volume: 1.0, pitch: 0.8, at: 0}
+        - {id: smoke, op: particle_def, def: gun-smoke, anchor: smoke_at, at: 0}
+      on:
+        - {event: end, to: done}
+      states:
+        armed:
+          for: 51
+          then: recover
+          do:
+            - {id: boom, op: explode, at: 50, anchor: spot, power: "${explode_power}", break_blocks: false, fire: false}
+            - {id: blast, op: damage, at: 50, target: {kind: enemies, around: spot, radius: "${explode_radius}", max_count: all}, damage: {physical: "${explode_physical}"}}  # GAP(Q1): max_count spelling (A required int|all / B omit) is a founder question; v2 had no cap
+        recover: {final: true}
+    done: {final: true}

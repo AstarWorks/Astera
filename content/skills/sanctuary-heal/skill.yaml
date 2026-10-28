@@ -1,13 +1,25 @@
-# Converted from content/skills/sanctuary-heal.yaml by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
-# Generated point-frame offsets are [left, up, forward] in the parent frame.
-apiVersion: "astera/v2"
+apiVersion: astera/v3
 kind: Skill
 id: sanctuary-heal
 item: sanctuary-staff
 meta: {name: {ja: "癒しの輪", en: "Healing Circle"}, description: {ja: "周囲の味方の体力を回復する。", en: "Heals you and nearby allies."}, cooldown_ticks: 240, resource_cost: 28, tags: [magic, support, heal]}
-gameplay:
-  params: {radius: 6.0, heal: 30.0}
-  expose:
-    - {id: radius, param: radius}
-  timeline:
-    - {id: t0, at: 0, do: [{id: heal, op: heal, amount: "${heal}", target: {allies: {around: caster, radius: "${radius}"}}}]}
+params:
+  radius: {type: blocks, default: 6.0}
+  heal:   {type: number, default: 30.0}
+anchors:
+  - {id: self,  anchor: caster}
+  - {id: feet,  anchor: caster, offset: {up: 0.15}}                   # was pt_caster_0_0p15_0
+  - {id: chest, anchor: caster, offset: {up: 1.0}}                    # was pt_caster_0_1_0
+machine:
+  start: bless
+  states:
+    bless:
+      for: 1
+      then: end
+      enter:
+        - {id: heal, op: heal, target: {kind: allies, around: self, radius: "${radius}", max_count: all, include_self: true}, amount: "${heal}"}   # GAP(Q1): v2 had no cap
+        - {id: snd, op: sound, sound: "astera:skills/heal-chime", anchor: caster, volume: 0.7, pitch: 1.0}
+        - {id: emit, op: particle, particle: happy_villager, anchor: feet, count: 0, extra: 0.02}
+        - {id: emit_2, op: particle, particle: dust, anchor: feet, count: 1, color: "#5ae65a", size: 1.4}
+        - {id: emit_3, op: particle_def, def: verdant-heal, anchor: chest}
+    end: {final: true}

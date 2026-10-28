@@ -21,6 +21,13 @@ class StealJewelryPlaythroughE2eTest : ObjectivePlaythroughBase() {
         val (ox, oz) = ctx.zone("base-blue")
         val (hx, hz) = ctx.zone("base-red")
 
+        E2eReport.check(suite, "the sidebar shows a jewels-left objective line and the compass sits at hotbar index 8", "sidebar / hotbar") {
+            assertThat(sidebar(a).count { it.contains("jewels", ignoreCase = true) })
+                .describedAs("one 'jewels <n>' line per team; sidebar=${sidebar(a)}").isGreaterThanOrEqualTo(2)
+            assertThat(a.hotbar()[8]).describedAs("hotbar index 8 holds the compass").isNotEqualTo(-1)
+            "sidebar=${sidebar(a)}"
+        }
+
         val toJewel = ctx.walker.walkTo(jx, jz, 0.8, 150_000, others)
         walkCheck(ctx, "the blue jewelry pedestal", toJewel, jx, jz)
         Thread.sleep(DWELL_MS) // stealing is a 4 s hold (steal_channel_ticks): stand on the pedestal until the bar completes

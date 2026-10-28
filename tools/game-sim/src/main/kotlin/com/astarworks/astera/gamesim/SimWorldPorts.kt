@@ -14,6 +14,7 @@ import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.effect.DisplayKind
 import com.astarworks.astera.core.domain.effect.DisplaySpec
 import com.astarworks.astera.core.domain.effect.DisplayTransform
+import com.astarworks.astera.core.domain.effect.VfxLane
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.domain.world.WorldId
@@ -171,6 +172,50 @@ public class SimDisplayGateway(
         return handle
     }
 
+    /** Players that could see a world display (the sim has no range; every online player is "near"). */
+    public var nearbyPlayers: () -> Collection<PlayerId> = { emptyList() }
+
+    /** Per-viewer `vfx_intensity`; absent = full. */
+    public val intensity: MutableMap<PlayerId, com.astarworks.astera.core.domain.effect.VfxIntensity> = linkedMapOf()
+
+    /** Who is shown each audience-scoped display, as the Paper gateway's reveal would decide. */
+    public val audienceViewers: MutableMap<IDisplayEntityGateway.DisplayHandle, Set<PlayerId>> = linkedMapOf()
+
+    override fun spawn(
+        world: WorldId,
+        at: Vec3,
+        spec: DisplaySpec,
+        renderedLines: List<String>,
+        audience: com.astarworks.astera.core.domain.effect.Audience,
+        caster: PlayerId?,
+        target: PlayerId?,
+        lane: com.astarworks.astera.core.domain.effect.VfxLane,
+    ): IDisplayEntityGateway.DisplayHandle? {
+        val pool = com.astarworks.astera.core.domain.effect.AudienceResolver.displayPool(nearbyPlayers(), caster, target)
+        val selected = com.astarworks.astera.core.domain.effect.AudienceResolver.select(pool, audience, caster, target)
+        val shown = com.astarworks.astera.core.domain.effect.VfxQualityProfile.filterViewers(
+            selected, lane, { intensity[it] ?: com.astarworks.astera.core.domain.effect.VfxIntensity.FULL },
+        )
+        val handle = spawn(world, at, spec, renderedLines)
+        audienceViewers[handle] = shown
+        return handle
+    }
+
+    /** Viewer-scoped displays (`screen_veil`): handle -> the only player who sees it. */
+    public val viewers: MutableMap<IDisplayEntityGateway.DisplayHandle, com.astarworks.astera.core.domain.player.PlayerId> = linkedMapOf()
+
+    override fun spawnFor(
+        world: WorldId,
+        at: Vec3,
+        spec: DisplaySpec,
+        renderedLines: List<String>,
+        viewer: com.astarworks.astera.core.domain.player.PlayerId,
+    ): IDisplayEntityGateway.DisplayHandle {
+        val handle = spawn(world, at, spec, renderedLines)
+        viewers[handle] = viewer
+        return handle
+    }
+
     /** Displays riding a player (ADR-0276): handle -> the anchor. */
     public val attached: MutableMap<IDisplayEntityGateway.DisplayHandle, com.astarworks.astera.core.domain.player.PlayerId> = linkedMapOf()
 
@@ -183,8 +228,9 @@ public class SimDisplayGateway(
         renderedLines: List<String>,
         anchor: com.astarworks.astera.core.domain.player.PlayerId,
         offset: Vec3,
+        scope: IDisplayEntityGateway.DisplayScope?,
     ): IDisplayEntityGateway.DisplayHandle {
-        val handle = spawn(world, offset, spec, renderedLines)
+        val handle = if (scope == null) spawn(world, offset, spec, renderedLines) else spawn(world, offset, spec, renderedLines, scope.audience, scope.caster, scope.target, scope.lane)!!
         attached[handle] = anchor
         return handle
     }

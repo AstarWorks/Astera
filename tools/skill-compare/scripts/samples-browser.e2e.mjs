@@ -25,12 +25,12 @@ try {
   assert.equal(demos.length, 14);
   for (const demo of demos) {
     if (demo.shaderEffects.length) {
-      assert.match(demo.source, /op: mesh/);
-      assert.match(demo.source, /scale: 4/);
+      assert.match(demo.source, /op: display/);
+      assert.match(demo.source, /scale:\n\s+- 4/);
     } else {
-      assert.match(demo.source, /op: plate/);
-      assert.match(demo.source, /size: 4/);
-      assert.match(demo.source, /frame_ticks: 1/);
+      assert.match(demo.source, /kind: sprite/);
+      assert.match(demo.source, /size:\n\s+- 4/);
+      assert.match(demo.source, /every: 1/);
     }
     if (process.env.REQUIRE_SAMPLE_CAPTURES === '1') {
       assert.equal(demo.capture, '実クライアント'); assert.ok(demo.sheet);
@@ -96,5 +96,5 @@ try {
   await page.locator('.card img.sheet').evaluateAll(images => Promise.all(images.map(image => image.decode())));
   await page.screenshot({ path: output.replace(/\.png$/, '-vfx.png'), fullPage: true });
   assert.deepEqual(errors, []);
-  console.log(`PASS: 14 samples, 14 v2 demos, Minecraft cutoff/scale controls, scrubber; ${output}`);
+  console.log(`PASS: 14 samples, 14 v3 demos, Minecraft cutoff/scale controls, scrubber; ${output}`);
 } finally { await browser.close(); }

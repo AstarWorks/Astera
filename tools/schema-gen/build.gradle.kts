@@ -35,6 +35,16 @@ tasks.register<JavaExec>("generateSchemas") {
     args = listOf("${rootDir}/content/schemas")
 }
 
+// v3 skill engine schema (ADR-0303): op variants + timing block + rate laws from the OpSpecRegistry. Not part of the
+// drift guard yet.
+tasks.register<JavaExec>("generateSkillSchema") {
+    group = "astera"
+    description = "Generate the v3 skill engine JSON Schema (ADR-0303) into content/schemas/skill.schema.json."
+    classpath = sourceSets["main"].runtimeClasspath
+    mainClass.set("com.astarworks.astera.schemagen.SkillEngineSchemaMain")
+    args = listOf("${rootDir}/content/schemas")
+}
+
 // Drift guard: regenerate into build/ and fail when content/schemas/ differs, so a DTO change
 // without `./gradlew :tools:schema-gen:generateSchemas` cannot land. Part of `check`.
 val generateSchemasToBuildDir = tasks.register<JavaExec>("generateSchemasToBuildDir") {

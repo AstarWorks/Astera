@@ -1,4 +1,4 @@
-apiVersion: astera/v2
+apiVersion: astera/v3
 kind: Skill
 id: sample-energy-orb
 meta:
@@ -12,5 +12,32 @@ meta:
   resource_cost: 0
   tags:
   - sample
-gameplay:
-  timeline: []
+anchors:
+- id: surface
+  anchor: caster
+  offset:
+    up: 2.4
+    forward: 3
+machine:
+  start: show
+  states:
+    show:
+      for: 40
+      do:
+      - id: surface
+        op: display
+        kind: item
+        anchor: surface
+        for: 40
+        item: sample-energy-orb
+        scale:
+        - 4
+        - 4
+        - 4
+        rotate:
+        - axis: up
+          deg: 90
+        shader_effect: emissive-pulse
+      then: end
+    end:
+      final: true

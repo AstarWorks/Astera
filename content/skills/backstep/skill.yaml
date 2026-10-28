@@ -1,24 +1,30 @@
-# Converted from content/skills/backstep.yaml by tools/skill-convert/convert.py (v1 archetype: buff). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
-# Generated point-frame offsets are [left, up, forward] in the parent frame.
 # also bound to items: shotgun
-apiVersion: "astera/v2"
+apiVersion: astera/v3
 kind: Skill
 id: backstep
 item: rifle
 meta:
-  name: {ja: "バックステップ", en: Backstep}
+  name: {ja: バックステップ, en: Backstep}
   description: {ja: "後方へ跳び退き、短時間だけ素早く動ける。", en: "Hops backwards and sprints briefly to break contact."}
   cooldown_ticks: 120
   resource_cost: 0
   tags: [gun, movement, mobility]
-gameplay:
-  params: {evasive_ticks: 25, propel: -1.1, propel_2: 0.35}
-  expose:
-    - {id: duration, param: evasive_ticks}
-  timeline:
-    - id: t0
-      at: 0
+params:
+  evasive_ticks: {type: ticks, default: 25}
+  propel:   {type: number, default: -1.1}
+  propel_2: {type: number, default: 0.35}
+anchors:
+  - {id: feet, anchor: caster, offset: {up: 0.2}}
+machine:
+  start: cast
+  states:
+    cast:
+      for: 1
+      then: end
       do:
-        - {id: buff, op: status, target: caster, status: evasive, duration_ticks: "${evasive_ticks}"}
-        - {id: propel, op: propel, direction: "= axis(caster, \"forward\")", strength: "${propel}"}
-        - {id: propel_2, op: propel, direction: "= vec(0.0, 1.0, 0.0)", strength: "${propel_2}"}
+        - {id: snd, op: sound, sound: "astera:weapons/dash-whoosh", anchor: caster, volume: 1.0, pitch: 1.0}
+        - {id: cloud, op: particle_def, def: dash-cloud, anchor: feet}
+        - {id: evade, op: status, target: caster, status: evasive, stacks: 1, for: "${evasive_ticks}"}
+        - {id: back, op: impulse, at: 0, target: caster, vector: {of: caster, forward: "${propel}"}}
+        - {id: lift, op: impulse, at: 0, target: caster, vector: {x: 0, y: "${propel_2}", z: 0}}
+    end: {final: true}

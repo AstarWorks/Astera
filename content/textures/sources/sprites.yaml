@@ -6,6 +6,7 @@
 # Optional per sprite: size (32), colors (12), outline (false). Sheets are keyed on their flat background.
 
 sources:
+  quad: { file: images/quad.png }
   vfx-v1: { file: sheets/vfx-v1.png, grid: [6, 6] }
   bastion-s1-crescent: { file: images/bastion-s1-crescent.png }
   couture-s2-crescent: { file: images/couture-s2-crescent.png }
@@ -46,6 +47,7 @@ sources:
   bastion-s1-spark: { file: images/bastion-s1-spark.png }
 
 sprites:
+  quad: { from: quad, raw: true, frames: 1, size: 16 }
   gossamer-ribbon:
     frames: 4
     size: 128

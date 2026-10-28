@@ -4,11 +4,11 @@ Effects are local to an authored pack mesh display. Existing skin/weapon rigs ke
 
 1. Create `content/shader-patches/effects/<id>/effect.yaml`. Set `id` to the directory name, `programs: [item]`, a unique `vfx-tint` RGB decimal, and numeric `constants`. Inspect other manifests first; all marker claims are exclusive, including weapon tint `16711422`. The VFX light pair block 13 / sky 11 is reserved in `ShaderEffect`.
 2. Write `item.vsh.patch` and `item.fsh.patch` with `@@ hook: <name>`. `hooks.yaml` maps names to unique vanilla anchors; authors normally need only `declarations`, `shade`, `light` and `surface`. Copy the marker decoder and choose free matching varying locations in both stages. `${MARKER_R}`, `${MARKER_G}`, `${MARKER_B}`, `${BLOCK_UV}`, `${SKY_UV}` and `${CONSTANT_NAME}` expand at pack build. Prefix GLSL names per effect. Execute alpha/discard logic in OIT alpha-only passes too; lighting outputs exist only outside `OIT_ALPHA_ONLY`.
-3. Add `shader_effect: <id>` to a `mesh` op, then build and film:
+3. Add `shader_effect: <id>` to a `display` op with `kind: item`, then build and film:
 
    ```yaml
-   # Inside presentation.timeline[].do:
-   - {id: aura, op: mesh, frame: surface, item: iron-warden-chestplate, scale: 2, shader_effect: emissive-pulse}
+   # Inside machine.states.<state>.do:
+   - {id: aura, op: display, kind: item, anchor: surface, item: iron-warden-chestplate, scale: [2, 2, 2], for: 100, shader_effect: emissive-pulse}
    ```
 
    ```sh

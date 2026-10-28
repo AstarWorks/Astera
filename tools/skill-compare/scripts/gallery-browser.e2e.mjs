@@ -47,8 +47,8 @@ try {
   for (const file of ['content/textures/generated/sprites/spark.png', 'content/sprites/spark.yaml']) await copyFile(join(root, file), join(fixture, file));
   const source = 'sprites:\n  spark:\n    frames: 6\n    size: 32\n    tags: [光, テスト]\n    graph:\n      nodes:\n        glow: { type: noise }\n';
   await writeFile(join(fixture, 'content/textures/sources/sprites.yaml'), source);
-  await writeFile(join(fixture, 'content/skills/demo/look.yaml'), 'apiVersion: astera/v2\nkind: Skill\nid: demo\npresentation: {timeline: []}\n');
-  await writeFile(join(fixture, 'content/skills/missing/look.yaml'), 'id: missing\n');
+  await writeFile(join(fixture, 'content/skills/demo/skill.yaml'), 'apiVersion: astera/v3\nkind: Skill\nid: demo\nmachine: {start: end, states: {end: {final: true}}}\n');
+  await writeFile(join(fixture, 'content/skills/missing/skill.yaml'), 'id: missing\n');
   const png = join(root, 'content/textures/generated/sprites/spark.png');
   await copyFile(png, join(fixture, 'build/sprite-node-preview/spark/glow.png'));
   await copyFile(png, join(fixture, 'build/skill-preview/demo/side/strip.png'));

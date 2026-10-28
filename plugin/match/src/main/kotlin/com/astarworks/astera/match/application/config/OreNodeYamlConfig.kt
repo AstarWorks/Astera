@@ -47,9 +47,13 @@ public data class OreRegionYaml(public val min: OrePosYaml, public val max: OreP
 @Serializable
 public data class OreDropYaml(@SerialName("item_id") public val itemId: String, public val count: Int = 1)
 
-/** [materialOf] resolves [OreNodeGroupYaml.block] to its vanilla material (the custom-block registry); a miss is an authoring error. */
-public fun OreNodeGroupYaml.toSpec(materialOf: (String) -> String?): OreNodeSpec {
-    val material = materialOf(block) ?: throw IllegalArgumentException("ore node block '$block' is not a known custom block")
+/** [blockOf] resolves [OreNodeGroupYaml.block] to its custom block (the registry); a miss is an authoring error. HP and per-tier hit damage come from it. */
+public fun OreNodeGroupYaml.toSpec(blockOf: (String) -> com.astarworks.astera.core.domain.block.CustomBlockSpec?): OreNodeSpec {
+    val blockSpec = blockOf(block) ?: throw IllegalArgumentException("ore node block '$block' is not a known custom block")
+    val material = blockSpec.baseBukkitMaterial
+    val hitDamage = blockSpec.toolEffectiveness.orEmpty()
+        .filterKeys { it.kind == com.astarworks.astera.core.domain.world.ToolKind.PICKAXE }
+        .mapKeys { it.key.tier }
     val tier = runCatching { ToolTier.valueOf(requiredTier.trim().uppercase()) }.getOrNull()?.takeIf { it != ToolTier.NONE }
         ?: throw IllegalArgumentException("ore node '$block': unknown required_tier '$requiredTier'")
     require(regrowSeconds >= 1) { "ore node '$block': regrow_seconds must be >= 1" }
@@ -63,5 +67,5 @@ public fun OreNodeGroupYaml.toSpec(materialOf: (String) -> String?): OreNodeSpec
     } ?: emptyList()
     val cells = positions.map { Vec3(it.x, it.y, it.z) } + filled
     require(cells.isNotEmpty()) { "ore node '$block': give positions or region" }
-    return OreNodeSpec(material, placeholder.trim().uppercase(), regrowSeconds, tier, drops.map { OreDrop(it.itemId, it.count) }, cells)
+    return OreNodeSpec(material, placeholder.trim().uppercase(), regrowSeconds, tier, drops.map { OreDrop(it.itemId, it.count) }, cells, blockSpec.baseDurability, hitDamage)
 }

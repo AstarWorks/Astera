@@ -1,0 +1,27 @@
+# R10 (ADR-0303 wave2): n particles on a circle around an anchor, in the anchor's forward/left plane.
+# The ring phase is drawn once per cast (draw is constant for every copy and tick); i and n are baked per copy.
+---
+apiVersion: astera/v3
+kind: Part
+id: ring-burst
+params:
+  radius:   {type: blocks, required: true}
+  hold:     {type: ticks,  required: true}
+frames_in: {center: anchor}
+emits: [end]
+machine:
+  start: burst
+  states:
+    burst:
+      for: "= hold"
+      then: end
+      enter:
+        - id: ring
+          op: particle
+          particle: end_rod
+          anchor: center
+          times: 12
+          shift:
+            forward: "= radius * cos(2.0 * PI * i / n + draw('ring_ph') * 2.0 * PI)"
+            left: "= radius * sin(2.0 * PI * i / n + draw('ring_ph') * 2.0 * PI)"
+    end: {final: true}

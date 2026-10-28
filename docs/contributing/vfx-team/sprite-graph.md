@@ -10,7 +10,7 @@ Edit `content/textures/sources/sprites.yaml`, then render a preview:
 A new animated VFX sprite requires YAML only. The generator writes the existing
 horizontal PNG strip to `content/textures/generated/sprites/<id>.png`, the bitmap
 font to `content/fonts/vfx/<id>.json`, and metadata to `content/sprites/<id>.yaml`.
-`content/skills/<id>/look.yaml` plate references keep the same sprite ids. The full `:tools:item-art:run` default also
+`content/skills/<id>/skill.yaml` `display` (`kind: sprite`) references keep the same sprite ids. The full `:tools:item-art:run` default also
 regenerates item art; `write-sprites` limits writes to sprite outputs.
 
 ## Graph format and validation

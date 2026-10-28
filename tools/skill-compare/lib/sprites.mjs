@@ -67,10 +67,18 @@ async function catalog() {
   const skillDir = resolve(root, 'content/skills');
   const skillNames = (await names(skillDir)).filter(id => /^[a-z][a-z0-9-]*$/.test(id));
   const skills = await Promise.all(skillNames.map(async id => {
-    const source = await text(resolve(skillDir, id, 'look.yaml'));
-    const look = Bun.YAML.parse(source);
-    const ops = (look?.presentation?.timeline || []).flatMap(event => event.do || []);
-    const plates = ops.filter(op => op.op === 'plate');
+    const sources = await Promise.all((await names(resolve(skillDir, id))).filter(name => /\.ya?ml$/.test(name)).map(name => text(resolve(skillDir, id, name))));
+    const source = sources.join('\n---\n');
+    const ops = [];
+    function visit(value) {
+      if (Array.isArray(value)) value.forEach(visit);
+      else if (value && typeof value === 'object') {
+        if (value.op) ops.push(value);
+        Object.values(value).forEach(visit);
+      }
+    }
+    sources.filter(Boolean).forEach(raw => visit(Bun.YAML.parse(raw)));
+    const plates = ops.filter(op => op.op === 'display' && op.kind === 'sprite');
     const shaderEffects = [...new Set(ops.map(op => op.shader_effect).filter(Boolean))];
     let shot, preview;
     for (const dir of captureDirs) { shot ||= await asset(resolve(dir, id, 'side/sheet.png')); }
@@ -81,7 +89,7 @@ async function catalog() {
     const meta = Bun.YAML.parse(await text(resolve(metaDir, `${id}.yaml`))) || {};
     const def = defs[id] || {};
     const tags = Array.isArray(def.tags) ? def.tags.map(String) : typeof def.tags === 'string' ? [def.tags] : [id.split('-')[0]];
-    return { id, shaderEffects: skills.find(skill => skill.id === id)?.shaderEffects || [], blocks: skills.flatMap(skill => skill.plates).find(op => op.sprite === id && typeof op.size === 'number')?.size, frames: meta.frames || def.frames || 1, size: meta.size || def.size || 32, tags,
+    return { id, shaderEffects: skills.find(skill => skill.id === id)?.shaderEffects || [], blocks: skills.flatMap(skill => skill.plates).find(op => op.sprite === id && Array.isArray(op.size))?.size?.[0], frames: meta.frames || def.frames || 1, size: meta.size || def.size || 32, tags,
       image: await asset(resolve(imageDir, `${id}.png`)), source: blocks.get(id) || '# ソース定義なし', intermediates: (intermediates.get(id) || []).sort((a,b) => a.name.localeCompare(b.name)) };
   }));
   const vfx = skills.filter(skill => skill.source);

@@ -15,15 +15,23 @@ import org.junit.jupiter.api.Test
 
 /**
  * Match arsenal: tool skills (break_area) treat custom cover blocks by tool class and tier. The matching class chews
- * through a wall in five iron casts (three diamond casts), the wrong class barely scratches it, and Mid ore nodes
+ * through a wall (two iron casts, one diamond cast), the wrong class barely scratches it, and Mid ore nodes
  * are never removed by an area skill.
+ *
+ * Cast counts are v1's own arithmetic: the bores carry cover_damage 300 (iron) / 350 (diamond)
+ * (v1 content/skills/pickaxe-bore-iron.yaml:30, pickaxe-bore-diamond.yaml:30), v1 WorldMechanics.kt:284-291 strikes a cover
+ * cell in six integer portions of cover_damage (iron 6 x 50, diamond 58/58/59/58/58/59), and each portion lands as
+ * BlockDamageProfile(portion, tool), i.e. matrix cell * portion / 100. Against the 600 HP stone bulwark (PICKAXE/IRON 120,
+ * PICKAXE/DIAMOND 200, content/blocks/stone-bulwark.yaml) that is 360 HP per iron cast (600 gone on the 2nd) and 700 HP
+ * per diamond cast (gone within the 1st). The v1final dump shows the same portions: pickaxe-bore-diamond.jsonl, six
+ * "block damage" events per cell every 4 ticks from t=9.
  */
 class ToolSkillCustomBlockScenarioTest {
 
     private val cooldownGap = 130
 
     @Test
-    fun `iron pickaxe bore breaks a stone bulwark in five casts but leaves reinforced planks standing`() {
+    fun `iron pickaxe bore breaks a stone bulwark in two casts but leaves reinforced planks standing`() {
         scenario("tool-skill-custom-block") {
             val caster = player("caster", team = "red", facing = Vec3(1.0, 0.0, 0.0))
             val blocks = sim.services.getOrThrow<IBlockStateGateway>()
@@ -41,21 +49,21 @@ class ToolSkillCustomBlockScenarioTest {
             assertThat(blocks.isCover(world, bulwarkAt)).isTrue()
             assertThat(blocks.getDurability(world, bulwarkAt)).isLessThan(600)
 
-            repeat(4) {
-                advance(cooldownGap)
-                sim.cast(caster, "pickaxe-bore-iron", "iron-pickaxe")
-                advance(30)
-            }
+            // 600 - 360 leaves 240: the first cast must not have broken it, the second does.
+            assertThat(blocks.getDurability(world, bulwarkAt)).isEqualTo(600 - 360)
+            advance(cooldownGap)
+            sim.cast(caster, "pickaxe-bore-iron", "iron-pickaxe")
+            advance(30)
             assertThat(blocks.isCover(world, bulwarkAt)).isFalse()
 
-            // The wrong class chips the planks (450 HP) only a little: still standing after the same five casts.
+            // The wrong class chips the planks (450 HP, PICKAXE/IRON 30) only a little: 2 x 90 gone, still standing.
             assertThat(blocks.isCover(world, planksAt)).isTrue()
-            assertThat(blocks.getDurability(world, planksAt)).isGreaterThan(450 / 2)
+            assertThat(blocks.getDurability(world, planksAt)).isEqualTo(450 - 2 * 90)
         }
     }
 
     @Test
-    fun `a diamond pickaxe bore breaks a stone bulwark in three casts`() {
+    fun `a diamond pickaxe bore breaks a stone bulwark in one cast`() {
         scenario("tool-skill-diamond-bore") {
             val caster = player("caster", team = "red", facing = Vec3(1.0, 0.0, 0.0))
             val blocks = sim.services.getOrThrow<IBlockStateGateway>()
@@ -66,12 +74,6 @@ class ToolSkillCustomBlockScenarioTest {
             sim.cast(caster, "pickaxe-bore-diamond", "diamond-pickaxe")
             assertThat(blocks.isCover(caster.world, at)).isTrue()
             advance(30)
-            assertThat(blocks.isCover(caster.world, at)).isTrue()
-            repeat(2) {
-                advance(100)
-                sim.cast(caster, "pickaxe-bore-diamond", "diamond-pickaxe")
-                advance(30)
-            }
             assertThat(blocks.isCover(caster.world, at)).isFalse()
         }
     }
