@@ -2,7 +2,6 @@
 # Generated point-frame offsets are [left, up, forward] in the parent frame.
 # CONVERT-PRESENT vfx frame orient (frames carry no orientation / scale) (x11): orient="yaw"
 # CONVERT-PRESENT vfx follow=false (anchored at world, no place-at-spawn) (x9): couture-shears-remote | couture-rapier-cross
-# CONVERT-PRESENT element brightness (no v2 equivalent) (x3): 15
 apiVersion: "astera/v2"
 kind: Skill
 id: couture-rapier-s3

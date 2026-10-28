@@ -211,6 +211,10 @@ internal object CelFunctions {
 
         // seeded randomness: uniform [0,1), deterministic per cast seed + stream name
         def("rand", "rand_stream", D, listOf(SimpleType.STRING), listOf(STR)) { stream(it[0] as String).nextDouble() }
+        // rand(stream, k): the k-th draw of a stream, constant over the cast (not per tick) - a per-slot jitter like v1 slotRandom
+        def("rand", "rand_stream_idx", D, listOf(SimpleType.STRING, NUM), listOf(STR, OBJ)) {
+            SeededRandom(env().castSeed xor ((it[0] as String).hashCode().toLong() * -0x61c8864680b583ebL) xor (n(it[1]).toLong() * 0x2545F4914F6CDD1DL)).nextDouble()
+        }
 
         // frames
         // a bare `victim` is its feet (SKL-15), like `dist`; any named point of it (`point(victim, "body")`) is the body centre

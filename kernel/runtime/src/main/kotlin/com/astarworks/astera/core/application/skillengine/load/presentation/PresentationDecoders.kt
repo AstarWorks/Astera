@@ -228,6 +228,12 @@ private fun OpReader.trailRim(): TrailRim? {
 /** `brightness:` is vanilla Display.brightness, 0..15. */
 private fun OpReader.brightness(): Int? = int("brightness")?.also { if (it !in 0..15) fail("brightness must be 0..15") }
 
+/** `glow:` is the vanilla glow colour override, `#rrggbb` or `#aarrggbb` (v1 `glow_color`). */
+private fun OpReader.glow(): String? = string("glow")?.also { g ->
+    val h = g.removePrefix("#")
+    if (h.toLongOrNull(16) == null || (h.length != 6 && h.length != 8)) fail("glow must be #rrggbb or #aarrggbb, got '$g'")
+}
+
 /** `times:` / `every:` / `life:` of a repeated display (see [Repeat]); null when none is given. */
 private fun OpReader.repeat(allowLife: Boolean = true): Repeat? {
     val times = number("times")
@@ -257,21 +263,21 @@ private object VisualOpDecoder : OpDecoder {
     override fun decode(op: String, id: String, whenExpr: Value<Boolean>?, reader: OpReader): SkillOp = with(reader) {
         when (op) {
             "mesh" -> VisualOp.Mesh(id, whenExpr, requireString("frame"), requireString("item"), string("part"), number("scale"),
-                vec3("pivot"), vec3("rest_turn"), vec3("tilt_turn"), brightness())
+                vec3("pivot"), vec3("rest_turn"), vec3("tilt_turn"), brightness(), glow())
             "plate" -> VisualOp.Plate(
                 id, whenExpr, requireString("parent"), face(null), requireString("sprite"),
                 numberOr("size", 1.0), numberOr("alpha", 1.0),
                 int("frame_ticks")?.also { if (it < 1) fail("frame_ticks must be >= 1") }, bool("loop") ?: false, stringValue("color"),
-                vec3("at"), vec3("turn"), brightness(), repeat(),
+                vec3("at"), vec3("turn"), brightness(), glow(), repeat(),
             )
             "block" -> VisualOp.Block(
                 id, whenExpr, requireString("parent"), requireString("block"), sizeVec("size", uniform = true),
-                vec3("at"), vec3("turn"), brightness(), repeat(),
+                vec3("at"), vec3("turn"), brightness(), glow(), repeat(),
             )
             "quad" -> VisualOp.Quad(
                 id, whenExpr, requireString("parent"), face(PlateFace.ViewerCenter), sizeVec("size", uniform = false),
                 colorOr("color", "#ffffff"), numberOr("alpha", 1.0), string("text"), bool("shadow") ?: false, bool("see_through") ?: false,
-                vec3("at"), vec3("turn"), brightness(), repeat(),
+                vec3("at"), vec3("turn"), brightness(), glow(), repeat(),
             )
             "line" -> VisualOp.Line(
                 id, whenExpr, requirePoint("from"), requirePoint("to"), numberOr("thickness", 0.05),

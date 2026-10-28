@@ -50,6 +50,8 @@ public sealed interface VisualOp : PresentationOp {
         val tilt: Value<Vec3>? = null,
         /** Vanilla Display.brightness 0..15 (block and sky light together); null = lit by the world. */
         val brightness: Int? = null,
+        /** Vanilla glow colour override (`#rrggbb` / `#aarrggbb`, v1 `glow_color`): the display glows in that outline colour; null = no glow. */
+        val glow: String? = null,
     ) : VisualOp
 
     /** A sprite quad as a NODE of the frame tree named [id], child of [parent]; [size] is its edge length in BLOCKS. */
@@ -74,6 +76,8 @@ public sealed interface VisualOp : PresentationOp {
         val turn: Value<Vec3>? = null,
         /** Vanilla Display.brightness 0..15; 15 (full bright) when null. */
         val brightness: Int? = null,
+        /** Vanilla glow colour override (`#rrggbb` / `#aarrggbb`); null = no glow. */
+        val glow: String? = null,
         val repeat: Repeat? = null,
     ) : VisualOp
 
@@ -90,6 +94,8 @@ public sealed interface VisualOp : PresentationOp {
         val at: Value<Vec3>? = null,
         val turn: Value<Vec3>? = null,
         val brightness: Int? = null,
+        /** Vanilla glow colour override (`#rrggbb` / `#aarrggbb`); null = no glow. */
+        val glow: String? = null,
         val repeat: Repeat? = null,
     ) : VisualOp
 
@@ -113,6 +119,8 @@ public sealed interface VisualOp : PresentationOp {
         val at: Value<Vec3>? = null,
         val turn: Value<Vec3>? = null,
         val brightness: Int? = null,
+        /** Vanilla glow colour override (`#rrggbb` / `#aarrggbb`); null = no glow. */
+        val glow: String? = null,
         val repeat: Repeat? = null,
     ) : VisualOp
 

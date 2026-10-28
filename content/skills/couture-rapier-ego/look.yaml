@@ -2,7 +2,6 @@
 # Generated point-frame offsets are [left, up, forward] in the parent frame.
 # CONVERT-PRESENT vfx follow=false (anchored at world, no place-at-spawn) (x6): couture-shear-overhead | couture-shears-falling
 # CONVERT-PRESENT vfx frame orient (frames carry no orientation / scale) (x6): orient="yaw"
-# CONVERT-PRESENT element brightness (no v2 equivalent) (x2): 15
 apiVersion: "astera/v2"
 kind: Skill
 id: couture-rapier-ego

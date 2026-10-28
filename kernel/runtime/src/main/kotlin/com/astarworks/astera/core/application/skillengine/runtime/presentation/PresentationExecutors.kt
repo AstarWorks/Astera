@@ -31,6 +31,9 @@ public fun presentationExecutors(rt: PresentationRuntime): List<OpExecutor<*>> =
 /** Hold time of a pose-only caster clip (crouch, hide-main-hand) when the op gives no `ticks:`. */
 private const val DEFAULT_POSE_TICKS = 20
 
+/** v1 VfxTimeline.kt:99: an along_path sweep plays at most this many points per tick. */
+private const val MAX_PATH_POINTS = 24
+
 private fun OpContext.passes(op: SkillOp): Boolean = op.whenExpr?.let { values.bool(it) } ?: true
 
 private fun OpContext.text(v: Value<String>?, default: String): String = v?.let { values.text(it) } ?: default
@@ -53,7 +56,7 @@ internal class MeshExecutor(private val rt: PresentationRuntime) : OpExecutor<Vi
         // The node carries the model's points (scaled to blocks), so `<mesh id>.tip` follows the swing.
         val pts = rt.points.points(op.item, op.part).map { FramePoint(live.node, it.name, it.offset * scale, it.axis) }
         val pose = rt.spawnNode(s, live, op.frame, pts) ?: return ctx.host.fail(op.id, "mesh: parent frame '${op.frame}' is not in the frame tree")
-        live.handle = ctx.ports.visuals.spawnMesh(rt.info.owner(ctx.cast), op.item, op.part, pose, op.brightness)
+        live.handle = ctx.ports.visuals.spawnMesh(rt.info.owner(ctx.cast), op.item, op.part, pose, op.brightness, op.glow)
         rt.driverOf(s, op.frame)?.changed(op.id, pose)
         rt.register(s, live)
     }
@@ -74,7 +77,7 @@ internal class PlateExecutor(private val rt: PresentationRuntime) : OpExecutor<V
                 op.at?.let { ctx.values.vec3(it) } ?: Vec3.ZERO, op.turn?.let { turn(ctx.values.vec3(it)) } ?: Quaternion.IDENTITY,
             )
             val pose = rt.spawnNode(s, live, par) ?: run { ctx.host.fail(op.id, "plate: parent frame '$par' is not in the frame tree"); return@repeated null }
-            live.handle = ctx.ports.visuals.spawnPlate(rt.info.owner(ctx.cast), op.sprite, ctx.values.num(op.alpha), pose, op.brightness)
+            live.handle = ctx.ports.visuals.spawnPlate(rt.info.owner(ctx.cast), op.sprite, ctx.values.num(op.alpha), pose, op.brightness, op.glow)
             if (tint != null) ctx.ports.visuals.setPlateFrame(live.handle, 0, tint)
             rt.register(s, live)
             live
@@ -94,7 +97,7 @@ internal class BlockExecutor(private val rt: PresentationRuntime) : OpExecutor<V
                 op.at?.let { ctx.values.vec3(it) } ?: Vec3.ZERO, op.turn?.let { turn(ctx.values.vec3(it)) } ?: Quaternion.IDENTITY,
             )
             val pose = rt.spawnNode(s, live, par) ?: run { ctx.host.fail(op.id, "block: parent frame '$par' is not in the frame tree"); return@repeated null }
-            live.handle = ctx.ports.visuals.spawnBlock(rt.info.owner(ctx.cast), op.block, pose, op.brightness)
+            live.handle = ctx.ports.visuals.spawnBlock(rt.info.owner(ctx.cast), op.block, pose, op.brightness, op.glow)
             rt.register(s, live)
             live
         }
@@ -114,7 +117,7 @@ internal class QuadExecutor(private val rt: PresentationRuntime) : OpExecutor<Vi
             )
             val pose = rt.spawnNode(s, live, par) ?: run { ctx.host.fail(op.id, "quad: parent frame '$par' is not in the frame tree"); return@repeated null }
             live.handle = ctx.ports.visuals.spawnQuad(
-                rt.info.owner(ctx.cast), ctx.values.text(op.color), ctx.values.num(op.alpha), op.text, op.shadow, op.seeThrough, pose, op.brightness,
+                rt.info.owner(ctx.cast), ctx.values.text(op.color), ctx.values.num(op.alpha), op.text, op.shadow, op.seeThrough, pose, op.brightness, op.glow,
             )
             rt.register(s, live)
             live
@@ -192,8 +195,8 @@ internal class EmitExecutor(private val rt: PresentationRuntime) : OpExecutor<Fx
         val spacing = op.spacing?.let { ctx.values.num(it) } ?: 0.0
         val sweep = if (spacing > 0.0) rt.velocityOf(s, op.at.frame) else Vec3(0.0, 0.0, 0.0)
         val distance = sweep.length()
-        // One play per `spacing` blocks along the segment covered since the last tick, ending at `at`.
-        val steps = if (distance > spacing && spacing > 0.0) kotlin.math.ceil(distance / spacing).toInt() else 1
+        // One play per `spacing` blocks along the segment covered since the last tick, ending at `at`. (at most 24, v1 VfxTimeline.kt:99 MAX_PATH_POINTS)
+        val steps = if (distance > spacing && spacing > 0.0) kotlin.math.ceil(distance / spacing).toInt().coerceAtMost(MAX_PATH_POINTS) else 1
         for (i in 1..steps) {
             val where = if (steps == 1) at else at - sweep * (1.0 - i.toDouble() / steps)
             ctx.ports.particles.emit(

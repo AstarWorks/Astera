@@ -1267,9 +1267,24 @@ class Conv:
             vfxelem.display_element(self, el, fid, where, delay, when, dur, removes)
             return
         if kt == "item":
-            op = {"id": eid, "op": "mesh", "frame": fid, "item": kind["item"]}
-            if kind.get("item_model") or kind.get("display_mode"):
-                self.present("item element item_model / display_mode (mesh has item + part only)", short({k: kind.get(k) for k in ("item_model", "display_mode")}, 60))
+            # v1 PaperDisplayEntityGateway.kt:156-166: ItemStack(material) + itemModel override, transform itemMode(displayMode),
+            # default FIXED (VfxDefinition.kt:254). v2 mesh: a pack model by item + part, a vanilla material as minecraft:<item>.
+            if kind.get("display_mode", "fixed") != "fixed":
+                self.present("item element display_mode other than fixed", str(kind.get("display_mode")))
+            if kind.get("item_model"):
+                m_item, m_part = item_model_part(kind["item_model"])
+                if m_item is None:
+                    self.present("item element item_model has no content/frames part", str(kind["item_model"]))
+                    m_item, m_part = kind["item"], None
+                op = {"id": eid, "op": "mesh", "frame": fid, "item": m_item}
+                if m_part:
+                    op["part"] = m_part
+            else:
+                op = {"id": eid, "op": "mesh", "frame": fid, "item": "minecraft:" + str(kind["item"])}
+            if "brightness" in el:
+                op["brightness"] = int(el["brightness"])
+            if "glow_color" in el:
+                op["glow"] = vfxelem.glow_hex(el["glow_color"], self)
         elif kt == "particle":
             at_frame = fid
             moving = [k for k in el.get("keyframes", []) if "translate" in k]
@@ -1280,8 +1295,11 @@ class Conv:
                 self.p(where, at, self._w({"id": eid + "_atrk", "op": "track", "target": at_frame, "space": fid,
                                            "keys": self.keys([{"t": k["t"], "translate": k["translate"], **({"ease": k["ease"]} if "ease" in k else {})} for k in moving])}, when))
             op = emit_op(eid, at_frame, kind["particle_id"], 1)
-            if "along_path" in kind:
-                self.present("particle along_path", short(kind["along_path"], 60))
+            if kind.get("along_path"):
+                # v1 VfxTimeline.kt:581-615 pathBetween(prev, cur, 0.4): ceil(dist/0.4) points (max 24), ending at the current one.
+                if int(kind.get("every_ticks", 1)) != 1:
+                    self.present("particle along_path with every_ticks > 1 (v2 emit sweeps one tick)", short(kind, 60))
+                op["spacing"] = 0.4
         elif kt in ("thin_line", "dotted_line"):
             a = self.pframe(fid, kind["from"], "p")
             b = self.pframe(fid, kind["to"], "p")
@@ -1298,7 +1316,26 @@ class Conv:
                 rows = rows[::-1]
             op["times"] = len(rows)
             op["shift"] = vfxelem.cel_table([r[0] for r in rows])
+        jit = el.get("jitter") if kt == "particle" else None
+        if jit and float(jit.get("position", 0.0)):
+            # v1 VfxTimeline.kt:187-215: per-slot position draws x y z of seven, constant over the slot's life.
+            pj = num_s(float(jit["position"]))
+            stream = "j_" + eid
+            ks = ("7.0*i+%d.0" if multi else "%d.0")
+            draws = ", ".join("(rand('%s', %s)*2.0-1.0)*%s" % (stream, ks % d, pj) for d in range(3))
+            base = op.get("shift")
+            if isinstance(base, str):
+                op["shift"] = "= (%s) + vec(%s)" % (base[2:], draws)
+            elif base:
+                op["shift"] = "= vec(%s, %s, %s) + vec(%s)" % (base[0], base[1], base[2], draws)
+            else:
+                op["shift"] = "= vec(%s)" % draws
         skip = ("formation", "count") if kt == "particle" else ()
+        if kt == "particle":
+            # v1 VfxTimeline.kt:593-615 builds a VfxParticleEmission without brightness: a particle element's brightness is a no-op.
+            skip += ("jitter", "brightness")
+        if kt == "item":
+            skip += ("brightness", "glow_color")
         for k in ("group_keyframes", "target_track", "formation", "count", "jitter", "oscillate", "lane", "emit",
                   "slot_lifetime_ticks", "glow_color", "target_line", "respect_hit_stop", "brightness"):
             if k in el and k not in skip:
@@ -1430,6 +1467,23 @@ def _custom_count(pid):
             with open(path) as fh:
                 _PARTICLE_COUNTS[pid] = int((yaml.safe_load(fh) or {}).get("count", 1))
     return _PARTICLE_COUNTS[pid]
+
+
+def item_model_part(model):
+    """v1 item_model `astera:<id>` -> (item, part) of the content/frames table that declares that pack model, else (None, None)."""
+    d = os.path.join(REPO, "content", "frames")
+    for fn in sorted(os.listdir(d)):
+        if not fn.endswith(".yaml"):
+            continue
+        parts = (yaml.safe_load(open(os.path.join(d, fn))) or {}).get("parts") or {}
+        for name, pt in parts.items():
+            if isinstance(pt, dict) and pt.get("model") == model:
+                return fn[:-5], (None if name == "held" else name)
+    return None, None
+
+
+def num_s(x):
+    return repr(round(float(x), 5))
 
 
 def emit_op(oid, at, pid, v1_count):

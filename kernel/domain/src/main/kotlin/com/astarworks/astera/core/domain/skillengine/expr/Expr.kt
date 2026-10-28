@@ -94,6 +94,8 @@ public class ExprEnv(
     public val frames: FrameLookup,
     public val seed: Long = 0L,
     public val host: ExprHost? = null,
+    /** The cast seed without the tick: `rand(stream, k)` is constant for a cast (v1 per-instance random, VfxTimeline.kt:178). */
+    public val castSeed: Long = seed,
 )
 
 public sealed interface ExprError {

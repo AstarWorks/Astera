@@ -940,7 +940,7 @@ internal class CastInstance(
             vars["contact.rel_velocity"] = ExprValue.Vec3(c.relVelocity)
             vars["contact.block"] = ExprValue.Str(c.part ?: "")
         }
-        return ExprEnv(vars, frameLookup, request.seed xor (tick.toLong() shl 24), exprHost)
+        return ExprEnv(vars, frameLookup, request.seed xor (tick.toLong() shl 24), exprHost, request.seed)
     }
 
     private val frameLookup = object : FrameLookup {
