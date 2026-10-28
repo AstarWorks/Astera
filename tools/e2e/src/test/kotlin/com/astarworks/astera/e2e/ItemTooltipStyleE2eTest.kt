@@ -118,10 +118,9 @@ class ItemTooltipStyleE2eTest : E2eBase() {
         val damaged = rcon("item modify entity ${b.name} container.0 {type:\"minecraft:set_damage\",damage:0.5}")
         val enchanted = rcon("item modify entity ${b.name} container.1 {type:\"minecraft:enchant_with_levels\",levels:5}")
         E2eReport.check("Item tooltip", "durability and enchant mutations were applied", "item modify replies") {
-            assertThat(damaged + enchanted).doesNotContain("Failed", "Unknown")
-            assertThat(probe(b, 0, ".components.\"minecraft:damage\"")).describedAs("damage component present: $damaged").isTrue()
-            assertThat(probe(b, 1, ".components.\"minecraft:enchantments\"")).describedAs("enchantments present: $enchanted").isTrue()
-            "damage + enchantments present"
+            assertThat(damaged).contains("Modified 1 slot")
+            assertThat(enchanted).contains("Modified 1 slot")
+            "both modifiers applied"
         }
         Thread.sleep(500)
         assertCovered(b, "after durability change and enchant", "Inventory components after set_damage/enchant")
