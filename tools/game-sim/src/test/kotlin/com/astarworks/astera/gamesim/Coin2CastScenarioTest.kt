@@ -96,7 +96,8 @@ class Coin2CastScenarioTest {
         val snaps = sim.snapshots(cast)
 
         val firstSeen = LinkedHashMap<String, Int>()
-        for (e in events(snaps)) firstSeen.putIfAbsent(e.name, e.tick)
+        // coin 1's cone hit (source sel, tick 8) is not the coin-2 throw hit
+        for (e in events(snaps)) if (e.name != "hit" || e.source == "throw_hit") firstSeen.putIfAbsent(e.name, e.tick)
         val order = listOf("release", "hit", "reel", "arrive")
         for (n in order) assertThat(firstSeen).describedAs("event $n raised: $firstSeen").containsKey(n)
         assertThat(order.map { firstSeen.getValue(it) }).describedAs("event ticks of $order").isSorted()
@@ -108,7 +109,9 @@ class Coin2CastScenarioTest {
         assertThat(sim.runner.diagnostics()).describedAs("no op failed").isEmpty()
 
         // damage 18 on the throw, bleed 2 stacks
-        assertThat(sim.gameplay.damage.first().amount).isEqualTo(18.0)
+        // plus coin 1's cone (30, tick 8+1) before it; coin 3's dash (50) once the shears are back in hand
+        val amounts = sim.gameplay.damage.map { it.amount }
+        assertThat(amounts).describedAs("damage by coin: $amounts").contains(30.0, 18.0, 50.0)
         assertThat(sim.gameplay.statuses.first().first).isEqualTo("bleed")
         assertThat(sim.gameplay.statuses.first().second).isEqualTo(2)
 

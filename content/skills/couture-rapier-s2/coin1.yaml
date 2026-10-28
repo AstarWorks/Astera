@@ -1,0 +1,620 @@
+# Coin 1 (t8 white crescent ring + thin line, 30 dmg on whoever stands in the 30 deg / 9 block cone), haze, arm-raise trail and the overhead spin slashes.
+# Ported from the v1 skill (d41b82f1e) with tools/skill-convert; the file composes into couture-rapier-s2 with skill.yaml and look.yaml (strategic merge by id).
+apiVersion: "astera/v2"
+kind: Skill
+id: couture-rapier-s2
+frames:
+  - {id: fx1_couture_s2_rig, kind: body, parent: caster}
+  - {id: fx3_couture_s2_coin1, kind: body, parent: caster}
+  - {id: fx4_couture_s2_hit1, kind: body, parent: world, inactive: true}
+  - {id: fx6_couture_s2_haze, kind: body, parent: caster}
+  - {id: fx7_couture_s2_trail, kind: body, parent: caster}
+  - {id: snap, kind: body, parent: world, inactive: true}
+gameplay:
+  params: {c1_arc_deg: 30, c1_reach: 9, c1_dmg: 30}
+  timeline:
+    - id: c1_t8
+      at: 8
+      do:
+        - {id: place_snap, op: place, frame: snap, like: caster}
+        - {id: sel, op: hit, frames: [snap], sector: {frame: snap, forward: snap.forward, left: snap.left, angle_deg: "${c1_arc_deg}", range: "${c1_reach}", height: 2.0}, max_count: 1, window: once}
+  "on":
+    hit:
+      - id: c1_delay
+        op: delay
+        after: 1
+        do:
+          - {id: c1_damage, op: damage, components: [{kind: physical, amount: "${c1_dmg}"}], target: victim, ignore_invulnerability: true}
+        when: "= event.source == 'sel'"
+      - {id: c1_place_hit, op: place, frame: fx4_couture_s2_hit1, like: enemy, when: "= event.source == 'sel'"}
+      - {id: c1_hit_end, op: schedule, after: 6, event: c1_hit_end, when: "= event.source == 'sel'"}
+presentation:
+  timeline:
+    - id: fx0
+      at: 0
+      do:
+        - {id: snd_5, op: sound, sound: entity.player.attack.sweep, at: caster, volume: 0.5, pitch: 0.6}
+        - {id: snd_6, op: sound, sound: item.armor.equip_chain, at: caster, volume: 0.6, pitch: 1.4}
+    - id: fx3
+      at: 3
+      do:
+        - {id: fx6_couture_s2_haze_haze_hip, op: plate, parent: fx6_couture_s2_haze, face: {viewer: center}, sprite: couture-s2-haze-soft}
+        - id: fx6_couture_s2_haze_haze_hip_trk
+          op: track
+          target: fx6_couture_s2_haze_haze_hip
+          space: fx6_couture_s2_haze
+          keys:
+            - {t: 0, offset: [0.0, 0.9, -0.1], rotation: [0, 0, 0], scale: [0.4, 0.4, 1.0]}
+            - {t: 3, offset: [0.0, 0.9, -0.1], rotation: [0, 0, 0], scale: [0.8, 0.8, 1.0]}
+            - {t: 8, offset: [0.0, 0.9, -0.1], rotation: [0, 0, 0], scale: [0.8, 0.8, 1.0]}
+        - {id: snd_7, op: sound, sound: block.amethyst_block.resonate, at: caster, volume: 0.5, pitch: 1.6}
+    - id: fx7
+      at: 7
+      do:
+        - {id: fx3_couture_s2_coin1_sp_0, op: emit, at: fx3_couture_s2_coin1, particle: couture-s2-p-white, count: 1}
+        - {id: fx3_couture_s2_coin1_sp_1, op: emit, at: fx3_couture_s2_coin1, particle: couture-s2-p-white, count: 1}
+        - {id: fx3_couture_s2_coin1_sp_2, op: emit, at: fx3_couture_s2_coin1, particle: couture-s2-p-white, count: 1}
+        - {id: fx3_couture_s2_coin1_sp_3, op: emit, at: fx3_couture_s2_coin1, particle: couture-s2-p-white, count: 1}
+        - {id: fx3_couture_s2_coin1_sp_4, op: emit, at: fx3_couture_s2_coin1, particle: couture-s2-p-white, count: 1}
+        - {id: fx3_couture_s2_coin1_or_0, op: emit, at: fx3_couture_s2_coin1, particle: couture-s2-p-orange, count: 1}
+        - {id: fx3_couture_s2_coin1_or_1, op: emit, at: fx3_couture_s2_coin1, particle: couture-s2-p-orange, count: 1}
+        - {id: fx3_couture_s2_coin1_streak_0, op: plate, parent: fx3_couture_s2_coin1, face: {viewer: center}, sprite: couture-s2-streak}
+        - id: fx3_couture_s2_coin1_streak_0_trk
+          op: track
+          target: fx3_couture_s2_coin1_streak_0
+          space: fx3_couture_s2_coin1
+          keys:
+            - {t: 0, offset: [0.0, 0.9, 0.8], rotation: [0, 0, 6], scale: [0.2, 0.2, 1.0]}
+            - {t: 1, offset: [0.0, 0.9, 2.0], rotation: [0, 0, 6], scale: [0.5, 0.2, 1.0]}
+            - {t: 5, offset: [0.0, 1.0, 3.4], rotation: [0, 0, 6], scale: [0.3, 0.12, 1.0]}
+        - {id: fx3_couture_s2_coin1_streak_3, op: plate, parent: fx3_couture_s2_coin1, face: {viewer: center}, sprite: couture-s2-streak}
+        - id: fx3_couture_s2_coin1_streak_3_trk
+          op: track
+          target: fx3_couture_s2_coin1_streak_3
+          space: fx3_couture_s2_coin1
+          keys:
+            - {t: 0, offset: [0.0, 2.1, 1.2], rotation: [0, 0, -8], scale: [0.2, 0.2, 1.0]}
+            - {t: 1, offset: [0.0, 2.1, 2.4], rotation: [0, 0, -8], scale: [0.5, 0.2, 1.0]}
+            - {t: 5, offset: [0.0, 2.2, 3.8], rotation: [0, 0, -8], scale: [0.3, 0.12, 1.0]}
+        - {id: fx3_couture_s2_coin1_core, op: plate, parent: fx3_couture_s2_coin1, face: {viewer: center}, sprite: couture-s2-crescent-core}
+        - id: fx3_couture_s2_coin1_core_trk
+          op: track
+          target: fx3_couture_s2_coin1_core
+          space: fx3_couture_s2_coin1
+          keys:
+            - {t: 0, offset: [0.0, 1.0, -0.2], rotation: [0, 0, 196], scale: [0.5, 0.4, 1.0]}
+            - {t: 1, offset: [0.0, 1.0, 0.5], rotation: [0, 0, 190], scale: [0.8, 0.62, 1.0]}
+            - {t: 4, offset: [0.0, 1.0, 0.3], rotation: [0, 0, 186], scale: [0.74, 0.62, 1.0]}
+            - {t: 6, offset: [0.0, 1.0, -1.1], rotation: [0, 0, 176], scale: [0.16, 0.5, 1.0]}
+            - {t: 7, offset: [0.0, 1.0, -1.5], rotation: [0, 0, 174], scale: [0.06, 0.4, 1.0]}
+    - id: fx8
+      at: 8
+      do:
+        - {id: fx3_couture_s2_coin1_streak_1, op: plate, parent: fx3_couture_s2_coin1, face: {viewer: center}, sprite: couture-s2-streak}
+        - id: fx3_couture_s2_coin1_streak_1_trk
+          op: track
+          target: fx3_couture_s2_coin1_streak_1
+          space: fx3_couture_s2_coin1
+          keys:
+            - {t: 0, offset: [0.0, 1.3, 1.4], rotation: [0, 0, -4], scale: [0.2, 0.2, 1.0]}
+            - {t: 1, offset: [0.0, 1.3, 2.6], rotation: [0, 0, -4], scale: [0.5, 0.2, 1.0]}
+            - {t: 5, offset: [0.0, 1.4, 4.0], rotation: [0, 0, -4], scale: [0.3, 0.12, 1.0]}
+        - {id: fx3_couture_s2_coin1_streak_4, op: plate, parent: fx3_couture_s2_coin1, face: {viewer: center}, sprite: couture-s2-streak}
+        - id: fx3_couture_s2_coin1_streak_4_trk
+          op: track
+          target: fx3_couture_s2_coin1_streak_4
+          space: fx3_couture_s2_coin1
+          keys:
+            - {t: 0, offset: [0.0, 2.5, 0.9], rotation: [0, 0, 3], scale: [0.2, 0.2, 1.0]}
+            - {t: 1, offset: [0.0, 2.5, 2.1], rotation: [0, 0, 3], scale: [0.5, 0.2, 1.0]}
+            - {t: 5, offset: [0.0, 2.6, 3.5], rotation: [0, 0, 3], scale: [0.3, 0.12, 1.0]}
+        - {id: fx3_couture_s2_coin1_petal_0, op: plate, parent: fx3_couture_s2_coin1, face: {viewer: center}, sprite: couture-s2-petal-spark}
+        - id: fx3_couture_s2_coin1_petal_0_trk
+          op: track
+          target: fx3_couture_s2_coin1_petal_0
+          space: fx3_couture_s2_coin1
+          keys:
+            - {t: 0, offset: [-0.65, 0.65, 1.68], rotation: [0, 0, 309], scale: [0.026, 0.026, 1.0]}
+            - {t: 1, offset: [-0.65, 0.65, 1.88], rotation: [0, 0, 349], scale: [0.064, 0.051, 1.0]}
+            - {t: 5, offset: [-0.65, 0.76, 3.52], rotation: [0, 0, 509], scale: [0.045, 0.032, 1.0]}
+        - {id: fx3_couture_s2_coin1_petal_5, op: plate, parent: fx3_couture_s2_coin1, face: {viewer: center}, sprite: couture-s2-petal-spark}
+        - id: fx3_couture_s2_coin1_petal_5_trk
+          op: track
+          target: fx3_couture_s2_coin1_petal_5
+          space: fx3_couture_s2_coin1
+          keys:
+            - {t: 0, offset: [0.43, 0.47, 0.15], rotation: [0, 0, 296], scale: [0.028, 0.028, 1.0]}
+            - {t: 1, offset: [0.43, 0.47, 0.35], rotation: [0, 0, 336], scale: [0.07, 0.056, 1.0]}
+            - {t: 5, offset: [-0.17, 1.05, 1.97], rotation: [0, 0, 496], scale: [0.049, 0.035, 1.0]}
+        - {id: fx3_couture_s2_coin1_petal_10, op: plate, parent: fx3_couture_s2_coin1, face: {viewer: center}, sprite: couture-s2-petal-spark}
+        - id: fx3_couture_s2_coin1_petal_10_trk
+          op: track
+          target: fx3_couture_s2_coin1_petal_10
+          space: fx3_couture_s2_coin1
+          keys:
+            - {t: 0, offset: [0.34, 0.91, 1.95], rotation: [0, 0, 187], scale: [0.033, 0.033, 1.0]}
+            - {t: 1, offset: [0.34, 0.91, 2.15], rotation: [0, 0, 227], scale: [0.083, 0.066, 1.0]}
+            - {t: 5, offset: [0.8, 1.07, 3.79], rotation: [0, 0, 387], scale: [0.058, 0.041, 1.0]}
+        - {id: fx3_couture_s2_coin1_petal_15, op: plate, parent: fx3_couture_s2_coin1, face: {viewer: center}, sprite: couture-s2-petal-spark}
+        - id: fx3_couture_s2_coin1_petal_15_trk
+          op: track
+          target: fx3_couture_s2_coin1_petal_15
+          space: fx3_couture_s2_coin1
+          keys:
+            - {t: 0, offset: [-0.81, 0.5, 3.46], rotation: [0, 0, 61], scale: [0.036, 0.036, 1.0]}
+            - {t: 1, offset: [-0.81, 0.5, 3.66], rotation: [0, 0, 101], scale: [0.09, 0.072, 1.0]}
+            - {t: 5, offset: [-0.27, 0.69, 5.43], rotation: [0, 0, 261], scale: [0.063, 0.045, 1.0]}
+        - {id: fx3_couture_s2_coin1_petal_20, op: plate, parent: fx3_couture_s2_coin1, face: {viewer: center}, sprite: couture-s2-petal-spark}
+        - id: fx3_couture_s2_coin1_petal_20_trk
+          op: track
+          target: fx3_couture_s2_coin1_petal_20
+          space: fx3_couture_s2_coin1
+          keys:
+            - {t: 0, offset: [-0.53, 1.31, 3.21], rotation: [0, 0, 42], scale: [0.027, 0.027, 1.0]}
+            - {t: 1, offset: [-0.53, 1.31, 3.41], rotation: [0, 0, 82], scale: [0.069, 0.055, 1.0]}
+            - {t: 5, offset: [-0.48, 1.71, 4.58], rotation: [0, 0, 242], scale: [0.048, 0.034, 1.0]}
+        - {id: fx3_couture_s2_coin1_petal_25, op: plate, parent: fx3_couture_s2_coin1, face: {viewer: center}, sprite: couture-s2-petal-spark}
+        - id: fx3_couture_s2_coin1_petal_25_trk
+          op: track
+          target: fx3_couture_s2_coin1_petal_25
+          space: fx3_couture_s2_coin1
+          keys:
+            - {t: 0, offset: [0.2, 0.96, -0.33], rotation: [0, 0, 96], scale: [0.025, 0.025, 1.0]}
+            - {t: 1, offset: [0.2, 0.96, -0.13], rotation: [0, 0, 136], scale: [0.062, 0.049, 1.0]}
+            - {t: 5, offset: [-0.31, 1.26, 1.28], rotation: [0, 0, 296], scale: [0.043, 0.031, 1.0]}
+        - {id: fx3_couture_s2_coin1_petal_30, op: plate, parent: fx3_couture_s2_coin1, face: {viewer: center}, sprite: couture-s2-petal-spark}
+        - id: fx3_couture_s2_coin1_petal_30_trk
+          op: track
+          target: fx3_couture_s2_coin1_petal_30
+          space: fx3_couture_s2_coin1
+          keys:
+            - {t: 0, offset: [0.33, 1.18, -0.47], rotation: [0, 0, 52], scale: [0.034, 0.034, 1.0]}
+            - {t: 1, offset: [0.33, 1.18, -0.27], rotation: [0, 0, 92], scale: [0.086, 0.069, 1.0]}
+            - {t: 5, offset: [0.46, 1.41, 0.34], rotation: [0, 0, 252], scale: [0.06, 0.043, 1.0]}
+    - id: fx9
+      at: 9
+      do:
+        - {id: fx3_couture_s2_coin1_streak_2, op: plate, parent: fx3_couture_s2_coin1, face: {viewer: center}, sprite: couture-s2-streak}
+        - id: fx3_couture_s2_coin1_streak_2_trk
+          op: track
+          target: fx3_couture_s2_coin1_streak_2
+          space: fx3_couture_s2_coin1
+          keys:
+            - {t: 0, offset: [0.0, 1.7, 0.6], rotation: [0, 0, 10], scale: [0.2, 0.2, 1.0]}
+            - {t: 1, offset: [0.0, 1.7, 1.8], rotation: [0, 0, 10], scale: [0.5, 0.2, 1.0]}
+            - {t: 5, offset: [0.0, 1.8, 3.2], rotation: [0, 0, 10], scale: [0.3, 0.12, 1.0]}
+        - {id: fx3_couture_s2_coin1_petal_1, op: plate, parent: fx3_couture_s2_coin1, face: {viewer: center}, sprite: couture-s2-petal-spark}
+        - id: fx3_couture_s2_coin1_petal_1_trk
+          op: track
+          target: fx3_couture_s2_coin1_petal_1
+          space: fx3_couture_s2_coin1
+          keys:
+            - {t: 0, offset: [-0.83, 0.98, 2.11], rotation: [0, 0, 216], scale: [0.027, 0.027, 1.0]}
+            - {t: 1, offset: [-0.83, 0.98, 2.31], rotation: [0, 0, 256], scale: [0.068, 0.054, 1.0]}
+            - {t: 5, offset: [-0.88, 1.43, 3.36], rotation: [0, 0, 416], scale: [0.048, 0.034, 1.0]}
+        - {id: fx3_couture_s2_coin1_petal_6, op: plate, parent: fx3_couture_s2_coin1, face: {viewer: center}, sprite: couture-s2-petal-spark}
+        - id: fx3_couture_s2_coin1_petal_6_trk
+          op: track
+          target: fx3_couture_s2_coin1_petal_6
+          space: fx3_couture_s2_coin1
+          keys:
+            - {t: 0, offset: [0.71, 0.6, 3.51], rotation: [0, 0, 293], scale: [0.034, 0.034, 1.0]}
+            - {t: 1, offset: [0.71, 0.6, 3.71], rotation: [0, 0, 333], scale: [0.085, 0.068, 1.0]}
+            - {t: 5, offset: [0.71, 1.15, 4.47], rotation: [0, 0, 493], scale: [0.059, 0.042, 1.0]}
+        - {id: fx3_couture_s2_coin1_petal_11, op: plate, parent: fx3_couture_s2_coin1, face: {viewer: center}, sprite: couture-s2-petal-spark}
+        - id: fx3_couture_s2_coin1_petal_11_trk
+          op: track
+          target: fx3_couture_s2_coin1_petal_11
+          space: fx3_couture_s2_coin1
+          keys:
+            - {t: 0, offset: [0.13, 1.48, 1.39], rotation: [0, 0, 221], scale: [0.026, 0.026, 1.0]}
+            - {t: 1, offset: [0.13, 1.48, 1.59], rotation: [0, 0, 261], scale: [0.066, 0.052, 1.0]}
+            - {t: 5, offset: [-0.07, 1.98, 2.21], rotation: [0, 0, 421], scale: [0.046, 0.033, 1.0]}
+        - {id: fx3_couture_s2_coin1_petal_16, op: plate, parent: fx3_couture_s2_coin1, face: {viewer: center}, sprite: couture-s2-petal-spark}
+        - id: fx3_couture_s2_coin1_petal_16_trk
+          op: track
+          target: fx3_couture_s2_coin1_petal_16
+          space: fx3_couture_s2_coin1
+          keys:
+            - {t: 0, offset: [-0.52, 0.23, -0.44], rotation: [0, 0, 181], scale: [0.03, 0.03, 1.0]}
+            - {t: 1, offset: [-0.52, 0.23, -0.24], rotation: [0, 0, 221], scale: [0.074, 0.059, 1.0]}
+            - {t: 5, offset: [0.04, 0.64, 0.82], rotation: [0, 0, 381], scale: [0.052, 0.037, 1.0]}
+        - {id: fx3_couture_s2_coin1_petal_21, op: plate, parent: fx3_couture_s2_coin1, face: {viewer: center}, sprite: couture-s2-petal-spark}
+        - id: fx3_couture_s2_coin1_petal_21_trk
+          op: track
+          target: fx3_couture_s2_coin1_petal_21
+          space: fx3_couture_s2_coin1
+          keys:
+            - {t: 0, offset: [0.06, 1.43, 1.77], rotation: [0, 0, 223], scale: [0.035, 0.035, 1.0]}
+            - {t: 1, offset: [0.06, 1.43, 1.97], rotation: [0, 0, 263], scale: [0.087, 0.07, 1.0]}
+            - {t: 5, offset: [0.66, 1.54, 3.7], rotation: [0, 0, 423], scale: [0.061, 0.044, 1.0]}
+        - {id: fx3_couture_s2_coin1_petal_26, op: plate, parent: fx3_couture_s2_coin1, face: {viewer: center}, sprite: couture-s2-petal-spark}
+        - id: fx3_couture_s2_coin1_petal_26_trk
+          op: track
+          target: fx3_couture_s2_coin1_petal_26
+          space: fx3_couture_s2_coin1
+          keys:
+            - {t: 0, offset: [-0.85, 0.26, 3.04], rotation: [0, 0, 38], scale: [0.031, 0.031, 1.0]}
+            - {t: 1, offset: [-0.85, 0.26, 3.24], rotation: [0, 0, 78], scale: [0.077, 0.061, 1.0]}
+            - {t: 5, offset: [-0.88, 0.64, 4.59], rotation: [0, 0, 238], scale: [0.054, 0.038, 1.0]}
+        - {id: fx3_couture_s2_coin1_petal_31, op: plate, parent: fx3_couture_s2_coin1, face: {viewer: center}, sprite: couture-s2-petal-spark}
+        - id: fx3_couture_s2_coin1_petal_31_trk
+          op: track
+          target: fx3_couture_s2_coin1_petal_31
+          space: fx3_couture_s2_coin1
+          keys:
+            - {t: 0, offset: [-0.04, 1.36, 1.46], rotation: [0, 0, 348], scale: [0.03, 0.03, 1.0]}
+            - {t: 1, offset: [-0.04, 1.36, 1.66], rotation: [0, 0, 388], scale: [0.074, 0.059, 1.0]}
+            - {t: 5, offset: [0.12, 1.9, 2.64], rotation: [0, 0, 548], scale: [0.052, 0.037, 1.0]}
+        - {id: snd_8, op: sound, sound: entity.player.attack.sweep, at: caster, volume: 0.9, pitch: 1.3}
+        - {id: snd_9, op: sound, sound: entity.sheep.shear, at: caster, volume: 1.0, pitch: 1.0}
+    - id: fx10
+      at: 10
+      do:
+        - {id: fx3_couture_s2_coin1_petal_2, op: plate, parent: fx3_couture_s2_coin1, face: {viewer: center}, sprite: couture-s2-petal-spark}
+        - id: fx3_couture_s2_coin1_petal_2_trk
+          op: track
+          target: fx3_couture_s2_coin1_petal_2
+          space: fx3_couture_s2_coin1
+          keys:
+            - {t: 0, offset: [0.01, 0.3, 0.62], rotation: [0, 0, 196], scale: [0.04, 0.04, 1.0]}
+            - {t: 1, offset: [0.01, 0.3, 0.82], rotation: [0, 0, 236], scale: [0.099, 0.08, 1.0]}
+            - {t: 5, offset: [0.34, 0.69, 2.53], rotation: [0, 0, 396], scale: [0.07, 0.05, 1.0]}
+        - {id: fx3_couture_s2_coin1_petal_7, op: plate, parent: fx3_couture_s2_coin1, face: {viewer: center}, sprite: couture-s2-petal-spark}
+        - id: fx3_couture_s2_coin1_petal_7_trk
+          op: track
+          target: fx3_couture_s2_coin1_petal_7
+          space: fx3_couture_s2_coin1
+          keys:
+            - {t: 0, offset: [-0.18, 0.72, 3.83], rotation: [0, 0, 88], scale: [0.043, 0.043, 1.0]}
+            - {t: 1, offset: [-0.18, 0.72, 4.03], rotation: [0, 0, 128], scale: [0.107, 0.086, 1.0]}
+            - {t: 5, offset: [-0.09, 0.86, 5.39], rotation: [0, 0, 288], scale: [0.075, 0.053, 1.0]}
+        - {id: fx3_couture_s2_coin1_petal_12, op: plate, parent: fx3_couture_s2_coin1, face: {viewer: center}, sprite: couture-s2-petal-spark}
+        - id: fx3_couture_s2_coin1_petal_12_trk
+          op: track
+          target: fx3_couture_s2_coin1_petal_12
+          space: fx3_couture_s2_coin1
+          keys:
+            - {t: 0, offset: [0.57, 0.51, 0.54], rotation: [0, 0, 28], scale: [0.025, 0.025, 1.0]}
+            - {t: 1, offset: [0.57, 0.51, 0.74], rotation: [0, 0, 68], scale: [0.061, 0.049, 1.0]}
+            - {t: 5, offset: [0.59, 0.76, 1.71], rotation: [0, 0, 228], scale: [0.043, 0.031, 1.0]}
+        - {id: fx3_couture_s2_coin1_petal_17, op: plate, parent: fx3_couture_s2_coin1, face: {viewer: center}, sprite: couture-s2-petal-spark}
+        - id: fx3_couture_s2_coin1_petal_17_trk
+          op: track
+          target: fx3_couture_s2_coin1_petal_17
+          space: fx3_couture_s2_coin1
+          keys:
+            - {t: 0, offset: [0.83, 0.52, 1.76], rotation: [0, 0, 215], scale: [0.033, 0.033, 1.0]}
+            - {t: 1, offset: [0.83, 0.52, 1.96], rotation: [0, 0, 255], scale: [0.083, 0.066, 1.0]}
+            - {t: 5, offset: [0.37, 0.77, 3.46], rotation: [0, 0, 415], scale: [0.058, 0.041, 1.0]}
+        - {id: fx3_couture_s2_coin1_petal_22, op: plate, parent: fx3_couture_s2_coin1, face: {viewer: center}, sprite: couture-s2-petal-spark}
+        - id: fx3_couture_s2_coin1_petal_22_trk
+          op: track
+          target: fx3_couture_s2_coin1_petal_22
+          space: fx3_couture_s2_coin1
+          keys:
+            - {t: 0, offset: [0.74, 0.88, 1.96], rotation: [0, 0, 153], scale: [0.025, 0.025, 1.0]}
+            - {t: 1, offset: [0.74, 0.88, 2.16], rotation: [0, 0, 193], scale: [0.063, 0.051, 1.0]}
+            - {t: 5, offset: [0.79, 1.3, 2.84], rotation: [0, 0, 353], scale: [0.044, 0.032, 1.0]}
+        - {id: fx3_couture_s2_coin1_petal_27, op: plate, parent: fx3_couture_s2_coin1, face: {viewer: center}, sprite: couture-s2-petal-spark}
+        - id: fx3_couture_s2_coin1_petal_27_trk
+          op: track
+          target: fx3_couture_s2_coin1_petal_27
+          space: fx3_couture_s2_coin1
+          keys:
+            - {t: 0, offset: [0.82, 0.16, 3.18], rotation: [0, 0, 70], scale: [0.026, 0.026, 1.0]}
+            - {t: 1, offset: [0.82, 0.16, 3.38], rotation: [0, 0, 110], scale: [0.065, 0.052, 1.0]}
+            - {t: 5, offset: [1.4, 0.75, 4.69], rotation: [0, 0, 270], scale: [0.046, 0.033, 1.0]}
+    - id: fx11
+      at: 11
+      do:
+        - {id: fx3_couture_s2_coin1_petal_3, op: plate, parent: fx3_couture_s2_coin1, face: {viewer: center}, sprite: couture-s2-petal-spark}
+        - id: fx3_couture_s2_coin1_petal_3_trk
+          op: track
+          target: fx3_couture_s2_coin1_petal_3
+          space: fx3_couture_s2_coin1
+          keys:
+            - {t: 0, offset: [-0.53, 1.39, 3.67], rotation: [0, 0, 136], scale: [0.042, 0.042, 1.0]}
+            - {t: 1, offset: [-0.53, 1.39, 3.87], rotation: [0, 0, 176], scale: [0.106, 0.084, 1.0]}
+            - {t: 5, offset: [-0.06, 1.89, 4.74], rotation: [0, 0, 336], scale: [0.074, 0.053, 1.0]}
+        - {id: fx3_couture_s2_coin1_petal_8, op: plate, parent: fx3_couture_s2_coin1, face: {viewer: center}, sprite: couture-s2-petal-spark}
+        - id: fx3_couture_s2_coin1_petal_8_trk
+          op: track
+          target: fx3_couture_s2_coin1_petal_8
+          space: fx3_couture_s2_coin1
+          keys:
+            - {t: 0, offset: [-0.41, 0.21, 2.88], rotation: [0, 0, 294], scale: [0.044, 0.044, 1.0]}
+            - {t: 1, offset: [-0.41, 0.21, 3.08], rotation: [0, 0, 334], scale: [0.11, 0.088, 1.0]}
+            - {t: 5, offset: [-0.12, 0.73, 4.5], rotation: [0, 0, 494], scale: [0.077, 0.055, 1.0]}
+        - {id: fx3_couture_s2_coin1_petal_13, op: plate, parent: fx3_couture_s2_coin1, face: {viewer: center}, sprite: couture-s2-petal-spark}
+        - id: fx3_couture_s2_coin1_petal_13_trk
+          op: track
+          target: fx3_couture_s2_coin1_petal_13
+          space: fx3_couture_s2_coin1
+          keys:
+            - {t: 0, offset: [-0.0, 1.24, 3.17], rotation: [0, 0, 217], scale: [0.037, 0.037, 1.0]}
+            - {t: 1, offset: [-0.0, 1.24, 3.37], rotation: [0, 0, 257], scale: [0.092, 0.074, 1.0]}
+            - {t: 5, offset: [0.28, 1.46, 4.82], rotation: [0, 0, 417], scale: [0.065, 0.046, 1.0]}
+        - {id: fx3_couture_s2_coin1_petal_18, op: plate, parent: fx3_couture_s2_coin1, face: {viewer: center}, sprite: couture-s2-petal-spark}
+        - id: fx3_couture_s2_coin1_petal_18_trk
+          op: track
+          target: fx3_couture_s2_coin1_petal_18
+          space: fx3_couture_s2_coin1
+          keys:
+            - {t: 0, offset: [-0.21, 1.18, 2.81], rotation: [0, 0, 305], scale: [0.042, 0.042, 1.0]}
+            - {t: 1, offset: [-0.21, 1.18, 3.01], rotation: [0, 0, 345], scale: [0.104, 0.083, 1.0]}
+            - {t: 5, offset: [0.05, 1.37, 4.67], rotation: [0, 0, 505], scale: [0.073, 0.052, 1.0]}
+        - {id: fx3_couture_s2_coin1_petal_23, op: plate, parent: fx3_couture_s2_coin1, face: {viewer: center}, sprite: couture-s2-petal-spark}
+        - id: fx3_couture_s2_coin1_petal_23_trk
+          op: track
+          target: fx3_couture_s2_coin1_petal_23
+          space: fx3_couture_s2_coin1
+          keys:
+            - {t: 0, offset: [-0.72, 0.34, 0.55], rotation: [0, 0, 27], scale: [0.038, 0.038, 1.0]}
+            - {t: 1, offset: [-0.72, 0.34, 0.75], rotation: [0, 0, 67], scale: [0.094, 0.075, 1.0]}
+            - {t: 5, offset: [-0.25, 0.47, 1.94], rotation: [0, 0, 227], scale: [0.066, 0.047, 1.0]}
+        - {id: fx3_couture_s2_coin1_petal_28, op: plate, parent: fx3_couture_s2_coin1, face: {viewer: center}, sprite: couture-s2-petal-spark}
+        - id: fx3_couture_s2_coin1_petal_28_trk
+          op: track
+          target: fx3_couture_s2_coin1_petal_28
+          space: fx3_couture_s2_coin1
+          keys:
+            - {t: 0, offset: [0.5, 0.46, 1.14], rotation: [0, 0, 61], scale: [0.025, 0.025, 1.0]}
+            - {t: 1, offset: [0.5, 0.46, 1.34], rotation: [0, 0, 101], scale: [0.064, 0.051, 1.0]}
+            - {t: 5, offset: [0.04, 0.67, 2.17], rotation: [0, 0, 261], scale: [0.045, 0.032, 1.0]}
+        - {id: rm_15, op: remove, ids: [fx6_couture_s2_haze_haze_hip]}
+        - {id: snd_10, op: sound, sound: block.amethyst_cluster.break, at: caster, volume: 0.5, pitch: 1.5}
+    - id: fx12
+      at: 12
+      do:
+        - {id: fx3_couture_s2_coin1_petal_4, op: plate, parent: fx3_couture_s2_coin1, face: {viewer: center}, sprite: couture-s2-petal-spark}
+        - id: fx3_couture_s2_coin1_petal_4_trk
+          op: track
+          target: fx3_couture_s2_coin1_petal_4
+          space: fx3_couture_s2_coin1
+          keys:
+            - {t: 0, offset: [-0.82, 0.61, 1.36], rotation: [0, 0, 193], scale: [0.041, 0.041, 1.0]}
+            - {t: 1, offset: [-0.82, 0.61, 1.56], rotation: [0, 0, 233], scale: [0.102, 0.082, 1.0]}
+            - {t: 5, offset: [-0.93, 0.71, 3.01], rotation: [0, 0, 393], scale: [0.072, 0.051, 1.0]}
+        - {id: fx3_couture_s2_coin1_petal_9, op: plate, parent: fx3_couture_s2_coin1, face: {viewer: center}, sprite: couture-s2-petal-spark}
+        - id: fx3_couture_s2_coin1_petal_9_trk
+          op: track
+          target: fx3_couture_s2_coin1_petal_9
+          space: fx3_couture_s2_coin1
+          keys:
+            - {t: 0, offset: [0.81, 1.1, 0.07], rotation: [0, 0, 187], scale: [0.041, 0.041, 1.0]}
+            - {t: 1, offset: [0.81, 1.1, 0.27], rotation: [0, 0, 227], scale: [0.102, 0.082, 1.0]}
+            - {t: 5, offset: [0.26, 1.51, 1.15], rotation: [0, 0, 387], scale: [0.072, 0.051, 1.0]}
+        - {id: fx3_couture_s2_coin1_petal_14, op: plate, parent: fx3_couture_s2_coin1, face: {viewer: center}, sprite: couture-s2-petal-spark}
+        - id: fx3_couture_s2_coin1_petal_14_trk
+          op: track
+          target: fx3_couture_s2_coin1_petal_14
+          space: fx3_couture_s2_coin1
+          keys:
+            - {t: 0, offset: [0.02, 1.18, -0.05], rotation: [0, 0, 148], scale: [0.027, 0.027, 1.0]}
+            - {t: 1, offset: [0.02, 1.18, 0.15], rotation: [0, 0, 188], scale: [0.069, 0.055, 1.0]}
+            - {t: 5, offset: [-0.42, 1.56, 1.9], rotation: [0, 0, 348], scale: [0.048, 0.034, 1.0]}
+        - {id: fx3_couture_s2_coin1_petal_19, op: plate, parent: fx3_couture_s2_coin1, face: {viewer: center}, sprite: couture-s2-petal-spark}
+        - id: fx3_couture_s2_coin1_petal_19_trk
+          op: track
+          target: fx3_couture_s2_coin1_petal_19
+          space: fx3_couture_s2_coin1
+          keys:
+            - {t: 0, offset: [-0.81, 0.28, 1.82], rotation: [0, 0, 43], scale: [0.027, 0.027, 1.0]}
+            - {t: 1, offset: [-0.81, 0.28, 2.02], rotation: [0, 0, 83], scale: [0.068, 0.054, 1.0]}
+            - {t: 5, offset: [-0.66, 0.47, 3.26], rotation: [0, 0, 243], scale: [0.048, 0.034, 1.0]}
+        - {id: fx3_couture_s2_coin1_petal_24, op: plate, parent: fx3_couture_s2_coin1, face: {viewer: center}, sprite: couture-s2-petal-spark}
+        - id: fx3_couture_s2_coin1_petal_24_trk
+          op: track
+          target: fx3_couture_s2_coin1_petal_24
+          space: fx3_couture_s2_coin1
+          keys:
+            - {t: 0, offset: [-0.07, 0.48, -0.36], rotation: [0, 0, 253], scale: [0.042, 0.042, 1.0]}
+            - {t: 1, offset: [-0.07, 0.48, -0.16], rotation: [0, 0, 293], scale: [0.104, 0.083, 1.0]}
+            - {t: 5, offset: [0.01, 1.06, 0.88], rotation: [0, 0, 453], scale: [0.073, 0.052, 1.0]}
+        - {id: fx3_couture_s2_coin1_petal_29, op: plate, parent: fx3_couture_s2_coin1, face: {viewer: center}, sprite: couture-s2-petal-spark}
+        - id: fx3_couture_s2_coin1_petal_29_trk
+          op: track
+          target: fx3_couture_s2_coin1_petal_29
+          space: fx3_couture_s2_coin1
+          keys:
+            - {t: 0, offset: [-0.71, 0.26, 2.53], rotation: [0, 0, 324], scale: [0.026, 0.026, 1.0]}
+            - {t: 1, offset: [-0.71, 0.26, 2.73], rotation: [0, 0, 364], scale: [0.064, 0.051, 1.0]}
+            - {t: 5, offset: [-1.07, 0.67, 3.36], rotation: [0, 0, 524], scale: [0.045, 0.032, 1.0]}
+    - id: fx14
+      at: 14
+      do:
+        - id: rm_8
+          op: remove
+          ids:
+            - fx3_couture_s2_coin1_streak_1
+            - fx3_couture_s2_coin1_streak_4
+            - fx3_couture_s2_coin1_petal_0
+            - fx3_couture_s2_coin1_petal_5
+            - fx3_couture_s2_coin1_petal_10
+            - fx3_couture_s2_coin1_petal_15
+            - fx3_couture_s2_coin1_petal_20
+            - fx3_couture_s2_coin1_petal_25
+            - fx3_couture_s2_coin1_petal_30
+    - id: fx15
+      at: 15
+      do:
+        - id: rm_9
+          op: remove
+          ids:
+            - fx3_couture_s2_coin1_streak_2
+            - fx3_couture_s2_coin1_core
+            - fx3_couture_s2_coin1_petal_1
+            - fx3_couture_s2_coin1_petal_6
+            - fx3_couture_s2_coin1_petal_11
+            - fx3_couture_s2_coin1_petal_16
+            - fx3_couture_s2_coin1_petal_21
+            - fx3_couture_s2_coin1_petal_26
+            - fx3_couture_s2_coin1_petal_31
+        - {id: fx7_couture_s2_trail_wisp, op: plate, parent: fx7_couture_s2_trail, face: {viewer: center}, sprite: couture-s2-crescent-core}
+        - id: fx7_couture_s2_trail_wisp_trk
+          op: track
+          target: fx7_couture_s2_trail_wisp
+          space: fx7_couture_s2_trail
+          keys:
+            - {t: 0, offset: [0.0, 1.3, -1.6], rotation: [0, 0, 176], scale: [0.08, 0.5, 1.0]}
+            - {t: 1, offset: [0.0, 1.3, -1.9], rotation: [0, 0, 174], scale: [0.1, 0.52, 1.0]}
+            - {t: 5, offset: [0.0, 1.3, -2.4], rotation: [0, 0, 172], scale: [0.03, 0.4, 1.0]}
+    - id: fx16
+      at: 16
+      do:
+        - id: rm_10
+          op: remove
+          ids: [fx3_couture_s2_coin1_petal_2, fx3_couture_s2_coin1_petal_7, fx3_couture_s2_coin1_petal_12, fx3_couture_s2_coin1_petal_17, fx3_couture_s2_coin1_petal_22, fx3_couture_s2_coin1_petal_27]
+    - id: fx17
+      at: 17
+      do:
+        - id: rm_11
+          op: remove
+          ids: [fx3_couture_s2_coin1_petal_3, fx3_couture_s2_coin1_petal_8, fx3_couture_s2_coin1_petal_13, fx3_couture_s2_coin1_petal_18, fx3_couture_s2_coin1_petal_23, fx3_couture_s2_coin1_petal_28]
+    - id: fx18
+      at: 18
+      do:
+        - id: rm_12
+          op: remove
+          ids: [fx3_couture_s2_coin1_petal_4, fx3_couture_s2_coin1_petal_9, fx3_couture_s2_coin1_petal_14, fx3_couture_s2_coin1_petal_19, fx3_couture_s2_coin1_petal_24, fx3_couture_s2_coin1_petal_29]
+        - {id: snd_11, op: sound, sound: item.trident.throw, at: caster, volume: 0.5, pitch: 1.2}
+    - {id: fx21, at: 21, do: [{id: rm_16, op: remove, ids: [fx7_couture_s2_trail_wisp]}]}
+    - id: fx22
+      at: 22
+      do:
+        - {id: fx1_couture_s2_rig_loop_a, op: plate, parent: fx1_couture_s2_rig, face: {viewer: center}, sprite: couture-s2-overhead-slash}
+        - id: fx1_couture_s2_rig_loop_a_trk
+          op: track
+          target: fx1_couture_s2_rig_loop_a
+          space: fx1_couture_s2_rig
+          keys:
+            - {t: 0, offset: [0.0, 2.6, 0.2], rotation: [0, 0, 0], scale: [0.2661, 0.2661, 1.0]}
+            - {t: 1, offset: [0.0, 2.6, 0.2], rotation: [0, 0, -60], scale: [0.265, 0.265, 1.0]}
+            - {t: 2, offset: [0.0, 2.6, 0.2], rotation: [0, 0, -120], scale: [0.2617, 0.2617, 1.0]}
+            - {t: 3, offset: [0.0, 2.6, 0.2], rotation: [0, 0, -180], scale: [0.2561, 0.2561, 1.0]}
+            - {t: 4, offset: [0.0, 2.6, 0.2], rotation: [0, 0, -240], scale: [0.2484, 0.2484, 1.0]}
+            - {t: 5, offset: [0.0, 2.6, 0.2], rotation: [0, 0, -300], scale: [0.2423, 0.2423, 1.0]}
+            - {t: 6, offset: [0.0, 2.6, 0.2], rotation: [0, 0, -360], scale: [0.2423, 0.2423, 1.0]}
+        - {id: fx1_couture_s2_rig_loop_a_m, op: plate, parent: fx1_couture_s2_rig, face: {viewer: center}, sprite: couture-s2-overhead-slash}
+        - id: fx1_couture_s2_rig_loop_a_m_trk
+          op: track
+          target: fx1_couture_s2_rig_loop_a_m
+          space: fx1_couture_s2_rig
+          keys:
+            - {t: 0, offset: [-0.0, 2.6, 0.2], rotation: [0, 0, 0], scale: [0.2661, 0.2661, 1.0]}
+            - {t: 1, offset: [-0.0, 2.6, 0.2], rotation: [0, 0, 60], scale: [0.265, 0.265, 1.0]}
+            - {t: 2, offset: [-0.0, 2.6, 0.2], rotation: [0, 0, 120], scale: [0.2617, 0.2617, 1.0]}
+            - {t: 3, offset: [-0.0, 2.6, 0.2], rotation: [0, 0, 180], scale: [0.2561, 0.2561, 1.0]}
+            - {t: 4, offset: [-0.0, 2.6, 0.2], rotation: [0, 0, 240], scale: [0.2484, 0.2484, 1.0]}
+            - {t: 5, offset: [-0.0, 2.6, 0.2], rotation: [0, 0, 300], scale: [0.2423, 0.2423, 1.0]}
+            - {t: 6, offset: [-0.0, 2.6, 0.2], rotation: [0, 0, 360], scale: [0.2423, 0.2423, 1.0]}
+    - id: fx25
+      at: 25
+      do:
+        - {id: fx1_couture_s2_rig_loop_b, op: plate, parent: fx1_couture_s2_rig, face: {viewer: center}, sprite: couture-s2-overhead-slash}
+        - id: fx1_couture_s2_rig_loop_b_trk
+          op: track
+          target: fx1_couture_s2_rig_loop_b
+          space: fx1_couture_s2_rig
+          keys:
+            - {t: 0, offset: [0.0, 2.6, 0.2], rotation: [0, 0, 180], scale: [0.2516, 0.2516, 1.0]}
+            - {t: 1, offset: [0.0, 2.6, 0.2], rotation: [0, 0, 120], scale: [0.2496, 0.2496, 1.0]}
+            - {t: 2, offset: [0.0, 2.6, 0.2], rotation: [0, 0, 60], scale: [0.2434, 0.2434, 1.0]}
+            - {t: 3, offset: [0.0, 2.6, 0.2], rotation: [0, 0, 0], scale: [0.2423, 0.2423, 1.0]}
+            - {t: 4, offset: [0.0, 2.6, 0.2], rotation: [0, 0, -60], scale: [0.2423, 0.2423, 1.0]}
+        - {id: fx1_couture_s2_rig_loop_b_m, op: plate, parent: fx1_couture_s2_rig, face: {viewer: center}, sprite: couture-s2-overhead-slash}
+        - id: fx1_couture_s2_rig_loop_b_m_trk
+          op: track
+          target: fx1_couture_s2_rig_loop_b_m
+          space: fx1_couture_s2_rig
+          keys:
+            - {t: 0, offset: [-0.0, 2.6, 0.2], rotation: [0, 0, -180], scale: [0.2516, 0.2516, 1.0]}
+            - {t: 1, offset: [-0.0, 2.6, 0.2], rotation: [0, 0, -120], scale: [0.2496, 0.2496, 1.0]}
+            - {t: 2, offset: [-0.0, 2.6, 0.2], rotation: [0, 0, -60], scale: [0.2434, 0.2434, 1.0]}
+            - {t: 3, offset: [-0.0, 2.6, 0.2], rotation: [0, 0, 0], scale: [0.2423, 0.2423, 1.0]}
+            - {t: 4, offset: [-0.0, 2.6, 0.2], rotation: [0, 0, 60], scale: [0.2423, 0.2423, 1.0]}
+    - id: fx27
+      at: 27
+      do:
+        - {id: fx1_couture_s2_rig_loop_gc, op: plate, parent: fx1_couture_s2_rig, face: {viewer: center}, sprite: couture-s2-overhead-slash}
+        - id: fx1_couture_s2_rig_loop_gc_trk
+          op: track
+          target: fx1_couture_s2_rig_loop_gc
+          space: fx1_couture_s2_rig
+          keys:
+            - {t: 0, offset: [0.0, 2.4, 0.0], rotation: [0, 0, 0], scale: [0.2589, 0.2589, 1.0]}
+            - {t: 1, offset: [0.0, 2.4, 0.0], rotation: [0, 0, -60], scale: [0.2574, 0.2574, 1.0]}
+            - {t: 2, offset: [0.0, 2.4, 0.0], rotation: [0, 0, -120], scale: [0.253, 0.253, 1.0]}
+            - {t: 3, offset: [0.0, 2.4, 0.0], rotation: [0, 0, -180], scale: [0.2458, 0.2458, 1.0]}
+            - {t: 4, offset: [0.0, 2.4, 0.0], rotation: [0, 0, -240], scale: [0.2423, 0.2423, 1.0]}
+            - {t: 5, offset: [0.0, 2.4, 0.0], rotation: [0, 0, -300], scale: [0.2423, 0.2423, 1.0]}
+        - {id: fx1_couture_s2_rig_loop_gc_m, op: plate, parent: fx1_couture_s2_rig, face: {viewer: center}, sprite: couture-s2-overhead-slash}
+        - id: fx1_couture_s2_rig_loop_gc_m_trk
+          op: track
+          target: fx1_couture_s2_rig_loop_gc_m
+          space: fx1_couture_s2_rig
+          keys:
+            - {t: 0, offset: [-0.0, 2.4, 0.0], rotation: [0, 0, 0], scale: [0.2589, 0.2589, 1.0]}
+            - {t: 1, offset: [-0.0, 2.4, 0.0], rotation: [0, 0, 60], scale: [0.2574, 0.2574, 1.0]}
+            - {t: 2, offset: [-0.0, 2.4, 0.0], rotation: [0, 0, 120], scale: [0.253, 0.253, 1.0]}
+            - {t: 3, offset: [-0.0, 2.4, 0.0], rotation: [0, 0, 180], scale: [0.2458, 0.2458, 1.0]}
+            - {t: 4, offset: [-0.0, 2.4, 0.0], rotation: [0, 0, 240], scale: [0.2423, 0.2423, 1.0]}
+            - {t: 5, offset: [-0.0, 2.4, 0.0], rotation: [0, 0, 300], scale: [0.2423, 0.2423, 1.0]}
+    - {id: fx28, at: 28, do: [{id: rm, op: remove, ids: [fx1_couture_s2_rig_loop_a, fx1_couture_s2_rig_loop_a_m]}]}
+    - {id: fx29, at: 29, do: [{id: rm_2, op: remove, ids: [fx1_couture_s2_rig_loop_b, fx1_couture_s2_rig_loop_b_m]}]}
+    - {id: fx32, at: 32, do: [{id: rm_3, op: remove, ids: [fx1_couture_s2_rig_loop_gc, fx1_couture_s2_rig_loop_gc_m]}]}
+    - {id: fx33, at: 33, do: [{id: snd_13, op: sound, sound: block.amethyst_block.chime, at: caster, volume: 0.6, pitch: 0.7}]}
+  "on":
+    hit:
+      - {id: fx4_couture_s2_hit1_star_0, op: plate, parent: fx4_couture_s2_hit1, face: {viewer: center}, sprite: couture-s2-feather, when: "= event.source == 'sel'"}
+      - id: fx4_couture_s2_hit1_star_0_trk
+        op: track
+        target: fx4_couture_s2_hit1_star_0
+        space: fx4_couture_s2_hit1
+        keys:
+          - {t: 0, offset: [0.0, 1.2, 0.0], rotation: [0, 0, 0], scale: [0.102, 0.016, 1.0]}
+          - {t: 1, offset: [0.0, 1.2, 0.0], rotation: [0, 0, 0], scale: [0.884, 0.208, 1.0]}
+          - {t: 6, offset: [0.0, 1.2, 0.0], rotation: [0, 0, 0], scale: [1.144, 0.008, 1.0]}
+        when: "= event.source == 'sel'"
+      - {id: fx4_couture_s2_hit1_star_1, op: plate, parent: fx4_couture_s2_hit1, face: {viewer: center}, sprite: couture-s2-feather, when: "= event.source == 'sel'"}
+      - id: fx4_couture_s2_hit1_star_1_trk
+        op: track
+        target: fx4_couture_s2_hit1_star_1
+        space: fx4_couture_s2_hit1
+        keys:
+          - {t: 0, offset: [0.0, 1.2, 0.0], rotation: [0, 0, 45], scale: [0.102, 0.016, 1.0]}
+          - {t: 1, offset: [0.0, 1.2, 0.0], rotation: [0, 0, 45], scale: [0.884, 0.208, 1.0]}
+          - {t: 6, offset: [0.0, 1.2, 0.0], rotation: [0, 0, 45], scale: [1.144, 0.008, 1.0]}
+        when: "= event.source == 'sel'"
+      - {id: fx4_couture_s2_hit1_star_2, op: plate, parent: fx4_couture_s2_hit1, face: {viewer: center}, sprite: couture-s2-feather, when: "= event.source == 'sel'"}
+      - id: fx4_couture_s2_hit1_star_2_trk
+        op: track
+        target: fx4_couture_s2_hit1_star_2
+        space: fx4_couture_s2_hit1
+        keys:
+          - {t: 0, offset: [0.0, 1.2, 0.0], rotation: [0, 0, 90], scale: [0.102, 0.016, 1.0]}
+          - {t: 1, offset: [0.0, 1.2, 0.0], rotation: [0, 0, 90], scale: [0.884, 0.208, 1.0]}
+          - {t: 6, offset: [0.0, 1.2, 0.0], rotation: [0, 0, 90], scale: [1.144, 0.008, 1.0]}
+        when: "= event.source == 'sel'"
+      - {id: fx4_couture_s2_hit1_star_3, op: plate, parent: fx4_couture_s2_hit1, face: {viewer: center}, sprite: couture-s2-feather, when: "= event.source == 'sel'"}
+      - id: fx4_couture_s2_hit1_star_3_trk
+        op: track
+        target: fx4_couture_s2_hit1_star_3
+        space: fx4_couture_s2_hit1
+        keys:
+          - {t: 0, offset: [0.0, 1.2, 0.0], rotation: [0, 0, 135], scale: [0.102, 0.016, 1.0]}
+          - {t: 1, offset: [0.0, 1.2, 0.0], rotation: [0, 0, 135], scale: [0.884, 0.208, 1.0]}
+          - {t: 6, offset: [0.0, 1.2, 0.0], rotation: [0, 0, 135], scale: [1.144, 0.008, 1.0]}
+        when: "= event.source == 'sel'"
+      - {id: fx4_couture_s2_hit1_p_crit, op: emit, at: fx4_couture_s2_hit1, particle: couture-s2-p-crit, count: 1, when: "= event.source == 'sel'"}
+      - {id: fx4_couture_s2_hit1_p_orange, op: emit, at: fx4_couture_s2_hit1, particle: couture-s2-p-orange, count: 1, when: "= event.source == 'sel'"}
+      - {id: fx4_couture_s2_hit1_p_spark, op: emit, at: fx4_couture_s2_hit1, particle: couture-s2-p-spark, count: 1, when: "= event.source == 'sel'"}
+      - {id: fx4_couture_s2_hit1_ps_orange_0, op: emit, at: fx4_couture_s2_hit1, particle: couture-s2-p-orange, count: 1, when: "= event.source == 'sel'"}
+      - {id: fx4_couture_s2_hit1_ps_orange_1, op: emit, at: fx4_couture_s2_hit1, particle: couture-s2-p-orange, count: 1, when: "= event.source == 'sel'"}
+      - {id: fx4_couture_s2_hit1_ps_orange_2, op: emit, at: fx4_couture_s2_hit1, particle: couture-s2-p-orange, count: 1, when: "= event.source == 'sel'"}
+      - {id: fx4_couture_s2_hit1_ps_orange_3, op: emit, at: fx4_couture_s2_hit1, particle: couture-s2-p-orange, count: 1, when: "= event.source == 'sel'"}
+      - {id: fx4_couture_s2_hit1_ps_orange_4, op: emit, at: fx4_couture_s2_hit1, particle: couture-s2-p-orange, count: 1, when: "= event.source == 'sel'"}
+      - {id: fx4_couture_s2_hit1_p_crit2, op: emit, at: fx4_couture_s2_hit1, particle: couture-s2-p-crit, count: 1, when: "= event.source == 'sel'"}
+    c1_hit_end:
+      - {id: c1_hit_rm, op: remove, ids: [fx4_couture_s2_hit1_star_0, fx4_couture_s2_hit1_star_1, fx4_couture_s2_hit1_star_2, fx4_couture_s2_hit1_star_3]}

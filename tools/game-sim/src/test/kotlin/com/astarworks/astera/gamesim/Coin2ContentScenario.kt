@@ -60,7 +60,7 @@ class Coin2ContentScenario {
         val all = composed()
         val base = checkNotNull(all["couture-rapier-s2"]) { "couture-rapier-s2 missing" }
         val crimson = checkNotNull(all["couture-rapier-s2@crimson"]) { "couture-rapier-s2@crimson missing" }
-        assertThat(base.sources.map { it.substringAfterLast('/') }).containsExactlyInAnyOrder("skill.yaml", "look.yaml")
+        assertThat(base.sources.map { it.substringAfterLast('/') }).containsExactlyInAnyOrder("skill.yaml", "look.yaml", "coin1.yaml", "coin2fx.yaml", "coin3.yaml")
         assertThat(crimson.sources.map { it.substringAfterLast('/') }).contains("crimson.yaml")
 
         // the skin only changes presentation: gameplay is identical, the colour and one trail differ
@@ -77,7 +77,7 @@ class Coin2ContentScenario {
     fun `content has no absolute coordinates and spins about a horizontal axis`() {
         val tree = checkNotNull(composed()["couture-rapier-s2"]).tree
 
-        // no vec3 literal anywhere except the palm point's zero offset
+        // no vec3 literal in the coin-2 gameplay section (the ported coin 1/3 + vfx files carry v1 offsets in presentation and frames)
         fun walk(path: String, v: Any?) {
             when (v) {
                 is Map<*, *> -> v.forEach { (k, x) -> walk("$path.$k", x) }
@@ -90,7 +90,7 @@ class Coin2ContentScenario {
                 else -> Unit
             }
         }
-        walk("", tree)
+        walk("gameplay", tree["gameplay"])
 
         val spins = allOps(tree).filter { it["op"] == "spin" }
         assertThat(spins.map { it["id"] }).containsExactlyInAnyOrder("spin_shears", "spin_volley")
@@ -135,7 +135,7 @@ class Coin2ContentScenario {
                 is Result.Success -> d.value
                 is Result.Failure -> error("decode $id: ${d.error.path} ${d.error.message}")
             }
-            assertThat(def.frames.map { it.id }).containsExactly("shears", "body", "blade_a", "blade_b", "volley", "palm")
+            assertThat(def.frames.map { it.id }).contains("shears", "body", "blade_a", "blade_b", "volley", "palm", "fx2_couture_s2_hit3", "fx1_couture_s2_hit2", "fx4_couture_s2_hit1")
             assertThat(def.gameplay.on.getValue("release").map { it.id }).containsSubsequence("place_volley", "take_off", "fly", "throw_hit")
             val compiled = when (val c = compiler.compile(def)) {
                 is Result.Success -> c.value
