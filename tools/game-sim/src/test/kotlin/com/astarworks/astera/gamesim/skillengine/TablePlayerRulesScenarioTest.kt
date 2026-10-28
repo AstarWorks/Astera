@@ -46,8 +46,8 @@ import com.astarworks.astera.core.domain.skillengine.table.TickRange
 import com.astarworks.astera.core.domain.skillengine.table.Val
 import com.astarworks.astera.core.domain.world.WorldId
 import org.assertj.core.api.Assertions.assertThat
-import org.joml.Quaterniond
-import org.joml.Vector3d
+import com.astarworks.astera.core.domain.skillengine.math.Quaterniond
+import com.astarworks.astera.core.domain.skillengine.math.Vector3d
 import org.junit.jupiter.api.Test
 import java.util.UUID
 

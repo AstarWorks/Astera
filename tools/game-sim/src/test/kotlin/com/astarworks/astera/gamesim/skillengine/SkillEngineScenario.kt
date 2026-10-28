@@ -34,7 +34,7 @@ import com.astarworks.astera.core.domain.skillengine.table.SpawnKind
 import com.astarworks.astera.core.domain.skillengine.table.StateTable
 import com.astarworks.astera.core.domain.skillengine.table.Val
 import com.astarworks.astera.core.domain.world.WorldId
-import org.joml.Vector3d
+import com.astarworks.astera.core.domain.skillengine.math.Vector3d
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths

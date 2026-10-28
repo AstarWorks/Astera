@@ -41,8 +41,8 @@ import com.astarworks.astera.core.domain.skillengine.table.SubTable
 import com.astarworks.astera.core.domain.skillengine.table.TickRange
 import com.astarworks.astera.core.domain.skillengine.table.Val
 import com.astarworks.astera.core.domain.skillengine.table.WriteStats
-import org.joml.Quaterniond
-import org.joml.Vector3d
+import com.astarworks.astera.core.domain.skillengine.math.Quaterniond
+import com.astarworks.astera.core.domain.skillengine.math.Vector3d
 
 /** The events a projectile body produces (ADR-0303 3.6). [key] is the yaml key of `on:` and the suffix of the event path (`ball.hit`). */
 public enum class ProjectileEvent(public val key: String) {

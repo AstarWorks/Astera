@@ -7,7 +7,7 @@ import com.astarworks.astera.core.domain.skillengine.table.CancelScope
 import com.astarworks.astera.core.domain.skillengine.table.CompiledSkill
 import com.astarworks.astera.core.domain.skillengine.table.EntityRef
 import com.astarworks.astera.core.domain.skillengine.table.EventPath
-import org.joml.Vector3d
+import com.astarworks.astera.core.domain.skillengine.math.Vector3d
 import java.util.UUID
 
 @JvmInline

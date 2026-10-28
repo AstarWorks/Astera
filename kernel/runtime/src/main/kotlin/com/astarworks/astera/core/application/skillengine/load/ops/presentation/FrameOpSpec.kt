@@ -51,8 +51,8 @@ import com.astarworks.astera.core.domain.skillengine.table.Row
 import com.astarworks.astera.core.domain.skillengine.table.SpawnKind
 import com.astarworks.astera.core.domain.skillengine.table.Val
 import com.astarworks.astera.core.domain.skillengine.table.WriteStats
-import org.joml.Quaterniond
-import org.joml.Vector3d
+import com.astarworks.astera.core.domain.skillengine.math.Quaterniond
+import com.astarworks.astera.core.domain.skillengine.math.Vector3d
 
 public enum class FrameMode { FOLLOW, SNAPSHOT }
 

@@ -62,7 +62,7 @@ public sealed interface ResolvedVolume {
     }
 
     /** Oriented box: [rotation] turns the box's own axes into world axes. */
-    public data class Box(val center: Vec3, val halfExtents: Vec3, val rotation: org.joml.Quaterniond) : ResolvedVolume {
+    public data class Box(val center: Vec3, val halfExtents: Vec3, val rotation: com.astarworks.astera.core.domain.skillengine.math.Quaterniond) : ResolvedVolume {
         override val broadCenter: Vec3 get() = center
         override val broadRadius: Double get() = halfExtents.length()
     }

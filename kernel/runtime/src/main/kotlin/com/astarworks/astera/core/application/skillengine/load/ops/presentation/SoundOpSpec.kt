@@ -24,7 +24,7 @@ import com.astarworks.astera.core.domain.skillengine.table.OpId
 import com.astarworks.astera.core.domain.skillengine.table.SrcPath
 import com.astarworks.astera.core.domain.skillengine.table.Row
 import com.astarworks.astera.core.domain.skillengine.table.Val
-import org.joml.Vector3d
+import com.astarworks.astera.core.domain.skillengine.math.Vector3d
 
 /**
  * Decoded `sound` op (ADR-0303 2.0b / 2.2 / 3.4). Every field maps 1:1 to the vanilla `playSound` arguments: volume and pitch

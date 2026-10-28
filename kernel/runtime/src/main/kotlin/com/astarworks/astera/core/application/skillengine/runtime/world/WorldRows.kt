@@ -8,7 +8,7 @@ import com.astarworks.astera.core.domain.skillengine.table.Val
 import com.astarworks.astera.core.domain.skillengine.world.BreakAreaSpec
 import com.astarworks.astera.core.domain.skillengine.world.PlaceShapeSpec
 import com.astarworks.astera.core.domain.skillengine.world.WorldAim
-import org.joml.Vector3d
+import com.astarworks.astera.core.domain.skillengine.math.Vector3d
 import java.util.UUID
 
 /** Plays an `Action.World` row: the player resolves [origin] / [forward], this picks the gateway call. */

@@ -9,8 +9,8 @@ import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
-import org.joml.Quaterniond
-import org.joml.Vector3d
+import com.astarworks.astera.core.domain.skillengine.math.Quaterniond
+import com.astarworks.astera.core.domain.skillengine.math.Vector3d
 
 /**
  * ADR-0303 11.3 dump. [render] is the text grammar (no `src`), [json] is one object per row (with `src`).
