@@ -535,7 +535,11 @@ public object StaticChecks {
 
         fun handlersOf(event: EventPath): List<EventPath> = allBranches().filter { it.event == event }.mapNotNull { it.subTable }
 
-        /** Peak of simultaneously alive displays inside one state (ticks inclusive), and its first tick. */
+        /**
+         * Peak of simultaneously alive displays inside one state, and its first tick. A span is `[spawn, end)`: TablePlayer queues an End row
+         * (a `for: N` display ends at base+N) and removes the instance in the same tick's cleanup, so it is gone when the tick completes and
+         * a display spawned on that tick never coexists with it (v1/v2 peaked the same way, remove-then-spawn).
+         */
         fun displayPeak(s: StateTable): Pair<Int, Int> {
             val exit = s.duration.max
             val subs = subsOf(s)
@@ -565,7 +569,7 @@ public object StaticChecks {
             var bestTick = 0
             val ticks = spans.map { it[0] }.distinct().sorted()
             for (t in ticks) {
-                val n = spans.count { it[0] <= t && t <= it[1] }
+                val n = spans.count { it[0] <= t && t < it[1] }
                 if (n > best) { best = n; bestTick = t }
             }
             return best to bestTick
