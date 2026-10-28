@@ -49,7 +49,7 @@ Founder questions Q1-Q7 are OPEN: every spot that depends on one carries a "pend
 - **rev4.5 (2026-10-29, SKL-22, founder 10/28 asks)**: the look lock is confirmed as the `pitch` / `yaw` fields of `lock` (10.6, no new field; the player already
   reaches `lockLook` / `unlockLook`); 3.8 names the "any enemy within r" condition (`nearest_enemy_dist(caster) < r`, no new primitive) and the Paper host now serves
   `nearest_enemy_dist` / `enemy_in_cone` in guards and live cells; 3.5.1 records the CEL library policy.
-**rev4.6 (2026-10-29, SKL-22 couture-rapier-s2 load; NEW OP for the founder)**: (1) a state may name an instance an EARLIER state spawned with the
+**rev4.6 (2026-10-29, SKL-22 couture-rapier-s2 load; NEW OP for the founder)**: (1) a state may name an instance an EARLIER state spawned with the (5) Line ribbon player semantics: a `ribbon from:/to:` (look `shape: line`) is spawned through `ISkillVisualGateway.spawnLine(cast, from, to, thickness, colorHex, alpha)` (colour alpha is the opacity) and both endpoints are re-read from their live frames every tick through `updateLine`; it ends with `until:`/`for`. Paper draws it as one FIXED text-display strip facing the caster's eye, as v1's `line` op did (`0c9e986ef~1`: `PresentationExecutors.kt` LineExecutor, `PaperSkillVisualGateway.spawnLine`/`lineTransform`).
 state-qualified spelling `/<state>/<id>` (`/throw/volley`, `/throw/fly_a.root`; 10.1 `/x` is absolute from the machine root, ids are state-qualified,
 11.3). The state must be written before the referencing one, must declare the instance, and the instance must not have ended by then (a static
 `End` before the spawning state's guaranteed length is a load error). A bare name never looks into another state. (2) `ribbon` takes `until:` as

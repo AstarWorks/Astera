@@ -526,6 +526,7 @@ public class TablePlayer(
                 run.finished[k] = Rec(rec.kind, null, "world", lastTick, rec.owner, PoseV(Vector3d(w.pos), Quaterniond(w.rot), Vector3d(w.scale))).also { it.points.putAll(rec.points) }
             }
             run.recs.remove(k)
+            run.lines.remove(k)
             run.cursor.instances.remove(k)
             run.bodyClips.remove(k)?.let { gameplay.stopBodyClip(castRef(run), run.request.caster, it) }
             if (run.heldModels.remove(k)) gameplay.clearHeldModel(castRef(run), run.request.caster)
@@ -706,7 +707,18 @@ public class TablePlayer(
                 cast, req(run, look, "sprite", ctx), look.fields["alpha"]?.let { dbl(run, it, ctx) } ?: 1.0,
                 look.fields["color"]?.let { strOf(run, it, ctx) }, flag(run, look, "see_through", ctx), pose, brightness, glow = glow,
             )
-            SpawnKind.RIBBON -> {
+            SpawnKind.RIBBON -> if (strOf(run, look.fields["shape"] ?: throw IllegalArgumentException("ribbon look needs 'shape'"), ctx) == "line") {
+                // ADR-0303 section 5 `shape: line`: both ends are live anchors read again every tick (lineStep), so the thread follows its frames
+                val argb = look.fields["argb"]?.let { dbl(run, it, ctx).toLong().toInt() } ?: -1
+                val fromCell = "anchor:" + a.anchorName
+                val toCell = "anchor:" + strOf(run, look.fields["to"] ?: throw IllegalArgumentException("line ribbon look needs 'to'"), ctx)
+                val rec = LineRec(fromCell, toCell, ctx.scope, ctx.binding, ctx.owner, ctx.level, ctx.base)
+                val (f, t) = lineEnds(run, rec, ctx)
+                visual.spawnLine(
+                    cast, f, t, dbl(run, look.fields["thickness"] ?: throw IllegalArgumentException("line ribbon look needs 'thickness'"), ctx),
+                    "#%06x".format(argb and 0xFFFFFF), ((argb ushr 24) and 0xFF) / 255.0,
+                ).also { run.lines[id] = rec }
+            } else {
                 // the lowered ribbon look (RibbonOpSpec): `argb` is #aarrggbb and its alpha is the trail opacity (ADR-0303 rev4.4; v1 `alpha`)
                 val argb = look.fields["argb"]?.let { dbl(run, it, ctx).toLong().toInt() } ?: -1
                 val width = look.fields["width_frac"] ?: look.fields["width"]
@@ -1339,8 +1351,19 @@ public class TablePlayer(
 
     private fun driversStep(run: Run, now: Int) {
         run.dash.tick()
+        for ((id, line) in run.lines.entries.toList()) {
+            val h = run.recs[id]?.real ?: continue
+            val (f, t) = lineEnds(run, line, RowCtx(line.base, line.binding, line.owner, line.level, line.scope))
+            visual.updateLine(h, f, t)
+        }
         for ((id, reel) in run.reels.entries.toList()) reelStep(run, id, reel, now)
         for (rig in run.rigs.values.toList()) rigPose(run, rig, now)
+    }
+
+    private fun lineEnds(run: Run, line: LineRec, ctx: RowCtx): Pair<Vec3, Vec3> {
+        val f = liveVec(run, line.fromCell, ctx)
+        val t = liveVec(run, line.toCell, ctx)
+        return Vec3(f.x, f.y, f.z) to Vec3(t.x, t.y, t.z)
     }
 
     private fun reelStep(run: Run, id: InstanceId, reel: ReelRec, now: Int) {
@@ -1764,6 +1787,11 @@ public class TablePlayer(
         }
     }
 
+    /** A live `shape: line` ribbon: the cells of its two ends and the scope of the row that spawned it. */
+    private class LineRec(
+        val fromCell: String, val toCell: String, val scope: RowScope, val binding: EventBinding?, val owner: StatePath?, val level: LevelCursor?, val base: Int,
+    )
+
     private class Run(
         val cursor: CastCursor, val request: CastRequest, val states: Map<StatePath, StateTable>, val listened: Set<EventPath>,
         val dash: DashDriver,
@@ -1798,6 +1826,9 @@ public class TablePlayer(
 
         /** Live `held_model` instances (each holds one swap of the caster's weapon model). */
         val heldModels = HashSet<InstanceId>()
+
+        /** Live line ribbons (their ends are re-read every tick). */
+        val lines = LinkedHashMap<InstanceId, LineRec>()
 
         /** Final regions seen per parallel parent (`<parent>.end` is published when all are final). */
         val regionEnds = HashMap<StatePath, Int>()

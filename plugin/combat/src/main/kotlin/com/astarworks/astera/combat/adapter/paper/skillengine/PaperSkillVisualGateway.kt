@@ -97,6 +97,8 @@ public class PaperSkillVisualGateway(
     /** A block slab of a ribbon: its [axes], whether it is the [edge] (thins out) and its [thickness]. */
     private class Slab(val axes: RibbonMesh.SlabAxes, val edge: Boolean, val thickness: Double)
     private class Seg(val display: UUID, var age: Int, val style: PieceStyle?, val slab: Slab?)
+    /** A thread between two points: one text-display strip (v1 `line`, `PaperSkillVisualGateway.spawnLine` before 0c9e986ef) that the runtime re-ends every tick. */
+    private class LineEntry(val world: World, val owner: UUID, val display: TextDisplay, val thickness: Double) : Entry
     private class TrailEntry(
         val world: World, val ticks: Int, var widthFrac: Double, val rgb: Int, val alpha: Double,
     ) : Entry {
@@ -212,6 +214,60 @@ public class PaperSkillVisualGateway(
         return register(castOwner, TrailEntry(world, ticks.coerceAtLeast(1), widthFrac, rgb, alpha.coerceIn(0.0, 1.0)))
     }
 
+    override fun spawnLine(cast: CastRef, from: Vec3, to: Vec3, thickness: Double, colorHex: String, alpha: Double): VisualHandle {
+        val castOwner = cast.caster
+        val world = worldOf(cast) ?: return dead("line")
+        val rgb = argb(colorHex) and 0xFFFFFF
+        val argb = Color.fromARGB((alpha.coerceIn(0.0, 1.0) * 255.0).toInt(), rgb shr 16 and 0xFF, rgb shr 8 and 0xFF, rgb and 0xFF)
+        val mid = (from + to) * 0.5
+        val display = world.spawn(Location(world, mid.x, mid.y, mid.z), TextDisplay::class.java) {
+            PaperManagedEntities.mark(it, "skill-ribbon")
+            it.billboard = Display.Billboard.FIXED
+            it.text(Component.text(" "))
+            it.backgroundColor = argb
+            it.textOpacity = 255.toByte()
+            it.brightness = Display.Brightness(15, 15)
+            it.shadowRadius = 0f
+            it.teleportDuration = 1
+            it.interpolationDuration = 1
+            it.setTransformationMatrix(lineMatrix(from, to, thickness, eyeOf(castOwner, mid)))
+        }
+        return register(castOwner, LineEntry(world, castOwner, display, thickness))
+    }
+
+    override fun updateLine(handle: VisualHandle, from: Vec3, to: Vec3) {
+        val e = entries[handle.id] as? LineEntry ?: return
+        val mid = (from + to) * 0.5
+        e.display.teleport(Location(e.world, mid.x, mid.y, mid.z))
+        e.display.interpolationDelay = 0
+        e.display.setTransformationMatrix(lineMatrix(from, to, e.thickness, eyeOf(e.owner, mid)))
+    }
+
+    /** The viewer the strip turns its face to: the caster's eye (the thread is seen from where the caster stands), straight up when offline. */
+    private fun eyeOf(owner: UUID, near: Vec3): Vec3 =
+        server.getPlayer(owner)?.eyeLocation?.let { Vec3(it.x, it.y, it.z) } ?: (near + Vec3(0.0, 1.0, 0.0))
+
+    /** v1 `lineTransform`: length along the line, [thickness] across, the face turned about the line's own axis toward [eye] (`face: {viewer: axis, axis: line.along}`). */
+    private fun lineMatrix(from: Vec3, to: Vec3, thickness: Double, eye: Vec3): Matrix4f {
+        val along = to - from
+        val length = along.length()
+        val dir = if (length < 1e-9) Vec3(1.0, 0.0, 0.0) else along * (1.0 / length)
+        val mid = (from + to) * 0.5
+        val toEye = eye - mid
+        var facing = toEye - dir * toEye.dot(dir)
+        if (facing.lengthSquared() < 1e-9) facing = Vec3(0.0, 1.0, 0.0) - dir * dir.y
+        if (facing.lengthSquared() < 1e-9) facing = Vec3(0.0, 0.0, 1.0)
+        val normal = facing.normalize()
+        val across = normal.cross(dir)
+        val m = ribbonColumns(dir * length, across * thickness, normal)
+        return Matrix4f(
+            m.col0.x.toFloat(), m.col0.y.toFloat(), m.col0.z.toFloat(), 0f,
+            m.col1.x.toFloat(), m.col1.y.toFloat(), m.col1.z.toFloat(), 0f,
+            m.col2.x.toFloat(), m.col2.y.toFloat(), m.col2.z.toFloat(), 0f,
+            m.shift.x.toFloat(), m.shift.y.toFloat(), m.shift.z.toFloat(), 1f,
+        )
+    }
+
     /**
      * `set text_opacity` for a text or sprite display (`value` 0..1). The client does not interpolate it, so the table
      * writes one set per changed tick. false = the handle is not a text / sprite display.
@@ -285,6 +341,7 @@ public class PaperSkillVisualGateway(
             is BlockEntry -> displays.place(e.handle, toDisplayWrite(pose.frame, pose.size, Intrinsic.BLOCK, pose.billboard, interpolationTicks, anchorOf(e.owner, pose.anchorFeet), pose.teleportTicks))
             is TextEntry -> displays.place(e.handle, toDisplayWrite(pose.frame, pose.size, e.intrinsic, pose.billboard, interpolationTicks, anchorOf(e.owner, pose.anchorFeet), pose.teleportTicks))
             is TrailEntry -> error("a trail is fed through pushTrailPoint, never written")
+            is LineEntry -> error("a line is moved through updateLine, never written")
             null -> Unit // already removed (owner quit / cast ended): nothing left to move
         }
     }
@@ -363,6 +420,7 @@ public class PaperSkillVisualGateway(
             is PlateEntry -> displays.remove(e.handle)
             is BlockEntry -> displays.remove(e.handle)
             is TextEntry -> displays.remove(e.handle)
+            is LineEntry -> e.display.remove()
             is TrailEntry -> {
                 e.segments.forEach { server.getEntity(it.display)?.remove() }
                 e.segments.clear()

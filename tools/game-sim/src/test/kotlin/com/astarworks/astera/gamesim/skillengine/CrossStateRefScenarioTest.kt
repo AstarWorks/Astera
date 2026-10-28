@@ -104,4 +104,28 @@ class CrossStateRefScenarioTest : SkillEngineScenario() {
         assertThat(calls.map { it.tick to it.payload }).containsExactly(20 to "held_model=astera:hidden", 57 to "held_model_clear")
         assertThat(msgOf(y.replace(", for: 37", ""))).isNotEqualTo("loaded")
     }
+
+    @Test
+    fun lineRibbonIsSpawnedMovedEveryTickAndEndedWithItsWindow() {
+        val y = """
+            apiVersion: astera/v3
+            kind: Skill
+            id: line-live
+            item: any
+            machine:
+              start: s
+              states:
+                s:
+                  for: 20
+                  do:
+                    - {id: f1, op: frame, anchor: caster.hand_r, for: 20}
+                    - {id: f2, op: frame, anchor: caster.hand_l, for: 20}
+                    - {id: r, op: ribbon, at: 2, from: f1, to: f2, thickness: 0.1, color: "#80ff5fa2", for: 6}
+            """.trimIndent() + "\n"
+        val calls = play(compile(y), 1L)
+        val spawn = calls.single { it.verb == "spawn" && it.tokens.contains("kind=ribbon") }
+        assertThat(spawn.tick).isEqualTo(2)
+        assertThat(calls.filter { it.verb == "line" && it.instance == spawn.instance }.map { it.tick }).containsExactly(3, 4, 5, 6, 7, 8)
+        assertThat(calls.single { it.verb == "remove" && it.instance == spawn.instance }.tick).isEqualTo(8)
+    }
 }
