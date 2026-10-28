@@ -40,6 +40,7 @@ import org.bukkit.Color
 import org.bukkit.Location
 import org.bukkit.Server
 import org.bukkit.World
+import org.bukkit.entity.BlockDisplay
 import org.bukkit.entity.Display
 import org.bukkit.entity.TextDisplay
 import org.joml.Matrix4f
@@ -91,14 +92,16 @@ public class PaperSkillVisualGateway(
     private class BlockEntry(val handle: DisplayHandle, val owner: UUID) : Entry
     private class QuadEntry(val handle: DisplayHandle, val owner: UUID, val intrinsic: Intrinsic, var colorHex: String, var alpha: Double, val glyph: Boolean) : Entry
     private class TextEntry(val handle: DisplayHandle, val owner: UUID, val intrinsic: Intrinsic) : Entry
-    /** Colour of one ribbon quad: peak [alpha], the [rgbTo] it has faded to at the end of its life, and whether it keeps its alpha until then. */
-    private class PieceStyle(val rgb: Int, val alpha: Double, val rgbTo: Int?, val crisp: Boolean)
-    private class Seg(val display: UUID, var age: Int, val style: PieceStyle)
+    /** Colour of one soft ribbon quad: peak [alpha] and the [rgbTo] it has faded to at the end of its life. */
+    private class PieceStyle(val rgb: Int, val alpha: Double, val rgbTo: Int?)
+    /** A block slab of a ribbon: its [axes], whether it is the [edge] (thins out) and its [thickness]. */
+    private class Slab(val axes: RibbonMesh.SlabAxes, val edge: Boolean, val thickness: Double)
+    private class Seg(val display: UUID, var age: Int, val style: PieceStyle?, val slab: Slab?)
     private class TrailEntry(
         val world: World, val ticks: Int, val widthFrac: Double, val rgb: Int, val alpha: Double,
     ) : Entry {
         var fadePower: Double = 1.0
-        var crisp: Boolean = false
+        var style: String = "soft"
         var bands: List<TrailBand> = emptyList()
         var edge: TrailEdge? = null
         var rim: TrailRim? = null
@@ -267,7 +270,7 @@ public class PaperSkillVisualGateway(
     override fun setTrailLook(handle: VisualHandle, fadePower: Double, style: String) {
         val t = entries[handle.id] as? TrailEntry ?: return
         t.fadePower = fadePower.coerceAtLeast(0.0)
-        t.crisp = style != "soft"
+        t.style = style
     }
 
     override fun setTrailShape(handle: VisualHandle, bands: List<TrailBand>, edge: TrailEdge?, rim: TrailRim?, stepDeg: Double, doubleSided: Boolean) {
@@ -305,29 +308,34 @@ public class PaperSkillVisualGateway(
             if (seg.age >= t.ticks) {
                 server.getEntity(seg.display)?.remove()
                 ageStep.remove()
+            } else if (seg.slab != null) {
+                (server.getEntity(seg.display) as? BlockDisplay)?.setTransformationMatrix(slabMatrix(seg.slab, t, seg.age))
             } else {
-                (server.getEntity(seg.display) as? TextDisplay)?.backgroundColor = colour(t, seg.style, seg.age)
+                (server.getEntity(seg.display) as? TextDisplay)?.backgroundColor = colour(t, seg.style!!, seg.age)
             }
         }
         val bands = if (t.bands.isEmpty()) listOf(RibbonMesh.Band(0.0, 1.0)) else t.bands.map { RibbonMesh.Band(it.from, it.to) }
         val pieces = t.mesh.pushShaped(shaped, tip, bands, t.edge?.width, t.rim?.width, t.stepDeg)
-        for (piece in pieces) {
-            val style = styleOf(t, piece)
-            val seg = piece.segment
-            spawnSegment(t, seg, style)?.let { t.segments.addLast(Seg(it, 0, style)) }
-            if (t.doubleSided && piece.kind != RibbonMesh.PieceKind.EDGE) {
-                val back = RibbonMesh.Segment(seg.centre, seg.u * -1.0, seg.v, seg.normal * -1.0)
-                spawnSegment(t, back, style)?.let { t.segments.addLast(Seg(it, 0, style)) }
+        for (d in RibbonMesh.drawn(pieces, t.style, t.bands, t.edge, t.doubleSided)) {
+            val seg = d.piece.segment
+            if (d.draw == RibbonMesh.Draw.SLAB) {
+                val axes = RibbonMesh.slabAxes(seg) ?: continue
+                val slab = Slab(axes, d.piece.kind == RibbonMesh.PieceKind.EDGE, if (d.piece.kind == RibbonMesh.PieceKind.EDGE) t.edge!!.width else RibbonMesh.SLAB_THICKNESS)
+                spawnSlab(t, seg, d.block!!, slab)?.let { t.segments.addLast(Seg(it, 0, null, slab)) }
+            } else {
+                val style = styleOf(t, d.piece)
+                val face = if (d.back) RibbonMesh.Segment(seg.centre, seg.u * -1.0, seg.v, seg.normal * -1.0) else seg
+                spawnSegment(t, face, style)?.let { t.segments.addLast(Seg(it, 0, style, null)) }
             }
         }
     }
 
     private fun styleOf(t: TrailEntry, piece: RibbonMesh.Piece): PieceStyle = when (piece.kind) {
         RibbonMesh.PieceKind.BAND ->
-            if (t.bands.isEmpty()) PieceStyle(t.rgb, t.alpha, null, t.crisp)
-            else t.bands[piece.index].let { PieceStyle(argb(it.color) and 0xFFFFFF, it.alpha, it.colorTo?.let { c -> argb(c) and 0xFFFFFF }, t.crisp) }
-        RibbonMesh.PieceKind.EDGE -> PieceStyle(argb(t.edge!!.color) and 0xFFFFFF, 1.0, null, true)
-        RibbonMesh.PieceKind.RIM -> PieceStyle(argb(t.rim!!.color) and 0xFFFFFF, t.rim!!.alpha, null, false)
+            if (t.bands.isEmpty()) PieceStyle(t.rgb, t.alpha, null)
+            else t.bands[piece.index].let { PieceStyle(argb(it.color) and 0xFFFFFF, it.alpha, it.colorTo?.let { c -> argb(c) and 0xFFFFFF }) }
+        RibbonMesh.PieceKind.RIM -> PieceStyle(argb(t.rim!!.color) and 0xFFFFFF, t.rim!!.alpha, null)
+        RibbonMesh.PieceKind.EDGE -> error("an edge is a block slab, never a soft quad")
     }
 
     /** Removes every display [owner] still has (quit, death, world change): the safety net behind the cast-end removal. */
@@ -396,14 +404,37 @@ public class PaperSkillVisualGateway(
         return display.uniqueId
     }
 
-    /**
-     * Quad colour at [age]: alpha `style.alpha * (1 - age/ticks) ^ fadePower`, the rgb blended toward `rgbTo` over the life.
-     * A crisp quad (`crisp` / `both` bands, the edge) keeps full alpha until its last tick and then ends: its edge is the
-     * point of the style, a fade would turn it soft.
-     */
+    /** One block slab: its box sits on [s] (v1 VfxRigPlanner.slab) and thins out with the fade factor. */
+    private fun spawnSlab(t: TrailEntry, s: RibbonMesh.Segment, block: String, slab: Slab): UUID? {
+        val display = t.world.spawn(Location(t.world, s.centre.x, s.centre.y, s.centre.z), BlockDisplay::class.java) {
+            PaperManagedEntities.mark(it, "skill-ribbon")
+            it.billboard = Display.Billboard.FIXED
+            it.block = server.createBlockData("minecraft:$block")
+            it.brightness = Display.Brightness(15, 15)
+            it.setTransformationMatrix(slabMatrix(slab, t, 0))
+        }
+        return display.uniqueId
+    }
+
+    private fun slabMatrix(slab: Slab, t: TrailEntry, age: Int): Matrix4f {
+        val life = (1.0 - age.toDouble() / t.ticks).coerceIn(0.0, 1.0)
+        val size = RibbonMesh.slabSize(slab.axes, slab.edge, slab.thickness, Math.pow(life, t.fadePower))
+        val c0 = slab.axes.ux * size.x
+        val c1 = slab.axes.cy * size.y
+        val c2 = slab.axes.n * size.z
+        val shift = (c0 + c1 + c2) * -0.5
+        return Matrix4f(
+            c0.x.toFloat(), c0.y.toFloat(), c0.z.toFloat(), 0f,
+            c1.x.toFloat(), c1.y.toFloat(), c1.z.toFloat(), 0f,
+            c2.x.toFloat(), c2.y.toFloat(), c2.z.toFloat(), 0f,
+            shift.x.toFloat(), shift.y.toFloat(), shift.z.toFloat(), 1f,
+        )
+    }
+
+    /** Soft quad colour at [age]: alpha `style.alpha * (1 - age/ticks) ^ fadePower`, the rgb blended toward `rgbTo` over the life (v1 VfxRigPlanner.softQuad). */
     private fun colour(t: TrailEntry, style: PieceStyle, age: Int): Color {
         val life = (1.0 - age.toDouble() / t.ticks).coerceIn(0.0, 1.0)
-        val k = if (style.crisp && t.fadePower == 1.0) 1.0 else Math.pow(life, t.fadePower)
+        val k = Math.pow(life, t.fadePower)
         val alpha = (style.alpha * k * 255.0).roundToInt().coerceIn(0, 255)
         val to = style.rgbTo
         val rgb = if (to == null) style.rgb else {

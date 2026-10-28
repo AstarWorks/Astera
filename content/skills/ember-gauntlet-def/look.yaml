@@ -707,10 +707,13 @@ presentation:
           root: pt_fx3_ember_counter_sweep_gauntlet_0_1p95_0
           ticks: 9
           style: both
+          fade: 1.5
           bands:
-            - {from: 0.0, to: 1.0, color: "#ff8f18", alpha: 0.627, color_to: "#e04d08"}
+            - {from: 0.0, to: 1.0, color: "#ff8f18", alpha: 0.627, color_to: "#e04d08", block: yellow_concrete}
           dark_rim: {color: "#2a170c", alpha: 0.69, width: 0.08}
           step_deg: 36.0
+          lag_ticks: 1
+          until: fx3_ember_counter_sweep_gauntlet_flame_fan_stop
     - id: fx112
       at: 112
       do:
@@ -767,10 +770,9 @@ presentation:
             - fx3_ember_counter_sweep_pressure_hoop_s9
             - fx3_ember_counter_sweep_pressure_hoop_s10
             - fx3_ember_counter_sweep_pressure_hoop_s11
-    - {id: fx123, at: 123, do: [{id: rm_9, op: remove, ids: [fx3_ember_counter_sweep_gauntlet_flame_fan]}]}
-    - {id: fx125, at: 125, do: [{id: rm_10, op: remove, ids: [fx3_ember_counter_sweep_gauntlet_cuff, fx3_ember_counter_sweep_gauntlet_fist, fx3_ember_counter_sweep_gauntlet_nozzle]}]}
-    - {id: fxhit_8, at: "hit+8", do: [{id: rm_11, op: remove, ids: [fx4_ember_hoop_hit_flare], when: "= event.source == 'sel'"}]}
-    - {id: fxhit_9, at: "hit+9", do: [{id: rm_12, op: remove, ids: [fx4_ember_hoop_hit_needle], when: "= event.source == 'sel'"}]}
+    - {id: fx125, at: 125, do: [{id: rm_9, op: remove, ids: [fx3_ember_counter_sweep_gauntlet_cuff, fx3_ember_counter_sweep_gauntlet_fist, fx3_ember_counter_sweep_gauntlet_nozzle]}]}
+    - {id: fxhit_8, at: "hit+8", do: [{id: rm_10, op: remove, ids: [fx4_ember_hoop_hit_flare], when: "= event.source == 'sel'"}]}
+    - {id: fxhit_9, at: "hit+9", do: [{id: rm_11, op: remove, ids: [fx4_ember_hoop_hit_needle], when: "= event.source == 'sel'"}]}
     - {id: loop1, at: 111, every: 4, for: 10, do: [{id: fx3_ember_counter_sweep_embers, op: emit, at: fx3_ember_counter_sweep_embers_at, particle: ember-fine-spark}]}
     - {id: loop2, at: 111, every: 1, for: 8, do: [{id: fx3_ember_counter_sweep_gauntlet_fire, op: emit, at: pt_fx3_ember_counter_sweep_gauntlet_0_2p65_0, particle: ember-fine-spark}]}
   "on":

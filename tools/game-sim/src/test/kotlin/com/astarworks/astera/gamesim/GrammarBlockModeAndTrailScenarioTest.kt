@@ -148,7 +148,7 @@ presentation:
             tmp,
             trailSkill(
                 "t-bands",
-                """bands: [{from: 0.0, to: 0.5, color: "#112233", alpha: 0.2}, {from: 0.5, to: 0.8, color: "#445566", alpha: 0.5, color_to: "#000000"}, {from: 0.8, to: 1.0, color: "#ffffff", alpha: 0.9}], edge: {color: "#fefefe", width: 0.05}, dark_rim: {color: "#201010", alpha: 0.6, width: 0.2}""",
+                """bands: [{from: 0.0, to: 0.5, color: "#112233", alpha: 0.2}, {from: 0.5, to: 0.8, color: "#445566", alpha: 0.5, color_to: "#000000"}, {from: 0.8, to: 1.0, color: "#ffffff", alpha: 0.9}], edge: {block: white_concrete, width: 0.05}, dark_rim: {color: "#201010", alpha: 0.6, width: 0.2}""",
             ),
         )
         var tick = 0
@@ -160,7 +160,7 @@ presentation:
         val (bands, edge, rim) = rec.trailShapes.values.single()
         assertThat(bands.map { it.color }).containsExactly("#112233", "#445566", "#ffffff")
         assertThat(bands[1].colorTo).isEqualTo("#000000")
-        assertThat(edge!!.color).isEqualTo("#fefefe")
+        assertThat(edge!!.block).isEqualTo("white_concrete")
         assertThat(rim!!.alpha).isEqualTo(0.6)
         val firstTick = rec.ribbonQuads.minOf { it.tick }
         val oneStep = rec.ribbonQuads.filter { it.tick == firstTick }

@@ -52,7 +52,9 @@ class RecordingVisuals(
     /** `content/frames` tables: resolves a mesh to its pack model like the Paper gateway does. */
     private val frameTables: Map<String, com.astarworks.astera.core.application.skillengine.load.ItemFrames> = emptyMap(),
 ) : ISkillVisualGateway {
-    override fun setTrailLook(handle: com.astarworks.astera.core.application.skillengine.runtime.port.VisualHandle, fadePower: Double, style: String) {}
+    override fun setTrailLook(handle: com.astarworks.astera.core.application.skillengine.runtime.port.VisualHandle, fadePower: Double, style: String) {
+        (entries[handle.id] as? Trail)?.style = style
+    }
     /** The vanilla display each spawn would create (kind, text, billboard, brightness), by handle: what the Paper gateway hands `IDisplayEntityGateway.spawn`. */
     val specs = HashMap<Long, com.astarworks.astera.core.domain.effect.DisplaySpec>()
 
@@ -84,17 +86,22 @@ class RecordingVisuals(
     private class Mesh
     private class Plate(val intrinsic: Intrinsic)
     private class Line
-    private class Trail(val widthFrac: Double, val colorHex: String, val alpha: Double) {
+    private class Trail(val widthFrac: Double, val colorHex: String, val alpha: Double, val ticks: Int = 1) {
         val mesh = RibbonMesh()
         var bands: List<TrailBand> = emptyList()
         var edge: TrailEdge? = null
         var rim: TrailRim? = null
         var stepDeg = 30.0
         var doubleSided = false
+        var style = "soft"
     }
 
     /** One ribbon quad the Paper gateway would spawn: band index / kind and its colour + peak alpha. */
-    class RibbonQuad(val handle: Long, val tick: Int, val kind: RibbonMesh.PieceKind, val index: Int, val colorHex: String, val alpha: Double, val colorToHex: String?, val backFace: Boolean)
+    class RibbonQuad(val handle: Long, val tick: Int, val kind: RibbonMesh.PieceKind, val index: Int, val colorHex: String, val alpha: Double, val colorToHex: String?, val backFace: Boolean,
+        /** The Bukkit spawn position (segment centre), the three matrix columns + translation, and the quad's life in ticks (vanilla dump). */
+        val centre: Vec3 = Vec3.ZERO, val cols: List<Vec3> = emptyList(), val shift: Vec3 = Vec3.ZERO, val life: Int = 1,
+        /** The block id when the Paper gateway draws this piece as a block slab (crisp band / edge) instead of a text quad. */
+        val block: String? = null)
 
     val ribbonQuads = ArrayList<RibbonQuad>()
     val trailShapes = HashMap<Long, Triple<List<TrailBand>, TrailEdge?, TrailRim?>>()
@@ -191,7 +198,7 @@ class RecordingVisuals(
         return h
     }
 
-    override fun spawnTrail(castOwner: UUID, ticks: Int, widthFrac: Double, colorHex: String, alpha: Double): VisualHandle = next(Trail(widthFrac, colorHex, alpha), "trail")
+    override fun spawnTrail(castOwner: UUID, ticks: Int, widthFrac: Double, colorHex: String, alpha: Double): VisualHandle = next(Trail(widthFrac, colorHex, alpha, ticks), "trail")
 
     /** Every flipbook frame / tint change of a plate: (tick, handle, frame, tint). */
     val plateFrames = ArrayList<Triple<Int, Long, Pair<Int, String?>>>()
@@ -252,18 +259,31 @@ class RecordingVisuals(
         val span = root - tip
         val shaped = if (span.lengthSquared() < 1e-8) tip - Vec3(0.0, t.widthFrac, 0.0) else tip + span * t.widthFrac
         val bands = if (t.bands.isEmpty()) listOf(RibbonMesh.Band(0.0, 1.0)) else t.bands.map { RibbonMesh.Band(it.from, it.to) }
-        for (piece in t.mesh.pushShaped(shaped, tip, bands, t.edge?.width, t.rim?.width, t.stepDeg)) {
+        val pieces = t.mesh.pushShaped(shaped, tip, bands, t.edge?.width, t.rim?.width, t.stepDeg)
+        for (d in RibbonMesh.drawn(pieces, t.style, t.bands, t.edge, t.doubleSided)) {
+            val piece = d.piece
             val s = piece.segment
-            val m = ribbonColumns(s.u, s.v, s.normal)
+            if (d.draw == RibbonMesh.Draw.SLAB) {
+                val axes = RibbonMesh.slabAxes(s) ?: continue
+                val edge = piece.kind == RibbonMesh.PieceKind.EDGE
+                val size = RibbonMesh.slabSize(axes, edge, if (edge) t.edge!!.width else RibbonMesh.SLAB_THICKNESS, 1.0)
+                val c0 = axes.ux * size.x
+                val c1 = axes.cy * size.y
+                val c2 = axes.n * size.z
+                frames += DisplayFrame(now(), "ribbon", handle.id, t.widthFrac, listOf(c0, c1, c2), 1.0, "slab u=${"%.2f".format(s.u.length())} v=${"%.2f".format(s.v.length())}")
+                ribbonQuads += RibbonQuad(handle.id, now(), piece.kind, piece.index, "", 1.0, null, false, s.centre, listOf(c0, c1, c2), (c0 + c1 + c2) * -0.5, t.ticks, d.block)
+                continue
+            }
+            val face = if (d.back) RibbonMesh.Segment(s.centre, s.u * -1.0, s.v, s.normal * -1.0) else s
+            val m = ribbonColumns(face.u, face.v, face.normal)
             frames += DisplayFrame(now(), "ribbon", handle.id, t.widthFrac, listOf(m.col0, m.col1, m.col2), 1.0, "u=${"%.2f".format(s.u.length())} v=${"%.2f".format(s.v.length())}")
             val (hex, alpha, to) = when (piece.kind) {
                 RibbonMesh.PieceKind.BAND ->
                     if (t.bands.isEmpty()) Triple(t.colorHex, t.alpha, null) else t.bands[piece.index].let { Triple(it.color, it.alpha, it.colorTo) }
-                RibbonMesh.PieceKind.EDGE -> Triple(t.edge!!.color, 1.0, null)
                 RibbonMesh.PieceKind.RIM -> Triple(t.rim!!.color, t.rim!!.alpha, null)
+                RibbonMesh.PieceKind.EDGE -> error("edge is a slab")
             }
-            ribbonQuads += RibbonQuad(handle.id, now(), piece.kind, piece.index, hex, alpha, to, false)
-            if (t.doubleSided && piece.kind != RibbonMesh.PieceKind.EDGE) ribbonQuads += RibbonQuad(handle.id, now(), piece.kind, piece.index, hex, alpha, to, true)
+            ribbonQuads += RibbonQuad(handle.id, now(), piece.kind, piece.index, hex, alpha, to, d.back, s.centre, listOf(m.col0, m.col1, m.col2), m.shift, t.ticks)
         }
     }
 
