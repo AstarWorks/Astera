@@ -3,6 +3,7 @@ package com.astarworks.astera.core.application.skillengine.runtime.presentation
 import com.astarworks.astera.core.application.skillengine.runtime.CastId
 import com.astarworks.astera.core.application.skillengine.runtime.ModelPointSource
 import com.astarworks.astera.core.application.skillengine.runtime.OpContext
+import com.astarworks.astera.core.application.skillengine.runtime.port.ISkillVisualGateway
 import com.astarworks.astera.core.application.skillengine.runtime.port.VisualHandle
 import com.astarworks.astera.core.application.skillengine.runtime.port.VisualPose
 import com.astarworks.astera.core.domain.effect.DisplayBillboard
@@ -78,6 +79,9 @@ public class PresentationRuntime(
 
         /** True while a target pull moved this display on the last update: it is written with interpolation 0 (v1 teleports it). */
         var pulledNow: Boolean = false
+
+        /** Pose last sent to the gateway; null until the spawn tick's first write. */
+        var shown: VisualPose? = null
 
         /** Last look a track key pushed to the gateway (writes only on change). */
         var shownAlpha: Double? = null
@@ -464,6 +468,17 @@ public class PresentationRuntime(
         removeIds(s, gone.map { it.opId })
     }
 
+    /**
+     * v1 sends a display only when it changes (VfxPlayer.kt:430-441, an element's updates) and a display spawns at its final
+     * transform, so the first write of a display carries interpolation 0 and an unchanged pose is not sent again.
+     */
+    private fun put(visuals: ISkillVisualGateway, l: Live, pose: VisualPose, ticks: Int) {
+        val last = l.shown
+        if (last == pose) return
+        l.shown = pose
+        visuals.write(l.handle, pose, if (last == null) 0 else ticks)
+    }
+
     public fun tickCast(cast: CastId) {
         val s = casts[cast] ?: return
         s.tick++
@@ -504,20 +519,20 @@ public class PresentationRuntime(
             when (l) {
                 is Live.Mesh -> update(s, l)?.let { pose ->
                     val driver = driverOf(s, l.parent)
-                    if (driver == null) visuals.write(l.handle, followed(s, pose, l.parent), if (l.pulledNow) 0 else DISPLAY_TICKS)
+                    if (driver == null) put(visuals, l, followed(s, pose, l.parent), if (l.pulledNow) 0 else DISPLAY_TICKS)
                     else driver.driven?.let { interp -> if (driver.changed(l.opId, pose)) visuals.write(l.handle, pose, interp) }
                 }
                 is Live.Plate -> {
-                    update(s, l)?.let { visuals.write(l.handle, followed(s, it, l.parent), if (l.pulledNow) 0 else DISPLAY_TICKS) }
+                    update(s, l)?.let { put(visuals, l, followed(s, it, l.parent), if (l.pulledNow) 0 else DISPLAY_TICKS) }
                     tickFlipbook(s, l)
                     tickLook(s, l)
                 }
                 is Live.Block, is Live.Quad -> {
                     val parent = if (l is Live.Block) l.parent else (l as Live.Quad).parent
-                    update(s, l)?.let { visuals.write(l.handle, followed(s, it, parent), if (l.pulledNow) 0 else DISPLAY_TICKS) }
+                    update(s, l)?.let { put(visuals, l, followed(s, it, parent), if (l.pulledNow) 0 else DISPLAY_TICKS) }
                     tickLook(s, l)
                 }
-                is Live.Line -> linePose(s, l)?.let { visuals.write(l.handle, it, DISPLAY_TICKS) }
+                is Live.Line -> linePose(s, l)?.let { put(visuals, l, it, DISPLAY_TICKS) }
                 is Live.Trail -> tickTrail(s, l)
             }
         }
