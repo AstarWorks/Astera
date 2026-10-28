@@ -100,6 +100,18 @@ class DisplayOpScenarioTest : SkillEngineScenario() {
     }
 
     @Test
+    fun rigCarriesPivotTiltFreezesAndSampleTicks() {
+        // the player plays these 1:1 as v2 RigMotion (chunked slerp, hit-stop clock); the lowering must hand every field over
+        val s = compiled(
+            "{id: r, op: rig, parent: caster, pivot: {left: 0.0, up: 1.4, forward: 0.3}, sample_ticks: 1, respect_hit_stop: true, freezes: [{at: 7, ticks: 2}], for: 20, " +
+                "swing: [{at: 2, for: 3, from: {left: -1, up: 1, forward: 1}, to: {left: 1, up: -1, forward: 1}, edge: leading}]}",
+        )
+        val payload = (rows(s).first { it.action is Action.Effect }.action as Action.Effect).payload
+        assertThat(payload.keys).contains("pivot", "tilt", "rest", "sample_ticks", "freezes", "respect_hit_stop", "swing")
+        assertThat(((payload.getValue("freezes") as Val.Known).value as List<*>)).hasSize(1)
+    }
+
+    @Test
     fun alignAcceptsNamedDirectionAndUp() {
         // R42: `to` may be a named direction and `up` a named direction; the lowering writes the live rotation with both
         val s = compiled(
