@@ -579,9 +579,14 @@ class Conv:
                     op["shape"] = str(shape).lower()
                 else:
                     self.todo("break_area shape %s" % shape)
-            for k in ("length", "width", "height", "radius", "tool_class", "block_damage"):
-                if k in m:
-                    op[k] = V(m[k])
+            # v1 BreakArea defaults (Mechanic.kt): radius 2, length 6, width 3, height 3, cover_damage 100; the v2 decoder's differ,
+            # so every size is written out. v1 cells are measured from the EYE (WorldMechanics.aim), hence at: aim.
+            for k, dflt in (("radius", 2.0), ("length", 6.0), ("width", 3.0), ("height", 3.0)):
+                op[k] = V(m[k]) if k in m else dflt
+            if "tool_class" in m:
+                op["tool_class"] = V(m["tool_class"])
+            op["block_damage"] = int(V(m["cover_damage"])) if "cover_damage" in m else 100
+            op["at"] = "aim"
         elif t == "place_shape":
             op = {"id": self.oid("place"), "op": "place_shape"}
             for k in ("shape", "block_key", "width", "height", "length", "consume_from_inventory", "revert_after_ticks"):
