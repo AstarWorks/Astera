@@ -14,7 +14,7 @@ params:
   dmg_physical: {type: number, default: 47.5}
 anchors:
   - {id: muzzle, anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}
-  - {id: flash,  anchor: caster.eye, offset: {up: -0.25, forward: 1.0}}
+  - {id: flash,  anchor: caster, offset: {up: -0.25, forward: 1.0}}
   - {id: heart,  anchor: victim.root, offset: {up: 1.2}}  # GAP(Q2): v2 enemy frame origin = feet+0.8 fixed; victim.body (live hitbox centre, 0.9) or a fixed chest point is the founder's choice (Q2)
 machine:
   start: fly
