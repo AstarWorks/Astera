@@ -60,6 +60,7 @@ function init(d) {
   buildRows();
   buildSound();
   buildAuthor();
+  loadExpand(skillId);
   setupCompare();
   S.views.setup();
   setupControls();
@@ -116,6 +117,7 @@ function refresh(d) {
   buildRows();
   buildSound();
   fillAuthor();
+  loadExpand(skillId);
   if ($("cmpPanel").open) loadCompare();
   S.views.setup();
   syncControls();
@@ -483,6 +485,24 @@ function fillAuthor() {
     $("sheetText").append(renderMarkdown(bs.markdown.replace(/(!\[[^\]]*\]\()([^)\s/:]+\))/g, "$1img/$2"), { images: bs.images, imgBase: `/beat/${caseId}/` }));
   }
 }
+/** Expansion table (ADR-0303 11.3): the rows of `astera skill expand all` for this skill, read-only, beside the video. */
+async function loadExpand(skillId) {
+  const sum = $("expandSum"), body = $("expandBody");
+  const r = await fetch(`/api/expand/${encodeURIComponent(skillId)}`, { cache: "no-store" }).catch(() => null);
+  if (!r) { sum.textContent = "展開表を読めません"; return; }
+  if (!r.ok) { const e = await r.json().catch(() => null); sum.textContent = "展開表なし: " + (e?.error ?? r.status); body.textContent = ""; return; }
+  const d = await r.json(), rows = d.rows || [];
+  const last = rows.reduce((m, x) => Math.max(m, x.tick), 0), states = new Set(rows.map((x) => x.state)).size;
+  sum.textContent = `${rows.length} 行 · ${states} state · 最終 tick ${last}`;
+  const pay = (p) => Object.entries(p || {}).map(([k, v]) => `${k}=${v !== null && typeof v === "object" ? JSON.stringify(v) : v}`).join(" ");
+  body.textContent = "";
+  for (const x of rows) {
+    const tr = el("tr");
+    tr.append(el("td", "", String(x.tick)), el("td", "", x.state), el("td", "", x.instance || "-"), el("td", "", x.action), el("td", "", pay(x.payload)), el("td", "", x.src));
+    body.append(tr);
+  }
+}
+
 function loadFiles() {
   S.filesLoaded = true;
   const box = $("aFiles");
