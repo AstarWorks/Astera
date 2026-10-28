@@ -37,8 +37,11 @@ class VfxNoStretchScenarioTest {
                 }
                 if (abs(f.rotationNormSq - 1.0) > 1e-9) bad += "$id t${f.tick} ${f.kind} rotation not unit (${f.rotationNormSq})"
                 // plates: 5 display units per block; meshes: item scale; both stay under 4 blocks, lines under 20 blocks long
-                val cap = if (f.kind == "line") 8.0 * 20.0 else 5.0 * 4.0
-                if (len.take(2).any { it > cap }) bad += "$id t${f.tick} ${f.kind} stretched: axis lengths ${len.map { "%.2f".format(it) }} (authored ${f.authored})"
+                // a plate's WIDTH may reach 40 blocks: v1 couture-rapier-s2 dash smear (content/vfx/couture-s2-dash.yaml,
+                // scale [26..40, 0.1..0.8]) is a screen-wide speed band, a thin streak and not a stretched square
+                val capX = if (f.kind == "line") 8.0 * 20.0 else if (f.kind == "plate") 5.0 * 40.0 else 5.0 * 4.0
+                val capY = if (f.kind == "line") 8.0 * 20.0 else 5.0 * 4.0
+                if (len[0] > capX || len[1] > capY) bad += "$id t${f.tick} ${f.kind} stretched: axis lengths ${len.map { "%.2f".format(it) }} (authored ${f.authored})"
                 if (f.kind == "plate" && abs(len[0] - len[1]) > 1e-6) nonSquarePlate = true
             }
         }

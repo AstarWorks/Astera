@@ -123,14 +123,13 @@ presentation:
             - {t: 0, offset: [0.0, 0.3, -1.5], rotation: [0, 0, 2], scale: [16.0, 0.158, 1.0]}
             - {t: 1, offset: [0.0, 0.3, 3.5], rotation: [0, 0, 2], scale: [40.0, 0.792, 1.0]}
             - {t: 3, offset: [0.0, 0.3, 10.0], rotation: [0, 0, 2], scale: [40.0, 0.018, 1.0]}
-        - {id: fx8_couture_s2_dash_p_orange, op: emit, at: fx8_couture_s2_dash, particle: couture-s2-p-pink, count: 1}
     - {id: fx73, at: "coin3_start+12", do: [{id: rm_17, op: remove, ids: [fx8_couture_s2_dash_streak_0, fx8_couture_s2_dash_streak_3, fx8_couture_s2_dash_streak_6]}]}
     - {id: fx74, at: "coin3_start+13", do: [{id: rm_18, op: remove, ids: [fx8_couture_s2_dash_streak_1, fx8_couture_s2_dash_streak_4, fx8_couture_s2_dash_streak_7]}]}
     - {id: fx75, at: "coin3_start+14", do: [{id: rm_19, op: remove, ids: [fx8_couture_s2_dash_streak_2, fx8_couture_s2_dash_streak_5, fx8_couture_s2_dash_streak_8]}]}
     - id: fx76
       at: "coin3_start+15"
       do:
-        - {id: fx8_couture_s2_dash_pink_crescent, op: plate, parent: fx8_couture_s2_dash, face: {plane: {frame: fx8_couture_s2_dash, axes: [left, up]}}, sprite: couture-orbit}
+        - {id: fx8_couture_s2_dash_pink_crescent, op: plate, parent: fx8_couture_s2_dash, face: {plane: {frame: fx8_couture_s2_dash, axes: [left, up]}}, sprite: couture-orbit, color: "#FFC8DC"}
         - id: fx8_couture_s2_dash_pink_crescent_trk
           op: track
           target: fx8_couture_s2_dash_pink_crescent
@@ -270,6 +269,9 @@ presentation:
             - fx2_couture_s2_hit3_pet_6
             - fx2_couture_s2_hit3_pet_7
     - {id: t_hit3_25, at: "dash_hit+25", do: [{id: rm_7_b, op: remove, ids: [fx2_couture_s2_hit3_dbris_0, fx2_couture_s2_hit3_dbris_1, fx2_couture_s2_hit3_dbris_2, fx2_couture_s2_hit3_dbris_3]}]}
+    - {id: c3_loop_dash, at: "coin3_start+11", every: 1, for: 4, do: [{id: fx8_couture_s2_dash_p_orange, op: emit, at: fx8_couture_s2_dash, particle: couture-s2-p-pink, count: 1}]}
+    - {id: c3_loop_hit_orange, at: dash_hit, every: 1, for: 4, do: [{id: fx2_couture_s2_hit3_p_orange, op: emit, at: fx2_couture_s2_hit3, particle: couture-s2-p-pink, count: 1}]}
+    - {id: c3_loop_hit_spark, at: dash_hit, every: 3, for: 6, do: [{id: fx2_couture_s2_hit3_p_spark, op: emit, at: fx2_couture_s2_hit3, particle: couture-s2-p-spark, count: 1}]}
   "on":
     dash_hit:
       - {id: fx2_couture_s2_hit3_flash_0, op: plate, parent: fx2_couture_s2_hit3, face: {viewer: center}, sprite: couture-s2-feather}
@@ -299,8 +301,6 @@ presentation:
           - {t: 0, offset: [0.0, 1.2, 0.0], rotation: [0, 0, 120], scale: [0.1275, 0.02, 1.0]}
           - {t: 1, offset: [0.0, 1.2, 0.0], rotation: [0, 0, 120], scale: [1.53, 0.36, 1.0]}
           - {t: 5, offset: [0.0, 1.2, 0.0], rotation: [0, 0, 120], scale: [1.98, 0.01, 1.0]}
-      - {id: fx2_couture_s2_hit3_p_orange, op: emit, at: fx2_couture_s2_hit3, particle: couture-s2-p-pink, count: 1}
-      - {id: fx2_couture_s2_hit3_p_spark, op: emit, at: fx2_couture_s2_hit3, particle: couture-s2-p-spark, count: 1}
       - {id: c3_snd_0, op: sound, sound: entity.player.attack.sweep, at: fx2_couture_s2_hit3, volume: 1.0, pitch: 0.55}
       - {id: c3_snd_1, op: sound, sound: entity.sheep.shear, at: fx2_couture_s2_hit3, volume: 1.0, pitch: 0.7}
       - {id: c3_snd_2, op: sound, sound: item.trident.riptide_1, at: fx2_couture_s2_hit3, volume: 0.8, pitch: 1.5}
