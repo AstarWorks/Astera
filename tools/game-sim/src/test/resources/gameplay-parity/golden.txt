@@ -1127,7 +1127,7 @@ bastion-greatsword-ego	45	a75eed609394
 bastion-greatsword-ego	46	a75eed609394
 bastion-greatsword-ego	47	a75eed609394
 bastion-greatsword-ego	48	a75eed609394
-bastion-greatsword-ego	49	42c373b8434d
+bastion-greatsword-ego	49	a75eed609394
 bastion-greatsword-ego	50	a75eed609394
 bastion-greatsword-ego	51	a75eed609394
 bastion-greatsword-ego	52	a75eed609394
@@ -1148,7 +1148,7 @@ bastion-greatsword-ego	66	a75eed609394
 bastion-greatsword-ego	67	a75eed609394
 bastion-greatsword-ego	68	a75eed609394
 bastion-greatsword-ego	69	a75eed609394
-bastion-greatsword-ego	70	a75eed609394
+bastion-greatsword-ego	70	42c373b8434d
 bastion-greatsword-ego	71	a75eed609394
 bastion-greatsword-ego	72	a75eed609394
 bastion-greatsword-ego	73	a75eed609394
@@ -4518,12 +4518,12 @@ ember-gauntlet-ego	76	032f3138cc3c
 ember-gauntlet-ego	77	032f3138cc3c
 ember-gauntlet-ego	78	032f3138cc3c
 ember-gauntlet-ego	79	032f3138cc3c
-ember-gauntlet-ego	80	a751c85a1a1e
+ember-gauntlet-ego	80	032f3138cc3c
 ember-gauntlet-ego	81	032f3138cc3c
 ember-gauntlet-ego	82	032f3138cc3c
 ember-gauntlet-ego	83	032f3138cc3c
 ember-gauntlet-ego	84	032f3138cc3c
-ember-gauntlet-ego	85	032f3138cc3c
+ember-gauntlet-ego	85	a751c85a1a1e
 ember-gauntlet-ego	86	032f3138cc3c
 ember-gauntlet-ego	87	032f3138cc3c
 ember-gauntlet-ego	88	032f3138cc3c
@@ -4605,7 +4605,7 @@ ember-gauntlet-s1	43	5743ee3fd42d
 ember-gauntlet-s1	44	5743ee3fd42d
 ember-gauntlet-s1	45	5743ee3fd42d
 ember-gauntlet-s1	46	5743ee3fd42d
-ember-gauntlet-s1	47	88ab521bbef4
+ember-gauntlet-s1	47	5743ee3fd42d
 ember-gauntlet-s1	48	5743ee3fd42d
 ember-gauntlet-s1	49	5743ee3fd42d
 ember-gauntlet-s1	50	5743ee3fd42d
@@ -4643,7 +4643,7 @@ ember-gauntlet-s1	81	5743ee3fd42d
 ember-gauntlet-s1	82	5743ee3fd42d
 ember-gauntlet-s1	83	5743ee3fd42d
 ember-gauntlet-s1	84	5743ee3fd42d
-ember-gauntlet-s1	85	5743ee3fd42d
+ember-gauntlet-s1	85	88ab521bbef4
 ember-gauntlet-s1	86	5743ee3fd42d
 ember-gauntlet-s1	87	5743ee3fd42d
 ember-gauntlet-s1	88	5743ee3fd42d
@@ -4723,7 +4723,7 @@ ember-gauntlet-s2	41	5743ee3fd42d
 ember-gauntlet-s2	42	5743ee3fd42d
 ember-gauntlet-s2	43	5743ee3fd42d
 ember-gauntlet-s2	44	5743ee3fd42d
-ember-gauntlet-s2	45	88ab521bbef4
+ember-gauntlet-s2	45	5743ee3fd42d
 ember-gauntlet-s2	46	5743ee3fd42d
 ember-gauntlet-s2	47	5743ee3fd42d
 ember-gauntlet-s2	48	5743ee3fd42d
@@ -4763,7 +4763,7 @@ ember-gauntlet-s2	81	5743ee3fd42d
 ember-gauntlet-s2	82	5743ee3fd42d
 ember-gauntlet-s2	83	5743ee3fd42d
 ember-gauntlet-s2	84	5743ee3fd42d
-ember-gauntlet-s2	85	5743ee3fd42d
+ember-gauntlet-s2	85	88ab521bbef4
 ember-gauntlet-s2	86	5743ee3fd42d
 ember-gauntlet-s2	87	5743ee3fd42d
 ember-gauntlet-s2	88	5743ee3fd42d
@@ -4873,7 +4873,7 @@ ember-gauntlet-s3	71	95ce8da9ba57
 ember-gauntlet-s3	72	95ce8da9ba57
 ember-gauntlet-s3	73	95ce8da9ba57
 ember-gauntlet-s3	74	95ce8da9ba57
-ember-gauntlet-s3	75	d1f4ccb2babf
+ember-gauntlet-s3	75	95ce8da9ba57
 ember-gauntlet-s3	76	95ce8da9ba57
 ember-gauntlet-s3	77	95ce8da9ba57
 ember-gauntlet-s3	78	95ce8da9ba57
@@ -4883,7 +4883,7 @@ ember-gauntlet-s3	81	95ce8da9ba57
 ember-gauntlet-s3	82	95ce8da9ba57
 ember-gauntlet-s3	83	95ce8da9ba57
 ember-gauntlet-s3	84	95ce8da9ba57
-ember-gauntlet-s3	85	95ce8da9ba57
+ember-gauntlet-s3	85	d1f4ccb2babf
 ember-gauntlet-s3	86	95ce8da9ba57
 ember-gauntlet-s3	87	95ce8da9ba57
 ember-gauntlet-s3	88	95ce8da9ba57
@@ -9538,12 +9538,12 @@ orrery-s1	56	c01792f265a3
 orrery-s1	57	81175dba2a81
 orrery-s1	58	81175dba2a81
 orrery-s1	59	81175dba2a81
-orrery-s1	60	1b62eac440f3
+orrery-s1	60	81175dba2a81
 orrery-s1	61	81175dba2a81
 orrery-s1	62	81175dba2a81
 orrery-s1	63	81175dba2a81
 orrery-s1	64	81175dba2a81
-orrery-s1	65	81175dba2a81
+orrery-s1	65	1b62eac440f3
 orrery-s1	66	81175dba2a81
 orrery-s1	67	81175dba2a81
 orrery-s1	68	81175dba2a81
@@ -14309,7 +14309,7 @@ sigil-rifle-s1	27	5743ee3fd42d
 sigil-rifle-s1	28	5743ee3fd42d
 sigil-rifle-s1	29	5743ee3fd42d
 sigil-rifle-s1	30	5743ee3fd42d
-sigil-rifle-s1	31	88ab521bbef4
+sigil-rifle-s1	31	5743ee3fd42d
 sigil-rifle-s1	32	5743ee3fd42d
 sigil-rifle-s1	33	5743ee3fd42d
 sigil-rifle-s1	34	5743ee3fd42d
@@ -14322,7 +14322,7 @@ sigil-rifle-s1	40	5743ee3fd42d
 sigil-rifle-s1	41	5743ee3fd42d
 sigil-rifle-s1	42	5743ee3fd42d
 sigil-rifle-s1	43	5743ee3fd42d
-sigil-rifle-s1	44	5743ee3fd42d
+sigil-rifle-s1	44	88ab521bbef4
 sigil-rifle-s1	45	5743ee3fd42d
 sigil-rifle-s1	46	5743ee3fd42d
 sigil-rifle-s1	47	5743ee3fd42d
@@ -14463,12 +14463,12 @@ sigil-rifle-s2	61	6d7be6ef9399
 sigil-rifle-s2	62	6d7be6ef9399
 sigil-rifle-s2	63	6d7be6ef9399
 sigil-rifle-s2	64	6d7be6ef9399
-sigil-rifle-s2	65	e33f6b401bab
+sigil-rifle-s2	65	6d7be6ef9399
 sigil-rifle-s2	66	6d7be6ef9399
 sigil-rifle-s2	67	6d7be6ef9399
 sigil-rifle-s2	68	6d7be6ef9399
 sigil-rifle-s2	69	6d7be6ef9399
-sigil-rifle-s2	70	6d7be6ef9399
+sigil-rifle-s2	70	e33f6b401bab
 sigil-rifle-s2	71	6d7be6ef9399
 sigil-rifle-s2	72	6d7be6ef9399
 sigil-rifle-s2	73	6d7be6ef9399
@@ -17735,7 +17735,7 @@ verdict-hammer-s3	93	124c200f3010
 verdict-hammer-s3	94	124c200f3010
 verdict-hammer-s3	95	124c200f3010
 verdict-hammer-s3	96	124c200f3010
-verdict-hammer-s3	97	af7734313c87
+verdict-hammer-s3	97	124c200f3010
 verdict-hammer-s3	98	124c200f3010
 verdict-hammer-s3	99	124c200f3010
 verdict-hammer-s3	100	124c200f3010
@@ -17743,7 +17743,7 @@ verdict-hammer-s3	101	124c200f3010
 verdict-hammer-s3	102	124c200f3010
 verdict-hammer-s3	103	124c200f3010
 verdict-hammer-s3	104	124c200f3010
-verdict-hammer-s3	105	124c200f3010
+verdict-hammer-s3	105	af7734313c87
 verdict-hammer-s3	106	124c200f3010
 verdict-hammer-s3	107	124c200f3010
 verdict-hammer-s3	108	124c200f3010

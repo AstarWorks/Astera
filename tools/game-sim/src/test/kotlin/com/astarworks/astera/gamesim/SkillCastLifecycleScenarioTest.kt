@@ -62,7 +62,7 @@ class SkillCastLifecycleScenarioTest {
             CastRunnerDeps(
                 portsIn = { ports }, newTree = c.newTree, motion = c.motion, contacts = c.contacts, exprs = c.exprs,
                 executors = DefaultOpExecutorRegistry(), points = c.points, hosts = kit.hosts, dashes = kit.dashes, locks = kit.locks,
-                world = kit.world, presentation = kit.presentation, cooldowns = noop(), items = noop(), effects = noop(),
+                world = kit.world, presentation = kit.presentation, glow = kit.glow, cooldowns = noop(), items = noop(), effects = noop(),
                 skills = sim.catalog::get,
             ),
         )

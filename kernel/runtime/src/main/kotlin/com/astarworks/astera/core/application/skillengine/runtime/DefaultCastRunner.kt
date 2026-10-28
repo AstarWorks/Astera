@@ -2,6 +2,7 @@ package com.astarworks.astera.core.application.skillengine.runtime
 
 import com.astarworks.astera.core.application.skillengine.load.CompiledSkill
 import com.astarworks.astera.core.application.skillengine.runtime.ops.DashStrikeDriver
+import com.astarworks.astera.core.application.skillengine.runtime.ops.EntityGlowDriver
 import com.astarworks.astera.core.application.skillengine.runtime.ops.MovementLockDriver
 import com.astarworks.astera.core.application.skillengine.runtime.ops.ISkillWorldEffectGateway
 import com.astarworks.astera.core.application.skillengine.runtime.port.ISkillCooldownGateway
@@ -58,6 +59,7 @@ public class CastRunnerDeps(
     public val locks: MovementLockDriver,
     public val world: SkillWorldEditors,
     public val presentation: PresentationRuntime,
+    public val glow: EntityGlowDriver,
     public val cooldowns: ISkillCooldownGateway,
     public val items: ISkillItemGateway,
     public val effects: ISkillWorldEffectGateway,
@@ -143,6 +145,7 @@ public class DefaultCastRunner(private val deps: CastRunnerDeps) : CastRunner, I
 
     @Synchronized
     override fun tick(currentTick: Int) {
+        deps.glow.tick(currentTick)
         // A `cast_skill` child starts during its parent's tick and runs its first tick in this same tick (v1 ran the child
         // the moment the delayed task fired); children of children follow in the same pass.
         val ticked = HashSet<Long>()

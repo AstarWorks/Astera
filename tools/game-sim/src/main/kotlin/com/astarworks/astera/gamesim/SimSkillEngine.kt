@@ -187,6 +187,8 @@ public class SimSkillEngine private constructor(
                 )
             },
             casterAnim = object : ISkillCasterAnimGateway {
+                override fun clip(anim: String): com.astarworks.astera.core.domain.animation.skinrig.SkinRigAnimation? = null
+                override fun isSlim(caster: UUID) = false
                 override fun play(caster: UUID, anim: String, speed: Double, ticks: Int) { recording.casterAnims += "play $anim" }
                 override fun stop(caster: UUID, anim: String) { recording.casterAnims += "stop $anim" }
                 override fun release(caster: UUID, anim: String) { recording.casterAnims += "release $anim" }
@@ -198,6 +200,12 @@ public class SimSkillEngine private constructor(
                 override fun flash(viewer: UUID, overlay: com.astarworks.astera.core.domain.effect.ScreenOverlay, colorRgb: Int, fadeIn: Int, stay: Int, fadeOut: Int) { recording.screens += "flash $overlay" }
                 override fun veil(viewer: UUID, sprite: String, colorRgb: Int, side: Double, distance: Double, ticks: Int) { recording.screens += "veil $sprite" }
                 override fun stopSound(viewer: UUID, sound: String) { recording.screens += "stop_sound $sound" }
+            },
+            glow = object : com.astarworks.astera.core.application.skillengine.runtime.ops.IEntityGlowGateway {
+                override fun isLivingPlayer(entity: UUID): Boolean =
+                    world.find(PlayerId(entity))?.let { it.kind == SimEntityKind.PLAYER && alive(it.id) } ?: false
+
+                override fun setGlowing(entity: UUID, glowing: Boolean) = entityEffects.setGlowing(PlayerId(entity), glowing)
             },
             cooldowns = object : ISkillCooldownGateway {
                 override fun set(entity: UUID, skillId: String, ticks: Int) {
@@ -390,6 +398,7 @@ private class SimSkillVisuals(
     }
 
     override fun spawnMesh(castOwner: UUID, item: String, part: String?, pose: VisualPose, brightness: Int?) = spawn()
+    override fun spawnSkinBone(castOwner: UUID, bone: com.astarworks.astera.core.domain.animation.skinrig.SkinRigBone, slim: Boolean, ghost: Boolean, pose: VisualPose) = spawn()
     override fun spawnPlate(castOwner: UUID, sprite: String, alpha: Double, pose: VisualPose, brightness: Int?) = spawn()
     override fun spawnBlock(castOwner: UUID, block: String, pose: VisualPose, brightness: Int?) = spawn()
     override fun spawnQuad(castOwner: UUID, colorHex: String, alpha: Double, text: String?, shadow: Boolean, seeThrough: Boolean, pose: VisualPose, brightness: Int?) = spawn()

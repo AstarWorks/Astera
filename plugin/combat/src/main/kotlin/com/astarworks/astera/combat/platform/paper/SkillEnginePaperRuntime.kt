@@ -163,10 +163,12 @@ internal class SkillEnginePaperRuntime(
                 rigs = { services.get<com.astarworks.astera.core.application.port.outbound.animation.ISkinRigAnimator>() },
                 registry = { services.get<com.astarworks.astera.core.application.port.outbound.ISkinRigRegistry>() },
                 poses = { services.get<com.astarworks.astera.core.application.port.outbound.animation.IPlayerAnimationGateway>() },
+                slim = { { uuid -> displays.isSlimSkin(com.astarworks.astera.core.domain.player.PlayerId(uuid)) } },
             ),
             screen = PaperSkillScreenGateway(feedback, scheduler, server, displays) { id ->
                 sprites?.find(com.astarworks.astera.core.domain.sprite.SpriteId(id))?.size ?: 8
             },
+            glow = com.astarworks.astera.combat.adapter.paper.skillengine.PaperEntityGlowGateway(server, entityEffects),
             cooldowns = PaperSkillCooldownGateway { services.get<ICooldownTracker>() },
             items = PaperSkillItemGateway(server) { id, player, count ->
                 val spec = services.get<IItemRegistry>()?.find(id) ?: return@PaperSkillItemGateway null

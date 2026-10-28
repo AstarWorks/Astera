@@ -93,6 +93,8 @@ class CastSim(
     val allies: Set<UUID> = emptySet(),
     /** The real combat pipeline (production gateway over the GameSim's use cases); null = the ports only record. */
     val combat: CombatLink? = null,
+    /** Victims that are not players (mobs): the `glow` op skips them. */
+    val nonPlayers: Set<UUID> = emptySet(),
 ) {
     /** World each sound / particle burst / entity query was bound to, in call order. */
     val soundWorlds = ArrayList<WorldId>()
@@ -343,6 +345,14 @@ class CastSim(
         }
     }
 
+    /** Outline glow calls in order: (tick, entity, on). */
+    val glows = ArrayList<Triple<Int, UUID, Boolean>>()
+
+    private val glowGateway = object : com.astarworks.astera.core.application.skillengine.runtime.ops.IEntityGlowGateway {
+        override fun isLivingPlayer(entity: UUID): Boolean = entity !in nonPlayers && (if (entity == caster) casterAlive else entity !in dead)
+        override fun setGlowing(entity: UUID, glowing: Boolean) { glows += Triple(now, entity, glowing) }
+    }
+
     private val worldEffects = object : ISkillWorldEffectGateway {
         override fun heal(caster: UUID, victim: UUID, amount: Double) { gpLine("world", "\"k\":\"heal\",\"detail\":\"${whoOf(victim)} ${r(amount)}\"") }
         override fun resurrect(caster: UUID, victim: UUID, healthFraction: Double) { gpLine("world", "\"k\":\"resurrect\",\"detail\":\"${whoOf(victim)} ${r(healthFraction)}\"") }
@@ -375,6 +385,8 @@ class CastSim(
             movement = movement,
             worldIn = { _ -> world },
             casterAnim = object : ISkillCasterAnimGateway {
+                override fun clip(anim: String): com.astarworks.astera.core.domain.animation.skinrig.SkinRigAnimation? = SimClips.clip(anim)
+                override fun isSlim(caster: UUID) = false
                 override fun play(caster: UUID, anim: String, speed: Double, ticks: Int) { casterAnims += CasterAnimCall(now, "play", anim, ticks, speed) }
                 override fun stop(caster: UUID, anim: String) { casterAnims += CasterAnimCall(now, "stop", anim, 0) }
                 override fun release(caster: UUID, anim: String) { casterAnims += CasterAnimCall(now, "release", anim, 0) }
@@ -383,6 +395,7 @@ class CastSim(
             cooldowns = noop<ISkillCooldownGateway>(),
             items = noop<ISkillItemGateway>(),
             effects = worldEffects,
+            glow = glowGateway,
         ),
         newTree = c.newTree, motion = c.motion, contacts = c.contacts, exprs = c.exprs, points = c.points,
         skills = catalog::get, observer = farObserver,
