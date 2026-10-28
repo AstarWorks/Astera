@@ -30,13 +30,15 @@ gameplay:
           block: {mode: despawn}
           on:
             hit:
-              # GAP: explode (power 1.2, radius 2.5, break_blocks false, fire 27.5, target victim) -> none in v3 gameplay ops; kept verbatim
-              - {id: boom, op: explode, target: event.victim, power: 1.2, break_blocks: false, radius: 2.5, components: [{kind: fire, amount: 27.5}]}
+              - {id: boom, op: explode, at: 0, anchor: victim, power: 1.2, break_blocks: false, fire: false}
+              # GAP(Q1): max_count 64 is invented (v2 had no cap); spelling per founder answer
+              - {id: boom_dmg, op: damage, target: {kind: enemies, around: victim, radius: 2.5, max_count: 64, include_self: false}, damage: {fire: 27.5}}
               - {id: st_burn, op: status, target: event.victim, status: burn, stacks: 1, for: 20}
               - {id: snd_hit, op: sound, sound: "astera:skills/fire-impact", anchor: heart, volume: 0.7, pitch: 1.0}
               - {id: fx_hit, op: particle_def, def: hit-spark, anchor: heart}
             block:
-              # GAP: explode at contact.point (same fields as hit) -> none in v3 gameplay ops; kept verbatim
-              - {id: boom_2, op: explode, anchor: contact.point, power: 1.2, break_blocks: false, radius: 2.5, components: [{kind: fire, amount: 27.5}]}
+              - {id: boom_2, op: explode, at: 0, anchor: contact, power: 1.2, break_blocks: false, fire: false}
+              # GAP(Q1): max_count 64 is invented (v2 had no cap); spelling per founder answer
+              - {id: boom_dmg_2, op: damage, target: {kind: enemies, around: contact, radius: 2.5, max_count: 64, include_self: false}, damage: {fire: 27.5}}
               - {id: snd_blk, op: sound, sound: "astera:skills/fire-impact", anchor: contact.point, volume: 0.7, pitch: 1.0}
               - {id: fx_blk, op: particle_def, def: hit-spark, anchor: contact.point}

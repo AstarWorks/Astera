@@ -4,12 +4,11 @@ kind: Skill
 id: repeater-barrage
 item: repeater-crossbow
 meta: {name: {ja: "重ボルト", en: "Heavy Bolt"}, description: {ja: "重いボルトを強く撃ち込む。", en: "One heavy, hard-hitting bolt."}, cooldown_ticks: 100, resource_cost: 8, tags: [ranged, physical]}
-# GAP: v2 expose {damage <- dmg_physical, flight_speed <- launch_speed} -> none (v3 cast skills have no expose spelling); literals inlined below.
 anchors:
   - {id: start,  anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}            # was pt_aim_0_0_0p5
   - {id: muzzle, anchor: caster.eye, offset: {up: -0.25, forward: 0.9}, mode: snapshot} # was pt_aim_0_m0p25_0p9
-  - {id: foe,    anchor: victim.root}                                                   # was enemy
-  - {id: heart,  anchor: victim.root, offset: {up: 1.2}}                                # was pt_enemy_0_1p2_0
+  - {id: foe,    anchor: victim.root}   # GAP(Q2): v2 enemy frame origin = feet+0.8; victim.root = feet
+  - {id: heart,  anchor: victim.root, offset: {up: 1.2}}   # GAP(Q2): v2 enemy frame origin = feet+0.8; victim.root = feet
 machine:
   start: fire
   states:
@@ -30,12 +29,12 @@ machine:
           block: {mode: despawn}
           on:
             hit:
-              - {id: dmg, op: damage, target: event.victim, components: [{kind: physical, amount: 26}]}
+              - {id: dmg, op: damage, target: event.victim, damage: {physical: 26}}
               - {id: snd_hit, op: sound, sound: "astera:weapons/gun-impact", anchor: foe, volume: 0.8, pitch: 0.9}
               - {id: fx_hit, op: particle_def, def: hit-spark, anchor: heart}
             block:
-              - {id: snd_blk, op: sound, sound: "astera:weapons/gun-impact-block", anchor: contact.point, volume: 0.5, pitch: 1.5}
-              - {id: fx_blk0, op: particle_def, def: hit-spark, anchor: contact.point}
+              - {id: snd_blk, op: sound, sound: "astera:weapons/gun-impact-block", anchor: contact, volume: 0.5, pitch: 1.5}
+              - {id: fx_blk0, op: particle_def, def: hit-spark, anchor: contact}
         # trail: one call per `spacing` blocks of bolt travel
         - {id: trail0, op: particle, particle: crit, anchor: {of: bolt, sweep: 0.4}, count: 1, offset: [0.05, 0.05, 0.05], extra: 0, every: 1, until: bolt.end}
         - {id: trail1, op: particle, particle: smoke, anchor: {of: bolt, sweep: 0.4}, count: 1, offset: [0.03, 0.03, 0.03], extra: 0, every: 1, until: bolt.end}

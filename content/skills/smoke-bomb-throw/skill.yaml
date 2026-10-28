@@ -8,11 +8,10 @@ meta:
   cooldown_ticks: 200
   resource_cost: 12
   tags: [ranged, utility, support]
-# GAP: gameplay.expose (flight_speed <- launch_speed, radius) -> none (inline literals)
 anchors:
   - {id: muzzle, anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}
-  - {id: flash,  anchor: caster.eye, offset: {up: -0.25, forward: 0.9}}
   - {id: foe,    anchor: victim.root}
+  - {id: flash,  anchor: caster.eye, offset: {up: -0.25, forward: 0.9}}
   - {id: smoke_hit, anchor: victim.root, offset: {up: 0.5}}
 machine:
   start: fly
@@ -33,28 +32,26 @@ machine:
           block: {mode: despawn}
           on:
             hit:
-              # GAP: v2 allies area had no max_count; v3 requires one -> 16 (guess, flagged)
-              - {id: st_evasive, op: status, target: {kind: allies, around: foe, radius: 4.0, max_count: 16, include_self: true}, status: evasive, stacks: 1, for: 80}
-              - {id: snd_hit, op: sound, sound: entity.generic.extinguish_fire, anchor: foe, volume: 0.8, pitch: 0.7}
+              # GAP(Q1): max_count spelling A (required, `all` = v2 unlimited); under B delete the key
+              - {id: st_evasive, op: status, target: {kind: allies, around: foe, radius: 4.0, max_count: all, include_self: true}, status: evasive, stacks: 1, for: 80}
+              - {id: snd_hit, op: sound, sound: entity.generic.extinguish_fire, anchor: contact, volume: 0.8, pitch: 0.7}
               # ten expanding rings, one per tick, radius 0.4 + 0.4 * k; large_smoke and smoke, 16 emits each
-              # GAP: v2 emit `shift` (per-emit position) -> particle anchor {of, offset} map (closest); v2 draw('shape_2_ph') per-cast shared phase -> none (phase 0 used)
               - id: ring
                 at: 0
                 every: 1
                 times: 10
                 do:
-                  - {id: big,   op: particle, particle: large_smoke, times: 16, at: 0, count: 0, offset: "= [cos(6.283185307179586 * i / 16), 0.0, -sin(6.283185307179586 * i / 16)]", extra: 0.01, anchor: {of: smoke_hit, offset: {left: "= (0.4 + 0.4 * parent.i) * cos(6.283185307179586 * i / 16)", forward: "= -(0.4 + 0.4 * parent.i) * sin(6.283185307179586 * i / 16)"}}}
-                  - {id: small, op: particle, particle: smoke,       times: 16, at: 0, count: 0, offset: "= [cos(6.283185307179586 * i / 16), 0.0, -sin(6.283185307179586 * i / 16)]", extra: 0.01, anchor: {of: smoke_hit, offset: {left: "= (0.4 + 0.4 * parent.i) * cos(6.283185307179586 * i / 16)", forward: "= -(0.4 + 0.4 * parent.i) * sin(6.283185307179586 * i / 16)"}}}
+                  - {id: big,   op: particle, particle: large_smoke, times: 16, at: 0, count: 0, offset: "= [cos((2*PI*i/16 + draw('shape_2_ph')*2*PI)), 0.0, -sin((2*PI*i/16 + draw('shape_2_ph')*2*PI))]", extra: 0.01, anchor: smoke_hit, shift: {left: "= (0.4 + 0.4 * parent.i) * cos((2*PI*i/16 + draw('shape_2_ph')*2*PI))", forward: "= -(0.4 + 0.4 * parent.i) * sin((2*PI*i/16 + draw('shape_2_ph')*2*PI))"}}
+                  - {id: small, op: particle, particle: smoke,       times: 16, at: 0, count: 0, offset: "= [cos((2*PI*i/16 + draw('shape_2_ph')*2*PI)), 0.0, -sin((2*PI*i/16 + draw('shape_2_ph')*2*PI))]", extra: 0.01, anchor: smoke_hit, shift: {left: "= (0.4 + 0.4 * parent.i) * cos((2*PI*i/16 + draw('shape_2_ph')*2*PI))", forward: "= -(0.4 + 0.4 * parent.i) * sin((2*PI*i/16 + draw('shape_2_ph')*2*PI))"}}
             block:
-              # GAP: v2 allies area had no max_count; v3 requires one -> 16 (guess, flagged)
-              - {id: st_evasive, op: status, target: {kind: allies, around: contact.point, radius: 4.0, max_count: 16, include_self: true}, status: evasive, stacks: 1, for: 80}
-              - {id: snd_blk, op: sound, sound: entity.generic.extinguish_fire, anchor: contact.point, volume: 0.8, pitch: 0.7}
-              # GAP: same ring `shift` and draw('shape_2_ph') gaps as the hit ring
+              # GAP(Q1): max_count spelling A (required, `all` = v2 unlimited); under B delete the key
+              - {id: st_evasive, op: status, target: {kind: allies, around: contact, radius: 4.0, max_count: all, include_self: true}, status: evasive, stacks: 1, for: 80}
+              - {id: snd_blk, op: sound, sound: entity.generic.extinguish_fire, anchor: contact, volume: 0.8, pitch: 0.7}
               - id: ring
                 at: 0
                 every: 1
                 times: 10
                 do:
-                  - {id: big,   op: particle, particle: large_smoke, times: 16, at: 0, count: 0, offset: "= [cos(6.283185307179586 * i / 16), 0.0, -sin(6.283185307179586 * i / 16)]", extra: 0.01, anchor: {of: contact.point, offset: {left: "= (0.4 + 0.4 * parent.i) * cos(6.283185307179586 * i / 16)", forward: "= -(0.4 + 0.4 * parent.i) * sin(6.283185307179586 * i / 16)"}}}
-                  - {id: small, op: particle, particle: smoke,       times: 16, at: 0, count: 0, offset: "= [cos(6.283185307179586 * i / 16), 0.0, -sin(6.283185307179586 * i / 16)]", extra: 0.01, anchor: {of: contact.point, offset: {left: "= (0.4 + 0.4 * parent.i) * cos(6.283185307179586 * i / 16)", forward: "= -(0.4 + 0.4 * parent.i) * sin(6.283185307179586 * i / 16)"}}}
+                  - {id: big,   op: particle, particle: large_smoke, times: 16, at: 0, count: 0, offset: "= [cos((2*PI*i/16 + draw('shape_2_ph')*2*PI)), 0.0, -sin((2*PI*i/16 + draw('shape_2_ph')*2*PI))]", extra: 0.01, anchor: contact, shift: {left: "= (0.4 + 0.4 * parent.i) * cos((2*PI*i/16 + draw('shape_2_ph')*2*PI))", forward: "= -(0.4 + 0.4 * parent.i) * sin((2*PI*i/16 + draw('shape_2_ph')*2*PI))"}}
+                  - {id: small, op: particle, particle: smoke,       times: 16, at: 0, count: 0, offset: "= [cos((2*PI*i/16 + draw('shape_2_ph')*2*PI)), 0.0, -sin((2*PI*i/16 + draw('shape_2_ph')*2*PI))]", extra: 0.01, anchor: contact, shift: {left: "= (0.4 + 0.4 * parent.i) * cos((2*PI*i/16 + draw('shape_2_ph')*2*PI))", forward: "= -(0.4 + 0.4 * parent.i) * sin((2*PI*i/16 + draw('shape_2_ph')*2*PI))"}}
     end: {final: true}

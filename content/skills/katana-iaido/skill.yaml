@@ -15,7 +15,6 @@ params:
   dmg_physical: {type: number, default: 40.0}
 anchors:
   - {id: feet, anchor: caster, offset: {up: 0.2}, mode: snapshot}                  # was pt_caster_0_0p2_0
-  - {id: foe, anchor: victim.body}
 machine:
   start: dash
   states:
@@ -25,10 +24,22 @@ machine:
       enter:
         - {id: snd_dash, op: sound, sound: "astera:weapons/dash-whoosh", anchor: caster, volume: 1.0, pitch: 1.4}
         - {id: fx_dash, op: particle_def, def: dash-cloud, anchor: feet}
-        - {id: lunge, op: dash, speed: "= dash_distance / dash_ticks", for: "= dash_ticks", follow_pitch: false, stop_on_block: true, invulnerable: false}
-        # GAP: dash_strike corridor (radius 1.0, hit_once true) swept along the path -> per-tick sphere 1.0 on the caster, once per victim (closest v3 hit).
-        - {id: strike, op: hit, anchor: caster, at: 0, every: 1, for: "= dash_ticks", shape: {sphere: 1.0}, targets: enemies, window: once, damage: {physical: "= dmg_physical"}}
-      on:
-        # v2 raise_event dash_fx on each hit -> react to the hit op (no `to`: stay in the dash).
-        - {event: strike, do: [{id: snd_hit, op: sound, sound: "astera:weapons/blade-hit", anchor: foe, volume: 1.0, pitch: 1.0}]}
+        - {id: lunge, op: dash, speed: "= dash_distance / dash_ticks", for: "= dash_ticks", direction: forward, follow_pitch: false, stop_on_block: true, invulnerable: false, face_movement: false}
+        # GAP(Q1): max_count spelling (A: required int|all, B: optional); v2 had no cap, so `all` = unlimited.
+        # v2 dash_strike corridor: capsule radius 1.0, hit_once, no early end (the dash runs through everyone); `until` omitted for 1:1.
+        - id: strike
+          op: hit
+          anchor: caster
+          at: 0
+          every: 1
+          for: "= dash_ticks"
+          shape: {sphere: {center: caster.body, radius: 1.0}}
+          targets: enemies
+          max_count: all
+          window: once
+          ignore_invulnerability: false
+          damage: {physical: "= dmg_physical"}
+          on:
+            hit:
+              - {id: snd_hit, op: sound, sound: "astera:weapons/blade-hit", anchor: contact, volume: 1.0, pitch: 1.0}
     end: {final: true}

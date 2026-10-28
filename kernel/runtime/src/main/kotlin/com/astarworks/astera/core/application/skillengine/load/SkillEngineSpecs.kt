@@ -31,6 +31,10 @@ import com.astarworks.astera.core.application.skillengine.load.ops.gameplay.Free
 import com.astarworks.astera.core.application.skillengine.load.ops.presentation.BodyOpSpec
 import com.astarworks.astera.core.application.skillengine.load.ops.presentation.CameraShakeOpSpec
 import com.astarworks.astera.core.application.skillengine.load.ops.presentation.StopSoundOpSpec
+import com.astarworks.astera.core.application.skillengine.load.ops.world.BreakAreaOpSpec
+import com.astarworks.astera.core.application.skillengine.load.ops.world.ExplodeOpSpec
+import com.astarworks.astera.core.application.skillengine.load.ops.world.LightningOpSpec
+import com.astarworks.astera.core.application.skillengine.load.ops.world.PlaceShapeOpSpec
 import com.astarworks.astera.core.application.skillengine.load.spec.OpSpec
 
 /**
@@ -70,5 +74,9 @@ public object SkillEngineSpecs {
         CameraShakeOpSpec,
         StopSoundOpSpec,
         BodyOpSpec,
+        BreakAreaOpSpec,
+        PlaceShapeOpSpec,
+        ExplodeOpSpec,
+        LightningOpSpec,
     )
 }

@@ -14,7 +14,6 @@ params:
   dmg_physical: {type: number, default: 30.0}
   tremor_ticks: {type: ticks, default: 60}
 anchors:
-  - {id: foe, anchor: victim.body}
   - {id: ground, anchor: caster, offset: {up: 0.15}, mode: snapshot}                 # was pt_caster_0_0p15_0
 machine:
   start: quake
@@ -24,22 +23,48 @@ machine:
       then: end
       enter:
         - {id: snd_quake, op: sound, sound: "astera:weapons/blade-heavy-swing", anchor: caster, volume: 1.0, pitch: 0.6}
-        # GAP: damage falloff uses the per-victim distance; written inside the hit damage with event.victim (v3 hit damage may not see the victim).
-        - {id: burst, op: hit, anchor: caster, at: 0, shape: {sphere: "= radius"}, targets: enemies, damage: {physical: "= dmg_physical * (1.0 - 0.5 * dist(pos(caster), pos(event.victim)) / radius)"}}
+        # GAP(Q1): max_count spelling (A: required int|all, B: optional); v2 had no cap, so `all` = unlimited.
+        - id: burst
+          op: hit
+          anchor: caster
+          at: 0
+          shape: {sphere: {center: caster.body, radius: "= radius"}}
+          targets: enemies
+          max_count: all
+          window: once
+          ignore_invulnerability: false
+          damage: {physical: "= dmg_physical * (1.0 - 0.5 * dist(event.victim, caster) / radius)"}
+          on:
+            hit:
+              - {id: st_tremor, op: status, target: event.victim, status: tremor, stacks: 1, for: "= tremor_ticks"}
+              - {id: snd_hit, op: sound, sound: "astera:weapons/blade-hit", anchor: contact, volume: 0.7, pitch: 1.0}
       do:
-        # six expanding rings, ticks 0..5, radius 0.5 + 0.6 * k (0.5 .. 3.5)
+        # six expanding rings, ticks 0..5, radius 0.5 + 0.6 * k (0.5 .. 3.5); one random phase per cast (v2 draw('shape_ph'))
         - id: ring
           at: 0
           every: 1
           times: 6
           do:
-            # GAP: v2 emit `shift` (ring position = radius * (cos, 0, -sin)) and random ring phase draw('shape_ph') -> none; only the outward direction is kept, phase fixed at 0.
-            - {id: ring_crit, op: particle, particle: crit, anchor: ground, at: 0, times: 16, count: 0, offset: "= vec(cos(6.283185307179586 * i / 16), 0.0, -sin(6.283185307179586 * i / 16))", extra: 0.03}
-            # GAP: same shift/phase gap as ring_crit.
-            - {id: ring_dust, op: particle, particle: dust, anchor: ground, at: 0, times: 16, count: 1, offset: [0, 0, 0], extra: 0, color: "#96785a", size: 1.4}
-      on:
-        - event: burst
-          do:
-            - {id: st_tremor, op: status, target: event.victim, status: tremor, stacks: 1, for: "= tremor_ticks"}
-            - {id: snd_hit, op: sound, sound: "astera:weapons/blade-hit", anchor: foe, volume: 0.7, pitch: 1.0}
+            - id: ring_crit
+              op: particle
+              particle: crit
+              anchor: ground
+              at: 0
+              times: 16
+              count: 0
+              offset: "= vec(cos(6.283185307179586 * i / 16), 0.0, -sin(6.283185307179586 * i / 16))"
+              shift: "= vec((0.5 + 0.6 * parent.i) * cos(6.283185307179586 * i / 16 + draw('shape_ph') * 6.283185307179586), 0.0, -(0.5 + 0.6 * parent.i) * sin(6.283185307179586 * i / 16 + draw('shape_ph') * 6.283185307179586))"
+              extra: 0.03
+            - id: ring_dust
+              op: particle
+              particle: dust
+              anchor: ground
+              at: 0
+              times: 16
+              count: 1
+              offset: [0, 0, 0]
+              shift: "= vec((0.5 + 0.6 * parent.i) * cos(6.283185307179586 * i / 16 + draw('shape_ph') * 6.283185307179586), 0.0, -(0.5 + 0.6 * parent.i) * sin(6.283185307179586 * i / 16 + draw('shape_ph') * 6.283185307179586))"
+              extra: 0
+              color: "#96785a"
+              size: 1.4
     end: {final: true}

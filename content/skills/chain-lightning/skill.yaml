@@ -17,7 +17,6 @@ params:
 anchors:
   - {id: muzzle, anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}
   - {id: fx, anchor: caster.eye, offset: {forward: 1.0, up: -0.2}}
-  - {id: enemy, anchor: victim.body, offset: {up: 1.2}}
 presentation:
   timeline:
     - id: cast
@@ -30,13 +29,12 @@ presentation:
       every: 1
       until: bolt.end
       do:
-        # GAP: v2 trail spacing 0.4 -> v3 sweep anchor {of: bolt, sweep: 0.4}; spacing semantics assumed equal
         - {id: t1, op: particle, particle: electric_spark, anchor: {of: bolt, sweep: 0.4}, count: 3, offset: [0.12, 0.12, 0.12], extra: 0.05}
         - {id: t2, op: particle, particle: end_rod, anchor: {of: bolt, sweep: 0.4}, count: 1, offset: [0.02, 0.02, 0.02], extra: 0}
   "on":
     hit:
-      - {id: snd_hit, op: sound, sound: "astera:skills/lightning-impact", anchor: enemy, volume: 0.7, pitch: 1.2}
-      - {id: imp, op: emit, effect: thunder-impact, anchor: enemy}
+      - {id: snd_hit, op: sound, sound: "astera:skills/lightning-impact", anchor: contact, volume: 0.7, pitch: 1.2}
+      - {id: imp, op: emit, effect: thunder-impact, anchor: contact}
     block:
       - {id: snd_blk, op: sound, sound: "astera:weapons/gun-impact-block", anchor: contact.point, volume: 0.5, pitch: 1.5}
       - {id: spark, op: emit, effect: hit-spark, anchor: contact.point}
@@ -58,7 +56,6 @@ machine:
           block: {mode: despawn}
           on:
             hit:
-              # GAP: v2 area target has no max_count -> v3 requires it; 8 chosen as placeholder (example j), needs founder/engine value
-              - {id: dmg, op: damage, target: {kind: enemies, around: contact, radius: "${radius}", max_count: 8, include_self: false}, components: [{kind: electric, amount: "${dmg_electric}"}]}
+              - {id: dmg, op: damage, target: {kind: enemies, around: contact, radius: "${radius}", max_count: all, include_self: false}, damage: {electric: "${dmg_electric}"}}  # GAP(Q1): max_count spelling (A required int|all / B omit) is a founder question; v2 had no cap
               - {id: shock, op: status, target: event.victim, status: shock, stacks: 1, for: "${shock_ticks}", when: "= rand() < 0.4"}
     done: {final: true}

@@ -4,10 +4,6 @@ kind: Skill
 id: sanctuary-purify
 item: sanctuary-staff
 meta: {name: {ja: "浄化", en: Purify}, description: {ja: "自分と周囲の味方の状態異常を取り除く。", en: "Clears harmful effects from you and nearby allies."}, cooldown_ticks: 200, resource_cost: 20, tags: [magic, support]}
-# GAP: ring point position. v2 `shift` put point i of ring k at (left r*cos a, forward -r*sin a) around the anchor; the v3 particle op has no per-copy position
-#      (resolutions item 13 `Particle.position` not yet decoded). Direction/spread are kept; position is emitted at the anchor.
-# GAP: v2 ring phase draw('shape_ph') (shared random per cast) -> none; phase fixed to 0 (rand() is per (cast, op, i) and would scramble the ring).
-# GAP: area target max_count/include_self are required in v3; v2 had no cap -> max_count 32 is a decision needed (founder/ADR).
 anchors:
   - {id: self,  anchor: caster}
   - {id: feet,  anchor: caster, offset: {up: 0.15}}                   # was pt_caster_0_0p15_0
@@ -20,14 +16,13 @@ machine:
       then: end
       enter:
         - {id: snd, op: sound, sound: "block.amethyst_block.chime", anchor: caster, volume: 0.8, pitch: 1.2}
-        # GAP: cleanse (negative_only: true, allies around caster radius 6.0, include_self) -> none (no v3 op); kept verbatim.
-        - {id: cleanse, op: cleanse, negative_only: true, target: {kind: allies, around: self, radius: 6.0, max_count: 32, include_self: true}}
+        - {id: cleanse, op: cleanse, negative_only: true, target: {kind: allies, around: self, radius: 6.0, max_count: all, include_self: true}}   # GAP(Q1): v2 had no cap; A=`all`, B=omit
       do:
         - id: ring
           at: 0
           every: 1
           times: 8                   # ring k = parent.i; radius = 0.4 + parent.i * (3.0 - 0.4) / 7
           do:
-            - {id: pts,  op: particle, particle: end_rod, anchor: feet, count: 0, offset: "= [cos(6.283185307179586 * i / 16), 0, -sin(6.283185307179586 * i / 16)]", extra: 0.02, times: 16, at: 0}
-            - {id: dust, op: particle, particle: dust, anchor: feet, count: 1, extra: 0, color: "#f0f0aa", size: 1.4, times: 16, at: 0}
+            - {id: pts,  op: particle, particle: end_rod, anchor: feet, count: 0, offset: "= [cos(6.283185307179586 * i / n + 6.283185307179586 * draw('shape_ph')), 0, -sin(6.283185307179586 * i / n + 6.283185307179586 * draw('shape_ph'))]", extra: 0.02, times: 16, at: 0, shift: {left: "= (0.4 + parent.i * 2.6 / 7.0) * cos(6.283185307179586 * i / n + 6.283185307179586 * draw('shape_ph'))", forward: "= -(0.4 + parent.i * 2.6 / 7.0) * sin(6.283185307179586 * i / n + 6.283185307179586 * draw('shape_ph'))"}}
+            - {id: dust, op: particle, particle: dust, anchor: feet, count: 1, extra: 0, color: "#f0f0aa", size: 1.4, times: 16, at: 0, shift: {left: "= (0.4 + parent.i * 2.6 / 7.0) * cos(6.283185307179586 * i / n + 6.283185307179586 * draw('shape_ph'))", forward: "= -(0.4 + parent.i * 2.6 / 7.0) * sin(6.283185307179586 * i / n + 6.283185307179586 * draw('shape_ph'))"}}
     end: {final: true}

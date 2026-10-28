@@ -7,11 +7,9 @@ meta:
   description: {ja: "前方を薙ぎ払う基本の斬撃。", en: "A basic sweeping slash."}
   cooldown_ticks: 10
   tags: [melee, physical]
-# GAP: gameplay.expose (damage <- dmg_physical, arc_deg, range) -> none (inline literals)
 anchors:
   - {id: sweep_pt, anchor: caster.eye, offset: {up: -0.3, forward: 1.6}}
-  - {id: foe,   anchor: victim.root}
-  - {id: heart, anchor: victim.root, offset: {up: 1.2}}
+  - {id: heart, anchor: victim.root, offset: {up: 1.2}}  # GAP(Q2): v2 enemy frame origin = feet+0.8 fixed; victim.body (live hitbox centre, 0.9) or a fixed chest point is the founder's choice (Q2)
 machine:
   start: swing
   states:
@@ -23,15 +21,20 @@ machine:
           op: hit
           at: 0
           anchor: caster.eye
-          shape: {sector: {deg: 100, range: 3.5, height: 2.0}}
+          shape: {sector: {deg: 100, range: 3.5, height: 2.0, forward: look}}
           targets: enemies
+          max_count: all  # GAP(Q1): spelling A (required, `all` = v2 unlimited); under B delete this line
+          ignore_invulnerability: false
           damage: {physical: 40.0}
           window: once
           on:
             hit:
-              - {id: snd_hit, op: sound, sound: "astera:weapons/blade-hit", anchor: foe}
+              - {id: kb, op: knockback, target: event.victim, direction: "= normalize(pos(event.victim) - pos(caster))", strength: 0.4}
+              - {id: snd_hit, op: sound, sound: "astera:weapons/blade-hit", anchor: contact}
               - {id: fx_hit, op: particle_def, def: hit-spark, anchor: heart}
+            # v2 miss cue: sound at tick 2 when counter('swing_hits') == 0
+            miss:
+              - {id: snd_miss, op: sound, at: 2, sound: "astera:weapons/blade-miss", anchor: caster}
         - {id: snd, op: sound, sound: "astera:weapons/sword-swing", anchor: caster}
         - {id: fx, op: particle_def, def: slash-sweep, anchor: sweep_pt}
-        # GAP: counter swing_hits (+1 per hit) and sound blade-miss when counter('swing_hits') == 0.0 (miss cue) -> none (no counter op; class-L when is not allowed on a sound)
     end: {final: true}

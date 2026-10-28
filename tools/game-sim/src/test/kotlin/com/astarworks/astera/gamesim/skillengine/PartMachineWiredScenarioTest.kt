@@ -4,7 +4,6 @@ import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.skillengine.table.Action
 import com.astarworks.astera.core.domain.skillengine.table.Duration
 import com.astarworks.astera.core.domain.skillengine.table.EventPath
-import com.astarworks.astera.core.domain.skillengine.table.ExitReason
 import com.astarworks.astera.core.domain.skillengine.table.StatePath
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -64,9 +63,9 @@ class PartMachineWiredScenarioTest : SkillEngineScenario() {
                 z: { final: true }
             """.trimIndent(),
         )
-        val child = t.states.first { it.state == StatePath("p/c") }
-        val stop = child.branches.first { it.event == EventPath("stop") }
-        assertThat(stop.target).isEqualTo(StatePath("z"))
+        // the parent holds the branch; the player offers the event innermost first and bubbles it (item 14.8)
+        assertThat(t.states.first { it.state == StatePath("p") }.branches.first { it.event == EventPath("stop") }.target).isEqualTo(StatePath("z"))
+        assertThat(t.states.first { it.state == StatePath("p/c") }.branches.none { it.event == EventPath("stop") }).isTrue()
     }
 
     @Test
@@ -83,11 +82,13 @@ class PartMachineWiredScenarioTest : SkillEngineScenario() {
                 z: { final: true }
             """.trimIndent(),
         )
-        val sub = t.subTables.values.first { it.event.value.startsWith("p/q/c.exit[preempt]/p") }
-        val exits = sub.rows.map { it.action }.filterIsInstance<Action.Exit>()
-        assertThat(exits.map { it.state to it.reason }).containsExactly(
-            StatePath("p/q/c") to ExitReason.PREEMPT, StatePath("p/q") to ExitReason.PREEMPT, StatePath("p") to ExitReason.EVENT,
-        )
+        // one exit sub-table per state and reason; the paste order (descendants innermost first, then own exit, then on[k]) is the player's
+        for (key in listOf("p/q/c.exit[preempt]", "p/q.exit[preempt]", "p.exit[event]")) {
+            val sub = t.subTables[EventPath(key)]
+            assertThat(sub).describedAs(key).isNotNull
+            val first = sub!!.rows.first().action as Action.Exit
+            assertThat(first.state.value + ".exit[" + first.reason.name.lowercase() + "]").isEqualTo(key)
+        }
     }
 
     @Test

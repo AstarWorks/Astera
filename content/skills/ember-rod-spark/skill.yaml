@@ -16,7 +16,6 @@ params:
 anchors:
   - {id: muzzle, anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}
   - {id: fx, anchor: caster.eye, offset: {forward: 0.9, up: -0.25}}
-  - {id: enemy, anchor: victim.body, offset: {up: 1.2}}
 presentation:
   timeline:
     - id: cast
@@ -29,13 +28,12 @@ presentation:
       every: 1
       until: bolt.end
       do:
-        # GAP: v2 trail spacing 0.4 -> v3 sweep anchor {of: bolt, sweep: 0.4}; spacing semantics assumed equal
         - {id: t1, op: particle, particle: flame, anchor: {of: bolt, sweep: 0.4}, count: 1, offset: [0.04, 0.04, 0.04], extra: 0}
         - {id: t2, op: particle, particle: dust, anchor: {of: bolt, sweep: 0.4}, count: 1, offset: [0, 0, 0], extra: 0, color: "#ff7814", size: 1.0}
   "on":
     hit:
-      - {id: snd_hit, op: sound, sound: "astera:skills/fire-impact", anchor: enemy, volume: 0.7, pitch: 1.2}
-      - {id: spark, op: emit, effect: hit-spark, anchor: enemy}
+      - {id: snd_hit, op: sound, sound: "astera:skills/fire-impact", anchor: contact, volume: 0.7, pitch: 1.2}
+      - {id: spark, op: emit, effect: hit-spark, anchor: contact}
     block:
       - {id: snd_blk, op: sound, sound: "astera:weapons/gun-impact-block", anchor: contact.point, volume: 0.5, pitch: 1.5}
       - {id: spark_b, op: emit, effect: hit-spark, anchor: contact.point}
@@ -57,6 +55,6 @@ machine:
           block: {mode: despawn}
           on:
             hit:
-              - {id: dmg, op: damage, target: event.victim, components: [{kind: fire, amount: "${dmg_fire}"}]}
+              - {id: dmg, op: damage, target: event.victim, damage: {fire: "${dmg_fire}"}}
               - {id: burn, op: status, target: event.victim, status: burn, stacks: 1, for: "${burn_ticks}", when: "= rand() < 0.5"}
     done: {final: true}

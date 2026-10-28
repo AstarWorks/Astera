@@ -32,8 +32,9 @@ import com.astarworks.astera.core.domain.skillengine.table.phase
  * table, and [runtimeTiming] is the single place that states the rule.
  */
 public object StaticChecks {
-    public fun run(table: ExpansionTable, config: EngineConfig): Result<Unit, SkillDecodeError> {
-        val g = TableGraph(table, config)
+    /** [declaredEmits]: the skill's own `emits:` list; check 5 requires each name to be produced (`end` is produced by every final state). */
+    public fun run(table: ExpansionTable, config: EngineConfig, declaredEmits: List<String> = emptyList()): Result<Unit, SkillDecodeError> {
+        val g = TableGraph(table, config, declaredEmits)
         for (check in CHECKS) {
             val error = check(g)
             if (error != null) return Result.Failure(error)
@@ -230,6 +231,12 @@ public object StaticChecks {
             }
             return SkillDecodeError.TableClosure(e, "no producer in scope (built-in of a spawned op, a part's emits, or an emit:)", g.skillId)
         }
+        for (name in g.declaredEmits) {
+            if (name == "end") continue
+            if (emitted.none { it == name || it.endsWith(".$name") }) {
+                return SkillDecodeError.MachineCheck(5, "emits '$name' is declared but never emitted", g.skillId)
+            }
+        }
         for (b in g.allBranches()) {
             val guard = b.guard
             if (guard is Guard.Named && guard.cond !in g.table.conditions) {
@@ -423,7 +430,7 @@ public object StaticChecks {
     /** A state or a sub-table, seen uniformly: its rows, its branches, the state that owns it and where it sits in the owner. */
     private class TableUnit(val name: String, val owner: StatePath, val rows: List<Row>, val branches: List<Branch>, val window: TickRange?)
 
-    private class TableGraph(val table: ExpansionTable, val config: EngineConfig) {
+    private class TableGraph(val table: ExpansionTable, val config: EngineConfig, val declaredEmits: List<String> = emptyList()) {
         val skillId: String get() = table.skillId
         val stateByPath: Map<String, StateTable> = table.states.associateBy { it.state.value }
 

@@ -35,20 +35,20 @@ gameplay:
           block: {mode: despawn}
           on:
             hit:
-              # GAP: explode (power 1.3, radius 3.5, break_blocks false, physical 35) -> none in v3 gameplay ops; kept verbatim
-              - {id: boom, op: explode, target: event.victim, power: 1.3, break_blocks: false, radius: 3.5, components: [{kind: physical, amount: 35.0}]}
-              # GAP: max_count 64 is invented (v3 area targets require max_count; v2 had no cap) -> none
+              - {id: boom, op: explode, at: 0, anchor: victim, power: 1.3, break_blocks: false, fire: false}
+              # GAP(Q1): max_count 64 is invented (v2 had no cap); spelling per founder answer
+              - {id: boom_dmg, op: damage, target: {kind: enemies, around: victim, radius: 3.5, max_count: 64, include_self: false}, damage: {physical: 35.0}}
+              # GAP(Q1): max_count 64 is invented (v2 had no cap); spelling per founder answer
               - {id: st_bleed, op: status, target: {kind: enemies, around: heart, radius: 3.5, max_count: 64, include_self: false}, status: bleed, stacks: 1, for: 20}
-              # GAP: break_area (sphere r1.5, block_damage 35, breaks true, staged false, length 0.0) -> none; v3 has no world-damage op, kept verbatim (flat strike per cell, 054769350)
-              - {op: break_area, shape: sphere, radius: 1.5, block_damage: 35, breaks: true, staged: false, length: 0.0, id: chip, at: contact.point}
+              - {id: chip, op: break_area, at: 0, anchor: contact, shape: {sphere: {radius: 1.5, ahead: 0.0}}, tool: none, block_damage: 35, ripple: 0, revert: 200, outside_arena: false}
               - {id: snd_hit, op: sound, sound: "entity.generic.explode", anchor: heart, volume: 0.7, pitch: 1.2}
               - {id: fx_hit, op: particle_def, def: hit-spark, anchor: heart}
             block:
-              # GAP: explode at contact.point (power 1.3, radius 3.5, physical 35) -> none in v3 gameplay ops; kept verbatim
-              - {id: boom_2, op: explode, anchor: contact.point, power: 1.3, break_blocks: false, radius: 3.5, components: [{kind: physical, amount: 35.0}]}
-              # GAP: max_count 64 is invented -> none
+              - {id: boom_2, op: explode, at: 0, anchor: contact, power: 1.3, break_blocks: false, fire: false}
+              # GAP(Q1): max_count 64 is invented (v2 had no cap); spelling per founder answer
+              - {id: boom_dmg_2, op: damage, target: {kind: enemies, around: contact, radius: 3.5, max_count: 64, include_self: false}, damage: {physical: 35.0}}
+              # GAP(Q1): max_count 64 is invented (v2 had no cap); spelling per founder answer
               - {id: st_bleed_2, op: status, target: {kind: enemies, around: contact.point, radius: 3.5, max_count: 64, include_self: false}, status: bleed, stacks: 1, for: 20}
-              # GAP: break_area (sphere r1.5, block_damage 35, breaks true, staged false, length 0.0) -> none; v3 has no world-damage op, kept verbatim (flat strike per cell, 054769350)
-              - {op: break_area, shape: sphere, radius: 1.5, block_damage: 35, breaks: true, staged: false, length: 0.0, id: chip_2, at: contact.point}
+              - {id: chip_2, op: break_area, at: 0, anchor: contact, shape: {sphere: {radius: 1.5, ahead: 0.0}}, tool: none, block_damage: 35, ripple: 0, revert: 200, outside_arena: false}
               - {id: snd_blk, op: sound, sound: "entity.generic.explode", anchor: contact.point, volume: 0.7, pitch: 1.2}
               - {id: fx_blk, op: particle_def, def: hit-spark, anchor: contact.point}

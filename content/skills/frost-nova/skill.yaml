@@ -61,5 +61,4 @@ gameplay:
                 do:
                   - {id: hit_rings_pt, op: frame, times: 10, anchor: hit_base, turn: [{axis: up, deg: "= 360 * i / 10 + 90"}], offset: {forward: "= 0.6 + 0.15 * parent.i"}, for: 1}
                   - {op: particle, times: 10, anchor: 'hit_rings_pt[i]', particle: end_rod, count: 0, offset: "= anchor.forward", extra: 0.01}
-        # GAP: break_area (sphere r2.5, block_damage 20, breaks true, staged false, length 0.0, at caster) -> none; v3 has no world-damage op
-        - {op: break_area, shape: sphere, radius: 2.5, block_damage: 20, breaks: true, staged: false, length: 0.0, id: chip, at: caster}
+        - {id: chip, op: break_area, at: 0, anchor: caster, shape: {sphere: {radius: 2.5, ahead: 0.0}}, tool: none, block_damage: 20, ripple: 0, revert: 200, outside_arena: false}

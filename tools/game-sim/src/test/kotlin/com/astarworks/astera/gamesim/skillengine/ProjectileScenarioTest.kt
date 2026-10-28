@@ -241,4 +241,32 @@ class ProjectileScenarioTest : SkillEngineScenario() {
         assertEquals(10, end(s).tick)
         assertTrue(sub.rows.all { it.tick >= 0 })
     }
+
+    private val expireOn = "on: {expire: [{id: ex, op: sound, sound: \"astera:ex\", anchor: caster}]}"
+
+    @Test
+    fun expireBeforeEnd() {
+        val s = compile("{$base, speed: 1.0, range: 12, hit: {targets: enemies, once: true}, block: {mode: despawn}, $expireOn}")
+        val expire = s.sub("expire")
+        assertEquals(1, expire.maxFirings)
+        // the flight ends by range at tick 12: `expire` is that tick, never later than the End row
+        assertEquals(12, expire.window.min)
+        assertEquals(12, expire.window.max)
+        assertEquals(end(s).tick, expire.window.max)
+        assertTrue(expire.branches.isEmpty())
+        // stick mode: the stuck ticks are added to `end` only
+        val st = compile("{$base, for: 30, hit: {targets: enemies, once: true}, block: {mode: stick, for: 20}, $expireOn}")
+        assertEquals(30, st.sub("expire").window.max)
+        assertEquals(50, end(st).tick)
+    }
+
+    @Test
+    fun expireOnRangeNotAfterHit() {
+        val s = compile("{$base, speed: 1.0, range: 12, hit: {targets: enemies, once: true}, block: {mode: despawn}, $expireOn}")
+        val hitPath = s.table.subTables.keys.first { it.value.endsWith(".hit") }
+        val expired = play(s, seed = 1L, ticks = 30).count { it.verb == "sound" }
+        assertEquals(1, expired)
+        val afterHit = play(s, seed = 1L, events = listOf(RuntimeEvent(hitPath, 3, null, null, null)), ticks = 30).count { it.verb == "sound" }
+        assertEquals(0, afterHit)
+    }
 }
