@@ -32,7 +32,8 @@ import kotlin.math.floor
  * Mid ore nodes (Annihilation style). At match start every node of the stage's `content/ore-nodes/` file is placed in the
  * match world. A pickaxe of at least the node's tier mines it: the drops go to the player's inventory, the block becomes
  * the placeholder for `regrow_seconds`, then the ore returns. A weaker tool (or a bare hand) gets an action-bar hint and
- * nothing happens. A node is never an ordinary cover block: the Paper listener asks [mine] first and cancels the vanilla break.
+ * nothing happens. A node has HP: each hit deals its tier's `tool_effectiveness` damage, shows a crack, and only the hit that
+ * takes it to 0 mines it. A node is never an ordinary cover block: the Paper listener asks [mine] first and cancels the vanilla break.
  */
 public class OreNodeService(
     private val registry: IOreNodeRegistry,
@@ -57,11 +58,26 @@ public class OreNodeService(
         /** The tool is not a pickaxe of the required tier. */
         public data object TooWeak : Outcome
 
+        /** A hit landed inside the node's hit cooldown and is ignored. */
+        public data object Cooldown : Outcome
+
+        /** The hit cracked the node but did not finish it: [hp] of [maxHp] is left. */
+        public data class Hit(val hp: Int, val maxHp: Int) : Outcome
+
         public data class Mined(val dropped: List<Pair<String, Int>>) : Outcome
     }
 
     private data class Key(val world: String, val x: Int, val y: Int, val z: Int)
-    private class Node(val matchId: MatchId, val world: WorldId, val pos: Vec3, val spec: OreNodeSpec, var regrowing: Boolean = false)
+    private class Node(
+        val matchId: MatchId,
+        val world: WorldId,
+        val pos: Vec3,
+        val spec: OreNodeSpec,
+        var regrowing: Boolean = false,
+        var hp: Int = spec.maxHp,
+    )
+
+    private val lastHit = ConcurrentHashMap<PlayerId, Long>()
 
     private val nodes = ConcurrentHashMap<Key, Node>()
 
@@ -71,7 +87,7 @@ public class OreNodeService(
         val origin = stage?.origin ?: Vec3(0.0, 0.0, 0.0)
         val config = registry.find(source) ?: return
         val specs = config.nodes.mapNotNull { group ->
-            runCatching { group.toSpec { id -> customBlocks.find(BlockType(id))?.baseBukkitMaterial } }
+            runCatching { group.toSpec { id -> customBlocks.find(BlockType(id)) } }
                 .onFailure { onInvalid(source, it.message ?: it.toString()) }
                 .getOrNull()
         }
@@ -106,6 +122,15 @@ public class OreNodeService(
             target?.postActionBar(NEEDS_TIER, mapOf("tier" to node.spec.requiredTier.name.lowercase()))
             return Outcome.TooWeak
         }
+        val now = scheduler.currentTick()
+        val last = lastHit.put(player, now)
+        if (last != null && now - last < HIT_COOLDOWN_TICKS) return Outcome.Cooldown
+        node.hp -= hitDamage(node.spec, tool.tier)
+        if (node.hp > 0) {
+            world?.hit(node.world, node.pos, node.hp, node.spec.maxHp)
+            return Outcome.Hit(node.hp, node.spec.maxHp)
+        }
+        world?.clearCrack(node.world, node.pos)
         node.regrowing = true
         val given = node.spec.drops.map { it.itemId to it.count }
         val deliver = delivery()
@@ -117,11 +142,16 @@ public class OreNodeService(
         scheduler.runLaterTicks(ExecutionScope.Global, node.spec.regrowSeconds * TICKS_PER_SECOND) {
             if (nodes[keyOf(node.world, node.pos)] === node) {
                 node.regrowing = false
+                node.hp = node.spec.maxHp
                 world?.setBlock(node.world, node.pos, node.spec.material)
             }
         }
         return Outcome.Mined(given)
     }
+
+    /** Damage of one hit by a pickaxe of [tier]: the entry of the highest tier at or below it, else the plain 100. */
+    private fun hitDamage(spec: OreNodeSpec, tier: com.astarworks.astera.core.domain.world.ToolTier): Int =
+        spec.hitDamage.filterKeys { it <= tier }.maxByOrNull { it.key }?.value ?: DEFAULT_HIT_DAMAGE
 
     /** A node cell (mined or regrowing) is never removed by an area skill: nodes are mined one at a time. */
     override fun isExcluded(world: WorldId, pos: Vec3): Boolean = nodes.containsKey(keyOf(world, pos))
@@ -131,6 +161,8 @@ public class OreNodeService(
     private companion object {
         val NEEDS_TIER = MessageKey("astera.ore.needs-tier")
         const val TICKS_PER_SECOND = 20L
+        const val HIT_COOLDOWN_TICKS = 6L
+        const val DEFAULT_HIT_DAMAGE = 100
         const val PLACE_ATTEMPTS = 10
         const val PLACE_RETRY_TICKS = 20L
     }
