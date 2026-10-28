@@ -20,7 +20,8 @@ import kotlin.math.sin
  * corridor, direction given in caster axes (+Z forward, +X left, +Y up).
  *
  * The first step runs in the cast tick (inside [start]); the remaining steps run in [tick], which the
- * platform / cast runner calls once per server tick.
+ * platform / cast runner calls once per server tick AFTER the casts of that tick, so a dash started in
+ * tick N is not stepped by the [tick] of tick N (v1: first step at N, the repeat began one tick later).
  */
 public class DashStrikeDriver(
     private val ports: SkillRuntimePorts,
@@ -42,6 +43,8 @@ public class DashStrikeDriver(
         var stepIndex: Int = 0
         var finished: Boolean = false
         var immunityOwned: Boolean = false
+        /** Set by [start], which already ran step 1 this tick; the next [tick] call (same tick) must not step again. */
+        var startedThisTick: Boolean = true
         val hit: MutableSet<UUID> = HashSet()
     }
 
@@ -78,7 +81,10 @@ public class DashStrikeDriver(
 
     /** Advance every running dash one step. */
     public fun tick() {
-        for (dash in active.toList()) stepOnce(dash)
+        for (dash in active.toList()) {
+            if (dash.startedThisTick) { dash.startedThisTick = false; continue }
+            stepOnce(dash)
+        }
     }
 
     /** Ends the dashes of [cast] (cast cancelled / expired). */

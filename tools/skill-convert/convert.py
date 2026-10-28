@@ -398,6 +398,27 @@ class Conv:
         return None
 
     # ---------- mechanics ----------
+    COMMON_MECH_KEYS = {"type", "delay_ticks", "targets", "condition"}
+    MOVEMENT_KEYS = {
+        "dash_strike": {"distance", "ticks", "radius", "hit_once", "invulnerable", "stop_on_block", "follow_pitch",
+                        "stop_before_target", "local_direction", "face_movement", "on_hit"},
+        "propel": {"strength", "direction"},
+        "knockback": {"strength", "direction"},
+        "leap": {"destination", "arc_height"},
+    }
+
+    def require_movement_fields(self, m):
+        allowed = self.MOVEMENT_KEYS.get(m["type"])
+        if allowed is None:
+            return
+        extra = sorted(set(m) - allowed - self.COMMON_MECH_KEYS)
+        if extra:
+            raise ValueError("%s: movement mechanic %s carries field(s) %s that v2 cannot express; "
+                             "extend the op before converting" % (self.sid_hint(), m["type"], extra))
+
+    def sid_hint(self):
+        return getattr(self, "skill_id", "?")
+
     def mechanics(self, lst, where, base_delay=0):
         for m in lst or []:
             self.mech(m, where, base_delay)
@@ -406,6 +427,7 @@ class Conv:
         t = m["type"]
         delay = int(V(m.get("delay_ticks", 0)) or 0) + base_delay
         tg = m.get("targets")
+        self.require_movement_fields(m)
         if t == "for_each_target":
             w = self.select(tg, delay, m) if where.kind == "cast" and tg["type"] != "allies" else where
             for sub in m.get("mechanics", []):
@@ -560,7 +582,7 @@ class Conv:
         did = self.oid("dash")
         op = {"id": did, "op": "dash_strike", "distance": self.param("dash_distance", V(m["distance"])),
               "ticks": V(m["ticks"]), "radius": V(m["radius"]), "hit_once": bool(V(m.get("hit_once", True))),
-              "invulnerable": bool(V(m.get("invulnerable", False))), "stop_on_block": bool(V(m.get("stop_on_block", True))),
+              "invulnerable": bool(V(m.get("invulnerable", True))), "stop_on_block": bool(V(m.get("stop_on_block", True))),
               "follow_pitch": bool(V(m.get("follow_pitch", False)))}
         for k in ("stop_before_target", "local_direction", "face_movement"):
             if k in m:
