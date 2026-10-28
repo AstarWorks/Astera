@@ -7,7 +7,11 @@ import com.astarworks.astera.core.application.port.outbound.IMatchRepository
 import com.astarworks.astera.core.application.port.outbound.IMessageRenderer
 import com.astarworks.astera.core.application.port.outbound.IPlayerGateway
 import com.astarworks.astera.core.application.port.outbound.IPlayerPoseLookup
+import com.astarworks.astera.core.application.port.outbound.lobby.ILobbyToolBay
 import com.astarworks.astera.core.application.port.outbound.lobby.ILobbyTrainingRange
+import com.astarworks.astera.core.application.usecase.block.HitCustomBlockUseCase
+import com.astarworks.astera.core.domain.world.ToolKind
+import com.astarworks.astera.core.domain.world.ToolType
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.event.MatchFormed
 import com.astarworks.astera.core.domain.event.MatchStarted
@@ -52,6 +56,7 @@ public sealed class RackError(public val messageKey: MessageKey) {
  */
 public class TrainingRackService(
     private val range: () -> ILobbyTrainingRange?,
+    private val toolBay: () -> ILobbyToolBay? = { null },
     private val items: IItemRegistry,
     private val delivery: IItemDelivery,
     private val server: IMcServer,
@@ -69,7 +74,21 @@ public class TrainingRackService(
     /** The weapons currently on the rack, in slot order (extra weapons beyond the rack capacity are not shown). */
     public fun weapons(): List<ItemSpec> = AdminItemCatalog.kit(items.all())
 
-    /** Frames the rack should hold right now. */
+    /** The field tools on the tool-bay rack (MAP-A6): pickaxe, shovel, axe rows, stone / iron / diamond columns. */
+    public fun tools(): List<ItemSpec> = items.all()
+        .mapNotNull { spec -> spec.pdcTags[HitCustomBlockUseCase.TOOL_TAG]?.let(ToolType::fromSerialKey)?.takeIf { it.kind != ToolKind.NONE }?.let { it to spec } }
+        .sortedWith(compareBy({ TOOL_ROWS.indexOf(it.first.kind) }, { it.first.tier.ordinal }, { it.second.id.value }))
+        .map { it.second }
+
+    /** Frames of the tool-bay rack, in slot order. */
+    public fun toolFrames(): List<RackFrame> {
+        val slots = toolBay()?.plan?.rackSlots ?: return emptyList()
+        val tools = tools()
+        if (tools.size > slots.size) log.warn("Tool rack holds {} frames but content has {} tools; the rest are not shown", slots.size, tools.size)
+        return slots.zip(tools) { slot, spec -> RackFrame(slot, spec.id) }
+    }
+
+    /** Frames the weapon rack should hold right now. */
     public fun frames(): List<RackFrame> {
         val slots = range()?.plan?.rackSlots ?: return emptyList()
         val weapons = weapons()
@@ -85,12 +104,21 @@ public class TrainingRackService(
         return gateway.ensure(training.world, frames())
     }
 
+    /** Creates / repairs the tool-bay frames; `null` when the bay or its world is not ready. Run on the bay's region. */
+    public fun ensureToolRackRendered(): Int? {
+        val bay = toolBay() ?: return null
+        return gateway.ensure(bay.world, toolFrames(), ITrainingRackGateway.KIND_TOOL)
+    }
+
     /** [playerId] takes the weapon [itemId] from the rack. */
     public fun claim(playerId: PlayerId, itemId: ItemId): Result<ItemSpec, RackError> {
-        val spec = weapons().firstOrNull { it.id == itemId } ?: return fail(playerId, RackError.NotOnRack(itemId), itemId)
+        val spec = (weapons() + tools()).firstOrNull { it.id == itemId } ?: return fail(playerId, RackError.NotOnRack(itemId), itemId)
         val training = range()
+        val bay = toolBay()
         val pose = poses()?.poseOf(playerId)
-        if (training == null || pose == null || !training.contains(pose.world, pose.position)) {
+        val inRange = pose != null && ((training != null && training.contains(pose.world, pose.position)) ||
+            (bay != null && (pose.world == null || pose.world == bay.world) && bay.plan.area.contains(pose.position)))
+        if (!inRange) {
             return fail(playerId, RackError.NotInRange, itemId)
         }
         if (inventory.holds(playerId, itemId)) return fail(playerId, RackError.AlreadyHeld(itemId), itemId)
@@ -139,6 +167,7 @@ public class TrainingRackService(
     }
 
     public companion object {
+        private val TOOL_ROWS: List<ToolKind> = listOf(ToolKind.PICKAXE, ToolKind.SHOVEL, ToolKind.AXE)
         public val K_CLAIMED: MessageKey = MessageKey("astera.lobby.training.rack.claimed")
     }
 }

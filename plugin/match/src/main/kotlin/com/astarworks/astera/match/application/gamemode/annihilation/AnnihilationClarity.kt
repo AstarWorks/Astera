@@ -6,6 +6,8 @@ import com.astarworks.astera.core.domain.match.Match
 import com.astarworks.astera.core.domain.match.MatchId
 import com.astarworks.astera.core.domain.match.MatchPhase
 import com.astarworks.astera.core.domain.match.TeamId
+import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
+import com.astarworks.astera.core.domain.event.PlayerRespawned
 import com.astarworks.astera.core.domain.nexus.NexusId
 import com.astarworks.astera.core.domain.nexus.NexusPillarTier
 import com.astarworks.astera.core.domain.nexus.NexusState
@@ -16,7 +18,8 @@ import com.astarworks.astera.match.application.gamemode.siege.SiegeEnv
 /**
  * What tells a player in Annihilation where the pillars are and what to do: a floating label over every standing pillar
  * (its owner, tier and HP, per viewer ours / theirs) and the hologram + action-bar guide pointing at the nearest enemy
- * pillar of the team's current tier, or at our own pillar while it is being hit. Runs once a second beside
+ * pillar of the team's current tier, or at our own pillar while it is being hit. The guide is shown only while the player
+ * holds the navigation compass, which sits locked in hotbar slot 9 (index 8) from match start and after every respawn. Runs once a second beside
  * [AnnihilationGameMode]'s own tick; knows nothing about phases beyond what the pillars' state says.
  */
 public class AnnihilationClarity(private val env: SiegeEnv, private val tracker: AnnihilationMatchTracker) {
@@ -27,11 +30,16 @@ public class AnnihilationClarity(private val env: SiegeEnv, private val tracker:
         val labelled: MutableSet<NexusId> = mutableSetOf()
     }
 
-    private val kit = ObjectiveKit(env, MODE)
+    private val kit = ObjectiveKit(env, MODE, compassItem = true)
     private val watches: MutableMap<MatchId, Watch> = mutableMapOf()
+    private val respawns: MutableMap<MatchId, IDomainEventBus.Subscription> = mutableMapOf()
 
     public fun start(matchId: MatchId) {
         watches[matchId] = Watch()
+        respawns.remove(matchId)?.cancel()
+        respawns[matchId] = env.eventBus.subscribe(PlayerRespawned::class) { ev ->
+            if (ev.matchId == matchId) env.compass()?.give(ev.playerId)
+        }
         tick(matchId)
     }
 
@@ -39,6 +47,7 @@ public class AnnihilationClarity(private val env: SiegeEnv, private val tracker:
         val watch = watches[matchId] ?: return
         val match = env.matches.findById(matchId) ?: return
         val now = env.now()
+        giveCompasses(match)
         val views = tracker.pillarViews(matchId).filter { it.site != null && it.world != null }
         for (view in views) {
             val nexus = view.nexus
@@ -50,10 +59,18 @@ public class AnnihilationClarity(private val env: SiegeEnv, private val tracker:
     }
 
     public fun end(matchId: MatchId) {
+        respawns.remove(matchId)?.cancel()
         watches.remove(matchId) ?: return
         env.labels()?.clearMatch(matchId)
         val members = env.matches.findById(matchId)?.teams?.flatMap { it.members }.orEmpty()
         kit.endMatch(matchId, members)
+        env.compass()?.let { compass -> members.forEach(compass::remove) }
+    }
+
+    /** Everyone in the match owns the compass (idempotent: covers match start, late joiners and any respawn path). */
+    private fun giveCompasses(match: Match) {
+        val compass = env.compass() ?: return
+        for (team in match.teams) for (member in team.members) compass.give(member)
     }
 
     private fun placeLabels(match: Match, watch: Watch, views: List<AnnihilationMatchTracker.PillarView>) {

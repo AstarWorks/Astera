@@ -1,5 +1,6 @@
 package com.astarworks.astera.gamesim
 
+import com.astarworks.astera.bots.LoadoutClassifier
 import com.astarworks.astera.bots.Weapon
 import com.astarworks.astera.bots.WeaponKind
 import com.astarworks.astera.bots.WeaponPolicy
@@ -67,7 +68,7 @@ class BotTwoWeaponsScenarioTest {
     fun `a gun and sword bot swings up close, shoots at range and reloads the empty gun in one fight`() {
         scenario("bot-two-weapons-gun-sword") {
             val bot = player("bot", team = "red")
-            val victim = player("victim", at = Vec3(0.0, groundY, 12.0), team = "blue")
+            val victim = player("victim", at = Vec3(0.0, groundY, 16.0), team = "blue")
             fatten(victim)
             bot.holds("rifle")
             bot.holds("knight-sword")
@@ -77,7 +78,7 @@ class BotTwoWeaponsScenarioTest {
             )
 
             // Range: the rifle (20 rounds) fires until empty and the bot reloads it.
-            fighter.phase(12.0, RANGE_TICKS)
+            fighter.phase(16.0, RANGE_TICKS)
             val rangedHits = eventsOf<DamageDealt>().count { it.attacker == bot.id }
             assertThat(rangedHits).`as`("rifle hits at range").isGreaterThan(0)
             assertThat(eventsOf<ResourceReloaded>()).`as`("empty rifle was reloaded").isNotEmpty()
@@ -97,7 +98,7 @@ class BotTwoWeaponsScenarioTest {
     fun `a gun and staff bot casts the staff while the gun reloads`() {
         scenario("bot-two-weapons-gun-staff") {
             val bot = player("bot", team = "red")
-            val victim = player("victim", at = Vec3(0.0, groundY, 12.0), team = "blue")
+            val victim = player("victim", at = Vec3(0.0, groundY, 16.0), team = "blue")
             fatten(victim)
             bot.holds("rifle")
             bot.holds("frost-staff")
@@ -106,12 +107,83 @@ class BotTwoWeaponsScenarioTest {
                 listOf(Weapon(0, WeaponKind.RANGED), Weapon(1, WeaponKind.RANGED, magazine = true)),
             )
 
-            fighter.phase(12.0, RANGE_TICKS)
+            fighter.phase(16.0, RANGE_TICKS)
 
             assertThat(fighter.log.map { it.second }.toSet()).containsExactlyInAnyOrder("rifle", "frost-staff")
             assertThat(eventsOf<ResourceReloaded>()).isNotEmpty()
             assertThat(eventsOf<DamageDealt>().count { it.attacker == bot.id }).isGreaterThan(0)
         }
+    }
+
+    /** The tooltip lines the server shows (`astera.item.tooltip.trigger.*`, joined like the client lore) decide the weapon kind. */
+    @Test
+    fun `a bot classifies a rifle and a frost staff as ranged from their tooltips, shoots them at range and never selects a tool or the compass`() {
+        fun lore(vararg triggers: String) = "Uncommon · Lv.2 | " + triggers.joinToString(" | ")
+        val rifle = LoadoutClassifier.classify("Rifle", lore("[RMB] Rifle Shot", "[Shift+RMB] Backstep", "[Shift+Q] Reload"))
+        val staff = LoadoutClassifier.classify("Frost Staff", lore("[RMB] Frost Bolt", "[Shift+RMB] Frost Nova"))
+        val sword = LoadoutClassifier.classify("Knight's Sword", lore("[LMB] Slash", "[Shift+RMB] Guard"))
+        val pickaxe = LoadoutClassifier.classify("Diamond Pickaxe", lore("[RMB] Bore", "[Shift+RMB] Shatter"))
+        val shovelJa = LoadoutClassifier.classify("ダイヤのショベル", lore("[RMB] 掘削"))
+        val compass = LoadoutClassifier.classify("Navigation Compass", "")
+        assertThat(rifle).isEqualTo(LoadoutClassifier.Item(LoadoutClassifier.Kind.RANGED, magazine = true))
+        assertThat(staff).isEqualTo(LoadoutClassifier.Item(LoadoutClassifier.Kind.RANGED))
+        assertThat(sword.kind).isEqualTo(LoadoutClassifier.Kind.MELEE)
+        assertThat(pickaxe).isEqualTo(LoadoutClassifier.Item(LoadoutClassifier.Kind.TOOL, affinity = LoadoutClassifier.Affinity.PICKAXE))
+        assertThat(shovelJa.affinity).isEqualTo(LoadoutClassifier.Affinity.SHOVEL)
+        assertThat(compass.kind).isEqualTo(LoadoutClassifier.Kind.OTHER)
+
+        // The loadout the brain builds from them drives the same fight: the rifle shoots at range, the sword only up close.
+        scenario("bot-two-weapons-classified") {
+            val bot = player("bot", team = "red")
+            val victim = player("victim", at = Vec3(0.0, groundY, 16.0), team = "blue")
+            fatten(victim)
+            bot.holds("rifle")
+            bot.holds("knight-sword")
+            fun weapon(slot: Int, c: LoadoutClassifier.Item) =
+                Weapon(slot, if (c.kind == LoadoutClassifier.Kind.RANGED) WeaponKind.RANGED else WeaponKind.MELEE, c.magazine)
+            val fighter = Fighter(this, bot, victim, listOf("knight-sword", "rifle"), listOf(weapon(0, sword), weapon(1, rifle)))
+            fighter.phase(16.0, 120)
+            assertThat(eventsOf<DamageDealt>().count { it.attacker == bot.id }).`as`("rifle hits at range").isGreaterThan(0)
+            assertThat(fighter.log.map { it.second }.toSet()).containsExactly("rifle")
+        }
+    }
+
+    /** Lore as the client shows it: the shipped trigger templates of both languages with tags stripped. */
+    @Test
+    fun `the shipped en and ja trigger lines classify a sword as melee and a staff, a bow hold and a gun as ranged`() {
+        fun templates(file: String): Map<String, String> {
+            val lines = GameSim.defaultContentDir().resolve("languages/$file").toFile().readLines()
+            val start = lines.indexOfFirst { it.trim().startsWith("left_click:") }
+            return lines.drop(start).takeWhile { it.startsWith("        ") }.associate { l ->
+                val (k, v) = l.trim().split(": ", limit = 2)
+                k to v.trim('"').replace(Regex("<[^>]+>"), "").replace("{name}", "Skill")
+            }
+        }
+        for (file in listOf("en.yaml", "ja.yaml")) {
+            val t = templates(file)
+            fun lore(vararg keys: String) = "Common | " + keys.joinToString(" | ") { t.getValue(it) }
+            val sword = LoadoutClassifier.classify("Sword", lore("left_click", "sneak_right"))
+            val swordSneakOnly = LoadoutClassifier.classify("Wand", lore("sneak_left", "right_click"))
+            val staff = LoadoutClassifier.classify("Staff", lore("right_click", "sneak_right"))
+            val bow = LoadoutClassifier.classify("Bow", lore("hold", "shoot"))
+            val gun = LoadoutClassifier.classify("Gun", lore("right_click", "drop") + " | Reload")
+            assertThat(sword.kind).`as`("$file sword: ${t["left_click"]}").isEqualTo(LoadoutClassifier.Kind.MELEE)
+            assertThat(swordSneakOnly.kind).`as`("$file shift-LMB alone is not a melee weapon").isEqualTo(LoadoutClassifier.Kind.RANGED)
+            assertThat(staff.kind).`as`("$file staff").isEqualTo(LoadoutClassifier.Kind.RANGED)
+            assertThat(bow.kind).`as`("$file bow: ${t["hold"]}").isEqualTo(LoadoutClassifier.Kind.RANGED)
+            assertThat(gun.kind).`as`("$file gun").isEqualTo(LoadoutClassifier.Kind.RANGED)
+        }
+    }
+
+    /** A sword-carrying bot closes in for the rush at mid distance instead of kiting; a gun-only bot still shoots. */
+    @Test
+    fun `a sword bot switches to the sword at mid distance and back to the gun beyond the release distance`() {
+        val sword = Weapon(0, WeaponKind.MELEE)
+        val gun = Weapon(1, WeaponKind.RANGED, magazine = true)
+        val both = listOf(sword, gun)
+        assertThat(WeaponPolicy.choose(both, 8.0, 0L, 0L, gun)).isEqualTo(sword)
+        assertThat(WeaponPolicy.choose(both, 16.0, 0L, 0L, sword)).isEqualTo(gun)
+        assertThat(WeaponPolicy.choose(listOf(gun), 8.0, 0L, 0L, null)).isEqualTo(gun)
     }
 
     private companion object {

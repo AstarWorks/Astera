@@ -123,7 +123,10 @@ abstract class PlaythroughBase : E2eBase() {
         val before = b.slotUpdates.size
         rcon("astera items give ${b.name} $item")
         b.waitUntil(5_000) { b.slotUpdates.drop(before).any { it.containerId == 0 && it.amount > 0 && it.slot in 36..44 } }
-        val slot = b.slotUpdates.drop(before).lastOrNull { it.containerId == 0 && it.amount > 0 && it.slot in 36..44 }?.slot?.minus(36)
+        // Hotbar slot 9 (window slot 44) belongs to the locked match navigation compass in compass modes (Annihilation): its update can
+        // land after the item's, so prefer the last update in slots 1-8 and fall back to slot 9 only when nothing else arrived.
+        val updates = b.slotUpdates.drop(before).filter { it.containerId == 0 && it.amount > 0 && it.slot in 36..44 }
+        val slot = (updates.lastOrNull { it.slot != 44 } ?: updates.lastOrNull())?.slot?.minus(36)
             ?: return null
         b.selectHotbar((slot + 1) % 9)
         Thread.sleep(150)

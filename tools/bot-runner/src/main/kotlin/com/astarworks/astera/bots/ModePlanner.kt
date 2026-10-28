@@ -43,7 +43,10 @@ class ModePlanner(
     }
 
     /** One pillar block of an Annihilation stage: [x]/[y]/[z] are the block coordinates. */
-    data class PillarSite(val team: String, val tier: Int, val x: Int, val y: Int, val z: Int)
+    data class PillarSite(val team: String, val tier: Int, val x: Int, val y: Int, val z: Int, val affinity: String? = null) {
+        /** Tool class that digs this pillar fastest: the stage's `affinity`, else the tier default. */
+        fun toolClass(): LoadoutClassifier.Affinity = LoadoutClassifier.parseAffinity(affinity) ?: LoadoutClassifier.defaultAffinity(tier)
+    }
 
     /**
      * Where to go: [kind] is one of `pickup`, `bank`, `tnt`, `deliver`, `jewel`, `wool`, `recover`, `shield`, `checkpoint`,
@@ -53,6 +56,7 @@ class ModePlanner(
     data class Step(
         val zone: String, val x: Double, val y: Double, val z: Double, val arrive: Double, val kind: String,
         val role: Role? = null, val engage: Double = Double.MAX_VALUE, val strike: Triple<Int, Int, Int>? = null,
+        val affinity: LoadoutClassifier.Affinity? = null,
     )
 
     // Inferred state (the server does not tell a client what it carries).
@@ -167,7 +171,10 @@ class ModePlanner(
     /** Hands and TNT as the mode itself reports them (when the facts know), instead of what the pickups inferred. */
     private fun syncFromFacts() {
         when (modeId) {
-            "carry-tnt" -> facts.tnt()?.let { holdingTnt = it.carrierName == botName }
+            "carry-tnt" -> facts.tnt()?.let {
+                // A carrier whose name is unknown (client view) leaves the pickup-confirmed state alone while the own team carries.
+                holdingTnt = if (it.carrierName != null) it.carrierName == botName else it.carrierTeam == ownTeam && holdingTnt
+            }
             "carry-mini-tnt", "steal-jewelry" -> facts.carriedBy(botName)?.let { carried = it }
         }
     }
@@ -383,7 +390,7 @@ class ModePlanner(
         val target = RoleAssigner.weakestTeam(enemyTeams) { t -> all.count { it.team == t && standing(it) } } ?: return null
         val p = all.filter { it.team == target && standing(it) }.minByOrNull { it.tier } ?: return null
         return Step("pillar-$target-${p.tier}", p.x + 0.5, p.y.toDouble(), p.z + 0.5, PILLAR_REACH, "pillar", Role.PILLAR_ATTACKER,
-            strike = Triple(p.x, p.y, p.z))
+            engage = ATTACK_ENGAGE, strike = Triple(p.x, p.y, p.z), affinity = p.toolClass())
     }
 
     /** Stage region ids per the objective-mode region contract (ADR-0296): no fallbacks, a stage without them has no plan. */
@@ -421,5 +428,7 @@ class ModePlanner(
         const val ESCORT_ENGAGE = 25.0
         const val GUARD_ENGAGE = 30.0
         const val HOLD_ENGAGE = 14.0
+        /** A pillar attacker only fights an enemy this close; farther ones are walked past so the pillar trip finishes. */
+        const val ATTACK_ENGAGE = 12.0
     }
 }

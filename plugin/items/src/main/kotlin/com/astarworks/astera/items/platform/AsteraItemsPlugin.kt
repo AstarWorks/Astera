@@ -7,6 +7,7 @@ import com.astarworks.astera.items.adapter.paper.PaperItemDelivery
 import com.astarworks.astera.items.adapter.paper.PaperItemCooldownSweepGateway
 import com.astarworks.astera.items.adapter.paper.PaperItemIdResolver
 import com.astarworks.astera.core.adapter.paper.item.PaperItemMaterializer
+import com.astarworks.astera.core.adapter.paper.item.PaperItemTooltipGuard
 import com.astarworks.astera.core.application.service.item.ItemBlueprintFactory
 import com.astarworks.astera.items.adapter.paper.PaperTrainingInventory
 import com.astarworks.astera.items.adapter.paper.PaperTrainingRackGateway
@@ -78,6 +79,7 @@ public class AsteraItemsPlugin : JavaPlugin() {
 
         val wired = ItemsWiring.install(ctx, ports)
         itemsResult = wired
+        PaperItemTooltipGuard { materializer }.start(this)
         ItemsPaperBindings.register(this, wired, checkNotNull(rackFrames), { core.services.get<com.astarworks.astera.core.application.port.outbound.lobby.ILobbyTrainingRange>()?.world?.value })
 
         logger.info("Astera-Items enabled.")
