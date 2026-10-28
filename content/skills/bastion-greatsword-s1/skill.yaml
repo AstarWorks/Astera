@@ -19,7 +19,7 @@ gameplay:
     - id: t4
       at: 4
       do:
-        - {id: dash, op: dash_strike, distance: "${dash_distance}", ticks: 3, radius: 0.5, hit_once: true, invulnerable: false, stop_on_block: true, follow_pitch: false, stop_before_target: 1.7}
+        - {id: dash, op: dash_strike, distance: "${dash_distance}", ticks: 3, radius: 0.5, hit_once: true, invulnerable: true, stop_on_block: true, follow_pitch: false, stop_before_target: 1.7}
     - id: t7
       at: 7
       do:
@@ -28,7 +28,7 @@ gameplay:
     - id: t28
       at: 28
       do:
-        - {id: dash_2, op: dash_strike, distance: "${dash_distance_2}", ticks: 3, radius: 0.5, hit_once: true, invulnerable: false, stop_on_block: true, follow_pitch: false, stop_before_target: 1.7}
+        - {id: dash_2, op: dash_strike, distance: "${dash_distance_2}", ticks: 3, radius: 0.5, hit_once: true, invulnerable: true, stop_on_block: true, follow_pitch: false, stop_before_target: 1.7}
     - {id: t31, at: 31, do: [{id: sel_2, op: hit, frames: [caster], sphere: {at: caster, radius: "${radius}"}, window: once}]}
   "on":
     hit:

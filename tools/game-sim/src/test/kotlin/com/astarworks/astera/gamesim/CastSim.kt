@@ -140,6 +140,14 @@ class CastSim(
     val victimAnims = ArrayList<VictimAnimCall>()
     /** Flip to false to simulate the caster dying or quitting (the movement gateway then reports it gone). */
     var casterAlive: Boolean = true
+    /**
+     * Opt-in hit points for every victim (null = victims are immortal, as in the ordinary scenarios). A victim whose hp
+     * reaches 0 logs `death`, stops being a target and is parked at the origin: v1's reference world respawns a dead
+     * dummy at the spawn point, which the gameplay parity dump has to reproduce to line up.
+     */
+    var victimHp: Double? = null
+    private val hp = HashMap<UUID, Double>()
+    private val dead = HashSet<UUID>()
     /** Statuses applied through the gameplay gateway: (tick, victim, status id). */
     val statuses = ArrayList<Triple<Int, UUID, String>>()
     /** Hit-stop calls: (tick, frozen entities, ticks). */
@@ -180,7 +188,7 @@ class CastSim(
         private set
 
     private val movement = object : ISkillMovementGateway by noop() {
-        override fun isAlive(entity: UUID): Boolean = entity != caster || casterAlive
+        override fun isAlive(entity: UUID): Boolean = if (entity == caster) casterAlive else entity !in dead
         override fun teleport(entity: UUID, to: Vec3, yawDeg: Double?): Boolean {
             if (entity == caster) casterFeet = to
             standing[entity] = to
@@ -204,6 +212,17 @@ class CastSim(
             for (c in components) {
                 dealt += Dealt(now, victim, c.amount, ignoreInvulnerability, skillId)
                 gpLine("damage", "\"v\":\"${whoOf(victim)}\",\"amt\":${r(c.amount)},\"src\":${jq(skillId)},\"hit\":{${rel(hitPoint)}},\"ignoreIframes\":$ignoreInvulnerability")
+                val max = victimHp
+                if (max != null && victim != caster && victim !in dead) {
+                    val left = (hp[victim] ?: max) - c.amount
+                    hp[victim] = left
+                    if (left <= 0.0) {
+                        dead += victim
+                        standing[victim] = origin
+                        gpLine("tp", "\"who\":\"${whoOf(victim)}\",${rel(origin)}")
+                        gpLine("death", "\"who\":\"${whoOf(victim)}\"")
+                    }
+                }
             }
         }
         override fun freezeEntities(entities: List<UUID>, ticks: Int) {
@@ -229,6 +248,7 @@ class CastSim(
             gpLine("resource", "\"who\":\"${whoOf(victim)}\",\"res\":${jq(resource)},\"amount\":${r(amount)}")
         }
         override fun impulse(victim: UUID, vector: Vec3) {
+            velocities[victim] = (velocities[victim] ?: Vec3.ZERO) + vector
             gpLine("kb", "\"who\":\"${whoOf(victim)}\",\"strength\":${r(vector.length())},\"vec\":[${r(vector.x)},${r(vector.y)},${r(vector.z)}],\"via\":\"impulse\"")
         }
     }
@@ -244,6 +264,7 @@ class CastSim(
         private fun box(feet: Vec3) = HitBox(Vec3(feet.x - halfWidth, feet.y, feet.z - halfWidth), Vec3(feet.x + halfWidth, feet.y + boxHeight, feet.z + halfWidth))
         override fun nearby(point: Vec3, radius: Double, excluding: UUID?): List<HitCandidate> =
             victims.filter { (id, feet) ->
+                if (id in dead) return@filter false
                 // Paper's getNearbyLivingEntities: the cube of half-size radius around the point must overlap the entity box.
                 val b = box(feet)
                 id != excluding && b.min.x <= point.x + radius && b.max.x >= point.x - radius &&
@@ -275,7 +296,7 @@ class CastSim(
             gpLine("block", "\"k\":\"damage\",${cellAt(cell)},\"amount\":$blockDamage,\"tool\":${toolClass?.let { jq(it) }}")
             return BlockDamageOutcome.CHIPPED
         }
-        override fun place(cell: BlockCell, blockKey: String) { gpLine("block", "\"k\":\"place\",${cellAt(cell)},\"block\":${jq(blockKey)}") }
+        override fun place(cell: BlockCell, blockKey: String): Boolean { gpLine("block", "\"k\":\"place\",${cellAt(cell)},\"block\":${jq(blockKey)}"); return true }
         override fun remove(cell: BlockCell) { gpLine("block", "\"k\":\"break\",${cellAt(cell)}") }
         override fun placeCover(cast: CastId, cell: BlockCell, blockKey: String): Boolean {
             gpLine("block", "\"k\":\"place\",${cellAt(cell)},\"block\":${jq(blockKey)},\"cover\":true")
