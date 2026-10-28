@@ -23,6 +23,7 @@ presentation:
             - {t: 10, offset: [-0.35, 1.1, 0.3], scale: [0.18, 0.18, 0.8], turn: [21.25001, 40.20424, -32.85196]}
             - {t: 34, offset: [-0.35, 1.1, 0.3], scale: [0.18, 0.18, 0.8]}
             - {t: 44, offset: [-0.35, 1.1, 0.3], scale: [0.0, 0.0, 0.0]}
+          sample_ticks: 1
         - {op: block, parent: fx2_edict_branching_arms, block: black_concrete, size: [1.0, 1.0, 1.0], id: fx2_edict_branching_arms_arm__1_0_1}
         - id: fx2_edict_branching_arms_arm__1_0_1_trk
           op: track
@@ -32,6 +33,7 @@ presentation:
             - {t: 10, offset: [-0.95, 0.7, 0.6], scale: [0.14, 0.14, 0.8], turn: [21.25001, 40.20424, -32.85196]}
             - {t: 34, offset: [-0.95, 0.7, 0.6], scale: [0.14, 0.14, 0.8]}
             - {t: 44, offset: [-0.95, 0.7, 0.6], scale: [0.0, 0.0, 0.0]}
+          sample_ticks: 1
         - {op: block, parent: fx2_edict_branching_arms, block: black_concrete, size: [1.0, 1.0, 1.0], id: fx2_edict_branching_arms_arm__1_0_2}
         - id: fx2_edict_branching_arms_arm__1_0_2_trk
           op: track
@@ -41,6 +43,7 @@ presentation:
             - {t: 10, offset: [-1.55, 0.3, 0.9], scale: [0.1, 0.1, 0.8], turn: [21.25001, 40.20424, -32.85196]}
             - {t: 34, offset: [-1.55, 0.3, 0.9], scale: [0.1, 0.1, 0.8]}
             - {t: 44, offset: [-1.55, 0.3, 0.9], scale: [0.0, 0.0, 0.0]}
+          sample_ticks: 1
         - {op: block, parent: fx2_edict_branching_arms, block: black_concrete, size: [1.0, 1.0, 1.0], id: fx2_edict_branching_arms_arm__1_1_0}
         - id: fx2_edict_branching_arms_arm__1_1_0_trk
           op: track
@@ -50,6 +53,7 @@ presentation:
             - {t: 10, offset: [-0.35, 1.35, 0.3], scale: [0.18, 0.18, 0.8], turn: [-7.63428, 34.436, -24.21284]}
             - {t: 34, offset: [-0.35, 1.35, 0.3], scale: [0.18, 0.18, 0.8]}
             - {t: 44, offset: [-0.35, 1.35, 0.3], scale: [0.0, 0.0, 0.0]}
+          sample_ticks: 1
         - {op: block, parent: fx2_edict_branching_arms, block: black_concrete, size: [1.0, 1.0, 1.0], id: fx2_edict_branching_arms_arm__1_1_1}
         - id: fx2_edict_branching_arms_arm__1_1_1_trk
           op: track
@@ -59,6 +63,7 @@ presentation:
             - {t: 10, offset: [-0.95, 1.35, 0.6], scale: [0.14, 0.14, 0.8], turn: [-7.63428, 34.436, -24.21284]}
             - {t: 34, offset: [-0.95, 1.35, 0.6], scale: [0.14, 0.14, 0.8]}
             - {t: 44, offset: [-0.95, 1.35, 0.6], scale: [0.0, 0.0, 0.0]}
+          sample_ticks: 1
         - {op: block, parent: fx2_edict_branching_arms, block: black_concrete, size: [1.0, 1.0, 1.0], id: fx2_edict_branching_arms_arm__1_1_2}
         - id: fx2_edict_branching_arms_arm__1_1_2_trk
           op: track
@@ -68,6 +73,7 @@ presentation:
             - {t: 10, offset: [-1.55, 1.35, 0.9], scale: [0.1, 0.1, 0.8], turn: [-7.63428, 34.436, -24.21284]}
             - {t: 34, offset: [-1.55, 1.35, 0.9], scale: [0.1, 0.1, 0.8]}
             - {t: 44, offset: [-1.55, 1.35, 0.9], scale: [0.0, 0.0, 0.0]}
+          sample_ticks: 1
         - {op: block, parent: fx2_edict_branching_arms, block: black_concrete, size: [1.0, 1.0, 1.0], id: fx2_edict_branching_arms_arm__1_2_0}
         - id: fx2_edict_branching_arms_arm__1_2_0_trk
           op: track
@@ -77,6 +83,7 @@ presentation:
             - {t: 10, offset: [-0.35, 1.6, 0.3], scale: [0.18, 0.18, 0.8], turn: [-35.82541, 27.13511, -14.54976]}
             - {t: 34, offset: [-0.35, 1.6, 0.3], scale: [0.18, 0.18, 0.8]}
             - {t: 44, offset: [-0.35, 1.6, 0.3], scale: [0.0, 0.0, 0.0]}
+          sample_ticks: 1
         - {op: block, parent: fx2_edict_branching_arms, block: black_concrete, size: [1.0, 1.0, 1.0], id: fx2_edict_branching_arms_arm__1_2_1}
         - id: fx2_edict_branching_arms_arm__1_2_1_trk
           op: track
@@ -86,6 +93,7 @@ presentation:
             - {t: 10, offset: [-0.95, 2.0, 0.6], scale: [0.14, 0.14, 0.8], turn: [-35.82541, 27.13511, -14.54976]}
             - {t: 34, offset: [-0.95, 2.0, 0.6], scale: [0.14, 0.14, 0.8]}
             - {t: 44, offset: [-0.95, 2.0, 0.6], scale: [0.0, 0.0, 0.0]}
+          sample_ticks: 1
         - {op: block, parent: fx2_edict_branching_arms, block: black_concrete, size: [1.0, 1.0, 1.0], id: fx2_edict_branching_arms_arm__1_2_2}
         - id: fx2_edict_branching_arms_arm__1_2_2_trk
           op: track
@@ -95,6 +103,7 @@ presentation:
             - {t: 10, offset: [-1.55, 2.4, 0.9], scale: [0.1, 0.1, 0.8], turn: [-35.82541, 27.13511, -14.54976]}
             - {t: 34, offset: [-1.55, 2.4, 0.9], scale: [0.1, 0.1, 0.8]}
             - {t: 44, offset: [-1.55, 2.4, 0.9], scale: [0.0, 0.0, 0.0]}
+          sample_ticks: 1
         - {op: block, parent: fx2_edict_branching_arms, block: black_concrete, size: [1.0, 1.0, 1.0], id: fx2_edict_branching_arms_arm_1_0_0}
         - id: fx2_edict_branching_arms_arm_1_0_0_trk
           op: track
@@ -104,6 +113,7 @@ presentation:
             - {t: 10, offset: [0.35, 1.1, 0.3], scale: [0.18, 0.18, 0.8], turn: [21.25001, -40.20424, 32.85196]}
             - {t: 34, offset: [0.35, 1.1, 0.3], scale: [0.18, 0.18, 0.8]}
             - {t: 44, offset: [0.35, 1.1, 0.3], scale: [0.0, 0.0, 0.0]}
+          sample_ticks: 1
         - {op: block, parent: fx2_edict_branching_arms, block: black_concrete, size: [1.0, 1.0, 1.0], id: fx2_edict_branching_arms_arm_1_0_1}
         - id: fx2_edict_branching_arms_arm_1_0_1_trk
           op: track
@@ -113,6 +123,7 @@ presentation:
             - {t: 10, offset: [0.95, 0.7, 0.6], scale: [0.14, 0.14, 0.8], turn: [21.25001, -40.20424, 32.85196]}
             - {t: 34, offset: [0.95, 0.7, 0.6], scale: [0.14, 0.14, 0.8]}
             - {t: 44, offset: [0.95, 0.7, 0.6], scale: [0.0, 0.0, 0.0]}
+          sample_ticks: 1
         - {op: block, parent: fx2_edict_branching_arms, block: black_concrete, size: [1.0, 1.0, 1.0], id: fx2_edict_branching_arms_arm_1_0_2}
         - id: fx2_edict_branching_arms_arm_1_0_2_trk
           op: track
@@ -122,6 +133,7 @@ presentation:
             - {t: 10, offset: [1.55, 0.3, 0.9], scale: [0.1, 0.1, 0.8], turn: [21.25001, -40.20424, 32.85196]}
             - {t: 34, offset: [1.55, 0.3, 0.9], scale: [0.1, 0.1, 0.8]}
             - {t: 44, offset: [1.55, 0.3, 0.9], scale: [0.0, 0.0, 0.0]}
+          sample_ticks: 1
         - {op: block, parent: fx2_edict_branching_arms, block: black_concrete, size: [1.0, 1.0, 1.0], id: fx2_edict_branching_arms_arm_1_1_0}
         - id: fx2_edict_branching_arms_arm_1_1_0_trk
           op: track
@@ -131,6 +143,7 @@ presentation:
             - {t: 10, offset: [0.35, 1.35, 0.3], scale: [0.18, 0.18, 0.8], turn: [-7.63428, -34.436, 24.21284]}
             - {t: 34, offset: [0.35, 1.35, 0.3], scale: [0.18, 0.18, 0.8]}
             - {t: 44, offset: [0.35, 1.35, 0.3], scale: [0.0, 0.0, 0.0]}
+          sample_ticks: 1
         - {op: block, parent: fx2_edict_branching_arms, block: black_concrete, size: [1.0, 1.0, 1.0], id: fx2_edict_branching_arms_arm_1_1_1}
         - id: fx2_edict_branching_arms_arm_1_1_1_trk
           op: track
@@ -140,6 +153,7 @@ presentation:
             - {t: 10, offset: [0.95, 1.35, 0.6], scale: [0.14, 0.14, 0.8], turn: [-7.63428, -34.436, 24.21284]}
             - {t: 34, offset: [0.95, 1.35, 0.6], scale: [0.14, 0.14, 0.8]}
             - {t: 44, offset: [0.95, 1.35, 0.6], scale: [0.0, 0.0, 0.0]}
+          sample_ticks: 1
         - {op: block, parent: fx2_edict_branching_arms, block: black_concrete, size: [1.0, 1.0, 1.0], id: fx2_edict_branching_arms_arm_1_1_2}
         - id: fx2_edict_branching_arms_arm_1_1_2_trk
           op: track
@@ -149,6 +163,7 @@ presentation:
             - {t: 10, offset: [1.55, 1.35, 0.9], scale: [0.1, 0.1, 0.8], turn: [-7.63428, -34.436, 24.21284]}
             - {t: 34, offset: [1.55, 1.35, 0.9], scale: [0.1, 0.1, 0.8]}
             - {t: 44, offset: [1.55, 1.35, 0.9], scale: [0.0, 0.0, 0.0]}
+          sample_ticks: 1
         - {op: block, parent: fx2_edict_branching_arms, block: black_concrete, size: [1.0, 1.0, 1.0], id: fx2_edict_branching_arms_arm_1_2_0}
         - id: fx2_edict_branching_arms_arm_1_2_0_trk
           op: track
@@ -158,6 +173,7 @@ presentation:
             - {t: 10, offset: [0.35, 1.6, 0.3], scale: [0.18, 0.18, 0.8], turn: [-35.82541, -27.13511, 14.54976]}
             - {t: 34, offset: [0.35, 1.6, 0.3], scale: [0.18, 0.18, 0.8]}
             - {t: 44, offset: [0.35, 1.6, 0.3], scale: [0.0, 0.0, 0.0]}
+          sample_ticks: 1
         - {op: block, parent: fx2_edict_branching_arms, block: black_concrete, size: [1.0, 1.0, 1.0], id: fx2_edict_branching_arms_arm_1_2_1}
         - id: fx2_edict_branching_arms_arm_1_2_1_trk
           op: track
@@ -167,6 +183,7 @@ presentation:
             - {t: 10, offset: [0.95, 2.0, 0.6], scale: [0.14, 0.14, 0.8], turn: [-35.82541, -27.13511, 14.54976]}
             - {t: 34, offset: [0.95, 2.0, 0.6], scale: [0.14, 0.14, 0.8]}
             - {t: 44, offset: [0.95, 2.0, 0.6], scale: [0.0, 0.0, 0.0]}
+          sample_ticks: 1
         - {op: block, parent: fx2_edict_branching_arms, block: black_concrete, size: [1.0, 1.0, 1.0], id: fx2_edict_branching_arms_arm_1_2_2}
         - id: fx2_edict_branching_arms_arm_1_2_2_trk
           op: track
@@ -176,6 +193,7 @@ presentation:
             - {t: 10, offset: [1.55, 2.4, 0.9], scale: [0.1, 0.1, 0.8], turn: [-35.82541, -27.13511, 14.54976]}
             - {t: 34, offset: [1.55, 2.4, 0.9], scale: [0.1, 0.1, 0.8]}
             - {t: 44, offset: [1.55, 2.4, 0.9], scale: [0.0, 0.0, 0.0]}
+          sample_ticks: 1
     - id: fx3
       at: 3
       do:
@@ -196,6 +214,7 @@ presentation:
             - {t: 5, text: "<#397BDB><b>Q%4K!8"}
             - {t: 13, text: "<#397BDB><b>SE@L#9"}
             - {t: 23, text: "<#397BDB><b>CLEAR"}
+          sample_ticks: 1
     - {id: fx9, at: 9, do: [{id: flash, op: screen_flash, target: caster, overlay: vignette, color: "#080510", fade_in: 0, stay: 1, fade_out: 1}]}
     - id: fx10
       at: 10
@@ -209,6 +228,7 @@ presentation:
             - {t: 0, offset: [0.0, 1.1, 3.1], scale: [0.0, 0.0, 0.0], turn: [0.0, -90.0, 0.0]}
             - {t: 2, offset: [0.0, 1.1, 3.1], scale: [0.05, 0.04705, 1.30062], turn: [0.0, -90.0, 0.0]}
             - {t: 14, offset: [0.0, 1.1, 3.1], scale: [0.0, 0.0, 0.78037], turn: [0.0, -90.0, 0.0]}
+          sample_ticks: 1
         - {op: block, parent: fx3_edict_ground_ellipse, block: light_blue_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx3_edict_ground_ellipse_arc_1}
         - id: fx3_edict_ground_ellipse_arc_1_trk
           op: track
@@ -217,6 +237,7 @@ presentation:
             - {t: 0, offset: [1.09819, 1.1, 2.86657], scale: [0.0, 0.0, 0.0], turn: [0.0, -114.0, 0.0]}
             - {t: 2, offset: [1.09819, 1.1, 2.86657], scale: [0.05, 0.06835, 1.30062], turn: [0.0, -114.0, 0.0]}
             - {t: 14, offset: [1.09819, 1.1, 2.86657], scale: [0.0, 0.0, 0.78037], turn: [0.0, -114.0, 0.0]}
+          sample_ticks: 1
         - {op: block, parent: fx3_edict_ground_ellipse, block: light_blue_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx3_edict_ground_ellipse_arc_2}
         - id: fx3_edict_ground_ellipse_arc_2_trk
           op: track
@@ -225,6 +246,7 @@ presentation:
             - {t: 0, offset: [2.00649, 1.1, 2.20665], scale: [0.0, 0.0, 0.0], turn: [0.0, -138.0, 0.0]}
             - {t: 2, offset: [2.00649, 1.1, 2.20665], scale: [0.05, 0.08817, 1.30062], turn: [0.0, -138.0, 0.0]}
             - {t: 14, offset: [2.00649, 1.1, 2.20665], scale: [0.0, 0.0, 0.78037], turn: [0.0, -138.0, 0.0]}
+          sample_ticks: 1
         - {op: block, parent: fx3_edict_ground_ellipse, block: light_blue_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx3_edict_ground_ellipse_arc_3}
         - id: fx3_edict_ground_ellipse_arc_3_trk
           op: track
@@ -233,6 +255,7 @@ presentation:
             - {t: 0, offset: [2.56785, 1.1, 1.23435], scale: [0.0, 0.0, 0.0], turn: [0.0, -162.0, 0.0]}
             - {t: 2, offset: [2.56785, 1.1, 1.23435], scale: [0.05, 0.10584, 1.30062], turn: [0.0, -162.0, 0.0]}
             - {t: 14, offset: [2.56785, 1.1, 1.23435], scale: [0.0, 0.0, 0.78037], turn: [0.0, -162.0, 0.0]}
+          sample_ticks: 1
         - {op: block, parent: fx3_edict_ground_ellipse, block: light_blue_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx3_edict_ground_ellipse_arc_4}
         - id: fx3_edict_ground_ellipse_arc_4_trk
           op: track
@@ -241,6 +264,7 @@ presentation:
             - {t: 0, offset: [2.68521, 1.1, 0.11777], scale: [0.0, 0.0, 0.0], turn: [0.0, 174.0, 0.0]}
             - {t: 2, offset: [2.68521, 1.1, 0.11777], scale: [0.05, 0.12076, 1.30062], turn: [0.0, 174.0, 0.0]}
             - {t: 14, offset: [2.68521, 1.1, 0.11777], scale: [0.0, 0.0, 0.78037], turn: [0.0, 174.0, 0.0]}
+          sample_ticks: 1
         - {op: block, parent: fx3_edict_ground_ellipse, block: light_blue_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx3_edict_ground_ellipse_arc_5}
         - id: fx3_edict_ground_ellipse_arc_5_trk
           op: track
@@ -249,6 +273,7 @@ presentation:
             - {t: 0, offset: [2.33827, 1.1, -0.95], scale: [0.0, 0.0, 0.0], turn: [0.0, 150.0, 0.0]}
             - {t: 2, offset: [2.33827, 1.1, -0.95], scale: [0.05, 0.13242, 1.30062], turn: [0.0, 150.0, 0.0]}
             - {t: 14, offset: [2.33827, 1.1, -0.95], scale: [0.0, 0.0, 0.78037], turn: [0.0, 150.0, 0.0]}
+          sample_ticks: 1
         - {op: block, parent: fx3_edict_ground_ellipse, block: light_blue_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx3_edict_ground_ellipse_arc_6}
         - id: fx3_edict_ground_ellipse_arc_6_trk
           op: track
@@ -257,6 +282,7 @@ presentation:
             - {t: 0, offset: [1.58702, 1.1, -1.78435], scale: [0.0, 0.0, 0.0], turn: [0.0, 126.0, 0.0]}
             - {t: 2, offset: [1.58702, 1.1, -1.78435], scale: [0.05, 0.14042, 1.30062], turn: [0.0, 126.0, 0.0]}
             - {t: 14, offset: [1.58702, 1.1, -1.78435], scale: [0.0, 0.0, 0.78037], turn: [0.0, 126.0, 0.0]}
+          sample_ticks: 1
         - {op: block, parent: fx3_edict_ground_ellipse, block: light_blue_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx3_edict_ground_ellipse_arc_7}
         - id: fx3_edict_ground_ellipse_arc_7_trk
           op: track
@@ -265,6 +291,7 @@ presentation:
             - {t: 0, offset: [0.56136, 1.1, -2.241], scale: [0.0, 0.0, 0.0], turn: [0.0, 102.0, 0.0]}
             - {t: 2, offset: [0.56136, 1.1, -2.241], scale: [0.05, 0.14449, 1.30062], turn: [0.0, 102.0, 0.0]}
             - {t: 14, offset: [0.56136, 1.1, -2.241], scale: [0.0, 0.0, 0.78037], turn: [0.0, 102.0, 0.0]}
+          sample_ticks: 1
         - {op: block, parent: fx3_edict_ground_ellipse, block: light_blue_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx3_edict_ground_ellipse_arc_8}
         - id: fx3_edict_ground_ellipse_arc_8_trk
           op: track
@@ -273,6 +300,7 @@ presentation:
             - {t: 0, offset: [-0.56136, 1.1, -2.241], scale: [0.0, 0.0, 0.0], turn: [0.0, 78.0, 0.0]}
             - {t: 2, offset: [-0.56136, 1.1, -2.241], scale: [0.05, 0.14449, 1.30062], turn: [0.0, 78.0, 0.0]}
             - {t: 14, offset: [-0.56136, 1.1, -2.241], scale: [0.0, 0.0, 0.78037], turn: [0.0, 78.0, 0.0]}
+          sample_ticks: 1
         - {op: block, parent: fx3_edict_ground_ellipse, block: light_blue_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx3_edict_ground_ellipse_arc_9}
         - id: fx3_edict_ground_ellipse_arc_9_trk
           op: track
@@ -281,6 +309,7 @@ presentation:
             - {t: 0, offset: [-1.58702, 1.1, -1.78435], scale: [0.0, 0.0, 0.0], turn: [0.0, 54.0, 0.0]}
             - {t: 2, offset: [-1.58702, 1.1, -1.78435], scale: [0.05, 0.14042, 1.30062], turn: [0.0, 54.0, 0.0]}
             - {t: 14, offset: [-1.58702, 1.1, -1.78435], scale: [0.0, 0.0, 0.78037], turn: [0.0, 54.0, 0.0]}
+          sample_ticks: 1
         - {op: block, parent: fx3_edict_ground_ellipse, block: light_blue_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx3_edict_ground_ellipse_arc_10}
         - id: fx3_edict_ground_ellipse_arc_10_trk
           op: track
@@ -289,6 +318,7 @@ presentation:
             - {t: 0, offset: [-2.33827, 1.1, -0.95], scale: [0.0, 0.0, 0.0], turn: [0.0, 30.0, 0.0]}
             - {t: 2, offset: [-2.33827, 1.1, -0.95], scale: [0.05, 0.13242, 1.30062], turn: [0.0, 30.0, 0.0]}
             - {t: 14, offset: [-2.33827, 1.1, -0.95], scale: [0.0, 0.0, 0.78037], turn: [0.0, 30.0, 0.0]}
+          sample_ticks: 1
         - {op: block, parent: fx3_edict_ground_ellipse, block: light_blue_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx3_edict_ground_ellipse_arc_11}
         - id: fx3_edict_ground_ellipse_arc_11_trk
           op: track
@@ -297,6 +327,7 @@ presentation:
             - {t: 0, offset: [-2.68521, 1.1, 0.11777], scale: [0.0, 0.0, 0.0], turn: [0.0, 6.0, 0.0]}
             - {t: 2, offset: [-2.68521, 1.1, 0.11777], scale: [0.05, 0.12076, 1.30062], turn: [0.0, 6.0, 0.0]}
             - {t: 14, offset: [-2.68521, 1.1, 0.11777], scale: [0.0, 0.0, 0.78037], turn: [0.0, 6.0, 0.0]}
+          sample_ticks: 1
         - {op: block, parent: fx3_edict_ground_ellipse, block: light_blue_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx3_edict_ground_ellipse_arc_12}
         - id: fx3_edict_ground_ellipse_arc_12_trk
           op: track
@@ -305,6 +336,7 @@ presentation:
             - {t: 0, offset: [-2.56785, 1.1, 1.23435], scale: [0.0, 0.0, 0.0], turn: [0.0, -18.0, 0.0]}
             - {t: 2, offset: [-2.56785, 1.1, 1.23435], scale: [0.05, 0.10584, 1.30062], turn: [0.0, -18.0, 0.0]}
             - {t: 14, offset: [-2.56785, 1.1, 1.23435], scale: [0.0, 0.0, 0.78037], turn: [0.0, -18.0, 0.0]}
+          sample_ticks: 1
         - {op: block, parent: fx3_edict_ground_ellipse, block: light_blue_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx3_edict_ground_ellipse_arc_13}
         - id: fx3_edict_ground_ellipse_arc_13_trk
           op: track
@@ -313,6 +345,7 @@ presentation:
             - {t: 0, offset: [-2.00649, 1.1, 2.20665], scale: [0.0, 0.0, 0.0], turn: [0.0, -42.0, 0.0]}
             - {t: 2, offset: [-2.00649, 1.1, 2.20665], scale: [0.05, 0.08817, 1.30062], turn: [0.0, -42.0, 0.0]}
             - {t: 14, offset: [-2.00649, 1.1, 2.20665], scale: [0.0, 0.0, 0.78037], turn: [0.0, -42.0, 0.0]}
+          sample_ticks: 1
         - {op: block, parent: fx3_edict_ground_ellipse, block: light_blue_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx3_edict_ground_ellipse_arc_14}
         - id: fx3_edict_ground_ellipse_arc_14_trk
           op: track
@@ -321,6 +354,7 @@ presentation:
             - {t: 0, offset: [-1.09819, 1.1, 2.86657], scale: [0.0, 0.0, 0.0], turn: [0.0, -66.0, 0.0]}
             - {t: 2, offset: [-1.09819, 1.1, 2.86657], scale: [0.05, 0.06835, 1.30062], turn: [0.0, -66.0, 0.0]}
             - {t: 14, offset: [-1.09819, 1.1, 2.86657], scale: [0.0, 0.0, 0.78037], turn: [0.0, -66.0, 0.0]}
+          sample_ticks: 1
         - {op: block, parent: fx3_edict_ground_ellipse, block: light_blue_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx3_edict_ground_ellipse_arc_15}
         - id: fx3_edict_ground_ellipse_arc_15_trk
           op: track
@@ -329,6 +363,7 @@ presentation:
             - {t: 0, offset: [0.0, 1.1, 3.1], scale: [0.0, 0.0, 0.0], turn: [0.0, -90.0, 0.0]}
             - {t: 2, offset: [0.0, 1.1, 3.1], scale: [0.05, 0.04705, 1.30062], turn: [0.0, -90.0, 0.0]}
             - {t: 14, offset: [0.0, 1.1, 3.1], scale: [0.0, 0.0, 0.78037], turn: [0.0, -90.0, 0.0]}
+          sample_ticks: 1
     - id: fx12
       at: 12
       do:
@@ -351,6 +386,7 @@ presentation:
             - {t: 11, turn: [0.0, 0.0, 55.0]}
             - {t: 12, offset: [1.15, 1.3, 1.99186], scale: [0.4, 0.06, 0.1], turn: [0.0, 0.0, 60.0]}
             - {t: 17, scale: [0.01, 0.01, 0.01]}
+          sample_ticks: 1
         - {op: block, parent: fx1_edict_prescript, block: purple_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_edict_prescript_violet_1}
         - id: fx1_edict_prescript_violet_1_trk
           op: track
@@ -370,6 +406,7 @@ presentation:
             - {t: 11, turn: [0.0, 0.0, 100.0]}
             - {t: 12, offset: [-0.59528, 1.3, 2.22163], scale: [0.4, 0.06, 0.1], turn: [0.0, 0.0, 105.0]}
             - {t: 17, scale: [0.01, 0.01, 0.01]}
+          sample_ticks: 1
         - {op: block, parent: fx1_edict_prescript, block: purple_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_edict_prescript_violet_2}
         - id: fx1_edict_prescript_violet_2_trk
           op: track
@@ -389,6 +426,7 @@ presentation:
             - {t: 11, turn: [0.0, 0.0, 145.0]}
             - {t: 12, offset: [-1.99186, 1.3, 1.15], scale: [0.4, 0.06, 0.1], turn: [0.0, 0.0, 150.0]}
             - {t: 17, scale: [0.01, 0.01, 0.01]}
+          sample_ticks: 1
         - {op: block, parent: fx1_edict_prescript, block: purple_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_edict_prescript_violet_3}
         - id: fx1_edict_prescript_violet_3_trk
           op: track
@@ -408,6 +446,7 @@ presentation:
             - {t: 11, turn: [0.0, 0.0, -170.0]}
             - {t: 12, offset: [-2.22163, 1.3, -0.59528], scale: [0.4, 0.06, 0.1], turn: [0.0, 0.0, -165.0]}
             - {t: 17, scale: [0.01, 0.01, 0.01]}
+          sample_ticks: 1
         - {op: block, parent: fx1_edict_prescript, block: purple_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_edict_prescript_violet_4}
         - id: fx1_edict_prescript_violet_4_trk
           op: track
@@ -427,6 +466,7 @@ presentation:
             - {t: 11, turn: [0.0, 0.0, -125.0]}
             - {t: 12, offset: [-1.15, 1.3, -1.99186], scale: [0.4, 0.06, 0.1], turn: [0.0, 0.0, -120.0]}
             - {t: 17, scale: [0.01, 0.01, 0.01]}
+          sample_ticks: 1
         - {op: block, parent: fx1_edict_prescript, block: purple_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_edict_prescript_violet_5}
         - id: fx1_edict_prescript_violet_5_trk
           op: track
@@ -446,6 +486,7 @@ presentation:
             - {t: 11, turn: [0.0, 0.0, -80.0]}
             - {t: 12, offset: [0.59528, 1.3, -2.22163], scale: [0.4, 0.06, 0.1], turn: [0.0, 0.0, -75.0]}
             - {t: 17, scale: [0.01, 0.01, 0.01]}
+          sample_ticks: 1
         - {op: block, parent: fx1_edict_prescript, block: purple_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_edict_prescript_violet_6}
         - id: fx1_edict_prescript_violet_6_trk
           op: track
@@ -465,6 +506,7 @@ presentation:
             - {t: 11, turn: [0.0, 0.0, -35.0]}
             - {t: 12, offset: [1.99186, 1.3, -1.15], scale: [0.4, 0.06, 0.1], turn: [0.0, 0.0, -30.0]}
             - {t: 17, scale: [0.01, 0.01, 0.01]}
+          sample_ticks: 1
         - {op: block, parent: fx1_edict_prescript, block: purple_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_edict_prescript_violet_7}
         - id: fx1_edict_prescript_violet_7_trk
           op: track
@@ -484,6 +526,7 @@ presentation:
             - {t: 11, turn: [0.0, 0.0, 10.0]}
             - {t: 12, offset: [2.22163, 1.3, 0.59528], scale: [0.4, 0.06, 0.1], turn: [0.0, 0.0, 15.0]}
             - {t: 17, scale: [0.01, 0.01, 0.01]}
+          sample_ticks: 1
     - id: fx24
       at: 24
       do:

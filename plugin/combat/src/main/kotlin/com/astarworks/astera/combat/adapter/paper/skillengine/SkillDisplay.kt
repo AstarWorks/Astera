@@ -42,6 +42,12 @@ public data class Intrinsic(val unit: Vec3, val centre: Vec3 = Vec3.ZERO) {
             Vec3(1.0 / SOLID_SCALE_X, 1.0 / SOLID_SCALE_Y, 1.0), Vec3(-CENTER_X_PER_SCALE, -CENTER_Y_PER_SCALE, 0.0),
         )
 
+        /**
+         * A `text_display` quad drawing a glyph (v1 VfxQuad.kt:44-46,59-60: scale = size x 5 = size / 0.2, and the SAME native-centre
+         * correction as the solid quad is applied to every quad, glyph or not).
+         */
+        public val QUAD_GLYPH: Intrinsic = Intrinsic(Vec3(0.2, 0.2, 1.0), Vec3(-CENTER_X_PER_SCALE, -CENTER_Y_PER_SCALE, 0.0))
+
         /** Size of one scale unit of a sprite glyph: font height [px] pixels x 0.025 blocks (256 px = 6.4 blocks). */
         public fun textGlyph(px: Int): Intrinsic {
             val edge = px * 0.025

@@ -65,6 +65,8 @@ public sealed interface VisualOp : PresentationOp {
         val rigShading: Boolean = true,
         /** Per-viewer quality class (v1 `lane`): which viewers are shown this display. */
         val lane: VfxLane = VfxLane.CORE,
+        /** Step keys of the displayed `item_model` on this same display, on the clock of the rig it hangs from (v1 `weapon_model`). */
+        val models: List<MeshModelKey> = emptyList(),
     ) : VisualOp
 
     /** A sprite quad as a NODE of the frame tree named [id], child of [parent]; [size] is its edge length in BLOCKS. */
@@ -217,6 +219,11 @@ public sealed interface VisualOp : PresentationOp {
         val target: String,
         val keys: List<TrackKey>,
         val space: String?,
+        /**
+         * v1 `VfxDefinition.sampleTicks` (:80): the display is written once per chunk of at most this many ticks, carrying the chunk-end
+         * transform and the chunk length as its interpolation (VfxTimeline.kt:544-559 `segmentSteps`). 1 = every tick.
+         */
+        val sampleTicks: Int = 1,
     ) : VisualOp
 
     /**
@@ -367,6 +374,9 @@ public data class PullKey(val tick: Int, val weight: Double)
 /** One wrist key of a [VisualOp.Rig]: absolute rotation-vector [rotate] (null keeps the previous), [ease] of the segment ENDING here (`step` = cut). */
 public data class RigSwingKey(val tick: Int, val rotate: Vec3?, val ease: String?, val sample: Boolean = false)
 // [sample]: a pre-eased sample between two real keys; it is not a chunk boundary of the rig clock
+
+/** Step key of [VisualOp.Mesh.models]: from rig tick [tick] the mesh shows item model [model] (`namespace:path`) until the next key. */
+public data class MeshModelKey(val tick: Int, val model: String)
 
 /** A hit-stop window of a [VisualOp.Rig]: [ticks] frozen ticks starting at rig-relative tick [at]. */
 public data class RigFreeze(val at: Int, val ticks: Int)

@@ -238,7 +238,7 @@ presentation:
     - {id: loop2, at: 48, every: 1, for: 8, do: [{id: fx3_orrery_crescent_b_staff_embers, op: emit, at: pt_fx3_orrery_crescent_b_staff_0_1p65_0, particle: orrery-ember}]}
   "on":
     hit:
-      - {id: anchor_2, op: anchor, frame: fx2_orrery_ring_hit, at: contact.point, orient: to_target, teleport_ticks: 2, when: "= event.source == 'sel'"}
+      - {id: anchor_2, op: anchor, frame: fx2_orrery_ring_hit, at: enemy, orient: to_target, follow: true, teleport_ticks: 2, when: "= event.source == 'sel'"}
       - op: block
         parent: fx2_orrery_ring_hit
         block: gold_block
@@ -257,6 +257,7 @@ presentation:
           - {t: 2, offset: [0.0, 0.0, 0.1], scale: [0.1, 0.1, 0.25], ease: out_expo}
           - {t: 6, block: yellow_stained_glass}
           - {t: 10, offset: [0.0, 0.0, 0.25], scale: [0.0, 0.0, 0.0], ease: in_quad}
+        sample_ticks: 1
         when: "= event.source == 'sel'"
       - {op: block, parent: fx2_orrery_ring_hit, block: purple_stained_glass, size: [1.0, 1.0, 1.0], brightness: 15, id: fx2_orrery_ring_hit_violet_core, when: "= event.source == 'sel'"}
       - id: fx2_orrery_ring_hit_violet_core_trk
@@ -266,9 +267,10 @@ presentation:
           - {t: 0, offset: [0.0, 1.0, 0.0], scale: [0.03, 0.2, 0.2]}
           - {t: 2, scale: [0.03, 0.8, 0.8], ease: out_expo}
           - {t: 8, scale: [0.0, 0.0, 0.0]}
+        sample_ticks: 1
         when: "= event.source == 'sel'"
       - {id: snd, op: sound, sound: entity.player.attack.strong, at: enemy, volume: 0.7, pitch: 1.1, when: "= event.source == 'sel'"}
-      - {id: anchor_4, op: anchor, frame: fx4_orrery_ring_hit, at: contact.point, orient: to_target, teleport_ticks: 2, when: "= event.source == 'sel_2'"}
+      - {id: anchor_4, op: anchor, frame: fx4_orrery_ring_hit, at: enemy, orient: to_target, follow: true, teleport_ticks: 2, when: "= event.source == 'sel_2'"}
       - op: block
         parent: fx4_orrery_ring_hit
         block: gold_block
@@ -287,6 +289,7 @@ presentation:
           - {t: 2, offset: [0.0, 0.0, 0.1], scale: [0.1, 0.1, 0.25], ease: out_expo}
           - {t: 6, block: yellow_stained_glass}
           - {t: 10, offset: [0.0, 0.0, 0.25], scale: [0.0, 0.0, 0.0], ease: in_quad}
+        sample_ticks: 1
         when: "= event.source == 'sel_2'"
       - {op: block, parent: fx4_orrery_ring_hit, block: purple_stained_glass, size: [1.0, 1.0, 1.0], brightness: 15, id: fx4_orrery_ring_hit_violet_core, when: "= event.source == 'sel_2'"}
       - id: fx4_orrery_ring_hit_violet_core_trk
@@ -296,5 +299,6 @@ presentation:
           - {t: 0, offset: [0.0, 1.0, 0.0], scale: [0.03, 0.2, 0.2]}
           - {t: 2, scale: [0.03, 0.8, 0.8], ease: out_expo}
           - {t: 8, scale: [0.0, 0.0, 0.0]}
+        sample_ticks: 1
         when: "= event.source == 'sel_2'"
       - {id: snd_2, op: sound, sound: entity.player.attack.strong, at: enemy, volume: 0.7, pitch: 1.1, when: "= event.source == 'sel_2'"}

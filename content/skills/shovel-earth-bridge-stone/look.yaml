@@ -4,5 +4,7 @@ apiVersion: "astera/v2"
 kind: Skill
 id: shovel-earth-bridge-stone
 frames:
-  - {id: pt_aim_0_0_2, kind: point, parent: aim, offset: [0.0, 0.0, 2.0]}
-presentation: {timeline: [{id: fx0, at: 0, do: [{id: snd, op: sound, sound: "astera:weapons/gun-impact-block", at: caster, volume: 1.0, pitch: 1.0}, {id: emit, op: emit, at: pt_aim_0_0_2, particle: hit-spark}]}]}
+  - {id: pt_caster_0_1p62_2, kind: point, parent: caster, offset: [0.0, 1.62, 2.0]}
+presentation:
+  timeline:
+    - {id: fx0, at: 0, do: [{id: snd, op: sound, sound: "astera:weapons/gun-impact-block", at: caster, volume: 1.0, pitch: 1.0}, {id: emit, op: emit, at: pt_caster_0_1p62_2, particle: hit-spark}]}

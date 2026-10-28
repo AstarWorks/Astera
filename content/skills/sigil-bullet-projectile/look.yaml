@@ -12,7 +12,7 @@ presentation:
     - {id: rep1, at: 0, every: 1, until: end, do: [{id: trail, op: emit, at: bolt, particle: dust, count: 1, spacing: 0.2, data: "#f0dc96", data_size: 0.65}]}
   "on":
     hit:
-      - {id: anchor, op: anchor, frame: fx1_sigil_rifle_mark, at: contact.point, orient: yaw}
+      - {id: anchor, op: anchor, frame: fx1_sigil_rifle_mark, at: enemy, orient: yaw}
       - {op: block, parent: fx1_sigil_rifle_mark, block: red_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_sigil_rifle_mark_solid_impact_0}
       - id: fx1_sigil_rifle_mark_solid_impact_0_trk
         op: track
@@ -20,6 +20,7 @@ presentation:
         keys:
           - {t: 0, offset: [0.0, 1.1, 0.0], scale: [0.055, 0.12, 1.6], turn: [25.0, 0.0, 0.0]}
           - {t: 7, scale: [0.0, 0.0, 1.6], ease: in_quad}
+        sample_ticks: 1
       - {op: block, parent: fx1_sigil_rifle_mark, block: red_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_sigil_rifle_mark_solid_impact_1}
       - id: fx1_sigil_rifle_mark_solid_impact_1_trk
         op: track
@@ -27,6 +28,7 @@ presentation:
         keys:
           - {t: 0, offset: [0.0, 1.1, 0.0], scale: [0.055, 0.08, 1.5], turn: [-25.0, 0.0, 0.0]}
           - {t: 7, scale: [0.0, 0.0, 1.6], ease: in_quad}
+        sample_ticks: 1
       - {op: block, parent: fx1_sigil_rifle_mark, block: yellow_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_sigil_rifle_mark_solid_impact_2}
       - id: fx1_sigil_rifle_mark_solid_impact_2_trk
         op: track
@@ -34,4 +36,5 @@ presentation:
         keys:
           - {t: 0, offset: [0.0, 1.1, 0.0], scale: [0.065, 0.1, 1.9], turn: [0.0, 0.0, 0.0]}
           - {t: 7, scale: [0.0, 0.0, 1.6], ease: in_quad}
+        sample_ticks: 1
       - {id: snd, op: sound, sound: entity.player.attack.strong, at: enemy, volume: 0.7, pitch: 1.1}

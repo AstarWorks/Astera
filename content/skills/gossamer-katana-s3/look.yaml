@@ -109,6 +109,7 @@ presentation:
             - {t: 0, offset: [0.0, 1.05, 3.0], scale: [0.01, 0.045, 13.1], turn: [0.0, 0.0, 0.0]}
             - {t: 1, scale: [0.05, 0.045, 13.1], ease: out_expo}
             - {t: 35, scale: [0.0, 0.0, 0.0], ease: in_quad}
+          sample_ticks: 1
         - {op: block, parent: fx3_gossamer_katana_iaido_line, block: blue_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx3_gossamer_katana_iaido_line_dark}
         - id: fx3_gossamer_katana_iaido_line_dark_trk
           op: track
@@ -117,6 +118,7 @@ presentation:
             - {t: 0, offset: [0.04, 0.98, 3.0], scale: [0.012, 0.1, 13.1], turn: [0.0, 0.0, 0.0]}
             - {t: 1, scale: [0.06, 0.1, 13.1], ease: out_expo}
             - {t: 33, scale: [0.0, 0.0, 0.0], ease: in_quad}
+          sample_ticks: 1
         - op: quad
           parent: fx3_gossamer_katana_iaido_line
           face: {plane: {frame: fx3_gossamer_katana_iaido_line, axes: [left, up]}}
@@ -131,6 +133,7 @@ presentation:
           keys:
             - {t: 0, offset: [-0.02, 1.05, 3.0], scale: [13.1, 0.25, 1.0], turn: [0.0, -90.0, 0.0], alpha: 0.22}
             - {t: 11, offset: [-0.02, 1.05, 3.0], scale: [13.1, 0.25, 1.0], alpha: 0.0, ease: in_quad, turn: [0.0, -90.0, 0.0]}
+          sample_ticks: 1
         - {op: block, parent: fx3_gossamer_katana_iaido_line, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx3_gossamer_katana_iaido_line_glint}
         - id: fx3_gossamer_katana_iaido_line_glint_trk
           op: track
@@ -139,6 +142,7 @@ presentation:
             - {t: 0, offset: [0.0, 1.05, 3.0], scale: [0.016, 2.8, 0.04], turn: [0.0, 0.0, 0.0]}
             - {t: 1, scale: [0.08, 2.8, 0.04], ease: out_expo}
             - {t: 5, scale: [0.0, 0.0, 0.0], ease: in_quad}
+          sample_ticks: 1
     - {id: fx6, at: 6, do: [{id: flash, op: screen_flash, target: caster, overlay: vignette, color: "#08080a", fade_in: 0, stay: 1, fade_out: 2}]}
     - {id: fx11, at: 11, do: [{id: rm_4, op: remove, ids: [fx3_gossamer_katana_iaido_line_glint]}]}
     - {id: fx17, at: 17, do: [{id: rm_5, op: remove, ids: [fx3_gossamer_katana_iaido_line_bloom]}]}
@@ -156,6 +160,7 @@ presentation:
           - {t: 0, offset: [0.0, 1.05, 2.4], scale: [0.028, 11.5, 0.12], turn: [52.0, 0.0, 0.0]}
           - {t: 1, scale: [0.14, 11.5, 0.12], ease: out_expo}
           - {t: 37, scale: [0.0, 0.0, 0.0], ease: in_quad}
+        sample_ticks: 1
       - {op: block, parent: fx2_gossamer_katana_scar, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx2_gossamer_katana_scar_cut}
       - id: fx2_gossamer_katana_scar_cut_trk
         op: track
@@ -164,6 +169,7 @@ presentation:
           - {t: 0, offset: [-0.08, 1.05, 2.4], scale: [0.01, 11.5, 0.06], turn: [52.0, 0.0, 0.0]}
           - {t: 1, scale: [0.05, 11.5, 0.06], ease: out_expo}
           - {t: 35, scale: [0.0, 0.0, 0.0], ease: in_quad}
+        sample_ticks: 1
       - {id: snd, op: sound, sound: entity.player.attack.strong, at: enemy, volume: 0.7, pitch: 1.1}
     dash_fx36:
       - {id: rm_2, op: remove, ids: [fx2_gossamer_katana_scar_cut]}

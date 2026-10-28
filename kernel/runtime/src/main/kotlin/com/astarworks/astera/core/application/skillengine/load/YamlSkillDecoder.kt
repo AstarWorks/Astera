@@ -125,6 +125,7 @@ public class YamlSkillDecoder(private val registry: OpDecoderRegistry) : SkillDe
                     part = entry.string("part"),
                     offset = entry.literalVec3("offset"),
                     inactive = entry.bool("inactive") ?: false,
+                    scale = entry.literalDouble("scale") ?: 1.0,
                     orient = entry.raw("orient")?.let { FrameRawValues.orient(it, entry, "$path.orient") },
                 )
                 entry.consume("id")

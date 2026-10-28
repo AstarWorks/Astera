@@ -20,6 +20,8 @@ public data class FrameNode(
     val parent: FrameId?,
     val local: Frame,
     val orient: FrameOrient? = null,
+    /** Uniform scale this node applies to its descendants (their local translations and display sizes), like the v1 `play_vfx scale`. */
+    val scale: Double = 1.0,
 )
 
 /** A named attachment point on a node: `<node>.<name>` resolves to `node.world.toWorld(offset)`. */
@@ -46,7 +48,19 @@ public interface FrameTree {
     /** Replace the local pose of [id] (parent unchanged). */
     public fun setLocal(id: FrameId, local: Frame): Result<Unit, FrameError>
 
-    /** World pose of [id] (composition of locals up to the root). */
+    /** Product of the [FrameNode.scale] of [id] and every ancestor: what a display parented under [id] is multiplied by. */
+    public fun scaleOf(id: FrameId): Double {
+        var k = 1.0
+        var cur: FrameId? = id
+        while (cur != null) {
+            val n = node(cur) ?: break
+            k *= n.scale
+            cur = n.parent
+        }
+        return k
+    }
+
+    /** World pose of [id] (composition of locals up to the root; a parent's scale multiplies the child's local translation). */
     public fun worldOf(id: FrameId): Result<Frame, FrameError>
 
     /**

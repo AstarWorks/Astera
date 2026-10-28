@@ -10,7 +10,10 @@ import org.junit.jupiter.api.Test
  *  (a) a display gets at most ONE write per tick (split position / rotation / scale writes desynchronise);
  *  (b) rotation and scale interpolate over the same length as the position (a lagging rotation swings the model off its hand);
  *  (c) a hand-anchored display stays rides the caster (no teleport lag, bounded reach) while the caster dashes (bastion-greatsword-s1);
- *  (d) viewer-facing plates are a vanilla billboard, never a server-side aim.
+ *  (d) viewer-facing plates are a vanilla billboard, never a server-side aim; a CENTER billboard keeps only the element's own
+ *      roll as `left_rotation` (v1 VfxTimeline.kt:362-366), so it is a pure rotation about the display's z (R3);
+ *  (e) every text quad, solid or glyph, is shifted by the native one-line text centre (v1 VfxQuad.kt:59-61), so its box centre
+ *      sits on the entity position (R4).
  */
 class DisplayClientModelScenarioTest {
     private val origin = Vec3(10.0, 64.0, 10.0)
@@ -78,11 +81,46 @@ class DisplayClientModelScenarioTest {
             runCatching { sim.cast(id, 90) }
             for (c in rec.calls) {
                 if (c.write.billboard == com.astarworks.astera.core.domain.effect.DisplayBillboard.FIXED) continue
-                if (c.write.transform.rotation.let { kotlin.math.abs(it.w) < 0.999999 }) bad += "$id h${c.handle} t${c.tick} billboard ${c.write.billboard} with a non-identity rotation"
+                val q = c.write.transform.rotation
+                if (c.write.billboard == com.astarworks.astera.core.domain.effect.DisplayBillboard.CENTER && (kotlin.math.abs(q.x) > 1e-6 || kotlin.math.abs(q.y) > 1e-6)) {
+                    bad += "$id h${c.handle} t${c.tick} CENTER billboard rolls about a non-z axis (${q.x}, ${q.y})"
+                }
                 if (c.write.anchor != null) bad += "$id h${c.handle} t${c.tick} billboard ${c.write.billboard} anchored"
             }
         }
         assertThat(bad).isEmpty()
+    }
+
+    @Test
+    fun `a center billboard keeps the track roll like v1`() {
+        // couture-rapier-s1 rotates its petals / cuts about the view axis (v1 dump: 81 rolled center texts across the roster).
+        val (_, rec, _) = run("couture-rapier-s1", 90)
+        val rolled = rec.calls.filter {
+            it.write.billboard == com.astarworks.astera.core.domain.effect.DisplayBillboard.CENTER && kotlin.math.abs(it.write.transform.rotation.w) < 0.999
+        }
+        assertThat(rolled).describedAs("center billboard writes carrying a roll").isNotEmpty
+        // v1 VfxTimeline.kt:270-274: a first key without `turn` starts from identity, so the roll spawns at identity and eases in.
+        val center = rec.calls.filter { it.write.billboard == com.astarworks.astera.core.domain.effect.DisplayBillboard.CENTER }.groupBy { it.handle }
+        val easing = center.values.count { w ->
+            val s = w.sortedBy { it.tick }
+            kotlin.math.abs(s.first().write.transform.rotation.w) > 0.999 && s.any { kotlin.math.abs(it.write.transform.rotation.w) < 0.999 }
+        }
+        assertThat(easing).describedAs("center billboards that spawn at identity and ease into their roll").isGreaterThan(0)
+    }
+
+    @Test
+    fun `text quads sit on their entity position like v1`() {
+        val bad = ArrayList<String>()
+        for (skill in listOf("couture-rapier-s1", "couture-rapier-def", "gossamer-katana-s1", "bastion-greatsword-ego", "orrery-s2", "vendetta-rifle-ego")) {
+            val (_, rec, _) = run(skill, 90)
+            for (c in rec.calls) {
+                if (rec.lives[c.handle]?.kind != "quad") continue
+                val t = c.write.transform
+                val want = t.rotation.rotate(Vec3(-0.0125 * t.scale.x, -0.125 * t.scale.y, 0.0))
+                if (t.translation.distance(want) > 1e-6) bad += "$skill h${c.handle} t${c.tick} translation ${t.translation} want $want"
+            }
+        }
+        assertThat(bad).describedAs("quads whose box centre is off the entity position").isEmpty()
     }
 
     private companion object {

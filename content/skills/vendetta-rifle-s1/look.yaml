@@ -31,6 +31,7 @@ presentation:
             - {t: 9, turn: [-12.0, 0.0, 0.0]}
             - {t: 10, turn: [-16.0, 0.0, 0.0]}
             - {t: 11, offset: [0.0, 0.9615, -0.32205], scale: [0.14, 0.24, 0.65], turn: [-20.0, 0.0, 0.0]}
+          sample_ticks: 1
         - {op: block, parent: fx1_vendetta_bayonet_thrust, block: black_concrete, size: [1.0, 1.0, 1.0], id: fx1_vendetta_bayonet_thrust_receiver}
         - id: fx1_vendetta_bayonet_thrust_receiver_trk
           op: track
@@ -46,6 +47,7 @@ presentation:
             - {t: 9, turn: [-12.0, 0.0, 0.0]}
             - {t: 10, turn: [-16.0, 0.0, 0.0]}
             - {t: 11, offset: [0.0, 1.1872, 0.1811], scale: [0.13, 0.14, 0.55], turn: [-20.0, 0.0, 0.0]}
+          sample_ticks: 1
         - {op: block, parent: fx1_vendetta_bayonet_thrust, block: gray_concrete, size: [1.0, 1.0, 1.0], id: fx1_vendetta_bayonet_thrust_barrel}
         - id: fx1_vendetta_bayonet_thrust_barrel_trk
           op: track
@@ -61,6 +63,7 @@ presentation:
             - {t: 9, turn: [-12.0, 0.0, 0.0]}
             - {t: 10, turn: [-16.0, 0.0, 0.0]}
             - {t: 11, offset: [0.0, 1.40951, 0.7919], scale: [0.065, 0.065, 0.8], turn: [-20.0, 0.0, 0.0]}
+          sample_ticks: 1
         - {op: block, parent: fx1_vendetta_bayonet_thrust, block: iron_block, size: [1.0, 1.0, 1.0], id: fx1_vendetta_bayonet_thrust_bayonet}
         - id: fx1_vendetta_bayonet_thrust_bayonet_trk
           op: track
@@ -76,6 +79,7 @@ presentation:
             - {t: 9, turn: [-12.0, 0.0, 0.0]}
             - {t: 10, turn: [-16.0, 0.0, 0.0]}
             - {t: 11, offset: [0.09, 1.63182, 1.4027], scale: [0.055, 0.12, 0.6], turn: [-20.0, 0.0, 0.0]}
+          sample_ticks: 1
         - {op: block, parent: fx1_vendetta_bayonet_thrust, block: iron_block, size: [1.0, 1.0, 1.0], id: fx1_vendetta_bayonet_thrust_point}
         - id: fx1_vendetta_bayonet_thrust_point_trk
           op: track
@@ -91,6 +95,7 @@ presentation:
             - {t: 9, turn: [-12.0, 0.0, 0.0]}
             - {t: 10, turn: [-16.0, 0.0, 0.0]}
             - {t: 11, offset: [0.09, 1.75495, 1.74099], scale: [0.03, 0.045, 0.18], turn: [-20.0, 0.0, 0.0]}
+          sample_ticks: 1
     - id: fx6
       at: 6
       do:
@@ -103,6 +108,7 @@ presentation:
             - {t: 0, offset: [-1.96962, 1.1, 0.7473], scale: [0.0, 0.0, 0.0], turn: [0.0, -10.0, 0.0]}
             - {t: 2, offset: [-1.96962, 1.1, 0.7473], scale: [0.05, 0.05372, 0.69337], turn: [0.0, -10.0, 0.0]}
             - {t: 13, offset: [-1.96962, 1.1, 0.7473], scale: [0.0, 0.0, 0.41602], turn: [0.0, -10.0, 0.0]}
+          sample_ticks: 1
         - {op: block, parent: fx2_vendetta_gold_sweep, block: yellow_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx2_vendetta_gold_sweep_arc_1}
         - id: fx2_vendetta_gold_sweep_arc_1_trk
           op: track
@@ -111,6 +117,7 @@ presentation:
             - {t: 0, offset: [-1.77767, 1.1, 1.31645], scale: [0.0, 0.0, 0.0], turn: [0.0, -27.27273, 0.0]}
             - {t: 2, offset: [-1.77767, 1.1, 1.31645], scale: [0.05, 0.08077, 0.69337], turn: [0.0, -27.27273, 0.0]}
             - {t: 13, offset: [-1.77767, 1.1, 1.31645], scale: [0.0, 0.0, 0.41602], turn: [0.0, -27.27273, 0.0]}
+          sample_ticks: 1
         - {op: block, parent: fx2_vendetta_gold_sweep, block: yellow_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx2_vendetta_gold_sweep_arc_2}
         - id: fx2_vendetta_gold_sweep_arc_2_trk
           op: track
@@ -119,6 +126,7 @@ presentation:
             - {t: 0, offset: [-1.42539, 1.1, 1.80295], scale: [0.0, 0.0, 0.0], turn: [0.0, -44.54545, 0.0]}
             - {t: 2, offset: [-1.42539, 1.1, 1.80295], scale: [0.05, 0.10457, 0.69337], turn: [0.0, -44.54545, 0.0]}
             - {t: 13, offset: [-1.42539, 1.1, 1.80295], scale: [0.0, 0.0, 0.41602], turn: [0.0, -44.54545, 0.0]}
+          sample_ticks: 1
         - {op: block, parent: fx2_vendetta_gold_sweep, block: yellow_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx2_vendetta_gold_sweep_arc_3}
         - id: fx2_vendetta_gold_sweep_arc_3_trk
           op: track
@@ -127,6 +135,7 @@ presentation:
             - {t: 0, offset: [-0.94454, 1.1, 2.16291], scale: [0.0, 0.0, 0.0], turn: [0.0, -61.81818, 0.0]}
             - {t: 2, offset: [-0.94454, 1.1, 2.16291], scale: [0.05, 0.12376, 0.69337], turn: [0.0, -61.81818, 0.0]}
             - {t: 13, offset: [-0.94454, 1.1, 2.16291], scale: [0.0, 0.0, 0.41602], turn: [0.0, -61.81818, 0.0]}
+          sample_ticks: 1
         - {op: block, parent: fx2_vendetta_gold_sweep, block: yellow_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx2_vendetta_gold_sweep_arc_4}
         - id: fx2_vendetta_gold_sweep_arc_4_trk
           op: track
@@ -135,6 +144,7 @@ presentation:
             - {t: 0, offset: [-0.3785, 1.1, 2.36386], scale: [0.0, 0.0, 0.0], turn: [0.0, -79.09091, 0.0]}
             - {t: 2, offset: [-0.3785, 1.1, 2.36386], scale: [0.05, 0.1372, 0.69337], turn: [0.0, -79.09091, 0.0]}
             - {t: 13, offset: [-0.3785, 1.1, 2.36386], scale: [0.0, 0.0, 0.41602], turn: [0.0, -79.09091, 0.0]}
+          sample_ticks: 1
         - {op: block, parent: fx2_vendetta_gold_sweep, block: yellow_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx2_vendetta_gold_sweep_arc_5}
         - id: fx2_vendetta_gold_sweep_arc_5_trk
           op: track
@@ -143,6 +153,7 @@ presentation:
             - {t: 0, offset: [0.22168, 1.1, 2.38768], scale: [0.0, 0.0, 0.0], turn: [0.0, -96.36364, 0.0]}
             - {t: 2, offset: [0.22168, 1.1, 2.38768], scale: [0.05, 0.14413, 0.69337], turn: [0.0, -96.36364, 0.0]}
             - {t: 13, offset: [0.22168, 1.1, 2.38768], scale: [0.0, 0.0, 0.41602], turn: [0.0, -96.36364, 0.0]}
+          sample_ticks: 1
         - {op: block, parent: fx2_vendetta_gold_sweep, block: yellow_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx2_vendetta_gold_sweep_arc_6}
         - id: fx2_vendetta_gold_sweep_arc_6_trk
           op: track
@@ -151,6 +162,7 @@ presentation:
             - {t: 0, offset: [0.80186, 1.1, 2.23222], scale: [0.0, 0.0, 0.0], turn: [0.0, -113.63636, 0.0]}
             - {t: 2, offset: [0.80186, 1.1, 2.23222], scale: [0.05, 0.14413, 0.69337], turn: [0.0, -113.63636, 0.0]}
             - {t: 13, offset: [0.80186, 1.1, 2.23222], scale: [0.0, 0.0, 0.41602], turn: [0.0, -113.63636, 0.0]}
+          sample_ticks: 1
         - {op: block, parent: fx2_vendetta_gold_sweep, block: yellow_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx2_vendetta_gold_sweep_arc_7}
         - id: fx2_vendetta_gold_sweep_arc_7_trk
           op: track
@@ -159,6 +171,7 @@ presentation:
             - {t: 0, offset: [1.30972, 1.1, 1.9115], scale: [0.0, 0.0, 0.0], turn: [0.0, -130.90909, 0.0]}
             - {t: 2, offset: [1.30972, 1.1, 1.9115], scale: [0.05, 0.1372, 0.69337], turn: [0.0, -130.90909, 0.0]}
             - {t: 13, offset: [1.30972, 1.1, 1.9115], scale: [0.0, 0.0, 0.41602], turn: [0.0, -130.90909, 0.0]}
+          sample_ticks: 1
         - {op: block, parent: fx2_vendetta_gold_sweep, block: yellow_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx2_vendetta_gold_sweep_arc_8}
         - id: fx2_vendetta_gold_sweep_arc_8_trk
           op: track
@@ -167,6 +180,7 @@ presentation:
             - {t: 0, offset: [1.69945, 1.1, 1.45445], scale: [0.0, 0.0, 0.0], turn: [0.0, -148.18182, 0.0]}
             - {t: 2, offset: [1.69945, 1.1, 1.45445], scale: [0.05, 0.12376, 0.69337], turn: [0.0, -148.18182, 0.0]}
             - {t: 13, offset: [1.69945, 1.1, 1.45445], scale: [0.0, 0.0, 0.41602], turn: [0.0, -148.18182, 0.0]}
+          sample_ticks: 1
         - {op: block, parent: fx2_vendetta_gold_sweep, block: yellow_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx2_vendetta_gold_sweep_arc_9}
         - id: fx2_vendetta_gold_sweep_arc_9_trk
           op: track
@@ -175,6 +189,7 @@ presentation:
             - {t: 0, offset: [1.9359, 1.1, 0.9023], scale: [0.0, 0.0, 0.0], turn: [0.0, -165.45455, 0.0]}
             - {t: 2, offset: [1.9359, 1.1, 0.9023], scale: [0.05, 0.10457, 0.69337], turn: [0.0, -165.45455, 0.0]}
             - {t: 13, offset: [1.9359, 1.1, 0.9023], scale: [0.0, 0.0, 0.41602], turn: [0.0, -165.45455, 0.0]}
+          sample_ticks: 1
         - {op: block, parent: fx2_vendetta_gold_sweep, block: yellow_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx2_vendetta_gold_sweep_arc_10}
         - id: fx2_vendetta_gold_sweep_arc_10_trk
           op: track
@@ -183,6 +198,7 @@ presentation:
             - {t: 0, offset: [1.99773, 1.1, 0.30484], scale: [0.0, 0.0, 0.0], turn: [0.0, 177.27273, 0.0]}
             - {t: 2, offset: [1.99773, 1.1, 0.30484], scale: [0.05, 0.08077, 0.69337], turn: [0.0, 177.27273, 0.0]}
             - {t: 13, offset: [1.99773, 1.1, 0.30484], scale: [0.0, 0.0, 0.41602], turn: [0.0, 177.27273, 0.0]}
+          sample_ticks: 1
         - {op: block, parent: fx2_vendetta_gold_sweep, block: yellow_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx2_vendetta_gold_sweep_arc_11}
         - id: fx2_vendetta_gold_sweep_arc_11_trk
           op: track
@@ -191,6 +207,7 @@ presentation:
             - {t: 0, offset: [1.87939, 1.1, -0.28404], scale: [0.0, 0.0, 0.0], turn: [0.0, 160.0, 0.0]}
             - {t: 2, offset: [1.87939, 1.1, -0.28404], scale: [0.05, 0.05372, 0.69337], turn: [0.0, 160.0, 0.0]}
             - {t: 13, offset: [1.87939, 1.1, -0.28404], scale: [0.0, 0.0, 0.41602], turn: [0.0, 160.0, 0.0]}
+          sample_ticks: 1
     - id: fx15
       at: 15
       do:
@@ -216,6 +233,7 @@ presentation:
             - {t: 9, turn: [-12.0, 0.0, 0.0]}
             - {t: 10, turn: [-16.0, 0.0, 0.0]}
             - {t: 11, offset: [0.0, 0.9615, -0.32205], scale: [0.14, 0.24, 0.65], turn: [-20.0, 0.0, 0.0]}
+          sample_ticks: 1
         - {op: block, parent: fx4_vendetta_bayonet_thrust, block: black_concrete, size: [1.0, 1.0, 1.0], id: fx4_vendetta_bayonet_thrust_receiver}
         - id: fx4_vendetta_bayonet_thrust_receiver_trk
           op: track
@@ -231,6 +249,7 @@ presentation:
             - {t: 9, turn: [-12.0, 0.0, 0.0]}
             - {t: 10, turn: [-16.0, 0.0, 0.0]}
             - {t: 11, offset: [0.0, 1.1872, 0.1811], scale: [0.13, 0.14, 0.55], turn: [-20.0, 0.0, 0.0]}
+          sample_ticks: 1
         - {op: block, parent: fx4_vendetta_bayonet_thrust, block: gray_concrete, size: [1.0, 1.0, 1.0], id: fx4_vendetta_bayonet_thrust_barrel}
         - id: fx4_vendetta_bayonet_thrust_barrel_trk
           op: track
@@ -246,6 +265,7 @@ presentation:
             - {t: 9, turn: [-12.0, 0.0, 0.0]}
             - {t: 10, turn: [-16.0, 0.0, 0.0]}
             - {t: 11, offset: [0.0, 1.40951, 0.7919], scale: [0.065, 0.065, 0.8], turn: [-20.0, 0.0, 0.0]}
+          sample_ticks: 1
         - {op: block, parent: fx4_vendetta_bayonet_thrust, block: iron_block, size: [1.0, 1.0, 1.0], id: fx4_vendetta_bayonet_thrust_bayonet}
         - id: fx4_vendetta_bayonet_thrust_bayonet_trk
           op: track
@@ -261,6 +281,7 @@ presentation:
             - {t: 9, turn: [-12.0, 0.0, 0.0]}
             - {t: 10, turn: [-16.0, 0.0, 0.0]}
             - {t: 11, offset: [0.09, 1.63182, 1.4027], scale: [0.055, 0.12, 0.6], turn: [-20.0, 0.0, 0.0]}
+          sample_ticks: 1
         - {op: block, parent: fx4_vendetta_bayonet_thrust, block: iron_block, size: [1.0, 1.0, 1.0], id: fx4_vendetta_bayonet_thrust_point}
         - id: fx4_vendetta_bayonet_thrust_point_trk
           op: track
@@ -276,6 +297,7 @@ presentation:
             - {t: 9, turn: [-12.0, 0.0, 0.0]}
             - {t: 10, turn: [-16.0, 0.0, 0.0]}
             - {t: 11, offset: [0.09, 1.75495, 1.74099], scale: [0.03, 0.045, 0.18], turn: [-20.0, 0.0, 0.0]}
+          sample_ticks: 1
     - id: fx19
       at: 19
       do:
@@ -303,6 +325,7 @@ presentation:
             - {t: 0, offset: [-1.96962, 1.1, 0.7473], scale: [0.0, 0.0, 0.0], turn: [0.0, -10.0, 0.0]}
             - {t: 2, offset: [-1.96962, 1.1, 0.7473], scale: [0.05, 0.05372, 0.69337], turn: [0.0, -10.0, 0.0]}
             - {t: 13, offset: [-1.96962, 1.1, 0.7473], scale: [0.0, 0.0, 0.41602], turn: [0.0, -10.0, 0.0]}
+          sample_ticks: 1
         - {op: block, parent: fx5_vendetta_gold_sweep, block: yellow_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx5_vendetta_gold_sweep_arc_1}
         - id: fx5_vendetta_gold_sweep_arc_1_trk
           op: track
@@ -311,6 +334,7 @@ presentation:
             - {t: 0, offset: [-1.77767, 1.1, 1.31645], scale: [0.0, 0.0, 0.0], turn: [0.0, -27.27273, 0.0]}
             - {t: 2, offset: [-1.77767, 1.1, 1.31645], scale: [0.05, 0.08077, 0.69337], turn: [0.0, -27.27273, 0.0]}
             - {t: 13, offset: [-1.77767, 1.1, 1.31645], scale: [0.0, 0.0, 0.41602], turn: [0.0, -27.27273, 0.0]}
+          sample_ticks: 1
         - {op: block, parent: fx5_vendetta_gold_sweep, block: yellow_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx5_vendetta_gold_sweep_arc_2}
         - id: fx5_vendetta_gold_sweep_arc_2_trk
           op: track
@@ -319,6 +343,7 @@ presentation:
             - {t: 0, offset: [-1.42539, 1.1, 1.80295], scale: [0.0, 0.0, 0.0], turn: [0.0, -44.54545, 0.0]}
             - {t: 2, offset: [-1.42539, 1.1, 1.80295], scale: [0.05, 0.10457, 0.69337], turn: [0.0, -44.54545, 0.0]}
             - {t: 13, offset: [-1.42539, 1.1, 1.80295], scale: [0.0, 0.0, 0.41602], turn: [0.0, -44.54545, 0.0]}
+          sample_ticks: 1
         - {op: block, parent: fx5_vendetta_gold_sweep, block: yellow_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx5_vendetta_gold_sweep_arc_3}
         - id: fx5_vendetta_gold_sweep_arc_3_trk
           op: track
@@ -327,6 +352,7 @@ presentation:
             - {t: 0, offset: [-0.94454, 1.1, 2.16291], scale: [0.0, 0.0, 0.0], turn: [0.0, -61.81818, 0.0]}
             - {t: 2, offset: [-0.94454, 1.1, 2.16291], scale: [0.05, 0.12376, 0.69337], turn: [0.0, -61.81818, 0.0]}
             - {t: 13, offset: [-0.94454, 1.1, 2.16291], scale: [0.0, 0.0, 0.41602], turn: [0.0, -61.81818, 0.0]}
+          sample_ticks: 1
         - {op: block, parent: fx5_vendetta_gold_sweep, block: yellow_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx5_vendetta_gold_sweep_arc_4}
         - id: fx5_vendetta_gold_sweep_arc_4_trk
           op: track
@@ -335,6 +361,7 @@ presentation:
             - {t: 0, offset: [-0.3785, 1.1, 2.36386], scale: [0.0, 0.0, 0.0], turn: [0.0, -79.09091, 0.0]}
             - {t: 2, offset: [-0.3785, 1.1, 2.36386], scale: [0.05, 0.1372, 0.69337], turn: [0.0, -79.09091, 0.0]}
             - {t: 13, offset: [-0.3785, 1.1, 2.36386], scale: [0.0, 0.0, 0.41602], turn: [0.0, -79.09091, 0.0]}
+          sample_ticks: 1
         - {op: block, parent: fx5_vendetta_gold_sweep, block: yellow_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx5_vendetta_gold_sweep_arc_5}
         - id: fx5_vendetta_gold_sweep_arc_5_trk
           op: track
@@ -343,6 +370,7 @@ presentation:
             - {t: 0, offset: [0.22168, 1.1, 2.38768], scale: [0.0, 0.0, 0.0], turn: [0.0, -96.36364, 0.0]}
             - {t: 2, offset: [0.22168, 1.1, 2.38768], scale: [0.05, 0.14413, 0.69337], turn: [0.0, -96.36364, 0.0]}
             - {t: 13, offset: [0.22168, 1.1, 2.38768], scale: [0.0, 0.0, 0.41602], turn: [0.0, -96.36364, 0.0]}
+          sample_ticks: 1
         - {op: block, parent: fx5_vendetta_gold_sweep, block: yellow_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx5_vendetta_gold_sweep_arc_6}
         - id: fx5_vendetta_gold_sweep_arc_6_trk
           op: track
@@ -351,6 +379,7 @@ presentation:
             - {t: 0, offset: [0.80186, 1.1, 2.23222], scale: [0.0, 0.0, 0.0], turn: [0.0, -113.63636, 0.0]}
             - {t: 2, offset: [0.80186, 1.1, 2.23222], scale: [0.05, 0.14413, 0.69337], turn: [0.0, -113.63636, 0.0]}
             - {t: 13, offset: [0.80186, 1.1, 2.23222], scale: [0.0, 0.0, 0.41602], turn: [0.0, -113.63636, 0.0]}
+          sample_ticks: 1
         - {op: block, parent: fx5_vendetta_gold_sweep, block: yellow_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx5_vendetta_gold_sweep_arc_7}
         - id: fx5_vendetta_gold_sweep_arc_7_trk
           op: track
@@ -359,6 +388,7 @@ presentation:
             - {t: 0, offset: [1.30972, 1.1, 1.9115], scale: [0.0, 0.0, 0.0], turn: [0.0, -130.90909, 0.0]}
             - {t: 2, offset: [1.30972, 1.1, 1.9115], scale: [0.05, 0.1372, 0.69337], turn: [0.0, -130.90909, 0.0]}
             - {t: 13, offset: [1.30972, 1.1, 1.9115], scale: [0.0, 0.0, 0.41602], turn: [0.0, -130.90909, 0.0]}
+          sample_ticks: 1
         - {op: block, parent: fx5_vendetta_gold_sweep, block: yellow_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx5_vendetta_gold_sweep_arc_8}
         - id: fx5_vendetta_gold_sweep_arc_8_trk
           op: track
@@ -367,6 +397,7 @@ presentation:
             - {t: 0, offset: [1.69945, 1.1, 1.45445], scale: [0.0, 0.0, 0.0], turn: [0.0, -148.18182, 0.0]}
             - {t: 2, offset: [1.69945, 1.1, 1.45445], scale: [0.05, 0.12376, 0.69337], turn: [0.0, -148.18182, 0.0]}
             - {t: 13, offset: [1.69945, 1.1, 1.45445], scale: [0.0, 0.0, 0.41602], turn: [0.0, -148.18182, 0.0]}
+          sample_ticks: 1
         - {op: block, parent: fx5_vendetta_gold_sweep, block: yellow_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx5_vendetta_gold_sweep_arc_9}
         - id: fx5_vendetta_gold_sweep_arc_9_trk
           op: track
@@ -375,6 +406,7 @@ presentation:
             - {t: 0, offset: [1.9359, 1.1, 0.9023], scale: [0.0, 0.0, 0.0], turn: [0.0, -165.45455, 0.0]}
             - {t: 2, offset: [1.9359, 1.1, 0.9023], scale: [0.05, 0.10457, 0.69337], turn: [0.0, -165.45455, 0.0]}
             - {t: 13, offset: [1.9359, 1.1, 0.9023], scale: [0.0, 0.0, 0.41602], turn: [0.0, -165.45455, 0.0]}
+          sample_ticks: 1
         - {op: block, parent: fx5_vendetta_gold_sweep, block: yellow_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx5_vendetta_gold_sweep_arc_10}
         - id: fx5_vendetta_gold_sweep_arc_10_trk
           op: track
@@ -383,6 +415,7 @@ presentation:
             - {t: 0, offset: [1.99773, 1.1, 0.30484], scale: [0.0, 0.0, 0.0], turn: [0.0, 177.27273, 0.0]}
             - {t: 2, offset: [1.99773, 1.1, 0.30484], scale: [0.05, 0.08077, 0.69337], turn: [0.0, 177.27273, 0.0]}
             - {t: 13, offset: [1.99773, 1.1, 0.30484], scale: [0.0, 0.0, 0.41602], turn: [0.0, 177.27273, 0.0]}
+          sample_ticks: 1
         - {op: block, parent: fx5_vendetta_gold_sweep, block: yellow_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx5_vendetta_gold_sweep_arc_11}
         - id: fx5_vendetta_gold_sweep_arc_11_trk
           op: track
@@ -391,6 +424,7 @@ presentation:
             - {t: 0, offset: [1.87939, 1.1, -0.28404], scale: [0.0, 0.0, 0.0], turn: [0.0, 160.0, 0.0]}
             - {t: 2, offset: [1.87939, 1.1, -0.28404], scale: [0.05, 0.05372, 0.69337], turn: [0.0, 160.0, 0.0]}
             - {t: 13, offset: [1.87939, 1.1, -0.28404], scale: [0.0, 0.0, 0.41602], turn: [0.0, 160.0, 0.0]}
+          sample_ticks: 1
     - id: fx28
       at: 28
       do:
@@ -422,7 +456,7 @@ presentation:
         - {id: rm_6, op: remove, ids: [fx6_vendetta_thrust_flash_rim, fx6_vendetta_thrust_flash_bloom, fx6_vendetta_thrust_flash_core], when: "= event.source == 'sel_2'"}
   "on":
     hit:
-      - {id: anchor_3, op: anchor, frame: fx3_vendetta_thrust_flash, at: contact.point, orient: yaw, when: "= event.source == 'sel'"}
+      - {id: anchor_3, op: anchor, frame: fx3_vendetta_thrust_flash, at: enemy, orient: yaw, when: "= event.source == 'sel'"}
       - {op: block, parent: fx3_vendetta_thrust_flash, block: black_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx3_vendetta_thrust_flash_rim, when: "= event.source == 'sel'"}
       - id: fx3_vendetta_thrust_flash_rim_trk
         op: track
@@ -431,6 +465,7 @@ presentation:
           - {t: 0, offset: [-0.1, 1.0, 0.5], scale: [0.2, 0.04, 0.1]}
           - {t: 1, scale: [0.2, 0.04, 3.1], ease: out_expo}
           - {t: 7, scale: [0.0, 0.0, 3.1], ease: in_quad}
+        sample_ticks: 1
         when: "= event.source == 'sel'"
       - {op: block, parent: fx3_vendetta_thrust_flash, block: magenta_stained_glass, size: [1.0, 1.0, 1.0], brightness: 15, id: fx3_vendetta_thrust_flash_bloom, when: "= event.source == 'sel'"}
       - id: fx3_vendetta_thrust_flash_bloom_trk
@@ -440,6 +475,7 @@ presentation:
           - {t: 0, offset: [-0.08, 1.05, 0.5], scale: [0.16, 0.19, 0.1]}
           - {t: 1, scale: [0.16, 0.19, 3.1], ease: out_expo}
           - {t: 7, scale: [0.0, 0.0, 3.1], ease: in_quad}
+        sample_ticks: 1
         when: "= event.source == 'sel'"
       - {op: block, parent: fx3_vendetta_thrust_flash, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx3_vendetta_thrust_flash_core, when: "= event.source == 'sel'"}
       - id: fx3_vendetta_thrust_flash_core_trk
@@ -449,9 +485,10 @@ presentation:
           - {t: 0, offset: [-0.03, 1.06, 0.5], scale: [0.06, 0.07, 0.1]}
           - {t: 1, scale: [0.06, 0.07, 3.1], ease: out_expo}
           - {t: 7, scale: [0.0, 0.0, 3.1], ease: in_quad}
+        sample_ticks: 1
         when: "= event.source == 'sel'"
       - {id: snd, op: sound, sound: entity.player.attack.strong, at: enemy, volume: 0.7, pitch: 1.1, when: "= event.source == 'sel'"}
-      - {id: anchor_6, op: anchor, frame: fx6_vendetta_thrust_flash, at: contact.point, orient: yaw, when: "= event.source == 'sel_2'"}
+      - {id: anchor_6, op: anchor, frame: fx6_vendetta_thrust_flash, at: enemy, orient: yaw, when: "= event.source == 'sel_2'"}
       - {op: block, parent: fx6_vendetta_thrust_flash, block: black_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx6_vendetta_thrust_flash_rim, when: "= event.source == 'sel_2'"}
       - id: fx6_vendetta_thrust_flash_rim_trk
         op: track
@@ -460,6 +497,7 @@ presentation:
           - {t: 0, offset: [-0.1, 1.0, 0.5], scale: [0.2, 0.04, 0.1]}
           - {t: 1, scale: [0.2, 0.04, 3.1], ease: out_expo}
           - {t: 7, scale: [0.0, 0.0, 3.1], ease: in_quad}
+        sample_ticks: 1
         when: "= event.source == 'sel_2'"
       - {op: block, parent: fx6_vendetta_thrust_flash, block: magenta_stained_glass, size: [1.0, 1.0, 1.0], brightness: 15, id: fx6_vendetta_thrust_flash_bloom, when: "= event.source == 'sel_2'"}
       - id: fx6_vendetta_thrust_flash_bloom_trk
@@ -469,6 +507,7 @@ presentation:
           - {t: 0, offset: [-0.08, 1.05, 0.5], scale: [0.16, 0.19, 0.1]}
           - {t: 1, scale: [0.16, 0.19, 3.1], ease: out_expo}
           - {t: 7, scale: [0.0, 0.0, 3.1], ease: in_quad}
+        sample_ticks: 1
         when: "= event.source == 'sel_2'"
       - {op: block, parent: fx6_vendetta_thrust_flash, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx6_vendetta_thrust_flash_core, when: "= event.source == 'sel_2'"}
       - id: fx6_vendetta_thrust_flash_core_trk
@@ -478,5 +517,6 @@ presentation:
           - {t: 0, offset: [-0.03, 1.06, 0.5], scale: [0.06, 0.07, 0.1]}
           - {t: 1, scale: [0.06, 0.07, 3.1], ease: out_expo}
           - {t: 7, scale: [0.0, 0.0, 3.1], ease: in_quad}
+        sample_ticks: 1
         when: "= event.source == 'sel_2'"
       - {id: snd_2, op: sound, sound: entity.player.attack.strong, at: enemy, volume: 0.7, pitch: 1.1, when: "= event.source == 'sel_2'"}

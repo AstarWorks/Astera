@@ -35,6 +35,8 @@ public data class FrameDecl(
     val inactive: Boolean = false,
     /** Takes this rotation (live) instead of inheriting the parent's; see [FrameOrient]. */
     val orient: FrameOrient? = null,
+    /** Uniform scale of everything under this frame (translations and display sizes); the v1 `play_vfx scale`. */
+    val scale: Double = 1.0,
 )
 
 /** `at:` of a timeline row: absolute tick since cast start, or an event plus an offset. */

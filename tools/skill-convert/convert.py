@@ -277,6 +277,9 @@ def bake_swing(keys):
 
 
 
+EYE_HEIGHT = 1.62  # standing player eye height above the feet (v1 pose.eyePosition)
+
+
 class Where:
     def __init__(self, kind, event=None, guard=None, owner=None):
         self.kind = kind  # cast | handler | nested
@@ -1310,7 +1313,6 @@ class Conv:
         sc = V(m.get("scale", d.get("scale", 1.0)))
         if not isinstance(sc, (int, float)):
             raise ValueError("play_vfx scale must be a number, got %r (%s)" % (sc, vid))
-        d = vfxelem.scale_def(d, float(sc))
         self.vfx_n += 1
         fid = "fx%d_%s" % (self.vfx_n, sid(vid))
         # v1 reads the stored cast context, not the live caster, for `snapshot_pose` and for a hit context (MechanicDispatcher.livePose :565)
@@ -1319,7 +1321,9 @@ class Conv:
         snapshot = bool(V(m.get("snapshot_pose", False))) or (where.kind == "handler" and where.event == "hit" and delay > 0)
         snapshot = snapshot and (not tg or tg["type"] in ("caster", "caster_forward", "caster_offset"))
         snap = self.frozen("caster", where) if snapshot else None
-        want = self.point(tg, where, "p", frozen=snapshot) if tg else (snap or "caster")
+        # v1 anchors a `target` play_vfx at the entity's position, its feet (VfxMechanics.kt:43-46 poseOf(id).position, kept live by
+        # the anchor lambda), never at the hit's contact point (the body centre): `enemy`, like sound_at.
+        want = ("enemy" if tg and tg.get("type") == "target" else self.point(tg, where, "p", frozen=snapshot)) if tg else (snap or "caster")
         follow = bool(V(m.get("follow", d.get("follow", True))))
         # v1 places the instance at the play point with VfxOrient.frame (VfxDefinition.kt:33-60) and moves only a follow=true one
         # (VfxPlayer.kt:414-420: position tracks the anchor, the spawn rotation stays). Both are one `anchor` op on a
@@ -1330,6 +1334,21 @@ class Conv:
             want, follow = parent, False
         tracks = follow and self.frame_parent(want) is not None
         self.look_frames[fid] = {"id": fid, "kind": "body", "parent": "world"}
+        # v1 multiplies every authored length of the effect by play_vfx `scale` (VfxTimeline.plan :102, slotGeometry :213,
+        # SlotContext :360-369): the frame carries it for its descendants' translations and display sizes.
+        fscale = float(V(m.get("scale", 1.0)))
+        self.vfx_scale = fscale
+        self.vfx_sample = int(d.get("sample_ticks", 2))  # v1 VfxDefinition.sampleTicks (:80): the chunk length of every element track
+        if fscale != 1.0:
+            self.look_frames[fid]["scale"] = fscale
+            # the frame scales translations and display sizes (block / quad / mesh / plate); lengths of these are not covered
+            for what, bad in (("body", d.get("body") or d.get("ghost_bodies")),
+                              ("group track", any(e.get("group_keyframes") for e in d.get("elements", []))),
+                              ("trail", any(r.get("trails") for r in d.get("rigs", []) or [])),
+                              ("particle / emitter speed, size", any((e.get("kind") or {}).get("type") == "particle" or e.get("emit")
+                                                                     for e in d.get("elements", [])))):
+                if bad:
+                    self.present("vfx scale %s: %s lengths are not scaled by the frame" % (fscale, what), vid)
         orient = V(m.get("orient", d.get("orient")))
         name = str(orient if orient is not None else "world").lower()
         if name not in ("world", "look", "yaw", "to_target"):
@@ -1515,7 +1534,7 @@ class Conv:
         else:
             self.p(where, at, self._w(op, when))
         if kfs and any(x in k for k in kfs for x in ("translate", "rotate", "scale")) and op["op"] in ("mesh", "plate", "line"):
-            self.p(where, at, self._w({"id": eid + "_trk", "op": "track", "target": eid, "space": fid, "keys": self.keys(kfs)}, when))
+            self.p(where, at, self._w({"id": eid + "_trk", "op": "track", "target": eid, "space": fid, "keys": self.keys(kfs), "sample_ticks": self.vfx_sample}, when))
             for k in kfs:
                 for x in ("alpha", "color", "block", "text"):
                     if x in k:
@@ -1580,7 +1599,8 @@ class Conv:
         if vd.get("body_respect_hit_stop"):
             op["body_respect_hit_stop"] = True
         if freeze:
-            op["freezes"] = [{"at": int(f["at"]), "ticks": int(f["ticks"])} for f in freeze]
+            # rig-relative: the engine subtracts its 1-tick animation delay itself (RigMotion.base)
+            op["freezes"] = [{"at": int(f["at"]) - int(r.get("start_tick", 0)), "ticks": int(f["ticks"])} for f in freeze]
         for key, name in (("weapon_tip", "tip"), ("weapon_root", "root"), ("weapon_edge", "edge")):
             if r.get(key):
                 op[name] = [float(x) for x in r[key]]
@@ -1603,12 +1623,24 @@ class Conv:
             pr = "caster"
         if self.frame_parent(pr) is None:
             raise UnhandledV1Key("rig parent %s is not a known frame" % pr)
-        if r.get("weapon_model"):
-            self.present("rig weapon_model (item_model swap on the weapon display)", short(r["weapon_model"], 80))
+        if r.get("weapon_model") and not r.get("weapon"):
+            raise UnhandledV1Key("rig weapon_model without a weapon display")
         if "." in pr:  # the rig op's parent is a frame in the tree; a point (caster.right_hand) needs a body frame standing on it
             anchor = rid + "_at"
             self.look_frames[anchor] = {"id": anchor, "kind": "body", "parent": pr}
             pr = anchor
+        fscale = getattr(self, "vfx_scale", 1.0)
+        if fscale != 1.0:
+            # v1 scales the rig's pivot, part offsets and sizes (VfxRigPlanner partPlan :255 / pivotWorld :170); the rig hangs under its
+            # own parent (a hand), not under the vfx frame, so a scale frame between them carries it
+            if hand:
+                # the rig holds the hand pose itself (no scalable parent frame): bake the scale into pivot / parts / trails / points
+                # (v1 VfxRigPlanner partPlan :255, pivotWorld :170)
+                r = vfxelem.scale_rig(r, fscale)
+            else:
+                carrier = rid + "_sc"
+                self.look_frames[carrier] = {"id": carrier, "kind": "body", "parent": pr, "scale": fscale}
+                pr = carrier
         self.look_frames[rid] = {"id": rid, "kind": "body", "parent": pr}
         start = delay + int(r.get("start_tick", 0))
         end = int(r.get("end_tick", dur))
@@ -1621,6 +1653,8 @@ class Conv:
             if hand:
                 mesh["scale"] = 0.9375
                 mesh["rest_turn"] = [float(x) for x in euler_to_vec([0.0, 72.0, 0.0])]
+            if r.get("weapon_model"):  # v1 VfxWeaponModelKey: item_model step keys on the same display (rig ticks)
+                mesh["models"] = [{"t": int(k["t"]), "model": k["model"]} for k in r["weapon_model"]]
             self.p(where, start, self._w(mesh, when))
             removes.setdefault(end, []).append(first)
         # v1 VfxRigPlanner.partPlan: a part is a block display at pivotWorld + R(t) * offset (R = anchorRot * tilt * swing * rest),

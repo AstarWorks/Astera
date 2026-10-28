@@ -244,6 +244,11 @@ public class PaperSkillVisualGateway(
         }
     }
 
+    override fun setItemModel(handle: VisualHandle, model: String?) {
+        val e = entries[handle.id] as? MeshEntry ?: return
+        displays.setItemModel(e.handle, model)
+    }
+
     override fun setBlock(handle: VisualHandle, block: String) {
         val e = entries[handle.id] as? BlockEntry ?: return
         displays.setBlock(e.handle, block)
@@ -415,11 +420,11 @@ public class PaperSkillVisualGateway(
 
     private companion object {
         val HAND = PresentationMask(hand = true)
-        val BODY = PresentationMask(hand = true, offhand = true, armor = true, body = true, pinPose = true)
 
         /** Font height (px) of a quad's drawn text: the vanilla default, 8 px = 0.2 blocks per text scale unit. */
         const val QUAD_TEXT_PX = 8
         const val MIN_GLYPH_OPACITY = 4
+        val BODY = PresentationMask(hand = true, offhand = true, armor = true, body = true, pinPose = true)
     }
 
     private fun worldOf(owner: UUID): World? {

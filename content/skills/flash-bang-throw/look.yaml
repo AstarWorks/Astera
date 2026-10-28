@@ -4,11 +4,11 @@ apiVersion: "astera/v2"
 kind: Skill
 id: flash-bang-throw
 frames:
-  - {id: pt_aim_0_m0p25_0p9, kind: point, parent: aim, offset: [0.0, -0.25, 0.9]}
+  - {id: pt_caster_0_1p37_0p9, kind: point, parent: caster, offset: [0.0, 1.37, 0.9]}
   - {id: pt_enemy_0_0p8_0, kind: point, parent: enemy, offset: [0.0, 0.8, 0.0]}
 presentation:
   timeline:
-    - {id: fx0, at: 0, do: [{id: snd, op: sound, sound: entity.snowball.throw, at: caster, volume: 0.9, pitch: 1.2}, {id: emit, op: emit, at: pt_aim_0_m0p25_0p9, particle: gun-muzzle-flash}]}
+    - {id: fx0, at: 0, do: [{id: snd, op: sound, sound: entity.snowball.throw, at: caster, volume: 0.9, pitch: 1.2}, {id: emit, op: emit, at: pt_caster_0_1p37_0p9, particle: gun-muzzle-flash}]}
     - id: fxblock_1
       at: "block+1"
       do:

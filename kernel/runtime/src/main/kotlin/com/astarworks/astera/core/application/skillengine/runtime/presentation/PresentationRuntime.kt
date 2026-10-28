@@ -21,6 +21,7 @@ import com.astarworks.astera.core.domain.skillengine.model.AxisRef
 import com.astarworks.astera.core.domain.skillengine.model.PointRef
 import com.astarworks.astera.core.domain.skillengine.model.Value
 import com.astarworks.astera.core.domain.skillengine.model.ValueResolver
+import com.astarworks.astera.core.domain.skillengine.op.MeshModelKey
 import com.astarworks.astera.core.domain.skillengine.op.PlateFace
 import com.astarworks.astera.core.domain.skillengine.op.Repeat
 import com.astarworks.astera.core.domain.skillengine.op.TrackKey
@@ -54,14 +55,19 @@ public class PresentationRuntime(
 
         /** v1 `WorldMechanics.MAX_DISPLAYS_PER_CAST` (:631): text displays one cast may spawn. */
         const val MAX_TEXT_PER_CAST: Int = 32
-
         const val MAX_FRAME_DEPTH: Int = 64
+
+        /** v1 `VfxTimeline.MAX_STEP_ROTATION_DEG` (:93). */
+        const val MAX_STEP_ROTATION_DEG: Double = 170.0
         private val UPRIGHT = 0.7071
         private val ONE = Vec3(1.0, 1.0, 1.0)
         private val IDENTITY = Frame(Vec3.ZERO)
     }
 
     internal class TrackState(val op: VisualOp.Track, val startTick: Int)
+
+    /** One chunk of a track-driven display's clock (v1 `VfxTimeline.Step`): track ticks [start]..[end]. */
+    internal class Step(val start: Int, val end: Int)
 
     internal class PullState(val op: VisualOp.Pull, val startTick: Int)
 
@@ -101,7 +107,11 @@ public class PresentationRuntime(
             val pivot: Vec3,
             val tilt: Quaternion,
             val rest: Quaternion,
-        ) : Live()
+            val models: List<MeshModelKey> = emptyList(),
+        ) : Live() {
+            /** Item model last pushed to the gateway (writes only on change). */
+            var shownModel: String? = null
+        }
 
         class Plate(
             override val opId: String,
@@ -158,6 +168,9 @@ public class PresentationRuntime(
     internal class CastState(val ctx: OpContext) {
         val anims = ArrayList<AnimRun>()
         var tick: Int = 0
+
+        /** Chunk steps per animated display id, with the tracks they were cut from (recut when a track appears). */
+        val chunkCache = HashMap<String, Pair<List<TrackState>, List<Step>?>>()
         var textSpawned: Int = 0
         val live = LinkedHashMap<String, Live>()
         val sounds = LinkedHashMap<String, SoundTask>()
@@ -265,6 +278,10 @@ public class PresentationRuntime(
         return update(s, live)
     }
 
+    /** [spawnNode] for a block/quad part: under a rig it is posed like a v1 rig part (pivot + wrist rotation at rig tick 0, VfxRigPlanner.kt:276). */
+    internal fun spawnPart(s: CastState, live: Live, parent: String): VisualPose? =
+        driverOf(s, parent).let { d -> if (d == null) spawnNode(s, live, parent) else d.withPartFrame(s, 0) { spawnNode(s, live, parent) } }
+
     /** Applies the tracks of [live] to its node and returns the pose to show; null when the parent is gone. */
     internal fun update(s: CastState, live: Live): VisualPose? {
         val tree = s.ctx.tree
@@ -275,7 +292,7 @@ public class PresentationRuntime(
                 val pull = pullOf(s, live)
                 tree.setLocal(live.node, Frame(live.pivot + t.offset + pullShift(pull, parentW), (live.tilt * t.turn * live.rest).normalized()))
                 val world = tree.worldOf(live.node).getOrNull() ?: return null
-                val k = live.scale
+                val k = live.scale * tree.scaleOf(live.node)
                 return VisualPose(world, Vec3(k * t.scale.x, k * t.scale.y, k * t.scale.z), DisplayBillboard.FIXED, anchorFeet(s, live.parent))
             }
             is Live.Plate -> {
@@ -286,10 +303,9 @@ public class PresentationRuntime(
                 val pull = pullOf(s, live)
                 tree.setLocal(live.node, Frame(live.at + live.turn.rotate(t.offset) + pullShift(pull, parentW), (base * live.turn * t.turn).normalized()))
                 val world = tree.worldOf(live.node).getOrNull() ?: return null
-                val fixed = live.billboard == DisplayBillboard.FIXED
-                // A viewer face is the vanilla billboard: it owns the rotation, so the written frame carries only the origin.
-                val frame = if (fixed) world else Frame(world.origin)
-                return VisualPose(frame, Vec3(live.size * t.scale.x, live.size * t.scale.y, 1.0), live.billboard, anchorFeet(s, live.parent))
+                val frame = billboardFrame(s, live.opId, parentW, world, live.billboard, live.turn)
+                val fs = tree.scaleOf(live.node)
+                return VisualPose(frame, Vec3(live.size * fs * t.scale.x, live.size * fs * t.scale.y, fs * t.scale.z), live.billboard, anchorFeet(s, live.parent))
             }
             is Live.Block -> {
                 val parentW = frameWorld(s, live.parent) ?: return null
@@ -297,7 +313,8 @@ public class PresentationRuntime(
                 val pull = pullOf(s, live)
                 tree.setLocal(live.node, Frame(live.at + live.turn.rotate(t.offset) + pullShift(pull, parentW), (live.turn * t.turn).normalized()))
                 val world = tree.worldOf(live.node).getOrNull() ?: return null
-                val size = Vec3(live.size.x * t.scale.x, live.size.y * t.scale.y, live.size.z * t.scale.z)
+                val fs = tree.scaleOf(live.node)
+                val size = Vec3(live.size.x * fs * t.scale.x, live.size.y * fs * t.scale.y, live.size.z * fs * t.scale.z)
                 if (pull != null && pull.line) return pulledLine(world, size, pull.correction, anchorFeet(s, live.parent))
                 return VisualPose(world, size, DisplayBillboard.FIXED, anchorFeet(s, live.parent))
             }
@@ -309,12 +326,25 @@ public class PresentationRuntime(
                 val pull = pullOf(s, live)
                 tree.setLocal(live.node, Frame(live.at + live.turn.rotate(t.offset) + pullShift(pull, parentW), (base * live.turn * t.turn).normalized()))
                 val world = tree.worldOf(live.node).getOrNull() ?: return null
-                val fixed = live.billboard == DisplayBillboard.FIXED
-                val frame = if (fixed) world else Frame(world.origin)
-                return VisualPose(frame, Vec3(live.size.x * t.scale.x, live.size.y * t.scale.y, 1.0), live.billboard, anchorFeet(s, live.parent))
+                val frame = billboardFrame(s, live.opId, parentW, world, live.billboard, live.turn)
+                val fs = tree.scaleOf(live.node)
+                return VisualPose(frame, Vec3(live.size.x * fs * t.scale.x, live.size.y * fs * t.scale.y, fs * t.scale.z), live.billboard, anchorFeet(s, live.parent))
             }
             else -> return null
         }
+    }
+
+    /**
+     * Frame written for a plate / quad. A viewer face is the vanilla billboard (the client turns the display toward the camera
+     * and then applies `left_rotation`), so the frame's rotation is what v1 wrote as `left_rotation` (v1 VfxTimeline.kt:362-366,
+     * `transformAt`): CENTER keeps only the element's own roll (base turn x its own tracks, no caster / group rotation, which the
+     * camera already supplies); VERTICAL keeps the full placed rotation. FIXED is the world frame.
+     */
+    private fun billboardFrame(
+        s: CastState, id: String, parentW: Frame, world: Frame, billboard: DisplayBillboard, baseTurn: Quaternion,
+    ): Frame = when (billboard) {
+        DisplayBillboard.FIXED, DisplayBillboard.VERTICAL -> world
+        else -> Frame(world.origin, (baseTurn * tracked(s, id, parentW).turn).normalized())
     }
 
     private class Pulled(val correction: Vec3, val weight: Double, val line: Boolean)
@@ -406,20 +436,99 @@ public class PresentationRuntime(
      */
     private fun castElapsed(s: CastState, t: TrackState): Int = s.tick - 1 - t.startTick
 
-    /** Sum of every track on [target] at this tick; offsets are expressed in the track's space and returned in the parent's axes. */
+    /**
+     * Sum of every track on [target] at this tick; offsets are expressed in the track's space and returned in the parent's axes.
+     * A display whose tracks have `sample_ticks` > 1 shows what v1 shows: the client interpolates linearly between the chunk-start and
+     * chunk-end updates (v1 `updatesFor`, VfxTimeline.kt:424-436), so the value at a tick inside a chunk is the lerp (slerp for the
+     * turn) of the two chunk ends, not the eased track value.
+     */
     private fun tracked(s: CastState, target: String, parentW: Frame, group: String? = null): Tracked {
+        val tracks = s.tracks.values.filter { it.op.target == target || (group != null && it.op.target == group) }
+        val steps = chunkSteps(s, target, tracks)
+        if (steps == null) return trackedAt(s, tracks, parentW, 0)
+        val e = castElapsed(s, tracks.first())
+        val step = steps.firstOrNull { e > it.start && e <= it.end } ?: return trackedAt(s, tracks, parentW, 0)
+        val a = trackedAt(s, tracks, parentW, step.start - e)
+        val b = trackedAt(s, tracks, parentW, step.end - e)
+        val f = (e - step.start).toDouble() / (step.end - step.start)
+        return Tracked(
+            a.offset + (b.offset - a.offset) * f,
+            Quaternion.slerp(a.turn, b.turn, f),
+            a.scale + (b.scale - a.scale) * f,
+        )
+    }
+
+    /** The tracks at their own tick plus [shift] (the chunk ends are sampled with it). */
+    private fun trackedAt(s: CastState, tracks: List<TrackState>, parentW: Frame, shift: Int): Tracked {
         var offset = Vec3.ZERO
         var turn = Quaternion.IDENTITY
         var scale = ONE
-        for (t in s.tracks.values) {
-            if (t.op.target != target && (group == null || t.op.target != group)) continue
-            val sample = sampleTrack(s, t, castElapsed(s, t))
+        for (t in tracks) {
+            val sample = sampleTrack(s, t, castElapsed(s, t) + shift)
             val space = t.op.space?.let { frameWorld(s, it) } ?: parentW
             offset += parentW.rotation.conjugate().rotate(space.directionToWorld(sample.offset))
             turn = (turn * sample.turn).normalized()
             scale = Vec3(scale.x * sample.scale.x, scale.y * sample.scale.y, scale.z * sample.scale.z)
         }
         return Tracked(offset, turn, scale)
+    }
+
+    /**
+     * v1 `segmentSteps` (VfxTimeline.kt:544-559): between consecutive keyframe ticks (the element's and its group's tracks) the clock
+     * is cut into `ceil(d / sampleTicks)` near-equal chunks; a chunk that turns more than [MAX_STEP_ROTATION_DEG] is halved
+     * (`splitByRotation`, :561-566). Null = every tick is its own update (sample_ticks 1, or nothing animates the transform).
+     */
+    private fun chunkSteps(s: CastState, target: String, tracks: List<TrackState>): List<Step>? {
+        if (tracks.isEmpty()) return null
+        s.chunkCache[target]?.let { (cached, steps) -> if (cached == tracks) return steps }
+        val sample = tracks.minOf { it.op.sampleTicks }
+        val animated = tracks.any { t -> t.op.keys.any { it.offset != null || it.turn != null || it.scale != null } }
+        var out: ArrayList<Step>? = null
+        if (sample > 1 && animated) {
+            out = ArrayList()
+            val points = tracks.flatMap { t -> t.op.keys.map { it.tick } }.distinct().sorted()
+            for (k in 1 until points.size) {
+                val a = points[k - 1]
+                val d = points[k] - a
+                val n = (d + sample - 1) / sample
+                var prev = a
+                for (j in 1..n) {
+                    val cut = a + Math.round(j.toDouble() * d / n).toInt()
+                    splitByRotation(s, tracks, prev, cut, out)
+                    prev = cut
+                }
+            }
+        }
+        s.chunkCache[target] = tracks to out
+        return out
+    }
+
+    private fun splitByRotation(s: CastState, tracks: List<TrackState>, start: Int, end: Int, out: MutableList<Step>) {
+        if (end - start >= 2 && turnDegrees(s, tracks, start, end) > MAX_STEP_ROTATION_DEG) {
+            val mid = (start + end) / 2
+            splitByRotation(s, tracks, start, mid, out)
+            splitByRotation(s, tracks, mid, end, out)
+        } else {
+            out += Step(start, end)
+        }
+    }
+
+    /** v1 `turnDegrees` (VfxTimeline.kt:568): the larger of the keyed rotation-vector delta and the quaternion angle between two track ticks. */
+    private fun turnDegrees(s: CastState, tracks: List<TrackState>, start: Int, end: Int): Double {
+        val v = s.ctx.values
+        var keyedDelta = 0.0
+        var qa = Quaternion.IDENTITY
+        var qb = Quaternion.IDENTITY
+        for (t in tracks) {
+            val keys = t.op.keys.sortedBy { it.tick }
+            val lerpV = { x: Vec3, y: Vec3, f: Double -> x + (y - x) * f }
+            val a = channel(keys, start, { it.turn?.let { r -> v.vec3(r) } }, Vec3.ZERO, lerpV)
+            val b = channel(keys, end, { it.turn?.let { r -> v.vec3(r) } }, Vec3.ZERO, lerpV)
+            keyedDelta += maxOf(abs(b.x - a.x), abs(b.y - a.y), abs(b.z - a.z))
+            qa = (qa * Quaternion.fromRotationVector(a)).normalized()
+            qb = (qb * Quaternion.fromRotationVector(b)).normalized()
+        }
+        return max(keyedDelta, Math.toDegrees(qa.angleTo(qb)))
     }
 
     // ------------------------------------------------------------------ repeated ops
@@ -452,14 +561,16 @@ public class PresentationRuntime(
             }
         }
         for (k in 0 until n) {
+            // a delayed copy runs inside tickCast, after `s.tick` advanced: its life counts from the tick it is due, not the tick it runs
+            val spawnTick = s.tick + k * repeat.every
             val run = {
                 ctx.host.withIndex(k, n) {
                     val made = body("$groupName#$k", if (parent != null) groupName else null)
                     val life = repeat.life
-                    if (made != null && life != null) made.dieAt = s.tick + life
+                    if (made != null && life != null) made.dieAt = spawnTick + life
                 }
             }
-            if (k * repeat.every <= 0) run() else s.pending += Pending(group, s.tick + k * repeat.every, run)
+            if (k * repeat.every <= 0) run() else s.pending += Pending(group, spawnTick, run)
         }
     }
 
@@ -562,19 +673,27 @@ public class PresentationRuntime(
         }
         for (l in s.live.values.toList()) {
             when (l) {
-                is Live.Mesh -> update(s, l)?.let { pose ->
-                    val driver = driverOf(s, l.parent)
-                    if (driver == null) put(visuals, l, followed(s, pose, l.parent), if (l.pulledNow) 0 else DISPLAY_TICKS)
-                    else driver.driven?.let { interp -> if (driver.changed(l.opId, pose)) visuals.write(l.handle, pose, interp) }
+                is Live.Mesh -> {
+                    update(s, l)?.let { pose ->
+                        val driver = driverOf(s, l.parent)
+                        if (driver == null) put(visuals, l, followed(s, pose, l.parent, l), if (l.pulledNow) 0 else DISPLAY_TICKS)
+                        else driver.driven?.let { interp -> if (driver.changed(l.opId, pose)) visuals.write(l.handle, pose, interp) }
+                    }
+                    tickModel(s, l)
                 }
                 is Live.Plate -> {
-                    update(s, l)?.let { put(visuals, l, followed(s, it, l.parent), if (l.pulledNow) 0 else DISPLAY_TICKS) }
+                    update(s, l)?.let { put(visuals, l, followed(s, it, l.parent, l), if (l.pulledNow) 0 else DISPLAY_TICKS) }
                     tickFlipbook(s, l)
                     tickLook(s, l)
                 }
                 is Live.Block, is Live.Quad -> {
+                    // parts hanging from a rig are written per turning chunk (v1 VfxRigPlanner.partPlan), not per rig tick
                     val parent = if (l is Live.Block) l.parent else (l as Live.Quad).parent
-                    update(s, l)?.let { put(visuals, l, followed(s, it, parent), if (l.pulledNow) 0 else DISPLAY_TICKS) }
+                    val driver = driverOf(s, parent)
+                    if (driver == null) update(s, l)?.let { put(visuals, l, followed(s, it, parent, l), if (l.pulledNow) 0 else DISPLAY_TICKS) }
+                    else driver.atPartChunk(s) { interp ->
+                        update(s, l)?.let { pose -> if (driver.changed(l.opId, pose)) visuals.write(l.handle, pose, interp) }
+                    }
                     tickLook(s, l)
                 }
                 is Live.Line -> linePose(s, l)?.let { put(visuals, l, it, DISPLAY_TICKS) }
@@ -658,6 +777,18 @@ public class PresentationRuntime(
         text?.takeIf { it != l.shownText }?.let { visuals.setText(l.handle, it); l.shownText = it }
     }
 
+    /** Pushes the `item_model` step key of a rig-borne mesh that has come due on the rig's clock (v1 VfxBodyPlanner.withModelSwaps). */
+    private fun tickModel(s: CastState, l: Live.Mesh) {
+        if (l.models.isEmpty()) return
+        val driver = driverOf(s, l.parent) ?: return
+        val e = s.tick - 1 - driver.startTick
+        val model = l.models.lastOrNull { driver.modelTick(it.tick) <= e && driver.modelTick(it.tick) < driver.op.durationTicks }?.model ?: return
+        if (model != l.shownModel) {
+            s.ctx.ports.visuals.setItemModel(l.handle, model)
+            l.shownModel = model
+        }
+    }
+
     private class Look(val alpha: Double?, val color: String?, val block: String?, val text: String?)
 
     private fun sampleLook(s: CastState, t: TrackState, elapsed: Int): Look {
@@ -688,9 +819,13 @@ public class PresentationRuntime(
      * display rides the caster natively (v1 ADR-0276) so a dash or knockback cannot leave it behind. A frame re-parented to
      * the world (a thrown piece) is not anchored from that tick on.
      */
-    /** The pose with the `teleport_duration` of the followed anchor above [frame]; native passengers (caster-anchored) keep theirs. */
-    private fun followed(s: CastState, pose: VisualPose, frame: String): VisualPose {
-        if (s.teleports.isEmpty() || pose.anchorFeet != null) return pose
+    /**
+     * The pose with the `teleport_duration` of the followed anchor above [frame]; native passengers (caster-anchored) keep theirs,
+     * and so does a display a track moves (v1 `selfMoving`: an element with position updates is not follow-teleported,
+     * VfxPlayer.kt:163, :419).
+     */
+    private fun followed(s: CastState, pose: VisualPose, frame: String, l: Live): VisualPose {
+        if (s.teleports.isEmpty() || pose.anchorFeet != null || selfMoving(s, l)) return pose
         var cur: FrameId? = FrameId(frame)
         var hops = 0
         while (cur != null && hops++ < MAX_FRAME_DEPTH) {
@@ -698,6 +833,11 @@ public class PresentationRuntime(
             cur = s.ctx.tree.node(cur)?.parent
         }
         return pose
+    }
+
+    private fun selfMoving(s: CastState, l: Live): Boolean {
+        val group = l.group
+        return s.tracks.values.any { t -> (t.op.target == l.opId || (group != null && t.op.target == group)) && t.op.keys.any { it.offset != null } }
     }
 
     internal fun anchorFeet(s: CastState, frame: String): Vec3? =
@@ -725,11 +865,11 @@ public class PresentationRuntime(
     private fun sampleTrack(s: CastState, t: TrackState, elapsed: Int): Sample {
         val keys = t.op.keys.sortedBy { it.tick }
         val v = s.ctx.values
-        val off = channel(keys.filter { it.offset != null }, elapsed, { v.vec3(it.offset!!) }, Vec3.ZERO) { a, b, f -> a + (b - a) * f }
+        val off = channel(keys, elapsed, { it.offset?.let { o -> v.vec3(o) } }, Vec3.ZERO) { a, b, f -> a + (b - a) * f }
         val turn = channel(
-            keys.filter { it.turn != null }, elapsed, { Quaternion.fromRotationVector(v.vec3(it.turn!!)) }, Quaternion.IDENTITY,
+            keys, elapsed, { it.turn?.let { r -> Quaternion.fromRotationVector(v.vec3(r)) } }, Quaternion.IDENTITY,
         ) { a, b, f -> Quaternion.slerp(a, b, f) }
-        val sc = channel(keys.filter { it.scale != null }, elapsed, { scaleOf(v, it.scale!!) }, ONE) { a, b, f -> a + (b - a) * f }
+        val sc = channel(keys, elapsed, { it.scale?.let { c -> scaleOf(v, c) } }, ONE) { a, b, f -> a + (b - a) * f }
         return Sample(off, turn, sc)
     }
 
@@ -739,21 +879,28 @@ public class PresentationRuntime(
         else -> runCatching { v.vec3(value) }.getOrElse { val n = v.num(value as Value<Nothing>); Vec3(n, n, n) }
     }
 
+    /**
+     * One channel of a track at [elapsed]. v1 `resolveKeyframes` (VfxTimeline.kt:270-274): an absent field carries over from
+     * the previous key and the state before the first key starts from the neutral value ([neutral]), so a key that omits the
+     * channel keeps the earlier value and a first key without it eases from the neutral value, never from a later key's value.
+     */
     private fun <T> channel(
         keys: List<TrackKey>,
         elapsed: Int,
-        value: (TrackKey) -> T,
+        value: (TrackKey) -> T?,
         neutral: T,
         lerp: (T, T, Double) -> T,
     ): T {
         if (keys.isEmpty()) return neutral
-        if (elapsed <= keys.first().tick) return value(keys.first())
-        if (elapsed >= keys.last().tick) return value(keys.last())
+        var cur = neutral
+        val vals = keys.map { k -> cur = value(k) ?: cur; cur }
+        if (elapsed <= keys.first().tick) return vals.first()
+        if (elapsed >= keys.last().tick) return vals.last()
         val hi = keys.indexOfFirst { it.tick >= elapsed }
         val a = keys[hi - 1]
         val b = keys[hi]
         val raw = (elapsed - a.tick).toDouble() / max(1, b.tick - a.tick)
-        return lerp(value(a), value(b), ease(b.ease, raw))
+        return lerp(vals[hi - 1], vals[hi], ease(b.ease, raw))
     }
 
     private fun ease(name: String?, f: Double): Double = name?.let { com.astarworks.astera.core.domain.animation.Easing.fromKey(it) }?.apply(f) ?: f

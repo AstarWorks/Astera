@@ -39,6 +39,7 @@ presentation:
             - {t: 4, block: light_blue_stained_glass}
             - {t: 8, block: gray_stained_glass}
             - {t: 14, scale: [0.0, 1.8, 0.0], ease: in_quad}
+          sample_ticks: 1
     - id: fx2
       at: 2
       do:
@@ -50,6 +51,7 @@ presentation:
             - {t: 4, block: light_blue_stained_glass}
             - {t: 8, block: gray_stained_glass}
             - {t: 14, scale: [0.0, 1.8, 0.0], ease: in_quad}
+          sample_ticks: 1
     - id: fx3
       at: 3
       do:
@@ -71,6 +73,7 @@ presentation:
             - {t: 11, turn: [16.66667, 0.0, 0.0]}
             - {t: 12, turn: [8.33333, 0.0, 0.0]}
             - {t: 13, offset: [-0.17, 1.05, 0.58], scale: [0.27, 0.28, 0.3], turn: [0.0, 0.0, 0.0]}
+          sample_ticks: 1
         - {op: block, parent: fx2_edict_fists_down, block: raw_iron_block, size: [1.0, 1.0, 1.0], id: fx2_edict_fists_down_1_cuff}
         - id: fx2_edict_fists_down_1_cuff_trk
           op: track
@@ -88,6 +91,7 @@ presentation:
             - {t: 11, turn: [16.66667, 0.0, 0.0]}
             - {t: 12, turn: [8.33333, 0.0, 0.0]}
             - {t: 13, offset: [-0.17, 1.05, 0.35], scale: [0.34, 0.32, 0.19], turn: [0.0, 0.0, 0.0]}
+          sample_ticks: 1
         - {op: block, parent: fx2_edict_fists_down, block: light_gray_concrete, size: [1.0, 1.0, 1.0], id: fx2_edict_fists_down_1_cuff_inlay}
         - id: fx2_edict_fists_down_1_cuff_inlay_trk
           op: track
@@ -105,6 +109,7 @@ presentation:
             - {t: 11, turn: [16.66667, 0.0, 0.0]}
             - {t: 12, turn: [8.33333, 0.0, 0.0]}
             - {t: 13, offset: [-0.17, 1.22, 0.35], scale: [0.26, 0.025, 0.13], turn: [0.0, 0.0, 0.0]}
+          sample_ticks: 1
         - {op: block, parent: fx2_edict_fists_down, block: white_concrete, size: [1.0, 1.0, 1.0], id: fx2_edict_fists_down_1_glove_2}
         - id: fx2_edict_fists_down_1_glove_2_trk
           op: track
@@ -122,6 +127,7 @@ presentation:
             - {t: 11, turn: [16.66667, 0.0, 0.0]}
             - {t: 12, turn: [8.33333, 0.0, 0.0]}
             - {t: 13, offset: [0.17, 1.05, 0.58], scale: [0.27, 0.28, 0.3], turn: [0.0, 0.0, 0.0]}
+          sample_ticks: 1
         - {op: block, parent: fx2_edict_fists_down, block: raw_iron_block, size: [1.0, 1.0, 1.0], id: fx2_edict_fists_down_1_cuff_2}
         - id: fx2_edict_fists_down_1_cuff_2_trk
           op: track
@@ -139,6 +145,7 @@ presentation:
             - {t: 11, turn: [16.66667, 0.0, 0.0]}
             - {t: 12, turn: [8.33333, 0.0, 0.0]}
             - {t: 13, offset: [0.17, 1.05, 0.35], scale: [0.34, 0.32, 0.19], turn: [0.0, 0.0, 0.0]}
+          sample_ticks: 1
         - {op: block, parent: fx2_edict_fists_down, block: light_gray_concrete, size: [1.0, 1.0, 1.0], id: fx2_edict_fists_down_1_cuff_inlay_2}
         - id: fx2_edict_fists_down_1_cuff_inlay_2_trk
           op: track
@@ -156,6 +163,7 @@ presentation:
             - {t: 11, turn: [16.66667, 0.0, 0.0]}
             - {t: 12, turn: [8.33333, 0.0, 0.0]}
             - {t: 13, offset: [0.17, 1.22, 0.35], scale: [0.26, 0.025, 0.13], turn: [0.0, 0.0, 0.0]}
+          sample_ticks: 1
         - {op: block, parent: fx2_edict_fists_down, block: iron_block, size: [1.0, 1.0, 1.0], id: fx2_edict_fists_down_chain_0}
         - id: fx2_edict_fists_down_chain_0_trk
           op: track
@@ -166,6 +174,7 @@ presentation:
             - {t: 6, offset: [-0.16, 0.9, 0.82], scale: [0.09, 0.04, 0.06], turn: [0.0, 0.0, -45.0]}
             - {t: 10, offset: [-0.16, 0.7, 0.67], scale: [0.09, 0.04, 0.06], turn: [0.0, 0.0, -45.0]}
             - {t: 13, offset: [-0.16, 0.9, 0.27], scale: [0.09, 0.04, 0.06], turn: [0.0, 0.0, -45.0]}
+          sample_ticks: 1
         - {op: block, parent: fx2_edict_fists_down, block: iron_block, size: [1.0, 1.0, 1.0], id: fx2_edict_fists_down_chain_1}
         - id: fx2_edict_fists_down_chain_1_trk
           op: track
@@ -176,6 +185,7 @@ presentation:
             - {t: 6, offset: [-0.096, 0.82947, 0.82], scale: [0.09, 0.04, 0.06], turn: [0.0, 0.0, 45.0]}
             - {t: 10, offset: [-0.096, 0.62947, 0.67], scale: [0.09, 0.04, 0.06], turn: [0.0, 0.0, 45.0]}
             - {t: 13, offset: [-0.096, 0.82947, 0.27], scale: [0.09, 0.04, 0.06], turn: [0.0, 0.0, 45.0]}
+          sample_ticks: 1
         - {op: block, parent: fx2_edict_fists_down, block: iron_block, size: [1.0, 1.0, 1.0], id: fx2_edict_fists_down_chain_2}
         - id: fx2_edict_fists_down_chain_2_trk
           op: track
@@ -186,6 +196,7 @@ presentation:
             - {t: 6, offset: [-0.032, 0.78587, 0.82], scale: [0.09, 0.04, 0.06], turn: [0.0, 0.0, -45.0]}
             - {t: 10, offset: [-0.032, 0.58587, 0.67], scale: [0.09, 0.04, 0.06], turn: [0.0, 0.0, -45.0]}
             - {t: 13, offset: [-0.032, 0.78587, 0.27], scale: [0.09, 0.04, 0.06], turn: [0.0, 0.0, -45.0]}
+          sample_ticks: 1
         - {op: block, parent: fx2_edict_fists_down, block: iron_block, size: [1.0, 1.0, 1.0], id: fx2_edict_fists_down_chain_3}
         - id: fx2_edict_fists_down_chain_3_trk
           op: track
@@ -196,6 +207,7 @@ presentation:
             - {t: 6, offset: [0.032, 0.78587, 0.82], scale: [0.09, 0.04, 0.06], turn: [0.0, 0.0, 45.0]}
             - {t: 10, offset: [0.032, 0.58587, 0.67], scale: [0.09, 0.04, 0.06], turn: [0.0, 0.0, 45.0]}
             - {t: 13, offset: [0.032, 0.78587, 0.27], scale: [0.09, 0.04, 0.06], turn: [0.0, 0.0, 45.0]}
+          sample_ticks: 1
         - {op: block, parent: fx2_edict_fists_down, block: iron_block, size: [1.0, 1.0, 1.0], id: fx2_edict_fists_down_chain_4}
         - id: fx2_edict_fists_down_chain_4_trk
           op: track
@@ -206,6 +218,7 @@ presentation:
             - {t: 6, offset: [0.096, 0.82947, 0.82], scale: [0.09, 0.04, 0.06], turn: [0.0, 0.0, -45.0]}
             - {t: 10, offset: [0.096, 0.62947, 0.67], scale: [0.09, 0.04, 0.06], turn: [0.0, 0.0, -45.0]}
             - {t: 13, offset: [0.096, 0.82947, 0.27], scale: [0.09, 0.04, 0.06], turn: [0.0, 0.0, -45.0]}
+          sample_ticks: 1
         - {op: block, parent: fx2_edict_fists_down, block: iron_block, size: [1.0, 1.0, 1.0], id: fx2_edict_fists_down_chain_5}
         - id: fx2_edict_fists_down_chain_5_trk
           op: track
@@ -216,6 +229,7 @@ presentation:
             - {t: 6, offset: [0.16, 0.9, 0.82], scale: [0.09, 0.04, 0.06], turn: [0.0, 0.0, 45.0]}
             - {t: 10, offset: [0.16, 0.7, 0.67], scale: [0.09, 0.04, 0.06], turn: [0.0, 0.0, 45.0]}
             - {t: 13, offset: [0.16, 0.9, 0.27], scale: [0.09, 0.04, 0.06], turn: [0.0, 0.0, 45.0]}
+          sample_ticks: 1
     - id: fx4
       at: 4
       do:
@@ -227,6 +241,7 @@ presentation:
             - {t: 4, block: light_blue_stained_glass}
             - {t: 8, block: gray_stained_glass}
             - {t: 14, scale: [0.0, 1.8, 0.0], ease: in_quad}
+          sample_ticks: 1
     - id: fx7
       at: 7
       do:
@@ -239,6 +254,7 @@ presentation:
             - {t: 0, offset: [0.0, -0.52493, 0.68652], scale: [0.0, 0.0, 0.0], turn: [-10.0, 0.0, 0.0]}
             - {t: 2, offset: [0.0, -0.52493, 0.68652], scale: [0.035, 0.10744, 0.64068], turn: [-10.0, 0.0, 0.0]}
             - {t: 13, offset: [0.0, -0.52493, 0.68652], scale: [0.0, 0.0, 0.34322], turn: [-10.0, 0.0, 0.0]}
+          sample_ticks: 1
         - {op: block, parent: fx3_edict_cuff_sweep, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx3_edict_cuff_sweep_arc_1}
         - id: fx3_edict_cuff_sweep_arc_1_trk
           op: track
@@ -247,6 +263,7 @@ presentation:
             - {t: 0, offset: [0.0, -0.36658, 1.15607], scale: [0.0, 0.0, 0.0], turn: [-27.27273, 0.0, 0.0]}
             - {t: 2, offset: [0.0, -0.36658, 1.15607], scale: [0.035, 0.16153, 0.64068], turn: [-27.27273, 0.0, 0.0]}
             - {t: 13, offset: [0.0, -0.36658, 1.15607], scale: [0.0, 0.0, 0.34322], turn: [-27.27273, 0.0, 0.0]}
+          sample_ticks: 1
         - {op: block, parent: fx3_edict_cuff_sweep, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx3_edict_cuff_sweep_arc_2}
         - id: fx3_edict_cuff_sweep_arc_2_trk
           op: track
@@ -255,6 +272,7 @@ presentation:
             - {t: 0, offset: [0.0, -0.07595, 1.55743], scale: [0.0, 0.0, 0.0], turn: [-44.54545, 0.0, 0.0]}
             - {t: 2, offset: [0.0, -0.07595, 1.55743], scale: [0.035, 0.20915, 0.64068], turn: [-44.54545, 0.0, 0.0]}
             - {t: 13, offset: [0.0, -0.07595, 1.55743], scale: [0.0, 0.0, 0.34322], turn: [-44.54545, 0.0, 0.0]}
+          sample_ticks: 1
         - {op: block, parent: fx3_edict_cuff_sweep, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx3_edict_cuff_sweep_arc_3}
         - id: fx3_edict_cuff_sweep_arc_3_trk
           op: track
@@ -263,6 +281,7 @@ presentation:
             - {t: 0, offset: [0.0, 0.32075, 1.8544], scale: [0.0, 0.0, 0.0], turn: [-61.81818, 0.0, 0.0]}
             - {t: 2, offset: [0.0, 0.32075, 1.8544], scale: [0.035, 0.24752, 0.64068], turn: [-61.81818, 0.0, 0.0]}
             - {t: 13, offset: [0.0, 0.32075, 1.8544], scale: [0.0, 0.0, 0.34322], turn: [-61.81818, 0.0, 0.0]}
+          sample_ticks: 1
         - {op: block, parent: fx3_edict_cuff_sweep, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx3_edict_cuff_sweep_arc_4}
         - id: fx3_edict_cuff_sweep_arc_4_trk
           op: track
@@ -271,6 +290,7 @@ presentation:
             - {t: 0, offset: [0.0, 0.78774, 2.02018], scale: [0.0, 0.0, 0.0], turn: [-79.09091, 0.0, 0.0]}
             - {t: 2, offset: [0.0, 0.78774, 2.02018], scale: [0.035, 0.2744, 0.64068], turn: [-79.09091, 0.0, 0.0]}
             - {t: 13, offset: [0.0, 0.78774, 2.02018], scale: [0.0, 0.0, 0.34322], turn: [-79.09091, 0.0, 0.0]}
+          sample_ticks: 1
         - {op: block, parent: fx3_edict_cuff_sweep, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx3_edict_cuff_sweep_arc_5}
         - id: fx3_edict_cuff_sweep_arc_5_trk
           op: track
@@ -279,6 +299,7 @@ presentation:
             - {t: 0, offset: [0.0, 1.28288, 2.03983], scale: [0.0, 0.0, 0.0], turn: [-96.36364, 0.0, 0.0]}
             - {t: 2, offset: [0.0, 1.28288, 2.03983], scale: [0.035, 0.28825, 0.64068], turn: [-96.36364, 0.0, 0.0]}
             - {t: 13, offset: [0.0, 1.28288, 2.03983], scale: [0.0, 0.0, 0.34322], turn: [-96.36364, 0.0, 0.0]}
+          sample_ticks: 1
         - {op: block, parent: fx3_edict_cuff_sweep, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx3_edict_cuff_sweep_arc_6}
         - id: fx3_edict_cuff_sweep_arc_6_trk
           op: track
@@ -287,6 +308,7 @@ presentation:
             - {t: 0, offset: [0.0, 1.76154, 1.91158], scale: [0.0, 0.0, 0.0], turn: [-113.63636, 0.0, 0.0]}
             - {t: 2, offset: [0.0, 1.76154, 1.91158], scale: [0.035, 0.28825, 0.64068], turn: [-113.63636, 0.0, 0.0]}
             - {t: 13, offset: [0.0, 1.76154, 1.91158], scale: [0.0, 0.0, 0.34322], turn: [-113.63636, 0.0, 0.0]}
+          sample_ticks: 1
         - {op: block, parent: fx3_edict_cuff_sweep, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx3_edict_cuff_sweep_arc_7}
         - id: fx3_edict_cuff_sweep_arc_7_trk
           op: track
@@ -295,6 +317,7 @@ presentation:
             - {t: 0, offset: [0.0, 2.18052, 1.64699], scale: [0.0, 0.0, 0.0], turn: [-130.90909, 0.0, 0.0]}
             - {t: 2, offset: [0.0, 2.18052, 1.64699], scale: [0.035, 0.2744, 0.64068], turn: [-130.90909, 0.0, 0.0]}
             - {t: 13, offset: [0.0, 2.18052, 1.64699], scale: [0.0, 0.0, 0.34322], turn: [-130.90909, 0.0, 0.0]}
+          sample_ticks: 1
         - {op: block, parent: fx3_edict_cuff_sweep, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx3_edict_cuff_sweep_arc_8}
         - id: fx3_edict_cuff_sweep_arc_8_trk
           op: track
@@ -303,6 +326,7 @@ presentation:
             - {t: 0, offset: [0.0, 2.50205, 1.26992], scale: [0.0, 0.0, 0.0], turn: [-148.18182, 0.0, 0.0]}
             - {t: 2, offset: [0.0, 2.50205, 1.26992], scale: [0.035, 0.24752, 0.64068], turn: [-148.18182, 0.0, 0.0]}
             - {t: 13, offset: [0.0, 2.50205, 1.26992], scale: [0.0, 0.0, 0.34322], turn: [-148.18182, 0.0, 0.0]}
+          sample_ticks: 1
         - {op: block, parent: fx3_edict_cuff_sweep, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx3_edict_cuff_sweep_arc_9}
         - id: fx3_edict_cuff_sweep_arc_9_trk
           op: track
@@ -311,6 +335,7 @@ presentation:
             - {t: 0, offset: [0.0, 2.69712, 0.81439], scale: [0.0, 0.0, 0.0], turn: [-165.45455, 0.0, 0.0]}
             - {t: 2, offset: [0.0, 2.69712, 0.81439], scale: [0.035, 0.20915, 0.64068], turn: [-165.45455, 0.0, 0.0]}
             - {t: 13, offset: [0.0, 2.69712, 0.81439], scale: [0.0, 0.0, 0.34322], turn: [-165.45455, 0.0, 0.0]}
+          sample_ticks: 1
         - {op: block, parent: fx3_edict_cuff_sweep, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx3_edict_cuff_sweep_arc_10}
         - id: fx3_edict_cuff_sweep_arc_10_trk
           op: track
@@ -319,6 +344,7 @@ presentation:
             - {t: 0, offset: [0.0, 2.74813, 0.32149], scale: [0.0, 0.0, 0.0], turn: [177.27273, 0.0, 0.0]}
             - {t: 2, offset: [0.0, 2.74813, 0.32149], scale: [0.035, 0.16153, 0.64068], turn: [177.27273, 0.0, 0.0]}
             - {t: 13, offset: [0.0, 2.74813, 0.32149], scale: [0.0, 0.0, 0.34322], turn: [177.27273, 0.0, 0.0]}
+          sample_ticks: 1
         - {op: block, parent: fx3_edict_cuff_sweep, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx3_edict_cuff_sweep_arc_11}
         - id: fx3_edict_cuff_sweep_arc_11_trk
           op: track
@@ -327,6 +353,7 @@ presentation:
             - {t: 0, offset: [0.0, 2.65049, -0.16433], scale: [0.0, 0.0, 0.0], turn: [160.0, 0.0, 0.0]}
             - {t: 2, offset: [0.0, 2.65049, -0.16433], scale: [0.035, 0.10744, 0.64068], turn: [160.0, 0.0, 0.0]}
             - {t: 13, offset: [0.0, 2.65049, -0.16433], scale: [0.0, 0.0, 0.34322], turn: [160.0, 0.0, 0.0]}
+          sample_ticks: 1
     - id: fx8
       at: 8
       do:
@@ -339,6 +366,7 @@ presentation:
             - {t: 2, offset: [0.0, 1.1, -2.2], scale: [4.8, 0.06, 0.06], ease: out_expo}
             - {t: 5, block: white_stained_glass}
             - {t: 12, scale: [0.0, 0.06, 0.06], ease: in_quad}
+          sample_ticks: 1
     - id: fx9
       at: 9
       do:
@@ -350,6 +378,7 @@ presentation:
             - {t: 0, offset: [0.0, 1.1, -2.2], scale: [0.0, 0.0, 0.0]}
             - {t: 2, scale: [6.0, 6.0, 6.0], ease: out_back}
             - {t: 9, scale: [0.0, 0.0, 0.0], ease: in_quad, turn: [0.0, 0.0, 120.0]}
+          sample_ticks: 1
     - id: fx16
       at: 16
       do:
@@ -371,6 +400,7 @@ presentation:
             - {t: 9, turn: [2.0, 0.0, 0.0]}
             - {t: 10, turn: [1.0, 0.0, 0.0]}
             - {t: 11, offset: [-0.17, 1.05, 0.63], scale: [0.27, 0.28, 0.3], turn: [0.0, 0.0, 0.0]}
+          sample_ticks: 1
         - {op: block, parent: fx5_edict_fists_return, block: raw_iron_block, size: [1.0, 1.0, 1.0], id: fx5_edict_fists_return_1_cuff}
         - id: fx5_edict_fists_return_1_cuff_trk
           op: track
@@ -388,6 +418,7 @@ presentation:
             - {t: 9, turn: [2.0, 0.0, 0.0]}
             - {t: 10, turn: [1.0, 0.0, 0.0]}
             - {t: 11, offset: [-0.17, 1.05, 0.4], scale: [0.34, 0.32, 0.19], turn: [0.0, 0.0, 0.0]}
+          sample_ticks: 1
         - {op: block, parent: fx5_edict_fists_return, block: light_gray_concrete, size: [1.0, 1.0, 1.0], id: fx5_edict_fists_return_1_cuff_inlay}
         - id: fx5_edict_fists_return_1_cuff_inlay_trk
           op: track
@@ -405,6 +436,7 @@ presentation:
             - {t: 9, turn: [2.0, 0.0, 0.0]}
             - {t: 10, turn: [1.0, 0.0, 0.0]}
             - {t: 11, offset: [-0.17, 1.22, 0.4], scale: [0.26, 0.025, 0.13], turn: [0.0, 0.0, 0.0]}
+          sample_ticks: 1
         - {op: block, parent: fx5_edict_fists_return, block: white_concrete, size: [1.0, 1.0, 1.0], id: fx5_edict_fists_return_1_glove_2}
         - id: fx5_edict_fists_return_1_glove_2_trk
           op: track
@@ -422,6 +454,7 @@ presentation:
             - {t: 9, turn: [2.0, 0.0, 0.0]}
             - {t: 10, turn: [1.0, 0.0, 0.0]}
             - {t: 11, offset: [0.17, 1.05, 0.63], scale: [0.27, 0.28, 0.3], turn: [0.0, 0.0, 0.0]}
+          sample_ticks: 1
         - {op: block, parent: fx5_edict_fists_return, block: raw_iron_block, size: [1.0, 1.0, 1.0], id: fx5_edict_fists_return_1_cuff_2}
         - id: fx5_edict_fists_return_1_cuff_2_trk
           op: track
@@ -439,6 +472,7 @@ presentation:
             - {t: 9, turn: [2.0, 0.0, 0.0]}
             - {t: 10, turn: [1.0, 0.0, 0.0]}
             - {t: 11, offset: [0.17, 1.05, 0.4], scale: [0.34, 0.32, 0.19], turn: [0.0, 0.0, 0.0]}
+          sample_ticks: 1
         - {op: block, parent: fx5_edict_fists_return, block: light_gray_concrete, size: [1.0, 1.0, 1.0], id: fx5_edict_fists_return_1_cuff_inlay_2}
         - id: fx5_edict_fists_return_1_cuff_inlay_2_trk
           op: track
@@ -456,6 +490,7 @@ presentation:
             - {t: 9, turn: [2.0, 0.0, 0.0]}
             - {t: 10, turn: [1.0, 0.0, 0.0]}
             - {t: 11, offset: [0.17, 1.22, 0.4], scale: [0.26, 0.025, 0.13], turn: [0.0, 0.0, 0.0]}
+          sample_ticks: 1
         - {op: block, parent: fx5_edict_fists_return, block: iron_block, size: [1.0, 1.0, 1.0], id: fx5_edict_fists_return_chain_0}
         - id: fx5_edict_fists_return_chain_0_trk
           op: track
@@ -465,6 +500,7 @@ presentation:
             - {t: 3, offset: [-0.16, 1.65, 0.22], scale: [0.09, 0.04, 0.06], turn: [0.0, 0.0, -45.0]}
             - {t: 6, offset: [-0.16, 0.9, 0.92], scale: [0.09, 0.04, 0.06], turn: [0.0, 0.0, -45.0]}
             - {t: 11, offset: [-0.16, 0.9, 0.32], scale: [0.09, 0.04, 0.06], turn: [0.0, 0.0, -45.0]}
+          sample_ticks: 1
         - {op: block, parent: fx5_edict_fists_return, block: iron_block, size: [1.0, 1.0, 1.0], id: fx5_edict_fists_return_chain_1}
         - id: fx5_edict_fists_return_chain_1_trk
           op: track
@@ -474,6 +510,7 @@ presentation:
             - {t: 3, offset: [-0.096, 1.57947, 0.22], scale: [0.09, 0.04, 0.06], turn: [0.0, 0.0, 45.0]}
             - {t: 6, offset: [-0.096, 0.82947, 0.92], scale: [0.09, 0.04, 0.06], turn: [0.0, 0.0, 45.0]}
             - {t: 11, offset: [-0.096, 0.82947, 0.32], scale: [0.09, 0.04, 0.06], turn: [0.0, 0.0, 45.0]}
+          sample_ticks: 1
         - {op: block, parent: fx5_edict_fists_return, block: iron_block, size: [1.0, 1.0, 1.0], id: fx5_edict_fists_return_chain_2}
         - id: fx5_edict_fists_return_chain_2_trk
           op: track
@@ -483,6 +520,7 @@ presentation:
             - {t: 3, offset: [-0.032, 1.53587, 0.22], scale: [0.09, 0.04, 0.06], turn: [0.0, 0.0, -45.0]}
             - {t: 6, offset: [-0.032, 0.78587, 0.92], scale: [0.09, 0.04, 0.06], turn: [0.0, 0.0, -45.0]}
             - {t: 11, offset: [-0.032, 0.78587, 0.32], scale: [0.09, 0.04, 0.06], turn: [0.0, 0.0, -45.0]}
+          sample_ticks: 1
         - {op: block, parent: fx5_edict_fists_return, block: iron_block, size: [1.0, 1.0, 1.0], id: fx5_edict_fists_return_chain_3}
         - id: fx5_edict_fists_return_chain_3_trk
           op: track
@@ -492,6 +530,7 @@ presentation:
             - {t: 3, offset: [0.032, 1.53587, 0.22], scale: [0.09, 0.04, 0.06], turn: [0.0, 0.0, 45.0]}
             - {t: 6, offset: [0.032, 0.78587, 0.92], scale: [0.09, 0.04, 0.06], turn: [0.0, 0.0, 45.0]}
             - {t: 11, offset: [0.032, 0.78587, 0.32], scale: [0.09, 0.04, 0.06], turn: [0.0, 0.0, 45.0]}
+          sample_ticks: 1
         - {op: block, parent: fx5_edict_fists_return, block: iron_block, size: [1.0, 1.0, 1.0], id: fx5_edict_fists_return_chain_4}
         - id: fx5_edict_fists_return_chain_4_trk
           op: track
@@ -501,6 +540,7 @@ presentation:
             - {t: 3, offset: [0.096, 1.57947, 0.22], scale: [0.09, 0.04, 0.06], turn: [0.0, 0.0, -45.0]}
             - {t: 6, offset: [0.096, 0.82947, 0.92], scale: [0.09, 0.04, 0.06], turn: [0.0, 0.0, -45.0]}
             - {t: 11, offset: [0.096, 0.82947, 0.32], scale: [0.09, 0.04, 0.06], turn: [0.0, 0.0, -45.0]}
+          sample_ticks: 1
         - {op: block, parent: fx5_edict_fists_return, block: iron_block, size: [1.0, 1.0, 1.0], id: fx5_edict_fists_return_chain_5}
         - id: fx5_edict_fists_return_chain_5_trk
           op: track
@@ -510,6 +550,7 @@ presentation:
             - {t: 3, offset: [0.16, 1.65, 0.22], scale: [0.09, 0.04, 0.06], turn: [0.0, 0.0, 45.0]}
             - {t: 6, offset: [0.16, 0.9, 0.92], scale: [0.09, 0.04, 0.06], turn: [0.0, 0.0, 45.0]}
             - {t: 11, offset: [0.16, 0.9, 0.32], scale: [0.09, 0.04, 0.06], turn: [0.0, 0.0, 45.0]}
+          sample_ticks: 1
     - id: fx17
       at: 17
       do:
@@ -557,6 +598,7 @@ presentation:
             - {t: 0, offset: [0.0, -0.52493, 0.68652], scale: [0.0, 0.0, 0.0], turn: [-10.0, 0.0, 0.0]}
             - {t: 2, offset: [0.0, -0.52493, 0.68652], scale: [0.035, 0.10744, 0.64068], turn: [-10.0, 0.0, 0.0]}
             - {t: 13, offset: [0.0, -0.52493, 0.68652], scale: [0.0, 0.0, 0.34322], turn: [-10.0, 0.0, 0.0]}
+          sample_ticks: 1
         - {op: block, parent: fx6_edict_cuff_sweep, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx6_edict_cuff_sweep_arc_1}
         - id: fx6_edict_cuff_sweep_arc_1_trk
           op: track
@@ -565,6 +607,7 @@ presentation:
             - {t: 0, offset: [0.0, -0.36658, 1.15607], scale: [0.0, 0.0, 0.0], turn: [-27.27273, 0.0, 0.0]}
             - {t: 2, offset: [0.0, -0.36658, 1.15607], scale: [0.035, 0.16153, 0.64068], turn: [-27.27273, 0.0, 0.0]}
             - {t: 13, offset: [0.0, -0.36658, 1.15607], scale: [0.0, 0.0, 0.34322], turn: [-27.27273, 0.0, 0.0]}
+          sample_ticks: 1
         - {op: block, parent: fx6_edict_cuff_sweep, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx6_edict_cuff_sweep_arc_2}
         - id: fx6_edict_cuff_sweep_arc_2_trk
           op: track
@@ -573,6 +616,7 @@ presentation:
             - {t: 0, offset: [0.0, -0.07595, 1.55743], scale: [0.0, 0.0, 0.0], turn: [-44.54545, 0.0, 0.0]}
             - {t: 2, offset: [0.0, -0.07595, 1.55743], scale: [0.035, 0.20915, 0.64068], turn: [-44.54545, 0.0, 0.0]}
             - {t: 13, offset: [0.0, -0.07595, 1.55743], scale: [0.0, 0.0, 0.34322], turn: [-44.54545, 0.0, 0.0]}
+          sample_ticks: 1
         - {op: block, parent: fx6_edict_cuff_sweep, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx6_edict_cuff_sweep_arc_3}
         - id: fx6_edict_cuff_sweep_arc_3_trk
           op: track
@@ -581,6 +625,7 @@ presentation:
             - {t: 0, offset: [0.0, 0.32075, 1.8544], scale: [0.0, 0.0, 0.0], turn: [-61.81818, 0.0, 0.0]}
             - {t: 2, offset: [0.0, 0.32075, 1.8544], scale: [0.035, 0.24752, 0.64068], turn: [-61.81818, 0.0, 0.0]}
             - {t: 13, offset: [0.0, 0.32075, 1.8544], scale: [0.0, 0.0, 0.34322], turn: [-61.81818, 0.0, 0.0]}
+          sample_ticks: 1
         - {op: block, parent: fx6_edict_cuff_sweep, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx6_edict_cuff_sweep_arc_4}
         - id: fx6_edict_cuff_sweep_arc_4_trk
           op: track
@@ -589,6 +634,7 @@ presentation:
             - {t: 0, offset: [0.0, 0.78774, 2.02018], scale: [0.0, 0.0, 0.0], turn: [-79.09091, 0.0, 0.0]}
             - {t: 2, offset: [0.0, 0.78774, 2.02018], scale: [0.035, 0.2744, 0.64068], turn: [-79.09091, 0.0, 0.0]}
             - {t: 13, offset: [0.0, 0.78774, 2.02018], scale: [0.0, 0.0, 0.34322], turn: [-79.09091, 0.0, 0.0]}
+          sample_ticks: 1
         - {op: block, parent: fx6_edict_cuff_sweep, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx6_edict_cuff_sweep_arc_5}
         - id: fx6_edict_cuff_sweep_arc_5_trk
           op: track
@@ -597,6 +643,7 @@ presentation:
             - {t: 0, offset: [0.0, 1.28288, 2.03983], scale: [0.0, 0.0, 0.0], turn: [-96.36364, 0.0, 0.0]}
             - {t: 2, offset: [0.0, 1.28288, 2.03983], scale: [0.035, 0.28825, 0.64068], turn: [-96.36364, 0.0, 0.0]}
             - {t: 13, offset: [0.0, 1.28288, 2.03983], scale: [0.0, 0.0, 0.34322], turn: [-96.36364, 0.0, 0.0]}
+          sample_ticks: 1
         - {op: block, parent: fx6_edict_cuff_sweep, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx6_edict_cuff_sweep_arc_6}
         - id: fx6_edict_cuff_sweep_arc_6_trk
           op: track
@@ -605,6 +652,7 @@ presentation:
             - {t: 0, offset: [0.0, 1.76154, 1.91158], scale: [0.0, 0.0, 0.0], turn: [-113.63636, 0.0, 0.0]}
             - {t: 2, offset: [0.0, 1.76154, 1.91158], scale: [0.035, 0.28825, 0.64068], turn: [-113.63636, 0.0, 0.0]}
             - {t: 13, offset: [0.0, 1.76154, 1.91158], scale: [0.0, 0.0, 0.34322], turn: [-113.63636, 0.0, 0.0]}
+          sample_ticks: 1
         - {op: block, parent: fx6_edict_cuff_sweep, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx6_edict_cuff_sweep_arc_7}
         - id: fx6_edict_cuff_sweep_arc_7_trk
           op: track
@@ -613,6 +661,7 @@ presentation:
             - {t: 0, offset: [0.0, 2.18052, 1.64699], scale: [0.0, 0.0, 0.0], turn: [-130.90909, 0.0, 0.0]}
             - {t: 2, offset: [0.0, 2.18052, 1.64699], scale: [0.035, 0.2744, 0.64068], turn: [-130.90909, 0.0, 0.0]}
             - {t: 13, offset: [0.0, 2.18052, 1.64699], scale: [0.0, 0.0, 0.34322], turn: [-130.90909, 0.0, 0.0]}
+          sample_ticks: 1
         - {op: block, parent: fx6_edict_cuff_sweep, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx6_edict_cuff_sweep_arc_8}
         - id: fx6_edict_cuff_sweep_arc_8_trk
           op: track
@@ -621,6 +670,7 @@ presentation:
             - {t: 0, offset: [0.0, 2.50205, 1.26992], scale: [0.0, 0.0, 0.0], turn: [-148.18182, 0.0, 0.0]}
             - {t: 2, offset: [0.0, 2.50205, 1.26992], scale: [0.035, 0.24752, 0.64068], turn: [-148.18182, 0.0, 0.0]}
             - {t: 13, offset: [0.0, 2.50205, 1.26992], scale: [0.0, 0.0, 0.34322], turn: [-148.18182, 0.0, 0.0]}
+          sample_ticks: 1
         - {op: block, parent: fx6_edict_cuff_sweep, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx6_edict_cuff_sweep_arc_9}
         - id: fx6_edict_cuff_sweep_arc_9_trk
           op: track
@@ -629,6 +679,7 @@ presentation:
             - {t: 0, offset: [0.0, 2.69712, 0.81439], scale: [0.0, 0.0, 0.0], turn: [-165.45455, 0.0, 0.0]}
             - {t: 2, offset: [0.0, 2.69712, 0.81439], scale: [0.035, 0.20915, 0.64068], turn: [-165.45455, 0.0, 0.0]}
             - {t: 13, offset: [0.0, 2.69712, 0.81439], scale: [0.0, 0.0, 0.34322], turn: [-165.45455, 0.0, 0.0]}
+          sample_ticks: 1
         - {op: block, parent: fx6_edict_cuff_sweep, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx6_edict_cuff_sweep_arc_10}
         - id: fx6_edict_cuff_sweep_arc_10_trk
           op: track
@@ -637,6 +688,7 @@ presentation:
             - {t: 0, offset: [0.0, 2.74813, 0.32149], scale: [0.0, 0.0, 0.0], turn: [177.27273, 0.0, 0.0]}
             - {t: 2, offset: [0.0, 2.74813, 0.32149], scale: [0.035, 0.16153, 0.64068], turn: [177.27273, 0.0, 0.0]}
             - {t: 13, offset: [0.0, 2.74813, 0.32149], scale: [0.0, 0.0, 0.34322], turn: [177.27273, 0.0, 0.0]}
+          sample_ticks: 1
         - {op: block, parent: fx6_edict_cuff_sweep, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx6_edict_cuff_sweep_arc_11}
         - id: fx6_edict_cuff_sweep_arc_11_trk
           op: track
@@ -645,6 +697,7 @@ presentation:
             - {t: 0, offset: [0.0, 2.65049, -0.16433], scale: [0.0, 0.0, 0.0], turn: [160.0, 0.0, 0.0]}
             - {t: 2, offset: [0.0, 2.65049, -0.16433], scale: [0.035, 0.10744, 0.64068], turn: [160.0, 0.0, 0.0]}
             - {t: 13, offset: [0.0, 2.65049, -0.16433], scale: [0.0, 0.0, 0.34322], turn: [160.0, 0.0, 0.0]}
+          sample_ticks: 1
     - id: fx28
       at: 28
       do:
@@ -703,6 +756,7 @@ presentation:
             - {t: 4, block: light_blue_stained_glass}
             - {t: 8, block: gray_stained_glass}
             - {t: 14, scale: [0.0, 1.8, 0.0], ease: in_quad}
+          sample_ticks: 1
     - id: fx41
       at: 41
       do:
@@ -714,6 +768,7 @@ presentation:
             - {t: 4, block: light_blue_stained_glass}
             - {t: 8, block: gray_stained_glass}
             - {t: 14, scale: [0.0, 1.8, 0.0], ease: in_quad}
+          sample_ticks: 1
     - id: fx43
       at: 43
       do:
@@ -725,6 +780,7 @@ presentation:
             - {t: 4, block: light_blue_stained_glass}
             - {t: 8, block: gray_stained_glass}
             - {t: 14, scale: [0.0, 1.8, 0.0], ease: in_quad}
+          sample_ticks: 1
     - id: fx47
       at: 47
       do:
@@ -737,6 +793,7 @@ presentation:
             - {t: 2, offset: [0.0, 1.1, -2.2], scale: [4.8, 0.06, 0.06], ease: out_expo}
             - {t: 5, block: white_stained_glass}
             - {t: 12, scale: [0.0, 0.06, 0.06], ease: in_quad}
+          sample_ticks: 1
     - id: fx48
       at: 48
       do:
@@ -748,6 +805,7 @@ presentation:
             - {t: 0, offset: [0.0, 1.1, -2.2], scale: [0.0, 0.0, 0.0]}
             - {t: 2, scale: [6.0, 6.0, 6.0], ease: out_back}
             - {t: 9, scale: [0.0, 0.0, 0.0], ease: in_quad, turn: [0.0, 0.0, 120.0]}
+          sample_ticks: 1
     - {id: fx57, at: 57, do: [{id: rm_15, op: remove, ids: [fx11_edict_ghost_star]}]}
     - {id: fx59, at: 59, do: [{id: rm_16, op: remove, ids: [fx11_edict_ghost_counter_line]}]}
     - id: fx61
@@ -771,6 +829,7 @@ presentation:
             - {t: 9, turn: [2.0, 0.0, 0.0]}
             - {t: 10, turn: [1.0, 0.0, 0.0]}
             - {t: 11, offset: [-0.17, 1.05, 0.63], scale: [0.27, 0.28, 0.3], turn: [0.0, 0.0, 0.0]}
+          sample_ticks: 1
         - {op: block, parent: fx8_edict_fists_return, block: raw_iron_block, size: [1.0, 1.0, 1.0], id: fx8_edict_fists_return_1_cuff}
         - id: fx8_edict_fists_return_1_cuff_trk
           op: track
@@ -788,6 +847,7 @@ presentation:
             - {t: 9, turn: [2.0, 0.0, 0.0]}
             - {t: 10, turn: [1.0, 0.0, 0.0]}
             - {t: 11, offset: [-0.17, 1.05, 0.4], scale: [0.34, 0.32, 0.19], turn: [0.0, 0.0, 0.0]}
+          sample_ticks: 1
         - {op: block, parent: fx8_edict_fists_return, block: light_gray_concrete, size: [1.0, 1.0, 1.0], id: fx8_edict_fists_return_1_cuff_inlay}
         - id: fx8_edict_fists_return_1_cuff_inlay_trk
           op: track
@@ -805,6 +865,7 @@ presentation:
             - {t: 9, turn: [2.0, 0.0, 0.0]}
             - {t: 10, turn: [1.0, 0.0, 0.0]}
             - {t: 11, offset: [-0.17, 1.22, 0.4], scale: [0.26, 0.025, 0.13], turn: [0.0, 0.0, 0.0]}
+          sample_ticks: 1
         - {op: block, parent: fx8_edict_fists_return, block: white_concrete, size: [1.0, 1.0, 1.0], id: fx8_edict_fists_return_1_glove_2}
         - id: fx8_edict_fists_return_1_glove_2_trk
           op: track
@@ -822,6 +883,7 @@ presentation:
             - {t: 9, turn: [2.0, 0.0, 0.0]}
             - {t: 10, turn: [1.0, 0.0, 0.0]}
             - {t: 11, offset: [0.17, 1.05, 0.63], scale: [0.27, 0.28, 0.3], turn: [0.0, 0.0, 0.0]}
+          sample_ticks: 1
         - {op: block, parent: fx8_edict_fists_return, block: raw_iron_block, size: [1.0, 1.0, 1.0], id: fx8_edict_fists_return_1_cuff_2}
         - id: fx8_edict_fists_return_1_cuff_2_trk
           op: track
@@ -839,6 +901,7 @@ presentation:
             - {t: 9, turn: [2.0, 0.0, 0.0]}
             - {t: 10, turn: [1.0, 0.0, 0.0]}
             - {t: 11, offset: [0.17, 1.05, 0.4], scale: [0.34, 0.32, 0.19], turn: [0.0, 0.0, 0.0]}
+          sample_ticks: 1
         - {op: block, parent: fx8_edict_fists_return, block: light_gray_concrete, size: [1.0, 1.0, 1.0], id: fx8_edict_fists_return_1_cuff_inlay_2}
         - id: fx8_edict_fists_return_1_cuff_inlay_2_trk
           op: track
@@ -856,6 +919,7 @@ presentation:
             - {t: 9, turn: [2.0, 0.0, 0.0]}
             - {t: 10, turn: [1.0, 0.0, 0.0]}
             - {t: 11, offset: [0.17, 1.22, 0.4], scale: [0.26, 0.025, 0.13], turn: [0.0, 0.0, 0.0]}
+          sample_ticks: 1
         - {op: block, parent: fx8_edict_fists_return, block: iron_block, size: [1.0, 1.0, 1.0], id: fx8_edict_fists_return_chain_0}
         - id: fx8_edict_fists_return_chain_0_trk
           op: track
@@ -865,6 +929,7 @@ presentation:
             - {t: 3, offset: [-0.16, 1.65, 0.22], scale: [0.09, 0.04, 0.06], turn: [0.0, 0.0, -45.0]}
             - {t: 6, offset: [-0.16, 0.9, 0.92], scale: [0.09, 0.04, 0.06], turn: [0.0, 0.0, -45.0]}
             - {t: 11, offset: [-0.16, 0.9, 0.32], scale: [0.09, 0.04, 0.06], turn: [0.0, 0.0, -45.0]}
+          sample_ticks: 1
         - {op: block, parent: fx8_edict_fists_return, block: iron_block, size: [1.0, 1.0, 1.0], id: fx8_edict_fists_return_chain_1}
         - id: fx8_edict_fists_return_chain_1_trk
           op: track
@@ -874,6 +939,7 @@ presentation:
             - {t: 3, offset: [-0.096, 1.57947, 0.22], scale: [0.09, 0.04, 0.06], turn: [0.0, 0.0, 45.0]}
             - {t: 6, offset: [-0.096, 0.82947, 0.92], scale: [0.09, 0.04, 0.06], turn: [0.0, 0.0, 45.0]}
             - {t: 11, offset: [-0.096, 0.82947, 0.32], scale: [0.09, 0.04, 0.06], turn: [0.0, 0.0, 45.0]}
+          sample_ticks: 1
         - {op: block, parent: fx8_edict_fists_return, block: iron_block, size: [1.0, 1.0, 1.0], id: fx8_edict_fists_return_chain_2}
         - id: fx8_edict_fists_return_chain_2_trk
           op: track
@@ -883,6 +949,7 @@ presentation:
             - {t: 3, offset: [-0.032, 1.53587, 0.22], scale: [0.09, 0.04, 0.06], turn: [0.0, 0.0, -45.0]}
             - {t: 6, offset: [-0.032, 0.78587, 0.92], scale: [0.09, 0.04, 0.06], turn: [0.0, 0.0, -45.0]}
             - {t: 11, offset: [-0.032, 0.78587, 0.32], scale: [0.09, 0.04, 0.06], turn: [0.0, 0.0, -45.0]}
+          sample_ticks: 1
         - {op: block, parent: fx8_edict_fists_return, block: iron_block, size: [1.0, 1.0, 1.0], id: fx8_edict_fists_return_chain_3}
         - id: fx8_edict_fists_return_chain_3_trk
           op: track
@@ -892,6 +959,7 @@ presentation:
             - {t: 3, offset: [0.032, 1.53587, 0.22], scale: [0.09, 0.04, 0.06], turn: [0.0, 0.0, 45.0]}
             - {t: 6, offset: [0.032, 0.78587, 0.92], scale: [0.09, 0.04, 0.06], turn: [0.0, 0.0, 45.0]}
             - {t: 11, offset: [0.032, 0.78587, 0.32], scale: [0.09, 0.04, 0.06], turn: [0.0, 0.0, 45.0]}
+          sample_ticks: 1
         - {op: block, parent: fx8_edict_fists_return, block: iron_block, size: [1.0, 1.0, 1.0], id: fx8_edict_fists_return_chain_4}
         - id: fx8_edict_fists_return_chain_4_trk
           op: track
@@ -901,6 +969,7 @@ presentation:
             - {t: 3, offset: [0.096, 1.57947, 0.22], scale: [0.09, 0.04, 0.06], turn: [0.0, 0.0, -45.0]}
             - {t: 6, offset: [0.096, 0.82947, 0.92], scale: [0.09, 0.04, 0.06], turn: [0.0, 0.0, -45.0]}
             - {t: 11, offset: [0.096, 0.82947, 0.32], scale: [0.09, 0.04, 0.06], turn: [0.0, 0.0, -45.0]}
+          sample_ticks: 1
         - {op: block, parent: fx8_edict_fists_return, block: iron_block, size: [1.0, 1.0, 1.0], id: fx8_edict_fists_return_chain_5}
         - id: fx8_edict_fists_return_chain_5_trk
           op: track
@@ -910,6 +979,7 @@ presentation:
             - {t: 3, offset: [0.16, 1.65, 0.22], scale: [0.09, 0.04, 0.06], turn: [0.0, 0.0, 45.0]}
             - {t: 6, offset: [0.16, 0.9, 0.92], scale: [0.09, 0.04, 0.06], turn: [0.0, 0.0, 45.0]}
             - {t: 11, offset: [0.16, 0.9, 0.32], scale: [0.09, 0.04, 0.06], turn: [0.0, 0.0, 45.0]}
+          sample_ticks: 1
     - id: fx65
       at: 65
       do:
@@ -922,6 +992,7 @@ presentation:
             - {t: 0, offset: [0.0, -0.52493, 0.68652], scale: [0.0, 0.0, 0.0], turn: [-10.0, 0.0, 0.0]}
             - {t: 2, offset: [0.0, -0.52493, 0.68652], scale: [0.035, 0.10744, 0.64068], turn: [-10.0, 0.0, 0.0]}
             - {t: 13, offset: [0.0, -0.52493, 0.68652], scale: [0.0, 0.0, 0.34322], turn: [-10.0, 0.0, 0.0]}
+          sample_ticks: 1
         - {op: block, parent: fx9_edict_cuff_sweep, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx9_edict_cuff_sweep_arc_1}
         - id: fx9_edict_cuff_sweep_arc_1_trk
           op: track
@@ -930,6 +1001,7 @@ presentation:
             - {t: 0, offset: [0.0, -0.36658, 1.15607], scale: [0.0, 0.0, 0.0], turn: [-27.27273, 0.0, 0.0]}
             - {t: 2, offset: [0.0, -0.36658, 1.15607], scale: [0.035, 0.16153, 0.64068], turn: [-27.27273, 0.0, 0.0]}
             - {t: 13, offset: [0.0, -0.36658, 1.15607], scale: [0.0, 0.0, 0.34322], turn: [-27.27273, 0.0, 0.0]}
+          sample_ticks: 1
         - {op: block, parent: fx9_edict_cuff_sweep, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx9_edict_cuff_sweep_arc_2}
         - id: fx9_edict_cuff_sweep_arc_2_trk
           op: track
@@ -938,6 +1010,7 @@ presentation:
             - {t: 0, offset: [0.0, -0.07595, 1.55743], scale: [0.0, 0.0, 0.0], turn: [-44.54545, 0.0, 0.0]}
             - {t: 2, offset: [0.0, -0.07595, 1.55743], scale: [0.035, 0.20915, 0.64068], turn: [-44.54545, 0.0, 0.0]}
             - {t: 13, offset: [0.0, -0.07595, 1.55743], scale: [0.0, 0.0, 0.34322], turn: [-44.54545, 0.0, 0.0]}
+          sample_ticks: 1
         - {op: block, parent: fx9_edict_cuff_sweep, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx9_edict_cuff_sweep_arc_3}
         - id: fx9_edict_cuff_sweep_arc_3_trk
           op: track
@@ -946,6 +1019,7 @@ presentation:
             - {t: 0, offset: [0.0, 0.32075, 1.8544], scale: [0.0, 0.0, 0.0], turn: [-61.81818, 0.0, 0.0]}
             - {t: 2, offset: [0.0, 0.32075, 1.8544], scale: [0.035, 0.24752, 0.64068], turn: [-61.81818, 0.0, 0.0]}
             - {t: 13, offset: [0.0, 0.32075, 1.8544], scale: [0.0, 0.0, 0.34322], turn: [-61.81818, 0.0, 0.0]}
+          sample_ticks: 1
         - {op: block, parent: fx9_edict_cuff_sweep, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx9_edict_cuff_sweep_arc_4}
         - id: fx9_edict_cuff_sweep_arc_4_trk
           op: track
@@ -954,6 +1028,7 @@ presentation:
             - {t: 0, offset: [0.0, 0.78774, 2.02018], scale: [0.0, 0.0, 0.0], turn: [-79.09091, 0.0, 0.0]}
             - {t: 2, offset: [0.0, 0.78774, 2.02018], scale: [0.035, 0.2744, 0.64068], turn: [-79.09091, 0.0, 0.0]}
             - {t: 13, offset: [0.0, 0.78774, 2.02018], scale: [0.0, 0.0, 0.34322], turn: [-79.09091, 0.0, 0.0]}
+          sample_ticks: 1
         - {op: block, parent: fx9_edict_cuff_sweep, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx9_edict_cuff_sweep_arc_5}
         - id: fx9_edict_cuff_sweep_arc_5_trk
           op: track
@@ -962,6 +1037,7 @@ presentation:
             - {t: 0, offset: [0.0, 1.28288, 2.03983], scale: [0.0, 0.0, 0.0], turn: [-96.36364, 0.0, 0.0]}
             - {t: 2, offset: [0.0, 1.28288, 2.03983], scale: [0.035, 0.28825, 0.64068], turn: [-96.36364, 0.0, 0.0]}
             - {t: 13, offset: [0.0, 1.28288, 2.03983], scale: [0.0, 0.0, 0.34322], turn: [-96.36364, 0.0, 0.0]}
+          sample_ticks: 1
         - {op: block, parent: fx9_edict_cuff_sweep, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx9_edict_cuff_sweep_arc_6}
         - id: fx9_edict_cuff_sweep_arc_6_trk
           op: track
@@ -970,6 +1046,7 @@ presentation:
             - {t: 0, offset: [0.0, 1.76154, 1.91158], scale: [0.0, 0.0, 0.0], turn: [-113.63636, 0.0, 0.0]}
             - {t: 2, offset: [0.0, 1.76154, 1.91158], scale: [0.035, 0.28825, 0.64068], turn: [-113.63636, 0.0, 0.0]}
             - {t: 13, offset: [0.0, 1.76154, 1.91158], scale: [0.0, 0.0, 0.34322], turn: [-113.63636, 0.0, 0.0]}
+          sample_ticks: 1
         - {op: block, parent: fx9_edict_cuff_sweep, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx9_edict_cuff_sweep_arc_7}
         - id: fx9_edict_cuff_sweep_arc_7_trk
           op: track
@@ -978,6 +1055,7 @@ presentation:
             - {t: 0, offset: [0.0, 2.18052, 1.64699], scale: [0.0, 0.0, 0.0], turn: [-130.90909, 0.0, 0.0]}
             - {t: 2, offset: [0.0, 2.18052, 1.64699], scale: [0.035, 0.2744, 0.64068], turn: [-130.90909, 0.0, 0.0]}
             - {t: 13, offset: [0.0, 2.18052, 1.64699], scale: [0.0, 0.0, 0.34322], turn: [-130.90909, 0.0, 0.0]}
+          sample_ticks: 1
         - {op: block, parent: fx9_edict_cuff_sweep, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx9_edict_cuff_sweep_arc_8}
         - id: fx9_edict_cuff_sweep_arc_8_trk
           op: track
@@ -986,6 +1064,7 @@ presentation:
             - {t: 0, offset: [0.0, 2.50205, 1.26992], scale: [0.0, 0.0, 0.0], turn: [-148.18182, 0.0, 0.0]}
             - {t: 2, offset: [0.0, 2.50205, 1.26992], scale: [0.035, 0.24752, 0.64068], turn: [-148.18182, 0.0, 0.0]}
             - {t: 13, offset: [0.0, 2.50205, 1.26992], scale: [0.0, 0.0, 0.34322], turn: [-148.18182, 0.0, 0.0]}
+          sample_ticks: 1
         - {op: block, parent: fx9_edict_cuff_sweep, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx9_edict_cuff_sweep_arc_9}
         - id: fx9_edict_cuff_sweep_arc_9_trk
           op: track
@@ -994,6 +1073,7 @@ presentation:
             - {t: 0, offset: [0.0, 2.69712, 0.81439], scale: [0.0, 0.0, 0.0], turn: [-165.45455, 0.0, 0.0]}
             - {t: 2, offset: [0.0, 2.69712, 0.81439], scale: [0.035, 0.20915, 0.64068], turn: [-165.45455, 0.0, 0.0]}
             - {t: 13, offset: [0.0, 2.69712, 0.81439], scale: [0.0, 0.0, 0.34322], turn: [-165.45455, 0.0, 0.0]}
+          sample_ticks: 1
         - {op: block, parent: fx9_edict_cuff_sweep, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx9_edict_cuff_sweep_arc_10}
         - id: fx9_edict_cuff_sweep_arc_10_trk
           op: track
@@ -1002,6 +1082,7 @@ presentation:
             - {t: 0, offset: [0.0, 2.74813, 0.32149], scale: [0.0, 0.0, 0.0], turn: [177.27273, 0.0, 0.0]}
             - {t: 2, offset: [0.0, 2.74813, 0.32149], scale: [0.035, 0.16153, 0.64068], turn: [177.27273, 0.0, 0.0]}
             - {t: 13, offset: [0.0, 2.74813, 0.32149], scale: [0.0, 0.0, 0.34322], turn: [177.27273, 0.0, 0.0]}
+          sample_ticks: 1
         - {op: block, parent: fx9_edict_cuff_sweep, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx9_edict_cuff_sweep_arc_11}
         - id: fx9_edict_cuff_sweep_arc_11_trk
           op: track
@@ -1010,6 +1091,7 @@ presentation:
             - {t: 0, offset: [0.0, 2.65049, -0.16433], scale: [0.0, 0.0, 0.0], turn: [160.0, 0.0, 0.0]}
             - {t: 2, offset: [0.0, 2.65049, -0.16433], scale: [0.035, 0.10744, 0.64068], turn: [160.0, 0.0, 0.0]}
             - {t: 13, offset: [0.0, 2.65049, -0.16433], scale: [0.0, 0.0, 0.34322], turn: [160.0, 0.0, 0.0]}
+          sample_ticks: 1
     - id: fx73
       at: 73
       do:
@@ -1117,7 +1199,7 @@ presentation:
           when: "= event.source == 'sel_3'"
   "on":
     hit:
-      - {id: anchor_4, op: anchor, frame: fx4_edict_impact, at: contact.point, orient: yaw, when: "= event.source == 'sel'"}
+      - {id: anchor_4, op: anchor, frame: fx4_edict_impact, at: enemy, orient: yaw, when: "= event.source == 'sel'"}
       - {op: block, parent: fx4_edict_impact, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx4_edict_impact_ray_0_0, when: "= event.source == 'sel'"}
       - id: fx4_edict_impact_ray_0_0_trk
         op: track
@@ -1127,6 +1209,7 @@ presentation:
           - {t: 1, offset: [0.0, 1.15, 0.65], scale: [0.035, 0.09, 1.3], turn: [0.0, 0.0, 0.0]}
           - {t: 4, offset: [0.0, 1.15, 0.65], scale: [0.035, 0.09, 1.3], turn: [0.0, 0.0, 0.0]}
           - {t: 9, offset: [0.0, 1.15, 0.65], scale: [0.0, 0.0, 0.0], turn: [0.0, 0.0, 0.0]}
+        sample_ticks: 1
         when: "= event.source == 'sel'"
       - {op: block, parent: fx4_edict_impact, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx4_edict_impact_ray_0_1, when: "= event.source == 'sel'"}
       - id: fx4_edict_impact_ray_0_1_trk
@@ -1137,6 +1220,7 @@ presentation:
           - {t: 1, offset: [0.0, 1.4682, 0.3182], scale: [0.035, 0.09, 0.9], turn: [-45.0, 0.0, 0.0]}
           - {t: 4, offset: [0.0, 1.4682, 0.3182], scale: [0.035, 0.09, 0.9], turn: [-45.0, 0.0, 0.0]}
           - {t: 9, offset: [0.0, 1.4682, 0.3182], scale: [0.0, 0.0, 0.0], turn: [-45.0, 0.0, 0.0]}
+        sample_ticks: 1
         when: "= event.source == 'sel'"
       - {op: block, parent: fx4_edict_impact, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx4_edict_impact_ray_0_2, when: "= event.source == 'sel'"}
       - id: fx4_edict_impact_ray_0_2_trk
@@ -1147,6 +1231,7 @@ presentation:
           - {t: 1, offset: [0.0, 1.9, 0.0], scale: [0.035, 0.09, 1.5], turn: [-90.0, 0.0, 0.0]}
           - {t: 4, offset: [0.0, 1.9, 0.0], scale: [0.035, 0.09, 1.5], turn: [-90.0, 0.0, 0.0]}
           - {t: 9, offset: [0.0, 1.9, 0.0], scale: [0.0, 0.0, 0.0], turn: [-90.0, 0.0, 0.0]}
+        sample_ticks: 1
         when: "= event.source == 'sel'"
       - {op: block, parent: fx4_edict_impact, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx4_edict_impact_ray_0_3, when: "= event.source == 'sel'"}
       - id: fx4_edict_impact_ray_0_3_trk
@@ -1157,6 +1242,7 @@ presentation:
           - {t: 1, offset: [0.0, 1.50355, -0.35355], scale: [0.035, 0.09, 1.0], turn: [-135.0, 0.0, 0.0]}
           - {t: 4, offset: [0.0, 1.50355, -0.35355], scale: [0.035, 0.09, 1.0], turn: [-135.0, 0.0, 0.0]}
           - {t: 9, offset: [0.0, 1.50355, -0.35355], scale: [0.0, 0.0, 0.0], turn: [-135.0, 0.0, 0.0]}
+        sample_ticks: 1
         when: "= event.source == 'sel'"
       - {op: block, parent: fx4_edict_impact, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx4_edict_impact_ray_0_4, when: "= event.source == 'sel'"}
       - id: fx4_edict_impact_ray_0_4_trk
@@ -1167,6 +1253,7 @@ presentation:
           - {t: 1, offset: [0.0, 1.15, -0.6], scale: [0.035, 0.09, 1.2], turn: [-180.0, 0.0, 0.0]}
           - {t: 4, offset: [0.0, 1.15, -0.6], scale: [0.035, 0.09, 1.2], turn: [-180.0, 0.0, 0.0]}
           - {t: 9, offset: [0.0, 1.15, -0.6], scale: [0.0, 0.0, 0.0], turn: [-180.0, 0.0, 0.0]}
+        sample_ticks: 1
         when: "= event.source == 'sel'"
       - {op: block, parent: fx4_edict_impact, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx4_edict_impact_ray_0_5, when: "= event.source == 'sel'"}
       - id: fx4_edict_impact_ray_0_5_trk
@@ -1177,6 +1264,7 @@ presentation:
           - {t: 1, offset: [0.0, 0.86716, -0.28284], scale: [0.035, 0.09, 0.8], turn: [135.0, 0.0, 0.0]}
           - {t: 4, offset: [0.0, 0.86716, -0.28284], scale: [0.035, 0.09, 0.8], turn: [135.0, 0.0, 0.0]}
           - {t: 9, offset: [0.0, 0.86716, -0.28284], scale: [0.0, 0.0, 0.0], turn: [135.0, 0.0, 0.0]}
+        sample_ticks: 1
         when: "= event.source == 'sel'"
       - {op: block, parent: fx4_edict_impact, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx4_edict_impact_ray_0_6, when: "= event.source == 'sel'"}
       - id: fx4_edict_impact_ray_0_6_trk
@@ -1187,6 +1275,7 @@ presentation:
           - {t: 1, offset: [0.0, 0.45, 0.0], scale: [0.035, 0.09, 1.4], turn: [90.0, 0.0, 0.0]}
           - {t: 4, offset: [0.0, 0.45, 0.0], scale: [0.035, 0.09, 1.4], turn: [90.0, 0.0, 0.0]}
           - {t: 9, offset: [0.0, 0.45, 0.0], scale: [0.0, 0.0, 0.0], turn: [90.0, 0.0, 0.0]}
+        sample_ticks: 1
         when: "= event.source == 'sel'"
       - {op: block, parent: fx4_edict_impact, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx4_edict_impact_ray_0_7, when: "= event.source == 'sel'"}
       - id: fx4_edict_impact_ray_0_7_trk
@@ -1197,6 +1286,7 @@ presentation:
           - {t: 1, offset: [0.0, 0.79645, 0.35355], scale: [0.035, 0.09, 1.0], turn: [45.0, 0.0, 0.0]}
           - {t: 4, offset: [0.0, 0.79645, 0.35355], scale: [0.035, 0.09, 1.0], turn: [45.0, 0.0, 0.0]}
           - {t: 9, offset: [0.0, 0.79645, 0.35355], scale: [0.0, 0.0, 0.0], turn: [45.0, 0.0, 0.0]}
+        sample_ticks: 1
         when: "= event.source == 'sel'"
       - {op: block, parent: fx4_edict_impact, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx4_edict_impact_ray_1_0, when: "= event.source == 'sel'"}
       - id: fx4_edict_impact_ray_1_0_trk
@@ -1207,6 +1297,7 @@ presentation:
           - {t: 1, offset: [0.65, 1.15, 0.0], scale: [1.3, 0.09, 0.035], turn: [0.0, 0.0, 0.0]}
           - {t: 4, offset: [0.65, 1.15, 0.0], scale: [1.3, 0.09, 0.035], turn: [0.0, 0.0, 0.0]}
           - {t: 9, offset: [0.65, 1.15, 0.0], scale: [0.0, 0.0, 0.0], turn: [0.0, 0.0, 0.0]}
+        sample_ticks: 1
         when: "= event.source == 'sel'"
       - {op: block, parent: fx4_edict_impact, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx4_edict_impact_ray_1_1, when: "= event.source == 'sel'"}
       - id: fx4_edict_impact_ray_1_1_trk
@@ -1217,6 +1308,7 @@ presentation:
           - {t: 1, offset: [0.3182, 1.4682, 0.0], scale: [0.9, 0.09, 0.035], turn: [0.0, 0.0, 45.0]}
           - {t: 4, offset: [0.3182, 1.4682, 0.0], scale: [0.9, 0.09, 0.035], turn: [0.0, 0.0, 45.0]}
           - {t: 9, offset: [0.3182, 1.4682, 0.0], scale: [0.0, 0.0, 0.0], turn: [0.0, 0.0, 45.0]}
+        sample_ticks: 1
         when: "= event.source == 'sel'"
       - {op: block, parent: fx4_edict_impact, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx4_edict_impact_ray_1_2, when: "= event.source == 'sel'"}
       - id: fx4_edict_impact_ray_1_2_trk
@@ -1227,6 +1319,7 @@ presentation:
           - {t: 1, offset: [0.0, 1.9, 0.0], scale: [1.5, 0.09, 0.035], turn: [0.0, 0.0, 90.0]}
           - {t: 4, offset: [0.0, 1.9, 0.0], scale: [1.5, 0.09, 0.035], turn: [0.0, 0.0, 90.0]}
           - {t: 9, offset: [0.0, 1.9, 0.0], scale: [0.0, 0.0, 0.0], turn: [0.0, 0.0, 90.0]}
+        sample_ticks: 1
         when: "= event.source == 'sel'"
       - {op: block, parent: fx4_edict_impact, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx4_edict_impact_ray_1_3, when: "= event.source == 'sel'"}
       - id: fx4_edict_impact_ray_1_3_trk
@@ -1237,6 +1330,7 @@ presentation:
           - {t: 1, offset: [-0.35355, 1.50355, 0.0], scale: [1.0, 0.09, 0.035], turn: [0.0, 0.0, 135.0]}
           - {t: 4, offset: [-0.35355, 1.50355, 0.0], scale: [1.0, 0.09, 0.035], turn: [0.0, 0.0, 135.0]}
           - {t: 9, offset: [-0.35355, 1.50355, 0.0], scale: [0.0, 0.0, 0.0], turn: [0.0, 0.0, 135.0]}
+        sample_ticks: 1
         when: "= event.source == 'sel'"
       - {op: block, parent: fx4_edict_impact, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx4_edict_impact_ray_1_4, when: "= event.source == 'sel'"}
       - id: fx4_edict_impact_ray_1_4_trk
@@ -1247,6 +1341,7 @@ presentation:
           - {t: 1, offset: [-0.6, 1.15, 0.0], scale: [1.2, 0.09, 0.035], turn: [0.0, 0.0, 180.0]}
           - {t: 4, offset: [-0.6, 1.15, 0.0], scale: [1.2, 0.09, 0.035], turn: [0.0, 0.0, 180.0]}
           - {t: 9, offset: [-0.6, 1.15, 0.0], scale: [0.0, 0.0, 0.0], turn: [0.0, 0.0, 180.0]}
+        sample_ticks: 1
         when: "= event.source == 'sel'"
       - {op: block, parent: fx4_edict_impact, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx4_edict_impact_ray_1_5, when: "= event.source == 'sel'"}
       - id: fx4_edict_impact_ray_1_5_trk
@@ -1257,6 +1352,7 @@ presentation:
           - {t: 1, offset: [-0.28284, 0.86716, 0.0], scale: [0.8, 0.09, 0.035], turn: [0.0, 0.0, -135.0]}
           - {t: 4, offset: [-0.28284, 0.86716, 0.0], scale: [0.8, 0.09, 0.035], turn: [0.0, 0.0, -135.0]}
           - {t: 9, offset: [-0.28284, 0.86716, 0.0], scale: [0.0, 0.0, 0.0], turn: [0.0, 0.0, -135.0]}
+        sample_ticks: 1
         when: "= event.source == 'sel'"
       - {op: block, parent: fx4_edict_impact, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx4_edict_impact_ray_1_6, when: "= event.source == 'sel'"}
       - id: fx4_edict_impact_ray_1_6_trk
@@ -1267,6 +1363,7 @@ presentation:
           - {t: 1, offset: [0.0, 0.45, 0.0], scale: [1.4, 0.09, 0.035], turn: [0.0, 0.0, -90.0]}
           - {t: 4, offset: [0.0, 0.45, 0.0], scale: [1.4, 0.09, 0.035], turn: [0.0, 0.0, -90.0]}
           - {t: 9, offset: [0.0, 0.45, 0.0], scale: [0.0, 0.0, 0.0], turn: [0.0, 0.0, -90.0]}
+        sample_ticks: 1
         when: "= event.source == 'sel'"
       - {op: block, parent: fx4_edict_impact, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx4_edict_impact_ray_1_7, when: "= event.source == 'sel'"}
       - id: fx4_edict_impact_ray_1_7_trk
@@ -1277,6 +1374,7 @@ presentation:
           - {t: 1, offset: [0.35355, 0.79645, 0.0], scale: [1.0, 0.09, 0.035], turn: [0.0, 0.0, -45.0]}
           - {t: 4, offset: [0.35355, 0.79645, 0.0], scale: [1.0, 0.09, 0.035], turn: [0.0, 0.0, -45.0]}
           - {t: 9, offset: [0.35355, 0.79645, 0.0], scale: [0.0, 0.0, 0.0], turn: [0.0, 0.0, -45.0]}
+        sample_ticks: 1
         when: "= event.source == 'sel'"
       - {op: quad, parent: fx4_edict_impact, face: {viewer: center}, size: [1.0, 1.0], color: "#FFFFFF", alpha: 1.0, text: "✦", brightness: 15, id: fx4_edict_impact_core, when: "= event.source == 'sel'"}
       - id: fx4_edict_impact_core_trk
@@ -1286,9 +1384,10 @@ presentation:
           - {t: 0, offset: [0.0, 1.15, 0.0], scale: [0.05, 0.05, 1.0]}
           - {t: 1, offset: [0.0, 1.15, 0.0], scale: [0.8, 0.8, 1.0]}
           - {t: 6, offset: [0.0, 1.15, 0.0], scale: [0.0, 0.0, 1.0]}
+        sample_ticks: 1
         when: "= event.source == 'sel'"
       - {id: snd, op: sound, sound: entity.player.attack.strong, at: enemy, volume: 0.7, pitch: 1.1, when: "= event.source == 'sel'"}
-      - {id: anchor_7, op: anchor, frame: fx7_edict_impact, at: contact.point, orient: yaw, when: "= event.source == 'sel_2'"}
+      - {id: anchor_7, op: anchor, frame: fx7_edict_impact, at: enemy, orient: yaw, when: "= event.source == 'sel_2'"}
       - {op: block, parent: fx7_edict_impact, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx7_edict_impact_ray_0_0, when: "= event.source == 'sel_2'"}
       - id: fx7_edict_impact_ray_0_0_trk
         op: track
@@ -1298,6 +1397,7 @@ presentation:
           - {t: 1, offset: [0.0, 1.15, 0.65], scale: [0.035, 0.09, 1.3], turn: [0.0, 0.0, 0.0]}
           - {t: 4, offset: [0.0, 1.15, 0.65], scale: [0.035, 0.09, 1.3], turn: [0.0, 0.0, 0.0]}
           - {t: 9, offset: [0.0, 1.15, 0.65], scale: [0.0, 0.0, 0.0], turn: [0.0, 0.0, 0.0]}
+        sample_ticks: 1
         when: "= event.source == 'sel_2'"
       - {op: block, parent: fx7_edict_impact, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx7_edict_impact_ray_0_1, when: "= event.source == 'sel_2'"}
       - id: fx7_edict_impact_ray_0_1_trk
@@ -1308,6 +1408,7 @@ presentation:
           - {t: 1, offset: [0.0, 1.4682, 0.3182], scale: [0.035, 0.09, 0.9], turn: [-45.0, 0.0, 0.0]}
           - {t: 4, offset: [0.0, 1.4682, 0.3182], scale: [0.035, 0.09, 0.9], turn: [-45.0, 0.0, 0.0]}
           - {t: 9, offset: [0.0, 1.4682, 0.3182], scale: [0.0, 0.0, 0.0], turn: [-45.0, 0.0, 0.0]}
+        sample_ticks: 1
         when: "= event.source == 'sel_2'"
       - {op: block, parent: fx7_edict_impact, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx7_edict_impact_ray_0_2, when: "= event.source == 'sel_2'"}
       - id: fx7_edict_impact_ray_0_2_trk
@@ -1318,6 +1419,7 @@ presentation:
           - {t: 1, offset: [0.0, 1.9, 0.0], scale: [0.035, 0.09, 1.5], turn: [-90.0, 0.0, 0.0]}
           - {t: 4, offset: [0.0, 1.9, 0.0], scale: [0.035, 0.09, 1.5], turn: [-90.0, 0.0, 0.0]}
           - {t: 9, offset: [0.0, 1.9, 0.0], scale: [0.0, 0.0, 0.0], turn: [-90.0, 0.0, 0.0]}
+        sample_ticks: 1
         when: "= event.source == 'sel_2'"
       - {op: block, parent: fx7_edict_impact, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx7_edict_impact_ray_0_3, when: "= event.source == 'sel_2'"}
       - id: fx7_edict_impact_ray_0_3_trk
@@ -1328,6 +1430,7 @@ presentation:
           - {t: 1, offset: [0.0, 1.50355, -0.35355], scale: [0.035, 0.09, 1.0], turn: [-135.0, 0.0, 0.0]}
           - {t: 4, offset: [0.0, 1.50355, -0.35355], scale: [0.035, 0.09, 1.0], turn: [-135.0, 0.0, 0.0]}
           - {t: 9, offset: [0.0, 1.50355, -0.35355], scale: [0.0, 0.0, 0.0], turn: [-135.0, 0.0, 0.0]}
+        sample_ticks: 1
         when: "= event.source == 'sel_2'"
       - {op: block, parent: fx7_edict_impact, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx7_edict_impact_ray_0_4, when: "= event.source == 'sel_2'"}
       - id: fx7_edict_impact_ray_0_4_trk
@@ -1338,6 +1441,7 @@ presentation:
           - {t: 1, offset: [0.0, 1.15, -0.6], scale: [0.035, 0.09, 1.2], turn: [-180.0, 0.0, 0.0]}
           - {t: 4, offset: [0.0, 1.15, -0.6], scale: [0.035, 0.09, 1.2], turn: [-180.0, 0.0, 0.0]}
           - {t: 9, offset: [0.0, 1.15, -0.6], scale: [0.0, 0.0, 0.0], turn: [-180.0, 0.0, 0.0]}
+        sample_ticks: 1
         when: "= event.source == 'sel_2'"
       - {op: block, parent: fx7_edict_impact, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx7_edict_impact_ray_0_5, when: "= event.source == 'sel_2'"}
       - id: fx7_edict_impact_ray_0_5_trk
@@ -1348,6 +1452,7 @@ presentation:
           - {t: 1, offset: [0.0, 0.86716, -0.28284], scale: [0.035, 0.09, 0.8], turn: [135.0, 0.0, 0.0]}
           - {t: 4, offset: [0.0, 0.86716, -0.28284], scale: [0.035, 0.09, 0.8], turn: [135.0, 0.0, 0.0]}
           - {t: 9, offset: [0.0, 0.86716, -0.28284], scale: [0.0, 0.0, 0.0], turn: [135.0, 0.0, 0.0]}
+        sample_ticks: 1
         when: "= event.source == 'sel_2'"
       - {op: block, parent: fx7_edict_impact, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx7_edict_impact_ray_0_6, when: "= event.source == 'sel_2'"}
       - id: fx7_edict_impact_ray_0_6_trk
@@ -1358,6 +1463,7 @@ presentation:
           - {t: 1, offset: [0.0, 0.45, 0.0], scale: [0.035, 0.09, 1.4], turn: [90.0, 0.0, 0.0]}
           - {t: 4, offset: [0.0, 0.45, 0.0], scale: [0.035, 0.09, 1.4], turn: [90.0, 0.0, 0.0]}
           - {t: 9, offset: [0.0, 0.45, 0.0], scale: [0.0, 0.0, 0.0], turn: [90.0, 0.0, 0.0]}
+        sample_ticks: 1
         when: "= event.source == 'sel_2'"
       - {op: block, parent: fx7_edict_impact, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx7_edict_impact_ray_0_7, when: "= event.source == 'sel_2'"}
       - id: fx7_edict_impact_ray_0_7_trk
@@ -1368,6 +1474,7 @@ presentation:
           - {t: 1, offset: [0.0, 0.79645, 0.35355], scale: [0.035, 0.09, 1.0], turn: [45.0, 0.0, 0.0]}
           - {t: 4, offset: [0.0, 0.79645, 0.35355], scale: [0.035, 0.09, 1.0], turn: [45.0, 0.0, 0.0]}
           - {t: 9, offset: [0.0, 0.79645, 0.35355], scale: [0.0, 0.0, 0.0], turn: [45.0, 0.0, 0.0]}
+        sample_ticks: 1
         when: "= event.source == 'sel_2'"
       - {op: block, parent: fx7_edict_impact, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx7_edict_impact_ray_1_0, when: "= event.source == 'sel_2'"}
       - id: fx7_edict_impact_ray_1_0_trk
@@ -1378,6 +1485,7 @@ presentation:
           - {t: 1, offset: [0.65, 1.15, 0.0], scale: [1.3, 0.09, 0.035], turn: [0.0, 0.0, 0.0]}
           - {t: 4, offset: [0.65, 1.15, 0.0], scale: [1.3, 0.09, 0.035], turn: [0.0, 0.0, 0.0]}
           - {t: 9, offset: [0.65, 1.15, 0.0], scale: [0.0, 0.0, 0.0], turn: [0.0, 0.0, 0.0]}
+        sample_ticks: 1
         when: "= event.source == 'sel_2'"
       - {op: block, parent: fx7_edict_impact, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx7_edict_impact_ray_1_1, when: "= event.source == 'sel_2'"}
       - id: fx7_edict_impact_ray_1_1_trk
@@ -1388,6 +1496,7 @@ presentation:
           - {t: 1, offset: [0.3182, 1.4682, 0.0], scale: [0.9, 0.09, 0.035], turn: [0.0, 0.0, 45.0]}
           - {t: 4, offset: [0.3182, 1.4682, 0.0], scale: [0.9, 0.09, 0.035], turn: [0.0, 0.0, 45.0]}
           - {t: 9, offset: [0.3182, 1.4682, 0.0], scale: [0.0, 0.0, 0.0], turn: [0.0, 0.0, 45.0]}
+        sample_ticks: 1
         when: "= event.source == 'sel_2'"
       - {op: block, parent: fx7_edict_impact, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx7_edict_impact_ray_1_2, when: "= event.source == 'sel_2'"}
       - id: fx7_edict_impact_ray_1_2_trk
@@ -1398,6 +1507,7 @@ presentation:
           - {t: 1, offset: [0.0, 1.9, 0.0], scale: [1.5, 0.09, 0.035], turn: [0.0, 0.0, 90.0]}
           - {t: 4, offset: [0.0, 1.9, 0.0], scale: [1.5, 0.09, 0.035], turn: [0.0, 0.0, 90.0]}
           - {t: 9, offset: [0.0, 1.9, 0.0], scale: [0.0, 0.0, 0.0], turn: [0.0, 0.0, 90.0]}
+        sample_ticks: 1
         when: "= event.source == 'sel_2'"
       - {op: block, parent: fx7_edict_impact, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx7_edict_impact_ray_1_3, when: "= event.source == 'sel_2'"}
       - id: fx7_edict_impact_ray_1_3_trk
@@ -1408,6 +1518,7 @@ presentation:
           - {t: 1, offset: [-0.35355, 1.50355, 0.0], scale: [1.0, 0.09, 0.035], turn: [0.0, 0.0, 135.0]}
           - {t: 4, offset: [-0.35355, 1.50355, 0.0], scale: [1.0, 0.09, 0.035], turn: [0.0, 0.0, 135.0]}
           - {t: 9, offset: [-0.35355, 1.50355, 0.0], scale: [0.0, 0.0, 0.0], turn: [0.0, 0.0, 135.0]}
+        sample_ticks: 1
         when: "= event.source == 'sel_2'"
       - {op: block, parent: fx7_edict_impact, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx7_edict_impact_ray_1_4, when: "= event.source == 'sel_2'"}
       - id: fx7_edict_impact_ray_1_4_trk
@@ -1418,6 +1529,7 @@ presentation:
           - {t: 1, offset: [-0.6, 1.15, 0.0], scale: [1.2, 0.09, 0.035], turn: [0.0, 0.0, 180.0]}
           - {t: 4, offset: [-0.6, 1.15, 0.0], scale: [1.2, 0.09, 0.035], turn: [0.0, 0.0, 180.0]}
           - {t: 9, offset: [-0.6, 1.15, 0.0], scale: [0.0, 0.0, 0.0], turn: [0.0, 0.0, 180.0]}
+        sample_ticks: 1
         when: "= event.source == 'sel_2'"
       - {op: block, parent: fx7_edict_impact, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx7_edict_impact_ray_1_5, when: "= event.source == 'sel_2'"}
       - id: fx7_edict_impact_ray_1_5_trk
@@ -1428,6 +1540,7 @@ presentation:
           - {t: 1, offset: [-0.28284, 0.86716, 0.0], scale: [0.8, 0.09, 0.035], turn: [0.0, 0.0, -135.0]}
           - {t: 4, offset: [-0.28284, 0.86716, 0.0], scale: [0.8, 0.09, 0.035], turn: [0.0, 0.0, -135.0]}
           - {t: 9, offset: [-0.28284, 0.86716, 0.0], scale: [0.0, 0.0, 0.0], turn: [0.0, 0.0, -135.0]}
+        sample_ticks: 1
         when: "= event.source == 'sel_2'"
       - {op: block, parent: fx7_edict_impact, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx7_edict_impact_ray_1_6, when: "= event.source == 'sel_2'"}
       - id: fx7_edict_impact_ray_1_6_trk
@@ -1438,6 +1551,7 @@ presentation:
           - {t: 1, offset: [0.0, 0.45, 0.0], scale: [1.4, 0.09, 0.035], turn: [0.0, 0.0, -90.0]}
           - {t: 4, offset: [0.0, 0.45, 0.0], scale: [1.4, 0.09, 0.035], turn: [0.0, 0.0, -90.0]}
           - {t: 9, offset: [0.0, 0.45, 0.0], scale: [0.0, 0.0, 0.0], turn: [0.0, 0.0, -90.0]}
+        sample_ticks: 1
         when: "= event.source == 'sel_2'"
       - {op: block, parent: fx7_edict_impact, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx7_edict_impact_ray_1_7, when: "= event.source == 'sel_2'"}
       - id: fx7_edict_impact_ray_1_7_trk
@@ -1448,6 +1562,7 @@ presentation:
           - {t: 1, offset: [0.35355, 0.79645, 0.0], scale: [1.0, 0.09, 0.035], turn: [0.0, 0.0, -45.0]}
           - {t: 4, offset: [0.35355, 0.79645, 0.0], scale: [1.0, 0.09, 0.035], turn: [0.0, 0.0, -45.0]}
           - {t: 9, offset: [0.35355, 0.79645, 0.0], scale: [0.0, 0.0, 0.0], turn: [0.0, 0.0, -45.0]}
+        sample_ticks: 1
         when: "= event.source == 'sel_2'"
       - {op: quad, parent: fx7_edict_impact, face: {viewer: center}, size: [1.0, 1.0], color: "#FFFFFF", alpha: 1.0, text: "✦", brightness: 15, id: fx7_edict_impact_core, when: "= event.source == 'sel_2'"}
       - id: fx7_edict_impact_core_trk
@@ -1457,9 +1572,10 @@ presentation:
           - {t: 0, offset: [0.0, 1.15, 0.0], scale: [0.05, 0.05, 1.0]}
           - {t: 1, offset: [0.0, 1.15, 0.0], scale: [0.8, 0.8, 1.0]}
           - {t: 6, offset: [0.0, 1.15, 0.0], scale: [0.0, 0.0, 1.0]}
+        sample_ticks: 1
         when: "= event.source == 'sel_2'"
       - {id: snd_2, op: sound, sound: entity.player.attack.strong, at: enemy, volume: 0.7, pitch: 1.1, when: "= event.source == 'sel_2'"}
-      - {id: anchor_10, op: anchor, frame: fx10_edict_impact, at: contact.point, orient: yaw, when: "= event.source == 'sel_3'"}
+      - {id: anchor_10, op: anchor, frame: fx10_edict_impact, at: enemy, orient: yaw, when: "= event.source == 'sel_3'"}
       - {op: block, parent: fx10_edict_impact, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx10_edict_impact_ray_0_0, when: "= event.source == 'sel_3'"}
       - id: fx10_edict_impact_ray_0_0_trk
         op: track
@@ -1469,6 +1585,7 @@ presentation:
           - {t: 1, offset: [0.0, 1.15, 0.65], scale: [0.035, 0.09, 1.3], turn: [0.0, 0.0, 0.0]}
           - {t: 4, offset: [0.0, 1.15, 0.65], scale: [0.035, 0.09, 1.3], turn: [0.0, 0.0, 0.0]}
           - {t: 9, offset: [0.0, 1.15, 0.65], scale: [0.0, 0.0, 0.0], turn: [0.0, 0.0, 0.0]}
+        sample_ticks: 1
         when: "= event.source == 'sel_3'"
       - {op: block, parent: fx10_edict_impact, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx10_edict_impact_ray_0_1, when: "= event.source == 'sel_3'"}
       - id: fx10_edict_impact_ray_0_1_trk
@@ -1479,6 +1596,7 @@ presentation:
           - {t: 1, offset: [0.0, 1.4682, 0.3182], scale: [0.035, 0.09, 0.9], turn: [-45.0, 0.0, 0.0]}
           - {t: 4, offset: [0.0, 1.4682, 0.3182], scale: [0.035, 0.09, 0.9], turn: [-45.0, 0.0, 0.0]}
           - {t: 9, offset: [0.0, 1.4682, 0.3182], scale: [0.0, 0.0, 0.0], turn: [-45.0, 0.0, 0.0]}
+        sample_ticks: 1
         when: "= event.source == 'sel_3'"
       - {op: block, parent: fx10_edict_impact, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx10_edict_impact_ray_0_2, when: "= event.source == 'sel_3'"}
       - id: fx10_edict_impact_ray_0_2_trk
@@ -1489,6 +1607,7 @@ presentation:
           - {t: 1, offset: [0.0, 1.9, 0.0], scale: [0.035, 0.09, 1.5], turn: [-90.0, 0.0, 0.0]}
           - {t: 4, offset: [0.0, 1.9, 0.0], scale: [0.035, 0.09, 1.5], turn: [-90.0, 0.0, 0.0]}
           - {t: 9, offset: [0.0, 1.9, 0.0], scale: [0.0, 0.0, 0.0], turn: [-90.0, 0.0, 0.0]}
+        sample_ticks: 1
         when: "= event.source == 'sel_3'"
       - {op: block, parent: fx10_edict_impact, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx10_edict_impact_ray_0_3, when: "= event.source == 'sel_3'"}
       - id: fx10_edict_impact_ray_0_3_trk
@@ -1499,6 +1618,7 @@ presentation:
           - {t: 1, offset: [0.0, 1.50355, -0.35355], scale: [0.035, 0.09, 1.0], turn: [-135.0, 0.0, 0.0]}
           - {t: 4, offset: [0.0, 1.50355, -0.35355], scale: [0.035, 0.09, 1.0], turn: [-135.0, 0.0, 0.0]}
           - {t: 9, offset: [0.0, 1.50355, -0.35355], scale: [0.0, 0.0, 0.0], turn: [-135.0, 0.0, 0.0]}
+        sample_ticks: 1
         when: "= event.source == 'sel_3'"
       - {op: block, parent: fx10_edict_impact, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx10_edict_impact_ray_0_4, when: "= event.source == 'sel_3'"}
       - id: fx10_edict_impact_ray_0_4_trk
@@ -1509,6 +1629,7 @@ presentation:
           - {t: 1, offset: [0.0, 1.15, -0.6], scale: [0.035, 0.09, 1.2], turn: [-180.0, 0.0, 0.0]}
           - {t: 4, offset: [0.0, 1.15, -0.6], scale: [0.035, 0.09, 1.2], turn: [-180.0, 0.0, 0.0]}
           - {t: 9, offset: [0.0, 1.15, -0.6], scale: [0.0, 0.0, 0.0], turn: [-180.0, 0.0, 0.0]}
+        sample_ticks: 1
         when: "= event.source == 'sel_3'"
       - {op: block, parent: fx10_edict_impact, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx10_edict_impact_ray_0_5, when: "= event.source == 'sel_3'"}
       - id: fx10_edict_impact_ray_0_5_trk
@@ -1519,6 +1640,7 @@ presentation:
           - {t: 1, offset: [0.0, 0.86716, -0.28284], scale: [0.035, 0.09, 0.8], turn: [135.0, 0.0, 0.0]}
           - {t: 4, offset: [0.0, 0.86716, -0.28284], scale: [0.035, 0.09, 0.8], turn: [135.0, 0.0, 0.0]}
           - {t: 9, offset: [0.0, 0.86716, -0.28284], scale: [0.0, 0.0, 0.0], turn: [135.0, 0.0, 0.0]}
+        sample_ticks: 1
         when: "= event.source == 'sel_3'"
       - {op: block, parent: fx10_edict_impact, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx10_edict_impact_ray_0_6, when: "= event.source == 'sel_3'"}
       - id: fx10_edict_impact_ray_0_6_trk
@@ -1529,6 +1651,7 @@ presentation:
           - {t: 1, offset: [0.0, 0.45, 0.0], scale: [0.035, 0.09, 1.4], turn: [90.0, 0.0, 0.0]}
           - {t: 4, offset: [0.0, 0.45, 0.0], scale: [0.035, 0.09, 1.4], turn: [90.0, 0.0, 0.0]}
           - {t: 9, offset: [0.0, 0.45, 0.0], scale: [0.0, 0.0, 0.0], turn: [90.0, 0.0, 0.0]}
+        sample_ticks: 1
         when: "= event.source == 'sel_3'"
       - {op: block, parent: fx10_edict_impact, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx10_edict_impact_ray_0_7, when: "= event.source == 'sel_3'"}
       - id: fx10_edict_impact_ray_0_7_trk
@@ -1539,6 +1662,7 @@ presentation:
           - {t: 1, offset: [0.0, 0.79645, 0.35355], scale: [0.035, 0.09, 1.0], turn: [45.0, 0.0, 0.0]}
           - {t: 4, offset: [0.0, 0.79645, 0.35355], scale: [0.035, 0.09, 1.0], turn: [45.0, 0.0, 0.0]}
           - {t: 9, offset: [0.0, 0.79645, 0.35355], scale: [0.0, 0.0, 0.0], turn: [45.0, 0.0, 0.0]}
+        sample_ticks: 1
         when: "= event.source == 'sel_3'"
       - {op: block, parent: fx10_edict_impact, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx10_edict_impact_ray_1_0, when: "= event.source == 'sel_3'"}
       - id: fx10_edict_impact_ray_1_0_trk
@@ -1549,6 +1673,7 @@ presentation:
           - {t: 1, offset: [0.65, 1.15, 0.0], scale: [1.3, 0.09, 0.035], turn: [0.0, 0.0, 0.0]}
           - {t: 4, offset: [0.65, 1.15, 0.0], scale: [1.3, 0.09, 0.035], turn: [0.0, 0.0, 0.0]}
           - {t: 9, offset: [0.65, 1.15, 0.0], scale: [0.0, 0.0, 0.0], turn: [0.0, 0.0, 0.0]}
+        sample_ticks: 1
         when: "= event.source == 'sel_3'"
       - {op: block, parent: fx10_edict_impact, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx10_edict_impact_ray_1_1, when: "= event.source == 'sel_3'"}
       - id: fx10_edict_impact_ray_1_1_trk
@@ -1559,6 +1684,7 @@ presentation:
           - {t: 1, offset: [0.3182, 1.4682, 0.0], scale: [0.9, 0.09, 0.035], turn: [0.0, 0.0, 45.0]}
           - {t: 4, offset: [0.3182, 1.4682, 0.0], scale: [0.9, 0.09, 0.035], turn: [0.0, 0.0, 45.0]}
           - {t: 9, offset: [0.3182, 1.4682, 0.0], scale: [0.0, 0.0, 0.0], turn: [0.0, 0.0, 45.0]}
+        sample_ticks: 1
         when: "= event.source == 'sel_3'"
       - {op: block, parent: fx10_edict_impact, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx10_edict_impact_ray_1_2, when: "= event.source == 'sel_3'"}
       - id: fx10_edict_impact_ray_1_2_trk
@@ -1569,6 +1695,7 @@ presentation:
           - {t: 1, offset: [0.0, 1.9, 0.0], scale: [1.5, 0.09, 0.035], turn: [0.0, 0.0, 90.0]}
           - {t: 4, offset: [0.0, 1.9, 0.0], scale: [1.5, 0.09, 0.035], turn: [0.0, 0.0, 90.0]}
           - {t: 9, offset: [0.0, 1.9, 0.0], scale: [0.0, 0.0, 0.0], turn: [0.0, 0.0, 90.0]}
+        sample_ticks: 1
         when: "= event.source == 'sel_3'"
       - {op: block, parent: fx10_edict_impact, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx10_edict_impact_ray_1_3, when: "= event.source == 'sel_3'"}
       - id: fx10_edict_impact_ray_1_3_trk
@@ -1579,6 +1706,7 @@ presentation:
           - {t: 1, offset: [-0.35355, 1.50355, 0.0], scale: [1.0, 0.09, 0.035], turn: [0.0, 0.0, 135.0]}
           - {t: 4, offset: [-0.35355, 1.50355, 0.0], scale: [1.0, 0.09, 0.035], turn: [0.0, 0.0, 135.0]}
           - {t: 9, offset: [-0.35355, 1.50355, 0.0], scale: [0.0, 0.0, 0.0], turn: [0.0, 0.0, 135.0]}
+        sample_ticks: 1
         when: "= event.source == 'sel_3'"
       - {op: block, parent: fx10_edict_impact, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx10_edict_impact_ray_1_4, when: "= event.source == 'sel_3'"}
       - id: fx10_edict_impact_ray_1_4_trk
@@ -1589,6 +1717,7 @@ presentation:
           - {t: 1, offset: [-0.6, 1.15, 0.0], scale: [1.2, 0.09, 0.035], turn: [0.0, 0.0, 180.0]}
           - {t: 4, offset: [-0.6, 1.15, 0.0], scale: [1.2, 0.09, 0.035], turn: [0.0, 0.0, 180.0]}
           - {t: 9, offset: [-0.6, 1.15, 0.0], scale: [0.0, 0.0, 0.0], turn: [0.0, 0.0, 180.0]}
+        sample_ticks: 1
         when: "= event.source == 'sel_3'"
       - {op: block, parent: fx10_edict_impact, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx10_edict_impact_ray_1_5, when: "= event.source == 'sel_3'"}
       - id: fx10_edict_impact_ray_1_5_trk
@@ -1599,6 +1728,7 @@ presentation:
           - {t: 1, offset: [-0.28284, 0.86716, 0.0], scale: [0.8, 0.09, 0.035], turn: [0.0, 0.0, -135.0]}
           - {t: 4, offset: [-0.28284, 0.86716, 0.0], scale: [0.8, 0.09, 0.035], turn: [0.0, 0.0, -135.0]}
           - {t: 9, offset: [-0.28284, 0.86716, 0.0], scale: [0.0, 0.0, 0.0], turn: [0.0, 0.0, -135.0]}
+        sample_ticks: 1
         when: "= event.source == 'sel_3'"
       - {op: block, parent: fx10_edict_impact, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx10_edict_impact_ray_1_6, when: "= event.source == 'sel_3'"}
       - id: fx10_edict_impact_ray_1_6_trk
@@ -1609,6 +1739,7 @@ presentation:
           - {t: 1, offset: [0.0, 0.45, 0.0], scale: [1.4, 0.09, 0.035], turn: [0.0, 0.0, -90.0]}
           - {t: 4, offset: [0.0, 0.45, 0.0], scale: [1.4, 0.09, 0.035], turn: [0.0, 0.0, -90.0]}
           - {t: 9, offset: [0.0, 0.45, 0.0], scale: [0.0, 0.0, 0.0], turn: [0.0, 0.0, -90.0]}
+        sample_ticks: 1
         when: "= event.source == 'sel_3'"
       - {op: block, parent: fx10_edict_impact, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx10_edict_impact_ray_1_7, when: "= event.source == 'sel_3'"}
       - id: fx10_edict_impact_ray_1_7_trk
@@ -1619,6 +1750,7 @@ presentation:
           - {t: 1, offset: [0.35355, 0.79645, 0.0], scale: [1.0, 0.09, 0.035], turn: [0.0, 0.0, -45.0]}
           - {t: 4, offset: [0.35355, 0.79645, 0.0], scale: [1.0, 0.09, 0.035], turn: [0.0, 0.0, -45.0]}
           - {t: 9, offset: [0.35355, 0.79645, 0.0], scale: [0.0, 0.0, 0.0], turn: [0.0, 0.0, -45.0]}
+        sample_ticks: 1
         when: "= event.source == 'sel_3'"
       - {op: quad, parent: fx10_edict_impact, face: {viewer: center}, size: [1.0, 1.0], color: "#FFFFFF", alpha: 1.0, text: "✦", brightness: 15, id: fx10_edict_impact_core, when: "= event.source == 'sel_3'"}
       - id: fx10_edict_impact_core_trk
@@ -1628,5 +1760,6 @@ presentation:
           - {t: 0, offset: [0.0, 1.15, 0.0], scale: [0.05, 0.05, 1.0]}
           - {t: 1, offset: [0.0, 1.15, 0.0], scale: [0.8, 0.8, 1.0]}
           - {t: 6, offset: [0.0, 1.15, 0.0], scale: [0.0, 0.0, 1.0]}
+        sample_ticks: 1
         when: "= event.source == 'sel_3'"
       - {id: snd_3, op: sound, sound: entity.player.attack.strong, at: enemy, volume: 0.7, pitch: 1.1, when: "= event.source == 'sel_3'"}

@@ -474,6 +474,7 @@ presentation:
             - {t: 42, scale: [0.14766, 0.14766, 1.01562]}
             - {t: 43, scale: [0.05699, 0.05699, 0.98438]}
             - {t: 44, scale: [0.01562, 0.01562, 1.01562], ease: in_quad}
+          sample_ticks: 2
     - id: fx45
       at: 45
       do:
@@ -494,6 +495,7 @@ presentation:
             - {t: 0, scale: [0.26, 0.26, 0.3575]}
             - {t: 2, scale: [0.26, 0.26, 0.455], ease: out_expo}
             - {t: 10, scale: [0.0, 0.0, 0.26]}
+          sample_ticks: 1
         - op: block
           parent: fx11_orrery_seal_front
           block: black_concrete
@@ -510,6 +512,7 @@ presentation:
             - {t: 0, scale: [0.09, 0.09, 0.3575]}
             - {t: 2, scale: [0.09, 0.09, 0.455], ease: out_expo}
             - {t: 10, scale: [0.0, 0.0, 0.26]}
+          sample_ticks: 1
         - op: block
           parent: fx11_orrery_seal_front
           block: gold_block
@@ -526,6 +529,7 @@ presentation:
             - {t: 0, scale: [0.08, 0.08, 0.43]}
             - {t: 2, scale: [0.08, 0.08, 0.43], ease: out_expo}
             - {t: 10, scale: [0.0, 0.0, 0.26]}
+          sample_ticks: 1
         - {id: fx11_orrery_seal_front_clock_sparks_atrk, op: track, target: fx11_orrery_seal_front_clock_sparks_at, space: fx11_orrery_seal_front, keys: [{t: 7, offset: [0, 0.15, 0]}]}
         - id: fx11_orrery_seal_front_clock_sparks
           op: emit
@@ -608,6 +612,7 @@ presentation:
             - {t: 0, scale: [0.26, 0.26, 0.3575]}
             - {t: 2, scale: [0.26, 0.26, 0.455], ease: out_expo}
             - {t: 10, scale: [0.0, 0.0, 0.26]}
+          sample_ticks: 1
         - op: block
           parent: fx12_orrery_seal_front
           block: black_concrete
@@ -624,6 +629,7 @@ presentation:
             - {t: 0, scale: [0.09, 0.09, 0.3575]}
             - {t: 2, scale: [0.09, 0.09, 0.455], ease: out_expo}
             - {t: 10, scale: [0.0, 0.0, 0.26]}
+          sample_ticks: 1
         - op: block
           parent: fx12_orrery_seal_front
           block: gold_block
@@ -640,6 +646,7 @@ presentation:
             - {t: 0, scale: [0.08, 0.08, 0.43]}
             - {t: 2, scale: [0.08, 0.08, 0.43], ease: out_expo}
             - {t: 10, scale: [0.0, 0.0, 0.26]}
+          sample_ticks: 1
         - {id: fx12_orrery_seal_front_clock_sparks_atrk, op: track, target: fx12_orrery_seal_front_clock_sparks_at, space: fx12_orrery_seal_front, keys: [{t: 7, offset: [0, 0.15, 0]}]}
         - id: fx12_orrery_seal_front_clock_sparks
           op: emit
@@ -723,6 +730,7 @@ presentation:
             - {t: 0, scale: [0.26, 0.26, 0.3575]}
             - {t: 2, scale: [0.26, 0.26, 0.455], ease: out_expo}
             - {t: 10, scale: [0.0, 0.0, 0.26]}
+          sample_ticks: 1
         - op: block
           parent: fx13_orrery_seal_front
           block: black_concrete
@@ -739,6 +747,7 @@ presentation:
             - {t: 0, scale: [0.09, 0.09, 0.3575]}
             - {t: 2, scale: [0.09, 0.09, 0.455], ease: out_expo}
             - {t: 10, scale: [0.0, 0.0, 0.26]}
+          sample_ticks: 1
         - op: block
           parent: fx13_orrery_seal_front
           block: gold_block
@@ -755,6 +764,7 @@ presentation:
             - {t: 0, scale: [0.08, 0.08, 0.43]}
             - {t: 2, scale: [0.08, 0.08, 0.43], ease: out_expo}
             - {t: 10, scale: [0.0, 0.0, 0.26]}
+          sample_ticks: 1
         - {id: fx13_orrery_seal_front_clock_sparks_atrk, op: track, target: fx13_orrery_seal_front_clock_sparks_at, space: fx13_orrery_seal_front, keys: [{t: 7, offset: [0, 0.15, 0]}]}
         - id: fx13_orrery_seal_front_clock_sparks
           op: emit
@@ -867,6 +877,7 @@ presentation:
             - {t: 0, scale: [0.26, 0.26, 0.3575]}
             - {t: 2, scale: [0.26, 0.26, 0.455], ease: out_expo}
             - {t: 10, scale: [0.0, 0.0, 0.26]}
+          sample_ticks: 1
         - op: block
           parent: fx14_orrery_seal_front
           block: black_concrete
@@ -883,6 +894,7 @@ presentation:
             - {t: 0, scale: [0.09, 0.09, 0.3575]}
             - {t: 2, scale: [0.09, 0.09, 0.455], ease: out_expo}
             - {t: 10, scale: [0.0, 0.0, 0.26]}
+          sample_ticks: 1
         - op: block
           parent: fx14_orrery_seal_front
           block: gold_block
@@ -899,6 +911,7 @@ presentation:
             - {t: 0, scale: [0.08, 0.08, 0.43]}
             - {t: 2, scale: [0.08, 0.08, 0.43], ease: out_expo}
             - {t: 10, scale: [0.0, 0.0, 0.26]}
+          sample_ticks: 1
         - {id: fx14_orrery_seal_front_clock_sparks_atrk, op: track, target: fx14_orrery_seal_front_clock_sparks_at, space: fx14_orrery_seal_front, keys: [{t: 7, offset: [0, 0.15, 0]}]}
         - id: fx14_orrery_seal_front_clock_sparks
           op: emit
@@ -1000,6 +1013,7 @@ presentation:
             - {t: 0, offset: [-0.15, 1.4, 3.975], scale: [0.08, 0.08, 4.0611], turn: [0.0, 4.23639, 0.0]}
             - {t: 9, scale: [0.08, 0.08, 4.0611]}
             - {t: 10, scale: [0.0, 0.0, 4.0611]}
+          sample_ticks: 1
           when: "= event.source == 'sel'"
         - id: fx1_orrery_beam_short_bloom_pull
           op: pull
@@ -1019,6 +1033,7 @@ presentation:
             - {t: 0, offset: [-0.15, 1.4, 3.975], scale: [0.22, 0.22, 4.0611], turn: [0.0, 4.23639, 0.0]}
             - {t: 9, scale: [0.22, 0.22, 4.0611]}
             - {t: 10, scale: [0.0, 0.0, 4.0611]}
+          sample_ticks: 1
           when: "= event.source == 'sel'"
         - id: fx1_orrery_beam_short_dark_pull
           op: pull
@@ -1038,8 +1053,9 @@ presentation:
             - {t: 0, offset: [-0.15, 1.28, 3.975], scale: [0.025, 0.025, 4.0611], turn: [0.0, 4.23639, 0.0]}
             - {t: 9, scale: [0.025, 0.025, 4.0611]}
             - {t: 10, scale: [0.0, 0.0, 4.0611]}
+          sample_ticks: 1
           when: "= event.source == 'sel'"
-        - {id: anchor_2, op: anchor, frame: fx2_orrery_ring_hit_target, at: contact.point, orient: to_target, when: "= event.source == 'sel'"}
+        - {id: anchor_2, op: anchor, frame: fx2_orrery_ring_hit_target, at: enemy, orient: to_target, when: "= event.source == 'sel'"}
         - id: fx2_orrery_ring_hit_target_shard_pull
           op: pull
           target: fx2_orrery_ring_hit_target_shard
@@ -1067,6 +1083,7 @@ presentation:
             - {t: 2, offset: [0.0, 0.0, 0.1], scale: [0.1, 0.1, 0.25], ease: out_expo}
             - {t: 6, block: yellow_stained_glass}
             - {t: 10, offset: [0.0, 0.0, 0.25], scale: [0.0, 0.0, 0.0], ease: in_quad}
+          sample_ticks: 1
           when: "= event.source == 'sel'"
         - id: fx2_orrery_ring_hit_target_violet_core_pull
           op: pull
@@ -1085,6 +1102,7 @@ presentation:
             - {t: 0, offset: [0.0, 1.0, 0.0], scale: [0.03, 0.2, 0.2]}
             - {t: 2, scale: [0.03, 0.8, 0.8], ease: out_expo}
             - {t: 8, scale: [0.0, 0.0, 0.0]}
+          sample_ticks: 1
           when: "= event.source == 'sel'"
         - {id: snd, op: sound, sound: entity.player.attack.strong, at: enemy, volume: 0.7, pitch: 1.1, when: "= event.source == 'sel'"}
     - {id: fxhit_53, at: "hit+53", do: [{id: rm_2, op: remove, ids: [fx2_orrery_ring_hit_target_violet_core], when: "= event.source == 'sel'"}]}
@@ -1115,6 +1133,7 @@ presentation:
             - {t: 0, offset: [-0.15, 1.4, 3.975], scale: [0.08, 0.08, 4.0611], turn: [0.0, 4.23639, 0.0]}
             - {t: 9, scale: [0.08, 0.08, 4.0611]}
             - {t: 10, scale: [0.0, 0.0, 4.0611]}
+          sample_ticks: 1
           when: "= event.source == 'sel'"
         - id: fx3_orrery_beam_short_bloom_pull
           op: pull
@@ -1134,6 +1153,7 @@ presentation:
             - {t: 0, offset: [-0.15, 1.4, 3.975], scale: [0.22, 0.22, 4.0611], turn: [0.0, 4.23639, 0.0]}
             - {t: 9, scale: [0.22, 0.22, 4.0611]}
             - {t: 10, scale: [0.0, 0.0, 4.0611]}
+          sample_ticks: 1
           when: "= event.source == 'sel'"
         - id: fx3_orrery_beam_short_dark_pull
           op: pull
@@ -1153,8 +1173,9 @@ presentation:
             - {t: 0, offset: [-0.15, 1.28, 3.975], scale: [0.025, 0.025, 4.0611], turn: [0.0, 4.23639, 0.0]}
             - {t: 9, scale: [0.025, 0.025, 4.0611]}
             - {t: 10, scale: [0.0, 0.0, 4.0611]}
+          sample_ticks: 1
           when: "= event.source == 'sel'"
-        - {id: anchor_4, op: anchor, frame: fx4_orrery_ring_hit_target, at: contact.point, orient: to_target, when: "= event.source == 'sel'"}
+        - {id: anchor_4, op: anchor, frame: fx4_orrery_ring_hit_target, at: enemy, orient: to_target, when: "= event.source == 'sel'"}
         - id: fx4_orrery_ring_hit_target_shard_pull
           op: pull
           target: fx4_orrery_ring_hit_target_shard
@@ -1182,6 +1203,7 @@ presentation:
             - {t: 2, offset: [0.0, 0.0, 0.1], scale: [0.1, 0.1, 0.25], ease: out_expo}
             - {t: 6, block: yellow_stained_glass}
             - {t: 10, offset: [0.0, 0.0, 0.25], scale: [0.0, 0.0, 0.0], ease: in_quad}
+          sample_ticks: 1
           when: "= event.source == 'sel'"
         - id: fx4_orrery_ring_hit_target_violet_core_pull
           op: pull
@@ -1200,6 +1222,7 @@ presentation:
             - {t: 0, offset: [0.0, 1.0, 0.0], scale: [0.03, 0.2, 0.2]}
             - {t: 2, scale: [0.03, 0.8, 0.8], ease: out_expo}
             - {t: 8, scale: [0.0, 0.0, 0.0]}
+          sample_ticks: 1
           when: "= event.source == 'sel'"
         - {id: snd_2, op: sound, sound: entity.player.attack.strong, at: enemy, volume: 0.7, pitch: 1.1, when: "= event.source == 'sel'"}
     - {id: fxhit_68, at: "hit+68", do: [{id: rm_5, op: remove, ids: [fx4_orrery_ring_hit_target_violet_core], when: "= event.source == 'sel'"}]}
@@ -1230,6 +1253,7 @@ presentation:
             - {t: 0, offset: [-0.15, 1.4, 3.975], scale: [0.08, 0.08, 4.0611], turn: [0.0, 4.23639, 0.0]}
             - {t: 9, scale: [0.08, 0.08, 4.0611]}
             - {t: 10, scale: [0.0, 0.0, 4.0611]}
+          sample_ticks: 1
           when: "= event.source == 'sel'"
         - id: fx5_orrery_beam_short_bloom_pull
           op: pull
@@ -1249,6 +1273,7 @@ presentation:
             - {t: 0, offset: [-0.15, 1.4, 3.975], scale: [0.22, 0.22, 4.0611], turn: [0.0, 4.23639, 0.0]}
             - {t: 9, scale: [0.22, 0.22, 4.0611]}
             - {t: 10, scale: [0.0, 0.0, 4.0611]}
+          sample_ticks: 1
           when: "= event.source == 'sel'"
         - id: fx5_orrery_beam_short_dark_pull
           op: pull
@@ -1268,8 +1293,9 @@ presentation:
             - {t: 0, offset: [-0.15, 1.28, 3.975], scale: [0.025, 0.025, 4.0611], turn: [0.0, 4.23639, 0.0]}
             - {t: 9, scale: [0.025, 0.025, 4.0611]}
             - {t: 10, scale: [0.0, 0.0, 4.0611]}
+          sample_ticks: 1
           when: "= event.source == 'sel'"
-        - {id: anchor_6, op: anchor, frame: fx6_orrery_ring_hit_target, at: contact.point, orient: to_target, when: "= event.source == 'sel'"}
+        - {id: anchor_6, op: anchor, frame: fx6_orrery_ring_hit_target, at: enemy, orient: to_target, when: "= event.source == 'sel'"}
         - id: fx6_orrery_ring_hit_target_shard_pull
           op: pull
           target: fx6_orrery_ring_hit_target_shard
@@ -1297,6 +1323,7 @@ presentation:
             - {t: 2, offset: [0.0, 0.0, 0.1], scale: [0.1, 0.1, 0.25], ease: out_expo}
             - {t: 6, block: yellow_stained_glass}
             - {t: 10, offset: [0.0, 0.0, 0.25], scale: [0.0, 0.0, 0.0], ease: in_quad}
+          sample_ticks: 1
           when: "= event.source == 'sel'"
         - id: fx6_orrery_ring_hit_target_violet_core_pull
           op: pull
@@ -1315,6 +1342,7 @@ presentation:
             - {t: 0, offset: [0.0, 1.0, 0.0], scale: [0.03, 0.2, 0.2]}
             - {t: 2, scale: [0.03, 0.8, 0.8], ease: out_expo}
             - {t: 8, scale: [0.0, 0.0, 0.0]}
+          sample_ticks: 1
           when: "= event.source == 'sel'"
         - {id: snd_3, op: sound, sound: entity.player.attack.strong, at: enemy, volume: 0.7, pitch: 1.1, when: "= event.source == 'sel'"}
     - {id: fxhit_80, at: "hit+80", do: [{id: rm_8, op: remove, ids: [fx6_orrery_ring_hit_target_violet_core], when: "= event.source == 'sel'"}]}
@@ -1345,6 +1373,7 @@ presentation:
             - {t: 0, offset: [-0.15, 1.4, 3.975], scale: [0.08, 0.08, 4.0611], turn: [0.0, 4.23639, 0.0]}
             - {t: 29, scale: [0.08, 0.08, 4.0611]}
             - {t: 35, scale: [0.0, 0.0, 4.0611]}
+          sample_ticks: 1
           when: "= event.source == 'sel'"
         - id: fx7_orrery_beam_target_bloom_pull
           op: pull
@@ -1364,6 +1393,7 @@ presentation:
             - {t: 0, offset: [-0.15, 1.4, 3.975], scale: [0.22, 0.22, 4.0611], turn: [0.0, 4.23639, 0.0]}
             - {t: 29, scale: [0.22, 0.22, 4.0611]}
             - {t: 35, scale: [0.0, 0.0, 4.0611]}
+          sample_ticks: 1
           when: "= event.source == 'sel'"
         - id: fx7_orrery_beam_target_dark_pull
           op: pull
@@ -1383,8 +1413,9 @@ presentation:
             - {t: 0, offset: [-0.15, 1.28, 3.975], scale: [0.025, 0.025, 4.0611], turn: [0.0, 4.23639, 0.0]}
             - {t: 29, scale: [0.025, 0.025, 4.0611]}
             - {t: 35, scale: [0.0, 0.0, 4.0611]}
+          sample_ticks: 1
           when: "= event.source == 'sel'"
-        - {id: anchor_8, op: anchor, frame: fx8_orrery_ring_hit_target_long, at: contact.point, orient: to_target, when: "= event.source == 'sel'"}
+        - {id: anchor_8, op: anchor, frame: fx8_orrery_ring_hit_target_long, at: enemy, orient: to_target, when: "= event.source == 'sel'"}
         - id: fx8_orrery_ring_hit_target_long_shard_pull
           op: pull
           target: fx8_orrery_ring_hit_target_long_shard
@@ -1412,6 +1443,7 @@ presentation:
             - {t: 2, offset: [0.0, 0.0, 0.1], scale: [0.1, 0.1, 0.25], ease: out_expo}
             - {t: 34, block: yellow_stained_glass}
             - {t: 38, offset: [0.0, 0.0, 0.25], scale: [0.0, 0.0, 0.0], ease: in_quad}
+          sample_ticks: 1
           when: "= event.source == 'sel'"
         - id: fx8_orrery_ring_hit_target_long_violet_core_pull
           op: pull
@@ -1436,6 +1468,7 @@ presentation:
             - {t: 0, offset: [0.0, 1.0, 0.0], scale: [0.03, 0.2, 0.2]}
             - {t: 2, scale: [0.03, 0.8, 0.8], ease: out_expo}
             - {t: 8, scale: [0.0, 0.0, 0.0]}
+          sample_ticks: 1
           when: "= event.source == 'sel'"
         - {id: snd_4, op: sound, sound: entity.player.attack.strong, at: enemy, volume: 0.7, pitch: 1.1, when: "= event.source == 'sel'"}
     - {id: fxhit_151, at: "hit+151", do: [{id: rm_11, op: remove, ids: [fx8_orrery_ring_hit_target_long_violet_core], when: "= event.source == 'sel'"}]}

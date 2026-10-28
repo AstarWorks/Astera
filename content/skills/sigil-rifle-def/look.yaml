@@ -18,6 +18,7 @@ presentation:
           keys:
             - {t: 0, offset: [0.0, 1.0, 0.7], scale: [1.6, 1.6, 1.0], alpha: 0.8}
             - {t: 18, scale: [0.0, 0.0, 0.0], alpha: 0.0, ease: in_quad}
+          sample_ticks: 1
         - {op: block, parent: fx1_sigil_rifle_ward, block: red_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_sigil_rifle_ward_solid_impact_0}
         - id: fx1_sigil_rifle_ward_solid_impact_0_trk
           op: track
@@ -25,6 +26,7 @@ presentation:
           keys:
             - {t: 0, offset: [0.0, 1.1, 0.0], scale: [0.055, 0.22, 1.6], turn: [25.0, 0.0, 0.0]}
             - {t: 7, scale: [0.0, 0.0, 1.6], ease: in_quad}
+          sample_ticks: 1
         - {op: block, parent: fx1_sigil_rifle_ward, block: red_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_sigil_rifle_ward_solid_impact_1}
         - id: fx1_sigil_rifle_ward_solid_impact_1_trk
           op: track
@@ -32,6 +34,7 @@ presentation:
           keys:
             - {t: 0, offset: [0.0, 1.1, 0.0], scale: [0.055, 0.12, 1.5], turn: [-25.0, 0.0, 0.0]}
             - {t: 7, scale: [0.0, 0.0, 1.6], ease: in_quad}
+          sample_ticks: 1
         - {op: block, parent: fx1_sigil_rifle_ward, block: yellow_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_sigil_rifle_ward_solid_impact_2}
         - id: fx1_sigil_rifle_ward_solid_impact_2_trk
           op: track
@@ -39,6 +42,7 @@ presentation:
           keys:
             - {t: 0, offset: [0.0, 1.1, 0.0], scale: [0.065, 0.055, 1.9], turn: [0.0, 0.0, 0.0]}
             - {t: 7, scale: [0.0, 0.0, 1.6], ease: in_quad}
+          sample_ticks: 1
     - id: fx1
       at: 1
       do:
@@ -49,6 +53,7 @@ presentation:
           keys:
             - {t: 0, offset: [0.0, 1.0, 0.73], scale: [1.4, 1.4, 1.0], alpha: 0.7}
             - {t: 19, scale: [0.0, 0.0, 0.0], alpha: 0.0, ease: in_quad}
+          sample_ticks: 1
     - {id: fx7, at: 7, do: [{id: rm, op: remove, ids: [fx1_sigil_rifle_ward_solid_impact_0, fx1_sigil_rifle_ward_solid_impact_1, fx1_sigil_rifle_ward_solid_impact_2]}]}
     - {id: fx18, at: 18, do: [{id: rm_2, op: remove, ids: [fx1_sigil_rifle_ward_ward_dark]}]}
     - {id: fx20, at: 20, do: [{id: rm_3, op: remove, ids: [fx1_sigil_rifle_ward_ward_red]}]}

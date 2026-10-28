@@ -10,6 +10,7 @@ Quaternions are (w, x, y, z) tuples like rotvec.py; vectors are 3-lists.
 import math
 import re
 
+import copy
 from rotvec import _q_mul, convert_keys, ease, ease_key, euler_to_quat, euler_to_vec, quat_to_vec
 
 IDENT = (1.0, 0.0, 0.0, 0.0)
@@ -606,7 +607,7 @@ def emit_quads(c, el, fid, where, delay, when, dur, removes):
             op["brightness"] = int(el["brightness"])
         at = delay + spawn
         c.p(where, at, c._w(op, when))
-        c.p(where, at, c._w({"id": eid + "_trk", "op": "track", "target": eid, "keys": keys_shift(keys)}, when))
+        c.p(where, at, c._w({"id": eid + "_trk", "op": "track", "target": eid, "keys": keys_shift(keys), "sample_ticks": c.vfx_sample}, when))
         removes.setdefault(spawn + life, []).append(eid)
 
 
@@ -790,10 +791,10 @@ def display_element(c, el, fid, where, delay, when, dur, removes):
     if keys:
         if stagger and not single:
             for k in live:
-                tk = {"id": "%s_trk%d" % (eid, k), "op": "track", "target": "%s#%d" % (eid, k), "keys": keys}
+                tk = {"id": "%s_trk%d" % (eid, k), "op": "track", "target": "%s#%d" % (eid, k), "keys": keys, "sample_ticks": c.vfx_sample}
                 c.p(where, delay + spawns[k], c._w(tk, when))
         else:
-            c.p(where, at, c._w({"id": eid + "_trk", "op": "track", "target": eid, "keys": keys}, when))
+            c.p(where, at, c._w({"id": eid + "_trk", "op": "track", "target": eid, "keys": keys, "sample_ticks": c.vfx_sample}, when))
     last = max(spawns[k] + life_of(k) for k in live)
     if slot_life and not single:
         if last > dur:
@@ -840,7 +841,7 @@ def group_slots(c, el, skel, eid, where, delay, when, rows, spawns, life_of, liv
         op["id"] = "%s_s%d" % (eid, k)
         c.pull(el, op["id"], skel["op"], where, delay + spawns[k], when)
         c.p(where, delay + spawns[k], c._w(op, when))
-        c.p(where, delay + spawns[k], c._w({"id": op["id"] + "_trk", "op": "track", "target": op["id"], "keys": keys}, when))
+        c.p(where, delay + spawns[k], c._w({"id": op["id"] + "_trk", "op": "track", "target": op["id"], "keys": keys, "sample_ticks": c.vfx_sample}, when))
         removes.setdefault(spawns[k] + life, []).append(op["id"])
 
 
@@ -848,80 +849,27 @@ def _mul(v, s):
     return [float(x) * s for x in v]
 
 
-def scale_def(d, s):
-    """v1 `play_vfx scale` (VfxTimeline.plan / VfxRigPlanner / VfxEmitterPlanner): one uniform scale about the anchor, applied while
-    planning: formation, translations, display scales, jitter, trail_to, emitter speed / size / gravity, rig pivot / parts / points.
-    The v2 ops carry baked numbers, so the vfx definition is scaled before conversion (a copy; counts, ticks and angles stay)."""
-    import copy
-    d = copy.deepcopy(d)
-    if s == 1.0:
-        return d
-    for el in d.get("elements", []):
-        kind = el["kind"]
-        kt = kind["type"]
-        if kt in ("dotted_line", "thin_line"):
-            kind["from"], kind["to"] = _mul(kind["from"], s), _mul(kind["to"], s)
-            if kt == "dotted_line":
-                kind["spacing"] = float(kind.get("spacing", 0.3)) * s
-                if kind.get("size") is not None:
-                    kind["size"] = float(kind["size"]) * s
-            else:
-                kind["width"] = float(kind.get("width", 0.03)) * s
-        elif kt == "particle" and kind.get("trail_to") is not None:
-            kind["trail_to"] = _mul(kind["trail_to"], s)
-        fo = el.get("formation")
-        if fo:
-            if "offset" in fo:
-                fo["offset"] = _mul(fo["offset"], s)
-            cv = fo["curve"]
-            for k in ("from", "to"):
-                if k in cv:
-                    cv[k] = _mul(cv[k], s)
-            for k in ("radius", "height", "start_radius", "end_radius", "amplitude"):
-                if k in cv:
-                    cv[k] = float(cv[k]) * s
-            if "points" in cv:
-                cv["points"] = [_mul(p, s) for p in cv["points"]]
-        if el.get("jitter") and "position" in el["jitter"]:
-            el["jitter"]["position"] = float(el["jitter"]["position"]) * s
-        for k in el.get("keyframes", []):
-            if "translate" in k:
-                k["translate"] = _mul(k["translate"], s)
-            if "scale" in k:
-                k["scale"] = _mul(_vec3(k["scale"], "scale"), s)
-        if kt != "particle" and "emit" not in el and kt not in ("dotted_line", "thin_line"):
-            # an unkeyed channel starts at 1 and v1 multiplies it by the vfx scale too
-            kfs = el.setdefault("keyframes", [])
-            if not kfs:
-                kfs.append({"t": 0})
-            first = min(kfs, key=lambda k: k["t"])
-            first.setdefault("scale", [s, s, s])
-        for g in el.get("group_keyframes", []):
-            if "translate" in g:
-                g["translate"] = _mul(g["translate"], s)
-        if el.get("oscillate"):
-            el["oscillate"]["amplitude"] = float(el["oscillate"]["amplitude"]) * s
-        em = el.get("emit")
-        if em:
-            em["speed"] = _mul(em.get("speed", [0.0, 0.0]), s)
-            em["size"] = _mul(em.get("size", [0.1, 0.1]), s)
-            em["gravity"] = float(em.get("gravity", 0.0)) * s
-    for r in d.get("rigs", []):
-        r["pivot"] = _mul(r["pivot"], s)
-        for p in r.get("parts", []):
-            p["offset"], p["size"] = _mul(p["offset"], s), _mul(p["size"], s)
-        for t in r.get("trails", []):
-            t["from"], t["to"] = _mul(t["from"], s), _mul(t["to"], s)
-        for b in r.get("boards", []):
-            b["from"], b["to"] = _mul(b["from"], s), _mul(b["to"], s)
-        for e in r.get("emitters", []):
-            e["point"] = _mul(e["point"], s)
-        for k in ("weapon_tip", "weapon_edge", "weapon_root"):
-            if r.get(k) is not None:
-                r[k] = _mul(r[k], s)
-    if d.get("ghost_bodies"):
-        raise ValueError("scale with ghost_bodies is not mapped")
-    return d
+def _mul(v, s):
+    return [float(x) * s for x in v]
+
+
+def scale_rig(r, s):
+    """v1 `play_vfx scale` on a rig that holds the hand pose itself: a scaled copy of its pivot, part offsets / sizes, trails, boards,
+    emitter points and weapon points (VfxRigPlanner partPlan :255, pivotWorld :170)."""
+    r = copy.deepcopy(r)
+    r["pivot"] = _mul(r["pivot"], s)
+    for p in r.get("parts", []):
+        p["offset"], p["size"] = _mul(p["offset"], s), _mul(p["size"], s)
+    for t in r.get("trails", []):
+        t["from"], t["to"] = _mul(t["from"], s), _mul(t["to"], s)
+    for b in r.get("boards", []):
+        b["from"], b["to"] = _mul(b["from"], s), _mul(b["to"], s)
+    for e in r.get("emitters", []):
+        e["point"] = _mul(e["point"], s)
+    for k in ("weapon_tip", "weapon_edge", "weapon_root"):
+        if r.get(k) is not None:
+            r[k] = _mul(r[k], s)
+    return r
 
 
 def resolve_palette(d):

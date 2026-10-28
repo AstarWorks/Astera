@@ -28,7 +28,12 @@ presentation:
           see_through: true
           brightness: 15
           id: fx1_bastion_ego_guard_rim0r
-        - {id: fx1_bastion_ego_guard_rim0r_trk, op: track, target: fx1_bastion_ego_guard_rim0r, keys: [{t: 0, offset: [0.2, 1.3, 1.15], scale: [0.58, 0.3, 1.0], turn: [-39.0405, -39.0405, 83.72263]}]}
+        - id: fx1_bastion_ego_guard_rim0r_trk
+          op: track
+          target: fx1_bastion_ego_guard_rim0r
+          keys:
+            - {t: 0, offset: [0.2, 1.3, 1.15], scale: [0.58, 0.3, 1.0], turn: [-39.0405, -39.0405, 83.72263]}
+          sample_ticks: 2
         - op: plate
           parent: fx1_bastion_ego_guard
           face: {plane: {frame: fx1_bastion_ego_guard, axes: [left, up]}}
@@ -38,7 +43,12 @@ presentation:
           see_through: true
           brightness: 15
           id: fx1_bastion_ego_guard_rim0l
-        - {id: fx1_bastion_ego_guard_rim0l_trk, op: track, target: fx1_bastion_ego_guard_rim0l, keys: [{t: 0, offset: [0.2, 1.3, 1.15], scale: [0.58, 0.3, 1.0], turn: [39.0405, -39.0405, -83.72263]}]}
+        - id: fx1_bastion_ego_guard_rim0l_trk
+          op: track
+          target: fx1_bastion_ego_guard_rim0l
+          keys:
+            - {t: 0, offset: [0.2, 1.3, 1.15], scale: [0.58, 0.3, 1.0], turn: [39.0405, -39.0405, -83.72263]}
+          sample_ticks: 2
         - op: plate
           parent: fx1_bastion_ego_guard
           face: {plane: {frame: fx1_bastion_ego_guard, axes: [left, up]}}
@@ -49,7 +59,12 @@ presentation:
           see_through: true
           brightness: 15
           id: fx1_bastion_ego_guard_rim1r
-        - {id: fx1_bastion_ego_guard_rim1r_trk, op: track, target: fx1_bastion_ego_guard_rim1r, keys: [{t: 0, offset: [0.2, 1.3, 1.15], scale: [0.48, 0.22, 1.0], turn: [-39.0405, -39.0405, 83.72263]}]}
+        - id: fx1_bastion_ego_guard_rim1r_trk
+          op: track
+          target: fx1_bastion_ego_guard_rim1r
+          keys:
+            - {t: 0, offset: [0.2, 1.3, 1.15], scale: [0.48, 0.22, 1.0], turn: [-39.0405, -39.0405, 83.72263]}
+          sample_ticks: 2
         - op: plate
           parent: fx1_bastion_ego_guard
           face: {plane: {frame: fx1_bastion_ego_guard, axes: [left, up]}}
@@ -60,7 +75,12 @@ presentation:
           see_through: true
           brightness: 15
           id: fx1_bastion_ego_guard_rim1l
-        - {id: fx1_bastion_ego_guard_rim1l_trk, op: track, target: fx1_bastion_ego_guard_rim1l, keys: [{t: 0, offset: [0.2, 1.3, 1.15], scale: [0.48, 0.22, 1.0], turn: [39.0405, -39.0405, -83.72263]}]}
+        - id: fx1_bastion_ego_guard_rim1l_trk
+          op: track
+          target: fx1_bastion_ego_guard_rim1l
+          keys:
+            - {t: 0, offset: [0.2, 1.3, 1.15], scale: [0.48, 0.22, 1.0], turn: [39.0405, -39.0405, -83.72263]}
+          sample_ticks: 2
         - op: plate
           parent: fx1_bastion_ego_guard
           face: {plane: {frame: fx1_bastion_ego_guard, axes: [left, up]}}
@@ -70,7 +90,7 @@ presentation:
           see_through: true
           brightness: 15
           id: fx1_bastion_ego_guard_crest
-        - {id: fx1_bastion_ego_guard_crest_trk, op: track, target: fx1_bastion_ego_guard_crest, keys: [{t: 0, offset: [0.2, 1.35, 1.15], scale: [0.26, 0.26, 1.0], turn: [0.0, -50.0, 0.0]}]}
+        - {id: fx1_bastion_ego_guard_crest_trk, op: track, target: fx1_bastion_ego_guard_crest, keys: [{t: 0, offset: [0.2, 1.35, 1.15], scale: [0.26, 0.26, 1.0], turn: [0.0, -50.0, 0.0]}], sample_ticks: 2}
         - op: quad
           parent: fx1_bastion_ego_guard
           face: {plane: {frame: fx1_bastion_ego_guard, axes: [left, up]}}
@@ -88,6 +108,7 @@ presentation:
             - {t: 6, scale: [1.5, 3.3, 1.0], alpha: 0.14, ease: out_cubic}
             - {t: 22, alpha: 0.14}
             - {t: 30, scale: [1.4, 3.1, 1.0], alpha: 0.0, ease: in_quad}
+          sample_ticks: 2
         - {id: snd, op: sound, sound: block.amethyst_block.resonate, at: caster, volume: 1.0, pitch: 0.6, pitch_to: 1.8, over: 25, pitch_ease: in_quad, every: 5}
     - id: fx20
       at: 20
@@ -107,6 +128,7 @@ presentation:
           target: fx2_telegraph_cone_2_rim_arc_0
           keys:
             - {t: 0, offset: [-3.29314, 0.05, 5.25311], scale: [0.68173, 0.12, 1.0], turn: [-87.42776, -25.13833, -25.13833]}
+          sample_ticks: 2
         - op: quad
           parent: fx2_telegraph_cone_2
           face: {plane: {frame: fx2_telegraph_cone_2, axes: [left, up]}}
@@ -120,6 +142,7 @@ presentation:
           target: fx2_telegraph_cone_2_rim_arc_1
           keys:
             - {t: 0, offset: [-2.74219, 0.05, 5.56061], scale: [0.68173, 0.12, 1.0], turn: [-88.27999, -20.58401, -20.58401]}
+          sample_ticks: 2
         - op: quad
           parent: fx2_telegraph_cone_2
           face: {plane: {frame: fx2_telegraph_cone_2, axes: [left, up]}}
@@ -133,6 +156,7 @@ presentation:
           target: fx2_telegraph_cone_2_rim_arc_2
           keys:
             - {t: 0, offset: [-2.16284, 0.05, 5.81052], scale: [0.68173, 0.12, 1.0], turn: [-88.96042, -16.01987, -16.01987]}
+          sample_ticks: 2
         - op: quad
           parent: fx2_telegraph_cone_2
           face: {plane: {frame: fx2_telegraph_cone_2, axes: [left, up]}}
@@ -146,6 +170,7 @@ presentation:
           target: fx2_telegraph_cone_2_rim_arc_3
           keys:
             - {t: 0, offset: [-1.56108, 0.05, 6.00025], scale: [0.68173, 0.12, 1.0], turn: [-89.46996, -11.44814, -11.44814]}
+          sample_ticks: 2
         - op: quad
           parent: fx2_telegraph_cone_2
           face: {plane: {frame: fx2_telegraph_cone_2, axes: [left, up]}}
@@ -159,6 +184,7 @@ presentation:
           target: fx2_telegraph_cone_2_rim_arc_4
           keys:
             - {t: 0, offset: [-0.94316, 0.05, 6.12784], scale: [0.68173, 0.12, 1.0], turn: [-89.80927, -6.87103, -6.87103]}
+          sample_ticks: 2
         - op: quad
           parent: fx2_telegraph_cone_2
           face: {plane: {frame: fx2_telegraph_cone_2, axes: [left, up]}}
@@ -172,6 +198,7 @@ presentation:
           target: fx2_telegraph_cone_2_rim_arc_5
           keys:
             - {t: 0, offset: [-0.31548, 0.05, 6.19197], scale: [0.68173, 0.12, 1.0], turn: [-89.97881, -2.2907, -2.2907]}
+          sample_ticks: 2
         - op: quad
           parent: fx2_telegraph_cone_2
           face: {plane: {frame: fx2_telegraph_cone_2, axes: [left, up]}}
@@ -185,6 +212,7 @@ presentation:
           target: fx2_telegraph_cone_2_rim_arc_6
           keys:
             - {t: 0, offset: [0.31548, 0.05, 6.19197], scale: [0.68173, 0.12, 1.0], turn: [-89.97881, 2.2907, 2.2907]}
+          sample_ticks: 2
         - op: quad
           parent: fx2_telegraph_cone_2
           face: {plane: {frame: fx2_telegraph_cone_2, axes: [left, up]}}
@@ -198,6 +226,7 @@ presentation:
           target: fx2_telegraph_cone_2_rim_arc_7
           keys:
             - {t: 0, offset: [0.94316, 0.05, 6.12784], scale: [0.68173, 0.12, 1.0], turn: [-89.80927, 6.87103, 6.87103]}
+          sample_ticks: 2
         - op: quad
           parent: fx2_telegraph_cone_2
           face: {plane: {frame: fx2_telegraph_cone_2, axes: [left, up]}}
@@ -211,6 +240,7 @@ presentation:
           target: fx2_telegraph_cone_2_rim_arc_8
           keys:
             - {t: 0, offset: [1.56108, 0.05, 6.00025], scale: [0.68173, 0.12, 1.0], turn: [-89.46996, 11.44814, 11.44814]}
+          sample_ticks: 2
         - op: quad
           parent: fx2_telegraph_cone_2
           face: {plane: {frame: fx2_telegraph_cone_2, axes: [left, up]}}
@@ -224,6 +254,7 @@ presentation:
           target: fx2_telegraph_cone_2_rim_arc_9
           keys:
             - {t: 0, offset: [2.16284, 0.05, 5.81052], scale: [0.68173, 0.12, 1.0], turn: [-88.96042, 16.01987, 16.01987]}
+          sample_ticks: 2
         - op: quad
           parent: fx2_telegraph_cone_2
           face: {plane: {frame: fx2_telegraph_cone_2, axes: [left, up]}}
@@ -237,6 +268,7 @@ presentation:
           target: fx2_telegraph_cone_2_rim_arc_10
           keys:
             - {t: 0, offset: [2.74219, 0.05, 5.56061], scale: [0.68173, 0.12, 1.0], turn: [-88.27999, 20.58401, 20.58401]}
+          sample_ticks: 2
         - op: quad
           parent: fx2_telegraph_cone_2
           face: {plane: {frame: fx2_telegraph_cone_2, axes: [left, up]}}
@@ -250,6 +282,7 @@ presentation:
           target: fx2_telegraph_cone_2_rim_arc_11
           keys:
             - {t: 0, offset: [3.29314, 0.05, 5.25311], scale: [0.68173, 0.12, 1.0], turn: [-87.42776, 25.13833, 25.13833]}
+          sample_ticks: 2
         - op: quad
           parent: fx2_telegraph_cone_2
           face: {plane: {frame: fx2_telegraph_cone_2, axes: [left, up]}}
@@ -263,6 +296,7 @@ presentation:
           target: fx2_telegraph_cone_2_rim_edge_0
           keys:
             - {t: 0, offset: [1.77809, 0.05, 2.53937], scale: [6.2, 0.12, 1.0], turn: [-82.39131, -42.8902, -42.8902]}
+          sample_ticks: 2
         - op: quad
           parent: fx2_telegraph_cone_2
           face: {plane: {frame: fx2_telegraph_cone_2, axes: [left, up]}}
@@ -276,6 +310,7 @@ presentation:
           target: fx2_telegraph_cone_2_rim_edge_1
           keys:
             - {t: 0, offset: [-1.77809, 0.05, 2.53937], scale: [6.2, 0.12, 1.0], turn: [-49.01283, -94.15276, -94.15276]}
+          sample_ticks: 2
         - op: quad
           parent: fx2_telegraph_cone_2
           face: {plane: {frame: fx2_telegraph_cone_2, axes: [left, up]}}
@@ -300,6 +335,7 @@ presentation:
             - {t: 9, offset: [-1.48356, 0.05406, 2.36653], turn: [-50.99837, -92.16149, -92.16149], scale: [5.5862, 0.5403, 0.901]}
             - {t: 10, offset: [-1.64657, 0.06, 2.62656], turn: [-50.99837, -92.16149, -92.16149], scale: [6.2, 0.59967, 1.0]}
             - {t: 11, offset: [-1.64657, 0.06, 2.62656], turn: [-50.99837, -92.16149, -92.16149], scale: [6.2, 0.59967, 1.0]}
+          sample_ticks: 2
         - op: quad
           parent: fx2_telegraph_cone_2
           face: {plane: {frame: fx2_telegraph_cone_2, axes: [left, up]}}
@@ -324,6 +360,7 @@ presentation:
             - {t: 9, offset: [-1.23535, 0.05406, 2.50506], turn: [-54.80191, -88.12863, -88.12863], scale: [5.5862, 0.5403, 0.901]}
             - {t: 10, offset: [-1.37109, 0.06, 2.78031], turn: [-54.80191, -88.12863, -88.12863], scale: [6.2, 0.59967, 1.0]}
             - {t: 11, offset: [-1.37109, 0.06, 2.78031], turn: [-54.80191, -88.12863, -88.12863], scale: [6.2, 0.59967, 1.0]}
+          sample_ticks: 2
         - op: quad
           parent: fx2_telegraph_cone_2
           face: {plane: {frame: fx2_telegraph_cone_2, axes: [left, up]}}
@@ -348,6 +385,7 @@ presentation:
             - {t: 9, offset: [-0.97436, 0.05406, 2.61764], turn: [-58.38661, -84.03341, -84.03341], scale: [5.5862, 0.5403, 0.901]}
             - {t: 10, offset: [-1.08142, 0.06, 2.90526], turn: [-58.38661, -84.03341, -84.03341], scale: [6.2, 0.59967, 1.0]}
             - {t: 11, offset: [-1.08142, 0.06, 2.90526], turn: [-58.38661, -84.03341, -84.03341], scale: [6.2, 0.59967, 1.0]}
+          sample_ticks: 2
         - op: quad
           parent: fx2_telegraph_cone_2
           face: {plane: {frame: fx2_telegraph_cone_2, axes: [left, up]}}
@@ -372,6 +410,7 @@ presentation:
             - {t: 9, offset: [-0.70327, 0.05406, 2.70312], turn: [-61.75771, -79.88112, -79.88112], scale: [5.5862, 0.5403, 0.901]}
             - {t: 10, offset: [-0.78054, 0.06, 3.00013], turn: [-61.75771, -79.88112, -79.88112], scale: [6.2, 0.59967, 1.0]}
             - {t: 11, offset: [-0.78054, 0.06, 3.00013], turn: [-61.75771, -79.88112, -79.88112], scale: [6.2, 0.59967, 1.0]}
+          sample_ticks: 2
         - op: quad
           parent: fx2_telegraph_cone_2
           face: {plane: {frame: fx2_telegraph_cone_2, axes: [left, up]}}
@@ -396,6 +435,7 @@ presentation:
             - {t: 9, offset: [-0.42489, 0.05406, 2.76059], turn: [-64.92006, -75.67668, -75.67668], scale: [5.5862, 0.5403, 0.901]}
             - {t: 10, offset: [-0.47158, 0.06, 3.06392], turn: [-64.92006, -75.67668, -75.67668], scale: [6.2, 0.59967, 1.0]}
             - {t: 11, offset: [-0.47158, 0.06, 3.06392], turn: [-64.92006, -75.67668, -75.67668], scale: [6.2, 0.59967, 1.0]}
+          sample_ticks: 2
         - op: quad
           parent: fx2_telegraph_cone_2
           face: {plane: {frame: fx2_telegraph_cone_2, axes: [left, up]}}
@@ -420,6 +460,7 @@ presentation:
             - {t: 9, offset: [-0.14212, 0.05406, 2.78948], turn: [-67.8782, -71.42461, -71.42461], scale: [5.5862, 0.5403, 0.901]}
             - {t: 10, offset: [-0.15774, 0.06, 3.09598], turn: [-67.8782, -71.42461, -71.42461], scale: [6.2, 0.59967, 1.0]}
             - {t: 11, offset: [-0.15774, 0.06, 3.09598], turn: [-67.8782, -71.42461, -71.42461], scale: [6.2, 0.59967, 1.0]}
+          sample_ticks: 2
         - op: quad
           parent: fx2_telegraph_cone_2
           face: {plane: {frame: fx2_telegraph_cone_2, axes: [left, up]}}
@@ -444,6 +485,7 @@ presentation:
             - {t: 9, offset: [0.14212, 0.05406, 2.78948], turn: [-70.63637, -67.1291, -67.1291], scale: [5.5862, 0.5403, 0.901]}
             - {t: 10, offset: [0.15774, 0.06, 3.09598], turn: [-70.63637, -67.1291, -67.1291], scale: [6.2, 0.59967, 1.0]}
             - {t: 11, offset: [0.15774, 0.06, 3.09598], turn: [-70.63637, -67.1291, -67.1291], scale: [6.2, 0.59967, 1.0]}
+          sample_ticks: 2
         - op: quad
           parent: fx2_telegraph_cone_2
           face: {plane: {frame: fx2_telegraph_cone_2, axes: [left, up]}}
@@ -468,6 +510,7 @@ presentation:
             - {t: 9, offset: [0.42489, 0.05406, 2.76059], turn: [-73.19845, -62.79408, -62.79408], scale: [5.5862, 0.5403, 0.901]}
             - {t: 10, offset: [0.47158, 0.06, 3.06392], turn: [-73.19845, -62.79408, -62.79408], scale: [6.2, 0.59967, 1.0]}
             - {t: 11, offset: [0.47158, 0.06, 3.06392], turn: [-73.19845, -62.79408, -62.79408], scale: [6.2, 0.59967, 1.0]}
+          sample_ticks: 2
         - op: quad
           parent: fx2_telegraph_cone_2
           face: {plane: {frame: fx2_telegraph_cone_2, axes: [left, up]}}
@@ -492,6 +535,7 @@ presentation:
             - {t: 9, offset: [0.70327, 0.05406, 2.70312], turn: [-75.56807, -58.4232, -58.4232], scale: [5.5862, 0.5403, 0.901]}
             - {t: 10, offset: [0.78054, 0.06, 3.00013], turn: [-75.56807, -58.4232, -58.4232], scale: [6.2, 0.59967, 1.0]}
             - {t: 11, offset: [0.78054, 0.06, 3.00013], turn: [-75.56807, -58.4232, -58.4232], scale: [6.2, 0.59967, 1.0]}
+          sample_ticks: 2
         - op: quad
           parent: fx2_telegraph_cone_2
           face: {plane: {frame: fx2_telegraph_cone_2, axes: [left, up]}}
@@ -516,6 +560,7 @@ presentation:
             - {t: 9, offset: [0.97436, 0.05406, 2.61764], turn: [-77.74853, -54.01986, -54.01986], scale: [5.5862, 0.5403, 0.901]}
             - {t: 10, offset: [1.08142, 0.06, 2.90526], turn: [-77.74853, -54.01986, -54.01986], scale: [6.2, 0.59967, 1.0]}
             - {t: 11, offset: [1.08142, 0.06, 2.90526], turn: [-77.74853, -54.01986, -54.01986], scale: [6.2, 0.59967, 1.0]}
+          sample_ticks: 2
         - op: quad
           parent: fx2_telegraph_cone_2
           face: {plane: {frame: fx2_telegraph_cone_2, axes: [left, up]}}
@@ -540,6 +585,7 @@ presentation:
             - {t: 9, offset: [1.23535, 0.05406, 2.50506], turn: [-79.74286, -49.5873, -49.5873], scale: [5.5862, 0.5403, 0.901]}
             - {t: 10, offset: [1.37109, 0.06, 2.78031], turn: [-79.74286, -49.5873, -49.5873], scale: [6.2, 0.59967, 1.0]}
             - {t: 11, offset: [1.37109, 0.06, 2.78031], turn: [-79.74286, -49.5873, -49.5873], scale: [6.2, 0.59967, 1.0]}
+          sample_ticks: 2
         - op: quad
           parent: fx2_telegraph_cone_2
           face: {plane: {frame: fx2_telegraph_cone_2, axes: [left, up]}}
@@ -564,6 +610,7 @@ presentation:
             - {t: 9, offset: [1.48356, 0.05406, 2.36653], turn: [-81.55381, -45.12852, -45.12852], scale: [5.5862, 0.5403, 0.901]}
             - {t: 10, offset: [1.64657, 0.06, 2.62656], turn: [-81.55381, -45.12852, -45.12852], scale: [6.2, 0.59967, 1.0]}
             - {t: 11, offset: [1.64657, 0.06, 2.62656], turn: [-81.55381, -45.12852, -45.12852], scale: [6.2, 0.59967, 1.0]}
+          sample_ticks: 2
         - {id: snd_2, op: sound, sound: item.shield.block, at: caster, pitch: 0.8}
         - {id: anchor_3, op: anchor, frame: fx3_bastion_ego_trail, at: caster, orient: yaw}
         - op: plate
@@ -577,7 +624,7 @@ presentation:
           at: "= [vec(0.0, 1.0, 0.2), vec(0.0, 1.04, 0.48), vec(0.0, 1.08, 0.76), vec(0.0, 1.12, 1.04), vec(0.0, 1.16, 1.32), vec(0.0, 1.2, 1.6), vec(0.0, 1.24, 1.88), vec(0.0, 1.28, 2.16), vec(0.0, 1.32, 2.44), vec(0.0, 1.36, 2.72), vec(0.0, 1.4, 3.0)][int(i)]"
           times: 11
           id: fx3_bastion_ego_trail_beads
-        - {id: fx3_bastion_ego_trail_beads_trk, op: track, target: fx3_bastion_ego_trail_beads, keys: [{t: 0, scale: [0.336, 0.336, 0.336], alpha: 1.0}, {t: 14, alpha: 0.0, ease: in_quad}]}
+        - {id: fx3_bastion_ego_trail_beads_trk, op: track, target: fx3_bastion_ego_trail_beads, keys: [{t: 0, scale: [0.336, 0.336, 0.336], alpha: 1.0}, {t: 14, alpha: 0.0, ease: in_quad}], sample_ticks: 1}
     - id: fx27
       at: 27
       do:
@@ -716,6 +763,7 @@ presentation:
             - {t: 0, offset: [0.0, 1.0, 1.7], scale: [0.45, 0.45, 1.0], alpha: 1.0, color: "#FFF2B0"}
             - {t: 1, scale: [3.0, 3.0, 1.0], ease: out_back}
             - {t: 6, scale: [1.5, 1.5, 1.0], alpha: 0.0, color: "#FFD060", ease: out_quad}
+          sample_ticks: 1
         - {op: block, parent: fx4_bastion_ego_slam, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx4_bastion_ego_slam_pilcore}
         - id: fx4_bastion_ego_slam_pilcore_trk
           op: track
@@ -725,6 +773,7 @@ presentation:
             - {t: 1, scale: [0.5, 10.0, 0.5], ease: out_expo}
             - {t: 10, scale: [0.425, 10.0, 0.425]}
             - {t: 16, scale: [0.0, 10.0, 0.0], ease: in_quad}
+          sample_ticks: 1
         - {op: block, parent: fx4_bastion_ego_slam, block: yellow_stained_glass, size: [1.0, 1.0, 1.0], lane: accent, brightness: 15, id: fx4_bastion_ego_slam_pilbloom}
         - id: fx4_bastion_ego_slam_pilbloom_trk
           op: track
@@ -733,6 +782,7 @@ presentation:
             - {t: 0, offset: [0.0, 4.8, 1.7], scale: [0.5, 0.3, 0.5]}
             - {t: 1, scale: [1.4, 9.6, 1.4], ease: out_expo}
             - {t: 16, scale: [0.0, 9.6, 0.0], ease: in_quad}
+          sample_ticks: 1
         - op: quad
           parent: fx4_bastion_ego_slam
           face: {plane: {frame: fx4_bastion_ego_slam, axes: [left, up]}}
@@ -749,6 +799,7 @@ presentation:
             - {t: 0, offset: [0.0, 1.25, 1.7], scale: [0.4, 0.4, 1.0], turn: [90.0, 0.0, 0.0], alpha: 0.95, color: "#FFF2B0"}
             - {t: 2, scale: [3.6, 3.6, 1.0], ease: out_expo}
             - {t: 12, scale: [3.9, 3.9, 1.0], alpha: 0.0, color: "#FFD060", ease: out_quad}
+          sample_ticks: 1
         - op: plate
           parent: fx4_bastion_ego_slam
           face: {viewer: center}
@@ -767,6 +818,7 @@ presentation:
           keys:
             - {t: 0, scale: [1.2, 1.2, 1.2], alpha: 0.9}
             - {t: 18, offset: [0.0, 0.7, 0.0], scale: [2.6, 2.6, 2.6], alpha: 0.0, ease: out_quad}
+          sample_ticks: 1
         - {id: snd_4, op: sound, sound: block.anvil.land, at: caster, pitch: 0.5}
         - {id: shake, op: camera_shake, target: {enemies: {around: caster, radius: 9.0}}, intensity: 1.0, ticks: 10}
         - {id: shake_2, op: camera_shake, target: caster, intensity: 0.5, ticks: 8}
@@ -823,6 +875,7 @@ presentation:
             - {t: 1, scale: [0.12, 0.12, 0.76], ease: out_expo}
             - {t: 9, scale: [0.09, 0.09, 0.76]}
             - {t: 12, scale: [0.0, 0.0, 0.76], ease: in_quad}
+          sample_ticks: 1
         - op: block
           parent: fx4_bastion_ego_slam
           block: white_concrete
@@ -841,6 +894,7 @@ presentation:
             - {t: 1, scale: [0.12, 0.12, 0.76], ease: out_expo}
             - {t: 9, scale: [0.09, 0.09, 0.76]}
             - {t: 12, scale: [0.0, 0.0, 0.76], ease: in_quad}
+          sample_ticks: 1
         - op: block
           parent: fx4_bastion_ego_slam
           block: yellow_concrete
@@ -859,6 +913,7 @@ presentation:
             - {t: 1, scale: [0.12, 0.12, 0.76], ease: out_expo}
             - {t: 9, scale: [0.09, 0.09, 0.76]}
             - {t: 12, scale: [0.0, 0.0, 0.76], ease: in_quad}
+          sample_ticks: 1
         - op: block
           parent: fx4_bastion_ego_slam
           block: white_concrete
@@ -877,6 +932,7 @@ presentation:
             - {t: 1, scale: [0.12, 0.12, 0.76], ease: out_expo}
             - {t: 9, scale: [0.09, 0.09, 0.76]}
             - {t: 12, scale: [0.0, 0.0, 0.76], ease: in_quad}
+          sample_ticks: 1
     - {id: fx34, at: 34, do: [{id: rm_3, op: remove, ids: [fx3_bastion_ego_trail_beads]}]}
     - {id: fx37, at: 37, do: [{id: rm_4, op: remove, ids: [fx4_bastion_ego_slam_flash]}]}
     - {id: fx43, at: 43, do: [{id: rm_5, op: remove, ids: [fx4_bastion_ego_slam_pildisc]}]}
