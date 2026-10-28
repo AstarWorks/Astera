@@ -633,6 +633,7 @@ public class GameSim private constructor(
                     healthGateway = { services.get<IPlayerHealthGateway>() },
                 )
             }
+            services.register<com.astarworks.astera.combat.application.port.outbound.IKnockbackGateway>(SimKnockbackGateway(world), priority = 100)
             sim.combat = CombatWiring.install(
                 context(),
                 CombatPlatformPorts(

@@ -5,10 +5,7 @@ import com.astarworks.astera.combat.application.port.outbound.IEntityEffectsGate
 import com.astarworks.astera.combat.application.port.outbound.IKnockbackGateway
 import com.astarworks.astera.combat.application.port.outbound.IStatusEffectContainer
 import com.astarworks.astera.combat.application.port.outbound.aoe.ILightningGateway
-import com.astarworks.astera.combat.domain.status.StatusEffectSpec
-import com.astarworks.astera.combat.domain.status.StatusKind
-import com.astarworks.astera.core.domain.i18n.MessageKey
-import com.astarworks.astera.core.domain.status.StatusEffectId
+import com.astarworks.astera.combat.application.service.MechanicStatuses
 import com.astarworks.astera.combat.application.service.SkillWorldRules
 import com.astarworks.astera.combat.application.usecase.damage.ApplyDamageUseCase
 import com.astarworks.astera.combat.application.usecase.status.ApplyStatusUseCase
@@ -139,7 +136,7 @@ public class SimSkillEngine private constructor(
     ) {
         val catalog = combat.skillCatalog
         val entityEffects = services.get<IEntityEffectsGateway>() ?: error("sim skill engine: no IEntityEffectsGateway")
-        val knockback = services.get<IKnockbackGateway>() ?: com.astarworks.astera.combat.application.service.NoOpKnockbackGateway()
+        val knockback = services.get<IKnockbackGateway>() ?: error("sim skill engine: no IKnockbackGateway (GameSim registers SimKnockbackGateway)")
         val attributes = services.get<IPlayerAttributeContainerStore>() ?: error("sim skill engine: no attribute store")
 
         val gameplay = PaperSkillGameplayGateway(
@@ -540,14 +537,14 @@ private class SimSkillMovement(
 
     override fun grantInvulnerable(entity: UUID, safetyTicks: Int): Boolean {
         val id = PlayerId(entity)
-        if (!alive(id) || statuses.has(id, IMMUNITY_ID)) return false
-        applyStatus.applySpec(id, IMMUNITY_SPEC, safetyTicks.coerceAtLeast(1), id)
+        if (!alive(id) || statuses.has(id, MechanicStatuses.IMMUNITY_ID)) return false
+        applyStatus.applySpec(id, MechanicStatuses.IMMUNITY, safetyTicks.coerceAtLeast(1), id)
         granted += entity
         return true
     }
 
     override fun releaseInvulnerable(entity: UUID) {
-        if (granted.remove(entity)) statuses.remove(PlayerId(entity), IMMUNITY_ID)
+        if (granted.remove(entity)) statuses.remove(PlayerId(entity), MechanicStatuses.IMMUNITY_ID)
     }
 
     override fun lockMovement(entity: UUID, speedFactor: Double) {}
@@ -562,33 +559,16 @@ private class SimSkillMovement(
 private class SimSkillWorldGateway(
     private val world: SimWorld,
     private val worldId: WorldId,
-    ownerOf: (CastId) -> UUID?,
+    private val ownerOf: (CastId) -> UUID?,
     private val blocks: () -> IBlockStateGateway?,
     private val covers: () -> ICustomBlockRegistry?,
-    skillOf: (CastId) -> SkillDef?,
+    private val skillOf: (CastId) -> SkillDef?,
     private val itemTool: (String) -> ToolType?,
     private val inventory: (UUID) -> MutableList<String>?,
     private val exclusion: () -> com.astarworks.astera.core.application.port.outbound.IAreaBreakExclusion?,
 ) : ISkillWorldGateway {
     private val log = LoggerFactory.getLogger(javaClass)
     private val reported = HashSet<String>()
-
-    // Ripple-delayed edits run after the cast ended and its host is gone, so owner and skill are remembered while it lives.
-    private val owners = HashMap<CastId, UUID>()
-    private val skills = HashMap<CastId, SkillDef>()
-    private val liveOwner = ownerOf
-    private val liveSkill = skillOf
-
-    private fun ownerOf(cast: CastId): UUID? {
-        runCatching { liveOwner(cast) }.getOrNull()?.let { owners[cast] = it }
-        liveSkill(cast)?.let { skills[cast] = it }
-        return owners[cast]
-    }
-
-    private fun skillOf(cast: CastId): SkillDef? {
-        liveSkill(cast)?.let { skills[cast] = it }
-        return skills[cast]
-    }
 
     private fun pos(cell: BlockCell): Vec3 = Vec3(cell.x.toDouble() + 0.5, cell.y.toDouble() + 0.5, cell.z.toDouble() + 0.5)
 
@@ -697,13 +677,3 @@ private class SimSkillWorldEffects(
     }
 }
 
-/** The built-in `immunity` status `MechanicStatuses` (internal to combat) defines; the damage pipeline keys on its id. */
-private val IMMUNITY_ID: StatusEffectId = StatusEffectId("immunity")
-private val IMMUNITY_SPEC: StatusEffectSpec = StatusEffectSpec(
-    id = IMMUNITY_ID,
-    displayNameKey = MessageKey("astera.status.immunity.name"),
-    kind = StatusKind.STACK_BUFF,
-    magnitude = 0.0,
-    stackable = false,
-    maxStacks = 1,
-)
