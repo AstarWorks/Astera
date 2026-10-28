@@ -9,6 +9,9 @@ meta:
   cooldown_ticks: 240
   resource_cost: 35
   tags: [magic, earth-family, support, heal]
+params:
+  regen_ticks: {type: ticks, default: 160}
+  radius:      {type: blocks, default: 3.0}
 anchors:
   - {id: self,  anchor: caster}
   - {id: feet,  anchor: caster, offset: {up: 0.1}}                    # was pt_caster_0_0p1_0
@@ -20,15 +23,16 @@ machine:
       for: 20
       then: end
       enter:
-        - {id: buff, op: status, target: caster, status: regen, stacks: 1, for: 160}   # stacks: 1 assumed
-        - {id: cleanse, op: cleanse, negative_only: true, target: {kind: allies, around: self, radius: 3.0, max_count: all, include_self: true}}   # GAP(Q1): v2 had no cap; A=`all`, B=omit
-        - {id: st_regen, op: status, target: {kind: allies, around: self, radius: 3.0, max_count: all, include_self: false}, status: regen, stacks: 1, for: 160}   # GAP(Q1): v2 had no cap; A=`all`, B=omit
+        - {id: buff, op: status, target: caster, status: regen, stacks: 1, for: "${regen_ticks}"}   # stacks: 1 assumed
+        - {id: cleanse, op: cleanse, negative_only: true, target: {kind: allies, around: self, radius: "${radius}", max_count: all, include_self: true}}   # GAP(Q1): v2 had no cap; A=`all`, B=omit
+        - {id: st_regen, op: status, target: {kind: allies, around: self, radius: "${radius}", max_count: all, include_self: false}, status: regen, stacks: 1, for: "${regen_ticks}"}   # GAP(Q1): v2 had no cap; A=`all`, B=omit
         - {id: snd, op: sound, sound: "astera:skills/heal-chime", anchor: caster, volume: 0.5}
         - {id: fx, op: particle_def, def: verdant-heal, anchor: chest}
         - {id: hearts, op: particle, particle: heart, anchor: feet, count: 8, offset: [0.8, 0.8, 0.8], extra: 0}
         - {id: leaves, op: particle, particle: happy_villager, anchor: feet, count: 22, offset: [0.7, 1.0, 0.7], extra: 0}
       do:
         - id: ring_a
+          op: group
           at: 0
           every: 1
           times: 8                   # ring k = parent.i; radius = 0.4 + parent.i * (2.2 - 0.4) / 7
@@ -36,6 +40,7 @@ machine:
             - {id: pts,  op: particle, particle: happy_villager, anchor: feet, count: 0, offset: "= [cos(6.283185307179586 * i / n + 6.283185307179586 * draw('shape_ph')), 0, -sin(6.283185307179586 * i / n + 6.283185307179586 * draw('shape_ph'))]", extra: 0.02, times: 16, at: 0, shift: {left: "= (0.4 + parent.i * 1.8 / 7.0) * cos(6.283185307179586 * i / n + 6.283185307179586 * draw('shape_ph'))", forward: "= -(0.4 + parent.i * 1.8 / 7.0) * sin(6.283185307179586 * i / n + 6.283185307179586 * draw('shape_ph'))"}}
             - {id: dust, op: particle, particle: dust, anchor: feet, count: 1, extra: 0, color: "#5ae65a", size: 1.4, times: 16, at: 0, shift: {left: "= (0.4 + parent.i * 1.8 / 7.0) * cos(6.283185307179586 * i / n + 6.283185307179586 * draw('shape_ph'))", forward: "= -(0.4 + parent.i * 1.8 / 7.0) * sin(6.283185307179586 * i / n + 6.283185307179586 * draw('shape_ph'))"}}
         - id: ring_b
+          op: group
           at: 0
           every: 1
           times: 14                  # radius = 1.1 - parent.i * 0.4 / 13
@@ -43,6 +48,7 @@ machine:
             - {id: pts,  op: particle, particle: happy_villager, anchor: feet, count: 1, extra: 0, times: 10, at: 0, shift: {left: "= (1.1 - parent.i * 0.4 / 13.0) * cos(6.283185307179586 * i / n + 6.283185307179586 * draw('shape_ph'))", forward: "= -(1.1 - parent.i * 0.4 / 13.0) * sin(6.283185307179586 * i / n + 6.283185307179586 * draw('shape_ph'))"}}
             - {id: dust, op: particle, particle: dust, anchor: feet, count: 1, extra: 0, color: "#8cff78", size: 1.2, times: 10, at: 0, shift: {left: "= (1.1 - parent.i * 0.4 / 13.0) * cos(6.283185307179586 * i / n + 6.283185307179586 * draw('shape_ph'))", forward: "= -(1.1 - parent.i * 0.4 / 13.0) * sin(6.283185307179586 * i / n + 6.283185307179586 * draw('shape_ph'))"}}
         - id: ring_c
+          op: group
           at: 6
           every: 1
           times: 14                  # radius = 0.7 + parent.i * 0.4 / 13
