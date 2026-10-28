@@ -67,13 +67,20 @@ class ProjectileAoeScenarioTest {
     private class Flight(val frame: FrameId, val spec: MotionSpec.Fly, var velocity: Vec3, var age: Int = 0)
 
     private class Cast(victims: List<Victim>) : OpContext, SkillCastScope {
-        override val host: com.astarworks.astera.core.application.skillengine.runtime.OpHost get() = error("this scenario never reaches the cast host")
+        // Only `schedule` (the projectile launch event) is reached; this scenario's stepper has no delay line, so the launch fires at once
+        // and the body flies from the first step.
+        override val host: com.astarworks.astera.core.application.skillengine.runtime.OpHost =
+            java.lang.reflect.Proxy.newProxyInstance(
+                com.astarworks.astera.core.application.skillengine.runtime.OpHost::class.java.classLoader,
+                arrayOf(com.astarworks.astera.core.application.skillengine.runtime.OpHost::class.java),
+            ) { _, m, a -> if (m.name == "schedule") fire(a!![1] as String, a[2] as String) else error("this scenario never reaches the cast host: ${m.name}") } as com.astarworks.astera.core.application.skillengine.runtime.OpHost
         val casterId: UUID = UUID.randomUUID()
         val victimList = victims
         val damaged = mutableListOf<Pair<UUID, Double>>()
         val lowered = mutableListOf<SkillOp>()
 
         override val cast = CastId(1)
+        override val world = com.astarworks.astera.core.domain.world.WorldId("world")
         override val tree = Tree().also {
             it.add(FrameNode(FrameId("world"), FrameKind.WORLD, null, Frame(Vec3.ZERO)))
             it.add(FrameNode(FrameId("caster"), FrameKind.CASTER, FrameId("world"), Frame(Vec3.ZERO)))
@@ -91,13 +98,14 @@ class ProjectileAoeScenarioTest {
             visuals = unused(), particles = unused<ISkillParticleGateway>(), sounds = unused<ISkillSoundGateway>(),
             victimAnim = unused<ISkillVictimAnimGateway>(),
             gameplay = object : ISkillGameplayGateway {
+    override fun statusStacks(entity: UUID, statusId: String): Int = 0
             override fun removeStatus(victim: UUID, statusId: String) = Unit
             override fun cleanse(victim: UUID, negativeOnly: Boolean) = Unit
             override fun ignite(caster: UUID, victim: UUID, durationTicks: Int) = Unit
             override fun silence(caster: UUID, victim: UUID, durationTicks: Int) = Unit
             override fun modifyAttribute(caster: UUID, victim: UUID, attribute: String, operation: String, amount: Double, durationTicks: Int?) = Unit
             override fun restoreResource(victim: UUID, resource: String, amount: Double) = Unit
-                override fun damage(caster: UUID, victim: UUID, components: List<SkillDamage>, hitPoint: Vec3) {
+                override fun damage(skillId: String, caster: UUID, victim: UUID, components: List<SkillDamage>, hitPoint: Vec3, ignoreInvulnerability: Boolean, ignoreArmor: Boolean) {
                     damaged += victim to components.sumOf { it.amount }
                 }
                 override fun applyStatus(caster: UUID, victim: UUID, statusId: String, stacks: Int, durationTicks: Int) = Unit
@@ -105,6 +113,7 @@ class ProjectileAoeScenarioTest {
                 override fun freezeEntities(entities: List<UUID>, ticks: Int) = Unit
             },
             entities = object : ISkillEntityQuery {
+    override fun healthRatio(entity: UUID): Double = error("hp_ratio: this fake has no entity $entity")
                 override fun nearby(point: Vec3, radius: Double, excluding: UUID?) =
                     victimList.filter { it.id != excluding && it.box.center.distance(point) <= radius + 1.0 }
                         .map { HitCandidate(it.id, it.feet, 0.0, it.box) }

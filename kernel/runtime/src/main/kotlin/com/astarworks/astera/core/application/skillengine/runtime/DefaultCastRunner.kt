@@ -14,6 +14,7 @@ import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.skillengine.expr.ExprCompiler
 import com.astarworks.astera.core.domain.skillengine.frame.FrameTree
 import com.astarworks.astera.core.domain.skillengine.hit.ContactResolver
+import com.astarworks.astera.core.domain.skillengine.op.SkillOp
 import com.astarworks.astera.core.domain.skillengine.motion.MotionLawFactory
 import java.util.concurrent.atomic.AtomicLong
 
@@ -30,11 +31,22 @@ public fun interface CastObserver {
     public fun onTick(cast: CastId, tick: Int, tree: FrameTree, nodes: Set<String>, events: List<CastEvent>)
 }
 
+/** Start-time refusals of [DefaultCastRunner] (same hierarchy as [CastError]). */
+public data class MissingExecutors(val skill: String, val ops: List<String>) : CastError
+
+/** The caster is under [status] (silence, shock): v1 refused casts under silence, and so does start. */
+public data class CasterInterrupted(val skill: String, val status: String) : CastError
+
 /** An op / law / expression failed; the cast kept running. */
-public data class CastDiagnostic(val cast: CastId, val tick: Int, val opId: String?, val message: String)
+public data class CastDiagnostic(val cast: CastId, val tick: Int, val opId: String?, val message: String) {
+    /** The one log line every consumer prints (server log, sims; e2e greps `[skill-error]`). */
+    public fun asLogLine(skillId: String? = null): String =
+        "[skill-error] cast=${cast.value}${skillId?.let { " skill=$it" } ?: ""} tick=$tick op=${opId ?: "-"}: $message"
+}
 
 public class CastRunnerDeps(
-    public val ports: SkillRuntimePorts,
+    /** Builds the ports of one cast: the world-bound ones (sound, particle, entity query) are made for [CastRequest.world]. */
+    public val portsIn: (com.astarworks.astera.core.domain.world.WorldId) -> SkillRuntimePorts,
     public val newTree: () -> FrameTree,
     public val motion: MotionLawFactory,
     public val contacts: ContactResolver,
@@ -44,7 +56,7 @@ public class CastRunnerDeps(
     public val hosts: CastHosts,
     public val dashes: DashStrikeDriver,
     public val locks: MovementLockDriver,
-    public val world: SkillWorldEditor,
+    public val world: SkillWorldEditors,
     public val presentation: PresentationRuntime,
     public val cooldowns: ISkillCooldownGateway,
     public val items: ISkillItemGateway,
@@ -75,6 +87,11 @@ public class DefaultCastRunner(private val deps: CastRunnerDeps) : CastRunner, I
     }
 
     private fun startChain(request: CastRequest, chain: List<String>): Result<CastId, CastError> {
+        val missing = missingExecutors(request.skill)
+        if (missing.isNotEmpty()) return Result.Failure(MissingExecutors(request.skill.def.id, missing))
+        val worldPorts = deps.portsIn(request.world)
+        CastInstance.INTERRUPTING_STATUSES.firstOrNull { worldPorts.gameplay.statusStacks(request.caster, it) > 0 }
+            ?.let { return Result.Failure(CasterInterrupted(request.skill.def.id, it)) }
         val id = CastId(ids.getAndIncrement())
         val cast = CastInstance(id, request, deps, bank, chain, { r, c -> startChain(r, c) }, ::record)
         deps.hosts.register(cast)
@@ -91,6 +108,13 @@ public class DefaultCastRunner(private val deps: CastRunnerDeps) : CastRunner, I
     @Synchronized
     override fun raise(cast: CastId, event: CastEvent) {
         casts[cast.value]?.enqueueExternal(event)
+    }
+
+    @Synchronized
+    override fun raiseAllOf(caster: UUID, name: String, tick: Int): Int {
+        val targets = casts.values.filter { it.request.caster == caster && !it.hasRaised(name) }
+        targets.forEach { it.enqueueExternal(CastEvent(name, tick, source = "input")) }
+        return targets.size
     }
 
     @Synchronized
@@ -119,17 +143,25 @@ public class DefaultCastRunner(private val deps: CastRunnerDeps) : CastRunner, I
 
     @Synchronized
     override fun tick(currentTick: Int) {
-        for (cast in casts.values.toList()) {
-            try {
-                cast.tick(currentTick)
-            } catch (e: RuntimeException) {
-                // A cast that throws must not stay alive with frozen displays: end it and release what it owns.
-                record(CastDiagnostic(cast.id, currentTick, null, "cast tick failed: ${e::class.simpleName}: ${e.message}"))
-                runCatching { cast.cancel() }
-            }
-            if (cast.ended) {
-                casts.remove(cast.id.value)
-                deps.hosts.unregister(cast.id)
+        // A `cast_skill` child starts during its parent's tick and runs its first tick in this same tick (v1 ran the child
+        // the moment the delayed task fired); children of children follow in the same pass.
+        val ticked = HashSet<Long>()
+        while (true) {
+            val batch = casts.values.filter { it.id.value !in ticked }
+            if (batch.isEmpty()) break
+            for (cast in batch) {
+                ticked += cast.id.value
+                try {
+                    cast.tick(currentTick)
+                } catch (e: RuntimeException) {
+                    // A cast that throws must not stay alive with frozen displays: end it and release what it owns.
+                    record(CastDiagnostic(cast.id, currentTick, null, "cast tick failed: ${e::class.simpleName}: ${e.message}"))
+                    runCatching { cast.cancel() }
+                }
+                if (cast.ended) {
+                    casts.remove(cast.id.value)
+                    deps.hosts.unregister(cast.id)
+                }
             }
         }
         deps.dashes.tick()
@@ -144,6 +176,49 @@ public class DefaultCastRunner(private val deps: CastRunnerDeps) : CastRunner, I
             if (cast.request.caster == target && cast.request.caster != attacker) multiplier *= cast.interceptIncoming(attacker, amount)
         }
         return multiplier
+    }
+
+    private val executorChecks = java.util.WeakHashMap<CompiledSkill, List<String>>()
+
+    /**
+     * Every op of [skill] (nested bodies and handlers included) that has no registered executor, as `id (OpClass)`.
+     * A skill with any is refused at [start]; content loading can call this to report the same at load time.
+     */
+    @Synchronized
+    public fun missingExecutors(skill: CompiledSkill): List<String> = executorChecks.getOrPut(skill) {
+        val ops = LinkedHashMap<String, SkillOp>()
+        collectOps(skill.def.gameplay, ops, java.util.Collections.newSetFromMap(java.util.IdentityHashMap()))
+        collectOps(skill.def.presentation, ops, java.util.Collections.newSetFromMap(java.util.IdentityHashMap()))
+        ops.values.filter { deps.executors.find(it) == null }.map { "${it.id} (${it::class.simpleName})" }.distinct()
+    }
+
+    private fun collectOps(node: Any?, out: MutableMap<String, SkillOp>, seen: MutableSet<Any>) {
+        when (node) {
+            null, is String, is Number, is Boolean, is Enum<*> -> return
+            is Iterable<*> -> node.forEach { collectOps(it, out, seen) }
+            is Map<*, *> -> node.values.forEach { collectOps(it, out, seen) }
+            is Pair<*, *> -> {
+                collectOps(node.first, out, seen)
+                collectOps(node.second, out, seen)
+            }
+            else -> {
+                if (!node::class.java.name.startsWith(ENGINE_PACKAGE) || !seen.add(node)) return
+                if (node is SkillOp) out["${node::class.java.name}#${System.identityHashCode(node)}"] = node
+                var cls: Class<*>? = node::class.java
+                while (cls != null && cls.name.startsWith(ENGINE_PACKAGE)) {
+                    for (f in cls.declaredFields) {
+                        if (java.lang.reflect.Modifier.isStatic(f.modifiers) || f.isSynthetic) continue
+                        f.isAccessible = true
+                        collectOps(f.get(node), out, seen)
+                    }
+                    cls = cls.superclass
+                }
+            }
+        }
+    }
+
+    private companion object {
+        const val ENGINE_PACKAGE = "com.astarworks.astera.core.domain.skillengine"
     }
 
     /** Failures reported so far (ops without executor, bad expressions, ...). */

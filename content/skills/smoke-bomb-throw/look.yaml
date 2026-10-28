@@ -408,7 +408,7 @@ presentation:
         times: 16
         shift: "= vec(0.4*sin((3.6112 + 6.283185307179586*i/16)), 0.0, 0.4*cos((3.6112 + 6.283185307179586*i/16)))"
         offset: "= vec(sin((3.6112 + 6.283185307179586*i/16)), 0, cos((3.6112 + 6.283185307179586*i/16)))"
-      - {id: snd_2, op: sound, sound: entity.generic.extinguish_fire, at: contact.point, volume: 0.8, pitch: 0.7}
+      - {id: snd_2, op: sound, sound: entity.generic.extinguish_fire, at: enemy, volume: 0.8, pitch: 0.7}
     block:
       - id: emit_22
         op: emit

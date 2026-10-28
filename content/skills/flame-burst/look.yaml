@@ -230,7 +230,7 @@ presentation:
     - {id: rep4, at: 0, every: 1, until: end, do: [{id: trail_4, op: emit, at: bolt, particle: smoke, count: 1, spacing: 0.3, offset: [0.05, 0.05, 0.05]}]}
   "on":
     hit:
-      - {id: snd_2, op: sound, sound: "astera:skills/fire-impact", at: contact.point, volume: 0.5, pitch: 1.3}
+      - {id: snd_2, op: sound, sound: "astera:skills/fire-impact", at: enemy, volume: 0.5, pitch: 1.3}
       - {id: emit_2, op: emit, at: pt_enemy_0_1_0, particle: explosion, count: 1}
       - {id: emit_3, op: emit, at: pt_enemy_0_1_0, particle: flame, count: 60, speed: 0.25}
       - {id: emit_4, op: emit, at: pt_enemy_0_1_0, particle: lava, count: 12, speed: 0.1}

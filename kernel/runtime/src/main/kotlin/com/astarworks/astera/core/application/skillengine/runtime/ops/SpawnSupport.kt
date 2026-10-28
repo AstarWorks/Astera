@@ -55,7 +55,7 @@ internal fun OpContext.resolveTargets(scope: SkillCastScope, target: TargetRef):
             emptyList()
         } else {
             ports.entities.nearby(at, values.num(target.radius), scope.caster)
-                .map { it.entityId }.filter { !scope.isAlly(it) }
+                .filter { !scope.isAlly(it.entityId) }.nearestN(at, target.maxCount)
         }
     }
     is TargetRef.Allies -> {
@@ -64,10 +64,14 @@ internal fun OpContext.resolveTargets(scope: SkillCastScope, target: TargetRef):
             emptyList()
         } else {
             ports.entities.nearby(at, values.num(target.radius), null)
-                .map { it.entityId }.filter { scope.isAlly(it) }
+                .filter { scope.isAlly(it.entityId) }.nearestN(at, target.maxCount)
         }
     }
 }
+
+/** v1 `max_count`: keep the [maxCount] candidates nearest to [at] (all of them when null). */
+private fun List<com.astarworks.astera.core.domain.skillengine.hit.HitCandidate>.nearestN(at: Vec3, maxCount: Int?): List<UUID> =
+    (if (maxCount == null) this else sortedBy { it.feet.distanceSquared(at) }.take(maxCount)).map { it.entityId }
 
 /** Resolve a declarative volume to world coordinates; `self.*` points mean [self]. */
 internal fun OpContext.resolveVolume(volume: HitVolume, self: FrameId): ResolvedVolume? = when (volume) {

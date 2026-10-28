@@ -40,7 +40,7 @@ object Coin2CastWiring {
             contacts = DefaultContactResolver(),
             exprs = CelExprCompiler(),
             points = SkillEngineRegistries.pointSource(tables),
-            newCatalog = { SkillEngineRegistries.catalog(tables) },
+            newCatalog = { SkillEngineRegistries.catalog(tables, com.astarworks.astera.core.application.skillengine.load.IBlockKeyCatalog.Unchecked) },
             skillsDir = content.resolve("skills"),
         )
     }
