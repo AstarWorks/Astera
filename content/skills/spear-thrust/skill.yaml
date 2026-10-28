@@ -4,12 +4,12 @@ id: spear-thrust
 item: spear
 meta:
   name: {ja: "突き", en: "Thrust"}
-  description: {ja: "前方へ鋭く突く。", en: "A sharp forward thrust."}
+  description: {ja: "長い間合いで細く突く。", en: "A long, narrow thrust."}
   cooldown_ticks: 12
   resource_cost: 6
   tags: [melee, physical]
 anchors:
-  - {id: stab_pt, anchor: caster.eye, offset: {up: -0.2, forward: 1.4}}
+  - {id: stab_pt, anchor: caster, offset: {up: -0.2, forward: 1.4}}
   - {id: heart, anchor: victim.root, offset: {up: 1.2}}  # GAP(Q2): v2 enemy frame origin = feet+0.8 fixed; victim.body (live hitbox centre, 0.9) or a fixed chest point is the founder's choice (Q2)
 machine:
   start: swing

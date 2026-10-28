@@ -6,12 +6,11 @@ item: shock-wand
 meta: {name: {ja: "放電", en: "Arc Burst"}, description: {ja: "周囲へ放電し、敵を痺れさせる。", en: "Releases a ring of lightning around you."}, cooldown_ticks: 140, resource_cost: 16, tags: [aoe, electric]}
 anchors:
   - {id: ring,  anchor: caster, offset: {up: 0.15}}   # ring origin (caster + 0.15 up)
-  - {id: heart, anchor: victim, offset: {up: 1.2}}   # GAP(Q2): v2 enemy frame (feet +0.8 fixed) vs v3 victim anchors
 machine:
   start: burst
   states:
     burst:
-      for: 6   # ring waves at ticks 0..5
+      for: 1   # v2 timeline is one row at tick 0; the 6-tick span was the invented ring wave (see report)
       then: end
       do:
         - {id: snd, op: sound, sound: "astera:skill/wand/cast", anchor: caster, volume: 1.0, pitch: 1.1}
@@ -29,126 +28,6 @@ machine:
             hit:
               - {id: st_shock, op: status, target: event.victim, status: shock, stacks: 1, for: 30, when: "= rand() < 0.5"}
               - {id: snd_hit, op: sound, sound: "astera:weapons/blade-hit", anchor: contact, volume: 0.7, pitch: 1.0}
-        # Ring waves: radius 0.5 + 0.6 * wave (0.5 .. 3.5), 16 points, angle a = 2*pi*i/16 + per-cast random phase (v2 draw('shape_ph')).
-        # Unrolled per wave k: a state `do` does not accept a timing group (engine gap, PartParser.ops).
-        - id: spark_0
-          op: particle
-          particle: electric_spark
-          count: 0
-          extra: 0.03
-          times: 16
-          at: 0
-          offset: ["= cos(2 * PI * i / 16 + draw('shape_ph') * 2 * PI)", 0, "= -sin(2 * PI * i / 16 + draw('shape_ph') * 2 * PI)"]   # [left, up, forward] direction
-          anchor: ring
-          shift: {left: "= (0.5 + 0.6 * 0) * cos(2 * PI * i / 16 + draw('shape_ph') * 2 * PI)", forward: "= -(0.5 + 0.6 * 0) * sin(2 * PI * i / 16 + draw('shape_ph') * 2 * PI)"}
-        - id: dust_0
-          op: particle
-          particle: dust
-          count: 1
-          color: "#fff078"
-          size: 1.4
-          times: 16
-          at: 0
-          anchor: ring
-          shift: {left: "= (0.5 + 0.6 * 0) * cos(2 * PI * i / 16 + draw('shape_ph') * 2 * PI)", forward: "= -(0.5 + 0.6 * 0) * sin(2 * PI * i / 16 + draw('shape_ph') * 2 * PI)"}
-        - id: spark_1
-          op: particle
-          particle: electric_spark
-          count: 0
-          extra: 0.03
-          times: 16
-          at: 1
-          offset: ["= cos(2 * PI * i / 16 + draw('shape_ph') * 2 * PI)", 0, "= -sin(2 * PI * i / 16 + draw('shape_ph') * 2 * PI)"]   # [left, up, forward] direction
-          anchor: ring
-          shift: {left: "= (0.5 + 0.6 * 1) * cos(2 * PI * i / 16 + draw('shape_ph') * 2 * PI)", forward: "= -(0.5 + 0.6 * 1) * sin(2 * PI * i / 16 + draw('shape_ph') * 2 * PI)"}
-        - id: dust_1
-          op: particle
-          particle: dust
-          count: 1
-          color: "#fff078"
-          size: 1.4
-          times: 16
-          at: 1
-          anchor: ring
-          shift: {left: "= (0.5 + 0.6 * 1) * cos(2 * PI * i / 16 + draw('shape_ph') * 2 * PI)", forward: "= -(0.5 + 0.6 * 1) * sin(2 * PI * i / 16 + draw('shape_ph') * 2 * PI)"}
-        - id: spark_2
-          op: particle
-          particle: electric_spark
-          count: 0
-          extra: 0.03
-          times: 16
-          at: 2
-          offset: ["= cos(2 * PI * i / 16 + draw('shape_ph') * 2 * PI)", 0, "= -sin(2 * PI * i / 16 + draw('shape_ph') * 2 * PI)"]   # [left, up, forward] direction
-          anchor: ring
-          shift: {left: "= (0.5 + 0.6 * 2) * cos(2 * PI * i / 16 + draw('shape_ph') * 2 * PI)", forward: "= -(0.5 + 0.6 * 2) * sin(2 * PI * i / 16 + draw('shape_ph') * 2 * PI)"}
-        - id: dust_2
-          op: particle
-          particle: dust
-          count: 1
-          color: "#fff078"
-          size: 1.4
-          times: 16
-          at: 2
-          anchor: ring
-          shift: {left: "= (0.5 + 0.6 * 2) * cos(2 * PI * i / 16 + draw('shape_ph') * 2 * PI)", forward: "= -(0.5 + 0.6 * 2) * sin(2 * PI * i / 16 + draw('shape_ph') * 2 * PI)"}
-        - id: spark_3
-          op: particle
-          particle: electric_spark
-          count: 0
-          extra: 0.03
-          times: 16
-          at: 3
-          offset: ["= cos(2 * PI * i / 16 + draw('shape_ph') * 2 * PI)", 0, "= -sin(2 * PI * i / 16 + draw('shape_ph') * 2 * PI)"]   # [left, up, forward] direction
-          anchor: ring
-          shift: {left: "= (0.5 + 0.6 * 3) * cos(2 * PI * i / 16 + draw('shape_ph') * 2 * PI)", forward: "= -(0.5 + 0.6 * 3) * sin(2 * PI * i / 16 + draw('shape_ph') * 2 * PI)"}
-        - id: dust_3
-          op: particle
-          particle: dust
-          count: 1
-          color: "#fff078"
-          size: 1.4
-          times: 16
-          at: 3
-          anchor: ring
-          shift: {left: "= (0.5 + 0.6 * 3) * cos(2 * PI * i / 16 + draw('shape_ph') * 2 * PI)", forward: "= -(0.5 + 0.6 * 3) * sin(2 * PI * i / 16 + draw('shape_ph') * 2 * PI)"}
-        - id: spark_4
-          op: particle
-          particle: electric_spark
-          count: 0
-          extra: 0.03
-          times: 16
-          at: 4
-          offset: ["= cos(2 * PI * i / 16 + draw('shape_ph') * 2 * PI)", 0, "= -sin(2 * PI * i / 16 + draw('shape_ph') * 2 * PI)"]   # [left, up, forward] direction
-          anchor: ring
-          shift: {left: "= (0.5 + 0.6 * 4) * cos(2 * PI * i / 16 + draw('shape_ph') * 2 * PI)", forward: "= -(0.5 + 0.6 * 4) * sin(2 * PI * i / 16 + draw('shape_ph') * 2 * PI)"}
-        - id: dust_4
-          op: particle
-          particle: dust
-          count: 1
-          color: "#fff078"
-          size: 1.4
-          times: 16
-          at: 4
-          anchor: ring
-          shift: {left: "= (0.5 + 0.6 * 4) * cos(2 * PI * i / 16 + draw('shape_ph') * 2 * PI)", forward: "= -(0.5 + 0.6 * 4) * sin(2 * PI * i / 16 + draw('shape_ph') * 2 * PI)"}
-        - id: spark_5
-          op: particle
-          particle: electric_spark
-          count: 0
-          extra: 0.03
-          times: 16
-          at: 5
-          offset: ["= cos(2 * PI * i / 16 + draw('shape_ph') * 2 * PI)", 0, "= -sin(2 * PI * i / 16 + draw('shape_ph') * 2 * PI)"]   # [left, up, forward] direction
-          anchor: ring
-          shift: {left: "= (0.5 + 0.6 * 5) * cos(2 * PI * i / 16 + draw('shape_ph') * 2 * PI)", forward: "= -(0.5 + 0.6 * 5) * sin(2 * PI * i / 16 + draw('shape_ph') * 2 * PI)"}
-        - id: dust_5
-          op: particle
-          particle: dust
-          count: 1
-          color: "#fff078"
-          size: 1.4
-          times: 16
-          at: 5
-          anchor: ring
-          shift: {left: "= (0.5 + 0.6 * 5) * cos(2 * PI * i / 16 + draw('shape_ph') * 2 * PI)", forward: "= -(0.5 + 0.6 * 5) * sin(2 * PI * i / 16 + draw('shape_ph') * 2 * PI)"}
+        - {id: fx_spark, op: particle, particle: electric_spark, anchor: ring, at: 0, count: 0, extra: 0.03}
+        - {id: fx_dust, op: particle, particle: dust, anchor: ring, at: 0, count: 1, color: "#fff078", size: 1.4}
     end: {final: true}

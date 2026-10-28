@@ -6,8 +6,7 @@ item: repeater-crossbow
 meta: {name: {ja: "重ボルト", en: "Heavy Bolt"}, description: {ja: "重いボルトを強く撃ち込む。", en: "One heavy, hard-hitting bolt."}, cooldown_ticks: 100, resource_cost: 8, tags: [ranged, physical]}
 anchors:
   - {id: start,  anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}            # was pt_aim_0_0_0p5
-  - {id: muzzle, anchor: caster.eye, offset: {up: -0.25, forward: 0.9}, mode: snapshot} # was pt_aim_0_m0p25_0p9
-  - {id: foe,    anchor: victim.root}   # GAP(Q2): v2 enemy frame origin = feet+0.8; victim.root = feet
+  - {id: muzzle, anchor: caster, offset: {up: -0.25, forward: 0.9}, mode: snapshot} # was pt_caster_0_m0p25_0p9 (v2 caster frame)
   - {id: heart,  anchor: victim.root, offset: {up: 1.2}}   # GAP(Q2): v2 enemy frame origin = feet+0.8; victim.root = feet
 machine:
   start: fire
@@ -32,7 +31,7 @@ machine:
           on:
             hit:
               - {id: dmg, op: damage, target: event.victim, damage: {physical: 26}}
-              - {id: snd_hit, op: sound, sound: "astera:weapons/gun-impact", anchor: foe, volume: 0.8, pitch: 0.9}
+              - {id: snd_hit, op: sound, sound: "astera:weapons/gun-impact", anchor: contact, volume: 0.8, pitch: 0.9}
               - {id: fx_hit, op: particle_def, def: hit-spark, anchor: heart}
             block:
               - {id: snd_blk, op: sound, sound: "astera:weapons/gun-impact-block", anchor: contact, volume: 0.5, pitch: 1.5}
