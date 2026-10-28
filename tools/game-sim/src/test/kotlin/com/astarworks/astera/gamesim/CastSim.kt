@@ -167,6 +167,8 @@ class CastSim(
     /** Hit-stop calls: (tick, frozen entities, ticks). */
     val frozen = ArrayList<Triple<Int, List<UUID>, Int>>()
     val blockStrikes = ArrayList<Triple<Int, Int, String?>>()
+    /** Every strike as (cell, tick, damage), in landing order. */
+    val blockStrikesByCell = ArrayList<Triple<BlockCell, Int, Int>>()
 
     /**
      * Gameplay parity log (SKL-17): one JSON object per line in the vocabulary of `tools/skill-convert/gameplay_diff.py`, in the
@@ -322,6 +324,7 @@ class CastSim(
         override fun isCover(cell: BlockCell) = inWall(cell)
         override fun damage(cast: CastId, cell: BlockCell, blockDamage: Int, toolClass: String?): BlockDamageOutcome {
             blockStrikes += Triple(now, blockDamage, toolClass)
+            blockStrikesByCell += Triple(cell, now, blockDamage)
             gpLine("block", "\"k\":\"damage\",${cellAt(cell)},\"amount\":$blockDamage,\"tool\":${toolClass?.let { jq(it) }}")
             return BlockDamageOutcome.CHIPPED
         }

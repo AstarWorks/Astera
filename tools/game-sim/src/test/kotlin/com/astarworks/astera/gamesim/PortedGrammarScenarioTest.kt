@@ -102,7 +102,20 @@ class PortedGrammarScenarioTest {
         sim.cast("flame-burst", 80)
         assertThat(sim.dealt).describedAs("bolt hit the victim").isNotEmpty()
         assertThat(sim.blockStrikes).describedAs("break_area chip at the contact").isNotEmpty()
-        assertThat(sim.blockStrikes.map { it.second }.toSet()).containsExactly(35)
+        // v1 WorldMechanics.kt:284-291: a cover cell takes block_damage in six integer portions, damage*k/6 - damage*(k-1)/6,
+        // at work steps 4, 8, .. 24 (ticks delay+3, +7, .. +23): 35 -> 5, 6, 6, 6, 6, 6 (total 35). flame-burst has a chip op per handler (hit and block); the bolt
+        // hits the victim, so each cell takes the schedule once.
+        val byCell = sim.blockStrikesByCell.groupBy({ it.first }, { it.second to it.third })
+        assertThat(byCell).isNotEmpty()
+        byCell.forEach { (cell, strikes) ->
+            val ordered = strikes.sortedBy { it.first }
+            assertThat(ordered.map { it.second }).describedAs("portions of $cell")
+                .containsExactly(5, 6, 6, 6, 6, 6)
+            assertThat(ordered.sumOf { it.second }).describedAs("total at $cell").isEqualTo(35)
+            val ticks = ordered.map { it.first }.distinct()
+            assertThat(ticks).describedAs("six portion ticks at $cell").hasSize(6)
+            assertThat(ticks.zipWithNext { x, y -> y - x }).describedAs("portion spacing at $cell").containsOnly(4)
+        }
     }
 
     @Test
