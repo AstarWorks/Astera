@@ -29,10 +29,10 @@ class CarryMiniTntPlaythroughE2eTest : ObjectivePlaythroughBase() {
         for ((sx, sz) in spots) {
             if (picked >= CARRY_LIMIT || matchLines().isEmpty()) break
             ctx.walker.walkTo(sx, sz, 1.2, 120_000, others)
-            // A pickup is a short hold: stay on the spot until the clam is in the bag.
-            if (a.waitUntil(3_000) { ctx.chatCount("/$CARRY_LIMIT.") > picked }) picked++
+            // A pickup is a right-click on the clam marker beside the spot.
+            if (clickObjective(a, 4_000) { ctx.chatCount("/$CARRY_LIMIT.") > picked }) picked++
         }
-        E2eReport.check(suite, "standing on clam spots picks clams up (carried/limit on chat)", "SystemChat / sidebar") {
+        E2eReport.check(suite, "right-clicking clams on their spots picks them up (carried/limit on chat)", "SystemChat / sidebar") {
             assertThat(ctx.chatCount("/$CARRY_LIMIT.")).describedAs("no clam picked up; pos=${posOf(a)} chat=${ctx.chat().takeLast(6)}").isGreaterThanOrEqualTo(3)
             "picked=$picked; sidebar=${sidebar(a)}"
         }

@@ -21,6 +21,7 @@ import com.astarworks.astera.match.application.gamemode.siege.IObjectiveStateQue
 import com.astarworks.astera.match.application.gamemode.siege.ObjectiveSnapshot
 import com.astarworks.astera.match.application.port.outbound.IGameModeFrameworkRegistry
 import com.astarworks.astera.match.application.port.outbound.matchmaking.IMatchmaker
+import com.astarworks.astera.match.domain.event.ObjectiveMarkerInteracted
 import com.astarworks.astera.match.domain.matchmaking.MatchmakingMode
 import com.astarworks.astera.match.domain.mode.GameModeId
 import org.assertj.core.api.Assertions.assertThat
@@ -93,10 +94,27 @@ class SiegeModesScenarioTest {
 
     // ---- carry-tnt (Rainmaker) --------------------------------------------
 
-    /** [who] stands in tnt-spawn until the shield is gone and the pickup hold completes (200 HP at 10 HP/s alone). */
-    private fun ScenarioScope.takeTnt(who: SimEntity, spawn: Vec3) {
+    /** A right-click on a loose marker's hitbox (the Paper stage publishes exactly this event). */
+    private fun ScenarioScope.rightClick(who: SimEntity, matchId: MatchId, key: String) {
+        sim.eventBus.publish(ObjectiveMarkerInteracted(matchId, who.id, key))
+        advance(2)
+    }
+
+    /** Walks [who] to the clam region and right-clicks its marker. */
+    private fun ScenarioScope.grab(who: SimEntity, clam: Region, matchId: MatchId) {
+        who.moveTo(clam.spot())
+        advance(2)
+        rightClick(who, matchId, "spot-${clam.name}")
+    }
+
+    private fun ScenarioScope.shieldOf(matchId: MatchId) = (snapshotOf("carry-tnt", matchId) as ObjectiveSnapshot.Rainmaker).shieldHp
+
+    /** [who] stands in tnt-spawn until the shield is gone (200 HP at 10 HP/s alone), then right-clicks the TNT. */
+    private fun ScenarioScope.takeTnt(who: SimEntity, spawn: Vec3, matchId: MatchId) {
         who.moveTo(spawn)
-        check(advanceUntil(20 * 90) { sim.objectiveStage.carrying(who.id) != null }) { "${who.name} never got the TNT" }
+        check(advanceUntil(20 * 90) { shieldOf(matchId) <= 0.0 }) { "${who.name} never broke the shield" }
+        rightClick(who, matchId, "tnt")
+        check(sim.objectiveStage.carrying(who.id) != null) { "${who.name} never got the TNT" }
     }
 
     @Test
@@ -116,7 +134,11 @@ class SiegeModesScenarioTest {
             assertThat(sim.objectiveStage.bar(runner.id, "shield")?.progress).`as`("the shield bar shows the damage").isLessThan(1.0)
             // Broken after 200 HP; then the pickup is a hold: the carrier glows and is slowed. The guard shoots them down.
             guard.holds("pistol")
-            check(advanceUntil(20 * 40) { sim.objectiveStage.carrying(runner.id) != null }) { "runner never picked the TNT up" }
+            check(advanceUntil(20 * 40) { shieldOf(matchId) <= 0.0 }) { "the shield never broke" }
+            advance(40)
+            assertThat(sim.objectiveStage.carrying(runner.id)).`as`("standing next to the TNT no longer picks it up").isNull()
+            rightClick(runner, matchId, "tnt")
+            assertThat(sim.objectiveStage.carrying(runner.id)).`as`("a right-click picks the TNT up").isNotNull()
             guard.moveTo(spawn.spot().copy(z = spawn.spot().z - 8.0))
             kill(guard, runner)
             assertThat(sim.objectiveStage.carrying(runner.id)).`as`("dead carrier is stripped").isNull()
@@ -128,7 +150,7 @@ class SiegeModesScenarioTest {
             respawnAt(runner, nowhere)
             val shield = (snapshotOf("carry-tnt", matchId) as ObjectiveSnapshot.Rainmaker)
             assertThat(shield.shieldHp).`as`("the returned TNT is shielded again").isEqualTo(shield.shieldMax)
-            takeTnt(runner, spawn.spot())
+            takeTnt(runner, spawn.spot(), matchId)
         }
     }
 
@@ -142,7 +164,7 @@ class SiegeModesScenarioTest {
             val runner = player("runner", at = nowhere)
             val guard = player("guard", at = nowhere)
             val matchId = startMatch("carry-tnt", mapOf(runner to "red", guard to "blue"), stage = "siege-isles-tnt")
-            takeTnt(runner, spawn.spot())
+            takeTnt(runner, spawn.spot(), matchId)
 
             // Delivering without the checkpoints scores nothing: progress is capped at the next checkpoint.
             hold(runner, deliver.spot(), 80)
@@ -347,15 +369,15 @@ class SiegeModesScenarioTest {
             val blueBasket = stage.region("basket-blue")!!.spot()
 
             // A closed barrier takes no minis: one clam carried into the enemy basket stays carried.
-            hold(a, clams[0].spot(), 40)
+            grab(a, clams[0], matchId)
             assertThat(clamsOf(matchId).carried[a.id]).`as`("a picked a clam up").isEqualTo(1)
             hold(a, blueBasket, 60)
             assertThat(clamsOf(matchId).baskets.getValue(TeamId("blue")).open).`as`("the barrier starts closed").isFalse()
             assertThat(clamsOf(matchId).carried[a.id]).`as`("a closed barrier takes nothing").isEqualTo(1)
 
             // a fills up to 8, b adds the last 2: the team's clams reach 10 and b holds a power TNT.
-            clams.drop(1).take(7).forEach { hold(a, it.spot(), 40) }
-            clams.drop(8).take(2).forEach { hold(b, it.spot(), 40) }
+            clams.drop(1).take(7).forEach { grab(a, it, matchId) }
+            clams.drop(8).take(2).forEach { grab(b, it, matchId) }
             assertThat(clamsOf(matchId).powerHolders).`as`("ten clams make a power TNT").containsExactly(b.id)
 
             // Throwing it into the enemy basket opens the barrier for about 10 s.

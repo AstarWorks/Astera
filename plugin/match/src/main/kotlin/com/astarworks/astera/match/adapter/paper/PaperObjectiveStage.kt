@@ -1,5 +1,6 @@
 package com.astarworks.astera.match.adapter.paper
 
+import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.match.MatchId
 import com.astarworks.astera.core.domain.player.PlayerId
@@ -7,6 +8,7 @@ import com.astarworks.astera.core.domain.world.WorldId
 import com.astarworks.astera.match.application.port.outbound.IObjectiveStage
 import com.astarworks.astera.match.application.port.outbound.ObjectiveBarColor
 import com.astarworks.astera.match.application.port.outbound.ObjectiveLook
+import com.astarworks.astera.match.domain.event.ObjectiveMarkerInteracted
 import net.kyori.adventure.bossbar.BossBar
 import net.kyori.adventure.text.minimessage.MiniMessage
 import org.bukkit.Bukkit
@@ -14,7 +16,12 @@ import org.bukkit.Color
 import org.bukkit.Location
 import org.bukkit.entity.BlockDisplay
 import org.bukkit.entity.Display
+import org.bukkit.entity.Interaction
 import org.bukkit.entity.TextDisplay
+import org.bukkit.event.EventHandler
+import org.bukkit.event.Listener
+import org.bukkit.event.player.PlayerInteractEntityEvent
+import org.bukkit.inventory.EquipmentSlot
 import org.bukkit.plugin.java.JavaPlugin
 import org.bukkit.util.Transformation
 import org.joml.Quaternionf
@@ -25,15 +32,33 @@ import java.util.UUID
  * The objective stage on Paper. A carrier gets the Glowing flag (the nameplate scoreboard team colours the outline)
  * and a [BlockDisplay] riding on the head, hidden from the carrier's own view. A marker is a glowing, always-bright
  * [BlockDisplay] with a glow colour override, so it shows through walls. Boss bars are Adventure bars kept per
- * player and key.
+ * player and key. A loose marker also carries an invisible [Interaction] hitbox: a right-click on it is published as
+ * [ObjectiveMarkerInteracted] (the carry modes pick the objective up that way).
  */
-public class PaperObjectiveStage(private val plugin: JavaPlugin) : IObjectiveStage {
+public class PaperObjectiveStage(
+    private val plugin: JavaPlugin,
+    private val eventBus: IDomainEventBus,
+) : IObjectiveStage, Listener {
     private val carried: MutableMap<PlayerId, List<UUID>> = mutableMapOf()
     private val markers: MutableMap<Pair<MatchId, String>, UUID> = mutableMapOf()
     private val labels: MutableMap<Pair<MatchId, String>, UUID> = mutableMapOf()
+    private val hitboxes: MutableMap<Pair<MatchId, String>, UUID> = mutableMapOf()
+    private val hitboxOwner: MutableMap<UUID, Pair<MatchId, String>> = mutableMapOf()
     private val spinStep: MutableMap<Pair<MatchId, String>, Int> = mutableMapOf()
     private val bars: MutableMap<Pair<PlayerId, String>, BossBar> = mutableMapOf()
     private val mini = MiniMessage.miniMessage()
+
+    init {
+        plugin.server.pluginManager.registerEvents(this, plugin)
+    }
+
+    @EventHandler
+    public fun onInteract(event: PlayerInteractEntityEvent) {
+        if (event.hand != EquipmentSlot.HAND) return
+        val owner = hitboxOwner[event.rightClicked.uniqueId] ?: return
+        event.isCancelled = true
+        eventBus.publish(ObjectiveMarkerInteracted(owner.first, PlayerId(event.player.uniqueId), owner.second))
+    }
 
     override fun setCarrying(player: PlayerId, look: ObjectiveLook?, count: Int) {
         removeCarried(player)
@@ -87,7 +112,31 @@ public class PaperObjectiveStage(private val plugin: JavaPlugin) : IObjectiveSta
             }.also { markers[match to key] = it.uniqueId }
         }
         if (look.spin) spin(match, key, display, look)
+        if (look.loose) showHitbox(match, key, w, where, look) else removeHitbox(match, key)
         showLabel(match, key, w, where, look)
+    }
+
+    private fun showHitbox(match: MatchId, key: String, w: org.bukkit.World, where: Location, look: ObjectiveLook) {
+        val existing = hitboxes[match to key]?.let { Bukkit.getEntity(it) }
+        if (existing != null && existing.isValid) {
+            existing.teleportAsync(where)
+            return
+        }
+        val size = (look.scale + HITBOX_MARGIN).toFloat().coerceAtLeast(1f)
+        val box = w.spawn(where, Interaction::class.java) { d ->
+            d.interactionWidth = size
+            d.interactionHeight = size
+            d.isResponsive = true
+            d.isPersistent = false
+        }
+        hitboxes[match to key] = box.uniqueId
+        hitboxOwner[box.uniqueId] = match to key
+    }
+
+    private fun removeHitbox(match: MatchId, key: String) {
+        val id = hitboxes.remove(match to key) ?: return
+        hitboxOwner.remove(id)
+        Bukkit.getEntity(id)?.remove()
     }
 
     /** One interpolated step of the slow turn + bob; the caller refreshes about once a second, the client tweens the rest. */
@@ -132,6 +181,7 @@ public class PaperObjectiveStage(private val plugin: JavaPlugin) : IObjectiveSta
     override fun removeMarker(match: MatchId, key: String) {
         markers.remove(match to key)?.let { Bukkit.getEntity(it)?.remove() }
         labels.remove(match to key)?.let { Bukkit.getEntity(it)?.remove() }
+        removeHitbox(match, key)
         spinStep.remove(match to key)
     }
 
@@ -153,7 +203,7 @@ public class PaperObjectiveStage(private val plugin: JavaPlugin) : IObjectiveSta
     }
 
     override fun clearMatch(match: MatchId, players: Collection<PlayerId>) {
-        (markers.keys + labels.keys).filter { it.first == match }.forEach { removeMarker(it.first, it.second) }
+        (markers.keys + labels.keys + hitboxes.keys).filter { it.first == match }.forEach { removeMarker(it.first, it.second) }
         for (player in players) {
             removeCarried(player)
             Bukkit.getPlayer(player.uuid)?.isGlowing = false
@@ -195,5 +245,6 @@ public class PaperObjectiveStage(private val plugin: JavaPlugin) : IObjectiveSta
         const val SPIN_DEGREES: Double = 90.0
         const val SPIN_TWEEN_TICKS: Int = 20
         const val LABEL_LIFT: Double = 0.5
+        const val HITBOX_MARGIN: Double = 0.6
     }
 }
