@@ -963,7 +963,7 @@ machine:
               pitch: 0.7
     throw:
       # v2 release: volley placed at the shears, pieces reparented, fly tip-first at throw_speed, gravity 0, drag 0, max_ticks = ceil(range / speed) + 2
-      for: 7   # ceil(throw_range 7 / throw_speed 1.7) + 2 = 7 (C5: for is a compile-time tick count)
+      for: 7   # = ceil(throw_range / throw_speed) + 2 = ceil(7 / 1.7) + 2 = 5 + 2 = 7 with the current params (C5: for is a compile-time tick count)
       then: reel
       enter:
         - id: volley
@@ -1003,11 +1003,11 @@ machine:
         # v2 dust: vanilla directed form (R34); v2 speed 0 so the velocity is only inherit_velocity 0.5 x the volley velocity.
         - {id: puff, op: particle, particle: dust, anchor: caster.palm, times: 6, count: 0, offset: "= velocity(volley) * 0.5", extra: 1.0, color: "#ff5fa2", size: 1.0}
         # v2 thread lines palm -> blade_a.root / blade_b.root / body.pivot (R34: live ribbons).
-        - {id: palm_f, op: frame, anchor: palm, for: 51}   # ribbon ends resolve frame-op ids only (RibbonOpSpec.anchorOf), not document anchors
-        # ribbon needs a static for (RibbonOpSpec:179): 51 = throw 7 + stuck 28 + reel 16, the longest the volley lives before reel.end.
-        - {id: thread_a, op: ribbon, from: palm_f, to: fly_a.root, thickness: "= thread_thick", color: "#ff5fa2", for: 51}
-        - {id: thread_b, op: ribbon, from: palm_f, to: fly_b.root, thickness: "= thread_thick", color: "#ff5fa2", for: 51}
-        - {id: thread_body, op: ribbon, from: palm_f, to: fly_body.pivot, thickness: "= thread_thick", color: "#ff5fa2", for: 51}
+        - {id: palm_f, op: frame, anchor: palm, until: reel.end}   # ribbon ends resolve frame-op ids only (RibbonOpSpec.anchorOf), not document anchors
+        # ENGINE GAP: RibbonOpSpec.kt:179 demands a static `for`, but the reel ends on arrival (runtime distance, v2), so its length is not fixed; kept until: reel.end (not a literal 51) until the engine accepts it.
+        - {id: thread_a, op: ribbon, from: palm_f, to: fly_a.root, thickness: "= thread_thick", color: "#ff5fa2", until: reel.end}
+        - {id: thread_b, op: ribbon, from: palm_f, to: fly_b.root, thickness: "= thread_thick", color: "#ff5fa2", until: reel.end}
+        - {id: thread_body, op: ribbon, from: palm_f, to: fly_body.pivot, thickness: "= thread_thick", color: "#ff5fa2", until: reel.end}
         # v1 plate flight_fan: slash_fan (= couture-s2-crescent) in the plane [axis, up] of the volley, alpha 0.5, removed on hit/block (the throw state ends then). Size 1.9 is the v2 value. ASSUMPTION: a fixed sprite faces +forward, so up 90 lays its x axis along the flight axis.
         - {id: flight_fan, op: display, kind: sprite, sprite: couture-s2-crescent, size: [1.9, 1.9], color: "#80ffffff", anchor: volley, billboard: fixed, rotate: [{axis: up, deg: 90}], for: 7}
         # v1 tip-glint (couture-s2-*-flight): couture-s2-p-tip every tick, ticks 3..10, per piece, at the v1 vfx-local lane point. v1 VfxDefinition.kt:372 documents x = left, y = up, z = forward, so offsets are copied unchanged.
@@ -1349,6 +1349,7 @@ machine:
       then: coin3
       do:
         - {id: reel, op: reel, anchor: volley, to: caster.palm, speed: "= reel_speed", ease: in}
+        # ignore_invulnerability: false is the vanilla default (v2 reel_hit had no flag).
         - {id: reel_hit, op: hit, anchor: volley, targets: enemies, shape: {capsule: 0.2, from: root, to: tip}, window: once, ignore_invulnerability: false, damage: {physical: "= dmg_reel"}, on: {hit: [{id: pull, op: impulse, target: event.victim, vector: "= normalize(pos(palm) - pos(event.victim)) * 0.25"}, {id: reel_sparks, op: particle, particle: crit, anchor: contact, count: 6}, {id: slash_snd, op: sound, sound: couture.slash_light, anchor: contact}]}}
         - {id: reel_snd, op: sound, sound: couture.reel, anchor: volley, every: 3, for: 16, volume: 1.0, pitch: "= 1.0 + 0.4 * (1 - dist(volley, palm) / throw_range)"}
         - {id: catch_snd, op: sound, sound: couture.catch, anchor: shears, at: 15}
@@ -1368,7 +1369,7 @@ machine:
           for: 3
           anchor: body_c
           targets: enemies
-          shape: {sphere: 1.8}
+          shape: {sphere: 0.8}   # v2 dash_strike radius 0.8, hit_once: true (9d4c4a3db content/skills/couture-rapier-s2/coin3.yaml:20-21); window: once = hit_once
           window: once
           damage: {physical: = dmg_coin3}
           ignore_invulnerability: true
