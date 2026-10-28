@@ -295,6 +295,8 @@ class Conv:
         t = tg["type"]
         if t == "caster":
             return "caster"
+        if t == "target" and getattr(where, "area", None):
+            return where.area
         if t in AREA:
             r = self.param("radius", V(tg.get("radius", tg.get("distance", 3.0))))
             around = self.point(tg["center"], where, "g") if tg.get("center") else "caster"
@@ -318,12 +320,27 @@ class Conv:
             op["around"] = spec[2]
             op["radius"] = spec[1]
 
+    def select_around_cone(self, tg, center, delay, m, key):
+        """`nearby_entities` / `enemies` whose centre is itself a cone pick: one cone `hit` (max_count of the cone, one
+        resolution) and, in its handler, the gameplay ops address every enemy within the radius of the picked body."""
+        cw = self.select(center, delay, m)
+        w = Where("handler", cw.event, cw.guard)
+        w.area = ("enemies", self.param("radius", V(tg.get("radius", tg.get("distance", 3.0)))), "enemy")
+        if "max_count" in tg:
+            self.todo("nearby_entities max_count around a cone-picked centre (the area target takes every enemy in range)",
+                      "max_count=%s" % V(tg["max_count"]))
+        self.sel[key] = w
+        return w
+
     def select(self, tg, delay, m=None):
         """Area targeter in a cast context -> one `hit` op (instant) at row `delay`; returns the handler Where."""
         key = (json.dumps(tg, sort_keys=True), delay)
         if key in self.sel:
             return self.sel[key]
         t = tg["type"]
+        center = tg.get("center") if t in ("nearby_entities", "enemies") else None
+        if center is not None and center["type"] == "cone":
+            return self.select_around_cone(tg, center, delay, m, key)
         hid = self.oid("sel")
         op = {"id": hid, "op": "hit", "frames": ["caster"]}
         if t == "cone":
@@ -331,7 +348,13 @@ class Conv:
                             "angle_deg": self.param("arc_deg", V(tg["angle_degrees"])),
                             "range": self.param("reach", V(tg["distance"])), "height": 2.0}
         elif t in ("nearby_entities", "enemies"):
-            op["sphere"] = {"at": "caster", "radius": self.param("radius", V(tg.get("radius", tg.get("distance", 3.0))))}
+            at = "caster"
+            if center is not None and center["type"] != "caster":
+                if center["type"] not in ("caster_forward", "caster_offset"):
+                    raise ValueError("%s: %s centre %r has no v2 hit volume; extend the converter before converting"
+                                     % (self.sid_hint(), t, center["type"]))
+                at = self.point(center, CAST, "g")
+            op["sphere"] = {"at": at, "radius": self.param("radius", V(tg.get("radius", tg.get("distance", 3.0))))}
             if V(tg.get("exclude_caster", True)) is False:
                 self.todo("nearby_entities exclude_caster=false (hit never targets the caster)", t)
         elif t == "forward_ray":
@@ -342,6 +365,7 @@ class Conv:
         if "max_count" in tg:
             op["max_count"] = int(V(tg["max_count"]))
         op["window"] = "once"
+        op["ticks"] = 1  # a v1 selection is one query at one tick; without this the volume keeps testing for the whole cast
         if m is not None and V(m.get("snapshot_pose", False)):
             # the volume rides a frozen copy of the caster pose taken at this tick, not the live caster
             snap = self.oid("snap")
@@ -416,8 +440,11 @@ class Conv:
             raise ValueError("%s: movement mechanic %s carries field(s) %s that v2 cannot express; "
                              "extend the op before converting" % (self.sid_hint(), m["type"], extra))
 
+    # v1 damage keys that reach the v2 damage op; snapshot_pose is consumed by select() (the hit volume rides a frozen caster pose).
+    DAMAGE_KEYS = {"components", "ignore_invulnerability", "ignore_armor", "snapshot_pose"}
+
     def sid_hint(self):
-        return getattr(self, "skill_id", "?")
+        return self.d.get("id", "?")
 
     def mechanics(self, lst, where, base_delay=0):
         for m in lst or []:
@@ -472,6 +499,10 @@ class Conv:
         vs = where.kind == "handler" and tg is not None and tg.get("type") == "target"
         spec = self.tspec(tg, where)
         if t == "damage":
+            extra = sorted(set(m) - self.DAMAGE_KEYS - self.COMMON_MECH_KEYS)
+            if extra:
+                raise ValueError("%s: damage mechanic carries field(s) %s that v2 cannot express; extend the op before "
+                                 "converting" % (self.sid_hint(), extra))
             comps = [{"kind": c["attribute"], "amount": self.param("dmg_" + c["attribute"], V(c["base"]))} for c in m["components"]]
             for comp, c in zip(comps, m["components"]):
                 if "per_stack" in c:
@@ -481,8 +512,9 @@ class Conv:
                                          "consume": bool(V(ps.get("consume", False)))}
             op = {"id": self.oid("dmg"), "op": "damage", "components": comps}
             self.put_target(op, spec if spec != "caster" or tg else "victim", "map")
-            if V(m.get("ignore_invulnerability", False)):
-                op["ignore_invulnerability"] = True
+            for flag in ("ignore_invulnerability", "ignore_armor"):
+                if V(m.get(flag, False)):
+                    op[flag] = True
         elif t == "apply_status":
             sname = m["status_id"]
             op = {"id": self.oid("st_" + sname), "op": "status", "status": sname,
@@ -980,7 +1012,7 @@ def convert_skill(d, vfx_dir, item):
                       "sector": {"frame": "caster", "at": "eye", "forward": "caster.forward", "left": "caster.left",
                                  "angle_deg": c.param("arc_deg", params["arc_degrees"]), "range": c.param("range", params["range"]),
                                  "height": 2.0},
-                      "window": "once"})
+                      "window": "once", "ticks": 1})
         w = Where("handler", "hit", "= event.source == 'swing'")
         for comp in params.get("damage", []):
             c.g(w, 0, {"id": c.oid("dmg"), "op": "damage", "target": "victim",
@@ -998,7 +1030,7 @@ def convert_skill(d, vfx_dir, item):
     elif arch == "aoe":
         c.id_counts["burst"] = 1
         radius = c.param("radius", params["radius"])
-        c.g(CAST, 0, {"id": "burst", "op": "hit", "frames": ["caster"], "sphere": {"at": "caster", "radius": radius}, "window": "once"})
+        c.g(CAST, 0, {"id": "burst", "op": "hit", "frames": ["caster"], "sphere": {"at": "caster", "radius": radius}, "window": "once", "ticks": 1})
         w = Where("handler", "hit", "= event.source == 'burst'")
         for comp in params.get("damage", []):
             amt = c.param("dmg_" + comp["attribute"], V(comp["base"]))

@@ -71,7 +71,7 @@ internal class CastInstance(
 
     private val hitCounts = HashMap<String, Int>()
 
-    private class HitReg(val reg: HitRegistration, var prevAnchor: Vec3? = null)
+    private class HitReg(val reg: HitRegistration, var prevAnchor: Vec3? = null, var passesLeft: Int? = reg.ticks)
     private class Scheduled(val dueTick: Int, val event: String?, val source: String?, val ops: List<SkillOp>?, val victim: UUID?)
     private class OpenWindow(val op: ControlOp.Window, val untilTick: Int)
     private class Listener(val event: String, val source: String, val handler: () -> Unit)
@@ -616,6 +616,11 @@ internal class CastInstance(
     private fun resolveHits() {
         if (hitRegs.isEmpty()) return
         for (reg in hitRegs.toList()) {
+            // A bounded registration (v1 one-shot selection) gets exactly `ticks` resolution passes, frozen or not.
+            reg.passesLeft?.let { left ->
+                reg.passesLeft = left - 1
+                if (left <= 1) hitRegs.remove(reg)
+            }
             if (isFrozen(FrameId(reg.reg.frame))) continue
             val rawVolume = try {
                 resolveVolume(reg.reg)

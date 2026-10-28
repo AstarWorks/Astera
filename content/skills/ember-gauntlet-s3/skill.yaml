@@ -20,7 +20,13 @@ gameplay:
     - id: t17
       at: 17
       do:
-        - {id: sel, op: hit, frames: [caster], sector: {frame: caster, at: eye, forward: caster.forward, left: caster.left, angle_deg: "${arc_deg}", range: "${reach}", height: 2.0}, max_count: 1, window: once}
+        - id: sel
+          op: hit
+          frames: [caster]
+          sector: {frame: caster, at: eye, forward: caster.forward, left: caster.left, angle_deg: "${arc_deg}", range: "${reach}", height: 2.0}
+          max_count: 1
+          window: once
+          ticks: 1
     - id: t23
       at: 23
       do:
@@ -30,7 +36,8 @@ gameplay:
           sector: {frame: caster, at: eye, forward: caster.forward, left: caster.left, angle_deg: "${arc_deg}", range: "${reach}", height: 2.0}
           max_count: 1
           window: once
-    - {id: t51, at: 51, do: [{id: sel_3, op: hit, frames: [caster], capsule: {from: aim, to: pt_aim_0_0_9, radius: 0.3}, window: once}]}
+          ticks: 1
+    - {id: t51, at: 51, do: [{id: sel_3, op: hit, frames: [caster], capsule: {from: aim, to: pt_aim_0_0_9, radius: 0.3}, window: once, ticks: 1}]}
   "on":
     hit:
       - {id: dmg, op: damage, components: [{kind: physical, amount: "${dmg_physical}"}], target: victim, ignore_invulnerability: true, when: "= event.source == 'sel'"}
