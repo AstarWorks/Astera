@@ -43,7 +43,7 @@ class EnemyWithinConditionScenarioTest : SkillEngineScenario() {
     private fun enemy(id: UUID, z: Double) = HitCandidate(id, Vec3(0.0, 0.0, z), 0.0, HitBox(Vec3(-0.3, 0.0, z - 0.3), Vec3(0.3, 1.8, z + 0.3)))
 
     private fun pings(configure: (GatewayRecorder) -> Unit): Int {
-        val rec = GatewayRecorder().also { it.celGuards = true }
+        val rec = GatewayRecorder()
         configure(rec)
         val calls = play(skill(), seed = 1L, events = emptyList(), ticks = 8, rec = rec)
         return calls.count { it.verb == "status" }
