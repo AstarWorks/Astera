@@ -118,6 +118,6 @@ machine:
               keys:
                 - {t: 0, scale: {left: 1.5, up: 3, forward: 1.0}, alpha: 0.0}
                 - {t: 6, scale: {left: 7.5, up: 16.5, forward: 1.0}, alpha: 0.14, ease: out_cubic}
-                - {t: 152, scale: {left: 7.5, up: 16.5, forward: 1.0}, alpha: 0.14}
+                - {t: 152, alpha: 0.14}
                 - {t: 162, scale: {left: 7, up: 15.5, forward: 1.0}, alpha: 0, ease: in_quad}
     end: {final: true}
