@@ -125,12 +125,13 @@ internal class Gameplay(private val cap: Capture, base: ISkillGameplayGateway) :
     val damage = ArrayList<SkillDamage>()
     val statuses = ArrayList<Triple<String, Int, Int>>()
     val impulses = ArrayList<Vec3>()
-    override fun damage(caster: UUID, victim: UUID, components: List<SkillDamage>, hitPoint: Vec3) {
+    override fun damage(
+        skillId: String, caster: UUID, victim: UUID, components: List<SkillDamage>, hitPoint: Vec3,
+        ignoreInvulnerability: Boolean, ignoreArmor: Boolean,
+    ) {
         damage += components
         for (c in components) cap.damage.getOrPut(cap.now) { ArrayList() } += buildJsonObject { put("victim", "enemy"); put("kind", c.kind); put("amount", c.amount) }
     }
-    override fun damage(skillId: String, caster: UUID, victim: UUID, components: List<SkillDamage>, hitPoint: Vec3, ignoreInvulnerability: Boolean) =
-        damage(caster, victim, components, hitPoint)
     override fun applyStatus(caster: UUID, victim: UUID, statusId: String, stacks: Int, durationTicks: Int) {
         statuses += Triple(statusId, stacks, durationTicks)
     }

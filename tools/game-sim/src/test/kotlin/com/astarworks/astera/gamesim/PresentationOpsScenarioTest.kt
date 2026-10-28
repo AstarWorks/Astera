@@ -168,7 +168,7 @@ class PresentationOpsScenarioTest {
             override fun silence(caster: UUID, victim: UUID, durationTicks: Int) = Unit
             override fun modifyAttribute(caster: UUID, victim: UUID, attribute: String, operation: String, amount: Double, durationTicks: Int?) = Unit
             override fun restoreResource(victim: UUID, resource: String, amount: Double) = Unit
-            override fun damage(caster: UUID, victim: UUID, components: List<SkillDamage>, hitPoint: Vec3) = error("gameplay")
+            override fun damage(skillId: String, caster: UUID, victim: UUID, components: List<SkillDamage>, hitPoint: Vec3, ignoreInvulnerability: Boolean, ignoreArmor: Boolean) = error("gameplay")
             override fun applyStatus(caster: UUID, victim: UUID, statusId: String, stacks: Int, durationTicks: Int) = error("gameplay")
             override fun impulse(victim: UUID, vector: Vec3) = error("gameplay")
             override fun freezeEntities(entities: List<UUID>, ticks: Int) = error("gameplay")

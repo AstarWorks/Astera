@@ -81,6 +81,10 @@ internal class RemoveBlockExecutor(private val editors: SkillWorldEditors) : OpE
 
 private const val RAY_STEP = 0.25
 
+/** v1 PowerToolMining.CAST_TICKS / WORK_TICKS (PowerToolMining.kt:8-9). */
+private const val CAST_TICKS = 30
+private const val WORK_TICKS = 24
+
 internal class BreakAreaExecutor(private val editors: SkillWorldEditors) : OpExecutor<WorldOp.BreakArea> {
     override val opClass: KClass<WorldOp.BreakArea> = WorldOp.BreakArea::class
 
@@ -97,8 +101,38 @@ internal class BreakAreaExecutor(private val editors: SkillWorldEditors) : OpExe
         val cast = ctx.cast
         for ((index, cell) in ordered.withIndex()) {
             if (!world.canEdit(cast, cell, op.outsideArena)) continue
+            val type = world.blockAt(cell)
+            if (world.isCover(cell)) {
+                // v1 WorldMechanics.kt:259-260: cover is struck only when its base material is within the skill's power.
+                if (type != null && !WorldBlockRules.breakable(type, op.power, null)) continue
+                scheduleCoverStrikes(editor, op, cast, cell, index, ordered.size)
+                continue
+            }
+            // A flat chip (no tool_class: guns, spells) only ever hurts cover; terrain is the tool skills' to break (v1 CoverBlockService).
+            if (op.toolClass == null) continue
+            if (WorldBlockRules.isAir(type) || WorldBlockRules.isProtected(type!!)) continue
+            if (!WorldBlockRules.breakable(type, op.power, op.toolClass)) continue
             editor.later(rippleDelay(index, ordered.size)) {
-                strike(editor, op, cast, cell, revert)
+                if (!world.canEdit(cast, cell, op.outsideArena)) return@later
+                editor.edit(cell, revert) { world.damage(cast, cell, op.blockDamage, op.toolClass) == BlockDamageOutcome.BROKEN }
+            }
+        }
+    }
+
+    /**
+     * v1 WorldMechanics.kt:262-308: a cover cell works for the cast window (CAST_TICKS 30, WORK_TICKS 24). It starts at
+     * `1 + index * (30 - 24) / total` and lands six integer portions of the block damage at work steps 4, 8, ..., 24
+     * (`damage * k / 6 - damage * (k - 1) / 6`, so the remainder is preserved), each at tick `delay + step - 1`.
+     */
+    private fun scheduleCoverStrikes(editor: SkillWorldEditor, op: WorldOp.BreakArea, cast: CastId, cell: BlockCell, index: Int, total: Int) {
+        val world = editor.world
+        val delay = 1 + index * (CAST_TICKS - WORK_TICKS) / total.coerceAtLeast(1)
+        for (step in 1..minOf(WORK_TICKS, CAST_TICKS - delay + 1)) {
+            if (step % 4 != 0) continue
+            val portion = op.blockDamage * (step / 4) / 6 - op.blockDamage * (step / 4 - 1) / 6
+            if (portion <= 0) continue
+            editor.later((delay + step - 1).toLong()) {
+                if (world.canEdit(cast, cell, op.outsideArena) && world.isCover(cell)) world.damage(cast, cell, portion, op.toolClass)
             }
         }
     }
@@ -112,20 +146,6 @@ internal class BreakAreaExecutor(private val editors: SkillWorldEditors) : OpExe
         }
         return null
     }
-
-    private fun strike(editor: SkillWorldEditor, op: WorldOp.BreakArea, cast: CastId, cell: BlockCell, revert: Long) {
-        val world = editor.world
-        if (!world.canEdit(cast, cell, op.outsideArena)) return
-        if (world.isCover(cell)) {
-            world.damage(cast, cell, op.blockDamage, op.toolClass)
-            return
-        }
-        // A flat chip (no tool_class: guns, spells) only ever hurts cover; terrain is the tool skills' to break (v1 CoverBlockService).
-        if (op.toolClass == null) return
-        val current = world.blockAt(cell)
-        if (WorldBlockRules.isAir(current) || WorldBlockRules.isProtected(current!!)) return
-        editor.edit(cell, revert) { world.damage(cast, cell, op.blockDamage, op.toolClass) == BlockDamageOutcome.BROKEN }
-    }
 }
 
 internal class PlaceShapeExecutor(private val editors: SkillWorldEditors) : OpExecutor<WorldOp.PlaceShape> {
@@ -138,7 +158,9 @@ internal class PlaceShapeExecutor(private val editors: SkillWorldEditors) : OpEx
         val cover = world.isCoverBlock(key)
         if (!cover && WorldBlockRules.isProtected(key)) return
         val aim = ctx.aim(op.at) ?: return
-        val ordered = WorldShapes.buildCells(op, aim).sortedBy { it.distanceSquaredTo(aim.origin) }
+        // v1 WorldMechanics.kt:429-430: shape cells anchor on the feet but are placed nearest the EYE first.
+        val eye = ctx.tree.pointWorld(FrameId("caster"), "eye").getOrNull() ?: aim.origin
+        val ordered = WorldShapes.buildCells(op, aim).sortedBy { it.distanceSquaredTo(eye) }
         val revert = ctx.revertTicks(op.revertAfterTicks)
         val cast = ctx.cast
         for ((index, cell) in ordered.withIndex()) {

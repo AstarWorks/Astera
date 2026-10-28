@@ -71,7 +71,7 @@ internal class CastInstance(
 
     private val hitCounts = HashMap<String, Int>()
 
-    private class HitReg(val reg: HitRegistration, var prevAnchor: Vec3? = null)
+    private class HitReg(val reg: HitRegistration, var prevAnchor: Vec3? = null, var passesLeft: Int? = reg.ticks)
     private class Scheduled(val dueTick: Int, val event: String?, val source: String?, val ops: List<SkillOp>?, val victim: UUID?)
     private class OpenWindow(val op: ControlOp.Window, val untilTick: Int)
     private class Listener(val event: String, val source: String, val handler: () -> Unit)
@@ -513,13 +513,14 @@ internal class CastInstance(
     override fun resolveTargets(ref: TargetRef): List<UUID> = when (ref) {
         TargetRef.Victim -> listOfNotNull(currentVictim)
         TargetRef.Caster -> listOf(caster)
-        is TargetRef.Enemies -> around(ref.around, ref.radius, caster).filter { !isAlly(it) }
-        is TargetRef.Allies -> around(ref.around, ref.radius, null).filter { isAlly(it) }
+        is TargetRef.Enemies -> around(ref.around, ref.radius, caster, ref.maxCount) { !isAlly(it) }
+        is TargetRef.Allies -> around(ref.around, ref.radius, null, ref.maxCount) { isAlly(it) }
     }
 
-    private fun around(at: PointRef, radius: com.astarworks.astera.core.domain.skillengine.model.Value<Double>, excluding: UUID?): List<UUID> {
+    private fun around(at: PointRef, radius: com.astarworks.astera.core.domain.skillengine.model.Value<Double>, excluding: UUID?, maxCount: Int?, keep: (UUID) -> Boolean): List<UUID> {
         val p = tree.pointWorld(FrameId(at.frame), at.point).getOrNull() ?: return emptyList()
-        return ports.entities.nearby(p, values.num(radius), excluding).map { it.entityId }
+        val found = ports.entities.nearby(p, values.num(radius), excluding).filter { keep(it.entityId) }
+        return (if (maxCount == null) found else found.sortedBy { it.feet.distanceSquared(p) }.take(maxCount)).map { it.entityId }
     }
 
     override fun withVictim(victim: UUID, block: () -> Unit) {
@@ -671,6 +672,11 @@ internal class CastInstance(
     private fun resolveHits() {
         if (hitRegs.isEmpty()) return
         for (reg in hitRegs.toList()) {
+            // A bounded registration (v1 one-shot selection) gets exactly `ticks` resolution passes, frozen or not.
+            reg.passesLeft?.let { left ->
+                reg.passesLeft = left - 1
+                if (left <= 1) hitRegs.remove(reg)
+            }
             if (isFrozen(FrameId(reg.reg.frame))) continue
             val rawVolume = try {
                 resolveVolume(reg.reg)
