@@ -1,5 +1,6 @@
 # Converted from content/skills/bastion-greatsword-ego.yaml by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
 # Generated point-frame offsets are [left, up, forward] in the parent frame.
+# CONVERT-TODO sound: stop_sound has no v2 op (the sound keeps playing to its end) (x1): "block.amethyst_block.resonate"
 apiVersion: "astera/v2"
 kind: Skill
 id: bastion-greatsword-ego
