@@ -1,4 +1,4 @@
-# error: SkillDecodeError.RuntimeTiming   (11 / 11.4 check 9: an L-class timing value without `bound: [lo, hi]`)
+# error: SkillDecodeError.RuntimeTiming   (C5 / 11.4 check 9: an L-class value on a timing field, even with `bound:` (rev4.1); write `until:` / `range:` instead)
 apiVersion: astera/v3
 kind: Skill
 id: rejected-r5
@@ -8,6 +8,6 @@ machine:
   start: s
   states:
     s:
-      for: {expr: "= dist(caster, target) / 0.8"}      # legal only as {expr, bound: [2, 20]}
+      for: {expr: "= dist(caster, target) / 0.8", bound: [2, 20]}      # a bound proves a range, not a schedule: rejected
       then: end
     end: {final: true}
