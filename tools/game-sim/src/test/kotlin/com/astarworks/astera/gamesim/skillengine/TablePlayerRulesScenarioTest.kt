@@ -655,4 +655,27 @@ class TablePlayerRulesScenarioTest {
         assertThat(play(SpawnKind.TEXT, mapOf<String, Val<Any>>("text" to Val.Known("hi"))).player.faults()).isEmpty()
         assertThat(play(SpawnKind.BLOCK, mapOf<String, Val<Any>>("block" to Val.Known("stone"))).player.faults()).isNotEmpty()
     }
+
+    @Test
+    fun randGuardDrawsIndependentlyPerFiringAndReplaysIdentically() {
+        val compiler = com.astarworks.astera.core.application.skillengine.expr.cel.CelExprCompiler()
+        val expr = (compiler.compile("rand() < 0.4", com.astarworks.astera.core.domain.skillengine.expr.ExprEnvSpec(), com.astarworks.astera.core.domain.skillengine.expr.ExprType.BOOL) as Result.Success).value
+        fun play(seed: Long): List<Int> {
+            val hooks = object : PlayerHooks {
+                override fun guard(cast: CastHandle, guard: com.astarworks.astera.core.domain.skillengine.table.Guard, conditions: Map<String, String>, binding: EventBinding?, localTick: Int, seed: Long): Boolean? =
+                    (expr.eval(com.astarworks.astera.core.domain.skillengine.expr.ExprEnv(emptyMap(), object : com.astarworks.astera.core.domain.skillengine.expr.FrameLookup {
+                        override fun worldPose(frame: String, point: String?) = null
+                        override fun velocity(frame: String, point: String?) = Vec3.ZERO
+                    }, seed = seed)) as com.astarworks.astera.core.domain.skillengine.expr.ExprValue.Bool).value
+            }
+            // one call site, 60 firings (ticks 0..59): each must draw its own 40%
+            val rows = listOf(enter("a")) + (0 until 60).map { row(it, sound("x"), id("snd")).copy(guard = com.astarworks.astera.core.domain.skillengine.table.Guard.Expr("rand() < 0.4")) }
+            val fx = Fx(skill("a", listOf(st("a", rows))), hooks = hooks)
+            fx.run(60)
+            return fx.sounds().map { it.tick }
+        }
+        val first = play(1L)
+        assertThat(first.size).isBetween(8, 40)
+        assertThat(first).isEqualTo(play(1L))
+    }
 }
