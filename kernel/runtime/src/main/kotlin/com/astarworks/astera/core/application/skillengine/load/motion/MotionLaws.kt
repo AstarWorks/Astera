@@ -255,8 +255,8 @@ public object MotionLaws {
         fun stepOf(): Int = n.ticks(v[stepF], "$path.step").also { if (it < 1) ctx.fail("$path.step", "step is at least 1 tick") }
         fun axisOf(f: Field<String>): Vec3 {
             val axisName = v[f]
-            val base = LocalAxes.axis(axisName.removePrefix("-"))
-                ?: ctx.fail("$path.axis", "axis '$axisName' cannot be resolved here (known: forward back up down left right, '-' negated)")
+            val base = ctx.axes.axis(axisName.removePrefix("-"))
+                ?: ctx.fail("$path.axis", "axis '$axisName' cannot be resolved here (known: forward back up down left right, '-' negated; long edge face need a frame `part`)")
             return if (axisName.startsWith("-")) base * -1.0 else base
         }
         when (name) {
@@ -311,8 +311,8 @@ public object MotionLaws {
 
     private fun spin(v: FieldValues, ease: String?, forTicks: Int, ctx: GrammarContext, n: LawNumbers, path: String): (Int) -> RateLaw {
         val axisName = v[axisF]
-        val base = LocalAxes.axis(axisName.removePrefix("-"))
-            ?: ctx.fail("$path.axis", "axis '$axisName' cannot be resolved here (known: forward back up down left right, '-' negated)")
+        val base = ctx.axes.axis(axisName.removePrefix("-"))
+            ?: ctx.fail("$path.axis", "axis '$axisName' cannot be resolved here (known: forward back up down left right, '-' negated; long edge face need a frame `part`)")
         val axis = if (axisName.startsWith("-")) base * -1.0 else base
         val rate = n.num(v[degPerTickF], "$path.deg_per_tick")
         val accel = n.num(v[spinAccelF], "$path.accel")
@@ -403,7 +403,7 @@ public object MotionLaws {
             last = tick
             val offset = k[keyOffsetF]?.toLocal()
             val turn = k[keyPoseF]?.let { pose ->
-                val q = (pose.toValue(ctx, "$p.pose") as? Value.Literal)?.value
+                val q = (pose.toValue(ctx, "$p.pose", ctx.axes) as? Value.Literal)?.value
                     ?: ctx.fail("$p.pose", "a key pose is lowered at load, so its angles must be literal")
                 Value.Literal(n.rotationVector(q))
             }
