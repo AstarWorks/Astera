@@ -321,6 +321,7 @@ public class TablePlayer(
     // ------------------------------------------------------------------ events
 
     private fun deliverEvent(run: Run, ev: RuntimeEvent, now: Int) {
+        if (!bodyEventLive(run, ev.path)) return
         val binding = EventBinding(ev.path, ev.index, ev.contact, ev.victim)
         val offered = offer(run, ev, binding, now, only = null)
         val sub = run.cursor.skill.table.subTables[ev.path] ?: return
@@ -331,6 +332,21 @@ public class TablePlayer(
         if ((run.firings[ev.path] ?: 0) >= sub.maxFirings) return
         run.firings[ev.path] = (run.firings[ev.path] ?: 0) + 1
         pasteSub(run, ev.path, now, binding, owner = sub.owner, direct = false)
+    }
+
+    /**
+     * R16: a body event that ends the flight (`hit` with `once`, `block` in despawn / stick mode) marks the body ended; an `expire` of an
+     * ended body is dropped, so `expire` fires on range / `for` only and never after a hit or a block despawn.
+     */
+    private fun bodyEventLive(run: Run, path: EventPath): Boolean {
+        val dot = path.value.lastIndexOf('.')
+        if (dot < 0) return true
+        val key = path.value.substring(dot + 1)
+        if (key != "hit" && key != "block" && key != "expire") return true
+        val rec = run.recs.entries.firstOrNull { it.value.kind == SpawnKind.PROJECTILE_BODY && it.key.text == path.value.substring(0, dot) }?.value ?: return true
+        if (key == "expire") return !rec.ended
+        if (key in rec.endsOn) rec.ended = true
+        return true
     }
 
     private class Offered(val handled: Boolean, val pasted: Set<EventPath>)
@@ -541,10 +557,22 @@ public class TablePlayer(
         val id = row.instance
         run.recs[id]?.let { endInstance(run, id) }
         val local = PoseV(vec(run, a.pose.position, ctx), quat(run, a.pose.rotation, ctx), vec(run, a.pose.scale, ctx))
-        val rec = Rec(a.kind, a.anchor, a.anchorName, now, ctx.owner, local)
+        // a body's spawn pose is already the origin anchor's WORLD pose (`anchor:<origin>.position`); anchoring it again would count the anchor twice
+        val body = a.kind == SpawnKind.PROJECTILE_BODY
+        val rec = Rec(a.kind, if (body) null else a.anchor, if (body) "" else a.anchorName, now, ctx.owner, local)
         rec.billboard = a.look.fields["billboard"]?.let { runCatching { DisplayBillboard.valueOf(strOf(run, it, ctx).uppercase()) }.getOrNull() } ?: DisplayBillboard.FIXED
         run.recs[id] = rec
-        if (a.kind == SpawnKind.PROJECTILE_BODY) rec.flight = flightOf(run, a.look, local, ctx)
+        if (body) {
+            rec.flight = flightOf(run, a.look, local, ctx)
+            val lf = a.look.fields
+            val mode = lf["block.mode"]?.let { strOf(run, it, ctx) }
+            val stuck = if (mode == "stick") lf["block.for"]?.let { dbl(run, it, ctx).toInt() } ?: 0 else 0
+            lf["end.max"]?.let { rec.expireTick = now + dbl(run, it, ctx).toInt() - stuck }
+            rec.endsOn = buildSet {
+                if (lf["hit.once"]?.let { any(run, it, ctx) } == true) add("hit")
+                if (mode == "despawn" || mode == "stick") add("block")
+            }
+        }
         val world = worldOf(run, rec, local, ctx.binding, now)
         val pose = visualPose(rec, world)
         val owner = run.request.caster
@@ -768,28 +796,35 @@ public class TablePlayer(
                     f["speed.for"]?.let { dbl(run, it, ctx).toInt() } ?: 0,
                     Easing.fromKey(ease) ?: throw IllegalArgumentException("projectile speed.ease '$ease' is not an easing"),
                 )
-            } ?: return null
-        return Flight(Vector3d(velocity).normalize(), speed, Vector3d(local.pos))
+            } ?: ProjectileKinematics.constant(velocity.length()) // speed absent = |velocity| (3.6)
+        val gravity = f["gravity"]?.let { dbl(run, it, ctx) } ?: 0.0
+        val drag = f["drag"]?.let { dbl(run, it, ctx) } ?: 0.0
+        return Flight(Vector3d(velocity).normalize(), speed, Vector3d(local.pos), gravity, drag)
     }
 
     private fun projectileStep(run: Run, now: Int) {
         for ((id, rec) in run.recs.entries.toList()) {
             if (rec.kind != SpawnKind.PROJECTILE_BODY) continue
             rec.flight?.let { fl ->
-                val travelled = ProjectileKinematics.pathLength(fl.speed, (now - rec.spawnTick).toDouble())
                 val cur = rec.localAt(now)
-                rec.moveTo(PoseV(Vector3d(fl.dir).mul(travelled).add(fl.start), cur.rot, cur.scale), now, 0)
+                rec.moveTo(PoseV(fl.at(now - rec.spawnTick), cur.rot, cur.scale), now, 0)
             }
-            val path = EventPath(id.text + ".block")
-            if (path !in run.listened) continue
-            val cur = worldOf(run, rec, rec.localAt(now), null, now).pos
-            val prev = worldOf(run, rec, rec.localAt(now - 1), null, now - 1).pos
-            if (cur.distanceSquared(prev) < 1e-12) continue
-            val b = query.raycastBlock(Vec3(prev.x, prev.y, prev.z), Vec3(cur.x, cur.y, cur.z)) ?: continue
-            run.pending += RuntimeEvent(
-                path, now, id.path.lastOrNull()?.index, ContactInfo(Vector3d(b.point.x, b.point.y, b.point.z), Vector3d(b.normal.x, b.normal.y, b.normal.z)), null,
-            )
+            blockContact(run, id, rec, now)
+            // R16: `expire` is the end by range / `for`, just before `end`; a hit / block end (rec.ended) never expires (checked at delivery)
+            if (rec.expireTick == now) run.pending += RuntimeEvent(EventPath(id.text + ".expire"), now, id.path.lastOrNull()?.index, null, null)
         }
+    }
+
+    private fun blockContact(run: Run, id: InstanceId, rec: Rec, now: Int) {
+        val path = EventPath(id.text + ".block")
+        if (path !in run.listened) return
+        val cur = worldOf(run, rec, rec.localAt(now), null, now).pos
+        val prev = worldOf(run, rec, rec.localAt(now - 1), null, now - 1).pos
+        if (cur.distanceSquared(prev) < 1e-12) return
+        val b = query.raycastBlock(Vec3(prev.x, prev.y, prev.z), Vec3(cur.x, cur.y, cur.z)) ?: return
+        run.pending += RuntimeEvent(
+            path, now, id.path.lastOrNull()?.index, ContactInfo(Vector3d(b.point.x, b.point.y, b.point.z), Vector3d(b.normal.x, b.normal.y, b.normal.z)), null,
+        )
     }
 
     private fun damage(run: Run, row: Row, a: Action.Damage, ctx: RowCtx, now: Int) {
@@ -971,8 +1006,39 @@ public class TablePlayer(
 
     // ------------------------------------------------------------------ state
 
-    /** A projectile body's closed-form flight: [start] + [dir] * the integral of [speed] over the ticks since spawn. */
-    private class Flight(val dir: Vector3d, val speed: ProjectileKinematics.Speed, val start: Vector3d)
+    /**
+     * A projectile body's flight: [start] + [dir] * the integral of [speed] over the ticks since spawn (closed form). With [gravity] / [drag]
+     * (v2 FlyLaw 1:1, `9d4c4a3db:.../motion/FlyLaw.kt`: each tick `v = (v - (0, gravity, 0)) * (1 - drag)`, then the body moves by `v`) the launch
+     * part is damped by `(1 - drag)^k` and the gravity part is stepped tick by tick; both zero keeps the exact closed form.
+     */
+    private class Flight(
+        val dir: Vector3d,
+        val speed: ProjectileKinematics.Speed,
+        val start: Vector3d,
+        val gravity: Double,
+        val drag: Double,
+    ) {
+        private val keep = 1.0 - drag
+        private var k = 0
+        private var prevPath = 0.0
+        private var launchOffset = 0.0
+        private var fallVel = 0.0
+        private var fallOffset = 0.0
+
+        /** The position [ticks] whole ticks after spawn; steps the state forward one tick at a time (called with non-decreasing ticks). */
+        fun at(ticks: Int): Vector3d {
+            if (gravity == 0.0 && drag == 0.0) return Vector3d(dir).mul(ProjectileKinematics.pathLength(speed, ticks.toDouble())).add(start)
+            while (k < ticks) {
+                k++
+                val path = ProjectileKinematics.pathLength(speed, k.toDouble())
+                launchOffset += (path - prevPath) * Math.pow(keep, k.toDouble())
+                prevPath = path
+                fallVel = (fallVel - gravity) * keep
+                fallOffset += fallVel
+            }
+            return Vector3d(dir).mul(launchOffset).add(start).add(0.0, fallOffset, 0.0)
+        }
+    }
 
     private class PoseV(val pos: Vector3d, val rot: Quaterniond, val scale: Vector3d)
 
@@ -989,6 +1055,10 @@ public class TablePlayer(
     ) {
         var real: VisualHandle? = null
         var flight: Flight? = null
+        /** R16: the tick the flight ends by range / `for` (-1 none), the body events that end it early, and whether one did. */
+        var expireTick: Int = -1
+        var endsOn: Set<String> = emptySet()
+        var ended: Boolean = false
         var billboard: DisplayBillboard = DisplayBillboard.FIXED
         private var from: PoseV = to
         private var segStart: Int = spawnTick
