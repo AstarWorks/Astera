@@ -15,6 +15,8 @@ machine:
     fire:
       for: 35                       # = max_lifetime_ticks; covers the whole flight
       then: end
+      on:
+        - {event: bolt.end, to: end}      # v2: the cast ends when the projectile body ends
       enter:
         - {id: snd, op: sound, sound: "item.crossbow.shoot", anchor: caster, volume: 0.6, pitch: 1.3}
         - {id: fl0, op: particle_def, def: gun-muzzle-flash, anchor: muzzle}

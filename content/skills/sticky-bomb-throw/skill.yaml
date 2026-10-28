@@ -19,6 +19,8 @@ machine:
     fly:
       for: 61      # max flight 60 + 1 so the end handlers fit
       then: end
+      on:
+        - {event: bolt.end, to: end}      # v2: the cast ends when the projectile body ends
       do:
         - {id: snd, op: sound, sound: "astera:skill/wand/cast", anchor: caster, volume: 0.8, pitch: 0.8}
         - {id: puff, op: particle_def, def: fire-cast, anchor: flash}

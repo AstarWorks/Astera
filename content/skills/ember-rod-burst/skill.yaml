@@ -14,30 +14,22 @@ params:
   burn_ticks: {type: ticks, default: 20}
 anchors:
   - {id: ground, anchor: caster, offset: {up: 0.15}}
-presentation:
-  timeline:
-    - id: burst
-      at: 0
-      do:
-        - {id: snd, op: sound, sound: "astera:skill/wand/cast", anchor: caster, volume: 1.0, pitch: 0.9}
-    - id: ring               # ticks 0..5, ring radius r = 0.5 + 0.6 * k (k = parent.i); 16 copies per tick (R10)
-      at: 0
-      every: 1
-      times: 6
-      do:
-        - {id: flame, op: particle, particle: flame, times: 16, anchor: ground, count: 0, offset: ["= cos(2 * PI * i / n + draw('shape_ph') * 2 * PI)", 0, "= -sin(2 * PI * i / n + draw('shape_ph') * 2 * PI)"], extra: 0.03}
-        - {id: dust, op: particle, particle: dust, times: 16, anchor: ground, shift: {x: "= (0.5 + 0.6 * parent.i) * cos(2 * PI * i / n + draw('shape_ph') * 2 * PI)", y: 0, z: "= -(0.5 + 0.6 * parent.i) * sin(2 * PI * i / n + draw('shape_ph') * 2 * PI)"}, count: 1, offset: [0, 0, 0], extra: 0, color: "#ff6e14", size: 1.4}
 machine:
   start: cast
   states:
     cast:
-      for: 6
-      then: done
+      for: 1
+      then: end
+      do:
+        - {id: snd, op: sound, sound: "astera:skill/wand/cast", anchor: caster, volume: 1.0, pitch: 0.9, at: 0}
+        - {id: flame, op: particle, particle: flame, anchor: ground, count: 0, offset: [0, 0, 0], extra: 0.03, at: 0}
+        - {id: dust, op: particle, particle: dust, anchor: ground, count: 1, offset: [0, 0, 0], extra: 0, color: "#ff6e14", size: 1.4, at: 0}
       enter:
         - id: blast
           op: hit
           at: 0
-          shape: {sphere: {center: caster, radius: "${radius}"}}
+          anchor: caster
+          shape: {sphere: "${radius}"}
           targets: enemies
           max_count: all       # GAP(Q1): max_count spelling (A required int|all / B omit) is a founder question; v2 had no cap
           window: once
@@ -47,4 +39,4 @@ machine:
             hit:
               - {id: snd_hit, op: sound, sound: "astera:weapons/blade-hit", anchor: contact, volume: 0.7, pitch: 1.0}
               - {id: burn, op: status, target: event.victim, status: burn, stacks: 1, for: "${burn_ticks}"}
-    done: {final: true}
+    end: {final: true}

@@ -24,6 +24,8 @@ machine:
     fly:
       for: "= max_lifetime_ticks"
       then: end
+      on:
+        - {event: bolt.end, to: end}      # v2: the cast ends when the projectile body ends
       enter:
         - id: bolt
           op: projectile
@@ -36,7 +38,7 @@ machine:
           on:
             hit:
               - {id: dmg, op: damage, target: event.victim, damage: {physical: "= dmg_physical"}}
-              - {id: pull, op: knockback, target: event.victim, direction: "= normalize(flat(pos(caster) - pos(event.victim))) + vec(0.0, 0.2, 0.0)", strength: "= knockback"}
+              - {id: pull, op: knockback, target: event.victim, direction: "= normalize(pos(caster) - pos(event.victim)) + vec(0.0, 0.2, 0.0)", strength: "= knockback"}
               - {id: snd_hit, op: sound, sound: "item.trident.hit", anchor: heart, volume: 0.8, pitch: 1.0}
               - {id: fx_hit, op: particle_def, def: hit-spark, anchor: heart}
             block:
@@ -45,11 +47,6 @@ machine:
       do:
         - {id: snd_cast, op: sound, sound: "item.trident.throw", anchor: caster, at: 0, volume: 0.9, pitch: 1.0}
         - {id: fx_cast, op: particle_def, def: hit-spark, anchor: muzzle, at: 0}
-        - id: trail
-          at: 0
-          every: 1
-          until: end
-          do:
-            - {id: tr0, op: particle, anchor: {of: bolt, sweep: 0.4}, particle: crit, count: 1, offset: [0.03, 0.03, 0.03], extra: 0}
-            - {id: tr1, op: particle, anchor: {of: bolt, sweep: 0.4}, particle: dust, count: 1, offset: [0, 0, 0], extra: 0, color: "#5abec8", size: 1.0}
+        - {id: tr0, op: particle, anchor: {of: bolt, sweep: 0.4}, particle: crit, count: 1, offset: [0.03, 0.03, 0.03], extra: 0, every: 1, until: bolt.end}
+        - {id: tr1, op: particle, anchor: {of: bolt, sweep: 0.4}, particle: dust, count: 1, offset: [0, 0, 0], extra: 0, color: "#5abec8", size: 1.0, every: 1, until: bolt.end}
     end: {final: true}
