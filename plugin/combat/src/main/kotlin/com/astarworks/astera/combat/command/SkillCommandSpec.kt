@@ -38,6 +38,7 @@ internal fun skillCommandSpec(
     preview: SkillPreviewService? = null,
     reload: ((String) -> Result<SkillEngineContents.SkillReload, SkillEngineContents.SkillReloadError>)? = null,
     knownSkillIds: () -> Collection<String> = { emptyList() },
+    expand: CommandSpec.Literal? = null,
 ): CommandSpec.Literal =
     CommandSpec.Literal(
         name = "skill",
@@ -47,6 +48,7 @@ internal fun skillCommandSpec(
             traceSubcommand(),
             reload?.let { reloadSubcommand(it, knownSkillIds) },
             preview?.let { previewSubcommand(caster, it) },
+            expand,
         ),
     )
 

@@ -96,6 +96,8 @@ public class CombatWiringResult(
     public val reloadSkills: () -> com.astarworks.astera.core.application.service.ContentLoader.LoadReport,
     /** Decoded `content/frames` point tables for the v2 compiler and point source. */
     public val frameTables: Map<String, com.astarworks.astera.core.application.skillengine.load.ItemFrames>,
+    /** `content/engine/skill-engine.yaml`; the Paper runtime hands it to the table player (server caps). */
+    public val engineConfig: com.astarworks.astera.core.domain.skillengine.model.EngineConfig,
     public val statusContents: StatusContents,
     public val armorContents: ArmorContents,
     public val applyDamage: ApplyDamageUseCase?,
@@ -147,8 +149,12 @@ public object CombatWiring {
                 emptyMap()
             }
         }
-        val skillCatalog = com.astarworks.astera.core.application.skillengine.load.SkillEngineRegistries.catalog(frameTables, skillParts)
-        val skillEngineContents = com.astarworks.astera.core.application.skillengine.runtime.SkillEngineContents(skillCatalog)
+        val engine = com.astarworks.astera.core.application.skillengine.load.EngineConfigLoader().load(ctx.contentDir.resolve("engine/skill-engine.yaml"))
+        if (engine is com.astarworks.astera.core.domain.Result.Failure) logger.severe("[skill-error] engine/skill-engine.yaml: ${engine.error}")
+        val engineConfig = (engine as? com.astarworks.astera.core.domain.Result.Success)?.value
+            ?: com.astarworks.astera.core.domain.skillengine.model.EngineConfig()
+        val skillCatalog = com.astarworks.astera.core.application.skillengine.load.SkillEngineRegistries.catalog(frameTables, skillParts, engineConfig)
+        val skillEngineContents = com.astarworks.astera.core.application.skillengine.runtime.SkillEngineContents(skillCatalog, engineConfig = engine)
         val skillGate = SkillMetaRegistry(skillCatalog)
         val skillReport = skillEngineContents.reload(skillsContentDir)
         // A skill file that is not a v3 `kind: Skill` document is rejected here and does not run (never skipped silently).
@@ -772,6 +778,11 @@ public object CombatWiring {
                 previewService,
                 reload = { id -> skillEngineContents.reloadSkill(skillsContentDir, id) },
                 knownSkillIds = { skillCatalog.ids() },
+                expand = com.astarworks.astera.combat.adapter.paper.command.skillExpandSubcommand(
+                    ids = { skillCatalog.ids() },
+                    tableOf = { id -> skillCatalog.get(id)?.table },
+                    outDir = java.nio.file.Path.of(engineConfig.expandDir),
+                ),
             ),
         )
         // UI-12: `/astera status [id]` lookup and `/astera status codex` (the status codex GUI).
@@ -793,6 +804,7 @@ public object CombatWiring {
         return CombatWiringResult(
             skillGate = skillGate,
             skillCatalog = skillCatalog,
+            engineConfig = engineConfig,
             reloadSkills = { skillEngineContents.reload(skillsContentDir) },
             frameTables = frameTables,
             statusContents = statusContents,
