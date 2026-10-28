@@ -1,6 +1,10 @@
 package com.astarworks.astera.core.application.skillengine.compose
 
 import com.astarworks.astera.core.application.skillengine.load.SkillEngineSpecs
+import com.astarworks.astera.core.application.skillengine.part.PatchApplier
+import com.astarworks.astera.core.application.skillengine.part.PatchOp
+import com.astarworks.astera.core.application.skillengine.part.PatchSeg
+import com.astarworks.astera.core.application.skillengine.part.PatchVerb
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.skillengine.op.OpSection
 import java.nio.file.Files
@@ -22,11 +26,11 @@ data class ComposeOptions(
  * Layout under [root]: `<id>.yaml` (one or more `---` documents) or `<id>/…yaml` (several files). Skill documents with
  * the same id inside one file / directory are strategic-merged in (file, document) order; the same id in two different
  * files / directories is [ComposeError.DuplicateSkill]. A Skill document without `id` takes the file stem / directory name.
- * `kind: Patch` documents may live anywhere under [root] and are applied in (file, document) order:
- * no `variant` modifies the base in place (overlay); a `variant` derives `<target>@<variant>` from the overlaid base.
- * Lists of maps merge by `id` (`machine.states.<name>.do[<id>]`), a state map merges by state name. A `skin` patch may
- * touch only the fields of presentation ops inside `enter` / `do` / `exit` lists (and add / delete such ops); anything
- * else is [ComposeError.PatchError.ForbiddenPath].
+ * `kind: Patch` documents (R35: `ops: [{path, $patch: delete|replace|merge, value}]`, applied by [PatchApplier], the only patch
+ * path) may live anywhere under [root] and are applied in (file, document) order: no `variant` modifies the base in place
+ * (overlay); a `variant` derives `<target>@<variant>` from the overlaid base. A path that does not resolve is
+ * [ComposeError.PatchError.UnresolvedPath]. A `skin` patch may touch only presentation ops inside `enter` / `do` / `exit` rows
+ * (and add / delete such ops); anything else is [ComposeError.PatchError.ForbiddenPath].
  *
  * The composer is stateful (it caches parsed documents) so [recompose] only redoes the skills a changed file feeds.
  * All methods are synchronized.
@@ -147,8 +151,7 @@ class SkillComposer(private val root: Path, private val options: ComposeOptions 
         val baseApplied = ArrayList<Doc>()
         for (p in patches) {
             if (p.variant != null) continue
-            val merged = mergeOrFail(base, p, errors) ?: continue
-            if (!checkAllowed(p, base, merged, errors)) continue
+            val merged = applyPatch(base, p, errors) ?: continue
             base = merged
             baseApplied += p
             sources += p.file
@@ -159,8 +162,7 @@ class SkillComposer(private val root: Path, private val options: ComposeOptions 
         for (p in patches) {
             val v = p.variant ?: continue
             val current = variants[v] ?: base
-            val merged = mergeOrFail(current, p, errors) ?: continue
-            if (!checkAllowed(p, current, merged, errors)) continue
+            val merged = applyPatch(current, p, errors) ?: continue
             variants[v] = merged
             variantApplied.getOrPut(v) { ArrayList() } += p
             variantSources.getOrPut(v) { ArrayList() } += p.file
@@ -193,8 +195,7 @@ class SkillComposer(private val root: Path, private val options: ComposeOptions 
                 errors += ComposeError.InvalidDocument(p.file, "variant", "a patch of part '$partId' takes no variant (parts are patched in place)")
                 continue
             }
-            val merged = mergeOrFail(base, p, errors) ?: continue
-            if (!checkAllowed(p, base, merged, errors, isPart = true)) continue
+            val merged = applyPatch(base, p, errors) ?: continue
             base = merged
             applied += p
             sources += p.file
@@ -215,7 +216,7 @@ class SkillComposer(private val root: Path, private val options: ComposeOptions 
 
     /**
      * Patch metadata kept beside the tree: `kind` is the strongest patch kind applied (`balance` > `skin` > `base`
-     * for no patch); `touched` is the sorted set of dotted paths the applied patch bodies name.
+     * for no patch); `touched` is the sorted set of op paths the applied patches name.
      */
     private fun metaOf(applied: List<Doc>): PatchMeta {
         val kind = when {
@@ -223,32 +224,7 @@ class SkillComposer(private val root: Path, private val options: ComposeOptions 
             applied.any { it.patchKind == "skin" } -> "skin"
             else -> "base"
         }
-        return PatchMeta(kind, applied.flatMap { touchedPaths(it.body, "") }.distinct().sorted())
-    }
-
-    /** Dotted paths named by a patch body; a delete / replace directive records the path of its own entry. */
-    private fun touchedPaths(body: Map<*, *>, prefix: String): List<String> {
-        val out = ArrayList<String>()
-        for ((k, v) in body) {
-            val key = k as? String ?: continue
-            if (key == StrategicMerge.DIRECTIVE) continue
-            val path = if (prefix.isEmpty()) key else "$prefix.$key"
-            when {
-                v is Map<*, *> && v[StrategicMerge.DIRECTIVE] != null -> out += path
-                v is Map<*, *> -> out += touchedPaths(v, path)
-                v is List<*> && v.any { it is Map<*, *> } -> v.forEach { e ->
-                    val m = e as? Map<*, *>
-                    val entryId = m?.get("id") as? String
-                    when {
-                        m == null || entryId == null -> out += path
-                        m[StrategicMerge.DIRECTIVE] != null -> out += "$path[$entryId]"
-                        else -> out += touchedPaths(m.filterKeys { it != "id" }, "$path[$entryId]")
-                    }
-                }
-                else -> out += path
-            }
-        }
-        return out
+        return PatchMeta(kind, applied.flatMap { d -> d.ops.map { it.path } }.distinct().sorted())
     }
 
     private fun mergeOrFail(base: Map<String, Any?>, doc: Doc, errors: MutableList<ComposeError>): Map<String, Any?>? {
@@ -257,107 +233,67 @@ class SkillComposer(private val root: Path, private val options: ComposeOptions 
         return merged
     }
 
-    private val opLists = listOf("enter", "do", "exit")
+    /** Applies the ops of patch [p] to [base]: the skin gate on the paths first, then [PatchApplier], then the gate on the result; null (and an error) on failure. */
+    private fun applyPatch(base: Map<String, Any?>, p: Doc, errors: MutableList<ComposeError>): Map<String, Any?>? {
+        val skin = p.patchKind == "skin"
+        if (skin) {
+            val bad = p.ops.firstNotNullOfOrNull { skinViolationBefore(it, base) }
+            if (bad != null) { errors += ComposeError.PatchError.ForbiddenPath(p.file, bad); return null }
+        }
+        val merged = when (val r = PatchApplier.apply(base, p.ops)) {
+            is Result.Success -> r.value
+            is Result.Failure -> { errors += ComposeError.PatchError.UnresolvedPath(p.file, r.error.path, r.error.message); return null }
+        }
+        if (skin) {
+            val bad = p.ops.firstNotNullOfOrNull { skinViolationAfter(it, merged) }
+            if (bad != null) { errors += ComposeError.PatchError.ForbiddenPath(p.file, bad); return null }
+        }
+        return merged
+    }
+
+    private val opLists = setOf("enter", "do", "exit")
 
     /**
-     * Skin patches may touch only presentation ops inside states: `machine.states.<s>.{enter,do,exit}[<id>]` whose
-     * base and merged op are both in [ComposeOptions.presentationOps], and groups made only of such ops. Anything
-     * else (gameplay or control ops, `for`, `then`, `on`, `final`, new states) is a [ComposeError.PatchError.ForbiddenPath].
+     * Skin patches may touch only presentation ops inside states: a path `machine.states.<s>.{enter,do,exit}[<id>]...` whose deepest
+     * `[id]` row is a presentation op (or, for a whole-row add / replace / delete, a group of them). Inside such a row only the row's own
+     * fields change: a group takes whole-child operations only (`do[g].do[c]`), and an op's `on.<event>` lists are reached through their
+     * rows (`do[shot].on.hit[boom]`), never as a whole. Anything else (gameplay or control rows, `for`, `then`, `on`, `final`, `use`, new
+     * states, params, anchors) returns its path as the violation. Checked before applying (path shape and the row as it is in [base]) and
+     * after (the row as it became), so a path that does not resolve is still reported as the unresolved path it is.
      */
-    private fun checkAllowed(p: Doc, base: Map<String, Any?>, merged: Map<String, Any?>, errors: MutableList<ComposeError>, isPart: Boolean = false): Boolean {
-        if (p.patchKind != "skin") return true
-        val bad = skinViolation(p.body, base, merged, isPart)
-        if (bad == null) return true
-        errors += ComposeError.PatchError.ForbiddenPath(p.file, bad)
-        return false
-    }
-
-    private fun skinViolation(body: Map<*, *>, base: Map<*, *>, merged: Map<*, *>, isPart: Boolean): String? {
-        val allowedTop = if (isPart) setOf("machine") else setOf("machine", "presentation")
-        body.keys.firstOrNull { it !in allowedTop }?.let { return firstLeafPath(it.toString(), body[it]) }
-        if ("machine" in body) statesViolation(body["machine"], base["machine"], merged["machine"], "machine")?.let { return it }
-        if ("presentation" in body) presentationViolation(body["presentation"], base["presentation"], merged["presentation"])?.let { return it }
+    private fun skinViolationBefore(op: PatchOp, base: Map<String, Any?>): String? {
+        val segs = op.segs
+        val head = segs.getOrNull(0)
+        val states = segs.getOrNull(1)
+        val state = segs.getOrNull(2)
+        val section = segs.getOrNull(3)
+        val ok = head?.name == "machine" && head.id == null && states?.name == "states" && states.id == null &&
+            state != null && state.id == null && section != null && section.name in opLists && section.id != null
+        if (!ok) return op.path
+        val deepest = segs.indices.last { segs[it].id != null }
+        val row = rowAt(base, segs, deepest)
+        if (deepest == segs.lastIndex) return if (row == null || isPresentation(row)) null else op.path
+        if (row == null) return null // unresolved: the applier reports it
+        if (isGroup(row) || !isPresentation(row) || segs[deepest + 1].name == "on") return op.path
         return null
     }
 
-    /** `presentation:` may only carry `timeline`, an op list patched like a state list. */
-    private fun presentationViolation(patch: Any?, base: Any?, merged: Any?): String? {
-        val pm = patch as? Map<*, *> ?: return "presentation"
-        pm.keys.firstOrNull { it != "timeline" }?.let { return firstLeafPath("presentation.$it", pm[it]) }
-        return opsViolation(pm["timeline"], (base as? Map<*, *>)?.get("timeline"), (merged as? Map<*, *>)?.get("timeline"), "presentation.timeline")
+    private fun skinViolationAfter(op: PatchOp, merged: Map<String, Any?>): String? {
+        val deepest = op.segs.indices.last { op.segs[it].id != null }
+        if (op.verb == PatchVerb.DELETE && deepest == op.segs.lastIndex) return null
+        val row = rowAt(merged, op.segs, deepest) ?: return null
+        return if (isPresentation(row)) null else op.path
     }
 
-    private fun statesViolation(patch: Any?, base: Any?, merged: Any?, path: String): String? {
-        val pm = patch as? Map<*, *> ?: return path
-        pm.keys.firstOrNull { it != "states" }?.let { return firstLeafPath("$path.$it", pm[it]) }
-        val states = pm["states"] as? Map<*, *> ?: return "$path.states"
-        val baseStates = (base as? Map<*, *>)?.get("states") as? Map<*, *> ?: emptyMap<Any?, Any?>()
-        val mergedStates = (merged as? Map<*, *>)?.get("states") as? Map<*, *> ?: emptyMap<Any?, Any?>()
-        for ((name, st) in states) {
-            val sp = "$path.states.$name"
-            val sm = st as? Map<*, *> ?: return sp
-            if (sm[StrategicMerge.DIRECTIVE] != null || name !in baseStates) return sp
-            for ((k, v) in sm) {
-                val kp = "$sp.$k"
-                when (k) {
-                    in opLists -> opsViolation(v, (baseStates[name] as? Map<*, *>)?.get(k), (mergedStates[name] as? Map<*, *>)?.get(k), kp)?.let { return it }
-                    "machine" -> statesViolation(v, (baseStates[name] as? Map<*, *>)?.get("machine"), (mergedStates[name] as? Map<*, *>)?.get("machine"), kp)?.let { return it }
-                    else -> return firstLeafPath(kp, v)
-                }
-            }
+    /** The row selected by `segs[0..upTo]` in [tree], or null when any step is missing. */
+    private fun rowAt(tree: Map<String, Any?>, segs: List<PatchSeg>, upTo: Int): Map<*, *>? {
+        var node: Any? = tree
+        for (i in 0..upTo) {
+            val m = node as? Map<*, *> ?: return null
+            val child = m[segs[i].name]
+            node = if (segs[i].id == null) child else (child as? List<*>)?.firstOrNull { (it as? Map<*, *>)?.get("id") == segs[i].id }
         }
-        return null
-    }
-
-    /**
-     * One op list (a state list, `presentation.timeline`, a group's `do`, an op's `on.<event>`). Per entry: a delete / replace
-     * needs presentation ops on both sides; a new entry must be presentation; a group is patched child by child (only `id` and
-     * `do`); any other op may change its own fields only when it is presentation before and after, and its `on.<event>` lists
-     * (existing events only) are descended into whatever the op is.
-     */
-    private fun opsViolation(patch: Any?, base: Any?, merged: Any?, path: String): String? {
-        val list = patch as? List<*> ?: return path
-        val baseById = (base as? List<*>)?.filterIsInstance<Map<*, *>>()?.associateBy { it["id"] } ?: emptyMap()
-        val mergedById = (merged as? List<*>)?.filterIsInstance<Map<*, *>>()?.associateBy { it["id"] } ?: emptyMap()
-        for (e in list) {
-            val m = e as? Map<*, *> ?: return path
-            val id = m["id"] as? String ?: return path
-            val ep = "$path[$id]"
-            val b = baseById[id]
-            val r = mergedById[id]
-            if (m[StrategicMerge.DIRECTIVE] != null) {
-                val ok = (b == null || isPresentation(b)) && (r == null || isPresentation(r))
-                if (!ok) return ep
-                continue
-            }
-            if (r == null) return ep
-            if (b == null) {
-                if (!isPresentation(r)) return firstLeafPath(ep, m.filterKeys { it != "id" })
-                continue
-            }
-            if (isGroup(b)) {
-                m.keys.firstOrNull { it != "id" && it != "do" }?.let { return firstLeafPath("$ep.$it", m[it]) }
-                opsViolation(m["do"], b["do"], r["do"], "$ep.do")?.let { return it }
-                continue
-            }
-            val own = m.filterKeys { it != "id" && it != "on" }
-            if (own.isNotEmpty() && !(isPresentation(b) && isPresentation(r))) return firstLeafPath(ep, own)
-            if ("on" in m) onViolation(m["on"], b["on"], r["on"], "$ep.on")?.let { return it }
-        }
-        return null
-    }
-
-    /** `on.<event>` handler lists of an op: the events must already exist, the lists are patched like any op list. */
-    private fun onViolation(patch: Any?, base: Any?, merged: Any?, path: String): String? {
-        val pm = patch as? Map<*, *> ?: return path
-        val bm = base as? Map<*, *> ?: return path
-        val mm = merged as? Map<*, *> ?: emptyMap<Any?, Any?>()
-        for ((event, v) in pm) {
-            val ep = "$path.$event"
-            if (event !in bm || v !is List<*>) return ep
-            opsViolation(v, bm[event], mm[event], ep)?.let { return it }
-        }
-        return null
+        return node as? Map<*, *>
     }
 
     private fun isGroup(node: Map<*, *>): Boolean = node["op"] == null && node["do"] is List<*>
@@ -368,20 +304,6 @@ class SkillComposer(private val root: Path, private val options: ComposeOptions 
         if (op != null) return op in options.presentationOps
         val children = node["do"] as? List<*> ?: return false
         return children.all { it is Map<*, *> && isPresentation(it) }
-    }
-
-    private fun firstLeafPath(path: String, v: Any?): String = when {
-        v is Map<*, *> && v.keys.any { it != StrategicMerge.DIRECTIVE } -> {
-            val e = v.entries.first { it.key != StrategicMerge.DIRECTIVE }
-            firstLeafPath("$path.${e.key}", e.value)
-        }
-        v is List<*> && v.firstOrNull() is Map<*, *> -> {
-            val m = v.first() as Map<*, *>
-            val id = m["id"]?.toString() ?: "0"
-            val e = m.entries.firstOrNull { it.key != "id" && it.key != StrategicMerge.DIRECTIVE }
-            if (e == null) "$path[$id]" else firstLeafPath("$path[$id].${e.key}", e.value)
-        }
-        else -> path
     }
 
     private fun scanFiles(): List<String> {

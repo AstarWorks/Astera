@@ -6,6 +6,8 @@ import com.astarworks.astera.core.application.skillengine.load.grammar.Grammar
 import com.astarworks.astera.core.application.skillengine.load.grammar.GrammarContext
 import com.astarworks.astera.core.application.skillengine.load.spec.OpSpecRegistry
 import com.astarworks.astera.core.application.skillengine.part.PartParser
+import com.astarworks.astera.core.application.skillengine.part.PatchApplier
+import com.astarworks.astera.core.application.skillengine.part.PatchDoc
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.skillengine.expr.ExprCompiler
 import com.astarworks.astera.core.domain.skillengine.expr.ExprEnvSpec
@@ -33,11 +35,11 @@ public class GrammarEnv(
     public val exprEnv: ExprEnvSpec = V3Bindings.spec(null),
 )
 
-/** One multi-document file: skills decoded, parts and patches kept as raw trees for the part catalog and the composer. */
+/** One multi-document file: skills decoded, parts kept as raw trees for the part catalog, patches decoded to op lists for the composer. */
 public data class DocumentSet(
     val skills: List<SkillDef>,
     val parts: List<Map<String, Any?>>,
-    val patches: List<Map<String, Any?>>,
+    val patches: List<PatchDoc>,
 )
 
 /**
@@ -52,7 +54,7 @@ public class SkillDocumentDecoder(private val specs: OpSpecRegistry, private val
     public fun decode(file: String, root: YamlNode, env: GrammarEnv): Result<SkillDef, SkillDecodeError> =
         Grammar.guard { skill(file, root, env) }
 
-    /** Splits [text] into documents and decodes each by `kind` (`Skill` decoded, `Part` / `Patch` kept raw after a header check). */
+    /** Splits [text] into documents and decodes each by `kind` (`Skill` decoded, `Part` kept raw after a header check, `Patch` decoded to a [PatchDoc] by [PatchApplier]). */
     public fun decodeDocuments(file: String, text: String, env: GrammarEnv): Result<DocumentSet, SkillDecodeError> {
         val docs = when (val r = PartParser.documents(file, text)) {
             is Result.Success -> r.value
@@ -60,7 +62,7 @@ public class SkillDocumentDecoder(private val specs: OpSpecRegistry, private val
         }
         val skills = ArrayList<SkillDef>()
         val parts = ArrayList<Map<String, Any?>>()
-        val patches = ArrayList<Map<String, Any?>>()
+        val patches = ArrayList<PatchDoc>()
         for ((i, doc) in docs.withIndex()) {
             val where = if (docs.size == 1) file else "$file#${i + 1}"
             when (val kind = doc["kind"]) {
@@ -68,10 +70,14 @@ public class SkillDocumentDecoder(private val specs: OpSpecRegistry, private val
                     is Result.Success -> skills += r.value
                     is Result.Failure -> return r
                 }
-                "Part", "Patch" -> {
-                    val header = Grammar.guard { header(where, doc, kind as String) }
+                "Part" -> {
+                    val header = Grammar.guard { header(where, doc) }
                     if (header is Result.Failure) return header
-                    if (kind == "Part") parts += doc else patches += doc
+                    parts += doc
+                }
+                "Patch" -> when (val r = PatchApplier.decode(doc, where)) {
+                    is Result.Success -> patches += r.value
+                    is Result.Failure -> return Result.Failure(SkillDecodeError.Invalid(where, r.error.path, r.error.message))
                 }
                 null -> return Result.Failure(SkillDecodeError.MissingField(where, "", "kind"))
                 else -> return Result.Failure(SkillDecodeError.Invalid(where, "kind", "kind must be Skill, Part or Patch, was '$kind'"))
@@ -80,7 +86,7 @@ public class SkillDocumentDecoder(private val specs: OpSpecRegistry, private val
         return Result.Success(DocumentSet(skills, parts, patches))
     }
 
-    private fun header(file: String, doc: Map<String, Any?>, kind: String) {
+    private fun header(file: String, doc: Map<String, Any?>) {
         val ctx = GrammarContext(file)
         if (doc["apiVersion"] != PartParser.API_VERSION) ctx.fail("apiVersion", "apiVersion must be ${PartParser.API_VERSION}, was '${doc["apiVersion"]}'")
         if (doc["id"] !is String) ctx.abortWith(SkillDecodeError.MissingField(file, "", "id"))
@@ -136,12 +142,15 @@ public class SkillDocumentDecoder(private val specs: OpSpecRegistry, private val
         m as Map<String, Any?>
         checkKeys(ctx, m, "machine", setOf("start", "states"))
         val states = m["states"] as? Map<*, *> ?: ctx.mismatch("machine.states", "map of states", m["states"])
-        for ((sid, sraw) in states) {
-            val sp = "machine.states.$sid"
+        val start = m["start"]
+        if (start is String && '/' in start) ctx.abortWith(SkillDecodeError.StartNamesChild(ctx.file, start))
+        val flat = LinkedHashMap<String, Map<String, Any?>>()
+        fun walk(sid: String, sp: String, sraw: Any?) {
             val s = sraw as? Map<*, *> ?: ctx.mismatch(sp, "map", sraw)
             @Suppress("UNCHECKED_CAST")
             s as Map<String, Any?>
             checkKeys(ctx, s, sp, STATE_KEYS)
+            flat[sid] = s
             val on = s["on"]
             if (on is List<*>) {
                 for ((i, t) in on.withIndex()) {
@@ -150,15 +159,19 @@ public class SkillDocumentDecoder(private val specs: OpSpecRegistry, private val
                     checkKeys(ctx, tm as Map<String, Any?>, "$sp.on[$i]", TRANSITION_KEYS)
                 }
             }
+            val kids = s["states"] ?: return
+            kids as? Map<*, *> ?: ctx.mismatch("$sp.states", "map of states", kids)
+            if (s["start"] == null) ctx.abortWith(SkillDecodeError.NestedStartMissing(ctx.file, sid))
+            for ((cid, craw) in kids) walk("$sid/$cid", "$sp.states.$cid", craw)
         }
+        for ((sid, sraw) in states) walk(sid as String, "machine.states.$sid", sraw)
         val machine = when (val r = PartParser.skillMachine(tree)) {
             is Result.Success -> r.value ?: ctx.abortWith(SkillDecodeError.MissingField(ctx.file, "", "machine"))
             is Result.Failure -> ctx.abortWith(SkillDecodeError.Invalid(ctx.file, r.error.path, r.error.message))
         }
         // The op lists are only validated here; the nodes are decoded again by the table compiler (MachineState keeps raw maps).
-        for ((sid, sraw) in states) {
-            val s = sraw as Map<*, *>
-            val sp = "machine.states.$sid"
+        for ((sid, s) in flat) {
+            val sp = "machine.states." + sid.replace("/", ".states.")
             for (key in listOf("enter", "do", "exit")) checkOps(ctx, s[key], "$sp.$key")
             (s["on"] as? List<*>)?.forEachIndexed { i, t -> checkOps(ctx, (t as Map<*, *>)["do"], "$sp.on[$i].do") }
         }
@@ -281,7 +294,7 @@ public class SkillDocumentDecoder(private val specs: OpSpecRegistry, private val
             "apiVersion", "kind", "id", "item", "importance", "meta", "params", "frames_in", "emits", "anchors", "conditions", "machine",
         )
         val META_KEYS = setOf("name", "description", "cooldown_ticks", "resource_type", "resource_cost", "ego_cost", "reload_ticks", "ready_cue", "tags")
-        val STATE_KEYS = setOf("for", "then", "final", "enter", "do", "exit", "on", "use", "with", "frames", "machine")
+        val STATE_KEYS = setOf("for", "then", "final", "enter", "do", "exit", "on", "use", "with", "frames", "start", "states")
         val TRANSITION_KEYS = setOf("event", "after", "when", "to", "do")
     }
 }

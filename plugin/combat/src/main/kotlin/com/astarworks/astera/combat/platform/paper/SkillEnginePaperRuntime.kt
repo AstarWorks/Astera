@@ -187,10 +187,10 @@ internal class SkillEnginePaperRuntime(
             playerHooks.releaseAll()
         }
         ctx.subscriptions += eventBus.subscribe(SkillChargeStarted::class) { event ->
-            cast.raiseAllOf(event.caster.uuid, "charge", event.atTick.toInt())
+            cast.raiseAllOf(event.caster.uuid, "input.use", event.atTick.toInt())
         }
         ctx.subscriptions += eventBus.subscribe(SkillReleased::class) { event ->
-            cast.raiseAllOf(event.caster.uuid, "release", event.atTick.toInt())
+            cast.raiseAllOf(event.caster.uuid, "input.release", event.atTick.toInt())
         }
         ctx.subscriptions += eventBus.subscribe(SkillCast::class) { event -> onSkillCast(cast, live, catalog::get, scheduler, event) }
     }
