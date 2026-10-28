@@ -14,7 +14,7 @@ import kotlin.math.sin
 
 /**
  * Smooth, anti-aliased frame painters for retextured vanilla particle types (ADR-0274). Unlike
- * [ParticlePainters] (4-tone pixel ramps, binary alpha, for TextDisplay sprites) these evaluate a continuous
+ * sprite graph fields (4-tone ramps with optional soft coverage, for TextDisplay sprites) these evaluate a continuous
  * colour + alpha field per sub-sample (4x4 supersampling), so a particle magnified beside the camera shows soft
  * falloff instead of square pixels. Every frame is fully transparent at its border (no quad edge ever shows).
  * Deterministic: the only randomness is an integer hash.

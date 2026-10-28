@@ -1,0 +1,3900 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "definitions": {
+    "parameterEdge": {
+      "type": "object",
+      "properties": {
+        "from": {
+          "type": "string",
+          "pattern": "^[a-zA-Z][a-zA-Z0-9_-]*\\.(image|value)$"
+        }
+      },
+      "required": [
+        "from"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "title": "Astera sprite source manifest (ADR-0304)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "sprites"
+  ],
+  "properties": {
+    "sources": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "file": {
+            "type": "string"
+          },
+          "grid": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "minItems": 2,
+            "maxItems": 2
+          }
+        },
+        "required": [
+          "file"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "sprites": {
+      "type": "object",
+      "propertyNames": {
+        "pattern": "^[a-z][a-z0-9-]*$"
+      },
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "oneOf": [
+          {
+            "required": [
+              "graph"
+            ]
+          },
+          {
+            "required": [
+              "from"
+            ]
+          }
+        ],
+        "properties": {
+          "graph": {
+            "type": "object",
+            "required": [
+              "nodes"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "nodes": {
+                "type": "object",
+                "minProperties": 1,
+                "propertyNames": {
+                  "pattern": "^[a-zA-Z][a-zA-Z0-9_-]*$"
+                },
+                "additionalProperties": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "required": [
+                        "type"
+                      ],
+                      "additionalProperties": false,
+                      "properties": {
+                        "type": {
+                          "const": "image.import"
+                        },
+                        "params": {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "properties": {
+                            "path": {
+                              "oneOf": [
+                                {
+                                  "type": "string"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            }
+                          }
+                        },
+                        "inputs": {
+                          "type": "object",
+                          "required": [],
+                          "additionalProperties": false,
+                          "properties": {}
+                        }
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "required": [
+                        "type"
+                      ],
+                      "additionalProperties": false,
+                      "properties": {
+                        "type": {
+                          "const": "shape.circle"
+                        },
+                        "params": {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "properties": {
+                            "cx": {
+                              "oneOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            },
+                            "cy": {
+                              "oneOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            },
+                            "radius": {
+                              "oneOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            },
+                            "color": {
+                              "oneOf": [
+                                {
+                                  "type": "string",
+                                  "pattern": "^#[0-9a-fA-F]{6}([0-9a-fA-F]{2})?$"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            }
+                          }
+                        },
+                        "inputs": {
+                          "type": "object",
+                          "required": [],
+                          "additionalProperties": false,
+                          "properties": {}
+                        }
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "required": [
+                        "type"
+                      ],
+                      "additionalProperties": false,
+                      "properties": {
+                        "type": {
+                          "const": "shape.ring"
+                        },
+                        "params": {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "properties": {
+                            "cx": {
+                              "oneOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            },
+                            "cy": {
+                              "oneOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            },
+                            "radius": {
+                              "oneOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            },
+                            "color": {
+                              "oneOf": [
+                                {
+                                  "type": "string",
+                                  "pattern": "^#[0-9a-fA-F]{6}([0-9a-fA-F]{2})?$"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            },
+                            "thickness": {
+                              "oneOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            }
+                          }
+                        },
+                        "inputs": {
+                          "type": "object",
+                          "required": [],
+                          "additionalProperties": false,
+                          "properties": {}
+                        }
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "required": [
+                        "type"
+                      ],
+                      "additionalProperties": false,
+                      "properties": {
+                        "type": {
+                          "const": "shape.line"
+                        },
+                        "params": {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "properties": {
+                            "x0": {
+                              "oneOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            },
+                            "y0": {
+                              "oneOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            },
+                            "x1": {
+                              "oneOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            },
+                            "y1": {
+                              "oneOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            },
+                            "thickness": {
+                              "oneOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            },
+                            "color": {
+                              "oneOf": [
+                                {
+                                  "type": "string",
+                                  "pattern": "^#[0-9a-fA-F]{6}([0-9a-fA-F]{2})?$"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            }
+                          }
+                        },
+                        "inputs": {
+                          "type": "object",
+                          "required": [],
+                          "additionalProperties": false,
+                          "properties": {}
+                        }
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "required": [
+                        "type"
+                      ],
+                      "additionalProperties": false,
+                      "properties": {
+                        "type": {
+                          "const": "shape.polygon"
+                        },
+                        "params": {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "properties": {
+                            "cx": {
+                              "oneOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            },
+                            "cy": {
+                              "oneOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            },
+                            "radius": {
+                              "oneOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            },
+                            "color": {
+                              "oneOf": [
+                                {
+                                  "type": "string",
+                                  "pattern": "^#[0-9a-fA-F]{6}([0-9a-fA-F]{2})?$"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            },
+                            "sides": {
+                              "oneOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            },
+                            "rotation_deg": {
+                              "oneOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            },
+                            "thickness": {
+                              "oneOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            }
+                          }
+                        },
+                        "inputs": {
+                          "type": "object",
+                          "required": [],
+                          "additionalProperties": false,
+                          "properties": {}
+                        }
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "required": [
+                        "type"
+                      ],
+                      "additionalProperties": false,
+                      "properties": {
+                        "type": {
+                          "const": "shape.star"
+                        },
+                        "params": {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "properties": {
+                            "cx": {
+                              "oneOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            },
+                            "cy": {
+                              "oneOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            },
+                            "radius": {
+                              "oneOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            },
+                            "color": {
+                              "oneOf": [
+                                {
+                                  "type": "string",
+                                  "pattern": "^#[0-9a-fA-F]{6}([0-9a-fA-F]{2})?$"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            },
+                            "points": {
+                              "oneOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            },
+                            "inner_radius": {
+                              "oneOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            },
+                            "step": {
+                              "oneOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            },
+                            "rotation_deg": {
+                              "oneOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            },
+                            "thickness": {
+                              "oneOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            }
+                          }
+                        },
+                        "inputs": {
+                          "type": "object",
+                          "required": [],
+                          "additionalProperties": false,
+                          "properties": {}
+                        }
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "required": [
+                        "type"
+                      ],
+                      "additionalProperties": false,
+                      "properties": {
+                        "type": {
+                          "const": "shape.arc"
+                        },
+                        "params": {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "properties": {
+                            "cx": {
+                              "oneOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            },
+                            "cy": {
+                              "oneOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            },
+                            "radius": {
+                              "oneOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            },
+                            "color": {
+                              "oneOf": [
+                                {
+                                  "type": "string",
+                                  "pattern": "^#[0-9a-fA-F]{6}([0-9a-fA-F]{2})?$"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            },
+                            "start_deg": {
+                              "oneOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            },
+                            "end_deg": {
+                              "oneOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            },
+                            "thickness": {
+                              "oneOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            },
+                            "taper": {
+                              "oneOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            }
+                          }
+                        },
+                        "inputs": {
+                          "type": "object",
+                          "required": [],
+                          "additionalProperties": false,
+                          "properties": {}
+                        }
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "required": [
+                        "type"
+                      ],
+                      "additionalProperties": false,
+                      "properties": {
+                        "type": {
+                          "const": "shape.field"
+                        },
+                        "params": {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "properties": {
+                            "variables": {
+                              "oneOf": [
+                                {
+                                  "type": "object",
+                                  "additionalProperties": {
+                                    "type": [
+                                      "number",
+                                      "string"
+                                    ]
+                                  }
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            },
+                            "expression": {
+                              "oneOf": [
+                                {
+                                  "type": "string"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            },
+                            "color": {
+                              "oneOf": [
+                                {
+                                  "type": "string",
+                                  "pattern": "^#[0-9a-fA-F]{6}([0-9a-fA-F]{2})?$"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            },
+                            "smooth": {
+                              "oneOf": [
+                                {
+                                  "type": "boolean"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            },
+                            "ramp": {
+                              "oneOf": [
+                                {
+                                  "type": "boolean"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            },
+                            "dots": {
+                              "oneOf": [
+                                {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "object",
+                                    "properties": {
+                                      "x": {
+                                        "type": [
+                                          "number",
+                                          "string"
+                                        ]
+                                      },
+                                      "y": {
+                                        "type": [
+                                          "number",
+                                          "string"
+                                        ]
+                                      },
+                                      "value": {
+                                        "type": [
+                                          "number",
+                                          "string"
+                                        ]
+                                      },
+                                      "when": {
+                                        "type": [
+                                          "number",
+                                          "string"
+                                        ]
+                                      }
+                                    },
+                                    "required": [
+                                      "x",
+                                      "y",
+                                      "value"
+                                    ],
+                                    "additionalProperties": false
+                                  }
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            }
+                          }
+                        },
+                        "inputs": {
+                          "type": "object",
+                          "required": [],
+                          "additionalProperties": false,
+                          "properties": {}
+                        }
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "required": [
+                        "type"
+                      ],
+                      "additionalProperties": false,
+                      "properties": {
+                        "type": {
+                          "const": "noise.value"
+                        },
+                        "params": {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "properties": {
+                            "seed": {
+                              "oneOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            },
+                            "scale": {
+                              "oneOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            },
+                            "octaves": {
+                              "oneOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            }
+                          }
+                        },
+                        "inputs": {
+                          "type": "object",
+                          "required": [],
+                          "additionalProperties": false,
+                          "properties": {}
+                        }
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "required": [
+                        "type"
+                      ],
+                      "additionalProperties": false,
+                      "properties": {
+                        "type": {
+                          "const": "noise.perlin"
+                        },
+                        "params": {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "properties": {
+                            "seed": {
+                              "oneOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            },
+                            "scale": {
+                              "oneOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            },
+                            "octaves": {
+                              "oneOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            }
+                          }
+                        },
+                        "inputs": {
+                          "type": "object",
+                          "required": [],
+                          "additionalProperties": false,
+                          "properties": {}
+                        }
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "required": [
+                        "type"
+                      ],
+                      "additionalProperties": false,
+                      "properties": {
+                        "type": {
+                          "const": "generate.gradient_radial"
+                        },
+                        "params": {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "properties": {
+                            "cx": {
+                              "oneOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            },
+                            "cy": {
+                              "oneOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            },
+                            "inner_radius": {
+                              "oneOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            },
+                            "outer_radius": {
+                              "oneOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            },
+                            "color_inner": {
+                              "oneOf": [
+                                {
+                                  "type": "string",
+                                  "pattern": "^#[0-9a-fA-F]{6}([0-9a-fA-F]{2})?$"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            },
+                            "color_outer": {
+                              "oneOf": [
+                                {
+                                  "type": "string",
+                                  "pattern": "^#[0-9a-fA-F]{6}([0-9a-fA-F]{2})?$"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            }
+                          }
+                        },
+                        "inputs": {
+                          "type": "object",
+                          "required": [],
+                          "additionalProperties": false,
+                          "properties": {}
+                        }
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "required": [
+                        "type"
+                      ],
+                      "additionalProperties": false,
+                      "properties": {
+                        "type": {
+                          "const": "generate.scatter"
+                        },
+                        "params": {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "properties": {
+                            "seed": {
+                              "oneOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            },
+                            "count": {
+                              "oneOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            },
+                            "size_min": {
+                              "oneOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            },
+                            "size_max": {
+                              "oneOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            },
+                            "shape": {
+                              "oneOf": [
+                                {
+                                  "type": "string",
+                                  "enum": [
+                                    "square",
+                                    "star",
+                                    "dot"
+                                  ]
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            },
+                            "color": {
+                              "oneOf": [
+                                {
+                                  "type": "string",
+                                  "pattern": "^#[0-9a-fA-F]{6}([0-9a-fA-F]{2})?$"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            }
+                          }
+                        },
+                        "inputs": {
+                          "type": "object",
+                          "required": [],
+                          "additionalProperties": false,
+                          "properties": {
+                            "mask": {
+                              "type": "string",
+                              "pattern": "^[a-zA-Z][a-zA-Z0-9_-]*\\.image$"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "required": [
+                        "type",
+                        "inputs"
+                      ],
+                      "additionalProperties": false,
+                      "properties": {
+                        "type": {
+                          "const": "generate.fx_scatter"
+                        },
+                        "params": {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "properties": {
+                            "seed": {
+                              "oneOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            },
+                            "count": {
+                              "oneOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            },
+                            "scale_min": {
+                              "oneOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            },
+                            "scale_max": {
+                              "oneOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            },
+                            "rotate_max_deg": {
+                              "oneOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            },
+                            "alpha_jitter": {
+                              "oneOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            }
+                          }
+                        },
+                        "inputs": {
+                          "type": "object",
+                          "required": [
+                            "pattern"
+                          ],
+                          "additionalProperties": false,
+                          "properties": {
+                            "pattern": {
+                              "type": "string",
+                              "pattern": "^[a-zA-Z][a-zA-Z0-9_-]*\\.image$"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "required": [
+                        "type",
+                        "inputs"
+                      ],
+                      "additionalProperties": false,
+                      "properties": {
+                        "type": {
+                          "const": "xform.translate"
+                        },
+                        "params": {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "properties": {
+                            "dx": {
+                              "oneOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            },
+                            "dy": {
+                              "oneOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            }
+                          }
+                        },
+                        "inputs": {
+                          "type": "object",
+                          "required": [
+                            "image"
+                          ],
+                          "additionalProperties": false,
+                          "properties": {
+                            "image": {
+                              "type": "string",
+                              "pattern": "^[a-zA-Z][a-zA-Z0-9_-]*\\.image$"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "required": [
+                        "type",
+                        "inputs"
+                      ],
+                      "additionalProperties": false,
+                      "properties": {
+                        "type": {
+                          "const": "xform.rotate"
+                        },
+                        "params": {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "properties": {
+                            "ox": {
+                              "oneOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            },
+                            "oy": {
+                              "oneOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            },
+                            "angle_deg": {
+                              "oneOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            }
+                          }
+                        },
+                        "inputs": {
+                          "type": "object",
+                          "required": [
+                            "image"
+                          ],
+                          "additionalProperties": false,
+                          "properties": {
+                            "image": {
+                              "type": "string",
+                              "pattern": "^[a-zA-Z][a-zA-Z0-9_-]*\\.image$"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "required": [
+                        "type",
+                        "inputs"
+                      ],
+                      "additionalProperties": false,
+                      "properties": {
+                        "type": {
+                          "const": "xform.scale"
+                        },
+                        "params": {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "properties": {
+                            "ox": {
+                              "oneOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            },
+                            "oy": {
+                              "oneOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            },
+                            "sx": {
+                              "oneOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            },
+                            "sy": {
+                              "oneOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            }
+                          }
+                        },
+                        "inputs": {
+                          "type": "object",
+                          "required": [
+                            "image"
+                          ],
+                          "additionalProperties": false,
+                          "properties": {
+                            "image": {
+                              "type": "string",
+                              "pattern": "^[a-zA-Z][a-zA-Z0-9_-]*\\.image$"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "required": [
+                        "type",
+                        "inputs"
+                      ],
+                      "additionalProperties": false,
+                      "properties": {
+                        "type": {
+                          "const": "xform.mirror"
+                        },
+                        "params": {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "properties": {
+                            "axis": {
+                              "oneOf": [
+                                {
+                                  "type": "string",
+                                  "enum": [
+                                    "y",
+                                    "both",
+                                    "x"
+                                  ]
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            }
+                          }
+                        },
+                        "inputs": {
+                          "type": "object",
+                          "required": [
+                            "image"
+                          ],
+                          "additionalProperties": false,
+                          "properties": {
+                            "image": {
+                              "type": "string",
+                              "pattern": "^[a-zA-Z][a-zA-Z0-9_-]*\\.image$"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "required": [
+                        "type",
+                        "inputs"
+                      ],
+                      "additionalProperties": false,
+                      "properties": {
+                        "type": {
+                          "const": "xform.polar"
+                        },
+                        "params": {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "properties": {
+                            "mode": {
+                              "oneOf": [
+                                {
+                                  "type": "string",
+                                  "enum": [
+                                    "to_cartesian",
+                                    "to_polar"
+                                  ]
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            },
+                            "origin": {
+                              "oneOf": [
+                                {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "number"
+                                  },
+                                  "minItems": 2,
+                                  "maxItems": 2
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            },
+                            "twist_deg": {
+                              "oneOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            }
+                          }
+                        },
+                        "inputs": {
+                          "type": "object",
+                          "required": [
+                            "image"
+                          ],
+                          "additionalProperties": false,
+                          "properties": {
+                            "image": {
+                              "type": "string",
+                              "pattern": "^[a-zA-Z][a-zA-Z0-9_-]*\\.image$"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "required": [
+                        "type",
+                        "inputs"
+                      ],
+                      "additionalProperties": false,
+                      "properties": {
+                        "type": {
+                          "const": "xform.repeat_radial"
+                        },
+                        "params": {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "properties": {
+                            "count": {
+                              "oneOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            },
+                            "origin": {
+                              "oneOf": [
+                                {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "number"
+                                  },
+                                  "minItems": 2,
+                                  "maxItems": 2
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            },
+                            "rotation_deg": {
+                              "oneOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            }
+                          }
+                        },
+                        "inputs": {
+                          "type": "object",
+                          "required": [
+                            "image"
+                          ],
+                          "additionalProperties": false,
+                          "properties": {
+                            "image": {
+                              "type": "string",
+                              "pattern": "^[a-zA-Z][a-zA-Z0-9_-]*\\.image$"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "required": [
+                        "type",
+                        "inputs"
+                      ],
+                      "additionalProperties": false,
+                      "properties": {
+                        "type": {
+                          "const": "xform.polar_repeat"
+                        },
+                        "params": {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "properties": {
+                            "count": {
+                              "oneOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            },
+                            "origin": {
+                              "oneOf": [
+                                {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "number"
+                                  },
+                                  "minItems": 2,
+                                  "maxItems": 2
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            },
+                            "rotation_deg": {
+                              "oneOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            }
+                          }
+                        },
+                        "inputs": {
+                          "type": "object",
+                          "required": [
+                            "image"
+                          ],
+                          "additionalProperties": false,
+                          "properties": {
+                            "image": {
+                              "type": "string",
+                              "pattern": "^[a-zA-Z][a-zA-Z0-9_-]*\\.image$"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "required": [
+                        "type",
+                        "inputs"
+                      ],
+                      "additionalProperties": false,
+                      "properties": {
+                        "type": {
+                          "const": "xform.kaleidoscope"
+                        },
+                        "params": {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "properties": {
+                            "count": {
+                              "oneOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            },
+                            "origin": {
+                              "oneOf": [
+                                {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "number"
+                                  },
+                                  "minItems": 2,
+                                  "maxItems": 2
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            },
+                            "rotation_deg": {
+                              "oneOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            }
+                          }
+                        },
+                        "inputs": {
+                          "type": "object",
+                          "required": [
+                            "image"
+                          ],
+                          "additionalProperties": false,
+                          "properties": {
+                            "image": {
+                              "type": "string",
+                              "pattern": "^[a-zA-Z][a-zA-Z0-9_-]*\\.image$"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "required": [
+                        "type",
+                        "inputs"
+                      ],
+                      "additionalProperties": false,
+                      "properties": {
+                        "type": {
+                          "const": "filter.blur"
+                        },
+                        "params": {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "properties": {
+                            "radius": {
+                              "oneOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            }
+                          }
+                        },
+                        "inputs": {
+                          "type": "object",
+                          "required": [
+                            "image"
+                          ],
+                          "additionalProperties": false,
+                          "properties": {
+                            "image": {
+                              "type": "string",
+                              "pattern": "^[a-zA-Z][a-zA-Z0-9_-]*\\.image$"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "required": [
+                        "type",
+                        "inputs"
+                      ],
+                      "additionalProperties": false,
+                      "properties": {
+                        "type": {
+                          "const": "filter.dilate"
+                        },
+                        "params": {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "properties": {
+                            "radius": {
+                              "oneOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            }
+                          }
+                        },
+                        "inputs": {
+                          "type": "object",
+                          "required": [
+                            "image"
+                          ],
+                          "additionalProperties": false,
+                          "properties": {
+                            "image": {
+                              "type": "string",
+                              "pattern": "^[a-zA-Z][a-zA-Z0-9_-]*\\.image$"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "required": [
+                        "type",
+                        "inputs"
+                      ],
+                      "additionalProperties": false,
+                      "properties": {
+                        "type": {
+                          "const": "filter.bloom"
+                        },
+                        "params": {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "properties": {
+                            "threshold": {
+                              "oneOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            },
+                            "radius": {
+                              "oneOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            },
+                            "intensity": {
+                              "oneOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            },
+                            "saturation": {
+                              "oneOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            },
+                            "color": {
+                              "oneOf": [
+                                {
+                                  "type": "string",
+                                  "pattern": "^#[0-9a-fA-F]{6}([0-9a-fA-F]{2})?$"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            }
+                          }
+                        },
+                        "inputs": {
+                          "type": "object",
+                          "required": [
+                            "image"
+                          ],
+                          "additionalProperties": false,
+                          "properties": {
+                            "image": {
+                              "type": "string",
+                              "pattern": "^[a-zA-Z][a-zA-Z0-9_-]*\\.image$"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "required": [
+                        "type",
+                        "inputs"
+                      ],
+                      "additionalProperties": false,
+                      "properties": {
+                        "type": {
+                          "const": "filter.palette"
+                        },
+                        "params": {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "properties": {
+                            "colors": {
+                              "oneOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            }
+                          }
+                        },
+                        "inputs": {
+                          "type": "object",
+                          "required": [
+                            "image"
+                          ],
+                          "additionalProperties": false,
+                          "properties": {
+                            "image": {
+                              "type": "string",
+                              "pattern": "^[a-zA-Z][a-zA-Z0-9_-]*\\.image$"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "required": [
+                        "type",
+                        "inputs"
+                      ],
+                      "additionalProperties": false,
+                      "properties": {
+                        "type": {
+                          "const": "filter.outline"
+                        },
+                        "params": {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "properties": {
+                            "color": {
+                              "oneOf": [
+                                {
+                                  "type": "string",
+                                  "pattern": "^#[0-9a-fA-F]{6}([0-9a-fA-F]{2})?$"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            },
+                            "thickness": {
+                              "oneOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            },
+                            "mode": {
+                              "oneOf": [
+                                {
+                                  "type": "string",
+                                  "enum": [
+                                    "inside",
+                                    "replace",
+                                    "outside"
+                                  ]
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            }
+                          }
+                        },
+                        "inputs": {
+                          "type": "object",
+                          "required": [
+                            "image"
+                          ],
+                          "additionalProperties": false,
+                          "properties": {
+                            "image": {
+                              "type": "string",
+                              "pattern": "^[a-zA-Z][a-zA-Z0-9_-]*\\.image$"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "required": [
+                        "type",
+                        "inputs"
+                      ],
+                      "additionalProperties": false,
+                      "properties": {
+                        "type": {
+                          "const": "filter.dither"
+                        },
+                        "params": {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "properties": {
+                            "palette_size": {
+                              "oneOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            },
+                            "pattern": {
+                              "oneOf": [
+                                {
+                                  "type": "string",
+                                  "enum": [
+                                    "bayer2",
+                                    "bayer8",
+                                    "floyd",
+                                    "bayer4"
+                                  ]
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            }
+                          }
+                        },
+                        "inputs": {
+                          "type": "object",
+                          "required": [
+                            "image"
+                          ],
+                          "additionalProperties": false,
+                          "properties": {
+                            "image": {
+                              "type": "string",
+                              "pattern": "^[a-zA-Z][a-zA-Z0-9_-]*\\.image$"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "required": [
+                        "type",
+                        "inputs"
+                      ],
+                      "additionalProperties": false,
+                      "properties": {
+                        "type": {
+                          "const": "filter.directional_warp"
+                        },
+                        "params": {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "properties": {
+                            "angle_deg": {
+                              "oneOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            },
+                            "intensity": {
+                              "oneOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            }
+                          }
+                        },
+                        "inputs": {
+                          "type": "object",
+                          "required": [
+                            "image"
+                          ],
+                          "additionalProperties": false,
+                          "properties": {
+                            "image": {
+                              "type": "string",
+                              "pattern": "^[a-zA-Z][a-zA-Z0-9_-]*\\.image$"
+                            },
+                            "map": {
+                              "type": "string",
+                              "pattern": "^[a-zA-Z][a-zA-Z0-9_-]*\\.image$"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "required": [
+                        "type",
+                        "inputs"
+                      ],
+                      "additionalProperties": false,
+                      "properties": {
+                        "type": {
+                          "const": "filter.slope_blur"
+                        },
+                        "params": {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "properties": {
+                            "intensity": {
+                              "oneOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            },
+                            "samples": {
+                              "oneOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            }
+                          }
+                        },
+                        "inputs": {
+                          "type": "object",
+                          "required": [
+                            "image"
+                          ],
+                          "additionalProperties": false,
+                          "properties": {
+                            "image": {
+                              "type": "string",
+                              "pattern": "^[a-zA-Z][a-zA-Z0-9_-]*\\.image$"
+                            },
+                            "slope": {
+                              "type": "string",
+                              "pattern": "^[a-zA-Z][a-zA-Z0-9_-]*\\.image$"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "required": [
+                        "type",
+                        "inputs"
+                      ],
+                      "additionalProperties": false,
+                      "properties": {
+                        "type": {
+                          "const": "filter.seamless"
+                        },
+                        "params": {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "properties": {
+                            "blend": {
+                              "oneOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            }
+                          }
+                        },
+                        "inputs": {
+                          "type": "object",
+                          "required": [
+                            "image"
+                          ],
+                          "additionalProperties": false,
+                          "properties": {
+                            "image": {
+                              "type": "string",
+                              "pattern": "^[a-zA-Z][a-zA-Z0-9_-]*\\.image$"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "required": [
+                        "type",
+                        "inputs"
+                      ],
+                      "additionalProperties": false,
+                      "properties": {
+                        "type": {
+                          "const": "filter.trail"
+                        },
+                        "params": {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "properties": {
+                            "decay": {
+                              "oneOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            },
+                            "mode": {
+                              "oneOf": [
+                                {
+                                  "type": "string",
+                                  "enum": [
+                                    "add",
+                                    "screen",
+                                    "over"
+                                  ]
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            }
+                          }
+                        },
+                        "inputs": {
+                          "type": "object",
+                          "required": [
+                            "image"
+                          ],
+                          "additionalProperties": false,
+                          "properties": {
+                            "image": {
+                              "type": "string",
+                              "pattern": "^[a-zA-Z][a-zA-Z0-9_-]*\\.image$"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "required": [
+                        "type",
+                        "inputs"
+                      ],
+                      "additionalProperties": false,
+                      "properties": {
+                        "type": {
+                          "const": "filter.feedback"
+                        },
+                        "params": {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "properties": {
+                            "decay": {
+                              "oneOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            },
+                            "mode": {
+                              "oneOf": [
+                                {
+                                  "type": "string",
+                                  "enum": [
+                                    "add",
+                                    "screen",
+                                    "over"
+                                  ]
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            },
+                            "feedback_scale": {
+                              "oneOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            },
+                            "feedback_rotate_deg": {
+                              "oneOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            },
+                            "offset_x": {
+                              "oneOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            },
+                            "offset_y": {
+                              "oneOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            }
+                          }
+                        },
+                        "inputs": {
+                          "type": "object",
+                          "required": [
+                            "image"
+                          ],
+                          "additionalProperties": false,
+                          "properties": {
+                            "image": {
+                              "type": "string",
+                              "pattern": "^[a-zA-Z][a-zA-Z0-9_-]*\\.image$"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "required": [
+                        "type",
+                        "inputs"
+                      ],
+                      "additionalProperties": false,
+                      "properties": {
+                        "type": {
+                          "const": "composite.over"
+                        },
+                        "params": {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "properties": {}
+                        },
+                        "inputs": {
+                          "type": "object",
+                          "required": [
+                            "a",
+                            "b"
+                          ],
+                          "additionalProperties": false,
+                          "properties": {
+                            "a": {
+                              "type": "string",
+                              "pattern": "^[a-zA-Z][a-zA-Z0-9_-]*\\.image$"
+                            },
+                            "b": {
+                              "type": "string",
+                              "pattern": "^[a-zA-Z][a-zA-Z0-9_-]*\\.image$"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "required": [
+                        "type",
+                        "inputs"
+                      ],
+                      "additionalProperties": false,
+                      "properties": {
+                        "type": {
+                          "const": "composite.add"
+                        },
+                        "params": {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "properties": {}
+                        },
+                        "inputs": {
+                          "type": "object",
+                          "required": [
+                            "a",
+                            "b"
+                          ],
+                          "additionalProperties": false,
+                          "properties": {
+                            "a": {
+                              "type": "string",
+                              "pattern": "^[a-zA-Z][a-zA-Z0-9_-]*\\.image$"
+                            },
+                            "b": {
+                              "type": "string",
+                              "pattern": "^[a-zA-Z][a-zA-Z0-9_-]*\\.image$"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "required": [
+                        "type",
+                        "inputs"
+                      ],
+                      "additionalProperties": false,
+                      "properties": {
+                        "type": {
+                          "const": "composite.screen"
+                        },
+                        "params": {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "properties": {}
+                        },
+                        "inputs": {
+                          "type": "object",
+                          "required": [
+                            "a",
+                            "b"
+                          ],
+                          "additionalProperties": false,
+                          "properties": {
+                            "a": {
+                              "type": "string",
+                              "pattern": "^[a-zA-Z][a-zA-Z0-9_-]*\\.image$"
+                            },
+                            "b": {
+                              "type": "string",
+                              "pattern": "^[a-zA-Z][a-zA-Z0-9_-]*\\.image$"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "required": [
+                        "type",
+                        "inputs"
+                      ],
+                      "additionalProperties": false,
+                      "properties": {
+                        "type": {
+                          "const": "composite.multiply"
+                        },
+                        "params": {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "properties": {}
+                        },
+                        "inputs": {
+                          "type": "object",
+                          "required": [
+                            "a",
+                            "b"
+                          ],
+                          "additionalProperties": false,
+                          "properties": {
+                            "a": {
+                              "type": "string",
+                              "pattern": "^[a-zA-Z][a-zA-Z0-9_-]*\\.image$"
+                            },
+                            "b": {
+                              "type": "string",
+                              "pattern": "^[a-zA-Z][a-zA-Z0-9_-]*\\.image$"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "required": [
+                        "type",
+                        "inputs"
+                      ],
+                      "additionalProperties": false,
+                      "properties": {
+                        "type": {
+                          "const": "composite.max"
+                        },
+                        "params": {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "properties": {}
+                        },
+                        "inputs": {
+                          "type": "object",
+                          "required": [
+                            "a",
+                            "b"
+                          ],
+                          "additionalProperties": false,
+                          "properties": {
+                            "a": {
+                              "type": "string",
+                              "pattern": "^[a-zA-Z][a-zA-Z0-9_-]*\\.image$"
+                            },
+                            "b": {
+                              "type": "string",
+                              "pattern": "^[a-zA-Z][a-zA-Z0-9_-]*\\.image$"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "required": [
+                        "type"
+                      ],
+                      "additionalProperties": false,
+                      "properties": {
+                        "type": {
+                          "const": "anim.time"
+                        },
+                        "params": {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "properties": {}
+                        },
+                        "inputs": {
+                          "type": "object",
+                          "required": [],
+                          "additionalProperties": false,
+                          "properties": {}
+                        }
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "required": [
+                        "type"
+                      ],
+                      "additionalProperties": false,
+                      "properties": {
+                        "type": {
+                          "const": "values.number"
+                        },
+                        "params": {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "properties": {
+                            "value": {
+                              "oneOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            }
+                          }
+                        },
+                        "inputs": {
+                          "type": "object",
+                          "required": [],
+                          "additionalProperties": false,
+                          "properties": {}
+                        }
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "required": [
+                        "type"
+                      ],
+                      "additionalProperties": false,
+                      "properties": {
+                        "type": {
+                          "const": "values.vec2"
+                        },
+                        "params": {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "properties": {
+                            "x": {
+                              "oneOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            },
+                            "y": {
+                              "oneOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            }
+                          }
+                        },
+                        "inputs": {
+                          "type": "object",
+                          "required": [],
+                          "additionalProperties": false,
+                          "properties": {}
+                        }
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "required": [
+                        "type"
+                      ],
+                      "additionalProperties": false,
+                      "properties": {
+                        "type": {
+                          "const": "values.color"
+                        },
+                        "params": {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "properties": {
+                            "value": {
+                              "oneOf": [
+                                {
+                                  "type": "string",
+                                  "pattern": "^#[0-9a-fA-F]{6}([0-9a-fA-F]{2})?$"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            }
+                          }
+                        },
+                        "inputs": {
+                          "type": "object",
+                          "required": [],
+                          "additionalProperties": false,
+                          "properties": {}
+                        }
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "required": [
+                        "type"
+                      ],
+                      "additionalProperties": false,
+                      "properties": {
+                        "type": {
+                          "const": "values.string"
+                        },
+                        "params": {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "properties": {
+                            "value": {
+                              "oneOf": [
+                                {
+                                  "type": "string"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            }
+                          }
+                        },
+                        "inputs": {
+                          "type": "object",
+                          "required": [],
+                          "additionalProperties": false,
+                          "properties": {}
+                        }
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "required": [
+                        "type"
+                      ],
+                      "additionalProperties": false,
+                      "properties": {
+                        "type": {
+                          "const": "values.boolean"
+                        },
+                        "params": {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "properties": {
+                            "value": {
+                              "oneOf": [
+                                {
+                                  "type": "boolean"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            }
+                          }
+                        },
+                        "inputs": {
+                          "type": "object",
+                          "required": [],
+                          "additionalProperties": false,
+                          "properties": {}
+                        }
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "required": [
+                        "type"
+                      ],
+                      "additionalProperties": false,
+                      "properties": {
+                        "type": {
+                          "const": "values.curve"
+                        },
+                        "params": {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "properties": {
+                            "value": {
+                              "oneOf": [
+                                {
+                                  "type": "array",
+                                  "minItems": 1,
+                                  "items": {
+                                    "type": "object",
+                                    "properties": {
+                                      "t": {
+                                        "type": "number",
+                                        "minimum": 0,
+                                        "maximum": 1
+                                      },
+                                      "v": {
+                                        "type": "number"
+                                      }
+                                    },
+                                    "required": [
+                                      "t",
+                                      "v"
+                                    ],
+                                    "additionalProperties": false
+                                  }
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            }
+                          }
+                        },
+                        "inputs": {
+                          "type": "object",
+                          "required": [],
+                          "additionalProperties": false,
+                          "properties": {}
+                        }
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "required": [
+                        "type"
+                      ],
+                      "additionalProperties": false,
+                      "properties": {
+                        "type": {
+                          "const": "values.gradient"
+                        },
+                        "params": {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "properties": {
+                            "value": {
+                              "oneOf": [
+                                {
+                                  "type": "array",
+                                  "minItems": 1,
+                                  "items": {
+                                    "type": "object",
+                                    "properties": {
+                                      "t": {
+                                        "type": "number",
+                                        "minimum": 0,
+                                        "maximum": 1
+                                      },
+                                      "color": {
+                                        "type": "string",
+                                        "pattern": "^#[0-9a-fA-F]{6}([0-9a-fA-F]{2})?$"
+                                      }
+                                    },
+                                    "required": [
+                                      "t",
+                                      "color"
+                                    ],
+                                    "additionalProperties": false
+                                  }
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            }
+                          }
+                        },
+                        "inputs": {
+                          "type": "object",
+                          "required": [],
+                          "additionalProperties": false,
+                          "properties": {}
+                        }
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "required": [
+                        "type"
+                      ],
+                      "additionalProperties": false,
+                      "properties": {
+                        "type": {
+                          "const": "values.colors"
+                        },
+                        "params": {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "properties": {
+                            "value": {
+                              "oneOf": [
+                                {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "string",
+                                    "pattern": "^#[0-9a-fA-F]{6}([0-9a-fA-F]{2})?$"
+                                  },
+                                  "minItems": 1
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            }
+                          }
+                        },
+                        "inputs": {
+                          "type": "object",
+                          "required": [],
+                          "additionalProperties": false,
+                          "properties": {}
+                        }
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "required": [
+                        "type"
+                      ],
+                      "additionalProperties": false,
+                      "properties": {
+                        "type": {
+                          "const": "values.expression"
+                        },
+                        "params": {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "properties": {
+                            "value": {
+                              "oneOf": [
+                                {
+                                  "type": "string"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            }
+                          }
+                        },
+                        "inputs": {
+                          "type": "object",
+                          "required": [],
+                          "additionalProperties": false,
+                          "properties": {}
+                        }
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "required": [
+                        "type"
+                      ],
+                      "additionalProperties": false,
+                      "properties": {
+                        "type": {
+                          "const": "values.variables"
+                        },
+                        "params": {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "properties": {
+                            "value": {
+                              "oneOf": [
+                                {
+                                  "type": "object",
+                                  "additionalProperties": {
+                                    "type": [
+                                      "number",
+                                      "string"
+                                    ]
+                                  }
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            }
+                          }
+                        },
+                        "inputs": {
+                          "type": "object",
+                          "required": [],
+                          "additionalProperties": false,
+                          "properties": {}
+                        }
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "required": [
+                        "type"
+                      ],
+                      "additionalProperties": false,
+                      "properties": {
+                        "type": {
+                          "const": "values.dots"
+                        },
+                        "params": {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "properties": {
+                            "value": {
+                              "oneOf": [
+                                {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "object",
+                                    "properties": {
+                                      "x": {
+                                        "type": [
+                                          "number",
+                                          "string"
+                                        ]
+                                      },
+                                      "y": {
+                                        "type": [
+                                          "number",
+                                          "string"
+                                        ]
+                                      },
+                                      "value": {
+                                        "type": [
+                                          "number",
+                                          "string"
+                                        ]
+                                      },
+                                      "when": {
+                                        "type": [
+                                          "number",
+                                          "string"
+                                        ]
+                                      }
+                                    },
+                                    "required": [
+                                      "x",
+                                      "y",
+                                      "value"
+                                    ],
+                                    "additionalProperties": false
+                                  }
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            }
+                          }
+                        },
+                        "inputs": {
+                          "type": "object",
+                          "required": [],
+                          "additionalProperties": false,
+                          "properties": {}
+                        }
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "required": [
+                        "type"
+                      ],
+                      "additionalProperties": false,
+                      "properties": {
+                        "type": {
+                          "const": "anim.curve"
+                        },
+                        "params": {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "properties": {
+                            "keyframes": {
+                              "oneOf": [
+                                {
+                                  "type": "array",
+                                  "minItems": 1,
+                                  "items": {
+                                    "type": "object",
+                                    "properties": {
+                                      "t": {
+                                        "type": "number",
+                                        "minimum": 0,
+                                        "maximum": 1
+                                      },
+                                      "v": {
+                                        "type": "number"
+                                      }
+                                    },
+                                    "required": [
+                                      "t",
+                                      "v"
+                                    ],
+                                    "additionalProperties": false
+                                  }
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            },
+                            "mode": {
+                              "oneOf": [
+                                {
+                                  "type": "string",
+                                  "enum": [
+                                    "once",
+                                    "pingpong",
+                                    "loop"
+                                  ]
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            }
+                          }
+                        },
+                        "inputs": {
+                          "type": "object",
+                          "required": [],
+                          "additionalProperties": false,
+                          "properties": {}
+                        }
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "required": [
+                        "type"
+                      ],
+                      "additionalProperties": false,
+                      "properties": {
+                        "type": {
+                          "const": "anim.wiggler"
+                        },
+                        "params": {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "properties": {
+                            "frequency": {
+                              "oneOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            },
+                            "amplitude": {
+                              "oneOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            },
+                            "center": {
+                              "oneOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            },
+                            "seed": {
+                              "oneOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            }
+                          }
+                        },
+                        "inputs": {
+                          "type": "object",
+                          "required": [],
+                          "additionalProperties": false,
+                          "properties": {}
+                        }
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "required": [
+                        "type",
+                        "inputs"
+                      ],
+                      "additionalProperties": false,
+                      "properties": {
+                        "type": {
+                          "const": "anim.rotate"
+                        },
+                        "params": {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "properties": {
+                            "origin": {
+                              "oneOf": [
+                                {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "number"
+                                  },
+                                  "minItems": 2,
+                                  "maxItems": 2
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            },
+                            "speed_deg_per_sec": {
+                              "oneOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            }
+                          }
+                        },
+                        "inputs": {
+                          "type": "object",
+                          "required": [
+                            "image"
+                          ],
+                          "additionalProperties": false,
+                          "properties": {
+                            "image": {
+                              "type": "string",
+                              "pattern": "^[a-zA-Z][a-zA-Z0-9_-]*\\.image$"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "required": [
+                        "type",
+                        "inputs"
+                      ],
+                      "additionalProperties": false,
+                      "properties": {
+                        "type": {
+                          "const": "anim.scale_pulse"
+                        },
+                        "params": {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "properties": {
+                            "min": {
+                              "oneOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            },
+                            "max": {
+                              "oneOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            },
+                            "period_seconds": {
+                              "oneOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            },
+                            "easing": {
+                              "oneOf": [
+                                {
+                                  "type": "string",
+                                  "enum": [
+                                    "ease_in",
+                                    "ease_out",
+                                    "ease_in_out",
+                                    "back_out",
+                                    "bounce_out",
+                                    "elastic_out",
+                                    "sin",
+                                    "square",
+                                    "linear"
+                                  ]
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            }
+                          }
+                        },
+                        "inputs": {
+                          "type": "object",
+                          "required": [
+                            "image"
+                          ],
+                          "additionalProperties": false,
+                          "properties": {
+                            "image": {
+                              "type": "string",
+                              "pattern": "^[a-zA-Z][a-zA-Z0-9_-]*\\.image$"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "required": [
+                        "type",
+                        "inputs"
+                      ],
+                      "additionalProperties": false,
+                      "properties": {
+                        "type": {
+                          "const": "anim.scale_ramp"
+                        },
+                        "params": {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "properties": {
+                            "from": {
+                              "oneOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            },
+                            "to": {
+                              "oneOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            },
+                            "start_frame": {
+                              "oneOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            },
+                            "duration_frames": {
+                              "oneOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            },
+                            "easing": {
+                              "oneOf": [
+                                {
+                                  "type": "string",
+                                  "enum": [
+                                    "ease_in",
+                                    "ease_out",
+                                    "ease_in_out",
+                                    "back_out",
+                                    "bounce_out",
+                                    "elastic_out",
+                                    "sin",
+                                    "square",
+                                    "linear"
+                                  ]
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            },
+                            "after": {
+                              "oneOf": [
+                                {
+                                  "type": "string",
+                                  "enum": [
+                                    "fade",
+                                    "loop",
+                                    "hold"
+                                  ]
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            }
+                          }
+                        },
+                        "inputs": {
+                          "type": "object",
+                          "required": [
+                            "image"
+                          ],
+                          "additionalProperties": false,
+                          "properties": {
+                            "image": {
+                              "type": "string",
+                              "pattern": "^[a-zA-Z][a-zA-Z0-9_-]*\\.image$"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "required": [
+                        "type",
+                        "inputs"
+                      ],
+                      "additionalProperties": false,
+                      "properties": {
+                        "type": {
+                          "const": "anim.stagger"
+                        },
+                        "params": {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "properties": {
+                            "count": {
+                              "oneOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            },
+                            "decay_alpha": {
+                              "oneOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            },
+                            "delay_frames": {
+                              "oneOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            }
+                          }
+                        },
+                        "inputs": {
+                          "type": "object",
+                          "required": [
+                            "image"
+                          ],
+                          "additionalProperties": false,
+                          "properties": {
+                            "image": {
+                              "type": "string",
+                              "pattern": "^[a-zA-Z][a-zA-Z0-9_-]*\\.image$"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "required": [
+                        "type"
+                      ],
+                      "additionalProperties": false,
+                      "properties": {
+                        "type": {
+                          "const": "particle.effector"
+                        },
+                        "params": {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "properties": {
+                            "mode": {
+                              "oneOf": [
+                                {
+                                  "type": "string",
+                                  "enum": [
+                                    "repel",
+                                    "vortex",
+                                    "wind",
+                                    "turbulence",
+                                    "attract"
+                                  ]
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            },
+                            "origin": {
+                              "oneOf": [
+                                {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "number"
+                                  },
+                                  "minItems": 2,
+                                  "maxItems": 2
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            },
+                            "strength": {
+                              "oneOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            },
+                            "radius": {
+                              "oneOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            },
+                            "falloff": {
+                              "oneOf": [
+                                {
+                                  "type": "string",
+                                  "enum": [
+                                    "inverse_square",
+                                    "none",
+                                    "linear"
+                                  ]
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            },
+                            "noise_scale": {
+                              "oneOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            },
+                            "evolution_speed": {
+                              "oneOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            },
+                            "octaves": {
+                              "oneOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            },
+                            "noise_seed": {
+                              "oneOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            }
+                          }
+                        },
+                        "inputs": {
+                          "type": "object",
+                          "required": [],
+                          "additionalProperties": false,
+                          "properties": {}
+                        }
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "required": [
+                        "type"
+                      ],
+                      "additionalProperties": false,
+                      "properties": {
+                        "type": {
+                          "const": "particle.emitter"
+                        },
+                        "params": {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "properties": {
+                            "count": {
+                              "oneOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            },
+                            "seed": {
+                              "oneOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            },
+                            "lifetime_frames": {
+                              "oneOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            },
+                            "spawn_mode": {
+                              "oneOf": [
+                                {
+                                  "type": "string",
+                                  "enum": [
+                                    "continuous",
+                                    "burst"
+                                  ]
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            },
+                            "spawn_origin": {
+                              "oneOf": [
+                                {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "number"
+                                  },
+                                  "minItems": 2,
+                                  "maxItems": 2
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            },
+                            "spawn_radius": {
+                              "oneOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            },
+                            "velocity_min": {
+                              "oneOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            },
+                            "velocity_max": {
+                              "oneOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            },
+                            "velocity_angle_deg": {
+                              "oneOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            },
+                            "velocity_direction": {
+                              "oneOf": [
+                                {
+                                  "type": "string",
+                                  "enum": [
+                                    "random",
+                                    "angle",
+                                    "radial"
+                                  ]
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            },
+                            "size_start": {
+                              "oneOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            },
+                            "size_end": {
+                              "oneOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            },
+                            "shape": {
+                              "oneOf": [
+                                {
+                                  "type": "string",
+                                  "enum": [
+                                    "square",
+                                    "diamond",
+                                    "dot"
+                                  ]
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            },
+                            "gradient": {
+                              "oneOf": [
+                                {
+                                  "type": "array",
+                                  "minItems": 1,
+                                  "items": {
+                                    "type": "object",
+                                    "properties": {
+                                      "t": {
+                                        "type": "number",
+                                        "minimum": 0,
+                                        "maximum": 1
+                                      },
+                                      "color": {
+                                        "type": "string",
+                                        "pattern": "^#[0-9a-fA-F]{6}([0-9a-fA-F]{2})?$"
+                                      }
+                                    },
+                                    "required": [
+                                      "t",
+                                      "color"
+                                    ],
+                                    "additionalProperties": false
+                                  }
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            },
+                            "alpha_over_life": {
+                              "oneOf": [
+                                {
+                                  "type": "array",
+                                  "minItems": 1,
+                                  "items": {
+                                    "type": "object",
+                                    "properties": {
+                                      "t": {
+                                        "type": "number",
+                                        "minimum": 0,
+                                        "maximum": 1
+                                      },
+                                      "v": {
+                                        "type": "number"
+                                      }
+                                    },
+                                    "required": [
+                                      "t",
+                                      "v"
+                                    ],
+                                    "additionalProperties": false
+                                  }
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            },
+                            "frames_x": {
+                              "oneOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            },
+                            "frames_y": {
+                              "oneOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            },
+                            "sprite_spin_deg_per_sec": {
+                              "oneOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "$ref": "#/definitions/parameterEdge"
+                                }
+                              ]
+                            }
+                          }
+                        },
+                        "inputs": {
+                          "type": "object",
+                          "required": [],
+                          "additionalProperties": false,
+                          "properties": {
+                            "sprite": {
+                              "type": "string",
+                              "pattern": "^[a-zA-Z][a-zA-Z0-9_-]*\\.image$"
+                            },
+                            "effector": {
+                              "type": "string",
+                              "pattern": "^[a-zA-Z][a-zA-Z0-9_-]*\\.value$"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "required": [
+                        "type",
+                        "inputs"
+                      ],
+                      "additionalProperties": false,
+                      "properties": {
+                        "type": {
+                          "const": "output"
+                        },
+                        "params": {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "properties": {}
+                        },
+                        "inputs": {
+                          "type": "object",
+                          "required": [
+                            "image"
+                          ],
+                          "additionalProperties": false,
+                          "properties": {
+                            "image": {
+                              "type": "string",
+                              "pattern": "^[a-zA-Z][a-zA-Z0-9_-]*\\.image$"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "from": {
+            "type": "string"
+          },
+          "frames": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 256
+          },
+          "size": {
+            "type": "integer",
+            "minimum": 8,
+            "maximum": 512
+          },
+          "colors": {
+            "type": "integer"
+          },
+          "row": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "raw": {
+            "type": "boolean"
+          },
+          "outline": {
+            "type": "boolean"
+          },
+          "quad_font": {
+            "type": "boolean"
+          }
+        }
+      }
+    }
+  }
+}
