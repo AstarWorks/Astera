@@ -154,8 +154,23 @@ presentation:
         - {id: shake, op: camera_shake, target: caster, intensity: 0.2, ticks: 3}
         - {id: emit_7, op: emit, at: pt_aim_0_m0p35_1p8, particle: dust, count: 16, offset: [0.25, 0.25, 0.25], speed: 0.09, data: "#f52a13", data_size: 1.5}
         - {id: emit_8, op: emit, at: pt_aim_0_m0p35_1p8, particle: smoke, count: 4, speed: 0.04}
+    - id: fx32
+      at: 32
+      do:
+        - {id: emit_9, op: emit, at: pt_aim_0_m0p35_1p8, particle: dust, count: 16, offset: [0.25, 0.25, 0.25], speed: 0.09, data: "#f52a13", data_size: 1.5}
+        - {id: emit_10, op: emit, at: pt_aim_0_m0p35_1p8, particle: smoke, count: 4, speed: 0.04}
     - {id: fx33, at: 33, do: [{id: rm_2, op: remove, ids: [fx2_sigil_rifle_shot_hot_thread]}]}
-    - {id: fx34, at: 34, do: [{id: rm_3, op: remove, ids: [fx2_sigil_rifle_shot_dark_underlay]}]}
+    - id: fx34
+      at: 34
+      do:
+        - {id: rm_3, op: remove, ids: [fx2_sigil_rifle_shot_dark_underlay]}
+        - {id: emit_11, op: emit, at: pt_aim_0_m0p35_1p8, particle: dust, count: 16, offset: [0.25, 0.25, 0.25], speed: 0.09, data: "#f52a13", data_size: 1.5}
+        - {id: emit_12, op: emit, at: pt_aim_0_m0p35_1p8, particle: smoke, count: 4, speed: 0.04}
+    - id: fx36
+      at: 36
+      do:
+        - {id: emit_13, op: emit, at: pt_aim_0_m0p35_1p8, particle: dust, count: 16, offset: [0.25, 0.25, 0.25], speed: 0.09, data: "#f52a13", data_size: 1.5}
+        - {id: emit_14, op: emit, at: pt_aim_0_m0p35_1p8, particle: smoke, count: 4, speed: 0.04}
     - {id: fx37, at: 37, do: [{id: rm_4, op: remove, ids: [fx2_sigil_rifle_shot_red_core, fx2_sigil_rifle_shot_solid_impact_0, fx2_sigil_rifle_shot_solid_impact_1, fx2_sigil_rifle_shot_solid_impact_2]}]}
     - {id: fx39, at: 39, do: [{id: rm_5, op: remove, ids: [fx2_sigil_rifle_shot_bloom]}]}
     - id: fx60

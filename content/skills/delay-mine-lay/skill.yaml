@@ -11,11 +11,11 @@ meta:
   resource_cost: 10
   tags: [utility, explosive, zone]
 frames:
-  - {id: pt_caster_0_0_2p5, kind: point, parent: caster, offset: [0.0, 0.0, 2.5]}
+  - {id: pt_aim_0_0_2p5, kind: point, parent: aim, offset: [0.0, 0.0, 2.5]}
 gameplay:
   params: {explode_power: 1.0, explode_radius: 2.5, explode_physical: 55.0}
   timeline:
     - id: t50
       at: 50
       do:
-        - {id: explode, op: explode, power: "${explode_power}", break_blocks: false, radius: "${explode_radius}", components: [{kind: physical, amount: "${explode_physical}"}], at: pt_caster_0_0_2p5}
+        - {id: explode, op: explode, power: "${explode_power}", break_blocks: false, radius: "${explode_radius}", components: [{kind: physical, amount: "${explode_physical}"}], at: pt_aim_0_0_2p5}

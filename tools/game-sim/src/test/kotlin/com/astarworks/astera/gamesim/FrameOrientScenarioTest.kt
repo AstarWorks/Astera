@@ -69,4 +69,21 @@ class FrameOrientScenarioTest {
         t.setLocal(FrameId("away"), Frame(Vec3(0.0, 0.0, 0.0)))
         assertThat(fwd(t, "away").z).isCloseTo(1.0, tol) // coincident: the look rotation
     }
+
+    @Test
+    fun `frame scale multiplies descendants translation inside the rotation and compounds down the chain`() {
+        val t = tree(90.0, 0.0)
+        // v1 VfxTimeline slotGeometry :213 / SlotContext :360-369: position = rotation.rotate(local * scale)
+        t.add(FrameNode(FrameId("big"), FrameKind.PART, FrameId("caster"), Frame(Vec3(0.0, 0.0, 0.0)), null, 2.5))
+        t.add(FrameNode(FrameId("child"), FrameKind.PART, FrameId("big"), Frame(Vec3(0.0, 0.0, 2.0))))
+        t.add(FrameNode(FrameId("grand"), FrameKind.PART, FrameId("child"), Frame(Vec3(0.0, 0.0, 1.0)), null, 2.0))
+        t.add(FrameNode(FrameId("leaf"), FrameKind.PART, FrameId("grand"), Frame(Vec3(0.0, 0.0, 1.0))))
+        assertThat(t.scaleOf(FrameId("child"))).isCloseTo(2.5, tol)
+        assertThat(t.scaleOf(FrameId("leaf"))).isCloseTo(5.0, tol)
+        // child: 2 blocks * 2.5 along the caster's forward (+x after the 90 degree yaw), from the caster at x = 10
+        assertThat(t.worldOf(FrameId("child")).getOrNull()!!.origin.x).isCloseTo(15.0, tol)
+        // grand: + 1 * 2.5; leaf: + 1 * 5.0 (the grand frame's own scale 2 applies to its children)
+        assertThat(t.worldOf(FrameId("grand")).getOrNull()!!.origin.x).isCloseTo(17.5, tol)
+        assertThat(t.worldOf(FrameId("leaf")).getOrNull()!!.origin.x).isCloseTo(22.5, tol)
+    }
 }

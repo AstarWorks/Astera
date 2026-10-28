@@ -246,7 +246,7 @@ public class PresentationRuntime(
                 val t = tracked(s, live.opId, parentW, live.group)
                 tree.setLocal(live.node, Frame(live.pivot + t.offset, (live.tilt * t.turn * live.rest).normalized()))
                 val world = tree.worldOf(live.node).getOrNull() ?: return null
-                val k = live.scale
+                val k = live.scale * tree.scaleOf(live.node)
                 return VisualPose(world, Vec3(k * t.scale.x, k * t.scale.y, k * t.scale.z), DisplayBillboard.FIXED, anchorFeet(s, live.parent))
             }
             is Live.Plate -> {
@@ -259,14 +259,16 @@ public class PresentationRuntime(
                 val fixed = live.billboard == DisplayBillboard.FIXED
                 // A viewer face is the vanilla billboard: it owns the rotation, so the written frame carries only the origin.
                 val frame = if (fixed) world else Frame(world.origin)
-                return VisualPose(frame, Vec3(live.size * t.scale.x, live.size * t.scale.y, 1.0), live.billboard, anchorFeet(s, live.parent))
+                val fs = tree.scaleOf(live.node)
+                return VisualPose(frame, Vec3(live.size * fs * t.scale.x, live.size * fs * t.scale.y, 1.0), live.billboard, anchorFeet(s, live.parent))
             }
             is Live.Block -> {
                 val parentW = frameWorld(s, live.parent) ?: return null
                 val t = tracked(s, live.opId, parentW, live.group)
                 tree.setLocal(live.node, Frame(live.at + live.turn.rotate(t.offset), (live.turn * t.turn).normalized()))
                 val world = tree.worldOf(live.node).getOrNull() ?: return null
-                return VisualPose(world, Vec3(live.size.x * t.scale.x, live.size.y * t.scale.y, live.size.z * t.scale.z), DisplayBillboard.FIXED, anchorFeet(s, live.parent))
+                val fs = tree.scaleOf(live.node)
+                return VisualPose(world, Vec3(live.size.x * fs * t.scale.x, live.size.y * fs * t.scale.y, live.size.z * fs * t.scale.z), DisplayBillboard.FIXED, anchorFeet(s, live.parent))
             }
             is Live.Quad -> {
                 val parentW = frameWorld(s, live.parent) ?: return null
@@ -277,7 +279,8 @@ public class PresentationRuntime(
                 val world = tree.worldOf(live.node).getOrNull() ?: return null
                 val fixed = live.billboard == DisplayBillboard.FIXED
                 val frame = if (fixed) world else Frame(world.origin)
-                return VisualPose(frame, Vec3(live.size.x * t.scale.x, live.size.y * t.scale.y, 1.0), live.billboard, anchorFeet(s, live.parent))
+                val fs = tree.scaleOf(live.node)
+                return VisualPose(frame, Vec3(live.size.x * fs * t.scale.x, live.size.y * fs * t.scale.y, 1.0), live.billboard, anchorFeet(s, live.parent))
             }
             else -> return null
         }

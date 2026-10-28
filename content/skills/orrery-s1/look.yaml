@@ -1,6 +1,7 @@
 # Converted from content/skills/orrery-s1.yaml + content/vfx/* by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
 # Generated point-frame offsets are [left, up, forward] in the parent frame.
 # CONVERT-PRESENT vfx anchored at a runtime point (frame parent must exist at cast start): anchored at world (x2): contact.point
+# CONVERT-PRESENT vfx orient to_target on a frame not yet placed at its runtime point: orient dropped (x2): orrery-ring-hit
 apiVersion: "astera/v2"
 kind: Skill
 id: orrery-s1
@@ -11,14 +12,14 @@ frames:
   - {id: pt_fx1_orrery_crescent_a_staff_0_1_0, kind: point, parent: fx1_orrery_crescent_a_staff, offset: [0.0, 1.0, 0.0]}
   - {id: pt_fx1_orrery_crescent_a_staff_0_2p1_0, kind: point, parent: fx1_orrery_crescent_a_staff, offset: [0.0, 2.1, 0.0]}
   - {id: pt_fx1_orrery_crescent_a_staff_0_1p65_0, kind: point, parent: fx1_orrery_crescent_a_staff, offset: [0.0, 1.65, 0.0]}
-  - {id: fx2_orrery_ring_hit, kind: body, parent: world, orient: to_target}
+  - {id: fx2_orrery_ring_hit, kind: body, parent: world, orient: look}
   - {id: fx3_orrery_crescent_b, kind: body, parent: world}
   - {id: fx3_orrery_crescent_b_staff_at, kind: body, parent: caster.right_hand}
   - {id: fx3_orrery_crescent_b_staff, kind: body, parent: fx3_orrery_crescent_b_staff_at}
   - {id: pt_fx3_orrery_crescent_b_staff_0_1_0, kind: point, parent: fx3_orrery_crescent_b_staff, offset: [0.0, 1.0, 0.0]}
   - {id: pt_fx3_orrery_crescent_b_staff_0_2p3_0, kind: point, parent: fx3_orrery_crescent_b_staff, offset: [0.0, 2.3, 0.0]}
   - {id: pt_fx3_orrery_crescent_b_staff_0_1p65_0, kind: point, parent: fx3_orrery_crescent_b_staff, offset: [0.0, 1.65, 0.0]}
-  - {id: fx4_orrery_ring_hit, kind: body, parent: world, orient: to_target}
+  - {id: fx4_orrery_ring_hit, kind: body, parent: world, orient: look}
 presentation:
   timeline:
     - id: fx17

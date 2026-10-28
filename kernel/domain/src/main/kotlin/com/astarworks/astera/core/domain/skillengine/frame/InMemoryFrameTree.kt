@@ -51,7 +51,9 @@ public class InMemoryFrameTree : FrameTree {
         val node = nodes[id] ?: return Result.failure(FrameError.Unknown(id.value))
         val parentId = node.parent ?: return Result.success(node.local)
         val parentWorld = worldOf(parentId).let { r -> r.getOrNull() ?: return Result.failure(r.errorOrNull()!!) }
-        val composed = parentWorld.compose(node.local)
+        val k = scaleOf(parentId)
+        val composed = if (k == 1.0) parentWorld.compose(node.local)
+        else Frame(parentWorld.toWorld(node.local.origin * k), (parentWorld.rotation * node.local.rotation).normalized())
         val orient = node.orient ?: return Result.success(composed)
         // an unresolvable look frame leaves the inherited rotation (the declaration is validated when the frame is added)
         val look = worldOf(FrameId(orient.look)).getOrNull() ?: return Result.success(composed)
