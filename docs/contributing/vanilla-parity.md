@@ -31,5 +31,7 @@ only a regression pin of HEAD as of its commit, NOT an agreed target.
 - Dump: `ASTERA_GAMEPLAY_DUMP_DIR=<dir>`; accept a change: `ASTERA_GAMEPLAY_GOLDEN_OUT=<abs path>`.
 - v1 reference: `tools/skill-convert/v1-dumper/V1GameplayDumpTest.kt.txt` (add to a `d41b82f1e` worktree) and `run-v1gameplay.sh`.
 - Compare: `python3 tools/skill-convert/gameplay_diff.py <v1-dir> <head-dir> --out gameplay-diff.md` (groups by cause, counts, first
-  divergent tick, worst examples). Harness limits are listed in the report header (plain-hit knockback and ego gain happen inside
-  the combat use case; v1 projectiles are entities, HEAD's are frames).
+  divergent tick, worst examples). The HEAD dump runs damage and status through the production `PaperSkillGameplayGateway` over
+  a booted `GameSim` (`CombatLink`), so the 0.4 plain-hit push, ego gain and status timers/expiry come from the same combat use
+  cases as in v1; a skill's own push (Knockback mechanic, explosion) is `kb` via=impulse on both sides (the v1 recorder needs the
+  `sim.pushes` hook in `v1-recorder.patch`). Remaining harness limit: v1 projectiles are entities, HEAD's are frames.

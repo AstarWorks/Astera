@@ -23,5 +23,5 @@ gameplay:
   "on":
     hit:
       - {id: dmg, op: damage, target: victim, components: [{kind: physical, amount: "${dmg_physical}"}], when: "= event.source == 'swing'"}
-      - {id: kb, op: knockback, direction: "= normalize(pos(victim) - pos(caster))", strength: "${knockback}", when: "= event.source == 'swing'"}
+      - {id: kb, op: knockback, direction: "= normalize(flat(pos(victim) - pos(caster)))", strength: "${knockback}", when: "= event.source == 'swing'"}
       - {id: st_tremor, op: status, status: tremor, duration_ticks: "${tremor_ticks}", target: victim, when: "= event.source == 'swing'"}

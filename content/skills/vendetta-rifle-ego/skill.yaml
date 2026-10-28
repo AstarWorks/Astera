@@ -59,4 +59,4 @@ gameplay:
       - {id: dmg_5, op: damage, components: [{kind: physical, amount: "${dmg_physical_2}"}], target: victim, ignore_invulnerability: true, when: "= event.source == 'sel_5'"}
       - {id: st_tremor_5, op: status, status: tremor, duration_ticks: "${tremor_ticks}", target: victim, stacks: "${tremor_stacks}", when: "= event.source == 'sel_5'"}
       - {id: stop_5, op: freeze, ticks: 3, scope: [enemy, caster], when: "= event.source == 'sel_5'"}
-      - {id: kb, op: knockback, direction: "= normalize(pos(victim) - pos(caster)) + vec(0.0, 0.1, 0.0)", strength: "${knockback}", when: "= event.source == 'sel_5'"}
+      - {id: kb, op: knockback, direction: "= normalize(flat(pos(victim) - pos(caster))) + vec(0.0, 0.1, 0.0)", strength: "${knockback}", when: "= event.source == 'sel_5'"}

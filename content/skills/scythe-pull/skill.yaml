@@ -23,5 +23,5 @@ gameplay:
           ticks: 1
   "on":
     hit:
-      - {id: kb, op: knockback, direction: "= normalize(pos(caster) - pos(victim)) + vec(0.0, 0.2, 0.0)", strength: "${knockback}", when: "= event.source == 'sel'"}
+      - {id: kb, op: knockback, direction: "= normalize(flat(pos(caster) - pos(victim))) + vec(0.0, 0.2, 0.0)", strength: "${knockback}", when: "= event.source == 'sel'"}
       - {id: dmg, op: damage, components: [{kind: physical, amount: "${dmg_physical}"}], target: victim, when: "= event.source == 'sel'"}

@@ -54,4 +54,4 @@ gameplay:
       - {id: dmg_3, op: damage, components: [{kind: fire, amount: "${dmg_fire_2}"}], target: victim, ignore_invulnerability: true, when: "= event.source == 'sel_3'"}
       - {id: st_burn_3, op: status, status: burn, duration_ticks: "${burn_ticks}", target: victim, when: "= event.source == 'sel_3'"}
       - {id: stop_3, op: freeze, ticks: 2, scope: [enemy, caster], when: "= event.source == 'sel_3'"}
-      - {id: kb, op: knockback, direction: "= normalize(pos(victim) - pos(caster)) + vec(0.0, 0.1, 0.0)", strength: "${knockback}", when: "= event.source == 'sel_3'"}
+      - {id: kb, op: knockback, direction: "= normalize(flat(pos(victim) - pos(caster))) + vec(0.0, 0.1, 0.0)", strength: "${knockback}", when: "= event.source == 'sel_3'"}

@@ -503,9 +503,9 @@ class Conv:
         if t == "up":
             base = "vec(0.0, 1.0, 0.0)"
         elif t == "toward_caster":
-            base = "normalize(pos(caster) - pos(victim))" if not for_propel else "-axis(caster, \"forward\")"
+            base = "normalize(flat(pos(caster) - pos(victim)))" if not for_propel else "-axis(caster, \"forward\")"
         elif t in ("away_from_caster", "from_caster"):
-            base = "normalize(pos(victim) - pos(caster))" if not for_propel else "axis(caster, \"forward\")"
+            base = "normalize(flat(pos(victim) - pos(caster)))" if not for_propel else "axis(caster, \"forward\")"
         else:
             base = "axis(caster, \"forward\")"
         if vert and t != "up":
