@@ -1,0 +1,100 @@
+# ADR-0303 example (a): couture-rapier-s2 coin 1 presentation, rewritten from content/skills/couture-rapier-s2/coin1.yaml.
+# Shapes, rates and timings come from the current file (see the rule R1-R13 outputs); sizes in blocks are illustrative (the converter
+# computes them from each sprite's px). The 30-degree / 9-block sector, the 30 damage and the 1-tick delay stay in `gameplay` unchanged.
+apiVersion: astera/v3
+kind: Skill
+id: couture-rapier-s2
+anchors:
+  - {id: body,  at: caster}                         # follows; a display on it with mount: caster is a real passenger
+  - {id: slash, at: caster, mode: snapshot}         # coin-1 frame at t7: copied once, world-fixed after the swing starts
+presentation:
+  timeline:
+    - id: fx0
+      at: 0
+      do:
+        - {id: snd_a, op: sound, sound: entity.player.attack.sweep, at: caster, volume: 0.5, pitch: 0.6}
+        - {id: snd_b, op: sound, sound: item.armor.equip_chain,     at: caster, volume: 0.6, pitch: 1.4}
+    - id: fx3
+      at: 3
+      do:
+        - id: haze
+          op: display
+          kind: sprite
+          sprite: couture-s2-haze-soft
+          at: body
+          offset: {up: 0.9, forward: -0.1}
+          billboard: center
+          color: "#8A5CFF"
+          size: [0.8, 0.8]
+          life: {ticks: 8}
+          motion:
+            - {law: grow, from: 0, ticks: 3, per_tick: [0.133, 0.133]}      # 0.4 -> 0.8 (size starts [0.4, 0.4]), then holds
+          mount: caster
+    - id: fx7
+      at: 7
+      do:
+        # six streaks, same law, different start (offset / roll are data rows, not keys)
+        - each:
+            - {n: 0, up: 0.9, forward: 0.8, roll: 6}
+            - {n: 3, up: 2.1, forward: 1.2, roll: -8}
+            # (streaks 1 and 4 start one tick later, at t8; streak 2 at t9: separate `at:` blocks in the file)
+          id: "streak_${n}"
+          op: display
+          kind: sprite
+          sprite: couture-s2-streak
+          at: slash
+          offset: {up: "${up}", forward: "${forward}"}
+          billboard: center
+          rotate: [{axis: face, deg: "${roll}"}]       # constant roll is a static rotation, not a law
+          size: [0.2, 0.2]
+          life: {ticks: 5}
+          motion:
+            - {law: move, velocity: {forward: 1.2}, from: 0, ticks: 1}            # fast out
+            - {law: move, velocity: {forward: 0.35}, from: 1, ticks: 4}           # then slows
+            - {law: grow, per_tick: [0.3, 0], from: 0, ticks: 1}                  # 0.2 -> 0.5 wide
+            - {law: grow, per_tick: [-0.05, -0.02], from: 1, ticks: 4}            # -> 0.3 x 0.12
+        # crescent core: the irregular one, so keys (named axis `face`)
+        - id: core
+          op: display
+          kind: sprite
+          sprite: couture-s2-crescent-core
+          at: slash
+          offset: {up: 1.0, forward: -0.2}
+          billboard: center
+          size: [0.5, 0.4]
+          life: {ticks: 7}
+          motion:
+            - law: keys
+              keys:
+                - {t: 0, pose: [{axis: face, deg: 196}], offset: {forward: -0.2}, size: [0.5, 0.4]}
+                - {t: 1, pose: [{axis: face, deg: 190}], offset: {forward: 0.5},  size: [0.8, 0.62]}
+                - {t: 4, pose: [{axis: face, deg: 186}], offset: {forward: 0.3},  size: [0.74, 0.62]}
+                - {t: 6, pose: [{axis: face, deg: 176}], offset: {forward: -1.1}, size: [0.16, 0.5]}
+                - {t: 7, pose: [{axis: face, deg: 174}], offset: {forward: -1.5}, size: [0.06, 0.4]}
+    - id: fx8
+      at: 8
+      do:
+        # petals: 31 rows from the v1 plan, one law set. Petal 0 (verified against coin1.yaml):
+        #   offset  fwd 1.68 -> 1.88 (1 tick) -> 3.52 (4 ticks);  roll 309 -> 349 -> 509 = spin 40 deg/tick;  size 0.026 -> 0.064 -> 0.045 (x natural)
+        - each:
+            - {n: 0, left: -0.65, up: 0.65, forward: 1.68, roll: 309}
+            - {n: 5, left: 0.43,  up: 0.47, forward: 0.15, roll: 296}
+            - {n: 10, left: 0.34, up: 0.91, forward: 1.95, roll: 187}
+            # ... 28 more rows
+          id: "petal_${n}"
+          op: display
+          kind: sprite
+          sprite: couture-s2-petal-spark
+          at: slash
+          offset: {left: "${left}", up: "${up}", forward: "${forward}"}
+          rotate: [{axis: face, deg: "${roll}"}]
+          billboard: center
+          size: [0.3, 0.3]
+          life: {ticks: 5}
+          motion:
+            - {law: spin, axis: face, deg_per_tick: 40}
+            - {law: move, velocity: {forward: 0.2},  from: 0, ticks: 1}
+            - {law: move, velocity: {forward: 0.41, up: 0.0275}, from: 1, ticks: 4}
+            - {law: grow, per_tick: [0.44, 0.29], from: 0, ticks: 1}
+            - {law: grow, per_tick: [-0.055, -0.06], from: 1, ticks: 4}
+    - {id: sp_loop, at: 7, every: 1, ticks: 7, do: [{id: sp, op: particle_def, def: couture-s2-p-white, at: slash}]}
