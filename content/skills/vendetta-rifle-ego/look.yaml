@@ -1,12 +1,10 @@
 # Converted from content/skills/vendetta-rifle-ego.yaml + content/vfx/* by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
 # Generated point-frame offsets are [left, up, forward] in the parent frame.
-# CONVERT-PRESENT vfx frame orient (frames carry no orientation / scale) (x18): orient="yaw"
-# CONVERT-PRESENT vfx frame scale (frames carry no orientation / scale) (x2): scale=0.65
 apiVersion: "astera/v2"
 kind: Skill
 id: vendetta-rifle-ego
 frames:
-  - {id: fx1_vendetta_ready, kind: body, parent: caster}
+  - {id: fx1_vendetta_ready, kind: body, parent: caster, orient: yaw}
   - {id: fx1_vendetta_ready_bayonet_at, kind: body, parent: caster.right_hand}
   - {id: fx1_vendetta_ready_bayonet, kind: body, parent: fx1_vendetta_ready_bayonet_at}
   - {id: pt_fx1_vendetta_ready_bayonet_0_1p5_0, kind: point, parent: fx1_vendetta_ready_bayonet, offset: [0.0, 1.5, 0.0]}
@@ -169,204 +167,204 @@ presentation:
           op: track
           target: fx17_vendetta_burst_dark_0
           keys:
-            - {t: 0, offset: [-0.5, 0.1, 2.1], scale: [0.03, 0.04, 0.06], turn: [0.0, 0.0, 36.0]}
-            - {t: 2, scale: [0.3, 1.6, 0.16], ease: out_expo}
-            - {t: 7, scale: [0.12, 1.5, 0.1]}
+            - {t: 0, offset: [-0.325, 0.065, 1.365], scale: [0.0195, 0.026, 0.039], turn: [0.0, 0.0, 36.0]}
+            - {t: 2, scale: [0.195, 1.04, 0.104], ease: out_expo}
+            - {t: 7, scale: [0.078, 0.975, 0.065]}
             - {t: 11, scale: [0.0, 0.0, 0.0], ease: in_quad}
         - {op: block, parent: fx17_vendetta_burst, block: red_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx17_vendetta_burst_red_0}
         - id: fx17_vendetta_burst_red_0_trk
           op: track
           target: fx17_vendetta_burst_red_0
           keys:
-            - {t: 0, offset: [-0.5, 0.1, 2.0], scale: [0.03, 0.04, 0.06], turn: [0.0, 0.0, 36.0]}
-            - {t: 2, scale: [0.22, 1.6, 0.16], ease: out_expo}
-            - {t: 7, scale: [0.12, 1.5, 0.1]}
+            - {t: 0, offset: [-0.325, 0.065, 1.3], scale: [0.0195, 0.026, 0.039], turn: [0.0, 0.0, 36.0]}
+            - {t: 2, scale: [0.143, 1.04, 0.104], ease: out_expo}
+            - {t: 7, scale: [0.078, 0.975, 0.065]}
             - {t: 11, scale: [0.0, 0.0, 0.0], ease: in_quad}
         - {op: block, parent: fx17_vendetta_burst, block: black_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx17_vendetta_burst_dark_1}
         - id: fx17_vendetta_burst_dark_1_trk
           op: track
           target: fx17_vendetta_burst_dark_1
           keys:
-            - {t: 0, offset: [-0.25, 0.1, 2.1], scale: [0.03, 0.04, 0.06], turn: [0.0, 0.0, 18.0]}
-            - {t: 2, scale: [0.3, 2.05, 0.16], ease: out_expo}
-            - {t: 7, scale: [0.12, 1.5, 0.1]}
+            - {t: 0, offset: [-0.1625, 0.065, 1.365], scale: [0.0195, 0.026, 0.039], turn: [0.0, 0.0, 18.0]}
+            - {t: 2, scale: [0.195, 1.3325, 0.104], ease: out_expo}
+            - {t: 7, scale: [0.078, 0.975, 0.065]}
             - {t: 11, scale: [0.0, 0.0, 0.0], ease: in_quad}
         - {op: block, parent: fx17_vendetta_burst, block: red_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx17_vendetta_burst_red_1}
         - id: fx17_vendetta_burst_red_1_trk
           op: track
           target: fx17_vendetta_burst_red_1
           keys:
-            - {t: 0, offset: [-0.25, 0.1, 2.0], scale: [0.03, 0.04, 0.06], turn: [0.0, 0.0, 18.0]}
-            - {t: 2, scale: [0.22, 2.05, 0.16], ease: out_expo}
-            - {t: 7, scale: [0.12, 1.5, 0.1]}
+            - {t: 0, offset: [-0.1625, 0.065, 1.3], scale: [0.0195, 0.026, 0.039], turn: [0.0, 0.0, 18.0]}
+            - {t: 2, scale: [0.143, 1.3325, 0.104], ease: out_expo}
+            - {t: 7, scale: [0.078, 0.975, 0.065]}
             - {t: 11, scale: [0.0, 0.0, 0.0], ease: in_quad}
         - {op: block, parent: fx17_vendetta_burst, block: black_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx17_vendetta_burst_dark_2}
         - id: fx17_vendetta_burst_dark_2_trk
           op: track
           target: fx17_vendetta_burst_dark_2
           keys:
-            - {t: 0, offset: [0.0, 0.1, 2.1], scale: [0.03, 0.04, 0.06], turn: [0.0, 0.0, 0.0]}
-            - {t: 2, scale: [0.3, 2.5, 0.16], ease: out_expo}
-            - {t: 7, scale: [0.12, 1.5, 0.1]}
+            - {t: 0, offset: [0.0, 0.065, 1.365], scale: [0.0195, 0.026, 0.039], turn: [0.0, 0.0, 0.0]}
+            - {t: 2, scale: [0.195, 1.625, 0.104], ease: out_expo}
+            - {t: 7, scale: [0.078, 0.975, 0.065]}
             - {t: 11, scale: [0.0, 0.0, 0.0], ease: in_quad}
         - {op: block, parent: fx17_vendetta_burst, block: red_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx17_vendetta_burst_red_2}
         - id: fx17_vendetta_burst_red_2_trk
           op: track
           target: fx17_vendetta_burst_red_2
           keys:
-            - {t: 0, offset: [0.0, 0.1, 2.0], scale: [0.03, 0.04, 0.06], turn: [0.0, 0.0, 0.0]}
-            - {t: 2, scale: [0.22, 2.5, 0.16], ease: out_expo}
-            - {t: 7, scale: [0.12, 1.5, 0.1]}
+            - {t: 0, offset: [0.0, 0.065, 1.3], scale: [0.0195, 0.026, 0.039], turn: [0.0, 0.0, 0.0]}
+            - {t: 2, scale: [0.143, 1.625, 0.104], ease: out_expo}
+            - {t: 7, scale: [0.078, 0.975, 0.065]}
             - {t: 11, scale: [0.0, 0.0, 0.0], ease: in_quad}
         - {op: block, parent: fx17_vendetta_burst, block: black_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx17_vendetta_burst_dark_3}
         - id: fx17_vendetta_burst_dark_3_trk
           op: track
           target: fx17_vendetta_burst_dark_3
           keys:
-            - {t: 0, offset: [0.25, 0.1, 2.1], scale: [0.03, 0.04, 0.06], turn: [0.0, 0.0, -18.0]}
-            - {t: 2, scale: [0.3, 2.05, 0.16], ease: out_expo}
-            - {t: 7, scale: [0.12, 1.5, 0.1]}
+            - {t: 0, offset: [0.1625, 0.065, 1.365], scale: [0.0195, 0.026, 0.039], turn: [0.0, 0.0, -18.0]}
+            - {t: 2, scale: [0.195, 1.3325, 0.104], ease: out_expo}
+            - {t: 7, scale: [0.078, 0.975, 0.065]}
             - {t: 11, scale: [0.0, 0.0, 0.0], ease: in_quad}
         - {op: block, parent: fx17_vendetta_burst, block: red_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx17_vendetta_burst_red_3}
         - id: fx17_vendetta_burst_red_3_trk
           op: track
           target: fx17_vendetta_burst_red_3
           keys:
-            - {t: 0, offset: [0.25, 0.1, 2.0], scale: [0.03, 0.04, 0.06], turn: [0.0, 0.0, -18.0]}
-            - {t: 2, scale: [0.22, 2.05, 0.16], ease: out_expo}
-            - {t: 7, scale: [0.12, 1.5, 0.1]}
+            - {t: 0, offset: [0.1625, 0.065, 1.3], scale: [0.0195, 0.026, 0.039], turn: [0.0, 0.0, -18.0]}
+            - {t: 2, scale: [0.143, 1.3325, 0.104], ease: out_expo}
+            - {t: 7, scale: [0.078, 0.975, 0.065]}
             - {t: 11, scale: [0.0, 0.0, 0.0], ease: in_quad}
         - {op: block, parent: fx17_vendetta_burst, block: black_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx17_vendetta_burst_dark_4}
         - id: fx17_vendetta_burst_dark_4_trk
           op: track
           target: fx17_vendetta_burst_dark_4
           keys:
-            - {t: 0, offset: [0.5, 0.1, 2.1], scale: [0.03, 0.04, 0.06], turn: [0.0, 0.0, -36.0]}
-            - {t: 2, scale: [0.3, 1.6, 0.16], ease: out_expo}
-            - {t: 7, scale: [0.12, 1.5, 0.1]}
+            - {t: 0, offset: [0.325, 0.065, 1.365], scale: [0.0195, 0.026, 0.039], turn: [0.0, 0.0, -36.0]}
+            - {t: 2, scale: [0.195, 1.04, 0.104], ease: out_expo}
+            - {t: 7, scale: [0.078, 0.975, 0.065]}
             - {t: 11, scale: [0.0, 0.0, 0.0], ease: in_quad}
         - {op: block, parent: fx17_vendetta_burst, block: red_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx17_vendetta_burst_red_4}
         - id: fx17_vendetta_burst_red_4_trk
           op: track
           target: fx17_vendetta_burst_red_4
           keys:
-            - {t: 0, offset: [0.5, 0.1, 2.0], scale: [0.03, 0.04, 0.06], turn: [0.0, 0.0, -36.0]}
-            - {t: 2, scale: [0.22, 1.6, 0.16], ease: out_expo}
-            - {t: 7, scale: [0.12, 1.5, 0.1]}
+            - {t: 0, offset: [0.325, 0.065, 1.3], scale: [0.0195, 0.026, 0.039], turn: [0.0, 0.0, -36.0]}
+            - {t: 2, scale: [0.143, 1.04, 0.104], ease: out_expo}
+            - {t: 7, scale: [0.078, 0.975, 0.065]}
             - {t: 11, scale: [0.0, 0.0, 0.0], ease: in_quad}
     - id: fx36
       at: 36
       do:
-        - {id: fx17_vendetta_burst_ember_0_atrk, op: track, target: fx17_vendetta_burst_ember_0_at, space: fx17_vendetta_burst, keys: [{t: 0, offset: [-0.5, 0.7, 2]}]}
-        - {id: fx17_vendetta_burst_ember_1_atrk, op: track, target: fx17_vendetta_burst_ember_1_at, space: fx17_vendetta_burst, keys: [{t: 0, offset: [-0.25, 0.7, 2]}]}
-        - {id: fx17_vendetta_burst_ember_2_atrk, op: track, target: fx17_vendetta_burst_ember_2_at, space: fx17_vendetta_burst, keys: [{t: 0, offset: [0.0, 0.7, 2]}]}
-        - {id: fx17_vendetta_burst_ember_3_atrk, op: track, target: fx17_vendetta_burst_ember_3_at, space: fx17_vendetta_burst, keys: [{t: 0, offset: [0.25, 0.7, 2]}]}
-        - {id: fx17_vendetta_burst_ember_4_atrk, op: track, target: fx17_vendetta_burst_ember_4_at, space: fx17_vendetta_burst, keys: [{t: 0, offset: [0.5, 0.7, 2]}]}
+        - {id: fx17_vendetta_burst_ember_0_atrk, op: track, target: fx17_vendetta_burst_ember_0_at, space: fx17_vendetta_burst, keys: [{t: 0, offset: [-0.325, 0.455, 1.3]}]}
+        - {id: fx17_vendetta_burst_ember_1_atrk, op: track, target: fx17_vendetta_burst_ember_1_at, space: fx17_vendetta_burst, keys: [{t: 0, offset: [-0.1625, 0.455, 1.3]}]}
+        - {id: fx17_vendetta_burst_ember_2_atrk, op: track, target: fx17_vendetta_burst_ember_2_at, space: fx17_vendetta_burst, keys: [{t: 0, offset: [0.0, 0.455, 1.3]}]}
+        - {id: fx17_vendetta_burst_ember_3_atrk, op: track, target: fx17_vendetta_burst_ember_3_at, space: fx17_vendetta_burst, keys: [{t: 0, offset: [0.1625, 0.455, 1.3]}]}
+        - {id: fx17_vendetta_burst_ember_4_atrk, op: track, target: fx17_vendetta_burst_ember_4_at, space: fx17_vendetta_burst, keys: [{t: 0, offset: [0.325, 0.455, 1.3]}]}
         - {id: fx17_vendetta_burst_petals_0, op: quad, parent: fx17_vendetta_burst, face: {viewer: center}, size: [1.0, 1.0], color: "#F52952", alpha: 0.95, brightness: 15}
         - id: fx17_vendetta_burst_petals_0_trk
           op: track
           target: fx17_vendetta_burst_petals_0
           keys:
-            - {t: 0, offset: [0.0, 1.1, 2.1], scale: [0.16, 0.16, 1.0], alpha: 0.95, turn: [0.0, 0.0, -15.0]}
-            - {t: 1, offset: [0.0915, 1.24918, 2.1], scale: [0.137143, 0.137143, 1.0], alpha: 0.81429, turn: [0.0, 0.0, -30.0]}
-            - {t: 2, offset: [0.17385, 1.36723, 2.1], scale: [0.114286, 0.114286, 1.0], alpha: 0.67857, turn: [0.0, 0.0, -45.0]}
-            - {t: 3, offset: [0.24796, 1.45728, 2.1], scale: [0.091429, 0.091429, 1.0], alpha: 0.54286, turn: [0.0, 0.0, -60.0]}
-            - {t: 4, offset: [0.31467, 1.52213, 2.1], scale: [0.068571, 0.068571, 1.0], alpha: 0.40714, turn: [0.0, 0.0, -75.0]}
-            - {t: 5, offset: [0.3747, 1.56429, 2.1], scale: [0.045714, 0.045714, 1.0], alpha: 0.27143, turn: [0.0, 0.0, -90.0]}
-            - {t: 6, offset: [0.42873, 1.58604, 2.1], scale: [0.022857, 0.022857, 1.0], alpha: 0.13571, turn: [0.0, 0.0, -105.0]}
-            - {t: 7, offset: [0.47735, 1.58941, 2.1], scale: [0.0, 0.0, 1.0], alpha: 0.0, turn: [0.0, 0.0, -120.0]}
+            - {t: 0, offset: [0.0, 0.715, 1.365], scale: [0.104, 0.104, 1.0], alpha: 0.95, turn: [0.0, 0.0, -15.0]}
+            - {t: 1, offset: [0.05947, 0.81196, 1.365], scale: [0.089143, 0.089143, 1.0], alpha: 0.81429, turn: [0.0, 0.0, -30.0]}
+            - {t: 2, offset: [0.113, 0.8887, 1.365], scale: [0.074286, 0.074286, 1.0], alpha: 0.67857, turn: [0.0, 0.0, -45.0]}
+            - {t: 3, offset: [0.16118, 0.94723, 1.365], scale: [0.059429, 0.059429, 1.0], alpha: 0.54286, turn: [0.0, 0.0, -60.0]}
+            - {t: 4, offset: [0.20453, 0.98939, 1.365], scale: [0.044571, 0.044571, 1.0], alpha: 0.40714, turn: [0.0, 0.0, -75.0]}
+            - {t: 5, offset: [0.24355, 1.01679, 1.365], scale: [0.029714, 0.029714, 1.0], alpha: 0.27143, turn: [0.0, 0.0, -90.0]}
+            - {t: 6, offset: [0.27867, 1.03093, 1.365], scale: [0.014857, 0.014857, 1.0], alpha: 0.13571, turn: [0.0, 0.0, -105.0]}
+            - {t: 7, offset: [0.31028, 1.03312, 1.365], scale: [0.0, 0.0, 1.0], alpha: 0.0, turn: [0.0, 0.0, -120.0]}
         - {id: fx17_vendetta_burst_petals_1, op: quad, parent: fx17_vendetta_burst, face: {viewer: center}, size: [1.0, 1.0], color: "#F52952", alpha: 0.95, brightness: 15}
         - id: fx17_vendetta_burst_petals_1_trk
           op: track
           target: fx17_vendetta_burst_petals_1
           keys:
-            - {t: 0, offset: [0.0, 1.1, 2.1], scale: [0.16, 0.16, 1.0], alpha: 0.95, turn: [0.0, 0.0, 15.0]}
-            - {t: 1, offset: [-0.10879, 1.20193, 2.19966], scale: [0.137143, 0.137143, 1.0], alpha: 0.81429, turn: [0.0, 0.0, 30.0]}
-            - {t: 2, offset: [-0.2067, 1.27746, 2.28936], scale: [0.114286, 0.114286, 1.0], alpha: 0.67857, turn: [0.0, 0.0, 45.0]}
-            - {t: 3, offset: [-0.29482, 1.32924, 2.37008], scale: [0.091429, 0.091429, 1.0], alpha: 0.54286, turn: [0.0, 0.0, 60.0]}
-            - {t: 4, offset: [-0.37413, 1.35964, 2.44273], scale: [0.068571, 0.068571, 1.0], alpha: 0.40714, turn: [0.0, 0.0, 75.0]}
-            - {t: 5, offset: [-0.44551, 1.3708, 2.50812], scale: [0.045714, 0.045714, 1.0], alpha: 0.27143, turn: [0.0, 0.0, 90.0]}
-            - {t: 6, offset: [-0.50975, 1.36464, 2.56697], scale: [0.022857, 0.022857, 1.0], alpha: 0.13571, turn: [0.0, 0.0, 105.0]}
-            - {t: 7, offset: [-0.56756, 1.3429, 2.61993], scale: [0.0, 0.0, 1.0], alpha: 0.0, turn: [0.0, 0.0, 120.0]}
+            - {t: 0, offset: [0.0, 0.715, 1.365], scale: [0.104, 0.104, 1.0], alpha: 0.95, turn: [0.0, 0.0, 15.0]}
+            - {t: 1, offset: [-0.07071, 0.78125, 1.42978], scale: [0.089143, 0.089143, 1.0], alpha: 0.81429, turn: [0.0, 0.0, 30.0]}
+            - {t: 2, offset: [-0.13436, 0.83035, 1.48808], scale: [0.074286, 0.074286, 1.0], alpha: 0.67857, turn: [0.0, 0.0, 45.0]}
+            - {t: 3, offset: [-0.19163, 0.864, 1.54055], scale: [0.059429, 0.059429, 1.0], alpha: 0.54286, turn: [0.0, 0.0, 60.0]}
+            - {t: 4, offset: [-0.24318, 0.88376, 1.58778], scale: [0.044571, 0.044571, 1.0], alpha: 0.40714, turn: [0.0, 0.0, 75.0]}
+            - {t: 5, offset: [-0.28958, 0.89102, 1.63028], scale: [0.029714, 0.029714, 1.0], alpha: 0.27143, turn: [0.0, 0.0, 90.0]}
+            - {t: 6, offset: [-0.33133, 0.88702, 1.66853], scale: [0.014857, 0.014857, 1.0], alpha: 0.13571, turn: [0.0, 0.0, 105.0]}
+            - {t: 7, offset: [-0.36891, 0.87289, 1.70296], scale: [0.0, 0.0, 1.0], alpha: 0.0, turn: [0.0, 0.0, 120.0]}
         - {id: fx17_vendetta_burst_petals_2, op: quad, parent: fx17_vendetta_burst, face: {viewer: center}, size: [1.0, 1.0], color: "#F52952", alpha: 0.95, brightness: 15}
         - id: fx17_vendetta_burst_petals_2_trk
           op: track
           target: fx17_vendetta_burst_petals_2
           keys:
-            - {t: 0, offset: [0.0, 1.1, 2.1], scale: [0.16, 0.16, 1.0], alpha: 0.95, turn: [0.0, 0.0, -15.0]}
-            - {t: 1, offset: [0.01532, 1.15468, 1.92546], scale: [0.137143, 0.137143, 1.0], alpha: 0.81429, turn: [0.0, 0.0, -30.0]}
-            - {t: 2, offset: [0.0291, 1.18768, 1.76838], scale: [0.114286, 0.114286, 1.0], alpha: 0.67857, turn: [0.0, 0.0, -45.0]}
-            - {t: 3, offset: [0.04151, 1.20119, 1.62701], scale: [0.091429, 0.091429, 1.0], alpha: 0.54286, turn: [0.0, 0.0, -60.0]}
-            - {t: 4, offset: [0.05268, 1.19715, 1.49977], scale: [0.068571, 0.068571, 1.0], alpha: 0.40714, turn: [0.0, 0.0, -75.0]}
-            - {t: 5, offset: [0.06273, 1.17731, 1.38525], scale: [0.045714, 0.045714, 1.0], alpha: 0.27143, turn: [0.0, 0.0, -90.0]}
-            - {t: 6, offset: [0.07177, 1.14325, 1.28219], scale: [0.022857, 0.022857, 1.0], alpha: 0.13571, turn: [0.0, 0.0, -105.0]}
-            - {t: 7, offset: [0.07991, 1.0964, 1.18944], scale: [0.0, 0.0, 1.0], alpha: 0.0, turn: [0.0, 0.0, -120.0]}
+            - {t: 0, offset: [0.0, 0.715, 1.365], scale: [0.104, 0.104, 1.0], alpha: 0.95, turn: [0.0, 0.0, -15.0]}
+            - {t: 1, offset: [0.00996, 0.75054, 1.25155], scale: [0.089143, 0.089143, 1.0], alpha: 0.81429, turn: [0.0, 0.0, -30.0]}
+            - {t: 2, offset: [0.01892, 0.77199, 1.14945], scale: [0.074286, 0.074286, 1.0], alpha: 0.67857, turn: [0.0, 0.0, -45.0]}
+            - {t: 3, offset: [0.02698, 0.78077, 1.05755], scale: [0.059429, 0.059429, 1.0], alpha: 0.54286, turn: [0.0, 0.0, -60.0]}
+            - {t: 4, offset: [0.03424, 0.77814, 0.97485], scale: [0.044571, 0.044571, 1.0], alpha: 0.40714, turn: [0.0, 0.0, -75.0]}
+            - {t: 5, offset: [0.04077, 0.76525, 0.90042], scale: [0.029714, 0.029714, 1.0], alpha: 0.27143, turn: [0.0, 0.0, -90.0]}
+            - {t: 6, offset: [0.04665, 0.74311, 0.83342], scale: [0.014857, 0.014857, 1.0], alpha: 0.13571, turn: [0.0, 0.0, -105.0]}
+            - {t: 7, offset: [0.05194, 0.71266, 0.77313], scale: [0.0, 0.0, 1.0], alpha: 0.0, turn: [0.0, 0.0, -120.0]}
         - {id: fx17_vendetta_burst_petals_3, op: quad, parent: fx17_vendetta_burst, face: {viewer: center}, size: [1.0, 1.0], color: "#F52952", alpha: 0.95, brightness: 15}
         - id: fx17_vendetta_burst_petals_3_trk
           op: track
           target: fx17_vendetta_burst_petals_3
           keys:
-            - {t: 0, offset: [0.0, 1.1, 2.1], scale: [0.16, 0.16, 1.0], alpha: 0.95, turn: [0.0, 0.0, 15.0]}
-            - {t: 1, offset: [0.11409, 1.10743, 2.24881], scale: [0.137143, 0.137143, 1.0], alpha: 0.81429, turn: [0.0, 0.0, 30.0]}
-            - {t: 2, offset: [0.21678, 1.09791, 2.38275], scale: [0.114286, 0.114286, 1.0], alpha: 0.67857, turn: [0.0, 0.0, 45.0]}
-            - {t: 3, offset: [0.30919, 1.07314, 2.50329], scale: [0.091429, 0.091429, 1.0], alpha: 0.54286, turn: [0.0, 0.0, 60.0]}
-            - {t: 4, offset: [0.39237, 1.03465, 2.61177], scale: [0.068571, 0.068571, 1.0], alpha: 0.40714, turn: [0.0, 0.0, 75.0]}
-            - {t: 5, offset: [0.46722, 0.98381, 2.70941], scale: [0.045714, 0.045714, 1.0], alpha: 0.27143, turn: [0.0, 0.0, 90.0]}
-            - {t: 6, offset: [0.53459, 0.92186, 2.79728], scale: [0.022857, 0.022857, 1.0], alpha: 0.13571, turn: [0.0, 0.0, 105.0]}
-            - {t: 7, offset: [0.59523, 0.8499, 2.87637], scale: [0.0, 0.0, 1.0], alpha: 0.0, turn: [0.0, 0.0, 120.0]}
+            - {t: 0, offset: [0.0, 0.715, 1.365], scale: [0.104, 0.104, 1.0], alpha: 0.95, turn: [0.0, 0.0, 15.0]}
+            - {t: 1, offset: [0.07416, 0.71983, 1.46173], scale: [0.089143, 0.089143, 1.0], alpha: 0.81429, turn: [0.0, 0.0, 30.0]}
+            - {t: 2, offset: [0.1409, 0.71364, 1.54879], scale: [0.074286, 0.074286, 1.0], alpha: 0.67857, turn: [0.0, 0.0, 45.0]}
+            - {t: 3, offset: [0.20097, 0.69754, 1.62714], scale: [0.059429, 0.059429, 1.0], alpha: 0.54286, turn: [0.0, 0.0, 60.0]}
+            - {t: 4, offset: [0.25504, 0.67252, 1.69765], scale: [0.044571, 0.044571, 1.0], alpha: 0.40714, turn: [0.0, 0.0, 75.0]}
+            - {t: 5, offset: [0.30369, 0.63948, 1.76112], scale: [0.029714, 0.029714, 1.0], alpha: 0.27143, turn: [0.0, 0.0, 90.0]}
+            - {t: 6, offset: [0.34749, 0.59921, 1.81823], scale: [0.014857, 0.014857, 1.0], alpha: 0.13571, turn: [0.0, 0.0, 105.0]}
+            - {t: 7, offset: [0.3869, 0.55243, 1.86964], scale: [0.0, 0.0, 1.0], alpha: 0.0, turn: [0.0, 0.0, 120.0]}
         - {id: fx17_vendetta_burst_petals_4, op: quad, parent: fx17_vendetta_burst, face: {viewer: center}, size: [1.0, 1.0], color: "#F52952", alpha: 0.95, brightness: 15}
         - id: fx17_vendetta_burst_petals_4_trk
           op: track
           target: fx17_vendetta_burst_petals_4
           keys:
-            - {t: 0, offset: [0.0, 1.1, 2.1], scale: [0.16, 0.16, 1.0], alpha: 0.95, turn: [0.0, 0.0, -15.0]}
-            - {t: 1, offset: [-0.18465, 1.06018, 2.06734], scale: [0.137143, 0.137143, 1.0], alpha: 0.81429, turn: [0.0, 0.0, -30.0]}
-            - {t: 2, offset: [-0.35084, 1.00813, 2.03794], scale: [0.114286, 0.114286, 1.0], alpha: 0.67857, turn: [0.0, 0.0, -45.0]}
-            - {t: 3, offset: [-0.5004, 0.94509, 2.01149], scale: [0.091429, 0.091429, 1.0], alpha: 0.54286, turn: [0.0, 0.0, -60.0]}
-            - {t: 4, offset: [-0.63502, 0.87216, 1.98767], scale: [0.068571, 0.068571, 1.0], alpha: 0.40714, turn: [0.0, 0.0, -75.0]}
-            - {t: 5, offset: [-0.75616, 0.79032, 1.96625], scale: [0.045714, 0.045714, 1.0], alpha: 0.27143, turn: [0.0, 0.0, -90.0]}
-            - {t: 6, offset: [-0.8652, 0.70046, 1.94696], scale: [0.022857, 0.022857, 1.0], alpha: 0.13571, turn: [0.0, 0.0, -105.0]}
-            - {t: 7, offset: [-0.96333, 0.60339, 1.9296], scale: [0.0, 0.0, 1.0], alpha: 0.0, turn: [0.0, 0.0, -120.0]}
+            - {t: 0, offset: [0.0, 0.715, 1.365], scale: [0.104, 0.104, 1.0], alpha: 0.95, turn: [0.0, 0.0, -15.0]}
+            - {t: 1, offset: [-0.12002, 0.68911, 1.34377], scale: [0.089143, 0.089143, 1.0], alpha: 0.81429, turn: [0.0, 0.0, -30.0]}
+            - {t: 2, offset: [-0.22804, 0.65529, 1.32466], scale: [0.074286, 0.074286, 1.0], alpha: 0.67857, turn: [0.0, 0.0, -45.0]}
+            - {t: 3, offset: [-0.32526, 0.61431, 1.30747], scale: [0.059429, 0.059429, 1.0], alpha: 0.54286, turn: [0.0, 0.0, -60.0]}
+            - {t: 4, offset: [-0.41276, 0.5669, 1.29199], scale: [0.044571, 0.044571, 1.0], alpha: 0.40714, turn: [0.0, 0.0, -75.0]}
+            - {t: 5, offset: [-0.49151, 0.51371, 1.27806], scale: [0.029714, 0.029714, 1.0], alpha: 0.27143, turn: [0.0, 0.0, -90.0]}
+            - {t: 6, offset: [-0.56238, 0.4553, 1.26552], scale: [0.014857, 0.014857, 1.0], alpha: 0.13571, turn: [0.0, 0.0, -105.0]}
+            - {t: 7, offset: [-0.62616, 0.3922, 1.25424], scale: [0.0, 0.0, 1.0], alpha: 0.0, turn: [0.0, 0.0, -120.0]}
         - {id: fx17_vendetta_burst_petals_5, op: quad, parent: fx17_vendetta_burst, face: {viewer: center}, size: [1.0, 1.0], color: "#F52952", alpha: 0.95, brightness: 15}
         - id: fx17_vendetta_burst_petals_5_trk
           op: track
           target: fx17_vendetta_burst_petals_5
           keys:
-            - {t: 0, offset: [0.0, 1.1, 2.1], scale: [0.16, 0.16, 1.0], alpha: 0.95, turn: [0.0, 0.0, 15.0]}
-            - {t: 1, offset: [0.14783, 1.01293, 2.00596], scale: [0.137143, 0.137143, 1.0], alpha: 0.81429, turn: [0.0, 0.0, 30.0]}
-            - {t: 2, offset: [0.28088, 0.91836, 1.92133], scale: [0.114286, 0.114286, 1.0], alpha: 0.67857, turn: [0.0, 0.0, 45.0]}
-            - {t: 3, offset: [0.40063, 0.81705, 1.84515], scale: [0.091429, 0.091429, 1.0], alpha: 0.54286, turn: [0.0, 0.0, 60.0]}
-            - {t: 4, offset: [0.5084, 0.70967, 1.7766], scale: [0.068571, 0.068571, 1.0], alpha: 0.40714, turn: [0.0, 0.0, 75.0]}
-            - {t: 5, offset: [0.60539, 0.59683, 1.7149], scale: [0.045714, 0.045714, 1.0], alpha: 0.27143, turn: [0.0, 0.0, 90.0]}
-            - {t: 6, offset: [0.69268, 0.47907, 1.65937], scale: [0.022857, 0.022857, 1.0], alpha: 0.13571, turn: [0.0, 0.0, 105.0]}
-            - {t: 7, offset: [0.77125, 0.35689, 1.6094], scale: [0.0, 0.0, 1.0], alpha: 0.0, turn: [0.0, 0.0, 120.0]}
+            - {t: 0, offset: [0.0, 0.715, 1.365], scale: [0.104, 0.104, 1.0], alpha: 0.95, turn: [0.0, 0.0, 15.0]}
+            - {t: 1, offset: [0.09609, 0.6584, 1.30387], scale: [0.089143, 0.089143, 1.0], alpha: 0.81429, turn: [0.0, 0.0, 30.0]}
+            - {t: 2, offset: [0.18257, 0.59693, 1.24886], scale: [0.074286, 0.074286, 1.0], alpha: 0.67857, turn: [0.0, 0.0, 45.0]}
+            - {t: 3, offset: [0.26041, 0.53108, 1.19935], scale: [0.059429, 0.059429, 1.0], alpha: 0.54286, turn: [0.0, 0.0, 60.0]}
+            - {t: 4, offset: [0.33046, 0.46128, 1.15479], scale: [0.044571, 0.044571, 1.0], alpha: 0.40714, turn: [0.0, 0.0, 75.0]}
+            - {t: 5, offset: [0.3935, 0.38794, 1.11469], scale: [0.029714, 0.029714, 1.0], alpha: 0.27143, turn: [0.0, 0.0, 90.0]}
+            - {t: 6, offset: [0.45024, 0.31139, 1.07859], scale: [0.014857, 0.014857, 1.0], alpha: 0.13571, turn: [0.0, 0.0, 105.0]}
+            - {t: 7, offset: [0.50131, 0.23198, 1.04611], scale: [0.0, 0.0, 1.0], alpha: 0.0, turn: [0.0, 0.0, 120.0]}
         - {id: fx17_vendetta_burst_petals_6, op: quad, parent: fx17_vendetta_burst, face: {viewer: center}, size: [1.0, 1.0], color: "#F52952", alpha: 0.95, brightness: 15}
         - id: fx17_vendetta_burst_petals_6_trk
           op: track
           target: fx17_vendetta_burst_petals_6
           keys:
-            - {t: 0, offset: [0.0, 1.1, 2.1], scale: [0.16, 0.16, 1.0], alpha: 0.95, turn: [0.0, 0.0, -15.0]}
-            - {t: 1, offset: [-0.0383, 0.96568, 2.24248], scale: [0.137143, 0.137143, 1.0], alpha: 0.81429, turn: [0.0, 0.0, -30.0]}
-            - {t: 2, offset: [-0.07277, 0.82858, 2.37071], scale: [0.114286, 0.114286, 1.0], alpha: 0.67857, turn: [0.0, 0.0, -45.0]}
-            - {t: 3, offset: [-0.1038, 0.689, 2.48612], scale: [0.091429, 0.091429, 1.0], alpha: 0.54286, turn: [0.0, 0.0, -60.0]}
-            - {t: 4, offset: [-0.13172, 0.54717, 2.58999], scale: [0.068571, 0.068571, 1.0], alpha: 0.40714, turn: [0.0, 0.0, -75.0]}
-            - {t: 5, offset: [-0.15685, 0.40333, 2.68347], scale: [0.045714, 0.045714, 1.0], alpha: 0.27143, turn: [0.0, 0.0, -90.0]}
-            - {t: 6, offset: [-0.17947, 0.25767, 2.7676], scale: [0.022857, 0.022857, 1.0], alpha: 0.13571, turn: [0.0, 0.0, -105.0]}
-            - {t: 7, offset: [-0.19982, 0.11038, 2.84332], scale: [0.0, 0.0, 1.0], alpha: 0.0, turn: [0.0, 0.0, -120.0]}
+            - {t: 0, offset: [0.0, 0.715, 1.365], scale: [0.104, 0.104, 1.0], alpha: 0.95, turn: [0.0, 0.0, -15.0]}
+            - {t: 1, offset: [-0.0249, 0.62769, 1.45761], scale: [0.089143, 0.089143, 1.0], alpha: 0.81429, turn: [0.0, 0.0, -30.0]}
+            - {t: 2, offset: [-0.0473, 0.53858, 1.54096], scale: [0.074286, 0.074286, 1.0], alpha: 0.67857, turn: [0.0, 0.0, -45.0]}
+            - {t: 3, offset: [-0.06747, 0.44785, 1.61598], scale: [0.059429, 0.059429, 1.0], alpha: 0.54286, turn: [0.0, 0.0, -60.0]}
+            - {t: 4, offset: [-0.08562, 0.35566, 1.68349], scale: [0.044571, 0.044571, 1.0], alpha: 0.40714, turn: [0.0, 0.0, -75.0]}
+            - {t: 5, offset: [-0.10195, 0.26217, 1.74425], scale: [0.029714, 0.029714, 1.0], alpha: 0.27143, turn: [0.0, 0.0, -90.0]}
+            - {t: 6, offset: [-0.11665, 0.16749, 1.79894], scale: [0.014857, 0.014857, 1.0], alpha: 0.13571, turn: [0.0, 0.0, -105.0]}
+            - {t: 7, offset: [-0.12988, 0.07175, 1.84816], scale: [0.0, 0.0, 1.0], alpha: 0.0, turn: [0.0, 0.0, -120.0]}
         - {id: fx17_vendetta_burst_petals_7, op: quad, parent: fx17_vendetta_burst, face: {viewer: center}, size: [1.0, 1.0], color: "#F52952", alpha: 0.95, brightness: 15}
         - id: fx17_vendetta_burst_petals_7_trk
           op: track
           target: fx17_vendetta_burst_petals_7
           keys:
-            - {t: 0, offset: [0.0, 1.1, 2.1], scale: [0.16, 0.16, 1.0], alpha: 0.95, turn: [0.0, 0.0, 15.0]}
-            - {t: 1, offset: [-0.04217, 0.91843, 2.0188], scale: [0.137143, 0.137143, 1.0], alpha: 0.81429, turn: [0.0, 0.0, 30.0]}
-            - {t: 2, offset: [-0.08013, 0.73881, 1.94572], scale: [0.114286, 0.114286, 1.0], alpha: 0.67857, turn: [0.0, 0.0, 45.0]}
-            - {t: 3, offset: [-0.11429, 0.56095, 1.87995], scale: [0.091429, 0.091429, 1.0], alpha: 0.54286, turn: [0.0, 0.0, 60.0]}
-            - {t: 4, offset: [-0.14503, 0.38468, 1.82075], scale: [0.068571, 0.068571, 1.0], alpha: 0.40714, turn: [0.0, 0.0, 75.0]}
-            - {t: 5, offset: [-0.1727, 0.20984, 1.76747], scale: [0.045714, 0.045714, 1.0], alpha: 0.27143, turn: [0.0, 0.0, 90.0]}
-            - {t: 6, offset: [-0.1976, 0.03628, 1.71953], scale: [0.022857, 0.022857, 1.0], alpha: 0.13571, turn: [0.0, 0.0, 105.0]}
-            - {t: 7, offset: [-0.22002, -0.13612, 1.67637], scale: [0.0, 0.0, 1.0], alpha: 0.0, turn: [0.0, 0.0, 120.0]}
-    - {id: fx43, at: 43, do: [{id: fx17_vendetta_burst_smoke_atrk, op: track, target: fx17_vendetta_burst_smoke_at, space: fx17_vendetta_burst, keys: [{t: 0, offset: [0, 0.4, 2]}]}]}
+            - {t: 0, offset: [0.0, 0.715, 1.365], scale: [0.104, 0.104, 1.0], alpha: 0.95, turn: [0.0, 0.0, 15.0]}
+            - {t: 1, offset: [-0.02741, 0.59698, 1.31222], scale: [0.089143, 0.089143, 1.0], alpha: 0.81429, turn: [0.0, 0.0, 30.0]}
+            - {t: 2, offset: [-0.05208, 0.48022, 1.26472], scale: [0.074286, 0.074286, 1.0], alpha: 0.67857, turn: [0.0, 0.0, 45.0]}
+            - {t: 3, offset: [-0.07429, 0.36462, 1.22196], scale: [0.059429, 0.059429, 1.0], alpha: 0.54286, turn: [0.0, 0.0, 60.0]}
+            - {t: 4, offset: [-0.09427, 0.25004, 1.18349], scale: [0.044571, 0.044571, 1.0], alpha: 0.40714, turn: [0.0, 0.0, 75.0]}
+            - {t: 5, offset: [-0.11226, 0.13639, 1.14886], scale: [0.029714, 0.029714, 1.0], alpha: 0.27143, turn: [0.0, 0.0, 90.0]}
+            - {t: 6, offset: [-0.12844, 0.02358, 1.11769], scale: [0.014857, 0.014857, 1.0], alpha: 0.13571, turn: [0.0, 0.0, 105.0]}
+            - {t: 7, offset: [-0.14301, -0.08848, 1.08964], scale: [0.0, 0.0, 1.0], alpha: 0.0, turn: [0.0, 0.0, 120.0]}
+    - {id: fx43, at: 43, do: [{id: fx17_vendetta_burst_smoke_atrk, op: track, target: fx17_vendetta_burst_smoke_at, space: fx17_vendetta_burst, keys: [{t: 0, offset: [0.0, 0.26, 1.3]}]}]}
     - id: fx44
       at: 44
       do:
@@ -1789,204 +1787,204 @@ presentation:
           op: track
           target: fx18_vendetta_burst_dark_0
           keys:
-            - {t: 0, offset: [-0.5, 0.1, 2.1], scale: [0.03, 0.04, 0.06], turn: [0.0, 0.0, 36.0]}
-            - {t: 2, scale: [0.3, 1.6, 0.16], ease: out_expo}
-            - {t: 7, scale: [0.12, 1.5, 0.1]}
+            - {t: 0, offset: [-0.325, 0.065, 1.365], scale: [0.0195, 0.026, 0.039], turn: [0.0, 0.0, 36.0]}
+            - {t: 2, scale: [0.195, 1.04, 0.104], ease: out_expo}
+            - {t: 7, scale: [0.078, 0.975, 0.065]}
             - {t: 11, scale: [0.0, 0.0, 0.0], ease: in_quad}
         - {op: block, parent: fx18_vendetta_burst, block: red_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx18_vendetta_burst_red_0}
         - id: fx18_vendetta_burst_red_0_trk
           op: track
           target: fx18_vendetta_burst_red_0
           keys:
-            - {t: 0, offset: [-0.5, 0.1, 2.0], scale: [0.03, 0.04, 0.06], turn: [0.0, 0.0, 36.0]}
-            - {t: 2, scale: [0.22, 1.6, 0.16], ease: out_expo}
-            - {t: 7, scale: [0.12, 1.5, 0.1]}
+            - {t: 0, offset: [-0.325, 0.065, 1.3], scale: [0.0195, 0.026, 0.039], turn: [0.0, 0.0, 36.0]}
+            - {t: 2, scale: [0.143, 1.04, 0.104], ease: out_expo}
+            - {t: 7, scale: [0.078, 0.975, 0.065]}
             - {t: 11, scale: [0.0, 0.0, 0.0], ease: in_quad}
         - {op: block, parent: fx18_vendetta_burst, block: black_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx18_vendetta_burst_dark_1}
         - id: fx18_vendetta_burst_dark_1_trk
           op: track
           target: fx18_vendetta_burst_dark_1
           keys:
-            - {t: 0, offset: [-0.25, 0.1, 2.1], scale: [0.03, 0.04, 0.06], turn: [0.0, 0.0, 18.0]}
-            - {t: 2, scale: [0.3, 2.05, 0.16], ease: out_expo}
-            - {t: 7, scale: [0.12, 1.5, 0.1]}
+            - {t: 0, offset: [-0.1625, 0.065, 1.365], scale: [0.0195, 0.026, 0.039], turn: [0.0, 0.0, 18.0]}
+            - {t: 2, scale: [0.195, 1.3325, 0.104], ease: out_expo}
+            - {t: 7, scale: [0.078, 0.975, 0.065]}
             - {t: 11, scale: [0.0, 0.0, 0.0], ease: in_quad}
         - {op: block, parent: fx18_vendetta_burst, block: red_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx18_vendetta_burst_red_1}
         - id: fx18_vendetta_burst_red_1_trk
           op: track
           target: fx18_vendetta_burst_red_1
           keys:
-            - {t: 0, offset: [-0.25, 0.1, 2.0], scale: [0.03, 0.04, 0.06], turn: [0.0, 0.0, 18.0]}
-            - {t: 2, scale: [0.22, 2.05, 0.16], ease: out_expo}
-            - {t: 7, scale: [0.12, 1.5, 0.1]}
+            - {t: 0, offset: [-0.1625, 0.065, 1.3], scale: [0.0195, 0.026, 0.039], turn: [0.0, 0.0, 18.0]}
+            - {t: 2, scale: [0.143, 1.3325, 0.104], ease: out_expo}
+            - {t: 7, scale: [0.078, 0.975, 0.065]}
             - {t: 11, scale: [0.0, 0.0, 0.0], ease: in_quad}
         - {op: block, parent: fx18_vendetta_burst, block: black_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx18_vendetta_burst_dark_2}
         - id: fx18_vendetta_burst_dark_2_trk
           op: track
           target: fx18_vendetta_burst_dark_2
           keys:
-            - {t: 0, offset: [0.0, 0.1, 2.1], scale: [0.03, 0.04, 0.06], turn: [0.0, 0.0, 0.0]}
-            - {t: 2, scale: [0.3, 2.5, 0.16], ease: out_expo}
-            - {t: 7, scale: [0.12, 1.5, 0.1]}
+            - {t: 0, offset: [0.0, 0.065, 1.365], scale: [0.0195, 0.026, 0.039], turn: [0.0, 0.0, 0.0]}
+            - {t: 2, scale: [0.195, 1.625, 0.104], ease: out_expo}
+            - {t: 7, scale: [0.078, 0.975, 0.065]}
             - {t: 11, scale: [0.0, 0.0, 0.0], ease: in_quad}
         - {op: block, parent: fx18_vendetta_burst, block: red_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx18_vendetta_burst_red_2}
         - id: fx18_vendetta_burst_red_2_trk
           op: track
           target: fx18_vendetta_burst_red_2
           keys:
-            - {t: 0, offset: [0.0, 0.1, 2.0], scale: [0.03, 0.04, 0.06], turn: [0.0, 0.0, 0.0]}
-            - {t: 2, scale: [0.22, 2.5, 0.16], ease: out_expo}
-            - {t: 7, scale: [0.12, 1.5, 0.1]}
+            - {t: 0, offset: [0.0, 0.065, 1.3], scale: [0.0195, 0.026, 0.039], turn: [0.0, 0.0, 0.0]}
+            - {t: 2, scale: [0.143, 1.625, 0.104], ease: out_expo}
+            - {t: 7, scale: [0.078, 0.975, 0.065]}
             - {t: 11, scale: [0.0, 0.0, 0.0], ease: in_quad}
         - {op: block, parent: fx18_vendetta_burst, block: black_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx18_vendetta_burst_dark_3}
         - id: fx18_vendetta_burst_dark_3_trk
           op: track
           target: fx18_vendetta_burst_dark_3
           keys:
-            - {t: 0, offset: [0.25, 0.1, 2.1], scale: [0.03, 0.04, 0.06], turn: [0.0, 0.0, -18.0]}
-            - {t: 2, scale: [0.3, 2.05, 0.16], ease: out_expo}
-            - {t: 7, scale: [0.12, 1.5, 0.1]}
+            - {t: 0, offset: [0.1625, 0.065, 1.365], scale: [0.0195, 0.026, 0.039], turn: [0.0, 0.0, -18.0]}
+            - {t: 2, scale: [0.195, 1.3325, 0.104], ease: out_expo}
+            - {t: 7, scale: [0.078, 0.975, 0.065]}
             - {t: 11, scale: [0.0, 0.0, 0.0], ease: in_quad}
         - {op: block, parent: fx18_vendetta_burst, block: red_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx18_vendetta_burst_red_3}
         - id: fx18_vendetta_burst_red_3_trk
           op: track
           target: fx18_vendetta_burst_red_3
           keys:
-            - {t: 0, offset: [0.25, 0.1, 2.0], scale: [0.03, 0.04, 0.06], turn: [0.0, 0.0, -18.0]}
-            - {t: 2, scale: [0.22, 2.05, 0.16], ease: out_expo}
-            - {t: 7, scale: [0.12, 1.5, 0.1]}
+            - {t: 0, offset: [0.1625, 0.065, 1.3], scale: [0.0195, 0.026, 0.039], turn: [0.0, 0.0, -18.0]}
+            - {t: 2, scale: [0.143, 1.3325, 0.104], ease: out_expo}
+            - {t: 7, scale: [0.078, 0.975, 0.065]}
             - {t: 11, scale: [0.0, 0.0, 0.0], ease: in_quad}
         - {op: block, parent: fx18_vendetta_burst, block: black_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx18_vendetta_burst_dark_4}
         - id: fx18_vendetta_burst_dark_4_trk
           op: track
           target: fx18_vendetta_burst_dark_4
           keys:
-            - {t: 0, offset: [0.5, 0.1, 2.1], scale: [0.03, 0.04, 0.06], turn: [0.0, 0.0, -36.0]}
-            - {t: 2, scale: [0.3, 1.6, 0.16], ease: out_expo}
-            - {t: 7, scale: [0.12, 1.5, 0.1]}
+            - {t: 0, offset: [0.325, 0.065, 1.365], scale: [0.0195, 0.026, 0.039], turn: [0.0, 0.0, -36.0]}
+            - {t: 2, scale: [0.195, 1.04, 0.104], ease: out_expo}
+            - {t: 7, scale: [0.078, 0.975, 0.065]}
             - {t: 11, scale: [0.0, 0.0, 0.0], ease: in_quad}
         - {op: block, parent: fx18_vendetta_burst, block: red_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx18_vendetta_burst_red_4}
         - id: fx18_vendetta_burst_red_4_trk
           op: track
           target: fx18_vendetta_burst_red_4
           keys:
-            - {t: 0, offset: [0.5, 0.1, 2.0], scale: [0.03, 0.04, 0.06], turn: [0.0, 0.0, -36.0]}
-            - {t: 2, scale: [0.22, 1.6, 0.16], ease: out_expo}
-            - {t: 7, scale: [0.12, 1.5, 0.1]}
+            - {t: 0, offset: [0.325, 0.065, 1.3], scale: [0.0195, 0.026, 0.039], turn: [0.0, 0.0, -36.0]}
+            - {t: 2, scale: [0.143, 1.04, 0.104], ease: out_expo}
+            - {t: 7, scale: [0.078, 0.975, 0.065]}
             - {t: 11, scale: [0.0, 0.0, 0.0], ease: in_quad}
     - id: fx185
       at: 185
       do:
-        - {id: fx18_vendetta_burst_ember_0_atrk, op: track, target: fx18_vendetta_burst_ember_0_at, space: fx18_vendetta_burst, keys: [{t: 0, offset: [-0.5, 0.7, 2]}]}
-        - {id: fx18_vendetta_burst_ember_1_atrk, op: track, target: fx18_vendetta_burst_ember_1_at, space: fx18_vendetta_burst, keys: [{t: 0, offset: [-0.25, 0.7, 2]}]}
-        - {id: fx18_vendetta_burst_ember_2_atrk, op: track, target: fx18_vendetta_burst_ember_2_at, space: fx18_vendetta_burst, keys: [{t: 0, offset: [0.0, 0.7, 2]}]}
-        - {id: fx18_vendetta_burst_ember_3_atrk, op: track, target: fx18_vendetta_burst_ember_3_at, space: fx18_vendetta_burst, keys: [{t: 0, offset: [0.25, 0.7, 2]}]}
-        - {id: fx18_vendetta_burst_ember_4_atrk, op: track, target: fx18_vendetta_burst_ember_4_at, space: fx18_vendetta_burst, keys: [{t: 0, offset: [0.5, 0.7, 2]}]}
+        - {id: fx18_vendetta_burst_ember_0_atrk, op: track, target: fx18_vendetta_burst_ember_0_at, space: fx18_vendetta_burst, keys: [{t: 0, offset: [-0.325, 0.455, 1.3]}]}
+        - {id: fx18_vendetta_burst_ember_1_atrk, op: track, target: fx18_vendetta_burst_ember_1_at, space: fx18_vendetta_burst, keys: [{t: 0, offset: [-0.1625, 0.455, 1.3]}]}
+        - {id: fx18_vendetta_burst_ember_2_atrk, op: track, target: fx18_vendetta_burst_ember_2_at, space: fx18_vendetta_burst, keys: [{t: 0, offset: [0.0, 0.455, 1.3]}]}
+        - {id: fx18_vendetta_burst_ember_3_atrk, op: track, target: fx18_vendetta_burst_ember_3_at, space: fx18_vendetta_burst, keys: [{t: 0, offset: [0.1625, 0.455, 1.3]}]}
+        - {id: fx18_vendetta_burst_ember_4_atrk, op: track, target: fx18_vendetta_burst_ember_4_at, space: fx18_vendetta_burst, keys: [{t: 0, offset: [0.325, 0.455, 1.3]}]}
         - {id: fx18_vendetta_burst_petals_0, op: quad, parent: fx18_vendetta_burst, face: {viewer: center}, size: [1.0, 1.0], color: "#F52952", alpha: 0.95, brightness: 15}
         - id: fx18_vendetta_burst_petals_0_trk
           op: track
           target: fx18_vendetta_burst_petals_0
           keys:
-            - {t: 0, offset: [0.0, 1.1, 2.1], scale: [0.16, 0.16, 1.0], alpha: 0.95, turn: [0.0, 0.0, -15.0]}
-            - {t: 1, offset: [0.0915, 1.24918, 2.1], scale: [0.137143, 0.137143, 1.0], alpha: 0.81429, turn: [0.0, 0.0, -30.0]}
-            - {t: 2, offset: [0.17385, 1.36723, 2.1], scale: [0.114286, 0.114286, 1.0], alpha: 0.67857, turn: [0.0, 0.0, -45.0]}
-            - {t: 3, offset: [0.24796, 1.45728, 2.1], scale: [0.091429, 0.091429, 1.0], alpha: 0.54286, turn: [0.0, 0.0, -60.0]}
-            - {t: 4, offset: [0.31467, 1.52213, 2.1], scale: [0.068571, 0.068571, 1.0], alpha: 0.40714, turn: [0.0, 0.0, -75.0]}
-            - {t: 5, offset: [0.3747, 1.56429, 2.1], scale: [0.045714, 0.045714, 1.0], alpha: 0.27143, turn: [0.0, 0.0, -90.0]}
-            - {t: 6, offset: [0.42873, 1.58604, 2.1], scale: [0.022857, 0.022857, 1.0], alpha: 0.13571, turn: [0.0, 0.0, -105.0]}
-            - {t: 7, offset: [0.47735, 1.58941, 2.1], scale: [0.0, 0.0, 1.0], alpha: 0.0, turn: [0.0, 0.0, -120.0]}
+            - {t: 0, offset: [0.0, 0.715, 1.365], scale: [0.104, 0.104, 1.0], alpha: 0.95, turn: [0.0, 0.0, -15.0]}
+            - {t: 1, offset: [0.05947, 0.81196, 1.365], scale: [0.089143, 0.089143, 1.0], alpha: 0.81429, turn: [0.0, 0.0, -30.0]}
+            - {t: 2, offset: [0.113, 0.8887, 1.365], scale: [0.074286, 0.074286, 1.0], alpha: 0.67857, turn: [0.0, 0.0, -45.0]}
+            - {t: 3, offset: [0.16118, 0.94723, 1.365], scale: [0.059429, 0.059429, 1.0], alpha: 0.54286, turn: [0.0, 0.0, -60.0]}
+            - {t: 4, offset: [0.20453, 0.98939, 1.365], scale: [0.044571, 0.044571, 1.0], alpha: 0.40714, turn: [0.0, 0.0, -75.0]}
+            - {t: 5, offset: [0.24355, 1.01679, 1.365], scale: [0.029714, 0.029714, 1.0], alpha: 0.27143, turn: [0.0, 0.0, -90.0]}
+            - {t: 6, offset: [0.27867, 1.03093, 1.365], scale: [0.014857, 0.014857, 1.0], alpha: 0.13571, turn: [0.0, 0.0, -105.0]}
+            - {t: 7, offset: [0.31028, 1.03312, 1.365], scale: [0.0, 0.0, 1.0], alpha: 0.0, turn: [0.0, 0.0, -120.0]}
         - {id: fx18_vendetta_burst_petals_1, op: quad, parent: fx18_vendetta_burst, face: {viewer: center}, size: [1.0, 1.0], color: "#F52952", alpha: 0.95, brightness: 15}
         - id: fx18_vendetta_burst_petals_1_trk
           op: track
           target: fx18_vendetta_burst_petals_1
           keys:
-            - {t: 0, offset: [0.0, 1.1, 2.1], scale: [0.16, 0.16, 1.0], alpha: 0.95, turn: [0.0, 0.0, 15.0]}
-            - {t: 1, offset: [-0.10879, 1.20193, 2.19966], scale: [0.137143, 0.137143, 1.0], alpha: 0.81429, turn: [0.0, 0.0, 30.0]}
-            - {t: 2, offset: [-0.2067, 1.27746, 2.28936], scale: [0.114286, 0.114286, 1.0], alpha: 0.67857, turn: [0.0, 0.0, 45.0]}
-            - {t: 3, offset: [-0.29482, 1.32924, 2.37008], scale: [0.091429, 0.091429, 1.0], alpha: 0.54286, turn: [0.0, 0.0, 60.0]}
-            - {t: 4, offset: [-0.37413, 1.35964, 2.44273], scale: [0.068571, 0.068571, 1.0], alpha: 0.40714, turn: [0.0, 0.0, 75.0]}
-            - {t: 5, offset: [-0.44551, 1.3708, 2.50812], scale: [0.045714, 0.045714, 1.0], alpha: 0.27143, turn: [0.0, 0.0, 90.0]}
-            - {t: 6, offset: [-0.50975, 1.36464, 2.56697], scale: [0.022857, 0.022857, 1.0], alpha: 0.13571, turn: [0.0, 0.0, 105.0]}
-            - {t: 7, offset: [-0.56756, 1.3429, 2.61993], scale: [0.0, 0.0, 1.0], alpha: 0.0, turn: [0.0, 0.0, 120.0]}
+            - {t: 0, offset: [0.0, 0.715, 1.365], scale: [0.104, 0.104, 1.0], alpha: 0.95, turn: [0.0, 0.0, 15.0]}
+            - {t: 1, offset: [-0.07071, 0.78125, 1.42978], scale: [0.089143, 0.089143, 1.0], alpha: 0.81429, turn: [0.0, 0.0, 30.0]}
+            - {t: 2, offset: [-0.13436, 0.83035, 1.48808], scale: [0.074286, 0.074286, 1.0], alpha: 0.67857, turn: [0.0, 0.0, 45.0]}
+            - {t: 3, offset: [-0.19163, 0.864, 1.54055], scale: [0.059429, 0.059429, 1.0], alpha: 0.54286, turn: [0.0, 0.0, 60.0]}
+            - {t: 4, offset: [-0.24318, 0.88376, 1.58778], scale: [0.044571, 0.044571, 1.0], alpha: 0.40714, turn: [0.0, 0.0, 75.0]}
+            - {t: 5, offset: [-0.28958, 0.89102, 1.63028], scale: [0.029714, 0.029714, 1.0], alpha: 0.27143, turn: [0.0, 0.0, 90.0]}
+            - {t: 6, offset: [-0.33133, 0.88702, 1.66853], scale: [0.014857, 0.014857, 1.0], alpha: 0.13571, turn: [0.0, 0.0, 105.0]}
+            - {t: 7, offset: [-0.36891, 0.87289, 1.70296], scale: [0.0, 0.0, 1.0], alpha: 0.0, turn: [0.0, 0.0, 120.0]}
         - {id: fx18_vendetta_burst_petals_2, op: quad, parent: fx18_vendetta_burst, face: {viewer: center}, size: [1.0, 1.0], color: "#F52952", alpha: 0.95, brightness: 15}
         - id: fx18_vendetta_burst_petals_2_trk
           op: track
           target: fx18_vendetta_burst_petals_2
           keys:
-            - {t: 0, offset: [0.0, 1.1, 2.1], scale: [0.16, 0.16, 1.0], alpha: 0.95, turn: [0.0, 0.0, -15.0]}
-            - {t: 1, offset: [0.01532, 1.15468, 1.92546], scale: [0.137143, 0.137143, 1.0], alpha: 0.81429, turn: [0.0, 0.0, -30.0]}
-            - {t: 2, offset: [0.0291, 1.18768, 1.76838], scale: [0.114286, 0.114286, 1.0], alpha: 0.67857, turn: [0.0, 0.0, -45.0]}
-            - {t: 3, offset: [0.04151, 1.20119, 1.62701], scale: [0.091429, 0.091429, 1.0], alpha: 0.54286, turn: [0.0, 0.0, -60.0]}
-            - {t: 4, offset: [0.05268, 1.19715, 1.49977], scale: [0.068571, 0.068571, 1.0], alpha: 0.40714, turn: [0.0, 0.0, -75.0]}
-            - {t: 5, offset: [0.06273, 1.17731, 1.38525], scale: [0.045714, 0.045714, 1.0], alpha: 0.27143, turn: [0.0, 0.0, -90.0]}
-            - {t: 6, offset: [0.07177, 1.14325, 1.28219], scale: [0.022857, 0.022857, 1.0], alpha: 0.13571, turn: [0.0, 0.0, -105.0]}
-            - {t: 7, offset: [0.07991, 1.0964, 1.18944], scale: [0.0, 0.0, 1.0], alpha: 0.0, turn: [0.0, 0.0, -120.0]}
+            - {t: 0, offset: [0.0, 0.715, 1.365], scale: [0.104, 0.104, 1.0], alpha: 0.95, turn: [0.0, 0.0, -15.0]}
+            - {t: 1, offset: [0.00996, 0.75054, 1.25155], scale: [0.089143, 0.089143, 1.0], alpha: 0.81429, turn: [0.0, 0.0, -30.0]}
+            - {t: 2, offset: [0.01892, 0.77199, 1.14945], scale: [0.074286, 0.074286, 1.0], alpha: 0.67857, turn: [0.0, 0.0, -45.0]}
+            - {t: 3, offset: [0.02698, 0.78077, 1.05755], scale: [0.059429, 0.059429, 1.0], alpha: 0.54286, turn: [0.0, 0.0, -60.0]}
+            - {t: 4, offset: [0.03424, 0.77814, 0.97485], scale: [0.044571, 0.044571, 1.0], alpha: 0.40714, turn: [0.0, 0.0, -75.0]}
+            - {t: 5, offset: [0.04077, 0.76525, 0.90042], scale: [0.029714, 0.029714, 1.0], alpha: 0.27143, turn: [0.0, 0.0, -90.0]}
+            - {t: 6, offset: [0.04665, 0.74311, 0.83342], scale: [0.014857, 0.014857, 1.0], alpha: 0.13571, turn: [0.0, 0.0, -105.0]}
+            - {t: 7, offset: [0.05194, 0.71266, 0.77313], scale: [0.0, 0.0, 1.0], alpha: 0.0, turn: [0.0, 0.0, -120.0]}
         - {id: fx18_vendetta_burst_petals_3, op: quad, parent: fx18_vendetta_burst, face: {viewer: center}, size: [1.0, 1.0], color: "#F52952", alpha: 0.95, brightness: 15}
         - id: fx18_vendetta_burst_petals_3_trk
           op: track
           target: fx18_vendetta_burst_petals_3
           keys:
-            - {t: 0, offset: [0.0, 1.1, 2.1], scale: [0.16, 0.16, 1.0], alpha: 0.95, turn: [0.0, 0.0, 15.0]}
-            - {t: 1, offset: [0.11409, 1.10743, 2.24881], scale: [0.137143, 0.137143, 1.0], alpha: 0.81429, turn: [0.0, 0.0, 30.0]}
-            - {t: 2, offset: [0.21678, 1.09791, 2.38275], scale: [0.114286, 0.114286, 1.0], alpha: 0.67857, turn: [0.0, 0.0, 45.0]}
-            - {t: 3, offset: [0.30919, 1.07314, 2.50329], scale: [0.091429, 0.091429, 1.0], alpha: 0.54286, turn: [0.0, 0.0, 60.0]}
-            - {t: 4, offset: [0.39237, 1.03465, 2.61177], scale: [0.068571, 0.068571, 1.0], alpha: 0.40714, turn: [0.0, 0.0, 75.0]}
-            - {t: 5, offset: [0.46722, 0.98381, 2.70941], scale: [0.045714, 0.045714, 1.0], alpha: 0.27143, turn: [0.0, 0.0, 90.0]}
-            - {t: 6, offset: [0.53459, 0.92186, 2.79728], scale: [0.022857, 0.022857, 1.0], alpha: 0.13571, turn: [0.0, 0.0, 105.0]}
-            - {t: 7, offset: [0.59523, 0.8499, 2.87637], scale: [0.0, 0.0, 1.0], alpha: 0.0, turn: [0.0, 0.0, 120.0]}
+            - {t: 0, offset: [0.0, 0.715, 1.365], scale: [0.104, 0.104, 1.0], alpha: 0.95, turn: [0.0, 0.0, 15.0]}
+            - {t: 1, offset: [0.07416, 0.71983, 1.46173], scale: [0.089143, 0.089143, 1.0], alpha: 0.81429, turn: [0.0, 0.0, 30.0]}
+            - {t: 2, offset: [0.1409, 0.71364, 1.54879], scale: [0.074286, 0.074286, 1.0], alpha: 0.67857, turn: [0.0, 0.0, 45.0]}
+            - {t: 3, offset: [0.20097, 0.69754, 1.62714], scale: [0.059429, 0.059429, 1.0], alpha: 0.54286, turn: [0.0, 0.0, 60.0]}
+            - {t: 4, offset: [0.25504, 0.67252, 1.69765], scale: [0.044571, 0.044571, 1.0], alpha: 0.40714, turn: [0.0, 0.0, 75.0]}
+            - {t: 5, offset: [0.30369, 0.63948, 1.76112], scale: [0.029714, 0.029714, 1.0], alpha: 0.27143, turn: [0.0, 0.0, 90.0]}
+            - {t: 6, offset: [0.34749, 0.59921, 1.81823], scale: [0.014857, 0.014857, 1.0], alpha: 0.13571, turn: [0.0, 0.0, 105.0]}
+            - {t: 7, offset: [0.3869, 0.55243, 1.86964], scale: [0.0, 0.0, 1.0], alpha: 0.0, turn: [0.0, 0.0, 120.0]}
         - {id: fx18_vendetta_burst_petals_4, op: quad, parent: fx18_vendetta_burst, face: {viewer: center}, size: [1.0, 1.0], color: "#F52952", alpha: 0.95, brightness: 15}
         - id: fx18_vendetta_burst_petals_4_trk
           op: track
           target: fx18_vendetta_burst_petals_4
           keys:
-            - {t: 0, offset: [0.0, 1.1, 2.1], scale: [0.16, 0.16, 1.0], alpha: 0.95, turn: [0.0, 0.0, -15.0]}
-            - {t: 1, offset: [-0.18465, 1.06018, 2.06734], scale: [0.137143, 0.137143, 1.0], alpha: 0.81429, turn: [0.0, 0.0, -30.0]}
-            - {t: 2, offset: [-0.35084, 1.00813, 2.03794], scale: [0.114286, 0.114286, 1.0], alpha: 0.67857, turn: [0.0, 0.0, -45.0]}
-            - {t: 3, offset: [-0.5004, 0.94509, 2.01149], scale: [0.091429, 0.091429, 1.0], alpha: 0.54286, turn: [0.0, 0.0, -60.0]}
-            - {t: 4, offset: [-0.63502, 0.87216, 1.98767], scale: [0.068571, 0.068571, 1.0], alpha: 0.40714, turn: [0.0, 0.0, -75.0]}
-            - {t: 5, offset: [-0.75616, 0.79032, 1.96625], scale: [0.045714, 0.045714, 1.0], alpha: 0.27143, turn: [0.0, 0.0, -90.0]}
-            - {t: 6, offset: [-0.8652, 0.70046, 1.94696], scale: [0.022857, 0.022857, 1.0], alpha: 0.13571, turn: [0.0, 0.0, -105.0]}
-            - {t: 7, offset: [-0.96333, 0.60339, 1.9296], scale: [0.0, 0.0, 1.0], alpha: 0.0, turn: [0.0, 0.0, -120.0]}
+            - {t: 0, offset: [0.0, 0.715, 1.365], scale: [0.104, 0.104, 1.0], alpha: 0.95, turn: [0.0, 0.0, -15.0]}
+            - {t: 1, offset: [-0.12002, 0.68911, 1.34377], scale: [0.089143, 0.089143, 1.0], alpha: 0.81429, turn: [0.0, 0.0, -30.0]}
+            - {t: 2, offset: [-0.22804, 0.65529, 1.32466], scale: [0.074286, 0.074286, 1.0], alpha: 0.67857, turn: [0.0, 0.0, -45.0]}
+            - {t: 3, offset: [-0.32526, 0.61431, 1.30747], scale: [0.059429, 0.059429, 1.0], alpha: 0.54286, turn: [0.0, 0.0, -60.0]}
+            - {t: 4, offset: [-0.41276, 0.5669, 1.29199], scale: [0.044571, 0.044571, 1.0], alpha: 0.40714, turn: [0.0, 0.0, -75.0]}
+            - {t: 5, offset: [-0.49151, 0.51371, 1.27806], scale: [0.029714, 0.029714, 1.0], alpha: 0.27143, turn: [0.0, 0.0, -90.0]}
+            - {t: 6, offset: [-0.56238, 0.4553, 1.26552], scale: [0.014857, 0.014857, 1.0], alpha: 0.13571, turn: [0.0, 0.0, -105.0]}
+            - {t: 7, offset: [-0.62616, 0.3922, 1.25424], scale: [0.0, 0.0, 1.0], alpha: 0.0, turn: [0.0, 0.0, -120.0]}
         - {id: fx18_vendetta_burst_petals_5, op: quad, parent: fx18_vendetta_burst, face: {viewer: center}, size: [1.0, 1.0], color: "#F52952", alpha: 0.95, brightness: 15}
         - id: fx18_vendetta_burst_petals_5_trk
           op: track
           target: fx18_vendetta_burst_petals_5
           keys:
-            - {t: 0, offset: [0.0, 1.1, 2.1], scale: [0.16, 0.16, 1.0], alpha: 0.95, turn: [0.0, 0.0, 15.0]}
-            - {t: 1, offset: [0.14783, 1.01293, 2.00596], scale: [0.137143, 0.137143, 1.0], alpha: 0.81429, turn: [0.0, 0.0, 30.0]}
-            - {t: 2, offset: [0.28088, 0.91836, 1.92133], scale: [0.114286, 0.114286, 1.0], alpha: 0.67857, turn: [0.0, 0.0, 45.0]}
-            - {t: 3, offset: [0.40063, 0.81705, 1.84515], scale: [0.091429, 0.091429, 1.0], alpha: 0.54286, turn: [0.0, 0.0, 60.0]}
-            - {t: 4, offset: [0.5084, 0.70967, 1.7766], scale: [0.068571, 0.068571, 1.0], alpha: 0.40714, turn: [0.0, 0.0, 75.0]}
-            - {t: 5, offset: [0.60539, 0.59683, 1.7149], scale: [0.045714, 0.045714, 1.0], alpha: 0.27143, turn: [0.0, 0.0, 90.0]}
-            - {t: 6, offset: [0.69268, 0.47907, 1.65937], scale: [0.022857, 0.022857, 1.0], alpha: 0.13571, turn: [0.0, 0.0, 105.0]}
-            - {t: 7, offset: [0.77125, 0.35689, 1.6094], scale: [0.0, 0.0, 1.0], alpha: 0.0, turn: [0.0, 0.0, 120.0]}
+            - {t: 0, offset: [0.0, 0.715, 1.365], scale: [0.104, 0.104, 1.0], alpha: 0.95, turn: [0.0, 0.0, 15.0]}
+            - {t: 1, offset: [0.09609, 0.6584, 1.30387], scale: [0.089143, 0.089143, 1.0], alpha: 0.81429, turn: [0.0, 0.0, 30.0]}
+            - {t: 2, offset: [0.18257, 0.59693, 1.24886], scale: [0.074286, 0.074286, 1.0], alpha: 0.67857, turn: [0.0, 0.0, 45.0]}
+            - {t: 3, offset: [0.26041, 0.53108, 1.19935], scale: [0.059429, 0.059429, 1.0], alpha: 0.54286, turn: [0.0, 0.0, 60.0]}
+            - {t: 4, offset: [0.33046, 0.46128, 1.15479], scale: [0.044571, 0.044571, 1.0], alpha: 0.40714, turn: [0.0, 0.0, 75.0]}
+            - {t: 5, offset: [0.3935, 0.38794, 1.11469], scale: [0.029714, 0.029714, 1.0], alpha: 0.27143, turn: [0.0, 0.0, 90.0]}
+            - {t: 6, offset: [0.45024, 0.31139, 1.07859], scale: [0.014857, 0.014857, 1.0], alpha: 0.13571, turn: [0.0, 0.0, 105.0]}
+            - {t: 7, offset: [0.50131, 0.23198, 1.04611], scale: [0.0, 0.0, 1.0], alpha: 0.0, turn: [0.0, 0.0, 120.0]}
         - {id: fx18_vendetta_burst_petals_6, op: quad, parent: fx18_vendetta_burst, face: {viewer: center}, size: [1.0, 1.0], color: "#F52952", alpha: 0.95, brightness: 15}
         - id: fx18_vendetta_burst_petals_6_trk
           op: track
           target: fx18_vendetta_burst_petals_6
           keys:
-            - {t: 0, offset: [0.0, 1.1, 2.1], scale: [0.16, 0.16, 1.0], alpha: 0.95, turn: [0.0, 0.0, -15.0]}
-            - {t: 1, offset: [-0.0383, 0.96568, 2.24248], scale: [0.137143, 0.137143, 1.0], alpha: 0.81429, turn: [0.0, 0.0, -30.0]}
-            - {t: 2, offset: [-0.07277, 0.82858, 2.37071], scale: [0.114286, 0.114286, 1.0], alpha: 0.67857, turn: [0.0, 0.0, -45.0]}
-            - {t: 3, offset: [-0.1038, 0.689, 2.48612], scale: [0.091429, 0.091429, 1.0], alpha: 0.54286, turn: [0.0, 0.0, -60.0]}
-            - {t: 4, offset: [-0.13172, 0.54717, 2.58999], scale: [0.068571, 0.068571, 1.0], alpha: 0.40714, turn: [0.0, 0.0, -75.0]}
-            - {t: 5, offset: [-0.15685, 0.40333, 2.68347], scale: [0.045714, 0.045714, 1.0], alpha: 0.27143, turn: [0.0, 0.0, -90.0]}
-            - {t: 6, offset: [-0.17947, 0.25767, 2.7676], scale: [0.022857, 0.022857, 1.0], alpha: 0.13571, turn: [0.0, 0.0, -105.0]}
-            - {t: 7, offset: [-0.19982, 0.11038, 2.84332], scale: [0.0, 0.0, 1.0], alpha: 0.0, turn: [0.0, 0.0, -120.0]}
+            - {t: 0, offset: [0.0, 0.715, 1.365], scale: [0.104, 0.104, 1.0], alpha: 0.95, turn: [0.0, 0.0, -15.0]}
+            - {t: 1, offset: [-0.0249, 0.62769, 1.45761], scale: [0.089143, 0.089143, 1.0], alpha: 0.81429, turn: [0.0, 0.0, -30.0]}
+            - {t: 2, offset: [-0.0473, 0.53858, 1.54096], scale: [0.074286, 0.074286, 1.0], alpha: 0.67857, turn: [0.0, 0.0, -45.0]}
+            - {t: 3, offset: [-0.06747, 0.44785, 1.61598], scale: [0.059429, 0.059429, 1.0], alpha: 0.54286, turn: [0.0, 0.0, -60.0]}
+            - {t: 4, offset: [-0.08562, 0.35566, 1.68349], scale: [0.044571, 0.044571, 1.0], alpha: 0.40714, turn: [0.0, 0.0, -75.0]}
+            - {t: 5, offset: [-0.10195, 0.26217, 1.74425], scale: [0.029714, 0.029714, 1.0], alpha: 0.27143, turn: [0.0, 0.0, -90.0]}
+            - {t: 6, offset: [-0.11665, 0.16749, 1.79894], scale: [0.014857, 0.014857, 1.0], alpha: 0.13571, turn: [0.0, 0.0, -105.0]}
+            - {t: 7, offset: [-0.12988, 0.07175, 1.84816], scale: [0.0, 0.0, 1.0], alpha: 0.0, turn: [0.0, 0.0, -120.0]}
         - {id: fx18_vendetta_burst_petals_7, op: quad, parent: fx18_vendetta_burst, face: {viewer: center}, size: [1.0, 1.0], color: "#F52952", alpha: 0.95, brightness: 15}
         - id: fx18_vendetta_burst_petals_7_trk
           op: track
           target: fx18_vendetta_burst_petals_7
           keys:
-            - {t: 0, offset: [0.0, 1.1, 2.1], scale: [0.16, 0.16, 1.0], alpha: 0.95, turn: [0.0, 0.0, 15.0]}
-            - {t: 1, offset: [-0.04217, 0.91843, 2.0188], scale: [0.137143, 0.137143, 1.0], alpha: 0.81429, turn: [0.0, 0.0, 30.0]}
-            - {t: 2, offset: [-0.08013, 0.73881, 1.94572], scale: [0.114286, 0.114286, 1.0], alpha: 0.67857, turn: [0.0, 0.0, 45.0]}
-            - {t: 3, offset: [-0.11429, 0.56095, 1.87995], scale: [0.091429, 0.091429, 1.0], alpha: 0.54286, turn: [0.0, 0.0, 60.0]}
-            - {t: 4, offset: [-0.14503, 0.38468, 1.82075], scale: [0.068571, 0.068571, 1.0], alpha: 0.40714, turn: [0.0, 0.0, 75.0]}
-            - {t: 5, offset: [-0.1727, 0.20984, 1.76747], scale: [0.045714, 0.045714, 1.0], alpha: 0.27143, turn: [0.0, 0.0, 90.0]}
-            - {t: 6, offset: [-0.1976, 0.03628, 1.71953], scale: [0.022857, 0.022857, 1.0], alpha: 0.13571, turn: [0.0, 0.0, 105.0]}
-            - {t: 7, offset: [-0.22002, -0.13612, 1.67637], scale: [0.0, 0.0, 1.0], alpha: 0.0, turn: [0.0, 0.0, 120.0]}
-    - {id: fx192, at: 192, do: [{id: fx18_vendetta_burst_smoke_atrk, op: track, target: fx18_vendetta_burst_smoke_at, space: fx18_vendetta_burst, keys: [{t: 0, offset: [0, 0.4, 2]}]}]}
+            - {t: 0, offset: [0.0, 0.715, 1.365], scale: [0.104, 0.104, 1.0], alpha: 0.95, turn: [0.0, 0.0, 15.0]}
+            - {t: 1, offset: [-0.02741, 0.59698, 1.31222], scale: [0.089143, 0.089143, 1.0], alpha: 0.81429, turn: [0.0, 0.0, 30.0]}
+            - {t: 2, offset: [-0.05208, 0.48022, 1.26472], scale: [0.074286, 0.074286, 1.0], alpha: 0.67857, turn: [0.0, 0.0, 45.0]}
+            - {t: 3, offset: [-0.07429, 0.36462, 1.22196], scale: [0.059429, 0.059429, 1.0], alpha: 0.54286, turn: [0.0, 0.0, 60.0]}
+            - {t: 4, offset: [-0.09427, 0.25004, 1.18349], scale: [0.044571, 0.044571, 1.0], alpha: 0.40714, turn: [0.0, 0.0, 75.0]}
+            - {t: 5, offset: [-0.11226, 0.13639, 1.14886], scale: [0.029714, 0.029714, 1.0], alpha: 0.27143, turn: [0.0, 0.0, 90.0]}
+            - {t: 6, offset: [-0.12844, 0.02358, 1.11769], scale: [0.014857, 0.014857, 1.0], alpha: 0.13571, turn: [0.0, 0.0, 105.0]}
+            - {t: 7, offset: [-0.14301, -0.08848, 1.08964], scale: [0.0, 0.0, 1.0], alpha: 0.0, turn: [0.0, 0.0, 120.0]}
+    - {id: fx192, at: 192, do: [{id: fx18_vendetta_burst_smoke_atrk, op: track, target: fx18_vendetta_burst_smoke_at, space: fx18_vendetta_burst, keys: [{t: 0, offset: [0.0, 0.26, 1.3]}]}]}
     - id: fx193
       at: 193
       do:

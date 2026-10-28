@@ -15,7 +15,7 @@ gameplay:
       at: 0
       do:
         - {id: attr, op: modify_attribute, attribute: resist.physical, operation: add, amount: 0.7, duration_ticks: 112, target: caster}
-        - {id: pin, op: place, frame: fx2_ember_flare_guard, like: caster}
+        - {id: pin, op: place, frame: fx2_ember_flare_guard, like: caster, orient: yaw}
     - id: t109
       at: 109
       do:
@@ -33,4 +33,4 @@ gameplay:
   "on":
     hit:
       - {id: dmg, op: damage, components: [{kind: physical, amount: "${dmg_physical}"}], target: victim, ignore_invulnerability: true, when: "= event.source == 'sel'"}
-      - {id: pin_2, op: place, frame: fx4_ember_hoop_hit, like: contact, when: "= event.source == 'sel'"}
+      - {id: pin_2, op: place, frame: fx4_ember_hoop_hit, like: contact, orient: look, when: "= event.source == 'sel'"}

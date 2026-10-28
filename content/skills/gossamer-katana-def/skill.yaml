@@ -11,6 +11,6 @@ gameplay:
     - id: t0
       at: 0
       do:
-        - {id: pin, op: place, frame: fx1_gossamer_katana_guard, like: caster}
+        - {id: pin, op: place, frame: fx1_gossamer_katana_guard, like: caster, orient: yaw}
         - {id: attr, op: modify_attribute, attribute: resist.physical, operation: add, amount: 0.7, duration_ticks: 12, target: caster}
     - {id: t3, at: 3, do: [{id: dash, op: dash_strike, distance: "${dash_distance}", ticks: 5, radius: 0.8, hit_once: true, invulnerable: false, stop_on_block: true, follow_pitch: false}]}

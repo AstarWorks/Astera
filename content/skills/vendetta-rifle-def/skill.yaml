@@ -11,4 +11,4 @@ gameplay:
       at: 0
       do:
         - {id: attr, op: modify_attribute, attribute: resist.physical, operation: add, amount: 0.7, duration_ticks: 45, target: caster}
-        - {id: pin, op: place, frame: fx2_vendetta_parry_ring, like: caster}
+        - {id: pin, op: place, frame: fx2_vendetta_parry_ring, like: caster, orient: yaw}

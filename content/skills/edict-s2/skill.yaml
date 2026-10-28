@@ -15,7 +15,7 @@ gameplay:
       at: 4
       do:
         - {id: dash, op: dash_strike, distance: "${dash_distance}", ticks: 4, radius: 0.8, hit_once: true, invulnerable: false, stop_on_block: true, follow_pitch: false, stop_before_target: 1.8}
-    - {id: t7, at: 7, do: [{id: pin, op: place, frame: fx3_edict_cuff_sweep, like: caster}]}
+    - {id: t7, at: 7, do: [{id: pin, op: place, frame: fx3_edict_cuff_sweep, like: caster, orient: yaw}]}
     - id: t9
       at: 9
       do:
@@ -26,7 +26,7 @@ gameplay:
           max_count: 1
           window: once
           ticks: 1
-    - {id: t20, at: 20, do: [{id: pin_3, op: place, frame: fx6_edict_cuff_sweep, like: caster}]}
+    - {id: t20, at: 20, do: [{id: pin_3, op: place, frame: fx6_edict_cuff_sweep, like: caster, orient: yaw}]}
     - id: t22
       at: 22
       do:
@@ -42,7 +42,7 @@ gameplay:
       at: 62
       do:
         - {id: dash_2, op: dash_strike, distance: "${dash_distance_2}", ticks: 4, radius: 0.8, hit_once: true, invulnerable: false, stop_on_block: true, follow_pitch: false, stop_before_target: 1.8}
-    - {id: t65, at: 65, do: [{id: pin_5, op: place, frame: fx9_edict_cuff_sweep, like: caster}]}
+    - {id: t65, at: 65, do: [{id: pin_5, op: place, frame: fx9_edict_cuff_sweep, like: caster, orient: yaw}]}
     - id: t67
       at: 67
       do:
@@ -56,8 +56,8 @@ gameplay:
   "on":
     hit:
       - {id: dmg, op: damage, components: [{kind: physical, amount: "${dmg_physical}"}], target: victim, ignore_invulnerability: true, when: "= event.source == 'sel'"}
-      - {id: pin_2, op: place, frame: fx4_edict_impact, like: contact, when: "= event.source == 'sel'"}
+      - {id: pin_2, op: place, frame: fx4_edict_impact, like: contact, orient: yaw, when: "= event.source == 'sel'"}
       - {id: dmg_2, op: damage, components: [{kind: physical, amount: "${dmg_physical}"}], target: victim, ignore_invulnerability: true, when: "= event.source == 'sel_2'"}
-      - {id: pin_4, op: place, frame: fx7_edict_impact, like: contact, when: "= event.source == 'sel_2'"}
+      - {id: pin_4, op: place, frame: fx7_edict_impact, like: contact, orient: yaw, when: "= event.source == 'sel_2'"}
       - {id: dmg_3, op: damage, components: [{kind: physical, amount: "${dmg_physical_2}"}], target: victim, ignore_invulnerability: true, when: "= event.source == 'sel_3'"}
-      - {id: pin_6, op: place, frame: fx10_edict_impact, like: contact, when: "= event.source == 'sel_3'"}
+      - {id: pin_6, op: place, frame: fx10_edict_impact, like: contact, orient: yaw, when: "= event.source == 'sel_3'"}

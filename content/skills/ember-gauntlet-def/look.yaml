@@ -1,15 +1,14 @@
 # Converted from content/skills/ember-gauntlet-def.yaml + content/vfx/* by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
 # Generated point-frame offsets are [left, up, forward] in the parent frame.
-# CONVERT-PRESENT vfx frame orient (frames carry no orientation / scale) (x4): orient="yaw" | orient="look"
 apiVersion: "astera/v2"
 kind: Skill
 id: ember-gauntlet-def
 frames:
-  - {id: fx1_ember_harness, kind: body, parent: caster}
+  - {id: fx1_ember_harness, kind: body, parent: caster, orient: yaw}
   - {id: fx1_ember_harness_furnace_pack_at, kind: body, parent: caster.right_hand}
   - {id: fx1_ember_harness_furnace_pack, kind: body, parent: fx1_ember_harness_furnace_pack_at}
   - {id: fx2_ember_flare_guard, kind: body, parent: world}
-  - {id: fx3_ember_counter_sweep, kind: body, parent: caster}
+  - {id: fx3_ember_counter_sweep, kind: body, parent: caster, orient: yaw}
   - {id: fx3_ember_counter_sweep_embers_at, kind: body, parent: fx3_ember_counter_sweep}
   - {id: fx3_ember_counter_sweep_gauntlet_at, kind: body, parent: caster.right_hand}
   - {id: fx3_ember_counter_sweep_gauntlet, kind: body, parent: fx3_ember_counter_sweep_gauntlet_at}

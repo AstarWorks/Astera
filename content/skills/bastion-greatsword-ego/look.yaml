@@ -1,6 +1,5 @@
 # Converted from content/skills/bastion-greatsword-ego.yaml + content/vfx/* by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
 # Generated point-frame offsets are [left, up, forward] in the parent frame.
-# CONVERT-PRESENT vfx frame orient (frames carry no orientation / scale) (x3): orient="yaw"
 # CONVERT-PRESENT dotted_line (line is solid) (x1): {"color": "#FFE08A", "from": [0, 1.0, 0.2], "spacing": 0.28,
 # CONVERT-PRESENT element lane (no v2 equivalent) (x10): "accent" | core
 # CONVERT-PRESENT element brightness (no v2 equivalent) (x1): 15
@@ -12,8 +11,8 @@ apiVersion: "astera/v2"
 kind: Skill
 id: bastion-greatsword-ego
 frames:
-  - {id: fx1_bastion_ego_guard, kind: body, parent: caster}
-  - {id: fx2_telegraph_cone_2, kind: body, parent: tele}
+  - {id: fx1_bastion_ego_guard, kind: body, parent: caster, orient: yaw}
+  - {id: fx2_telegraph_cone_2, kind: body, parent: tele, orient: look}
   - {id: fx3_bastion_ego_trail, kind: body, parent: world}
   - {id: pt_fx3_bastion_ego_trail_0_1_0p2, kind: point, parent: fx3_bastion_ego_trail, offset: [0.0, 1.0, 0.2]}
   - {id: pt_fx3_bastion_ego_trail_0_1p4_3, kind: point, parent: fx3_bastion_ego_trail, offset: [0.0, 1.4, 3.0]}

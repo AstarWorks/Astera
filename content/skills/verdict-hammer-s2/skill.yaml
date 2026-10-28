@@ -33,6 +33,6 @@ gameplay:
           ticks: 1
   "on":
     hit:
-      - {id: pin, op: place, frame: fx1_verdict_summoned_nails, like: contact, when: "= event.source == 'sel'"}
+      - {id: pin, op: place, frame: fx1_verdict_summoned_nails, like: contact, orient: yaw, when: "= event.source == 'sel'"}
       - {id: dmg, op: damage, components: [{kind: physical, amount: "${dmg_physical}"}], target: victim, ignore_invulnerability: true, when: "= event.source == 'sel_2'"}
-      - {id: pin_2, op: place, frame: fx2_verdict_impact, like: contact, when: "= event.source == 'sel_2'"}
+      - {id: pin_2, op: place, frame: fx2_verdict_impact, like: contact, orient: world, when: "= event.source == 'sel_2'"}

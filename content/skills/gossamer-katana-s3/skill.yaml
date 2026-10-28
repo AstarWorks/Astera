@@ -24,8 +24,8 @@ gameplay:
           follow_pitch: false
           on_hit:
             - {id: dmg, op: damage, components: [{kind: physical, amount: "${dmg_physical}"}], target: victim, ignore_invulnerability: true}
-            - {id: pin, op: place, frame: fx2_gossamer_katana_scar, like: enemy}
+            - {id: pin, op: place, frame: fx2_gossamer_katana_scar, like: enemy, orient: yaw}
             - {id: raise, op: raise_event, name: dash_fx}
             - {id: sch, op: schedule, after: 36, event: dash_fx36}
             - {id: sch_2, op: schedule, after: 38, event: dash_fx38}
-    - {id: t5, at: 5, do: [{id: pin_2, op: place, frame: fx3_gossamer_katana_iaido_line, like: caster}]}
+    - {id: t5, at: 5, do: [{id: pin_2, op: place, frame: fx3_gossamer_katana_iaido_line, like: caster, orient: yaw}]}

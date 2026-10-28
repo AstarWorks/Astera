@@ -1,21 +1,20 @@
 # Converted from content/skills/edict-s2.yaml + content/vfx/* by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
 # Generated point-frame offsets are [left, up, forward] in the parent frame.
-# CONVERT-PRESENT vfx frame orient (frames carry no orientation / scale) (x11): orient="yaw"
 apiVersion: "astera/v2"
 kind: Skill
 id: edict-s2
 frames:
-  - {id: fx1_edict_ghost, kind: body, parent: caster}
-  - {id: fx2_edict_fists_down, kind: body, parent: caster}
+  - {id: fx1_edict_ghost, kind: body, parent: caster, orient: yaw}
+  - {id: fx2_edict_fists_down, kind: body, parent: caster, orient: yaw}
   - {id: fx3_edict_cuff_sweep, kind: body, parent: world}
   - {id: fx4_edict_impact, kind: body, parent: world}
-  - {id: fx5_edict_fists_return, kind: body, parent: caster}
+  - {id: fx5_edict_fists_return, kind: body, parent: caster, orient: yaw}
   - {id: fx6_edict_cuff_sweep, kind: body, parent: world}
   - {id: fx7_edict_impact, kind: body, parent: world}
-  - {id: fx8_edict_fists_return, kind: body, parent: caster}
+  - {id: fx8_edict_fists_return, kind: body, parent: caster, orient: yaw}
   - {id: fx9_edict_cuff_sweep, kind: body, parent: world}
   - {id: fx10_edict_impact, kind: body, parent: world}
-  - {id: fx11_edict_ghost, kind: body, parent: caster}
+  - {id: fx11_edict_ghost, kind: body, parent: caster, orient: yaw}
 presentation:
   timeline:
     - id: fx0

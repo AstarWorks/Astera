@@ -1,16 +1,15 @@
 # Converted from content/skills/edict-def.yaml + content/vfx/* by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
 # Generated point-frame offsets are [left, up, forward] in the parent frame.
-# CONVERT-PRESENT vfx frame orient (frames carry no orientation / scale) (x7): orient="world" | orient="yaw"
 apiVersion: "astera/v2"
 kind: Skill
 id: edict-def
 frames:
-  - {id: fx1_edict_guard, kind: body, parent: caster}
-  - {id: fx2_edict_fists_down, kind: body, parent: caster}
+  - {id: fx1_edict_guard, kind: body, parent: caster, orient: world}
+  - {id: fx2_edict_fists_down, kind: body, parent: caster, orient: yaw}
   - {id: fx3_edict_impact, kind: body, parent: world}
-  - {id: fx4_edict_fists_down, kind: body, parent: caster}
+  - {id: fx4_edict_fists_down, kind: body, parent: caster, orient: yaw}
   - {id: fx5_edict_impact, kind: body, parent: world}
-  - {id: fx6_edict_fists_down, kind: body, parent: caster}
+  - {id: fx6_edict_fists_down, kind: body, parent: caster, orient: yaw}
   - {id: fx7_edict_impact, kind: body, parent: world}
 presentation:
   timeline:

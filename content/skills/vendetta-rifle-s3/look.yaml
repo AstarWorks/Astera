@@ -1,17 +1,16 @@
 # Converted from content/skills/vendetta-rifle-s3.yaml + content/vfx/* by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
 # Generated point-frame offsets are [left, up, forward] in the parent frame.
-# CONVERT-PRESENT vfx frame orient (frames carry no orientation / scale) (x10): orient="yaw"
 apiVersion: "astera/v2"
 kind: Skill
 id: vendetta-rifle-s3
 frames:
-  - {id: fx1_vendetta_bayonet_rise, kind: body, parent: caster}
+  - {id: fx1_vendetta_bayonet_rise, kind: body, parent: caster, orient: yaw}
   - {id: fx2_vendetta_gold_rise, kind: body, parent: world}
   - {id: fx3_vendetta_thrust_flash, kind: body, parent: world}
-  - {id: fx4_vendetta_bayonet_thrust, kind: body, parent: caster}
+  - {id: fx4_vendetta_bayonet_thrust, kind: body, parent: caster, orient: yaw}
   - {id: fx5_vendetta_gold_sweep, kind: body, parent: world}
   - {id: fx6_vendetta_thrust_flash, kind: body, parent: world}
-  - {id: fx7_vendetta_bayonet_thrust, kind: body, parent: caster}
+  - {id: fx7_vendetta_bayonet_thrust, kind: body, parent: caster, orient: yaw}
   - {id: fx8_vendetta_gold_sweep, kind: body, parent: world}
   - {id: fx9_vendetta_thrust_flash, kind: body, parent: world}
   - {id: fx10_vendetta_contact_ring, kind: body, parent: world}

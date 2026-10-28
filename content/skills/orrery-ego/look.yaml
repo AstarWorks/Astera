@@ -1,6 +1,5 @@
 # Converted from content/skills/orrery-ego.yaml + content/vfx/* by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
 # Generated point-frame offsets are [left, up, forward] in the parent frame.
-# CONVERT-PRESENT vfx frame orient (frames carry no orientation / scale) (x6): orient="yaw" | orient="look"
 # CONVERT-PRESENT particle along_path (x1): true
 # CONVERT-PRESENT element jitter (no v2 equivalent) (x1): {"position": 0.08}
 # CONVERT-PRESENT vfx anchored at a runtime point (frame parent must exist at cast start): anchored at world (x1): contact.point
@@ -12,12 +11,12 @@ frames:
   - {id: fx1_orrery_poise_staff_at, kind: body, parent: caster.right_hand}
   - {id: fx1_orrery_poise_staff, kind: body, parent: fx1_orrery_poise_staff_at}
   - {id: pt_fx1_orrery_poise_staff_0_1p65_0, kind: point, parent: fx1_orrery_poise_staff, offset: [0.0, 1.65, 0.0]}
-  - {id: fx2_orrery_motes, kind: body, parent: caster}
-  - {id: fx3_orrery_orb, kind: body, parent: caster}
-  - {id: fx4_orrery_beam, kind: body, parent: caster}
-  - {id: fx5_orrery_seal_front, kind: body, parent: caster}
+  - {id: fx2_orrery_motes, kind: body, parent: caster, orient: yaw}
+  - {id: fx3_orrery_orb, kind: body, parent: caster, orient: look}
+  - {id: fx4_orrery_beam, kind: body, parent: caster, orient: yaw}
+  - {id: fx5_orrery_seal_front, kind: body, parent: caster, orient: yaw}
   - {id: fx5_orrery_seal_front_clock_sparks_at, kind: body, parent: fx5_orrery_seal_front}
-  - {id: fx6_orrery_ring_hit, kind: body, parent: world}
+  - {id: fx6_orrery_ring_hit, kind: body, parent: world, orient: to_target}
 presentation:
   timeline:
     - id: fx0

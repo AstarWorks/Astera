@@ -13,6 +13,6 @@ meta:
 gameplay:
   params: {poise_ticks: 400, poise_stacks: 5}
   timeline:
-    - {id: t0, at: 0, do: [{id: pin, op: place, frame: fx1_crimson_chain_axe_ego_orbit, like: caster}]}
-    - {id: t30, at: 30, do: [{id: pin_2, op: place, frame: fx2_crimson_chain_axe_orbit, like: caster}]}
+    - {id: t0, at: 0, do: [{id: pin, op: place, frame: fx1_crimson_chain_axe_ego_orbit, like: caster, orient: yaw}]}
+    - {id: t30, at: 30, do: [{id: pin_2, op: place, frame: fx2_crimson_chain_axe_orbit, like: caster, orient: yaw}]}
     - {id: t40, at: 40, do: [{id: st_poise, op: status, status: poise, duration_ticks: "${poise_ticks}", target: caster, stacks: "${poise_stacks}"}]}

@@ -2,6 +2,7 @@ package com.astarworks.astera.core.domain.skillengine.model
 
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.skillengine.frame.FrameKind
+import com.astarworks.astera.core.domain.skillengine.frame.FrameOrient
 import com.astarworks.astera.core.domain.skillengine.modifier.ExposedParam
 import com.astarworks.astera.core.domain.skillengine.op.GameplayOp
 import com.astarworks.astera.core.domain.skillengine.op.PresentationOp
@@ -32,6 +33,8 @@ public data class FrameDecl(
     val offset: Vec3? = null,
     /** Declared but not attached until a reparent op moves things under it. */
     val inactive: Boolean = false,
+    /** Takes this rotation (live) instead of inheriting the parent's; see [FrameOrient]. */
+    val orient: FrameOrient? = null,
 )
 
 /** `at:` of a timeline row: absolute tick since cast start, or an event plus an offset. */

@@ -193,6 +193,60 @@ def hitstop_warp(kfs, stops):
     return [out[t] for t in sorted(out)]
 
 
+def scale_bake(d, s):
+    """Return the vfx definition `d` with the `play_vfx scale` argument applied. v1 multiplies every authored length by it at play
+    time (VfxTimeline.plan :102, slotGeometry :213, SlotContext :360-369, VfxRigPlanner partPlan :255 / pivotWorld :170): element
+    keyframe translations, display scales, rig pivot, part offset and part size. A frame has no scale, so the lengths themselves are
+    multiplied, 1:1. Anything whose length semantics are not that plain product (emitters, trails, boards, bodies, placement
+    curves, group tracks, jitter) is refused rather than guessed."""
+    if s == 1.0:
+        return d
+    d = json.loads(json.dumps(d))
+    if "scale" in d or d.get("body") or d.get("ghost_bodies") or d.get("groups"):
+        raise UnhandledV1Key("play_vfx scale %s on a vfx with a body / ghost bodies / group tracks / own scale" % s)
+
+    def mul(v):
+        return float(v) * s if isinstance(v, (int, float)) else [float(x) * s for x in v]
+
+    for el in d.get("elements", []):
+        extra = set(el) - {"id", "kind", "brightness", "start_tick", "end_tick", "keyframes", "billboard", "respect_hit_stop", "emit"}
+        kind = (el.get("kind") or {}).get("type")
+        if extra or kind not in ("block", "quad", "particle"):
+            raise UnhandledV1Key("play_vfx scale %s on element %s (kind %s, keys %s): its lengths are not a plain product"
+                                 % (s, el.get("id"), kind, sorted(extra)))
+        emit = el.get("emit")
+        if emit:
+            # VfxEmitter.plan :118-153: origin (first key translate), speed, size and gravity are lengths
+            extra = set(emit) - {"count", "speed", "spread_deg", "direction", "gravity", "drag", "life_ticks", "size", "size_over_life",
+                                 "alpha_over_life", "spin_over_life"}
+            if extra:
+                raise UnhandledV1Key("play_vfx scale %s on emitter %s keys %s" % (s, el.get("id"), sorted(extra)))
+            for ch in ("speed", "size"):
+                if ch in emit:
+                    emit[ch] = mul(emit[ch])
+            if "gravity" in emit:
+                emit["gravity"] = float(emit["gravity"]) * s
+        for k in el.get("keyframes") or []:
+            extra = set(k) - {"t", "translate", "rotate", "scale", "alpha", "ease", "color"}
+            if extra:
+                raise UnhandledV1Key("play_vfx scale %s on element %s keyframe keys %s" % (s, el.get("id"), sorted(extra)))
+            for ch in ("translate", "scale"):
+                if ch in k and (ch == "translate" or kind != "particle"):
+                    k[ch] = mul(k[ch])
+    for r in d.get("rigs", []) or []:
+        extra = set(r) - {"id", "pivot", "rest", "tilt", "respect_hit_stop", "end_tick", "start_tick", "parts", "swing", "trails"}
+        if extra or r.get("trails") or r.get("weapon") or any(set(p) - {"id", "block", "offset", "size", "brightness"} for p in r.get("parts", [])):
+            raise UnhandledV1Key("play_vfx scale %s on rig %s: only block parts (pivot / offset / size) scale as a plain product (keys %s)"
+                                 % (s, r.get("id"), sorted(extra)))
+        if "pivot" in r:
+            r["pivot"] = mul(r["pivot"])
+        for p in r.get("parts", []):
+            for ch in ("offset", "size"):
+                if ch in p:
+                    p[ch] = mul(p[ch])
+    return d
+
+
 def hitstop_bake(d, freezes):
     """Return the vfx definition `d` with `play_vfx freeze` baked into every element / rig that has `respect_hit_stop`, and the flag
     dropped everywhere (without a freeze the flag is a no-op in v1)."""
@@ -1178,17 +1232,31 @@ class Conv:
         if parent is None:
             self.present("vfx anchored at a runtime point (frame parent must exist at cast start): anchored at world", want)
             parent = "world"
+        # v1 builds the anchor frame from the definition's `orient` (VfxOrient.frame): the cast's look (frozen with the pose for a
+        # snapshot), level for yaw, none for world, caster -> anchor for to_target; the parent only supplies the position.
+        mode = str(V(m.get("orient", d.get("orient", "look")))).lower()
+        if mode not in ("look", "yaw", "world", "to_target"):
+            raise UnhandledV1Key("vfx %s: orient '%s' has no v2 mode" % (vid, mode))
+        orient = {"mode": mode}
+        if mode in ("look", "yaw", "to_target"):
+            orient["look"] = self.frozen("aim", where) if snapshot else "aim"
+        if mode == "to_target":
+            orient["reference"] = self.frozen("caster", where) if snapshot else "caster"
+        orient = {k: v for k, v in orient.items() if not (k == "look" and v == "aim") and not (k == "reference" and v == "caster")}
+        orient = orient["mode"] if len(orient) == 1 else orient
         self.look_frames[fid] = {"id": fid, "kind": "body", "parent": parent}
         if not follow and not snapshot and parent == "world" and want != "world":
-            # v1 follow=false: the vfx anchor is set to the target's pose when it spawns and then stays put (world-fixed)
-            self.g(where, delay, self._w({"id": self.oid("pin"), "op": "place", "frame": fid, "like": "contact" if want == "contact.point" else want}, when))
-        for k in ("orient", "scale"):
-            if k in d or k in m:
-                self.present("vfx frame %s (frames carry no orientation / scale)" % k, "%s=%s" % (k, short(V(m.get(k, d.get(k))), 30)))
+            # v1 follow=false: the vfx anchor is set to the target's pose when it spawns and then stays put (world-fixed),
+            # oriented as it was oriented then
+            self.g(where, delay, self._w({"id": self.oid("pin"), "op": "place", "frame": fid, "like": "contact" if want == "contact.point" else want,
+                                          "orient": orient}, when))
+        else:
+            self.look_frames[fid]["orient"] = orient
         for k in ("follow_teleport_ticks", "attach_to_anchor", "replace_group", "follow_pitch", "ghost_bodies",
                   "target_reference"):
             if k in d:
                 self.present("vfx %s (no v2 equivalent)" % k, short(d[k], 60))
+        d = scale_bake(d, float(V(m.get("scale", 1.0))))
         d = hitstop_bake(d, V(m.get("freeze")))
         for k in ("track_bound_target", "viewers"):
             if k in m:

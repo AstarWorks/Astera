@@ -1,6 +1,5 @@
 # Converted from content/skills/orrery-s3.yaml + content/vfx/* by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
 # Generated point-frame offsets are [left, up, forward] in the parent frame.
-# CONVERT-PRESENT vfx frame orient (frames carry no orientation / scale) (x14): orient="yaw" | orient="to_target"
 # CONVERT-PRESENT vfx target_reference (no v2 equivalent) (x8): [0, 0, 6] | [0, 0, 0]
 # CONVERT-PRESENT play_vfx track_bound_target (no v2 equivalent) (x8): true
 # CONVERT-PRESENT element target_line (no v2 equivalent) (x12): True
@@ -11,13 +10,13 @@ apiVersion: "astera/v2"
 kind: Skill
 id: orrery-s3
 frames:
-  - {id: fx1_orrery_beam_short, kind: body, parent: hit_caster}
+  - {id: fx1_orrery_beam_short, kind: body, parent: hit_caster, orient: {mode: yaw, look: hit_aim}}
   - {id: fx2_orrery_ring_hit_target, kind: body, parent: world}
-  - {id: fx3_orrery_beam_short, kind: body, parent: hit_caster}
+  - {id: fx3_orrery_beam_short, kind: body, parent: hit_caster, orient: {mode: yaw, look: hit_aim}}
   - {id: fx4_orrery_ring_hit_target, kind: body, parent: world}
-  - {id: fx5_orrery_beam_short, kind: body, parent: hit_caster}
+  - {id: fx5_orrery_beam_short, kind: body, parent: hit_caster, orient: {mode: yaw, look: hit_aim}}
   - {id: fx6_orrery_ring_hit_target, kind: body, parent: world}
-  - {id: fx7_orrery_beam_target, kind: body, parent: hit_caster}
+  - {id: fx7_orrery_beam_target, kind: body, parent: hit_caster, orient: {mode: yaw, look: hit_aim}}
   - {id: fx8_orrery_ring_hit_target_long, kind: body, parent: world}
   - {id: fx9_orrery_channel, kind: body, parent: world}
   - {id: fx9_orrery_channel_staff_at, kind: body, parent: caster.right_hand}
@@ -25,14 +24,14 @@ frames:
   - {id: pt_fx9_orrery_channel_staff_0_1_0, kind: point, parent: fx9_orrery_channel_staff, offset: [0.0, 1.0, 0.0]}
   - {id: pt_fx9_orrery_channel_staff_0_2p3_0, kind: point, parent: fx9_orrery_channel_staff, offset: [0.0, 2.3, 0.0]}
   - {id: pt_fx9_orrery_channel_staff_0_1p65_0, kind: point, parent: fx9_orrery_channel_staff, offset: [0.0, 1.65, 0.0]}
-  - {id: fx10_orrery_orb, kind: body, parent: caster}
-  - {id: fx11_orrery_seal_front, kind: body, parent: caster}
+  - {id: fx10_orrery_orb, kind: body, parent: caster, orient: look}
+  - {id: fx11_orrery_seal_front, kind: body, parent: caster, orient: yaw}
   - {id: fx11_orrery_seal_front_clock_sparks_at, kind: body, parent: fx11_orrery_seal_front}
-  - {id: fx12_orrery_seal_front, kind: body, parent: caster}
+  - {id: fx12_orrery_seal_front, kind: body, parent: caster, orient: yaw}
   - {id: fx12_orrery_seal_front_clock_sparks_at, kind: body, parent: fx12_orrery_seal_front}
-  - {id: fx13_orrery_seal_front, kind: body, parent: caster}
+  - {id: fx13_orrery_seal_front, kind: body, parent: caster, orient: yaw}
   - {id: fx13_orrery_seal_front_clock_sparks_at, kind: body, parent: fx13_orrery_seal_front}
-  - {id: fx14_orrery_seal_front, kind: body, parent: caster}
+  - {id: fx14_orrery_seal_front, kind: body, parent: caster, orient: yaw}
   - {id: fx14_orrery_seal_front_clock_sparks_at, kind: body, parent: fx14_orrery_seal_front}
 presentation:
   timeline:
