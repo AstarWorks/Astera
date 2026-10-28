@@ -10,25 +10,25 @@ layout:
   - id: red
     kind: base
     team: red
-    center: {x: -88, z: 0}
+    center: {x: -108, z: 0}
     radius: 32
   - id: blue
     kind: base
     team: blue
-    center: {x: 88, z: 0}
+    center: {x: 108, z: 0}
     radius: 32
   - id: center
     kind: center
     center: {x: 0, z: 0}
-    radius: 26
+    radius: 32
   - id: north
     kind: outpost
-    center: {x: 0, z: -62}
+    center: {x: 0, z: -70}
     radius: 20
     accent: cyan
   - id: south
     kind: outpost
-    center: {x: 0, z: 62}
+    center: {x: 0, z: 70}
     radius: 20
     accent: cyan
   bridges:
@@ -43,221 +43,229 @@ layout:
   landmarks:
   - {kind: generator, x: 14, z: 0}
   - {kind: generator, x: -14, z: 0}
-  - {kind: generator, x: 10, z: -62}
-  - {kind: generator, x: -10, z: 62}
+  - {kind: generator, x: 10, z: -70}
+  - {kind: generator, x: -10, z: 70}
   structures:
   - part: castle-gate
-    x: -68
+    x: -88
     z: 0
     rotation: 0
     palette: {team: 'minecraft:red_concrete'}
   - part: castle-gate
-    x: 68
+    x: 88
     z: 0
     rotation: 180
     palette: {team: 'minecraft:blue_concrete'}
   - part: castle-tower
-    x: -68
+    x: -88
     z: -16
     rotation: 0
     palette: {team: 'minecraft:red_concrete'}
   - part: castle-tower
-    x: 68
+    x: 88
     z: 16
     rotation: 180
     palette: {team: 'minecraft:blue_concrete'}
   - part: castle-tower
-    x: -68
+    x: -88
     z: 16
     rotation: 0
     palette: {team: 'minecraft:red_concrete'}
   - part: castle-tower
-    x: 68
+    x: 88
     z: -16
     rotation: 180
     palette: {team: 'minecraft:blue_concrete'}
   - part: castle-wall
-    x: -100
+    x: -120
     z: -23
     rotation: 0
     palette: {team: 'minecraft:red_concrete'}
   - part: castle-wall
-    x: 100
+    x: 120
     z: 23
     rotation: 180
     palette: {team: 'minecraft:blue_concrete'}
   - part: castle-wall
-    x: -100
-    z: 23
-    rotation: 180
-    palette: {team: 'minecraft:red_concrete'}
-  - part: castle-wall
-    x: 100
-    z: -23
-    rotation: 0
-    palette: {team: 'minecraft:blue_concrete'}
-  - part: castle-wall
-    x: -86
-    z: -23
-    rotation: 0
-    palette: {team: 'minecraft:red_concrete'}
-  - part: castle-wall
-    x: 86
-    z: 23
-    rotation: 180
-    palette: {team: 'minecraft:blue_concrete'}
-  - part: castle-wall
-    x: -86
+    x: -120
     z: 23
     rotation: 180
     palette: {team: 'minecraft:red_concrete'}
   - part: castle-wall
-    x: 86
+    x: 120
     z: -23
     rotation: 0
     palette: {team: 'minecraft:blue_concrete'}
   - part: castle-wall
-    x: -112
+    x: -106
+    z: -23
+    rotation: 0
+    palette: {team: 'minecraft:red_concrete'}
+  - part: castle-wall
+    x: 106
+    z: 23
+    rotation: 180
+    palette: {team: 'minecraft:blue_concrete'}
+  - part: castle-wall
+    x: -106
+    z: 23
+    rotation: 180
+    palette: {team: 'minecraft:red_concrete'}
+  - part: castle-wall
+    x: 106
+    z: -23
+    rotation: 0
+    palette: {team: 'minecraft:blue_concrete'}
+  - part: castle-wall
+    x: -132
     z: -13
     rotation: 270
     palette: {team: 'minecraft:red_concrete'}
   - part: castle-wall
-    x: 112
+    x: 132
     z: 13
     rotation: 90
     palette: {team: 'minecraft:blue_concrete'}
   - part: castle-wall
-    x: -112
+    x: -132
     z: 0
     rotation: 270
     palette: {team: 'minecraft:red_concrete'}
   - part: castle-wall
-    x: 112
+    x: 132
     z: 0
     rotation: 90
     palette: {team: 'minecraft:blue_concrete'}
   - part: castle-wall
-    x: -112
+    x: -132
     z: 13
     rotation: 270
     palette: {team: 'minecraft:red_concrete'}
   - part: castle-wall
-    x: 112
+    x: 132
     z: -13
     rotation: 90
     palette: {team: 'minecraft:blue_concrete'}
   - part: castle-tower
-    x: -108
+    x: -128
     z: -19
     rotation: 0
     palette: {team: 'minecraft:red_concrete'}
   - part: castle-tower
-    x: 108
+    x: 128
     z: 19
     rotation: 180
     palette: {team: 'minecraft:blue_concrete'}
   - part: castle-tower
-    x: -108
+    x: -128
     z: 19
     rotation: 0
     palette: {team: 'minecraft:red_concrete'}
   - part: castle-tower
-    x: 108
+    x: 128
     z: -19
     rotation: 180
     palette: {team: 'minecraft:blue_concrete'}
   - part: castle-keep
-    x: -96
+    x: -116
     z: 0
     rotation: 0
     palette: {team: 'minecraft:red_concrete'}
   - part: castle-keep
-    x: 96
+    x: 116
     z: 0
     rotation: 180
     palette: {team: 'minecraft:blue_concrete'}
-  - {part: bridge, x: -41, z: 0, rotation: 0}
-  - {part: bridge, x: 41, z: 0, rotation: 180}
-  - {part: high-ground, x: -12, z: -14, rotation: 0}
-  - {part: high-ground, x: 12, z: 14, rotation: 180}
-  - {part: cover-reinforced-wall, x: -18, z: 8, rotation: 90}
-  - {part: cover-reinforced-wall, x: 18, z: -8, rotation: 270}
-  - {part: cover-barricade, x: -20, z: -12, rotation: 90}
-  - {part: cover-barricade, x: 20, z: 12, rotation: 270}
-  - {part: cover-sandbags, x: -12, z: 18, rotation: 0}
-  - {part: cover-sandbags, x: 12, z: -18, rotation: 180}
-  - {part: cover-hardened-bank, x: 10, z: -16, rotation: 0}
-  - {part: cover-hardened-bank, x: -10, z: 16, rotation: 180}
-  - {part: ruin, x: 0, z: -74, rotation: 0}
-  - {part: ruin, x: 0, z: 74, rotation: 180}
+  - {part: bridge, x: -54, z: 0, rotation: 0}
+  - {part: bridge, x: 54, z: 0, rotation: 180}
+  - {part: cover-reinforced-wall, x: -24, z: -9, rotation: 0}
+  - {part: cover-barricade, x: -14, z: -9, rotation: 0}
+  - {part: cover-reinforced-wall, x: -10, z: -24, rotation: 270}
+  - {part: cover-barricade, x: -10, z: -17, rotation: 270}
+  - {part: cover-reinforced-wall, x: -24, z: 9, rotation: 0}
+  - {part: cover-barricade, x: -14, z: 9, rotation: 0}
+  - {part: cover-reinforced-wall, x: -10, z: 24, rotation: 90}
+  - {part: cover-barricade, x: -10, z: 17, rotation: 90}
+  - {part: cover-reinforced-wall, x: 24, z: -9, rotation: 180}
+  - {part: cover-barricade, x: 14, z: -9, rotation: 180}
+  - {part: cover-reinforced-wall, x: 10, z: -24, rotation: 270}
+  - {part: cover-barricade, x: 10, z: -17, rotation: 270}
+  - {part: cover-reinforced-wall, x: 24, z: 9, rotation: 180}
+  - {part: cover-barricade, x: 14, z: 9, rotation: 180}
+  - {part: cover-reinforced-wall, x: 10, z: 24, rotation: 90}
+  - {part: cover-barricade, x: 10, z: 17, rotation: 90}
+  - {part: high-ground, x: -18, z: -18, rotation: 0}
+  - {part: high-ground, x: 18, z: 18, rotation: 180}
+  - {part: ruin, x: 0, z: -82, rotation: 0}
+  - {part: ruin, x: 0, z: 82, rotation: 180}
   - part: castle-tower
     x: -13
-    z: -60
+    z: -68
     rotation: 0
     palette: {team: 'minecraft:white_concrete'}
   - part: castle-tower
     x: 13
-    z: 60
+    z: 68
     rotation: 180
     palette: {team: 'minecraft:white_concrete'}
-  - {part: cover-barricade, x: -7, z: -53, rotation: 0}
-  - {part: cover-barricade, x: 7, z: 53, rotation: 180}
-  - {part: cover-reinforced-wall, x: 9, z: -70, rotation: 90}
-  - {part: cover-reinforced-wall, x: -9, z: 70, rotation: 270}
+  - {part: cover-barricade, x: -7, z: -61, rotation: 0}
+  - {part: cover-barricade, x: 7, z: 61, rotation: 180}
+  - {part: cover-reinforced-wall, x: 9, z: -78, rotation: 90}
+  - {part: cover-reinforced-wall, x: -9, z: 78, rotation: 270}
   theme: desert
   atmosphere: {time_of_day: 6000, weather: clear}
 regions:
 - name: full-arena
-  min: {x: -130.0, y: 20.0, z: -94.0}
-  max: {x: 130.0, y: 140.0, z: 94.0}
+  min: {x: -150.0, y: 20.0, z: -102.0}
+  max: {x: 150.0, y: 140.0, z: 102.0}
 - name: base-red
-  min: {x: -122.0, y: 64.0, z: -26.0}
-  max: {x: -62.0, y: 70.0, z: 26.0}
+  min: {x: -142.0, y: 64.0, z: -26.0}
+  max: {x: -82.0, y: 70.0, z: 26.0}
 - name: base-blue
-  min: {x: 62.0, y: 64.0, z: -26.0}
-  max: {x: 122.0, y: 70.0, z: 26.0}
+  min: {x: 82.0, y: 64.0, z: -26.0}
+  max: {x: 142.0, y: 70.0, z: 26.0}
 - name: jewelry-red
-  min: {x: -100.0, y: 64.0, z: 14.0}
-  max: {x: -98.0, y: 70.0, z: 16.0}
+  min: {x: -120.0, y: 64.0, z: 14.0}
+  max: {x: -118.0, y: 70.0, z: 16.0}
 - name: jewelry-blue
-  min: {x: 98.0, y: 64.0, z: -16.0}
-  max: {x: 100.0, y: 70.0, z: -14.0}
+  min: {x: 118.0, y: 64.0, z: -16.0}
+  max: {x: 120.0, y: 70.0, z: -14.0}
 - name: tnt-spawn
   min: {x: -3.0, y: 64.0, z: -9.0}
   max: {x: 3.0, y: 70.0, z: -3.0}
 - name: wool-a
-  min: {x: -3.0, y: 64.0, z: -65.0}
-  max: {x: 3.0, y: 70.0, z: -59.0}
+  min: {x: -3.0, y: 64.0, z: -73.0}
+  max: {x: 3.0, y: 70.0, z: -67.0}
 - name: wool-b
   min: {x: -3.0, y: 64.0, z: 3.0}
   max: {x: 3.0, y: 70.0, z: 9.0}
 - name: wool-c
-  min: {x: -3.0, y: 64.0, z: 59.0}
-  max: {x: 3.0, y: 70.0, z: 65.0}
+  min: {x: -3.0, y: 64.0, z: 67.0}
+  max: {x: 3.0, y: 70.0, z: 73.0}
 spawn_points:
 - team: red
-  position: {x: -76.5, y: 65.0, z: -2.5}
+  position: {x: -96.5, y: 65.0, z: -2.5}
   yaw: 270.0
 - team: red
-  position: {x: -76.5, y: 65.0, z: 3.5}
+  position: {x: -96.5, y: 65.0, z: 3.5}
   yaw: 270.0
 - team: red
-  position: {x: -74.5, y: 65.0, z: 0.5}
+  position: {x: -94.5, y: 65.0, z: 0.5}
   yaw: 270.0
 - team: red
-  position: {x: -78.5, y: 65.0, z: 0.5}
+  position: {x: -98.5, y: 65.0, z: 0.5}
   yaw: 270.0
 - team: blue
-  position: {x: 77.5, y: 65.0, z: 3.5}
+  position: {x: 97.5, y: 65.0, z: 3.5}
   yaw: 90.0
 - team: blue
-  position: {x: 77.5, y: 65.0, z: -2.5}
+  position: {x: 97.5, y: 65.0, z: -2.5}
   yaw: 90.0
 - team: blue
-  position: {x: 75.5, y: 65.0, z: 0.5}
+  position: {x: 95.5, y: 65.0, z: 0.5}
   yaw: 90.0
 - team: blue
-  position: {x: 79.5, y: 65.0, z: 0.5}
+  position: {x: 99.5, y: 65.0, z: 0.5}
   yaw: 90.0
 - role: lobby
   position: {x: 0.5, y: 65.0, z: 0.5}
@@ -267,12 +275,12 @@ spawn_points:
 # In-match ore shop (stage-local; inside base-<team>). Only the own team can open it.
 shop_npcs:
 - team: red
-  x: -84.5
+  x: -104.5
   y: 65.0
   z: 7.5
   yaw: 270.0
 - team: blue
-  x: 84.5
+  x: 104.5
   y: 65.0
   z: -7.5
   yaw: 90.0

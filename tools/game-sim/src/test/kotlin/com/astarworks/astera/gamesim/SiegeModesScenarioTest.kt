@@ -37,8 +37,8 @@ import kotlin.math.floor
  */
 class SiegeModesScenarioTest {
 
-    // siege-isles-jewelry: base-red is x -122..-62, jewelry-blue sits at x 98..100 z -16..-14 (stage-local).
-    private val redBase = Vec3(-92.0, 65.0, 0.0)
+    // siege-isles-jewelry: base-red is x -142..-82, jewelry-blue sits at x 118..120 z -16..-14 (stage-local).
+    private val redBase = Vec3(-112.0, 65.0, 0.0)
     private val nowhere = Vec3(0.0, 65.0, -50.0)
 
     // ---- helpers ----------------------------------------------------------
@@ -252,15 +252,15 @@ class SiegeModesScenarioTest {
             val thief = player("thief", at = nowhere)
             val keeper = player("keeper", at = nowhere)
             val matchId = startMatch("steal-jewelry", mapOf(thief to "red", keeper to "blue"), stage = "siege-isles-jewelry")
-            val bluePedestal = Vec3(99.0, 65.0, -15.0)
-            val pedestalMarker = Vec3(99.0, 64.0, -15.0)
+            val bluePedestal = Vec3(119.0, 65.0, -15.0)
+            val pedestalMarker = Vec3(119.0, 64.0, -15.0)
             assertThat(blockAt(pedestalMarker)).isEqualTo("minecraft:diamond_block")
 
             // Thief steals a jewel (a 2.5 s hold); the keeper shoots them down before banking and the jewel lies where it fell.
             keeper.holds("pistol")
             hold(thief, bluePedestal, 110)
             assertThat(sim.objectiveStage.carrying(thief.id)).`as`("thief wears a jewel").isNotNull()
-            keeper.moveTo(Vec3(99.0, 65.0, -5.0))
+            keeper.moveTo(Vec3(119.0, 65.0, -5.0))
             kill(keeper, thief)
             assertThat(sim.objectiveStage.carrying(thief.id)).isNull()
             assertThat(sim.objectiveStage.markers(matchId).keys.filter { it.startsWith("pile-") }).`as`("jewels on the ground").isNotEmpty()
@@ -294,7 +294,7 @@ class SiegeModesScenarioTest {
             val thief = player("thief", at = nowhere)
             val keeper = player("keeper", at = nowhere)
             startMatch("steal-jewelry", mapOf(thief to "red", keeper to "blue"), stage = "siege-isles-jewelry")
-            val bluePedestal = Vec3(99.0, 65.0, -15.0)
+            val bluePedestal = Vec3(119.0, 65.0, -15.0)
 
             thief.moveTo(bluePedestal)
             advance(40)
@@ -302,7 +302,7 @@ class SiegeModesScenarioTest {
             assertThat(sim.objectiveStage.bar(thief.id, "channel")?.progress ?: 0.0).`as`("the steal bar fills").isGreaterThan(0.0)
             // One hit cancels the hold; the bar starts over.
             keeper.holds("pistol")
-            keeper.moveTo(Vec3(99.0, 65.0, -5.0))
+            keeper.moveTo(Vec3(119.0, 65.0, -5.0))
             keeper.faces(thief)
             keeper.rightClick()
             check(advanceUntil(40) { eventsOf<DamageDealt>().any { it.target == thief.id } }) { "the keeper never hit the thief" }

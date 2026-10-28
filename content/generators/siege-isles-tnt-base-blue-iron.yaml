@@ -1,7 +1,7 @@
 # Team base iron generator of siege-isles-tnt: only blue can collect it (iron is fast); drops the ore-iron item, not a star.
 id: siege-isles-tnt-base-blue-iron
 match_stage_id: siege-isles-tnt
-position: { x: 82.5, y: 65.0, z: -6.0 }
+position: { x: 102.5, y: 65.0, z: -6.0 }
 period_seconds: 6.0
 amount: 1
 tier: iron

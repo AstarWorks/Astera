@@ -1,4 +1,4 @@
-# Authored siege-scale layout, shrunk for fast 3-team matches (about 130x135). See README.md and ADR-0273.
+# Authored siege-scale layout, sized for 3-team matches (about 160x170). See README.md and ADR-0273.
 id: annihilation-arena
 display_name_key: astera.stage.annihilation-arena.name
 layout:
@@ -10,17 +10,17 @@ layout:
   - id: red
     kind: base
     team: red
-    center: {x: 0, z: -46}
+    center: {x: 0, z: -60}
     radius: 21
   - id: blue
     kind: base
     team: blue
-    center: {x: 40, z: 23}
+    center: {x: 52, z: 30}
     radius: 21
   - id: yellow
     kind: base
     team: yellow
-    center: {x: -40, z: 23}
+    center: {x: -52, z: 30}
     radius: 21
   - id: center
     kind: center
@@ -28,15 +28,15 @@ layout:
     radius: 18
   - id: flank-red-blue
     kind: outpost
-    center: {x: 50, z: -29}
+    center: {x: 62, z: -36}
     radius: 10
   - id: flank-blue-yellow
     kind: outpost
-    center: {x: 0, z: 58}
+    center: {x: 0, z: 72}
     radius: 10
   - id: flank-yellow-red
     kind: outpost
-    center: {x: -50, z: -29}
+    center: {x: -62, z: -36}
     radius: 10
   bridges:
   - {from: red, to: center, width: 7}
@@ -51,53 +51,53 @@ layout:
   landmarks:
   - {kind: generator, x: 9, z: 0}
   - {kind: generator, x: -9, z: 0}
-  - {kind: generator, x: 50, z: -29}
-  - {kind: generator, x: -50, z: -29}
-  - {kind: generator, x: 0, z: 58}
+  - {kind: generator, x: 62, z: -36}
+  - {kind: generator, x: -62, z: -36}
+  - {kind: generator, x: 0, z: 72}
   structures:
   - part: castle-gate
     x: 0
-    z: -28
+    z: -42
     rotation: 90
     palette: {team: 'minecraft:red_concrete'}
   - part: castle-tower
     x: 11
-    z: -55
+    z: -69
     rotation: 90
     palette: {team: 'minecraft:red_concrete'}
   - part: castle-tower
     x: -11
-    z: -55
+    z: -69
     rotation: 90
     palette: {team: 'minecraft:red_concrete'}
   - part: castle-gate
-    x: 22
-    z: 23
+    x: 34
+    z: 30
     rotation: 180
     palette: {team: 'minecraft:blue_concrete'}
   - part: castle-tower
-    x: 51
-    z: 31
+    x: 63
+    z: 38
     rotation: 180
     palette: {team: 'minecraft:blue_concrete'}
   - part: castle-tower
-    x: 51
-    z: 15
+    x: 63
+    z: 22
     rotation: 180
     palette: {team: 'minecraft:blue_concrete'}
   - part: castle-gate
-    x: -22
-    z: 23
+    x: -34
+    z: 30
     rotation: 0
     palette: {team: 'minecraft:yellow_concrete'}
   - part: castle-tower
-    x: -51
-    z: 15
+    x: -63
+    z: 22
     rotation: 0
     palette: {team: 'minecraft:yellow_concrete'}
   - part: castle-tower
-    x: -51
-    z: 31
+    x: -63
+    z: 38
     rotation: 0
     palette: {team: 'minecraft:yellow_concrete'}
   - {part: ruin, x: -4, z: -9, rotation: 0}
@@ -106,93 +106,93 @@ layout:
   atmosphere: {time_of_day: 23500, weather: clear}
 regions:
 - name: full-arena
-  min: {x: -72.0, y: 20.0, z: -78.0}
-  max: {x: 72.0, y: 140.0, z: 78.0}
+  min: {x: -88.0, y: 20.0, z: -96.0}
+  max: {x: 88.0, y: 140.0, z: 96.0}
 - name: center
   min: {x: -8.0, y: 64.0, z: -8.0}
   max: {x: 8.0, y: 67.0, z: 8.0}
 pillars:
 - team: red
   tier: 1
-  position: {x: -9.0, y: 65.0, z: -37.4}
+  position: {x: -9.0, y: 65.0, z: -51.4}
   block: minecraft:stripped_dark_oak_wood
   affinity: axe
 - team: red
   tier: 2
-  position: {x: 9.0, y: 65.0, z: -37.4}
+  position: {x: 9.0, y: 65.0, z: -51.4}
   block: minecraft:coarse_dirt
   affinity: shovel
 - team: red
   tier: 3
-  position: {x: 0.0, y: 65.0, z: -48.4}
+  position: {x: 0.0, y: 65.0, z: -62.4}
   block: minecraft:polished_deepslate
   affinity: pickaxe
 - team: blue
   tier: 1
-  position: {x: 37.0, y: 65.0, z: 11.2}
+  position: {x: 49.0, y: 65.0, z: 18.2}
   block: minecraft:stripped_dark_oak_wood
   affinity: axe
 - team: blue
   tier: 2
-  position: {x: 28.0, y: 65.0, z: 26.2}
+  position: {x: 40.0, y: 65.0, z: 33.2}
   block: minecraft:coarse_dirt
   affinity: shovel
 - team: blue
   tier: 3
-  position: {x: 42.0, y: 65.0, z: 24.2}
+  position: {x: 54.0, y: 65.0, z: 31.2}
   block: minecraft:polished_deepslate
   affinity: pickaxe
 - team: yellow
   tier: 1
-  position: {x: -28.0, y: 65.0, z: 26.2}
+  position: {x: -40.0, y: 65.0, z: 33.2}
   block: minecraft:stripped_dark_oak_wood
   affinity: axe
 - team: yellow
   tier: 2
-  position: {x: -37.0, y: 65.0, z: 11.2}
+  position: {x: -49.0, y: 65.0, z: 18.2}
   block: minecraft:coarse_dirt
   affinity: shovel
 - team: yellow
   tier: 3
-  position: {x: -42.0, y: 65.0, z: 24.2}
+  position: {x: -54.0, y: 65.0, z: 31.2}
   block: minecraft:polished_deepslate
   affinity: pickaxe
 spawn_points:
 - team: red
-  position: {x: -2.5, y: 65.0, z: -34.5}
+  position: {x: -2.5, y: 65.0, z: -48.5}
   yaw: 0.0
 - team: red
-  position: {x: 3.5, y: 65.0, z: -34.5}
+  position: {x: 3.5, y: 65.0, z: -48.5}
   yaw: 0.0
 - team: red
-  position: {x: 0.5, y: 65.0, z: -36.5}
+  position: {x: 0.5, y: 65.0, z: -50.5}
   yaw: 0.0
 - team: red
-  position: {x: 0.5, y: 65.0, z: -32.5}
+  position: {x: 0.5, y: 65.0, z: -46.5}
   yaw: 0.0
 - team: blue
-  position: {x: 25.5, y: 65.0, z: 16.5}
+  position: {x: 37.5, y: 65.0, z: 23.5}
   yaw: 120.2
 - team: blue
-  position: {x: 31.5, y: 65.0, z: 16.5}
+  position: {x: 43.5, y: 65.0, z: 23.5}
   yaw: 120.2
 - team: blue
-  position: {x: 28.5, y: 65.0, z: 14.5}
+  position: {x: 40.5, y: 65.0, z: 21.5}
   yaw: 120.2
 - team: blue
-  position: {x: 28.5, y: 65.0, z: 18.5}
+  position: {x: 40.5, y: 65.0, z: 25.5}
   yaw: 120.2
 - team: yellow
-  position: {x: -31.5, y: 65.0, z: 16.5}
+  position: {x: -43.5, y: 65.0, z: 23.5}
   yaw: 239.8
 - team: yellow
-  position: {x: -25.5, y: 65.0, z: 16.5}
+  position: {x: -37.5, y: 65.0, z: 23.5}
   yaw: 239.8
 - team: yellow
-  position: {x: -28.5, y: 65.0, z: 14.5}
+  position: {x: -40.5, y: 65.0, z: 21.5}
   yaw: 239.8
 - team: yellow
-  position: {x: -28.5, y: 65.0, z: 18.5}
+  position: {x: -40.5, y: 65.0, z: 25.5}
   yaw: 239.8
 - role: lobby
   position: {x: 0.5, y: 65.0, z: 0.5}
@@ -201,6 +201,6 @@ spawn_points:
   pitch: 60.0
 # In-match ore shop (stage-local; inside each team base, off the spawn and pillar lines). Only the own team can open it.
 shop_npcs:
-- {team: red, x: -6.5, y: 65.0, z: -42.5, yaw: 0.0}
-- {team: blue, x: 40.5, y: 65.0, z: 15.5, yaw: 90.0}
-- {team: yellow, x: -40.5, y: 65.0, z: 15.5, yaw: 270.0}
+- {team: red, x: -6.5, y: 65.0, z: -56.5, yaw: 0.0}
+- {team: blue, x: 52.5, y: 65.0, z: 22.5, yaw: 90.0}
+- {team: yellow, x: -52.5, y: 65.0, z: 22.5, yaw: 270.0}

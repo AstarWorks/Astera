@@ -2,22 +2,22 @@
 id: siege-isles-jewelry
 nodes:
   - block: astera:ore_iron_node
-    positions: [{ x: 5, y: 65, z: 5 }, { x: -5, y: 65, z: 5 }, { x: 5, y: 65, z: -5 }, { x: -5, y: 65, z: -5 }]
+    positions: [{ x: 7, y: 65, z: 7 }, { x: -7, y: 65, z: 7 }, { x: 7, y: 65, z: -7 }, { x: -7, y: 65, z: -7 }]
     regrow_seconds: 20
     required_tier: STONE
     drops: [{ item_id: ore-iron, count: 2 }]
   - block: astera:ore_gold_node
-    positions: [{ x: 0, y: 65, z: 12 }, { x: 0, y: 65, z: -12 }]
+    positions: [{ x: 0, y: 65, z: 15 }, { x: 0, y: 65, z: -15 }]
     regrow_seconds: 45
     required_tier: IRON
     drops: [{ item_id: ore-gold, count: 2 }]
   - block: astera:ore_diamond_node
-    positions: [{ x: 22, y: 65, z: 10 }, { x: -22, y: 65, z: -10 }]
+    positions: [{ x: 20, y: 65, z: 13 }, { x: -20, y: 65, z: -13 }]
     regrow_seconds: 90
     required_tier: IRON
     drops: [{ item_id: ore-diamond, count: 1 }]
   - block: astera:ore_emerald_node
-    positions: [{ x: 0, y: 65, z: 20 }, { x: 0, y: 65, z: -20 }]
+    positions: [{ x: 0, y: 65, z: 25 }, { x: 0, y: 65, z: -25 }]
     regrow_seconds: 90
     required_tier: DIAMOND
     drops: [{ item_id: ore-emerald, count: 1 }]
