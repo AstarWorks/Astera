@@ -265,6 +265,7 @@ public object RibbonOpSpec : OpSpec<RibbonOp> {
             rows += Row(0, self, Action.Spawn(SpawnKind.RIBBON, tipAnchor, tipName, pose, Look(look)), lc.src)
             // ADR-0303 3.4 / 3.7: a width law is one `set` of the width per tick where it changes (as fade is), which the player hands to the trail
             op.motion?.let { laws ->
+                if (life == null) return Result.Failure(SkillDecodeError.Invalid(lc.skillId, "$p.motion", "a width law needs a static for: (the ribbon ends at an event, so its length is not known)"))
                 val field = if (look.containsKey("width_frac")) "width_frac" else "width"
                 val base = ((look[field] as Val.Known<*>).value as Number).toDouble()
                 var prev = base
