@@ -190,6 +190,14 @@ public class PaperSkillGameplayGateway(
         }
     }
 
+    /** v2 `victim_anim` 1:1: only the hurt animation, tilted by the bearing of [from] relative to where [target] faces. */
+    override fun hurt(cast: CastRef, target: UUID, from: Vec3) {
+        val entity = server.getEntity(target) as? org.bukkit.entity.LivingEntity ?: return
+        val loc = entity.location
+        val bearing = Math.toDegrees(Math.atan2(from.z - loc.z, from.x - loc.x)).toFloat()
+        entity.playHurtAnimation(bearing - loc.yaw)
+    }
+
     override fun stopBodyClip(cast: CastRef, caster: UUID, anim: String) {
         val rig = bodyRigs() ?: return
         if (rig.active(PlayerId(caster)) == CustomAnimationId(anim)) rig.stop(PlayerId(caster))

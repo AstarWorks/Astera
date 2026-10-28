@@ -28,6 +28,7 @@ import com.astarworks.astera.core.application.skillengine.load.ops.gameplay.Clea
 import com.astarworks.astera.core.application.skillengine.load.ops.gameplay.ConsumeItemOpSpec
 import com.astarworks.astera.core.application.skillengine.load.ops.gameplay.ConsumeStatusOpSpec
 import com.astarworks.astera.core.application.skillengine.load.ops.gameplay.FreezeOpSpec
+import com.astarworks.astera.core.application.skillengine.load.ops.gameplay.HurtOpSpec
 import com.astarworks.astera.core.application.skillengine.load.ops.presentation.BodyOpSpec
 import com.astarworks.astera.core.application.skillengine.load.ops.presentation.CameraShakeOpSpec
 import com.astarworks.astera.core.application.skillengine.load.ops.presentation.StopSoundOpSpec
@@ -71,6 +72,7 @@ public object SkillEngineSpecs {
         ConsumeItemOpSpec,
         ConsumeStatusOpSpec,
         FreezeOpSpec,
+        HurtOpSpec,
         CameraShakeOpSpec,
         StopSoundOpSpec,
         BodyOpSpec,

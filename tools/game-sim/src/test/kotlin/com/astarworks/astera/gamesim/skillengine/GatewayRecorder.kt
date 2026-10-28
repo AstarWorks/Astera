@@ -144,6 +144,8 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L)) {
             add("effect", caster.toString(), "body=$anim speed=${RecordedCall.num(speed)}")
 
         override fun stopBodyClip(cast: CastRef, caster: UUID, anim: String) = add("effect", caster.toString(), "body_stop=$anim")
+
+        override fun hurt(cast: CastRef, target: UUID, from: Vec3) = add("effect", target.toString(), "hurt")
     }
 
     val query: ISkillEntityQuery = object : ISkillEntityQuery {
