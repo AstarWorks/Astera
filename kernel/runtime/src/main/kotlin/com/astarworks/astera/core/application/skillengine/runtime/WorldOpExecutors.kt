@@ -88,7 +88,7 @@ internal class BreakAreaExecutor(private val editor: SkillWorldEditor) : OpExecu
         val cast = ctx.cast
         for ((index, cell) in ordered.withIndex()) {
             if (!world.canEdit(cast, cell, op.outsideArena)) continue
-            editor.later(rippleDelay(index, ordered.size)) {
+            editor.later(rippleDelay(index, ordered.size), SkillWorldEditor.EditOrigin(cast, op.id)) {
                 strike(op, cast, cell, revert)
             }
         }
@@ -120,7 +120,7 @@ internal class PlaceShapeExecutor(private val editor: SkillWorldEditor) : OpExec
         val revert = ctx.revertTicks(op.revertAfterTicks)
         val cast = ctx.cast
         for ((index, cell) in ordered.withIndex()) {
-            editor.later(rippleDelay(index, ordered.size)) {
+            editor.later(rippleDelay(index, ordered.size), SkillWorldEditor.EditOrigin(cast, op.id)) {
                 if (!world.canEdit(cast, cell, op.outsideArena)) return@later
                 if (!WorldBlockRules.isReplaceable(world.blockAt(cell))) return@later
                 if (op.consumeItem != null && !world.consumeItem(cast, op.consumeItem!!)) return@later

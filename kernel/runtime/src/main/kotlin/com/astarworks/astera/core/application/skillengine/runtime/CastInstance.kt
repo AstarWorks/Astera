@@ -7,6 +7,7 @@ import com.astarworks.astera.core.application.skillengine.runtime.ops.ISkillWorl
 import com.astarworks.astera.core.application.skillengine.runtime.ops.MovementHost
 import com.astarworks.astera.core.application.skillengine.runtime.ops.OpTargetResolver
 import com.astarworks.astera.core.application.skillengine.runtime.ops.SkillCastScope
+import com.astarworks.astera.core.application.skillengine.runtime.port.EntityRoot
 import com.astarworks.astera.core.application.skillengine.runtime.port.ISkillCooldownGateway
 import com.astarworks.astera.core.application.skillengine.runtime.port.ISkillItemGateway
 import com.astarworks.astera.core.application.skillengine.runtime.presentation.PresentationCastInfo
@@ -132,6 +133,7 @@ internal class CastInstance(
     private val counters = HashMap<String, Double>()
     private val random = Random(request.seed)
     private var lastVictim: UUID? = null
+    private val lastRoots = HashMap<UUID, EntityRoot>()
     private var victimOverride: UUID? = null
     private var contactOverride: ContactEvent? = null
     private var contactSeq = 0
@@ -795,6 +797,7 @@ internal class CastInstance(
 
     private fun refreshEnemy(victim: UUID) {
         val root = ports.entities.rootOf(victim) ?: return
+        lastRoots[victim] = root
         val pose = Frame.fromYawPitch(root.feet, root.yawDeg, 0.0)
         val perVictim = FrameId("enemy@$victim")
         if (tree.node(perVictim) == null) addNode(FrameNode(perVictim, FrameKind.ENEMY, FrameId("world"), pose)) else tree.setLocal(perVictim, pose)
@@ -901,11 +904,17 @@ internal class CastInstance(
         }
     }
 
-    private fun victimFeet(): Vec3? = currentVictim?.let { ports.entities.rootOf(it)?.feet }
+    /**
+     * The victim's body now, else where it stood when the hit landed: an earlier op of the same handler may have killed it
+     * (the entity is gone from the world by the next op), and `pos(victim)` of the knockback that follows must still resolve.
+     */
+    private fun victimRoot(v: UUID): EntityRoot? = ports.entities.rootOf(v) ?: lastRoots[v]
+
+    private fun victimFeet(): Vec3? = currentVictim?.let { victimRoot(it)?.feet }
 
     private fun victimCentre(): Vec3? {
         val v = currentVictim ?: return null
-        val root = ports.entities.rootOf(v) ?: return null
+        val root = victimRoot(v) ?: return null
         return Vec3(root.feet.x, root.feet.y + root.height * 0.5, root.feet.z)
     }
 

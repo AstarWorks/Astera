@@ -18,26 +18,28 @@ import java.util.concurrent.ConcurrentHashMap
 public class CastHosts : MovementHost, OpTargetResolver, PresentationCastInfo {
     private val live = ConcurrentHashMap<CastId, CastInstance>()
 
+    /** A finished cast's owner, kept until its ripple-delayed world edits (which name the cast) have run. */
+    private class Retired(val owner: UUID, val skillId: String, val item: String?, var ticksLeft: Int)
+
+    private val retired = ConcurrentHashMap<CastId, Retired>()
+
     internal fun register(cast: CastInstance) {
         live[cast.id] = cast
     }
 
     internal fun unregister(id: CastId) {
         val cast = live.remove(id) ?: return
-        // Delayed world strikes (break_area ripple) outlive the cast that scheduled them and still need its owner.
-        synchronized(finished) { finished[id] = Ended(cast.owner(id), cast.itemOf()) }
+        retired[id] = Retired(cast.owner(id), cast.skillId, cast.itemOf(), RETIRE_TICKS)
     }
 
-    /** Owners of the most recently ended casts, bounded; a ripple lasts under 30 ticks so a few thousand casts is ample. */
-    private class Ended(val owner: UUID, val item: String?)
-
-    private val finished = object : LinkedHashMap<CastId, Ended>() {
-        override fun removeEldestEntry(eldest: MutableMap.MutableEntry<CastId, Ended>): Boolean = size > FINISHED_OWNERS_KEPT
+    /** Once per server tick: forgets finished casts whose delayed edits can no longer be pending. */
+    internal fun tick() {
+        retired.values.removeIf { --it.ticksLeft < 0 }
     }
 
     /** The item id the cast's skill is bound to (`item:` in its yaml), also for an ended cast; null for item-less skills. */
     public fun itemOf(cast: CastId): String? =
-        live[cast]?.itemOf() ?: synchronized(finished) { finished[cast]?.item }
+        live[cast]?.itemOf() ?: retired[cast]?.item
 
     private fun of(ctx: OpContext): CastInstance = of(ctx.cast)
 
@@ -54,14 +56,17 @@ public class CastHosts : MovementHost, OpTargetResolver, PresentationCastInfo {
 
     override fun resolve(ctx: OpContext, target: TargetRef): List<UUID> = of(ctx).resolve(ctx, target)
 
-    override fun owner(cast: CastId): UUID =
-        live[cast]?.owner(cast) ?: synchronized(finished) { finished[cast]?.owner } ?: error("cast ${cast.value} is not running")
+    override fun owner(cast: CastId): UUID = live[cast]?.owner(cast) ?: retired[cast]?.owner ?: error("cast ${cast.value} is not running")
+
+    /** Skill id of [cast]: running, or finished with delayed world edits still owed. */
+    internal fun skillOf(cast: CastId): String? = live[cast]?.skillId ?: retired[cast]?.skillId
 
     override fun targets(cast: CastId, target: TargetRef): List<UUID> = of(cast).targets(cast, target)
 
     override fun hasRaised(cast: CastId, event: String): Boolean = live[cast]?.hasRaised(cast, event) ?: false
 
     private companion object {
-        const val FINISHED_OWNERS_KEPT = 4096
+        /** Longest a delayed world edit can trail its cast: the ripple window plus one tick. */
+        const val RETIRE_TICKS: Int = WorldLimits.RIPPLE_TICKS + 1
     }
 }

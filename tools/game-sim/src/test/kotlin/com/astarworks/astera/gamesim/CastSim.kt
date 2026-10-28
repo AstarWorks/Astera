@@ -82,7 +82,15 @@ class CastSim(
     val pitchDeg: Double = 0.0,
     /** Extra skills for grammar scenarios: id -> `skill.yaml` text, composed beside a copy of the shipped skills. */
     extraSkills: Map<String, String> = emptyMap(),
+    /** A victim leaves the world the moment it takes damage (killed: the entity lookup no longer finds it). */
+    private val victimsDieOnDamage: Boolean = false,
+    /** Like the Paper gateway, `canEdit` asks the cast host who owns the cast (it throws for a cast the host forgot). */
+    private val worldAsksCastOwner: Boolean = false,
+    /** Runs on every block strike; scenarios throw from it to model a failing world gateway. */
+    private val onBlockStrike: (CastId) -> Unit = {},
 ) {
+    private val alive = HashMap(victims)
+
     /** Every live frame's world position after each tick: (tick, frame id, position). */
     val frameTrace = ArrayList<Triple<Int, String, Vec3>>()
 
@@ -167,6 +175,7 @@ class CastSim(
             damage("", caster, victim, components, hitPoint, ignoreInvulnerability)
         override fun damage(skillId: String, caster: UUID, victim: UUID, components: List<SkillDamage>, hitPoint: Vec3, ignoreInvulnerability: Boolean) {
             for (c in components) dealt += Dealt(now, victim, c.amount, ignoreInvulnerability, skillId)
+            if (victimsDieOnDamage) alive.remove(victim)
         }
         override fun freezeEntities(entities: List<UUID>, ticks: Int) { frozen += Triple(now, entities, ticks) }
         override fun statusStacks(entity: UUID, statusId: String): Int = if (entity == caster) casterStacks[statusId] ?: 0 else 0
@@ -183,7 +192,7 @@ class CastSim(
     private val entities = object : ISkillEntityQuery {
         private fun box(feet: Vec3) = HitBox(Vec3(feet.x - halfWidth, feet.y, feet.z - halfWidth), Vec3(feet.x + halfWidth, feet.y + boxHeight, feet.z + halfWidth))
         override fun nearby(point: Vec3, radius: Double, excluding: UUID?): List<HitCandidate> =
-            victims.filter { (id, feet) ->
+            alive.filter { (id, feet) ->
                 // Paper's getNearbyLivingEntities: the cube of half-size radius around the point must overlap the entity box.
                 val b = box(feet)
                 id != excluding && b.min.x <= point.x + radius && b.max.x >= point.x - radius &&
@@ -192,7 +201,7 @@ class CastSim(
             }
                 .map { (id, feet) -> HitCandidate(id, feet, 0.0, box(feet)) }
         override fun rootOf(entity: UUID): EntityRoot? =
-            if (entity == caster) EntityRoot(casterFeet, yawDeg, pitchDeg, 1.62, 1.8) else victims[entity]?.let { EntityRoot(it, 0.0, 0.0, 1.62, 1.8) }
+            if (entity == caster) EntityRoot(casterFeet, yawDeg, pitchDeg, 1.62, 1.8) else alive[entity]?.let { EntityRoot(it, 0.0, 0.0, 1.62, 1.8) }
         override fun raycastBlock(from: Vec3, to: Vec3): BlockHit? {
             val fy = floorY
             if (fy != null && from.y > fy && to.y <= fy) {
@@ -208,9 +217,13 @@ class CastSim(
 
     private val world = object : ISkillWorldGateway by noop() {
         override fun blockAt(cell: BlockCell): String? = "minecraft:stone"
-        override fun canEdit(cast: CastId, cell: BlockCell, outsideArena: Boolean) = true
+        override fun canEdit(cast: CastId, cell: BlockCell, outsideArena: Boolean): Boolean {
+            if (worldAsksCastOwner) kit.hosts.owner(cast)
+            return true
+        }
         override fun isCover(cell: BlockCell) = false
         override fun damage(cast: CastId, cell: BlockCell, blockDamage: Int, toolClass: String?): BlockDamageOutcome {
+            onBlockStrike(cast)
             blockStrikes += Triple(now, blockDamage, toolClass)
             return BlockDamageOutcome.CHIPPED
         }
