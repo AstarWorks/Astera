@@ -1,5 +1,6 @@
 package com.astarworks.astera.core.application.skillengine.runtime
 
+import com.astarworks.astera.core.application.skillengine.runtime.ops.areaTargets
 import com.astarworks.astera.core.domain.geometry.math.Basis
 import com.astarworks.astera.core.domain.skillengine.frame.Axes
 import com.astarworks.astera.core.application.skillengine.load.CompiledSkill
@@ -526,17 +527,15 @@ internal class CastInstance(
     override fun resolveTargets(ref: TargetRef): List<UUID> = when (ref) {
         TargetRef.Victim -> listOfNotNull(currentVictim)
         TargetRef.Caster -> listOf(caster)
-        is TargetRef.Enemies -> around(ref.around, ref.radius, caster, ref.maxCount) { !isAlly(it) }
-        is TargetRef.Allies -> {
-            val mates = around(ref.around, ref.radius, caster, ref.maxCount) { it != caster && isAlly(it) }
-            if (ref.includeSelf) listOf(caster) + mates else mates
+        is TargetRef.Enemies, is TargetRef.Allies -> {
+            val (at, radius) = when (ref) {
+                is TargetRef.Enemies -> ref.around to ref.radius
+                is TargetRef.Allies -> ref.around to ref.radius
+                else -> error("unreachable")
+            }
+            tree.pointWorld(FrameId(at.frame), at.point).getOrNull()
+                ?.let { p -> areaTargets(ref, p, values.num(radius), caster, ports.entities::nearby, ::isAlly) } ?: emptyList()
         }
-    }
-
-    private fun around(at: PointRef, radius: com.astarworks.astera.core.domain.skillengine.model.Value<Double>, excluding: UUID?, maxCount: Int?, keep: (UUID) -> Boolean): List<UUID> {
-        val p = tree.pointWorld(FrameId(at.frame), at.point).getOrNull() ?: return emptyList()
-        val found = ports.entities.nearby(p, values.num(radius), excluding).filter { keep(it.entityId) }
-        return (if (maxCount == null) found else found.sortedBy { it.feet.distanceSquared(p) }.take(maxCount)).map { it.entityId }
     }
 
     override fun withVictim(victim: UUID, block: () -> Unit) = withBind(VictimBind(victim, world), block)

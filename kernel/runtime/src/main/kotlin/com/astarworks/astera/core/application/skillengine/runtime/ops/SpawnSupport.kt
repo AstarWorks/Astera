@@ -49,28 +49,35 @@ internal fun OpContext.positionOf(scope: SkillCastScope, target: TargetRef): Vec
 internal fun OpContext.resolveTargets(scope: SkillCastScope, target: TargetRef): List<UUID> = when (target) {
     TargetRef.Victim -> listOfNotNull(scope.contact?.victim ?: host.currentVictim)
     TargetRef.Caster -> listOf(scope.caster)
-    is TargetRef.Enemies -> {
-        val at = pointWorld(target.around)
-        if (at == null) {
-            emptyList()
-        } else {
-            ports.entities.nearby(at, values.num(target.radius), scope.caster)
-                .filter { !scope.isAlly(it.entityId) }.nearestN(at, target.maxCount)
-        }
-    }
-    is TargetRef.Allies -> {
-        val at = pointWorld(target.around)
-        if (at == null) {
-            emptyList()
-        } else {
-            val mates = ports.entities.nearby(at, values.num(target.radius), scope.caster)
-                .filter { it.entityId != scope.caster && scope.isAlly(it.entityId) }.nearestN(at, target.maxCount)
-            if (target.includeSelf) listOf(scope.caster) + mates else mates
-        }
-    }
+    is TargetRef.Enemies -> pointWorld(target.around)?.let { at ->
+        areaTargets(target, at, values.num(target.radius), scope.caster, ports.entities::nearby, scope::isAlly)
+    } ?: emptyList()
+    is TargetRef.Allies -> pointWorld(target.around)?.let { at ->
+        areaTargets(target, at, values.num(target.radius), scope.caster, ports.entities::nearby, scope::isAlly)
+    } ?: emptyList()
 }
 
-/** v1 `max_count`: keep the [maxCount] candidates nearest to [at] (all of them when null). */
+/**
+ * THE area selector (damage, status, sound, control all reach it): entities within [radius] of the frame point [at],
+ * allies split by team, `max_count` = the nearest N by feet distance from [at] (v1 TargeterResolver.kt:79-86 takes the first N of the query).
+ */
+internal fun areaTargets(
+    target: TargetRef,
+    at: Vec3,
+    radius: Double,
+    caster: UUID,
+    nearby: (Vec3, Double, UUID?) -> List<com.astarworks.astera.core.domain.skillengine.hit.HitCandidate>,
+    isAlly: (UUID) -> Boolean,
+): List<UUID> = when (target) {
+    is TargetRef.Enemies -> nearby(at, radius, caster).filter { !isAlly(it.entityId) }.nearestN(at, target.maxCount)
+    is TargetRef.Allies -> {
+        val mates = nearby(at, radius, caster).filter { it.entityId != caster && isAlly(it.entityId) }.nearestN(at, target.maxCount)
+        if (target.includeSelf) listOf(caster) + mates else mates
+    }
+    else -> emptyList()
+}
+
+/** `max_count`: keep the [maxCount] candidates nearest to [at] (all of them when null). */
 private fun List<com.astarworks.astera.core.domain.skillengine.hit.HitCandidate>.nearestN(at: Vec3, maxCount: Int?): List<UUID> =
     (if (maxCount == null) this else sortedBy { it.feet.distanceSquared(at) }.take(maxCount)).map { it.entityId }
 
