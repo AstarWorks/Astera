@@ -1,5 +1,6 @@
 package com.astarworks.astera.core.application.skillengine.load.ops.presentation
 
+import com.astarworks.astera.core.application.skillengine.compose.LawSegmenter
 import com.astarworks.astera.core.application.skillengine.compose.LowerContext
 import com.astarworks.astera.core.application.skillengine.load.DecodeAbort
 import com.astarworks.astera.core.application.skillengine.load.SkillDecodeError
@@ -21,6 +22,7 @@ import com.astarworks.astera.core.application.skillengine.load.grammar.TimeAt
 import com.astarworks.astera.core.application.skillengine.load.grammar.Timing
 import com.astarworks.astera.core.application.skillengine.load.grammar.TimingKind
 import com.astarworks.astera.core.application.skillengine.load.grammar.Types
+import com.astarworks.astera.core.application.skillengine.load.motion.MotionLaw
 import com.astarworks.astera.core.application.skillengine.load.motion.MotionLaws
 import com.astarworks.astera.core.application.skillengine.load.spec.Lowered
 import com.astarworks.astera.core.application.skillengine.load.spec.OpNode
@@ -32,7 +34,6 @@ import com.astarworks.astera.core.domain.geometry.math.Quaternion
 import com.astarworks.astera.core.domain.skillengine.model.ParamValue
 import com.astarworks.astera.core.domain.skillengine.model.Value
 import com.astarworks.astera.core.domain.skillengine.op.OpSection
-import com.astarworks.astera.core.domain.skillengine.op.TrackKey
 import com.astarworks.astera.core.domain.skillengine.table.Action
 import com.astarworks.astera.core.domain.skillengine.table.EventPath
 import com.astarworks.astera.core.domain.skillengine.table.InstanceId
@@ -63,14 +64,13 @@ public class DisplayOp(
     public val kind: DisplayKind,
     public val anchor: String,
     public val offset: FrameVec?,
-    public val mount: String?,
     /** Item model id, block id, sprite id, or text (by [kind]). */
     public val subject: Value<String>,
     public val context: String,
     public val textStyle: TextStyle?,
     public val spriteSize: Pair<Value<Double>, Value<Double>>?,
     public val spritePivot: String?,
-    public val color: Value<String>?,
+    public val tint: Value<String>?,
     public val translation: Value<Vec3>,
     public val rotate: Rotation,
     public val scale: Value<Vec3>,
@@ -84,8 +84,8 @@ public class DisplayOp(
     public val interpolationDelay: Value<Double>,
     public val interpolationDuration: Value<Double>,
     public val teleportDuration: Value<Double>,
-    /** Rate laws lowered at load by [MotionLaws]; segmented into `Key` / `Teleport` rows by the law segmenter at compile. */
-    public val motion: List<TrackKey>,
+    /** Laws decoded by [MotionLaws]; segmented into `Key` rows (and `Set` rows for a fade) by [LawSegmenter] at compile. */
+    public val motion: List<MotionLaw>,
 ) : OpNode
 
 /** The `kind: text` fields (TextDisplay). */
@@ -108,10 +108,26 @@ public object DisplayOpSpec : OpSpec<DisplayOp> {
         "head", "gui", "ground", "fixed",
     )
 
+    private val SIZE = object : FieldType<Pair<Value<Double>, Value<Double>>> {
+        override val label = "[w, h] in blocks"
+        override fun decode(raw: Any?, ctx: GrammarContext, path: String): Pair<Value<Double>, Value<Double>> {
+            val l = raw as? List<*> ?: ctx.mismatch(path, label, raw)
+            if (l.size != 2) ctx.fail(path, "size is [w, h] in blocks (found ${l.size} entries)")
+            return Types.number.decode(l[0], ctx, "$path[0]") to Types.number.decode(l[1], ctx, "$path[1]")
+        }
+        override fun schema(): Map<String, Any?> =
+            linkedMapOf("type" to "array", "items" to Types.number.schema(), "minItems" to 2, "maxItems" to 2)
+    }
+
+    private val MOTION = object : FieldType<List<MotionLaw>> {
+        override val label = "list of motion laws"
+        override fun decode(raw: Any?, ctx: GrammarContext, path: String): List<MotionLaw> = MotionLaws.readLaws(raw, ctx, path)
+        override fun schema(): Map<String, Any?> = MotionLaws.jsonSchema()
+    }
+
     private val kindF = Field.required("kind", Types.enumOf("item", "block", "text", "sprite"), "item | block | text | sprite")
     private val anchorF = Field.required("anchor", Types.id, "anchor name; the entity LOCATION is the anchor's world origin plus offset (2.3)")
     private val offsetF = Field.optional("offset", Types.nullable(FrameVecs.type), null, "{forward, up, left} in the anchor's axes, folded into the entity location; absent = none")
-    private val mountF = Field.optional("mount", Types.nullable(Types.enumOf("caster")), null, "caster = a real passenger of the caster; absent = free entity")
 
     // item
     private val itemF = Field.optional("item", Types.nullable(Types.id), null, "kind item: item_model id (main_hand = the held item's model, resolved at cast start)")
@@ -131,9 +147,9 @@ public object DisplayOpSpec : OpSpec<DisplayOp> {
 
     // sprite
     private val spriteF = Field.optional("sprite", Types.nullable(Types.id), null, "kind sprite: content/sprites id")
-    private val sizeF = Field.optional("size", Types.nullable(sizeType), null, "kind sprite: [w, h] in BLOCKS (2.1)")
+    private val sizeF = Field.optional("size", Types.nullable(SIZE), null, "kind sprite: [w, h] in BLOCKS (2.1)")
     private val pivotF = Field.optional("pivot", Types.enumOf("center", "origin"), "center", "kind sprite: centre compensation macro (2.1), decision default center")
-    private val colorF = Field.optional("color", Types.nullable(Types.text), null, "kind sprite: tint #rrggbb or #aarrggbb; absent = untinted")
+    private val tintF = Field.optional("tint", Types.nullable(Types.text), null, "kind sprite: tint #rrggbb or #aarrggbb; absent = untinted")
 
     // Transformation(translation, left_rotation, scale, right_rotation)
     private val translationF = Field.optional("translation", Types.worldVec3, Value.Literal(Vec3(0.0, 0.0, 0.0)), "vanilla translation, entity-local axes (never rotated by left_rotation, 2.3)")
@@ -152,46 +168,24 @@ public object DisplayOpSpec : OpSpec<DisplayOp> {
     private val interpDelayF = Field.optional("interpolation_delay", Types.number, Value.Literal(0.0), "engine-owned after spawn (section 4); written only for hand-tuned loops")
     private val interpDurationF = Field.optional("interpolation_duration", Types.number, Value.Literal(0.0), "engine-owned after spawn (section 4)")
     private val teleportDurationF = Field.optional("teleport_duration", Types.number, Value.Literal(0.0), "engine-owned after spawn (section 4)")
-    private val motionF = Field.optional("motion", Types.nullable(motionType), null, "rate laws and keys (section 3)")
+    private val motionF = Field.optional("motion", Types.nullable(MOTION), null, "rate laws and keys (section 3)")
 
     /** Fields that belong to exactly one kind; written on another kind they are a load error (nothing is silently dropped). */
     private val kindOnly: Map<String, List<Field<*>>> = mapOf(
         "item" to listOf(itemF, contextF),
         "block" to listOf(blockF),
         "text" to listOf(textF, backgroundF, alignmentF, lineWidthF, textOpacityF, seeThroughF, shadowF),
-        "sprite" to listOf(spriteF, sizeF, pivotF, colorF),
+        "sprite" to listOf(spriteF, sizeF, pivotF, tintF),
     )
 
     override val fields: Fields = Fields.of(
-        "display", kindF, anchorF, offsetF, mountF,
+        "display", kindF, anchorF, offsetF,
         itemF, contextF, blockF,
         textF, backgroundF, alignmentF, lineWidthF, textOpacityF, seeThroughF, shadowF,
-        spriteF, sizeF, pivotF, colorF,
+        spriteF, sizeF, pivotF, tintF,
         translationF, rotateF, scaleF, rightF, yawF, pitchF, billboardF, brightnessF, viewRangeF, glowColorF,
         interpDelayF, interpDurationF, teleportDurationF, motionF,
     )
-
-    private val sizeType: FieldType<Pair<Value<Double>, Value<Double>>>
-        get() = SIZE
-    private val motionType: FieldType<List<TrackKey>>
-        get() = MOTION
-
-    private val SIZE = object : FieldType<Pair<Value<Double>, Value<Double>>> {
-        override val label = "[w, h] in blocks"
-        override fun decode(raw: Any?, ctx: GrammarContext, path: String): Pair<Value<Double>, Value<Double>> {
-            val l = raw as? List<*> ?: ctx.mismatch(path, label, raw)
-            if (l.size != 2) ctx.fail(path, "size is [w, h] in blocks (found ${l.size} entries)")
-            return Types.number.decode(l[0], ctx, "$path[0]") to Types.number.decode(l[1], ctx, "$path[1]")
-        }
-        override fun schema(): Map<String, Any?> =
-            linkedMapOf("type" to "array", "items" to Types.number.schema(), "minItems" to 2, "maxItems" to 2)
-    }
-
-    private val MOTION = object : FieldType<List<TrackKey>> {
-        override val label = "list of motion laws"
-        override fun decode(raw: Any?, ctx: GrammarContext, path: String): List<TrackKey> = MotionLaws.read(raw, ctx, path)
-        override fun schema(): Map<String, Any?> = MotionLaws.jsonSchema()
-    }
 
     // ------------------------------------------------------------------------------------------------ decode
 
@@ -210,7 +204,7 @@ public object DisplayOpSpec : OpSpec<DisplayOp> {
                 }
             }
             if (kind == DisplayKind.SPRITE && values.isPresent(scaleF)) {
-                ctx.fail("$p.scale", "a sprite is sized with 'size' (blocks), not 'scale'")
+                ctx.fail("$p.scale", "UnknownKey: a sprite is sized with 'size' (blocks), not 'scale'")
             }
             val billboard = values[billboardF]
             if (billboard != "fixed" && values.isPresent(translationF)) {
@@ -235,7 +229,7 @@ public object DisplayOpSpec : OpSpec<DisplayOp> {
             } else {
                 null
             }
-            val color = values[colorF]?.let { foldText(it, ctx).also { c -> checkHex(c, "$p.color", ctx, allowAlpha = true) } }
+            val tint = values[tintF]?.let { foldText(it, ctx).also { c -> checkHex(c, "$p.tint", ctx, allowAlpha = true) } }
             val glow = values[glowColorF]?.let { foldText(it, ctx).also { c -> checkHex(c, "$p.glow_color", ctx, allowAlpha = false) } }
             val background = values[backgroundF]?.let { foldText(it, ctx).also { c -> checkHex(c, "$p.background", ctx, allowAlpha = true) } }
 
@@ -258,8 +252,8 @@ public object DisplayOpSpec : OpSpec<DisplayOp> {
             val viewRange = foldNum(values[viewRangeF], ctx).also { checkPositive(it, "$p.view_range", ctx) }
 
             DisplayOp(
-                id, src, whenExpr, foldTiming(t, ctx), kind, values[anchorF], values[offsetF], values[mountF],
-                subject, values[contextF], style, size, if (kind == DisplayKind.SPRITE) values[pivotF] else null, color,
+                id, src, whenExpr, foldTiming(t, ctx), kind, values[anchorF], values[offsetF],
+                subject, values[contextF], style, size, if (kind == DisplayKind.SPRITE) values[pivotF] else null, tint,
                 values[translationF], values[rotateF], values[scaleF], values[rightF],
                 foldNum(values[yawF], ctx), foldNum(values[pitchF], ctx), billboard, brightness, viewRange, glow,
                 wholeNum(values[interpDelayF], "$p.interpolation_delay", ctx, 0.0, null),
@@ -273,7 +267,7 @@ public object DisplayOpSpec : OpSpec<DisplayOp> {
 
     override fun lower(op: DisplayOp, lc: LowerContext): Result<Lowered, SkillDecodeError> {
         val t = op.timing ?: return Result.Failure(SkillDecodeError.Invalid(lc.skillId, lc.src.value, "display lost its timing block"))
-        val instance = instanceOf(op, t, lc)
+        val instance = instanceOf(lc)
         val src = lc.src
         return Grammar.guard {
             val gc = GrammarContext(lc.skillId)
@@ -287,12 +281,13 @@ public object DisplayOpSpec : OpSpec<DisplayOp> {
             val left = op.rotate.toValue(gc, "${src.value}.rotate", axes)
             val right = op.right.toValue(gc, "${src.value}.right", axes)
 
+            val sprite = if (op.kind == DisplayKind.SPRITE) spriteScale(op, lc) else null
             val pose = Pose(
                 position = op.offset?.toLocal()?.let { vecCell(it) } ?: Val.Known(Vector3d(0.0, 0.0, 0.0)),
                 rotation = quatCell(left),
-                scale = if (op.kind == DisplayKind.SPRITE) Val.Known(Vector3d(1.0, 1.0, 1.0)) else vecCell(op.scale),
+                scale = sprite?.scale ?: vecCell(op.scale),
             )
-            val spawn = Row(0, instance, Action.Spawn(spawnKind(op.kind), anchorInstance(op, lc), op.anchor, pose, look(op, right)), src)
+            val spawn = Row(0, instance, Action.Spawn(spawnKind(op.kind), anchorInstance(op, lc), op.anchor, pose, look(op, right, sprite)), src)
 
             val rows = ArrayList<Row>()
             rows += spawn
@@ -310,8 +305,10 @@ public object DisplayOpSpec : OpSpec<DisplayOp> {
             }
 
             var writes = emptyMap<InstanceId, com.astarworks.astera.core.domain.skillengine.table.WriteStats>()
-            if (op.motion.isNotEmpty()) {
-                val moved = lowerMotion(instance, op.motion, lc)
+            // The anchor's own laws ride first: left_rotation = anchor.rot(t) * rider (item 16).
+            val laws = lc.anchors.laws(op.anchor) + op.motion
+            if (laws.isNotEmpty()) {
+                val moved = LawSegmenter.segments(instance, laws, lc, FADE_FIELD)
                 when (moved) {
                     is Result.Failure -> throw DecodeAbort(moved.error)
                     is Result.Success -> {
@@ -325,24 +322,38 @@ public object DisplayOpSpec : OpSpec<DisplayOp> {
         }
     }
 
-    /**
-     * The one seam to W1-08: `LawSegmenter.segments(instance, laws, lc)` turns the lowered key table into `Key` / `Teleport` rows
-     * and `WriteStats`. LawSegmenter is not merged yet, so until it lands a display WITH motion fails to compile loudly instead of
-     * playing without its motion. The manager replaces the body with the call at merge.
-     */
-    private fun lowerMotion(instance: InstanceId, laws: List<TrackKey>, lc: LowerContext): Result<Lowered, SkillDecodeError> =
-        Result.Failure(SkillDecodeError.Invalid(lc.skillId, lc.src.value, "motion on '${instance.text}' needs LawSegmenter (W1-08), not merged in this branch"))
+    /** A fade law writes the vanilla TextDisplay opacity field (text and sprite displays; item / block use `grow`). */
+    private const val FADE_FIELD = "text_opacity"
+
+    /** Sprite sizing (item 10): natural quad = px * 0.025 blocks; `scale` = size / natural, so the gateway computes nothing. */
+    private class SpriteScale(val scale: Val<Vector3d>)
+
+    private fun spriteScale(op: DisplayOp, lc: LowerContext): SpriteScale {
+        val id = (op.subject as? Value.Literal<String>)?.value
+            ?: throw DecodeAbort(SkillDecodeError.Invalid(lc.skillId, lc.src.value, "a sprite id is a literal"))
+        val natural = lc.sprites.natural(id)
+            ?: throw DecodeAbort(SkillDecodeError.UndefinedReference(lc.skillId, lc.src.value, id))
+        val nw = natural.w * SPRITE_BLOCKS_PER_PX
+        val nh = natural.h * SPRITE_BLOCKS_PER_PX
+        val (w, h) = op.spriteSize!!
+        val scale: Val<Vector3d> =
+            if (w is Value.Literal && h is Value.Literal) {
+                Val.Known(Vector3d(w.value / nw, h.value / nh, 1.0))
+            } else {
+                Val.Live("vec(${sourceOf(w)} / $nw, ${sourceOf(h)} / $nh, 1.0)", null)
+            }
+        return SpriteScale(scale)
+    }
+
+    private const val SPRITE_BLOCKS_PER_PX = 0.025
 
     // ------------------------------------------------------------------------------------------------ helpers
 
     /** Direction the display's front faces, in the entity-local basis (x = left, y = up, z = forward): the roll axis of a billboard. */
     private val FACE = Vec3(0.0, 0.0, 1.0)
 
-    /** `id[i]` when the op itself repeats or is a family (own `every` / `times`); a plain op keeps its plain id. */
-    private fun instanceOf(op: DisplayOp, t: Timing, lc: LowerContext): InstanceId {
-        val repeats = t.every != null || t.times != null
-        return InstanceId(lc.self.path + InstanceId.Segment(op.id, if (repeats) lc.occurrence.i else null))
-    }
+    /** The op's own instance id: the unroller already indexes a repeating op (item 5). */
+    private fun instanceOf(lc: LowerContext): InstanceId = lc.self
 
     /** The anchor as an instance when it names an op of this cast (`ball`); null for a named skill / caster anchor. */
     private fun anchorInstance(op: DisplayOp, lc: LowerContext): InstanceId? = lc.anchors.resolve(op.anchor)?.instance
@@ -381,7 +392,7 @@ public object DisplayOpSpec : OpSpec<DisplayOp> {
     }
 
     /** The vanilla fields of the spawn payload, one key per vanilla field (printed by the dump; a missing optional key = vanilla default). */
-    private fun look(op: DisplayOp, right: Value<Quaternion>): Look {
+    private fun look(op: DisplayOp, right: Value<Quaternion>, sprite: SpriteScale?): Look {
         val f = LinkedHashMap<String, Val<Any>>()
         when (op.kind) {
             DisplayKind.ITEM -> {
@@ -404,7 +415,8 @@ public object DisplayOpSpec : OpSpec<DisplayOp> {
                 f["sprite"] = cell(op.subject)
                 f["size"] = vecCell(w, h)
                 f["pivot"] = Val.Known(op.spritePivot!!)
-                op.color?.let { f["color"] = cell(it) }
+                f["scale"] = sprite!!.scale
+                op.tint?.let { f["tint"] = cell(it) }
             }
         }
         f["translation"] = vecCell(op.translation)
@@ -418,7 +430,6 @@ public object DisplayOpSpec : OpSpec<DisplayOp> {
         f["interpolation_delay"] = cell(op.interpolationDelay)
         f["interpolation_duration"] = cell(op.interpolationDuration)
         f["teleport_duration"] = cell(op.teleportDuration)
-        op.mount?.let { f["mount"] = Val.Known(it) }
         return Look(f)
     }
 

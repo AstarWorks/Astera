@@ -8,7 +8,9 @@ import com.astarworks.astera.core.application.skillengine.load.motion.MotionLaw
 import com.astarworks.astera.core.application.skillengine.load.motion.OrbitMotion
 import com.astarworks.astera.core.application.skillengine.load.motion.RateMotion
 import com.astarworks.astera.core.application.skillengine.load.motion.StretchMotion
+import com.astarworks.astera.core.application.skillengine.load.SkillDecodeError
 import com.astarworks.astera.core.application.skillengine.load.spec.Lowered
+import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.animation.Easing
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.geometry.math.Quaternion
@@ -19,7 +21,6 @@ import com.astarworks.astera.core.domain.skillengine.motion.MoveRate
 import com.astarworks.astera.core.domain.skillengine.motion.SpinRate
 import com.astarworks.astera.core.domain.skillengine.table.Action
 import com.astarworks.astera.core.domain.skillengine.table.InstanceId
-import com.astarworks.astera.core.domain.skillengine.table.OpId
 import com.astarworks.astera.core.domain.skillengine.table.Row
 import com.astarworks.astera.core.domain.skillengine.table.SrcPath
 import com.astarworks.astera.core.domain.skillengine.table.Val
@@ -64,23 +65,25 @@ public data class LawSegment(val tick: Int, val durationTicks: Int, val state: L
  * tick, lasts at most `maxSegmentTicks`, and turns at most `splitTurnDeg`. When the guess would write at least every second tick it writes
  * every tick instead. A segment is `Key(tick = s, duration = d, state at s + d)`.
  *
- * `fade` has no field on `Key`: its segments are `law.alpha` effect rows with the same rhythm (alpha is its own boundary set).
+ * Laws SUM and HOLD (item 15a): a rate law's contribution persists after its window and is neutral before it begins; laws on one channel add
+ * (offsets), compose in list order (rotations) or multiply (scale, alpha). A jump (a value that differs just before and just after a tick) is a
+ * duration-0 write, and the next segment starts the tick after: one write per object per tick (check 12). `fade` has no field on `Key`: it is one
+ * `Set <field>=<value>` row per tick (`text_opacity` on a text or sprite display, `count` on a particle, `volume` on a sound).
  */
 public object LawSegmenter {
     private const val EPS = 1e-9
-    private const val ALPHA_BUDGET = 0.01
-    private val ALPHA_OP = OpId("law.alpha")
+    private const val DEFAULT_FADE_FIELD = "text_opacity"
 
-    public fun segments(instance: InstanceId, laws: List<MotionLaw>, lc: LowerContext): Lowered =
-        lower(instance, laws, lc.config, lc.src, lc.clockOffset)
+    public fun segments(instance: InstanceId, laws: List<MotionLaw>, lc: LowerContext, fadeField: String = DEFAULT_FADE_FIELD): Result<Lowered, SkillDecodeError> =
+        lower(instance, laws, lc.config, lc.src, lc.clockOffset, fadeField)
 
     /** [segments] without a [LowerContext]: [base] is the instance's start tick. */
-    public fun lower(instance: InstanceId, laws: List<MotionLaw>, config: EngineConfig, src: SrcPath, base: Int = 0): Lowered {
+    public fun lower(
+        instance: InstanceId, laws: List<MotionLaw>, config: EngineConfig, src: SrcPath, base: Int = 0, fadeField: String = DEFAULT_FADE_FIELD,
+    ): Result<Lowered, SkillDecodeError> {
         val m = Model(laws)
-        val transform = m.plan(config, alpha = false)
-        val alpha = m.plan(config, alpha = true)
         val rows = ArrayList<Row>()
-        for (s in transform) {
+        for (s in m.plan(config)) {
             val st = s.state
             rows += Row(
                 base + s.tick, instance,
@@ -93,24 +96,34 @@ public object LawSegmenter {
                 src,
             )
         }
-        for (s in alpha) {
-            rows += Row(
-                base + s.tick, instance,
-                Action.Effect(ALPHA_OP, mapOf("alpha" to Val.Known(s.state.alpha), "duration" to Val.Known(s.durationTicks.toDouble()))),
-                src,
-            )
-        }
+        for ((tick, alpha) in m.fadeSteps()) rows += Row(base + tick, instance, Action.Set(fadeField, Val.Known(alpha)), src)
         rows.sortBy { it.tick }
+        checkOneWritePerTick(rows, src)?.let { return Result.Failure(it) }
         val perTick = rows.groupingBy { it.tick }.eachCount()
-        val stats = WriteStats(rows.size, perTick.values.maxOrNull() ?: 0)
-        return Lowered(rows = rows, instances = listOf(instance), writes = mapOf(instance to stats))
+        return Result.Success(Lowered(rows = rows, instances = listOf(instance), writes = mapOf(instance to WriteStats(rows.size, perTick.values.maxOrNull() ?: 0))))
+    }
+
+    /** Check 12: one `Key` / `Teleport` and one `Set` per field, per object, per tick. Null when the rows are clean. */
+    public fun checkOneWritePerTick(rows: List<Row>, src: SrcPath): SkillDecodeError? {
+        val seen = HashSet<Triple<Int, InstanceId, String>>()
+        for (r in rows) {
+            val channel = when (val a = r.action) {
+                is Action.Key, is Action.Teleport -> "transform"
+                is Action.Set -> "set:${a.field}"
+                else -> continue
+            }
+            if (!seen.add(Triple(r.tick, r.instance, channel))) {
+                return SkillDecodeError.MachineCheck(12, "more than one write to ${r.instance} ($channel) on tick ${r.tick}", src.toString())
+            }
+        }
+        return null
     }
 
     /** The closed form at [tick] (fractional ticks allowed): what a particle occurrence or a sound at that tick samples. */
     public fun valueAt(laws: List<MotionLaw>, tick: Double): LawState = Model(laws).eval(tick, left = false)
 
     /** The transform segments of [laws], tick relative to the instance start: what a gameplay frame exports to its riders (ADR 1.1). */
-    public fun segmentsOf(laws: List<MotionLaw>, config: EngineConfig): List<LawSegment> = Model(laws).plan(config, alpha = false)
+    public fun segmentsOf(laws: List<MotionLaw>, config: EngineConfig): List<LawSegment> = Model(laws).plan(config)
 
     /**
      * A gameplay frame moved only by closed-form laws EXPORTS its segments (ADR 1.1): `Teleport` rows carrying the position at the end of the
@@ -157,6 +170,9 @@ public object LawSegmenter {
         private val ordered = laws.sortedWith(compareBy({ it.order }, { startOf(it) }))
         private val moves = ordered.filterIsInstance<RateMotion>().map { it.rate }.filterIsInstance<MoveRate>()
 
+        /** A law that begins at [from] is neutral before it; [left] reads the tick as "just before" so a law beginning exactly there has not begun. */
+        private fun begun(t: Double, from: Int, left: Boolean): Boolean = if (left) t > from else t >= from
+
         fun eval(t: Double, left: Boolean): LawState {
             var offset = Vec3.ZERO
             var rot = Quaternion.IDENTITY
@@ -168,7 +184,7 @@ public object LawSegmenter {
             var liveOpen = false
             for (law in ordered) {
                 when (law) {
-                    is RateMotion -> when (val r = law.rate) {
+                    is RateMotion -> if (begun(t, law.rate.from, left)) when (val r = law.rate) {
                         is MoveRate -> offset += moveAt(r, t)
                         is SpinRate -> rot *= spinAt(r, t)
                         is GrowRate -> scale = mul(scale, growAt(r, t))
@@ -180,7 +196,7 @@ public object LawSegmenter {
                         keyChannel(law.keys, t, left, { it.scale }, { a, b, f -> a + (b - a) * f })?.let { scale = mul(scale, it) }
                         keyChannel(law.keys, t, left, { it.alpha }, { a, b, f -> a + (b - a) * f })?.let { alpha *= it }
                     }
-                    is OrbitMotion -> {
+                    is OrbitMotion -> if (begun(t, law.at, left)) {
                         val u = unit(t, law.at, law.forTicks)
                         val angle = law.phaseDeg + law.degPerTick * law.forTicks * ease(law.ease, u)
                         val q = Quaternion.axisAngle(law.axis, Math.toRadians(angle))
@@ -190,21 +206,22 @@ public object LawSegmenter {
                             "tangent" -> rot *= q * Quaternion.axisAngle(law.axis, Math.PI / 2.0)
                         }
                     }
-                    is AlignMotion ->
+                    is AlignMotion -> if (begun(t, law.at, left)) {
                         if (law.toVelocity) {
                             val tc = t.coerceIn(law.at.toDouble(), (law.at + law.forTicks).toDouble())
                             val v = velocityAt(tc)
                             val target = fromTo(law.axis, v)
                             rot *= if (law.ease == null) target else Quaternion.slerp(Quaternion.IDENTITY, target, ease(law.ease, unit(t, law.at, law.forTicks)))
-                        } else if (t >= law.at) {
-                            liveRot = "align:${law.target}"
+                        } else {
+                            liveRot = "align:${law.axisName}>${law.target}"
                             liveOpen = liveOpen || t < law.at + law.forTicks
                         }
-                    is FollowMotion -> if (t >= law.at) {
+                    }
+                    is FollowMotion -> if (begun(t, law.at, left)) {
                         liveOffset = "follow:${law.anchor}"
                         liveOpen = liveOpen || t < law.at + law.forTicks
                     }
-                    is StretchMotion -> if (t >= law.at) {
+                    is StretchMotion -> if (begun(t, law.at, left)) {
                         val n = "stretch:${law.base}>${law.tip}"
                         liveOffset = n
                         liveRot = n
@@ -222,8 +239,7 @@ public object LawSegmenter {
 
         private fun moveAt(l: MoveRate, t: Double): Vec3 {
             val tau = tau(t, l.from, l.forTicks)
-            if (l.accel == 0.0) return l.start + l.velocity * (l.forTicks * ease(l.ease, tau / l.forTicks))
-            return l.start + l.velocity * tau + l.velocity.normalize() * (l.accel * tau * tau / 2.0)
+            return l.start + l.velocity * (l.forTicks * ease(l.ease, tau / l.forTicks))
         }
 
         private fun spinAt(l: SpinRate, t: Double): Quaternion {
@@ -250,10 +266,12 @@ public object LawSegmenter {
             return sum(t + 0.5) - sum(t - 0.5)
         }
 
+        /** Neutral (null) before the first key; held at the last key after it; a step key reads "just before" on the left. */
         private fun <T> keyChannel(keys: List<LawKey>, t: Double, left: Boolean, pick: (LawKey) -> T?, lerp: (T, T, Double) -> T): T? {
             val ks = keys.filter { pick(it) != null }
             if (ks.isEmpty()) return null
-            if (t <= ks.first().tick) return pick(ks.first())
+            if (t < ks.first().tick || (left && t == ks.first().tick.toDouble())) return null
+            if (t == ks.first().tick.toDouble()) return pick(ks.first())
             if (t >= ks.last().tick && !(left && ks.last().ease.isStep() && t == ks.last().tick.toDouble())) return pick(ks.last())
             val hi = ks.indexOfFirst { it.tick >= t }
             val a = ks[hi - 1]
@@ -265,18 +283,34 @@ public object LawSegmenter {
 
         private fun String?.isStep() = this != null && trim().lowercase() == "step"
 
+        // -------------------------------------------------------------------------------------- fade
+
+        /** The ticks (relative to the instance start) where the opacity changes, with the new value: one `Set` row each. */
+        fun fadeSteps(): List<Pair<Int, Double>> {
+            val ticks = java.util.TreeSet<Int>()
+            for (law in ordered) when (law) {
+                is RateMotion -> (law.rate as? FadeRate)?.let { ticks += it.from; ticks += it.from + it.forTicks }
+                is KeysMotion -> law.keys.filter { it.alpha != null }.forEach { ticks += it.tick }
+                else -> Unit
+            }
+            if (ticks.isEmpty()) return emptyList()
+            val out = ArrayList<Pair<Int, Double>>()
+            var prev = 1.0
+            for (t in ticks.first()..ticks.last()) {
+                val v = eval(t.toDouble(), left = false).alpha
+                if (abs(v - prev) > EPS) { out += t to v; prev = v }
+            }
+            return out
+        }
+
         // -------------------------------------------------------------------------------------- planning
 
-        private class Plan(val cuts: java.util.TreeSet<Int>, val jumps: Set<Int>)
-
-        private fun cutsFor(alpha: Boolean): Plan {
+        private fun cuts(): java.util.TreeSet<Int> {
             val cuts = java.util.TreeSet<Int>()
-            val jumps = HashSet<Int>()
             for (law in ordered) when (law) {
                 is RateMotion -> {
                     val r = law.rate
-                    val isAlpha = r is FadeRate
-                    if (isAlpha == alpha) {
+                    if (r !is FadeRate) {
                         cuts += r.from
                         cuts += r.from + r.forTicks
                         if (r is SpinRate && r.accel == 0.0 && r.ease == null && abs(r.degPerTick * r.forTicks) > 170.0) {
@@ -286,19 +320,13 @@ public object LawSegmenter {
                         }
                     }
                 }
-                is KeysMotion -> law.keys.forEach { k ->
-                    val inGroup = if (alpha) k.alpha != null else (k.offset != null || k.pose != null || k.scale != null)
-                    if (inGroup) {
-                        cuts += k.tick
-                        if (k.ease.isStep()) jumps += k.tick
-                    }
-                }
-                is OrbitMotion -> if (!alpha) { cuts += law.at; cuts += law.at + law.forTicks }
-                is AlignMotion -> if (!alpha) reactiveCuts(cuts, law.at, law.forTicks, if (law.toVelocity) 0 else law.step)
-                is FollowMotion -> if (!alpha) reactiveCuts(cuts, law.at, law.forTicks, law.step)
-                is StretchMotion -> if (!alpha) reactiveCuts(cuts, law.at, law.forTicks, law.step)
+                is KeysMotion -> law.keys.forEach { k -> if (k.offset != null || k.pose != null || k.scale != null) cuts += k.tick }
+                is OrbitMotion -> { cuts += law.at; cuts += law.at + law.forTicks }
+                is AlignMotion -> reactiveCuts(cuts, law.at, law.forTicks, if (law.toVelocity) 0 else law.step)
+                is FollowMotion -> reactiveCuts(cuts, law.at, law.forTicks, law.step)
+                is StretchMotion -> reactiveCuts(cuts, law.at, law.forTicks, law.step)
             }
-            return Plan(cuts, jumps)
+            return cuts
         }
 
         private fun reactiveCuts(cuts: MutableSet<Int>, at: Int, forTicks: Int, step: Int) {
@@ -307,56 +335,72 @@ public object LawSegmenter {
             if (step > 0) { var k = at + step; while (k < at + forTicks) { cuts += k; k += step } }
         }
 
-        fun plan(config: EngineConfig, alpha: Boolean): List<LawSegment> {
-            val p = cutsFor(alpha)
-            if (p.cuts.isEmpty()) return emptyList()
+        /** A jump: the value just before [c] differs from the value at [c]. It is a duration-0 write and the next segment starts at c + 1. */
+        private fun jumpAt(c: Int): Boolean = !sameValue(eval(c.toDouble(), left = true), eval(c.toDouble(), left = false))
+
+        fun plan(config: EngineConfig): List<LawSegment> {
+            val cutList = cuts().toList()
+            if (cutList.isEmpty()) return emptyList()
             val out = ArrayList<LawSegment>()
-            val first = p.cuts.first()
-            val s0 = eval(first.toDouble(), left = false)
-            // the object spawns at identity; a first state that differs (a start offset, a first key) is a duration-0 write
-            if (!s0.liveOpen && !sameValue(s0, IDENTITY, alpha)) out += LawSegment(first, 0, s0)
-            val cutList = p.cuts.toList()
-            for (i in 0 until cutList.size - 1) {
+            var minStart = Int.MIN_VALUE
+            var client = IDENTITY
+            for (i in cutList.indices) {
                 val a = cutList[i]
-                val b = cutList[i + 1]
-                val sa = eval(a.toDouble(), left = false)
-                val sb = eval(b.toDouble(), left = b in p.jumps)
-                val mid = eval((a + b) / 2.0, left = false)
-                val constant = !sa.liveOpen && sameValue(sa, sb, alpha) && sameValue(sa, mid, alpha)
-                if (!constant) {
-                    for ((s, e) in subdivide(a, b, config, alpha, b in p.jumps)) out += LawSegment(s, e - s, eval(e.toDouble(), left = e == b && b in p.jumps))
+                val right = eval(a.toDouble(), left = false)
+                if (!right.liveOpen && jumpAt(a)) {
+                    out += LawSegment(a, 0, right)
+                    client = right
+                    minStart = a + 1
                 }
-                if (b in p.jumps) {
-                    val right = eval(b.toDouble(), left = false)
-                    if (!sameValue(right, sb, alpha)) out += LawSegment(b, 0, right)
+                if (i == cutList.size - 1) break
+                val b = cutList[i + 1]
+                val leftEnd = jumpAt(b)
+                val sb = eval(b.toDouble(), left = leftEnd)
+                val mid = eval((a + b) / 2.0, left = false)
+                if (!right.liveOpen && sameValue(right, sb) && sameValue(right, mid)) continue
+                val start = max(a, minStart)
+                if (start >= b) {
+                    // no room for a segment before the next cut: write its state there (a jump at b writes it itself)
+                    val st = eval(b.toDouble(), left = false)
+                    if (!leftEnd && !sameValue(client, st)) {
+                        out += LawSegment(b, 0, st)
+                        client = st
+                        minStart = b + 1
+                    }
+                    continue
+                }
+                val override = if (start > a) client else null
+                for ((s, e) in subdivide(start, b, config, leftEnd, override)) {
+                    val st = eval(e.toDouble(), left = e == b && leftEnd)
+                    out += LawSegment(s, e - s, st)
+                    client = st
                 }
             }
             return out
         }
 
-        private fun sameValue(x: LawState, y: LawState, alpha: Boolean): Boolean =
-            if (alpha) abs(x.alpha - y.alpha) < EPS
-            else dist(x.offset, y.offset) < EPS && x.rot.angleTo(y.rot) < 1e-6 /* acos loses ~1e-8 near 1 */ && dist(x.scale, y.scale) < EPS &&
+        private fun sameValue(x: LawState, y: LawState): Boolean =
+            dist(x.offset, y.offset) < EPS && x.rot.angleTo(y.rot) < 1e-6 /* acos loses ~1e-8 near 1 */ && dist(x.scale, y.scale) < EPS &&
                 x.liveOffset == y.liveOffset && x.liveRot == y.liveRot && x.liveScale == y.liveScale
 
         private fun dist(a: Vec3, b: Vec3) = a.distance(b)
 
-        /** Error (in budget units, 1.0 = at the limit) of the client interpolating [s]..[e] against the closed form, plus the piece's rotation. */
-        private fun pieceCost(s: Int, e: Int, config: EngineConfig, alpha: Boolean, leftEnd: Boolean): Double {
-            val ls = eval(s.toDouble(), left = false)
+        /**
+         * Error (in budget units, 1.0 = at the limit) of the client interpolating [s]..[e] against the closed form. [start] overrides the state
+         * the client holds at [s] (after a jump the client has not moved yet).
+         */
+        private fun pieceCost(s: Int, e: Int, config: EngineConfig, leftEnd: Boolean, start: LawState?): Double {
+            val ls = start ?: eval(s.toDouble(), left = false)
             val le = eval(e.toDouble(), left = leftEnd)
             var worst = 0.0
-            if (!alpha) {
-                val turn = Math.toDegrees(ls.rot.angleTo(le.rot))
-                if (turn > config.splitTurnDeg + EPS) return Double.MAX_VALUE
-            }
-            for (t in s + 1 until e) {
+            val turn = Math.toDegrees(ls.rot.angleTo(le.rot))
+            if (turn > config.splitTurnDeg + EPS) return Double.MAX_VALUE
+            for (t in (if (start != null) s else s + 1) until e) {
                 val u = (t - s).toDouble() / (e - s)
                 val x = eval(t.toDouble(), left = false)
                 worst = max(
                     worst,
-                    if (alpha) abs(x.alpha - (ls.alpha + (le.alpha - ls.alpha) * u)) / ALPHA_BUDGET
-                    else max(
+                    max(
                         max(
                             dist(x.offset, ls.offset + (le.offset - ls.offset) * u) / config.segmentErrorBlocks,
                             dist(x.scale, ls.scale + (le.scale - ls.scale) * u) / config.segmentErrorBlocks,
@@ -369,7 +413,7 @@ public object LawSegmenter {
         }
 
         /** Second difference of the closed form in budget units: the f'' of the 3.7 formula. */
-        private fun curvature(a: Int, b: Int, config: EngineConfig, alpha: Boolean): Double {
+        private fun curvature(a: Int, b: Int, config: EngineConfig): Double {
             var worst = 0.0
             for (t in a + 1 until b) {
                 val p = eval((t - 1).toDouble(), false)
@@ -377,8 +421,7 @@ public object LawSegmenter {
                 val n = eval((t + 1).toDouble(), false)
                 worst = max(
                     worst,
-                    if (alpha) abs(p.alpha + n.alpha - 2 * c.alpha) / ALPHA_BUDGET
-                    else max(
+                    max(
                         max(
                             dist(p.offset + n.offset, c.offset * 2.0) / config.segmentErrorBlocks,
                             dist(p.scale + n.scale, c.scale * 2.0) / config.segmentErrorBlocks,
@@ -390,7 +433,7 @@ public object LawSegmenter {
             return worst
         }
 
-        private fun subdivide(a: Int, b: Int, config: EngineConfig, alpha: Boolean, leftEnd: Boolean): List<Pair<Int, Int>> {
+        private fun subdivide(a: Int, b: Int, config: EngineConfig, leftEnd: Boolean, override: LawState?): List<Pair<Int, Int>> {
             val len = b - a
             fun pieces(m: Int): List<Pair<Int, Int>> {
                 val bounds = (0..m).map { a + (len.toDouble() * it / m).roundToInt() }.distinct()
@@ -399,14 +442,17 @@ public object LawSegmenter {
             if (len <= 1) return listOf(a to b)
             val live = eval(a.toDouble(), false).liveOpen
             val minM = max(1, ceil(len.toDouble() / config.maxSegmentTicks).toInt())
-            val fpp = if (live) 0.0 else curvature(a, b, config, alpha)
+            val fpp = if (live) 0.0 else curvature(a, b, config)
             // 3.7: h = sqrt(8 * budget / max|f''|), m = ceil(for / h); budget is 1.0 in the normalised units
             val guess = if (fpp < 1e-12) 1 else ceil(len / sqrt(8.0 / fpp)).toInt()
             var m = max(minM, guess)
             if (m * 2 >= len) m = len
             while (m < len) {
                 val ps = pieces(m)
-                val ok = ps.all { (s, e) -> e - s <= config.maxSegmentTicks && (live || pieceCost(s, e, config, alpha, e == b && leftEnd) <= 1.0) }
+                val ok = ps.all { (s, e) ->
+                    e - s <= config.maxSegmentTicks &&
+                        (live || pieceCost(s, e, config, e == b && leftEnd, override.takeIf { s == a }) <= 1.0)
+                }
                 if (ok) return ps
                 m++
                 if (m * 2 >= len) m = len

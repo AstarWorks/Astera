@@ -28,6 +28,7 @@ import com.astarworks.astera.core.domain.skillengine.motion.RateLawExpander
 import com.astarworks.astera.core.domain.skillengine.motion.SpinRate
 import com.astarworks.astera.core.domain.skillengine.op.TrackKey
 import kotlin.math.floor
+import kotlin.math.roundToInt
 
 /**
  * The `motion:` list of a display / anchor (ADR-0303 section 3, SKL-20 E5): rate laws `spin`, `move`, `grow`, `fade` and irregular `keys`,
@@ -57,6 +58,8 @@ import kotlin.math.floor
  * on one tick of one channel, stays a load error naming both.
  */
 public object MotionLaws {
+    private const val MAX_KEY_TURN_DEG = 170.0
+
     private val LAWS = listOf("spin", "move", "orbit", "grow", "fade", "align", "follow", "stretch", "keys")
 
     private val CLOSED_FORM_ONLY = setOf("orbit", "align", "follow", "stretch")
@@ -77,7 +80,6 @@ public object MotionLaws {
     private val velocityF = Field.required("velocity", FrameVecs.type, "blocks per tick, {forward, up, left}")
     private val speedF = Field.optional("speed", Types.nullable(Types.number), null, "when set, velocity is only a direction and speed is blocks per tick")
     private val moveStartF = Field.optional("start", FrameVecs.type, FrameVec.Parts(Value.Literal(0.0), Value.Literal(0.0), Value.Literal(0.0)), "offset the move begins from")
-    private val moveAccelF = Field.optional("accel", Types.number, Value.Literal(0.0), "blocks/tick^2 along the velocity; excludes ease")
 
     // grow
     private val growStartF = Field.optional("start", ScaleType(strict = true), ScaleVal.Uniform(Value.Literal(1.0)), "scale the growth begins from (number or all of forward, up, left)")
@@ -118,7 +120,7 @@ public object MotionLaws {
 
     private val specs: Map<String, Fields> = mapOf(
         "spin" to (Fields.of("spin-law", lawField("spin")) + window + Fields.of("spin", axisF, degPerTickF, spinStartF, spinAccelF)),
-        "move" to (Fields.of("move-law", lawField("move")) + window + Fields.of("move", velocityF, speedF, moveStartF, moveAccelF)),
+        "move" to (Fields.of("move-law", lawField("move")) + window + Fields.of("move", velocityF, speedF, moveStartF)),
         "orbit" to (Fields.of("orbit-law", lawField("orbit")) + window + Fields.of("orbit", centerF, axisF, degPerTickF, phaseF, faceF)),
         "grow" to (Fields.of("grow-law", lawField("grow")) + window + Fields.of("grow", growStartF, perTickF, toF, growAccelF)),
         "align" to (Fields.of("align-law", lawField("align")) + window + Fields.of("align", alignToF, alignAxisF, stepF)),
@@ -269,7 +271,7 @@ public object MotionLaws {
                 val to = v[alignToF]
                 val step = stepOf()
                 for (s in starts) {
-                    laws += AlignMotion(s, forTicks, axis, to == "velocity", to, step, ease, order, path)
+                    laws += AlignMotion(s, forTicks, axis, v[alignAxisF], to == "velocity", to, step, ease, order, path)
                     pieces += Piece(path, "turn", s, s + forTicks, order, emptyList(), reactive = to != "velocity")
                 }
             }
@@ -314,10 +316,7 @@ public object MotionLaws {
             velocity = velocity.normalize() * speed
         }
         val start = n.frameVec(v[moveStartF], "$path.start")
-        val accel = n.num(v[moveAccelF], "$path.accel")
-        if (accel != 0.0 && ease != null) ctx.fail("$path.ease", "ease and accel are mutually exclusive on one law (accel already defines the time profile)")
-        if (accel != 0.0 && velocity.lengthSquared() < 1e-18) ctx.fail("$path.accel", "accel acts along the velocity: velocity must not be zero")
-        return { s -> MoveRate(s, forTicks, start, velocity, accel, ease) }
+        return { s -> MoveRate(s, forTicks, start, velocity, 0.0, ease) }
     }
 
     private fun grow(v: FieldValues, ease: String?, forTicks: Int, ctx: GrammarContext, n: LawNumbers, path: String): (Int) -> RateLaw {
@@ -410,6 +409,17 @@ public object MotionLaws {
                 ease,
             )
             channels.forEach { pieces += Piece(p, it, tick, tick, order, null) }
+        }
+        // item 15e: a slerp between two keys cannot pick a side past 170 degrees; the author writes a spin or a midpoint key
+        val posed = lawKeys.withIndex().filter { it.value.pose != null }
+        for ((a, b) in posed.zipWithNext()) {
+            val turn = Math.toDegrees(Quaternion.fromRotationVector(a.value.pose!!).angleTo(Quaternion.fromRotationVector(b.value.pose!!)))
+            if (turn > MAX_KEY_TURN_DEG) {
+                ctx.fail(
+                    "$path.keys[${b.index}].pose",
+                    "turn of ${turn.roundToInt()} deg between keys t=${a.value.tick} and t=${b.value.tick}: write a spin or a midpoint key",
+                )
+            }
         }
         return Lowered(keys, pieces, listOf(KeysMotion(lawKeys, order, path)))
     }
@@ -545,7 +555,7 @@ public data class OrbitMotion(
 
 /** [toVelocity] points [axis] along the direction of the move laws; otherwise [target] names an anchor (live, re-sent every [step] ticks). */
 public data class AlignMotion(
-    val at: Int, val forTicks: Int, val axis: Vec3, val toVelocity: Boolean, val target: String, val step: Int, val ease: String?,
+    val at: Int, val forTicks: Int, val axis: Vec3, val axisName: String, val toVelocity: Boolean, val target: String, val step: Int, val ease: String?,
     override val order: Int, override val path: String,
 ) : MotionLaw
 
