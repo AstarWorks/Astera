@@ -7,6 +7,7 @@ import com.astarworks.astera.core.application.skillengine.runtime.player.CastHan
 import com.astarworks.astera.core.application.skillengine.runtime.player.EventBinding
 import com.astarworks.astera.core.application.skillengine.runtime.player.PlayerHooks
 import com.astarworks.astera.core.application.skillengine.runtime.port.ISkillGameplayGateway
+import com.astarworks.astera.core.application.skillengine.runtime.port.VisualHandle
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.skillengine.expr.CompiledExpr
 import com.astarworks.astera.core.domain.skillengine.expr.ExprEnv
@@ -36,6 +37,7 @@ public class PaperPlayerHooks(
     private val scheduler: IScheduler,
     private val gameplay: ISkillGameplayGateway,
     private val live: PaperLiveValueSource,
+    private val visual: PaperSkillVisualGateway,
 ) : PlayerHooks {
     private val log = LoggerFactory.getLogger(javaClass)
     private val compiler = CelExprCompiler()
@@ -89,6 +91,11 @@ public class PaperPlayerHooks(
         if (pitch || yaw) gameplay.unlockLook(caster)
         if (move) unlockMove(caster)
     }
+
+    override fun setDisplayField(handle: VisualHandle, field: String, value: Double): Boolean =
+        field == "text_opacity" && visual.setOpacity(handle, value)
+
+    override fun setDisplayText(handle: VisualHandle, field: String, value: String): Boolean = visual.setText(handle, field, value)
 
     /** Called every tick by the platform: lifts the move locks whose `untilTick` passed. */
     public fun tick(now: Int) {

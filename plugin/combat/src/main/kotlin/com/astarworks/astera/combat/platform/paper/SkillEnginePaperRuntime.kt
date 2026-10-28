@@ -131,7 +131,7 @@ internal class SkillEnginePaperRuntime(
             query = PaperSkillEntityQuery(server, { currentWorld }) { services.get<IStructureTargets>() },
             live = live,
         )
-        val playerHooks = PaperPlayerHooks(server, scheduler, gameplay, live)
+        val playerHooks = PaperPlayerHooks(server, scheduler, gameplay, live, visualGateway)
         player.config = wired.engineConfig
         player.hooks = playerHooks
         hooks = playerHooks
