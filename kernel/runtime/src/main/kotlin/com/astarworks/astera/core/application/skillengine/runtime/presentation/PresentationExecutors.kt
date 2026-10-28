@@ -22,7 +22,7 @@ import kotlin.reflect.KClass
 
 /** All presentation executors, bound to one [PresentationRuntime]. The manager registers them. */
 public fun presentationExecutors(rt: PresentationRuntime): List<OpExecutor<*>> = listOf(
-    MeshExecutor(rt), PlateExecutor(rt), LineExecutor(rt), TrailExecutor(rt), TrackExecutor(rt), RemoveExecutor(rt),
+    MeshExecutor(rt), PlateExecutor(rt), BlockExecutor(rt), QuadExecutor(rt), LineExecutor(rt), TrailExecutor(rt), TrackExecutor(rt), RemoveExecutor(rt),
     EmitExecutor(rt), SoundExecutor(rt),
     VictimAnimExecutor(rt), CasterAnimExecutor(rt),
     TitleExecutor(rt), ActionBarExecutor(rt), CameraShakeExecutor(rt),
@@ -53,7 +53,7 @@ internal class MeshExecutor(private val rt: PresentationRuntime) : OpExecutor<Vi
         // The node carries the model's points (scaled to blocks), so `<mesh id>.tip` follows the swing.
         val pts = rt.points.points(op.item, op.part).map { FramePoint(live.node, it.name, it.offset * scale, it.axis) }
         val pose = rt.spawnNode(s, live, op.frame, pts) ?: return
-        live.handle = ctx.ports.visuals.spawnMesh(rt.info.owner(ctx.cast), op.item, op.part, pose)
+        live.handle = ctx.ports.visuals.spawnMesh(rt.info.owner(ctx.cast), op.item, op.part, pose, op.brightness)
         rt.register(s, live)
     }
 }
@@ -63,16 +63,61 @@ internal class PlateExecutor(private val rt: PresentationRuntime) : OpExecutor<V
     override fun execute(op: VisualOp.Plate, ctx: OpContext) {
         if (!ctx.passes(op)) return
         val s = rt.state(ctx)
-        val tint = op.color?.let { ctx.values.text(it) }
-        val frames = ctx.ports.visuals.sprite(op.sprite).frames
-        val live = PresentationRuntime.Live.Plate(
-            op.id, op.parent, op.face, ctx.values.num(op.size), rt.billboardOf(s, op.face, op.parent),
-            op.sprite, frames, op.frameTicks, op.loop, tint, s.tick,
-        )
-        val pose = rt.spawnNode(s, live, op.parent) ?: return
-        live.handle = ctx.ports.visuals.spawnPlate(rt.info.owner(ctx.cast), op.sprite, ctx.values.num(op.alpha), pose)
-        if (tint != null) ctx.ports.visuals.setPlateFrame(live.handle, 0, tint)
-        rt.register(s, live)
+        rt.repeated(s, ctx, op.id, op.parent, op.repeat) { id, parent ->
+            val par = parent ?: op.parent
+            val tint = op.color?.let { ctx.values.text(it) }
+            val frames = ctx.ports.visuals.sprite(op.sprite).frames
+            val live = PresentationRuntime.Live.Plate(
+                id, par, op.face, ctx.values.num(op.size), rt.billboardOf(s, op.face, par),
+                op.sprite, frames, op.frameTicks, op.loop, tint, s.tick,
+                op.at?.let { ctx.values.vec3(it) } ?: Vec3.ZERO, op.turn?.let { turn(ctx.values.vec3(it)) } ?: Quaternion.IDENTITY,
+            )
+            val pose = rt.spawnNode(s, live, par) ?: return@repeated null
+            live.handle = ctx.ports.visuals.spawnPlate(rt.info.owner(ctx.cast), op.sprite, ctx.values.num(op.alpha), pose, op.brightness)
+            if (tint != null) ctx.ports.visuals.setPlateFrame(live.handle, 0, tint)
+            rt.register(s, live)
+            live
+        }
+    }
+}
+
+internal class BlockExecutor(private val rt: PresentationRuntime) : OpExecutor<VisualOp.Block> {
+    override val opClass: KClass<VisualOp.Block> = VisualOp.Block::class
+    override fun execute(op: VisualOp.Block, ctx: OpContext) {
+        if (!ctx.passes(op)) return
+        val s = rt.state(ctx)
+        rt.repeated(s, ctx, op.id, op.parent, op.repeat) { id, parent ->
+            val par = parent ?: op.parent
+            val live = PresentationRuntime.Live.Block(
+                id, par, ctx.values.vec3(op.size),
+                op.at?.let { ctx.values.vec3(it) } ?: Vec3.ZERO, op.turn?.let { turn(ctx.values.vec3(it)) } ?: Quaternion.IDENTITY,
+            )
+            val pose = rt.spawnNode(s, live, par) ?: return@repeated null
+            live.handle = ctx.ports.visuals.spawnBlock(rt.info.owner(ctx.cast), op.block, pose, op.brightness)
+            rt.register(s, live)
+            live
+        }
+    }
+}
+
+internal class QuadExecutor(private val rt: PresentationRuntime) : OpExecutor<VisualOp.Quad> {
+    override val opClass: KClass<VisualOp.Quad> = VisualOp.Quad::class
+    override fun execute(op: VisualOp.Quad, ctx: OpContext) {
+        if (!ctx.passes(op)) return
+        val s = rt.state(ctx)
+        rt.repeated(s, ctx, op.id, op.parent, op.repeat) { id, parent ->
+            val par = parent ?: op.parent
+            val live = PresentationRuntime.Live.Quad(
+                id, par, op.face, ctx.values.vec3(op.size), rt.billboardOf(s, op.face, par),
+                op.at?.let { ctx.values.vec3(it) } ?: Vec3.ZERO, op.turn?.let { turn(ctx.values.vec3(it)) } ?: Quaternion.IDENTITY,
+            )
+            val pose = rt.spawnNode(s, live, par) ?: return@repeated null
+            live.handle = ctx.ports.visuals.spawnQuad(
+                rt.info.owner(ctx.cast), ctx.values.text(op.color), ctx.values.num(op.alpha), op.text, op.shadow, op.seeThrough, pose, op.brightness,
+            )
+            rt.register(s, live)
+            live
+        }
     }
 }
 
@@ -126,7 +171,12 @@ internal class EmitExecutor(private val rt: PresentationRuntime) : OpExecutor<Fx
     override fun execute(op: FxOp.Emit, ctx: OpContext) {
         if (!ctx.passes(op)) return
         val s = rt.state(ctx)
-        val at = rt.pointWorld(s, op.at) ?: return
+        rt.repeated(s, ctx, op.id, null, op.repeat) { _, _ -> emitOnce(op, ctx, s); null }
+    }
+
+    private fun emitOnce(op: FxOp.Emit, ctx: OpContext, s: PresentationRuntime.CastState) {
+        val base = rt.pointWorld(s, op.at) ?: return
+        val at = op.shift?.let { sh -> rt.frameWorld(s, op.at.frame)?.let { base + it.directionToWorld(ctx.values.vec3(sh)) } } ?: base
         val inherit = op.inheritVelocity?.let { ctx.values.num(it) }
         val count = op.count?.let { ctx.values.num(it).roundToInt().coerceAtLeast(0) }
         val dir = op.dir?.let { ctx.values.vec3(it) }

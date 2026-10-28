@@ -20,6 +20,13 @@ public sealed interface PlateFace {
     public data class Plane(val frame: String, val axisA: AxisRef, val axisB: AxisRef) : PlateFace
 }
 
+/**
+ * Copies of one display: `times` copies of the op, copy k spawned `every * k` ticks after the op runs and removed `life` ticks after
+ * it spawned (null = stays until removed). Inside the op's values `i` is the copy index and `n` the copy count. Copies are the
+ * children `<id>#<k>` of a plain group node named `<id>`, so a `track` or `remove` on `<id>` moves / removes the group.
+ */
+public data class Repeat(val times: Value<Double>, val every: Int = 0, val life: Int? = null)
+
 /** Display objects attached to frames. Family owner: visual (mesh/plate/line/trail) worker. */
 public sealed interface VisualOp : PresentationOp {
 
@@ -41,6 +48,8 @@ public sealed interface VisualOp : PresentationOp {
         val rest: Value<Vec3>? = null,
         /** Rotation vector (degrees) that tilts the whole swing plane, applied OUTSIDE the track turn: the node's base rotation. */
         val tilt: Value<Vec3>? = null,
+        /** Vanilla Display.brightness 0..15 (block and sky light together); null = lit by the world. */
+        val brightness: Int? = null,
     ) : VisualOp
 
     /** A sprite quad as a NODE of the frame tree named [id], child of [parent]; [size] is its edge length in BLOCKS. */
@@ -59,6 +68,52 @@ public sealed interface VisualOp : PresentationOp {
         val loop: Boolean = false,
         /** `#rrggbb` multiplied into the sprite; null keeps the sprite's own colours. */
         val color: Value<String>? = null,
+        /** Local position in [parent]'s axes `[left, up, forward]` at track 0. */
+        val at: Value<Vec3>? = null,
+        /** Rotation vector (degrees) of the plate at track 0. */
+        val turn: Value<Vec3>? = null,
+        /** Vanilla Display.brightness 0..15; 15 (full bright) when null. */
+        val brightness: Int? = null,
+        val repeat: Repeat? = null,
+    ) : VisualOp
+
+    /**
+     * A vanilla block display (a block model of [block], e.g. `gold_block`) as a NODE of the frame tree: [size] is its edge per
+     * axis in BLOCKS, centred on the node. [at] / [turn] are its pose in [parent] at track 0.
+     */
+    public data class Block(
+        override val id: String,
+        override val whenExpr: Value<Boolean>?,
+        val parent: String,
+        val block: String,
+        val size: Value<Vec3>,
+        val at: Value<Vec3>? = null,
+        val turn: Value<Vec3>? = null,
+        val brightness: Int? = null,
+        val repeat: Repeat? = null,
+    ) : VisualOp
+
+    /**
+     * A solid-colour text-display quad (`color` + `alpha` background; optionally [text], a MiniMessage string, drawn on it) as a
+     * NODE of the frame tree. [size] is width x height in BLOCKS; [face] works as for a plate.
+     */
+    public data class Quad(
+        override val id: String,
+        override val whenExpr: Value<Boolean>?,
+        val parent: String,
+        val face: PlateFace,
+        val size: Value<Vec3>,
+        val color: Value<String>,
+        val alpha: Value<Double>,
+        /** Drawn text (a glyph); when set [size].x is the glyph scale (blocks per text unit) instead of the quad width. */
+        val text: String? = null,
+        /** Vanilla text-display `shadow` / `see_through` (only with [text]). */
+        val shadow: Boolean = false,
+        val seeThrough: Boolean = false,
+        val at: Value<Vec3>? = null,
+        val turn: Value<Vec3>? = null,
+        val brightness: Int? = null,
+        val repeat: Repeat? = null,
     ) : VisualOp
 
     /** Ribbon between two points; length follows them every tick. */

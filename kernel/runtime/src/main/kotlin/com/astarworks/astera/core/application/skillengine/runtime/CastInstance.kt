@@ -505,6 +505,19 @@ internal class CastInstance(
         }
     }
 
+    private var copyIndex = 0
+    private var copyCount = 1
+
+    override fun withIndex(index: Int, count: Int, block: () -> Unit) {
+        val (oi, on) = copyIndex to copyCount
+        copyIndex = index; copyCount = count
+        try {
+            block()
+        } finally {
+            copyIndex = oi; copyCount = on
+        }
+    }
+
     override fun fail(opId: String, reason: String) {
         report(opId, reason)
     }
@@ -832,6 +845,8 @@ internal class CastInstance(
         vars["event.name"] = ExprValue.Str(currentEvent?.name ?: "")
         vars["event.source"] = ExprValue.Str(currentEvent?.source ?: "")
         vars["world.up"] = ExprValue.Vec3(UP)
+        vars["i"] = ExprValue.Num(copyIndex.toDouble())
+        vars["n"] = ExprValue.Num(copyCount.toDouble())
         vars["incoming.amount"] = ExprValue.Num(incomingAmount)
         activeContact()?.let { c ->
             vars["contact.point"] = ExprValue.Vec3(c.pointWorld)

@@ -256,7 +256,7 @@ object SkillRules {
 
     private fun budget(c: SkillCtx): List<LintFinding> {
         val out = ArrayList<LintFinding>()
-        val displays = c.presentation.count { val o = it.op; o is VisualOp.Mesh || o is VisualOp.Plate || o is VisualOp.Line || o is VisualOp.Trail }
+        val displays = c.presentation.count { val o = it.op; o is VisualOp.Mesh || o is VisualOp.Plate || o is VisualOp.Block || o is VisualOp.Quad || o is VisualOp.Line || o is VisualOp.Trail }
         if (displays > LintLimits.MAX_DISPLAYS) out += c.warn("budget", "presentation", "$displays display ops declared (budget ${LintLimits.MAX_DISPLAYS} simultaneous)")
         for (s in c.presentation) {
             val emit = s.op as? FxOp.Emit ?: continue
@@ -277,6 +277,8 @@ object SkillRules {
             when (val op = s.op) {
                 is VisualOp.Mesh -> covered += op.frame
                 is VisualOp.Plate -> if (((op.alpha as? Value.Literal<*>)?.value as? Double ?: 1.0) >= LintLimits.MIN_VISIBLE_ALPHA) covered += op.parent
+                is VisualOp.Block -> covered += op.parent
+                is VisualOp.Quad -> if (((op.alpha as? Value.Literal<*>)?.value as? Double ?: 1.0) >= LintLimits.MIN_VISIBLE_ALPHA) covered += op.parent
                 is VisualOp.Line -> { covered += op.from.frame; covered += op.to.frame }
                 else -> Unit
             }

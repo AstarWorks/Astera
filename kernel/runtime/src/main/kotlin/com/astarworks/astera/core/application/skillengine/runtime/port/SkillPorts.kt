@@ -40,10 +40,19 @@ public data class SpriteInfo(val frames: Int, val px: Int)
  */
 public interface ISkillVisualGateway {
     /** An item model; [pose].size is the model scale in blocks per model unit. */
-    public fun spawnMesh(castOwner: UUID, item: String, part: String?, pose: VisualPose): VisualHandle
+    public fun spawnMesh(castOwner: UUID, item: String, part: String?, pose: VisualPose, brightness: Int? = null): VisualHandle
 
-    /** A sprite quad; [pose].size.x / .y are its width and height in blocks. */
-    public fun spawnPlate(castOwner: UUID, sprite: String, alpha: Double, pose: VisualPose): VisualHandle
+    /** A sprite quad; [pose].size.x / .y are its width and height in blocks. [brightness] null = full bright (15). */
+    public fun spawnPlate(castOwner: UUID, sprite: String, alpha: Double, pose: VisualPose, brightness: Int? = null): VisualHandle
+
+    /** A block display of vanilla block [block] (`gold_block`); [pose].size is its edge per axis in blocks, centred on the pose origin. */
+    public fun spawnBlock(castOwner: UUID, block: String, pose: VisualPose, brightness: Int?): VisualHandle
+
+    /**
+     * A text-display quad: [text] null = a solid [colorHex] background at [alpha] ([pose].size.x / .y = width / height in blocks);
+     * else the MiniMessage [text] over that background, [pose].size = blocks per text unit.
+     */
+    public fun spawnQuad(castOwner: UUID, colorHex: String, alpha: Double, text: String?, shadow: Boolean, seeThrough: Boolean, pose: VisualPose, brightness: Int?): VisualHandle
 
     /** A solid ribbon; [pose] is its centre, basis (x along the line) and size (length, thickness). */
     public fun spawnLine(castOwner: UUID, colorHex: String, pose: VisualPose): VisualHandle

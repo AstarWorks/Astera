@@ -20,6 +20,7 @@ import com.astarworks.astera.core.domain.skillengine.model.PointRef
 import com.astarworks.astera.core.domain.skillengine.model.Value
 import com.astarworks.astera.core.domain.skillengine.model.ValueResolver
 import com.astarworks.astera.core.domain.skillengine.op.PlateFace
+import com.astarworks.astera.core.domain.skillengine.op.Repeat
 import com.astarworks.astera.core.domain.skillengine.op.TrackKey
 import com.astarworks.astera.core.domain.skillengine.op.VisualOp
 import kotlin.math.abs
@@ -63,6 +64,9 @@ public class PresentationRuntime(
         /** The tree node of a mesh / plate is named by its op id. */
         val node: FrameId get() = FrameId(opId)
 
+        /** Cast tick at which a repeated copy is removed (Repeat.life); null = stays. */
+        var dieAt: Int? = null
+
         /** A model on a node: base local origin [pivot], base turn [tilt], resting orientation [rest] inside the track turn. */
         class Mesh(
             override val opId: String,
@@ -85,9 +89,20 @@ public class PresentationRuntime(
             val loop: Boolean = false,
             val tint: String? = null,
             val spawnTick: Int = 0,
+            val at: Vec3 = Vec3.ZERO,
+            val turn: Quaternion = Quaternion.IDENTITY,
         ) : Live() {
             var shownFrame: Int = 0
         }
+
+        /** A block display on a node: per-axis [size] in blocks, base local origin [at] and base turn [turn]. */
+        class Block(override val opId: String, val parent: String, val size: Vec3, val at: Vec3, val turn: Quaternion) : Live()
+
+        /** A text-display quad on a node: [size] = (width, height) in blocks (a text glyph: blocks per text unit). */
+        class Quad(
+            override val opId: String, val parent: String, val face: PlateFace, val size: Vec3, val billboard: DisplayBillboard,
+            val at: Vec3, val turn: Quaternion,
+        ) : Live()
 
         class Line(override val opId: String, val from: PointRef, val to: PointRef, val thickness: Double, val face: PlateFace) : Live()
 
@@ -121,7 +136,16 @@ public class PresentationRuntime(
         val lastOrigin = HashMap<String, Vec3>()
         val velocity = HashMap<String, Vec3>()
         val watched = LinkedHashSet<String>()
+
+        /** Later copies of repeated displays / emits that have not run yet. */
+        val pending = ArrayList<Pending>()
+
+        /** Ids of the group nodes made for repeated displays. */
+        val groups = LinkedHashSet<String>()
     }
+
+    /** One later copy of the repeated op [group], due at cast tick [due]. */
+    internal class Pending(val group: String, val due: Int, val run: () -> Unit)
 
     internal fun state(ctx: OpContext): CastState = casts.getOrPut(ctx.cast) { CastState(ctx) }
 
@@ -196,12 +220,30 @@ public class PresentationRuntime(
                 val t = tracked(s, live.opId, parentW)
                 val base = (live.face as? PlateFace.Plane)?.let { planeRotation(s, it) }
                     ?.let { parentW.rotation.conjugate() * it } ?: Quaternion.IDENTITY
-                tree.setLocal(live.node, Frame(t.offset, (base * t.turn).normalized()))
+                tree.setLocal(live.node, Frame(live.at + t.offset, (base * live.turn * t.turn).normalized()))
                 val world = tree.worldOf(live.node).getOrNull() ?: return null
                 val fixed = live.billboard == DisplayBillboard.FIXED
                 // A viewer face is the vanilla billboard: it owns the rotation, so the written frame carries only the origin.
                 val frame = if (fixed) world else Frame(world.origin)
                 return VisualPose(frame, Vec3(live.size * t.scale.x, live.size * t.scale.y, 1.0), live.billboard, anchorFeet(s, live.parent))
+            }
+            is Live.Block -> {
+                val parentW = frameWorld(s, live.parent) ?: return null
+                val t = tracked(s, live.opId, parentW)
+                tree.setLocal(live.node, Frame(live.at + t.offset, (live.turn * t.turn).normalized()))
+                val world = tree.worldOf(live.node).getOrNull() ?: return null
+                return VisualPose(world, Vec3(live.size.x * t.scale.x, live.size.y * t.scale.y, live.size.z * t.scale.z), DisplayBillboard.FIXED, anchorFeet(s, live.parent))
+            }
+            is Live.Quad -> {
+                val parentW = frameWorld(s, live.parent) ?: return null
+                val t = tracked(s, live.opId, parentW)
+                val base = (live.face as? PlateFace.Plane)?.let { planeRotation(s, it) }
+                    ?.let { parentW.rotation.conjugate() * it } ?: Quaternion.IDENTITY
+                tree.setLocal(live.node, Frame(live.at + t.offset, (base * live.turn * t.turn).normalized()))
+                val world = tree.worldOf(live.node).getOrNull() ?: return null
+                val fixed = live.billboard == DisplayBillboard.FIXED
+                val frame = if (fixed) world else Frame(world.origin)
+                return VisualPose(frame, Vec3(live.size.x * t.scale.x, live.size.y * t.scale.y, 1.0), live.billboard, anchorFeet(s, live.parent))
             }
             else -> return null
         }
@@ -261,6 +303,37 @@ public class PresentationRuntime(
         return Tracked(offset, turn, scale)
     }
 
+    // ------------------------------------------------------------------ repeated ops
+
+    /**
+     * Runs [body] once per copy of [repeat] with `i` / `n` bound; copy k runs `every * k` ticks later. A display gets a plain
+     * group node named [group] under [parent] first (a track / remove on it moves / removes every copy); [body] gets the
+     * copy's id and parent and returns the live it spawned so `life` can be stamped. A null [repeat] runs [body] once.
+     */
+    internal fun repeated(
+        s: CastState, ctx: OpContext, group: String, parent: String?, repeat: Repeat?,
+        body: (id: String, parent: String?) -> Live?,
+    ) {
+        if (repeat == null) { body(group, parent); return }
+        val n = Math.round(ctx.values.num(repeat.times)).toInt().coerceAtLeast(0)
+        removeIds(s, listOf(group))
+        if (parent != null) {
+            if (s.ctx.tree.node(FrameId(parent)) == null) return
+            s.ctx.tree.add(FrameNode(FrameId(group), FrameKind.PART, FrameId(parent), IDENTITY)).getOrNull() ?: return
+            s.groups += group
+        }
+        for (k in 0 until n) {
+            val run = {
+                ctx.host.withIndex(k, n) {
+                    val made = body("$group#$k", if (parent != null) group else null)
+                    val life = repeat.life
+                    if (made != null && life != null) made.dieAt = s.tick + life
+                }
+            }
+            if (k * repeat.every <= 0) run() else s.pending += Pending(group, s.tick + k * repeat.every, run)
+        }
+    }
+
     // ------------------------------------------------------------------ lifecycle
 
     internal fun register(s: CastState, live: Live) {
@@ -270,9 +343,15 @@ public class PresentationRuntime(
     /** Remove everything created by the listed op ids (objects, their tree nodes, repeating sounds, tracks). */
     internal fun removeIds(s: CastState, ids: List<String>) {
         for (id in ids) {
+            s.pending.removeAll { it.group == id }
+            if (id in s.groups) {
+                for (copy in s.live.keys.filter { it.startsWith("$id#") }) removeIds(s, listOf(copy))
+                s.groups.remove(id)
+                s.ctx.tree.remove(FrameId(id))
+            }
             s.live.remove(id)?.let {
                 s.ctx.ports.visuals.remove(it.handle)
-                if (it is Live.Mesh || it is Live.Plate) s.ctx.tree.remove(it.node)
+                if (it !is Live.Line && it !is Live.Trail) s.ctx.tree.remove(it.node)
             }
             s.sounds.remove(id)
             s.tracks.remove(id)
@@ -289,7 +368,7 @@ public class PresentationRuntime(
     /** A projectile body ended (hit, block, expire): the meshes and plates riding that body go with it, on that tick. */
     public fun endBody(cast: CastId, body: String) {
         val s = casts[cast] ?: return
-        val gone = s.live.values.filter { (it is Live.Mesh && it.parent == body) || (it is Live.Plate && it.parent == body) }
+        val gone = s.live.values.filter { (it is Live.Mesh && it.parent == body) || (it is Live.Plate && it.parent == body) || (it is Live.Block && it.parent == body) || (it is Live.Quad && it.parent == body) }
         removeIds(s, gone.map { it.opId })
     }
 
@@ -301,6 +380,12 @@ public class PresentationRuntime(
             s.lastOrigin[f]?.let { prev -> s.velocity[f] = o - prev }
             s.lastOrigin[f] = o
         }
+        if (s.pending.isNotEmpty()) {
+            val due = s.pending.filter { it.due <= s.tick - 1 }
+            s.pending.removeAll(due.toSet())
+            due.forEach { it.run() }
+        }
+        for (l in s.live.values.filter { val d = it.dieAt; d != null && s.tick - 1 >= d }) removeIds(s, listOf(l.opId))
         for (target in s.tracks.values.map { it.op.target }.distinct()) if (!s.live.containsKey(target)) settleFrame(s, target)
         val visuals = s.ctx.ports.visuals
         for (l in s.live.values.toList()) {
@@ -310,6 +395,7 @@ public class PresentationRuntime(
                     update(s, l)?.let { visuals.write(l.handle, it, DISPLAY_TICKS) }
                     tickFlipbook(s, l)
                 }
+                is Live.Block, is Live.Quad -> update(s, l)?.let { visuals.write(l.handle, it, DISPLAY_TICKS) }
                 is Live.Line -> linePose(s, l)?.let { visuals.write(l.handle, it, DISPLAY_TICKS) }
                 is Live.Trail -> tickTrail(s, l)
             }

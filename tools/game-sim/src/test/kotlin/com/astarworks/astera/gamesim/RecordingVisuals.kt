@@ -132,21 +132,39 @@ class RecordingVisuals(
             .map { it.resolve("content/sprites") }.firstOrNull { it.isDirectory }
     }
 
-    override fun spawnMesh(castOwner: UUID, item: String, part: String?, pose: VisualPose): VisualHandle {
+    override fun spawnMesh(castOwner: UUID, item: String, part: String?, pose: VisualPose, brightness: Int?): VisualHandle {
         val h = next(Mesh(), "mesh", "$item/$part")
         val w = write(h.id, "mesh", Intrinsic.ITEM_FIXED, pose, 0, pose.size.x, "$item/$part", spawn = true)
         val kind = SkillDisplaySpecs.meshKind(MeshModels.resolve(item, part, frameTables))
             ?: com.astarworks.astera.core.domain.effect.DisplayKind.Item(com.astarworks.astera.core.domain.item.ItemId("main-hand"), com.astarworks.astera.core.domain.effect.DisplayItemMode.FIXED, null)
-        specs[h.id] = SkillDisplaySpecs.mesh(kind, w.transform)
+        specs[h.id] = SkillDisplaySpecs.mesh(kind, w.transform, brightness)
         return h
     }
 
-    override fun spawnPlate(castOwner: UUID, sprite: String, alpha: Double, pose: VisualPose): VisualHandle {
+    override fun spawnPlate(castOwner: UUID, sprite: String, alpha: Double, pose: VisualPose, brightness: Int?): VisualHandle {
         val intrinsic = Intrinsic.textGlyph(spritePixels(sprite))
         val h = next(Plate(intrinsic), "plate", sprite)
         spriteOf[h.id] = sprite
         val w = write(h.id, "plate", intrinsic, pose, 0, pose.size.x, sprite, spawn = true)
-        specs[h.id] = SkillDisplaySpecs.plate(SpriteGlyphs.text(SpriteId(sprite), 0), alpha, w.transform, pose.billboard)
+        specs[h.id] = SkillDisplaySpecs.plate(SpriteGlyphs.text(SpriteId(sprite), 0), alpha, w.transform, pose.billboard, brightness ?: 15)
+        return h
+    }
+
+    private class Block
+    private class Quad(val intrinsic: Intrinsic)
+
+    override fun spawnBlock(castOwner: UUID, block: String, pose: VisualPose, brightness: Int?): VisualHandle {
+        val h = next(Block(), "block", block)
+        val w = write(h.id, "block", Intrinsic.BLOCK, pose, 0, pose.size.x, block, spawn = true)
+        specs[h.id] = SkillDisplaySpecs.block(block, w.transform, brightness)
+        return h
+    }
+
+    override fun spawnQuad(castOwner: UUID, colorHex: String, alpha: Double, text: String?, shadow: Boolean, seeThrough: Boolean, pose: VisualPose, brightness: Int?): VisualHandle {
+        val intrinsic = if (text == null) Intrinsic.TEXT_SOLID else Intrinsic.textGlyph(8)
+        val h = next(Quad(intrinsic), "quad", text ?: colorHex)
+        val w = write(h.id, "quad", intrinsic, pose, 0, pose.size.x, "wh=${pose.size.x},${pose.size.y}", spawn = true)
+        specs[h.id] = SkillDisplaySpecs.quad(colorHex, alpha, text, shadow, seeThrough, w.transform, pose.billboard, brightness)
         return h
     }
 
@@ -170,6 +188,8 @@ class RecordingVisuals(
         when (val e = entries[handle.id]) {
             is Mesh -> write(handle.id, "mesh", Intrinsic.ITEM_FIXED, pose, interpolationTicks, pose.size.x)
             is Plate -> write(handle.id, "plate", e.intrinsic, pose, interpolationTicks, pose.size.x, "wh=${pose.size.x},${pose.size.y}")
+            is Block -> write(handle.id, "block", Intrinsic.BLOCK, pose, interpolationTicks, pose.size.x)
+            is Quad -> write(handle.id, "quad", e.intrinsic, pose, interpolationTicks, pose.size.x, "wh=${pose.size.x},${pose.size.y}")
             is Line -> write(handle.id, "line", Intrinsic.TEXT_SOLID, pose, interpolationTicks, pose.size.y, "len=${"%.2f".format(pose.size.x)}")
         }
     }

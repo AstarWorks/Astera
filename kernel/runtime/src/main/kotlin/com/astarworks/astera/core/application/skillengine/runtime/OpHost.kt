@@ -71,6 +71,9 @@ public interface OpHost {
     /** Run [block] with [victim] bound as the current target. */
     public fun withVictim(victim: UUID, block: () -> Unit)
 
+    /** Run [block] with the expression variables `i` = [index] and `n` = [count] bound (copy [index] of [count] of a repeated display / emit). */
+    public fun withIndex(index: Int, count: Int, block: () -> Unit)
+
     /** Report an op that could not run (bad frame, cycle); the runner logs it with the skill id. */
     public fun fail(opId: String, reason: String)
 

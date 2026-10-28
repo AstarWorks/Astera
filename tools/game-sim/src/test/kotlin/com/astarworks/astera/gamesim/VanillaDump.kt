@@ -71,6 +71,7 @@ object VanillaDump {
                 val kind = when (k) {
                     is DisplayKind.Item -> "\"kind\":\"item\",\"item\":\"${k.itemId.value}\",\"model\":${k.itemModel?.let { "\"${esc(it)}\"" } ?: "null"}"
                     is DisplayKind.Text -> "\"kind\":\"text\",\"text\":\"${esc(k.lines.firstOrNull()?.byLocale?.values?.firstOrNull().orEmpty())}\",\"bg\":${k.backgroundArgb},\"opacity\":${k.textOpacity}"
+                    is DisplayKind.Block -> "\"kind\":\"block\",\"block\":\"${k.blockKey}\""
                     else -> "\"kind\":\"?\""
                 }
                 lines += "{\"t\":${c.tick},\"e\":\"spawn\",\"id\":$n,$kind,\"br\":${spec?.brightness},\"rigshade\":${spec?.weaponRigShading}}"

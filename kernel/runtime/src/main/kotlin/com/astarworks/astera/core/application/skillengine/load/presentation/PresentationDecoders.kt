@@ -11,6 +11,7 @@ import com.astarworks.astera.core.domain.skillengine.op.BodyOp
 import com.astarworks.astera.core.domain.skillengine.op.FxOp
 import com.astarworks.astera.core.domain.skillengine.op.OpSection
 import com.astarworks.astera.core.domain.skillengine.op.PlateFace
+import com.astarworks.astera.core.domain.skillengine.op.Repeat
 import com.astarworks.astera.core.domain.skillengine.op.ScreenOp
 import com.astarworks.astera.core.domain.skillengine.op.SkillOp
 import com.astarworks.astera.core.domain.skillengine.op.TrackKey
@@ -178,21 +179,55 @@ private fun OpReader.trailRim(): TrailRim? {
     return TrailRim(hexColor("dark_rim.color", m["color"]), fraction("dark_rim.alpha", m["alpha"], 1.0), positive("dark_rim.width", m["width"], 0.18))
 }
 
+/** `brightness:` is vanilla Display.brightness, 0..15. */
+private fun OpReader.brightness(): Int? = int("brightness")?.also { if (it !in 0..15) fail("brightness must be 0..15") }
+
+/** `times:` / `every:` / `life:` of a repeated display (see [Repeat]); null when none is given. */
+private fun OpReader.repeat(allowLife: Boolean = true): Repeat? {
+    val times = number("times")
+    val every = int("every")
+    val life = int("life")
+    if (times == null && every == null && life == null) return null
+    if (times == null && every != null) fail("'every' needs 'times'")
+    if (every != null && every < 0) fail("every must be >= 0")
+    if (life != null && life < 1) fail("life must be >= 1")
+    if (life != null && !allowLife) fail("'life' is not used by this op")
+    return Repeat(times ?: Value.Literal(1.0), every ?: 0, life)
+}
+
+/** `size:` of a block / quad: a number (uniform), `[a, b]` (z = 1), `[a, b, c]`, `${param}` or `= expr`. */
+private fun OpReader.sizeVec(key: String, uniform: Boolean): Value<Vec3> {
+    val r = raw(key) ?: fail("missing '$key'")
+    if (r is Number) { val d = r.toDouble(); return Value.Literal(if (uniform) Vec3(d, d, d) else Vec3(d, d, 1.0)) }
+    if (r is List<*> && r.size == 2 && r.all { it is Number }) return Value.Literal(Vec3((r[0] as Number).toDouble(), (r[1] as Number).toDouble(), 1.0))
+    return vecValue(r) ?: fail("'$key' must be a number, [a, b], [a, b, c], \${param} or = expr")
+}
+
 private val TRAIL_STYLES = setOf("soft", "crisp", "both")
 
 private val EASES = setOf("linear", "ease_in", "ease_out", "ease_in_out")
 
 private object VisualOpDecoder : OpDecoder {
     override val section = OpSection.PRESENTATION
-    override val opNames = setOf("mesh", "plate", "line", "trail", "track", "remove")
+    override val opNames = setOf("mesh", "plate", "block", "quad", "line", "trail", "track", "remove")
     override fun decode(op: String, id: String, whenExpr: Value<Boolean>?, reader: OpReader): SkillOp = with(reader) {
         when (op) {
             "mesh" -> VisualOp.Mesh(id, whenExpr, requireString("frame"), requireString("item"), string("part"), number("scale"),
-                vec3("pivot"), vec3("rest_turn"), vec3("tilt_turn"))
+                vec3("pivot"), vec3("rest_turn"), vec3("tilt_turn"), brightness())
             "plate" -> VisualOp.Plate(
                 id, whenExpr, requireString("parent"), face(null), requireString("sprite"),
                 numberOr("size", 1.0), numberOr("alpha", 1.0),
                 int("frame_ticks")?.also { if (it < 1) fail("frame_ticks must be >= 1") }, bool("loop") ?: false, stringValue("color"),
+                vec3("at"), vec3("turn"), brightness(), repeat(),
+            )
+            "block" -> VisualOp.Block(
+                id, whenExpr, requireString("parent"), requireString("block"), sizeVec("size", uniform = true),
+                vec3("at"), vec3("turn"), brightness(), repeat(),
+            )
+            "quad" -> VisualOp.Quad(
+                id, whenExpr, requireString("parent"), face(PlateFace.ViewerCenter), sizeVec("size", uniform = false),
+                colorOr("color", "#ffffff"), numberOr("alpha", 1.0), string("text"), bool("shadow") ?: false, bool("see_through") ?: false,
+                vec3("at"), vec3("turn"), brightness(), repeat(),
             )
             "line" -> VisualOp.Line(
                 id, whenExpr, requirePoint("from"), requirePoint("to"), numberOr("thickness", 0.05),
@@ -224,6 +259,7 @@ private object FxOpDecoder : OpDecoder {
                 id, whenExpr, requirePoint("at"), requireString("particle"), number("count"),
                 vec3("offset"), number("speed"), stringValue("data"), number("data_size"),
                 vec3("dir"), number("spread_deg"), number("inherit_velocity"), string("seed"), number("spacing"),
+                vec3("shift"), repeat(allowLife = false),
             )
             "sound" -> FxOp.Sound(
                 id, whenExpr, requireString("sound"), requirePoint("at"), number("volume"), number("pitch"),

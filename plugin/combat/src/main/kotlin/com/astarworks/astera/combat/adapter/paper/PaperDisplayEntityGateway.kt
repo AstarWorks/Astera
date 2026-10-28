@@ -348,8 +348,5 @@ public class PaperDisplayEntityGateway(
 
     private fun blockKey(key: String): String = if (':' in key) key else "minecraft:$key"
 
-    private fun unsupported(reason: String): DisplayHandle? {
-        log.warn("SpawnDisplay dropped: {}", reason)
-        return null
-    }
+    private fun unsupported(reason: String): Nothing = error("SpawnDisplay refused: $reason")
 }

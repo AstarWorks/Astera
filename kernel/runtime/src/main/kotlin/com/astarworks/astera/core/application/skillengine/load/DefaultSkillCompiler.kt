@@ -138,6 +138,8 @@ public class DefaultSkillCompiler(
             null, is String, is Number, is Boolean, is Enum<*> -> Unit
             is VisualOp.Mesh -> out += node.id
             is VisualOp.Plate -> out += node.id
+            is VisualOp.Block -> out += node.id
+            is VisualOp.Quad -> out += node.id
             is List<*> -> node.forEach { scanDisplayNodes(it, out) }
             is Map<*, *> -> node.values.forEach { scanDisplayNodes(it, out) }
             else -> {
