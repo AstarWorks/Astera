@@ -45,9 +45,9 @@ PROTECTED = {"couture-rapier-s2", "couture-rapier-s2-shears", "couture-rapier-s2
 
 GAMEPLAY = {"damage", "apply_status", "knockback", "propel", "hit_stop", "cast_skill", "explode", "break_area",
             "place_shape", "heal", "cleanse", "consume_item", "summon_lightning", "leap", "modify_attribute",
-            "dash_strike", "counter"}
+            "dash_strike", "counter", "teleport", "set_velocity", "set_block"}
 PRESENT = {"play_sound", "spawn_particle", "schedule_particle_animation", "play_vfx", "camera_shake", "screen_flash",
-           "screen_veil", "telegraph", "play_animation", "stop_sound", "hide_held_item"}
+           "screen_veil", "telegraph", "play_animation", "stop_sound", "hide_held_item", "glow", "spawn_display"}
 AREA = {"cone", "nearby_entities", "forward_ray", "enemies", "allies"}
 SHAPES_BREAK = {"sphere", "line", "box"}
 SHAPES_BUILD = {"wall", "bridge", "pillar", "platform"}
@@ -295,6 +295,7 @@ class Where:
         self.owner = owner  # nested only: id of the gameplay op whose list this is
         self.ops = []  # nested only
         self.fx = {}  # nested only: delay -> event name that carries the presentation of that delay
+        self.max_count = None  # handler of a selected `hit` only: the targeter's max_count (1 = one bound victim per cast)
 
 
 CAST = Where("cast")
@@ -311,6 +312,8 @@ class Conv:
         self.g_rows = {}  # (event|None, tick) -> ops
         self.p_rows = {}
         self.p_reps = []  # (at, every, for_ticks, op): bounded repeating presentation rows
+        self.g_reps = []  # (at, every, for_ticks, op): bounded repeating gameplay rows (v1 period_ticks / duration_ticks)
+        self.tsnap = {}  # (event, guard) -> frame id of the bound victim position at bind time (v1 target_origin)
         self.g_on = OrderedDict()
         self.p_on = OrderedDict()
         self.id_counts = {}
@@ -555,6 +558,7 @@ class Conv:
                 op["capsule"]["from"] = snap
         self.g(CAST, delay, op)
         w = Where("handler", "hit", f"= event.source == '{hid}'")
+        w.max_count = int(V(tg["max_count"])) if "max_count" in tg else None
         self.sel[key] = w
         return w
 
@@ -603,7 +607,12 @@ class Conv:
         "propel": {"strength", "direction"},
         "knockback": {"strength", "direction"},
         "leap": {"destination", "arc_height"},
+        "teleport": {"destination", "snapshot_pose", "period_ticks", "duration_ticks"},
+        "set_velocity": {"direction", "magnitude", "snapshot_pose", "period_ticks", "duration_ticks"},
+        "set_block": {"block_key", "revert_after_ticks", "outside_arena", "snapshot_pose", "period_ticks", "duration_ticks"},
     }
+
+    REPEAT_ROUTED = {"teleport", "set_velocity", "set_block"}
 
     def require_movement_fields(self, m):
         allowed = self.MOVEMENT_KEYS.get(m["type"])
@@ -635,6 +644,23 @@ class Conv:
         delay = int(V(m.get("delay_ticks", 0)) or 0) + base_delay
         tg = m.get("targets")
         self.require_movement_fields(m)
+        if t not in self.REPEAT_ROUTED and int(V(m.get("period_ticks", 0)) or 0) > 0:
+            # v1 dispatchOne (MD:462-495) repeats ANY mechanic carrying period_ticks. Silently firing once is a drop, so a
+            # bounded repeat is unrolled into one delayed mechanic per firing (each firing re-reads its pose live, exactly as
+            # a v1 repeat does), and everything else raises in strict and non-strict alike.
+            period = int(V(m["period_ticks"]))
+            duration = max(int(V(m.get("duration_ticks", 0)) or 0), 0)
+            if duration <= 0:
+                raise ValueError("%s: %s repeats every %d ticks with no duration_ticks (v1 repeats until the scheduler scope "
+                                 "retires); v2 has no unbounded repeat" % (self.sid_hint(), t, period))
+            if t in ("for_each_target", "dash_strike", "counter") or t not in PRESENT:
+                raise ValueError("%s: repeating %s (period_ticks=%d) has no v2 mapping; extend the converter before converting"
+                                 % (self.sid_hint(), t, period))
+            once = {k: v for k, v in m.items() if k not in ("period_ticks", "duration_ticks")}
+            for k in range(-(-duration // period)):
+                once["delay_ticks"] = int(V(m.get("delay_ticks", 0)) or 0) + k * period
+                self.mech(dict(once), where, base_delay)
+            return
         if t == "for_each_target":
             w = self.select(tg, delay, m) if where.kind == "cast" and tg["type"] != "allies" else where
             for sub in m.get("mechanics", []):
@@ -646,7 +672,7 @@ class Conv:
         if t == "counter":
             self.counter(m, where, delay)
             return
-        if tg and tg["type"] in AREA and tg["type"] != "allies" and t not in ("camera_shake", "screen_flash", "screen_veil", "stop_sound"):
+        if tg and tg["type"] in AREA and tg["type"] != "allies" and t not in ("camera_shake", "screen_flash", "screen_veil", "stop_sound", "glow"):
             if where.kind == "cast":
                 where = self.select(tg, delay, m)
                 delay = 0
@@ -797,11 +823,120 @@ class Conv:
             op = {"id": self.oid("attr"), "op": "modify_attribute", "attribute": m["attribute_key"],
                   "operation": "add", "amount": V(m["delta"]), "duration_ticks": V(m["ticks"])}
             self.put_target(op, spec, "map")
+        elif t == "teleport":
+            op = self.teleport_op(m, tg, spec, where, delay)
+        elif t == "set_velocity":
+            op = self.set_velocity_op(m, spec)
+        elif t == "set_block":
+            op = self.set_block_op(m, tg, where)
         else:
             raise AssertionError(t)
         if when:
             op["when"] = when
-        self.g(where, delay, op, victim_scope=vs)
+        if t in ("teleport", "set_velocity", "set_block"):
+            self.repeating(m, where, delay, op)
+        else:
+            self.g(where, delay, op, victim_scope=vs)
+
+    # ---------- v1 teleport / set_velocity / set_block (WP6-A) ----------
+    def repeating(self, m, where, delay, op):
+        """v1 MechanicDispatcher.dispatchOne (MD:462-495): `period_ticks` > 0 repeats the mechanic every `period` ticks from `delay`,
+        and `duration_ticks` > 0 cancels the repeat at `delay + duration`. The cancel task is queued at cast time, before the
+        repeat re-queues itself for that tick, so the last firing is the one before it (FakeScheduler.kt:60-66 orders ties by
+        insertion sequence): firings at delay + k * period < delay + duration = a timeline row `{at, every, for: duration}` (end
+        excluded, add-a-skill-yaml.md:310) = ceil(duration / period) firings. A period with no duration repeats forever in v1
+        (until the scheduler scope retires); v2 has no such row, so it raises."""
+        period = max(int(V(m.get("period_ticks", 0)) or 0), 0)
+        duration = max(int(V(m.get("duration_ticks", 0)) or 0), 0)
+        if period <= 0:
+            self.g(where, delay, op)
+            return
+        if duration <= 0:
+            raise ValueError("%s: %s repeats every %d ticks with no duration_ticks (v1 repeats until the scheduler scope retires); "
+                             "v2 has no unbounded gameplay repeat" % (self.sid_hint(), m["type"], period))
+        count = -(-duration // period)
+        if count <= 1:
+            self.g(where, delay, op)
+        elif where.kind == "cast":
+            self.g_reps.append((delay + self.windup, period, duration, op))
+        elif where.kind == "handler":
+            # a timeline row cannot run in the bound victim's binding; `loop` iteration i runs i * every_ticks later in it
+            self.g(where, delay, {"id": self.oid("loop"), "op": "loop", "count": count, "every_ticks": period, "do": [op]})
+        else:
+            raise ValueError("%s: repeating %s inside a nested on_hit / counter list has no v2 form" % (self.sid_hint(), m["type"]))
+
+    def snapshot(self, like, where, dispatch_delay):
+        """A frozen copy of frame `like` taken at `dispatch_delay` (v1 snapshot_pose / bound target origin): an inactive body
+        frame under world and a `place` op, as select() does for a snapshot hit volume."""
+        snap = self.oid("snap")
+        self.frames[snap] = {"id": snap, "kind": "body", "parent": "world", "inactive": True}
+        self.g(where, dispatch_delay, {"id": self.oid("place_" + snap), "op": "place", "frame": snap, "like": like})
+        return snap
+
+    def teleport_base(self, loc, m, where, dispatch):
+        t = loc["type"]
+        if t in ("caster", "origin"):
+            # MD:1143 ctx.origin; a delayed / repeating firing re-reads the live caster unless snapshot_pose (livePose, MD:564-568)
+            if V(m.get("snapshot_pose", False)):
+                if where.kind != "cast":
+                    raise ValueError("%s: teleport snapshot_pose destination outside the cast list has no converted form" % self.sid_hint())
+                return "pos(%s)" % self.snapshot("caster", where, dispatch)
+            return "pos(caster)"
+        if t == "target_origin":
+            # MD:1145 + MD:987: the victim position fixed when for_each_target bound it. One shared frame is only the bound
+            # victim's while a single victim is bound per handler.
+            if where.kind != "handler" or where.max_count != 1:
+                raise ValueError("%s: teleport target_origin needs a for_each_target with max_count 1 (one bound victim); the shared "
+                                 "snapshot frame would be overwritten otherwise" % self.sid_hint())
+            key = (where.event, where.guard)
+            if key not in self.tsnap:
+                self.tsnap[key] = self.snapshot("enemy", where, 0)
+            return "pos(%s)" % self.tsnap[key]
+        raise ValueError("%s: teleport destination %s has no v2 form (only caster / origin / target_origin and literal offsets of them)"
+                         % (self.sid_hint(), t))
+
+    def teleport_op(self, m, tg, spec, where, delay):
+        own = int(V(m.get("delay_ticks", 0)) or 0)
+        dispatch = delay - own
+        dest = m["destination"]
+        if dest["type"] == "offset":
+            delta = V(dest["delta"])
+            if not isinstance(delta, dict) or "type" in delta:
+                raise ValueError("%s: teleport offset delta %s is not a literal vector" % (self.sid_hint(), short(delta)))
+            base = self.teleport_base(dest["from"], m, where, dispatch)
+            expr = "= %s + vec(%s, %s, %s)" % (base, fl(delta.get("x", 0.0)), fl(delta.get("y", 0.0)), fl(delta.get("z", 0.0)))
+        else:
+            expr = "= " + self.teleport_base(dest, m, where, dispatch)
+        op = {"id": self.oid("tp"), "op": "teleport", "to": expr}
+        self.put_target(op, spec, "move")
+        return op
+
+    def set_velocity_op(self, m, spec):
+        # MD:714-720: setVelocity(target, resolveDirection(direction) * magnitude) on each living target. Only `up` (a constant
+        # (0,1,0), MD:1138) is converted; the radial / look directions need RadialDirection and the live pose.
+        d = m["direction"]
+        if d["type"] != "up":
+            raise ValueError("%s: set_velocity direction %s has no converted form (only up)" % (self.sid_hint(), d["type"]))
+        mag = V(m["magnitude"])
+        if isinstance(mag, dict):
+            raise ValueError("%s: set_velocity magnitude %s is not a literal" % (self.sid_hint(), short(mag)))
+        op = {"id": self.oid("vel"), "op": "set_velocity", "direction": "= vec(0.0, 1.0, 0.0)", "magnitude": float(mag)}
+        self.put_target(op, spec, "move")
+        return op
+
+    def set_block_op(self, m, tg, where):
+        # WorldMechanics.setBlock (:177-193): cells = floor of each resolved target location, skip protected / non-replaceable /
+        # unguarded cells, revert after revertTicks (<=0 -> 200, cap 6000 = WorldLimits). SetBlockExecutor does the same.
+        if tg and tg["type"] in ("caster", "caster_forward", "caster_offset") and V(m.get("snapshot_pose", False)):
+            raise ValueError("%s: set_block snapshot_pose at a caster-relative location has no converted form" % self.sid_hint())
+        if tg and tg["type"] not in ("caster", "target", "target_offset", "caster_forward", "caster_offset"):
+            raise ValueError("%s: set_block targets %s has no v2 location" % (self.sid_hint(), tg["type"]))
+        op = {"id": self.oid("blk"), "op": "set_block", "at": _loc(self.point(tg, where, "g")), "block": m["block_key"]}
+        if "revert_after_ticks" in m:
+            op["revert_after"] = V(m["revert_after_ticks"])
+        if "outside_arena" in m:
+            op["outside_arena"] = bool(V(m["outside_arena"]))
+        return op
 
     def dash(self, m, where, delay):
         did = self.oid("dash")
@@ -845,6 +980,15 @@ class Conv:
 
         if t == "play_sound":
             self.play_sound(m, tg, where, delay, when)
+        elif t == "spawn_display":
+            # v1 SpawnDisplay (WorldMechanics.kt:510-528 + PaperDisplayEntityGateway.kt:202-211) draws a vanilla text display: lines
+            # chosen by the CASTER's locale, a world-fixed billboard (default), a background argb (default 0x40000000), a per-display
+            # lifetime. The only v2 text op is `quad`: one locale-neutral string, face viewer / frame plane, no lifetime field. So
+            # it is never converted silently; whichever of these the mechanic uses, it is recorded (raises under --strict).
+            kind = (m.get("display") or {}).get("kind") or {}
+            self.todo("spawn_display text: v2 `quad` has no per-locale lines, world-fixed billboard, vanilla text scale or lifetime",
+                      short({"kind": kind.get("type"), "billboard": (m.get("display") or {}).get("billboard", "fixed"),
+                             "lines": kind.get("lines")}, 160))
         elif t == "spawn_particle":
             W(emit_op(self.oid("emit"), self.point(tg, where, "p"), m["particle_id"], 1))
         elif t == "schedule_particle_animation":
@@ -859,6 +1003,13 @@ class Conv:
             for k in ("shape", "direction", "viewers"):
                 if k in m:
                     self.present("camera_shake %s (engine shake is intensity + ticks only)" % k, "%s=%s" % (k, short(V(m[k]), 40)))
+        elif t == "glow":
+            # v1 WorldMechanics.glow (WM:585): outline for `ticks`, living players only, the last writer's end time wins.
+            extra = sorted(set(m) - {"ticks"} - self.COMMON_MECH_KEYS)
+            if extra:
+                raise ValueError("%s: glow mechanic carries field(s) %s that v2 cannot express; extend the op before "
+                                 "converting" % (self.sid_hint(), extra))
+            W({"id": self.oid("glow"), "op": "glow", "target": self.screen_target(tg), "ticks": V(m["ticks"])})
         elif t == "play_animation":
             anim = m["animation"]
             if tg and tg["type"] == "caster":
@@ -1699,6 +1850,8 @@ def build_docs(c, d, item, items):
     if exp:
         gp["expose"] = exp
     g_rows = rows_out(c.g_rows, "t")
+    for j, (at, every, span, op) in enumerate(c.g_reps):
+        g_rows.append({"id": "gloop%d" % (j + 1), "at": at, "every": every, "for": span, "do": [op]})
     if g_rows:
         gp["timeline"] = g_rows
     if c.g_on:

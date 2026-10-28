@@ -5,6 +5,7 @@ import com.astarworks.astera.core.domain.skillengine.frame.Axes
 import com.astarworks.astera.core.application.skillengine.load.CompiledSkill
 import com.astarworks.astera.core.application.skillengine.runtime.ops.ISkillWorldEffectGateway
 import com.astarworks.astera.core.application.skillengine.runtime.ops.MovementHost
+import com.astarworks.astera.core.application.skillengine.runtime.ops.VictimBind
 import com.astarworks.astera.core.application.skillengine.runtime.ops.OpTargetResolver
 import com.astarworks.astera.core.application.skillengine.runtime.ops.SkillCastScope
 import com.astarworks.astera.core.application.skillengine.runtime.port.ISkillCooldownGateway
@@ -72,7 +73,7 @@ internal class CastInstance(
     private val hitCounts = HashMap<String, Int>()
 
     private class HitReg(val reg: HitRegistration, var prevAnchor: Vec3? = null, var passesLeft: Int? = reg.ticks)
-    private class Scheduled(val dueTick: Int, val event: String?, val source: String?, val ops: List<SkillOp>?, val victim: UUID?)
+    private class Scheduled(val dueTick: Int, val event: String?, val source: String?, val ops: List<SkillOp>?, val victim: UUID?, val bind: VictimBind? = null)
     private class OpenWindow(val op: ControlOp.Window, val untilTick: Int)
     private class Listener(val event: String, val source: String, val handler: () -> Unit)
 
@@ -135,6 +136,7 @@ internal class CastInstance(
     private val random = Random(request.seed)
     private var lastVictim: UUID? = null
     private var victimOverride: UUID? = null
+    private var bindOverride: VictimBind? = null
     private var contactOverride: ContactEvent? = null
     private var contactSeq = 0
     private var snapshot: Map<String, Vec3> = emptyMap()
@@ -324,7 +326,7 @@ internal class CastInstance(
     private fun runScheduledOps(s: Scheduled) {
         currentOpId = s.source
         val victim = s.victim
-        if (victim != null) withVictim(victim) { run(s.ops!!) } else run(s.ops!!)
+        if (victim != null) withBind(s.bind ?: VictimBind(victim, world)) { run(s.ops!!) } else run(s.ops!!)
         currentOpId = null
     }
 
@@ -533,7 +535,7 @@ internal class CastInstance(
     }
 
     override fun scheduleOps(afterTicks: Int, ops: List<SkillOp>) {
-        scheduled += Scheduled(tick + maxOf(0, afterTicks), null, currentOpId, ops, currentVictim)
+        scheduled += Scheduled(tick + maxOf(0, afterTicks), null, currentOpId, ops, currentVictim, currentBind())
     }
 
     override fun freezeFrames(frames: List<String>, ticks: Int) {
@@ -580,15 +582,25 @@ internal class CastInstance(
         return (if (maxCount == null) found else found.sortedBy { it.feet.distanceSquared(p) }.take(maxCount)).map { it.entityId }
     }
 
-    override fun withVictim(victim: UUID, block: () -> Unit) {
+    override fun withVictim(victim: UUID, block: () -> Unit) = withBind(VictimBind(victim, world), block)
+
+    /** Runs [block] under [bind]; delayed ops queued inside re-enter under the same [bind] (v1 boundTargetState survives the delay). */
+    private fun withBind(bind: VictimBind, block: () -> Unit) {
         val outer = victimOverride
-        victimOverride = victim
+        val outerBind = bindOverride
+        victimOverride = bind.victim
+        bindOverride = bind
         try {
             block()
         } finally {
             victimOverride = outer
+            bindOverride = outerBind
         }
     }
+
+    private fun currentBind(): VictimBind? = bindOverride?.takeIf { it.victim == victimOverride }
+
+    override fun victimBind(ctx: OpContext): VictimBind? = currentBind()
 
     private var copyIndex = 0
     private var copyCount = 1

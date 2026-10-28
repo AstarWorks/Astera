@@ -12,6 +12,9 @@ public interface ISkillMovementGateway {
     /** False for dead / offline entities: movement ops skip them. */
     public fun isAlive(entity: UUID): Boolean
 
+    /** True when [entity] exists (dead or alive) and currently stands in [world]; false when it is gone or in another world. */
+    public fun isInWorld(entity: UUID, world: com.astarworks.astera.core.domain.world.WorldId): Boolean
+
     /** Overwrite the entity velocity (blocks/tick). */
     public fun setVelocity(entity: UUID, velocity: Vec3)
 
@@ -19,8 +22,8 @@ public interface ISkillMovementGateway {
     public fun addVelocity(entity: UUID, delta: Vec3)
 
     /**
-     * Relocate to [to]; [yawDeg] non-null also turns the body. Returns false when the move failed
-     * (unloaded chunk, entity gone): a dash ends then.
+     * Relocate to [to]; [yawDeg] non-null also turns the body. Works on dead entities too (v1 teleport).
+     * Returns false when the move failed (unloaded chunk, entity gone): a dash ends then.
      */
     public fun teleport(entity: UUID, to: Vec3, yawDeg: Double?): Boolean
 

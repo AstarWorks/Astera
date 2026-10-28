@@ -201,6 +201,12 @@ public class SimSkillEngine private constructor(
                 override fun veil(viewer: UUID, sprite: String, colorRgb: Int, side: Double, distance: Double, ticks: Int) { recording.screens += "veil $sprite" }
                 override fun stopSound(viewer: UUID, sound: String) { recording.screens += "stop_sound $sound" }
             },
+            glow = object : com.astarworks.astera.core.application.skillengine.runtime.ops.IEntityGlowGateway {
+                override fun isLivingPlayer(entity: UUID): Boolean =
+                    world.find(PlayerId(entity))?.let { it.kind == SimEntityKind.PLAYER && alive(it.id) } ?: false
+
+                override fun setGlowing(entity: UUID, glowing: Boolean) = entityEffects.setGlowing(PlayerId(entity), glowing)
+            },
             cooldowns = object : ISkillCooldownGateway {
                 override fun set(entity: UUID, skillId: String, ticks: Int) {
                     val tracker = services.get<ICooldownTracker>() ?: return
@@ -528,6 +534,9 @@ private class SimSkillMovement(
     private val granted = HashSet<UUID>()
 
     override fun isAlive(entity: UUID): Boolean = alive(PlayerId(entity))
+
+    override fun isInWorld(entity: UUID, world: com.astarworks.astera.core.domain.world.WorldId): Boolean =
+        this.world.find(PlayerId(entity))?.world == world
 
     override fun setVelocity(entity: UUID, velocity: Vec3) { effects.setVelocity(PlayerId(entity), velocity) }
 
