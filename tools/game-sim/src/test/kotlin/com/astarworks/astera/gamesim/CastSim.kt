@@ -72,6 +72,7 @@ class CastSim(
     val halfWidth: Double = 0.8,
     val boxHeight: Double = 1.8,
     private val particleGateway: ISkillParticleGateway? = null,
+    private val visualGateway: ISkillVisualGateway? = null,
     /** Caster feet in world space and yaw (Minecraft degrees: 0 faces +Z). Victims / floor / wall are WORLD coordinates; use [ahead] to place them relative to the caster. */
     val origin: Vec3 = Vec3.ZERO,
     val yawDeg: Double = 0.0,
@@ -199,7 +200,7 @@ class CastSim(
 
     val kit: SkillEngineKit = SkillEngineKit.build(
         gateways = SkillEngineGateways(
-            ports = SkillRuntimePorts(noop<ISkillVisualGateway>(), particleGateway ?: noop<ISkillParticleGateway>(), sound, gameplay, entities, noop<ISkillVictimAnimGateway>()),
+            ports = SkillRuntimePorts(visualGateway ?: noop<ISkillVisualGateway>(), particleGateway ?: noop<ISkillParticleGateway>(), sound, gameplay, entities, noop<ISkillVictimAnimGateway>()),
             movement = movement,
             world = world,
             casterAnim = object : ISkillCasterAnimGateway {

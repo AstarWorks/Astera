@@ -646,9 +646,8 @@ class Conv:
             if "scale" in k:
                 sc = k["scale"]
                 if isinstance(sc, list):
-                    self.present("keyframe non-uniform scale (track scale is one number; the largest axis is used)", short(sc, 40))
                     nums = [x for x in sc if isinstance(x, (int, float))]
-                    sc = max(nums) if nums else 1.0
+                    sc = [float(x) for x in nums[:3]] + [1.0] * (3 - len(nums[:3]))
                 e["scale"] = sc
             if k.get("ease") in ("linear", "ease_in", "ease_out", "ease_in_out"):
                 e["ease"] = k["ease"]

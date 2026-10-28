@@ -6,17 +6,17 @@ import com.astarworks.astera.core.domain.geometry.Vec3
  * A trail ribbon built from the history of one point and a root point (ADR-0301). Each tick contributes a cross-section
  * (root, tip); consecutive cross-sections form one parallelogram [Segment]. Pure maths, no Bukkit.
  */
-internal class RibbonMesh {
+public class RibbonMesh {
 
     private class Section(val root: Vec3, val tip: Vec3)
 
     /** One parallelogram: [centre], edge vectors [u] (travel) and [v] (root to tip), unit [normal]. */
-    class Segment(val centre: Vec3, val u: Vec3, val v: Vec3, val normal: Vec3)
+    public class Segment(public val centre: Vec3, public val u: Vec3, public val v: Vec3, public val normal: Vec3)
 
     private var last: Section? = null
 
     /** Adds this tick's cross-section; returns the segment from the previous one, or null (first point, or no movement). */
-    fun push(root: Vec3, tip: Vec3): Segment? {
+    public fun push(root: Vec3, tip: Vec3): Segment? {
         val now = Section(root, tip)
         val before = last
         last = now

@@ -1630,7 +1630,8 @@
                     "$ref": "#/definitions/Value_vec3"
                 },
                 "scale": {
-                    "$ref": "#/definitions/Value_number"
+                    "anyOf": [{"$ref": "#/definitions/Value_vec3"}, {"$ref": "#/definitions/Value_number"}],
+                    "description": "uniform number or per-axis [x, y, z] factor on the authored size (plate: x width, y height)"
                 },
                 "ease": {
                     "type": "string"

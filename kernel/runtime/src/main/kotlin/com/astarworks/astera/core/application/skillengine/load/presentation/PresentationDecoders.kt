@@ -38,6 +38,13 @@ private fun vecValue(raw: Any?): Value<Vec3>? = rawValue(raw) { r ->
     if (l != null && l.size == 3) Vec3(l[0], l[1], l[2]) else null
 }
 
+/** `scale:` of a track key: a bare number is uniform (x = y = z); `[x, y, z]` is per axis; `${param}` / `= expr` stay uniform numbers unless the expression is a vec3. */
+private fun scaleValue(raw: Any?): Value<Vec3>? {
+    val n = numValue(raw)
+    if (n is Value.Literal) return Value.Literal(Vec3(n.value, n.value, n.value))
+    return vecValue(raw)
+}
+
 private fun OpReader.stringValue(key: String): Value<String>? =
     raw(key)?.let { strValue(it) ?: fail("'$key' must be a string, \${param} or = expr") }
 
@@ -116,7 +123,7 @@ private fun OpReader.trackKeys(): List<TrackKey> {
         val t = (m["t"] as? Number)?.toInt() ?: fail("keys[$i] needs integer 't'")
         val offset = m["offset"]?.let { vecValue(it) ?: fail("keys[$i].offset must be [x,y,z], \${param} or = expr") }
         val rotation = m["rotation"]?.let { vecValue(it) ?: fail("keys[$i].rotation must be [yaw,pitch,roll], \${param} or = expr") }
-        val scale = m["scale"]?.let { numValue(it) ?: fail("keys[$i].scale must be a number, \${param} or = expr") }
+        val scale = m["scale"]?.let { scaleValue(it) ?: fail("keys[$i].scale must be a number, [x,y,z], \${param} or = expr") }
         val ease = m["ease"]?.let { it as? String ?: fail("keys[$i].ease must be a string") }
         if (ease != null && ease !in EASES) fail("keys[$i].ease must be one of $EASES")
         TrackKey(t, offset, rotation, scale, ease)

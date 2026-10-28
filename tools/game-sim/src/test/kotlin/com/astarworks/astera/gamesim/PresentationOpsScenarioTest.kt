@@ -131,7 +131,7 @@ class PresentationOpsScenarioTest {
             h("line:$colorHex").also { lineEnds[it.id] = from to to; spawnedFaces[it.id] = face }
         override fun spawnTrail(castOwner: UUID, ticks: Int, widthFrac: Double, colorHex: String, alpha: Double) = h("trail")
         override fun updatePose(handle: VisualHandle, pose: Frame, interpolationTicks: Int) { poses[handle.id] = pose }
-        override fun updateScale(handle: VisualHandle, scale: Double) { scales[handle.id] = scale }
+        override fun updateScale(handle: VisualHandle, scale: Vec3) { scales[handle.id] = scale.x }
         override fun updateLine(handle: VisualHandle, from: Vec3, to: Vec3) { lineEnds[handle.id] = from to to }
         override fun pushTrailPoint(handle: VisualHandle, root: Vec3, tip: Vec3) { trailPoints += root to tip }
         override fun remove(handle: VisualHandle) { removed += handle.id }
@@ -358,7 +358,7 @@ class PresentationOpsScenarioTest {
         run(
             VisualOp.Track(
                 "swing", null, "m",
-                listOf(TrackKey(0, v(0.0, 0.0, 0.0), null, lit(1.0), null), TrackKey(4, v(0.0, 2.0, 0.0), null, lit(3.0), null)),
+                listOf(TrackKey(0, v(0.0, 0.0, 0.0), null, v(1.0, 1.0, 1.0), null), TrackKey(4, v(0.0, 2.0, 0.0), null, v(3.0, 3.0, 3.0), null)),
                 null,
             ),
         )

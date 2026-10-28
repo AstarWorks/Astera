@@ -8,6 +8,8 @@ import com.astarworks.astera.core.domain.geometry.math.Frame
 import com.astarworks.astera.core.domain.geometry.math.Quaternion
 import com.astarworks.astera.core.domain.skillengine.frame.FrameId
 import com.astarworks.astera.core.domain.skillengine.model.PointRef
+import com.astarworks.astera.core.domain.skillengine.model.Value
+import com.astarworks.astera.core.domain.skillengine.model.ValueResolver
 import com.astarworks.astera.core.domain.skillengine.op.PlateFace
 import com.astarworks.astera.core.domain.skillengine.op.TrackKey
 import com.astarworks.astera.core.domain.skillengine.op.VisualOp
@@ -185,7 +187,7 @@ public class PresentationRuntime(
     private fun applyPose(s: CastState, opId: String, handle: VisualHandle, base: Frame, ownFrame: String, baseScale: Double) {
         val track = s.tracks.values.filter { it.op.target == opId }
         var pose = base
-        var scale = baseScale
+        var scale = Vec3(baseScale, baseScale, baseScale)
         for (t in track) {
             val space = t.op.space?.let { frameWorld(s, it) } ?: s.ctx.tree.worldOf(FrameId(ownFrame)).getOrNull() ?: base
             val sample = sampleTrack(s, t, s.tick - t.startTick)
@@ -193,14 +195,14 @@ public class PresentationRuntime(
                 pose.origin + space.directionToWorld(sample.offset),
                 (pose.rotation * sample.rotation).normalized(),
             )
-            scale *= sample.scale
+            scale = Vec3(scale.x * sample.scale.x, scale.y * sample.scale.y, scale.z * sample.scale.z)
         }
         val visuals = s.ctx.ports.visuals
         visuals.updatePose(handle, pose, 1)
         if (track.isNotEmpty()) visuals.updateScale(handle, scale)
     }
 
-    private class Sample(val offset: Vec3, val rotation: Quaternion, val scale: Double)
+    private class Sample(val offset: Vec3, val rotation: Quaternion, val scale: Vec3)
 
     private fun sampleTrack(s: CastState, t: TrackState, elapsed: Int): Sample {
         val keys = t.op.keys.sortedBy { it.tick }
@@ -210,8 +212,14 @@ public class PresentationRuntime(
         val v = s.ctx.values
         val off = channel(offsets, elapsed, { v.vec3(it.offset!!) }, Vec3(0.0, 0.0, 0.0)) { a, b, f -> a + (b - a) * f }
         val rot = channel(rots, elapsed, { v.vec3(it.rotation!!) }, Vec3(0.0, 0.0, 0.0)) { a, b, f -> a + (b - a) * f }
-        val sc = channel(scales, elapsed, { v.num(it.scale!!) }, 1.0) { a, b, f -> a + (b - a) * f }
+        val sc = channel(scales, elapsed, { scaleOf(v, it.scale!!) }, Vec3(1.0, 1.0, 1.0)) { a, b, f -> a + (b - a) * f }
         return Sample(off, Quaternion.fromEulerDegrees(rot.x, rot.y, rot.z), sc)
+    }
+
+    /** A key's scale: a vec3 value as is; a `${param}` / number expression is a uniform factor. */
+    private fun scaleOf(v: ValueResolver, value: Value<Vec3>): Vec3 = when (value) {
+        is Value.Literal -> value.value
+        else -> runCatching { v.vec3(value) }.getOrElse { val n = v.num(value as Value<Nothing>); Vec3(n, n, n) }
     }
 
     private fun <T> channel(

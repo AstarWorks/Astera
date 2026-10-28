@@ -64,8 +64,8 @@ public class PaperSkillVisualGateway(
     public fun activeWorld(): WorldId? = lastWorld
 
     private sealed interface Entry
-    private class MeshEntry(val handle: DisplayHandle, var scale: Double, var rotation: Quaternion) : Entry
-    private class PlateEntry(val handle: DisplayHandle, val face: PlateFace, var size: Double, val world: World, var rotation: Quaternion) : Entry
+    private class MeshEntry(val handle: DisplayHandle, var scale: Vec3, var rotation: Quaternion) : Entry
+    private class PlateEntry(val handle: DisplayHandle, val face: PlateFace, var size: Vec3, val world: World, var rotation: Quaternion) : Entry
     private class LineEntry(val handle: DisplayHandle, val face: PlateFace, val thickness: Double, val world: World) : Entry
     private class Seg(val display: UUID, var age: Int)
     private class TrailEntry(
@@ -94,7 +94,7 @@ public class PaperSkillVisualGateway(
             weaponRigShading = true,
         )
         val handle = displays.spawn(WorldId(world.name), pose.origin, spec, emptyList()) ?: return dead("mesh $item")
-        return register(MeshEntry(handle, scale, pose.rotation))
+        return register(MeshEntry(handle, uniform(scale), pose.rotation))
     }
 
     override fun spawnPlate(castOwner: UUID, sprite: String, face: PlateFace, size: Double, alpha: Double, pose: Frame): VisualHandle {
@@ -109,13 +109,13 @@ public class PaperSkillVisualGateway(
                 seeThrough = false,
                 textOpacity = opacity(alpha),
             ),
-            transform = plateTransform(placed.rotation, size),
+            transform = SkillDisplayMath.plateTransform(placed.rotation, size, size),
             lifetimeTicks = LIFETIME,
             billboard = placed.billboard,
             brightness = 15,
         )
         val handle = displays.spawn(WorldId(world.name), pose.origin, spec, listOf(glyph)) ?: return dead("plate $sprite")
-        return register(PlateEntry(handle, face, size, world, placed.rotation))
+        return register(PlateEntry(handle, face, uniform(size), world, placed.rotation))
     }
 
     override fun spawnLine(castOwner: UUID, from: Vec3, to: Vec3, thickness: Double, colorHex: String, face: PlateFace): VisualHandle {
@@ -150,27 +150,27 @@ public class PaperSkillVisualGateway(
             is MeshEntry -> {
                 e.rotation = pose.rotation
                 displays.moveTo(e.handle, pose.origin, 0f, 0f, interpolationTicks)
-                displays.update(e.handle, DisplayTransform(Vec3.ZERO, pose.rotation, uniform(e.scale)), interpolationTicks)
+                displays.update(e.handle, DisplayTransform(Vec3.ZERO, pose.rotation, e.scale), interpolationTicks)
             }
             is PlateEntry -> {
                 val placed = PlateOrientation.forPlate(pose, e.face, viewerEye(e.world, pose.origin))
                 e.rotation = placed.rotation
                 displays.moveTo(e.handle, pose.origin, 0f, 0f, interpolationTicks)
-                displays.update(e.handle, plateTransform(placed.rotation, e.size), interpolationTicks)
+                displays.update(e.handle, SkillDisplayMath.plateTransform(placed.rotation, e.size.x, e.size.y), interpolationTicks)
             }
             else -> Unit
         }
     }
 
-    override fun updateScale(handle: VisualHandle, scale: Double) {
+    override fun updateScale(handle: VisualHandle, scale: Vec3) {
         when (val e = entries[handle.id]) {
             is MeshEntry -> {
                 e.scale = scale
-                displays.update(e.handle, DisplayTransform(Vec3.ZERO, e.rotation, uniform(scale)), SCALE_INTERPOLATION_TICKS)
+                displays.update(e.handle, DisplayTransform(Vec3.ZERO, e.rotation, scale), SCALE_INTERPOLATION_TICKS)
             }
             is PlateEntry -> {
                 e.size = scale
-                displays.update(e.handle, plateTransform(e.rotation, scale), SCALE_INTERPOLATION_TICKS)
+                displays.update(e.handle, SkillDisplayMath.plateTransform(e.rotation, scale.x, scale.y), SCALE_INTERPOLATION_TICKS)
             }
             else -> Unit
         }
@@ -218,29 +218,16 @@ public class PaperSkillVisualGateway(
 
     // ---- geometry ----------------------------------------------------------------
 
-    private fun plateTransform(rotation: com.astarworks.astera.core.domain.geometry.math.Quaternion, size: Double): DisplayTransform {
-        val s = size * Quad.GLYPH_SCALE
-        val centre = Vec3(-Quad.CENTER_X_PER_SCALE * s, -Quad.CENTER_Y_PER_SCALE * s, 0.0)
-        return DisplayTransform(rotation.rotate(centre), rotation, Vec3(s, s, 1.0))
-    }
-
-    private fun lineTransform(from: Vec3, to: Vec3, thickness: Double, face: PlateFace, world: World): DisplayTransform {
-        val rotation = PlateOrientation.forLine(from, to, face, viewerEye(world, (from + to) * 0.5))
-        val sx = from.distance(to) * Quad.SOLID_SCALE_X
-        val sy = thickness * Quad.SOLID_SCALE_Y
-        val centre = Vec3(-Quad.CENTER_X_PER_SCALE * sx, -Quad.CENTER_Y_PER_SCALE * sy, 0.0)
-        return DisplayTransform(rotation.rotate(centre), rotation, Vec3(sx, sy, 1.0))
-    }
+    private fun lineTransform(from: Vec3, to: Vec3, thickness: Double, face: PlateFace, world: World): DisplayTransform =
+        SkillDisplayMath.lineTransform(from, to, thickness, face, viewerEye(world, (from + to) * 0.5))
 
     private fun spawnSegment(t: TrailEntry, s: RibbonMesh.Segment): UUID? {
-        val col0 = s.u * Quad.SOLID_SCALE_X
-        val col1 = s.v * Quad.SOLID_SCALE_Y
-        val shift = col0 * -Quad.CENTER_X_PER_SCALE + col1 * -Quad.CENTER_Y_PER_SCALE
+        val m = SkillDisplayMath.ribbonColumns(s.u, s.v, s.normal)
         val matrix = Matrix4f(
-            col0.x.toFloat(), col0.y.toFloat(), col0.z.toFloat(), 0f,
-            col1.x.toFloat(), col1.y.toFloat(), col1.z.toFloat(), 0f,
-            s.normal.x.toFloat(), s.normal.y.toFloat(), s.normal.z.toFloat(), 0f,
-            shift.x.toFloat(), shift.y.toFloat(), shift.z.toFloat(), 1f,
+            m.col0.x.toFloat(), m.col0.y.toFloat(), m.col0.z.toFloat(), 0f,
+            m.col1.x.toFloat(), m.col1.y.toFloat(), m.col1.z.toFloat(), 0f,
+            m.col2.x.toFloat(), m.col2.y.toFloat(), m.col2.z.toFloat(), 0f,
+            m.shift.x.toFloat(), m.shift.y.toFloat(), m.shift.z.toFloat(), 1f,
         )
         val argb = Color.fromARGB(fade(t, 0), t.rgb shr 16 and 0xFF, t.rgb shr 8 and 0xFF, t.rgb and 0xFF)
         val display = t.world.spawn(Location(t.world, s.centre.x, s.centre.y, s.centre.z), TextDisplay::class.java) {
@@ -263,11 +250,6 @@ public class PaperSkillVisualGateway(
 
     /** TextDisplay quad maths (MC 26.3 one-line text centre, calibrated against a real-client capture). */
     private object Quad {
-        const val SOLID_SCALE_X: Double = 8.0
-        const val SOLID_SCALE_Y: Double = 4.0
-        const val GLYPH_SCALE: Double = 5.0
-        const val CENTER_X_PER_SCALE: Double = 0.0125
-        const val CENTER_Y_PER_SCALE: Double = 0.125
         const val MIN_TEXT_OPACITY: Int = 4
     }
 

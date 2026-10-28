@@ -28,8 +28,11 @@ public interface ISkillVisualGateway {
     /** Move a mesh/plate. [interpolationTicks] is the display interpolation length. */
     public fun updatePose(handle: VisualHandle, pose: Frame, interpolationTicks: Int = 1)
 
-    /** Uniform scale of a mesh (item scale) or plate (edge length in blocks). */
-    public fun updateScale(handle: VisualHandle, scale: Double)
+    /**
+     * Final per-axis scale of a mesh (item scale on x/y/z) or plate (x = width, y = height in blocks, z ignored). A uniform
+     * factor is (s, s, s); the axes are the visual's own, so a (0.6, 0.3, 1) plate is an oval, not a stretched square.
+     */
+    public fun updateScale(handle: VisualHandle, scale: Vec3)
 
     public fun updateLine(handle: VisualHandle, from: Vec3, to: Vec3)
 

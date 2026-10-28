@@ -96,7 +96,8 @@ public data class TrackKey(
     val tick: Int,
     val offset: Value<com.astarworks.astera.core.domain.geometry.Vec3>?,
     val rotation: Value<com.astarworks.astera.core.domain.geometry.Vec3>?,
-    val scale: Value<Double>?,
+    /** Per-axis scale factor on the visual's authored size: a mesh scales x/y/z, a plate x = width and y = height (z ignored). A bare number in YAML is the uniform shorthand. */
+    val scale: Value<com.astarworks.astera.core.domain.geometry.Vec3>?,
     /** `linear` (default), `ease_in`, `ease_out`, `ease_in_out`: easing of the segment ENDING at this key. */
     val ease: String?,
 )
