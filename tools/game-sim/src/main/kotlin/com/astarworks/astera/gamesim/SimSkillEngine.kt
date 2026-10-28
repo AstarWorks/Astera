@@ -198,6 +198,7 @@ public class SimSkillEngine private constructor(
                 override fun actionBar(viewer: UUID, text: String) { recording.screens += "actionbar $text" }
                 override fun cameraShake(viewer: UUID, intensity: Double, ticks: Int) { recording.screens += "shake $intensity" }
                 override fun flash(viewer: UUID, overlay: com.astarworks.astera.core.domain.effect.ScreenOverlay, colorRgb: Int, fadeIn: Int, stay: Int, fadeOut: Int) { recording.screens += "flash $overlay" }
+                override fun veil(viewer: UUID, sprite: String, colorRgb: Int, side: Double, distance: Double, ticks: Int) { recording.screens += "veil $sprite" }
                 override fun stopSound(viewer: UUID, sound: String) { recording.screens += "stop_sound $sound" }
             },
             cooldowns = object : ISkillCooldownGateway {
