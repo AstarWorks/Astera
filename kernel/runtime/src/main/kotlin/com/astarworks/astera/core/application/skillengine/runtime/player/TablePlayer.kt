@@ -1517,7 +1517,7 @@ public class TablePlayer(
 
     /** The seed `V3Bindings.seed(castSeed, op, i)` the compiler folds with, and the copy indices of the instance path (innermost first). */
     private fun rowScope(run: Run, row: Row): RowScope {
-        val last = row.instance.path.last()
+        val last = row.instance.path.lastOrNull() ?: return RowScope.cast(run.request.seed)
         val indices = row.instance.path.mapNotNull { it.index }.asReversed()
         return RowScope(V3Bindings.seed(run.request.seed, last.op, last.index ?: 0), run.request.seed, indices)
     }
