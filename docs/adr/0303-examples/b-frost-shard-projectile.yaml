@@ -34,7 +34,7 @@ presentation:
         - {id: t2, op: particle, particle: dust,      anchor: {of: bolt, sweep: 0.3}, count: 2, offset: [0.06, 0.06, 0.06], extra: 0, color: "#ebf5ff", size: 1.4}
         - {id: t3, op: particle, particle: end_rod,   anchor: {of: bolt, sweep: 0.3}, count: 1, offset: [0.02, 0.02, 0.02], extra: 0}
   # gameplay body, shown only for the block field (rest unchanged from skill.yaml):
-  #   - {id: bolt, op: projectile, from: muzzle, velocity: "= look(caster) * 1.6", for: 40, radius: 0.5,
+  #   - {id: bolt, op: projectile, origin: muzzle, velocity: "= look(caster) * 1.6", for: 40, radius: 0.5,
   #      block: {mode: bounce, restitution: 0.6, times: 2}}      # was block_mode/restitution/max_bounces/max_ticks
   "on":
     hit:

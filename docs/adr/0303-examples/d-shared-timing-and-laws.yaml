@@ -21,7 +21,7 @@ presentation:
           billboard: center
           size: [0.2, 0.2]                                       # blocks
           motion:
-            - {law: grow, prop: size, per_tick: [0.01, 0.01], accel: 0.0004, from: 0, for: 30}  # swells, faster and faster
+            - {law: grow, prop: size, per_tick: [0.01, 0.01], accel: 0.0004, at: 0, for: 30}  # swells, faster and faster
             - {law: spin, axis: face, deg_per_tick: 6, accel: 0.4}
 
         # PARTICLE (point kind): repeats every 2 ticks inside the same window. SAME grow / accel words, acting on its own properties.
@@ -35,7 +35,7 @@ presentation:
           extra: 0.02
           motion:
             - {law: grow, prop: count, per_tick: 0.25}                        # thicker each tick (rounded per occurrence)
-            - {law: grow, prop: offset, per_tick: [-0.008, -0.008, -0.008], from: 0, for: 30}   # the spread box tightens: sparks are drawn in
+            - {law: grow, prop: offset, per_tick: [-0.008, -0.008, -0.008], at: 0, for: 30}   # the spread box tightens: sparks are drawn in
             - {law: grow, prop: extra, per_tick: 0.002, accel: 0.0001}                        # and faster
 
         # SOUND (point kind): the same every/for; a rising hum. `accel` on pitch is the same law field as `accel` on spin.
@@ -48,7 +48,7 @@ presentation:
           pitch: 0.6
           motion:
             - {law: grow, prop: pitch, per_tick: 0.01, accel: 0.0005}        # per occurrence: pitch = 0.6 + 0.01*tau + ...
-            - {law: fade,  prop: volume, exponent: 1.0, from: 24, for: 6}      # fades out over the last 6 ticks (1.0 stated, not hidden: 2.0b)
+            - {law: fade,  prop: volume, exponent: 1.0, at: 24, for: 6}      # fades out over the last 6 ticks (1.0 stated, not hidden: 2.0b)
 
         # CEL on the SAME fields: spawn-time expressions on the repeat index, no extra writes (class S). `rand()` is seeded per (cast, op, i).
         - id: ring

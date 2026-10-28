@@ -31,7 +31,7 @@ presentation:
           size: [0.8, 0.8]
           for: 8
           motion:
-            - {law: grow, from: 0, for: 3, per_tick: [0.133, 0.133]}      # 0.4 -> 0.8 (size starts [0.4, 0.4]), then holds
+            - {law: grow, at: 0, for: 3, per_tick: [0.133, 0.133]}      # 0.4 -> 0.8 (size starts [0.4, 0.4]), then holds
           mount: caster
     - id: fx7
       at: 7
@@ -52,10 +52,10 @@ presentation:
           size: [0.2, 0.2]
           for: 5
           motion:
-            - {law: move, velocity: {forward: 1.2}, from: 0, for: 1}            # fast out
-            - {law: move, velocity: {forward: 0.35}, from: 1, for: 4}           # then slows
-            - {law: grow, per_tick: [0.3, 0], from: 0, for: 1}                  # 0.2 -> 0.5 wide
-            - {law: grow, per_tick: [-0.05, -0.02], from: 1, for: 4}            # -> 0.3 x 0.12
+            - {law: move, velocity: {forward: 1.2}, at: 0, for: 1}            # fast out
+            - {law: move, velocity: {forward: 0.35}, at: 1, for: 4}           # then slows
+            - {law: grow, per_tick: [0.3, 0], at: 0, for: 1}                  # 0.2 -> 0.5 wide
+            - {law: grow, per_tick: [-0.05, -0.02], at: 1, for: 4}            # -> 0.3 x 0.12
         # crescent core: the irregular one, so keys (named axis `face`)
         - id: core
           op: display
@@ -98,10 +98,10 @@ presentation:
           motion:
             - {law: spin, axis: face, deg_per_tick: 40}                          # v1 data: 309 -> 349 -> 509 is 40 deg/tick
             # [CEL] the same spin if it should ramp: {law: spin, axis: face, deg_per_tick: "= 40 + t * 3"}  (class T, one fitted segment per ~2 deg of error, 3.5)
-            - {law: move, velocity: {forward: 0.2},  from: 0, for: 1}
-            - {law: move, velocity: {forward: 0.41, up: 0.0275}, from: 1, for: 4}
-            - {law: grow, per_tick: [0.44, 0.29], from: 0, for: 1}
-            - {law: grow, per_tick: [-0.055, -0.06], from: 1, for: 4}
+            - {law: move, velocity: {forward: 0.2},  at: 0, for: 1}
+            - {law: move, velocity: {forward: 0.41, up: 0.0275}, at: 1, for: 4}
+            - {law: grow, per_tick: [0.44, 0.29], at: 0, for: 1}
+            - {law: grow, per_tick: [-0.055, -0.06], at: 1, for: 4}
         # [REPEAT] the particle emit loop is NOT a separate timeline entry any more: it is the same timing block on the op (was sp_loop: at 7, every 1, 7 ticks).
         # `count` is a [CEL] on the repeat index: it thickens, then thins (class S, no per-tick writes; particles are fire-and-forget).
         - {id: sp, op: particle, particle: end_rod, anchor: slash, offset: {forward: "= 0.4 * i"}, count: "= 3 + i", extra: 0.02, at: 7, every: 1, for: 7}

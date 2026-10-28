@@ -31,7 +31,7 @@ machine:
           billboard: center
           size: [0.8, 0.8]
           for: "= window"
-          motion: [{law: spin, axis: face, deg_per_tick: 12}, {law: fade, exponent: 1.0, from: 20, for: 10}]
+          motion: [{law: spin, axis: face, deg_per_tick: 12}, {law: fade, exponent: 1.0, at: 20, for: 10}]
       on:
         - {event: hurt, when: "= dist(caster, event.attacker) <= range", to: riposte, do: [{emit: parried}]}
     riposte:

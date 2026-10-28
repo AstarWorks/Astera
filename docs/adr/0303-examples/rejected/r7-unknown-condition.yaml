@@ -1,0 +1,17 @@
+# error: SkillDecodeError.UnknownCondition   (3.8: `when: cond:<name>` must name a declared condition)
+apiVersion: astera/v3
+kind: Skill
+id: rejected-r7
+item: couture-rapier
+meta: {cooldown_ticks: 10, resource_cost: 0}
+conditions:
+  grounded: "= caster.on_ground"
+machine:
+  start: s
+  states:
+    s:
+      for: 10
+      then: end
+      do:
+        - {id: hit, op: hit, at: 2, when: cond:nope, shape: {sector: {deg: 30, range: 3}}, damage: 8}
+    end: {final: true}

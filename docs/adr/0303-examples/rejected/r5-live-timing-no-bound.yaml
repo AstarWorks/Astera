@@ -1,0 +1,13 @@
+# error: SkillDecodeError.RuntimeTiming   (11 / 11.4 check 9: an L-class timing value without `bound: [lo, hi]`)
+apiVersion: astera/v3
+kind: Skill
+id: rejected-r5
+item: couture-rapier
+meta: {cooldown_ticks: 10, resource_cost: 0}
+machine:
+  start: s
+  states:
+    s:
+      for: {expr: "= dist(caster, target) / 0.8"}      # legal only as {expr, bound: [2, 20]}
+      then: end
+    end: {final: true}

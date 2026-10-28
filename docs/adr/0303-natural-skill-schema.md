@@ -11,7 +11,12 @@ superseded_by: null
 
 ## Status
 
-Proposed. Board SKL-16. Design only; no engine code changes in this task.
+Proposed. Board SKL-16 (rev1-3), SKL-20 (rev4). Design only; no engine code changes in this task.
+
+**rev4 (2026-10-29, Fable, SKL-20)**: adds the **precompute contract** (section C, the centre of this ADR), generic nesting of timing groups
+(2.0), the rewritten projectile op (3.6), named conditions (3.8), `lock` and `cancel` (10.6), the expansion dump format and static checks
+9-12 (11.3, 11.4), the acceptance suite A1-A9 (12) and example j. Resolves every open spelling: the law window starts at `at` (never
+`from`), `then_event` is gone, `bound:` has one form. The converter (6) is retired; migration is hand-written v3.
 
 **Partially supersedes [[adr/0301-skill-engine-v2-frame-tree]]** (0301's body is not edited). Map:
 
@@ -40,6 +45,33 @@ origin); no more superficial patches.
 
 Principle: **an author-visible field is either a vanilla argument 1:1, or a rate/law over named axes. Everything else is a load-time macro
 that EXPANDS into those and is printed by the lint/preview output (`astera skill expand <id>`).** No constant hides in code.
+**Compile produces a deterministic expansion table; the runtime only plays it** (section C, the contract every other section serves).
+
+### C. Contract: compile = expansion table, runtime = player
+
+Founder 2026-10-29: 「きちんとコンパイルしたらなんというか予想がつくような形、事前計算可能な状態であってほしい」「ランダム tick 後みたいなスケジュールとして
+ランタイム依存にしたくない」「MythicMobs みたいな 1 tick 後、何 tick 間何 tick ごとに、その中に球を飛ばす・回転する・パーティクル」. This section is the
+binding form of those three sentences. Every later section (timing 2.0, laws 3, projectile 3.6, parts 9, machine 10, expansion 11, suite 12) is a
+consequence of it; where a later sentence contradicts this section, this section wins.
+
+| clause | rule |
+|---|---|
+| **C1 Compile** | `YAML -> SkillDef -> ExpansionTable` happens entirely at load. The table is a pure function of (the YAML, the parts it calls, the item frames, `server config`). It is dumped by `astera skill expand <id>` (format 11.3) and is byte-identical across loads, hosts and runs. |
+| **C2 Static part** | The static part of the table lists, per state, **every tick** on which anything happens, and for each: the spawns (frame, display, ribbon, particle burst, sound, projectile body, part instance), the transform keys sent (segment boundaries of section 4, with the full payload), the hit windows (shape, frames, ticks), the gameplay effects, the sub-skill / part calls, and the ends (which instance is removed). An entry is `(state, tick, op id, occurrence i, action)`. |
+| **C3 Event-relative sub-tables** | Everything that happens after an event (`hit`, `bounce`, `end`, `hurt`, `input.*`, `<call>.<event>`, `emit:`) is a **sub-table relative to that event's tick**, computed at compile time exactly like the static part, with its own ticks starting at 0. The runtime only pastes it at `event tick + offset`. Nesting is unbounded in depth but statically finite (C6). |
+| **C4 What may depend on runtime** | Exactly four things, and nothing else: (a) **who** is hit / targeted (the victim set, the contact entity); (b) **which** events fire, and at which tick inside their statically bounded window (a bounce at tick 7 or 9; a hurt at 0..8 of the parry window); (c) **positions**: target, contact point and normal, the caster's live pose, follow-mode anchors (class L, 3.5), each used only as a VALUE in a precomputed row; (d) **chance outcomes** of `rand()` and `chance:` fields, drawn from the seeded stream (3.5), which the table shows for the sample seed and lists as a distribution otherwise. All four change only VALUES inside rows that already exist in the table, never which rows exist or when they play. |
+| **C5 Timing is never runtime** | Every `at`, `for`, `every`, `times`, `until`-window, `lasts`, law window, part `for`, state `for`, transition `after` is resolved at compile time to integers (or to a declared `bound: [lo, hi]` for class L, 11). A timing field that references `rand()`, a live value without `bound`, or `t`/`lt` is a **load error** (check 9). "Random delay" is written as a compile-time value chosen from the seeded stream in a non-timing field (for example `turn: {deg: "= rand() * 360"}`), never as a time. There is no `wait_random`, no runtime `schedule` with a computed delay, no tick-rate adaptation. |
+| **C6 Bounded by construction** | Compile proves and prints: the maximum number of **instances** of every op (product of all enclosing `times` / `floor(for/every)`, part call count, bounce `times`), the maximum number of **live displays** at any tick (check 10, server cap `max_live_displays`), the maximum **repeat depth** and that no repeat is unbounded (check 11), and the min / max **path length** (11). A skill that cannot be bounded does not load; the runtime never has to defend against runaway content. |
+| **C7 Runtime = player** | The runtime holds, per cast: the current state per machine level, the entry tick of each, the set of live instance handles, the seeded stream position, and the event queue. Each tick it looks up `table[state][tick - entry]` and performs the listed actions in table order; on an event it selects the sub-table and starts a cursor on it. It evaluates no timing, chooses no schedule, and allocates nothing except instance handles. Gateways (`ISkillVisualGateway`, `ISkillParticleGateway`, `ISkillSoundGateway`, `ISkillGameplayGateway`) receive exactly the payloads in the table with L values filled in. |
+| **C8 Replay equality** | For the same (skill, seed, event sequence with ticks, L values), two plays produce identical gateway call sequences (the game-sim asserts this, A2/A9). The dump of 11.3 is what the game-sim diffs against; a difference between the dump and the actual calls is an engine bug, never "content". |
+| **C9 Ops are rows, not code** | Gameplay ops, presentation ops, parts and machines all **lower into the same table type** (skeleton: `ExpansionTable`, `Row`, `SubTable`). A new op is a decoder (one file) plus a lowering function that emits rows; it never adds a runtime scheduler. Parts are inlined at compile (9); machines contribute state keys and sub-tables (10); laws contribute segment keys (3, 4). |
+
+**Chance** (C4d): `damage {chance: 0.3}` / `rand()` are OUTCOME randomness: the row "damage at tick 8" exists unconditionally; whether it applies is drawn
+at that tick from the seeded stream. This is allowed. `at: "= rand() * 10"` is TIMING randomness and is a load error (C5). The rule of thumb for an
+author: a random number may change what a row does, never whether a row is in the table or when it plays.
+
+**Cancel** (C4b, 10.6): `cancel` is an event; its sub-table (the exit actions of every state being left, depth first) is compiled like any other.
+Cancelling therefore never produces a tick that is not in a table.
 
 ### 0. Conventions, stated once (RC7)
 
@@ -112,7 +144,7 @@ A frame has no appearance. It is an origin + a quaternion that things ride on.
   part: blade_a                 # content/frames/couture-rapier.yaml: gives blade[i].root, .tip, .long, .edge
   turn: [{axis: long, deg: "= i * 120"}]
   for: 40
-  motion: [{law: move, velocity: {forward: 1.0}, speed: 7.0, from: 4, for: 7, ease: out_cubic}]
+  motion: [{law: move, velocity: {forward: 1.0}, speed: 7.0, at: 4, for: 7, ease: out_cubic}]
 ```
 
 Gameplay frames stay in `frames:` (hit volumes need them). A gameplay frame moved only by closed-form laws (`fly` without drag/gravity,
@@ -132,17 +164,50 @@ gameplay ops (`hit`, `damage`, `status`, `impulse`, `knockback`, `projectile`). 
 | `at` | start: a tick (since cast start, or since the event inside a handler) or an event, with optional offset: `at: 8`, `at: release`, `at: "release+2"`. Inherited from the enclosing timeline group, overridable per op. |
 | `for` | duration in ticks of the op's window; `for: cast` = until the cast ends. **Extended kinds** (display, ribbon) without `every`: the instance lives `for` ticks. **Point kinds** (particle, sound, hit, damage) with `every`: the window in which they repeat. |
 | `every` | repeat period in ticks: occurrences at `at + k * every` (exact multiples, k = 0, 1, ...) inside the window. Absent = one occurrence. May be a range with an `ease` (3.7.1): `every: {from, to, ease}`, fire ticks computed statically. |
-| `times` | maximum number of occurrences (with `every`). |
+| `times` | maximum number of occurrences (with `every`); on a non-repeating op, `times: N` = N simultaneous instances (an indexed family, 1.1). |
 | `until` | an event; ends the window (and every live instance of an extended kind) the first time it fires. |
 | `lasts` | extended kinds WITH `every` only: how long each occurrence lives. Required there (no hidden default), so repeats cannot pile up. |
 
+The shipped grammar (`load/grammar/Timing.kt`, `TimingSpec`) enforces the field relations and is the SSOT: `every` needs one of `for` / `times` / `until`;
+`times` needs `every` (or is a family on a point op); `lasts` needs `every` and is only legal on an extended kind, where `every` REQUIRES it.
+
 - Repeat index `i` (0-based) and occurrence count `n` (`times`, else `floor(for / every)`, else -1 for `until`-bounded) are CEL variables (3.5).
 - A repeat with no bound (`every` without one of `for`, `times`, `until`) is a load error.
-- A timeline group `{at, every, for, times, until, do: [...]}` is only shorthand: its block is the default of every op in `do`, and an op's own field
-  overrides it field by field.
 - Examples of the same grammar on different kinds: sound `{at: 4, every: 4, until: release}`; particle `{at: 7, every: 1, for: 7}`; display
   `{at: 7, for: 5}`; trail ribbon `{at: 4, until: release}`; multi-hit `{op: hit, at: 8, every: 2, times: 3}`; damage over time
   `{op: damage, at: 0, every: 10, for: 60}`. Each occurrence of a gameplay op sees its own `i`.
+
+#### 2.0a Timing groups nest: any op under any group, any depth (T9, C1)
+
+A **timing group** is `{id, at, every, for, times, until, lasts, do: [...]}`. It is an op like any other (`op: group` is implied by `do:`), so
+it may appear wherever an op may (a state's `enter`/`do`/`exit`, a transition `do`, a projectile `on:` handler, a part body) and its `do` list may
+contain any op **or another group**, to any depth (static limit `max_group_depth`, server config, default 8). This is the MythicMobs
+"after 1 tick, every 5 ticks for 20 ticks, do: [shoot, spin, particles]" form, and it is the only way to write it.
+
+| rule | meaning |
+|---|---|
+| Occurrence | a group fires at `at + k * every` for `k` in its bound (2.0); each firing is an **occurrence** and runs its whole `do` list with the clock reset: inside, `at: 0` is the occurrence tick. |
+| Inheritance | NONE, except the occurrence end. A group's block is **not** the default of its children (rev4 reverses rev3's "shorthand" rule, which made `every` ambiguous when both levels had one). A child op's own timing is RELATIVE to the occurrence and must be written on the child if it is not the identity (`at: 0`, one firing). `lasts` on the group is the end of the OCCURRENCE: every child without a tighter end of its own is removed at `occurrence + lasts`, and this is the one thing a child takes from its group. `lasts` is REQUIRED when the group has `every` and any extended child (`display`, `ribbon`, nested group with one) has no `for` / `until` of its own (rule 5 applied to groups); it is a load error on a group without `every`. |
+| `i` / `n` | per group level. Inside a group's `do`, `i` and `n` are the group's occurrence index and count; the enclosing group's are `parent.i` / `parent.n`, then `parent.parent.i` (depth is static, so the chain is checked at load). An op with its own `every` inside a group sees its OWN `i`, and the group's as `parent.i`. |
+| `t` | inside an occurrence, `t` is ticks since that occurrence started; `cast.t` is the cast clock, `state.t` the state clock. |
+| Instances | an instance spawned by an occurrence is owned by that occurrence; it ends at the earliest of its own `for`/`until`, the group's `lasts`, the group's `until`, and the owning state's exit (5). Ids inside a group are `<group id>[<i>]/<op id>` in the table and in `anchor:` references from siblings of the same occurrence (`anchor: ball` inside the occurrence resolves to this occurrence's `ball`). |
+| Events | an event raised inside an occurrence (`emit`, a projectile `hit`) is scoped: a handler in the same occurrence sees it first (`on:` on the projectile), then it bubbles to the state (10.2) as `<group id>.<event>` with `event.i` = the occurrence index. |
+| Bound | the instance count of every op is the product of the bounds of all enclosing groups and its own (C6); printed per op in the table. |
+| Expansion | compile unrolls every group occurrence into static rows (11); nothing of the group survives to the runtime except the ids. |
+
+```yaml
+- id: volley                      # at tick 1, every 5 ticks, 4 occurrences (ticks 1, 6, 11, 16)
+  at: 1
+  every: 5
+  for: 20
+  lasts: 40                       # each occurrence's children are gone 40 ticks after it
+  do:
+    - {id: ball, op: projectile, ...}                    # this occurrence's ball; `i` = 0..3
+    - {id: trail, op: particle, anchor: ball, every: 1, until: ball.end, ...}   # rides this occurrence's ball
+    - {id: puff, op: particle, at: 2, every: 1, times: 3, count: "= 2 + parent.i"}  # own i = 0..2, group's as parent.i
+```
+
+Example j (7) is the full form with its expansion table.
 
 #### 2.0b No hidden defaults
 
@@ -239,8 +304,9 @@ The vanilla order is `T * L * S * R`: `translation` is NOT rotated by `left_rota
 
 Motion is a list on the object (`motion:`) or on an anchor (`motion:` in `anchors`, presentation anchors only). Laws are composable.
 
-Every law has its own window: `from` (ticks since the instance started, default 0), `for` (ticks; or `until: <event>`; default to the end of the
-instance), and `ease` (`linear` default, names and total-vs-rate semantics in 3.7). A law is an ordinary part of the timing grammar (2.0): same words, same meaning, relative to the instance. Axes are named (3.1) and RESOLVED ONCE at law start, then frozen in the parent basis (a spinning object does not wobble).
+Every law has its own window: `at` (ticks since the instance started, identity default 0; the spelling `from` is a load error, rev4: `from` is
+reserved for RANGES such as `speed: {from, to}` and for the projectile origin), `for` (ticks; or `until: <event>`; default to the end of the
+instance), `every` + `times` (a law that restarts: `spin ... every: 10, times: 3` is three windows), and `ease` (`linear` default, names and total-vs-rate semantics in 3.7). A law is an ordinary part of the timing grammar (2.0): same words, same meaning, relative to the instance. Axes are named (3.1) and RESOLVED ONCE at law start, then frozen in the parent basis (a spinning object does not wobble).
 Closed-form: all laws are evaluated as functions of `tau = ticks since law start`, never integrated tick by tick.
 
 | law | fields | meaning |
@@ -304,7 +370,7 @@ A law acts on a **property**, named by `prop`. Defaults per kind are in the tabl
 | `align` / `stretch` | orientation / length | direction vector | n/a |
 
 Composition: laws on the same property add their contributions (rates add; rotations compose per 3.2), each only inside its own
-`from`/`for` window; a `to:` target blends from the value at window start. Examples: `{law: grow, prop: count, per_tick: 0.5}` (an emit that thickens),
+`at`/`for` window; a `to:` target blends from the value at window start. Examples: `{law: grow, prop: count, per_tick: 0.5}` (an emit that thickens),
 `{law: grow, prop: pitch, per_tick: 0.02, accel: 0.001}` (a rising sound), `{law: move, prop: position, velocity: {forward: 0.3}}` (an emitter that drifts),
 `{law: spin, prop: offset, axis: up, deg_per_tick: 12}` (a count-0 particle burst whose direction turns).
 
@@ -347,25 +413,42 @@ Fields of class S never cost anything.
 
 #### 3.6 Gameplay uses the same grammar: projectile block mode
 
-`projectile` takes the timing block (`for` replaces `max_ticks`) and a `block` field (replaces `block_mode`, `stick_ticks`, `restitution`, `max_bounces`
-from `wp/se-grammar` `e5aedb5b0`); `mode` is required, the other fields are required for their mode:
+`projectile` takes the timing block (`for` replaces `max_ticks`), spawns a gameplay FRAME (its body, 1.1) and carries its handlers inline. Every
+field below is required unless marked identity; no field has a hidden default (`SpawnOps.kt`'s `maxBounces = 3` and friends are deleted).
 
 ```yaml
-- {id: bolt, op: projectile, body: bolt, from: muzzle, velocity: "= look(caster) * launch_speed", for: "${max_lifetime_ticks}", radius: 0.5,
-   block: {mode: bounce, restitution: 0.6, times: 3}}      # times = max_bounces
-#  block: {mode: stick, for: 28}          # for = stick_ticks: stays stuck 28 ticks, then `unstick`
-#  block: {mode: despawn}                 # ends at the block; `pass` flies through
+- id: ball
+  op: projectile
+  origin: muzzle                       # anchor the body starts at (rev4: `origin`, was `from`; `from` is only for ranges)
+  velocity: "= forward * 1.0"          # direction, blocks/tick at launch; CEL class S
+  speed: {from: 0.6, to: 1.2, for: 10, ease: in_quad}   # optional ramp (3.7.1); a plain number is a constant speed
+  range: 12                            # blocks of travel after which `end` fires (or `for: N` ticks; at least one of range / for)
+  radius: 0.5                          # hit capsule radius
+  hit: {targets: enemies, once: true}  # once: the first victim ends the flight (`end` follows `hit`); false = pierce, max `times`
+  motion:                              # laws on the body frame, same grammar as 3 (spin about forward = a spinning ball, C7)
+    - {law: spin, axis: forward, deg_per_tick: 36, for: 20}
+  block: {mode: bounce, restitution: 0.6, times: 3}    # mode required; other fields required per mode
+  on:                                  # event-relative sub-tables (C3); each list is a `do` list, timing relative to the event
+    hit:    [{use: skill:fire-splash, with: {power: 2, at_frame: contact}, frames: {origin: contact}}]
+    bounce: [{op: sound, anchor: contact, sound: block.stone.hit, pitch: "= 1.0 + 0.1 * event.i"}]
+    end:    [{use: skill:dust-puff, frames: {origin: ball}}]
 ```
 
-| `mode` | other fields | events (usable as `at` / `until`) |
-|---|---|---|
-| `despawn` | none | `end` |
-| `stick` | `for` (ticks stuck) | `stick`, `unstick`, `end` |
-| `bounce` | `restitution` (required, 1.0 = elastic), `times` (required, max bounces) | `bounce` (with `i`), `end` |
-| `pass` | none | none |
+| field | meaning |
+|---|---|
+| `origin` | the anchor whose origin and basis the body is spawned with (`muzzle`, `caster.eye`, `contact`, a frame id). |
+| `velocity`, `speed` | direction and speed. `speed: {from, to, for, ease}` is the ramp of 3.7.1 (T-class, exact path at compile). `gravity`, `drag` as `move` (3). |
+| `range` / `for` | end of flight by distance or ticks; both allowed, the earlier wins. One is required (5). The `end` tick is listed in the table as a bounded window `[min, max]` (speed ramp and bounces make it a range). |
+| `radius`, `hit` | the hit capsule and victim rule. `hit.targets`: `enemies` / `allies` / `all` / `blocks_only`; `hit.once`; `hit.times` (pierce count, required when `once: false`). |
+| `motion` | laws on the body frame (3). `spin` here is a frozen-axis rotation of the body basis; displays `anchor: ball` ride it (one segment write for a constant spin). `align: {axis: forward, to: velocity}` keeps the nose on the path through bounces (one write per bounce). |
+| `block` | `mode` required: `despawn` (events `end`), `stick` (`for` ticks stuck; events `stick`, `unstick`, `end`), `bounce` (`restitution` required, `times` required = max bounces; events `bounce` with `event.i`, `end` after the last or at `range`/`for`), `pass` (no block events; `range`/`for` end it). |
+| `on` | handlers keyed by event: `hit`, `bounce`, `stick`, `unstick`, `block` (any block contact, before the mode's own event), `end`. Each value is a `do` list; `at: 0` = the event tick; `contact`, `target` / `event.victim`, `event.i` are bound inside. `end` fires exactly once per body, after every other event, also on cancel. A handler list may hold groups, displays, `use:` parts, `use: skill:` calls and gameplay ops; it is compiled to a sub-table (C3). |
+| trail (C5) | there is **no `onTick` op**. A trail is a rider: `{op: particle, anchor: ball, every: 1, until: ball.end}` or a `ribbon` on the body frame. It is a static row set, the body position is its only L value. |
+| `frame` | optional: drive an already spawned frame (1.1) instead of creating one (`times: N` on the projectile makes N bodies `ball[i]`). |
 
-Displays anchored on `bolt` end with `until: end` (or `until: unstick` for a stuck prop) and follow the gameplay frame through the bounce; the
-bounce is a gameplay `move` reflection, the display needs no extra law.
+Displays anchored on the body end with `until: ball.end` (or `until: ball.unstick` for a stuck prop) and follow it through the bounce; the bounce is a
+reflection of the body's `move` law, the display needs no extra law. The `end` sub-table is pasted at the actual end tick, which is runtime
+(C4b) but inside the printed `[min, max]`.
 
 #### 3.7 Easing: how anything advances over a window
 
@@ -436,6 +519,25 @@ interpolates LINEARLY within `interpolation_duration`, so the curve is reproduce
 **Particles and sounds** (fire-and-forget, 3.4): the law is sampled at each occurrence's `lt`; an eased `count`/`offset`/`extra`/`volume`/`pitch` changes the sampled value per
 occurrence and needs no segments; the occurrence train IS the sampling.
 
+#### 3.8 Named conditions (L1)
+
+A skill or part declares pure CEL predicates once under `conditions:` and references them by name, so a guard used by five transitions and three
+`when:` fields is written once and typed once.
+
+```yaml
+conditions:
+  grounded:   "= caster.on_ground"
+  in_range:   "= dist(caster, target) < ${range}"
+  low_health: "= caster.health_ratio < 0.35"
+```
+
+| rule | meaning |
+|---|---|
+| Reference | `when: cond:in_range` on any op, transition or handler (the string form, the same spelling family as `use: skill:<id>`); in a CEL expression as `cond.in_range` (so `when: "= cond.grounded && !cond.low_health"`). |
+| Scope | a skill's conditions are visible in its machine and in the parts it calls only through `with:` (a part sees nothing of its caller, 9); a part declares its own. An unknown `cond:` name is a load error. |
+| Class | a condition's class (S/T/L, 3.5) is derived from its body; a condition on a **timing** field is illegal like any expression (C5); on a transition guard it is evaluated at the event tick (C4b). |
+| Expansion | the table prints each guard by name and, for S-class, its value under the sample inputs. |
+
 ### 4. Sending to the client (RC1)
 
 Per object the engine keeps the last sent state and sends **segments**. One send is ONE entity-metadata write containing, together,
@@ -447,7 +549,7 @@ previous segment ended at `s` exactly; no "sample at tick+1" compensation exists
 Re-send happens only at:
 
 1. spawn: state(0) is written at creation with duration 0 (hidden until the first segment, no pop); the first segment is sent on the NEXT tick;
-2. a law/key boundary: law `from`/`until`, a key time, an eased sub-segment boundary;
+2. a law/key boundary: law `at`/`until`, a key time, an eased sub-segment boundary;
 3. an error-budget boundary inside a law: gravity/drag arcs, pivot-offset arcs, `orbit` (budget 0.03 blocks / 2 degrees; at most 59 ticks per segment,
    the teleport_duration limit);
 4. the law set changing: event, `reparent`, parameter change, `remove`;
@@ -481,7 +583,13 @@ for: cast                    # explicit: until the cast ends (cancel, death, dis
   tick 162 while the v1 elements live 71-99 ticks); `orrery-s2` orb/impact/glint (plates `impact_violet_flash`, `impact_long_violet_flash`, annulus
   removed only by event handlers that fire on hit; staff trails, emitter light removed at fixed ticks).
 
-### 6. Converter strategy (`tools/skill-convert`)
+### 6. Converter strategy (`tools/skill-convert`) - RETIRED in rev4
+
+Founder 2026-10-29 (memory `project_skill_engine_v3_decisions`): the converter is retired; the kept Limbus skills (`bastion-greatsword-*` x4,
+`couture-rapier-*` x5) and every basic skill are **hand-written in v3**, one migration package each (work-breakdown wave 2). The rules below are
+kept as the reading guide for v1 tracks (what a run of keys means as a law) and as the spec of what the hand migration must preserve
+(R6 gravity, R8 explicit `linear`, R10 particle 1:1, R12 explicit non-defaults). `tools/skill-convert` is deleted with the v2 purge; `expand`
+moves to `astera skill expand` (11.3).
 
 Input v1 vfx element tracks: per-key `offset`, `rotation` (Euler yaw/pitch/roll in the v1/0301 convention `Ry(-yaw) Rx(pitch) Rz(roll)`), `scale`.
 Output laws first, keys last.
@@ -491,7 +599,7 @@ Output laws first, keys last.
 | R1 | Unwrap each Euler channel (309, 349, 509 are continuous), convert keys to quaternions, then process per channel (rotation, offset, scale) independently. |
 | R2 | Per consecutive key pair compute the segment. **Two keys are a single segment = one constant-rate law by definition.** |
 | R3 | Adjacent segments merge when rate is within 1% (or 0.5 deg/tick; 0.005 blocks/tick) and, for rotation, the axis is within 1 degree. |
-| R4 | Rotation run -> `spin {axis, deg_per_tick, from, ticks}`; offset run -> `move {velocity, from, ticks}`; scale run -> `grow {per_tick, from, ticks}`. Non-zero starting values become the object's static `rotate`/`offset`/`size`. |
+| R4 | Rotation run -> `spin {axis, deg_per_tick, at, for}`; offset run -> `move {velocity, at, for}`; scale run -> `grow {per_tick, at, for}`. Non-zero starting values become the object's static `rotate`/`offset`/`size`. |
 | R5 | Axis snapping: a rotation axis within 5 degrees of an object/anchor axis uses that name (sprite roll is `face`); otherwise `{in: <anchor>, vec: {...}}`. |
 | R6 | A run of constant second difference in the world-up direction -> `move` with `gravity`; otherwise not merged. |
 | R7 | Everything that remains -> `keys` with named-axis `pose` lists (rotation as one `{axis, deg}` from rest, snapped by R5) and name-keyed offsets. Never Euler triples. |
@@ -523,8 +631,17 @@ Full examples are in `docs/adr/0303-examples/`:
 - (f) [f-shoot-with-bounce-and-explosion-parts.yaml](0303-examples/f-shoot-with-bounce-and-explosion-parts.yaml): a shoot skill calling `projectile` (block mode `bounce`) and `explosion` on contact.
 - (g) [g-couture-rapier-s2-states.yaml](0303-examples/g-couture-rapier-s2-states.yaml): the S2 coin sequence as states.
 - (d) [d-shared-timing-and-laws.yaml](0303-examples/d-shared-timing-and-laws.yaml): a sound, a particle and a display sharing one timing block and one law set.
+- (j) [j-mythic-composition.yaml](0303-examples/j-mythic-composition.yaml): the MythicMobs composition (founder requirement 4): at tick 1, every
+  5 ticks for 20, fire a spinning ball 12 blocks with a trail, `on: hit` and `on: end` sub-skills with params; the full static table and the
+  event-relative sub-tables are in its comments.
+- `rejected/` : documents that MUST fail to load, one named error each (A8): `r1-state-overrun.yaml` (a state's `for` shorter than its owned hit
+  train), `r2-random-timing.yaml` (`rand()` in `at`), `r3-unbounded-repeat.yaml` (`every` without a bound), `r4-law-from.yaml` (law window spelt `from`),
+  `r5-live-timing-no-bound.yaml` (L-class `for` without `bound`), `r6-hidden-default.yaml` (projectile `block: {mode: bounce}` without `times`),
+  `r7-unknown-condition.yaml` (`when: cond:nope`), `r8-group-every-no-lasts.yaml` (repeating group with a display child and no `lasts`).
 
-Sizes in the examples are illustrative: the converter computes them from the sprite files; shapes, rates and timings are taken from the current files.
+Sizes in the examples are illustrative (the sprite files decide them); shapes, rates and timings are taken from the current v1 files. **Every
+example under `0303-examples/*.yaml` loads, expands and plays exactly to the table in its comments (A1, A2); every `rejected/*.yaml` fails with
+the error named in its first comment line (A8).** An example that stops loading is a failing test, not a stale doc.
 
 ### 8. Old field -> new field -> vanilla argument
 
@@ -550,13 +667,16 @@ Sizes in the examples are illustrative: the converter computes them from the spr
 | `size_frac` (x parent frame distance), glyph x5 | `size` in blocks | `scale` |
 | timeline group `every` loops, separate `sound every`, `emit spacing` loops, `at` + `until` scattered | the one timing block `at / for / every / times / until / lasts` on every op | n/a |
 | `fade` default 1.0 (v1 `fade_power` 1.5) | `fade.exponent` identity 1.0, converter writes 1.5 explicitly | n/a |
-| `projectile {block_mode, stick_ticks, restitution, max_bounces, max_ticks}` | `projectile {for, block: {mode, for, restitution, times}}` | n/a (gameplay) |
+| `projectile {block_mode, stick_ticks, restitution, max_bounces, max_ticks, from}` | `projectile {origin, velocity, speed, range/for, radius, hit, motion, block: {mode, for, restitution, times}, on: {hit, bounce, stick, unstick, block, end}}` (3.6) | n/a (gameplay) |
+| `loop {count, every_ticks, do}`, `delay {after, do}`, `schedule`, timeline group as default block | nested timing group `{at, every, for, times, until, lasts, do}` with per-level `i`/`n`, `parent.i` (2.0a) | n/a |
+| `cancel` / `finishNow` from code, `lock`/`unlock` movement ops | `cancel {scope}` and `lock {move, pitch, for}` ops (10.6) | n/a |
+| `when:` CEL repeated per site | `conditions: {name: "= ..."}` + `when: cond:<name>` (3.8) | n/a |
 | literal-only numbers | any numeric/vector field accepts `"= CEL"` with `t`, `i`, `n`, `rand()`, axes, `caster/target/contact` | n/a |
 | (new) free `wait`/`seq` sequences | `for N, every M` is primary; `seq:` is sugar that desugars to the same ops, equality asserted by lint | n/a |
 | (new) eased spacing and speed ramps | `every: {from, to, ease}`, `projectile speed: {from, to, for, ease}`, `move ease`; fire ticks listed in the expansion table | n/a |
 | `frames: [{id, kind, parent, model, part}]` (static, one per name) | `op: frame {id, times, anchor, part, offset, turn, motion, for}` spawned at runtime, indexed, owned by a state (1.1) | n/a |
 | (new) per-law `ease` names | `ease: linear\|<in_\|out_\|in_out_><shape>\|cubic_bezier(..)\|steps(n)`; ease shapes the accumulated total (3.7) | n/a, sent as linear segments within the budget |
-| (new) L-expression timing | `bound: [lo, hi]` declared or load error (11) | n/a |
+| (new) L-expression timing | `{expr: "= ...", bound: [lo, hi]}` declared or load error (11); this is the ONLY spelling | n/a |
 | v1 part: `sequence` timeline groups, `window`, `delay`, `schedule`, event handlers (`on: hit/block/expire/reel/arrive`) | states with `for`/`then`, transitions, nested parts | n/a |
 | ad hoc repeated blocks copied between skills (a dash, a guard, a projectile with block handling) | `use: <part>` with typed `with:` and `frames:` binding | n/a |
 | `incoming_hit` window `{ticks, filter}` | state `{for, on: [{event: hurt, when}]}` (10.3) | n/a |
@@ -638,7 +758,7 @@ machine:
 | state | named; has `enter`, `do`, `exit`, `on`, `for`, `then`, optional `final: true`, optional nested `machine:` (sub-automaton) |
 | transition | `{event or timer, when?, to, do?}`; `when` is a pure CEL guard; `do` are the effects run between exit and entry (in order: exit of source, transition `do`, entry of target) |
 | timer | `for: N` + `then:` on a state, or `{after: N, to: ...}` as a transition; `N` may be CEL (class S at state entry) |
-| event | `input.<key>` (use, attack, sneak, swap), `hit` (the caster dealt damage), `hurt` (the caster is struck; was `incoming_hit`), `contact`, `block`, `bounce`, `stick`, `unstick`, `cancel`, `end`, plus any `emits` of a bound part (`<call>.<event>`) and `emit: <name>` ops |
+| event | `input.<key>` (use, attack, sneak, swap), `hit` (the caster dealt damage), `hurt` (the caster is struck; was `incoming_hit`), `contact`, `block`, `bounce`, `stick`, `unstick`, `cancel`, `end`, plus any `emits` of a bound part (`<call>.<event>`), a projectile's events (`<id>.hit`, `<id>.bounce`, `<id>.end`, 3.6), a group's scoped events (`<group>.<event>` with `event.i`, 2.0a) and `emit: <name>` ops. Every event handler body is a compiled sub-table (C3). |
 | entry / exit action | an ordinary op: display, sound, particle, `use`, `damage`, `status`, `impulse`, `resource`, `emit` |
 | owner | every op listed under a state is OWNED by it: displays, ribbons, sounds, parts end when the state is exited (a tighter `for`/`until` of its own may end it earlier). There is no `remove` needed for ownership. A global `world:` list owns things for the whole machine. |
 | final | a state with `final: true`; entering it ends the machine (and emits `end` to the parent) |
@@ -686,7 +806,7 @@ All take the timing block (2.0); their own fields keep the 0301 meaning. `YAML` 
 | `if` / `choose` | sibling transitions with guards in priority order (`on:` list is the choice); the last one without a guard is the else |
 | `until: <event>` | the state's `on: [{event, to: next}]`; the owned ops end on exit |
 | `schedule {after, event}` / `on: reel:` handlers | `{after: N, to: reel}` transition and the `reel` state |
-| `repeat` loops | timing block `every`/`times`/`for` on an op; a loop over states is only legal with a counter guard `when: "= i < n"` or a timer (10.4) |
+| `repeat` / `loop` / `delay` / `schedule` | timing block `every`/`times`/`for` on an op or a nested group (2.0a); a loop over states is only legal with a counter guard `when: "= i < n"` or a timer (10.4) |
 | `op: event name:` | `emit: name` as an effect; the receiver is a transition `on: {event: name}` |
 | `on: {hit, block, expire, bounce, arrive}` | transitions on those events; `arrive` is `end` of the `reel` part |
 
@@ -705,6 +825,43 @@ All take the timing block (2.0); their own fields keep the 0301 meaning. `YAML` 
 
 States do not change the visual grammar: displays use frames + laws + CEL (sections 1-3, 3.5). A state's visuals are written against bound frames
 (`weapon.tip`, `body`), with `t` / `lt` as the clock; the automaton only decides WHEN a display lives and WHICH set is active.
+
+#### 10.6 `lock` and `cancel` (L2, L4)
+
+**`lock`** freezes a caster input for a window. It replaces v2's paired `lock` / `unlock` movement ops (an unlock that is forgotten is a leak; here the
+window ends it, 5).
+
+```yaml
+- {id: plant, op: lock, move: true, pitch: true, at: 0, for: 12}
+```
+
+| field | meaning |
+|---|---|
+| `move` | `true`: the caster cannot walk / jump (velocity zeroed each tick, as v2 `lock`). Identity `false`. |
+| `pitch` | `true`: the caster's look **pitch is held at its value at the op's first tick** for the window (the yaw stays free; the server re-sends the held pitch when the client drifts more than 1 degree, which is the only mechanism Paper offers). Identity `false`. A `pitch` lock makes `caster.eye` an S-class basis for the window (3.5), which is why a thrust whose hit capsule follows `caster.eye` becomes a straight line. |
+| `yaw` | `true`: as `pitch`, for yaw. Identity `false`. |
+| timing | `at` / `for` / `until`; `for` or `until` is required (5). At least one of `move` / `pitch` / `yaw` must be `true` (a no-op lock is a load error). Two locks overlapping on the same field are one lock until the later end. The lock ends early when its owning state exits or the cast is cancelled. |
+
+**`cancel`** ends something early, running its exit actions. Interrupt = an ordinary transition (on `hurt`, `input.*`, a `cond:`) whose target state
+runs `cancel`, so there is no separate interrupt mechanism.
+
+```yaml
+on:
+  - {event: hurt, when: cond:heavy_hit, to: broken}
+states:
+  broken: {enter: [{op: cancel, scope: cast}], final: true}
+```
+
+| `scope` | ends | then |
+|---|---|---|
+| `cast` | the whole cast: every state level, every owned instance (displays, ribbons, frames, parts, projectile bodies it spawned, locks) depth first, innermost first, each running `exit` | emits `cancel` to the cast's listeners (sub-skill callers, the parts' `end`), then `end`; the registry entry is gone the same tick |
+| `state` | the current state of the machine level the op is in: its owned instances and nested machines; the machine then takes the state's `then` (or `on: {event: cancel}` if written, else the state is simply left as by a timer) | `cancel` is offered to the state's `on:` first |
+| `<id>` | one named instance or group occurrence family (`ball`, `volley[2]`, a `use:` call id): it and everything it owns (a projectile's riders, a part's displays); a projectile cancelled this way fires `end` (not `hit`) | the owner continues |
+
+Rules: `cancel` of an id that is not live is a no-op (printed as such in the table when provable). `cancel` never skips `exit` actions (the only way to
+end without exit actions is the server's `max_life_ticks` sweep). Every cancel path is a compiled sub-table (C3): the rows of a cancel are the exit
+actions, in order, at offset 0, then `end` handlers. `remove: [ids]` (5) is the presentation-only early end without exit actions; `cancel` is the
+general one. The static checks treat `cancel {scope: cast}` as reaching a `final` state (10.4 check 2).
 
 ### 11. Static expansion: the timeline is computed at load (compile-time timeline)
 
@@ -734,7 +891,7 @@ state whiff          ticks 0-6
 paths: parry_window->riposte->end = 8+7+... min 7 max 15 | parry_window->whiff->end min 14 max 14
 ```
 
-**Where it appears**: the `expand` CLI and lint output (`tools/skill-convert expand <skill>`), and the skill-compare page (a table beside each skill's video, so the founder can read durations, hits and branches without playing it). It is generated, never hand-written, and a sim scenario asserts it against the engine's actual firing ticks.
+**Where it appears**: the `expand` CLI and lint output (`astera skill expand <id>`, format 11.3), and the skill-compare page (a table beside each skill's video, so the founder can read durations, hits and branches without playing it). It is generated, never hand-written, and a sim scenario asserts it against the engine's actual firing ticks.
 
 **CEL classes (3.5) at expand time**
 
@@ -763,6 +920,62 @@ desugars to produces the same table as the `seq:` itself, tick for tick; a misma
 
 The same table also feeds: the writes lint of 3.5, the min/max path lengths used for cooldown and animation-lock sanity checks (a skill whose
 worst-case path exceeds `max_cast_ticks` fails), and the Board's per-item "durations and hits" evidence.
+
+#### 11.3 The dump: `astera skill expand <id>` (C1, C2)
+
+The dump is the serialised `ExpansionTable` (skeleton `design/skeleton.md`), one text block per machine level, deterministic ordering (state in
+declaration order, tick ascending, op in declaration order, occurrence ascending). Example j's comments ARE this format. Grammar:
+
+```
+skill <id>  seed=<sample seed>  params={...}  bounds: instances=<N> live_displays<=<M> path=[min,max]
+state <name>  for=<n|event-bounded [lo,hi]>  then=<state>  enter-from: <list>
+  @<tick>  <op id>[<i>]  <action> <payload>
+  ...
+  branches: <event>[window lo..hi] -> <state> (guard <cond name or expr>) | timer(<n>) -> <state>
+sub <event path>  (relative to <event>; window [lo,hi] in <state>)          # one block per C3 sub-table, same row grammar
+  @<tick>  ...
+writes: <display id>: <segments> seg, max <w>/tick
+```
+
+Row `<action>` vocabulary (one per gateway call or table transition): `spawn <kind> anchor=<id> pose={...}`, `key <display> dur=<d> T={translation,
+left, scale}`, `teleport <display> dur=<d> pos=<L:anchor>`, `particle <type> count= offset= extra= pos=<L:anchor>`, `sound <id> vol= pitch= pos=`,
+`hit <shape> frames= targets=`, `damage targets=<L:victims> amount=`, `status ...`, `impulse ...`, `lock move=? pitch=?`, `call <part|skill> as <call id> with={...}
+frames={...}`, `emit <event>`, `end <id>`, `cancel <scope>`. An L value is printed as `<L:name bound=[lo,hi]>`; an S/T value is printed evaluated.
+`expand --json` prints the same table as JSON (`ExpansionTableJson`, one object per row with the same fields) for the game-sim diff (A2) and
+the skill-compare page.
+
+#### 11.4 Static checks 9-12 (compile refuses what the runtime could not play, C5 / C6)
+
+9. **No runtime timing**: a timing field (2.0 fields, law windows, state `for`, transition `after`, projectile `range`/`for`, `lasts`) that references
+   `rand()`, `t`/`lt`, or an L-class value without `bound:` is a load error (`SkillDecodeError.RuntimeTiming`).
+10. **Live display cap**: the maximum number of displays alive at one tick on any path (sum over states of owned extended instances x their bounds)
+    must not exceed `max_live_displays` (server config, default 64); the table prints the peak and the tick.
+11. **Bounded instances**: every op's instance bound (product of enclosing group bounds, `times`, part call count, bounce `times`) is finite and at
+    most `max_instances_per_op` (default 256); a group deeper than `max_group_depth` is an error.
+12. **Table closure**: every event named in `until:`, `at: <event>`, `on:` or a transition has a producer in scope (built-in for the kind, a
+    projectile of this cast, a part's `emits`, an `emit:`), and every sub-table is reachable from some event producer; an unreachable sub-table or
+    an unproduced event is an error (sharpens 10.4 check 5 for event-relative sub-tables).
+
+### 12. Acceptance suite A1-A9 (the definition of "the engine implements this ADR")
+
+All tests are game-sim scenarios (`tools/game-sim`, real loaders, real `SkillComposer`, in-memory gateways from `plugin:test-fixtures`) or real-content
+loaders; no unit tests (coding posture). The fixtures are the ADR examples themselves, so the ADR cannot drift from the engine. Each group names
+its class, what it asserts per tick, and the fixture. Migration (wave 2) starts only when A1-A9 are green.
+
+| id | class (`tools/game-sim/src/test/kotlin/.../skillengine/`) | asserts | fixture |
+|---|---|---|---|
+| A1 | `AdrExamplesLoadScenarioTest#everyExampleLoadsAndExpands` | each `docs/adr/0303-examples/*.yaml` decodes with zero errors, lowers to an `ExpansionTable`, the dump is byte-equal to the `# expand:` block in the file's comments, and the dump is stable across two loads | examples a-j |
+| A2 | `AdrExampleBehaviourScenarioTest#<example>PlaysItsTable` (one case per example) | playing the cast in the sim for its max path length produces exactly the gateway call sequence the table lists, tick for tick (spawn, keys, particles, sounds, hits, calls, ends); with a scripted event sequence (hit at tick k, bounce at tick m) the event sub-tables are pasted at those ticks and nowhere else (C3, C8) | examples a-j; scripted events for b, f, g, j |
+| A3 | `TimingBlockScenarioTest` cases: `atForEvery`, `timesCapsOccurrences`, `untilEventEndsWindowAndInstances`, `lastsEndsEachOccurrence`, `nestedGroupsIndexAndParentIndex`, `occurrenceClockIsLocal`, `easedEveryFireTicks`, `familyTimesCreatesIndexedInstances` | per tick: the set of firing op ids and their `i`, `n`, `parent.i` values; instance start/end ticks; the eased `every` fire ticks equal the 3.7.1 formula | example d, j; inline YAML strings in the test for each case |
+| A4 | `CompositionScenarioTest` cases: `partInlinedWithPrefixedIds`, `partSeesOnlyBoundFrames`, `partEmitsCrossBoundary`, `skillCallUngatedByDefault`, `skillCallGateCooldownAndCost`, `withArgsAreTypedAndRequired`, `recursionIsLoadError`, `cancelDepthFirstRunsExits` | the expanded table of the caller contains the part's rows under `<call id>/`; a part referencing a caller frame fails to load; `g.parried` reaches the caller's transition at the event tick; cost/cooldown gateway calls appear only with `gate:`; cancel order of exit actions | examples e, f, j |
+| A5 | `MotionLawsWiredScenarioTest` cases: one per law (`spin`, `move`, `orbit`, `grow`, `fade`, `align`, `follow`, `stretch`, `keys`) plus `lawWindowAtNotFrom`, `overlappingLawsCompose`, `easeShapesTotal`, `segmentBudgetSplits`, `lawOnParticleAndSound` | per segment write: `(tick, duration, translation, left_rotation, scale)` equals the closed form at the segment end; rotation composed outer-to-inner; eased spin total `deg_per_tick * for`; `from` on a law = `SkillDecodeError.UnknownKey`; a particle occurrence train samples the law per occurrence | examples a, d, i; inline YAML |
+| A6 | `ProjectileScenarioTest` cases: `rangeEnds`, `forEnds`, `speedRampPathIsExactIntegral`, `spinAboutForwardOneWrite`, `trailRidesBody`, `bounceHandlerCarriesIndex`, `stickUnstickEvents`, `despawnEnd`, `passNoBlockEvents`, `hitOnceEndsFlight`, `hitPierceTimes`, `onEndSubSkillWithParams`, `onHitSubSkillWithParams`, `endFiresOnCancel`, `blockModeFieldsRequired` | per tick body position (world) against the integrated speed ramp within 0.001; the `end` tick inside the printed `[min, max]`; the `on:` sub-tables pasted at the event tick with `event.i`, `contact`, `target` bound; the called skill receives the `with:` values; a missing `times` on bounce = `MissingField` | examples b, f, j |
+| A7 | `PartMachineWiredScenarioTest` cases: `statesForThenTimer`, `transitionOrderFirstMatch`, `eventBubblesChildToParent`, `preemptionExitsChildrenInnermostFirst`, `parallelRegionsEndWhenAllFinal`, `ownedInstancesEndOnExit`, `lockMovePitchWindow`, `cancelCastEmitsCancelThenEnd`, `cancelStateTakesThen`, `cancelInstanceFiresEnd`, `namedConditionGuard`, `machineLintChecks1to8` | the active state per tick; exit/transition/enter order of actions; display handles removed on exit; the caster pitch gateway holds the value across the lock window; event order cancel -> end; `cond:` guard values at the event tick; each of 10.4 checks 1-8 has a rejected inline YAML | examples e, g; inline YAML |
+| A8 | `StrictDecodeScenarioTest#rejectedExamplesFailWithNamedError` (one case per file) + `noHiddenDefaultsInSchema` | every `0303-examples/rejected/*.yaml` fails with the `SkillDecodeError` subtype named in its first comment line; the generated JSON schema (`Fields.jsonSchema()`) contains no `default` other than identity values listed in 2.0b; unknown keys at any depth are errors | `rejected/r1..r8` |
+| A9 | `ShippedV3ContentScenarioTest#everyShippedSkillLoadsExpandsAndReplays` | every `content/skills/*.yaml` and `content/skill-parts/*.yaml` loads, passes checks 1-12, dumps, and replays byte-equal to its own dump in the sim for the sample seed; the per-skill `expand` dump is stored under `build/skill-expand/` as evidence | real content |
+
+Owner of the suite harness: package W1-20 (work-breakdown); each engine package adds its cases to the named class. A9 is the gate that wave 2
+(hand-written migration) runs under: a migrated skill is "done" when it is in A9 and the founder has judged it on skill-compare.
 
 ## Consequences
 
@@ -803,8 +1016,17 @@ worst-case path exceeds `max_cast_ticks` fails), and the Board's per-item "durat
 
 ## Open decisions (founder)
 
-- **Name collision `at` (resolved in rev3)**: `at` means the timing start tick ONLY; the object's parent anchor is `anchor:` everywhere (anchors, displays, particles, sounds, ribbons, parts' `frames`).
-- **`then_event` and `bound:` spellings** in examples f/g are provisional; the grammar is `on: [{event: <call>.end, to}]` and `bound: [lo, hi]`.
+Resolved (not founder decisions; engine facts, rev3/rev4):
+
+- **Name collision `at` (rev3)**: `at` means the timing start tick ONLY; the object's parent anchor is `anchor:` everywhere (anchors, displays, particles, sounds, ribbons, parts' `frames`).
+- **Law window start is `at`, never `from` (rev4, M6)**: `from` is only a range start (`speed: {from, to}`, `every: {from, to}`); the projectile origin is `origin:`. Examples a/d/e/g/i/b/f/j updated; `from` on a law or projectile is `UnknownKey`.
+- **`then_event` deleted (rev4)**: the only spelling is `on: [{event: <call>.end, to}]` (example f updated). **`bound:`** has one form: `{expr: "= ...", bound: [lo, hi]}`.
+- **Camera / viewer-relative frame is NOT added (rev4, R3)**: a frame that faces a viewer is per-viewer, and one cast has many viewers but ONE
+  table (C1); the client's `billboard` is the only per-viewer facing, and it is a display field, not a frame. Edge-travel wording for swings
+  (`spin` from the `from` edge to the `to` edge about a named axis, memory 2026-10-26) plus the `caster.eye` basis cover every authoring case
+  found in the kept skills. If a case appears that needs it, it is a new ADR, not a field.
+- **Group blocks do not inherit (rev4)**: a timing group's fields are its own occurrence schedule, never its children's defaults (2.0a).
+- **Chance is outcome, never timing (rev4, C4d/C5)**.
 
 1. **Held-item context, RC3.** `fixed` (recommended) vs `thirdperson_righthand`. `content/frames/couture-rapier.yaml` points are measured in the
    `fixed` basis and the three pieces of coin 2 share it; `thirdperson_righthand` (`held_hand` part in the frames file) matches how the real held

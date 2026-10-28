@@ -34,10 +34,10 @@ machine:
           turn: [{axis: long, deg: "= i * 120"}]
           for: 40
           motion:
-            - {law: spin, axis: forward, deg_per_tick: 54, from: 0, for: 4, ease: in_quad}                  # spin up (total 216 degrees, accelerating)
-            - {law: spin, axis: forward, deg_per_tick: 54, from: 4}                                        # then constant 54 degrees/tick
-            - {law: move, velocity: {forward: 1.0}, speed: 7.0, from: 4, for: 7, ease: out_cubic}          # the ORIGIN flies out 7 blocks, decelerating
-            - {law: move, velocity: {forward: -1.0}, speed: 7.0, from: 32, for: 8, ease: in_quad}          # and is reeled back, accelerating
+            - {law: spin, axis: forward, deg_per_tick: 54, at: 0, for: 4, ease: in_quad}                  # spin up (total 216 degrees, accelerating)
+            - {law: spin, axis: forward, deg_per_tick: 54, at: 4}                                        # then constant 54 degrees/tick
+            - {law: move, velocity: {forward: 1.0}, speed: 7.0, at: 4, for: 7, ease: out_cubic}          # the ORIGIN flies out 7 blocks, decelerating
+            - {law: move, velocity: {forward: -1.0}, speed: 7.0, at: 32, for: 8, ease: in_quad}          # and is reeled back, accelerating
       do:
         # riders: one display and one hit capsule per blade frame, bound by `blade[i]` (same `times`)
         - {id: blade_model, op: display, kind: item, item: couture-rapier, part: blade_a, anchor: "blade[i]", times: 3, for: 40}
@@ -50,7 +50,7 @@ machine:
       for: 12
       then: coin3
     coin3:                                      # dash + 10 hits (coin3.yaml); visuals reference dash_hit
-      for: 16
+      for: 20                                   # rev4: was 16 (the overrun is now rejected/r1-state-overrun.yaml)
       then: end
       do:
         - {id: dash, op: dash, at: 9, speed: 1.5, for: 6}
@@ -64,7 +64,5 @@ machine:
 #                  hits: blade_hit @4..10 x7 per blade (x3 blades = 21 firings, window: once per victim); sounds: whirr @4,7,10 x3
 #                  branches: blade_hit[victim] -> stuck | timer(40) -> coin3
 #   stuck  0-12    (entered at 4..10 from throw) FRAMES: none new; blade[i] ended with its owner state `throw`
-#   coin3  0-16    dash @9..15, hit3 @10..19 x10
-#                  INTENTIONAL LINT-ERROR SAMPLE (not a defect): hit3 ends at tick 19 > the state's `for: 16`, so check 8 / 10.4 reports
-#                  "hit3 firing @16..19 lies outside state coin3"; the fix is `for: 20` or `times: 7`. Left as is to show what the expand lint says.
-#   worst-case path: 34 + 4 + 40 + 12(stuck) + 19 = 109 ticks (throw -> stuck -> coin3); best: 34 + 4 + 4(+blade_hit at 4) + 12 + 19 = 73
+#   coin3  0-20    dash @9..15, hit3 @10..19 x10 (last firing 19 < for 20: check 8 passes; the `for: 16` overrun is rejected/r1-state-overrun.yaml)
+#   worst-case path: 34 + 4 + 40 + 12(stuck) + 20 = 110 ticks (throw -> stuck -> coin3); best: 34 + 4 + 4(+blade_hit at 4) + 12 + 20 = 74
