@@ -422,14 +422,16 @@ public class PresentationRuntime(
             s.groups += group
         }
         for (k in 0 until n) {
+            // a delayed copy runs inside tickCast, after `s.tick` advanced: its life counts from the tick it is due, not the tick it runs
+            val spawnTick = s.tick + k * repeat.every
             val run = {
                 ctx.host.withIndex(k, n) {
                     val made = body("$group#$k", if (parent != null) group else null)
                     val life = repeat.life
-                    if (made != null && life != null) made.dieAt = s.tick + life
+                    if (made != null && life != null) made.dieAt = spawnTick + life
                 }
             }
-            if (k * repeat.every <= 0) run() else s.pending += Pending(group, s.tick + k * repeat.every, run)
+            if (k * repeat.every <= 0) run() else s.pending += Pending(group, spawnTick, run)
         }
     }
 
