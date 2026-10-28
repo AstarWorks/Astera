@@ -595,7 +595,7 @@ machine:
                     motion:
                       - {law: move, velocity: {left: 0, up: -0.133333, forward: -0.15}, at: 0, for: 6, ease: out_cubic}
                       - {law: grow, per_tick: {left: -0.093333, up: -0.053333, forward: 0}, at: 0, for: 6, ease: out_cubic}
-                      - {law: fade, start: 1.0, to: -2e-06, at: 0, for: 6, ease: out_cubic}
+                      - {law: fade, at: 0, for: 6, ease: out_cubic}
                   - id: fx3_couture_rapier_cross_dark_1
                     op: display
                     kind: text
@@ -604,15 +604,15 @@ machine:
                     background: "#28201C"
                     anchor: fx3_couture_rapier_cross
                     offset: {left: 0, up: 1.1, forward: 0}
-                    rotate: [{axis: forward, deg: 60}]
                     scale: [0.96, 0.64, 1]
                     billboard: center
                     brightness: {block: 15, sky: 15}
                     for: 7
                     motion:
+                      - {law: spin, axis: forward, deg_per_tick: 10, at: 0, for: 6, ease: out_cubic}
                       - {law: move, velocity: {left: 0, up: -0.083333, forward: -0.05}, at: 0, for: 6, ease: out_cubic}
                       - {law: grow, per_tick: {left: -0.093333, up: -0.053333, forward: 0}, at: 0, for: 6, ease: out_cubic}
-                      - {law: fade, start: 1.0, to: -2e-06, at: 0, for: 6, ease: out_cubic}
+                      - {law: fade, at: 0, for: 6, ease: out_cubic}
                   - id: fx3_couture_rapier_cross_dark_2
                     op: display
                     kind: text
@@ -621,15 +621,15 @@ machine:
                     background: "#28201C"
                     anchor: fx3_couture_rapier_cross
                     offset: {left: 0, up: 1.1, forward: 0}
-                    rotate: [{axis: forward, deg: 120}]
                     scale: [0.96, 0.64, 1]
                     billboard: center
                     brightness: {block: 15, sky: 15}
                     for: 7
                     motion:
+                      - {law: spin, axis: forward, deg_per_tick: 20, at: 0, for: 6, ease: out_cubic}
                       - {law: move, velocity: {left: 0, up: -0.033333, forward: 0.05}, at: 0, for: 6, ease: out_cubic}
                       - {law: grow, per_tick: {left: -0.093333, up: -0.053333, forward: 0}, at: 0, for: 6, ease: out_cubic}
-                      - {law: fade, start: 1.0, to: -2e-06, at: 0, for: 6, ease: out_cubic}
+                      - {law: fade, at: 0, for: 6, ease: out_cubic}
                   - id: fx3_couture_rapier_cross_dark_3
                     op: display
                     kind: text
@@ -638,15 +638,15 @@ machine:
                     background: "#28201C"
                     anchor: fx3_couture_rapier_cross
                     offset: {left: 0, up: 1.1, forward: 0}
-                    rotate: [{axis: forward, deg: 180}]
                     scale: [0.96, 0.64, 1]
                     billboard: center
                     brightness: {block: 15, sky: 15}
                     for: 7
                     motion:
+                      - {law: spin, axis: forward, deg_per_tick: 30, at: 0, for: 6, ease: out_cubic}
                       - {law: move, velocity: {left: 0, up: 0.016667, forward: 0.15}, at: 0, for: 6, ease: out_cubic}
                       - {law: grow, per_tick: {left: -0.093333, up: -0.053333, forward: 0}, at: 0, for: 6, ease: out_cubic}
-                      - {law: fade, start: 1.0, to: -2e-06, at: 0, for: 6, ease: out_cubic}
+                      - {law: fade, at: 0, for: 6, ease: out_cubic}
                   - id: fx3_couture_rapier_cross_bloom
                     op: display
                     kind: text
@@ -662,7 +662,7 @@ machine:
                     motion:
                       - {law: grow, per_tick: {left: 8, up: 4, forward: 0}, at: 0, for: 1}
                       - {law: grow, per_tick: {left: 1, up: 0.5, forward: 0}, at: 1, for: 4}
-                      - {law: fade, start: 0.2, to: 0.0, at: 0, for: 5}
+                      - {law: keys, keys: [{t: 0, alpha: 0.2}, {t: 5, alpha: 0}]}
                   - id: fx3_couture_rapier_cross_petals_0
                     op: display
                     kind: text
@@ -690,11 +690,7 @@ machine:
                       - {law: grow, per_tick: {left: -0.074568, up: -0.037284, forward: 0}, at: 4, for: 1}
                       - {law: grow, per_tick: {left: -0.074576, up: -0.037288, forward: 0}, at: 5, for: 1}
                       - {law: grow, per_tick: {left: -0.074568, up: -0.037284, forward: 0}, at: 6, for: 1}
-                      - {law: fade, start: 1.0, to: 0.85714, at: 0, for: 1}
-                      - {law: fade, start: 0.85714, to: 0.71429, at: 1, for: 1}
-                      - {law: fade, start: 0.71429, to: 0.28571, at: 2, for: 3}
-                      - {law: fade, start: 0.28571, to: 0.14286, at: 5, for: 1}
-                      - {law: fade, start: 0.14286, to: 0.0, at: 6, for: 1}
+                      - {law: keys, keys: [{t: 0, alpha: 1}, {t: 1, alpha: 0.85714}, {t: 2, alpha: 0.71429}, {t: 5, alpha: 0.28571}, {t: 6, alpha: 0.14286}, {t: 7, alpha: 0}]}
                   - id: fx3_couture_rapier_cross_petals_1
                     op: display
                     kind: text
@@ -722,11 +718,7 @@ machine:
                       - {law: grow, per_tick: {left: -0.074568, up: -0.037284, forward: 0}, at: 4, for: 1}
                       - {law: grow, per_tick: {left: -0.074576, up: -0.037288, forward: 0}, at: 5, for: 1}
                       - {law: grow, per_tick: {left: -0.074568, up: -0.037284, forward: 0}, at: 6, for: 1}
-                      - {law: fade, start: 1.0, to: 0.85714, at: 0, for: 1}
-                      - {law: fade, start: 0.85714, to: 0.71429, at: 1, for: 1}
-                      - {law: fade, start: 0.71429, to: 0.28571, at: 2, for: 3}
-                      - {law: fade, start: 0.28571, to: 0.14286, at: 5, for: 1}
-                      - {law: fade, start: 0.14286, to: 0.0, at: 6, for: 1}
+                      - {law: keys, keys: [{t: 0, alpha: 1}, {t: 1, alpha: 0.85714}, {t: 2, alpha: 0.71429}, {t: 5, alpha: 0.28571}, {t: 6, alpha: 0.14286}, {t: 7, alpha: 0}]}
                   - id: fx3_couture_rapier_cross_petals_2
                     op: display
                     kind: text
@@ -754,11 +746,7 @@ machine:
                       - {law: grow, per_tick: {left: -0.074568, up: -0.037284, forward: 0}, at: 4, for: 1}
                       - {law: grow, per_tick: {left: -0.074576, up: -0.037288, forward: 0}, at: 5, for: 1}
                       - {law: grow, per_tick: {left: -0.074568, up: -0.037284, forward: 0}, at: 6, for: 1}
-                      - {law: fade, start: 1.0, to: 0.85714, at: 0, for: 1}
-                      - {law: fade, start: 0.85714, to: 0.71429, at: 1, for: 1}
-                      - {law: fade, start: 0.71429, to: 0.28571, at: 2, for: 3}
-                      - {law: fade, start: 0.28571, to: 0.14286, at: 5, for: 1}
-                      - {law: fade, start: 0.14286, to: 0.0, at: 6, for: 1}
+                      - {law: keys, keys: [{t: 0, alpha: 1}, {t: 1, alpha: 0.85714}, {t: 2, alpha: 0.71429}, {t: 5, alpha: 0.28571}, {t: 6, alpha: 0.14286}, {t: 7, alpha: 0}]}
                   - id: fx3_couture_rapier_cross_petals_3
                     op: display
                     kind: text
@@ -786,11 +774,7 @@ machine:
                       - {law: grow, per_tick: {left: -0.074568, up: -0.037284, forward: 0}, at: 4, for: 1}
                       - {law: grow, per_tick: {left: -0.074576, up: -0.037288, forward: 0}, at: 5, for: 1}
                       - {law: grow, per_tick: {left: -0.074568, up: -0.037284, forward: 0}, at: 6, for: 1}
-                      - {law: fade, start: 1.0, to: 0.85714, at: 0, for: 1}
-                      - {law: fade, start: 0.85714, to: 0.71429, at: 1, for: 1}
-                      - {law: fade, start: 0.71429, to: 0.28571, at: 2, for: 3}
-                      - {law: fade, start: 0.28571, to: 0.14286, at: 5, for: 1}
-                      - {law: fade, start: 0.14286, to: 0.0, at: 6, for: 1}
+                      - {law: keys, keys: [{t: 0, alpha: 1}, {t: 1, alpha: 0.85714}, {t: 2, alpha: 0.71429}, {t: 5, alpha: 0.28571}, {t: 6, alpha: 0.14286}, {t: 7, alpha: 0}]}
                   - id: fx3_couture_rapier_cross_petals_4
                     op: display
                     kind: text
@@ -818,11 +802,7 @@ machine:
                       - {law: grow, per_tick: {left: -0.074568, up: -0.037284, forward: 0}, at: 4, for: 1}
                       - {law: grow, per_tick: {left: -0.074576, up: -0.037288, forward: 0}, at: 5, for: 1}
                       - {law: grow, per_tick: {left: -0.074568, up: -0.037284, forward: 0}, at: 6, for: 1}
-                      - {law: fade, start: 1.0, to: 0.85714, at: 0, for: 1}
-                      - {law: fade, start: 0.85714, to: 0.71429, at: 1, for: 1}
-                      - {law: fade, start: 0.71429, to: 0.28571, at: 2, for: 3}
-                      - {law: fade, start: 0.28571, to: 0.14286, at: 5, for: 1}
-                      - {law: fade, start: 0.14286, to: 0.0, at: 6, for: 1}
+                      - {law: keys, keys: [{t: 0, alpha: 1}, {t: 1, alpha: 0.85714}, {t: 2, alpha: 0.71429}, {t: 5, alpha: 0.28571}, {t: 6, alpha: 0.14286}, {t: 7, alpha: 0}]}
                   - id: fx3_couture_rapier_cross_petals_5
                     op: display
                     kind: text
@@ -850,11 +830,7 @@ machine:
                       - {law: grow, per_tick: {left: -0.074568, up: -0.037284, forward: 0}, at: 4, for: 1}
                       - {law: grow, per_tick: {left: -0.074576, up: -0.037288, forward: 0}, at: 5, for: 1}
                       - {law: grow, per_tick: {left: -0.074568, up: -0.037284, forward: 0}, at: 6, for: 1}
-                      - {law: fade, start: 1.0, to: 0.85714, at: 0, for: 1}
-                      - {law: fade, start: 0.85714, to: 0.71429, at: 1, for: 1}
-                      - {law: fade, start: 0.71429, to: 0.28571, at: 2, for: 3}
-                      - {law: fade, start: 0.28571, to: 0.14286, at: 5, for: 1}
-                      - {law: fade, start: 0.14286, to: 0.0, at: 6, for: 1}
+                      - {law: keys, keys: [{t: 0, alpha: 1}, {t: 1, alpha: 0.85714}, {t: 2, alpha: 0.71429}, {t: 5, alpha: 0.28571}, {t: 6, alpha: 0.14286}, {t: 7, alpha: 0}]}
                   - id: fx3_couture_rapier_cross_petals_6
                     op: display
                     kind: text
@@ -882,11 +858,7 @@ machine:
                       - {law: grow, per_tick: {left: -0.074568, up: -0.037284, forward: 0}, at: 4, for: 1}
                       - {law: grow, per_tick: {left: -0.074576, up: -0.037288, forward: 0}, at: 5, for: 1}
                       - {law: grow, per_tick: {left: -0.074568, up: -0.037284, forward: 0}, at: 6, for: 1}
-                      - {law: fade, start: 1.0, to: 0.85714, at: 0, for: 1}
-                      - {law: fade, start: 0.85714, to: 0.71429, at: 1, for: 1}
-                      - {law: fade, start: 0.71429, to: 0.28571, at: 2, for: 3}
-                      - {law: fade, start: 0.28571, to: 0.14286, at: 5, for: 1}
-                      - {law: fade, start: 0.14286, to: 0.0, at: 6, for: 1}
+                      - {law: keys, keys: [{t: 0, alpha: 1}, {t: 1, alpha: 0.85714}, {t: 2, alpha: 0.71429}, {t: 5, alpha: 0.28571}, {t: 6, alpha: 0.14286}, {t: 7, alpha: 0}]}
                   - id: fx3_couture_rapier_cross_petals_7
                     op: display
                     kind: text
@@ -914,11 +886,7 @@ machine:
                       - {law: grow, per_tick: {left: -0.074568, up: -0.037284, forward: 0}, at: 4, for: 1}
                       - {law: grow, per_tick: {left: -0.074576, up: -0.037288, forward: 0}, at: 5, for: 1}
                       - {law: grow, per_tick: {left: -0.074568, up: -0.037284, forward: 0}, at: 6, for: 1}
-                      - {law: fade, start: 1.0, to: 0.85714, at: 0, for: 1}
-                      - {law: fade, start: 0.85714, to: 0.71429, at: 1, for: 1}
-                      - {law: fade, start: 0.71429, to: 0.28571, at: 2, for: 3}
-                      - {law: fade, start: 0.28571, to: 0.14286, at: 5, for: 1}
-                      - {law: fade, start: 0.14286, to: 0.0, at: 6, for: 1}
+                      - {law: keys, keys: [{t: 0, alpha: 1}, {t: 1, alpha: 0.85714}, {t: 2, alpha: 0.71429}, {t: 5, alpha: 0.28571}, {t: 6, alpha: 0.14286}, {t: 7, alpha: 0}]}
                   - id: fx3_couture_rapier_cross_sparks_at
                     op: frame
                     anchor: fx3_couture_rapier_cross
@@ -947,7 +915,7 @@ machine:
                       - {law: grow, per_tick: {left: 8.5, up: 8.5, forward: 0}, at: 0, for: 1, ease: out_expo}
                       - {law: grow, per_tick: {left: -0.5, up: -0.5, forward: 0}, at: 1, for: 2}
                       - {law: grow, per_tick: {left: -2.333333, up: -2.333333, forward: 0}, at: 3, for: 3, ease: in_quad}
-                      - {law: fade, start: 1.0, to: -2e-06, at: 0, for: 6, ease: in_quad}
+                      - {law: fade, at: 0, for: 6, ease: in_quad}
                   - id: snd
                     op: sound
                     sound: entity.player.attack.strong
@@ -1530,7 +1498,7 @@ machine:
                     motion:
                       - {law: move, velocity: {left: 0, up: -0.133333, forward: -0.15}, at: 0, for: 6, ease: out_cubic}
                       - {law: grow, per_tick: {left: -0.093333, up: -0.053333, forward: 0}, at: 0, for: 6, ease: out_cubic}
-                      - {law: fade, start: 1.0, to: -2e-06, at: 0, for: 6, ease: out_cubic}
+                      - {law: fade, at: 0, for: 6, ease: out_cubic}
                   - id: fx6_couture_rapier_cross_dark_1
                     op: display
                     kind: text
@@ -1539,15 +1507,15 @@ machine:
                     background: "#28201C"
                     anchor: fx6_couture_rapier_cross
                     offset: {left: 0, up: 1.1, forward: 0}
-                    rotate: [{axis: forward, deg: 60}]
                     scale: [0.96, 0.64, 1]
                     billboard: center
                     brightness: {block: 15, sky: 15}
                     for: 7
                     motion:
+                      - {law: spin, axis: forward, deg_per_tick: 10, at: 0, for: 6, ease: out_cubic}
                       - {law: move, velocity: {left: 0, up: -0.083333, forward: -0.05}, at: 0, for: 6, ease: out_cubic}
                       - {law: grow, per_tick: {left: -0.093333, up: -0.053333, forward: 0}, at: 0, for: 6, ease: out_cubic}
-                      - {law: fade, start: 1.0, to: -2e-06, at: 0, for: 6, ease: out_cubic}
+                      - {law: fade, at: 0, for: 6, ease: out_cubic}
                   - id: fx6_couture_rapier_cross_dark_2
                     op: display
                     kind: text
@@ -1556,15 +1524,15 @@ machine:
                     background: "#28201C"
                     anchor: fx6_couture_rapier_cross
                     offset: {left: 0, up: 1.1, forward: 0}
-                    rotate: [{axis: forward, deg: 120}]
                     scale: [0.96, 0.64, 1]
                     billboard: center
                     brightness: {block: 15, sky: 15}
                     for: 7
                     motion:
+                      - {law: spin, axis: forward, deg_per_tick: 20, at: 0, for: 6, ease: out_cubic}
                       - {law: move, velocity: {left: 0, up: -0.033333, forward: 0.05}, at: 0, for: 6, ease: out_cubic}
                       - {law: grow, per_tick: {left: -0.093333, up: -0.053333, forward: 0}, at: 0, for: 6, ease: out_cubic}
-                      - {law: fade, start: 1.0, to: -2e-06, at: 0, for: 6, ease: out_cubic}
+                      - {law: fade, at: 0, for: 6, ease: out_cubic}
                   - id: fx6_couture_rapier_cross_dark_3
                     op: display
                     kind: text
@@ -1573,15 +1541,15 @@ machine:
                     background: "#28201C"
                     anchor: fx6_couture_rapier_cross
                     offset: {left: 0, up: 1.1, forward: 0}
-                    rotate: [{axis: forward, deg: 180}]
                     scale: [0.96, 0.64, 1]
                     billboard: center
                     brightness: {block: 15, sky: 15}
                     for: 7
                     motion:
+                      - {law: spin, axis: forward, deg_per_tick: 30, at: 0, for: 6, ease: out_cubic}
                       - {law: move, velocity: {left: 0, up: 0.016667, forward: 0.15}, at: 0, for: 6, ease: out_cubic}
                       - {law: grow, per_tick: {left: -0.093333, up: -0.053333, forward: 0}, at: 0, for: 6, ease: out_cubic}
-                      - {law: fade, start: 1.0, to: -2e-06, at: 0, for: 6, ease: out_cubic}
+                      - {law: fade, at: 0, for: 6, ease: out_cubic}
                   - id: fx6_couture_rapier_cross_bloom
                     op: display
                     kind: text
@@ -1597,7 +1565,7 @@ machine:
                     motion:
                       - {law: grow, per_tick: {left: 8, up: 4, forward: 0}, at: 0, for: 1}
                       - {law: grow, per_tick: {left: 1, up: 0.5, forward: 0}, at: 1, for: 4}
-                      - {law: fade, start: 0.2, to: 0.0, at: 0, for: 5}
+                      - {law: keys, keys: [{t: 0, alpha: 0.2}, {t: 5, alpha: 0}]}
                   - id: fx6_couture_rapier_cross_petals_0
                     op: display
                     kind: text
@@ -1625,11 +1593,7 @@ machine:
                       - {law: grow, per_tick: {left: -0.074568, up: -0.037284, forward: 0}, at: 4, for: 1}
                       - {law: grow, per_tick: {left: -0.074576, up: -0.037288, forward: 0}, at: 5, for: 1}
                       - {law: grow, per_tick: {left: -0.074568, up: -0.037284, forward: 0}, at: 6, for: 1}
-                      - {law: fade, start: 1.0, to: 0.85714, at: 0, for: 1}
-                      - {law: fade, start: 0.85714, to: 0.71429, at: 1, for: 1}
-                      - {law: fade, start: 0.71429, to: 0.28571, at: 2, for: 3}
-                      - {law: fade, start: 0.28571, to: 0.14286, at: 5, for: 1}
-                      - {law: fade, start: 0.14286, to: 0.0, at: 6, for: 1}
+                      - {law: keys, keys: [{t: 0, alpha: 1}, {t: 1, alpha: 0.85714}, {t: 2, alpha: 0.71429}, {t: 5, alpha: 0.28571}, {t: 6, alpha: 0.14286}, {t: 7, alpha: 0}]}
                   - id: fx6_couture_rapier_cross_petals_1
                     op: display
                     kind: text
@@ -1657,11 +1621,7 @@ machine:
                       - {law: grow, per_tick: {left: -0.074568, up: -0.037284, forward: 0}, at: 4, for: 1}
                       - {law: grow, per_tick: {left: -0.074576, up: -0.037288, forward: 0}, at: 5, for: 1}
                       - {law: grow, per_tick: {left: -0.074568, up: -0.037284, forward: 0}, at: 6, for: 1}
-                      - {law: fade, start: 1.0, to: 0.85714, at: 0, for: 1}
-                      - {law: fade, start: 0.85714, to: 0.71429, at: 1, for: 1}
-                      - {law: fade, start: 0.71429, to: 0.28571, at: 2, for: 3}
-                      - {law: fade, start: 0.28571, to: 0.14286, at: 5, for: 1}
-                      - {law: fade, start: 0.14286, to: 0.0, at: 6, for: 1}
+                      - {law: keys, keys: [{t: 0, alpha: 1}, {t: 1, alpha: 0.85714}, {t: 2, alpha: 0.71429}, {t: 5, alpha: 0.28571}, {t: 6, alpha: 0.14286}, {t: 7, alpha: 0}]}
                   - id: fx6_couture_rapier_cross_petals_2
                     op: display
                     kind: text
@@ -1689,11 +1649,7 @@ machine:
                       - {law: grow, per_tick: {left: -0.074568, up: -0.037284, forward: 0}, at: 4, for: 1}
                       - {law: grow, per_tick: {left: -0.074576, up: -0.037288, forward: 0}, at: 5, for: 1}
                       - {law: grow, per_tick: {left: -0.074568, up: -0.037284, forward: 0}, at: 6, for: 1}
-                      - {law: fade, start: 1.0, to: 0.85714, at: 0, for: 1}
-                      - {law: fade, start: 0.85714, to: 0.71429, at: 1, for: 1}
-                      - {law: fade, start: 0.71429, to: 0.28571, at: 2, for: 3}
-                      - {law: fade, start: 0.28571, to: 0.14286, at: 5, for: 1}
-                      - {law: fade, start: 0.14286, to: 0.0, at: 6, for: 1}
+                      - {law: keys, keys: [{t: 0, alpha: 1}, {t: 1, alpha: 0.85714}, {t: 2, alpha: 0.71429}, {t: 5, alpha: 0.28571}, {t: 6, alpha: 0.14286}, {t: 7, alpha: 0}]}
                   - id: fx6_couture_rapier_cross_petals_3
                     op: display
                     kind: text
@@ -1721,11 +1677,7 @@ machine:
                       - {law: grow, per_tick: {left: -0.074568, up: -0.037284, forward: 0}, at: 4, for: 1}
                       - {law: grow, per_tick: {left: -0.074576, up: -0.037288, forward: 0}, at: 5, for: 1}
                       - {law: grow, per_tick: {left: -0.074568, up: -0.037284, forward: 0}, at: 6, for: 1}
-                      - {law: fade, start: 1.0, to: 0.85714, at: 0, for: 1}
-                      - {law: fade, start: 0.85714, to: 0.71429, at: 1, for: 1}
-                      - {law: fade, start: 0.71429, to: 0.28571, at: 2, for: 3}
-                      - {law: fade, start: 0.28571, to: 0.14286, at: 5, for: 1}
-                      - {law: fade, start: 0.14286, to: 0.0, at: 6, for: 1}
+                      - {law: keys, keys: [{t: 0, alpha: 1}, {t: 1, alpha: 0.85714}, {t: 2, alpha: 0.71429}, {t: 5, alpha: 0.28571}, {t: 6, alpha: 0.14286}, {t: 7, alpha: 0}]}
                   - id: fx6_couture_rapier_cross_petals_4
                     op: display
                     kind: text
@@ -1753,11 +1705,7 @@ machine:
                       - {law: grow, per_tick: {left: -0.074568, up: -0.037284, forward: 0}, at: 4, for: 1}
                       - {law: grow, per_tick: {left: -0.074576, up: -0.037288, forward: 0}, at: 5, for: 1}
                       - {law: grow, per_tick: {left: -0.074568, up: -0.037284, forward: 0}, at: 6, for: 1}
-                      - {law: fade, start: 1.0, to: 0.85714, at: 0, for: 1}
-                      - {law: fade, start: 0.85714, to: 0.71429, at: 1, for: 1}
-                      - {law: fade, start: 0.71429, to: 0.28571, at: 2, for: 3}
-                      - {law: fade, start: 0.28571, to: 0.14286, at: 5, for: 1}
-                      - {law: fade, start: 0.14286, to: 0.0, at: 6, for: 1}
+                      - {law: keys, keys: [{t: 0, alpha: 1}, {t: 1, alpha: 0.85714}, {t: 2, alpha: 0.71429}, {t: 5, alpha: 0.28571}, {t: 6, alpha: 0.14286}, {t: 7, alpha: 0}]}
                   - id: fx6_couture_rapier_cross_petals_5
                     op: display
                     kind: text
@@ -1785,11 +1733,7 @@ machine:
                       - {law: grow, per_tick: {left: -0.074568, up: -0.037284, forward: 0}, at: 4, for: 1}
                       - {law: grow, per_tick: {left: -0.074576, up: -0.037288, forward: 0}, at: 5, for: 1}
                       - {law: grow, per_tick: {left: -0.074568, up: -0.037284, forward: 0}, at: 6, for: 1}
-                      - {law: fade, start: 1.0, to: 0.85714, at: 0, for: 1}
-                      - {law: fade, start: 0.85714, to: 0.71429, at: 1, for: 1}
-                      - {law: fade, start: 0.71429, to: 0.28571, at: 2, for: 3}
-                      - {law: fade, start: 0.28571, to: 0.14286, at: 5, for: 1}
-                      - {law: fade, start: 0.14286, to: 0.0, at: 6, for: 1}
+                      - {law: keys, keys: [{t: 0, alpha: 1}, {t: 1, alpha: 0.85714}, {t: 2, alpha: 0.71429}, {t: 5, alpha: 0.28571}, {t: 6, alpha: 0.14286}, {t: 7, alpha: 0}]}
                   - id: fx6_couture_rapier_cross_petals_6
                     op: display
                     kind: text
@@ -1817,11 +1761,7 @@ machine:
                       - {law: grow, per_tick: {left: -0.074568, up: -0.037284, forward: 0}, at: 4, for: 1}
                       - {law: grow, per_tick: {left: -0.074576, up: -0.037288, forward: 0}, at: 5, for: 1}
                       - {law: grow, per_tick: {left: -0.074568, up: -0.037284, forward: 0}, at: 6, for: 1}
-                      - {law: fade, start: 1.0, to: 0.85714, at: 0, for: 1}
-                      - {law: fade, start: 0.85714, to: 0.71429, at: 1, for: 1}
-                      - {law: fade, start: 0.71429, to: 0.28571, at: 2, for: 3}
-                      - {law: fade, start: 0.28571, to: 0.14286, at: 5, for: 1}
-                      - {law: fade, start: 0.14286, to: 0.0, at: 6, for: 1}
+                      - {law: keys, keys: [{t: 0, alpha: 1}, {t: 1, alpha: 0.85714}, {t: 2, alpha: 0.71429}, {t: 5, alpha: 0.28571}, {t: 6, alpha: 0.14286}, {t: 7, alpha: 0}]}
                   - id: fx6_couture_rapier_cross_petals_7
                     op: display
                     kind: text
@@ -1849,11 +1789,7 @@ machine:
                       - {law: grow, per_tick: {left: -0.074568, up: -0.037284, forward: 0}, at: 4, for: 1}
                       - {law: grow, per_tick: {left: -0.074576, up: -0.037288, forward: 0}, at: 5, for: 1}
                       - {law: grow, per_tick: {left: -0.074568, up: -0.037284, forward: 0}, at: 6, for: 1}
-                      - {law: fade, start: 1.0, to: 0.85714, at: 0, for: 1}
-                      - {law: fade, start: 0.85714, to: 0.71429, at: 1, for: 1}
-                      - {law: fade, start: 0.71429, to: 0.28571, at: 2, for: 3}
-                      - {law: fade, start: 0.28571, to: 0.14286, at: 5, for: 1}
-                      - {law: fade, start: 0.14286, to: 0.0, at: 6, for: 1}
+                      - {law: keys, keys: [{t: 0, alpha: 1}, {t: 1, alpha: 0.85714}, {t: 2, alpha: 0.71429}, {t: 5, alpha: 0.28571}, {t: 6, alpha: 0.14286}, {t: 7, alpha: 0}]}
                   - id: fx6_couture_rapier_cross_sparks_at
                     op: frame
                     anchor: fx6_couture_rapier_cross
@@ -1882,7 +1818,7 @@ machine:
                       - {law: grow, per_tick: {left: 8.5, up: 8.5, forward: 0}, at: 0, for: 1, ease: out_expo}
                       - {law: grow, per_tick: {left: -0.5, up: -0.5, forward: 0}, at: 1, for: 2}
                       - {law: grow, per_tick: {left: -2.333333, up: -2.333333, forward: 0}, at: 3, for: 3, ease: in_quad}
-                      - {law: fade, start: 1.0, to: -2e-06, at: 0, for: 6, ease: in_quad}
+                      - {law: fade, at: 0, for: 6, ease: in_quad}
                   - id: snd_2
                     op: sound
                     sound: entity.player.attack.strong
@@ -2465,7 +2401,7 @@ machine:
                     motion:
                       - {law: move, velocity: {left: 0, up: -0.133333, forward: -0.15}, at: 0, for: 6, ease: out_cubic}
                       - {law: grow, per_tick: {left: -0.093333, up: -0.053333, forward: 0}, at: 0, for: 6, ease: out_cubic}
-                      - {law: fade, start: 1.0, to: -2e-06, at: 0, for: 6, ease: out_cubic}
+                      - {law: fade, at: 0, for: 6, ease: out_cubic}
                   - id: fx10_couture_rapier_cross_dark_1
                     op: display
                     kind: text
@@ -2474,15 +2410,15 @@ machine:
                     background: "#28201C"
                     anchor: fx10_couture_rapier_cross
                     offset: {left: 0, up: 1.1, forward: 0}
-                    rotate: [{axis: forward, deg: 60}]
                     scale: [0.96, 0.64, 1]
                     billboard: center
                     brightness: {block: 15, sky: 15}
                     for: 7
                     motion:
+                      - {law: spin, axis: forward, deg_per_tick: 10, at: 0, for: 6, ease: out_cubic}
                       - {law: move, velocity: {left: 0, up: -0.083333, forward: -0.05}, at: 0, for: 6, ease: out_cubic}
                       - {law: grow, per_tick: {left: -0.093333, up: -0.053333, forward: 0}, at: 0, for: 6, ease: out_cubic}
-                      - {law: fade, start: 1.0, to: -2e-06, at: 0, for: 6, ease: out_cubic}
+                      - {law: fade, at: 0, for: 6, ease: out_cubic}
                   - id: fx10_couture_rapier_cross_dark_2
                     op: display
                     kind: text
@@ -2491,15 +2427,15 @@ machine:
                     background: "#28201C"
                     anchor: fx10_couture_rapier_cross
                     offset: {left: 0, up: 1.1, forward: 0}
-                    rotate: [{axis: forward, deg: 120}]
                     scale: [0.96, 0.64, 1]
                     billboard: center
                     brightness: {block: 15, sky: 15}
                     for: 7
                     motion:
+                      - {law: spin, axis: forward, deg_per_tick: 20, at: 0, for: 6, ease: out_cubic}
                       - {law: move, velocity: {left: 0, up: -0.033333, forward: 0.05}, at: 0, for: 6, ease: out_cubic}
                       - {law: grow, per_tick: {left: -0.093333, up: -0.053333, forward: 0}, at: 0, for: 6, ease: out_cubic}
-                      - {law: fade, start: 1.0, to: -2e-06, at: 0, for: 6, ease: out_cubic}
+                      - {law: fade, at: 0, for: 6, ease: out_cubic}
                   - id: fx10_couture_rapier_cross_dark_3
                     op: display
                     kind: text
@@ -2508,15 +2444,15 @@ machine:
                     background: "#28201C"
                     anchor: fx10_couture_rapier_cross
                     offset: {left: 0, up: 1.1, forward: 0}
-                    rotate: [{axis: forward, deg: 180}]
                     scale: [0.96, 0.64, 1]
                     billboard: center
                     brightness: {block: 15, sky: 15}
                     for: 7
                     motion:
+                      - {law: spin, axis: forward, deg_per_tick: 30, at: 0, for: 6, ease: out_cubic}
                       - {law: move, velocity: {left: 0, up: 0.016667, forward: 0.15}, at: 0, for: 6, ease: out_cubic}
                       - {law: grow, per_tick: {left: -0.093333, up: -0.053333, forward: 0}, at: 0, for: 6, ease: out_cubic}
-                      - {law: fade, start: 1.0, to: -2e-06, at: 0, for: 6, ease: out_cubic}
+                      - {law: fade, at: 0, for: 6, ease: out_cubic}
                   - id: fx10_couture_rapier_cross_bloom
                     op: display
                     kind: text
@@ -2532,7 +2468,7 @@ machine:
                     motion:
                       - {law: grow, per_tick: {left: 8, up: 4, forward: 0}, at: 0, for: 1}
                       - {law: grow, per_tick: {left: 1, up: 0.5, forward: 0}, at: 1, for: 4}
-                      - {law: fade, start: 0.2, to: 0.0, at: 0, for: 5}
+                      - {law: keys, keys: [{t: 0, alpha: 0.2}, {t: 5, alpha: 0}]}
                   - id: fx10_couture_rapier_cross_petals_0
                     op: display
                     kind: text
@@ -2560,11 +2496,7 @@ machine:
                       - {law: grow, per_tick: {left: -0.074568, up: -0.037284, forward: 0}, at: 4, for: 1}
                       - {law: grow, per_tick: {left: -0.074576, up: -0.037288, forward: 0}, at: 5, for: 1}
                       - {law: grow, per_tick: {left: -0.074568, up: -0.037284, forward: 0}, at: 6, for: 1}
-                      - {law: fade, start: 1.0, to: 0.85714, at: 0, for: 1}
-                      - {law: fade, start: 0.85714, to: 0.71429, at: 1, for: 1}
-                      - {law: fade, start: 0.71429, to: 0.28571, at: 2, for: 3}
-                      - {law: fade, start: 0.28571, to: 0.14286, at: 5, for: 1}
-                      - {law: fade, start: 0.14286, to: 0.0, at: 6, for: 1}
+                      - {law: keys, keys: [{t: 0, alpha: 1}, {t: 1, alpha: 0.85714}, {t: 2, alpha: 0.71429}, {t: 5, alpha: 0.28571}, {t: 6, alpha: 0.14286}, {t: 7, alpha: 0}]}
                   - id: fx10_couture_rapier_cross_petals_1
                     op: display
                     kind: text
@@ -2592,11 +2524,7 @@ machine:
                       - {law: grow, per_tick: {left: -0.074568, up: -0.037284, forward: 0}, at: 4, for: 1}
                       - {law: grow, per_tick: {left: -0.074576, up: -0.037288, forward: 0}, at: 5, for: 1}
                       - {law: grow, per_tick: {left: -0.074568, up: -0.037284, forward: 0}, at: 6, for: 1}
-                      - {law: fade, start: 1.0, to: 0.85714, at: 0, for: 1}
-                      - {law: fade, start: 0.85714, to: 0.71429, at: 1, for: 1}
-                      - {law: fade, start: 0.71429, to: 0.28571, at: 2, for: 3}
-                      - {law: fade, start: 0.28571, to: 0.14286, at: 5, for: 1}
-                      - {law: fade, start: 0.14286, to: 0.0, at: 6, for: 1}
+                      - {law: keys, keys: [{t: 0, alpha: 1}, {t: 1, alpha: 0.85714}, {t: 2, alpha: 0.71429}, {t: 5, alpha: 0.28571}, {t: 6, alpha: 0.14286}, {t: 7, alpha: 0}]}
                   - id: fx10_couture_rapier_cross_petals_2
                     op: display
                     kind: text
@@ -2624,11 +2552,7 @@ machine:
                       - {law: grow, per_tick: {left: -0.074568, up: -0.037284, forward: 0}, at: 4, for: 1}
                       - {law: grow, per_tick: {left: -0.074576, up: -0.037288, forward: 0}, at: 5, for: 1}
                       - {law: grow, per_tick: {left: -0.074568, up: -0.037284, forward: 0}, at: 6, for: 1}
-                      - {law: fade, start: 1.0, to: 0.85714, at: 0, for: 1}
-                      - {law: fade, start: 0.85714, to: 0.71429, at: 1, for: 1}
-                      - {law: fade, start: 0.71429, to: 0.28571, at: 2, for: 3}
-                      - {law: fade, start: 0.28571, to: 0.14286, at: 5, for: 1}
-                      - {law: fade, start: 0.14286, to: 0.0, at: 6, for: 1}
+                      - {law: keys, keys: [{t: 0, alpha: 1}, {t: 1, alpha: 0.85714}, {t: 2, alpha: 0.71429}, {t: 5, alpha: 0.28571}, {t: 6, alpha: 0.14286}, {t: 7, alpha: 0}]}
                   - id: fx10_couture_rapier_cross_petals_3
                     op: display
                     kind: text
@@ -2656,11 +2580,7 @@ machine:
                       - {law: grow, per_tick: {left: -0.074568, up: -0.037284, forward: 0}, at: 4, for: 1}
                       - {law: grow, per_tick: {left: -0.074576, up: -0.037288, forward: 0}, at: 5, for: 1}
                       - {law: grow, per_tick: {left: -0.074568, up: -0.037284, forward: 0}, at: 6, for: 1}
-                      - {law: fade, start: 1.0, to: 0.85714, at: 0, for: 1}
-                      - {law: fade, start: 0.85714, to: 0.71429, at: 1, for: 1}
-                      - {law: fade, start: 0.71429, to: 0.28571, at: 2, for: 3}
-                      - {law: fade, start: 0.28571, to: 0.14286, at: 5, for: 1}
-                      - {law: fade, start: 0.14286, to: 0.0, at: 6, for: 1}
+                      - {law: keys, keys: [{t: 0, alpha: 1}, {t: 1, alpha: 0.85714}, {t: 2, alpha: 0.71429}, {t: 5, alpha: 0.28571}, {t: 6, alpha: 0.14286}, {t: 7, alpha: 0}]}
                   - id: fx10_couture_rapier_cross_petals_4
                     op: display
                     kind: text
@@ -2688,11 +2608,7 @@ machine:
                       - {law: grow, per_tick: {left: -0.074568, up: -0.037284, forward: 0}, at: 4, for: 1}
                       - {law: grow, per_tick: {left: -0.074576, up: -0.037288, forward: 0}, at: 5, for: 1}
                       - {law: grow, per_tick: {left: -0.074568, up: -0.037284, forward: 0}, at: 6, for: 1}
-                      - {law: fade, start: 1.0, to: 0.85714, at: 0, for: 1}
-                      - {law: fade, start: 0.85714, to: 0.71429, at: 1, for: 1}
-                      - {law: fade, start: 0.71429, to: 0.28571, at: 2, for: 3}
-                      - {law: fade, start: 0.28571, to: 0.14286, at: 5, for: 1}
-                      - {law: fade, start: 0.14286, to: 0.0, at: 6, for: 1}
+                      - {law: keys, keys: [{t: 0, alpha: 1}, {t: 1, alpha: 0.85714}, {t: 2, alpha: 0.71429}, {t: 5, alpha: 0.28571}, {t: 6, alpha: 0.14286}, {t: 7, alpha: 0}]}
                   - id: fx10_couture_rapier_cross_petals_5
                     op: display
                     kind: text
@@ -2720,11 +2636,7 @@ machine:
                       - {law: grow, per_tick: {left: -0.074568, up: -0.037284, forward: 0}, at: 4, for: 1}
                       - {law: grow, per_tick: {left: -0.074576, up: -0.037288, forward: 0}, at: 5, for: 1}
                       - {law: grow, per_tick: {left: -0.074568, up: -0.037284, forward: 0}, at: 6, for: 1}
-                      - {law: fade, start: 1.0, to: 0.85714, at: 0, for: 1}
-                      - {law: fade, start: 0.85714, to: 0.71429, at: 1, for: 1}
-                      - {law: fade, start: 0.71429, to: 0.28571, at: 2, for: 3}
-                      - {law: fade, start: 0.28571, to: 0.14286, at: 5, for: 1}
-                      - {law: fade, start: 0.14286, to: 0.0, at: 6, for: 1}
+                      - {law: keys, keys: [{t: 0, alpha: 1}, {t: 1, alpha: 0.85714}, {t: 2, alpha: 0.71429}, {t: 5, alpha: 0.28571}, {t: 6, alpha: 0.14286}, {t: 7, alpha: 0}]}
                   - id: fx10_couture_rapier_cross_petals_6
                     op: display
                     kind: text
@@ -2752,11 +2664,7 @@ machine:
                       - {law: grow, per_tick: {left: -0.074568, up: -0.037284, forward: 0}, at: 4, for: 1}
                       - {law: grow, per_tick: {left: -0.074576, up: -0.037288, forward: 0}, at: 5, for: 1}
                       - {law: grow, per_tick: {left: -0.074568, up: -0.037284, forward: 0}, at: 6, for: 1}
-                      - {law: fade, start: 1.0, to: 0.85714, at: 0, for: 1}
-                      - {law: fade, start: 0.85714, to: 0.71429, at: 1, for: 1}
-                      - {law: fade, start: 0.71429, to: 0.28571, at: 2, for: 3}
-                      - {law: fade, start: 0.28571, to: 0.14286, at: 5, for: 1}
-                      - {law: fade, start: 0.14286, to: 0.0, at: 6, for: 1}
+                      - {law: keys, keys: [{t: 0, alpha: 1}, {t: 1, alpha: 0.85714}, {t: 2, alpha: 0.71429}, {t: 5, alpha: 0.28571}, {t: 6, alpha: 0.14286}, {t: 7, alpha: 0}]}
                   - id: fx10_couture_rapier_cross_petals_7
                     op: display
                     kind: text
@@ -2784,11 +2692,7 @@ machine:
                       - {law: grow, per_tick: {left: -0.074568, up: -0.037284, forward: 0}, at: 4, for: 1}
                       - {law: grow, per_tick: {left: -0.074576, up: -0.037288, forward: 0}, at: 5, for: 1}
                       - {law: grow, per_tick: {left: -0.074568, up: -0.037284, forward: 0}, at: 6, for: 1}
-                      - {law: fade, start: 1.0, to: 0.85714, at: 0, for: 1}
-                      - {law: fade, start: 0.85714, to: 0.71429, at: 1, for: 1}
-                      - {law: fade, start: 0.71429, to: 0.28571, at: 2, for: 3}
-                      - {law: fade, start: 0.28571, to: 0.14286, at: 5, for: 1}
-                      - {law: fade, start: 0.14286, to: 0.0, at: 6, for: 1}
+                      - {law: keys, keys: [{t: 0, alpha: 1}, {t: 1, alpha: 0.85714}, {t: 2, alpha: 0.71429}, {t: 5, alpha: 0.28571}, {t: 6, alpha: 0.14286}, {t: 7, alpha: 0}]}
                   - id: fx10_couture_rapier_cross_sparks_at
                     op: frame
                     anchor: fx10_couture_rapier_cross
@@ -2817,7 +2721,7 @@ machine:
                       - {law: grow, per_tick: {left: 8.5, up: 8.5, forward: 0}, at: 0, for: 1, ease: out_expo}
                       - {law: grow, per_tick: {left: -0.5, up: -0.5, forward: 0}, at: 1, for: 2}
                       - {law: grow, per_tick: {left: -2.333333, up: -2.333333, forward: 0}, at: 3, for: 3, ease: in_quad}
-                      - {law: fade, start: 1.0, to: -2e-06, at: 0, for: 6, ease: in_quad}
+                      - {law: fade, at: 0, for: 6, ease: in_quad}
                   - id: snd_3
                     op: sound
                     sound: entity.player.attack.strong

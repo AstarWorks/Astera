@@ -41,39 +41,32 @@ machine:
         - {id: raise_snd, op: sound, sound: couture.raise, anchor: shears, volume: 0.6}
       do:
         # v2 mesh_held (held part of the shears) shown ticks 0-4, then the three real pieces; raise 0-6: shears overhead (+0.9 up), long axis to world up, ease_out
-        - id: held
-          op: display
-          kind: item
-          item: couture-rapier
-          part: held
-          anchor: shears
-          for: 4
-          motion:
+        # frames carry the model part (content/frames/couture-rapier.yaml), the item displays ride on them.
+        - {id: held, op: frame, anchor: shears, part: held, for: 4, motion: [{law: move, velocity: {up: 0.9}, at: 0, for: 6, ease: out_quad}]}
             # GAP: v2 pose align {axis: shears.axis, to: world.up, up: caster.forward} over 6 ticks (ease_out) -> none (rotation to a world axis; the amount follows the hand pose)
-            - {law: move, velocity: {up: 0.9}, at: 0, for: 6, ease: out}
-        - {id: piece_body, op: display, kind: item, item: couture-rapier, part: body, anchor: shears, at: 4, for: 30, motion: [{law: spin, axis: left, deg_per_tick: "= spin_dpt", at: 0, for: 30}]}
+        - {id: held_m, op: display, kind: item, item: "astera:couture-rapier", anchor: held, for: 4}
+        - {id: piece_body, op: frame, anchor: shears, part: body, at: 4, for: 30, motion: [{law: spin, axis: left, deg_per_tick: "${spin_dpt}", at: 0, for: 30}]}
+        - {id: piece_body_m, op: display, kind: item, item: "astera:couture-s2-body", anchor: piece_body, at: 4, for: 30}
         - id: piece_a
-          op: display
-          kind: item
-          item: couture-rapier
+          op: frame
+          anchor: shears
           part: blade_a
-          anchor: shears
           at: 4
           for: 30
           motion:
-            - {law: spin, axis: left, deg_per_tick: "= spin_dpt", at: 0, for: 30}
+            - {law: spin, axis: left, deg_per_tick: "${spin_dpt}", at: 0, for: 30}
             - {law: keys, keys: [{t: 0, pose: []}, {t: 4, pose: [{axis: edge, deg: 35}]}]}      # open_deg / 2
+        - {id: piece_a_m, op: display, kind: item, item: "astera:couture-rapier-blade-a", anchor: piece_a, at: 4, for: 30}
         - id: piece_b
-          op: display
-          kind: item
-          item: couture-rapier
-          part: blade_b
+          op: frame
           anchor: shears
+          part: blade_b
           at: 4
           for: 30
           motion:
-            - {law: spin, axis: left, deg_per_tick: "= spin_dpt", at: 0, for: 30}
+            - {law: spin, axis: left, deg_per_tick: "${spin_dpt}", at: 0, for: 30}
             - {law: keys, keys: [{t: 0, pose: []}, {t: 4, pose: [{axis: edge, deg: -35}]}]}     # -open_deg / 2
+        - {id: piece_b_m, op: display, kind: item, item: "astera:couture-rapier-blade-b", anchor: piece_b, at: 4, for: 30}
         # v2 spin op on the shears frame (54 deg/tick about caster.left, ticks 4-34): carried by the spin law on each piece above (R34: laws live on displays / the projectile body, never on an anchor).
         - {id: trail_a, op: ribbon, of: piece_a.tip, root: piece_a.root, lasts: 6, color: "= thread_color", at: 4, for: 30}
         - {id: trail_b, op: ribbon, of: piece_b.tip, root: piece_b.root, lasts: 6, color: "= thread_color", at: 4, for: 30}
@@ -1176,7 +1169,7 @@ machine:
           # GAP: v2 lane_a/lane_b blade offsets +-left * blade_len * lane -> none (blade_len is a frame-table value)
           # GAP: v2 align velocity axis with world.up reference -> default
           motion:
-            - {law: spin, axis: left, deg_per_tick: "= spin_dpt"}
+            - {law: spin, axis: left, deg_per_tick: "${spin_dpt}"}
           on:
             hit:
               - {id: throw_dmg, op: damage, at: 0, target: event.victim, damage: {physical: "= dmg_throw"}}
@@ -1190,9 +1183,12 @@ machine:
               - {id: crumb, op: particle_def, def: couture-s2-p-crumb, anchor: contact}
               - {id: wall_snd, op: sound, sound: couture.stab_wall, anchor: contact}
         # v2 flying pieces (R34): displays on the volley, spin inherited from the projectile body `motion`, kept through stuck and reel until the reel ends.
-        - {id: fly_body, op: display, kind: item, item: couture-rapier, part: body, anchor: volley, until: reel.end}
-        - {id: fly_a, op: display, kind: item, item: couture-rapier, part: blade_a, anchor: volley, until: reel.end, motion: [{law: keys, keys: [{t: 0, pose: [{axis: edge, deg: 35}]}]}]}
-        - {id: fly_b, op: display, kind: item, item: couture-rapier, part: blade_b, anchor: volley, until: reel.end, motion: [{law: keys, keys: [{t: 0, pose: [{axis: edge, deg: -35}]}]}]}
+        - {id: fly_body, op: frame, anchor: volley, part: body, until: reel.end}
+        - {id: fly_body_m, op: display, kind: item, item: "astera:couture-s2-body", anchor: fly_body, until: reel.end}
+        - {id: fly_a, op: frame, anchor: volley, part: blade_a, until: reel.end, motion: [{law: keys, keys: [{t: 0, pose: [{axis: edge, deg: 35}]}]}]}
+        - {id: fly_a_m, op: display, kind: item, item: "astera:couture-rapier-blade-a", anchor: fly_a, until: reel.end}
+        - {id: fly_b, op: frame, anchor: volley, part: blade_b, until: reel.end, motion: [{law: keys, keys: [{t: 0, pose: [{axis: edge, deg: -35}]}]}]}
+        - {id: fly_b_m, op: display, kind: item, item: "astera:couture-rapier-blade-b", anchor: fly_b, until: reel.end}
         - {id: throw_snd, op: sound, sound: couture.throw, anchor: shears, pitch: 1.1}
         # v2 dust: vanilla directed form (R34); v2 speed 0 so the velocity is only inherit_velocity 0.5 x the volley velocity.
         - {id: puff, op: particle, particle: dust, anchor: caster.palm, times: 6, count: 0, offset: "= velocity(volley) * 0.5", extra: 1.0, color: "= thread_color", size: 1.0}

@@ -10,9 +10,9 @@ patchKind: skin
 ops:
   - {path: "machine.states.windup.do[trail_b]", $patch: delete}
   - {path: "machine.states.windup.do[trail_a].color", $patch: replace, value: "#d0203a"}
-  - {path: "machine.states.throw.do[puff].color", $patch: replace, value: "#d0203a"}
-  - {path: "machine.states.throw.do[thread_a].color", $patch: replace, value: "#d0203a"}
-  - {path: "machine.states.throw.do[thread_b].color", $patch: replace, value: "#d0203a"}
-  - {path: "machine.states.throw.do[thread_body].color", $patch: replace, value: "#d0203a"}
+  - {path: "machine.states.throw.enter[puff].color", $patch: replace, value: "#d0203a"}
+  - {path: "machine.states.throw.enter[thread_a].color", $patch: replace, value: "#d0203a"}
+  - {path: "machine.states.throw.enter[thread_b].color", $patch: replace, value: "#d0203a"}
+  - {path: "machine.states.throw.enter[thread_body].color", $patch: replace, value: "#d0203a"}
   - {path: "machine.states.throw.enter[volley].on.hit[sparks].particle", $patch: replace, value: flame}
   - {path: "machine.states.reel.do[reel_hit].on.hit[reel_sparks].particle", $patch: replace, value: flame}
