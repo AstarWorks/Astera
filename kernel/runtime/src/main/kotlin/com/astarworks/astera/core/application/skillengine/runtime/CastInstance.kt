@@ -127,6 +127,7 @@ internal class CastInstance(
     private var incomingAmount = 0.0
     private val frozenUntil = HashMap<String, Int>()
     private val queue = ArrayDeque<CastEvent>()
+    private var stormReported = false
     private val tickEvents = ArrayList<CastEvent>()
     private val victims = LinkedHashSet<UUID>()
     private val counters = HashMap<String, Double>()
@@ -222,6 +223,13 @@ internal class CastInstance(
         tickEvents.clear()
         windows.removeAll { it.untilTick <= tick }
         refreshRoots()
+        interruptingStatus()?.let { status ->
+            // The caster was stunned or silenced mid-cast: every handle, dash and lock the cast owns is released, END fires with the status as its source.
+            finishNow(cancelled = true, reason = status)
+            takeSnapshot()
+            deps.observer?.onTick(id, tick, tree, nodeNames.toSet(), tickEvents.toList())
+            return
+        }
 
         // external + scheduled events
         val due = scheduled.filter { it.dueTick <= tick }
@@ -248,6 +256,10 @@ internal class CastInstance(
         takeSnapshot()
         deps.observer?.onTick(id, tick, tree, nodeNames.toSet(), tickEvents.toList())
     }
+
+    /** The first status on the caster that forbids casting (see [INTERRUPTING_STATUSES]), or null. */
+    private fun interruptingStatus(): String? =
+        INTERRUPTING_STATUSES.firstOrNull { ports.gameplay.statusStacks(request.caster, it) > 0 }
 
     private fun eventSince(name: String): Int? = bus.firstRaisedAt(name)?.minus(request.startTick)
 
@@ -276,11 +288,13 @@ internal class CastInstance(
         !motion.hasWork() && scheduled.isEmpty() && windows.isEmpty() && queue.isEmpty() && !deps.dashes.isDashing(id) &&
             !gameplayTimeline.pending() && !presentationTimeline.pending()
 
-    private fun finishNow(cancelled: Boolean = false) {
+    private fun finishNow(cancelled: Boolean = false, reason: String? = null) {
         if (ended) return
-        queue += CastEvent(SkillEvents.END, tick, source = null)
+        // END goes first so its handlers run even when a backlog of deferred events is pending.
+        queue.addFirst(CastEvent(SkillEvents.END, tick, source = reason))
         try {
             drain()
+            if (queue.isNotEmpty()) report(null, "${queue.size} queued events were not delivered before the cast ended (next: ${queue.first().name})")
         } finally {
             // Whatever the END handlers did, every handle, dash and lock this cast owns is released.
             ended = true
@@ -307,12 +321,24 @@ internal class CastInstance(
 
     // ---------------------------------------------------------------- events
 
+    /**
+     * Delivers queued events. At most [MAX_EVENTS_PER_DRAIN] per phase so a handler that raises its own event cannot
+     * stall the server tick; the rest STAYS queued (nothing is dropped) and the next phase delivers it. The overflow is
+     * reported once per cast, and the cast cannot end while events are pending ([idle]), so a runaway loop is bounded by
+     * `maxCastTicks` and visible in the diagnostics.
+     */
     private fun drain() {
-        var guard = 0
+        var handled = 0
         while (queue.isNotEmpty()) {
-            if (guard++ > MAX_EVENTS_PER_DRAIN) {
-                report(null, "event storm: more than $MAX_EVENTS_PER_DRAIN events in one phase, dropping ${queue.size}")
-                queue.clear()
+            if (handled++ >= MAX_EVENTS_PER_DRAIN) {
+                if (!stormReported) {
+                    stormReported = true
+                    report(
+                        null,
+                        "event storm: more than $MAX_EVENTS_PER_DRAIN events in one phase; ${queue.size} deferred to the next phase " +
+                            "(next: ${queue.first().name} from ${queue.first().source})",
+                    )
+                }
                 return
             }
             handle(queue.removeFirst())
@@ -528,6 +554,8 @@ internal class CastInstance(
     }
 
     override fun onEvent(event: String, source: String, handler: () -> Unit) {
+        // Re-arming the same (event, source) REPLACES the handler: a re-spawned projectile must not run its on_hit twice.
+        listeners.removeAll { it.event == event && it.source == source }
         listeners += Listener(event, source, handler)
     }
 
@@ -639,6 +667,9 @@ internal class CastInstance(
             val found = if (wall != null && prev != null) {
                 val limit = prev.distance(wall.point)
                 narrowed.filter { prev.distance(it.pointWorld) <= limit }
+            } else if (volume is ResolvedVolume.Sector && reg.reg.id !in blockedOps) {
+                // A sector has no travelled segment; a wall between its apex and the victim stops the swing (no block event: it is a melee arc).
+                narrowed.filter { lineClear(volume.origin, it.pointWorld) }
             } else {
                 narrowed
             }
@@ -659,6 +690,14 @@ internal class CastInstance(
                 queue += CastEvent(SkillEvents.BLOCK, tick, source = reg.reg.id, contact = blockContact(reg.reg, wall.point, wall.normal, wall.blockKey, hitterVel))
             }
         }
+    }
+
+    /** No solid block between [from] and [to] (the end is pulled back a hair so a point on a surface is not its own wall). */
+    private fun lineClear(from: Vec3, to: Vec3): Boolean {
+        val d = from - to
+        val len = d.length()
+        val end = if (len > 0.1) to + d * (0.05 / len) else to
+        return ports.entities.raycastBlock(from, end) == null
     }
 
     /** v1 `flight.position = contact.at`: the body stops at the face instead of overshooting into the wall. */
@@ -789,6 +828,7 @@ internal class CastInstance(
     private fun CastError.reasonText(): String = when (this) {
         is CastError.FrameSetup -> reason
         is CastError.ExprFailed -> reason
+        else -> toString()
     }
 
     private fun refreshEnemy(victim: UUID) {
@@ -884,12 +924,13 @@ internal class CastInstance(
         override fun hpRatio(who: ExprValue.Ref): Double {
             val entity = when (who.name) {
                 "caster" -> request.caster
-                "victim" -> currentVictim
-                else -> null
-            } ?: return 1.0
-            val ratio = ports.entities.healthRatio(entity)
-                ?: throw ValueResolveException("hp_ratio: $entity is not a living entity")
-            return ratio.coerceIn(0.0, 1.0)
+                "victim" -> currentVictim ?: throw ValueResolveException("hp_ratio(victim): no victim in scope")
+                "enemy" -> lastVictim ?: throw ValueResolveException("hp_ratio(enemy): no enemy has been struck yet")
+                else -> who.name.removePrefix("enemy@").takeIf { it != who.name }
+                    ?.let { runCatching { UUID.fromString(it) }.getOrNull() }
+                    ?: throw ValueResolveException("hp_ratio(${who.name}): not an entity (caster, victim, enemy or enemy@<uuid>)")
+            }
+            return ports.entities.healthRatio(entity).coerceIn(0.0, 1.0)
         }
 
         override fun bladeLen(frame: ExprValue.Ref): Double {
@@ -955,6 +996,12 @@ internal class CastInstance(
     companion object {
         private const val MAX_EVENTS_PER_DRAIN = 256
         private const val MAX_CHAIN = 4
+
+        /**
+         * Statuses that end a running cast: `silence` (v1 refused casts under it) and `shock` (the electric stun, kind
+         * paralysis: "locks the target out of actions"). The same ids reject a cast at start (see [DefaultCastRunner]).
+         */
+        val INTERRUPTING_STATUSES: List<String> = listOf("silence", "shock")
         private const val NEAREST_SCAN = 64.0
 
         /** A swept hit volume that moved further than this in one tick was teleported, not flown: test the point only. */

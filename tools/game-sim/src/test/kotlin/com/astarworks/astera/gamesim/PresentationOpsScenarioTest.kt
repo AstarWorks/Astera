@@ -170,7 +170,7 @@ class PresentationOpsScenarioTest {
             override fun freezeEntities(entities: List<UUID>, ticks: Int) = error("gameplay")
         },
         entities = object : ISkillEntityQuery {
-    override fun healthRatio(entity: UUID): Double? = null
+    override fun healthRatio(entity: UUID): Double = error("hp_ratio: this fake has no entity $entity")
             override fun nearby(point: Vec3, radius: Double, excluding: UUID?): List<HitCandidate> = emptyList()
             override fun rootOf(entity: UUID): EntityRoot? = null
             override fun raycastBlock(from: Vec3, to: Vec3): BlockHit? = null

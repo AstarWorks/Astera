@@ -200,6 +200,12 @@ internal class SkillEnginePaperRuntime(
             },
         )
         kit = built
+        catalog.ids().sorted().forEach { id ->
+            val skill = catalog.get(id) ?: return@forEach
+            built.runner.missingExecutors(skill).forEach { op ->
+                log.error("[skill-error] {}.yaml: op {} has no executor; casting this skill is refused", id, op)
+            }
+        }
         applyDamage.incomingInterceptor = com.astarworks.astera.combat.application.port.outbound.IIncomingDamageInterceptor { target, attacker, amount ->
             built.runner.intercept(target.uuid, attacker.uuid, amount)
         }

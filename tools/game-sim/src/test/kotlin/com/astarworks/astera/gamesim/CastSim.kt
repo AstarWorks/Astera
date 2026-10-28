@@ -196,7 +196,7 @@ class CastSim(
     }
 
     private fun entitiesIn(w: WorldId) = object : ISkillEntityQuery {
-        override fun healthRatio(entity: UUID): Double? = 1.0
+        override fun healthRatio(entity: UUID): Double = 1.0
         private fun box(feet: Vec3) = HitBox(Vec3(feet.x - halfWidth, feet.y, feet.z - halfWidth), Vec3(feet.x + halfWidth, feet.y + boxHeight, feet.z + halfWidth))
         override fun nearby(point: Vec3, radius: Double, excluding: UUID?): List<HitCandidate> {
             queryWorlds += w
