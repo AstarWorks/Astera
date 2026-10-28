@@ -20,7 +20,7 @@ machine:
         - {id: snd, op: sound, sound: "astera:weapons/dash-whoosh", anchor: caster, volume: 1.0, pitch: 1.1}
         - {id: puff, op: particle_def, def: dash-cloud, anchor: puff_pt}
         # v2 dash_strike distance 6 over 6 ticks = 1.0 block per tick
-        - {id: dash, op: dash, at: 0, speed: 1.0, for: 6, until: strike.hit, follow_pitch: false, stop_on_block: true, invulnerable: false, face_movement: false}
+        - {id: dash, op: dash, at: 0, speed: 1.0, for: 6, until: strike.hit, direction: {forward: 1}, follow_pitch: false, stop_on_block: true, invulnerable: false, face_movement: false}
         - id: strike
           op: hit
           at: 0

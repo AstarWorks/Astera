@@ -25,6 +25,6 @@ machine:
           for: 1
           then: recover
           enter:
-            - {id: fell, op: break_area, at: 0, anchor: caster, shape: {line: {length: 5, width: 1}}, tool: axe, block_damage: 100, ripple: 29, revert: 200, outside_arena: false}
+            - {id: fell, op: break_area, at: 0, anchor: caster, shape: {line: {length: 5, width: 1, height: 3}}, tool: axe, block_damage: 100, ripple: 29, revert: 200, outside_arena: false}
         recover: {final: true}
     done: {final: true}
