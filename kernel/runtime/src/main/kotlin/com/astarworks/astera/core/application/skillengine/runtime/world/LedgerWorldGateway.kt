@@ -19,6 +19,12 @@ import com.astarworks.astera.core.domain.skillengine.world.WorldShapes
  * runs every cell inline in the calling tick.
  */
 public abstract class LedgerWorldGateway(protected val blocks: ISkillBlockAccess) : ISkillWorldGateway {
+    private companion object {
+        /** v1 PowerToolMining.CAST_TICKS / WORK_TICKS (PowerToolMining.kt:8-9). */
+        const val CAST_TICKS = 30
+        const val WORK_TICKS = 24
+    }
+
     protected val editor: SkillWorldEditor = SkillWorldEditor(blocks)
 
     override fun breakArea(cast: CastRef, spec: BreakAreaSpec, aim: WorldAim) {
@@ -27,16 +33,35 @@ public abstract class LedgerWorldGateway(protected val blocks: ISkillBlockAccess
         val toolClass = spec.tool.takeIf { it != "none" }
         for ((index, cell) in ordered.withIndex()) {
             if (!blocks.canEdit(cast, cell, spec.outsideArena)) continue
-            schedule(cast, index, ordered.size, spec.rippleTicks) { strike(cast, spec, toolClass, cell) }
+            if (blocks.isCover(cast, cell)) {
+                scheduleCoverStrikes(cast, spec, toolClass, cell, index, ordered.size)
+                continue
+            }
+            // a flat chip (no tool) only ever hurts cover; terrain is the tool skills' to break (v2 BreakAreaExecutor)
+            if (toolClass == null) continue
+            schedule(cast, index, ordered.size, spec.rippleTicks) { strikeTerrain(cast, spec, toolClass, cell) }
         }
     }
 
-    private fun strike(cast: CastRef, spec: BreakAreaSpec, toolClass: String?, cell: BlockCell) {
-        if (!blocks.canEdit(cast, cell, spec.outsideArena)) return
-        if (blocks.isCover(cast, cell)) {
-            blocks.damage(cast, cell, spec.blockDamage, toolClass)
-            return
+    /**
+     * v2 `scheduleCoverStrikes` (v1 WorldMechanics.kt:262-308): a cover cell works for the cast window ([CAST_TICKS], [WORK_TICKS]). It starts at
+     * `1 + index * (CAST_TICKS - WORK_TICKS) / total` and lands six integer portions of the block damage at work steps 4, 8, ..., 24
+     * (`damage * k / 6 - damage * (k - 1) / 6`, so the remainder is preserved), each at tick `delay + step - 1`.
+     */
+    private fun scheduleCoverStrikes(cast: CastRef, spec: BreakAreaSpec, toolClass: String?, cell: BlockCell, index: Int, total: Int) {
+        val delay = 1 + index * (CAST_TICKS - WORK_TICKS) / total.coerceAtLeast(1)
+        for (step in 1..minOf(WORK_TICKS, CAST_TICKS - delay + 1)) {
+            if (step % 4 != 0) continue
+            val portion = spec.blockDamage * (step / 4) / 6 - spec.blockDamage * (step / 4 - 1) / 6
+            if (portion <= 0) continue
+            editor.later(cast, (delay + step - 1).toLong()) {
+                if (blocks.canEdit(cast, cell, spec.outsideArena) && blocks.isCover(cast, cell)) blocks.damage(cast, cell, portion, toolClass)
+            }
         }
+    }
+
+    private fun strikeTerrain(cast: CastRef, spec: BreakAreaSpec, toolClass: String?, cell: BlockCell) {
+        if (!blocks.canEdit(cast, cell, spec.outsideArena)) return
         val current = blocks.blockAt(cast, cell)
         if (WorldBlockRules.isAir(current) || WorldBlockRules.isProtected(current!!)) return
         editor.edit(cast, cell, spec.revertTicks.toLong()) { blocks.damage(cast, cell, spec.blockDamage, toolClass) == BlockDamageOutcome.BROKEN }
