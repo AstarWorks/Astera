@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Stick figures of beat-sheet.md (top / side / front) for couture-rapier-s2.
-usage: python3 -I make-figures.py   (run in this directory; writes overview.png, swing-1.png, swing-2.png, swing-3.png)
+usage: python3 -I make-figures.py   (run in this directory; writes overview.png, swing-1.png, swing-2.png, swing-3.png, and r2: b4b7-rotation.png, b4b7-strip.png (needs ffmpeg + the cached reference video))
 All coordinates are caster-local (forward, right, up) blocks, origin = feet at cast time, H = 1.8 blocks, enemy at forward 5.4.
 Everything is [I] (hypothesis drawn from the reference). The numbers ARE the tip/path columns of beat-sheet.md.
 Views: top = forward to the screen RIGHT, caster's right at the BOTTOM (so top CW stays CW on screen);
@@ -310,8 +310,201 @@ def overview():
     c.im.save(os.path.join(HERE, "overview.png"))
 
 
+# ---------------------------------------------------------------------------------------------------------------------
+# r2: B4-B7 per-object rotation (b4b7-rotation.png) and annotated frame strip (b4b7-strip.png).
+# Angles are MEASURED on the reference frames (screen angle of the blade tip seen from the handle, 0 = forward = screen right,
+# 90 = up, counter-clockwise positive, seen from the caster's right = skill-compare camera). +-15 deg. Frames f = 29.97 fps, tick = round((f-797)*2/3).
+# ---------------------------------------------------------------------------------------------------------------------
+VIDEO = os.path.expanduser("~/.cache/astera-skill-compare/videos/GIe7Fna5LD4.mp4")
+ANG = {
+    "A": {827: 85, 828: 95, 829: 122, 830: 238, 831: 275, 832: 295, 833: 312, 834: 333, 835: 335, 840: 337, 848: 338, 852: 340},
+    "B": {836: 280, 837: 290, 838: 272, 839: 267, 840: 265, 841: 235, 842: 190, 843: 140, 844: 130, 845: 95, 846: 57, 847: 31, 848: 3, 849: -8, 850: -27, 852: -30},
+    "C": {836: 223, 837: 220, 838: 212, 839: 190, 840: 180, 841: 162, 842: 112, 843: 75, 844: 57, 845: 29, 846: 6, 847: -7, 848: -12, 850: -15, 852: -22},
+}
+OBJ_COL = {"A": (200, 40, 40), "B": (40, 90, 210), "C": (30, 140, 70)}
+OBJ_NAME = {"A": "A 飾りの半身 (花の蝶番)", "B": "B 無地の半身 (桃色の糸つき)", "C": "C 無地の半身"}
+OBJ_INFO = {
+    "A": ("f829-835 (t21-25)", "カメラ CCW (上→後→下→前)", "約 215-250° = 0.6-0.7 回転", "f829→830 で 1 フレームに約 115° (一気に走る)、f830-834 は 24°/f = 36°/tick", "高 [O: 頭の弧 f830-834]"),
+    "B": ("f841-849 (t29-34)", "カメラ CW (上→前→下→後)", "約 295° = 0.8 回転 (縦下向き 265° → -30°)", "f841-845: 35°/f = 52°/tick (ピーク 50°/f)、その後減速して f850 で停止", "中高 [O: 先端の位置 f841-850]"),
+    "C": ("f836-848 (t26-34)", "カメラ CW (上→前→下→後)", "約 245° = 0.7 回転 (後ろ下 223° → -22°)", "f836-840: 11°/f ゆっくり、f840-846: 29°/f = 44°/tick、f846 以降減速", "中高 [O: 先端の位置 f838-848]"),
+}
+
+
+def _arc_arrow(d, cx, cy, r, a0, a1, col, w=5):
+    """arc from a0 to a1 (screen angle deg, CCW positive, y up). draws a polyline + arrow head at a1"""
+    n = max(8, int(abs(a1 - a0) / 4))
+    pts = []
+    for i in range(n + 1):
+        a = math.radians(a0 + (a1 - a0) * i / n)
+        pts.append((cx + r * math.cos(a), cy - r * math.sin(a)))
+    d.line(pts, fill=col, width=w)
+    (x0, y0), (x1, y1) = pts[-2], pts[-1]
+    ang = math.atan2(y1 - y0, x1 - x0)
+    for s in (0.45, -0.45):
+        d.line([(x1, y1), (x1 - 18 * math.cos(ang + s), y1 - 18 * math.sin(ang + s))], fill=col, width=w)
+
+
+def _blade(d, cx, cy, ang, length, col, w=4, handle=True):
+    """a half (handle + blade) centred on the pivot: tip at +0.55 L, handle at -0.45 L along ang"""
+    a = math.radians(ang)
+    ux, uy = math.cos(a), -math.sin(a)
+    tip = (cx + 0.55 * length * ux, cy + 0.55 * length * uy)
+    end = (cx - 0.45 * length * ux, cy - 0.45 * length * uy)
+    d.line([end, tip], fill=col, width=w)
+    hx, hy = cx - 0.38 * length * ux, cy - 0.38 * length * uy
+    if handle:
+        px, py = -uy, ux
+        d.polygon([(hx + 8 * px, hy + 8 * py), (hx + 12 * ux, hy + 12 * uy), (hx - 8 * px, hy - 8 * py), (hx - 12 * ux, hy - 12 * uy)], outline=col)
+    d.ellipse([tip[0] - 5, tip[1] - 5, tip[0] + 5, tip[1] + 5], fill=col)
+    return tip
+
+
+def rotation_figure():
+    W, Hh = 1500, 1040
+    im = Image.new("RGB", (W, Hh), (250, 250, 246))
+    d = ImageDraw.Draw(im)
+    d.text((10, 6), "couture-rapier-s2 B4-B7 (r2): 物ごとの回転。面 = 術者ローカルの forward-up (術者の右から見た画面と同じ)。角度 = 刃先の向き (0=前, 90=上, 反時計が正)、フレームから実測 ±15°", fill=(0, 0, 0), font=F)
+    fnt = FS
+    for i, k in enumerate("ABC"):
+        ox = 10 + i * 495
+        d.rectangle([ox, 34, ox + 485, 545], outline=(190, 190, 185))
+        cx, cy, R = ox + 242, 190, 105
+        col = OBJ_COL[k]
+        d.ellipse([cx - R, cy - R, cx + R, cy + R], outline=(205, 205, 200), width=2)
+        d.line([(cx - R - 20, cy), (cx + R + 20, cy)], fill=(215, 215, 210), width=1)
+        d.line([(cx, cy - R - 20), (cx, cy + R + 20)], fill=(215, 215, 210), width=1)
+        d.text((cx + R + 24, cy - 8), "前", fill=(110, 110, 110), font=fnt)
+        d.text((cx - R - 38, cy - 8), "後", fill=(110, 110, 110), font=fnt)
+        d.text((cx - 6, cy - R - 34), "上", fill=(110, 110, 110), font=fnt)
+        d.text((cx - 6, cy + R + 22), "下", fill=(110, 110, 110), font=fnt)
+        fr = sorted(ANG[k])
+        first, last = fr[0], fr[-1]
+        # tip dots by frame
+        for f in fr:
+            a = math.radians(ANG[k][f])
+            px, py = cx + R * math.cos(a), cy - R * math.sin(a)
+            shade = int(60 + 150 * (f - first) / max(1, last - first))
+            dc = tuple(min(255, int(c + (255 - c) * (shade - 60) / 200)) for c in col)
+            d.ellipse([px - 5, py - 5, px + 5, py + 5], fill=dc, outline=col)
+            tx, ty = cx + (R + 26) * math.cos(a) - 14, cy - (R + 26) * math.sin(a) - 7
+            d.text((tx, ty), "f%d" % f, fill=(70, 70, 70), font=ImageFont.truetype(FP, 10) if os.path.exists(FP) else fnt)
+        # arc arrow (inside circle) from the first to the main spin end
+        spin = {"A": (122, 335), "B": (265, -30), "C": (223, -22)}[k]
+        _arc_arrow(d, cx, cy, R - 26, spin[0], spin[1] if k == "A" else spin[1] + (0), col)
+        _blade(d, cx, cy, spin[0], 2 * R * 0.8, (150, 150, 150), 3)
+        _blade(d, cx, cy, spin[1], 2 * R * 0.8, col, 5)
+        d.ellipse([cx - 6, cy - 6, cx + 6, cy + 6], fill=(30, 30, 30))
+        d.text((ox + 10, 40), OBJ_NAME[k], fill=col, font=F)
+        info = OBJ_INFO[k]
+        rows = ["回転する区間: " + info[0], "向き: " + info[1] + " / top: none (面が縦=真上から細い線)", "回転量: " + info[2], "速さ: " + info[3], "軸: 刃の中ほど (柄と刃の境) [I] / 先端が先頭 / 面が回転面と平行 = 刃で切る向き [I]", "確度: " + info[4]]
+        for j, t in enumerate(rows):
+            # wrap at 62 chars
+            while len(t) > 38:
+                d.text((ox + 10, 400 + 0), "", font=fnt)
+                break
+        y = 362
+        for t in rows:
+            line = ""
+            for ch in t:
+                line += ch
+                if d.textlength(line, font=fnt) > 470:
+                    d.text((ox + 8, y), line, fill=(40, 40, 40), font=fnt); y += 15; line = ""
+            if line:
+                d.text((ox + 8, y), line, fill=(40, 40, 40), font=fnt); y += 15
+        d.text((ox + 10, 340), "灰=開始の向き / 色=終了の向き / 矢印=回る向き", fill=(120, 120, 120), font=fnt)
+    # bottom row: side view of the alignment and flight + top view
+    d.rectangle([10, 555, 985, 1030], outline=(190, 190, 185))
+    d.text((18, 561), "横 (術者の右から。前=右)。f850-856 の整列 → f857 の発射 (回転なし、軸方向へ直進) → f859 に敵 [I: 距離と高さは概算]", fill=(0, 0, 0), font=F)
+    sc = 82  # px per block (side)
+    gx, gy = 120, 1000
+    d.line([(gx - 60, gy), (gx + 5.4 * sc + 60, gy)], fill=(130, 130, 130), width=2)
+    # caster
+    d.line([(gx, gy), (gx, gy - 0.9 * sc), (gx, gy - 1.8 * sc)], fill=(40, 40, 40), width=4)
+    d.ellipse([gx - 9, gy - 1.8 * sc - 9, gx + 9, gy - 1.8 * sc + 9], outline=(40, 40, 40), width=3)
+    # enemy
+    ex = gx + 5.4 * sc
+    d.line([(ex, gy), (ex, gy - 1.8 * sc)], fill=(230, 120, 0), width=4)
+    d.ellipse([ex - 9, gy - 1.8 * sc - 9, ex + 9, gy - 1.8 * sc + 9], outline=(230, 120, 0), width=3)
+    d.text((ex - 20, gy + 4), "敵 (前 5.4)", fill=(230, 120, 0), font=fnt)
+    # three halves, parallel at about -22 deg; hinge heights/forward offsets from the f850-856 frames (caster H = 1.8 blocks)
+    spots = {"A": (0.15, 2.8), "C": (0.65, 2.15), "B": (-0.1, 1.95)}
+    ang = {"A": -20, "C": -22, "B": -28}
+    for k, (fx, fz) in spots.items():
+        x, y = gx + fx * sc, gy - fz * sc
+        _blade(d, x, y, ang[k], 2.2 * sc, OBJ_COL[k], 5)
+        d.text((x - 30, y - 22), k, fill=OBJ_COL[k], font=F)
+        a = math.radians(ang[k])
+        tipx, tipy = x + 1.21 * sc * math.cos(a), y - 1.1 * sc * math.sin(a)
+        c2 = tuple(min(255, c + 90) for c in OBJ_COL[k])
+        d.line([(tipx, tipy), (ex - 12, gy - 1.3 * sc - (ord(k) - 65) * 8)], fill=c2, width=2)
+    d.text((gx + 40, 600), "3 本とも長さ約 2.2 ブロック (1.2H)、刃先が右下 約 -20°〜-30°", fill=(60, 60, 60), font=fnt)
+    d.text((gx + 40, 620), "薄い線 = 発射後の直線軌道 (f857-859, 約 1.5 tick)。ヒンジ高さ 約 2.1-2.8 ブロック [I]", fill=(60, 60, 60), font=fnt)
+    # top view
+    d.rectangle([995, 555, 1490, 1030], outline=(190, 190, 185))
+    d.text((1003, 830), "どの回転面も縦 (forward-up) なので、真上から見ると回転は", fill=(40, 40, 40), font=fnt)
+    d.text((1003, 847), "刃が前後に伸び縮みする細い線に潰れる: top = none [O]。", fill=(40, 40, 40), font=fnt)
+    d.text((1003, 880), "左右 (術者の右) 方向のずれ・面の傾きは参照から読めない [U]", fill=(160, 60, 60), font=fnt)
+    d.text((1003, 897), "(3 本が画面で重なる所の前後が決まらない)。", fill=(160, 60, 60), font=fnt)
+    d.text((1003, 930), "図の線の位置は仮 (奥行きは [U])。", fill=(110, 110, 110), font=fnt)
+    im.save(os.path.join(HERE, "b4b7-rotation.png"))
+
+
+STRIP = [
+    (827, "A 手に持つ、刃先は真上 85° / 手の鋏は1本"),
+    (828, "A 手を離れ頭上へ (1 フレームで約 1H 上がる)"),
+    (829, "A 頭上、柄が下 / 刃は上左 122°。右に弧の尾"),
+    (830, "A 刃先 238° (後ろ下)。頭 = 下左の太い端"),
+    (832, "A 刃先 295° (下)→前下へ。弧は 250°ぶん"),
+    (834, "A 刃先 333° (前下)。弧が細くなる"),
+    (836, "B と C が頭の高さに出現。V 字 (約 40°)"),
+    (838, "B 縦下 272° / C 212°。A は静止 -22°"),
+    (840, "B 265° / C 180° (水平)。C が回り出す"),
+    (841, "B 235° / C 162°。両円盤が出る"),
+    (842, "B 190° / C 112°"),
+    (843, "B 140° / C 75°。どちらもカメラ CW"),
+    (845, "B 95° / C 29°"),
+    (847, "B 31° / C -7°。円盤が欠ける"),
+    (850, "B -27° で停止 / C -15° / A -20°"),
+    (857, "3 本が平行のまま発射。f858 に白い筋の集中"),
+]
+
+
+def frame_strip():
+    import subprocess, tempfile
+    frames = [f for f, _ in STRIP]
+    sel = "+".join("eq(n\\,%d)" % f for f in frames)
+    tmp = tempfile.mkdtemp(prefix="s2strip-")
+    cmd = ["ffmpeg", "-v", "error", "-y", "-i", VIDEO, "-vf", "select='%s'" % sel, "-vsync", "0", os.path.join(tmp, "%03d.png")]
+    subprocess.run(cmd, check=True)
+    TW, TH = 480, 330
+    cols, rows = 4, 4
+    sheet = Image.new("RGB", (cols * TW, rows * (TH + 22) + 28), (250, 250, 246))
+    sd = ImageDraw.Draw(sheet)
+    sd.text((8, 6), "couture-rapier-s2 B4-B5 参照フレーム (f = 29.97fps、tick = round((f-797)*2/3))。A = 赤、B = 青、C = 緑。回転の向きは術者の右から見たカメラ基準", fill=(0, 0, 0), font=F)
+    for i, (f, cap) in enumerate(STRIP):
+        im = Image.open(os.path.join(tmp, "%03d.png" % (i + 1))).convert("RGB")
+        if f >= 857:
+            crop = im.crop((300, 0, 1500, 825))
+        else:
+            crop = im.crop((450, 0, 1450, 690))
+        crop = crop.resize((TW, int(TW * crop.height / crop.width)))
+        x, y = (i % cols) * TW, 28 + (i // cols) * (TH + 22)
+        sheet.paste(crop.crop((0, 0, TW, TH)), (x, y))
+        sd.rectangle([x, y, x + TW - 1, y + TH - 1], outline=(120, 120, 120))
+        t = (f - 797) * 2 / 3
+        sd.rectangle([x, y, x + 150, y + 18], fill=(0, 0, 0))
+        sd.text((x + 4, y + 2), "f%d  t=%d" % (f, round(t)), fill=(255, 255, 0), font=FS)
+        sd.text((x + 2, y + TH + 3), cap, fill=(30, 30, 30), font=FS)
+    sheet.save(os.path.join(HERE, "b4b7-strip.png"))
+    import shutil
+    shutil.rmtree(tmp, ignore_errors=True)
+
+
 if __name__ == "__main__":
     swing1().save(os.path.join(HERE, "swing-1.png"))
     swing2().save(os.path.join(HERE, "swing-2.png"))
     swing3().save(os.path.join(HERE, "swing-3.png"))
     overview()
+    rotation_figure()
+    if os.path.exists(VIDEO):
+        frame_strip()
