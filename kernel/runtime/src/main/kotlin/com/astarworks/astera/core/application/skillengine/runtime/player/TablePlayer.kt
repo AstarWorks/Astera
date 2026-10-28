@@ -2,7 +2,13 @@ package com.astarworks.astera.core.application.skillengine.runtime.player
 
 import com.astarworks.astera.core.application.skillengine.runtime.CastError
 import com.astarworks.astera.core.application.skillengine.runtime.CastRequest
+import com.astarworks.astera.core.application.skillengine.runtime.ops.DashDriver
+import com.astarworks.astera.core.application.skillengine.runtime.ops.ReelDriver
+import com.astarworks.astera.core.application.skillengine.runtime.port.CastRef
 import com.astarworks.astera.core.application.skillengine.runtime.port.ISkillEntityQuery
+import com.astarworks.astera.core.application.skillengine.runtime.port.ISkillItemGateway
+import com.astarworks.astera.core.application.skillengine.runtime.port.ISkillMovementGateway
+import com.astarworks.astera.core.application.skillengine.runtime.port.ISkillWorldGateway
 import com.astarworks.astera.core.application.skillengine.runtime.port.ISkillGameplayGateway
 import com.astarworks.astera.core.application.skillengine.runtime.port.ISkillParticleGateway
 import com.astarworks.astera.core.application.skillengine.runtime.port.ISkillSoundGateway
@@ -98,6 +104,9 @@ public class TablePlayer(
     private val query: ISkillEntityQuery,
     private val live: LiveValueSource,
     private val trace: CastTrace = CastTrace.NONE,
+    private val movement: ISkillMovementGateway,
+    private val items: ISkillItemGateway,
+    private val world: ISkillWorldGateway,
 ) : ISkillTablePlayer {
     /** Server caps (`maxLifeTicks`, `maxCastTicks`); set by the platform from `EngineConfig`. */
     public var config: EngineConfig = EngineConfig()
@@ -547,14 +556,14 @@ public class TablePlayer(
         if (a.kind == SpawnKind.PROJECTILE_BODY) rec.flight = flightOf(run, a.look, local, ctx)
         val world = worldOf(run, rec, local, ctx.binding, now)
         val pose = visualPose(rec, world)
-        val owner = run.request.caster
+        val cast = castRef(run)
         val look = a.look
         val brightness = look.fields["brightness"]?.let { int(run, it as Val<Int>, ctx) }
         val glow = look.fields["glow"]?.let { strOf(run, it, ctx) }
         val h: VisualHandle? = when (a.kind) {
             SpawnKind.FRAME, SpawnKind.PROJECTILE_BODY -> null
             SpawnKind.ITEM -> visual.spawnMesh(
-                owner, req(run, look, "item", ctx), look.fields["part"]?.let { strOf(run, it, ctx) }, pose, brightness,
+                cast, req(run, look, "item", ctx), look.fields["part"]?.let { strOf(run, it, ctx) }, pose, brightness,
                 MeshLook(
                     itemModel = look.fields["model"]?.let { strOf(run, it, ctx) },
                     mode = look.fields["mode"]?.let { DisplayItemMode.valueOf(strOf(run, it, ctx).uppercase()) } ?: DisplayItemMode.FIXED,
@@ -562,17 +571,17 @@ public class TablePlayer(
                 ),
                 glow = glow,
             )
-            SpawnKind.BLOCK -> visual.spawnBlock(owner, req(run, look, "block", ctx), pose, brightness, glow = glow)
+            SpawnKind.BLOCK -> visual.spawnBlock(cast, req(run, look, "block", ctx), pose, brightness, glow = glow)
             SpawnKind.TEXT -> visual.spawnText(
-                owner, req(run, look, "text", ctx), look.fields["background"]?.let { strOf(run, it, ctx) } ?: "#000000",
+                cast, req(run, look, "text", ctx), look.fields["background"]?.let { strOf(run, it, ctx) } ?: "#000000",
                 look.fields["background_alpha"]?.let { dbl(run, it, ctx) } ?: 0.0, flag(run, look, "shadow", ctx), flag(run, look, "see_through", ctx), pose, brightness,
             )
             SpawnKind.SPRITE -> visual.spawnPlate(
-                owner, req(run, look, "sprite", ctx), look.fields["alpha"]?.let { dbl(run, it, ctx) } ?: 1.0,
+                cast, req(run, look, "sprite", ctx), look.fields["alpha"]?.let { dbl(run, it, ctx) } ?: 1.0,
                 look.fields["tint"]?.let { strOf(run, it, ctx) }, flag(run, look, "see_through", ctx), pose, brightness, glow = glow,
             )
             SpawnKind.RIBBON -> visual.spawnTrail(
-                owner, dbl(run, look.fields["ticks"] ?: throw IllegalArgumentException("ribbon look needs 'ticks'"), ctx).toInt(),
+                cast, dbl(run, look.fields["ticks"] ?: throw IllegalArgumentException("ribbon look needs 'ticks'"), ctx).toInt(),
                 look.fields["width"]?.let { dbl(run, it, ctx) } ?: 1.0, look.fields["color"]?.let { strOf(run, it, ctx) } ?: "#ffffff",
                 look.fields["alpha"]?.let { dbl(run, it, ctx) } ?: 1.0,
             ).also { th ->
@@ -613,6 +622,7 @@ public class TablePlayer(
         val (hex, size) = particleData(run, row, a.data, now)
         val req = run.request
         particles.emit(
+            castRef(run),
             ParticleBurst(
                 particle = a.type, at = Vec3(pos.x, pos.y, pos.z), count = run.fields[row.instance]?.get("count")?.toInt() ?: int(run, a.count, ctx), offset = Vec3(off.x, off.y, off.z),
                 speed = num(run, a.extra, ctx), colorHex = hex, dataSize = size, dir = null, spreadDeg = 0.0, inheritVelocity = null,
@@ -640,7 +650,7 @@ public class TablePlayer(
     private fun sound(run: Run, row: Row, a: Action.Sound, ctx: RowCtx) {
         val p = vec(run, a.position, ctx)
         val volume = run.fields[row.instance]?.get("volume") ?: num(run, a.volume, ctx)
-        sounds.play(a.sound, Vec3(p.x, p.y, p.z), a.category, volume, num(run, a.pitch, ctx))
+        sounds.play(castRef(run), a.sound, Vec3(p.x, p.y, p.z), a.category, volume, num(run, a.pitch, ctx))
     }
 
     /** A named custom particle definition at a position; `count` is the definition's own unless a `set` row overrode it. */
@@ -648,6 +658,7 @@ public class TablePlayer(
         val pos = vec(run, a.position, ctx)
         val req = run.request
         particles.emit(
+            castRef(run),
             ParticleBurst(
                 particle = a.def, at = Vec3(pos.x, pos.y, pos.z), count = run.fields[row.instance]?.get("count")?.toInt(), offset = Vec3.ZERO,
                 speed = 0.0, colorHex = null, dataSize = null, dir = null, spreadDeg = 0.0, inheritVelocity = null,
@@ -737,7 +748,7 @@ public class TablePlayer(
         for (i in 0 until poses) {
             val k = if (poses == 1) 0.0 else (poses - 1 - i).toDouble() / (poses - 1)
             val vol = volumes(k)
-            val cands = query.nearby(vol.broadCenter, vol.broadRadius, excluded).filter { it.entityId in allowed && it.entityId !in seen }
+            val cands = query.nearby(castRef(run), vol.broadCenter, vol.broadRadius, excluded).filter { it.entityId in allowed && it.entityId !in seen }
             for (ce in resolver.narrow(row.instance.text, now, row.instance.text, vol, Vec3(delta.x, delta.y, delta.z), cands)) {
                 if (blocked(ce.victim)) continue
                 seen.putIfAbsent(ce.victim, ce.pointWorld to ce.normalWorld)
@@ -785,7 +796,7 @@ public class TablePlayer(
             val cur = worldOf(run, rec, rec.localAt(now), null, now).pos
             val prev = worldOf(run, rec, rec.localAt(now - 1), null, now - 1).pos
             if (cur.distanceSquared(prev) < 1e-12) continue
-            val b = query.raycastBlock(Vec3(prev.x, prev.y, prev.z), Vec3(cur.x, cur.y, cur.z)) ?: continue
+            val b = query.raycastBlock(castRef(run), Vec3(prev.x, prev.y, prev.z), Vec3(cur.x, cur.y, cur.z)) ?: continue
             run.pending += RuntimeEvent(
                 path, now, id.path.lastOrNull()?.index, ContactInfo(Vector3d(b.point.x, b.point.y, b.point.z), Vector3d(b.normal.x, b.normal.y, b.normal.z)), null,
             )
@@ -795,7 +806,7 @@ public class TablePlayer(
     private fun damage(run: Run, row: Row, a: Action.Damage, ctx: RowCtx, now: Int) {
         val comps = a.components.map { c -> SkillDamage(c.attribute.name.lowercase(), literalAmount(c)) }
         for (v in ruleTargets(run, a.targets, ctx)) {
-            val point = ctx.binding?.contact?.point?.let { Vec3(it.x, it.y, it.z) } ?: query.rootOf(v)?.feet ?: Vec3.ZERO
+            val point = ctx.binding?.contact?.point?.let { Vec3(it.x, it.y, it.z) } ?: query.rootOf(castRef(run), v)?.feet ?: Vec3.ZERO
             gameplay.damage(run.cursor.skill.def.id, run.request.caster, v, comps, point, false, false)
         }
     }
@@ -938,7 +949,7 @@ public class TablePlayer(
         val c = rule.around?.let { id -> run.recs[id]?.let { worldOf(run, it, it.localAt(lastTick), ctx.binding, lastTick).pos } }
             ?: liveVec(run, rule.aroundName, ctx)
         val center = Vec3(c.x, c.y, c.z)
-        val found = query.nearby(center, num(run, rule.radius, ctx), if (rule.includeSelf) null else run.request.caster)
+        val found = query.nearby(castRef(run), center, num(run, rule.radius, ctx), if (rule.includeSelf) null else run.request.caster)
             .sortedWith(compareBy({ it.feet.distance(center) }, { it.entityId }))
         val limited = if (rule.maxCount > 0) found.take(rule.maxCount) else found
         return limited.map { it.entityId }
@@ -964,6 +975,8 @@ public class TablePlayer(
 
     private fun rowStream(run: Run, row: Row, ctx: RowCtx): SeededStream =
         run.cursor.seed.fork("${row.instance.text}|${row.src.value}|${ctx.base}|${row.tick}")
+
+    private fun castRef(run: Run): CastRef = CastRef(run.cursor.handle.value, run.request.caster, run.request.world)
 
     private fun fault(run: Run, tick: Int, src: String, message: String) {
         faultLog += PlayerFault(run.cursor.handle, tick, src, message)
