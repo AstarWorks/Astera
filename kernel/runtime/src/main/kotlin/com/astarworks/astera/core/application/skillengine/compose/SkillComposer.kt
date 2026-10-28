@@ -142,7 +142,7 @@ class SkillComposer(private val root: Path, private val options: ComposeOptions 
         var base: Map<String, Any?> = emptyMap()
         for (d in skillDocs) base = mergeOrFail(base, d, errors) ?: return null
         val sources = skillDocs.map { it.file }.toMutableList()
-        if (skillDocs.first().kind == Doc.Kind.Part) return listOf(ComposedSkill(id.removePrefix("part:"), header(base, "Part", id.removePrefix("part:")), sources.distinct()))
+        if (skillDocs.first().kind == Doc.Kind.Part) return composePart(id.removePrefix("part:"), base, sources, patches, errors, errorsBefore)
 
         val baseApplied = ArrayList<Doc>()
         for (p in patches) {
@@ -174,6 +174,33 @@ class SkillComposer(private val root: Path, private val options: ComposeOptions 
             result += ComposedSkill("$id@$v", header(tree, "Skill", "$id@$v"), (sources + variantSources.getValue(v)).distinct(), metaOf(applied))
         }
         return result
+    }
+
+    /** A part takes overlay patches only (`target: part:<id>`); a `variant` on a part patch is an error. */
+    private fun composePart(
+        partId: String,
+        start: Map<String, Any?>,
+        startSources: List<String>,
+        patches: List<Doc>,
+        errors: MutableList<ComposeError>,
+        errorsBefore: Int,
+    ): List<ComposedSkill>? {
+        var base = start
+        val sources = startSources.toMutableList()
+        val applied = ArrayList<Doc>()
+        for (p in patches) {
+            if (p.variant != null) {
+                errors += ComposeError.InvalidDocument(p.file, "variant", "a patch of part '$partId' takes no variant (parts are patched in place)")
+                continue
+            }
+            val merged = mergeOrFail(base, p, errors) ?: continue
+            if (!checkAllowed(p, base, merged, errors, isPart = true)) continue
+            base = merged
+            applied += p
+            sources += p.file
+        }
+        if (errors.size > errorsBefore) return null
+        return listOf(ComposedSkill(partId, header(base, "Part", partId), sources.distinct(), metaOf(applied)))
     }
 
     /** `apiVersion`, `kind` and `id` first, then the rest of the tree: the shape the v3 document decoder reads. */
@@ -237,17 +264,27 @@ class SkillComposer(private val root: Path, private val options: ComposeOptions 
      * base and merged op are both in [ComposeOptions.presentationOps], and groups made only of such ops. Anything
      * else (gameplay or control ops, `for`, `then`, `on`, `final`, new states) is a [ComposeError.PatchError.ForbiddenPath].
      */
-    private fun checkAllowed(p: Doc, base: Map<String, Any?>, merged: Map<String, Any?>, errors: MutableList<ComposeError>): Boolean {
+    private fun checkAllowed(p: Doc, base: Map<String, Any?>, merged: Map<String, Any?>, errors: MutableList<ComposeError>, isPart: Boolean = false): Boolean {
         if (p.patchKind != "skin") return true
-        val bad = skinViolation(p.body, base, merged)
+        val bad = skinViolation(p.body, base, merged, isPart)
         if (bad == null) return true
         errors += ComposeError.PatchError.ForbiddenPath(p.file, bad)
         return false
     }
 
-    private fun skinViolation(body: Map<*, *>, base: Map<*, *>, merged: Map<*, *>): String? {
-        val extra = body.keys.firstOrNull { it != "machine" } ?: return statesViolation(body["machine"], base["machine"], merged["machine"], "machine")
-        return firstLeafPath(extra.toString(), body[extra])
+    private fun skinViolation(body: Map<*, *>, base: Map<*, *>, merged: Map<*, *>, isPart: Boolean): String? {
+        val allowedTop = if (isPart) setOf("machine") else setOf("machine", "presentation")
+        body.keys.firstOrNull { it !in allowedTop }?.let { return firstLeafPath(it.toString(), body[it]) }
+        if ("machine" in body) statesViolation(body["machine"], base["machine"], merged["machine"], "machine")?.let { return it }
+        if ("presentation" in body) presentationViolation(body["presentation"], base["presentation"], merged["presentation"])?.let { return it }
+        return null
+    }
+
+    /** `presentation:` may only carry `timeline`, an op list patched like a state list. */
+    private fun presentationViolation(patch: Any?, base: Any?, merged: Any?): String? {
+        val pm = patch as? Map<*, *> ?: return "presentation"
+        pm.keys.firstOrNull { it != "timeline" }?.let { return firstLeafPath("presentation.$it", pm[it]) }
+        return opsViolation(pm["timeline"], (base as? Map<*, *>)?.get("timeline"), (merged as? Map<*, *>)?.get("timeline"), "presentation.timeline")
     }
 
     private fun statesViolation(patch: Any?, base: Any?, merged: Any?, path: String): String? {
@@ -272,6 +309,12 @@ class SkillComposer(private val root: Path, private val options: ComposeOptions 
         return null
     }
 
+    /**
+     * One op list (a state list, `presentation.timeline`, a group's `do`, an op's `on.<event>`). Per entry: a delete / replace
+     * needs presentation ops on both sides; a new entry must be presentation; a group is patched child by child (only `id` and
+     * `do`); any other op may change its own fields only when it is presentation before and after, and its `on.<event>` lists
+     * (existing events only) are descended into whatever the op is.
+     */
     private fun opsViolation(patch: Any?, base: Any?, merged: Any?, path: String): String? {
         val list = patch as? List<*> ?: return path
         val baseById = (base as? List<*>)?.filterIsInstance<Map<*, *>>()?.associateBy { it["id"] } ?: emptyMap()
@@ -288,17 +331,36 @@ class SkillComposer(private val root: Path, private val options: ComposeOptions 
                 continue
             }
             if (r == null) return ep
-            if (b != null && !isPresentation(b)) return ep
-            if (r["op"] == null && r["do"] != null && b != null) {
-                // group: only id and do may be patched, children checked recursively
+            if (b == null) {
+                if (!isPresentation(r)) return firstLeafPath(ep, m.filterKeys { it != "id" })
+                continue
+            }
+            if (isGroup(b)) {
                 m.keys.firstOrNull { it != "id" && it != "do" }?.let { return firstLeafPath("$ep.$it", m[it]) }
                 opsViolation(m["do"], b["do"], r["do"], "$ep.do")?.let { return it }
-            } else if (!isPresentation(r)) {
-                return firstLeafPath(ep, m.filterKeys { it != "id" })
+                continue
             }
+            val own = m.filterKeys { it != "id" && it != "on" }
+            if (own.isNotEmpty() && !(isPresentation(b) && isPresentation(r))) return firstLeafPath(ep, own)
+            if ("on" in m) onViolation(m["on"], b["on"], r["on"], "$ep.on")?.let { return it }
         }
         return null
     }
+
+    /** `on.<event>` handler lists of an op: the events must already exist, the lists are patched like any op list. */
+    private fun onViolation(patch: Any?, base: Any?, merged: Any?, path: String): String? {
+        val pm = patch as? Map<*, *> ?: return path
+        val bm = base as? Map<*, *> ?: return path
+        val mm = merged as? Map<*, *> ?: emptyMap<Any?, Any?>()
+        for ((event, v) in pm) {
+            val ep = "$path.$event"
+            if (event !in bm || v !is List<*>) return ep
+            opsViolation(v, bm[event], mm[event], ep)?.let { return it }
+        }
+        return null
+    }
+
+    private fun isGroup(node: Map<*, *>): Boolean = node["op"] == null && node["do"] is List<*>
 
     /** A presentation op, or a group whose children are all presentation. `use` calls are never presentation. */
     private fun isPresentation(node: Map<*, *>): Boolean {
