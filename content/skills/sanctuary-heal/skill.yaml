@@ -17,7 +17,7 @@ machine:
       for: 1
       then: end
       enter:
-        - {id: heal, op: heal, target: {kind: allies, around: self, radius: "${radius}", max_count: all, include_self: true}, amount: "${heal}"}   # GAP(Q1): v2 had no cap
+        - {id: heal, op: heal, target: {kind: allies, around: self, radius: "${radius}", include_self: true}, amount: "${heal}"}
         - {id: snd, op: sound, sound: "astera:skills/heal-chime", anchor: caster, volume: 0.7, pitch: 1.0}
         - {id: emit, op: particle, particle: happy_villager, anchor: feet, count: 0, extra: 0.02}
         - {id: emit_2, op: particle, particle: dust, anchor: feet, count: 1, color: "#5ae65a", size: 1.4}

@@ -24,7 +24,6 @@ machine:
           anchor: caster.eye
           shape: {sector: {deg: 80, range: 3.0, height: 2.0, forward: look}}
           targets: enemies
-          max_count: all  # GAP(Q1): spelling A (required, `all` = v2 unlimited); under B delete this line
           ignore_invulnerability: false
           damage: {physical: 55.0}
           window: once

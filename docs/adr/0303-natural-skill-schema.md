@@ -44,9 +44,10 @@ and `#aarrggbb` colour (2.1), world op defaults (10.1c), dash `direction` requir
 counted over `[spawn, end)`, a `lock` row owning its instance, param defaults and item-part axes for frame motion, state-qualified
 instance ids, ribbon opacity as the colour alpha. Each sentence names the commit that implemented it. No field is added or removed.
 **rev4.5 (2026-10-29, SKL-22 gaps, wording only)**: the `seq:` desugar applies to part and machine op lists alike (11.1); a display `size` may be a T-class expression, fitted to `Key` segments (2.1, 3.5); a ribbon takes `{law: grow, prop: width}` and lowers it per tick because a trail has no client interpolation (3.4, 3.7). No field is added or removed.
-Founder questions Q1-Q7 are OPEN: every spot that depends on one carries a "pending founder Qn" note with both options and chooses neither (list under
+Founder questions Q2, Q3, Q5-Q7 are OPEN (Q1 = B and Q4 = A resolved 10/29, rev4.7): every spot that depends on one carries a "pending founder Qn" note with both options and chooses neither (list under
 "Open decisions"). Examples c, e, g updated; `rejected/r12`-`r14` added. Status stays Proposed (edited in place by the manager's authorisation).
 - **rev4.5 (2026-10-29, SKL-22, founder 10/28 asks)**: the look lock is confirmed as the `pitch` / `yaw` fields of `lock` (10.6, no new field; the player already
+- **rev4.7 (2026-10-29, founder answers Q1 = B and Q4 = A)**: `max_count` is optional on a `hit` and on an area `damage`/`status`/`heal`/`cleanse` target; omitted or `all` = unlimited, an integer >= 1 keeps the nearest N (10.1b). `damage` is optional on a `hit`: a trigger-only hit loads and its handler `damage` deals it (v2 order). The engine already decoded both spellings; the open-question switch is removed. No field is added or removed.
   reaches `lockLook` / `unlockLook`); 3.8 names the "any enemy within r" condition (`nearest_enemy_dist(caster) < r`, no new primitive) and the Paper host now serves
   `nearest_enemy_dist` / `enemy_in_cone` in guards and live cells; 3.5.1 records the CEL library policy.
 **rev4.6 (2026-10-29, SKL-22 couture-rapier-s2 load; NEW OP for the founder)**: (1) a state may name an instance an EARLIER state spawned with the (5) Line ribbon player semantics: a `ribbon from:/to:` (look `shape: line`) is spawned through `ISkillVisualGateway.spawnLine(cast, from, to, thickness, colorHex, alpha)` (colour alpha is the opacity) and both endpoints are re-read from their live frames every tick through `updateLine`; it ends with `until:`/`for`. Paper draws it as one FIXED text-display strip facing the caster's eye, as v1's `line` op did (`0c9e986ef~1`: `PresentationExecutors.kt` LineExecutor, `PaperSkillVisualGateway.spawnLine`/`lineTransform`).
@@ -674,7 +675,7 @@ conditions:
 
 An enemy is a hittable entity that is neither the caster nor on its team; "any enemy within r" is therefore `nearest_enemy_dist(caster) < r`. The class is L
 (a world read), so the condition is evaluated at the row or event tick, never folded. `enemy_in_cone(ref, range, half_angle_deg)` is the same test limited to a
-horizontal fan. Both are served by the game-sim recorder and by the Paper host through the cast's entity query. `max_count` is unchanged (pending Q1).
+horizontal fan. Both are served by the game-sim recorder and by the Paper host through the cast's entity query. `max_count` is unchanged (Q1 = B, rev4.7).
 
 ### 4. Sending to the client (RC1)
 
@@ -930,8 +931,8 @@ All take the timing block (2.0); their own fields keep the 0301 meaning. `YAML` 
 
 | op | fields |
 |---|---|
-| `hit` | `anchor` (one frame, required; `caster` for body sectors), `shape` (one of `sector: {deg, range, height, forward}`, `sphere: <radius>`, `capsule: <radius>` with the frames' `from`/`to`; points are in the anchor frame), `targets` (`enemies` \| `allies` \| `all`, required; a FILTER over the shape's victims), `max_count`, `ignore_invulnerability` (required, true or false), `damage: {kind: amount}` (a map; a bare number is a load error), `on: {hit, miss}` (handler lists; `miss` runs once when the firing finds no victim), `window` (required iff the hit repeats with `every`: `once` or `{every: N}`; forbidden on a single firing). A sector is a sphere wedge: points within `range` whose horizontal angle to the sector's forward is at most `deg/2`, and whose vertical offset from the origin is within ±`height/2`. `deg`, `range`, `height` are required; an absent `height` is a load error. `forward: look \| yaw` (required on a sector): `look` = the anchor's pitched forward, `yaw` = its horizontal forward. Expressions in `damage` may use `stacks(victim, status)` and `contact.*` (3.5). **Pending founder Q1** (`max_count`): (A) required, an integer or `all`; (B) optional, omitted means unlimited. **Pending founder Q4** (`damage` optional): (A) `damage` may be omitted on the hit, and a handler `damage` row (`on.hit`) deals it, the v2 order; (B) `damage` is always required on the hit, accepting the order difference. Neither is chosen; the text above writes `damage` as the map when present. Each occurrence of a repeating hit declares its own firing window for its handler sub-table (the first to the last firing tick, never the whole state), and windows of the same event path are unioned (rev4.4, `8cbbd75f6`). |
-| `damage` | `target` (`caster`, `event.victim`, `event.attacker`, or an area `{kind: enemies\|allies, around: <frame>, radius, max_count, include_self}`, all area fields required), `damage: {kind: amount}` (a map, R20; replaces `components: [{kind, amount}]`), `ignore_invulnerability?` (false = vanilla identity). No `chance` field anywhere: write `when: "= rand() < 0.3"` (class S). Area `max_count` follows the hit's pending Q1. |
+| `hit` | `anchor` (one frame, required; `caster` for body sectors), `shape` (one of `sector: {deg, range, height, forward}`, `sphere: <radius>`, `capsule: <radius>` with the frames' `from`/`to`; points are in the anchor frame), `targets` (`enemies` \| `allies` \| `all`, required; a FILTER over the shape's victims), `max_count` (optional: an integer >= 1 keeps the nearest N, `all` or omitted = unlimited), `ignore_invulnerability` (required, true or false), `damage: {kind: amount}` (a map; a bare number is a load error), `on: {hit, miss}` (handler lists; `miss` runs once when the firing finds no victim), `window` (required iff the hit repeats with `every`: `once` or `{every: N}`; forbidden on a single firing). A sector is a sphere wedge: points within `range` whose horizontal angle to the sector's forward is at most `deg/2`, and whose vertical offset from the origin is within ±`height/2`. `deg`, `range`, `height` are required; an absent `height` is a load error. `forward: look \| yaw` (required on a sector): `look` = the anchor's pitched forward, `yaw` = its horizontal forward. Expressions in `damage` may use `stacks(victim, status)` and `contact.*` (3.5). `damage` is optional on the hit: a hit without it is trigger-only, and a handler `damage` row (`on.hit`) deals the damage, the v2 order (founder Q4 = A, 10/29); a present `damage` map must list at least one kind. Each occurrence of a repeating hit declares its own firing window for its handler sub-table (the first to the last firing tick, never the whole state), and windows of the same event path are unioned (rev4.4, `8cbbd75f6`). |
+| `damage` | `target` (`caster`, `event.victim`, `event.attacker`, or an area `{kind: enemies\|allies, around: <frame>, radius, max_count, include_self}`, all area fields required), `damage: {kind: amount}` (a map, R20; replaces `components: [{kind, amount}]`), `ignore_invulnerability?` (false = vanilla identity). No `chance` field anywhere: write `when: "= rand() < 0.3"` (class S). Area `max_count` follows the hit: optional, omitted = unlimited (Q1 = B). |
 | `status` | `target`, `status`, `stacks`, `for` |
 | `modify_attribute` | `target`, `attribute`, `operation`, `amount`, `for` |
 | `impulse` | `target`, `vector` = an offsetVec: the frame-axes map `{of, forward, up, left}`, a world map `{x, y, z}`, or a CEL vector. Subsumes the removed `propel`. |
@@ -1323,14 +1324,14 @@ Resolved (not founder decisions; engine facts, rev3/rev4):
 3. **Sprite authoring unit**: blocks (`size`, taken here) vs vanilla scale.
 4. `ribbon`/`trail` internals (segment count, the history sampler) are deliberately thin here and need a follow-up.
 
-**Pending founder questions Q1-Q7 (rev4.3).** Both options are written; none is chosen.
+**Founder questions Q1-Q7 (rev4.3).** Q1 and Q4 are RESOLVED (10/29); the rest are pending, both options written, none chosen.
 
 | Q | topic | option A | option B | where |
 |---|---|---|---|---|
-| Q1 | `max_count` on `hit` / area `damage` | required, an integer or `all` | optional, omitted = unlimited | 10.1b |
+| Q1 | `max_count` on `hit` / area `damage` | required, an integer or `all` | optional, omitted = unlimited | 10.1b. **RESOLVED B (founder 10/29)** |
 | Q2 | `victim.body` height | live hitbox centre (0.9 for a standing player) | fixed `victim.chest` at feet + 0.8 | 1 |
 | Q3 | `gameplay.expose` | drop it | keep a `kind: Patch` form for later exposure | 13 |
-| Q4 | hit `damage` optional | omit on the hit; a handler `damage` deals it (v2 order) | always required on the hit; accept the order difference | 10.1b |
+| Q4 | hit `damage` optional | omit on the hit; a handler `damage` deals it (v2 order) | always required on the hit; accept the order difference | 10.1b. **RESOLVED A (founder 10/29)** |
 | Q5 | couture `absorb` (example e) | transition `absorb: true` | `modify_attribute resist.physical` | example e (also option C: a `parry {for, scale: 0}` op) |
 | Q6 | coin1 delay | handler `at: 1` | `hit` gets `damage_delay: 1` | example a / g |
 | Q7 | screen ops | revive `screen_flash` / `screen_veil` | drop them | 10.1b |

@@ -230,7 +230,6 @@ machine:
                     op: particle_def
                     def: couture-s2-p-crit
                     anchor: fx4_couture_s2_hit1
-        # GAP(Q4): trigger-only hit (damage omitted, R24); the 30 lands in the c1_hit.hit handler.
         # GAP(Q6): v2 delay 1 between hit and damage is the handler row `at: 1` (option A); option B would be `damage_delay: 1` on the hit.
         # max_count: 1 = the nearest 1 target (v2 hit cap; founder 10/28 ruling, TablePlayer.kt:933-935 sorts nearest-first then takes N).
         - id: w0

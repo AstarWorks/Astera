@@ -26,7 +26,6 @@ machine:
           anchor: caster.eye
           shape: {sector: {deg: "${arc_deg}", range: "${reach}", height: 2.0, forward: look}}
           targets: enemies
-          max_count: all       # GAP(Q1): max_count spelling (A required int|all / B omit); v2 had no cap
           window: once
           ignore_invulnerability: false
           damage: {physical: "${dmg_physical}"}

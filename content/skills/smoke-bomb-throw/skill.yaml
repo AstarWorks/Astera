@@ -34,13 +34,11 @@ machine:
           block: {mode: despawn}
           on:
             hit:
-              # GAP(Q1): max_count spelling A (required, `all` = v2 unlimited); under B delete the key
               - {id: st_evasive, op: status, target: {kind: allies, around: foe, radius: 4.0, max_count: all, include_self: true}, status: evasive, stacks: 1, for: 80}
               - {id: snd_hit, op: sound, sound: entity.generic.extinguish_fire, anchor: contact, volume: 0.8, pitch: 0.7}
               - {id: fx_big, op: particle, particle: large_smoke, anchor: smoke_hit, count: 0, extra: 0.01}
               - {id: fx_small, op: particle, particle: smoke, anchor: smoke_hit, count: 0, extra: 0.01}
             block:
-              # GAP(Q1): max_count spelling A (required, `all` = v2 unlimited); under B delete the key
               - {id: st_evasive, op: status, target: {kind: allies, around: contact, radius: 4.0, max_count: all, include_self: true}, status: evasive, stacks: 1, for: 80}
               - {id: snd_blk, op: sound, sound: entity.generic.extinguish_fire, anchor: contact, volume: 0.8, pitch: 0.7}
               - {id: fx_big_blk, op: particle, particle: large_smoke, anchor: contact, count: 0, extra: 0.01}

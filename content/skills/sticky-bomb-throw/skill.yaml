@@ -35,14 +35,12 @@ machine:
           on:
             hit:
               - {id: explode, op: explode, at: 0, anchor: victim.root, power: 1.5, break_blocks: false, fire: false}
-              # GAP(Q1): max_count spelling A (required, `all` = v2 unlimited); under B delete the key
               - {id: blast, op: damage, at: 0, target: {kind: enemies, around: foe, radius: 3.0, max_count: all}, damage: {fire: 30.0}}
               - {id: chip, op: break_area, at: 0, anchor: contact, shape: {sphere: {radius: 1.0, ahead: 4.0}}, tool: none, block_damage: 25, ripple: 29, revert: 200, outside_arena: false}
               - {id: snd_hit, op: sound, sound: "astera:skills/fire-impact", anchor: contact, volume: 0.7, pitch: 1.2}
               - {id: fx_hit, op: particle_def, def: hit-spark, anchor: heart}
             block:
               - {id: explode_2, op: explode, at: 0, anchor: contact, power: 1.5, break_blocks: false, fire: false}
-              # GAP(Q1): max_count spelling A (required, `all` = v2 unlimited); under B delete the key
               - {id: blast_2, op: damage, at: 0, target: {kind: enemies, around: contact, radius: 3.0, max_count: all}, damage: {fire: 30.0}}
               - {id: chip_2, op: break_area, at: 0, anchor: contact, shape: {sphere: {radius: 1.0, ahead: 4.0}}, tool: none, block_damage: 25, ripple: 29, revert: 200, outside_arena: false}
               - {id: snd_blk, op: sound, sound: "astera:weapons/gun-impact-block", anchor: contact, volume: 0.5, pitch: 1.5}

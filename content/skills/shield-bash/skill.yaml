@@ -28,7 +28,6 @@ machine:
           anchor: eye
           shape: {sector: {deg: 70.0, range: 2.6, height: 2.0, forward: look}}
           targets: enemies
-          # GAP(Q1): v2 has no cap (unlimited, nearest-first); spelling A `max_count: all`, B omitted
           window: once
           ignore_invulnerability: false
           damage: {physical: 18.0}

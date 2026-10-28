@@ -30,12 +30,12 @@ machine:
           block: {mode: despawn}
           on:
             hit:
-              - {id: st_poison, op: status, target: {kind: enemies, around: foe, radius: 3.5, max_count: all}, status: poison, stacks: 1, for: 80}   # GAP(Q1): v2 had no cap; A=`all`, B=omit
+              - {id: st_poison, op: status, target: {kind: enemies, around: foe, radius: 3.5}, status: poison, stacks: 1, for: 80}
               - {id: pts,  op: particle, particle: happy_villager, anchor: foe_low, count: 0, extra: 0.02}
               - {id: dust, op: particle, particle: dust, anchor: foe_low, count: 1, extra: 0, color: "#5aaa3c", size: 1.4}
               - {id: snd_hit, op: sound, sound: entity.splash_potion.break, anchor: foe, volume: 0.8, pitch: 0.8}
             block:
-              - {id: st_poison_b, op: status, target: {kind: enemies, around: contact, radius: 3.5, max_count: all}, status: poison, stacks: 1, for: 80}   # GAP(Q1): v2 had no cap; A=`all`, B=omit
+              - {id: st_poison_b, op: status, target: {kind: enemies, around: contact, radius: 3.5}, status: poison, stacks: 1, for: 80}
               - {id: pts_b,  op: particle, particle: happy_villager, anchor: contact, count: 0, extra: 0.02}
               - {id: dust_b, op: particle, particle: dust, anchor: contact, count: 1, extra: 0, color: "#5aaa3c", size: 1.4}
               - {id: snd_blk, op: sound, sound: entity.splash_potion.break, anchor: contact, volume: 0.8, pitch: 0.8}
