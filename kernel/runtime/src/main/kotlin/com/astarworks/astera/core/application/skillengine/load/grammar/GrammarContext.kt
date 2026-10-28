@@ -88,7 +88,26 @@ public class GrammarContext(
     public fun resolveNumber(value: Value<Double>): Double? = when (value) {
         is Value.Literal -> value.value
         is Value.ParamRef -> (params?.get(value.name) as? ParamValue.Num)?.value
-        is Value.Expr -> null
+        is Value.Expr -> constant(value.source)
+    }
+
+    /**
+     * ADR-0303 3.5: a law number is class S when its expression names no variable, frame or random stream (a part's `= radius / ring_for` after
+     * the call bound its params). It folds at load; anything that needs a runtime value stays null, i.e. the caller's "must be a literal" error.
+     */
+    private fun constant(source: String): Double? {
+        val compiler = exprs ?: return null
+        if (Regex("""\b(rand|draw)\s*\(""").containsMatchIn(source)) return null
+        val compiled = (compiler.compile(source, ExprEnvSpec(), ExprType.NUM) as? Result.Success)?.value ?: return null
+        val noFrames = object : com.astarworks.astera.core.domain.skillengine.expr.FrameLookup {
+            override fun worldPose(frame: String, point: String?) = null
+            override fun velocity(frame: String, point: String?) = com.astarworks.astera.core.domain.geometry.Vec3.ZERO
+        }
+        return try {
+            (compiled.eval(com.astarworks.astera.core.domain.skillengine.expr.ExprEnv(emptyMap(), noFrames)) as? com.astarworks.astera.core.domain.skillengine.expr.ExprValue.Num)?.value
+        } catch (e: com.astarworks.astera.core.domain.skillengine.expr.ExprEvalException) {
+            null
+        }
     }
 }
 

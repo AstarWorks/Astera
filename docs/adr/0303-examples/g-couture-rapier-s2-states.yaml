@@ -66,7 +66,7 @@ machine:
         - {id: edge, op: ribbon, of: "blade[i].tip", times: 3, root: "blade[i].root", history: 4, style: crisp, width_frac: 1.0, color: "#EEE5B9BE", at: 4, for: 7}
         - {id: whirr, op: sound, sound: item.trident.throw, anchor: shears, at: 4, every: 3, for: 7, volume: 0.5, pitch: "= 1.0 + 0.05 * i"}
       on:
-        - {event: hit, when: "= event.victim != null", to: stuck, do: [{id: bleed, op: status, target: event.victim, status: bleed, stacks: 2, for: 60}]}   # ENGINE GAP: a hit op is not a spawned instance, so `<id>.hit` has no producer (StaticChecks.kt:223); the global `hit` event covers all three blade hit ops
+        - {event: hit, when: "= event.victim != null", to: stuck, do: [{id: bleed, op: status, target: event.victim, status: bleed, stacks: 2, for: 60}]}
     stuck:                                    # reached when a blade hit; the other blades continue under their own laws until the state ends
       for: 12
       then: coin3
