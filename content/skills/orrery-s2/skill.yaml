@@ -16,6 +16,7 @@ gameplay:
       at: 0
       do:
         - {id: dash, op: dash_strike, distance: "${dash_distance}", ticks: 7, radius: 0.8, hit_once: true, invulnerable: false, stop_on_block: true, follow_pitch: false, stop_before_target: 4}
+    - {id: t26, at: 26, do: [{id: fx3_orrery_s2_poise_staff_raise_stop, op: raise_event, name: fx3_orrery_s2_poise_staff_raise_stop}]}
     - id: t35
       at: 35
       do:
@@ -26,6 +27,7 @@ gameplay:
           max_count: 1
           window: once
           ticks: 1
+    - {id: t60, at: 60, do: [{id: fx3_orrery_s2_poise_staff_recharge_stop, op: raise_event, name: fx3_orrery_s2_poise_staff_recharge_stop}]}
     - id: t61
       at: 61
       do:

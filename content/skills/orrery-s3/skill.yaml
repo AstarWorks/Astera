@@ -14,6 +14,8 @@ gameplay:
     - {id: damage, param: dmg_physical}
   timeline:
     - {id: t0, at: 0, do: [{id: sel, op: hit, frames: [caster], capsule: {from: aim, to: pt_aim_0_0_14, radius: 0.3}, window: once, ticks: 1}]}
+    - {id: t81, at: 81, do: [{id: fx9_orrery_channel_staff_flourish_75_stop, op: raise_event, name: fx9_orrery_channel_staff_flourish_75_stop}]}
+    - {id: t117, at: 117, do: [{id: fx9_orrery_channel_staff_flourish_108_stop, op: raise_event, name: fx9_orrery_channel_staff_flourish_108_stop}]}
     - {id: t145, at: 145, do: [{id: st_charge, op: status, status: charge, duration_ticks: "${charge_ticks}", target: caster, stacks: "${charge_stacks}"}]}
   "on":
     hit:

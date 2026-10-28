@@ -1,8 +1,5 @@
 # Converted from content/skills/bastion-greatsword-ego.yaml + content/vfx/* by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
 # Generated point-frame offsets are [left, up, forward] in the parent frame.
-# CONVERT-PRESENT camera_shake shape (engine shake is intensity + ticks only) (x2): shape="decay"
-# CONVERT-PRESENT camera_shake direction (engine shake is intensity + ticks only) (x2): direction="from_hit" | direction="none"
-# CONVERT-PRESENT camera_shake viewers (engine shake is intensity + ticks only) (x2): viewers="all" | viewers="caster"
 apiVersion: "astera/v2"
 kind: Skill
 id: bastion-greatsword-ego
@@ -820,8 +817,8 @@ presentation:
             - {t: 18, offset: [0.0, 0.7, 0.0], scale: [2.6, 2.6, 2.6], alpha: 0.0, ease: out_quad}
           sample_ticks: 1
         - {id: snd_4, op: sound, sound: block.anvil.land, at: caster, pitch: 0.5}
-        - {id: shake, op: camera_shake, target: {enemies: {around: caster, radius: 9.0}}, intensity: 1.0, ticks: 10}
-        - {id: shake_2, op: camera_shake, target: caster, intensity: 0.5, ticks: 8}
+        - {id: shake, op: camera_shake, target: {enemies: {around: caster, radius: 9.0}}, intensity: 1.0, ticks: 10, direction: from_hit}
+        - {id: shake_2, op: camera_shake, target: caster, intensity: 0.5, ticks: 8, viewers: caster}
         - {id: veil, op: screen_veil, target: caster, sprite: burst, ticks: 5, color: "#FFC84A", distance: 0.4, scale: 1.4, max_screen_fraction: 0.15}
         - {id: flash, op: screen_flash, target: {enemies: {around: caster, radius: 5.0}}, overlay: gold_burst, color: "#FFC84A", fade_in: 0, stay: 2, fade_out: 2}
         - {id: snd_5, op: sound, sound: entity.generic.explode, at: caster, pitch: 0.6}
@@ -953,4 +950,4 @@ presentation:
             - fx4_bastion_ego_slam_sword_inset
             - fx4_bastion_ego_slam_sword_guard
             - fx4_bastion_ego_slam_sword_grip
-  "on": {hit: [{id: emit, op: emit, at: contact.point, particle: bastion-s3-hit-crit, when: "= (event.source == 'sel') && (hp_ratio(victim) > 0)"}]}
+  "on": {hit: [{id: emit, op: emit, at: enemy, particle: bastion-s3-hit-crit, when: "= (event.source == 'sel') && (hp_ratio(victim) > 0)"}]}

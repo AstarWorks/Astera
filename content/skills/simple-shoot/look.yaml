@@ -4,15 +4,15 @@ apiVersion: "astera/v2"
 kind: Skill
 id: simple-shoot
 frames:
-  - {id: pt_caster_0_1p62_1p2, kind: point, parent: caster, offset: [0.0, 1.62, 1.2]}
+  - {id: pt_aim_0_0_1p2, kind: point, parent: aim, offset: [0.0, 0.0, 1.2]}
 presentation:
   timeline:
     - id: fx0
       at: 0
       do:
         - {id: snd, op: sound, sound: "astera:skill/wand/cast", at: caster}
-        - {id: emit, op: emit, at: pt_caster_0_1p62_1p2, particle: flame, count: 50, speed: 0.2}
-        - {id: emit_2, op: emit, at: pt_caster_0_1p62_1p2, particle: dust, count: 20, offset: [0.2, 0.2, 0.2], speed: 0.0, data: "#ff6414", data_size: 1.6}
+        - {id: emit, op: emit, at: pt_aim_0_0_1p2, particle: flame, count: 50, speed: 0.2}
+        - {id: emit_2, op: emit, at: pt_aim_0_0_1p2, particle: dust, count: 20, offset: [0.2, 0.2, 0.2], speed: 0.0, data: "#ff6414", data_size: 1.6}
     - id: fxblock_1
       at: "block+1"
       do:

@@ -26,4 +26,5 @@ gameplay:
           max_count: 1
           window: once
           ticks: 1
+    - {id: t115, at: 115, do: [{id: fx3_ember_counter_sweep_gauntlet_flame_fan_stop, op: raise_event, name: fx3_ember_counter_sweep_gauntlet_flame_fan_stop}]}
   "on": {hit: [{id: dmg, op: damage, components: [{kind: physical, amount: "${dmg_physical}"}], target: victim, ignore_invulnerability: true, when: "= event.source == 'sel'"}]}

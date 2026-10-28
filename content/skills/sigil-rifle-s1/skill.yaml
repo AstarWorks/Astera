@@ -18,6 +18,7 @@ gameplay:
     - id: t13
       at: 13
       do:
+        - {id: fx1_sigil_rifle_dash_rifle_ribbon_5_stop, op: raise_event, name: fx1_sigil_rifle_dash_rifle_ribbon_5_stop}
         - id: sel
           op: hit
           frames: [caster]
@@ -25,4 +26,5 @@ gameplay:
           max_count: 1
           window: once
           ticks: 1
+    - {id: t24, at: 24, do: [{id: fx1_sigil_rifle_dash_rifle_ribbon_20_stop, op: raise_event, name: fx1_sigil_rifle_dash_rifle_ribbon_20_stop}]}
   "on": {hit: [{id: dmg, op: damage, components: [{kind: physical, amount: "${dmg_physical}"}], target: victim, ignore_invulnerability: true, when: "= event.source == 'sel'"}]}

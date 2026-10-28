@@ -27,6 +27,7 @@ gameplay:
           max_count: 1
           window: once
           ticks: 1
+    - {id: t19, at: 19, do: [{id: fx2_ember_sweep_gauntlet_flame_fan_stop, op: raise_event, name: fx2_ember_sweep_gauntlet_flame_fan_stop}]}
     - id: t23
       at: 23
       do:

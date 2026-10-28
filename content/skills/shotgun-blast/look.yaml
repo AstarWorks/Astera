@@ -4,8 +4,8 @@ apiVersion: "astera/v2"
 kind: Skill
 id: shotgun-blast
 frames:
-  - {id: pt_caster_0_1p37_1p2, kind: point, parent: caster, offset: [0.0, 1.37, 1.2]}
-  - {id: pt_caster_0_1p42_2p4, kind: point, parent: caster, offset: [0.0, 1.42, 2.4]}
+  - {id: pt_aim_0_m0p25_1p2, kind: point, parent: aim, offset: [0.0, -0.25, 1.2]}
+  - {id: pt_aim_0_m0p2_2p4, kind: point, parent: aim, offset: [0.0, -0.2, 2.4]}
   - {id: pt_enemy_0_1p2_0, kind: point, parent: enemy, offset: [0.0, 1.2, 0.0]}
 presentation:
   timeline:
@@ -13,8 +13,8 @@ presentation:
       at: 0
       do:
         - {id: snd, op: sound, sound: "astera:weapons/shotgun-blast", at: caster, volume: 0.6, pitch: 1.4}
-        - {id: emit, op: emit, at: pt_caster_0_1p37_1p2, particle: shotgun-muzzle}
-        - {id: emit_2, op: emit, at: pt_caster_0_1p42_2p4, particle: shotgun-cone-smoke}
+        - {id: emit, op: emit, at: pt_aim_0_m0p25_1p2, particle: shotgun-muzzle}
+        - {id: emit_2, op: emit, at: pt_aim_0_m0p2_2p4, particle: shotgun-cone-smoke}
   "on":
     hit:
       - {id: snd_2, op: sound, sound: "astera:weapons/gun-impact", at: enemy, when: "= event.source == 'swing'"}

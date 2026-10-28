@@ -1,31 +1,32 @@
 # Converted from content/skills/verdict-hammer-ego.yaml + content/vfx/* by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
 # Generated point-frame offsets are [left, up, forward] in the parent frame.
+# CONVERT-PRESENT play_vfx snapshot_pose (no v2 equivalent) (x9): true
 apiVersion: "astera/v2"
 kind: Skill
 id: verdict-hammer-ego
 frames:
   - {id: pt_cast_aim_0_m1p62_8, kind: point, parent: cast_aim, offset: [0.0, -1.62, 8.0]}
   - {id: fx1_verdict_ego_field, kind: body, parent: world}
-  - {id: fx2_verdict_impact, kind: body, parent: world}
+  - {id: fx2_verdict_impact, kind: body, parent: world, scale: 2.5}
   - {id: fx3_verdict_ego_ring, kind: body, parent: world}
-  - {id: fx4_verdict_impact, kind: body, parent: world}
+  - {id: fx4_verdict_impact, kind: body, parent: world, scale: 2.5}
   - {id: fx5_verdict_ego_ring, kind: body, parent: world}
-  - {id: fx6_verdict_impact, kind: body, parent: world}
+  - {id: fx6_verdict_impact, kind: body, parent: world, scale: 2.5}
   - {id: fx7_verdict_ego_ring, kind: body, parent: world}
-  - {id: fx8_verdict_impact, kind: body, parent: world}
+  - {id: fx8_verdict_impact, kind: body, parent: world, scale: 4.0}
   - {id: fx9_verdict_ego_ring, kind: body, parent: world}
   - {id: fx10_verdict_ego_hammer, kind: body, parent: world}
-  - {id: fx10_verdict_ego_hammer_hammer, kind: body, parent: caster}
-  - {id: fx10_verdict_ego_hammer_hammer_parts, kind: body, parent: caster}
+  - {id: fx10_verdict_ego_hammer_hammer, kind: body, parent: caster, passenger: false}
+  - {id: fx10_verdict_ego_hammer_hammer_parts, kind: body, parent: caster, passenger: false}
   - {id: fx11_verdict_ego_hammer, kind: body, parent: world}
-  - {id: fx11_verdict_ego_hammer_hammer, kind: body, parent: caster}
-  - {id: fx11_verdict_ego_hammer_hammer_parts, kind: body, parent: caster}
-  - {id: fx12_verdict_ego_hammer, kind: body, parent: world}
-  - {id: fx12_verdict_ego_hammer_hammer, kind: body, parent: caster}
-  - {id: fx12_verdict_ego_hammer_hammer_parts, kind: body, parent: caster}
-  - {id: fx13_verdict_ego_hammer, kind: body, parent: world}
-  - {id: fx13_verdict_ego_hammer_hammer, kind: body, parent: caster}
-  - {id: fx13_verdict_ego_hammer_hammer_parts, kind: body, parent: caster}
+  - {id: fx11_verdict_ego_hammer_hammer, kind: body, parent: caster, passenger: false}
+  - {id: fx11_verdict_ego_hammer_hammer_parts, kind: body, parent: caster, passenger: false}
+  - {id: fx12_verdict_ego_hammer, kind: body, parent: world, scale: 1.5}
+  - {id: fx12_verdict_ego_hammer_hammer, kind: body, parent: caster, passenger: false}
+  - {id: fx12_verdict_ego_hammer_hammer_parts, kind: body, parent: caster, passenger: false}
+  - {id: fx13_verdict_ego_hammer, kind: body, parent: world, scale: 1.6}
+  - {id: fx13_verdict_ego_hammer_hammer, kind: body, parent: caster, passenger: false}
+  - {id: fx13_verdict_ego_hammer_hammer_parts, kind: body, parent: caster, passenger: false}
   - {id: pt_aim_0_m1p5_8, kind: point, parent: aim, offset: [0.0, -1.5, 8.0]}
 presentation:
   timeline:
@@ -113,6 +114,7 @@ presentation:
             - {t: 5, offset: [2.0, 1.5, 0.0], ease: out_cubic}
             - {t: 150, offset: [2.0, 1.5, 0.0]}
             - {t: 160, offset: [2.0, -1.65, 0.0], scale: [0.0, 0.0, 0.0], ease: in_quad}
+          sample_ticks: 1
         - {op: block, parent: fx1_verdict_ego_field, block: yellow_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_verdict_ego_field_cross0}
         - id: fx1_verdict_ego_field_cross0_trk
           op: track
@@ -122,6 +124,7 @@ presentation:
             - {t: 5, offset: [2.0, 2.75, 0.0], ease: out_cubic}
             - {t: 150, offset: [2.0, 2.75, 0.0]}
             - {t: 160, offset: [2.0, -0.4, 0.0], scale: [0.0, 0.0, 0.0], ease: in_quad}
+          sample_ticks: 1
         - {op: block, parent: fx1_verdict_ego_field, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_verdict_ego_field_shaft5}
         - id: fx1_verdict_ego_field_shaft5_trk
           op: track
@@ -131,6 +134,7 @@ presentation:
             - {t: 5, offset: [2.98602, 1.5, -1.89947], ease: out_cubic}
             - {t: 150, offset: [2.98602, 1.5, -1.89947]}
             - {t: 160, offset: [2.98602, -1.65, -1.89947], scale: [0.0, 0.0, 0.0], ease: in_quad}
+          sample_ticks: 1
         - {op: block, parent: fx1_verdict_ego_field, block: yellow_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_verdict_ego_field_cross5}
         - id: fx1_verdict_ego_field_cross5_trk
           op: track
@@ -140,6 +144,7 @@ presentation:
             - {t: 5, offset: [2.98602, 2.75, -1.89947], ease: out_cubic}
             - {t: 150, offset: [2.98602, 2.75, -1.89947]}
             - {t: 160, offset: [2.98602, -0.4, -1.89947], scale: [0.0, 0.0, 0.0], ease: in_quad}
+          sample_ticks: 1
         - {op: block, parent: fx1_verdict_ego_field, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_verdict_ego_field_shaft10}
         - id: fx1_verdict_ego_field_shaft10_trk
           op: track
@@ -149,6 +154,7 @@ presentation:
             - {t: 5, offset: [1.77015, 1.5, -3.78274], ease: out_cubic}
             - {t: 150, offset: [1.77015, 1.5, -3.78274]}
             - {t: 160, offset: [1.77015, -1.65, -3.78274], scale: [0.0, 0.0, 0.0], ease: in_quad}
+          sample_ticks: 1
         - {op: block, parent: fx1_verdict_ego_field, block: yellow_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_verdict_ego_field_cross10}
         - id: fx1_verdict_ego_field_cross10_trk
           op: track
@@ -158,6 +164,7 @@ presentation:
             - {t: 5, offset: [1.77015, 2.75, -3.78274], ease: out_cubic}
             - {t: 150, offset: [1.77015, 2.75, -3.78274]}
             - {t: 160, offset: [1.77015, -0.4, -3.78274], scale: [0.0, 0.0, 0.0], ease: in_quad}
+          sample_ticks: 1
         - {op: block, parent: fx1_verdict_ego_field, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_verdict_ego_field_shaft15}
         - id: fx1_verdict_ego_field_shaft15_trk
           op: track
@@ -167,6 +174,7 @@ presentation:
             - {t: 5, offset: [-0.59959, 1.5, -4.62688], ease: out_cubic}
             - {t: 150, offset: [-0.59959, 1.5, -4.62688]}
             - {t: 160, offset: [-0.59959, -1.65, -4.62688], scale: [0.0, 0.0, 0.0], ease: in_quad}
+          sample_ticks: 1
         - {op: block, parent: fx1_verdict_ego_field, block: yellow_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_verdict_ego_field_cross15}
         - id: fx1_verdict_ego_field_cross15_trk
           op: track
@@ -176,6 +184,7 @@ presentation:
             - {t: 5, offset: [-0.59959, 2.75, -4.62688], ease: out_cubic}
             - {t: 150, offset: [-0.59959, 2.75, -4.62688]}
             - {t: 160, offset: [-0.59959, -0.4, -4.62688], scale: [0.0, 0.0, 0.0], ease: in_quad}
+          sample_ticks: 1
         - {id: flash_7, op: screen_flash, target: caster, overlay: white, color: "#FFF4CF", fade_in: 0, stay: 1, fade_out: 2}
     - id: fx49
       at: 49
@@ -189,6 +198,7 @@ presentation:
             - {t: 5, offset: [-1.98223, 1.5, 1.81589], ease: out_cubic}
             - {t: 149, offset: [-1.98223, 1.5, 1.81589]}
             - {t: 159, offset: [-1.98223, -1.65, 1.81589], scale: [0.0, 0.0, 0.0], ease: in_quad}
+          sample_ticks: 1
         - {op: block, parent: fx1_verdict_ego_field, block: yellow_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_verdict_ego_field_cross1}
         - id: fx1_verdict_ego_field_cross1_trk
           op: track
@@ -198,6 +208,7 @@ presentation:
             - {t: 5, offset: [-1.98223, 2.75, 1.81589], ease: out_cubic}
             - {t: 149, offset: [-1.98223, 2.75, 1.81589]}
             - {t: 159, offset: [-1.98223, -0.4, 1.81589], scale: [0.0, 0.0, 0.0], ease: in_quad}
+          sample_ticks: 1
         - {op: block, parent: fx1_verdict_ego_field, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_verdict_ego_field_shaft6}
         - id: fx1_verdict_ego_field_shaft6_trk
           op: track
@@ -207,6 +218,7 @@ presentation:
             - {t: 5, offset: [-0.95686, 1.5, 3.55949], ease: out_cubic}
             - {t: 149, offset: [-0.95686, 1.5, 3.55949]}
             - {t: 159, offset: [-0.95686, -1.65, 3.55949], scale: [0.0, 0.0, 0.0], ease: in_quad}
+          sample_ticks: 1
         - {op: block, parent: fx1_verdict_ego_field, block: yellow_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_verdict_ego_field_cross6}
         - id: fx1_verdict_ego_field_cross6_trk
           op: track
@@ -216,6 +228,7 @@ presentation:
             - {t: 5, offset: [-0.95686, 2.75, 3.55949], ease: out_cubic}
             - {t: 149, offset: [-0.95686, 2.75, 3.55949]}
             - {t: 159, offset: [-0.95686, -0.4, 3.55949], scale: [0.0, 0.0, 0.0], ease: in_quad}
+          sample_ticks: 1
         - {op: block, parent: fx1_verdict_ego_field, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_verdict_ego_field_shaft11}
         - id: fx1_verdict_ego_field_shaft11_trk
           op: track
@@ -225,6 +238,7 @@ presentation:
             - {t: 5, offset: [1.28174, 1.5, 4.08636], ease: out_cubic}
             - {t: 149, offset: [1.28174, 1.5, 4.08636]}
             - {t: 159, offset: [1.28174, -1.65, 4.08636], scale: [0.0, 0.0, 0.0], ease: in_quad}
+          sample_ticks: 1
         - {op: block, parent: fx1_verdict_ego_field, block: yellow_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_verdict_ego_field_cross11}
         - id: fx1_verdict_ego_field_cross11_trk
           op: track
@@ -234,6 +248,7 @@ presentation:
             - {t: 5, offset: [1.28174, 2.75, 4.08636], ease: out_cubic}
             - {t: 149, offset: [1.28174, 2.75, 4.08636]}
             - {t: 159, offset: [1.28174, -0.4, 4.08636], scale: [0.0, 0.0, 0.0], ease: in_quad}
+          sample_ticks: 1
         - {op: block, parent: fx1_verdict_ego_field, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_verdict_ego_field_shaft16}
         - id: fx1_verdict_ego_field_shaft16_trk
           op: track
@@ -243,6 +258,7 @@ presentation:
             - {t: 5, offset: [3.63438, 1.5, 3.06304], ease: out_cubic}
             - {t: 149, offset: [3.63438, 1.5, 3.06304]}
             - {t: 159, offset: [3.63438, -1.65, 3.06304], scale: [0.0, 0.0, 0.0], ease: in_quad}
+          sample_ticks: 1
         - {op: block, parent: fx1_verdict_ego_field, block: yellow_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_verdict_ego_field_cross16}
         - id: fx1_verdict_ego_field_cross16_trk
           op: track
@@ -252,6 +268,7 @@ presentation:
             - {t: 5, offset: [3.63438, 2.75, 3.06304], ease: out_cubic}
             - {t: 149, offset: [3.63438, 2.75, 3.06304]}
             - {t: 159, offset: [3.63438, -0.4, 3.06304], scale: [0.0, 0.0, 0.0], ease: in_quad}
+          sample_ticks: 1
     - id: fx50
       at: 50
       do:
@@ -264,6 +281,7 @@ presentation:
             - {t: 5, offset: [0.25994, 1.5, -2.96194], ease: out_cubic}
             - {t: 148, offset: [0.25994, 1.5, -2.96194]}
             - {t: 158, offset: [0.25994, -1.65, -2.96194], scale: [0.0, 0.0, 0.0], ease: in_quad}
+          sample_ticks: 1
         - {op: block, parent: fx1_verdict_ego_field, block: yellow_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_verdict_ego_field_cross2}
         - id: fx1_verdict_ego_field_cross2_trk
           op: track
@@ -273,6 +291,7 @@ presentation:
             - {t: 5, offset: [0.25994, 2.75, -2.96194], ease: out_cubic}
             - {t: 148, offset: [0.25994, 2.75, -2.96194]}
             - {t: 158, offset: [0.25994, -0.4, -2.96194], scale: [0.0, 0.0, 0.0], ease: in_quad}
+          sample_ticks: 1
         - {op: block, parent: fx1_verdict_ego_field, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_verdict_ego_field_shaft7}
         - id: fx1_verdict_ego_field_shaft7_trk
           op: track
@@ -282,6 +301,7 @@ presentation:
             - {t: 5, offset: [-1.7611, 1.5, -3.39088], ease: out_cubic}
             - {t: 148, offset: [-1.7611, 1.5, -3.39088]}
             - {t: 158, offset: [-1.7611, -1.65, -3.39088], scale: [0.0, 0.0, 0.0], ease: in_quad}
+          sample_ticks: 1
         - {op: block, parent: fx1_verdict_ego_field, block: yellow_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_verdict_ego_field_cross7}
         - id: fx1_verdict_ego_field_cross7_trk
           op: track
@@ -291,6 +311,7 @@ presentation:
             - {t: 5, offset: [-1.7611, 2.75, -3.39088], ease: out_cubic}
             - {t: 148, offset: [-1.7611, 2.75, -3.39088]}
             - {t: 158, offset: [-1.7611, -0.4, -3.39088], scale: [0.0, 0.0, 0.0], ease: in_quad}
+          sample_ticks: 1
         - {op: block, parent: fx1_verdict_ego_field, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_verdict_ego_field_shaft12}
         - id: fx1_verdict_ego_field_shaft12_trk
           op: track
@@ -300,6 +321,7 @@ presentation:
             - {t: 5, offset: [-3.79323, 1.5, -2.19824], ease: out_cubic}
             - {t: 148, offset: [-3.79323, 1.5, -2.19824]}
             - {t: 158, offset: [-3.79323, -1.65, -2.19824], scale: [0.0, 0.0, 0.0], ease: in_quad}
+          sample_ticks: 1
         - {op: block, parent: fx1_verdict_ego_field, block: yellow_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_verdict_ego_field_cross12}
         - id: fx1_verdict_ego_field_cross12_trk
           op: track
@@ -309,6 +331,7 @@ presentation:
             - {t: 5, offset: [-3.79323, 2.75, -2.19824], ease: out_cubic}
             - {t: 148, offset: [-3.79323, 2.75, -2.19824]}
             - {t: 158, offset: [-3.79323, -0.4, -2.19824], scale: [0.0, 0.0, 0.0], ease: in_quad}
+          sample_ticks: 1
         - {op: block, parent: fx1_verdict_ego_field, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_verdict_ego_field_shaft17}
         - id: fx1_verdict_ego_field_shaft17_trk
           op: track
@@ -318,6 +341,7 @@ presentation:
             - {t: 5, offset: [-4.83358, 1.5, 0.1999], ease: out_cubic}
             - {t: 148, offset: [-4.83358, 1.5, 0.1999]}
             - {t: 158, offset: [-4.83358, -1.65, 0.1999], scale: [0.0, 0.0, 0.0], ease: in_quad}
+          sample_ticks: 1
         - {op: block, parent: fx1_verdict_ego_field, block: yellow_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_verdict_ego_field_cross17}
         - id: fx1_verdict_ego_field_cross17_trk
           op: track
@@ -327,6 +351,7 @@ presentation:
             - {t: 5, offset: [-4.83358, 2.75, 0.1999], ease: out_cubic}
             - {t: 148, offset: [-4.83358, 2.75, 0.1999]}
             - {t: 158, offset: [-4.83358, -0.4, 0.1999], scale: [0.0, 0.0, 0.0], ease: in_quad}
+          sample_ticks: 1
     - id: fx51
       at: 51
       do:
@@ -339,6 +364,7 @@ presentation:
             - {t: 5, offset: [1.94219, 1.5, 2.53324], ease: out_cubic}
             - {t: 147, offset: [1.94219, 1.5, 2.53324]}
             - {t: 157, offset: [1.94219, -1.65, 2.53324], scale: [0.0, 0.0, 0.0], ease: in_quad}
+          sample_ticks: 1
         - {op: block, parent: fx1_verdict_ego_field, block: yellow_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_verdict_ego_field_cross3}
         - id: fx1_verdict_ego_field_cross3_trk
           op: track
@@ -348,6 +374,7 @@ presentation:
             - {t: 5, offset: [1.94219, 2.75, 2.53324], ease: out_cubic}
             - {t: 147, offset: [1.94219, 2.75, 2.53324]}
             - {t: 157, offset: [1.94219, -0.4, 2.53324], scale: [0.0, 0.0, 0.0], ease: in_quad}
+          sample_ticks: 1
         - {op: block, parent: fx1_verdict_ego_field, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_verdict_ego_field_shaft8}
         - id: fx1_verdict_ego_field_shaft8_trk
           op: track
@@ -357,6 +384,7 @@ presentation:
             - {t: 5, offset: [3.70718, 1.5, 1.35385], ease: out_cubic}
             - {t: 147, offset: [3.70718, 1.5, 1.35385]}
             - {t: 157, offset: [3.70718, -1.65, 1.35385], scale: [0.0, 0.0, 0.0], ease: in_quad}
+          sample_ticks: 1
         - {op: block, parent: fx1_verdict_ego_field, block: yellow_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_verdict_ego_field_cross8}
         - id: fx1_verdict_ego_field_cross8_trk
           op: track
@@ -366,6 +394,7 @@ presentation:
             - {t: 5, offset: [3.70718, 2.75, 1.35385], ease: out_cubic}
             - {t: 147, offset: [3.70718, 2.75, 1.35385]}
             - {t: 157, offset: [3.70718, -0.4, 1.35385], scale: [0.0, 0.0, 0.0], ease: in_quad}
+          sample_ticks: 1
         - {op: block, parent: fx1_verdict_ego_field, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_verdict_ego_field_shaft13}
         - id: fx1_verdict_ego_field_shaft13_trk
           op: track
@@ -375,6 +404,7 @@ presentation:
             - {t: 5, offset: [4.37698, 1.5, -0.96228], ease: out_cubic}
             - {t: 147, offset: [4.37698, 1.5, -0.96228]}
             - {t: 157, offset: [4.37698, -1.65, -0.96228], scale: [0.0, 0.0, 0.0], ease: in_quad}
+          sample_ticks: 1
         - {op: block, parent: fx1_verdict_ego_field, block: yellow_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_verdict_ego_field_cross13}
         - id: fx1_verdict_ego_field_cross13_trk
           op: track
@@ -384,6 +414,7 @@ presentation:
             - {t: 5, offset: [4.37698, 2.75, -0.96228], ease: out_cubic}
             - {t: 147, offset: [4.37698, 2.75, -0.96228]}
             - {t: 157, offset: [4.37698, -0.4, -0.96228], scale: [0.0, 0.0, 0.0], ease: in_quad}
+          sample_ticks: 1
         - {op: block, parent: fx1_verdict_ego_field, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_verdict_ego_field_shaft18}
         - id: fx1_verdict_ego_field_shaft18_trk
           op: track
@@ -393,6 +424,7 @@ presentation:
             - {t: 5, offset: [3.48742, 1.5, -3.47047], ease: out_cubic}
             - {t: 147, offset: [3.48742, 1.5, -3.47047]}
             - {t: 157, offset: [3.48742, -1.65, -3.47047], scale: [0.0, 0.0, 0.0], ease: in_quad}
+          sample_ticks: 1
         - {op: block, parent: fx1_verdict_ego_field, block: yellow_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_verdict_ego_field_cross18}
         - id: fx1_verdict_ego_field_cross18_trk
           op: track
@@ -402,6 +434,7 @@ presentation:
             - {t: 5, offset: [3.48742, 2.75, -3.47047], ease: out_cubic}
             - {t: 147, offset: [3.48742, 2.75, -3.47047]}
             - {t: 157, offset: [3.48742, -0.4, -3.47047], scale: [0.0, 0.0, 0.0], ease: in_quad}
+          sample_ticks: 1
     - id: fx52
       at: 52
       do:
@@ -414,6 +447,7 @@ presentation:
             - {t: 5, offset: [-3.32488, 1.5, -0.58812], ease: out_cubic}
             - {t: 146, offset: [-3.32488, 1.5, -0.58812]}
             - {t: 156, offset: [-3.32488, -1.65, -0.58812], scale: [0.0, 0.0, 0.0], ease: in_quad}
+          sample_ticks: 1
         - {op: block, parent: fx1_verdict_ego_field, block: yellow_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_verdict_ego_field_cross4}
         - id: fx1_verdict_ego_field_cross4_trk
           op: track
@@ -423,6 +457,7 @@ presentation:
             - {t: 5, offset: [-3.32488, 2.75, -0.58812], ease: out_cubic}
             - {t: 146, offset: [-3.32488, 2.75, -0.58812]}
             - {t: 156, offset: [-3.32488, -0.4, -0.58812], scale: [0.0, 0.0, 0.0], ease: in_quad}
+          sample_ticks: 1
         - {op: block, parent: fx1_verdict_ego_field, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_verdict_ego_field_shaft9}
         - id: fx1_verdict_ego_field_shaft9_trk
           op: track
@@ -432,6 +467,7 @@ presentation:
             - {t: 5, offset: [-3.75722, 1.5, 1.55094], ease: out_cubic}
             - {t: 146, offset: [-3.75722, 1.5, 1.55094]}
             - {t: 156, offset: [-3.75722, -1.65, 1.55094], scale: [0.0, 0.0, 0.0], ease: in_quad}
+          sample_ticks: 1
         - {op: block, parent: fx1_verdict_ego_field, block: yellow_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_verdict_ego_field_cross9}
         - id: fx1_verdict_ego_field_cross9_trk
           op: track
@@ -441,6 +477,7 @@ presentation:
             - {t: 5, offset: [-3.75722, 2.75, 1.55094], ease: out_cubic}
             - {t: 146, offset: [-3.75722, 2.75, 1.55094]}
             - {t: 156, offset: [-3.75722, -0.4, 1.55094], scale: [0.0, 0.0, 0.0], ease: in_quad}
+          sample_ticks: 1
         - {op: block, parent: fx1_verdict_ego_field, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_verdict_ego_field_shaft14}
         - id: fx1_verdict_ego_field_shaft14_trk
           op: track
@@ -450,6 +487,7 @@ presentation:
             - {t: 5, offset: [-2.63131, 1.5, 3.7428], ease: out_cubic}
             - {t: 146, offset: [-2.63131, 1.5, 3.7428]}
             - {t: 156, offset: [-2.63131, -1.65, 3.7428], scale: [0.0, 0.0, 0.0], ease: in_quad}
+          sample_ticks: 1
         - {op: block, parent: fx1_verdict_ego_field, block: yellow_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_verdict_ego_field_cross14}
         - id: fx1_verdict_ego_field_cross14_trk
           op: track
@@ -459,6 +497,7 @@ presentation:
             - {t: 5, offset: [-2.63131, 2.75, 3.7428], ease: out_cubic}
             - {t: 146, offset: [-2.63131, 2.75, 3.7428]}
             - {t: 156, offset: [-2.63131, -0.4, 3.7428], scale: [0.0, 0.0, 0.0], ease: in_quad}
+          sample_ticks: 1
         - {op: block, parent: fx1_verdict_ego_field, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_verdict_ego_field_shaft19}
         - id: fx1_verdict_ego_field_shaft19_trk
           op: track
@@ -468,6 +507,7 @@ presentation:
             - {t: 5, offset: [-0.23094, 1.5, 4.99466], ease: out_cubic}
             - {t: 146, offset: [-0.23094, 1.5, 4.99466]}
             - {t: 156, offset: [-0.23094, -1.65, 4.99466], scale: [0.0, 0.0, 0.0], ease: in_quad}
+          sample_ticks: 1
         - {op: block, parent: fx1_verdict_ego_field, block: yellow_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_verdict_ego_field_cross19}
         - id: fx1_verdict_ego_field_cross19_trk
           op: track
@@ -477,6 +517,7 @@ presentation:
             - {t: 5, offset: [-0.23094, 2.75, 4.99466], ease: out_cubic}
             - {t: 146, offset: [-0.23094, 2.75, 4.99466]}
             - {t: 156, offset: [-0.23094, -0.4, 4.99466], scale: [0.0, 0.0, 0.0], ease: in_quad}
+          sample_ticks: 1
     - id: fx55
       at: 55
       do:
@@ -500,16 +541,18 @@ presentation:
           op: track
           target: fx2_verdict_impact_star
           keys:
-            - {t: 0, offset: [0.0, -2.65, 1.375], scale: [6.0, 6.0, 2.5], alpha: 1.0}
-            - {t: 4, offset: [0.0, -2.65, 1.375], scale: [6.0, 6.0, 2.5], alpha: 1.0}
-            - {t: 10, offset: [0.0, 2.75, 1.375], scale: [0.0, 0.0, 0.0], alpha: 0.0, ease: in_quad}
+            - {t: 0, offset: [0.0, -1.06, 0.55], scale: [2.4, 2.4, 1.0], alpha: 1.0}
+            - {t: 4, offset: [0.0, -1.06, 0.55], scale: [2.4, 2.4, 1.0], alpha: 1.0}
+            - {t: 10, offset: [0.0, 1.1, 0.55], scale: [0.0, 0.0, 0.0], alpha: 0.0, ease: in_quad}
+          sample_ticks: 1
         - {op: quad, parent: fx2_verdict_impact, face: {viewer: center}, size: [1.0, 1.0], color: "#FFD66B", alpha: 0.22, text: "✦", see_through: true, brightness: 15, id: fx2_verdict_impact_bloom}
         - id: fx2_verdict_impact_bloom_trk
           op: track
           target: fx2_verdict_impact_bloom
           keys:
-            - {t: 0, offset: [0.0, -4.675, 1.25], scale: [8.25, 8.25, 2.5], alpha: 0.22}
-            - {t: 9, offset: [0.0, -6.25, 1.25], scale: [10.0, 10.0, 2.5], alpha: 0.0, ease: out_cubic}
+            - {t: 0, offset: [0.0, -1.87, 0.5], scale: [3.3, 3.3, 1.0], alpha: 0.22}
+            - {t: 9, offset: [0.0, -2.5, 0.5], scale: [4.0, 4.0, 1.0], alpha: 0.0, ease: out_cubic}
+          sample_ticks: 1
         - {id: anchor_3, op: anchor, frame: fx3_verdict_ego_ring, at: pt_cast_aim_0_m1p62_8, orient: yaw, pose: cast_caster}
         - {op: block, parent: fx3_verdict_ego_ring, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx3_verdict_ego_ring_ring_s0}
         - id: fx3_verdict_ego_ring_ring_s0_trk
@@ -532,6 +575,7 @@ presentation:
             - {t: 13, offset: [0.0, 0.9015, 6.01], turn: [0.0, 90.0, 0.0], scale: [0.12818, 0.09156, 2.92988]}
             - {t: 14, offset: [0.0, 0.906, 6.04], turn: [0.0, 90.0, 0.0], scale: [0.09249, 0.06606, 2.114]}
             - {t: 15, offset: [0.0, 0.9105, 6.07], turn: [0.0, 90.0, 0.0], scale: [0.04979, 0.03557, 1.13812]}
+          sample_ticks: 1
         - {op: block, parent: fx3_verdict_ego_ring, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx3_verdict_ego_ring_ring_s1}
         - id: fx3_verdict_ego_ring_ring_s1_trk
           op: track
@@ -553,6 +597,7 @@ presentation:
             - {t: 13, offset: [4.24971, 0.9015, 4.24971], turn: [0.0, 135.0, 0.0], scale: [0.12818, 0.09156, 2.92988]}
             - {t: 14, offset: [4.27092, 0.906, 4.27092], turn: [0.0, 135.0, 0.0], scale: [0.09249, 0.06606, 2.114]}
             - {t: 15, offset: [4.29214, 0.9105, 4.29214], turn: [0.0, 135.0, 0.0], scale: [0.04979, 0.03557, 1.13812]}
+          sample_ticks: 1
         - {op: block, parent: fx3_verdict_ego_ring, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx3_verdict_ego_ring_ring_s2}
         - id: fx3_verdict_ego_ring_ring_s2_trk
           op: track
@@ -574,6 +619,7 @@ presentation:
             - {t: 13, offset: [6.01, 0.9015, 0.0], turn: [0.0, 180.0, 0.0], scale: [0.12818, 0.09156, 2.92988]}
             - {t: 14, offset: [6.04, 0.906, 0.0], turn: [0.0, 180.0, 0.0], scale: [0.09249, 0.06606, 2.114]}
             - {t: 15, offset: [6.07, 0.9105, 0.0], turn: [0.0, 180.0, 0.0], scale: [0.04979, 0.03557, 1.13812]}
+          sample_ticks: 1
         - {op: block, parent: fx3_verdict_ego_ring, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx3_verdict_ego_ring_ring_s3}
         - id: fx3_verdict_ego_ring_ring_s3_trk
           op: track
@@ -595,6 +641,7 @@ presentation:
             - {t: 13, offset: [4.24971, 0.9015, -4.24971], turn: [0.0, -135.0, 0.0], scale: [0.12818, 0.09156, 2.92988]}
             - {t: 14, offset: [4.27092, 0.906, -4.27092], turn: [0.0, -135.0, 0.0], scale: [0.09249, 0.06606, 2.114]}
             - {t: 15, offset: [4.29214, 0.9105, -4.29214], turn: [0.0, -135.0, 0.0], scale: [0.04979, 0.03557, 1.13812]}
+          sample_ticks: 1
         - {op: block, parent: fx3_verdict_ego_ring, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx3_verdict_ego_ring_ring_s4}
         - id: fx3_verdict_ego_ring_ring_s4_trk
           op: track
@@ -616,6 +663,7 @@ presentation:
             - {t: 13, offset: [0.0, 0.9015, -6.01], turn: [0.0, -90.0, 0.0], scale: [0.12818, 0.09156, 2.92988]}
             - {t: 14, offset: [0.0, 0.906, -6.04], turn: [0.0, -90.0, 0.0], scale: [0.09249, 0.06606, 2.114]}
             - {t: 15, offset: [0.0, 0.9105, -6.07], turn: [0.0, -90.0, 0.0], scale: [0.04979, 0.03557, 1.13812]}
+          sample_ticks: 1
         - {op: block, parent: fx3_verdict_ego_ring, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx3_verdict_ego_ring_ring_s5}
         - id: fx3_verdict_ego_ring_ring_s5_trk
           op: track
@@ -637,6 +685,7 @@ presentation:
             - {t: 13, offset: [-4.24971, 0.9015, -4.24971], turn: [0.0, -45.0, 0.0], scale: [0.12818, 0.09156, 2.92988]}
             - {t: 14, offset: [-4.27092, 0.906, -4.27092], turn: [0.0, -45.0, 0.0], scale: [0.09249, 0.06606, 2.114]}
             - {t: 15, offset: [-4.29214, 0.9105, -4.29214], turn: [0.0, -45.0, 0.0], scale: [0.04979, 0.03557, 1.13812]}
+          sample_ticks: 1
         - {op: block, parent: fx3_verdict_ego_ring, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx3_verdict_ego_ring_ring_s6}
         - id: fx3_verdict_ego_ring_ring_s6_trk
           op: track
@@ -658,6 +707,7 @@ presentation:
             - {t: 13, offset: [-6.01, 0.9015, 0.0], turn: [0.0, 0.0, 0.0], scale: [0.12818, 0.09156, 2.92988]}
             - {t: 14, offset: [-6.04, 0.906, 0.0], turn: [0.0, 0.0, 0.0], scale: [0.09249, 0.06606, 2.114]}
             - {t: 15, offset: [-6.07, 0.9105, 0.0], turn: [0.0, 0.0, 0.0], scale: [0.04979, 0.03557, 1.13812]}
+          sample_ticks: 1
         - {op: block, parent: fx3_verdict_ego_ring, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx3_verdict_ego_ring_ring_s7}
         - id: fx3_verdict_ego_ring_ring_s7_trk
           op: track
@@ -679,6 +729,7 @@ presentation:
             - {t: 13, offset: [-4.24971, 0.9015, 4.24971], turn: [0.0, 45.0, 0.0], scale: [0.12818, 0.09156, 2.92988]}
             - {t: 14, offset: [-4.27092, 0.906, 4.27092], turn: [0.0, 45.0, 0.0], scale: [0.09249, 0.06606, 2.114]}
             - {t: 15, offset: [-4.29214, 0.9105, 4.29214], turn: [0.0, 45.0, 0.0], scale: [0.04979, 0.03557, 1.13812]}
+          sample_ticks: 1
         - id: emit_17
           op: emit
           at: pt_aim_0_m1p5_8
@@ -696,25 +747,28 @@ presentation:
           op: track
           target: fx2_verdict_impact_dark0
           keys:
-            - {t: 0, offset: [0.0, 2.5, 0.0], scale: [0.3, 0.5, 2.5], alpha: 1.0}
-            - {t: 5, offset: [3.25, 3.5, 0.75], scale: [0.4, 0.65, 2.5], ease: out_cubic}
-            - {t: 11, scale: [0.1, 0.1, 2.5], alpha: 0.0}
+            - {t: 0, offset: [0.0, 1.0, 0.0], scale: [0.12, 0.2, 1.0], alpha: 1.0}
+            - {t: 5, offset: [1.3, 1.4, 0.3], scale: [0.16, 0.26, 1.0], ease: out_cubic}
+            - {t: 11, scale: [0.04, 0.04, 1.0], alpha: 0.0}
+          sample_ticks: 1
         - {op: quad, parent: fx2_verdict_impact, face: {viewer: center}, size: [1.0, 1.0], color: "#302313", alpha: 1.0, text: "▲", see_through: true, brightness: 15, id: fx2_verdict_impact_dark1}
         - id: fx2_verdict_impact_dark1_trk
           op: track
           target: fx2_verdict_impact_dark1
           keys:
-            - {t: 0, offset: [0.0, 2.5, 0.0], scale: [0.3, 0.5, 2.5], alpha: 1.0}
-            - {t: 5, offset: [0.0, 6.0, 0.75], scale: [0.4, 0.65, 2.5], ease: out_cubic}
-            - {t: 11, scale: [0.1, 0.1, 2.5], alpha: 0.0}
+            - {t: 0, offset: [0.0, 1.0, 0.0], scale: [0.12, 0.2, 1.0], alpha: 1.0}
+            - {t: 5, offset: [0.0, 2.4, 0.3], scale: [0.16, 0.26, 1.0], ease: out_cubic}
+            - {t: 11, scale: [0.04, 0.04, 1.0], alpha: 0.0}
+          sample_ticks: 1
         - {op: quad, parent: fx2_verdict_impact, face: {viewer: center}, size: [1.0, 1.0], color: "#302313", alpha: 1.0, text: "▲", see_through: true, brightness: 15, id: fx2_verdict_impact_dark2}
         - id: fx2_verdict_impact_dark2_trk
           op: track
           target: fx2_verdict_impact_dark2
           keys:
-            - {t: 0, offset: [0.0, 2.5, 0.0], scale: [0.3, 0.5, 2.5], alpha: 1.0}
-            - {t: 5, offset: [-3.25, 3.5, 0.75], scale: [0.4, 0.65, 2.5], ease: out_cubic}
-            - {t: 11, scale: [0.1, 0.1, 2.5], alpha: 0.0}
+            - {t: 0, offset: [0.0, 1.0, 0.0], scale: [0.12, 0.2, 1.0], alpha: 1.0}
+            - {t: 5, offset: [-1.3, 1.4, 0.3], scale: [0.16, 0.26, 1.0], ease: out_cubic}
+            - {t: 11, scale: [0.04, 0.04, 1.0], alpha: 0.0}
+          sample_ticks: 1
         - id: emit_18
           op: emit
           at: pt_aim_0_m1p5_8
@@ -877,16 +931,18 @@ presentation:
           op: track
           target: fx4_verdict_impact_star
           keys:
-            - {t: 0, offset: [0.0, -2.65, 1.375], scale: [6.0, 6.0, 2.5], alpha: 1.0}
-            - {t: 4, offset: [0.0, -2.65, 1.375], scale: [6.0, 6.0, 2.5], alpha: 1.0}
-            - {t: 10, offset: [0.0, 2.75, 1.375], scale: [0.0, 0.0, 0.0], alpha: 0.0, ease: in_quad}
+            - {t: 0, offset: [0.0, -1.06, 0.55], scale: [2.4, 2.4, 1.0], alpha: 1.0}
+            - {t: 4, offset: [0.0, -1.06, 0.55], scale: [2.4, 2.4, 1.0], alpha: 1.0}
+            - {t: 10, offset: [0.0, 1.1, 0.55], scale: [0.0, 0.0, 0.0], alpha: 0.0, ease: in_quad}
+          sample_ticks: 1
         - {op: quad, parent: fx4_verdict_impact, face: {viewer: center}, size: [1.0, 1.0], color: "#FFD66B", alpha: 0.22, text: "✦", see_through: true, brightness: 15, id: fx4_verdict_impact_bloom}
         - id: fx4_verdict_impact_bloom_trk
           op: track
           target: fx4_verdict_impact_bloom
           keys:
-            - {t: 0, offset: [0.0, -4.675, 1.25], scale: [8.25, 8.25, 2.5], alpha: 0.22}
-            - {t: 9, offset: [0.0, -6.25, 1.25], scale: [10.0, 10.0, 2.5], alpha: 0.0, ease: out_cubic}
+            - {t: 0, offset: [0.0, -1.87, 0.5], scale: [3.3, 3.3, 1.0], alpha: 0.22}
+            - {t: 9, offset: [0.0, -2.5, 0.5], scale: [4.0, 4.0, 1.0], alpha: 0.0, ease: out_cubic}
+          sample_ticks: 1
         - {id: anchor_5, op: anchor, frame: fx5_verdict_ego_ring, at: pt_cast_aim_0_m1p62_8, orient: yaw, pose: cast_caster}
         - {op: block, parent: fx5_verdict_ego_ring, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx5_verdict_ego_ring_ring_s0}
         - id: fx5_verdict_ego_ring_ring_s0_trk
@@ -909,6 +965,7 @@ presentation:
             - {t: 13, offset: [0.0, 0.9015, 6.01], turn: [0.0, 90.0, 0.0], scale: [0.12818, 0.09156, 2.92988]}
             - {t: 14, offset: [0.0, 0.906, 6.04], turn: [0.0, 90.0, 0.0], scale: [0.09249, 0.06606, 2.114]}
             - {t: 15, offset: [0.0, 0.9105, 6.07], turn: [0.0, 90.0, 0.0], scale: [0.04979, 0.03557, 1.13812]}
+          sample_ticks: 1
         - {op: block, parent: fx5_verdict_ego_ring, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx5_verdict_ego_ring_ring_s1}
         - id: fx5_verdict_ego_ring_ring_s1_trk
           op: track
@@ -930,6 +987,7 @@ presentation:
             - {t: 13, offset: [4.24971, 0.9015, 4.24971], turn: [0.0, 135.0, 0.0], scale: [0.12818, 0.09156, 2.92988]}
             - {t: 14, offset: [4.27092, 0.906, 4.27092], turn: [0.0, 135.0, 0.0], scale: [0.09249, 0.06606, 2.114]}
             - {t: 15, offset: [4.29214, 0.9105, 4.29214], turn: [0.0, 135.0, 0.0], scale: [0.04979, 0.03557, 1.13812]}
+          sample_ticks: 1
         - {op: block, parent: fx5_verdict_ego_ring, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx5_verdict_ego_ring_ring_s2}
         - id: fx5_verdict_ego_ring_ring_s2_trk
           op: track
@@ -951,6 +1009,7 @@ presentation:
             - {t: 13, offset: [6.01, 0.9015, 0.0], turn: [0.0, 180.0, 0.0], scale: [0.12818, 0.09156, 2.92988]}
             - {t: 14, offset: [6.04, 0.906, 0.0], turn: [0.0, 180.0, 0.0], scale: [0.09249, 0.06606, 2.114]}
             - {t: 15, offset: [6.07, 0.9105, 0.0], turn: [0.0, 180.0, 0.0], scale: [0.04979, 0.03557, 1.13812]}
+          sample_ticks: 1
         - {op: block, parent: fx5_verdict_ego_ring, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx5_verdict_ego_ring_ring_s3}
         - id: fx5_verdict_ego_ring_ring_s3_trk
           op: track
@@ -972,6 +1031,7 @@ presentation:
             - {t: 13, offset: [4.24971, 0.9015, -4.24971], turn: [0.0, -135.0, 0.0], scale: [0.12818, 0.09156, 2.92988]}
             - {t: 14, offset: [4.27092, 0.906, -4.27092], turn: [0.0, -135.0, 0.0], scale: [0.09249, 0.06606, 2.114]}
             - {t: 15, offset: [4.29214, 0.9105, -4.29214], turn: [0.0, -135.0, 0.0], scale: [0.04979, 0.03557, 1.13812]}
+          sample_ticks: 1
         - {op: block, parent: fx5_verdict_ego_ring, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx5_verdict_ego_ring_ring_s4}
         - id: fx5_verdict_ego_ring_ring_s4_trk
           op: track
@@ -993,6 +1053,7 @@ presentation:
             - {t: 13, offset: [0.0, 0.9015, -6.01], turn: [0.0, -90.0, 0.0], scale: [0.12818, 0.09156, 2.92988]}
             - {t: 14, offset: [0.0, 0.906, -6.04], turn: [0.0, -90.0, 0.0], scale: [0.09249, 0.06606, 2.114]}
             - {t: 15, offset: [0.0, 0.9105, -6.07], turn: [0.0, -90.0, 0.0], scale: [0.04979, 0.03557, 1.13812]}
+          sample_ticks: 1
         - {op: block, parent: fx5_verdict_ego_ring, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx5_verdict_ego_ring_ring_s5}
         - id: fx5_verdict_ego_ring_ring_s5_trk
           op: track
@@ -1014,6 +1075,7 @@ presentation:
             - {t: 13, offset: [-4.24971, 0.9015, -4.24971], turn: [0.0, -45.0, 0.0], scale: [0.12818, 0.09156, 2.92988]}
             - {t: 14, offset: [-4.27092, 0.906, -4.27092], turn: [0.0, -45.0, 0.0], scale: [0.09249, 0.06606, 2.114]}
             - {t: 15, offset: [-4.29214, 0.9105, -4.29214], turn: [0.0, -45.0, 0.0], scale: [0.04979, 0.03557, 1.13812]}
+          sample_ticks: 1
         - {op: block, parent: fx5_verdict_ego_ring, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx5_verdict_ego_ring_ring_s6}
         - id: fx5_verdict_ego_ring_ring_s6_trk
           op: track
@@ -1035,6 +1097,7 @@ presentation:
             - {t: 13, offset: [-6.01, 0.9015, 0.0], turn: [0.0, 0.0, 0.0], scale: [0.12818, 0.09156, 2.92988]}
             - {t: 14, offset: [-6.04, 0.906, 0.0], turn: [0.0, 0.0, 0.0], scale: [0.09249, 0.06606, 2.114]}
             - {t: 15, offset: [-6.07, 0.9105, 0.0], turn: [0.0, 0.0, 0.0], scale: [0.04979, 0.03557, 1.13812]}
+          sample_ticks: 1
         - {op: block, parent: fx5_verdict_ego_ring, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx5_verdict_ego_ring_ring_s7}
         - id: fx5_verdict_ego_ring_ring_s7_trk
           op: track
@@ -1056,6 +1119,7 @@ presentation:
             - {t: 13, offset: [-4.24971, 0.9015, 4.24971], turn: [0.0, 45.0, 0.0], scale: [0.12818, 0.09156, 2.92988]}
             - {t: 14, offset: [-4.27092, 0.906, 4.27092], turn: [0.0, 45.0, 0.0], scale: [0.09249, 0.06606, 2.114]}
             - {t: 15, offset: [-4.29214, 0.9105, 4.29214], turn: [0.0, 45.0, 0.0], scale: [0.04979, 0.03557, 1.13812]}
+          sample_ticks: 1
         - id: emit_23
           op: emit
           at: pt_aim_0_m1p5_8
@@ -1073,25 +1137,28 @@ presentation:
           op: track
           target: fx4_verdict_impact_dark0
           keys:
-            - {t: 0, offset: [0.0, 2.5, 0.0], scale: [0.3, 0.5, 2.5], alpha: 1.0}
-            - {t: 5, offset: [3.25, 3.5, 0.75], scale: [0.4, 0.65, 2.5], ease: out_cubic}
-            - {t: 11, scale: [0.1, 0.1, 2.5], alpha: 0.0}
+            - {t: 0, offset: [0.0, 1.0, 0.0], scale: [0.12, 0.2, 1.0], alpha: 1.0}
+            - {t: 5, offset: [1.3, 1.4, 0.3], scale: [0.16, 0.26, 1.0], ease: out_cubic}
+            - {t: 11, scale: [0.04, 0.04, 1.0], alpha: 0.0}
+          sample_ticks: 1
         - {op: quad, parent: fx4_verdict_impact, face: {viewer: center}, size: [1.0, 1.0], color: "#302313", alpha: 1.0, text: "▲", see_through: true, brightness: 15, id: fx4_verdict_impact_dark1}
         - id: fx4_verdict_impact_dark1_trk
           op: track
           target: fx4_verdict_impact_dark1
           keys:
-            - {t: 0, offset: [0.0, 2.5, 0.0], scale: [0.3, 0.5, 2.5], alpha: 1.0}
-            - {t: 5, offset: [0.0, 6.0, 0.75], scale: [0.4, 0.65, 2.5], ease: out_cubic}
-            - {t: 11, scale: [0.1, 0.1, 2.5], alpha: 0.0}
+            - {t: 0, offset: [0.0, 1.0, 0.0], scale: [0.12, 0.2, 1.0], alpha: 1.0}
+            - {t: 5, offset: [0.0, 2.4, 0.3], scale: [0.16, 0.26, 1.0], ease: out_cubic}
+            - {t: 11, scale: [0.04, 0.04, 1.0], alpha: 0.0}
+          sample_ticks: 1
         - {op: quad, parent: fx4_verdict_impact, face: {viewer: center}, size: [1.0, 1.0], color: "#302313", alpha: 1.0, text: "▲", see_through: true, brightness: 15, id: fx4_verdict_impact_dark2}
         - id: fx4_verdict_impact_dark2_trk
           op: track
           target: fx4_verdict_impact_dark2
           keys:
-            - {t: 0, offset: [0.0, 2.5, 0.0], scale: [0.3, 0.5, 2.5], alpha: 1.0}
-            - {t: 5, offset: [-3.25, 3.5, 0.75], scale: [0.4, 0.65, 2.5], ease: out_cubic}
-            - {t: 11, scale: [0.1, 0.1, 2.5], alpha: 0.0}
+            - {t: 0, offset: [0.0, 1.0, 0.0], scale: [0.12, 0.2, 1.0], alpha: 1.0}
+            - {t: 5, offset: [-1.3, 1.4, 0.3], scale: [0.16, 0.26, 1.0], ease: out_cubic}
+            - {t: 11, scale: [0.04, 0.04, 1.0], alpha: 0.0}
+          sample_ticks: 1
         - id: emit_24
           op: emit
           at: pt_aim_0_m1p5_8
@@ -1266,16 +1333,18 @@ presentation:
           op: track
           target: fx6_verdict_impact_star
           keys:
-            - {t: 0, offset: [0.0, -2.65, 1.375], scale: [6.0, 6.0, 2.5], alpha: 1.0}
-            - {t: 4, offset: [0.0, -2.65, 1.375], scale: [6.0, 6.0, 2.5], alpha: 1.0}
-            - {t: 10, offset: [0.0, 2.75, 1.375], scale: [0.0, 0.0, 0.0], alpha: 0.0, ease: in_quad}
+            - {t: 0, offset: [0.0, -1.06, 0.55], scale: [2.4, 2.4, 1.0], alpha: 1.0}
+            - {t: 4, offset: [0.0, -1.06, 0.55], scale: [2.4, 2.4, 1.0], alpha: 1.0}
+            - {t: 10, offset: [0.0, 1.1, 0.55], scale: [0.0, 0.0, 0.0], alpha: 0.0, ease: in_quad}
+          sample_ticks: 1
         - {op: quad, parent: fx6_verdict_impact, face: {viewer: center}, size: [1.0, 1.0], color: "#FFD66B", alpha: 0.22, text: "✦", see_through: true, brightness: 15, id: fx6_verdict_impact_bloom}
         - id: fx6_verdict_impact_bloom_trk
           op: track
           target: fx6_verdict_impact_bloom
           keys:
-            - {t: 0, offset: [0.0, -4.675, 1.25], scale: [8.25, 8.25, 2.5], alpha: 0.22}
-            - {t: 9, offset: [0.0, -6.25, 1.25], scale: [10.0, 10.0, 2.5], alpha: 0.0, ease: out_cubic}
+            - {t: 0, offset: [0.0, -1.87, 0.5], scale: [3.3, 3.3, 1.0], alpha: 0.22}
+            - {t: 9, offset: [0.0, -2.5, 0.5], scale: [4.0, 4.0, 1.0], alpha: 0.0, ease: out_cubic}
+          sample_ticks: 1
         - {id: anchor_7, op: anchor, frame: fx7_verdict_ego_ring, at: pt_cast_aim_0_m1p62_8, orient: yaw, pose: cast_caster}
         - {op: block, parent: fx7_verdict_ego_ring, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx7_verdict_ego_ring_ring_s0}
         - id: fx7_verdict_ego_ring_ring_s0_trk
@@ -1298,6 +1367,7 @@ presentation:
             - {t: 13, offset: [0.0, 0.9015, 6.01], turn: [0.0, 90.0, 0.0], scale: [0.12818, 0.09156, 2.92988]}
             - {t: 14, offset: [0.0, 0.906, 6.04], turn: [0.0, 90.0, 0.0], scale: [0.09249, 0.06606, 2.114]}
             - {t: 15, offset: [0.0, 0.9105, 6.07], turn: [0.0, 90.0, 0.0], scale: [0.04979, 0.03557, 1.13812]}
+          sample_ticks: 1
         - {op: block, parent: fx7_verdict_ego_ring, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx7_verdict_ego_ring_ring_s1}
         - id: fx7_verdict_ego_ring_ring_s1_trk
           op: track
@@ -1319,6 +1389,7 @@ presentation:
             - {t: 13, offset: [4.24971, 0.9015, 4.24971], turn: [0.0, 135.0, 0.0], scale: [0.12818, 0.09156, 2.92988]}
             - {t: 14, offset: [4.27092, 0.906, 4.27092], turn: [0.0, 135.0, 0.0], scale: [0.09249, 0.06606, 2.114]}
             - {t: 15, offset: [4.29214, 0.9105, 4.29214], turn: [0.0, 135.0, 0.0], scale: [0.04979, 0.03557, 1.13812]}
+          sample_ticks: 1
         - {op: block, parent: fx7_verdict_ego_ring, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx7_verdict_ego_ring_ring_s2}
         - id: fx7_verdict_ego_ring_ring_s2_trk
           op: track
@@ -1340,6 +1411,7 @@ presentation:
             - {t: 13, offset: [6.01, 0.9015, 0.0], turn: [0.0, 180.0, 0.0], scale: [0.12818, 0.09156, 2.92988]}
             - {t: 14, offset: [6.04, 0.906, 0.0], turn: [0.0, 180.0, 0.0], scale: [0.09249, 0.06606, 2.114]}
             - {t: 15, offset: [6.07, 0.9105, 0.0], turn: [0.0, 180.0, 0.0], scale: [0.04979, 0.03557, 1.13812]}
+          sample_ticks: 1
         - {op: block, parent: fx7_verdict_ego_ring, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx7_verdict_ego_ring_ring_s3}
         - id: fx7_verdict_ego_ring_ring_s3_trk
           op: track
@@ -1361,6 +1433,7 @@ presentation:
             - {t: 13, offset: [4.24971, 0.9015, -4.24971], turn: [0.0, -135.0, 0.0], scale: [0.12818, 0.09156, 2.92988]}
             - {t: 14, offset: [4.27092, 0.906, -4.27092], turn: [0.0, -135.0, 0.0], scale: [0.09249, 0.06606, 2.114]}
             - {t: 15, offset: [4.29214, 0.9105, -4.29214], turn: [0.0, -135.0, 0.0], scale: [0.04979, 0.03557, 1.13812]}
+          sample_ticks: 1
         - {op: block, parent: fx7_verdict_ego_ring, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx7_verdict_ego_ring_ring_s4}
         - id: fx7_verdict_ego_ring_ring_s4_trk
           op: track
@@ -1382,6 +1455,7 @@ presentation:
             - {t: 13, offset: [0.0, 0.9015, -6.01], turn: [0.0, -90.0, 0.0], scale: [0.12818, 0.09156, 2.92988]}
             - {t: 14, offset: [0.0, 0.906, -6.04], turn: [0.0, -90.0, 0.0], scale: [0.09249, 0.06606, 2.114]}
             - {t: 15, offset: [0.0, 0.9105, -6.07], turn: [0.0, -90.0, 0.0], scale: [0.04979, 0.03557, 1.13812]}
+          sample_ticks: 1
         - {op: block, parent: fx7_verdict_ego_ring, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx7_verdict_ego_ring_ring_s5}
         - id: fx7_verdict_ego_ring_ring_s5_trk
           op: track
@@ -1403,6 +1477,7 @@ presentation:
             - {t: 13, offset: [-4.24971, 0.9015, -4.24971], turn: [0.0, -45.0, 0.0], scale: [0.12818, 0.09156, 2.92988]}
             - {t: 14, offset: [-4.27092, 0.906, -4.27092], turn: [0.0, -45.0, 0.0], scale: [0.09249, 0.06606, 2.114]}
             - {t: 15, offset: [-4.29214, 0.9105, -4.29214], turn: [0.0, -45.0, 0.0], scale: [0.04979, 0.03557, 1.13812]}
+          sample_ticks: 1
         - {op: block, parent: fx7_verdict_ego_ring, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx7_verdict_ego_ring_ring_s6}
         - id: fx7_verdict_ego_ring_ring_s6_trk
           op: track
@@ -1424,6 +1499,7 @@ presentation:
             - {t: 13, offset: [-6.01, 0.9015, 0.0], turn: [0.0, 0.0, 0.0], scale: [0.12818, 0.09156, 2.92988]}
             - {t: 14, offset: [-6.04, 0.906, 0.0], turn: [0.0, 0.0, 0.0], scale: [0.09249, 0.06606, 2.114]}
             - {t: 15, offset: [-6.07, 0.9105, 0.0], turn: [0.0, 0.0, 0.0], scale: [0.04979, 0.03557, 1.13812]}
+          sample_ticks: 1
         - {op: block, parent: fx7_verdict_ego_ring, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx7_verdict_ego_ring_ring_s7}
         - id: fx7_verdict_ego_ring_ring_s7_trk
           op: track
@@ -1445,6 +1521,7 @@ presentation:
             - {t: 13, offset: [-4.24971, 0.9015, 4.24971], turn: [0.0, 45.0, 0.0], scale: [0.12818, 0.09156, 2.92988]}
             - {t: 14, offset: [-4.27092, 0.906, 4.27092], turn: [0.0, 45.0, 0.0], scale: [0.09249, 0.06606, 2.114]}
             - {t: 15, offset: [-4.29214, 0.9105, 4.29214], turn: [0.0, 45.0, 0.0], scale: [0.04979, 0.03557, 1.13812]}
+          sample_ticks: 1
         - id: emit_29
           op: emit
           at: pt_aim_0_m1p5_8
@@ -1462,25 +1539,28 @@ presentation:
           op: track
           target: fx6_verdict_impact_dark0
           keys:
-            - {t: 0, offset: [0.0, 2.5, 0.0], scale: [0.3, 0.5, 2.5], alpha: 1.0}
-            - {t: 5, offset: [3.25, 3.5, 0.75], scale: [0.4, 0.65, 2.5], ease: out_cubic}
-            - {t: 11, scale: [0.1, 0.1, 2.5], alpha: 0.0}
+            - {t: 0, offset: [0.0, 1.0, 0.0], scale: [0.12, 0.2, 1.0], alpha: 1.0}
+            - {t: 5, offset: [1.3, 1.4, 0.3], scale: [0.16, 0.26, 1.0], ease: out_cubic}
+            - {t: 11, scale: [0.04, 0.04, 1.0], alpha: 0.0}
+          sample_ticks: 1
         - {op: quad, parent: fx6_verdict_impact, face: {viewer: center}, size: [1.0, 1.0], color: "#302313", alpha: 1.0, text: "▲", see_through: true, brightness: 15, id: fx6_verdict_impact_dark1}
         - id: fx6_verdict_impact_dark1_trk
           op: track
           target: fx6_verdict_impact_dark1
           keys:
-            - {t: 0, offset: [0.0, 2.5, 0.0], scale: [0.3, 0.5, 2.5], alpha: 1.0}
-            - {t: 5, offset: [0.0, 6.0, 0.75], scale: [0.4, 0.65, 2.5], ease: out_cubic}
-            - {t: 11, scale: [0.1, 0.1, 2.5], alpha: 0.0}
+            - {t: 0, offset: [0.0, 1.0, 0.0], scale: [0.12, 0.2, 1.0], alpha: 1.0}
+            - {t: 5, offset: [0.0, 2.4, 0.3], scale: [0.16, 0.26, 1.0], ease: out_cubic}
+            - {t: 11, scale: [0.04, 0.04, 1.0], alpha: 0.0}
+          sample_ticks: 1
         - {op: quad, parent: fx6_verdict_impact, face: {viewer: center}, size: [1.0, 1.0], color: "#302313", alpha: 1.0, text: "▲", see_through: true, brightness: 15, id: fx6_verdict_impact_dark2}
         - id: fx6_verdict_impact_dark2_trk
           op: track
           target: fx6_verdict_impact_dark2
           keys:
-            - {t: 0, offset: [0.0, 2.5, 0.0], scale: [0.3, 0.5, 2.5], alpha: 1.0}
-            - {t: 5, offset: [-3.25, 3.5, 0.75], scale: [0.4, 0.65, 2.5], ease: out_cubic}
-            - {t: 11, scale: [0.1, 0.1, 2.5], alpha: 0.0}
+            - {t: 0, offset: [0.0, 1.0, 0.0], scale: [0.12, 0.2, 1.0], alpha: 1.0}
+            - {t: 5, offset: [-1.3, 1.4, 0.3], scale: [0.16, 0.26, 1.0], ease: out_cubic}
+            - {t: 11, scale: [0.04, 0.04, 1.0], alpha: 0.0}
+          sample_ticks: 1
         - id: emit_30
           op: emit
           at: pt_aim_0_m1p5_8
@@ -1657,16 +1737,18 @@ presentation:
           op: track
           target: fx8_verdict_impact_star
           keys:
-            - {t: 0, offset: [0.0, -4.24, 2.2], scale: [9.6, 9.6, 4.0], alpha: 1.0}
-            - {t: 4, offset: [0.0, -4.24, 2.2], scale: [9.6, 9.6, 4.0], alpha: 1.0}
-            - {t: 10, offset: [0.0, 4.4, 2.2], scale: [0.0, 0.0, 0.0], alpha: 0.0, ease: in_quad}
+            - {t: 0, offset: [0.0, -1.06, 0.55], scale: [2.4, 2.4, 1.0], alpha: 1.0}
+            - {t: 4, offset: [0.0, -1.06, 0.55], scale: [2.4, 2.4, 1.0], alpha: 1.0}
+            - {t: 10, offset: [0.0, 1.1, 0.55], scale: [0.0, 0.0, 0.0], alpha: 0.0, ease: in_quad}
+          sample_ticks: 1
         - {op: quad, parent: fx8_verdict_impact, face: {viewer: center}, size: [1.0, 1.0], color: "#FFD66B", alpha: 0.22, text: "✦", see_through: true, brightness: 15, id: fx8_verdict_impact_bloom}
         - id: fx8_verdict_impact_bloom_trk
           op: track
           target: fx8_verdict_impact_bloom
           keys:
-            - {t: 0, offset: [0.0, -7.48, 2.0], scale: [13.2, 13.2, 4.0], alpha: 0.22}
-            - {t: 9, offset: [0.0, -10.0, 2.0], scale: [16.0, 16.0, 4.0], alpha: 0.0, ease: out_cubic}
+            - {t: 0, offset: [0.0, -1.87, 0.5], scale: [3.3, 3.3, 1.0], alpha: 0.22}
+            - {t: 9, offset: [0.0, -2.5, 0.5], scale: [4.0, 4.0, 1.0], alpha: 0.0, ease: out_cubic}
+          sample_ticks: 1
         - {id: anchor_9, op: anchor, frame: fx9_verdict_ego_ring, at: pt_cast_aim_0_m1p62_8, orient: yaw, pose: cast_caster}
         - {op: block, parent: fx9_verdict_ego_ring, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx9_verdict_ego_ring_ring_s0}
         - id: fx9_verdict_ego_ring_ring_s0_trk
@@ -1689,6 +1771,7 @@ presentation:
             - {t: 13, offset: [0.0, 0.9015, 6.01], turn: [0.0, 90.0, 0.0], scale: [0.12818, 0.09156, 2.92988]}
             - {t: 14, offset: [0.0, 0.906, 6.04], turn: [0.0, 90.0, 0.0], scale: [0.09249, 0.06606, 2.114]}
             - {t: 15, offset: [0.0, 0.9105, 6.07], turn: [0.0, 90.0, 0.0], scale: [0.04979, 0.03557, 1.13812]}
+          sample_ticks: 1
         - {op: block, parent: fx9_verdict_ego_ring, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx9_verdict_ego_ring_ring_s1}
         - id: fx9_verdict_ego_ring_ring_s1_trk
           op: track
@@ -1710,6 +1793,7 @@ presentation:
             - {t: 13, offset: [4.24971, 0.9015, 4.24971], turn: [0.0, 135.0, 0.0], scale: [0.12818, 0.09156, 2.92988]}
             - {t: 14, offset: [4.27092, 0.906, 4.27092], turn: [0.0, 135.0, 0.0], scale: [0.09249, 0.06606, 2.114]}
             - {t: 15, offset: [4.29214, 0.9105, 4.29214], turn: [0.0, 135.0, 0.0], scale: [0.04979, 0.03557, 1.13812]}
+          sample_ticks: 1
         - {op: block, parent: fx9_verdict_ego_ring, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx9_verdict_ego_ring_ring_s2}
         - id: fx9_verdict_ego_ring_ring_s2_trk
           op: track
@@ -1731,6 +1815,7 @@ presentation:
             - {t: 13, offset: [6.01, 0.9015, 0.0], turn: [0.0, 180.0, 0.0], scale: [0.12818, 0.09156, 2.92988]}
             - {t: 14, offset: [6.04, 0.906, 0.0], turn: [0.0, 180.0, 0.0], scale: [0.09249, 0.06606, 2.114]}
             - {t: 15, offset: [6.07, 0.9105, 0.0], turn: [0.0, 180.0, 0.0], scale: [0.04979, 0.03557, 1.13812]}
+          sample_ticks: 1
         - {op: block, parent: fx9_verdict_ego_ring, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx9_verdict_ego_ring_ring_s3}
         - id: fx9_verdict_ego_ring_ring_s3_trk
           op: track
@@ -1752,6 +1837,7 @@ presentation:
             - {t: 13, offset: [4.24971, 0.9015, -4.24971], turn: [0.0, -135.0, 0.0], scale: [0.12818, 0.09156, 2.92988]}
             - {t: 14, offset: [4.27092, 0.906, -4.27092], turn: [0.0, -135.0, 0.0], scale: [0.09249, 0.06606, 2.114]}
             - {t: 15, offset: [4.29214, 0.9105, -4.29214], turn: [0.0, -135.0, 0.0], scale: [0.04979, 0.03557, 1.13812]}
+          sample_ticks: 1
         - {op: block, parent: fx9_verdict_ego_ring, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx9_verdict_ego_ring_ring_s4}
         - id: fx9_verdict_ego_ring_ring_s4_trk
           op: track
@@ -1773,6 +1859,7 @@ presentation:
             - {t: 13, offset: [0.0, 0.9015, -6.01], turn: [0.0, -90.0, 0.0], scale: [0.12818, 0.09156, 2.92988]}
             - {t: 14, offset: [0.0, 0.906, -6.04], turn: [0.0, -90.0, 0.0], scale: [0.09249, 0.06606, 2.114]}
             - {t: 15, offset: [0.0, 0.9105, -6.07], turn: [0.0, -90.0, 0.0], scale: [0.04979, 0.03557, 1.13812]}
+          sample_ticks: 1
         - {op: block, parent: fx9_verdict_ego_ring, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx9_verdict_ego_ring_ring_s5}
         - id: fx9_verdict_ego_ring_ring_s5_trk
           op: track
@@ -1794,6 +1881,7 @@ presentation:
             - {t: 13, offset: [-4.24971, 0.9015, -4.24971], turn: [0.0, -45.0, 0.0], scale: [0.12818, 0.09156, 2.92988]}
             - {t: 14, offset: [-4.27092, 0.906, -4.27092], turn: [0.0, -45.0, 0.0], scale: [0.09249, 0.06606, 2.114]}
             - {t: 15, offset: [-4.29214, 0.9105, -4.29214], turn: [0.0, -45.0, 0.0], scale: [0.04979, 0.03557, 1.13812]}
+          sample_ticks: 1
         - {op: block, parent: fx9_verdict_ego_ring, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx9_verdict_ego_ring_ring_s6}
         - id: fx9_verdict_ego_ring_ring_s6_trk
           op: track
@@ -1815,6 +1903,7 @@ presentation:
             - {t: 13, offset: [-6.01, 0.9015, 0.0], turn: [0.0, 0.0, 0.0], scale: [0.12818, 0.09156, 2.92988]}
             - {t: 14, offset: [-6.04, 0.906, 0.0], turn: [0.0, 0.0, 0.0], scale: [0.09249, 0.06606, 2.114]}
             - {t: 15, offset: [-6.07, 0.9105, 0.0], turn: [0.0, 0.0, 0.0], scale: [0.04979, 0.03557, 1.13812]}
+          sample_ticks: 1
         - {op: block, parent: fx9_verdict_ego_ring, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx9_verdict_ego_ring_ring_s7}
         - id: fx9_verdict_ego_ring_ring_s7_trk
           op: track
@@ -1836,6 +1925,7 @@ presentation:
             - {t: 13, offset: [-4.24971, 0.9015, 4.24971], turn: [0.0, 45.0, 0.0], scale: [0.12818, 0.09156, 2.92988]}
             - {t: 14, offset: [-4.27092, 0.906, 4.27092], turn: [0.0, 45.0, 0.0], scale: [0.09249, 0.06606, 2.114]}
             - {t: 15, offset: [-4.29214, 0.9105, 4.29214], turn: [0.0, 45.0, 0.0], scale: [0.04979, 0.03557, 1.13812]}
+          sample_ticks: 1
         - id: emit_35
           op: emit
           at: pt_aim_0_m1p5_8
@@ -1853,25 +1943,28 @@ presentation:
           op: track
           target: fx8_verdict_impact_dark0
           keys:
-            - {t: 0, offset: [0.0, 4.0, 0.0], scale: [0.48, 0.8, 4.0], alpha: 1.0}
-            - {t: 5, offset: [5.2, 5.6, 1.2], scale: [0.64, 1.04, 4.0], ease: out_cubic}
-            - {t: 11, scale: [0.16, 0.16, 4.0], alpha: 0.0}
+            - {t: 0, offset: [0.0, 1.0, 0.0], scale: [0.12, 0.2, 1.0], alpha: 1.0}
+            - {t: 5, offset: [1.3, 1.4, 0.3], scale: [0.16, 0.26, 1.0], ease: out_cubic}
+            - {t: 11, scale: [0.04, 0.04, 1.0], alpha: 0.0}
+          sample_ticks: 1
         - {op: quad, parent: fx8_verdict_impact, face: {viewer: center}, size: [1.0, 1.0], color: "#302313", alpha: 1.0, text: "▲", see_through: true, brightness: 15, id: fx8_verdict_impact_dark1}
         - id: fx8_verdict_impact_dark1_trk
           op: track
           target: fx8_verdict_impact_dark1
           keys:
-            - {t: 0, offset: [0.0, 4.0, 0.0], scale: [0.48, 0.8, 4.0], alpha: 1.0}
-            - {t: 5, offset: [0.0, 9.6, 1.2], scale: [0.64, 1.04, 4.0], ease: out_cubic}
-            - {t: 11, scale: [0.16, 0.16, 4.0], alpha: 0.0}
+            - {t: 0, offset: [0.0, 1.0, 0.0], scale: [0.12, 0.2, 1.0], alpha: 1.0}
+            - {t: 5, offset: [0.0, 2.4, 0.3], scale: [0.16, 0.26, 1.0], ease: out_cubic}
+            - {t: 11, scale: [0.04, 0.04, 1.0], alpha: 0.0}
+          sample_ticks: 1
         - {op: quad, parent: fx8_verdict_impact, face: {viewer: center}, size: [1.0, 1.0], color: "#302313", alpha: 1.0, text: "▲", see_through: true, brightness: 15, id: fx8_verdict_impact_dark2}
         - id: fx8_verdict_impact_dark2_trk
           op: track
           target: fx8_verdict_impact_dark2
           keys:
-            - {t: 0, offset: [0.0, 4.0, 0.0], scale: [0.48, 0.8, 4.0], alpha: 1.0}
-            - {t: 5, offset: [-5.2, 5.6, 1.2], scale: [0.64, 1.04, 4.0], ease: out_cubic}
-            - {t: 11, scale: [0.16, 0.16, 4.0], alpha: 0.0}
+            - {t: 0, offset: [0.0, 1.0, 0.0], scale: [0.12, 0.2, 1.0], alpha: 1.0}
+            - {t: 5, offset: [-1.3, 1.4, 0.3], scale: [0.16, 0.26, 1.0], ease: out_cubic}
+            - {t: 11, scale: [0.04, 0.04, 1.0], alpha: 0.0}
+          sample_ticks: 1
         - id: emit_36
           op: emit
           at: pt_aim_0_m1p5_8

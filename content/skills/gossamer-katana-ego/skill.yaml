@@ -11,6 +11,8 @@ gameplay:
     - {id: damage, param: dmg_physical}
     - {id: range, param: reach}
   timeline:
+    - {id: t37, at: 37, do: [{id: fx4_gossamer_katana_slash_up_katana_crescent_stop, op: raise_event, name: fx4_gossamer_katana_slash_up_katana_crescent_stop}]}
+    - {id: t49, at: 49, do: [{id: fx5_gossamer_katana_slash_down_katana_crescent_stop, op: raise_event, name: fx5_gossamer_katana_slash_down_katana_crescent_stop}]}
     - id: t60
       at: 60
       do:

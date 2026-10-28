@@ -4,5 +4,5 @@ apiVersion: "astera/v2"
 kind: Skill
 id: gale-gust
 frames:
-  - {id: pt_caster_0_1p62_1p5, kind: point, parent: caster, offset: [0.0, 1.62, 1.5]}
-presentation: {timeline: [{id: fx0, at: 0, do: [{id: snd, op: sound, sound: entity.breeze.wind_burst, at: caster, volume: 0.9, pitch: 1.2}, {id: emit, op: emit, at: pt_caster_0_1p62_1p5, particle: dash-cloud}]}]}
+  - {id: pt_aim_0_0_1p5, kind: point, parent: aim, offset: [0.0, 0.0, 1.5]}
+presentation: {timeline: [{id: fx0, at: 0, do: [{id: snd, op: sound, sound: entity.breeze.wind_burst, at: caster, volume: 0.9, pitch: 1.2}, {id: emit, op: emit, at: pt_aim_0_0_1p5, particle: dash-cloud}]}]}

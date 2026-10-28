@@ -12,6 +12,7 @@ gameplay:
     - {id: range, param: reach}
   timeline:
     - {id: t0, at: 0, do: [{id: attr, op: modify_attribute, attribute: resist.physical, operation: add, amount: 0.7, duration_ticks: 95, target: caster}]}
+    - {id: t11, at: 11, do: [{id: fx1_verdict_def_vigil_hammer_gold_fan_stop, op: raise_event, name: fx1_verdict_def_vigil_hammer_gold_fan_stop}]}
     - id: t82
       at: 82
       do:
@@ -46,6 +47,7 @@ gameplay:
           max_count: 1
           window: once
           ticks: 1
+    - {id: t120, at: 120, do: [{id: fx4_verdict_s1_gavel_hammer_gold_fan_stop, op: raise_event, name: fx4_verdict_s1_gavel_hammer_gold_fan_stop}]}
     - id: t127
       at: 127
       do:
@@ -56,6 +58,7 @@ gameplay:
           max_count: 1
           window: once
           ticks: 1
+    - {id: t131, at: 131, do: [{id: fx6_verdict_s1_echo_hammer_gold_fan_stop, op: raise_event, name: fx6_verdict_s1_echo_hammer_gold_fan_stop}]}
   "on":
     hit:
       - {id: dmg, op: damage, components: [{kind: physical, amount: "${dmg_physical}"}], target: victim, ignore_invulnerability: true, when: "= event.source == 'sel_2'"}

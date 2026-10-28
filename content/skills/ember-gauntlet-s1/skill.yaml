@@ -27,6 +27,7 @@ gameplay:
           max_count: 1
           window: once
           ticks: 1
+    - {id: t9, at: 9, do: [{id: fx2_ember_sweep_gauntlet_flame_fan_stop, op: raise_event, name: fx2_ember_sweep_gauntlet_flame_fan_stop}]}
     - {id: t23, at: 23, do: [{id: sel_2, op: hit, frames: [caster], capsule: {from: aim, to: pt_aim_0_0_9, radius: 0.3}, window: once, ticks: 1}]}
   "on":
     hit:
