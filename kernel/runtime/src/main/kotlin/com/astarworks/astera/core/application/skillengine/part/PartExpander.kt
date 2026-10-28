@@ -52,7 +52,7 @@ public class PartExpander(private val parts: Map<String, Part>, private val maxD
             val part = parts[call.part] ?: throw PartAbort(PartError.UnknownPart(where, call.part))
             if (part.id in stack) throw PartAbort(PartError.Cycle(where, stack.dropWhile { it != part.id } + part.id))
             if (depth + 1 > maxDepth) throw PartAbort(PartError.TooDeep(where, maxDepth))
-            val bound = Binding.bind(part, call, where)
+            val bound = Binding.bind(part, readSiblingOut(call, m), where)
             val callEv = join(evPrefix, s.id)
             val (childEntry, finals) = level(bound, "$where/", callEv, depth + 1, stack + part.id, out)
             entry[s.id] = childEntry
@@ -116,6 +116,20 @@ public class PartExpander(private val parts: Map<String, Part>, private val maxD
         val entry = level(r, "", evPrefix, depth, stack, sub).first
         out.links += sub.links
         return Machine(entry, sub.states, emptyList(), r.world)
+    }
+
+    /**
+     * ADR-0303 section 9 (`frames_out`): a call's frame binding `<sibling call>.<out name>` reads a frame the sibling part publishes. It names the inner
+     * frame the sibling declared under `frames_out` (the anchor registry resolves it by its op id, as it does for any frame of the same skill).
+     */
+    private fun readSiblingOut(call: com.astarworks.astera.core.domain.skillengine.part.PartCall, level: Machine): com.astarworks.astera.core.domain.skillengine.part.PartCall {
+        if (call.frames.isEmpty()) return call
+        return call.copy(frames = call.frames.mapValues { (_, v) ->
+            val sibling = level.states[v.substringBefore('.')]?.use?.let { parts[it.part] }
+            val out = v.substringAfter('.', "").substringBefore('.')
+            val inner = sibling?.framesOut?.get(out)
+            if (inner == null) v else inner + v.substring(v.substringBefore('.').length + 1 + out.length)
+        })
     }
 
     private fun join(prefix: String, name: String): String = if (prefix.isEmpty()) name else "$prefix.$name"

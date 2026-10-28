@@ -238,7 +238,11 @@ public class SkillCompiler(
                     nodes.filterIsInstance<ProjectileOp>().mapNotNull { ((it.timing?.span as? Span.Ticks)?.ticks as? Value.Literal)?.value?.toInt() }.maxOrNull(),
                 ).maxOrNull()
             checkQualifiedRefs(state, ops, section).let { if (it != null) return@SectionLowerer Result.Failure(it) }
-            val registry = registries.getOrPut(state.value) { DefaultAnchorScope(Occurrence(0, 1, null), documents) { registries[it] } }
+            val registry = registries.getOrPut(state.value) {
+                DefaultAnchorScope(
+                    Occurrence(0, 1, null), documents, { registries[it] },
+                ) { name -> registries.values.firstNotNullOfOrNull { (it as? DefaultAnchorScope)?.publishedEntry(name) } }
+            }
             // A list is declarative: a rider may name a body or frame written further down. Bodies and frames declare their anchors
             // first (in written order), everything else follows; rows are merged back in written order.
             val declaring = nodes.indices.filter { nodes[it] is ProjectileOp || nodes[it] is FrameOp }

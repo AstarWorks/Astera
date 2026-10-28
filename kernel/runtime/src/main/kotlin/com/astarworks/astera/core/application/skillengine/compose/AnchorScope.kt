@@ -58,10 +58,16 @@ public class DefaultAnchorScope private constructor(
     private val entries: MutableMap<String, Entry>,
     private val documents: Map<String, AnchorDecl>,
     private val foreign: (String) -> AnchorRegistry?,
+    private val published: (String) -> Entry?,
 ) : AnchorRegistry {
     /** [foreign] answers the registry of an earlier state for a state-qualified name (`/throw/volley`); a name without a state never reads it. */
-    public constructor(occurrence: Occurrence, documents: Map<String, AnchorDecl> = emptyMap(), foreign: (String) -> AnchorRegistry? = { null }) :
-        this(occurrence, LinkedHashMap(), documents, foreign)
+    public constructor(
+        occurrence: Occurrence, documents: Map<String, AnchorDecl> = emptyMap(), foreign: (String) -> AnchorRegistry? = { null },
+        published: (String) -> Any? = { null },
+    ) : this(occurrence, LinkedHashMap(), documents, foreign, { n -> published(n) as? Entry })
+
+    /** The entry [name] of this scope that a PART published to its caller (ADR-0303 9 `frames_out`): declared by an op inside a called part's state (id `call/state/op`; a plain top-level op is `state/op` and is never read by bare name from another state). */
+    internal fun publishedEntry(name: String): Any? = entries[name]?.takeIf { it.instance.path.last().op.value.count { c -> c == '/' } >= 2 }
 
     private fun other(parts: AnchorNames.Parts): AnchorScope? = parts.state?.let { st -> foreign(st)?.at(occurrence) }
     private fun bareOf(parts: AnchorNames.Parts): String =
@@ -69,7 +75,7 @@ public class DefaultAnchorScope private constructor(
 
     override fun document(id: String): AnchorDecl? = documents[id]
 
-    private data class Entry(val instance: InstanceId, val family: Int?, val basis: ExprClass, val laws: List<MotionLaw>)
+    internal data class Entry(val instance: InstanceId, val family: Int?, val basis: ExprClass, val laws: List<MotionLaw>)
 
     override fun declare(instance: InstanceId, family: Int?, basis: ExprClass, laws: List<MotionLaw>) {
         val id = instance.path.last().op
@@ -80,15 +86,15 @@ public class DefaultAnchorScope private constructor(
     override fun laws(anchor: String): List<MotionLaw> {
         val parts = AnchorNames.split(anchor) ?: return emptyList()
         if (parts.state != null) return other(parts)?.laws(bareOf(parts)) ?: emptyList()
-        return entries[parts.base]?.laws ?: emptyList()
+        return (entries[parts.base] ?: published(parts.base))?.laws ?: emptyList()
     }
 
-    override fun at(occurrence: Occurrence): AnchorScope = DefaultAnchorScope(occurrence, entries, documents, foreign)
+    override fun at(occurrence: Occurrence): AnchorScope = DefaultAnchorScope(occurrence, entries, documents, foreign, published)
 
     override fun resolve(name: String): ResolvedAnchor? {
         val parts = AnchorNames.split(name) ?: return null
         if (parts.state != null) return other(parts)?.resolve(bareOf(parts))
-        val e = entries[parts.base] ?: return null
+        val e = entries[parts.base] ?: published(parts.base) ?: return null
         val prefix = e.instance.path.dropLast(1)
         val op: OpId = e.instance.path.last().op
         val index = parts.index

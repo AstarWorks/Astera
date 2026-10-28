@@ -13,6 +13,9 @@ import com.astarworks.astera.core.application.skillengine.load.grammar.GrammarCo
 import com.astarworks.astera.core.application.skillengine.load.grammar.Timing
 import com.astarworks.astera.core.application.skillengine.load.grammar.TimingKind
 import com.astarworks.astera.core.application.skillengine.load.grammar.Types
+import com.astarworks.astera.core.application.skillengine.load.motion.PointLaw
+import com.astarworks.astera.core.application.skillengine.load.motion.PointLawsType
+import com.astarworks.astera.core.application.skillengine.load.motion.PointTau
 import com.astarworks.astera.core.application.skillengine.load.ops.OccurrenceBake
 import com.astarworks.astera.core.application.skillengine.load.spec.Lowered
 import com.astarworks.astera.core.application.skillengine.load.spec.OpNode
@@ -54,6 +57,8 @@ public class ParticleOp(
     public val style: ParticleStyle,
     public val anchor: AnchorRef,
     public val shift: FrameVec?,
+    /** Property laws (ADR-0303 3.4), sampled once per occurrence. */
+    public val motion: List<PointLaw>,
 ) : OpNode
 
 public object ParticleOpSpec : OpSpec<ParticleOp> {
@@ -69,12 +74,14 @@ public object ParticleOpSpec : OpSpec<ParticleOp> {
     private val ANCHOR = Field.required("anchor", Types.anchorRef, "emission point: anchor name or {of, offset, sweep}")
     private val SHIFT = Field.optional("shift", Types.nullable(FrameVecs.type), null, "per-copy displacement of the emission point: {forward, up, left} in the anchor's axes, or a whole world vec; reads i, n, draw, roll")
 
+    private val MOTION = Field.optional("motion", Types.nullable(PointLawsType(setOf("count", "offset", "extra"), "count")), null, "property laws grow / fade, sampled per occurrence (section 3.4)")
+
     override val name: String = "particle"
     override val section: OpSection = OpSection.PRESENTATION
     override val timing: TimingKind? = TimingKind.POINT
     override val fields: Fields = Fields.of(
         "particle",
-        PARTICLE, COUNT, OFFSET, EXTRA, COLOR, SIZE, BLOCK, ITEM, ANCHOR, SHIFT,
+        PARTICLE, COUNT, OFFSET, EXTRA, COLOR, SIZE, BLOCK, ITEM, ANCHOR, SHIFT, MOTION,
     )
 
     override fun decode(id: OpId, src: SrcPath, whenExpr: WhenRef?, timing: Timing?, values: FieldValues, ctx: GrammarContext): Result<ParticleOp, SkillDecodeError> =
@@ -92,11 +99,12 @@ public object ParticleOpSpec : OpSpec<ParticleOp> {
                 style = styleOf(values, ctx),
                 anchor = values[ANCHOR],
                 shift = values[SHIFT],
+                motion = values[MOTION] ?: emptyList(),
             )
         }
 
     override fun lower(op: ParticleOp, lc: LowerContext): Result<Lowered, SkillDecodeError> {
-        val count: Val<Int> = when (val c = op.count) {
+        val baseCount: Val<Int> = when (val c = op.count) {
             is Value.Literal -> Val.Known(c.value.toInt())
             is Value.ParamRef -> Val.Live(c.name, null)
             is Value.Expr -> (OccurrenceBake.fold(lc, c.source, ExprType.NUM) as? ExprValue.Num)?.let { Val.Known(it.value.toInt()) }
@@ -105,18 +113,27 @@ public object ParticleOpSpec : OpSpec<ParticleOp> {
         // `anchor` in the op's own expressions names its emission anchor (ADR-0303 3.2: `offset: "= anchor.forward"`)
         val own = Regex("(?<![\\w.])anchor\\.(forward|up|left)\\b")
         fun bound(source: String): String = own.replace(source) { "axis(${op.anchor.of}, '${it.groupValues[1]}')" }
-        val extra: Val<Double> = when (val e = op.extra) {
+        val baseExtra: Val<Double> = when (val e = op.extra) {
             is Value.Literal -> Val.Known(e.value)
             is Value.ParamRef -> Val.Live(e.name, null)
             is Value.Expr -> (OccurrenceBake.fold(lc, bound(e.source), ExprType.NUM) as? ExprValue.Num)?.let { Val.Known(it.value) }
                 ?: Val.Live("= ${OccurrenceBake.bake(bound(e.source), lc.occurrence)}", null)
         }
-        val offset: Val<Vector3d> = when (val o = op.offset) {
+        val baseOffset: Val<Vector3d> = when (val o = op.offset) {
             is Value.Literal -> Val.Known(Vector3d(o.value.x, o.value.y, o.value.z))
             is Value.ParamRef -> Val.Live(o.name, null)
             is Value.Expr -> (OccurrenceBake.fold(lc, bound(o.source), ExprType.VEC3) as? ExprValue.Vec3)?.let { Val.Known(Vector3d(it.value.x, it.value.y, it.value.z)) }
                 ?: Val.Live("= ${OccurrenceBake.bake(bound(o.source), lc.occurrence)}", null)
         }
+        val tau = lc.tau
+        fun unknown(prop: String) = Result.Failure(SkillDecodeError.Invalid(lc.skillId, lc.src.value + ".motion", "a law on '$prop' needs a base value known at compile time"))
+        val count: Val<Int> = if (op.motion.none { it.prop == "count" }) baseCount else {
+            val known = (baseCount as? Val.Known<Int>)?.value ?: return unknown("count")
+            val r = PointTau.scalar(Val.Known(known.toDouble()), op.motion, "count", tau) as Val.Known<Double>
+            Val.Known(Math.round(r.value).toInt().coerceAtLeast(0))
+        }
+        val offset = PointTau.vector(baseOffset, op.motion, "offset", tau) ?: return unknown("offset")
+        val extra = PointTau.scalar(baseExtra, op.motion, "extra", tau) ?: return unknown("extra")
         val placed = when (val r = ParticlePlacement.place("particle", lc, op.anchor, op.shift)) {
             is Result.Success -> r.value
             is Result.Failure -> return r
