@@ -2,8 +2,11 @@ package com.astarworks.astera.core.application.skillengine.load.presentation
 
 import com.astarworks.astera.core.application.skillengine.load.OpDecoder
 import com.astarworks.astera.core.application.skillengine.load.OpReader
+import com.astarworks.astera.core.domain.effect.Audience
 import com.astarworks.astera.core.domain.effect.DisplayItemMode
-import com.astarworks.astera.core.domain.effect.vfx.VfxLane
+import com.astarworks.astera.core.domain.effect.VfxLane
+import com.astarworks.astera.core.domain.effect.camera.ShakeDirection
+import com.astarworks.astera.core.domain.effect.camera.ShakeShape
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.skillengine.model.AxisRef
 import com.astarworks.astera.core.domain.skillengine.model.PointRef
@@ -26,6 +29,7 @@ import com.astarworks.astera.core.domain.skillengine.op.TrackKey
 import com.astarworks.astera.core.domain.skillengine.op.TrailBand
 import com.astarworks.astera.core.domain.skillengine.op.TrailEdge
 import com.astarworks.astera.core.domain.skillengine.op.TrailRim
+import com.astarworks.astera.core.domain.skillengine.op.ViewScope
 import com.astarworks.astera.core.domain.skillengine.op.VisualOp
 
 /** The four presentation decoders (visual, fx, body, screen); the manager registers them. */
@@ -247,10 +251,13 @@ private fun OpReader.trailRim(): TrailRim? {
 }
 
 /** `brightness:` is vanilla Display.brightness, 0..15. */
-private fun OpReader.brightness(): Int? = int("brightness")?.also { if (it !in 0..15) fail("brightness must be 0..15") }
+/** `viewers:` (all / caster / others / target) and `lane:` (core / accent / ambient) of a display op (v1 play_vfx / element). */
+private fun OpReader.view(): ViewScope = ViewScope(
+    string("viewers")?.let { runCatching { Audience.fromYaml(it) }.getOrElse { e -> fail(e.message ?: "bad viewers") } } ?: Audience.ALL,
+    string("lane")?.let { runCatching { VfxLane.fromYaml(it) }.getOrElse { e -> fail(e.message ?: "bad lane") } } ?: VfxLane.CORE,
+)
 
-/** `lane:` (core | accent | ambient): which viewers a display is shown to; core when absent. */
-private fun OpReader.lane(): VfxLane = string("lane")?.let { runCatching { VfxLane.fromYaml(it) }.getOrElse { e -> fail(e.message ?: "bad lane") } } ?: VfxLane.CORE
+private fun OpReader.brightness(): Int? = int("brightness")?.also { if (it !in 0..15) fail("brightness must be 0..15") }
 
 /** `keys:` of a pull: `[{t, weight}]`, ticks strictly increasing. */
 private fun OpReader.pullKeys(): List<PullKey> {
@@ -302,22 +309,22 @@ private object VisualOpDecoder : OpDecoder {
                 string("item_model"), string("display_mode")?.let { m ->
                     DisplayItemMode.entries.firstOrNull { it.name.equals(m, ignoreCase = true) }
                         ?: fail("display_mode '$m' is not one of ${DisplayItemMode.entries.joinToString { it.name.lowercase() }}")
-                }, bool("rig_shading") ?: true, lane(), meshModels())
+                }, bool("rig_shading") ?: true, meshModels(), view())
             "plate" -> VisualOp.Plate(
                 id, whenExpr, requireString("parent"), face(null), requireString("sprite"),
                 numberOr("size", 1.0), numberOr("alpha", 1.0),
                 int("frame_ticks")?.also { if (it < 1) fail("frame_ticks must be >= 1") }, bool("loop") ?: false, stringValue("color"),
-                bool("see_through") ?: false, vec3("at"), vec3("turn"), brightness(), repeat(), lane(),
+                bool("see_through") ?: false, vec3("at"), vec3("turn"), brightness(), repeat(), view(),
             )
             "block" -> VisualOp.Block(
                 id, whenExpr, requireString("parent"), requireString("block"), sizeVec("size", uniform = true),
                 vec3("at"), vec3("turn"), brightness(), repeat(),
-                bool("rig_shading") ?: false, lane(),
+                bool("rig_shading") ?: false, view(),
             )
             "quad" -> VisualOp.Quad(
                 id, whenExpr, requireString("parent"), face(PlateFace.ViewerCenter), sizeVec("size", uniform = false),
                 colorOr("color", "#ffffff"), numberOr("alpha", 1.0), string("text"), bool("shadow") ?: false, bool("see_through") ?: false,
-                vec3("at"), vec3("turn"), brightness(), repeat(), lane(),
+                vec3("at"), vec3("turn"), brightness(), repeat(), view(),
             )
             "text" -> {
                 val byLocale = mapOf("text_by_locale")?.mapValues { (k, v) -> v as? String ?: fail("text_by_locale.$k must be a string") }
@@ -327,12 +334,12 @@ private object VisualOpDecoder : OpDecoder {
                     if (byLocale == null) requireString("text") else string("text") ?: byLocale["en"] ?: byLocale.values.first(),
                     colorOr("background", "#000000"), numberOr("background_alpha", 0.0),
                     bool("shadow") ?: false, bool("see_through") ?: false,
-                    vec3("at"), vec3("turn"), brightness(), repeat(), byLocale ?: emptyMap(), lane(),
+                    vec3("at"), vec3("turn"), brightness(), repeat(), byLocale ?: emptyMap(), view(),
                 )
             }
             "line" -> VisualOp.Line(
                 id, whenExpr, requirePoint("from"), requirePoint("to"), numberOr("thickness", 0.05),
-                colorOr("color", "#ffffff"), face(PlateFace.ViewerAxis(AxisRef("line.along"))),
+                colorOr("color", "#ffffff"), face(PlateFace.ViewerAxis(AxisRef("line.along"))), view(),
             )
             "trail" -> VisualOp.Trail(
                 id, whenExpr, requirePoint("of"), point("root"), int("ticks") ?: fail("missing 'ticks'"),
@@ -407,6 +414,10 @@ private object ScreenOpDecoder : OpDecoder {
             "action_bar" -> ScreenOp.ActionBar(id, whenExpr, target(TargetRef.Caster), requireString("text"))
             "camera_shake" -> ScreenOp.CameraShake(
                 id, whenExpr, target(TargetRef.Caster), requireNumber("intensity"), int("ticks") ?: 10,
+                (string("shape")?.let { runCatching { ShakeShape.fromYaml(it) }.getOrElse { e -> fail(e.message ?: "bad shape") } } ?: ShakeShape.DECAY),
+                (string("direction")?.let { runCatching { ShakeDirection.fromYaml(it) }.getOrElse { e -> fail(e.message ?: "bad direction") } } ?: ShakeDirection.NONE),
+                number("frequency"),
+                string("viewers")?.let { runCatching { Audience.fromYaml(it) }.getOrElse { e -> fail(e.message ?: "bad viewers") } } ?: Audience.ALL,
             )
             "screen_flash" -> {
                 val overlay = requireString("overlay")

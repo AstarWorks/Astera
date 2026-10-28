@@ -1,5 +1,6 @@
 package com.astarworks.astera.gamesim
 
+import com.astarworks.astera.core.application.skillengine.runtime.port.DisplayView
 import com.astarworks.astera.core.application.skillengine.runtime.port.VisualPose
 import com.astarworks.astera.core.application.skillengine.runtime.port.SpriteInfo
 import com.astarworks.astera.core.application.skillengine.runtime.port.ISkillVisualGateway
@@ -39,13 +40,13 @@ class LeakTrackingVisuals(private val clock: () -> Int = { 0 }) : ISkillVisualGa
         if (handle.id !in live) stale += "$what on removed handle ${handle.id}"
     }
 
-    override fun spawnMesh(castOwner: UUID, item: String, part: String?, pose: VisualPose, brightness: Int?, look: com.astarworks.astera.core.application.skillengine.runtime.port.MeshLook) = open("mesh $item/$part")
-    override fun spawnPlate(castOwner: UUID, sprite: String, alpha: Double, tintHex: String?, seeThrough: Boolean, pose: VisualPose, brightness: Int?) = open("plate $sprite")
-    override fun spawnBlock(castOwner: UUID, block: String, pose: VisualPose, brightness: Int?, rigShading: Boolean) = open("block")
-    override fun spawnQuad(castOwner: UUID, colorHex: String, alpha: Double, text: String?, shadow: Boolean, seeThrough: Boolean, pose: VisualPose, brightness: Int?) = open("quad")
-    override fun spawnText(castOwner: UUID, text: String, backgroundHex: String, backgroundAlpha: Double, shadow: Boolean, seeThrough: Boolean, pose: VisualPose, brightness: Int?) = open("text")
+    override fun spawnMesh(castOwner: UUID, item: String, part: String?, pose: VisualPose, brightness: Int?, look: com.astarworks.astera.core.application.skillengine.runtime.port.MeshLook, view: DisplayView) = open("mesh $item/$part")
+    override fun spawnPlate(castOwner: UUID, sprite: String, alpha: Double, tintHex: String?, seeThrough: Boolean, pose: VisualPose, brightness: Int?, view: DisplayView) = open("plate $sprite")
+    override fun spawnBlock(castOwner: UUID, block: String, pose: VisualPose, brightness: Int?, rigShading: Boolean, view: DisplayView) = open("block")
+    override fun spawnQuad(castOwner: UUID, colorHex: String, alpha: Double, text: String?, shadow: Boolean, seeThrough: Boolean, pose: VisualPose, brightness: Int?, view: DisplayView) = open("quad")
+    override fun spawnText(castOwner: UUID, text: String, backgroundHex: String, backgroundAlpha: Double, shadow: Boolean, seeThrough: Boolean, pose: VisualPose, brightness: Int?, view: DisplayView) = open("text")
     override fun spawnSkinBone(castOwner: UUID, bone: com.astarworks.astera.core.domain.animation.skinrig.SkinRigBone, slim: Boolean, ghost: Boolean, pose: VisualPose) = open("skin_bone ${bone.yamlName}")
-    override fun spawnLine(castOwner: UUID, colorHex: String, pose: VisualPose) = open("line")
+    override fun spawnLine(castOwner: UUID, colorHex: String, pose: VisualPose, view: DisplayView) = open("line")
     override fun spawnTrail(castOwner: UUID, ticks: Int, widthFrac: Double, colorHex: String, alpha: Double) = open("trail")
     override fun write(handle: VisualHandle, pose: VisualPose, interpolationTicks: Int) { touch(handle, "write"); lastOrigin[handle.id] = pose.frame.origin }
     override fun pushTrailPoint(handle: VisualHandle, root: Vec3, tip: Vec3) = touch(handle, "pushTrailPoint")

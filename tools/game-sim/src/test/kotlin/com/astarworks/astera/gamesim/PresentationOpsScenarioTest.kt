@@ -1,5 +1,6 @@
 package com.astarworks.astera.gamesim
 
+import com.astarworks.astera.core.application.skillengine.runtime.presentation.CameraShakeRequest
 import com.astarworks.astera.core.application.skillengine.load.OpReader
 import com.astarworks.astera.core.application.skillengine.load.presentation.presentationDecoders
 import com.astarworks.astera.core.application.skillengine.runtime.CastId
@@ -12,6 +13,7 @@ import com.astarworks.astera.core.application.skillengine.runtime.port.ISkillGam
 import com.astarworks.astera.core.application.skillengine.runtime.port.ISkillParticleGateway
 import com.astarworks.astera.core.application.skillengine.runtime.port.ISkillSoundGateway
 import com.astarworks.astera.core.application.skillengine.runtime.port.ISkillVictimAnimGateway
+import com.astarworks.astera.core.application.skillengine.runtime.port.DisplayView
 import com.astarworks.astera.core.application.skillengine.runtime.port.VisualPose
 import com.astarworks.astera.core.application.skillengine.runtime.port.SpriteInfo
 import com.astarworks.astera.core.application.skillengine.runtime.port.ISkillVisualGateway
@@ -116,7 +118,7 @@ class PresentationOpsScenarioTest {
     private var nextHandle = 1L
     private val poses = HashMap<Long, Frame>()
     private val scales = HashMap<Long, Double>()
-    private val lanes = HashMap<Long, com.astarworks.astera.core.domain.effect.vfx.VfxLane>()
+    private val lanes = HashMap<Long, com.astarworks.astera.core.domain.effect.VfxLane>()
     private val teleports = HashMap<Long, Int?>()
     private val spawnedBillboards = HashMap<Long, com.astarworks.astera.core.domain.effect.DisplayBillboard>()
     private val lines = HashSet<Long>()
@@ -143,25 +145,25 @@ class PresentationOpsScenarioTest {
     private val visuals = object : ISkillVisualGateway {
     override fun setTrailShape(handle: com.astarworks.astera.core.application.skillengine.runtime.port.VisualHandle, bands: List<com.astarworks.astera.core.domain.skillengine.op.TrailBand>, edge: com.astarworks.astera.core.domain.skillengine.op.TrailEdge?, rim: com.astarworks.astera.core.domain.skillengine.op.TrailRim?, stepDeg: Double, doubleSided: Boolean) {}
         private fun h(kind: String): VisualHandle { calls += kind; return VisualHandle(nextHandle++) }
-        override fun spawnMesh(castOwner: UUID, item: String, part: String?, pose: VisualPose, brightness: Int?, look: com.astarworks.astera.core.application.skillengine.runtime.port.MeshLook) =
-            h("mesh:$item").also { poses[it.id] = pose.frame; scales[it.id] = pose.size.x; meshLooks += look; lanes[it.id] = pose.lane }
+        override fun spawnMesh(castOwner: UUID, item: String, part: String?, pose: VisualPose, brightness: Int?, look: com.astarworks.astera.core.application.skillengine.runtime.port.MeshLook, view: DisplayView) =
+            h("mesh:$item").also { poses[it.id] = pose.frame; scales[it.id] = pose.size.x; meshLooks += look; lanes[it.id] = view.lane }
         override fun spawnSkinBone(castOwner: UUID, bone: com.astarworks.astera.core.domain.animation.skinrig.SkinRigBone, slim: Boolean, ghost: Boolean, pose: VisualPose) =
             h("skin_bone:${bone.yamlName}").also { poses[it.id] = pose.frame; scales[it.id] = pose.size.x }
-        override fun spawnPlate(castOwner: UUID, sprite: String, alpha: Double, tintHex: String?, seeThrough: Boolean, pose: VisualPose, brightness: Int?) =
+        override fun spawnPlate(castOwner: UUID, sprite: String, alpha: Double, tintHex: String?, seeThrough: Boolean, pose: VisualPose, brightness: Int?, view: DisplayView) =
             h("plate:$sprite").also {
                 poses[it.id] = pose.frame; scales[it.id] = pose.size.x; spawnedBillboards[it.id] = pose.billboard
                 if (tintHex != null) plateFrames += Triple(it.id, 0, tintHex)
                 if (seeThrough) seeThroughPlates += it.id
             }
-        override fun spawnBlock(castOwner: UUID, block: String, pose: VisualPose, brightness: Int?, rigShading: Boolean) = h("block").also { poses[it.id] = pose.frame; scales[it.id] = pose.size.x; blockShading += rigShading }
-        override fun spawnQuad(castOwner: UUID, colorHex: String, alpha: Double, text: String?, shadow: Boolean, seeThrough: Boolean, pose: VisualPose, brightness: Int?) = h("quad").also { poses[it.id] = pose.frame; scales[it.id] = pose.size.x }
-        override fun spawnText(castOwner: UUID, text: String, backgroundHex: String, backgroundAlpha: Double, shadow: Boolean, seeThrough: Boolean, pose: VisualPose, brightness: Int?) = h("text").also {
+        override fun spawnBlock(castOwner: UUID, block: String, pose: VisualPose, brightness: Int?, rigShading: Boolean, view: DisplayView) = h("block").also { poses[it.id] = pose.frame; scales[it.id] = pose.size.x; blockShading += rigShading }
+        override fun spawnQuad(castOwner: UUID, colorHex: String, alpha: Double, text: String?, shadow: Boolean, seeThrough: Boolean, pose: VisualPose, brightness: Int?, view: DisplayView) = h("quad").also { poses[it.id] = pose.frame; scales[it.id] = pose.size.x }
+        override fun spawnText(castOwner: UUID, text: String, backgroundHex: String, backgroundAlpha: Double, shadow: Boolean, seeThrough: Boolean, pose: VisualPose, brightness: Int?, view: DisplayView) = h("text").also {
             poses[it.id] = pose.frame; scales[it.id] = pose.size.x
             textSpawns += listOf(text, backgroundHex, backgroundAlpha, shadow, seeThrough)
         }
         override fun setText(handle: VisualHandle, text: String) { textSwaps += handle.id.toInt() to text }
         override fun localize(castOwner: UUID, byLocale: Map<String, String>): String = byLocale["ja"] ?: super.localize(castOwner, byLocale)
-        override fun spawnLine(castOwner: UUID, colorHex: String, pose: VisualPose) =
+        override fun spawnLine(castOwner: UUID, colorHex: String, pose: VisualPose, view: DisplayView) =
             h("line:$colorHex").also { lineEnds[it.id] = ends(pose); lines += it.id }
         override fun spawnTrail(castOwner: UUID, ticks: Int, widthFrac: Double, colorHex: String, alpha: Double) = h("trail")
         override fun write(handle: VisualHandle, pose: VisualPose, interpolationTicks: Int) {
@@ -227,7 +229,7 @@ class PresentationOpsScenarioTest {
         object : ISkillScreenGateway {
             override fun title(viewer: UUID, text: String, subtitle: String?, ticks: Int) { calls += "title:$text:$subtitle:$ticks" }
             override fun actionBar(viewer: UUID, text: String) { calls += "action_bar:$text" }
-            override fun cameraShake(viewer: UUID, intensity: Double, ticks: Int) { calls += "shake:$intensity:$ticks" }
+            override fun cameraShake(viewer: UUID, shake: CameraShakeRequest) { calls += "shake:${shake.intensity}:${shake.ticks}" }
             override fun flash(viewer: UUID, overlay: com.astarworks.astera.core.domain.effect.ScreenOverlay, colorRgb: Int, fadeIn: Int, stay: Int, fadeOut: Int) {
                 calls += "flash:${overlay.yamlName}:${colorRgb.toString(16)}:$fadeIn:$stay:$fadeOut"
             }
@@ -252,11 +254,11 @@ class PresentationOpsScenarioTest {
     private val executors: Map<Class<*>, OpExecutor<*>> =
         presentationExecutors(rt).associateBy { it.opClass.java }
 
-    /** Presentation ops reach the cast host only for the caster look (emit); everything else would be a bug here. */
+    /** Presentation ops reach the cast host only for the caster look (emit), the caster id and the bound victim and the tick (display audience, camera shake); everything else would be a bug here. */
     private val lookOnlyHost: com.astarworks.astera.core.application.skillengine.runtime.OpHost = java.lang.reflect.Proxy.newProxyInstance(
         com.astarworks.astera.core.application.skillengine.runtime.OpHost::class.java.classLoader,
         arrayOf(com.astarworks.astera.core.application.skillengine.runtime.OpHost::class.java),
-    ) { _, m, a -> if (m.name == "lookDirection") Vec3(0.0, 0.0, 1.0) else if (m.name == "withIndex") (a[2] as () -> Unit)() else if (m.name == "withSample") (a[1] as () -> Unit).invoke() else error("this scenario never reaches the cast host (${m.name})") } as com.astarworks.astera.core.application.skillengine.runtime.OpHost
+    ) { _, m, a -> if (m.name == "lookDirection") Vec3(0.0, 0.0, 1.0) else if (m.name == "withIndex") (a[2] as () -> Unit)() else if (m.name == "withSample") (a[1] as () -> Unit).invoke() else if (m.name == "getCurrentVictim") null else if (m.name == "getCaster") SIM_CASTER else if (m.name == "getTick") 0 else error("this scenario never reaches the cast host (${m.name})") } as com.astarworks.astera.core.application.skillengine.runtime.OpHost
 
     private val ctx = object : OpContext {
         override val host: com.astarworks.astera.core.application.skillengine.runtime.OpHost get() = lookOnlyHost
@@ -674,11 +676,11 @@ class PresentationOpsScenarioTest {
     @Test
     fun `lane reaches the spawned pose and decodes`() {
         run(VisualOp.Mesh("core", null, "shears", "couture-shears", null, null))
-        run(VisualOp.Mesh("amb", null, "shears", "couture-shears", null, null, lane = com.astarworks.astera.core.domain.effect.vfx.VfxLane.AMBIENT))
-        assertThat(lanes[1]).isEqualTo(com.astarworks.astera.core.domain.effect.vfx.VfxLane.CORE)
-        assertThat(lanes[2]).isEqualTo(com.astarworks.astera.core.domain.effect.vfx.VfxLane.AMBIENT)
+        run(VisualOp.Mesh("amb", null, "shears", "couture-shears", null, null, view = com.astarworks.astera.core.domain.skillengine.op.ViewScope(lane = com.astarworks.astera.core.domain.effect.VfxLane.AMBIENT)))
+        assertThat(lanes[1]).isEqualTo(com.astarworks.astera.core.domain.effect.VfxLane.CORE)
+        assertThat(lanes[2]).isEqualTo(com.astarworks.astera.core.domain.effect.VfxLane.AMBIENT)
         val d = decode("mesh", mapOf("frame" to "shears", "item" to "x", "lane" to "accent")) as VisualOp.Mesh
-        assertThat(d.lane).isEqualTo(com.astarworks.astera.core.domain.effect.vfx.VfxLane.ACCENT)
+        assertThat(d.view.lane).isEqualTo(com.astarworks.astera.core.domain.effect.VfxLane.ACCENT)
         assertThatThrownBy { decode("mesh", mapOf("frame" to "shears", "item" to "x", "lane" to "loud")) }.isInstanceOf(IllegalArgumentException::class.java)
     }
 
@@ -703,9 +705,9 @@ class PresentationOpsScenarioTest {
 
     @Test
     fun `server floor drops ambient then accent lanes as the live-display budget fills`() {
-        val q = com.astarworks.astera.core.domain.effect.vfx.VfxQualityProfile
+        val q = com.astarworks.astera.core.domain.effect.VfxQualityProfile
         val full = com.astarworks.astera.core.domain.effect.VfxIntensity.FULL
-        val lane = com.astarworks.astera.core.domain.effect.vfx.VfxLane.entries.associateBy { it.name }
+        val lane = com.astarworks.astera.core.domain.effect.VfxLane.entries.associateBy { it.name }
         assertThat(q.serverFloor(0, 100)).isEqualTo(full)
         assertThat(q.admits(q.serverFloor(70, 100), lane.getValue("AMBIENT"))).isFalse()
         assertThat(q.admits(q.serverFloor(70, 100), lane.getValue("ACCENT"))).isTrue()

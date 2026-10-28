@@ -1,0 +1,21 @@
+# Converted from content/skills/vfx-demo-lanes-target.yaml by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
+# Generated point-frame offsets are [left, up, forward] in the parent frame.
+apiVersion: "astera/v2"
+kind: Skill
+id: vfx-demo-lanes-target
+meta: {name: {ja: "デモ・レーン (target)", en: "Demo Lanes (target)"}, description: {ja: "レーン別の表示エンティティを viewers=target で再生するデモ。", en: "Plays one display per VFX lane with viewers=target."}, cooldown_ticks: 20}
+gameplay:
+  params: {arc_deg: 45, reach: 12}
+  expose:
+    - {id: range, param: reach}
+  timeline:
+    - id: t0
+      at: 0
+      do:
+        - id: sel
+          op: hit
+          frames: [caster]
+          sector: {frame: caster, at: eye, forward: caster.forward, left: caster.left, angle_deg: "${arc_deg}", range: "${reach}", height: 2.0}
+          max_count: 1
+          window: once
+          ticks: 1

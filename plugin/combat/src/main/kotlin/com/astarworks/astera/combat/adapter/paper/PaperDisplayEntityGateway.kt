@@ -10,6 +10,8 @@ import com.astarworks.astera.core.application.port.outbound.ticks
 import com.astarworks.astera.core.domain.effect.Audience
 import com.astarworks.astera.core.domain.effect.AudienceResolver
 import com.astarworks.astera.core.domain.effect.VfxIntensity
+import com.astarworks.astera.core.domain.effect.VfxLane
+import com.astarworks.astera.core.domain.effect.VfxQualityProfile
 import com.astarworks.astera.core.domain.animation.skinrig.SkinRigBone
 import com.astarworks.astera.core.domain.animation.skinrig.SkinRigMarker
 import com.astarworks.astera.core.domain.effect.DisplayBillboard
@@ -18,8 +20,6 @@ import com.astarworks.astera.core.domain.effect.DisplayKind
 import com.astarworks.astera.core.domain.effect.DisplaySpec
 import com.astarworks.astera.core.domain.effect.DisplayTransform
 import com.astarworks.astera.core.domain.effect.WeaponRigShading
-import com.astarworks.astera.core.domain.effect.vfx.VfxLane
-import com.astarworks.astera.core.domain.effect.vfx.VfxQualityProfile
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.world.WorldId
 import com.astarworks.astera.core.domain.player.PlayerId
@@ -91,24 +91,24 @@ public class PaperDisplayEntityGateway(
         return used < maxLiveDisplays && VfxQualityProfile.admits(VfxQualityProfile.serverFloor(used, maxLiveDisplays), lane)
     }
 
-    override fun spawnAttached(world: WorldId, spec: DisplaySpec, renderedLines: List<String>, anchor: PlayerId, offset: Vec3, lane: VfxLane): DisplayHandle? {
+    override fun spawnAttached(world: WorldId, spec: DisplaySpec, renderedLines: List<String>, anchor: PlayerId, offset: Vec3, scope: IDisplayEntityGateway.DisplayScope?): DisplayHandle? {
         val player = server.getPlayer(anchor.uuid) ?: return null
         if (spec.billboard != DisplayBillboard.FIXED || player.world.name != world.value) return null
-        if (!budgetAdmits(lane)) return null
+        if (!budgetAdmits(scope?.lane ?: VfxLane.CORE)) return null
         val location = player.location
         val height = player.height
         val origin = Vec3(location.x, location.y + height, location.z)
         // Both the spawn position and its first metadata must already use the riding origin:
         // a post-spawn correction can otherwise render a frame below the player's feet.
         val initial = spec.transform.copy(translation = spec.transform.translation + offset - Vec3(0.0, height, 0.0))
-        val handle = spawn(world, origin, spec.copy(transform = initial), renderedLines, player, hidden = lane != VfxLane.CORE) ?: return null
+        val handle = spawn(world, origin, spec.copy(transform = initial), renderedLines, player, hidden = scope != null && !scope.isOpen()) ?: return null
         val display = server.getEntity(handle.id) as? Display ?: return null
         if (!player.addPassenger(display)) {
             remove(handle)
             return null
         }
+        if (scope != null && !scope.isOpen()) reveal(display, player.world, origin, scope.audience, scope.caster, scope.target, scope.lane)
         attachments[handle] = Attachment(anchor, player.world, offset, spec.transform, height, spec.kind is DisplayKind.SkinBone)
-        if (lane != VfxLane.CORE) reveal(display, lane, anchor)
         return handle
     }
 
@@ -134,23 +134,36 @@ public class PaperDisplayEntityGateway(
     override fun spawn(world: WorldId, at: Vec3, spec: DisplaySpec, renderedLines: List<String>): DisplayHandle? =
         spawn(world, at, spec, renderedLines, null)
 
+    private fun IDisplayEntityGateway.DisplayScope.isOpen(): Boolean = audience == Audience.ALL && lane == VfxLane.CORE
+
     /**
-     * Lane-scoped spawn (v1 PaperDisplayEntityGateway.spawn(... lane)). The display is created `visibleByDefault = false` (before
-     * it is added to the world, so no tracker sends it unasked) and revealed with `Player.showEntity` to the nearby players and
-     * [owner] whose `vfx_intensity` admits [lane]; each reveal runs on that viewer's entity scheduler.
+     * Audience-scoped spawn (v1 PaperDisplayEntityGateway). The display is created `visibleByDefault = false` (before it is
+     * added to the world, so no tracker ever sends it unasked) and revealed with `Player.showEntity` to exactly the resolved
+     * viewers: the audience relative to the caster / target, minus viewers whose `vfx_intensity` drops [lane]. Candidates are
+     * the players near the display plus the caster and target; each reveal runs on that viewer's entity scheduler.
      */
-    override fun spawnLaned(world: WorldId, at: Vec3, spec: DisplaySpec, renderedLines: List<String>, lane: VfxLane, owner: PlayerId?): DisplayHandle? {
+    override fun spawn(
+        world: WorldId,
+        at: Vec3,
+        spec: DisplaySpec,
+        renderedLines: List<String>,
+        audience: Audience,
+        caster: PlayerId?,
+        target: PlayerId?,
+        lane: VfxLane,
+    ): DisplayHandle? {
         if (!budgetAdmits(lane)) return null
-        if (lane == VfxLane.CORE) return spawn(world, at, spec, renderedLines)
+        if (audience == Audience.ALL && lane == VfxLane.CORE) return spawn(world, at, spec, renderedLines)
+        val bukkitWorld = server.getWorld(world.value) ?: return null
         val handle = spawn(world, at, spec, renderedLines, null, hidden = true) ?: return null
         val display = server.getEntity(handle.id) as? Display ?: return handle
-        reveal(display, lane, owner)
+        reveal(display, bukkitWorld, at, audience, caster, target, lane)
         return handle
     }
 
-    private fun reveal(display: Display, lane: VfxLane, owner: PlayerId?) {
-        val nearby = display.world.getNearbyPlayers(display.location, VIEWER_RADIUS).map { PlayerId(it.uniqueId) }
-        val candidates = LinkedHashSet<PlayerId>(nearby).also { if (owner != null) it += owner }
+    private fun reveal(display: Display, bukkitWorld: org.bukkit.World, at: Vec3, audience: Audience, caster: PlayerId?, target: PlayerId?, lane: VfxLane) {
+        val nearby = bukkitWorld.getNearbyPlayers(Location(bukkitWorld, at.x, at.y, at.z), VIEWER_RADIUS).map { PlayerId(it.uniqueId) }
+        val candidates = AudienceResolver.select(AudienceResolver.displayPool(nearby, caster, target), audience, caster, target)
         val floor = VfxQualityProfile.serverFloor(live.size, maxLiveDisplays)
         for (viewer in VfxQualityProfile.filterViewers(candidates, lane, intensityOf, floor)) {
             scheduler.run(ExecutionScope.Entity(viewer.uuid), ticks(0)) {

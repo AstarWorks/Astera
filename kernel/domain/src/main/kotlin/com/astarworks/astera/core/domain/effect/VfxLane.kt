@@ -1,8 +1,8 @@
-package com.astarworks.astera.core.domain.effect.vfx
+package com.astarworks.astera.core.domain.effect
 
 /**
- * Importance class of a display op for per-viewer quality scaling (v1 `VfxLane`, VfxLane.kt:9): `CORE` is always shown,
- * `ACCENT` is dropped on `minimal`, `AMBIENT` is dropped on `reduced` and `minimal`.
+ * Importance class of a [VfxElement] for per-viewer quality scaling: `CORE` is always shown, `ACCENT` is dropped on
+ * `minimal`, `AMBIENT` is dropped on `reduced` and `minimal`.
  */
 public enum class VfxLane(public val yamlName: String) {
     CORE("core"),

@@ -394,7 +394,23 @@ class Conv:
         return fid
 
     # ---------- row / handler placement ----------
+    DISPLAY_OPS = ("mesh", "plate", "block", "quad", "line")
+    AUDIENCES = ("all", "caster", "target", "others")
+    LANES = ("core", "accent", "ambient")
+    view_audience = None  # play_vfx `viewers:` of the vfx being converted (WP6-C; v1 VfxPlayer VP:88)
+    view_lane = None  # element `lane:` of the element being converted (v1 VfxQualityProfile lanes)
+
+    def stamp_view(self, op):
+        """The scope of a display op: v1 play_vfx `viewers:` and the element's `lane:` (default all / core)."""
+        if op.get("op") in self.DISPLAY_OPS:
+            if self.view_audience and self.view_audience != "all":
+                op["viewers"] = self.view_audience
+            if self.view_lane and self.view_lane != "core":
+                op["lane"] = self.view_lane
+
     def _put(self, side, where, delay, op):
+        if side == "p":
+            self.stamp_view(op)
         if where.kind == "nested":
             if side == "p":
                 # A presentation op in a nested gameplay list rides an event the list raises: the event carries the current
@@ -439,6 +455,7 @@ class Conv:
     def rep(self, where, delay, every, span, op):
         """A presentation op that repeats every `every` ticks for `span` ticks (v1 `start..end` element / emitter): a
         timeline row `{at, every, for}`. At `span <= every` it is one firing and goes through the plain row path."""
+        self.stamp_view(op)
         if span <= every or where.kind == "nested":
             self._put("p", where, delay, op)
             return
@@ -1016,11 +1033,19 @@ class Conv:
         elif t == "play_vfx":
             self.vfx(m, tg, where, delay, when)
         elif t == "camera_shake":
-            W({"id": self.oid("shake"), "op": "camera_shake", "target": self.screen_target(tg),
-               "intensity": V(m["intensity"]), "ticks": V(m["ticks"])})
-            for k in ("shape", "direction", "viewers"):
-                if k in m:
-                    self.present("camera_shake %s (engine shake is intensity + ticks only)" % k, "%s=%s" % (k, short(V(m[k]), 40)))
+            # v1 MechanicYaml camera_shake (MY:1032): shape decay|impulse, direction none|from_hit, frequency (Hz, 0 = default), viewers.
+            shake = {"id": self.oid("shake"), "op": "camera_shake", "target": self.screen_target(tg),
+                     "intensity": V(m["intensity"]), "ticks": V(m["ticks"])}
+            if str(V(m.get("shape", "decay"))) not in ("decay", "impulse"):
+                raise ValueError("camera_shake shape '%s' (expected decay|impulse)" % V(m["shape"]))
+            if str(V(m.get("direction", "none"))) not in ("none", "from_hit"):
+                raise ValueError("camera_shake direction '%s' (expected none|from_hit)" % V(m["direction"]))
+            if str(V(m.get("viewers", "all"))) not in self.AUDIENCES:
+                raise ValueError("camera_shake viewers '%s' (expected %s)" % (V(m["viewers"]), "|".join(self.AUDIENCES)))
+            for k in ("shape", "direction", "frequency", "viewers"):
+                if k in m and V(m[k]) not in ("decay", "none", "all", 0, 0.0):
+                    shake[k] = V(m[k])
+            W(shake)
         elif t == "glow":
             # v1 WorldMechanics.glow (WM:585): outline for `ticks`, living players only, the last writer's end time wins.
             extra = sorted(set(m) - {"ticks"} - self.COMMON_MECH_KEYS)
@@ -1316,6 +1341,13 @@ class Conv:
         self.p(where, delay, self._w(op, when))
 
     def vfx(self, m, tg, where, delay, when, d=None, parent=None):
+        try:
+            self._vfx(m, tg, where, delay, when, d, parent)
+        finally:
+            self.view_audience = None
+            self.view_lane = None
+
+    def _vfx(self, m, tg, where, delay, when, d=None, parent=None):
         vid = m["vfx_id"]
         if d is None:
             d = self.load_vfx(vid)
@@ -1405,16 +1437,28 @@ class Conv:
             if set(f) - {"at", "ticks"}:
                 raise ValueError("play_vfx freeze window %r has fields beyond at / ticks (v1 play_vfx freeze is {at, ticks}); extend the converter" % (f,))
         d = hitstop_bake(d, V(m.get("freeze")))
-        for k in ("viewers",):
-            if k in m:
-                self.present("play_vfx %s (no v2 equivalent)" % k, short(V(m[k]), 40))
+        if "snapshot_pose" in m:
+            self.present("play_vfx snapshot_pose (no v2 equivalent)", short(V(m["snapshot_pose"]), 40))
+        audience = str(V(m.get("viewers", "all")))
+        if audience not in self.AUDIENCES:
+            raise ValueError("play_vfx viewers '%s' (expected %s)" % (audience, "|".join(self.AUDIENCES)))
+        self.view_audience = audience
+        if audience != "all" and (d.get("rigs") or d.get("body")):
+            self.present("play_vfx viewers on a rig / body (rig displays are not audience scoped)", vid)
         dur = int(d.get("duration_ticks", 20))
         removes = {}
         body = d.get("body")
         rigs = d.get("rigs", []) or []
         freeze = V(m["freeze"]) if m.get("freeze") else []
-        for el in d.get("elements", []):
-            self.vfx_element(el, fid, where, delay, when, dur, removes)
+        try:
+            for el in d.get("elements", []):
+                lane = str(el.get("lane", "core"))
+                if lane not in self.LANES:
+                    raise ValueError("element '%s' lane '%s' (expected %s)" % (el.get("id"), lane, "|".join(self.LANES)))
+                self.view_lane = lane
+                self.vfx_element(el, fid, where, delay, when, dur, removes)
+        finally:
+            self.view_lane = None
         for i, r in enumerate(rigs):
             self.vfx_rig(r, fid, where, delay, when, dur, removes, body if i == 0 else None, freeze, d)
         if body and not rigs:

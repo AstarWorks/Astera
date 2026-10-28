@@ -1,10 +1,9 @@
-package com.astarworks.astera.core.domain.effect.vfx
+package com.astarworks.astera.core.domain.effect
 
-import com.astarworks.astera.core.domain.effect.VfxIntensity
 import com.astarworks.astera.core.domain.player.PlayerId
 
 /**
- * Pure per-viewer quality filter: which [VfxLane]s a viewer at a given [VfxIntensity] is shown (v1 `VfxQualityProfile`).
+ * Pure per-viewer quality filter: which [VfxLane]s a viewer at a given [VfxIntensity] is shown.
  *
  * - `full` = every lane
  * - `reduced` = no `ambient`
@@ -27,6 +26,12 @@ public object VfxQualityProfile {
         VfxIntensity.MINIMAL -> lane == VfxLane.CORE
     }
 
+    /** The lanes that survive at [intensity], for counting and tooling. */
+    public fun lanes(intensity: VfxIntensity): Set<VfxLane> = VfxLane.entries.filterTo(LinkedHashSet()) { admits(intensity, it) }
+
+    /** Number of [laneOfEach] entries a viewer at [intensity] is shown. */
+    public fun count(intensity: VfxIntensity, laneOfEach: Collection<VfxLane>): Int = laneOfEach.count { admits(intensity, it) }
+
     /** Server-wide floor from the display budget: [liveDisplays] reserved out of [cap]. */
     public fun serverFloor(liveDisplays: Int, cap: Int): VfxIntensity {
         if (cap <= 0) return VfxIntensity.MINIMAL
@@ -41,7 +46,7 @@ public object VfxQualityProfile {
     /** The leaner of the viewer's choice and the server floor. */
     public fun effective(viewer: VfxIntensity, floor: VfxIntensity): VfxIntensity = if (viewer.ordinal >= floor.ordinal) viewer else floor
 
-    /** [viewers] that are shown a display of [lane] given their own intensity and the server [floor]. */
+    /** [viewers] that are shown an element of [lane] given their own intensity and the server [floor]. */
     public fun filterViewers(
         viewers: Collection<PlayerId>,
         lane: VfxLane,

@@ -1,0 +1,12 @@
+# Converted from content/skills/vfx-demo-veil-shake.yaml + content/vfx/* by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
+# Generated point-frame offsets are [left, up, forward] in the parent frame.
+apiVersion: "astera/v2"
+kind: Skill
+id: vfx-demo-veil-shake
+presentation:
+  timeline:
+    - id: fx6
+      at: 6
+      do:
+        - {id: veil, op: screen_veil, target: caster, sprite: burst, ticks: 8, color: "#FFC84A", distance: 0.4, scale: 1.4}
+        - {id: shake, op: camera_shake, target: caster, intensity: 1.0, ticks: 10, viewers: caster}

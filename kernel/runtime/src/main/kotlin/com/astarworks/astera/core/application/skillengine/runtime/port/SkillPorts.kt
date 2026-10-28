@@ -2,7 +2,6 @@ package com.astarworks.astera.core.application.skillengine.runtime.port
 
 import com.astarworks.astera.core.domain.effect.DisplayBillboard
 import com.astarworks.astera.core.domain.effect.DisplayItemMode
-import com.astarworks.astera.core.domain.effect.vfx.VfxLane
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.geometry.math.Frame
 import com.astarworks.astera.core.domain.skillengine.hit.HitCandidate
@@ -32,8 +31,6 @@ public data class VisualPose(
     val size: Vec3,
     val billboard: DisplayBillboard = DisplayBillboard.FIXED,
     val anchorFeet: Vec3? = null,
-    /** Per-viewer quality class of the display; read at spawn (a non-core lane is shown to the viewers whose setting admits it). */
-    val lane: VfxLane = VfxLane.CORE,
     /** `teleport_duration` of the write when it differs from the interpolation length (a followed effect, v1 VfxPlayer.kt:416); null = same. */
     val teleportTicks: Int? = null,
 )
@@ -43,6 +40,16 @@ public data class MeshLook(
     val itemModel: String? = null,
     val mode: DisplayItemMode = DisplayItemMode.FIXED,
     val rigShading: Boolean = true,
+)
+
+/**
+ * Who sees a display (v1 `Audience` / `VfxLane`): [audience] relative to the caster and the [target] (the victim in scope, or null),
+ * [lane] dropped for viewers whose `vfx_intensity` does not admit it. Resolved by the adapter when the display is created.
+ */
+public data class DisplayView(
+    val audience: com.astarworks.astera.core.domain.effect.Audience = com.astarworks.astera.core.domain.effect.Audience.ALL,
+    val lane: com.astarworks.astera.core.domain.effect.VfxLane = com.astarworks.astera.core.domain.effect.VfxLane.CORE,
+    val target: UUID? = null,
 )
 
 /** A sprite's flipbook length and texture edge in pixels (its natural size is `px * 0.025` blocks). */
@@ -55,7 +62,7 @@ public data class SpriteInfo(val frames: Int, val px: Int)
  */
 public interface ISkillVisualGateway {
     /** An item model; [pose].size is the model scale in blocks per model unit. */
-    public fun spawnMesh(castOwner: UUID, item: String, part: String?, pose: VisualPose, brightness: Int? = null, look: MeshLook = MeshLook()): VisualHandle
+    public fun spawnMesh(castOwner: UUID, item: String, part: String?, pose: VisualPose, brightness: Int? = null, look: MeshLook = MeshLook(), view: DisplayView = DisplayView()): VisualHandle
 
     /**
      * One bone of the caster's own skin rig (ADR-0303 skin-rig section): a skull display wearing the caster's skin, [ghost] = a
@@ -69,25 +76,25 @@ public interface ISkillVisualGateway {
      * sprite from the first tick (null = the sprite's own colours), [seeThrough] is the vanilla text-display flag.
      * [brightness] null = full bright (15).
      */
-    public fun spawnPlate(castOwner: UUID, sprite: String, alpha: Double, tintHex: String?, seeThrough: Boolean, pose: VisualPose, brightness: Int? = null): VisualHandle
+    public fun spawnPlate(castOwner: UUID, sprite: String, alpha: Double, tintHex: String?, seeThrough: Boolean, pose: VisualPose, brightness: Int? = null, view: DisplayView = DisplayView()): VisualHandle
 
     /** A block display of vanilla block [block] (`gold_block`); [pose].size is its edge per axis in blocks, centred on the pose origin. */
-    public fun spawnBlock(castOwner: UUID, block: String, pose: VisualPose, brightness: Int?, rigShading: Boolean = false): VisualHandle
+    public fun spawnBlock(castOwner: UUID, block: String, pose: VisualPose, brightness: Int?, rigShading: Boolean = false, view: DisplayView = DisplayView()): VisualHandle
 
     /**
      * A text-display quad: [text] null = a solid [colorHex] background at [alpha] ([pose].size.x / .y = width / height in blocks);
      * else the MiniMessage [text] over that background, [pose].size = blocks per text unit.
      */
-    public fun spawnQuad(castOwner: UUID, colorHex: String, alpha: Double, text: String?, shadow: Boolean, seeThrough: Boolean, pose: VisualPose, brightness: Int?): VisualHandle
+    public fun spawnQuad(castOwner: UUID, colorHex: String, alpha: Double, text: String?, shadow: Boolean, seeThrough: Boolean, pose: VisualPose, brightness: Int?, view: DisplayView = DisplayView()): VisualHandle
 
     /**
      * A text display of the MiniMessage [text] ([pose].size = blocks per text unit) with a [backgroundHex] box at [backgroundAlpha]
      * (0 = none); the text keeps its own colour and full opacity.
      */
-    public fun spawnText(castOwner: UUID, text: String, backgroundHex: String, backgroundAlpha: Double, shadow: Boolean, seeThrough: Boolean, pose: VisualPose, brightness: Int?): VisualHandle
+    public fun spawnText(castOwner: UUID, text: String, backgroundHex: String, backgroundAlpha: Double, shadow: Boolean, seeThrough: Boolean, pose: VisualPose, brightness: Int?, view: DisplayView = DisplayView()): VisualHandle
 
     /** A solid ribbon; [pose] is its centre, basis (x along the line) and size (length, thickness). */
-    public fun spawnLine(castOwner: UUID, colorHex: String, pose: VisualPose): VisualHandle
+    public fun spawnLine(castOwner: UUID, colorHex: String, pose: VisualPose, view: DisplayView = DisplayView()): VisualHandle
 
     public fun spawnTrail(castOwner: UUID, ticks: Int, widthFrac: Double, colorHex: String, alpha: Double): VisualHandle
 

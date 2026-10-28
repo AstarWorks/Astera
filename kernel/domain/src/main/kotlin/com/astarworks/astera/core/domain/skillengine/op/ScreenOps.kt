@@ -1,5 +1,8 @@
 package com.astarworks.astera.core.domain.skillengine.op
 
+import com.astarworks.astera.core.domain.effect.Audience
+import com.astarworks.astera.core.domain.effect.camera.ShakeDirection
+import com.astarworks.astera.core.domain.effect.camera.ShakeShape
 import com.astarworks.astera.core.domain.skillengine.model.TargetRef
 import com.astarworks.astera.core.domain.skillengine.model.Value
 
@@ -68,5 +71,10 @@ public sealed interface ScreenOp : PresentationOp {
         val target: TargetRef,
         val intensity: Value<Double>,
         val ticks: Int,
+        val shape: ShakeShape = ShakeShape.DECAY,
+        val direction: ShakeDirection = ShakeDirection.NONE,
+        /** Hz of an impulse / decay oscillation; 0 = the engine default (v1 `frequency:`). */
+        val frequency: Value<Double>? = null,
+        val viewers: Audience = Audience.ALL,
     ) : ScreenOp
 }

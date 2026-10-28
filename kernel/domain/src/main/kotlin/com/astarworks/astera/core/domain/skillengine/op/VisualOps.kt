@@ -1,7 +1,8 @@
 package com.astarworks.astera.core.domain.skillengine.op
 
+import com.astarworks.astera.core.domain.effect.Audience
 import com.astarworks.astera.core.domain.effect.DisplayItemMode
-import com.astarworks.astera.core.domain.effect.vfx.VfxLane
+import com.astarworks.astera.core.domain.effect.VfxLane
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.skillengine.model.AxisRef
 import com.astarworks.astera.core.domain.skillengine.model.PointRef
@@ -32,6 +33,12 @@ public sealed interface PlateFace {
  * ORIGIN when the op runs (world axes, no yaw / pitch: a v1 location is a bare Vec3). It never follows the parent afterwards, and an
  * earlier firing's copies are neither moved nor replaced by a later one; `remove` on `<id>` removes all instances.
  */
+/**
+ * Who sees a display and in which quality lane (v1 `play_vfx viewers:` and element `lane:`): [audience] is relative to the
+ * caster and the victim in scope, [lane] is dropped for a viewer whose own `vfx_intensity` does not admit it.
+ */
+public data class ViewScope(val audience: Audience = Audience.ALL, val lane: VfxLane = VfxLane.CORE)
+
 public data class Repeat(val times: Value<Double>, val every: Int = 0, val life: Int? = null, val instance: Boolean = false)
 
 /** Display objects attached to frames. Family owner: visual (mesh/plate/line/trail) worker. */
@@ -63,10 +70,9 @@ public sealed interface VisualOp : PresentationOp {
         val displayMode: DisplayItemMode? = null,
         /** True = lit by the weapon-rig shader rule when [brightness] is null (a held weapon); false = lit by the world. */
         val rigShading: Boolean = true,
-        /** Per-viewer quality class (v1 `lane`): which viewers are shown this display. */
-        val lane: VfxLane = VfxLane.CORE,
         /** Step keys of the displayed `item_model` on this same display, on the clock of the rig it hangs from (v1 `weapon_model`). */
         val models: List<MeshModelKey> = emptyList(),
+        val view: ViewScope = ViewScope(),
     ) : VisualOp
 
     /** A sprite quad as a NODE of the frame tree named [id], child of [parent]; [size] is its edge length in BLOCKS. */
@@ -94,7 +100,7 @@ public sealed interface VisualOp : PresentationOp {
         /** Vanilla Display.brightness 0..15; 15 (full bright) when null. */
         val brightness: Int? = null,
         val repeat: Repeat? = null,
-        val lane: VfxLane = VfxLane.CORE,
+        val view: ViewScope = ViewScope(),
     ) : VisualOp
 
     /**
@@ -113,7 +119,7 @@ public sealed interface VisualOp : PresentationOp {
         val repeat: Repeat? = null,
         /** True = lit by the weapon-rig shader rule when [brightness] is null; false = lit by the world. */
         val rigShading: Boolean = false,
-        val lane: VfxLane = VfxLane.CORE,
+        val view: ViewScope = ViewScope(),
     ) : VisualOp
 
     /**
@@ -137,7 +143,7 @@ public sealed interface VisualOp : PresentationOp {
         val turn: Value<Vec3>? = null,
         val brightness: Int? = null,
         val repeat: Repeat? = null,
-        val lane: VfxLane = VfxLane.CORE,
+        val view: ViewScope = ViewScope(),
     ) : VisualOp
 
     /**
@@ -162,7 +168,7 @@ public sealed interface VisualOp : PresentationOp {
         val repeat: Repeat? = null,
         /** Markup per locale code (`en`, `ja`); non-empty = the gateway picks the cast owner's locale and [text] is the fallback. */
         val textByLocale: Map<String, String> = emptyMap(),
-        val lane: VfxLane = VfxLane.CORE,
+        val view: ViewScope = ViewScope(),
     ) : VisualOp
 
     /** Ribbon between two points; length follows them every tick. */
@@ -174,6 +180,7 @@ public sealed interface VisualOp : PresentationOp {
         val thickness: Value<Double>,
         val color: Value<String>,
         val face: PlateFace,
+        val view: ViewScope = ViewScope(),
     ) : VisualOp
 
     /** Ribbon from the history of [of] (and [root], if given: fan from root to tip). */
