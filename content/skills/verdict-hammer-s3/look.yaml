@@ -1,7 +1,5 @@
 # Converted from content/skills/verdict-hammer-s3.yaml + content/vfx/* by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
 # Generated point-frame offsets are [left, up, forward] in the parent frame.
-# CONVERT-PRESENT vfx follow=false (anchored at world, no place-at-spawn) (x7): verdict-summoned-nails | verdict-impact
-# CONVERT-PRESENT vfx frame orient (frames carry no orientation / scale) (x7): orient="yaw" | orient="world"
 apiVersion: "astera/v2"
 kind: Skill
 id: verdict-hammer-s3
@@ -26,6 +24,7 @@ presentation:
     - id: fx44
       at: 44
       do:
+        - {id: anchor_3, op: anchor, frame: fx3_verdict_s1_gavel, at: caster, orient: yaw}
         - id: fx3_verdict_s1_gavel_hammer_rig
           op: rig
           frame: fx3_verdict_s1_gavel_hammer
@@ -92,6 +91,7 @@ presentation:
     - id: fx82
       at: 82
       do:
+        - {id: anchor_5, op: anchor, frame: fx5_verdict_s3_judgment, at: caster, orient: yaw}
         - id: fx5_verdict_s3_judgment_hammer_rig
           op: rig
           frame: fx5_verdict_s3_judgment_hammer
@@ -376,6 +376,7 @@ presentation:
           when: "= event.source == 'sel'"
   "on":
     hit:
+      - {id: anchor, op: anchor, frame: fx1_verdict_summoned_nails, at: contact.point, orient: yaw, when: "= event.source == 'sel'"}
       - {op: block, parent: fx1_verdict_summoned_nails, block: iron_block, size: [1.0, 1.0, 1.0], id: fx1_verdict_summoned_nails_nail__1_shaft, when: "= event.source == 'sel'"}
       - id: fx1_verdict_summoned_nails_nail__1_shaft_trk
         op: track
@@ -436,6 +437,7 @@ presentation:
           - {t: 27, offset: [0.3, 2.3, 0.0], scale: [0.45, 0.18, 0.45]}
           - {t: 34, offset: [0.3, 2.3, 0.0], scale: [0.0, 0.0, 0.0]}
         when: "= event.source == 'sel'"
+      - {id: anchor_2, op: anchor, frame: fx2_verdict_impact, at: contact.point, orient: world, when: "= event.source == 'sel_2'"}
       - op: quad
         parent: fx2_verdict_impact
         face: {viewer: center}
@@ -474,6 +476,7 @@ presentation:
           - {t: 9, offset: [0.0, -2.5, 0.5], scale: [4.0, 4.0, 1.0], alpha: 0.0, ease: out_cubic}
         when: "= event.source == 'sel_2'"
       - {id: snd, op: sound, sound: entity.player.attack.strong, at: enemy, volume: 0.7, pitch: 1.1, when: "= event.source == 'sel_2'"}
+      - {id: anchor_4, op: anchor, frame: fx4_verdict_impact, at: contact.point, orient: world, when: "= event.source == 'sel_3'"}
       - op: quad
         parent: fx4_verdict_impact
         face: {viewer: center}
@@ -512,6 +515,7 @@ presentation:
           - {t: 9, offset: [0.0, -2.5, 0.5], scale: [4.0, 4.0, 1.0], alpha: 0.0, ease: out_cubic}
         when: "= event.source == 'sel_3'"
       - {id: snd_2, op: sound, sound: entity.player.attack.strong, at: enemy, volume: 0.7, pitch: 1.1, when: "= event.source == 'sel_3'"}
+      - {id: anchor_6, op: anchor, frame: fx6_verdict_impact, at: contact.point, orient: world, when: "= event.source == 'sel_4'"}
       - op: quad
         parent: fx6_verdict_impact
         face: {viewer: center}
@@ -550,6 +554,7 @@ presentation:
           - {t: 9, offset: [0.0, -2.5, 0.5], scale: [4.0, 4.0, 1.0], alpha: 0.0, ease: out_cubic}
         when: "= event.source == 'sel_4'"
       - {id: snd_3, op: sound, sound: entity.player.attack.strong, at: enemy, volume: 0.7, pitch: 1.1, when: "= event.source == 'sel_4'"}
+      - {id: anchor_7, op: anchor, frame: fx7_verdict_ego_ring, at: contact.point, orient: yaw, when: "= event.source == 'sel_4'"}
       - {op: block, parent: fx7_verdict_ego_ring, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx7_verdict_ego_ring_ring_s0, when: "= event.source == 'sel_4'"}
       - id: fx7_verdict_ego_ring_ring_s0_trk
         op: track

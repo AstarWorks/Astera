@@ -1,12 +1,10 @@
 # Converted from content/skills/vendetta-rifle-def.yaml + content/vfx/* by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
 # Generated point-frame offsets are [left, up, forward] in the parent frame.
-# CONVERT-PRESENT vfx frame orient (frames carry no orientation / scale) (x2): orient="yaw"
-# CONVERT-PRESENT vfx follow=false (anchored at world, no place-at-spawn) (x1): vendetta-parry-ring
 apiVersion: "astera/v2"
 kind: Skill
 id: vendetta-rifle-def
 frames:
-  - {id: fx1_vendetta_bayonet_thrust, kind: body, parent: caster}
+  - {id: fx1_vendetta_bayonet_thrust, kind: body, parent: world}
   - {id: fx2_vendetta_parry_ring, kind: body, parent: world}
   - {id: fx2_vendetta_parry_ring_petals_at, kind: body, parent: fx2_vendetta_parry_ring}
   - {id: fx2_vendetta_parry_ring_bayonet_at, kind: body, parent: caster.right_hand}
@@ -16,6 +14,7 @@ presentation:
     - id: fx0
       at: 0
       do:
+        - {id: anchor, op: anchor, frame: fx1_vendetta_bayonet_thrust, at: caster, orient: yaw, follow: true, teleport_ticks: 2}
         - {op: block, parent: fx1_vendetta_bayonet_thrust, block: brown_terracotta, size: [1.0, 1.0, 1.0], id: fx1_vendetta_bayonet_thrust_stock}
         - id: fx1_vendetta_bayonet_thrust_stock_trk
           op: track
@@ -91,6 +90,7 @@ presentation:
             - {t: 9, turn: [-12.0, 0.0, 0.0]}
             - {t: 10, turn: [-16.0, 0.0, 0.0]}
             - {t: 11, offset: [0.09, 1.75495, 1.74099], scale: [0.03, 0.045, 0.18], turn: [-20.0, 0.0, 0.0]}
+        - {id: anchor_2, op: anchor, frame: fx2_vendetta_parry_ring, at: caster, orient: yaw}
         - {op: quad, parent: fx2_vendetta_parry_ring, face: {viewer: center}, size: [1.0, 1.0], color: "#FFCE66", alpha: 1.0, text: "✦", brightness: 15, id: fx2_vendetta_parry_ring_clash}
         - id: fx2_vendetta_parry_ring_clash_trk
           op: track

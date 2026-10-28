@@ -1,7 +1,5 @@
 # Converted from content/skills/crimson-chain-axe-ego.yaml + content/vfx/* by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
 # Generated point-frame offsets are [left, up, forward] in the parent frame.
-# CONVERT-PRESENT vfx follow=false (anchored at world, no place-at-spawn) (x2): crimson-chain-axe-ego-orbit | crimson-chain-axe-orbit
-# CONVERT-PRESENT vfx frame orient (frames carry no orientation / scale) (x2): orient="yaw"
 apiVersion: "astera/v2"
 kind: Skill
 id: crimson-chain-axe-ego
@@ -13,6 +11,7 @@ presentation:
     - id: fx0
       at: 0
       do:
+        - {id: anchor, op: anchor, frame: fx1_crimson_chain_axe_ego_orbit, at: caster, orient: yaw}
         - {op: block, parent: fx1_crimson_chain_axe_ego_orbit, block: red_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_crimson_chain_axe_ego_orbit_orbit_0_s0}
         - id: fx1_crimson_chain_axe_ego_orbit_orbit_0_s0_trk
           op: track
@@ -1528,6 +1527,7 @@ presentation:
     - id: fx30
       at: 30
       do:
+        - {id: anchor_2, op: anchor, frame: fx2_crimson_chain_axe_orbit, at: caster, orient: yaw}
         - {op: block, parent: fx2_crimson_chain_axe_orbit, block: red_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx2_crimson_chain_axe_orbit_orbit_0_s0}
         - id: fx2_crimson_chain_axe_orbit_orbit_0_s0_trk
           op: track

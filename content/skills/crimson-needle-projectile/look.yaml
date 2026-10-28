@@ -1,8 +1,6 @@
 # Converted from content/skills/crimson-needle-projectile.yaml + content/vfx/* by tools/skill-convert/convert.py (v1 archetype: projectile). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
 # Generated point-frame offsets are [left, up, forward] in the parent frame.
 # CONVERT-PRESENT projectile display.material used as the mesh item id (unverified); variant dropped (x1): minecraft:redstone variant=item
-# CONVERT-PRESENT vfx follow=false (anchored at world, no place-at-spawn) (x1): crimson-chain-axe-impact
-# CONVERT-PRESENT vfx frame orient (frames carry no orientation / scale) (x1): orient="yaw"
 apiVersion: "astera/v2"
 kind: Skill
 id: crimson-needle-projectile
@@ -37,6 +35,7 @@ presentation:
     - {id: rep1, at: 0, every: 1, until: end, do: [{id: trail, op: emit, at: bolt, particle: dust, count: 1, spacing: 0.2, data: "#f02341", data_size: 0.65}]}
   "on":
     hit:
+      - {id: anchor, op: anchor, frame: fx1_crimson_chain_axe_impact, at: contact.point, orient: yaw}
       - {op: block, parent: fx1_crimson_chain_axe_impact, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_crimson_chain_axe_impact_ray_0_0}
       - id: fx1_crimson_chain_axe_impact_ray_0_0_trk
         op: track

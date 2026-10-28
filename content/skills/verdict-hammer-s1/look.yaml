@@ -1,7 +1,5 @@
 # Converted from content/skills/verdict-hammer-s1.yaml + content/vfx/* by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
 # Generated point-frame offsets are [left, up, forward] in the parent frame.
-# CONVERT-PRESENT vfx follow=false (anchored at world, no place-at-spawn) (x4): verdict-s1-gavel | verdict-impact
-# CONVERT-PRESENT vfx frame orient (frames carry no orientation / scale) (x4): orient="yaw" | orient="world"
 apiVersion: "astera/v2"
 kind: Skill
 id: verdict-hammer-s1
@@ -23,6 +21,7 @@ presentation:
     - id: fx0
       at: 0
       do:
+        - {id: anchor, op: anchor, frame: fx1_verdict_s1_gavel, at: caster, orient: yaw}
         - id: fx1_verdict_s1_gavel_hammer_rig
           op: rig
           frame: fx1_verdict_s1_gavel_hammer
@@ -77,6 +76,7 @@ presentation:
     - id: fx16
       at: 16
       do:
+        - {id: anchor_3, op: anchor, frame: fx3_verdict_s1_echo, at: caster, orient: yaw}
         - id: fx3_verdict_s1_echo_hammer_rig
           op: rig
           frame: fx3_verdict_s1_echo_hammer
@@ -217,6 +217,7 @@ presentation:
     - {id: fxhit_12, at: "hit+12", do: [{id: rm_5, op: remove, ids: [fx2_verdict_impact_dark0, fx2_verdict_impact_dark1, fx2_verdict_impact_dark2], when: "= event.source == 'sel'"}]}
   "on":
     hit:
+      - {id: anchor_2, op: anchor, frame: fx2_verdict_impact, at: contact.point, orient: world, when: "= event.source == 'sel'"}
       - op: quad
         parent: fx2_verdict_impact
         face: {viewer: center}
@@ -256,6 +257,7 @@ presentation:
         when: "= event.source == 'sel'"
       - {id: snd, op: sound, sound: entity.player.attack.strong, at: enemy, volume: 0.7, pitch: 1.1, when: "= event.source == 'sel'"}
     dash_fx:
+      - {id: anchor_4, op: anchor, frame: fx4_verdict_impact, at: enemy, orient: world}
       - {op: quad, parent: fx4_verdict_impact, face: {viewer: center}, size: [1.0, 1.0], color: "#FFFAD8", alpha: 1.0, text: "✷", see_through: true, brightness: 15, id: fx4_verdict_impact_star}
       - id: fx4_verdict_impact_star_trk
         op: track
