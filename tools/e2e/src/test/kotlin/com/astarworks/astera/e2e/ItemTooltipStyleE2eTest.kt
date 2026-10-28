@@ -22,10 +22,10 @@ class ItemTooltipStyleE2eTest : E2eBase() {
                 assertThat(received).describedAs(component()).isTrue()
                 "$id -> astera:$rarity"
             }
-            val hidden = rcon("data get entity ${b.name} Inventory[{Slot:0b}].components.\"minecraft:tooltip_display\"")
             E2eReport.check("Item tooltip", "$id hides vanilla metadata lines", "Paper Inventory minecraft:tooltip_display") {
-                assertThat(hidden).contains("minecraft:attribute_modifiers", "minecraft:enchantments", "minecraft:unbreakable", "minecraft:dyed_color")
-                    .doesNotContain("minecraft:lore", "minecraft:custom_name")
+                val missing = listOf("attribute_modifiers", "enchantments", "unbreakable", "dyed_color").filterNot { hides(b, 0, "minecraft:$it") }
+                assertThat(missing).describedAs("not hidden: $missing").isEmpty()
+                assertThat(hides(b, 0, "minecraft:lore") || hides(b, 0, "minecraft:custom_name")).describedAs("name/lore hidden").isFalse()
                 "$id hides attribute/enchant/unbreakable/dye, keeps name+lore"
             }
             // Preserve the real stack's item PDC while deliberately replacing only the style.
@@ -40,42 +40,55 @@ class ItemTooltipStyleE2eTest : E2eBase() {
         }
     }
 
-    /** Top-level keys of an SNBT compound (depth 1; quoted strings and single-quoted strings skipped). */
-    private fun topLevelKeys(snbt: String): Set<String> {
-        val keys = mutableSetOf<String>()
-        var depth = 0
-        var i = 0
-        while (i < snbt.length) {
-            val c = snbt[i]
-            if (c == '{' || c == '[') depth++
-            else if (c == '}' || c == ']') depth--
-            else if (c == '"' || c == '\'') {
-                var end = i + 1
-                while (end < snbt.length && snbt[end] != c) end += if (snbt[end] == '\\') 2 else 1
-                if (c == '"' && depth == 1 && snbt.getOrNull(end + 1) == ':') keys += snbt.substring(i + 1, end)
-                i = end
-            }
-            i++
-        }
-        return keys
-    }
+    /**
+     * RCON answers are one packet (the harness client reads a single one, the server splits at 4096 bytes) and the
+     * stored `hidden_components` list alone is longer than that, so `data get` of the display or of the whole
+     * components compound arrives cut off. Everything below therefore asks the server yes/no questions with
+     * `execute if data` (answer: "Test passed"/"Test failed"), which never grow with the list.
+     */
+    private fun probe(b: Bot, slot: Int, path: String): Boolean =
+        rcon("execute if data entity ${b.name} Inventory[{Slot:${slot}b}]$path").contains("Test passed")
 
-    /** Every Astera stack in the bot's inventory has a tooltip_display hiding each of its components except name and lore. */
+    private fun hides(b: Bot, slot: Int, component: String): Boolean =
+        rcon("execute if data entity ${b.name} Inventory[{Slot:${slot}b,components:{\"minecraft:tooltip_display\":" +
+            "{hidden_components:[\"$component\"]}}}]").contains("Test passed")
+
+    /**
+     * Every vanilla component that can put a line in a tooltip (26.3) plus the ones an Astera stack carries from
+     * materialization. Astera's own lines (custom_name / item_name / lore) are deliberately absent.
+     */
+    private val metaComponents = listOf(
+        "attribute_modifiers", "enchantments", "stored_enchantments", "unbreakable", "dyed_color", "trim", "damage",
+        "max_damage", "repair_cost", "enchantable", "repairable", "tool", "weapon", "blocks_attacks", "food",
+        "consumable", "use_remainder", "use_cooldown", "potion_contents", "potion_duration_scale", "jukebox_playable",
+        "banner_patterns", "base_color", "map_id", "map_color", "map_decorations", "firework_explosion", "fireworks",
+        "bundle_contents", "container", "container_loot", "charged_projectiles", "written_book_content",
+        "writable_book_content", "suspicious_stew_effects", "ominous_bottle_amplifier", "lodestone_tracker",
+        "instrument", "equippable", "glider", "death_protection", "damage_resistant", "max_stack_size", "rarity",
+        "custom_model_data", "item_model", "profile", "note_block_sound", "painting/variant", "block_state",
+        "tooltip_style", "break_sound", "minimum_attack_charge", "damage_type", "piercing_weapon", "kinetic_weapon",
+        "swing_animation", "attack_range", "use_effects",
+    )
+
+    /** Every Astera stack in the bot's inventory hides each meta component it carries and the core always-hidden ones. */
     private fun assertCovered(b: Bot, label: String, source: String) {
         E2eReport.check("Item tooltip", "$label: tooltip_display covers every present component", source) {
             val checked = mutableListOf<String>()
             for (slot in (0..35) + listOf(100, 101, 102, 103, -106)) {
-                val comps = rcon("data get entity ${b.name} Inventory[{Slot:${slot}b}].components")
-                if (!comps.contains("astera")) continue
-                val keys = topLevelKeys(comps.substringAfter("components: "))
-                if ("minecraft:tooltip_style" !in keys) continue
-                val display = rcon("data get entity ${b.name} Inventory[{Slot:${slot}b}].components.\"minecraft:tooltip_display\"")
-                assertThat(display).describedAs("slot $slot has no tooltip_display").doesNotContain("Found no elements")
-                assertThat(display).describedAs("slot $slot hide_tooltip would blank the name too").doesNotContain("hide_tooltip: 1b")
-                val needHidden = keys - setOf("minecraft:custom_name", "minecraft:item_name", "minecraft:lore", "minecraft:tooltip_display")
-                val missing = needHidden.filterNot { display.contains(it) }
-                assertThat(missing).describedAs("slot $slot components not hidden: $missing").isEmpty()
-                checked += "slot$slot(${needHidden.size})"
+                if (!probe(b, slot, ".components.\"minecraft:custom_data\".PublicBukkitValues.\"astera-items:item_id\"")) continue
+                assertThat(probe(b, slot, ".components.\"minecraft:tooltip_display\"")).describedAs("slot $slot has no tooltip_display").isTrue()
+                assertThat(probe(b, slot, ".components.\"minecraft:tooltip_display\"{hide_tooltip:1b}"))
+                    .describedAs("slot $slot hide_tooltip would blank the name too").isFalse()
+                val present = metaComponents.filter { probe(b, slot, ".components.\"minecraft:$it\"") }
+                val missing = present.filterNot { hides(b, slot, "minecraft:$it") }
+                assertThat(missing).describedAs("slot $slot components not hidden: $missing (present: $present)").isEmpty()
+                // The pickaxe-class baseline must be hidden even when the stack does not carry the component yet.
+                val baseline = listOf("attribute_modifiers", "enchantments", "unbreakable", "dyed_color", "trim", "damage")
+                    .filterNot { hides(b, slot, "minecraft:$it") }
+                assertThat(baseline).describedAs("slot $slot baseline components not hidden: $baseline").isEmpty()
+                assertThat(hides(b, slot, "minecraft:lore") || hides(b, slot, "minecraft:custom_name"))
+                    .describedAs("slot $slot hides name or lore").isFalse()
+                checked += "slot$slot(${present.size})"
             }
             assertThat(checked).describedAs("no Astera stack found to check").isNotEmpty()
             "covered: $checked"
