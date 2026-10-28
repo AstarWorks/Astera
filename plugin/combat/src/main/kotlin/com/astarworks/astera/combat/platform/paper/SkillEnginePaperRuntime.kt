@@ -100,7 +100,7 @@ internal class SkillEnginePaperRuntime(
         val catalog = wired.skillCatalog
 
         val entities = PaperSkillEntityQuery(server) { services.get<IStructureTargets>() }
-        val visuals = PaperSkillVisualGateway(server, displays)
+        val visuals = PaperSkillVisualGateway(server, displays, tables)
         // Presentation-only casts create no display entity, so the visual gateway alone never learns the world.
         val worldId = { entities.activeWorld()?.let { WorldId(it.name) } ?: visuals.activeWorld() }
         activeEntities = entities
@@ -136,7 +136,11 @@ internal class SkillEnginePaperRuntime(
                 guard = { ports.blockEditGuard?.invoke(services) },
                 covers = { services.get<ICustomBlockRegistry>() },
             ),
-            casterAnim = PaperSkillCasterAnimGateway(server, scheduler),
+            casterAnim = PaperSkillCasterAnimGateway(
+                rigs = { services.get<com.astarworks.astera.core.application.port.outbound.animation.ISkinRigAnimator>() },
+                registry = { services.get<com.astarworks.astera.core.application.port.outbound.ISkinRigRegistry>() },
+                poses = { services.get<com.astarworks.astera.core.application.port.outbound.animation.IPlayerAnimationGateway>() },
+            ),
             screen = PaperSkillScreenGateway(feedback, scheduler),
             cooldowns = PaperSkillCooldownGateway { services.get<ICooldownTracker>() },
             items = PaperSkillItemGateway(server) { id, player, count ->

@@ -8,6 +8,8 @@ presentation:
     - id: raise_fx
       at: 0
       do:
+        # v1 couture-s2-rig body: the skin-rig performance (overhead spin to t34, throw thrust t34-58); ends by itself, stops if the cast is cancelled
+        - {id: body_anim, op: caster_anim, anim: couture-s2-body}
         - {id: mesh_held, op: mesh, frame: shears, item: couture-rapier, part: held}
         - {id: raise_snd, op: sound, sound: couture.raise, at: shears.tip, volume: 0.6}
     - id: spin_fx
@@ -28,7 +30,7 @@ presentation:
       - {id: thread_a, op: line, from: palm, to: blade_a.root, thickness: "${thread_thick}", color: &thread_col "${thread_color}", face: &thread_face {viewer: axis, axis: line.along}}
       - {id: thread_b, op: line, from: palm, to: blade_b.root, thickness: "${thread_thick}", color: *thread_col, face: *thread_face}
       - {id: thread_body, op: line, from: palm, to: body.pivot, thickness: "${thread_thick}", color: *thread_col, face: *thread_face}
-      - {id: flight_fan, op: plate, parent: volley, face: {plane: {frame: volley, axes: [axis, up]}}, sprite: slash_fan, size_frac: 1.2, alpha: 0.5}
+      - {id: flight_fan, op: plate, parent: volley, face: {plane: {frame: volley, axes: [axis, up]}}, sprite: couture-s2-crescent, size_frac: 1.2, alpha: 0.5}
       - {id: throw_snd, op: sound, sound: couture.throw, at: palm, pitch: 1.1}
       - {id: puff, op: emit, at: palm, particle: dust, color: "${thread_color}", count: 6, dir: "= -forward(volley)", spread_deg: 20, inherit_velocity: 0.5}
     hit:

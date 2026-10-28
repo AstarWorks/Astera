@@ -177,7 +177,11 @@ class PresentationOpsScenarioTest {
 
     private val rt = PresentationRuntime(
         info,
-        object : ISkillCasterAnimGateway { override fun play(caster: UUID, anim: String, speed: Double) { calls += "caster_anim:$anim:$speed" } },
+        object : ISkillCasterAnimGateway {
+            override fun play(caster: UUID, anim: String, speed: Double, ticks: Int) { calls += "caster_anim:$anim:$speed" }
+            override fun stop(caster: UUID, anim: String) { calls += "caster_anim_stop:$anim" }
+            override fun release(caster: UUID, anim: String) { calls += "caster_anim_release:$anim" }
+        },
         object : ISkillScreenGateway {
             override fun title(viewer: UUID, text: String, subtitle: String?, ticks: Int) { calls += "title:$text:$subtitle:$ticks" }
             override fun actionBar(viewer: UUID, text: String) { calls += "action_bar:$text" }
@@ -404,7 +408,7 @@ class PresentationOpsScenarioTest {
         assertThat(sounds).isEmpty()
 
         run(BodyOp.VictimAnim("stagger", null, TargetRef.Victim, "stagger_back", lit(0.7)))
-        run(BodyOp.CasterAnim("cast", null, "couture-s2-coin2", null))
+        run(BodyOp.CasterAnim("cast", null, "couture-s2-coin2", null, null, null))
         run(ScreenOp.Title("t", null, TargetRef.Caster, "COIN 2", "sub", 30))
         run(ScreenOp.ActionBar("ab", null, TargetRef.Caster, "bar"))
         run(ScreenOp.CameraShake("cs", null, TargetRef.Victim, lit(0.4), 6))

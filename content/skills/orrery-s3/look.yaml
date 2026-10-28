@@ -10,7 +10,6 @@
 # CONVERT-PRESENT element target_track (no v2 equivalent) (x8): [{"t": 0, "weight": 1}]
 # CONVERT-PRESENT element formation (no v2 equivalent) (x20): {"align": "outward", "curve": {"from_deg": 0, "radius": 0.5, | {"align": "tangent", "curve": {"from_deg": 0, "radius": 1.65
 # CONVERT-PRESENT element count (no v2 equivalent) (x20): 8 | 24
-# CONVERT-PRESENT play_animation ticks (anim ops have no duration) (x1): ticks=173
 # CONVERT-PRESENT rig pivot / rest / tilt / respect_hit_stop / weapon points (frames carry no pivot or rest pose) (x1): {"pivot": [-0.3, 1.1, 0.3], "respect_hit_stop": true, "rest": [0, 0, 0], "tilt":
 # CONVERT-PRESENT rig block parts (mesh takes an item model, not a block + size) (x1): 11 parts
 # CONVERT-PRESENT rig swing without a weapon mesh (track needs a visual to move) (x1): 17 keys
@@ -46,7 +45,7 @@ frames:
   - {id: fx14_orrery_seal_front, kind: body, parent: caster}
 presentation:
   timeline:
-    - {id: fx5, at: 5, do: [{id: anim, op: caster_anim, anim: hide-main-hand}, {id: fx9_orrery_channel_staff_embers, op: emit, at: pt_fx9_orrery_channel_staff_0_1p65_0, particle: orrery-ember, count: 1}]}
+    - {id: fx5, at: 5, do: [{id: anim, op: caster_anim, anim: hide-main-hand, ticks: 173}, {id: fx9_orrery_channel_staff_embers, op: emit, at: pt_fx9_orrery_channel_staff_0_1p65_0, particle: orrery-ember, count: 1}]}
     - id: fx20
       at: 20
       do:
