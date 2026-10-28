@@ -79,7 +79,7 @@ public class StructureAwareEntityDamageGateway(
             is Result.Failure -> when (r.error) {
                 IStructureTargets.Rejection.UNKNOWN_TARGET ->
                     Result.failure(DamageApplicationError.TargetOffline(target))
-                else -> Result.failure(DamageApplicationError.Immune(target))
+                else -> Result.failure(DamageApplicationError.StructureRejected(target, r.error))
             }
         }
     }
