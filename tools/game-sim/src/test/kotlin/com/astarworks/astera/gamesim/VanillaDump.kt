@@ -85,6 +85,8 @@ object VanillaDump {
             val n = ord[h] ?: continue
             lines += "{\"t\":$t,\"e\":\"plate\",\"id\":$n,\"frame\":${f.first},\"tint\":${f.second?.let { "\"$it\"" } ?: "null"}}"
         }
+        // A trail is a ribbon of quads on Paper; v1 wrote it as block / text displays. One line per front-face piece.
+        for (q in visuals.ribbonQuads.filter { !it.backFace }) lines += "{\"t\":${q.tick},\"e\":\"ribbon\",\"piece\":\"${q.kind.name.lowercase()}\",\"index\":${q.index}}"
         for ((h, life) in visuals.lives) {
             val n = ord[h] ?: continue
             life.removeTick?.let { lines += "{\"t\":$it,\"e\":\"remove\",\"id\":$n}" }

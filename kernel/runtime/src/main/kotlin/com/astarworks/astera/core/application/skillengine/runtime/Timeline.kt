@@ -18,10 +18,11 @@ internal class Timeline<O : SkillOp>(private val rows: List<TimelineEntry<O>>) {
 
     /**
      * @param since ticks since cast start (this tick)
-     * @param eventSince ticks-since-start at which an event was first raised, or null
+     * @param eventSince ticks-since-start at which the event this row is relative to was raised (the first raise its
+     *   `when` guard accepts), or null
      * @param raised whether an event has been raised
      */
-    fun due(since: Int, eventSince: (String) -> Int?, raised: (String) -> Boolean): List<TimelineEntry<O>> {
+    fun due(since: Int, eventSince: (TimelineEntry<O>) -> Int?, raised: (String) -> Boolean): List<TimelineEntry<O>> {
         val out = ArrayList<TimelineEntry<O>>()
         for ((i, row) in rows.withIndex()) {
             val st = states[i]
@@ -33,7 +34,7 @@ internal class Timeline<O : SkillOp>(private val rows: List<TimelineEntry<O>>) {
             if (st.next == null) {
                 st.next = when (val at = row.at) {
                     is TimelineAt.Tick -> at.tick
-                    is TimelineAt.AfterEvent -> eventSince(at.event)?.plus(at.offsetTicks)
+                    is TimelineAt.AfterEvent -> eventSince(row)?.plus(at.offsetTicks)
                 }
             }
             val n = st.next ?: continue
@@ -58,10 +59,10 @@ internal class Timeline<O : SkillOp>(private val rows: List<TimelineEntry<O>>) {
      * raised (even in the tick the event was raised after this timeline's [due] ran, e.g. `hit` from the swept resolve),
      * never before.
      */
-    fun pending(eventSince: (String) -> Int?): Boolean = rows.indices.any { i ->
+    fun pending(eventSince: (TimelineEntry<O>) -> Int?): Boolean = rows.indices.any { i ->
         // A row that repeats `until: end` is released by the cast ending, so it must not be what keeps the cast alive.
         val at = rows[i].at
         !states[i].done && rows[i].untilEvent != SkillEvents.END &&
-            (states[i].next != null || at is TimelineAt.Tick || (at is TimelineAt.AfterEvent && eventSince(at.event) != null))
+            (states[i].next != null || at is TimelineAt.Tick || (at is TimelineAt.AfterEvent && eventSince(rows[i]) != null))
     }
 }

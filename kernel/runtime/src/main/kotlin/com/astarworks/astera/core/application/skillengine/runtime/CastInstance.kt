@@ -241,7 +241,7 @@ internal class CastInstance(
         drain()
 
         // gameplay timeline rows
-        for (row in gameplayTimeline.due(ticksSinceStart, ::eventSince, bus::hasRaised)) runRow(row.whenExpr, row.ops)
+        for (row in gameplayTimeline.due(ticksSinceStart, ::eventSince, bus::hasRaised)) runTimelineRow(row)
         drain()
 
         stepMotion()
@@ -252,7 +252,7 @@ internal class CastInstance(
 
         // presentation rows run after the tick's motion and hits: a trail emits at the post-move position and not at all
         // on the tick its projectile ended (v1 emitted from inside the projectile step).
-        for (row in presentationTimeline.due(ticksSinceStart, ::eventSince, bus::hasRaised)) runRow(row.whenExpr, row.ops)
+        for (row in presentationTimeline.due(ticksSinceStart, ::eventSince, bus::hasRaised)) runTimelineRow(row)
         drain()
 
         deps.presentation.tickCast(id)
@@ -266,7 +266,46 @@ internal class CastInstance(
     private fun interruptingStatus(): String? =
         INTERRUPTING_STATUSES.firstOrNull { ports.gameplay.statusStacks(request.caster, it) > 0 }
 
-    private fun eventSince(name: String): Int? = bus.firstRaisedAt(name)?.minus(request.startTick)
+    private val triggers = java.util.IdentityHashMap<com.astarworks.astera.core.domain.skillengine.model.TimelineEntry<*>, CastEvent>()
+
+    /**
+     * The raise an `at: event+N` row is relative to: the first one its `when` guard accepts, evaluated in that event's
+     * context (v1 timed a hit effect from the hit of the selector it was bound to, not from the first hit of the cast).
+     */
+    private fun triggerOf(row: com.astarworks.astera.core.domain.skillengine.model.TimelineEntry<*>): CastEvent? {
+        val after = row.at as? com.astarworks.astera.core.domain.skillengine.model.TimelineAt.AfterEvent ?: return null
+        triggers[row]?.let { return it }
+        val guard = row.whenExpr
+        val found = bus.raises(after.event).firstOrNull { e ->
+            guard == null || inEventContext(e) { runCatching { values.bool(guard) }.getOrDefault(false) }
+        } ?: return null
+        triggers[row] = found
+        return found
+    }
+
+    private fun <T> inEventContext(e: CastEvent, block: () -> T): T {
+        val outer = currentEvent
+        currentEvent = e
+        try {
+            val v = e.victim
+            return if (v != null) withVictimResult(v, block) else block()
+        } finally {
+            currentEvent = outer
+        }
+    }
+
+    private fun eventSince(row: com.astarworks.astera.core.domain.skillengine.model.TimelineEntry<*>): Int? =
+        triggerOf(row)?.tick?.minus(request.startTick)
+
+    /**
+     * An `at: event+N` row runs in the context of the event that first raised it (`event.source`, the victim, the contact
+     * frame), as the same row would had it fired in that tick: v1 spawned a hit effect's staggered elements from the
+     * target it was played on, long after the hit.
+     */
+    private fun runTimelineRow(row: com.astarworks.astera.core.domain.skillengine.model.TimelineEntry<*>) {
+        val trigger = triggerOf(row) ?: return runRow(row.whenExpr, row.ops)
+        inEventContext(trigger) { runRow(row.whenExpr, row.ops) }
+    }
 
     private fun runRow(guard: com.astarworks.astera.core.domain.skillengine.model.Value<Boolean>?, ops: List<SkillOp>) {
         currentOpId = null

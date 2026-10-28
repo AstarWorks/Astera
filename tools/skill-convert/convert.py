@@ -1350,12 +1350,15 @@ class Conv:
             if "fade_power" in tr and float(tr["fade_power"]) != 1.0:
                 op["fade"] = float(tr["fade_power"])
             op.update(trail_shape(tr))
-            self.p(where, delay + int(tr["start_t"]), self._w(op, when))
-            removes.setdefault(int(tr["end_t"]) + int(tr["life_ticks"]), []).append(op["id"])
+            # v1 VfxRigPlanner: rig tick l happens at effect tick start + ANIMATION_DELAY_TICKS (1) + l
+            self.p(where, delay + int(tr["start_t"]) + 1, self._w(op, when))
+            removes.setdefault(int(tr["end_t"]) + 1 + int(tr["life_ticks"]), []).append(op["id"])
         for em in r.get("emitters", []):
             pt = self.pframe(rid, em["point"], "p")
             op = emit_op("%s_%s" % (rid, sid(em["id"])), pt, em["particle_id"], 1)
-            self.rep(where, delay + int(em["start_t"]), 1, int(em["end_t"]) - int(em["start_t"]), self._w(op, when))
+            op["spacing"] = float(em.get("step_blocks", 0.4))  # v1 emitterPlan fills the path since the previous emission every step_blocks
+            # v1 emitterPlan loops start_t..end_t inclusive, each emission at rig tick + the 1-tick animation delay
+            self.rep(where, delay + int(em["start_t"]) + 1, 1, int(em["end_t"]) - int(em["start_t"]) + 1, self._w(op, when))
 
 
 # ---------------------------------------------------------------- skill-level driver
@@ -1618,7 +1621,23 @@ def rows_out(rows, prefix):
     for (ev, tick), ops in sorted(rows.items(), key=lambda kv: (kv[0][0] or "", kv[0][1])):
         at = tick if ev is None else f"{ev}+{tick}"
         rid = "%s%s" % (prefix, str(at).replace("+", "_"))
-        out.append({"id": rid, "at": at, "do": ops})
+        if ev is None:
+            out.append({"id": rid, "at": at, "do": ops})
+            continue
+        # `ev+N` is timed from the raise of the volume the guard names (v1 ran a hit effect's delayed elements from the hit
+        # of the selector it was bound to), so the guard goes on the row and the runtime picks that raise.
+        groups = OrderedDict()
+        for op in ops:
+            groups.setdefault(op.get("when"), []).append(op)
+        for gi, (guard, gops) in enumerate(groups.items()):
+            if guard is not None:
+                for op in gops:
+                    op.pop("when", None)
+            row = {"id": rid if gi == 0 else "%s_%d" % (rid, gi + 1), "at": at}
+            if guard is not None:
+                row["when"] = guard
+            row["do"] = gops
+            out.append(row)
     out.sort(key=lambda r: (not isinstance(r["at"], int), r["at"] if isinstance(r["at"], int) else 0))
     return out
 
