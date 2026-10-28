@@ -7,7 +7,7 @@ meta: {name: {ja: "電撃", en: Zap}, description: {ja: "素早い電撃。麻�
 anchors:
   - {id: muzzle,  anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}   # projectile origin
   - {id: cast_fx, anchor: caster, offset: {up: -0.25, forward: 0.9}}        # was pt_caster_0_m0p25_0p9
-  - {id: heart,   anchor: victim, offset: {up: 1.2}}                            # GAP(Q2): v2 enemy frame (feet +0.8 fixed) vs v3 victim anchors; was pt_enemy_0_1p2_0
+  - {id: heart,   anchor: victim.root, offset: {up: 1.2}}   # v2 pt_enemy_0_1p2_0
 machine:
   start: fly
   states:
@@ -31,7 +31,7 @@ machine:
             hit:
               - {id: dmg, op: damage, target: event.victim, damage: {electric: 16.0}}
               - {id: st_shock, op: status, target: event.victim, status: shock, stacks: 1, for: 30, when: "= rand() < 0.3"}
-              - {id: snd_hit, op: sound, sound: "astera:skills/lightning-impact", anchor: victim, volume: 0.7, pitch: 1.2}
+              - {id: snd_hit, op: sound, sound: "astera:skills/lightning-impact", anchor: contact, volume: 0.7, pitch: 1.2}
               - {id: fx_hit, op: particle_def, def: hit-spark, anchor: heart}
             block:
               - {id: snd_block, op: sound, sound: "astera:weapons/gun-impact-block", anchor: contact.point, volume: 0.5, pitch: 1.5}

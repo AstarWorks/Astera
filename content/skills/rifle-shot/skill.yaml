@@ -12,7 +12,7 @@ meta:
 anchors:
   - {id: start,  anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}            # was pt_aim_0_0_0p5
   - {id: muzzle, anchor: caster, offset: {up: -0.25, forward: 0.9}, mode: snapshot}   # v2 pt_caster_0_m0p25_0p9: caster frame (feet, yaw-only)
-  - {id: heart,  anchor: victim.root, offset: {up: 1.2}}   # GAP(Q2): v2 enemy frame origin = feet+0.8; victim.root = feet
+  - {id: heart,  anchor: victim.root, offset: {up: 1.2}}
 machine:
   start: fire
   states:

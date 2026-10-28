@@ -424,8 +424,7 @@ machine:
                     motion:
                       - {law: move, velocity: {left: 0, up: -0.4625, forward: 0}, at: 0, for: 8}
                       - {law: grow, per_tick: {left: -0.075, up: -0.075, forward: -0.06}, at: 16, for: 4}
-        - {id: sel_2, op: hit, at: 29, anchor: caster.eye, targets: enemies, max_count: 1, shape: {sector: {deg: "= arc_deg", range: "= reach", height: 2.0, forward: yaw}}, window: once, damage: {physical: "= dmg_physical"}, ignore_invulnerability: true}
-        - id: sel_3
+        - id: sel_2
           op: hit
           at: 29
           anchor: caster.eye
@@ -433,6 +432,7 @@ machine:
           max_count: 1
           shape: {sector: {deg: = arc_deg, range: = reach, height: 2.0, forward: yaw}}
           window: once
+          damage: {physical: "= dmg_physical"}
           ignore_invulnerability: true
           on:
             hit:
@@ -860,418 +860,13 @@ machine:
                     pitch: 1.1
         - id: sel_4
           op: hit
-          at: 48
-          anchor: caster.eye
-          targets: enemies
-          max_count: 1
-          shape: {sector: {deg: = arc_deg, range: = reach, height: 2.0, forward: yaw}}
-          window: once
-          ignore_invulnerability: true
-          on:
-            hit:
-              - id: h0
-                op: group
-                at: 0
-                do:
-                  - id: fx4_couture_shears_falling
-                    op: frame
-                    anchor: victim
-                    axes: caster
-                    mode: snapshot
-                    for: 21
-                  - id: fx4_couture_shears_falling_1_blade_0
-                    op: display
-                    kind: block
-                    block: gray_concrete
-                    anchor: fx4_couture_shears_falling
-                    offset: {left: -0.09, up: 5.80718, forward: -0.4}
-                    rotate: [{axis: left, deg: 120}]
-                    scale: [0.12, 0.38, 1.6]
-                    for: 21
-                    motion:
-                      - {law: move, velocity: {left: 0, up: -0.4625, forward: 0}, at: 0, for: 8}
-                      - {law: move, velocity: {left: 0, up: -0.035563, forward: 0.124027}, at: 8, for: 3}
-                      - {law: spin, axis: left, deg_per_tick: -9.33333, at: 8, for: 1}
-                      - {law: spin, axis: left, deg_per_tick: -9.33334, at: 9, for: 1}
-                      - {law: spin, axis: left, deg_per_tick: -9.33333, at: 10, for: 1}
-                      - {law: grow, per_tick: {left: -0.03, up: -0.095, forward: -0.4}, at: 16, for: 4}
-                  - id: fx4_couture_shears_falling_1_edge_0
-                    op: display
-                    kind: block
-                    block: iron_block
-                    anchor: fx4_couture_shears_falling
-                    offset: {left: -0.09, up: 5.74733, forward: -0.29634}
-                    rotate: [{axis: left, deg: 123.66907}]
-                    scale: [0.12, 0.05, 1.60329]
-                    for: 21
-                    motion:
-                      - {law: move, velocity: {left: 0, up: -0.4625, forward: 0}, at: 0, for: 8}
-                      - {law: move, velocity: {left: 0, up: -0.017007, forward: 0.12935}, at: 8, for: 3}
-                      - {law: spin, axis: left, deg_per_tick: -9.33334, at: 8, for: 1}
-                      - {law: spin, axis: left, deg_per_tick: -9.33333, at: 9, for: 2}
-                      - {law: grow, per_tick: {left: -0.03, up: -0.0125, forward: -0.400823}, at: 16, for: 4}
-                  - id: fx4_couture_shears_falling_1_blade_1
-                    op: display
-                    kind: block
-                    block: gray_concrete
-                    anchor: fx4_couture_shears_falling
-                    offset: {left: -0.09, up: 4.59474, forward: -1.1}
-                    rotate: [{axis: left, deg: 120}]
-                    scale: [0.12, 0.24, 1.2]
-                    for: 21
-                    motion:
-                      - {law: move, velocity: {left: 0, up: -0.4625, forward: 0}, at: 0, for: 8}
-                      - {law: move, velocity: {left: 0, up: -0.0978, forward: 0.341073}, at: 8, for: 3}
-                      - {law: spin, axis: left, deg_per_tick: -9.33333, at: 8, for: 1}
-                      - {law: spin, axis: left, deg_per_tick: -9.33334, at: 9, for: 1}
-                      - {law: spin, axis: left, deg_per_tick: -9.33333, at: 10, for: 1}
-                      - {law: grow, per_tick: {left: -0.03, up: -0.06, forward: -0.3}, at: 16, for: 4}
-                  - id: fx4_couture_shears_falling_1_edge_1
-                    op: display
-                    kind: block
-                    block: iron_block
-                    anchor: fx4_couture_shears_falling
-                    offset: {left: -0.09, up: 4.55694, forward: -1.03453}
-                    rotate: [{axis: left, deg: 123.09097}]
-                    scale: [0.12, 0.05, 1.20175]
-                    for: 21
-                    motion:
-                      - {law: move, velocity: {left: 0, up: -0.4625, forward: 0}, at: 0, for: 8}
-                      - {law: move, velocity: {left: 0, up: -0.08608, forward: 0.344437}, at: 8, for: 3}
-                      - {law: spin, axis: left, deg_per_tick: -9.33333, at: 8, for: 1}
-                      - {law: spin, axis: left, deg_per_tick: -9.33334, at: 9, for: 1}
-                      - {law: spin, axis: left, deg_per_tick: -9.33333, at: 10, for: 1}
-                      - {law: grow, per_tick: {left: -0.03, up: -0.0125, forward: -0.300438}, at: 16, for: 4}
-                  - id: fx4_couture_shears_falling_1_blade_2
-                    op: display
-                    kind: block
-                    block: gray_concrete
-                    anchor: fx4_couture_shears_falling
-                    offset: {left: -0.09, up: 3.72872, forward: -1.6}
-                    rotate: [{axis: left, deg: 120}]
-                    scale: [0.12, 0.09, 0.8]
-                    for: 21
-                    motion:
-                      - {law: move, velocity: {left: 0, up: -0.4625, forward: 0}, at: 0, for: 8}
-                      - {law: move, velocity: {left: 0, up: -0.142257, forward: 0.496107}, at: 8, for: 3}
-                      - {law: spin, axis: left, deg_per_tick: -9.33333, at: 8, for: 1}
-                      - {law: spin, axis: left, deg_per_tick: -9.33334, at: 9, for: 1}
-                      - {law: spin, axis: left, deg_per_tick: -9.33333, at: 10, for: 1}
-                      - {law: grow, per_tick: {left: -0.03, up: -0.0225, forward: -0.2}, at: 16, for: 4}
-                  - id: fx4_couture_shears_falling_1_edge_2
-                    op: display
-                    kind: block
-                    block: iron_block
-                    anchor: fx4_couture_shears_falling
-                    offset: {left: -0.09, up: 3.71454, forward: -1.57545}
-                    rotate: [{axis: left, deg: 121.73982}]
-                    scale: [0.12, 0.05, 0.80037]
-                    for: 21
-                    motion:
-                      - {law: move, velocity: {left: 0, up: -0.4625, forward: 0}, at: 0, for: 8}
-                      - {law: move, velocity: {left: 0, up: -0.13786, forward: 0.497367}, at: 8, for: 3}
-                      - {law: spin, axis: left, deg_per_tick: -9.33333, at: 8, for: 2}
-                      - {law: spin, axis: left, deg_per_tick: -9.33334, at: 10, for: 1}
-                      - {law: grow, per_tick: {left: -0.03, up: -0.0125, forward: -0.200093}, at: 16, for: 4}
-                  - id: fx4_couture_shears_falling_1_handle_0
-                    op: display
-                    kind: block
-                    block: black_concrete
-                    anchor: fx4_couture_shears_falling
-                    offset: {left: -0.09, up: 6.71909, forward: 0.38053}
-                    rotate: [{axis: left, deg: -15}]
-                    scale: [0.12, 0.09, 0.62225]
-                    for: 21
-                    motion:
-                      - {law: move, velocity: {left: 0, up: -0.4625, forward: 0}, at: 0, for: 8}
-                      - {law: move, velocity: {left: 0, up: 0.051, forward: -0.049133}, at: 8, for: 3}
-                      - {law: spin, axis: left, deg_per_tick: -9.33333, at: 8, for: 1}
-                      - {law: spin, axis: left, deg_per_tick: -9.33334, at: 9, for: 1}
-                      - {law: spin, axis: left, deg_per_tick: -9.33333, at: 10, for: 1}
-                      - {law: grow, per_tick: {left: -0.03, up: -0.0225, forward: -0.155562}, at: 16, for: 4}
-                  - id: fx4_couture_shears_falling_1_handle_1
-                    op: display
-                    kind: block
-                    block: black_concrete
-                    anchor: fx4_couture_shears_falling
-                    offset: {left: -0.09, up: 7.20433, forward: 0.88007}
-                    rotate: [{axis: left, deg: -63.81407}]
-                    scale: [0.12, 0.09, 0.902]
-                    for: 21
-                    motion:
-                      - {law: move, velocity: {left: 0, up: -0.4625, forward: 0}, at: 0, for: 8}
-                      - {law: move, velocity: {left: 0, up: 0.11024, forward: -0.14456}, at: 8, for: 3}
-                      - {law: spin, axis: left, deg_per_tick: -9.33334, at: 8, for: 1}
-                      - {law: spin, axis: left, deg_per_tick: -9.33333, at: 9, for: 2}
-                      - {law: grow, per_tick: {left: -0.03, up: -0.0225, forward: -0.2255}, at: 16, for: 4}
-                  - id: fx4_couture_shears_falling_1_handle_2
-                    op: display
-                    kind: block
-                    block: black_concrete
-                    anchor: fx4_couture_shears_falling
-                    offset: {left: -0.09, up: 7.7993, forward: 0.96954}
-                    rotate: [{axis: left, deg: -119.93142}]
-                    scale: [0.12, 0.09, 0.43909]
-                    for: 21
-                    motion:
-                      - {law: move, velocity: {left: 0, up: -0.4625, forward: 0}, at: 0, for: 8}
-                      - {law: move, velocity: {left: 0, up: 0.10103, forward: -0.241157}, at: 8, for: 3}
-                      - {law: spin, axis: left, deg_per_tick: -9.33333, at: 8, for: 2}
-                      - {law: spin, axis: left, deg_per_tick: -9.33334, at: 10, for: 1}
-                      - {law: grow, per_tick: {left: -0.03, up: -0.0225, forward: -0.109772}, at: 16, for: 4}
-                  - id: fx4_couture_shears_falling_1_handle_3
-                    op: display
-                    kind: block
-                    block: black_concrete
-                    anchor: fx4_couture_shears_falling
-                    offset: {left: -0.09, up: 7.75181, forward: 0.49179}
-                    rotate: [{axis: left, deg: 147.14968}]
-                    scale: [0.12, 0.09, 0.87658]
-                    for: 21
-                    motion:
-                      - {law: move, velocity: {left: 0, up: -0.4625, forward: 0}, at: 0, for: 8}
-                      - {law: move, velocity: {left: 0, up: 0.02812, forward: -0.215083}, at: 8, for: 3}
-                      - {law: spin, axis: left, deg_per_tick: -9.33333, at: 8, for: 2}
-                      - {law: spin, axis: left, deg_per_tick: -9.33334, at: 10, for: 1}
-                      - {law: grow, per_tick: {left: -0.03, up: -0.0225, forward: -0.219145}, at: 16, for: 4}
-                  - id: fx4_couture_shears_falling_1_handle_4
-                    op: display
-                    kind: block
-                    block: black_concrete
-                    anchor: fx4_couture_shears_falling
-                    offset: {left: -0.09, up: 7.07631, forward: 0.10179}
-                    rotate: [{axis: left, deg: 92.85032}]
-                    scale: [0.12, 0.09, 0.87658]
-                    for: 21
-                    motion:
-                      - {law: move, velocity: {left: 0, up: -0.4625, forward: 0}, at: 0, for: 8}
-                      - {law: move, velocity: {left: 0, up: -0.006557, forward: -0.094157}, at: 8, for: 3}
-                      - {law: spin, axis: left, deg_per_tick: -9.33334, at: 8, for: 1}
-                      - {law: spin, axis: left, deg_per_tick: -9.33333, at: 9, for: 2}
-                      - {law: grow, per_tick: {left: -0.03, up: -0.0225, forward: -0.219145}, at: 16, for: 4}
-                  - id: fx4_couture_shears_falling_1_blade_0_2
-                    op: display
-                    kind: block
-                    block: gray_concrete
-                    anchor: fx4_couture_shears_falling
-                    offset: {left: 0.09, up: 5.80718, forward: 0.4}
-                    rotate: [{axis: left, deg: 60}]
-                    scale: [0.12, 0.38, 1.6]
-                    for: 21
-                    motion:
-                      - {law: move, velocity: {left: 0, up: -0.4625, forward: 0}, at: 0, for: 8}
-                      - {law: move, velocity: {left: 0, up: -0.035563, forward: -0.124027}, at: 8, for: 3}
-                      - {law: spin, axis: left, deg_per_tick: 9.33333, at: 8, for: 1}
-                      - {law: spin, axis: left, deg_per_tick: 9.33334, at: 9, for: 1}
-                      - {law: spin, axis: left, deg_per_tick: 9.33333, at: 10, for: 1}
-                      - {law: grow, per_tick: {left: -0.03, up: -0.095, forward: -0.4}, at: 16, for: 4}
-                  - id: fx4_couture_shears_falling_1_edge_0_2
-                    op: display
-                    kind: block
-                    block: iron_block
-                    anchor: fx4_couture_shears_falling
-                    offset: {left: 0.09, up: 5.86703, forward: 0.50366}
-                    rotate: [{axis: left, deg: 63.66907}]
-                    scale: [0.12, 0.05, 1.60329]
-                    for: 21
-                    motion:
-                      - {law: move, velocity: {left: 0, up: -0.4625, forward: 0}, at: 0, for: 8}
-                      - {law: move, velocity: {left: 0, up: -0.054123, forward: -0.118703}, at: 8, for: 3}
-                      - {law: spin, axis: left, deg_per_tick: 9.33333, at: 8, for: 2}
-                      - {law: spin, axis: left, deg_per_tick: 9.33334, at: 10, for: 1}
-                      - {law: grow, per_tick: {left: -0.03, up: -0.0125, forward: -0.400823}, at: 16, for: 4}
-                  - id: fx4_couture_shears_falling_1_blade_1_2
-                    op: display
-                    kind: block
-                    block: gray_concrete
-                    anchor: fx4_couture_shears_falling
-                    offset: {left: 0.09, up: 4.59474, forward: 1.1}
-                    rotate: [{axis: left, deg: 60}]
-                    scale: [0.12, 0.24, 1.2]
-                    for: 21
-                    motion:
-                      - {law: move, velocity: {left: 0, up: -0.4625, forward: 0}, at: 0, for: 8}
-                      - {law: move, velocity: {left: 0, up: -0.0978, forward: -0.341073}, at: 8, for: 3}
-                      - {law: spin, axis: left, deg_per_tick: 9.33333, at: 8, for: 1}
-                      - {law: spin, axis: left, deg_per_tick: 9.33334, at: 9, for: 1}
-                      - {law: spin, axis: left, deg_per_tick: 9.33333, at: 10, for: 1}
-                      - {law: grow, per_tick: {left: -0.03, up: -0.06, forward: -0.3}, at: 16, for: 4}
-                  - id: fx4_couture_shears_falling_1_edge_1_2
-                    op: display
-                    kind: block
-                    block: iron_block
-                    anchor: fx4_couture_shears_falling
-                    offset: {left: 0.09, up: 4.63254, forward: 1.16547}
-                    rotate: [{axis: left, deg: 63.09097}]
-                    scale: [0.12, 0.05, 1.20175]
-                    for: 21
-                    motion:
-                      - {law: move, velocity: {left: 0, up: -0.4625, forward: 0}, at: 0, for: 8}
-                      - {law: move, velocity: {left: 0, up: -0.10952, forward: -0.337713}, at: 8, for: 3}
-                      - {law: spin, axis: left, deg_per_tick: 9.33333, at: 8, for: 1}
-                      - {law: spin, axis: left, deg_per_tick: 9.33334, at: 9, for: 1}
-                      - {law: spin, axis: left, deg_per_tick: 9.33333, at: 10, for: 1}
-                      - {law: grow, per_tick: {left: -0.03, up: -0.0125, forward: -0.300438}, at: 16, for: 4}
-                  - id: fx4_couture_shears_falling_1_blade_2_2
-                    op: display
-                    kind: block
-                    block: gray_concrete
-                    anchor: fx4_couture_shears_falling
-                    offset: {left: 0.09, up: 3.72872, forward: 1.6}
-                    rotate: [{axis: left, deg: 60}]
-                    scale: [0.12, 0.09, 0.8]
-                    for: 21
-                    motion:
-                      - {law: move, velocity: {left: 0, up: -0.4625, forward: 0}, at: 0, for: 8}
-                      - {law: move, velocity: {left: 0, up: -0.142257, forward: -0.496107}, at: 8, for: 3}
-                      - {law: spin, axis: left, deg_per_tick: 9.33333, at: 8, for: 1}
-                      - {law: spin, axis: left, deg_per_tick: 9.33334, at: 9, for: 1}
-                      - {law: spin, axis: left, deg_per_tick: 9.33333, at: 10, for: 1}
-                      - {law: grow, per_tick: {left: -0.03, up: -0.0225, forward: -0.2}, at: 16, for: 4}
-                  - id: fx4_couture_shears_falling_1_edge_2_2
-                    op: display
-                    kind: block
-                    block: iron_block
-                    anchor: fx4_couture_shears_falling
-                    offset: {left: 0.09, up: 3.74289, forward: 1.62455}
-                    rotate: [{axis: left, deg: 61.73982}]
-                    scale: [0.12, 0.05, 0.80037]
-                    for: 21
-                    motion:
-                      - {law: move, velocity: {left: 0, up: -0.4625, forward: 0}, at: 0, for: 8}
-                      - {law: move, velocity: {left: 0, up: -0.14665, forward: -0.494847}, at: 8, for: 3}
-                      - {law: spin, axis: left, deg_per_tick: 9.33334, at: 8, for: 1}
-                      - {law: spin, axis: left, deg_per_tick: 9.33333, at: 9, for: 2}
-                      - {law: grow, per_tick: {left: -0.03, up: -0.0125, forward: -0.200093}, at: 16, for: 4}
-                  - id: fx4_couture_shears_falling_1_handle_0_2
-                    op: display
-                    kind: block
-                    block: black_concrete
-                    anchor: fx4_couture_shears_falling
-                    offset: {left: 0.09, up: 6.93909, forward: 0.00053}
-                    rotate: [{axis: left, deg: -75}]
-                    scale: [0.12, 0.09, 0.62225]
-                    for: 21
-                    motion:
-                      - {law: move, velocity: {left: 0, up: -0.4625, forward: 0}, at: 0, for: 8}
-                      - {law: move, velocity: {left: 0, up: -0.017213, forward: 0.06869}, at: 8, for: 3}
-                      - {law: spin, axis: left, deg_per_tick: 9.33333, at: 8, for: 1}
-                      - {law: spin, axis: left, deg_per_tick: 9.33334, at: 9, for: 1}
-                      - {law: spin, axis: left, deg_per_tick: 9.33333, at: 10, for: 1}
-                      - {law: grow, per_tick: {left: -0.03, up: -0.0225, forward: -0.155562}, at: 16, for: 4}
-                  - id: fx4_couture_shears_falling_1_handle_1_2
-                    op: display
-                    kind: block
-                    block: black_concrete
-                    anchor: fx4_couture_shears_falling
-                    offset: {left: 0.09, up: 7.61433, forward: -0.16993}
-                    rotate: [{axis: left, deg: -123.81407}]
-                    scale: [0.12, 0.09, 0.902]
-                    for: 21
-                    motion:
-                      - {law: move, velocity: {left: 0, up: -0.4625, forward: 0}, at: 0, for: 8}
-                      - {law: move, velocity: {left: 0, up: -0.016887, forward: 0.181013}, at: 8, for: 3}
-                      - {law: spin, axis: left, deg_per_tick: 9.33333, at: 8, for: 2}
-                      - {law: spin, axis: left, deg_per_tick: 9.33334, at: 10, for: 1}
-                      - {law: grow, per_tick: {left: -0.03, up: -0.0225, forward: -0.2255}, at: 16, for: 4}
-                  - id: fx4_couture_shears_falling_1_handle_2_2
-                    op: display
-                    kind: block
-                    block: black_concrete
-                    anchor: fx4_couture_shears_falling
-                    offset: {left: 0.09, up: 7.9893, forward: -0.64046}
-                    rotate: [{axis: left, deg: -179.93142}]
-                    scale: [0.12, 0.09, 0.43909]
-                    for: 21
-                    motion:
-                      - {law: move, velocity: {left: 0, up: -0.4625, forward: 0}, at: 0, for: 8}
-                      - {law: move, velocity: {left: 0, up: 0.042117, forward: 0.258053}, at: 8, for: 3}
-                      - {law: spin, axis: left, deg_per_tick: 9.33334, at: 8, for: 1}
-                      - {law: spin, axis: left, deg_per_tick: 9.33333, at: 9, for: 2}
-                      - {law: grow, per_tick: {left: -0.03, up: -0.0225, forward: -0.109772}, at: 16, for: 4}
-                  - id: fx4_couture_shears_falling_1_handle_3_2
-                    op: display
-                    kind: block
-                    block: black_concrete
-                    anchor: fx4_couture_shears_falling
-                    offset: {left: 0.09, up: 7.55181, forward: -0.83821}
-                    rotate: [{axis: left, deg: 87.14968}]
-                    scale: [0.12, 0.09, 0.87658]
-                    for: 21
-                    motion:
-                      - {law: move, velocity: {left: 0, up: -0.4625, forward: 0}, at: 0, for: 8}
-                      - {law: move, velocity: {left: 0, up: 0.090133, forward: 0.197307}, at: 8, for: 3}
-                      - {law: spin, axis: left, deg_per_tick: 9.33334, at: 8, for: 1}
-                      - {law: spin, axis: left, deg_per_tick: 9.33333, at: 9, for: 2}
-                      - {law: grow, per_tick: {left: -0.03, up: -0.0225, forward: -0.219145}, at: 16, for: 4}
-                  - id: fx4_couture_shears_falling_1_handle_4_2
-                    op: display
-                    kind: block
-                    block: black_concrete
-                    anchor: fx4_couture_shears_falling
-                    offset: {left: 0.09, up: 6.87631, forward: -0.44821}
-                    rotate: [{axis: left, deg: 32.85032}]
-                    scale: [0.12, 0.09, 0.87658]
-                    for: 21
-                    motion:
-                      - {law: move, velocity: {left: 0, up: -0.4625, forward: 0}, at: 0, for: 8}
-                      - {law: move, velocity: {left: 0, up: 0.05546, forward: 0.07638}, at: 8, for: 3}
-                      - {law: spin, axis: left, deg_per_tick: 9.33333, at: 8, for: 2}
-                      - {law: spin, axis: left, deg_per_tick: 9.33334, at: 10, for: 1}
-                      - {law: grow, per_tick: {left: -0.03, up: -0.0225, forward: -0.219145}, at: 16, for: 4}
-                  - id: fx4_couture_shears_falling_hinge_flower_0
-                    op: display
-                    kind: block
-                    block: white_concrete
-                    anchor: fx4_couture_shears_falling
-                    offset: {left: -0.24, up: 6.5, forward: 0}
-                    scale: [0.3, 0.3, 0.24]
-                    for: 21
-                    motion:
-                      - {law: move, velocity: {left: 0, up: -0.4625, forward: 0}, at: 0, for: 8}
-                      - {law: grow, per_tick: {left: -0.075, up: -0.075, forward: -0.06}, at: 16, for: 4}
-                  - id: fx4_couture_shears_falling_hinge_flower_1
-                    op: display
-                    kind: block
-                    block: white_concrete
-                    anchor: fx4_couture_shears_falling
-                    offset: {left: 0.24, up: 6.5, forward: 0}
-                    scale: [0.3, 0.3, 0.24]
-                    for: 21
-                    motion:
-                      - {law: move, velocity: {left: 0, up: -0.4625, forward: 0}, at: 0, for: 8}
-                      - {law: grow, per_tick: {left: -0.075, up: -0.075, forward: -0.06}, at: 16, for: 4}
-                  - id: fx4_couture_shears_falling_hinge_flower_2
-                    op: display
-                    kind: block
-                    block: white_concrete
-                    anchor: fx4_couture_shears_falling
-                    offset: {left: 0, up: 6.74, forward: 0}
-                    scale: [0.3, 0.3, 0.24]
-                    for: 21
-                    motion:
-                      - {law: move, velocity: {left: 0, up: -0.4625, forward: 0}, at: 0, for: 8}
-                      - {law: grow, per_tick: {left: -0.075, up: -0.075, forward: -0.06}, at: 16, for: 4}
-                  - id: fx4_couture_shears_falling_hinge_flower_3
-                    op: display
-                    kind: block
-                    block: white_concrete
-                    anchor: fx4_couture_shears_falling
-                    offset: {left: 0, up: 6.26, forward: 0}
-                    scale: [0.3, 0.3, 0.24]
-                    for: 21
-                    motion:
-                      - {law: move, velocity: {left: 0, up: -0.4625, forward: 0}, at: 0, for: 8}
-                      - {law: grow, per_tick: {left: -0.075, up: -0.075, forward: -0.06}, at: 16, for: 4}
-        - {id: sel_5, op: hit, at: 59, anchor: caster.eye, targets: enemies, max_count: 1, shape: {sector: {deg: "= arc_deg", range: "= reach", height: 2.0, forward: yaw}}, window: once, damage: {physical: "= dmg_physical_2"}, ignore_invulnerability: true}
-        - id: sel_6
-          op: hit
           at: 59
           anchor: caster.eye
           targets: enemies
           max_count: 1
           shape: {sector: {deg: = arc_deg, range: = reach, height: 2.0, forward: yaw}}
           window: once
+          damage: {physical: "= dmg_physical_2"}
           ignore_invulnerability: true
           on:
             hit:
@@ -1697,7 +1292,412 @@ machine:
                     anchor: contact
                     volume: 0.7
                     pitch: 1.1
-        - id: sel_7
+        - id: fall2_pick
+          op: hit
+          at: 48
+          anchor: caster.eye
+          targets: enemies
+          max_count: 1
+          shape: {sector: {deg: = arc_deg, range: = reach, height: 2.0, forward: yaw}}
+          window: once
+          ignore_invulnerability: true
+          on:
+            hit:
+              - id: h0
+                op: group
+                at: 0
+                do:
+                  - id: fx4_couture_shears_falling
+                    op: frame
+                    anchor: victim
+                    axes: caster
+                    mode: snapshot
+                    for: 21
+                  - id: fx4_couture_shears_falling_1_blade_0
+                    op: display
+                    kind: block
+                    block: gray_concrete
+                    anchor: fx4_couture_shears_falling
+                    offset: {left: -0.09, up: 5.80718, forward: -0.4}
+                    rotate: [{axis: left, deg: 120}]
+                    scale: [0.12, 0.38, 1.6]
+                    for: 21
+                    motion:
+                      - {law: move, velocity: {left: 0, up: -0.4625, forward: 0}, at: 0, for: 8}
+                      - {law: move, velocity: {left: 0, up: -0.035563, forward: 0.124027}, at: 8, for: 3}
+                      - {law: spin, axis: left, deg_per_tick: -9.33333, at: 8, for: 1}
+                      - {law: spin, axis: left, deg_per_tick: -9.33334, at: 9, for: 1}
+                      - {law: spin, axis: left, deg_per_tick: -9.33333, at: 10, for: 1}
+                      - {law: grow, per_tick: {left: -0.03, up: -0.095, forward: -0.4}, at: 16, for: 4}
+                  - id: fx4_couture_shears_falling_1_edge_0
+                    op: display
+                    kind: block
+                    block: iron_block
+                    anchor: fx4_couture_shears_falling
+                    offset: {left: -0.09, up: 5.74733, forward: -0.29634}
+                    rotate: [{axis: left, deg: 123.66907}]
+                    scale: [0.12, 0.05, 1.60329]
+                    for: 21
+                    motion:
+                      - {law: move, velocity: {left: 0, up: -0.4625, forward: 0}, at: 0, for: 8}
+                      - {law: move, velocity: {left: 0, up: -0.017007, forward: 0.12935}, at: 8, for: 3}
+                      - {law: spin, axis: left, deg_per_tick: -9.33334, at: 8, for: 1}
+                      - {law: spin, axis: left, deg_per_tick: -9.33333, at: 9, for: 2}
+                      - {law: grow, per_tick: {left: -0.03, up: -0.0125, forward: -0.400823}, at: 16, for: 4}
+                  - id: fx4_couture_shears_falling_1_blade_1
+                    op: display
+                    kind: block
+                    block: gray_concrete
+                    anchor: fx4_couture_shears_falling
+                    offset: {left: -0.09, up: 4.59474, forward: -1.1}
+                    rotate: [{axis: left, deg: 120}]
+                    scale: [0.12, 0.24, 1.2]
+                    for: 21
+                    motion:
+                      - {law: move, velocity: {left: 0, up: -0.4625, forward: 0}, at: 0, for: 8}
+                      - {law: move, velocity: {left: 0, up: -0.0978, forward: 0.341073}, at: 8, for: 3}
+                      - {law: spin, axis: left, deg_per_tick: -9.33333, at: 8, for: 1}
+                      - {law: spin, axis: left, deg_per_tick: -9.33334, at: 9, for: 1}
+                      - {law: spin, axis: left, deg_per_tick: -9.33333, at: 10, for: 1}
+                      - {law: grow, per_tick: {left: -0.03, up: -0.06, forward: -0.3}, at: 16, for: 4}
+                  - id: fx4_couture_shears_falling_1_edge_1
+                    op: display
+                    kind: block
+                    block: iron_block
+                    anchor: fx4_couture_shears_falling
+                    offset: {left: -0.09, up: 4.55694, forward: -1.03453}
+                    rotate: [{axis: left, deg: 123.09097}]
+                    scale: [0.12, 0.05, 1.20175]
+                    for: 21
+                    motion:
+                      - {law: move, velocity: {left: 0, up: -0.4625, forward: 0}, at: 0, for: 8}
+                      - {law: move, velocity: {left: 0, up: -0.08608, forward: 0.344437}, at: 8, for: 3}
+                      - {law: spin, axis: left, deg_per_tick: -9.33333, at: 8, for: 1}
+                      - {law: spin, axis: left, deg_per_tick: -9.33334, at: 9, for: 1}
+                      - {law: spin, axis: left, deg_per_tick: -9.33333, at: 10, for: 1}
+                      - {law: grow, per_tick: {left: -0.03, up: -0.0125, forward: -0.300438}, at: 16, for: 4}
+                  - id: fx4_couture_shears_falling_1_blade_2
+                    op: display
+                    kind: block
+                    block: gray_concrete
+                    anchor: fx4_couture_shears_falling
+                    offset: {left: -0.09, up: 3.72872, forward: -1.6}
+                    rotate: [{axis: left, deg: 120}]
+                    scale: [0.12, 0.09, 0.8]
+                    for: 21
+                    motion:
+                      - {law: move, velocity: {left: 0, up: -0.4625, forward: 0}, at: 0, for: 8}
+                      - {law: move, velocity: {left: 0, up: -0.142257, forward: 0.496107}, at: 8, for: 3}
+                      - {law: spin, axis: left, deg_per_tick: -9.33333, at: 8, for: 1}
+                      - {law: spin, axis: left, deg_per_tick: -9.33334, at: 9, for: 1}
+                      - {law: spin, axis: left, deg_per_tick: -9.33333, at: 10, for: 1}
+                      - {law: grow, per_tick: {left: -0.03, up: -0.0225, forward: -0.2}, at: 16, for: 4}
+                  - id: fx4_couture_shears_falling_1_edge_2
+                    op: display
+                    kind: block
+                    block: iron_block
+                    anchor: fx4_couture_shears_falling
+                    offset: {left: -0.09, up: 3.71454, forward: -1.57545}
+                    rotate: [{axis: left, deg: 121.73982}]
+                    scale: [0.12, 0.05, 0.80037]
+                    for: 21
+                    motion:
+                      - {law: move, velocity: {left: 0, up: -0.4625, forward: 0}, at: 0, for: 8}
+                      - {law: move, velocity: {left: 0, up: -0.13786, forward: 0.497367}, at: 8, for: 3}
+                      - {law: spin, axis: left, deg_per_tick: -9.33333, at: 8, for: 2}
+                      - {law: spin, axis: left, deg_per_tick: -9.33334, at: 10, for: 1}
+                      - {law: grow, per_tick: {left: -0.03, up: -0.0125, forward: -0.200093}, at: 16, for: 4}
+                  - id: fx4_couture_shears_falling_1_handle_0
+                    op: display
+                    kind: block
+                    block: black_concrete
+                    anchor: fx4_couture_shears_falling
+                    offset: {left: -0.09, up: 6.71909, forward: 0.38053}
+                    rotate: [{axis: left, deg: -15}]
+                    scale: [0.12, 0.09, 0.62225]
+                    for: 21
+                    motion:
+                      - {law: move, velocity: {left: 0, up: -0.4625, forward: 0}, at: 0, for: 8}
+                      - {law: move, velocity: {left: 0, up: 0.051, forward: -0.049133}, at: 8, for: 3}
+                      - {law: spin, axis: left, deg_per_tick: -9.33333, at: 8, for: 1}
+                      - {law: spin, axis: left, deg_per_tick: -9.33334, at: 9, for: 1}
+                      - {law: spin, axis: left, deg_per_tick: -9.33333, at: 10, for: 1}
+                      - {law: grow, per_tick: {left: -0.03, up: -0.0225, forward: -0.155562}, at: 16, for: 4}
+                  - id: fx4_couture_shears_falling_1_handle_1
+                    op: display
+                    kind: block
+                    block: black_concrete
+                    anchor: fx4_couture_shears_falling
+                    offset: {left: -0.09, up: 7.20433, forward: 0.88007}
+                    rotate: [{axis: left, deg: -63.81407}]
+                    scale: [0.12, 0.09, 0.902]
+                    for: 21
+                    motion:
+                      - {law: move, velocity: {left: 0, up: -0.4625, forward: 0}, at: 0, for: 8}
+                      - {law: move, velocity: {left: 0, up: 0.11024, forward: -0.14456}, at: 8, for: 3}
+                      - {law: spin, axis: left, deg_per_tick: -9.33334, at: 8, for: 1}
+                      - {law: spin, axis: left, deg_per_tick: -9.33333, at: 9, for: 2}
+                      - {law: grow, per_tick: {left: -0.03, up: -0.0225, forward: -0.2255}, at: 16, for: 4}
+                  - id: fx4_couture_shears_falling_1_handle_2
+                    op: display
+                    kind: block
+                    block: black_concrete
+                    anchor: fx4_couture_shears_falling
+                    offset: {left: -0.09, up: 7.7993, forward: 0.96954}
+                    rotate: [{axis: left, deg: -119.93142}]
+                    scale: [0.12, 0.09, 0.43909]
+                    for: 21
+                    motion:
+                      - {law: move, velocity: {left: 0, up: -0.4625, forward: 0}, at: 0, for: 8}
+                      - {law: move, velocity: {left: 0, up: 0.10103, forward: -0.241157}, at: 8, for: 3}
+                      - {law: spin, axis: left, deg_per_tick: -9.33333, at: 8, for: 2}
+                      - {law: spin, axis: left, deg_per_tick: -9.33334, at: 10, for: 1}
+                      - {law: grow, per_tick: {left: -0.03, up: -0.0225, forward: -0.109772}, at: 16, for: 4}
+                  - id: fx4_couture_shears_falling_1_handle_3
+                    op: display
+                    kind: block
+                    block: black_concrete
+                    anchor: fx4_couture_shears_falling
+                    offset: {left: -0.09, up: 7.75181, forward: 0.49179}
+                    rotate: [{axis: left, deg: 147.14968}]
+                    scale: [0.12, 0.09, 0.87658]
+                    for: 21
+                    motion:
+                      - {law: move, velocity: {left: 0, up: -0.4625, forward: 0}, at: 0, for: 8}
+                      - {law: move, velocity: {left: 0, up: 0.02812, forward: -0.215083}, at: 8, for: 3}
+                      - {law: spin, axis: left, deg_per_tick: -9.33333, at: 8, for: 2}
+                      - {law: spin, axis: left, deg_per_tick: -9.33334, at: 10, for: 1}
+                      - {law: grow, per_tick: {left: -0.03, up: -0.0225, forward: -0.219145}, at: 16, for: 4}
+                  - id: fx4_couture_shears_falling_1_handle_4
+                    op: display
+                    kind: block
+                    block: black_concrete
+                    anchor: fx4_couture_shears_falling
+                    offset: {left: -0.09, up: 7.07631, forward: 0.10179}
+                    rotate: [{axis: left, deg: 92.85032}]
+                    scale: [0.12, 0.09, 0.87658]
+                    for: 21
+                    motion:
+                      - {law: move, velocity: {left: 0, up: -0.4625, forward: 0}, at: 0, for: 8}
+                      - {law: move, velocity: {left: 0, up: -0.006557, forward: -0.094157}, at: 8, for: 3}
+                      - {law: spin, axis: left, deg_per_tick: -9.33334, at: 8, for: 1}
+                      - {law: spin, axis: left, deg_per_tick: -9.33333, at: 9, for: 2}
+                      - {law: grow, per_tick: {left: -0.03, up: -0.0225, forward: -0.219145}, at: 16, for: 4}
+                  - id: fx4_couture_shears_falling_1_blade_0_2
+                    op: display
+                    kind: block
+                    block: gray_concrete
+                    anchor: fx4_couture_shears_falling
+                    offset: {left: 0.09, up: 5.80718, forward: 0.4}
+                    rotate: [{axis: left, deg: 60}]
+                    scale: [0.12, 0.38, 1.6]
+                    for: 21
+                    motion:
+                      - {law: move, velocity: {left: 0, up: -0.4625, forward: 0}, at: 0, for: 8}
+                      - {law: move, velocity: {left: 0, up: -0.035563, forward: -0.124027}, at: 8, for: 3}
+                      - {law: spin, axis: left, deg_per_tick: 9.33333, at: 8, for: 1}
+                      - {law: spin, axis: left, deg_per_tick: 9.33334, at: 9, for: 1}
+                      - {law: spin, axis: left, deg_per_tick: 9.33333, at: 10, for: 1}
+                      - {law: grow, per_tick: {left: -0.03, up: -0.095, forward: -0.4}, at: 16, for: 4}
+                  - id: fx4_couture_shears_falling_1_edge_0_2
+                    op: display
+                    kind: block
+                    block: iron_block
+                    anchor: fx4_couture_shears_falling
+                    offset: {left: 0.09, up: 5.86703, forward: 0.50366}
+                    rotate: [{axis: left, deg: 63.66907}]
+                    scale: [0.12, 0.05, 1.60329]
+                    for: 21
+                    motion:
+                      - {law: move, velocity: {left: 0, up: -0.4625, forward: 0}, at: 0, for: 8}
+                      - {law: move, velocity: {left: 0, up: -0.054123, forward: -0.118703}, at: 8, for: 3}
+                      - {law: spin, axis: left, deg_per_tick: 9.33333, at: 8, for: 2}
+                      - {law: spin, axis: left, deg_per_tick: 9.33334, at: 10, for: 1}
+                      - {law: grow, per_tick: {left: -0.03, up: -0.0125, forward: -0.400823}, at: 16, for: 4}
+                  - id: fx4_couture_shears_falling_1_blade_1_2
+                    op: display
+                    kind: block
+                    block: gray_concrete
+                    anchor: fx4_couture_shears_falling
+                    offset: {left: 0.09, up: 4.59474, forward: 1.1}
+                    rotate: [{axis: left, deg: 60}]
+                    scale: [0.12, 0.24, 1.2]
+                    for: 21
+                    motion:
+                      - {law: move, velocity: {left: 0, up: -0.4625, forward: 0}, at: 0, for: 8}
+                      - {law: move, velocity: {left: 0, up: -0.0978, forward: -0.341073}, at: 8, for: 3}
+                      - {law: spin, axis: left, deg_per_tick: 9.33333, at: 8, for: 1}
+                      - {law: spin, axis: left, deg_per_tick: 9.33334, at: 9, for: 1}
+                      - {law: spin, axis: left, deg_per_tick: 9.33333, at: 10, for: 1}
+                      - {law: grow, per_tick: {left: -0.03, up: -0.06, forward: -0.3}, at: 16, for: 4}
+                  - id: fx4_couture_shears_falling_1_edge_1_2
+                    op: display
+                    kind: block
+                    block: iron_block
+                    anchor: fx4_couture_shears_falling
+                    offset: {left: 0.09, up: 4.63254, forward: 1.16547}
+                    rotate: [{axis: left, deg: 63.09097}]
+                    scale: [0.12, 0.05, 1.20175]
+                    for: 21
+                    motion:
+                      - {law: move, velocity: {left: 0, up: -0.4625, forward: 0}, at: 0, for: 8}
+                      - {law: move, velocity: {left: 0, up: -0.10952, forward: -0.337713}, at: 8, for: 3}
+                      - {law: spin, axis: left, deg_per_tick: 9.33333, at: 8, for: 1}
+                      - {law: spin, axis: left, deg_per_tick: 9.33334, at: 9, for: 1}
+                      - {law: spin, axis: left, deg_per_tick: 9.33333, at: 10, for: 1}
+                      - {law: grow, per_tick: {left: -0.03, up: -0.0125, forward: -0.300438}, at: 16, for: 4}
+                  - id: fx4_couture_shears_falling_1_blade_2_2
+                    op: display
+                    kind: block
+                    block: gray_concrete
+                    anchor: fx4_couture_shears_falling
+                    offset: {left: 0.09, up: 3.72872, forward: 1.6}
+                    rotate: [{axis: left, deg: 60}]
+                    scale: [0.12, 0.09, 0.8]
+                    for: 21
+                    motion:
+                      - {law: move, velocity: {left: 0, up: -0.4625, forward: 0}, at: 0, for: 8}
+                      - {law: move, velocity: {left: 0, up: -0.142257, forward: -0.496107}, at: 8, for: 3}
+                      - {law: spin, axis: left, deg_per_tick: 9.33333, at: 8, for: 1}
+                      - {law: spin, axis: left, deg_per_tick: 9.33334, at: 9, for: 1}
+                      - {law: spin, axis: left, deg_per_tick: 9.33333, at: 10, for: 1}
+                      - {law: grow, per_tick: {left: -0.03, up: -0.0225, forward: -0.2}, at: 16, for: 4}
+                  - id: fx4_couture_shears_falling_1_edge_2_2
+                    op: display
+                    kind: block
+                    block: iron_block
+                    anchor: fx4_couture_shears_falling
+                    offset: {left: 0.09, up: 3.74289, forward: 1.62455}
+                    rotate: [{axis: left, deg: 61.73982}]
+                    scale: [0.12, 0.05, 0.80037]
+                    for: 21
+                    motion:
+                      - {law: move, velocity: {left: 0, up: -0.4625, forward: 0}, at: 0, for: 8}
+                      - {law: move, velocity: {left: 0, up: -0.14665, forward: -0.494847}, at: 8, for: 3}
+                      - {law: spin, axis: left, deg_per_tick: 9.33334, at: 8, for: 1}
+                      - {law: spin, axis: left, deg_per_tick: 9.33333, at: 9, for: 2}
+                      - {law: grow, per_tick: {left: -0.03, up: -0.0125, forward: -0.200093}, at: 16, for: 4}
+                  - id: fx4_couture_shears_falling_1_handle_0_2
+                    op: display
+                    kind: block
+                    block: black_concrete
+                    anchor: fx4_couture_shears_falling
+                    offset: {left: 0.09, up: 6.93909, forward: 0.00053}
+                    rotate: [{axis: left, deg: -75}]
+                    scale: [0.12, 0.09, 0.62225]
+                    for: 21
+                    motion:
+                      - {law: move, velocity: {left: 0, up: -0.4625, forward: 0}, at: 0, for: 8}
+                      - {law: move, velocity: {left: 0, up: -0.017213, forward: 0.06869}, at: 8, for: 3}
+                      - {law: spin, axis: left, deg_per_tick: 9.33333, at: 8, for: 1}
+                      - {law: spin, axis: left, deg_per_tick: 9.33334, at: 9, for: 1}
+                      - {law: spin, axis: left, deg_per_tick: 9.33333, at: 10, for: 1}
+                      - {law: grow, per_tick: {left: -0.03, up: -0.0225, forward: -0.155562}, at: 16, for: 4}
+                  - id: fx4_couture_shears_falling_1_handle_1_2
+                    op: display
+                    kind: block
+                    block: black_concrete
+                    anchor: fx4_couture_shears_falling
+                    offset: {left: 0.09, up: 7.61433, forward: -0.16993}
+                    rotate: [{axis: left, deg: -123.81407}]
+                    scale: [0.12, 0.09, 0.902]
+                    for: 21
+                    motion:
+                      - {law: move, velocity: {left: 0, up: -0.4625, forward: 0}, at: 0, for: 8}
+                      - {law: move, velocity: {left: 0, up: -0.016887, forward: 0.181013}, at: 8, for: 3}
+                      - {law: spin, axis: left, deg_per_tick: 9.33333, at: 8, for: 2}
+                      - {law: spin, axis: left, deg_per_tick: 9.33334, at: 10, for: 1}
+                      - {law: grow, per_tick: {left: -0.03, up: -0.0225, forward: -0.2255}, at: 16, for: 4}
+                  - id: fx4_couture_shears_falling_1_handle_2_2
+                    op: display
+                    kind: block
+                    block: black_concrete
+                    anchor: fx4_couture_shears_falling
+                    offset: {left: 0.09, up: 7.9893, forward: -0.64046}
+                    rotate: [{axis: left, deg: -179.93142}]
+                    scale: [0.12, 0.09, 0.43909]
+                    for: 21
+                    motion:
+                      - {law: move, velocity: {left: 0, up: -0.4625, forward: 0}, at: 0, for: 8}
+                      - {law: move, velocity: {left: 0, up: 0.042117, forward: 0.258053}, at: 8, for: 3}
+                      - {law: spin, axis: left, deg_per_tick: 9.33334, at: 8, for: 1}
+                      - {law: spin, axis: left, deg_per_tick: 9.33333, at: 9, for: 2}
+                      - {law: grow, per_tick: {left: -0.03, up: -0.0225, forward: -0.109772}, at: 16, for: 4}
+                  - id: fx4_couture_shears_falling_1_handle_3_2
+                    op: display
+                    kind: block
+                    block: black_concrete
+                    anchor: fx4_couture_shears_falling
+                    offset: {left: 0.09, up: 7.55181, forward: -0.83821}
+                    rotate: [{axis: left, deg: 87.14968}]
+                    scale: [0.12, 0.09, 0.87658]
+                    for: 21
+                    motion:
+                      - {law: move, velocity: {left: 0, up: -0.4625, forward: 0}, at: 0, for: 8}
+                      - {law: move, velocity: {left: 0, up: 0.090133, forward: 0.197307}, at: 8, for: 3}
+                      - {law: spin, axis: left, deg_per_tick: 9.33334, at: 8, for: 1}
+                      - {law: spin, axis: left, deg_per_tick: 9.33333, at: 9, for: 2}
+                      - {law: grow, per_tick: {left: -0.03, up: -0.0225, forward: -0.219145}, at: 16, for: 4}
+                  - id: fx4_couture_shears_falling_1_handle_4_2
+                    op: display
+                    kind: block
+                    block: black_concrete
+                    anchor: fx4_couture_shears_falling
+                    offset: {left: 0.09, up: 6.87631, forward: -0.44821}
+                    rotate: [{axis: left, deg: 32.85032}]
+                    scale: [0.12, 0.09, 0.87658]
+                    for: 21
+                    motion:
+                      - {law: move, velocity: {left: 0, up: -0.4625, forward: 0}, at: 0, for: 8}
+                      - {law: move, velocity: {left: 0, up: 0.05546, forward: 0.07638}, at: 8, for: 3}
+                      - {law: spin, axis: left, deg_per_tick: 9.33333, at: 8, for: 2}
+                      - {law: spin, axis: left, deg_per_tick: 9.33334, at: 10, for: 1}
+                      - {law: grow, per_tick: {left: -0.03, up: -0.0225, forward: -0.219145}, at: 16, for: 4}
+                  - id: fx4_couture_shears_falling_hinge_flower_0
+                    op: display
+                    kind: block
+                    block: white_concrete
+                    anchor: fx4_couture_shears_falling
+                    offset: {left: -0.24, up: 6.5, forward: 0}
+                    scale: [0.3, 0.3, 0.24]
+                    for: 21
+                    motion:
+                      - {law: move, velocity: {left: 0, up: -0.4625, forward: 0}, at: 0, for: 8}
+                      - {law: grow, per_tick: {left: -0.075, up: -0.075, forward: -0.06}, at: 16, for: 4}
+                  - id: fx4_couture_shears_falling_hinge_flower_1
+                    op: display
+                    kind: block
+                    block: white_concrete
+                    anchor: fx4_couture_shears_falling
+                    offset: {left: 0.24, up: 6.5, forward: 0}
+                    scale: [0.3, 0.3, 0.24]
+                    for: 21
+                    motion:
+                      - {law: move, velocity: {left: 0, up: -0.4625, forward: 0}, at: 0, for: 8}
+                      - {law: grow, per_tick: {left: -0.075, up: -0.075, forward: -0.06}, at: 16, for: 4}
+                  - id: fx4_couture_shears_falling_hinge_flower_2
+                    op: display
+                    kind: block
+                    block: white_concrete
+                    anchor: fx4_couture_shears_falling
+                    offset: {left: 0, up: 6.74, forward: 0}
+                    scale: [0.3, 0.3, 0.24]
+                    for: 21
+                    motion:
+                      - {law: move, velocity: {left: 0, up: -0.4625, forward: 0}, at: 0, for: 8}
+                      - {law: grow, per_tick: {left: -0.075, up: -0.075, forward: -0.06}, at: 16, for: 4}
+                  - id: fx4_couture_shears_falling_hinge_flower_3
+                    op: display
+                    kind: block
+                    block: white_concrete
+                    anchor: fx4_couture_shears_falling
+                    offset: {left: 0, up: 6.26, forward: 0}
+                    scale: [0.3, 0.3, 0.24]
+                    for: 21
+                    motion:
+                      - {law: move, velocity: {left: 0, up: -0.4625, forward: 0}, at: 0, for: 8}
+                      - {law: grow, per_tick: {left: -0.075, up: -0.075, forward: -0.06}, at: 16, for: 4}
+        - id: rosette_pick
           op: hit
           at: 62
           anchor: caster.eye
