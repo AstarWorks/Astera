@@ -1,0 +1,57 @@
+# ADR-0303 example (i): a display, a particle count and a sound pitch, each with an ease, in ONE timing block (ADR-0303 2.0, 3.4, 3.7).
+# Ease shapes the accumulated TOTAL over the law's window (u = lt / for). Window: 20 ticks, repeating emit/sound every 2 ticks.
+apiVersion: astera/v3
+kind: Skill
+id: example-eased-bloom
+anchors:
+  - {id: palm, anchor: caster.hand_r, mount: caster}
+machine:
+  start: bloom
+  states:
+    bloom:
+      at: 0
+      for: 20
+      then: end
+      do:
+        # DISPLAY: spin 360 degrees over 20 ticks, decelerating; grow from 0.2 to 1.0 with overshoot (back). Static expansion: spin out_cubic = 4 segments
+        # (<= 2 degrees error), grow out_back = per-tick writes (large second derivative). Shared boundaries: one write per object per boundary.
+        - id: petal
+          op: display
+          kind: sprite
+          sprite: couture-s2-petal-spark
+          anchor: palm
+          offset: {forward: 0.5}
+          billboard: center
+          size: [0.2, 0.2]
+          for: 20
+          motion:
+            - {law: spin, axis: face, deg_per_tick: 18, from: 0, for: 20, ease: out_cubic}              # 18 * 20 = 360 total, E(u) = out_cubic
+            - {law: grow, prop: size, to: [1.0, 1.0], from: 0, for: 20, ease: out_back}
+        # PARTICLE: the emit count climbs in_out_sine across the window (sampled at each occurrence; no segments needed)
+        - id: motes
+          op: particle
+          particle: end_rod
+          anchor: palm
+          every: 2
+          for: 20
+          count: 1
+          offset: [0.2, 0.2, 0.2]
+          extra: 0.02
+          motion:
+            - {law: grow, prop: count, to: 12, from: 0, for: 20, ease: in_out_sine}                     # count = 1 + 11 * E(u), rounded per occurrence
+        # SOUND: pitch rises 0.7 -> 1.5 with a stepped ease (4 notes), volume fades with the CEL form of the same easing
+        - id: chime
+          op: sound
+          sound: block.amethyst_block.chime
+          anchor: palm
+          every: 2
+          for: 20
+          pitch: 0.7
+          volume: "= 0.6 * (1 - ease('in_quad', t / 20))"                                              # CEL: class T, sampled per occurrence
+          motion:
+            - {law: grow, prop: pitch, to: 1.5, from: 0, for: 20, ease: "steps(4)"}
+    end: {final: true}
+# Expanded table (generated):
+#   bloom  ticks 0-20   firings: motes @0,2,..,18 x10 (count 1,1,2,3,5,7,9,10,11,11), chime @0..18 x10 (pitch 0.7,0.7,0.7,0.7,0.7,1.1.. in 4 steps)
+#   petal display 0-20 | spin out_cubic: m=4 h=5 err 1.6 deg writes 5 | grow out_back: m=20 (per tick) writes 21 -> shared boundaries: 21 writes
+#   path: bloom(20) -> end  min 20 max 20
