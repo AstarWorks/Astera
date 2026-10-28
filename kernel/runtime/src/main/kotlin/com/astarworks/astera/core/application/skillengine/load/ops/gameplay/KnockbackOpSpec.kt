@@ -50,15 +50,13 @@ public object KnockbackOpSpec : OpSpec<KnockbackOp> {
     override fun lower(op: KnockbackOp, lc: LowerContext): Result<Lowered, SkillDecodeError> {
         val path = lc.src.value
         return GameplayOps.targetCell(op.target, lc, path).flatMap { target ->
-            GameplayOps.literalVec(op.direction, lc, "$path.direction").flatMap { direction ->
-                GameplayOps.literal(op.strength, lc, "$path.strength").map { strength ->
-                    GameplayOps.effect(
-                        lc,
-                        "knockback",
-                        mapOf<String, Val<Any>>("target" to target, "direction" to Val.Known(direction), "strength" to Val.Known(strength)),
-                    )
-                }
-            }
+            Result.Success(
+                GameplayOps.effect(
+                    lc,
+                    "knockback",
+                    mapOf<String, Val<Any>>("target" to target, "direction" to GameplayOps.liveVec(op.direction), "strength" to GameplayOps.live(op.strength)),
+                ),
+            )
         }
     }
 }

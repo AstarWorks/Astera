@@ -125,6 +125,13 @@ internal object GameplayOps {
         is Value.Expr -> Val.Live<Double>("= ${v.source}", null)
     }
 
+    /** Any vector value as a table cell: a literal is known, `${p}` / `= expr` are read live at play time. */
+    fun liveVec(v: Value<Vec3>): Val<Vec3> = when (v) {
+        is Value.Literal -> Val.Known(v.value)
+        is Value.ParamRef -> Val.Live<Vec3>("\${${v.name}}", null)
+        is Value.Expr -> Val.Live<Vec3>("= ${v.source}", null)
+    }
+
     /** Whole-number value from a literal (stacks). */
     fun whole(v: Value<Double>, lc: LowerContext, path: String): Result<Int, SkillDecodeError> = literal(v, lc, path).map { Math.round(it).toInt() }
 
