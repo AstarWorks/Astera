@@ -685,10 +685,12 @@ class PresentationOpsScenarioTest {
         run(VisualOp.Anchor("a", null, "volley", PointRef("contact"), AnchorOrient.WORLD, follow = true, teleportTicks = 2))
         run(VisualOp.Mesh("m", null, "volley", "couture-shears", null, null))
         tick()
+        assertThat(teleports[1]).isEqualTo(0) // the spawn write teleports over 0; the follow loop starts the tick after (VfxPlayer.kt:365-375, :620)
+        tick()
         assertThat(teleports[1]).isEqualTo(2)
         run(VisualOp.Anchor("b", null, "volley", PointRef("contact"), AnchorOrient.WORLD))
         tick()
-        assertThat(teleports[1]).isNull()
+        assertThat(teleports[1]).isEqualTo(0) // no longer followed and not moved: not teleported (v1 duration 0)
 
         val d = decode("anchor", mapOf("frame" to "volley", "at" to "contact", "follow" to true, "pitch" to true, "pose" to "snap", "teleport_ticks" to 3)) as VisualOp.Anchor
         assertThat(d.pitch).isTrue()

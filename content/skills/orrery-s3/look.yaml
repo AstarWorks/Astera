@@ -23,8 +23,8 @@ frames:
   - {id: fx8_orrery_ring_hit_target_long, kind: body, parent: world}
   - {id: pt_fx8_orrery_ring_hit_target_long_0_0_0, kind: point, parent: fx8_orrery_ring_hit_target_long, offset: [0.0, 0.0, 0.0]}
   - {id: fx9_orrery_channel, kind: body, parent: world}
-  - {id: fx9_orrery_channel_staff, kind: body, parent: caster}
-  - {id: fx9_orrery_channel_staff_parts, kind: body, parent: caster}
+  - {id: fx9_orrery_channel_staff, kind: body, parent: caster, passenger: false}
+  - {id: fx9_orrery_channel_staff_parts, kind: body, parent: caster, passenger: false}
   - {id: pt_fx9_orrery_channel_staff_0_1_0, kind: point, parent: fx9_orrery_channel_staff, offset: [0.0, 1.0, 0.0]}
   - {id: pt_fx9_orrery_channel_staff_0_2p3_0, kind: point, parent: fx9_orrery_channel_staff, offset: [0.0, 2.3, 0.0]}
   - {id: pt_fx9_orrery_channel_staff_0_1p65_0, kind: point, parent: fx9_orrery_channel_staff, offset: [0.0, 1.65, 0.0]}

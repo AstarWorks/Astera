@@ -6,15 +6,15 @@ id: gossamer-katana-s2
 frames:
   - {id: fx1_gossamer_katana_echo, kind: body, parent: world}
   - {id: fx2_gossamer_katana_echo_cut, kind: body, parent: world}
-  - {id: fx2_gossamer_katana_echo_cut_katana, kind: body, parent: caster}
-  - {id: fx2_gossamer_katana_echo_cut_katana_parts, kind: body, parent: caster}
+  - {id: fx2_gossamer_katana_echo_cut_katana, kind: body, parent: caster, passenger: false}
+  - {id: fx2_gossamer_katana_echo_cut_katana_parts, kind: body, parent: caster, passenger: false}
   - {id: pt_fx2_gossamer_katana_echo_cut_katana_0_1p25_0, kind: point, parent: fx2_gossamer_katana_echo_cut_katana, offset: [0.0, 1.25, 0.0]}
   - {id: pt_fx2_gossamer_katana_echo_cut_katana_0_2p1_0, kind: point, parent: fx2_gossamer_katana_echo_cut_katana, offset: [0.0, 2.1, 0.0]}
   - {id: fx3_gossamer_katana_petals, kind: body, parent: world}
   - {id: fx4_gossamer_katana_petals, kind: body, parent: world}
   - {id: fx5_gossamer_katana_slash_down, kind: body, parent: world}
-  - {id: fx5_gossamer_katana_slash_down_katana, kind: body, parent: caster}
-  - {id: fx5_gossamer_katana_slash_down_katana_parts, kind: body, parent: caster}
+  - {id: fx5_gossamer_katana_slash_down_katana, kind: body, parent: caster, passenger: false}
+  - {id: fx5_gossamer_katana_slash_down_katana_parts, kind: body, parent: caster, passenger: false}
   - {id: pt_fx5_gossamer_katana_slash_down_katana_0_1p25_0, kind: point, parent: fx5_gossamer_katana_slash_down_katana, offset: [0.0, 1.25, 0.0]}
   - {id: pt_fx5_gossamer_katana_slash_down_katana_0_2p1_0, kind: point, parent: fx5_gossamer_katana_slash_down_katana, offset: [0.0, 2.1, 0.0]}
   - {id: fx6_gossamer_katana_lattice, kind: body, parent: world}

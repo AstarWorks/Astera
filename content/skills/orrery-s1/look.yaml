@@ -5,15 +5,15 @@ kind: Skill
 id: orrery-s1
 frames:
   - {id: fx1_orrery_crescent_a, kind: body, parent: world}
-  - {id: fx1_orrery_crescent_a_staff, kind: body, parent: caster}
-  - {id: fx1_orrery_crescent_a_staff_parts, kind: body, parent: caster}
+  - {id: fx1_orrery_crescent_a_staff, kind: body, parent: caster, passenger: false}
+  - {id: fx1_orrery_crescent_a_staff_parts, kind: body, parent: caster, passenger: false}
   - {id: pt_fx1_orrery_crescent_a_staff_0_1_0, kind: point, parent: fx1_orrery_crescent_a_staff, offset: [0.0, 1.0, 0.0]}
   - {id: pt_fx1_orrery_crescent_a_staff_0_2p1_0, kind: point, parent: fx1_orrery_crescent_a_staff, offset: [0.0, 2.1, 0.0]}
   - {id: pt_fx1_orrery_crescent_a_staff_0_1p65_0, kind: point, parent: fx1_orrery_crescent_a_staff, offset: [0.0, 1.65, 0.0]}
   - {id: fx2_orrery_ring_hit, kind: body, parent: world}
   - {id: fx3_orrery_crescent_b, kind: body, parent: world}
-  - {id: fx3_orrery_crescent_b_staff, kind: body, parent: caster}
-  - {id: fx3_orrery_crescent_b_staff_parts, kind: body, parent: caster}
+  - {id: fx3_orrery_crescent_b_staff, kind: body, parent: caster, passenger: false}
+  - {id: fx3_orrery_crescent_b_staff_parts, kind: body, parent: caster, passenger: false}
   - {id: pt_fx3_orrery_crescent_b_staff_0_1_0, kind: point, parent: fx3_orrery_crescent_b_staff, offset: [0.0, 1.0, 0.0]}
   - {id: pt_fx3_orrery_crescent_b_staff_0_2p3_0, kind: point, parent: fx3_orrery_crescent_b_staff, offset: [0.0, 2.3, 0.0]}
   - {id: pt_fx3_orrery_crescent_b_staff_0_1p65_0, kind: point, parent: fx3_orrery_crescent_b_staff, offset: [0.0, 1.65, 0.0]}

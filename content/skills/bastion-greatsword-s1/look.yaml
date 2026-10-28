@@ -5,7 +5,7 @@ kind: Skill
 id: bastion-greatsword-s1
 frames:
   - {id: fx1_bastion_s1_rig, kind: body, parent: world}
-  - {id: fx1_bastion_s1_rig_sword, kind: body, parent: caster}
+  - {id: fx1_bastion_s1_rig_sword, kind: body, parent: caster, passenger: true}
   - {id: fx2_bastion_s1_fx_high, kind: body, parent: world}
   - {id: fx2_bastion_s1_fx_high_s1h1_p_sheath_0_at, kind: body, parent: fx2_bastion_s1_fx_high}
   - {id: fx2_bastion_s1_fx_high_s1h1_p_sheath_1_at, kind: body, parent: fx2_bastion_s1_fx_high}

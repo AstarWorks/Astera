@@ -5,12 +5,12 @@ kind: Skill
 id: ember-gauntlet-s1
 frames:
   - {id: fx1_ember_harness, kind: body, parent: world}
-  - {id: fx1_ember_harness_furnace_pack, kind: body, parent: caster}
-  - {id: fx1_ember_harness_furnace_pack_parts, kind: body, parent: caster}
+  - {id: fx1_ember_harness_furnace_pack, kind: body, parent: caster, passenger: false, teleport_ticks: 2}
+  - {id: fx1_ember_harness_furnace_pack_parts, kind: body, parent: caster, passenger: false, teleport_ticks: 2}
   - {id: fx2_ember_sweep, kind: body, parent: world}
   - {id: fx2_ember_sweep_embers_at, kind: body, parent: fx2_ember_sweep}
-  - {id: fx2_ember_sweep_gauntlet, kind: body, parent: caster}
-  - {id: fx2_ember_sweep_gauntlet_parts, kind: body, parent: caster}
+  - {id: fx2_ember_sweep_gauntlet, kind: body, parent: caster, passenger: false, teleport_ticks: 2}
+  - {id: fx2_ember_sweep_gauntlet_parts, kind: body, parent: caster, passenger: false, teleport_ticks: 2}
   - {id: pt_fx2_ember_sweep_gauntlet_0_1p95_0, kind: point, parent: fx2_ember_sweep_gauntlet, offset: [0.0, 1.95, 0.0]}
   - {id: pt_fx2_ember_sweep_gauntlet_0_2p65_0, kind: point, parent: fx2_ember_sweep_gauntlet, offset: [0.0, 2.65, 0.0]}
   - {id: fx3_ember_hoop_hit, kind: body, parent: world}
@@ -18,8 +18,8 @@ frames:
   - {id: fx4_ember_jet, kind: body, parent: world}
   - {id: fx4_ember_jet_flame_at, kind: body, parent: fx4_ember_jet}
   - {id: fx4_ember_jet_soot_at, kind: body, parent: fx4_ember_jet}
-  - {id: fx4_ember_jet_gauntlet, kind: body, parent: caster}
-  - {id: fx4_ember_jet_gauntlet_parts, kind: body, parent: caster}
+  - {id: fx4_ember_jet_gauntlet, kind: body, parent: caster, passenger: false, teleport_ticks: 2}
+  - {id: fx4_ember_jet_gauntlet_parts, kind: body, parent: caster, passenger: false, teleport_ticks: 2}
   - {id: fx5_ember_hoop_hit, kind: body, parent: world}
   - {id: fx5_ember_hoop_hit_embers_at, kind: body, parent: fx5_ember_hoop_hit}
   - {id: fx6_ember_smoke_puff, kind: body, parent: world}

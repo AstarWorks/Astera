@@ -6,14 +6,14 @@ kind: Skill
 id: vendetta-rifle-ego
 frames:
   - {id: fx1_vendetta_ready, kind: body, parent: world}
-  - {id: fx1_vendetta_ready_bayonet, kind: body, parent: caster}
-  - {id: fx1_vendetta_ready_bayonet_parts, kind: body, parent: caster}
+  - {id: fx1_vendetta_ready_bayonet, kind: body, parent: caster, passenger: false, teleport_ticks: 2}
+  - {id: fx1_vendetta_ready_bayonet_parts, kind: body, parent: caster, passenger: false, teleport_ticks: 2}
   - {id: pt_fx1_vendetta_ready_bayonet_0_1p5_0, kind: point, parent: fx1_vendetta_ready_bayonet, offset: [0.0, 1.5, 0.0]}
   - {id: fx2_vendetta_slash_b, kind: body, parent: world}
   - {id: fx2_vendetta_slash_b_contact_at, kind: body, parent: fx2_vendetta_slash_b}
   - {id: fx2_vendetta_slash_b_petals_at, kind: body, parent: fx2_vendetta_slash_b}
-  - {id: fx2_vendetta_slash_b_bayonet, kind: body, parent: caster}
-  - {id: fx2_vendetta_slash_b_bayonet_parts, kind: body, parent: caster}
+  - {id: fx2_vendetta_slash_b_bayonet, kind: body, parent: caster, passenger: false}
+  - {id: fx2_vendetta_slash_b_bayonet_parts, kind: body, parent: caster, passenger: false}
   - {id: pt_fx2_vendetta_slash_b_bayonet_0_0p55_0, kind: point, parent: fx2_vendetta_slash_b_bayonet, offset: [0.0, 0.55, 0.0]}
   - {id: pt_fx2_vendetta_slash_b_bayonet_0_2p1_0, kind: point, parent: fx2_vendetta_slash_b_bayonet, offset: [0.0, 2.1, 0.0]}
   - {id: fx3_vendetta_thrust_flash, kind: body, parent: world}
@@ -27,8 +27,8 @@ frames:
   - {id: fx5_vendetta_slash_b, kind: body, parent: world}
   - {id: fx5_vendetta_slash_b_contact_at, kind: body, parent: fx5_vendetta_slash_b}
   - {id: fx5_vendetta_slash_b_petals_at, kind: body, parent: fx5_vendetta_slash_b}
-  - {id: fx5_vendetta_slash_b_bayonet, kind: body, parent: caster}
-  - {id: fx5_vendetta_slash_b_bayonet_parts, kind: body, parent: caster}
+  - {id: fx5_vendetta_slash_b_bayonet, kind: body, parent: caster, passenger: false}
+  - {id: fx5_vendetta_slash_b_bayonet_parts, kind: body, parent: caster, passenger: false}
   - {id: pt_fx5_vendetta_slash_b_bayonet_0_0p55_0, kind: point, parent: fx5_vendetta_slash_b_bayonet, offset: [0.0, 0.55, 0.0]}
   - {id: pt_fx5_vendetta_slash_b_bayonet_0_2p1_0, kind: point, parent: fx5_vendetta_slash_b_bayonet, offset: [0.0, 2.1, 0.0]}
   - {id: fx6_vendetta_thrust_flash, kind: body, parent: world}
@@ -42,8 +42,8 @@ frames:
   - {id: fx8_vendetta_slash_a, kind: body, parent: world}
   - {id: fx8_vendetta_slash_a_contact_at, kind: body, parent: fx8_vendetta_slash_a}
   - {id: fx8_vendetta_slash_a_petals_at, kind: body, parent: fx8_vendetta_slash_a}
-  - {id: fx8_vendetta_slash_a_bayonet, kind: body, parent: caster}
-  - {id: fx8_vendetta_slash_a_bayonet_parts, kind: body, parent: caster}
+  - {id: fx8_vendetta_slash_a_bayonet, kind: body, parent: caster, passenger: false}
+  - {id: fx8_vendetta_slash_a_bayonet_parts, kind: body, parent: caster, passenger: false}
   - {id: pt_fx8_vendetta_slash_a_bayonet_0_0p55_0, kind: point, parent: fx8_vendetta_slash_a_bayonet, offset: [0.0, 0.55, 0.0]}
   - {id: pt_fx8_vendetta_slash_a_bayonet_0_2p1_0, kind: point, parent: fx8_vendetta_slash_a_bayonet, offset: [0.0, 2.1, 0.0]}
   - {id: fx9_vendetta_thrust_flash, kind: body, parent: world}
@@ -57,8 +57,8 @@ frames:
   - {id: fx11_vendetta_slash_b, kind: body, parent: world}
   - {id: fx11_vendetta_slash_b_contact_at, kind: body, parent: fx11_vendetta_slash_b}
   - {id: fx11_vendetta_slash_b_petals_at, kind: body, parent: fx11_vendetta_slash_b}
-  - {id: fx11_vendetta_slash_b_bayonet, kind: body, parent: caster}
-  - {id: fx11_vendetta_slash_b_bayonet_parts, kind: body, parent: caster}
+  - {id: fx11_vendetta_slash_b_bayonet, kind: body, parent: caster, passenger: false}
+  - {id: fx11_vendetta_slash_b_bayonet_parts, kind: body, parent: caster, passenger: false}
   - {id: pt_fx11_vendetta_slash_b_bayonet_0_0p55_0, kind: point, parent: fx11_vendetta_slash_b_bayonet, offset: [0.0, 0.55, 0.0]}
   - {id: pt_fx11_vendetta_slash_b_bayonet_0_2p1_0, kind: point, parent: fx11_vendetta_slash_b_bayonet, offset: [0.0, 2.1, 0.0]}
   - {id: fx12_vendetta_thrust_flash, kind: body, parent: world}
@@ -72,8 +72,8 @@ frames:
   - {id: fx14_vendetta_slash_a, kind: body, parent: world}
   - {id: fx14_vendetta_slash_a_contact_at, kind: body, parent: fx14_vendetta_slash_a}
   - {id: fx14_vendetta_slash_a_petals_at, kind: body, parent: fx14_vendetta_slash_a}
-  - {id: fx14_vendetta_slash_a_bayonet, kind: body, parent: caster}
-  - {id: fx14_vendetta_slash_a_bayonet_parts, kind: body, parent: caster}
+  - {id: fx14_vendetta_slash_a_bayonet, kind: body, parent: caster, passenger: false}
+  - {id: fx14_vendetta_slash_a_bayonet_parts, kind: body, parent: caster, passenger: false}
   - {id: pt_fx14_vendetta_slash_a_bayonet_0_0p55_0, kind: point, parent: fx14_vendetta_slash_a_bayonet, offset: [0.0, 0.55, 0.0]}
   - {id: pt_fx14_vendetta_slash_a_bayonet_0_2p1_0, kind: point, parent: fx14_vendetta_slash_a_bayonet, offset: [0.0, 2.1, 0.0]}
   - {id: fx15_vendetta_thrust_flash, kind: body, parent: world}
