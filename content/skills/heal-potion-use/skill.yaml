@@ -1,4 +1,3 @@
-# Wave 2 v3 draft (basic-ac): ported 1:1 from the v2 skill.yaml + look.yaml. GAP comments mark what v3 cannot spell yet.
 apiVersion: astera/v3
 kind: Skill
 id: heal-potion-use
@@ -12,17 +11,17 @@ meta:
 params:
   heal: {type: number, default: 40.0}
 anchors:
-  - {id: body, anchor: caster, offset: {up: 1.0}}                                  # was pt_caster_0_1_0
+  - {id: body, anchor: caster, offset: {up: 1.0}}   # was pt_caster_0_1_0
 machine:
   start: use
   states:
     use:
       for: 1
       then: end
-      enter:
-        - {id: consume, op: consume_item, target: caster, item: heal-potion, count: 1}
-        - {id: heal, op: heal, target: caster, amount: "= heal"}
-        - {id: snd_drink, op: sound, sound: entity.generic.drink, anchor: caster, volume: 1.0, pitch: 1.0}
-        - {id: snd_chime, op: sound, sound: block.amethyst_block.chime, anchor: caster, volume: 0.7, pitch: 1.3}
-        - {id: fx_heal, op: particle_def, def: verdant-heal, anchor: body}
+      do:
+        - {id: consume, op: consume_item, at: 0, target: caster, item: heal-potion, count: 1}
+        - {id: heal, op: heal, at: 0, target: caster, amount: "${heal}"}
+        - {id: snd_drink, op: sound, at: 0, sound: entity.generic.drink, anchor: caster, volume: 1.0, pitch: 1.0}
+        - {id: snd_chime, op: sound, at: 0, sound: block.amethyst_block.chime, anchor: caster, volume: 0.7, pitch: 1.3}
+        - {id: fx_heal, op: particle_def, at: 0, def: verdant-heal, anchor: body}
     end: {final: true}

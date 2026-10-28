@@ -16,39 +16,21 @@ params:
 anchors:
   - {id: muzzle, anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}
   - {id: fx, anchor: caster.eye, offset: {forward: 0.9, up: -0.25}}
-presentation:
-  timeline:
-    - id: cast
-      at: 0
-      do:
-        - {id: snd, op: sound, sound: "astera:skill/wand/cast", anchor: caster, volume: 0.8, pitch: 1.2}
-        - {id: fx1, op: emit, effect: fire-cast, anchor: fx}
-    - id: trail
-      at: 0
-      every: 1
-      until: bolt.end
-      do:
-        - {id: t1, op: particle, particle: flame, anchor: {of: bolt, sweep: 0.4}, count: 1, offset: [0.04, 0.04, 0.04], extra: 0}
-        - {id: t2, op: particle, particle: dust, anchor: {of: bolt, sweep: 0.4}, count: 1, offset: [0, 0, 0], extra: 0, color: "#ff7814", size: 1.0}
-  "on":
-    hit:
-      - {id: snd_hit, op: sound, sound: "astera:skills/fire-impact", anchor: contact, volume: 0.7, pitch: 1.2}
-      - {id: spark, op: emit, effect: hit-spark, anchor: contact}
-    block:
-      - {id: snd_blk, op: sound, sound: "astera:weapons/gun-impact-block", anchor: contact.point, volume: 0.5, pitch: 1.5}
-      - {id: spark_b, op: emit, effect: hit-spark, anchor: contact.point}
+  - {id: heart, anchor: victim, offset: {up: 1.2}}   # was pt_enemy_0_1p2_0 (GAP(Q2): v2 enemy frame origin vs v3 victim anchors)
 machine:
   start: cast
   states:
     cast:
       for: 46
-      then: done
-      enter:
+      then: end
+      on:
+        - {event: bolt.end, to: end}
+      do:
         - id: bolt
           op: projectile
+          at: 0
           origin: muzzle
           velocity: "= look(caster) * ${launch_speed}"
-          speed: "${launch_speed}"
           for: "${max_lifetime_ticks}"
           radius: 0.5
           hit: {targets: enemies, once: true}
@@ -57,4 +39,13 @@ machine:
             hit:
               - {id: dmg, op: damage, target: event.victim, damage: {fire: "${dmg_fire}"}}
               - {id: burn, op: status, target: event.victim, status: burn, stacks: 1, for: "${burn_ticks}", when: "= rand() < 0.5"}
-    done: {final: true}
+              - {id: snd_hit, op: sound, sound: "astera:skills/fire-impact", anchor: contact.point, volume: 0.7, pitch: 1.2}
+              - {id: spark, op: particle_def, def: hit-spark, anchor: heart}
+            block:
+              - {id: snd_blk, op: sound, sound: "astera:weapons/gun-impact-block", anchor: contact.point, volume: 0.5, pitch: 1.5}
+              - {id: spark_b, op: particle_def, def: hit-spark, anchor: contact.point}
+        - {id: snd, op: sound, at: 0, sound: "astera:skill/wand/cast", anchor: caster, volume: 0.8, pitch: 1.2}
+        - {id: fx1, op: particle_def, at: 0, def: fire-cast, anchor: fx}
+        - {id: t1, op: particle, particle: flame, anchor: {of: bolt, sweep: 0.4}, count: 1, offset: [0.04, 0.04, 0.04], extra: 0, at: 0, every: 1, until: bolt.end}
+        - {id: t2, op: particle, particle: dust, anchor: {of: bolt, sweep: 0.4}, count: 1, offset: [0, 0, 0], extra: 0, color: "#ff7814", size: 1.0, at: 0, every: 1, until: bolt.end}
+    end: {final: true}
