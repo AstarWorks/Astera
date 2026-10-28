@@ -225,7 +225,7 @@ class PresentationOpsScenarioTest {
     private val lookOnlyHost: com.astarworks.astera.core.application.skillengine.runtime.OpHost = java.lang.reflect.Proxy.newProxyInstance(
         com.astarworks.astera.core.application.skillengine.runtime.OpHost::class.java.classLoader,
         arrayOf(com.astarworks.astera.core.application.skillengine.runtime.OpHost::class.java),
-    ) { _, m, _ -> if (m.name == "lookDirection") Vec3(0.0, 0.0, 1.0) else error("this scenario never reaches the cast host (${m.name})") } as com.astarworks.astera.core.application.skillengine.runtime.OpHost
+    ) { _, m, args -> if (m.name == "lookDirection") Vec3(0.0, 0.0, 1.0) else if (m.name == "withSample") (args[1] as () -> Unit).invoke() else error("this scenario never reaches the cast host (${m.name})") } as com.astarworks.astera.core.application.skillengine.runtime.OpHost
 
     private val ctx = object : OpContext {
         override val host: com.astarworks.astera.core.application.skillengine.runtime.OpHost get() = lookOnlyHost

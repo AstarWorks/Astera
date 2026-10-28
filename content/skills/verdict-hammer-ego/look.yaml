@@ -605,7 +605,7 @@ presentation:
           data: "#ffdc6e"
           data_size: 1.2
           times: 16
-          shift: "= vec(0.5*sin((3.6112 + 6.283185307179586*i/16)), 0.0, 0.5*cos((3.6112 + 6.283185307179586*i/16)))"
+          shift: "= vec(0, 1, 0)*0 + vec(1, 0, -0)*(0.5*cos((draw('shape_ph')*6.283185307179586 + 6.283185307179586*i/16))) + vec(-0, 0, -1)*(0.5*sin((draw('shape_ph')*6.283185307179586 + 6.283185307179586*i/16)))"
     - id: fx72
       at: 72
       do:
@@ -641,7 +641,7 @@ presentation:
           data: "#ffdc6e"
           data_size: 1.2
           times: 16
-          shift: "= vec(1.56*sin((3.6112 + 6.283185307179586*i/16)), 0.0, 1.56*cos((3.6112 + 6.283185307179586*i/16)))"
+          shift: "= vec(0, 1, 0)*0 + vec(1, 0, -0)*(1.56*cos((draw('shape_ph')*6.283185307179586 + 6.283185307179586*i/16))) + vec(-0, 0, -1)*(1.56*sin((draw('shape_ph')*6.283185307179586 + 6.283185307179586*i/16)))"
     - id: fx73
       at: 73
       do:
@@ -653,7 +653,7 @@ presentation:
           data: "#ffdc6e"
           data_size: 1.2
           times: 16
-          shift: "= vec(2.62*sin((3.6112 + 6.283185307179586*i/16)), 0.0, 2.62*cos((3.6112 + 6.283185307179586*i/16)))"
+          shift: "= vec(0, 1, 0)*0 + vec(1, 0, -0)*(2.62*cos((draw('shape_ph')*6.283185307179586 + 6.283185307179586*i/16))) + vec(-0, 0, -1)*(2.62*sin((draw('shape_ph')*6.283185307179586 + 6.283185307179586*i/16)))"
     - id: fx74
       at: 74
       do:
@@ -665,7 +665,7 @@ presentation:
           data: "#ffdc6e"
           data_size: 1.2
           times: 16
-          shift: "= vec(3.68*sin((3.6112 + 6.283185307179586*i/16)), 0.0, 3.68*cos((3.6112 + 6.283185307179586*i/16)))"
+          shift: "= vec(0, 1, 0)*0 + vec(1, 0, -0)*(3.68*cos((draw('shape_ph')*6.283185307179586 + 6.283185307179586*i/16))) + vec(-0, 0, -1)*(3.68*sin((draw('shape_ph')*6.283185307179586 + 6.283185307179586*i/16)))"
     - id: fx75
       at: 75
       do:
@@ -677,7 +677,7 @@ presentation:
           data: "#ffdc6e"
           data_size: 1.2
           times: 16
-          shift: "= vec(4.74*sin((3.6112 + 6.283185307179586*i/16)), 0.0, 4.74*cos((3.6112 + 6.283185307179586*i/16)))"
+          shift: "= vec(0, 1, 0)*0 + vec(1, 0, -0)*(4.74*cos((draw('shape_ph')*6.283185307179586 + 6.283185307179586*i/16))) + vec(-0, 0, -1)*(4.74*sin((draw('shape_ph')*6.283185307179586 + 6.283185307179586*i/16)))"
     - id: fx76
       at: 76
       do:
@@ -689,7 +689,7 @@ presentation:
           data: "#ffdc6e"
           data_size: 1.2
           times: 16
-          shift: "= vec(5.8*sin((3.6112 + 6.283185307179586*i/16)), 0.0, 5.8*cos((3.6112 + 6.283185307179586*i/16)))"
+          shift: "= vec(0, 1, 0)*0 + vec(1, 0, -0)*(5.8*cos((draw('shape_ph')*6.283185307179586 + 6.283185307179586*i/16))) + vec(-0, 0, -1)*(5.8*sin((draw('shape_ph')*6.283185307179586 + 6.283185307179586*i/16)))"
     - {id: fx80, at: 80, do: [{id: rm_2, op: remove, ids: [fx2_verdict_impact_bloom]}]}
     - {id: fx81, at: 81, do: [{id: rm_3, op: remove, ids: [fx2_verdict_impact_star]}]}
     - {id: fx83, at: 83, do: [{id: rm_4, op: remove, ids: [fx2_verdict_impact_dark0, fx2_verdict_impact_dark1, fx2_verdict_impact_dark2]}]}
@@ -903,7 +903,7 @@ presentation:
           data: "#ffdc6e"
           data_size: 1.2
           times: 16
-          shift: "= vec(0.5*sin((3.6213 + 6.283185307179586*i/16)), 0.0, 0.5*cos((3.6213 + 6.283185307179586*i/16)))"
+          shift: "= vec(0, 1, 0)*0 + vec(1, 0, -0)*(0.5*cos((draw('shape_2_ph')*6.283185307179586 + 6.283185307179586*i/16))) + vec(-0, 0, -1)*(0.5*sin((draw('shape_2_ph')*6.283185307179586 + 6.283185307179586*i/16)))"
     - id: fx103
       at: 103
       do:
@@ -939,7 +939,7 @@ presentation:
           data: "#ffdc6e"
           data_size: 1.2
           times: 16
-          shift: "= vec(1.56*sin((3.6213 + 6.283185307179586*i/16)), 0.0, 1.56*cos((3.6213 + 6.283185307179586*i/16)))"
+          shift: "= vec(0, 1, 0)*0 + vec(1, 0, -0)*(1.56*cos((draw('shape_2_ph')*6.283185307179586 + 6.283185307179586*i/16))) + vec(-0, 0, -1)*(1.56*sin((draw('shape_2_ph')*6.283185307179586 + 6.283185307179586*i/16)))"
     - id: fx104
       at: 104
       do:
@@ -951,7 +951,7 @@ presentation:
           data: "#ffdc6e"
           data_size: 1.2
           times: 16
-          shift: "= vec(2.62*sin((3.6213 + 6.283185307179586*i/16)), 0.0, 2.62*cos((3.6213 + 6.283185307179586*i/16)))"
+          shift: "= vec(0, 1, 0)*0 + vec(1, 0, -0)*(2.62*cos((draw('shape_2_ph')*6.283185307179586 + 6.283185307179586*i/16))) + vec(-0, 0, -1)*(2.62*sin((draw('shape_2_ph')*6.283185307179586 + 6.283185307179586*i/16)))"
     - id: fx105
       at: 105
       do:
@@ -963,7 +963,7 @@ presentation:
           data: "#ffdc6e"
           data_size: 1.2
           times: 16
-          shift: "= vec(3.68*sin((3.6213 + 6.283185307179586*i/16)), 0.0, 3.68*cos((3.6213 + 6.283185307179586*i/16)))"
+          shift: "= vec(0, 1, 0)*0 + vec(1, 0, -0)*(3.68*cos((draw('shape_2_ph')*6.283185307179586 + 6.283185307179586*i/16))) + vec(-0, 0, -1)*(3.68*sin((draw('shape_2_ph')*6.283185307179586 + 6.283185307179586*i/16)))"
     - id: fx106
       at: 106
       do:
@@ -975,7 +975,7 @@ presentation:
           data: "#ffdc6e"
           data_size: 1.2
           times: 16
-          shift: "= vec(4.74*sin((3.6213 + 6.283185307179586*i/16)), 0.0, 4.74*cos((3.6213 + 6.283185307179586*i/16)))"
+          shift: "= vec(0, 1, 0)*0 + vec(1, 0, -0)*(4.74*cos((draw('shape_2_ph')*6.283185307179586 + 6.283185307179586*i/16))) + vec(-0, 0, -1)*(4.74*sin((draw('shape_2_ph')*6.283185307179586 + 6.283185307179586*i/16)))"
     - id: fx107
       at: 107
       do:
@@ -987,7 +987,7 @@ presentation:
           data: "#ffdc6e"
           data_size: 1.2
           times: 16
-          shift: "= vec(5.8*sin((3.6213 + 6.283185307179586*i/16)), 0.0, 5.8*cos((3.6213 + 6.283185307179586*i/16)))"
+          shift: "= vec(0, 1, 0)*0 + vec(1, 0, -0)*(5.8*cos((draw('shape_2_ph')*6.283185307179586 + 6.283185307179586*i/16))) + vec(-0, 0, -1)*(5.8*sin((draw('shape_2_ph')*6.283185307179586 + 6.283185307179586*i/16)))"
     - {id: fx111, at: 111, do: [{id: rm_6, op: remove, ids: [fx4_verdict_impact_bloom]}]}
     - {id: fx112, at: 112, do: [{id: rm_7, op: remove, ids: [fx4_verdict_impact_star]}]}
     - {id: fx114, at: 114, do: [{id: rm_8, op: remove, ids: [fx4_verdict_impact_dark0, fx4_verdict_impact_dark1, fx4_verdict_impact_dark2]}]}
@@ -1201,7 +1201,7 @@ presentation:
           data: "#ffdc6e"
           data_size: 1.2
           times: 16
-          shift: "= vec(0.5*sin((2.0382 + 6.283185307179586*i/16)), 0.0, 0.5*cos((2.0382 + 6.283185307179586*i/16)))"
+          shift: "= vec(0, 1, 0)*0 + vec(1, 0, -0)*(0.5*cos((draw('shape_3_ph')*6.283185307179586 + 6.283185307179586*i/16))) + vec(-0, 0, -1)*(0.5*sin((draw('shape_3_ph')*6.283185307179586 + 6.283185307179586*i/16)))"
     - id: fx129
       at: 129
       do:
@@ -1237,7 +1237,7 @@ presentation:
           data: "#ffdc6e"
           data_size: 1.2
           times: 16
-          shift: "= vec(1.56*sin((2.0382 + 6.283185307179586*i/16)), 0.0, 1.56*cos((2.0382 + 6.283185307179586*i/16)))"
+          shift: "= vec(0, 1, 0)*0 + vec(1, 0, -0)*(1.56*cos((draw('shape_3_ph')*6.283185307179586 + 6.283185307179586*i/16))) + vec(-0, 0, -1)*(1.56*sin((draw('shape_3_ph')*6.283185307179586 + 6.283185307179586*i/16)))"
     - id: fx130
       at: 130
       do:
@@ -1249,7 +1249,7 @@ presentation:
           data: "#ffdc6e"
           data_size: 1.2
           times: 16
-          shift: "= vec(2.62*sin((2.0382 + 6.283185307179586*i/16)), 0.0, 2.62*cos((2.0382 + 6.283185307179586*i/16)))"
+          shift: "= vec(0, 1, 0)*0 + vec(1, 0, -0)*(2.62*cos((draw('shape_3_ph')*6.283185307179586 + 6.283185307179586*i/16))) + vec(-0, 0, -1)*(2.62*sin((draw('shape_3_ph')*6.283185307179586 + 6.283185307179586*i/16)))"
     - id: fx131
       at: 131
       do:
@@ -1261,7 +1261,7 @@ presentation:
           data: "#ffdc6e"
           data_size: 1.2
           times: 16
-          shift: "= vec(3.68*sin((2.0382 + 6.283185307179586*i/16)), 0.0, 3.68*cos((2.0382 + 6.283185307179586*i/16)))"
+          shift: "= vec(0, 1, 0)*0 + vec(1, 0, -0)*(3.68*cos((draw('shape_3_ph')*6.283185307179586 + 6.283185307179586*i/16))) + vec(-0, 0, -1)*(3.68*sin((draw('shape_3_ph')*6.283185307179586 + 6.283185307179586*i/16)))"
     - id: fx132
       at: 132
       do:
@@ -1273,7 +1273,7 @@ presentation:
           data: "#ffdc6e"
           data_size: 1.2
           times: 16
-          shift: "= vec(4.74*sin((2.0382 + 6.283185307179586*i/16)), 0.0, 4.74*cos((2.0382 + 6.283185307179586*i/16)))"
+          shift: "= vec(0, 1, 0)*0 + vec(1, 0, -0)*(4.74*cos((draw('shape_3_ph')*6.283185307179586 + 6.283185307179586*i/16))) + vec(-0, 0, -1)*(4.74*sin((draw('shape_3_ph')*6.283185307179586 + 6.283185307179586*i/16)))"
     - id: fx133
       at: 133
       do:
@@ -1285,7 +1285,7 @@ presentation:
           data: "#ffdc6e"
           data_size: 1.2
           times: 16
-          shift: "= vec(5.8*sin((2.0382 + 6.283185307179586*i/16)), 0.0, 5.8*cos((2.0382 + 6.283185307179586*i/16)))"
+          shift: "= vec(0, 1, 0)*0 + vec(1, 0, -0)*(5.8*cos((draw('shape_3_ph')*6.283185307179586 + 6.283185307179586*i/16))) + vec(-0, 0, -1)*(5.8*sin((draw('shape_3_ph')*6.283185307179586 + 6.283185307179586*i/16)))"
     - {id: fx137, at: 137, do: [{id: rm_10, op: remove, ids: [fx6_verdict_impact_bloom]}]}
     - {id: fx138, at: 138, do: [{id: rm_11, op: remove, ids: [fx6_verdict_impact_star]}]}
     - {id: fx140, at: 140, do: [{id: rm_12, op: remove, ids: [fx6_verdict_impact_dark0, fx6_verdict_impact_dark1, fx6_verdict_impact_dark2]}]}
@@ -1501,7 +1501,7 @@ presentation:
           data: "#ffdc6e"
           data_size: 1.2
           times: 16
-          shift: "= vec(0.5*sin((4.8493 + 6.283185307179586*i/16)), 0.0, 0.5*cos((4.8493 + 6.283185307179586*i/16)))"
+          shift: "= vec(0, 1, 0)*0 + vec(1, 0, -0)*(0.5*cos((draw('shape_4_ph')*6.283185307179586 + 6.283185307179586*i/16))) + vec(-0, 0, -1)*(0.5*sin((draw('shape_4_ph')*6.283185307179586 + 6.283185307179586*i/16)))"
     - id: fx192
       at: 192
       do:
@@ -1537,7 +1537,7 @@ presentation:
           data: "#ffdc6e"
           data_size: 1.2
           times: 16
-          shift: "= vec(1.56*sin((4.8493 + 6.283185307179586*i/16)), 0.0, 1.56*cos((4.8493 + 6.283185307179586*i/16)))"
+          shift: "= vec(0, 1, 0)*0 + vec(1, 0, -0)*(1.56*cos((draw('shape_4_ph')*6.283185307179586 + 6.283185307179586*i/16))) + vec(-0, 0, -1)*(1.56*sin((draw('shape_4_ph')*6.283185307179586 + 6.283185307179586*i/16)))"
     - id: fx193
       at: 193
       do:
@@ -1549,7 +1549,7 @@ presentation:
           data: "#ffdc6e"
           data_size: 1.2
           times: 16
-          shift: "= vec(2.62*sin((4.8493 + 6.283185307179586*i/16)), 0.0, 2.62*cos((4.8493 + 6.283185307179586*i/16)))"
+          shift: "= vec(0, 1, 0)*0 + vec(1, 0, -0)*(2.62*cos((draw('shape_4_ph')*6.283185307179586 + 6.283185307179586*i/16))) + vec(-0, 0, -1)*(2.62*sin((draw('shape_4_ph')*6.283185307179586 + 6.283185307179586*i/16)))"
     - id: fx194
       at: 194
       do:
@@ -1561,7 +1561,7 @@ presentation:
           data: "#ffdc6e"
           data_size: 1.2
           times: 16
-          shift: "= vec(3.68*sin((4.8493 + 6.283185307179586*i/16)), 0.0, 3.68*cos((4.8493 + 6.283185307179586*i/16)))"
+          shift: "= vec(0, 1, 0)*0 + vec(1, 0, -0)*(3.68*cos((draw('shape_4_ph')*6.283185307179586 + 6.283185307179586*i/16))) + vec(-0, 0, -1)*(3.68*sin((draw('shape_4_ph')*6.283185307179586 + 6.283185307179586*i/16)))"
     - id: fx195
       at: 195
       do:
@@ -1573,7 +1573,7 @@ presentation:
           data: "#ffdc6e"
           data_size: 1.2
           times: 16
-          shift: "= vec(4.74*sin((4.8493 + 6.283185307179586*i/16)), 0.0, 4.74*cos((4.8493 + 6.283185307179586*i/16)))"
+          shift: "= vec(0, 1, 0)*0 + vec(1, 0, -0)*(4.74*cos((draw('shape_4_ph')*6.283185307179586 + 6.283185307179586*i/16))) + vec(-0, 0, -1)*(4.74*sin((draw('shape_4_ph')*6.283185307179586 + 6.283185307179586*i/16)))"
     - id: fx196
       at: 196
       do:
@@ -1585,7 +1585,7 @@ presentation:
           data: "#ffdc6e"
           data_size: 1.2
           times: 16
-          shift: "= vec(5.8*sin((4.8493 + 6.283185307179586*i/16)), 0.0, 5.8*cos((4.8493 + 6.283185307179586*i/16)))"
+          shift: "= vec(0, 1, 0)*0 + vec(1, 0, -0)*(5.8*cos((draw('shape_4_ph')*6.283185307179586 + 6.283185307179586*i/16))) + vec(-0, 0, -1)*(5.8*sin((draw('shape_4_ph')*6.283185307179586 + 6.283185307179586*i/16)))"
     - {id: fx200, at: 200, do: [{id: rm_14, op: remove, ids: [fx8_verdict_impact_bloom]}]}
     - {id: fx201, at: 201, do: [{id: rm_15, op: remove, ids: [fx8_verdict_impact_star]}]}
     - {id: fx203, at: 203, do: [{id: rm_16, op: remove, ids: [fx8_verdict_impact_dark0, fx8_verdict_impact_dark1, fx8_verdict_impact_dark2]}]}

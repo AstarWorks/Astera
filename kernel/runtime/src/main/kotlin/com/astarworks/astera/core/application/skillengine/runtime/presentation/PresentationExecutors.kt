@@ -176,7 +176,6 @@ internal class EmitExecutor(private val rt: PresentationRuntime) : OpExecutor<Fx
 
     private fun emitOnce(op: FxOp.Emit, ctx: OpContext, s: PresentationRuntime.CastState) {
         val base = rt.pointWorld(s, op.at) ?: return ctx.host.fail(op.id, "emit: point '${op.at}' does not resolve")
-        val at = op.shift?.let { sh -> rt.frameWorld(s, op.at.frame)?.let { base + it.directionToWorld(ctx.values.vec3(sh)) } } ?: base
         val inherit = op.inheritVelocity?.let { ctx.values.num(it) }
         val count = op.count?.let { ctx.values.num(it).roundToInt().coerceAtLeast(0) }
         val dir = op.dir?.let { ctx.values.vec3(it) }
@@ -186,7 +185,6 @@ internal class EmitExecutor(private val rt: PresentationRuntime) : OpExecutor<Fx
         val colorHex = op.data?.let { ctx.values.text(it) }
         val dataSize = op.dataSize?.let { ctx.values.num(it) }
         val seed = ctx.cast.value * 31L + (op.seed ?: op.id).hashCode().toLong()
-        val offset = op.offset?.let { ctx.values.vec3(it) } ?: Vec3(0.0, 0.0, 0.0)
         val look = ctx.host.lookDirection()
         val spacing = op.spacing?.let { ctx.values.num(it) } ?: 0.0
         val sweep = if (spacing > 0.0) rt.velocityOf(s, op.at.frame) else Vec3(0.0, 0.0, 0.0)
@@ -194,14 +192,19 @@ internal class EmitExecutor(private val rt: PresentationRuntime) : OpExecutor<Fx
         // One play per `spacing` blocks along the segment covered since the last tick, ending at `at`.
         val steps = if (distance > spacing && spacing > 0.0) kotlin.math.ceil(distance / spacing).toInt() else 1
         for (i in 1..steps) {
-            val where = if (steps == 1) at else at - sweep * (1.0 - i.toDouble() / steps)
-            ctx.ports.particles.emit(
-                ParticleBurst(
-                    particle = op.particle, at = where, count = count, offset = offset, speed = speed,
-                    colorHex = colorHex, dataSize = dataSize, dir = dir, spreadDeg = spreadDeg,
-                    inheritVelocity = inheritVelocity, look = look, seed = seed + (i - 1),
-                ),
-            )
+            // shift / offset are evaluated per play (v1 re-planned its shape per sample), so `rand` re-rolls per sample
+            ctx.host.withSample(i - 1) {
+                val at = op.shift?.let { sh -> rt.frameWorld(s, op.at.frame)?.let { base + it.directionToWorld(ctx.values.vec3(sh)) } } ?: base
+                val offset = op.offset?.let { ctx.values.vec3(it) } ?: Vec3(0.0, 0.0, 0.0)
+                val where = if (steps == 1) at else at - sweep * (1.0 - i.toDouble() / steps)
+                ctx.ports.particles.emit(
+                    ParticleBurst(
+                        particle = op.particle, at = where, count = count, offset = offset, speed = speed,
+                        colorHex = colorHex, dataSize = dataSize, dir = dir, spreadDeg = spreadDeg,
+                        inheritVelocity = inheritVelocity, look = look, seed = seed + (i - 1),
+                    ),
+                )
+            }
         }
     }
 }
