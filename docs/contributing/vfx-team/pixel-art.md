@@ -6,7 +6,7 @@ Reference for the pixel-artist helper (`.claude/agents/pixel-artist.md`): effect
 
 - `content/textures/sources/sprites.yaml` entries (the source of truth) and the generated outputs `content/textures/generated/sprites/<id>.png`, `content/fonts/vfx/<id>.json`, `content/sprites/<id>.yaml` (never hand-edit generated files).
 - Painters: `tools/item-art/src/main/kotlin/com/astarworks/astera/itemart/` (`Painters.kt`, `ParticlePainters.kt`, `PersonaPainters.kt`, `ParticleSkinPainters.kt`); converter `PixelConverter.kt`; sheet specs `tools/item-art/sheets/`; helper scripts `tools/item-art/scripts/`.
-- Item icons and tooltip art through the same tool (`Icons.kt`, `TooltipArt.kt`).
+- Item icons and tooltip art through the same tool (`Icons.kt`; tooltip frames: `tools/item-art/scripts/tooltip-frames.py`).
 - Not yours: skill YAML, vfx composites (`content/vfx`), models, sounds, rig keys. Hand ids and usage notes to the author.
 
 ## Limits

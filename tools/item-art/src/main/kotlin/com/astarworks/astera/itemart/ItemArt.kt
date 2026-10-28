@@ -202,7 +202,6 @@ internal object ItemArt {
         files.putAll(BlockArt.renderAll(contentDir))
         files.putAll(SpriteSources.renderAll(contentDir))
         files.putAll(ParticleSkins.renderAll(contentDir))
-        files.putAll(TooltipArt.renderAll(contentDir))
         return files
     }
 

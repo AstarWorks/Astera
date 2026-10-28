@@ -16,7 +16,6 @@ import kotlin.system.exitProcess
  *  - `write <contentDir> <previewPng>`  regenerate the committed art + the contact sheet
  *  - `write-sources <contentDir> <source>...` regenerate only texture PNGs from selected item sheets
  *  - `check <contentDir>`               fail when the committed art is stale
- *  - `tooltips <contentDir> <previewPng>` regenerate only rarity tooltip sprites and their preview
  *  - `convert <image> <outDir> [colors]`  convert one raster with every stage dumped (ADR-0238 tuning aid)
  */
 public fun main(args: Array<String>) {
@@ -43,17 +42,6 @@ public fun main(args: Array<String>) {
             for ((id, image) in icons) ImageIO.write(image, "png", dir.resolve("$id.png").toFile())
             println("item art: ${icons.size} icons from $selected")
         }
-        "tooltips" -> {
-            require(args.size == 3) { "usage: tooltips <contentDir> <previewPng>" }
-            val content = Path(args[1])
-            for ((rel, bytes) in TooltipArt.renderAll(content)) {
-                val file = content.resolve(rel)
-                Files.createDirectories(file.parent)
-                Files.write(file, bytes)
-            }
-            TooltipArt.preview(content, Path(args[2]))
-            println("tooltip art: ${args[2]}")
-        }
         "write" -> {
             require(args.size in 3..4) { "usage: write <contentDir> <previewPng> [<iconPreviewPng>]" }
             val content = Path(args[1])
@@ -62,7 +50,6 @@ public fun main(args: Array<String>) {
             writeSourcesPreview(content, Path(args[2]).resolveSibling("item-art-sources-preview.png"))
             writeSpritePreview(content, Path(args[2]).resolveSibling("sprite-preview.png"))
             writeParticleSkinPreview(content, Path(args[2]).resolveSibling("particle-skin-preview.png"))
-            TooltipArt.preview(content, Path(args[2]).resolveSibling("tooltip-preview.png"))
             if (args.size > 3) writeIconPreview(content, Path(args[3]))
             println("item art: $n files under $content, preview ${args[2]}")
         }
@@ -90,7 +77,7 @@ public fun main(args: Array<String>) {
             println("convert: ${st.palette.size} colours, stages under $out")
         }
         else -> {
-            System.err.println("usage: write <contentDir> <previewPng> | write-sources <contentDir> <source>... | tooltips <contentDir> <previewPng> | check <contentDir> | convert <image> <outDir> [colors]")
+            System.err.println("usage: write <contentDir> <previewPng> | write-sources <contentDir> <source>... | check <contentDir> | convert <image> <outDir> [colors]")
             exitProcess(2)
         }
     }
