@@ -1,17 +1,14 @@
 # Converted from content/skills/sigil-rifle-s3.yaml + content/vfx/* by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
 # Generated point-frame offsets are [left, up, forward] in the parent frame.
 # CONVERT-PRESENT vfx frame orient (frames carry no orientation / scale) (x4): orient="yaw"
-# CONVERT-PRESENT rig respect_hit_stop / weapon points (x1): {"respect_hit_stop": false}
-# CONVERT-PRESENT rig block parts (mesh takes an item model, not a block + size) (x1): 5 parts
-# CONVERT-PRESENT rig swing without a weapon mesh (track needs a visual to move) (x1): 23 keys
 # CONVERT-PRESENT vfx follow=false (anchored at world, no place-at-spawn) (x3): sigil-rifle-shot | sigil-rifle-detonate
-# CONVERT-PRESENT area target used only by presentation ops (no damaging hit volume to attach them to) (x1): sel: 25 presentation op(s) dropped
 apiVersion: "astera/v2"
 kind: Skill
 id: sigil-rifle-s3
 frames:
   - {id: fx1_sigil_rifle_s3_rig, kind: body, parent: caster}
-  - {id: fx1_sigil_rifle_s3_rig_rifle, kind: body, parent: caster.right_hand}
+  - {id: fx1_sigil_rifle_s3_rig_rifle_at, kind: body, parent: caster.right_hand}
+  - {id: fx1_sigil_rifle_s3_rig_rifle, kind: body, parent: fx1_sigil_rifle_s3_rig_rifle_at}
   - {id: pt_fx1_sigil_rifle_s3_rig_rifle_0_0p55_0, kind: point, parent: fx1_sigil_rifle_s3_rig_rifle, offset: [0.0, 0.55, 0.0]}
   - {id: pt_fx1_sigil_rifle_s3_rig_rifle_0_1p65_0, kind: point, parent: fx1_sigil_rifle_s3_rig_rifle, offset: [0.0, 1.65, 0.0]}
   - {id: fx2_sigil_rifle_shot, kind: body, parent: world}
@@ -19,6 +16,150 @@ frames:
   - {id: fx4_sigil_rifle_mark, kind: body, parent: world}
 presentation:
   timeline:
+    - id: fx0
+      at: 0
+      do:
+        - id: fx1_sigil_rifle_s3_rig_rifle_rig
+          op: rig
+          frame: fx1_sigil_rifle_s3_rig_rifle
+          parent: fx1_sigil_rifle_s3_rig_rifle_at
+          duration: 126
+          hand: false
+          pivot: [1.000607, 0.277811, 0.24755]
+          rest: [90.0, 0.0, 0.0]
+          swing:
+            - {t: 0, rotate: [-90.0, 0.0, 0.0]}
+            - {t: 1, rotate: [-90.0, 0.0, 0.0], sample: true}
+            - {t: 2, rotate: [-90.0, 0.0, 0.0], sample: true}
+            - {t: 3, rotate: [-90.0, 0.0, 0.0], sample: true}
+            - {t: 4, rotate: [-90.0, 0.0, 0.0], sample: true}
+            - {t: 5, rotate: [-90.0, 0.0, 0.0], sample: true}
+            - {t: 6, rotate: [-90.0, 0.0, 0.0], sample: true}
+            - {t: 7, rotate: [-90.0, 0.0, 0.0], sample: true}
+            - {t: 8, rotate: [-90.0, 0.0, 0.0], sample: true}
+            - {t: 9, rotate: [-90.0, 0.0, 0.0], sample: true}
+            - {t: 10, rotate: [-90.0, 0.0, 0.0], sample: true}
+            - {t: 11, rotate: [-90.0, 0.0, 0.0], sample: true}
+            - {t: 12, rotate: [-90.0, 0.0, 0.0]}
+            - {t: 13, rotate: [-100.694444, 0.0, 0.0], sample: true}
+            - {t: 14, rotate: [-109.444444, 0.0, 0.0], sample: true}
+            - {t: 15, rotate: [-116.25, 0.0, 0.0], sample: true}
+            - {t: 16, rotate: [-121.111111, 0.0, 0.0], sample: true}
+            - {t: 17, rotate: [-124.027778, 0.0, 0.0], sample: true}
+            - {t: 18, rotate: [-125.0, 0.0, 0.0]}
+            - {t: 19, rotate: [-80.0, 0.0, 0.0], sample: true}
+            - {t: 20, rotate: [-45.0, 0.0, 0.0], sample: true}
+            - {t: 21, rotate: [-20.0, 0.0, 0.0], sample: true}
+            - {t: 22, rotate: [-5.0, 0.0, 0.0], sample: true}
+            - {t: 23, rotate: [0.0, 0.0, 0.0]}
+            - {t: 24, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 25, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 26, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 27, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 28, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 29, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 30, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 31, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 32, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 33, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 34, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 35, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 36, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 37, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 38, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 39, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 40, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 41, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 42, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 43, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 44, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 45, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 46, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 47, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 48, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 49, rotate: [0.0, 0.0, 0.0]}
+            - {t: 50, rotate: [-12.0, 0.0, 0.0], sample: true}
+            - {t: 51, rotate: [-16.0, 0.0, 0.0]}
+            - {t: 52, rotate: [-11.111111, 0.0, 0.0], sample: true}
+            - {t: 53, rotate: [-7.111111, 0.0, 0.0], sample: true}
+            - {t: 54, rotate: [-4.0, 0.0, 0.0], sample: true}
+            - {t: 55, rotate: [-1.777778, 0.0, 0.0], sample: true}
+            - {t: 56, rotate: [-0.444444, 0.0, 0.0], sample: true}
+            - {t: 57, rotate: [0.0, 0.0, 0.0]}
+            - {t: 58, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 59, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 60, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 61, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 62, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 63, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 64, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 65, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 66, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 67, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 68, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 69, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 70, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 71, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 72, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 73, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 74, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 75, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 76, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 77, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 78, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 79, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 80, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 81, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 82, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 83, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 84, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 85, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 86, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 87, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 88, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 89, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 90, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 91, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 92, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 93, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 94, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 95, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 96, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 97, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 98, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 99, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 100, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 101, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 102, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 103, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 104, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 105, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 106, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 107, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 108, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 109, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 110, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 111, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 112, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 113, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 114, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 115, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 116, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 117, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 118, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 119, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 120, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 121, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 122, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 123, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 124, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 125, rotate: [0.0, 0.0, 0.0]}
+          sample_ticks: 1
+        - {id: fx1_sigil_rifle_s3_rig_rifle_stock, op: block, parent: fx1_sigil_rifle_s3_rig_rifle, block: black_concrete, size: [0.2, 0.7289, 0.25], at: [0.0, -0.2278, 0.0], brightness: 10}
+        - {id: fx1_sigil_rifle_s3_rig_rifle_receiver, op: block, parent: fx1_sigil_rifle_s3_rig_rifle, block: gray_concrete, size: [0.18, 0.6378, 0.18], at: [0.0, 0.3644, 0.0], brightness: 10}
+        - {id: fx1_sigil_rifle_s3_rig_rifle_barrel, op: block, parent: fx1_sigil_rifle_s3_rig_rifle, block: black_concrete, size: [0.09, 0.82, 0.09], at: [0.0, 1.0478, 0.0], brightness: 10}
+        - {id: fx1_sigil_rifle_s3_rig_rifle_rail, op: block, parent: fx1_sigil_rifle_s3_rig_rifle, block: light_gray_concrete, size: [0.025, 1.1844, 0.035], at: [-0.1, 0.7289, 0.0], brightness: 10}
+        - {id: fx1_sigil_rifle_s3_rig_rifle_sight, op: block, parent: fx1_sigil_rifle_s3_rig_rifle, block: black_concrete, size: [0.09, 0.0729, 0.1], at: [0.0, 1.4122, -0.09], brightness: 10}
     - id: fx18
       at: 18
       do:
@@ -82,20 +223,183 @@ presentation:
           keys:
             - {t: 0, offset: [0.0, 1.1, 1.8], scale: [0.065, 0.055, 1.9], turn: [0.0, 0.0, 0.0]}
             - {t: 7, scale: [0.0, 0.0, 1.6], ease: in_quad}
-    - {id: fx64, at: 64, do: [{id: rm_2, op: remove, ids: [fx2_sigil_rifle_shot_hot_thread]}]}
-    - {id: fx65, at: 65, do: [{id: rm_3, op: remove, ids: [fx2_sigil_rifle_shot_dark_underlay]}]}
-    - {id: fx68, at: 68, do: [{id: rm_4, op: remove, ids: [fx2_sigil_rifle_shot_red_core, fx2_sigil_rifle_shot_solid_impact_0, fx2_sigil_rifle_shot_solid_impact_1, fx2_sigil_rifle_shot_solid_impact_2]}]}
-    - {id: fx70, at: 70, do: [{id: rm_5, op: remove, ids: [fx2_sigil_rifle_shot_bloom]}]}
-    - {id: fxhit_2, at: "hit+2", do: []}
-    - {id: fxhit_4, at: "hit+4", do: []}
+    - {id: fx64, at: 64, do: [{id: rm_3, op: remove, ids: [fx2_sigil_rifle_shot_hot_thread]}]}
+    - {id: fx65, at: 65, do: [{id: rm_4, op: remove, ids: [fx2_sigil_rifle_shot_dark_underlay]}]}
+    - {id: fx68, at: 68, do: [{id: rm_5, op: remove, ids: [fx2_sigil_rifle_shot_red_core, fx2_sigil_rifle_shot_solid_impact_0, fx2_sigil_rifle_shot_solid_impact_1, fx2_sigil_rifle_shot_solid_impact_2]}]}
+    - {id: fx70, at: 70, do: [{id: rm_6, op: remove, ids: [fx2_sigil_rifle_shot_bloom]}]}
+    - id: fx126
+      at: 126
+      do:
+        - id: rm_2
+          op: remove
+          ids: [fx1_sigil_rifle_s3_rig_rifle_stock, fx1_sigil_rifle_s3_rig_rifle_receiver, fx1_sigil_rifle_s3_rig_rifle_barrel, fx1_sigil_rifle_s3_rig_rifle_rail, fx1_sigil_rifle_s3_rig_rifle_sight]
+    - id: fxhit_2
+      at: "hit+2"
+      do:
+        - op: block
+          parent: fx3_sigil_rifle_detonate
+          block: redstone_block
+          size: [1.0, 1.0, 1.0]
+          brightness: 15
+          at: "= [vec(-0.55702, 1.60997, 0.0), vec(-0.5491, 1.75748, 0.3195), vec(-0.39404, 1.96997, 0.55338), vec(-0.1334, 2.19051, 0.63899), vec(0.16298, 2.36001, 0.55338), vec(0.4157, 2.43303, 0.3195), vec(0.55702, 2.39003, 0.0), vec(0.5491, 2.24252, -0.3195), vec(0.39404, 2.03003, -0.55338), vec(0.1334, 1.80949, -0.63899), vec(-0.16298, 1.63999, -0.55338), vec(-0.4157, 1.56697, -0.3195)][int(i)]"
+          turn: "= [vec(-19.37168, -6.10787, 34.63944), vec(-27.85385, 22.67873, 28.62718), vec(-35.31276, 51.41296, 21.03763), vec(-41.65479, 80.01812, 11.7749), vec(-46.70867, 108.38954, 0.63953), vec(-50.18597, 136.36457, -12.71351), vec(-51.60235, 163.66174, -28.85798), vec(39.10316, -148.05208, 38.04684), vec(24.88897, -120.3199, 41.77744), vec(12.12412, -92.09182, 42.8902), vec(0.57358, -63.57059, 41.892), vec(-9.90137, -34.88062, 39.08518)][int(i)]"
+          times: 12
+          id: fx3_sigil_rifle_detonate_seal_1
+          when: "= event.source == 'sel'"
+        - id: fx3_sigil_rifle_detonate_seal_1_trk
+          op: track
+          target: fx3_sigil_rifle_detonate_seal_1
+          keys:
+            - {t: 0, scale: [0.06, 0.06, 0.36]}
+            - {t: 26, scale: [0.06, 0.06, 0.36]}
+            - {t: 42, scale: [0.0, 0.0, 0.0], ease: in_quad}
+          when: "= event.source == 'sel'"
+        - {op: block, parent: fx3_sigil_rifle_detonate, block: red_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx3_sigil_rifle_detonate_seal_spoke_1_0, when: "= event.source == 'sel'"}
+        - id: fx3_sigil_rifle_detonate_seal_spoke_1_0_trk
+          op: track
+          target: fx3_sigil_rifle_detonate_seal_spoke_1_0
+          keys:
+            - {t: 0, offset: [0.0, 2.135, -0.24], scale: [0.03, 0.03, 0.96], turn: [-60.0, 0.0, 0.0]}
+            - {t: 26, scale: [0.03, 0.03, 0.96]}
+            - {t: 42, scale: [0.0, 0.0, 0.0], ease: in_quad}
+          when: "= event.source == 'sel'"
+        - {op: block, parent: fx3_sigil_rifle_detonate, block: red_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx3_sigil_rifle_detonate_seal_spoke_1_1, when: "= event.source == 'sel'"}
+        - id: fx3_sigil_rifle_detonate_seal_spoke_1_1_trk
+          op: track
+          target: fx3_sigil_rifle_detonate_seal_spoke_1_1
+          keys:
+            - {t: 0, offset: [0.0, 2.135, 0.24], scale: [0.03, 0.03, 0.96], turn: [60.0, 0.0, 0.0]}
+            - {t: 26, scale: [0.03, 0.03, 0.96]}
+            - {t: 42, scale: [0.0, 0.0, 0.0], ease: in_quad}
+          when: "= event.source == 'sel'"
+        - {op: block, parent: fx3_sigil_rifle_detonate, block: red_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx3_sigil_rifle_detonate_seal_spoke_1_2, when: "= event.source == 'sel'"}
+        - id: fx3_sigil_rifle_detonate_seal_spoke_1_2_trk
+          op: track
+          target: fx3_sigil_rifle_detonate_seal_spoke_1_2
+          keys:
+            - {t: 0, offset: [0.0, 1.72, 0.0], scale: [0.03, 0.03, 0.96], turn: [0.0, 0.0, 0.0]}
+            - {t: 26, scale: [0.03, 0.03, 0.96]}
+            - {t: 42, scale: [0.0, 0.0, 0.0], ease: in_quad}
+          when: "= event.source == 'sel'"
+    - id: fxhit_4
+      at: "hit+4"
+      do:
+        - op: block
+          parent: fx3_sigil_rifle_detonate
+          block: redstone_block
+          size: [1.0, 1.0, 1.0]
+          brightness: 15
+          at: "= [vec(0.0, 0.42, 0.75), vec(-0.26046, 0.5111, 0.96855), vec(-0.45112, 0.76, 1.12854), vec(-0.52091, 1.1, 1.1871), vec(-0.45112, 1.44, 1.12854), vec(-0.26046, 1.6889, 0.96855), vec(0.0, 1.78, 0.75), vec(0.26046, 1.6889, 0.53145), vec(0.45112, 1.44, 0.37146), vec(0.52091, 1.1, 0.3129), vec(0.45112, 0.76, 0.37146), vec(0.26046, 0.5111, 0.53145)][int(i)]"
+          turn: "= [vec(-39.0405, -39.0405, 83.72263), vec(-58.09224, -15.69354, 69.23164), vec(-73.80044, 7.85218, 51.67562), vec(-85.99428, 31.29936, 31.29936), vec(-94.37039, 54.3354, 8.25634), vec(-98.45166, 76.58179, -17.35968), vec(-97.52453, 97.52453, -45.47643), vec(-90.54581, 116.40345, -75.97696), vec(70.27188, -122.04907, 100.35864), vec(37.88729, -104.09448, 104.09448), vec(8.90958, -83.73865, 101.83701), vec(-16.71149, -61.86037, 94.77558)][int(i)]"
+          times: 12
+          id: fx3_sigil_rifle_detonate_seal_2
+          when: "= event.source == 'sel'"
+        - id: fx3_sigil_rifle_detonate_seal_2_trk
+          op: track
+          target: fx3_sigil_rifle_detonate_seal_2
+          keys:
+            - {t: 0, scale: [0.06, 0.06, 0.36]}
+            - {t: 24, scale: [0.06, 0.06, 0.36]}
+            - {t: 40, scale: [0.0, 0.0, 0.0], ease: in_quad}
+          when: "= event.source == 'sel'"
+        - {op: block, parent: fx3_sigil_rifle_detonate, block: red_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx3_sigil_rifle_detonate_seal_spoke_2_0, when: "= event.source == 'sel'"}
+        - id: fx3_sigil_rifle_detonate_seal_spoke_2_0_trk
+          op: track
+          target: fx3_sigil_rifle_detonate_seal_spoke_2_0
+          keys:
+            - {t: 0, offset: [0.0, 1.235, 0.51], scale: [0.03, 0.03, 0.96], turn: [-60.0, 0.0, 0.0]}
+            - {t: 24, scale: [0.03, 0.03, 0.96]}
+            - {t: 40, scale: [0.0, 0.0, 0.0], ease: in_quad}
+          when: "= event.source == 'sel'"
+        - {op: block, parent: fx3_sigil_rifle_detonate, block: red_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx3_sigil_rifle_detonate_seal_spoke_2_1, when: "= event.source == 'sel'"}
+        - id: fx3_sigil_rifle_detonate_seal_spoke_2_1_trk
+          op: track
+          target: fx3_sigil_rifle_detonate_seal_spoke_2_1
+          keys:
+            - {t: 0, offset: [0.0, 1.235, 0.99], scale: [0.03, 0.03, 0.96], turn: [60.0, 0.0, 0.0]}
+            - {t: 24, scale: [0.03, 0.03, 0.96]}
+            - {t: 40, scale: [0.0, 0.0, 0.0], ease: in_quad}
+          when: "= event.source == 'sel'"
+        - {op: block, parent: fx3_sigil_rifle_detonate, block: red_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx3_sigil_rifle_detonate_seal_spoke_2_2, when: "= event.source == 'sel'"}
+        - id: fx3_sigil_rifle_detonate_seal_spoke_2_2_trk
+          op: track
+          target: fx3_sigil_rifle_detonate_seal_spoke_2_2
+          keys:
+            - {t: 0, offset: [0.0, 0.82, 0.75], scale: [0.03, 0.03, 0.96], turn: [0.0, 0.0, 0.0]}
+            - {t: 24, scale: [0.03, 0.03, 0.96]}
+            - {t: 40, scale: [0.0, 0.0, 0.0], ease: in_quad}
+          when: "= event.source == 'sel'"
     - id: fxhit_7
       at: "hit+7"
       do:
-        - {id: rm_7, op: remove, ids: [fx4_sigil_rifle_mark_solid_impact_0, fx4_sigil_rifle_mark_solid_impact_1, fx4_sigil_rifle_mark_solid_impact_2], when: "= event.source == 'sel_2'"}
-    - {id: fxhit_44, at: "hit+44", do: []}
+        - {id: rm_8, op: remove, ids: [fx4_sigil_rifle_mark_solid_impact_0, fx4_sigil_rifle_mark_solid_impact_1, fx4_sigil_rifle_mark_solid_impact_2], when: "= event.source == 'sel_2'"}
+    - id: fxhit_44
+      at: "hit+44"
+      do:
+        - id: rm_7
+          op: remove
+          ids:
+            - fx3_sigil_rifle_detonate_seal_0
+            - fx3_sigil_rifle_detonate_seal_1
+            - fx3_sigil_rifle_detonate_seal_2
+            - fx3_sigil_rifle_detonate_seal_spoke_0_0
+            - fx3_sigil_rifle_detonate_seal_spoke_0_1
+            - fx3_sigil_rifle_detonate_seal_spoke_0_2
+            - fx3_sigil_rifle_detonate_seal_spoke_1_0
+            - fx3_sigil_rifle_detonate_seal_spoke_1_1
+            - fx3_sigil_rifle_detonate_seal_spoke_1_2
+            - fx3_sigil_rifle_detonate_seal_spoke_2_0
+            - fx3_sigil_rifle_detonate_seal_spoke_2_1
+            - fx3_sigil_rifle_detonate_seal_spoke_2_2
+          when: "= event.source == 'sel'"
     - {id: loop1, at: 18, every: 1, for: 5, do: [{id: fx1_sigil_rifle_s3_rig_rifle_embers_18, op: emit, at: pt_fx1_sigil_rifle_s3_rig_rifle_0_1p65_0, particle: sigil-rifle-embers}]}
   "on":
     hit:
+      - op: block
+        parent: fx3_sigil_rifle_detonate
+        block: redstone_block
+        size: [1.0, 1.0, 1.0]
+        brightness: 15
+        at: "= [vec(0.0, 0.42, -0.75), vec(0.0, 0.5111, -0.41), vec(0.0, 0.76, -0.1611), vec(0.0, 1.1, -0.07), vec(0.0, 1.44, -0.1611), vec(0.0, 1.6889, -0.41), vec(0.0, 1.78, -0.75), vec(0.0, 1.6889, -1.09), vec(0.0, 1.44, -1.3389), vec(0.0, 1.1, -1.43), vec(0.0, 0.76, -1.3389), vec(0.0, 0.5111, -1.09)][int(i)]"
+        turn: "= [vec(0.0, 0.0, 90.0), vec(-23.51306, 23.51306, 87.75192), vec(-46.72376, 46.72376, 80.92793), vec(-69.28203, 69.28203, 69.28203), vec(-90.7287, 90.7287, 52.38224), vec(-110.40178, 110.40178, 29.58207), vec(127.27922, -127.27922, 0.0), vec(110.40178, -110.40178, 29.58207), vec(90.7287, -90.7287, 52.38224), vec(69.28203, -69.28203, 69.28203), vec(46.72376, -46.72376, 80.92793), vec(23.51306, -23.51306, 87.75192)][int(i)]"
+        times: 12
+        id: fx3_sigil_rifle_detonate_seal_0
+        when: "= event.source == 'sel'"
+      - id: fx3_sigil_rifle_detonate_seal_0_trk
+        op: track
+        target: fx3_sigil_rifle_detonate_seal_0
+        keys:
+          - {t: 0, scale: [0.06, 0.06, 0.36]}
+          - {t: 28, scale: [0.06, 0.06, 0.36]}
+          - {t: 44, scale: [0.0, 0.0, 0.0], ease: in_quad}
+        when: "= event.source == 'sel'"
+      - {op: block, parent: fx3_sigil_rifle_detonate, block: red_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx3_sigil_rifle_detonate_seal_spoke_0_0, when: "= event.source == 'sel'"}
+      - id: fx3_sigil_rifle_detonate_seal_spoke_0_0_trk
+        op: track
+        target: fx3_sigil_rifle_detonate_seal_spoke_0_0
+        keys:
+          - {t: 0, offset: [0.0, 1.235, -0.99], scale: [0.03, 0.03, 0.96], turn: [-60.0, 0.0, 0.0]}
+          - {t: 28, scale: [0.03, 0.03, 0.96]}
+          - {t: 44, scale: [0.0, 0.0, 0.0], ease: in_quad}
+        when: "= event.source == 'sel'"
+      - {op: block, parent: fx3_sigil_rifle_detonate, block: red_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx3_sigil_rifle_detonate_seal_spoke_0_1, when: "= event.source == 'sel'"}
+      - id: fx3_sigil_rifle_detonate_seal_spoke_0_1_trk
+        op: track
+        target: fx3_sigil_rifle_detonate_seal_spoke_0_1
+        keys:
+          - {t: 0, offset: [0.0, 1.235, -0.51], scale: [0.03, 0.03, 0.96], turn: [60.0, 0.0, 0.0]}
+          - {t: 28, scale: [0.03, 0.03, 0.96]}
+          - {t: 44, scale: [0.0, 0.0, 0.0], ease: in_quad}
+        when: "= event.source == 'sel'"
+      - {op: block, parent: fx3_sigil_rifle_detonate, block: red_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx3_sigil_rifle_detonate_seal_spoke_0_2, when: "= event.source == 'sel'"}
+      - id: fx3_sigil_rifle_detonate_seal_spoke_0_2_trk
+        op: track
+        target: fx3_sigil_rifle_detonate_seal_spoke_0_2
+        keys:
+          - {t: 0, offset: [0.0, 0.82, -0.75], scale: [0.03, 0.03, 0.96], turn: [0.0, 0.0, 0.0]}
+          - {t: 28, scale: [0.03, 0.03, 0.96]}
+          - {t: 44, scale: [0.0, 0.0, 0.0], ease: in_quad}
+        when: "= event.source == 'sel'"
       - {op: block, parent: fx4_sigil_rifle_mark, block: red_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx4_sigil_rifle_mark_solid_impact_0, when: "= event.source == 'sel_2'"}
       - id: fx4_sigil_rifle_mark_solid_impact_0_trk
         op: track
@@ -120,4 +424,4 @@ presentation:
           - {t: 0, offset: [0.0, 1.1, 0.0], scale: [0.065, 0.1, 1.9], turn: [0.0, 0.0, 0.0]}
           - {t: 7, scale: [0.0, 0.0, 1.6], ease: in_quad}
         when: "= event.source == 'sel_2'"
-      - {id: snd, op: sound, sound: entity.player.attack.strong, at: contact.point, volume: 0.7, pitch: 1.1, when: "= event.source == 'sel_2'"}
+      - {id: snd, op: sound, sound: entity.player.attack.strong, at: enemy, volume: 0.7, pitch: 1.1, when: "= event.source == 'sel_2'"}

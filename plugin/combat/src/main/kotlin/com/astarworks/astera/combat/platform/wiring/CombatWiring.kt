@@ -92,6 +92,8 @@ public class CombatWiringResult(
     public val skillGate: SkillMetaRegistry,
     /** The v2 skill catalog (ADR-0301), loaded from `content/skills` at install; the Paper runtime casts from it. */
     public val skillCatalog: com.astarworks.astera.core.application.skillengine.load.SkillCatalog,
+    /** Reloads `content/skills`; the Paper runtime calls it once the block registries exist so skills that named a custom block retry. */
+    public val reloadSkills: () -> com.astarworks.astera.core.application.service.ContentLoader.LoadReport,
     /** Decoded `content/frames` point tables for the v2 compiler and point source. */
     public val frameTables: Map<String, com.astarworks.astera.core.application.skillengine.load.ItemFrames>,
     public val statusContents: StatusContents,
@@ -138,7 +140,8 @@ public object CombatWiring {
         val (frameTables, frameErrors) = com.astarworks.astera.core.application.skillengine.load.SkillEngineRegistries
             .frameTables(ctx.contentDir.resolve("frames"))
         frameErrors.forEach { logger.warning("skill engine frame table: $it") }
-        val skillCatalog = com.astarworks.astera.core.application.skillengine.load.SkillEngineRegistries.catalog(frameTables)
+        val skillCatalog = com.astarworks.astera.core.application.skillengine.load.SkillEngineRegistries
+            .catalog(frameTables, ports.blockKeys?.invoke(services) ?: com.astarworks.astera.core.application.skillengine.load.IBlockKeyCatalog.Unchecked)
         val skillEngineContents = com.astarworks.astera.core.application.skillengine.runtime.SkillEngineContents(skillCatalog)
         val skillGate = SkillMetaRegistry(skillCatalog)
         val skillReport = skillEngineContents.reload(skillsContentDir)
@@ -780,6 +783,7 @@ public object CombatWiring {
         return CombatWiringResult(
             skillGate = skillGate,
             skillCatalog = skillCatalog,
+            reloadSkills = { skillEngineContents.reload(skillsContentDir) },
             frameTables = frameTables,
             statusContents = statusContents,
             armorContents = armorContents,

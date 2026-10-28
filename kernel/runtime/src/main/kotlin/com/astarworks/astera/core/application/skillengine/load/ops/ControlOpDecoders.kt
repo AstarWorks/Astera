@@ -14,7 +14,7 @@ import com.astarworks.astera.core.domain.skillengine.op.WindowEvent
 
 /**
  * Control family. YAML names: freeze, schedule, event (alias raise_event), cast_skill, if, loop,
- * choose, weighted_branch, for_each, counter, set_cooldown, give_item, consume_item.
+ * choose, weighted_branch, for_each, has_status, is_ally, counter, set_cooldown, give_item, consume_item.
  *
  * Nested op lists use `do:` (loop, for_each, case, branch), `then:` / `else:` (if), `else:` (choose).
  * Target fields are `victim`, `caster`, or `{kind: enemies|allies, around: <point>, radius: <n>}`.
@@ -24,7 +24,7 @@ public class ControlOpDecoders : OpDecoder {
 
     override val opNames: Set<String> = setOf(
         "freeze", "schedule", "event", "raise_event", "cast_skill", "if", "loop", "choose",
-        "weighted_branch", "for_each", "delay", "window", "counter", "set_cooldown", "give_item", "consume_item",
+        "weighted_branch", "for_each", "delay", "window", "has_status", "is_ally", "counter", "set_cooldown", "give_item", "consume_item",
     )
 
     override fun decode(op: String, id: String, whenExpr: Value<Boolean>?, reader: OpReader): SkillOp = when (op) {
@@ -45,15 +45,32 @@ public class ControlOpDecoders : OpDecoder {
             body = gameplay(reader, "do"),
         )
         "delay" -> ControlOp.Delay(id, whenExpr, reader.requireNumber("after"), gameplay(reader, "do"))
+        "has_status" -> ControlOp.HasStatus(
+            id, whenExpr,
+            target = target(reader, "target", TargetRef.Victim),
+            status = reader.requireString("status"),
+            minStacks = reader.number("min_stacks") ?: literal(1.0),
+            then = gameplay(reader, "then"),
+            otherwise = gameplay(reader, "else"),
+        )
+        "is_ally" -> ControlOp.IsAlly(
+            id, whenExpr,
+            target = target(reader, "target", TargetRef.Victim),
+            then = gameplay(reader, "then"),
+            otherwise = gameplay(reader, "else"),
+        )
         "window" -> {
+            val absorb = reader.bool("absorb") ?: false
+            val scale = (reader.raw("scale") as? Number)?.toDouble()
+            if (reader.raw("scale") != null && scale == null) reader.fail("window: 'scale' must be a number")
+            if (absorb && scale != null && scale != 0.0) reader.fail("window: 'absorb: true' negates the hit (scale 0); drop 'scale' or set it to 0")
             val key = reader.string("listen") ?: "incoming_hit"
             ControlOp.Window(
                 id, whenExpr,
                 listen = WindowEvent.of(key) ?: reader.fail("window: unknown listen '$key' (incoming_hit)"),
                 ticks = reader.requireNumber("ticks"),
                 once = reader.bool("once") ?: true,
-                absorb = reader.bool("absorb") ?: false,
-                scale = (reader.raw("scale") as? Number)?.toDouble() ?: if (reader.bool("absorb") == true) 0.0 else 1.0,
+                scale = if (absorb) 0.0 else scale ?: 1.0,
                 filter = reader.boolValue("filter"),
                 body = gameplay(reader, "do"),
             )
@@ -92,12 +109,15 @@ public class ControlOpDecoders : OpDecoder {
             "caster" -> TargetRef.Caster
             is Map<*, *> -> {
                 val m = FrameRawValues.map(raw, reader, what)
-                FrameRawValues.onlyKeys(m, setOf("kind", "around", "radius"), reader, what)
+                FrameRawValues.onlyKeys(m, setOf("kind", "around", "radius", "max_count", "include_self"), reader, what)
                 val around = PointRef.parse(m["around"] as? String ?: reader.fail("$what: missing 'around'"))
                 val radius = FrameRawValues.num(m["radius"] ?: reader.fail("$what: missing 'radius'"), reader, "$what.radius")
+                val maxCount = m["max_count"]?.let { (it as? Number)?.toInt()?.takeIf { n -> n >= 1 } ?: reader.fail("$what.max_count must be an integer >= 1") }
+                val includeSelf = m["include_self"]?.let { it as? Boolean ?: reader.fail("$what.include_self must be a boolean") } ?: false
+                if (includeSelf && m["kind"] != "allies") reader.fail("$what.include_self applies to allies only")
                 when (m["kind"]) {
-                    "enemies" -> TargetRef.Enemies(around, radius)
-                    "allies" -> TargetRef.Allies(around, radius)
+                    "enemies" -> TargetRef.Enemies(around, radius, maxCount)
+                    "allies" -> TargetRef.Allies(around, radius, maxCount, includeSelf)
                     else -> reader.fail("$what.kind must be enemies or allies")
                 }
             }

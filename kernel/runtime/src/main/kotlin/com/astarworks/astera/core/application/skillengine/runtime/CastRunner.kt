@@ -14,6 +14,8 @@ public value class CastId(public val value: Long)
 public data class CastRequest(
     val skill: CompiledSkill,
     val caster: UUID,
+    /** The world the caster stands in; every sound, particle and entity query of the cast is bound to it. */
+    val world: com.astarworks.astera.core.domain.world.WorldId,
     val casterFeet: Vec3,
     val casterYawDeg: Double,
     val casterPitchDeg: Double,
@@ -27,12 +29,17 @@ public sealed interface CastError {
     public data class ExprFailed(val path: String, val reason: String) : CastError
 }
 
-/** One event on a cast's private bus. [contact] is set for hit/block. */
+/**
+ * One event on a cast's private bus. [contact] is set for hit/block. [victim] is the entity that was the current victim when a
+ * gameplay op raised or scheduled the event: its `on:` handlers run in that victim's binding (a presentation op written for a
+ * dash `on_hit` or a window body still addresses the entity it hit).
+ */
 public data class CastEvent(
     val name: String,
     val tick: Int,
     val source: String? = null,
     val contact: ContactEvent? = null,
+    val victim: java.util.UUID? = null,
 )
 
 /** Per-cast event bus: gameplay raises, both sections' `on:` handlers (and `until:` clauses) consume. */
@@ -51,6 +58,12 @@ public interface CastRunner {
 
     /** Raise an external event on a running cast (e.g. `release` from an input). */
     public fun raise(cast: CastId, event: CastEvent)
+
+    /**
+     * Raise the input event [name] (`release`, `charge`) on every running cast of [caster] that has not raised it yet;
+     * returns how many casts received it (0 is normal: most clicks end no hold).
+     */
+    public fun raiseAllOf(caster: java.util.UUID, name: String, tick: Int): Int
 
     public fun cancel(cast: CastId)
 

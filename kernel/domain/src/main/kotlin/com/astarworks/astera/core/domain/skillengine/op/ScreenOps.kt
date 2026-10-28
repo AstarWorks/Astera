@@ -37,6 +37,23 @@ public sealed interface ScreenOp : PresentationOp {
         val fadeOut: Int,
     ) : ScreenOp
 
+    /**
+     * A sprite quad [distance] blocks in front of each target player's eye, re-anchored every tick and faded out over [ticks],
+     * visible only to that player (v1 `screen_veil`, ADR-0291). [colorRgb] null = white. Side = `0.2 * scale`, clamped so the
+     * projection stays within [maxScreenFraction] of the screen (`ScreenVeilMath`).
+     */
+    public data class Veil(
+        override val id: String,
+        override val whenExpr: Value<Boolean>?,
+        val target: TargetRef,
+        val sprite: String,
+        val colorRgb: Int?,
+        val distance: Value<Double>,
+        val scale: Value<Double>,
+        val maxScreenFraction: Value<Double>,
+        val ticks: Int,
+    ) : ScreenOp
+
     /** Stops the named sound for the target players (vanilla `Player.stopSound`). */
     public data class StopSound(
         override val id: String,

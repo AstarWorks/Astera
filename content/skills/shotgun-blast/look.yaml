@@ -17,5 +17,5 @@ presentation:
         - {id: emit_2, op: emit, at: pt_aim_0_m0p2_2p4, particle: shotgun-cone-smoke}
   "on":
     hit:
-      - {id: snd_2, op: sound, sound: "astera:weapons/gun-impact", at: contact.point, when: "= event.source == 'swing'"}
+      - {id: snd_2, op: sound, sound: "astera:weapons/gun-impact", at: enemy, when: "= event.source == 'swing'"}
       - {id: emit_3, op: emit, at: pt_enemy_0_1p2_0, particle: gun-impact, when: "= event.source == 'swing'"}

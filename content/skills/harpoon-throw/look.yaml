@@ -13,7 +13,7 @@ presentation:
     - {id: rep2, at: 0, every: 1, until: end, do: [{id: trail_2, op: emit, at: bolt, particle: dust, count: 1, spacing: 0.4, data: "#5abec8", data_size: 1.0}]}
   "on":
     hit:
-      - {id: snd_2, op: sound, sound: item.trident.hit, at: contact.point, volume: 0.8, pitch: 1.0}
+      - {id: snd_2, op: sound, sound: item.trident.hit, at: enemy, volume: 0.8, pitch: 1.0}
       - {id: emit_2, op: emit, at: pt_enemy_0_1p2_0, particle: hit-spark}
     block:
       - {id: snd_3, op: sound, sound: "astera:weapons/gun-impact-block", at: contact.point, volume: 0.5, pitch: 1.5}

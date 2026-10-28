@@ -24,3 +24,8 @@ gameplay:
           follow_pitch: false
           on_hit:
             - {id: dmg, op: damage, components: [{kind: physical, amount: "${dmg_physical}"}], target: victim, ignore_invulnerability: true}
+            - {id: raise, op: raise_event, name: dash_fx}
+            - {id: sch, op: schedule, after: 6, event: dash_fx6}
+            - {id: sch_2, op: schedule, after: 7, event: dash_fx7}
+            - {id: sch_3, op: schedule, after: 8, event: dash_fx8}
+            - {id: sch_4, op: schedule, after: 9, event: dash_fx9}

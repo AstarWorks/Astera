@@ -112,7 +112,9 @@ def vel_series(rows, who):
 
 def activity_end(rows):
     """Last tick with any action (v1 has no cast-end event): sounds, damage, status, kb, tp, block, projectile, death."""
-    ts = [r["t"] for r in rows if r.get("e") in ("sound", "damage", "status", "kb", "tp", "block", "proj", "projpos", "death") and "t" in r]
+    # status expiry / removal is a timer, not a cast action; world effects (explosions) are
+    ts = [r["t"] for r in rows if r.get("e") in ("sound", "damage", "status", "kb", "tp", "block", "proj", "projpos", "death", "world") and "t" in r
+          and not (r.get("e") == "status" and r.get("op") in ("expired", "removed"))]
     return max(ts) if ts else -1
 
 
@@ -147,7 +149,9 @@ def compare_skill(d, skill, v1, hd):
     norm = lambda rows: [dict(r, op="removed" if r["op"] in ("expired", "removed") else r["op"]) for r in rows]
     compare_events(d, skill, "status", norm(by(v1, "status")), norm(by(hd, "status")), lambda e: (e["who"], e["id"], e["op"]), {})
     # knockback / impulse
-    compare_events(d, skill, "knockback", by(v1, "kb"), by(hd, "kb"), lambda e: e["who"],
+    # two pushes on one tick (the plain-hit push and the skill's own impulse) are not ordered the same by v1's and HEAD's pipelines
+    kb_order = lambda rows: sorted(rows, key=lambda r: (r["t"], r["who"], round(r.get("strength", 0), 1)))
+    compare_events(d, skill, "knockback", kb_order(by(v1, "kb")), kb_order(by(hd, "kb")), lambda e: e["who"],
                    {"strength": lambda x, y: abs(x.get("strength", 0) - y.get("strength", 0)) <= 0.05})
     # teleports (dash / blink / pull)
     compare_events(d, skill, "teleport", by(v1, "tp"), by(hd, "tp"), lambda e: e["who"],
@@ -179,7 +183,8 @@ def compare_skill(d, skill, v1, hd):
     # projectiles (v1 only has them; HEAD has frames, seen through hit/block phases)
     spawns = [r for r in by(v1, "proj") if r["k"] == "spawn"]
     ends = [r for r in by(v1, "proj") if r["k"] != "spawn"]
-    hphase = [r for r in by(hd, "phase") if r["name"] in ("hit", "block")]
+    # `sel*` hits are target selectors (cones, spheres), not projectile frames; only flying volumes compare with v1 projectiles
+    hphase = [r for r in by(hd, "phase") if r["name"] in ("hit", "block") and not str(r.get("source", "")).startswith("sel")]
     if spawns:
         v1_hit = min((r["t"] for r in ends if r["k"].startswith("hit")), default=None)
         hd_hit = min((r["t"] for r in hphase), default=None)
@@ -222,14 +227,25 @@ def compare_skill(d, skill, v1, hd):
                   f"v1 t{nz1[0]} {tuple(round(c, 2) for c in w1[nz1[0]])} vs HEAD t{nz2[0]} {tuple(round(c, 2) for c in w2[nz2[0]])}")
 
     # cast end
-    ends_hd = [r["t"] for r in by(hd, "phase") if r["name"] == "end"]
+    # chain casts raise one `end` per child; the parent's is the last one
+    ends_hd = [r["t"] for r in by(hd, "phase") if r["name"] == "end"][-1:]
     a1, a2 = activity_end(v1), activity_end(hd)
     end_hd = ends_hd[0] if ends_hd else None
     if end_hd is None:
-        d.add("cast end: HEAD cast never ends within 120 ticks", skill, 120, 1, f"v1 last action t{a1}")
+        d.add("cast end: not yet ended at the 120-tick horizon (not a defect)", skill, 120, 1, f"v1 last action t{a1}")
     elif a1 >= 0 and abs(a1 - end_hd) > 2:
-        d.add("cast end: HEAD ends " + ("earlier" if end_hd < a1 else "later") + " than v1's last action", skill, min(a1, end_hd), abs(a1 - end_hd),
-              f"v1 last action t{a1} vs HEAD end t{end_hd}")
+        # HEAD's `end` waits for every timeline item, look.yaml loops and removals included; v1 has no such tail. When HEAD's own last
+        # gameplay action (sound, damage, status, kb, tp, ...) coincides with v1's, the extra time is a visual tail, listed apart.
+        if end_hd > a1 and abs(a2 - a1) <= 2:
+            d.add("cast end: HEAD stays open only for a visual tail (same last gameplay action as v1)", skill, a1, end_hd - a1,
+                  f"last gameplay action v1 t{a1} / HEAD t{a2}; HEAD end t{end_hd}")
+        elif end_hd < a1 and abs(a2 - a1) <= 2:
+            # delayed world edits (block break / place) belong to the world editor and outlive the cast by design; the last action coincides
+            d.add("cast end: HEAD cast ends before its delayed world edits (same last gameplay action as v1)", skill, end_hd, a1 - end_hd,
+                  f"last gameplay action v1 t{a1} / HEAD t{a2}; HEAD end t{end_hd}")
+        else:
+            d.add("cast end: HEAD ends " + ("earlier" if end_hd < a1 else "later") + " than v1's last action", skill, min(a1, end_hd), abs(a1 - end_hd),
+                  f"v1 last action t{a1} vs HEAD last action t{a2}, HEAD end t{end_hd}")
 
 
 def main():
@@ -254,8 +270,9 @@ def main():
              f"Skills compared: {len(skills)} (only in v1: {len(only_v1)}, only in HEAD: {len(only_hd)}). Skills with no gameplay divergence: {len(clean)}.",
              "Scene: caster at the origin, yaw 0, pitch 0, dummy 5 blocks ahead, wall plane 8 blocks ahead, 120 ticks, ticks relative to the cast start.",
              "Nothing here says which side is right; each group is one cause with the skills it hits.",
-             "Harness limits to keep in mind: v1 knockback (0.4 push per hit, KnockbackApplied) and ego gauge gain on hit happen inside the combat use case in both engines; "
-             "HEAD's sim only sees what the skill ports are called with, so a plain-hit knockback / ego-gain entry is not a skill-engine gap by itself. "
+             "Harness: both sides run damage and status through the real combat use cases (v1 via its mechanic dispatcher, HEAD via PaperSkillGameplayGateway over GameSim), "
+             "so the 0.4 plain-hit push, ego gain and status timers/expiry are recorded the same way (`kb` via=combat, `ego`, `status`). "
+             "A skill's own push (Knockback mechanic, explosion) is `kb` via=impulse on both sides. "
              "v1 has real projectile entities (spawn, per-tick position, impact); HEAD models them as frames, compared here through the first hit / block event.", ""]
     fam = collections.OrderedDict()
     for cause in d.g:

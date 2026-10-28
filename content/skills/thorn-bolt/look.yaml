@@ -69,7 +69,7 @@ presentation:
     - {id: rep7, at: 0, every: 1, until: end, do: [{id: trail_7, op: emit, at: bolt, particle: dust, count: 1, spacing: 0.3, data: "#287828", data_size: 0.9, shift: "= vec(0.3046, 0.1153, 0.6196)"}]}
   "on":
     hit:
-      - {id: snd_2, op: sound, sound: "astera:skills/nature-impact", at: contact.point, volume: 1.0, pitch: 0.7}
+      - {id: snd_2, op: sound, sound: "astera:skills/nature-impact", at: enemy, volume: 1.0, pitch: 0.7}
       - {id: emit_2, op: emit, at: pt_enemy_0_1_0, particle: verdant-impact}
       - {id: emit_3, op: emit, at: pt_enemy_0_1_0, particle: verdant-impact-sparkle}
       - {id: emit_4, op: emit, at: pt_enemy_0_1_0, particle: dust, count: 1, data: "#3c9632", data_size: 1.2, times: 3, shift: "= lerp(vec(0, 0, 0), vec(0.252, 0.3721, 0.2817), i/3.0)"}

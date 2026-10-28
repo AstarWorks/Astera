@@ -10,6 +10,8 @@ import com.astarworks.astera.core.domain.skillengine.expr.ExprHost
 import com.astarworks.astera.core.domain.skillengine.expr.ExprEvalException
 import com.astarworks.astera.core.domain.skillengine.expr.ExprValue
 import dev.cel.common.CelFunctionDecl
+import dev.cel.common.ast.CelConstant
+import dev.cel.common.ast.CelExpr
 import dev.cel.common.CelOverloadDecl
 import dev.cel.common.types.CelType
 import dev.cel.common.types.OpaqueType
@@ -125,6 +127,20 @@ internal object CelFunctions {
         // spec names (territories.md): `normalize` and `length` are the authoring spellings of norm / len
         def("normalize", "normalize_vec3", VEC3, listOf(VEC3), listOf(V)) { (it[0] as Vec3).normalize() }
         def("length", "length_vec3", D, listOf(VEC3), listOf(V)) { (it[0] as Vec3).length() }
+        // the horizontal part of a vector (y dropped): a radial push is the flat direction plus its own vertical lift
+        def("flat", "flat_vec3", VEC3, listOf(VEC3), listOf(V)) { (it[0] as Vec3).let { v -> Vec3(v.x, 0.0, v.z) } }
+        // numbers: any int/double mix, result double (vectors have their own overload below)
+        for (tag in listOf("dd", "di", "id", "ii")) {
+            val pa = if (tag[0] == 'd') D else I
+            val pb = if (tag[1] == 'd') D else I
+            val ca = if (tag[0] == 'd') DBL else LNG
+            val cb = if (tag[1] == 'd') DBL else LNG
+            def("lerp", "lerp_num_$tag", D, listOf(pa, pb, NUM), listOf(ca, cb, OBJ)) { n(it[0]) + (n(it[1]) - n(it[0])) * n(it[2]) }
+        }
+        def("ease", "ease_str_num", D, listOf(SimpleType.STRING, NUM), listOf(STR, OBJ)) {
+            val name = it[0] as String
+            (EaseCurves.parse(name) ?: throw ExprEvalException("unknown easing '$name'"))(n(it[1]))
+        }
         def("lerp", "lerp_vec3", VEC3, listOf(VEC3, VEC3, NUM), listOf(V, V, OBJ)) {
             val a = it[0] as Vec3
             val b = it[1] as Vec3
@@ -197,7 +213,8 @@ internal object CelFunctions {
         def("rand", "rand_stream", D, listOf(SimpleType.STRING), listOf(STR)) { stream(it[0] as String).nextDouble() }
 
         // frames
-        def("pos", "pos_ref", VEC3, listOf(REF), listOf(R)) { worldPose(it[0] as ExprValue.Ref).origin }
+        // a bare `victim` is its feet (SKL-15), like `dist`; any named point of it (`point(victim, "body")`) is the body centre
+        def("pos", "pos_ref", VEC3, listOf(REF), listOf(R)) { feet(it[0]) }
         def("axis", "axis_ref", VEC3, listOf(REF, SimpleType.STRING), listOf(R, STR)) { axisOf(worldPose(it[0] as ExprValue.Ref), it[1] as String) }
         def("point", "point_ref", REF, listOf(REF, SimpleType.STRING), listOf(R, STR)) { (it[0] as ExprValue.Ref).copy(point = it[1] as String) }
         def("vel", "vel_ref", VEC3, listOf(REF), listOf(R)) { (it[0] as ExprValue.Ref).let { r -> env().frames.velocity(r.name, r.point) } }
@@ -241,6 +258,32 @@ internal object CelFunctions {
             val f = worldPose(it[0] as ExprValue.Ref)
             f.forward().dot((it[1] as Vec3) - f.origin) < 0.0
         }
+    }
+
+    /**
+     * Load-time checks that need argument values, not just types: the name of `ease(name, t)` must be a string
+     * literal naming a known curve (ADR-0303 3.7). Returns the first problem, or null.
+     */
+    fun checkStatic(e: CelExpr): String? {
+        when (e.getKind()) {
+            CelExpr.ExprKind.Kind.CALL -> {
+                val call = e.call()
+                if (call.function() == "ease") {
+                    val first = call.args().firstOrNull()
+                    val name = first
+                        ?.takeIf { it.getKind() == CelExpr.ExprKind.Kind.CONSTANT && it.constant().getKind() == CelConstant.Kind.STRING_VALUE }
+                        ?.constant()?.stringValue()
+                        ?: return "ease(name, t): the name must be a string literal"
+                    if (EaseCurves.parse(name) == null) return "ease: unknown easing '$name' (ADR-0303 3.7)"
+                }
+                call.target().orElse(null)?.let { t -> checkStatic(t)?.let { return it } }
+                for (a in call.args()) checkStatic(a)?.let { return it }
+            }
+            CelExpr.ExprKind.Kind.SELECT -> return checkStatic(e.select().operand())
+            CelExpr.ExprKind.Kind.LIST -> for (a in e.list().elements()) checkStatic(a)?.let { return it }
+            else -> {}
+        }
+        return null
     }
 
     fun declarations(): List<CelFunctionDecl> =

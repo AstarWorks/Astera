@@ -333,7 +333,7 @@ presentation:
           when: "= event.source == 'burst'"
   "on":
     hit:
-      - {id: snd_3, op: sound, sound: "astera:skills/frost-impact", at: contact.point, when: "= event.source == 'burst'"}
+      - {id: snd_3, op: sound, sound: "astera:skills/frost-impact", at: enemy, when: "= event.source == 'burst'"}
       - {id: emit_32, op: emit, at: pt_enemy_0_0p9_0, particle: snowflake, count: 30, offset: [0.4, 0.8, 0.4], speed: 0.02, when: "= event.source == 'burst'"}
       - {id: emit_33, op: emit, at: pt_enemy_0_0p9_0, particle: dust, count: 20, offset: [0.4, 0.8, 0.4], data: "#aae1ff", data_size: 1.4, when: "= event.source == 'burst'"}
       - {id: emit_34, op: emit, at: pt_enemy_0_0p9_0, particle: end_rod, count: 10, offset: [0.35, 0.8, 0.35], speed: 0.02, when: "= event.source == 'burst'"}

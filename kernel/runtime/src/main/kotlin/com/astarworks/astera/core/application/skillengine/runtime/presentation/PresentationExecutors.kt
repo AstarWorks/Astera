@@ -23,9 +23,9 @@ import kotlin.reflect.KClass
 /** All presentation executors, bound to one [PresentationRuntime]. The manager registers them. */
 public fun presentationExecutors(rt: PresentationRuntime): List<OpExecutor<*>> = listOf(
     MeshExecutor(rt), PlateExecutor(rt), BlockExecutor(rt), QuadExecutor(rt), LineExecutor(rt), TrailExecutor(rt), TrackExecutor(rt), RemoveExecutor(rt),
-    EmitExecutor(rt), SoundExecutor(rt),
+    RigExecutor(rt), EmitExecutor(rt), SoundExecutor(rt),
     VictimAnimExecutor(rt), CasterAnimExecutor(rt),
-    TitleExecutor(rt), ActionBarExecutor(rt), CameraShakeExecutor(rt), FlashExecutor(rt), StopSoundExecutor(rt),
+    TitleExecutor(rt), ActionBarExecutor(rt), CameraShakeExecutor(rt), FlashExecutor(rt), VeilExecutor(rt), StopSoundExecutor(rt),
 )
 
 /** Hold time of a pose-only caster clip (crouch, hide-main-hand) when the op gives no `ticks:`. */
@@ -54,6 +54,7 @@ internal class MeshExecutor(private val rt: PresentationRuntime) : OpExecutor<Vi
         val pts = rt.points.points(op.item, op.part).map { FramePoint(live.node, it.name, it.offset * scale, it.axis) }
         val pose = rt.spawnNode(s, live, op.frame, pts) ?: return ctx.host.fail(op.id, "mesh: parent frame '${op.frame}' is not in the frame tree")
         live.handle = ctx.ports.visuals.spawnMesh(rt.info.owner(ctx.cast), op.item, op.part, pose, op.brightness)
+        rt.driverOf(s, op.frame)?.changed(op.id, pose)
         rt.register(s, live)
     }
 }
@@ -225,7 +226,8 @@ internal class SoundExecutor(private val rt: PresentationRuntime) : OpExecutor<F
                     val ease = op.pitchEase?.let { Easing.fromKey(it) } ?: Easing.LINEAR
                     SoundPlanner.pitchAt(PitchArc(from, ctx.num(op.pitchTo, from), over, ease), elapsed)
                 } else from
-                ctx.ports.sounds.play(op.sound, at, ctx.num(op.volume, 1.0).coerceAtLeast(0.0), pitch)
+                // Vanilla pitch range, as v1 played it: 0.45 sounds at 0.5.
+                ctx.ports.sounds.play(op.sound, at, ctx.num(op.volume, 1.0).coerceAtLeast(0.0), pitch.coerceIn(0.5, 2.0))
             }
         }
         play(0)
@@ -288,6 +290,17 @@ internal class FlashExecutor(private val rt: PresentationRuntime) : OpExecutor<S
             ?: return ctx.host.fail(op.id, "screen_flash: unknown overlay '${op.overlay}'")
         val rgb = op.colorRgb ?: overlay.defaultColor
         for (v in rt.info.targets(ctx.cast, op.target)) rt.screen.flash(v, overlay, rgb, op.fadeIn, op.stay, op.fadeOut)
+    }
+}
+
+internal class VeilExecutor(private val rt: PresentationRuntime) : OpExecutor<ScreenOp.Veil> {
+    override val opClass: KClass<ScreenOp.Veil> = ScreenOp.Veil::class
+    override fun execute(op: ScreenOp.Veil, ctx: OpContext) {
+        if (!ctx.passes(op)) return
+        val math = com.astarworks.astera.core.domain.effect.ScreenVeilMath
+        val distance = ctx.values.num(op.distance).coerceIn(math.MIN_DISTANCE, math.MAX_DISTANCE)
+        val side = math.clampSide(math.SPRITE_BASE_SIDE * ctx.values.num(op.scale), distance, ctx.values.num(op.maxScreenFraction))
+        for (v in rt.info.targets(ctx.cast, op.target)) rt.screen.veil(v, op.sprite, op.colorRgb ?: 0xFFFFFF, side, distance, op.ticks)
     }
 }
 

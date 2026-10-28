@@ -38,8 +38,9 @@ class StatusOpsScenarioTest {
     private val bystander = UUID(0, 3)
 
     private class Recorder : ISkillGameplayGateway {
+    override fun statusStacks(entity: UUID, statusId: String): Int = 0
         val calls = mutableListOf<String>()
-        override fun damage(caster: UUID, victim: UUID, components: List<SkillDamage>, hitPoint: Vec3) { calls += "damage" }
+        override fun damage(skillId: String, caster: UUID, victim: UUID, components: List<SkillDamage>, hitPoint: Vec3, ignoreInvulnerability: Boolean, ignoreArmor: Boolean) { calls += "damage" }
         override fun applyStatus(caster: UUID, victim: UUID, statusId: String, stacks: Int, durationTicks: Int) {
             calls += "status $victim $statusId x$stacks ${durationTicks}t"
         }
@@ -84,6 +85,7 @@ class StatusOpsScenarioTest {
         return object : OpContext {
         override val host: com.astarworks.astera.core.application.skillengine.runtime.OpHost get() = error("this scenario never reaches the cast host")
             override val cast = CastId(cast)
+            override val world = com.astarworks.astera.core.domain.world.WorldId("world")
             override val tree: FrameTree = unused<FrameTree>()
             override val values = resolver
             override val ports = ports

@@ -52,6 +52,7 @@ class RecordingVisuals(
     /** `content/frames` tables: resolves a mesh to its pack model like the Paper gateway does. */
     private val frameTables: Map<String, com.astarworks.astera.core.application.skillengine.load.ItemFrames> = emptyMap(),
 ) : ISkillVisualGateway {
+    override fun setTrailLook(handle: com.astarworks.astera.core.application.skillengine.runtime.port.VisualHandle, fadePower: Double, style: String) {}
     /** The vanilla display each spawn would create (kind, text, billboard, brightness), by handle: what the Paper gateway hands `IDisplayEntityGateway.spawn`. */
     val specs = HashMap<Long, com.astarworks.astera.core.domain.effect.DisplaySpec>()
 
@@ -138,6 +139,13 @@ class RecordingVisuals(
         val kind = SkillDisplaySpecs.meshKind(MeshModels.resolve(item, part, frameTables))
             ?: com.astarworks.astera.core.domain.effect.DisplayKind.Item(com.astarworks.astera.core.domain.item.ItemId("main-hand"), com.astarworks.astera.core.domain.effect.DisplayItemMode.FIXED, null)
         specs[h.id] = SkillDisplaySpecs.mesh(kind, w.transform, brightness)
+        return h
+    }
+
+    override fun spawnSkinBone(castOwner: UUID, bone: com.astarworks.astera.core.domain.animation.skinrig.SkinRigBone, slim: Boolean, ghost: Boolean, pose: VisualPose): VisualHandle {
+        val h = next(Mesh(), "skin_bone", bone.yamlName)
+        val w = write(h.id, "skin_bone", Intrinsic.ITEM_FIXED, pose, 0, pose.size.x, bone.yamlName, spawn = true)
+        specs[h.id] = SkillDisplaySpecs.skinBone(com.astarworks.astera.core.domain.effect.DisplayKind.SkinBone(bone, slim, ghost), w.transform)
         return h
     }
 

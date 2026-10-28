@@ -81,9 +81,12 @@ internal object StatusOpDecoder : OpDecoder {
         val around = (fields["around"] as? String)?.let(PointRef::parse)
             ?: reader.fail("${reader.path}.target.$kind.around: required point ref")
         val radius = valueOf(reader, fields["radius"], "${reader.path}.target.$kind.radius")
+        val maxCount = fields["max_count"]?.let { (it as? Number)?.toInt()?.takeIf { n -> n >= 1 } ?: reader.fail("${reader.path}.target.$kind.max_count must be an integer >= 1") }
+        val includeSelf = fields["include_self"]?.let { it as? Boolean ?: reader.fail("${reader.path}.target.$kind.include_self must be a boolean") } ?: false
+        if (includeSelf && kind != "allies") reader.fail("${reader.path}.target.$kind.include_self applies to allies only")
         return when (kind) {
-            "enemies" -> TargetRef.Enemies(around, radius)
-            "allies" -> TargetRef.Allies(around, radius)
+            "enemies" -> TargetRef.Enemies(around, radius, maxCount)
+            "allies" -> TargetRef.Allies(around, radius, maxCount, includeSelf)
             else -> reader.fail("${reader.path}.target: unknown area '$kind' (enemies or allies)")
         }
     }

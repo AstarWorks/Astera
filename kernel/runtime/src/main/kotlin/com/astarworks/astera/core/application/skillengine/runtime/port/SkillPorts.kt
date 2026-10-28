@@ -10,7 +10,9 @@ import com.astarworks.astera.core.domain.skillengine.op.TrailRim
 import java.util.UUID
 
 /**
- * Outbound ports of the skill engine (ADR-0301). All inputs are already evaluated numbers and
+ * Outbound ports of the skill engine (ADR-0301). The sound, particle and entity-query ports are bound to ONE world
+ * (the casting entity's): the runner builds them per cast through [SkillRuntimePorts] factories, so a call can never
+ * land in another world. All inputs are already evaluated numbers and
  * world-space poses; no frame or expression types cross the boundary. Paper implementations live in
  * `plugin/combat/.../adapter/paper/skillengine/`.
  */
@@ -42,6 +44,13 @@ public interface ISkillVisualGateway {
     /** An item model; [pose].size is the model scale in blocks per model unit. */
     public fun spawnMesh(castOwner: UUID, item: String, part: String?, pose: VisualPose, brightness: Int? = null): VisualHandle
 
+    /**
+     * One bone of the caster's own skin rig (ADR-0303 skin-rig section): a skull display wearing the caster's skin, [ghost] = a
+     * visual-only copy (no body hiding). [pose] is the world pose of the bone; it is written like a mesh. While the first live
+     * bone of a caster exists the real body, offhand and armour are hidden and the pose is pinned.
+     */
+    public fun spawnSkinBone(castOwner: UUID, bone: com.astarworks.astera.core.domain.animation.skinrig.SkinRigBone, slim: Boolean, ghost: Boolean, pose: VisualPose): VisualHandle
+
     /** A sprite quad; [pose].size.x / .y are its width and height in blocks. [brightness] null = full bright (15). */
     public fun spawnPlate(castOwner: UUID, sprite: String, alpha: Double, pose: VisualPose, brightness: Int? = null): VisualHandle
 
@@ -67,11 +76,11 @@ public interface ISkillVisualGateway {
 
     public fun remove(handle: VisualHandle)
 
-    /** Flipbook length and texture size of a sprite (1 frame, 32 px when unknown). */
-    public fun sprite(sprite: String): SpriteInfo = SpriteInfo(1, 32)
+    /** Flipbook length and texture size of a sprite. An unknown sprite is an error, never a guessed size. */
+    public fun sprite(sprite: String): SpriteInfo
 
     /** Show flipbook [frame] of a plate's sprite, multiplied by [tintHex] (`#rrggbb`) when not null. */
-    public fun setPlateFrame(handle: VisualHandle, frame: Int, tintHex: String?) {}
+    public fun setPlateFrame(handle: VisualHandle, frame: Int, tintHex: String?)
 
     /** A plate's or quad's opacity 0..1 and, for a quad, its colour `#rrggbb` (null = unchanged); called only when a track key changes them. */
     public fun setLook(handle: VisualHandle, alpha: Double?, colorHex: String?) {}
@@ -80,13 +89,13 @@ public interface ISkillVisualGateway {
     public fun setBlock(handle: VisualHandle, block: String) {}
 
     /** Ribbon look: alpha follows `(1 - age/ticks) ^ fadePower`; [style] is `soft`, `crisp` or `both`. Called once after [spawnTrail]. */
-    public fun setTrailLook(handle: VisualHandle, fadePower: Double, style: String) {}
+    public fun setTrailLook(handle: VisualHandle, fadePower: Double, style: String)
 
     /**
      * Ribbon shape: [bands] (empty = one band in the colour [spawnTrail] got), leading [edge], dark [rim], the [stepDeg]
      * turn limit per quad and a reversed face when [doubleSided]. Called once after [spawnTrail], only for a trail that sets any of them.
      */
-    public fun setTrailShape(handle: VisualHandle, bands: List<TrailBand>, edge: TrailEdge?, rim: TrailRim?, stepDeg: Double, doubleSided: Boolean) {}
+    public fun setTrailShape(handle: VisualHandle, bands: List<TrailBand>, edge: TrailEdge?, rim: TrailRim?, stepDeg: Double, doubleSided: Boolean)
 }
 
 /** One emit op as vanilla `spawnParticle` arguments plus the optional `dir` sugar (see [com.astarworks.astera.core.domain.skillengine.op.FxOp.Emit]). */
@@ -122,23 +131,19 @@ public data class SkillDamage(val kind: String, val amount: Double)
 
 /** Gameplay effects on entities. Damage numbers and status maths stay in combat; this is the seam. */
 public interface ISkillGameplayGateway {
-    public fun damage(caster: UUID, victim: UUID, components: List<SkillDamage>, hitPoint: Vec3)
-
-    /** [damage] that may bypass the victim's invulnerability frames. Gateways with i-frames override this. */
-    public fun damage(caster: UUID, victim: UUID, components: List<SkillDamage>, hitPoint: Vec3, ignoreInvulnerability: Boolean) {
-        damage(caster, victim, components, hitPoint)
-    }
-
     /**
-     * [damage] attributed to the casting skill [skillId], so kill feeds, replays and tutorials see the real skill.
-     * Gateways that record the source override this; the default forwards to the anonymous overloads.
+     * Damage attributed to the casting skill [skillId] (kill feeds, replays and tutorials see the real skill). The ONE damage
+     * entry point: [ignoreInvulnerability] bypasses the victim's i-frames, [ignoreArmor] skips armor / resist reduction.
+     * There are no convenience overloads on purpose: a gateway or test fake implements this one member, so a flag added
+     * later cannot fall through a delegating no-op.
      */
-    public fun damage(skillId: String, caster: UUID, victim: UUID, components: List<SkillDamage>, hitPoint: Vec3, ignoreInvulnerability: Boolean) {
-        if (ignoreInvulnerability) damage(caster, victim, components, hitPoint, true) else damage(caster, victim, components, hitPoint)
-    }
+    public fun damage(
+        skillId: String, caster: UUID, victim: UUID, components: List<SkillDamage>, hitPoint: Vec3,
+        ignoreInvulnerability: Boolean, ignoreArmor: Boolean,
+    )
 
-    /** Current stacks of [statusId] on [entity] (0 when absent). */
-    public fun statusStacks(entity: UUID, statusId: String): Int = 0
+    /** Current stacks of [statusId] on [entity] (0 when the entity does not carry it). */
+    public fun statusStacks(entity: UUID, statusId: String): Int
     public fun applyStatus(caster: UUID, victim: UUID, statusId: String, stacks: Int, durationTicks: Int)
 
     /** Remove one status (all stacks) from [victim]. Missing status is a no-op. */
@@ -178,8 +183,8 @@ public interface ISkillEntityQuery {
     /** Where blocks stop a moving body: first solid hit on segment [from]->[to], or null. */
     public fun raycastBlock(from: Vec3, to: Vec3): BlockHit?
 
-    /** Health fraction 0..1 of a living entity; 1 when unknown (expression `hp_ratio`). */
-    public fun healthRatio(entity: UUID): Double = 1.0
+    /** Health fraction 0..1 of a living entity (expression `hp_ratio`); an entity that is unknown or not living is an error. */
+    public fun healthRatio(entity: UUID): Double
 }
 
 public data class EntityRoot(val feet: Vec3, val yawDeg: Double, val pitchDeg: Double, val eyeHeight: Double, val height: Double)

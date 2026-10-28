@@ -71,8 +71,7 @@ public sealed interface MotionSpec {
     public data class Spin(val axis: AxisRef, val degPerTick: Value<Double>, val untilEvent: String? = null) : MotionSpec
 
     /**
-     * Ballistic flight (fly): block/tick velocity, optional gravity and drag. [startDelayTicks] holds the frame still for
-     * that many ticks after the law starts (a projectile spawned in tick T makes its first move in T + 1, as in v1).
+     * Ballistic flight (fly): block/tick velocity, optional gravity and drag.
      */
     public data class Fly(
         val velocity: Value<Vec3>,
@@ -80,7 +79,6 @@ public sealed interface MotionSpec {
         val drag: Value<Double>,
         val align: AlignSpec?,
         val maxTicks: Value<Double>?,
-        val startDelayTicks: Int = 0,
     ) : MotionSpec
 
     /** Travel along a named Curve (path). */

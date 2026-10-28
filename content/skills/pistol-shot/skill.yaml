@@ -18,6 +18,6 @@ gameplay:
   "on":
     hit:
       - {id: dmg, op: damage, components: [{kind: physical, amount: "${dmg_physical}"}], target: victim}
-      - {op: break_area, shape: sphere, radius: 0.5, block_damage: 12, breaks: true, id: chip, at: "= contact.point"}
+      - {op: break_area, shape: sphere, radius: 0.5, block_damage: 12, breaks: true, length: 0.0, id: chip, at: "= contact.point"}
     block:
-      - {op: break_area, shape: sphere, radius: 0.5, block_damage: 12, breaks: true, id: chip_2, at: "= contact.point"}
+      - {op: break_area, shape: sphere, radius: 0.5, block_damage: 12, breaks: true, length: 0.0, id: chip_2, at: "= contact.point"}

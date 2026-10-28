@@ -20,5 +20,5 @@ gameplay:
       at: 0
       do:
         - {id: buff, op: status, target: caster, status: regen, duration_ticks: "${regen_ticks}"}
-        - {id: cleanse, op: cleanse, negative_only: true, target: {allies: {around: caster, radius: "${radius}"}}}
+        - {id: cleanse, op: cleanse, negative_only: true, target: {allies: {around: caster, radius: "${radius}", include_self: true}}}
         - {id: st_regen, op: status, status: regen, duration_ticks: "${regen_ticks}", target: {allies: {around: caster, radius: "${radius}"}}}

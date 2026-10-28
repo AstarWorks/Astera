@@ -13,6 +13,6 @@ presentation:
     - {id: fx2, at: 2, do: [{id: snd_3, op: sound, sound: "astera:weapons/blade-miss", at: caster, when: "= counter('swing_hits') == 0.0"}]}
   "on":
     hit:
-      - {id: snd_2, op: sound, sound: "astera:weapons/blade-crit", at: contact.point, when: "= event.source == 'swing'"}
+      - {id: snd_2, op: sound, sound: "astera:weapons/blade-crit", at: enemy, when: "= event.source == 'swing'"}
       - {id: emit_2, op: emit, at: pt_enemy_0_1p2_0, particle: hit-spark, when: "= event.source == 'swing'"}
       - {id: emit_3, op: emit, at: pt_enemy_0_1p6_0, particle: hit-indicator, when: "= event.source == 'swing'"}

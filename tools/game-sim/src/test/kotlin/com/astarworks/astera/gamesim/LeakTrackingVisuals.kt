@@ -14,6 +14,10 @@ import java.util.UUID
  * An update to a handle that is no longer live, or a second remove, is recorded in [stale].
  */
 class LeakTrackingVisuals(private val clock: () -> Int = { 0 }) : ISkillVisualGateway {
+    override fun sprite(sprite: String): com.astarworks.astera.core.application.skillengine.runtime.port.SpriteInfo = com.astarworks.astera.core.application.skillengine.runtime.port.SpriteInfo(1, 32)
+    override fun setPlateFrame(handle: com.astarworks.astera.core.application.skillengine.runtime.port.VisualHandle, frame: Int, tintHex: String?) {}
+    override fun setTrailLook(handle: com.astarworks.astera.core.application.skillengine.runtime.port.VisualHandle, fadePower: Double, style: String) {}
+    override fun setTrailShape(handle: com.astarworks.astera.core.application.skillengine.runtime.port.VisualHandle, bands: List<com.astarworks.astera.core.domain.skillengine.op.TrailBand>, edge: com.astarworks.astera.core.domain.skillengine.op.TrailEdge?, rim: com.astarworks.astera.core.domain.skillengine.op.TrailRim?, stepDeg: Double, doubleSided: Boolean) {}
     private var ids = 0L
     val live = LinkedHashMap<Long, String>()
     val removedAt = HashMap<Long, Int>()
@@ -39,6 +43,7 @@ class LeakTrackingVisuals(private val clock: () -> Int = { 0 }) : ISkillVisualGa
     override fun spawnPlate(castOwner: UUID, sprite: String, alpha: Double, pose: VisualPose, brightness: Int?) = open("plate $sprite")
     override fun spawnBlock(castOwner: UUID, block: String, pose: VisualPose, brightness: Int?) = open("block")
     override fun spawnQuad(castOwner: UUID, colorHex: String, alpha: Double, text: String?, shadow: Boolean, seeThrough: Boolean, pose: VisualPose, brightness: Int?) = open("quad")
+    override fun spawnSkinBone(castOwner: UUID, bone: com.astarworks.astera.core.domain.animation.skinrig.SkinRigBone, slim: Boolean, ghost: Boolean, pose: VisualPose) = open("skin_bone ${bone.yamlName}")
     override fun spawnLine(castOwner: UUID, colorHex: String, pose: VisualPose) = open("line")
     override fun spawnTrail(castOwner: UUID, ticks: Int, widthFrac: Double, colorHex: String, alpha: Double) = open("trail")
     override fun write(handle: VisualHandle, pose: VisualPose, interpolationTicks: Int) { touch(handle, "write"); lastOrigin[handle.id] = pose.frame.origin }

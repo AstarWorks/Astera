@@ -22,7 +22,6 @@ internal class FlyLaw(
     private var age = 0
 
     override fun step(ctx: MotionContext): MotionStep {
-        if (ctx.ticksSinceStart < spec.startDelayTicks) return MotionStep.Hold
         val step = velocity
         val origin = MotionMath.worldPointToLocal(ctx, ctx.world.origin + step)
         val rotation = spec.align?.let { MotionMath.alignedRotation(ctx, it, step) } ?: ctx.local.rotation
