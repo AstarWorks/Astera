@@ -306,7 +306,7 @@ class Conv:
             r = self.param("radius", V(tg.get("radius", tg.get("distance", 3.0))))
             around = self.point(tg["center"], where, "g") if tg.get("center") else "caster"
             if t == "allies":
-                return ("allies", r, around)
+                return ("allies", r, around, None, bool(V(tg.get("include_self", False))))
             if where.kind != "cast":
                 if t in ("enemies", "nearby_entities"):
                     return ("enemies", r, around)
@@ -322,10 +322,14 @@ class Conv:
             area = {"around": spec[2], "radius": spec[1]}
             if len(spec) > 3 and spec[3]:
                 area["max_count"] = spec[3]
+            if len(spec) > 4 and spec[4]:
+                area["include_self"] = True
             op["target"] = {spec[0]: area}
         else:  # movement family: target + sibling around / radius
             if len(spec) > 3 and spec[3]:
                 raise ValueError("max_count=%s on a movement-family area target has no v2 field" % spec[3])
+            if len(spec) > 4 and spec[4]:
+                raise ValueError("include_self on a movement-family area target has no v2 field")
             op["target"] = spec[0]
             op["around"] = spec[2]
             op["radius"] = spec[1]
@@ -619,8 +623,6 @@ class Conv:
         elif t == "heal":
             op = {"id": self.oid("heal"), "op": "heal", "amount": self.param("heal", V(m["amount"]))}
             self.put_target(op, spec, "map")
-            if tg and tg["type"] == "allies" and V(tg.get("include_self", True)) is False:
-                self.todo("allies include_self=false (heal / cleanse hit the caster too)")
         elif t == "cleanse":
             op = {"id": self.oid("cleanse"), "op": "cleanse", "negative_only": True}
             self.put_target(op, spec, "map")
@@ -753,7 +755,10 @@ class Conv:
         if t in AREA:
             r = V(tg.get("radius", tg.get("distance", 8.0)))
             if t == "allies":
-                return {"allies": {"around": "caster", "radius": r}}
+                area = {"around": "caster", "radius": r}
+                if V(tg.get("include_self", False)):
+                    area["include_self"] = True
+                return {"allies": area}
             if t in ("enemies", "nearby_entities"):
                 return {"enemies": {"around": "caster", "radius": r}}
             return "victim"

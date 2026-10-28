@@ -514,7 +514,10 @@ internal class CastInstance(
         TargetRef.Victim -> listOfNotNull(currentVictim)
         TargetRef.Caster -> listOf(caster)
         is TargetRef.Enemies -> around(ref.around, ref.radius, caster, ref.maxCount) { !isAlly(it) }
-        is TargetRef.Allies -> around(ref.around, ref.radius, null, ref.maxCount) { isAlly(it) }
+        is TargetRef.Allies -> {
+            val mates = around(ref.around, ref.radius, caster, ref.maxCount) { it != caster && isAlly(it) }
+            if (ref.includeSelf) listOf(caster) + mates else mates
+        }
     }
 
     private fun around(at: PointRef, radius: com.astarworks.astera.core.domain.skillengine.model.Value<Double>, excluding: UUID?, maxCount: Int?, keep: (UUID) -> Boolean): List<UUID> {

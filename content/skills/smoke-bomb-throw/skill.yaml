@@ -22,6 +22,6 @@ gameplay:
     - {id: t0, at: 0, do: [{id: bolt, op: projectile, body: bolt, from: pt_aim_0_0_0p5, velocity: "= look(caster) * launch_speed", max_ticks: "${max_lifetime_ticks}", radius: 0.5}]}
   "on":
     hit:
-      - {id: st_evasive, op: status, status: evasive, duration_ticks: "${evasive_ticks}", target: {allies: {around: enemy, radius: "${radius}"}}}
+      - {id: st_evasive, op: status, status: evasive, duration_ticks: "${evasive_ticks}", target: {allies: {around: enemy, radius: "${radius}", include_self: true}}}
     block:
-      - {id: st_evasive_2, op: status, status: evasive, duration_ticks: "${evasive_ticks}", target: {allies: {around: contact.point, radius: "${radius}"}}}
+      - {id: st_evasive_2, op: status, status: evasive, duration_ticks: "${evasive_ticks}", target: {allies: {around: contact.point, radius: "${radius}", include_self: true}}}
