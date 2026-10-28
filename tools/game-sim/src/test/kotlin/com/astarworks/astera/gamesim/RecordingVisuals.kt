@@ -19,7 +19,13 @@ class DisplayFrame(
     val cols: List<Vec3>,
     val rotationNormSq: Double,
     val note: String = "",
+    /** Plates only: the glyph's size in blocks as the client draws it (display scale x font height px x 0.025), else 0. */
+    val renderedW: Double = 0.0,
+    val renderedH: Double = 0.0,
 )
+
+/** One display's life as the client sees it: spawn tick, the tick it was removed (null = never within the run) and what it is. */
+class DisplayLife(val handle: Long, val kind: String, val note: String, val spawnTick: Int, var removeTick: Int? = null)
 
 /**
  * Records the display matrices the Paper visual gateway would build (same maths, [SkillDisplayMath] / [PlateOrientation]),
@@ -38,32 +44,55 @@ class RecordingVisuals(private val now: () -> Int) : ISkillVisualGateway {
         rot.rotate(Vec3(1.0, 0.0, 0.0)) * scale.x, rot.rotate(Vec3(0.0, 1.0, 0.0)) * scale.y, rot.rotate(Vec3(0.0, 0.0, 1.0)) * scale.z,
     )
 
+    val lives = HashMap<Long, DisplayLife>()
+    private val spriteOf = HashMap<Long, String>()
+
     private fun record(kind: String, h: Long, authored: Double, t: DisplayTransform, note: String = "") {
-        frames += DisplayFrame(now(), kind, h, authored, cols(t.rotation, t.scale), t.rotation.lengthSquared(), note)
+        val px = if (kind == "plate") spritePixels(spriteOf[h] ?: "") else 0
+        val w = if (kind == "plate") t.scale.x * px * GLYPH_BLOCKS_PER_PX else 0.0
+        val hh = if (kind == "plate") t.scale.y * px * GLYPH_BLOCKS_PER_PX else 0.0
+        frames += DisplayFrame(now(), kind, h, authored, cols(t.rotation, t.scale), t.rotation.lengthSquared(), note, w, hh)
     }
 
-    private fun next(e: Any): VisualHandle { val id = ++ids; entries[id] = e; return VisualHandle(id) }
+    private fun next(e: Any, kind: String, note: String = ""): VisualHandle {
+        val id = ++ids; entries[id] = e; lives[id] = DisplayLife(id, kind, note, now()); return VisualHandle(id)
+    }
+
+    /** Font height of a sprite (`content/sprites/<id>.yaml` `size`), the figure the client scales a glyph by. */
+    private fun spritePixels(sprite: String): Int = pixelCache.getOrPut(sprite) {
+        val f = spriteDir?.resolve("$sprite.yaml")
+        f?.takeIf { it.isFile }?.readLines()?.firstNotNullOfOrNull { l -> l.removePrefix("size:").takeIf { l.startsWith("size:") }?.trim()?.toIntOrNull() } ?: 32
+    }
+
+    companion object {
+        /** TextDisplay: one font pixel is 0.025 blocks at scale 1 (vanilla TextDisplayRenderer, scale(-0.025)). */
+        const val GLYPH_BLOCKS_PER_PX = 0.025
+        private val pixelCache = HashMap<String, Int>()
+        private val spriteDir: java.io.File? = generateSequence(java.io.File("").absoluteFile) { it.parentFile }
+            .map { it.resolve("content/sprites") }.firstOrNull { it.isDirectory }
+    }
 
     override fun spawnMesh(castOwner: UUID, item: String, part: String?, scale: Double, pose: Frame): VisualHandle {
-        val h = next(Mesh(Vec3(scale, scale, scale), pose.rotation))
+        val h = next(Mesh(Vec3(scale, scale, scale), pose.rotation), "mesh", "$item/$part")
         record("mesh", h.id, scale, DisplayTransform(Vec3.ZERO, pose.rotation, Vec3(scale, scale, scale)), "$item/$part")
         return h
     }
 
     override fun spawnPlate(castOwner: UUID, sprite: String, face: PlateFace, size: Double, alpha: Double, pose: Frame): VisualHandle {
         val placed = PlateOrientation.forPlate(pose, face, null)
-        val h = next(Plate(face, Vec3(size, size, size), placed.rotation))
+        val h = next(Plate(face, Vec3(size, size, size), placed.rotation), "plate", sprite)
+        spriteOf[h.id] = sprite
         record("plate", h.id, size, SkillDisplayMath.plateTransform(placed.rotation, size, size), sprite)
         return h
     }
 
     override fun spawnLine(castOwner: UUID, from: Vec3, to: Vec3, thickness: Double, colorHex: String, face: PlateFace): VisualHandle {
-        val h = next(Line(face, thickness))
+        val h = next(Line(face, thickness), "line")
         record("line", h.id, thickness, SkillDisplayMath.lineTransform(from, to, thickness, face, null), "len=${"%.2f".format(from.distance(to))}")
         return h
     }
 
-    override fun spawnTrail(castOwner: UUID, ticks: Int, widthFrac: Double, colorHex: String, alpha: Double): VisualHandle = next(Trail(widthFrac))
+    override fun spawnTrail(castOwner: UUID, ticks: Int, widthFrac: Double, colorHex: String, alpha: Double): VisualHandle = next(Trail(widthFrac), "trail")
 
     override fun updatePose(handle: VisualHandle, pose: Frame, interpolationTicks: Int) {
         when (val e = entries[handle.id]) {
@@ -97,5 +126,5 @@ class RecordingVisuals(private val now: () -> Int) : ISkillVisualGateway {
         frames += DisplayFrame(now(), "ribbon", handle.id, t.widthFrac, listOf(m.col0, m.col1, m.col2), 1.0, "u=${"%.2f".format(s.u.length())} v=${"%.2f".format(s.v.length())}")
     }
 
-    override fun remove(handle: VisualHandle) { entries.remove(handle.id) }
+    override fun remove(handle: VisualHandle) { entries.remove(handle.id); lives[handle.id]?.let { if (it.removeTick == null) it.removeTick = now() } }
 }

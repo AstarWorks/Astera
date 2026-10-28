@@ -415,6 +415,10 @@ presentation:
             - {t: 0, offset: [-0.71, 0.26, 2.53], rotation: [0, 0, 324], scale: [0.026, 0.026, 1.0]}
             - {t: 1, offset: [-0.71, 0.26, 2.73], rotation: [0, 0, 364], scale: [0.064, 0.051, 1.0]}
             - {t: 5, offset: [-1.07, 0.67, 3.36], rotation: [0, 0, 524], scale: [0.045, 0.032, 1.0]}
+    - id: fx13
+      at: 13
+      do:
+        - {id: rm_7_streaks, op: remove, ids: [fx3_couture_s2_coin1_streak_0, fx3_couture_s2_coin1_streak_3]}
     - id: fx14
       at: 14
       do:

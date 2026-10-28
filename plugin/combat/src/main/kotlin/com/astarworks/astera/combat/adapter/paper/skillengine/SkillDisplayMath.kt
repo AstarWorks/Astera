@@ -12,17 +12,17 @@ import com.astarworks.astera.core.domain.skillengine.op.PlateFace
 public object SkillDisplayMath {
     public const val SOLID_SCALE_X: Double = 8.0
     public const val SOLID_SCALE_Y: Double = 4.0
-    public const val GLYPH_SCALE: Double = 5.0
     public const val CENTER_X_PER_SCALE: Double = 0.0125
     public const val CENTER_Y_PER_SCALE: Double = 0.125
 
-    /** Plate [width] x [height] blocks (width along the quad's local X, height along local Y). */
-    public fun plateTransform(rotation: Quaternion, width: Double, height: Double): DisplayTransform {
-        val sx = width * GLYPH_SCALE
-        val sy = height * GLYPH_SCALE
-        val centre = Vec3(-CENTER_X_PER_SCALE * sx, -CENTER_Y_PER_SCALE * sy, 0.0)
-        return DisplayTransform(rotation.rotate(centre), rotation, Vec3(sx, sy, 1.0))
-    }
+    /**
+     * Plate = the vanilla `Transformation` of a TextDisplay holding one sprite glyph, with nothing added: `translation` 0,
+     * `left_rotation` = [rotation], `scale` = ([scaleX], [scaleY], 1) exactly as authored, `right_rotation` identity.
+     * One scale unit is the sprite's natural size (font height px x 0.025 blocks: 6.4 blocks for a 256 px sprite), which is
+     * what the v1 sprite element sent (VfxTimeline sprite branch: `DisplayTransform(ZERO, rotation, scale)`).
+     */
+    public fun plateTransform(rotation: Quaternion, scaleX: Double, scaleY: Double): DisplayTransform =
+        DisplayTransform(Vec3.ZERO, rotation, Vec3(scaleX, scaleY, 1.0))
 
     /** Line from [from] to [to], [thickness] blocks wide; [viewerEye] null = nobody near. */
     public fun lineTransform(from: Vec3, to: Vec3, thickness: Double, face: PlateFace, viewerEye: Vec3?): DisplayTransform {
