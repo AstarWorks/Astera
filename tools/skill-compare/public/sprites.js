@@ -1,7 +1,8 @@
 const $ = selector => document.querySelector(selector);
 const el = (tag, text, cls) => { const node = document.createElement(tag); if (text != null) node.textContent = text; if (cls) node.className = cls; return node; };
-let data, tab = 'sprites', tag = '', revision = '', players = [], detailPlayer, selected, paused = false;
+let data, tab = location.pathname === '/samples' ? 'vfx' : 'sprites', tag = '', revision = '', players = [], detailPlayer, selected, paused = false;
 const images = new Map();
+if (tab === 'vfx') document.querySelector('h1').textContent = 'VFX サンプル';
 function image(url) {
   if (!images.has(url)) {
     const img = new Image(); img.src = url;
@@ -173,23 +174,32 @@ function openDetail(id) {
   body.append(el('h3', 'ソース YAML'), el('pre', item.source));
   if (!$('#detail').open) $('#detail').showModal();
 }
-for (const button of document.querySelectorAll('[data-tab]')) button.onclick = () => {
-  tab = button.dataset.tab; tag = '';
-  document.querySelectorAll('[data-tab]').forEach(node => node.setAttribute('aria-pressed', String(node === button))); render();
-};
-$('#filter').oninput = render;
+// Keep the gallery controls when switching between its two top-level tabs.
+const controlIds = ['filter', 'scale', 'background', 'additive', 'fps', 'preview-mode', 'distance'];
+let saved = {}; try { saved = JSON.parse(sessionStorage.getItem('sprite-controls') || '{}'); } catch { /* reset invalid preferences */ }
+for (const id of controlIds) {
+  if (saved[id] === undefined) continue;
+  const node = $(`#${id}`); if (node.type === 'checkbox') node.checked = saved[id]; else node.value = saved[id];
+}
+function saveControls() {
+  const values = Object.fromEntries(controlIds.map(id => { const n = $(`#${id}`); return [id, n.type === 'checkbox' ? n.checked : n.value]; }));
+  sessionStorage.setItem('sprite-controls', JSON.stringify(values));
+}
+$('#filter').oninput = () => { saveControls(); render(); };
 for (const id of ['scale', 'background', 'additive', 'fps', 'preview-mode', 'distance']) $(`#${id}`).oninput = () => {
+  saveControls();
   $('#scale').disabled = $('#additive').disabled = $('#background').disabled = $('#preview-mode').value === 'minecraft';
   $('#fps-value').textContent = `${$('#fps').value} fps`;
   for (const player of [...players, detailPlayer].filter(Boolean)) settings(player);
   if (tab === 'vfx') { render(); if (selected) openDetail(selected); }
 };
+$('#preview-mode').oninput();
 $('#pause').onclick = () => { paused = !paused; $('#pause').textContent = paused ? '再生' : '一時停止'; };
 $('#close').onclick = () => $('#detail').close();
 $('#detail').onclose = () => { detailPlayer = null; selected = null; };
 async function refresh() {
   try {
-    const response = await fetch('/api/catalog');
+    const response = await fetch('/api/sprites/catalog');
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     const next = await response.json();
     if (next.revision !== revision) {

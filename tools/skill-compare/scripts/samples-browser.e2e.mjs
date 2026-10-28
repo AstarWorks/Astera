@@ -1,19 +1,19 @@
 // Browser integration with shipped sample assets; no Minecraft server or test tasks.
-// PLAYWRIGHT_PACKAGE_ROOT=/IdeaProjects/Astera/tools/skill-compare bun tools/sprite-gallery/scripts/samples-browser.e2e.mjs
+// PLAYWRIGHT_PACKAGE_ROOT=/IdeaProjects/Astera/tools/skill-compare bun tools/skill-compare/scripts/samples-browser.e2e.mjs
 import assert from 'node:assert/strict';
 import { createRequire } from 'node:module';
 import { resolve, dirname } from 'node:path';
 import { mkdir } from 'node:fs/promises';
 const require = createRequire(resolve(process.env.PLAYWRIGHT_PACKAGE_ROOT || 'tools/skill-compare', 'package.json'));
 const { chromium } = require('playwright-core');
-const url = process.env.GALLERY_URL || 'http://127.0.0.1:8099';
-const output = process.env.GALLERY_SHOT || '/tmp/claude-1000/vfx-nodegraph/samples-shot.png';
+const url = process.env.HUB_URL || 'http://127.0.0.1:18197';
+const output = process.env.HUB_SHOT || '/tmp/claude-1000/vfx-nodegraph/samples-shot.png';
 const browser = await chromium.launch({ executablePath: process.env.CHROMIUM_PATH || '/usr/bin/chromium', args: ['--no-sandbox', '--disable-dev-shm-usage'] });
 const page = await browser.newPage({ viewport: { width: 1800, height: 1400 } });
 const errors = [];
 page.on('pageerror', error => errors.push(error.message));
 try {
-  const catalog = await (await fetch(`${url}/api/catalog`)).json();
+  const catalog = await (await fetch(`${url}/api/sprites/catalog`)).json();
   const samples = catalog.sprites.filter(sprite => sprite.id.startsWith('sample-'));
   assert.equal(samples.length, 14);
   for (const sprite of samples) {
@@ -40,7 +40,7 @@ try {
   for (const [id, effect] of Object.entries({'sample-dissolve-sigil':'dissolve','sample-energy-orb':'emissive-pulse','sample-heat-haze':'uv-flow'})) {
     assert.deepEqual(demos.find(d => d.id === id).shaderEffects, [effect]);
   }
-  await page.goto(url);
+  await page.goto(`${url}/sprites`);
   await page.locator('#filter').fill('sample-');
   await page.waitForFunction(() => document.querySelectorAll('.card').length === 14);
   await page.locator('#preview-mode').selectOption('minecraft');
@@ -89,6 +89,7 @@ try {
   await page.locator('#preview-mode').selectOption('sprite');
   await page.waitForFunction(() => document.querySelector('.card canvas').width === 64);
   await page.locator('[data-tab="vfx"]').click();
+  await page.waitForFunction(() => document.querySelector('#status')?.textContent.includes('自動更新'));
   assert.equal(await page.locator('.card').count(), 14);
   assert.equal(await page.locator('.card .sheet').count(), 14, 'each demo has a capture or labelled dimension sheet');
   for (const effect of ['dissolve', 'emissive-pulse', 'uv-flow']) assert.ok(await page.getByText(`shader_effect: ${effect}`, {exact:true}).count());

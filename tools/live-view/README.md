@@ -9,7 +9,7 @@ make live-view SKILL=bastion-greatsword-s1 VIEW=compare CASE=bastion-greatsword-
 make live-view-down
 ```
 
-Open `http://<capture-host>:8098` from the LAN. The page binds **0.0.0.0**. It is an unauthenticated authoring tool for a trusted LAN; do not forward its port to the Internet. Control requests and WebSockets require the page's own Origin. Keep the terminal running; Ctrl-C, `make live-view-down`, the caller disappearing, or the capture watchdog stops the session and removes its stack. Startup builds compile/package tasks only, then boots Paper and joins the real client (typically a few minutes cold).
+Open the 「ライブ」 tab at **http://192.168.11.5:8097/live** after `make skill-compare-up`. The hub embeds this backend (default port 8098); set `SKILL_COMPARE_LIVE_URL` on the hub for a different capture host/port. Direct backend access remains available for capture diagnostics. The page binds **0.0.0.0**. It is an unauthenticated authoring tool for a trusted LAN; do not forward its port to the Internet. Control requests and WebSockets require the page's own Origin. Keep the terminal running; Ctrl-C, `make live-view-down`, the caller disappearing, or the capture watchdog stops the session and removes its stack. Startup builds compile/package tasks only, then boots Paper and joins the real client (typically a few minutes cold).
 
 ## Prerequisites
 
