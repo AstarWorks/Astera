@@ -108,12 +108,13 @@ machine:
       enter:
         - {id: smoke, op: particle, particle: smoke, anchor: origin, count: "${count}", offset: [0.2, 0.2, 0.2], extra: 0.01, at: 0}
     end: {final: true}
+# expansion regenerated from the real dump after W1b-02
 # expand: (astera skill expand mythic-volley, 11.3; T = 1 + 5k is the occurrence tick of volley[k], k = 0..3)
 # skill mythic-volley  seed=sample  params={}  bounds: instances=ball 4, core 4, trail 48 (4 x [1,12]), whoosh 4, splash <=4, puff 4
 #                      live_displays<=3 (ticks 11-13, 16-18: three cores alive)  path=[36,36]
 # state cast  for=36  then=done  enter-from: start
 #   @1   volley[0]  occurrence  i=0 n=4          (rows below repeat for volley[1] @6, volley[2] @11, volley[3] @16 with i = 1, 2, 3)
-#   @T   volley[k]/whoosh[0]  sound entity.blaze.shoot vol=0.8 pitch=1.0+0.1k pos=<L:muzzle>
+#   @T   volley[k]/whoosh  sound entity.blaze.shoot vol=0.8 pitch=1.0+0.1k pos=<L:muzzle>
 #   @T   volley[k]/ball  spawn frame origin=<L:muzzle@T> vel=<L:muzzle.forward@T>*1.0 range=12 radius=0.4 hit=enemies,once  end=[T+1,T+12]
 #   @T   volley[k]/core  spawn item fire_charge anchor=ball scale=0.6 pose(0)=rot(forward,0) dur=0
 #   @T+1 volley[k]/core  key dur=3 pos=<L:ball>+3fwd left=rot(forward,120)      # 30 deg/tick, segments split under 170 deg (0): 1-4, 4-8, 8-12

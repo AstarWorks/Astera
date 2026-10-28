@@ -41,13 +41,13 @@ machine:
       then: end
       enter:
         - {id: boom, op: sound, sound: entity.generic.explode, anchor: center, volume: 0.8, pitch: 1.2}
-        - {id: dmg, op: hit, at: 0, shape: {sphere: "= radius"}, damage: "= damage"}
+        - {id: dmg, op: hit, at: 0, anchor: center, targets: enemies, shape: {sphere: "= radius"}, damage: {physical: "= damage"}}
       do:
         - id: ring
           op: display
           kind: sprite
           sprite: ring-flash
-          anchor: at
+          anchor: center
           billboard: center
           size: [0.3, 0.3]
           for: "= ring_for"
