@@ -24,6 +24,6 @@ gameplay:
     hit:
       - {id: dmg, op: damage, components: [{kind: fire, amount: "${dmg_fire}"}], target: victim}
       - {id: st_burn, op: status, status: burn, duration_ticks: "${burn_ticks}", target: victim, chance: 0.85}
-      - {op: break_area, shape: sphere, radius: 1.5, block_damage: 35, breaks: true, length: 0.0, id: chip, at: "= contact.point"}
+      - {op: break_area, shape: sphere, radius: 1.5, block_damage: 35, breaks: true, staged: false, length: 0.0, id: chip, at: "= contact.point"}
     block:
-      - {op: break_area, shape: sphere, radius: 1.5, block_damage: 35, breaks: true, length: 0.0, id: chip_2, at: "= contact.point"}
+      - {op: break_area, shape: sphere, radius: 1.5, block_damage: 35, breaks: true, staged: false, length: 0.0, id: chip_2, at: "= contact.point"}

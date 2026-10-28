@@ -44,6 +44,7 @@ internal class WorldOpDecoder(private val blocks: IBlockKeyCatalog) : OpDecoder 
                 breaksBlocks = reader.bool("breaks") ?: true,
                 revertAfterTicks = revert,
                 outsideArena = outside,
+                staged = reader.bool("staged") ?: true,
             )
             "place_shape" -> WorldOp.PlaceShape(
                 id = id,

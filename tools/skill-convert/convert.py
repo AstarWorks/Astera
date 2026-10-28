@@ -1741,6 +1741,8 @@ def block_damage(c, d, arch, on_hit, on_block):
         return
     op = {"op": "break_area", "shape": "sphere", "radius": max(float(bd.get("radius", 0.0)), 0.5),
           "block_damage": int(bd["amount"]), "breaks": True,
+          # v1 CoverBlockService strikes (:71,:111,:219) are one flat strike per cell, not the staged break_area mechanic.
+          "staged": False,
           # A sphere is centred `length` ahead of `at` (tool skills dig ahead); a v1 chip is centred ON the impact / cast point.
           "length": 0.0}
     if bd.get("tool"):
