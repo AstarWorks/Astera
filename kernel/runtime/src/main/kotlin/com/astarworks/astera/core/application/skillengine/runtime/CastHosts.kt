@@ -23,7 +23,14 @@ public class CastHosts : MovementHost, OpTargetResolver, PresentationCastInfo {
     }
 
     internal fun unregister(id: CastId) {
-        live.remove(id)
+        val cast = live.remove(id) ?: return
+        // Delayed world strikes (break_area ripple) outlive the cast that scheduled them and still need its owner.
+        synchronized(finishedOwners) { finishedOwners[id] = cast.owner(id) }
+    }
+
+    /** Owners of the most recently ended casts, bounded; a ripple lasts under 30 ticks so a few thousand casts is ample. */
+    private val finishedOwners = object : LinkedHashMap<CastId, UUID>() {
+        override fun removeEldestEntry(eldest: MutableMap.MutableEntry<CastId, UUID>): Boolean = size > FINISHED_OWNERS_KEPT
     }
 
     private fun of(ctx: OpContext): CastInstance = of(ctx.cast)
@@ -41,9 +48,14 @@ public class CastHosts : MovementHost, OpTargetResolver, PresentationCastInfo {
 
     override fun resolve(ctx: OpContext, target: TargetRef): List<UUID> = of(ctx).resolve(ctx, target)
 
-    override fun owner(cast: CastId): UUID = of(cast).owner(cast)
+    override fun owner(cast: CastId): UUID =
+        live[cast]?.owner(cast) ?: synchronized(finishedOwners) { finishedOwners[cast] } ?: error("cast ${cast.value} is not running")
 
     override fun targets(cast: CastId, target: TargetRef): List<UUID> = of(cast).targets(cast, target)
 
     override fun hasRaised(cast: CastId, event: String): Boolean = live[cast]?.hasRaised(cast, event) ?: false
+
+    private companion object {
+        const val FINISHED_OWNERS_KEPT = 4096
+    }
 }
