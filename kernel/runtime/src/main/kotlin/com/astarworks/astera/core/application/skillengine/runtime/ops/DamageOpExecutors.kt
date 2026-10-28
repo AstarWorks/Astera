@@ -21,17 +21,21 @@ private fun OpContext.damageAll(
     fallbackPoint: Vec3?,
     ignoreInvulnerability: Boolean = false,
     ignoreArmor: Boolean = false,
+    /** Per-victim damage multiplier (explosion falloff); a victim at 0 is skipped. */
+    scaleOf: (UUID) -> Double = { 1.0 },
 ) {
     if (victims.isEmpty() || specs.isEmpty()) return
     val consumed = LinkedHashSet<Pair<UUID, String>>()
     for (victim in victims) {
+        val scale = scaleOf(victim)
+        if (scale <= 0.0) continue
         val parts = specs.map { spec ->
             val extra = spec.perStack?.let { ps ->
                 val holder = if (ps.on == StackSide.CASTER) scope.caster else victim
                 if (ps.consume) consumed += holder to ps.status
                 values.num(ps.amount) * ports.gameplay.statusStacks(holder, ps.status)
             } ?: 0.0
-            SkillDamage(spec.kind, values.num(spec.amount) + extra)
+            SkillDamage(spec.kind, (values.num(spec.amount) + extra) * scale)
         }
         val point = scope.contact?.takeIf { it.victim == victim }?.pointWorld
             ?: feetOf(victim)
@@ -75,8 +79,9 @@ internal object ResurrectExecutor : OpExecutor<DamageOp.Resurrect> {
 }
 
 /**
- * Explosion at the target position. With components, the resolved target (or, when `radius` is set,
- * every enemy within it) also takes them; the vanilla blast itself is the gateway's `explode`.
+ * Explosion at the target position (v1 semantics): every enemy within `radius` (default: `power`) of the centre takes the
+ * components, scaled linearly by `1 - distance / radius` (distance centre -> victim feet); the vanilla blast itself is
+ * the gateway's `explode`.
  */
 internal object ExplodeExecutor : OpExecutor<DamageOp.Explode> {
     override val opClass: KClass<DamageOp.Explode> = DamageOp.Explode::class
@@ -85,14 +90,16 @@ internal object ExplodeExecutor : OpExecutor<DamageOp.Explode> {
         val scope = ctx as? SkillCastScope ?: return
         if (!ctx.passes(op.whenExpr)) return
         val at = (op.at?.let { ctx.locate(it) } ?: ctx.positionOf(scope, op.target)) ?: return
-        scope.effects.explode(scope.caster, at, ctx.values.num(op.power), op.breakBlocks, op.incendiary)
+        val power = ctx.values.num(op.power)
+        scope.effects.explode(scope.caster, at, power, op.breakBlocks, op.incendiary)
         if (op.components.isEmpty()) return
-        val radius = op.radius?.let { ctx.values.num(it) }
-        val victims = if (radius == null && op.at == null) {
-            ctx.resolveTargets(scope, op.target)
-        } else {
-            ctx.ports.entities.nearby(at, radius ?: 0.0, scope.caster).map { it.entityId }.filter { !scope.isAlly(it) }
-        }
-        ctx.damageAll(scope, victims, op.components, at)
+        val radius = op.radius?.let { ctx.values.num(it) } ?: power
+        if (radius <= 0.0) return
+        val victims = ctx.ports.entities.nearby(at, radius, scope.caster).map { it.entityId }.filter { !scope.isAlly(it) }
+        ctx.damageAll(scope, victims, op.components, at, scaleOf = { v ->
+            // v1 PaperExplosionGateway measured from the centre to the victim body centre (feet + 0.9).
+            val body = (ctx.feetOf(v) ?: at).let { Vec3(it.x, it.y + 0.9, it.z) }
+            (1.0 - body.distance(at) / radius).coerceIn(0.0, 1.0)
+        })
     }
 }
