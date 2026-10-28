@@ -21,13 +21,13 @@ machine:
       then: whiff
       enter:
         - {id: resist, op: modify_attribute, attribute: resist.physical, operation: add, amount: "= resist", target: caster, for: "= window"}
-        - {id: snd_guard, op: sound, sound: item.shield.block, at: caster, volume: 0.6, pitch: 1.5}
+        - {id: snd_guard, op: sound, sound: item.shield.block, anchor: caster, volume: 0.6, pitch: 1.5}
       do:
         - id: guard_plate                           # owned by this state: ends at exit, no remove needed
           op: display
           kind: sprite
           sprite: guard-arc
-          at: weapon.tip
+          anchor: weapon.tip
           billboard: center
           size: [0.8, 0.8]
           for: "= window"
@@ -38,11 +38,11 @@ machine:
       for: "= delay"
       then: end
       do:
-        - {id: wind, op: sound, sound: item.trident.riptide_1, at: caster, volume: 0.7, pitch: 1.6}
+        - {id: wind, op: sound, sound: item.trident.riptide_1, anchor: caster, volume: 0.7, pitch: 1.6}
       exit:                                          # the hit lands as the state ends (7 ticks after the parry), on every way out except cancel
         - {id: riposte_hit, op: damage, target: event.attacker, components: [{kind: physical, amount: "= riposte_dmg"}],
            ignore_invulnerability: true, when: "= dist(caster, event.attacker) < range"}
-    whiff: {for: 6, then: end, do: [{id: snd_whiff, op: sound, sound: block.wool.break, at: caster, volume: 0.3, pitch: 1.0}]}
+    whiff: {for: 6, then: end, do: [{id: snd_whiff, op: sound, sound: block.wool.break, anchor: caster, volume: 0.3, pitch: 1.0}]}
     end: {final: true}
 ---
 apiVersion: astera/v3
@@ -51,7 +51,7 @@ id: couture-rapier-def
 item: couture-rapier
 meta: {cooldown_ticks: 85, resource_cost: 10}
 anchors:
-  - {id: blade, at: caster.hand_r, mount: caster}
+  - {id: blade, anchor: caster.hand_r, mount: caster}
 machine:
   start: guard
   states:

@@ -31,7 +31,7 @@ params:
   radius:   {type: blocks, required: true}
   damage:   {type: number, required: true}
   ring_for: {type: ticks, required: true}
-frames_in:  {at: anchor}
+frames_in:  {center: anchor}
 emits: [end]
 machine:
   start: blast
@@ -40,26 +40,26 @@ machine:
       for: "= ring_for"
       then: end
       enter:
-        - {id: boom, op: sound, sound: entity.generic.explode, at: at, volume: 0.8, pitch: 1.2}
+        - {id: boom, op: sound, sound: entity.generic.explode, anchor: center, volume: 0.8, pitch: 1.2}
         - {id: dmg, op: hit, at: 0, shape: {sphere: "= radius"}, damage: "= damage"}
       do:
         - id: ring
           op: display
           kind: sprite
           sprite: ring-flash
-          at: at
+          anchor: at
           billboard: center
           size: [0.3, 0.3]
           for: "= ring_for"
           motion: [{law: grow, prop: size, per_tick: "= [radius / ring_for, radius / ring_for]"}, {law: fade, exponent: 1.0}]
-        - {id: sparks, op: particle, particle: flame, at: at, count: 6, offset: [0.2, 0.2, 0.2], extra: 0.15, every: 1, for: 4}
+        - {id: sparks, op: particle, particle: flame, anchor: center, count: 6, offset: [0.2, 0.2, 0.2], extra: 0.15, every: 1, for: 4}
     end: {final: true}
 ---
 apiVersion: astera/v3
 kind: Skill
 id: example-fire-bolt
 anchors:
-  - {id: muzzle, at: caster.eye, offset: {forward: 0.5}, mode: snapshot}
+  - {id: muzzle, anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}
 machine:
   start: fly
   states:
@@ -73,7 +73,7 @@ machine:
     boom:
       use: explosion
       with: {radius: 3, damage: 24, ring_for: 8}
-      frames: {at: fly.bolt}                          # read frame from the finished child (snapshot of its last pose)
+      frames: {center: fly.bolt}                          # read frame from the finished child (snapshot of its last pose)
       then_event: boom.end
       on: [{event: boom.end, to: done}]
     done: {final: true}

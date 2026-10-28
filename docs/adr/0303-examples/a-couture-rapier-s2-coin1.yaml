@@ -6,17 +6,17 @@ apiVersion: astera/v3
 kind: Skill
 id: couture-rapier-s2
 anchors:
-  - {id: body,  at: caster}                         # follows; a display on it with mount: caster is a real passenger
-  - {id: slash, at: caster, mode: snapshot}         # coin-1 frame at t7: copied once, world-fixed after the swing starts
+  - {id: body,  anchor: caster}                         # follows; a display on it with mount: caster is a real passenger
+  - {id: slash, anchor: caster, mode: snapshot}         # coin-1 frame at t7: copied once, world-fixed after the swing starts
 presentation:
   timeline:
     - id: fx0
       at: 0
       do:
-        - {id: snd_a, op: sound, sound: entity.player.attack.sweep, at: caster, volume: 0.5, pitch: 0.6}
-        - {id: snd_b, op: sound, sound: item.armor.equip_chain,     at: caster, volume: 0.6, pitch: 1.4}
+        - {id: snd_a, op: sound, sound: entity.player.attack.sweep, anchor: caster, volume: 0.5, pitch: 0.6}
+        - {id: snd_b, op: sound, sound: item.armor.equip_chain,     anchor: caster, volume: 0.6, pitch: 1.4}
         # [REPEAT] a repeating sound is the same timing block as a display: three ticks of rustle, pitch climbing by CEL on the repeat index
-        - {id: snd_rustle, op: sound, sound: item.armor.equip_leather, at: caster, volume: 0.4, every: 2, times: 3, pitch: "= 0.9 + 0.08 * i"}
+        - {id: snd_rustle, op: sound, sound: item.armor.equip_leather, anchor: caster, volume: 0.4, every: 2, times: 3, pitch: "= 0.9 + 0.08 * i"}
     - id: fx3
       at: 3
       do:
@@ -24,7 +24,7 @@ presentation:
           op: display
           kind: sprite
           sprite: couture-s2-haze-soft
-          at: body
+          anchor: body
           offset: {up: 0.9, forward: -0.1}
           billboard: center
           color: "#8A5CFF"
@@ -45,7 +45,7 @@ presentation:
           op: display
           kind: sprite
           sprite: couture-s2-streak
-          at: slash
+          anchor: slash
           offset: {up: "${up}", forward: "${forward}"}
           billboard: center
           rotate: [{axis: face, deg: "${roll}"}]       # constant roll is a static rotation, not a law
@@ -61,7 +61,7 @@ presentation:
           op: display
           kind: sprite
           sprite: couture-s2-crescent-core
-          at: slash
+          anchor: slash
           offset: {up: 1.0, forward: -0.2}
           billboard: center
           size: [0.5, 0.4]
@@ -88,7 +88,7 @@ presentation:
           op: display
           kind: sprite
           sprite: couture-s2-petal-spark
-          at: slash
+          anchor: slash
           # [CEL] spawn-time (class S): each petal gets a seeded jitter on top of its data row, deterministic per cast
           offset: {left: "= ${left} + (rand() - 0.5) * 0.05", up: "${up}", forward: "${forward}"}
           rotate: [{axis: face, deg: "${roll}"}]
@@ -104,4 +104,4 @@ presentation:
             - {law: grow, per_tick: [-0.055, -0.06], from: 1, for: 4}
         # [REPEAT] the particle emit loop is NOT a separate timeline entry any more: it is the same timing block on the op (was sp_loop: at 7, every 1, 7 ticks).
         # `count` is a [CEL] on the repeat index: it thickens, then thins (class S, no per-tick writes; particles are fire-and-forget).
-        - {id: sp, op: particle, particle: end_rod, at: slash, offset: {forward: "= 0.4 * i"}, count: "= 3 + i", extra: 0.02, at: 7, every: 1, for: 7}
+        - {id: sp, op: particle, particle: end_rod, anchor: slash, offset: {forward: "= 0.4 * i"}, count: "= 3 + i", extra: 0.02, at: 7, every: 1, for: 7}

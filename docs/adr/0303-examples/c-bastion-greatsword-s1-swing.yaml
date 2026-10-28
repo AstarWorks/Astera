@@ -9,7 +9,7 @@ apiVersion: astera/v3
 kind: Skill
 id: bastion-greatsword-s1
 anchors:
-  - {id: hand, at: caster.hand_r, mount: caster}      # the sword is a passenger: it cannot lag the hand while the caster moves (RC2)
+  - {id: hand, anchor: caster.hand_r, mount: caster}      # the sword is a passenger: it cannot lag the hand while the caster moves (RC2)
 presentation:
   timeline:
     - id: swing
@@ -21,7 +21,7 @@ presentation:
           kind: item
           item: main_hand                  # resolved to its item_model id at cast start (no cloned stack)
           context: fixed
-          at: hand
+          anchor: hand
           rotate: [{axis: left, deg: 98}, {axis: up, deg: -12}]        # rest: blade up and out of the fist (replaces pivot/rest/tilt)
           for: 47
           motion:
@@ -34,7 +34,7 @@ presentation:
                 - {t: 27, pose: [{axis: left, deg: 300}, {axis: up, deg: 95}], ease: out}    # recover into the cross-cut
                 - {t: 36, pose: [{axis: left, deg: 240}, {axis: up, deg: 25}]}
                 - {t: 47, pose: []}                                                           # back to rest
-        - {id: snd, op: sound, sound: block.gravel.step, at: caster, volume: 1.0, pitch: 0.6}
+        - {id: snd, op: sound, sound: block.gravel.step, anchor: caster, volume: 1.0, pitch: 0.6}
         - id: edge_trail
           op: ribbon
           of: sword.tip                    # tip / root come from content/frames/<item>.yaml

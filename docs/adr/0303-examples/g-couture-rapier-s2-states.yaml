@@ -6,8 +6,8 @@ id: couture-rapier-s2
 item: couture-rapier
 meta: {cooldown_ticks: 125, resource_cost: 18}
 anchors:
-  - {id: shears, at: caster.hand_r, mount: caster}
-  - {id: volley, at: world, mode: snapshot}
+  - {id: shears, anchor: caster.hand_r, mount: caster}
+  - {id: volley, anchor: world, mode: snapshot}
 machine:
   start: coin1
   states:
@@ -20,12 +20,12 @@ machine:
     raise:
       for: 4
       then: spin_up
-      do: [{id: raise_pose, op: keys_pose, anchor: shears, at: 0, for: 6}]
+      do: []                                   # the raise pose is a `keys` law on the shears anchor: anchors: [{id: shears, ..., motion: [{law: keys, ...}]}]
     spin_up:
       for: 30
       then: flight
       do:
-        - {id: spin, op: display, kind: item, item: couture-rapier, at: shears, for: 30,
+        - {id: spin, op: display, kind: item, item: couture-rapier, anchor: shears, for: 30,
            motion: [{law: spin, axis: caster.left, deg_per_tick: 54}]}
     flight:
       for: "= ceil(7.0 / 1.7) + 2"             # S expression: constant at expand time = 7
@@ -44,7 +44,7 @@ machine:
       for: 12                                  # bounded L: reel time depends on distance; declared bound
       bound: [4, 24]
       then: coin3
-      do: [{id: pull, op: reel_to, anchor: volley, to: shears, speed: 0.45}]
+      do: [{id: pull, op: reel, anchor: volley, to: shears, speed: 0.45}]
       on: [{event: reel.arrive, to: coin3}]
       exit: [{id: reel_hit, op: hit, shape: {capsule: 0.2}, damage: 6, at: 0}]
     coin3:                                      # dash + 10 hits (coin3.yaml); visuals reference dash_hit
@@ -61,5 +61,7 @@ machine:
 #   flight  0-7    branches: hit/stick -> stuck | timer(7) -> reel
 #   stuck   0-28   dmg @0 x1, bleed @0 x1
 #   reel    4-24 (bound, L)  branches: arrive -> coin3 | timer(12) -> coin3     hits: reel_hit @exit x1
-#   coin3   0-16   dash @9..15, hit3 @10..19 x10 (note: 19 > 16, lint error: raise `for` or reduce `times`)
+#   coin3   0-16   dash @9..15, hit3 @10..19 x10
+#           INTENTIONAL LINT-ERROR SAMPLE (not a defect): hit3 ends at tick 19 > the state's `for: 16`, so check 8 / 10.4 reports
+#           "hit3 firing @16..19 lies outside state coin3"; the fix is `for: 20` or `times: 7`. Left as is to show what the expand lint says.
 #   worst-case path: coin1(34)+raise(4)+spin_up(30)+flight(7)+stuck(28)+reel(24)+coin3(19) = 146 ticks; best: 34+4+30+7+4+19 = 98

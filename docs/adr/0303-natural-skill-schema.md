@@ -63,15 +63,15 @@ An anchor = **origin + named axes** (forward, left, up; items add `long`, `edge`
 
 ```yaml
 anchors:
-  - {id: hand,   at: caster.hand_r}                                  # follows the caster every send
-  - {id: muzzle, at: caster.eye, offset: {forward: 0.5}, mode: snapshot}   # copied once at activation, then world-fixed
-  - {id: blade,  at: shears.blade_a}                                 # part anchor; axes long/edge/face from content/frames
-  - {id: flash,  at: contact, turn: [{axis: up, deg: 90}]}           # at a contact point; created when the event fires
+  - {id: hand,   anchor: caster.hand_r}                                  # follows the caster every send
+  - {id: muzzle, anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}   # copied once at activation, then world-fixed
+  - {id: blade,  anchor: shears.blade_a}                                 # part anchor; axes long/edge/face from content/frames
+  - {id: flash,  anchor: contact, turn: [{axis: up, deg: 90}]}           # at a contact point; created when the event fires
 ```
 
 | field | meaning |
 |---|---|
-| `at` | parent anchor: `world`, `caster` (feet, yaw-only basis), `caster.eye` (full look basis, no roll), `caster.hand_r`/`hand_l`, `<item-frame>.<part>` (axes from `content/frames/<item>.yaml`), `contact`, `victim.<root/body/head>`, or any declared anchor. A gameplay frame is a valid parent (read-only). |
+| `anchor` | parent anchor: `world`, `caster` (feet, yaw-only basis), `caster.eye` (full look basis, no roll), `caster.hand_r`/`hand_l`, `<item-frame>.<part>` (axes from `content/frames/<item>.yaml`), `contact`, `victim.<root/body/head>`, or any declared anchor. A gameplay frame is a valid parent (read-only). |
 | `offset` | name-keyed map in the PARENT's axes. |
 | `turn` | list of `{axis, deg}` relative to the parent basis, applied in list order. |
 | `mode` | `follow` (default): origin and axes re-read from the parent at every send. `snapshot`: pose copied once at activation, parent becomes `world`. |
@@ -128,7 +128,7 @@ Every field is a vanilla field. Defaults are vanilla defaults.
 - id: shears
   op: display
   kind: item
-  at: hand                         # anchor; the entity LOCATION is the anchor's world origin (+ offset)
+  anchor: hand                         # anchor; the entity LOCATION is the anchor's world origin (+ offset)
   offset: {forward: 0.1}           # optional, anchor axes; folded into the entity location, see 2.3
   item: couture-rapier             # item_model id. `main_hand` is resolved to its model id at cast start (no cloned stack)
   context: fixed                   # item_display context: fixed | thirdperson_righthand | head | gui | ground | ...
@@ -167,13 +167,13 @@ Maps 1:1 to `spawnParticle(particle, x, y, z, count, offsetX, offsetY, offsetZ, 
 overload: `count: 1`, `offset: [0, 0, 0]`, `extra: 0`.
 
 ```yaml
-- {id: puff,  op: particle, particle: dust, at: palm, count: 6, offset: [0.1, 0.1, 0.1], extra: 0, color: "#ff5fa2", size: 1.2}
-- {id: shoot, op: particle, particle: crit, at: muzzle, count: 0, offset: "= anchor.forward", extra: 0.8}   # count 0: offset = DIRECTION, extra = SPEED
+- {id: puff,  op: particle, particle: dust, anchor: palm, count: 6, offset: [0.1, 0.1, 0.1], extra: 0, color: "#ff5fa2", size: 1.2}
+- {id: shoot, op: particle, particle: crit, anchor: muzzle, count: 0, offset: "= anchor.forward", extra: 0.8}   # count 0: offset = DIRECTION, extra = SPEED
 ```
 
 | field | vanilla argument |
 |---|---|
-| `at` | x, y, z (anchor world origin; `{anchor: bolt, sweep: 0.3}` = one call per 0.3 blocks of the anchor's travel since the last send, an explicit loop, not a particle argument) |
+| `anchor` | x, y, z (anchor world origin; `{of: bolt, sweep: 0.3}` = one call per 0.3 blocks of the anchor's travel since the last send, an explicit loop, not a particle argument) |
 | `count` | count. `>0`: N particles, `offset` is the gaussian spread box. `0`: ONE particle, `offset` is the direction vector, `extra` the speed |
 | `offset` | offsetX/Y/Z (world axes; CEL allowed) |
 | `extra` | extra (speed; for dust etc. as vanilla uses it) |
@@ -253,21 +253,21 @@ A law acts on a **property**, named by `prop`. Defaults per kind are in the tabl
 | kind | properties (`prop`) | default prop of `grow` / `fade` |
 |---|---|---|
 | display (item, block, text, sprite) | `offset` (position), `rotate`, `size` (sprite) / `scale`, `alpha` (text, sprite) | `size`/`scale`; `alpha` |
-| particle | `at` (emission point), `count`, `offset` (vanilla: spread box, or the DIRECTION when `count: 0`), `extra` (vanilla: speed) | `count`; `count` |
-| sound | `at` (source point), `volume`, `pitch` | `volume`; `volume` |
+| particle | `anchor` (emission point), `count`, `offset` (vanilla: spread box, or the DIRECTION when `count: 0`), `extra` (vanilla: speed) | `count`; `count` |
+| sound | `anchor` (source point), `volume`, `pitch` | `volume`; `volume` |
 
 | law | on display | on particle | on sound |
 |---|---|---|---|
 | `grow` | `scale`, `size`, `offset` | `count`, `offset`, `extra` | `volume`, `pitch` |
 | `accel` (field on `spin`, `move`, `grow`) | rate of the rate: `deg_per_tick`, blocks/tick, size/tick | `extra` (speed) `accel`; `count` rate | `pitch` / `volume` rate |
-| `move` / `orbit` / `follow` | `offset` | emission point `at`; with `count: 0` also the direction vector | source `at` |
+| `move` / `orbit` / `follow` | `offset` | emission point `anchor`; with `count: 0` also the direction vector | source `anchor` |
 | `spin` | `rotate` | the direction vector (`count: 0`) | n/a |
 | `fade` | `alpha` | `count` to 0 | `volume` to 0 |
 | `align` / `stretch` | orientation / length | direction vector | n/a |
 
 Composition: laws on the same property add their contributions (rates add; rotations compose per 3.2), each only inside its own
 `from`/`for` window; a `to:` target blends from the value at window start. Examples: `{law: grow, prop: count, per_tick: 0.5}` (an emit that thickens),
-`{law: grow, prop: pitch, per_tick: 0.02, accel: 0.001}` (a rising sound), `{law: move, prop: at, velocity: {forward: 0.3}}` (an emitter that drifts),
+`{law: grow, prop: pitch, per_tick: 0.02, accel: 0.001}` (a rising sound), `{law: move, prop: position, velocity: {forward: 0.3}}` (an emitter that drifts),
 `{law: spin, prop: offset, axis: up, deg_per_tick: 12}` (a count-0 particle burst whose direction turns).
 
 How each kind samples a law:
@@ -433,7 +433,7 @@ Sizes in the examples are illustrative: the converter computes them from the spr
 | frame offset `[left, up, forward]` | `{forward, left, up}` map | `translation` / entity location |
 | `pose {rotate: {axis, deg}}` on a display | `rotate` / `keys.pose` | `left_rotation` |
 | `emit {count, dir, spread_deg, speed, inherit_velocity, seed, vanilla}` | `particle {count, offset, extra, color/size/block/item}` | `spawnParticle(count, offX, offY, offZ, extra, data)`; count 0 = direction mode |
-| `emit ... spacing: s` | `particle at: {anchor, sweep: s}` | one call per sample |
+| `emit ... spacing: s` | `particle anchor: {of, sweep: s}` | one call per sample |
 | custom `emit particle: <def>` | `particle_def: <def>` | n/a (engine particle) |
 | `updatePose`/`updateScale` (2-tick scale, 1-tick pose) | one segment write | `interpolation_duration` |
 | `HeldItem` mesh (cloned stack, THIRDPERSON_RIGHTHAND) | `item: main_hand` resolved to model id, `context: fixed` (open decision 1) | `item_display` context |
@@ -533,6 +533,22 @@ machine:
 
 **Hits, damage and resources are effects, not free-floating rows**: `damage`, `status`, `impulse`, `knockback`, `heal` and `resource` ops are valid
 only in `enter`, `do`, `exit` or a transition `do`. A skill's `meta.cooldown_ticks` and `resource_cost` are the gate effects of `use` at cast start (not states).
+
+#### 10.1b Gameplay ops used in states (carried from 0301 unchanged except for the timing block)
+
+All take the timing block (2.0); their own fields keep the 0301 meaning. `YAML` note: the key `on` is a plain string (kaml, YAML 1.2); a YAML 1.1 loader reads it as `true`, so tools parse with a 1.2 loader.
+
+| op | fields |
+|---|---|
+| `hit` | `shape` (one of `sector: {deg, range}`, `sphere: <radius>`, `capsule: <radius>` with the frames' `from`/`to`), `damage`, `window?` |
+| `damage` | `target`, `components: [{kind, amount}]`, `ignore_invulnerability?` |
+| `status` | `target`, `status`, `stacks`, `for` |
+| `modify_attribute` | `target`, `attribute`, `operation`, `amount`, `for` |
+| `impulse`, `knockback`, `heal`, `resource` | as 0301 |
+| `caster_anim` | `anim` |
+| `dash` | `speed`, `for` (caster movement, as 0301 `dash_strike`) |
+| `reel` | `anchor`, `to`, `speed`, `ease?` (as 0301 `reel`) |
+| `emit` | `name` (an event for transitions) |
 
 #### 10.2 Hierarchy and event flow (Harel)
 
@@ -674,7 +690,7 @@ worst-case path exceeds `max_cast_ticks` fails), and the Board's per-item "durat
 
 ## Open decisions (founder)
 
-- **Name collision `at`**: the timing block (2.0) uses `at` for the start tick and the objects use `at` for the anchor. The examples keep both (`at: slash` anchor, `at: 7` tick) and example h uses `at_tick`. Recommendation: rename the anchor field to `on:`-free `anchor:` and keep `at` as time everywhere; the examples would be rewritten once decided.
+- **Name collision `at` (resolved in rev3)**: `at` means the timing start tick ONLY; the object's parent anchor is `anchor:` everywhere (anchors, displays, particles, sounds, ribbons, parts' `frames`).
 - **`then_event` and `bound:` spellings** in examples f/g are provisional; the grammar is `on: [{event: <call>.end, to}]` and `bound: [lo, hi]`.
 
 1. **Held-item context, RC3.** `fixed` (recommended) vs `thirdperson_righthand`. `content/frames/couture-rapier.yaml` points are measured in the
