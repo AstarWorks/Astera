@@ -18,6 +18,13 @@ Proposed. Board SKL-16 (rev1-3), SKL-20 (rev4). Design only; no engine code chan
 9-12 (11.3, 11.4), the acceptance suite A1-A9 (12) and example j. Resolves every open spelling: the law window starts at `at` (never
 `from`), `then_event` is gone, `bound:` has one form. The converter (6) is retired; migration is hand-written v3.
 
+**rev4.1 (2026-10-29, Fable, after the RTM research `design/rtm-lessons.md`, Codex)**: timing is never class L, bounded or not (C5, check 9);
+`until` is a mask over a finite horizon, never a bound, so `n` is never -1 (2.0); occurrence count is `ceil(for / every)` (2.0, C6); a family
+and a repeater are distinct lowerings (2.0); one tick phase order and a same-tick cascade cap (10.2a); `exit.reason` so exit actions can be
+written per exit cause (10.1); swept projectile collision, the hit/end order on one tick and handler sub-tables outliving the body (3.6);
+JSON rows carry their YAML source path (11.3). Examples d and e corrected; r5 strengthened. The adopted / rejected RTM lessons are listed under
+"Open decisions". No new founder question.
+
 **Partially supersedes [[adr/0301-skill-engine-v2-frame-tree]]** (0301's body is not edited). Map:
 
 | 0301 item | Fate |
@@ -60,8 +67,8 @@ consequence of it; where a later sentence contradicts this section, this section
 | **C2 Static part** | The static part of the table lists, per state, **every tick** on which anything happens, and for each: the spawns (frame, display, ribbon, particle burst, sound, projectile body, part instance), the transform keys sent (segment boundaries of section 4, with the full payload), the hit windows (shape, frames, ticks), the gameplay effects, the sub-skill / part calls, and the ends (which instance is removed). An entry is `(state, tick, op id, occurrence i, action)`. |
 | **C3 Event-relative sub-tables** | Everything that happens after an event (`hit`, `bounce`, `end`, `hurt`, `input.*`, `<call>.<event>`, `emit:`) is a **sub-table relative to that event's tick**, computed at compile time exactly like the static part, with its own ticks starting at 0. The runtime only pastes it at `event tick + offset`. Nesting is unbounded in depth but statically finite (C6). |
 | **C4 What may depend on runtime** | Exactly four things, and nothing else: (a) **who** is hit / targeted (the victim set, the contact entity); (b) **which** events fire, and at which tick inside their statically bounded window (a bounce at tick 7 or 9; a hurt at 0..8 of the parry window); (c) **positions**: target, contact point and normal, the caster's live pose, follow-mode anchors (class L, 3.5), each used only as a VALUE in a precomputed row; (d) **chance outcomes** of `rand()` and `chance:` fields, drawn from the seeded stream (3.5), which the table shows for the sample seed and lists as a distribution otherwise. All four change only VALUES inside rows that already exist in the table, never which rows exist or when they play. |
-| **C5 Timing is never runtime** | Every `at`, `for`, `every`, `times`, `until`-window, `lasts`, law window, part `for`, state `for`, transition `after` is resolved at compile time to integers (or to a declared `bound: [lo, hi]` for class L, 11). A timing field that references `rand()`, a live value without `bound`, or `t`/`lt` is a **load error** (check 9). "Random delay" is written as a compile-time value chosen from the seeded stream in a non-timing field (for example `turn: {deg: "= rand() * 360"}`), never as a time. There is no `wait_random`, no runtime `schedule` with a computed delay, no tick-rate adaptation. |
-| **C6 Bounded by construction** | Compile proves and prints: the maximum number of **instances** of every op (product of all enclosing `times` / `floor(for/every)`, part call count, bounce `times`), the maximum number of **live displays** at any tick (check 10, server cap `max_live_displays`), the maximum **repeat depth** and that no repeat is unbounded (check 11), and the min / max **path length** (11). A skill that cannot be bounded does not load; the runtime never has to defend against runaway content. |
+| **C5 Timing is never runtime** | Every `at`, `for`, `every`, `times`, `until`-window, `lasts`, law window, part `for`, state `for`, transition `after` is resolved at compile time to integers. Timing fields accept class S and T values only (3.5); a class L value on a timing field is a **load error** whether or not it declares a `bound` (rev4.1: a bound proves a range, not one schedule; RTM lesson). `rand()`, `t`/`lt` and caster stats on a timing field are load errors for the same reason (check 9). What depends on the world is written as an EVENT inside a finite horizon: a flight that ends by distance is `range:` (its `end` is an event in the window `[min, max]`), a wait is `until: <event>` over the owner's horizon, never a computed number of ticks. "Random delay" is written as a compile-time value chosen from the seeded stream in a non-timing field (for example `turn: {deg: "= rand() * 360"}`), never as a time. There is no `wait_random`, no runtime `schedule` with a computed delay, no tick-rate adaptation. |
+| **C6 Bounded by construction** | Compile proves and prints: the maximum number of **instances** of every op (product of all enclosing `times` / `ceil(for/every)`, part call count, bounce `times`, `until`-masked candidates through the horizon), the maximum number of **live displays** at any tick (check 10, server cap `max_live_displays`), the maximum **repeat depth** and that no repeat is unbounded (check 11), and the min / max **path length** (11). A skill that cannot be bounded does not load; the runtime never has to defend against runaway content. |
 | **C7 Runtime = player** | The runtime holds, per cast: the current state per machine level, the entry tick of each, the set of live instance handles, the seeded stream position, and the event queue. Each tick it looks up `table[state][tick - entry]` and performs the listed actions in table order; on an event it selects the sub-table and starts a cursor on it. It evaluates no timing, chooses no schedule, and allocates nothing except instance handles. Gateways (`ISkillVisualGateway`, `ISkillParticleGateway`, `ISkillSoundGateway`, `ISkillGameplayGateway`) receive exactly the payloads in the table with L values filled in. |
 | **C8 Replay equality** | For the same (skill, seed, event sequence with ticks, L values), two plays produce identical gateway call sequences (the game-sim asserts this, A2/A9). The dump of 11.3 is what the game-sim diffs against; a difference between the dump and the actual calls is an engine bug, never "content". |
 | **C9 Ops are rows, not code** | Gameplay ops, presentation ops, parts and machines all **lower into the same table type** (skeleton: `ExpansionTable`, `Row`, `SubTable`). A new op is a decoder (one file) plus a lowering function that emits rows; it never adds a runtime scheduler. Parts are inlined at compile (9); machines contribute state keys and sub-tables (10); laws contribute segment keys (3, 4). |
@@ -87,7 +94,7 @@ Cancelling therefore never produces a tick that is not in a table.
 - Rotations are never Euler triples. A rotation is `{axis, deg}`, a list of them (applied in order, see 3.2), or a quaternion `[x, y, z, w]`.
 - Interpolating rotation is always slerp (shortest path; the client does the same). A segment that would turn more than 170 degrees is
   split by the engine, never left to the client's shortest-path choice.
-- One unit: blocks. Time: ticks.
+- One unit: blocks. Time: **server ticks** (20/s). There is no other clock, no update period, no wall-clock expiry anywhere in a skill (RTM lesson: its scheduler counted updates of a configurable period; v3 counts ticks only).
 
 ### 1. Anchors
 
@@ -171,8 +178,16 @@ gameplay ops (`hit`, `damage`, `status`, `impulse`, `knockback`, `projectile`). 
 The shipped grammar (`load/grammar/Timing.kt`, `TimingSpec`) enforces the field relations and is the SSOT: `every` needs one of `for` / `times` / `until`;
 `times` needs `every` (or is a family on a point op); `lasts` needs `every` and is only legal on an extended kind, where `every` REQUIRES it.
 
-- Repeat index `i` (0-based) and occurrence count `n` (`times`, else `floor(for / every)`, else -1 for `until`-bounded) are CEL variables (3.5).
-- A repeat with no bound (`every` without one of `for`, `times`, `until`) is a load error.
+- Repeat index `i` (0-based) and occurrence count `n` are CEL variables (3.5). `n` = `times` if given, else `ceil(for / every)` (occurrences at
+  `at + k * every` with `k * every < for`, half-open: `every: 3, for: 7` fires at 0, 3, 6, `n = 3`), else the **horizon count** (next bullet).
+  `n` is never -1 and never unknown at compile time.
+- **`until` is a mask, not a bound (rev4.1).** `every` + `until` with no `for`/`times` takes its candidate ticks from the enclosing **horizon**: the
+  owning state's `for`, the enclosing group's `lasts`, the max `end` of the projectile body the op is anchored to, a part caller's window, or for `for: cast` the cast's max path (11); the tightest in scope wins.
+  Every candidate through the horizon is a row in the table, printed with `mask until <event>`; at runtime the event cuts the remaining rows, and if it
+  never fires every candidate plays. An `every` with no `for`/`times` and no finite horizon in scope is a load error (`UnboundedRepeat`).
+- **Family or repeater, never both.** `times` without `every` = a family of N simultaneous instances (`id[i]`, 1.1); `times` with `every` = N
+  occurrences in time. An op that must be both (three blades that pulse) is a group with `every` whose `do` holds the family op: the copy index is `i`,
+  the occurrence index `parent.i` (2.0a). The two lowerings are distinct and the table names them (`blade[2]` vs `pulse[2]/blade[1]`).
 - Examples of the same grammar on different kinds: sound `{at: 4, every: 4, until: release}`; particle `{at: 7, every: 1, for: 7}`; display
   `{at: 7, for: 5}`; trail ribbon `{at: 4, until: release}`; multi-hit `{op: hit, at: 8, every: 2, times: 3}`; damage over time
   `{op: damage, at: 0, every: 10, for: 60}`. Each occurrence of a gameplay op sees its own `i`.
@@ -439,10 +454,10 @@ field below is required unless marked identity; no field has a hidden default (`
 | `origin` | the anchor whose origin and basis the body is spawned with (`muzzle`, `caster.eye`, `contact`, a frame id). |
 | `velocity`, `speed` | direction and speed. `speed: {from, to, for, ease}` is the ramp of 3.7.1 (T-class, exact path at compile). `gravity`, `drag` as `move` (3). |
 | `range` / `for` | end of flight by distance or ticks; both allowed, the earlier wins. One is required (5). The `end` tick is listed in the table as a bounded window `[min, max]` (speed ramp and bounces make it a range). |
-| `radius`, `hit` | the hit capsule and victim rule. `hit.targets`: `enemies` / `allies` / `all` / `blocks_only`; `hit.once`; `hit.times` (pierce count, required when `once: false`). |
+| `radius`, `hit` | the hit capsule and victim rule. `hit.targets`: `enemies` / `allies` / `all` / `blocks_only`; `hit.once`; `hit.times` (pierce count, required when `once: false`). Collision is **swept**: each tick the engine tests the capsule swept from the previous body position to the current one, so a fast body never tunnels and there is no substep count field (RTM's `repeat`/`maxRepeat` are not imported). The contact point is the first point of the sweep that hits. |
 | `motion` | laws on the body frame (3). `spin` here is a frozen-axis rotation of the body basis; displays `anchor: ball` ride it (one segment write for a constant spin). `align: {axis: forward, to: velocity}` keeps the nose on the path through bounces (one write per bounce). |
 | `block` | `mode` required: `despawn` (events `end`), `stick` (`for` ticks stuck; events `stick`, `unstick`, `end`), `bounce` (`restitution` required, `times` required = max bounces; events `bounce` with `event.i`, `end` after the last or at `range`/`for`), `pass` (no block events; `range`/`for` end it). |
-| `on` | handlers keyed by event: `hit`, `bounce`, `stick`, `unstick`, `block` (any block contact, before the mode's own event), `end`. Each value is a `do` list; `at: 0` = the event tick; `contact`, `target` / `event.victim`, `event.i` are bound inside. `end` fires exactly once per body, after every other event, also on cancel. A handler list may hold groups, displays, `use:` parts, `use: skill:` calls and gameplay ops; it is compiled to a sub-table (C3). |
+| `on` | handlers keyed by event: `hit`, `bounce`, `stick`, `unstick`, `block` (any block contact, before the mode's own event), `end`. Each value is a `do` list; `at: 0` = the event tick; `contact`, `target` / `event.victim`, `event.i` are bound inside. `end` fires exactly once per body, after every other event, also on cancel. On one tick the order is fixed: body motion, swept collision, then the events in the order `hit` (per victim, declaration order), `block`, the mode's event (`bounce` / `stick` / `end`), and their `@0` handler rows in that same order (10.2a). **Handler sub-tables are owned by the occurrence (the cast), not by the body**: an `on: hit` explosion keeps running after the body despawns; `contact` and the body's last pose are **snapshots** taken at the event tick (example j: `frames: {origin: ball}` in `on: end` is the last pose). A handler list may hold groups, displays, `use:` parts, `use: skill:` calls and gameplay ops; it is compiled to a sub-table (C3). |
 | trail (C5) | there is **no `onTick` op**. A trail is a rider: `{op: particle, anchor: ball, every: 1, until: ball.end}` or a `ribbon` on the body frame. It is a static row set, the body position is its only L value. |
 | `frame` | optional: drive an already spawned frame (1.1) instead of creating one (`times: N` on the projectile makes N bodies `ball[i]`). |
 
@@ -738,7 +753,7 @@ machine:
       then: active                       # shorthand for on: [{timer: end-of-for, to: active}]
       enter: [ ... ]                     # entry actions (ops, timing relative to entering; `t` = 0 here)
       do:    [ ... ]                     # ops that live in this state (full timing block 2.0, relative to state entry)
-      exit:  [ ... ]                     # exit actions, run on EVERY way out (transition, preempt, cancel)
+      exit:  [ ... ]                     # exit actions, run on EVERY way out; `exit.reason` (timer | event | preempt | cancel) is bound here, class S
       on:                                # transitions, first match in list order wins
         - {event: input.sneak, to: cancelled}
     active:
@@ -794,6 +809,24 @@ All take the timing block (2.0); their own fields keep the 0301 meaning. `YAML` 
   (or `until:`). Used for "dash body + trail display", not for gameplay state.
 - Event delivery is per tick, in a fixed order: input, gameplay events (hit, hurt, contact), timers, then guards re-evaluated. At most
   one transition fires per machine level per tick; the next fires next tick (no instantaneous cascades without a tick, which would loop).
+- **`exit.reason` (rev4.1)**: inside `exit:` actions the CEL variable `exit.reason` is one of `timer`, `event`, `preempt`, `cancel`. It is class S:
+  the compiler emits one exit sub-table per reason that can reach the state, so `when: "= exit.reason != 'cancel'"` on a gameplay exit action simply
+  omits that row from the cancel sub-table (example e's riposte). Exit actions still run on every way out; the author chooses per action, in the YAML,
+  never the engine (RTM lesson: cancel / end / abbreviate had three different cleanup paths; v3 has one path and a reason).
+
+#### 10.2a One tick, in order (rev4.1)
+
+Within one server tick a cast's rows play in this phase order, and the dump sorts rows by it inside a tick:
+
+1. state rows at this tick, table order: `enter`/`exit` bookkeeping, `spawn`, `key`/`teleport`, `particle`/`sound`, gameplay (`hit`, `damage`, ...), `lock`, `call`, `emit`, `end`;
+2. projectile bodies: motion, swept collision (3.6);
+3. events produced this tick, delivered in 10.2 order; each event's sub-table `@0` rows play now, in the order of 1;
+4. events produced by those `@0` rows (an `emit` in a handler, a `cancel`) are delivered in the same tick, at most `max_same_tick_depth` levels deep
+   (server config, default 4; the compiler counts the longest `@0` chain and refuses a deeper one, check 12); deeper chains are a load error, never a deferral;
+5. cleanup: instances whose `end` row played are removed, after their riders' `until` rows.
+
+Sibling order is declaration order at every level. Two casts play in cast-start order. This is the whole runtime ordering rule; nothing is sorted by end time
+or by scheduler count (RTM lesson).
 
 #### 10.3 Old constructs fold into the machine
 
@@ -899,10 +932,10 @@ paths: parry_window->riposte->end = 8+7+... min 7 max 15 | parry_window->whiff->
 |---|---|
 | S (spawn) | evaluated at expand time wherever its inputs are static (params, `i`, `n`, constants); `rand()` is evaluated with the seeded stream so the table is exactly what a cast produces for the sample seed; the table lists a range when the input is a caster-dependent value |
 | T (time) | evaluated at expand time: sampled and fitted (3.5) so segment counts are exact |
-| L (live) | marked `runtime-only` in the table and **must declare a bound**: `count: {expr: "= live_count", bound: [1, 12]}` or `for: {expr: "= dist(caster, target) / 0.8", bound: [2, 20]}`. The table uses the bound for min/max. |
+| L (live) | marked `runtime-only` in the table and **must declare a bound** on numeric fields: `count: {expr: "= live_count", bound: [1, 12]}`, `amount: {expr: "= 4 * caster.level", bound: [4, 120]}`. The table uses the bound for the display cap and for min/max of values. **Never on a timing field** (C5, check 9): `for: {expr: "= dist(caster, target) / 0.8", bound: [2, 20]}` is a load error (rev4.1; it was allowed in rev4). |
 
-**An op whose timing depends on an unbounded L value is a load error** (no declared `bound`, or the value falls outside it at runtime: the runtime
-clamps and logs, the lint cannot prove it). This is what lets min and max be computed for every path; and it extends the termination rule of 10.4 (check 8).
+**An L value outside its declared bound at runtime is clamped and logged** (the lint cannot prove it). Timing never depends on L, so min and max
+path lengths are exact integers from S/T values, events' windows and horizons alone (check 8).
 
 #### 11.1 Two notations, one result
 
@@ -916,7 +949,7 @@ desugars to produces the same table as the `seq:` itself, tick for tick; a misma
 
 #### 11.2 Static check 8 and what the table also gives
 
-8. **Bounded timing**: every `at`, `for`, `every`, `times`, `until` resolves to a bound at expand time (S/T evaluated, L declared). Unbounded timing is a load error.
+8. **Bounded timing**: every `at`, `for`, `every`, `times`, `lasts` resolves to an integer at expand time (S/T evaluated), every `until` to a finite horizon (2.0). Unbounded timing is a load error.
 
 The same table also feeds: the writes lint of 3.5, the min/max path lengths used for cooldown and animation-lock sanity checks (a skill whose
 worst-case path exceeds `max_cast_ticks` fails), and the Board's per-item "durations and hits" evidence.
@@ -933,6 +966,7 @@ state <name>  for=<n|event-bounded [lo,hi]>  then=<state>  enter-from: <list>
   ...
   branches: <event>[window lo..hi] -> <state> (guard <cond name or expr>) | timer(<n>) -> <state>
 sub <event path>  (relative to <event>; window [lo,hi] in <state>)          # one block per C3 sub-table, same row grammar
+sub <state>.exit[<reason>]  (relative to the exit tick)                    # one per reachable exit reason (10.2); rows differ by `exit.reason` guards
   @<tick>  ...
 writes: <display id>: <segments> seg, max <w>/tick
 ```
@@ -940,21 +974,25 @@ writes: <display id>: <segments> seg, max <w>/tick
 Row `<action>` vocabulary (one per gateway call or table transition): `spawn <kind> anchor=<id> pose={...}`, `key <display> dur=<d> T={translation,
 left, scale}`, `teleport <display> dur=<d> pos=<L:anchor>`, `particle <type> count= offset= extra= pos=<L:anchor>`, `sound <id> vol= pitch= pos=`,
 `hit <shape> frames= targets=`, `damage targets=<L:victims> amount=`, `status ...`, `impulse ...`, `lock move=? pitch=?`, `call <part|skill> as <call id> with={...}
-frames={...}`, `emit <event>`, `end <id>`, `cancel <scope>`. An L value is printed as `<L:name bound=[lo,hi]>`; an S/T value is printed evaluated.
+frames={...}`, `emit <event>`, `end <id>`, `cancel <scope>`. An L value is printed as `<L:name bound=[lo,hi]>`; an S/T value is printed evaluated. A candidate row under an `until` carries the suffix
+`mask until <event>` (2.0). The JSON form adds `src` (the YAML path of the op, `machine.states.cast.do[0].do[1]`) to every row for error messages and
+the skill-compare page; the text form omits it so the `# expand:` blocks stay readable (rev4.1).
 `expand --json` prints the same table as JSON (`ExpansionTableJson`, one object per row with the same fields) for the game-sim diff (A2) and
 the skill-compare page.
 
 #### 11.4 Static checks 9-12 (compile refuses what the runtime could not play, C5 / C6)
 
 9. **No runtime timing**: a timing field (2.0 fields, law windows, state `for`, transition `after`, projectile `range`/`for`, `lasts`) that references
-   `rand()`, `t`/`lt`, or an L-class value without `bound:` is a load error (`SkillDecodeError.RuntimeTiming`).
+   `rand()`, `t`/`lt`, a caster stat, or any L-class value, bounded or not, is a load error (`SkillDecodeError.RuntimeTiming`). A `{expr, bound}` form on a
+   timing field is the same error (rev4.1).
 10. **Live display cap**: the maximum number of displays alive at one tick on any path (sum over states of owned extended instances x their bounds)
     must not exceed `max_live_displays` (server config, default 64); the table prints the peak and the tick.
 11. **Bounded instances**: every op's instance bound (product of enclosing group bounds, `times`, part call count, bounce `times`) is finite and at
     most `max_instances_per_op` (default 256); a group deeper than `max_group_depth` is an error.
 12. **Table closure**: every event named in `until:`, `at: <event>`, `on:` or a transition has a producer in scope (built-in for the kind, a
     projectile of this cast, a part's `emits`, an `emit:`), and every sub-table is reachable from some event producer; an unreachable sub-table or
-    an unproduced event is an error (sharpens 10.4 check 5 for event-relative sub-tables).
+    an unproduced event is an error (sharpens 10.4 check 5 for event-relative sub-tables). Also: the longest same-tick chain of `@0` rows that
+    produce events (10.2a) is at most `max_same_tick_depth`.
 
 ### 12. Acceptance suite A1-A9 (the definition of "the engine implements this ADR")
 
@@ -966,11 +1004,11 @@ its class, what it asserts per tick, and the fixture. Migration (wave 2) starts 
 |---|---|---|---|
 | A1 | `AdrExamplesLoadScenarioTest#everyExampleLoadsAndExpands` | each `docs/adr/0303-examples/*.yaml` decodes with zero errors, lowers to an `ExpansionTable`, the dump is byte-equal to the `# expand:` block in the file's comments, and the dump is stable across two loads | examples a-j |
 | A2 | `AdrExampleBehaviourScenarioTest#<example>PlaysItsTable` (one case per example) | playing the cast in the sim for its max path length produces exactly the gateway call sequence the table lists, tick for tick (spawn, keys, particles, sounds, hits, calls, ends); with a scripted event sequence (hit at tick k, bounce at tick m) the event sub-tables are pasted at those ticks and nowhere else (C3, C8) | examples a-j; scripted events for b, f, g, j |
-| A3 | `TimingBlockScenarioTest` cases: `atForEvery`, `timesCapsOccurrences`, `untilEventEndsWindowAndInstances`, `lastsEndsEachOccurrence`, `nestedGroupsIndexAndParentIndex`, `occurrenceClockIsLocal`, `easedEveryFireTicks`, `familyTimesCreatesIndexedInstances` | per tick: the set of firing op ids and their `i`, `n`, `parent.i` values; instance start/end ticks; the eased `every` fire ticks equal the 3.7.1 formula | example d, j; inline YAML strings in the test for each case |
+| A3 | `TimingBlockScenarioTest` cases: `atForEvery`, `timesCapsOccurrences`, `untilEventEndsWindowAndInstances`, `lastsEndsEachOccurrence`, `nestedGroupsIndexAndParentIndex`, `occurrenceClockIsLocal`, `easedEveryFireTicks`, `familyTimesCreatesIndexedInstances`, `ceilCountOnNondivisibleWindow`, `untilMasksCandidatesThroughHorizon`, `everyWithoutHorizonIsLoadError`, `repeatingFamilyIsGroupPlusFamily` | per tick: the set of firing op ids and their `i`, `n`, `parent.i` values; instance start/end ticks; the eased `every` fire ticks equal the 3.7.1 formula | example d, j; inline YAML strings in the test for each case |
 | A4 | `CompositionScenarioTest` cases: `partInlinedWithPrefixedIds`, `partSeesOnlyBoundFrames`, `partEmitsCrossBoundary`, `skillCallUngatedByDefault`, `skillCallGateCooldownAndCost`, `withArgsAreTypedAndRequired`, `recursionIsLoadError`, `cancelDepthFirstRunsExits` | the expanded table of the caller contains the part's rows under `<call id>/`; a part referencing a caller frame fails to load; `g.parried` reaches the caller's transition at the event tick; cost/cooldown gateway calls appear only with `gate:`; cancel order of exit actions | examples e, f, j |
 | A5 | `MotionLawsWiredScenarioTest` cases: one per law (`spin`, `move`, `orbit`, `grow`, `fade`, `align`, `follow`, `stretch`, `keys`) plus `lawWindowAtNotFrom`, `overlappingLawsCompose`, `easeShapesTotal`, `segmentBudgetSplits`, `lawOnParticleAndSound` | per segment write: `(tick, duration, translation, left_rotation, scale)` equals the closed form at the segment end; rotation composed outer-to-inner; eased spin total `deg_per_tick * for`; `from` on a law = `SkillDecodeError.UnknownKey`; a particle occurrence train samples the law per occurrence | examples a, d, i; inline YAML |
-| A6 | `ProjectileScenarioTest` cases: `rangeEnds`, `forEnds`, `speedRampPathIsExactIntegral`, `spinAboutForwardOneWrite`, `trailRidesBody`, `bounceHandlerCarriesIndex`, `stickUnstickEvents`, `despawnEnd`, `passNoBlockEvents`, `hitOnceEndsFlight`, `hitPierceTimes`, `onEndSubSkillWithParams`, `onHitSubSkillWithParams`, `endFiresOnCancel`, `blockModeFieldsRequired` | per tick body position (world) against the integrated speed ramp within 0.001; the `end` tick inside the printed `[min, max]`; the `on:` sub-tables pasted at the event tick with `event.i`, `contact`, `target` bound; the called skill receives the `with:` values; a missing `times` on bounce = `MissingField` | examples b, f, j |
-| A7 | `PartMachineWiredScenarioTest` cases: `statesForThenTimer`, `transitionOrderFirstMatch`, `eventBubblesChildToParent`, `preemptionExitsChildrenInnermostFirst`, `parallelRegionsEndWhenAllFinal`, `ownedInstancesEndOnExit`, `lockMovePitchWindow`, `cancelCastEmitsCancelThenEnd`, `cancelStateTakesThen`, `cancelInstanceFiresEnd`, `namedConditionGuard`, `machineLintChecks1to8` | the active state per tick; exit/transition/enter order of actions; display handles removed on exit; the caster pitch gateway holds the value across the lock window; event order cancel -> end; `cond:` guard values at the event tick; each of 10.4 checks 1-8 has a rejected inline YAML | examples e, g; inline YAML |
+| A6 | `ProjectileScenarioTest` cases: `rangeEnds`, `forEnds`, `speedRampPathIsExactIntegral`, `spinAboutForwardOneWrite`, `trailRidesBody`, `bounceHandlerCarriesIndex`, `stickUnstickEvents`, `despawnEnd`, `passNoBlockEvents`, `hitOnceEndsFlight`, `hitPierceTimes`, `onEndSubSkillWithParams`, `onHitSubSkillWithParams`, `endFiresOnCancel`, `blockModeFieldsRequired`, `sweptCollisionNoTunnel`, `hitBlockModeEventOrderOneTick`, `handlerOutlivesBodyWithSnapshotFrame` | per tick body position (world) against the integrated speed ramp within 0.001; the `end` tick inside the printed `[min, max]`; the `on:` sub-tables pasted at the event tick with `event.i`, `contact`, `target` bound; the called skill receives the `with:` values; a missing `times` on bounce = `MissingField` | examples b, f, j |
+| A7 | `PartMachineWiredScenarioTest` cases: `statesForThenTimer`, `transitionOrderFirstMatch`, `eventBubblesChildToParent`, `preemptionExitsChildrenInnermostFirst`, `parallelRegionsEndWhenAllFinal`, `ownedInstancesEndOnExit`, `lockMovePitchWindow`, `cancelCastEmitsCancelThenEnd`, `cancelStateTakesThen`, `cancelInstanceFiresEnd`, `namedConditionGuard`, `machineLintChecks1to8`, `exitReasonGuardOmitsRowFromCancelSubTable`, `sameTickCascadeDepthCapIsLoadError`, `tickPhaseOrder` | the active state per tick; exit/transition/enter order of actions; display handles removed on exit; the caster pitch gateway holds the value across the lock window; event order cancel -> end; `cond:` guard values at the event tick; each of 10.4 checks 1-8 has a rejected inline YAML | examples e, g; inline YAML |
 | A8 | `StrictDecodeScenarioTest#rejectedExamplesFailWithNamedError` (one case per file) + `noHiddenDefaultsInSchema` | every `0303-examples/rejected/*.yaml` fails with the `SkillDecodeError` subtype named in its first comment line; the generated JSON schema (`Fields.jsonSchema()`) contains no `default` other than identity values listed in 2.0b; unknown keys at any depth are errors | `rejected/r1..r8` |
 | A9 | `ShippedV3ContentScenarioTest#everyShippedSkillLoadsExpandsAndReplays` | every `content/skills/*.yaml` and `content/skill-parts/*.yaml` loads, passes checks 1-12, dumps, and replays byte-equal to its own dump in the sim for the sample seed; the per-skill `expand` dump is stored under `build/skill-expand/` as evidence | real content |
 
@@ -1027,6 +1065,14 @@ Resolved (not founder decisions; engine facts, rev3/rev4):
   found in the kept skills. If a case appears that needs it, it is a new ADR, not a field.
 - **Group blocks do not inherit (rev4)**: a timing group's fields are its own occurrence schedule, never its children's defaults (2.0a).
 - **Chance is outcome, never timing (rev4, C4d/C5)**.
+- **RTM lessons (rev4.1, `design/rtm-lessons.md`)** - adopted: additive parent-relative child offsets (2.0a, already); `until` = mask over a finite
+  horizon, `n` never -1; `ceil` occurrence count; family vs repeater as two lowerings; one tick phase order + same-tick cascade cap; one cancel path with
+  `exit.reason`; handler sub-tables owned by the cast with snapshot frames; swept collision instead of substep counts; timing never class L; one
+  server-tick clock; JSON `src` per row. Rejected: a `viewers`/receiver policy per effect (per-viewer is not table state; vanilla range rules apply; a
+  future ADR if ever needed); cross-cast trigger-combo state (lives in the item / trigger layer, outside the engine); a material flipbook construct (N
+  displays with staggered `at`/`for` are static rows already); mutable circle / angle state across occurrences (laws recompute from `i`, `t`);
+  parameter-specialised precompiled timing variants (timing takes no parameter that is not class S at the call site; `with:` args are S or the call
+  fails to load).
 
 1. **Held-item context, RC3.** `fixed` (recommended) vs `thirdperson_righthand`. `content/frames/couture-rapier.yaml` points are measured in the
    `fixed` basis and the three pieces of coin 2 share it; `thirdperson_righthand` (`held_hand` part in the frames file) matches how the real held

@@ -119,7 +119,7 @@ machine:
 #   @T+1 volley[k]/core  key dur=3 pos=<L:ball>+3fwd left=rot(forward,120)      # 30 deg/tick, segments split under 170 deg (0): 1-4, 4-8, 8-12
 #   @T+4 volley[k]/core  key dur=4 pos=<L:ball>+4fwd left=rot(forward,240)
 #   @T+8 volley[k]/core  key dur=4 pos=<L:ball>+4fwd left=rot(forward,360)
-#   @T+j volley[k]/trail[j]  particle flame count=3 offset=[0.1,0.1,0.1] extra=0 pos=<L:ball>   for j = 0..11, cut by ball.end
+#   @T+j volley[k]/trail[j]  particle flame count=3 offset=[0.1,0.1,0.1] extra=0 pos=<L:ball>  mask until ball.end   for j = 0..11 (horizon = ball max end 12, 2.0)
 #   @T+12 volley[k]/ball  end (range)                                             # unless hit/block earlier (sub-table below is pasted at the real tick)
 #   branches: volley[k]/ball.hit[window T+1..T+12] -> sub volley[k]/ball.hit (then ball.end same tick)
 #             volley[k]/ball.block[window T+1..T+12] -> ball.end
