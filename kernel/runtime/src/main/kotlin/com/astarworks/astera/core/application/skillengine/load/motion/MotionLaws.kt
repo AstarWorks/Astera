@@ -16,7 +16,9 @@ import com.astarworks.astera.core.application.skillengine.load.grammar.Span
 import com.astarworks.astera.core.application.skillengine.load.grammar.TimingSpec
 import com.astarworks.astera.core.application.skillengine.load.grammar.Types
 import com.astarworks.astera.core.domain.Result
+import com.astarworks.astera.core.domain.animation.Easing
 import com.astarworks.astera.core.domain.geometry.Vec3
+import com.astarworks.astera.core.domain.geometry.math.Quaternion
 import com.astarworks.astera.core.domain.skillengine.model.Value
 import com.astarworks.astera.core.domain.skillengine.motion.FadeRate
 import com.astarworks.astera.core.domain.skillengine.motion.GrowRate
@@ -35,29 +37,33 @@ import kotlin.math.floor
  * ```yaml
  * motion:
  *   - {law: spin, axis: up, deg_per_tick: 12, for: 20, ease: out_cubic}        # 12*20 = 240 deg, decelerating (ease shapes the TOTAL)
- *   - {law: move, velocity: {forward: 0.4}, from: 4, for: 10}                  # blocks per tick in the anchor's axes
+ *   - {law: move, velocity: {forward: 0.4}, at: 4, for: 10}                  # blocks per tick in the anchor's axes
  *   - {law: grow, start: 1, per_tick: 0.05, for: 10}                           # or `to: 1.5` instead of per_tick
- *   - {law: fade, from: 20, for: 10}                                           # start 1 -> to 0, exponent 1
+ *   - {law: fade, at: 20, for: 10}                                             # start 1 -> to 0, exponent 1
  *   - {law: spin, axis: left, deg_per_tick: 30, for: 3, every: 8, times: 4}    # four copies, 8 ticks apart
  *   - law: keys
  *     keys: [{t: 0, offset: {up: 0}}, {t: 6, offset: {up: 0.5}, pose: [{axis: left, deg: 40}], ease: out_quad}]
  * ```
  *
- * Window words: `from` (start tick, default 0), `for` (length in ticks, REQUIRED; an open window is not lowerable), `every` + `times` (repeat:
- * a fixed period or `{from, to, ease}`, the same static spacing rule as ADR-0303 3.7.1; the period must exceed `for`, copies never overlap).
- * Numbers are literals or numeric `${param}`s; a CEL `= expr` is a load error because the law is expanded while the file loads.
+ * Window words: `at` (start tick, default 0; `from` is a load error, it was renamed to match the Timing block), `for` (length in ticks,
+ * REQUIRED; an open window is not lowerable), `every` + `times` (repeat: a fixed period or `{from, to, ease}`, the same static spacing rule as
+ * ADR-0303 3.7.1; the period must exceed `for`, copies of one law never overlap). Numbers are literals or numeric `${param}`s; a CEL `= expr`
+ * is a load error because the law is expanded while the file loads.
  *
- * Lowering limit, stated: laws on the SAME channel (offset / turn / scale / alpha) must not overlap in time (a key table holds one value
- * per channel and tick, summing laws is not expressible); the check includes the ticks of `keys`. Overlap is a load error naming both.
+ * Rates add (ADR-0303 section 3): laws on the SAME channel may overlap. Laws whose windows overlap or touch form a cluster; inside the
+ * cluster's span every law is sampled per tick (its own key table, holding its first / last value outside its window) and the samples are
+ * combined into one key per tick: offsets add, turns compose as quaternions in list order, scales multiply, alphas multiply. Laws that
+ * overlap nothing keep their segment keys (small tables). A `keys` law is absolute, so a key tick inside another law's window, or two keys
+ * on one tick of one channel, stays a load error naming both.
  */
 public object MotionLaws {
     private val LAWS = listOf("spin", "move", "grow", "fade", "keys")
 
     private fun lawField(name: String) = Field.required("law", Types.enumOf(name), "rate law kind: ${LAWS.joinToString(", ")}")
-    private val fromF = Field.optional("from", Types.number, Value.Literal(0.0), "start tick of the law's window (ticks since the instance started)")
+    private val atF = Field.optional("at", Types.number, Value.Literal(0.0), "start tick of the law's window (ticks since the instance started)")
     private val easeF = Field.optional("ease", Types.nullable(Types.id), null, "shapes the accumulated TOTAL over the window (ADR-0303 3.7); absent = linear")
 
-    private val window = Fields.of("law-window", fromF, TimingSpec.forSpan, TimingSpec.every, TimingSpec.times, easeF)
+    private val window = Fields.of("law-window", atF, TimingSpec.forSpan, TimingSpec.every, TimingSpec.times, easeF)
 
     // spin
     private val axisF = Field.required("axis", Types.id, "forward|back|up|down|left|right, '-' negated; frozen in the parent basis")
@@ -100,8 +106,11 @@ public object MotionLaws {
         "keys" to Fields.of("keys-law", lawField("keys"), keysF),
     )
 
-    /** One window on one channel of the lowered track, for the overlap check. */
-    private class Piece(val path: String, val channel: String, val from: Int, val to: Int)
+    /**
+     * One window (rate law copy: [keys] is its own expanded table) or one key tick ([keys] null, `from == to`) on one channel of the lowered
+     * track. [order] is the index of the law in the `motion:` list: it fixes the composition order of turns.
+     */
+    private class Piece(val path: String, val channel: String, val from: Int, val to: Int, val order: Int, val keys: List<TrackKey>?)
 
     private class Lowered(val keys: List<TrackKey>, val pieces: List<Piece>)
 
@@ -110,9 +119,13 @@ public object MotionLaws {
         val list = raw as? List<*> ?: ctx.mismatch(path, "list of laws {law: spin|move|grow|fade|keys, ...}", raw)
         if (list.isEmpty()) ctx.fail(path, "motion must not be empty (omit it for a still object)")
         val n = LawNumbers(ctx)
-        val lowered = list.mapIndexed { i, item -> lawOf(item, ctx, n, "$path[$i]") }
-        checkOverlap(lowered.flatMap { it.pieces }, ctx)
-        return lowered.flatMap { it.keys }.sortedBy { it.tick }
+        val lowered = list.mapIndexed { i, item -> lawOf(item, ctx, n, "$path[$i]", i) }
+        val pieces = lowered.flatMap { it.pieces }
+        checkAbsolute(pieces, ctx)
+        val composed = compose(pieces, n)
+        val dropped = java.util.Collections.newSetFromMap(java.util.IdentityHashMap<TrackKey, Boolean>())
+        composed.dropped.forEach { dropped += it }
+        return (lowered.flatMap { it.keys }.filter { it !in dropped } + composed.added).sortedBy { it.tick }
     }
 
     public fun decode(raw: Any?, ctx: GrammarContext, path: String): Result<List<TrackKey>, SkillDecodeError> =
@@ -125,18 +138,19 @@ public object MotionLaws {
         "items" to linkedMapOf("oneOf" to specs.values.map { it.jsonSchema() }),
     )
 
-    private fun lawOf(raw: Any?, ctx: GrammarContext, n: LawNumbers, path: String): Lowered {
+    private fun lawOf(raw: Any?, ctx: GrammarContext, n: LawNumbers, path: String, order: Int): Lowered {
         val map = raw as? Map<*, *> ?: ctx.mismatch(path, "law map {law: ${LAWS.joinToString("|")}, ...}", raw)
+        if ("from" in map && map["law"] != "keys") ctx.fail("$path.from", "'from' is not a law field any more: write 'at' for the start tick of the window")
         val name = map["law"] as? String ?: ctx.fail("$path.law", "every motion entry names its kind: law: ${LAWS.joinToString("|")}")
         val spec = specs[name] ?: ctx.fail("$path.law", "unknown law '$name' (known: ${LAWS.joinToString(", ")})")
         val v = spec.read(raw, ctx, path)
-        return if (name == "keys") keysOf(v, ctx, n, path) else rateOf(name, v, ctx, n, path)
+        return if (name == "keys") keysOf(v, ctx, n, path, order) else rateOf(name, v, ctx, n, path, order)
     }
 
     // ------------------------------------------------------------------------------------------ rate laws
 
-    private fun rateOf(name: String, v: FieldValues, ctx: GrammarContext, n: LawNumbers, path: String): Lowered {
-        val from = n.ticks(v[fromF], "$path.from")
+    private fun rateOf(name: String, v: FieldValues, ctx: GrammarContext, n: LawNumbers, path: String, order: Int): Lowered {
+        val from = n.ticks(v[atF], "$path.at")
         val span = v[TimingSpec.forSpan] ?: ctx.abortMissing(path, "for")
         val forTicks = when (span) {
             is Span.Ticks -> n.ticks(span.ticks, "$path.for").also { if (it < 1) ctx.fail("$path.for", "a law runs for at least 1 tick") }
@@ -159,7 +173,8 @@ public object MotionLaws {
                 ctx.fail(path, e.message ?: "invalid rate law")
             }
         }
-        return Lowered(RateLawExpander.expand(laws), starts.map { Piece(path, channel, it, it + forTicks) })
+        val pieces = starts.zip(laws) { s, law -> Piece(path, channel, s, s + forTicks, order, RateLawExpander.expand(law)) }
+        return Lowered(pieces.flatMap { it.keys!! }, pieces)
     }
 
     private fun spin(v: FieldValues, ease: String?, forTicks: Int, ctx: GrammarContext, n: LawNumbers, path: String): (Int) -> RateLaw {
@@ -245,7 +260,7 @@ public object MotionLaws {
 
     // ------------------------------------------------------------------------------------------ keys
 
-    private fun keysOf(v: FieldValues, ctx: GrammarContext, n: LawNumbers, path: String): Lowered {
+    private fun keysOf(v: FieldValues, ctx: GrammarContext, n: LawNumbers, path: String, order: Int): Lowered {
         val items = v[keysF]
         if (items.isEmpty()) ctx.fail("$path.keys", "keys must not be empty")
         val keys = ArrayList<TrackKey>()
@@ -270,26 +285,101 @@ public object MotionLaws {
             )
             if (channels.isEmpty()) ctx.fail(p, "a key sets at least one of offset, pose, scale, alpha")
             keys += TrackKey(tick, offset, turn, scale, ease, alpha)
-            channels.forEach { pieces += Piece(p, it, tick, tick) }
+            channels.forEach { pieces += Piece(p, it, tick, tick, order, null) }
         }
         return Lowered(keys, pieces)
     }
 
-    // ------------------------------------------------------------------------------------------ cross-law check
+    // ------------------------------------------------------------------------------------------ cross-law
 
-    private fun checkOverlap(pieces: List<Piece>, ctx: GrammarContext) {
+    /** Keys are absolute: a key tick inside a rate window, or two key ticks of different laws on one channel and tick, cannot be combined. */
+    private fun checkAbsolute(pieces: List<Piece>, ctx: GrammarContext) {
         for ((channel, group) in pieces.groupBy { it.channel }) {
-            val sorted = group.sortedWith(compareBy({ it.from }, { it.to }))
-            sorted.zipWithNext { a, b ->
-                if (b.from <= a.to) {
-                    ctx.fail(
-                        b.path,
-                        "overlaps ${a.path} on the $channel channel (ticks ${a.from}..${a.to} and ${b.from}..${b.to}); " +
-                            "laws on one channel are lowered to one key table and cannot overlap or touch, start the later one after tick ${a.to}",
-                    )
-                }
+            for (p in group.filter { it.keys == null }) for (o in group) {
+                if (o === p || o.order == p.order || o.from > p.from || o.to < p.from) continue
+                if (o.keys == null && o.order > p.order) continue // two keys laws: reported once, on the later one
+                val (late, early) = if (o.order > p.order) o to p else p to o
+                ctx.fail(
+                    late.path,
+                    "overlaps ${early.path} on the $channel channel (ticks ${early.from}..${early.to} and ${late.from}..${late.to}); " +
+                        "keys are absolute and cannot be combined with another law on the same channel, move the key outside the other law's window",
+                )
             }
         }
+    }
+
+    private class Composed(val dropped: List<TrackKey>, val added: List<TrackKey>)
+
+    /** Per channel, clusters of overlapping or touching rate windows are replaced by one key per tick of the combined samples. */
+    private fun compose(pieces: List<Piece>, n: LawNumbers): Composed {
+        val dropped = ArrayList<TrackKey>()
+        val added = ArrayList<TrackKey>()
+        for ((channel, group) in pieces.filter { it.keys != null }.groupBy { it.channel }) {
+            val clusters = ArrayList<MutableList<Piece>>()
+            var end = Int.MIN_VALUE
+            for (p in group.sortedBy { it.from }) {
+                if (clusters.isEmpty() || p.from > end) {
+                    clusters += mutableListOf(p)
+                    end = p.to
+                } else {
+                    clusters.last() += p
+                    end = maxOf(end, p.to)
+                }
+            }
+            for (cluster in clusters.filter { it.size > 1 }) {
+                val ordered = cluster.sortedWith(compareBy({ it.order }, { it.from }))
+                ordered.forEach { dropped += it.keys!! }
+                for (tick in cluster.minOf { it.from }..cluster.maxOf { it.to }) added += combinedKey(channel, ordered, tick, n)
+            }
+        }
+        return Composed(dropped, added)
+    }
+
+    private fun combinedKey(channel: String, ordered: List<Piece>, tick: Int, n: LawNumbers): TrackKey = when (channel) {
+        "offset" -> TrackKey(tick, Value.Literal(ordered.fold(Vec3.ZERO) { acc, p -> acc + sample(p.keys!!, tick, { it.offset }, ::lerpVec, ::literalVec) }), null, null, null)
+        "scale" -> TrackKey(
+            tick, null, null,
+            Value.Literal(
+                ordered.fold(Vec3(1.0, 1.0, 1.0)) { acc, p ->
+                    val s = sample(p.keys!!, tick, { it.scale }, ::lerpVec, ::literalVec)
+                    Vec3(acc.x * s.x, acc.y * s.y, acc.z * s.z)
+                },
+            ),
+            null,
+        )
+        "turn" -> TrackKey(
+            tick, null,
+            Value.Literal(
+                n.rotationVector(
+                    ordered.fold(Quaternion.IDENTITY) { acc, p ->
+                        acc * sample(p.keys!!, tick, { it.turn }, { a, b, f -> Quaternion.slerp(a, b, f) }) { v -> Quaternion.fromRotationVector(literalVec(v)) }
+                    },
+                ),
+            ),
+            null, null,
+        )
+        else -> TrackKey(
+            tick, null, null, null, null,
+            Value.Literal(ordered.fold(1.0) { acc, p -> acc * sample(p.keys!!, tick, { it.alpha }, { a, b, f -> a + (b - a) * f }) { v -> (v as Value.Literal).value } }),
+        )
+    }
+
+    private fun lerpVec(a: Vec3, b: Vec3, f: Double): Vec3 = a + (b - a) * f
+
+    private fun literalVec(v: Value<Vec3>): Vec3 = (v as Value.Literal).value
+
+    /** One law copy's own channel at [tick], by the sampler's rule: holds the first / last key outside its keys, eases the segment ENDING at a key. */
+    private fun <V, T> sample(keys: List<TrackKey>, tick: Int, pick: (TrackKey) -> V?, lerp: (T, T, Double) -> T, value: (V) -> T): T {
+        val ks = keys.filter { pick(it) != null }.sortedBy { it.tick }
+        fun at(k: TrackKey) = value(pick(k)!!)
+        if (tick <= ks.first().tick) return at(ks.first())
+        if (tick >= ks.last().tick) return at(ks.last())
+        val hi = ks.indexOfFirst { it.tick >= tick }
+        val a = ks[hi - 1]
+        val b = ks[hi]
+        val raw = (tick - a.tick).toDouble() / maxOf(1, b.tick - a.tick)
+        val f = b.ease?.let { Easing.fromKey(it) }?.apply(raw) ?: raw
+        return lerp(at(a), at(b), f)
     }
 
     private fun GrammarContext.abortMissing(path: String, field: String): Nothing =
