@@ -310,6 +310,7 @@ class Conv:
         self.p_on = OrderedDict()
         self.id_counts = {}
         self.sel = {}
+        self.damaged_sel = set()  # guards of area selections that already carry a v1 `damage` earlier in mechanic order
         self.vfx_n = 0
         self.meta_lines = []
         self.has_bolt = False
@@ -672,6 +673,8 @@ class Conv:
         vs = where.kind == "handler" and tg is not None and tg.get("type") == "target"
         spec = self.tspec(tg, where)
         if t == "damage":
+            if where.kind == "handler" and where.event == "hit" and where.guard:
+                self.damaged_sel.add(where.guard)
             extra = sorted(set(m) - self.DAMAGE_KEYS - self.COMMON_MECH_KEYS)
             if extra:
                 raise ValueError("%s: damage mechanic carries field(s) %s that v2 cannot express; extend the op before "
@@ -839,6 +842,11 @@ class Conv:
         if t == "play_sound":
             self.play_sound(m, tg, where, delay, when)
         elif t == "spawn_particle":
+            if tg and tg.get("type") == "target" and where.kind == "handler" and where.event == "hit" and where.guard in self.damaged_sel:
+                # v1 TargeterResolver.resolveLocations (TargeterResolver.kt:120-139) resolves LIVING players when the mechanic runs,
+                # after the earlier `damage` of the same row (MechanicDispatcher.kt:841-845): a victim the damage just killed gets none.
+                alive = "hp_ratio(victim) > 0"
+                when = ("= (" + when[2:] + ") && " + alive) if when else "= " + alive
             W(emit_op(self.oid("emit"), self.point(tg, where, "p"), m["particle_id"], 1))
         elif t == "schedule_particle_animation":
             at = self.point(tg, where, "p")
