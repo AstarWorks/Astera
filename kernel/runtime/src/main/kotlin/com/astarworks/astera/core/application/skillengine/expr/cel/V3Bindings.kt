@@ -22,6 +22,13 @@ public object V3Bindings {
     /** Names whose value is only known when the event / hit happens (positions, C4c); never legal on a timing field. */
     internal val RUNTIME_POSITION_ROOTS: Set<String> = setOf("contact", "target", "caster")
 
+    /** Single `event.` fields that are positions (`event.victim`); `event.i` and the other event fields stay static. */
+    internal val RUNTIME_POSITION_FIELDS: Set<String> = setOf("event.victim")
+
+    /** True for a dotted identifier whose value is a position known only when the event happens. */
+    internal fun isRuntimePosition(ident: String): Boolean =
+        RUNTIME_POSITION_FIELDS.any { ident == it || ident.startsWith("$it.") } || (ident.contains('.') && ident.substringBefore('.') in RUNTIME_POSITION_ROOTS)
+
     /** [base] plus every v3 variable. [occurrence] decides how long the `parent.` chain is. */
     public fun spec(occurrence: Occurrence?, base: ExprEnvSpec = ExprEnvSpec()): ExprEnvSpec {
         val v = LinkedHashMap(base.variables)
