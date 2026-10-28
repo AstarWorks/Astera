@@ -86,7 +86,7 @@ internal object CasterMotion {
 
 public object DashOpSpec : OpSpec<DashOp> {
     private val speed = Field.required("speed", Types.number, "blocks per tick along the direction")
-    private val direction = Field.optional("direction", FrameVecs.type, FrameVec.Parts(Value.Literal(1.0), Value.Literal(0.0), Value.Literal(0.0)), "travel direction in the caster frame {forward, up, left}; default forward")
+    private val direction = Field.required("direction", FrameVecs.type, "travel direction in the (yaw-only) caster frame {forward, up, left}, or `= expr` (ADR-0303 10.1: a REQUIRED flag, no default)")
     private val ease = Field.optional("ease", Types.nullable(Types.id), null, "shapes the accumulated distance over the span (3.7.1); absent = linear")
     private val followPitch = Field.required("follow_pitch", Types.bool, "true = the heading follows the caster's pitch; false = level")
     private val stopOnBlock = Field.required("stop_on_block", Types.bool, "stop at a solid block")
