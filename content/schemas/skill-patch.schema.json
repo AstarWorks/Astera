@@ -4818,6 +4818,9 @@
                 },
                 "space": {
                     "type": "string"
+                },
+                "sample_ticks": {
+                    "type": "integer"
                 }
             },
             "required": [

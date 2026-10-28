@@ -34,6 +34,7 @@ presentation:
             - {t: 20, scale: [0.455, 0.455, 0.455], ease: in_out_quad}
             - {t: 24, scale: [0.28, 0.28, 0.28], ease: in_out_quad}
             - {t: 30, scale: [0.56, 0.56, 0.56], ease: in_out_quad}
+          sample_ticks: 2
     - {id: fx34, at: 34, do: [{id: rm, op: remove, ids: [fx1_crimson_chain_axe_charge_orb]}]}
     - id: fx51
       at: 51
@@ -47,6 +48,7 @@ presentation:
             - {t: 0, offset: [-0.25, 1.4, 0.7], scale: [0.12, 0.12, 0.12]}
             - {t: 3, offset: [-0.25, 1.4, 1.0], scale: [0.18, 0.18, 0.18]}
             - {t: 7, scale: [0.0, 0.0, 0.0]}
+          sample_ticks: 1
         - {op: block, parent: fx2_crimson_hand_nodes, block: redstone_block, size: [1.0, 1.0, 1.0], brightness: 15, id: fx2_crimson_hand_nodes_node_1}
         - id: fx2_crimson_hand_nodes_node_1_trk
           op: track
@@ -55,6 +57,7 @@ presentation:
             - {t: 0, offset: [0.0, 1.4, 0.7], scale: [0.12, 0.12, 0.12]}
             - {t: 3, offset: [0.0, 1.4, 1.0], scale: [0.18, 0.18, 0.18]}
             - {t: 7, scale: [0.0, 0.0, 0.0]}
+          sample_ticks: 1
         - {op: block, parent: fx2_crimson_hand_nodes, block: redstone_block, size: [1.0, 1.0, 1.0], brightness: 15, id: fx2_crimson_hand_nodes_node_2}
         - id: fx2_crimson_hand_nodes_node_2_trk
           op: track
@@ -63,6 +66,7 @@ presentation:
             - {t: 0, offset: [0.25, 1.4, 0.7], scale: [0.12, 0.12, 0.12]}
             - {t: 3, offset: [0.25, 1.4, 1.0], scale: [0.18, 0.18, 0.18]}
             - {t: 7, scale: [0.0, 0.0, 0.0]}
+          sample_ticks: 1
     - {id: fx59, at: 59, do: [{id: rm_2, op: remove, ids: [fx2_crimson_hand_nodes_node_0, fx2_crimson_hand_nodes_node_1, fx2_crimson_hand_nodes_node_2]}]}
     - id: fx64
       at: 64
@@ -76,6 +80,7 @@ presentation:
             - {t: 0, offset: [-0.25, 1.4, 0.7], scale: [0.12, 0.12, 0.12]}
             - {t: 3, offset: [-0.25, 1.4, 1.0], scale: [0.18, 0.18, 0.18]}
             - {t: 7, scale: [0.0, 0.0, 0.0]}
+          sample_ticks: 1
         - {op: block, parent: fx3_crimson_hand_nodes, block: redstone_block, size: [1.0, 1.0, 1.0], brightness: 15, id: fx3_crimson_hand_nodes_node_1}
         - id: fx3_crimson_hand_nodes_node_1_trk
           op: track
@@ -84,6 +89,7 @@ presentation:
             - {t: 0, offset: [0.0, 1.4, 0.7], scale: [0.12, 0.12, 0.12]}
             - {t: 3, offset: [0.0, 1.4, 1.0], scale: [0.18, 0.18, 0.18]}
             - {t: 7, scale: [0.0, 0.0, 0.0]}
+          sample_ticks: 1
         - {op: block, parent: fx3_crimson_hand_nodes, block: redstone_block, size: [1.0, 1.0, 1.0], brightness: 15, id: fx3_crimson_hand_nodes_node_2}
         - id: fx3_crimson_hand_nodes_node_2_trk
           op: track
@@ -92,6 +98,7 @@ presentation:
             - {t: 0, offset: [0.25, 1.4, 0.7], scale: [0.12, 0.12, 0.12]}
             - {t: 3, offset: [0.25, 1.4, 1.0], scale: [0.18, 0.18, 0.18]}
             - {t: 7, scale: [0.0, 0.0, 0.0]}
+          sample_ticks: 1
     - {id: fx72, at: 72, do: [{id: rm_3, op: remove, ids: [fx3_crimson_hand_nodes_node_0, fx3_crimson_hand_nodes_node_1, fx3_crimson_hand_nodes_node_2]}]}
     - id: fx82
       at: 82
@@ -105,6 +112,7 @@ presentation:
             - {t: 0, offset: [-0.25, 1.4, 0.7], scale: [0.12, 0.12, 0.12]}
             - {t: 3, offset: [-0.25, 1.4, 1.0], scale: [0.18, 0.18, 0.18]}
             - {t: 7, scale: [0.0, 0.0, 0.0]}
+          sample_ticks: 1
         - {op: block, parent: fx4_crimson_hand_nodes, block: redstone_block, size: [1.0, 1.0, 1.0], brightness: 15, id: fx4_crimson_hand_nodes_node_1}
         - id: fx4_crimson_hand_nodes_node_1_trk
           op: track
@@ -113,6 +121,7 @@ presentation:
             - {t: 0, offset: [0.0, 1.4, 0.7], scale: [0.12, 0.12, 0.12]}
             - {t: 3, offset: [0.0, 1.4, 1.0], scale: [0.18, 0.18, 0.18]}
             - {t: 7, scale: [0.0, 0.0, 0.0]}
+          sample_ticks: 1
         - {op: block, parent: fx4_crimson_hand_nodes, block: redstone_block, size: [1.0, 1.0, 1.0], brightness: 15, id: fx4_crimson_hand_nodes_node_2}
         - id: fx4_crimson_hand_nodes_node_2_trk
           op: track
@@ -121,4 +130,5 @@ presentation:
             - {t: 0, offset: [0.25, 1.4, 0.7], scale: [0.12, 0.12, 0.12]}
             - {t: 3, offset: [0.25, 1.4, 1.0], scale: [0.18, 0.18, 0.18]}
             - {t: 7, scale: [0.0, 0.0, 0.0]}
+          sample_ticks: 1
     - {id: fx90, at: 90, do: [{id: rm_4, op: remove, ids: [fx4_crimson_hand_nodes_node_0, fx4_crimson_hand_nodes_node_1, fx4_crimson_hand_nodes_node_2]}]}

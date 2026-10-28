@@ -4,16 +4,15 @@
   op block        v1 gives 2, v2 has 0; fields only v1 data fills: block, brightness, parent, size, when
   op cast_skill   v1 gives 3, v2 has 0; fields only v1 data fills: skill
   op hit          fields only v1 data fills: ticks
-  op mesh         v1 gives 8, v2 has 5; fields only v1 data fills: display_mode, item_model, rest_turn, rig_shading, scale, when
+  op mesh         v1 gives 8, v2 has 5; fields only v1 data fills: display_mode, item_model, models, rest_turn, rig_shading, scale, when
   op plate        fields only v1 data fills: brightness, see_through
   op pull         v1 gives 4, v2 has 0; fields only v1 data fills: ends, keys, line, ref, target, to, when
   op quad         v1 gives 2, v2 has 0; fields only v1 data fills: alpha, brightness, color, face, parent, see_through, size
   op raise_event  v1 gives 1, v2 has 0; fields only v1 data fills: name
   op rig          v1 gives 2, v2 has 0; fields only v1 data fills: anim, duration, edge, frame, parent, root, sample_ticks, swing, tip
   op schedule     v1 gives 7, v2 has 4
-  op track        v1 gives 104, v2 has 95
+  op track        v1 gives 104, v2 has 95; fields only v1 data fills: sample_ticks
   PRESENT element brightness (no v2 equivalent)
-  PRESENT rig weapon_model (item_model swap on the weapon display)
   PRESENT vfx ghost_bodies (no v2 equivalent)
 == couture-rapier-s2-blade-b (protected: not written) ==
   op anchor       v1 gives 2, v2 has 0; fields only v1 data fills: at, follow, frame, orient, teleport_ticks
@@ -22,7 +21,7 @@
   op projectile   v1 gives 1, v2 has 0; fields only v1 data fills: body, from, max_ticks, radius, velocity
   op remove       v1 gives 2, v2 has 0; fields only v1 data fills: ids
   op sound        v1 gives 2, v2 has 0; fields only v1 data fills: at, pitch, sound, volume
-  op track        v1 gives 5, v2 has 0; fields only v1 data fills: keys, space, target
+  op track        v1 gives 5, v2 has 0; fields only v1 data fills: keys, sample_ticks, space, target
   PRESENT projectile muzzle_up is along the aim frame's up (v1: world up); differs when the caster is pitched
   PRESENT element brightness (no v2 equivalent)
 == couture-rapier-s2-blade-a (protected: not written) ==
@@ -32,7 +31,7 @@
   op projectile   v1 gives 1, v2 has 0; fields only v1 data fills: body, from, max_ticks, radius, velocity
   op remove       v1 gives 2, v2 has 0; fields only v1 data fills: ids
   op sound        v1 gives 2, v2 has 0; fields only v1 data fills: at, pitch, sound, volume
-  op track        v1 gives 5, v2 has 0; fields only v1 data fills: keys, space, target
+  op track        v1 gives 5, v2 has 0; fields only v1 data fills: keys, sample_ticks, space, target
   PRESENT projectile muzzle_up is along the aim frame's up (v1: world up); differs when the caster is pitched
   PRESENT element brightness (no v2 equivalent)
 == couture-rapier-s2-shears (protected: not written) ==
@@ -45,6 +44,6 @@
   op projectile   v1 gives 1, v2 has 0; fields only v1 data fills: body, from, max_ticks, radius, velocity
   op remove       v1 gives 6, v2 has 0; fields only v1 data fills: ids
   op sound        v1 gives 3, v2 has 0; fields only v1 data fills: at, pitch, sound, volume
-  op track        v1 gives 34, v2 has 0; fields only v1 data fills: keys, space, target
+  op track        v1 gives 34, v2 has 0; fields only v1 data fills: keys, sample_ticks, space, target
   PRESENT projectile muzzle_up is along the aim frame's up (v1: world up); differs when the caster is pitched
   PRESENT element brightness (no v2 equivalent)

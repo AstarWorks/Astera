@@ -309,8 +309,15 @@ presentation:
             - {t: 1, scale: [0.12, 0.12, 0.85], ease: out_expo}
             - {t: 4, block: orange_concrete}
             - {t: 8, scale: [0.02, 0.02, 0.1]}
+          sample_ticks: 1
         - {op: block, parent: fx2_ember_sweep, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx2_ember_sweep_impact_core}
-        - {id: fx2_ember_sweep_impact_core_trk, op: track, target: fx2_ember_sweep_impact_core, keys: [{t: 0, offset: [-0.12, 0.98, 2.38], scale: [0.24, 0.24, 0.24]}, {t: 3, scale: [0.0, 0.0, 0.0]}]}
+        - id: fx2_ember_sweep_impact_core_trk
+          op: track
+          target: fx2_ember_sweep_impact_core
+          keys:
+            - {t: 0, offset: [-0.12, 0.98, 2.38], scale: [0.24, 0.24, 0.24]}
+            - {t: 3, scale: [0.0, 0.0, 0.0]}
+          sample_ticks: 1
         - {op: text, parent: fx2_ember_sweep, face: {viewer: center}, size: [0.2, 0.2], text: "<#FFF1A0>✦", see_through: true, brightness: 15, id: fx2_ember_sweep_impact_flare}
         - id: fx2_ember_sweep_impact_flare_trk
           op: track
@@ -320,6 +327,7 @@ presentation:
             - {t: 1, offset: [0.0, 0.1, 2.5], scale: [8.0, 8.0, 8.0], ease: out_expo}
             - {t: 4, offset: [0.0, 0.1, 2.5], scale: [8.0, 8.0, 8.0]}
             - {t: 8, offset: [0.0, 1.1, 2.5], scale: [0.0, 0.0, 0.0]}
+          sample_ticks: 1
     - {id: fx11, at: 11, do: [{id: rm_2, op: remove, ids: [fx2_ember_sweep_impact_core]}]}
     - {id: fx16, at: 16, do: [{id: rm_3, op: remove, ids: [fx2_ember_sweep_impact_spokes, fx2_ember_sweep_impact_flare]}]}
     - {id: fx17, at: 17, do: [{id: rm_4, op: remove, ids: [fx2_ember_sweep_gauntlet_flame_fan]}]}
@@ -337,6 +345,7 @@ presentation:
             - {t: 2, offset: [0.0, 1.05, 1.0], scale: [0.114, 0.486, 0.54], ease: out_expo, turn: [13.94868, -11.94015, 1.46607]}
             - {t: 7, offset: [0.0, 1.2, 1.25], block: orange_concrete}
             - {t: 11, offset: [0.0, 1.4, 1.5], scale: [0.0, 0.0, 0.0], block: orange_concrete}
+          sample_ticks: 1
         - {op: block, parent: fx4_ember_jet, block: yellow_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx4_ember_jet_flame_1}
         - id: fx4_ember_jet_flame_1_trk
           op: track
@@ -346,6 +355,7 @@ presentation:
             - {t: 2, offset: [0.0, 1.17, 1.55], scale: [0.152, 0.648, 0.72], ease: out_expo, turn: [-13.94868, 11.94015, 1.46607]}
             - {t: 7, offset: [0.0, 1.2, 1.8], block: orange_concrete}
             - {t: 11, offset: [0.0, 1.4, 2.05], scale: [0.0, 0.0, 0.0], block: orange_concrete}
+          sample_ticks: 1
         - {op: block, parent: fx4_ember_jet, block: yellow_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx4_ember_jet_flame_2}
         - id: fx4_ember_jet_flame_2_trk
           op: track
@@ -355,6 +365,7 @@ presentation:
             - {t: 2, offset: [0.0, 1.05, 2.1], scale: [0.19, 0.81, 0.9], ease: out_expo, turn: [13.94868, -11.94015, 1.46607]}
             - {t: 7, offset: [0.0, 1.2, 2.35], block: orange_concrete}
             - {t: 11, offset: [0.0, 1.4, 2.6], scale: [0.0, 0.0, 0.0], block: orange_concrete}
+          sample_ticks: 1
         - {op: block, parent: fx4_ember_jet, block: yellow_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx4_ember_jet_flame_3}
         - id: fx4_ember_jet_flame_3_trk
           op: track
@@ -364,6 +375,7 @@ presentation:
             - {t: 2, offset: [0.0, 1.17, 2.65], scale: [0.228, 0.972, 1.08], ease: out_expo, turn: [-13.94868, 11.94015, 1.46607]}
             - {t: 7, offset: [0.0, 1.2, 2.9], block: orange_concrete}
             - {t: 11, offset: [0.0, 1.4, 3.15], scale: [0.0, 0.0, 0.0], block: orange_concrete}
+          sample_ticks: 1
         - {op: block, parent: fx4_ember_jet, block: yellow_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx4_ember_jet_flame_4}
         - id: fx4_ember_jet_flame_4_trk
           op: track
@@ -373,6 +385,7 @@ presentation:
             - {t: 2, offset: [0.0, 1.05, 3.2], scale: [0.266, 1.134, 1.26], ease: out_expo, turn: [13.94868, -11.94015, 1.46607]}
             - {t: 7, offset: [0.0, 1.2, 3.45], block: orange_concrete}
             - {t: 11, offset: [0.0, 1.4, 3.7], scale: [0.0, 0.0, 0.0], block: orange_concrete}
+          sample_ticks: 1
         - {op: block, parent: fx4_ember_jet, block: orange_stained_glass, size: [1.0, 1.0, 1.0], brightness: 15, id: fx4_ember_jet_bloom}
         - id: fx4_ember_jet_bloom_trk
           op: track
@@ -381,6 +394,7 @@ presentation:
             - {t: 0, offset: [-0.18, 0.8, 0.85], scale: [0.36, 0.5, 0.1]}
             - {t: 2, scale: [0.36, 0.5, 2.7], ease: out_expo}
             - {t: 9, scale: [0.01, 0.01, 2.7]}
+          sample_ticks: 1
         - {id: fx4_ember_jet_flame_atrk, op: track, target: fx4_ember_jet_flame_at, space: fx4_ember_jet, keys: [{t: 0, offset: [0, 1.05, 0]}]}
         - id: fx4_ember_jet_flame
           op: emit
@@ -398,6 +412,7 @@ presentation:
             - {t: 2, offset: [0.0, 0.9, 0.9], scale: [3.5, 3.0, 3.5], ease: out_expo, turn: [0.0, 0.0, -25.0]}
             - {t: 9, offset: [0.0, 1.0, 1.15], scale: [2.0, 2.1, 2.0]}
             - {t: 11, scale: [0.0, 0.0, 0.0]}
+          sample_ticks: 1
         - {op: text, parent: fx4_ember_jet, face: {viewer: center}, size: [0.2, 0.2], text: "<#FFD426>▲", see_through: true, brightness: 15, id: fx4_ember_jet_flame_face_1}
         - id: fx4_ember_jet_flame_face_1_trk
           op: track
@@ -407,6 +422,7 @@ presentation:
             - {t: 2, offset: [0.0, 0.9, 1.45], scale: [3.5, 4.0, 3.5], ease: out_expo, turn: [0.0, 0.0, -45.0]}
             - {t: 9, offset: [0.0, 1.0, 1.7], scale: [2.0, 2.8, 2.0]}
             - {t: 11, scale: [0.0, 0.0, 0.0]}
+          sample_ticks: 1
         - {op: text, parent: fx4_ember_jet, face: {viewer: center}, size: [0.2, 0.2], text: "<#FFD426>▲", see_through: true, brightness: 15, id: fx4_ember_jet_flame_face_2}
         - id: fx4_ember_jet_flame_face_2_trk
           op: track
@@ -416,6 +432,7 @@ presentation:
             - {t: 2, offset: [0.0, 0.9, 2.0], scale: [3.5, 5.0, 3.5], ease: out_expo, turn: [0.0, 0.0, -25.0]}
             - {t: 9, offset: [0.0, 1.0, 2.25], scale: [2.0, 3.5, 2.0]}
             - {t: 11, scale: [0.0, 0.0, 0.0]}
+          sample_ticks: 1
         - {op: text, parent: fx4_ember_jet, face: {viewer: center}, size: [0.2, 0.2], text: "<#FFD426>▲", see_through: true, brightness: 15, id: fx4_ember_jet_flame_face_3}
         - id: fx4_ember_jet_flame_face_3_trk
           op: track
@@ -425,6 +442,7 @@ presentation:
             - {t: 2, offset: [0.0, 0.9, 2.55], scale: [3.5, 3.0, 3.5], ease: out_expo, turn: [0.0, 0.0, -45.0]}
             - {t: 9, offset: [0.0, 1.0, 2.8], scale: [2.0, 2.1, 2.0]}
             - {t: 11, scale: [0.0, 0.0, 0.0]}
+          sample_ticks: 1
         - {op: text, parent: fx4_ember_jet, face: {viewer: center}, size: [0.2, 0.2], text: "<#FFD426>▲", see_through: true, brightness: 15, id: fx4_ember_jet_flame_face_4}
         - id: fx4_ember_jet_flame_face_4_trk
           op: track
@@ -434,6 +452,7 @@ presentation:
             - {t: 2, offset: [0.0, 0.9, 3.1], scale: [3.5, 4.0, 3.5], ease: out_expo, turn: [0.0, 0.0, -25.0]}
             - {t: 9, offset: [0.0, 1.0, 3.35], scale: [2.0, 2.8, 2.0]}
             - {t: 11, scale: [0.0, 0.0, 0.0]}
+          sample_ticks: 1
         - id: fx4_ember_jet_gauntlet_rig
           op: rig
           frame: fx4_ember_jet_gauntlet
@@ -525,8 +544,15 @@ presentation:
             - {t: 1, scale: [0.12, 0.12, 0.85], ease: out_expo}
             - {t: 4, block: orange_concrete}
             - {t: 8, scale: [0.02, 0.02, 0.1]}
+          sample_ticks: 1
         - {op: block, parent: fx4_ember_jet, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx4_ember_jet_impact_core}
-        - {id: fx4_ember_jet_impact_core_trk, op: track, target: fx4_ember_jet_impact_core, keys: [{t: 0, offset: [-0.12, 0.98, 2.88], scale: [0.24, 0.24, 0.24]}, {t: 3, scale: [0.0, 0.0, 0.0]}]}
+        - id: fx4_ember_jet_impact_core_trk
+          op: track
+          target: fx4_ember_jet_impact_core
+          keys:
+            - {t: 0, offset: [-0.12, 0.98, 2.88], scale: [0.24, 0.24, 0.24]}
+            - {t: 3, scale: [0.0, 0.0, 0.0]}
+          sample_ticks: 1
         - {op: text, parent: fx4_ember_jet, face: {viewer: center}, size: [0.2, 0.2], text: "<#FFF1A0>✦", see_through: true, brightness: 15, id: fx4_ember_jet_impact_flare}
         - id: fx4_ember_jet_impact_flare_trk
           op: track
@@ -536,6 +562,7 @@ presentation:
             - {t: 1, offset: [0.0, 0.1, 3.0], scale: [8.0, 8.0, 8.0], ease: out_expo}
             - {t: 4, offset: [0.0, 0.1, 3.0], scale: [8.0, 8.0, 8.0]}
             - {t: 8, offset: [0.0, 1.1, 3.0], scale: [0.0, 0.0, 0.0]}
+          sample_ticks: 1
     - id: fx30
       at: 30
       do:
@@ -597,6 +624,7 @@ presentation:
           - {t: 0, offset: [0.0, 1.2, 0.0], scale: [0.0, 0.0, 0.0]}
           - {t: 1, scale: [5.0, 5.0, 5.0], ease: out_back}
           - {t: 6, scale: [0.0, 0.0, 0.0], ease: in_quad}
+        sample_ticks: 1
         when: "= event.source == 'sel'"
       - op: block
         parent: fx3_ember_hoop_hit
@@ -616,6 +644,7 @@ presentation:
           - {t: 2, offset: [0.0, 0.0, 0.7], scale: [0.09, 0.09, 1.1], ease: out_expo}
           - {t: 4, block: red_stained_glass}
           - {t: 8, scale: [0.0, 0.0, 1.1], ease: in_quad}
+        sample_ticks: 1
         when: "= event.source == 'sel'"
       - {id: fx3_ember_hoop_hit_embers_atrk, op: track, target: fx3_ember_hoop_hit_embers_at, space: fx3_ember_hoop_hit, keys: [{t: 0, offset: [0.0, 1.1, 0.0]}], when: "= event.source == 'sel'"}
       - {id: fx3_ember_hoop_hit_embers, op: emit, at: fx3_ember_hoop_hit_embers_at, particle: fire-impact, when: "= event.source == 'sel'"}
@@ -629,6 +658,7 @@ presentation:
           - {t: 0, offset: [0.0, 1.2, 0.0], scale: [0.0, 0.0, 0.0]}
           - {t: 1, scale: [5.0, 5.0, 5.0], ease: out_back}
           - {t: 6, scale: [0.0, 0.0, 0.0], ease: in_quad}
+        sample_ticks: 1
         when: "= event.source == 'sel_2'"
       - op: block
         parent: fx5_ember_hoop_hit
@@ -648,6 +678,7 @@ presentation:
           - {t: 2, offset: [0.0, 0.0, 0.7], scale: [0.09, 0.09, 1.1], ease: out_expo}
           - {t: 4, block: red_stained_glass}
           - {t: 8, scale: [0.0, 0.0, 1.1], ease: in_quad}
+        sample_ticks: 1
         when: "= event.source == 'sel_2'"
       - {id: fx5_ember_hoop_hit_embers_atrk, op: track, target: fx5_ember_hoop_hit_embers_at, space: fx5_ember_hoop_hit, keys: [{t: 0, offset: [0.0, 1.1, 0.0]}], when: "= event.source == 'sel_2'"}
       - {id: fx5_ember_hoop_hit_embers, op: emit, at: fx5_ember_hoop_hit_embers_at, particle: fire-impact, when: "= event.source == 'sel_2'"}

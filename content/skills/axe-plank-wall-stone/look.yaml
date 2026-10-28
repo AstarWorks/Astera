@@ -4,7 +4,7 @@ apiVersion: "astera/v2"
 kind: Skill
 id: axe-plank-wall-stone
 frames:
-  - {id: pt_caster_0_0_2, kind: point, parent: caster, offset: [0.0, 0.0, 2.0]}
+  - {id: pt_caster_0_1p62_2, kind: point, parent: caster, offset: [0.0, 1.62, 2.0]}
 presentation:
   timeline:
-    - {id: fx0, at: 0, do: [{id: snd, op: sound, sound: "astera:weapons/gun-impact-block", at: caster, volume: 1.0, pitch: 0.9}, {id: emit, op: emit, at: pt_caster_0_0_2, particle: hit-spark}]}
+    - {id: fx0, at: 0, do: [{id: snd, op: sound, sound: "astera:weapons/gun-impact-block", at: caster, volume: 1.0, pitch: 0.9}, {id: emit, op: emit, at: pt_caster_0_1p62_2, particle: hit-spark}]}

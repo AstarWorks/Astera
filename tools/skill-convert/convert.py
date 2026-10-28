@@ -273,6 +273,9 @@ def bake_swing(keys):
 
 
 
+EYE_HEIGHT = 1.62  # standing player eye height above the feet (v1 pose.eyePosition)
+
+
 class Where:
     def __init__(self, kind, event=None, guard=None, owner=None):
         self.kind = kind  # cast | handler | nested
@@ -443,7 +446,8 @@ class Conv:
         if t == "hit_location":
             return "contact.point"
         if t == "caster_forward":
-            return self.pframe(cref, [0.0, V(tg.get("height", 0.0)), V(tg.get("distance", 0.0))], side)
+            # v1 TargeterResolver.casterForward (:144-147): eyePosition + direction * distance + (0, height, 0); the caster frame is the feet
+            return self.pframe(cref, [0.0, EYE_HEIGHT + V(tg.get("height", 0.0)), V(tg.get("distance", 0.0))], side)
         if t == "caster_offset":
             return self.pframe(cref, vec3(tg["offset"]), side)
         if t == "target_offset":
@@ -1284,7 +1288,6 @@ class Conv:
         sc = V(m.get("scale", d.get("scale", 1.0)))
         if not isinstance(sc, (int, float)):
             raise ValueError("play_vfx scale must be a number, got %r (%s)" % (sc, vid))
-        d = vfxelem.scale_def(d, float(sc))
         self.vfx_n += 1
         fid = "fx%d_%s" % (self.vfx_n, sid(vid))
         snap = self.snapshot_frame() if V(m.get("snapshot_pose", False)) else None
@@ -1307,6 +1310,7 @@ class Conv:
         # SlotContext :360-369): the frame carries it for its descendants' translations and display sizes.
         fscale = float(V(m.get("scale", 1.0)))
         self.vfx_scale = fscale
+        self.vfx_sample = int(d.get("sample_ticks", 2))  # v1 VfxDefinition.sampleTicks (:80): the chunk length of every element track
         if fscale != 1.0:
             self.look_frames[fid]["scale"] = fscale
             # the frame scales translations and display sizes (block / quad / mesh / plate); lengths of these are not covered
@@ -1499,7 +1503,7 @@ class Conv:
         else:
             self.p(where, at, self._w(op, when))
         if kfs and any(x in k for k in kfs for x in ("translate", "rotate", "scale")) and op["op"] in ("mesh", "plate", "line"):
-            self.p(where, at, self._w({"id": eid + "_trk", "op": "track", "target": eid, "space": fid, "keys": self.keys(kfs)}, when))
+            self.p(where, at, self._w({"id": eid + "_trk", "op": "track", "target": eid, "space": fid, "keys": self.keys(kfs), "sample_ticks": self.vfx_sample}, when))
             for k in kfs:
                 for x in ("alpha", "color", "block", "text"):
                     if x in k:
@@ -1599,7 +1603,9 @@ class Conv:
             # v1 scales the rig's pivot, part offsets and sizes (VfxRigPlanner partPlan :255 / pivotWorld :170); the rig hangs under its
             # own parent (a hand), not under the vfx frame, so a scale frame between them carries it
             if hand:
-                self.present("vfx scale %s on a hand-anchored performance rig (grip offsets are not scaled)" % fscale, rid)
+                # the rig holds the hand pose itself (no scalable parent frame): bake the scale into pivot / parts / trails / points
+                # (v1 VfxRigPlanner partPlan :255, pivotWorld :170)
+                r = vfxelem.scale_rig(r, fscale)
             else:
                 carrier = rid + "_sc"
                 self.look_frames[carrier] = {"id": carrier, "kind": "body", "parent": pr, "scale": fscale}

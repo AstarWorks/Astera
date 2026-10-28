@@ -75,6 +75,7 @@ presentation:
             - {t: 55, offset: [-1.77995, 1.9, -3.35735], turn: [-16.19879, -61.53689, -9.74649], scale: [0.02438, 0.04875, 2.09]}
             - {t: 56, offset: [-1.21335, 1.9, -3.60108], turn: [-15.60237, -70.75929, -11.20717], scale: [0.0175, 0.035, 2.09]}
             - {t: 57, offset: [-0.61477, 1.9, -3.74994], turn: [-14.91306, -79.97797, -12.66727], scale: [0.00938, 0.01875, 2.09]}
+          sample_ticks: 1
         - {op: block, parent: fx1_crimson_chain_axe_ego_orbit, block: red_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_crimson_chain_axe_ego_orbit_orbit_0_s1}
         - id: fx1_crimson_chain_axe_ego_orbit_orbit_0_s1_trk
           op: track
@@ -138,6 +139,7 @@ presentation:
             - {t: 55, offset: [-3.51643, 2.73033, -1.17699], turn: [-10.7375, -16.92793, -14.52918], scale: [0.02438, 0.04875, 2.09]}
             - {t: 56, offset: [-3.27969, 2.73033, -1.73038], turn: [-9.57172, -26.16045, -15.43139], scale: [0.0175, 0.035, 2.09]}
             - {t: 57, offset: [-2.95654, 2.73033, -2.23818], turn: [-8.34866, -35.3918, -16.27605], scale: [0.00938, 0.01875, 2.09]}
+          sample_ticks: 1
         - {op: block, parent: fx1_crimson_chain_axe_ego_orbit, block: red_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_crimson_chain_axe_ego_orbit_orbit_0_s2}
         - id: fx1_crimson_chain_axe_ego_orbit_orbit_0_s2_trk
           op: track
@@ -201,6 +203,7 @@ presentation:
             - {t: 55, offset: [-3.19303, 3.07426, 1.69284], turn: [-4.38711, 27.69911, -17.64095], scale: [0.02438, 0.04875, 2.09]}
             - {t: 56, offset: [-3.42483, 3.07426, 1.15396], turn: [-2.92485, 18.46675, -17.84077], scale: [0.0175, 0.035, 2.09]}
             - {t: 57, offset: [-3.56641, 3.07426, 0.58468], turn: [-1.46245, 9.23358, -17.96024], scale: [0.00938, 0.01875, 2.09]}
+          sample_ticks: 1
         - {op: block, parent: fx1_crimson_chain_axe_ego_orbit, block: red_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_crimson_chain_axe_ego_orbit_orbit_0_s3}
         - id: fx1_crimson_chain_axe_ego_orbit_orbit_0_s3_trk
           op: track
@@ -264,6 +267,7 @@ presentation:
             - {t: 55, offset: [-0.99919, 2.73033, 3.57102], turn: [2.85917, 72.29602, -19.05271], scale: [0.02438, 0.04875, 2.09]}
             - {t: 56, offset: [-1.56376, 2.73033, 3.36232], turn: [4.32446, 63.07419, -18.45241], scale: [0.0175, 0.035, 2.09]}
             - {t: 57, offset: [-2.08712, 2.73033, 3.06504], turn: [5.72651, 53.84917, -17.78815], scale: [0.00938, 0.01875, 2.09]}
+          sample_ticks: 1
         - {op: block, parent: fx1_crimson_chain_axe_ego_orbit, block: red_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_crimson_chain_axe_ego_orbit_orbit_0_s4}
         - id: fx1_crimson_chain_axe_ego_orbit_orbit_0_s4_trk
           op: track
@@ -327,6 +331,7 @@ presentation:
             - {t: 55, offset: [1.77995, 1.9, 3.35735], turn: [11.13061, 116.79943, -18.49921], scale: [0.02438, 0.04875, 2.09]}
             - {t: 56, offset: [1.21335, 1.9, 3.60108], turn: [12.24182, 107.60396, -17.04279], scale: [0.0175, 0.035, 2.09]}
             - {t: 57, offset: [0.61477, 1.9, 3.74994], turn: [13.2382, 98.40119, -15.58522], scale: [0.00938, 0.01875, 2.09]}
+          sample_ticks: 1
         - {op: block, parent: fx1_crimson_chain_axe_ego_orbit, block: red_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_crimson_chain_axe_ego_orbit_orbit_0_s5}
         - id: fx1_crimson_chain_axe_ego_orbit_orbit_0_s5_trk
           op: track
@@ -390,6 +395,7 @@ presentation:
             - {t: 55, offset: [3.51643, 1.06967, 1.17699], turn: [20.74858, 161.08978, -15.33383], scale: [0.02438, 0.04875, 2.09]}
             - {t: 56, offset: [3.27969, 1.06967, 1.73038], turn: [21.00631, 151.95373, -13.02972], scale: [0.0175, 0.035, 2.09]}
             - {t: 57, offset: [2.95654, 1.06967, 2.23818], turn: [21.14154, 142.80098, -10.84437], scale: [0.00938, 0.01875, 2.09]}
+          sample_ticks: 1
         - {op: block, parent: fx1_crimson_chain_axe_ego_orbit, block: red_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_crimson_chain_axe_ego_orbit_orbit_0_s6}
         - id: fx1_crimson_chain_axe_ego_orbit_orbit_0_s6_trk
           op: track
@@ -453,6 +459,7 @@ presentation:
             - {t: 55, offset: [3.19303, 0.72574, -1.69284], turn: [-23.82567, -150.42935, 5.92518], scale: [0.02438, 0.04875, 2.09]}
             - {t: 56, offset: [3.42483, 0.72574, -1.15396], turn: [-25.27315, -159.5684, 4.14332], scale: [0.0175, 0.035, 2.09]}
             - {t: 57, offset: [3.56641, 0.72574, -0.58468], turn: [-26.71755, -168.68796, 2.17554], scale: [0.00938, 0.01875, 2.09]}
+          sample_ticks: 1
         - {op: block, parent: fx1_crimson_chain_axe_ego_orbit, block: red_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_crimson_chain_axe_ego_orbit_orbit_0_s7}
         - id: fx1_crimson_chain_axe_ego_orbit_orbit_0_s7_trk
           op: track
@@ -516,6 +523,7 @@ presentation:
             - {t: 55, offset: [0.99919, 1.06967, -3.57102], turn: [-20.65855, -106.07064, -3.10015], scale: [0.02438, 0.04875, 2.09]}
             - {t: 56, offset: [1.56376, 1.06967, -3.36232], turn: [-20.9167, -115.26741, -4.90198], scale: [0.0175, 0.035, 2.09]}
             - {t: 57, offset: [2.08712, 1.06967, -3.06504], turn: [-21.08797, -124.45579, -6.78881], scale: [0.00938, 0.01875, 2.09]}
+          sample_ticks: 1
         - {op: block, parent: fx1_crimson_chain_axe_ego_orbit, block: red_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_crimson_chain_axe_ego_orbit_orbit_1_s0}
         - id: fx1_crimson_chain_axe_ego_orbit_orbit_1_s0_trk
           op: track
@@ -579,6 +587,7 @@ presentation:
             - {t: 55, offset: [-1.54575, 1.9, -2.91559], turn: [22.49123, -61.04127, 13.53252], scale: [0.02438, 0.04875, 1.815]}
             - {t: 56, offset: [-1.0537, 1.9, -3.12726], turn: [21.66081, -70.18185, 15.55894], scale: [0.0175, 0.035, 1.815]}
             - {t: 57, offset: [-0.53388, 1.9, -3.25653], turn: [20.70122, -79.31529, 17.58378], scale: [0.00938, 0.01875, 1.815]}
+          sample_ticks: 1
         - {op: block, parent: fx1_crimson_chain_axe_ego_orbit, block: red_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_crimson_chain_axe_ego_orbit_orbit_1_s1}
         - id: fx1_crimson_chain_axe_ego_orbit_orbit_1_s1_trk
           op: track
@@ -642,6 +651,7 @@ presentation:
             - {t: 55, offset: [-2.96148, 0.91384, -1.07103], turn: [14.91285, -16.7965, 20.17895], scale: [0.02438, 0.04875, 1.815]}
             - {t: 56, offset: [-2.7492, 0.91384, -1.53604], turn: [13.29333, -25.9565, 21.43131], scale: [0.0175, 0.035, 1.815]}
             - {t: 57, offset: [-2.46448, 0.91384, -1.96057], turn: [11.59419, -35.11426, 22.60334], scale: [0.00938, 0.01875, 1.815]}
+          sample_ticks: 1
         - {op: block, parent: fx1_crimson_chain_axe_ego_orbit, block: red_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_crimson_chain_axe_ego_orbit_orbit_1_s2}
         - id: fx1_crimson_chain_axe_ego_orbit_orbit_1_s2_trk
           op: track
@@ -705,6 +715,7 @@ presentation:
             - {t: 55, offset: [-2.64242, 0.50536, 1.40092], turn: [6.09283, 27.48298, 24.49981], scale: [0.02438, 0.04875, 1.815]}
             - {t: 56, offset: [-2.83426, 0.50536, 0.95497], turn: [4.06217, 18.32329, 24.77817], scale: [0.0175, 0.035, 1.815]}
             - {t: 57, offset: [-2.95142, 0.50536, 0.48386], turn: [2.03117, 9.16203, 24.94461], scale: [0.00938, 0.01875, 1.815]}
+          sample_ticks: 1
         - {op: block, parent: fx1_crimson_chain_axe_ego_orbit, block: red_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_crimson_chain_axe_ego_orbit_orbit_1_s3}
         - id: fx1_crimson_chain_axe_ego_orbit_orbit_1_s3_trk
           op: track
@@ -768,6 +779,7 @@ presentation:
             - {t: 55, offset: [-0.77547, 0.91384, 3.05224], turn: [-3.96932, 71.70462, 26.45041], scale: [0.02438, 0.04875, 1.815]}
             - {t: 56, offset: [-1.25905, 0.91384, 2.88657], turn: [-6.0042, 62.56514, 25.61985], scale: [0.0175, 0.035, 1.815]}
             - {t: 57, offset: [-1.70946, 0.91384, 2.64485], turn: [-7.95158, 53.41954, 24.69987], scale: [0.00938, 0.01875, 1.815]}
+          sample_ticks: 1
         - {op: block, parent: fx1_crimson_chain_axe_ego_orbit, block: red_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_crimson_chain_axe_ego_orbit_orbit_1_s4}
         - id: fx1_crimson_chain_axe_ego_orbit_orbit_1_s4_trk
           op: track
@@ -831,6 +843,7 @@ presentation:
             - {t: 55, offset: [1.54575, 1.9, 2.91559], turn: [-15.43942, 115.74709, 25.66051], scale: [0.02438, 0.04875, 1.815]}
             - {t: 56, offset: [1.0537, 1.9, 3.12726], turn: [-16.98456, 106.65809, 23.64553], scale: [0.0175, 0.035, 1.815]}
             - {t: 57, offset: [0.53388, 1.9, 3.25653], turn: [-18.37052, 97.5551, 21.62744], scale: [0.00938, 0.01875, 1.815]}
+          sample_ticks: 1
         - {op: block, parent: fx1_crimson_chain_axe_ego_orbit, block: red_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_crimson_chain_axe_ego_orbit_orbit_1_s5}
         - id: fx1_crimson_chain_axe_ego_orbit_orbit_1_s5_trk
           op: track
@@ -894,6 +907,7 @@ presentation:
             - {t: 55, offset: [2.96148, 2.88616, 1.07103], turn: [-28.73455, 159.38272, 21.2357], scale: [0.02438, 0.04875, 1.815]}
             - {t: 56, offset: [2.7492, 2.88616, 1.53604], turn: [-29.10376, 150.40699, 18.05237], scale: [0.0175, 0.035, 1.815]}
             - {t: 57, offset: [2.46448, 2.88616, 1.96057], turn: [-29.3019, 141.39946, 15.03016], scale: [0.00938, 0.01875, 1.815]}
+          sample_ticks: 1
         - {op: block, parent: fx1_crimson_chain_axe_ego_orbit, block: red_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_crimson_chain_axe_ego_orbit_orbit_1_s6}
         - id: fx1_crimson_chain_axe_ego_orbit_orbit_1_s6_trk
           op: track
@@ -957,6 +971,7 @@ presentation:
             - {t: 55, offset: [2.64242, 3.29464, -1.40092], turn: [33.01206, -148.90779, -8.20973], scale: [0.02438, 0.04875, 1.815]}
             - {t: 56, offset: [2.83426, 3.29464, -0.95497], turn: [35.0032, -157.88923, -5.73848], scale: [0.0175, 0.035, 1.815]}
             - {t: 57, offset: [2.95142, 3.29464, -0.48386], turn: [36.98613, -166.83364, -3.01168], scale: [0.00938, 0.01875, 1.815]}
+          sample_ticks: 1
         - {op: block, parent: fx1_crimson_chain_axe_ego_orbit, block: red_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_crimson_chain_axe_ego_orbit_orbit_1_s7}
         - id: fx1_crimson_chain_axe_ego_orbit_orbit_1_s7_trk
           op: track
@@ -1020,6 +1035,7 @@ presentation:
             - {t: 55, offset: [0.77547, 2.88616, -3.05224], turn: [28.66308, -105.14183, 4.30136], scale: [0.02438, 0.04875, 1.815]}
             - {t: 56, offset: [1.25905, 2.88616, -2.88657], turn: [29.01497, -114.23333, 6.79987], scale: [0.0175, 0.035, 1.815]}
             - {t: 57, offset: [1.70946, 2.88616, -2.64485], turn: [29.24532, -123.30879, 9.41489], scale: [0.00938, 0.01875, 1.815]}
+          sample_ticks: 1
         - {op: block, parent: fx1_crimson_chain_axe_ego_orbit, block: red_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_crimson_chain_axe_ego_orbit_orbit_2_s0}
         - id: fx1_crimson_chain_axe_ego_orbit_orbit_2_s0_trk
           op: track
@@ -1083,6 +1099,7 @@ presentation:
             - {t: 55, offset: [-1.31154, 1.9, -2.47383], turn: [-40.42389, -58.7191, -24.32225], scale: [0.02438, 0.04875, 1.54]}
             - {t: 56, offset: [-0.89404, 1.9, -2.65343], turn: [-38.9116, -67.47769, -27.95017], scale: [0.0175, 0.035, 1.54]}
             - {t: 57, offset: [-0.45299, 1.9, -2.76311], turn: [-37.16565, -76.2138, -31.56879], scale: [0.00938, 0.01875, 1.54]}
+          sample_ticks: 1
         - {op: block, parent: fx1_crimson_chain_axe_ego_orbit, block: red_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_crimson_chain_axe_ego_orbit_orbit_2_s1}
         - id: fx1_crimson_chain_axe_ego_orbit_orbit_2_s1_trk
           op: track
@@ -1146,6 +1163,7 @@ presentation:
             - {t: 55, offset: [-2.16432, 3.3, -1.09349], turn: [-26.84022, -16.17987, -36.31817], scale: [0.02438, 0.04875, 1.54]}
             - {t: 56, offset: [-1.9589, 3.3, -1.42924], turn: [-23.92177, -24.9998, -38.56631], scale: [0.0175, 0.035, 1.54]}
             - {t: 57, offset: [-1.70187, 3.3, -1.72732], turn: [-20.85954, -33.81261, -40.66651], scale: [0.00938, 0.01875, 1.54]}
+          sample_ticks: 1
         - {op: block, parent: fx1_crimson_chain_axe_ego_orbit, block: red_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_crimson_chain_axe_ego_orbit_orbit_2_s2}
         - id: fx1_crimson_chain_axe_ego_orbit_orbit_2_s2_trk
           op: track
@@ -1209,6 +1227,7 @@ presentation:
             - {t: 55, offset: [-1.74926, 3.8799, 0.9274], turn: [-10.96389, 26.46917, -44.08677], scale: [0.02438, 0.04875, 1.54]}
             - {t: 56, offset: [-1.87626, 3.8799, 0.63218], turn: [-7.31097, 17.65024, -44.59494], scale: [0.0175, 0.035, 1.54]}
             - {t: 57, offset: [-1.95382, 3.8799, 0.32031], turn: [-3.65599, 8.82635, -44.89886], scale: [0.00938, 0.01875, 1.54]}
+          sample_ticks: 1
         - {op: block, parent: fx1_crimson_chain_axe_ego_orbit, block: red_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_crimson_chain_axe_ego_orbit_orbit_2_s3}
         - id: fx1_crimson_chain_axe_ego_orbit_orbit_2_s3_trk
           op: track
@@ -1272,6 +1291,7 @@ presentation:
             - {t: 55, offset: [-0.30952, 3.3, 2.40504], turn: [7.12984, 68.93537, -47.51125], scale: [0.02438, 0.04875, 1.54]}
             - {t: 56, offset: [-0.69453, 3.3, 2.32328], turn: [10.79061, 60.18026, -46.04339], scale: [0.0175, 0.035, 1.54]}
             - {t: 57, offset: [-1.06125, 3.3, 2.18031], turn: [14.29668, 51.40585, -44.40953], scale: [0.00938, 0.01875, 1.54]}
+          sample_ticks: 1
         - {op: block, parent: fx1_crimson_chain_axe_ego_orbit, block: red_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_crimson_chain_axe_ego_orbit_orbit_2_s4}
         - id: fx1_crimson_chain_axe_ego_orbit_orbit_2_s4_trk
           op: track
@@ -1335,6 +1355,7 @@ presentation:
             - {t: 55, offset: [1.31154, 1.9, 2.47383], turn: [27.6238, 110.83924, -45.91112], scale: [0.02438, 0.04875, 1.54]}
             - {t: 56, offset: [0.89404, 1.9, 2.65343], turn: [30.41997, 102.24193, -42.35], scale: [0.0175, 0.035, 1.54]}
             - {t: 57, offset: [0.45299, 1.9, 2.76311], turn: [32.93226, 93.60111, -38.77085], scale: [0.00938, 0.01875, 1.54]}
+          sample_ticks: 1
         - {op: block, parent: fx1_crimson_chain_axe_ego_orbit, block: red_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_crimson_chain_axe_ego_orbit_orbit_2_s5}
         - id: fx1_crimson_chain_axe_ego_orbit_orbit_2_s5_trk
           op: track
@@ -1398,6 +1419,7 @@ presentation:
             - {t: 55, offset: [2.16432, 0.5, 1.09349], turn: [51.02802, 151.4874, -37.71124], scale: [0.02438, 0.04875, 1.54]}
             - {t: 56, offset: [1.9589, 0.5, 1.42924], turn: [51.78515, 143.23692, -32.1211], scale: [0.0175, 0.035, 1.54]}
             - {t: 57, offset: [1.70187, 0.5, 1.72732], turn: [52.22724, 134.89004, -26.78952], scale: [0.00938, 0.01875, 1.54]}
+          sample_ticks: 1
         - {op: block, parent: fx1_crimson_chain_axe_ego_orbit, block: red_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_crimson_chain_axe_ego_orbit_orbit_2_s6}
         - id: fx1_crimson_chain_axe_ego_orbit_orbit_2_s6_trk
           op: track
@@ -1461,6 +1483,7 @@ presentation:
             - {t: 55, offset: [1.74926, -0.0799, -0.9274], turn: [-58.75703, -141.85202, 14.61222], scale: [0.02438, 0.04875, 1.54]}
             - {t: 56, offset: [1.87626, -0.0799, -0.63218], turn: [-62.18164, -150.11975, 10.19416], scale: [0.0175, 0.035, 1.54]}
             - {t: 57, offset: [1.95382, -0.0799, -0.32031], turn: [-65.56002, -158.2759, 5.33838], scale: [0.00938, 0.01875, 1.54]}
+          sample_ticks: 1
         - {op: block, parent: fx1_crimson_chain_axe_ego_orbit, block: red_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_crimson_chain_axe_ego_orbit_orbit_2_s7}
         - id: fx1_crimson_chain_axe_ego_orbit_orbit_2_s7_trk
           op: track
@@ -1524,6 +1547,7 @@ presentation:
             - {t: 55, offset: [0.30952, 0.5, -2.40504], turn: [-51.34485, -100.80463, -7.70513], scale: [0.02438, 0.04875, 1.54]}
             - {t: 56, offset: [0.69453, 0.5, -2.32328], turn: [-51.92233, -109.40968, -12.16838], scale: [0.0175, 0.035, 1.54]}
             - {t: 57, offset: [1.06125, 0.5, -2.18031], turn: [-52.27387, -117.965, -16.82843], scale: [0.00938, 0.01875, 1.54]}
+          sample_ticks: 1
     - id: fx30
       at: 30
       do:
@@ -1577,6 +1601,7 @@ presentation:
             - {t: 41, offset: [1.4542, 1.9, 3.51074], turn: [-11.79321, 111.43636, 17.64979], scale: [0.02438, 0.04875, 2.09]}
             - {t: 42, offset: [0.98351, 1.9, 3.67052], turn: [-12.64255, 104.02591, 16.47609], scale: [0.0175, 0.035, 2.09]}
             - {t: 43, offset: [0.496, 1.9, 3.76749], turn: [-13.41921, 96.61101, 15.30168], scale: [0.00938, 0.01875, 2.09]}
+          sample_ticks: 1
         - {op: block, parent: fx2_crimson_chain_axe_orbit, block: red_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx2_crimson_chain_axe_orbit_orbit_0_s1}
         - id: fx2_crimson_chain_axe_orbit_orbit_0_s1_trk
           op: track
@@ -1626,6 +1651,7 @@ presentation:
             - {t: 41, offset: [3.38924, 2.73033, 1.50452], turn: [-20.91454, 155.76263, 13.97465], scale: [0.02438, 0.04875, 2.09]}
             - {t: 42, offset: [3.16387, 2.73033, 1.93404], turn: [-21.07279, 148.39615, 12.16638], scale: [0.0175, 0.035, 2.09]}
             - {t: 43, offset: [2.88436, 2.73033, 2.33046], turn: [-21.1546, 141.01958, 10.43229], scale: [0.00938, 0.01875, 2.09]}
+          sample_ticks: 1
         - {op: block, parent: fx2_crimson_chain_axe_orbit, block: red_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx2_crimson_chain_axe_orbit_orbit_0_s2}
         - id: fx2_crimson_chain_axe_orbit_orbit_0_s2_trk
           op: track
@@ -1675,6 +1701,7 @@ presentation:
             - {t: 41, offset: [3.33891, 3.07426, -1.38302], turn: [24.67038, -155.76263, -4.90724], scale: [0.02438, 0.04875, 2.09]}
             - {t: 42, offset: [3.49087, 3.07426, -0.93538], turn: [25.83526, -163.11742, -3.40128], scale: [0.0175, 0.035, 2.09]}
             - {t: 43, offset: [3.5831, 3.07426, -0.47172], turn: [26.99799, -170.45861, -1.76954], scale: [0.00938, 0.01875, 2.09]}
+          sample_ticks: 1
         - {op: block, parent: fx2_crimson_chain_axe_orbit, block: red_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx2_crimson_chain_axe_orbit_orbit_0_s3}
         - id: fx2_crimson_chain_axe_orbit_orbit_0_s3_trk
           op: track
@@ -1724,6 +1751,7 @@ presentation:
             - {t: 41, offset: [1.3327, 2.73033, -3.46041], turn: [20.81934, -111.43636, 4.14122], scale: [0.02438, 0.04875, 2.09]}
             - {t: 42, offset: [1.77297, 2.73033, -3.25686], turn: [20.99397, -118.84174, 5.62532], scale: [0.0175, 0.035, 2.09]}
             - {t: 43, offset: [2.18291, 2.73033, -2.99758], turn: [21.11063, -126.24132, 7.16609], scale: [0.00938, 0.01875, 2.09]}
+          sample_ticks: 1
         - {op: block, parent: fx2_crimson_chain_axe_orbit, block: red_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx2_crimson_chain_axe_orbit_orbit_0_s4}
         - id: fx2_crimson_chain_axe_orbit_orbit_0_s4_trk
           op: track
@@ -1773,6 +1801,7 @@ presentation:
             - {t: 41, offset: [-1.4542, 1.9, -3.51074], turn: [15.86195, -66.91704, 10.59862], scale: [0.02438, 0.04875, 2.09]}
             - {t: 42, offset: [-0.98351, 1.9, -3.67052], turn: [15.34556, -74.34481, 11.77506], scale: [0.0175, 0.035, 2.09]}
             - {t: 43, offset: [-0.496, 1.9, -3.76749], turn: [14.76789, -81.77, 12.9511], scale: [0.00938, 0.01875, 2.09]}
+          sample_ticks: 1
         - {op: block, parent: fx2_crimson_chain_axe_orbit, block: red_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx2_crimson_chain_axe_orbit_orbit_0_s5}
         - id: fx2_crimson_chain_axe_orbit_orbit_0_s5_trk
           op: track
@@ -1822,6 +1851,7 @@ presentation:
             - {t: 41, offset: [-3.38924, 1.06967, -1.50452], turn: [10.06438, -22.31369, 15.06241], scale: [0.02438, 0.04875, 2.09]}
             - {t: 42, offset: [-3.16387, 1.06967, -1.93404], turn: [9.10294, -29.75059, 15.76676], scale: [0.0175, 0.035, 2.09]}
             - {t: 43, offset: [-2.88436, 1.06967, -2.33046], turn: [8.10412, -37.18662, 16.43353], scale: [0.00938, 0.01875, 2.09]}
+          sample_ticks: 1
         - {op: block, parent: fx2_crimson_chain_axe_orbit, block: red_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx2_crimson_chain_axe_orbit_orbit_0_s6}
         - id: fx2_crimson_chain_axe_orbit_orbit_0_s6_trk
           op: track
@@ -1871,6 +1901,7 @@ presentation:
             - {t: 41, offset: [-3.33891, 0.72574, 1.38302], turn: [3.53414, 22.31369, 17.76733], scale: [0.02438, 0.04875, 2.09]}
             - {t: 42, offset: [-3.49087, 0.72574, 0.93538], turn: [2.35615, 14.87615, 17.89674], scale: [0.0175, 0.035, 2.09]}
             - {t: 43, offset: [-3.5831, 0.72574, 0.47172], turn: [1.17809, 7.43818, 17.97421], scale: [0.00938, 0.01875, 2.09]}
+          sample_ticks: 1
         - {op: block, parent: fx2_crimson_chain_axe_orbit, block: red_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx2_crimson_chain_axe_orbit_orbit_0_s7}
         - id: fx2_crimson_chain_axe_orbit_orbit_0_s7_trk
           op: track
@@ -1920,6 +1951,7 @@ presentation:
             - {t: 41, offset: [-1.3327, 1.06967, 3.46041], turn: [-3.72174, 66.91704, 18.71045], scale: [0.02438, 0.04875, 2.09]}
             - {t: 42, offset: [-1.77297, 1.06967, 3.25686], turn: [-4.87709, 59.48703, 18.20156], scale: [0.0175, 0.035, 2.09]}
             - {t: 43, offset: [-2.18291, 1.06967, 2.99758], turn: [-5.99196, 52.0551, 17.65175], scale: [0.00938, 0.01875, 2.09]}
+          sample_ticks: 1
         - {op: block, parent: fx2_crimson_chain_axe_orbit, block: red_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx2_crimson_chain_axe_orbit_orbit_1_s0}
         - id: fx2_crimson_chain_axe_orbit_orbit_1_s0_trk
           op: track
@@ -1969,6 +2001,7 @@ presentation:
             - {t: 41, offset: [1.26286, 1.9, 3.0488], turn: [16.3607, 110.44701, -24.48551], scale: [0.02438, 0.04875, 1.815]}
             - {t: 42, offset: [0.8541, 1.9, 3.18756], turn: [17.54191, 103.11957, -22.86106], scale: [0.0175, 0.035, 1.815]}
             - {t: 43, offset: [0.43074, 1.9, 3.27177], turn: [18.62235, 95.78363, -21.23472], scale: [0.00938, 0.01875, 1.815]}
+          sample_ticks: 1
         - {op: block, parent: fx2_crimson_chain_axe_orbit, block: red_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx2_crimson_chain_axe_orbit_orbit_1_s1}
         - id: fx2_crimson_chain_axe_orbit_orbit_1_s1_trk
           op: track
@@ -2018,6 +2051,7 @@ presentation:
             - {t: 41, offset: [2.84682, 0.91384, 1.34652], turn: [28.97172, 154.15107, -19.35828], scale: [0.02438, 0.04875, 1.815]}
             - {t: 42, offset: [2.64671, 0.91384, 1.70658], turn: [29.20022, 146.90753, -16.85876], scale: [0.0175, 0.035, 1.815]}
             - {t: 43, offset: [2.40131, 0.91384, 2.03745], turn: [29.32195, 139.64476, -14.45998], scale: [0.00938, 0.01875, 1.815]}
+          sample_ticks: 1
         - {op: block, parent: fx2_crimson_chain_axe_orbit, block: red_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx2_crimson_chain_axe_orbit_orbit_1_s2}
         - id: fx2_crimson_chain_axe_orbit_orbit_1_s2_trk
           op: track
@@ -2067,6 +2101,7 @@ presentation:
             - {t: 41, offset: [2.76315, 0.50536, -1.14454], turn: [-34.17447, -154.15107, 6.79772], scale: [0.02438, 0.04875, 1.815]}
             - {t: 42, offset: [2.88891, 0.50536, -0.77408], turn: [-35.7754, -161.3724, 4.70992], scale: [0.0175, 0.035, 1.815]}
             - {t: 43, offset: [2.96523, 0.50536, -0.39038], turn: [-37.3706, -168.56791, 2.4494], scale: [0.00938, 0.01875, 1.815]}
+          sample_ticks: 1
         - {op: block, parent: fx2_crimson_chain_axe_orbit, block: red_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx2_crimson_chain_axe_orbit_orbit_1_s3}
         - id: fx2_crimson_chain_axe_orbit_orbit_1_s3_trk
           op: track
@@ -2116,6 +2151,7 @@ presentation:
             - {t: 41, offset: [1.06087, 0.91384, -2.96514], turn: [-28.88263, -110.44701, -5.74511], scale: [0.02438, 0.04875, 1.815]}
             - {t: 42, offset: [1.43882, 0.91384, -2.8013], turn: [-29.11948, -117.76473, -7.80254], scale: [0.0175, 0.035, 1.815]}
             - {t: 43, offset: [1.79216, 0.91384, -2.58953], turn: [-29.27522, -125.07136, -9.9376], scale: [0.00938, 0.01875, 1.815]}
+          sample_ticks: 1
         - {op: block, parent: fx2_crimson_chain_axe_orbit, block: red_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx2_crimson_chain_axe_orbit_orbit_1_s4}
         - id: fx2_crimson_chain_axe_orbit_orbit_1_s4_trk
           op: track
@@ -2165,6 +2201,7 @@ presentation:
             - {t: 41, offset: [-1.26286, 1.9, -3.0488], turn: [-22.02222, -66.37407, -14.71478], scale: [0.02438, 0.04875, 1.815]}
             - {t: 42, offset: [-0.8541, 1.9, -3.18756], turn: [-21.30328, -73.73466, -16.34658], scale: [0.0175, 0.035, 1.815]}
             - {t: 43, offset: [-0.43074, 1.9, -3.27177], turn: [-20.49917, -81.0903, -17.97729], scale: [0.00938, 0.01875, 1.815]}
+          sample_ticks: 1
         - {op: block, parent: fx2_crimson_chain_axe_orbit, block: red_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx2_crimson_chain_axe_orbit_orbit_1_s5}
         - id: fx2_crimson_chain_axe_orbit_orbit_1_s5_trk
           op: track
@@ -2214,6 +2251,7 @@ presentation:
             - {t: 41, offset: [-2.84682, 2.88616, -1.34652], turn: [-13.97775, -22.14006, -20.91918], scale: [0.02438, 0.04875, 1.815]}
             - {t: 42, offset: [-2.64671, 2.88616, -1.70658], turn: [-12.64208, -29.51817, -21.89672], scale: [0.0175, 0.035, 1.815]}
             - {t: 43, offset: [-2.40131, 2.88616, -2.03745], turn: [-11.25446, -36.8946, -22.82179], scale: [0.00938, 0.01875, 1.815]}
+          sample_ticks: 1
         - {op: block, parent: fx2_crimson_chain_axe_orbit, block: red_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx2_crimson_chain_axe_orbit_orbit_1_s6}
         - id: fx2_crimson_chain_axe_orbit_orbit_1_s6_trk
           op: track
@@ -2263,6 +2301,7 @@ presentation:
             - {t: 41, offset: [-2.76315, 3.29464, 1.14454], turn: [-4.90833, 22.14006, -24.67586], scale: [0.02438, 0.04875, 1.815]}
             - {t: 42, offset: [-2.88891, 3.29464, 0.77408], turn: [-3.27237, 14.76072, -24.85614], scale: [0.0175, 0.035, 1.815]}
             - {t: 43, offset: [-2.96523, 3.29464, 0.39038], turn: [-1.63623, 7.38056, -24.96406], scale: [0.00938, 0.01875, 1.815]}
+          sample_ticks: 1
         - {op: block, parent: fx2_crimson_chain_axe_orbit, block: red_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx2_crimson_chain_axe_orbit_orbit_1_s7}
         - id: fx2_crimson_chain_axe_orbit_orbit_1_s7_trk
           op: track
@@ -2312,6 +2351,7 @@ presentation:
             - {t: 41, offset: [-1.06087, 2.88616, 2.96514], turn: [5.16714, 66.37407, -25.97698], scale: [0.02438, 0.04875, 1.815]}
             - {t: 42, offset: [-1.43882, 2.88616, 2.8013], turn: [6.77175, 59.00918, -25.27252], scale: [0.0175, 0.035, 1.815]}
             - {t: 43, offset: [-1.79216, 2.88616, 2.58953], turn: [8.32032, 51.64061, -24.51087], scale: [0.00938, 0.01875, 1.815]}
+          sample_ticks: 1
         - {op: block, parent: fx2_crimson_chain_axe_orbit, block: red_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx2_crimson_chain_axe_orbit_orbit_2_s0}
         - id: fx2_crimson_chain_axe_orbit_orbit_2_s0_trk
           op: track
@@ -2361,6 +2401,7 @@ presentation:
             - {t: 41, offset: [1.07151, 1.9, 2.58686], turn: [-29.29038, 105.82984, 43.83615], scale: [0.02438, 0.04875, 1.54]}
             - {t: 42, offset: [0.72469, 1.9, 2.70459], turn: [-31.42978, 98.88641, 40.96009], scale: [0.0175, 0.035, 1.54]}
             - {t: 43, offset: [0.36547, 1.9, 2.77605], turn: [-33.38917, 91.91646, 38.07305], scale: [0.00938, 0.01875, 1.54]}
+          sample_ticks: 1
         - {op: block, parent: fx2_crimson_chain_axe_orbit, block: red_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx2_crimson_chain_axe_orbit_orbit_2_s1}
         - id: fx2_crimson_chain_axe_orbit_orbit_2_s1_trk
           op: track
@@ -2410,6 +2451,7 @@ presentation:
             - {t: 41, offset: [2.05111, 3.3, 1.29343], turn: [-51.50973, 146.68731, 34.4177], scale: [0.02438, 0.04875, 1.54]}
             - {t: 42, offset: [1.86473, 3.3, 1.55009], turn: [-51.99286, 140.00146, 30.01809], scale: [0.0175, 0.035, 1.54]}
             - {t: 43, offset: [1.64645, 3.3, 1.78022], turn: [-52.27907, 133.25718, 25.78118], scale: [0.00938, 0.01875, 1.54]}
+          sample_ticks: 1
         - {op: block, parent: fx2_crimson_chain_axe_orbit, block: red_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx2_crimson_chain_axe_orbit_orbit_2_s2}
         - id: fx2_crimson_chain_axe_orbit_orbit_2_s2_trk
           op: track
@@ -2459,6 +2501,7 @@ presentation:
             - {t: 41, offset: [1.82919, 3.8799, -0.75767], turn: [60.75987, -146.68731, -12.08589], scale: [0.02438, 0.04875, 1.54]}
             - {t: 42, offset: [1.91244, 3.8799, -0.51244], turn: [63.50141, -153.30596, -8.36012], scale: [0.0175, 0.035, 1.54]}
             - {t: 43, offset: [1.96296, 3.8799, -0.25843], turn: [66.21082, -159.84706, -4.33969], scale: [0.00938, 0.01875, 1.54]}
+          sample_ticks: 1
         - {op: block, parent: fx2_crimson_chain_axe_orbit, block: red_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx2_crimson_chain_axe_orbit_orbit_2_s3}
         - id: fx2_crimson_chain_axe_orbit_orbit_2_s3_trk
           op: track
@@ -2508,6 +2551,7 @@ presentation:
             - {t: 41, offset: [0.53576, 3.3, -2.36494], turn: [51.70827, -105.82984, 10.28541], scale: [0.02438, 0.04875, 1.54]}
             - {t: 42, offset: [0.83986, 3.3, -2.27478], turn: [52.08677, -112.7431, 13.95661], scale: [0.0175, 0.035, 1.54]}
             - {t: 43, offset: [1.12959, 3.3, -2.1457], turn: [52.31457, -119.62205, 17.7584], scale: [0.00938, 0.01875, 1.54]}
+          sample_ticks: 1
         - {op: block, parent: fx2_crimson_chain_axe_orbit, block: red_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx2_crimson_chain_axe_orbit_orbit_2_s4}
         - id: fx2_crimson_chain_axe_orbit_orbit_2_s4_trk
           op: track
@@ -2557,6 +2601,7 @@ presentation:
             - {t: 41, offset: [-1.07151, 1.9, -2.58686], turn: [39.56962, -63.83078, 26.43957], scale: [0.02438, 0.04875, 1.54]}
             - {t: 42, offset: [-0.72469, 1.9, -2.70459], turn: [38.26089, -70.87796, 29.35861], scale: [0.0175, 0.035, 1.54]}
             - {t: 43, offset: [-0.36547, 1.9, -2.77605], turn: [36.79823, -77.90953, 32.27119], scale: [0.00938, 0.01875, 1.54]}
+          sample_ticks: 1
         - {op: block, parent: fx2_crimson_chain_axe_orbit, block: red_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx2_crimson_chain_axe_orbit_orbit_2_s5}
         - id: fx2_crimson_chain_axe_orbit_orbit_2_s5_trk
           op: track
@@ -2606,6 +2651,7 @@ presentation:
             - {t: 41, offset: [-2.05111, 0.5, -1.29343], turn: [25.15519, -21.32554, 37.64741], scale: [0.02438, 0.04875, 1.54]}
             - {t: 42, offset: [-1.86473, 0.5, -1.55009], turn: [22.74806, -28.42799, 39.40079], scale: [0.0175, 0.035, 1.54]}
             - {t: 43, offset: [-1.64645, 0.5, -1.78022], turn: [20.24729, -35.52516, 41.05745], scale: [0.00938, 0.01875, 1.54]}
+          sample_ticks: 1
         - {op: block, parent: fx2_crimson_chain_axe_orbit, block: red_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx2_crimson_chain_axe_orbit_orbit_2_s6}
         - id: fx2_crimson_chain_axe_orbit_orbit_2_s6_trk
           op: track
@@ -2655,6 +2701,7 @@ presentation:
             - {t: 41, offset: [-1.82919, -0.0799, 0.75767], turn: [8.83333, 21.32554, 44.40815], scale: [0.02438, 0.04875, 1.54]}
             - {t: 42, offset: [-1.91244, -0.0799, 0.51244], turn: [5.88978, 14.21918, 44.7373], scale: [0.0175, 0.035, 1.54]}
             - {t: 43, offset: [-1.96296, -0.0799, 0.25843], turn: [2.94515, 7.11023, 44.93438], scale: [0.00938, 0.01875, 1.54]}
+          sample_ticks: 1
         - {op: block, parent: fx2_crimson_chain_axe_orbit, block: red_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx2_crimson_chain_axe_orbit_orbit_2_s7}
         - id: fx2_crimson_chain_axe_orbit_orbit_2_s7_trk
           op: track
@@ -2704,6 +2751,7 @@ presentation:
             - {t: 41, offset: [-0.53576, 0.5, 2.36494], turn: [-9.28434, 63.83078, 46.67555], scale: [0.02438, 0.04875, 1.54]}
             - {t: 42, offset: [-0.83986, 0.5, 2.27478], turn: [-12.17223, 56.77009, 45.42737], scale: [0.0175, 0.035, 1.54]}
             - {t: 43, offset: [-1.12959, 0.5, 2.1457], turn: [-14.96079, 49.69777, 44.07307], scale: [0.00938, 0.01875, 1.54]}
+          sample_ticks: 1
     - id: fx58
       at: 58
       do:

@@ -4,7 +4,7 @@ apiVersion: "astera/v2"
 kind: Skill
 id: frost-shard
 frames:
-  - {id: pt_caster_0_m0p2_1, kind: point, parent: caster, offset: [0.0, -0.2, 1.0]}
+  - {id: pt_caster_0_1p42_1, kind: point, parent: caster, offset: [0.0, 1.42, 1.0]}
   - {id: pt_enemy_0_1_0, kind: point, parent: enemy, offset: [0.0, 1.0, 0.0]}
 presentation:
   timeline:
@@ -13,7 +13,7 @@ presentation:
       do:
         - {id: mesh, op: mesh, frame: bolt, item: "minecraft:prismarine_shard", display_mode: none, rig_shading: false, scale: 0.9}
         - {id: snd, op: sound, sound: "astera:skills/frost-cast", at: caster, volume: 0.8, pitch: 1.4}
-        - {id: emit, op: emit, at: pt_caster_0_m0p2_1, particle: frost-cast}
+        - {id: emit, op: emit, at: pt_caster_0_1p42_1, particle: frost-cast}
     - id: fxhit_1
       at: "hit+1"
       do:

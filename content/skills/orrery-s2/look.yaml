@@ -40,6 +40,7 @@ presentation:
             - {t: 0, scale: [0.16, 0.16, 0.55]}
             - {t: 2, scale: [0.16, 0.16, 0.7], ease: out_expo}
             - {t: 14, scale: [0.0, 0.0, 0.4]}
+          sample_ticks: 1
         - op: block
           parent: fx1_orrery_s2_charge_ring
           block: black_concrete
@@ -56,6 +57,7 @@ presentation:
             - {t: 0, scale: [0.09, 0.09, 0.55]}
             - {t: 2, scale: [0.09, 0.09, 0.7], ease: out_expo}
             - {t: 14, scale: [0.0, 0.0, 0.4]}
+          sample_ticks: 1
         - {id: anchor_3, op: anchor, frame: fx3_orrery_s2_poise, at: caster, orient: yaw}
         - {op: plate, parent: fx3_orrery_s2_poise, face: {viewer: center}, sprite: orrery-orb, size: 3.2, color: "#FFFFFF", see_through: true, brightness: 15, id: fx3_orrery_s2_poise_emitter_light}
         - id: fx3_orrery_s2_poise_emitter_light_trk
@@ -86,6 +88,7 @@ presentation:
             - {t: 82, offset: [-0.3, 3.2, 0.3], scale: [0.20312, 0.20312, 1.0]}
             - {t: 92, offset: [-0.3, 3.2, 0.3], scale: [0.0, 0.0, 1.0]}
             - {t: 99, offset: [-0.3, 3.2, 0.3], scale: [0.0, 0.0, 1.0]}
+          sample_ticks: 1
         - id: fx3_orrery_s2_poise_staff_rig
           op: rig
           frame: fx3_orrery_s2_poise_staff
@@ -362,6 +365,7 @@ presentation:
             - {t: 0, scale: [0.16, 0.16, 0.55]}
             - {t: 2, scale: [0.16, 0.16, 0.7], ease: out_expo}
             - {t: 14, scale: [0.0, 0.0, 0.4]}
+          sample_ticks: 1
         - op: block
           parent: fx2_orrery_s2_charge_ring
           block: black_concrete
@@ -378,6 +382,7 @@ presentation:
             - {t: 0, scale: [0.09, 0.09, 0.55]}
             - {t: 2, scale: [0.09, 0.09, 0.7], ease: out_expo}
             - {t: 14, scale: [0.0, 0.0, 0.4]}
+          sample_ticks: 1
     - {id: fx62, at: 62, do: [{id: rm_4, op: remove, ids: [fx3_orrery_s2_poise_staff_recharge]}]}
     - {id: fx64, at: 64, do: [{id: rm_2, op: remove, ids: [fx2_orrery_s2_charge_ring_gold, fx2_orrery_s2_charge_ring_dark]}]}
     - id: fx106
@@ -438,6 +443,7 @@ presentation:
           - {t: 2, scale: [0.494, 0.7155, 1.0], ease: out_expo}
           - {t: 11, scale: [0.494, 0.7155, 1.0]}
           - {t: 15, scale: [0.507, 0.7425, 1.0], alpha: 0.0}
+        sample_ticks: 1
         when: "= event.source == 'sel'"
       - id: fx4_orrery_s2_impact_violet_flash_pull
         op: pull
@@ -464,6 +470,7 @@ presentation:
         keys:
           - {t: 0, offset: [0.0, 1.1, 0.0], scale: [0.6, 2.1, 1.0], alpha: 0.8}
           - {t: 7, scale: [0.2, 2.5, 1.0], alpha: 0.0}
+        sample_ticks: 1
         when: "= event.source == 'sel'"
       - {id: snd, op: sound, sound: entity.player.attack.strong, at: enemy, volume: 0.7, pitch: 1.1, when: "= event.source == 'sel'"}
       - {id: anchor_5, op: anchor, frame: fx5_orrery_s2_impact_long, at: enemy, orient: yaw, when: "= event.source == 'sel_2'"}
@@ -496,6 +503,7 @@ presentation:
           - {t: 2, scale: [0.494, 0.7155, 1.0], ease: out_expo}
           - {t: 14, scale: [0.494, 0.7155, 1.0]}
           - {t: 18, scale: [0.507, 0.7425, 1.0], alpha: 0.0}
+        sample_ticks: 1
         when: "= event.source == 'sel_2'"
       - id: fx5_orrery_s2_impact_long_violet_flash_pull
         op: pull
@@ -522,5 +530,6 @@ presentation:
         keys:
           - {t: 0, offset: [0.0, 1.1, 0.0], scale: [0.6, 2.1, 1.0], alpha: 0.8}
           - {t: 7, scale: [0.2, 2.5, 1.0], alpha: 0.0}
+        sample_ticks: 1
         when: "= event.source == 'sel_2'"
       - {id: snd_2, op: sound, sound: entity.player.attack.strong, at: enemy, volume: 0.7, pitch: 1.1, when: "= event.source == 'sel_2'"}

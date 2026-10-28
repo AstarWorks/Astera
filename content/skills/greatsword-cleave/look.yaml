@@ -4,12 +4,12 @@ apiVersion: "astera/v2"
 kind: Skill
 id: greatsword-cleave
 frames:
-  - {id: pt_caster_0_m0p3_2p4, kind: point, parent: caster, offset: [0.0, -0.3, 2.4]}
+  - {id: pt_caster_0_1p32_2p4, kind: point, parent: caster, offset: [0.0, 1.32, 2.4]}
   - {id: pt_enemy_0_1p2_0, kind: point, parent: enemy, offset: [0.0, 1.2, 0.0]}
   - {id: pt_enemy_0_1p6_0, kind: point, parent: enemy, offset: [0.0, 1.6, 0.0]}
 presentation:
   timeline:
-    - {id: fx0, at: 0, do: [{id: snd, op: sound, sound: "astera:weapons/blade-heavy-swing", at: caster, pitch: 0.6}, {id: emit, op: emit, at: pt_caster_0_m0p3_2p4, particle: cleave-sweep}]}
+    - {id: fx0, at: 0, do: [{id: snd, op: sound, sound: "astera:weapons/blade-heavy-swing", at: caster, pitch: 0.6}, {id: emit, op: emit, at: pt_caster_0_1p32_2p4, particle: cleave-sweep}]}
     - {id: fx2, at: 2, do: [{id: snd_3, op: sound, sound: "astera:weapons/blade-miss", at: caster, when: "= counter('swing_hits') == 0.0"}]}
   "on":
     hit:

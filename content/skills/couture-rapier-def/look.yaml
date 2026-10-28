@@ -22,6 +22,7 @@ presentation:
           keys:
             - {t: 0, offset: [-0.55, 0.1, -1.8], scale: [0.04, 0.025, 3.2], turn: [0.0, 12.0, 0.0]}
             - {t: 29, scale: [0.0, 0.025, 3.2]}
+          sample_ticks: 1
         - {op: block, parent: fx1_couture_rapier_guard, block: black_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_couture_rapier_guard_trailing_thread_1}
         - id: fx1_couture_rapier_guard_trailing_thread_1_trk
           op: track
@@ -29,6 +30,7 @@ presentation:
           keys:
             - {t: 0, offset: [-0.33, 0.1, -1.8], scale: [0.04, 0.025, 3.2], turn: [0.0, 7.0, 0.0]}
             - {t: 29, scale: [0.0, 0.025, 3.2]}
+          sample_ticks: 1
         - {op: block, parent: fx1_couture_rapier_guard, block: black_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_couture_rapier_guard_trailing_thread_2}
         - id: fx1_couture_rapier_guard_trailing_thread_2_trk
           op: track
@@ -36,6 +38,7 @@ presentation:
           keys:
             - {t: 0, offset: [-0.11, 0.1, -1.8], scale: [0.04, 0.025, 3.2], turn: [0.0, 2.0, 0.0]}
             - {t: 29, scale: [0.0, 0.025, 3.2]}
+          sample_ticks: 1
         - {op: block, parent: fx1_couture_rapier_guard, block: black_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_couture_rapier_guard_trailing_thread_3}
         - id: fx1_couture_rapier_guard_trailing_thread_3_trk
           op: track
@@ -43,6 +46,7 @@ presentation:
           keys:
             - {t: 0, offset: [0.11, 0.1, -1.8], scale: [0.04, 0.025, 3.2], turn: [0.0, -3.0, 0.0]}
             - {t: 29, scale: [0.0, 0.025, 3.2]}
+          sample_ticks: 1
         - {op: block, parent: fx1_couture_rapier_guard, block: black_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_couture_rapier_guard_trailing_thread_4}
         - id: fx1_couture_rapier_guard_trailing_thread_4_trk
           op: track
@@ -50,6 +54,7 @@ presentation:
           keys:
             - {t: 0, offset: [0.33, 0.1, -1.8], scale: [0.04, 0.025, 3.2], turn: [0.0, -8.0, 0.0]}
             - {t: 29, scale: [0.0, 0.025, 3.2]}
+          sample_ticks: 1
         - {op: block, parent: fx1_couture_rapier_guard, block: black_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_couture_rapier_guard_trailing_thread_5}
         - id: fx1_couture_rapier_guard_trailing_thread_5_trk
           op: track
@@ -57,6 +62,7 @@ presentation:
           keys:
             - {t: 0, offset: [0.55, 0.1, -1.8], scale: [0.04, 0.025, 3.2], turn: [0.0, -13.0, 0.0]}
             - {t: 29, scale: [0.0, 0.025, 3.2]}
+          sample_ticks: 1
     - id: fx16
       at: 16
       do:
@@ -73,6 +79,7 @@ presentation:
             - {t: 5, offset: [0.18735, 1.58683, 0.0], scale: [0.14, 0.14, 1.0], alpha: 0.28571}
             - {t: 6, offset: [0.21939, 1.65299, 0.0], scale: [0.14, 0.14, 1.0], alpha: 0.14286}
             - {t: 7, offset: [0.24983, 1.71584, 0.0], scale: [0.14, 0.14, 1.0], alpha: 0.0}
+          sample_ticks: 1
         - {id: fx1_couture_rapier_guard_guard_petals_1, op: quad, parent: fx1_couture_rapier_guard, face: {viewer: center}, size: [1.0, 1.0], color: "#FFF4EE", alpha: 1.0, brightness: 15}
         - id: fx1_couture_rapier_guard_guard_petals_1_trk
           op: track
@@ -86,6 +93,7 @@ presentation:
             - {t: 5, offset: [-0.22634, 1.50087, 0.20734], scale: [0.14, 0.14, 1.0], alpha: 0.28571}
             - {t: 6, offset: [-0.26504, 1.55233, 0.2428], scale: [0.14, 0.14, 1.0], alpha: 0.14286}
             - {t: 7, offset: [-0.30182, 1.60121, 0.27649], scale: [0.14, 0.14, 1.0], alpha: 0.0}
+          sample_ticks: 1
         - {id: fx1_couture_rapier_guard_guard_petals_2, op: quad, parent: fx1_couture_rapier_guard, face: {viewer: center}, size: [1.0, 1.0], color: "#FFF4EE", alpha: 1.0, brightness: 15}
         - id: fx1_couture_rapier_guard_guard_petals_2_trk
           op: track
@@ -99,6 +107,7 @@ presentation:
             - {t: 5, offset: [0.03254, 1.41491, -0.37081], scale: [0.14, 0.14, 1.0], alpha: 0.28571}
             - {t: 6, offset: [0.03811, 1.45166, -0.43422], scale: [0.14, 0.14, 1.0], alpha: 0.14286}
             - {t: 7, offset: [0.0434, 1.48658, -0.49447], scale: [0.14, 0.14, 1.0], alpha: 0.0}
+          sample_ticks: 1
         - {id: fx1_couture_rapier_guard_guard_petals_3, op: quad, parent: fx1_couture_rapier_guard, face: {viewer: center}, size: [1.0, 1.0], color: "#FFF4EE", alpha: 1.0, brightness: 15}
         - id: fx1_couture_rapier_guard_guard_petals_3_trk
           op: track
@@ -112,6 +121,7 @@ presentation:
             - {t: 5, offset: [0.24947, 1.32894, 0.32539], scale: [0.14, 0.14, 1.0], alpha: 0.28571}
             - {t: 6, offset: [0.29214, 1.351, 0.38104], scale: [0.14, 0.14, 1.0], alpha: 0.14286}
             - {t: 7, offset: [0.33267, 1.37195, 0.43391], scale: [0.14, 0.14, 1.0], alpha: 0.0}
+          sample_ticks: 1
         - {id: fx1_couture_rapier_guard_guard_petals_4, op: quad, parent: fx1_couture_rapier_guard, face: {viewer: center}, size: [1.0, 1.0], color: "#FFF4EE", alpha: 1.0, brightness: 15}
         - id: fx1_couture_rapier_guard_guard_petals_4_trk
           op: track
@@ -125,6 +135,7 @@ presentation:
             - {t: 5, offset: [-0.42112, 1.24298, -0.07449], scale: [0.14, 0.14, 1.0], alpha: 0.28571}
             - {t: 6, offset: [-0.49315, 1.25033, -0.08723], scale: [0.14, 0.14, 1.0], alpha: 0.14286}
             - {t: 7, offset: [-0.56157, 1.25732, -0.09933], scale: [0.14, 0.14, 1.0], alpha: 0.0}
+          sample_ticks: 1
         - {id: fx1_couture_rapier_guard_guard_petals_5, op: quad, parent: fx1_couture_rapier_guard, face: {viewer: center}, size: [1.0, 1.0], color: "#FFF4EE", alpha: 1.0, brightness: 15}
         - id: fx1_couture_rapier_guard_guard_petals_5_trk
           op: track
@@ -138,6 +149,7 @@ presentation:
             - {t: 5, offset: [0.36084, 1.15702, -0.22954], scale: [0.14, 0.14, 1.0], alpha: 0.28571}
             - {t: 6, offset: [0.42255, 1.14967, -0.26879], scale: [0.14, 0.14, 1.0], alpha: 0.14286}
             - {t: 7, offset: [0.48118, 1.14268, -0.30609], scale: [0.14, 0.14, 1.0], alpha: 0.0}
+          sample_ticks: 1
         - {id: fx1_couture_rapier_guard_guard_petals_6, op: quad, parent: fx1_couture_rapier_guard, face: {viewer: center}, size: [1.0, 1.0], color: "#FFF4EE", alpha: 1.0, brightness: 15}
         - id: fx1_couture_rapier_guard_guard_petals_6_trk
           op: track
@@ -151,6 +163,7 @@ presentation:
             - {t: 5, offset: [-0.10644, 1.07106, 0.39596], scale: [0.14, 0.14, 1.0], alpha: 0.28571}
             - {t: 6, offset: [-0.12465, 1.049, 0.46368], scale: [0.14, 0.14, 1.0], alpha: 0.14286}
             - {t: 7, offset: [-0.14194, 1.02805, 0.52801], scale: [0.14, 0.14, 1.0], alpha: 0.0}
+          sample_ticks: 1
         - {id: fx1_couture_rapier_guard_guard_petals_7, op: quad, parent: fx1_couture_rapier_guard, face: {viewer: center}, size: [1.0, 1.0], color: "#FFF4EE", alpha: 1.0, brightness: 15}
         - id: fx1_couture_rapier_guard_guard_petals_7_trk
           op: track
@@ -164,6 +177,7 @@ presentation:
             - {t: 5, offset: [-0.17156, 0.98509, -0.33034], scale: [0.14, 0.14, 1.0], alpha: 0.28571}
             - {t: 6, offset: [-0.20091, 0.94834, -0.38683], scale: [0.14, 0.14, 1.0], alpha: 0.14286}
             - {t: 7, offset: [-0.22878, 0.91342, -0.4405], scale: [0.14, 0.14, 1.0], alpha: 0.0}
+          sample_ticks: 1
         - {id: fx1_couture_rapier_guard_guard_petals_8, op: quad, parent: fx1_couture_rapier_guard, face: {viewer: center}, size: [1.0, 1.0], color: "#FFF4EE", alpha: 1.0, brightness: 15}
         - id: fx1_couture_rapier_guard_guard_petals_8_trk
           op: track
@@ -177,6 +191,7 @@ presentation:
             - {t: 5, offset: [0.28832, 0.89913, 0.1053], scale: [0.14, 0.14, 1.0], alpha: 0.28571}
             - {t: 6, offset: [0.33764, 0.84767, 0.1233], scale: [0.14, 0.14, 1.0], alpha: 0.14286}
             - {t: 7, offset: [0.38448, 0.79879, 0.14041], scale: [0.14, 0.14, 1.0], alpha: 0.0}
+          sample_ticks: 1
         - {id: fx1_couture_rapier_guard_guard_petals_9, op: quad, parent: fx1_couture_rapier_guard, face: {viewer: center}, size: [1.0, 1.0], color: "#FFF4EE", alpha: 1.0, brightness: 15}
         - id: fx1_couture_rapier_guard_guard_petals_9_trk
           op: track
@@ -190,6 +205,7 @@ presentation:
             - {t: 5, offset: [-0.17318, 0.81317, 0.07149], scale: [0.14, 0.14, 1.0], alpha: 0.28571}
             - {t: 6, offset: [-0.2028, 0.74701, 0.08371], scale: [0.14, 0.14, 1.0], alpha: 0.14286}
             - {t: 7, offset: [-0.23093, 0.68416, 0.09533], scale: [0.14, 0.14, 1.0], alpha: 0.0}
+          sample_ticks: 1
         - {op: quad, parent: fx1_couture_rapier_guard, face: {viewer: center}, size: [1.0, 1.0], color: "#E5B9BE", alpha: 0.4, text: "◯", brightness: 15, id: fx1_couture_rapier_guard_guard_ring}
         - id: fx1_couture_rapier_guard_guard_ring_trk
           op: track
@@ -197,6 +213,7 @@ presentation:
           keys:
             - {t: 0, offset: [0.0, 1.0, 0.0], scale: [1.7, 2.1, 1.0], alpha: 0.4}
             - {t: 10, scale: [2.0, 2.4, 1.0], alpha: 0.0, ease: out_cubic}
+          sample_ticks: 1
     - id: fx24
       at: 24
       do:
@@ -250,6 +267,7 @@ presentation:
           - {t: 13, turn: [29.0, 0.0, 0.0]}
           - {t: 14, turn: [34.0, 0.0, 0.0]}
           - {t: 15, offset: [-0.295, 0.79827, 0.76086], scale: [0.0, 0.0, 0.0], turn: [39.0, 0.0, 0.0]}
+        sample_ticks: 1
       - {op: block, parent: fx2_couture_shears_snip, block: iron_block, size: [1.0, 1.0, 1.0], id: fx2_couture_shears_snip_1_edge_0}
       - id: fx2_couture_shears_snip_1_edge_0_trk
         op: track
@@ -271,6 +289,7 @@ presentation:
           - {t: 13, turn: [32.66907, 0.0, 0.0]}
           - {t: 14, turn: [37.66907, 0.0, 0.0]}
           - {t: 15, offset: [-0.295, 0.84478, 0.79852], scale: [0.0, 0.0, 0.0], turn: [42.66907, 0.0, 0.0]}
+        sample_ticks: 1
       - {op: block, parent: fx2_couture_shears_snip, block: gray_concrete, size: [1.0, 1.0, 1.0], id: fx2_couture_shears_snip_1_blade_1}
       - id: fx2_couture_shears_snip_1_blade_1_trk
         op: track
@@ -292,6 +311,7 @@ presentation:
           - {t: 13, turn: [29.0, 0.0, 0.0]}
           - {t: 14, turn: [34.0, 0.0, 0.0]}
           - {t: 15, offset: [-0.295, 0.35775, 1.30486], scale: [0.0, 0.0, 0.0], turn: [39.0, 0.0, 0.0]}
+        sample_ticks: 1
       - {op: block, parent: fx2_couture_shears_snip, block: iron_block, size: [1.0, 1.0, 1.0], id: fx2_couture_shears_snip_1_edge_1}
       - id: fx2_couture_shears_snip_1_edge_1_trk
         op: track
@@ -313,6 +333,7 @@ presentation:
           - {t: 13, turn: [32.09097, 0.0, 0.0]}
           - {t: 14, turn: [37.09097, 0.0, 0.0]}
           - {t: 15, offset: [-0.295, 0.38712, 1.32865], scale: [0.0, 0.0, 0.0], turn: [42.09097, 0.0, 0.0]}
+        sample_ticks: 1
       - {op: block, parent: fx2_couture_shears_snip, block: gray_concrete, size: [1.0, 1.0, 1.0], id: fx2_couture_shears_snip_1_blade_2}
       - id: fx2_couture_shears_snip_1_blade_2_trk
         op: track
@@ -334,6 +355,7 @@ presentation:
           - {t: 13, turn: [29.0, 0.0, 0.0]}
           - {t: 14, turn: [34.0, 0.0, 0.0]}
           - {t: 15, offset: [-0.295, 0.04309, 1.69343], scale: [0.0, 0.0, 0.0], turn: [39.0, 0.0, 0.0]}
+        sample_ticks: 1
       - {op: block, parent: fx2_couture_shears_snip, block: iron_block, size: [1.0, 1.0, 1.0], id: fx2_couture_shears_snip_1_edge_2}
       - id: fx2_couture_shears_snip_1_edge_2_trk
         op: track
@@ -355,6 +377,7 @@ presentation:
           - {t: 13, turn: [30.73982, 0.0, 0.0]}
           - {t: 14, turn: [35.73982, 0.0, 0.0]}
           - {t: 15, offset: [-0.295, 0.0541, 1.70235], scale: [0.0, 0.0, 0.0], turn: [40.73982, 0.0, 0.0]}
+        sample_ticks: 1
       - {op: block, parent: fx2_couture_shears_snip, block: black_concrete, size: [1.0, 1.0, 1.0], id: fx2_couture_shears_snip_1_handle_0}
       - id: fx2_couture_shears_snip_1_handle_0_trk
         op: track
@@ -376,6 +399,7 @@ presentation:
           - {t: 13, turn: [-106.0, 0.0, 0.0]}
           - {t: 14, turn: [-101.0, 0.0, 0.0]}
           - {t: 15, offset: [-0.295, 1.25506, 0.37157], scale: [0.0, 0.0, 0.0], turn: [-96.0, 0.0, 0.0]}
+        sample_ticks: 1
       - {op: block, parent: fx2_couture_shears_snip, block: black_concrete, size: [1.0, 1.0, 1.0], id: fx2_couture_shears_snip_1_handle_1}
       - id: fx2_couture_shears_snip_1_handle_1_trk
         op: track
@@ -397,6 +421,7 @@ presentation:
           - {t: 13, turn: [-154.81407, 0.0, 0.0]}
           - {t: 14, turn: [-149.81407, 0.0, 0.0]}
           - {t: 15, offset: [-0.295, 1.53971, 0.17101], scale: [0.0, 0.0, 0.0], turn: [-144.81407, 0.0, 0.0]}
+        sample_ticks: 1
       - {op: block, parent: fx2_couture_shears_snip, block: black_concrete, size: [1.0, 1.0, 1.0], id: fx2_couture_shears_snip_1_handle_2}
       - id: fx2_couture_shears_snip_1_handle_2_trk
         op: track
@@ -418,6 +443,7 @@ presentation:
           - {t: 13, turn: [149.06858, 0.0, 0.0]}
           - {t: 14, turn: [154.06858, 0.0, 0.0]}
           - {t: 15, offset: [-0.295, 1.63043, -0.11582], scale: [0.0, 0.0, 0.0], turn: [159.06858, 0.0, 0.0]}
+        sample_ticks: 1
       - {op: block, parent: fx2_couture_shears_snip, block: black_concrete, size: [1.0, 1.0, 1.0], id: fx2_couture_shears_snip_1_handle_3}
       - id: fx2_couture_shears_snip_1_handle_3_trk
         op: track
@@ -439,6 +465,7 @@ presentation:
           - {t: 13, turn: [56.14968, 0.0, 0.0]}
           - {t: 14, turn: [61.14968, 0.0, 0.0]}
           - {t: 15, offset: [-0.295, 1.39078, -0.12973], scale: [0.0, 0.0, 0.0], turn: [66.14968, 0.0, 0.0]}
+        sample_ticks: 1
       - {op: block, parent: fx2_couture_shears_snip, block: black_concrete, size: [1.0, 1.0, 1.0], id: fx2_couture_shears_snip_1_handle_4}
       - id: fx2_couture_shears_snip_1_handle_4_trk
         op: track
@@ -460,6 +487,7 @@ presentation:
           - {t: 13, turn: [1.85032, 0.0, 0.0]}
           - {t: 14, turn: [6.85032, 0.0, 0.0]}
           - {t: 15, offset: [-0.295, 1.14535, 0.17335], scale: [0.0, 0.0, 0.0], turn: [11.85032, 0.0, 0.0]}
+        sample_ticks: 1
       - {op: block, parent: fx2_couture_shears_snip, block: gray_concrete, size: [1.0, 1.0, 1.0], id: fx2_couture_shears_snip_1_blade_0_2}
       - id: fx2_couture_shears_snip_1_blade_0_2_trk
         op: track
@@ -481,6 +509,7 @@ presentation:
           - {t: 13, turn: [21.0, 0.0, 0.0]}
           - {t: 14, turn: [26.0, 0.0, 0.0]}
           - {t: 15, offset: [-0.205, 0.84398, 0.79287], scale: [0.0, 0.0, 0.0], turn: [31.0, 0.0, 0.0]}
+        sample_ticks: 1
       - {op: block, parent: fx2_couture_shears_snip, block: iron_block, size: [1.0, 1.0, 1.0], id: fx2_couture_shears_snip_1_edge_0_2}
       - id: fx2_couture_shears_snip_1_edge_0_2_trk
         op: track
@@ -502,6 +531,7 @@ presentation:
           - {t: 13, turn: [24.66907, 0.0, 0.0]}
           - {t: 14, turn: [29.66907, 0.0, 0.0]}
           - {t: 15, offset: [-0.205, 0.89529, 0.82369], scale: [0.0, 0.0, 0.0], turn: [34.66907, 0.0, 0.0]}
+        sample_ticks: 1
       - {op: block, parent: fx2_couture_shears_snip, block: gray_concrete, size: [1.0, 1.0, 1.0], id: fx2_couture_shears_snip_1_blade_1_2}
       - id: fx2_couture_shears_snip_1_blade_1_2_trk
         op: track
@@ -523,6 +553,7 @@ presentation:
           - {t: 13, turn: [21.0, 0.0, 0.0]}
           - {t: 14, turn: [26.0, 0.0, 0.0]}
           - {t: 15, offset: [-0.205, 0.48346, 1.39288], scale: [0.0, 0.0, 0.0], turn: [31.0, 0.0, 0.0]}
+        sample_ticks: 1
       - {op: block, parent: fx2_couture_shears_snip, block: iron_block, size: [1.0, 1.0, 1.0], id: fx2_couture_shears_snip_1_edge_1_2}
       - id: fx2_couture_shears_snip_1_edge_1_2_trk
         op: track
@@ -544,6 +575,7 @@ presentation:
           - {t: 13, turn: [24.09097, 0.0, 0.0]}
           - {t: 14, turn: [29.09097, 0.0, 0.0]}
           - {t: 15, offset: [-0.205, 0.51586, 1.41235], scale: [0.0, 0.0, 0.0], turn: [34.09097, 0.0, 0.0]}
+        sample_ticks: 1
       - {op: block, parent: fx2_couture_shears_snip, block: gray_concrete, size: [1.0, 1.0, 1.0], id: fx2_couture_shears_snip_1_blade_2_2}
       - id: fx2_couture_shears_snip_1_blade_2_2_trk
         op: track
@@ -565,6 +597,7 @@ presentation:
           - {t: 13, turn: [21.0, 0.0, 0.0]}
           - {t: 14, turn: [26.0, 0.0, 0.0]}
           - {t: 15, offset: [-0.205, 0.22594, 1.82147], scale: [0.0, 0.0, 0.0], turn: [31.0, 0.0, 0.0]}
+        sample_ticks: 1
       - {op: block, parent: fx2_couture_shears_snip, block: iron_block, size: [1.0, 1.0, 1.0], id: fx2_couture_shears_snip_1_edge_2_2}
       - id: fx2_couture_shears_snip_1_edge_2_2_trk
         op: track
@@ -586,6 +619,7 @@ presentation:
           - {t: 13, turn: [22.73982, 0.0, 0.0]}
           - {t: 14, turn: [27.73982, 0.0, 0.0]}
           - {t: 15, offset: [-0.205, 0.23809, 1.82877], scale: [0.0, 0.0, 0.0], turn: [32.73982, 0.0, 0.0]}
+        sample_ticks: 1
       - {op: block, parent: fx2_couture_shears_snip, block: black_concrete, size: [1.0, 1.0, 1.0], id: fx2_couture_shears_snip_1_handle_0_2}
       - id: fx2_couture_shears_snip_1_handle_0_2_trk
         op: track
@@ -607,6 +641,7 @@ presentation:
           - {t: 13, turn: [-114.0, 0.0, 0.0]}
           - {t: 14, turn: [-109.0, 0.0, 0.0]}
           - {t: 15, offset: [-0.205, 1.24215, 0.34379], scale: [0.0, 0.0, 0.0], turn: [-104.0, 0.0, 0.0]}
+        sample_ticks: 1
       - {op: block, parent: fx2_couture_shears_snip, block: black_concrete, size: [1.0, 1.0, 1.0], id: fx2_couture_shears_snip_1_handle_1_2}
       - id: fx2_couture_shears_snip_1_handle_1_2_trk
         op: track
@@ -628,6 +663,7 @@ presentation:
           - {t: 13, turn: [-162.81407, 0.0, 0.0]}
           - {t: 14, turn: [-157.81407, 0.0, 0.0]}
           - {t: 15, offset: [-0.205, 1.49611, 0.10557], scale: [0.0, 0.0, 0.0], turn: [-152.81407, 0.0, 0.0]}
+        sample_ticks: 1
       - {op: block, parent: fx2_couture_shears_snip, block: black_concrete, size: [1.0, 1.0, 1.0], id: fx2_couture_shears_snip_1_handle_2_2}
       - id: fx2_couture_shears_snip_1_handle_2_2_trk
         op: track
@@ -649,6 +685,7 @@ presentation:
           - {t: 13, turn: [141.06858, 0.0, 0.0]}
           - {t: 14, turn: [146.06858, 0.0, 0.0]}
           - {t: 15, offset: [-0.205, 1.54604, -0.19109], scale: [0.0, 0.0, 0.0], turn: [151.06858, 0.0, 0.0]}
+        sample_ticks: 1
       - {op: block, parent: fx2_couture_shears_snip, block: black_concrete, size: [1.0, 1.0, 1.0], id: fx2_couture_shears_snip_1_handle_3_2}
       - id: fx2_couture_shears_snip_1_handle_3_2_trk
         op: track
@@ -670,6 +707,7 @@ presentation:
           - {t: 13, turn: [48.14968, 0.0, 0.0]}
           - {t: 14, turn: [53.14968, 0.0, 0.0]}
           - {t: 15, offset: [-0.205, 1.30678, -0.17152], scale: [0.0, 0.0, 0.0], turn: [58.14968, 0.0, 0.0]}
+        sample_ticks: 1
       - {op: block, parent: fx2_couture_shears_snip, block: black_concrete, size: [1.0, 1.0, 1.0], id: fx2_couture_shears_snip_1_handle_4_2}
       - id: fx2_couture_shears_snip_1_handle_4_2_trk
         op: track
@@ -691,6 +729,7 @@ presentation:
           - {t: 13, turn: [-6.14968, 0.0, 0.0]}
           - {t: 14, turn: [-1.14968, 0.0, 0.0]}
           - {t: 15, offset: [-0.205, 1.10592, 0.16278], scale: [0.0, 0.0, 0.0], turn: [3.85032, 0.0, 0.0]}
+        sample_ticks: 1
       - {op: block, parent: fx2_couture_shears_snip, block: white_concrete, size: [1.0, 1.0, 1.0], id: fx2_couture_shears_snip_hinge_flower_0}
       - id: fx2_couture_shears_snip_hinge_flower_0_trk
         op: track
@@ -701,6 +740,7 @@ presentation:
           - {t: 7, offset: [-0.37, 1.05, 0.45], scale: [0.15, 0.15, 0.12]}
           - {t: 12, offset: [-0.37, 1.05, 0.45], scale: [0.15, 0.15, 0.12]}
           - {t: 15, offset: [-0.37, 1.05, 0.45], scale: [0.0, 0.0, 0.0]}
+        sample_ticks: 1
       - {op: block, parent: fx2_couture_shears_snip, block: white_concrete, size: [1.0, 1.0, 1.0], id: fx2_couture_shears_snip_hinge_flower_1}
       - id: fx2_couture_shears_snip_hinge_flower_1_trk
         op: track
@@ -711,6 +751,7 @@ presentation:
           - {t: 7, offset: [-0.13, 1.05, 0.45], scale: [0.15, 0.15, 0.12]}
           - {t: 12, offset: [-0.13, 1.05, 0.45], scale: [0.15, 0.15, 0.12]}
           - {t: 15, offset: [-0.13, 1.05, 0.45], scale: [0.0, 0.0, 0.0]}
+        sample_ticks: 1
       - {op: block, parent: fx2_couture_shears_snip, block: white_concrete, size: [1.0, 1.0, 1.0], id: fx2_couture_shears_snip_hinge_flower_2}
       - id: fx2_couture_shears_snip_hinge_flower_2_trk
         op: track
@@ -721,6 +762,7 @@ presentation:
           - {t: 7, offset: [-0.25, 1.17, 0.45], scale: [0.15, 0.15, 0.12]}
           - {t: 12, offset: [-0.25, 1.17, 0.45], scale: [0.15, 0.15, 0.12]}
           - {t: 15, offset: [-0.25, 1.17, 0.45], scale: [0.0, 0.0, 0.0]}
+        sample_ticks: 1
       - {op: block, parent: fx2_couture_shears_snip, block: white_concrete, size: [1.0, 1.0, 1.0], id: fx2_couture_shears_snip_hinge_flower_3}
       - id: fx2_couture_shears_snip_hinge_flower_3_trk
         op: track
@@ -731,6 +773,7 @@ presentation:
           - {t: 7, offset: [-0.25, 0.93, 0.45], scale: [0.15, 0.15, 0.12]}
           - {t: 12, offset: [-0.25, 0.93, 0.45], scale: [0.15, 0.15, 0.12]}
           - {t: 15, offset: [-0.25, 0.93, 0.45], scale: [0.0, 0.0, 0.0]}
+        sample_ticks: 1
     counter_fx16:
       - id: rm_3
         op: remove
@@ -772,6 +815,7 @@ presentation:
           - {t: 0, offset: [0.0, 1.05, 0.0], scale: [0.05, 3.3, 0.06], turn: [-45.0, 0.0, 0.0]}
           - {t: 3, scale: [0.035, 3.3, 0.04]}
           - {t: 8, scale: [0.0, 3.3, 0.0], ease: in_quad}
+        sample_ticks: 1
         when: "= dist(caster, victim) < 3.5"
       - {op: block, parent: fx3_couture_rapier_cross, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx3_couture_rapier_cross_cross_1, when: "= dist(caster, victim) < 3.5"}
       - id: fx3_couture_rapier_cross_cross_1_trk
@@ -781,6 +825,7 @@ presentation:
           - {t: 0, offset: [0.0, 1.05, 0.0], scale: [0.05, 3.3, 0.06], turn: [45.0, 0.0, 0.0]}
           - {t: 3, scale: [0.035, 3.3, 0.04]}
           - {t: 8, scale: [0.0, 3.3, 0.0], ease: in_quad}
+        sample_ticks: 1
         when: "= dist(caster, victim) < 3.5"
       - {op: block, parent: fx3_couture_rapier_cross, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx3_couture_rapier_cross_cross_2, when: "= dist(caster, victim) < 3.5"}
       - id: fx3_couture_rapier_cross_cross_2_trk
@@ -790,6 +835,7 @@ presentation:
           - {t: 0, offset: [0.0, 1.05, 0.0], scale: [0.05, 3.3, 0.06], turn: [0.0, 0.0, 0.0]}
           - {t: 3, scale: [0.035, 3.3, 0.04]}
           - {t: 8, scale: [0.0, 3.3, 0.0], ease: in_quad}
+        sample_ticks: 1
         when: "= dist(caster, victim) < 3.5"
       - op: quad
         parent: fx3_couture_rapier_cross
@@ -806,6 +852,7 @@ presentation:
         keys:
           - {t: 0, offset: [0.0, 1.1, 0.0], scale: [0.12, 0.16, 1.0], alpha: 1.0}
           - {t: 6, offset: [0.0, 0.3, -0.9], scale: [0.05, 0.08, 1.0], alpha: 0.0, ease: out_cubic, turn: [0.0, 0.0, 0.0]}
+        sample_ticks: 1
         when: "= dist(caster, victim) < 3.5"
       - op: quad
         parent: fx3_couture_rapier_cross
@@ -822,6 +869,7 @@ presentation:
         keys:
           - {t: 0, offset: [0.0, 1.1, 0.0], scale: [0.12, 0.16, 1.0], alpha: 1.0}
           - {t: 6, offset: [0.0, 0.6, -0.3], scale: [0.05, 0.08, 1.0], alpha: 0.0, ease: out_cubic, turn: [0.0, 0.0, 60.0]}
+        sample_ticks: 1
         when: "= dist(caster, victim) < 3.5"
       - op: quad
         parent: fx3_couture_rapier_cross
@@ -838,6 +886,7 @@ presentation:
         keys:
           - {t: 0, offset: [0.0, 1.1, 0.0], scale: [0.12, 0.16, 1.0], alpha: 1.0}
           - {t: 6, offset: [0.0, 0.9, 0.3], scale: [0.05, 0.08, 1.0], alpha: 0.0, ease: out_cubic, turn: [0.0, 0.0, 120.0]}
+        sample_ticks: 1
         when: "= dist(caster, victim) < 3.5"
       - op: quad
         parent: fx3_couture_rapier_cross
@@ -854,6 +903,7 @@ presentation:
         keys:
           - {t: 0, offset: [0.0, 1.1, 0.0], scale: [0.12, 0.16, 1.0], alpha: 1.0}
           - {t: 6, offset: [0.0, 1.2, 0.9], scale: [0.05, 0.08, 1.0], alpha: 0.0, ease: out_cubic, turn: [0.0, 0.0, 180.0]}
+        sample_ticks: 1
         when: "= dist(caster, victim) < 3.5"
       - op: quad
         parent: fx3_couture_rapier_cross
@@ -871,6 +921,7 @@ presentation:
           - {t: 0, offset: [0.0, 1.1, 0.0], scale: [0.5, 0.5, 1.0], alpha: 0.2}
           - {t: 1, scale: [1.5, 1.5, 1.0]}
           - {t: 5, scale: [2.0, 2.0, 1.0], alpha: 0.0}
+        sample_ticks: 1
         when: "= dist(caster, victim) < 3.5"
       - id: fx3_couture_rapier_cross_petals_0
         op: quad
@@ -893,6 +944,7 @@ presentation:
           - {t: 5, offset: [0.27402, 1.49355, 0.0], scale: [0.025893, 0.025893, 1.0], alpha: 0.28571}
           - {t: 6, offset: [0.31787, 1.53529, 0.0], scale: [0.016571, 0.016571, 1.0], alpha: 0.14286}
           - {t: 7, offset: [0.35866, 1.56666, 0.0], scale: [0.00725, 0.00725, 1.0], alpha: 0.0}
+        sample_ticks: 1
         when: "= dist(caster, victim) < 3.5"
       - id: fx3_couture_rapier_cross_petals_1
         op: quad
@@ -915,6 +967,7 @@ presentation:
           - {t: 5, offset: [-0.32581, 1.35205, 0.29846], scale: [0.025893, 0.025893, 1.0], alpha: 0.28571}
           - {t: 6, offset: [-0.37794, 1.37114, 0.34623], scale: [0.016571, 0.016571, 1.0], alpha: 0.14286}
           - {t: 7, offset: [-0.42643, 1.38145, 0.39065], scale: [0.00725, 0.00725, 1.0], alpha: 0.0}
+        sample_ticks: 1
         when: "= dist(caster, victim) < 3.5"
       - id: fx3_couture_rapier_cross_petals_2
         op: quad
@@ -937,6 +990,7 @@ presentation:
           - {t: 5, offset: [0.04587, 1.21054, -0.52271], scale: [0.025893, 0.025893, 1.0], alpha: 0.28571}
           - {t: 6, offset: [0.05321, 1.20699, -0.60635], scale: [0.016571, 0.016571, 1.0], alpha: 0.14286}
           - {t: 7, offset: [0.06004, 1.19624, -0.68414], scale: [0.00725, 0.00725, 1.0], alpha: 0.0}
+        sample_ticks: 1
         when: "= dist(caster, victim) < 3.5"
       - id: fx3_couture_rapier_cross_petals_3
         op: quad
@@ -959,6 +1013,7 @@ presentation:
           - {t: 5, offset: [0.34169, 1.06904, 0.44567], scale: [0.025893, 0.025893, 1.0], alpha: 0.28571}
           - {t: 6, offset: [0.39637, 1.04284, 0.51699], scale: [0.016571, 0.016571, 1.0], alpha: 0.14286}
           - {t: 7, offset: [0.44722, 1.01104, 0.58332], scale: [0.00725, 0.00725, 1.0], alpha: 0.0}
+        sample_ticks: 1
         when: "= dist(caster, victim) < 3.5"
       - id: fx3_couture_rapier_cross_petals_4
         op: quad
@@ -981,6 +1036,7 @@ presentation:
           - {t: 5, offset: [-0.553, 0.92753, -0.09782], scale: [0.025893, 0.025893, 1.0], alpha: 0.28571}
           - {t: 6, offset: [-0.64149, 0.87869, -0.11347], scale: [0.016571, 0.016571, 1.0], alpha: 0.14286}
           - {t: 7, offset: [-0.72379, 0.82583, -0.12803], scale: [0.00725, 0.00725, 1.0], alpha: 0.0}
+        sample_ticks: 1
         when: "= dist(caster, victim) < 3.5"
       - id: fx3_couture_rapier_cross_petals_5
         op: quad
@@ -1003,6 +1059,7 @@ presentation:
           - {t: 5, offset: [0.44273, 0.78603, -0.28163], scale: [0.025893, 0.025893, 1.0], alpha: 0.28571}
           - {t: 6, offset: [0.51358, 0.71454, -0.3267], scale: [0.016571, 0.016571, 1.0], alpha: 0.14286}
           - {t: 7, offset: [0.57947, 0.64062, -0.36861], scale: [0.00725, 0.00725, 1.0], alpha: 0.0}
+        sample_ticks: 1
         when: "= dist(caster, victim) < 3.5"
       - id: fx3_couture_rapier_cross_petals_6
         op: quad
@@ -1025,6 +1082,7 @@ presentation:
           - {t: 5, offset: [-0.11471, 0.64452, 0.4267], scale: [0.025893, 0.025893, 1.0], alpha: 0.28571}
           - {t: 6, offset: [-0.13306, 0.55039, 0.49498], scale: [0.016571, 0.016571, 1.0], alpha: 0.14286}
           - {t: 7, offset: [-0.15013, 0.45541, 0.55849], scale: [0.00725, 0.00725, 1.0], alpha: 0.0}
+        sample_ticks: 1
         when: "= dist(caster, victim) < 3.5"
       - id: fx3_couture_rapier_cross_petals_7
         op: quad
@@ -1047,6 +1105,7 @@ presentation:
           - {t: 5, offset: [-0.1263, 0.50302, -0.24318], scale: [0.025893, 0.025893, 1.0], alpha: 0.28571}
           - {t: 6, offset: [-0.14651, 0.38624, -0.2821], scale: [0.016571, 0.016571, 1.0], alpha: 0.14286}
           - {t: 7, offset: [-0.16531, 0.2702, -0.31829], scale: [0.00725, 0.00725, 1.0], alpha: 0.0}
+        sample_ticks: 1
         when: "= dist(caster, victim) < 3.5"
       - id: fx3_couture_rapier_cross_sparks_atrk
         op: track
@@ -1075,6 +1134,7 @@ presentation:
           - {t: 1, scale: [1.8, 1.8, 1.0], ease: out_expo}
           - {t: 3, scale: [1.6, 1.6, 1.0]}
           - {t: 6, scale: [0.2, 0.2, 1.0], alpha: 0.0, ease: in_quad}
+        sample_ticks: 1
         when: "= dist(caster, victim) < 3.5"
       - {id: snd, op: sound, sound: entity.player.attack.strong, at: enemy, volume: 0.7, pitch: 1.1, when: "= dist(caster, victim) < 3.5"}
     counter_fx13:

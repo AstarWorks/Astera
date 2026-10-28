@@ -4,11 +4,11 @@ apiVersion: "astera/v2"
 kind: Skill
 id: dagger-stab
 frames:
-  - {id: pt_caster_0_m0p2_1p4, kind: point, parent: caster, offset: [0.0, -0.2, 1.4]}
+  - {id: pt_caster_0_1p42_1p4, kind: point, parent: caster, offset: [0.0, 1.42, 1.4]}
   - {id: pt_enemy_0_1p2_0, kind: point, parent: enemy, offset: [0.0, 1.2, 0.0]}
 presentation:
   timeline:
-    - {id: fx0, at: 0, do: [{id: snd, op: sound, sound: "astera:weapons/sword-swing", at: caster, pitch: 1.6}, {id: emit, op: emit, at: pt_caster_0_m0p2_1p4, particle: stab-spark}]}
+    - {id: fx0, at: 0, do: [{id: snd, op: sound, sound: "astera:weapons/sword-swing", at: caster, pitch: 1.6}, {id: emit, op: emit, at: pt_caster_0_1p42_1p4, particle: stab-spark}]}
   "on":
     hit:
       - {id: snd_2, op: sound, sound: "astera:weapons/blade-hit", at: enemy, volume: 0.6, pitch: 1.5, when: "= event.source == 'swing'"}

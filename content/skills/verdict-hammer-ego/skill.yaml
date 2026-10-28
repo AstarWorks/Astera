@@ -12,7 +12,7 @@ meta:
   ego_cost: 100
 frames:
   - {id: snap, kind: body, parent: world, inactive: true}
-  - {id: pt_caster_0_m1p62_8, kind: point, parent: caster, offset: [0.0, -1.62, 8.0]}
+  - {id: pt_caster_0_0_8, kind: point, parent: caster, offset: [0.0, 0.0, 8.0]}
 gameplay:
   params: {radius: 5.8, dmg_physical: 60.0, dash_distance: 3.0}
   expose:

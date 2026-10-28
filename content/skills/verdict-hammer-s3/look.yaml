@@ -240,6 +240,7 @@ presentation:
             - {t: 0, offset: [0.0, 1.0, 0.0], scale: [0.12, 0.2, 1.0], alpha: 1.0}
             - {t: 5, offset: [1.3, 1.4, 0.3], scale: [0.16, 0.26, 1.0], ease: out_cubic}
             - {t: 11, scale: [0.04, 0.04, 1.0], alpha: 0.0}
+          sample_ticks: 1
           when: "= event.source == 'sel_2'"
         - op: quad
           parent: fx2_verdict_impact
@@ -259,6 +260,7 @@ presentation:
             - {t: 0, offset: [0.0, 1.0, 0.0], scale: [0.12, 0.2, 1.0], alpha: 1.0}
             - {t: 5, offset: [0.0, 2.4, 0.3], scale: [0.16, 0.26, 1.0], ease: out_cubic}
             - {t: 11, scale: [0.04, 0.04, 1.0], alpha: 0.0}
+          sample_ticks: 1
           when: "= event.source == 'sel_2'"
         - op: quad
           parent: fx2_verdict_impact
@@ -278,6 +280,7 @@ presentation:
             - {t: 0, offset: [0.0, 1.0, 0.0], scale: [0.12, 0.2, 1.0], alpha: 1.0}
             - {t: 5, offset: [-1.3, 1.4, 0.3], scale: [0.16, 0.26, 1.0], ease: out_cubic}
             - {t: 11, scale: [0.04, 0.04, 1.0], alpha: 0.0}
+          sample_ticks: 1
           when: "= event.source == 'sel_2'"
         - op: quad
           parent: fx4_verdict_impact
@@ -297,6 +300,7 @@ presentation:
             - {t: 0, offset: [0.0, 1.0, 0.0], scale: [0.12, 0.2, 1.0], alpha: 1.0}
             - {t: 5, offset: [1.3, 1.4, 0.3], scale: [0.16, 0.26, 1.0], ease: out_cubic}
             - {t: 11, scale: [0.04, 0.04, 1.0], alpha: 0.0}
+          sample_ticks: 1
           when: "= event.source == 'sel_3'"
         - op: quad
           parent: fx4_verdict_impact
@@ -316,6 +320,7 @@ presentation:
             - {t: 0, offset: [0.0, 1.0, 0.0], scale: [0.12, 0.2, 1.0], alpha: 1.0}
             - {t: 5, offset: [0.0, 2.4, 0.3], scale: [0.16, 0.26, 1.0], ease: out_cubic}
             - {t: 11, scale: [0.04, 0.04, 1.0], alpha: 0.0}
+          sample_ticks: 1
           when: "= event.source == 'sel_3'"
         - op: quad
           parent: fx4_verdict_impact
@@ -335,6 +340,7 @@ presentation:
             - {t: 0, offset: [0.0, 1.0, 0.0], scale: [0.12, 0.2, 1.0], alpha: 1.0}
             - {t: 5, offset: [-1.3, 1.4, 0.3], scale: [0.16, 0.26, 1.0], ease: out_cubic}
             - {t: 11, scale: [0.04, 0.04, 1.0], alpha: 0.0}
+          sample_ticks: 1
           when: "= event.source == 'sel_3'"
         - op: quad
           parent: fx6_verdict_impact
@@ -354,6 +360,7 @@ presentation:
             - {t: 0, offset: [0.0, 1.0, 0.0], scale: [0.12, 0.2, 1.0], alpha: 1.0}
             - {t: 5, offset: [1.3, 1.4, 0.3], scale: [0.16, 0.26, 1.0], ease: out_cubic}
             - {t: 11, scale: [0.04, 0.04, 1.0], alpha: 0.0}
+          sample_ticks: 1
           when: "= event.source == 'sel_4'"
         - op: quad
           parent: fx6_verdict_impact
@@ -373,6 +380,7 @@ presentation:
             - {t: 0, offset: [0.0, 1.0, 0.0], scale: [0.12, 0.2, 1.0], alpha: 1.0}
             - {t: 5, offset: [0.0, 2.4, 0.3], scale: [0.16, 0.26, 1.0], ease: out_cubic}
             - {t: 11, scale: [0.04, 0.04, 1.0], alpha: 0.0}
+          sample_ticks: 1
           when: "= event.source == 'sel_4'"
         - op: quad
           parent: fx6_verdict_impact
@@ -392,6 +400,7 @@ presentation:
             - {t: 0, offset: [0.0, 1.0, 0.0], scale: [0.12, 0.2, 1.0], alpha: 1.0}
             - {t: 5, offset: [-1.3, 1.4, 0.3], scale: [0.16, 0.26, 1.0], ease: out_cubic}
             - {t: 11, scale: [0.04, 0.04, 1.0], alpha: 0.0}
+          sample_ticks: 1
           when: "= event.source == 'sel_4'"
     - id: fxhit_9
       at: "hit+9"
@@ -451,6 +460,7 @@ presentation:
           - {t: 15, offset: [-0.3, 1.1, 0.0], scale: [0.12, 2.3, 0.12], turn: [0.0, 0.0, -12.0]}
           - {t: 27, offset: [-0.3, 1.1, 0.0], scale: [0.12, 2.3, 0.12]}
           - {t: 34, offset: [-0.3, 1.1, 0.0], scale: [0.0, 0.0, 0.0]}
+        sample_ticks: 1
         when: "= event.source == 'sel'"
       - {op: block, parent: fx1_verdict_summoned_nails, block: white_concrete, size: [1.0, 1.0, 1.0], id: fx1_verdict_summoned_nails_nail__1_tip, when: "= event.source == 'sel'"}
       - id: fx1_verdict_summoned_nails_nail__1_tip_trk
@@ -461,6 +471,7 @@ presentation:
           - {t: 15, offset: [-0.3, -0.1, 0.0], scale: [0.06, 0.5, 0.06], turn: [0.0, 0.0, -12.0]}
           - {t: 27, offset: [-0.3, -0.1, 0.0], scale: [0.06, 0.5, 0.06]}
           - {t: 34, offset: [-0.3, -0.1, 0.0], scale: [0.0, 0.0, 0.0]}
+        sample_ticks: 1
         when: "= event.source == 'sel'"
       - {op: block, parent: fx1_verdict_summoned_nails, block: yellow_concrete, size: [1.0, 1.0, 1.0], id: fx1_verdict_summoned_nails_nail__1_head, when: "= event.source == 'sel'"}
       - id: fx1_verdict_summoned_nails_nail__1_head_trk
@@ -471,6 +482,7 @@ presentation:
           - {t: 15, offset: [-0.3, 2.3, 0.0], scale: [0.45, 0.18, 0.45], turn: [0.0, 0.0, -12.0]}
           - {t: 27, offset: [-0.3, 2.3, 0.0], scale: [0.45, 0.18, 0.45]}
           - {t: 34, offset: [-0.3, 2.3, 0.0], scale: [0.0, 0.0, 0.0]}
+        sample_ticks: 1
         when: "= event.source == 'sel'"
       - {op: block, parent: fx1_verdict_summoned_nails, block: iron_block, size: [1.0, 1.0, 1.0], id: fx1_verdict_summoned_nails_nail_1_shaft, when: "= event.source == 'sel'"}
       - id: fx1_verdict_summoned_nails_nail_1_shaft_trk
@@ -481,6 +493,7 @@ presentation:
           - {t: 15, offset: [0.3, 1.1, 0.0], scale: [0.12, 2.3, 0.12], turn: [0.0, 0.0, 12.0]}
           - {t: 27, offset: [0.3, 1.1, 0.0], scale: [0.12, 2.3, 0.12]}
           - {t: 34, offset: [0.3, 1.1, 0.0], scale: [0.0, 0.0, 0.0]}
+        sample_ticks: 1
         when: "= event.source == 'sel'"
       - {op: block, parent: fx1_verdict_summoned_nails, block: white_concrete, size: [1.0, 1.0, 1.0], id: fx1_verdict_summoned_nails_nail_1_tip, when: "= event.source == 'sel'"}
       - id: fx1_verdict_summoned_nails_nail_1_tip_trk
@@ -491,6 +504,7 @@ presentation:
           - {t: 15, offset: [0.3, -0.1, 0.0], scale: [0.06, 0.5, 0.06], turn: [0.0, 0.0, 12.0]}
           - {t: 27, offset: [0.3, -0.1, 0.0], scale: [0.06, 0.5, 0.06]}
           - {t: 34, offset: [0.3, -0.1, 0.0], scale: [0.0, 0.0, 0.0]}
+        sample_ticks: 1
         when: "= event.source == 'sel'"
       - {op: block, parent: fx1_verdict_summoned_nails, block: yellow_concrete, size: [1.0, 1.0, 1.0], id: fx1_verdict_summoned_nails_nail_1_head, when: "= event.source == 'sel'"}
       - id: fx1_verdict_summoned_nails_nail_1_head_trk
@@ -501,6 +515,7 @@ presentation:
           - {t: 15, offset: [0.3, 2.3, 0.0], scale: [0.45, 0.18, 0.45], turn: [0.0, 0.0, 12.0]}
           - {t: 27, offset: [0.3, 2.3, 0.0], scale: [0.45, 0.18, 0.45]}
           - {t: 34, offset: [0.3, 2.3, 0.0], scale: [0.0, 0.0, 0.0]}
+        sample_ticks: 1
         when: "= event.source == 'sel'"
       - {id: anchor_2, op: anchor, frame: fx2_verdict_impact, at: enemy, orient: world, when: "= event.source == 'sel_2'"}
       - op: quad
@@ -521,6 +536,7 @@ presentation:
           - {t: 0, offset: [0.0, -1.06, 0.55], scale: [2.4, 2.4, 1.0], alpha: 1.0}
           - {t: 4, offset: [0.0, -1.06, 0.55], scale: [2.4, 2.4, 1.0], alpha: 1.0}
           - {t: 10, offset: [0.0, 1.1, 0.55], scale: [0.0, 0.0, 0.0], alpha: 0.0, ease: in_quad}
+        sample_ticks: 1
         when: "= event.source == 'sel_2'"
       - op: quad
         parent: fx2_verdict_impact
@@ -539,6 +555,7 @@ presentation:
         keys:
           - {t: 0, offset: [0.0, -1.87, 0.5], scale: [3.3, 3.3, 1.0], alpha: 0.22}
           - {t: 9, offset: [0.0, -2.5, 0.5], scale: [4.0, 4.0, 1.0], alpha: 0.0, ease: out_cubic}
+        sample_ticks: 1
         when: "= event.source == 'sel_2'"
       - {id: snd, op: sound, sound: entity.player.attack.strong, at: enemy, volume: 0.7, pitch: 1.1, when: "= event.source == 'sel_2'"}
       - {id: anchor_4, op: anchor, frame: fx4_verdict_impact, at: enemy, orient: world, when: "= event.source == 'sel_3'"}
@@ -560,6 +577,7 @@ presentation:
           - {t: 0, offset: [0.0, -1.06, 0.55], scale: [2.4, 2.4, 1.0], alpha: 1.0}
           - {t: 4, offset: [0.0, -1.06, 0.55], scale: [2.4, 2.4, 1.0], alpha: 1.0}
           - {t: 10, offset: [0.0, 1.1, 0.55], scale: [0.0, 0.0, 0.0], alpha: 0.0, ease: in_quad}
+        sample_ticks: 1
         when: "= event.source == 'sel_3'"
       - op: quad
         parent: fx4_verdict_impact
@@ -578,6 +596,7 @@ presentation:
         keys:
           - {t: 0, offset: [0.0, -1.87, 0.5], scale: [3.3, 3.3, 1.0], alpha: 0.22}
           - {t: 9, offset: [0.0, -2.5, 0.5], scale: [4.0, 4.0, 1.0], alpha: 0.0, ease: out_cubic}
+        sample_ticks: 1
         when: "= event.source == 'sel_3'"
       - {id: snd_2, op: sound, sound: entity.player.attack.strong, at: enemy, volume: 0.7, pitch: 1.1, when: "= event.source == 'sel_3'"}
       - {id: anchor_6, op: anchor, frame: fx6_verdict_impact, at: enemy, orient: world, when: "= event.source == 'sel_4'"}
@@ -599,6 +618,7 @@ presentation:
           - {t: 0, offset: [0.0, -1.06, 0.55], scale: [2.4, 2.4, 1.0], alpha: 1.0}
           - {t: 4, offset: [0.0, -1.06, 0.55], scale: [2.4, 2.4, 1.0], alpha: 1.0}
           - {t: 10, offset: [0.0, 1.1, 0.55], scale: [0.0, 0.0, 0.0], alpha: 0.0, ease: in_quad}
+        sample_ticks: 1
         when: "= event.source == 'sel_4'"
       - op: quad
         parent: fx6_verdict_impact
@@ -617,6 +637,7 @@ presentation:
         keys:
           - {t: 0, offset: [0.0, -1.87, 0.5], scale: [3.3, 3.3, 1.0], alpha: 0.22}
           - {t: 9, offset: [0.0, -2.5, 0.5], scale: [4.0, 4.0, 1.0], alpha: 0.0, ease: out_cubic}
+        sample_ticks: 1
         when: "= event.source == 'sel_4'"
       - {id: snd_3, op: sound, sound: entity.player.attack.strong, at: enemy, volume: 0.7, pitch: 1.1, when: "= event.source == 'sel_4'"}
       - {id: anchor_7, op: anchor, frame: fx7_verdict_ego_ring, at: enemy, orient: yaw, when: "= event.source == 'sel_4'"}
@@ -641,6 +662,7 @@ presentation:
           - {t: 13, offset: [0.0, 0.9015, 6.01], turn: [0.0, 90.0, 0.0], scale: [0.12818, 0.09156, 2.92988]}
           - {t: 14, offset: [0.0, 0.906, 6.04], turn: [0.0, 90.0, 0.0], scale: [0.09249, 0.06606, 2.114]}
           - {t: 15, offset: [0.0, 0.9105, 6.07], turn: [0.0, 90.0, 0.0], scale: [0.04979, 0.03557, 1.13812]}
+        sample_ticks: 1
         when: "= event.source == 'sel_4'"
       - {op: block, parent: fx7_verdict_ego_ring, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx7_verdict_ego_ring_ring_s1, when: "= event.source == 'sel_4'"}
       - id: fx7_verdict_ego_ring_ring_s1_trk
@@ -663,6 +685,7 @@ presentation:
           - {t: 13, offset: [4.24971, 0.9015, 4.24971], turn: [0.0, 135.0, 0.0], scale: [0.12818, 0.09156, 2.92988]}
           - {t: 14, offset: [4.27092, 0.906, 4.27092], turn: [0.0, 135.0, 0.0], scale: [0.09249, 0.06606, 2.114]}
           - {t: 15, offset: [4.29214, 0.9105, 4.29214], turn: [0.0, 135.0, 0.0], scale: [0.04979, 0.03557, 1.13812]}
+        sample_ticks: 1
         when: "= event.source == 'sel_4'"
       - {op: block, parent: fx7_verdict_ego_ring, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx7_verdict_ego_ring_ring_s2, when: "= event.source == 'sel_4'"}
       - id: fx7_verdict_ego_ring_ring_s2_trk
@@ -685,6 +708,7 @@ presentation:
           - {t: 13, offset: [6.01, 0.9015, 0.0], turn: [0.0, 180.0, 0.0], scale: [0.12818, 0.09156, 2.92988]}
           - {t: 14, offset: [6.04, 0.906, 0.0], turn: [0.0, 180.0, 0.0], scale: [0.09249, 0.06606, 2.114]}
           - {t: 15, offset: [6.07, 0.9105, 0.0], turn: [0.0, 180.0, 0.0], scale: [0.04979, 0.03557, 1.13812]}
+        sample_ticks: 1
         when: "= event.source == 'sel_4'"
       - {op: block, parent: fx7_verdict_ego_ring, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx7_verdict_ego_ring_ring_s3, when: "= event.source == 'sel_4'"}
       - id: fx7_verdict_ego_ring_ring_s3_trk
@@ -707,6 +731,7 @@ presentation:
           - {t: 13, offset: [4.24971, 0.9015, -4.24971], turn: [0.0, -135.0, 0.0], scale: [0.12818, 0.09156, 2.92988]}
           - {t: 14, offset: [4.27092, 0.906, -4.27092], turn: [0.0, -135.0, 0.0], scale: [0.09249, 0.06606, 2.114]}
           - {t: 15, offset: [4.29214, 0.9105, -4.29214], turn: [0.0, -135.0, 0.0], scale: [0.04979, 0.03557, 1.13812]}
+        sample_ticks: 1
         when: "= event.source == 'sel_4'"
       - {op: block, parent: fx7_verdict_ego_ring, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx7_verdict_ego_ring_ring_s4, when: "= event.source == 'sel_4'"}
       - id: fx7_verdict_ego_ring_ring_s4_trk
@@ -729,6 +754,7 @@ presentation:
           - {t: 13, offset: [0.0, 0.9015, -6.01], turn: [0.0, -90.0, 0.0], scale: [0.12818, 0.09156, 2.92988]}
           - {t: 14, offset: [0.0, 0.906, -6.04], turn: [0.0, -90.0, 0.0], scale: [0.09249, 0.06606, 2.114]}
           - {t: 15, offset: [0.0, 0.9105, -6.07], turn: [0.0, -90.0, 0.0], scale: [0.04979, 0.03557, 1.13812]}
+        sample_ticks: 1
         when: "= event.source == 'sel_4'"
       - {op: block, parent: fx7_verdict_ego_ring, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx7_verdict_ego_ring_ring_s5, when: "= event.source == 'sel_4'"}
       - id: fx7_verdict_ego_ring_ring_s5_trk
@@ -751,6 +777,7 @@ presentation:
           - {t: 13, offset: [-4.24971, 0.9015, -4.24971], turn: [0.0, -45.0, 0.0], scale: [0.12818, 0.09156, 2.92988]}
           - {t: 14, offset: [-4.27092, 0.906, -4.27092], turn: [0.0, -45.0, 0.0], scale: [0.09249, 0.06606, 2.114]}
           - {t: 15, offset: [-4.29214, 0.9105, -4.29214], turn: [0.0, -45.0, 0.0], scale: [0.04979, 0.03557, 1.13812]}
+        sample_ticks: 1
         when: "= event.source == 'sel_4'"
       - {op: block, parent: fx7_verdict_ego_ring, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx7_verdict_ego_ring_ring_s6, when: "= event.source == 'sel_4'"}
       - id: fx7_verdict_ego_ring_ring_s6_trk
@@ -773,6 +800,7 @@ presentation:
           - {t: 13, offset: [-6.01, 0.9015, 0.0], turn: [0.0, 0.0, 0.0], scale: [0.12818, 0.09156, 2.92988]}
           - {t: 14, offset: [-6.04, 0.906, 0.0], turn: [0.0, 0.0, 0.0], scale: [0.09249, 0.06606, 2.114]}
           - {t: 15, offset: [-6.07, 0.9105, 0.0], turn: [0.0, 0.0, 0.0], scale: [0.04979, 0.03557, 1.13812]}
+        sample_ticks: 1
         when: "= event.source == 'sel_4'"
       - {op: block, parent: fx7_verdict_ego_ring, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx7_verdict_ego_ring_ring_s7, when: "= event.source == 'sel_4'"}
       - id: fx7_verdict_ego_ring_ring_s7_trk
@@ -795,4 +823,5 @@ presentation:
           - {t: 13, offset: [-4.24971, 0.9015, 4.24971], turn: [0.0, 45.0, 0.0], scale: [0.12818, 0.09156, 2.92988]}
           - {t: 14, offset: [-4.27092, 0.906, 4.27092], turn: [0.0, 45.0, 0.0], scale: [0.09249, 0.06606, 2.114]}
           - {t: 15, offset: [-4.29214, 0.9105, 4.29214], turn: [0.0, 45.0, 0.0], scale: [0.04979, 0.03557, 1.13812]}
+        sample_ticks: 1
         when: "= event.source == 'sel_4'"

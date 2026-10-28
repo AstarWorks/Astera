@@ -38,6 +38,7 @@ presentation:
             - {t: 19, offset: [0.0, -0.35, 0.0], turn: [-54.02817, -54.02817, 77.74461], scale: [0.08, 0.08, 0.70078]}
             - {t: 20, offset: [0.0, -0.35, 0.0], turn: [-54.24438, -54.24438, 77.64223], scale: [0.08, 0.08, 0.50312]}
             - {t: 21, offset: [0.0, -0.35, 0.0], turn: [-54.32402, -54.32402, 77.6044], scale: [0.08, 0.08, 0.26953]}
+          sample_ticks: 2
         - {op: text, parent: fx1_orrery_guard, face: {viewer: center}, size: [0.2, 0.2], text: "<#ffb000><b>◎</b>", see_through: true, brightness: 15, id: fx1_orrery_guard_wheel}
         - id: fx1_orrery_guard_wheel_trk
           op: track
@@ -70,6 +71,7 @@ presentation:
             - {t: 24, turn: [0.0, 0.0, 173.60947]}
             - {t: 25, turn: [0.0, 0.0, 178.40237]}
             - {t: 26, scale: [0.0, 0.0, 0.0], ease: in_out_quad, turn: [0.0, 0.0, 180.0]}
+          sample_ticks: 2
         - {id: snd, op: sound, sound: item.shield.block, at: caster}
     - id: fx1
       at: 1
@@ -101,6 +103,7 @@ presentation:
             - {t: 19, offset: [-0.89469, 0.04541, 0.33283], turn: [-76.21196, -19.28944, 48.93257], scale: [0.08, 0.08, 0.70078]}
             - {t: 20, offset: [-0.89634, 0.04541, 0.32837], turn: [-76.34487, -19.51272, 48.74971], scale: [0.08, 0.08, 0.50312]}
             - {t: 21, offset: [-0.89694, 0.04541, 0.32673], turn: [-76.39375, -19.59498, 48.68227], scale: [0.08, 0.08, 0.26953]}
+          sample_ticks: 2
     - id: fx2
       at: 2
       do:
@@ -131,6 +134,7 @@ presentation:
             - {t: 19, offset: [-1.26528, 1.0, 0.4707], turn: [-88.96154, 16.01128, 16.01128], scale: [0.08, 0.08, 0.70078]}
             - {t: 20, offset: [-1.26761, 1.0, 0.46439], turn: [-88.99043, 15.78769, 15.78769], scale: [0.08, 0.08, 0.50312]}
             - {t: 21, offset: [-1.26846, 1.0, 0.46206], turn: [-89.00098, 15.70531, 15.70531], scale: [0.08, 0.08, 0.26953]}
+          sample_ticks: 2
         - {op: block, parent: fx1_orrery_guard, block: gold_block, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_orrery_guard_hoop_b_s0}
         - id: fx1_orrery_guard_hoop_b_s0_trk
           op: track
@@ -158,6 +162,7 @@ presentation:
             - {t: 19, offset: [0.73559, 0.04541, 0.60841], turn: [-83.88385, -124.50751, 92.19637], scale: [0.08, 0.08, 0.70078]}
             - {t: 20, offset: [0.73255, 0.04541, 0.61207], turn: [-84.2048, -124.65725, 92.08718], scale: [0.08, 0.08, 0.50312]}
             - {t: 21, offset: [0.73142, 0.04541, 0.61341], turn: [-84.32311, -124.71233, 92.04676], scale: [0.08, 0.08, 0.26953]}
+          sample_ticks: 2
     - id: fx3
       at: 3
       do:
@@ -188,6 +193,7 @@ presentation:
             - {t: 19, offset: [-0.89469, 1.95459, 0.33283], turn: [-91.95482, 50.84821, -20.04459], scale: [0.08, 0.08, 0.70078]}
             - {t: 20, offset: [-0.89634, 1.95459, 0.32837], turn: [-91.86867, 50.63094, -20.26571], scale: [0.08, 0.08, 0.50312]}
             - {t: 21, offset: [-0.89694, 1.95459, 0.32673], turn: [-91.83684, 50.55088, -20.3471], scale: [0.08, 0.08, 0.26953]}
+          sample_ticks: 2
         - {op: block, parent: fx1_orrery_guard, block: gold_block, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_orrery_guard_hoop_b_s1}
         - id: fx1_orrery_guard_hoop_b_s1_trk
           op: track
@@ -215,6 +221,7 @@ presentation:
             - {t: 19, offset: [1.04028, 1.0, 0.86042], turn: [37.56451, 104.35576, -104.35576], scale: [0.08, 0.08, 0.70078]}
             - {t: 20, offset: [1.03598, 1.0, 0.86559], turn: [37.79178, 104.17194, -104.17194], scale: [0.08, 0.08, 0.50312]}
             - {t: 21, offset: [1.03439, 1.0, 0.86749], turn: [37.87536, 104.10417, -104.10417], scale: [0.08, 0.08, 0.26953]}
+          sample_ticks: 2
     - id: fx4
       at: 4
       do:
@@ -245,6 +252,7 @@ presentation:
             - {t: 19, offset: [0.0, 2.35, 0.0], turn: [-84.02566, 84.02566, -58.39315], scale: [0.08, 0.08, 0.70078]}
             - {t: 20, offset: [0.0, 2.35, 0.0], turn: [-83.82372, 83.82372, -58.56305], scale: [0.08, 0.08, 0.50312]}
             - {t: 21, offset: [0.0, 2.35, 0.0], turn: [-83.74928, 83.74928, -58.62552], scale: [0.08, 0.08, 0.26953]}
+          sample_ticks: 2
         - {op: block, parent: fx1_orrery_guard, block: gold_block, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_orrery_guard_hoop_b_s2}
         - id: fx1_orrery_guard_hoop_b_s2_trk
           op: track
@@ -272,6 +280,7 @@ presentation:
             - {t: 19, offset: [0.73559, 1.95459, 0.60841], turn: [-4.66959, 73.24449, -98.91375], scale: [0.08, 0.08, 0.70078]}
             - {t: 20, offset: [0.73255, 1.95459, 0.61207], turn: [-4.42059, 73.03615, -98.86812], scale: [0.08, 0.08, 0.50312]}
             - {t: 21, offset: [0.73142, 1.95459, 0.61341], turn: [-4.32892, 72.95937, -98.85121], scale: [0.08, 0.08, 0.26953]}
+          sample_ticks: 2
         - {op: block, parent: fx1_orrery_guard, block: orange_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_orrery_guard_hoop_c_s0}
         - id: fx1_orrery_guard_hoop_c_s0_trk
           op: track
@@ -299,6 +308,7 @@ presentation:
             - {t: 19, offset: [0.0, -0.35, 0.0], turn: [122.26979, 122.26979, 10.26115], scale: [0.08, 0.08, 0.70078]}
             - {t: 20, offset: [0.0, -0.35, 0.0], turn: [122.11454, 122.11454, 10.55457], scale: [0.08, 0.08, 0.50312]}
             - {t: 21, offset: [0.0, -0.35, 0.0], turn: [122.05726, 122.05726, 10.6625], scale: [0.08, 0.08, 0.26953]}
+          sample_ticks: 2
     - id: fx5
       at: 5
       do:
@@ -329,6 +339,7 @@ presentation:
             - {t: 19, offset: [0.89469, 1.95459, -0.33283], turn: [-62.86549, 113.68708, -97.91233], scale: [0.08, 0.08, 0.70078]}
             - {t: 20, offset: [0.89634, 1.95459, -0.32837], turn: [-62.56124, 113.51592, -97.97452], scale: [0.08, 0.08, 0.50312]}
             - {t: 21, offset: [0.89694, 1.95459, -0.32673], turn: [-62.44921, 113.4528, -97.99727], scale: [0.08, 0.08, 0.26953]}
+          sample_ticks: 2
         - {op: block, parent: fx1_orrery_guard, block: gold_block, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_orrery_guard_hoop_b_s3}
         - id: fx1_orrery_guard_hoop_b_s3_trk
           op: track
@@ -356,6 +367,7 @@ presentation:
             - {t: 19, offset: [0.0, 2.35, 0.0], turn: [-39.35344, 39.35344, -83.61949], scale: [0.08, 0.08, 0.70078]}
             - {t: 20, offset: [0.0, 2.35, 0.0], turn: [-39.13323, 39.13323, -83.69216], scale: [0.08, 0.08, 0.50312]}
             - {t: 21, offset: [0.0, 2.35, 0.0], turn: [-39.05209, 39.05209, -83.71882], scale: [0.08, 0.08, 0.26953]}
+          sample_ticks: 2
         - {op: block, parent: fx1_orrery_guard, block: orange_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_orrery_guard_hoop_c_s1}
         - id: fx1_orrery_guard_hoop_c_s1_trk
           op: track
@@ -383,6 +395,7 @@ presentation:
             - {t: 19, offset: [0.1591, 0.04541, -0.94124], turn: [-99.83636, -107.02729, -51.52309], scale: [0.08, 0.08, 0.70078]}
             - {t: 20, offset: [0.16379, 0.04541, -0.94044], turn: [-99.79663, -107.20763, -51.81785], scale: [0.08, 0.08, 0.50312]}
             - {t: 21, offset: [0.16552, 0.04541, -0.94014], turn: [-99.78184, -107.27401, -51.92651], scale: [0.08, 0.08, 0.26953]}
+          sample_ticks: 2
     - id: fx6
       at: 6
       do:
@@ -413,6 +426,7 @@ presentation:
             - {t: 19, offset: [1.26528, 1.0, -0.4707], turn: [20.90763, -116.16652, 116.16652], scale: [0.08, 0.08, 0.70078]}
             - {t: 20, offset: [1.26761, 1.0, -0.46439], turn: [20.63856, -116.33331, 116.33331], scale: [0.08, 0.08, 0.50312]}
             - {t: 21, offset: [1.26846, 1.0, -0.46206], turn: [20.53926, -116.39468, 116.39468], scale: [0.08, 0.08, 0.26953]}
+          sample_ticks: 2
         - {op: block, parent: fx1_orrery_guard, block: gold_block, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_orrery_guard_hoop_b_s4}
         - id: fx1_orrery_guard_hoop_b_s4_trk
           op: track
@@ -440,6 +454,7 @@ presentation:
             - {t: 19, offset: [-0.73559, 1.95459, -0.60841], turn: [-66.59006, 4.24535, -60.58623], scale: [0.08, 0.08, 0.70078]}
             - {t: 20, offset: [-0.73255, 1.95459, -0.61207], turn: [-66.43683, 4.02116, -60.75005], scale: [0.08, 0.08, 0.50312]}
             - {t: 21, offset: [-0.73142, 1.95459, -0.61341], turn: [-66.3803, 3.93857, -60.81033], scale: [0.08, 0.08, 0.26953]}
+          sample_ticks: 2
         - {op: block, parent: fx1_orrery_guard, block: orange_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_orrery_guard_hoop_c_s2}
         - id: fx1_orrery_guard_hoop_c_s2_trk
           op: track
@@ -467,6 +482,7 @@ presentation:
             - {t: 19, offset: [0.22501, 1.0, -1.33112], turn: [-64.4751, -76.28827, -76.28827], scale: [0.08, 0.08, 0.70078]}
             - {t: 20, offset: [0.23164, 1.0, -1.32998], turn: [-64.32366, -76.49485, -76.49485], scale: [0.08, 0.08, 0.50312]}
             - {t: 21, offset: [0.23408, 1.0, -1.32955], turn: [-64.26775, -76.57093, -76.57093], scale: [0.08, 0.08, 0.26953]}
+          sample_ticks: 2
     - id: fx7
       at: 7
       do:
@@ -497,6 +513,7 @@ presentation:
             - {t: 19, offset: [0.89469, 0.04541, -0.33283], turn: [-22.01293, -86.97236, 100.98457], scale: [0.08, 0.08, 0.70078]}
             - {t: 20, offset: [0.89634, 0.04541, -0.32837], turn: [-22.28001, -87.17209, 100.99994], scale: [0.08, 0.08, 0.50312]}
             - {t: 21, offset: [0.89694, 0.04541, -0.32673], turn: [-22.37848, -87.24564, 101.00549], scale: [0.08, 0.08, 0.26953]}
+          sample_ticks: 2
         - {op: block, parent: fx1_orrery_guard, block: gold_block, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_orrery_guard_hoop_b_s5}
         - id: fx1_orrery_guard_hoop_b_s5_trk
           op: track
@@ -524,6 +541,7 @@ presentation:
             - {t: 19, offset: [-1.04028, 1.0, -0.86042], turn: [-86.07554, -30.98426, -30.98426], scale: [0.08, 0.08, 0.70078]}
             - {t: 20, offset: [-1.03598, 1.0, -0.86559], turn: [-86.01845, -31.206, -31.206], scale: [0.08, 0.08, 0.50312]}
             - {t: 21, offset: [-1.03439, 1.0, -0.86749], turn: [-85.99731, -31.28769, -31.28769], scale: [0.08, 0.08, 0.26953]}
+          sample_ticks: 2
         - {op: block, parent: fx1_orrery_guard, block: orange_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_orrery_guard_hoop_c_s3}
         - id: fx1_orrery_guard_hoop_c_s3_trk
           op: track
@@ -551,6 +569,7 @@ presentation:
             - {t: 19, offset: [0.1591, 1.95459, -0.94124], turn: [-28.23183, -42.57841, -88.44679], scale: [0.08, 0.08, 0.70078]}
             - {t: 20, offset: [0.16379, 1.95459, -0.94044], turn: [-28.02054, -42.79783, -88.54581], scale: [0.08, 0.08, 0.50312]}
             - {t: 21, offset: [0.16552, 1.95459, -0.94014], turn: [-27.94263, -42.87865, -88.58221], scale: [0.08, 0.08, 0.26953]}
+          sample_ticks: 2
     - id: fx8
       at: 8
       do:
@@ -581,6 +600,7 @@ presentation:
             - {t: 19, offset: [-0.73559, 0.04541, -0.60841], turn: [-96.90004, -65.284, 4.57453], scale: [0.08, 0.08, 0.70078]}
             - {t: 20, offset: [-0.73255, 0.04541, -0.61207], turn: [-96.96062, -65.49599, 4.33531], scale: [0.08, 0.08, 0.50312]}
             - {t: 21, offset: [-0.73142, 0.04541, -0.61341], turn: [-96.98284, -65.57407, 4.2471], scale: [0.08, 0.08, 0.26953]}
+          sample_ticks: 2
         - {op: block, parent: fx1_orrery_guard, block: orange_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_orrery_guard_hoop_c_s4}
         - id: fx1_orrery_guard_hoop_c_s4_trk
           op: track
@@ -608,6 +628,7 @@ presentation:
             - {t: 19, offset: [0.0, 2.35, 0.0], turn: [7.53375, -7.53375, -89.77067], scale: [0.08, 0.08, 0.70078]}
             - {t: 20, offset: [0.0, 2.35, 0.0], turn: [7.75783, -7.75783, -89.75682], scale: [0.08, 0.08, 0.50312]}
             - {t: 21, offset: [0.0, 2.35, 0.0], turn: [7.84039, -7.84039, -89.75161], scale: [0.08, 0.08, 0.26953]}
+          sample_ticks: 2
     - id: fx9
       at: 9
       do:
@@ -637,6 +658,7 @@ presentation:
             - {t: 18, offset: [0.0, -0.35, 0.0], turn: [-96.88026, -96.88026, 46.16976], scale: [0.08, 0.08, 0.8625]}
             - {t: 19, offset: [0.0, -0.35, 0.0], turn: [-97.25298, -97.25298, 45.7697], scale: [0.08, 0.08, 0.70078]}
             - {t: 20, offset: [0.0, -0.35, 0.0], turn: [-97.44411, -97.44411, 45.56345], scale: [0.08, 0.08, 0.50312]}
+          sample_ticks: 2
         - {op: block, parent: fx1_orrery_guard, block: orange_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_orrery_guard_hoop_c_s5}
         - id: fx1_orrery_guard_hoop_c_s5_trk
           op: track
@@ -663,6 +685,7 @@ presentation:
             - {t: 18, offset: [-0.14996, 1.95459, 0.94274], turn: [41.44053, 28.15975, -81.26443], scale: [0.08, 0.08, 0.8625]}
             - {t: 19, offset: [-0.1591, 1.95459, 0.94124], turn: [41.81701, 27.72698, -81.02887], scale: [0.08, 0.08, 0.70078]}
             - {t: 20, offset: [-0.16379, 1.95459, 0.94044], turn: [42.00993, 27.50469, -80.90744], scale: [0.08, 0.08, 0.50312]}
+          sample_ticks: 2
     - id: fx10
       at: 10
       do:
@@ -691,6 +714,7 @@ presentation:
             - {t: 17, offset: [-0.19072, 1.0, 1.33646], turn: [72.93181, 63.26278, -63.26278], scale: [0.08, 0.08, 0.98828]}
             - {t: 18, offset: [-0.21208, 1.0, 1.33324], turn: [73.32007, 62.57886, -62.57886], scale: [0.08, 0.08, 0.8625]}
             - {t: 19, offset: [-0.22501, 1.0, 1.33112], turn: [73.55325, 62.1636, -62.1636], scale: [0.08, 0.08, 0.70078]}
+          sample_ticks: 2
     - id: fx11
       at: 11
       do:
@@ -718,6 +742,7 @@ presentation:
             - {t: 16, offset: [-0.11227, 0.04541, 0.94797], turn: [101.17579, 96.3477, -35.08043], scale: [0.08, 0.08, 1.07812]}
             - {t: 17, offset: [-0.13486, 0.04541, 0.94502], turn: [101.2081, 95.42574, -33.74427], scale: [0.08, 0.08, 0.98828]}
             - {t: 18, offset: [-0.14996, 0.04541, 0.94274], turn: [101.22318, 94.80546, -32.85199], scale: [0.08, 0.08, 0.8625]}
+          sample_ticks: 2
     - {id: fx22, at: 22, do: [{id: rm, op: remove, ids: [fx1_orrery_guard_hoop_a_s0]}]}
     - {id: fx23, at: 23, do: [{id: rm_2, op: remove, ids: [fx1_orrery_guard_hoop_a_s1]}]}
     - {id: fx24, at: 24, do: [{id: rm_3, op: remove, ids: [fx1_orrery_guard_hoop_a_s2, fx1_orrery_guard_hoop_b_s0]}]}

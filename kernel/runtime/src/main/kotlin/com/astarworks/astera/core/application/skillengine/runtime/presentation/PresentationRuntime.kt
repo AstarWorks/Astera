@@ -56,12 +56,18 @@ public class PresentationRuntime(
         /** v1 `WorldMechanics.MAX_DISPLAYS_PER_CAST` (:631): text displays one cast may spawn. */
         const val MAX_TEXT_PER_CAST: Int = 32
         const val MAX_FRAME_DEPTH: Int = 64
+
+        /** v1 `VfxTimeline.MAX_STEP_ROTATION_DEG` (:93). */
+        const val MAX_STEP_ROTATION_DEG: Double = 170.0
         private val UPRIGHT = 0.7071
         private val ONE = Vec3(1.0, 1.0, 1.0)
         private val IDENTITY = Frame(Vec3.ZERO)
     }
 
     internal class TrackState(val op: VisualOp.Track, val startTick: Int)
+
+    /** One chunk of a track-driven display's clock (v1 `VfxTimeline.Step`): track ticks [start]..[end]. */
+    internal class Step(val start: Int, val end: Int)
 
     internal class PullState(val op: VisualOp.Pull, val startTick: Int)
 
@@ -162,6 +168,9 @@ public class PresentationRuntime(
     internal class CastState(val ctx: OpContext) {
         val anims = ArrayList<AnimRun>()
         var tick: Int = 0
+
+        /** Chunk steps per animated display id, with the tracks they were cut from (recut when a track appears). */
+        val chunkCache = HashMap<String, Pair<List<TrackState>, List<Step>?>>()
         var textSpawned: Int = 0
         val live = LinkedHashMap<String, Live>()
         val sounds = LinkedHashMap<String, SoundTask>()
@@ -289,7 +298,7 @@ public class PresentationRuntime(
                 val world = tree.worldOf(live.node).getOrNull() ?: return null
                 val frame = billboardFrame(s, live.opId, parentW, world, live.billboard, live.turn)
                 val fs = tree.scaleOf(live.node)
-                return VisualPose(frame, Vec3(live.size * fs * t.scale.x, live.size * fs * t.scale.y, 1.0), live.billboard, anchorFeet(s, live.parent))
+                return VisualPose(frame, Vec3(live.size * fs * t.scale.x, live.size * fs * t.scale.y, fs * t.scale.z), live.billboard, anchorFeet(s, live.parent))
             }
             is Live.Block -> {
                 val parentW = frameWorld(s, live.parent) ?: return null
@@ -312,7 +321,7 @@ public class PresentationRuntime(
                 val world = tree.worldOf(live.node).getOrNull() ?: return null
                 val frame = billboardFrame(s, live.opId, parentW, world, live.billboard, live.turn)
                 val fs = tree.scaleOf(live.node)
-                return VisualPose(frame, Vec3(live.size.x * fs * t.scale.x, live.size.y * fs * t.scale.y, 1.0), live.billboard, anchorFeet(s, live.parent))
+                return VisualPose(frame, Vec3(live.size.x * fs * t.scale.x, live.size.y * fs * t.scale.y, fs * t.scale.z), live.billboard, anchorFeet(s, live.parent))
             }
             else -> return null
         }
@@ -420,20 +429,99 @@ public class PresentationRuntime(
      */
     private fun castElapsed(s: CastState, t: TrackState): Int = s.tick - 1 - t.startTick
 
-    /** Sum of every track on [target] at this tick; offsets are expressed in the track's space and returned in the parent's axes. */
+    /**
+     * Sum of every track on [target] at this tick; offsets are expressed in the track's space and returned in the parent's axes.
+     * A display whose tracks have `sample_ticks` > 1 shows what v1 shows: the client interpolates linearly between the chunk-start and
+     * chunk-end updates (v1 `updatesFor`, VfxTimeline.kt:424-436), so the value at a tick inside a chunk is the lerp (slerp for the
+     * turn) of the two chunk ends, not the eased track value.
+     */
     private fun tracked(s: CastState, target: String, parentW: Frame, group: String? = null): Tracked {
+        val tracks = s.tracks.values.filter { it.op.target == target || (group != null && it.op.target == group) }
+        val steps = chunkSteps(s, target, tracks)
+        if (steps == null) return trackedAt(s, tracks, parentW, 0)
+        val e = castElapsed(s, tracks.first())
+        val step = steps.firstOrNull { e > it.start && e <= it.end } ?: return trackedAt(s, tracks, parentW, 0)
+        val a = trackedAt(s, tracks, parentW, step.start - e)
+        val b = trackedAt(s, tracks, parentW, step.end - e)
+        val f = (e - step.start).toDouble() / (step.end - step.start)
+        return Tracked(
+            a.offset + (b.offset - a.offset) * f,
+            Quaternion.slerp(a.turn, b.turn, f),
+            a.scale + (b.scale - a.scale) * f,
+        )
+    }
+
+    /** The tracks at their own tick plus [shift] (the chunk ends are sampled with it). */
+    private fun trackedAt(s: CastState, tracks: List<TrackState>, parentW: Frame, shift: Int): Tracked {
         var offset = Vec3.ZERO
         var turn = Quaternion.IDENTITY
         var scale = ONE
-        for (t in s.tracks.values) {
-            if (t.op.target != target && (group == null || t.op.target != group)) continue
-            val sample = sampleTrack(s, t, castElapsed(s, t))
+        for (t in tracks) {
+            val sample = sampleTrack(s, t, castElapsed(s, t) + shift)
             val space = t.op.space?.let { frameWorld(s, it) } ?: parentW
             offset += parentW.rotation.conjugate().rotate(space.directionToWorld(sample.offset))
             turn = (turn * sample.turn).normalized()
             scale = Vec3(scale.x * sample.scale.x, scale.y * sample.scale.y, scale.z * sample.scale.z)
         }
         return Tracked(offset, turn, scale)
+    }
+
+    /**
+     * v1 `segmentSteps` (VfxTimeline.kt:544-559): between consecutive keyframe ticks (the element's and its group's tracks) the clock
+     * is cut into `ceil(d / sampleTicks)` near-equal chunks; a chunk that turns more than [MAX_STEP_ROTATION_DEG] is halved
+     * (`splitByRotation`, :561-566). Null = every tick is its own update (sample_ticks 1, or nothing animates the transform).
+     */
+    private fun chunkSteps(s: CastState, target: String, tracks: List<TrackState>): List<Step>? {
+        if (tracks.isEmpty()) return null
+        s.chunkCache[target]?.let { (cached, steps) -> if (cached == tracks) return steps }
+        val sample = tracks.minOf { it.op.sampleTicks }
+        val animated = tracks.any { t -> t.op.keys.any { it.offset != null || it.turn != null || it.scale != null } }
+        var out: ArrayList<Step>? = null
+        if (sample > 1 && animated) {
+            out = ArrayList()
+            val points = tracks.flatMap { t -> t.op.keys.map { it.tick } }.distinct().sorted()
+            for (k in 1 until points.size) {
+                val a = points[k - 1]
+                val d = points[k] - a
+                val n = (d + sample - 1) / sample
+                var prev = a
+                for (j in 1..n) {
+                    val cut = a + Math.round(j.toDouble() * d / n).toInt()
+                    splitByRotation(s, tracks, prev, cut, out)
+                    prev = cut
+                }
+            }
+        }
+        s.chunkCache[target] = tracks to out
+        return out
+    }
+
+    private fun splitByRotation(s: CastState, tracks: List<TrackState>, start: Int, end: Int, out: MutableList<Step>) {
+        if (end - start >= 2 && turnDegrees(s, tracks, start, end) > MAX_STEP_ROTATION_DEG) {
+            val mid = (start + end) / 2
+            splitByRotation(s, tracks, start, mid, out)
+            splitByRotation(s, tracks, mid, end, out)
+        } else {
+            out += Step(start, end)
+        }
+    }
+
+    /** v1 `turnDegrees` (VfxTimeline.kt:568): the larger of the keyed rotation-vector delta and the quaternion angle between two track ticks. */
+    private fun turnDegrees(s: CastState, tracks: List<TrackState>, start: Int, end: Int): Double {
+        val v = s.ctx.values
+        var keyedDelta = 0.0
+        var qa = Quaternion.IDENTITY
+        var qb = Quaternion.IDENTITY
+        for (t in tracks) {
+            val keys = t.op.keys.sortedBy { it.tick }
+            val lerpV = { x: Vec3, y: Vec3, f: Double -> x + (y - x) * f }
+            val a = channel(keys, start, { it.turn?.let { r -> v.vec3(r) } }, Vec3.ZERO, lerpV)
+            val b = channel(keys, end, { it.turn?.let { r -> v.vec3(r) } }, Vec3.ZERO, lerpV)
+            keyedDelta += maxOf(abs(b.x - a.x), abs(b.y - a.y), abs(b.z - a.z))
+            qa = (qa * Quaternion.fromRotationVector(a)).normalized()
+            qb = (qb * Quaternion.fromRotationVector(b)).normalized()
+        }
+        return max(keyedDelta, Math.toDegrees(qa.angleTo(qb)))
     }
 
     // ------------------------------------------------------------------ repeated ops

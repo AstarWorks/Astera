@@ -343,7 +343,7 @@ private object VisualOpDecoder : OpDecoder {
                 (int("lag_ticks") ?: 0).also { if (it < 0) fail("lag_ticks must be >= 0") },
                 bool("double_sided") ?: false,
             )
-            "track" -> VisualOp.Track(id, whenExpr, requireString("target"), trackKeys(), string("space"))
+            "track" -> VisualOp.Track(id, whenExpr, requireString("target"), trackKeys(), string("space"), int("sample_ticks") ?: 1)
             "anchor" -> VisualOp.Anchor(
                 id, whenExpr, requireString("frame"), requirePoint("at"),
                 (string("orient") ?: "world").let { AnchorOrient.fromYaml(it) ?: fail("orient must be one of ${AnchorOrient.entries.joinToString { o -> o.yamlName }}") },

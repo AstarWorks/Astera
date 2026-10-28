@@ -218,6 +218,11 @@ public sealed interface VisualOp : PresentationOp {
         val target: String,
         val keys: List<TrackKey>,
         val space: String?,
+        /**
+         * v1 `VfxDefinition.sampleTicks` (:80): the display is written once per chunk of at most this many ticks, carrying the chunk-end
+         * transform and the chunk length as its interpolation (VfxTimeline.kt:544-559 `segmentSteps`). 1 = every tick.
+         */
+        val sampleTicks: Int = 1,
     ) : VisualOp
 
     /**
