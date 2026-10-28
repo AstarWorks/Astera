@@ -73,7 +73,7 @@ public class PaperSkillGameplayGateway(
         val profile = DamageProfile(
             components.map { DamageComponent(base = NumericValue.Literal(it.amount), attribute = attributeOf(it.kind)) },
         )
-        applyDamage.execute(
+        val result = applyDamage.execute(
             DamageAttempt(
                 targetId = PlayerId(victim),
                 baseProfile = profile,
@@ -85,6 +85,8 @@ public class PaperSkillGameplayGateway(
                 ),
             ),
         )
+        // A refused hit (immune, friendly fire, gateway failure) used to vanish; e2e could only see "no damage".
+        if (result is Result.Failure) log.info("skill engine: damage by {} from {} on {} refused: {}", skillId, caster, victim, result.error)
     }
 
     override fun applyStatus(caster: UUID, victim: UUID, statusId: String, stacks: Int, durationTicks: Int) {

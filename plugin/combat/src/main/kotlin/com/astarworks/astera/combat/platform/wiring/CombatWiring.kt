@@ -195,6 +195,11 @@ public object CombatWiring {
         if (entityEffects != null) registrations += services.register<com.astarworks.astera.combat.application.port.outbound.IEntityEffectsGateway>(entityEffects)
         registrations += services.register<IElementMatrix>(elementMatrix)
         registrations += services.register<IArmorRegistry>(armorContents)
+        // Item tooltips: Core owns the layout, Combat supplies the skill lines from the v2 `meta:` blocks.
+        services.get<com.astarworks.astera.core.application.service.item.ItemBlueprintFactory>()?.skillTooltips =
+            services.get<com.astarworks.astera.core.application.port.outbound.IMessageRenderer>()?.let {
+                com.astarworks.astera.combat.application.service.SkillTooltipSummary(skillGate, it, armorContents)
+            }
         if (services.get<IDamageRandomizer>() == null) {
             registrations += services.register<IDamageRandomizer>(damageRandomizer)
         }

@@ -129,7 +129,7 @@ class PveWavesPlaythroughE2eTest : PlaythroughBase() {
             val me = posOf(bot) ?: continue
             val dx = mob.x - me.first
             val dz = mob.z - me.third
-            val dy = (mob.y + 0.9) - (me.second + 1.62)
+            val dy = (mob.y + 0.4) - (me.second + 1.62) // 0.4: inside a cave spider (0.5 tall) and still a zombie body; 0.9 flew 0.1 over the spider with the 0.3 bullet radius
             val yaw = Math.toDegrees(atan2(-dx, dz)).toFloat()
             val pitch = (-Math.toDegrees(atan2(dy, hypot(dx, dz)))).toFloat()
             rcon("rotate ${bot.name} $yaw $pitch")

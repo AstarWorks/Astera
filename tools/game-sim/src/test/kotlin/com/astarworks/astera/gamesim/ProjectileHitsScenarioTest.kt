@@ -33,4 +33,18 @@ class ProjectileHitsScenarioTest {
         assertThat(sim.dealt.filter { it.victim == pillar }).describedAs("pistol-shot damage on the structure").isNotEmpty()
         assertThat(sim.dealt.map { it.skill }.toSet()).containsExactly("pistol-shot")
     }
+
+    @Test
+    fun `pistol shot hits a zombie-sized mob 10 blocks away and a cave-spider-sized one aimed low`() {
+        val zombie = simVictim(3)
+        val sim = CastSim(mapOf(zombie to Vec3(0.0, 0.0, 10.0)), halfWidth = 0.3, boxHeight = 1.95)
+        sim.cast("pistol-shot", 40)
+        assertThat(sim.dealt.filter { it.victim == zombie }).describedAs("pistol-shot damage on a zombie 10 blocks ahead").isNotEmpty()
+
+        // A cave spider is 0.5 tall: the level eye-height shot (1.62) flies over it, the PvE e2e must aim at its body (y + 0.4).
+        val spider = simVictim(4)
+        val level = CastSim(mapOf(spider to Vec3(0.0, 0.0, 10.0)), halfWidth = 0.35, boxHeight = 0.5)
+        level.cast("pistol-shot", 40)
+        assertThat(level.dealt.filter { it.victim == spider }).describedAs("a level shot misses a 0.5 tall mob").isEmpty()
+    }
 }

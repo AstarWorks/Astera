@@ -50,7 +50,7 @@ class SkillEngineCoin2E2eTest : E2eBase() {
         }
 
         val logMark = ServerLog.lineCount()
-        rcon("astera skill cast $skillId ${a.name} --force")
+        val castReply = clean(rcon("astera skill cast $skillId ${a.name} --force"))
         // spin-up + release + flight + stick: the whole sequence is well under 4 seconds.
         Thread.sleep(4_000)
         val after = healthOf("@e[type=minecraft:zombie,tag=coin2_dummy,limit=1]")
@@ -59,7 +59,7 @@ class SkillEngineCoin2E2eTest : E2eBase() {
             assertThat(before).isNotNull()
             assertThat(after).describedAs("dummy health after the cast").isNotNull()
             val lost = before!! - after!!
-            assertThat(lost).describedAs("health lost (expected at least one hit of ~18)").isGreaterThanOrEqualTo(17.0)
+            assertThat(lost).describedAs("health lost (expected at least one hit of ~18); cast reply='$castReply'; log=${ServerLog.read().lineSequence().drop(logMark).filter { it.contains("skill engine", true) }.toList().takeLast(5)}").isGreaterThanOrEqualTo(17.0)
             "health $before -> $after (lost $lost)"
         }
 
