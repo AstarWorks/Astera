@@ -123,12 +123,14 @@ private object UseLowering {
             val r = lc.anchors.resolve(root)
             if (r != null) resolvedRoots[root] = r.instance
         }
-        val visible = frameRoots.filter { it in resolvedRoots || it in BUILTIN }.toSet()
+        // ADR-0303 1: a document `anchors:` entry is a valid frame for a call (it resolves to no instance, like a builtin)
+        val documented = frameRoots.filter { lc.anchors.document(it) != null }.toSet()
+        val visible = frameRoots.filter { it in resolvedRoots || it in BUILTIN || it in documented }.toSet()
         PartInliner.checkCall(lc.skillId, at, part, op.args, op.frames, visible + BUILTIN + frameRoots.filter { it in visible })?.let { return Result.failure(it) }
         for ((k, v) in op.frames) {
             val full = lc.anchors.resolve(v)
             val root = v.substringBefore('.').substringBefore('[')
-            if (full == null && root !in resolvedRoots && root !in BUILTIN) {
+            if (full == null && root !in resolvedRoots && root !in BUILTIN && root !in documented) {
                 return Result.failure(SkillDecodeError.UndefinedReference(lc.skillId, "$at.frames.$k", v))
             }
         }

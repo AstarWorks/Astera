@@ -16,6 +16,7 @@ import com.astarworks.astera.core.domain.skillengine.model.PointRef
 import com.astarworks.astera.core.domain.skillengine.model.TargetRef
 import com.astarworks.astera.core.domain.skillengine.model.Value
 import com.astarworks.astera.core.domain.skillengine.table.Action
+import com.astarworks.astera.core.application.skillengine.compose.AnchorNames
 import com.astarworks.astera.core.domain.skillengine.table.InstanceId
 import com.astarworks.astera.core.domain.skillengine.table.Num
 import com.astarworks.astera.core.domain.skillengine.table.OpId
@@ -147,8 +148,12 @@ internal object GameplayOps {
 
     /** Resolves a frame / anchor name to the instance it stands for in this occurrence. */
     fun anchor(name: String, lc: LowerContext, path: String): Result<InstanceId, SkillDecodeError> {
-        val r = lc.anchors.resolve(name) ?: return Result.Failure(SkillDecodeError.UndefinedReference(lc.skillId, path, name))
-        return Result.Success(r.instance)
+        val r = lc.anchors.resolve(name)
+        if (r != null) return Result.Success(r.instance)
+        // ADR-0303 1: a document `anchors:` entry is not a frame instance, but it is a valid anchor name; it stands for itself by id
+        val doc = AnchorNames.split(name)?.base?.takeIf { lc.anchors.document(it) != null }
+            ?: return Result.Failure(SkillDecodeError.UndefinedReference(lc.skillId, path, name))
+        return Result.Success(InstanceId(listOf(InstanceId.Segment(OpId(doc), null))))
     }
 
     fun anchors(names: List<String>, lc: LowerContext, path: String): Result<List<InstanceId>, SkillDecodeError> {

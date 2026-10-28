@@ -62,7 +62,7 @@ id: example-fire-bolt
 anchors:
   - {id: muzzle, anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}
 machine:
-  start: fly                                 # ENGINE GAP: PartExpander rewrites this start to the child path (StartNamesChild) / StaticChecks takes table.states.first(); see report
+  start: fly
   states:
     fly:
       use: projectile

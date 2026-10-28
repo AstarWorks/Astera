@@ -230,6 +230,8 @@ public object StaticChecks {
                 val suffix = e.substring(dot + 1)
                 val known = instances.any { it == base || it.startsWith("$base/") }
                 if (known && (suffix in INSTANCE_EVENTS || base in calls)) continue
+                // ADR-0303 10.2: the player publishes `<parent>.end` once every `parallel` region of a state with children is final
+                if (suffix == "end" && g.stateByPath[base]?.let { g.children(it).isNotEmpty() } == true) continue
             }
             return SkillDecodeError.TableClosure(e, "no producer in scope (built-in of a spawned op, a part's emits, or an emit:)", g.skillId)
         }
@@ -504,6 +506,8 @@ public object StaticChecks {
                 is Action.Spawn -> out += r.instance
                 is Action.Call -> out += a.callId
                 is Action.Lock -> out += r.instance
+                // `body` / `rig` in `world:` start with an Effect on their own instance (R45), like the state-level rows below
+                is Action.Effect -> out += r.instance
                 else -> {}
             }
             var path: String? = owner.value
