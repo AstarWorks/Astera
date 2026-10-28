@@ -823,14 +823,26 @@ class Conv:
                 self.present("dotted_line (line is solid)", short(kind, 60))
         else:
             self.present("element kind %s (text) has no v2 op" % kt, short(kind, 80))
+        multi = kt == "particle" and int(el.get("count", 1)) > 1
+        if multi:
+            rows = vfxelem.slot_tables(el)
+            if el.get("reverse"):
+                rows = rows[::-1]
+            op["times"] = len(rows)
+            op["shift"] = vfxelem.cel_table([r[0] for r in rows])
+        skip = ("formation", "count") if kt == "particle" else ()
         for k in ("group_keyframes", "target_track", "formation", "count", "jitter", "oscillate", "lane", "emit",
                   "slot_lifetime_ticks", "glow_color", "target_line", "respect_hit_stop", "brightness"):
-            if k in el:
+            if k in el and k not in skip:
                 self.present("element %s (no v2 equivalent)" % k, short(el[k], 60))
         if op is None:
             return
         kfs = el.get("keyframes", [])
-        if kt == "particle":
+        if kt == "particle" and multi:
+            every = max(1, int(kind.get("every_ticks", 1)))
+            for n, tk in enumerate(range(0, max(end - start, 1), every)):
+                self.p(where, at + tk, self._w(dict(op, id=op["id"] if n == 0 else self.oid("emit")), when))
+        elif kt == "particle":
             self.rep(where, at, max(1, int(kind.get("every_ticks", 1))), end - start, self._w(op, when))
         else:
             self.p(where, at, self._w(op, when))
