@@ -116,6 +116,15 @@ class EffectOpScenarioTest : SkillEngineScenario() {
     }
 
     @Test
+    fun hurtFacesAwayFromContact() {
+        val s = compile(skill("{op: hurt, at: 0, target: event.victim, from: contact}", anchors = "{id: contact, anchor: caster.hand_r}"))
+        val p = effect(s, "hurt").payload
+        assertThat(p.getValue("from")).isInstanceOf(Val.Known::class.java)
+        assertThat(p.keys).containsExactlyInAnyOrder("target", "from")
+        assertThat(fails(skill("{op: hurt, target: event.victim, from: nowhere}"))).isTrue()
+    }
+
+    @Test
     fun bodyClipEndsAtFor() {
         val s = compile(skill("{id: b, op: body, at: 2, anim: slash_a, speed: 1.5, for: 9}"))
         val start = rows(s).single { it.action is Action.Effect && (it.action as Action.Effect).op.value == "body" }
