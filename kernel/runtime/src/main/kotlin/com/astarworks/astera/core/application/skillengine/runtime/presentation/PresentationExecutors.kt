@@ -23,7 +23,7 @@ import kotlin.reflect.KClass
 /** All presentation executors, bound to one [PresentationRuntime]. The manager registers them. */
 public fun presentationExecutors(rt: PresentationRuntime): List<OpExecutor<*>> = listOf(
     MeshExecutor(rt), PlateExecutor(rt), LineExecutor(rt), TrailExecutor(rt), TrackExecutor(rt), RemoveExecutor(rt),
-    EmitExecutor(rt), SoundExecutor(rt),
+    RigExecutor(rt), EmitExecutor(rt), SoundExecutor(rt),
     VictimAnimExecutor(rt), CasterAnimExecutor(rt),
     TitleExecutor(rt), ActionBarExecutor(rt), CameraShakeExecutor(rt),
 )
@@ -54,6 +54,7 @@ internal class MeshExecutor(private val rt: PresentationRuntime) : OpExecutor<Vi
         val pts = rt.points.points(op.item, op.part).map { FramePoint(live.node, it.name, it.offset * scale, it.axis) }
         val pose = rt.spawnNode(s, live, op.frame, pts) ?: return ctx.host.fail(op.id, "mesh: parent frame '${op.frame}' is not in the frame tree")
         live.handle = ctx.ports.visuals.spawnMesh(rt.info.owner(ctx.cast), op.item, op.part, pose)
+        rt.driverOf(s, op.frame)?.changed(op.id, pose)
         rt.register(s, live)
     }
 }

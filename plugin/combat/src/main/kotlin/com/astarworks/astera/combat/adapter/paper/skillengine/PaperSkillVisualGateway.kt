@@ -86,6 +86,9 @@ public class PaperSkillVisualGateway(
     /** One hand lease per caster, shared by every live `main_hand` mesh of that caster. */
     private class HandHide(val lease: PresentationLease) { var users: Int = 0 }
     private val handHides = ConcurrentHashMap<UUID, HandHide>()
+    private class SkinEntry(val handle: DisplayHandle, val owner: UUID, val ghost: Boolean) : Entry
+    /** One body lease per caster, shared by every live non-ghost skin bone of that caster (hand, offhand, armour, body hidden, pose pinned). */
+    private val bodyHides = ConcurrentHashMap<UUID, HandHide>()
     private class PlateEntry(val handle: DisplayHandle, val owner: UUID, val sprite: String, val intrinsic: Intrinsic) : Entry
     private class LineEntry(val handle: DisplayHandle) : Entry
     /** Colour of one ribbon quad: peak [alpha], the [rgbTo] it has faded to at the end of its life, and whether it keeps its alpha until then. */
@@ -118,6 +121,33 @@ public class PaperSkillVisualGateway(
         val handle = spawnDisplay(world, castOwner, pose.frame.origin, spec, emptyList(), pose.anchorFeet != null) ?: return dead("mesh $item")
         if (heldItem) hideHand(castOwner)
         return register(castOwner, MeshEntry(handle, castOwner, heldItem))
+    }
+
+    override fun spawnSkinBone(castOwner: UUID, bone: com.astarworks.astera.core.domain.animation.skinrig.SkinRigBone, slim: Boolean, ghost: Boolean, pose: VisualPose): VisualHandle {
+        val world = worldOf(castOwner) ?: return dead("skin bone ${bone.yamlName}")
+        val first = toDisplayWrite(pose.frame, pose.size, Intrinsic.ITEM_FIXED, pose.billboard, 0)
+        val spec = SkillDisplaySpecs.skinBone(DisplayKind.SkinBone(bone, slim, ghost), first.transform)
+        val handle = spawnDisplay(world, castOwner, pose.frame.origin, spec, emptyList(), pose.anchorFeet != null) ?: return dead("skin bone ${bone.yamlName}")
+        if (!ghost) hideBody(castOwner)
+        return register(castOwner, SkinEntry(handle, castOwner, ghost))
+    }
+
+    private fun hideBody(owner: UUID) {
+        bodyHides[owner]?.let { it.users++; return }
+        val port = presentation() ?: return
+        val lease = when (val claimed = port.claim(PlayerId(owner), BODY, PresentationKind.PERFORMANCE, onRevoked = { bodyHides.remove(owner) })) {
+            is Result.Success -> claimed.value
+            is Result.Failure -> return
+        }
+        port.reveal(lease)
+        bodyHides[owner] = HandHide(lease).also { it.users = 1 }
+    }
+
+    private fun showBody(owner: UUID) {
+        val hide = bodyHides[owner] ?: return
+        if (--hide.users > 0) return
+        bodyHides.remove(owner)
+        presentation()?.release(hide.lease)
     }
 
     private fun hideHand(owner: UUID) {
@@ -189,6 +219,7 @@ public class PaperSkillVisualGateway(
     override fun write(handle: VisualHandle, pose: VisualPose, interpolationTicks: Int) {
         when (val e = entries[handle.id]) {
             is MeshEntry -> displays.place(e.handle, toDisplayWrite(pose.frame, pose.size, Intrinsic.ITEM_FIXED, pose.billboard, interpolationTicks, anchorOf(e.owner, pose.anchorFeet)))
+            is SkinEntry -> displays.place(e.handle, toDisplayWrite(pose.frame, pose.size, Intrinsic.ITEM_FIXED, pose.billboard, interpolationTicks, anchorOf(e.owner, pose.anchorFeet)))
             is PlateEntry -> displays.place(e.handle, toDisplayWrite(pose.frame, pose.size, e.intrinsic, pose.billboard, interpolationTicks, anchorOf(e.owner, pose.anchorFeet)))
             is LineEntry -> displays.place(e.handle, toDisplayWrite(pose.frame, pose.size, Intrinsic.TEXT_SOLID, DisplayBillboard.FIXED, interpolationTicks))
             else -> Unit
@@ -260,6 +291,7 @@ public class PaperSkillVisualGateway(
         owners.remove(handle.id)
         when (val e = entries.remove(handle.id)) {
             is MeshEntry -> { displays.remove(e.handle); if (e.heldItem) showHand(e.owner) }
+            is SkinEntry -> { displays.remove(e.handle); if (!e.ghost) showBody(e.owner) }
             is PlateEntry -> displays.remove(e.handle)
             is LineEntry -> displays.remove(e.handle)
             is TrailEntry -> {
@@ -318,6 +350,7 @@ public class PaperSkillVisualGateway(
 
     private companion object {
         val HAND = PresentationMask(hand = true)
+        val BODY = PresentationMask(hand = true, offhand = true, armor = true, body = true, pinPose = true)
     }
 
     private fun worldOf(owner: UUID): World? {

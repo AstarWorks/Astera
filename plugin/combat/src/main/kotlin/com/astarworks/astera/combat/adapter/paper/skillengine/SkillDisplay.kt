@@ -73,7 +73,8 @@ public fun toDisplayWrite(
         at = world.origin, yaw = 0f, pitch = 0f,
         transform = DisplayTransform(world.rotation.rotate(centre), world.rotation, scale),
         billboard = billboard,
-        interpolationDelay = 0, interpolationDuration = ticks, teleportDuration = ticks,
+        interpolationDelay = 0, interpolationDuration = ticks,
+        teleportDuration = if (anchor != null && billboard == DisplayBillboard.FIXED) 0 else ticks, // a rider never teleports (v1)
         anchor = anchor.takeIf { billboard == DisplayBillboard.FIXED },
     )
 }

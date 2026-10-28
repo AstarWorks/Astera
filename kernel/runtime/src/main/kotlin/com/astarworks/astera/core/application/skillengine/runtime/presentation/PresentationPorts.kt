@@ -9,6 +9,12 @@ public interface ISkillCasterAnimGateway {
     /** Starts [anim] on the caster: a `content/animations` skin-rig clip, or a pose-only clip held for [ticks]. */
     public fun play(caster: UUID, anim: String, speed: Double, ticks: Int)
 
+    /** The skin-rig clip [anim] (`content/animations`), or null when no such clip exists. */
+    public fun clip(anim: String): com.astarworks.astera.core.domain.animation.skinrig.SkinRigAnimation?
+
+    /** Whether the caster's skin is the slim (Alex) model: the skin rig is built for it. */
+    public fun isSlim(caster: UUID): Boolean
+
     /** Blends [anim] out now (an `until:` event fired or the cast was cancelled); a no-op if it is not running. */
     public fun stop(caster: UUID, anim: String)
 

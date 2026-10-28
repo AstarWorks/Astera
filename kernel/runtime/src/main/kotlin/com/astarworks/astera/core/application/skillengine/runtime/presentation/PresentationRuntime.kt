@@ -121,9 +121,22 @@ public class PresentationRuntime(
         val lastOrigin = HashMap<String, Vec3>()
         val velocity = HashMap<String, Vec3>()
         val watched = LinkedHashSet<String>()
+        val rigs = ArrayList<RigPerformer>()
     }
 
     internal fun state(ctx: OpContext): CastState = casts.getOrPut(ctx.cast) { CastState(ctx) }
+
+    /** The running rig whose frame node [frame] is or hangs under (the displays riding it are written on its schedule); null if none. */
+    internal fun driverOf(s: CastState, frame: String): RigPerformer? {
+        if (s.rigs.isEmpty()) return null
+        var cur: FrameId? = FrameId(frame)
+        var hops = 0
+        while (cur != null && hops++ < MAX_FRAME_DEPTH) {
+            s.rigs.firstOrNull { it.op.frame == cur!!.value }?.let { return it }
+            cur = s.ctx.tree.node(cur)?.parent
+        }
+        return null
+    }
 
     /** Frame origin velocity in blocks per tick; starts tracking the frame on first request. */
     internal fun velocityOf(s: CastState, frame: String): Vec3 {
@@ -270,6 +283,7 @@ public class PresentationRuntime(
     /** Remove everything created by the listed op ids (objects, their tree nodes, repeating sounds, tracks). */
     internal fun removeIds(s: CastState, ids: List<String>) {
         for (id in ids) {
+            s.rigs.firstOrNull { it.op.id == id }?.let { it.end(s, s.ctx.ports.visuals); s.rigs.remove(it) }
             s.live.remove(id)?.let {
                 s.ctx.ports.visuals.remove(it.handle)
                 if (it is Live.Mesh || it is Live.Plate) s.ctx.tree.remove(it.node)
@@ -281,6 +295,7 @@ public class PresentationRuntime(
 
     public fun endCast(cast: CastId, cancelled: Boolean = false) {
         val s = casts.remove(cast) ?: return
+        for (r in s.rigs) runCatching { r.end(s, s.ctx.ports.visuals) }
         // One failing gateway call must not leak the remaining handles.
         for (a in s.anims) runCatching { if (cancelled) casterAnim.stop(a.owner, a.anim) else casterAnim.release(a.owner, a.anim) }
         for (l in s.live.values) runCatching { s.ctx.ports.visuals.remove(l.handle) }
@@ -303,9 +318,19 @@ public class PresentationRuntime(
         }
         for (target in s.tracks.values.map { it.op.target }.distinct()) if (!s.live.containsKey(target)) settleFrame(s, target)
         val visuals = s.ctx.ports.visuals
+        for (r in s.rigs.toList()) {
+            if (!r.tick(s, visuals, s.tick - 1 - r.startTick)) {
+                r.end(s, visuals)
+                s.rigs.remove(r)
+            }
+        }
         for (l in s.live.values.toList()) {
             when (l) {
-                is Live.Mesh -> update(s, l)?.let { visuals.write(l.handle, it, DISPLAY_TICKS) }
+                is Live.Mesh -> update(s, l)?.let { pose ->
+                    val driver = driverOf(s, l.parent)
+                    if (driver == null) visuals.write(l.handle, pose, DISPLAY_TICKS)
+                    else driver.driven?.let { interp -> if (driver.changed(l.opId, pose)) visuals.write(l.handle, pose, interp) }
+                }
                 is Live.Plate -> {
                     update(s, l)?.let { visuals.write(l.handle, it, DISPLAY_TICKS) }
                     tickFlipbook(s, l)
