@@ -91,7 +91,14 @@ class V1GameplayDumpTest {
                             lines += "{\"t\":$i,\"e\":\"pos\",\"who\":\"$n\",${rel(e.position)},\"vx\":${r(v.x)},\"vy\":${r(v.y)},\"vz\":${r(v.z)}}"
                             if (lastVel.put(n, v) != v) lines += "{\"t\":$i,\"e\":\"vel\",\"who\":\"$n\",\"x\":${r(v.x)},\"y\":${r(v.y)},\"z\":${r(v.z)}}"
                         }
+                        val dmgBefore = sim.eventsOf<com.astarworks.astera.core.domain.event.BlockDamagedBySkill>().size
+                        val brkBefore = sim.eventsOf<com.astarworks.astera.core.domain.event.BlockBrokenBySkill>().size
                         advance(1)
+                        // the events carry no usable tick (atTick - start was -1); stamp them like the cover place rows: sampling tick i + 1 (post-advance)
+                        for (e in sim.eventsOf<com.astarworks.astera.core.domain.event.BlockDamagedBySkill>().drop(dmgBefore))
+                            lines += "{\"t\":${i + 1},\"e\":\"block\",\"k\":\"damage\",${rel(e.position)},\"block\":${q(e.blockType.key)},\"amount\":${e.amount}}"
+                        for (e in sim.eventsOf<com.astarworks.astera.core.domain.event.BlockBrokenBySkill>().drop(brkBefore))
+                            lines += "{\"t\":${i + 1},\"e\":\"block\",\"k\":\"break\",${rel(e.position)},\"block\":${q(e.blockType.key)}}"
                         for ((cell, st) in gate0.tracked(caster.world)) if (seenCover.add(cell))
                             lines += "{\"t\":${i + 1},\"e\":\"block\",\"k\":\"place\",${rel(cell)},\"block\":${q(st.blockType.key)},\"cover\":true}"
                     }
@@ -144,12 +151,6 @@ class V1GameplayDumpTest {
                     // cover HP actually lost per cell (the gateway tracker is the truth for a chip)
                     for ((cell, st) in sim.services.getOrThrow<IBlockStateGateway>().tracked(caster.world)) {
                         if (st.durability < st.maxHp) lines += "{\"t\":0,\"e\":\"block\",\"k\":\"cover_hp\",${rel(cell)},\"lost\":${st.maxHp - st.durability}}"
-                    }
-                    for (e in sim.eventsOf<com.astarworks.astera.core.domain.event.BlockBrokenBySkill>()) {
-                        lines += "{\"t\":${e.atTick - start},\"e\":\"block\",\"k\":\"break\",${rel(e.position)},\"block\":${q(e.blockType.key)}}"
-                    }
-                    for (e in sim.eventsOf<com.astarworks.astera.core.domain.event.BlockDamagedBySkill>()) {
-                        lines += "{\"t\":${e.atTick - start},\"e\":\"block\",\"k\":\"damage\",${rel(e.position)},\"block\":${q(e.blockType.key)},\"amount\":${e.amount}}"
                     }
                 }
             } catch (e: Throwable) {

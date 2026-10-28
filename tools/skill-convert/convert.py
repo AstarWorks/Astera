@@ -404,6 +404,8 @@ class Conv:
 
     # ---------- mechanics ----------
     COMMON_MECH_KEYS = {"type", "delay_ticks", "targets", "condition"}
+    BREAK_AREA_KEYS = {"shape", "radius", "length", "width", "height", "power", "tool_class", "cover_damage",
+                       "revert_after_ticks", "outside_arena"}
     MOVEMENT_KEYS = {
         "dash_strike": {"distance", "ticks", "radius", "hit_once", "invulnerable", "stop_on_block", "follow_pitch",
                         "stop_before_target", "local_direction", "face_movement", "on_hit"},
@@ -531,6 +533,10 @@ class Conv:
                     op["at"] = _loc(self.point(tg, where, "g"))
         elif t == "break_area":
             op = {"id": self.oid("break"), "op": "break_area"}
+            extra = sorted(set(m) - self.BREAK_AREA_KEYS - self.COMMON_MECH_KEYS)
+            if extra:
+                raise ValueError("%s: break_area carries field(s) %s that v2 cannot express; extend the op before converting"
+                                 % (self.sid_hint(), extra))
             shape = V(m.get("shape"))
             if shape is not None:
                 if str(shape).lower() in SHAPES_BREAK:
@@ -544,6 +550,12 @@ class Conv:
             if "tool_class" in m:
                 op["tool_class"] = V(m["tool_class"])
             op["block_damage"] = int(V(m["cover_damage"])) if "cover_damage" in m else 100
+            # v1 Mechanic.BreakArea.power (default 2.0): the terrain / cover hardness gate (WorldMechanics.breakable, :457-472).
+            op["power"] = V(m["power"]) if "power" in m else 2.0
+            if "revert_after_ticks" in m:
+                op["revert_after"] = V(m["revert_after_ticks"])
+            if "outside_arena" in m:
+                op["outside_arena"] = bool(V(m["outside_arena"]))
             op["at"] = "aim"
         elif t == "place_shape":
             op = {"id": self.oid("place"), "op": "place_shape"}
