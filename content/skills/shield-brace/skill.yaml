@@ -1,5 +1,4 @@
 # astera/v3 hand port of the v2 skill.yaml + look.yaml (tick for tick).
-# GAP: gameplay.expose [duration <- poise_ticks] -> none (no v3 spelling; the number is inline below)
 apiVersion: astera/v3
 kind: Skill
 id: shield-brace
