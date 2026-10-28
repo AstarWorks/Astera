@@ -69,6 +69,13 @@ public class PaperSkillGameplayGateway(
     }
 
     override fun damage(skillId: String, caster: UUID, victim: UUID, components: List<SkillDamage>, hitPoint: Vec3, ignoreInvulnerability: Boolean) {
+        damage(skillId, caster, victim, components, hitPoint, ignoreInvulnerability, ignoreArmor = false)
+    }
+
+    override fun damage(
+        skillId: String, caster: UUID, victim: UUID, components: List<SkillDamage>, hitPoint: Vec3,
+        ignoreInvulnerability: Boolean, ignoreArmor: Boolean,
+    ) {
         if (components.isEmpty()) return
         val profile = DamageProfile(
             components.map { DamageComponent(base = NumericValue.Literal(it.amount), attribute = attributeOf(it.kind)) },
@@ -78,6 +85,7 @@ public class PaperSkillGameplayGateway(
                 targetId = PlayerId(victim),
                 baseProfile = profile,
                 ignoreInvulnerability = ignoreInvulnerability,
+                ignoreArmor = ignoreArmor,
                 source = DamageSource.Skill(
                     skillId = runCatching { SkillId(skillId) }.getOrDefault(ENGINE_SKILL_ID),
                     casterId = PlayerId(caster),

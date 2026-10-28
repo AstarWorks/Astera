@@ -14,6 +14,8 @@ public sealed interface DamageOp : GameplayOp {
         val components: List<DamageComponentSpec>,
         /** Bypass the victim's invulnerability frames (v1 `ignore_invulnerability`). */
         val ignoreInvulnerability: Boolean = false,
+        /** Skip the victim's armor / resist reduction for this hit (v1 `ignore_armor`). */
+        val ignoreArmor: Boolean = false,
     ) : DamageOp
 
     public data class Heal(

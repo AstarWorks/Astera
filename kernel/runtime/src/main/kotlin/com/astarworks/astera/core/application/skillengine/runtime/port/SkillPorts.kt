@@ -122,6 +122,17 @@ public interface ISkillGameplayGateway {
         if (ignoreInvulnerability) damage(caster, victim, components, hitPoint, true) else damage(caster, victim, components, hitPoint)
     }
 
+    /**
+     * [damage] that may also skip the victim's armor / resist reduction. Gateways that model armor override this;
+     * the default forwards to the overload without it.
+     */
+    public fun damage(
+        skillId: String, caster: UUID, victim: UUID, components: List<SkillDamage>, hitPoint: Vec3,
+        ignoreInvulnerability: Boolean, ignoreArmor: Boolean,
+    ) {
+        damage(skillId, caster, victim, components, hitPoint, ignoreInvulnerability)
+    }
+
     /** Current stacks of [statusId] on [entity] (0 when absent). */
     public fun statusStacks(entity: UUID, statusId: String): Int = 0
     public fun applyStatus(caster: UUID, victim: UUID, statusId: String, stacks: Int, durationTicks: Int)

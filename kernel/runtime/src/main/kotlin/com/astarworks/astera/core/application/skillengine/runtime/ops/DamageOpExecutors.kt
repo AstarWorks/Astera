@@ -20,6 +20,7 @@ private fun OpContext.damageAll(
     specs: List<DamageComponentSpec>,
     fallbackPoint: Vec3?,
     ignoreInvulnerability: Boolean = false,
+    ignoreArmor: Boolean = false,
 ) {
     if (victims.isEmpty() || specs.isEmpty()) return
     val consumed = LinkedHashSet<Pair<UUID, String>>()
@@ -36,7 +37,7 @@ private fun OpContext.damageAll(
             ?: feetOf(victim)
             ?: fallbackPoint
             ?: Vec3.ZERO
-        ports.gameplay.damage(scope.skillId, scope.caster, victim, parts, point, ignoreInvulnerability)
+        ports.gameplay.damage(scope.skillId, scope.caster, victim, parts, point, ignoreInvulnerability, ignoreArmor)
     }
     for ((holder, status) in consumed) ports.gameplay.removeStatus(holder, status)
 }
@@ -47,7 +48,7 @@ internal object DamageExecutor : OpExecutor<DamageOp.Damage> {
     override fun execute(op: DamageOp.Damage, ctx: OpContext) {
         val scope = ctx as? SkillCastScope ?: return
         if (!ctx.passes(op.whenExpr)) return
-        ctx.damageAll(scope, ctx.resolveTargets(scope, op.target), op.components, ctx.positionOf(scope, op.target), op.ignoreInvulnerability)
+        ctx.damageAll(scope, ctx.resolveTargets(scope, op.target), op.components, ctx.positionOf(scope, op.target), op.ignoreInvulnerability, op.ignoreArmor)
     }
 }
 
