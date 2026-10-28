@@ -1,24 +1,21 @@
-apiVersion: "astera/v3"
+apiVersion: astera/v3
 kind: Skill
 id: fireball-cast
 item: fireball-charge
 meta: {name: {ja: "火球", en: Fireball}, description: {ja: "火の玉を放ち、着弾で爆ぜる。", en: "Hurls a fireball that bursts on impact."}, cooldown_ticks: 70, resource_cost: 16, tags: [ranged, fire, magic]}
 anchors:
-  muzzle: {anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}
-  cast_fx: {anchor: caster.eye, offset: {up: -0.25, forward: 0.9}, mode: snapshot}
-  heart: {anchor: victim.body, offset: {up: 0.4}}
-# anchor note: v2 enemy point offset Y minus 0.8 (example b maps 1.0 -> up 0.2)
-presentation:
-  timeline:
-    - at: 0
-      do:
+  - {id: muzzle,  anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}
+  - {id: cast_fx, anchor: caster.eye, offset: {up: -0.25, forward: 0.9}, mode: snapshot}
+  - {id: heart,   anchor: victim.body, offset: {up: 0.4}}   # v2 enemy point offset Y minus 0.8 (example b maps 1.0 -> up 0.2)
+machine:
+  start: fly
+  states:
+    fly:
+      for: 60                       # = v2 max_lifetime_ticks; covers the whole flight
+      then: end
+      enter:
         - {id: snd, op: sound, sound: "entity.blaze.shoot", anchor: caster, volume: 0.9, pitch: 0.9}
         - {id: fx, op: particle_def, def: fire-cast, anchor: cast_fx}
-    - {at: 0, every: 1, until: bolt.end, do: [{op: particle, particle: flame, anchor: {of: bolt, sweep: 0.4}, count: 1, offset: [0.08, 0.08, 0.08]}]}
-    - {at: 0, every: 1, until: bolt.end, do: [{op: particle, particle: smoke, anchor: {of: bolt, sweep: 0.4}, count: 1, offset: [0.04, 0.04, 0.04]}]}
-gameplay:
-  timeline:
-    - at: 0
       do:
         - id: bolt
           op: projectile
@@ -42,3 +39,6 @@ gameplay:
               - {id: boom_dmg_2, op: damage, target: {kind: enemies, around: contact, radius: 2.5, max_count: 64, include_self: false}, damage: {fire: 27.5}}
               - {id: snd_blk, op: sound, sound: "astera:skills/fire-impact", anchor: contact.point, volume: 0.7, pitch: 1.0}
               - {id: fx_blk, op: particle_def, def: hit-spark, anchor: contact.point}
+        - {id: trail_flame, op: particle, particle: flame, anchor: {of: bolt, sweep: 0.4}, count: 1, offset: [0.08, 0.08, 0.08], every: 1, until: bolt.end}
+        - {id: trail_smoke, op: particle, particle: smoke, anchor: {of: bolt, sweep: 0.4}, count: 1, offset: [0.04, 0.04, 0.04], every: 1, until: bolt.end}
+    end: {final: true}
