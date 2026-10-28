@@ -67,7 +67,7 @@ machine:
           offset: {left: 0.2, up: 1.3, forward: 1.15}
           size: [3.072, 1.408]
           rotate: [{axis: up, deg: 39.0405}, {axis: left, deg: -39.0405}, {axis: forward, deg: 83.72263}]
-          tint: "#FFF3C8"
+          color: "#FFF3C8"
           billboard: fixed
           see_through: true
           brightness: {block: 15, sky: 15}
@@ -81,7 +81,7 @@ machine:
           offset: {left: 0.2, up: 1.3, forward: 1.15}
           size: [3.072, 1.408]
           rotate: [{axis: up, deg: 39.0405}, {axis: left, deg: 39.0405}, {axis: forward, deg: -83.72263}]
-          tint: "#FFF3C8"
+          color: "#FFF3C8"
           billboard: fixed
           see_through: true
           brightness: {block: 15, sky: 15}
@@ -117,8 +117,8 @@ machine:
           motion:
             - law: keys
               keys:
-                - {t: 0, scale: [0.3, 0.6, 1.0], alpha: 0.0}
-                - {t: 6, scale: [1.5, 3.3, 1.0], alpha: 0.14, ease: out_cubic}
-                - {t: 162, scale: [1.4, 3.1, 1.0], alpha: 0.14}
+                - {t: 0, scale: {left: 0.3, up: 0.6, forward: 1.0}, alpha: 0.0}
+                - {t: 6, scale: {left: 1.5, up: 3.3, forward: 1.0}, alpha: 0.14, ease: out_cubic}
+                - {t: 162, scale: {left: 1.4, up: 3.1, forward: 1.0}}
             - {law: fade, at: 152, for: 10, ease: in_quad}
     end: {final: true}
