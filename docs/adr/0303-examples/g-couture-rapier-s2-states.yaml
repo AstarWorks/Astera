@@ -1,0 +1,65 @@
+# ADR-0303 example (g): couture-rapier-s2 as states. Ticks/data from content/skills/couture-rapier-s2/{skill,coin1,coin2fx,coin3}.yaml.
+# Coin 1 visuals are example (a); here they are the `do` of the state `coin1`. 125-tick cooldown, 18 cost: gate effects of `use`.
+apiVersion: astera/v3
+kind: Skill
+id: couture-rapier-s2
+item: couture-rapier
+meta: {cooldown_ticks: 125, resource_cost: 18}
+anchors:
+  - {id: shears, at: caster.hand_r, mount: caster}
+  - {id: volley, at: world, mode: snapshot}
+machine:
+  start: coin1
+  states:
+    coin1:                                   # dash + slash (visuals: example a)
+      for: 34
+      then: raise
+      do:
+        - {use: slash-arc, at: 7, with: {radius: 9, sector: 30}, frames: {origin: caster}}          # reusable part
+        - {id: hit1, op: hit, at: 8, shape: {sector: {deg: 30, range: 9}}, damage: 30}
+    raise:
+      for: 4
+      then: spin_up
+      do: [{id: raise_pose, op: keys_pose, anchor: shears, at: 0, for: 6}]
+    spin_up:
+      for: 30
+      then: flight
+      do:
+        - {id: spin, op: display, kind: item, item: couture-rapier, at: shears, for: 30,
+           motion: [{law: spin, axis: caster.left, deg_per_tick: 54}]}
+    flight:
+      for: "= ceil(7.0 / 1.7) + 2"             # S expression: constant at expand time = 7
+      then: reel
+      enter: [{id: fly, op: projectile, from: shears, velocity: "= look(caster) * 1.7", for: "= ceil(7.0 / 1.7) + 2", radius: 0.22,
+               block: {mode: stick, for: 28}}]
+      on:
+        - {event: hit,   to: stuck}
+        - {event: stick, to: stuck}               # block contact
+    stuck:
+      for: 28
+      then: reel
+      enter: [{id: dmg, op: damage, target: event.victim, components: [{kind: physical, amount: 18}], when: "= event.victim != null"},
+              {id: bleed, op: status, target: event.victim, status: bleed, stacks: 2, for: 60}]
+    reel:
+      for: 12                                  # bounded L: reel time depends on distance; declared bound
+      bound: [4, 24]
+      then: coin3
+      do: [{id: pull, op: reel_to, anchor: volley, to: shears, speed: 0.45}]
+      on: [{event: reel.arrive, to: coin3}]
+      exit: [{id: reel_hit, op: hit, shape: {capsule: 0.2}, damage: 6, at: 0}]
+    coin3:                                      # dash + 10 hits (coin3.yaml); visuals reference dash_hit
+      for: 16
+      then: end
+      do:
+        - {id: dash, op: dash, at: 9, speed: 1.5, for: 6}
+        - {id: hit3, op: hit, at: 10, every: 1, times: 10, damage: 8}
+    end: {final: true}
+# Expanded table:
+#   coin1   0-34   hit1 @8 x1; coin1/slash-arc 7-12; streak displays 7-12, petals 8-13
+#   raise   0-4    raise_pose 0-6
+#   spin_up 0-30   spin display 0-30
+#   flight  0-7    branches: hit/stick -> stuck | timer(7) -> reel
+#   stuck   0-28   dmg @0 x1, bleed @0 x1
+#   reel    4-24 (bound, L)  branches: arrive -> coin3 | timer(12) -> coin3     hits: reel_hit @exit x1
+#   coin3   0-16   dash @9..15, hit3 @10..19 x10 (note: 19 > 16, lint error: raise `for` or reduce `times`)
+#   worst-case path: coin1(34)+raise(4)+spin_up(30)+flight(7)+stuck(28)+reel(24)+coin3(19) = 146 ticks; best: 34+4+30+7+4+19 = 98

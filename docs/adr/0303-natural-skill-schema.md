@@ -391,6 +391,10 @@ Output laws first, keys last.
 | R9 | Generated point frames (`pt_caster_0_m0p2_1`) become inline `{at, offset: {...}}` on the object; no synthetic frame ids. `like: contact` hit anchors default to the contact point (RC6). |
 | R10 | v1 particle parts map 1:1 to `particle` (count, offset, extra, data, count 0 included). No default sphere, no `vanilla` flag. |
 | R11 | Sprite sizes are written as `size` in blocks from the v1 plan and the sprite file's `px`; no x5, no frame-distance factor. |
+| R14 | **v1 parts map to states**: each v1 timeline group becomes a state (`for` = distance to the next group's `at`, `then` = the next state); `window`+`do` becomes a state with a `hurt` transition; `delay` becomes a state or an `{after}` transition; event handlers (`hit`, `block`, `expire`, `reel`, `arrive`) become transitions with the handler ops as transition `do`/target `enter`. Sequences like coin1 -> raise -> flight -> stuck -> reel -> coin3 become a linear machine plus event transitions. |
+| R15 | **Part extraction**: when the converter finds the same op-subgraph (after frame renaming) in two or more skills (guard windows, dashes, projectile + block handler), it emits it once to `content/skill-parts/*.gen.yaml` and replaces the sites with `use:`. Parameters are the values that differ; none is defaulted: every parameter is `required`. A part that cannot be proven identical is NOT extracted (kept inline; no fuzzy matching). |
+| R17 | The converter emits only the declarative form (`at`/`for`/`every`); it never writes `seq:`. After conversion it runs `expand` and stores the table next to the skill for review. |
+| R16 | **Lint closes the loop**: the converted machine must pass the static checks of 10.4 (the converter fails, not warns, on an unterminated state or an unowned display). |
 | R12 | `end_tick` becomes `for` (section 5); v1 `start_tick` becomes `at`, v1 loops (`every`/`for`) become the same fields on the op, and v1 non-default values such as `fade_power: 1.5` are written explicitly (2.0b). |
 | R13 | **The PROTECTED set is dropped.** Hand edits live in a `kind: Patch` document keyed by `id` (0301 composition); the converter writes only `*.gen.yaml`, so re-conversion never touches hand-written files and nothing needs to be skipped. |
 
@@ -405,6 +409,10 @@ Full examples are in `docs/adr/0303-examples/`:
 - (a) [a-couture-rapier-s2-coin1.yaml](0303-examples/a-couture-rapier-s2-coin1.yaml): coin 1, rewritten from `coin1.yaml`.
 - (b) [b-frost-shard-projectile.yaml](0303-examples/b-frost-shard-projectile.yaml): a simple-shoot projectile skill (`frost-shard`).
 - (c) [c-bastion-greatsword-s1-swing.yaml](0303-examples/c-bastion-greatsword-s1-swing.yaml): a melee sweep with a weapon swing (`bastion-greatsword-s1`).
+- (h) [h-same-effect-two-notations.yaml](0303-examples/h-same-effect-two-notations.yaml): one effect written declaratively and with `seq:`, with the identical expanded table.
+- (e) [e-couture-rapier-def-parry-part.yaml](0303-examples/e-couture-rapier-def-parry-part.yaml): the `parry` part and `couture-rapier-def` calling it with its riposte branch.
+- (f) [f-shoot-with-bounce-and-explosion-parts.yaml](0303-examples/f-shoot-with-bounce-and-explosion-parts.yaml): a shoot skill calling `projectile` (block mode `bounce`) and `explosion` on contact.
+- (g) [g-couture-rapier-s2-states.yaml](0303-examples/g-couture-rapier-s2-states.yaml): the S2 coin sequence as states.
 - (d) [d-shared-timing-and-laws.yaml](0303-examples/d-shared-timing-and-laws.yaml): a sound, a particle and a display sharing one timing block and one law set.
 
 Sizes in the examples are illustrative: the converter computes them from the sprite files; shapes, rates and timings are taken from the current files.
@@ -435,7 +443,197 @@ Sizes in the examples are illustrative: the converter computes them from the spr
 | `fade` default 1.0 (v1 `fade_power` 1.5) | `fade.exponent` identity 1.0, converter writes 1.5 explicitly | n/a |
 | `projectile {block_mode, stick_ticks, restitution, max_bounces, max_ticks}` | `projectile {for, block: {mode, for, restitution, times}}` | n/a (gameplay) |
 | literal-only numbers | any numeric/vector field accepts `"= CEL"` with `t`, `i`, `n`, `rand()`, axes, `caster/target/contact` | n/a |
+| (new) free `wait`/`seq` sequences | `for N, every M` is primary; `seq:` is sugar that desugars to the same ops, equality asserted by lint | n/a |
+| (new) L-expression timing | `bound: [lo, hi]` declared or load error (11) | n/a |
+| v1 part: `sequence` timeline groups, `window`, `delay`, `schedule`, event handlers (`on: hit/block/expire/reel/arrive`) | states with `for`/`then`, transitions, nested parts | n/a |
+| ad hoc repeated blocks copied between skills (a dash, a guard, a projectile with block handling) | `use: <part>` with typed `with:` and `frames:` binding | n/a |
+| `incoming_hit` window `{ticks, filter}` | state `{for, on: [{event: hurt, when}]}` (10.3) | n/a |
+| skill invoking another skill (not possible) | `use: skill:<id>`, ungated unless `gate:` is written | n/a |
 | missing `end_tick` / `lifetime = 1_000_000` | `for` / `until` required, cast registry, sweeper | n/a |
+
+### 9. Composition: parts and skill calls (MythicMobs metaskills, typed)
+
+A **part** is a reusable component in `content/skill-parts/*.yaml` (`kind: Part`). A skill, or another part, calls it with `use:`. It is the
+metaskill idea of MythicMobs, but typed: parameters and events are declared, frames are bound explicitly, and everything is checked at load.
+
+```yaml
+kind: Part
+id: parry
+params:                                   # typed; each is `required: true` or has an identity default written here (2.0b)
+  window:   {type: ticks,  required: true}
+  range:    {type: blocks, required: true}
+  reduction:{type: number, default: 0}          # identity: no damage reduction unless the caller says so
+frames_in:  {weapon: anchor, body: anchor}       # what the caller must bind
+frames_out: {riposte_tip: anchor}                # frames the part publishes to the caller (read-only)
+emits: [parried, whiff, end]                     # the events the caller may react to; `end` is implicit and always emitted
+machine: { ... }                                 # a part IS an automaton (section 10)
+```
+
+```yaml
+- {id: g, use: parry, with: {window: 30, range: 3.5, reduction: "= 0.7"}, frames: {weapon: sword, body: body}, at: 0, for: 40}
+```
+
+**Rules.**
+
+| topic | rule |
+|---|---|
+| Arguments | typed; a missing required argument or a type mismatch is a load error. Any argument may be CEL (3.5); its class (S, T, L) is judged in the CALLER and fixed at the call, so `with: {window: "= 20 + i"}` is evaluated per call. There is no argument with a hidden default (2.0b). |
+| Timing | a call carries the ordinary timing block (2.0): `at`, `for`, `until`, `every`, `times`. Repeating `use:` is a part call per occurrence. |
+| Scope of time | **`t` inside a part is local** (0 at the part's start; `lt` is local to the current state). The caller's clock is `parent.t`, the caster's `cast.t`. `i`, `n` are the part's own occurrence index and count. |
+| Frames | **a part sees ONLY the frames it was given** (`frames:`), plus `caster`, `world`, `contact`/`target` of the current event. No ambient capture of the caller's ids. This is what makes one `parry` look right on any weapon: its visuals are written against `weapon.long`, `weapon.edge`, `weapon.tip` and the bound frame supplies them. A frame binding is by reference (a follow-mode anchor stays live, a snapshot stays frozen), checked against the declared `frames_in` type. |
+| Events | a part's `emits` are visible to the caller as `<call id>.<event>` (`g.parried`) in `on:` transitions (section 10). Everything the part does not emit is invisible to the caller. |
+| Lifetime | **a part ends no later than its caller's `for`/`until` window and no later than its owning state.** Cancelling the caller (cancel, death, disconnect, state exit) cancels every child, depth first, running the children's exit actions and removing their displays. A child emits `end` last. |
+| Depth / recursion | the static call graph (part -> part, skill -> skill) must be **acyclic**: recursion is a load error. Maximum nesting depth 6 (`max_part_depth`, server config). |
+| Determinism | `rand()` inside a part is seeded by (cast id, call path, occurrence index, call-site order), so the same part called twice differs in each call yet replays identically. |
+| Expansion | the structure is **expanded at load time**: the part's states are inlined as a sub-automaton with ids prefixed by the call id (`g/windup`), so there is no runtime lookup and nothing allocates per call except the instance state (current state, timers, `with:` values). Arguments of class S are evaluated at the call; T and L arguments follow section 3.5. The static checks of section 10.4 run on the expanded tree. A call inside a repeating group creates a new instance per occurrence; the number of live instances is bounded by `for`/`times` and checked. |
+| Skill to skill | `use: skill:<id>` calls a whole skill with the same mechanism (it is its machine, with its own params and `emits`). **Cooldown and resource cost do NOT apply to a called skill** unless the caller writes `gate: {cooldown: true, cost: true}` (identity: not gated, written explicitly). A called skill's item requirement is not checked either. |
+| Gameplay vs presentation | a part is both: its gameplay effects (section 10.3) and its displays/sounds/particles are in the same machine. Presentation only parts (a slash arc) simply have no gameplay effects. |
+
+Cost: load-time only for structure (linear in part size per call); runtime cost is the same as writing the ops inline, which the lint prints
+per call (`expand` shows the flattened machine and the writes per tick).
+
+### 10. State machine: every skill and part is an explicit automaton
+
+A skill or part body is a **hierarchical finite automaton** (Harel statechart). `timeline`, `window`, `when`/`if`/`choose`, `until: <event>` and
+`schedule`/`delay` fold into it; there is exactly one way to say "then", "while" and "if this happens".
+
+```yaml
+machine:
+  start: windup
+  states:
+    windup:                              # a state
+      for: 6                             # per-state duration -> implicit timer transition
+      then: active                       # shorthand for on: [{timer: end-of-for, to: active}]
+      enter: [ ... ]                     # entry actions (ops, timing relative to entering; `t` = 0 here)
+      do:    [ ... ]                     # ops that live in this state (full timing block 2.0, relative to state entry)
+      exit:  [ ... ]                     # exit actions, run on EVERY way out (transition, preempt, cancel)
+      on:                                # transitions, first match in list order wins
+        - {event: input.sneak, to: cancelled}
+    active:
+      for: 4
+      on:
+        - {event: hit, when: "= event.victim != caster", to: recovery, do: [{op: damage, ...}]}
+      then: recovery
+    recovery: {for: 12, then: end}
+    cancelled: {final: true}
+    end:      {final: true}
+```
+
+#### 10.1 Elements
+
+| element | meaning |
+|---|---|
+| state | named; has `enter`, `do`, `exit`, `on`, `for`, `then`, optional `final: true`, optional nested `machine:` (sub-automaton) |
+| transition | `{event or timer, when?, to, do?}`; `when` is a pure CEL guard; `do` are the effects run between exit and entry (in order: exit of source, transition `do`, entry of target) |
+| timer | `for: N` + `then:` on a state, or `{after: N, to: ...}` as a transition; `N` may be CEL (class S at state entry) |
+| event | `input.<key>` (use, attack, sneak, swap), `hit` (the caster dealt damage), `hurt` (the caster is struck; was `incoming_hit`), `contact`, `block`, `bounce`, `stick`, `unstick`, `cancel`, `end`, plus any `emits` of a bound part (`<call>.<event>`) and `emit: <name>` ops |
+| entry / exit action | an ordinary op: display, sound, particle, `use`, `damage`, `status`, `impulse`, `resource`, `emit` |
+| owner | every op listed under a state is OWNED by it: displays, ribbons, sounds, parts end when the state is exited (a tighter `for`/`until` of its own may end it earlier). There is no `remove` needed for ownership. A global `world:` list owns things for the whole machine. |
+| final | a state with `final: true`; entering it ends the machine (and emits `end` to the parent) |
+
+**Hits, damage and resources are effects, not free-floating rows**: `damage`, `status`, `impulse`, `knockback`, `heal` and `resource` ops are valid
+only in `enter`, `do`, `exit` or a transition `do`. A skill's `meta.cooldown_ticks` and `resource_cost` are the gate effects of `use` at cast start (not states).
+
+#### 10.2 Hierarchy and event flow (Harel)
+
+- A state may contain a nested `machine:` (or a `use:` call, which is a nested machine). Entering the state enters the child's `start`.
+- **Event propagation, child -> parent**: an event is offered to the innermost active state first; if no transition there matches, it bubbles to the
+  parent state, and so on to the root. A child's `final` state emits `<id>.end` to the parent. A part's declared `emits` are the events that cross the boundary.
+- **Preemption, parent -> child**: a parent transition that leaves the state exits the nested machine first (children's exit actions run, innermost
+  first), so a parent `cancel` kills every child. A child never outlives the state that owns it.
+- **Time**: each active state has its own local clock `lt`; the machine has `t` (since the machine started); a part has `t` local (section 9).
+- **Concurrency**: orthogonal regions are `parallel: [machineA, machineB]` on a state: all regions run, the state ends when all reach `final`
+  (or `until:`). Used for "dash body + trail display", not for gameplay state.
+- Event delivery is per tick, in a fixed order: input, gameplay events (hit, hurt, contact), timers, then guards re-evaluated. At most
+  one transition fires per machine level per tick; the next fires next tick (no instantaneous cascades without a tick, which would loop).
+
+#### 10.3 Old constructs fold into the machine
+
+| old (v1 / 0301) | new |
+|---|---|
+| `timeline: [{at, do}]` | states in sequence: each group is a state with `for` / `then`, or `do` ops with `at` inside one state |
+| `window {listen: incoming_hit, ticks: 30, filter, do}` | state `parry_window` `{for: 30, then: whiff, on: [{event: hurt, when: filter, to: riposte}]}` |
+| `delay {after: 7, do}` | state `riposte {for: 7, exit: [damage]}` or a transition `{after: 7}` |
+| `when: "= cond"` on an op | the op moves to the state where `cond` is meaningful; remaining runtime conditions become transition guards `when:` |
+| `if` / `choose` | sibling transitions with guards in priority order (`on:` list is the choice); the last one without a guard is the else |
+| `until: <event>` | the state's `on: [{event, to: next}]`; the owned ops end on exit |
+| `schedule {after, event}` / `on: reel:` handlers | `{after: N, to: reel}` transition and the `reel` state |
+| `repeat` loops | timing block `every`/`times`/`for` on an op; a loop over states is only legal with a counter guard `when: "= i < n"` or a timer (10.4) |
+| `op: event name:` | `emit: name` as an effect; the receiver is a transition `on: {event: name}` |
+| `on: {hit, block, expire, bounce, arrive}` | transitions on those events; `arrive` is `end` of the `reel` part |
+
+#### 10.4 Static checks at load (content lint)
+
+1. **Reachability**: every state is reachable from `start` (transitions, `then`, nested starts).
+2. **Termination**: every path from `start` reaches a `final` state; a state with no outgoing transition and no `for`/`then` is an error.
+3. **No unbounded loop**: any cycle in the transition graph must contain a transition guarded by a counter or `times` bound, or a state with
+   `for` (a timer); otherwise the load fails.
+4. **Ownership**: every `display`, `ribbon`, `sound` with `every`, looping `particle` and `use` is inside a state (or `world:`), so something owns and ends it; the existing `for`/`until` end rule (5) remains and is checked on top.
+5. **Events**: every `on: {event}` names an event that exists (built-in, a declared `emits`, or an `emit:`), and every `emits` is emitted somewhere.
+6. **Parts**: the call graph is acyclic and shallower than `max_part_depth`; arguments match their declared types; every `frames_in` is bound.
+7. **Effects**: gameplay ops appear only where 10.1 allows; every `damage` is reachable through at least one transition (no dead damage).
+
+#### 10.5 Presentation stays mathematical
+
+States do not change the visual grammar: displays use frames + laws + CEL (sections 1-3, 3.5). A state's visuals are written against bound frames
+(`weapon.tip`, `body`), with `t` / `lt` as the clock; the automaton only decides WHEN a display lives and WHICH set is active.
+
+### 11. Static expansion: the timeline is computed at load (compile-time timeline)
+
+Founder 2026-10-28: behaviour should be readable and calculable at the compile stage. At load, every skill and part, with each of its states,
+is expanded to a **computed timeline table** by evaluating the timing blocks (2.0), the laws' windows and every CEL expression that can be evaluated.
+
+**The table** (per state, and per call of a part, using the expanded tree of section 9):
+
+| column | content |
+|---|---|
+| firings | for each op: the exact tick of every firing relative to state entry (`at + k * every`, k < times / bounded by `for`) and the count |
+| lifetimes | for each display, ribbon, sound, part: start tick, end tick (or the state exit), and the owner state |
+| duration | min and max of the state (`for`, or the bounded window of its event transitions) |
+| hits | number of hit/damage firings per state, and the sum per path |
+| branches | the event transitions as symbolic branch points with a bounded window (below) |
+| writes | the segment count and writes per tick of each display (4) |
+| path length | worst-case (max) and best-case (min) total ticks for every path through the automaton from `start` to a `final` state |
+
+Event-driven transitions (input, hit, contact, parried, hurt) stay symbolic; each is a **branch point with a bounded window**, for example:
+
+```
+state parry_window   ticks 0-8   branches: hurt[range<=3.5] -> riposte | timer(8) -> whiff
+  firings: sfx_guard @0 x1 | guard_plate display 0-8 | resist modify @0 x1
+state riposte        ticks 0-7   (entered from parry_window.hurt at 0..8)  hits: 1 @7
+state whiff          ticks 0-6
+paths: parry_window->riposte->end = 8+7+... min 7 max 15 | parry_window->whiff->end min 14 max 14
+```
+
+**Where it appears**: the `expand` CLI and lint output (`tools/skill-convert expand <skill>`), and the skill-compare page (a table beside each skill's video, so the founder can read durations, hits and branches without playing it). It is generated, never hand-written, and a sim scenario asserts it against the engine's actual firing ticks.
+
+**CEL classes (3.5) at expand time**
+
+| class | expand-time treatment |
+|---|---|
+| S (spawn) | evaluated at expand time wherever its inputs are static (params, `i`, `n`, constants); `rand()` is evaluated with the seeded stream so the table is exactly what a cast produces for the sample seed; the table lists a range when the input is a caster-dependent value |
+| T (time) | evaluated at expand time: sampled and fitted (3.5) so segment counts are exact |
+| L (live) | marked `runtime-only` in the table and **must declare a bound**: `count: {expr: "= live_count", bound: [1, 12]}` or `for: {expr: "= dist(caster, target) / 0.8", bound: [2, 20]}`. The table uses the bound for min/max. |
+
+**An op whose timing depends on an unbounded L value is a load error** (no declared `bound`, or the value falls outside it at runtime: the runtime
+clamps and logs, the lint cannot prove it). This is what lets min and max be computed for every path; and it extends the termination rule of 10.4 (check 8).
+
+#### 11.1 Two notations, one result
+
+- **Primary (recommended): declarative.** `for N, every M`: "for 24 ticks, every 4 ticks, do X". The expanded table follows by arithmetic; there is nothing to simulate, and the author sees the cadence in one line.
+- **Sugar: imperative sequence** `seq: [{wait: 1}, X, {wait: 3}, Y]`, allowed in a state's `do`. It means "at the running offset, fire X; add the `wait`s". It is **only sugar**: the loader turns it into the same declarative ops (`at` per op) before anything else.
+
+Both expand to the **identical table**. A check enforces it: the content lint (and a game-sim scenario) takes every `seq:` and asserts that the declarative form it
+desugars to produces the same table as the `seq:` itself, tick for tick; a mismatch fails the load. Example h shows one effect written both ways with the same expanded table.
+
+**Recommendation for content: the declarative form by default.** Reasons: (1) cadence and extent are readable in one place ("every 4 ticks for 24"), where the imperative form spreads them across `wait`s; (2) edits are local (change `every: 4` to `3`), where an imperative edit changes every later tick; (3) it expands by arithmetic, with no order dependence, so the lint can compare and diff tables; (4) it is what the converter emits and the laws use. Use `seq:` only for a short one-off sequence of distinct beats where each step differs (for example hit-stop, then flash, then sound) and the count is 2-4.
+
+#### 11.2 Static check 8 and what the table also gives
+
+8. **Bounded timing**: every `at`, `for`, `every`, `times`, `until` resolves to a bound at expand time (S/T evaluated, L declared). Unbounded timing is a load error.
+
+The same table also feeds: the writes lint of 3.5, the min/max path lengths used for cooldown and animation-lock sanity checks (a skill whose
+worst-case path exceeds `max_cast_ticks` fails), and the Board's per-item "durations and hits" evidence.
 
 ## Consequences
 
@@ -461,6 +659,9 @@ Sizes in the examples are illustrative: the converter computes them from the spr
 - `astera skill expand` prints every derived vanilla value (scale from size, centre translation, passenger offset, segment table).
 
 ## Alternatives Considered
+
+- **Parts as macros (text substitution)**: rejected; no types, no events, no scoping, and errors surface in the expansion. Typed parts with frame binding give the parry-on-any-weapon property and checkable events.
+- **Skill chaining by `event` only (v1 style)**: rejected; it has no hierarchy, no preemption, no ownership, and every cancel path must be repeated.
 
 - **Keep per-tick keyframes, fix the engine only**: leaves the authoring unreadable (founder rejection), and nothing says what a rate is.
 - **Euler triples with an explicit order flag**: still three coupled numbers; named axes read and compose better; Euler path differs from slerp near
