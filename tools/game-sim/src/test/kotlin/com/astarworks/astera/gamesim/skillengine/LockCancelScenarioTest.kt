@@ -112,6 +112,14 @@ class LockCancelScenarioTest : SkillEngineScenario() {
     }
 
     @Test
+    fun cancelOfAnUnresolvedNameIsANamedLoadError() {
+        // ADR-0303 line 817: an unresolved cancel name is a load error, named after the cancel row and the name
+        val e = reject(skill("- {id: g, at: 4, do: [{id: drop, op: cancel, scope: nothing}]}"))
+        assertThat(e).isInstanceOf(SkillDecodeError.UndefinedReference::class.java)
+        assertThat((e as SkillDecodeError.UndefinedReference).ref).contains("nothing")
+    }
+
+    @Test
     fun cancelDepthFirstRunsExits() {
         val s = compile(
             """
