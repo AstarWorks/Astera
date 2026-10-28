@@ -11,5 +11,5 @@ presentation:
     - {id: fx0, at: 0, do: [{id: snd, op: sound, sound: entity.player.attack.sweep, at: caster, volume: 1.0, pitch: 1.0}, {id: emit, op: emit, at: pt_caster_0_m0p2_1p5, particle: slash-sweep}]}
   "on":
     hit:
-      - {id: snd_2, op: sound, sound: "astera:weapons/blade-hit", at: contact.point, volume: 0.7, pitch: 1.2, when: "= event.source == 'swing'"}
+      - {id: snd_2, op: sound, sound: "astera:weapons/blade-hit", at: enemy, volume: 0.7, pitch: 1.2, when: "= event.source == 'swing'"}
       - {id: emit_2, op: emit, at: pt_enemy_0_1p2_0, particle: hit-spark, when: "= event.source == 'swing'"}

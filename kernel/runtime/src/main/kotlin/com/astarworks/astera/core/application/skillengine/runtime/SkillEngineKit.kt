@@ -28,9 +28,11 @@ import java.util.UUID
 
 /** Every outbound port the cast runner and its executors use; the Paper plugin implements them. */
 public class SkillEngineGateways(
-    public val ports: SkillRuntimePorts,
+    /** Ports of one cast, built for the cast's world (see [CastRunnerDeps.portsIn]). */
+    public val portsIn: (com.astarworks.astera.core.domain.world.WorldId) -> SkillRuntimePorts,
     public val movement: ISkillMovementGateway,
-    public val world: ISkillWorldGateway,
+    /** The block gateway of one world (cached by the kit); a cast edits only the world it started in. */
+    public val worldIn: (com.astarworks.astera.core.domain.world.WorldId) -> ISkillWorldGateway,
     public val casterAnim: ISkillCasterAnimGateway,
     public val screen: ISkillScreenGateway,
     public val cooldowns: ISkillCooldownGateway,
@@ -45,7 +47,7 @@ public class SkillEngineGateways(
  */
 public class SkillEngineKit(
     public val runner: DefaultCastRunner,
-    public val world: SkillWorldEditor,
+    public val world: SkillWorldEditors,
     public val dashes: DashStrikeDriver,
     public val locks: MovementLockDriver,
     public val presentation: PresentationRuntime,
@@ -72,9 +74,9 @@ public class SkillEngineKit(
             maxCastTicks: Int = 1200,
         ): SkillEngineKit {
             val hosts = CastHosts()
-            val dashes = DashStrikeDriver(gateways.ports, gateways.movement, hosts)
+            val dashes = DashStrikeDriver(gateways.movement, hosts)
             val locks = MovementLockDriver(gateways.movement)
-            val editor = SkillWorldEditor(gateways.world)
+            val editor = SkillWorldEditors(gateways.worldIn)
             val presentation = PresentationRuntime(hosts, gateways.casterAnim, gateways.screen, points)
             val registry = DefaultOpExecutorRegistry()
             registerFrameOpExecutors(registry)
@@ -88,7 +90,7 @@ public class SkillEngineKit(
             registry.registerAll(presentationExecutors(presentation))
             val runner = DefaultCastRunner(
                 CastRunnerDeps(
-                    ports = gateways.ports, newTree = newTree, motion = motion, contacts = contacts, exprs = exprs,
+                    portsIn = gateways.portsIn, newTree = newTree, motion = motion, contacts = contacts, exprs = exprs,
                     executors = registry, points = points, hosts = hosts, dashes = dashes, locks = locks, world = editor,
                     presentation = presentation, cooldowns = gateways.cooldowns, items = gateways.items,
                     effects = gateways.effects, skills = skills, isAlly = isAlly, observer = observer, maxCastTicks = maxCastTicks,

@@ -55,20 +55,18 @@ public class PaperSkillGameplayGateway(
 
     private val log = LoggerFactory.getLogger(javaClass)
 
-    override fun damage(caster: UUID, victim: UUID, components: List<SkillDamage>, hitPoint: Vec3) {
-        damage(caster, victim, components, hitPoint, ignoreInvulnerability = false)
-    }
-
     override fun statusStacks(entity: UUID, statusId: String): Int {
-        val id = runCatching { StatusEffectId(statusId) }.getOrNull() ?: return 0
+        val id = runCatching { StatusEffectId(statusId) }.getOrElse {
+            log.warn("skill engine: invalid status id '{}' in a stacks query; reading 0", statusId)
+            return 0
+        }
         return statusContainer.stacks(PlayerId(entity), id)
     }
 
-    override fun damage(caster: UUID, victim: UUID, components: List<SkillDamage>, hitPoint: Vec3, ignoreInvulnerability: Boolean) {
-        damage(ENGINE_SKILL_ID.value, caster, victim, components, hitPoint, ignoreInvulnerability)
-    }
-
-    override fun damage(skillId: String, caster: UUID, victim: UUID, components: List<SkillDamage>, hitPoint: Vec3, ignoreInvulnerability: Boolean) {
+    override fun damage(
+        skillId: String, caster: UUID, victim: UUID, components: List<SkillDamage>, hitPoint: Vec3,
+        ignoreInvulnerability: Boolean, ignoreArmor: Boolean,
+    ) {
         if (components.isEmpty()) return
         val profile = DamageProfile(
             components.map { DamageComponent(base = NumericValue.Literal(it.amount), attribute = attributeOf(it.kind)) },
@@ -78,8 +76,12 @@ public class PaperSkillGameplayGateway(
                 targetId = PlayerId(victim),
                 baseProfile = profile,
                 ignoreInvulnerability = ignoreInvulnerability,
+                ignoreArmor = ignoreArmor,
                 source = DamageSource.Skill(
-                    skillId = runCatching { SkillId(skillId) }.getOrDefault(ENGINE_SKILL_ID),
+                    skillId = runCatching { SkillId(skillId) }.getOrElse {
+                        log.warn("skill engine: '{}' is not a valid skill id; damage is attributed to {}", skillId, ENGINE_SKILL_ID)
+                        ENGINE_SKILL_ID
+                    },
                     casterId = PlayerId(caster),
                     casterPosition = casterPosition(caster) ?: hitPoint,
                 ),
@@ -105,7 +107,10 @@ public class PaperSkillGameplayGateway(
     }
 
     override fun removeStatus(victim: UUID, statusId: String) {
-        val id = runCatching { StatusEffectId(statusId) }.getOrNull() ?: return
+        val id = runCatching { StatusEffectId(statusId) }.getOrElse {
+            log.warn("skill engine: invalid status id '{}'; nothing removed", statusId)
+            return
+        }
         statusContainer.remove(PlayerId(victim), id)
     }
 
@@ -158,9 +163,13 @@ public class PaperSkillGameplayGateway(
                 return
             }
         }
-        val pool = resourcePool() ?: return
+        val pool = resourcePool() ?: run {
+            log.error("skill engine: restore_resource '{}' lost: the resource pool service is not registered", resource)
+            return
+        }
         val whole = amount.toInt()
         if (whole > 0) pool.applyRegen(PlayerId(victim), type, whole)
+        else log.warn("skill engine: restore_resource '{}' amount {} is below one whole point; nothing restored", resource, amount)
     }
 
     override fun impulse(victim: UUID, vector: Vec3) {

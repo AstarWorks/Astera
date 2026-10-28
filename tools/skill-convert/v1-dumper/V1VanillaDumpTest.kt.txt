@@ -1,5 +1,7 @@
 package com.astarworks.astera.gamesim
 
+import com.astarworks.astera.core.application.port.outbound.IEgoGauge
+import com.astarworks.astera.core.application.services.getOrThrow
 import com.astarworks.astera.core.domain.geometry.Vec3
 import org.junit.jupiter.api.Test
 import java.io.File
@@ -33,6 +35,8 @@ class V1VanillaDumpTest {
                     if (item != null) runCatching { caster.holds(item) }
                     val start = sim.scheduler.currentTick()
                     lines += "{\"e\":\"meta\",\"id\":\"$id\",\"item\":\"$item\",\"feetY\":${feet.y},\"start\":$start}"
+                    // an ego skill is gated on a full gauge (ego_cost): charge it first, like V1GameplayDumpTest does
+                    if (id.endsWith("-ego")) runCatching { val g = sim.services.getOrThrow<IEgoGauge>(); g.gain(caster.id, g.config.max) }
                     caster.cast(id)
                     for (i in 0 until ticks) {
                         val p = caster.position

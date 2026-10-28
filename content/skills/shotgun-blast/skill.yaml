@@ -10,8 +10,6 @@ meta:
   cooldown_ticks: 20
   resource_cost: 1
   tags: [ranged, gun, burst]
-frames:
-  - {id: pt_aim_0_0_4, kind: point, parent: aim, offset: [0.0, 0.0, 4.0]}
 gameplay:
   params: {arc_deg: 50.0, range: 6.0, dmg_physical: 25.0, knockback: 0.9}
   expose:
@@ -21,9 +19,9 @@ gameplay:
     - id: t0
       at: 0
       do:
-        - {id: swing, op: hit, frames: [caster], sector: {frame: caster, at: eye, forward: caster.forward, left: caster.left, angle_deg: "${arc_deg}", range: "${range}", height: 2.0}, window: once}
-        - {op: break_area, shape: sphere, radius: 0.5, block_damage: 30, breaks: true, id: chip, at: pt_aim_0_0_4}
+        - {id: swing, op: hit, frames: [caster], sector: {frame: caster, at: eye, forward: caster.forward, left: caster.left, angle_deg: "${arc_deg}", range: "${range}", height: 2.0}, window: once, ticks: 1}
+        - {op: break_area, shape: ray, radius: 0.5, block_damage: 30, breaks: true, length: 4.0, id: chip, at: aim}
   "on":
     hit:
       - {id: dmg, op: damage, target: victim, components: [{kind: physical, amount: "${dmg_physical}"}], when: "= event.source == 'swing'"}
-      - {id: kb, op: knockback, direction: "= normalize(pos(victim) - pos(caster))", strength: "${knockback}", when: "= event.source == 'swing'"}
+      - {id: kb, op: knockback, direction: "= normalize(flat(pos(victim) - pos(caster)))", strength: "${knockback}", when: "= event.source == 'swing'"}

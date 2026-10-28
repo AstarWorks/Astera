@@ -28,7 +28,7 @@ gameplay:
             - {id: raise, op: raise_event, name: dash_fx}
             - {id: sch, op: schedule, after: 9, event: dash_fx9}
     - {id: t21, at: 21, do: [{id: propel, op: propel, direction: "= axis(caster, \"forward\")", strength: "${propel}"}]}
-    - {id: t24, at: 24, do: [{id: sel, op: hit, frames: [caster], sphere: {at: caster, radius: "${radius}"}, max_count: 1, window: once}]}
+    - {id: t24, at: 24, do: [{id: sel, op: hit, frames: [caster], sphere: {at: caster, radius: "${radius}"}, max_count: 1, window: once, ticks: 1}]}
     - id: t37
       at: 37
       do:

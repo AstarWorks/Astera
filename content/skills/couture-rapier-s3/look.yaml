@@ -1548,7 +1548,7 @@ presentation:
           - {t: 3, scale: [1.6, 1.6, 1.0]}
           - {t: 6, scale: [0.2, 0.2, 1.0], alpha: 0.0, ease: in_quad}
         when: "= event.source == 'sel_2'"
-      - {id: snd, op: sound, sound: entity.player.attack.strong, at: contact.point, volume: 0.7, pitch: 1.1, when: "= event.source == 'sel_2'"}
+      - {id: snd, op: sound, sound: entity.player.attack.strong, at: enemy, volume: 0.7, pitch: 1.1, when: "= event.source == 'sel_2'"}
       - {op: block, parent: fx5_couture_shears_remote, block: gray_concrete, size: [1.0, 1.0, 1.0], id: fx5_couture_shears_remote_1_blade_0, when: "= event.source == 'sel_3'"}
       - id: fx5_couture_shears_remote_1_blade_0_trk
         op: track
@@ -2300,7 +2300,7 @@ presentation:
           - {t: 3, scale: [1.6, 1.6, 1.0]}
           - {t: 6, scale: [0.2, 0.2, 1.0], alpha: 0.0, ease: in_quad}
         when: "= event.source == 'sel_4'"
-      - {id: snd_2, op: sound, sound: entity.player.attack.strong, at: contact.point, volume: 0.7, pitch: 1.1, when: "= event.source == 'sel_4'"}
+      - {id: snd_2, op: sound, sound: entity.player.attack.strong, at: enemy, volume: 0.7, pitch: 1.1, when: "= event.source == 'sel_4'"}
       - {op: block, parent: fx9_couture_shears_remote, block: gray_concrete, size: [1.0, 1.0, 1.0], id: fx9_couture_shears_remote_1_blade_0, when: "= event.source == 'sel_5'"}
       - id: fx9_couture_shears_remote_1_blade_0_trk
         op: track
@@ -3052,7 +3052,7 @@ presentation:
           - {t: 3, scale: [1.6, 1.6, 1.0]}
           - {t: 6, scale: [0.2, 0.2, 1.0], alpha: 0.0, ease: in_quad}
         when: "= event.source == 'sel_6'"
-      - {id: snd_3, op: sound, sound: entity.player.attack.strong, at: contact.point, volume: 0.7, pitch: 1.1, when: "= event.source == 'sel_6'"}
+      - {id: snd_3, op: sound, sound: entity.player.attack.strong, at: enemy, volume: 0.7, pitch: 1.1, when: "= event.source == 'sel_6'"}
       - {op: block, parent: fx11_couture_target_rosette, block: pink_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx11_couture_target_rosette_arc_0, when: "= event.source == 'sel_7'"}
       - id: fx11_couture_target_rosette_arc_0_trk
         op: track

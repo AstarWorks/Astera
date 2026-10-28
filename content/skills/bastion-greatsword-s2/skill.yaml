@@ -32,21 +32,21 @@ gameplay:
     - id: t10
       at: 10
       do:
-        - {id: dash, op: dash_strike, distance: "${dash_distance}", ticks: 3, radius: 0.5, hit_once: true, invulnerable: false, stop_on_block: true, follow_pitch: false, stop_before_target: 0.9}
-    - {id: t13, at: 13, do: [{id: sel, op: hit, frames: [caster], sphere: {at: caster, radius: "${radius}"}, window: once}]}
+        - {id: dash, op: dash_strike, distance: "${dash_distance}", ticks: 3, radius: 0.5, hit_once: true, invulnerable: true, stop_on_block: true, follow_pitch: false, stop_before_target: 0.9}
+    - {id: t13, at: 13, do: [{id: sel, op: hit, frames: [caster], sphere: {at: caster, radius: "${radius}"}, window: once, ticks: 1}]}
     - id: t29
       at: 29
       do:
-        - {id: dash_2, op: dash_strike, distance: "${dash_distance_2}", ticks: 3, radius: 0.5, hit_once: true, invulnerable: false, stop_on_block: true, follow_pitch: false, stop_before_target: 0.9}
-    - {id: t32, at: 32, do: [{id: sel_2, op: hit, frames: [caster], sphere: {at: caster, radius: "${radius}"}, window: once}]}
+        - {id: dash_2, op: dash_strike, distance: "${dash_distance_2}", ticks: 3, radius: 0.5, hit_once: true, invulnerable: true, stop_on_block: true, follow_pitch: false, stop_before_target: 0.9}
+    - {id: t32, at: 32, do: [{id: sel_2, op: hit, frames: [caster], sphere: {at: caster, radius: "${radius}"}, window: once, ticks: 1}]}
     - id: t53
       at: 53
       do:
-        - {id: sel_3, op: hit, frames: [caster], sector: {frame: caster, at: eye, forward: caster.forward, left: caster.left, angle_deg: "${arc_deg}", range: "${reach}", height: 2.0}, window: once}
+        - {id: sel_3, op: hit, frames: [caster], sector: {frame: caster, at: eye, forward: caster.forward, left: caster.left, angle_deg: "${arc_deg}", range: "${reach}", height: 2.0}, window: once, ticks: 1}
     - id: t54
       at: 54
       do:
-        - {id: dash_3, op: dash_strike, distance: "${dash_distance_3}", ticks: 3, radius: 0.5, hit_once: true, invulnerable: false, stop_on_block: true, follow_pitch: false, stop_before_target: 0.6}
+        - {id: dash_3, op: dash_strike, distance: "${dash_distance_3}", ticks: 3, radius: 0.5, hit_once: true, invulnerable: true, stop_on_block: true, follow_pitch: false, stop_before_target: 0.6}
   "on":
     hit:
       - id: dmg
@@ -57,7 +57,7 @@ gameplay:
         ignore_invulnerability: true
         when: "= event.source == 'sel'"
       - {id: stop, op: freeze, ticks: 2, scope: [enemy, caster], when: "= event.source == 'sel'"}
-      - {id: kb, op: knockback, direction: "= normalize(pos(victim) - pos(caster)) + vec(0.0, 0.2, 0.0)", strength: "${knockback}", when: "= event.source == 'sel'"}
+      - {id: kb, op: knockback, direction: "= normalize(flat(pos(victim) - pos(caster))) + vec(0.0, 0.2, 0.0)", strength: "${knockback}", when: "= event.source == 'sel'"}
       - id: dmg_2
         op: damage
         components:
@@ -66,7 +66,7 @@ gameplay:
         ignore_invulnerability: true
         when: "= event.source == 'sel_2'"
       - {id: stop_2, op: freeze, ticks: 2, scope: [enemy, caster], when: "= event.source == 'sel_2'"}
-      - {id: kb_2, op: knockback, direction: "= normalize(pos(victim) - pos(caster)) + vec(0.0, 0.2, 0.0)", strength: "${knockback_2}", when: "= event.source == 'sel_2'"}
+      - {id: kb_2, op: knockback, direction: "= normalize(flat(pos(victim) - pos(caster))) + vec(0.0, 0.2, 0.0)", strength: "${knockback_2}", when: "= event.source == 'sel_2'"}
       - id: dmg_3
         op: damage
         components:
@@ -75,4 +75,4 @@ gameplay:
         ignore_invulnerability: true
         when: "= event.source == 'sel_3'"
       - {id: stop_3, op: freeze, ticks: 3, scope: [enemy, caster], when: "= event.source == 'sel_3'"}
-      - {id: kb_3, op: knockback, direction: "= normalize(pos(victim) - pos(caster)) + vec(0.0, 0.2, 0.0)", strength: "${knockback_3}", when: "= event.source == 'sel_3'"}
+      - {id: kb_3, op: knockback, direction: "= normalize(flat(pos(victim) - pos(caster))) + vec(0.0, 0.2, 0.0)", strength: "${knockback_3}", when: "= event.source == 'sel_3'"}

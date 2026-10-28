@@ -23,7 +23,8 @@ public interface ISkillWorldGateway {
     /** [blockKey] is a custom cover block (placed with durability, never reverted by tick). */
     public fun isCoverBlock(blockKey: String): Boolean
 
-    public fun place(cell: BlockCell, blockKey: String)
+    /** Put [blockKey] at [cell]. False when it was not placed (unknown key, no world): the gateway has logged why. */
+    public fun place(cell: BlockCell, blockKey: String): Boolean
 
     public fun remove(cell: BlockCell)
 

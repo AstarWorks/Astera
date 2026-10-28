@@ -11,7 +11,7 @@ gameplay:
     - {id: damage, param: dmg_fire}
     - {id: radius, param: radius}
   timeline:
-    - {id: t0, at: 0, do: [{id: burst, op: hit, frames: [caster], sphere: {at: caster, radius: "${radius}"}, window: once}]}
+    - {id: t0, at: 0, do: [{id: burst, op: hit, frames: [caster], sphere: {at: caster, radius: "${radius}"}, window: once, ticks: 1}]}
   "on":
     hit:
       - {id: dmg, op: damage, target: victim, components: [{kind: fire, amount: "= dmg_fire * (1.0 - 0.5 * dist(pos(caster), pos(victim)) / radius)"}], when: "= event.source == 'burst'"}

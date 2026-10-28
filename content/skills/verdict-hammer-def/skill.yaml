@@ -15,7 +15,13 @@ gameplay:
     - id: t82
       at: 82
       do:
-        - {id: sel, op: hit, frames: [caster], sector: {frame: caster, at: eye, forward: caster.forward, left: caster.left, angle_deg: "${arc_deg}", range: "${reach}", height: 2.0}, max_count: 1, window: once}
+        - id: sel
+          op: hit
+          frames: [caster]
+          sector: {frame: caster, at: eye, forward: caster.forward, left: caster.left, angle_deg: "${arc_deg}", range: "${reach}", height: 2.0}
+          max_count: 1
+          window: once
+          ticks: 1
     - id: t97
       at: 97
       do:
@@ -25,6 +31,7 @@ gameplay:
           sector: {frame: caster, at: eye, forward: caster.forward, left: caster.left, angle_deg: "${arc_deg}", range: "${reach}", height: 2.0}
           max_count: 1
           window: once
+          ticks: 1
     - id: t114
       at: 114
       do:
@@ -38,6 +45,7 @@ gameplay:
           sector: {frame: caster, at: eye, forward: caster.forward, left: caster.left, angle_deg: "${arc_deg_2}", range: "${reach_2}", height: 2.0}
           max_count: 1
           window: once
+          ticks: 1
     - id: t127
       at: 127
       do:
@@ -47,6 +55,7 @@ gameplay:
           sector: {frame: caster, at: eye, forward: caster.forward, left: caster.left, angle_deg: "${arc_deg_2}", range: "${reach_2}", height: 2.0}
           max_count: 1
           window: once
+          ticks: 1
   "on":
     hit:
       - {id: dmg, op: damage, components: [{kind: physical, amount: "${dmg_physical}"}], target: victim, ignore_invulnerability: true, when: "= event.source == 'sel_2'"}

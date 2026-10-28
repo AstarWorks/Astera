@@ -18,17 +18,16 @@ import com.astarworks.astera.core.domain.world.WorldId
  * ([ParticleEmitter.plan]) owns shape, velocity and vanilla type; the burst's `count`, when set, is the number of
  * particles (replaces the definition's count) and its shape faces `dir`, else the caster look.
  *
- * The port carries no world; [worldId] supplies the world of the cast being ticked.
+ * One instance serves ONE world, the casting entity's ([world] is fixed at construction).
  */
 public class PaperSkillParticleGateway(
-    private val world: IWorldGateway,
-    private val worldId: () -> WorldId?,
+    private val gateway: IWorldGateway,
+    private val world: WorldId,
     /** Custom particle lookup (`content/particles/<id>.yaml`); `null` = the id is a vanilla particle key. */
     private val definitions: (String) -> ParticleDefinition? = { null },
 ) : ISkillParticleGateway {
 
     override fun emit(burst: ParticleBurst) {
-        val w = worldId() ?: return
-        for (call in toParticleCalls(burst, definitions)) world.spawnParticle(w, call.at, call.spec)
+        for (call in toParticleCalls(burst, definitions)) gateway.spawnParticle(world, call.at, call.spec)
     }
 }

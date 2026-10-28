@@ -9,6 +9,9 @@ import kotlin.reflect.KClass
 /** What an executor may touch while running one op of one cast. */
 public interface OpContext {
     public val cast: CastId
+
+    /** The world the cast was started in. */
+    public val world: com.astarworks.astera.core.domain.world.WorldId
     public val tree: FrameTree
     public val values: ValueResolver
     public val ports: SkillRuntimePorts

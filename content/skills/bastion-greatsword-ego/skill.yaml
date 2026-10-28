@@ -25,11 +25,17 @@ gameplay:
       do:
         - {id: place_tele, op: place, frame: tele, like: caster}
         - {id: propel, op: propel, direction: "= vec(0.0, 1.0, 0.0)", strength: "${propel}"}
-        - {id: dash, op: dash_strike, distance: "${dash_distance}", ticks: 6, radius: 0.3, hit_once: true, invulnerable: false, stop_on_block: true, follow_pitch: false, stop_before_target: 1.6}
+        - {id: dash, op: dash_strike, distance: "${dash_distance}", ticks: 6, radius: 0.3, hit_once: true, invulnerable: true, stop_on_block: true, follow_pitch: false, stop_before_target: 1.6}
     - id: t31
       at: 31
       do:
-        - {id: sel, op: hit, frames: [caster], sector: {frame: caster, at: eye, forward: caster.forward, left: caster.left, angle_deg: "${arc_deg}", range: "${reach}", height: 2.0}, max_count: 1, window: once}
+        - id: sel
+          op: hit
+          frames: [caster]
+          sector: {frame: caster, at: eye, forward: caster.forward, left: caster.left, angle_deg: "${arc_deg}", range: "${reach}", height: 2.0}
+          max_count: 1
+          window: once
+          ticks: 1
   "on":
     hit:
       - id: dmg
@@ -40,4 +46,4 @@ gameplay:
         ignore_invulnerability: true
         when: "= event.source == 'sel'"
       - {id: stop, op: freeze, ticks: 4, scope: [enemy, caster], when: "= event.source == 'sel'"}
-      - {id: kb, op: knockback, direction: "= normalize(pos(victim) - pos(caster)) + vec(0.0, 0.3, 0.0)", strength: "${knockback}", when: "= event.source == 'sel'"}
+      - {id: kb, op: knockback, direction: "= normalize(flat(pos(victim) - pos(caster))) + vec(0.0, 0.3, 0.0)", strength: "${knockback}", when: "= event.source == 'sel'"}

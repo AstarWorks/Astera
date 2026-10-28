@@ -24,14 +24,19 @@ public class SkillWorldEditor(public val world: ISkillWorldGateway) {
 
     public val pendingReverts: Int get() = edited.size
 
+    /**
+     * Ends one server tick. Tasks due on this tick run first and only then does the clock advance, so `later(1)` queued
+     * while a cast runs fires on the NEXT tick like v1's `runLater(1)` (WorldMechanics.kt:431 ripple, :262-308 strikes);
+     * advancing first collapsed delay 1 into the casting tick.
+     */
     public fun tick() {
-        now++
         while (true) {
-            val head = queue.peek() ?: return
-            if (head.due > now) return
+            val head = queue.peek() ?: break
+            if (head.due > now) break
             queue.poll()
             head.action()
         }
+        now++
     }
 
     /** Run [action] after [delayTicks] (at least 1) server ticks. */

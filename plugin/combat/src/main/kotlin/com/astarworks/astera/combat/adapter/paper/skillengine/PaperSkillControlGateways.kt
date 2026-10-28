@@ -61,8 +61,8 @@ public class PaperSkillCasterAnimGateway(
         val id = CustomAnimationId(anim)
         val player = PlayerId(caster)
         if (registry()?.find(id) != null) {
-            val result = rigs()?.play(player, id)
-            trace("caster_anim play $anim (skin rig) -> ${result ?: "no animator"}")
+            val result = rigs()?.play(player, id, speed)
+            trace("caster_anim play $anim (skin rig, speed $speed) -> ${result ?: "no animator"}")
             return
         }
         val result = poses()?.playCustomAnimation(player, id, ticks.toLong().coerceAtLeast(1))

@@ -20,3 +20,18 @@ The golden pins HEAD as it is. HEAD does not yet equal v1; the open differences 
 (`CONVERT-PRESENT` in `content/skills/*/look.yaml`): skin/body rig, block / quad / text elements, formation / count,
 brightness, orient, `follow: false`, particle animation ring, per-skill rig scale. Closing one of them changes the golden
 on purpose; that diff is the evidence.
+
+## Gameplay parity (what a skill DOES)
+
+The same scheme for gameplay: `GameplayParityScenarioTest` pins, per skill and tick, sounds, damage, knockback, velocity and
+movement of caster and dummy, statuses, block edits, cast phases, cooldown and cost in a fixed scene (caster at the origin,
+dummy 5 blocks ahead, wall 8 blocks ahead) against `tools/game-sim/src/test/resources/gameplay-parity/golden.txt`. This golden is
+only a regression pin of HEAD as of its commit, NOT an agreed target.
+
+- Dump: `ASTERA_GAMEPLAY_DUMP_DIR=<dir>`; accept a change: `ASTERA_GAMEPLAY_GOLDEN_OUT=<abs path>`.
+- v1 reference: `tools/skill-convert/v1-dumper/V1GameplayDumpTest.kt.txt` (add to a `d41b82f1e` worktree) and `run-v1gameplay.sh`.
+- Compare: `python3 tools/skill-convert/gameplay_diff.py <v1-dir> <head-dir> --out gameplay-diff.md` (groups by cause, counts, first
+  divergent tick, worst examples). The HEAD dump runs damage and status through the production `PaperSkillGameplayGateway` over
+  a booted `GameSim` (`CombatLink`), so the 0.4 plain-hit push, ego gain and status timers/expiry come from the same combat use
+  cases as in v1; a skill's own push (Knockback mechanic, explosion) is `kb` via=impulse on both sides (the v1 recorder needs the
+  `sim.pushes` hook in `v1-recorder.patch`). Remaining harness limit: v1 projectiles are entities, HEAD's are frames.

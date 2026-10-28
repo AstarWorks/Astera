@@ -15,8 +15,14 @@ import com.astarworks.astera.core.domain.geometry.math.Quaternion
  * and usable as bare identifiers (`pos(volley)`).
  */
 public interface ExprCompiler {
-    /** Parses and type-checks [source] against [env]. A leading `=` is allowed and ignored. */
-    public fun compile(source: String, env: ExprEnvSpec): Result<CompiledExpr, ExprError>
+    /**
+     * Parses and type-checks [source] against [env]. A leading `=` is allowed and ignored. When [expected] is given the
+     * result type must be assignable to it, otherwise the result is an [ExprError.Type] (nothing is left to fail mid-cast).
+     */
+    public fun compile(source: String, env: ExprEnvSpec, expected: ExprType?): Result<CompiledExpr, ExprError>
+
+    /** [compile] with no expectation on the result type beyond "a value the engine can carry". */
+    public fun compile(source: String, env: ExprEnvSpec): Result<CompiledExpr, ExprError> = compile(source, env, null)
 }
 
 public interface CompiledExpr {
