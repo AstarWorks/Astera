@@ -10,6 +10,8 @@
 
 調査日 2026-10-23。調査メモの原本は調査セッションの scratchpad にあり、リポジトリには入れていない。
 
+CPU sprite の YAML 制作・ノード一覧・プレビュー手順は [sprite graph](../../contributing/vfx-team/sprite-graph.md) (ADR-0304)。
+
 ## 読む順 (skill を作る / 直す前)
 
 1. [`failure-patterns.md`](failure-patterns.md) — 先に「やりがちな失敗」を知る。レビューのチェックリストとして使う。

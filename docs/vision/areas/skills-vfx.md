@@ -9,6 +9,7 @@ Owner track `wp/skills-vfx`. Items: Board prefix `SKL-`. Sources: handoff `limbu
 - **Done = reviewer PASS + founder approval.** The reviewer judges motion match per beat against the reference and the founder's words, never particle counts.
 
 ## 現状
+- ADR-0304: `tools/item-art` は `sprites.yaml` の型付き YAML node graph を CPU float RGBA で描画する。旧 `draw:` 30 件は graph に移植済み（旧レンダラーの全フレームとピクセル差分 0）、sprite 固有 Kotlin painter / `draw:` decoder は削除。PNG 横連番・font・runtime metadata の形式は維持。`sprite-preview` は frames / contact sheet / GIF / ノード中間出力を `build/` に生成する。[制作手順・ノード一覧・3 レシピ](../../contributing/vfx-team/sprite-graph.md)。実クライアントの見た目はこのツール確認では未検証。
 - `make live-view SKILL=<id>` provides a real Java-client browser stream with isolated game audio, Cast/Recast, content reload, caster/side/compare cameras, HUD, PNG snapshots and recent MP4 clips; see `tools/live-view/README.md`. Capture only, one vfx-shot slot for the session lifetime.
 - 85 skills, 211 vfx YAMLs in 10 families (bastion, couture, crimson, edict, ember, gossamer, orrery, sigil, vendetta, verdict). Tools: `make vfx-shot`, `make anim-shot`, skill-lint, skill-compare page.
 - bastion S1 content r1-r26 rejected by the founder ("S1 got worse": near-zero particles, wrong swing/roll, 26 rounds of technical-only checks).
