@@ -7,6 +7,7 @@ import com.astarworks.astera.core.application.skillengine.runtime.player.CastHan
 import com.astarworks.astera.core.application.skillengine.runtime.player.EventBinding
 import com.astarworks.astera.core.application.skillengine.runtime.player.PlayerHooks
 import com.astarworks.astera.core.application.skillengine.runtime.port.ISkillGameplayGateway
+import com.astarworks.astera.core.application.skillengine.runtime.port.VisualHandle
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.skillengine.expr.CompiledExpr
 import com.astarworks.astera.core.domain.skillengine.expr.ExprEnv
@@ -36,12 +37,18 @@ public class PaperPlayerHooks(
     private val scheduler: IScheduler,
     private val gameplay: ISkillGameplayGateway,
     private val live: PaperLiveValueSource,
+    private val visuals: PaperSkillVisualGateway,
 ) : PlayerHooks {
     private val log = LoggerFactory.getLogger(javaClass)
     private val compiler = CelExprCompiler()
     private val compiled = ConcurrentHashMap<String, CompiledExpr?>()
     private val lockKey = NamespacedKey("astera", "skill_move_lock")
     private val moveLocks = ConcurrentHashMap<UUID, Int>()
+
+    override fun setDisplayField(handle: VisualHandle, field: String, value: Double): Boolean = when (field) {
+        "text_opacity" -> visuals.setTextOpacity(handle, value.toInt())
+        else -> false
+    }
 
     override fun guard(cast: CastHandle, guard: Guard, conditions: Map<String, String>, binding: EventBinding?, localTick: Int): Boolean? {
         val request = live.requestOf(cast) ?: return null

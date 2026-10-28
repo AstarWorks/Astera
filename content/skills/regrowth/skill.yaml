@@ -9,11 +9,6 @@ meta:
   cooldown_ticks: 240
   resource_cost: 35
   tags: [magic, earth-family, support, heal]
-# GAP: v2 expose {duration <- regen_ticks, radius <- radius} -> none (no expose spelling for cast skills); literals inlined.
-# GAP: ring point position. v2 `shift` put point i of ring k at (left r*cos a, forward -r*sin a) around the anchor; the v3 particle op has no per-copy position
-#      (resolutions item 13 `Particle.position` not yet decoded). Direction/spread are kept; position is emitted at the anchor.
-# GAP: v2 ring phase draw('shape_ph') (shared random per cast) -> none; phase fixed to 0 (rand() is per (cast, op, i) and would scramble the ring).
-# GAP: area target max_count/include_self are required in v3; v2 had no cap -> max_count 32 is a decision needed (founder/ADR).
 anchors:
   - {id: self,  anchor: caster}
   - {id: feet,  anchor: caster, offset: {up: 0.1}}                    # was pt_caster_0_0p1_0
@@ -26,9 +21,8 @@ machine:
       then: end
       enter:
         - {id: buff, op: status, target: caster, status: regen, stacks: 1, for: 160}   # stacks: 1 assumed
-        # GAP: cleanse (negative_only: true, allies around caster radius 3.0, include_self) -> none (no v3 op); kept verbatim.
-        - {id: cleanse, op: cleanse, negative_only: true, target: {kind: allies, around: self, radius: 3.0, max_count: 32, include_self: true}}
-        - {id: st_regen, op: status, target: {kind: allies, around: self, radius: 3.0, max_count: 32, include_self: false}, status: regen, stacks: 1, for: 160}
+        - {id: cleanse, op: cleanse, negative_only: true, target: {kind: allies, around: self, radius: 3.0, max_count: all, include_self: true}}   # GAP(Q1): v2 had no cap; A=`all`, B=omit
+        - {id: st_regen, op: status, target: {kind: allies, around: self, radius: 3.0, max_count: all, include_self: false}, status: regen, stacks: 1, for: 160}   # GAP(Q1): v2 had no cap; A=`all`, B=omit
         - {id: snd, op: sound, sound: "astera:skills/heal-chime", anchor: caster, volume: 0.5}
         - {id: fx, op: particle_def, def: verdant-heal, anchor: chest}
         - {id: hearts, op: particle, particle: heart, anchor: feet, count: 8, offset: [0.8, 0.8, 0.8], extra: 0}
@@ -39,20 +33,20 @@ machine:
           every: 1
           times: 8                   # ring k = parent.i; radius = 0.4 + parent.i * (2.2 - 0.4) / 7
           do:
-            - {id: pts,  op: particle, particle: happy_villager, anchor: feet, count: 0, offset: "= [cos(6.283185307179586 * i / 16), 0, -sin(6.283185307179586 * i / 16)]", extra: 0.02, times: 16, at: 0}
-            - {id: dust, op: particle, particle: dust, anchor: feet, count: 1, extra: 0, color: "#5ae65a", size: 1.4, times: 16, at: 0}
+            - {id: pts,  op: particle, particle: happy_villager, anchor: feet, count: 0, offset: "= [cos(6.283185307179586 * i / n + 6.283185307179586 * draw('shape_ph')), 0, -sin(6.283185307179586 * i / n + 6.283185307179586 * draw('shape_ph'))]", extra: 0.02, times: 16, at: 0, shift: {left: "= (0.4 + parent.i * 1.8 / 7.0) * cos(6.283185307179586 * i / n + 6.283185307179586 * draw('shape_ph'))", forward: "= -(0.4 + parent.i * 1.8 / 7.0) * sin(6.283185307179586 * i / n + 6.283185307179586 * draw('shape_ph'))"}}
+            - {id: dust, op: particle, particle: dust, anchor: feet, count: 1, extra: 0, color: "#5ae65a", size: 1.4, times: 16, at: 0, shift: {left: "= (0.4 + parent.i * 1.8 / 7.0) * cos(6.283185307179586 * i / n + 6.283185307179586 * draw('shape_ph'))", forward: "= -(0.4 + parent.i * 1.8 / 7.0) * sin(6.283185307179586 * i / n + 6.283185307179586 * draw('shape_ph'))"}}
         - id: ring_b
           at: 0
           every: 1
           times: 14                  # radius = 1.1 - parent.i * 0.4 / 13
           do:
-            - {id: pts,  op: particle, particle: happy_villager, anchor: feet, count: 1, extra: 0, times: 10, at: 0}
-            - {id: dust, op: particle, particle: dust, anchor: feet, count: 1, extra: 0, color: "#8cff78", size: 1.2, times: 10, at: 0}
+            - {id: pts,  op: particle, particle: happy_villager, anchor: feet, count: 1, extra: 0, times: 10, at: 0, shift: {left: "= (1.1 - parent.i * 0.4 / 13.0) * cos(6.283185307179586 * i / n + 6.283185307179586 * draw('shape_ph'))", forward: "= -(1.1 - parent.i * 0.4 / 13.0) * sin(6.283185307179586 * i / n + 6.283185307179586 * draw('shape_ph'))"}}
+            - {id: dust, op: particle, particle: dust, anchor: feet, count: 1, extra: 0, color: "#8cff78", size: 1.2, times: 10, at: 0, shift: {left: "= (1.1 - parent.i * 0.4 / 13.0) * cos(6.283185307179586 * i / n + 6.283185307179586 * draw('shape_ph'))", forward: "= -(1.1 - parent.i * 0.4 / 13.0) * sin(6.283185307179586 * i / n + 6.283185307179586 * draw('shape_ph'))"}}
         - id: ring_c
           at: 6
           every: 1
           times: 14                  # radius = 0.7 + parent.i * 0.4 / 13
           do:
-            - {id: pts,  op: particle, particle: happy_villager, anchor: feet, count: 1, extra: 0, times: 10, at: 0}
-            - {id: dust, op: particle, particle: dust, anchor: feet, count: 1, extra: 0, color: "#8cff78", size: 1.2, times: 10, at: 0}
+            - {id: pts,  op: particle, particle: happy_villager, anchor: feet, count: 1, extra: 0, times: 10, at: 0, shift: {left: "= (0.7 + parent.i * 0.4 / 13.0) * cos(6.283185307179586 * i / n + 6.283185307179586 * draw('shape_ph'))", forward: "= -(0.7 + parent.i * 0.4 / 13.0) * sin(6.283185307179586 * i / n + 6.283185307179586 * draw('shape_ph'))"}}
+            - {id: dust, op: particle, particle: dust, anchor: feet, count: 1, extra: 0, color: "#8cff78", size: 1.2, times: 10, at: 0, shift: {left: "= (0.7 + parent.i * 0.4 / 13.0) * cos(6.283185307179586 * i / n + 6.283185307179586 * draw('shape_ph'))", forward: "= -(0.7 + parent.i * 0.4 / 13.0) * sin(6.283185307179586 * i / n + 6.283185307179586 * draw('shape_ph'))"}}
     end: {final: true}

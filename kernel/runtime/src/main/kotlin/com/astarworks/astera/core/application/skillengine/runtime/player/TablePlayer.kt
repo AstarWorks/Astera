@@ -5,6 +5,7 @@ import com.astarworks.astera.core.application.skillengine.runtime.CastRequest
 import com.astarworks.astera.core.application.skillengine.runtime.ops.DashDriver
 import com.astarworks.astera.core.application.skillengine.runtime.ops.ReelDriver
 import com.astarworks.astera.core.application.skillengine.runtime.port.CastRef
+import com.astarworks.astera.core.application.skillengine.runtime.world.WorldRows
 import com.astarworks.astera.core.application.skillengine.runtime.port.ISkillEntityQuery
 import com.astarworks.astera.core.application.skillengine.runtime.port.ISkillItemGateway
 import com.astarworks.astera.core.application.skillengine.runtime.port.ISkillMovementGateway
@@ -138,13 +139,14 @@ public class TablePlayer(
         val listened = HashSet<EventPath>(skill.table.subTables.keys)
         skill.table.states.forEach { st -> st.branches.forEach { listened += it.event } }
         skill.table.subTables.values.forEach { sub -> sub.branches.forEach { listened += it.event } }
-        runs[handle.value] = Run(cursor, request, states, listened)
+        runs[handle.value] = Run(cursor, request, states, listened, DashDriver(CastRef(handle.value, request.caster, request.world), movement, query))
         lastTick = max(lastTick, request.startTick)
         return Result.Success(handle)
     }
 
     override fun tick(now: Int) {
         lastTick = now
+        world.tick()
         for (run in runs.values.toList()) {
             if (run.finalized || now < run.request.startTick) continue
             tickRun(run, now)
@@ -177,6 +179,8 @@ public class TablePlayer(
         }
         run.pending += run.external.toList().also { run.external.clear() }
         run.inTick = true
+        // 0. caster / frame drivers (dash steps, reel steps, rig poses) of rows that started on earlier ticks
+        driversStep(run, now)
         // 1. state rows (every level), then the later rows of sub-tables pasted on earlier ticks
         for (lvl in run.cursor.levels.toList()) if (lvl in run.cursor.levels) advanceLevel(run, lvl, now)
         for (sc in run.cursor.subCursors.toList()) advanceSub(run, sc, now)
@@ -250,6 +254,7 @@ public class TablePlayer(
     private fun finalize(run: Run, now: Int) {
         if (run.finalized) return
         for (id in run.recs.keys.toList().asReversed()) endInstance(run, id)
+        stopDrivers(run)
         for (l in run.locks.toList()) hooks.unlock(run.request.caster, l.move, l.pitch, l.yaw)
         run.locks.clear()
         run.cursor.subCursors.clear()
@@ -330,6 +335,7 @@ public class TablePlayer(
     // ------------------------------------------------------------------ events
 
     private fun deliverEvent(run: Run, ev: RuntimeEvent, now: Int) {
+        if (!bodyEventLive(run, ev.path)) return
         val binding = EventBinding(ev.path, ev.index, ev.contact, ev.victim)
         val offered = offer(run, ev, binding, now, only = null)
         val sub = run.cursor.skill.table.subTables[ev.path] ?: return
@@ -340,6 +346,21 @@ public class TablePlayer(
         if ((run.firings[ev.path] ?: 0) >= sub.maxFirings) return
         run.firings[ev.path] = (run.firings[ev.path] ?: 0) + 1
         pasteSub(run, ev.path, now, binding, owner = sub.owner, direct = false)
+    }
+
+    /**
+     * R16: a body event that ends the flight (`hit` with `once`, `block` in despawn / stick mode) marks the body ended; an `expire` of an
+     * ended body is dropped, so `expire` fires on range / `for` only and never after a hit or a block despawn.
+     */
+    private fun bodyEventLive(run: Run, path: EventPath): Boolean {
+        val dot = path.value.lastIndexOf('.')
+        if (dot < 0) return true
+        val key = path.value.substring(dot + 1)
+        if (key != "hit" && key != "block" && key != "expire") return true
+        val rec = run.recs.entries.firstOrNull { it.value.kind == SpawnKind.PROJECTILE_BODY && it.key.text == path.value.substring(0, dot) }?.value ?: return true
+        if (key == "expire") return !rec.ended
+        if (key in rec.endsOn) rec.ended = true
+        return true
     }
 
     private class Offered(val handled: Boolean, val pasted: Set<EventPath>)
@@ -431,6 +452,8 @@ public class TablePlayer(
                 }
                 run.pending += RuntimeEvent(EventPath("end"), now, null, null, null)
                 run.finishing = true
+                stopDrivers(run)
+                world.revertAll()
             }
             CancelScope.State -> {
                 // the innermost level exits with CANCEL into its `then`
@@ -443,7 +466,7 @@ public class TablePlayer(
                 if (lvl in run.cursor.levels && lvl.firedTick != now) transition(run, lvl, then, null, ExitReason.CANCEL, now, ctx?.binding)
             }
             is CancelScope.Instance -> {
-                if (scope.id !in run.recs) return
+                if (scope.id !in run.recs && !hasDriver(run, scope.id)) return
                 endInstance(run, scope.id)
                 emit(run, EventPath(scope.id.text + ".end"), now, ctx?.binding)
             }
@@ -454,6 +477,7 @@ public class TablePlayer(
 
     private fun endInstance(run: Run, id: InstanceId) {
         val prefix = id.path
+        endDrivers(run, id)
         val doomed = run.recs.keys.filter { k -> k.path.size >= prefix.size && k.path.subList(0, prefix.size) == prefix }
         for (k in doomed.asReversed()) {
             val rec = run.recs.remove(k) ?: continue
@@ -515,6 +539,7 @@ public class TablePlayer(
                     gameplay.applyStatus(run.request.caster, v, a.status, int(run, a.stacks, ctx), a.forTicks)
                 }
                 is Action.Effect -> effect(run, row, a, ctx, now, src)
+                is Action.World -> WorldRows.execute(world, castRef(run), a, vec(run, a.origin, ctx), vec(run, a.forward, ctx))
                 is Action.Lock -> {
                     val until = when (val end = a.until) {
                         is LockEnd.AtTick -> ctx.base + end.tick
@@ -531,7 +556,7 @@ public class TablePlayer(
                     trace.call(run.cursor.handle, a.callId, now)
                     val c = a.callee
                     if (c is Callee.SkillRef && (c.gateCooldown || c.gateCost)) {
-                        fault(run, now, src, "gated skill call '${c.id}' needs a cooldown / cost gateway (not in TablePlayer's ports)")
+                        items.applyGate(castRef(run), c.id, c.gateCooldown, c.gateCost)
                     }
                 }
                 is Action.Emit -> {
@@ -550,10 +575,22 @@ public class TablePlayer(
         val id = row.instance
         run.recs[id]?.let { endInstance(run, id) }
         val local = PoseV(vec(run, a.pose.position, ctx), quat(run, a.pose.rotation, ctx), vec(run, a.pose.scale, ctx))
-        val rec = Rec(a.kind, a.anchor, a.anchorName, now, ctx.owner, local)
+        // a body's spawn pose is already the origin anchor's WORLD pose (`anchor:<origin>.position`); anchoring it again would count the anchor twice
+        val body = a.kind == SpawnKind.PROJECTILE_BODY
+        val rec = Rec(a.kind, if (body) null else a.anchor, if (body) "" else a.anchorName, now, ctx.owner, local)
         rec.billboard = a.look.fields["billboard"]?.let { runCatching { DisplayBillboard.valueOf(strOf(run, it, ctx).uppercase()) }.getOrNull() } ?: DisplayBillboard.FIXED
         run.recs[id] = rec
-        if (a.kind == SpawnKind.PROJECTILE_BODY) rec.flight = flightOf(run, a.look, local, ctx)
+        if (body) {
+            rec.flight = flightOf(run, a.look, local, ctx)
+            val lf = a.look.fields
+            val mode = lf["block.mode"]?.let { strOf(run, it, ctx) }
+            val stuck = if (mode == "stick") lf["block.for"]?.let { dbl(run, it, ctx).toInt() } ?: 0 else 0
+            lf["end.max"]?.let { rec.expireTick = now + dbl(run, it, ctx).toInt() - stuck }
+            rec.endsOn = buildSet {
+                if (lf["hit.once"]?.let { any(run, it, ctx) } == true) add("hit")
+                if (mode == "despawn" || mode == "stick") add("block")
+            }
+        }
         val world = worldOf(run, rec, local, ctx.binding, now)
         val pose = visualPose(rec, world)
         val cast = castRef(run)
@@ -779,28 +816,35 @@ public class TablePlayer(
                     f["speed.for"]?.let { dbl(run, it, ctx).toInt() } ?: 0,
                     Easing.fromKey(ease) ?: throw IllegalArgumentException("projectile speed.ease '$ease' is not an easing"),
                 )
-            } ?: return null
-        return Flight(Vector3d(velocity).normalize(), speed, Vector3d(local.pos))
+            } ?: ProjectileKinematics.constant(velocity.length()) // speed absent = |velocity| (3.6)
+        val gravity = f["gravity"]?.let { dbl(run, it, ctx) } ?: 0.0
+        val drag = f["drag"]?.let { dbl(run, it, ctx) } ?: 0.0
+        return Flight(Vector3d(velocity).normalize(), speed, Vector3d(local.pos), gravity, drag)
     }
 
     private fun projectileStep(run: Run, now: Int) {
         for ((id, rec) in run.recs.entries.toList()) {
             if (rec.kind != SpawnKind.PROJECTILE_BODY) continue
             rec.flight?.let { fl ->
-                val travelled = ProjectileKinematics.pathLength(fl.speed, (now - rec.spawnTick).toDouble())
                 val cur = rec.localAt(now)
-                rec.moveTo(PoseV(Vector3d(fl.dir).mul(travelled).add(fl.start), cur.rot, cur.scale), now, 0)
+                rec.moveTo(PoseV(fl.at(now - rec.spawnTick), cur.rot, cur.scale), now, 0)
             }
-            val path = EventPath(id.text + ".block")
-            if (path !in run.listened) continue
-            val cur = worldOf(run, rec, rec.localAt(now), null, now).pos
-            val prev = worldOf(run, rec, rec.localAt(now - 1), null, now - 1).pos
-            if (cur.distanceSquared(prev) < 1e-12) continue
-            val b = query.raycastBlock(castRef(run), Vec3(prev.x, prev.y, prev.z), Vec3(cur.x, cur.y, cur.z)) ?: continue
-            run.pending += RuntimeEvent(
-                path, now, id.path.lastOrNull()?.index, ContactInfo(Vector3d(b.point.x, b.point.y, b.point.z), Vector3d(b.normal.x, b.normal.y, b.normal.z)), null,
-            )
+            blockContact(run, id, rec, now)
+            // R16: `expire` is the end by range / `for`, just before `end`; a hit / block end (rec.ended) never expires (checked at delivery)
+            if (rec.expireTick == now) run.pending += RuntimeEvent(EventPath(id.text + ".expire"), now, id.path.lastOrNull()?.index, null, null)
         }
+    }
+
+    private fun blockContact(run: Run, id: InstanceId, rec: Rec, now: Int) {
+        val path = EventPath(id.text + ".block")
+        if (path !in run.listened) return
+        val cur = worldOf(run, rec, rec.localAt(now), null, now).pos
+        val prev = worldOf(run, rec, rec.localAt(now - 1), null, now - 1).pos
+        if (cur.distanceSquared(prev) < 1e-12) return
+        val b = query.raycastBlock(castRef(run), Vec3(prev.x, prev.y, prev.z), Vec3(cur.x, cur.y, cur.z)) ?: return
+        run.pending += RuntimeEvent(
+            path, now, id.path.lastOrNull()?.index, ContactInfo(Vector3d(b.point.x, b.point.y, b.point.z), Vector3d(b.normal.x, b.normal.y, b.normal.z)), null,
+        )
     }
 
     private fun damage(run: Run, row: Row, a: Action.Damage, ctx: RowCtx, now: Int) {
@@ -829,8 +873,14 @@ public class TablePlayer(
         fun v(key: String): Vector3d = any(run, cell(key), ctx) as Vector3d
         val caster = run.request.caster
         when (kind) {
-            "dash", "dash.end", "reel", "reel.stop", "rig" ->
-                fault(run, now, src, "effect '$kind' needs the caster-motion gateway (not in TablePlayer's ports yet; w1b-02i)")
+            "dash" -> dashStart(run, row, p, ctx, now, src)
+            "dash.end" -> run.dash.end(row.instance.text)
+            "reel" -> reelStart(run, row, p, ctx, now, src)
+            "reel.stop" -> {
+                run.reel.stop(row.instance.text)
+                run.reels.remove(row.instance)
+            }
+            "rig" -> rigStart(run, row, p, ctx, now, src)
             "impulse", "knockback" -> {
                 val vv = v("vector")
                 victims.forEach { gameplay.impulse(it, Vec3(vv.x, vv.y, vv.z)) }
@@ -844,6 +894,145 @@ public class TablePlayer(
             }
             else -> fault(run, now, src, "effect '$kind' has no handler in TablePlayer")
         }
+    }
+
+    // ------------------------------------------------------------------ caster / frame drivers (R9, R40)
+
+    private fun bool(run: Run, v: Val<Any>, ctx: RowCtx): Boolean = any(run, v, ctx) as Boolean
+
+    private fun dashStart(run: Run, row: Row, p: Map<String, Val<Any>>, ctx: RowCtx, now: Int, src: String) {
+        fun cell(k: String): Val<Any> = p[k] ?: throw IllegalArgumentException("effect 'dash' needs '$k'")
+        val dir = any(run, cell("direction"), ctx) as Vector3d
+        val params = DashDriver.Params(
+            speed = dbl(run, cell("speed"), ctx),
+            ticks = dbl(run, cell("ticks"), ctx).toInt(),
+            directionLocal = Vec3(dir.x, dir.y, dir.z),
+            ease = strOf(run, cell("ease"), ctx),
+            followPitch = bool(run, cell("follow_pitch"), ctx),
+            stopOnBlock = bool(run, cell("stop_on_block"), ctx),
+            invulnerable = bool(run, cell("invulnerable"), ctx),
+            faceMovement = bool(run, cell("face_movement"), ctx),
+            radius = dbl(run, cell("radius"), ctx),
+            stopBeforeTarget = p["stop_before_target"]?.let { dbl(run, it, ctx) },
+        )
+        run.dash.start(row.instance.text, params)?.let { fault(run, now, src, it) }
+    }
+
+    private fun reelStart(run: Run, row: Row, p: Map<String, Val<Any>>, ctx: RowCtx, now: Int, src: String) {
+        fun cell(k: String): Val<Any> = p[k] ?: throw IllegalArgumentException("effect 'reel' needs '$k'")
+        val frame = any(run, cell("frame"), ctx) as InstanceId
+        val to = any(run, cell("to"), ctx) as InstanceId
+        val rec = run.recs[frame]
+        if (rec == null) {
+            fault(run, now, src, "reel: frame '${frame.text}' is not a live instance")
+            return
+        }
+        if (run.recs[to] == null) {
+            fault(run, now, src, "reel: target '${to.text}' is not a live instance")
+            return
+        }
+        val err = run.reel.start(row.instance.text, dbl(run, cell("speed"), ctx), strOf(run, cell("ease"), ctx))
+        if (err != null) {
+            fault(run, now, src, err)
+            return
+        }
+        rec.flight = null
+        run.reels[row.instance] = ReelRec(frame, to)
+    }
+
+    private fun rigStart(run: Run, row: Row, p: Map<String, Val<Any>>, ctx: RowCtx, now: Int, src: String) {
+        fun cell(k: String): Val<Any> = p[k] ?: throw IllegalArgumentException("effect 'rig' needs '$k'")
+        val parent = any(run, cell("parent"), ctx) as InstanceId
+        if (run.recs[parent] == null) {
+            fault(run, now, src, "rig: parent '${parent.text}' is not a live instance")
+            return
+        }
+        val freezes = any(run, cell("freezes"), ctx) as? List<*>
+        if (!freezes.isNullOrEmpty()) fault(run, now, src, "rig freezes (hit-stop pauses) are not played yet (W2-08 owns the rig pose maths)")
+        val rest = any(run, cell("rest"), ctx) as Vector3d
+        @Suppress("UNCHECKED_CAST")
+        val swing = (any(run, cell("swing"), ctx) as List<Map<String, Any>>).map { m ->
+            RigKey((m["t"] as Number).toInt(), m["rotate"] as? Vector3d, m["ease"]?.toString() ?: "linear")
+        }
+        // `reset` (W2-08): when the rig ends the frame returns to its rest pose. `of` is read by W2-08's display frames, not here.
+        val reset = p["reset"]?.let { bool(run, it, ctx) } ?: false
+        val rig = RigRec(parent, now, Vector3d(rest), swing, reset)
+        run.rigs[row.instance] = rig
+        rigPose(run, rig, now)
+    }
+
+    /** Euler degrees of the rig [t] ticks after it started: `rest` until the first key, then eased between the key rotations. */
+    private fun rigAngles(rig: RigRec, t: Int): Vector3d {
+        var from = Vector3d(rig.rest)
+        var fromT = 0
+        for (k in rig.keys) {
+            val to = k.rotate ?: continue
+            if (t <= k.tick) {
+                val span = (k.tick - fromT).coerceAtLeast(1)
+                val e = Easing.fromKey(k.ease) ?: Easing.fromKey("linear") ?: throw IllegalArgumentException("rig ease '${k.ease}' is not an easing")
+                return Vector3d(from).lerp(to, e.apply((t - fromT).toDouble() / span))
+            }
+            from = Vector3d(to)
+            fromT = k.tick
+        }
+        return from
+    }
+
+    private fun rigPose(run: Run, rig: RigRec, now: Int) {
+        val rec = run.recs[rig.parent] ?: return
+        val a = rigAngles(rig, now - rig.start)
+        val q = Quaterniond().rotationXYZ(Math.toRadians(a.x), Math.toRadians(a.y), Math.toRadians(a.z))
+        val cur = rec.localAt(now)
+        val target = PoseV(Vector3d(cur.pos), q, Vector3d(cur.scale))
+        rec.moveTo(target, now, 0)
+        rec.real?.let { visual.write(it, visualPose(rec, worldOf(run, rec, target, null, now)), 0) }
+    }
+
+    private fun driversStep(run: Run, now: Int) {
+        run.dash.tick()
+        for ((id, reel) in run.reels.entries.toList()) reelStep(run, id, reel, now)
+        for (rig in run.rigs.values.toList()) rigPose(run, rig, now)
+    }
+
+    private fun reelStep(run: Run, id: InstanceId, reel: ReelRec, now: Int) {
+        val frame = run.recs[reel.frame]
+        val to = run.recs[reel.to]
+        if (frame == null || to == null) {
+            run.reel.stop(id.text)
+            run.reels.remove(id)
+            fault(run, now, id.text, "reel: frame '${reel.frame.text}' or target '${reel.to.text}' ended while reeling")
+            return
+        }
+        val here = worldOf(run, frame, frame.localAt(now), null, now).pos
+        val target = worldOf(run, to, to.localAt(now), null, now).pos
+        val st = run.reel.step(id.text, Vec3(here.x, here.y, here.z), Vec3(target.x, target.y, target.z)) ?: return
+        val base = worldOf(run, frame, PoseV(Vector3d(), Quaterniond(), Vector3d(1.0, 1.0, 1.0)), null, now)
+        val local = Vector3d(st.position.x, st.position.y, st.position.z).sub(base.pos).rotate(Quaterniond(base.rot).invert())
+        val cur = frame.localAt(now)
+        val next = PoseV(local, cur.rot, cur.scale)
+        frame.moveTo(next, now, 0)
+        frame.real?.let { visual.write(it, visualPose(frame, worldOf(run, frame, next, null, now)), 0) }
+        if (st.arrived) {
+            run.reels.remove(id)
+            emit(run, EventPath(id.text + ".end"), now, null)
+        }
+    }
+
+    private fun hasDriver(run: Run, id: InstanceId): Boolean =
+        id in run.reels || id in run.rigs || run.dash.isActive(id.text) || run.reel.isActive(id.text)
+
+    private fun endDrivers(run: Run, id: InstanceId) {
+        run.dash.end(id.text)
+        run.reel.stop(id.text)
+        run.reels.remove(id)
+        run.rigs.remove(id)?.let { if (it.reset) rigPose(run, RigRec(it.parent, lastTick, it.rest, emptyList(), false), lastTick) }
+    }
+
+    private fun stopDrivers(run: Run) {
+        run.dash.cancelAll()
+        run.reel.stopAll()
+        run.reels.clear()
+        run.rigs.clear()
     }
 
     // ------------------------------------------------------------------ Val.Live resolution (C4c)
@@ -984,10 +1173,47 @@ public class TablePlayer(
 
     // ------------------------------------------------------------------ state
 
-    /** A projectile body's closed-form flight: [start] + [dir] * the integral of [speed] over the ticks since spawn. */
-    private class Flight(val dir: Vector3d, val speed: ProjectileKinematics.Speed, val start: Vector3d)
+    /**
+     * A projectile body's flight: [start] + [dir] * the integral of [speed] over the ticks since spawn (closed form). With [gravity] / [drag]
+     * (v2 FlyLaw 1:1, `9d4c4a3db:.../motion/FlyLaw.kt`: each tick `v = (v - (0, gravity, 0)) * (1 - drag)`, then the body moves by `v`) the launch
+     * part is damped by `(1 - drag)^k` and the gravity part is stepped tick by tick; both zero keeps the exact closed form.
+     */
+    private class Flight(
+        val dir: Vector3d,
+        val speed: ProjectileKinematics.Speed,
+        val start: Vector3d,
+        val gravity: Double,
+        val drag: Double,
+    ) {
+        private val keep = 1.0 - drag
+        private var k = 0
+        private var prevPath = 0.0
+        private var launchOffset = 0.0
+        private var fallVel = 0.0
+        private var fallOffset = 0.0
+
+        /** The position [ticks] whole ticks after spawn; steps the state forward one tick at a time (called with non-decreasing ticks). */
+        fun at(ticks: Int): Vector3d {
+            if (gravity == 0.0 && drag == 0.0) return Vector3d(dir).mul(ProjectileKinematics.pathLength(speed, ticks.toDouble())).add(start)
+            while (k < ticks) {
+                k++
+                val path = ProjectileKinematics.pathLength(speed, k.toDouble())
+                launchOffset += (path - prevPath) * Math.pow(keep, k.toDouble())
+                prevPath = path
+                fallVel = (fallVel - gravity) * keep
+                fallOffset += fallVel
+            }
+            return Vector3d(dir).mul(launchOffset).add(start).add(0.0, fallOffset, 0.0)
+        }
+    }
 
     private class PoseV(val pos: Vector3d, val rot: Quaterniond, val scale: Vector3d)
+
+    private class ReelRec(val frame: InstanceId, val to: InstanceId)
+
+    private class RigKey(val tick: Int, val rotate: Vector3d?, val ease: String)
+
+    private class RigRec(val parent: InstanceId, val start: Int, val rest: Vector3d, val keys: List<RigKey>, val reset: Boolean)
 
     private class LockRec(val owner: StatePath?, val move: Boolean, val pitch: Boolean, val yaw: Boolean, val untilAbs: Int)
 
@@ -1002,6 +1228,10 @@ public class TablePlayer(
     ) {
         var real: VisualHandle? = null
         var flight: Flight? = null
+        /** R16: the tick the flight ends by range / `for` (-1 none), the body events that end it early, and whether one did. */
+        var expireTick: Int = -1
+        var endsOn: Set<String> = emptySet()
+        var ended: Boolean = false
         var billboard: DisplayBillboard = DisplayBillboard.FIXED
         private var from: PoseV = to
         private var segStart: Int = spawnTick
@@ -1024,7 +1254,13 @@ public class TablePlayer(
         }
     }
 
-    private class Run(val cursor: CastCursor, val request: CastRequest, val states: Map<StatePath, StateTable>, val listened: Set<EventPath>) {
+    private class Run(
+        val cursor: CastCursor, val request: CastRequest, val states: Map<StatePath, StateTable>, val listened: Set<EventPath>,
+        val dash: DashDriver,
+    ) {
+        val reel = ReelDriver()
+        val reels = LinkedHashMap<InstanceId, ReelRec>()
+        val rigs = LinkedHashMap<InstanceId, RigRec>()
         val recs = LinkedHashMap<InstanceId, Rec>()
         val pending = ArrayList<RuntimeEvent>()
         val external = ConcurrentLinkedQueue<RuntimeEvent>()

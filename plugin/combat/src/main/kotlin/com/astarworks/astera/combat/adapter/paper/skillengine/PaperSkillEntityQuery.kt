@@ -2,6 +2,7 @@ package com.astarworks.astera.combat.adapter.paper.skillengine
 
 import com.astarworks.astera.core.application.port.outbound.IStructureTargets
 import com.astarworks.astera.core.application.skillengine.runtime.port.BlockHit
+import com.astarworks.astera.core.application.skillengine.runtime.port.CastRef
 import com.astarworks.astera.core.application.skillengine.runtime.port.EntityRoot
 import com.astarworks.astera.core.application.skillengine.runtime.port.ISkillEntityQuery
 import com.astarworks.astera.core.domain.geometry.Vec3
@@ -24,25 +25,21 @@ import java.util.UUID
  * Hittable = living, valid, not an armor stand / spectator / invulnerable mob (same rule as
  * `PaperNearbyTargetQuery`). Main thread only.
  *
- * One instance serves the world [worldOf] names at call time (the cast being played). A world that is not loaded
+ * The world is [CastRef.world] of each call. A world that is not loaded
  * is an error, never an empty answer.
  */
 public class PaperSkillEntityQuery(
     private val server: Server,
-    /** The world of the cast being played (the platform tracks it; the v3 ports carry no cast context yet). */
-    private val worldOf: () -> WorldId,
     /** Lazy: Match registers the structure targets (Annihilation pillars) after Combat wires. */
     private val structures: () -> IStructureTargets? = { null },
 ) : ISkillEntityQuery {
 
-    private val worldId: WorldId get() = worldOf()
+    private fun worldOf(cast: CastRef): World =
+        server.getWorld(cast.world.value) ?: error("skill engine: world '${cast.world.value}' of the cast is not loaded")
 
-    private val world: World
-        get() = server.getWorld(worldId.value) ?: error("skill engine: world '${worldId.value}' of the cast is not loaded")
-
-    override fun nearby(point: Vec3, radius: Double, excluding: UUID?): List<HitCandidate> {
+    override fun nearby(cast: CastRef, point: Vec3, radius: Double, excluding: UUID?): List<HitCandidate> {
         if (radius <= 0.0) return emptyList()
-        val world = world
+        val world = worldOf(cast)
         val origin = Location(world, point.x, point.y, point.z)
         val out = ArrayList<HitCandidate>()
         for (e in world.getNearbyLivingEntities(origin, radius)) {
@@ -59,7 +56,7 @@ public class PaperSkillEntityQuery(
         }
         // WP10: standing, damageable structures are hit targets too; they travel under their synthetic combat id and
         // take damage through the entity damage gateway (the v1 projectile resolver did the same).
-        structures()?.findInRadius(point, radius + STRUCTURE_REACH, worldId)?.forEach { s ->
+        structures()?.findInRadius(point, radius + STRUCTURE_REACH, cast.world)?.forEach { s ->
             val c = s.position
             out += HitCandidate(
                 entityId = s.id.uuid,
@@ -72,7 +69,7 @@ public class PaperSkillEntityQuery(
         return out
     }
 
-    override fun rootOf(entity: UUID): EntityRoot? {
+    override fun rootOf(cast: CastRef, entity: UUID): EntityRoot? {
         val e = server.getEntity(entity) as? LivingEntity ?: return null
         val loc = e.location
         return EntityRoot(
@@ -84,7 +81,7 @@ public class PaperSkillEntityQuery(
         )
     }
 
-    override fun healthRatio(entity: UUID): Double {
+    override fun healthRatio(cast: CastRef, entity: UUID): Double {
         val e = server.getEntity(entity) ?: error("hp_ratio: entity $entity is not loaded")
         val living = e as? LivingEntity ?: error("hp_ratio: entity $entity is not a living entity")
         val max = living.getAttribute(org.bukkit.attribute.Attribute.MAX_HEALTH)?.value
@@ -93,8 +90,8 @@ public class PaperSkillEntityQuery(
         return (living.health / max).coerceIn(0.0, 1.0)
     }
 
-    override fun raycastBlock(from: Vec3, to: Vec3): BlockHit? {
-        val world = world
+    override fun raycastBlock(cast: CastRef, from: Vec3, to: Vec3): BlockHit? {
+        val world = worldOf(cast)
         val delta = to - from
         val dist = delta.length()
         if (dist < 1.0e-9) return null

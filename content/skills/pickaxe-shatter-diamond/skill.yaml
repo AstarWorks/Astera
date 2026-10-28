@@ -4,7 +4,6 @@ kind: Skill
 id: pickaxe-shatter-diamond
 item: diamond-pickaxe
 meta: {name: {ja: "ダイヤの粉砕", en: "Diamond Shatter"}, description: {ja: "視線の先のブロックを球状に砕く。", en: "Shatters blocks in a sphere where you look."}, cooldown_ticks: 160, resource_cost: 0, tags: [tool, cover]}
-# v2 params: radius 4, block_damage 350, power 3, length 6.0, width 3.0, height 3.0 (all kept as literals on the op).
 anchors:
   - {id: eye,   anchor: caster.eye}                                   # was aim
   - {id: spark, anchor: caster.eye, offset: {forward: 2.0}, mode: snapshot}   # was pt_aim_0_0_2
@@ -18,6 +17,5 @@ machine:
         - {id: snd, op: sound, sound: "astera:weapons/gun-impact-block", anchor: caster, volume: 1.0, pitch: 0.4}
         - {id: fx, op: particle_def, def: hit-spark, anchor: spark}
       do:
-        # GAP: break_area -> none (no v3 op in ADR-0303 10.1b); every v2 field kept, `at: aim` -> `anchor: eye`.
-        - {id: break, op: break_area, shape: sphere, radius: 4, length: 6.0, width: 3.0, height: 3.0, tool_class: PICKAXE, block_damage: 350, power: 3, anchor: eye, at: 0}
+        - {id: break, op: break_area, at: 0, anchor: eye, shape: {sphere: {radius: 4, ahead: 4.0}}, tool: pickaxe, block_damage: 100, ripple: 29, revert: 200, outside_arena: false}
     end: {final: true}

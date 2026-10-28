@@ -262,27 +262,6 @@ public interface ISkillItemGateway {
     public fun applyGate(cast: CastRef, skill: String, cooldown: Boolean, cost: Boolean)
 }
 
-/**
- * World edits (R1-R4). The player evaluates the row's payload and hands it over; WHICH cells exist is world state, so the
- * gateway computes the shape, spreads the cell strikes over `ripple` ticks and keeps the revert ledger. [origin] is the world
- * anchor point, [forward] the look direction of the caster (the gateway snaps it to an axis, v2 `WorldAim`). [args] holds the
- * op's evaluated fields under their YAML names (`tool`, `block_damage`, `ripple`, `revert`, `outside_arena`, `shape`, `block`,
- * `consume`, `power`, `break_blocks`, `fire`, `visual_only`); shapes are nested maps `{sphere: {radius, ahead}}`.
- * Owner: the signature is W1b-02i's, the Paper implementation and the fakes are W2-01's.
- */
-public interface ISkillWorldGateway {
-    public fun breakArea(cast: CastRef, origin: Vec3, forward: Vec3, args: Map<String, Any>)
-
-    public fun placeShape(cast: CastRef, origin: Vec3, forward: Vec3, args: Map<String, Any>)
-
-    public fun explode(cast: CastRef, origin: Vec3, args: Map<String, Any>)
-
-    public fun lightning(cast: CastRef, origin: Vec3, args: Map<String, Any>)
-
-    /** Revert every pending edit of [cast] now (cast cancel); timers live inside the gateway ledger. */
-    public fun revertAll(cast: CastRef)
-}
-
 public interface ISkillVictimAnimGateway {
     public fun play(victim: UUID, anim: String, strength: Double, awayFrom: Vec3)
 }

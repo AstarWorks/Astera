@@ -19,8 +19,7 @@ machine:
       for: 1
       then: end
       enter:
-        # GAP: break_area (block-break profile: line, tool_class, block_damage, power) -> none in v3. Kept verbatim; v2 `at: aim` is `anchor: aim`.
-        - {id: break, op: break_area, shape: line, radius: 2.0, length: 4, width: 3, height: 3, tool_class: PICKAXE, block_damage: 300, power: 1, anchor: aim}
+        - {id: break, op: break_area, at: 0, anchor: aim, shape: {line: {length: 4, width: 3}}, tool: pickaxe, block_damage: 100, ripple: 29, revert: 200, outside_arena: false}
         - {id: snd_bore, op: sound, sound: "astera:weapons/gun-impact-block", anchor: caster, volume: 1.0, pitch: 0.5}
         - {id: fx_bore, op: particle_def, def: hit-spark, anchor: dust}
     end: {final: true}

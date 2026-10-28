@@ -1,5 +1,5 @@
 # v3 draft (wave 2, w2-couture). Hand-ported from the v2 skill.yaml + look.yaml; per-tick values come from the v2 tracks.
-# Each linear run of a v2 track channel is one law (laws sum and hold). Grep "# GAP:" for what v3 cannot spell.
+# Each linear run of a v2 track channel is one law (laws sum and hold).
 apiVersion: astera/v3
 kind: Skill
 id: couture-rapier-ego
@@ -179,16 +179,15 @@ machine:
       for: 73
       then: end
       do:
-        # GAP: v2 hit max_count 1 -> none on op hit (the v2 selector caps victims at 1 per sector)
-        # GAP: v2 sector angle_deg 45 -> deg 45 (full angle assumed, to verify); v2 height 2.0 ported; v2 origin 'eye' and ignore_invulnerability true -> none
-        # GAP: v2 trigger-only selectors (no damage) -> damage {physical: 0} (v3 hit requires damage)
-        - {id: sel, op: hit, at: 18, anchor: caster, targets: enemies, shape: {sector: {deg: "= arc_deg", range: "= reach", height: 2.0}}, window: once, damage: {physical: 0}}
-        - {id: sel_2, op: hit, at: 29, anchor: caster, targets: enemies, shape: {sector: {deg: "= arc_deg", range: "= reach", height: 2.0}}, window: once, damage: {physical: "= dmg_physical"}}
-        - {id: sel_3, op: hit, at: 29, anchor: caster, targets: enemies, shape: {sector: {deg: "= arc_deg", range: "= reach", height: 2.0}}, window: once, damage: {physical: 0}}
-        - {id: sel_4, op: hit, at: 48, anchor: caster, targets: enemies, shape: {sector: {deg: "= arc_deg", range: "= reach", height: 2.0}}, window: once, damage: {physical: 0}}
-        - {id: sel_5, op: hit, at: 59, anchor: caster, targets: enemies, shape: {sector: {deg: "= arc_deg", range: "= reach", height: 2.0}}, window: once, damage: {physical: "= dmg_physical_2"}}
-        - {id: sel_6, op: hit, at: 59, anchor: caster, targets: enemies, shape: {sector: {deg: "= arc_deg", range: "= reach", height: 2.0}}, window: once, damage: {physical: 0}}
-        - {id: sel_7, op: hit, at: 62, anchor: caster, targets: enemies, shape: {sector: {deg: "= arc_deg", range: "= reach", height: 2.0}}, window: once, damage: {physical: 0}}
+        # v2: origin eye, yaw-only forward (R31), sector angle_deg 45 = full opening (R24), ignore_invulnerability true; trigger-only hits omit damage (R24).
+        # GAP(Q1): max_count spelling (required int/`all` vs optional); best-effort `max_count: 1` kept as v2 caps each selector at 1 victim.
+        - {id: sel, op: hit, at: 18, anchor: caster.eye, targets: enemies, max_count: 1, shape: {sector: {deg: "= arc_deg", range: "= reach", height: 2.0, forward: yaw}}, window: once, ignore_invulnerability: true}
+        - {id: sel_2, op: hit, at: 29, anchor: caster.eye, targets: enemies, max_count: 1, shape: {sector: {deg: "= arc_deg", range: "= reach", height: 2.0, forward: yaw}}, window: once, damage: {physical: "= dmg_physical"}, ignore_invulnerability: true}
+        - {id: sel_3, op: hit, at: 29, anchor: caster.eye, targets: enemies, max_count: 1, shape: {sector: {deg: "= arc_deg", range: "= reach", height: 2.0, forward: yaw}}, window: once, ignore_invulnerability: true}
+        - {id: sel_4, op: hit, at: 48, anchor: caster.eye, targets: enemies, max_count: 1, shape: {sector: {deg: "= arc_deg", range: "= reach", height: 2.0, forward: yaw}}, window: once, ignore_invulnerability: true}
+        - {id: sel_5, op: hit, at: 59, anchor: caster.eye, targets: enemies, max_count: 1, shape: {sector: {deg: "= arc_deg", range: "= reach", height: 2.0, forward: yaw}}, window: once, damage: {physical: "= dmg_physical_2"}, ignore_invulnerability: true}
+        - {id: sel_6, op: hit, at: 59, anchor: caster.eye, targets: enemies, max_count: 1, shape: {sector: {deg: "= arc_deg", range: "= reach", height: 2.0, forward: yaw}}, window: once, ignore_invulnerability: true}
+        - {id: sel_7, op: hit, at: 62, anchor: caster.eye, targets: enemies, max_count: 1, shape: {sector: {deg: "= arc_deg", range: "= reach", height: 2.0, forward: yaw}}, window: once, ignore_invulnerability: true}
       on:
         - event: sel.hit
           do:
@@ -197,8 +196,8 @@ machine:
               do:
                 - id: fx2_couture_shears_falling
                   op: frame
-                  anchor: victim.root
-                  # GAP: anchor orient yaw at enemy (victim origin, CASTER yaw) -> victim.root snapshot (victim basis)
+                  anchor: victim
+                  axes: caster
                   mode: snapshot
                   for: 21
                 - id: fx2_couture_shears_falling_1_blade_0
@@ -598,8 +597,8 @@ machine:
                   times: 2
                 - id: fx3_couture_rapier_cross
                   op: frame
-                  anchor: victim.root
-                  # GAP: anchor orient yaw at enemy (victim origin, CASTER yaw) -> victim.root snapshot (victim basis)
+                  anchor: victim
+                  axes: caster
                   mode: snapshot
                   for: 9
                 - id: fx3_couture_rapier_cross_cross_0
@@ -1019,7 +1018,7 @@ machine:
                 - id: snd
                   op: sound
                   sound: entity.player.attack.strong
-                  anchor: victim.root
+                  anchor: contact
                   volume: 0.7
                   pitch: 1.1
         - event: sel_4.hit
@@ -1029,8 +1028,8 @@ machine:
               do:
                 - id: fx4_couture_shears_falling
                   op: frame
-                  anchor: victim.root
-                  # GAP: anchor orient yaw at enemy (victim origin, CASTER yaw) -> victim.root snapshot (victim basis)
+                  anchor: victim
+                  axes: caster
                   mode: snapshot
                   for: 21
                 - id: fx4_couture_shears_falling_1_blade_0
@@ -1430,8 +1429,8 @@ machine:
                   times: 2
                 - id: fx5_couture_rapier_cross
                   op: frame
-                  anchor: victim.root
-                  # GAP: anchor orient yaw at enemy (victim origin, CASTER yaw) -> victim.root snapshot (victim basis)
+                  anchor: victim
+                  axes: caster
                   mode: snapshot
                   for: 9
                 - id: fx5_couture_rapier_cross_cross_0
@@ -1851,7 +1850,7 @@ machine:
                 - id: snd_2
                   op: sound
                   sound: entity.player.attack.strong
-                  anchor: victim.root
+                  anchor: contact
                   volume: 0.7
                   pitch: 1.1
         - event: sel_7.hit
@@ -1861,8 +1860,8 @@ machine:
               do:
                 - id: fx6_couture_target_rosette
                   op: frame
-                  anchor: victim.root
-                  # GAP: anchor orient yaw at enemy (victim origin, CASTER yaw) -> victim.root snapshot (victim basis)
+                  anchor: victim
+                  axes: caster
                   mode: snapshot
                   for: 11
                 - id: fx6_couture_target_rosette_arc_0

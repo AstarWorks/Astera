@@ -1,5 +1,6 @@
 package com.astarworks.astera.core.application.skillengine.compose
 
+import com.astarworks.astera.core.application.skillengine.load.motion.MotionLaw
 import com.astarworks.astera.core.application.skillengine.expr.cel.V3Bindings
 import com.astarworks.astera.core.application.skillengine.load.OpListDecoder
 import com.astarworks.astera.core.application.skillengine.load.SkillCatalogView
@@ -390,7 +391,7 @@ public class SkillCompiler(
         }
 
         override fun laws(anchor: String) = own.laws(anchor)
-        override fun declare(instance: InstanceId, family: Int?, basis: ExprClass) = own.declare(instance, family, basis)
+        override fun declare(instance: InstanceId, family: Int?, basis: ExprClass, laws: List<MotionLaw>) = own.declare(instance, family, basis, laws)
         override fun at(occurrence: Occurrence): AnchorScope = BoundAnchors(own, bound).let { BoundView(own.at(occurrence), bound) }
     }
 
