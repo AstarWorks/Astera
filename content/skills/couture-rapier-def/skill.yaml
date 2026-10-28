@@ -1,9 +1,21 @@
 # Converted from content/skills/couture-rapier-def.yaml by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
 # Generated point-frame offsets are [left, up, forward] in the parent frame.
-# CONVERT-TODO parry: v1 counter (window_ticks=30; on_hit damage + sound + vfx) has no v2 op yet; ported without the parry window.
 apiVersion: "astera/v2"
 kind: Skill
 id: couture-rapier-def
 item: couture-rapier
 meta: {name: {ja: "返し裁ち", en: "Trimming Guard"}, description: {ja: "構えて近距離の攻撃を受けると、一度だけ攻撃者を裁つ。", en: "Trimming Guard"}, cooldown_ticks: 85, resource_cost: 10}
-gameplay: {timeline: [{id: t0, at: 0, do: [{id: attr, op: modify_attribute, attribute: resist.physical, operation: add, amount: 0.7, duration_ticks: 30, target: caster}]}]}
+gameplay:
+  timeline:
+    - id: t0
+      at: 0
+      do:
+        - {id: attr, op: modify_attribute, attribute: resist.physical, operation: add, amount: 0.7, duration_ticks: 30, target: caster}
+        # v1 counter: window 30 ticks, range 3.5, one shot; the hit itself still lands (reduced by the resist above), the riposte follows 7 ticks later.
+        - id: parry
+          op: window
+          listen: incoming_hit
+          ticks: 30
+          filter: "= dist(caster, victim) <= 3.5"
+          do:
+            - {id: riposte, op: delay, after: 7, do: [{id: riposte_dmg, op: damage, target: victim, components: [{kind: physical, amount: 30}], ignore_invulnerability: true, when: "= dist(caster, victim) < 3.5"}]}

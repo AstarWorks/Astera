@@ -36,7 +36,7 @@ private abstract class MovementExecutor<O : MovementOp>(
 }
 
 /** Executors of the movement family; the platform also ticks [DashStrikeDriver] once per server tick. */
-public fun movementExecutors(host: MovementHost, movement: ISkillMovementGateway, dashes: DashStrikeDriver): List<OpExecutor<*>> = listOf(
+public fun movementExecutors(host: MovementHost, movement: ISkillMovementGateway, dashes: DashStrikeDriver, locks: MovementLockDriver): List<OpExecutor<*>> = listOf(
     object : MovementExecutor<MovementOp.Impulse>(MovementOp.Impulse::class, host, movement) {
         override fun execute(op: MovementOp.Impulse, ctx: OpContext) {
             val v = ctx.values.vec3(op.vector)
@@ -86,6 +86,18 @@ public fun movementExecutors(host: MovementHost, movement: ISkillMovementGateway
     object : MovementExecutor<MovementOp.DashStrike>(MovementOp.DashStrike::class, host, movement) {
         override fun execute(op: MovementOp.DashStrike, ctx: OpContext) {
             dashes.start(op, ctx)
+        }
+    },
+    object : MovementExecutor<MovementOp.Lock>(MovementOp.Lock::class, host, movement) {
+        override fun execute(op: MovementOp.Lock, ctx: OpContext) {
+            val speed = ctx.values.num(op.speed).takeIf { it.isFinite() } ?: 0.0
+            val ticks = op.ticks?.let { ctx.values.num(it).toInt() }
+            for (t in living(ctx, op.target)) locks.lock(ctx.cast, t, speed, ticks)
+        }
+    },
+    object : MovementExecutor<MovementOp.Unlock>(MovementOp.Unlock::class, host, movement) {
+        override fun execute(op: MovementOp.Unlock, ctx: OpContext) {
+            for (t in host.targets(ctx, op.target)) locks.unlock(ctx.cast, t)
         }
     },
 )

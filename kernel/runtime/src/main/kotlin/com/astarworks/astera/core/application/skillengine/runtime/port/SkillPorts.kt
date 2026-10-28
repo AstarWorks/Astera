@@ -52,6 +52,13 @@ public data class ParticleBurst(
     val inheritVelocity: Vec3?,
     val colorHex: String?,
     val seed: Long,
+    /**
+     * The op set `offset` or `extra`: spawn a vanilla `spawnParticle` (count, [offset] spread, [extra] speed) instead of
+     * the dir / speed model. Custom particle definitions ignore it.
+     */
+    val vanilla: Boolean = false,
+    val offset: Vec3? = null,
+    val extra: Double = 0.0,
 )
 
 public interface ISkillParticleGateway {
@@ -122,6 +129,9 @@ public interface ISkillEntityQuery {
 
     /** Where blocks stop a moving body: first solid hit on segment [from]->[to], or null. */
     public fun raycastBlock(from: Vec3, to: Vec3): BlockHit?
+
+    /** Health fraction 0..1 of a living entity; 1 when unknown (expression `hp_ratio`). */
+    public fun healthRatio(entity: UUID): Double = 1.0
 }
 
 public data class EntityRoot(val feet: Vec3, val yawDeg: Double, val pitchDeg: Double, val eyeHeight: Double, val height: Double)

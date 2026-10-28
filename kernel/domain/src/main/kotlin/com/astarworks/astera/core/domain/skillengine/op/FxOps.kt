@@ -19,6 +19,11 @@ public sealed interface FxOp : PresentationOp {
         val inheritVelocity: Value<Double>?,
         val color: Value<String>?,
         val seed: String?,
+        /** Blocks between plays along the segment the frame of [at] covered since the last tick (a fast body keeps a continuous trail); null = one play. */
+        val spacing: Value<Double>? = null,
+        /** Vanilla `spawnParticle` offset / extra (v1 particle semantics); setting either one spawns a vanilla particle (count, offset spread, extra speed) instead of the dir / speed model. */
+        val offset: Value<Vec3>? = null,
+        val extra: Value<Double>? = null,
     ) : FxOp
 
     /** Positional sound: `at` is required, there are no unlocated sounds. */
@@ -31,5 +36,10 @@ public sealed interface FxOp : PresentationOp {
         val pitch: Value<Double>?,
         val everyTicks: Int?,
         val untilEvent: String?,
+        /** With [overTicks]: the pitch glides from [pitch] to [pitchTo] over that many ticks (windup rise), then holds. */
+        val pitchTo: Value<Double>? = null,
+        val overTicks: Int? = null,
+        /** Easing key of the glide (v1 `pitch_arc.ease`, e.g. `in_quad`); null = linear. */
+        val pitchEase: String? = null,
     ) : FxOp
 }

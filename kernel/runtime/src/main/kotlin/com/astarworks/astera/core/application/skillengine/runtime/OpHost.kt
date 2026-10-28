@@ -55,6 +55,9 @@ public interface OpHost {
     /** Start another skill as a child cast. The runner enforces chain depth and cycles. */
     public fun castSkill(skillId: String)
 
+    /** Open a [op] window on the caster for [ticks] ticks (see [com.astarworks.astera.core.domain.skillengine.op.ControlOp.Window]). */
+    public fun openWindow(op: com.astarworks.astera.core.domain.skillengine.op.ControlOp.Window, ticks: Int)
+
     public fun addCounter(key: String, delta: Double)
 
     /** Deterministic per-cast random in [0, 1) (seeded from the cast request). */

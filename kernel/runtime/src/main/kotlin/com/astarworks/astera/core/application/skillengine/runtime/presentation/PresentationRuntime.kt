@@ -58,7 +58,11 @@ public class PresentationRuntime(
         }
     }
 
-    internal class SoundTask(val opId: String, val every: Int, val until: String?, var next: Int, val play: () -> Unit)
+    internal class SoundTask(
+        val opId: String, val every: Int, val until: String?, var next: Int, val play: () -> Unit,
+        /** Last play tick (a pitch glide ends there, including a final play exactly on it). */
+        val endTick: Int? = null,
+    )
 
     internal class AnimRun(val owner: java.util.UUID, val anim: String, val until: String?)
 
@@ -150,7 +154,9 @@ public class PresentationRuntime(
                 s.sounds.remove(t.opId)
             } else if (s.tick >= t.next) {
                 t.next = s.tick + t.every
+                if (t.endTick != null) t.next = minOf(t.next, t.endTick)
                 t.play()
+                if (t.endTick != null && s.tick >= t.endTick) s.sounds.remove(t.opId)
             }
         }
     }

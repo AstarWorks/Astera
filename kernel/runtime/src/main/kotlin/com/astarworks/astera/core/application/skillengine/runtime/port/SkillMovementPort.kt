@@ -32,4 +32,14 @@ public interface ISkillMovementGateway {
     public fun grantInvulnerable(entity: UUID, safetyTicks: Int): Boolean
 
     public fun releaseInvulnerable(entity: UUID)
+
+    /**
+     * Hold [entity] in place: walk speed scaled by [speedFactor] (0 = root, jump included); the view stays
+     * free. Idempotent; the last call wins. The driver keeps the strictest of overlapping locks and calls
+     * [unlockMovement] once none remain.
+     */
+    public fun lockMovement(entity: UUID, speedFactor: Double) {}
+
+    /** Restores normal movement. Must be safe to call without a lock. */
+    public fun unlockMovement(entity: UUID) {}
 }

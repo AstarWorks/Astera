@@ -2,6 +2,7 @@ package com.astarworks.astera.core.application.skillengine.runtime
 
 import com.astarworks.astera.core.application.skillengine.load.CompiledSkill
 import com.astarworks.astera.core.application.skillengine.runtime.ops.DashStrikeDriver
+import com.astarworks.astera.core.application.skillengine.runtime.ops.MovementLockDriver
 import com.astarworks.astera.core.application.skillengine.runtime.ops.ISkillWorldEffectGateway
 import com.astarworks.astera.core.application.skillengine.runtime.port.ISkillCooldownGateway
 import com.astarworks.astera.core.application.skillengine.runtime.port.ISkillItemGateway
@@ -42,6 +43,7 @@ public class CastRunnerDeps(
     public val points: ModelPointSource,
     public val hosts: CastHosts,
     public val dashes: DashStrikeDriver,
+    public val locks: MovementLockDriver,
     public val world: SkillWorldEditor,
     public val presentation: PresentationRuntime,
     public val cooldowns: ISkillCooldownGateway,
@@ -60,7 +62,7 @@ public class CastRunnerDeps(
  * handlers call the registered [OpExecutor]s; no op semantics live here. A cast keeps the `CompiledSkill` it
  * started with, so a per-skill reload swaps definitions for the next cast only.
  */
-public class DefaultCastRunner(private val deps: CastRunnerDeps) : CastRunner {
+public class DefaultCastRunner(private val deps: CastRunnerDeps) : CastRunner, IncomingHitHook {
     private val ids = AtomicLong(1)
     private val casts = LinkedHashMap<Long, CastInstance>()
     private val bank = ExprBank(deps.exprs)
@@ -111,7 +113,17 @@ public class DefaultCastRunner(private val deps: CastRunnerDeps) : CastRunner {
             }
         }
         deps.dashes.tick()
+        deps.locks.tick()
         deps.world.tick()
+    }
+
+    @Synchronized
+    override fun intercept(target: UUID, attacker: UUID, amount: Double): Double {
+        var multiplier = 1.0
+        for (cast in casts.values) {
+            if (cast.request.caster == target && cast.request.caster != attacker) multiplier *= cast.interceptIncoming(attacker, amount)
+        }
+        return multiplier
     }
 
     /** Failures reported so far (ops without executor, bad expressions, ...). */

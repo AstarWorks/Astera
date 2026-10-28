@@ -37,6 +37,10 @@ public class PaperSkillParticleGateway(
             return
         }
         val color = burst.colorHex?.let(::color)
+        if (burst.vanilla) {
+            world.spawnParticle(w, burst.at, ParticleSpec(burst.particle, count = burst.count.coerceIn(0, MAX_PER_BURST), offset = burst.offset ?: Vec3.ZERO, extra = burst.extra, color = color))
+            return
+        }
         val rng = Random(burst.seed)
         val axis = burst.dir?.normalize()?.takeIf { it.lengthSquared() > 0.0 }
         val count = burst.count.coerceIn(0, MAX_PER_BURST)

@@ -169,7 +169,7 @@ class MovementOpsScenarioTest {
 
     @Suppress("UNCHECKED_CAST")
     private fun run(e: Env, driver: DashStrikeDriver, op: SkillOp) {
-        val ex = movementExecutors(e.host, e.movement, driver).first { it.opClass.isInstance(op) } as OpExecutor<SkillOp>
+        val ex = movementExecutors(e.host, e.movement, driver, com.astarworks.astera.core.application.skillengine.runtime.ops.MovementLockDriver(e.movement)).first { it.opClass.isInstance(op) } as OpExecutor<SkillOp>
         ex.execute(op, ctxOf(e))
     }
 

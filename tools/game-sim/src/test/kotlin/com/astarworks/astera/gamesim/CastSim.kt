@@ -110,9 +110,15 @@ class CastSim(
     var now = 0
     val dealt = ArrayList<Dealt>()
     val sounds = ArrayList<Pair<Int, String>>()
+    /** Every sound with its pitch: (tick, id, pitch). */
+    val soundPitches = ArrayList<Triple<Int, String, Double>>()
+    /** Movement lock calls on the caster: (tick, speed factor), `null` factor = unlock. */
+    val moveLocks = ArrayList<Pair<Int, Double?>>()
     val removed = ArrayList<Pair<UUID, String>>()
     /** Caster body animation calls in order: tick, verb (play / stop / release), clip, hold ticks. */
     val casterAnims = ArrayList<CasterAnimCall>()
+    /** Statuses applied through the gameplay gateway: (tick, victim, status id). */
+    val statuses = ArrayList<Triple<Int, UUID, String>>()
     val blockStrikes = ArrayList<Triple<Int, Int, String?>>()
 
     private inline fun <reified T> noop(): T = java.lang.reflect.Proxy.newProxyInstance(T::class.java.classLoader, arrayOf(T::class.java)) { _, m, _ ->
@@ -125,6 +131,11 @@ class CastSim(
         }
     } as T
 
+    private val movement = object : ISkillMovementGateway by noop() {
+        override fun lockMovement(entity: UUID, speedFactor: Double) { moveLocks += now to speedFactor }
+        override fun unlockMovement(entity: UUID) { moveLocks += now to null }
+    }
+
     private val gameplay = object : ISkillGameplayGateway by noop() {
         override fun damage(caster: UUID, victim: UUID, components: List<SkillDamage>, hitPoint: Vec3) =
             damage(caster, victim, components, hitPoint, false)
@@ -135,10 +146,13 @@ class CastSim(
         }
         override fun statusStacks(entity: UUID, statusId: String): Int = if (entity == caster) casterStacks[statusId] ?: 0 else 0
         override fun removeStatus(victim: UUID, statusId: String) { removed += victim to statusId }
+        override fun applyStatus(caster: UUID, victim: UUID, statusId: String, stacks: Int, durationTicks: Int) {
+            statuses += Triple(now, victim, statusId)
+        }
     }
 
     private val sound = object : ISkillSoundGateway {
-        override fun play(sound: String, at: Vec3, volume: Double, pitch: Double) { sounds += now to sound }
+        override fun play(sound: String, at: Vec3, volume: Double, pitch: Double) { sounds += now to sound; soundPitches += Triple(now, sound, pitch) }
     }
 
     private val entities = object : ISkillEntityQuery {
@@ -161,7 +175,9 @@ class CastSim(
                 return BlockHit(from + (to - from) * t, Vec3(0.0, 1.0, 0.0), "minecraft:grass_block")
             }
             val z = blockAtZ ?: return null
-            return if (from.z <= z && to.z >= z) BlockHit(Vec3(origin.x, origin.y + 1.0, z), Vec3(0.0, 0.0, -1.0), "minecraft:stone") else null
+            if (from.z > z || to.z < z || from.z == to.z) return null
+            // Exact crossing of the wall plane along the segment (Paper: the face point of the ray trace).
+            return BlockHit(from + (to - from) * ((z - from.z) / (to.z - from.z)), Vec3(0.0, 0.0, -1.0), "minecraft:stone")
         }
     }
 
@@ -185,7 +201,7 @@ class CastSim(
     val kit: SkillEngineKit = SkillEngineKit.build(
         gateways = SkillEngineGateways(
             ports = SkillRuntimePorts(visualGateway ?: noop<ISkillVisualGateway>(), particleGateway ?: noop<ISkillParticleGateway>(), sound, gameplay, entities, noop<ISkillVictimAnimGateway>()),
-            movement = noop<ISkillMovementGateway>(),
+            movement = movement,
             world = world,
             casterAnim = object : ISkillCasterAnimGateway {
                 override fun play(caster: UUID, anim: String, speed: Double, ticks: Int) { casterAnims += CasterAnimCall(now, "play", anim, ticks) }
@@ -200,6 +216,28 @@ class CastSim(
         newTree = c.newTree, motion = c.motion, contacts = c.contacts, exprs = c.exprs, points = c.points,
         skills = catalog::get, observer = farObserver,
     )
+
+    /** Starts [id] at the current tick without ticking; drive it with [step]. */
+    fun start(id: String): CastId {
+        val skill = requireNotNull(catalog.get(id)) { "skill $id not loaded" }
+        val req = CastRequest(skill, caster, origin, yawDeg, 0.0, seed = 7L, startTick = now)
+        return when (val r = kit.runner.start(req)) {
+            is Result.Success -> r.value
+            is Result.Failure -> error("cast did not start: ${r.error}")
+        }
+    }
+
+    /** Ticks the runner until the clock reads [untilTick] (exclusive). */
+    fun step(untilTick: Int) {
+        while (now < untilTick) {
+            kit.runner.tick(now)
+            kit.world.tick()
+            now++
+        }
+    }
+
+    /** A hit of [amount] from [attacker] reaches the caster now; returns the damage multiplier the cast's windows impose. */
+    fun incoming(attacker: UUID, amount: Double): Double = kit.runner.intercept(caster, attacker, amount)
 
     fun cast(id: String, ticks: Int): CastId {
         val skill = requireNotNull(catalog.get(id)) { "skill $id not loaded" }

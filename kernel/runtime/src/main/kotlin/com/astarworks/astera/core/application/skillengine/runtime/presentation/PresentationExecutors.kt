@@ -1,5 +1,8 @@
 package com.astarworks.astera.core.application.skillengine.runtime.presentation
 
+import com.astarworks.astera.core.domain.animation.Easing
+import com.astarworks.astera.core.domain.effect.sound.PitchArc
+import com.astarworks.astera.core.domain.effect.sound.SoundPlanner
 import com.astarworks.astera.core.application.skillengine.runtime.OpContext
 import com.astarworks.astera.core.application.skillengine.runtime.OpExecutor
 import com.astarworks.astera.core.application.skillengine.runtime.port.ParticleBurst
@@ -109,18 +112,31 @@ internal class EmitExecutor(private val rt: PresentationRuntime) : OpExecutor<Fx
         val s = rt.state(ctx)
         val at = rt.pointWorld(s, op.at) ?: return
         val inherit = op.inheritVelocity?.let { ctx.values.num(it) }
-        val burst = ParticleBurst(
-            particle = op.particle,
-            at = at,
-            count = ctx.values.num(op.count).roundToInt().coerceAtLeast(0),
-            dir = op.dir?.let { ctx.values.vec3(it) },
-            spreadDeg = ctx.num(op.spreadDeg, 0.0),
-            speed = ctx.num(op.speed, 0.3),
-            inheritVelocity = inherit?.let { rt.velocityOf(s, op.at.frame) * it },
-            colorHex = op.color?.let { ctx.values.text(it) },
-            seed = ctx.cast.value * 31L + (op.seed ?: op.id).hashCode().toLong(),
-        )
-        ctx.ports.particles.emit(burst)
+        val count = ctx.values.num(op.count).roundToInt().coerceAtLeast(0)
+        val dir = op.dir?.let { ctx.values.vec3(it) }
+        val spreadDeg = ctx.num(op.spreadDeg, 0.0)
+        val speed = ctx.num(op.speed, 0.3)
+        val inheritVelocity = inherit?.let { rt.velocityOf(s, op.at.frame) * it }
+        val colorHex = op.color?.let { ctx.values.text(it) }
+        val seed = ctx.cast.value * 31L + (op.seed ?: op.id).hashCode().toLong()
+        val vanilla = op.extra != null || op.offset != null
+        val offset = op.offset?.let { ctx.values.vec3(it) }
+        val extra = ctx.num(op.extra, 0.0)
+        val spacing = op.spacing?.let { ctx.values.num(it) } ?: 0.0
+        val sweep = if (spacing > 0.0) rt.velocityOf(s, op.at.frame) else Vec3(0.0, 0.0, 0.0)
+        val distance = sweep.length()
+        // One play per `spacing` blocks along the segment covered since the last tick, ending at `at`.
+        val steps = if (distance > spacing && spacing > 0.0) kotlin.math.ceil(distance / spacing).toInt() else 1
+        for (i in 1..steps) {
+            val where = if (steps == 1) at else at - sweep * (1.0 - i.toDouble() / steps)
+            ctx.ports.particles.emit(
+                ParticleBurst(
+                    particle = op.particle, at = where, count = count, dir = dir, spreadDeg = spreadDeg, speed = speed,
+                    inheritVelocity = inheritVelocity, colorHex = colorHex, seed = seed + (i - 1),
+                    vanilla = vanilla, offset = offset, extra = extra,
+                ),
+            )
+        }
     }
 }
 
@@ -131,16 +147,26 @@ internal class SoundExecutor(private val rt: PresentationRuntime) : OpExecutor<F
         val s = rt.state(ctx)
         val until = op.untilEvent
         if (until != null && rt.info.hasRaised(ctx.cast, until)) return
+        val startTick = s.tick
         val play = {
             val at = rt.pointWorld(s, op.at)
             if (at != null) {
-                ctx.ports.sounds.play(op.sound, at, ctx.num(op.volume, 1.0).coerceAtLeast(0.0), ctx.num(op.pitch, 1.0))
+                val from = ctx.num(op.pitch, 1.0)
+                val over = op.overTicks
+                val pitch = if (op.pitchTo != null && over != null && over > 0) {
+                    // v1 PitchArc exactly: eased glide, clamped to the vanilla 0.5..2.0 range.
+                    val ease = op.pitchEase?.let { Easing.fromKey(it) } ?: Easing.LINEAR
+                    SoundPlanner.pitchAt(PitchArc(from, ctx.num(op.pitchTo, from), over, ease), s.tick - startTick)
+                } else from
+                ctx.ports.sounds.play(op.sound, at, ctx.num(op.volume, 1.0).coerceAtLeast(0.0), pitch)
             }
         }
         play()
         val every = op.everyTicks
         if (every != null && every > 0) {
-            s.sounds[op.id] = PresentationRuntime.SoundTask(op.id, every, until, s.tick + every, play)
+            val arcOver = op.overTicks
+            val arcEnd = if (op.pitchTo != null && arcOver != null && arcOver > 0) startTick + arcOver else null
+            s.sounds[op.id] = PresentationRuntime.SoundTask(op.id, every, until, minOf(s.tick + every, arcEnd ?: Int.MAX_VALUE), play, arcEnd)
         }
     }
 }

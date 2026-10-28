@@ -1,6 +1,6 @@
 # Converted from content/skills/frost-rod-sleet.yaml + content/vfx/* by tools/skill-convert/convert.py (v1 archetype: projectile). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
 # Generated point-frame offsets are [left, up, forward] in the parent frame.
-# CONVERT-PRESENT projectile trail shape / scale / offset (emit has none) (x2): point
+# CONVERT-PRESENT projectile trail shape / scale (emit has none) (x1): point
 apiVersion: "astera/v2"
 kind: Skill
 id: frost-rod-sleet
@@ -10,8 +10,8 @@ frames:
 presentation:
   timeline:
     - {id: fx0, at: 0, do: [{id: snd, op: sound, sound: "astera:skill/wand/cast", at: caster, volume: 0.8, pitch: 1.4}, {id: emit, op: emit, at: pt_caster_0_m0p25_0p9, particle: frost-cast, count: 1}]}
-    - {id: rep1, at: 0, every: 1, until: end, do: [{id: trail, op: emit, at: bolt, particle: snowflake, count: 1}]}
-    - {id: rep2, at: 0, every: 1, until: end, do: [{id: trail_2, op: emit, at: bolt, particle: dust, count: 1, color: "#c8ebff"}]}
+    - {id: rep1, at: 0, every: 1, until: end, do: [{id: trail, op: emit, at: bolt, particle: snowflake, count: 1, spacing: 0.4, offset: [0.04, 0.04, 0.04], extra: 0.0}]}
+    - {id: rep2, at: 0, every: 1, until: end, do: [{id: trail_2, op: emit, at: bolt, particle: dust, count: 1, spacing: 0.4, color: "#c8ebff", extra: 0.0}]}
   "on":
     hit:
       - {id: snd_2, op: sound, sound: "astera:skills/frost-impact", at: contact.point, volume: 0.7, pitch: 1.2}

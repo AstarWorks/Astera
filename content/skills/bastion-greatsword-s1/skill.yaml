@@ -1,6 +1,5 @@
 # Converted from content/skills/bastion-greatsword-s1.yaml by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
 # Generated point-frame offsets are [left, up, forward] in the parent frame.
-# CONVERT-TODO condition: v1 distance_less_than(caster, nearby_entities r=3.7) gating the charge status has no v2 form; the status is applied unconditionally.
 apiVersion: "astera/v2"
 kind: Skill
 id: bastion-greatsword-s1
@@ -25,7 +24,7 @@ gameplay:
       at: 7
       do:
         - {id: sel, op: hit, frames: [caster], sphere: {at: caster, radius: "${radius}"}, window: once}
-        - {id: st_charge, op: status, status: charge, duration_ticks: "${charge_ticks}", target: caster, stacks: "${charge_stacks}"}
+        - {id: st_charge, op: status, when: "= nearest_enemy_dist(caster) < 3.6", status: charge, duration_ticks: "${charge_ticks}", target: caster, stacks: "${charge_stacks}"}
     - id: t28
       at: 28
       do:

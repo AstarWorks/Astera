@@ -90,7 +90,7 @@ object SkillRules {
         "ignite", "silence", "modify_attribute", "restore_resource", "impulse", "knockback", "knockup", "set_velocity",
         "propel", "teleport", "leap", "dash_strike", "set_block", "remove_block", "break_area", "place_shape",
         "freeze", "schedule", "event", "cast_skill", "if", "loop", "choose", "weighted_branch", "for_each", "counter",
-        "set_cooldown", "give_item", "consume_item",
+        "set_cooldown", "give_item", "consume_item", "window",
     )
 
     // ---- 3. damage/status/impulse only from a contact; every hit has contact-derived effects -----------------

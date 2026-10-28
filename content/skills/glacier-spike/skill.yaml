@@ -9,19 +9,10 @@ frames:
   - {id: bolt, kind: body, parent: world, inactive: true}
   - {id: pt_caster_eye_0_0_0p5, kind: point, parent: caster.eye, offset: [0.0, 0.0, 0.5]}
 gameplay:
-  params: {launch_speed: 2.2, max_lifetime_ticks: 40, aim_distance: 50.0, dmg_water: 15, sinking_ticks: 60}
+  params: {launch_speed: 2.2, max_lifetime_ticks: 40, dmg_water: 15, sinking_ticks: 60}
   expose:
     - {id: damage, param: dmg_water}
     - {id: flight_speed, param: launch_speed}
   timeline:
-    - id: t0
-      at: 0
-      do:
-        - id: bolt
-          op: projectile
-          body: bolt
-          from: pt_caster_eye_0_0_0p5
-          velocity: "= normalize(aim_point(caster, aim_distance) - pos(pt_caster_eye_0_0_0p5)) * launch_speed"
-          max_ticks: "${max_lifetime_ticks}"
-          radius: 0.3
+    - {id: t0, at: 0, do: [{id: bolt, op: projectile, body: bolt, from: pt_caster_eye_0_0_0p5, velocity: "= look(caster) * launch_speed", max_ticks: "${max_lifetime_ticks}", radius: 0.5}]}
   "on": {hit: [{id: dmg, op: damage, components: [{kind: water, amount: "${dmg_water}"}], target: victim}, {id: st_sinking, op: status, status: sinking, duration_ticks: "${sinking_ticks}", target: victim}]}
