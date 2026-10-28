@@ -343,7 +343,7 @@ public class TablePlayer(
 
     private fun deliverEvent(run: Run, ev: RuntimeEvent, now: Int) {
         if (!bodyEventLive(run, ev.path)) return
-        val binding = EventBinding(ev.path, ev.index, ev.contact, ev.victim)
+        val binding = EventBinding(ev.path, ev.index, ev.contact, ev.victim, ev.attacker)
         val offered = offer(run, ev, binding, now, only = null)
         val sub = run.cursor.skill.table.subTables[ev.path] ?: return
         if (ev.path in offered.pasted) return
@@ -438,7 +438,7 @@ public class TablePlayer(
     }
 
     private fun emit(run: Run, path: EventPath, now: Int, binding: EventBinding?) {
-        run.pending += RuntimeEvent(path, now, binding?.index, binding?.contact, binding?.victim)
+        run.pending += RuntimeEvent(path, now, binding?.index, binding?.contact, binding?.victim, binding?.attacker)
     }
 
     // ------------------------------------------------------------------ cancel
@@ -460,7 +460,7 @@ public class TablePlayer(
                 run.pending += RuntimeEvent(EventPath("end"), now, null, null, null)
                 run.finishing = true
                 stopDrivers(run)
-                world.revertAll()
+                world.revertCast(castRef(run))
             }
             CancelScope.State -> {
                 // the innermost level exits with CANCEL into its `then`
@@ -823,7 +823,6 @@ public class TablePlayer(
                 ({ k -> ResolvedVolume.Box(back(c, k), Vec3(h.x, h.y, h.z), Quaterniond(rot)) })
             }
         }
-        if (a.targets.kind == "allies") throw IllegalArgumentException("hit targets 'allies': no team port in the query (only 'enemies' and 'all' are resolvable)")
         // item 14.7: poses = min(maxSweepSteps, ceil(travel / radius) + 1); the last one is the current tick
         val travel = delta.length()
         val poses = if (travel < 1e-9) 1 else min(config.maxSweepSteps.toDouble(), ceil(travel / max(sweepRadius, 1e-6)) + 1.0).toInt().coerceAtLeast(1)
@@ -844,7 +843,7 @@ public class TablePlayer(
             val cands = query.nearby(castRef(run), vol.broadCenter, vol.broadRadius, caster).filter { it.entityId !in seen }
             for (c in cands) feetOf[c.entityId] = c.feet
             for (ce in resolver.narrow(row.instance.text, now, row.instance.text, vol, Vec3(delta.x, delta.y, delta.z), cands)) {
-                if (blocked(ce.victim)) continue
+                if (blocked(ce.victim) || !targetKindOk(run, a.targets.kind, ce.victim)) continue
                 seen.putIfAbsent(ce.victim, ce.pointWorld to ce.normalWorld)
             }
         }
@@ -942,18 +941,14 @@ public class TablePlayer(
         val path = EventPath(id.text + ".hit")
         if (path !in run.listened && path !in run.cursor.skill.table.subTables) return
         if (rec.hitTargets == "blocks_only") return
-        if (rec.hitTargets != "enemies" && rec.hitTargets != "all") {
-            fault(run, now, id.text, "projectile hit.targets '${rec.hitTargets}': no team port in the query (only enemies / all)")
-            rec.hitTimes = 0
-            return
-        }
         val cur = worldOf(run, rec, rec.localAt(now), null, now).pos
         val prev = worldOf(run, rec, rec.localAt(now - 1), null, now - 1).pos
         val delta = Vec3(cur.x - prev.x, cur.y - prev.y, cur.z - prev.z)
         val start = Vec3(prev.x, prev.y, prev.z)
         val raw = ArrayList<ContactEvent>()
         fun test(vol: ResolvedVolume, velocity: Vec3) {
-            val cands = query.nearby(castRef(run), vol.broadCenter, vol.broadRadius, run.request.caster).filter { it.entityId !in rec.hitVictims }
+            val cands = query.nearby(castRef(run), vol.broadCenter, vol.broadRadius, run.request.caster)
+                .filter { it.entityId !in rec.hitVictims && targetKindOk(run, rec.hitTargets, it.entityId) }
             raw += resolver.narrow(id.text, now, id.text, vol, velocity, cands)
         }
         if (rec.shapeFrames.isEmpty()) test(ResolvedVolume.Capsule(start, Vec3(cur.x, cur.y, cur.z), rec.hitRadius), delta)
@@ -1320,18 +1315,26 @@ public class TablePlayer(
 
     private fun liveTargets(run: Run, rule: TargetRule, ctx: RowCtx): List<UUID> = when {
         rule is TargetRule.Entity && rule.ref == "caster" -> listOf(run.request.caster)
-        // a `.hit` event of this cast is always the caster hitting
-        rule is TargetRule.Entity && rule.ref == "event.attacker" -> listOf(run.request.caster)
+        // a `.hit` event of this cast carries no attacker: it is always the caster hitting
+        rule is TargetRule.Entity && rule.ref == "event.attacker" -> listOf(ctx.binding?.attacker ?: run.request.caster)
         rule is TargetRule.Area -> areaTargets(run, rule, ctx)
         else -> live.targets(run.cursor.handle, rule, ctx.binding).entities.map { it.id }
     }
 
+    /** `enemies` keeps non-allies, `allies` keeps allies, `all` keeps everyone (the caster is excluded by the query unless the rule includes it). */
+    private fun targetKindOk(run: Run, kind: String, entity: UUID): Boolean = when (kind) {
+        "enemies" -> !query.isAlly(castRef(run), run.request.caster, entity)
+        "allies" -> entity == run.request.caster || query.isAlly(castRef(run), run.request.caster, entity)
+        "all", "blocks_only" -> true
+        else -> throw IllegalArgumentException("target kind '$kind' is not enemies, allies or all")
+    }
+
     private fun areaTargets(run: Run, rule: TargetRule.Area, ctx: RowCtx): List<UUID> {
-        if (rule.kind != "enemies") throw IllegalArgumentException("area target kind '${rule.kind}': only 'enemies' is resolvable (no team port in the query)")
         val c = rule.around?.let { id -> run.recs[id]?.let { worldOf(run, it, it.localAt(lastTick), ctx.binding, lastTick).pos } }
             ?: liveVec(run, rule.aroundName, ctx)
         val center = Vec3(c.x, c.y, c.z)
         val found = query.nearby(castRef(run), center, num(run, rule.radius, ctx), if (rule.includeSelf) null else run.request.caster)
+            .filter { targetKindOk(run, rule.kind, it.entityId) }
             .sortedWith(compareBy({ it.feet.distance(center) }, { it.entityId }))
         val limited = rule.maxCount?.let { found.take(it) } ?: found
         return limited.map { it.entityId }
