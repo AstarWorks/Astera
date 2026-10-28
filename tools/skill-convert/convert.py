@@ -1068,6 +1068,16 @@ class Conv:
         if rot and any(abs(float(V(rot.get(a, 0.0)))) > 1e-9 for a in ("x", "y", "z")):
             self.present("spawn_display transform.rotation", short(rot, 60))
         argb = int(V(kind.get("background_argb", 0x40000000))) & 0xFFFFFFFF
+        if parent != "world":
+            # v1 resolves the location once when the mechanic runs (targeters.resolveLocations, WorldMechanics.kt:471) and spawns
+            # the display at that fixed Location; it never follows the entity afterwards. The v2 text op rides a frame, so it rides
+            # a world-parented copy of the resolved frame placed at this tick (same mechanism as vfx snapshot_pose).
+            snap = self.oid("dispsnap")
+            self.look_frames[snap] = {"id": snap, "kind": "body", "parent": "world"}
+            self.p(where, delay, self._w({"id": self.oid("place_" + snap), "op": "place", "frame": snap, "like": parent}, when))
+            parent = snap
+            if face.get("plane"):
+                face["plane"]["frame"] = snap
         eid = self.oid("display")
         op = {"id": eid, "op": "text", "parent": parent, "face": face, "size": size, "text_by_locale": by_locale}
         if "translation" in tr:
