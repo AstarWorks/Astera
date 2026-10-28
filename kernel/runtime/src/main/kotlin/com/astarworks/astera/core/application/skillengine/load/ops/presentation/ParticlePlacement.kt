@@ -60,6 +60,8 @@ internal object ParticlePlacement {
         return Result.Success(null)
     }
 
+    private fun parts0(name: String) = AnchorNames.split(name)
+
     /** A position without a per-call displacement: the bare live name, or the anchor's own displacement / point as one `= expr` cell. */
     fun position(lc: LowerContext, name: String, op: String): Result<Val<Vector3d>, SkillDecodeError> {
         val b = when (val r = base(lc, name, op)) {
@@ -67,7 +69,7 @@ internal object ParticlePlacement {
             is Result.Success -> r.value ?: return Result.Failure(SkillDecodeError.Invalid(lc.skillId, lc.src.value, "$op: anchor '$name' is not declared in this scope"))
         }
         if (b.terms.isEmpty() && b.frame == b.live) return Result.Success(Val.Live(b.live, null))
-        if (b.terms.isEmpty() && lc.anchors.resolve(name) != null) return Result.Success(Val.Live(b.live, null))
+        if (b.terms.isEmpty() && b.frame == parts0(name)?.base && lc.anchors.resolve(name) != null) return Result.Success(Val.Live(b.live, null))
         val source = OccurrenceBake.bake((listOf("pos(${b.frame})") + b.terms).joinToString(" + "), lc.occurrence)
         return Result.Success(Val.Live("= $source", null))
     }

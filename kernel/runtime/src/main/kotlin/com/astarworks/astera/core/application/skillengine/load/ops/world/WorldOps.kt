@@ -2,10 +2,12 @@ package com.astarworks.astera.core.application.skillengine.load.ops.world
 
 import com.astarworks.astera.core.application.skillengine.compose.LowerContext
 import com.astarworks.astera.core.application.skillengine.load.SkillDecodeError
+import com.astarworks.astera.core.application.skillengine.load.grammar.AnchorRef
 import com.astarworks.astera.core.application.skillengine.load.grammar.Field
 import com.astarworks.astera.core.application.skillengine.load.grammar.FieldType
 import com.astarworks.astera.core.application.skillengine.load.grammar.Fields
 import com.astarworks.astera.core.application.skillengine.load.grammar.GrammarContext
+import com.astarworks.astera.core.application.skillengine.load.ops.presentation.ParticlePlacement
 import com.astarworks.astera.core.application.skillengine.load.spec.Lowered
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.skillengine.table.Action
@@ -21,9 +23,6 @@ import com.astarworks.astera.core.domain.skillengine.math.Vector3d
  * Every number is a literal: the table row is static, the gateway decides what happens in the world.
  */
 internal object WorldOps {
-    /** Live names that need no declaration, read from the caster / event at play time. */
-    private val BUILTIN_ROOTS = setOf("caster", "contact", "target", "victim", "attacker", "aim", "cast", "world")
-
     fun intIn(min: Int, max: Int): FieldType<Int> = object : FieldType<Int> {
         override val label = "integer $min..$max"
         override fun decode(raw: Any?, ctx: GrammarContext, path: String): Int {
@@ -76,7 +75,8 @@ internal object WorldOps {
     private val sphere = Fields.of("shape.sphere", sphereRadius, sphereAhead)
     private val lineLength = Field.required("length", positive("number > 0"), "blocks along the look")
     private val lineWidth = Field.required("width", positive("number > 0"), "diameter of the ball filled at each 0.5-block step")
-    private val line = Fields.of("shape.line", lineLength, lineWidth)
+    private val lineHeight = Field.optional("height", size, 1, "accepted for v2 parity and unused: a line is a ball of `width` swept along the look (v2 ignored it too)")
+    private val line = Fields.of("shape.line", lineLength, lineWidth, lineHeight)
     private val boxWidth = Field.required("width", size, "blocks, centred on the caster")
     private val boxHeight = Field.required("height", size, "blocks up from the feet")
     private val boxLength = Field.required("length", size, "blocks ahead")
@@ -140,20 +140,25 @@ internal object WorldOps {
         return (e.key as? String ?: ctx.mismatch(path, label, raw)) to e.value
     }
 
-    /** Position of the op: a declared anchor (its instance), or a caster / event point the player reads live. */
-    fun position(name: String, lc: LowerContext): Result<Val<Vector3d>, SkillDecodeError> {
-        lc.anchors.resolve(name)?.let { return Result.Success(Val.Live<Vector3d>(it.instance.text, null)) }
-        if (name.substringBefore('.') in BUILTIN_ROOTS) return Result.Success(Val.Live<Vector3d>(name, null))
-        return Result.Failure(SkillDecodeError.UndefinedReference(lc.skillId, lc.src.value, name))
+    /**
+     * Position of the op: a declared anchor (its instance), a document anchor, or a caster / event point the player reads live, optionally displaced
+     * (`{of: caster.eye, offset: {forward: 4}}`, the same anchor grammar as sound / particle).
+     */
+    fun position(anchor: AnchorRef, lc: LowerContext): Result<Val<Vector3d>, SkillDecodeError> {
+        if (anchor.sweep != null) return Result.Failure(SkillDecodeError.Invalid(lc.skillId, lc.src.value, "a world op has no sweep (it acts once)"))
+        return when (val placed = ParticlePlacement.place("world op", lc, anchor, null)) {
+            is Result.Failure -> placed
+            is Result.Success -> Result.Success(placed.value.position)
+        }
     }
 
-    /** One `Action.World` row at this occurrence's own tick; shapes face where the caster looks. */
-    fun lower(op: OpId, anchor: String, payload: Map<String, Val<Any>>, lc: LowerContext): Result<Lowered, SkillDecodeError> =
+    /** One `Action.World` row at this occurrence's own tick; shapes face the caster's horizontal heading (v2: the yaw-only caster frame). */
+    fun lower(op: OpId, anchor: AnchorRef, payload: Map<String, Val<Any>>, lc: LowerContext): Result<Lowered, SkillDecodeError> =
         position(anchor, lc).map { origin ->
-            val action = Action.World(op, origin, Val.Live<Vector3d>("caster.forward", null), payload)
+            val action = Action.World(op, origin, Val.Live<Vector3d>("= forward(caster)", null), payload)
             Lowered(rows = listOf(Row(0, lc.self, action, lc.src)))
         }
 
-    val anchorField: Field<String> = Field.required("anchor", com.astarworks.astera.core.application.skillengine.load.grammar.Types.id, "where it happens: a declared anchor, or caster / caster.eye / caster.feet / contact.point")
+    val anchorField: Field<AnchorRef> = Field.required("anchor", com.astarworks.astera.core.application.skillengine.load.grammar.Types.anchorRef, "where it happens: a declared anchor, or caster / caster.eye / caster.feet / contact.point, or {of, offset: {forward, up, left}}")
     val outsideArena: Field<Boolean> = Field.required("outside_arena", com.astarworks.astera.core.application.skillengine.load.ops.gameplay.GameplayOps.flag, "true lifts the arena-only edit restriction")
 }

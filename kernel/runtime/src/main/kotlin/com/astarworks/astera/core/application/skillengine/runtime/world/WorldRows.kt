@@ -13,16 +13,18 @@ import java.util.UUID
 
 /** Plays an `Action.World` row: the player resolves [origin] / [forward], this picks the gateway call. */
 public object WorldRows {
-    public fun execute(world: ISkillWorldGateway, cast: CastRef, row: Action.World, origin: Vector3d, forward: Vector3d) {
+    public fun execute(world: ISkillWorldGateway, cast: CastRef, row: Action.World, origin: Vector3d, forward: Vector3d, number: (Val<Any>) -> Double) {
         val at = Vec3(origin.x, origin.y, origin.z)
         when (row.op.value) {
             "break_area" -> world.breakArea(cast, known<BreakAreaSpec>(row, "spec"), WorldAim(at, Vec3(forward.x, forward.y, forward.z)))
             "place_shape" -> world.placeShape(cast, known<PlaceShapeSpec>(row, "spec"), WorldAim(at, Vec3(forward.x, forward.y, forward.z)))
-            "explode" -> world.explode(cast, at, known(row, "power"), known(row, "break_blocks"), known(row, "fire"))
+            "explode" -> world.explode(cast, at, number(cell(row, "power")), known(row, "break_blocks"), known(row, "fire"))
             "lightning" -> world.lightning(cast, at, known(row, "visual_only"))
             else -> error("unknown world op '${row.op.value}'")
         }
     }
+
+    private fun cell(row: Action.World, key: String): Val<Any> = row.payload[key] ?: error("world op '${row.op.value}' payload '$key' is missing")
 
     @Suppress("UNCHECKED_CAST")
     private fun <T> known(row: Action.World, key: String): T =

@@ -17,6 +17,8 @@ import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.skillengine.op.OpSection
 import com.astarworks.astera.core.domain.skillengine.table.OpId
 import com.astarworks.astera.core.domain.skillengine.table.SrcPath
+import com.astarworks.astera.core.domain.skillengine.model.Value
+import com.astarworks.astera.core.application.skillengine.load.grammar.Types
 import com.astarworks.astera.core.domain.skillengine.table.Val
 
 /** Decoded `explode` (ADR-0303 10.1c): exactly one vanilla `createExplosion`. Damage to entities is a separate `damage` area op. */
@@ -25,15 +27,15 @@ public class ExplodeOp(
     override val src: SrcPath,
     override val whenExpr: WhenRef?,
     override val timing: Timing?,
-    public val anchor: String,
-    public val power: Double,
+    public val anchor: com.astarworks.astera.core.application.skillengine.load.grammar.AnchorRef,
+    public val power: Value<Double>,
     public val breakBlocks: Boolean,
     public val fire: Boolean,
 ) : OpNode
 
 public object ExplodeOpSpec : OpSpec<ExplodeOp> {
     private val ANCHOR = WorldOps.anchorField
-    private val POWER: Field<Double> = Field.required("power", WorldOps.nonNegative("number >= 0"), "vanilla explosion power (TNT = 4.0)")
+    private val POWER: Field<Value<Double>> = Field.required("power", Types.number, "vanilla explosion power (TNT = 4.0); a literal, `\${param}` or `= expr`")
     private val BREAK_BLOCKS: Field<Boolean> = Field.required("break_blocks", GameplayOps.flag, "vanilla blockInteract")
     private val FIRE: Field<Boolean> = Field.required("fire", GameplayOps.flag, "vanilla setFire")
 
@@ -48,7 +50,7 @@ public object ExplodeOpSpec : OpSpec<ExplodeOp> {
     override fun lower(op: ExplodeOp, lc: LowerContext): Result<Lowered, SkillDecodeError> =
         WorldOps.lower(
             OpId(name), op.anchor,
-            mapOf<String, Val<Any>>("power" to Val.Known(op.power), "break_blocks" to Val.Known(op.breakBlocks), "fire" to Val.Known(op.fire)),
+            mapOf<String, Val<Any>>("power" to GameplayOps.live(op.power), "break_blocks" to Val.Known(op.breakBlocks), "fire" to Val.Known(op.fire)),
             lc,
         )
 }
