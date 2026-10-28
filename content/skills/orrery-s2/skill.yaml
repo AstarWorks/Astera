@@ -16,6 +16,7 @@ gameplay:
       at: 0
       do:
         - {id: dash, op: dash_strike, distance: "${dash_distance}", ticks: 7, radius: 0.8, hit_once: true, invulnerable: false, stop_on_block: true, follow_pitch: false, stop_before_target: 4}
+    - {id: t7, at: 7, do: [{id: pin, op: place, frame: fx3_orrery_s2_poise, like: caster}]}
     - id: t35
       at: 35
       do:
@@ -45,6 +46,7 @@ gameplay:
         target: {enemies: {around: enemy, radius: "${radius}", max_count: 5}}
         ignore_invulnerability: true
         when: "= event.source == 'sel'"
+      - {id: pin_2, op: place, frame: fx4_orrery_s2_impact, like: contact, when: "= event.source == 'sel'"}
       - id: dmg_2
         op: damage
         components:
@@ -52,3 +54,4 @@ gameplay:
         target: {enemies: {around: enemy, radius: "${radius}", max_count: 5}}
         ignore_invulnerability: true
         when: "= event.source == 'sel_2'"
+      - {id: pin_3, op: place, frame: fx5_orrery_s2_impact_long, like: contact, when: "= event.source == 'sel_2'"}

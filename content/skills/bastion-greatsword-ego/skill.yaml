@@ -24,8 +24,10 @@ gameplay:
       at: 20
       do:
         - {id: place_tele, op: place, frame: tele, like: caster}
+        - {id: pin, op: place, frame: fx3_bastion_ego_trail, like: caster}
         - {id: propel, op: propel, direction: "= vec(0.0, 1.0, 0.0)", strength: "${propel}"}
         - {id: dash, op: dash_strike, distance: "${dash_distance}", ticks: 6, radius: 0.3, hit_once: true, invulnerable: true, stop_on_block: true, follow_pitch: false, stop_before_target: 1.6}
+    - {id: t27, at: 27, do: [{id: pin_2, op: place, frame: fx4_bastion_ego_slam, like: caster}]}
     - id: t31
       at: 31
       do:

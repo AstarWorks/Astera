@@ -1115,9 +1115,6 @@ class Conv:
     def anim(self, a, at, where, delay, when):
         t = a["type"]
         d2 = delay + int(V(a.get("delay_ticks", 0)) or 0)
-        if t == "ring" and str(a.get("angle", "vertical")).lower() == "vertical":
-            self.ring(a, at, where, d2, when)
-            return
         if t == "point":
             for part in a.get("particles", []) or []:
                 op = emit_op(self.oid("emit"), at, part["id"], part.get("count", 1))
@@ -1134,111 +1131,76 @@ class Conv:
                 op["offset"] = offset
             self.p(where, d2 + int(V(part.get("delay_ticks", 0)) or 0) + step, self._w(op, when))
 
-    def shape_emits(self, a):
-        """Bake a v1 non-default AnimatedShape (ring in any plane, line, circle) into `(tick, part, times, shift, offset)` emit
-        rows. The shape lives in the `at` frame's [left, up, forward] axes; v1's per-instance random draws (axis, phase,
-        jitter, orbit start / sign / radius) are fixed constants per instance (deterministic bake, same as `ring`)."""
+    def shape_emits(self, a, trail=False):
+        """Bake a v1 non-point AnimatedShape (ring, line, circle) into `(tick, part, times, shift, offset)` emit rows.
+        The shape lives in the `at` frame's [left, up, forward] axes. v1's random draws stay random: `draw(name)` is fixed
+        for the whole cast (v1 drew once per `plan()`: ring phase and axis, the circle cursor), `roll(name)` re-rolls per
+        tick and per spacing sample (a trail re-plans its shape at every sample, so ring phase / line jitter re-roll). The
+        name is per shape instance, so instances differ; the cast seed (sim: fixed, live: per cast) drives all of them."""
         t = a["type"]
         if t not in ("ring", "line", "circle"):
             self.todo("particle animation shape %s" % t)
             return []
         rows = []
+        w = "roll" if trail and t != "circle" else "draw"
         for inst in range(int(a.get("amount", 1))):
-            rng = random.Random("%s/%s/%d" % (self.oid("shape"), t, inst))
-            axis = self._angle_axis(str(a.get("angle", "vertical" if t == "ring" else "raw")).lower(), rng)
-            u = _unit(axis)
-            pa = _unit(_cross(u, _perp(u)))
-            pb = _unit(_cross(u, pa))
+            nm = self.oid("shape")
+            angle = str(a.get("angle", "vertical" if t == "ring" else "raw")).lower()
+            if angle == "random":
+                ax = "%s_unit('%s_ax')" % (w, nm)
+                pa, pb = "plane_a(%s)" % ax, "plane_b(%s)" % ax
+            else:
+                axis = {"raw": (0.0, 0.0, 1.0), "horizontal": (0.0, 0.0, 1.0), "vertical": (0.0, 1.0, 0.0), "down": (0.0, -1.0, 0.0)}.get(angle)
+                if axis is None:
+                    self.todo("particle angle %s" % angle)
+                    axis = (0.0, 1.0, 0.0)
+                u = _unit(axis)
+                pua = _unit(_cross(u, _perp(u)))
+                ax, pa, pb = _vec(u), _vec(pua), _vec(_unit(_cross(u, pua)))
             parts = a.get("particles", []) or []
             if t == "ring":
                 n = int(a.get("points", 16))
                 period = int(a.get("period_ticks", 1))
                 sr, er = float(a.get("start_radius", 0.0)), float(a.get("end_radius", 0.0))
-                phase = round(rng.uniform(0.0, 2 * math.pi), 4)
-                ph = "(%s + 6.283185307179586*i/%d)" % (phase, n)
+                ph = "(%s('%s_ph')*6.283185307179586 + 6.283185307179586*i/%d)" % (w, nm, n)
                 for step in range(period):
                     tt = 1.0 if period == 1 else step / (period - 1)
-                    r = sr + (er - sr) * tt
-                    rise = float(a.get("rise", 0.0)) * tt
-                    comp = ["%s*(%s*cos(%s) + %s*sin(%s)) + %s" % (fmt(round(r, 4)), fmt(round(pa[c], 4)), ph, fmt(round(pb[c], 4)), ph, fmt(round(rise * u[c], 4)))
-                            for c in range(3)]
-                    out = "= vec(%s)" % ", ".join("%s*cos(%s) + %s*sin(%s)" % (fmt(round(pa[c], 4)), ph, fmt(round(pb[c], 4)), ph) for c in range(3))
+                    r = round(sr + (er - sr) * tt, 4)
+                    rise = round(float(a.get("rise", 0.0)) * tt, 4)
+                    sh = "= %s*%s + %s*(%s*cos(%s)) + %s*(%s*sin(%s))" % (ax, fmt(rise), pa, fmt(r), ph, pb, fmt(r), ph)
+                    out = "= %s*cos(%s) + %s*sin(%s)" % (pa, ph, pb, ph)
                     for part in parts:
-                        rows.append((step, part, n, "= vec(%s)" % ", ".join(comp), out if part.get("count", 1) == 0 else None))
+                        rows.append((step, part, n, sh, out if part.get("count", 1) == 0 else None))
             elif t == "line":
                 segs = int(a["segments"])
                 pps = int(a["points_per_segment"])
                 length, jit = float(a["length"]), float(a.get("jitter", 0.0))
                 verts = []
-                for i in range(segs + 1):
-                    side = (0.0, 0.0, 0.0)
-                    if 0 < i < segs and jit > 0.0:
-                        j1, j2 = rng.uniform(-jit, jit), rng.uniform(-jit, jit)
-                        side = tuple(pa[c] * j1 + pb[c] * j2 for c in range(3))
-                    verts.append(tuple(u[c] * length * i / segs + side[c] for c in range(3)))
+                for k in range(segs + 1):
+                    v = "%s*%s" % (ax, fmt(round(length * k / segs, 4)))
+                    if 0 < k < segs and jit > 0.0:
+                        v += " + %s*roll('%s_v%da',%s,%s) + %s*roll('%s_v%db',%s,%s)" % (pa, nm, k, fmt(-jit), fmt(jit), pb, nm, k, fmt(-jit), fmt(jit))
+                    verts.append(v)
                 for part in parts:
                     for si in range(segs):
-                        v0, v1 = verts[si], verts[si + 1]
-                        sh = "= lerp(%s, %s, i/%d.0)" % (_vec(v0), _vec(v1), pps)
-                        rows.append((0, part, pps, sh, None))
-                    rows.append((0, part, 1, "= " + _vec(verts[-1]), None))
-            else:  # circle
+                        rows.append((0, part, pps, "= lerp(%s, %s, i/%d.0)" % (verts[si], verts[si + 1], pps), None))
+                    rows.append((0, part, 1, "= " + verts[-1], None))
+            else:  # circle: one cursor per instance for the whole cast, advancing `speed` degrees per point
                 steps = int(a.get("period_ticks", 1))
                 speed, acc = int(a.get("speed", 0)), int(a.get("acceleration", 1))
                 rmin, rmax = float(a.get("min_radius", 0.0)), float(a.get("max_radius", 0.0))
                 if float(a.get("radius_acceleration", 0.0)) != 0.0:
                     self.todo("circle radius_acceleration", str(a.get("radius_acceleration")))
-                radius = round(rng.uniform(rmin, rmax) if rmax > rmin else rmin, 4)
-                deg0 = rng.randrange(360)
-                sign = 1 if rng.random() < 0.5 else -1
-                w = _unit(_cross(u, _perp(u)))
+                radius = "draw('%s_r',%s,%s)" % (nm, fmt(rmin), fmt(rmax)) if rmax > rmin else fmt(rmin)
+                deg0 = "floor(draw('%s_deg')*360.0)" % nm
+                sign = "(draw('%s_sign') < 0.5 ? 1.0 : -1.0)" % nm
                 for step in range(steps):
+                    first = step * acc + 1
+                    ang = "((%s + %s*%d.0*(i + %d))*0.017453292519943295)" % (deg0, sign, speed, first)
+                    dirv = "%s*cos(%s) + %s*sin(%s)" % (ax, ang, pa, ang)
                     for part in parts:
-                        first = step * acc + 1
-                        ang = "(%s + %s*(i + %d))" % (fmt(round(math.radians(deg0), 6)), fmt(round(math.radians(sign * speed), 6)), first)
-                        comp = ["%s*cos(%s) + %s*sin(%s)" % (fmt(round(radius * u[c], 4)), ang, fmt(round(radius * w[c], 4)), ang) for c in range(3)]
-                        sh = "= vec(%s)" % ", ".join(comp)
-                        out = "= normalize(%s)" % sh[2:] if part.get("count", 1) == 0 else None
-                        rows.append((step, part, acc, sh, out))
+                        rows.append((step, part, acc, "= (%s)*%s" % (dirv, radius), "= " + dirv if part.get("count", 1) == 0 else None))
         return rows
-
-    def _angle_axis(self, angle, rng):
-        if angle in ("raw", "horizontal"):
-            return (0.0, 0.0, 1.0)
-        if angle == "vertical":
-            return (0.0, 1.0, 0.0)
-        if angle == "down":
-            return (0.0, -1.0, 0.0)
-        if angle == "random":
-            while True:
-                v = (rng.uniform(-1, 1), rng.uniform(-1, 1), rng.uniform(-1, 1))
-                if 1e-4 < sum(x * x for x in v) <= 1.0:
-                    return _unit(v)
-        self.todo("particle angle %s" % angle)
-        return (0.0, 1.0, 0.0)
-
-    def ring(self, a, at, where, delay, when):
-        """v1 AnimatedShape.Ring: each tick of the period drops `points` points on a flat circle, radius lerping
-        start -> end, lifted by `rise`; directional particles (count 0) fly outward. One emit per tick with times=points.
-        v1 drew a random phase per instance; it is a fixed constant per instance here (deterministic bake)."""
-        n = int(a.get("points", 16))
-        period = int(a.get("period_ticks", 1))
-        sr, er = float(a.get("start_radius", 0.0)), float(a.get("end_radius", 0.0))
-        for inst in range(int(a.get("amount", 1))):
-            phase = round(random.Random("%s/%d" % (self.oid("ringphase"), inst)).uniform(0.0, 2 * math.pi), 4)
-            ph = "(%s + 6.283185307179586*i/%d)" % (phase, n)
-            for step in range(period):
-                t = 1.0 if period == 1 else step / (period - 1)
-                r = round(sr + (er - sr) * t, 4)
-                rise = round(float(a.get("rise", 0.0)) * t, 4)
-                for part in a.get("particles", []) or []:
-                    op = emit_op(self.oid("emit"), at, part["id"], part.get("count", 1))
-                    particle_vanilla(op, part)
-                    op["times"] = n
-                    op["shift"] = "= vec(%s*sin(%s), %s, %s*cos(%s))" % (r, ph, rise, r, ph)
-                    if part.get("count", 1) == 0:
-                        op["offset"] = "= vec(sin(%s), 0, cos(%s))" % (ph, ph)
-                    self.p(where, delay + int(V(part.get("delay_ticks", 0)) or 0) + step, self._w(op, when))
 
     # ---------- vfx inlining ----------
     def load_vfx(self, vid):
@@ -1798,7 +1760,7 @@ def convert_skill(d, vfx_dir, item):
         vis = params.get("visual") or {}
         for tr in vis.get("trail") or []:
             if tr["type"] != "point":
-                for _, part, times, shift, offset in c.shape_emits(tr):
+                for _, part, times, shift, offset in c.shape_emits(tr, trail=True):
                     op = emit_op(c.oid("trail"), "bolt", part["id"], part.get("count", 1))
                     if vis.get("trail_spacing", 0.5) > 0:
                         op["spacing"] = vis.get("trail_spacing", 0.5)

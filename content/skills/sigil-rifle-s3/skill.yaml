@@ -11,7 +11,7 @@ gameplay:
     - {id: damage, param: dmg_physical}
     - {id: range, param: reach}
   timeline:
-    - {id: t61, at: 61, do: [{id: cast, op: cast_skill, skill: sigil-bullet-projectile}]}
+    - {id: t61, at: 61, do: [{id: pin, op: place, frame: fx2_sigil_rifle_shot, like: caster}, {id: cast, op: cast_skill, skill: sigil-bullet-projectile}]}
     - id: t82
       at: 82
       do:
@@ -32,4 +32,8 @@ gameplay:
           max_count: 1
           window: once
           ticks: 1
-  "on": {hit: [{id: dmg, op: damage, components: [{kind: physical, amount: "${dmg_physical}"}], target: victim, ignore_invulnerability: true, when: "= event.source == 'sel_2'"}]}
+  "on":
+    hit:
+      - {id: pin_2, op: place, frame: fx3_sigil_rifle_detonate, like: contact, when: "= event.source == 'sel'"}
+      - {id: dmg, op: damage, components: [{kind: physical, amount: "${dmg_physical}"}], target: victim, ignore_invulnerability: true, when: "= event.source == 'sel_2'"}
+      - {id: pin_3, op: place, frame: fx4_sigil_rifle_mark, like: contact, when: "= event.source == 'sel_2'"}
