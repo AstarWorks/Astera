@@ -582,8 +582,9 @@ class Conv:
             if V(m.get("include_caster", True)):
                 scope.append("caster")
             op = {"id": self.oid("stop"), "op": "freeze", "ticks": V(m["ticks"]), "scope": scope}
-            if V(m.get("freeze_animation", False)):
-                self.todo("hit_stop freeze_animation", "freeze_animation=true")
+            # `freeze_animation` is parsed (v1 d41b82f1e MechanicYaml.kt:451 -> Mechanic.kt:305) but never read: the only consumer of
+            # Mechanic.HitStop (MechanicDispatcher.kt:778-785) uses targets/ticks/includeCaster. The skin-rig clock freezes through the
+            # play_vfx windows (`respect_hit_stop`, the rig `freezes` above), so v1 behaviour = no effect; v2 must not invent one.
         elif t == "cast_skill":
             op = {"id": self.oid("cast"), "op": "cast_skill", "skill": m["skill_id"]}
         elif t == "explode":
