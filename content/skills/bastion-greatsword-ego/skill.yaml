@@ -113,10 +113,11 @@ machine:
             - {id: fx4_slam_sword, op: frame, anchor: caster, mode: follow}
             - {id: fx4_slam_sword_parts, op: frame, anchor: caster, mode: follow}
             # v2 slam sword: pure pitch swing (rotate [pitch,0,0] per tick, held 66 after tick 5), pivot [0, 1.4, 0.3], rest [90, 0, 0]; the swing steps are the tip directions
-            # t(theta) = (left 0, up -sin theta, forward cos theta) for theta = -125, -150, -97, 62, 65.5, 66 (ASSUMPTION: the block-part frame has long = up, edge = forward; no content/frames file declares it).
+            # t(theta) = (left 0, up -sin theta, forward cos theta) for theta = -125, -150, -97, 62, 65.5, 66 (block-part frame: content/frames/bastion-greatsword.yaml part slam_blocks, long = up, edge = forward).
             - id: fx4_slam_sword_rig
               op: rig
               of: fx4_slam_sword
+              part: slam_blocks
               parent: caster.body
               pivot: {left: 0.0, up: 1.4, forward: 0.3}
               rest: [{axis: left, deg: 90.0}]
@@ -131,6 +132,7 @@ machine:
             - id: fx4_slam_sword_parts_rig
               op: rig
               of: fx4_slam_sword_parts
+              part: slam_blocks
               parent: caster.body
               hand: false
               pivot: {left: 0.0, up: 1.4, forward: 0.3}
