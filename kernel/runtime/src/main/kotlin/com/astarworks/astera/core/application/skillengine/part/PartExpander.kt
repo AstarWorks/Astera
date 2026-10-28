@@ -63,7 +63,8 @@ public class PartExpander(private val parts: Map<String, Part>, private val maxD
         for (s in m.states.values) {
             if (s.use != null) continue
             val path = prefix + s.id
-            val enter = qualify(s.enter, path, "enter", evPrefix).toMutableList()
+            val localIds = (s.enter + s.doOps + s.exit).mapNotNull { it["id"] as? String }.toSet()
+            val enter = qualify(s.enter, path, "enter", evPrefix, localIds).toMutableList()
             if (s.final) {
                 enter += mapOf("emit" to if (evPrefix.isEmpty()) "end" else "$evPrefix.end")
                 myFinals += path
@@ -74,9 +75,9 @@ public class PartExpander(private val parts: Map<String, Part>, private val maxD
                 then = s.then?.let { entry.getValue(it) },
                 final = s.final,
                 enter = enter,
-                doOps = qualify(s.doOps, path, "do", evPrefix),
-                exit = qualify(s.exit, path, "exit", evPrefix),
-                on = s.on.mapIndexed { i, t -> remap(t, entry, path, i, evPrefix) },
+                doOps = qualify(s.doOps, path, "do", evPrefix, localIds),
+                exit = qualify(s.exit, path, "exit", evPrefix, localIds),
+                on = s.on.mapIndexed { i, t -> remap(t, entry, path, i, evPrefix, localIds) },
                 use = null,
                 start = s.start,
             )
@@ -89,7 +90,7 @@ public class PartExpander(private val parts: Map<String, Part>, private val maxD
             val cont = ArrayList<MachineTransition>()
             s.then?.let { cont += MachineTransition(null, 0, null, entry.getValue(it), emptyList()) }
             s.on.forEachIndexed { i, t ->
-                val mapped = remap(t, entry, prefix + s.id, i, evPrefix)
+                val mapped = remap(t, entry, prefix + s.id, i, evPrefix, emptySet())
                 when {
                     t.event == endEvent -> cont += MachineTransition(null, 0, mapped.whenExpr, mapped.to, mapped.effects)
                     t.event != null && t.event!!.startsWith("${s.id}.") ->
@@ -110,14 +111,21 @@ public class PartExpander(private val parts: Map<String, Part>, private val maxD
 
     private fun join(prefix: String, name: String): String = if (prefix.isEmpty()) name else "$prefix.$name"
 
-    private fun remap(t: MachineTransition, entry: Map<String, String>, path: String, index: Int, evPrefix: String): MachineTransition =
-        t.copy(to = entry.getValue(t.to), effects = qualify(t.effects, path, "t$index", evPrefix))
+    private fun remap(t: MachineTransition, entry: Map<String, String>, path: String, index: Int, evPrefix: String, localIds: Set<String>): MachineTransition =
+        t.copy(to = entry.getValue(t.to), event = t.event?.let { localEvent(it, path, localIds) }, effects = qualify(t.effects, path, "t$index", evPrefix, localIds))
+
+    /** `bolt.end` written in a state that spawns op `bolt` names that op's instance `<state>/bolt` (op ids are state-qualified above). */
+    private fun localEvent(event: String, path: String, localIds: Set<String>): String {
+        val base = event.substringBefore('.')
+        return if (event.contains('.') && base in localIds) "$path/$event" else event
+    }
 
     /** Prefixes op ids with the state path (+ phase for transitions) and qualifies `emit:` names with the call path. */
-    private fun qualify(ops: List<OpMap>, path: String, phase: String, evPrefix: String): List<OpMap> = ops.map { op ->
+    private fun qualify(ops: List<OpMap>, path: String, phase: String, evPrefix: String, localIds: Set<String>): List<OpMap> = ops.map { op ->
         val out = LinkedHashMap(op)
         (op["id"] as? String)?.let { out["id"] = if (phase.startsWith("t")) "$path/$phase/$it" else "$path/$it" }
         (op["emit"] as? String)?.let { out["emit"] = join(evPrefix, it) }
+        (op["until"] as? String)?.let { out["until"] = localEvent(it, path, localIds) }
         out
     }
 }

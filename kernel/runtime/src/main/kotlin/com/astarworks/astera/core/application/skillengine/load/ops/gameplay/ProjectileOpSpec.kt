@@ -328,10 +328,11 @@ public object ProjectileOpSpec : OpSpec<ProjectileOp> {
                 src,
             )
             // the body emits no Key / Teleport rows: its position stays live and its closed-form `motion:` is composed into every rider (item 16)
-            if (!op.motion.isNullOrEmpty()) {
+            // the body is an anchor even without `motion:` (its live position), so riders and trails can name it
+            run {
                 val declared = InstanceId(body.path.dropLast(1) + InstanceId.Segment(op.id, null))
                 val family = (op.timing?.times as? Value.Literal)?.value?.toInt()
-                (lc.anchors as? AnchorRegistry)?.declare(declared, family, ExprClass.T, op.motion)
+                (lc.anchors as? AnchorRegistry)?.declare(declared, family, if (op.motion.isNullOrEmpty()) ExprClass.L else ExprClass.T, op.motion ?: emptyList())
             }
             rows += Row(window.max, body, Action.End(body), src)
 

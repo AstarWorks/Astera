@@ -63,7 +63,7 @@ public class DefaultAnchorScope private constructor(
     override fun declare(instance: InstanceId, family: Int?, basis: ExprClass, laws: List<MotionLaw>) {
         val id = instance.path.last().op
         require(family == null || family >= 1) { "family of '${id.value}' must be >= 1 (was $family)" }
-        entries[id.value] = Entry(instance, family, basis, laws)
+        entries[id.value.substringAfterLast('/')] = Entry(instance, family, basis, laws)
     }
 
     override fun laws(anchor: String): List<MotionLaw> = AnchorNames.split(anchor)?.let { entries[it.base]?.laws } ?: emptyList()

@@ -11,7 +11,9 @@ import com.astarworks.astera.core.application.skillengine.load.ops.control.UseOp
 import com.astarworks.astera.core.application.skillengine.load.ops.gameplay.HitEvent
 import com.astarworks.astera.core.application.skillengine.load.ops.gameplay.HitOp
 import com.astarworks.astera.core.application.skillengine.load.ops.gameplay.ProjectileEvent
+import com.astarworks.astera.core.application.skillengine.load.grammar.Span
 import com.astarworks.astera.core.application.skillengine.load.ops.gameplay.ProjectileOp
+import com.astarworks.astera.core.domain.skillengine.model.Value
 import com.astarworks.astera.core.application.skillengine.load.spec.Lowered
 import com.astarworks.astera.core.application.skillengine.load.spec.OpNode
 import com.astarworks.astera.core.application.skillengine.load.spec.OpSpec
@@ -210,8 +212,10 @@ public class SkillCompiler(
         /** The lowerer [MachineTables] calls once per (state, section). */
         val sections: SectionLowerer = SectionLowerer { state, section, ops ->
             val st = statesById[state.value]
-            val horizon = (st?.forTicks as? Number)?.toInt()
             val nodes = decodeList(ops, "machine.states.${state.value}.$section").getOr { return@SectionLowerer Result.Failure(it) }
+            // a state without `for:` lasts as long as the longest projectile body it spawns (`until: <body>.end` closes against it)
+            val horizon = (st?.forTicks as? Number)?.toInt()
+                ?: nodes.filterIsInstance<ProjectileOp>().mapNotNull { ((it.timing?.span as? Span.Ticks)?.ticks as? Value.Literal)?.value?.toInt() }.maxOrNull()
             val registry = registries.getOrPut(state.value) { DefaultAnchorScope(Occurrence(0, 1, null), documents) }
             var acc = Lowered(emptyList())
             for (n in nodes) {
