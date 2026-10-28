@@ -131,15 +131,12 @@ public class PaperSkillWorldGateway(
         val tools = toolBlocks()
         val skill = SkillId("skill-engine")
         if (gateway.isCover(world, at)) {
-            val spec = block(cell)?.let { covers()?.resolveByBlockData(it.blockData.asString) }
             val outcome = (cover()?.strikeCell(
                 owner, world, at, skill, BlockDamageProfile(blockDamage, tool), CoverBlockService.Feedback.swing(kind),
             ) as? AsteraResult.Success)?.value
             return when (outcome) {
-                is CoverBlockService.CellOutcome.Broken -> {
-                    spec?.placedFrom?.let { tools?.dropCustom(world, at, owner, it) }
-                    BlockDamageOutcome.BROKEN
-                }
+                // The block gateway already drops the cover's placement item when it breaks.
+                is CoverBlockService.CellOutcome.Broken -> BlockDamageOutcome.BROKEN
                 is CoverBlockService.CellOutcome.Chipped -> { tools?.hitEffect(world, at); BlockDamageOutcome.CHIPPED }
                 is CoverBlockService.CellOutcome.Ineffective -> { tools?.clink(world, at); BlockDamageOutcome.NONE }
                 null -> BlockDamageOutcome.NONE
