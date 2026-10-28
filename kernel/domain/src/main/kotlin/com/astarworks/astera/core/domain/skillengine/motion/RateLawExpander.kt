@@ -43,15 +43,8 @@ public object RateLawExpander {
     private fun e(name: String?, u: Double): Double = name?.let { Easing.fromKey(it) }?.apply(u) ?: u
 
     private fun move(l: MoveRate): List<TrackKey> {
-        if (l.accel == 0.0) {
-            val end = l.start + l.velocity * l.forTicks.toDouble()
-            return listOf(key(l.from, offset = l.start), key(l.from + l.forTicks, offset = end, ease = l.ease))
-        }
-        val dir = l.velocity.normalize()
-        return (0..l.forTicks).map { tau ->
-            val t = tau.toDouble()
-            key(l.from + tau, offset = l.start + l.velocity * t + dir * (l.accel * t * t / 2.0))
-        }
+        val end = l.start + l.velocity * l.forTicks.toDouble()
+        return listOf(key(l.from, offset = l.start), key(l.from + l.forTicks, offset = end, ease = l.ease))
     }
 
     private fun grow(l: GrowRate): List<TrackKey> {

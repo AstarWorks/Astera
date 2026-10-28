@@ -377,11 +377,6 @@ public class PaperDisplayEntityGateway(
         if (textRgb != null) display.text(display.text().color(TextColor.color(textRgb)))
     }
 
-    override fun setTextOpacity(handle: DisplayHandle, textOpacity: Int) {
-        val display = server.getEntity(handle.id) as? TextDisplay ?: return
-        display.textOpacity = textOpacity.coerceIn(0, 255).toByte()
-    }
-
     override fun moveTo(handle: DisplayHandle, at: Vec3, yaw: Float, pitch: Float, teleportTicks: Int) {
         val display = server.getEntity(handle.id) as? Display ?: return
         val attachment = attachments[handle]

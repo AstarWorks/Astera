@@ -30,16 +30,15 @@ private fun checkLaw(from: Int, forTicks: Int, ease: String?, hasAccel: Boolean)
     }
 }
 
-/** `move`: offset(tau) = [start] + [velocity] * tau + dir([velocity]) * [accel] * tau^2 / 2 (blocks, blocks/tick, blocks/tick^2 along the velocity). */
+/** `move`: offset(tau) = [start] + [velocity] * tau (blocks, blocks/tick); [ease] shapes the accumulated total. */
 public data class MoveRate(
     override val from: Int,
     override val forTicks: Int,
     val start: Vec3,
     val velocity: Vec3,
-    val accel: Double = 0.0,
     override val ease: String? = null,
 ) : RateLaw {
-    init { checkLaw(from, forTicks, ease, accel != 0.0) }
+    init { checkLaw(from, forTicks, ease, false) }
 }
 
 /**

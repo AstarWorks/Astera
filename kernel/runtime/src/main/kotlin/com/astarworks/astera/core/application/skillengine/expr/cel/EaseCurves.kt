@@ -13,6 +13,9 @@ internal object EaseCurves {
     private val BEZIER = Regex("""cubic_bezier\(\s*([^,\s]+)\s*,\s*([^,\s]+)\s*,\s*([^,\s]+)\s*,\s*([^,\s)]+)\s*\)""")
     private val STEPS = Regex("""steps\(\s*(\d+)\s*\)""")
 
+    /** `steps(n)` spelling; a stepped curve is a pose cut, which a motion law cannot carry. */
+    fun isSteps(name: String): Boolean = STEPS.matches(name.trim())
+
     fun parse(name: String): ((Double) -> Double)? {
         cache[name]?.let { return it }
         val curve = build(name.trim()) ?: return null

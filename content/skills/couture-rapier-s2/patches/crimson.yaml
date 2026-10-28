@@ -1,6 +1,6 @@
 # Skin variant couture-rapier-s2@crimson: crimson thread colour, flame sparks, the second blade trail dropped (R35 ops: rows addressed by id).
 # Params are not presentation rows, so the colour / particle are patched on the presentation rows that read them.
-# The reel_sparks row sits in an `on` event list of the reel state (not reachable by a skin path), so it keeps the base spark particle.
+# Spark rows: the throw one sits in the volley's `on.hit` list, the reel one in the reel state's `on[reel_hit.hit]` transition effects (selected by event).
 apiVersion: astera/v3
 kind: Patch
 id: couture-rapier-s2-crimson
@@ -15,3 +15,4 @@ ops:
   - {path: "machine.states.throw.do[thread_b].color", $patch: replace, value: "#d0203a"}
   - {path: "machine.states.throw.do[thread_body].color", $patch: replace, value: "#d0203a"}
   - {path: "machine.states.throw.enter[volley].on.hit[sparks].particle", $patch: replace, value: flame}
+  - {path: "machine.states.reel.on[reel_hit.hit].do[reel_sparks].particle", $patch: replace, value: flame}

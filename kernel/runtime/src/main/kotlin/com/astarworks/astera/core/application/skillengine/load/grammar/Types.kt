@@ -19,6 +19,12 @@ internal object ValueForms {
         linkedMapOf("type" to "string", "pattern" to "($PARAM_PATTERN)|($EXPR_PATTERN)")
 }
 
+/**
+ * An `anchor:` value (ADR-0303 1, R14): a declared anchor id, or `{of, offset: {forward, up, left}, sweep?}` = a point displaced in that
+ * anchor's basis. [sweep] (blocks of anchor travel per call) is meaningful for particles only; other ops reject it.
+ */
+public data class AnchorRef(val of: String, val offset: FrameVec?, val sweep: Double?)
+
 /** The field types of the shared grammar. Every numeric/vector/bool/text type also accepts `${param}` and `= CEL` (ADR-0303 section 0, 11). */
 public object Types {
     /** Number of blocks, ticks, degrees ...: literal, `${param}` or `= expr` (compiled to NUM when the context has a compiler). */
@@ -121,7 +127,7 @@ public object Types {
             if (raw is List<*>) ctx.fail(path, "positional vectors are not allowed; write {of: <anchor>, forward: .., up: .., left: ..} or {x: .., y: .., z: ..}")
             if (raw is Map<*, *> && "of" in raw) {
                 val v = anchorVector.read(raw, ctx, path)
-                return OffsetVec.InAnchor(AnchorRef(v[anchorOf]), FrameVec.Parts(v[FrameVecs.forward], v[FrameVecs.up], v[FrameVecs.left]))
+                return OffsetVec.InAnchor(AnchorRef(v[anchorOf], null, null), FrameVec.Parts(v[FrameVecs.forward], v[FrameVecs.up], v[FrameVecs.left]))
             }
             val v = worldVector.read(raw, ctx, path)
             val x = v[worldX]; val y = v[worldY]; val z = v[worldZ]
@@ -133,10 +139,32 @@ public object Types {
         override fun schema(): Map<String, Any?> =
             linkedMapOf("oneOf" to listOf(anchorVector.jsonSchema(), worldVector.jsonSchema(), ValueForms.specialSchema()))
     }
+
+    private val anchorOffset by lazy { Field.optional("offset", Types.nullable(FrameVecs.type), null, "displacement in the anchor's basis") }
+    private val anchorSweep = Field.optional("sweep", Types.nullable(number), null, "blocks of anchor travel per call (particles only)")
+    private val anchorFields by lazy { Fields.of("anchor", anchorOf, anchorOffset, anchorSweep) }
+
+    /** `anchor: <id>` or `anchor: {of, offset?, sweep?}`. */
+    public val anchorRef: FieldType<AnchorRef> = object : FieldType<AnchorRef> {
+        override val label = "anchor id or {of, offset, sweep}"
+        override fun decode(raw: Any?, ctx: GrammarContext, path: String): AnchorRef = when (raw) {
+            is String -> AnchorRef(id.decode(raw, ctx, path), null, null)
+            is Map<*, *> -> {
+                val v = anchorFields.read(raw, ctx, path)
+                val sweep = v[anchorSweep]
+                if (sweep != null) {
+                    if (sweep !is Value.Literal) ctx.fail("$path.sweep", "sweep must be a literal number of blocks")
+                    if (sweep.value <= 0.0) ctx.fail("$path.sweep", "sweep must be > 0")
+                }
+                AnchorRef(v[anchorOf], v[anchorOffset], (sweep as? Value.Literal)?.value)
+            }
+            else -> ctx.mismatch(path, label, raw)
+        }
+        override fun schema(): Map<String, Any?> =
+            linkedMapOf("oneOf" to listOf(linkedMapOf("type" to "string"), anchorFields.jsonSchema()))
+    }
 }
 
-/** The name of an anchor / frame in scope (checked against the anchors of the occurrence at lowering, `UndefinedReference` if absent). */
-public data class AnchorRef(val name: String)
 
 /** What [Types.offsetVec] decodes to. */
 public sealed interface OffsetVec {

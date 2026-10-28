@@ -8,13 +8,16 @@ import java.nio.file.Path
  * `:tools:item-art`). The files are flat `key: value` lines, so they are read as such; a file without `id` and `size` is skipped
  * and a missing directory is an empty catalog (an unknown sprite then fails at the op as `UndefinedReference`).
  */
-public class ContentSpriteCatalog private constructor(private val sizes: Map<String, Vec2Px>) : SpriteCatalog {
+public class ContentSpriteCatalog private constructor(private val sizes: Map<String, Vec2Px>, private val frameCounts: Map<String, Int>) : SpriteCatalog {
     override fun natural(id: String): Vec2Px? = sizes[id]
+
+    override fun frames(id: String): Int? = frameCounts[id]
 
     public companion object {
         public fun load(dir: Path): ContentSpriteCatalog {
-            if (!Files.isDirectory(dir)) return ContentSpriteCatalog(emptyMap())
+            if (!Files.isDirectory(dir)) return ContentSpriteCatalog(emptyMap(), emptyMap())
             val out = LinkedHashMap<String, Vec2Px>()
+        val counts = LinkedHashMap<String, Int>()
             Files.list(dir).use { files ->
                 files.filter { it.fileName.toString().endsWith(".yaml") }.sorted().forEach { f ->
                     val kv = Files.readAllLines(f).mapNotNull { line ->
@@ -24,9 +27,10 @@ public class ContentSpriteCatalog private constructor(private val sizes: Map<Str
                     val id = kv["id"] ?: return@forEach
                     val size = kv["size"]?.toIntOrNull() ?: return@forEach
                     out[id] = Vec2Px(size, size)
+                    counts[id] = kv["frames"]?.toIntOrNull() ?: 1
                 }
             }
-            return ContentSpriteCatalog(out)
+            return ContentSpriteCatalog(out, counts)
         }
     }
 }

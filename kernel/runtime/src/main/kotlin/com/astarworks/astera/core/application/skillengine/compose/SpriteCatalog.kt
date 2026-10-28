@@ -10,4 +10,7 @@ public data class Vec2Px(val w: Int, val h: Int)
 public interface SpriteCatalog {
     /** Natural size of [id], or null when the sprite does not exist. */
     public fun natural(id: String): Vec2Px?
+
+    /** Number of glyph frames of [id] (`flipbook` checks against it), or null when the sprite does not exist. */
+    public fun frames(id: String): Int?
 }

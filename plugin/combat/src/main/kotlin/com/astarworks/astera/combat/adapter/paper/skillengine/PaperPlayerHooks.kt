@@ -38,18 +38,13 @@ public class PaperPlayerHooks(
     private val scheduler: IScheduler,
     private val gameplay: ISkillGameplayGateway,
     private val live: PaperLiveValueSource,
-    private val visuals: PaperSkillVisualGateway,
+    private val visual: PaperSkillVisualGateway,
 ) : PlayerHooks {
     private val log = LoggerFactory.getLogger(javaClass)
     private val compiler = CelExprCompiler()
     private val compiled = ConcurrentHashMap<String, CompiledExpr?>()
     private val lockKey = NamespacedKey("astera", "skill_move_lock")
     private val moveLocks = ConcurrentHashMap<UUID, Int>()
-
-    override fun setDisplayField(handle: VisualHandle, field: String, value: Double): Boolean = when (field) {
-        "text_opacity" -> visuals.setTextOpacity(handle, value.toInt())
-        else -> false
-    }
 
     override fun guard(cast: CastHandle, guard: Guard, conditions: Map<String, String>, binding: EventBinding?, localTick: Int): Boolean? {
         val request = live.requestOf(cast) ?: return null
@@ -76,7 +71,7 @@ public class PaperPlayerHooks(
         return try {
             val env = ExprEnv(
                 variables = live.variables(cast, binding, castTick = scheduler.currentTick().toInt() - request.startTick, stateTick = localTick),
-                frames = live.frames(cast),
+                frames = live.frames(cast, binding),
                 seed = request.seed,
                 castSeed = request.seed,
             )
@@ -97,6 +92,11 @@ public class PaperPlayerHooks(
         if (pitch || yaw) gameplay.unlockLook(caster)
         if (move != LockMove.NONE) unlockMove(caster)
     }
+
+    override fun setDisplayField(handle: VisualHandle, field: String, value: Double): Boolean =
+        field == "text_opacity" && visual.setOpacity(handle, value)
+
+    override fun setDisplayText(handle: VisualHandle, field: String, value: String): Boolean = visual.setText(handle, field, value)
 
     /** Called every tick by the platform: lifts the move locks whose `untilTick` passed. */
     public fun tick(now: Int) {

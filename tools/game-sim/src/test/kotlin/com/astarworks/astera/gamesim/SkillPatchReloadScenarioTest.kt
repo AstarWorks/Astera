@@ -89,6 +89,10 @@ class SkillPatchReloadScenarioTest {
                         op: damage
                         amount: 4
               on:
+                - event: shot.hit
+                  do:
+                    - {id: sparks, op: particle, count: 2}
+                    - {id: pain2, op: damage, amount: 1}
                 - when: "true"
                   goto: done
             done:
@@ -316,6 +320,23 @@ class SkillPatchReloadScenarioTest {
             "machine.states.cast.do[shot].on.hit[boom].count",
         )
         assertThat(all.getValue("bolt@gold").patch.kind).isEqualTo("skin")
+    }
+
+    @Test
+    fun `skin patch reaches presentation rows in a state's on-transition effects selected by event`(@TempDir tmp: Path) {
+        write(tmp, "bolt.yaml", bolt)
+        write(tmp, "skin.yaml", patch("skin", "flame", op("machine.states.cast.on[shot.hit].do[sparks].count", "replace", "7"), target = "bolt"))
+        val all = compose(SkillComposer(tmp, skinOnly))
+        // event-selected transitions have no id, so the list flattens as one leaf
+        assertThat(diff(all.getValue("bolt"), all.getValue("bolt@flame"))).containsExactly("machine.states.cast.on")
+        val on = ((((all.getValue("bolt@flame").tree["machine"] as Map<*, *>)["states"] as Map<*, *>)["cast"] as Map<*, *>)["on"] as List<*>).first() as Map<*, *>
+        assertThat((((on["do"] as List<*>).first()) as Map<*, *>)["count"]).isEqualTo(7)
+
+        // the gameplay row of the same transition and the transition itself stay forbidden
+        write(tmp, "skin.yaml", patch("skin", "flame", op("machine.states.cast.on[shot.hit].do[pain2].amount", "replace", "50"), target = "bolt"))
+        assertThat((errorsOf(SkillComposer(tmp, skinOnly)).single() as ComposeError.PatchError.ForbiddenPath).path).startsWith("machine.states.cast.on[shot.hit].do[pain2]")
+        write(tmp, "skin.yaml", patch("skin", "flame", op("machine.states.cast.on[shot.hit]", "delete"), target = "bolt"))
+        assertThat(errorsOf(SkillComposer(tmp, skinOnly)).single()).isInstanceOf(ComposeError.PatchError.ForbiddenPath::class.java)
     }
 
     @Test

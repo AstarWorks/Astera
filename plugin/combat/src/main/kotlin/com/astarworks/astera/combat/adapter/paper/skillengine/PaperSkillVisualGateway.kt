@@ -85,9 +85,13 @@ public class PaperSkillVisualGateway(
     private class SkinEntry(val handle: DisplayHandle, val owner: UUID, val ghost: Boolean) : Entry
     /** One body lease per caster, shared by every live non-ghost skin bone of that caster (hand, offhand, armour, body hidden, pose pinned). */
     private val bodyHides = ConcurrentHashMap<UUID, HandHide>()
-    private class PlateEntry(val handle: DisplayHandle, val owner: UUID, val sprite: String, val intrinsic: Intrinsic) : Entry
+    private class PlateEntry(val handle: DisplayHandle, val owner: UUID, val sprite: String, val intrinsic: Intrinsic, var rgb: Int?, var opacity: Int) : Entry {
+        var frame: Int = 0
+    }
     private class BlockEntry(val handle: DisplayHandle, val owner: UUID) : Entry
-    private class TextEntry(val handle: DisplayHandle, val owner: UUID, val intrinsic: Intrinsic) : Entry
+    private class TextEntry(val handle: DisplayHandle, val owner: UUID, val intrinsic: Intrinsic, val backgroundArgb: Int) : Entry {
+        var opacity: Int = 255
+    }
     /** Colour of one soft ribbon quad: peak [alpha] and the [rgbTo] it has faded to at the end of its life. */
     private class PieceStyle(val rgb: Int, val alpha: Double, val rgbTo: Int?)
     /** A block slab of a ribbon: its [axes], whether it is the [edge] (thins out) and its [thickness]. */
@@ -176,7 +180,7 @@ public class PaperSkillVisualGateway(
         val spec = SkillDisplaySpecs.plate(glyph, alpha, seeThrough, first.transform, pose.billboard, brightness ?: 15).copy(glowArgb = SkillDisplaySpecs.glowArgb(glow))
         val handle = spawnDisplay(world, castOwner, pose.frame.origin, spec, listOf(glyph), pose.anchorFeet != null && pose.billboard == DisplayBillboard.FIXED, view)
             ?: return dead("plate $sprite")
-        return register(castOwner, PlateEntry(handle, castOwner, sprite, intrinsic))
+        return register(castOwner, PlateEntry(handle, castOwner, sprite, intrinsic, tintHex?.let { argb(it) and 0xFFFFFF }, SkillDisplaySpecs.opacity(alpha)))
     }
 
     override fun spawnBlock(cast: CastRef, block: String, pose: VisualPose, brightness: Int?, rigShading: Boolean, view: DisplayView, glow: String?): VisualHandle {
@@ -196,7 +200,7 @@ public class PaperSkillVisualGateway(
         val spec = SkillDisplaySpecs.text(text, backgroundHex, backgroundAlpha, shadow, seeThrough, first.transform, pose.billboard, brightness)
         val handle = spawnDisplay(world, castOwner, pose.frame.origin, spec, listOf(text), pose.anchorFeet != null && pose.billboard == DisplayBillboard.FIXED, view)
             ?: return dead("text")
-        return register(castOwner, TextEntry(handle, castOwner, intrinsic))
+        return register(castOwner, TextEntry(handle, castOwner, intrinsic, (((backgroundAlpha.coerceIn(0.0, 1.0) * 255.0).roundToInt()) shl 24) or (argb(backgroundHex) and 0xFFFFFF)))
     }
 
     override fun spawnTrail(cast: CastRef, ticks: Int, widthFrac: Double, colorHex: String, alpha: Double): VisualHandle {
@@ -204,6 +208,45 @@ public class PaperSkillVisualGateway(
         val world = worldOf(cast) ?: return dead("trail")
         val rgb = argb(colorHex) and 0xFFFFFF
         return register(castOwner, TrailEntry(world, ticks.coerceAtLeast(1), widthFrac, rgb, alpha.coerceIn(0.0, 1.0)))
+    }
+
+    /**
+     * `set text_opacity` for a text or sprite display (`value` 0..1). The client does not interpolate it, so the table
+     * writes one set per changed tick. false = the handle is not a text / sprite display.
+     */
+    public fun setOpacity(handle: VisualHandle, value: Double): Boolean {
+        when (val e = entries[handle.id]) {
+            is PlateEntry -> { e.opacity = SkillDisplaySpecs.opacity(value); displays.setTextStyle(e.handle, 0, e.opacity, null) }
+            is TextEntry -> { e.opacity = SkillDisplaySpecs.opacity(value); displays.setTextStyle(e.handle, e.backgroundArgb, e.opacity, null) }
+            else -> return false
+        }
+        return true
+    }
+
+    /**
+     * `set color` (`#rrggbb`) and `set text` (a sprite flipbook glyph, see [SpriteGlyphs.text]) for a text or sprite display.
+     * A plate re-renders its current frame with the current tint; a text display restyles its colour / swaps its line.
+     * false = the handle is not a text / sprite display or the field is not one of those.
+     */
+    public fun setText(handle: VisualHandle, field: String, value: String): Boolean {
+        when (val e = entries[handle.id]) {
+            is PlateEntry -> when (field) {
+                "color" -> { e.rgb = argb(value) and 0xFFFFFF; displays.setText(e.handle, listOf(SpriteGlyphs.text(SpriteId(e.sprite), e.frame, e.rgb))) }
+                "text" -> {
+                    val glyph = value.firstOrNull { it.code in 0xE000 until 0xE000 + SpriteGlyphs.MAX_FRAMES } ?: return false
+                    e.frame = glyph.code - 0xE000
+                    displays.setText(e.handle, listOf(SpriteGlyphs.text(SpriteId(e.sprite), e.frame, e.rgb)))
+                }
+                else -> return false
+            }
+            is TextEntry -> when (field) {
+                "color" -> displays.setTextStyle(e.handle, e.backgroundArgb, e.opacity, argb(value) and 0xFFFFFF)
+                "text" -> displays.setText(e.handle, listOf(value))
+                else -> return false
+            }
+            else -> return false
+        }
+        return true
     }
 
     override fun sprite(sprite: String): SpriteInfo = spriteInfo(sprite).let { SpriteInfo(it.frames.coerceAtLeast(1), it.px.coerceAtLeast(1)) }
@@ -233,17 +276,6 @@ public class PaperSkillVisualGateway(
             is TrailEntry -> error("a trail is fed through pushTrailPoint, never written")
             null -> Unit // already removed (owner quit / cast ended): nothing left to move
         }
-    }
-
-    /** `set text_opacity=` on a text / plate display: false when the handle is not one (the player records the fault). */
-    public fun setTextOpacity(handle: VisualHandle, opacity: Int): Boolean {
-        val h = when (val e = entries[handle.id]) {
-            is TextEntry -> e.handle
-            is PlateEntry -> e.handle
-            else -> return false
-        }
-        displays.setTextOpacity(h, opacity)
-        return true
     }
 
     override fun pushTrailPoint(handle: VisualHandle, root: Vec3, tip: Vec3) {

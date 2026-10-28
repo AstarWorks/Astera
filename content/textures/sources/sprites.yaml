@@ -8,6 +8,7 @@
 
 sources:
   vfx-v1: { file: sheets/vfx-v1.png, grid: [6, 6] }
+  quad: { file: images/quad.png }
   bastion-s1-crescent: { file: images/bastion-s1-crescent.png }
   couture-s2-crescent: { file: images/couture-s2-crescent.png }
   couture-s2-crescent-core: { file: images/couture-s2-crescent-core.png }
@@ -98,6 +99,7 @@ sprites:
   fire-burst: { from: vfx-v1, row: 0, frames: 6 }
   frost-shatter: { from: vfx-v1, row: 1, frames: 6 }
   arcane-slash: { from: vfx-v1, row: 2, frames: 6 }
+  quad: { from: quad, raw: true, frames: 1, size: 16 }
   holy-glint: { from: vfx-v1, row: 3, frames: 6 }
   thunder-spark: { from: vfx-v1, row: 4, frames: 6 }
   blood-splash: { from: vfx-v1, row: 5, frames: 6 }

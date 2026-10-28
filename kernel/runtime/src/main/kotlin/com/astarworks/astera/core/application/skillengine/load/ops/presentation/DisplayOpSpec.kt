@@ -46,6 +46,8 @@ import com.astarworks.astera.core.domain.skillengine.table.SpawnKind
 import com.astarworks.astera.core.domain.skillengine.table.SubTable
 import com.astarworks.astera.core.domain.skillengine.table.TickRange
 import com.astarworks.astera.core.domain.skillengine.table.Val
+import com.astarworks.astera.core.domain.sprite.SpriteGlyphs
+import com.astarworks.astera.core.domain.sprite.SpriteId
 import org.joml.Quaterniond
 import org.joml.Vector3d
 
@@ -70,7 +72,11 @@ public class DisplayOp(
     public val textStyle: TextStyle?,
     public val spriteSize: Pair<Value<Double>, Value<Double>>?,
     public val spritePivot: String?,
-    public val tint: Value<String>?,
+    /** `color` of a text / sprite display (#rrggbb or #aarrggbb); null = the glyph's own colours. */
+    public val color: Value<String>?,
+    /** `see_through` of a text / sprite display; null on item / block. */
+    public val seeThrough: Value<Boolean>?,
+    public val flipbook: Flipbook?,
     public val translation: Value<Vec3>,
     public val rotate: Rotation,
     public val scale: Value<Vec3>,
@@ -88,13 +94,15 @@ public class DisplayOp(
     public val motion: List<MotionLaw>,
 ) : OpNode
 
+/** Sprite `flipbook`: [frames] glyphs, one step every [every] ticks; [loop] wraps to frame 0, otherwise the last frame holds. */
+public class Flipbook(public val frames: Int, public val every: Int, public val loop: Boolean)
+
 /** The `kind: text` fields (TextDisplay). */
 public class TextStyle(
     public val background: Value<String>?,
     public val alignment: String,
     public val lineWidth: Value<Double>,
     public val textOpacity: Value<Double>,
-    public val seeThrough: Value<Boolean>,
     public val shadow: Value<Boolean>,
 )
 
@@ -142,14 +150,19 @@ public object DisplayOpSpec : OpSpec<DisplayOp> {
     private val alignmentF = Field.optional("alignment", Types.enumOf("center", "left", "right"), "center", "kind text: vanilla default center")
     private val lineWidthF = Field.optional("line_width", Types.number, Value.Literal(200.0), "kind text: vanilla default 200")
     private val textOpacityF = Field.optional("text_opacity", Types.number, Value.Literal(255.0), "kind text: 0..255, vanilla default 255 (opaque)")
-    private val seeThroughF = Field.optional("see_through", Types.bool, Value.Literal(false), "kind text: vanilla default false")
+    private val seeThroughF = Field.optional("see_through", Types.bool, Value.Literal(false), "kind text | sprite: vanilla default false")
     private val shadowF = Field.optional("shadow", Types.bool, Value.Literal(false), "kind text: vanilla default false")
 
     // sprite
     private val spriteF = Field.optional("sprite", Types.nullable(Types.id), null, "kind sprite: content/sprites id")
     private val sizeF = Field.optional("size", Types.nullable(SIZE), null, "kind sprite: [w, h] in BLOCKS (2.1)")
     private val pivotF = Field.optional("pivot", Types.enumOf("center", "origin"), "center", "kind sprite: centre compensation macro (2.1), decision default center")
-    private val tintF = Field.optional("tint", Types.nullable(Types.text), null, "kind sprite: tint #rrggbb or #aarrggbb; absent = untinted")
+    private val colorF = Field.optional("color", Types.nullable(Types.text), null, "kind text | sprite: colour #rrggbb or #aarrggbb; absent = the glyph's own colours")
+    private val flipFrames = Field.required("frames", Types.number, "number of glyph frames of the sprite")
+    private val flipEvery = Field.required("every", Types.number, "ticks per frame")
+    private val flipLoop = Field.optional("loop", Types.bool, Value.Literal(false), "wrap to frame 0 after the last frame; false holds the last frame")
+    private val flipbookFields = Fields.of("flipbook", flipFrames, flipEvery, flipLoop)
+    private val flipbookF = Field.optional("flipbook", Types.nullable(Types.nested(flipbookFields)), null, "kind sprite: steps the glyph frame, one text write per step (lowered at compile)")
 
     // Transformation(translation, left_rotation, scale, right_rotation)
     private val translationF = Field.optional("translation", Types.worldVec3, Value.Literal(Vec3(0.0, 0.0, 0.0)), "vanilla translation, entity-local axes (never rotated by left_rotation, 2.3)")
@@ -174,15 +187,15 @@ public object DisplayOpSpec : OpSpec<DisplayOp> {
     private val kindOnly: Map<String, List<Field<*>>> = mapOf(
         "item" to listOf(itemF, contextF),
         "block" to listOf(blockF),
-        "text" to listOf(textF, backgroundF, alignmentF, lineWidthF, textOpacityF, seeThroughF, shadowF),
-        "sprite" to listOf(spriteF, sizeF, pivotF, tintF),
+        "text" to listOf(textF, backgroundF, alignmentF, lineWidthF, textOpacityF, shadowF),
+        "sprite" to listOf(spriteF, sizeF, pivotF, flipbookF),
     )
 
     override val fields: Fields = Fields.of(
         "display", kindF, anchorF, offsetF,
         itemF, contextF, blockF,
         textF, backgroundF, alignmentF, lineWidthF, textOpacityF, seeThroughF, shadowF,
-        spriteF, sizeF, pivotF, tintF,
+        spriteF, sizeF, pivotF, flipbookF, colorF,
         translationF, rotateF, scaleF, rightF, yawF, pitchF, billboardF, brightnessF, viewRangeF, glowColorF,
         interpDelayF, interpDurationF, teleportDurationF, motionF,
     )
@@ -201,6 +214,11 @@ public object DisplayOpSpec : OpSpec<DisplayOp> {
                 if (otherKind == values[kindF]) continue
                 fs.firstOrNull { values.isPresent(it) }?.let {
                     ctx.fail("$p.${it.name}", "'${it.name}' belongs to kind $otherKind, not to kind ${values[kindF]}")
+                }
+            }
+            if (kind != DisplayKind.TEXT && kind != DisplayKind.SPRITE) {
+                for (f in listOf(seeThroughF, colorF)) {
+                    if (values.isPresent(f)) ctx.fail("$p.${f.name}", "'${f.name}' belongs to kind text or sprite, not to kind ${values[kindF]}")
                 }
             }
             if (kind == DisplayKind.SPRITE && values.isPresent(scaleF)) {
@@ -229,7 +247,14 @@ public object DisplayOpSpec : OpSpec<DisplayOp> {
             } else {
                 null
             }
-            val tint = values[tintF]?.let { foldText(it, ctx).also { c -> checkHex(c, "$p.tint", ctx, allowAlpha = true) } }
+            val color = values[colorF]?.let { foldText(it, ctx).also { c -> checkHex(c, "$p.color", ctx, allowAlpha = true) } }
+            val seeThrough = if (kind == DisplayKind.TEXT || kind == DisplayKind.SPRITE) foldBool(values[seeThroughF], ctx) else null
+            val flipbook = values[flipbookF]?.let { fb ->
+                val frames = flipbookInt(fb[flipFrames], "$p.flipbook.frames", ctx, 1, SpriteGlyphs.MAX_FRAMES)
+                val every = flipbookInt(fb[flipEvery], "$p.flipbook.every", ctx, 1, null)
+                val loop = (foldBool(fb[flipLoop], ctx) as? Value.Literal)?.value ?: ctx.fail("$p.flipbook.loop", "loop must be a literal true / false")
+                Flipbook(frames, every, loop)
+            }
             val glow = values[glowColorF]?.let { foldText(it, ctx).also { c -> checkHex(c, "$p.glow_color", ctx, allowAlpha = false) } }
             val background = values[backgroundF]?.let { foldText(it, ctx).also { c -> checkHex(c, "$p.background", ctx, allowAlpha = true) } }
 
@@ -238,7 +263,7 @@ public object DisplayOpSpec : OpSpec<DisplayOp> {
                     background, values[alignmentF],
                     wholeNum(values[lineWidthF], "$p.line_width", ctx, 1.0, null),
                     wholeNum(values[textOpacityF], "$p.text_opacity", ctx, 0.0, 255.0),
-                    foldBool(values[seeThroughF], ctx), foldBool(values[shadowF], ctx),
+                    foldBool(values[shadowF], ctx),
                 )
             } else {
                 null
@@ -253,7 +278,7 @@ public object DisplayOpSpec : OpSpec<DisplayOp> {
 
             DisplayOp(
                 id, src, whenExpr, foldTiming(t, ctx), kind, values[anchorF], values[offsetF],
-                subject, values[contextF], style, size, if (kind == DisplayKind.SPRITE) values[pivotF] else null, tint,
+                subject, values[contextF], style, size, if (kind == DisplayKind.SPRITE) values[pivotF] else null, color, seeThrough, flipbook,
                 values[translationF], values[rotateF], values[scaleF], values[rightF],
                 foldNum(values[yawF], ctx), foldNum(values[pitchF], ctx), billboard, brightness, viewRange, glow,
                 wholeNum(values[interpDelayF], "$p.interpolation_delay", ctx, 0.0, null),
@@ -305,6 +330,8 @@ public object DisplayOpSpec : OpSpec<DisplayOp> {
             }
 
             var writes = emptyMap<InstanceId, com.astarworks.astera.core.domain.skillengine.table.WriteStats>()
+            val flipRows = op.flipbook?.let { flipbookRows(op, it, instance, end, lc) }.orEmpty()
+            rows += flipRows
             // The anchor's own laws ride first: left_rotation = anchor.rot(t) * rider (item 16).
             val laws = lc.anchors.laws(op.anchor) + op.motion
             if (laws.isNotEmpty()) {
@@ -318,12 +345,42 @@ public object DisplayOpSpec : OpSpec<DisplayOp> {
                     }
                 }
             }
-            Lowered(rows, subTables, listOf(instance), emptyList(), writes)
+            if (flipRows.isNotEmpty()) {
+                val prev = writes[instance]
+                val perTick = flipRows.groupingBy { it.tick }.eachCount()
+                writes = writes + (instance to com.astarworks.astera.core.domain.skillengine.table.WriteStats(
+                    (prev?.segments ?: 0) + flipRows.size, maxOf(prev?.maxWritesPerTick ?: 0, perTick.values.max()),
+                ))
+            }
+            Lowered(rows.sortedBy { it.tick }, subTables, listOf(instance), emptyList(), writes)
         }
     }
 
     /** A fade law writes the vanilla TextDisplay opacity field (text and sprite displays; item / block use `grow`). */
     private const val FADE_FIELD = "text_opacity"
+
+    /**
+     * `flipbook` (R23): frame 0 is the spawn glyph; every [Flipbook.every] ticks after it one `Set text=<glyph>` row steps the frame, to the
+     * display's end (the cast's `maxLifeTicks` when the display has no `for`). `loop` wraps, otherwise the last frame holds with no more rows.
+     */
+    private fun flipbookRows(op: DisplayOp, fb: Flipbook, instance: InstanceId, end: Int?, lc: LowerContext): List<Row> {
+        val id = (op.subject as? Value.Literal<String>)?.value
+            ?: throw DecodeAbort(SkillDecodeError.Invalid(lc.skillId, lc.src.value, "a sprite id is a literal"))
+        val known = lc.sprites.frames(id) ?: throw DecodeAbort(SkillDecodeError.UndefinedReference(lc.skillId, lc.src.value, id))
+        if (fb.frames > known) {
+            throw DecodeAbort(SkillDecodeError.Invalid(lc.skillId, "${lc.src.value}.flipbook.frames", "sprite '$id' has $known frame(s), flipbook asks for ${fb.frames}"))
+        }
+        val last = end ?: lc.config.maxLifeTicks
+        val rows = ArrayList<Row>()
+        var step = 1
+        while (step * fb.every < last) {
+            if (!fb.loop && step >= fb.frames) break
+            val frame = step % fb.frames
+            rows += Row(step * fb.every, instance, Action.Set("text", Val.Known(SpriteGlyphs.text(SpriteId(id), frame))), lc.src)
+            step++
+        }
+        return rows
+    }
 
     /** Sprite sizing (item 10): natural quad = px * 0.025 blocks; `scale` = size / natural, so the gateway computes nothing. */
     private class SpriteScale(val scale: Val<Vector3d>)
@@ -407,8 +464,9 @@ public object DisplayOpSpec : OpSpec<DisplayOp> {
                 f["alignment"] = Val.Known(s.alignment)
                 f["line_width"] = cell(s.lineWidth)
                 f["text_opacity"] = cell(s.textOpacity)
-                f["see_through"] = cell(s.seeThrough)
                 f["shadow"] = cell(s.shadow)
+                f["see_through"] = cell(op.seeThrough!!)
+                op.color?.let { f["color"] = cell(it) }
             }
             DisplayKind.SPRITE -> {
                 val (w, h) = op.spriteSize!!
@@ -416,7 +474,8 @@ public object DisplayOpSpec : OpSpec<DisplayOp> {
                 f["size"] = vecCell(w, h)
                 f["pivot"] = Val.Known(op.spritePivot!!)
                 f["scale"] = sprite!!.scale
-                op.tint?.let { f["tint"] = cell(it) }
+                f["see_through"] = cell(op.seeThrough!!)
+                op.color?.let { f["color"] = cell(it) }
             }
         }
         f["translation"] = vecCell(op.translation)
@@ -503,6 +562,14 @@ public object DisplayOpSpec : OpSpec<DisplayOp> {
             }
         }
         return f
+    }
+
+    private fun flipbookInt(v: Value<Double>, path: String, ctx: GrammarContext, lo: Int, hi: Int?): Int {
+        val lit = (foldNum(v, ctx) as? Value.Literal)?.value ?: ctx.fail(path, "must be a literal whole number")
+        if (lit != Math.floor(lit) || lit < lo || (hi != null && lit > hi)) {
+            ctx.fail(path, "must be a whole number in $lo.." + (hi?.toString() ?: "") + " (was $lit)")
+        }
+        return lit.toInt()
     }
 
     private fun checkPositive(v: Value<Double>, path: String, ctx: GrammarContext) {

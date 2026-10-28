@@ -69,9 +69,6 @@ public interface IDisplayEntityGateway {
      */
     public fun setTextStyle(handle: DisplayHandle, backgroundArgb: Int, textOpacity: Int, textRgb: Int?)
 
-    /** Sets only the text opacity (0..255) of a text display; the background and colour stay (the skill `set text_opacity=` law). */
-    public fun setTextOpacity(handle: DisplayHandle, textOpacity: Int)
-
     /**
      * One atomic per-tick write: location, the full transformation, billboard, and a single `interpolation_delay` /
      * `interpolation_duration` / `teleport_duration`, applied in the vanilla order (durations, then the data they apply

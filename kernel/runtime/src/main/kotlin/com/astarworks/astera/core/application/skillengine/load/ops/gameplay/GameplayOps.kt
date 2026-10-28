@@ -4,6 +4,7 @@ import com.astarworks.astera.core.application.skillengine.compose.LowerContext
 import com.astarworks.astera.core.application.skillengine.load.SkillDecodeError
 import com.astarworks.astera.core.application.skillengine.load.grammar.Field
 import com.astarworks.astera.core.application.skillengine.load.grammar.FieldType
+import com.astarworks.astera.core.application.skillengine.load.grammar.FieldValues
 import com.astarworks.astera.core.application.skillengine.load.grammar.Fields
 import com.astarworks.astera.core.application.skillengine.load.grammar.GrammarContext
 import com.astarworks.astera.core.application.skillengine.load.grammar.Span
@@ -40,22 +41,39 @@ internal object GameplayOps {
         override fun schema(): Map<String, Any?> = linkedMapOf("type" to "boolean")
     }
 
-    /** A whole number, no `${param}` / `= CEL` (used for `max_count`). */
-    private val wholeNumber: FieldType<Int> = object : FieldType<Int> {
-        override val label = "integer"
-        override fun decode(raw: Any?, ctx: GrammarContext, path: String): Int {
+    /**
+     * Q1 (founder question open): what an OMITTED `max_count` means. `false` = spelling B, omitted = unlimited (the same as `all`);
+     * `true` = spelling A, omitted is a load error and the author writes an integer or `all`. Flip this one constant when the founder answers.
+     */
+    const val MAX_COUNT_OMITTED_IS_LOAD_ERROR: Boolean = false
+
+    /** `max_count`: an integer >= 1, or `all` (= unlimited, null). No `${param}` / `= CEL`. */
+    val maxCountType: FieldType<Int?> = object : FieldType<Int?> {
+        override val label = "integer >= 1 or 'all'"
+        override fun decode(raw: Any?, ctx: GrammarContext, path: String): Int? {
+            if (raw == "all") return null
             val n = raw as? Number ?: ctx.mismatch(path, label, raw)
-            if (n.toDouble() % 1.0 != 0.0) ctx.fail(path, "expected an integer, found $n")
+            if (n.toDouble() % 1.0 != 0.0) ctx.fail(path, "expected an integer or 'all', found $n")
+            if (n.toInt() < 1) ctx.fail(path, "max_count must be at least 1 (use 'all' for no limit)")
             return n.toInt()
         }
-        override fun schema(): Map<String, Any?> = linkedMapOf("type" to "integer")
+        override fun schema(): Map<String, Any?> = linkedMapOf("oneOf" to listOf(linkedMapOf("type" to "integer", "minimum" to 1), linkedMapOf("const" to "all")))
+    }
+
+    /** Declares `max_count` on a gameplay op; read it with [maxCount]. */
+    fun maxCountField(doc: String): Field<Int?> = Field.optional("max_count", maxCountType, null, doc)
+
+    /** Reads [field]: null = unlimited (`all`, or omitted under spelling B); an omitted field under spelling A fails the load. */
+    fun maxCount(v: FieldValues, field: Field<Int?>, ctx: GrammarContext, path: String): Int? {
+        if (!v.isPresent(field) && MAX_COUNT_OMITTED_IS_LOAD_ERROR) ctx.fail("$path.max_count", "max_count is required: an integer or 'all'")
+        return v[field]
     }
 
     /** `{kind: enemies|allies, around, radius, max_count?, include_self?}` (ADR-0303 3 target grammar). */
     private val areaKind = Field.required("kind", Types.enumOf("enemies", "allies"), "enemies or allies")
     private val areaAround = Field.required("around", Types.id, "point or frame the area is centred on")
     private val areaRadius = Field.required("radius", Types.number, "radius in blocks")
-    private val areaMax = Field.optional("max_count", Types.nullable(wholeNumber), null, "keep the nearest N to `around`")
+    private val areaMax = maxCountField("keep the nearest N to `around`; `all` = unlimited")
     private val areaSelf = Field.optional("include_self", flag, false, "allies only: include the caster")
     private val areaFields: Fields = Fields.of("target", areaKind, areaAround, areaRadius, areaMax, areaSelf)
 
@@ -81,9 +99,9 @@ internal object GameplayOps {
         return when (v[areaKind]) {
             "enemies" -> {
                 if (v.isPresent(areaSelf)) ctx.fail(path, "include_self is only valid for allies")
-                TargetRef.Enemies(PointRef.parse(v[areaAround]), v[areaRadius], v[areaMax])
+                TargetRef.Enemies(PointRef.parse(v[areaAround]), v[areaRadius], maxCount(v, areaMax, ctx, path))
             }
-            else -> TargetRef.Allies(PointRef.parse(v[areaAround]), v[areaRadius], v[areaMax], v[areaSelf])
+            else -> TargetRef.Allies(PointRef.parse(v[areaAround]), v[areaRadius], maxCount(v, areaMax, ctx, path), v[areaSelf])
         }
     }
 
@@ -99,6 +117,13 @@ internal object GameplayOps {
     }
 
     fun num(v: Value<Double>, lc: LowerContext, path: String): Result<Num, SkillDecodeError> = literal(v, lc, path).map { Val.Known(it) }
+
+    /** Any number value as a table cell: a literal is known, `${p}` / `= expr` are read live at play time (a per-victim hit damage reads `event.victim`). */
+    fun live(v: Value<Double>): Num = when (v) {
+        is Value.Literal -> Val.Known(v.value)
+        is Value.ParamRef -> Val.Live<Double>("\${${v.name}}", null)
+        is Value.Expr -> Val.Live<Double>("= ${v.source}", null)
+    }
 
     /** Whole-number value from a literal (stacks). */
     fun whole(v: Value<Double>, lc: LowerContext, path: String): Result<Int, SkillDecodeError> = literal(v, lc, path).map { Math.round(it).toInt() }
@@ -138,12 +163,18 @@ internal object GameplayOps {
             Result.Failure(SkillDecodeError.Invalid(lc.skillId, path, "area target needs a TargetRule on this action (domain request: Action.Damage / Action.Status take a TargetSet only)"))
     }
 
-    /** Target as a [TargetRule] (damage / status / hit). Area targets are List C. */
+    /** Target as a [TargetRule] (damage / status / cleanse). An area keeps its anchor instance when `around` names one, else the live name (`caster`, `contact`). */
     fun targetRule(t: TargetRef, lc: LowerContext, path: String): Result<TargetRule, SkillDecodeError> = when (t) {
         TargetRef.Victim -> Result.Success(TargetRule.Entity("event.victim"))
         TargetRef.Caster -> Result.Success(TargetRule.Entity("caster"))
-        is TargetRef.Enemies, is TargetRef.Allies -> error("W1b-02: area target -> TargetRule.Area (around anchor, radius, max_count, include_self)")
+        is TargetRef.Enemies -> area(lc, path, "enemies", t.around, t.radius, t.maxCount, false)
+        is TargetRef.Allies -> area(lc, path, "allies", t.around, t.radius, t.maxCount, t.includeSelf)
     }
+
+    private fun area(lc: LowerContext, path: String, kind: String, around: PointRef, radius: Value<Double>, maxCount: Int?, includeSelf: Boolean): Result<TargetRule, SkillDecodeError> =
+        num(radius, lc, "$path.radius").map { r ->
+            TargetRule.Area(kind, lc.anchors.resolve(around.frame)?.instance, point(around.frame, around.point), r, maxCount, includeSelf)
+        }
 
     fun row(lc: LowerContext, instance: InstanceId, action: Action): Row = Row(0, instance, action, lc.src)
 

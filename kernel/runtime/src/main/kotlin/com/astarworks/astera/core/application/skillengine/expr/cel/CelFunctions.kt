@@ -95,7 +95,19 @@ internal object CelFunctions {
 
     /** Stateless value keyed like [stream] (cast, tick, replay sample, name) but fresh at every call, so it repeats within an eval. */
     private fun rolled(name: String): SeededRandom =
-        SeededRandom(env().seed xor (name.hashCode().toLong() * GOLDEN) xor (env().sample.toLong() * 0x2545F4914F6CDD1DL) xor 0x1B873593L)
+        SeededRandom(env().seed xor (name.hashCode().toLong() * GOLDEN) xor (env().sample.toLong() * 0x2545F4914F6CDD1DL) xor 0x1B873593L xor occurrenceKey())
+
+    /** Mixes the copy index chain (`i`, `parent.i`, ...) so the copies of a `times` row roll different values (R10); 0 when none is bound. */
+    private fun occurrenceKey(): Long {
+        var h = 0L
+        var prefix = ""
+        repeat(V3Bindings.MAX_PARENT_DEPTH + 1) {
+            val i = (env().variables[prefix + "i"] as? ExprValue.Num)?.value ?: return h
+            h = (h xor i.toLong()) * 0x2545F4914F6CDD1DL + 0x9E3779B9L
+            prefix += "parent."
+        }
+        return h
+    }
 
     /** Stateless value keyed by the cast seed and [name] only: the same on every call, tick and sample of one cast. */
     private fun drawn(name: String): SeededRandom = SeededRandom(env().castSeed xor (name.hashCode().toLong() * GOLDEN) xor 0x5DEECE66DL)
@@ -264,7 +276,7 @@ internal object CelFunctions {
         def("pos", "pos_ref", VEC3, listOf(REF), listOf(R)) { feet(it[0]) }
         def("axis", "axis_ref", VEC3, listOf(REF, SimpleType.STRING), listOf(R, STR)) { axisOf(worldPose(it[0] as ExprValue.Ref), it[1] as String) }
         def("point", "point_ref", REF, listOf(REF, SimpleType.STRING), listOf(R, STR)) { (it[0] as ExprValue.Ref).copy(point = it[1] as String) }
-        def("vel", "vel_ref", VEC3, listOf(REF), listOf(R)) { (it[0] as ExprValue.Ref).let { r -> env().frames.velocity(r.name, r.point) } }
+        def("velocity", "velocity_ref", VEC3, listOf(REF), listOf(R)) { (it[0] as ExprValue.Ref).let { r -> env().frames.velocity(r.name, r.point) } }
         def("speed", "speed_ref", D, listOf(REF), listOf(R)) { (it[0] as ExprValue.Ref).let { r -> env().frames.velocity(r.name, r.point).length() } }
 
         // world axes of a frame (same as axis(f, "left") ...)
@@ -286,7 +298,7 @@ internal object CelFunctions {
             host().enemyInCone(feet(ref), axisOf(worldPose(ref), "forward"), n(it[1]), n(it[2]))
         }
         def("hp_ratio", "hp_ratio_ref", D, listOf(REF), listOf(R)) { host().hpRatio(it[0] as ExprValue.Ref) }
-        def("counter", "counter_str", D, listOf(SimpleType.STRING), listOf(STR)) { host().counter(it[0] as String) }
+        def("stacks", "stacks_ref_str", D, listOf(REF, SimpleType.STRING), listOf(R, STR)) { host().stacks(it[0] as ExprValue.Ref, it[1] as String) }
 
         // spatial tests (angles in degrees)
         def("dist", "dist_any", D, listOf(NUM, NUM), listOf(OBJ, OBJ)) { feet(it[0]).distance(feet(it[1])) }

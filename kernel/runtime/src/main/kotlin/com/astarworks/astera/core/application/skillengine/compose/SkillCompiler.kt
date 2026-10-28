@@ -8,6 +8,8 @@ import com.astarworks.astera.core.application.skillengine.load.SkillDecodeError
 import com.astarworks.astera.core.application.skillengine.load.grammar.GrammarContext
 import com.astarworks.astera.core.application.skillengine.load.ops.control.GroupOp
 import com.astarworks.astera.core.application.skillengine.load.ops.control.UseOp
+import com.astarworks.astera.core.application.skillengine.load.ops.gameplay.HitEvent
+import com.astarworks.astera.core.application.skillengine.load.ops.gameplay.HitOp
 import com.astarworks.astera.core.application.skillengine.load.ops.gameplay.ProjectileEvent
 import com.astarworks.astera.core.application.skillengine.load.ops.gameplay.ProjectileOp
 import com.astarworks.astera.core.application.skillengine.load.spec.Lowered
@@ -130,6 +132,7 @@ public class SkillCompiler(
 
     private object NoSprites : SpriteCatalog {
         override fun natural(id: String): Vec2Px? = null
+        override fun frames(id: String): Int? = null
     }
 
     private object NoFrames : FrameLookup {
@@ -238,6 +241,11 @@ public class SkillCompiler(
             is GroupOp -> {
                 val children = decodeList(node.rawDo, node.src.value + ".do").getOr { return Result.Failure(it) }
                 Result.Success(node.withBody(children, childLowering))
+            }
+            is HitOp -> if (node.rawOn.isEmpty()) Result.Success(node) else {
+                val handlers = LinkedHashMap<HitEvent, List<OpNode>>()
+                for ((e, list) in node.rawOn) handlers[e] = decodeList(list, node.src.value + ".on." + e.key).getOr { return Result.Failure(it) }
+                Result.Success(node.withHandlers(handlers, handlerLowering))
             }
             is ProjectileOp -> if (node.rawOn.isEmpty()) Result.Success(node) else {
                 val handlers = LinkedHashMap<ProjectileEvent, List<OpNode>>()

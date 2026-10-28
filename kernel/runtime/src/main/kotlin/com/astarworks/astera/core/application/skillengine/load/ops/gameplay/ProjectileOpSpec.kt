@@ -60,7 +60,10 @@ public sealed interface SpeedSpec {
 }
 
 /** `hit:` (3.6). `times` is required exactly when `once` is false. */
-public data class ProjectileHit(val targets: String, val once: Value<Boolean>, val times: Value<Double>?)
+public data class ProjectileHit(val targets: String, val once: Value<Boolean>, val times: Value<Double>?, val shape: ProjectileHitShape? = null)
+
+/** R43 `hit.shape`: swept capsules `from -> to` (points of each frame, e.g. `root` / `tip`) of radius [radius] on the rider [frames], instead of the body point's `radius` sphere. */
+public data class ProjectileHitShape(val radius: Value<Double>, val from: String, val to: String, val frames: List<String>)
 
 /** `block:` (3.6). Which of [forTicks] / [restitution] / [times] are present is fixed by [mode] at decode. */
 public data class ProjectileBlock(val mode: String, val forTicks: Value<Double>?, val restitution: Value<Double>?, val times: Value<Double>?)
@@ -80,7 +83,7 @@ public class ProjectileOp(
     public val velocity: Value<Vec3>,
     public val speed: SpeedSpec?,
     public val range: Value<Double>?,
-    public val radius: Value<Double>,
+    public val radius: Value<Double>?,
     public val hit: ProjectileHit,
     public val motion: List<MotionLaw>?,
     public val block: ProjectileBlock,
@@ -141,7 +144,13 @@ public object ProjectileOpSpec : OpSpec<ProjectileOp> {
     private val hitTargets = Field.required("targets", Types.enumOf(*TARGETS), "enemies / allies / all / blocks_only")
     private val hitOnce = Field.required("once", Types.bool, "true: the first victim ends the flight; false: pierce, up to `times` victims")
     private val hitTimes = Field.optional("times", Types.nullable(Types.number), null, "pierce count; required when once is false, rejected otherwise")
-    private val hitFields = Fields.of("projectile-hit", hitTargets, hitOnce, hitTimes)
+    private val shapeRadius = Field.required("capsule", Types.number, "capsule radius in blocks")
+    private val shapeFrom = Field.required("from", Types.id, "capsule start point of each frame (root / tip / a part point)")
+    private val shapeTo = Field.required("to", Types.id, "capsule end point of each frame")
+    private val shapeFrames = Field.required("frames", Types.list(Types.id), "rider `frame` ops anchored on this projectile; one swept capsule each")
+    private val shapeFields = Fields.of("projectile-hit-shape", shapeRadius, shapeFrom, shapeTo, shapeFrames)
+    private val hitShape = Field.optional("shape", Types.nullable(Types.nested(shapeFields)), null, "R43: capsules on rider frames instead of `radius`; exactly one of the two")
+    private val hitFields = Fields.of("projectile-hit", hitTargets, hitOnce, hitTimes, hitShape)
 
     private val blockMode = Field.required("mode", Types.enumOf(*MODES), "despawn / stick / bounce / pass")
     private val blockFor = Field.optional("for", Types.nullable(Types.number), null, "ticks stuck; required for stick, rejected otherwise")
@@ -158,7 +167,7 @@ public object ProjectileOpSpec : OpSpec<ProjectileOp> {
     private val velocity = Field.required("velocity", Types.worldVec3, "launch direction (blocks per tick when `speed` is absent)")
     private val speed = Field.optional("speed", Types.nullable(speedType), null, "blocks per tick or a ramp; required with `range` (the end tick must be static); absent = |velocity|")
     private val range = Field.optional("range", Types.nullable(Types.number), null, "blocks of travel after which `end` fires; `range` and/or the timing `for` is required")
-    private val radius = Field.required("radius", Types.number, "hit capsule radius in blocks")
+    private val radius = Field.optional("radius", Types.nullable(Types.number), null, "hit sphere radius of the body point in blocks; exactly one of `radius` / `hit.shape`")
     private val hit = Field.required("hit", Types.nested(hitFields))
     private val motion = Field.optional("motion", Types.nullable(rawAny), null, "laws on the body frame (spin about forward, ...)")
     private val block = Field.required("block", Types.nested(blockFields))
@@ -181,7 +190,11 @@ public object ProjectileOpSpec : OpSpec<ProjectileOp> {
             val times = h[hitTimes]
             if (once is Value.Literal && !once.value && times == null) ctx.fail("$path.hit", "hit.once is false: hit.times (the pierce count) is required")
             if (once is Value.Literal && once.value && times != null) ctx.fail("$path.hit.times", "hit.times only with once: false")
-            val hitSpec = ProjectileHit(h[hitTargets], once, times)
+            val shape = h[hitShape]?.let { ProjectileHitShape(it[shapeRadius], it[shapeFrom], it[shapeTo], it[shapeFrames]) }
+            if (shape != null && shape.frames.isEmpty()) ctx.fail("$path.hit.shape.frames", "needs at least one frame")
+            if (shape != null && values[radius] != null) ctx.fail("$path.radius", "radius and hit.shape are exclusive: the shape replaces the body sphere")
+            if (shape == null && values[radius] == null) ctx.fail("$path.radius", "radius (body sphere) or hit.shape (capsules on rider frames) is required")
+            val hitSpec = ProjectileHit(h[hitTargets], once, times, shape)
 
             val b = values[block]
             val mode = b[blockMode]
@@ -280,7 +293,16 @@ public object ProjectileOpSpec : OpSpec<ProjectileOp> {
             }
             if (range != null) look["range"] = Val.Known(range)
             if (forTicks != null) look["for"] = Val.Known(forTicks.toDouble())
-            look["radius"] = num(op.radius)
+            op.radius?.let { look["radius"] = num(it) }
+            op.hit.shape?.let { sh ->
+                // frames are named, not resolved: a rider frame may be declared after the projectile; the player finds the sibling instance by op id
+                look["hit.shape.radius"] = num(sh.radius)
+                sh.frames.forEachIndexed { i, f ->
+                    look["hit.shape.frame.$i"] = Val.Known(f)
+                    look["hit.shape.frame.$i.from"] = Val.Known(GameplayOps.point(f, sh.from))
+                    look["hit.shape.frame.$i.to"] = Val.Known(GameplayOps.point(f, sh.to))
+                }
+            }
             look["hit.targets"] = Val.Known(op.hit.targets)
             look["hit.once"] = Val.Known(once)
             look["hit.times"] = Val.Known(pierce.toDouble())

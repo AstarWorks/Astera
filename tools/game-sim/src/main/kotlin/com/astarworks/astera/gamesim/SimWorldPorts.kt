@@ -287,13 +287,6 @@ public class SimDisplayGateway(
         recorder.recordEffect(scheduler.currentTick(), "display_style", record.at, "${handle.id} bg=${Integer.toHexString(backgroundArgb)} opacity=$textOpacity")
     }
 
-    override fun setTextOpacity(handle: IDisplayEntityGateway.DisplayHandle, textOpacity: Int) {
-        val record = active[handle] ?: return
-        val last = styles.lastOrNull { it.handle == handle }
-        styles += Style(handle, scheduler.currentTick(), last?.backgroundArgb ?: 0, textOpacity, last?.textRgb)
-        recorder.recordEffect(scheduler.currentTick(), "display_text_opacity", record.at, "${handle.id} opacity=$textOpacity")
-    }
-
     override fun moveTo(handle: IDisplayEntityGateway.DisplayHandle, at: Vec3, yaw: Float, pitch: Float, teleportTicks: Int) {
         if (handle !in active) return
         teleports += Teleport(handle, scheduler.currentTick(), at, teleportTicks)
