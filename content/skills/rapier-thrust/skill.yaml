@@ -9,8 +9,8 @@ params:
   dmg_physical: {type: number, default: 24}
   knockback:    {type: number, default: 0.1}
 anchors:
-  - {id: muzzle, anchor: caster.eye, offset: {up: -0.1, forward: 1.5}, mode: snapshot}
-  - {id: heart, anchor: victim.root, offset: {up: 1.2}}   # GAP(Q2): v2 enemy frame origin = feet+0.8; victim.root = feet
+  - {id: muzzle, anchor: caster, offset: {up: -0.1, forward: 1.5}, mode: snapshot}
+  - {id: heart, anchor: victim.root, offset: {up: 1.2}}
 machine:
   start: strike
   states:

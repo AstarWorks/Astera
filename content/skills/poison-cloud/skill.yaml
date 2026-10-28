@@ -7,9 +7,9 @@ item: venom-flask
 meta: {name: {ja: "毒霧の瓶", en: "Poison Cloud"}, description: {ja: "着弾点に毒の霧を広げる。", en: "Bursts into a lingering poison cloud."}, cooldown_ticks: 160, resource_cost: 16, tags: [ranged, poison, magic, zone]}
 anchors:
   - {id: start,  anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}            # was pt_aim_0_0_0p5
-  - {id: muzzle, anchor: caster, offset: {up: -0.25, forward: 0.9}, mode: snapshot} # was pt_aim_0_m0p25_0p9
-  - {id: foe,    anchor: victim.root}   # GAP(Q2): v2 enemy frame origin = feet+0.8; victim.root = feet
-  - {id: foe_low, anchor: victim.root, offset: {up: 0.15}}   # GAP(Q2): v2 enemy frame origin = feet+0.8; victim.root = feet
+  - {id: muzzle, anchor: caster, offset: {up: -0.25, forward: 0.9}, mode: snapshot} # was pt_caster_0_m0p25_0p9
+  - {id: foe,    anchor: victim.root}
+  - {id: foe_low, anchor: victim.root, offset: {up: 0.15}}   # v2 pt_enemy_0_0p15_0
 machine:
   start: throw
   states:

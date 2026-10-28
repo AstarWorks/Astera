@@ -11,7 +11,7 @@ meta:
 anchors:
   - {id: muzzle,  anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}
   - {id: cast_fx, anchor: caster, offset: {up: -0.2, forward: 1.0}, mode: snapshot}   # v2 pt_caster_0_m0p2_1: caster frame (feet, yaw-only)
-  - {id: heart,   anchor: victim.body, offset: {up: 0.2}}   # GAP(Q2): v2 pt_enemy_0_1_0 = enemy origin (feet+0.8) + 1.0; same mapping as frost-shard
+  - {id: heart,   anchor: victim.root, offset: {up: 1.0}}   # v2 pt_enemy_0_1_0
 machine:
   start: fly
   states:

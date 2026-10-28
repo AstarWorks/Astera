@@ -11,7 +11,7 @@ meta:
 anchors:
   - {id: muzzle,  anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}
   - {id: cast_fx, anchor: caster, offset: {up: -0.25, forward: 0.9}, mode: snapshot}
-  - {id: heart,   anchor: victim.body, offset: {up: 0.4}}   # GAP(Q2): v2 enemy frame origin = feet+0.8; victim.body (0.9) is the founder's choice
+  - {id: heart,   anchor: victim.root, offset: {up: 1.2}}   # v2 pt_enemy_0_1p2_0
 machine:
   start: throw
   states:
@@ -31,9 +31,9 @@ machine:
           block: {mode: despawn}
           on:
             hit:
-              - {id: boom, op: explode, at: 0, anchor: victim, power: 1.3, break_blocks: false, fire: false}
-              - {id: boom_dmg, op: damage, target: {kind: enemies, around: victim, radius: 3.5, max_count: all}, damage: {physical: 35.0}}   # GAP(Q1): v2 had no cap
-              - {id: st_bleed, op: status, target: {kind: enemies, around: heart, radius: 3.5, max_count: all}, status: bleed, stacks: 1, for: 20}
+              - {id: boom, op: explode, at: 0, anchor: victim.root, power: 1.3, break_blocks: false, fire: false}
+              - {id: boom_dmg, op: damage, target: {kind: enemies, around: victim.root, radius: 3.5, max_count: all}, damage: {physical: 35.0}}   # GAP(Q1): v2 had no cap
+              - {id: st_bleed, op: status, target: {kind: enemies, around: victim.root, radius: 3.5, max_count: all}, status: bleed, stacks: 1, for: 20}
               - {id: chip, op: break_area, at: 0, anchor: contact, shape: {sphere: {radius: 1.5, ahead: 0.0}}, tool: none, block_damage: 35, ripple: 0, revert: 200, outside_arena: false}
               - {id: snd_hit, op: sound, sound: "entity.generic.explode", anchor: contact, volume: 0.7, pitch: 1.2}
               - {id: fx_hit, op: particle_def, def: hit-spark, anchor: heart}
