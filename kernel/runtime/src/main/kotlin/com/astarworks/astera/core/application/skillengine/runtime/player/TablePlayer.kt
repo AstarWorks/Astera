@@ -328,6 +328,9 @@ public class TablePlayer(
     private fun exitLevel(run: Run, lvl: LevelCursor, reason: ExitReason, now: Int, binding: EventBinding?) {
         for (child in run.cursor.levels.filter { it.parent === lvl }.asReversed()) exitLevel(run, child, ExitReason.PREEMPT, now, binding)
         pasteSub(run, EventPath("${lvl.state.value}.exit[${reason.name.lowercase()}]"), now, binding, owner = null, direct = true)
+        // End rows the table already played this tick are the contract and run in row order; the sweep below only closes what is still alive
+        for (id in run.pendingEnds.toList()) endInstance(run, id)
+        run.pendingEnds.clear()
         for ((id, rec) in run.recs.entries.toList().asReversed()) if (rec.owner == lvl.state) endInstance(run, id)
         run.regionEnds.remove(lvl.state)
         for (l in run.locks.filter { it.owner == lvl.state }) {
