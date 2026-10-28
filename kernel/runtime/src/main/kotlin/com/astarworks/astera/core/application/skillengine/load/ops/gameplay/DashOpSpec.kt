@@ -2,35 +2,142 @@ package com.astarworks.astera.core.application.skillengine.load.ops.gameplay
 
 import com.astarworks.astera.core.application.skillengine.compose.LowerContext
 import com.astarworks.astera.core.application.skillengine.load.SkillDecodeError
+import com.astarworks.astera.core.application.skillengine.load.grammar.Field
 import com.astarworks.astera.core.application.skillengine.load.grammar.FieldValues
 import com.astarworks.astera.core.application.skillengine.load.grammar.Fields
+import com.astarworks.astera.core.application.skillengine.load.grammar.FrameVec
+import com.astarworks.astera.core.application.skillengine.load.grammar.FrameVecs
+import com.astarworks.astera.core.application.skillengine.load.grammar.Grammar
 import com.astarworks.astera.core.application.skillengine.load.grammar.GrammarContext
+import com.astarworks.astera.core.application.skillengine.load.grammar.Span
 import com.astarworks.astera.core.application.skillengine.load.grammar.Timing
 import com.astarworks.astera.core.application.skillengine.load.grammar.TimingKind
+import com.astarworks.astera.core.application.skillengine.load.grammar.Types
 import com.astarworks.astera.core.application.skillengine.load.spec.Lowered
 import com.astarworks.astera.core.application.skillengine.load.spec.OpNode
 import com.astarworks.astera.core.application.skillengine.load.spec.OpSpec
 import com.astarworks.astera.core.application.skillengine.load.spec.WhenRef
 import com.astarworks.astera.core.domain.Result
+import com.astarworks.astera.core.domain.geometry.Vec3
+import com.astarworks.astera.core.domain.skillengine.model.Value
 import com.astarworks.astera.core.domain.skillengine.op.OpSection
+import com.astarworks.astera.core.domain.skillengine.table.Action
+import com.astarworks.astera.core.domain.skillengine.table.InstanceId
 import com.astarworks.astera.core.domain.skillengine.table.OpId
+import com.astarworks.astera.core.domain.skillengine.table.Row
+import com.astarworks.astera.core.domain.skillengine.table.Val
+import org.joml.Vector3d
 
-/** Decoded `dash` op. Stub: package W1-11 replaces this file's body. */
+/**
+ * Decoded `dash` op (ADR-0303 10.1): the caster travels `speed` blocks per tick along [direction] for the span's ticks.
+ * The travel is a closed-form segment; the player integrates it (no per-tick rows).
+ */
 public class DashOp(
     override val id: OpId,
     override val whenExpr: WhenRef?,
     override val timing: Timing?,
+    public val speed: Value<Double>,
+    public val ticks: Value<Double>,
+    public val direction: FrameVec,
+    public val ease: String?,
+    public val followPitch: Boolean,
+    public val stopOnBlock: Boolean,
+    public val invulnerable: Boolean,
+    public val faceMovement: Boolean,
+    public val stopBeforeTarget: Value<Double>?,
+    public val radius: Value<Double>,
 ) : OpNode
 
+/** Value / id plumbing shared by the caster-motion ops (dash, reel, rig, emit). */
+internal object CasterMotion {
+    /** Literal -> Known; `${param}` / `= expr` -> a named live value until W1-24 evaluates them at compile time. */
+    fun num(v: Value<Double>): Val<Any> = when (v) {
+        is Value.Literal -> Val.Known(v.value)
+        is Value.ParamRef -> Val.Live("\${" + v.name + "}", null)
+        is Value.Expr -> Val.Live("= " + v.source, null)
+    }
+
+    fun vec3(v: Value<Vec3>): Val<Any> = when (v) {
+        is Value.Literal -> Val.Known(Vector3d(v.value.x, v.value.y, v.value.z))
+        is Value.ParamRef -> Val.Live("\${" + v.name + "}", null)
+        is Value.Expr -> Val.Live("= " + v.source, null)
+    }
+
+    fun known(value: Any): Val<Any> = Val.Known(value)
+
+    /** The op's own instance: the prefix itself when it already ends in the op, else the prefix plus the op segment. */
+    fun instance(op: OpNode, lc: LowerContext): InstanceId {
+        val last = lc.instancePrefix.path.lastOrNull()
+        return if (last != null && last.op == op.id) lc.instancePrefix
+        else InstanceId(lc.instancePrefix.path + InstanceId.Segment(op.id, null))
+    }
+
+    fun row(tick: Int, instance: InstanceId, op: OpId, lc: LowerContext, payload: Map<String, Val<Any>>): Row =
+        Row(tick, instance, Action.Effect(op, payload), lc.src)
+
+    fun ticksOf(op: OpNode, ctx: GrammarContext, path: String): Value<Double> {
+        val span = op.timing?.span
+        return when (span) {
+            is Span.Ticks -> span.ticks
+            else -> ctx.fail(path, "needs 'for: <ticks>' (a fixed span)")
+        }
+    }
+}
+
 public object DashOpSpec : OpSpec<DashOp> {
+    private val speed = Field.required("speed", Types.number, "blocks per tick along the direction")
+    private val direction = Field.optional("direction", FrameVecs.type, FrameVec.Parts(Value.Literal(1.0), Value.Literal(0.0), Value.Literal(0.0)), "travel direction in the caster frame {forward, up, left}; default forward")
+    private val ease = Field.optional("ease", Types.nullable(Types.id), null, "shapes the accumulated distance over the span (3.7.1); absent = linear")
+    private val followPitch = Field.optional("follow_pitch", Types.bool, Value.Literal(false), "true = the heading follows the caster's pitch; false = level")
+    private val stopOnBlock = Field.optional("stop_on_block", Types.bool, Value.Literal(true), "stop at a solid block")
+    private val invulnerable = Field.optional("invulnerable", Types.bool, Value.Literal(true), "caster takes no damage while dashing")
+    private val faceMovement = Field.optional("face_movement", Types.bool, Value.Literal(false), "turn the caster to the travel direction")
+    private val stopBeforeTarget = Field.optional("stop_before_target", Types.nullable(Types.number), null, "stop this many blocks before the first target in the corridor")
+    private val radius = Field.optional("radius", Types.number, Value.Literal(1.2), "corridor half-width for stop_before_target")
+
     override val name: String = "dash"
     override val section: OpSection = OpSection.GAMEPLAY
     override val timing: TimingKind? = TimingKind.EXTENDED
-    override val fields: Fields = Fields.of("dash")
+    override val fields: Fields = Fields.of("dash", speed, direction, ease, followPitch, stopOnBlock, invulnerable, faceMovement, stopBeforeTarget, radius)
 
     override fun decode(id: OpId, whenExpr: WhenRef?, timing: Timing?, values: FieldValues, ctx: GrammarContext): Result<DashOp, SkillDecodeError> =
-        TODO("W1-11: decode of op 'dash'")
+        Grammar.guard {
+            val path = "dash(${id.value})"
+            val probe = DashOp(id, whenExpr, timing, values[speed], Value.Literal(0.0), values[direction], values[ease], false, true, true, false, null, Value.Literal(1.2))
+            val ticks = CasterMotion.ticksOf(probe, ctx, path)
+            fun flag(f: Field<Value<Boolean>>): Boolean = (values[f] as? Value.Literal)?.value ?: ctx.fail("$path.${f.name}", "must be a literal true/false")
+            DashOp(
+                id, whenExpr, timing, values[speed], ticks, values[direction], values[ease],
+                flag(followPitch), flag(stopOnBlock), flag(invulnerable), flag(faceMovement),
+                values[stopBeforeTarget], values[radius],
+            )
+        }
 
-    override fun lower(op: DashOp, lc: LowerContext): Result<Lowered, SkillDecodeError> =
-        TODO("W1-11: lowering of op 'dash'")
+    override fun lower(op: DashOp, lc: LowerContext): Result<Lowered, SkillDecodeError> {
+        val path = lc.src.value
+        val ticks = when (val t = lc.requireStaticTiming(path, "for", op.ticks)) {
+            is Result.Success -> t.value
+            is Result.Failure -> return t
+        }
+        val local = op.direction.toLocal()
+        val inst = CasterMotion.instance(op, lc)
+        val payload = linkedMapOf(
+            "kind" to CasterMotion.known("dash"),
+            "speed" to CasterMotion.num(op.speed),
+            "ticks" to CasterMotion.known(ticks.toDouble()),
+            "direction" to CasterMotion.vec3(local),
+            "ease" to CasterMotion.known(op.ease ?: "linear"),
+            "follow_pitch" to CasterMotion.known(op.followPitch),
+            "stop_on_block" to CasterMotion.known(op.stopOnBlock),
+            "invulnerable" to CasterMotion.known(op.invulnerable),
+            "face_movement" to CasterMotion.known(op.faceMovement),
+            "radius" to CasterMotion.num(op.radius),
+        )
+        op.stopBeforeTarget?.let { payload["stop_before_target"] = CasterMotion.num(it) }
+        val rows = listOf(
+            CasterMotion.row(0, inst, op.id, lc, payload),
+            CasterMotion.row(ticks, inst, op.id, lc, mapOf("kind" to CasterMotion.known("dash.end"))),
+        )
+        return Result.Success(Lowered(rows = rows, instances = listOf(inst)))
+    }
 }
