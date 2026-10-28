@@ -359,9 +359,14 @@ public object DisplayOpSpec : OpSpec<DisplayOp> {
                 when (moved) {
                     is Result.Failure -> throw DecodeAbort(moved.error)
                     is Result.Success -> {
-                        rows += moved.value.rows
+                        // a law (or the anchor's law) outlasting this display's `for:` writes nothing once the display has ended
+                        val inLife = if (end != null) moved.value.rows.filter { it.tick < end } else moved.value.rows
+                        rows += inLife
                         subTables += moved.value.subTables
-                        writes = moved.value.writes
+                        writes = if (inLife.size == moved.value.rows.size) moved.value.writes else {
+                            val perTick = inLife.groupingBy { it.tick }.eachCount()
+                            mapOf(instance to com.astarworks.astera.core.domain.skillengine.table.WriteStats(inLife.size, perTick.values.maxOrNull() ?: 0))
+                        }
                     }
                 }
             }

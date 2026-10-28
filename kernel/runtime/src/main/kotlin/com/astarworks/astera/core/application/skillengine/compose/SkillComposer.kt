@@ -267,9 +267,11 @@ class SkillComposer(private val root: Path, private val options: ComposeOptions 
         val states = segs.getOrNull(1)
         val state = segs.getOrNull(2)
         val section = segs.getOrNull(3)
-        val ok = head?.name == "machine" && head.id == null && states?.name == "states" && states.id == null &&
+        // `machine.world[<id>]...` is the machine-level op list (ADR-0303 10.1): the same rule as a state's `enter` / `do` / `exit`
+        val inWorld = head?.name == "machine" && head.id == null && states?.name == "world" && states.id != null
+        val ok = inWorld || (head?.name == "machine" && head.id == null && states?.name == "states" && states.id == null &&
             state != null && state.id == null && section != null && section.id != null &&
-            (section.name in opLists || (section.name == "on" && segs.getOrNull(4).let { it?.name == "do" && it.id != null }))
+            (section.name in opLists || (section.name == "on" && segs.getOrNull(4).let { it?.name == "do" && it.id != null })))
         if (!ok) return op.path
         val deepest = segs.indices.last { segs[it].id != null }
         val row = rowAt(base, segs, deepest)

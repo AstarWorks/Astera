@@ -197,8 +197,15 @@ abstract class SkillEngineScenario {
         val out = ArrayList<Pair<Int, RecordedCall>>()
         val ordinals = HashMap<String, Int>()
 
+        // rows are collected first and played in tick order, so an instance's ordinal follows the tick it spawns at (as the player assigns it)
+        val pending = ArrayList<Pair<Int, Row>>()
         fun emit(base: Int, row: Row) {
-            val tick = base + row.tick
+            pending += (base + row.tick) to row
+            val a = row.action
+            if (a is Action.End) table.subTables[EventPath(a.instance.text + ".end")]?.rows?.forEach { emit(base + row.tick, it) }
+        }
+
+        fun render(tick: Int, row: Row) {
             val id = row.instance.text
             when (val a = row.action) {
                 is Action.Spawn -> if (a.kind != SpawnKind.FRAME && a.kind != SpawnKind.PROJECTILE_BODY) {
@@ -214,14 +221,14 @@ abstract class SkillEngineScenario {
                     tick, "sound", "-",
                     listOfNotNull("sound=${a.sound}", known(a.volume)?.let { "vol=${RecordedCall.num(it)}" }, known(a.pitch)?.let { "pitch=${RecordedCall.num(it)}" }).joinToString(" "),
                 )
-                is Action.End -> {
-                    ordinals[a.instance.text]?.let { out += tick to RecordedCall(tick, "remove", "#$it", "") }
-                    // ADR 3.6: an instance's natural end (range, lasts, for) raises `<id>.end` exactly once; its sub-table is pasted at that tick
-                    table.subTables[EventPath(a.instance.text + ".end")]?.rows?.forEach { emit(tick, it) }
-                }
+                // ADR 3.6: an instance's natural end raises `<id>.end` exactly once; its sub-table is pasted at that tick (see emit)
+                is Action.End -> ordinals[a.instance.text]?.let { out += tick to RecordedCall(tick, "remove", "#$it", "") }
                 else -> Unit
             }
         }
+
+        // R45: the machine-root world rows ride the cast clock from tick 0, owned by no state
+        table.worldRows.forEach { emit(0, it) }
 
         // Walk the state chain; an event whose owner state is live inside its window pastes its sub-table and, when the
         // matching branch has a target, replaces the rest of the chain with the target state entered at the event tick.
@@ -260,6 +267,7 @@ abstract class SkillEngineScenario {
                 state = if (st.isFinal) null else st.then?.let { byState[it.value] }
             }
         }
+        pending.sortedBy { it.first }.forEach { (t, r) -> render(t, r) }
         return out.sortedBy { it.first }.map { it.second }
     }
 

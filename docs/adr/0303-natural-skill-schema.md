@@ -55,6 +55,10 @@ state-qualified spelling `/<state>/<id>` (`/throw/volley`, `/throw/fly_a.root`; 
 `End` before the spawning state's guaranteed length is a load error). A bare name never looks into another state. (2) `ribbon` takes `until:` as
 well as `for:` like every extended op (5): a line ribbon ends at the event's sub-table; a trail ribbon still needs `for:`. (3) new op `held_model`
 (10.1b): v1 `weapon_model` keys (`couture-s2-rig.yaml`, hidden at t20, back at t57) could not be said by `rig` (section "Skin rig").
+(4) No new escape for a body that outlives its spawning state: that is the machine-level `world:` list (owner row, line 917; check 4, line 1028; check 8 bounds
+it by the machine path, not a state). It is written there with `at:` for the spawn tick and named `/<start state>/<id>` from the states. This rev makes the
+list complete: params are substituted in `world:` ops, skin patches may address `machine.world[<id>]` like a state's op list, and a frame / display whose
+law outlasts its own `for:` writes nothing after its End (no dead Key rows).
 
 **Partially supersedes [[adr/0301-skill-engine-v2-frame-tree]]** (0301's body is not edited). Map:
 

@@ -36,6 +36,38 @@ machine:
     - {id: body_anim, op: body, anim: couture-s2-body, speed: 1.0, for: 63}
     # v1 couture-s2-rig.yaml:45-50 weapon_model: couture-rapier-hidden from t20 to t57 (then couture-rapier again).
     - {id: hide_held, op: held_model, at: 20, model: "astera:couture-rapier-hidden", for: 37}
+    # The volley outlives its spawning state (flies for 7, sticks for stick_ticks): ADR-0303 10.1 "owner": a machine-level world: list owns things for the whole machine. It is released at tick 34 (= windup length).
+    - id: volley
+      at: 34
+      op: projectile
+      origin: shears
+      velocity: "= normalize(aim_point(caster, throw_range) - pos(shears))"
+      speed: "= throw_speed"
+      range: "= throw_range"
+      radius: 0.22
+      hit: {targets: enemies, once: true}
+      block: {mode: stick, for: "= stick_ticks"}
+      # GAP: v2 hit shape is a capsule root->tip of both blades (radius 0.22), window once -> projectile capsule radius 0.22 (axis follows velocity)
+      # GAP: v2 lane_a/lane_b blade offsets +-left * blade_len * lane -> none (blade_len is a frame-table value)
+      # GAP: v2 align velocity axis with world.up reference -> default
+      motion:
+        - {law: spin, axis: left, deg_per_tick: 54, at: 0, for: 7}   # ENGINE: projectile motion lowers without params; 54 = spin_dpt, 7 = ceil(throw_range / throw_speed) + 2
+      on:
+        hit:
+          - {id: throw_dmg, op: damage, at: 0, target: event.victim, damage: {physical: "= dmg_throw"}}
+          - {id: bleed, op: status, at: 0, target: event.victim, status: bleed, stacks: "= bleed_stacks", for: "= bleed_ticks"}
+          - {id: push, op: impulse, at: 0, target: event.victim, vector: "= -contact.normal * 0.35 + vec(0, 0.12, 0)"}
+          - {id: hitstop, op: freeze, at: 0, ticks: 2, scope: [caster, volley]}
+          - {id: stab_snd, op: sound, sound: couture.stab, anchor: contact, pitch: "= 1.2 - 0.2 * clamp(length(velocity(volley) - velocity(victim)) / 2.0, 0.0, 1.0)"}
+          # GAP: v2 victim_anim stagger_back (strength = clamp(|rel_velocity| / 2, 0.3, 1.0)) has no victim body op (R41 covers the caster only)
+          - {id: sparks, op: particle, particle: crit, anchor: contact, count: "= spark_count", offset: [0.4, 0.4, 0.4], extra: 0.4}
+        block:
+          - {id: crumb, op: particle_def, def: couture-s2-p-crumb, anchor: contact}
+          - {id: wall_snd, op: sound, sound: couture.stab_wall, anchor: contact}
+    # v1 tip-glint (couture-s2-*-flight): ticks 3..10 of the flight rig clock, i.e. from the release at 34: world-owned so they follow the flight whichever state it is in.
+    - {id: tip_glint_a, op: particle_def, def: couture-s2-p-tip, anchor: {of: volley, offset: {left: -0.6, up: 0.12, forward: 0.05}}, at: 37, every: 1, times: 8}
+    - {id: tip_glint_b, op: particle_def, def: couture-s2-p-tip, anchor: {of: volley, offset: {left: 0.6, up: -0.1, forward: 0.95}}, at: 37, every: 1, times: 8}
+    - {id: tip_glint_body, op: particle_def, def: couture-s2-p-tip, anchor: {of: volley, offset: {left: 0.0, up: 0.0, forward: 0.45}}, at: 37, every: 1, times: 8}
   states:
     windup:
       # v2: coin1 (hit at 8) runs inside the overhead spin; the release event fires at tick 34.
@@ -970,38 +1002,12 @@ machine:
       for: 7   # = ceil(throw_range / throw_speed) + 2 = ceil(7 / 1.7) + 2 = 5 + 2 = 7 with the current params (C5: for is a compile-time tick count)
       then: reel
       enter:
-        - id: volley
-          op: projectile
-          origin: shears
-          velocity: "= normalize(aim_point(caster, throw_range) - pos(shears))"
-          speed: "= throw_speed"
-          range: "= throw_range"
-          radius: 0.22
-          hit: {targets: enemies, once: true}
-          block: {mode: stick, for: "= stick_ticks"}
-          # GAP: v2 hit shape is a capsule root->tip of both blades (radius 0.22), window once -> projectile capsule radius 0.22 (axis follows velocity)
-          # GAP: v2 lane_a/lane_b blade offsets +-left * blade_len * lane -> none (blade_len is a frame-table value)
-          # GAP: v2 align velocity axis with world.up reference -> default
-          motion:
-            - {law: spin, axis: left, deg_per_tick: 54, at: 0, for: 7}   # ENGINE: projectile motion lowers without params; 54 = spin_dpt, 7 = ceil(throw_range / throw_speed) + 2
-          on:
-            hit:
-              - {id: throw_dmg, op: damage, at: 0, target: event.victim, damage: {physical: "= dmg_throw"}}
-              - {id: bleed, op: status, at: 0, target: event.victim, status: bleed, stacks: "= bleed_stacks", for: "= bleed_ticks"}
-              - {id: push, op: impulse, at: 0, target: event.victim, vector: "= -contact.normal * 0.35 + vec(0, 0.12, 0)"}
-              - {id: hitstop, op: freeze, at: 0, ticks: 2, scope: [caster, volley]}
-              - {id: stab_snd, op: sound, sound: couture.stab, anchor: contact, pitch: "= 1.2 - 0.2 * clamp(length(velocity(volley) - velocity(victim)) / 2.0, 0.0, 1.0)"}
-              # GAP: v2 victim_anim stagger_back (strength = clamp(|rel_velocity| / 2, 0.3, 1.0)) has no victim body op (R41 covers the caster only)
-              - {id: sparks, op: particle, particle: crit, anchor: contact, count: "= spark_count", offset: [0.4, 0.4, 0.4], extra: 0.4}
-            block:
-              - {id: crumb, op: particle_def, def: couture-s2-p-crumb, anchor: contact}
-              - {id: wall_snd, op: sound, sound: couture.stab_wall, anchor: contact}
         # v2 flying pieces (R34): displays on the volley, spin inherited from the projectile body `motion`, kept through stuck and reel until the reel ends.
-        - {id: fly_body, op: frame, anchor: volley, part: body, until: reel.end}
+        - {id: fly_body, op: frame, anchor: /windup/volley, part: body, until: reel.end}
         - {id: fly_body_m, op: display, kind: item, item: "astera:couture-s2-body", anchor: fly_body, until: reel.end}
-        - {id: fly_a, op: frame, anchor: volley, part: blade_a, until: reel.end, motion: [{law: keys, keys: [{t: 0, pose: [{axis: edge, deg: 35}]}]}]}
+        - {id: fly_a, op: frame, anchor: /windup/volley, part: blade_a, until: reel.end, motion: [{law: keys, keys: [{t: 0, pose: [{axis: edge, deg: 35}]}]}]}
         - {id: fly_a_m, op: display, kind: item, item: "astera:couture-rapier-blade-a", anchor: fly_a, until: reel.end}
-        - {id: fly_b, op: frame, anchor: volley, part: blade_b, until: reel.end, motion: [{law: keys, keys: [{t: 0, pose: [{axis: edge, deg: -35}]}]}]}
+        - {id: fly_b, op: frame, anchor: /windup/volley, part: blade_b, until: reel.end, motion: [{law: keys, keys: [{t: 0, pose: [{axis: edge, deg: -35}]}]}]}
         - {id: fly_b_m, op: display, kind: item, item: "astera:couture-rapier-blade-b", anchor: fly_b, until: reel.end}
         - {id: throw_snd, op: sound, sound: couture.throw, anchor: shears, pitch: 1.1}
         # v2 dust: vanilla directed form (R34); v2 speed 0 so the velocity is only inherit_velocity 0.5 x the volley velocity.
@@ -1013,11 +1019,8 @@ machine:
         - {id: thread_b, op: ribbon, from: palm_f, to: fly_b.root, thickness: "= thread_thick", color: "#ff5fa2", until: reel.end}
         - {id: thread_body, op: ribbon, from: palm_f, to: fly_body.pivot, thickness: "= thread_thick", color: "#ff5fa2", until: reel.end}
         # v1 plate flight_fan: slash_fan (= couture-s2-crescent) in the plane [axis, up] of the volley, alpha 0.5, removed on hit/block (the throw state ends then). Size 1.9 is the v2 value. ASSUMPTION: a fixed sprite faces +forward, so up 90 lays its x axis along the flight axis.
-        - {id: flight_fan, op: display, kind: sprite, sprite: couture-s2-crescent, size: [1.9, 1.9], color: "#80ffffff", anchor: volley, billboard: fixed, rotate: [{axis: up, deg: 90}], for: 7}
+        - {id: flight_fan, op: display, kind: sprite, sprite: couture-s2-crescent, size: [1.9, 1.9], color: "#80ffffff", anchor: /windup/volley, billboard: fixed, rotate: [{axis: up, deg: 90}], for: 7}
         # v1 tip-glint (couture-s2-*-flight): couture-s2-p-tip every tick, ticks 3..10, per piece, at the v1 vfx-local lane point. v1 VfxDefinition.kt:372 documents x = left, y = up, z = forward, so offsets are copied unchanged.
-        - {id: tip_glint_a, op: particle_def, def: couture-s2-p-tip, anchor: {of: volley, offset: {left: -0.6, up: 0.12, forward: 0.05}}, at: 3, every: 1, times: 4}
-        - {id: tip_glint_b, op: particle_def, def: couture-s2-p-tip, anchor: {of: volley, offset: {left: 0.6, up: -0.1, forward: 0.95}}, at: 3, every: 1, times: 4}
-        - {id: tip_glint_body, op: particle_def, def: couture-s2-p-tip, anchor: {of: volley, offset: {left: 0.0, up: 0.0, forward: 0.45}}, at: 3, every: 1, times: 4}
       on:
         - {event: volley.hit, to: stuck}
         - {event: volley.block, to: stuck}
@@ -1025,17 +1028,13 @@ machine:
       for: "= stick_ticks"
       then: reel
       do:
-        # v1 tip-glint runs flight ticks 3..10 but state throw lasts 7: ticks 7..10 are the first 4 ticks of stuck. APPROXIMATION: exact only when the flight ran its full 7 ticks (an earlier hit shifts them); the state-length check (StaticChecks.kt:332) forbids ticks past the state.
-        - {id: tip_glint_late_a, op: particle_def, def: couture-s2-p-tip, anchor: {of: /throw/volley, offset: {left: -0.6, up: 0.12, forward: 0.05}}, at: 0, every: 1, times: 4}
-        - {id: tip_glint_late_b, op: particle_def, def: couture-s2-p-tip, anchor: {of: /throw/volley, offset: {left: 0.6, up: -0.1, forward: 0.95}}, at: 0, every: 1, times: 4}
-        - {id: tip_glint_late_body, op: particle_def, def: couture-s2-p-tip, anchor: {of: /throw/volley, offset: {left: 0.0, up: 0.0, forward: 0.45}}, at: 0, every: 1, times: 4}
         # v1 stick-spark / stick-pink (couture-s2-*-stuck): ticks 0..2 per piece at the v1 vfx-local point (x lane, y 1.48, z 0.05). same axis mapping as tip-glint; the anchor is the volley, not the hit point.
-        - {id: stick_a_stick, op: particle_def, def: couture-s2-p-stick, anchor: {of: /throw/volley, offset: {left: -0.6, up: 1.48, forward: 0.05}}, at: 0, every: 1, times: 3}
-        - {id: stick_a_stick_pink, op: particle_def, def: couture-s2-p-stick-pink, anchor: {of: /throw/volley, offset: {left: -0.6, up: 1.48, forward: 0.05}}, at: 0, every: 1, times: 3}
-        - {id: stick_b_stick, op: particle_def, def: couture-s2-p-stick, anchor: {of: /throw/volley, offset: {left: 0.6, up: 1.48, forward: 0.05}}, at: 0, every: 1, times: 3}
-        - {id: stick_b_stick_pink, op: particle_def, def: couture-s2-p-stick-pink, anchor: {of: /throw/volley, offset: {left: 0.6, up: 1.48, forward: 0.05}}, at: 0, every: 1, times: 3}
-        - {id: stick_body_stick, op: particle_def, def: couture-s2-p-stick, anchor: {of: /throw/volley, offset: {left: 0.0, up: 1.48, forward: 0.05}}, at: 0, every: 1, times: 3}
-        - {id: stick_body_stick_pink, op: particle_def, def: couture-s2-p-stick-pink, anchor: {of: /throw/volley, offset: {left: 0.0, up: 1.48, forward: 0.05}}, at: 0, every: 1, times: 3}
+        - {id: stick_a_stick, op: particle_def, def: couture-s2-p-stick, anchor: {of: /windup/volley, offset: {left: -0.6, up: 1.48, forward: 0.05}}, at: 0, every: 1, times: 3}
+        - {id: stick_a_stick_pink, op: particle_def, def: couture-s2-p-stick-pink, anchor: {of: /windup/volley, offset: {left: -0.6, up: 1.48, forward: 0.05}}, at: 0, every: 1, times: 3}
+        - {id: stick_b_stick, op: particle_def, def: couture-s2-p-stick, anchor: {of: /windup/volley, offset: {left: 0.6, up: 1.48, forward: 0.05}}, at: 0, every: 1, times: 3}
+        - {id: stick_b_stick_pink, op: particle_def, def: couture-s2-p-stick-pink, anchor: {of: /windup/volley, offset: {left: 0.6, up: 1.48, forward: 0.05}}, at: 0, every: 1, times: 3}
+        - {id: stick_body_stick, op: particle_def, def: couture-s2-p-stick, anchor: {of: /windup/volley, offset: {left: 0.0, up: 1.48, forward: 0.05}}, at: 0, every: 1, times: 3}
+        - {id: stick_body_stick_pink, op: particle_def, def: couture-s2-p-stick-pink, anchor: {of: /windup/volley, offset: {left: 0.0, up: 1.48, forward: 0.05}}, at: 0, every: 1, times: 3}
         - id: t2
           op: group
           at: 2
@@ -1356,10 +1355,10 @@ machine:
       for: 16
       then: coin3
       do:
-        - {id: reel, op: reel, anchor: /throw/volley, to: /throw/palm_f, speed: "= reel_speed", ease: in}
+        - {id: reel, op: reel, anchor: /windup/volley, to: /throw/palm_f, speed: "= reel_speed", ease: in}
         # ignore_invulnerability: false is the vanilla default (v2 reel_hit had no flag).
-        - {id: reel_hit, op: hit, anchor: /throw/volley, targets: enemies, shape: {capsule: 0.2, from: root, to: tip}, window: once, ignore_invulnerability: false, damage: {physical: "= dmg_reel"}, on: {hit: [{id: pull, op: impulse, target: event.victim, vector: "= normalize(pos(palm) - pos(event.victim)) * 0.25"}, {id: reel_sparks, op: particle, particle: crit, anchor: contact, count: 6}, {id: slash_snd, op: sound, sound: couture.slash_light, anchor: contact}]}}
-        - {id: reel_snd, op: sound, sound: couture.reel, anchor: /throw/volley, every: 3, for: 16, volume: 1.0, pitch: "= 1.0 + 0.4 * (1 - dist(volley, palm) / throw_range)"}
+        - {id: reel_hit, op: hit, anchor: /windup/volley, targets: enemies, shape: {capsule: 0.2, from: root, to: tip}, window: once, ignore_invulnerability: false, damage: {physical: "= dmg_reel"}, on: {hit: [{id: pull, op: impulse, target: event.victim, vector: "= normalize(pos(palm) - pos(event.victim)) * 0.25"}, {id: reel_sparks, op: particle, particle: crit, anchor: contact, count: 6}, {id: slash_snd, op: sound, sound: couture.slash_light, anchor: contact}]}}
+        - {id: reel_snd, op: sound, sound: couture.reel, anchor: /windup/volley, every: 3, for: 16, volume: 1.0, pitch: "= 1.0 + 0.4 * (1 - dist(volley, palm) / throw_range)"}
         - {id: catch_snd, op: sound, sound: couture.catch, anchor: shears, at: 15}
       on:
         - {event: reel.end, to: coin3}

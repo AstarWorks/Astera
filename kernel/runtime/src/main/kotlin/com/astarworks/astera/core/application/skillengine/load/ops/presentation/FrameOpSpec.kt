@@ -192,9 +192,11 @@ public object FrameOpSpec : OpSpec<FrameOp> {
                     is Result.Failure -> throw DecodeAbort(r.error)
                     is Result.Success -> r.value
                 }
-                rows += composeBase(moved.rows, position, rotation, ctx, src)
+                // a law outlasting the frame's `for:` writes nothing once the frame has ended: rows at or after the End tick are dead
+                val inLife = if (life != null) moved.rows.filter { it.tick < life } else moved.rows
+                rows += composeBase(inLife, position, rotation, ctx, src)
                 subTables += moved.subTables
-                segments = moved.rows.count { it.action is Action.Key }
+                segments = inLife.count { it.action is Action.Key }
             }
             if (life != null) rows += Row(life, instance, Action.End(instance), lc.src)
             writes[instance] = WriteStats(segments, if (segments > 0) 1 else 0)
