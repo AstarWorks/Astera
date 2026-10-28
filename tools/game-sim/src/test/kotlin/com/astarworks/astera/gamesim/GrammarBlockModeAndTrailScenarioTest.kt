@@ -35,7 +35,7 @@ gameplay:
     - {id: t0, at: 0, do: [{id: bolt, op: projectile, body: bolt, from: muzzle, velocity: $velocity, gravity: $gravity, max_ticks: 60, radius: 0.2, $projectileExtra}]}
   "on":
     block:
-      - {op: break_area, shape: sphere, radius: 0.5, block_damage: 1, breaks: true, id: chip, at: "= contact.point"}
+      - {op: break_area, shape: sphere, radius: 0.5, block_damage: 1, breaks: true, length: 0.0, id: chip, at: "= contact.point"}
 """
 
     private fun sim(dir: Path, wall: Double? = 6.0, floor: Double? = null) =

@@ -61,7 +61,7 @@ object VanillaDump {
         sim = CastSim(mapOf(simVictim(1) to ahead(feet, 0.0, 5.0)), particleGateway = sink, visualGateway = visuals, halfWidth = 0.3)
         sim.victimHp = GameplayDump.DUMMY_HP
         lines += "{\"e\":\"meta\",\"id\":\"$id\"}"
-        runCatching { sim.cast(id, ticks) }.onFailure { lines += "{\"e\":\"error\",\"msg\":\"${esc((it::class.simpleName ?: "") + ": " + it.message.orEmpty().take(200))}\"}" }
+        runCatching { sim.cast(id, ticks, drainWorld = false) }.onFailure { lines += "{\"e\":\"error\",\"msg\":\"${esc((it::class.simpleName ?: "") + ": " + it.message.orEmpty().take(200))}\"}" }
         val ord = HashMap<Long, Int>()
         for (c in visuals.calls) {
             val n = ord.getOrPut(c.handle) { ord.size }
