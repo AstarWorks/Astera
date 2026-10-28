@@ -16,8 +16,8 @@ machine:
   start: fly
   states:
     fly:
-      for: 51      # max flight 50 + 1 so the end handlers fit
-      then: end
+      on:
+        - {event: bolt.end, to: end}
       do:
         - {id: snd, op: sound, sound: "astera:weapons/rifle-crack", anchor: caster, volume: 0.9, pitch: 0.8}
         - {id: puff, op: particle_def, def: gun-muzzle-flash, anchor: flash}

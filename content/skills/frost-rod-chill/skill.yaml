@@ -1,36 +1,36 @@
-apiVersion: "astera/v3"
+apiVersion: astera/v3
 kind: Skill
 id: frost-rod-chill
 item: frost-rod
 meta: {name: {ja: "冷気", en: Chill}, description: {ja: "周囲に冷気を放ち、敵を凍らせる。", en: "A cold wave that freezes nearby enemies."}, cooldown_ticks: 160, resource_cost: 16, tags: [aoe, water]}
+params:
+  radius:       {type: blocks, default: 4.0}
+  dmg_water:    {type: number, default: 12.5}
+  freeze_ticks: {type: ticks, default: 40}
 anchors:
-  cast_body: {anchor: caster.body, offset: {up: 0.15}, mode: snapshot}
-presentation:
-  timeline:
-    - at: 0
+  - {id: cast_pt, anchor: caster, offset: {up: 0.15}}
+machine:
+  start: cast
+  states:
+    cast:
+      for: 1
+      then: done
       do:
-        - {id: snd, op: sound, sound: "astera:skill/wand/cast", anchor: caster, volume: 1.0, pitch: 1.0}
-        - {id: cast_base, op: frame, anchor: cast_body, turn: [{axis: up, deg: "= rand() * 360"}], for: 10}
-    - id: rings
-      at: 0
-      every: 1
-      times: 6
-      do:
-        - {id: rings_pt, op: frame, times: 16, anchor: cast_base, turn: [{axis: up, deg: "= 360 * i / 16 + 90"}], offset: {forward: "= 0.5 + 0.7 * parent.i"}, for: 1}
-        - {op: particle, times: 16, anchor: 'rings_pt[i]', particle: snowflake, count: 0, offset: "= anchor.forward", extra: 0.03}
-        - {op: particle, times: 16, anchor: 'rings_pt[i]', particle: dust, count: 1, color: "#c8ebff", size: 1.4}
-
-gameplay:
-  timeline:
-    - at: 0
-      do:
+        - {id: snd, op: sound, sound: "astera:skill/wand/cast", anchor: caster, volume: 1.0, pitch: 1.0, at: 0}
+        - {id: snow, op: particle, particle: snowflake, anchor: cast_pt, count: 0, offset: [0, 0, 0], extra: 0.03, at: 0}
+        - {id: mist, op: particle, particle: dust, anchor: cast_pt, count: 1, offset: [0, 0, 0], extra: 0, color: "#c8ebff", size: 1.4, at: 0}
         - id: burst
           op: hit
           anchor: caster
+          at: 0
+          shape: {sphere: "${radius}"}
           targets: enemies
-          shape: {sphere: 4.0}
-          damage: {water: "= 12.5 * (1.0 - 0.5 * dist(pos(caster), pos(event.victim)) / 4.0)"}
+          max_count: all       # GAP(Q1): v2 had no cap
+          window: once
+          ignore_invulnerability: false
+          damage: {water: "= ${dmg_water} * (1.0 - 0.5 * dist(event.victim, caster) / ${radius})"}
           on:
             hit:
-              - {id: st_freeze, op: status, target: event.victim, status: freeze, stacks: 1, for: 40}
-              - {id: snd_hit, op: sound, sound: "astera:weapons/blade-hit", anchor: victim.body, volume: 0.7, pitch: 1.0}
+              - {id: st_freeze, op: status, target: event.victim, status: freeze, stacks: 1, for: "${freeze_ticks}"}
+              - {id: snd_hit, op: sound, sound: "astera:weapons/blade-hit", anchor: contact, volume: 0.7, pitch: 1.0}
+    done: {final: true}
