@@ -1,5 +1,6 @@
 package com.astarworks.astera.core.application.skillengine.load.grammar
 
+import com.astarworks.astera.core.application.skillengine.load.SkillDecodeError
 import com.astarworks.astera.core.domain.skillengine.model.Value
 
 /** Start of an op (ADR-0303 2.0): a tick, or an event with an optional tick offset (`release`, `release+2`). */
@@ -20,8 +21,11 @@ public sealed interface Every {
     public data class Eased(val from: Value<Double>, val to: Value<Double>, val ease: String) : Every
 }
 
-/** Extended ops (display, ribbon) live for a while; point ops (particle, sound, hit, damage) fire at an instant. */
-public enum class TimingKind { EXTENDED, POINT }
+/**
+ * Extended ops (display, ribbon) live for a while; point ops (particle, sound, hit, damage) fire at an instant; a timing group
+ * (`do:`) is neither: `lasts` is optional on it (needed only when a child instance has no end of its own, checked at lowering).
+ */
+public enum class TimingKind { EXTENDED, POINT, GROUP }
 
 public data class Timing(
     val at: TimeAt?,
@@ -79,7 +83,7 @@ public object TimingSpec {
     public val at: Field<TimeAt?> = Field.optional("at", Types.nullable(atType), null, "start: tick since cast/event start, or an event with optional +offset; absent = inherited from the enclosing group")
     public val forSpan: Field<Span?> = Field.optional("for", Types.nullable(spanType), null, "window length in ticks, or 'cast'")
     public val every: Field<Every?> = Field.optional("every", Types.nullable(everyType), null, "repeat period in ticks, or {from, to, ease}")
-    public val times: Field<Value<Double>?> = Field.optional("times", Types.nullable(Types.number), null, "maximum occurrences (needs every)")
+    public val times: Field<Value<Double>?> = Field.optional("times", Types.nullable(Types.number), null, "with every: maximum occurrences in time; without every: a family of N simultaneous instances id[i]")
     public val until: Field<String?> = Field.optional("until", Types.nullable(Types.id), null, "event that ends the window")
     public val lasts: Field<Value<Double>?> = Field.optional("lasts", Types.nullable(Types.number), null, "life of each occurrence (extended ops with every)")
 
@@ -89,11 +93,10 @@ public object TimingSpec {
     public fun from(v: FieldValues, ctx: GrammarContext, path: String, kind: TimingKind): Timing {
         val t = Timing(v[at], v[forSpan], v[every], v[times], v[until], v[lasts])
         if (t.every != null && t.span == null && t.times == null && t.until == null) {
-            ctx.fail("$path.every", "every needs one of for, times, until (an unbounded repeat is a load error)")
+            ctx.abort(SkillDecodeError.UnboundedRepeat("$path.every", ctx.file))
         }
-        if (t.times != null && t.every == null) ctx.fail("$path.times", "times needs every")
         if (t.lasts != null && t.every == null) ctx.fail("$path.lasts", "lasts needs every")
-        if (t.lasts != null && kind == TimingKind.POINT) ctx.fail("$path.lasts", "lasts is only for extended ops (display, ribbon)")
+        if (t.lasts != null && kind == TimingKind.POINT) ctx.fail("$path.lasts", "lasts is only for extended ops (display, ribbon) and groups")
         if (t.every != null && kind == TimingKind.EXTENDED && t.lasts == null) {
             ctx.fail("$path.lasts", "an extended op with every must say how long each occurrence lasts (lasts)")
         }
