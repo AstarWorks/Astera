@@ -11,7 +11,7 @@ meta:
 anchors:
   - {id: muzzle, anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}
   - {id: flash,  anchor: caster, offset: {up: -0.2, forward: 1.0}}   # v2 pt_caster_0_m0p2_1: caster frame (feet, yaw-only)
-  - {id: chest,  anchor: victim.root, offset: {up: 1.0}}  # GAP(Q2): v2 enemy frame origin = feet+0.8 fixed; victim.body (live hitbox centre, 0.9) or a fixed chest point is the founder's choice (Q2)
+  - {id: chest,  anchor: victim.root, offset: {up: 1.0}}
 machine:
   start: fly
   states:

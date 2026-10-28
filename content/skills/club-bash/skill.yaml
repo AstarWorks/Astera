@@ -15,7 +15,7 @@ params:
   knockback:    {type: number, default: 1.6}
 anchors:
   - {id: fx, anchor: caster.eye, offset: {forward: 1.4}}
-  - {id: heart, anchor: victim.root, offset: {up: 1.2}}  # GAP(Q2): v2 enemy frame origin = feet+0.8 fixed
+  - {id: heart, anchor: victim.root, offset: {up: 1.2}}
 machine:
   start: cast
   states:
