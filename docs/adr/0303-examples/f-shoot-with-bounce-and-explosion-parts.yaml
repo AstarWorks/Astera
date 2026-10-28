@@ -74,7 +74,7 @@ machine:
     boom:
       use: explosion
       with: {radius: 3, damage: 24, ring_for: 8}
-      frames: {spot: muzzle}                            # ENGINE GAP: a sibling call's frames_out (`fly.bolt`, snapshot of the finished child's last pose) is not an anchor in the caller's scope (UndefinedReference / 'not declared in this scope')
+      frames: {spot: fly.bolt}
       on: [{event: boom.end, to: done}]
     done: {final: true}
 # Expanded table:

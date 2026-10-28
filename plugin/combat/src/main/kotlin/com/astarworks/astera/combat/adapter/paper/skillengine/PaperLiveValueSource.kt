@@ -57,6 +57,7 @@ public class PaperLiveValueSource(
     /** Drops the casts that ended; [live] is the player's running set. */
     public fun retain(live: Set<CastHandle>) {
         requests.keys.retainAll(live)
+        casterSamples.keys.removeIf { it.first !in live }
     }
 
     public fun envSpec(): ExprEnvSpec = spec
@@ -105,8 +106,41 @@ public class PaperLiveValueSource(
                 }
             }
 
-            override fun velocity(frame: String, point: String?): Vec3 = Vec3.ZERO
+            override fun velocity(frame: String, point: String?): Vec3 {
+                if (frame != CASTER) return Vec3.ZERO
+                val p = casterPose(request)
+                val now = when (point) {
+                    null, "feet", "look" -> p.feet
+                    "eye" -> p.eye
+                    else -> return Vec3.ZERO
+                }
+                return casterVelocity(cast, point ?: "", now)
+            }
         }
+    }
+
+    private class Sample(var tick: Long, var pos: Vec3, var velocity: Vec3)
+
+    private val casterSamples = ConcurrentHashMap<Pair<CastHandle, String>, Sample>()
+
+    /**
+     * Velocity (blocks per tick) of a caster-anchored point from the pose of the previous sampled tick: `(pos(now) - pos(last)) / ticks between`.
+     * The first sample of a cast answers ZERO; asking again within the same tick repeats the answer.
+     */
+    private fun casterVelocity(cast: CastHandle, point: String, now: Vec3): Vec3 {
+        val tick = scheduler.currentTick()
+        val key = cast to point
+        val s = casterSamples[key]
+        if (s == null) {
+            casterSamples[key] = Sample(tick, now, Vec3.ZERO)
+            return Vec3.ZERO
+        }
+        if (tick == s.tick) return s.velocity
+        val dt = (tick - s.tick).coerceAtLeast(1L).toDouble()
+        s.velocity = Vec3((now.x - s.pos.x) / dt, (now.y - s.pos.y) / dt, (now.z - s.pos.z) / dt)
+        s.pos = now
+        s.tick = tick
+        return s.velocity
     }
 
     override fun vec(cast: CastHandle, name: String, binding: EventBinding?, scope: RowScope): Vector3d {

@@ -53,12 +53,17 @@ public class DefaultAnchorScope private constructor(
     private val occurrence: Occurrence,
     private val entries: MutableMap<String, Entry>,
     private val documents: Map<String, AnchorDecl>,
+    private val published: (String) -> Entry? = { null },
 ) : AnchorRegistry {
-    public constructor(occurrence: Occurrence, documents: Map<String, AnchorDecl> = emptyMap()) : this(occurrence, LinkedHashMap(), documents)
+    public constructor(occurrence: Occurrence, documents: Map<String, AnchorDecl> = emptyMap(), published: (String) -> Any? = { null }) :
+        this(occurrence, LinkedHashMap(), documents, { n -> published(n) as? Entry })
+
+    /** The entry [name] of this scope that a PART published to its caller (ADR-0303 9 `frames_out`): declared by an op inside a called part's state. */
+    internal fun publishedEntry(name: String): Any? = entries[name]?.takeIf { it.instance.path.last().op.value.contains('/') }
 
     override fun document(id: String): AnchorDecl? = documents[id]
 
-    private data class Entry(val instance: InstanceId, val family: Int?, val basis: ExprClass, val laws: List<MotionLaw>)
+    internal data class Entry(val instance: InstanceId, val family: Int?, val basis: ExprClass, val laws: List<MotionLaw>)
 
     override fun declare(instance: InstanceId, family: Int?, basis: ExprClass, laws: List<MotionLaw>) {
         val id = instance.path.last().op
@@ -66,13 +71,13 @@ public class DefaultAnchorScope private constructor(
         entries[id.value.substringAfterLast('/')] = Entry(instance, family, basis, laws)
     }
 
-    override fun laws(anchor: String): List<MotionLaw> = AnchorNames.split(anchor)?.let { entries[it.base]?.laws } ?: emptyList()
+    override fun laws(anchor: String): List<MotionLaw> = AnchorNames.split(anchor)?.let { (entries[it.base] ?: published(it.base))?.laws } ?: emptyList()
 
-    override fun at(occurrence: Occurrence): AnchorScope = DefaultAnchorScope(occurrence, entries, documents)
+    override fun at(occurrence: Occurrence): AnchorScope = DefaultAnchorScope(occurrence, entries, documents, published)
 
     override fun resolve(name: String): ResolvedAnchor? {
         val parts = AnchorNames.split(name) ?: return null
-        val e = entries[parts.base] ?: return null
+        val e = entries[parts.base] ?: published(parts.base) ?: return null
         val prefix = e.instance.path.dropLast(1)
         val op: OpId = e.instance.path.last().op
         val index = parts.index

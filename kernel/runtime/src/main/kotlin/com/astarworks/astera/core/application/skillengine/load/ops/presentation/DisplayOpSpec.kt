@@ -69,6 +69,8 @@ public class DisplayOp(
     /** Item model id, block id, sprite id, or text (by [kind]). */
     public val subject: Value<String>,
     public val context: String,
+    /** `part` of an item display: a part of `content/frames/<skill item>.yaml` whose axes (`long`, `edge`, `face`) the display's rotations read; null = the item's held part. */
+    public val part: String?,
     public val textStyle: TextStyle?,
     public val spriteSize: Pair<Value<Double>, Value<Double>>?,
     public val spritePivot: String?,
@@ -139,6 +141,7 @@ public object DisplayOpSpec : OpSpec<DisplayOp> {
 
     // item
     private val itemF = Field.optional("item", Types.nullable(Types.id), null, "kind item: item_model id (main_hand = the held item's model, resolved at cast start)")
+    private val partF = Field.optional("part", Types.nullable(Types.id), null, "kind item: weapon part of content/frames/<item>.yaml whose axes (long, edge, face) the rotations read")
     private val contextF = Field.optional("context", Types.enumOf(*CONTEXTS), "fixed", "kind item: ItemDisplayContext, decision default fixed")
 
     // block
@@ -185,7 +188,7 @@ public object DisplayOpSpec : OpSpec<DisplayOp> {
 
     /** Fields that belong to exactly one kind; written on another kind they are a load error (nothing is silently dropped). */
     private val kindOnly: Map<String, List<Field<*>>> = mapOf(
-        "item" to listOf(itemF, contextF),
+        "item" to listOf(itemF, partF, contextF),
         "block" to listOf(blockF),
         "text" to listOf(textF, backgroundF, alignmentF, lineWidthF, textOpacityF, shadowF),
         "sprite" to listOf(spriteF, sizeF, pivotF, flipbookF),
@@ -193,7 +196,7 @@ public object DisplayOpSpec : OpSpec<DisplayOp> {
 
     override val fields: Fields = Fields.of(
         "display", kindF, anchorF, offsetF,
-        itemF, contextF, blockF,
+        itemF, partF, contextF, blockF,
         textF, backgroundF, alignmentF, lineWidthF, textOpacityF, seeThroughF, shadowF,
         spriteF, sizeF, pivotF, flipbookF, colorF,
         translationF, rotateF, scaleF, rightF, yawF, pitchF, billboardF, brightnessF, viewRangeF, glowColorF,
@@ -278,7 +281,7 @@ public object DisplayOpSpec : OpSpec<DisplayOp> {
 
             DisplayOp(
                 id, src, whenExpr, foldTiming(t, ctx), kind, values[anchorF], values[offsetF],
-                subject, values[contextF], style, size, if (kind == DisplayKind.SPRITE) values[pivotF] else null, color, seeThrough, flipbook,
+                subject, values[contextF], values[partF], style, size, if (kind == DisplayKind.SPRITE) values[pivotF] else null, color, seeThrough, flipbook,
                 values[translationF], values[rotateF], values[scaleF], values[rightF],
                 foldNum(values[yawF], ctx), foldNum(values[pitchF], ctx), billboard, brightness, viewRange, glow,
                 wholeNum(values[interpDelayF], "$p.interpolation_delay", ctx, 0.0, null),
@@ -296,7 +299,12 @@ public object DisplayOpSpec : OpSpec<DisplayOp> {
         val src = lc.src
         return Grammar.guard {
             val gc = GrammarContext(lc.skillId)
-            val itemAxes = if (op.kind == DisplayKind.ITEM) lc.frames.item((op.subject as? Value.Literal<String>)?.value ?: "")?.partFor(null)?.axes else null
+            val itemAxes = if (op.kind != DisplayKind.ITEM) null else if (op.part != null) {
+                val skillItem = lc.skills.skill(lc.skillId)?.item
+                    ?: gc.fail("${src.value}.part", "part '${op.part}' needs the skill's item to find content/frames/<item>.yaml, but this skill has no item")
+                (lc.frames.item(skillItem)?.partFor(op.part)
+                    ?: gc.fail("${src.value}.part", "content/frames/$skillItem.yaml has no part '${op.part}'")).axes
+            } else lc.frames.item((op.subject as? Value.Literal<String>)?.value ?: "")?.partFor(null)?.axes
             val axes = AxisResolver { n -> LocalAxes.axis(n) ?: if (n == "face") FACE else itemAxes?.get(n) }
             for ((r, f) in listOf(op.rotate to "rotate", op.right to "right")) {
                 if (r is Rotation.Turns) r.turns.forEachIndexed { i, turn ->
@@ -454,6 +462,7 @@ public object DisplayOpSpec : OpSpec<DisplayOp> {
         when (op.kind) {
             DisplayKind.ITEM -> {
                 f["item"] = cell(op.subject)
+                op.part?.let { f["part"] = Val.Known(it) }
                 f["context"] = Val.Known(op.context)
             }
             DisplayKind.BLOCK -> f["block"] = cell(op.subject)
