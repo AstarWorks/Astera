@@ -1501,8 +1501,8 @@ gossamer-katana-s2	1	3c382df66a78
 gossamer-katana-s2	2	27cb7122eddd
 gossamer-katana-s2	3	c6c0d9bb6a10
 gossamer-katana-s2	4	7bac9efbd736
-gossamer-katana-s2	5	691d248db42b
-gossamer-katana-s2	6	a2e1a4931694
+gossamer-katana-s2	5	bff2a33d6803
+gossamer-katana-s2	6	92423c558336
 gossamer-katana-s2	7	8b602195f8b2
 gossamer-katana-s2	8	102c9e1a1dd4
 gossamer-katana-s2	9	784e9a2afd75
