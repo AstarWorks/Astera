@@ -2,8 +2,11 @@ package com.astarworks.astera.combat.adapter.paper.skillengine.world
 
 import com.astarworks.astera.combat.application.port.outbound.IBlockEditGuard
 import com.astarworks.astera.combat.application.port.outbound.aoe.ILightningGateway
+import com.astarworks.astera.combat.application.service.SkillWorldRules
 import com.astarworks.astera.core.application.port.outbound.IBlockStateGateway
 import com.astarworks.astera.core.application.port.outbound.ICustomBlockRegistry
+import com.astarworks.astera.core.application.port.outbound.IStructureTargets
+import com.astarworks.astera.core.application.port.outbound.lobby.ILobbyToolBay
 import com.astarworks.astera.core.application.skillengine.runtime.port.BlockDamageOutcome
 import com.astarworks.astera.core.application.skillengine.runtime.port.CastRef
 import com.astarworks.astera.core.application.skillengine.runtime.port.ISkillBlockAccess
@@ -14,6 +17,7 @@ import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.domain.skill.SkillId
 import com.astarworks.astera.core.domain.skillengine.world.BlockCell
 import com.astarworks.astera.core.domain.world.BlockType
+import com.astarworks.astera.core.domain.world.ToolKind
 import com.astarworks.astera.core.domain.world.WorldId
 import org.bukkit.Location
 import org.bukkit.Material
@@ -33,8 +37,10 @@ public class PaperSkillWorldGateway(
     guard: () -> IBlockEditGuard?,
     blockStates: () -> IBlockStateGateway?,
     covers: () -> ICustomBlockRegistry?,
+    structures: () -> IStructureTargets?,
+    toolBay: () -> ILobbyToolBay?,
     private val lightning: () -> ILightningGateway?,
-) : LedgerWorldGateway(PaperBlockAccess(server, guard, blockStates, covers)) {
+) : LedgerWorldGateway(PaperBlockAccess(server, guard, blockStates, covers, structures, toolBay)) {
 
     override fun explode(cast: CastRef, at: Vec3, power: Double, breakBlocks: Boolean, fire: Boolean) {
         val owner = server.getEntity(cast.caster) ?: return
@@ -61,6 +67,10 @@ internal class PaperBlockAccess(
     private val guard: () -> IBlockEditGuard?,
     private val blockStates: () -> IBlockStateGateway?,
     private val covers: () -> ICustomBlockRegistry?,
+    /** Lazy: Match registers the structure targets (Annihilation pillars) after Combat wires. */
+    private val structures: () -> IStructureTargets?,
+    /** Lazy: Core registers the lobby tool bay (MAP-A6) on lobby-hosting backends only. */
+    private val toolBay: () -> ILobbyToolBay?,
 ) : ISkillBlockAccess {
 
     private fun worldOf(cast: CastRef): World? = server.getWorld(cast.world.value)
@@ -72,6 +82,8 @@ internal class PaperBlockAccess(
 
     override fun canEdit(cast: CastRef, cell: BlockCell, outsideArena: Boolean): Boolean {
         val w = worldOf(cast) ?: return false
+        // The lobby is protected except for the tool bay (MAP-A6): the bay policy outranks the outside-arena shortcut.
+        toolBay()?.editPolicy(worldId(w), cell.x, cell.y, cell.z)?.let { return it }
         if (outsideArena) return true
         return guard()?.canEdit(PlayerId(cast.caster), worldId(w), pos(cell)) ?: true
     }
@@ -86,11 +98,19 @@ internal class PaperBlockAccess(
 
     override fun place(cast: CastRef, cell: BlockCell, blockKey: String) {
         val material = Material.matchMaterial(blockKey) ?: return
+        remember(cast, cell)
         block(cast, cell)?.setType(material, false)
     }
 
     override fun remove(cast: CastRef, cell: BlockCell) {
+        remember(cast, cell)
         block(cast, cell)?.setType(Material.AIR, false)
+    }
+
+    /** Journals a bay block before a raw edit so the bay restores it (no-op outside the bay). */
+    private fun remember(cast: CastRef, cell: BlockCell) {
+        val w = worldOf(cast) ?: return
+        toolBay()?.remember(worldId(w), cell.x, cell.y, cell.z)
     }
 
     override fun placeCover(cast: CastRef, cell: BlockCell, blockKey: String): Boolean {
@@ -104,6 +124,7 @@ internal class PaperBlockAccess(
 
     override fun damage(cast: CastRef, cell: BlockCell, blockDamage: Int, toolClass: String?): BlockDamageOutcome {
         val w = worldOf(cast) ?: return BlockDamageOutcome.NONE
+        structures()?.targetAtBlock(worldId(w), pos(cell))?.let { return strikeStructure(cast, it, blockDamage, toolClass) }
         val gateway = blockStates() ?: return BlockDamageOutcome.NONE
         val result = gateway.applyDamageFromSkill(
             worldId(w), pos(cell), SkillId("skill-engine"), PlayerId(cast.caster), BlockDamageProfile.flat(blockDamage),
@@ -114,6 +135,24 @@ internal class PaperBlockAccess(
             is com.astarworks.astera.core.domain.block.BlockDamageOutcome.Broken -> BlockDamageOutcome.BROKEN
             else -> BlockDamageOutcome.NONE
         }
+    }
+
+    /**
+     * A tool skill struck a structure block (an Annihilation pillar): the pillar takes damage instead of the block breaking,
+     * scaled by the held tool's tier. A cast without a tool class (a weapon's contact chip) is skipped: the weapon's hit already
+     * reaches the pillar through the target pipeline, so chipping the block as well would count it twice.
+     */
+    private fun strikeStructure(cast: CastRef, target: IStructureTargets.StructureTarget, blockDamage: Int, toolClass: String?): BlockDamageOutcome {
+        val tool = toolClass?.let { c -> ToolKind.entries.firstOrNull { it != ToolKind.NONE && it.name.equals(c, ignoreCase = true) } }
+            ?: return BlockDamageOutcome.NONE
+        val structures = structures() ?: return BlockDamageOutcome.NONE
+        val caster = server.getPlayer(cast.caster)
+        val origin = caster?.location?.let { Vec3(it.x, it.y, it.z) }
+        val held = caster?.inventory?.itemInMainHand?.type?.key?.toString()
+        val tierFactor = SkillWorldRules.structureTierFactor(SkillWorldRules.tierOfMaterial(held ?: ""))
+        val source = IStructureTargets.DamageSource(IStructureTargets.DamageKind.TOOL_SKILL, tool, origin)
+        val result = structures.damage(target.id, PlayerId(cast.caster), blockDamage * tierFactor, source)
+        return if (result is AsteraResult.Success) BlockDamageOutcome.CHIPPED else BlockDamageOutcome.NONE
     }
 
     override fun consumeItem(cast: CastRef, itemId: String): Boolean {

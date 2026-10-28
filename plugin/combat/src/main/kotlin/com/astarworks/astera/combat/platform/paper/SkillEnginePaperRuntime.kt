@@ -142,6 +142,8 @@ internal class SkillEnginePaperRuntime(
             guard = { ports.blockEditGuard?.invoke(services) },
             blockStates = { services.get<IBlockStateGateway>() },
             covers = { services.get<ICustomBlockRegistry>() },
+            structures = { services.get<IStructureTargets>() },
+            toolBay = { services.get<com.astarworks.astera.core.application.port.outbound.lobby.ILobbyToolBay>() },
             lightning = { services.get<ILightningGateway>() },
         )
         worldOps = worldGateway3

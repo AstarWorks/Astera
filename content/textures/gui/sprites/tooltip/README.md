@@ -5,8 +5,8 @@ Astera item, including GUI icons and refreshed stacks. Minecraft adds `tooltip/`
 when resolving the two sprites. `astera:tooltip/<rarity>` would incorrectly look
 under `tooltip/tooltip/`.
 
-The 10 PNGs (`<rarity>_{frame,background}.png`, 64px, nine-sliced with an 8px
-border) are drawn pixel by pixel by `tools/item-art/scripts/tooltip-frames.py`,
+The 10 PNGs (`<rarity>_{frame,background}.png`, 36px, nine-sliced with a 12px
+border) are generated from geometry formulas by `tools/item-art/scripts/tooltip-frames.py`,
 the single source. The Kotlin item-art pipeline does not touch them.
 
 ```
@@ -15,9 +15,17 @@ python3 tools/item-art/scripts/tooltip-frames.py [--preview docs/assets/tooltip-
 bash tools/item-art/scripts/tooltip-shot.sh orrery-staff
 ```
 
-Each frame is one 8x8 corner pattern mirrored to the four corners; ornament
-richness escalates with rarity. The pack builder already copies PNGs and
-converts `*.mcmeta.json` to `*.png.mcmeta`.
+Nine-slice behaviour (checked in the 26.3 client, `GuiGraphicsExtractor.blitNineSliceInnerSegment`):
+with `stretch_inner` absent/false the 12px edge and centre segments are TILED (truncated at the far end),
+not stretched. So each edge is one 12px-period strip that repeats along the tooltip; `stretch_inner: true`
+(the old setting) would stretch it and smear any pattern. The sprite starts 12px outside the text
+(PADDING 3 + MARGIN 9), so ornaments use only the outer 10px and keep a 2px gap to the text.
+
+Each rarity uses a structurally different motif from `tools/item-art/scripts/geometry/`
+(see `docs/art/geometric-patterns.md`): common line + chamfer, uncommon double line + stair + ticks,
+rare diamond chain + checker block, epic Greek key (meander) + octagram {8/3}, legendary interlaced braid +
+medallion with octagram and glow. Preview: `docs/assets/tooltip-frames-preview.png`.
+The pack builder already copies PNGs and converts `*.mcmeta.json` to `*.png.mcmeta`.
 
 Colour comes from the shipped `astera.item.tooltip.rarity` MiniMessage strings
 in `content/languages/en.yaml`, shared with lore. Current accents:

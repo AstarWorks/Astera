@@ -78,6 +78,10 @@ internal class CorePaperBindings(
     }
     private lateinit var scheduler: IScheduler
 
+    /** Tool-bay journal hook (MAP-A6); set once the lobby world is installed, read by the block gateway's edit hook. */
+    @Volatile private var toolBayRemember: ((org.bukkit.block.Block) -> Unit)? = null
+    private var toolBayTask: IScheduler.TaskHandle? = null
+
     /** Set once the arena world is installed; the world baseline reads the per-stage sky from it. */
     @Volatile private var arenaWorld: com.astarworks.astera.core.adapter.paper.arena.PaperArenaWorld? = null
 
@@ -214,7 +218,7 @@ internal class CorePaperBindings(
                     },
                     durabilityRule = deps.durabilityRule,
                     // Cover blocks a stage placed must come back at the next match in the slot.
-                    beforeWorldEdit = { block -> arenaWorld?.remember(block) },
+                    beforeWorldEdit = { block -> arenaWorld?.remember(block); toolBayRemember?.invoke(block) },
                 )
                 server.pluginManager.registerEvents(
                     com.astarworks.astera.core.adapter.paper.world.PaperBlockHpListener(paperBlockStateGateway,
@@ -738,8 +742,29 @@ internal class CorePaperBindings(
         // register here; the world is created from ServerLoadEvent / the first tick. Until it exists
         // the spawn supplier is null: joins stay on the main world, lobbySpawn falls back to it.
         npcBodyService?.awaitedWorlds = setOf(config.id)
+        // MAP-A6: the tool test bay is the one editable corner of the lobby; journal + idle restore + reset button.
+        val toolBay = com.astarworks.astera.core.application.service.lobby.LobbyToolBayService(
+            world = com.astarworks.astera.core.domain.world.WorldId(config.id),
+            plan = com.astarworks.astera.core.domain.lobby.LobbyToolBayLayout.plan(config.center.x, config.center.z, config.surfaceY),
+            blocks = com.astarworks.astera.core.adapter.paper.lobby.PaperToolBayWorld(config.id),
+            scheduler = ctx.services.getOrThrow<IScheduler>(),
+        )
+        ctx.registrations += ctx.services.register<com.astarworks.astera.core.application.port.outbound.lobby.ILobbyToolBay>(toolBay, priority = 0)
+        toolBayTask = toolBay.start()
+        toolBayRemember = { block -> toolBay.remember(com.astarworks.astera.core.domain.world.WorldId(block.world.name), block.x, block.y, block.z) }
+        val toolBayMessages = ctx.services.getOrThrow<IMessageRenderer>()
         server.pluginManager.registerEvents(
-            com.astarworks.astera.core.adapter.paper.lobby.PaperLobbyRulesListener(config.id, config.rules, plugin) {
+            com.astarworks.astera.core.adapter.paper.lobby.PaperLobbyRulesListener(
+                config.id, config.rules, plugin,
+                toolBay = { toolBay },
+                onToolBayReset = { player, count ->
+                    player.sendMessage(
+                        com.astarworks.astera.core.adapter.paper.text.AsteraTextDeserializer.deserialize(
+                            toolBayMessages.render(com.astarworks.astera.core.domain.player.PlayerId(player.uniqueId), com.astarworks.astera.core.domain.i18n.MessageKey("astera.lobby.toolbay.reset"), mapOf("count" to count.toString())),
+                        ),
+                    )
+                },
+            ) {
                 server.getWorld(config.id)?.takeIf { lobby.ready }?.let {
                     org.bukkit.Location(it, config.spawn.x, config.spawn.y, config.spawn.z, config.spawn.yaw, config.spawn.pitch)
                 }
@@ -939,6 +964,9 @@ internal class CorePaperBindings(
         // Wave 6a-6 (ADR-0153): cancel BukkitEventAdapter time-polling task.
         // Bukkit's HandlerList.unregisterAll(this) handles the Listener
         // un-registration automatically on plugin disable.
+        toolBayTask?.cancel()
+        toolBayTask = null
+        toolBayRemember = null
         bukkitEventAdapterTimeTaskHandle?.cancel()
         bukkitEventAdapterTimeTaskHandle = null
         // Wave 6b-3 (ADR-0158): drain the Lettuce Redis connection.

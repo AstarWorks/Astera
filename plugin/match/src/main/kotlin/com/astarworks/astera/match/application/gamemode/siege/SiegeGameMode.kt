@@ -32,6 +32,7 @@ import com.astarworks.astera.core.domain.stage.Stage
 import com.astarworks.astera.core.domain.world.BlockType
 import com.astarworks.astera.match.application.port.inbound.IMatchLifecycle
 import com.astarworks.astera.match.application.port.outbound.IMatchPlayerPositions
+import com.astarworks.astera.match.application.port.outbound.IMatchCompass
 import com.astarworks.astera.match.application.port.outbound.IObjectiveStage
 import com.astarworks.astera.match.application.port.outbound.IWorldLabels
 import com.astarworks.astera.match.domain.event.EntityEnteredRegion
@@ -60,6 +61,7 @@ import org.slf4j.LoggerFactory
  * @property guide the per-player hologram guide arrow (ADR-0295); `null` = no hologram.
  * @property settings player preferences; the guide is off for players who hid the HUD; `null` = everyone sees it.
  * @property labels the floating in-world labels over bases, spawns and objectives; `null` = no labels.
+ * @property compass the locked hotbar navigation compass (slot index 8); modes that use it show their guide only while it is held; `null` = none.
  * @property statuses combat status container; the TNT carrier is silenced through it (Rainmaker: no weapons); `null` = never silenced.
  */
 public class SiegeEnv(
@@ -82,6 +84,7 @@ public class SiegeEnv(
     public val settings: () -> IPlayerSettingsRepository? = { null },
     public val labels: () -> IWorldLabels? = { null },
     public val statuses: () -> IStatusEffectContainer? = { null },
+    public val compass: () -> IMatchCompass? = { null },
 ) {
     public fun int(key: String, default: Int): Int = config[key]?.toIntOrNull() ?: default
 

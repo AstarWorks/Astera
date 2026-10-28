@@ -3,6 +3,7 @@ package com.astarworks.astera.combat.application.service
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.block.BlockDamageProfile
 import com.astarworks.astera.core.domain.world.ToolKind
+import com.astarworks.astera.core.domain.world.ToolTier
 import com.astarworks.astera.core.domain.world.ToolType
 
 /** Why a skill's block damage could not be turned into a [BlockDamageProfile]. Never silently dropped: the gateway logs it. */
@@ -45,6 +46,29 @@ public object SkillWorldRules {
         val tool = itemTool?.takeIf { it.kind == kind }
             ?: return Result.Failure(SkillBlockError.NoToolTier(skillId, kind.name, itemId))
         return Result.Success(BlockDamageProfile(blockDamage.coerceAtLeast(0), tool))
+    }
+
+    /**
+     * Strength of a tool tier against a structure (an Annihilation pillar): stone is the baseline, iron hits 1.5x, diamond 2x.
+     * Terrain scales through the tool matrix instead; a structure has no matrix cell, so this is its tier axis.
+     */
+    public fun structureTierFactor(tier: ToolTier): Double = when (tier) {
+        ToolTier.NONE, ToolTier.WOOD, ToolTier.STONE -> 1.0
+        ToolTier.IRON -> 1.5
+        ToolTier.DIAMOND, ToolTier.NETHERITE -> 2.0
+    }
+
+    /** The tier a vanilla tool material key names (`minecraft:iron_pickaxe` -> IRON); NONE for anything else. */
+    public fun tierOfMaterial(materialKey: String): ToolTier {
+        val id = materialKey.substringAfter(':').lowercase()
+        return when {
+            id.startsWith("wooden_") -> ToolTier.WOOD
+            id.startsWith("stone_") -> ToolTier.STONE
+            id.startsWith("iron_") -> ToolTier.IRON
+            id.startsWith("diamond_") -> ToolTier.DIAMOND
+            id.startsWith("netherite_") -> ToolTier.NETHERITE
+            else -> ToolTier.NONE
+        }
     }
 
     /**

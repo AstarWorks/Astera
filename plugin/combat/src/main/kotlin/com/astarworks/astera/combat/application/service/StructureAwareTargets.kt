@@ -73,15 +73,25 @@ public class StructureAwareEntityDamageGateway(
                 ?: Result.failure(DamageApplicationError.TargetOffline(target))
         val amount = resolved.finalAmount
         if (amount <= 0.0) return Result.failure(DamageApplicationError.Immune(target))
-        return when (val r = structures.damage(target, source.attackerIdOrNull(), amount)) {
+        return when (val r = structures.damage(target, source.attackerIdOrNull(), amount, structureSource(source))) {
             is Result.Success ->
                 Result.success(if (r.value <= 0.0) DamageOutcome.Killed else DamageOutcome.HpReduced(r.value))
             is Result.Failure -> when (r.error) {
                 IStructureTargets.Rejection.UNKNOWN_TARGET ->
                     Result.failure(DamageApplicationError.TargetOffline(target))
-                else -> Result.failure(DamageApplicationError.Immune(target))
+                else -> Result.failure(DamageApplicationError.StructureRejected(target, r.error))
             }
         }
+    }
+
+    /** Every damage that reaches a structure through the target pipeline is weapon damage; the structure weighs it. */
+    private fun structureSource(source: DamageSource): IStructureTargets.DamageSource {
+        val origin = when (source) {
+            is DamageSource.Item -> source.attackerPosition
+            is DamageSource.Skill -> source.casterPosition
+            else -> null
+        }
+        return IStructureTargets.DamageSource(IStructureTargets.DamageKind.WEAPON, origin = origin)
     }
 
     override fun hitPoints(target: PlayerId): Double? =

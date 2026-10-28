@@ -10,7 +10,11 @@ import com.astarworks.astera.core.domain.nexus.IgnoreReason
 import com.astarworks.astera.core.domain.nexus.NexusDamageOutcome
 import com.astarworks.astera.core.domain.nexus.NexusState
 import com.astarworks.astera.core.domain.player.PlayerId
+import com.astarworks.astera.core.domain.world.ToolKind
 import com.astarworks.astera.core.domain.world.WorldId
+import com.astarworks.astera.match.domain.gamemode.annihilation.PillarDamageRules
+import com.astarworks.astera.match.domain.gamemode.annihilation.PillarDamageTuning
+import com.astarworks.astera.match.domain.gamemode.annihilation.PillarHitKind
 import java.util.UUID
 import kotlin.math.ceil
 import kotlin.math.floor
@@ -20,6 +24,8 @@ import kotlin.math.floor
  * implementation Combat consumes, so skill hits (projectile, AoE, `damage`
  * mechanics, melee against the pillar target) and enemy block breaks all end in
  * [AnnihilationMatchTracker.recordDamage].
+ *
+ * Damage is weighed by [PillarDamageRules] (source kind x tool affinity x distance falloff) before it reaches the tracker.
  *
  * Rules enforced here (not in the tracker, which knows no players):
  *  - the attacker must be in the same match as the pillar;
@@ -35,6 +41,8 @@ public class AnnihilationPillarTargets(
     private val tracker: AnnihilationMatchTracker,
     private val matches: IMatchRepository,
     private val scheduler: IScheduler,
+    /** Where a player stands now; used when the damage source does not carry the attacker's position (projectiles). */
+    private val locate: (PlayerId) -> Vec3? = { null },
 ) : IStructureTargets {
 
     private data class Hit(
@@ -70,7 +78,12 @@ public class AnnihilationPillarTargets(
             .firstOrNull { (world == null || it.view.world == world) && sameBlock(it.view.site!!.position, blockPosition) }
             ?.let { IStructureTargets.StructureTarget(it.targetId, it.view.site!!.centre, it.view.world!!) }
 
-    override fun damage(target: PlayerId, attacker: PlayerId?, amount: Double): Result<Double, IStructureTargets.Rejection> {
+    override fun damage(
+        target: PlayerId,
+        attacker: PlayerId?,
+        amount: Double,
+        source: IStructureTargets.DamageSource,
+    ): Result<Double, IStructureTargets.Rejection> {
         val hit = all().firstOrNull { it.targetId == target }
             ?: return Result.failure(IStructureTargets.Rejection.UNKNOWN_TARGET)
         if (attacker == null) return Result.failure(IStructureTargets.Rejection.NO_ATTACKER)
@@ -80,7 +93,24 @@ public class AnnihilationPillarTargets(
             ?: return Result.failure(IStructureTargets.Rejection.NO_ATTACKER)
         if (attackerTeam == hit.view.nexus.owningTeam) return Result.failure(IStructureTargets.Rejection.FRIENDLY)
 
-        val points = ceil(amount).toInt().coerceAtLeast(1)
+        val site = hit.view.site!!
+        val tuning = tracker.state(hit.matchId)?.config?.pillarDamage ?: PillarDamageTuning()
+        val origin = source.origin ?: locate(attacker)
+        val effective = PillarDamageRules.effective(
+            tuning = tuning,
+            raw = amount,
+            kind = when (source.kind) {
+                IStructureTargets.DamageKind.HAND_BREAK -> PillarHitKind.HAND_BREAK
+                IStructureTargets.DamageKind.TOOL_SKILL -> PillarHitKind.TOOL_SKILL
+                IStructureTargets.DamageKind.WEAPON -> PillarHitKind.WEAPON
+            },
+            tool = source.tool,
+            affinity = site.affinity,
+            distance = origin?.distance(site.centre),
+        )
+        // Beyond the far radius (or a zero multiplier) nothing lands: not even the 1 HP floor below.
+        if (effective <= 0.0) return Result.failure(IStructureTargets.Rejection.OUT_OF_RANGE)
+        val points = ceil(effective).toInt().coerceAtLeast(1)
         return when (val outcome = tracker.recordDamage(hit.matchId, hit.view.nexus.id, points, attacker, scheduler.currentTick())) {
             is NexusDamageOutcome.Damaged -> Result.success(outcome.currentHp.toDouble())
             is NexusDamageOutcome.Destroyed -> Result.success(0.0)
@@ -95,17 +125,18 @@ public class AnnihilationPillarTargets(
     }
 
     /**
-     * A block break at [blockPosition] in [world] by [player]. If it is a standing
-     * pillar block it deals the match's `pillarBreakDamage` to it (subject to the
+     * A block break at [blockPosition] in [world] by [player] holding [heldTool]. If it is a standing
+     * pillar block it deals the match's hand-break damage to it (subject to the
      * same rules as any other hit) and the caller must cancel the vanilla break.
      * A destroyed pillar's block is already gone, so it is [BlockBreakVerdict.NotAPillar].
      */
-    public fun onBlockBreak(player: PlayerId, world: WorldId?, blockPosition: Vec3): BlockBreakVerdict {
+    public fun onBlockBreak(player: PlayerId, world: WorldId?, blockPosition: Vec3, heldTool: ToolKind): BlockBreakVerdict {
         val hit = standing().firstOrNull {
             (world == null || it.view.world == world) && sameBlock(it.view.site!!.position, blockPosition)
         } ?: return BlockBreakVerdict.NotAPillar
-        val perBreak = tracker.state(hit.matchId)?.config?.pillarBreakDamage ?: return BlockBreakVerdict.NotAPillar
-        return BlockBreakVerdict.Pillar(damaged = damage(hit.targetId, player, perBreak.toDouble()) is Result.Success)
+        val perBreak = tracker.state(hit.matchId)?.config?.pillarDamage?.handBreakDamage ?: return BlockBreakVerdict.NotAPillar
+        val source = IStructureTargets.DamageSource(IStructureTargets.DamageKind.HAND_BREAK, heldTool)
+        return BlockBreakVerdict.Pillar(damaged = damage(hit.targetId, player, perBreak.toDouble(), source) is Result.Success)
     }
 
     override fun hitPoints(id: PlayerId): Double? =

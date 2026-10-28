@@ -445,13 +445,18 @@ public class SimTrainingRackGateway : ITrainingRackGateway {
     public var frames: List<RackFrame> = emptyList()
         private set
 
-    override fun ensure(world: WorldId, frames: List<RackFrame>): Int {
-        this.frames = frames
+    /** Frames of the tool-bay rack (MAP-A6). */
+    public var toolFrames: List<RackFrame> = emptyList()
+        private set
+
+    override fun ensure(world: WorldId, frames: List<RackFrame>, kind: String): Int {
+        if (kind == ITrainingRackGateway.KIND_TOOL) toolFrames = frames else this.frames = frames
         return frames.size
     }
 
     override fun removeAll() {
         frames = emptyList()
+        toolFrames = emptyList()
     }
 }
 
