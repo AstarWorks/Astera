@@ -19,10 +19,9 @@ public fun interface OpTargetResolver {
 
 /** Executors of the status / buff family. All route through `ISkillGameplayGateway`. */
 public fun statusExecutors(targets: OpTargetResolver, casterOf: (OpContext) -> UUID): List<OpExecutor<*>> {
-    val rolls = ChanceRoller()
     return listOf(
         StatusExecutor(StatusOp.ApplyStatus::class, targets) { op, ctx, victim ->
-            if (rolls.passes(ctx, op.id, victim, op.chance?.let(ctx.values::num))) {
+            if (passes(ctx, op.chance?.let(ctx.values::num))) {
                 ctx.ports.gameplay.applyStatus(
                     casterOf(ctx), victim, op.statusId,
                     ctx.values.num(op.stacks).roundToInt().coerceAtLeast(1),
@@ -78,24 +77,8 @@ private class StatusExecutor<O : StatusOp>(
     }
 }
 
-/**
- * Deterministic chance roll: a hash of (cast, op id, victim, nth roll of that triple). Same
- * inputs in the same order give the same outcome, so sim replays match; repeated ticks differ.
- */
-private class ChanceRoller {
-    private val counts = HashMap<Triple<Long, String, UUID>, Int>()
-
-    fun passes(ctx: OpContext, opId: String, victim: UUID, chance: Double?): Boolean {
-        if (chance == null || chance >= 1.0) return true
-        if (chance <= 0.0) return false
-        val key = Triple(ctx.cast.value, opId, victim)
-        val n = counts.merge(key, 1, Int::plus)!!
-        var h = ctx.cast.value * -7046029254386353131L
-        h = (h xor opId.hashCode().toLong()) * -7046029254386353131L
-        h = (h xor victim.mostSignificantBits xor victim.leastSignificantBits) * -7046029254386353131L
-        h = (h xor n.toLong()) * -7046029254386353131L
-        h = h xor (h ushr 32)
-        val unit = (h ushr 11).toDouble() / (1L shl 53).toDouble()
-        return unit < chance
-    }
+/** v1 rolled `chance:` once per target and only below 1 (`MechanicDispatcher.kt:627`), from the shared random source behind the gateway. */
+private fun passes(ctx: OpContext, chance: Double?): Boolean {
+    val c = (chance ?: return true).coerceIn(0.0, 1.0)
+    return c >= 1.0 || ctx.ports.gameplay.rollChance(c)
 }

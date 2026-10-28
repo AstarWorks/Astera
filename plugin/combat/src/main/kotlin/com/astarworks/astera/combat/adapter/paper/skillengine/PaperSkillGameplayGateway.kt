@@ -48,6 +48,8 @@ public class PaperSkillGameplayGateway(
     private val entityEffects: IEntityEffectsGateway,
     private val attributes: IPlayerAttributeContainerStore,
     private val scheduler: IScheduler,
+    /** The shared random source of crits, status chances and weighted branches. */
+    private val randomizer: com.astarworks.astera.combat.application.port.outbound.IDamageRandomizer,
     /** Lazily resolved: the pool service registers after the combat plugin enables. */
     private val resourcePool: () -> IResourcePoolService?,
 ) : ISkillGameplayGateway {
@@ -104,6 +106,8 @@ public class PaperSkillGameplayGateway(
         )
         if (result is Result.Failure) log.warn("skill engine: status '{}' not applied: {}", statusId, result.error)
     }
+
+    override fun rollChance(chance: Double): Boolean = randomizer.nextDouble() <= chance
 
     override fun removeStatus(victim: UUID, statusId: String) {
         val id = runCatching { StatusEffectId(statusId) }.getOrElse {

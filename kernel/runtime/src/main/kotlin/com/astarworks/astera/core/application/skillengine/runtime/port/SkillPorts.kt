@@ -185,6 +185,12 @@ public interface ISkillGameplayGateway {
     public fun statusStacks(entity: UUID, statusId: String): Int
     public fun applyStatus(caster: UUID, victim: UUID, statusId: String, stacks: Int, durationTicks: Int)
 
+    /**
+     * One status `chance:` roll: true when the status lands. Drawn from the same random source as crits, one draw per
+     * target and only for a chance below 1 (v1 `MechanicDispatcher.kt:627`: `if (chance < 1.0 && randomizer.nextDouble() > chance) continue`).
+     */
+    public fun rollChance(chance: Double): Boolean
+
     /** Remove one status (all stacks) from [victim]. Missing status is a no-op. */
     public fun removeStatus(victim: UUID, statusId: String)
 

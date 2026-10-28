@@ -158,6 +158,7 @@ public class SimSkillEngine private constructor(
             entityEffects = entityEffects,
             attributes = attributes,
             scheduler = scheduler,
+            randomizer = services.get<com.astarworks.astera.combat.application.port.outbound.IDamageRandomizer>() ?: error("sim skill engine: no IDamageRandomizer"),
             resourcePool = { services.get<IResourcePoolService>() },
         )
         val victimAnim = SimSkillVictimAnim(world, knockback)

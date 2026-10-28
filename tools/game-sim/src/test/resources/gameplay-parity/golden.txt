@@ -5281,7 +5281,7 @@ fireball-cast	119	00ff5a782d49
 flame-burst	0	3feddffae652
 flame-burst	1	3b172e9ae019
 flame-burst	2	6d7be6ef9399
-flame-burst	3	430d9aa663f5
+flame-burst	3	acff307ccbfc
 flame-burst	4	6d7be6ef9399
 flame-burst	5	6d7be6ef9399
 flame-burst	6	6d7be6ef9399
@@ -5297,7 +5297,7 @@ flame-burst	15	6d7be6ef9399
 flame-burst	16	6d7be6ef9399
 flame-burst	17	6d7be6ef9399
 flame-burst	18	6d7be6ef9399
-flame-burst	19	ba42c97bb54b
+flame-burst	19	6d7be6ef9399
 flame-burst	20	6d7be6ef9399
 flame-burst	21	6d7be6ef9399
 flame-burst	22	6d7be6ef9399
@@ -5638,7 +5638,7 @@ frag-grenade-throw	116	35009949b7d3
 frag-grenade-throw	117	35009949b7d3
 frag-grenade-throw	118	35009949b7d3
 frag-grenade-throw	119	35009949b7d3
-frost-nova	0	40b274182187
+frost-nova	0	24aa3afebe34
 frost-nova	1	6d7be6ef9399
 frost-nova	2	6d7be6ef9399
 frost-nova	3	6d7be6ef9399
@@ -5880,7 +5880,7 @@ frost-rod-chill	118	6d7be6ef9399
 frost-rod-chill	119	6d7be6ef9399
 frost-rod-sleet	0	b2b55da7c889
 frost-rod-sleet	1	3b172e9ae019
-frost-rod-sleet	2	afa44820f9c7
+frost-rod-sleet	2	4ee16c120b14
 frost-rod-sleet	3	6d7be6ef9399
 frost-rod-sleet	4	6d7be6ef9399
 frost-rod-sleet	5	6d7be6ef9399
@@ -5917,7 +5917,7 @@ frost-rod-sleet	35	6d7be6ef9399
 frost-rod-sleet	36	6d7be6ef9399
 frost-rod-sleet	37	6d7be6ef9399
 frost-rod-sleet	38	6d7be6ef9399
-frost-rod-sleet	39	b5d69a7e01c5
+frost-rod-sleet	39	6d7be6ef9399
 frost-rod-sleet	40	6d7be6ef9399
 frost-rod-sleet	41	6d7be6ef9399
 frost-rod-sleet	42	6d7be6ef9399
@@ -6000,7 +6000,7 @@ frost-rod-sleet	118	6d7be6ef9399
 frost-rod-sleet	119	6d7be6ef9399
 frost-shard	0	b68c47736942
 frost-shard	1	3b172e9ae019
-frost-shard	2	732088cd6277
+frost-shard	2	5fd57cd693c0
 frost-shard	3	6d7be6ef9399
 frost-shard	4	6d7be6ef9399
 frost-shard	5	e33f6b401bab
@@ -6057,7 +6057,7 @@ frost-shard	55	6d7be6ef9399
 frost-shard	56	6d7be6ef9399
 frost-shard	57	6d7be6ef9399
 frost-shard	58	6d7be6ef9399
-frost-shard	59	b5d69a7e01c5
+frost-shard	59	6d7be6ef9399
 frost-shard	60	6d7be6ef9399
 frost-shard	61	6d7be6ef9399
 frost-shard	62	6d7be6ef9399
@@ -6118,7 +6118,7 @@ frost-shard	116	6d7be6ef9399
 frost-shard	117	6d7be6ef9399
 frost-shard	118	6d7be6ef9399
 frost-shard	119	6d7be6ef9399
-gale-gust	0	e3c6f72e6554
+gale-gust	0	bdbebe3092a1
 gale-gust	1	b3c902579f0c
 gale-gust	2	b3c902579f0c
 gale-gust	3	b3c902579f0c
@@ -7084,7 +7084,7 @@ gossamer-katana-s3	2	6d7be6ef9399
 gossamer-katana-s3	3	6d7be6ef9399
 gossamer-katana-s3	4	902a6dbdd47f
 gossamer-katana-s3	5	32a3403f8164
-gossamer-katana-s3	6	9943ef19d9b2
+gossamer-katana-s3	6	9c247d9da3c2
 gossamer-katana-s3	7	6af3fcda5113
 gossamer-katana-s3	8	a07ef8528dfe
 gossamer-katana-s3	9	a07ef8528dfe
@@ -13078,7 +13078,7 @@ shortbow-snare	116	6d7be6ef9399
 shortbow-snare	117	6d7be6ef9399
 shortbow-snare	118	6d7be6ef9399
 shortbow-snare	119	6d7be6ef9399
-shotgun-blast	0	7afc4568248d
+shotgun-blast	0	ac50576de109
 shotgun-blast	1	6d7be6ef9399
 shotgun-blast	2	6d7be6ef9399
 shotgun-blast	3	6d7be6ef9399

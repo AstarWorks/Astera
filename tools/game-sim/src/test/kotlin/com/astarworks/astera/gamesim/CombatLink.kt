@@ -91,6 +91,7 @@ class CombatLink(val sim: GameSim, val caster: SimEntity, val dummy: SimEntity, 
         entityEffects = sim.services.getOrThrow<IEntityEffectsGateway>(),
         attributes = sim.services.getOrThrow<IPlayerAttributeContainerStore>(),
         scheduler = sim.services.getOrThrow<IScheduler>(),
+        randomizer = sim.services.getOrThrow<com.astarworks.astera.combat.application.port.outbound.IDamageRandomizer>(),
         resourcePool = { sim.services.get<IResourcePoolService>() },
     )
 

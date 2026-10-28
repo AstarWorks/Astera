@@ -148,6 +148,7 @@ internal class CastInstance(
 
     private val gameplayTimeline = Timeline(def.gameplay.timeline)
     private val presentationTimeline = Timeline(def.presentation.timeline)
+    private val deferredCastOps = ArrayList<Triple<com.astarworks.astera.core.domain.skillengine.model.Value<Boolean>?, List<SkillOp>, CastEvent?>>()
 
     // ------------------------------------------------------------------ start
 
@@ -247,6 +248,16 @@ internal class CastInstance(
         for (f in gameplayTimeline.due(ticksSinceStart, request.startTick, ::raisesOf, ::eventSince, bus::hasRaised)) runRow(f.row.whenExpr, f.row.ops, f.event)
         drain()
 
+        // v1 dispatched the `cast` phase (the `at: 0` presentation rows: cast sounds, burst particles) before any projectile step or
+        // hit handler of the same tick, so a cast sound precedes the impact sound of an instant volume.
+        for (f in presentationTimeline.due(ticksSinceStart, request.startTick, ::raisesOf, ::eventSince, bus::hasRaised, RowPhase.CAST)) {
+            // an op with its own `when` (the converter's `on_miss` -> `counter(..) == 0`) reads the tick's hits, so it waits for them.
+            val (now, later) = f.row.ops.partition { it.whenExpr == null }
+            runRow(f.row.whenExpr, now, f.event)
+            if (later.isNotEmpty()) deferredCastOps += Triple(f.row.whenExpr, later, f.event)
+        }
+        drain()
+
         stepMotion()
         drain()
 
@@ -255,7 +266,9 @@ internal class CastInstance(
 
         // presentation rows run after the tick's motion and hits: a trail emits at the post-move position and not at all
         // on the tick its projectile ended (v1 emitted from inside the projectile step).
-        for (f in presentationTimeline.due(ticksSinceStart, request.startTick, ::raisesOf, ::eventSince, bus::hasRaised)) runRow(f.row.whenExpr, f.row.ops, f.event)
+        for ((guard, ops, anchor) in deferredCastOps) runRow(guard, ops, anchor)
+        deferredCastOps.clear()
+        for (f in presentationTimeline.due(ticksSinceStart, request.startTick, ::raisesOf, ::eventSince, bus::hasRaised, RowPhase.AFTER_CAST)) runRow(f.row.whenExpr, f.row.ops, f.event)
         drain()
 
         deps.presentation.tickCast(id)
@@ -384,6 +397,9 @@ internal class CastInstance(
                 lastVictim = bound
                 refreshEnemy(bound)
             }
+            // v1 resolved `target` to the live position (TargeterResolver.targetLocation :151), so a victim moved earlier in the tick
+            // (teleport, respawn) is where the handler's effects land.
+            for (v in victims) refreshEnemy(v)
             bus.raise(e)
             motion.raise(e.name)
             val v = e.victim
