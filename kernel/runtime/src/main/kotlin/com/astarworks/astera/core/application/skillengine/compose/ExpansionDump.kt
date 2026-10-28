@@ -25,6 +25,10 @@ public object ExpansionDump {
             st.rows.forEach { appendLine("  " + row(it)) }
             st.branches.forEach { appendLine("  " + branch(it)) }
         }
+        if (table.worldRows.isNotEmpty()) {
+            appendLine("world")
+            table.worldRows.forEach { appendLine("  " + row(it)) }
+        }
         for (sub in table.subTables.values.sortedBy { it.event.value }) {
             appendLine("sub ${sub.event.value} owner=${sub.owner.value} window=[${sub.window.min},${sub.window.max}] max=${sub.maxFirings}")
             sub.rows.forEach { appendLine("  " + row(it)) }
@@ -50,6 +54,7 @@ public object ExpansionDump {
             put("src", r.src.value)
         }
         val rows = table.states.flatMap { st -> st.rows.map { rowJson(st.state.value, it) } } +
+            table.worldRows.map { rowJson("world", it) } +
             table.subTables.values.sortedBy { it.event.value }.flatMap { sub -> sub.rows.map { rowJson(sub.event.value, it) } }
         return JsonObject(
             mapOf(
@@ -71,10 +76,12 @@ public object ExpansionDump {
         val states = ArrayList<StateTable>()
         val subs = LinkedHashMap<EventPath, SubTable>()
         var cur: Cur? = null
+        var world: List<Row> = emptyList()
 
         fun flush() {
             val c = cur ?: return
-            if (c.sub) subs[EventPath(c.name)] = SubTable(EventPath(c.name), StatePath(c.owner), c.window, c.max, c.rows, c.branches)
+            if (c.world) world = c.rows.toList()
+            else if (c.sub) subs[EventPath(c.name)] = SubTable(EventPath(c.name), StatePath(c.owner), c.window, c.max, c.rows, c.branches)
             else states += StateTable(StatePath(c.name), c.duration, c.then, c.final, c.rows, c.branches)
             cur = null
         }
@@ -90,6 +97,10 @@ public object ExpansionDump {
                     val kv = kvs(tok.drop(2))
                     cur = Cur(sub = false, name = tok[1], duration = parseDuration(kv["duration"] ?: return null) ?: return null,
                         then = kv["then"]?.takeIf { it != "-" }?.let(::StatePath), final = kv["final"] == "true")
+                }
+                line == "world" -> {
+                    flush()
+                    cur = Cur(sub = false, name = "world", world = true)
                 }
                 line.startsWith("sub ") -> {
                     flush()
@@ -114,7 +125,7 @@ public object ExpansionDump {
         flush()
         val id = skillId ?: return null
         val empty = Bounds(emptyMap(), 0, 0, 0, 0, TickRange(0, 0), 0)
-        return ExpansionTable(id, seed, emptyMap(), empty, states, subs, emptyMap(), emptyMap(), EngineConfig())
+        return ExpansionTable(id, seed, emptyMap(), empty, states, subs, emptyMap(), emptyMap(), EngineConfig(), world)
     }
 
     private class Cur(
@@ -126,6 +137,7 @@ public object ExpansionDump {
         val duration: Duration = Duration.Fixed(0),
         val then: StatePath? = null,
         val final: Boolean = false,
+        val world: Boolean = false,
     ) {
         val rows = ArrayList<Row>()
         val branches = ArrayList<Branch>()

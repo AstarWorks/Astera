@@ -132,4 +132,65 @@ class EffectOpScenarioTest : SkillEngineScenario() {
         assertThat(end.tick - start.tick).isEqualTo(9)
         assertThat(fails(skill("{id: b, op: body, anim: slash_a}"))).`as`("needs for or until").isTrue()
     }
+
+    private fun effectCalls(s: CompiledSkill, rec: GatewayRecorder = GatewayRecorder(), events: List<com.astarworks.astera.core.application.skillengine.runtime.player.RuntimeEvent> = emptyList()) =
+        play(s, 1L, events, null, rec).filter { it.verb == "effect" || it.verb == "item" }
+
+    @Test
+    fun targetKeyReachesGatewaysCleanseConsumeStopSoundCameraShake() {
+        val rec = GatewayRecorder().also { it.stock["arrow"] = 5 }
+        val s = compile(
+            skill(
+                "{op: cleanse, at: 1, target: caster, negative_only: true}",
+                "{op: consume_status, at: 2, target: caster, status: focus}",
+                "{op: consume_item, at: 3, target: caster, item: arrow, count: 3}",
+                "{op: camera_shake, at: 4, target: caster, intensity: 0.4, for: 6, direction: none}",
+                "{op: stop_sound, at: 5, target: caster, sound: entity.player.attack.sweep}",
+                "{op: freeze, at: 6, ticks: 10, scope: [caster]}",
+            ),
+        )
+        val calls = effectCalls(s, rec).map { it.tick to it.payload }
+        assertThat(calls).contains(
+            1 to "cleanse", 2 to "consume_status=focus", 3 to "consume=3", 4 to "camera_shake=0.4 ticks=6 from=none",
+            5 to "stop_sound=entity.player.attack.sweep", 6 to "freeze=10",
+        )
+        assertThat(rec.stock["arrow"]).isEqualTo(2)
+    }
+
+    @Test
+    fun hurtResolvesItsFromInstanceAndCalls() {
+        val s = compile(skill("{op: hurt, at: 2, target: caster, from: contact}", anchors = "{id: contact, anchor: caster.hand_r}"))
+        assertThat(effectCalls(s).map { it.tick to it.payload }).contains(2 to "hurt")
+    }
+
+    @Test
+    fun bodyClipPlaysAndStopsAtForAndAtUntil() {
+        val forOnly = compile(skill("{id: b, op: body, at: 2, anim: slash_a, speed: 1.5, for: 9}"))
+        assertThat(effectCalls(forOnly).map { it.tick to it.payload }).contains(2 to "body=slash_a speed=1.5", 11 to "body_stop=slash_a")
+        val until = compile(skill("{id: b, op: body, at: 2, anim: slash_a, speed: 1.0, for: 20, until: hit}"))
+        val hit = com.astarworks.astera.core.application.skillengine.runtime.player.RuntimeEvent(
+            com.astarworks.astera.core.domain.skillengine.table.EventPath("hit"), 6, null, null, null,
+        )
+        val calls = effectCalls(until, events = listOf(hit)).map { it.tick to it.payload }
+        assertThat(calls).contains(6 to "body_stop=slash_a")
+        assertThat(calls.filter { it.second == "body_stop=slash_a" }).hasSize(1)
+    }
+
+    @Test
+    fun dashUntilEventEndsTheInstanceAtThatTick() {
+        val flags = "follow_pitch: false, stop_on_block: true, invulnerable: false, face_movement: false"
+        val s = compile(skill("{id: d, op: dash, speed: 1.2, for: 8, until: hit, $flags}"))
+        val sub = s.table.subTables.values.single { it.event.value == "hit" }
+        assertThat(sub.rows.map { it.action }.filterIsInstance<Action.End>()).hasSize(1)
+        assertThat(sub.rows.any { (it.action as? Action.Effect)?.payload?.get("kind") == Val.Known("dash.end") }).isTrue()
+    }
+
+    @Test
+    fun soundRowsCarryRelativeTicksNotTheClockOffset() {
+        // the unroller already shifts each row by its occurrence offset; a lowered tick of clockOffset counted it twice
+        val s = compile(skill("{id: z, op: sound, sound: entity.player.attack.sweep, anchor: me, every: 3, times: 3}", anchors = "{id: me, anchor: caster}"))
+        val sounds = play(s, 1L).filter { it.verb == "sound" }.map { it.tick }
+        assertThat(sounds).containsExactly(0, 3, 6)
+    }
 }
+
