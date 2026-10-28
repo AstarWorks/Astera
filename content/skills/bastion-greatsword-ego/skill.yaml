@@ -23,7 +23,7 @@ gameplay:
       at: 20
       do:
         - {id: propel, op: propel, direction: "= vec(0.0, 1.0, 0.0)", strength: "${propel}"}
-        - {id: dash, op: dash_strike, distance: "${dash_distance}", ticks: 6, radius: 0.3, hit_once: true, invulnerable: false, stop_on_block: true, follow_pitch: false, stop_before_target: 1.6}
+        - {id: dash, op: dash_strike, distance: "${dash_distance}", ticks: 6, radius: 0.3, hit_once: true, invulnerable: true, stop_on_block: true, follow_pitch: false, stop_before_target: 1.6}
     - id: t31
       at: 31
       do:

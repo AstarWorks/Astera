@@ -225,7 +225,7 @@ class MovementOpsScenarioTest {
     fun `local direction is relative to the caster heading`() {
         val (e, driver, w) = setup()
         run(e, driver, dash(distance = 4.0, ticks = 2.0, local = Vec3(1.0, 0.0, 0.0)))
-        driver.tick()
+        repeat(2) { driver.tick() }
         val left = Frame.fromDirection(Vec3.ZERO, Vec3(0.0, 0.0, 1.0)).left()
         val end = w.feet.getValue(caster)
         assertThat(end.x).isCloseTo(left.x * 4.0, offset(1e-9))
@@ -235,7 +235,7 @@ class MovementOpsScenarioTest {
         val (e2, d2, w2) = setup()
         w2.casterYaw = 90.0
         run(e2, d2, dash(distance = 4.0, ticks = 2.0, local = Vec3(1.0, 0.0, 0.0)))
-        d2.tick()
+        repeat(2) { d2.tick() }
         assertThat(w2.feet.getValue(caster).x).isCloseTo(0.0, offset(1e-6)) // heading is now -X, left is +/-Z
         assertThat(kotlin.math.abs(w2.feet.getValue(caster).z)).isCloseTo(4.0, offset(1e-6))
     }
