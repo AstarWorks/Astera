@@ -762,6 +762,8 @@ public object CombatWiring {
                 adminSkillCaster,
                 services.getOrThrow<com.astarworks.astera.core.adapter.api.server.IMcServer>(),
                 previewService,
+                reload = { id -> skillEngineContents.reloadSkill(skillsContentDir, id) },
+                knownSkillIds = { skillCatalog.ids() },
             ),
         )
         // UI-12: `/astera status [id]` lookup and `/astera status codex` (the status codex GUI).

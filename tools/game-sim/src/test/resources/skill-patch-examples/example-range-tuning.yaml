@@ -1,0 +1,8 @@
+# EXAMPLE patch (test fixture, not shipped, bound to no item): range tuning. One gameplay param.
+apiVersion: astera/v2
+kind: Patch
+target: couture-rapier-s2
+variant: example_range
+patchKind: balance
+gameplay:
+  params: {throw_range: 10.0}

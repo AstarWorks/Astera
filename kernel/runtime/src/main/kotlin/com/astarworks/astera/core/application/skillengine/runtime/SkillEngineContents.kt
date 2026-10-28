@@ -41,6 +41,60 @@ public class SkillEngineContents(
         return if (existing == null || root != abs) fullReload(abs, current) else incremental(existing, abs, current)
     }
 
+    /** What a successful single-skill reload changed. */
+    public data class SkillReload(
+        /** Ids (including variants and other skills the same files feed) whose composed tree changed. */
+        val recomposed: Set<String>,
+        /** Ids that were decoded, compiled and swapped into the catalog. */
+        val reloaded: Set<String>,
+    )
+
+    public sealed interface SkillReloadError {
+        /** No full reload has run for this directory yet. */
+        public data object NotLoaded : SkillReloadError
+
+        /** No file under the directory belongs to the skill. */
+        public data class UnknownSkill(val skillId: String) : SkillReloadError
+
+        /** Compose or decode failed; composer state for compose failures and the old catalog entries are untouched. */
+        public data class Rejected(val messages: List<String>) : SkillReloadError
+    }
+
+    /**
+     * Reloads ONE skill (`/astera skill reload <id>`): only the files that feed [skillId] (its base id when a variant is
+     * named) are re-read; only the skills those files feed are recomposed and swapped into the catalog, every other
+     * skill keeps its compiled instance. A compose failure changes nothing; a decode / compile failure keeps the old
+     * definition of that id and is retried on the next reload. Casts in progress finish on the old definition.
+     */
+    @Synchronized
+    public fun reloadSkill(dir: Path, skillId: String): Result<SkillReload, SkillReloadError> {
+        val abs = dir.toAbsolutePath().normalize()
+        val c = composer
+        if (c == null || root != abs) return Result.failure(SkillReloadError.NotLoaded)
+        val base = skillId.substringBefore('@')
+        val current = scan(abs)
+        val files = LinkedHashSet<String>(c.filesOf(base))
+        current.keys.filterTo(files) { it.startsWith("$base/") || it == "$base.yaml" || it == "$base.yml" }
+        if (files.isEmpty()) return Result.failure(SkillReloadError.UnknownSkill(skillId))
+        val recomposed = when (val r = c.recompose(files.map { abs.resolve(it) })) {
+            is Result.Success -> r.value
+            is Result.Failure -> return Result.failure(SkillReloadError.Rejected(r.error.map { "${it.file}: ${it.path}: ${it.reason}" }))
+        }
+        val next = HashMap(snapshot)
+        for (f in files) { val stamp = current[f]; if (stamp != null) next[f] = stamp else next.remove(f) }
+        snapshot = next
+        val composed = c.composed()
+        val affected = LinkedHashSet<String>(recomposed)
+        retry.filterTo(affected) { it.substringBefore('@') == base }
+        val report = catalog.reload(affected.mapNotNull { composed[it] })
+        for (id in affected) if (id !in composed) catalog.remove(id)
+        retry = (retry - affected) + report.failed.keys
+        if (report.failed.isNotEmpty()) {
+            return Result.failure(SkillReloadError.Rejected(report.failed.map { (id, e) -> "$id: ${e.path}: ${e.message}" }))
+        }
+        return Result.success(SkillReload(recomposed, report.loaded.toSet()))
+    }
+
     private fun fullReload(dir: Path, current: Map<String, FileStamp>): ContentLoader.LoadReport {
         val fresh = SkillComposer(dir, options)
         val composed = when (val r = fresh.composeAll()) {

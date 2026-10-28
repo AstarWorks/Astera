@@ -37,6 +37,11 @@ class SkillComposer(private val root: Path, private val options: ComposeOptions 
     @Synchronized
     fun dependents(file: String): Set<String> = dependencyIndex[relativize(file) ?: file].orEmpty()
 
+    /** Files (relative to root) that feed the skill [baseId] or its variants: skill documents and the patches targeting it. */
+    @Synchronized
+    fun filesOf(baseId: String): Set<String> =
+        docsByFile.filterValues { docs -> docs.any { it.baseId == baseId } }.keys.toSet()
+
     /** Reads everything under the root, composes it and replaces the cached state. State is untouched on failure. */
     @Synchronized
     fun composeAll(): Result<Map<String, ComposedSkill>, List<ComposeError>> {

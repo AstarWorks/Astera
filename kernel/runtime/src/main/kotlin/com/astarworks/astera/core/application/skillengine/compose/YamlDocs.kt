@@ -69,7 +69,13 @@ internal object YamlDocs {
         val raw = try {
             newYaml().loadAll(text).toList()
         } catch (e: YAMLException) {
-            val first = e.message?.lineSequence()?.firstOrNull() ?: "invalid YAML"
+            val first = (e.message?.lineSequence()?.firstOrNull() ?: "invalid YAML").let {
+                if (it.contains("undefined alias") || it.contains("undefined anchor")) {
+                    "$it (YAML anchors and aliases work inside ONE document only; an alias cannot reach into another file or across a '---' separator. Share values through params or a patch instead)"
+                } else {
+                    it
+                }
+            }
             return emptyList<Doc>() to listOf(ComposeError.ParseError(file, "", first))
         }
         val docs = ArrayList<Doc>()
