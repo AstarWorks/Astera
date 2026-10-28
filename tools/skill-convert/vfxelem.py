@@ -302,7 +302,17 @@ def _vec3(v, what):
 
 
 def sample(kfs, ch, default, u, what=None):
-    pts = [(int(k["t"]), k[ch], k.get("ease")) for k in sorted(kfs, key=lambda k: k["t"]) if ch in k]
+    """Channel `ch` at tick `u`. With a [default] the keys carry forward from it exactly like v1 (VfxTimeline.resolveKeyframes /
+    resolveGroup: a key that omits a channel keeps the previous key's value, the first one starts at identity, and every key's `ease`
+    shapes the segment that ends at it); without one (alpha / colour) only the keys that name the channel count."""
+    if default is not None:
+        cur = default
+        pts = []
+        for k in sorted(kfs, key=lambda k: k["t"]):
+            cur = k[ch] if ch in k else cur
+            pts.append((int(k["t"]), cur, k.get("ease")))
+    else:
+        pts = [(int(k["t"]), k[ch], k.get("ease")) for k in sorted(kfs, key=lambda k: k["t"]) if ch in k]
     if not pts:
         return default
     scalar = isinstance(pts[0][1], (int, float))
