@@ -13,6 +13,8 @@ import com.astarworks.astera.core.domain.skillengine.op.FxOp
 import com.astarworks.astera.core.domain.skillengine.op.OpSection
 import com.astarworks.astera.core.domain.skillengine.op.PlateFace
 import com.astarworks.astera.core.domain.skillengine.op.Repeat
+import com.astarworks.astera.core.domain.skillengine.op.RigFreeze
+import com.astarworks.astera.core.domain.skillengine.op.RigSwingKey
 import com.astarworks.astera.core.domain.skillengine.op.ScreenOp
 import com.astarworks.astera.core.domain.skillengine.op.SkillOp
 import com.astarworks.astera.core.domain.skillengine.op.TrackKey
@@ -142,6 +144,43 @@ private fun OpReader.trackKeys(): List<TrackKey> {
     }
 }
 
+private fun OpReader.literalVec(key: String): Vec3? {
+    val list = raw(key) ?: return null
+    val n = (list as? List<*>)?.map { (it as? Number)?.toDouble() ?: fail("$key must be [x,y,z] numbers") }
+    return n?.takeIf { it.size == 3 }?.let { Vec3(it[0], it[1], it[2]) } ?: fail("$key must be [x,y,z] numbers")
+}
+
+/** `rig`: the skin rig as frame-tree nodes (see [VisualOp.Rig]). All angles are rotation vectors (degrees, right-hand axis-angle). */
+private fun OpReader.rig(id: String, whenExpr: Value<Boolean>?): VisualOp.Rig {
+    val swing = (raw("swing") as? List<*> ?: emptyList<Any?>()).mapIndexed { i, e ->
+        val m = e as? Map<*, *> ?: fail("swing[$i] must be a map")
+        m.keys.firstOrNull { it !in setOf("t", "rotate", "ease", "sample") }?.let { fail("unknown key '$it' in swing[$i]") }
+        val t = (m["t"] as? Number)?.toInt() ?: fail("swing[$i] needs integer 't'")
+        val r = m["rotate"]?.let { v ->
+            (v as? List<*>)?.map { (it as? Number)?.toDouble() ?: fail("swing[$i].rotate must be [x,y,z]") }
+                ?.takeIf { it.size == 3 }?.let { Vec3(it[0], it[1], it[2]) } ?: fail("swing[$i].rotate must be [x,y,z]")
+        }
+        val ease = m["ease"]?.let { it as? String ?: fail("swing[$i].ease must be a string") }
+        if (ease != null && com.astarworks.astera.core.domain.animation.Easing.fromKey(ease) == null) fail("swing[$i].ease '$ease' is not an easing name")
+        RigSwingKey(t, r, ease, m["sample"] == true)
+    }
+    swing.zipWithNext().forEach { (a, b) -> if (b.tick <= a.tick) fail("swing t must be strictly increasing") }
+    val freezes = (raw("freezes") as? List<*> ?: emptyList<Any?>()).mapIndexed { i, e ->
+        val m = e as? Map<*, *> ?: fail("freezes[$i] must be a map")
+        m.keys.firstOrNull { it !in setOf("at", "ticks") }?.let { fail("unknown key '$it' in freezes[$i]") }
+        RigFreeze((m["at"] as? Number)?.toInt() ?: fail("freezes[$i] needs 'at'"), (m["ticks"] as? Number)?.toInt() ?: fail("freezes[$i] needs 'ticks'"))
+    }
+    val zero = Vec3(0.0, 0.0, 0.0)
+    return VisualOp.Rig(
+        id, whenExpr, requireString("frame"), requireString("parent"), string("anim"), bool("hand") ?: true,
+        literalVec("pivot") ?: zero, literalVec("tilt") ?: zero, literalVec("rest") ?: zero, swing,
+        (int("sample_ticks") ?: 2).also { if (it < 1) fail("sample_ticks must be >= 1") },
+        int("duration") ?: fail("missing 'duration'"),
+        bool("respect_hit_stop") ?: false, bool("body_respect_hit_stop") ?: false, freezes,
+        literalVec("tip"), literalVec("root"), literalVec("edge"),
+    )
+}
+
 private val HEX_RGB = Regex("^#[0-9a-fA-F]{6}$")
 
 private fun OpReader.hexColor(what: String, raw: Any?): String =
@@ -215,7 +254,7 @@ private val TRAIL_STYLES = setOf("soft", "crisp", "both")
 
 private object VisualOpDecoder : OpDecoder {
     override val section = OpSection.PRESENTATION
-    override val opNames = setOf("mesh", "plate", "block", "quad", "text", "line", "trail", "track", "remove")
+    override val opNames = setOf("mesh", "plate", "block", "quad", "text", "line", "trail", "track", "remove", "rig")
     override fun decode(op: String, id: String, whenExpr: Value<Boolean>?, reader: OpReader): SkillOp = with(reader) {
         when (op) {
             "mesh" -> VisualOp.Mesh(id, whenExpr, requireString("frame"), requireString("item"), string("part"), number("scale"),
@@ -262,6 +301,7 @@ private object VisualOpDecoder : OpDecoder {
             )
             "track" -> VisualOp.Track(id, whenExpr, requireString("target"), trackKeys(), string("space"))
             "remove" -> VisualOp.Remove(id, whenExpr, stringList("ids") ?: fail("missing 'ids'"))
+            "rig" -> rig(id, whenExpr)
             else -> fail("not a visual op: $op")
         }
     }

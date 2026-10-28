@@ -45,6 +45,13 @@ public interface ISkillVisualGateway {
     public fun spawnMesh(castOwner: UUID, item: String, part: String?, pose: VisualPose, brightness: Int? = null): VisualHandle
 
     /**
+     * One bone of the caster's own skin rig (ADR-0303 skin-rig section): a skull display wearing the caster's skin, [ghost] = a
+     * visual-only copy (no body hiding). [pose] is the world pose of the bone; it is written like a mesh. While the first live
+     * bone of a caster exists the real body, offhand and armour are hidden and the pose is pinned.
+     */
+    public fun spawnSkinBone(castOwner: UUID, bone: com.astarworks.astera.core.domain.animation.skinrig.SkinRigBone, slim: Boolean, ghost: Boolean, pose: VisualPose): VisualHandle
+
+    /**
      * A sprite quad; [pose].size.x / .y are its width and height in blocks. [tintHex] (`#rrggbb`) is multiplied into the
      * sprite from the first tick (null = the sprite's own colours), [seeThrough] is the vanilla text-display flag.
      * [brightness] null = full bright (15).

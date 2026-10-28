@@ -217,6 +217,71 @@ def short(x, n=120):
     return json.dumps(x, sort_keys=True, default=str, ensure_ascii=False)[:n]
 
 
+def _easing(name):
+    """v1 easing curve by name (Easing.kt); anything else is a converter gap."""
+    import math
+    if name in (None, "linear"):
+        return lambda t: t
+    if name == "step":
+        return lambda t: 1.0 if t >= 1.0 else 0.0
+    kind, _, fam = name.partition("_")
+    if name.startswith("in_out_"):
+        kind, fam = "in_out", name[7:]
+    elif name.startswith("in_"):
+        kind, fam = "in", name[3:]
+    elif name.startswith("out_"):
+        kind, fam = "out", name[4:]
+    pw = {"quad": 2, "cubic": 3, "quart": 4, "quint": 5}
+    if fam in pw:
+        n = pw[fam]
+        fin = lambda t: t ** n
+        fout = lambda t: 1.0 - (1.0 - t) ** n
+        finout = lambda t: (2 ** (n - 1)) * t ** n if t < 0.5 else 1.0 - (-2.0 * t + 2.0) ** n / 2.0
+    elif fam == "sine":
+        fin = lambda t: 1.0 - math.cos(t * math.pi / 2.0)
+        fout = lambda t: math.sin(t * math.pi / 2.0)
+        finout = lambda t: -(math.cos(math.pi * t) - 1.0) / 2.0
+    elif fam == "expo":
+        fin = lambda t: 0.0 if t == 0.0 else 2.0 ** (10.0 * t - 10.0)
+        fout = lambda t: 1.0 if t == 1.0 else 1.0 - 2.0 ** (-10.0 * t)
+        finout = lambda t: 0.0 if t == 0.0 else 1.0 if t == 1.0 else (2.0 ** (20.0 * t - 10.0) / 2.0 if t < 0.5 else (2.0 - 2.0 ** (-20.0 * t + 10.0)) / 2.0)
+    elif fam == "back" and kind in ("in", "out"):
+        c1 = 1.70158
+        c3 = c1 + 1.0
+        fin = lambda t: c3 * t ** 3 - c1 * t ** 2
+        fout = lambda t: 1.0 + c3 * (t - 1.0) ** 3 + c1 * (t - 1.0) ** 2
+        finout = None
+    else:
+        raise UnhandledV1Key("rig swing ease '%s' has no baked equivalent" % name)
+    return {"in": fin, "out": fout, "in_out": finout}[kind]
+
+
+def bake_swing(keys):
+    """v1 rig swing keys (euler, component-wise eased) -> rotation-vector keys, one per integer tick (ADR-0303: no euler in the engine).
+
+    The rig clock only ever asks for integer ticks, so a sample per tick reproduces v1's wrist exactly; the samples between two real
+    keys carry `sample: true` (they are not chunk boundaries of the rig clock)."""
+    out = []
+    cur = [0.0, 0.0, 0.0]
+    real = []
+    for k in keys:
+        cur = [float(x) for x in k["rotate"]] if k.get("rotate") is not None else cur
+        real.append((int(k["t"]), cur, k.get("ease") or "linear"))
+    for i, (t, e, ease) in enumerate(real):
+        if i > 0:
+            ta, ea, _ = real[i - 1]
+            fn = _easing(ease)
+            for u in range(ta + 1, t):
+                f = fn((u - ta) / (t - ta))
+                out.append({"t": u, "rotate": euler_to_vec([a + (b - a) * f for a, b in zip(ea, e)]), "sample": True})
+        key = {"t": t, "rotate": euler_to_vec(e)}
+        if ease == "step":
+            key["ease"] = "step"
+        out.append(key)
+    return out
+
+
+
 class Where:
     def __init__(self, kind, event=None, guard=None, owner=None):
         self.kind = kind  # cast | handler | nested
@@ -1033,7 +1098,13 @@ class Conv:
             parent = "world"
         if not follow:
             self.present("vfx follow=false (anchored at world, no place-at-spawn)", vid)
+        snapshot = bool(V(m.get("snapshot_pose", False)))
+        if snapshot:
+            # the effect stands on a frozen copy of the caster pose taken when it starts, not on the live caster
+            parent = "world"
         self.look_frames[fid] = {"id": fid, "kind": "body", "parent": parent}
+        if snapshot:
+            self.p(where, delay, self._w({"id": self.oid("snap"), "op": "place", "frame": fid, "like": "caster"}, when))
         for k in ("orient", "scale"):
             if k in d or k in m:
                 self.present("vfx frame %s (frames carry no orientation / scale)" % k, "%s=%s" % (k, short(V(m.get(k, d.get(k))), 30)))
@@ -1048,12 +1119,14 @@ class Conv:
         dur = int(d.get("duration_ticks", 20))
         removes = {}
         body = d.get("body")
-        if body:
-            self.p(where, delay, self._w({"id": self.oid("canim"), "op": "caster_anim", "anim": body}, when))
+        rigs = d.get("rigs", []) or []
+        freeze = V(m["freeze"]) if m.get("freeze") else []
         for el in d.get("elements", []):
             self.vfx_element(el, fid, where, delay, when, dur, removes)
-        for r in d.get("rigs", []):
-            self.vfx_rig(r, fid, where, delay, when, dur, removes)
+        for i, r in enumerate(rigs):
+            self.vfx_rig(r, fid, where, delay, when, dur, removes, body if i == 0 else None, freeze, d)
+        if body and not rigs:
+            self.vfx_body_only(body, fid, where, delay, when, dur, d)
         for tick, ids in sorted(removes.items()):
             self.p(where, delay + tick, self._w({"id": self.oid("rm"), "op": "remove", "ids": ids}, when))
 
@@ -1166,43 +1239,79 @@ class Conv:
         if op["op"] in ("mesh", "plate", "line"):
             removes.setdefault(end, []).append(eid)
 
-    def vfx_rig(self, r, fid, where, delay, when, dur, removes):
+    def rig_op(self, rid, pr, hand, anim, r, rig_dur, vd, freeze):
+        """The `rig` op: frame node + skin bones on the v1 performance clock (ADR-0303 skin-rig section)."""
+        op = {"id": rid + "_rig", "op": "rig", "frame": rid, "parent": pr, "duration": rig_dur}
+        if anim:
+            op["anim"] = anim
+        if not hand:
+            op["hand"] = False
+        for key in ("pivot", "tilt", "rest"):
+            val = r.get(key)
+            if val and any(float(x) != 0.0 for x in val):
+                op[key] = euler_to_vec(val)
+        sw = bake_swing(r.get("swing", []) or [])
+        if sw:
+            op["swing"] = sw
+        op["sample_ticks"] = int(vd.get("sample_ticks", 2))
+        if r.get("respect_hit_stop"):
+            op["respect_hit_stop"] = True
+        if vd.get("body_respect_hit_stop"):
+            op["body_respect_hit_stop"] = True
+        if freeze:
+            op["freezes"] = [{"at": int(f["at"]), "ticks": int(f["ticks"])} for f in freeze]
+        for key, name in (("weapon_tip", "tip"), ("weapon_root", "root"), ("weapon_edge", "edge")):
+            if r.get(key):
+                op[name] = [float(x) for x in r[key]]
+        return op
+
+    def vfx_body_only(self, body, fid, where, delay, when, dur, vd):
+        """A performance body with no rig: a rig op with nothing riding it."""
+        rid = fid + "_body"
+        self.look_frames[rid] = {"id": rid, "kind": "body", "parent": "caster"}
+        op = self.rig_op(rid, "caster", True, body, {}, dur, vd, [])
+        self.p(where, delay, self._w(op, when))
+
+    def vfx_rig(self, r, fid, where, delay, when, dur, removes, body=None, freeze=(), vd=None):
+        vd = vd or {}
         rid = "%s_%s" % (fid, sid(r["id"]))
         parent = r.get("parent", "right_hand")
         pr = {"right_hand": "caster.right_hand", "left_hand": "caster.left_hand"}.get(parent, parent)
-        if self.frame_parent(pr) is None:
-            self.present("rig parent %s is not a known frame: anchored at caster" % pr)
+        hand = bool(body) and parent == "right_hand"
+        if hand:
             pr = "caster"
+        if self.frame_parent(pr) is None:
+            raise UnhandledV1Key("rig parent %s is not a known frame" % pr)
+        if r.get("weapon_model"):
+            self.present("rig weapon_model (item_model swap on the weapon display)", short(r["weapon_model"], 80))
+        if "." in pr:  # the rig op's parent is a frame in the tree; a point (caster.right_hand) needs a body frame standing on it
+            anchor = rid + "_at"
+            self.look_frames[anchor] = {"id": anchor, "kind": "body", "parent": pr}
+            pr = anchor
         self.look_frames[rid] = {"id": rid, "kind": "body", "parent": pr}
-        extras = [k for k in ("respect_hit_stop", "weapon_model", "weapon_tip", "weapon_root", "weapon_edge") if k in r]
-        if extras:
-            self.present("rig respect_hit_stop / weapon points", short({k: r[k] for k in extras}, 80))
         start = delay + int(r.get("start_tick", 0))
         end = int(r.get("end_tick", dur))
+        rig_dur = end - int(r.get("start_tick", 0))
+        self.p(where, start, self._w(self.rig_op(rid, pr, hand, body, r, rig_dur, vd, freeze), when))
         first = None
         if r.get("weapon"):
             first = rid + "_weapon"
             mesh = {"id": first, "op": "mesh", "frame": rid, "item": r["weapon"]}
-            for key in ("pivot", "rest", "tilt"):
-                val = r.get(key)
-                if val and any(float(x) != 0.0 for x in val):
-                    mesh[key if key == "pivot" else key + "_turn"] = [float(x) for x in (val if key == "pivot" else euler_to_vec(val))]
+            if hand:
+                mesh["scale"] = 0.9375
+                mesh["rest_turn"] = [float(x) for x in euler_to_vec([0.0, 72.0, 0.0])]
             self.p(where, start, self._w(mesh, when))
             removes.setdefault(end, []).append(first)
-        if r.get("parts"):
-            self.present("rig block parts (mesh takes an item model, not a block + size)", "%d parts" % len(r["parts"]))
-        if r.get("swing"):
-            keys = []
-            for k in r["swing"]:
-                e = {"t": k["t"], "rotation": k["rotate"]}
-                if "ease" in k:
-                    e["ease"] = self.ease_name(k["ease"])
-                keys.append(e)
-            keys = convert_keys(keys)
-            if first:
-                self.p(where, start, self._w({"id": rid + "_swing", "op": "track", "target": first, "space": pr, "keys": keys}, when))
-            else:
-                self.present("rig swing without a weapon mesh (track needs a visual to move)", "%d keys" % len(keys))
+        for part in r.get("parts", []) or []:
+            pid = "%s_%s" % (rid, sid(part["id"]))
+            blk = {"id": pid, "op": "block", "parent": rid, "block": part["block"], "size": [float(x) for x in part["size"]],
+                   "at": [float(x) for x in part["offset"]]}
+            if part.get("rotate"):
+                blk["turn"] = [float(x) for x in euler_to_vec(part["rotate"])]
+            if part.get("brightness") is not None:
+                blk["brightness"] = part["brightness"]
+            self.p(where, start, self._w(blk, when))
+            removes.setdefault(end, []).append(pid)
         for tr in r.get("trails", []):
             a = self.pframe(rid, tr["from"], "p")
             b = self.pframe(rid, tr["to"], "p")

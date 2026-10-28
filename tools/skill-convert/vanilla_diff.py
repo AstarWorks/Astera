@@ -132,7 +132,9 @@ def displays_over_time(rows, engine, ticks):
                         pass
                 else:
                     if s.get("anch_feet") is not None:
-                        pass
+                        # a rider: v1 records its position relative to the caster, HEAD in the world
+                        f = s["anch_feet"]
+                        p = [p[0] - f[0], p[1] - f[1], p[2] - f[2]]
                 s["origin"] = [p[0] + s["tr"][0], p[1] + s["tr"][1], p[2] + s["tr"][2]]
                 s["left"] = quat_sign(list(s["left"]))
                 snap[i] = s

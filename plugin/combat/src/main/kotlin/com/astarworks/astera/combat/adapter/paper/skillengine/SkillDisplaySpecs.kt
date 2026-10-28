@@ -79,6 +79,10 @@ public object SkillDisplaySpecs {
         )
     }
 
+    /** One skin-rig bone: a skull display wearing the owner's skin (ADR-0303 skin-rig section). */
+    public fun skinBone(kind: DisplayKind.SkinBone, first: DisplayTransform): DisplaySpec =
+        DisplaySpec(kind = kind, transform = first, lifetimeTicks = LIFETIME, billboard = DisplayBillboard.FIXED)
+
     public fun plate(glyph: String, alpha: Double, seeThrough: Boolean, first: DisplayTransform, billboard: DisplayBillboard, brightness: Int? = 15): DisplaySpec =
         DisplaySpec(
             kind = DisplayKind.Text(

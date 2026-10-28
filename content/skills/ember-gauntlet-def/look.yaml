@@ -1,19 +1,19 @@
 # Converted from content/skills/ember-gauntlet-def.yaml + content/vfx/* by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
 # Generated point-frame offsets are [left, up, forward] in the parent frame.
 # CONVERT-PRESENT vfx frame orient (frames carry no orientation / scale) (x4): orient="yaw" | orient="look"
-# CONVERT-PRESENT rig block parts (mesh takes an item model, not a block + size) (x2): 2 parts | 3 parts
-# CONVERT-PRESENT rig swing without a weapon mesh (track needs a visual to move) (x2): 2 keys | 14 keys
 # CONVERT-PRESENT vfx follow=false (anchored at world, no place-at-spawn) (x2): ember-flare-guard | ember-hoop-hit
 apiVersion: "astera/v2"
 kind: Skill
 id: ember-gauntlet-def
 frames:
   - {id: fx1_ember_harness, kind: body, parent: caster}
-  - {id: fx1_ember_harness_furnace_pack, kind: body, parent: caster.right_hand}
+  - {id: fx1_ember_harness_furnace_pack_at, kind: body, parent: caster.right_hand}
+  - {id: fx1_ember_harness_furnace_pack, kind: body, parent: fx1_ember_harness_furnace_pack_at}
   - {id: fx2_ember_flare_guard, kind: body, parent: world}
   - {id: fx3_ember_counter_sweep, kind: body, parent: caster}
   - {id: fx3_ember_counter_sweep_embers_at, kind: body, parent: fx3_ember_counter_sweep}
-  - {id: fx3_ember_counter_sweep_gauntlet, kind: body, parent: caster.right_hand}
+  - {id: fx3_ember_counter_sweep_gauntlet_at, kind: body, parent: caster.right_hand}
+  - {id: fx3_ember_counter_sweep_gauntlet, kind: body, parent: fx3_ember_counter_sweep_gauntlet_at}
   - {id: pt_fx3_ember_counter_sweep_gauntlet_0_1p95_0, kind: point, parent: fx3_ember_counter_sweep_gauntlet, offset: [0.0, 1.95, 0.0]}
   - {id: pt_fx3_ember_counter_sweep_gauntlet_0_2p65_0, kind: point, parent: fx3_ember_counter_sweep_gauntlet, offset: [0.0, 2.65, 0.0]}
   - {id: fx4_ember_hoop_hit, kind: body, parent: world}
@@ -23,6 +23,103 @@ presentation:
     - id: fx0
       at: 0
       do:
+        - id: fx1_ember_harness_furnace_pack_rig
+          op: rig
+          frame: fx1_ember_harness_furnace_pack
+          parent: fx1_ember_harness_furnace_pack_at
+          duration: 85
+          hand: false
+          pivot: [1.099996, 0.003456, -0.359989]
+          swing:
+            - {t: 0, rotate: [0.0, 0.0, 0.0]}
+            - {t: 1, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 2, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 3, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 4, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 5, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 6, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 7, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 8, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 9, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 10, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 11, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 12, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 13, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 14, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 15, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 16, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 17, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 18, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 19, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 20, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 21, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 22, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 23, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 24, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 25, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 26, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 27, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 28, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 29, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 30, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 31, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 32, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 33, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 34, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 35, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 36, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 37, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 38, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 39, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 40, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 41, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 42, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 43, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 44, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 45, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 46, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 47, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 48, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 49, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 50, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 51, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 52, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 53, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 54, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 55, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 56, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 57, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 58, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 59, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 60, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 61, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 62, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 63, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 64, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 65, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 66, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 67, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 68, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 69, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 70, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 71, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 72, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 73, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 74, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 75, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 76, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 77, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 78, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 79, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 80, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 81, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 82, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 83, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 84, rotate: [0.0, 0.0, 0.0], sample: true}
+            - {t: 85, rotate: [0.0, 0.0, 0.0]}
+          sample_ticks: 1
+        - {id: fx1_ember_harness_furnace_pack_shell, op: block, parent: fx1_ember_harness_furnace_pack, block: black_concrete, size: [0.5, 0.85, 0.3], at: [0.0, 0.0, 0.0]}
+        - {id: fx1_ember_harness_furnace_pack_clasp, op: block, parent: fx1_ember_harness_furnace_pack, block: raw_gold_block, size: [0.32, 0.12, 0.34], at: [0.0, 0.32, -0.02]}
         - op: block
           parent: fx2_ember_flare_guard
           block: orange_stained_glass
@@ -239,11 +336,11 @@ presentation:
             - {t: 5, offset: [0.0, 0.0, 1.4], scale: [0.6, 0.6, 0.6], ease: out_quad}
             - {t: 9, block: gray_stained_glass}
             - {t: 15, scale: [0.0, 0.0, 0.0], ease: in_quad}
-    - {id: fx8, at: 8, do: [{id: rm, op: remove, ids: [fx2_ember_flare_guard_flare]}]}
+    - {id: fx8, at: 8, do: [{id: rm_2, op: remove, ids: [fx2_ember_flare_guard_flare]}]}
     - id: fx10
       at: 10
       do:
-        - id: rm_2
+        - id: rm_3
           op: remove
           ids:
             - fx2_ember_flare_guard_hoop_s0
@@ -258,8 +355,9 @@ presentation:
             - fx2_ember_flare_guard_hoop_s9
             - fx2_ember_flare_guard_hoop_s10
             - fx2_ember_flare_guard_hoop_s11
-    - {id: fx15, at: 15, do: [{id: rm_3, op: remove, ids: [fx2_ember_flare_guard_ring]}]}
-    - {id: fx19, at: 19, do: [{id: rm_4, op: remove, ids: [fx2_ember_flare_guard_soot]}]}
+    - {id: fx15, at: 15, do: [{id: rm_4, op: remove, ids: [fx2_ember_flare_guard_ring]}]}
+    - {id: fx19, at: 19, do: [{id: rm_5, op: remove, ids: [fx2_ember_flare_guard_soot]}]}
+    - {id: fx85, at: 85, do: [{id: rm, op: remove, ids: [fx1_ember_harness_furnace_pack_shell, fx1_ember_harness_furnace_pack_clasp]}]}
     - id: fx111
       at: 111
       do:
@@ -456,6 +554,34 @@ presentation:
             - {t: 8, offset: [-0.35, 0.49378, 1.6], turn: [80.92793, 46.72376, 46.72376], scale: [0.016, 0.016, 0.38]}
             - {t: 9, offset: [-0.35, 0.49378, 1.6], turn: [80.92793, 46.72376, 46.72376], scale: [0.008, 0.008, 0.38]}
             - {t: 10, offset: [-0.35, 0.49378, 1.6], turn: [80.92793, 46.72376, 46.72376], scale: [0.0, 0.0, 0.38]}
+        - id: fx3_ember_counter_sweep_gauntlet_rig
+          op: rig
+          frame: fx3_ember_counter_sweep_gauntlet
+          parent: fx3_ember_counter_sweep_gauntlet_at
+          duration: 14
+          hand: false
+          pivot: [1.050759, 0.347699, 0.246785]
+          tilt: [0.0, 0.0, 8.0]
+          rest: [90.0, 0.0, 0.0]
+          swing:
+            - {t: 0, rotate: [-18.273096, -98.229824, -21.777028]}
+            - {t: 1, rotate: [-10.89235, 27.689983, 2.693343], sample: true}
+            - {t: 2, rotate: [-1.962249, 104.421418, 2.531743], sample: true}
+            - {t: 3, rotate: [0.0, 130.0, 0.0]}
+            - {t: 4, rotate: [0.0, 133.75, 0.0], sample: true}
+            - {t: 5, rotate: [0.0, 137.5, 0.0], sample: true}
+            - {t: 6, rotate: [0.0, 141.25, 0.0], sample: true}
+            - {t: 7, rotate: [0.0, 145.0, 0.0]}
+            - {t: 8, rotate: [-0.916626, 136.928169, 2.323686], sample: true}
+            - {t: 9, rotate: [-5.08672, 112.578654, 7.65291], sample: true}
+            - {t: 10, rotate: [-15.093548, 71.90376, 11.067047], sample: true}
+            - {t: 11, rotate: [-26.495577, 31.607394, 7.653122], sample: true}
+            - {t: 12, rotate: [-33.000475, 7.830723, 2.323696], sample: true}
+            - {t: 13, rotate: [-35.0, 0.0, 0.0]}
+          sample_ticks: 1
+        - {id: fx3_ember_counter_sweep_gauntlet_cuff, op: block, parent: fx3_ember_counter_sweep_gauntlet, block: black_concrete, size: [0.38, 0.45, 0.38], at: [0.0, 0.18, 0.0]}
+        - {id: fx3_ember_counter_sweep_gauntlet_fist, op: block, parent: fx3_ember_counter_sweep_gauntlet, block: gray_concrete, size: [0.45, 0.4, 0.42], at: [0.0, 0.56, 0.0]}
+        - {id: fx3_ember_counter_sweep_gauntlet_nozzle, op: block, parent: fx3_ember_counter_sweep_gauntlet, block: gold_block, size: [0.25, 0.14, 0.25], at: [0.0, 0.8, 0.0], brightness: 15}
         - id: fx3_ember_counter_sweep_gauntlet_flame_fan
           op: trail
           of: pt_fx3_ember_counter_sweep_gauntlet_0_2p65_0
@@ -502,12 +628,12 @@ presentation:
             - {t: 1, offset: [0.0, 0.1, 2.5], scale: [8.0, 8.0, 8.0], ease: out_expo}
             - {t: 4, offset: [0.0, 0.1, 2.5], scale: [8.0, 8.0, 8.0]}
             - {t: 8, offset: [0.0, 1.1, 2.5], scale: [0.0, 0.0, 0.0]}
-    - {id: fx116, at: 116, do: [{id: rm_5, op: remove, ids: [fx3_ember_counter_sweep_impact_core]}]}
-    - {id: fx121, at: 121, do: [{id: rm_6, op: remove, ids: [fx3_ember_counter_sweep_impact_spokes, fx3_ember_counter_sweep_impact_flare]}]}
+    - {id: fx116, at: 116, do: [{id: rm_6, op: remove, ids: [fx3_ember_counter_sweep_impact_core]}]}
+    - {id: fx121, at: 121, do: [{id: rm_7, op: remove, ids: [fx3_ember_counter_sweep_impact_spokes, fx3_ember_counter_sweep_impact_flare]}]}
     - id: fx122
       at: 122
       do:
-        - id: rm_7
+        - id: rm_8
           op: remove
           ids:
             - fx3_ember_counter_sweep_pressure_hoop_s0
@@ -522,9 +648,10 @@ presentation:
             - fx3_ember_counter_sweep_pressure_hoop_s9
             - fx3_ember_counter_sweep_pressure_hoop_s10
             - fx3_ember_counter_sweep_pressure_hoop_s11
-    - {id: fx123, at: 123, do: [{id: rm_8, op: remove, ids: [fx3_ember_counter_sweep_gauntlet_flame_fan]}]}
-    - {id: fxhit_8, at: "hit+8", do: [{id: rm_9, op: remove, ids: [fx4_ember_hoop_hit_flare], when: "= event.source == 'sel'"}]}
-    - {id: fxhit_9, at: "hit+9", do: [{id: rm_10, op: remove, ids: [fx4_ember_hoop_hit_needle], when: "= event.source == 'sel'"}]}
+    - {id: fx123, at: 123, do: [{id: rm_9, op: remove, ids: [fx3_ember_counter_sweep_gauntlet_flame_fan]}]}
+    - {id: fx125, at: 125, do: [{id: rm_10, op: remove, ids: [fx3_ember_counter_sweep_gauntlet_cuff, fx3_ember_counter_sweep_gauntlet_fist, fx3_ember_counter_sweep_gauntlet_nozzle]}]}
+    - {id: fxhit_8, at: "hit+8", do: [{id: rm_11, op: remove, ids: [fx4_ember_hoop_hit_flare], when: "= event.source == 'sel'"}]}
+    - {id: fxhit_9, at: "hit+9", do: [{id: rm_12, op: remove, ids: [fx4_ember_hoop_hit_needle], when: "= event.source == 'sel'"}]}
     - {id: loop1, at: 111, every: 4, for: 10, do: [{id: fx3_ember_counter_sweep_embers, op: emit, at: fx3_ember_counter_sweep_embers_at, particle: ember-fine-spark}]}
     - {id: loop2, at: 111, every: 1, for: 8, do: [{id: fx3_ember_counter_sweep_gauntlet_fire, op: emit, at: pt_fx3_ember_counter_sweep_gauntlet_0_2p65_0, particle: ember-fine-spark}]}
   "on":
