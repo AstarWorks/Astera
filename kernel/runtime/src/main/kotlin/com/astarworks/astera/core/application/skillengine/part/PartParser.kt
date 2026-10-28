@@ -168,41 +168,66 @@ public object PartParser {
         if (!ok) abort(where, "expected ${type.key}, got ${value?.let { "'$it'" } ?: "null"}")
     }
 
+    private val STATE_ID = Regex("[A-Za-z][A-Za-z0-9_-]*")
+
     private fun machine(raw: Any?, where: String): Machine {
         val m = raw.asMap(where)
         checkKeys(m, where, setOf("start", "states"))
         val start = m["start"] as? String ?: abort("$where.start", "missing 'start'")
         val statesRaw = m["states"].asMap("$where.states")
         if (statesRaw.isEmpty()) abort("$where.states", "a machine needs at least one state")
-        val states = LinkedHashMap<String, MachineState>()
-        for ((id, s) in statesRaw) {
-            if (!Regex("[A-Za-z][A-Za-z0-9_-]*").matches(id)) abort("$where.states.$id", "state id '$id' must match [A-Za-z][A-Za-z0-9_-]*")
-            states[id] = state(id, s, "$where.states.$id")
+        val flat = LinkedHashMap<String, MachineState>()
+        for ((id, s) in statesRaw) state(id, s, "$where.states.$id", flat)
+        if ('/' in start) abort("$where.start", "StartNamesChild: machine.start '$start' must name a top-level state, not a child")
+        if (start !in flat || '/' in start) abort("$where.start", "start state '$start' is not defined")
+        // then / to resolve lexically: a sibling of the owning state first, then outward, then top level (R36 nesting).
+        fun resolve(ref: String, owner: String, at: String): String {
+            var scope = owner.substringBeforeLast('/', "")
+            while (true) {
+                val cand = if (scope.isEmpty()) ref else "$scope/$ref"
+                if (cand in flat) return cand
+                if (scope.isEmpty()) abort(at, "unknown state '$ref'")
+                scope = scope.substringBeforeLast('/', "")
+            }
         }
-        if (start !in states) abort("$where.start", "start state '$start' is not defined")
-        for (s in states.values) {
-            s.then?.let { if (it !in states) abort("$where.states.${s.id}.then", "unknown state '$it'") }
-            s.on.forEachIndexed { i, t -> if (t.to !in states) abort("$where.states.${s.id}.on[$i].to", "unknown state '${t.to}'") }
+        val states = LinkedHashMap<String, MachineState>()
+        for ((id, s) in flat) {
+            states[id] = s.copy(
+                then = s.then?.let { resolve(it, id, "$where.states.$id.then") },
+                on = s.on.mapIndexed { i, t -> t.copy(to = resolve(t.to, id, "$where.states.$id.on[$i].to")) },
+            )
         }
         return Machine(start, states)
     }
 
-    private fun state(id: String, raw: Any?, where: String): MachineState {
+    /** Parses state [id] (a flat path) and, recursively, its `states:` children into [out] as `<id>/<child>`. */
+    private fun state(id: String, raw: Any?, where: String, out: MutableMap<String, MachineState>) {
         val m = raw.asMap(where)
-        if ("machine" in m) abort("$where.machine", "nested machine: is not supported yet; call a part with use: instead")
-        checkKeys(m, where, setOf("for", "then", "final", "enter", "do", "exit", "on", "use", "with", "frames"))
+        if ("machine" in m) abort("$where.machine", "nested machine: is not supported; declare child states with states: and start:")
+        checkKeys(m, where, setOf("for", "then", "final", "enter", "do", "exit", "on", "use", "with", "frames", "start", "states"))
+        val local = id.substringAfterLast('/')
+        if (!STATE_ID.matches(local)) abort(where, "state id '$local' must match [A-Za-z][A-Za-z0-9_-]*")
         val final = m["final"] as? Boolean ?: false
         if (m["final"] != null && m["final"] !is Boolean) abort("$where.final", "final must be true or false")
         val use = m["use"]
         if (use != null) {
-            val bad = listOf("for", "final", "enter", "do", "exit").firstOrNull { it in m }
+            val bad = listOf("for", "final", "enter", "do", "exit", "states", "start").firstOrNull { it in m }
             if (bad != null) abort("$where.$bad", "a state that calls a part (use:) carries only with / frames / on / then")
         } else {
             for (k in listOf("with", "frames")) if (k in m) abort("$where.$k", "'$k' is only valid next to use:")
         }
         if (final) {
-            val bad = listOf("for", "then", "on", "exit", "use").firstOrNull { it in m }
-            if (bad != null) abort("$where.$bad", "a final state has no outgoing transitions or exit")
+            val bad = listOf("for", "then", "on", "exit", "use", "states", "start").firstOrNull { it in m }
+            if (bad != null) abort("$where.$bad", "a final state has no outgoing transitions, exit or children")
+        }
+        val childrenRaw = m["states"]?.asMap("$where.states")
+        val start = m["start"]
+        if (childrenRaw == null) {
+            if (start != null) abort("$where.start", "start: is only valid next to states:")
+        } else {
+            if (childrenRaw.isEmpty()) abort("$where.states", "a state with states: needs at least one child")
+            if (start == null) abort("$where.start", "NestedStartMissing: state '$local' has states: and must declare start: <child>")
+            if (start !is String) abort("$where.start", "start must be a child state name")
         }
         val forTicks = m["for"]
         if (forTicks != null) {
@@ -218,7 +243,8 @@ public object PartParser {
             val part = it as? String ?: abort("$where.use", "use must be a part id")
             PartCall(part, m["with"].let { w -> if (w == null) emptyMap() else w.asMap("$where.with") }, stringMap(m["frames"], "$where.frames"))
         }
-        return MachineState(id, forTicks, then, final, ops(m["enter"], "$where.enter"), ops(m["do"], "$where.do"), ops(m["exit"], "$where.exit"), on, call)
+        out[id] = MachineState(id, forTicks, then, final, ops(m["enter"], "$where.enter"), ops(m["do"], "$where.do"), ops(m["exit"], "$where.exit"), on, call, start = start as String?)
+        childrenRaw?.forEach { (cid, c) -> state("$id/$cid", c, "$where.states.$cid", out) }
     }
 
     private fun transition(raw: Any?, where: String): MachineTransition {

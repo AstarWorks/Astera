@@ -2,15 +2,18 @@ package com.astarworks.astera.core.application.skillengine.load.ops.presentation
 
 import com.astarworks.astera.core.application.skillengine.compose.LowerContext
 import com.astarworks.astera.core.application.skillengine.load.SkillDecodeError
+import com.astarworks.astera.core.application.skillengine.load.grammar.AnchorRef
 import com.astarworks.astera.core.application.skillengine.load.grammar.Field
-import com.astarworks.astera.core.application.skillengine.load.grammar.FieldType
 import com.astarworks.astera.core.application.skillengine.load.grammar.FieldValues
 import com.astarworks.astera.core.application.skillengine.load.grammar.Fields
+import com.astarworks.astera.core.application.skillengine.load.grammar.FrameVec
+import com.astarworks.astera.core.application.skillengine.load.grammar.FrameVecs
 import com.astarworks.astera.core.application.skillengine.load.grammar.Grammar
 import com.astarworks.astera.core.application.skillengine.load.grammar.GrammarContext
 import com.astarworks.astera.core.application.skillengine.load.grammar.Timing
 import com.astarworks.astera.core.application.skillengine.load.grammar.TimingKind
 import com.astarworks.astera.core.application.skillengine.load.grammar.Types
+import com.astarworks.astera.core.application.skillengine.load.ops.OccurrenceBake
 import com.astarworks.astera.core.application.skillengine.load.spec.Lowered
 import com.astarworks.astera.core.application.skillengine.load.spec.OpNode
 import com.astarworks.astera.core.application.skillengine.load.spec.OpSpec
@@ -19,6 +22,8 @@ import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.effect.ParticleColor
 import com.astarworks.astera.core.domain.effect.ParticleData
 import com.astarworks.astera.core.domain.geometry.Vec3
+import com.astarworks.astera.core.domain.skillengine.expr.ExprType
+import com.astarworks.astera.core.domain.skillengine.expr.ExprValue
 import com.astarworks.astera.core.domain.skillengine.model.Value
 import com.astarworks.astera.core.domain.skillengine.op.OpSection
 import com.astarworks.astera.core.domain.skillengine.table.Action
@@ -27,12 +32,6 @@ import com.astarworks.astera.core.domain.skillengine.table.SrcPath
 import com.astarworks.astera.core.domain.skillengine.table.Row
 import com.astarworks.astera.core.domain.skillengine.table.Val
 import org.joml.Vector3d
-
-/** The `anchor` rider (2.2): a named anchor, or `{of, sweep}` = one call per `sweep` blocks of the anchor's travel. */
-public sealed interface ParticleAnchor {
-    public data class Named(public val name: String) : ParticleAnchor
-    public data class Sweep(public val of: String, public val sweep: Double) : ParticleAnchor
-}
 
 /** The single data slot of the vanilla overload (2.2): Dust(color + size), Block or Item, or none. */
 public sealed interface ParticleStyle {
@@ -53,32 +52,9 @@ public class ParticleOp(
     public val offset: Value<Vec3>,
     public val extra: Value<Double>,
     public val style: ParticleStyle,
-    public val anchor: ParticleAnchor,
+    public val anchor: AnchorRef,
+    public val shift: FrameVec?,
 ) : OpNode
-
-/** `anchor:` as a name or as `{of, sweep}`. Shared with `particle_def`. */
-internal object ParticleAnchorType : FieldType<ParticleAnchor> {
-    override val label = "anchor name or {of, sweep}"
-    private val ofField = Field.required("of", Types.id, "anchor the sweep follows")
-    private val sweepField = Field.required("sweep", Types.number, "blocks of travel per call")
-    private val sweepFields = Fields.of("anchor", ofField, sweepField)
-
-    override fun decode(raw: Any?, ctx: GrammarContext, path: String): ParticleAnchor = when (raw) {
-        is String -> ParticleAnchor.Named(Types.id.decode(raw, ctx, path))
-        is Map<*, *> -> {
-            val v = sweepFields.read(raw, ctx, path)
-            val sweep = v[sweepField]
-            if (sweep !is Value.Literal) ctx.fail("$path.sweep", "sweep must be a literal number of blocks")
-            if (sweep.value <= 0.0) ctx.fail("$path.sweep", "sweep must be > 0")
-            ParticleAnchor.Sweep(v[ofField], sweep.value)
-        }
-        else -> ctx.mismatch(path, label, raw)
-    }
-
-    override fun schema(): Map<String, Any?> = linkedMapOf(
-        "oneOf" to listOf(mapOf("type" to "string"), sweepFields.jsonSchema()),
-    )
-}
 
 public object ParticleOpSpec : OpSpec<ParticleOp> {
     private val HEX = Regex("^#([0-9a-fA-F]{2})([0-9a-fA-F]{2})([0-9a-fA-F]{2})$")
@@ -90,14 +66,15 @@ public object ParticleOpSpec : OpSpec<ParticleOp> {
     private val SIZE = Field.optional("size", Types.nullable(Types.number), null, "dust scale, with color")
     private val BLOCK = Field.optional("block", Types.nullable(Types.id), null, "block key for BlockData")
     private val ITEM = Field.optional("item", Types.nullable(Types.id), null, "material key for ItemStack data")
-    private val ANCHOR = Field.required("anchor", ParticleAnchorType, "emission point: anchor name or {of, sweep}")
+    private val ANCHOR = Field.required("anchor", Types.anchorRef, "emission point: anchor name or {of, offset, sweep}")
+    private val SHIFT = Field.optional("shift", Types.nullable(FrameVecs.type), null, "per-copy displacement of the emission point: {forward, up, left} in the anchor's axes, or a whole world vec; reads i, n, draw, roll")
 
     override val name: String = "particle"
     override val section: OpSection = OpSection.PRESENTATION
     override val timing: TimingKind? = TimingKind.POINT
     override val fields: Fields = Fields.of(
         "particle",
-        PARTICLE, COUNT, OFFSET, EXTRA, COLOR, SIZE, BLOCK, ITEM, ANCHOR,
+        PARTICLE, COUNT, OFFSET, EXTRA, COLOR, SIZE, BLOCK, ITEM, ANCHOR, SHIFT,
     )
 
     override fun decode(id: OpId, src: SrcPath, whenExpr: WhenRef?, timing: Timing?, values: FieldValues, ctx: GrammarContext): Result<ParticleOp, SkillDecodeError> =
@@ -114,38 +91,32 @@ public object ParticleOpSpec : OpSpec<ParticleOp> {
                 extra = values[EXTRA],
                 style = styleOf(values, ctx),
                 anchor = values[ANCHOR],
+                shift = values[SHIFT],
             )
         }
 
     override fun lower(op: ParticleOp, lc: LowerContext): Result<Lowered, SkillDecodeError> {
-        fun unsupported(message: String): Result<Lowered, SkillDecodeError> =
-            Result.Failure(SkillDecodeError.Invalid(lc.skillId, lc.src.value, message))
-
         val count: Val<Int> = when (val c = op.count) {
             is Value.Literal -> Val.Known(c.value.toInt())
             is Value.ParamRef -> Val.Live(c.name, null)
-            is Value.Expr -> return unsupported("particle count '${c.source}': CEL classification is not merged (W1-24)")
+            is Value.Expr -> (OccurrenceBake.fold(lc, c.source, ExprType.NUM) as? ExprValue.Num)?.let { Val.Known(it.value.toInt()) }
+                ?: Val.Live("= ${OccurrenceBake.bake(c.source, lc.occurrence)}", null)
         }
         val extra: Val<Double> = when (val e = op.extra) {
             is Value.Literal -> Val.Known(e.value)
             is Value.ParamRef -> Val.Live(e.name, null)
-            is Value.Expr -> return unsupported("particle extra '${e.source}': CEL classification is not merged (W1-24)")
+            is Value.Expr -> (OccurrenceBake.fold(lc, e.source, ExprType.NUM) as? ExprValue.Num)?.let { Val.Known(it.value) }
+                ?: Val.Live("= ${OccurrenceBake.bake(e.source, lc.occurrence)}", null)
         }
         val offset: Val<Vector3d> = when (val o = op.offset) {
             is Value.Literal -> Val.Known(Vector3d(o.value.x, o.value.y, o.value.z))
             is Value.ParamRef -> Val.Live(o.name, null)
-            is Value.Expr -> return unsupported("particle offset '${o.source}': CEL classification is not merged (W1-24)")
+            is Value.Expr -> (OccurrenceBake.fold(lc, o.source, ExprType.VEC3) as? ExprValue.Vec3)?.let { Val.Known(Vector3d(it.value.x, it.value.y, it.value.z)) }
+                ?: Val.Live("= ${OccurrenceBake.bake(o.source, lc.occurrence)}", null)
         }
-
-        val instance = when (val a = op.anchor) {
-            is ParticleAnchor.Named -> {
-                val resolved = lc.anchors.resolve(a.name)
-                    ?: return unsupported("particle anchor '${a.name}' is not defined in this scope")
-                resolved.instance
-            }
-            is ParticleAnchor.Sweep -> return unsupported(
-                "particle anchor {of: ${a.of}, sweep: ${a.sweep}}: Action.Particle has no sweep field (W0-01 request)",
-            )
+        val placed = when (val r = ParticlePlacement.place("particle", lc, op.anchor, op.shift)) {
+            is Result.Success -> r.value
+            is Result.Failure -> return r
         }
 
         val data = when (val s = op.style) {
@@ -161,10 +132,10 @@ public object ParticleOpSpec : OpSpec<ParticleOp> {
             offset = offset,
             extra = extra,
             data = data,
-            position = Val.Known(Vector3d()),
-            sweep = null,
+            position = placed.position,
+            sweep = placed.sweep,
         )
-        return Result.Success(Lowered(rows = listOf(Row(tick = 0, instance = instance, action = action, src = lc.src))))
+        return Result.Success(Lowered(rows = listOf(Row(tick = 0, instance = lc.self, action = action, src = lc.src))))
     }
 
     private fun styleOf(values: FieldValues, ctx: GrammarContext): ParticleStyle {

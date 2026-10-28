@@ -8,7 +8,6 @@ meta:
   cooldown_ticks: 200
   resource_cost: 0
   tags: [gun, movement]
-# GAP: gameplay.expose (duration <- swift_ticks) -> none (inline literal)
 anchors:
   - {id: puff_pt, anchor: caster, offset: {up: 0.2}}
 machine:

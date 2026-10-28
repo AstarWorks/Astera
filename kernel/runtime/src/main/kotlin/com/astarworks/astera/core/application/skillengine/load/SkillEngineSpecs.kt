@@ -24,6 +24,18 @@ import com.astarworks.astera.core.application.skillengine.load.ops.presentation.
 import com.astarworks.astera.core.application.skillengine.load.ops.presentation.ParticleOpSpec
 import com.astarworks.astera.core.application.skillengine.load.ops.presentation.RibbonOpSpec
 import com.astarworks.astera.core.application.skillengine.load.ops.presentation.SoundOpSpec
+import com.astarworks.astera.core.application.skillengine.load.ops.gameplay.CleanseOpSpec
+import com.astarworks.astera.core.application.skillengine.load.ops.gameplay.ConsumeItemOpSpec
+import com.astarworks.astera.core.application.skillengine.load.ops.gameplay.ConsumeStatusOpSpec
+import com.astarworks.astera.core.application.skillengine.load.ops.gameplay.FreezeOpSpec
+import com.astarworks.astera.core.application.skillengine.load.ops.gameplay.HurtOpSpec
+import com.astarworks.astera.core.application.skillengine.load.ops.presentation.BodyOpSpec
+import com.astarworks.astera.core.application.skillengine.load.ops.presentation.CameraShakeOpSpec
+import com.astarworks.astera.core.application.skillengine.load.ops.presentation.StopSoundOpSpec
+import com.astarworks.astera.core.application.skillengine.load.ops.world.BreakAreaOpSpec
+import com.astarworks.astera.core.application.skillengine.load.ops.world.ExplodeOpSpec
+import com.astarworks.astera.core.application.skillengine.load.ops.world.LightningOpSpec
+import com.astarworks.astera.core.application.skillengine.load.ops.world.PlaceShapeOpSpec
 import com.astarworks.astera.core.application.skillengine.load.spec.OpSpec
 
 /**
@@ -56,5 +68,17 @@ public object SkillEngineSpecs {
         RigOpSpec,
         EmitOpSpec,
         RemoveOpSpec,
+        CleanseOpSpec,
+        ConsumeItemOpSpec,
+        ConsumeStatusOpSpec,
+        FreezeOpSpec,
+        HurtOpSpec,
+        CameraShakeOpSpec,
+        StopSoundOpSpec,
+        BodyOpSpec,
+        BreakAreaOpSpec,
+        PlaceShapeOpSpec,
+        ExplodeOpSpec,
+        LightningOpSpec,
     )
 }

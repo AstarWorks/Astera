@@ -1,6 +1,6 @@
 # Wave 2 v3 hand port of bastion-greatsword-def (v2: skill.yaml + look.yaml). Offsets [left, up, forward] -> name-keyed maps.
 # Euler turn [pitch, yaw, roll] (v1 convention Ry(-yaw) Rx(pitch) Rz(roll)) -> pose list [up -yaw, left pitch, forward roll] (R = R_A * R_B * R_C).
-# Rotations here are static (one key), so sum+hold has nothing to carry. GAP markers below are v2 behaviour with no checked v3 spelling.
+# Rotations here are static (one key), so sum+hold has nothing to carry.
 apiVersion: astera/v3
 kind: Skill
 id: bastion-greatsword-def
@@ -16,7 +16,6 @@ params:
   charge_stacks: {type: number, default: 1}
 anchors:
   # v2: frame fx1_bastion_shield, body, at caster, orient yaw, follow, teleport_ticks 2.
-  # GAP: teleport_ticks 2 (follow smoothing of the shield frame) -> none (engine-owned teleport_duration, section 4)
   - {id: shield, anchor: caster, mode: follow}
 machine:
   start: brace
@@ -34,7 +33,6 @@ machine:
         # --- presentation (v2 look.yaml group fx0, tick 0) ---
         - {id: snd, op: sound, sound: item.shield.block, anchor: caster, at: 0}
         # plates: v2 plate size 6.4 x track scale -> sprite size in blocks; brightness 15 -> {block: 15, sky: 15}.
-        # GAP: plate see_through: true on a sprite -> none (see_through exists on kind: text only)
         - id: rim0r
           op: display
           kind: sprite
@@ -44,6 +42,7 @@ machine:
           size: [3.712, 1.92]
           rotate: [{axis: up, deg: 39.0405}, {axis: left, deg: -39.0405}, {axis: forward, deg: 83.72263}]
           billboard: fixed
+          see_through: true
           brightness: {block: 15, sky: 15}
           at: 0
           for: 162
@@ -56,6 +55,7 @@ machine:
           size: [3.712, 1.92]
           rotate: [{axis: up, deg: 39.0405}, {axis: left, deg: 39.0405}, {axis: forward, deg: -83.72263}]
           billboard: fixed
+          see_through: true
           brightness: {block: 15, sky: 15}
           at: 0
           for: 162
@@ -69,6 +69,7 @@ machine:
           rotate: [{axis: up, deg: 39.0405}, {axis: left, deg: -39.0405}, {axis: forward, deg: 83.72263}]
           tint: "#FFF3C8"
           billboard: fixed
+          see_through: true
           brightness: {block: 15, sky: 15}
           at: 0
           for: 162
@@ -82,6 +83,7 @@ machine:
           rotate: [{axis: up, deg: 39.0405}, {axis: left, deg: 39.0405}, {axis: forward, deg: -83.72263}]
           tint: "#FFF3C8"
           billboard: fixed
+          see_through: true
           brightness: {block: 15, sky: 15}
           at: 0
           for: 162
@@ -94,30 +96,29 @@ machine:
           size: [1.664, 1.664]
           rotate: [{axis: up, deg: 50}]
           billboard: fixed
+          see_through: true
           brightness: {block: 15, sky: 15}
           at: 0
           for: 162
-        # v2 quad "fill": text glyph, colour #FFD66E, size [1,1], keys on scale + alpha (out_cubic into t6, in_quad into t162).
-        # GAP: quad colour #FFD66E on a kind: text display -> none (text display has no colour field; the glyph renders default white)
+        # v2 quad "fill": text glyph "●", colour #FFD66E, keys on scale + alpha (out_cubic into t6, in_quad into t162).
         - id: fill
           op: display
           kind: text
           text: "●"
+          color: "#FFD66E"
           anchor: shield
           offset: {left: 0.2, up: 1.3, forward: 1.15}
           rotate: [{axis: up, deg: 50}]
           billboard: fixed
           brightness: {block: 15, sky: 15}
-          text_opacity: 36            # 0.14 * 255
           at: 0
           for: 162
-          # GAP: keys alpha 0 -> 0.14 over t0..t6 (out_cubic ramp-up) -> none (no alpha channel on keys; text_opacity is a fixed 36 from t0, so the fade-in is lost)
-          # v2 t152..t162 alpha 0.14 -> 0 (in_quad) is the `fade` law writing text_opacity (resolution 15c).
+          # v2 t152..t162 alpha 0.14 -> 0 (in_quad) is the `fade` law.
           motion:
             - law: keys
               keys:
-                - {t: 0, scale: [0.3, 0.6, 1.0]}
-                - {t: 6, scale: [1.5, 3.3, 1.0], ease: out_cubic}
-                - {t: 162, scale: [1.4, 3.1, 1.0]}
+                - {t: 0, scale: [0.3, 0.6, 1.0], alpha: 0.0}
+                - {t: 6, scale: [1.5, 3.3, 1.0], alpha: 0.14, ease: out_cubic}
+                - {t: 162, scale: [1.4, 3.1, 1.0], alpha: 0.14}
             - {law: fade, at: 152, for: 10, ease: in_quad}
     end: {final: true}

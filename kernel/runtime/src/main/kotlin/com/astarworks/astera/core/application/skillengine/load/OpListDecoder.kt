@@ -1,6 +1,7 @@
 package com.astarworks.astera.core.application.skillengine.load
 
 import com.astarworks.astera.core.application.skillengine.load.grammar.Field
+import com.astarworks.astera.core.application.skillengine.load.grammar.Fields
 import com.astarworks.astera.core.application.skillengine.load.grammar.FieldType
 import com.astarworks.astera.core.application.skillengine.load.grammar.Grammar
 import com.astarworks.astera.core.application.skillengine.load.grammar.GrammarContext
@@ -75,6 +76,7 @@ public class OpListDecoder(private val specs: OpSpecRegistry) {
         val whenRef = body.remove("when")?.let { whenRef(it, ctx, "$p.when") }
 
         val fields = if (spec.timing != null) spec.fields + TimingSpec.fields else spec.fields
+        expandIndexed(body, fields, ctx, p)
         val values = fields.read(body, ctx, p)
         val timing = spec.timing?.let { kind ->
             val every = values[TimingSpec.every]
@@ -93,6 +95,36 @@ public class OpListDecoder(private val specs: OpSpecRegistry) {
             is Result.Failure -> ctx.abortWith(decoded.error)
         }
         return node
+    }
+
+    /**
+     * R28: on `times: n` (a literal, no `every`) a field whose own type does not take a list may carry a list of exactly n entries,
+     * entry k read when `i` = k. Rewritten here, before field decoding, into `= [e0, e1, ...][int(i)]`; a wrong length is a load error.
+     * A list the field's type does decode on its own (a positional `[x, y, z]` offset) stays as written.
+     */
+    private fun expandIndexed(body: MutableMap<String, Any?>, fields: Fields, ctx: GrammarContext, p: String) {
+        val n = (body["times"] as? Number)?.toDouble()?.takeIf { it % 1.0 == 0.0 && it >= 1.0 }?.toInt() ?: return
+        if ("every" in body) return
+        for (f in fields.fields) {
+            if (f.name in NOT_PER_INDEX) continue
+            val raw = body[f.name] as? List<*> ?: continue
+            val own = try {
+                f.type.decode(raw, ctx, "$p.${f.name}")
+                true
+            } catch (_: DecodeAbort) {
+                false
+            }
+            if (own) continue
+            if (raw.size != n) ctx.abortWith(SkillDecodeError.Invalid(ctx.file, "$p.${f.name}", "per-index list has ${raw.size} entries but times is $n (one entry per copy)"))
+            body[f.name] = "= [" + raw.mapIndexed { k, e -> indexedEntry(e, ctx, "$p.${f.name}[$k]") }.joinToString(", ") + "][int(i)]"
+        }
+    }
+
+    private fun indexedEntry(e: Any?, ctx: GrammarContext, path: String): String = when {
+        e is Number -> e.toDouble().toString()
+        e is String && e.startsWith("= ") -> "(" + e.substring(2).trim() + ")"
+        e is List<*> && e.size == 3 -> "vec(" + e.mapIndexed { k, c -> indexedEntry(c, ctx, "$path[$k]") }.joinToString(", ") + ")"
+        else -> ctx.mismatch(path, "number, '= expr' or [x, y, z] triple", e)
     }
 
     private fun find(section: OpSection, name: String): OpSpec<*>? {
@@ -121,6 +153,9 @@ public class OpListDecoder(private val specs: OpSpecRegistry) {
         ctx.mismatch(path, "'cond:<name>' or '= expr'", s)
     }
 }
+
+/** Keys that never take a per-index list: the timing counters themselves and nested op lists. */
+private val NOT_PER_INDEX = setOf("times", "every", "for", "until", "lasts", "do", "on")
 
 /**
  * Field types for nested op lists (a group's `do:`, a projectile's `on:`). They resolve the [OpListDecoder] that is decoding the

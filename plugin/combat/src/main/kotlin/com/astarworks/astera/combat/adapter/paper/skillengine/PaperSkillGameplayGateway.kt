@@ -2,6 +2,7 @@ package com.astarworks.astera.combat.adapter.paper.skillengine
 
 import com.astarworks.astera.combat.application.port.outbound.IEntityEffectsGateway
 import com.astarworks.astera.combat.application.port.outbound.IKnockbackGateway
+import com.astarworks.astera.combat.application.port.outbound.IPlayerFeedbackGateway
 import com.astarworks.astera.combat.application.port.outbound.IStatusEffectContainer
 import com.astarworks.astera.combat.application.service.MechanicStatuses
 import com.astarworks.astera.combat.application.usecase.damage.ApplyDamageUseCase
@@ -12,7 +13,16 @@ import com.astarworks.astera.core.application.port.outbound.ExecutionScope
 import com.astarworks.astera.core.application.port.outbound.IPlayerAttributeContainerStore
 import com.astarworks.astera.core.application.port.outbound.IResourcePoolService
 import com.astarworks.astera.core.application.port.outbound.IScheduler
+import com.astarworks.astera.core.application.port.outbound.ISkinRigRegistry
+import com.astarworks.astera.core.application.port.outbound.animation.IPlayerAnimationGateway
+import com.astarworks.astera.core.application.port.outbound.animation.ISkinRigAnimator
+import com.astarworks.astera.core.application.port.outbound.runLaterTicks
 import com.astarworks.astera.core.application.port.outbound.ticks
+import com.astarworks.astera.core.application.skillengine.runtime.port.CastRef
+import com.astarworks.astera.core.domain.animation.player.CustomAnimationId
+import com.astarworks.astera.core.domain.effect.camera.ShakeDirection
+import com.astarworks.astera.core.domain.effect.camera.ShakeProfile
+import com.astarworks.astera.core.domain.effect.camera.ShakeShape
 import com.astarworks.astera.core.application.skillengine.runtime.port.ISkillGameplayGateway
 import com.astarworks.astera.core.application.skillengine.runtime.port.SkillDamage
 import com.astarworks.astera.core.domain.Result
@@ -54,6 +64,12 @@ public class PaperSkillGameplayGateway(
     private val randomizer: com.astarworks.astera.combat.application.port.outbound.IDamageRandomizer,
     /** Lazily resolved: the pool service registers after the combat plugin enables. */
     private val resourcePool: () -> IResourcePoolService?,
+    /** Camera kicks and `stop_sound`; null = the output is dropped with a warning. */
+    private val feedback: () -> IPlayerFeedbackGateway?,
+    /** Caster body clips (`body`): a skin-rig clip plays on the rig, any other id is a pose clip. */
+    private val bodyRigs: () -> ISkinRigAnimator?,
+    private val bodyRegistry: () -> ISkinRigRegistry?,
+    private val bodyPoses: () -> IPlayerAnimationGateway?,
     /** Resolves a caster for the look hold. */
     private val server: Server = org.bukkit.Bukkit.getServer(),
 ) : ISkillGameplayGateway {
@@ -129,6 +145,62 @@ public class PaperSkillGameplayGateway(
         // Fire and frost count as harmful either way (same as the Cleanse mechanic).
         entityEffects.setFireTicks(target, 0)
         entityEffects.thaw(target)
+    }
+
+    override fun consumeStatus(cast: CastRef, entity: UUID, status: String) = removeStatus(entity, status)
+
+    override fun cameraShake(cast: CastRef, viewer: UUID, intensity: Double, ticks: Int, from: Vec3?) {
+        val out = feedback() ?: run {
+            log.warn("skill engine: camera_shake dropped, no player feedback gateway")
+            return
+        }
+        val player = server.getPlayer(viewer)
+        val hit = if (from != null && player != null) {
+            // The source in the viewer's own frame: yaw 0 looks along +z, -x is the viewer's right.
+            val loc = player.location
+            val dx = from.x - loc.x
+            val dz = from.z - loc.z
+            val yaw = Math.toRadians(loc.yaw.toDouble())
+            val forward = -dx * kotlin.math.sin(yaw) + dz * kotlin.math.cos(yaw)
+            val right = -(dx * kotlin.math.cos(yaw) + dz * kotlin.math.sin(yaw))
+            ShakeProfile.HitDirection(right = right, forward = forward)
+        } else {
+            null
+        }
+        val direction = if (hit != null) ShakeDirection.FROM_HIT else ShakeDirection.NONE
+        val seed = viewer.leastSignificantBits xor ticks.toLong()
+        val target = PlayerId(viewer)
+        for (p in ShakeProfile.plan(ShakeShape.DECAY, direction, intensity, ticks, hit = hit, seed = seed)) {
+            if (p.tick <= 0) out.cameraKick(target, p.dx, p.dy)
+            else scheduler.runLaterTicks(ExecutionScope.Entity(viewer), p.tick.toLong()) { out.cameraKick(target, p.dx, p.dy) }
+        }
+    }
+
+    override fun stopSound(cast: CastRef, viewer: UUID, sound: String) {
+        (feedback() ?: return).stopSound(PlayerId(viewer), sound)
+    }
+
+    override fun playBodyClip(cast: CastRef, caster: UUID, anim: String, speed: Double) {
+        val id = CustomAnimationId(anim)
+        val player = PlayerId(caster)
+        if (bodyRegistry()?.find(id) != null) {
+            bodyRigs()?.play(player, id) ?: log.warn("skill engine: body clip '{}' dropped, no rig animator", anim)
+        } else {
+            bodyPoses()?.playCustomAnimation(player, id, POSE_CLIP_TICKS) ?: log.warn("skill engine: body pose '{}' dropped, no animation gateway", anim)
+        }
+    }
+
+    /** v2 `victim_anim` 1:1: only the hurt animation, tilted by the bearing of [from] relative to where [target] faces. */
+    override fun hurt(cast: CastRef, target: UUID, from: Vec3) {
+        val entity = server.getEntity(target) as? org.bukkit.entity.LivingEntity ?: return
+        val loc = entity.location
+        val bearing = Math.toDegrees(Math.atan2(from.z - loc.z, from.x - loc.x)).toFloat()
+        entity.playHurtAnimation(bearing - loc.yaw)
+    }
+
+    override fun stopBodyClip(cast: CastRef, caster: UUID, anim: String) {
+        val rig = bodyRigs() ?: return
+        if (rig.active(PlayerId(caster)) == CustomAnimationId(anim)) rig.stop(PlayerId(caster))
     }
 
     override fun ignite(caster: UUID, victim: UUID, durationTicks: Int) {
@@ -237,5 +309,8 @@ public class PaperSkillGameplayGateway(
     private companion object {
         val ENGINE_SKILL_ID = SkillId("skill-engine")
         const val LOOK_DRIFT_DEG = 1.0f
+
+        /** A pose clip has no length of its own and `stopBodyClip` cannot end it, so it lapses at this cap. */
+        const val POSE_CLIP_TICKS = 200L
     }
 }

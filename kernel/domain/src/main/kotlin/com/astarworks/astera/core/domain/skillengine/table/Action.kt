@@ -43,7 +43,13 @@ public sealed interface Action {
 
     /** impulse, knockback, heal, resource, modify_attribute, dash, reel, rig. */
     public data class Effect(val op: OpId, val payload: Map<String, Val<Any>>) : Action
-    public data class Lock(val move: Boolean, val pitch: Boolean, val yaw: Boolean, val until: LockEnd) : Action
+
+    /**
+     * A world edit or world-scale effect (`break_area`, `place_shape`, `explode`, `lightning`). [origin] is where it
+     * happens, [forward] the look direction shapes face; [payload] holds the op's flat fields.
+     */
+    public data class World(val op: OpId, val origin: Vec, val forward: Vec, val payload: Map<String, Val<Any>>) : Action
+    public data class Lock(val move: LockMove, val pitch: Boolean, val yaw: Boolean, val until: LockEnd) : Action
 
     // structure
     public data class Call(val callee: Callee, val callId: InstanceId, val with: Map<String, Val<Any>>, val frames: Map<String, InstanceId>) : Action
@@ -67,7 +73,7 @@ public val Action.phase: Phase
         is Action.Spawn -> Phase.SPAWN
         is Action.Key, is Action.Teleport, is Action.TrailPoint -> Phase.WRITE
         is Action.Particle, is Action.ParticleDef, is Action.Sound, is Action.Set -> Phase.PRESENTATION
-        is Action.Hit, is Action.Damage, is Action.Status, is Action.Effect -> Phase.GAMEPLAY
+        is Action.Hit, is Action.Damage, is Action.Status, is Action.Effect, is Action.World -> Phase.GAMEPLAY
         is Action.Lock -> Phase.LOCK
         is Action.Call -> Phase.CALL
         is Action.Emit, is Action.Cancel -> Phase.EMIT
@@ -133,6 +139,9 @@ public sealed interface HitWindow {
     public data object Once : HitWindow
     public data class Every(val ticks: Int) : HitWindow
 }
+
+/** What a `lock` row takes from the caster's feet (R32): nothing, walking only (a jump still works), or walking and jumping. */
+public enum class LockMove { NONE, WALK, ALL }
 
 /** When a `lock` row lifts, in ticks relative to the state base (entry = 0). */
 public sealed interface LockEnd {

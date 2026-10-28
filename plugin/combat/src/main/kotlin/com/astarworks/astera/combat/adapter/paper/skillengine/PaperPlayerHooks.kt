@@ -13,6 +13,7 @@ import com.astarworks.astera.core.domain.skillengine.expr.ExprEnv
 import com.astarworks.astera.core.domain.skillengine.expr.ExprType
 import com.astarworks.astera.core.domain.skillengine.expr.ExprValue
 import com.astarworks.astera.core.domain.skillengine.table.Guard
+import com.astarworks.astera.core.domain.skillengine.table.LockMove
 import org.bukkit.Server
 import org.bukkit.attribute.Attribute
 import org.bukkit.attribute.AttributeModifier
@@ -79,15 +80,15 @@ public class PaperPlayerHooks(
         }
     }
 
-    override fun lock(caster: UUID, move: Boolean, pitch: Boolean, yaw: Boolean, untilTick: Int): Boolean {
+    override fun lock(caster: UUID, move: LockMove, pitch: Boolean, yaw: Boolean, untilTick: Int): Boolean {
         if (pitch || yaw) gameplay.lockLook(caster, pitch, yaw, untilTick)
-        if (move) lockMove(caster, untilTick)
+        if (move != LockMove.NONE) lockMove(caster, untilTick, jump = move == LockMove.ALL)
         return true
     }
 
-    override fun unlock(caster: UUID, move: Boolean, pitch: Boolean, yaw: Boolean) {
+    override fun unlock(caster: UUID, move: LockMove, pitch: Boolean, yaw: Boolean) {
         if (pitch || yaw) gameplay.unlockLook(caster)
-        if (move) unlockMove(caster)
+        if (move != LockMove.NONE) unlockMove(caster)
     }
 
     /** Called every tick by the platform: lifts the move locks whose `untilTick` passed. */
@@ -114,12 +115,13 @@ public class PaperPlayerHooks(
         moveLocks.keys.toList().forEach { release(it) }
     }
 
-    private fun lockMove(caster: UUID, untilTick: Int) {
+    /** [jump] false = `walk` (the speed cut only, a jump still works); true = `all`. */
+    private fun lockMove(caster: UUID, untilTick: Int, jump: Boolean) {
         val e = server.getEntity(caster) as? LivingEntity ?: return
         clearMove(caster)
         moveLocks[caster] = untilTick
         e.getAttribute(Attribute.MOVEMENT_SPEED)?.addTransientModifier(modifier(-1.0))
-        e.getAttribute(Attribute.JUMP_STRENGTH)?.addTransientModifier(modifier(-1.0))
+        if (jump) e.getAttribute(Attribute.JUMP_STRENGTH)?.addTransientModifier(modifier(-1.0))
     }
 
     private fun unlockMove(caster: UUID) {

@@ -12,7 +12,8 @@ import com.astarworks.astera.core.domain.skillengine.part.PartError
 public object MachineLint {
     public fun lint(m: Machine): List<PartError.Lint> {
         val out = ArrayList<PartError.Lint>()
-        val succ = m.states.mapValues { (_, s) -> successors(s) }
+        // a state with children enters its start child, so that child is a successor of the parent (R36)
+        val succ = m.states.mapValues { (_, s) -> successors(s) + listOfNotNull(s.start?.let { "${s.id}/$it" }) }
 
         val reachable = LinkedHashSet<String>()
         val queue = ArrayDeque(listOf(m.start))

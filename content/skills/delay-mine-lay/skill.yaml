@@ -29,6 +29,6 @@ machine:
       for: 51
       then: done
       do:
-        # GAP: v2 op explode (power, break_blocks, radius, components) has no v3 OpSpec -> kept verbatim at tick 50; closest v3 is damage + particle, which would drop block-break/power semantics
-        - {id: boom, op: explode, at: 50, power: "${explode_power}", break_blocks: false, radius: "${explode_radius}", components: [{kind: physical, amount: "${explode_physical}"}], anchor: spot}
+        - {id: boom, op: explode, at: 50, anchor: spot, power: "${explode_power}", break_blocks: false, fire: false}
+        - {id: blast, op: damage, at: 50, target: {kind: enemies, around: spot, radius: "${explode_radius}", max_count: all, include_self: false}, damage: {physical: "${explode_physical}"}}  # GAP(Q1): max_count spelling (A required int|all / B omit) is a founder question; v2 had no cap
     done: {final: true}

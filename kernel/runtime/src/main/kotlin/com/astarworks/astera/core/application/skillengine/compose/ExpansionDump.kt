@@ -171,7 +171,7 @@ public object ExpansionDump {
                     else -> CancelScope.Instance(parseInstance((kv["scope"] ?: return null).removePrefix("#").trim('"')) ?: return null)
                 },
             )
-            "lock" -> Action.Lock(kv["move"] == "true", kv["pitch"] == "true", kv["yaw"] == "true", parseLockEnd(kv["until"] ?: return null) ?: return null)
+            "lock" -> Action.Lock(LockMove.entries.firstOrNull { it.name == kv["move"] } ?: return null, kv["pitch"] == "true", kv["yaw"] == "true", parseLockEnd(kv["until"] ?: return null) ?: return null)
             else -> return null
         }
         return Row(tick, inst, action, SrcPath(""))
@@ -209,6 +209,7 @@ public object ExpansionDump {
         is Action.Damage -> "damage"
         is Action.Status -> "status"
         is Action.Effect -> "effect"
+        is Action.World -> "world"
         is Action.Lock -> "lock"
         is Action.Call -> "call"
         is Action.Emit -> "emit"
@@ -232,6 +233,7 @@ public object ExpansionDump {
         is Action.Damage -> listOf("targets" to a.targets, "components" to a.components, "ignoreInvulnerability" to a.ignoreInvulnerability)
         is Action.Status -> listOf("targets" to a.targets, "status" to a.status, "stacks" to a.stacks, "for" to a.forTicks)
         is Action.Effect -> listOf("op" to a.op, "payload" to a.payload)
+        is Action.World -> listOf("op" to a.op, "origin" to a.origin, "forward" to a.forward, "payload" to a.payload)
         is Action.Lock -> listOf("move" to a.move, "pitch" to a.pitch, "yaw" to a.yaw, "until" to a.until)
         is Action.Call -> listOf("callee" to a.callee, "id" to a.callId, "with" to a.with, "frames" to a.frames)
         is Action.Emit -> listOf("event" to a.event)

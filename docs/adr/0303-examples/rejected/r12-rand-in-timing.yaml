@@ -1,0 +1,15 @@
+# error: SkillDecodeError.RandomInTiming   (3.5 / 10.4: `draw`, `roll` and `rand(name, k)` are class S random streams; allowed in an op `when`, never in `at/for/every/times/until/lasts` or a transition `then`)
+apiVersion: astera/v3
+kind: Skill
+id: rejected-r12
+item: couture-rapier
+meta: {cooldown_ticks: 10, resource_cost: 0}
+machine:
+  start: s
+  states:
+    s:
+      for: 20
+      then: end
+      do:
+        - {id: puff, op: particle, anchor: caster, particle: cloud, count: 4, offset: [0, 0, 0], extra: 0, at: 2, every: "= 2 + roll(1)", times: 4}
+    end: {final: true}

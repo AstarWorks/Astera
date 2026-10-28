@@ -1,0 +1,15 @@
+# error: SkillDecodeError.Invalid   (10.1b / 10.4: `dash` requires direction, follow_pitch, stop_on_block, invulnerable, face_movement and until; `invulnerable` is absent here)
+apiVersion: astera/v3
+kind: Skill
+id: rejected-r13
+item: couture-rapier
+meta: {cooldown_ticks: 10, resource_cost: 0}
+machine:
+  start: s
+  states:
+    s:
+      for: 10
+      then: end
+      do:
+        - {id: rush, op: dash, at: 0, until: 8, direction: look, follow_pitch: false, stop_on_block: true, face_movement: true, speed: 1.2}
+    end: {final: true}

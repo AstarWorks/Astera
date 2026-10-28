@@ -20,7 +20,6 @@ machine:
       for: 1
       then: end
       enter:
-        # GAP: consume_item {target: caster, item: heal-potion, count: 1} -> none (no v3 inventory op). Kept verbatim so the single-use rule is not lost.
         - {id: consume, op: consume_item, target: caster, item: heal-potion, count: 1}
         - {id: heal, op: heal, target: caster, amount: "= heal"}
         - {id: snd_drink, op: sound, sound: entity.generic.drink, anchor: caster, volume: 1.0, pitch: 1.0}

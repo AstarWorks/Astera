@@ -9,7 +9,7 @@ meta:
   resource_cost: 0
   tags: [gun, movement, mobility]
 params:
-  evasive_ticks: {type: ticks, default: 25, expose: duration}
+  evasive_ticks: {type: ticks, default: 25}
   propel:   {type: number, default: -1.1}
   propel_2: {type: number, default: 0.35}
 anchors:
@@ -29,8 +29,6 @@ machine:
       then: done
       enter:
         - {id: evade, op: status, target: caster, status: evasive, stacks: 1, for: "${evasive_ticks}"}
-        # GAP: v2 op propel (direction axis(caster,"forward"), strength -1.1) -> closest v3 is impulse with a world-axis vector; kept verbatim
-        - {id: back, op: propel, direction: "= axis(caster, \"forward\")", strength: "${propel}"}
-        # GAP: v2 op propel (direction vec(0,1,0), strength 0.35) -> closest v3 is impulse {vector: [0, 0.35, 0]}; kept verbatim
-        - {id: hop, op: propel, direction: "= vec(0, 1, 0)", strength: "${propel_2}"}
+        - {id: back, op: impulse, at: 0, target: caster, vector: {of: caster, forward: "${propel}"}}
+        - {id: lift, op: impulse, at: 0, target: caster, vector: {x: 0, y: "${propel_2}", z: 0}}
     done: {final: true}
