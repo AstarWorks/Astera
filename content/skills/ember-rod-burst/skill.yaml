@@ -1,18 +1,57 @@
-# Converted from content/skills/ember-rod-burst.yaml by tools/skill-convert/convert.py (v1 archetype: aoe). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
-# Generated point-frame offsets are [left, up, forward] in the parent frame.
-apiVersion: "astera/v2"
+apiVersion: astera/v3
 kind: Skill
 id: ember-rod-burst
 item: ember-rod
-meta: {name: {ja: "火炎爆発", en: "Ember Burst"}, description: {ja: "周囲を炎で焼き払う。", en: "A blast of fire around you."}, cooldown_ticks: 150, resource_cost: 18, tags: [aoe, fire]}
-gameplay:
-  params: {radius: 3.5, dmg_fire: 22.5, burn_ticks: 20}
-  expose:
-    - {id: damage, param: dmg_fire}
-    - {id: radius, param: radius}
+meta:
+  name: {ja: 火炎爆発, en: Ember Burst}
+  description: {ja: "周囲を炎で焼き払う。", en: "A blast of fire around you."}
+  cooldown_ticks: 150
+  resource_cost: 18
+  tags: [aoe, fire]
+params:
+  radius:     {type: blocks, default: 3.5}
+  dmg_fire:   {type: number, default: 22.5}
+  burn_ticks: {type: ticks, default: 20}
+anchors:
+  - {id: ground, anchor: caster, offset: {up: 0.15}}
+  - {id: enemy, anchor: victim.body}
+presentation:
   timeline:
-    - {id: t0, at: 0, do: [{id: burst, op: hit, frames: [caster], sphere: {at: caster, radius: "${radius}"}, window: once, ticks: 1}]}
+    - id: burst
+      at: 0
+      do:
+        - {id: snd, op: sound, sound: "astera:skill/wand/cast", anchor: caster, volume: 1.0, pitch: 0.9}
+    - id: ring               # ticks 0..5, ring radius r = 0.5 + 0.6 * k
+      at: 0
+      every: 1
+      times: 6
+      do:
+        - id: spoke          # 16 copies on the same tick, angle = phase * 2pi + 2pi * i / 16
+          at: 0
+          times: 16
+          # GAP: `k` (outer tick index 0..5) and `ang` (= rand()*2pi + 2pi*i/16) are pseudo-variables; v3 child timing is not inherited, no named outer index -> needs engine spelling
+          # GAP: 16 simultaneous copies in one tick -> v3 timing group has no same-tick fan; `times: 16` assumed to mean n copies at the occurrence tick
+          # GAP: v2 draw('shape_ph') random per-instance phase -> v3 only has rand(); phase written as rand() (meaning change: not deterministic per instance)
+          do:
+            - {id: flame, op: particle, particle: flame, anchor: ground, count: 0, offset: ["= cos(ang)", 0, "= -sin(ang)"], extra: 0.03}
+            - {id: dust, op: particle, particle: dust, anchor: ground, count: 1, offset: ["= (0.5 + 0.6 * k) * cos(ang)", 0, "= -(0.5 + 0.6 * k) * sin(ang)"], extra: 0, color: "#ff6e14", size: 1.4}
   "on":
     hit:
-      - {id: dmg, op: damage, target: victim, components: [{kind: fire, amount: "= dmg_fire * (1.0 - 0.5 * dist(pos(caster), pos(victim)) / radius)"}], when: "= event.source == 'burst'"}
-      - {id: st_burn, op: status, status: burn, duration_ticks: "${burn_ticks}", target: victim, when: "= event.source == 'burst'"}
+      - {id: snd_hit, op: sound, sound: "astera:weapons/blade-hit", anchor: enemy, volume: 0.7, pitch: 1.0}
+machine:
+  start: cast
+  states:
+    cast:
+      for: 6
+      then: done
+      enter:
+        - id: blast
+          op: hit
+          anchor: caster
+          shape: {kind: sphere, radius: "${radius}"}
+          targets: enemies
+          damage: {fire: "= ${dmg_fire} * (1 - 0.5 * dist(pos(caster), pos(event.victim)) / ${radius})"}
+          on:
+            hit:
+              - {id: burn, op: status, target: event.victim, status: burn, stacks: 1, for: "${burn_ticks}"}
+    done: {final: true}

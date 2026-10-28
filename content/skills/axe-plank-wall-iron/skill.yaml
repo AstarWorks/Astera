@@ -1,8 +1,29 @@
-# Converted from content/skills/axe-plank-wall-iron.yaml by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
-# Generated point-frame offsets are [left, up, forward] in the parent frame.
-apiVersion: "astera/v2"
+apiVersion: astera/v3
 kind: Skill
 id: axe-plank-wall-iron
 item: iron-axe
-meta: {name: {ja: "鉄の板壁", en: "Iron Plank Wall"}, description: {ja: "目の前に補強板の壁を築く。", en: "Raises a wall of reinforced planks in front of you."}, cooldown_ticks: 300, resource_cost: 0, tags: [tool, cover]}
-gameplay: {timeline: [{id: t0, at: 0, do: [{id: place, op: place_shape, shape: wall, block: "astera:reinforced_planks", width: 5, height: 3}]}]}
+meta:
+  name: {ja: 鉄の板壁, en: Iron Plank Wall}
+  description: {ja: "目の前に補強板の壁を築く。", en: "Raises a wall of reinforced planks in front of you."}
+  cooldown_ticks: 300
+  resource_cost: 0
+  tags: [tool, cover]
+anchors:
+  - {id: aim, anchor: caster.eye, offset: {forward: 2.0}}
+presentation:
+  timeline:
+    - id: place
+      at: 0
+      do:
+        - {id: snd, op: sound, sound: "astera:weapons/gun-impact-block", anchor: caster, volume: 1.0, pitch: 0.9}
+        - {id: spark, op: emit, effect: hit-spark, anchor: aim}
+machine:
+  start: cast
+  states:
+    cast:
+      for: 1
+      then: done
+      enter:
+        # GAP: v2 op place_shape has no v3 OpSpec -> kept verbatim, closest v3 is none (place behaviour must stay exact)
+        - {id: wall, op: place_shape, shape: wall, block: "astera:reinforced_planks", width: 5, height: 3}
+    done: {final: true}

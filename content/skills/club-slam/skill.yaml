@@ -1,23 +1,57 @@
-# Converted from content/skills/club-slam.yaml by tools/skill-convert/convert.py (v1 archetype: aoe). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
-# Generated point-frame offsets are [left, up, forward] in the parent frame.
-apiVersion: "astera/v2"
+apiVersion: astera/v3
 kind: Skill
 id: club-slam
 item: club
 meta:
-  name: {ja: "叩きつけ", en: Slam}
+  name: {ja: 叩きつけ, en: Slam}
   description: {ja: "地面を叩き、周囲を弾き飛ばす。", en: "Slams the ground and shoves everyone around you away."}
   cooldown_ticks: 130
   resource_cost: 14
   tags: [aoe, physical, control]
-gameplay:
-  params: {radius: 3.0, dmg_physical: 16.0, knockback: 1.1}
-  expose:
-    - {id: damage, param: dmg_physical}
-    - {id: radius, param: radius}
+params:
+  radius:       {type: blocks, default: 3.0}
+  dmg_physical: {type: number, default: 16}
+  knockback:    {type: number, default: 1.1}
+anchors:
+  - {id: ground, anchor: caster, offset: {up: 0.15}}
+  - {id: enemy, anchor: victim.body}
+presentation:
   timeline:
-    - {id: t0, at: 0, do: [{id: burst, op: hit, frames: [caster], sphere: {at: caster, radius: "${radius}"}, window: once, ticks: 1}]}
+    - id: slam
+      at: 0
+      do:
+        - {id: snd, op: sound, sound: "item.mace.smash_ground_heavy", anchor: caster, volume: 0.8, pitch: 1.2}
+    - id: ring               # ticks 0..5, ring radius r = 0.5 + 0.5 * k
+      at: 0
+      every: 1
+      times: 6
+      do:
+        - id: spoke          # 16 copies on the same tick, angle = phase * 2pi + 2pi * i / 16
+          at: 0
+          times: 16
+          # GAP: `k` (outer tick index 0..5) and `ang` (= rand()*2pi + 2pi*i/16) are pseudo-variables; v3 child timing is not inherited, no named outer index -> needs engine spelling
+          # GAP: 16 simultaneous copies in one tick -> v3 timing group has no same-tick fan; `times: 16` assumed to mean n copies at the occurrence tick
+          # GAP: v2 draw('shape_ph') random per-instance phase -> v3 only has rand(); phase written as rand() (meaning change: not deterministic per instance)
+          do:
+            - {id: crit, op: particle, particle: crit, anchor: ground, count: 0, offset: ["= cos(ang)", 0, "= -sin(ang)"], extra: 0.03}
+            - {id: dust, op: particle, particle: dust, anchor: ground, count: 1, offset: ["= (0.5 + 0.5 * k) * cos(ang)", 0, "= -(0.5 + 0.5 * k) * sin(ang)"], extra: 0, color: "#96785a", size: 1.4}
   "on":
     hit:
-      - {id: dmg, op: damage, target: victim, components: [{kind: physical, amount: "= dmg_physical * (1.0 - 0.5 * dist(pos(caster), pos(victim)) / radius)"}], when: "= event.source == 'burst'"}
-      - {id: kb, op: knockback, direction: "= normalize(flat(pos(victim) - pos(caster))) + vec(0.0, 0.3, 0.0)", strength: "${knockback}", when: "= event.source == 'burst'"}
+      - {id: snd_hit, op: sound, sound: "astera:weapons/blade-hit", anchor: enemy, volume: 0.7, pitch: 1.0}
+machine:
+  start: cast
+  states:
+    cast:
+      for: 6
+      then: done
+      enter:
+        - id: blast
+          op: hit
+          anchor: caster
+          shape: {kind: sphere, radius: "${radius}"}
+          targets: enemies
+          damage: {physical: "= ${dmg_physical} * (1.0 - 0.5 * dist(pos(caster), pos(event.victim)) / ${radius})"}
+          on:
+            hit:
+              - {id: kb, op: knockback, target: event.victim, direction: "= normalize(flat(pos(event.victim) - pos(caster))) + vec(0, 0.3, 0)", strength: "${knockback}"}
+    done: {final: true}

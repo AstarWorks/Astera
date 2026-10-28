@@ -1,22 +1,47 @@
-# Converted from content/skills/cleaver-chop.yaml by tools/skill-convert/convert.py (v1 archetype: melee). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
-# Generated point-frame offsets are [left, up, forward] in the parent frame.
-# CONVERT-V1-NOOP melee params.knockback (x1): knockback: 0.5 (v1 MeleeHandler ignores it; the plain-hit push is the combat pipeline's)
-apiVersion: "astera/v2"
+apiVersion: astera/v3
 kind: Skill
 id: cleaver-chop
 item: cleaver
-meta: {name: {ja: "大鉈の一撃", en: "Cleaver Chop"}, description: {ja: "重い一撃を叩き込む。", en: "A heavy chop."}, cooldown_ticks: 30, resource_cost: 14, tags: [melee, physical]}
-gameplay:
-  params: {arc_deg: 90.0, range: 2.8, dmg_physical: 62.0, bleed_ticks: 60}
-  expose:
-    - {id: damage, param: dmg_physical}
-    - {id: range, param: range}
+meta:
+  name: {ja: 大鉈の一撃, en: Cleaver Chop}
+  description: {ja: "重い一撃を叩き込む。", en: "A heavy chop."}
+  cooldown_ticks: 30
+  resource_cost: 14
+  tags: [melee, physical]
+params:
+  arc_deg:       {type: degrees, default: 90}
+  range:         {type: blocks, default: 2.8}
+  dmg_physical:  {type: number, default: 62}
+  bleed_ticks:   {type: ticks, default: 60}
+anchors:
+  - {id: fx, anchor: caster.eye, offset: {forward: 1.3, up: -0.1}}
+  - {id: enemy, anchor: victim.body, offset: {up: 1.2}}
+presentation:
   timeline:
-    - id: t0
+    - id: swing
       at: 0
       do:
-        - {id: swing, op: hit, frames: [caster], sector: {frame: caster, at: eye, forward: caster.forward, left: caster.left, angle_deg: "${arc_deg}", range: "${range}", height: 2.0}, window: once, ticks: 1}
+        - {id: snd, op: sound, sound: "astera:weapons/blade-heavy-swing", anchor: caster, volume: 1.0, pitch: 0.8}
+        - {id: fx1, op: emit, effect: slash-sweep, anchor: fx}
   "on":
     hit:
-      - {id: dmg, op: damage, target: victim, components: [{kind: physical, amount: "${dmg_physical}"}], when: "= event.source == 'swing'"}
-      - {id: st_bleed, op: status, status: bleed, duration_ticks: "${bleed_ticks}", target: victim, chance: 0.5, when: "= event.source == 'swing'"}
+      - {id: snd_hit, op: sound, sound: "astera:weapons/blade-hit", anchor: enemy, volume: 0.7, pitch: 1.2}
+      - {id: spark, op: emit, effect: hit-spark, anchor: enemy}
+machine:
+  start: cast
+  states:
+    cast:
+      for: 1
+      then: done
+      enter:
+        # GAP: v2 sector height 2.0 -> v3 sector has no vertical limit (F8), none
+        - id: strike
+          op: hit
+          anchor: caster.eye
+          shape: {kind: sector, deg: "${arc_deg}", range: "${range}"}
+          targets: enemies
+          damage: {physical: "${dmg_physical}"}
+          on:
+            hit:
+              - {id: bleed, op: status, target: event.victim, status: bleed, stacks: 1, for: "${bleed_ticks}", when: "= rand() < 0.5"}
+    done: {final: true}
