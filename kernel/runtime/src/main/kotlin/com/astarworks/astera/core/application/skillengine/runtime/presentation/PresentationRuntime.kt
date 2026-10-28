@@ -525,24 +525,24 @@ public class PresentationRuntime(
             when (l) {
                 is Live.Mesh -> update(s, l)?.let { pose ->
                     val driver = driverOf(s, l.parent)
-                    if (driver == null) put(visuals, l, followed(s, pose, l.parent), if (l.pulledNow) 0 else DISPLAY_TICKS)
+                    if (driver == null) put(visuals, l, followed(s, pose, l.parent, l), if (l.pulledNow) 0 else DISPLAY_TICKS)
                     else driver.driven?.let { interp -> if (driver.changed(l.opId, pose)) visuals.write(l.handle, pose, interp) }
                 }
                 is Live.Plate -> {
-                    update(s, l)?.let { put(visuals, l, followed(s, it, l.parent), if (l.pulledNow) 0 else DISPLAY_TICKS) }
+                    update(s, l)?.let { put(visuals, l, followed(s, it, l.parent, l), if (l.pulledNow) 0 else DISPLAY_TICKS) }
                     tickFlipbook(s, l)
                     tickLook(s, l)
                 }
                 is Live.Block -> {
                     update(s, l)?.let { pose ->
                         val driver = driverOf(s, l.parent)
-                        if (driver == null) put(visuals, l, followed(s, pose, l.parent), if (l.pulledNow) 0 else DISPLAY_TICKS)
+                        if (driver == null) put(visuals, l, followed(s, pose, l.parent, l), if (l.pulledNow) 0 else DISPLAY_TICKS)
                         else driver.driven?.let { interp -> if (driver.changed(l.opId, pose)) visuals.write(l.handle, pose, interp) }
                     }
                     tickLook(s, l)
                 }
                 is Live.Quad -> {
-                    update(s, l)?.let { put(visuals, l, followed(s, it, l.parent), if (l.pulledNow) 0 else DISPLAY_TICKS) }
+                    update(s, l)?.let { put(visuals, l, followed(s, it, l.parent, l), if (l.pulledNow) 0 else DISPLAY_TICKS) }
                     tickLook(s, l)
                 }
                 is Live.Line -> linePose(s, l)?.let { put(visuals, l, it, DISPLAY_TICKS) }
@@ -652,9 +652,13 @@ public class PresentationRuntime(
      * display rides the caster natively (v1 ADR-0276) so a dash or knockback cannot leave it behind. A frame re-parented to
      * the world (a thrown piece) is not anchored from that tick on.
      */
-    /** The pose with the `teleport_duration` of the followed anchor above [frame]; native passengers (caster-anchored) keep theirs. */
-    private fun followed(s: CastState, pose: VisualPose, frame: String): VisualPose {
-        if (s.teleports.isEmpty() || pose.anchorFeet != null) return pose
+    /**
+     * The pose with the `teleport_duration` of the followed anchor above [frame]; native passengers (caster-anchored) keep theirs,
+     * and so does a display a track moves (v1 `selfMoving`: an element with position updates is not follow-teleported,
+     * VfxPlayer.kt:163, :419).
+     */
+    private fun followed(s: CastState, pose: VisualPose, frame: String, l: Live): VisualPose {
+        if (s.teleports.isEmpty() || pose.anchorFeet != null || selfMoving(s, l)) return pose
         var cur: FrameId? = FrameId(frame)
         var hops = 0
         while (cur != null && hops++ < MAX_FRAME_DEPTH) {
@@ -662,6 +666,11 @@ public class PresentationRuntime(
             cur = s.ctx.tree.node(cur)?.parent
         }
         return pose
+    }
+
+    private fun selfMoving(s: CastState, l: Live): Boolean {
+        val group = l.group
+        return s.tracks.values.any { t -> (t.op.target == l.opId || (group != null && t.op.target == group)) && t.op.keys.any { it.offset != null } }
     }
 
     internal fun anchorFeet(s: CastState, frame: String): Vec3? =
