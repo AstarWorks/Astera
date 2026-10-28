@@ -19,7 +19,7 @@ gameplay:
     - id: t0
       at: 0
       do:
-        - {id: swing, op: hit, frames: [caster], sector: {frame: caster, at: eye, forward: caster.forward, left: caster.left, angle_deg: "${arc_deg}", range: "${range}", height: 2.0}, window: once}
+        - {id: swing, op: hit, frames: [caster], sector: {frame: caster, at: eye, forward: caster.forward, left: caster.left, angle_deg: "${arc_deg}", range: "${range}", height: 2.0}, window: once, ticks: 1}
         - {op: break_area, shape: ray, radius: 0.5, block_damage: 30, breaks: true, length: 4.0, id: chip, at: aim}
   "on":
     hit:

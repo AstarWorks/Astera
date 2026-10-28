@@ -106,12 +106,13 @@ private fun OpReader.target(default: TargetRef): TargetRef {
     if (m.size != 1) fail("target map needs exactly one of enemies / allies")
     val (kind, body) = m.entries.single()
     val b = body as? Map<*, *> ?: fail("target.$kind must be a map")
-    b.keys.firstOrNull { it !in setOf("around", "radius") }?.let { fail("unknown key '$it' in target.$kind") }
+    b.keys.firstOrNull { it !in setOf("around", "radius", "max_count") }?.let { fail("unknown key '$it' in target.$kind") }
     val around = PointRef.parse(b["around"] as? String ?: fail("target.$kind needs 'around'"))
     val radius = numValue(b["radius"]) ?: fail("target.$kind needs 'radius'")
+    val maxCount = b["max_count"]?.let { (it as? Number)?.toInt()?.takeIf { n -> n >= 1 } ?: fail("target.$kind.max_count must be an integer >= 1") }
     return when (kind) {
-        "enemies" -> TargetRef.Enemies(around, radius)
-        "allies" -> TargetRef.Allies(around, radius)
+        "enemies" -> TargetRef.Enemies(around, radius, maxCount)
+        "allies" -> TargetRef.Allies(around, radius, maxCount)
         else -> fail("target must be victim, caster or {enemies|allies: ...}")
     }
 }

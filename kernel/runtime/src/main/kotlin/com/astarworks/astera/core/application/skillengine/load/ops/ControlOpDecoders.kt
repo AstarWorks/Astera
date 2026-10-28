@@ -109,12 +109,13 @@ public class ControlOpDecoders : OpDecoder {
             "caster" -> TargetRef.Caster
             is Map<*, *> -> {
                 val m = FrameRawValues.map(raw, reader, what)
-                FrameRawValues.onlyKeys(m, setOf("kind", "around", "radius"), reader, what)
+                FrameRawValues.onlyKeys(m, setOf("kind", "around", "radius", "max_count"), reader, what)
                 val around = PointRef.parse(m["around"] as? String ?: reader.fail("$what: missing 'around'"))
                 val radius = FrameRawValues.num(m["radius"] ?: reader.fail("$what: missing 'radius'"), reader, "$what.radius")
+                val maxCount = m["max_count"]?.let { (it as? Number)?.toInt()?.takeIf { n -> n >= 1 } ?: reader.fail("$what.max_count must be an integer >= 1") }
                 when (m["kind"]) {
-                    "enemies" -> TargetRef.Enemies(around, radius)
-                    "allies" -> TargetRef.Allies(around, radius)
+                    "enemies" -> TargetRef.Enemies(around, radius, maxCount)
+                    "allies" -> TargetRef.Allies(around, radius, maxCount)
                     else -> reader.fail("$what.kind must be enemies or allies")
                 }
             }

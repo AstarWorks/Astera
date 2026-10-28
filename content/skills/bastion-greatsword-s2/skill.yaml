@@ -33,16 +33,16 @@ gameplay:
       at: 10
       do:
         - {id: dash, op: dash_strike, distance: "${dash_distance}", ticks: 3, radius: 0.5, hit_once: true, invulnerable: true, stop_on_block: true, follow_pitch: false, stop_before_target: 0.9}
-    - {id: t13, at: 13, do: [{id: sel, op: hit, frames: [caster], sphere: {at: caster, radius: "${radius}"}, window: once}]}
+    - {id: t13, at: 13, do: [{id: sel, op: hit, frames: [caster], sphere: {at: caster, radius: "${radius}"}, window: once, ticks: 1}]}
     - id: t29
       at: 29
       do:
         - {id: dash_2, op: dash_strike, distance: "${dash_distance_2}", ticks: 3, radius: 0.5, hit_once: true, invulnerable: true, stop_on_block: true, follow_pitch: false, stop_before_target: 0.9}
-    - {id: t32, at: 32, do: [{id: sel_2, op: hit, frames: [caster], sphere: {at: caster, radius: "${radius}"}, window: once}]}
+    - {id: t32, at: 32, do: [{id: sel_2, op: hit, frames: [caster], sphere: {at: caster, radius: "${radius}"}, window: once, ticks: 1}]}
     - id: t53
       at: 53
       do:
-        - {id: sel_3, op: hit, frames: [caster], sector: {frame: caster, at: eye, forward: caster.forward, left: caster.left, angle_deg: "${arc_deg}", range: "${reach}", height: 2.0}, window: once}
+        - {id: sel_3, op: hit, frames: [caster], sector: {frame: caster, at: eye, forward: caster.forward, left: caster.left, angle_deg: "${arc_deg}", range: "${reach}", height: 2.0}, window: once, ticks: 1}
     - id: t54
       at: 54
       do:

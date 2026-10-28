@@ -19,8 +19,8 @@ gameplay:
     - {id: damage, param: dmg_physical}
   timeline:
     - {id: t0, at: 0, do: [{id: stop, op: freeze, ticks: 30, scope: [enemy, caster]}]}
-    - {id: t30, at: 30, do: [{id: sel, op: hit, frames: [caster], capsule: {from: aim, to: pt_aim_0_0_12, radius: 0.3}, window: once}]}
-    - {id: t60, at: 60, do: [{id: sel_3, op: hit, frames: [caster], capsule: {from: aim, to: pt_aim_0_0_12, radius: 0.3}, window: once}]}
+    - {id: t30, at: 30, do: [{id: sel, op: hit, frames: [caster], capsule: {from: aim, to: pt_aim_0_0_12, radius: 0.3}, window: once, ticks: 1}]}
+    - {id: t60, at: 60, do: [{id: sel_3, op: hit, frames: [caster], capsule: {from: aim, to: pt_aim_0_0_12, radius: 0.3}, window: once, ticks: 1}]}
   "on":
     hit:
       - id: dmg

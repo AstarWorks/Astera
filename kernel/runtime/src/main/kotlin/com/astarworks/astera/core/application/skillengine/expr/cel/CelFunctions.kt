@@ -211,7 +211,8 @@ internal object CelFunctions {
         def("rand", "rand_stream", D, listOf(SimpleType.STRING), listOf(STR)) { stream(it[0] as String).nextDouble() }
 
         // frames
-        def("pos", "pos_ref", VEC3, listOf(REF), listOf(R)) { worldPose(it[0] as ExprValue.Ref).origin }
+        // a bare `victim` is its feet (SKL-15), like `dist`; any named point of it (`point(victim, "body")`) is the body centre
+        def("pos", "pos_ref", VEC3, listOf(REF), listOf(R)) { feet(it[0]) }
         def("axis", "axis_ref", VEC3, listOf(REF, SimpleType.STRING), listOf(R, STR)) { axisOf(worldPose(it[0] as ExprValue.Ref), it[1] as String) }
         def("point", "point_ref", REF, listOf(REF, SimpleType.STRING), listOf(R, STR)) { (it[0] as ExprValue.Ref).copy(point = it[1] as String) }
         def("vel", "vel_ref", VEC3, listOf(REF), listOf(R)) { (it[0] as ExprValue.Ref).let { r -> env().frames.velocity(r.name, r.point) } }

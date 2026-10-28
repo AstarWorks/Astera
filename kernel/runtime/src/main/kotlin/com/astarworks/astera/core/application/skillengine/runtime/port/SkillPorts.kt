@@ -109,31 +109,16 @@ public data class SkillDamage(val kind: String, val amount: Double)
 
 /** Gameplay effects on entities. Damage numbers and status maths stay in combat; this is the seam. */
 public interface ISkillGameplayGateway {
-    public fun damage(caster: UUID, victim: UUID, components: List<SkillDamage>, hitPoint: Vec3)
-
-    /** [damage] that may bypass the victim's invulnerability frames. Gateways with i-frames override this. */
-    public fun damage(caster: UUID, victim: UUID, components: List<SkillDamage>, hitPoint: Vec3, ignoreInvulnerability: Boolean) {
-        damage(caster, victim, components, hitPoint)
-    }
-
     /**
-     * [damage] attributed to the casting skill [skillId], so kill feeds, replays and tutorials see the real skill.
-     * Gateways that record the source override this; the default forwards to the anonymous overloads.
-     */
-    public fun damage(skillId: String, caster: UUID, victim: UUID, components: List<SkillDamage>, hitPoint: Vec3, ignoreInvulnerability: Boolean) {
-        if (ignoreInvulnerability) damage(caster, victim, components, hitPoint, true) else damage(caster, victim, components, hitPoint)
-    }
-
-    /**
-     * [damage] that may also skip the victim's armor / resist reduction. Gateways that model armor override this;
-     * the default forwards to the overload without it.
+     * Damage attributed to the casting skill [skillId] (kill feeds, replays and tutorials see the real skill). The ONE damage
+     * entry point: [ignoreInvulnerability] bypasses the victim's i-frames, [ignoreArmor] skips armor / resist reduction.
+     * There are no convenience overloads on purpose: a gateway or test fake implements this one member, so a flag added
+     * later cannot fall through a delegating no-op.
      */
     public fun damage(
         skillId: String, caster: UUID, victim: UUID, components: List<SkillDamage>, hitPoint: Vec3,
         ignoreInvulnerability: Boolean, ignoreArmor: Boolean,
-    ) {
-        damage(skillId, caster, victim, components, hitPoint, ignoreInvulnerability)
-    }
+    )
 
     /** Current stacks of [statusId] on [entity] (0 when the entity does not carry it). */
     public fun statusStacks(entity: UUID, statusId: String): Int
