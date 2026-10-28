@@ -42,6 +42,9 @@ public fun presentationExecutors(rt: PresentationRuntime): List<OpExecutor<*>> =
 /** Hold time of a pose-only caster clip (crouch, hide-main-hand) when the op gives no `ticks:`. */
 private const val DEFAULT_POSE_TICKS = 20
 
+/** v1 VfxTimeline.kt:99: an along_path sweep plays at most this many points per tick. */
+private const val MAX_PATH_POINTS = 24
+
 private fun OpContext.passes(op: SkillOp): Boolean = op.whenExpr?.let { values.bool(it) } ?: true
 
 private fun OpContext.text(v: Value<String>?, default: String): String = v?.let { values.text(it) } ?: default
@@ -69,7 +72,7 @@ internal class MeshExecutor(private val rt: PresentationRuntime) : OpExecutor<Vi
         val pose = rt.spawnNode(s, live, op.frame, pts) ?: return ctx.host.fail(op.id, "mesh: parent frame '${op.frame}' is not in the frame tree")
         live.handle = ctx.ports.visuals.spawnMesh(
             rt.info.owner(ctx.cast), op.item, op.part, pose, op.brightness,
-            MeshLook(op.itemModel, op.displayMode ?: DisplayItemMode.FIXED, op.rigShading), viewOf(op.view, ctx),
+            MeshLook(op.itemModel, op.displayMode ?: DisplayItemMode.FIXED, op.rigShading), viewOf(op.view, ctx), op.glow,
         )
         rt.driverOf(s, op.frame)?.changed(op.id, pose)
         rt.register(s, live)
@@ -91,7 +94,7 @@ internal class PlateExecutor(private val rt: PresentationRuntime) : OpExecutor<V
                 op.at?.let { ctx.values.vec3(it) } ?: Vec3.ZERO, op.turn?.let { turn(ctx.values.vec3(it)) } ?: Quaternion.IDENTITY,
             )
             val pose = rt.spawnNode(s, live, par) ?: run { ctx.host.fail(op.id, "plate: parent frame '$par' is not in the frame tree"); return@repeated null }
-            live.handle = ctx.ports.visuals.spawnPlate(rt.info.owner(ctx.cast), op.sprite, ctx.values.num(op.alpha), tint, op.seeThrough, pose, op.brightness, viewOf(op.view, ctx))
+            live.handle = ctx.ports.visuals.spawnPlate(rt.info.owner(ctx.cast), op.sprite, ctx.values.num(op.alpha), tint, op.seeThrough, pose, op.brightness, viewOf(op.view, ctx), op.glow)
             rt.register(s, live)
             live
         }
@@ -110,7 +113,7 @@ internal class BlockExecutor(private val rt: PresentationRuntime) : OpExecutor<V
                 op.at?.let { ctx.values.vec3(it) } ?: Vec3.ZERO, op.turn?.let { turn(ctx.values.vec3(it)) } ?: Quaternion.IDENTITY,
             )
             val pose = rt.spawnPart(s, live, par) ?: run { ctx.host.fail(op.id, "block: parent frame '$par' is not in the frame tree"); return@repeated null }
-            live.handle = ctx.ports.visuals.spawnBlock(rt.info.owner(ctx.cast), op.block, pose, op.brightness, op.rigShading, viewOf(op.view, ctx))
+            live.handle = ctx.ports.visuals.spawnBlock(rt.info.owner(ctx.cast), op.block, pose, op.brightness, op.rigShading, viewOf(op.view, ctx), op.glow)
             rt.driverOf(s, par)?.changed(id, pose)
             rt.register(s, live)
             live
@@ -131,7 +134,7 @@ internal class QuadExecutor(private val rt: PresentationRuntime) : OpExecutor<Vi
             )
             val pose = rt.spawnPart(s, live, par) ?: run { ctx.host.fail(op.id, "quad: parent frame '$par' is not in the frame tree"); return@repeated null }
             live.handle = ctx.ports.visuals.spawnQuad(
-                rt.info.owner(ctx.cast), ctx.values.text(op.color), ctx.values.num(op.alpha), op.text, op.shadow, op.seeThrough, pose, op.brightness, viewOf(op.view, ctx),
+                rt.info.owner(ctx.cast), ctx.values.text(op.color), ctx.values.num(op.alpha), op.text, op.shadow, op.seeThrough, pose, op.brightness, viewOf(op.view, ctx), op.glow,
             )
             rt.driverOf(s, par)?.changed(id, pose)
             rt.register(s, live)
@@ -257,10 +260,10 @@ internal class EmitExecutor(private val rt: PresentationRuntime) : OpExecutor<Fx
     override fun execute(op: FxOp.Emit, ctx: OpContext) {
         if (!ctx.passes(op)) return
         val s = rt.state(ctx)
-        rt.repeated(s, ctx, op.id, null, op.repeat) { _, _ -> emitOnce(op, ctx, s); null }
+        rt.repeated(s, ctx, op.id, null, op.repeat) { id, _ -> emitOnce(op, ctx, s, if (op.repeat == null) "" else id.substringAfterLast('#')); null }
     }
 
-    private fun emitOnce(op: FxOp.Emit, ctx: OpContext, s: PresentationRuntime.CastState) {
+    private fun emitOnce(op: FxOp.Emit, ctx: OpContext, s: PresentationRuntime.CastState, slot: String) {
         if (op.at.frame in s.endedBodies) return
         val base = rt.pointWorld(s, op.at) ?: return ctx.host.fail(op.id, "emit: point '${op.at}' does not resolve")
         val inherit = op.inheritVelocity?.let { ctx.values.num(it) }
@@ -274,10 +277,18 @@ internal class EmitExecutor(private val rt: PresentationRuntime) : OpExecutor<Fx
         val seed = ctx.cast.value * 31L + (op.seed ?: op.id).hashCode().toLong()
         val look = ctx.host.lookDirection()
         val spacing = op.spacing?.let { ctx.values.num(it) } ?: 0.0
-        val sweep = if (spacing > 0.0) rt.velocityOf(s, op.at.frame) else Vec3(0.0, 0.0, 0.0)
+        val traceKey = op.trace?.let { "$it#$slot" }
+        val previous = traceKey?.let { s.lastPlay[it] }
+        val head = op.shift?.let { sh -> rt.frameWorld(s, op.at.frame)?.let { base + it.directionToWorld(ctx.values.vec3(sh)) } } ?: base
+        if (traceKey != null) s.lastPlay[traceKey] = head
+        val sweep = when {
+            spacing <= 0.0 -> Vec3(0.0, 0.0, 0.0)
+            traceKey != null -> previous?.let { head - it } ?: Vec3(0.0, 0.0, 0.0)
+            else -> rt.velocityOf(s, op.at.frame)
+        }
         val distance = sweep.length()
-        // One play per `spacing` blocks along the segment covered since the last tick, ending at `at`.
-        val steps = if (distance > spacing && spacing > 0.0) kotlin.math.ceil(distance / spacing).toInt() else 1
+        // One play per `spacing` blocks along the segment covered since the last tick, ending at `at`. (at most 24, v1 VfxTimeline.kt:99 MAX_PATH_POINTS)
+        val steps = if (distance > spacing && spacing > 0.0) kotlin.math.ceil(distance / spacing).toInt().coerceAtMost(MAX_PATH_POINTS) else 1
         for (i in 1..steps) {
             // shift / offset are evaluated per play (v1 re-planned its shape per sample), so `rand` re-rolls per sample
             ctx.host.withSample(i - 1) {

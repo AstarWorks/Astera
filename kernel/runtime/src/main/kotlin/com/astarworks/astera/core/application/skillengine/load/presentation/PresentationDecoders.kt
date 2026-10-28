@@ -275,6 +275,12 @@ private fun OpReader.pullKeys(): List<PullKey> {
     return keys
 }
 
+/** `glow:` is the vanilla glow colour override, `#rrggbb` or `#aarrggbb` (v1 `glow_color`). */
+private fun OpReader.glow(): String? = string("glow")?.also { g ->
+    val h = g.removePrefix("#")
+    if (h.toLongOrNull(16) == null || (h.length != 6 && h.length != 8)) fail("glow must be #rrggbb or #aarrggbb, got '$g'")
+}
+
 /** `times:` / `every:` / `life:` of a repeated display (see [Repeat]); null when none is given. */
 private fun OpReader.repeat(allowLife: Boolean = true): Repeat? {
     val times = number("times")
@@ -309,22 +315,22 @@ private object VisualOpDecoder : OpDecoder {
                 string("item_model"), string("display_mode")?.let { m ->
                     DisplayItemMode.entries.firstOrNull { it.name.equals(m, ignoreCase = true) }
                         ?: fail("display_mode '$m' is not one of ${DisplayItemMode.entries.joinToString { it.name.lowercase() }}")
-                }, bool("rig_shading") ?: true, meshModels(), view())
+                }, bool("rig_shading") ?: true, meshModels(), view(), glow())
             "plate" -> VisualOp.Plate(
                 id, whenExpr, requireString("parent"), face(null), requireString("sprite"),
                 numberOr("size", 1.0), numberOr("alpha", 1.0),
                 int("frame_ticks")?.also { if (it < 1) fail("frame_ticks must be >= 1") }, bool("loop") ?: false, stringValue("color"),
-                bool("see_through") ?: false, vec3("at"), vec3("turn"), brightness(), repeat(), view(),
+                bool("see_through") ?: false, vec3("at"), vec3("turn"), brightness(), glow(), repeat(), view(),
             )
             "block" -> VisualOp.Block(
                 id, whenExpr, requireString("parent"), requireString("block"), sizeVec("size", uniform = true),
-                vec3("at"), vec3("turn"), brightness(), repeat(),
+                vec3("at"), vec3("turn"), brightness(), glow(), repeat(),
                 bool("rig_shading") ?: false, view(),
             )
             "quad" -> VisualOp.Quad(
                 id, whenExpr, requireString("parent"), face(PlateFace.ViewerCenter), sizeVec("size", uniform = false),
                 colorOr("color", "#ffffff"), numberOr("alpha", 1.0), string("text"), bool("shadow") ?: false, bool("see_through") ?: false,
-                vec3("at"), vec3("turn"), brightness(), repeat(), view(),
+                vec3("at"), vec3("turn"), brightness(), glow(), repeat(), view(),
             )
             "text" -> {
                 val byLocale = mapOf("text_by_locale")?.mapValues { (k, v) -> v as? String ?: fail("text_by_locale.$k must be a string") }
@@ -379,7 +385,7 @@ private object FxOpDecoder : OpDecoder {
                 id, whenExpr, requirePoint("at"), requireString("particle"), number("count"),
                 vec3("offset"), number("speed"), stringValue("data"), number("data_size"),
                 vec3("dir"), number("spread_deg"), number("inherit_velocity"), string("seed"), number("spacing"),
-                vec3("shift"), repeat(allowLife = false),
+                vec3("shift"), repeat(allowLife = false), trace = string("trace"),
             )
             "sound" -> FxOp.Sound(
                 id, whenExpr, requireString("sound"), requirePoint("at"), number("volume"), number("pitch"),

@@ -73,6 +73,8 @@ public sealed interface VisualOp : PresentationOp {
         /** Step keys of the displayed `item_model` on this same display, on the clock of the rig it hangs from (v1 `weapon_model`). */
         val models: List<MeshModelKey> = emptyList(),
         val view: ViewScope = ViewScope(),
+        /** Vanilla glow colour override (`#rrggbb` / `#aarrggbb`, v1 `glow_color`): the display glows in that outline colour; null = no glow. */
+        val glow: String? = null,
     ) : VisualOp
 
     /** A sprite quad as a NODE of the frame tree named [id], child of [parent]; [size] is its edge length in BLOCKS. */
@@ -99,6 +101,8 @@ public sealed interface VisualOp : PresentationOp {
         val turn: Value<Vec3>? = null,
         /** Vanilla Display.brightness 0..15; 15 (full bright) when null. */
         val brightness: Int? = null,
+        /** Vanilla glow colour override (`#rrggbb` / `#aarrggbb`); null = no glow. */
+        val glow: String? = null,
         val repeat: Repeat? = null,
         val view: ViewScope = ViewScope(),
     ) : VisualOp
@@ -116,6 +120,8 @@ public sealed interface VisualOp : PresentationOp {
         val at: Value<Vec3>? = null,
         val turn: Value<Vec3>? = null,
         val brightness: Int? = null,
+        /** Vanilla glow colour override (`#rrggbb` / `#aarrggbb`); null = no glow. */
+        val glow: String? = null,
         val repeat: Repeat? = null,
         /** True = lit by the weapon-rig shader rule when [brightness] is null; false = lit by the world. */
         val rigShading: Boolean = false,
@@ -142,6 +148,8 @@ public sealed interface VisualOp : PresentationOp {
         val at: Value<Vec3>? = null,
         val turn: Value<Vec3>? = null,
         val brightness: Int? = null,
+        /** Vanilla glow colour override (`#rrggbb` / `#aarrggbb`); null = no glow. */
+        val glow: String? = null,
         val repeat: Repeat? = null,
         val view: ViewScope = ViewScope(),
     ) : VisualOp

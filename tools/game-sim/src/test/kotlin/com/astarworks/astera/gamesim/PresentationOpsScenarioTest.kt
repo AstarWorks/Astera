@@ -145,18 +145,18 @@ class PresentationOpsScenarioTest {
     private val visuals = object : ISkillVisualGateway {
     override fun setTrailShape(handle: com.astarworks.astera.core.application.skillengine.runtime.port.VisualHandle, bands: List<com.astarworks.astera.core.domain.skillengine.op.TrailBand>, edge: com.astarworks.astera.core.domain.skillengine.op.TrailEdge?, rim: com.astarworks.astera.core.domain.skillengine.op.TrailRim?, stepDeg: Double, doubleSided: Boolean) {}
         private fun h(kind: String): VisualHandle { calls += kind; return VisualHandle(nextHandle++) }
-        override fun spawnMesh(castOwner: UUID, item: String, part: String?, pose: VisualPose, brightness: Int?, look: com.astarworks.astera.core.application.skillengine.runtime.port.MeshLook, view: DisplayView) =
+        override fun spawnMesh(castOwner: UUID, item: String, part: String?, pose: VisualPose, brightness: Int?, look: com.astarworks.astera.core.application.skillengine.runtime.port.MeshLook, view: DisplayView, glow: String?) =
             h("mesh:$item").also { poses[it.id] = pose.frame; scales[it.id] = pose.size.x; meshLooks += look; lanes[it.id] = view.lane }
         override fun spawnSkinBone(castOwner: UUID, bone: com.astarworks.astera.core.domain.animation.skinrig.SkinRigBone, slim: Boolean, ghost: Boolean, pose: VisualPose) =
             h("skin_bone:${bone.yamlName}").also { poses[it.id] = pose.frame; scales[it.id] = pose.size.x }
-        override fun spawnPlate(castOwner: UUID, sprite: String, alpha: Double, tintHex: String?, seeThrough: Boolean, pose: VisualPose, brightness: Int?, view: DisplayView) =
+        override fun spawnPlate(castOwner: UUID, sprite: String, alpha: Double, tintHex: String?, seeThrough: Boolean, pose: VisualPose, brightness: Int?, view: DisplayView, glow: String?) =
             h("plate:$sprite").also {
                 poses[it.id] = pose.frame; scales[it.id] = pose.size.x; spawnedBillboards[it.id] = pose.billboard
                 if (tintHex != null) plateFrames += Triple(it.id, 0, tintHex)
                 if (seeThrough) seeThroughPlates += it.id
             }
-        override fun spawnBlock(castOwner: UUID, block: String, pose: VisualPose, brightness: Int?, rigShading: Boolean, view: DisplayView) = h("block").also { poses[it.id] = pose.frame; scales[it.id] = pose.size.x; blockShading += rigShading }
-        override fun spawnQuad(castOwner: UUID, colorHex: String, alpha: Double, text: String?, shadow: Boolean, seeThrough: Boolean, pose: VisualPose, brightness: Int?, view: DisplayView) = h("quad").also { poses[it.id] = pose.frame; scales[it.id] = pose.size.x }
+        override fun spawnBlock(castOwner: UUID, block: String, pose: VisualPose, brightness: Int?, rigShading: Boolean, view: DisplayView, glow: String?) = h("block").also { poses[it.id] = pose.frame; scales[it.id] = pose.size.x; blockShading += rigShading }
+        override fun spawnQuad(castOwner: UUID, colorHex: String, alpha: Double, text: String?, shadow: Boolean, seeThrough: Boolean, pose: VisualPose, brightness: Int?, view: DisplayView, glow: String?) = h("quad").also { poses[it.id] = pose.frame; scales[it.id] = pose.size.x }
         override fun spawnText(castOwner: UUID, text: String, backgroundHex: String, backgroundAlpha: Double, shadow: Boolean, seeThrough: Boolean, pose: VisualPose, brightness: Int?, view: DisplayView) = h("text").also {
             poses[it.id] = pose.frame; scales[it.id] = pose.size.x
             textSpawns += listOf(text, backgroundHex, backgroundAlpha, shadow, seeThrough)

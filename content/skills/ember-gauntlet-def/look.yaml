@@ -417,9 +417,9 @@ presentation:
         - op: block
           parent: fx2_ember_flare_guard
           block: black_stained_glass
-          size: "= vec(1.0, 1.0, 1.0) * (1.0 + (rand('j_fx2_ember_flare_guard_soot')*2.0-1.0)*0.3)"
-          at: "= ([vec(0.0, 1.0, 0.5), vec(0.29389, 1.0, 0.40451), vec(0.47553, 1.0, 0.15451), vec(0.47553, 1.0, -0.15451), vec(0.29389, 1.0, -0.40451), vec(0.0, 1.0, -0.5), vec(-0.29389, 1.0, -0.40451), vec(-0.47553, 1.0, -0.15451), vec(-0.47553, 1.0, 0.15451), vec(-0.29389, 1.0, 0.40451)][int(i)]) + vec((rand('j_fx2_ember_flare_guard_soot')*2.0-1.0)*0.1, (rand('j_fx2_ember_flare_guard_soot')*2.0-1.0)*0.1, (rand('j_fx2_ember_flare_guard_soot')*2.0-1.0)*0.1)"
-          turn: "= ([vec(0.0, 0.0, 0.0), vec(0.0, 36.0, 0.0), vec(0.0, 72.0, 0.0), vec(0.0, 108.0, 0.0), vec(0.0, 144.0, 0.0), vec(0.0, 180.0, 0.0), vec(0.0, -144.0, 0.0), vec(0.0, -108.0, 0.0), vec(0.0, -72.0, 0.0), vec(0.0, -36.0, 0.0)][int(i)]) + vec((rand('j_fx2_ember_flare_guard_soot')*2.0-1.0)*30.0, (rand('j_fx2_ember_flare_guard_soot')*2.0-1.0)*30.0, (rand('j_fx2_ember_flare_guard_soot')*2.0-1.0)*30.0)"
+          size: "= vec(1.0, 1.0, 1.0) * (1.0 + (rand('j_fx2_ember_flare_guard_soot', 7.0*i+6.0)*2.0-1.0)*0.3)"
+          at: "= ([vec(0.0, 1.0, 0.5), vec(0.29389, 1.0, 0.40451), vec(0.47553, 1.0, 0.15451), vec(0.47553, 1.0, -0.15451), vec(0.29389, 1.0, -0.40451), vec(0.0, 1.0, -0.5), vec(-0.29389, 1.0, -0.40451), vec(-0.47553, 1.0, -0.15451), vec(-0.47553, 1.0, 0.15451), vec(-0.29389, 1.0, 0.40451)][int(i)]) + vec((rand('j_fx2_ember_flare_guard_soot', 7.0*i+0.0)*2.0-1.0)*0.1, (rand('j_fx2_ember_flare_guard_soot', 7.0*i+1.0)*2.0-1.0)*0.1, (rand('j_fx2_ember_flare_guard_soot', 7.0*i+2.0)*2.0-1.0)*0.1)"
+          turn: "= rotvec(quat([vec(0.0, 0.0, 0.0), vec(0.0, 36.0, 0.0), vec(0.0, 72.0, 0.0), vec(0.0, 108.0, 0.0), vec(0.0, 144.0, 0.0), vec(0.0, 180.0, 0.0), vec(0.0, -144.0, 0.0), vec(0.0, -108.0, 0.0), vec(0.0, -72.0, 0.0), vec(0.0, -36.0, 0.0)][int(i)]) * quat_axis_angle(vec(0.0, 1.0, 0.0), -((rand('j_fx2_ember_flare_guard_soot', 7.0*i+3.0)*2.0-1.0)*30.0)) * quat_axis_angle(vec(1.0, 0.0, 0.0), (rand('j_fx2_ember_flare_guard_soot', 7.0*i+4.0)*2.0-1.0)*30.0) * quat_axis_angle(vec(0.0, 0.0, 1.0), (rand('j_fx2_ember_flare_guard_soot', 7.0*i+5.0)*2.0-1.0)*30.0))"
           times: 10
           id: fx2_ember_flare_guard_soot
         - id: fx2_ember_flare_guard_soot_trk
@@ -790,10 +790,10 @@ presentation:
       - op: block
         parent: fx4_ember_hoop_hit
         block: orange_stained_glass
-        size: "= vec(1.0, 1.0, 1.0) * (1.0 + (rand('j_fx4_ember_hoop_hit_needle')*2.0-1.0)*0.3)"
+        size: "= vec(1.0, 1.0, 1.0) * (1.0 + (rand('j_fx4_ember_hoop_hit_needle', 7.0*i+6.0)*2.0-1.0)*0.3)"
         brightness: 15
         at: "= [vec(0.06614, 1.275, 0.0), vec(-0.0714, 1.225, 0.0654), vec(0.00846, 1.175, -0.09645), vec(0.04024, 1.125, 0.05249)][int(i)]"
-        turn: "= ([vec(-37.9525, 84.07428, 37.9525), vec(-13.63668, -47.2488, -6.00139), vec(0.96587, 173.62683, -22.0535), vec(46.80381, 35.17185, -15.87715)][int(i)]) + vec((rand('j_fx4_ember_hoop_hit_needle')*2.0-1.0)*8.0, (rand('j_fx4_ember_hoop_hit_needle')*2.0-1.0)*8.0, (rand('j_fx4_ember_hoop_hit_needle')*2.0-1.0)*8.0)"
+        turn: "= rotvec(quat([vec(-37.9525, 84.07428, 37.9525), vec(-13.63668, -47.2488, -6.00139), vec(0.96587, 173.62683, -22.0535), vec(46.80381, 35.17185, -15.87715)][int(i)]) * quat_axis_angle(vec(0.0, 1.0, 0.0), -((rand('j_fx4_ember_hoop_hit_needle', 7.0*i+3.0)*2.0-1.0)*8.0)) * quat_axis_angle(vec(1.0, 0.0, 0.0), (rand('j_fx4_ember_hoop_hit_needle', 7.0*i+4.0)*2.0-1.0)*8.0) * quat_axis_angle(vec(0.0, 0.0, 1.0), (rand('j_fx4_ember_hoop_hit_needle', 7.0*i+5.0)*2.0-1.0)*8.0))"
         times: 4
         id: fx4_ember_hoop_hit_needle
         when: "= event.source == 'sel'"

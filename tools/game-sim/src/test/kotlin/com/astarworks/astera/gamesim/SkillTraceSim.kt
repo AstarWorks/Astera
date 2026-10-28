@@ -177,15 +177,15 @@ internal class Sim(val c: Coin2Collaborators, val catalog: SkillCatalog, val wit
         override fun setPlateFrame(handle: com.astarworks.astera.core.application.skillengine.runtime.port.VisualHandle, frame: Int, tintHex: String?) {}
         override fun setTrailLook(handle: com.astarworks.astera.core.application.skillengine.runtime.port.VisualHandle, fadePower: Double, style: String) {}
         override fun setTrailShape(handle: com.astarworks.astera.core.application.skillengine.runtime.port.VisualHandle, bands: List<com.astarworks.astera.core.domain.skillengine.op.TrailBand>, edge: com.astarworks.astera.core.domain.skillengine.op.TrailEdge?, rim: com.astarworks.astera.core.domain.skillengine.op.TrailRim?, stepDeg: Double, doubleSided: Boolean) {}
-        override fun spawnMesh(castOwner: UUID, item: String, part: String?, pose: VisualPose, brightness: Int?, look: com.astarworks.astera.core.application.skillengine.runtime.port.MeshLook, view: DisplayView) =
+        override fun spawnMesh(castOwner: UUID, item: String, part: String?, pose: VisualPose, brightness: Int?, look: com.astarworks.astera.core.application.skillengine.runtime.port.MeshLook, view: DisplayView, glow: String?) =
             spawn("mesh", buildJsonObject { put("item", item); put("part", part?.let { JsonPrimitive(it) } ?: JsonNull); put("size", vecJsonOf(pose.size)) }, poseObj(pose.frame))
         override fun spawnSkinBone(castOwner: UUID, bone: com.astarworks.astera.core.domain.animation.skinrig.SkinRigBone, slim: Boolean, ghost: Boolean, pose: VisualPose) =
             spawn("skin_bone", buildJsonObject { put("bone", bone.yamlName); put("ghost", ghost) }, poseObj(pose.frame))
-        override fun spawnPlate(castOwner: UUID, sprite: String, alpha: Double, tintHex: String?, seeThrough: Boolean, pose: VisualPose, brightness: Int?, view: DisplayView) =
+        override fun spawnPlate(castOwner: UUID, sprite: String, alpha: Double, tintHex: String?, seeThrough: Boolean, pose: VisualPose, brightness: Int?, view: DisplayView, glow: String?) =
             spawn("plate", buildJsonObject { put("sprite", sprite); put("billboard", pose.billboard.name); put("size", pose.size.x); put("alpha", alpha); put("tint", tintHex?.let { JsonPrimitive(it) } ?: JsonNull); put("see_through", seeThrough) }, poseObj(pose.frame))
-        override fun spawnBlock(castOwner: UUID, block: String, pose: VisualPose, brightness: Int?, rigShading: Boolean, view: DisplayView) =
+        override fun spawnBlock(castOwner: UUID, block: String, pose: VisualPose, brightness: Int?, rigShading: Boolean, view: DisplayView, glow: String?) =
             spawn("block", buildJsonObject { put("block", block); put("size", vecJsonOf(pose.size)); put("brightness", brightness ?: -1) }, poseObj(pose.frame))
-        override fun spawnQuad(castOwner: UUID, colorHex: String, alpha: Double, text: String?, shadow: Boolean, seeThrough: Boolean, pose: VisualPose, brightness: Int?, view: DisplayView) =
+        override fun spawnQuad(castOwner: UUID, colorHex: String, alpha: Double, text: String?, shadow: Boolean, seeThrough: Boolean, pose: VisualPose, brightness: Int?, view: DisplayView, glow: String?) =
             spawn("quad", buildJsonObject { put("color", colorHex); put("alpha", alpha); put("text", text?.let { JsonPrimitive(it) } ?: JsonNull); put("size", vecJsonOf(pose.size)) }, poseObj(pose.frame))
         override fun spawnText(castOwner: UUID, text: String, backgroundHex: String, backgroundAlpha: Double, shadow: Boolean, seeThrough: Boolean, pose: VisualPose, brightness: Int?, view: DisplayView) =
             spawn("text", buildJsonObject { put("text", text); put("background", backgroundHex); put("background_alpha", backgroundAlpha); put("see_through", seeThrough); put("size", vecJsonOf(pose.size)) }, poseObj(pose.frame))

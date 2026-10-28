@@ -48,9 +48,9 @@ class VfxAudienceScenarioTest {
             seen += Seen(kind, view, VfxQualityProfile.filterViewers(chosen, view.lane, intensity))
         }
 
-        override fun spawnBlock(castOwner: UUID, block: String, pose: VisualPose, brightness: Int?, rigShading: Boolean, view: DisplayView): VisualHandle {
+        override fun spawnBlock(castOwner: UUID, block: String, pose: VisualPose, brightness: Int?, rigShading: Boolean, view: DisplayView, glow: String?): VisualHandle {
             note(block, view)
-            return inner.spawnBlock(castOwner, block, pose, brightness, rigShading, view)
+            return inner.spawnBlock(castOwner, block, pose, brightness, rigShading, view, glow)
         }
     }
 

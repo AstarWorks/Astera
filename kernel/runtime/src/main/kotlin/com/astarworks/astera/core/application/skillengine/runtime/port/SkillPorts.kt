@@ -62,7 +62,7 @@ public data class SpriteInfo(val frames: Int, val px: Int)
  */
 public interface ISkillVisualGateway {
     /** An item model; [pose].size is the model scale in blocks per model unit. */
-    public fun spawnMesh(castOwner: UUID, item: String, part: String?, pose: VisualPose, brightness: Int? = null, look: MeshLook = MeshLook(), view: DisplayView = DisplayView()): VisualHandle
+    public fun spawnMesh(castOwner: UUID, item: String, part: String?, pose: VisualPose, brightness: Int? = null, look: MeshLook = MeshLook(), view: DisplayView = DisplayView(), glow: String? = null): VisualHandle
 
     /**
      * One bone of the caster's own skin rig (ADR-0303 skin-rig section): a skull display wearing the caster's skin, [ghost] = a
@@ -76,16 +76,16 @@ public interface ISkillVisualGateway {
      * sprite from the first tick (null = the sprite's own colours), [seeThrough] is the vanilla text-display flag.
      * [brightness] null = full bright (15).
      */
-    public fun spawnPlate(castOwner: UUID, sprite: String, alpha: Double, tintHex: String?, seeThrough: Boolean, pose: VisualPose, brightness: Int? = null, view: DisplayView = DisplayView()): VisualHandle
+    public fun spawnPlate(castOwner: UUID, sprite: String, alpha: Double, tintHex: String?, seeThrough: Boolean, pose: VisualPose, brightness: Int? = null, view: DisplayView = DisplayView(), glow: String? = null): VisualHandle
 
     /** A block display of vanilla block [block] (`gold_block`); [pose].size is its edge per axis in blocks, centred on the pose origin. */
-    public fun spawnBlock(castOwner: UUID, block: String, pose: VisualPose, brightness: Int?, rigShading: Boolean = false, view: DisplayView = DisplayView()): VisualHandle
+    public fun spawnBlock(castOwner: UUID, block: String, pose: VisualPose, brightness: Int?, rigShading: Boolean = false, view: DisplayView = DisplayView(), glow: String? = null): VisualHandle
 
     /**
      * A text-display quad: [text] null = a solid [colorHex] background at [alpha] ([pose].size.x / .y = width / height in blocks);
      * else the MiniMessage [text] over that background, [pose].size = blocks per text unit.
      */
-    public fun spawnQuad(castOwner: UUID, colorHex: String, alpha: Double, text: String?, shadow: Boolean, seeThrough: Boolean, pose: VisualPose, brightness: Int?, view: DisplayView = DisplayView()): VisualHandle
+    public fun spawnQuad(castOwner: UUID, colorHex: String, alpha: Double, text: String?, shadow: Boolean, seeThrough: Boolean, pose: VisualPose, brightness: Int?, view: DisplayView = DisplayView(), glow: String? = null): VisualHandle
 
     /**
      * A text display of the MiniMessage [text] ([pose].size = blocks per text unit) with a [backgroundHex] box at [backgroundAlpha]

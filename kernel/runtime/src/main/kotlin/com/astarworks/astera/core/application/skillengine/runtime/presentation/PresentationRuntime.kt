@@ -186,6 +186,8 @@ public class PresentationRuntime(
         val movingTeleports = HashMap<String, Int>()
         val lastOrigin = HashMap<String, Vec3>()
         val velocity = HashMap<String, Vec3>()
+        /** Where each traced emit (`trace` key + repeat index) last played. */
+        val lastPlay = HashMap<String, Vec3>()
         val watched = LinkedHashSet<String>()
 
         /** Projectile bodies that ended (hit / block / expire): a trail `emit at:` them stops with the projectile. */

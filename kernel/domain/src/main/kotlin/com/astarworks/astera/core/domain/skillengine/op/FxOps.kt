@@ -39,6 +39,12 @@ public sealed interface FxOp : PresentationOp {
         val shift: Value<Vec3>? = null,
         /** `times` plays, play k `every * k` ticks after the op runs; `i` / `n` are bound in the op's values. `life` is not used by an emit. */
         val repeat: Repeat? = null,
+        /**
+         * With [spacing]: the play steps along the segment from where the previous play of this [trace] key (and repeat index) was, to now,
+         * instead of the frame velocity of the last tick; the first play of a key is a single point (v1 `along_path`, VfxTimeline.kt:581-615
+         * `pathBetween(centerAt(u - everyTicks), centerAt(u))`, only for u > 0).
+         */
+        val trace: String? = null,
     ) : FxOp
 
     /** Positional sound: `at` is required, there are no unlocated sounds. */

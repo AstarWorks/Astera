@@ -1545,6 +1545,10 @@ class Conv:
                 op["item_model"] = kind["item_model"]
             if kind.get("display_mode"):
                 op["display_mode"] = str(kind["display_mode"]).lower()
+            if "brightness" in el:
+                op["brightness"] = int(el["brightness"])
+            if "glow_color" in el:
+                op["glow"] = vfxelem.glow_hex(el["glow_color"], self)
         elif kt == "particle":
             at_frame = fid
             moving = [k for k in el.get("keyframes", []) if "translate" in k]
@@ -1555,8 +1559,11 @@ class Conv:
                 self.p(where, at, self._w({"id": eid + "_atrk", "op": "track", "target": at_frame, "space": fid,
                                            "keys": self.keys([{"t": k["t"], "translate": k["translate"], **({"ease": k["ease"]} if "ease" in k else {})} for k in moving])}, when))
             op = emit_op(eid, at_frame, kind["particle_id"], 1)
-            if "along_path" in kind:
-                self.present("particle along_path", short(kind["along_path"], 60))
+            if kind.get("along_path"):
+                # v1 VfxTimeline.kt:581-615 pathBetween(prev, cur, 0.4): ceil(dist/0.4) points (max 24), ending at the current one.
+                # prev = the previous emission of this element (centerAt(u - everyTicks)), none for the first (u > 0 only).
+                op["spacing"] = 0.4
+                op["trace"] = eid
         elif kt == "dotted_line":
             self.dotted_line(el, fid, where, delay, when, dur, removes)
             return
@@ -1574,7 +1581,26 @@ class Conv:
                 rows = rows[::-1]
             op["times"] = len(rows)
             op["shift"] = vfxelem.cel_table([r[0] for r in rows])
+        jit = el.get("jitter") if kt == "particle" else None
+        if jit and float(jit.get("position", 0.0)):
+            # v1 VfxTimeline.kt:187-215: per-slot position draws x y z of seven, constant over the slot's life.
+            pj = num_s(float(jit["position"]))
+            stream = "j_" + eid
+            ks = ("7.0*i+%d.0" if multi else "%d.0")
+            draws = ", ".join("(rand('%s', %s)*2.0-1.0)*%s" % (stream, ks % d, pj) for d in range(3))
+            base = op.get("shift")
+            if isinstance(base, str):
+                op["shift"] = "= (%s) + vec(%s)" % (base[2:], draws)
+            elif base:
+                op["shift"] = "= vec(%s, %s, %s) + vec(%s)" % (base[0], base[1], base[2], draws)
+            else:
+                op["shift"] = "= vec(%s)" % draws
         skip = ("formation", "count") if kt == "particle" else ()
+        if kt == "particle":
+            # v1 VfxTimeline.kt:593-615 builds a VfxParticleEmission without brightness: a particle element's brightness is a no-op.
+            skip += ("jitter", "brightness")
+        if kt == "item":
+            skip += ("brightness", "glow_color")
         for k in ("group_keyframes", "formation", "count", "jitter", "oscillate", "emit",
                   "slot_lifetime_ticks", "glow_color", "respect_hit_stop", "brightness"):
             if k in el and k not in skip:
@@ -1827,6 +1853,9 @@ def _perp(u):
 def _vec(v):
     return "vec(%s, %s, %s)" % tuple(fmt(round(x, 4)) for x in v)
 
+
+def num_s(x):
+    return repr(round(float(x), 5))
 
 
 def emit_op(oid, at, pid, v1_count):

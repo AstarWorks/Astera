@@ -112,14 +112,14 @@ public class PaperSkillVisualGateway(
         val segments = ArrayDeque<Seg>()
     }
 
-    override fun spawnMesh(castOwner: UUID, item: String, part: String?, pose: VisualPose, brightness: Int?, look: MeshLook, view: DisplayView): VisualHandle {
+    override fun spawnMesh(castOwner: UUID, item: String, part: String?, pose: VisualPose, brightness: Int?, look: MeshLook, view: DisplayView, glow: String?): VisualHandle {
         val world = worldOf(castOwner) ?: return dead("mesh $item")
         val kind = SkillDisplaySpecs.meshKind(MeshModels.resolve(item, part, frameTables), look)
         val heldItem = kind == DisplayKind.AnchorMainHand
         // v1 cloned the real stack (custom model, components) and drew it in THIRDPERSON_RIGHTHAND (PaperDisplayEntityGateway.kt:192-199).
         if (heldItem && server.getPlayer(castOwner)?.inventory?.itemInMainHand?.type?.isAir != false) return dead("mesh $item (empty main hand)")
         val first = toDisplayWrite(pose.frame, pose.size, Intrinsic.ITEM_FIXED, pose.billboard, 0)
-        val spec = SkillDisplaySpecs.mesh(kind, first.transform, brightness, look.rigShading)
+        val spec = SkillDisplaySpecs.mesh(kind, first.transform, brightness, look.rigShading).copy(glowArgb = SkillDisplaySpecs.glowArgb(glow))
         val handle = spawnDisplay(world, castOwner, pose.frame.origin, spec, emptyList(), pose.anchorFeet != null, view) ?: return dead("mesh $item")
         if (heldItem) hideHand(castOwner)
         return register(castOwner, MeshEntry(handle, castOwner, heldItem))
@@ -170,30 +170,30 @@ public class PaperSkillVisualGateway(
         presentation()?.release(hide.lease)
     }
 
-    override fun spawnPlate(castOwner: UUID, sprite: String, alpha: Double, tintHex: String?, seeThrough: Boolean, pose: VisualPose, brightness: Int?, view: DisplayView): VisualHandle {
+    override fun spawnPlate(castOwner: UUID, sprite: String, alpha: Double, tintHex: String?, seeThrough: Boolean, pose: VisualPose, brightness: Int?, view: DisplayView, glow: String?): VisualHandle {
         val world = worldOf(castOwner) ?: return dead("plate $sprite")
         val glyph = SpriteGlyphs.text(SpriteId(sprite), 0, tintHex?.let { argb(it) and 0xFFFFFF })
         val intrinsic = Intrinsic.textGlyph(spriteInfo(sprite).px)
         val first = toDisplayWrite(pose.frame, pose.size, intrinsic, pose.billboard, 0)
-        val spec = SkillDisplaySpecs.plate(glyph, alpha, seeThrough, first.transform, pose.billboard, brightness ?: 15)
+        val spec = SkillDisplaySpecs.plate(glyph, alpha, seeThrough, first.transform, pose.billboard, brightness ?: 15).copy(glowArgb = SkillDisplaySpecs.glowArgb(glow))
         val handle = spawnDisplay(world, castOwner, pose.frame.origin, spec, listOf(glyph), pose.anchorFeet != null && pose.billboard == DisplayBillboard.FIXED, view)
             ?: return dead("plate $sprite")
         return register(castOwner, PlateEntry(handle, castOwner, sprite, intrinsic))
     }
 
-    override fun spawnBlock(castOwner: UUID, block: String, pose: VisualPose, brightness: Int?, rigShading: Boolean, view: DisplayView): VisualHandle {
+    override fun spawnBlock(castOwner: UUID, block: String, pose: VisualPose, brightness: Int?, rigShading: Boolean, view: DisplayView, glow: String?): VisualHandle {
         val world = worldOf(castOwner) ?: return dead("block $block")
         val first = toDisplayWrite(pose.frame, pose.size, Intrinsic.BLOCK, DisplayBillboard.FIXED, 0)
-        val spec = SkillDisplaySpecs.block(block, first.transform, brightness, rigShading)
+        val spec = SkillDisplaySpecs.block(block, first.transform, brightness, rigShading).copy(glowArgb = SkillDisplaySpecs.glowArgb(glow))
         val handle = spawnDisplay(world, castOwner, pose.frame.origin, spec, emptyList(), pose.anchorFeet != null, view) ?: return dead("block $block")
         return register(castOwner, BlockEntry(handle, castOwner))
     }
 
-    override fun spawnQuad(castOwner: UUID, colorHex: String, alpha: Double, text: String?, shadow: Boolean, seeThrough: Boolean, pose: VisualPose, brightness: Int?, view: DisplayView): VisualHandle {
+    override fun spawnQuad(castOwner: UUID, colorHex: String, alpha: Double, text: String?, shadow: Boolean, seeThrough: Boolean, pose: VisualPose, brightness: Int?, view: DisplayView, glow: String?): VisualHandle {
         val world = worldOf(castOwner) ?: return dead("quad")
         val intrinsic = if (text == null) Intrinsic.TEXT_SOLID else Intrinsic.glyphQuad(QUAD_TEXT_PX)
         val first = toDisplayWrite(pose.frame, pose.size, intrinsic, pose.billboard, 0)
-        val spec = SkillDisplaySpecs.quad(colorHex, alpha, text, shadow, seeThrough, first.transform, pose.billboard, brightness)
+        val spec = SkillDisplaySpecs.quad(colorHex, alpha, text, shadow, seeThrough, first.transform, pose.billboard, brightness).copy(glowArgb = SkillDisplaySpecs.glowArgb(glow))
         val handle = spawnDisplay(world, castOwner, pose.frame.origin, spec, listOf(text ?: " "), pose.anchorFeet != null && pose.billboard == DisplayBillboard.FIXED, view)
             ?: return dead("quad")
         return register(castOwner, QuadEntry(handle, castOwner, intrinsic, colorHex, alpha, text != null))

@@ -199,6 +199,18 @@ internal object CelFunctions {
         def("quat_axis_angle", "quat_axis_angle", QUAT, listOf(VEC3, NUM), listOf(V, OBJ)) {
             Quaternion.axisAngle((it[0] as Vec3).normalize(), Math.toRadians(n(it[1])))
         }
+        def("quat", "quat_rotvec", QUAT, listOf(VEC3), listOf(V)) { Quaternion.fromRotationVector(it[0] as Vec3) }
+        // Rotation vector (axis * degrees, shortest way round) of a quaternion: the form a track `turn` is authored in.
+        def("rotvec", "rotvec_quat", VEC3, listOf(QUAT), listOf(Q)) {
+            val q = it[0] as Quaternion
+            val s = if (q.w < 0) -1.0 else 1.0
+            val x = q.x * s; val y = q.y * s; val z = q.z * s
+            val sin = sqrt(x * x + y * y + z * z)
+            if (sin < 1e-12) Vec3(0.0, 0.0, 0.0) else {
+                val deg = Math.toDegrees(2.0 * atan2(sin, q.w * s))
+                Vec3(x / sin * deg, y / sin * deg, z / sin * deg)
+            }
+        }
         def("rotate", "rotate_quat_vec3", VEC3, listOf(QUAT, VEC3), listOf(Q, V)) { (it[0] as Quaternion).rotate(it[1] as Vec3) }
         def("slerp", "slerp_quat", QUAT, listOf(QUAT, QUAT, NUM), listOf(Q, Q, OBJ)) {
             Quaternion.slerp(it[0] as Quaternion, it[1] as Quaternion, n(it[2]))
@@ -242,6 +254,10 @@ internal object CelFunctions {
         def("draw_unit", "draw_unit_stream", VEC3, listOf(SimpleType.STRING), listOf(STR)) { drawn(it[0] as String).nextUnitVector() }
         def("plane_a", "plane_a_vec3", VEC3, listOf(VEC3), listOf(V)) { planeA(it[0] as Vec3) }
         def("plane_b", "plane_b_vec3", VEC3, listOf(VEC3), listOf(V)) { (it[0] as Vec3).normalize().cross(planeA(it[0] as Vec3)).normalize() }
+        // rand(stream, k): the k-th draw of a stream, constant over the cast (not per tick) - a per-slot jitter like v1 slotRandom
+        def("rand", "rand_stream_idx", D, listOf(SimpleType.STRING, NUM), listOf(STR, OBJ)) {
+            SeededRandom(env().castSeed xor ((it[0] as String).hashCode().toLong() * -0x61c8864680b583ebL) xor (n(it[1]).toLong() * 0x2545F4914F6CDD1DL)).nextDouble()
+        }
 
         // frames
         // a bare `victim` is its feet (SKL-15), like `dist`; any named point of it (`point(victim, "body")`) is the body centre

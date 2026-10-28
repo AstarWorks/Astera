@@ -32,10 +32,17 @@ public object SkillDisplaySpecs {
         return (a shl 24) or rgb
     }
 
+    /** v1 glow_color: `#rrggbb` or `#aarrggbb` (alpha first), VfxYamlConfig.parseArgb; null stays unglowing. */
+    public fun glowArgb(hex: String?): Int? {
+        val h = hex?.removePrefix("#") ?: return null
+        val v = h.toLongOrNull(16) ?: return null
+        return if (h.length == 6) (0xFF000000L or v).toInt() else v.toInt()
+    }
+
     /** The item a pack or vanilla mesh model draws; null for the caster's held item (needs the caster). */
     public fun meshKind(model: MeshModel, look: MeshLook = MeshLook()): DisplayKind = when (model) {
         is MeshModel.Pack -> DisplayKind.Item(ItemId("paper"), look.mode, look.itemModel ?: model.key)
-        is MeshModel.Vanilla -> DisplayKind.Item(ItemId(model.material.replace('_', '-')), look.mode, look.itemModel)
+        is MeshModel.Vanilla -> DisplayKind.Item(ItemId(model.material.replace('_', '-')), look.mode, look.itemModel ?: model.itemModel)
         MeshModel.HeldItem -> DisplayKind.AnchorMainHand // v1 AnchorMainHand: the caster's real stack in THIRDPERSON_RIGHTHAND (PaperDisplayEntityGateway.kt:192-199)
     }
 

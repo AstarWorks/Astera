@@ -605,6 +605,8 @@ def emit_quads(c, el, fid, where, delay, when, dur, removes):
             op["see_through"] = True
         if "brightness" in el:
             op["brightness"] = int(el["brightness"])
+        if "glow_color" in el:
+            op["glow"] = glow_hex(el["glow_color"], c)
         at = delay + spawn
         c.p(where, at, c._w(op, when))
         c.p(where, at, c._w({"id": eid + "_trk", "op": "track", "target": eid, "keys": keys_shift(keys), "sample_ticks": c.vfx_sample}, when))
@@ -617,7 +619,7 @@ def keys_shift(keys):
 
 
 # ------------------------------------------------------------------ display elements
-UNSUPPORTED = ("glow_color", "respect_hit_stop", "view_range")
+UNSUPPORTED = ("respect_hit_stop", "view_range")
 
 
 def argb_split(c):
@@ -626,6 +628,15 @@ def argb_split(c):
     if len(h) == 8:
         return "#" + h[2:].lower(), round(int(h[:2], 16) / 255.0, 3)
     return "#" + h.lower(), 1.0
+
+
+def glow_hex(v, c):
+    """v1 glow_color (VfxYamlConfig.kt:160-163, parseArgb :1020): `#RRGGBB` or `#AARRGGBB`; the v2 `glow` keeps the same text."""
+    v = str(v)
+    h = v.lstrip("#")
+    if len(h) not in (6, 8) or any(ch not in "0123456789abcdefABCDEF" for ch in h):
+        c.present("glow_color not #RRGGBB / #AARRGGBB", v)
+    return "#" + h
 
 
 def hexc(col):
@@ -748,6 +759,8 @@ def display_element(c, el, fid, where, delay, when, dur, removes):
     rows = [slots[s] for s in order]
     if "brightness" in el:
         skel["brightness"] = int(el["brightness"])
+    if "glow_color" in el:
+        skel["glow"] = glow_hex(el["glow_color"], c)
     spawns = [start + k * stagger for k in range(n)]
 
     def life_of(k):
@@ -781,16 +794,24 @@ def display_element(c, el, fid, where, delay, when, dur, removes):
     if single:
         pos_e = pos_e.replace("[int(i)]", "[0]")
     if jit:
+        # v1 VfxTimeline.kt:187-215 slotGeometry: one SeededRandom per (element, slot), seven draws in the order
+        # position x y z, rotation x y z, scale; constant over the slot's life. rand(stream, k) is the k-th draw of the slot.
+        def draw(k):
+            return "(rand('%s', %s)*2.0-1.0)" % (stream, ("7.0*i+%d.0" % k) if not single else "%d.0" % k)
         p = float(jit.get("position", 0.0))
         r = float(jit.get("rotation_deg", 0.0))
         if p:
-            pos_e = "(%s) + vec((rand('%s')*2.0-1.0)*%s, (rand('%s')*2.0-1.0)*%s, (rand('%s')*2.0-1.0)*%s)" % (pos_e, stream, num(p), stream, num(p), stream, num(p))
+            pos_e = "(%s) + vec(%s*%s, %s*%s, %s*%s)" % (pos_e, draw(0), num(p), draw(1), num(p), draw(2), num(p))
         if r:
-            rot_e = "(%s) + vec((rand('%s')*2.0-1.0)*%s, (rand('%s')*2.0-1.0)*%s, (rand('%s')*2.0-1.0)*%s)" % (rot_e, stream, num(r), stream, num(r), stream, num(r))
+            # v1 slotGeometry: rotation = slotRot * fromEulerDegrees(yaw, pitch, roll) (Quaternion.kt:86-91, qy * qp * qr), a quaternion
+            # product, not a sum of angles; the track turn is its rotation vector.
+            jq = ("quat_axis_angle(vec(0.0, 1.0, 0.0), -(%s*%s)) * quat_axis_angle(vec(1.0, 0.0, 0.0), %s*%s) * "
+                  "quat_axis_angle(vec(0.0, 0.0, 1.0), %s*%s)") % (draw(3), num(r), draw(4), num(r), draw(5), num(r))
+            rot_e = "rotvec(quat(%s) * %s)" % (rot_e, jq)
         sc = float(jit.get("scale", 0.0))
         if sc:
             unit = skel["size"]
-            skel["size"] = "= %s * (1.0 + (rand('%s')*2.0-1.0)*%s)" % (cel_vec(unit if len(unit) == 3 else unit + [1.0]), stream, num(sc))
+            skel["size"] = "= %s * (1.0 + %s*%s)" % (cel_vec(unit if len(unit) == 3 else unit + [1.0]), draw(6), num(sc))
     skel["at"] = ("= " + pos_e) if dyn_at else clean(rows[0][0])
     skel["turn"] = ("= " + rot_e) if dyn_turn else clean(rv(rows[0][1]))
     if skel["at"] == [0.0, 0.0, 0.0]:
