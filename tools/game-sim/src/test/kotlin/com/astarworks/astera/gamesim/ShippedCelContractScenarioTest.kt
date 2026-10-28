@@ -8,6 +8,8 @@ import com.astarworks.astera.core.domain.skillengine.expr.ExprError
 import com.astarworks.astera.core.domain.skillengine.expr.ExprType
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
+import com.astarworks.astera.core.application.skillengine.runtime.SkillEngineContents
+import java.nio.file.Files
 
 /**
  * SKL-09 WP-5 (ADR-0301, ADR-0303 3.7): CEL is checked at load, not at cast. Every shipped skill loads (so every
@@ -31,6 +33,35 @@ class ShippedCelContractScenarioTest {
         }
         assertThat(ids).hasSizeGreaterThanOrEqualTo(149)
         assertThat(failures).describedAs("skills with a CEL or op failure").isEmpty()
+    }
+
+    private fun loadFailures(id: String, gameplayOp: String): List<String> {
+        val dir = Files.createTempDirectory("typed-expr")
+        Files.createDirectories(dir.resolve(id))
+        Files.writeString(
+            dir.resolve(id).resolve("skill.yaml"),
+            """
+            apiVersion: "astera/v2"
+            kind: Skill
+            id: $id
+            item: pistol
+            meta: {name: {ja: "t", en: "t"}, description: {ja: "t", en: "t"}, cooldown_ticks: 1, resource_cost: 0, tags: []}
+            frames: []
+            gameplay: {timeline: [{id: t0, at: 0, do: [$gameplayOp]}]}
+            presentation: {timeline: []}
+            """.trimIndent(),
+        )
+        val report = SkillEngineContents(Coin2CastWiring.collaborators().newCatalog()).reload(dir)
+        return report.failures.map { "${it.file.fileName}: ${it.message}" }
+    }
+
+    @Test
+    fun `an expression whose result type does not fit its field is a load error naming the skill and path`() {
+        val ok = loadFailures("t-typed-ok", """{id: g, op: status, when: "= nearest_enemy_dist(caster) < 3.6", status: charge, target: caster, stacks: 1, duration_ticks: 10}""")
+        assertThat(ok).isEmpty()
+        val bad = loadFailures("t-typed-bad", """{id: g, op: status, when: "= nearest_enemy_dist(caster)", status: charge, target: caster, stacks: 1, duration_ticks: 10}""")
+        assertThat(bad).hasSize(1)
+        assertThat(bad[0]).contains("t-typed-bad").contains("when").contains("expects bool")
     }
 
     private val exprs = CelExprCompiler()

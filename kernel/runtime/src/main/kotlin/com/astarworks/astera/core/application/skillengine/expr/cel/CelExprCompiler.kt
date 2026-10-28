@@ -38,23 +38,39 @@ public class CelExprCompiler : ExprCompiler {
         b.build()
     }
 
-    override fun compile(source: String, env: ExprEnvSpec): Result<CompiledExpr, ExprError> {
+    override fun compile(source: String, env: ExprEnvSpec, expected: ExprType?): Result<CompiledExpr, ExprError> {
         val compiler = compilerFor(env)
         val parsed = compiler.parse(normalise(source))
         if (parsed.hasError()) return Result.Failure(error(parsed.errors.first(), syntax = true))
         val checked = compiler.check(parsed.ast)
         if (checked.hasError()) return Result.Failure(error(checked.errors.first(), syntax = false))
-        checkResultType(checked.ast.resultType)?.let { return Result.Failure(ExprError.Type(it, 1)) }
+        checkResultType(checked.ast.resultType, expected)?.let { return Result.Failure(ExprError.Type(it, 1)) }
         CelFunctions.checkStatic(checked.ast.expr)?.let { return Result.Failure(ExprError.Type(it, 1)) }
         return Result.Success(CelCompiled(source, runtime.createProgram(checked.ast), env.frames))
     }
 
-    /** Null when [t] is a type [fromRaw] can turn into an [ExprValue]; otherwise the load-time message (nothing is left to throw mid-cast). */
-    private fun checkResultType(t: CelType): String? = when (t.kind()) {
-        CelKind.DOUBLE, CelKind.INT, CelKind.UINT, CelKind.BOOL, CelKind.STRING, CelKind.DYN -> null
-        CelKind.OPAQUE ->
-            if (t == CelFunctions.VEC3 || t == CelFunctions.QUAT || t == CelFunctions.REF) null else unsupported(t)
-        else -> unsupported(t)
+    /**
+     * Null when [t] is a type [fromRaw] can turn into an [ExprValue] and, when [expected] is given, one that field accepts;
+     * otherwise the load-time message. A `dyn` result cannot be decided statically and is accepted.
+     */
+    private fun checkResultType(t: CelType, expected: ExprType?): String? {
+        val actual = when (t.kind()) {
+            CelKind.DOUBLE, CelKind.INT, CelKind.UINT -> ExprType.NUM
+            CelKind.BOOL -> ExprType.BOOL
+            CelKind.STRING -> ExprType.STR
+            CelKind.DYN -> return null
+            CelKind.OPAQUE -> when (t) {
+                CelFunctions.VEC3 -> ExprType.VEC3
+                CelFunctions.QUAT -> ExprType.QUAT
+                CelFunctions.REF -> ExprType.REF
+                else -> null
+            }
+            else -> null
+        } ?: return unsupported(t)
+        if (expected != null && actual != expected) {
+            return "expression result is ${actual.name.lowercase()} but this field expects ${expected.name.lowercase()}"
+        }
+        return null
     }
 
     private fun unsupported(t: CelType) =
