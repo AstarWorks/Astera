@@ -98,8 +98,8 @@ presentation:
         - {id: fx3_gossamer_katana_slash_up_katana_blade, op: block, parent: fx3_gossamer_katana_slash_up_katana, block: iron_block, size: [0.09, 2.0, 0.05], at: [0.0, 1.05, 0.0], brightness: 15}
         - {id: fx3_gossamer_katana_slash_up_katana_grip, op: block, parent: fx3_gossamer_katana_slash_up_katana, block: black_concrete, size: [0.1, 0.4, 0.08], at: [0.0, -0.15, 0.0]}
         - {id: fx3_gossamer_katana_slash_up_katana_guard, op: block, parent: fx3_gossamer_katana_slash_up_katana, block: blue_concrete, size: [0.28, 0.08, 0.18], at: [0.0, 0.06, 0.0]}
-    - id: fx12
-      at: 12
+    - id: fx13
+      at: 13
       do:
         - id: fx3_gossamer_katana_slash_up_katana_crescent
           op: trail
@@ -109,7 +109,7 @@ presentation:
           bands:
             - {from: 0.0, to: 1.0, color: "#14245f", alpha: 0.933, color_to: "#7c36a8"}
           step_deg: 20.0
-    - {id: fx20, at: 20, do: [{id: rm_3, op: remove, ids: [fx3_gossamer_katana_slash_up_katana_crescent]}]}
+    - {id: fx21, at: 21, do: [{id: rm_3, op: remove, ids: [fx3_gossamer_katana_slash_up_katana_crescent]}]}
     - id: fx22
       at: 22
       do:
@@ -138,8 +138,8 @@ presentation:
         - {id: fx4_gossamer_katana_slash_down_katana_blade, op: block, parent: fx4_gossamer_katana_slash_down_katana, block: iron_block, size: [0.09, 2.0, 0.05], at: [0.0, 1.05, 0.0], brightness: 15}
         - {id: fx4_gossamer_katana_slash_down_katana_grip, op: block, parent: fx4_gossamer_katana_slash_down_katana, block: black_concrete, size: [0.1, 0.4, 0.08], at: [0.0, -0.15, 0.0]}
         - {id: fx4_gossamer_katana_slash_down_katana_guard, op: block, parent: fx4_gossamer_katana_slash_down_katana, block: blue_concrete, size: [0.28, 0.08, 0.18], at: [0.0, 0.06, 0.0]}
-    - id: fx24
-      at: 24
+    - id: fx25
+      at: 25
       do:
         - id: fx4_gossamer_katana_slash_down_katana_crescent
           op: trail
@@ -150,7 +150,7 @@ presentation:
             - {from: 0.0, to: 1.0, color: "#14245f", alpha: 0.933, color_to: "#7c36a8"}
           step_deg: 20.0
     - {id: fx29, at: 29, do: [{id: rm, op: remove, ids: [fx1_gossamer_katana_draw_katana_blade, fx1_gossamer_katana_draw_katana_grip, fx1_gossamer_katana_draw_katana_guard]}]}
-    - {id: fx32, at: 32, do: [{id: rm_5, op: remove, ids: [fx4_gossamer_katana_slash_down_katana_crescent]}]}
+    - {id: fx33, at: 33, do: [{id: rm_5, op: remove, ids: [fx4_gossamer_katana_slash_down_katana_crescent]}]}
     - {id: fx34, at: 34, do: [{id: rm_6, op: remove, ids: [fx4_gossamer_katana_slash_down_katana_blade, fx4_gossamer_katana_slash_down_katana_grip, fx4_gossamer_katana_slash_down_katana_guard]}]}
     - id: fx39
       at: 39
@@ -199,6 +199,7 @@ presentation:
     - {id: fx75, at: 75, do: [{id: rm_12, op: remove, ids: [fx7_gossamer_katana_iaido_line_core]}]}
     - id: fxhit_9
       at: "hit+9"
+      when: "= event.source == 'sel'"
       do:
         - id: rm_7
           op: remove
@@ -215,7 +216,6 @@ presentation:
             - fx5_gossamer_katana_petals_ink_1
             - fx5_gossamer_katana_petals_ink_2
             - fx5_gossamer_katana_petals_ink_3
-          when: "= event.source == 'sel'"
   "on":
     dash_fx:
       - {id: fx2_gossamer_katana_petals_petals_0, op: quad, parent: fx2_gossamer_katana_petals, face: {viewer: center}, size: [1.0, 1.0], color: "#BC1839", alpha: 1.0, text: "◆", brightness: 15}

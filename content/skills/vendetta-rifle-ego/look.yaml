@@ -444,8 +444,8 @@ presentation:
         - {id: fx2_vendetta_slash_b_bayonet_rib_4, op: block, parent: fx2_vendetta_slash_b_bayonet, block: bone_block, size: [0.28, 0.045, 0.18], at: [-0.038, 0.98, 0.0], brightness: 15}
         - {id: fx2_vendetta_slash_b_bayonet_rib_5, op: block, parent: fx2_vendetta_slash_b_bayonet, block: bone_block, size: [0.28, 0.045, 0.18], at: [-0.057, 1.17, 0.0], brightness: 15}
         - {id: fx2_vendetta_slash_b_bayonet_rib_6, op: block, parent: fx2_vendetta_slash_b_bayonet, block: bone_block, size: [0.28, 0.045, 0.18], at: [-0.076, 1.36, 0.0], brightness: 15}
-    - id: fx49
-      at: 49
+    - id: fx50
+      at: 50
       do:
         - id: fx2_vendetta_slash_b_bayonet_cut
           op: trail
@@ -711,12 +711,12 @@ presentation:
     - id: fx61
       at: 61
       do:
-        - {id: rm_3, op: remove, ids: [fx2_vendetta_slash_b_bayonet_cut]}
         - {id: rm_4, op: remove, ids: [fx3_vendetta_thrust_flash_rim, fx3_vendetta_thrust_flash_bloom, fx3_vendetta_thrust_flash_core]}
         - {id: fx4_vendetta_burst_smoke_atrk, op: track, target: fx4_vendetta_burst_smoke_at, space: fx4_vendetta_burst, keys: [{t: 0, offset: [0, 0.4, 2]}]}
     - id: fx62
       at: 62
       do:
+        - {id: rm_3, op: remove, ids: [fx2_vendetta_slash_b_bayonet_cut]}
         - id: rm_5
           op: remove
           ids:
@@ -790,8 +790,8 @@ presentation:
         - {id: fx5_vendetta_slash_b_bayonet_rib_4, op: block, parent: fx5_vendetta_slash_b_bayonet, block: bone_block, size: [0.28, 0.045, 0.18], at: [-0.038, 0.98, 0.0], brightness: 15}
         - {id: fx5_vendetta_slash_b_bayonet_rib_5, op: block, parent: fx5_vendetta_slash_b_bayonet, block: bone_block, size: [0.28, 0.045, 0.18], at: [-0.057, 1.17, 0.0], brightness: 15}
         - {id: fx5_vendetta_slash_b_bayonet_rib_6, op: block, parent: fx5_vendetta_slash_b_bayonet, block: bone_block, size: [0.28, 0.045, 0.18], at: [-0.076, 1.36, 0.0], brightness: 15}
-    - id: fx67
-      at: 67
+    - id: fx68
+      at: 68
       do:
         - id: fx5_vendetta_slash_b_bayonet_cut
           op: trail
@@ -1057,12 +1057,12 @@ presentation:
     - id: fx79
       at: 79
       do:
-        - {id: rm_8, op: remove, ids: [fx5_vendetta_slash_b_bayonet_cut]}
         - {id: rm_9, op: remove, ids: [fx6_vendetta_thrust_flash_rim, fx6_vendetta_thrust_flash_bloom, fx6_vendetta_thrust_flash_core]}
         - {id: fx7_vendetta_burst_smoke_atrk, op: track, target: fx7_vendetta_burst_smoke_at, space: fx7_vendetta_burst, keys: [{t: 0, offset: [0, 0.4, 2]}]}
     - id: fx80
       at: 80
       do:
+        - {id: rm_8, op: remove, ids: [fx5_vendetta_slash_b_bayonet_cut]}
         - id: rm_10
           op: remove
           ids:
@@ -1136,8 +1136,8 @@ presentation:
         - {id: fx8_vendetta_slash_a_bayonet_rib_4, op: block, parent: fx8_vendetta_slash_a_bayonet, block: bone_block, size: [0.28, 0.045, 0.18], at: [-0.038, 0.98, 0.0], brightness: 15}
         - {id: fx8_vendetta_slash_a_bayonet_rib_5, op: block, parent: fx8_vendetta_slash_a_bayonet, block: bone_block, size: [0.28, 0.045, 0.18], at: [-0.057, 1.17, 0.0], brightness: 15}
         - {id: fx8_vendetta_slash_a_bayonet_rib_6, op: block, parent: fx8_vendetta_slash_a_bayonet, block: bone_block, size: [0.28, 0.045, 0.18], at: [-0.076, 1.36, 0.0], brightness: 15}
-    - id: fx104
-      at: 104
+    - id: fx105
+      at: 105
       do:
         - id: fx8_vendetta_slash_a_bayonet_cut
           op: trail
@@ -1403,12 +1403,12 @@ presentation:
     - id: fx116
       at: 116
       do:
-        - {id: rm_13, op: remove, ids: [fx8_vendetta_slash_a_bayonet_cut]}
         - {id: rm_14, op: remove, ids: [fx9_vendetta_thrust_flash_rim, fx9_vendetta_thrust_flash_bloom, fx9_vendetta_thrust_flash_core]}
         - {id: fx10_vendetta_burst_smoke_atrk, op: track, target: fx10_vendetta_burst_smoke_at, space: fx10_vendetta_burst, keys: [{t: 0, offset: [0, 0.4, 2]}]}
     - id: fx117
       at: 117
       do:
+        - {id: rm_13, op: remove, ids: [fx8_vendetta_slash_a_bayonet_cut]}
         - id: rm_15
           op: remove
           ids:
@@ -1482,8 +1482,8 @@ presentation:
         - {id: fx11_vendetta_slash_b_bayonet_rib_4, op: block, parent: fx11_vendetta_slash_b_bayonet, block: bone_block, size: [0.28, 0.045, 0.18], at: [-0.038, 0.98, 0.0], brightness: 15}
         - {id: fx11_vendetta_slash_b_bayonet_rib_5, op: block, parent: fx11_vendetta_slash_b_bayonet, block: bone_block, size: [0.28, 0.045, 0.18], at: [-0.057, 1.17, 0.0], brightness: 15}
         - {id: fx11_vendetta_slash_b_bayonet_rib_6, op: block, parent: fx11_vendetta_slash_b_bayonet, block: bone_block, size: [0.28, 0.045, 0.18], at: [-0.076, 1.36, 0.0], brightness: 15}
-    - id: fx137
-      at: 137
+    - id: fx138
+      at: 138
       do:
         - id: fx11_vendetta_slash_b_bayonet_cut
           op: trail
@@ -1749,12 +1749,12 @@ presentation:
     - id: fx149
       at: 149
       do:
-        - {id: rm_18, op: remove, ids: [fx11_vendetta_slash_b_bayonet_cut]}
         - {id: rm_19, op: remove, ids: [fx12_vendetta_thrust_flash_rim, fx12_vendetta_thrust_flash_bloom, fx12_vendetta_thrust_flash_core]}
         - {id: fx13_vendetta_burst_smoke_atrk, op: track, target: fx13_vendetta_burst_smoke_at, space: fx13_vendetta_burst, keys: [{t: 0, offset: [0, 0.4, 2]}]}
     - id: fx150
       at: 150
       do:
+        - {id: rm_18, op: remove, ids: [fx11_vendetta_slash_b_bayonet_cut]}
         - id: rm_20
           op: remove
           ids:
@@ -2064,8 +2064,8 @@ presentation:
         - {id: fx14_vendetta_slash_a_bayonet_rib_4, op: block, parent: fx14_vendetta_slash_a_bayonet, block: bone_block, size: [0.28, 0.045, 0.18], at: [-0.038, 0.98, 0.0], brightness: 15}
         - {id: fx14_vendetta_slash_a_bayonet_rib_5, op: block, parent: fx14_vendetta_slash_a_bayonet, block: bone_block, size: [0.28, 0.045, 0.18], at: [-0.057, 1.17, 0.0], brightness: 15}
         - {id: fx14_vendetta_slash_a_bayonet_rib_6, op: block, parent: fx14_vendetta_slash_a_bayonet, block: bone_block, size: [0.28, 0.045, 0.18], at: [-0.076, 1.36, 0.0], brightness: 15}
-    - id: fx227
-      at: 227
+    - id: fx228
+      at: 228
       do:
         - id: fx14_vendetta_slash_a_bayonet_cut
           op: trail
@@ -2333,12 +2333,12 @@ presentation:
     - id: fx239
       at: 239
       do:
-        - {id: rm_23, op: remove, ids: [fx14_vendetta_slash_a_bayonet_cut]}
         - {id: rm_24, op: remove, ids: [fx15_vendetta_thrust_flash_rim, fx15_vendetta_thrust_flash_bloom, fx15_vendetta_thrust_flash_core]}
         - {id: fx16_vendetta_burst_smoke_atrk, op: track, target: fx16_vendetta_burst_smoke_at, space: fx16_vendetta_burst, keys: [{t: 0, offset: [0, 0.4, 2]}]}
     - id: fx240
       at: 240
       do:
+        - {id: rm_23, op: remove, ids: [fx14_vendetta_slash_a_bayonet_cut]}
         - id: rm_25
           op: remove
           ids:
@@ -2366,7 +2366,7 @@ presentation:
             - fx16_vendetta_burst_red_3
             - fx16_vendetta_burst_dark_4
             - fx16_vendetta_burst_red_4
-    - {id: loop1, at: 3, every: 1, for: 4, do: [{id: fx1_vendetta_ready_bayonet_ignition, op: emit, at: pt_fx1_vendetta_ready_bayonet_0_1p5_0, particle: fire-trail}]}
+    - {id: loop1, at: 4, every: 1, for: 5, do: [{id: fx1_vendetta_ready_bayonet_ignition, op: emit, at: pt_fx1_vendetta_ready_bayonet_0_1p5_0, particle: fire-trail, spacing: 0.4}]}
     - {id: loop2, at: 53, every: 2, for: 3, do: [{id: fx2_vendetta_slash_b_contact, op: emit, at: fx2_vendetta_slash_b_contact_at, particle: gun-impact}]}
     - {id: loop3, at: 53, every: 3, for: 5, do: [{id: fx2_vendetta_slash_b_petals, op: emit, at: fx2_vendetta_slash_b_petals_at, particle: vendetta-petals}]}
     - {id: loop4, at: 54, every: 2, for: 8, do: [{id: fx4_vendetta_burst_ember_0, op: emit, at: fx4_vendetta_burst_ember_0_at, particle: fire-trail}]}

@@ -67,8 +67,8 @@ presentation:
         - {id: fx1_verdict_def_vigil_hammer_cap0_53, op: block, parent: fx1_verdict_def_vigil_hammer, block: yellow_concrete, size: [0.12, 0.74, 0.69], at: [0.53, 2.0, 0.0], brightness: 15}
         - {id: fx1_verdict_def_vigil_hammer_stripe1_78, op: block, parent: fx1_verdict_def_vigil_hammer, block: yellow_concrete, size: [1.05, 0.045, 0.02], at: [0.0, 1.78, 0.34], brightness: 15}
         - {id: fx1_verdict_def_vigil_hammer_stripe2_22, op: block, parent: fx1_verdict_def_vigil_hammer, block: yellow_concrete, size: [1.05, 0.045, 0.02], at: [0.0, 2.22, 0.34], brightness: 15}
-    - id: fx5
-      at: 5
+    - id: fx6
+      at: 6
       do:
         - id: fx1_verdict_def_vigil_hammer_gold_fan
           op: trail
@@ -79,7 +79,7 @@ presentation:
             - {from: 0.0, to: 0.85, color: "#ffd878", alpha: 0.094, color_to: "#a07020"}
             - {from: 0.85, to: 1.0, color: "#fff4c7", alpha: 0.937, color_to: "#d5ac60"}
           step_deg: 18.0
-    - {id: fx15, at: 15, do: [{id: rm, op: remove, ids: [fx1_verdict_def_vigil_hammer_gold_fan]}]}
+    - {id: fx16, at: 16, do: [{id: rm, op: remove, ids: [fx1_verdict_def_vigil_hammer_gold_fan]}]}
     - id: fx23
       at: 23
       do:
@@ -133,8 +133,8 @@ presentation:
         - {id: fx4_verdict_s1_gavel_hammer_cap0_53, op: block, parent: fx4_verdict_s1_gavel_hammer, block: yellow_concrete, size: [0.12, 0.74, 0.69], at: [0.53, 2.0, 0.0], brightness: 15}
         - {id: fx4_verdict_s1_gavel_hammer_stripe1_78, op: block, parent: fx4_verdict_s1_gavel_hammer, block: yellow_concrete, size: [1.05, 0.045, 0.02], at: [0.0, 1.78, 0.34], brightness: 15}
         - {id: fx4_verdict_s1_gavel_hammer_stripe2_22, op: block, parent: fx4_verdict_s1_gavel_hammer, block: yellow_concrete, size: [1.05, 0.045, 0.02], at: [0.0, 2.22, 0.34], brightness: 15}
-    - id: fx114
-      at: 114
+    - id: fx115
+      at: 115
       do:
         - id: fx4_verdict_s1_gavel_hammer_gold_fan
           op: trail
@@ -186,9 +186,9 @@ presentation:
         - {id: fx6_verdict_s1_echo_hammer_cap0_53, op: block, parent: fx6_verdict_s1_echo_hammer, block: yellow_concrete, size: [0.12, 0.74, 0.69], at: [0.53, 2.0, 0.0], brightness: 15}
         - {id: fx6_verdict_s1_echo_hammer_stripe1_78, op: block, parent: fx6_verdict_s1_echo_hammer, block: yellow_concrete, size: [1.05, 0.045, 0.02], at: [0.0, 1.78, 0.34], brightness: 15}
         - {id: fx6_verdict_s1_echo_hammer_stripe2_22, op: block, parent: fx6_verdict_s1_echo_hammer, block: yellow_concrete, size: [1.05, 0.045, 0.02], at: [0.0, 2.22, 0.34], brightness: 15}
-    - {id: fx124, at: 124, do: [{id: rm_7, op: remove, ids: [fx4_verdict_s1_gavel_hammer_gold_fan]}]}
-    - id: fx125
-      at: 125
+    - {id: fx125, at: 125, do: [{id: rm_7, op: remove, ids: [fx4_verdict_s1_gavel_hammer_gold_fan]}]}
+    - id: fx126
+      at: 126
       do:
         - id: fx6_verdict_s1_echo_hammer_gold_fan
           op: trail
@@ -211,11 +211,10 @@ presentation:
             - fx4_verdict_s1_gavel_hammer_cap0_53
             - fx4_verdict_s1_gavel_hammer_stripe1_78
             - fx4_verdict_s1_gavel_hammer_stripe2_22
-    - {id: fx135, at: 135, do: [{id: rm_12, op: remove, ids: [fx6_verdict_s1_echo_hammer_gold_fan]}]}
     - id: fx136
       at: 136
       do:
-        - id: rm_13
+        - id: rm_12
           op: remove
           ids:
             - fx6_verdict_s1_echo_hammer_haft
@@ -224,20 +223,12 @@ presentation:
             - fx6_verdict_s1_echo_hammer_cap0_53
             - fx6_verdict_s1_echo_hammer_stripe1_78
             - fx6_verdict_s1_echo_hammer_stripe2_22
+            - fx6_verdict_s1_echo_hammer_gold_fan
     - id: fxhit_1
       at: "hit+1"
+      when: "= event.source == 'sel_2'"
       do:
-        - op: quad
-          parent: fx3_verdict_impact
-          face: {viewer: center}
-          size: [1.0, 1.0]
-          color: "#302313"
-          alpha: 1.0
-          text: "▲"
-          see_through: true
-          brightness: 15
-          id: fx3_verdict_impact_dark0
-          when: "= event.source == 'sel_2'"
+        - {op: quad, parent: fx3_verdict_impact, face: {viewer: center}, size: [1.0, 1.0], color: "#302313", alpha: 1.0, text: "▲", see_through: true, brightness: 15, id: fx3_verdict_impact_dark0}
         - id: fx3_verdict_impact_dark0_trk
           op: track
           target: fx3_verdict_impact_dark0
@@ -245,18 +236,7 @@ presentation:
             - {t: 0, offset: [0.0, 1.0, 0.0], scale: [0.12, 0.2, 1.0], alpha: 1.0}
             - {t: 5, offset: [1.3, 1.4, 0.3], scale: [0.16, 0.26, 1.0], ease: out_cubic}
             - {t: 11, scale: [0.04, 0.04, 1.0], alpha: 0.0}
-          when: "= event.source == 'sel_2'"
-        - op: quad
-          parent: fx3_verdict_impact
-          face: {viewer: center}
-          size: [1.0, 1.0]
-          color: "#302313"
-          alpha: 1.0
-          text: "▲"
-          see_through: true
-          brightness: 15
-          id: fx3_verdict_impact_dark1
-          when: "= event.source == 'sel_2'"
+        - {op: quad, parent: fx3_verdict_impact, face: {viewer: center}, size: [1.0, 1.0], color: "#302313", alpha: 1.0, text: "▲", see_through: true, brightness: 15, id: fx3_verdict_impact_dark1}
         - id: fx3_verdict_impact_dark1_trk
           op: track
           target: fx3_verdict_impact_dark1
@@ -264,18 +244,7 @@ presentation:
             - {t: 0, offset: [0.0, 1.0, 0.0], scale: [0.12, 0.2, 1.0], alpha: 1.0}
             - {t: 5, offset: [0.0, 2.4, 0.3], scale: [0.16, 0.26, 1.0], ease: out_cubic}
             - {t: 11, scale: [0.04, 0.04, 1.0], alpha: 0.0}
-          when: "= event.source == 'sel_2'"
-        - op: quad
-          parent: fx3_verdict_impact
-          face: {viewer: center}
-          size: [1.0, 1.0]
-          color: "#302313"
-          alpha: 1.0
-          text: "▲"
-          see_through: true
-          brightness: 15
-          id: fx3_verdict_impact_dark2
-          when: "= event.source == 'sel_2'"
+        - {op: quad, parent: fx3_verdict_impact, face: {viewer: center}, size: [1.0, 1.0], color: "#302313", alpha: 1.0, text: "▲", see_through: true, brightness: 15, id: fx3_verdict_impact_dark2}
         - id: fx3_verdict_impact_dark2_trk
           op: track
           target: fx3_verdict_impact_dark2
@@ -283,18 +252,11 @@ presentation:
             - {t: 0, offset: [0.0, 1.0, 0.0], scale: [0.12, 0.2, 1.0], alpha: 1.0}
             - {t: 5, offset: [-1.3, 1.4, 0.3], scale: [0.16, 0.26, 1.0], ease: out_cubic}
             - {t: 11, scale: [0.04, 0.04, 1.0], alpha: 0.0}
-          when: "= event.source == 'sel_2'"
-        - op: quad
-          parent: fx5_verdict_impact
-          face: {viewer: center}
-          size: [1.0, 1.0]
-          color: "#302313"
-          alpha: 1.0
-          text: "▲"
-          see_through: true
-          brightness: 15
-          id: fx5_verdict_impact_dark0
-          when: "= event.source == 'sel_3'"
+    - id: fxhit_1_2
+      at: "hit+1"
+      when: "= event.source == 'sel_3'"
+      do:
+        - {op: quad, parent: fx5_verdict_impact, face: {viewer: center}, size: [1.0, 1.0], color: "#302313", alpha: 1.0, text: "▲", see_through: true, brightness: 15, id: fx5_verdict_impact_dark0}
         - id: fx5_verdict_impact_dark0_trk
           op: track
           target: fx5_verdict_impact_dark0
@@ -302,18 +264,7 @@ presentation:
             - {t: 0, offset: [0.0, 1.0, 0.0], scale: [0.12, 0.2, 1.0], alpha: 1.0}
             - {t: 5, offset: [1.3, 1.4, 0.3], scale: [0.16, 0.26, 1.0], ease: out_cubic}
             - {t: 11, scale: [0.04, 0.04, 1.0], alpha: 0.0}
-          when: "= event.source == 'sel_3'"
-        - op: quad
-          parent: fx5_verdict_impact
-          face: {viewer: center}
-          size: [1.0, 1.0]
-          color: "#302313"
-          alpha: 1.0
-          text: "▲"
-          see_through: true
-          brightness: 15
-          id: fx5_verdict_impact_dark1
-          when: "= event.source == 'sel_3'"
+        - {op: quad, parent: fx5_verdict_impact, face: {viewer: center}, size: [1.0, 1.0], color: "#302313", alpha: 1.0, text: "▲", see_through: true, brightness: 15, id: fx5_verdict_impact_dark1}
         - id: fx5_verdict_impact_dark1_trk
           op: track
           target: fx5_verdict_impact_dark1
@@ -321,18 +272,7 @@ presentation:
             - {t: 0, offset: [0.0, 1.0, 0.0], scale: [0.12, 0.2, 1.0], alpha: 1.0}
             - {t: 5, offset: [0.0, 2.4, 0.3], scale: [0.16, 0.26, 1.0], ease: out_cubic}
             - {t: 11, scale: [0.04, 0.04, 1.0], alpha: 0.0}
-          when: "= event.source == 'sel_3'"
-        - op: quad
-          parent: fx5_verdict_impact
-          face: {viewer: center}
-          size: [1.0, 1.0]
-          color: "#302313"
-          alpha: 1.0
-          text: "▲"
-          see_through: true
-          brightness: 15
-          id: fx5_verdict_impact_dark2
-          when: "= event.source == 'sel_3'"
+        - {op: quad, parent: fx5_verdict_impact, face: {viewer: center}, size: [1.0, 1.0], color: "#302313", alpha: 1.0, text: "▲", see_through: true, brightness: 15, id: fx5_verdict_impact_dark2}
         - id: fx5_verdict_impact_dark2_trk
           op: track
           target: fx5_verdict_impact_dark2
@@ -340,18 +280,11 @@ presentation:
             - {t: 0, offset: [0.0, 1.0, 0.0], scale: [0.12, 0.2, 1.0], alpha: 1.0}
             - {t: 5, offset: [-1.3, 1.4, 0.3], scale: [0.16, 0.26, 1.0], ease: out_cubic}
             - {t: 11, scale: [0.04, 0.04, 1.0], alpha: 0.0}
-          when: "= event.source == 'sel_3'"
-        - op: quad
-          parent: fx7_verdict_impact
-          face: {viewer: center}
-          size: [1.0, 1.0]
-          color: "#302313"
-          alpha: 1.0
-          text: "▲"
-          see_through: true
-          brightness: 15
-          id: fx7_verdict_impact_dark0
-          when: "= event.source == 'sel_4'"
+    - id: fxhit_1_3
+      at: "hit+1"
+      when: "= event.source == 'sel_4'"
+      do:
+        - {op: quad, parent: fx7_verdict_impact, face: {viewer: center}, size: [1.0, 1.0], color: "#302313", alpha: 1.0, text: "▲", see_through: true, brightness: 15, id: fx7_verdict_impact_dark0}
         - id: fx7_verdict_impact_dark0_trk
           op: track
           target: fx7_verdict_impact_dark0
@@ -359,18 +292,7 @@ presentation:
             - {t: 0, offset: [0.0, 1.0, 0.0], scale: [0.12, 0.2, 1.0], alpha: 1.0}
             - {t: 5, offset: [1.3, 1.4, 0.3], scale: [0.16, 0.26, 1.0], ease: out_cubic}
             - {t: 11, scale: [0.04, 0.04, 1.0], alpha: 0.0}
-          when: "= event.source == 'sel_4'"
-        - op: quad
-          parent: fx7_verdict_impact
-          face: {viewer: center}
-          size: [1.0, 1.0]
-          color: "#302313"
-          alpha: 1.0
-          text: "▲"
-          see_through: true
-          brightness: 15
-          id: fx7_verdict_impact_dark1
-          when: "= event.source == 'sel_4'"
+        - {op: quad, parent: fx7_verdict_impact, face: {viewer: center}, size: [1.0, 1.0], color: "#302313", alpha: 1.0, text: "▲", see_through: true, brightness: 15, id: fx7_verdict_impact_dark1}
         - id: fx7_verdict_impact_dark1_trk
           op: track
           target: fx7_verdict_impact_dark1
@@ -378,18 +300,7 @@ presentation:
             - {t: 0, offset: [0.0, 1.0, 0.0], scale: [0.12, 0.2, 1.0], alpha: 1.0}
             - {t: 5, offset: [0.0, 2.4, 0.3], scale: [0.16, 0.26, 1.0], ease: out_cubic}
             - {t: 11, scale: [0.04, 0.04, 1.0], alpha: 0.0}
-          when: "= event.source == 'sel_4'"
-        - op: quad
-          parent: fx7_verdict_impact
-          face: {viewer: center}
-          size: [1.0, 1.0]
-          color: "#302313"
-          alpha: 1.0
-          text: "▲"
-          see_through: true
-          brightness: 15
-          id: fx7_verdict_impact_dark2
-          when: "= event.source == 'sel_4'"
+        - {op: quad, parent: fx7_verdict_impact, face: {viewer: center}, size: [1.0, 1.0], color: "#302313", alpha: 1.0, text: "▲", see_through: true, brightness: 15, id: fx7_verdict_impact_dark2}
         - id: fx7_verdict_impact_dark2_trk
           op: track
           target: fx7_verdict_impact_dark2
@@ -397,27 +308,18 @@ presentation:
             - {t: 0, offset: [0.0, 1.0, 0.0], scale: [0.12, 0.2, 1.0], alpha: 1.0}
             - {t: 5, offset: [-1.3, 1.4, 0.3], scale: [0.16, 0.26, 1.0], ease: out_cubic}
             - {t: 11, scale: [0.04, 0.04, 1.0], alpha: 0.0}
-          when: "= event.source == 'sel_4'"
-    - id: fxhit_9
-      at: "hit+9"
-      do:
-        - {id: rm_4, op: remove, ids: [fx3_verdict_impact_bloom], when: "= event.source == 'sel_2'"}
-        - {id: rm_9, op: remove, ids: [fx5_verdict_impact_bloom], when: "= event.source == 'sel_3'"}
-        - {id: rm_14, op: remove, ids: [fx7_verdict_impact_bloom], when: "= event.source == 'sel_4'"}
-    - id: fxhit_10
-      at: "hit+10"
-      do:
-        - {id: rm_5, op: remove, ids: [fx3_verdict_impact_star], when: "= event.source == 'sel_2'"}
-        - {id: rm_10, op: remove, ids: [fx5_verdict_impact_star], when: "= event.source == 'sel_3'"}
-        - {id: rm_15, op: remove, ids: [fx7_verdict_impact_star], when: "= event.source == 'sel_4'"}
-    - id: fxhit_12
-      at: "hit+12"
-      do:
-        - {id: rm_6, op: remove, ids: [fx3_verdict_impact_dark0, fx3_verdict_impact_dark1, fx3_verdict_impact_dark2], when: "= event.source == 'sel_2'"}
-        - {id: rm_11, op: remove, ids: [fx5_verdict_impact_dark0, fx5_verdict_impact_dark1, fx5_verdict_impact_dark2], when: "= event.source == 'sel_3'"}
-        - {id: rm_16, op: remove, ids: [fx7_verdict_impact_dark0, fx7_verdict_impact_dark1, fx7_verdict_impact_dark2], when: "= event.source == 'sel_4'"}
+    - {id: fxhit_9, at: "hit+9", when: "= event.source == 'sel_2'", do: [{id: rm_4, op: remove, ids: [fx3_verdict_impact_bloom]}]}
+    - {id: fxhit_9_2, at: "hit+9", when: "= event.source == 'sel_3'", do: [{id: rm_9, op: remove, ids: [fx5_verdict_impact_bloom]}]}
+    - {id: fxhit_9_3, at: "hit+9", when: "= event.source == 'sel_4'", do: [{id: rm_13, op: remove, ids: [fx7_verdict_impact_bloom]}]}
+    - {id: fxhit_10, at: "hit+10", when: "= event.source == 'sel_2'", do: [{id: rm_5, op: remove, ids: [fx3_verdict_impact_star]}]}
+    - {id: fxhit_10_2, at: "hit+10", when: "= event.source == 'sel_3'", do: [{id: rm_10, op: remove, ids: [fx5_verdict_impact_star]}]}
+    - {id: fxhit_10_3, at: "hit+10", when: "= event.source == 'sel_4'", do: [{id: rm_14, op: remove, ids: [fx7_verdict_impact_star]}]}
+    - {id: fxhit_12, at: "hit+12", when: "= event.source == 'sel_2'", do: [{id: rm_6, op: remove, ids: [fx3_verdict_impact_dark0, fx3_verdict_impact_dark1, fx3_verdict_impact_dark2]}]}
+    - {id: fxhit_12_2, at: "hit+12", when: "= event.source == 'sel_3'", do: [{id: rm_11, op: remove, ids: [fx5_verdict_impact_dark0, fx5_verdict_impact_dark1, fx5_verdict_impact_dark2]}]}
+    - {id: fxhit_12_3, at: "hit+12", when: "= event.source == 'sel_4'", do: [{id: rm_15, op: remove, ids: [fx7_verdict_impact_dark0, fx7_verdict_impact_dark1, fx7_verdict_impact_dark2]}]}
     - id: fxhit_35
       at: "hit+35"
+      when: "= event.source == 'sel'"
       do:
         - id: rm_3
           op: remove
@@ -428,7 +330,6 @@ presentation:
             - fx2_verdict_summoned_nails_nail_1_shaft
             - fx2_verdict_summoned_nails_nail_1_tip
             - fx2_verdict_summoned_nails_nail_1_head
-          when: "= event.source == 'sel'"
   "on":
     hit:
       - {op: block, parent: fx2_verdict_summoned_nails, block: iron_block, size: [1.0, 1.0, 1.0], id: fx2_verdict_summoned_nails_nail__1_shaft, when: "= event.source == 'sel'"}

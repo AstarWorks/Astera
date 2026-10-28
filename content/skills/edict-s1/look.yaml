@@ -663,13 +663,11 @@ presentation:
             - fx6_edict_cuff_sweep_arc_9
             - fx6_edict_cuff_sweep_arc_10
             - fx6_edict_cuff_sweep_arc_11
-    - id: fxhit_7
-      at: "hit+7"
-      do:
-        - {id: rm_4, op: remove, ids: [fx4_edict_impact_core], when: "= event.source == 'sel'"}
-        - {id: rm_8, op: remove, ids: [fx7_edict_impact_core], when: "= event.source == 'sel_2'"}
+    - {id: fxhit_7, at: "hit+7", when: "= event.source == 'sel'", do: [{id: rm_4, op: remove, ids: [fx4_edict_impact_core]}]}
+    - {id: fxhit_7_2, at: "hit+7", when: "= event.source == 'sel_2'", do: [{id: rm_8, op: remove, ids: [fx7_edict_impact_core]}]}
     - id: fxhit_10
       at: "hit+10"
+      when: "= event.source == 'sel'"
       do:
         - id: rm_5
           op: remove
@@ -690,7 +688,10 @@ presentation:
             - fx4_edict_impact_ray_1_5
             - fx4_edict_impact_ray_1_6
             - fx4_edict_impact_ray_1_7
-          when: "= event.source == 'sel'"
+    - id: fxhit_10_2
+      at: "hit+10"
+      when: "= event.source == 'sel_2'"
+      do:
         - id: rm_9
           op: remove
           ids:
@@ -710,7 +711,6 @@ presentation:
             - fx7_edict_impact_ray_1_5
             - fx7_edict_impact_ray_1_6
             - fx7_edict_impact_ray_1_7
-          when: "= event.source == 'sel_2'"
   "on":
     hit:
       - {op: block, parent: fx4_edict_impact, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx4_edict_impact_ray_0_0, when: "= event.source == 'sel'"}

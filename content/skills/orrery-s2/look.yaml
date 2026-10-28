@@ -207,8 +207,8 @@ presentation:
         - {id: fx3_orrery_s2_poise_staff_cable_drop, op: block, parent: fx3_orrery_s2_poise_staff, block: black_concrete, size: [0.07, 1.16, 0.07], at: [0.42, 0.72, 0.0]}
         - {id: fx3_orrery_s2_poise_staff_cable_bottom, op: block, parent: fx3_orrery_s2_poise_staff, block: black_concrete, size: [0.25, 0.07, 0.07], at: [0.3, 0.12, 0.0]}
         - {id: fx3_orrery_s2_poise_staff_cable_return, op: block, parent: fx3_orrery_s2_poise_staff, block: black_concrete, size: [0.07, 0.35, 0.07], at: [0.16, 0.29, 0.0]}
-    - id: fx19
-      at: 19
+    - id: fx20
+      at: 20
       do:
         - id: fx3_orrery_s2_poise_staff_raise
           op: trail
@@ -221,9 +221,9 @@ presentation:
             - {from: 0.65, to: 1.0, color: "#ffd447", alpha: 1.0, color_to: "#ff970b"}
           step_deg: 50.0
     - {id: fx21, at: 21, do: [{id: rm, op: remove, ids: [fx1_orrery_s2_charge_ring_gold, fx1_orrery_s2_charge_ring_dark]}]}
-    - {id: fx28, at: 28, do: [{id: rm_3, op: remove, ids: [fx3_orrery_s2_poise_staff_raise]}]}
-    - id: fx48
-      at: 48
+    - {id: fx29, at: 29, do: [{id: rm_3, op: remove, ids: [fx3_orrery_s2_poise_staff_raise]}]}
+    - id: fx49
+      at: 49
       do:
         - id: fx3_orrery_s2_poise_staff_recharge
           op: trail
@@ -270,7 +270,7 @@ presentation:
             - {t: 0, scale: [0.09, 0.09, 0.55]}
             - {t: 2, scale: [0.09, 0.09, 0.7], ease: out_expo}
             - {t: 14, scale: [0.0, 0.0, 0.4]}
-    - {id: fx62, at: 62, do: [{id: rm_4, op: remove, ids: [fx3_orrery_s2_poise_staff_recharge]}]}
+    - {id: fx63, at: 63, do: [{id: rm_4, op: remove, ids: [fx3_orrery_s2_poise_staff_recharge]}]}
     - {id: fx64, at: 64, do: [{id: rm_2, op: remove, ids: [fx2_orrery_s2_charge_ring_gold, fx2_orrery_s2_charge_ring_dark]}]}
     - id: fx106
       at: 106
@@ -290,14 +290,11 @@ presentation:
             - fx3_orrery_s2_poise_staff_cable_drop
             - fx3_orrery_s2_poise_staff_cable_bottom
             - fx3_orrery_s2_poise_staff_cable_return
-    - id: fxhit_7
-      at: "hit+7"
-      do:
-        - {id: rm_6, op: remove, ids: [fx4_orrery_s2_impact_violet_flash], when: "= event.source == 'sel'"}
-        - {id: rm_8, op: remove, ids: [fx5_orrery_s2_impact_long_violet_flash], when: "= event.source == 'sel_2'"}
-    - {id: fxhit_15, at: "hit+15", do: [{id: rm_7, op: remove, ids: [fx4_orrery_s2_impact_annulus], when: "= event.source == 'sel'"}]}
-    - {id: fxhit_18, at: "hit+18", do: [{id: rm_9, op: remove, ids: [fx5_orrery_s2_impact_long_annulus], when: "= event.source == 'sel_2'"}]}
-    - {id: loop1, at: 7, every: 1, for: 99, do: [{id: fx3_orrery_s2_poise_staff_embers, op: emit, at: pt_fx3_orrery_s2_poise_staff_0_2p1_0, particle: orrery-ember}]}
+    - {id: fxhit_7, at: "hit+7", when: "= event.source == 'sel'", do: [{id: rm_6, op: remove, ids: [fx4_orrery_s2_impact_violet_flash]}]}
+    - {id: fxhit_7_2, at: "hit+7", when: "= event.source == 'sel_2'", do: [{id: rm_8, op: remove, ids: [fx5_orrery_s2_impact_long_violet_flash]}]}
+    - {id: fxhit_15, at: "hit+15", when: "= event.source == 'sel'", do: [{id: rm_7, op: remove, ids: [fx4_orrery_s2_impact_annulus]}]}
+    - {id: fxhit_18, at: "hit+18", when: "= event.source == 'sel_2'", do: [{id: rm_9, op: remove, ids: [fx5_orrery_s2_impact_long_annulus]}]}
+    - {id: loop1, at: 8, every: 1, for: 100, do: [{id: fx3_orrery_s2_poise_staff_embers, op: emit, at: pt_fx3_orrery_s2_poise_staff_0_2p1_0, particle: orrery-ember, spacing: 0.4}]}
   "on":
     hit:
       - op: plate

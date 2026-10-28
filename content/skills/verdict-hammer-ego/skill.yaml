@@ -15,6 +15,15 @@ frames:
   - {id: snap_2, kind: body, parent: world, inactive: true}
   - {id: snap_3, kind: body, parent: world, inactive: true}
   - {id: snap_4, kind: body, parent: world, inactive: true}
+  - {id: snap_5, kind: body, parent: world, inactive: true}
+  - {id: snap_6, kind: body, parent: world, inactive: true}
+  - {id: snap_7, kind: body, parent: world, inactive: true}
+  - {id: snap_8, kind: body, parent: world, inactive: true}
+  - {id: snap_9, kind: body, parent: world, inactive: true}
+  - {id: snap_10, kind: body, parent: world, inactive: true}
+  - {id: snap_11, kind: body, parent: world, inactive: true}
+  - {id: snap_12, kind: body, parent: world, inactive: true}
+  - {id: snap_13, kind: body, parent: world, inactive: true}
 gameplay:
   params: {radius: 5.8, dmg_physical: 60.0, dash_distance: 3.0}
   expose:
@@ -25,7 +34,14 @@ gameplay:
       at: 8
       do:
         - {id: dash, op: dash_strike, distance: "${dash_distance}", ticks: 8, radius: 0.3, hit_once: true, invulnerable: true, stop_on_block: true, follow_pitch: false, stop_before_target: 1.8}
-    - {id: t71, at: 71, do: [{id: place_snap, op: place, frame: snap, like: caster}, {id: sel, op: hit, frames: [snap], sphere: {at: snap, radius: "${radius}"}, max_count: 3, window: once, ticks: 1}]}
+    - {id: t18, at: 18, do: [{id: place_snap, op: place, frame: snap, like: caster}]}
+    - id: t71
+      at: 71
+      do:
+        - {id: place_snap_2, op: place, frame: snap_2, like: caster}
+        - {id: sel, op: hit, frames: [snap_2], sphere: {at: snap_2, radius: "${radius}"}, max_count: 3, window: once, ticks: 1}
+        - {id: place_snap_3, op: place, frame: snap_3, like: caster}
+        - {id: place_snap_4, op: place, frame: snap_4, like: caster}
     - id: t93
       at: 93
       do:
@@ -33,18 +49,24 @@ gameplay:
     - id: t102
       at: 102
       do:
-        - {id: place_snap_2, op: place, frame: snap_2, like: caster}
-        - {id: sel_2, op: hit, frames: [snap_2], sphere: {at: snap_2, radius: "${radius}"}, max_count: 3, window: once, ticks: 1}
+        - {id: place_snap_5, op: place, frame: snap_5, like: caster}
+        - {id: sel_2, op: hit, frames: [snap_5], sphere: {at: snap_5, radius: "${radius}"}, max_count: 3, window: once, ticks: 1}
+        - {id: place_snap_6, op: place, frame: snap_6, like: caster}
+        - {id: place_snap_7, op: place, frame: snap_7, like: caster}
     - id: t128
       at: 128
       do:
-        - {id: place_snap_3, op: place, frame: snap_3, like: caster}
-        - {id: sel_3, op: hit, frames: [snap_3], sphere: {at: snap_3, radius: "${radius}"}, max_count: 3, window: once, ticks: 1}
+        - {id: place_snap_8, op: place, frame: snap_8, like: caster}
+        - {id: sel_3, op: hit, frames: [snap_8], sphere: {at: snap_8, radius: "${radius}"}, max_count: 3, window: once, ticks: 1}
+        - {id: place_snap_9, op: place, frame: snap_9, like: caster}
+        - {id: place_snap_10, op: place, frame: snap_10, like: caster}
     - id: t191
       at: 191
       do:
-        - {id: place_snap_4, op: place, frame: snap_4, like: caster}
-        - {id: sel_4, op: hit, frames: [snap_4], sphere: {at: snap_4, radius: "${radius}"}, max_count: 3, window: once, ticks: 1}
+        - {id: place_snap_11, op: place, frame: snap_11, like: caster}
+        - {id: sel_4, op: hit, frames: [snap_11], sphere: {at: snap_11, radius: "${radius}"}, max_count: 3, window: once, ticks: 1}
+        - {id: place_snap_12, op: place, frame: snap_12, like: caster}
+        - {id: place_snap_13, op: place, frame: snap_13, like: caster}
   "on":
     hit:
       - {id: dmg, op: damage, components: [{kind: physical, amount: "${dmg_physical}"}], target: victim, ignore_invulnerability: true, when: "= event.source == 'sel'"}

@@ -12,18 +12,9 @@ presentation:
   timeline:
     - id: fxhit_1
       at: "hit+1"
+      when: "= event.source == 'sel_2'"
       do:
-        - op: quad
-          parent: fx2_verdict_impact
-          face: {viewer: center}
-          size: [1.0, 1.0]
-          color: "#302313"
-          alpha: 1.0
-          text: "▲"
-          see_through: true
-          brightness: 15
-          id: fx2_verdict_impact_dark0
-          when: "= event.source == 'sel_2'"
+        - {op: quad, parent: fx2_verdict_impact, face: {viewer: center}, size: [1.0, 1.0], color: "#302313", alpha: 1.0, text: "▲", see_through: true, brightness: 15, id: fx2_verdict_impact_dark0}
         - id: fx2_verdict_impact_dark0_trk
           op: track
           target: fx2_verdict_impact_dark0
@@ -31,18 +22,7 @@ presentation:
             - {t: 0, offset: [0.0, 1.0, 0.0], scale: [0.12, 0.2, 1.0], alpha: 1.0}
             - {t: 5, offset: [1.3, 1.4, 0.3], scale: [0.16, 0.26, 1.0], ease: out_cubic}
             - {t: 11, scale: [0.04, 0.04, 1.0], alpha: 0.0}
-          when: "= event.source == 'sel_2'"
-        - op: quad
-          parent: fx2_verdict_impact
-          face: {viewer: center}
-          size: [1.0, 1.0]
-          color: "#302313"
-          alpha: 1.0
-          text: "▲"
-          see_through: true
-          brightness: 15
-          id: fx2_verdict_impact_dark1
-          when: "= event.source == 'sel_2'"
+        - {op: quad, parent: fx2_verdict_impact, face: {viewer: center}, size: [1.0, 1.0], color: "#302313", alpha: 1.0, text: "▲", see_through: true, brightness: 15, id: fx2_verdict_impact_dark1}
         - id: fx2_verdict_impact_dark1_trk
           op: track
           target: fx2_verdict_impact_dark1
@@ -50,18 +30,7 @@ presentation:
             - {t: 0, offset: [0.0, 1.0, 0.0], scale: [0.12, 0.2, 1.0], alpha: 1.0}
             - {t: 5, offset: [0.0, 2.4, 0.3], scale: [0.16, 0.26, 1.0], ease: out_cubic}
             - {t: 11, scale: [0.04, 0.04, 1.0], alpha: 0.0}
-          when: "= event.source == 'sel_2'"
-        - op: quad
-          parent: fx2_verdict_impact
-          face: {viewer: center}
-          size: [1.0, 1.0]
-          color: "#302313"
-          alpha: 1.0
-          text: "▲"
-          see_through: true
-          brightness: 15
-          id: fx2_verdict_impact_dark2
-          when: "= event.source == 'sel_2'"
+        - {op: quad, parent: fx2_verdict_impact, face: {viewer: center}, size: [1.0, 1.0], color: "#302313", alpha: 1.0, text: "▲", see_through: true, brightness: 15, id: fx2_verdict_impact_dark2}
         - id: fx2_verdict_impact_dark2_trk
           op: track
           target: fx2_verdict_impact_dark2
@@ -69,12 +38,12 @@ presentation:
             - {t: 0, offset: [0.0, 1.0, 0.0], scale: [0.12, 0.2, 1.0], alpha: 1.0}
             - {t: 5, offset: [-1.3, 1.4, 0.3], scale: [0.16, 0.26, 1.0], ease: out_cubic}
             - {t: 11, scale: [0.04, 0.04, 1.0], alpha: 0.0}
-          when: "= event.source == 'sel_2'"
-    - {id: fxhit_9, at: "hit+9", do: [{id: rm_2, op: remove, ids: [fx2_verdict_impact_bloom], when: "= event.source == 'sel_2'"}]}
-    - {id: fxhit_10, at: "hit+10", do: [{id: rm_3, op: remove, ids: [fx2_verdict_impact_star], when: "= event.source == 'sel_2'"}]}
-    - {id: fxhit_12, at: "hit+12", do: [{id: rm_4, op: remove, ids: [fx2_verdict_impact_dark0, fx2_verdict_impact_dark1, fx2_verdict_impact_dark2], when: "= event.source == 'sel_2'"}]}
+    - {id: fxhit_9, at: "hit+9", when: "= event.source == 'sel_2'", do: [{id: rm_2, op: remove, ids: [fx2_verdict_impact_bloom]}]}
+    - {id: fxhit_10, at: "hit+10", when: "= event.source == 'sel_2'", do: [{id: rm_3, op: remove, ids: [fx2_verdict_impact_star]}]}
+    - {id: fxhit_12, at: "hit+12", when: "= event.source == 'sel_2'", do: [{id: rm_4, op: remove, ids: [fx2_verdict_impact_dark0, fx2_verdict_impact_dark1, fx2_verdict_impact_dark2]}]}
     - id: fxhit_35
       at: "hit+35"
+      when: "= event.source == 'sel'"
       do:
         - id: rm
           op: remove
@@ -85,7 +54,6 @@ presentation:
             - fx1_verdict_summoned_nails_nail_1_shaft
             - fx1_verdict_summoned_nails_nail_1_tip
             - fx1_verdict_summoned_nails_nail_1_head
-          when: "= event.source == 'sel'"
   "on":
     hit:
       - {op: block, parent: fx1_verdict_summoned_nails, block: iron_block, size: [1.0, 1.0, 1.0], id: fx1_verdict_summoned_nails_nail__1_shaft, when: "= event.source == 'sel'"}

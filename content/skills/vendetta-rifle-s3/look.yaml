@@ -619,14 +619,12 @@ presentation:
             - fx8_vendetta_gold_sweep_arc_9
             - fx8_vendetta_gold_sweep_arc_10
             - fx8_vendetta_gold_sweep_arc_11
-    - id: fxhit_8
-      at: "hit+8"
-      do:
-        - {id: rm_3, op: remove, ids: [fx3_vendetta_thrust_flash_rim, fx3_vendetta_thrust_flash_bloom, fx3_vendetta_thrust_flash_core], when: "= event.source == 'sel'"}
-        - {id: rm_6, op: remove, ids: [fx6_vendetta_thrust_flash_rim, fx6_vendetta_thrust_flash_bloom, fx6_vendetta_thrust_flash_core], when: "= event.source == 'sel_2'"}
-        - {id: rm_9, op: remove, ids: [fx9_vendetta_thrust_flash_rim, fx9_vendetta_thrust_flash_bloom, fx9_vendetta_thrust_flash_core], when: "= event.source == 'sel_3'"}
+    - {id: fxhit_8, at: "hit+8", when: "= event.source == 'sel'", do: [{id: rm_3, op: remove, ids: [fx3_vendetta_thrust_flash_rim, fx3_vendetta_thrust_flash_bloom, fx3_vendetta_thrust_flash_core]}]}
+    - {id: fxhit_8_2, at: "hit+8", when: "= event.source == 'sel_2'", do: [{id: rm_6, op: remove, ids: [fx6_vendetta_thrust_flash_rim, fx6_vendetta_thrust_flash_bloom, fx6_vendetta_thrust_flash_core]}]}
+    - {id: fxhit_8_3, at: "hit+8", when: "= event.source == 'sel_3'", do: [{id: rm_9, op: remove, ids: [fx9_vendetta_thrust_flash_rim, fx9_vendetta_thrust_flash_bloom, fx9_vendetta_thrust_flash_core]}]}
     - id: fxhit_12
       at: "hit+12"
+      when: "= event.source == 'sel_3'"
       do:
         - id: rm_10
           op: remove
@@ -645,7 +643,6 @@ presentation:
             - fx10_vendetta_contact_ring_arc_11
             - fx10_vendetta_contact_ring_arc_12
             - fx10_vendetta_contact_ring_arc_13
-          when: "= event.source == 'sel_3'"
   "on":
     hit:
       - {op: block, parent: fx3_vendetta_thrust_flash, block: black_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx3_vendetta_thrust_flash_rim, when: "= event.source == 'sel'"}

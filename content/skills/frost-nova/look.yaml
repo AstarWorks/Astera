@@ -307,6 +307,7 @@ presentation:
           shift: "= vec(3.5*sin((3.6213 + 6.283185307179586*i/12)), 0.0, 3.5*cos((3.6213 + 6.283185307179586*i/12)))"
     - id: fxhit_1
       at: "hit+1"
+      when: "= event.source == 'burst'"
       do:
         - id: emit_36
           op: emit
@@ -317,9 +318,9 @@ presentation:
           times: 10
           shift: "= vec(0.75*sin((2.0382 + 6.283185307179586*i/10)), 0.0, 0.75*cos((2.0382 + 6.283185307179586*i/10)))"
           offset: "= vec(sin((2.0382 + 6.283185307179586*i/10)), 0, cos((2.0382 + 6.283185307179586*i/10)))"
-          when: "= event.source == 'burst'"
     - id: fxhit_2
       at: "hit+2"
+      when: "= event.source == 'burst'"
       do:
         - id: emit_37
           op: emit
@@ -330,7 +331,6 @@ presentation:
           times: 10
           shift: "= vec(0.9*sin((2.0382 + 6.283185307179586*i/10)), 0.0, 0.9*cos((2.0382 + 6.283185307179586*i/10)))"
           offset: "= vec(sin((2.0382 + 6.283185307179586*i/10)), 0, cos((2.0382 + 6.283185307179586*i/10)))"
-          when: "= event.source == 'burst'"
   "on":
     hit:
       - {id: snd_3, op: sound, sound: "astera:skills/frost-impact", at: enemy, when: "= event.source == 'burst'"}

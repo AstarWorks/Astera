@@ -574,16 +574,6 @@ presentation:
         - {id: fx3_ember_counter_sweep_gauntlet_cuff, op: block, parent: fx3_ember_counter_sweep_gauntlet, block: black_concrete, size: [0.38, 0.45, 0.38], at: [0.0, 0.18, 0.0]}
         - {id: fx3_ember_counter_sweep_gauntlet_fist, op: block, parent: fx3_ember_counter_sweep_gauntlet, block: gray_concrete, size: [0.45, 0.4, 0.42], at: [0.0, 0.56, 0.0]}
         - {id: fx3_ember_counter_sweep_gauntlet_nozzle, op: block, parent: fx3_ember_counter_sweep_gauntlet, block: gold_block, size: [0.25, 0.14, 0.25], at: [0.0, 0.8, 0.0], brightness: 15}
-        - id: fx3_ember_counter_sweep_gauntlet_flame_fan
-          op: trail
-          of: pt_fx3_ember_counter_sweep_gauntlet_0_2p65_0
-          root: pt_fx3_ember_counter_sweep_gauntlet_0_1p95_0
-          ticks: 9
-          style: both
-          bands:
-            - {from: 0.0, to: 1.0, color: "#ff8f18", alpha: 0.627, color_to: "#e04d08"}
-          dark_rim: {color: "#2a170c", alpha: 0.69, width: 0.08}
-          step_deg: 36.0
     - id: fx112
       at: 112
       do:
@@ -611,6 +601,16 @@ presentation:
           keys:
             - {t: 0, offset: [-0.12, 0.98, 2.38], scale: [0.24, 0.24, 0.24]}
             - {t: 3, scale: [0.0, 0.0, 0.0]}
+        - id: fx3_ember_counter_sweep_gauntlet_flame_fan
+          op: trail
+          of: pt_fx3_ember_counter_sweep_gauntlet_0_2p65_0
+          root: pt_fx3_ember_counter_sweep_gauntlet_0_1p95_0
+          ticks: 9
+          style: both
+          bands:
+            - {from: 0.0, to: 1.0, color: "#ff8f18", alpha: 0.627, color_to: "#e04d08"}
+          dark_rim: {color: "#2a170c", alpha: 0.69, width: 0.08}
+          step_deg: 36.0
     - {id: fx116, at: 116, do: [{id: rm_5, op: remove, ids: [fx3_ember_counter_sweep_impact_core]}]}
     - {id: fx121, at: 121, do: [{id: rm_6, op: remove, ids: [fx3_ember_counter_sweep_impact_spokes]}]}
     - id: fx122
@@ -631,11 +631,11 @@ presentation:
             - fx3_ember_counter_sweep_pressure_hoop_s9
             - fx3_ember_counter_sweep_pressure_hoop_s10
             - fx3_ember_counter_sweep_pressure_hoop_s11
-    - {id: fx123, at: 123, do: [{id: rm_8, op: remove, ids: [fx3_ember_counter_sweep_gauntlet_flame_fan]}]}
+    - {id: fx124, at: 124, do: [{id: rm_8, op: remove, ids: [fx3_ember_counter_sweep_gauntlet_flame_fan]}]}
     - {id: fx125, at: 125, do: [{id: rm_9, op: remove, ids: [fx3_ember_counter_sweep_gauntlet_cuff, fx3_ember_counter_sweep_gauntlet_fist, fx3_ember_counter_sweep_gauntlet_nozzle]}]}
-    - {id: fxhit_9, at: "hit+9", do: [{id: rm_10, op: remove, ids: [fx4_ember_hoop_hit_needle], when: "= event.source == 'sel'"}]}
+    - {id: fxhit_9, at: "hit+9", when: "= event.source == 'sel'", do: [{id: rm_10, op: remove, ids: [fx4_ember_hoop_hit_needle]}]}
     - {id: loop1, at: 111, every: 4, for: 10, do: [{id: fx3_ember_counter_sweep_embers, op: emit, at: fx3_ember_counter_sweep_embers_at, particle: ember-fine-spark}]}
-    - {id: loop2, at: 111, every: 1, for: 8, do: [{id: fx3_ember_counter_sweep_gauntlet_fire, op: emit, at: pt_fx3_ember_counter_sweep_gauntlet_0_2p65_0, particle: ember-fine-spark}]}
+    - {id: loop2, at: 112, every: 1, for: 9, do: [{id: fx3_ember_counter_sweep_gauntlet_fire, op: emit, at: pt_fx3_ember_counter_sweep_gauntlet_0_2p65_0, particle: ember-fine-spark, spacing: 0.4}]}
   "on":
     hit:
       - op: block

@@ -169,6 +169,9 @@ presentation:
         - {id: fx2_ember_sweep_gauntlet_cuff, op: block, parent: fx2_ember_sweep_gauntlet, block: black_concrete, size: [0.38, 0.45, 0.38], at: [0.0, 0.18, 0.0]}
         - {id: fx2_ember_sweep_gauntlet_fist, op: block, parent: fx2_ember_sweep_gauntlet, block: gray_concrete, size: [0.45, 0.4, 0.42], at: [0.0, 0.56, 0.0]}
         - {id: fx2_ember_sweep_gauntlet_nozzle, op: block, parent: fx2_ember_sweep_gauntlet, block: gold_block, size: [0.25, 0.14, 0.25], at: [0.0, 0.8, 0.0], brightness: 15}
+    - id: fx16
+      at: 16
+      do:
         - id: fx2_ember_sweep_gauntlet_flame_fan
           op: trail
           of: pt_fx2_ember_sweep_gauntlet_0_2p65_0
@@ -331,13 +334,13 @@ presentation:
     - id: fx27
       at: 27
       do:
-        - {id: rm_4, op: remove, ids: [fx2_ember_sweep_gauntlet_flame_fan]}
         - id: emit_2
           op: emit
           at: fx4_ember_punch_flame_at
           particle: ember-fine-spark
           times: 5
           shift: "= [vec(0.0, 0.0, 0.8), vec(0.0, 0.0, 1.45), vec(0.0, 0.0, 2.1), vec(0.0, 0.0, 2.75), vec(0.0, 0.0, 3.4)][int(i)]"
+    - {id: fx28, at: 28, do: [{id: rm_4, op: remove, ids: [fx2_ember_sweep_gauntlet_flame_fan]}]}
     - {id: fx29, at: 29, do: [{id: rm_5, op: remove, ids: [fx2_ember_sweep_gauntlet_cuff, fx2_ember_sweep_gauntlet_fist, fx2_ember_sweep_gauntlet_nozzle]}]}
     - id: fx30
       at: 30
@@ -1123,14 +1126,11 @@ presentation:
             - fx6_ember_furnace_blast_pressure_hoop_front_s11
     - {id: fx70, at: 70, do: [{id: rm_16, op: remove, ids: [fx6_ember_furnace_blast_gauntlet_cuff, fx6_ember_furnace_blast_gauntlet_fist, fx6_ember_furnace_blast_gauntlet_nozzle]}]}
     - {id: fx85, at: 85, do: [{id: rm, op: remove, ids: [fx1_ember_harness_furnace_pack_shell, fx1_ember_harness_furnace_pack_clasp]}]}
-    - id: fxhit_9
-      at: "hit+9"
-      do:
-        - {id: rm_6, op: remove, ids: [fx3_ember_hoop_hit_needle], when: "= event.source == 'sel'"}
-        - {id: rm_11, op: remove, ids: [fx5_ember_hoop_hit_needle], when: "= event.source == 'sel_2'"}
-        - {id: rm_17, op: remove, ids: [fx7_ember_hoop_hit_needle], when: "= event.source == 'sel_3'"}
+    - {id: fxhit_9, at: "hit+9", when: "= event.source == 'sel'", do: [{id: rm_6, op: remove, ids: [fx3_ember_hoop_hit_needle]}]}
+    - {id: fxhit_9_2, at: "hit+9", when: "= event.source == 'sel_2'", do: [{id: rm_11, op: remove, ids: [fx5_ember_hoop_hit_needle]}]}
+    - {id: fxhit_9_3, at: "hit+9", when: "= event.source == 'sel_3'", do: [{id: rm_17, op: remove, ids: [fx7_ember_hoop_hit_needle]}]}
     - {id: loop1, at: 15, every: 4, for: 10, do: [{id: fx2_ember_sweep_embers, op: emit, at: fx2_ember_sweep_embers_at, particle: ember-fine-spark}]}
-    - {id: loop2, at: 15, every: 1, for: 8, do: [{id: fx2_ember_sweep_gauntlet_fire, op: emit, at: pt_fx2_ember_sweep_gauntlet_0_2p65_0, particle: ember-fine-spark}]}
+    - {id: loop2, at: 16, every: 1, for: 9, do: [{id: fx2_ember_sweep_gauntlet_fire, op: emit, at: pt_fx2_ember_sweep_gauntlet_0_2p65_0, particle: ember-fine-spark, spacing: 0.4}]}
     - {id: loop3, at: 21, every: 3, for: 10, do: [{id: fx4_ember_punch_soot, op: emit, at: fx4_ember_punch_soot_at, particle: fire-smoke}]}
     - {id: loop4, at: 49, every: 3, for: 17, do: [{id: fx6_ember_furnace_blast_soot, op: emit, at: fx6_ember_furnace_blast_soot_at, particle: fire-smoke}]}
     - {id: loop5, at: 63, every: 3, for: 12, do: [{id: fx8_ember_smoke_puff_vent, op: emit, at: fx8_ember_smoke_puff_vent_at, particle: fire-smoke}]}

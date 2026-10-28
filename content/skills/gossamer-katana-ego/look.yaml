@@ -185,10 +185,10 @@ presentation:
         - {id: fx4_gossamer_katana_slash_up_katana_blade, op: block, parent: fx4_gossamer_katana_slash_up_katana, block: iron_block, size: [0.09, 2.0, 0.05], at: [0.0, 1.05, 0.0], brightness: 15}
         - {id: fx4_gossamer_katana_slash_up_katana_grip, op: block, parent: fx4_gossamer_katana_slash_up_katana, block: black_concrete, size: [0.1, 0.4, 0.08], at: [0.0, -0.15, 0.0]}
         - {id: fx4_gossamer_katana_slash_up_katana_guard, op: block, parent: fx4_gossamer_katana_slash_up_katana, block: blue_concrete, size: [0.28, 0.08, 0.18], at: [0.0, 0.06, 0.0]}
-    - id: fx32
-      at: 32
+    - {id: fx32, at: 32, do: [{id: rm_4, op: remove, ids: [fx3_gossamer_katana_iaido_line_bloom]}]}
+    - id: fx33
+      at: 33
       do:
-        - {id: rm_4, op: remove, ids: [fx3_gossamer_katana_iaido_line_bloom]}
         - id: fx4_gossamer_katana_slash_up_katana_crescent
           op: trail
           of: pt_fx4_gossamer_katana_slash_up_katana_0_2p1_0
@@ -197,7 +197,7 @@ presentation:
           bands:
             - {from: 0.0, to: 1.0, color: "#14245f", alpha: 0.933, color_to: "#7c36a8"}
           step_deg: 20.0
-    - {id: fx40, at: 40, do: [{id: rm_7, op: remove, ids: [fx4_gossamer_katana_slash_up_katana_crescent]}]}
+    - {id: fx41, at: 41, do: [{id: rm_7, op: remove, ids: [fx4_gossamer_katana_slash_up_katana_crescent]}]}
     - id: fx42
       at: 42
       do:
@@ -226,8 +226,8 @@ presentation:
         - {id: fx5_gossamer_katana_slash_down_katana_blade, op: block, parent: fx5_gossamer_katana_slash_down_katana, block: iron_block, size: [0.09, 2.0, 0.05], at: [0.0, 1.05, 0.0], brightness: 15}
         - {id: fx5_gossamer_katana_slash_down_katana_grip, op: block, parent: fx5_gossamer_katana_slash_down_katana, block: black_concrete, size: [0.1, 0.4, 0.08], at: [0.0, -0.15, 0.0]}
         - {id: fx5_gossamer_katana_slash_down_katana_guard, op: block, parent: fx5_gossamer_katana_slash_down_katana, block: blue_concrete, size: [0.28, 0.08, 0.18], at: [0.0, 0.06, 0.0]}
-    - id: fx44
-      at: 44
+    - id: fx45
+      at: 45
       do:
         - id: fx5_gossamer_katana_slash_down_katana_crescent
           op: trail
@@ -237,7 +237,7 @@ presentation:
           bands:
             - {from: 0.0, to: 1.0, color: "#14245f", alpha: 0.933, color_to: "#7c36a8"}
           step_deg: 20.0
-    - {id: fx52, at: 52, do: [{id: rm_9, op: remove, ids: [fx5_gossamer_katana_slash_down_katana_crescent]}]}
+    - {id: fx53, at: 53, do: [{id: rm_9, op: remove, ids: [fx5_gossamer_katana_slash_down_katana_crescent]}]}
     - id: fx54
       at: 54
       do:

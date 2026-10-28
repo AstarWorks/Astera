@@ -1279,12 +1279,16 @@ class Conv:
         if not follow:
             self.present("vfx follow=false (anchored at world, no place-at-spawn)", vid)
         snapshot = bool(V(m.get("snapshot_pose", False)))
+        snap = None
         if snapshot:
-            # the effect stands on a frozen copy of the caster pose taken when it starts, not on the live caster
-            parent = "world"
+            # the effect stands on a frozen copy of the caster pose taken when it starts, not on the live caster; `place`
+            # is a gameplay op, so the copy is a gameplay frame the look frame hangs from
+            snap = self.oid("snap")
+            self.frames[snap] = {"id": snap, "kind": "body", "parent": "world", "inactive": True}
+            parent = snap
         self.look_frames[fid] = {"id": fid, "kind": "body", "parent": parent}
-        if snapshot:
-            self.p(where, delay, self._w({"id": self.oid("snap"), "op": "place", "frame": fid, "like": "caster"}, when))
+        if snap:
+            self.g(where, delay, self._w({"id": self.oid("place_" + snap), "op": "place", "frame": snap, "like": "caster"}, when))
         for k in ("orient", "scale"):
             if k in d or k in m:
                 self.present("vfx frame %s (frames carry no orientation / scale)" % k, "%s=%s" % (k, short(V(m.get(k, d.get(k))), 30)))

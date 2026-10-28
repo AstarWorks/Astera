@@ -2220,14 +2220,14 @@ couture-rapier-ego	58	6d7be6ef9399
 couture-rapier-ego	59	7d6452986a52
 couture-rapier-ego	60	fc2f87a14f16
 couture-rapier-ego	61	fc2f87a14f16
-couture-rapier-ego	62	868457e1dbba
+couture-rapier-ego	62	fc2f87a14f16
 couture-rapier-ego	63	fc2f87a14f16
 couture-rapier-ego	64	fc2f87a14f16
 couture-rapier-ego	65	fc2f87a14f16
 couture-rapier-ego	66	fc2f87a14f16
 couture-rapier-ego	67	fc2f87a14f16
 couture-rapier-ego	68	fc2f87a14f16
-couture-rapier-ego	69	fc2f87a14f16
+couture-rapier-ego	69	868457e1dbba
 couture-rapier-ego	70	fc2f87a14f16
 couture-rapier-ego	71	fc2f87a14f16
 couture-rapier-ego	72	fc2f87a14f16
@@ -3648,7 +3648,7 @@ delay-mine-lay	46	6d7be6ef9399
 delay-mine-lay	47	6d7be6ef9399
 delay-mine-lay	48	6d7be6ef9399
 delay-mine-lay	49	6d7be6ef9399
-delay-mine-lay	50	31966f269021
+delay-mine-lay	50	1b14ba5da53b
 delay-mine-lay	51	6d7be6ef9399
 delay-mine-lay	52	6d7be6ef9399
 delay-mine-lay	53	6d7be6ef9399
@@ -7017,7 +7017,7 @@ gossamer-katana-s2	55	52e00342e7ed
 gossamer-katana-s2	56	52e00342e7ed
 gossamer-katana-s2	57	92bd52efce56
 gossamer-katana-s2	58	52e00342e7ed
-gossamer-katana-s2	59	371212ef22ab
+gossamer-katana-s2	59	afd217734117
 gossamer-katana-s2	60	87e3a09223fa
 gossamer-katana-s2	61	87e3a09223fa
 gossamer-katana-s2	62	87e3a09223fa
@@ -7035,7 +7035,7 @@ gossamer-katana-s2	73	87e3a09223fa
 gossamer-katana-s2	74	87e3a09223fa
 gossamer-katana-s2	75	87e3a09223fa
 gossamer-katana-s2	76	87e3a09223fa
-gossamer-katana-s2	77	87e3a09223fa
+gossamer-katana-s2	77	0748bd11f9aa
 gossamer-katana-s2	78	87e3a09223fa
 gossamer-katana-s2	79	87e3a09223fa
 gossamer-katana-s2	80	87e3a09223fa
@@ -9704,8 +9704,8 @@ orrery-s2	102	3ac95e466bf8
 orrery-s2	103	3ac95e466bf8
 orrery-s2	104	3ac95e466bf8
 orrery-s2	105	3ac95e466bf8
-orrery-s2	106	cffd64b62119
-orrery-s2	107	3ac95e466bf8
+orrery-s2	106	3ac95e466bf8
+orrery-s2	107	cffd64b62119
 orrery-s2	108	3ac95e466bf8
 orrery-s2	109	3ac95e466bf8
 orrery-s2	110	3ac95e466bf8
@@ -14232,7 +14232,7 @@ sigil-rifle-ego	70	6d7be6ef9399
 sigil-rifle-ego	71	6d7be6ef9399
 sigil-rifle-ego	72	6d7be6ef9399
 sigil-rifle-ego	73	6d7be6ef9399
-sigil-rifle-ego	74	e33f6b401bab
+sigil-rifle-ego	74	6d7be6ef9399
 sigil-rifle-ego	75	6d7be6ef9399
 sigil-rifle-ego	76	6d7be6ef9399
 sigil-rifle-ego	77	6d7be6ef9399
@@ -14240,7 +14240,7 @@ sigil-rifle-ego	78	6d7be6ef9399
 sigil-rifle-ego	79	6d7be6ef9399
 sigil-rifle-ego	80	6d7be6ef9399
 sigil-rifle-ego	81	6d7be6ef9399
-sigil-rifle-ego	82	6d7be6ef9399
+sigil-rifle-ego	82	e33f6b401bab
 sigil-rifle-ego	83	6d7be6ef9399
 sigil-rifle-ego	84	6d7be6ef9399
 sigil-rifle-ego	85	6d7be6ef9399
@@ -17743,9 +17743,9 @@ verdict-hammer-s3	101	124c200f3010
 verdict-hammer-s3	102	124c200f3010
 verdict-hammer-s3	103	124c200f3010
 verdict-hammer-s3	104	124c200f3010
-verdict-hammer-s3	105	af7734313c87
+verdict-hammer-s3	105	124c200f3010
 verdict-hammer-s3	106	124c200f3010
-verdict-hammer-s3	107	124c200f3010
+verdict-hammer-s3	107	af7734313c87
 verdict-hammer-s3	108	124c200f3010
 verdict-hammer-s3	109	124c200f3010
 verdict-hammer-s3	110	124c200f3010
