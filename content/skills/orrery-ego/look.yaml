@@ -10,7 +10,8 @@ kind: Skill
 id: orrery-ego
 frames:
   - {id: fx1_orrery_poise, kind: body, parent: world}
-  - {id: fx1_orrery_poise_staff, kind: body, parent: caster.right_hand}
+  - {id: fx1_orrery_poise_staff_at, kind: body, parent: caster.right_hand}
+  - {id: fx1_orrery_poise_staff, kind: body, parent: fx1_orrery_poise_staff_at}
   - {id: pt_fx1_orrery_poise_staff_0_1p65_0, kind: point, parent: fx1_orrery_poise_staff, offset: [0.0, 1.65, 0.0]}
   - {id: fx2_orrery_motes, kind: body, parent: caster}
   - {id: fx3_orrery_orb, kind: body, parent: caster}
@@ -26,7 +27,7 @@ presentation:
         - id: fx1_orrery_poise_staff_rig
           op: rig
           frame: fx1_orrery_poise_staff
-          parent: caster.right_hand
+          parent: fx1_orrery_poise_staff_at
           duration: 23
           hand: false
           pivot: [1.10078, 0.29711, 0.29711]

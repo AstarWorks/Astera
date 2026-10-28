@@ -21,7 +21,8 @@ frames:
   - {id: pt_fx2_bastion_ego_trail_0_1_0p2, kind: point, parent: fx2_bastion_ego_trail, offset: [0.0, 1.0, 0.2]}
   - {id: pt_fx2_bastion_ego_trail_0_1p4_3, kind: point, parent: fx2_bastion_ego_trail, offset: [0.0, 1.4, 3.0]}
   - {id: fx3_bastion_ego_slam, kind: body, parent: world}
-  - {id: fx3_bastion_ego_slam_sword, kind: body, parent: caster.right_hand}
+  - {id: fx3_bastion_ego_slam_sword_at, kind: body, parent: caster.right_hand}
+  - {id: fx3_bastion_ego_slam_sword, kind: body, parent: fx3_bastion_ego_slam_sword_at}
 presentation:
   timeline:
     - id: fx0
@@ -104,7 +105,7 @@ presentation:
         - id: fx3_bastion_ego_slam_sword_rig
           op: rig
           frame: fx3_bastion_ego_slam_sword
-          parent: caster.right_hand
+          parent: fx3_bastion_ego_slam_sword_at
           duration: 43
           hand: false
           pivot: [1.399997, -0.003665, 0.299985]

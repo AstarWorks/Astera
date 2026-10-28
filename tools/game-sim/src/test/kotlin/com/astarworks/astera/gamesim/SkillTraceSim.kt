@@ -171,6 +171,10 @@ internal class Sim(val c: Coin2Collaborators, val catalog: SkillCatalog, val wit
     }
 
     private val visuals = object : ISkillVisualGateway {
+        override fun sprite(sprite: String): com.astarworks.astera.core.application.skillengine.runtime.port.SpriteInfo = com.astarworks.astera.core.application.skillengine.runtime.port.SpriteInfo(1, 32)
+        override fun setPlateFrame(handle: com.astarworks.astera.core.application.skillengine.runtime.port.VisualHandle, frame: Int, tintHex: String?) {}
+        override fun setTrailLook(handle: com.astarworks.astera.core.application.skillengine.runtime.port.VisualHandle, fadePower: Double, style: String) {}
+        override fun setTrailShape(handle: com.astarworks.astera.core.application.skillengine.runtime.port.VisualHandle, bands: List<com.astarworks.astera.core.domain.skillengine.op.TrailBand>, edge: com.astarworks.astera.core.domain.skillengine.op.TrailEdge?, rim: com.astarworks.astera.core.domain.skillengine.op.TrailRim?, stepDeg: Double, doubleSided: Boolean) {}
         override fun spawnMesh(castOwner: UUID, item: String, part: String?, pose: VisualPose, brightness: Int?) =
             spawn("mesh", buildJsonObject { put("item", item); put("part", part?.let { JsonPrimitive(it) } ?: JsonNull); put("size", vecJsonOf(pose.size)) }, poseObj(pose.frame))
         override fun spawnSkinBone(castOwner: UUID, bone: com.astarworks.astera.core.domain.animation.skinrig.SkinRigBone, slim: Boolean, ghost: Boolean, pose: VisualPose) =

@@ -9,7 +9,8 @@ frames:
   - {id: fx1_vendetta_bayonet_thrust, kind: body, parent: caster}
   - {id: fx2_vendetta_parry_ring, kind: body, parent: world}
   - {id: fx2_vendetta_parry_ring_petals_at, kind: body, parent: fx2_vendetta_parry_ring}
-  - {id: fx2_vendetta_parry_ring_bayonet, kind: body, parent: caster.right_hand}
+  - {id: fx2_vendetta_parry_ring_bayonet_at, kind: body, parent: caster.right_hand}
+  - {id: fx2_vendetta_parry_ring_bayonet, kind: body, parent: fx2_vendetta_parry_ring_bayonet_at}
 presentation:
   timeline:
     - id: fx0
@@ -101,7 +102,7 @@ presentation:
         - id: fx2_vendetta_parry_ring_bayonet_rig
           op: rig
           frame: fx2_vendetta_parry_ring_bayonet
-          parent: caster.right_hand
+          parent: fx2_vendetta_parry_ring_bayonet_at
           duration: 11
           hand: false
           pivot: [1.049232, -0.35228, 0.253199]

@@ -8,10 +8,12 @@ kind: Skill
 id: ember-gauntlet-s1
 frames:
   - {id: fx1_ember_harness, kind: body, parent: caster}
-  - {id: fx1_ember_harness_furnace_pack, kind: body, parent: caster.right_hand}
+  - {id: fx1_ember_harness_furnace_pack_at, kind: body, parent: caster.right_hand}
+  - {id: fx1_ember_harness_furnace_pack, kind: body, parent: fx1_ember_harness_furnace_pack_at}
   - {id: fx2_ember_sweep, kind: body, parent: caster}
   - {id: fx2_ember_sweep_embers_at, kind: body, parent: fx2_ember_sweep}
-  - {id: fx2_ember_sweep_gauntlet, kind: body, parent: caster.right_hand}
+  - {id: fx2_ember_sweep_gauntlet_at, kind: body, parent: caster.right_hand}
+  - {id: fx2_ember_sweep_gauntlet, kind: body, parent: fx2_ember_sweep_gauntlet_at}
   - {id: pt_fx2_ember_sweep_gauntlet_0_1p95_0, kind: point, parent: fx2_ember_sweep_gauntlet, offset: [0.0, 1.95, 0.0]}
   - {id: pt_fx2_ember_sweep_gauntlet_0_2p65_0, kind: point, parent: fx2_ember_sweep_gauntlet, offset: [0.0, 2.65, 0.0]}
   - {id: fx3_ember_hoop_hit, kind: body, parent: world}
@@ -19,7 +21,8 @@ frames:
   - {id: fx4_ember_jet, kind: body, parent: caster}
   - {id: fx4_ember_jet_flame_at, kind: body, parent: fx4_ember_jet}
   - {id: fx4_ember_jet_soot_at, kind: body, parent: fx4_ember_jet}
-  - {id: fx4_ember_jet_gauntlet, kind: body, parent: caster.right_hand}
+  - {id: fx4_ember_jet_gauntlet_at, kind: body, parent: caster.right_hand}
+  - {id: fx4_ember_jet_gauntlet, kind: body, parent: fx4_ember_jet_gauntlet_at}
   - {id: fx5_ember_hoop_hit, kind: body, parent: world}
   - {id: fx5_ember_hoop_hit_embers_at, kind: body, parent: fx5_ember_hoop_hit}
   - {id: fx6_ember_smoke_puff, kind: body, parent: world}
@@ -33,7 +36,7 @@ presentation:
         - id: fx1_ember_harness_furnace_pack_rig
           op: rig
           frame: fx1_ember_harness_furnace_pack
-          parent: caster.right_hand
+          parent: fx1_ember_harness_furnace_pack_at
           duration: 85
           hand: false
           pivot: [1.099996, 0.003456, -0.359989]
@@ -134,7 +137,7 @@ presentation:
         - id: fx2_ember_sweep_gauntlet_rig
           op: rig
           frame: fx2_ember_sweep_gauntlet
-          parent: caster.right_hand
+          parent: fx2_ember_sweep_gauntlet_at
           duration: 14
           hand: false
           pivot: [1.050759, 0.347699, 0.246785]
@@ -262,7 +265,7 @@ presentation:
         - id: fx4_ember_jet_gauntlet_rig
           op: rig
           frame: fx4_ember_jet_gauntlet
-          parent: caster.right_hand
+          parent: fx4_ember_jet_gauntlet_at
           duration: 16
           hand: false
           pivot: [1.050759, 0.347699, 0.246785]

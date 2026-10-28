@@ -8,18 +8,21 @@ kind: Skill
 id: verdict-hammer-def
 frames:
   - {id: fx1_verdict_def_vigil, kind: body, parent: world}
-  - {id: fx1_verdict_def_vigil_hammer, kind: body, parent: caster.right_hand}
+  - {id: fx1_verdict_def_vigil_hammer_at, kind: body, parent: caster.right_hand}
+  - {id: fx1_verdict_def_vigil_hammer, kind: body, parent: fx1_verdict_def_vigil_hammer_at}
   - {id: pt_fx1_verdict_def_vigil_hammer_0_0p9_0, kind: point, parent: fx1_verdict_def_vigil_hammer, offset: [0.0, 0.9, 0.0]}
   - {id: pt_fx1_verdict_def_vigil_hammer_0_2p7_0, kind: point, parent: fx1_verdict_def_vigil_hammer, offset: [0.0, 2.7, 0.0]}
   - {id: fx2_verdict_summoned_nails, kind: body, parent: world}
   - {id: fx3_verdict_impact, kind: body, parent: world}
   - {id: fx4_verdict_s1_gavel, kind: body, parent: world}
-  - {id: fx4_verdict_s1_gavel_hammer, kind: body, parent: caster.right_hand}
+  - {id: fx4_verdict_s1_gavel_hammer_at, kind: body, parent: caster.right_hand}
+  - {id: fx4_verdict_s1_gavel_hammer, kind: body, parent: fx4_verdict_s1_gavel_hammer_at}
   - {id: pt_fx4_verdict_s1_gavel_hammer_0_0p9_0, kind: point, parent: fx4_verdict_s1_gavel_hammer, offset: [0.0, 0.9, 0.0]}
   - {id: pt_fx4_verdict_s1_gavel_hammer_0_3_0, kind: point, parent: fx4_verdict_s1_gavel_hammer, offset: [0.0, 3.0, 0.0]}
   - {id: fx5_verdict_impact, kind: body, parent: world}
   - {id: fx6_verdict_s1_echo, kind: body, parent: world}
-  - {id: fx6_verdict_s1_echo_hammer, kind: body, parent: caster.right_hand}
+  - {id: fx6_verdict_s1_echo_hammer_at, kind: body, parent: caster.right_hand}
+  - {id: fx6_verdict_s1_echo_hammer, kind: body, parent: fx6_verdict_s1_echo_hammer_at}
   - {id: pt_fx6_verdict_s1_echo_hammer_0_0p9_0, kind: point, parent: fx6_verdict_s1_echo_hammer, offset: [0.0, 0.9, 0.0]}
   - {id: pt_fx6_verdict_s1_echo_hammer_0_3_0, kind: point, parent: fx6_verdict_s1_echo_hammer, offset: [0.0, 3.0, 0.0]}
   - {id: fx7_verdict_impact, kind: body, parent: world}
@@ -31,7 +34,7 @@ presentation:
         - id: fx1_verdict_def_vigil_hammer_rig
           op: rig
           frame: fx1_verdict_def_vigil_hammer
-          parent: caster.right_hand
+          parent: fx1_verdict_def_vigil_hammer_at
           duration: 23
           hand: false
           pivot: [1.000325, 0.248685, 0.147814]
@@ -97,7 +100,7 @@ presentation:
         - id: fx4_verdict_s1_gavel_hammer_rig
           op: rig
           frame: fx4_verdict_s1_gavel_hammer
-          parent: caster.right_hand
+          parent: fx4_verdict_s1_gavel_hammer_at
           duration: 23
           hand: false
           pivot: [1.600324, 0.247889, 0.146499]
@@ -151,7 +154,7 @@ presentation:
         - id: fx6_verdict_s1_echo_hammer_rig
           op: rig
           frame: fx6_verdict_s1_echo_hammer
-          parent: caster.right_hand
+          parent: fx6_verdict_s1_echo_hammer_at
           duration: 16
           hand: false
           pivot: [1.600324, 0.247889, 0.146499]

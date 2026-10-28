@@ -12,7 +12,8 @@ frames:
   - {id: fx1_orrery_s2_charge_ring, kind: body, parent: caster}
   - {id: fx2_orrery_s2_charge_ring, kind: body, parent: caster}
   - {id: fx3_orrery_s2_poise, kind: body, parent: world}
-  - {id: fx3_orrery_s2_poise_staff, kind: body, parent: caster.right_hand}
+  - {id: fx3_orrery_s2_poise_staff_at, kind: body, parent: caster.right_hand}
+  - {id: fx3_orrery_s2_poise_staff, kind: body, parent: fx3_orrery_s2_poise_staff_at}
   - {id: pt_fx3_orrery_s2_poise_staff_0_1_0, kind: point, parent: fx3_orrery_s2_poise_staff, offset: [0.0, 1.0, 0.0]}
   - {id: pt_fx3_orrery_s2_poise_staff_0_2p3_0, kind: point, parent: fx3_orrery_s2_poise_staff, offset: [0.0, 2.3, 0.0]}
   - {id: pt_fx3_orrery_s2_poise_staff_0_2p1_0, kind: point, parent: fx3_orrery_s2_poise_staff, offset: [0.0, 2.1, 0.0]}
@@ -89,7 +90,7 @@ presentation:
         - id: fx3_orrery_s2_poise_staff_rig
           op: rig
           frame: fx3_orrery_s2_poise_staff
-          parent: caster.right_hand
+          parent: fx3_orrery_s2_poise_staff_at
           duration: 99
           hand: false
           pivot: [1.10078, 0.29711, 0.29711]

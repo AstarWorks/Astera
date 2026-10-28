@@ -8,12 +8,14 @@ kind: Skill
 id: vendetta-rifle-ego
 frames:
   - {id: fx1_vendetta_ready, kind: body, parent: caster}
-  - {id: fx1_vendetta_ready_bayonet, kind: body, parent: caster.right_hand}
+  - {id: fx1_vendetta_ready_bayonet_at, kind: body, parent: caster.right_hand}
+  - {id: fx1_vendetta_ready_bayonet, kind: body, parent: fx1_vendetta_ready_bayonet_at}
   - {id: pt_fx1_vendetta_ready_bayonet_0_1p5_0, kind: point, parent: fx1_vendetta_ready_bayonet, offset: [0.0, 1.5, 0.0]}
   - {id: fx2_vendetta_slash_b, kind: body, parent: world}
   - {id: fx2_vendetta_slash_b_contact_at, kind: body, parent: fx2_vendetta_slash_b}
   - {id: fx2_vendetta_slash_b_petals_at, kind: body, parent: fx2_vendetta_slash_b}
-  - {id: fx2_vendetta_slash_b_bayonet, kind: body, parent: caster.right_hand}
+  - {id: fx2_vendetta_slash_b_bayonet_at, kind: body, parent: caster.right_hand}
+  - {id: fx2_vendetta_slash_b_bayonet, kind: body, parent: fx2_vendetta_slash_b_bayonet_at}
   - {id: pt_fx2_vendetta_slash_b_bayonet_0_0p55_0, kind: point, parent: fx2_vendetta_slash_b_bayonet, offset: [0.0, 0.55, 0.0]}
   - {id: pt_fx2_vendetta_slash_b_bayonet_0_2p1_0, kind: point, parent: fx2_vendetta_slash_b_bayonet, offset: [0.0, 2.1, 0.0]}
   - {id: fx3_vendetta_thrust_flash, kind: body, parent: world}
@@ -27,7 +29,8 @@ frames:
   - {id: fx5_vendetta_slash_b, kind: body, parent: world}
   - {id: fx5_vendetta_slash_b_contact_at, kind: body, parent: fx5_vendetta_slash_b}
   - {id: fx5_vendetta_slash_b_petals_at, kind: body, parent: fx5_vendetta_slash_b}
-  - {id: fx5_vendetta_slash_b_bayonet, kind: body, parent: caster.right_hand}
+  - {id: fx5_vendetta_slash_b_bayonet_at, kind: body, parent: caster.right_hand}
+  - {id: fx5_vendetta_slash_b_bayonet, kind: body, parent: fx5_vendetta_slash_b_bayonet_at}
   - {id: pt_fx5_vendetta_slash_b_bayonet_0_0p55_0, kind: point, parent: fx5_vendetta_slash_b_bayonet, offset: [0.0, 0.55, 0.0]}
   - {id: pt_fx5_vendetta_slash_b_bayonet_0_2p1_0, kind: point, parent: fx5_vendetta_slash_b_bayonet, offset: [0.0, 2.1, 0.0]}
   - {id: fx6_vendetta_thrust_flash, kind: body, parent: world}
@@ -41,7 +44,8 @@ frames:
   - {id: fx8_vendetta_slash_a, kind: body, parent: world}
   - {id: fx8_vendetta_slash_a_contact_at, kind: body, parent: fx8_vendetta_slash_a}
   - {id: fx8_vendetta_slash_a_petals_at, kind: body, parent: fx8_vendetta_slash_a}
-  - {id: fx8_vendetta_slash_a_bayonet, kind: body, parent: caster.right_hand}
+  - {id: fx8_vendetta_slash_a_bayonet_at, kind: body, parent: caster.right_hand}
+  - {id: fx8_vendetta_slash_a_bayonet, kind: body, parent: fx8_vendetta_slash_a_bayonet_at}
   - {id: pt_fx8_vendetta_slash_a_bayonet_0_0p55_0, kind: point, parent: fx8_vendetta_slash_a_bayonet, offset: [0.0, 0.55, 0.0]}
   - {id: pt_fx8_vendetta_slash_a_bayonet_0_2p1_0, kind: point, parent: fx8_vendetta_slash_a_bayonet, offset: [0.0, 2.1, 0.0]}
   - {id: fx9_vendetta_thrust_flash, kind: body, parent: world}
@@ -55,7 +59,8 @@ frames:
   - {id: fx11_vendetta_slash_b, kind: body, parent: world}
   - {id: fx11_vendetta_slash_b_contact_at, kind: body, parent: fx11_vendetta_slash_b}
   - {id: fx11_vendetta_slash_b_petals_at, kind: body, parent: fx11_vendetta_slash_b}
-  - {id: fx11_vendetta_slash_b_bayonet, kind: body, parent: caster.right_hand}
+  - {id: fx11_vendetta_slash_b_bayonet_at, kind: body, parent: caster.right_hand}
+  - {id: fx11_vendetta_slash_b_bayonet, kind: body, parent: fx11_vendetta_slash_b_bayonet_at}
   - {id: pt_fx11_vendetta_slash_b_bayonet_0_0p55_0, kind: point, parent: fx11_vendetta_slash_b_bayonet, offset: [0.0, 0.55, 0.0]}
   - {id: pt_fx11_vendetta_slash_b_bayonet_0_2p1_0, kind: point, parent: fx11_vendetta_slash_b_bayonet, offset: [0.0, 2.1, 0.0]}
   - {id: fx12_vendetta_thrust_flash, kind: body, parent: world}
@@ -69,7 +74,8 @@ frames:
   - {id: fx14_vendetta_slash_a, kind: body, parent: world}
   - {id: fx14_vendetta_slash_a_contact_at, kind: body, parent: fx14_vendetta_slash_a}
   - {id: fx14_vendetta_slash_a_petals_at, kind: body, parent: fx14_vendetta_slash_a}
-  - {id: fx14_vendetta_slash_a_bayonet, kind: body, parent: caster.right_hand}
+  - {id: fx14_vendetta_slash_a_bayonet_at, kind: body, parent: caster.right_hand}
+  - {id: fx14_vendetta_slash_a_bayonet, kind: body, parent: fx14_vendetta_slash_a_bayonet_at}
   - {id: pt_fx14_vendetta_slash_a_bayonet_0_0p55_0, kind: point, parent: fx14_vendetta_slash_a_bayonet, offset: [0.0, 0.55, 0.0]}
   - {id: pt_fx14_vendetta_slash_a_bayonet_0_2p1_0, kind: point, parent: fx14_vendetta_slash_a_bayonet, offset: [0.0, 2.1, 0.0]}
   - {id: fx15_vendetta_thrust_flash, kind: body, parent: world}
@@ -103,7 +109,7 @@ presentation:
         - id: fx1_vendetta_ready_bayonet_rig
           op: rig
           frame: fx1_vendetta_ready_bayonet
-          parent: caster.right_hand
+          parent: fx1_vendetta_ready_bayonet_at
           duration: 19
           hand: false
           pivot: [1.049232, -0.35228, 0.253199]
@@ -399,7 +405,7 @@ presentation:
         - id: fx2_vendetta_slash_b_bayonet_rig
           op: rig
           frame: fx2_vendetta_slash_b_bayonet
-          parent: caster.right_hand
+          parent: fx2_vendetta_slash_b_bayonet_at
           duration: 8
           hand: false
           pivot: [1.049232, -0.35228, 0.253199]
@@ -744,7 +750,7 @@ presentation:
         - id: fx5_vendetta_slash_b_bayonet_rig
           op: rig
           frame: fx5_vendetta_slash_b_bayonet
-          parent: caster.right_hand
+          parent: fx5_vendetta_slash_b_bayonet_at
           duration: 8
           hand: false
           pivot: [1.049232, -0.35228, 0.253199]
@@ -1089,7 +1095,7 @@ presentation:
         - id: fx8_vendetta_slash_a_bayonet_rig
           op: rig
           frame: fx8_vendetta_slash_a_bayonet
-          parent: caster.right_hand
+          parent: fx8_vendetta_slash_a_bayonet_at
           duration: 8
           hand: false
           pivot: [1.049232, -0.35228, 0.253199]
@@ -1434,7 +1440,7 @@ presentation:
         - id: fx11_vendetta_slash_b_bayonet_rig
           op: rig
           frame: fx11_vendetta_slash_b_bayonet
-          parent: caster.right_hand
+          parent: fx11_vendetta_slash_b_bayonet_at
           duration: 8
           hand: false
           pivot: [1.049232, -0.35228, 0.253199]
@@ -2015,7 +2021,7 @@ presentation:
         - id: fx14_vendetta_slash_a_bayonet_rig
           op: rig
           frame: fx14_vendetta_slash_a_bayonet
-          parent: caster.right_hand
+          parent: fx14_vendetta_slash_a_bayonet_at
           duration: 8
           hand: false
           pivot: [1.049232, -0.35228, 0.253199]

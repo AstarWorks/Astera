@@ -21,7 +21,8 @@ frames:
   - {id: fx7_orrery_beam_target, kind: body, parent: world}
   - {id: fx8_orrery_ring_hit_target_long, kind: body, parent: world}
   - {id: fx9_orrery_channel, kind: body, parent: world}
-  - {id: fx9_orrery_channel_staff, kind: body, parent: caster.right_hand}
+  - {id: fx9_orrery_channel_staff_at, kind: body, parent: caster.right_hand}
+  - {id: fx9_orrery_channel_staff, kind: body, parent: fx9_orrery_channel_staff_at}
   - {id: pt_fx9_orrery_channel_staff_0_1_0, kind: point, parent: fx9_orrery_channel_staff, offset: [0.0, 1.0, 0.0]}
   - {id: pt_fx9_orrery_channel_staff_0_2p3_0, kind: point, parent: fx9_orrery_channel_staff, offset: [0.0, 2.3, 0.0]}
   - {id: pt_fx9_orrery_channel_staff_0_1p65_0, kind: point, parent: fx9_orrery_channel_staff, offset: [0.0, 1.65, 0.0]}
@@ -43,7 +44,7 @@ presentation:
         - id: fx9_orrery_channel_staff_rig
           op: rig
           frame: fx9_orrery_channel_staff
-          parent: caster.right_hand
+          parent: fx9_orrery_channel_staff_at
           duration: 172
           hand: false
           pivot: [1.10078, 0.29711, 0.29711]

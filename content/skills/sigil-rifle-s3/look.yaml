@@ -8,7 +8,8 @@ kind: Skill
 id: sigil-rifle-s3
 frames:
   - {id: fx1_sigil_rifle_s3_rig, kind: body, parent: caster}
-  - {id: fx1_sigil_rifle_s3_rig_rifle, kind: body, parent: caster.right_hand}
+  - {id: fx1_sigil_rifle_s3_rig_rifle_at, kind: body, parent: caster.right_hand}
+  - {id: fx1_sigil_rifle_s3_rig_rifle, kind: body, parent: fx1_sigil_rifle_s3_rig_rifle_at}
   - {id: pt_fx1_sigil_rifle_s3_rig_rifle_0_0p55_0, kind: point, parent: fx1_sigil_rifle_s3_rig_rifle, offset: [0.0, 0.55, 0.0]}
   - {id: pt_fx1_sigil_rifle_s3_rig_rifle_0_1p65_0, kind: point, parent: fx1_sigil_rifle_s3_rig_rifle, offset: [0.0, 1.65, 0.0]}
   - {id: fx2_sigil_rifle_shot, kind: body, parent: world}
@@ -22,7 +23,7 @@ presentation:
         - id: fx1_sigil_rifle_s3_rig_rifle_rig
           op: rig
           frame: fx1_sigil_rifle_s3_rig_rifle
-          parent: caster.right_hand
+          parent: fx1_sigil_rifle_s3_rig_rifle_at
           duration: 126
           hand: false
           pivot: [1.000607, 0.277811, 0.24755]

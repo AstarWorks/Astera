@@ -8,7 +8,8 @@ kind: Skill
 id: gossamer-katana-s3
 frames:
   - {id: fx1_gossamer_katana_draw, kind: body, parent: caster}
-  - {id: fx1_gossamer_katana_draw_katana, kind: body, parent: caster.right_hand}
+  - {id: fx1_gossamer_katana_draw_katana_at, kind: body, parent: caster.right_hand}
+  - {id: fx1_gossamer_katana_draw_katana, kind: body, parent: fx1_gossamer_katana_draw_katana_at}
   - {id: fx2_gossamer_katana_iaido_line, kind: body, parent: world}
 presentation:
   timeline:
@@ -18,7 +19,7 @@ presentation:
         - id: fx1_gossamer_katana_draw_katana_rig
           op: rig
           frame: fx1_gossamer_katana_draw_katana
-          parent: caster.right_hand
+          parent: fx1_gossamer_katana_draw_katana_at
           duration: 29
           hand: false
           pivot: [0.900325, 0.248817, 0.148033]

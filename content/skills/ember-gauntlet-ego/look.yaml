@@ -9,24 +9,29 @@ kind: Skill
 id: ember-gauntlet-ego
 frames:
   - {id: fx1_ember_harness, kind: body, parent: caster}
-  - {id: fx1_ember_harness_furnace_pack, kind: body, parent: caster.right_hand}
+  - {id: fx1_ember_harness_furnace_pack_at, kind: body, parent: caster.right_hand}
+  - {id: fx1_ember_harness_furnace_pack, kind: body, parent: fx1_ember_harness_furnace_pack_at}
   - {id: fx2_ember_ignition, kind: body, parent: caster}
   - {id: fx2_ember_ignition_pilot_at, kind: body, parent: fx2_ember_ignition}
   - {id: fx2_ember_ignition_smoke_at, kind: body, parent: fx2_ember_ignition}
-  - {id: fx2_ember_ignition_gauntlet, kind: body, parent: caster.right_hand}
+  - {id: fx2_ember_ignition_gauntlet_at, kind: body, parent: caster.right_hand}
+  - {id: fx2_ember_ignition_gauntlet, kind: body, parent: fx2_ember_ignition_gauntlet_at}
   - {id: fx3_ember_sweep, kind: body, parent: caster}
   - {id: fx3_ember_sweep_embers_at, kind: body, parent: fx3_ember_sweep}
-  - {id: fx3_ember_sweep_gauntlet, kind: body, parent: caster.right_hand}
+  - {id: fx3_ember_sweep_gauntlet_at, kind: body, parent: caster.right_hand}
+  - {id: fx3_ember_sweep_gauntlet, kind: body, parent: fx3_ember_sweep_gauntlet_at}
   - {id: pt_fx3_ember_sweep_gauntlet_0_1p95_0, kind: point, parent: fx3_ember_sweep_gauntlet, offset: [0.0, 1.95, 0.0]}
   - {id: pt_fx3_ember_sweep_gauntlet_0_2p65_0, kind: point, parent: fx3_ember_sweep_gauntlet, offset: [0.0, 2.65, 0.0]}
   - {id: fx4_ember_punch, kind: body, parent: caster}
   - {id: fx4_ember_punch_flame_at, kind: body, parent: fx4_ember_punch}
   - {id: fx4_ember_punch_soot_at, kind: body, parent: fx4_ember_punch}
-  - {id: fx4_ember_punch_gauntlet, kind: body, parent: caster.right_hand}
+  - {id: fx4_ember_punch_gauntlet_at, kind: body, parent: caster.right_hand}
+  - {id: fx4_ember_punch_gauntlet, kind: body, parent: fx4_ember_punch_gauntlet_at}
   - {id: fx5_ember_furnace_blast, kind: body, parent: caster}
   - {id: fx5_ember_furnace_blast_flame_at, kind: body, parent: fx5_ember_furnace_blast}
   - {id: fx5_ember_furnace_blast_soot_at, kind: body, parent: fx5_ember_furnace_blast}
-  - {id: fx5_ember_furnace_blast_gauntlet, kind: body, parent: caster.right_hand}
+  - {id: fx5_ember_furnace_blast_gauntlet_at, kind: body, parent: caster.right_hand}
+  - {id: fx5_ember_furnace_blast_gauntlet, kind: body, parent: fx5_ember_furnace_blast_gauntlet_at}
   - {id: fx6_ember_smoke_puff, kind: body, parent: world}
   - {id: fx6_ember_smoke_puff_vent_at, kind: body, parent: fx6_ember_smoke_puff}
   - {id: fx6_ember_smoke_puff_haze_at, kind: body, parent: fx6_ember_smoke_puff}
@@ -38,7 +43,7 @@ presentation:
         - id: fx1_ember_harness_furnace_pack_rig
           op: rig
           frame: fx1_ember_harness_furnace_pack
-          parent: caster.right_hand
+          parent: fx1_ember_harness_furnace_pack_at
           duration: 85
           hand: false
           pivot: [1.099996, 0.003456, -0.359989]
@@ -137,7 +142,7 @@ presentation:
         - id: fx2_ember_ignition_gauntlet_rig
           op: rig
           frame: fx2_ember_ignition_gauntlet
-          parent: caster.right_hand
+          parent: fx2_ember_ignition_gauntlet_at
           duration: 16
           hand: false
           pivot: [1.050759, 0.347699, 0.246785]
@@ -172,7 +177,7 @@ presentation:
         - id: fx3_ember_sweep_gauntlet_rig
           op: rig
           frame: fx3_ember_sweep_gauntlet
-          parent: caster.right_hand
+          parent: fx3_ember_sweep_gauntlet_at
           duration: 14
           hand: false
           pivot: [1.050759, 0.347699, 0.246785]
@@ -298,7 +303,7 @@ presentation:
         - id: fx4_ember_punch_gauntlet_rig
           op: rig
           frame: fx4_ember_punch_gauntlet
-          parent: caster.right_hand
+          parent: fx4_ember_punch_gauntlet_at
           duration: 16
           hand: false
           pivot: [1.050759, 0.347699, 0.246785]
@@ -1003,7 +1008,7 @@ presentation:
         - id: fx5_ember_furnace_blast_gauntlet_rig
           op: rig
           frame: fx5_ember_furnace_blast_gauntlet
-          parent: caster.right_hand
+          parent: fx5_ember_furnace_blast_gauntlet_at
           duration: 21
           hand: false
           pivot: [1.050759, 0.347699, 0.246785]
