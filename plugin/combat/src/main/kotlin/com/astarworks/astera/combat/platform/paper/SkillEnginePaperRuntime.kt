@@ -142,6 +142,7 @@ internal class SkillEnginePaperRuntime(
             guard = { ports.blockEditGuard?.invoke(services) },
             blockStates = { services.get<IBlockStateGateway>() },
             covers = { services.get<ICustomBlockRegistry>() },
+            structures = { services.get<IStructureTargets>() },
             lightning = { services.get<ILightningGateway>() },
         )
         worldOps = worldGateway3
