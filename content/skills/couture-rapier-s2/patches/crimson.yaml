@@ -15,4 +15,4 @@ ops:
   - {path: "machine.states.throw.do[thread_b].color", $patch: replace, value: "#d0203a"}
   - {path: "machine.states.throw.do[thread_body].color", $patch: replace, value: "#d0203a"}
   - {path: "machine.states.throw.enter[volley].on.hit[sparks].particle", $patch: replace, value: flame}
-  - {path: "machine.states.reel.on[reel_hit.hit].do[reel_sparks].particle", $patch: replace, value: flame}
+  - {path: "machine.states.reel.do[reel_hit].on.hit[reel_sparks].particle", $patch: replace, value: flame}

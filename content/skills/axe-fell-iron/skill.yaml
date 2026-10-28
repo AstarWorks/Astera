@@ -9,7 +9,7 @@ meta:
   resource_cost: 0
   tags: [tool, cover]
 anchors:
-  - {id: aim, anchor: caster.eye, offset: {forward: 2.0}}
+  - {id: aim, anchor: caster, offset: {forward: 2.0}}
 machine:
   start: cast
   states:
@@ -20,5 +20,5 @@ machine:
         - {id: snd, op: sound, sound: "astera:weapons/blade-heavy-swing", anchor: caster, volume: 1.0, pitch: 0.8, at: 0}
         - {id: spark, op: particle_def, def: hit-spark, anchor: aim, at: 0}
       enter:
-        - {id: fell, op: break_area, at: 0, anchor: caster.eye, shape: {line: {length: 7, width: 1}}, tool: axe, block_damage: 100, ripple: 29, revert: 200, outside_arena: false}
+        - {id: fell, op: break_area, at: 0, anchor: caster, shape: {line: {length: 7, width: 1}}, tool: axe, block_damage: 100, ripple: 29, revert: 200, outside_arena: false}   # ENGINE GAP: dev v2 break_area had height: 3; line shape has no height key (UnknownKey)
     end: {final: true}

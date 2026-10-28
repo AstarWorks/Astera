@@ -5,7 +5,7 @@ id: pickaxe-shatter-iron
 item: iron-pickaxe
 meta: {name: {ja: "鉄の粉砕", en: "Iron Shatter"}, description: {ja: "視線の先のブロックを球状に砕く。", en: "Shatters blocks in a sphere where you look."}, cooldown_ticks: 200, resource_cost: 0, tags: [tool, cover]}
 anchors:
-  - {id: spark, anchor: caster.eye, offset: {forward: 2.0}, mode: snapshot}   # was pt_aim_0_0_2
+  - {id: spark, anchor: caster, offset: {forward: 2.0}, mode: snapshot}   # was pt_caster_0_0_2 (feet, yaw-only)
 machine:
   start: smash
   states:

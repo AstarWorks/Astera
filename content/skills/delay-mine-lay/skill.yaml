@@ -13,8 +13,8 @@ params:
   explode_radius:   {type: blocks, default: 2.5}
   explode_physical: {type: number, default: 55}
 anchors:
-  - {id: spot, anchor: caster.eye, offset: {forward: 2.5}, mode: snapshot}
-  - {id: smoke_at, anchor: caster.eye, offset: {forward: 2.5, up: 0.1}}
+  - {id: spot, anchor: caster, offset: {forward: 2.5}, mode: snapshot}
+  - {id: smoke_at, anchor: caster, offset: {forward: 2.5, up: 0.1}}
 machine:
   start: cast
   states:
@@ -30,7 +30,7 @@ machine:
           for: 51
           then: recover
           do:
-            - {id: boom, op: explode, at: 50, anchor: spot, power: 1.0, break_blocks: false, fire: false}
-            - {id: blast, op: damage, at: 50, target: {kind: enemies, around: spot, radius: "${explode_radius}", max_count: all, include_self: false}, damage: {physical: "${explode_physical}"}}  # GAP(Q1): max_count spelling (A required int|all / B omit) is a founder question; v2 had no cap
+            - {id: boom, op: explode, at: 50, anchor: spot, power: "${explode_power}", break_blocks: false, fire: false}
+            - {id: blast, op: damage, at: 50, target: {kind: enemies, around: spot, radius: "${explode_radius}", max_count: all}, damage: {physical: "${explode_physical}"}}  # GAP(Q1): max_count spelling (A required int|all / B omit) is a founder question; v2 had no cap
         recover: {final: true}
     done: {final: true}

@@ -11,7 +11,7 @@ meta:
   tags: [tool, cover]
 anchors:
   - {id: aim, anchor: caster.eye, mode: snapshot}
-  - {id: dust, anchor: caster.eye, offset: {forward: 2.0}, mode: snapshot}            # was pt_aim_0_0_2
+  - {id: dust, anchor: caster, offset: {forward: 2.0}, mode: snapshot}            # was pt_caster_0_0_2 (feet, yaw-only)
 machine:
   start: bore
   states:

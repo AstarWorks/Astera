@@ -10,8 +10,8 @@ meta:
   tags: [ranged, earth-family, poison]
 anchors:
   - {id: muzzle, anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}
-  - {id: flash,  anchor: caster.eye, offset: {up: -0.2, forward: 1.0}}
-  - {id: chest,  anchor: victim.root, offset: {up: 1.0}}  # GAP(Q2): v2 enemy frame origin = feet+0.8 fixed; victim.body (live hitbox centre, 0.9) or a fixed chest point is the founder's choice (Q2)
+  - {id: flash,  anchor: caster, offset: {up: -0.2, forward: 1.0}}   # v2 pt_caster_0_m0p2_1: caster frame (feet, yaw-only)
+  - {id: chest,  anchor: victim.root, offset: {up: 1.0}}
 machine:
   start: fly
   states:
@@ -19,7 +19,7 @@ machine:
       for: 51      # body for 50; the cast ends when the body ends (manager ruling 10/29)
       then: end
       on:
-        - {event: bolt.end, to: tail}
+        - {event: bolt.end, to: end}
       do:
         - {id: snd, op: sound, sound: "astera:skill/wand/cast", anchor: caster, volume: 0.9, pitch: 1.4}
         - {id: puff, op: particle_def, def: verdant-cast, anchor: flash}
@@ -38,19 +38,8 @@ machine:
               - {id: snd_hit, op: sound, sound: "astera:skills/nature-impact", anchor: contact, volume: 1.0, pitch: 0.7}
               - {id: fx_hit, op: particle_def, def: verdant-impact, anchor: chest}
               - {id: fx_hit_2, op: particle_def, def: verdant-impact-sparkle, anchor: chest}
-              # four jagged dust lines: length 1.4, 10 points, one random axis per cast, +-0.2 jitter per point
-              - id: lines
-                at: 0
-                times: 4
-                do:
-                  - {id: seg, op: particle, particle: dust, times: 10, at: 0, count: 1, color: "#3c9632", size: 1.2, anchor: chest, shift: "= draw_unit('line_ax') * (1.4 * i / (n - 1)) + roll_unit('line_jit') * 0.2"}
-              # expanding composter ring at ticks 0..3 after the hit, radius 0.3 + (1.3 / 3) * k, 10 emits, random plane and phase per cast
-              - id: ring
-                at: 0
-                every: 1
-                times: 4
-                do:
-                  - {id: spray, op: particle, particle: composter, times: 10, at: 0, count: 0, offset: "= plane_a(draw_unit('ring_ax')) * cos(2*PI*i/10 + draw('ring_ph')*2*PI) + plane_b(draw_unit('ring_ax')) * sin(2*PI*i/10 + draw('ring_ph')*2*PI)", extra: 0.04, anchor: chest, shift: "= plane_a(draw_unit('ring_ax')) * (0.3 + 1.3 / 3 * parent.i) * cos(2*PI*i/10 + draw('ring_ph')*2*PI) + plane_b(draw_unit('ring_ax')) * (0.3 + 1.3 / 3 * parent.i) * sin(2*PI*i/10 + draw('ring_ph')*2*PI)"}
+              - {id: fx_hit_dust, op: particle, particle: dust, anchor: chest, count: 1, color: "#3c9632", size: 1.2}
+              - {id: fx_hit_spray, op: particle, particle: composter, anchor: chest, count: 0, extra: 0.04}
             block:
               - {id: snd_blk, op: sound, sound: "astera:skills/nature-impact", anchor: contact, volume: 0.8, pitch: 0.8}
               - {id: fx_blk, op: particle_def, def: verdant-impact, anchor: contact}
@@ -59,15 +48,5 @@ machine:
         - {id: trail,   op: particle, particle: happy_villager, anchor: {of: bolt, sweep: 0.3}, count: 1, offset: [0.08, 0.08, 0.08], at: 0, every: 1, until: bolt.end}
         - {id: trail_2, op: particle, particle: composter,      anchor: {of: bolt, sweep: 0.3}, count: 2, offset: [0.1, 0.1, 0.1], at: 0, every: 1, until: bolt.end}
         - {id: trail_3, op: particle, particle: dust,           anchor: {of: bolt, sweep: 0.3}, count: 2, offset: [0.08, 0.08, 0.08], color: "#46aa3c", size: 1.2, at: 0, every: 1, until: bolt.end}
-        # trail jagged dust line: 7 points per tick, length 0.7, random axis per tick, +-0.15 jitter
-        - id: trail_4
-          op: group
-          at: 0
-          every: 1
-          until: bolt.end
-          do:
-            - {id: seg, op: particle, particle: dust, times: 7, at: 0, count: 1, color: "#287828", size: 0.9, anchor: {of: bolt, sweep: 0.3}, shift: "= roll_unit('trail_ax') * (0.7 * i / (n - 1)) + roll_unit('trail_jit') * 0.15"}
-    tail:
-      for: 4       # ring rows run ticks 0..3 after the event
-      then: end
+        - {id: trail_4, op: particle, particle: dust, anchor: {of: bolt, sweep: 0.3}, count: 1, color: "#287828", size: 0.9, at: 0, every: 1, until: bolt.end}
     end: {final: true}

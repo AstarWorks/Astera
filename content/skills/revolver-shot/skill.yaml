@@ -6,15 +6,16 @@ item: revolver
 meta: {name: {ja: "リボルバー射撃", en: "Revolver Shot"}, description: {ja: "一発一発が重い銃撃。", en: "Slow, heavy shots."}, cooldown_ticks: 16, resource_cost: 6, tags: [ranged, gun, physical]}
 anchors:
   - {id: start,  anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}            # was pt_aim_0_0_0p5
-  - {id: muzzle, anchor: caster.eye, offset: {up: -0.25, forward: 0.9}, mode: snapshot} # was pt_aim_0_m0p25_0p9
-  - {id: foe,    anchor: victim.root}   # GAP(Q2): v2 enemy frame origin = feet+0.8; victim.root = feet
-  - {id: heart,  anchor: victim.root, offset: {up: 1.2}}   # GAP(Q2): v2 enemy frame origin = feet+0.8; victim.root = feet
+  - {id: muzzle, anchor: caster, offset: {up: -0.25, forward: 0.9}, mode: snapshot} # was pt_caster_0_m0p25_0p9 (feet, yaw-only)
+  - {id: heart,  anchor: victim.root, offset: {up: 1.2}}   # was pt_enemy_0_1p2_0 (victim feet, yaw-only)
 machine:
   start: fire
   states:
     fire:
       for: 40                       # = max_lifetime_ticks; covers the whole flight
       then: end
+      on:
+        - {event: bolt.end, to: end}
       enter:
         - {id: snd, op: sound, sound: "astera:weapons/gun-shot", anchor: caster, volume: 0.8, pitch: 0.8}
         - {id: fl0, op: particle_def, def: gun-muzzle-flash, anchor: muzzle}
@@ -30,7 +31,7 @@ machine:
           on:
             hit:
               - {id: dmg, op: damage, target: event.victim, damage: {physical: 30}}
-              - {id: snd_hit, op: sound, sound: "astera:weapons/gun-impact", anchor: foe, volume: 0.8, pitch: 1.0}
+              - {id: snd_hit, op: sound, sound: "astera:weapons/gun-impact", anchor: contact.point, volume: 0.8, pitch: 1.0}
               - {id: fx_hit, op: particle_def, def: hit-spark, anchor: heart}
             block:
               - {id: snd_blk, op: sound, sound: "astera:weapons/gun-impact-block", anchor: contact, volume: 0.5, pitch: 1.5}

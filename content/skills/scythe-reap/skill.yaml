@@ -1,13 +1,16 @@
-# astera/v3 hand port of the v2 skill.yaml + look.yaml (tick for tick).
 apiVersion: astera/v3
 kind: Skill
 id: scythe-reap
 item: scythe
 meta: {name: {ja: "刈り取り", en: "Scythe Reap"}, description: {ja: "半円状に刈り取る。", en: "A wide reaping arc."}, cooldown_ticks: 16, resource_cost: 8, tags: [melee, physical]}
+params:
+  arc_deg:      {type: number, default: 180}
+  range:        {type: blocks, default: 3.4}
+  dmg_physical: {type: number, default: 28}
+  knockback:    {type: number, default: 0.3}
 anchors:
-  - {id: eye,   anchor: caster.eye}
-  - {id: sweep, anchor: caster.eye, offset: {up: -0.2, forward: 1.5}}   # was pt_aim_0_m0p2_1p5
-  - {id: heart, anchor: victim, offset: {up: 1.2}}                       # GAP(Q2): v2 enemy frame (feet +0.8 fixed) vs v3 victim anchors; was pt_enemy_0_1p2_0
+  - {id: sweep, anchor: caster, offset: {up: -0.2, forward: 1.5}, mode: snapshot}
+  - {id: heart, anchor: victim.root, offset: {up: 1.2}}
 machine:
   start: cast
   states:
@@ -15,21 +18,21 @@ machine:
       for: 1
       then: end
       do:
-        - {id: snd, op: sound, sound: entity.player.attack.sweep, anchor: caster, volume: 1.0, pitch: 1.0}
-        - {id: fx, op: particle_def, def: slash-sweep, anchor: sweep}
+        - {id: snd, op: sound, sound: entity.player.attack.sweep, anchor: caster, volume: 1.0, pitch: 1.0, at: 0}
+        - {id: fx, op: particle_def, def: slash-sweep, anchor: sweep, at: 0}
         - id: swing
           op: hit
           at: 0
-          anchor: eye
-          shape: {sector: {deg: 180.0, range: 3.4, height: 2.0, forward: look}}
+          anchor: caster.eye
+          shape: {sector: {deg: "${arc_deg}", range: "${range}", height: 2.0, forward: look}}
           targets: enemies
-          # GAP(Q1): v2 has no cap (unlimited, nearest-first); spelling A `max_count: all`, B omitted
+          max_count: all                   # GAP(Q1): v2 had no cap
           window: once
           ignore_invulnerability: false
-          damage: {physical: 28.0}
+          damage: {physical: "${dmg_physical}"}
           on:
             hit:
-              - {id: kb, op: knockback, target: event.victim, direction: "= normalize(event.victim - pos(caster))", strength: 0.3}
+              - {id: kb, op: knockback, target: event.victim, direction: "= normalize(event.victim - pos(caster))", strength: "${knockback}"}
               - {id: snd_hit, op: sound, sound: "astera:weapons/blade-hit", anchor: contact, volume: 0.7, pitch: 1.2}
               - {id: fx_hit, op: particle_def, def: hit-spark, anchor: heart}
     end: {final: true}
