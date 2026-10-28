@@ -9,8 +9,8 @@ params:
   dmg_physical: {type: number, default: 22}
   tremor_ticks: {type: ticks, default: 40}
 anchors:
-  - {id: cast_fx, anchor: caster.eye, offset: {up: -0.1, forward: 1.6}}
-  - {id: heart, anchor: victim.root, offset: {up: 1.2}}  # GAP(Q2): v2 enemy frame origin = feet+0.8; victim.root = feet (founder choice)
+  - {id: cast_fx, anchor: caster, offset: {up: -0.1, forward: 1.6}}  # v2 pt_caster (feet, yaw-only)
+  - {id: heart, anchor: victim.root, offset: {up: 1.2}}
 machine:
   start: swing
   states:
