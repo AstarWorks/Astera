@@ -29,6 +29,7 @@ import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.application.skillengine.load.grammar.LocalAxes
 import com.astarworks.astera.core.domain.geometry.math.Basis
 import com.astarworks.astera.core.domain.geometry.math.Frame
+import com.astarworks.astera.core.domain.skillengine.expr.FrameLookup
 import com.astarworks.astera.core.domain.geometry.math.Quaternion
 import com.astarworks.astera.core.domain.skill.value.NumericValue
 import com.astarworks.astera.core.domain.skillengine.hit.ContactEvent
@@ -555,7 +556,7 @@ public class TablePlayer(
             if (ok == null) { fault(run, now, src, "no guard evaluator for $g"); return }
             if (!ok) return
         }
-        ctx.scope = rowScope(run, row)
+        ctx.scope = rowScope(run, row, ctx.binding)
         try {
             when (val a = row.action) {
                 is Action.Enter -> {
@@ -635,6 +636,7 @@ public class TablePlayer(
         rec.billboard = a.look.fields["billboard"]?.let { runCatching { DisplayBillboard.valueOf(strOf(run, it, ctx).uppercase()) }.getOrNull() } ?: DisplayBillboard.FIXED
         rec.axes = a.look.fields["axes"]?.let { strOf(run, it, ctx) }
         run.recs[id] = rec
+        for ((key, v) in a.look.fields) if (key.startsWith("point.")) rec.points[key.removePrefix("point.")] = any(run, v, ctx) as Vector3d
         if (body) {
             rec.flight = flightOf(run, a.look, local, ctx)
             val lf = a.look.fields
@@ -1556,10 +1558,52 @@ public class TablePlayer(
         return h xor (h ushr 31)
     }
 
-    private fun rowScope(run: Run, row: Row): RowScope {
-        val last = row.instance.path.lastOrNull() ?: return RowScope.cast(run.request.seed)
+    /**
+     * The frame lookup an expression sees (ADR-0303 3.5): a frame / projectile op id (`volley`) or `<id>.<point>` (`piece_a.tip`) names the live instance
+     * whose last path segment is that id; the one sharing the longest path prefix with the row's instance wins, then the latest spawned. Unknown = null / ZERO.
+     * Velocity is blocks per tick between the previous and the current tick of the instance's own chain (the caster's motion under a caster-anchored chain is not counted).
+     */
+    private fun framesOf(run: Run, row: Row, binding: EventBinding?): FrameLookup = object : FrameLookup {
+        private fun find(name: String): Rec? {
+            var best: Rec? = null
+            var bestScore = -1
+            for ((id, rec) in run.recs) {
+                if (id.path.lastOrNull()?.op?.value?.substringAfterLast('/') != name) continue
+                var score = 0
+                val mine = id.text.split('/')
+                val theirs = row.instance.text.split('/')
+                while (score < mine.size - 1 && score < theirs.size && mine[score] == theirs[score]) score++
+                if (score >= bestScore) { best = rec; bestScore = score }
+            }
+            return best
+        }
+
+        private fun at(rec: Rec, point: String?, local: PoseV, t: Int): PoseV? {
+            val w = worldOf(run, rec, local, binding, t)
+            if (point == null) return w
+            val p = rec.points[point] ?: return null
+            return PoseV(Vector3d(p.x * w.scale.x, p.y * w.scale.y, p.z * w.scale.z).rotate(w.rot).add(w.pos), w.rot, w.scale)
+        }
+
+        override fun worldPose(frame: String, point: String?): Frame? {
+            val rec = find(frame) ?: return null
+            val w = at(rec, point, rec.localAt(lastTick), lastTick) ?: return null
+            return Frame(Vec3(w.pos.x, w.pos.y, w.pos.z), Quaternion(w.rot.x, w.rot.y, w.rot.z, w.rot.w))
+        }
+
+        override fun velocity(frame: String, point: String?): Vec3 {
+            val zero = Vec3(0.0, 0.0, 0.0)
+            val rec = find(frame) ?: return zero
+            val now = at(rec, point, rec.localAt(lastTick), lastTick) ?: return zero
+            val before = at(rec, point, rec.prevLocal(lastTick), lastTick - 1) ?: return zero
+            return Vec3(now.pos.x - before.pos.x, now.pos.y - before.pos.y, now.pos.z - before.pos.z)
+        }
+    }
+
+    private fun rowScope(run: Run, row: Row, binding: EventBinding? = null): RowScope {
+        val last = row.instance.path.lastOrNull() ?: return RowScope(run.request.seed, run.request.seed, emptyList(), framesOf(run, row, binding))
         val indices = row.instance.path.mapNotNull { it.index }.asReversed()
-        return RowScope(V3Bindings.seed(run.request.seed, last.op, last.index ?: 0), run.request.seed, indices)
+        return RowScope(V3Bindings.seed(run.request.seed, last.op, last.index ?: 0), run.request.seed, indices, framesOf(run, row, binding))
     }
 
     private fun rowStream(run: Run, row: Row, ctx: RowCtx): SeededStream =
@@ -1660,6 +1704,10 @@ public class TablePlayer(
             segStart = now
             segDur = duration
         }
+
+        /** The local pose one tick before [t] (what the instance was at the end of the previous tick). */
+        fun prevLocal(t: Int): PoseV =
+            if (segDur <= 0) (if (segStart >= t - 1) from else to) else if (t - 1 < segStart) from else localAt(t - 1)
 
         fun localAt(t: Int): PoseV {
             if (segDur <= 0 || t >= segStart + segDur) return to

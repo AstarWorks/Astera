@@ -179,7 +179,7 @@ public class SkillCompiler(
         val usedSkills = LinkedHashSet<String>()
 
         private val decoder = OpListDecoder(specs)
-        private val grammar = GrammarContext(original.id, null, exprs, V3Bindings.spec(DEEP, ExprEnvSpec(variables = ANCHOR_AXES.associate { "anchor.$it" to ExprType.VEC3 }, frames = flat.anchors.map { it.id }.toSet() + flat.framesIn.keys)),
+        private val grammar = GrammarContext(original.id, null, exprs, V3Bindings.spec(DEEP, ExprEnvSpec(variables = ANCHOR_AXES.associate { "anchor.$it" to ExprType.VEC3 }, frames = flat.anchors.map { it.id }.toSet() + flat.framesIn.keys + com.astarworks.astera.core.application.skillengine.load.grammar.ExprFrames.ofMachine(flat.machine))),
             paramDefaults = loadTimeDefaults(original.params),
             partAxes = flat.item?.takeIf { it != "any" }?.let { item -> { part -> frames.item(item)?.partFor(part)?.axes } },
         )

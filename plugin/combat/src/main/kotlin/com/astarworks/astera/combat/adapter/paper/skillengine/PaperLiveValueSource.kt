@@ -232,12 +232,23 @@ public class PaperLiveValueSource(
         }
         val env = ExprEnv(
             variables = vars,
-            frames = frames(cast),
+            frames = withInstances(frames(cast), scope.frames),
             seed = scope.seed,
             castSeed = scope.castSeed,
             host = StackHost(request, binding),
         )
         return expr.eval(env)
+    }
+
+    /** The caster / contact frames first, then the cast's own frame / projectile instances ([inst], from the row's scope). */
+    private fun withInstances(base: FrameLookup, inst: FrameLookup?): FrameLookup {
+        if (inst == null) return base
+        return object : FrameLookup {
+            override fun worldPose(frame: String, point: String?): Frame? = base.worldPose(frame, point) ?: inst.worldPose(frame, point)
+
+            override fun velocity(frame: String, point: String?): Vec3 =
+                if (base.worldPose(frame, point) != null) base.velocity(frame, point) else inst.velocity(frame, point)
+        }
     }
 
     /** `stacks(entity, status)` reads the gateway; the other host reads are not served on Paper yet and fail loudly. */

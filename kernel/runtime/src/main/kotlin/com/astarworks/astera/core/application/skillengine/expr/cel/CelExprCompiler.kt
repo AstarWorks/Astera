@@ -33,7 +33,7 @@ public class CelExprCompiler : ExprCompiler {
     private fun compilerFor(spec: ExprEnvSpec): CelCompiler = compilers.getOrPut(spec) {
         val b = CelCompilerFactory.standardCelCompilerBuilder()
         for ((name, type) in spec.variables) b.addVar(name, celType(type))
-        for (frame in spec.frames) b.addVar(frame, CelFunctions.REF)
+        for (frame in spec.frames) if (frame !in spec.variables) b.addVar(frame, CelFunctions.REF)
         b.addVar("PI", SimpleType.DOUBLE)
         b.addFunctionDeclarations(CelFunctions.declarations())
         b.build()
@@ -87,7 +87,7 @@ public class CelExprCompiler : ExprCompiler {
         private val program: CelRuntime.Program,
         frames: Set<String>,
     ) : CompiledExpr {
-        private val frameRefs: Map<String, Any> = frames.associateWith { ExprValue.Ref(it) }
+        private val frameRefs: Map<String, Any> = frames.associateWith { ExprValue.Ref(it.substringBefore('.'), it.substringAfter('.', "").ifEmpty { null }) }
 
         override fun eval(env: ExprEnv): ExprValue {
             val activation = HashMap<String, Any?>(env.variables.size + frameRefs.size)
