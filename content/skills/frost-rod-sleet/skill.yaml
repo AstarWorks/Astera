@@ -1,39 +1,50 @@
-apiVersion: "astera/v3"
+apiVersion: astera/v3
 kind: Skill
 id: frost-rod-sleet
 item: frost-rod
 meta: {name: {ja: "みぞれ", en: Sleet}, description: {ja: "氷の欠片。凍らせることがある。", en: "A chilling shard that can freeze."}, cooldown_ticks: 22, resource_cost: 6, tags: [ranged, water]}
+params:
+  launch_speed:       {type: number, default: 2.4}
+  max_lifetime_ticks: {type: ticks, default: 45}
+  dmg_water:          {type: number, default: 18.0}
+  freeze_ticks:       {type: ticks, default: 40}
 anchors:
-  muzzle: {anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}
-  cast_fx: {anchor: caster.eye, offset: {up: -0.25, forward: 0.9}, mode: snapshot}
-  heart: {anchor: victim.body, offset: {up: 0.4}}
-# anchor note: v2 enemy point offset Y minus 0.8 (example b maps 1.0 -> up 0.2)
-presentation:
-  timeline:
-    - at: 0
-      do:
-        - {id: snd, op: sound, sound: "astera:skill/wand/cast", anchor: caster, volume: 0.8, pitch: 1.4}
-        - {id: fx, op: particle_def, def: frost-cast, anchor: cast_fx}
-    - {at: 0, every: 1, until: bolt.end, do: [{op: particle, particle: snowflake, anchor: {of: bolt, sweep: 0.4}, count: 1, offset: [0.04, 0.04, 0.04]}]}
-    - {at: 0, every: 1, until: bolt.end, do: [{op: particle, particle: dust, anchor: {of: bolt, sweep: 0.4}, count: 1, offset: [0.0, 0.0, 0.0], color: "#c8ebff", size: 1.0}]}
-gameplay:
-  timeline:
-    - at: 0
-      do:
+  - {id: muzzle,  anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}
+  - {id: cast_fx, anchor: caster.eye, offset: {up: -0.25, forward: 0.9}, mode: snapshot}
+  - {id: heart,   anchor: victim.body, offset: {up: 0.4}}   # anchor note: v2 enemy point offset Y minus 0.8 (example b maps 1.0 -> up 0.2)
+machine:
+  start: fly
+  states:
+    fly:
+      on:
+        - {event: bolt.end, to: end}      # v2 1:1: the cast ends when the projectile body ends
+      enter:
         - id: bolt
           op: projectile
           origin: muzzle
-          velocity: "= look(caster) * 2.4"
-          for: 45
+          velocity: "= look(caster) * launch_speed"
+          for: "= max_lifetime_ticks"
           radius: 0.5
           hit: {targets: enemies, once: true}
           block: {mode: despawn}
           on:
             hit:
-              - {id: dmg, op: damage, target: event.victim, damage: {water: 18.0}}
-              - {id: st_freeze, op: status, target: event.victim, status: freeze, stacks: 1, for: 40, when: "= rand() < 0.4"}
-              - {id: snd_hit, op: sound, sound: "astera:skills/frost-impact", anchor: heart, volume: 0.7, pitch: 1.2}
+              - {id: dmg, op: damage, target: event.victim, damage: {water: "= dmg_water"}}
+              - {id: st_freeze, op: status, target: event.victim, status: freeze, stacks: 1, for: "= freeze_ticks", when: "= rand() < 0.4"}
+              - {id: snd_hit, op: sound, sound: "astera:skills/frost-impact", anchor: contact, volume: 0.7, pitch: 1.2}
               - {id: fx_hit, op: particle_def, def: hit-spark, anchor: heart}
             block:
-              - {id: snd_blk, op: sound, sound: "astera:weapons/gun-impact-block", anchor: contact.point, volume: 0.5, pitch: 1.5}
-              - {id: fx_blk, op: particle_def, def: hit-spark, anchor: contact.point}
+              - {id: snd_blk, op: sound, sound: "astera:weapons/gun-impact-block", anchor: contact, volume: 0.5, pitch: 1.5}
+              - {id: fx_blk, op: particle_def, def: hit-spark, anchor: contact}
+      do:
+        - {id: snd, op: sound, sound: "astera:skill/wand/cast", anchor: caster, volume: 0.8, pitch: 1.4, at: 0}
+        - {id: fx, op: particle_def, def: frost-cast, anchor: cast_fx, at: 0}
+        - id: trail
+          op: group
+          at: 0
+          every: 1
+          until: bolt.end
+          do:
+            - {id: tr0, op: particle, anchor: {of: bolt, sweep: 0.4}, particle: snowflake, count: 1, offset: [0.04, 0.04, 0.04], extra: 0, at: 0}
+            - {id: tr1, op: particle, anchor: {of: bolt, sweep: 0.4}, particle: dust, count: 1, offset: [0, 0, 0], extra: 0, color: "#c8ebff", size: 1.0, at: 0}
+    end: {final: true}
