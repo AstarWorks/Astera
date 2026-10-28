@@ -38,6 +38,7 @@ class StatusOpsScenarioTest {
     private val bystander = UUID(0, 3)
 
     private class Recorder : ISkillGameplayGateway {
+    override fun statusStacks(entity: UUID, statusId: String): Int = 0
         val calls = mutableListOf<String>()
         override fun damage(caster: UUID, victim: UUID, components: List<SkillDamage>, hitPoint: Vec3) { calls += "damage" }
         override fun applyStatus(caster: UUID, victim: UUID, statusId: String, stacks: Int, durationTicks: Int) {

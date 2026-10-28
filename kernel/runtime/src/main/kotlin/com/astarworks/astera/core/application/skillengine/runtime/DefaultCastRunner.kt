@@ -38,10 +38,15 @@ public data class MissingExecutors(val skill: String, val ops: List<String>) : C
 public data class CasterInterrupted(val skill: String, val status: String) : CastError
 
 /** An op / law / expression failed; the cast kept running. */
-public data class CastDiagnostic(val cast: CastId, val tick: Int, val opId: String?, val message: String)
+public data class CastDiagnostic(val cast: CastId, val tick: Int, val opId: String?, val message: String) {
+    /** The one log line every consumer prints (server log, sims; e2e greps `[skill-error]`). */
+    public fun asLogLine(skillId: String? = null): String =
+        "[skill-error] cast=${cast.value}${skillId?.let { " skill=$it" } ?: ""} tick=$tick op=${opId ?: "-"}: $message"
+}
 
 public class CastRunnerDeps(
-    public val ports: SkillRuntimePorts,
+    /** Builds the ports of one cast: the world-bound ones (sound, particle, entity query) are made for [CastRequest.world]. */
+    public val portsIn: (com.astarworks.astera.core.domain.world.WorldId) -> SkillRuntimePorts,
     public val newTree: () -> FrameTree,
     public val motion: MotionLawFactory,
     public val contacts: ContactResolver,
@@ -84,7 +89,8 @@ public class DefaultCastRunner(private val deps: CastRunnerDeps) : CastRunner, I
     private fun startChain(request: CastRequest, chain: List<String>): Result<CastId, CastError> {
         val missing = missingExecutors(request.skill)
         if (missing.isNotEmpty()) return Result.Failure(MissingExecutors(request.skill.def.id, missing))
-        CastInstance.INTERRUPTING_STATUSES.firstOrNull { deps.ports.gameplay.statusStacks(request.caster, it) > 0 }
+        val worldPorts = deps.portsIn(request.world)
+        CastInstance.INTERRUPTING_STATUSES.firstOrNull { worldPorts.gameplay.statusStacks(request.caster, it) > 0 }
             ?.let { return Result.Failure(CasterInterrupted(request.skill.def.id, it)) }
         val id = CastId(ids.getAndIncrement())
         val cast = CastInstance(id, request, deps, bank, chain, { r, c -> startChain(r, c) }, ::record)
@@ -102,6 +108,13 @@ public class DefaultCastRunner(private val deps: CastRunnerDeps) : CastRunner, I
     @Synchronized
     override fun raise(cast: CastId, event: CastEvent) {
         casts[cast.value]?.enqueueExternal(event)
+    }
+
+    @Synchronized
+    override fun raiseAllOf(caster: UUID, name: String, tick: Int): Int {
+        val targets = casts.values.filter { it.request.caster == caster && !it.hasRaised(name) }
+        targets.forEach { it.enqueueExternal(CastEvent(name, tick, source = "input")) }
+        return targets.size
     }
 
     @Synchronized

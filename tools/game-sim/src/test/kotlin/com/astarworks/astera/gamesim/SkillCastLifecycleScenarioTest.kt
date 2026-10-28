@@ -60,14 +60,14 @@ class SkillCastLifecycleScenarioTest {
         val kit = sim.kit
         val empty = DefaultCastRunner(
             CastRunnerDeps(
-                ports = ports, newTree = c.newTree, motion = c.motion, contacts = c.contacts, exprs = c.exprs,
+                portsIn = { ports }, newTree = c.newTree, motion = c.motion, contacts = c.contacts, exprs = c.exprs,
                 executors = DefaultOpExecutorRegistry(), points = c.points, hosts = kit.hosts, dashes = kit.dashes, locks = kit.locks,
                 world = kit.world, presentation = kit.presentation, cooldowns = noop(), items = noop(), effects = noop(),
                 skills = sim.catalog::get,
             ),
         )
         val skill = requireNotNull(sim.catalog.get("t-noexec"))
-        val result = empty.start(CastRequest(skill, SIM_CASTER, Vec3.ZERO, 0.0, 0.0, seed = 1L, startTick = 0))
+        val result = empty.start(CastRequest(skill, SIM_CASTER, sim.castWorld, Vec3.ZERO, 0.0, 0.0, seed = 1L, startTick = 0))
         val error = (result as Result.Failure).error
         assertThat(error).isInstanceOf(MissingExecutors::class.java)
         assertThat((error as MissingExecutors).ops).anyMatch { it.startsWith("mark ") }
@@ -193,7 +193,7 @@ class SkillCastLifecycleScenarioTest {
     fun `a silenced caster cannot start a cast`() {
         val sim = CastSim(victims = emptyMap(), casterStacks = mapOf("silence" to 1), extraSkills = mapOf(longCast))
         val skill = requireNotNull(sim.catalog.get("t-long"))
-        val r = sim.kit.runner.start(CastRequest(skill, SIM_CASTER, Vec3.ZERO, 0.0, 0.0, seed = 1L, startTick = 0))
+        val r = sim.kit.runner.start(CastRequest(skill, SIM_CASTER, sim.castWorld, Vec3.ZERO, 0.0, 0.0, seed = 1L, startTick = 0))
         assertThat((r as Result.Failure).error).isEqualTo(CasterInterrupted("t-long", "silence"))
     }
 }
