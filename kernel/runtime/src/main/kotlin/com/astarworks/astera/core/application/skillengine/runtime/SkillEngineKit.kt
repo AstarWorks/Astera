@@ -31,7 +31,8 @@ public class SkillEngineGateways(
     /** Ports of one cast, built for the cast's world (see [CastRunnerDeps.portsIn]). */
     public val portsIn: (com.astarworks.astera.core.domain.world.WorldId) -> SkillRuntimePorts,
     public val movement: ISkillMovementGateway,
-    public val world: ISkillWorldGateway,
+    /** The block gateway of one world (cached by the kit); a cast edits only the world it started in. */
+    public val worldIn: (com.astarworks.astera.core.domain.world.WorldId) -> ISkillWorldGateway,
     public val casterAnim: ISkillCasterAnimGateway,
     public val screen: ISkillScreenGateway,
     public val cooldowns: ISkillCooldownGateway,
@@ -46,7 +47,7 @@ public class SkillEngineGateways(
  */
 public class SkillEngineKit(
     public val runner: DefaultCastRunner,
-    public val world: SkillWorldEditor,
+    public val world: SkillWorldEditors,
     public val dashes: DashStrikeDriver,
     public val locks: MovementLockDriver,
     public val presentation: PresentationRuntime,
@@ -75,7 +76,7 @@ public class SkillEngineKit(
             val hosts = CastHosts()
             val dashes = DashStrikeDriver(gateways.movement, hosts)
             val locks = MovementLockDriver(gateways.movement)
-            val editor = SkillWorldEditor(gateways.world)
+            val editor = SkillWorldEditors(gateways.worldIn)
             val presentation = PresentationRuntime(hosts, gateways.casterAnim, gateways.screen, points)
             val registry = DefaultOpExecutorRegistry()
             registerFrameOpExecutors(registry)

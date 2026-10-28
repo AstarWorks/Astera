@@ -218,10 +218,10 @@ internal class CombatPaperPlatform(private val plugin: JavaPlugin) {
         services.get<SummonRegistry>()?.let { SummonAllegianceListener(it).start(plugin) }
 
         // Skill engine v2 (ADR-0301): v2 skills run through the cast runner; SkillCast is published once the gates pass.
-        val container = statusContainer
-        if (applyDamage != null && applyStatus != null && container != null) {
-            skillEngine = SkillEnginePaperRuntime(plugin, ports).also { it.start(ctx, applyDamage, applyStatus, container, wired) }
-        }
+        val container = statusContainer ?: error("skill engine v2 cannot start: the status effect container was not built")
+        checkNotNull(applyDamage) { "skill engine v2 cannot start: applyDamage was not wired" }
+        checkNotNull(applyStatus) { "skill engine v2 cannot start: applyStatus was not wired" }
+        skillEngine = SkillEnginePaperRuntime(plugin, ports).also { it.start(ctx, applyDamage, applyStatus, container, wired) }
 
         // F3-11: lobby training dummies are immortal; vanilla damage on their bodies is cancelled.
         plugin.server.pluginManager.registerEvents(PaperTrainingDummyGuard(), plugin)

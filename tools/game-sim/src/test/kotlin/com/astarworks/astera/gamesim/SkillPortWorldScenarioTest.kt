@@ -75,6 +75,25 @@ class SkillPortWorldScenarioTest {
     }
 
     @Test
+    fun `the charge event reaches a cast waiting on it`() {
+        val waiting = skill(
+            "t-charge",
+            gameplay = "{timeline: [{id: t0, at: 0, do: []}, {id: t60, at: 60, do: []}]}",
+            presentation = """{timeline: [{id: s, at: 1, do: [{id: snd, op: sound, sound: "astera:test/charge", at: caster, every: 2, until: charge}]}]}""",
+        )
+        val sim = CastSim(victims = emptyMap(), extraSkills = mapOf(waiting))
+        val cast = sim.start("t-charge")
+        sim.step(11)
+        val before = sim.sounds.count { it.second == "astera:test/charge" }
+        assertThat(before).isGreaterThanOrEqualTo(4)
+        assertThat(sim.kit.runner.isRunning(cast)).isTrue()
+        assertThat(sim.kit.runner.raiseAllOf(SIM_CASTER, com.astarworks.astera.core.domain.skillengine.model.SkillEvents.CHARGE, sim.now)).isEqualTo(1)
+        sim.step(31)
+        assertThat(sim.sounds.count { it.second == "astera:test/charge" }).isLessThanOrEqualTo(before + 1)
+        assertThat(sim.kit.runner.diagnostics()).isEmpty()
+    }
+
+    @Test
     fun `an unknown block key is a load error naming the skill and the path`() {
         val dir = Files.createTempDirectory("sim-block-skills")
         val (id, yaml) = skill(

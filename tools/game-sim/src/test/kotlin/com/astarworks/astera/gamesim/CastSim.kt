@@ -360,7 +360,7 @@ class CastSim(
         gateways = SkillEngineGateways(
             portsIn = { w -> SkillRuntimePorts(visuals, particlesIn(w), soundIn(w), gameplay, entitiesIn(w), victimAnim) },
             movement = movement,
-            world = world,
+            worldIn = { _ -> world },
             casterAnim = object : ISkillCasterAnimGateway {
                 override fun play(caster: UUID, anim: String, speed: Double, ticks: Int) { casterAnims += CasterAnimCall(now, "play", anim, ticks, speed) }
                 override fun stop(caster: UUID, anim: String) { casterAnims += CasterAnimCall(now, "stop", anim, 0) }

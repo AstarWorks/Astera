@@ -74,7 +74,6 @@ internal class SkillEnginePaperRuntime(
      * World the block gateway acts in until `ISkillWorldGateway` carries the cast (its owner's work package): the world of
      * the most recently started cast. Sound, particle and entity queries do NOT use it; they are bound to the cast's world.
      */
-    private var worldGatewayWorld: org.bukkit.World? = null
     private var visualGateway: PaperSkillVisualGateway? = null
     private var interruptions: org.bukkit.event.Listener? = null
     private val trace = com.astarworks.astera.combat.adapter.paper.skillengine.SkillEngineTraceObserver()
@@ -146,8 +145,9 @@ internal class SkillEnginePaperRuntime(
                 )
             },
             movement = PaperSkillMovementGateway(server, applyStatus, statusContainer),
-            world = PaperSkillWorldGateway(
-                world = { worldGatewayWorld },
+            worldIn = { world -> PaperSkillWorldGateway(
+                server = server,
+                worldId = world,
                 ownerOf = { cast -> built.hosts.owner(cast) },
                 blocks = { services.get<IBlockStateGateway>() },
                 guard = { ports.blockEditGuard?.invoke(services) },
@@ -157,8 +157,8 @@ internal class SkillEnginePaperRuntime(
                     services.get<com.astarworks.astera.core.application.port.outbound.IItemRegistry>()
                         ?.let { com.astarworks.astera.core.application.usecase.block.HitCustomBlockUseCase.toolOf(it, com.astarworks.astera.core.domain.item.ItemId(id)) }
                 },
-            ),
-            casterAnim = PaperSkillCasterAnimGateway(
+            ) },
+            casterAnim =PaperSkillCasterAnimGateway(
                 rigs = { services.get<com.astarworks.astera.core.application.port.outbound.animation.ISkinRigAnimator>() },
                 registry = { services.get<com.astarworks.astera.core.application.port.outbound.ISkinRigRegistry>() },
                 poses = { services.get<com.astarworks.astera.core.application.port.outbound.animation.IPlayerAnimationGateway>() },
@@ -250,6 +250,9 @@ internal class SkillEnginePaperRuntime(
         plugin.server.pluginManager.registerEvents(listener, plugin)
 
         ctx.subscriptions += eventBus.subscribe(MatchEnded::class) { built.world.revertAll() }
+        ctx.subscriptions += eventBus.subscribe(com.astarworks.astera.combat.domain.event.SkillChargeStarted::class) { event ->
+            built.runner.raiseAllOf(event.caster.uuid, com.astarworks.astera.core.domain.skillengine.model.SkillEvents.CHARGE, event.atTick.toInt())
+        }
         ctx.subscriptions += eventBus.subscribe(SkillReleased::class) { event ->
             built.runner.raiseAllOf(event.caster.uuid, com.astarworks.astera.core.domain.skillengine.model.SkillEvents.RELEASE, event.atTick.toInt())
         }
@@ -288,7 +291,6 @@ internal class SkillEnginePaperRuntime(
             return
         }
         val loc = player.location
-        worldGatewayWorld = player.world
         val request = CastRequest(
             skill = skill,
             caster = event.caster.uuid,
