@@ -17,6 +17,7 @@ import com.astarworks.astera.core.domain.stage.ArenaStructurePlacement
 import com.astarworks.astera.core.domain.stage.ArenaLayout
 import com.astarworks.astera.core.domain.stage.Region
 import com.astarworks.astera.core.domain.stage.StagePillar
+import com.astarworks.astera.core.domain.world.ToolKind
 import com.astarworks.astera.core.domain.world.BlockType
 import com.astarworks.astera.core.domain.stage.Stage
 import com.astarworks.astera.core.domain.stage.StageId
@@ -213,7 +214,8 @@ public data class ArenaLandmarkYamlConfig(
  *   - team: red
  *     tier: 1                              # 1 (outer) .. 3 (the Nexus proper)
  *     position: { x: 0, y: -59, z: -41 }   # block coordinate in the stage's world
- *     block: minecraft:obsidian
+ *     block: minecraft:deepslate_bricks
+ *     affinity: pickaxe                    # pickaxe | shovel | axe: the tool class that mines this material
  *     hp: 800                              # optional; default = the mode's pillar_hp
  * ```
  */
@@ -223,6 +225,7 @@ public data class PillarYamlConfig(
     public val tier: Int,
     public val position: Vec3YamlConfig,
     public val block: String,
+    public val affinity: String,
     public val hp: Int? = null,
 ) {
     public fun toDomain(): StagePillar = StagePillar(
@@ -230,6 +233,12 @@ public data class PillarYamlConfig(
         tier = requireNotNull(NexusPillarTier.fromOrdinal(tier)) { "pillar tier must be 1..3 (got $tier)" },
         position = position.toVec3(),
         block = BlockType(block),
+        affinity = when (affinity.trim().lowercase()) {
+            "pickaxe" -> ToolKind.PICKAXE
+            "shovel" -> ToolKind.SHOVEL
+            "axe" -> ToolKind.AXE
+            else -> throw IllegalArgumentException("pillar affinity must be pickaxe, shovel or axe (got '$affinity')")
+        },
         hp = hp,
     )
 }

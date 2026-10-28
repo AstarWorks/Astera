@@ -3,6 +3,8 @@ package com.astarworks.astera.combat.adapter.paper.skillengine
 import com.astarworks.astera.combat.application.port.outbound.IBlockEditGuard
 import com.astarworks.astera.core.application.port.outbound.IBlockStateGateway
 import com.astarworks.astera.core.application.port.outbound.ICustomBlockRegistry
+import com.astarworks.astera.core.application.port.outbound.IStructureTargets
+import com.astarworks.astera.core.domain.world.ToolKind
 import com.astarworks.astera.core.domain.world.BlockType
 import com.astarworks.astera.core.application.skillengine.runtime.CastId
 import com.astarworks.astera.core.application.skillengine.runtime.port.BlockDamageOutcome
@@ -32,6 +34,8 @@ public class PaperSkillWorldGateway(
     private val blocks: () -> IBlockStateGateway?,
     private val guard: () -> IBlockEditGuard?,
     private val covers: () -> ICustomBlockRegistry?,
+    /** Lazy: Match registers the structure targets (Annihilation pillars) after Combat wires. */
+    private val structures: () -> IStructureTargets? = { null },
 ) : ISkillWorldGateway {
 
     private fun block(cell: BlockCell): Block? = world()?.getBlockAt(cell.x, cell.y, cell.z)
@@ -77,6 +81,7 @@ public class PaperSkillWorldGateway(
     override fun damage(cast: CastId, cell: BlockCell, blockDamage: Int, toolClass: String?): BlockDamageOutcome {
         val w = world() ?: return BlockDamageOutcome.NONE
         val owner = ownerOf(cast) ?: return BlockDamageOutcome.NONE
+        structures()?.targetAtBlock(worldId(w), pos(cell))?.let { return strikeStructure(w, it, owner, blockDamage, toolClass) }
         val gateway = blocks() ?: return BlockDamageOutcome.NONE
         val result = gateway.applyDamageFromSkill(
             worldId(w), pos(cell), SkillId("skill-engine"), PlayerId(owner), BlockDamageProfile.flat(blockDamage),
@@ -87,6 +92,27 @@ public class PaperSkillWorldGateway(
             is com.astarworks.astera.core.domain.block.BlockDamageOutcome.Broken -> BlockDamageOutcome.BROKEN
             else -> BlockDamageOutcome.NONE
         }
+    }
+
+    /**
+     * A tool skill struck a structure block (an Annihilation pillar): it takes damage instead of the block breaking.
+     * A cast without a tool class (a weapon's contact chip) is skipped: the weapon's hit already reaches the pillar
+     * through the target pipeline, so chipping the block as well would count it twice.
+     */
+    private fun strikeStructure(
+        w: World,
+        target: IStructureTargets.StructureTarget,
+        owner: UUID,
+        blockDamage: Int,
+        toolClass: String?,
+    ): BlockDamageOutcome {
+        val tool = toolClass?.let { runCatching { ToolKind.valueOf(it.uppercase()) }.getOrNull() }
+            ?.takeIf { it != ToolKind.NONE } ?: return BlockDamageOutcome.NONE
+        val structures = structures() ?: return BlockDamageOutcome.NONE
+        val origin = org.bukkit.Bukkit.getPlayer(owner)?.location?.let { Vec3(it.x, it.y, it.z) }
+        val source = IStructureTargets.DamageSource(IStructureTargets.DamageKind.TOOL_SKILL, tool, origin)
+        val result = structures.damage(target.id, PlayerId(owner), blockDamage.toDouble(), source)
+        return if (result is AsteraResult.Success) BlockDamageOutcome.CHIPPED else BlockDamageOutcome.NONE
     }
 
     override fun consumeItem(cast: CastId, itemId: String): Boolean {
