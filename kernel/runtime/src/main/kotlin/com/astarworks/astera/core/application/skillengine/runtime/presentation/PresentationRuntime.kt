@@ -104,7 +104,9 @@ public class PresentationRuntime(
         }
 
         /** A block display on a node: per-axis [size] in blocks, base local origin [at] and base turn [turn]. */
-        class Block(override val opId: String, val parent: String, val size: Vec3, val at: Vec3, val turn: Quaternion) : Live()
+        class Block(
+            override val opId: String, val parent: String, val size: Vec3, val at: Vec3, val turn: Quaternion,
+        ) : Live()
 
         /** A text-display quad on a node: [size] = (width, height) in blocks (a text glyph: blocks per text unit). */
         class Quad(
@@ -150,6 +152,7 @@ public class PresentationRuntime(
 
         /** Ids of the group nodes made for repeated displays. */
         val groups = LinkedHashSet<String>()
+
         val rigs = ArrayList<RigPerformer>()
     }
 
@@ -429,7 +432,15 @@ public class PresentationRuntime(
                     tickFlipbook(s, l)
                     tickLook(s, l)
                 }
-                is Live.Block, is Live.Quad -> {
+                is Live.Block -> {
+                    update(s, l)?.let { pose ->
+                        val driver = driverOf(s, l.parent)
+                        if (driver == null) visuals.write(l.handle, pose, DISPLAY_TICKS)
+                        else driver.driven?.let { interp -> if (driver.changed(l.opId, pose)) visuals.write(l.handle, pose, interp) }
+                    }
+                    tickLook(s, l)
+                }
+                is Live.Quad -> {
                     update(s, l)?.let { visuals.write(l.handle, it, DISPLAY_TICKS) }
                     tickLook(s, l)
                 }

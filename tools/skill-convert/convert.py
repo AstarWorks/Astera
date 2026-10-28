@@ -199,22 +199,13 @@ def hitstop_warp(kfs, stops):
 
 
 def hitstop_bake(d, freezes):
-    """Return the vfx definition `d` with `play_vfx freeze` baked into every element / rig that has `respect_hit_stop`, and the flag
-    dropped everywhere (without a freeze the flag is a no-op in v1)."""
+    """Return the vfx definition `d` with `play_vfx freeze` baked into every element that has `respect_hit_stop`, and the flag
+    dropped (without a freeze the flag is a no-op in v1). Rigs keep the flag: the rig op owns its hit-stop windows."""
     d = json.loads(json.dumps(d))
     for el in d.get("elements", []):
         if el.pop("respect_hit_stop", False) and freezes and el.get("keyframes"):
             stops = hitstop_stops(freezes, int(el.get("start_tick", 0)) + 1)
             el["keyframes"] = hitstop_warp(el["keyframes"], stops)
-    for r in d.get("rigs", []):
-        if r.pop("respect_hit_stop", False) and freezes:
-            stops = hitstop_stops(freezes, int(r.get("start_tick", 0)) + 1)
-            if r.get("swing"):
-                r["swing"] = hitstop_warp(r["swing"], stops)
-            for tr in r.get("trails", []):
-                tr["start_t"], tr["end_t"] = hitstop_eff(stops, int(tr["start_t"])), hitstop_eff(stops, int(tr["end_t"]))
-            for em in r.get("emitters", []):
-                em["start_t"], em["end_t"] = hitstop_eff(stops, int(em["start_t"])), hitstop_eff(stops, int(em["end_t"]))
     return d
 
 
@@ -717,8 +708,9 @@ class Conv:
             if V(m.get("include_caster", True)):
                 scope.append("caster")
             op = {"id": self.oid("stop"), "op": "freeze", "ticks": V(m["ticks"]), "scope": scope}
-            # freeze_animation: v1 declares the field (Mechanic.kt:305) but no v1 code reads it (grep freezeAnimation: parser only),
-            # so v1 hit_stop never freezes a rig clock; the v2 `freeze` op already holds the caster and struck entity, which is the whole v1 effect.
+            # `freeze_animation` is parsed (v1 d41b82f1e MechanicYaml.kt:451 -> Mechanic.kt:305) but never read: the only consumer of
+            # Mechanic.HitStop (MechanicDispatcher.kt:778-785) uses targets/ticks/includeCaster. The skin-rig clock freezes through the
+            # play_vfx windows (`respect_hit_stop`, the rig `freezes` above), so v1 behaviour = no effect; v2 must not invent one.
         elif t == "cast_skill":
             op = {"id": self.oid("cast"), "op": "cast_skill", "skill": m["skill_id"]}
         elif t == "explode":
@@ -879,9 +871,10 @@ class Conv:
         elif t == "stop_sound":
             W({"id": self.oid("stopsnd"), "op": "stop_sound", "target": self.screen_target(tg), "sound": m["sound_id"]})
         elif t == "hide_held_item":
-            if tg and tg["type"] != "caster":
-                self.present("hide_held_item on a non-caster target", short(tg, 80))
-            W({"id": self.oid("hidehand"), "op": "caster_anim", "anim": "hide-main-hand", "ticks": V(m["ticks"])})
+            # the pose-only `hide-main-hand` clip held for the v1 duration hides the held item
+            if not (tg and tg["type"] == "caster"):
+                raise UnhandledV1Key("hide_held_item on a non-caster target")
+            W({"id": self.oid("hide_hand"), "op": "caster_anim", "anim": "hide-main-hand", "ticks": int(V(m["ticks"]))})
         elif t == "screen_veil":
             # v1 ScreenVeilHandler: the quad is shown to the `targets` players (viewers defaults to the target)
             if "viewers" in m and str(V(m["viewers"])) not in ("caster", "target", "targets"):
@@ -1040,7 +1033,9 @@ class Conv:
             parent = "world"
         self.look_frames[fid] = {"id": fid, "kind": "body", "parent": parent}
         if snapshot:
-            self.p(where, delay, self._w({"id": self.oid("snap"), "op": "place", "frame": fid, "like": "caster"}, when))
+            # `place` is a frame op (gameplay); the frame is declared inactive so only this row moves it
+            self.look_frames[fid]["inactive"] = True
+            self.g(where, delay, self._w({"id": self.oid("snap"), "op": "place", "frame": fid, "like": "caster"}, when))
         for k in ("orient", "scale"):
             if k in d or k in m:
                 self.present("vfx frame %s (frames carry no orientation / scale)" % k, "%s=%s" % (k, short(V(m.get(k, d.get(k))), 30)))
@@ -1049,7 +1044,7 @@ class Conv:
             if k in d:
                 self.present("vfx %s (no v2 equivalent)" % k, short(d[k], 60))
         d = hitstop_bake(d, V(m.get("freeze")))
-        for k in ("track_bound_target", "viewers", "snapshot_pose"):
+        for k in ("track_bound_target", "viewers"):
             if k in m:
                 self.present("play_vfx %s (no v2 equivalent)" % k, short(V(m[k]), 40))
         dur = int(d.get("duration_ticks", 20))
@@ -1116,9 +1111,13 @@ class Conv:
             vfxelem.display_element(self, el, fid, where, delay, when, dur, removes)
             return
         if kt == "item":
-            op = {"id": eid, "op": "mesh", "frame": fid, "item": kind["item"]}
-            if kind.get("item_model") or kind.get("display_mode"):
-                self.present("item element item_model / display_mode (mesh has item + part only)", short({k: kind.get(k) for k in ("item_model", "display_mode")}, 60))
+            # v1 item element: ItemDisplay of the material, item_model on its meta, ItemDisplayTransform = display_mode (default
+            # fixed), lit by the world (the weapon-rig shader rule only ever lit rig weapon parts).
+            op = {"id": eid, "op": "mesh", "frame": fid, "item": kind["item"], "rig_shading": False}
+            if kind.get("item_model"):
+                op["item_model"] = kind["item_model"]
+            if kind.get("display_mode"):
+                op["display_mode"] = str(kind["display_mode"]).lower()
         elif kt == "particle":
             at_frame = fid
             moving = [k for k in el.get("keyframes", []) if "translate" in k]
@@ -1182,7 +1181,10 @@ class Conv:
             op["anim"] = anim
         if not hand:
             op["hand"] = False
-        for key in ("pivot", "tilt", "rest"):
+        piv = r.get("pivot")
+        if piv and any(float(x) != 0.0 for x in piv):
+            op["pivot"] = [float(x) for x in piv]  # a position (blocks), not an Euler triple
+        for key in ("tilt", "rest"):
             val = r.get(key)
             if val and any(float(x) != 0.0 for x in val):
                 op[key] = euler_to_vec(val)
@@ -1213,7 +1215,7 @@ class Conv:
         rid = "%s_%s" % (fid, sid(r["id"]))
         parent = r.get("parent", "right_hand")
         pr = {"right_hand": "caster.right_hand", "left_hand": "caster.left_hand"}.get(parent, parent)
-        hand = bool(body) and parent == "right_hand"
+        hand = parent == "right_hand"  # v1 VfxRigMotion.isHand: a body-less hand rig holds the arm at rest
         if hand:
             pr = "caster"
         if self.frame_parent(pr) is None:
@@ -1238,14 +1240,33 @@ class Conv:
                 mesh["rest_turn"] = [float(x) for x in euler_to_vec([0.0, 72.0, 0.0])]
             self.p(where, start, self._w(mesh, when))
             removes.setdefault(end, []).append(first)
-        for part in r.get("parts", []) or []:
+        # v1 VfxRigPlanner.partPlan: a part is a block display at pivotWorld + R(t) * offset (R = anchorRot * tilt * swing * rest),
+        # turned about its own centre by `rotate`. It never rides the hand (pivotWorld is anchor-parented and R holds the wrist swing
+        # alone, no arm), so a hand-parented rig gets a second, anchor-parented rig frame for its parts; a part without brightness
+        # is lit by the weapon-rig shader rule (ADR-0275).
+        parts = r.get("parts") or []
+        pframe = rid
+        if parts and hand:
+            pframe = rid + "_parts"
+            self.look_frames[pframe] = {"id": pframe, "kind": "body", "parent": "caster"}
+            rp = {k: v for k, v in r.items() if k not in ("weapon_tip", "weapon_root", "weapon_edge")}
+            self.p(where, start, self._w(self.rig_op(pframe, "caster", False, None, rp, rig_dur, vd, freeze), when))
+        seen = set()
+        for part in parts:
             pid = "%s_%s" % (rid, sid(part["id"]))
-            blk = {"id": pid, "op": "block", "parent": rid, "block": part["block"], "size": [float(x) for x in part["size"]],
-                   "at": [float(x) for x in part["offset"]]}
-            if part.get("rotate"):
+            if pid in seen:
+                raise UnhandledV1Key("rig part id %s collides after sanitising" % part["id"])
+            seen.add(pid)
+            if part.get("glow_color"):
+                self.present("rig part glow_color (block has no glow)", short(part["glow_color"], 40))
+            blk = {"id": pid, "op": "block", "parent": pframe, "block": part["block"],
+                   "size": [float(x) for x in part["size"]], "at": [float(x) for x in part["offset"]]}
+            if part.get("rotate") and any(float(x) != 0.0 for x in part["rotate"]):
                 blk["turn"] = [float(x) for x in euler_to_vec(part["rotate"])]
             if part.get("brightness") is not None:
-                blk["brightness"] = part["brightness"]
+                blk["brightness"] = int(part["brightness"])
+            else:
+                blk["rig_shading"] = True
             self.p(where, start, self._w(blk, when))
             removes.setdefault(end, []).append(pid)
         for tr in r.get("trails", []):
@@ -1463,12 +1484,16 @@ def convert_skill(d, vfx_dir, item):
                 c.p_rows.setdefault(("rep", 1), []).append(op)
         if vis.get("display"):
             disp = vis["display"]
-            op = {"id": c.oid("mesh"), "op": "mesh", "frame": "bolt", "item": disp.get("material")}
-            if disp.get("scale"):
-                op["scale"] = disp["scale"]
-            c.present("projectile display.material used as the mesh item id (unverified); variant dropped",
-                      "%s variant=%s" % (disp.get("material"), disp.get("variant")))
-            c.p(CAST, 0, op)
+            # v1 PaperProjectileService.spawnDisplay: an ItemDisplay of the material with the default ItemDisplayTransform
+            # (NONE), uniform scale, FIXED billboard, no brightness override, teleported to the flight point each tick.
+            if disp.get("variant", "item") != "item":
+                c.present("projectile display variant %s has no v2 op" % disp.get("variant"), str(disp.get("material")))
+            else:
+                op = {"id": c.oid("mesh"), "op": "mesh", "frame": "bolt", "item": disp.get("material"),
+                      "display_mode": "none", "rig_shading": False}
+                if disp.get("scale"):
+                    op["scale"] = disp["scale"]
+                c.p(CAST, 0, op)
         if vis.get("vfx"):
             c.vfx({"vfx_id": vis["vfx"]}, {"type": "projectile_position"}, CAST, 0, None)
         c.mechanics(phases.get("cast"), CAST)

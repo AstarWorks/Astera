@@ -115,6 +115,8 @@ class PresentationOpsScenarioTest {
     private val scales = HashMap<Long, Double>()
     private val spawnedBillboards = HashMap<Long, com.astarworks.astera.core.domain.effect.DisplayBillboard>()
     private val lines = HashSet<Long>()
+    private val meshLooks = ArrayList<com.astarworks.astera.core.application.skillengine.runtime.port.MeshLook>()
+    private val blockShading = ArrayList<Boolean>()
     private fun ends(pose: VisualPose): Pair<Vec3, Vec3> {
         val half = pose.frame.directionToWorld(Vec3(1.0, 0.0, 0.0)) * (pose.size.x / 2.0)
         return (pose.frame.origin - half) to (pose.frame.origin + half)
@@ -133,13 +135,13 @@ class PresentationOpsScenarioTest {
     private val visuals = object : ISkillVisualGateway {
     override fun setTrailShape(handle: com.astarworks.astera.core.application.skillengine.runtime.port.VisualHandle, bands: List<com.astarworks.astera.core.domain.skillengine.op.TrailBand>, edge: com.astarworks.astera.core.domain.skillengine.op.TrailEdge?, rim: com.astarworks.astera.core.domain.skillengine.op.TrailRim?, stepDeg: Double, doubleSided: Boolean) {}
         private fun h(kind: String): VisualHandle { calls += kind; return VisualHandle(nextHandle++) }
-        override fun spawnMesh(castOwner: UUID, item: String, part: String?, pose: VisualPose, brightness: Int?) =
-            h("mesh:$item").also { poses[it.id] = pose.frame; scales[it.id] = pose.size.x }
+        override fun spawnMesh(castOwner: UUID, item: String, part: String?, pose: VisualPose, brightness: Int?, look: com.astarworks.astera.core.application.skillengine.runtime.port.MeshLook) =
+            h("mesh:$item").also { poses[it.id] = pose.frame; scales[it.id] = pose.size.x; meshLooks += look }
         override fun spawnSkinBone(castOwner: UUID, bone: com.astarworks.astera.core.domain.animation.skinrig.SkinRigBone, slim: Boolean, ghost: Boolean, pose: VisualPose) =
             h("skin_bone:${bone.yamlName}").also { poses[it.id] = pose.frame; scales[it.id] = pose.size.x }
         override fun spawnPlate(castOwner: UUID, sprite: String, alpha: Double, pose: VisualPose, brightness: Int?) =
             h("plate:$sprite").also { poses[it.id] = pose.frame; scales[it.id] = pose.size.x; spawnedBillboards[it.id] = pose.billboard }
-        override fun spawnBlock(castOwner: UUID, block: String, pose: VisualPose, brightness: Int?) = h("block").also { poses[it.id] = pose.frame; scales[it.id] = pose.size.x }
+        override fun spawnBlock(castOwner: UUID, block: String, pose: VisualPose, brightness: Int?, rigShading: Boolean) = h("block").also { poses[it.id] = pose.frame; scales[it.id] = pose.size.x; blockShading += rigShading }
         override fun spawnQuad(castOwner: UUID, colorHex: String, alpha: Double, text: String?, shadow: Boolean, seeThrough: Boolean, pose: VisualPose, brightness: Int?) = h("quad").also { poses[it.id] = pose.frame; scales[it.id] = pose.size.x }
         override fun spawnLine(castOwner: UUID, colorHex: String, pose: VisualPose) =
             h("line:$colorHex").also { lineEnds[it.id] = ends(pose); lines += it.id }
@@ -287,6 +289,29 @@ class PresentationOpsScenarioTest {
         val d = presentationDecoders().first { op in it.opNames }
         assertThat(d.section).isEqualTo(OpSection.PRESENTATION)
         return d.decode(op, "id_$op", null, MapReader(m))
+    }
+
+    @Test
+    fun `mesh carries item_model display_mode and rig_shading to the gateway and a rig part block sits at its offset`() {
+        val mesh = decode("mesh", mapOf("frame" to "volley", "item" to "minecraft:iron_nugget", "item_model" to "astera:bolt", "display_mode" to "none", "rig_shading" to false)) as VisualOp.Mesh
+        assertThat(mesh.itemModel).isEqualTo("astera:bolt")
+        assertThat(mesh.displayMode).isEqualTo(com.astarworks.astera.core.domain.effect.DisplayItemMode.NONE)
+        assertThatThrownBy { decode("mesh", mapOf("frame" to "volley", "item" to "minecraft:stick", "display_mode" to "sideways")) }.isInstanceOf(IllegalArgumentException::class.java)
+        run(mesh)
+        val look = meshLooks.single()
+        assertThat(look.itemModel).isEqualTo("astera:bolt")
+        assertThat(look.mode).isEqualTo(com.astarworks.astera.core.domain.effect.DisplayItemMode.NONE)
+        assertThat(look.rigShading).isFalse()
+
+        // A rig part: a block at `at` in its rig frame, lit by the weapon-rig shader rule.
+        val part = decode("block", mapOf("id" to "part", "parent" to "volley", "block" to "iron_block", "size" to listOf(1.0, 1.0, 1.0),
+            "at" to listOf(0.0, 0.0, 2.0), "rig_shading" to true)) as VisualOp.Block
+        run(part)
+        assertThat(blockShading.single()).isTrue()
+        val origin = poses.getValue(2L).origin
+        near(origin.x, 5.0)
+        near(origin.y, 2.0)
+        near(origin.z, 2.0)
     }
 
     @Test

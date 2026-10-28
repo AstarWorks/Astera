@@ -7,14 +7,14 @@ kind: Skill
 id: verdict-hammer-s1
 frames:
   - {id: fx1_verdict_s1_gavel, kind: body, parent: world}
-  - {id: fx1_verdict_s1_gavel_hammer_at, kind: body, parent: caster.right_hand}
-  - {id: fx1_verdict_s1_gavel_hammer, kind: body, parent: fx1_verdict_s1_gavel_hammer_at}
+  - {id: fx1_verdict_s1_gavel_hammer, kind: body, parent: caster}
+  - {id: fx1_verdict_s1_gavel_hammer_parts, kind: body, parent: caster}
   - {id: pt_fx1_verdict_s1_gavel_hammer_0_0p9_0, kind: point, parent: fx1_verdict_s1_gavel_hammer, offset: [0.0, 0.9, 0.0]}
   - {id: pt_fx1_verdict_s1_gavel_hammer_0_3_0, kind: point, parent: fx1_verdict_s1_gavel_hammer, offset: [0.0, 3.0, 0.0]}
   - {id: fx2_verdict_impact, kind: body, parent: world}
   - {id: fx3_verdict_s1_echo, kind: body, parent: world}
-  - {id: fx3_verdict_s1_echo_hammer_at, kind: body, parent: caster.right_hand}
-  - {id: fx3_verdict_s1_echo_hammer, kind: body, parent: fx3_verdict_s1_echo_hammer_at}
+  - {id: fx3_verdict_s1_echo_hammer, kind: body, parent: caster}
+  - {id: fx3_verdict_s1_echo_hammer_parts, kind: body, parent: caster}
   - {id: pt_fx3_verdict_s1_echo_hammer_0_0p9_0, kind: point, parent: fx3_verdict_s1_echo_hammer, offset: [0.0, 0.9, 0.0]}
   - {id: pt_fx3_verdict_s1_echo_hammer_0_3_0, kind: point, parent: fx3_verdict_s1_echo_hammer, offset: [0.0, 3.0, 0.0]}
   - {id: fx4_verdict_impact, kind: body, parent: world}
@@ -26,10 +26,9 @@ presentation:
         - id: fx1_verdict_s1_gavel_hammer_rig
           op: rig
           frame: fx1_verdict_s1_gavel_hammer
-          parent: fx1_verdict_s1_gavel_hammer_at
+          parent: caster
           duration: 23
-          hand: false
-          pivot: [1.600324, 0.247889, 0.146499]
+          pivot: [-0.25, 1.6, 0.15]
           tilt: [0.0, 0.0, 40.0]
           rest: [90.0, 0.0, 0.0]
           swing:
@@ -55,12 +54,46 @@ presentation:
             - {t: 19, rotate: [0.0, -170.087464, 0.0], sample: true}
             - {t: 20, rotate: [0.0, -170.0, 0.0]}
           sample_ticks: 1
-        - {id: fx1_verdict_s1_gavel_hammer_haft, op: block, parent: fx1_verdict_s1_gavel_hammer, block: black_concrete, size: [0.12, 1.8, 0.12], at: [0.0, 0.8, 0.0], brightness: 15}
-        - {id: fx1_verdict_s1_gavel_hammer_head, op: block, parent: fx1_verdict_s1_gavel_hammer, block: black_concrete, size: [1.2, 0.7, 0.65], at: [0.0, 2.0, 0.0], brightness: 15}
-        - {id: fx1_verdict_s1_gavel_hammer_cap_0_53, op: block, parent: fx1_verdict_s1_gavel_hammer, block: yellow_concrete, size: [0.12, 0.74, 0.69], at: [-0.53, 2.0, 0.0], brightness: 15}
-        - {id: fx1_verdict_s1_gavel_hammer_cap0_53, op: block, parent: fx1_verdict_s1_gavel_hammer, block: yellow_concrete, size: [0.12, 0.74, 0.69], at: [0.53, 2.0, 0.0], brightness: 15}
-        - {id: fx1_verdict_s1_gavel_hammer_stripe1_78, op: block, parent: fx1_verdict_s1_gavel_hammer, block: yellow_concrete, size: [1.05, 0.045, 0.02], at: [0.0, 1.78, 0.34], brightness: 15}
-        - {id: fx1_verdict_s1_gavel_hammer_stripe2_22, op: block, parent: fx1_verdict_s1_gavel_hammer, block: yellow_concrete, size: [1.05, 0.045, 0.02], at: [0.0, 2.22, 0.34], brightness: 15}
+          respect_hit_stop: true
+        - id: fx1_verdict_s1_gavel_hammer_parts_rig
+          op: rig
+          frame: fx1_verdict_s1_gavel_hammer_parts
+          parent: caster
+          duration: 23
+          hand: false
+          pivot: [-0.25, 1.6, 0.15]
+          tilt: [0.0, 0.0, 40.0]
+          rest: [90.0, 0.0, 0.0]
+          swing:
+            - {t: 0, rotate: [0.0, -110.0, 0.0]}
+            - {t: 1, rotate: [0.0, -111.2, 0.0], sample: true}
+            - {t: 2, rotate: [0.0, -114.8, 0.0], sample: true}
+            - {t: 3, rotate: [0.0, -120.2, 0.0], sample: true}
+            - {t: 4, rotate: [0.0, -123.8, 0.0], sample: true}
+            - {t: 5, rotate: [0.0, -125.0, 0.0]}
+            - {t: 6, rotate: [0.0, -6.875, 0.0], sample: true}
+            - {t: 7, rotate: [0.0, 77.5, 0.0], sample: true}
+            - {t: 8, rotate: [0.0, 128.125, 0.0], sample: true}
+            - {t: 9, rotate: [0.0, 145.0, 0.0]}
+            - {t: 10, rotate: [0.0, 148.75, 0.0], sample: true}
+            - {t: 11, rotate: [0.0, 152.5, 0.0], sample: true}
+            - {t: 12, rotate: [0.0, 156.25, 0.0], sample: true}
+            - {t: 13, rotate: [0.0, 160.0, 0.0]}
+            - {t: 14, rotate: [0.0, 171.107872, 0.0], sample: true}
+            - {t: 15, rotate: [0.0, 179.067055, 0.0], sample: true}
+            - {t: 16, rotate: [0.0, -175.597668, 0.0], sample: true}
+            - {t: 17, rotate: [0.0, -172.361516, 0.0], sample: true}
+            - {t: 18, rotate: [0.0, -170.699708, 0.0], sample: true}
+            - {t: 19, rotate: [0.0, -170.087464, 0.0], sample: true}
+            - {t: 20, rotate: [0.0, -170.0, 0.0]}
+          sample_ticks: 1
+          respect_hit_stop: true
+        - {id: fx1_verdict_s1_gavel_hammer_haft, op: block, parent: fx1_verdict_s1_gavel_hammer_parts, block: black_concrete, size: [0.12, 1.8, 0.12], at: [0.0, 0.8, 0.0], brightness: 15}
+        - {id: fx1_verdict_s1_gavel_hammer_head, op: block, parent: fx1_verdict_s1_gavel_hammer_parts, block: black_concrete, size: [1.2, 0.7, 0.65], at: [0.0, 2.0, 0.0], brightness: 15}
+        - {id: fx1_verdict_s1_gavel_hammer_cap_0_53, op: block, parent: fx1_verdict_s1_gavel_hammer_parts, block: yellow_concrete, size: [0.12, 0.74, 0.69], at: [-0.53, 2.0, 0.0], brightness: 15}
+        - {id: fx1_verdict_s1_gavel_hammer_cap0_53, op: block, parent: fx1_verdict_s1_gavel_hammer_parts, block: yellow_concrete, size: [0.12, 0.74, 0.69], at: [0.53, 2.0, 0.0], brightness: 15}
+        - {id: fx1_verdict_s1_gavel_hammer_stripe1_78, op: block, parent: fx1_verdict_s1_gavel_hammer_parts, block: yellow_concrete, size: [1.05, 0.045, 0.02], at: [0.0, 1.78, 0.34], brightness: 15}
+        - {id: fx1_verdict_s1_gavel_hammer_stripe2_22, op: block, parent: fx1_verdict_s1_gavel_hammer_parts, block: yellow_concrete, size: [1.05, 0.045, 0.02], at: [0.0, 2.22, 0.34], brightness: 15}
     - id: fx5
       at: 5
       do:
@@ -80,10 +113,9 @@ presentation:
         - id: fx3_verdict_s1_echo_hammer_rig
           op: rig
           frame: fx3_verdict_s1_echo_hammer
-          parent: fx3_verdict_s1_echo_hammer_at
+          parent: caster
           duration: 16
-          hand: false
-          pivot: [1.600324, 0.247889, 0.146499]
+          pivot: [-0.25, 1.6, 0.15]
           tilt: [0.0, 0.0, 40.0]
           rest: [90.0, 0.0, 0.0]
           swing:
@@ -109,12 +141,46 @@ presentation:
             - {t: 19, rotate: [0.0, -170.087464, 0.0], sample: true}
             - {t: 20, rotate: [0.0, -170.0, 0.0]}
           sample_ticks: 1
-        - {id: fx3_verdict_s1_echo_hammer_haft, op: block, parent: fx3_verdict_s1_echo_hammer, block: black_concrete, size: [0.12, 1.8, 0.12], at: [0.0, 0.8, 0.0], brightness: 15}
-        - {id: fx3_verdict_s1_echo_hammer_head, op: block, parent: fx3_verdict_s1_echo_hammer, block: black_concrete, size: [1.2, 0.7, 0.65], at: [0.0, 2.0, 0.0], brightness: 15}
-        - {id: fx3_verdict_s1_echo_hammer_cap_0_53, op: block, parent: fx3_verdict_s1_echo_hammer, block: yellow_concrete, size: [0.12, 0.74, 0.69], at: [-0.53, 2.0, 0.0], brightness: 15}
-        - {id: fx3_verdict_s1_echo_hammer_cap0_53, op: block, parent: fx3_verdict_s1_echo_hammer, block: yellow_concrete, size: [0.12, 0.74, 0.69], at: [0.53, 2.0, 0.0], brightness: 15}
-        - {id: fx3_verdict_s1_echo_hammer_stripe1_78, op: block, parent: fx3_verdict_s1_echo_hammer, block: yellow_concrete, size: [1.05, 0.045, 0.02], at: [0.0, 1.78, 0.34], brightness: 15}
-        - {id: fx3_verdict_s1_echo_hammer_stripe2_22, op: block, parent: fx3_verdict_s1_echo_hammer, block: yellow_concrete, size: [1.05, 0.045, 0.02], at: [0.0, 2.22, 0.34], brightness: 15}
+          respect_hit_stop: true
+        - id: fx3_verdict_s1_echo_hammer_parts_rig
+          op: rig
+          frame: fx3_verdict_s1_echo_hammer_parts
+          parent: caster
+          duration: 16
+          hand: false
+          pivot: [-0.25, 1.6, 0.15]
+          tilt: [0.0, 0.0, 40.0]
+          rest: [90.0, 0.0, 0.0]
+          swing:
+            - {t: 0, rotate: [0.0, -110.0, 0.0]}
+            - {t: 1, rotate: [0.0, -111.2, 0.0], sample: true}
+            - {t: 2, rotate: [0.0, -114.8, 0.0], sample: true}
+            - {t: 3, rotate: [0.0, -120.2, 0.0], sample: true}
+            - {t: 4, rotate: [0.0, -123.8, 0.0], sample: true}
+            - {t: 5, rotate: [0.0, -125.0, 0.0]}
+            - {t: 6, rotate: [0.0, -6.875, 0.0], sample: true}
+            - {t: 7, rotate: [0.0, 77.5, 0.0], sample: true}
+            - {t: 8, rotate: [0.0, 128.125, 0.0], sample: true}
+            - {t: 9, rotate: [0.0, 145.0, 0.0]}
+            - {t: 10, rotate: [0.0, 148.75, 0.0], sample: true}
+            - {t: 11, rotate: [0.0, 152.5, 0.0], sample: true}
+            - {t: 12, rotate: [0.0, 156.25, 0.0], sample: true}
+            - {t: 13, rotate: [0.0, 160.0, 0.0]}
+            - {t: 14, rotate: [0.0, 171.107872, 0.0], sample: true}
+            - {t: 15, rotate: [0.0, 179.067055, 0.0], sample: true}
+            - {t: 16, rotate: [0.0, -175.597668, 0.0], sample: true}
+            - {t: 17, rotate: [0.0, -172.361516, 0.0], sample: true}
+            - {t: 18, rotate: [0.0, -170.699708, 0.0], sample: true}
+            - {t: 19, rotate: [0.0, -170.087464, 0.0], sample: true}
+            - {t: 20, rotate: [0.0, -170.0, 0.0]}
+          sample_ticks: 1
+          respect_hit_stop: true
+        - {id: fx3_verdict_s1_echo_hammer_haft, op: block, parent: fx3_verdict_s1_echo_hammer_parts, block: black_concrete, size: [0.12, 1.8, 0.12], at: [0.0, 0.8, 0.0], brightness: 15}
+        - {id: fx3_verdict_s1_echo_hammer_head, op: block, parent: fx3_verdict_s1_echo_hammer_parts, block: black_concrete, size: [1.2, 0.7, 0.65], at: [0.0, 2.0, 0.0], brightness: 15}
+        - {id: fx3_verdict_s1_echo_hammer_cap_0_53, op: block, parent: fx3_verdict_s1_echo_hammer_parts, block: yellow_concrete, size: [0.12, 0.74, 0.69], at: [-0.53, 2.0, 0.0], brightness: 15}
+        - {id: fx3_verdict_s1_echo_hammer_cap0_53, op: block, parent: fx3_verdict_s1_echo_hammer_parts, block: yellow_concrete, size: [0.12, 0.74, 0.69], at: [0.53, 2.0, 0.0], brightness: 15}
+        - {id: fx3_verdict_s1_echo_hammer_stripe1_78, op: block, parent: fx3_verdict_s1_echo_hammer_parts, block: yellow_concrete, size: [1.05, 0.045, 0.02], at: [0.0, 1.78, 0.34], brightness: 15}
+        - {id: fx3_verdict_s1_echo_hammer_stripe2_22, op: block, parent: fx3_verdict_s1_echo_hammer_parts, block: yellow_concrete, size: [1.05, 0.045, 0.02], at: [0.0, 2.22, 0.34], brightness: 15}
     - id: fx21
       at: 21
       do:

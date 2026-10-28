@@ -50,6 +50,10 @@ import com.astarworks.astera.core.application.skillengine.runtime.port.ISkillVis
 import com.astarworks.astera.core.application.skillengine.runtime.port.ISkillWorldGateway
 import com.astarworks.astera.core.application.skillengine.runtime.port.ParticleBurst
 import com.astarworks.astera.core.application.skillengine.runtime.port.SkillRuntimePorts
+import com.astarworks.astera.core.application.skillengine.runtime.port.MeshLook
+import com.astarworks.astera.core.domain.animation.skinrig.SkinRigAnimation
+import com.astarworks.astera.core.domain.animation.skinrig.SkinRigBone
+import com.astarworks.astera.core.domain.effect.ScreenOverlay
 import com.astarworks.astera.core.application.skillengine.runtime.port.SpriteInfo
 import com.astarworks.astera.core.application.skillengine.runtime.port.VisualHandle
 import com.astarworks.astera.core.application.skillengine.runtime.port.VisualPose
@@ -187,17 +191,18 @@ public class SimSkillEngine private constructor(
                 )
             },
             casterAnim = object : ISkillCasterAnimGateway {
-                override fun clip(anim: String): com.astarworks.astera.core.domain.animation.skinrig.SkinRigAnimation? = null
-                override fun isSlim(caster: UUID) = false
                 override fun play(caster: UUID, anim: String, speed: Double, ticks: Int) { recording.casterAnims += "play $anim" }
                 override fun stop(caster: UUID, anim: String) { recording.casterAnims += "stop $anim" }
                 override fun release(caster: UUID, anim: String) { recording.casterAnims += "release $anim" }
+                override fun clip(anim: String): SkinRigAnimation? = SimClips.clip(anim)
+                override fun isSlim(caster: UUID) = false
             },
             screen = object : ISkillScreenGateway {
                 override fun title(viewer: UUID, text: String, subtitle: String?, ticks: Int) { recording.screens += "title $text" }
                 override fun actionBar(viewer: UUID, text: String) { recording.screens += "actionbar $text" }
                 override fun cameraShake(viewer: UUID, intensity: Double, ticks: Int) { recording.screens += "shake $intensity" }
-                override fun flash(viewer: UUID, overlay: com.astarworks.astera.core.domain.effect.ScreenOverlay, colorRgb: Int, fadeIn: Int, stay: Int, fadeOut: Int) { recording.screens += "flash $overlay" }
+                override fun flash(viewer: UUID, overlay: ScreenOverlay, colorRgb: Int, fadeIn: Int, stay: Int, fadeOut: Int) { recording.screens += "flash ${overlay.yamlName}" }
+                override fun veil(viewer: UUID, sprite: String, colorRgb: Int, side: Double, distance: Double, ticks: Int) { recording.screens += "veil $sprite" }
                 override fun stopSound(viewer: UUID, sound: String) { recording.screens += "stop_sound $sound" }
             },
             cooldowns = object : ISkillCooldownGateway {
@@ -390,11 +395,11 @@ private class SimSkillVisuals(
         return handle
     }
 
-    override fun spawnMesh(castOwner: UUID, item: String, part: String?, pose: VisualPose, brightness: Int?) = spawn()
-    override fun spawnSkinBone(castOwner: UUID, bone: com.astarworks.astera.core.domain.animation.skinrig.SkinRigBone, slim: Boolean, ghost: Boolean, pose: VisualPose) = spawn()
+    override fun spawnMesh(castOwner: UUID, item: String, part: String?, pose: VisualPose, brightness: Int?, look: MeshLook) = spawn()
     override fun spawnPlate(castOwner: UUID, sprite: String, alpha: Double, pose: VisualPose, brightness: Int?) = spawn()
-    override fun spawnBlock(castOwner: UUID, block: String, pose: VisualPose, brightness: Int?) = spawn()
+    override fun spawnBlock(castOwner: UUID, block: String, pose: VisualPose, brightness: Int?, rigShading: Boolean) = spawn()
     override fun spawnQuad(castOwner: UUID, colorHex: String, alpha: Double, text: String?, shadow: Boolean, seeThrough: Boolean, pose: VisualPose, brightness: Int?) = spawn()
+    override fun spawnSkinBone(castOwner: UUID, bone: SkinRigBone, slim: Boolean, ghost: Boolean, pose: VisualPose) = spawn()
     override fun spawnLine(castOwner: UUID, colorHex: String, pose: VisualPose) = spawn()
     override fun spawnTrail(castOwner: UUID, ticks: Int, widthFrac: Double, colorHex: String, alpha: Double) = spawn()
     override fun write(handle: VisualHandle, pose: VisualPose, interpolationTicks: Int) {}
