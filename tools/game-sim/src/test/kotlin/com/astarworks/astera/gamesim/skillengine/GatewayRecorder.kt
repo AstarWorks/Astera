@@ -207,6 +207,16 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
             add("effect", caster.toString(), "body_stop=$anim")
         }
 
+        override fun setHeldModel(cast: CastRef, caster: UUID, model: String) {
+            seen("gameplay.setHeldModel", cast)
+            add("effect", caster.toString(), "held_model=$model")
+        }
+
+        override fun clearHeldModel(cast: CastRef, caster: UUID) {
+            seen("gameplay.clearHeldModel", cast)
+            add("effect", caster.toString(), "held_model_clear")
+        }
+
         override fun hurt(cast: CastRef, target: UUID, from: Vec3) {
             seen("gameplay.hurt", cast)
             add("effect", target.toString(), "hurt")

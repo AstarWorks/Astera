@@ -45,6 +45,12 @@ counted over `[spawn, end)`, a `lock` row owning its instance, param defaults an
 instance ids, ribbon opacity as the colour alpha. Each sentence names the commit that implemented it. No field is added or removed.
 Founder questions Q1-Q7 are OPEN: every spot that depends on one carries a "pending founder Qn" note with both options and chooses neither (list under
 "Open decisions"). Examples c, e, g updated; `rejected/r12`-`r14` added. Status stays Proposed (edited in place by the manager's authorisation).
+**rev4.5 (2026-10-29, SKL-22 couture-rapier-s2 load; NEW OP for the founder)**: (1) a state may name an instance an EARLIER state spawned with the
+state-qualified spelling `/<state>/<id>` (`/throw/volley`, `/throw/fly_a.root`; 10.1 `/x` is absolute from the machine root, ids are state-qualified,
+11.3). The state must be written before the referencing one, must declare the instance, and the instance must not have ended by then (a static
+`End` before the spawning state's guaranteed length is a load error). A bare name never looks into another state. (2) `ribbon` takes `until:` as
+well as `for:` like every extended op (5): a line ribbon ends at the event's sub-table; a trail ribbon still needs `for:`. (3) new op `held_model`
+(10.1b): v1 `weapon_model` keys (`couture-s2-rig.yaml`, hidden at t20, back at t57) could not be said by `rig` (section "Skin rig").
 
 **Partially supersedes [[adr/0301-skill-engine-v2-frame-tree]]** (0301's body is not edited). Map:
 
@@ -899,6 +905,7 @@ All take the timing block (2.0); their own fields keep the 0301 meaning. `YAML` 
 | `camera_shake` | `target`, `intensity`, `for`, `direction: from_hit \| none` |
 | `stop_sound` | `target`, `sound` (stops a sound started by `sound` with a long `for`) |
 | `body` | `anim`, `speed`, `for \| until`: plays a caster body clip (replaces `caster_anim`; port `playBodyClip` / `stopBodyClip`, 14.2) |
+| `held_model` | `model` (item model id, required), `for \| until` (required): the weapon the caster holds shows `model` for the window and its own model afterwards; two windows on one cast nest in written order. Port `setHeldModel` / `clearHeldModel` (14.2, `ISkillGameplayGateway`); Paper sets the `item_model` component of the main-hand stack and restores the remembered one. Row: `held_model model=<id>`; ended by the instance `End` like `body` (rev4.5) |
 | `emit` | `name` (an event for transitions) |
 | removed | `counter` (and the `counter` world function), `caster_anim` (now `body`), `place` (now `place_shape`, 10.1c) |
 | `screen_flash`, `screen_veil` | **Pending founder Q7**: (A) revive both as presentation ops (full-screen tint / vignette on the target); (B) drop them (use a `sprite` display with `billboard: center` and a short `fade`). Not chosen; neither is in the op list until decided. |

@@ -37,13 +37,17 @@ public interface AnchorRegistry : AnchorScope {
 
 /** `blade`, `blade[2]`, `blade[i]`, `blade[parent.i]`, `blade[1].tip`. */
 public object AnchorNames {
-    public data class Parts(val base: String, val index: String?, val point: String?)
+    /** [state] is the state path of a state-qualified name (`/throw/volley` -> `throw`, ADR-0303 10.1 / 11.3); null for a name of the current scope. */
+    public data class Parts(val base: String, val index: String?, val point: String?, val state: String? = null)
 
-    private val NAME = Regex("""^([A-Za-z_][A-Za-z0-9_-]*)(?:\[([A-Za-z0-9_.]+)])?(?:\.([A-Za-z_][A-Za-z0-9_]*))?$""")
+    private val NAME = Regex("""^(?:/([A-Za-z_][A-Za-z0-9_-]*(?:/[A-Za-z_][A-Za-z0-9_-]*)*)/)?([A-Za-z_][A-Za-z0-9_-]*)(?:\[([A-Za-z0-9_.]+)])?(?:\.([A-Za-z_][A-Za-z0-9_]*))?$""")
 
     /** Null when [name] is not of the shape `id`, `id[index]`, `id.point` or `id[index].point` (e.g. `caster.hand_r` splits as base `caster`, point `hand_r`). */
     public fun split(name: String): Parts? =
-        NAME.matchEntire(name.trim())?.let { Parts(it.groupValues[1], it.groupValues[2].ifEmpty { null }, it.groupValues[3].ifEmpty { null }) }
+        NAME.matchEntire(name.trim())?.let { Parts(it.groupValues[2], it.groupValues[3].ifEmpty { null }, it.groupValues[4].ifEmpty { null }, it.groupValues[1].ifEmpty { null }) }
+
+    /** The name without its state qualifier (`/throw/volley[1].tip` -> `volley[1].tip`): the spelling an expression uses. */
+    public fun bare(name: String): String = split(name)?.takeIf { it.state != null }?.let { name.trim().substringAfterLast('/') } ?: name
 
     /** True when the name addresses a family member (`blade[i]`); builtin anchors never have an index. */
     public fun isIndexed(name: String): Boolean = split(name)?.index != null
@@ -53,8 +57,15 @@ public class DefaultAnchorScope private constructor(
     private val occurrence: Occurrence,
     private val entries: MutableMap<String, Entry>,
     private val documents: Map<String, AnchorDecl>,
+    private val foreign: (String) -> AnchorRegistry?,
 ) : AnchorRegistry {
-    public constructor(occurrence: Occurrence, documents: Map<String, AnchorDecl> = emptyMap()) : this(occurrence, LinkedHashMap(), documents)
+    /** [foreign] answers the registry of an earlier state for a state-qualified name (`/throw/volley`); a name without a state never reads it. */
+    public constructor(occurrence: Occurrence, documents: Map<String, AnchorDecl> = emptyMap(), foreign: (String) -> AnchorRegistry? = { null }) :
+        this(occurrence, LinkedHashMap(), documents, foreign)
+
+    private fun other(parts: AnchorNames.Parts): AnchorScope? = parts.state?.let { st -> foreign(st)?.at(occurrence) }
+    private fun bareOf(parts: AnchorNames.Parts): String =
+        parts.base + (parts.index?.let { "[$it]" } ?: "") + (parts.point?.let { ".$it" } ?: "")
 
     override fun document(id: String): AnchorDecl? = documents[id]
 
@@ -66,12 +77,17 @@ public class DefaultAnchorScope private constructor(
         entries[id.value.substringAfterLast('/')] = Entry(instance, family, basis, laws)
     }
 
-    override fun laws(anchor: String): List<MotionLaw> = AnchorNames.split(anchor)?.let { entries[it.base]?.laws } ?: emptyList()
+    override fun laws(anchor: String): List<MotionLaw> {
+        val parts = AnchorNames.split(anchor) ?: return emptyList()
+        if (parts.state != null) return other(parts)?.laws(bareOf(parts)) ?: emptyList()
+        return entries[parts.base]?.laws ?: emptyList()
+    }
 
-    override fun at(occurrence: Occurrence): AnchorScope = DefaultAnchorScope(occurrence, entries, documents)
+    override fun at(occurrence: Occurrence): AnchorScope = DefaultAnchorScope(occurrence, entries, documents, foreign)
 
     override fun resolve(name: String): ResolvedAnchor? {
         val parts = AnchorNames.split(name) ?: return null
+        if (parts.state != null) return other(parts)?.resolve(bareOf(parts))
         val e = entries[parts.base] ?: return null
         val prefix = e.instance.path.dropLast(1)
         val op: OpId = e.instance.path.last().op
