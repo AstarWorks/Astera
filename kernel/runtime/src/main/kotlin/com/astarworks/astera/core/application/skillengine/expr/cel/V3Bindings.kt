@@ -22,6 +22,9 @@ public object V3Bindings {
     private val BINDING_VEC3 = listOf("pos", "forward", "eye")
     private val CONTACT_ONLY_VEC3 = listOf("normal", "point")
 
+    /** Entity state read live from the cast's caster / the event's target (3.8: `caster.on_ground`, `caster.health_ratio`); a neutral value until the host supplies it through `extra`. */
+    private val ENTITY_ROOTS = listOf("caster", "target")
+
     /** Names whose value is only known when the event / hit happens (positions, C4c); never legal on a timing field. */
     internal val RUNTIME_POSITION_ROOTS: Set<String> = setOf("contact", "target", "caster")
 
@@ -54,6 +57,10 @@ public object V3Bindings {
             v["target.$f"] = ExprType.VEC3
         }
         for (f in CONTACT_ONLY_VEC3) v["contact.$f"] = ExprType.VEC3
+        for (root in ENTITY_ROOTS) {
+            v["$root.on_ground"] = ExprType.BOOL
+            v["$root.health_ratio"] = ExprType.NUM
+        }
         v["event.victim"] = ExprType.VEC3
         v["event.attacker"] = ExprType.VEC3
         return ExprEnvSpec(v, base.frames + BUILTIN_FRAMES)
@@ -102,6 +109,10 @@ public object V3Bindings {
         out["event.attacker"] = ExprValue.Vec3(target.pos)
         out["contact.normal"] = ExprValue.Vec3(contact.normal)
         out["contact.point"] = ExprValue.Vec3(contact.point)
+        for (root in ENTITY_ROOTS) {
+            out.putIfAbsent("$root.on_ground", ExprValue.Bool(false))
+            out.putIfAbsent("$root.health_ratio", ExprValue.Num(1.0))
+        }
         return out
     }
 

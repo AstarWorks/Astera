@@ -6,6 +6,25 @@ import com.astarworks.astera.core.domain.skillengine.table.Action
 import com.astarworks.astera.core.domain.skillengine.table.CompiledSkill
 import com.astarworks.astera.core.domain.skillengine.table.Row
 import com.astarworks.astera.core.domain.skillengine.table.SpawnKind
+import com.astarworks.astera.core.application.skillengine.expr.cel.CelExprCompiler
+import com.astarworks.astera.core.application.skillengine.runtime.CastRequest
+import com.astarworks.astera.core.application.skillengine.runtime.player.CastHandle
+import com.astarworks.astera.core.application.skillengine.runtime.player.CastTrace
+import com.astarworks.astera.core.application.skillengine.runtime.player.EventBinding
+import com.astarworks.astera.core.application.skillengine.runtime.player.LiveValueSource
+import com.astarworks.astera.core.application.skillengine.runtime.player.RowScope
+import com.astarworks.astera.core.application.skillengine.runtime.player.TablePlayer
+import com.astarworks.astera.core.domain.geometry.Vec3
+import com.astarworks.astera.core.domain.skillengine.expr.ExprEnv
+import com.astarworks.astera.core.domain.skillengine.expr.ExprEnvSpec
+import com.astarworks.astera.core.domain.skillengine.expr.ExprType
+import com.astarworks.astera.core.domain.skillengine.expr.ExprValue
+import com.astarworks.astera.core.domain.skillengine.math.Vector3d
+import com.astarworks.astera.core.domain.skillengine.table.EventPath
+import com.astarworks.astera.core.domain.skillengine.table.ExitReason
+import com.astarworks.astera.core.domain.skillengine.table.InstanceId
+import com.astarworks.astera.core.domain.skillengine.table.StatePath
+import com.astarworks.astera.core.domain.world.WorldId
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -121,5 +140,106 @@ class FrameOpScenarioTest : SkillEngineScenario() {
             skill("{id: open, op: frame, anchor: shears, for: 40, motion: [{law: keys, keys: [{t: 0, pose: [{axis: edge, deg: 5}]}]}]}"),
         )
         assertThat((r as Result.Failure).error).isInstanceOf(SkillDecodeError.Invalid::class.java)
+    }
+
+    // ---- expressions name frame / projectile ids and their part points (ADR-0303 3.5, 1.1) ----
+
+    private class Trace : CastTrace {
+        override fun enter(cast: CastHandle, state: StatePath, tick: Int) = Unit
+        override fun exit(cast: CastHandle, state: StatePath, reason: ExitReason, tick: Int) = Unit
+        override fun event(cast: CastHandle, path: EventPath, tick: Int, index: Int?) = Unit
+        override fun call(cast: CastHandle, callId: InstanceId, tick: Int) = Unit
+    }
+
+    /** Evaluates `"= ..."` cells with the row's frame lookup, as the Paper source does; everything else is the recorder's. */
+    private class ExprLive(val rec: GatewayRecorder, val frames: Set<String>) : LiveValueSource by rec.live {
+        private val cel = CelExprCompiler()
+        private val vars = emptyMap<String, ExprValue>()
+
+        private fun eval(name: String, scope: RowScope): ExprValue {
+            val spec = com.astarworks.astera.core.application.skillengine.expr.cel.V3Bindings.spec(null, ExprEnvSpec(vars.mapValues { ExprType.VEC3 }, frames))
+            val c = when (val r = cel.compile(name.removePrefix("= "), spec, null)) { is Result.Success -> r.value; is Result.Failure -> error("${r.error}") }
+            return c.eval(ExprEnv(vars, scope.frames!!, scope.seed, null, scope.castSeed))
+        }
+
+        override fun num(cast: CastHandle, name: String, binding: EventBinding?, scope: RowScope): Double =
+            if (name.startsWith("= ") && "caster" !in name) (eval(name, scope) as ExprValue.Num).value else rec.live.num(cast, name, binding, scope)
+
+        override fun vec(cast: CastHandle, name: String, binding: EventBinding?, scope: RowScope): Vector3d =
+            if (name.startsWith("= ") && "caster" !in name) (eval(name, scope) as ExprValue.Vec3).value.let { Vector3d(it.x, it.y, it.z) } else rec.live.vec(cast, name, binding, scope)
+    }
+
+    /** (tick, volume) of every sound the player plays up to [until]. */
+    private fun volumes(s: CompiledSkill, frames: Set<String>, until: Int): List<Pair<Int, Double>> {
+        val rec = GatewayRecorder()
+        val player = TablePlayer(rec.visual, rec.particles, rec.sounds, rec.gameplay, rec.query, ExprLive(rec, frames), Trace(), rec.movement, rec.items, rec.world)
+        val request = CastRequest(s, rec.caster, WorldId("world"), Vec3(0.0, 0.0, 0.0), 0.0, 0.0, 1L, startTick = 0)
+        player.start(request, s)
+        val out = ArrayList<Pair<Int, Double>>()
+        for (t in 0..until) {
+            rec.tick = t
+            val before = rec.calls.size
+            player.tick(t)
+            rec.calls.drop(before).filter { it.verb == "sound" }.forEach { out += t to Regex("vol=(\\S+)").find(it.payload)!!.groupValues[1].toDouble() }
+        }
+        assertThat(player.faults()).isEmpty()
+        return out
+    }
+
+    private fun sound(id: String, at: Int, volume: String) = "{id: $id, op: sound, sound: block.note_block.hat, anchor: shears, volume: \"$volume\", at: $at}"
+
+    @Test
+    fun expressionNamesFrameOpIdAndItsPartPoint() {
+        val s = withParams(
+            "{id: spun, op: frame, anchor: shears, for: 40, motion: [{law: spin, axis: forward, deg_per_tick: \"\${spin_dpt}\", at: 0, for: 30}]}",
+            "{id: piece_a, op: frame, anchor: spun, part: blade_a, for: 40}",
+            sound("snd0", 0, "= speed(piece_a.tip)"),
+            sound("snd5", 5, "= speed(piece_a.tip)"),
+        )
+        val v = volumes(s, setOf("spun", "piece_a", "piece_a.tip"), 6).toMap()
+        // nothing has moved on the spawn tick; later the tip sweeps a chord of the 54 degree turn per tick around the spin axis (the hand)
+        assertThat(v[0]).isEqualTo(0.0)
+        assertThat(v[5]).isGreaterThan(0.1)
+    }
+
+    @Test
+    fun expressionNamesProjectileIdVelocity() {
+        val s = compiled(
+            "{id: volley, op: projectile, origin: shears, velocity: \"= vec(0.0, 0.0, 1.0)\", radius: 0.4, hit: {targets: enemies, once: true}, block: {mode: despawn}, for: 20}",
+            sound("snd", 3, "= speed(volley)"),
+        )
+        val v = volumes(s, setOf("volley"), 4)
+        assertThat(v).hasSize(1)
+        assertThat(v.single().second).isCloseTo(1.0, org.assertj.core.data.Offset.offset(1e-6))
+    }
+
+    @Test
+    fun projectileMotionSpinReadsParam() {
+        val s = withParams("{id: volley, op: projectile, origin: shears, velocity: \"= vec(0.0, 0.0, 1.0)\", radius: 0.4, hit: {targets: enemies, once: true}, block: {mode: despawn}, for: 20, motion: [{law: spin, axis: forward, deg_per_tick: \"\${spin_dpt}\", at: 0, for: 5}]}")
+        assertThat(rows(s).any { it.action is Action.Spawn }).isTrue()
+    }
+
+    @Test
+    fun partPointOnPartlessFrameIsLoadError() {
+        val r = loadInline(skill("{id: f, op: frame, anchor: shears, for: 40}", sound("snd", 0, "= speed(f.tip)")))
+        assertThat(r).isInstanceOf(Result.Failure::class.java)
+    }
+
+    @Test
+    fun casterEntityStateFieldsLoadInCells() {
+        val r = loadInline(
+            skill(
+                "{id: f, op: frame, anchor: shears, for: 40}",
+                sound("snd", 0, "= caster.on_ground ? 1.0 : 0.5"),
+                sound("snd2", 1, "= caster.health_ratio < 0.35 ? 0.2 : 1.0"),
+            ),
+        )
+        assertThat(r).isInstanceOf(Result.Success::class.java)
+    }
+
+    @Test
+    fun unknownFrameIdInExpressionIsLoadError() {
+        val r = loadInline(skill("{id: f, op: frame, anchor: shears, for: 40}", sound("snd", 0, "= speed(nosuch)")))
+        assertThat(r).isInstanceOf(Result.Failure::class.java)
     }
 }

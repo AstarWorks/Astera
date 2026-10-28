@@ -221,7 +221,7 @@ public object ProjectileOpSpec : OpSpec<ProjectileOp> {
                 }
             }
 
-            val keys = values[motion]?.let { m -> MotionLaws.readLaws(m, ctx, "$path.motion") }
+            val keys = values[motion]?.let { m -> MotionLaws.readLaws(m, ctx.forLaws(com.astarworks.astera.core.application.skillengine.load.grammar.LocalAxes), "$path.motion") }
             ProjectileOp(id, src, whenExpr, timing, values[origin], values[velocity], values[speed], values[range], values[radius], hitSpec, keys, blockSpec, values[gravity], values[drag], raw)
         }
 

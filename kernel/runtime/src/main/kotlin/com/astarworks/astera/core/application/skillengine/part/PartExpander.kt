@@ -173,6 +173,11 @@ internal object Binding {
     )
 
     class Env(private val params: Map<String, Any?>, private val frames: Map<String, String>) {
+        private companion object {
+            /** Op fields typed as a closed keyword set whose words can equal a frame name (`center`, `fixed`...). */
+            val ENUM_KEYS = setOf("billboard", "alignment", "pivot", "face", "mode", "kind", "direction", "forward", "targets", "category", "context", "operation", "tool", "law")
+        }
+
         @Suppress("UNCHECKED_CAST")
         fun op(op: OpMap): OpMap = value(op) as OpMap
 
@@ -185,7 +190,10 @@ internal object Binding {
         }
 
         fun value(v: Any?): Any? = when (v) {
-            is Map<*, *> -> LinkedHashMap<String, Any?>().also { out -> v.forEach { (k, x) -> out[k as String] = value(x) } }
+            is Map<*, *> -> LinkedHashMap<String, Any?>().also { out ->
+                // an enum-typed field (`billboard: center`) names a keyword, never a frame, even when the part binds a frame of that name
+                v.forEach { (k, x) -> out[k as String] = if (k in ENUM_KEYS && x is String && !x.startsWith("= ")) x else value(x) }
+            }
             is List<*> -> v.map { value(it) }
             is String -> string(v)
             else -> v

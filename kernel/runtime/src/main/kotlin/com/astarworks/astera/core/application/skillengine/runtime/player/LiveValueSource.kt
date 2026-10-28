@@ -10,7 +10,13 @@ import com.astarworks.astera.core.domain.skillengine.math.Vector3d
  * `V3Bindings.seed(castSeed, op, i)`, [castSeed] the cast seed, [indices] the copy indices innermost first (`i`, `parent.i`, ...).
  * A read that belongs to no row (a pose lookup) uses [cast].
  */
-public class RowScope(public val seed: Long, public val castSeed: Long, public val indices: List<Int> = emptyList()) {
+public class RowScope(
+    public val seed: Long,
+    public val castSeed: Long,
+    public val indices: List<Int> = emptyList(),
+    /** The cast's live instances (frame / projectile ops and their part points) at the row's tick, for expressions that name them; null for a read outside a row. */
+    public val frames: com.astarworks.astera.core.domain.skillengine.expr.FrameLookup? = null,
+) {
     public companion object {
         public fun cast(castSeed: Long): RowScope = RowScope(castSeed, castSeed)
     }

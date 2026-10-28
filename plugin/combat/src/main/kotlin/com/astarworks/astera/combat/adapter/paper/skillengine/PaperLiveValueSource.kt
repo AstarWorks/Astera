@@ -70,7 +70,19 @@ public class PaperLiveValueSource(
             eventI = binding?.index ?: 0,
             contact = contactOf(binding),
             target = victimOf(binding),
+            extra = entityState("caster", server.getEntity(request(cast).caster) as? LivingEntity) +
+                entityState("target", binding?.victim?.id?.let { server.getEntity(it) as? LivingEntity }),
         )
+
+    /** `<root>.on_ground` / `<root>.health_ratio` (3.8 conditions); absent entity = the neutral values of [V3Bindings.values]. */
+    private fun entityState(root: String, e: LivingEntity?): Map<String, ExprValue> {
+        if (e == null || !e.isValid) return emptyMap()
+        val max = e.getAttribute(org.bukkit.attribute.Attribute.MAX_HEALTH)?.value ?: 20.0
+        return mapOf(
+            "$root.on_ground" to ExprValue.Bool(e.isOnGround),
+            "$root.health_ratio" to ExprValue.Num(if (max > 0.0) (e.health / max).coerceIn(0.0, 1.0) else 0.0),
+        )
+    }
 
     public fun frames(cast: CastHandle, binding: EventBinding? = null): FrameLookup {
         val request = request(cast)
@@ -232,12 +244,23 @@ public class PaperLiveValueSource(
         }
         val env = ExprEnv(
             variables = vars,
-            frames = frames(cast),
+            frames = withInstances(frames(cast), scope.frames),
             seed = scope.seed,
             castSeed = scope.castSeed,
             host = StackHost(request, binding),
         )
         return expr.eval(env)
+    }
+
+    /** The caster / contact frames first, then the cast's own frame / projectile instances ([inst], from the row's scope). */
+    private fun withInstances(base: FrameLookup, inst: FrameLookup?): FrameLookup {
+        if (inst == null) return base
+        return object : FrameLookup {
+            override fun worldPose(frame: String, point: String?): Frame? = base.worldPose(frame, point) ?: inst.worldPose(frame, point)
+
+            override fun velocity(frame: String, point: String?): Vec3 =
+                if (base.worldPose(frame, point) != null) base.velocity(frame, point) else inst.velocity(frame, point)
+        }
     }
 
     /** `stacks(entity, status)` reads the gateway; the other host reads are not served on Paper yet and fail loudly. */
