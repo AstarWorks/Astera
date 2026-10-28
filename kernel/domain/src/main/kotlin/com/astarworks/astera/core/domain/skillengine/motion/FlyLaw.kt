@@ -7,8 +7,8 @@ import com.astarworks.astera.core.domain.skillengine.frame.FrameId
 import com.astarworks.astera.core.domain.skillengine.model.ValueResolver
 
 /**
- * Ballistic flight in WORLD space (blocks / tick): each tick `v = (v - (0, gravity, 0)) * (1 - drag)`, then
- * the frame moves by `v`. With `align` the orientation is `Basis.facing(axis, up)` (the BASE orientation, a
+ * Ballistic flight in WORLD space (blocks / tick): each tick the frame moves by `v`, then
+ * `v = (v - (0, gravity, 0)) * (1 - drag)` (v1 `ProjectileStepper.stepFlight`: move, then forces). With `align` the orientation is `Basis.facing(axis, up)` (the BASE orientation, a
  * spin multiplies on top of it). Ends with `expire` after `maxTicks`.
  */
 internal class FlyLaw(
@@ -22,11 +22,13 @@ internal class FlyLaw(
     private var age = 0
 
     override fun step(ctx: MotionContext): MotionStep {
+        if (ctx.ticksSinceStart < spec.startDelayTicks) return MotionStep.Hold
+        val step = velocity
+        val origin = MotionMath.worldPointToLocal(ctx, ctx.world.origin + step)
+        val rotation = spec.align?.let { MotionMath.alignedRotation(ctx, it, step) } ?: ctx.local.rotation
         val gravity = resolver.num(spec.gravity)
         val keep = 1.0 - resolver.num(spec.drag)
         velocity = Vec3(velocity.x * keep, (velocity.y - gravity) * keep, velocity.z * keep)
-        val origin = MotionMath.worldPointToLocal(ctx, ctx.world.origin + velocity)
-        val rotation = spec.align?.let { MotionMath.alignedRotation(ctx, it, velocity) } ?: ctx.local.rotation
         val next = Frame(origin, rotation)
         age++
         val max = spec.maxTicks?.let { resolver.num(it) }

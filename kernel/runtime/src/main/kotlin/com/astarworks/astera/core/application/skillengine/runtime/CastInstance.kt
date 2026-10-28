@@ -231,15 +231,19 @@ internal class CastInstance(
         }
         drain()
 
-        // timeline rows (gameplay first, then presentation)
+        // gameplay timeline rows
         for (row in gameplayTimeline.due(ticksSinceStart, ::eventSince, bus::hasRaised)) runRow(row.whenExpr, row.ops)
-        for (row in presentationTimeline.due(ticksSinceStart, ::eventSince, bus::hasRaised)) runRow(row.whenExpr, row.ops)
         drain()
 
         stepMotion()
         drain()
 
         resolveHits()
+        drain()
+
+        // presentation rows run after the tick's motion and hits: a trail emits at the post-move position and not at all
+        // on the tick its projectile ended (v1 emitted from inside the projectile step).
+        for (row in presentationTimeline.due(ticksSinceStart, ::eventSince, bus::hasRaised)) runRow(row.whenExpr, row.ops)
         drain()
 
         deps.presentation.tickCast(id)
@@ -274,7 +278,7 @@ internal class CastInstance(
 
     private fun idle(): Boolean =
         !motion.hasWork() && scheduled.isEmpty() && windows.isEmpty() && queue.isEmpty() && !deps.dashes.isDashing(id) &&
-            !gameplayTimeline.pending() && !presentationTimeline.pending()
+            !gameplayTimeline.pending(::eventSince) && !presentationTimeline.pending(::eventSince)
 
     private fun finishNow(cancelled: Boolean = false) {
         if (ended) return

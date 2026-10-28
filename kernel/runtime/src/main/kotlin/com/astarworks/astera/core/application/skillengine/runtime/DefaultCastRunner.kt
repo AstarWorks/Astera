@@ -119,7 +119,12 @@ public class DefaultCastRunner(private val deps: CastRunnerDeps) : CastRunner, I
 
     @Synchronized
     override fun tick(currentTick: Int) {
-        for (cast in casts.values.toList()) {
+        // A cast started by another cast during this tick (cast_skill) is appended and runs its first tick now, not next tick.
+        val order = ArrayList(casts.values)
+        val seen = HashSet<Long>(order.map { it.id.value })
+        var i = 0
+        while (i < order.size) {
+            val cast = order[i++]
             try {
                 cast.tick(currentTick)
             } catch (e: RuntimeException) {
@@ -131,6 +136,7 @@ public class DefaultCastRunner(private val deps: CastRunnerDeps) : CastRunner, I
                 casts.remove(cast.id.value)
                 deps.hosts.unregister(cast.id)
             }
+            for (started in casts.values) if (seen.add(started.id.value)) order += started
         }
         deps.dashes.tick()
         deps.locks.tick()

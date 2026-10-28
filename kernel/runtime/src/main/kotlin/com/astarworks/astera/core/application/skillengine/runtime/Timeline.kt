@@ -53,9 +53,15 @@ internal class Timeline<O : SkillOp>(private val rows: List<TimelineEntry<O>>) {
         return out
     }
 
-    /** True while a row can still fire without any further event (event-relative rows that never started do not count). */
-    fun pending(): Boolean = rows.indices.any { i ->
+    /**
+     * True while a row can still fire without any further event. An event-relative row counts once its event has been
+     * raised (even in the tick the event was raised after this timeline's [due] ran, e.g. `hit` from the swept resolve),
+     * never before.
+     */
+    fun pending(eventSince: (String) -> Int?): Boolean = rows.indices.any { i ->
         // A row that repeats `until: end` is released by the cast ending, so it must not be what keeps the cast alive.
-        !states[i].done && rows[i].untilEvent != SkillEvents.END && (states[i].next != null || rows[i].at is TimelineAt.Tick)
+        val at = rows[i].at
+        !states[i].done && rows[i].untilEvent != SkillEvents.END &&
+            (states[i].next != null || at is TimelineAt.Tick || (at is TimelineAt.AfterEvent && eventSince(at.event) != null))
     }
 }

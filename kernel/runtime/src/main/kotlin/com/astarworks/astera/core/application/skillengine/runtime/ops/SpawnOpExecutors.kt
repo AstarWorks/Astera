@@ -107,6 +107,7 @@ internal object ProjectileExecutor : OpExecutor<SpawnOp.Projectile> {
                         drag = op.drag,
                         align = AlignSpec(AxisRef("velocity"), AxisRef("world.up")),
                         maxTicks = op.maxTicks,
+                        startDelayTicks = 1,
                     ),
                 ),
                 HitOp.Hit(
