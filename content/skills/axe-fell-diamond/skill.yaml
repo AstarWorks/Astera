@@ -24,6 +24,5 @@ machine:
       for: 1
       then: done
       enter:
-        # GAP: v2 op break_area has no v3 OpSpec -> kept verbatim, closest v3 is none (block-break must stay exact)
-        - {id: fell, op: break_area, shape: line, radius: 2.0, length: 9, width: 1, height: 3, tool_class: AXE, block_damage: 200, power: 3, at: aim}
+        - {id: fell, op: break_area, at: 0, anchor: caster.eye, shape: {line: {length: 9, width: 1}}, tool: axe, block_damage: 100, ripple: 29, revert: 200, outside_arena: false}
     done: {final: true}
