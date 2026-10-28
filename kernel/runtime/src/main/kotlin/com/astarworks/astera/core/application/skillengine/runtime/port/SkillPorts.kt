@@ -12,12 +12,15 @@ import com.astarworks.astera.core.domain.world.WorldId
 import java.util.UUID
 
 /**
- * Outbound ports of the skill engine (ADR-0301). The sound, particle and entity-query ports are bound to ONE world
- * (the casting entity's): the runner builds them per cast through [SkillRuntimePorts] factories, so a call can never
- * land in another world. All inputs are already evaluated numbers and
+ * Outbound ports of the skill engine (ADR-0301, R40). Every sound, particle, entity-query, visual, movement, item and world
+ * call takes the [CastRef] of the cast it belongs to FIRST, so the adapter resolves the world from `cast.world` and a call can
+ * never land in another world. All inputs are already evaluated numbers and
  * world-space poses; no frame or expression types cross the boundary. Paper implementations live in
  * `plugin/combat/.../adapter/paper/skillengine/`.
  */
+/** The cast a port call belongs to (R40): the cast's id (for ledgers such as world reverts), its caster and the world it runs in. */
+public data class CastRef(val castId: Long, val caster: UUID, val world: WorldId)
+
 @JvmInline
 public value class VisualHandle(public val id: Long)
 
@@ -63,32 +66,32 @@ public data class SpriteInfo(val frames: Int, val px: Int)
  */
 public interface ISkillVisualGateway {
     /** An item model; [pose].size is the model scale in blocks per model unit. */
-    public fun spawnMesh(castOwner: UUID, item: String, part: String?, pose: VisualPose, brightness: Int? = null, look: MeshLook = MeshLook(), view: DisplayView = DisplayView(), glow: String? = null): VisualHandle
+    public fun spawnMesh(cast: CastRef, item: String, part: String?, pose: VisualPose, brightness: Int? = null, look: MeshLook = MeshLook(), view: DisplayView = DisplayView(), glow: String? = null): VisualHandle
 
     /**
      * One bone of the caster's own skin rig (ADR-0303 skin-rig section): a skull display wearing the caster's skin, [ghost] = a
      * visual-only copy (no body hiding). [pose] is the world pose of the bone; it is written like a mesh. While the first live
      * bone of a caster exists the real body, offhand and armour are hidden and the pose is pinned.
      */
-    public fun spawnSkinBone(castOwner: UUID, bone: com.astarworks.astera.core.domain.animation.skinrig.SkinRigBone, slim: Boolean, ghost: Boolean, pose: VisualPose): VisualHandle
+    public fun spawnSkinBone(cast: CastRef, bone: com.astarworks.astera.core.domain.animation.skinrig.SkinRigBone, slim: Boolean, ghost: Boolean, pose: VisualPose): VisualHandle
 
     /**
      * A sprite quad; [pose].size.x / .y are its width and height in blocks. [tintHex] (`#rrggbb`) is multiplied into the
      * sprite from the first tick (null = the sprite's own colours), [seeThrough] is the vanilla text-display flag.
      * [brightness] null = full bright (15).
      */
-    public fun spawnPlate(castOwner: UUID, sprite: String, alpha: Double, tintHex: String?, seeThrough: Boolean, pose: VisualPose, brightness: Int? = null, view: DisplayView = DisplayView(), glow: String? = null): VisualHandle
+    public fun spawnPlate(cast: CastRef, sprite: String, alpha: Double, tintHex: String?, seeThrough: Boolean, pose: VisualPose, brightness: Int? = null, view: DisplayView = DisplayView(), glow: String? = null): VisualHandle
 
     /** A block display of vanilla block [block] (`gold_block`); [pose].size is its edge per axis in blocks, centred on the pose origin. */
-    public fun spawnBlock(castOwner: UUID, block: String, pose: VisualPose, brightness: Int?, rigShading: Boolean = false, view: DisplayView = DisplayView(), glow: String? = null): VisualHandle
+    public fun spawnBlock(cast: CastRef, block: String, pose: VisualPose, brightness: Int?, rigShading: Boolean = false, view: DisplayView = DisplayView(), glow: String? = null): VisualHandle
 
     /**
      * A text display of the MiniMessage [text] ([pose].size = blocks per text unit) with a [backgroundHex] box at [backgroundAlpha]
      * (0 = none); the text keeps its own colour and full opacity.
      */
-    public fun spawnText(castOwner: UUID, text: String, backgroundHex: String, backgroundAlpha: Double, shadow: Boolean, seeThrough: Boolean, pose: VisualPose, brightness: Int?, view: DisplayView = DisplayView()): VisualHandle
+    public fun spawnText(cast: CastRef, text: String, backgroundHex: String, backgroundAlpha: Double, shadow: Boolean, seeThrough: Boolean, pose: VisualPose, brightness: Int?, view: DisplayView = DisplayView()): VisualHandle
 
-    public fun spawnTrail(castOwner: UUID, ticks: Int, widthFrac: Double, colorHex: String, alpha: Double): VisualHandle
+    public fun spawnTrail(cast: CastRef, ticks: Int, widthFrac: Double, colorHex: String, alpha: Double): VisualHandle
 
     /** The ONE per-tick write of a mesh, plate, block or text: the whole [pose] reaches the client together and arrives after [interpolationTicks]. */
     public fun write(handle: VisualHandle, pose: VisualPose, interpolationTicks: Int)
@@ -132,18 +135,15 @@ public data class ParticleBurst(
 )
 
 public interface ISkillParticleGateway {
-    public fun emit(burst: ParticleBurst)
+    public fun emit(cast: CastRef, burst: ParticleBurst)
 }
 
 /** Positional sound: always at a world point. */
 public interface ISkillSoundGateway {
-    public fun play(sound: String, at: Vec3, category: String, volume: Double, pitch: Double)
+    public fun play(cast: CastRef, sound: String, at: Vec3, category: String, volume: Double, pitch: Double)
 }
 
 public data class SkillDamage(val kind: String, val amount: Double)
-
-/** The running cast a port call belongs to (R40): the gateway resolves its world and owner from here, never from ambient state. */
-public data class CastRef(val castId: Long, val caster: UUID, val world: WorldId)
 
 /** Gameplay effects on entities. Damage numbers and status maths stay in combat; this is the seam. */
 public interface ISkillGameplayGateway {
@@ -226,32 +226,62 @@ public interface ISkillGameplayGateway {
     public fun hurt(cast: CastRef, target: UUID, from: Vec3)
 }
 
-/**
- * Inventory seam of the skill engine (R40). `consume` removes up to [count] Astera items with id [item] from [holder] and
- * answers whether all [count] were found (a short stack still loses what it had, as v2 did).
- */
-public interface ISkillItemGateway {
-    public fun consume(cast: CastRef, holder: UUID, item: String, count: Int): Boolean
-}
-
 /** Entity query with hitbox, used for the broad phase. */
 public interface ISkillEntityQuery {
     /** Living, hittable entities within [radius] of [point], excluding [excluding]. */
-    public fun nearby(point: Vec3, radius: Double, excluding: UUID?): List<HitCandidate>
+    public fun nearby(cast: CastRef, point: Vec3, radius: Double, excluding: UUID?): List<HitCandidate>
 
     /** Current feet position and body yaw of an entity (the victim / caster root frame). */
-    public fun rootOf(entity: UUID): EntityRoot?
+    public fun rootOf(cast: CastRef, entity: UUID): EntityRoot?
 
     /** Where blocks stop a moving body: first solid hit on segment [from]->[to], or null. */
-    public fun raycastBlock(from: Vec3, to: Vec3): BlockHit?
+    public fun raycastBlock(cast: CastRef, from: Vec3, to: Vec3): BlockHit?
 
     /** Health fraction 0..1 of a living entity (expression `hp_ratio`); an entity that is unknown or not living is an error. */
-    public fun healthRatio(entity: UUID): Double
+    public fun healthRatio(cast: CastRef, entity: UUID): Double
 }
 
 public data class EntityRoot(val feet: Vec3, val yawDeg: Double, val pitchDeg: Double, val eyeHeight: Double, val height: Double)
 
 public data class BlockHit(val point: Vec3, val normal: Vec3, val blockKey: String)
+
+/** Caster / entity motion driven per tick by the kernel (R40, R9): the dash and reel drivers call these. */
+public interface ISkillMovementGateway {
+    /** Move [entity] to [pos] (and [yaw] / [pitch] when given) now. Dash and reel call this once per tick (v2 `DashStrikeDriver`). */
+    public fun teleport(cast: CastRef, entity: UUID, pos: Vec3, yaw: Double?, pitch: Double?)
+
+    /** Current velocity of [entity] in blocks per tick. */
+    public fun velocity(cast: CastRef, entity: UUID): Vec3
+
+    /** Add [v] to the velocity of [entity]. */
+    public fun addVelocity(cast: CastRef, entity: UUID, v: Vec3)
+
+    /** First solid block on the segment [from] -> [to] for a moving body of [entity], or null (stop-on-block probe). */
+    public fun probeBlock(cast: CastRef, from: Vec3, to: Vec3): BlockHit?
+
+    /** [entity] takes no damage for [ticks] ticks (`dash invulnerable`). */
+    public fun invulnerable(cast: CastRef, entity: UUID, ticks: Int)
+
+    /** Turn [entity] to face [dir] (`dash face_movement`). */
+    public fun faceMovement(cast: CastRef, entity: UUID, dir: Vec3)
+}
+
+/** Items and cooldowns of the caster (the `consume_item` op, gated `use: skill:<id>`). */
+public interface ISkillItemGateway {
+    /** Remove up to [count] Astera items with id [item] from [holder]; true when all [count] were found (a short stack still loses what it had, as v2 did). */
+    public fun consume(cast: CastRef, holder: UUID, item: String, count: Int): Boolean
+
+    /** Start the cooldown of [skill] for the caster of [cast] for [ticks]. */
+    public fun cooldown(cast: CastRef, skill: String, ticks: Int)
+
+    public fun hasItem(cast: CastRef, holder: UUID, item: String): Boolean
+
+    /**
+     * A gated `use: skill:<id>` call (ADR-0303 section 9): apply the called skill's OWN cooldown ([cooldown]) and / or resource
+     * cost ([cost]) to the caster of [cast]. The called rows play either way; an unpayable cost is the gateway's to report.
+     */
+    public fun applyGate(cast: CastRef, skill: String, cooldown: Boolean, cost: Boolean)
+}
 
 public interface ISkillVictimAnimGateway {
     public fun play(victim: UUID, anim: String, strength: Double, awayFrom: Vec3)
@@ -265,4 +295,7 @@ public data class SkillRuntimePorts(
     val gameplay: ISkillGameplayGateway,
     val entities: ISkillEntityQuery,
     val victimAnim: ISkillVictimAnimGateway,
+    val movement: ISkillMovementGateway,
+    val items: ISkillItemGateway,
+    val world: ISkillWorldGateway,
 )

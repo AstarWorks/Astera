@@ -109,7 +109,7 @@ class HitHandlerScenarioTest {
     }
 
     private class Fx(skill: CompiledSkill, val rec: GatewayRecorder, val live: LiveValueSource, gameplay: ISkillGameplayGateway = rec.gameplay) {
-        val player = TablePlayer(rec.visual, rec.particles, rec.sounds, gameplay, rec.query, live, Trace())
+        val player = TablePlayer(rec.visual, rec.particles, rec.sounds, gameplay, rec.query, live, Trace(), rec.movement, rec.items, rec.world)
         val cast: CastHandle
         var now = 0
 

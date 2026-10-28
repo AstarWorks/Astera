@@ -15,16 +15,16 @@ public enum class BlockDamageOutcome { NONE, CHIPPED, BROKEN }
  */
 public interface ISkillWorldGateway {
     /** `break_area`: strike the shape's cells nearest-first, spread over `spec.rippleTicks` (0 = this tick). */
-    public fun breakArea(caster: UUID, spec: BreakAreaSpec, aim: WorldAim)
+    public fun breakArea(cast: CastRef, spec: BreakAreaSpec, aim: WorldAim)
 
     /** `place_shape`: place the build's cells nearest-first, spread over `spec.rippleTicks` (0 = this tick). */
-    public fun placeShape(caster: UUID, spec: PlaceShapeSpec, aim: WorldAim)
+    public fun placeShape(cast: CastRef, spec: PlaceShapeSpec, aim: WorldAim)
 
     /** `explode`: exactly one vanilla explosion at [at]. */
-    public fun explode(caster: UUID, at: Vec3, power: Double, breakBlocks: Boolean, fire: Boolean)
+    public fun explode(cast: CastRef, at: Vec3, power: Double, breakBlocks: Boolean, fire: Boolean)
 
     /** `lightning`: [visualOnly] strikes the visual effect only, otherwise a damaging strike. */
-    public fun lightning(caster: UUID, at: Vec3, visualOnly: Boolean)
+    public fun lightning(cast: CastRef, at: Vec3, visualOnly: Boolean)
 
     /** Advance the revert / ripple schedule by one server tick. */
     public fun tick()

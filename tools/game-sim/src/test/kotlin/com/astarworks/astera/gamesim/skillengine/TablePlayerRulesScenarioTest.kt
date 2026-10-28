@@ -111,7 +111,7 @@ class TablePlayerRulesScenarioTest {
         hooks: PlayerHooks? = null,
     ) {
         val trace = TraceLog()
-        val player = TablePlayer(rec.visual, rec.particles, rec.sounds, rec.gameplay, query ?: rec.query, live ?: rec.live, trace)
+        val player = TablePlayer(rec.visual, rec.particles, rec.sounds, rec.gameplay, query ?: rec.query, live ?: rec.live, trace, rec.movement, rec.items, rec.world)
         val cast: CastHandle
         var now = 0
 
@@ -444,9 +444,9 @@ class TablePlayerRulesScenarioTest {
             val rec = GatewayRecorder()
             var nearbyCalls = 0
             val counting = object : ISkillEntityQuery by rec.query {
-                override fun nearby(point: Vec3, radius: Double, excluding: UUID?): List<HitCandidate> {
+                override fun nearby(cast: com.astarworks.astera.core.application.skillengine.runtime.port.CastRef, point: Vec3, radius: Double, excluding: UUID?): List<HitCandidate> {
                     nearbyCalls++
-                    return rec.query.nearby(point, radius, excluding)
+                    return rec.query.nearby(cast, point, radius, excluding)
                 }
             }
             val frame = id("frame")

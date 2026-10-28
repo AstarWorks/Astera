@@ -42,7 +42,7 @@ class WorldOpScenarioTest : SkillEngineScenario() {
     }
 
     private fun run(world: FakeSkillWorldGateway, opLine: String) =
-        WorldRows.execute(world, caster, worldRow(opLine), origin, east)
+        WorldRows.execute(world, com.astarworks.astera.core.application.skillengine.runtime.port.CastRef(1L, caster, com.astarworks.astera.core.domain.world.WorldId("world")), worldRow(opLine), origin, east)
 
     private fun stoneBlock(world: FakeSkillWorldGateway, from: Int, to: Int) {
         for (x in from..to) for (y in 62..66) for (z in -4..4) world.setBlock(BlockCell(x, y, z), "minecraft:stone")

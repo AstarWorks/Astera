@@ -4,9 +4,16 @@ import com.astarworks.astera.combat.adapter.paper.skillengine.PaperLiveValueSour
 import com.astarworks.astera.combat.adapter.paper.skillengine.PaperPlayerHooks
 import com.astarworks.astera.combat.adapter.paper.skillengine.PaperSkillEntityQuery
 import com.astarworks.astera.combat.adapter.paper.skillengine.PaperSkillGameplayGateway
+import com.astarworks.astera.combat.adapter.paper.skillengine.PaperSkillItemGateway
+import com.astarworks.astera.combat.adapter.paper.skillengine.PaperSkillMovementGateway
 import com.astarworks.astera.combat.adapter.paper.skillengine.PaperSkillParticleGateway
 import com.astarworks.astera.combat.adapter.paper.skillengine.PaperSkillSoundGateway
 import com.astarworks.astera.combat.adapter.paper.skillengine.PaperSkillVisualGateway
+import com.astarworks.astera.combat.adapter.paper.skillengine.world.PaperSkillWorldGateway
+import com.astarworks.astera.combat.application.port.outbound.aoe.ILightningGateway
+import com.astarworks.astera.core.application.port.outbound.IBlockStateGateway
+import com.astarworks.astera.core.application.port.outbound.ICooldownTracker
+import com.astarworks.astera.core.application.port.outbound.ICustomBlockRegistry
 import com.astarworks.astera.combat.application.port.outbound.IDamageRandomizer
 import com.astarworks.astera.combat.application.port.outbound.IEntityEffectsGateway
 import com.astarworks.astera.combat.application.port.outbound.IIncomingDamageInterceptor
@@ -71,9 +78,15 @@ internal class SkillEnginePaperRuntime(
     private val notInCatalog = ConcurrentHashMap.newKeySet<String>()
     private var castSequence = 0L
 
-    /** World of the cast started last: the v3 sound / particle / entity ports carry no cast context yet. */
+    private var movement: PaperSkillMovementGateway? = null
+    private var worldOps: PaperSkillWorldGateway? = null
+
+    /**
+     * World of the cast started last, for [PaperSkillWorldGateway] only: its block seam (`ISkillBlockAccess`, W2-01) carries no
+     * world yet. Every other port reads `CastRef.world`.
+     */
     @Volatile
-    private var currentWorld: WorldId = WorldId("world")
+    private var blockWorld: WorldId = WorldId("world")
 
     fun start(
         ctx: WiringContext,
@@ -127,13 +140,27 @@ internal class SkillEnginePaperRuntime(
             bodyPoses = { services.get<com.astarworks.astera.core.application.port.outbound.animation.IPlayerAnimationGateway>() },
         )
         val live = PaperLiveValueSource(server, scheduler, gameplay)
+        val movementGateway = PaperSkillMovementGateway(server)
+        movement = movementGateway
+        val worldGateway3 = PaperSkillWorldGateway(
+            server,
+            world = { server.getWorld(blockWorld.value) },
+            guard = { ports.blockEditGuard?.invoke(services) },
+            blockStates = { services.get<IBlockStateGateway>() },
+            covers = { services.get<ICustomBlockRegistry>() },
+            lightning = { services.get<ILightningGateway>() },
+        )
+        worldOps = worldGateway3
         val player = TablePlayer(
             visual = visualGateway,
-            particles = PaperSkillParticleGateway(worldGateway, { currentWorld }) { id -> particleRegistry?.find(ParticleId(id)) },
-            sounds = PaperSkillSoundGateway(server) { currentWorld },
+            particles = PaperSkillParticleGateway(worldGateway) { id -> particleRegistry?.find(ParticleId(id)) },
+            sounds = PaperSkillSoundGateway(server),
             gameplay = gameplay,
-            query = PaperSkillEntityQuery(server, { currentWorld }) { services.get<IStructureTargets>() },
+            query = PaperSkillEntityQuery(server) { services.get<IStructureTargets>() },
             live = live,
+            movement = movementGateway,
+            items = PaperSkillItemGateway(server, { wired.skillGate }, { services.get<ICooldownTracker>() }, { services.get<IResourcePoolService>() }),
+            world = worldGateway3,
         )
         val playerHooks = PaperPlayerHooks(server, scheduler, gameplay, live, visualGateway)
         player.config = wired.engineConfig
@@ -152,6 +179,7 @@ internal class SkillEnginePaperRuntime(
             val now = scheduler.currentTick()
             cast.tick(now.toInt())
             playerHooks.tick(now.toInt())
+            movementGateway.tick(now.toInt())
             live.retain(player.live().toSet())
             player.faults().forEach { log.error("[skill-error] cast {} at tick {} ({}): {}", it.cast.value, it.tick, it.src, it.message) }
             player.clearFaults()
@@ -187,6 +215,8 @@ internal class SkillEnginePaperRuntime(
 
         ctx.subscriptions += eventBus.subscribe(MatchEnded::class) {
             cast.cancelAll()
+            worldOps?.revertAll()
+            movementGateway.releaseAll()
             visualGateway.removeAll()
             playerHooks.releaseAll()
         }
@@ -225,7 +255,7 @@ internal class SkillEnginePaperRuntime(
         }
         val loc = player.location
         val world = WorldId(player.world.name)
-        currentWorld = world
+        blockWorld = world
         val request = CastRequest(
             skill = skill,
             caster = event.caster.uuid,
@@ -277,6 +307,10 @@ internal class SkillEnginePaperRuntime(
         interruptions = null
         runner?.cancelAll()
         runner = null
+        worldOps?.revertAll()
+        worldOps = null
+        movement?.releaseAll()
+        movement = null
         hooks?.releaseAll()
         hooks = null
         visuals?.removeAll()

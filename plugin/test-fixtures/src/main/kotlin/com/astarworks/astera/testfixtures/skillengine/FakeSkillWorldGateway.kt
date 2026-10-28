@@ -1,6 +1,7 @@
 package com.astarworks.astera.testfixtures.skillengine
 
 import com.astarworks.astera.core.application.skillengine.runtime.port.BlockDamageOutcome
+import com.astarworks.astera.core.application.skillengine.runtime.port.CastRef
 import com.astarworks.astera.core.application.skillengine.runtime.port.ISkillBlockAccess
 import com.astarworks.astera.core.application.skillengine.runtime.world.LedgerWorldGateway
 import com.astarworks.astera.core.domain.geometry.Vec3
@@ -52,12 +53,12 @@ public class FakeSkillWorldGateway(private val permit: (BlockCell) -> Boolean = 
         super.tick()
     }
 
-    override fun explode(caster: UUID, at: Vec3, power: Double, breakBlocks: Boolean, fire: Boolean) {
-        explosions += Explosion(caster, at, power, breakBlocks, fire)
+    override fun explode(cast: CastRef, at: Vec3, power: Double, breakBlocks: Boolean, fire: Boolean) {
+        explosions += Explosion(cast.caster, at, power, breakBlocks, fire)
     }
 
-    override fun lightning(caster: UUID, at: Vec3, visualOnly: Boolean) {
-        lightnings += Lightning(caster, at, visualOnly)
+    override fun lightning(cast: CastRef, at: Vec3, visualOnly: Boolean) {
+        lightnings += Lightning(cast.caster, at, visualOnly)
     }
 }
 
