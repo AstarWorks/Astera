@@ -40,7 +40,15 @@ import com.astarworks.astera.core.application.skillengine.runtime.CastRequest
 import com.astarworks.astera.core.application.skillengine.runtime.SkillEngineGateways
 import com.astarworks.astera.core.application.skillengine.runtime.SkillEngineKit
 import com.astarworks.astera.core.application.skillengine.runtime.ops.ISkillWorldEffectGateway
+import com.astarworks.astera.core.application.skillengine.runtime.player.CastHandle
+import com.astarworks.astera.core.application.skillengine.runtime.player.EventBinding
+import com.astarworks.astera.core.application.skillengine.runtime.player.LiveValueSource
+import com.astarworks.astera.core.application.skillengine.runtime.player.TablePlayer
 import com.astarworks.astera.core.application.skillengine.runtime.port.BlockDamageOutcome
+import com.astarworks.astera.core.domain.skillengine.table.TargetRule
+import com.astarworks.astera.core.domain.skillengine.table.TargetSet
+import org.joml.Quaterniond
+import org.joml.Vector3d
 import com.astarworks.astera.core.application.skillengine.runtime.port.BlockHit
 import com.astarworks.astera.core.application.skillengine.runtime.port.EntityRoot
 import com.astarworks.astera.core.application.skillengine.runtime.port.ISkillCooldownGateway
@@ -127,6 +135,10 @@ public class SimSkillEngine private constructor(
 
     /** The assembled runtime; `null` before [install] finished. */
     public lateinit var kit: SkillEngineKit
+        private set
+
+    /** The v3 table player (ADR-0303) on the same sim gateways; scenarios in `gamesim.skillengine` drive it directly. */
+    public lateinit var tablePlayer: TablePlayer
         private set
 
     /** Right-click ticks per player; a player whose clicks stopped for [HOLD_GAP_TICKS] let go: publish [SkillReleased] once. */
@@ -259,6 +271,7 @@ public class SimSkillEngine private constructor(
             },
         )
         kit = built
+        tablePlayer = TablePlayer(visuals, SimSkillParticles(recording), SimSkillSounds(recording), gameplay, entities.inWorld(WorldId("world")), SimLiveValues)
         catalog.ids().sorted().forEach { id ->
             val skill = catalog.get(id) ?: return@forEach
             built.runner.missingExecutors(skill).forEach { op ->
@@ -448,6 +461,15 @@ private class SimSkillVisuals(
     override fun setPlateFrame(handle: VisualHandle, frame: Int, tintHex: String?) {}
     override fun setTrailLook(handle: VisualHandle, fadePower: Double, style: String) {}
     override fun setTrailShape(handle: VisualHandle, bands: List<TrailBand>, edge: TrailEdge?, rim: TrailRim?, stepDeg: Double, doubleSided: Boolean) {}
+}
+
+/** Live values of the v3 player: the sim has no source for them yet, so a table that reads one fails loudly. */
+private object SimLiveValues : LiveValueSource {
+    override fun vec(cast: CastHandle, name: String, binding: EventBinding?): Vector3d = error("sim live value '$name' has no source yet")
+
+    override fun rot(cast: CastHandle, name: String, binding: EventBinding?): Quaterniond = error("sim live rotation '$name' has no source yet")
+
+    override fun targets(cast: CastHandle, rule: TargetRule, binding: EventBinding?): TargetSet = error("sim target rule $rule has no source yet")
 }
 
 private class SimSkillParticles(private val recording: SimSkillRecording) : ISkillParticleGateway {

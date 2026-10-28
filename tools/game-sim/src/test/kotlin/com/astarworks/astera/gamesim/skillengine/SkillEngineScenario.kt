@@ -1,26 +1,319 @@
 package com.astarworks.astera.gamesim.skillengine
 
+import com.astarworks.astera.core.application.skillengine.compose.ExpansionDump
+import com.astarworks.astera.core.application.skillengine.compose.FrameTables
+import com.astarworks.astera.core.application.skillengine.compose.PartCatalog
+import com.astarworks.astera.core.application.skillengine.compose.SkillCompiler
+import com.astarworks.astera.core.application.skillengine.expr.cel.CelExprCompiler
+import com.astarworks.astera.core.application.skillengine.load.GrammarEnv
+import com.astarworks.astera.core.application.skillengine.load.ItemFrames
+import com.astarworks.astera.core.application.skillengine.load.ItemFramesDecoder
+import com.astarworks.astera.core.application.skillengine.load.SkillCatalogView
 import com.astarworks.astera.core.application.skillengine.load.SkillDecodeError
+import com.astarworks.astera.core.application.skillengine.load.SkillDocumentDecoder
+import com.astarworks.astera.core.application.skillengine.load.SkillEngineSpecs
+import com.astarworks.astera.core.application.skillengine.load.spec.OpSpecRegistry
+import com.astarworks.astera.core.application.skillengine.part.PartParser
+import com.astarworks.astera.core.application.skillengine.runtime.CastRequest
+import com.astarworks.astera.core.application.skillengine.runtime.player.ContactInfo
 import com.astarworks.astera.core.application.skillengine.runtime.player.RuntimeEvent
+import com.astarworks.astera.core.application.skillengine.runtime.player.TablePlayer
 import com.astarworks.astera.core.domain.Result
+import com.astarworks.astera.core.domain.geometry.Vec3
+import com.astarworks.astera.core.domain.skillengine.model.EngineConfig
+import com.astarworks.astera.core.domain.skillengine.model.SkillDef
+import com.astarworks.astera.core.domain.skillengine.part.Part
+import com.astarworks.astera.core.domain.skillengine.table.Action
+import com.astarworks.astera.core.domain.skillengine.table.Branch
 import com.astarworks.astera.core.domain.skillengine.table.CompiledSkill
+import com.astarworks.astera.core.domain.skillengine.table.Duration
+import com.astarworks.astera.core.domain.skillengine.table.EventPath
+import com.astarworks.astera.core.domain.skillengine.table.ExpansionTable
+import com.astarworks.astera.core.domain.skillengine.table.Row
+import com.astarworks.astera.core.domain.skillengine.table.SpawnKind
+import com.astarworks.astera.core.domain.skillengine.table.StateTable
+import com.astarworks.astera.core.domain.skillengine.table.Val
+import com.astarworks.astera.core.domain.world.WorldId
+import org.joml.Vector3d
+import java.nio.file.Files
+import java.nio.file.Path
+import java.nio.file.Paths
+import com.astarworks.astera.core.application.skillengine.load.CompiledSkill as LoadedSkill
 
-/** One gateway call as the in-memory recorder saw it (W1-20 owns the real recorder; A2 diffs it against ExpansionDump.json). */
-data class RecordedCall(val tick: Int, val verb: String, val instance: String, val payload: String)
-
-/** Harness base for v3 skill-engine scenarios: real loaders, real SkillCompiler, in-memory gateways. Stub: W1-20 implements it. */
+/**
+ * Harness base for v3 skill-engine scenarios (ADR-0303 section 12): real loaders, real [SkillCompiler], real [TablePlayer],
+ * in-memory gateways ([GatewayRecorder]). Subclasses are the acceptance classes A1-A9; this class holds no test of its own.
+ *
+ * The oracle is the table itself: [expectedCalls] walks the compiled [ExpansionTable] (states in `then` order, sub-tables
+ * pasted at event ticks) and lists the gateway calls it promises; [play] runs the player and lists what it did; [assertPlays]
+ * diffs the two. Only gateway-observable verbs are compared (spawn, write, trail, remove, particle, sound); `hit`, `call`,
+ * `emit`, `enter`, `exit`, `cancel` produce no gateway call, and damage/status/effect depend on victims (none by default).
+ */
 abstract class SkillEngineScenario {
-    /** docs/adr/0303-examples/<name>.yaml (multi-document: skill + sub-skills/parts). */
-    fun loadExample(name: String): CompiledSkill = TODO("W1-20: loadExample")
+    // ---- locations -------------------------------------------------------------------------------------------------
 
-    fun loadInline(yaml: String): Result<CompiledSkill, SkillDecodeError> = TODO("W1-20: loadInline")
+    protected val contentDir: Path = Paths.get(System.getProperty("astera.sim.contentDir")).toAbsolutePath()
+    protected val repoRoot: Path = contentDir.parent
+    protected val examplesDir: Path = repoRoot.resolve("docs/adr/0303-examples")
+    protected val evidenceDir: Path =
+        Paths.get(System.getProperty("astera.sim.traceDir")).toAbsolutePath().parent.resolve("skill-expand")
 
+    // ---- loader ----------------------------------------------------------------------------------------------------
+
+    private val specs = OpSpecRegistry(SkillEngineSpecs.all())
+    private val exprs = CelExprCompiler()
+    private val decoder = SkillDocumentDecoder(specs, exprs)
+
+    private val frameTables: FrameTables by lazy {
+        val tables = ItemFramesDecoder.loadDirectory(contentDir.resolve("frames")).first
+        object : FrameTables {
+            override fun item(item: String): ItemFrames? = tables[item]
+        }
+    }
+
+    private val compiler: SkillCompiler by lazy { SkillCompiler(specs, exprs, frameTables, EngineConfig()) }
+
+    /** Parts shipped under `content/skill-parts` (empty until wave 2 migrates content). */
+    private val shippedParts: Map<String, Part> by lazy {
+        when (val r = PartParser.loadDirectory(contentDir.resolve("skill-parts"))) {
+            is Result.Success -> r.value
+            is Result.Failure -> emptyMap()
+        }
+    }
+
+    /** Everything one YAML file declares: its skills (declaration order) and the parts visible to them. */
+    protected class Loaded(val skills: Map<String, SkillDef>, val parts: Map<String, Part>)
+
+    /** Decodes every document of [text]. Error = first failure of any document (parts first, then skills in order). */
+    protected fun decodeAll(file: String, text: String, extraParts: Map<String, Part> = shippedParts): Result<Loaded, SkillDecodeError> {
+        val docs = when (val d = PartParser.documents(file, text)) {
+            is Result.Success -> d.value
+            is Result.Failure -> return Result.failure(SkillDecodeError.Invalid("", file, d.error.toString()))
+        }
+        val parts = LinkedHashMap(extraParts)
+        when (val p = PartParser.parseParts(file, text)) {
+            is Result.Success -> p.value.forEach { parts[it.id] = it }
+            is Result.Failure -> return Result.failure(SkillDecodeError.Invalid("", file, p.error.joinToString("; ")))
+        }
+        val skillDocs = docs.filter { it["kind"] == "Skill" }
+        val env = GrammarEnv(parts.keys, skillDocs.mapNotNull { it["id"] as? String }.toSet())
+        val skills = LinkedHashMap<String, SkillDef>()
+        for (doc in skillDocs) {
+            when (val s = decoder.decode(file, doc, env)) {
+                is Result.Success -> skills[s.value.id] = s.value
+                is Result.Failure -> return Result.failure(s.error)
+            }
+        }
+        return Result.success(Loaded(skills, parts))
+    }
+
+    protected fun compileMain(loaded: Loaded, mainId: String = loaded.skills.keys.first()): Result<CompiledSkill, SkillDecodeError> {
+        val def = loaded.skills.getValue(mainId)
+        val parts = object : PartCatalog {
+            override fun part(id: String): Part? = loaded.parts[id]
+        }
+        val skills = object : SkillCatalogView {
+            override fun skill(id: String): SkillDef? = loaded.skills[id]
+        }
+        return compiler.compile(def, parts, skills)
+    }
+
+    /** Compile result of one file (first skill document is the main skill), without throwing. */
+    protected fun compileText(file: String, text: String): Result<CompiledSkill, SkillDecodeError> =
+        when (val l = decodeAll(file, text)) {
+            is Result.Success -> compileMain(l.value)
+            is Result.Failure -> Result.failure(l.error)
+        }
+
+    /** docs/adr/0303-examples/<name>.yaml (multi-document: parts and skills; the first skill document is the main skill). */
+    fun loadExample(name: String): CompiledSkill {
+        val file = examplesDir.resolve("$name.yaml")
+        return when (val r = compileText(file.fileName.toString(), Files.readString(file))) {
+            is Result.Success -> r.value
+            is Result.Failure -> throw AssertionError("example $name did not load: ${r.error}")
+        }
+    }
+
+    fun loadInline(yaml: String): Result<CompiledSkill, SkillDecodeError> = compileText("<inline>", yaml)
+
+    /** The hand- or tool-written `# expand:` block of an example (comment markers stripped, header line dropped); "" when absent. */
+    fun dumpOf(name: String): String {
+        val lines = Files.readAllLines(examplesDir.resolve("$name.yaml"))
+        val at = lines.indexOfFirst { it.startsWith("# expand:") }
+        if (at < 0) return ""
+        return lines.drop(at + 1).joinToString("\n") { it.removePrefix("#").removePrefix(" ") }.trimEnd() + "\n"
+    }
+
+    /** Names (without extension) of the fixtures of [dir] in sorted order. */
+    protected fun fixtureNames(dir: Path): List<String> =
+        Files.list(dir).use { s -> s.filter { it.toString().endsWith(".yaml") }.map { it.fileName.toString().removeSuffix(".yaml") }.sorted().toList() }
+
+    // ---- player ----------------------------------------------------------------------------------------------------
+
+    /** Runs the skill through the real [TablePlayer] on a fresh [GatewayRecorder]; ticks default to the table's longest path plus 2. */
     fun play(skill: CompiledSkill, seed: Long, events: List<RuntimeEvent> = emptyList(), ticks: Int? = null): List<RecordedCall> =
-        TODO("W1-20: play")
+        play(skill, seed, events, ticks, GatewayRecorder())
 
-    /** From the table: static rows plus pasted sub-tables. */
-    fun expectedCalls(skill: CompiledSkill, events: List<RuntimeEvent>): List<RecordedCall> = TODO("W1-20: expectedCalls")
+    fun play(skill: CompiledSkill, seed: Long, events: List<RuntimeEvent>, ticks: Int?, rec: GatewayRecorder): List<RecordedCall> {
+        val player = TablePlayer(rec.visual, rec.particles, rec.sounds, rec.gameplay, rec.query, rec.live)
+        val request = CastRequest(
+            skill = LoadedSkill(skill.def, emptyMap()),
+            caster = rec.caster,
+            world = WorldId("world"),
+            casterFeet = Vec3(0.0, 0.0, 0.0),
+            casterYawDeg = 0.0,
+            casterPitchDeg = 0.0,
+            seed = seed,
+            startTick = 0,
+        )
+        val cast = when (val s = player.start(request, skill)) {
+            is Result.Success -> s.value
+            is Result.Failure -> throw AssertionError("start failed: ${s.error}")
+        }
+        val end = ticks ?: (skill.table.bounds.path.max + 2)
+        for (now in 0..end) {
+            rec.tick = now
+            events.filter { it.tick == now }.forEach { player.deliver(cast, it) }
+            player.tick(now)
+        }
+        return rec.calls
+    }
 
-    /** The `# expand:` block of the example file. */
-    fun dumpOf(name: String): String = TODO("W1-20: dumpOf")
+    // ---- oracle ----------------------------------------------------------------------------------------------------
+
+    /** What the table promises at the gateways, for [events] delivered while their owner state is live. */
+    fun expectedCalls(skill: CompiledSkill, events: List<RuntimeEvent>): List<RecordedCall> {
+        val table = skill.table
+        val out = ArrayList<Pair<Int, RecordedCall>>()
+        val ordinals = HashMap<String, Int>()
+
+        fun emit(base: Int, row: Row) {
+            val tick = base + row.tick
+            val id = row.instance.text
+            when (val a = row.action) {
+                is Action.Spawn -> if (a.kind != SpawnKind.FRAME && a.kind != SpawnKind.PROJECTILE_BODY) {
+                    ordinals[id] = ordinals.size
+                    out += tick to RecordedCall(tick, "spawn", "#${ordinals.getValue(id)}", "kind=${a.kind.name.lowercase()}")
+                }
+                is Action.Key -> ordinals[a.display.text]?.let { out += tick to RecordedCall(tick, "write", "#$it", "dur=${a.durationTicks}") }
+                is Action.Teleport -> ordinals[a.display.text]?.let { out += tick to RecordedCall(tick, "write", "#$it", "") }
+                is Action.TrailPoint -> ordinals[a.ribbon.text]?.let { out += tick to RecordedCall(tick, "trail", "#$it", "") }
+                is Action.Particle -> out += tick to RecordedCall(tick, "particle", "-", "type=${a.type}" + known(a.count)?.let { " count=$it" }.orEmpty())
+                is Action.Sound -> out += tick to RecordedCall(
+                    tick, "sound", "-",
+                    listOfNotNull("sound=${a.sound}", known(a.volume)?.let { "vol=${RecordedCall.num(it)}" }, known(a.pitch)?.let { "pitch=${RecordedCall.num(it)}" }).joinToString(" "),
+                )
+                is Action.End -> ordinals[a.instance.text]?.let { out += tick to RecordedCall(tick, "remove", "#$it", "") }
+                else -> Unit
+            }
+        }
+
+        // Walk the state chain; an event whose owner state is live inside its window pastes its sub-table and, when the
+        // matching branch has a target, replaces the rest of the chain with the target state entered at the event tick.
+        val byState = table.states.associateBy { it.state.value }
+        var state: StateTable? = table.states.firstOrNull()
+        var entry = 0
+        var guard = 0
+        while (state != null && guard++ < 64) {
+            val st: StateTable = state
+            val length = when (val d = st.duration) {
+                is Duration.Fixed -> d.ticks
+                is Duration.Bounded -> d.range.max
+            }
+            val firing = events.filter { it.tick >= entry && it.tick <= entry + length }
+                .mapNotNull { e -> st.branches.firstOrNull { it.event == e.path && inWindow(it, e.tick - entry) }?.let { e to it } }
+                .minByOrNull { it.first.tick }
+            val cut = firing?.takeIf { it.second.target != null }?.first?.tick
+            st.rows.forEach { if (cut == null || entry + it.tick <= cut) emit(entry, it) }
+            // pasted sub-tables of this state (all firings inside the live part)
+            for (e in events) {
+                val b = st.branches.firstOrNull { it.event == e.path && inWindow(it, e.tick - entry) } ?: continue
+                if (cut != null && e.tick > cut) continue
+                b.subTable?.let { sub -> table.subTables[sub]?.rows?.forEach { emit(e.tick, it) } }
+            }
+            if (cut != null) {
+                state = firing.second.target?.let { byState[it.value] }
+                entry = cut
+            } else {
+                entry += length
+                state = if (st.isFinal) null else st.then?.let { byState[it.value] }
+            }
+        }
+        return out.sortedBy { it.first }.map { it.second }
+    }
+
+    private fun inWindow(b: Branch, rel: Int): Boolean = rel >= b.window.min && rel <= b.window.max
+
+    private fun <T> known(v: Val<T>): T? = (v as? Val.Known<T>)?.value
+
+    /**
+     * Events a bot would script for [skill]: every sub-table-only branch fires once at the window's low edge (at least tick 1
+     * after the owner is entered), plus the first state-changing branch of the initial state.
+     */
+    fun scriptedEvents(skill: CompiledSkill): List<RuntimeEvent> {
+        val out = ArrayList<RuntimeEvent>()
+        var entry = 0
+        var state: StateTable? = skill.table.states.firstOrNull()
+        val byState = skill.table.states.associateBy { it.state.value }
+        var guard = 0
+        var first = true
+        while (state != null && guard++ < 64) {
+            val st: StateTable = state
+            val length = when (val d = st.duration) {
+                is Duration.Fixed -> d.ticks
+                is Duration.Bounded -> d.range.max
+            }
+            for (b in st.branches) {
+                val rel = maxOf(b.window.min, 1).coerceAtMost(b.window.max)
+                if (b.event.value == "end" || b.event.value == "cancel" || entry + rel > entry + length) continue
+                if (b.target == null && b.subTable != null) out += event(b.event, entry + rel)
+            }
+            if (first) {
+                st.branches.firstOrNull { it.target != null }?.let { out += event(it.event, entry + maxOf(it.window.min, 1)) }
+                first = false
+            }
+            entry += length
+            state = if (st.isFinal) null else st.then?.let { byState[it.value] }
+        }
+        return out
+    }
+
+    protected fun event(path: EventPath, tick: Int, index: Int? = null): RuntimeEvent =
+        RuntimeEvent(path, tick, index, ContactInfo(Vector3d(0.0, 0.0, 4.0), Vector3d(0.0, 1.0, 0.0)), null)
+
+    /** The diff A2 asserts: compared verbs only, ordered by tick; expected tokens must be a subset of the recorded tokens. */
+    fun diff(expected: List<RecordedCall>, actual: List<RecordedCall>): List<String> {
+        val compared = setOf("spawn", "write", "trail", "remove", "particle", "sound")
+        val expectedRemoves = expected.filter { it.verb == "remove" }.map { it.instance }.toSet()
+        val a = actual.filter { it.verb in compared && (it.verb != "remove" || it.instance in expectedRemoves) }.sortedBy { it.tick }
+        val e = expected.filter { it.verb in compared }.sortedBy { it.tick }
+        val problems = ArrayList<String>()
+        for (i in 0 until maxOf(a.size, e.size)) {
+            val x = e.getOrNull(i)
+            val y = a.getOrNull(i)
+            when {
+                x == null -> problems += "extra call #$i: $y"
+                y == null -> problems += "missing call #$i: $x"
+                x.tick != y.tick || x.verb != y.verb || x.instance != y.instance || !y.tokens.containsAll(x.tokens) ->
+                    problems += "call #$i differs: expected $x, played $y"
+            }
+        }
+        return problems
+    }
+
+    /** Plays [skill] with its scripted events and fails with every difference against the table. */
+    fun assertPlays(skill: CompiledSkill, seed: Long = 7L, events: List<RuntimeEvent> = scriptedEvents(skill)) {
+        val problems = diff(expectedCalls(skill, events), play(skill, seed, events))
+        if (problems.isNotEmpty()) throw AssertionError("${skill.def.id} does not play its table:\n" + problems.take(20).joinToString("\n"))
+    }
+
+    // ---- evidence --------------------------------------------------------------------------------------------------
+
+    /** Writes `build/skill-expand/<name>.txt` (ExpansionDump.render of the table) and returns the text. */
+    fun writeEvidence(name: String, table: ExpansionTable, note: String? = null): String {
+        val text = ExpansionDump.render(table)
+        Files.createDirectories(evidenceDir)
+        Files.writeString(evidenceDir.resolve("$name.txt"), (note?.let { "# $it\n" } ?: "") + text)
+        return text
+    }
 }
