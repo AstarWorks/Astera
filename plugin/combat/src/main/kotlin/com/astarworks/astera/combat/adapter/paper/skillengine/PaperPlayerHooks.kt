@@ -74,6 +74,7 @@ public class PaperPlayerHooks(
                 frames = live.frames(cast, binding),
                 seed = seed,
                 castSeed = request.seed,
+                host = live.exprHost(cast, binding),
             )
             (expr.eval(env) as? ExprValue.Bool)?.value
         } catch (e: RuntimeException) {
