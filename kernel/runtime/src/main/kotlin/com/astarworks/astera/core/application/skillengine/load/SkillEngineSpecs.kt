@@ -33,6 +33,8 @@ import com.astarworks.astera.core.application.skillengine.load.ops.presentation.
 import com.astarworks.astera.core.application.skillengine.load.ops.presentation.HeldModelOpSpec
 import com.astarworks.astera.core.application.skillengine.load.ops.presentation.CameraShakeOpSpec
 import com.astarworks.astera.core.application.skillengine.load.ops.presentation.StopSoundOpSpec
+import com.astarworks.astera.core.application.skillengine.load.ops.presentation.ScreenFlashOpSpec
+import com.astarworks.astera.core.application.skillengine.load.ops.presentation.ScreenVeilOpSpec
 import com.astarworks.astera.core.application.skillengine.load.ops.world.BreakAreaOpSpec
 import com.astarworks.astera.core.application.skillengine.load.ops.world.ExplodeOpSpec
 import com.astarworks.astera.core.application.skillengine.load.ops.world.LightningOpSpec
@@ -76,6 +78,8 @@ public object SkillEngineSpecs {
         HurtOpSpec,
         CameraShakeOpSpec,
         StopSoundOpSpec,
+        ScreenFlashOpSpec,
+        ScreenVeilOpSpec,
         BodyOpSpec,
         HeldModelOpSpec,
         BreakAreaOpSpec,

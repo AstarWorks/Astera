@@ -530,6 +530,7 @@ public class TablePlayer(
             run.cursor.instances.remove(k)
             run.bodyClips.remove(k)?.let { gameplay.stopBodyClip(castRef(run), run.request.caster, it) }
             if (run.heldModels.remove(k)) gameplay.clearHeldModel(castRef(run), run.request.caster)
+            run.veils.remove(k)?.handles?.forEach { visual.remove(it) }
             rec.real?.let { visual.remove(it) }
         }
     }
@@ -1199,6 +1200,23 @@ public class TablePlayer(
                 run.heldModels += id
                 gameplay.setHeldModel(castRef(run), caster, s("model"))
             }
+            "screen_flash" -> {
+                val color = p["color"]?.let { d("color").toInt() }
+                victims.forEach { gameplay.screenFlash(castRef(run), it, s("overlay"), color, d("fade_in").toInt(), d("stay").toInt(), d("fade_out").toInt()) }
+            }
+            "screen_veil" -> {
+                val id = row.instance
+                run.recs[id]?.let { endInstance(run, id) }
+                // like `held_model`: the quads live as long as their instance (End at `ticks` / state exit / cast end go through endInstance)
+                run.recs[id] = Rec(SpawnKind.FRAME, null, "", now, ctx.owner, PoseV(Vector3d(), Quaterniond(), Vector3d(1.0, 1.0, 1.0)))
+                run.cursor.instances[id] = GatewayHandle(nextSynthetic--)
+                val ticks = d("ticks").toInt()
+                val color = p["color"]?.let { s("color") }
+                val handles = victims.map {
+                    visual.spawnScreenVeil(castRef(run), it, s("sprite"), d("distance"), d("scale"), color, d("max_screen_fraction"), ticks)
+                }
+                run.veils[id] = VeilRec(now, ticks, handles)
+            }
             "hurt" -> {
                 val at = liveVec(run, s("from").removePrefix("instance:"), ctx)
                 victims.forEach { gameplay.hurt(castRef(run), it, Vec3(at.x, at.y, at.z)) }
@@ -1355,6 +1373,10 @@ public class TablePlayer(
             val h = run.recs[id]?.real ?: continue
             val (f, t) = lineEnds(run, line, RowCtx(line.base, line.binding, line.owner, line.level, line.scope))
             visual.updateLine(h, f, t)
+        }
+        for (veil in run.veils.values) {
+            val age = (now - veil.start).coerceAtMost(veil.ticks)
+            veil.handles.forEach { visual.updateScreenVeil(it, age) }
         }
         for ((id, reel) in run.reels.entries.toList()) reelStep(run, id, reel, now)
         for (rig in run.rigs.values.toList()) rigPose(run, rig, now)
@@ -1792,6 +1814,8 @@ public class TablePlayer(
         val fromCell: String, val toCell: String, val scope: RowScope, val binding: EventBinding?, val owner: StatePath?, val level: LevelCursor?, val base: Int,
     )
 
+    private class VeilRec(val start: Int, val ticks: Int, val handles: List<VisualHandle>)
+
     private class Run(
         val cursor: CastCursor, val request: CastRequest, val states: Map<StatePath, StateTable>, val listened: Set<EventPath>,
         val dash: DashDriver,
@@ -1826,6 +1850,9 @@ public class TablePlayer(
 
         /** Live `held_model` instances (each holds one swap of the caster's weapon model). */
         val heldModels = HashSet<InstanceId>()
+
+        /** Live `screen_veil` instances (their quads are re-placed every tick). */
+        val veils = LinkedHashMap<InstanceId, VeilRec>()
 
         /** Live line ribbons (their ends are re-read every tick). */
         val lines = LinkedHashMap<InstanceId, LineRec>()

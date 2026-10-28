@@ -247,4 +247,35 @@ class EffectOpScenarioTest : SkillEngineScenario() {
         // six unfrozen flight ticks between the two samples; three of them are frozen
         assertThat(held).isCloseTo(free / 2.0, org.assertj.core.data.Offset.offset(1e-6))
     }
+
+    @Test
+    fun screenFlashReachesTheGatewayAndRefusesBadInput() {
+        val s = compile(
+            skill(
+                "{id: f1, op: screen_flash, at: 1, target: caster, overlay: gold_burst, color: \"#FFC84A\", fade_in: 0, stay: 2, fade_out: 3}",
+                "{id: f2, op: screen_flash, at: 2, overlay: white}",
+            ),
+        )
+        assertThat(effect(s, "screen_flash").payload.keys).contains("overlay", "color", "fade_in", "stay", "fade_out")
+        assertThat(effectCalls(s).map { it.tick to it.payload }).contains(
+            1 to "screen_flash=gold_burst color=#ffc84a in=0 stay=2 out=3",
+            2 to "screen_flash=white color=default in=0 stay=1 out=2",
+        )
+        assertThat(fails(skill("{op: screen_flash, overlay: nope}"))).`as`("unknown overlay").isTrue()
+        assertThat(fails(skill("{op: screen_flash, overlay: white, color: red}"))).`as`("colour is #RRGGBB").isTrue()
+        assertThat(fails(skill("{op: screen_flash, color: \"#FFFFFF\"}"))).`as`("overlay is required").isTrue()
+    }
+
+    @Test
+    fun screenVeilSpawnsUpdatesEveryTickAndRemovesAtTicks() {
+        val s = compile(skill("{id: v, op: screen_veil, at: 2, sprite: burst, ticks: 4, color: \"#FFC84A\", distance: 0.4, scale: 1.4}"))
+        val calls = play(s, 1L)
+        val spawn = calls.single { it.verb == "spawn" && it.payload.contains("kind=veil") }
+        assertThat(spawn.tick).isEqualTo(2)
+        assertThat(calls.filter { it.verb == "veil" && it.instance == spawn.instance }.map { it.payload }).startsWith("age=1", "age=2", "age=3", "age=4")
+        assertThat(calls.single { it.verb == "remove" && it.instance == spawn.instance }.tick).isEqualTo(6)
+        assertThat(fails(skill("{op: screen_veil, sprite: burst, ticks: 4, distance: 2.0}"))).`as`("distance 0.3..1.0").isTrue()
+        assertThat(fails(skill("{op: screen_veil, sprite: burst, ticks: 4, max_screen_fraction: 0.5}"))).`as`("fraction <= 0.18").isTrue()
+        assertThat(fails(skill("{op: screen_veil, sprite: burst}"))).`as`("ticks is required").isTrue()
+    }
 }

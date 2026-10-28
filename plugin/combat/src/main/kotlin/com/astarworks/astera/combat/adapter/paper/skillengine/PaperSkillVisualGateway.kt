@@ -18,6 +18,8 @@ import com.astarworks.astera.core.domain.effect.DisplayBillboard
 import com.astarworks.astera.core.domain.effect.DisplayKind
 import com.astarworks.astera.core.domain.effect.DisplaySpec
 import com.astarworks.astera.core.domain.effect.VfxLane
+import com.astarworks.astera.core.domain.effect.Audience
+import com.astarworks.astera.core.domain.effect.ScreenVeilMath
 import com.astarworks.astera.core.domain.effect.DisplayTransform
 import com.astarworks.astera.core.domain.sprite.SpriteGlyphs
 import com.astarworks.astera.core.domain.sprite.SpriteId
@@ -99,6 +101,9 @@ public class PaperSkillVisualGateway(
     private class Seg(val display: UUID, var age: Int, val style: PieceStyle?, val slab: Slab?)
     /** A thread between two points: one text-display strip (v1 `line`, `PaperSkillVisualGateway.spawnLine` before 0c9e986ef) that the runtime re-ends every tick. */
     private class LineEntry(val world: World, val owner: UUID, val display: TextDisplay, val thickness: Double) : Entry
+    /** A camera-anchored quad on one viewer's screen (v1 `ScreenVeilHandler`, `0c9e986ef~1`); re-placed in front of the eye every tick. */
+    private class VeilEntry(val handle: DisplayHandle, val viewer: UUID, val distance: Double, val side: Double, val ticks: Int) : Entry
+
     private class TrailEntry(
         val world: World, val ticks: Int, var widthFrac: Double, val rgb: Int, val alpha: Double,
     ) : Entry {
@@ -243,6 +248,34 @@ public class PaperSkillVisualGateway(
         e.display.setTransformationMatrix(lineMatrix(from, to, e.thickness, eyeOf(e.owner, mid)))
     }
 
+    override fun spawnScreenVeil(cast: CastRef, viewer: UUID, sprite: String, distance: Double, scale: Double, colorHex: String?, maxScreenFraction: Double, ticks: Int): VisualHandle {
+        val castOwner = cast.caster
+        val player = server.getPlayer(viewer) ?: return dead("screen_veil $sprite (viewer offline)")
+        val world = worldOf(cast) ?: return dead("screen_veil $sprite")
+        val glyph = SpriteGlyphs.text(SpriteId(sprite), 0, colorHex?.let { argb(it) and 0xFFFFFF })
+        // v1 ScreenVeilHandler: side = SPRITE_BASE_SIDE * scale, never more than the screen share the content allows at this distance
+        val side = ScreenVeilMath.clampSide(ScreenVeilMath.SPRITE_BASE_SIDE * scale, distance, maxScreenFraction)
+        val eye = player.eyeLocation
+        val at = Vec3(eye.x, eye.y, eye.z) + eyeDirection(player) * distance
+        val first = toDisplayWrite(Frame(at, Quaternion.IDENTITY), Vec3(side, side, side), Intrinsic.SPRITE, DisplayBillboard.CENTER, 0)
+        val spec = SkillDisplaySpecs.plate(glyph, 1.0, false, first.transform, DisplayBillboard.CENTER, 15)
+        val handle = spawnDisplay(world, castOwner, at, spec, listOf(glyph), false, DisplayView(Audience.TARGET, VfxLane.ACCENT, viewer))
+            ?: return dead("screen_veil $sprite")
+        return register(castOwner, VeilEntry(handle, viewer, distance, side, ticks))
+    }
+
+    override fun updateScreenVeil(handle: VisualHandle, age: Int) {
+        val e = entries[handle.id] as? VeilEntry ?: return
+        val player = server.getPlayer(e.viewer) ?: return remove(handle)
+        val eye = player.eyeLocation
+        val at = Vec3(eye.x, eye.y, eye.z) + eyeDirection(player) * e.distance
+        displays.place(e.handle, toDisplayWrite(Frame(at, Quaternion.IDENTITY), Vec3(e.side, e.side, e.side), Intrinsic.SPRITE, DisplayBillboard.CENTER, 0, teleportTicks = 0))
+        val opacity = SkillDisplaySpecs.opacity((1.0 - age.toDouble() / e.ticks).coerceIn(0.0, 1.0))
+        displays.setTextStyle(e.handle, 0, opacity, null)
+    }
+
+    private fun eyeDirection(player: org.bukkit.entity.Player): Vec3 = player.eyeLocation.direction.let { Vec3(it.x, it.y, it.z) }
+
     /** The viewer the strip turns its face to: the caster's eye (the thread is seen from where the caster stands), straight up when offline. */
     private fun eyeOf(owner: UUID, near: Vec3): Vec3 =
         server.getPlayer(owner)?.eyeLocation?.let { Vec3(it.x, it.y, it.z) } ?: (near + Vec3(0.0, 1.0, 0.0))
@@ -342,6 +375,7 @@ public class PaperSkillVisualGateway(
             is TextEntry -> displays.place(e.handle, toDisplayWrite(pose.frame, pose.size, e.intrinsic, pose.billboard, interpolationTicks, anchorOf(e.owner, pose.anchorFeet), pose.teleportTicks))
             is TrailEntry -> error("a trail is fed through pushTrailPoint, never written")
             is LineEntry -> error("a line is moved through updateLine, never written")
+            is VeilEntry -> error("a screen veil is moved through updateScreenVeil, never written")
             null -> Unit // already removed (owner quit / cast ended): nothing left to move
         }
     }
@@ -421,6 +455,7 @@ public class PaperSkillVisualGateway(
             is BlockEntry -> displays.remove(e.handle)
             is TextEntry -> displays.remove(e.handle)
             is LineEntry -> e.display.remove()
+            is VeilEntry -> displays.remove(e.handle)
             is TrailEntry -> {
                 e.segments.forEach { server.getEntity(it.display)?.remove() }
                 e.segments.clear()

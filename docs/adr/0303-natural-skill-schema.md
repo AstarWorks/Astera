@@ -44,12 +44,14 @@ and `#aarrggbb` colour (2.1), world op defaults (10.1c), dash `direction` requir
 counted over `[spawn, end)`, a `lock` row owning its instance, param defaults and item-part axes for frame motion, state-qualified
 instance ids, ribbon opacity as the colour alpha. Each sentence names the commit that implemented it. No field is added or removed.
 **rev4.5 (2026-10-29, SKL-22 gaps, wording only)**: the `seq:` desugar applies to part and machine op lists alike (11.1); a display `size` may be a T-class expression, fitted to `Key` segments (2.1, 3.5); a ribbon takes `{law: grow, prop: width}` and lowers it per tick because a trail has no client interpolation (3.4, 3.7). No field is added or removed.
-Founder questions Q1-Q7 are OPEN: every spot that depends on one carries a "pending founder Qn" note with both options and chooses neither (list under
+Founder questions Q1-Q6 are OPEN (Q7 resolved A, rev4.7): every spot that depends on one carries a "pending founder Qn" note with both options and chooses neither (list under
 "Open decisions"). Examples c, e, g updated; `rejected/r12`-`r14` added. Status stays Proposed (edited in place by the manager's authorisation).
 - **rev4.5 (2026-10-29, SKL-22, founder 10/28 asks)**: the look lock is confirmed as the `pitch` / `yaw` fields of `lock` (10.6, no new field; the player already
   reaches `lockLook` / `unlockLook`); 3.8 names the "any enemy within r" condition (`nearest_enemy_dist(caster) < r`, no new primitive) and the Paper host now serves
   `nearest_enemy_dist` / `enemy_in_cone` in guards and live cells; 3.5.1 records the CEL library policy.
 **rev4.6 (2026-10-29, SKL-22 couture-rapier-s2 load; NEW OP for the founder)**: (1) a state may name an instance an EARLIER state spawned with the (5) Line ribbon player semantics: a `ribbon from:/to:` (look `shape: line`) is spawned through `ISkillVisualGateway.spawnLine(cast, from, to, thickness, colorHex, alpha)` (colour alpha is the opacity) and both endpoints are re-read from their live frames every tick through `updateLine`; it ends with `until:`/`for`. Paper draws it as one FIXED text-display strip facing the caster's eye, as v1's `line` op did (`0c9e986ef~1`: `PresentationExecutors.kt` LineExecutor, `PaperSkillVisualGateway.spawnLine`/`lineTransform`).
+
+**rev4.7 (2026-10-29, founder Q7 = A)**: `screen_flash` and `screen_veil` are presentation ops again (10.1b rows; strict decode: overlay enum, `#RRGGBB`, veil distance 0.3..1.0 and `max_screen_fraction` up to 0.18 refused instead of coerced). `screen_flash` is a point effect through `ISkillGameplayGateway.screenFlash`; `screen_veil` is instance-lived (`spawnScreenVeil` / `updateScreenVeil` per tick, `End` at `ticks`). Sources: v1 `MechanicYaml.kt:1065-1098,1131-1163`, `PaperPlayerFeedbackGateway.kt:53-71`, `ScreenVeilHandler`. Q7 is closed; `bastion-greatsword-s2` and `-ego` carry their v2 cues again.
 state-qualified spelling `/<state>/<id>` (`/throw/volley`, `/throw/fly_a.root`; 10.1 `/x` is absolute from the machine root, ids are state-qualified,
 11.3). The state must be written before the referencing one, must declare the instance, and the instance must not have ended by then (a static
 `End` before the spawning state's guaranteed length is a load error). A bare name never looks into another state. (2) `ribbon` takes `until:` as
@@ -948,7 +950,8 @@ All take the timing block (2.0); their own fields keep the 0301 meaning. `YAML` 
 | `held_model` | `model` (item model id, required), `for \| until` (required): the weapon the caster holds shows `model` for the window and its own model afterwards; two windows on one cast nest in written order. Port `setHeldModel` / `clearHeldModel` (14.2, `ISkillGameplayGateway`); Paper sets the `item_model` component of the main-hand stack and restores the remembered one. Row: `held_model model=<id>`; ended by the instance `End` like `body` (rev4.6) |
 | `emit` | `name` (an event for transitions) |
 | removed | `counter` (and the `counter` world function), `caster_anim` (now `body`), `place` (now `place_shape`, 10.1c) |
-| `screen_flash`, `screen_veil` | **Pending founder Q7**: (A) revive both as presentation ops (full-screen tint / vignette on the target); (B) drop them (use a `sprite` display with `billboard: center` and a short `fade`). Not chosen; neither is in the op list until decided. |
+| `screen_flash` | `overlay` (`white\|vignette\|gold_burst\|speed_diag\|speed_radial\|impact_star`, required), `target` (default caster), `color` (`#RRGGBB`, absent = the overlay's default), `fade_in` (0), `stay` (1), `fade_out` (2) ticks. Point op, no instance: the client times the cut-in. Founder Q7 = A (2026-10-29). Fields of v1 `ScreenFlash` (`0c9e986ef~1:core/feature-gameplay/.../config/skill/MechanicYaml.kt:1065-1098`; `viewers` became `target`). Port `ISkillGameplayGateway.screenFlash` (Paper: `IPlayerFeedbackGateway.sendScreenFlash`, a title in font `astera:overlay`, v1 `PaperPlayerFeedbackGateway.kt:53-71`). Row: `screen_flash=<overlay> color=<#rrggbb\|default> in= stay= out=`. Unknown overlay or a colour not `#RRGGBB` = load error |
+| `screen_veil` | `sprite` (required), `ticks` (required, static), `target` (default caster), `distance` (0.6, literal in 0.3..1.0), `scale` (1.0), `color` (`#RRGGBB`), `max_screen_fraction` (0.15, literal in (0, 0.18]). A camera-anchored quad that fades out over `ticks`; one quad per target; the instance ends at `ticks` (End row), at a state exit or at cast end, and every end removes the quads. Fields of v1 `ScreenVeil` (`MechanicYaml.kt:1131-1163`) and its `ScreenVeilHandler` (CENTER billboard, `eye + dir * distance` each tick, side clamped by `ScreenVeilMath`); v1 coerced out-of-range numbers, v3 refuses them. Port `ISkillVisualGateway.spawnScreenVeil` / `updateScreenVeil(handle, age)` (age 1..ticks, one call per tick); Paper: a TARGET-audience ACCENT-lane text display |
 
 #### 10.1c World ops
 
@@ -1323,7 +1326,7 @@ Resolved (not founder decisions; engine facts, rev3/rev4):
 3. **Sprite authoring unit**: blocks (`size`, taken here) vs vanilla scale.
 4. `ribbon`/`trail` internals (segment count, the history sampler) are deliberately thin here and need a follow-up.
 
-**Pending founder questions Q1-Q7 (rev4.3).** Both options are written; none is chosen.
+**Pending founder questions Q1-Q6 (rev4.3; Q7 resolved A 2026-10-29).** Both options are written; none is chosen.
 
 | Q | topic | option A | option B | where |
 |---|---|---|---|---|
@@ -1333,7 +1336,7 @@ Resolved (not founder decisions; engine facts, rev3/rev4):
 | Q4 | hit `damage` optional | omit on the hit; a handler `damage` deals it (v2 order) | always required on the hit; accept the order difference | 10.1b |
 | Q5 | couture `absorb` (example e) | transition `absorb: true` | `modify_attribute resist.physical` | example e (also option C: a `parry {for, scale: 0}` op) |
 | Q6 | coin1 delay | handler `at: 1` | `hit` gets `damage_delay: 1` | example a / g |
-| Q7 | screen ops | revive `screen_flash` / `screen_veil` | drop them | 10.1b |
+| Q7 | screen ops | **RESOLVED 2026-10-29: A.** `screen_flash` / `screen_veil` revived as presentation ops (10.1b, rev4.7) | (was: drop them) | 10.1b |
 
 ## v1 presentation parity additions (2026-10-28)
 
@@ -1343,7 +1346,7 @@ Added so the converter can express v1 presentation without dropping it (each map
 - `quad` / `plate`: `brightness`, repeat (`times`/`every`/`life`, with CEL `i` / `n`); `quad` `text`, `shadow`, `see_through`.
 - `emit`: repeat with `i`/`n`, `shift` (an offset in the `at` frame's axes, per copy), expression `offset`.
 - `track` key: `alpha`, `color` (`#rrggbb`), `block` swap, and the full v1 ease set (31 names).
-- `screen_flash`, `stop_sound` ops (decoder, executor, Paper gateway).
+- `stop_sound` op (decoder, executor, Paper gateway); `screen_flash` / `screen_veil` done in rev4.7.
 - Converter bakes (no engine field): formation / count / reverse / stagger / slot lifetime become `times` + per-copy `at`/`turn` tables and
   per-copy tracks; jitter becomes `rand('<stream>')`; oscillate and group keyframes become dense absolute track keys; ring particle
   animations become one `emit` per period tick with `times: points` and a `shift` table (random phase fixed per instance).

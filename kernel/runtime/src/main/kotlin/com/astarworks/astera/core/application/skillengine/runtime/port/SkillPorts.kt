@@ -103,6 +103,16 @@ public interface ISkillVisualGateway {
     /** Move both ends of a line from [spawnLine] (the strip is rebuilt between them). */
     public fun updateLine(handle: VisualHandle, from: Vec3, to: Vec3)
 
+    /**
+     * `screen_veil` (ADR-0303 10.1b, v1 ADR-0291): a sprite quad [distance] blocks in front of [viewer]'s eye along the look direction, seen by
+     * [viewer] only, its side clamped so it covers at most [maxScreenFraction] of the screen. [colorHex] is `#rrggbb` or null (the sprite's own
+     * colours). The runtime calls [updateScreenVeil] every tick (re-anchor and fade over [ticks]); [remove] ends it.
+     */
+    public fun spawnScreenVeil(cast: CastRef, viewer: UUID, sprite: String, distance: Double, scale: Double, colorHex: String?, maxScreenFraction: Double, ticks: Int): VisualHandle
+
+    /** One tick of a veil from [spawnScreenVeil]: [age] ticks since it spawned (1 on the first call); re-anchored to the viewer's eye, opacity fading to 0 at `ticks`. */
+    public fun updateScreenVeil(handle: VisualHandle, age: Int)
+
     /** The ONE per-tick write of a mesh, plate, block or text: the whole [pose] reaches the client together and arrives after [interpolationTicks]. */
     public fun write(handle: VisualHandle, pose: VisualPose, interpolationTicks: Int)
 
@@ -225,6 +235,12 @@ public interface ISkillGameplayGateway {
      * shake comes from (`direction: from_hit`: the kicks lean away from it); null = a random axis per pulse.
      */
     public fun cameraShake(cast: CastRef, viewer: UUID, intensity: Double, ticks: Int, from: Vec3?)
+
+    /**
+     * `screen_flash` (ADR-0303 10.1b, v1 `Mechanic.ScreenFlash`): the full-screen cut-in [overlay] (a `ScreenOverlay.yamlName`) on [viewer]'s screen,
+     * tinted [colorRgb] (null = the overlay's default), faded in / held / out for the given ticks.
+     */
+    public fun screenFlash(cast: CastRef, viewer: UUID, overlay: String, colorRgb: Int?, fadeInTicks: Int, stayTicks: Int, fadeOutTicks: Int)
 
     /** `stop_sound` (R26): stops the named sound for [viewer]. */
     public fun stopSound(cast: CastRef, viewer: UUID, sound: String)

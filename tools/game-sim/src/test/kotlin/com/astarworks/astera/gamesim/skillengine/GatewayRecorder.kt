@@ -168,6 +168,11 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
 
         override fun updateLine(handle: VisualHandle, from: Vec3, to: Vec3) = add("line", name(handle), "")
 
+        override fun spawnScreenVeil(cast: CastRef, viewer: UUID, sprite: String, distance: Double, scale: Double, colorHex: String?, maxScreenFraction: Double, ticks: Int) =
+            spawned(cast, "veil")
+
+        override fun updateScreenVeil(handle: VisualHandle, age: Int) = add("veil", name(handle), "age=$age")
+
         override fun write(handle: VisualHandle, pose: VisualPose, interpolationTicks: Int) =
             add("write", name(handle), "dur=$interpolationTicks")
 
@@ -242,6 +247,11 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
         override fun cameraShake(cast: CastRef, viewer: UUID, intensity: Double, ticks: Int, from: Vec3?) {
             seen("gameplay.cameraShake", cast)
             add("effect", viewer.toString(), "camera_shake=${RecordedCall.num(intensity)} ticks=$ticks from=${if (from == null) "none" else "hit"}")
+        }
+
+        override fun screenFlash(cast: CastRef, viewer: UUID, overlay: String, colorRgb: Int?, fadeInTicks: Int, stayTicks: Int, fadeOutTicks: Int) {
+            seen("gameplay.screenFlash", cast)
+            add("effect", viewer.toString(), "screen_flash=$overlay color=${colorRgb?.let { "#%06x".format(it) } ?: "default"} in=$fadeInTicks stay=$stayTicks out=$fadeOutTicks")
         }
 
         override fun stopSound(cast: CastRef, viewer: UUID, sound: String) {

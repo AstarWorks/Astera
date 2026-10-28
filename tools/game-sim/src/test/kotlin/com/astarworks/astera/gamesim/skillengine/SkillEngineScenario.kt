@@ -213,6 +213,11 @@ abstract class SkillEngineScenario {
                     ordinals[id] = ordinals.size
                     out += tick to RecordedCall(tick, "spawn", "#${ordinals.getValue(id)}", "kind=${a.kind.name.lowercase()}")
                 }
+                // a screen veil is an instance-lived quad per viewer; the sim's only viewer is the caster
+                is Action.Effect -> if (a.op.value == "screen_veil") {
+                    ordinals[id] = ordinals.size
+                    out += tick to RecordedCall(tick, "spawn", "#${ordinals.getValue(id)}", "kind=veil")
+                }
                 is Action.Key -> ordinals[a.display.text]?.let { out += tick to RecordedCall(tick, "write", "#$it", "dur=${a.durationTicks}") }
                 is Action.Teleport -> ordinals[a.display.text]?.let { out += tick to RecordedCall(tick, "write", "#$it", "") }
                 is Action.TrailPoint -> ordinals[a.ribbon.text]?.let { out += tick to RecordedCall(tick, "trail", "#$it", "") }
