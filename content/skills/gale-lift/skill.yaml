@@ -15,5 +15,4 @@ gameplay:
   timeline:
     - at: 0
       do:
-        # GAP: propel (forward 1.0 then up 0.6, two ops) -> impulse is the closest op; propel semantics (velocity set vs add, axis(caster, "forward") horizontal vs look) unverified
-        - {id: lift, op: impulse, target: caster, vector: "= look(caster) * 1.0 + vec(0.0, 0.6, 0.0)"}
+        - {id: lift, op: impulse, at: 0, target: caster, vector: {of: caster, forward: 1.0, up: 0.6}}

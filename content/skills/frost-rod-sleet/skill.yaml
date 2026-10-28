@@ -30,7 +30,7 @@ gameplay:
           block: {mode: despawn}
           on:
             hit:
-              - {id: dmg, op: damage, target: event.victim, components: [{kind: water, amount: 18.0}]}
+              - {id: dmg, op: damage, target: event.victim, damage: {water: 18.0}}
               - {id: st_freeze, op: status, target: event.victim, status: freeze, stacks: 1, for: 40, when: "= rand() < 0.4"}
               - {id: snd_hit, op: sound, sound: "astera:skills/frost-impact", anchor: heart, volume: 0.7, pitch: 1.2}
               - {id: fx_hit, op: particle_def, def: hit-spark, anchor: heart}
