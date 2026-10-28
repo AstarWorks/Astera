@@ -143,6 +143,8 @@ public class PresentationRuntime(
         val tracks = LinkedHashMap<String, TrackState>()
         val lastOrigin = HashMap<String, Vec3>()
         val velocity = HashMap<String, Vec3>()
+        /** Where each traced emit (`trace` key + repeat index) last played. */
+        val lastPlay = HashMap<String, Vec3>()
         val watched = LinkedHashSet<String>()
 
         /** Later copies of repeated displays / emits that have not run yet. */

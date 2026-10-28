@@ -175,10 +175,10 @@ internal class EmitExecutor(private val rt: PresentationRuntime) : OpExecutor<Fx
     override fun execute(op: FxOp.Emit, ctx: OpContext) {
         if (!ctx.passes(op)) return
         val s = rt.state(ctx)
-        rt.repeated(s, ctx, op.id, null, op.repeat) { _, _ -> emitOnce(op, ctx, s); null }
+        rt.repeated(s, ctx, op.id, null, op.repeat) { id, _ -> emitOnce(op, ctx, s, if (op.repeat == null) "" else id.substringAfterLast('#')); null }
     }
 
-    private fun emitOnce(op: FxOp.Emit, ctx: OpContext, s: PresentationRuntime.CastState) {
+    private fun emitOnce(op: FxOp.Emit, ctx: OpContext, s: PresentationRuntime.CastState, slot: String) {
         val base = rt.pointWorld(s, op.at) ?: return ctx.host.fail(op.id, "emit: point '${op.at}' does not resolve")
         val at = op.shift?.let { sh -> rt.frameWorld(s, op.at.frame)?.let { base + it.directionToWorld(ctx.values.vec3(sh)) } } ?: base
         val inherit = op.inheritVelocity?.let { ctx.values.num(it) }
@@ -193,7 +193,14 @@ internal class EmitExecutor(private val rt: PresentationRuntime) : OpExecutor<Fx
         val offset = op.offset?.let { ctx.values.vec3(it) } ?: Vec3(0.0, 0.0, 0.0)
         val look = ctx.host.lookDirection()
         val spacing = op.spacing?.let { ctx.values.num(it) } ?: 0.0
-        val sweep = if (spacing > 0.0) rt.velocityOf(s, op.at.frame) else Vec3(0.0, 0.0, 0.0)
+        val traceKey = op.trace?.let { "$it#$slot" }
+        val previous = traceKey?.let { s.lastPlay[it] }
+        if (traceKey != null) s.lastPlay[traceKey] = at
+        val sweep = when {
+            spacing <= 0.0 -> Vec3(0.0, 0.0, 0.0)
+            traceKey != null -> previous?.let { at - it } ?: Vec3(0.0, 0.0, 0.0)
+            else -> rt.velocityOf(s, op.at.frame)
+        }
         val distance = sweep.length()
         // One play per `spacing` blocks along the segment covered since the last tick, ending at `at`. (at most 24, v1 VfxTimeline.kt:99 MAX_PATH_POINTS)
         val steps = if (distance > spacing && spacing > 0.0) kotlin.math.ceil(distance / spacing).toInt().coerceAtMost(MAX_PATH_POINTS) else 1

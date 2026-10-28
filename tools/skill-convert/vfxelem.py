@@ -739,7 +739,11 @@ def display_element(c, el, fid, where, delay, when, dur, removes):
         if p:
             pos_e = "(%s) + vec(%s*%s, %s*%s, %s*%s)" % (pos_e, draw(0), num(p), draw(1), num(p), draw(2), num(p))
         if r:
-            rot_e = "(%s) + vec(%s*%s, %s*%s, %s*%s)" % (rot_e, draw(3), num(r), draw(4), num(r), draw(5), num(r))
+            # v1 slotGeometry: rotation = slotRot * fromEulerDegrees(yaw, pitch, roll) (Quaternion.kt:86-91, qy * qp * qr), a quaternion
+            # product, not a sum of angles; the track turn is its rotation vector.
+            jq = ("quat_axis_angle(vec(0.0, 1.0, 0.0), -(%s*%s)) * quat_axis_angle(vec(1.0, 0.0, 0.0), %s*%s) * "
+                  "quat_axis_angle(vec(0.0, 0.0, 1.0), %s*%s)") % (draw(3), num(r), draw(4), num(r), draw(5), num(r))
+            rot_e = "rotvec(quat(%s) * %s)" % (rot_e, jq)
         sc = float(jit.get("scale", 0.0))
         if sc:
             unit = skel["size"]

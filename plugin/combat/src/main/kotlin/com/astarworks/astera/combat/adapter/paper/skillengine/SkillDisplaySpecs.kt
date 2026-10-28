@@ -41,7 +41,7 @@ public object SkillDisplaySpecs {
     /** The item a pack or vanilla mesh model draws; null for the caster's held item (needs the caster). */
     public fun meshKind(model: MeshModel): DisplayKind.Item? = when (model) {
         is MeshModel.Pack -> DisplayKind.Item(ItemId("paper"), DisplayItemMode.FIXED, model.key)
-        is MeshModel.Vanilla -> DisplayKind.Item(ItemId(model.material.replace('_', '-')), DisplayItemMode.FIXED, null)
+        is MeshModel.Vanilla -> DisplayKind.Item(ItemId(model.material.replace('_', '-')), DisplayItemMode.FIXED, model.itemModel)
         MeshModel.HeldItem -> null
     }
 

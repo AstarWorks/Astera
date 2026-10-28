@@ -182,6 +182,18 @@ internal object CelFunctions {
         def("quat_axis_angle", "quat_axis_angle", QUAT, listOf(VEC3, NUM), listOf(V, OBJ)) {
             Quaternion.axisAngle((it[0] as Vec3).normalize(), Math.toRadians(n(it[1])))
         }
+        def("quat", "quat_rotvec", QUAT, listOf(VEC3), listOf(V)) { Quaternion.fromRotationVector(it[0] as Vec3) }
+        // Rotation vector (axis * degrees, shortest way round) of a quaternion: the form a track `turn` is authored in.
+        def("rotvec", "rotvec_quat", VEC3, listOf(QUAT), listOf(Q)) {
+            val q = it[0] as Quaternion
+            val s = if (q.w < 0) -1.0 else 1.0
+            val x = q.x * s; val y = q.y * s; val z = q.z * s
+            val sin = sqrt(x * x + y * y + z * z)
+            if (sin < 1e-12) Vec3(0.0, 0.0, 0.0) else {
+                val deg = Math.toDegrees(2.0 * atan2(sin, q.w * s))
+                Vec3(x / sin * deg, y / sin * deg, z / sin * deg)
+            }
+        }
         def("rotate", "rotate_quat_vec3", VEC3, listOf(QUAT, VEC3), listOf(Q, V)) { (it[0] as Quaternion).rotate(it[1] as Vec3) }
         def("slerp", "slerp_quat", QUAT, listOf(QUAT, QUAT, NUM), listOf(Q, Q, OBJ)) {
             Quaternion.slerp(it[0] as Quaternion, it[1] as Quaternion, n(it[2]))

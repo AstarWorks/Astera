@@ -1271,16 +1271,10 @@ class Conv:
             # default FIXED (VfxDefinition.kt:254). v2 mesh: a pack model by item + part, a vanilla material as minecraft:<item>.
             if kind.get("display_mode", "fixed") != "fixed":
                 self.present("item element display_mode other than fixed", str(kind.get("display_mode")))
+            # base material stays v1 (e.g. shears); the item_model component rides in part (MeshModels Vanilla.itemModel).
+            op = {"id": eid, "op": "mesh", "frame": fid, "item": "minecraft:" + str(kind["item"])}
             if kind.get("item_model"):
-                m_item, m_part = item_model_part(kind["item_model"])
-                if m_item is None:
-                    self.present("item element item_model has no content/frames part", str(kind["item_model"]))
-                    m_item, m_part = kind["item"], None
-                op = {"id": eid, "op": "mesh", "frame": fid, "item": m_item}
-                if m_part:
-                    op["part"] = m_part
-            else:
-                op = {"id": eid, "op": "mesh", "frame": fid, "item": "minecraft:" + str(kind["item"])}
+                op["part"] = str(kind["item_model"])
             if "brightness" in el:
                 op["brightness"] = int(el["brightness"])
             if "glow_color" in el:
@@ -1297,9 +1291,9 @@ class Conv:
             op = emit_op(eid, at_frame, kind["particle_id"], 1)
             if kind.get("along_path"):
                 # v1 VfxTimeline.kt:581-615 pathBetween(prev, cur, 0.4): ceil(dist/0.4) points (max 24), ending at the current one.
-                if int(kind.get("every_ticks", 1)) != 1:
-                    self.present("particle along_path with every_ticks > 1 (v2 emit sweeps one tick)", short(kind, 60))
+                # prev = the previous emission of this element (centerAt(u - everyTicks)), none for the first (u > 0 only).
                 op["spacing"] = 0.4
+                op["trace"] = eid
         elif kt in ("thin_line", "dotted_line"):
             a = self.pframe(fid, kind["from"], "p")
             b = self.pframe(fid, kind["to"], "p")
@@ -1467,19 +1461,6 @@ def _custom_count(pid):
             with open(path) as fh:
                 _PARTICLE_COUNTS[pid] = int((yaml.safe_load(fh) or {}).get("count", 1))
     return _PARTICLE_COUNTS[pid]
-
-
-def item_model_part(model):
-    """v1 item_model `astera:<id>` -> (item, part) of the content/frames table that declares that pack model, else (None, None)."""
-    d = os.path.join(REPO, "content", "frames")
-    for fn in sorted(os.listdir(d)):
-        if not fn.endswith(".yaml"):
-            continue
-        parts = (yaml.safe_load(open(os.path.join(d, fn))) or {}).get("parts") or {}
-        for name, pt in parts.items():
-            if isinstance(pt, dict) and pt.get("model") == model:
-                return fn[:-5], (None if name == "held" else name)
-    return None, None
 
 
 def num_s(x):

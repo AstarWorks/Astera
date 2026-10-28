@@ -2,8 +2,8 @@ package com.astarworks.astera.core.application.skillengine.load
 
 /** What a `mesh` op draws (SKL-12). */
 public sealed interface MeshModel {
-    /** A vanilla material (`item: minecraft:end_rod`): no pack model involved. */
-    public data class Vanilla(val material: String) : MeshModel
+    /** A vanilla material (`item: minecraft:end_rod`); [itemModel] is the item_model component stacked on it (`part: astera:<id>`, v1 item element), null for none. */
+    public data class Vanilla(val material: String, val itemModel: String? = null) : MeshModel
 
     /** A pack item definition (`astera:<id>`), which must exist in the resource pack. */
     public data class Pack(val key: String) : MeshModel
@@ -23,7 +23,7 @@ public object MeshModels {
 
     public fun resolve(item: String, part: String?, tables: Map<String, ItemFrames>): MeshModel {
         if (item == MAIN_HAND) return MeshModel.HeldItem
-        if (item.startsWith("minecraft:")) return MeshModel.Vanilla(item.removePrefix("minecraft:"))
+        if (item.startsWith("minecraft:")) return MeshModel.Vanilla(item.removePrefix("minecraft:"), part)
         val declared = tables[item]?.partFor(part)?.model
         if (declared != null) return MeshModel.Pack(if (':' in declared) declared else "$NAMESPACE:$declared")
         return MeshModel.Pack(if (part == null) "$NAMESPACE:$item" else "$NAMESPACE:$item-${part.replace('_', '-')}")

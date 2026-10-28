@@ -367,6 +367,7 @@ presentation:
           at: fx5_orrery_seal_front_clock_sparks_at
           particle: orrery-ember
           spacing: 0.4
+          trace: fx5_orrery_seal_front_clock_sparks
           times: 12
           shift: "= ([vec(0.0, 1.65, 3.6), vec(0.0, 2.475, 3.37894), vec(0.0, 3.07894, 2.775), vec(0.0, 3.3, 1.95), vec(0.0, 3.07894, 1.125), vec(0.0, 2.475, 0.52106), vec(0.0, 1.65, 0.3), vec(0.0, 0.825, 0.52106), vec(0.0, 0.22106, 1.125), vec(0.0, 0.0, 1.95), vec(0.0, 0.22106, 2.775), vec(0.0, 0.825, 3.37894)][int(i)]) + vec((rand('j_fx5_orrery_seal_front_clock_sparks', 7.0*i+0.0)*2.0-1.0)*0.08, (rand('j_fx5_orrery_seal_front_clock_sparks', 7.0*i+1.0)*2.0-1.0)*0.08, (rand('j_fx5_orrery_seal_front_clock_sparks', 7.0*i+2.0)*2.0-1.0)*0.08)"
         - {id: flash, op: screen_flash, target: caster, overlay: impact_star, color: "#FFD447", stay: 1, fade_out: 2}
@@ -379,6 +380,7 @@ presentation:
           at: fx5_orrery_seal_front_clock_sparks_at
           particle: orrery-ember
           spacing: 0.4
+          trace: fx5_orrery_seal_front_clock_sparks
           times: 12
           shift: "= ([vec(0.0, 1.65, 3.6), vec(0.0, 2.475, 3.37894), vec(0.0, 3.07894, 2.775), vec(0.0, 3.3, 1.95), vec(0.0, 3.07894, 1.125), vec(0.0, 2.475, 0.52106), vec(0.0, 1.65, 0.3), vec(0.0, 0.825, 0.52106), vec(0.0, 0.22106, 1.125), vec(0.0, 0.0, 1.95), vec(0.0, 0.22106, 2.775), vec(0.0, 0.825, 3.37894)][int(i)]) + vec((rand('j_fx5_orrery_seal_front_clock_sparks', 7.0*i+0.0)*2.0-1.0)*0.08, (rand('j_fx5_orrery_seal_front_clock_sparks', 7.0*i+1.0)*2.0-1.0)*0.08, (rand('j_fx5_orrery_seal_front_clock_sparks', 7.0*i+2.0)*2.0-1.0)*0.08)"
     - id: fx26
@@ -389,6 +391,7 @@ presentation:
           at: fx5_orrery_seal_front_clock_sparks_at
           particle: orrery-ember
           spacing: 0.4
+          trace: fx5_orrery_seal_front_clock_sparks
           times: 12
           shift: "= ([vec(0.0, 1.65, 3.6), vec(0.0, 2.475, 3.37894), vec(0.0, 3.07894, 2.775), vec(0.0, 3.3, 1.95), vec(0.0, 3.07894, 1.125), vec(0.0, 2.475, 0.52106), vec(0.0, 1.65, 0.3), vec(0.0, 0.825, 0.52106), vec(0.0, 0.22106, 1.125), vec(0.0, 0.0, 1.95), vec(0.0, 0.22106, 2.775), vec(0.0, 0.825, 3.37894)][int(i)]) + vec((rand('j_fx5_orrery_seal_front_clock_sparks', 7.0*i+0.0)*2.0-1.0)*0.08, (rand('j_fx5_orrery_seal_front_clock_sparks', 7.0*i+1.0)*2.0-1.0)*0.08, (rand('j_fx5_orrery_seal_front_clock_sparks', 7.0*i+2.0)*2.0-1.0)*0.08)"
     - id: fx27
@@ -399,6 +402,7 @@ presentation:
           at: fx5_orrery_seal_front_clock_sparks_at
           particle: orrery-ember
           spacing: 0.4
+          trace: fx5_orrery_seal_front_clock_sparks
           times: 12
           shift: "= ([vec(0.0, 1.65, 3.6), vec(0.0, 2.475, 3.37894), vec(0.0, 3.07894, 2.775), vec(0.0, 3.3, 1.95), vec(0.0, 3.07894, 1.125), vec(0.0, 2.475, 0.52106), vec(0.0, 1.65, 0.3), vec(0.0, 0.825, 0.52106), vec(0.0, 0.22106, 1.125), vec(0.0, 0.0, 1.95), vec(0.0, 0.22106, 2.775), vec(0.0, 0.825, 3.37894)][int(i)]) + vec((rand('j_fx5_orrery_seal_front_clock_sparks', 7.0*i+0.0)*2.0-1.0)*0.08, (rand('j_fx5_orrery_seal_front_clock_sparks', 7.0*i+1.0)*2.0-1.0)*0.08, (rand('j_fx5_orrery_seal_front_clock_sparks', 7.0*i+2.0)*2.0-1.0)*0.08)"
     - id: fx28
@@ -409,6 +413,7 @@ presentation:
           at: fx5_orrery_seal_front_clock_sparks_at
           particle: orrery-ember
           spacing: 0.4
+          trace: fx5_orrery_seal_front_clock_sparks
           times: 12
           shift: "= ([vec(0.0, 1.65, 3.6), vec(0.0, 2.475, 3.37894), vec(0.0, 3.07894, 2.775), vec(0.0, 3.3, 1.95), vec(0.0, 3.07894, 1.125), vec(0.0, 2.475, 0.52106), vec(0.0, 1.65, 0.3), vec(0.0, 0.825, 0.52106), vec(0.0, 0.22106, 1.125), vec(0.0, 0.0, 1.95), vec(0.0, 0.22106, 2.775), vec(0.0, 0.825, 3.37894)][int(i)]) + vec((rand('j_fx5_orrery_seal_front_clock_sparks', 7.0*i+0.0)*2.0-1.0)*0.08, (rand('j_fx5_orrery_seal_front_clock_sparks', 7.0*i+1.0)*2.0-1.0)*0.08, (rand('j_fx5_orrery_seal_front_clock_sparks', 7.0*i+2.0)*2.0-1.0)*0.08)"
     - id: fx29
@@ -419,6 +424,7 @@ presentation:
           at: fx5_orrery_seal_front_clock_sparks_at
           particle: orrery-ember
           spacing: 0.4
+          trace: fx5_orrery_seal_front_clock_sparks
           times: 12
           shift: "= ([vec(0.0, 1.65, 3.6), vec(0.0, 2.475, 3.37894), vec(0.0, 3.07894, 2.775), vec(0.0, 3.3, 1.95), vec(0.0, 3.07894, 1.125), vec(0.0, 2.475, 0.52106), vec(0.0, 1.65, 0.3), vec(0.0, 0.825, 0.52106), vec(0.0, 0.22106, 1.125), vec(0.0, 0.0, 1.95), vec(0.0, 0.22106, 2.775), vec(0.0, 0.825, 3.37894)][int(i)]) + vec((rand('j_fx5_orrery_seal_front_clock_sparks', 7.0*i+0.0)*2.0-1.0)*0.08, (rand('j_fx5_orrery_seal_front_clock_sparks', 7.0*i+1.0)*2.0-1.0)*0.08, (rand('j_fx5_orrery_seal_front_clock_sparks', 7.0*i+2.0)*2.0-1.0)*0.08)"
     - id: fx30
@@ -429,6 +435,7 @@ presentation:
           at: fx5_orrery_seal_front_clock_sparks_at
           particle: orrery-ember
           spacing: 0.4
+          trace: fx5_orrery_seal_front_clock_sparks
           times: 12
           shift: "= ([vec(0.0, 1.65, 3.6), vec(0.0, 2.475, 3.37894), vec(0.0, 3.07894, 2.775), vec(0.0, 3.3, 1.95), vec(0.0, 3.07894, 1.125), vec(0.0, 2.475, 0.52106), vec(0.0, 1.65, 0.3), vec(0.0, 0.825, 0.52106), vec(0.0, 0.22106, 1.125), vec(0.0, 0.0, 1.95), vec(0.0, 0.22106, 2.775), vec(0.0, 0.825, 3.37894)][int(i)]) + vec((rand('j_fx5_orrery_seal_front_clock_sparks', 7.0*i+0.0)*2.0-1.0)*0.08, (rand('j_fx5_orrery_seal_front_clock_sparks', 7.0*i+1.0)*2.0-1.0)*0.08, (rand('j_fx5_orrery_seal_front_clock_sparks', 7.0*i+2.0)*2.0-1.0)*0.08)"
     - {id: fx34, at: 34, do: [{id: rm_4, op: remove, ids: [fx5_orrery_seal_front_gold, fx5_orrery_seal_front_dark, fx5_orrery_seal_front_inner_clock]}]}

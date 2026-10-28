@@ -310,7 +310,7 @@ private object FxOpDecoder : OpDecoder {
                 id, whenExpr, requirePoint("at"), requireString("particle"), number("count"),
                 vec3("offset"), number("speed"), stringValue("data"), number("data_size"),
                 vec3("dir"), number("spread_deg"), number("inherit_velocity"), string("seed"), number("spacing"),
-                vec3("shift"), repeat(allowLife = false),
+                vec3("shift"), repeat(allowLife = false), trace = string("trace"),
             )
             "sound" -> FxOp.Sound(
                 id, whenExpr, requireString("sound"), requirePoint("at"), number("volume"), number("pitch"),
