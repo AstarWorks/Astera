@@ -222,12 +222,6 @@ class CastSim(
     }
 
     private val gameplay = object : ISkillGameplayGateway by noop() {
-        override fun damage(caster: UUID, victim: UUID, components: List<SkillDamage>, hitPoint: Vec3) =
-            damage(caster, victim, components, hitPoint, false)
-        override fun damage(caster: UUID, victim: UUID, components: List<SkillDamage>, hitPoint: Vec3, ignoreInvulnerability: Boolean) =
-            damage("", caster, victim, components, hitPoint, ignoreInvulnerability)
-        override fun damage(skillId: String, caster: UUID, victim: UUID, components: List<SkillDamage>, hitPoint: Vec3, ignoreInvulnerability: Boolean) =
-            damage(skillId, caster, victim, components, hitPoint, ignoreInvulnerability, false)
         override fun damage(skillId: String, caster: UUID, victim: UUID, components: List<SkillDamage>, hitPoint: Vec3, ignoreInvulnerability: Boolean, ignoreArmor: Boolean) {
             combat?.gateway?.damage(skillId, combat.map(caster), combat.map(victim), components, hitPoint, ignoreInvulnerability, ignoreArmor)
             for (c in components) {

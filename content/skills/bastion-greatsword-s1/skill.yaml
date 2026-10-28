@@ -23,13 +23,13 @@ gameplay:
     - id: t7
       at: 7
       do:
-        - {id: sel, op: hit, frames: [caster], sphere: {at: caster, radius: "${radius}"}, window: once}
-        - {id: st_charge, op: status, when: "= nearest_enemy_dist(caster) < 3.6", status: charge, duration_ticks: "${charge_ticks}", target: caster, stacks: "${charge_stacks}"}
+        - {id: sel, op: hit, frames: [caster], sphere: {at: caster, radius: "${radius}"}, window: once, ticks: 1}
+        - {id: st_charge, op: status, status: charge, duration_ticks: "${charge_ticks}", target: caster, stacks: "${charge_stacks}", when: "= nearest_enemy_dist(caster) < 3.6"}
     - id: t28
       at: 28
       do:
         - {id: dash_2, op: dash_strike, distance: "${dash_distance_2}", ticks: 3, radius: 0.5, hit_once: true, invulnerable: true, stop_on_block: true, follow_pitch: false, stop_before_target: 1.7}
-    - {id: t31, at: 31, do: [{id: sel_2, op: hit, frames: [caster], sphere: {at: caster, radius: "${radius}"}, window: once}]}
+    - {id: t31, at: 31, do: [{id: sel_2, op: hit, frames: [caster], sphere: {at: caster, radius: "${radius}"}, window: once, ticks: 1}]}
   "on":
     hit:
       - {id: dmg, op: damage, components: [{kind: physical, amount: "${dmg_physical}"}], target: victim, ignore_invulnerability: true, when: "= event.source == 'sel'"}

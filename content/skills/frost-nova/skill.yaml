@@ -19,7 +19,7 @@ gameplay:
     - id: t0
       at: 0
       do:
-        - {id: burst, op: hit, frames: [caster], sphere: {at: caster, radius: "${radius}"}, window: once}
+        - {id: burst, op: hit, frames: [caster], sphere: {at: caster, radius: "${radius}"}, window: once, ticks: 1}
         - {op: break_area, shape: sphere, radius: 2.5, block_damage: 20, breaks: true, length: 0.0, id: chip, at: caster}
   "on":
     hit:

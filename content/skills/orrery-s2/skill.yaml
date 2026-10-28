@@ -6,18 +6,49 @@ id: orrery-s2
 item: orrery-staff
 meta: {name: {ja: "標的の電場", en: "Target Field"}, description: {ja: "標的に電場を張って打ち据える。", en: "Lay an electric field on the target and strike."}, cooldown_ticks: 140, resource_cost: 20}
 gameplay:
-  params: {dash_distance: 3, radius: 2.4, dmg_physical: 28.125, dmg_physical_2: 37.5}
+  params: {dash_distance: 3, arc_deg: 45, reach: 12, radius: 2.4, dmg_physical: 28.125, dmg_physical_2: 37.5}
   expose:
     - {id: damage, param: dmg_physical}
+    - {id: range, param: reach}
     - {id: radius, param: radius}
   timeline:
     - id: t0
       at: 0
       do:
         - {id: dash, op: dash_strike, distance: "${dash_distance}", ticks: 7, radius: 0.8, hit_once: true, invulnerable: false, stop_on_block: true, follow_pitch: false, stop_before_target: 4}
-    - {id: t35, at: 35, do: [{id: sel, op: hit, frames: [caster], sphere: {at: caster, radius: "${radius}"}, max_count: 5, window: once}]}
-    - {id: t61, at: 61, do: [{id: sel_2, op: hit, frames: [caster], sphere: {at: caster, radius: "${radius}"}, max_count: 5, window: once}]}
+    - id: t35
+      at: 35
+      do:
+        - id: sel
+          op: hit
+          frames: [caster]
+          sector: {frame: caster, at: eye, forward: caster.forward, left: caster.left, angle_deg: "${arc_deg}", range: "${reach}", height: 2.0}
+          max_count: 1
+          window: once
+          ticks: 1
+    - id: t61
+      at: 61
+      do:
+        - id: sel_2
+          op: hit
+          frames: [caster]
+          sector: {frame: caster, at: eye, forward: caster.forward, left: caster.left, angle_deg: "${arc_deg}", range: "${reach}", height: 2.0}
+          max_count: 1
+          window: once
+          ticks: 1
   "on":
     hit:
-      - {id: dmg, op: damage, components: [{kind: physical, amount: "${dmg_physical}"}], target: victim, ignore_invulnerability: true, when: "= event.source == 'sel'"}
-      - {id: dmg_2, op: damage, components: [{kind: physical, amount: "${dmg_physical_2}"}], target: victim, ignore_invulnerability: true, when: "= event.source == 'sel_2'"}
+      - id: dmg
+        op: damage
+        components:
+          - {kind: physical, amount: "${dmg_physical}"}
+        target: {enemies: {around: enemy, radius: "${radius}", max_count: 5}}
+        ignore_invulnerability: true
+        when: "= event.source == 'sel'"
+      - id: dmg_2
+        op: damage
+        components:
+          - {kind: physical, amount: "${dmg_physical_2}"}
+        target: {enemies: {around: enemy, radius: "${radius}", max_count: 5}}
+        ignore_invulnerability: true
+        when: "= event.source == 'sel_2'"
