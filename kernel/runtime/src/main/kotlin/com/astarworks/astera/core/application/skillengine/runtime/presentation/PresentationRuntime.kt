@@ -51,6 +51,9 @@ public class PresentationRuntime(
 
         /** v1 `VfxTimeline.ANIMATION_DELAY_TICKS`: a target weight is read one tick behind the element clock (VfxPlayer.kt:426). */
         const val PULL_DELAY: Int = 1
+
+        /** v1 `WorldMechanics.MAX_DISPLAYS_PER_CAST` (:631): text displays one cast may spawn. */
+        const val MAX_TEXT_PER_CAST: Int = 32
         const val MAX_FRAME_DEPTH: Int = 64
         private val UPRIGHT = 0.7071
         private val ONE = Vec3(1.0, 1.0, 1.0)
@@ -84,6 +87,7 @@ public class PresentationRuntime(
         var shownAlpha: Double? = null
         var shownColor: String? = null
         var shownBlock: String? = null
+        var shownText: String? = null
 
         /** Id of the repeated op this is a copy of; a track on that id moves every copy in its own slot axes. */
         val group: String? get() = if (opId.contains('#')) opId.substringBeforeLast('#') else null
@@ -153,6 +157,7 @@ public class PresentationRuntime(
     internal class CastState(val ctx: OpContext) {
         val anims = ArrayList<AnimRun>()
         var tick: Int = 0
+        var textSpawned: Int = 0
         val live = LinkedHashMap<String, Live>()
         val sounds = LinkedHashMap<String, SoundTask>()
         val tracks = LinkedHashMap<String, TrackState>()
@@ -170,7 +175,8 @@ public class PresentationRuntime(
 
         /** Ids of the group nodes made for repeated displays. */
         val groups = LinkedHashSet<String>()
-
+        val firings = HashMap<String, Int>()
+        val instanceGroups = LinkedHashSet<String>()
         val rigs = ArrayList<RigPerformer>()
     }
 
@@ -178,6 +184,12 @@ public class PresentationRuntime(
     internal class Pending(val group: String, val due: Int, val run: () -> Unit)
 
     internal fun state(ctx: OpContext): CastState = casts.getOrPut(ctx.cast) { CastState(ctx) }
+
+    /** Starts tracking [frame]'s origin velocity; the origin seen now is the baseline, so the very next tick already has a velocity. */
+    private fun watch(s: CastState, frame: String) {
+        if (!s.watched.add(frame)) return
+        s.ctx.tree.worldOf(FrameId(frame)).getOrNull()?.let { s.lastOrigin.putIfAbsent(frame, it.origin) }
+    }
 
     /** The running rig whose frame node [frame] is or hangs under (the displays riding it are written on its schedule); null if none. */
     internal fun driverOf(s: CastState, frame: String): RigPerformer? {
@@ -193,7 +205,7 @@ public class PresentationRuntime(
 
     /** Frame origin velocity in blocks per tick; starts tracking the frame on first request. */
     internal fun velocityOf(s: CastState, frame: String): Vec3 {
-        s.watched += frame
+        watch(s, frame)
         return s.velocity[frame] ?: Vec3(0.0, 0.0, 0.0)
     }
 
@@ -215,13 +227,13 @@ public class PresentationRuntime(
     }
 
     internal fun pointWorld(s: CastState, ref: PointRef): Vec3? {
-        s.watched += ref.frame
+        watch(s, ref.frame)
         settleFrame(s, ref.frame)
         return s.ctx.tree.pointWorld(FrameId(ref.frame), ref.point).getOrNull()
     }
 
     internal fun frameWorld(s: CastState, frame: String): Frame? {
-        s.watched += frame
+        watch(s, frame)
         return s.ctx.tree.worldOf(FrameId(frame)).getOrNull()
     }
 
@@ -255,7 +267,7 @@ public class PresentationRuntime(
                 val pull = pullOf(s, live)
                 tree.setLocal(live.node, Frame(live.pivot + t.offset + pullShift(pull, parentW), (live.tilt * t.turn * live.rest).normalized()))
                 val world = tree.worldOf(live.node).getOrNull() ?: return null
-                val k = live.scale
+                val k = live.scale * tree.scaleOf(live.node)
                 return VisualPose(world, Vec3(k * t.scale.x, k * t.scale.y, k * t.scale.z), DisplayBillboard.FIXED, anchorFeet(s, live.parent))
             }
             is Live.Plate -> {
@@ -267,7 +279,8 @@ public class PresentationRuntime(
                 tree.setLocal(live.node, Frame(live.at + live.turn.rotate(t.offset) + pullShift(pull, parentW), (base * live.turn * t.turn).normalized()))
                 val world = tree.worldOf(live.node).getOrNull() ?: return null
                 val frame = billboardFrame(s, live.opId, parentW, world, live.billboard, live.turn)
-                return VisualPose(frame, Vec3(live.size * t.scale.x, live.size * t.scale.y, 1.0), live.billboard, anchorFeet(s, live.parent))
+                val fs = tree.scaleOf(live.node)
+                return VisualPose(frame, Vec3(live.size * fs * t.scale.x, live.size * fs * t.scale.y, 1.0), live.billboard, anchorFeet(s, live.parent))
             }
             is Live.Block -> {
                 val parentW = frameWorld(s, live.parent) ?: return null
@@ -275,7 +288,8 @@ public class PresentationRuntime(
                 val pull = pullOf(s, live)
                 tree.setLocal(live.node, Frame(live.at + live.turn.rotate(t.offset) + pullShift(pull, parentW), (live.turn * t.turn).normalized()))
                 val world = tree.worldOf(live.node).getOrNull() ?: return null
-                val size = Vec3(live.size.x * t.scale.x, live.size.y * t.scale.y, live.size.z * t.scale.z)
+                val fs = tree.scaleOf(live.node)
+                val size = Vec3(live.size.x * fs * t.scale.x, live.size.y * fs * t.scale.y, live.size.z * fs * t.scale.z)
                 if (pull != null && pull.line) return pulledLine(world, size, pull.correction, anchorFeet(s, live.parent))
                 return VisualPose(world, size, DisplayBillboard.FIXED, anchorFeet(s, live.parent))
             }
@@ -288,7 +302,8 @@ public class PresentationRuntime(
                 tree.setLocal(live.node, Frame(live.at + live.turn.rotate(t.offset) + pullShift(pull, parentW), (base * live.turn * t.turn).normalized()))
                 val world = tree.worldOf(live.node).getOrNull() ?: return null
                 val frame = billboardFrame(s, live.opId, parentW, world, live.billboard, live.turn)
-                return VisualPose(frame, Vec3(live.size.x * t.scale.x, live.size.y * t.scale.y, 1.0), live.billboard, anchorFeet(s, live.parent))
+                val fs = tree.scaleOf(live.node)
+                return VisualPose(frame, Vec3(live.size.x * fs * t.scale.x, live.size.y * fs * t.scale.y, 1.0), live.billboard, anchorFeet(s, live.parent))
             }
             else -> return null
         }
@@ -425,16 +440,26 @@ public class PresentationRuntime(
     ) {
         if (repeat == null) { body(group, parent); return }
         val n = Math.round(ctx.values.num(repeat.times)).toInt().coerceAtLeast(0)
-        removeIds(s, listOf(group))
-        if (parent != null) {
-            if (s.ctx.tree.node(FrameId(parent)) == null) return
-            s.ctx.tree.add(FrameNode(FrameId(group), FrameKind.PART, FrameId(parent), IDENTITY)).getOrNull() ?: return
-            s.groups += group
+        var groupName = group
+        if (repeat.instance && parent != null) {
+            // one instance per firing: a world-parented node at the parent's origin now (v1 resolves a Location once, TargeterResolver.kt:120)
+            val origin = s.ctx.tree.worldOf(FrameId(parent)).getOrNull()?.origin ?: return
+            groupName = "$group@${s.firings.merge(group, 1, Int::plus)}"
+            s.ctx.tree.add(FrameNode(FrameId(groupName), FrameKind.PART, FrameId("world"), Frame(origin, Quaternion.IDENTITY))).getOrNull() ?: return
+            s.groups += groupName
+            s.instanceGroups += groupName
+        } else {
+            removeIds(s, listOf(group))
+            if (parent != null) {
+                if (s.ctx.tree.node(FrameId(parent)) == null) return
+                s.ctx.tree.add(FrameNode(FrameId(group), FrameKind.PART, FrameId(parent), IDENTITY)).getOrNull() ?: return
+                s.groups += group
+            }
         }
         for (k in 0 until n) {
             val run = {
                 ctx.host.withIndex(k, n) {
-                    val made = body("$group#$k", if (parent != null) group else null)
+                    val made = body("$groupName#$k", if (parent != null) groupName else null)
                     val life = repeat.life
                     if (made != null && life != null) made.dieAt = s.tick + life
                 }
@@ -453,7 +478,11 @@ public class PresentationRuntime(
     internal fun removeIds(s: CastState, ids: List<String>) {
         for (id in ids) {
             s.pending.removeAll { it.group == id }
+            if (s.instanceGroups.isNotEmpty() && id !in s.groups) {
+                for (g in s.instanceGroups.filter { it.startsWith("$id@") }) removeIds(s, listOf(g))
+            }
             if (id in s.groups) {
+                s.instanceGroups.remove(id)
                 for (copy in s.live.keys.filter { it.startsWith("$id#") }) removeIds(s, listOf(copy))
                 s.groups.remove(id)
                 s.ctx.tree.remove(FrameId(id))
@@ -509,6 +538,10 @@ public class PresentationRuntime(
             due.forEach { it.run() }
         }
         for (l in s.live.values.filter { val d = it.dieAt; d != null && s.tick - 1 >= d }) removeIds(s, listOf(l.opId))
+        // an instance whose copies are all gone (and none is still due) takes its group node with it
+        for (g in s.instanceGroups.toList()) {
+            if (s.live.keys.none { it.startsWith("$g#") } && s.pending.none { it.group == g }) removeIds(s, listOf(g))
+        }
         for (target in s.tracks.values.map { it.op.target }.distinct()) if (!s.live.containsKey(target) && target !in s.groups) settleFrame(s, target)
         // v1 moves a following instance to its anchor every tick, the yaw baked at spawn (VfxPlayer.kt:414-420).
         for (a in s.anchors.values) {
@@ -615,12 +648,14 @@ public class PresentationRuntime(
         var alpha: Double? = null
         var color: String? = null
         var block: String? = null
+        var text: String? = null
         for (t in s.tracks.values) {
             if (t.op.target != l.opId && (group == null || t.op.target != group)) continue
             val look = sampleLook(s, t, castElapsed(s, t))
             look.alpha?.let { alpha = it }
             look.color?.let { color = it }
             look.block?.let { block = it }
+            look.text?.let { text = it }
         }
         val visuals = s.ctx.ports.visuals
         val a = alpha?.takeIf { it != l.shownAlpha }
@@ -631,9 +666,10 @@ public class PresentationRuntime(
             if (c != null) l.shownColor = c
         }
         block?.takeIf { it != l.shownBlock }?.let { visuals.setBlock(l.handle, it); l.shownBlock = it }
+        text?.takeIf { it != l.shownText }?.let { visuals.setText(l.handle, it); l.shownText = it }
     }
 
-    private class Look(val alpha: Double?, val color: String?, val block: String?)
+    private class Look(val alpha: Double?, val color: String?, val block: String?, val text: String?)
 
     private fun sampleLook(s: CastState, t: TrackState, elapsed: Int): Look {
         val keys = t.op.keys.sortedBy { it.tick }
@@ -645,7 +681,8 @@ public class PresentationRuntime(
             .let { c -> "#%02x%02x%02x".format(Math.round(c.x).toInt().coerceIn(0, 255), Math.round(c.y).toInt().coerceIn(0, 255), Math.round(c.z).toInt().coerceIn(0, 255)) }
         val block = keys.lastOrNull { it.block != null && it.tick <= elapsed }?.block
             ?: keys.firstOrNull { it.block != null }?.block
-        return Look(alpha, color, block)
+        val text = keys.lastOrNull { it.text != null && it.tick <= elapsed }?.text
+        return Look(alpha, color, block, text)
     }
 
     private fun rgbOf(hex: String): Vec3 = Vec3(hex.substring(1, 3).toInt(16).toDouble(), hex.substring(3, 5).toInt(16).toDouble(), hex.substring(5, 7).toInt(16).toDouble())

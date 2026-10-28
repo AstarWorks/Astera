@@ -1,5 +1,6 @@
 # Converted from content/skills/vendetta-rifle-ego.yaml + content/vfx/* by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
 # Generated point-frame offsets are [left, up, forward] in the parent frame.
+# CONVERT-PRESENT vfx scale 0.65: particle / emitter speed, size lengths are not scaled by the frame (x2): vendetta-burst
 apiVersion: "astera/v2"
 kind: Skill
 id: vendetta-rifle-ego
@@ -83,14 +84,14 @@ frames:
   - {id: fx16_vendetta_burst_ember_3_at, kind: body, parent: fx16_vendetta_burst}
   - {id: fx16_vendetta_burst_ember_4_at, kind: body, parent: fx16_vendetta_burst}
   - {id: fx16_vendetta_burst_smoke_at, kind: body, parent: fx16_vendetta_burst}
-  - {id: fx17_vendetta_burst, kind: body, parent: world}
+  - {id: fx17_vendetta_burst, kind: body, parent: world, scale: 0.65}
   - {id: fx17_vendetta_burst_ember_0_at, kind: body, parent: fx17_vendetta_burst}
   - {id: fx17_vendetta_burst_ember_1_at, kind: body, parent: fx17_vendetta_burst}
   - {id: fx17_vendetta_burst_ember_2_at, kind: body, parent: fx17_vendetta_burst}
   - {id: fx17_vendetta_burst_ember_3_at, kind: body, parent: fx17_vendetta_burst}
   - {id: fx17_vendetta_burst_ember_4_at, kind: body, parent: fx17_vendetta_burst}
   - {id: fx17_vendetta_burst_smoke_at, kind: body, parent: fx17_vendetta_burst}
-  - {id: fx18_vendetta_burst, kind: body, parent: world}
+  - {id: fx18_vendetta_burst, kind: body, parent: world, scale: 0.65}
   - {id: fx18_vendetta_burst_ember_0_at, kind: body, parent: fx18_vendetta_burst}
   - {id: fx18_vendetta_burst_ember_1_at, kind: body, parent: fx18_vendetta_burst}
   - {id: fx18_vendetta_burst_ember_2_at, kind: body, parent: fx18_vendetta_burst}

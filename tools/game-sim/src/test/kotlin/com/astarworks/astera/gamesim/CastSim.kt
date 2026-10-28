@@ -377,6 +377,8 @@ class CastSim(
         override fun sprite(sprite: String) = com.astarworks.astera.core.application.skillengine.runtime.port.SpriteInfo(1, 32)
         override fun setPlateFrame(handle: VisualHandle, frame: Int, tintHex: String?) {}
         override fun setTrailLook(handle: VisualHandle, fadePower: Double, style: String) {}
+        override fun spawnPlate(castOwner: UUID, sprite: String, alpha: Double, tintHex: String?, seeThrough: Boolean, pose: com.astarworks.astera.core.application.skillengine.runtime.port.VisualPose, brightness: Int?) = VisualHandle(0)
+        override fun spawnText(castOwner: UUID, text: String, backgroundHex: String, backgroundAlpha: Double, shadow: Boolean, seeThrough: Boolean, pose: com.astarworks.astera.core.application.skillengine.runtime.port.VisualPose, brightness: Int?) = VisualHandle(0)
     }
 
     val kit: SkillEngineKit = SkillEngineKit.build(

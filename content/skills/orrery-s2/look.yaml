@@ -57,7 +57,7 @@ presentation:
             - {t: 2, scale: [0.09, 0.09, 0.7], ease: out_expo}
             - {t: 14, scale: [0.0, 0.0, 0.4]}
         - {id: anchor_3, op: anchor, frame: fx3_orrery_s2_poise, at: caster, orient: yaw}
-        - {op: plate, parent: fx3_orrery_s2_poise, face: {viewer: center}, sprite: orrery-orb, size: 3.2, color: "#FFFFFF", brightness: 15, id: fx3_orrery_s2_poise_emitter_light}
+        - {op: plate, parent: fx3_orrery_s2_poise, face: {viewer: center}, sprite: orrery-orb, size: 3.2, color: "#FFFFFF", see_through: true, brightness: 15, id: fx3_orrery_s2_poise_emitter_light}
         - id: fx3_orrery_s2_poise_emitter_light_trk
           op: track
           target: fx3_orrery_s2_poise_emitter_light
@@ -426,6 +426,7 @@ presentation:
         frame_ticks: 2
         loop: true
         color: "#FFFFFF"
+        see_through: true
         brightness: 15
         id: fx4_orrery_s2_impact_annulus
         when: "= event.source == 'sel'"
@@ -447,7 +448,16 @@ presentation:
           - {t: 0, weight: 1.0}
         ends: [fx4_orrery_s2_impact_annulus, fx4_orrery_s2_impact_violet_flash]
         when: "= event.source == 'sel'"
-      - {op: plate, parent: fx4_orrery_s2_impact, face: {viewer: center}, sprite: glint, size: 0.8, color: "#9A63EE", brightness: 15, id: fx4_orrery_s2_impact_violet_flash, when: "= event.source == 'sel'"}
+      - op: plate
+        parent: fx4_orrery_s2_impact
+        face: {viewer: center}
+        sprite: glint
+        size: 0.8
+        color: "#9A63EE"
+        see_through: true
+        brightness: 15
+        id: fx4_orrery_s2_impact_violet_flash
+        when: "= event.source == 'sel'"
       - id: fx4_orrery_s2_impact_violet_flash_trk
         op: track
         target: fx4_orrery_s2_impact_violet_flash
@@ -474,6 +484,7 @@ presentation:
         frame_ticks: 2
         loop: true
         color: "#FFFFFF"
+        see_through: true
         brightness: 15
         id: fx5_orrery_s2_impact_long_annulus
         when: "= event.source == 'sel_2'"
@@ -501,6 +512,7 @@ presentation:
         sprite: glint
         size: 0.8
         color: "#9A63EE"
+        see_through: true
         brightness: 15
         id: fx5_orrery_s2_impact_long_violet_flash
         when: "= event.source == 'sel_2'"

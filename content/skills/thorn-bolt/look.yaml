@@ -1,8 +1,5 @@
 # Converted from content/skills/thorn-bolt.yaml + content/vfx/* by tools/skill-convert/convert.py (v1 archetype: projectile). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
 # Generated point-frame offsets are [left, up, forward] in the parent frame.
-# CONVERT-PRESENT projectile trail shape (emit has none) (x1): line
-# CONVERT-PRESENT particle animation line (angle / shape without a baked equivalent) (x1): {"amount": 4, "angle": "random", "jitter": 0.2, "length": 1.4, "points_per_segment": 3, "segments": 
-# CONVERT-PRESENT particle animation ring (angle / shape without a baked equivalent) (x1): {"angle": "random", "end_radius": 1.6, "period_ticks": 4, "points": 10, "start_radius": 0.3}
 apiVersion: "astera/v2"
 kind: Skill
 id: thorn-bolt
@@ -12,19 +9,219 @@ frames:
 presentation:
   timeline:
     - {id: fx0, at: 0, do: [{id: snd, op: sound, sound: "astera:skill/wand/cast", at: caster, volume: 0.9, pitch: 1.4}, {id: emit, op: emit, at: pt_caster_0_m0p2_1, particle: verdant-cast}]}
+    - id: fxhit_1
+      at: "hit+1"
+      do:
+        - id: emit_21
+          op: emit
+          at: pt_enemy_0_1_0
+          particle: composter
+          count: 0
+          speed: 0.04
+          times: 10
+          shift: "= draw_unit('shape_6_ax')*0 + plane_a(draw_unit('shape_6_ax'))*(0.7333*cos((draw('shape_6_ph')*6.283185307179586 + 6.283185307179586*i/10))) + plane_b(draw_unit('shape_6_ax'))*(0.7333*sin((draw('shape_6_ph')*6.283185307179586 + 6.283185307179586*i/10)))"
+          offset: "= plane_a(draw_unit('shape_6_ax'))*cos((draw('shape_6_ph')*6.283185307179586 + 6.283185307179586*i/10)) + plane_b(draw_unit('shape_6_ax'))*sin((draw('shape_6_ph')*6.283185307179586 + 6.283185307179586*i/10))"
+    - id: fxhit_2
+      at: "hit+2"
+      do:
+        - id: emit_22
+          op: emit
+          at: pt_enemy_0_1_0
+          particle: composter
+          count: 0
+          speed: 0.04
+          times: 10
+          shift: "= draw_unit('shape_6_ax')*0 + plane_a(draw_unit('shape_6_ax'))*(1.1667*cos((draw('shape_6_ph')*6.283185307179586 + 6.283185307179586*i/10))) + plane_b(draw_unit('shape_6_ax'))*(1.1667*sin((draw('shape_6_ph')*6.283185307179586 + 6.283185307179586*i/10)))"
+          offset: "= plane_a(draw_unit('shape_6_ax'))*cos((draw('shape_6_ph')*6.283185307179586 + 6.283185307179586*i/10)) + plane_b(draw_unit('shape_6_ax'))*sin((draw('shape_6_ph')*6.283185307179586 + 6.283185307179586*i/10))"
+    - id: fxhit_3
+      at: "hit+3"
+      do:
+        - id: emit_23
+          op: emit
+          at: pt_enemy_0_1_0
+          particle: composter
+          count: 0
+          speed: 0.04
+          times: 10
+          shift: "= draw_unit('shape_6_ax')*0 + plane_a(draw_unit('shape_6_ax'))*(1.6*cos((draw('shape_6_ph')*6.283185307179586 + 6.283185307179586*i/10))) + plane_b(draw_unit('shape_6_ax'))*(1.6*sin((draw('shape_6_ph')*6.283185307179586 + 6.283185307179586*i/10)))"
+          offset: "= plane_a(draw_unit('shape_6_ax'))*cos((draw('shape_6_ph')*6.283185307179586 + 6.283185307179586*i/10)) + plane_b(draw_unit('shape_6_ax'))*sin((draw('shape_6_ph')*6.283185307179586 + 6.283185307179586*i/10))"
     - {id: rep1, at: 0, every: 1, until: end, do: [{id: trail, op: emit, at: bolt, particle: happy_villager, count: 1, spacing: 0.3, offset: [0.08, 0.08, 0.08]}]}
     - {id: rep2, at: 0, every: 1, until: end, do: [{id: trail_2, op: emit, at: bolt, particle: composter, count: 2, spacing: 0.3, offset: [0.1, 0.1, 0.1]}]}
     - {id: rep3, at: 0, every: 1, until: end, do: [{id: trail_3, op: emit, at: bolt, particle: dust, count: 2, spacing: 0.3, offset: [0.08, 0.08, 0.08], data: "#46aa3c", data_size: 1.2}]}
-    - {id: rep4, at: 0, every: 1, until: end, do: [{id: trail_4, op: emit, at: bolt, particle: dust, count: 1, spacing: 0.3, data: "#287828", data_size: 0.9}]}
+    - id: rep4
+      at: 0
+      every: 1
+      until: end
+      do:
+        - id: trail_4
+          op: emit
+          at: bolt
+          particle: dust
+          count: 1
+          spacing: 0.3
+          data: "#287828"
+          data_size: 0.9
+          times: 2
+          shift: "= lerp(roll_unit('shape_ax')*0, roll_unit('shape_ax')*0.2333 + plane_a(roll_unit('shape_ax'))*roll('shape_v1a',-0.15,0.15) + plane_b(roll_unit('shape_ax'))*roll('shape_v1b',-0.15,0.15), i/2.0)"
+    - id: rep5
+      at: 0
+      every: 1
+      until: end
+      do:
+        - id: trail_5
+          op: emit
+          at: bolt
+          particle: dust
+          count: 1
+          spacing: 0.3
+          data: "#287828"
+          data_size: 0.9
+          times: 2
+          shift: "= lerp(roll_unit('shape_ax')*0.2333 + plane_a(roll_unit('shape_ax'))*roll('shape_v1a',-0.15,0.15) + plane_b(roll_unit('shape_ax'))*roll('shape_v1b',-0.15,0.15), roll_unit('shape_ax')*0.4667 + plane_a(roll_unit('shape_ax'))*roll('shape_v2a',-0.15,0.15) + plane_b(roll_unit('shape_ax'))*roll('shape_v2b',-0.15,0.15), i/2.0)"
+    - id: rep6
+      at: 0
+      every: 1
+      until: end
+      do:
+        - id: trail_6
+          op: emit
+          at: bolt
+          particle: dust
+          count: 1
+          spacing: 0.3
+          data: "#287828"
+          data_size: 0.9
+          times: 2
+          shift: "= lerp(roll_unit('shape_ax')*0.4667 + plane_a(roll_unit('shape_ax'))*roll('shape_v2a',-0.15,0.15) + plane_b(roll_unit('shape_ax'))*roll('shape_v2b',-0.15,0.15), roll_unit('shape_ax')*0.7, i/2.0)"
+    - {id: rep7, at: 0, every: 1, until: end, do: [{id: trail_7, op: emit, at: bolt, particle: dust, count: 1, spacing: 0.3, data: "#287828", data_size: 0.9, shift: "= roll_unit('shape_ax')*0.7"}]}
   "on":
     hit:
       - {id: snd_2, op: sound, sound: "astera:skills/nature-impact", at: enemy, volume: 1.0, pitch: 0.7}
       - {id: emit_2, op: emit, at: pt_enemy_0_1_0, particle: verdant-impact}
       - {id: emit_3, op: emit, at: pt_enemy_0_1_0, particle: verdant-impact-sparkle}
-      - {id: emit_4, op: emit, at: pt_enemy_0_1_0, particle: dust, count: 1, data: "#3c9632", data_size: 1.2}
-      - {id: emit_5, op: emit, at: pt_enemy_0_1_0, particle: composter, count: 0, speed: 0.04}
+      - id: emit_4
+        op: emit
+        at: pt_enemy_0_1_0
+        particle: dust
+        count: 1
+        data: "#3c9632"
+        data_size: 1.2
+        times: 3
+        shift: "= lerp(draw_unit('shape_2_ax')*0, draw_unit('shape_2_ax')*0.4667 + plane_a(draw_unit('shape_2_ax'))*roll('shape_2_v1a',-0.2,0.2) + plane_b(draw_unit('shape_2_ax'))*roll('shape_2_v1b',-0.2,0.2), i/3.0)"
+      - id: emit_5
+        op: emit
+        at: pt_enemy_0_1_0
+        particle: dust
+        count: 1
+        data: "#3c9632"
+        data_size: 1.2
+        times: 3
+        shift: "= lerp(draw_unit('shape_2_ax')*0.4667 + plane_a(draw_unit('shape_2_ax'))*roll('shape_2_v1a',-0.2,0.2) + plane_b(draw_unit('shape_2_ax'))*roll('shape_2_v1b',-0.2,0.2), draw_unit('shape_2_ax')*0.9333 + plane_a(draw_unit('shape_2_ax'))*roll('shape_2_v2a',-0.2,0.2) + plane_b(draw_unit('shape_2_ax'))*roll('shape_2_v2b',-0.2,0.2), i/3.0)"
+      - id: emit_6
+        op: emit
+        at: pt_enemy_0_1_0
+        particle: dust
+        count: 1
+        data: "#3c9632"
+        data_size: 1.2
+        times: 3
+        shift: "= lerp(draw_unit('shape_2_ax')*0.9333 + plane_a(draw_unit('shape_2_ax'))*roll('shape_2_v2a',-0.2,0.2) + plane_b(draw_unit('shape_2_ax'))*roll('shape_2_v2b',-0.2,0.2), draw_unit('shape_2_ax')*1.4, i/3.0)"
+      - {id: emit_7, op: emit, at: pt_enemy_0_1_0, particle: dust, count: 1, data: "#3c9632", data_size: 1.2, shift: "= draw_unit('shape_2_ax')*1.4"}
+      - id: emit_8
+        op: emit
+        at: pt_enemy_0_1_0
+        particle: dust
+        count: 1
+        data: "#3c9632"
+        data_size: 1.2
+        times: 3
+        shift: "= lerp(draw_unit('shape_3_ax')*0, draw_unit('shape_3_ax')*0.4667 + plane_a(draw_unit('shape_3_ax'))*roll('shape_3_v1a',-0.2,0.2) + plane_b(draw_unit('shape_3_ax'))*roll('shape_3_v1b',-0.2,0.2), i/3.0)"
+      - id: emit_9
+        op: emit
+        at: pt_enemy_0_1_0
+        particle: dust
+        count: 1
+        data: "#3c9632"
+        data_size: 1.2
+        times: 3
+        shift: "= lerp(draw_unit('shape_3_ax')*0.4667 + plane_a(draw_unit('shape_3_ax'))*roll('shape_3_v1a',-0.2,0.2) + plane_b(draw_unit('shape_3_ax'))*roll('shape_3_v1b',-0.2,0.2), draw_unit('shape_3_ax')*0.9333 + plane_a(draw_unit('shape_3_ax'))*roll('shape_3_v2a',-0.2,0.2) + plane_b(draw_unit('shape_3_ax'))*roll('shape_3_v2b',-0.2,0.2), i/3.0)"
+      - id: emit_10
+        op: emit
+        at: pt_enemy_0_1_0
+        particle: dust
+        count: 1
+        data: "#3c9632"
+        data_size: 1.2
+        times: 3
+        shift: "= lerp(draw_unit('shape_3_ax')*0.9333 + plane_a(draw_unit('shape_3_ax'))*roll('shape_3_v2a',-0.2,0.2) + plane_b(draw_unit('shape_3_ax'))*roll('shape_3_v2b',-0.2,0.2), draw_unit('shape_3_ax')*1.4, i/3.0)"
+      - {id: emit_11, op: emit, at: pt_enemy_0_1_0, particle: dust, count: 1, data: "#3c9632", data_size: 1.2, shift: "= draw_unit('shape_3_ax')*1.4"}
+      - id: emit_12
+        op: emit
+        at: pt_enemy_0_1_0
+        particle: dust
+        count: 1
+        data: "#3c9632"
+        data_size: 1.2
+        times: 3
+        shift: "= lerp(draw_unit('shape_4_ax')*0, draw_unit('shape_4_ax')*0.4667 + plane_a(draw_unit('shape_4_ax'))*roll('shape_4_v1a',-0.2,0.2) + plane_b(draw_unit('shape_4_ax'))*roll('shape_4_v1b',-0.2,0.2), i/3.0)"
+      - id: emit_13
+        op: emit
+        at: pt_enemy_0_1_0
+        particle: dust
+        count: 1
+        data: "#3c9632"
+        data_size: 1.2
+        times: 3
+        shift: "= lerp(draw_unit('shape_4_ax')*0.4667 + plane_a(draw_unit('shape_4_ax'))*roll('shape_4_v1a',-0.2,0.2) + plane_b(draw_unit('shape_4_ax'))*roll('shape_4_v1b',-0.2,0.2), draw_unit('shape_4_ax')*0.9333 + plane_a(draw_unit('shape_4_ax'))*roll('shape_4_v2a',-0.2,0.2) + plane_b(draw_unit('shape_4_ax'))*roll('shape_4_v2b',-0.2,0.2), i/3.0)"
+      - id: emit_14
+        op: emit
+        at: pt_enemy_0_1_0
+        particle: dust
+        count: 1
+        data: "#3c9632"
+        data_size: 1.2
+        times: 3
+        shift: "= lerp(draw_unit('shape_4_ax')*0.9333 + plane_a(draw_unit('shape_4_ax'))*roll('shape_4_v2a',-0.2,0.2) + plane_b(draw_unit('shape_4_ax'))*roll('shape_4_v2b',-0.2,0.2), draw_unit('shape_4_ax')*1.4, i/3.0)"
+      - {id: emit_15, op: emit, at: pt_enemy_0_1_0, particle: dust, count: 1, data: "#3c9632", data_size: 1.2, shift: "= draw_unit('shape_4_ax')*1.4"}
+      - id: emit_16
+        op: emit
+        at: pt_enemy_0_1_0
+        particle: dust
+        count: 1
+        data: "#3c9632"
+        data_size: 1.2
+        times: 3
+        shift: "= lerp(draw_unit('shape_5_ax')*0, draw_unit('shape_5_ax')*0.4667 + plane_a(draw_unit('shape_5_ax'))*roll('shape_5_v1a',-0.2,0.2) + plane_b(draw_unit('shape_5_ax'))*roll('shape_5_v1b',-0.2,0.2), i/3.0)"
+      - id: emit_17
+        op: emit
+        at: pt_enemy_0_1_0
+        particle: dust
+        count: 1
+        data: "#3c9632"
+        data_size: 1.2
+        times: 3
+        shift: "= lerp(draw_unit('shape_5_ax')*0.4667 + plane_a(draw_unit('shape_5_ax'))*roll('shape_5_v1a',-0.2,0.2) + plane_b(draw_unit('shape_5_ax'))*roll('shape_5_v1b',-0.2,0.2), draw_unit('shape_5_ax')*0.9333 + plane_a(draw_unit('shape_5_ax'))*roll('shape_5_v2a',-0.2,0.2) + plane_b(draw_unit('shape_5_ax'))*roll('shape_5_v2b',-0.2,0.2), i/3.0)"
+      - id: emit_18
+        op: emit
+        at: pt_enemy_0_1_0
+        particle: dust
+        count: 1
+        data: "#3c9632"
+        data_size: 1.2
+        times: 3
+        shift: "= lerp(draw_unit('shape_5_ax')*0.9333 + plane_a(draw_unit('shape_5_ax'))*roll('shape_5_v2a',-0.2,0.2) + plane_b(draw_unit('shape_5_ax'))*roll('shape_5_v2b',-0.2,0.2), draw_unit('shape_5_ax')*1.4, i/3.0)"
+      - {id: emit_19, op: emit, at: pt_enemy_0_1_0, particle: dust, count: 1, data: "#3c9632", data_size: 1.2, shift: "= draw_unit('shape_5_ax')*1.4"}
+      - id: emit_20
+        op: emit
+        at: pt_enemy_0_1_0
+        particle: composter
+        count: 0
+        speed: 0.04
+        times: 10
+        shift: "= draw_unit('shape_6_ax')*0 + plane_a(draw_unit('shape_6_ax'))*(0.3*cos((draw('shape_6_ph')*6.283185307179586 + 6.283185307179586*i/10))) + plane_b(draw_unit('shape_6_ax'))*(0.3*sin((draw('shape_6_ph')*6.283185307179586 + 6.283185307179586*i/10)))"
+        offset: "= plane_a(draw_unit('shape_6_ax'))*cos((draw('shape_6_ph')*6.283185307179586 + 6.283185307179586*i/10)) + plane_b(draw_unit('shape_6_ax'))*sin((draw('shape_6_ph')*6.283185307179586 + 6.283185307179586*i/10))"
     block:
       - {id: snd_3, op: sound, sound: "astera:skills/nature-impact", at: contact.point, volume: 0.8, pitch: 0.8}
-      - {id: emit_6, op: emit, at: contact.point, particle: verdant-impact}
+      - {id: emit_24, op: emit, at: contact.point, particle: verdant-impact}
     expire:
-      - {id: emit_7, op: emit, at: contact.point, particle: verdant-impact-sparkle}
+      - {id: emit_25, op: emit, at: contact.point, particle: verdant-impact-sparkle}

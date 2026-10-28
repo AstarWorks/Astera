@@ -175,7 +175,7 @@ public class MotionComposer(
     }
 
     private fun frameEnv(base: ExprEnv, velocity: Vec3): ExprEnv =
-        if (velocity.lengthSquared() > 0.0) ExprEnv(base.variables + ("velocity" to ExprValue.Vec3(velocity)), base.frames, base.seed, base.host) else base
+        if (velocity.lengthSquared() > 0.0) ExprEnv(base.variables + ("velocity" to ExprValue.Vec3(velocity)), base.frames, base.seed, base.host, base.castSeed, base.sample) else base
 
     private class Ctx(
         override val tick: Int,

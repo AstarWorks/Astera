@@ -6,7 +6,7 @@ import com.astarworks.astera.core.domain.skillengine.model.TimelineAt
 /** Structural rules of the frozen grammar: which keys each level accepts. */
 internal object SectionRules {
     val SKILL_KEYS = setOf("id", "item", "importance", "meta", "frames", "gameplay", "presentation", "_patch")
-    val FRAME_KEYS = setOf("id", "kind", "parent", "model", "part", "offset", "inactive")
+    val FRAME_KEYS = setOf("id", "kind", "parent", "model", "part", "offset", "inactive", "orient", "scale")
     val GAMEPLAY_KEYS = setOf("params", "expose", "timeline", "on")
     val PRESENTATION_KEYS = setOf("params", "body_anim", "timeline", "on")
     val EXPOSE_KEYS = setOf("id", "param", "min", "max")

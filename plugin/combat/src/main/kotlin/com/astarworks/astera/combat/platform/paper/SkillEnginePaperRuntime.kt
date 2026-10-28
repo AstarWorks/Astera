@@ -111,7 +111,8 @@ internal class SkillEnginePaperRuntime(
         val visuals = PaperSkillVisualGateway(server, displays, tables, spriteInfo = { id ->
             sprites?.find(com.astarworks.astera.core.domain.sprite.SpriteId(id))?.let { com.astarworks.astera.core.application.skillengine.runtime.port.SpriteInfo(it.frames, it.size) }
                 ?: error("skill engine: sprite '$id' is not registered")
-        }, presentation = { services.get<com.astarworks.astera.core.application.port.outbound.presentation.IPlayerPresentation>() })
+        }, presentation = { services.get<com.astarworks.astera.core.application.port.outbound.presentation.IPlayerPresentation>() },
+            messages = { services.get<com.astarworks.astera.core.application.port.outbound.IMessageRenderer>() })
         visualGateway = visuals
         val orphans = visuals.sweepOrphans()
         if (orphans > 0) log.info("skill engine v2 removed {} orphaned ribbon displays left by an earlier run", orphans)
@@ -277,6 +278,8 @@ internal class SkillEnginePaperRuntime(
         }
     }
 
+    private var castSequence = 0L
+
     private fun onSkillCast(
         kit: SkillEngineKit,
         find: (String) -> com.astarworks.astera.core.application.skillengine.load.CompiledSkill?,
@@ -302,7 +305,8 @@ internal class SkillEnginePaperRuntime(
             casterFeet = Vec3(loc.x, loc.y, loc.z),
             casterYawDeg = loc.yaw.toDouble(),
             casterPitchDeg = loc.pitch.toDouble(),
-            seed = event.atTick xor event.caster.uuid.leastSignificantBits,
+            // Per cast: tick and caster tell casts apart, the counter separates two casts of one caster in the same tick.
+            seed = (event.atTick xor event.caster.uuid.leastSignificantBits) xor (castSequence++ * -0x61c8864680b583ebL),
             startTick = scheduler.currentTick().toInt(),
         )
         val result = kit.runner.start(request)

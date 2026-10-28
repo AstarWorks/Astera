@@ -28,7 +28,7 @@ import kotlin.reflect.KClass
 
 /** All presentation executors, bound to one [PresentationRuntime]. The manager registers them. */
 public fun presentationExecutors(rt: PresentationRuntime): List<OpExecutor<*>> = listOf(
-    MeshExecutor(rt), PlateExecutor(rt), BlockExecutor(rt), QuadExecutor(rt), LineExecutor(rt), TrailExecutor(rt), TrackExecutor(rt), AnchorExecutor(rt), PullExecutor(rt), RemoveExecutor(rt),
+    MeshExecutor(rt), PlateExecutor(rt), BlockExecutor(rt), QuadExecutor(rt), TextExecutor(rt), LineExecutor(rt), TrailExecutor(rt), TrackExecutor(rt), AnchorExecutor(rt), PullExecutor(rt), RemoveExecutor(rt),
     RigExecutor(rt), EmitExecutor(rt), SoundExecutor(rt),
     VictimAnimExecutor(rt), CasterAnimExecutor(rt),
     TitleExecutor(rt), ActionBarExecutor(rt), CameraShakeExecutor(rt), FlashExecutor(rt), VeilExecutor(rt), StopSoundExecutor(rt),
@@ -83,8 +83,7 @@ internal class PlateExecutor(private val rt: PresentationRuntime) : OpExecutor<V
                 op.at?.let { ctx.values.vec3(it) } ?: Vec3.ZERO, op.turn?.let { turn(ctx.values.vec3(it)) } ?: Quaternion.IDENTITY,
             )
             val pose = rt.spawnNode(s, live, par) ?: run { ctx.host.fail(op.id, "plate: parent frame '$par' is not in the frame tree"); return@repeated null }
-            live.handle = ctx.ports.visuals.spawnPlate(rt.info.owner(ctx.cast), op.sprite, ctx.values.num(op.alpha), pose.copy(lane = op.lane), op.brightness)
-            if (tint != null) ctx.ports.visuals.setPlateFrame(live.handle, 0, tint)
+            live.handle = ctx.ports.visuals.spawnPlate(rt.info.owner(ctx.cast), op.sprite, ctx.values.num(op.alpha), tint, op.seeThrough, pose.copy(lane = op.lane), op.brightness)
             rt.register(s, live)
             live
         }
@@ -125,6 +124,32 @@ internal class QuadExecutor(private val rt: PresentationRuntime) : OpExecutor<Vi
             val pose = rt.spawnNode(s, live, par) ?: run { ctx.host.fail(op.id, "quad: parent frame '$par' is not in the frame tree"); return@repeated null }
             live.handle = ctx.ports.visuals.spawnQuad(
                 rt.info.owner(ctx.cast), ctx.values.text(op.color), ctx.values.num(op.alpha), op.text, op.shadow, op.seeThrough, pose.copy(lane = op.lane), op.brightness,
+            )
+            rt.register(s, live)
+            live
+        }
+    }
+}
+
+internal class TextExecutor(private val rt: PresentationRuntime) : OpExecutor<VisualOp.Text> {
+    override val opClass: KClass<VisualOp.Text> = VisualOp.Text::class
+    override fun execute(op: VisualOp.Text, ctx: OpContext) {
+        if (!ctx.passes(op)) return
+        val s = rt.state(ctx)
+        rt.repeated(s, ctx, op.id, op.parent, op.repeat) { id, parent ->
+            val par = parent ?: op.parent
+            val live = PresentationRuntime.Live.Quad(
+                id, par, op.face, ctx.values.vec3(op.size), rt.billboardOf(s, op.face, par),
+                op.at?.let { ctx.values.vec3(it) } ?: Vec3.ZERO, op.turn?.let { turn(ctx.values.vec3(it)) } ?: Quaternion.IDENTITY,
+            )
+            val pose = rt.spawnNode(s, live, par) ?: run { ctx.host.fail(op.id, "text: parent frame '$par' is not in the frame tree"); return@repeated null }
+            // v1 WorldMechanics.display (:459-478) spawns at most MAX_DISPLAYS_PER_CAST (:631) displays per cast
+            if (s.textSpawned >= PresentationRuntime.MAX_TEXT_PER_CAST) { ctx.host.fail(op.id, "text: more than ${PresentationRuntime.MAX_TEXT_PER_CAST} text displays in one cast"); return@repeated null }
+            s.textSpawned++
+            val owner = rt.info.owner(ctx.cast)
+            val markup = if (op.textByLocale.isEmpty()) op.text else ctx.ports.visuals.localize(owner, op.textByLocale)
+            live.handle = ctx.ports.visuals.spawnText(
+                owner, markup, ctx.values.text(op.background), ctx.values.num(op.backgroundAlpha), op.shadow, op.seeThrough, pose, op.brightness,
             )
             rt.register(s, live)
             live
@@ -227,7 +252,6 @@ internal class EmitExecutor(private val rt: PresentationRuntime) : OpExecutor<Fx
 
     private fun emitOnce(op: FxOp.Emit, ctx: OpContext, s: PresentationRuntime.CastState) {
         val base = rt.pointWorld(s, op.at) ?: return ctx.host.fail(op.id, "emit: point '${op.at}' does not resolve")
-        val at = op.shift?.let { sh -> rt.frameWorld(s, op.at.frame)?.let { base + it.directionToWorld(ctx.values.vec3(sh)) } } ?: base
         val inherit = op.inheritVelocity?.let { ctx.values.num(it) }
         val count = op.count?.let { ctx.values.num(it).roundToInt().coerceAtLeast(0) }
         val dir = op.dir?.let { ctx.values.vec3(it) }
@@ -237,7 +261,6 @@ internal class EmitExecutor(private val rt: PresentationRuntime) : OpExecutor<Fx
         val colorHex = op.data?.let { ctx.values.text(it) }
         val dataSize = op.dataSize?.let { ctx.values.num(it) }
         val seed = ctx.cast.value * 31L + (op.seed ?: op.id).hashCode().toLong()
-        val offset = op.offset?.let { ctx.values.vec3(it) } ?: Vec3(0.0, 0.0, 0.0)
         val look = ctx.host.lookDirection()
         val spacing = op.spacing?.let { ctx.values.num(it) } ?: 0.0
         val sweep = if (spacing > 0.0) rt.velocityOf(s, op.at.frame) else Vec3(0.0, 0.0, 0.0)
@@ -245,14 +268,19 @@ internal class EmitExecutor(private val rt: PresentationRuntime) : OpExecutor<Fx
         // One play per `spacing` blocks along the segment covered since the last tick, ending at `at`.
         val steps = if (distance > spacing && spacing > 0.0) kotlin.math.ceil(distance / spacing).toInt() else 1
         for (i in 1..steps) {
-            val where = if (steps == 1) at else at - sweep * (1.0 - i.toDouble() / steps)
-            ctx.ports.particles.emit(
-                ParticleBurst(
-                    particle = op.particle, at = where, count = count, offset = offset, speed = speed,
-                    colorHex = colorHex, dataSize = dataSize, dir = dir, spreadDeg = spreadDeg,
-                    inheritVelocity = inheritVelocity, look = look, seed = seed + (i - 1),
-                ),
-            )
+            // shift / offset are evaluated per play (v1 re-planned its shape per sample), so `rand` re-rolls per sample
+            ctx.host.withSample(i - 1) {
+                val at = op.shift?.let { sh -> rt.frameWorld(s, op.at.frame)?.let { base + it.directionToWorld(ctx.values.vec3(sh)) } } ?: base
+                val offset = op.offset?.let { ctx.values.vec3(it) } ?: Vec3(0.0, 0.0, 0.0)
+                val where = if (steps == 1) at else at - sweep * (1.0 - i.toDouble() / steps)
+                ctx.ports.particles.emit(
+                    ParticleBurst(
+                        particle = op.particle, at = where, count = count, offset = offset, speed = speed,
+                        colorHex = colorHex, dataSize = dataSize, dir = dir, spreadDeg = spreadDeg,
+                        inheritVelocity = inheritVelocity, look = look, seed = seed + (i - 1),
+                    ),
+                )
+            }
         }
     }
 }

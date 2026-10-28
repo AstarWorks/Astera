@@ -108,7 +108,13 @@ public class PlaceOpExecutor : OpExecutor<FrameOp.Place> {
         }
         val like = worldOrFail(ctx, op.id, FrameId(op.like)) ?: return
         val offset = op.offset?.let { ctx.values.vec3(it) } ?: ORIGIN
-        val target = Frame(like.toWorld(offset), like.rotation)
+        val origin = like.toWorld(offset)
+        val orient = op.orient
+        val rotation = if (orient == null) like.rotation else {
+            val look = worldOrFail(ctx, op.id, FrameId(orient.look)) ?: return
+            orient.rotation(origin, look, ctx.tree.worldOf(FrameId(orient.reference)).getOrNull())
+        }
+        val target = Frame(origin, rotation)
         val parentWorld = ctx.tree.worldOrIdentity(node.parent)
         if (parentWorld == null) {
             ctx.host.fail(op.id, "place: parent of '${op.frame}' has no world pose")
