@@ -70,7 +70,13 @@ public fun movementExecutors(host: MovementHost, movement: ISkillMovementGateway
     object : MovementExecutor<MovementOp.Teleport>(MovementOp.Teleport::class, host, movement) {
         override fun execute(op: MovementOp.Teleport, ctx: OpContext) {
             val to = host.location(ctx, op.destination) ?: return
-            for (t in living(ctx, op.target)) movement.teleport(t, to, null)
+            // v1 Teleport (MechanicDispatcher.kt:741-748) moves dead or alive targets; a firing bound to a victim / area
+            // target stops once that target is dead, gone or in another world (fireChecked, MD:502-511).
+            val bound = op.target != TargetRef.Caster
+            for (t in host.targets(ctx, op.target)) {
+                if (bound && !(movement.isAlive(t) && movement.isInWorld(t, ctx.world))) continue
+                movement.teleport(t, to, null)
+            }
         }
     },
     object : MovementExecutor<MovementOp.Leap>(MovementOp.Leap::class, host, movement) {

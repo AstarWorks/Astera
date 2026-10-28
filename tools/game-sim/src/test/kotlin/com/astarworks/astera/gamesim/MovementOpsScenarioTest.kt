@@ -60,6 +60,7 @@ class MovementOpsScenarioTest {
     private class World {
         val feet = HashMap<UUID, Vec3>()
         val alive = HashSet<UUID>()
+        val elsewhere = HashSet<UUID>()
         var casterYaw = 0.0
         var solidFromZ: Double? = null
         val velocities = HashMap<UUID, Vec3>()
@@ -95,6 +96,7 @@ class MovementOpsScenarioTest {
     override fun lockMovement(entity: UUID, speedFactor: Double) {}
     override fun unlockMovement(entity: UUID) {}
             override fun isAlive(entity: UUID) = entity in w.alive
+            override fun isInWorld(entity: UUID, world: com.astarworks.astera.core.domain.world.WorldId) = entity in w.feet && entity !in w.elsewhere
             override fun setVelocity(entity: UUID, velocity: Vec3) { w.velocities[entity] = velocity }
             override fun addVelocity(entity: UUID, delta: Vec3) { w.added += entity to delta }
             override fun teleport(entity: UUID, to: Vec3, yawDeg: Double?): Boolean {
@@ -287,6 +289,33 @@ class MovementOpsScenarioTest {
 
         run(e, driver, MovementOp.Teleport("t", null, TargetRef.Caster, LocationSpec.AtValue(literal(Vec3(1.0, 2.0, 3.0)))))
         assertThat(w.teleports.last()).isEqualTo(Vec3(1.0, 2.0, 3.0))
+    }
+
+    @Test
+    fun `teleport moves a dead caster but stops on a bound victim that is dead or in another world`() {
+        val (e, driver, w) = setup()
+        val dest = LocationSpec.AtValue(literal(Vec3(1.0, 2.0, 3.0)))
+        // v1 Teleport (MechanicDispatcher.kt:741-748) does not look at life: a dead caster is still moved.
+        w.alive -= caster
+        run(e, driver, MovementOp.Teleport("t", null, TargetRef.Caster, dest))
+        assertThat(w.feet.getValue(caster)).isEqualTo(Vec3(1.0, 2.0, 3.0))
+
+        // A firing bound to a victim stops once the victim is dead (fireChecked, MD:502-511) ...
+        w.feet[enemyA] = Vec3(5.0, 0.0, 5.0)
+        w.alive += enemyA
+        w.victim = enemyA
+        run(e, driver, MovementOp.Teleport("t2", null, TargetRef.Victim, dest))
+        assertThat(w.feet.getValue(enemyA)).isEqualTo(Vec3(1.0, 2.0, 3.0))
+        w.feet[enemyA] = Vec3(5.0, 0.0, 5.0)
+        w.alive -= enemyA
+        run(e, driver, MovementOp.Teleport("t3", null, TargetRef.Victim, dest))
+        assertThat(w.feet.getValue(enemyA)).isEqualTo(Vec3(5.0, 0.0, 5.0))
+
+        // ... or has changed world.
+        w.alive += enemyA
+        w.elsewhere += enemyA
+        run(e, driver, MovementOp.Teleport("t4", null, TargetRef.Victim, dest))
+        assertThat(w.feet.getValue(enemyA)).isEqualTo(Vec3(5.0, 0.0, 5.0))
     }
 
     @Test
