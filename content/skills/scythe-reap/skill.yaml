@@ -1,19 +1,33 @@
-# Converted from content/skills/scythe-reap.yaml by tools/skill-convert/convert.py (v1 archetype: melee). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
-# Generated point-frame offsets are [left, up, forward] in the parent frame.
-# CONVERT-V1-NOOP melee params.knockback (x1): knockback: 0.3 (v1 MeleeHandler ignores it; the plain-hit push is the combat pipeline's)
-apiVersion: "astera/v2"
+# astera/v3 hand port of the v2 skill.yaml + look.yaml (tick for tick).
+# GAP: gameplay.expose [damage <- dmg_physical, range <- range] -> none (no v3 spelling; the numbers are inline below)
+apiVersion: astera/v3
 kind: Skill
 id: scythe-reap
 item: scythe
 meta: {name: {ja: "刈り取り", en: "Scythe Reap"}, description: {ja: "半円状に刈り取る。", en: "A wide reaping arc."}, cooldown_ticks: 16, resource_cost: 8, tags: [melee, physical]}
-gameplay:
-  params: {arc_deg: 180.0, range: 3.4, dmg_physical: 28.0}
-  expose:
-    - {id: damage, param: dmg_physical}
-    - {id: range, param: range}
-  timeline:
-    - id: t0
-      at: 0
+anchors:
+  - {id: eye,   anchor: caster.eye}
+  - {id: sweep, anchor: caster.eye, offset: {up: -0.2, forward: 1.5}}   # was pt_aim_0_m0p2_1p5
+  - {id: heart, anchor: victim, offset: {up: 1.2}}                       # was pt_enemy_0_1p2_0 (enemy frame)
+machine:
+  start: cast
+  states:
+    cast:
+      for: 1
+      then: end
       do:
-        - {id: swing, op: hit, frames: [caster], sector: {frame: caster, at: eye, forward: caster.forward, left: caster.left, angle_deg: "${arc_deg}", range: "${range}", height: 2.0}, window: once, ticks: 1}
-  "on": {hit: [{id: dmg, op: damage, target: victim, components: [{kind: physical, amount: "${dmg_physical}"}], when: "= event.source == 'swing'"}]}
+        - {id: snd, op: sound, sound: entity.player.attack.sweep, anchor: caster, volume: 1.0, pitch: 1.0}
+        - {id: fx, op: particle_def, def: slash-sweep, anchor: sweep}
+        - id: swing
+          op: hit
+          at: 0
+          anchor: eye
+          shape: {sector: {deg: 180.0, range: 3.4, height: 2.0}}
+          targets: enemies
+          damage: {physical: 28.0}
+          # GAP: inline `on: hit` handler on a hit op is not in ADR 10.1b (closest: projectile on: 3.6)
+          on:
+            hit:
+              - {id: snd_hit, op: sound, sound: "astera:weapons/blade-hit", anchor: victim, volume: 0.7, pitch: 1.2}
+              - {id: fx_hit, op: particle_def, def: hit-spark, anchor: heart}
+    end: {final: true}

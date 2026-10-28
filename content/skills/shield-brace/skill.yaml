@@ -1,8 +1,20 @@
-# Converted from content/skills/shield-brace.yaml by tools/skill-convert/convert.py (v1 archetype: buff). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
-# Generated point-frame offsets are [left, up, forward] in the parent frame.
-apiVersion: "astera/v2"
+# astera/v3 hand port of the v2 skill.yaml + look.yaml (tick for tick).
+# GAP: gameplay.expose [duration <- poise_ticks] -> none (no v3 spelling; the number is inline below)
+apiVersion: astera/v3
 kind: Skill
 id: shield-brace
 item: shield-bulwark
 meta: {name: {ja: "防御姿勢", en: Brace}, description: {ja: "構えを固め、しばらく踏ん張る。", en: "Plants your feet and braces for a while."}, cooldown_ticks: 180, resource_cost: 0, tags: [support, defense]}
-gameplay: {params: {poise_ticks: 160}, expose: [{id: duration, param: poise_ticks}], timeline: [{id: t0, at: 0, do: [{id: buff, op: status, target: caster, status: poise, duration_ticks: "${poise_ticks}"}]}]}
+anchors:
+  - {id: chest, anchor: caster, offset: {up: 1.0}}   # was pt_caster_0_1_0
+machine:
+  start: cast
+  states:
+    cast:
+      for: 1
+      then: end
+      do:
+        - {id: buff, op: status, target: caster, status: poise, stacks: 1, for: 160}
+        - {id: snd, op: sound, sound: item.shield.block, anchor: caster, volume: 1.0, pitch: 1.2}
+        - {id: fx, op: particle_def, def: hit-spark, anchor: chest}
+    end: {final: true}

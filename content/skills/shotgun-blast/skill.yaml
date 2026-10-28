@@ -1,7 +1,6 @@
-# Converted from content/skills/shotgun-blast.yaml by tools/skill-convert/convert.py (v1 archetype: melee). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
-# Generated point-frame offsets are [left, up, forward] in the parent frame.
-# CONVERT-V1-NOOP melee params.knockback (x1): knockback: 0.9 (v1 MeleeHandler ignores it; the plain-hit push is the combat pipeline's)
-apiVersion: "astera/v2"
+# astera/v3 hand port of the v2 skill.yaml + look.yaml (tick for tick).
+# GAP: gameplay.expose [damage <- dmg_physical, range <- range] -> none (no v3 spelling; the numbers are inline below)
+apiVersion: astera/v3
 kind: Skill
 id: shotgun-blast
 item: shotgun
@@ -11,15 +10,34 @@ meta:
   cooldown_ticks: 20
   resource_cost: 1
   tags: [ranged, gun, burst]
-gameplay:
-  params: {arc_deg: 50.0, range: 6.0, dmg_physical: 25.0}
-  expose:
-    - {id: damage, param: dmg_physical}
-    - {id: range, param: range}
-  timeline:
-    - id: t0
-      at: 0
+anchors:
+  - {id: eye,    anchor: caster.eye}
+  - {id: aim,    anchor: caster.eye}                                      # the v2 `aim` frame, origin of break_area
+  - {id: muzzle, anchor: caster.eye, offset: {up: -0.25, forward: 1.2}}   # was pt_aim_0_m0p25_1p2
+  - {id: cone,   anchor: caster.eye, offset: {up: -0.2, forward: 2.4}}    # was pt_aim_0_m0p2_2p4
+  - {id: heart,  anchor: victim, offset: {up: 1.2}}                       # was pt_enemy_0_1p2_0 (enemy frame)
+machine:
+  start: cast
+  states:
+    cast:
+      for: 1
+      then: end
       do:
-        - {id: swing, op: hit, frames: [caster], sector: {frame: caster, at: eye, forward: caster.forward, left: caster.left, angle_deg: "${arc_deg}", range: "${range}", height: 2.0}, window: once, ticks: 1}
-        - {op: break_area, shape: ray, radius: 0.5, block_damage: 30, breaks: true, staged: false, length: 4.0, id: chip, at: aim}
-  "on": {hit: [{id: dmg, op: damage, target: victim, components: [{kind: physical, amount: "${dmg_physical}"}], when: "= event.source == 'swing'"}]}
+        - {id: snd, op: sound, sound: "astera:weapons/shotgun-blast", anchor: caster, volume: 0.6, pitch: 1.4}
+        - {id: fx, op: particle_def, def: shotgun-muzzle, anchor: muzzle}
+        - {id: fx_2, op: particle_def, def: shotgun-cone-smoke, anchor: cone}
+        - id: swing
+          op: hit
+          at: 0
+          anchor: eye
+          shape: {sector: {deg: 50.0, range: 6.0, height: 2.0}}
+          targets: enemies
+          damage: {physical: 25.0}
+          # GAP: inline `on: hit` handler on a hit op is not in ADR 10.1b (closest: projectile on: 3.6)
+          on:
+            hit:
+              - {id: snd_hit, op: sound, sound: "astera:weapons/gun-impact", anchor: victim}
+              - {id: fx_hit, op: particle_def, def: gun-impact, anchor: heart}
+        # GAP: op break_area has no v3 spelling in ADR-0303 -> none; v2 fields carried verbatim, v2 `at: aim` (a frame) is written `anchor: aim`
+        - {id: chip, op: break_area, at: 0, shape: ray, radius: 0.5, block_damage: 30, breaks: true, staged: false, length: 4.0, anchor: aim}
+    end: {final: true}
