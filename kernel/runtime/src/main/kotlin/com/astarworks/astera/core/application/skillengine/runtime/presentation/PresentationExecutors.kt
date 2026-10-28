@@ -196,6 +196,7 @@ internal class AnchorExecutor(private val rt: PresentationRuntime) : OpExecutor<
         }
         ctx.tree.setLocal(FrameId(op.frame), relativeTo(parentWorld, target))
         op.teleportTicks?.let { s.teleports[op.frame] = it } ?: s.teleports.remove(op.frame)
+        op.movingTeleportTicks?.let { s.movingTeleports[op.frame] = it } ?: s.movingTeleports.remove(op.frame)
         if (op.follow) s.anchors[op.frame] = PresentationRuntime.AnchorFollow(op, target.rotation) else s.anchors.remove(op.frame)
     }
 }

@@ -1048,6 +1048,9 @@ class Conv:
         if follow:
             # a followed effect teleports its non-passenger displays every tick over follow_teleport_ticks (default 2), VfxPlayer.kt:416-419
             anchor["teleport_ticks"] = int(d.get("follow_teleport_ticks", 2))
+            if "follow_teleport_ticks" in d:
+                # only an explicit value reaches a display a track moves (VfxPlayer.kt:442: plan.followTeleportTicks is null otherwise)
+                anchor["moving_teleport_ticks"] = int(d["follow_teleport_ticks"])
         # v1 tilts only a plain yaw-oriented effect; a performance (body or a weapon rig) never pitches (VfxPlayer.kt:243)
         performance = d.get("body") is not None or any(r.get("weapon") for r in d.get("rigs", []))
         if d.get("follow_pitch") and name == "yaw" and not performance:

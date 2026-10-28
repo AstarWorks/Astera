@@ -161,6 +161,9 @@ public class PresentationRuntime(
 
         /** Anchor frame -> `teleport_duration` of the displays under it (see [VisualOp.Anchor.teleportTicks]). */
         val teleports = HashMap<String, Int>()
+
+        /** Anchor frame -> explicit `follow_teleport_ticks` of the displays a track moves under it (see [VisualOp.Anchor.movingTeleportTicks]). */
+        val movingTeleports = HashMap<String, Int>()
         val lastOrigin = HashMap<String, Vec3>()
         val velocity = HashMap<String, Vec3>()
         val watched = LinkedHashSet<String>()
@@ -480,9 +483,16 @@ public class PresentationRuntime(
      */
     private fun put(visuals: ISkillVisualGateway, l: Live, pose: VisualPose, ticks: Int) {
         val last = l.shown
-        if (last == pose) return
-        l.shown = pose
-        visuals.write(l.handle, pose, if (last == null) 0 else ticks)
+        // v1 spawns a display with teleport duration 0 (VfxPlayer.kt:620; the follow loop skips the spawn tick, :365-375) and changes
+        // it only when it teleports (:416-419, :442): a display that is not teleported (unfollowed, not moved) stays at 0.
+        val sent = when {
+            last == null -> pose.copy(teleportTicks = 0)
+            pose.teleportTicks == null && last.frame.origin == pose.frame.origin -> pose.copy(teleportTicks = 0)
+            else -> pose
+        }
+        if (last == sent) return
+        l.shown = sent
+        visuals.write(l.handle, sent, if (last == null) 0 else ticks)
     }
 
     public fun tickCast(cast: CastId) {
@@ -658,19 +668,31 @@ public class PresentationRuntime(
      * VfxPlayer.kt:163, :419).
      */
     private fun followed(s: CastState, pose: VisualPose, frame: String, l: Live): VisualPose {
-        if (s.teleports.isEmpty() || pose.anchorFeet != null || selfMoving(s, l)) return pose
+        if (s.teleports.isEmpty() || pose.anchorFeet != null) return pose
+        val moving = selfMoving(s, l)
         var cur: FrameId? = FrameId(frame)
         var hops = 0
         while (cur != null && hops++ < MAX_FRAME_DEPTH) {
-            s.teleports[cur.value]?.let { return pose.copy(teleportTicks = it) }
+            val ticks = s.teleports[cur.value]
+            if (ticks != null) {
+                // v1 VfxPlayer.kt:442: a self-moving element's position write takes the vfx's explicit value, else its own length.
+                val use = if (moving) s.movingTeleports[cur.value] else ticks
+                return if (use != null) pose.copy(teleportTicks = use) else pose
+            }
             cur = s.ctx.tree.node(cur)?.parent
         }
         return pose
     }
 
+    /**
+     * v1 `selfMoving` (VfxPlayer.kt:163): only a text quad / sprite with updates carries position updates (VfxTimeline.kt:449-461),
+     * so a keyed [Live.Plate] / [Live.Quad] (a track key after tick 0, or flipbook frames) moves itself; blocks and models never do.
+     */
     private fun selfMoving(s: CastState, l: Live): Boolean {
+        if (l !is Live.Plate && l !is Live.Quad) return false
+        if (l is Live.Plate && l.frames > 1) return true
         val group = l.group
-        return s.tracks.values.any { t -> (t.op.target == l.opId || (group != null && t.op.target == group)) && t.op.keys.any { it.offset != null } }
+        return s.tracks.values.any { t -> (t.op.target == l.opId || (group != null && t.op.target == group)) && t.op.keys.any { it.tick > 0 } }
     }
 
     internal fun anchorFeet(s: CastState, frame: String): Vec3? =
