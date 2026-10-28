@@ -26,12 +26,13 @@ import java.util.UUID
 import com.astarworks.astera.core.domain.Result as AsteraResult
 
 /**
- * Block reads, edits and damage for the skill engine. The ports carry no world, so every call acts in [world] (the cast
- * owner's world, the same "last seen world" the entity query uses). Damage and cover go through [IBlockStateGateway] so the
+ * Block reads, edits and damage for the skill engine in ONE world, [worldId] (the world the cast started in; the kit
+ * builds one gateway per world). Damage and cover go through [IBlockStateGateway] so the
  * match's durability and cover bookkeeping stay the single owner; plain place/remove are raw block edits the editor reverts.
  */
 public class PaperSkillWorldGateway(
-    private val world: () -> World?,
+    private val server: org.bukkit.Server,
+    private val worldId: WorldId,
     private val ownerOf: (CastId) -> UUID?,
     private val blocks: () -> IBlockStateGateway?,
     private val guard: () -> IBlockEditGuard?,
@@ -45,8 +46,9 @@ public class PaperSkillWorldGateway(
     private val log = LoggerFactory.getLogger(javaClass)
     private val reported = HashSet<String>()
 
+    private fun world(): World? = server.getWorld(worldId.value)
     private fun block(cell: BlockCell): Block? = world()?.getBlockAt(cell.x, cell.y, cell.z)
-    private fun worldId(w: World): WorldId = WorldId(w.name)
+    private fun worldId(@Suppress("UNUSED_PARAMETER") w: World): WorldId = worldId
     private fun pos(cell: BlockCell): Vec3 = Vec3(cell.x.toDouble(), cell.y.toDouble(), cell.z.toDouble())
 
     override fun blockAt(cell: BlockCell): String? = block(cell)?.type?.takeIf { !it.isAir }?.key?.toString()

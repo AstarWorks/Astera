@@ -74,6 +74,7 @@ class ProjectileAoeScenarioTest {
         val lowered = mutableListOf<SkillOp>()
 
         override val cast = CastId(1)
+        override val world = com.astarworks.astera.core.domain.world.WorldId("world")
         override val tree = Tree().also {
             it.add(FrameNode(FrameId("world"), FrameKind.WORLD, null, Frame(Vec3.ZERO)))
             it.add(FrameNode(FrameId("caster"), FrameKind.CASTER, FrameId("world"), Frame(Vec3.ZERO)))
@@ -91,6 +92,7 @@ class ProjectileAoeScenarioTest {
             visuals = unused(), particles = unused<ISkillParticleGateway>(), sounds = unused<ISkillSoundGateway>(),
             victimAnim = unused<ISkillVictimAnimGateway>(),
             gameplay = object : ISkillGameplayGateway {
+    override fun statusStacks(entity: UUID, statusId: String): Int = 0
             override fun removeStatus(victim: UUID, statusId: String) = Unit
             override fun cleanse(victim: UUID, negativeOnly: Boolean) = Unit
             override fun ignite(caster: UUID, victim: UUID, durationTicks: Int) = Unit
@@ -105,6 +107,7 @@ class ProjectileAoeScenarioTest {
                 override fun freezeEntities(entities: List<UUID>, ticks: Int) = Unit
             },
             entities = object : ISkillEntityQuery {
+    override fun healthRatio(entity: UUID): Double = error("hp_ratio: this fake has no entity $entity")
                 override fun nearby(point: Vec3, radius: Double, excluding: UUID?) =
                     victimList.filter { it.id != excluding && it.box.center.distance(point) <= radius + 1.0 }
                         .map { HitCandidate(it.id, it.feet, 0.0, it.box) }

@@ -16,7 +16,7 @@ presentation:
     hit:
       - {id: emit_2, op: emit, at: pt_enemy_0_0p15_0, particle: happy_villager, count: 0, speed: 0.02}
       - {id: emit_3, op: emit, at: pt_enemy_0_0p15_0, particle: dust, count: 1, data: "#5aaa3c", data_size: 1.4}
-      - {id: snd_2, op: sound, sound: entity.splash_potion.break, at: contact.point, volume: 0.8, pitch: 0.8}
+      - {id: snd_2, op: sound, sound: entity.splash_potion.break, at: enemy, volume: 0.8, pitch: 0.8}
     block:
       - {id: emit_4, op: emit, at: contact.point, particle: happy_villager, count: 0, speed: 0.02}
       - {id: emit_5, op: emit, at: contact.point, particle: dust, count: 1, data: "#5aaa3c", data_size: 1.4}

@@ -24,7 +24,6 @@ import kotlin.math.sin
  * tick N is not stepped by the [tick] of tick N (v1: first step at N, the repeat began one tick later).
  */
 public class DashStrikeDriver(
-    private val ports: SkillRuntimePorts,
     private val movement: ISkillMovementGateway,
     private val host: MovementHost,
 ) {
@@ -53,6 +52,7 @@ public class DashStrikeDriver(
     /** Starts a dash for the caster; false when it cannot start (no pose, bad distance/direction, blocked at once). */
     public fun start(op: MovementOp.DashStrike, ctx: OpContext): Boolean {
         val caster = host.caster(ctx)
+        val ports = ctx.ports
         val root = ports.entities.rootOf(caster) ?: return false
         val distance = ctx.values.num(op.distance)
         if (!distance.isFinite() || distance < 0.0) return false
@@ -70,7 +70,7 @@ public class DashStrikeDriver(
             val facing = yaw ?: return false
             return movement.teleport(caster, root.feet, facing)
         }
-        val travel = approachDistance(caster, root.feet, direction, distance, radius, op.stopBeforeTarget)
+        val travel = approachDistance(ports, caster, root.feet, direction, distance, radius, op.stopBeforeTarget)
         if (travel <= 0.0) return false
         val dash = Dash(ctx.cast, ctx, op, caster, radius, root.feet, direction * (travel / steps), steps, yaw)
         active += dash
@@ -108,7 +108,7 @@ public class DashStrikeDriver(
         dash.stepIndex++
         val from = dash.position
         val to = dash.origin + dash.stepVector * dash.stepIndex.toDouble()
-        if (dash.op.stopOnBlock && blockedBetween(from, to)) {
+        if (dash.op.stopOnBlock && blockedBetween(dash.ctx.ports, from, to)) {
             finish(dash)
             return
         }
@@ -129,14 +129,14 @@ public class DashStrikeDriver(
         // A dash that stops stop_before_target short of its target still strikes it: the gap counts as reach.
         val contactReach = dash.radius + BODY_HALF_WIDTH + (op.stopBeforeTarget?.coerceAtLeast(0.0) ?: 0.0)
         val reach = contactReach + from.distance(to) / 2.0 + BODY_HALF_HEIGHT
-        for (candidate in ports.entities.nearby(mid, reach, dash.caster)) {
+        for (candidate in dash.ctx.ports.entities.nearby(mid, reach, dash.caster)) {
             if (candidate.entityId == dash.caster) continue
             if (op.hitOnce && candidate.entityId in dash.hit) continue
             val center = candidate.box.center
             if (distanceToSegment(center, from + body, to + body) > contactReach) continue
             if (!movement.isAlive(candidate.entityId)) continue
             dash.hit += candidate.entityId
-            host.runWithVictim(dash.ctx, candidate.entityId, center, op.onHit)
+            host.runWithVictim(dash.ctx, op.id, candidate.entityId, center, op.onHit)
             if (dash.finished) return
         }
     }
@@ -150,7 +150,7 @@ public class DashStrikeDriver(
     }
 
     private fun approachDistance(
-        caster: UUID, feet: Vec3, direction: Vec3, distance: Double, radius: Double, stopBeforeTarget: Double?,
+        ports: SkillRuntimePorts, caster: UUID, feet: Vec3, direction: Vec3, distance: Double, radius: Double, stopBeforeTarget: Double?,
     ): Double {
         val gap = stopBeforeTarget?.coerceAtLeast(0.0) ?: return distance
         val origin = feet + Vec3(0.0, BODY_HALF_HEIGHT, 0.0)
@@ -167,7 +167,7 @@ public class DashStrikeDriver(
     }
 
     /** Sample the swept path (feet, knee, head probes) so a long or descending step cannot skip a thin wall or floor. */
-    private fun blockedBetween(from: Vec3, to: Vec3): Boolean {
+    private fun blockedBetween(ports: SkillRuntimePorts, from: Vec3, to: Vec3): Boolean {
         val samples = ceil(from.distance(to) / 0.25).toInt().coerceAtLeast(1)
         var prev = from
         for (i in 1..samples) {

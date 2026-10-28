@@ -11,7 +11,7 @@ import kotlin.system.exitProcess
  * Every op family is registered; the frame point tables are the compiler's concern, not the decoder's.
  */
 object ProductionDecoder {
-    fun create(): SkillDecoder = SkillEngineRegistries.decoder()
+    fun create(): SkillDecoder = SkillEngineRegistries.decoder(com.astarworks.astera.core.application.skillengine.load.IBlockKeyCatalog.Unchecked)
 }
 
 /**

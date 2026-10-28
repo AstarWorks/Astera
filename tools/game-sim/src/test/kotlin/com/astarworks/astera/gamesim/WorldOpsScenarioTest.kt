@@ -5,7 +5,7 @@ import com.astarworks.astera.core.application.skillengine.load.worldDecoders
 import com.astarworks.astera.core.application.skillengine.runtime.CastId
 import com.astarworks.astera.core.application.skillengine.runtime.OpContext
 import com.astarworks.astera.core.application.skillengine.runtime.OpExecutor
-import com.astarworks.astera.core.application.skillengine.runtime.SkillWorldEditor
+import com.astarworks.astera.core.application.skillengine.runtime.SkillWorldEditors
 import com.astarworks.astera.core.application.skillengine.runtime.port.BlockDamageOutcome
 import com.astarworks.astera.core.application.skillengine.runtime.port.ISkillWorldGateway
 import com.astarworks.astera.core.application.skillengine.runtime.port.SkillRuntimePorts
@@ -86,7 +86,7 @@ class WorldOpsScenarioTest {
 
     private class Fixture {
         val world = FakeWorld()
-        val editor = SkillWorldEditor(world)
+        val editor = SkillWorldEditors { world }
         private val tree = FakeTree()
         private val executors = worldExecutors(editor)
         private val ctx = object : OpContext {
@@ -94,10 +94,11 @@ class WorldOpsScenarioTest {
                 com.astarworks.astera.core.application.skillengine.runtime.OpHost::class.java.classLoader,
                 arrayOf(com.astarworks.astera.core.application.skillengine.runtime.OpHost::class.java),
             ) { _, m, args ->
-                if (m.name == "fail") world.failures += "${args[0]}: ${args[1]}" else error("world ops reach only OpHost.fail, not ${m.name}")
+                if (m.name == "fail") this@Fixture.world.failures += "${args[0]}: ${args[1]}" else error("world ops reach only OpHost.fail, not ${m.name}")
                 null
             } as com.astarworks.astera.core.application.skillengine.runtime.OpHost
             override val cast = CastId(1)
+            override val world = com.astarworks.astera.core.domain.world.WorldId("world")
             override val tree: FrameTree = this@Fixture.tree
             override val values: ValueResolver = Literals
             override val ports: SkillRuntimePorts get() = error("world ops use no SkillRuntimePorts")
@@ -240,7 +241,7 @@ class WorldOpsScenarioTest {
             override fun raw(key: String): Any? = keys[key]
             override fun fail(message: String): Nothing = throw IllegalStateException(message)
         }
-        val decoder = worldDecoders().single()
+        val decoder = worldDecoders(com.astarworks.astera.core.application.skillengine.load.IBlockKeyCatalog.Unchecked).single()
         assertThat(decoder.section).isEqualTo(OpSection.GAMEPLAY)
         val op = decoder.decode("break_area", "dig", null, reader) as WorldOp.BreakArea
         assertThat(op.shape).isEqualTo(WorldOp.AreaShape.BOX)

@@ -145,6 +145,7 @@ class Where:
         self.event = event
         self.guard = guard
         self.ops = []  # nested only
+        self.owner = None  # nested only: id of the op whose list this is (dash_strike on_hit)
 
 
 CAST = Where("cast")
@@ -185,6 +186,10 @@ class Conv:
 
     def present(self, name, detail=""):
         self.gap("present", name, detail)
+
+    def sound_gap(self, name, detail=""):
+        """A v1 sound setting v2 cannot play. Never dropped silently: a CONVERT-TODO in the file and a non-zero exit."""
+        self.todo("sound: " + name, detail)
 
     # ---------- ids / params / frames ----------
     def oid(self, base):
@@ -634,6 +639,7 @@ class Conv:
         if w:
             op["when"] = w
         nested = Where("nested")
+        nested.owner = did
         self.mechanics(m.get("on_hit", []), nested, 0)
         if nested.ops:
             op["on_hit"] = nested.ops
@@ -646,7 +652,7 @@ class Conv:
 
     # ---------- presentation ----------
     def presentation_op(self, m, t, tg, where, delay, when):
-        if where.kind == "nested":
+        if where.kind == "nested" and t != "play_sound":
             self.present("presentation inside a nested gameplay list (dash on_hit has no event hook)", t)
             return
 
@@ -654,12 +660,7 @@ class Conv:
             self.p(where, delay, self._w(op, when))
 
         if t == "play_sound":
-            op = {"id": self.oid("snd"), "op": "sound", "sound": m["sound_id"], "at": self.point(tg, where, "p")}
-            if "volume" in m:
-                op["volume"] = V(m["volume"])
-            if "pitch" in m:
-                op["pitch"] = V(m["pitch"])
-            W(op)
+            self.play_sound(m, tg, where, delay, when)
         elif t == "spawn_particle":
             W(emit_op(self.oid("emit"), self.point(tg, where, "p"), m["particle_id"], 1))
         elif t == "schedule_particle_animation":
@@ -681,9 +682,45 @@ class Conv:
             else:
                 W({"id": self.oid("anim"), "op": "victim_anim", "target": self.screen_target(tg), "anim": anim})
             self.present("play_animation ticks (anim ops have no duration)", "ticks=%s" % V(m.get("ticks")))
-        else:  # screen_flash, screen_veil, telegraph, stop_sound, hide_held_item
+        elif t == "stop_sound":
+            self.sound_gap("stop_sound has no v2 op (the sound keeps playing to its end)", short(V(m.get("sound_id")), 60))
+        else:  # screen_flash, screen_veil, telegraph, hide_held_item
             frag = {k: V(v) for k, v in m.items() if k not in ("type", "targets", "delay_ticks")}
             self.present("%s has no v2 op" % t, short(frag, 160))
+
+    SOUND_KEYS = {"type", "targets", "sound_id", "volume", "pitch", "delay_ticks", "condition",
+                  "pitch_to", "over", "pitch_ease", "every"}  # the last four: the windup pitch_arc, built by convert_skill
+
+    def sound_at(self, tg, where):
+        """Where v1 played a sound: the target's feet for `target` (a hit handler's contact.point is the body centre, not that)."""
+        t = tg["type"] if tg else "caster"
+        if t == "target":
+            return "enemy"
+        if t not in ("caster", "hit_location", "caster_forward", "caster_offset", "target_offset", "projectile_position"):
+            self.sound_gap("play_sound target %s" % t)
+        return self.point(tg, where, "p")
+
+    def play_sound(self, m, tg, where, delay, when):
+        for k in m:
+            if k not in self.SOUND_KEYS:
+                self.sound_gap("play_sound field %s" % k, short(V(m[k]), 60))
+        op = {"id": self.oid("snd"), "op": "sound", "sound": m["sound_id"], "at": self.sound_at(tg, where)}
+        if "volume" in m:
+            op["volume"] = V(m["volume"])
+        if "pitch" in m:
+            op["pitch"] = V(m["pitch"])
+        for k in ("pitch_to", "over", "pitch_ease", "every"):
+            if k in m:
+                op[k] = V(m[k])
+        if where.kind == "nested":
+            # dash_strike on_hit is gameplay-only; the sound waits on the dash's own hit event (engine request: the dash raises
+            # `dash_hit` with source = the dash op id and the victim as contact).
+            self.sound_gap("dash on_hit sound waits for the engine `dash_hit` event (CastInstance.runWithVictim does not raise it)",
+                           m["sound_id"])
+            op["when"] = "= event.source == '%s'" % where.owner
+            self.p(Where("handler", event="dash_hit"), delay, self._w(op, when))
+            return
+        self.p(where, delay, self._w(op, when))
 
     def _w(self, op, when):
         if when:
@@ -974,7 +1011,9 @@ def block_damage(c, d, arch, on_hit, on_block):
     if not bd:
         return
     op = {"op": "break_area", "shape": "sphere", "radius": max(float(bd.get("radius", 0.0)), 0.5),
-          "block_damage": int(bd["amount"]), "breaks": True}
+          "block_damage": int(bd["amount"]), "breaks": True,
+          # A sphere is centred `length` ahead of `at` (tool skills dig ahead); a v1 chip is centred ON the impact / cast point.
+          "length": 0.0}
     if bd.get("tool"):
         op["tool_class"] = str(bd["tool"]).split("/")[0].upper()
     if arch == "projectile":
@@ -984,7 +1023,28 @@ def block_damage(c, d, arch, on_hit, on_block):
         c.g(CAST, 0, dict(op, id=c.oid("chip"), at="caster"))
     else:
         reach = float(bd.get("reach", 0.0)) or 4.0
-        c.g(CAST, 0, dict(op, id=c.oid("chip"), at=c.pframe("aim", [0.0, 0.0, reach], "g")))
+        if bd.get("shape", "ball") != "ball":
+            raise SystemExit("block_damage: %s: shape %r has no v2 equivalent (only ball/strikeRay is ported)" % (d.get("id"), bd.get("shape")))
+        # v1 strikeRay: march the look ray from the eye up to `reach`, strike the first cover met.
+        c.g(CAST, 0, dict(op, shape="ray", length=reach, id=c.oid("chip"), at="aim"))
+
+# Every v1 projectile field the converter maps to v2. Anything else fails the conversion (a silently dropped
+# projectile setting changes speed, flight time or impact, SKL-18).
+PROJECTILE_PARAMS = {"type", "launch_speed", "max_lifetime_ticks", "hit_radius", "visual", "muzzle_forward", "muzzle_up", "aim_distance"}
+PROJECTILE_VISUAL = {"trail", "trail_spacing", "display", "vfx"}
+PROJECTILE_DISPLAY = {"variant", "material", "scale"}
+
+
+def projectile_fields_or_fail(sid_, params):
+    for where, got, ok in (("params", params, PROJECTILE_PARAMS),
+                           ("params.visual", params.get("visual") or {}, PROJECTILE_VISUAL),
+                           ("params.visual.display", (params.get("visual") or {}).get("display") or {}, PROJECTILE_DISPLAY)):
+        extra = sorted(set(got) - ok)
+        if extra:
+            raise AssertionError("%s: v1 projectile field(s) %s.%s have no v2 mapping" % (sid_, where, extra))
+    if V(params["launch_speed"]) <= 0 or V(params["max_lifetime_ticks"]) <= 0:
+        raise AssertionError("%s: projectile launch_speed / max_lifetime_ticks must be positive" % sid_)
+
 
 def convert_skill(d, vfx_dir, item):
     c = Conv(d, vfx_dir)
@@ -1007,10 +1067,19 @@ def convert_skill(d, vfx_dir, item):
             c.vfx({"vfx_id": wu["vfx"]}, {"type": "caster"}, CAST, 0, None)
         if wu.get("sound"):
             sd = wu["sound"]
-            c.mech({"type": "play_sound", "sound_id": sd["sound_id"], "volume": sd.get("volume", 1.0),
-                    "targets": {"type": "caster"}}, CAST)
-            if sd.get("pitch_arc"):
-                c.present("windup sound pitch_arc (sound has a fixed pitch)", short(sd["pitch_arc"], 80))
+            wm = {"type": "play_sound", "sound_id": sd["sound_id"], "volume": sd.get("volume", 1.0),
+                  "targets": {"type": "caster"}}
+            arc = sd.get("pitch_arc")
+            if arc:
+                # v1 PitchArc: from -> to over `ticks`, re-played every `interval_ticks`; the engine sound op glides the same way
+                wm.update({"pitch": arc["from"], "pitch_to": arc["to"], "over": int(arc["ticks"]),
+                           "every": int(arc.get("interval_ticks", 5))})
+                if arc.get("ease"):
+                    wm["pitch_ease"] = arc["ease"]
+            for k in sd:
+                if k not in ("sound_id", "volume", "pitch_arc", "stop_at_impact"):
+                    c.sound_gap("windup sound field %s" % k, short(sd[k], 60))
+            c.mech(wm, CAST)
         if d.get("id") in WINDUP_LOCK:
             # SKL-15 row 13: commit the caster for the windup (v1 had no lock); the row sits at tick 0, before the offset
             c.g(CAST, 0, {"id": "windup_lock", "op": "lock", "target": "caster", "speed": WINDUP_LOCK[d["id"]], "ticks": int(V(wu["ticks"]))})
@@ -1052,12 +1121,16 @@ def convert_skill(d, vfx_dir, item):
         c.mechanics(phases.get("expire"), Where("handler", "end", None))
         block_damage(c, d, arch, None, None)
     elif arch == "projectile":
+        projectile_fields_or_fail(d["id"], params)
         c.has_bolt = True
         c.frames["bolt"] = {"id": "bolt", "kind": "body", "parent": "world", "inactive": True}
         c.id_counts["bolt"] = 1
         up = V(params.get("muzzle_up", 0.0))
         fw = V(params.get("muzzle_forward", 0.5))
         muzzle = c.pframe("aim", [0.0, up, fw], "g")
+        if up:
+            # v1 offset the muzzle along world up; the aim frame's up tilts with the caster's pitch
+            c.present("projectile muzzle_up is along the aim frame's up (v1: world up); differs when the caster is pitched", str(up))
         speed = c.param("launch_speed", params["launch_speed"])
         life = c.param("max_lifetime_ticks", params["max_lifetime_ticks"])
         # v1: aim_distance 0 (default) = fly parallel to the look ray; > 0 = dive onto the look-ray point.
@@ -1144,6 +1217,10 @@ def meta_block(d):
     tags = [t for t in d.get("tags", []) if t not in ("demo", "vfx", "rtm", "animation")]
     if tags:
         m["tags"] = tags
+    # Fail loudly: a v1 cast gate (cost / cooldown / reload / ego) that the v2 meta did not carry would silently make the skill free.
+    for k in ("cooldown_ticks", "resource_type", "resource_cost", "ego_cost", "reload_ticks"):
+        if k in d and m.get(k) != d[k]:
+            raise SystemExit("meta_block: %s: v1 %s=%r was not carried into the v2 meta (%r)" % (d.get("id"), k, d[k], m.get(k)))
     return m
 
 
@@ -1402,6 +1479,11 @@ def main():
     print("total CONVERT-TODO: %d  CONVERT-PRESENT: %d" % (sum(r[2] for r in conv), sum(r[3] for r in conv)))
     for (kind, name), ids in sorted(gap_skills.items(), key=lambda kv: (kv[0][0], -len(kv[1]))):
         print("%-8s %4d skills  %s" % (kind, len(ids), name))
+    sound_gaps = {n: ids for (k, n), ids in gap_skills.items() if n.startswith("sound: ")}
+    if sound_gaps:
+        for n, ids in sorted(sound_gaps.items()):
+            print("SOUND-GAP %s: %s" % (n, ", ".join(ids)), file=sys.stderr)
+        sys.exit(1)
 
 
 if __name__ == "__main__":

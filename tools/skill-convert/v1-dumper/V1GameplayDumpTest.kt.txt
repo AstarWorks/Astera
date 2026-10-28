@@ -9,6 +9,8 @@ import kotlinx.serialization.json.double
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
+import com.astarworks.astera.core.application.port.outbound.IBlockStateGateway
+import com.astarworks.astera.core.application.port.outbound.ICustomBlockRegistry
 import com.astarworks.astera.core.application.port.outbound.IEgoGauge
 import com.astarworks.astera.core.application.services.getOrThrow
 import org.junit.jupiter.api.Test
@@ -44,22 +46,33 @@ class V1GameplayDumpTest {
             try {
                 scenario("gdump-$id") {
                     val caster = player("caster", facing = Vec3(0.0, 0.0, 1.0))
+                    caster.world = WorldId("arenas")
                     val feet = caster.position
                     val dummy = mob("dummy", Vec3(feet.x, feet.y, feet.z + 5.0))
-                    for (x in -6..6) for (y in 0..8) sim.world.placeBlock(WorldId("world"), Vec3(feet.x + x, feet.y + y, feet.z + 8.0), BlockType("minecraft:stone"))
+                    // v1 only hurts COVER (CoverBlockService: terrain and air are never hurt), so the wall plane is reinforced cover, not stone.
+                    val coverSpec = checkNotNull(sim.services.getOrThrow<ICustomBlockRegistry>().find(BlockType("astera:reinforced_wall")))
+                    val blockGateway = sim.services.getOrThrow<IBlockStateGateway>()
+                    for (x in -6..6) for (y in 0..8) {
+                        val cell = Vec3(feet.x + x, feet.y + y, feet.z + (System.getenv("ASTERA_WALL_Z") ?: "8").toDouble())
+                        blockGateway.placeCustomBlock(caster.world, cell, coverSpec, caster.id)
+                        sim.world.placeBlock(caster.world, cell, BlockType("astera:reinforced_wall"))
+                    }
                     val item = itemOf(id)
                     if (item != null) runCatching { caster.holds(item) }
                     fun rel(v: Vec3) = "\"x\":${r(v.x - feet.x)},\"y\":${r(v.y - feet.y)},\"z\":${r(v.z - feet.z)}"
                     fun who(uuid: String) = when (uuid) { caster.id.uuid.toString() -> "caster"; dummy.id.uuid.toString() -> "dummy"; else -> "other" }
                     lines += "{\"e\":\"meta\",\"id\":\"$id\",\"item\":\"$item\"}"
                     if (id.endsWith("-ego")) runCatching { val g = sim.services.getOrThrow<IEgoGauge>(); g.gain(caster.id, g.config.max) }
-                    val poolBefore = sim.pool(caster)?.let { it.ammo to it.energy }
                     sim.step(1)
+                    // The cast switches the active weapon to its source item (the held starter item when the skill has none), which clamps the
+                    // carried pool to that item's cap: not a spend. Settle it first so poolBefore - poolAfter is only what the cast spends.
+                    sim.services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IResourcePoolService>().setActiveWeapon(caster.id, caster.heldItem ?: com.astarworks.astera.core.domain.item.ItemId("sim"))
+                    val poolBefore = sim.pool(caster)?.let { it.ammo to it.energy }
                     val start = sim.scheduler.currentTick()
                     caster.cast(id)
                     val poolAfter = sim.pool(caster)?.let { it.ammo to it.energy }
                     if (poolBefore != null && poolAfter != null) {
-                        lines += "{\"t\":0,\"e\":\"cost\",\"ammo\":${poolBefore.first - poolAfter.first},\"energy\":${poolBefore.second - poolAfter.second}}"
+                        lines += "{\"t\":0,\"e\":\"cost\",\"ammo\":${poolBefore.first - poolAfter.first},\"energy\":${poolBefore.second - poolAfter.second},\"before\":[${poolBefore.first},${poolBefore.second}],\"after\":[${poolAfter.first},${poolAfter.second}]}"
                     }
                     val lastVel = hashMapOf("caster" to Vec3.ZERO, "dummy" to Vec3.ZERO)
                     for (i in 0 until ticks) {
@@ -114,6 +127,10 @@ class V1GameplayDumpTest {
                                 else -> {}
                             }
                         }
+                    }
+                    // cover HP actually lost per cell (the gateway tracker is the truth for a chip)
+                    for ((cell, st) in sim.services.getOrThrow<IBlockStateGateway>().tracked(caster.world)) {
+                        if (st.durability < st.maxHp) lines += "{\"t\":0,\"e\":\"block\",\"k\":\"cover_hp\",${rel(cell)},\"lost\":${st.maxHp - st.durability}}"
                     }
                     for (e in sim.eventsOf<com.astarworks.astera.core.domain.event.BlockBrokenBySkill>()) {
                         lines += "{\"t\":${e.atTick - start},\"e\":\"block\",\"k\":\"break\",${rel(e.position)},\"block\":${q(e.blockType.key)}}"
