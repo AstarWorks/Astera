@@ -7,6 +7,7 @@ import com.astarworks.astera.core.domain.skillengine.table.CancelScope
 import com.astarworks.astera.core.domain.skillengine.table.CompiledSkill
 import com.astarworks.astera.core.domain.skillengine.table.EventPath
 import com.astarworks.astera.core.domain.skillengine.table.ExitReason
+import com.astarworks.astera.core.domain.skillengine.table.LockEnd
 import com.astarworks.astera.core.domain.skillengine.table.StatePath
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -49,7 +50,7 @@ class LockCancelScenarioTest : SkillEngineScenario() {
         val rows = s.table.states.single { it.state == StatePath("cast") }.rows
         val lock = rows.single { it.action is Action.Lock }
         assertThat(lock.tick).isEqualTo(0)
-        assertThat(lock.action).isEqualTo(Action.Lock(move = true, pitch = true, yaw = false, untilTick = 12))
+        assertThat(lock.action).isEqualTo(Action.Lock(move = true, pitch = true, yaw = false, until = LockEnd.AtTick(12)))
         val end = rows.single { it.action is Action.End && it.instance == lock.instance }
         assertThat(end.tick).isEqualTo(12)
 

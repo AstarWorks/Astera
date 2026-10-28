@@ -1,5 +1,6 @@
 package com.astarworks.astera.core.application.skillengine.compose
 
+import com.astarworks.astera.core.domain.skillengine.model.EngineConfig
 import com.astarworks.astera.core.domain.skillengine.table.*
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
@@ -18,6 +19,7 @@ import org.joml.Vector3d
 public object ExpansionDump {
     public fun render(table: ExpansionTable): String = buildString {
         appendLine("skill ${table.skillId} seed=${table.sampleSeed}")
+        appendLine("# engine: " + engineText(table.config))
         for (st in table.states) {
             appendLine("state ${st.state.value} duration=${duration(st.duration)} then=${st.then?.value ?: "-"} final=${st.isFinal}")
             st.rows.forEach { appendLine("  " + row(it)) }
@@ -29,6 +31,14 @@ public object ExpansionDump {
             sub.branches.forEach { appendLine("  " + branch(it)) }
         }
     }
+
+    private fun engineText(c: EngineConfig): String = listOf(
+        "max_live_displays" to c.maxLiveDisplays, "max_instances_per_op" to c.maxInstancesPerOp, "max_group_depth" to c.maxGroupDepth,
+        "max_part_depth" to c.maxPartDepth, "max_life_ticks" to c.maxLifeTicks, "max_cast_ticks" to c.maxCastTicks,
+        "segment_error_blocks" to c.segmentErrorBlocks, "segment_error_deg" to c.segmentErrorDeg, "max_segment_ticks" to c.maxSegmentTicks,
+        "split_turn_deg" to c.splitTurnDeg, "max_same_tick_depth" to c.maxSameTickDepth, "max_sweep_steps" to c.maxSweepSteps,
+        "expand_dir" to c.expandDir,
+    ).joinToString(" ") { (k, v) -> "$k=$v" }
 
     public fun json(table: ExpansionTable): String {
         fun rowJson(scope: String, r: Row): JsonObject = buildJsonObject {
@@ -71,6 +81,7 @@ public object ExpansionDump {
         for (raw in text.lines()) {
             if (raw.isBlank()) continue
             val line = raw.trim()
+            if (line.startsWith("#")) continue // `# engine:` header: the config is not rebuilt (parse is lossy)
             val tok = line.split(' ')
             when {
                 line.startsWith("skill ") -> { skillId = tok[1]; seed = tok[2].removePrefix("seed=").toLongOrNull() ?: return null }
@@ -103,7 +114,7 @@ public object ExpansionDump {
         flush()
         val id = skillId ?: return null
         val empty = Bounds(emptyMap(), 0, 0, 0, 0, TickRange(0, 0), 0)
-        return ExpansionTable(id, seed, emptyMap(), empty, states, subs, emptyMap(), emptyMap())
+        return ExpansionTable(id, seed, emptyMap(), empty, states, subs, emptyMap(), emptyMap(), EngineConfig())
     }
 
     private class Cur(
@@ -160,11 +171,13 @@ public object ExpansionDump {
                     else -> CancelScope.Instance(parseInstance((kv["scope"] ?: return null).removePrefix("#").trim('"')) ?: return null)
                 },
             )
-            "lock" -> Action.Lock(kv["move"] == "true", kv["pitch"] == "true", kv["yaw"] == "true", kv["until"]?.toIntOrNull() ?: return null)
+            "lock" -> Action.Lock(kv["move"] == "true", kv["pitch"] == "true", kv["yaw"] == "true", parseLockEnd(kv["until"] ?: return null) ?: return null)
             else -> return null
         }
         return Row(tick, inst, action, SrcPath(""))
     }
+
+    private fun parseLockEnd(s: String): LockEnd? = if (s == "cast") LockEnd.CastEnd else s.toIntOrNull()?.let { LockEnd.AtTick(it) }
 
     private fun duration(d: Duration): String = when (d) {
         is Duration.Fixed -> d.ticks.toString()
@@ -178,7 +191,9 @@ public object ExpansionDump {
 
     private fun row(r: Row): String {
         val args = payloadText(r.action)
-        return "@${r.tick} ${r.instance.text} ${verb(r.action)}" + if (args.isEmpty()) "" else " $args"
+        val mask = if (r.maskUntil.isEmpty()) "" else " mask_until=" + r.maskUntil.joinToString(",", "[", "]") { it.value }
+        val guard = when (val g = r.guard) { null -> ""; is Guard.Named -> " when=${g.cond}"; is Guard.Expr -> " when==_" + g.source.replace(' ', '_') }
+        return "@${r.tick} ${r.instance.text} ${verb(r.action)}" + (if (args.isEmpty()) "" else " $args") + mask + guard
     }
 
     private fun verb(a: Action): String = when (a) {
@@ -187,6 +202,8 @@ public object ExpansionDump {
         is Action.Teleport -> "teleport"
         is Action.TrailPoint -> "trail"
         is Action.Particle -> "particle"
+        is Action.ParticleDef -> "particle_def"
+        is Action.Set -> "set"
         is Action.Sound -> "sound"
         is Action.Hit -> "hit"
         is Action.Damage -> "damage"
@@ -207,13 +224,15 @@ public object ExpansionDump {
         is Action.Key -> listOf("display" to a.display, "dur" to a.durationTicks, "t" to a.translation, "r" to a.leftRotation, "s" to a.scale)
         is Action.Teleport -> listOf("display" to a.display, "dur" to a.durationTicks, "pos" to a.position, "yaw" to a.yaw, "pitch" to a.pitch)
         is Action.TrailPoint -> listOf("ribbon" to a.ribbon, "pos" to a.position)
-        is Action.Particle -> listOf("type" to a.type, "count" to a.count, "offset" to a.offset, "extra" to a.extra, "data" to a.data, "pos" to a.position)
+        is Action.Particle -> listOf("type" to a.type, "count" to a.count, "offset" to a.offset, "extra" to a.extra, "data" to a.data, "pos" to a.position, "sweep" to a.sweep)
+        is Action.ParticleDef -> listOf("def" to a.def, "pos" to a.position)
+        is Action.Set -> listOf("field" to a.field, "value" to a.value)
         is Action.Sound -> listOf("sound" to a.sound, "volume" to a.volume, "pitch" to a.pitch, "pos" to a.position, "category" to a.category)
-        is Action.Hit -> listOf("shape" to a.shape, "frames" to a.frames, "targets" to a.targets, "once" to a.once)
-        is Action.Damage -> listOf("targets" to a.targets, "components" to a.components, "chance" to a.chance)
+        is Action.Hit -> listOf("shape" to a.shape, "anchor" to a.anchor, "anchorName" to a.anchorName, "targets" to a.targets, "window" to a.window, "damage" to a.damage)
+        is Action.Damage -> listOf("targets" to a.targets, "components" to a.components, "ignoreInvulnerability" to a.ignoreInvulnerability)
         is Action.Status -> listOf("targets" to a.targets, "status" to a.status, "stacks" to a.stacks, "for" to a.forTicks)
         is Action.Effect -> listOf("op" to a.op, "payload" to a.payload)
-        is Action.Lock -> listOf("move" to a.move, "pitch" to a.pitch, "yaw" to a.yaw, "until" to a.untilTick)
+        is Action.Lock -> listOf("move" to a.move, "pitch" to a.pitch, "yaw" to a.yaw, "until" to a.until)
         is Action.Call -> listOf("callee" to a.callee, "id" to a.callId, "with" to a.with, "frames" to a.frames)
         is Action.Emit -> listOf("event" to a.event)
         is Action.End -> listOf("instance" to a.instance)
@@ -244,6 +263,7 @@ public object ExpansionDump {
         is EventPath -> v.value
         is List<*> -> v.joinToString(",", "[", "]") { value(it) }
         is Map<*, *> -> v.entries.joinToString(",", "{", "}") { "\"${it.key}\":${value(it.value)}" }
+        is LockEnd -> when (v) { LockEnd.CastEnd -> "cast"; is LockEnd.AtTick -> v.tick.toString() }
         is CancelScope -> when (v) { CancelScope.Cast -> "cast"; CancelScope.State -> "state"; is CancelScope.Instance -> value(v.id) }
         else -> opaque(v)
     }

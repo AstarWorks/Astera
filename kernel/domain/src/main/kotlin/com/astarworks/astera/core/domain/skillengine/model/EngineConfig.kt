@@ -13,4 +13,8 @@ public data class EngineConfig(
     val maxSegmentTicks: Int = 59,
     val splitTurnDeg: Double = 170.0,
     val maxSameTickDepth: Int = 4,
+    /** Hit sweep samples per tick: `min(maxSweepSteps, ceil(travel / radius) + 1)` (ADR-0303 10.2). */
+    val maxSweepSteps: Int = 32,
+    /** Where `expand` writes its dump (skill-compare mounts this path). */
+    val expandDir: String = "build/skill-expand",
 )

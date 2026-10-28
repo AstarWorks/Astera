@@ -10,6 +10,7 @@ import com.astarworks.astera.core.application.skillengine.load.ops.presentation.
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.skillengine.model.Value
 import com.astarworks.astera.core.domain.skillengine.table.OpId
+import com.astarworks.astera.core.domain.skillengine.table.SrcPath
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertInstanceOf
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -25,7 +26,7 @@ class ParticleOpScenarioTest {
 
     private fun decodeParticle(raw: Map<String, Any?>): Result<ParticleOp, SkillDecodeError> =
         when (val r = ParticleOpSpec.fields.decode(raw, ctx, path)) {
-            is Result.Success -> ParticleOpSpec.decode(OpId("puff"), null, null, r.value, ctx)
+            is Result.Success -> ParticleOpSpec.decode(OpId("puff"), SrcPath("test"), null, null, r.value, ctx)
             is Result.Failure -> Result.Failure(r.error)
         }
 
@@ -89,7 +90,7 @@ class ParticleOpScenarioTest {
     fun particleDefDecodesAsPointKind() {
         val raw = mapOf("def" to "frost-cast", "anchor" to "muzzle")
         val values = (ParticleDefOpSpec.fields.decode(raw, ctx, path) as Result.Success).value
-        val op = (ParticleDefOpSpec.decode(OpId("frost"), null, null, values, ctx) as Result.Success).value
+        val op = (ParticleDefOpSpec.decode(OpId("frost"), SrcPath("test"), null, null, values, ctx) as Result.Success).value
         assertEquals("frost-cast", op.def)
         assertEquals(ParticleAnchor.Named("muzzle"), op.anchor)
         assertEquals(com.astarworks.astera.core.application.skillengine.load.grammar.TimingKind.POINT, ParticleDefOpSpec.timing)

@@ -24,6 +24,7 @@ import com.astarworks.astera.core.domain.skillengine.op.OpSection
 import com.astarworks.astera.core.domain.skillengine.table.Action
 import com.astarworks.astera.core.domain.skillengine.table.InstanceId
 import com.astarworks.astera.core.domain.skillengine.table.OpId
+import com.astarworks.astera.core.domain.skillengine.table.SrcPath
 import com.astarworks.astera.core.domain.skillengine.table.Row
 import com.astarworks.astera.core.domain.skillengine.table.Val
 import org.joml.Vector3d
@@ -34,6 +35,7 @@ import org.joml.Vector3d
  */
 public class DashOp(
     override val id: OpId,
+    override val src: SrcPath,
     override val whenExpr: WhenRef?,
     override val timing: Timing?,
     public val speed: Value<Double>,
@@ -67,9 +69,9 @@ internal object CasterMotion {
 
     /** The op's own instance: the prefix itself when it already ends in the op, else the prefix plus the op segment. */
     fun instance(op: OpNode, lc: LowerContext): InstanceId {
-        val last = lc.instancePrefix.path.lastOrNull()
-        return if (last != null && last.op == op.id) lc.instancePrefix
-        else InstanceId(lc.instancePrefix.path + InstanceId.Segment(op.id, null))
+        val last = lc.self.path.lastOrNull()
+        return if (last != null && last.op == op.id) lc.self
+        else InstanceId(lc.self.path + InstanceId.Segment(op.id, null))
     }
 
     fun row(tick: Int, instance: InstanceId, op: OpId, lc: LowerContext, payload: Map<String, Val<Any>>): Row =
@@ -100,14 +102,14 @@ public object DashOpSpec : OpSpec<DashOp> {
     override val timing: TimingKind? = TimingKind.EXTENDED
     override val fields: Fields = Fields.of("dash", speed, direction, ease, followPitch, stopOnBlock, invulnerable, faceMovement, stopBeforeTarget, radius)
 
-    override fun decode(id: OpId, whenExpr: WhenRef?, timing: Timing?, values: FieldValues, ctx: GrammarContext): Result<DashOp, SkillDecodeError> =
+    override fun decode(id: OpId, src: SrcPath, whenExpr: WhenRef?, timing: Timing?, values: FieldValues, ctx: GrammarContext): Result<DashOp, SkillDecodeError> =
         Grammar.guard {
             val path = "dash(${id.value})"
-            val probe = DashOp(id, whenExpr, timing, values[speed], Value.Literal(0.0), values[direction], values[ease], false, true, true, false, null, Value.Literal(1.2))
+            val probe = DashOp(id, src, whenExpr, timing, values[speed], Value.Literal(0.0), values[direction], values[ease], false, true, true, false, null, Value.Literal(1.2))
             val ticks = CasterMotion.ticksOf(probe, ctx, path)
             fun flag(f: Field<Value<Boolean>>): Boolean = (values[f] as? Value.Literal)?.value ?: ctx.fail("$path.${f.name}", "must be a literal true/false")
             DashOp(
-                id, whenExpr, timing, values[speed], ticks, values[direction], values[ease],
+                id, src, whenExpr, timing, values[speed], ticks, values[direction], values[ease],
                 flag(followPitch), flag(stopOnBlock), flag(invulnerable), flag(faceMovement),
                 values[stopBeforeTarget], values[radius],
             )

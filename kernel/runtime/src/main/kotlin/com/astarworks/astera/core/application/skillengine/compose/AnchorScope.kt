@@ -1,5 +1,6 @@
 package com.astarworks.astera.core.application.skillengine.compose
 
+import com.astarworks.astera.core.application.skillengine.load.motion.MotionLaw
 import com.astarworks.astera.core.domain.skillengine.table.InstanceId
 import com.astarworks.astera.core.domain.skillengine.table.OpId
 
@@ -12,6 +13,9 @@ import com.astarworks.astera.core.domain.skillengine.table.OpId
  */
 public interface AnchorScope {
     public fun resolve(name: String): ResolvedAnchor?
+
+    /** The motion laws bound to a frame-like anchor, in declaration order; empty for live anchors (caster, contact, ...) and unknown names. */
+    public fun laws(anchor: String): List<MotionLaw> = emptyList()
 }
 
 public data class ResolvedAnchor(val instance: InstanceId, val basis: ExprClass)

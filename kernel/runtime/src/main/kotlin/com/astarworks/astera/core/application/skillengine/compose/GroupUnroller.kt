@@ -25,7 +25,7 @@ public fun interface ChildLowering {
 
 /**
  * Timing block + group unroller (ADR-0303 2.0, 2.0a). The single entry is [unroll]: the compiler calls it for EVERY op of a list
- * (state `enter`/`do`/`exit`, handler, group body), passing the op's [LowerContext] (instancePrefix = the parent's, [LowerContext.src] =
+ * (state `enter`/`do`/`exit`, handler, group body), passing the op's [LowerContext] (self = the parent's, [LowerContext.src] =
  * the op's own path) and the horizon of the enclosing clock; it works out the occurrence ticks of the op's own timing block, lowers
  * each occurrence with [ChildLowering] under its own context (`id[i]` segment, per-level `Occurrence`) and returns the rows shifted
  * to the enclosing clock. All ticks (schedule, horizon, rows) are relative to the enclosing clock origin: the state entry at the top
@@ -46,7 +46,7 @@ public object GroupUnroller {
         val cap = base.config.maxInstancesPerOp
         val count = chainProduct(base.occurrence).toLong() * sched.ticks.size
         if (count > cap) return fail(SkillDecodeError.InstanceCap(base.src.value, count.coerceAtMost(Int.MAX_VALUE.toLong()).toInt(), cap, base.skillId))
-        val depth = base.instancePrefix.path.size + 1
+        val depth = base.self.path.size + 1
         if (node is GroupOp && depth > base.config.maxGroupDepth) {
             return fail(SkillDecodeError.GroupDepth(base.src.value, depth, base.config.maxGroupDepth, base.skillId))
         }
@@ -60,9 +60,9 @@ public object GroupUnroller {
             val index = if (sched.indexed) k else null
             val occ = LowerContext(
                 base.skillId, base.state,
-                InstanceId(base.instancePrefix.path + InstanceId.Segment(node.id, index)),
+                InstanceId(base.self.path + InstanceId.Segment(node.id, index)),
                 if (sched.indexed) Occurrence(k, sched.ticks.size, base.occurrence) else base.occurrence,
-                base.clockOffset + s, base.anchors, base.frames, base.parts, base.skills, base.conditions, base.exprs, base.config, base.seed,
+                base.clockOffset + s, base.anchors, base.frames, base.parts, base.skills, base.item, base.sprites, base.conditions, base.exprs, base.config, base.seed,
                 base.src,
             )
             val lo = when (val r = if (node is GroupOp) lowerBody(node, occ, horizon?.minus(s)) else lowerOnce.lower(node, occ)) {
@@ -72,7 +72,7 @@ public object GroupUnroller {
             val mask = sched.maskUntil
             for (r in lo.rows) {
                 val shifted = r.copy(tick = r.tick + s)
-                rows += if (mask == null) shifted else shifted.copy(src = SrcPath(shifted.src.value + MASK_MARK + mask))
+                rows += if (mask == null) shifted else shifted.copy(maskUntil = shifted.maskUntil + EventPath(mask))
             }
             subs += lo.subTables
             inst += lo.instances
@@ -111,8 +111,8 @@ public object GroupUnroller {
             val producerEnd = child.timing?.until?.let { UNTIL_END.matchEntire(it)?.groupValues?.get(1) }?.let { siblingEnd[it] }
             val h = listOfNotNull(childHorizon, producerEnd).minOrNull()
             val childBase = LowerContext(
-                lc.skillId, lc.state, lc.instancePrefix, lc.occurrence, lc.clockOffset, lc.anchors, lc.frames, lc.parts, lc.skills,
-                lc.conditions, lc.exprs, lc.config, lc.seed, SrcPath(lc.src.value + ".do[" + j + "]"),
+                lc.skillId, lc.state, lc.self, lc.occurrence, lc.clockOffset, lc.anchors, lc.frames, lc.parts, lc.skills,
+                lc.item, lc.sprites, lc.conditions, lc.exprs, lc.config, lc.seed, SrcPath(lc.src.value + ".do[" + j + "]"),
             )
             val lo = when (val r = unroll(child, childBase, h, lowering)) {
                 is Result.Success -> r.value
@@ -121,7 +121,7 @@ public object GroupUnroller {
             for (r in lo.rows) {
                 val a = r.action
                 if (a is Action.End) {
-                    val seg = a.instance.path.getOrNull(lc.instancePrefix.path.size)
+                    val seg = a.instance.path.getOrNull(lc.self.path.size)
                     if (seg != null && seg.op == child.id) siblingEnd.merge(child.id.value, r.tick, ::maxOf)
                 }
             }
@@ -268,7 +268,4 @@ public object GroupUnroller {
     private fun ceilDiv(a: Int, b: Int): Int = if (a <= 0) 0 else (a + b - 1) / b
 
     private fun <T> fail(e: SkillDecodeError): Result<T, SkillDecodeError> = Result.Failure(e)
-
-    /** Row `src` marker of a candidate row masked by an `until` event (printed `mask until <event>`). See the W1-01 request to give `Row` a field. */
-    public const val MASK_MARK: String = " mask until "
 }

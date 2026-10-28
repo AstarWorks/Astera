@@ -18,6 +18,7 @@ import com.astarworks.astera.core.application.skillengine.load.spec.WhenRef
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.skillengine.op.OpSection
 import com.astarworks.astera.core.domain.skillengine.table.OpId
+import com.astarworks.astera.core.domain.skillengine.table.SrcPath
 
 /** What a `cancel` ends (ADR-0303 10.6). */
 public sealed interface CancelTarget {
@@ -33,6 +34,7 @@ public sealed interface CancelTarget {
 /** Decoded `cancel` op (10.6): ends the cast, the current state, or one named instance, running exit actions. */
 public class CancelOp(
     override val id: OpId,
+    override val src: SrcPath,
     override val whenExpr: WhenRef?,
     override val timing: Timing?,
     public val target: CancelTarget,
@@ -51,7 +53,7 @@ public object CancelOpSpec : OpSpec<CancelOp> {
     override val timing: TimingKind? = null
     override val fields: Fields = Fields.of("cancel", scope)
 
-    override fun decode(id: OpId, whenExpr: WhenRef?, timing: Timing?, values: FieldValues, ctx: GrammarContext): Result<CancelOp, SkillDecodeError> =
+    override fun decode(id: OpId, src: SrcPath, whenExpr: WhenRef?, timing: Timing?, values: FieldValues, ctx: GrammarContext): Result<CancelOp, SkillDecodeError> =
         Grammar.guard {
             val path = "cancel[${id.value}].scope"
             val text = values[scope]
@@ -67,7 +69,7 @@ public object CancelOpSpec : OpSpec<CancelOp> {
                     CancelTarget.Instance(segments, fromRoot)
                 }
             }
-            CancelOp(id, whenExpr, timing, target)
+            CancelOp(id, src, whenExpr, timing, target)
         }
 
     override fun lower(op: CancelOp, lc: LowerContext): Result<Lowered, SkillDecodeError> = CancelLowering.lower(op.id, op.target, lc)

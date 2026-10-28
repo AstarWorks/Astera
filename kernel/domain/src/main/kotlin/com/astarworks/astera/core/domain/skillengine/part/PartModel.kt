@@ -47,6 +47,8 @@ public data class MachineState(
     val exit: List<OpMap>,
     val on: List<MachineTransition>,
     val use: PartCall?,
+    /** Parallel regions; the parent emits `<parent>.end` when all regions are final. */
+    val parallel: List<Machine> = emptyList(),
 )
 
 /** A caller transition that could not be folded into the flat state graph (needs the runtime Transition op, WP-D D4). */

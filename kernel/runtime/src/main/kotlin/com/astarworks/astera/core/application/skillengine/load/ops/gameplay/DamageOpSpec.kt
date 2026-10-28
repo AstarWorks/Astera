@@ -23,11 +23,13 @@ import com.astarworks.astera.core.domain.skillengine.model.Value
 import com.astarworks.astera.core.domain.skillengine.op.OpSection
 import com.astarworks.astera.core.domain.skillengine.table.Action
 import com.astarworks.astera.core.domain.skillengine.table.OpId
+import com.astarworks.astera.core.domain.skillengine.table.SrcPath
 import com.astarworks.astera.core.domain.skillengine.table.Val
 
 /** Decoded `damage` op: components applied to one target set (ADR-0303 10.1b, 11.3 `damage targets= amount=`). */
 public class DamageOp(
     override val id: OpId,
+    override val src: SrcPath,
     override val whenExpr: WhenRef?,
     override val timing: Timing?,
     val target: TargetRef,
@@ -52,12 +54,13 @@ public object DamageOpSpec : OpSpec<DamageOp> {
 
     override val fields: Fields = Fields.of("damage", targetField, componentsField, ignoreField)
 
-    override fun decode(id: OpId, whenExpr: WhenRef?, timing: Timing?, values: FieldValues, ctx: GrammarContext): Result<DamageOp, SkillDecodeError> =
+    override fun decode(id: OpId, src: SrcPath, whenExpr: WhenRef?, timing: Timing?, values: FieldValues, ctx: GrammarContext): Result<DamageOp, SkillDecodeError> =
         Grammar.guard {
             val comps = values[componentsField]
             if (comps.isEmpty()) ctx.fail("damage.components", "needs at least one component")
             DamageOp(
                 id = id,
+                src = src,
                 whenExpr = whenExpr,
                 timing = timing,
                 target = values[targetField],
@@ -68,10 +71,7 @@ public object DamageOpSpec : OpSpec<DamageOp> {
 
     override fun lower(op: DamageOp, lc: LowerContext): Result<Lowered, SkillDecodeError> {
         val path = lc.src.value
-        if (op.ignoreInvulnerability) {
-            return Result.Failure(SkillDecodeError.Invalid(lc.skillId, path, "ignore_invulnerability has no field on Action.Damage yet (domain request)"))
-        }
-        return GameplayOps.targetCell(op.target, lc, path).flatMap { targets ->
+        return GameplayOps.targetRule(op.target, lc, path).flatMap { targets ->
             val components = ArrayList<DamageComponent>(op.components.size)
             for (c in op.components) {
                 when (val amount = GameplayOps.literal(c.amount, lc, "$path.damage.components")) {
@@ -79,7 +79,7 @@ public object DamageOpSpec : OpSpec<DamageOp> {
                     is Result.Success -> components += DamageComponent(NumericValue.Literal(amount.value), c.attribute)
                 }
             }
-            Result.Success(GameplayOps.lowered(lc, Action.Damage(targets, components, Val.Known(1.0))))
+            Result.Success(GameplayOps.lowered(lc, Action.Damage(targets, components, op.ignoreInvulnerability)))
         }
     }
 }

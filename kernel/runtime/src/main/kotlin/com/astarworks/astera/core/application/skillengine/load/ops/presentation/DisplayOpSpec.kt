@@ -38,6 +38,7 @@ import com.astarworks.astera.core.domain.skillengine.table.EventPath
 import com.astarworks.astera.core.domain.skillengine.table.InstanceId
 import com.astarworks.astera.core.domain.skillengine.table.Look
 import com.astarworks.astera.core.domain.skillengine.table.OpId
+import com.astarworks.astera.core.domain.skillengine.table.SrcPath
 import com.astarworks.astera.core.domain.skillengine.table.Pose
 import com.astarworks.astera.core.domain.skillengine.table.Row
 import com.astarworks.astera.core.domain.skillengine.table.SpawnKind
@@ -56,6 +57,7 @@ public enum class DisplayKind { ITEM, BLOCK, TEXT, SPRITE }
  */
 public class DisplayOp(
     override val id: OpId,
+    override val src: SrcPath,
     override val whenExpr: WhenRef?,
     override val timing: Timing?,
     public val kind: DisplayKind,
@@ -193,7 +195,7 @@ public object DisplayOpSpec : OpSpec<DisplayOp> {
 
     // ------------------------------------------------------------------------------------------------ decode
 
-    override fun decode(id: OpId, whenExpr: WhenRef?, timing: Timing?, values: FieldValues, ctx: GrammarContext): Result<DisplayOp, SkillDecodeError> =
+    override fun decode(id: OpId, src: SrcPath, whenExpr: WhenRef?, timing: Timing?, values: FieldValues, ctx: GrammarContext): Result<DisplayOp, SkillDecodeError> =
         Grammar.guard {
             val p = id.value
             val t = timing ?: ctx.fail(p, "display is a timed op: the timing block is missing")
@@ -256,7 +258,7 @@ public object DisplayOpSpec : OpSpec<DisplayOp> {
             val viewRange = foldNum(values[viewRangeF], ctx).also { checkPositive(it, "$p.view_range", ctx) }
 
             DisplayOp(
-                id, whenExpr, foldTiming(t, ctx), kind, values[anchorF], values[offsetF], values[mountF],
+                id, src, whenExpr, foldTiming(t, ctx), kind, values[anchorF], values[offsetF], values[mountF],
                 subject, values[contextF], style, size, if (kind == DisplayKind.SPRITE) values[pivotF] else null, color,
                 values[translationF], values[rotateF], values[scaleF], values[rightF],
                 foldNum(values[yawF], ctx), foldNum(values[pitchF], ctx), billboard, brightness, viewRange, glow,
@@ -339,7 +341,7 @@ public object DisplayOpSpec : OpSpec<DisplayOp> {
     /** `id[i]` when the op itself repeats or is a family (own `every` / `times`); a plain op keeps its plain id. */
     private fun instanceOf(op: DisplayOp, t: Timing, lc: LowerContext): InstanceId {
         val repeats = t.every != null || t.times != null
-        return InstanceId(lc.instancePrefix.path + InstanceId.Segment(op.id, if (repeats) lc.occurrence.i else null))
+        return InstanceId(lc.self.path + InstanceId.Segment(op.id, if (repeats) lc.occurrence.i else null))
     }
 
     /** The anchor as an instance when it names an op of this cast (`ball`); null for a named skill / caster anchor. */

@@ -18,8 +18,11 @@ import com.astarworks.astera.core.domain.skillengine.table.StatePath
 public class LowerContext(
     public val skillId: String,
     public val state: StatePath,
-    /** Group / part path so far. */
-    public val instancePrefix: InstanceId,
+    /**
+     * The instance this context lowers (ADR-0303 item 5): inside an op's `lower()` it is the op's own occurrence id
+     * (`volley[2]/ball`); in the context [GroupUnroller.unroll] receives it is the enclosing occurrence.
+     */
+    public val self: InstanceId,
     /** i, n at this level, parent chain (2.0a). */
     public val occurrence: Occurrence,
     /** Occurrence tick relative to the state entry. */
@@ -30,6 +33,10 @@ public class LowerContext(
     public val frames: FrameTables,
     public val parts: PartCatalog,
     public val skills: SkillCatalogView,
+    /** The skill's `item:`; null = `any`. A `rig` op needs a concrete one. */
+    public val item: String?,
+    /** Natural sprite sizes (`size` blocks -> vanilla `scale`). */
+    public val sprites: SpriteCatalog,
     public val conditions: Map<String, CompiledExpr>,
     public val exprs: ExprCompiler,
     public val config: EngineConfig,
@@ -40,9 +47,9 @@ public class LowerContext(
 ) {
     public fun child(op: OpId, i: Int?, n: Int, tick: Int, doIndex: Int = 0): LowerContext = LowerContext(
         skillId, state,
-        InstanceId(instancePrefix.path + InstanceId.Segment(op, i)),
+        InstanceId(self.path + InstanceId.Segment(op, i)),
         Occurrence(i ?: 0, n, occurrence),
-        tick, anchors, frames, parts, skills, conditions, exprs, config, seed,
+        tick, anchors, frames, parts, skills, item, sprites, conditions, exprs, config, seed,
         SrcPath(src.value + ".do[" + doIndex + "]"),
     )
 

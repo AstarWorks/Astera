@@ -21,6 +21,7 @@ import com.astarworks.astera.core.domain.skillengine.op.OpSection
 import com.astarworks.astera.core.domain.skillengine.table.Action
 import com.astarworks.astera.core.domain.skillengine.table.Num
 import com.astarworks.astera.core.domain.skillengine.table.OpId
+import com.astarworks.astera.core.domain.skillengine.table.SrcPath
 import com.astarworks.astera.core.domain.skillengine.table.Row
 import com.astarworks.astera.core.domain.skillengine.table.Val
 import org.joml.Vector3d
@@ -31,6 +32,7 @@ import org.joml.Vector3d
  */
 public class SoundOp(
     override val id: OpId,
+    override val src: SrcPath,
     override val whenExpr: WhenRef?,
     override val timing: Timing?,
     public val sound: String,
@@ -55,11 +57,12 @@ public object SoundOpSpec : OpSpec<SoundOp> {
     override val timing: TimingKind? = TimingKind.POINT
     override val fields: Fields = Fields.of("sound", SOUND, ANCHOR, VOLUME, PITCH, CATEGORY)
 
-    override fun decode(id: OpId, whenExpr: WhenRef?, timing: Timing?, values: FieldValues, ctx: GrammarContext): Result<SoundOp, SkillDecodeError> =
+    override fun decode(id: OpId, src: SrcPath, whenExpr: WhenRef?, timing: Timing?, values: FieldValues, ctx: GrammarContext): Result<SoundOp, SkillDecodeError> =
         Grammar.guard {
             val path = "sound[${id.value}]"
             SoundOp(
                 id = id,
+                src = src,
                 whenExpr = whenExpr,
                 timing = timing,
                 sound = values[SOUND],
@@ -84,7 +87,7 @@ public object SoundOpSpec : OpSpec<SoundOp> {
             position = Val.Live<Vector3d>(anchor.instance.text, null),
             category = op.category,
         )
-        return Result.Success(Lowered(rows = listOf(Row(lc.clockOffset, lc.instancePrefix, action, lc.src))))
+        return Result.Success(Lowered(rows = listOf(Row(lc.clockOffset, lc.self, action, lc.src))))
     }
 
     private fun number(v: Value<Double>): Num = when (v) {

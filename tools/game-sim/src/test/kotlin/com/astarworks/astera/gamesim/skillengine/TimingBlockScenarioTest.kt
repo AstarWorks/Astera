@@ -1,6 +1,5 @@
 package com.astarworks.astera.gamesim.skillengine
 
-import com.astarworks.astera.core.application.skillengine.compose.GroupUnroller
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.skillengine.table.Action
 import com.astarworks.astera.core.domain.skillengine.table.CompiledSkill
@@ -74,7 +73,7 @@ $body
         val s = compile("        - ${snd("at: 4, every: 4, until: input.use")}", forTicks = 20)
         // `until` is a mask over the state horizon: every candidate through tick 19 is a row, each marked with the event
         assertThat(ticks(sounds(s))).containsExactly(4, 8, 12, 16)
-        assertThat(sounds(s).map { it.src.value }).allMatch { it.endsWith("${GroupUnroller.MASK_MARK}input.use") }
+        assertThat(sounds(s).map { it.maskUntil.map { e -> e.value } }).allMatch { it == listOf("input.use") }
     }
 
     @Test

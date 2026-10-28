@@ -28,6 +28,7 @@ import com.astarworks.astera.core.domain.skillengine.model.Value
 import com.astarworks.astera.core.domain.skillengine.op.OpSection
 import com.astarworks.astera.core.domain.skillengine.table.Action
 import com.astarworks.astera.core.domain.skillengine.table.OpId
+import com.astarworks.astera.core.domain.skillengine.table.SrcPath
 import com.astarworks.astera.core.domain.skillengine.table.Row
 import com.astarworks.astera.core.domain.skillengine.table.Val
 import org.joml.Vector3d
@@ -43,6 +44,7 @@ public data class RigFreezeSpec(val at: Int, val ticks: Int)
  */
 public class RigOp(
     override val id: OpId,
+    override val src: SrcPath,
     override val whenExpr: WhenRef?,
     override val timing: Timing?,
     public val parent: String,
@@ -113,10 +115,10 @@ public object RigOpSpec : OpSpec<RigOp> {
         is Rotation.Whole -> r.value
     }
 
-    override fun decode(id: OpId, whenExpr: WhenRef?, timing: Timing?, values: FieldValues, ctx: GrammarContext): Result<RigOp, SkillDecodeError> =
+    override fun decode(id: OpId, src: SrcPath, whenExpr: WhenRef?, timing: Timing?, values: FieldValues, ctx: GrammarContext): Result<RigOp, SkillDecodeError> =
         Grammar.guard {
             val path = "rig(${id.value})"
-            val probe = DashOp(id, whenExpr, timing, Value.Literal(0.0), Value.Literal(0.0), values[pivot], null, false, true, true, false, null, Value.Literal(1.2))
+            val probe = DashOp(id, src, whenExpr, timing, Value.Literal(0.0), Value.Literal(0.0), values[pivot], null, false, true, true, false, null, Value.Literal(1.2))
             val duration = CasterMotion.ticksOf(probe, ctx, path)
             fun flag(f: Field<Value<Boolean>>): Boolean = (values[f] as? Value.Literal)?.value ?: ctx.fail("$path.${f.name}", "must be a literal true/false")
             val sample = ctx.resolveNumber(values[sampleTicks])?.toInt() ?: ctx.fail("$path.sample_ticks", "must be a number known at load")
@@ -130,7 +132,7 @@ public object RigOpSpec : OpSpec<RigOp> {
                 RigFreezeSpec(a, t)
             }
             RigOp(
-                id, whenExpr, timing, values[parent], values[anim], flag(hand), values[pivot],
+                id, src, whenExpr, timing, values[parent], values[anim], flag(hand), values[pivot],
                 rotationVector(values[tilt], ctx, "$path.tilt"), rotationVector(values[rest], ctx, "$path.rest"),
                 steps, values[bladeItem], values[bladePart], sample, duration,
                 flag(respectHitStop), flag(bodyRespectHitStop), frz, values[tip], values[root], values[edge],

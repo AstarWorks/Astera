@@ -95,8 +95,8 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L)) {
     }
 
     val sounds: ISkillSoundGateway = object : ISkillSoundGateway {
-        override fun play(sound: String, at: Vec3, volume: Double, pitch: Double) {
-            add("sound", "-", "sound=$sound vol=${RecordedCall.num(volume)} pitch=${RecordedCall.num(pitch)}")
+        override fun play(sound: String, at: Vec3, category: String, volume: Double, pitch: Double) {
+            add("sound", "-", "sound=$sound cat=$category vol=${RecordedCall.num(volume)} pitch=${RecordedCall.num(pitch)}")
         }
     }
 
@@ -148,6 +148,8 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L)) {
         override fun vec(cast: CastHandle, name: String, binding: EventBinding?): Vector3d = Vector3d(casterPosition)
 
         override fun rot(cast: CastHandle, name: String, binding: EventBinding?): Quaterniond = Quaterniond()
+
+        override fun num(cast: CastHandle, name: String, binding: EventBinding?): Double = casterPosition.x
 
         override fun targets(cast: CastHandle, rule: TargetRule, binding: EventBinding?): TargetSet =
             TargetSet(victims.map { EntityRef(it.entityId) })

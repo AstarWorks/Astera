@@ -19,6 +19,7 @@ import com.astarworks.astera.core.domain.skillengine.op.OpSection
 import com.astarworks.astera.core.domain.skillengine.table.Action
 import com.astarworks.astera.core.domain.skillengine.table.EventPath
 import com.astarworks.astera.core.domain.skillengine.table.OpId
+import com.astarworks.astera.core.domain.skillengine.table.SrcPath
 import com.astarworks.astera.core.domain.skillengine.table.Row
 
 /**
@@ -27,6 +28,7 @@ import com.astarworks.astera.core.domain.skillengine.table.Row
  */
 public class EmitOp(
     override val id: OpId,
+    override val src: SrcPath,
     override val whenExpr: WhenRef?,
     override val timing: Timing?,
     public val event: String,
@@ -41,20 +43,20 @@ public object EmitOpSpec : OpSpec<EmitOp> {
     override val timing: TimingKind? = TimingKind.POINT
     override val fields: Fields = Fields.of("emit", nameField, shorthand)
 
-    override fun decode(id: OpId, whenExpr: WhenRef?, timing: Timing?, values: FieldValues, ctx: GrammarContext): Result<EmitOp, SkillDecodeError> =
+    override fun decode(id: OpId, src: SrcPath, whenExpr: WhenRef?, timing: Timing?, values: FieldValues, ctx: GrammarContext): Result<EmitOp, SkillDecodeError> =
         Grammar.guard {
             val path = "emit(${id.value})"
             val a = values[nameField]
             val b = values[shorthand]
             if (a != null && b != null && a != b) ctx.fail(path, "'name' and 'emit' disagree ('$a' vs '$b')")
             val event = a ?: b ?: ctx.fail(path, "needs the event name: {emit: <name>} or {op: emit, name: <name>}")
-            EmitOp(id, whenExpr, timing, event)
+            EmitOp(id, src, whenExpr, timing, event)
         }
 
     override fun lower(op: EmitOp, lc: LowerContext): Result<Lowered, SkillDecodeError> {
         val inst = CasterMotion.instance(op, lc)
         val row = Row(0, inst, Action.Emit(EventPath(op.event)), lc.src)
-        val prefix = lc.instancePrefix.text
+        val prefix = lc.self.text
         val qualified = if (prefix.isEmpty()) emptyList() else listOf(EventPath("$prefix.${op.event}"))
         return Result.Success(Lowered(rows = listOf(row), events = listOf(EventPath(op.event)) + qualified))
     }

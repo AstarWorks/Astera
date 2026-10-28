@@ -59,8 +59,8 @@ public object SkillCallInliner {
             override fun part(id: String): Part? = if (id == op.target) part else lc.parts.part(id)
         }
         val viewed = LowerContext(
-            lc.skillId, lc.state, lc.instancePrefix, lc.occurrence, lc.clockOffset, lc.anchors, lc.frames, parts, lc.skills,
-            lc.conditions, lc.exprs, lc.config, lc.seed, lc.src,
+            lc.skillId, lc.state, lc.self, lc.occurrence, lc.clockOffset, lc.anchors, lc.frames, parts, lc.skills,
+            lc.item, lc.sprites, lc.conditions, lc.exprs, lc.config, lc.seed, lc.src,
         )
         return lowerPart(op, viewed).map { lowered ->
             lowered.copy(rows = lowered.rows.map { row ->

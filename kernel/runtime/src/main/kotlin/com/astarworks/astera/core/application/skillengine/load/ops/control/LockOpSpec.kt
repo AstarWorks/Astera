@@ -21,12 +21,15 @@ import com.astarworks.astera.core.domain.skillengine.model.Value
 import com.astarworks.astera.core.domain.skillengine.op.OpSection
 import com.astarworks.astera.core.domain.skillengine.table.Action
 import com.astarworks.astera.core.domain.skillengine.table.InstanceId
+import com.astarworks.astera.core.domain.skillengine.table.LockEnd
 import com.astarworks.astera.core.domain.skillengine.table.OpId
+import com.astarworks.astera.core.domain.skillengine.table.SrcPath
 import com.astarworks.astera.core.domain.skillengine.table.Row
 
 /** Decoded `lock` op (10.6): freezes caster move / pitch / yaw for the timing window. */
 public class LockOp(
     override val id: OpId,
+    override val src: SrcPath,
     override val whenExpr: WhenRef?,
     override val timing: Timing?,
     public val move: Boolean,
@@ -44,7 +47,7 @@ public object LockOpSpec : OpSpec<LockOp> {
     override val timing: TimingKind? = TimingKind.EXTENDED
     override val fields: Fields = Fields.of("lock", move, pitch, yaw)
 
-    override fun decode(id: OpId, whenExpr: WhenRef?, timing: Timing?, values: FieldValues, ctx: GrammarContext): Result<LockOp, SkillDecodeError> =
+    override fun decode(id: OpId, src: SrcPath, whenExpr: WhenRef?, timing: Timing?, values: FieldValues, ctx: GrammarContext): Result<LockOp, SkillDecodeError> =
         Grammar.guard {
             val path = "lock[${id.value}]"
             fun flag(f: Field<Value<Boolean>>): Boolean = when (val v = values[f]) {
@@ -60,11 +63,11 @@ public object LockOpSpec : OpSpec<LockOp> {
             if (timing == null || (timing.span == null && timing.until == null)) {
                 ctx.fail(path, "a lock needs for or until: the window ends it, there is no unlock op")
             }
-            LockOp(id, whenExpr, timing, m, p, y)
+            LockOp(id, src, whenExpr, timing, m, p, y)
         }
 
     override fun lower(op: LockOp, lc: LowerContext): Result<Lowered, SkillDecodeError> {
-        val self = InstanceId(lc.instancePrefix.path + InstanceId.Segment(op.id, null))
+        val self = InstanceId(lc.self.path + InstanceId.Segment(op.id, null))
         val span = op.timing?.span
         val path = lc.src.value
         // untilTick is state-relative like clockOffset (the unroller shifts rows but not payloads).
@@ -78,8 +81,8 @@ public object LockOpSpec : OpSpec<LockOp> {
         if (ticks != null && ticks < 1) {
             return Result.Failure(SkillDecodeError.Invalid(lc.skillId, "$path.for", "a lock window must last at least 1 tick"))
         }
-        val untilTick = if (ticks != null) lc.clockOffset + ticks else lc.config.maxCastTicks
-        val rows = mutableListOf(Row(0, self, Action.Lock(op.move, op.pitch, op.yaw, untilTick), lc.src))
+        val until = if (ticks != null) LockEnd.AtTick(lc.clockOffset + ticks) else LockEnd.CastEnd
+        val rows = mutableListOf(Row(0, self, Action.Lock(op.move, op.pitch, op.yaw, until), lc.src))
         if (ticks != null) rows += Row(ticks, self, Action.End(self), lc.src)
         return Result.Success(Lowered(rows = rows, instances = listOf(self)))
     }

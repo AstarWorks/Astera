@@ -17,6 +17,7 @@ import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.skillengine.op.OpSection
 import com.astarworks.astera.core.domain.skillengine.table.Action
 import com.astarworks.astera.core.domain.skillengine.table.OpId
+import com.astarworks.astera.core.domain.skillengine.table.SrcPath
 
 /**
  * Decoded `remove` op: the presentation-only early end of the listed instances (ADR-0303 5, 10.6). It runs no exit
@@ -24,6 +25,7 @@ import com.astarworks.astera.core.domain.skillengine.table.OpId
  */
 public class RemoveOp(
     override val id: OpId,
+    override val src: SrcPath,
     override val whenExpr: WhenRef?,
     override val timing: Timing?,
     val remove: List<String>,
@@ -38,8 +40,8 @@ public object RemoveOpSpec : OpSpec<RemoveOp> {
 
     override val fields: Fields = Fields.of("remove", removeField)
 
-    override fun decode(id: OpId, whenExpr: WhenRef?, timing: Timing?, values: FieldValues, ctx: GrammarContext): Result<RemoveOp, SkillDecodeError> =
-        Result.Success(RemoveOp(id, whenExpr, timing, values[removeField]))
+    override fun decode(id: OpId, src: SrcPath, whenExpr: WhenRef?, timing: Timing?, values: FieldValues, ctx: GrammarContext): Result<RemoveOp, SkillDecodeError> =
+        Result.Success(RemoveOp(id, src, whenExpr, timing, values[removeField]))
 
     override fun lower(op: RemoveOp, lc: LowerContext): Result<Lowered, SkillDecodeError> {
         val path = lc.src.value

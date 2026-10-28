@@ -20,6 +20,7 @@ import com.astarworks.astera.core.domain.skillengine.model.Value
 import com.astarworks.astera.core.domain.skillengine.op.OpSection
 import com.astarworks.astera.core.domain.skillengine.table.EventPath
 import com.astarworks.astera.core.domain.skillengine.table.OpId
+import com.astarworks.astera.core.domain.skillengine.table.SrcPath
 import com.astarworks.astera.core.domain.skillengine.table.Val
 
 /**
@@ -28,6 +29,7 @@ import com.astarworks.astera.core.domain.skillengine.table.Val
  */
 public class ReelOp(
     override val id: OpId,
+    override val src: SrcPath,
     override val whenExpr: WhenRef?,
     override val timing: Timing?,
     public val anchor: String,
@@ -48,7 +50,7 @@ public object ReelOpSpec : OpSpec<ReelOp> {
     override val timing: TimingKind? = TimingKind.EXTENDED
     override val fields: Fields = Fields.of("reel", anchor, to, speed, ease)
 
-    override fun decode(id: OpId, whenExpr: WhenRef?, timing: Timing?, values: FieldValues, ctx: GrammarContext): Result<ReelOp, SkillDecodeError> =
+    override fun decode(id: OpId, src: SrcPath, whenExpr: WhenRef?, timing: Timing?, values: FieldValues, ctx: GrammarContext): Result<ReelOp, SkillDecodeError> =
         Grammar.guard {
             val path = "reel(${id.value})"
             val s = values[speed]
@@ -59,7 +61,7 @@ public object ReelOpSpec : OpSpec<ReelOp> {
                 is Span.Ticks -> span.ticks
                 Span.UntilCastEnds -> ctx.fail(path, "a reel ends on arrival; 'for: cast' is not allowed")
             }
-            ReelOp(id, whenExpr, timing, values[anchor], values[to], s, values[ease], ticks)
+            ReelOp(id, src, whenExpr, timing, values[anchor], values[to], s, values[ease], ticks)
         }
 
     override fun lower(op: ReelOp, lc: LowerContext): Result<Lowered, SkillDecodeError> {

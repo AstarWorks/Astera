@@ -19,6 +19,11 @@ public sealed interface EngineConfigError {
         override val message: String get() = "$origin: not a valid engine config: $detail"
     }
 
+    /** The file or a key is absent (the loader will require every key; W1b-02). */
+    public data class Missing(override val origin: String, val key: String?) : EngineConfigError {
+        override val message: String get() = if (key == null) "$origin: engine config file is missing" else "$origin: missing key '$key'"
+    }
+
     public data class UnknownKey(override val origin: String, val key: String) : EngineConfigError {
         override val message: String get() = "$origin: unknown key '$key' (expected one of: ${EngineConfigLoader.KEYS.joinToString()})"
     }
@@ -68,6 +73,8 @@ public class EngineConfigLoader {
             maxSegmentTicks = reader.int("max_segment_ticks", d.maxSegmentTicks),
             splitTurnDeg = reader.double("split_turn_deg", d.splitTurnDeg, "0 < x <= 180") { it > 0.0 && it <= 180.0 },
             maxSameTickDepth = reader.int("max_same_tick_depth", d.maxSameTickDepth),
+            maxSweepSteps = reader.int("max_sweep_steps", d.maxSweepSteps),
+            expandDir = reader.string("expand_dir", d.expandDir),
         )
         return reader.error?.let { Result.Failure(it) } ?: Result.Success(config)
     }
@@ -77,7 +84,7 @@ public class EngineConfigLoader {
         public val KEYS: List<String> = listOf(
             "max_live_displays", "max_instances_per_op", "max_group_depth", "max_part_depth", "max_life_ticks",
             "max_cast_ticks", "segment_error_blocks", "segment_error_deg", "max_segment_ticks", "split_turn_deg",
-            "max_same_tick_depth",
+            "max_same_tick_depth", "max_sweep_steps", "expand_dir",
         )
 
         private val YAML: Yaml = Yaml.default
@@ -95,6 +102,13 @@ private class FieldReader(private val origin: String, private val values: Map<St
         val parsed = raw.toIntOrNull() ?: return fail(EngineConfigError.WrongType(origin, key, "an integer"), default)
         if (parsed < 1) return fail(EngineConfigError.OutOfRange(origin, key, raw, "> 0"), default)
         return parsed
+    }
+
+    fun string(key: String, default: String): String {
+        val node = values[key] ?: return default
+        val raw = (node as? YamlScalar)?.content.orEmpty()
+        if (raw.isBlank()) return fail(EngineConfigError.WrongType(origin, key, "a non-empty string"), default)
+        return raw
     }
 
     fun double(key: String, default: Double, constraint: String, ok: (Double) -> Boolean): Double {

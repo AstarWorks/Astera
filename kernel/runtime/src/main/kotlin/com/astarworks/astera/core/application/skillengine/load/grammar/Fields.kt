@@ -26,10 +26,13 @@ public class Field<T> internal constructor(
     public val required: Boolean,
     public val default: T?,
     public val doc: String?,
+    /** An identity default (ADR-0303 2.0b): omitting the key means "no effect", so it is exempt from the "no implicit default" lint. */
+    public val identity: Boolean = false,
 ) {
     internal fun schema(): Map<String, Any?> {
         val s = LinkedHashMap(type.schema())
         if (doc != null) s["description"] = doc
+        if (identity) s["x-identity"] = true
         if (!required) {
             s["default"] = when (val d = default) {
                 null, is Number, is Boolean, is String -> d
@@ -47,6 +50,10 @@ public class Field<T> internal constructor(
         /** [default] is written by the spec author and applied when the key is absent. */
         public fun <T> optional(name: String, type: FieldType<T>, default: T, doc: String? = null): Field<T> =
             Field(name, type, false, default, doc)
+
+        /** An optional field whose [default] is the identity value of its type (ADR-0303 2.0b); the schema prints `x-identity: true`. */
+        public fun <T> identity(name: String, type: FieldType<T>, default: T, doc: String? = null): Field<T> =
+            Field(name, type, false, default, doc, identity = true)
     }
 }
 

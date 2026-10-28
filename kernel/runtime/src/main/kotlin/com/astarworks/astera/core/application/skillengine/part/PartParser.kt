@@ -125,7 +125,7 @@ public object PartParser {
 
     // ---- parsing ----------------------------------------------------------------------------------------------
 
-    private fun part(doc: Map<String, Any?>, where: String): Part {
+    public fun part(doc: Map<String, Any?>, where: String): Part {
         checkKeys(doc, where, setOf("apiVersion", "kind", "id", "params", "frames_in", "frames_out", "emits", "machine"))
         if (doc["apiVersion"] != API_VERSION) abort("$where.apiVersion", "apiVersion must be $API_VERSION, was '${doc["apiVersion"]}'")
         val id = doc["id"] as? String ?: abort("$where.id", "missing string 'id'")
@@ -240,7 +240,9 @@ public object PartParser {
         val list = raw as? List<*> ?: abort(where, "expected a list of ops")
         return list.mapIndexed { i, e ->
             val m = e.asMap("$where[$i]")
-            if (m["op"] !is String && m["emit"] !is String) abort("$where[$i]", "an op needs 'op: <name>' (or the effect shorthand 'emit: <event>')")
+            if (m["op"] !is String && m["emit"] !is String && m["use"] !is String) {
+                abort("$where[$i]", "an op needs 'op: <name>' (or the shorthands 'emit: <event>' / 'use: <part>')")
+            }
             m
         }
     }
