@@ -9,38 +9,35 @@ meta:
   resource_cost: 8
   tags: [melee, physical, control]
 params:
-  arc_deg:      {type: degrees, default: 80}
+  arc_deg:      {type: number, default: 80}
   range:        {type: blocks, default: 2.8}
   dmg_physical: {type: number, default: 24}
+  knockback:    {type: number, default: 1.6}
 anchors:
   - {id: fx, anchor: caster.eye, offset: {forward: 1.4}}
-presentation:
-  timeline:
-    - id: swing
-      at: 0
-      do:
-        - {id: snd, op: sound, sound: "astera:weapons/blade-heavy-swing", anchor: caster, volume: 0.9, pitch: 1.1}
-        - {id: fx1, op: emit, effect: hit-spark, anchor: fx}
+  - {id: heart, anchor: victim.root, offset: {up: 1.2}}  # GAP(Q2): v2 enemy frame origin = feet+0.8 fixed
 machine:
   start: cast
   states:
     cast:
       for: 1
       then: done
-      enter:
-        # v2 knockback 1.6 was a no-op in v1 (CONVERT-V1-NOOP); not ported, per v1 behaviour
+      do:
+        - {id: snd, op: sound, sound: "astera:weapons/blade-heavy-swing", anchor: caster, volume: 0.9, pitch: 1.1, at: 0}
+        - {id: fx1, op: particle_def, def: hit-spark, anchor: fx, at: 0}
         - id: strike
           op: hit
           anchor: caster.eye
           at: 0
           shape: {sector: {deg: "${arc_deg}", range: "${range}", height: 2.0, forward: look}}
           targets: enemies
-          max_count: all       # GAP(Q1): max_count spelling (A required int|all / B omit) is a founder question; v2 had no cap
+          max_count: all       # GAP(Q1): v2 had no cap
           window: once
           ignore_invulnerability: false
           damage: {physical: "${dmg_physical}"}
           on:
             hit:
+              - {id: kb, op: knockback, target: event.victim, direction: "= normalize(event.victim - pos(caster))", strength: "${knockback}"}
               - {id: snd_hit, op: sound, sound: "astera:weapons/blade-hit", anchor: contact, volume: 0.7, pitch: 1.2}
-              - {id: spark, op: emit, effect: hit-spark, anchor: contact}
+              - {id: spark, op: particle_def, def: hit-spark, anchor: heart}
     done: {final: true}

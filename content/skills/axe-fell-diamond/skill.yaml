@@ -10,19 +10,14 @@ meta:
   tags: [tool, cover]
 anchors:
   - {id: aim, anchor: caster.eye, offset: {forward: 2.0}}
-presentation:
-  timeline:
-    - id: swing
-      at: 0
-      do:
-        - {id: snd, op: sound, sound: "astera:weapons/blade-heavy-swing", anchor: caster, volume: 1.0, pitch: 0.8}
-        - {id: spark, op: emit, effect: hit-spark, anchor: aim}
 machine:
   start: cast
   states:
     cast:
       for: 1
       then: done
-      enter:
+      do:
         - {id: fell, op: break_area, at: 0, anchor: caster.eye, shape: {line: {length: 9, width: 1}}, tool: axe, block_damage: 100, ripple: 29, revert: 200, outside_arena: false}
+        - {id: snd, op: sound, sound: "astera:weapons/blade-heavy-swing", anchor: caster, volume: 1.0, pitch: 0.8, at: 0}
+        - {id: spark, op: particle_def, def: hit-spark, anchor: aim, at: 0}
     done: {final: true}
