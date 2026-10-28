@@ -112,6 +112,9 @@ public interface ISkillVisualGateway {
      * turn limit per quad and a reversed face when [doubleSided]. Called once after [spawnTrail], only for a trail that sets any of them.
      */
     public fun setTrailShape(handle: VisualHandle, bands: List<TrailBand>, edge: TrailEdge?, rim: TrailRim?, stepDeg: Double, doubleSided: Boolean)
+
+    /** The width (same unit as [spawnTrail]'s `widthFrac`) of the points pushed from now on: a ribbon `grow prop: width` law (ADR-0303 3.4). */
+    public fun setTrailWidth(handle: VisualHandle, widthFrac: Double)
 }
 
 /** One emit op as vanilla `spawnParticle` arguments plus the optional `dir` sugar (see [com.astarworks.astera.core.domain.skillengine.op.FxOp.Emit]). */

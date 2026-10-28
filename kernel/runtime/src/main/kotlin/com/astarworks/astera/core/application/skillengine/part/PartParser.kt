@@ -263,15 +263,15 @@ public object PartParser {
 
     private fun ops(raw: Any?, where: String): List<OpMap> {
         if (raw == null) return emptyList()
-        val list = raw as? List<*> ?: abort(where, "expected a list of ops")
-        return list.mapIndexed { i, e ->
+        val list = SeqSugar.expandList(raw as? List<*> ?: abort(where, "expected a list of ops"), where) { p, msg -> abort(p, msg) }
+        return list.flatMapIndexed { i, e ->
             val m = e.asMap("$where[$i]")
             if (m["op"] !is String && m["emit"] !is String && m["use"] !is String) {
                 // ADR-0303 2.0a: a timing group is implied by `do:`
-                if (m["do"] is List<*>) return@mapIndexed m + ("op" to "group")
+                if (m["do"] is List<*>) return@flatMapIndexed listOf(m + ("op" to "group"))
                 abort("$where[$i]", "an op needs 'op: <name>' (or the shorthands 'emit: <event>' / 'use: <part>'; a timing group is a map with `do:`)")
             }
-            m
+            listOf(m)
         }
     }
 
