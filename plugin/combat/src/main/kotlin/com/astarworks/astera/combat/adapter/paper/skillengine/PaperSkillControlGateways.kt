@@ -54,6 +54,8 @@ public class PaperSkillCasterAnimGateway(
     private val rigs: () -> ISkinRigAnimator?,
     private val registry: () -> ISkinRigRegistry?,
     private val poses: () -> IPlayerAnimationGateway?,
+    /** Whether a player's skin is the slim model (`IDisplayEntityGateway.isSlimSkin`). */
+    private val slim: () -> ((UUID) -> Boolean)? = { null },
 ) : ISkillCasterAnimGateway {
     private val log = LoggerFactory.getLogger("com.astarworks.astera.combat.skillengine.trace")
 
@@ -69,6 +71,10 @@ public class PaperSkillCasterAnimGateway(
         if (result == null) log.error("[skill-error] caster_anim '{}': no player animation gateway, nothing plays", anim)
         trace("caster_anim play $anim (pose, $ticks ticks) -> ${result ?: "no gateway"}")
     }
+
+    override fun clip(anim: String): com.astarworks.astera.core.domain.animation.skinrig.SkinRigAnimation? = registry()?.find(CustomAnimationId(anim))
+
+    override fun isSlim(caster: UUID): Boolean = slim()?.invoke(caster) ?: false
 
     override fun stop(caster: UUID, anim: String) {
         val id = CustomAnimationId(anim)
