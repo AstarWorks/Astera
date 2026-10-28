@@ -1,0 +1,131 @@
+package com.astarworks.astera.gamesim
+
+import com.astarworks.astera.core.domain.geometry.Vec3
+import com.astarworks.astera.core.domain.world.BlockType
+import com.astarworks.astera.core.domain.world.WorldId
+import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.double
+import kotlinx.serialization.json.jsonArray
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
+import com.astarworks.astera.core.application.port.outbound.IEgoGauge
+import com.astarworks.astera.core.application.services.getOrThrow
+import org.junit.jupiter.api.Test
+import java.io.File
+
+/**
+ * Gameplay reference dump (throwaway, v1 d41b82f1e): casts each id of ASTERA_DUMP_IDS in the scripted scene (caster at the
+ * feet origin, yaw 0 pitch 0, dummy 5 ahead, wall plane z=8) and writes the gameplay JSONL vocabulary of
+ * `tools/skill-convert/gameplay_diff.py` to ASTERA_DUMP_OUT.
+ */
+class V1GameplayDumpTest {
+    private fun itemOf(skill: String): String? {
+        val dir = File("content/items").let { if (it.isDirectory) it else File("../../content/items") }
+        for (f in dir.listFiles()!!.sortedBy { it.name }) {
+            val t = f.readText()
+            if (Regex("""skill_id:\s*${Regex.escape(skill)}\s*$""", RegexOption.MULTILINE).containsMatchIn(t)) {
+                return Regex("""^id:\s*(\S+)""", RegexOption.MULTILINE).find(t)?.groupValues?.get(1)
+            }
+        }
+        return null
+    }
+
+    private fun r(d: Double): String { val v = Math.round(d * 1e3) / 1e3; return (if (v == 0.0) 0.0 else v).toString() }
+    private fun q(s: String) = "\"" + s.replace("\\", "\\\\").replace("\"", "'").replace("\n", " ") + "\""
+
+    @Test
+    fun dump() {
+        val ids = System.getenv("ASTERA_DUMP_IDS")!!.split(",").filter { it.isNotBlank() }
+        val out = File(System.getenv("ASTERA_DUMP_OUT")!!).also { it.mkdirs() }
+        val ticks = (System.getenv("ASTERA_DUMP_TICKS") ?: "120").toInt()
+        for (id in ids) {
+            val lines = ArrayList<String>()
+            try {
+                scenario("gdump-$id") {
+                    val caster = player("caster", facing = Vec3(0.0, 0.0, 1.0))
+                    val feet = caster.position
+                    val dummy = mob("dummy", Vec3(feet.x, feet.y, feet.z + 5.0))
+                    for (x in -6..6) for (y in 0..8) sim.world.placeBlock(WorldId("world"), Vec3(feet.x + x, feet.y + y, feet.z + 8.0), BlockType("minecraft:stone"))
+                    val item = itemOf(id)
+                    if (item != null) runCatching { caster.holds(item) }
+                    fun rel(v: Vec3) = "\"x\":${r(v.x - feet.x)},\"y\":${r(v.y - feet.y)},\"z\":${r(v.z - feet.z)}"
+                    fun who(uuid: String) = when (uuid) { caster.id.uuid.toString() -> "caster"; dummy.id.uuid.toString() -> "dummy"; else -> "other" }
+                    lines += "{\"e\":\"meta\",\"id\":\"$id\",\"item\":\"$item\"}"
+                    if (id.endsWith("-ego")) runCatching { val g = sim.services.getOrThrow<IEgoGauge>(); g.gain(caster.id, g.config.max) }
+                    val poolBefore = sim.pool(caster)?.let { it.ammo to it.energy }
+                    sim.step(1)
+                    val start = sim.scheduler.currentTick()
+                    caster.cast(id)
+                    val poolAfter = sim.pool(caster)?.let { it.ammo to it.energy }
+                    if (poolBefore != null && poolAfter != null) {
+                        lines += "{\"t\":0,\"e\":\"cost\",\"ammo\":${poolBefore.first - poolAfter.first},\"energy\":${poolBefore.second - poolAfter.second}}"
+                    }
+                    val lastVel = hashMapOf("caster" to Vec3.ZERO, "dummy" to Vec3.ZERO)
+                    for (i in 0 until ticks) {
+                        for ((n, e) in listOf("caster" to caster, "dummy" to dummy)) {
+                            val v = e.velocity
+                            lines += "{\"t\":$i,\"e\":\"pos\",\"who\":\"$n\",${rel(e.position)},\"vx\":${r(v.x)},\"vy\":${r(v.y)},\"vz\":${r(v.z)}}"
+                            if (lastVel.put(n, v) != v) lines += "{\"t\":$i,\"e\":\"vel\",\"who\":\"$n\",\"x\":${r(v.x)},\"y\":${r(v.y)},\"z\":${r(v.z)}}"
+                        }
+                        advance(1)
+                    }
+                    val kbTicks = ArrayList<Int>()
+                    val trace = sim.recorder.toJson().jsonObject
+                    for (tk in trace["ticks"]!!.jsonArray) {
+                        val o = tk.jsonObject
+                        val t = (o["tick"]!!.jsonPrimitive.content.toLong() - start).toInt()
+                        if (t < 0 || t >= ticks) continue
+                        fun arr(k: String): JsonArray = o[k]?.jsonArray ?: JsonArray(emptyList())
+                        fun JsonObject.d(k: String) = this[k]?.jsonPrimitive?.double ?: 0.0
+                        fun JsonObject.p() = rel(Vec3(d("x"), d("y"), d("z")))
+                        for (s in arr("sounds")) { val j = s.jsonObject; lines += "{\"t\":$t,\"e\":\"sound\",\"key\":${q(j["key"]!!.jsonPrimitive.content)},${j.p()},\"vol\":${r(j.d("volume"))},\"pitch\":${r(j.d("pitch"))}}" }
+                        for (s in arr("damage")) { val j = s.jsonObject; lines += "{\"t\":$t,\"e\":\"damage\",\"v\":\"${who(j["target"]!!.jsonPrimitive.content)}\",\"amt\":${r(j.d("amount"))},\"src\":${q(j["source"]!!.jsonPrimitive.content)},\"hp\":${j["hpAfter"]?.jsonPrimitive?.content}}" }
+                        for (s in arr("status")) { val j = s.jsonObject; lines += "{\"t\":$t,\"e\":\"status\",\"who\":\"${who(j["target"]!!.jsonPrimitive.content)}\",\"id\":${q(j["effect"]!!.jsonPrimitive.content)},\"op\":\"${j["op"]!!.jsonPrimitive.content}\",\"stacks\":${j["stacks"]?.jsonPrimitive?.content},\"dur\":${j["remainingTicks"]?.jsonPrimitive?.content}}" }
+                        for (s in arr("projectileEvents")) { val j = s.jsonObject; lines += "{\"t\":$t,\"e\":\"proj\",\"id\":${q(j["id"]!!.jsonPrimitive.content.takeLast(6))},\"k\":\"${j["kind"]!!.jsonPrimitive.content}\",${j.p()},\"target\":${j["target"]?.jsonPrimitive?.content?.takeIf { it != "null" }?.let { q(who(it)) }}}" }
+                        for (s in arr("projectiles")) { val j = s.jsonObject; lines += "{\"t\":$t,\"e\":\"projpos\",\"id\":${q(j["id"]!!.jsonPrimitive.content.takeLast(6))},${j.p()}}" }
+                        for (s in arr("teleports")) { val j = s.jsonObject; lines += "{\"t\":$t,\"e\":\"tp\",\"who\":\"${who(j["id"]!!.jsonPrimitive.content)}\",${j.p()}}" }
+                        for (s in arr("deaths")) { val j = s.jsonObject; lines += "{\"t\":$t,\"e\":\"death\",\"who\":\"${who(j["victim"]!!.jsonPrimitive.content)}\"}" }
+                        for (s in arr("effects")) {
+                            val j = s.jsonObject; val k = j["kind"]!!.jsonPrimitive.content
+                            if (k.startsWith("display_")) continue
+                            val at = if (j.containsKey("x")) ",${j.p()}" else ""
+                            lines += "{\"t\":$t,\"e\":\"world\",\"k\":\"$k\"$at,\"detail\":${q(j["detail"]!!.jsonPrimitive.content.take(80))}}"
+                        }
+                        for (s in arr("events")) {
+                            val ty = s.jsonObject["type"]!!.jsonPrimitive.content
+                            if (ty == "KnockbackApplied") kbTicks += t
+                            if (ty in setOf("DamageDealt", "StatusApplied", "StatusRemoved", "StatusExpired", "PlayerKilled", "PlayerFoodChanged", "CurrencyChanged", "LoginBonusClaimed", "PlayerHealthChanged", "KnockbackApplied", "EgoGaugeChanged")) continue
+                            lines += "{\"t\":$t,\"e\":\"ev\",\"type\":\"$ty\"}"
+                        }
+                    }
+                    for (e in sim.eventsOf<com.astarworks.astera.core.domain.event.SkillCooldownStarted>()) {
+                        lines += "{\"t\":${e.atTick - start},\"e\":\"cooldown\",\"skill\":${q(e.skillId.value)},\"ticks\":${e.durationTicks},\"reload\":${e.reloadTicks}}"
+                    }
+                    run {
+                        // typed events carry no tick; they are published synchronously, so the order in sim.events is the order here
+                        var kbi = 0
+                        for (ev in sim.events) {
+                            when (ev) {
+                                is com.astarworks.astera.combat.domain.event.KnockbackApplied ->
+                                    lines += "{\"t\":${kbTicks.getOrElse(kbi++) { -1 }},\"e\":\"kb\",\"who\":\"${who(ev.target.uuid.toString())}\",\"strength\":${r(ev.push.strength)},\"from\":{${rel(ev.push.awayFrom)}}}"
+                                is com.astarworks.astera.core.domain.event.EgoGaugeChanged ->
+                                    lines += "{\"t\":${ev.atTick - start},\"e\":\"ego\",\"value\":${ev.value}}"
+                                else -> {}
+                            }
+                        }
+                    }
+                    for (e in sim.eventsOf<com.astarworks.astera.core.domain.event.BlockBrokenBySkill>()) {
+                        lines += "{\"t\":${e.atTick - start},\"e\":\"block\",\"k\":\"break\",${rel(e.position)},\"block\":${q(e.blockType.key)}}"
+                    }
+                    for (e in sim.eventsOf<com.astarworks.astera.core.domain.event.BlockDamagedBySkill>()) {
+                        lines += "{\"t\":${e.atTick - start},\"e\":\"block\",\"k\":\"damage\",${rel(e.position)},\"block\":${q(e.blockType.key)},\"amount\":${e.amount}}"
+                    }
+                }
+            } catch (e: Throwable) {
+                lines += "{\"e\":\"error\",\"msg\":${q((e::class.simpleName + ": " + e.message).take(200))}}"
+            }
+            File(out, "$id.jsonl").writeText(lines.joinToString("\n") + "\n")
+        }
+    }
+}
