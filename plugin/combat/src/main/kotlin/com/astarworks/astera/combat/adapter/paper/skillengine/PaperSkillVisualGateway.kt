@@ -11,7 +11,6 @@ import com.astarworks.astera.core.application.skillengine.runtime.port.SpriteInf
 import com.astarworks.astera.core.application.skillengine.runtime.port.VisualHandle
 import com.astarworks.astera.core.application.skillengine.runtime.port.VisualPose
 import com.astarworks.astera.core.domain.effect.DisplayBillboard
-import com.astarworks.astera.core.domain.effect.DisplayItemMode
 import com.astarworks.astera.core.domain.effect.DisplayKind
 import com.astarworks.astera.core.domain.effect.DisplaySpec
 import com.astarworks.astera.core.domain.effect.DisplayTransform
@@ -25,7 +24,6 @@ import com.astarworks.astera.core.domain.i18n.LocalizedText
 import com.astarworks.astera.combat.application.port.outbound.IDisplayEntityGateway.DisplayWrite
 import com.astarworks.astera.core.application.port.outbound.presentation.IPlayerPresentation
 import com.astarworks.astera.core.domain.Result
-import com.astarworks.astera.core.domain.item.ItemId
 import com.astarworks.astera.core.domain.presentation.PresentationKind
 import com.astarworks.astera.core.domain.presentation.PresentationLease
 import com.astarworks.astera.core.domain.presentation.PresentationMask
@@ -106,12 +104,10 @@ public class PaperSkillVisualGateway(
 
     override fun spawnMesh(castOwner: UUID, item: String, part: String?, pose: VisualPose, brightness: Int?): VisualHandle {
         val world = worldOf(castOwner) ?: return dead("mesh $item")
-        val heldItem = SkillDisplaySpecs.meshKind(MeshModels.resolve(item, part, frameTables)) == null
-        val kind = SkillDisplaySpecs.meshKind(MeshModels.resolve(item, part, frameTables)) ?: run {
-            val held = server.getPlayer(castOwner)?.inventory?.itemInMainHand?.takeUnless { it.type.isAir }
-                ?: return dead("mesh $item (empty main hand)")
-            DisplayKind.Item(ItemId(held.type.key.key.replace('_', '-')), DisplayItemMode.FIXED, held.itemMeta?.takeIf { it.hasItemModel() }?.itemModel?.toString())
-        }
+        val kind = SkillDisplaySpecs.meshKind(MeshModels.resolve(item, part, frameTables))
+        val heldItem = kind == DisplayKind.AnchorMainHand
+        // v1 cloned the real stack (custom model, components) and drew it in THIRDPERSON_RIGHTHAND (PaperDisplayEntityGateway.kt:192-199).
+        if (heldItem && server.getPlayer(castOwner)?.inventory?.itemInMainHand?.type?.isAir != false) return dead("mesh $item (empty main hand)")
         val first = toDisplayWrite(pose.frame, pose.size, Intrinsic.ITEM_FIXED, pose.billboard, 0)
         val spec = SkillDisplaySpecs.mesh(kind, first.transform, brightness)
         val handle = spawnDisplay(world, castOwner, pose.frame.origin, spec, emptyList(), pose.anchorFeet != null) ?: return dead("mesh $item")

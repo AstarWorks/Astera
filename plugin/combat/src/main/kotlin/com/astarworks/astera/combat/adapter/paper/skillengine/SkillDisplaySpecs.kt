@@ -32,13 +32,13 @@ public object SkillDisplaySpecs {
     }
 
     /** The item a pack or vanilla mesh model draws; null for the caster's held item (needs the caster). */
-    public fun meshKind(model: MeshModel): DisplayKind.Item? = when (model) {
+    public fun meshKind(model: MeshModel): DisplayKind = when (model) {
         is MeshModel.Pack -> DisplayKind.Item(ItemId("paper"), DisplayItemMode.FIXED, model.key)
         is MeshModel.Vanilla -> DisplayKind.Item(ItemId(model.material.replace('_', '-')), DisplayItemMode.FIXED, null)
-        MeshModel.HeldItem -> null
+        MeshModel.HeldItem -> DisplayKind.AnchorMainHand // v1 AnchorMainHand: the caster's real stack in THIRDPERSON_RIGHTHAND (PaperDisplayEntityGateway.kt:192-199)
     }
 
-    public fun mesh(kind: DisplayKind.Item, first: DisplayTransform, brightness: Int? = null): DisplaySpec =
+    public fun mesh(kind: DisplayKind, first: DisplayTransform, brightness: Int? = null): DisplaySpec =
         DisplaySpec(kind = kind, transform = first, lifetimeTicks = LIFETIME, billboard = DisplayBillboard.FIXED, brightness = brightness, weaponRigShading = brightness == null)
 
     public fun block(blockKey: String, first: DisplayTransform, brightness: Int?): DisplaySpec =

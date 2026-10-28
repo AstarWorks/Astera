@@ -137,7 +137,6 @@ class RecordingVisuals(
         val h = next(Mesh(), "mesh", "$item/$part")
         val w = write(h.id, "mesh", Intrinsic.ITEM_FIXED, pose, 0, pose.size.x, "$item/$part", spawn = true)
         val kind = SkillDisplaySpecs.meshKind(MeshModels.resolve(item, part, frameTables))
-            ?: com.astarworks.astera.core.domain.effect.DisplayKind.Item(com.astarworks.astera.core.domain.item.ItemId("main-hand"), com.astarworks.astera.core.domain.effect.DisplayItemMode.FIXED, null)
         specs[h.id] = SkillDisplaySpecs.mesh(kind, w.transform, brightness)
         return h
     }
