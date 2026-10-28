@@ -23,7 +23,11 @@ public sealed interface PlateFace {
 /** Display objects attached to frames. Family owner: visual (mesh/plate/line/trail) worker. */
 public sealed interface VisualOp : PresentationOp {
 
-    /** Show an item model (or one named part of it) on [frame]. */
+    /**
+     * Show an item model (or one named part of it) as a NODE of the frame tree named [id], child of [frame] (ADR-0303): its
+     * local pose is `pivot` + `tilt`, tracks move that node, and any frame, emit, hit or child may name [id] as its parent.
+     * [scale] is the model's size in blocks per model unit (an item display renders 1 block at scale 1).
+     */
     public data class Mesh(
         override val id: String,
         override val whenExpr: Value<Boolean>?,
@@ -33,19 +37,21 @@ public sealed interface VisualOp : PresentationOp {
         val scale: Value<Double>?,
         /** Where the model's origin sits relative to [frame], in the frame's axes `[left, up, forward]` (a held weapon: the grip). */
         val pivot: Value<Vec3>? = null,
-        /** Orientation `[yaw, pitch, roll]` degrees of the model at track 0, applied INSIDE the track rotation (blade +Y to forward: pitch 90). */
+        /** Rotation vector (axis direction, length = degrees, right-hand) of the model at track 0, applied INSIDE the track turn (blade +Y to forward: `[90,0,0]` about left). */
         val rest: Value<Vec3>? = null,
-        /** `[yaw, pitch, roll]` degrees that tilt the whole swing plane, applied OUTSIDE the track rotation. */
+        /** Rotation vector (degrees) that tilts the whole swing plane, applied OUTSIDE the track turn: the node's base rotation. */
         val tilt: Value<Vec3>? = null,
     ) : VisualOp
 
+    /** A sprite quad as a NODE of the frame tree named [id], child of [parent]; [size] is its edge length in BLOCKS. */
     public data class Plate(
         override val id: String,
         override val whenExpr: Value<Boolean>?,
         val parent: String,
         val face: PlateFace,
         val sprite: String,
-        val sizeFrac: Value<Double>,
+        /** Edge length in blocks (the converter resolves it; the runtime never scales by a tip distance). */
+        val size: Value<Double>,
         val alpha: Value<Double>,
         /** Ticks each flipbook frame stays; null shows frame 0 only. */
         val frameTicks: Int? = null,
@@ -99,10 +105,9 @@ public sealed interface VisualOp : PresentationOp {
     ) : VisualOp
 
     /**
-     * Keyframes the local offset / rotation / scale of ONE visual object (mesh or plate created by the
-     * op with id [target]) relative to its frame. Moves only that visual, never a gameplay frame, so
-     * hit volumes are unaffected. [space] is the frame whose axes the offset is expressed in
-     * (default: the visual's own frame). Ticks count from the moment this op runs.
+     * Keyframes the local offset / turn / scale of ONE tree node (a mesh or plate created by the op with id [target], or a plain frame of that id: its emits and children ride it)
+     * relative to its parent frame. Children of that node ride it. [space] is the frame whose axes the offset is expressed
+     * in (default: the node's parent). Ticks count from the moment this op runs.
      */
     public data class Track(
         override val id: String,
@@ -121,13 +126,14 @@ public sealed interface VisualOp : PresentationOp {
 }
 
 /**
- * One key of a [VisualOp.Track]. [rotation] is `[yawDeg, pitchDeg, rollDeg]` applied on top of the
- * visual's base orientation; a channel that is null is not keyed (it keeps its neutral value).
+ * One key of a [VisualOp.Track]. [turn] is a rotation vector (axis direction, length = degrees, right-hand rule) applied on
+ * top of the node's base orientation and interpolated by slerp, never an Euler triple; a channel that is null is not keyed
+ * (it keeps its neutral value).
  */
 public data class TrackKey(
     val tick: Int,
     val offset: Value<com.astarworks.astera.core.domain.geometry.Vec3>?,
-    val rotation: Value<com.astarworks.astera.core.domain.geometry.Vec3>?,
+    val turn: Value<com.astarworks.astera.core.domain.geometry.Vec3>?,
     /** Per-axis scale factor on the visual's authored size: a mesh scales x/y/z, a plate x = width and y = height (z ignored). A bare number in YAML is the uniform shorthand. */
     val scale: Value<com.astarworks.astera.core.domain.geometry.Vec3>?,
     /** `linear` (default), `ease_in`, `ease_out`, `ease_in_out`: easing of the segment ENDING at this key. */

@@ -1,19 +1,20 @@
 package com.astarworks.astera.gamesim
 
 import com.astarworks.astera.combat.adapter.paper.skillengine.RibbonMesh
-import com.astarworks.astera.combat.adapter.paper.skillengine.PlateOrientation
-import com.astarworks.astera.combat.adapter.paper.skillengine.SkillDisplayMath
+import com.astarworks.astera.combat.adapter.paper.skillengine.Intrinsic
+import com.astarworks.astera.combat.adapter.paper.skillengine.ribbonColumns
+import com.astarworks.astera.combat.adapter.paper.skillengine.toDisplayWrite
+import com.astarworks.astera.core.application.skillengine.runtime.port.SpriteInfo
+import com.astarworks.astera.core.application.skillengine.runtime.port.VisualPose
 import com.astarworks.astera.core.application.skillengine.runtime.port.ISkillVisualGateway
 import com.astarworks.astera.core.application.skillengine.runtime.port.VisualHandle
 import com.astarworks.astera.core.domain.effect.DisplayTransform
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.geometry.math.Frame
 import com.astarworks.astera.core.domain.geometry.math.Quaternion
-import com.astarworks.astera.core.domain.skillengine.op.PlateFace
 import com.astarworks.astera.core.domain.skillengine.op.TrailBand
 import com.astarworks.astera.core.domain.skillengine.op.TrailEdge
 import com.astarworks.astera.core.domain.skillengine.op.TrailRim
-import com.astarworks.astera.combat.adapter.paper.skillengine.SkillDisplayWrites
 import com.astarworks.astera.combat.application.port.outbound.IDisplayEntityGateway.DisplayWrite
 import com.astarworks.astera.core.domain.effect.DisplayBillboard
 import com.astarworks.astera.core.domain.player.PlayerId
@@ -38,7 +39,7 @@ class DisplayLife(val handle: Long, val kind: String, val note: String, val spaw
 class DisplayCall(val tick: Int, val handle: Long, val write: DisplayWrite, val feet: Vec3, val spawn: Boolean = false)
 
 /**
- * Records the display matrices the Paper visual gateway would build (same maths, [SkillDisplayMath] / [PlateOrientation]),
+ * Records the display matrices the Paper visual gateway would build (the same [toDisplayWrite] the Paper gateway calls),
  * one [DisplayFrame] per spawn / update, so a scenario can check them for stretch (SKL-14).
  */
 class RecordingVisuals(private val now: () -> Int, private val casterFeet: () -> Vec3 = { Vec3.ZERO }) : ISkillVisualGateway {
@@ -67,9 +68,9 @@ class RecordingVisuals(private val now: () -> Int, private val casterFeet: () ->
         return from + (to - from) * k
     }
     private var ids = 0L
-    private class Mesh(var scale: Vec3, var rotation: Quaternion)
-    private class Plate(val face: PlateFace, var size: Vec3, var rotation: Quaternion)
-    private class Line(val face: PlateFace, val thickness: Double)
+    private class Mesh
+    private class Plate(val intrinsic: Intrinsic)
+    private class Line
     private class Trail(val widthFrac: Double, val colorHex: String, val alpha: Double) {
         val mesh = RibbonMesh()
         var bands: List<TrailBand> = emptyList()
@@ -114,56 +115,54 @@ class RecordingVisuals(private val now: () -> Int, private val casterFeet: () ->
         /** TextDisplay: one font pixel is 0.025 blocks at scale 1 (vanilla TextDisplayRenderer, scale(-0.025)). */
         const val GLYPH_BLOCKS_PER_PX = 0.025
         private val pixelCache = HashMap<String, Int>()
+        private val frameCache = HashMap<String, Int>()
         private val spriteDir: java.io.File? = generateSequence(java.io.File("").absoluteFile) { it.parentFile }
             .map { it.resolve("content/sprites") }.firstOrNull { it.isDirectory }
     }
 
-    override fun spawnMesh(castOwner: UUID, item: String, part: String?, scale: Double, pose: Frame, anchored: Boolean): VisualHandle {
-        val h = next(Mesh(Vec3(scale, scale, scale), pose.rotation), "mesh", "$item/$part")
-        calls += DisplayCall(now(), h.id, SkillDisplayWrites.mesh(pose, Vec3(scale, scale, scale), 0, anchorAt(casterFeet().takeIf { anchored })), casterFeet(), spawn = true)
-        record("mesh", h.id, scale, DisplayTransform(Vec3.ZERO, pose.rotation, Vec3(scale, scale, scale)), "$item/$part")
+    override fun spawnMesh(castOwner: UUID, item: String, part: String?, pose: VisualPose): VisualHandle {
+        val h = next(Mesh(), "mesh", "$item/$part")
+        write(h.id, "mesh", Intrinsic.ITEM_FIXED, pose, 0, pose.size.x, "$item/$part", spawn = true)
         return h
     }
 
-    override fun spawnPlate(castOwner: UUID, sprite: String, face: PlateFace, size: Double, alpha: Double, pose: Frame, anchored: Boolean): VisualHandle {
-        val placed = PlateOrientation.forPlate(pose, face)
-        val h = next(Plate(face, Vec3(size, size, size), placed.rotation), "plate", sprite)
+    override fun spawnPlate(castOwner: UUID, sprite: String, alpha: Double, pose: VisualPose): VisualHandle {
+        val intrinsic = Intrinsic.textGlyph(spritePixels(sprite))
+        val h = next(Plate(intrinsic), "plate", sprite)
         spriteOf[h.id] = sprite
-        calls += DisplayCall(now(), h.id, SkillDisplayWrites.plate(pose, face, size, size, 0, anchorAt(casterFeet().takeIf { anchored })), casterFeet(), spawn = true)
-        record("plate", h.id, size, SkillDisplayMath.plateTransform(placed.rotation, size, size), sprite)
+        write(h.id, "plate", intrinsic, pose, 0, pose.size.x, sprite, spawn = true)
         return h
     }
 
-    override fun spawnLine(castOwner: UUID, from: Vec3, to: Vec3, thickness: Double, colorHex: String, face: PlateFace): VisualHandle {
-        val h = next(Line(face, thickness), "line")
-        record("line", h.id, thickness, SkillDisplayMath.lineTransform(from, to, thickness, face, null), "len=${"%.2f".format(from.distance(to))}")
+    override fun spawnLine(castOwner: UUID, colorHex: String, pose: VisualPose): VisualHandle {
+        val h = next(Line(), "line")
+        write(h.id, "line", Intrinsic.TEXT_SOLID, pose, 0, pose.size.y, "len=${"%.2f".format(pose.size.x)}", spawn = true)
         return h
     }
 
     override fun spawnTrail(castOwner: UUID, ticks: Int, widthFrac: Double, colorHex: String, alpha: Double): VisualHandle = next(Trail(widthFrac, colorHex, alpha), "trail")
 
-    override fun updateDisplay(handle: VisualHandle, pose: Frame, scale: Vec3, interpolationTicks: Int, anchorFeet: Vec3?) {
-        val a = anchorAt(anchorFeet)
+    override fun sprite(sprite: String): SpriteInfo = SpriteInfo(spriteFrames(sprite), spritePixels(sprite))
+
+    override fun write(handle: VisualHandle, pose: VisualPose, interpolationTicks: Int) {
         when (val e = entries[handle.id]) {
-            is Mesh -> {
-                e.scale = scale; e.rotation = pose.rotation
-                val w = SkillDisplayWrites.mesh(pose, scale, interpolationTicks, a)
-                calls += DisplayCall(now(), handle.id, w, casterFeet())
-                record("mesh", handle.id, scale.x, w.transform)
-            }
-            is Plate -> {
-                e.size = scale
-                val w = SkillDisplayWrites.plate(pose, e.face, scale.x, scale.y, interpolationTicks, a)
-                e.rotation = w.transform.rotation
-                calls += DisplayCall(now(), handle.id, w, casterFeet())
-                record("plate", handle.id, scale.x, w.transform, "wh=${scale.x},${scale.y}")
-            }
+            is Mesh -> write(handle.id, "mesh", Intrinsic.ITEM_FIXED, pose, interpolationTicks, pose.size.x)
+            is Plate -> write(handle.id, "plate", e.intrinsic, pose, interpolationTicks, pose.size.x, "wh=${pose.size.x},${pose.size.y}")
+            is Line -> write(handle.id, "line", Intrinsic.TEXT_SOLID, pose, interpolationTicks, pose.size.y, "len=${"%.2f".format(pose.size.x)}")
         }
     }
 
-    override fun updateLine(handle: VisualHandle, from: Vec3, to: Vec3) {
-        val e = entries[handle.id] as? Line ?: return
-        record("line", handle.id, e.thickness, SkillDisplayMath.lineTransform(from, to, e.thickness, e.face, null), "len=${"%.2f".format(from.distance(to))}")
+    /** The Paper gateway's write, recorded: [toDisplayWrite] of the pose, then the same fields as a [DisplayCall] and a [DisplayFrame]. */
+    private fun write(id: Long, kind: String, intrinsic: Intrinsic, pose: VisualPose, ticks: Int, authored: Double, note: String = "", spawn: Boolean = false) {
+        val w = toDisplayWrite(pose.frame, pose.size, intrinsic, pose.billboard, ticks, if (kind == "line") null else anchorAt(pose.anchorFeet))
+        calls += DisplayCall(now(), id, w, casterFeet(), spawn)
+        record(kind, id, authored, w.transform, note)
+    }
+
+    /** Frames in a sprite's flipbook (`frames:` of `content/sprites/<id>.yaml`). */
+    private fun spriteFrames(sprite: String): Int = frameCache.getOrPut(sprite) {
+        val f = spriteDir?.resolve("$sprite.yaml")
+        f?.takeIf { it.isFile }?.readLines()?.firstNotNullOfOrNull { l -> l.removePrefix("frames:").takeIf { l.startsWith("frames:") }?.trim()?.toIntOrNull() } ?: 1
     }
 
     override fun setTrailShape(handle: VisualHandle, bands: List<TrailBand>, edge: TrailEdge?, rim: TrailRim?, stepDeg: Double, doubleSided: Boolean) {
@@ -179,7 +178,7 @@ class RecordingVisuals(private val now: () -> Int, private val casterFeet: () ->
         val bands = if (t.bands.isEmpty()) listOf(RibbonMesh.Band(0.0, 1.0)) else t.bands.map { RibbonMesh.Band(it.from, it.to) }
         for (piece in t.mesh.pushShaped(shaped, tip, bands, t.edge?.width, t.rim?.width, t.stepDeg)) {
             val s = piece.segment
-            val m = SkillDisplayMath.ribbonColumns(s.u, s.v, s.normal)
+            val m = ribbonColumns(s.u, s.v, s.normal)
             frames += DisplayFrame(now(), "ribbon", handle.id, t.widthFrac, listOf(m.col0, m.col1, m.col2), 1.0, "u=${"%.2f".format(s.u.length())} v=${"%.2f".format(s.v.length())}")
             val (hex, alpha, to) = when (piece.kind) {
                 RibbonMesh.PieceKind.BAND ->

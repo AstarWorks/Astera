@@ -1,11 +1,13 @@
 package com.astarworks.astera.core.domain.skillengine.motion
 
 import com.astarworks.astera.core.domain.geometry.Vec3
+import com.astarworks.astera.core.domain.geometry.math.Basis
 import com.astarworks.astera.core.domain.geometry.math.Frame
 import com.astarworks.astera.core.domain.geometry.math.Quaternion
 import com.astarworks.astera.core.domain.skillengine.expr.ExprEnv
 import com.astarworks.astera.core.domain.skillengine.expr.ExprValue
 import com.astarworks.astera.core.domain.skillengine.expr.FrameLookup
+import com.astarworks.astera.core.domain.skillengine.frame.Axes
 import com.astarworks.astera.core.domain.skillengine.frame.FrameId
 import com.astarworks.astera.core.domain.skillengine.frame.FrameTree
 import com.astarworks.astera.core.domain.skillengine.model.AxisRef
@@ -26,45 +28,13 @@ public interface RotationContribution {
     public val contribution: Quaternion
 }
 
-/**
- * Axis names (design 3.3): `world.up`, `velocity`, `velocity.side` (horizontal, perpendicular to the
- * velocity: the axis of a vertical ring plane around a throw), `<frame>.forward|up|left|right`, and
- * `<frame>.<point>` for a point's declared axis (e.g. `shears.axis`). All results are world-space unit vectors.
- */
-public object MotionAxes {
-    private val UP = Vec3(0.0, 1.0, 0.0)
-
-    public fun resolve(name: AxisRef, ctx: MotionContext, velocity: Vec3? = null): Vec3? = resolve(name.name, ctx, velocity)
-
-    public fun resolve(name: String, ctx: MotionContext, velocity: Vec3? = null): Vec3? {
-        val vel = velocity ?: (ctx.env.variables["velocity"] as? ExprValue.Vec3)?.value
-        when (name) {
-            "world.up" -> return UP
-            "world.down" -> return UP * -1.0
-            "velocity" -> return vel?.takeIf { it.lengthSquared() > 1e-12 }?.normalize()
-            "velocity.side" -> {
-                val side = vel?.let { UP.cross(it) } ?: return null
-                return side.takeIf { it.lengthSquared() > 1e-12 }?.normalize()
-            }
-        }
-        val dot = name.lastIndexOf('.')
-        if (dot <= 0) return null
-        val node = FrameId(name.substring(0, dot))
-        val axis = name.substring(dot + 1)
-        val world = ctx.tree.worldOf(node).getOrNull() ?: return null
-        return when (axis) {
-            "forward" -> world.forward()
-            "up" -> world.up()
-            "left" -> world.left()
-            "right" -> world.right()
-            else -> ctx.tree.point(node, axis)?.axis?.let { world.directionToWorld(it).normalize() }
-        }
-    }
-}
-
 /** Shared math of the laws. */
 internal object MotionMath {
     private val IDENTITY = Frame(Vec3.ZERO)
+
+    /** World direction of an axis name ([Axes]); the cast's `velocity` variable is the default velocity. */
+    fun axis(name: AxisRef, ctx: MotionContext, velocity: Vec3? = null): Vec3? =
+        Axes.resolve(ctx.tree, name.name, velocity ?: (ctx.env.variables["velocity"] as? ExprValue.Vec3)?.value)
 
     fun parentWorld(ctx: MotionContext): Frame =
         ctx.tree.node(ctx.frame)?.parent?.let { ctx.tree.worldOf(it).getOrNull() } ?: IDENTITY
@@ -79,9 +49,9 @@ internal object MotionMath {
 
     /** Local (parent-space) orientation whose forward points along [align].axis; null if the axis is unresolvable. */
     fun alignedRotation(ctx: MotionContext, align: AlignSpec, velocity: Vec3?): Quaternion? {
-        val dir = MotionAxes.resolve(align.axis, ctx, velocity) ?: return null
-        val up = align.up?.let { MotionAxes.resolve(it, ctx, velocity) } ?: Vec3(0.0, 1.0, 0.0)
-        val worldRot = Quaternion.lookRotation(dir, up)
+        val dir = axis(align.axis, ctx, velocity) ?: return null
+        val up = align.up?.let { axis(it, ctx, velocity) } ?: Vec3(0.0, 1.0, 0.0)
+        val worldRot = Basis.facing(dir, up)
         return (parentWorld(ctx).rotation.conjugate() * worldRot).normalized()
     }
 

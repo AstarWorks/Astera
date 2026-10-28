@@ -28,7 +28,7 @@ internal class PoseLaw(
         val pos = key.offset?.let { resolver.vec3(it) }
             ?: key.at?.let { MotionMath.worldPointToLocal(ctx, resolver.vec3(it)) }
         val rot = key.rotate?.let { r ->
-            MotionAxes.resolve(r.axis, ctx)?.let { axis ->
+            MotionMath.axis(r.axis, ctx)?.let { axis ->
                 Quaternion.axisAngle(MotionMath.worldDirToLocal(ctx, axis), Math.toRadians(resolver.num(r.deg)))
             }
         } ?: key.align?.let { MotionMath.alignedRotation(ctx, it, null) }

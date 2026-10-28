@@ -1,5 +1,6 @@
 package com.astarworks.astera.core.domain.skillengine.motion
 
+import com.astarworks.astera.core.domain.geometry.math.Basis
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.geometry.math.Frame
 import com.astarworks.astera.core.domain.skillengine.frame.FrameId
@@ -7,7 +8,7 @@ import com.astarworks.astera.core.domain.skillengine.model.ValueResolver
 
 /**
  * Ballistic flight in WORLD space (blocks / tick): each tick `v = (v - (0, gravity, 0)) * (1 - drag)`, then
- * the frame moves by `v`. With `align` the orientation is `lookRotation(axis, up)` (the BASE orientation, a
+ * the frame moves by `v`. With `align` the orientation is `Basis.facing(axis, up)` (the BASE orientation, a
  * spin multiplies on top of it). Ends with `expire` after `maxTicks`.
  */
 internal class FlyLaw(

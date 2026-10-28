@@ -246,7 +246,7 @@ public class PaperDisplayEntityGateway(
             attachment.offset = write.at - write.anchor!!.feet
             attachment.transform = write.transform
             // The riding origin is the caster; the translation carries the offset (content stays feet-relative).
-            transform = write.transform.copy(translation = write.transform.translation + attachment.offset - Vec3(0.0, attachment.height, 0.0))
+            transform = com.astarworks.astera.combat.adapter.paper.skillengine.ridingTransform(write, attachment.height)
         }
         val bukkitBillboard = billboardOf(write.billboard)
         if (display.billboard != bukkitBillboard) display.billboard = bukkitBillboard

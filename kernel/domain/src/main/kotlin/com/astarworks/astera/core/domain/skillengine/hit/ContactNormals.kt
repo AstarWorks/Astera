@@ -1,5 +1,6 @@
 package com.astarworks.astera.core.domain.skillengine.hit
 
+import com.astarworks.astera.core.domain.geometry.math.Frame
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.geometry.math.Quaternion
 
@@ -22,7 +23,7 @@ internal object ContactNormals {
     }
 
     /** Victim root rotation: yaw only, same convention as `Frame.fromYawPitch`. */
-    fun victimRotation(yawDeg: Double): Quaternion = Quaternion.fromEulerDegrees(yawDeg, 0.0, 0.0)
+    fun victimRotation(yawDeg: Double): Quaternion = Frame.fromYawPitch(com.astarworks.astera.core.domain.geometry.Vec3.ZERO, yawDeg, 0.0).rotation
 
     /** `rotate(-yaw) * (world - feet)`. */
     fun pointToLocal(world: Vec3, feet: Vec3, yawDeg: Double): Vec3 =

@@ -10,6 +10,7 @@ import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.geometry.math.Frame
 import com.astarworks.astera.core.domain.geometry.math.Quaternion
 import com.astarworks.astera.core.domain.skillengine.frame.FrameId
+import com.astarworks.astera.core.domain.skillengine.frame.FramePoint
 import com.astarworks.astera.core.domain.skillengine.model.Value
 import com.astarworks.astera.core.domain.skillengine.op.BodyOp
 import com.astarworks.astera.core.domain.skillengine.op.FxOp
@@ -36,22 +37,24 @@ private fun OpContext.text(v: Value<String>?, default: String): String = v?.let 
 
 private fun OpContext.num(v: Value<Double>?, default: Double): Double = v?.let { values.num(it) } ?: default
 
-private fun euler(v: Vec3): Quaternion = Quaternion.fromEulerDegrees(v.x, v.y, v.z)
+/** A rotation vector (axis direction, length = degrees, right-hand): the only authored form of an orientation. */
+private fun turn(v: Vec3): Quaternion = Quaternion.fromRotationVector(v)
 
 internal class MeshExecutor(private val rt: PresentationRuntime) : OpExecutor<VisualOp.Mesh> {
     override val opClass: KClass<VisualOp.Mesh> = VisualOp.Mesh::class
     override fun execute(op: VisualOp.Mesh, ctx: OpContext) {
         if (!ctx.passes(op)) return
         val s = rt.state(ctx)
-        val frame = rt.frameWorld(s, op.frame) ?: return
         val pivot = op.pivot?.let { ctx.values.vec3(it) } ?: Vec3(0.0, 0.0, 0.0)
-        val tilt = op.tilt?.let { euler(ctx.values.vec3(it)) } ?: Quaternion.IDENTITY
-        val rest = op.rest?.let { euler(ctx.values.vec3(it)) } ?: Quaternion.IDENTITY
-        val base = rt.rigBase(frame, pivot, tilt)
-        val pose = Frame(base.origin, (base.rotation * rest).normalized())
+        val tilt = op.tilt?.let { turn(ctx.values.vec3(it)) } ?: Quaternion.IDENTITY
+        val rest = op.rest?.let { turn(ctx.values.vec3(it)) } ?: Quaternion.IDENTITY
         val scale = ctx.num(op.scale, 1.0)
-        val h = ctx.ports.visuals.spawnMesh(rt.info.owner(ctx.cast), op.item, op.part, scale, pose, rt.casterAnchored(s, op.frame))
-        rt.register(s, PresentationRuntime.Live.Mesh(op.id, h, op.frame, scale, pivot, tilt, rest))
+        val live = PresentationRuntime.Live.Mesh(op.id, op.frame, scale, pivot, tilt, rest)
+        // The node carries the model's points (scaled to blocks), so `<mesh id>.tip` follows the swing.
+        val pts = rt.points.points(op.item, op.part).map { FramePoint(live.node, it.name, it.offset * scale, it.axis) }
+        val pose = rt.spawnNode(s, live, op.frame, pts) ?: return
+        live.handle = ctx.ports.visuals.spawnMesh(rt.info.owner(ctx.cast), op.item, op.part, pose)
+        rt.register(s, live)
     }
 }
 
@@ -60,18 +63,16 @@ internal class PlateExecutor(private val rt: PresentationRuntime) : OpExecutor<V
     override fun execute(op: VisualOp.Plate, ctx: OpContext) {
         if (!ctx.passes(op)) return
         val s = rt.state(ctx)
-        val pose = rt.platePose(s, op.parent, op.face) ?: return
-        val reference = ctx.tree.pointWorld(FrameId(op.parent), "tip").getOrNull()
-            ?.let { it.distance(pose.origin) }?.takeIf { it > 1e-6 } ?: 1.0
-        val size = ctx.values.num(op.sizeFrac) * reference
-        val h = ctx.ports.visuals.spawnPlate(
-            rt.info.owner(ctx.cast), op.sprite, op.face, size, ctx.values.num(op.alpha), pose,
-            rt.casterAnchored(s, op.parent),
-        )
         val tint = op.color?.let { ctx.values.text(it) }
-        val frames = ctx.ports.visuals.spriteFrames(op.sprite)
-        if (tint != null) ctx.ports.visuals.setPlateFrame(h, 0, tint)
-        rt.register(s, PresentationRuntime.Live.Plate(op.id, h, op.parent, op.face, size, op.sprite, frames, op.frameTicks, op.loop, tint, s.tick))
+        val frames = ctx.ports.visuals.sprite(op.sprite).frames
+        val live = PresentationRuntime.Live.Plate(
+            op.id, op.parent, op.face, ctx.values.num(op.size), rt.billboardOf(s, op.face, op.parent),
+            op.sprite, frames, op.frameTicks, op.loop, tint, s.tick,
+        )
+        val pose = rt.spawnNode(s, live, op.parent) ?: return
+        live.handle = ctx.ports.visuals.spawnPlate(rt.info.owner(ctx.cast), op.sprite, ctx.values.num(op.alpha), pose)
+        if (tint != null) ctx.ports.visuals.setPlateFrame(live.handle, 0, tint)
+        rt.register(s, live)
     }
 }
 
@@ -80,12 +81,10 @@ internal class LineExecutor(private val rt: PresentationRuntime) : OpExecutor<Vi
     override fun execute(op: VisualOp.Line, ctx: OpContext) {
         if (!ctx.passes(op)) return
         val s = rt.state(ctx)
-        val a = rt.pointWorld(s, op.from) ?: return
-        val b = rt.pointWorld(s, op.to) ?: return
-        val h = ctx.ports.visuals.spawnLine(
-            rt.info.owner(ctx.cast), a, b, ctx.values.num(op.thickness), ctx.values.text(op.color), op.face,
-        )
-        rt.register(s, PresentationRuntime.Live.Line(op.id, h, op.from, op.to))
+        val live = PresentationRuntime.Live.Line(op.id, op.from, op.to, ctx.values.num(op.thickness), op.face)
+        val pose = rt.linePose(s, live) ?: return
+        live.handle = ctx.ports.visuals.spawnLine(rt.info.owner(ctx.cast), ctx.values.text(op.color), pose)
+        rt.register(s, live)
     }
 }
 
@@ -101,7 +100,7 @@ internal class TrailExecutor(private val rt: PresentationRuntime) : OpExecutor<V
         if (op.bands.isNotEmpty() || op.edge != null || op.darkRim != null || op.stepDeg != 30.0 || op.doubleSided) {
             ctx.ports.visuals.setTrailShape(h, op.bands, op.edge, op.darkRim, op.stepDeg, op.doubleSided)
         }
-        rt.register(s, PresentationRuntime.Live.Trail(op.id, h, op.of, op.root, op.ticks, op.untilEvent, op.lagTicks))
+        rt.register(s, PresentationRuntime.Live.Trail(op.id, op.of, op.root, op.ticks, op.untilEvent, op.lagTicks).also { it.handle = h })
     }
 }
 

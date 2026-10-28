@@ -1,5 +1,7 @@
 package com.astarworks.astera.core.application.skillengine.runtime
 
+import com.astarworks.astera.core.domain.geometry.math.Basis
+import com.astarworks.astera.core.domain.skillengine.frame.Axes
 import com.astarworks.astera.core.application.skillengine.load.CompiledSkill
 import com.astarworks.astera.core.application.skillengine.runtime.ops.ISkillWorldEffectGateway
 import com.astarworks.astera.core.application.skillengine.runtime.ops.MovementHost
@@ -744,23 +746,9 @@ internal class CastInstance(
         }
     }
 
-    /** World direction: `world.up`, `caster.forward` (look), `<frame>.forward|up|left|right`, `<frame>.<point axis>`. */
-    private fun axisOf(name: String): Vec3? {
-        if (name == "world.up") return UP
-        if (name == "caster.forward") return lookDirection()
-        val dot = name.lastIndexOf('.')
-        if (dot <= 0) return null
-        val frame = FrameId(name.substring(0, dot))
-        val part = name.substring(dot + 1)
-        val world: Frame = tree.worldOf(frame).getOrNull() ?: return null
-        return when (part) {
-            "forward" -> world.forward()
-            "up" -> world.up()
-            "left" -> world.left()
-            "right" -> world.right()
-            else -> tree.point(frame, part)?.axis?.let { world.directionToWorld(it).normalize() }
-        }
-    }
+    /** World direction of an axis name ([Axes]); `caster.forward` is the full look (pitch included), not the yaw-only frame. */
+    private fun axisOf(name: String): Vec3? =
+        if (name == "caster.forward") lookDirection() else Axes.resolve(tree, name)
 
     // --------------------------------------------------------------- contacts
 
@@ -768,13 +756,13 @@ internal class CastInstance(
         val c = e.contact ?: return
         val contactId = FrameId("contact")
         if (c.victim == NIL_VICTIM) {
-            placeContact(contactId, FrameId("world"), Frame(c.pointWorld, Quaternion.lookRotation(c.normalWorld)))
+            placeContact(contactId, FrameId("world"), Frame(c.pointWorld, Basis.facing(c.normalWorld)))
             return
         }
         victims += c.victim
         lastVictim = c.victim
         refreshEnemy(c.victim)
-        placeContact(contactId, FrameId("enemy@${c.victim}"), Frame(c.pointLocal, Quaternion.lookRotation(c.normalLocal)))
+        placeContact(contactId, FrameId("enemy@${c.victim}"), Frame(c.pointLocal, Basis.facing(c.normalLocal)))
     }
 
     /** Move the shared `contact` frame; whatever is already stuck to the previous contact keeps its own copy. */

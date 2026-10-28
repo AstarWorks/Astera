@@ -17,21 +17,45 @@ frames:
   - {id: fx1_couture_shear_crescent, kind: body, parent: caster}
   - {id: fx2_couture_shears_remote, kind: body, parent: world}
   - {id: fx3_couture_rapier_cross, kind: body, parent: world}
+  - {id: fx3_couture_rapier_cross_sparks_at, kind: body, parent: fx3_couture_rapier_cross}
   - {id: fx4_couture_shear_crescent, kind: body, parent: caster}
   - {id: fx5_couture_shears_remote, kind: body, parent: world}
   - {id: fx6_couture_rapier_cross, kind: body, parent: world}
+  - {id: fx6_couture_rapier_cross_sparks_at, kind: body, parent: fx6_couture_rapier_cross}
   - {id: fx7_couture_shear_overhead, kind: body, parent: world}
   - {id: fx8_couture_rapier_thread, kind: body, parent: world}
   - {id: fx9_couture_shears_remote, kind: body, parent: world}
   - {id: fx10_couture_rapier_cross, kind: body, parent: world}
+  - {id: fx10_couture_rapier_cross_sparks_at, kind: body, parent: fx10_couture_rapier_cross}
   - {id: fx11_couture_target_rosette, kind: body, parent: world}
 presentation:
   timeline:
-    - {id: loop1, at: hit, every: 3, for: 4, do: [{id: fx3_couture_rapier_cross_sparks, op: emit, at: fx3_couture_rapier_cross, particle: stab-spark, when: "= event.source == 'sel_2'"}]}
-    - {id: loop2, at: hit, every: 3, for: 4, do: [{id: fx6_couture_rapier_cross_sparks, op: emit, at: fx6_couture_rapier_cross, particle: stab-spark, when: "= event.source == 'sel_4'"}]}
-    - {id: loop3, at: hit, every: 3, for: 4, do: [{id: fx10_couture_rapier_cross_sparks, op: emit, at: fx10_couture_rapier_cross, particle: stab-spark, when: "= event.source == 'sel_6'"}]}
+    - {id: loop1, at: hit, every: 3, for: 4, do: [{id: fx3_couture_rapier_cross_sparks, op: emit, at: fx3_couture_rapier_cross_sparks_at, particle: stab-spark, when: "= event.source == 'sel_2'"}]}
+    - {id: loop2, at: hit, every: 3, for: 4, do: [{id: fx6_couture_rapier_cross_sparks, op: emit, at: fx6_couture_rapier_cross_sparks_at, particle: stab-spark, when: "= event.source == 'sel_4'"}]}
+    - {id: loop3, at: hit, every: 3, for: 4, do: [{id: fx10_couture_rapier_cross_sparks, op: emit, at: fx10_couture_rapier_cross_sparks_at, particle: stab-spark, when: "= event.source == 'sel_6'"}]}
   "on":
     hit:
+      - id: fx3_couture_rapier_cross_sparks_atrk
+        op: track
+        target: fx3_couture_rapier_cross_sparks_at
+        space: fx3_couture_rapier_cross
+        keys:
+          - {t: 0, offset: [0, 1.1, 0]}
+        when: "= event.source == 'sel_2'"
       - {id: snd, op: sound, sound: entity.player.attack.strong, at: contact.point, volume: 0.7, pitch: 1.1, when: "= event.source == 'sel_2'"}
+      - id: fx6_couture_rapier_cross_sparks_atrk
+        op: track
+        target: fx6_couture_rapier_cross_sparks_at
+        space: fx6_couture_rapier_cross
+        keys:
+          - {t: 0, offset: [0, 1.1, 0]}
+        when: "= event.source == 'sel_4'"
       - {id: snd_2, op: sound, sound: entity.player.attack.strong, at: contact.point, volume: 0.7, pitch: 1.1, when: "= event.source == 'sel_4'"}
+      - id: fx10_couture_rapier_cross_sparks_atrk
+        op: track
+        target: fx10_couture_rapier_cross_sparks_at
+        space: fx10_couture_rapier_cross
+        keys:
+          - {t: 0, offset: [0, 1.1, 0]}
+        when: "= event.source == 'sel_6'"
       - {id: snd_3, op: sound, sound: entity.player.attack.strong, at: contact.point, volume: 0.7, pitch: 1.1, when: "= event.source == 'sel_6'"}

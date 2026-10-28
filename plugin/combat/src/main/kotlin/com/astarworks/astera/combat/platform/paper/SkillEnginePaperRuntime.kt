@@ -103,7 +103,10 @@ internal class SkillEnginePaperRuntime(
 
         val entities = PaperSkillEntityQuery(server) { services.get<IStructureTargets>() }
         val sprites = services.get<com.astarworks.astera.core.application.port.outbound.ISpriteRegistry>()
-        val visuals = PaperSkillVisualGateway(server, displays, tables) { id -> sprites?.find(com.astarworks.astera.core.domain.sprite.SpriteId(id))?.frames ?: 1 }
+        val visuals = PaperSkillVisualGateway(server, displays, tables) { id ->
+            sprites?.find(com.astarworks.astera.core.domain.sprite.SpriteId(id))?.let { com.astarworks.astera.core.application.skillengine.runtime.port.SpriteInfo(it.frames, it.size) }
+                ?: com.astarworks.astera.core.application.skillengine.runtime.port.SpriteInfo(1, 32)
+        }
         visualGateway = visuals
         val orphans = visuals.sweepOrphans()
         if (orphans > 0) log.info("skill engine v2 removed {} orphaned ribbon displays left by an earlier run", orphans)

@@ -2,8 +2,8 @@
 # Generated point-frame offsets are [left, up, forward] in the parent frame.
 # CONVERT-PRESENT vfx frame orient (frames carry no orientation / scale) (x3): orient="yaw"
 # CONVERT-PRESENT element brightness (no v2 equivalent) (x16): 15 | 9
-# CONVERT-PRESENT keyframe non-uniform scale (track scale is one number; the largest axis is used) (x7): [0.58, 0.3, 1.0] | [0.48, 0.22, 1.0]
 # CONVERT-PRESENT quad element (plate takes a sprite: no solid-colour quad / glyph) (x3): {"color": "#FFD66E", "glyph": "●"} | {"color": "$main", "glyph": "✦"}
+# CONVERT-PRESENT windup sound pitch_arc (sound has a fixed pitch) (x1): {"ease": "in_quad", "from": 0.6, "interval_ticks": 5, "ticks": 25, "to": 1.8}
 # CONVERT-PRESENT hide_held_item has no v2 op (x1): {"ticks": 24}
 # CONVERT-PRESENT stop_sound has no v2 op (x1): {"sound_id": "block.amethyst_block.resonate"}
 # CONVERT-PRESENT telegraph has no v2 op (x1): {"angle_degrees": 70, "impact_tick": 11, "radius": 6.2, "shape": "cone", "team_color": "enemy", "ticks": 12, "viewers": "all"}
@@ -19,7 +19,7 @@
 # CONVERT-PRESENT keyframe alpha (track animates offset / rotation / scale / ease only) (x2)
 # CONVERT-PRESENT rig respect_hit_stop / weapon points (x1): {"respect_hit_stop": true}
 # CONVERT-PRESENT rig block parts (mesh takes an item model, not a block + size) (x1): 8 parts
-# CONVERT-PRESENT rig swing without a weapon mesh (track needs a visual to move) (x1): 5 keys
+# CONVERT-PRESENT rig swing without a weapon mesh (track needs a visual to move) (x1): 7 keys
 # CONVERT-PRESENT camera_shake shape (engine shake is intensity + ticks only) (x2): shape="decay"
 # CONVERT-PRESENT camera_shake direction (engine shake is intensity + ticks only) (x2): direction="from_hit" | direction="none"
 # CONVERT-PRESENT camera_shake viewers (engine shake is intensity + ticks only) (x2): viewers="all" | viewers="caster"
@@ -40,42 +40,56 @@ presentation:
     - id: fx0
       at: 0
       do:
-        - {id: fx1_bastion_ego_guard_rim0r, op: plate, parent: fx1_bastion_ego_guard, face: {plane: {frame: fx1_bastion_ego_guard, axes: [left, up]}}, sprite: bastion-rim, frame_ticks: 30}
+        - {id: fx1_bastion_ego_guard_rim0r, op: plate, parent: fx1_bastion_ego_guard, face: {plane: {frame: fx1_bastion_ego_guard, axes: [left, up]}}, sprite: bastion-rim, size: 6.4, frame_ticks: 30}
         - id: fx1_bastion_ego_guard_rim0r_trk
           op: track
           target: fx1_bastion_ego_guard_rim0r
           space: fx1_bastion_ego_guard
           keys:
-            - {t: 0, offset: [0.2, 1.3, 1.15], rotation: [50.0, 0, 90], scale: [0.58, 0.3, 1.0]}
-        - {id: fx1_bastion_ego_guard_rim0l, op: plate, parent: fx1_bastion_ego_guard, face: {plane: {frame: fx1_bastion_ego_guard, axes: [left, up]}}, sprite: bastion-rim, frame_ticks: 30}
+            - {t: 0, offset: [0.2, 1.3, 1.15], scale: [0.58, 0.3, 1.0], turn: [-39.040503, -39.040503, 83.722629]}
+        - {id: fx1_bastion_ego_guard_rim0l, op: plate, parent: fx1_bastion_ego_guard, face: {plane: {frame: fx1_bastion_ego_guard, axes: [left, up]}}, sprite: bastion-rim, size: 6.4, frame_ticks: 30}
         - id: fx1_bastion_ego_guard_rim0l_trk
           op: track
           target: fx1_bastion_ego_guard_rim0l
           space: fx1_bastion_ego_guard
           keys:
-            - {t: 0, offset: [0.2, 1.3, 1.15], rotation: [50.0, 0, -90], scale: [0.58, 0.3, 1.0]}
-        - {id: fx1_bastion_ego_guard_rim1r, op: plate, parent: fx1_bastion_ego_guard, face: {plane: {frame: fx1_bastion_ego_guard, axes: [left, up]}}, sprite: bastion-rim, frame_ticks: 30, color: "#FFF3C8"}
+            - {t: 0, offset: [0.2, 1.3, 1.15], scale: [0.58, 0.3, 1.0], turn: [39.040503, -39.040503, -83.722629]}
+        - id: fx1_bastion_ego_guard_rim1r
+          op: plate
+          parent: fx1_bastion_ego_guard
+          face: {plane: {frame: fx1_bastion_ego_guard, axes: [left, up]}}
+          sprite: bastion-rim
+          size: 6.4
+          frame_ticks: 30
+          color: "#FFF3C8"
         - id: fx1_bastion_ego_guard_rim1r_trk
           op: track
           target: fx1_bastion_ego_guard_rim1r
           space: fx1_bastion_ego_guard
           keys:
-            - {t: 0, offset: [0.2, 1.3, 1.15], rotation: [50.0, 0, 90], scale: [0.48, 0.22, 1.0]}
-        - {id: fx1_bastion_ego_guard_rim1l, op: plate, parent: fx1_bastion_ego_guard, face: {plane: {frame: fx1_bastion_ego_guard, axes: [left, up]}}, sprite: bastion-rim, frame_ticks: 30, color: "#FFF3C8"}
+            - {t: 0, offset: [0.2, 1.3, 1.15], scale: [0.48, 0.22, 1.0], turn: [-39.040503, -39.040503, 83.722629]}
+        - id: fx1_bastion_ego_guard_rim1l
+          op: plate
+          parent: fx1_bastion_ego_guard
+          face: {plane: {frame: fx1_bastion_ego_guard, axes: [left, up]}}
+          sprite: bastion-rim
+          size: 6.4
+          frame_ticks: 30
+          color: "#FFF3C8"
         - id: fx1_bastion_ego_guard_rim1l_trk
           op: track
           target: fx1_bastion_ego_guard_rim1l
           space: fx1_bastion_ego_guard
           keys:
-            - {t: 0, offset: [0.2, 1.3, 1.15], rotation: [50.0, 0, -90], scale: [0.48, 0.22, 1.0]}
-        - {id: fx1_bastion_ego_guard_crest, op: plate, parent: fx1_bastion_ego_guard, face: {plane: {frame: fx1_bastion_ego_guard, axes: [left, up]}}, sprite: bastion-crest, frame_ticks: 30}
+            - {t: 0, offset: [0.2, 1.3, 1.15], scale: [0.48, 0.22, 1.0], turn: [39.040503, -39.040503, -83.722629]}
+        - {id: fx1_bastion_ego_guard_crest, op: plate, parent: fx1_bastion_ego_guard, face: {plane: {frame: fx1_bastion_ego_guard, axes: [left, up]}}, sprite: bastion-crest, size: 6.4, frame_ticks: 30}
         - id: fx1_bastion_ego_guard_crest_trk
           op: track
           target: fx1_bastion_ego_guard_crest
           space: fx1_bastion_ego_guard
           keys:
-            - {t: 0, offset: [0.2, 1.35, 1.15], rotation: [50.0, 0, 0], scale: [0.26, 0.26, 1.0]}
-        - {id: snd, op: sound, sound: block.amethyst_block.resonate, at: caster, volume: 1.0, pitch: 0.6, pitch_to: 1.8, pitch_ease: in_quad, over: 25, every: 5}
+            - {t: 0, offset: [0.2, 1.35, 1.15], scale: [0.26, 0.26, 1.0], turn: [0.0, -50.0, 0.0]}
+        - {id: snd, op: sound, sound: block.amethyst_block.resonate, at: caster, volume: 1.0}
     - id: fx20
       at: 20
       do:
@@ -86,7 +100,7 @@ presentation:
     - id: fx31
       at: 31
       do:
-        - {id: fx3_bastion_ego_slam_dust, op: plate, parent: fx3_bastion_ego_slam, face: {viewer: center}, sprite: smoke-puff, frame_ticks: 6, color: "#8A8478"}
+        - {id: fx3_bastion_ego_slam_dust, op: plate, parent: fx3_bastion_ego_slam, face: {viewer: center}, sprite: smoke-puff, size: 0.8, frame_ticks: 6, color: "#8A8478"}
         - id: fx3_bastion_ego_slam_dust_trk
           op: track
           target: fx3_bastion_ego_slam_dust
