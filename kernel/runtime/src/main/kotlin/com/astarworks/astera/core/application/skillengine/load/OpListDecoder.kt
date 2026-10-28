@@ -13,11 +13,9 @@ import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.skillengine.expr.ExprType
 import com.astarworks.astera.core.domain.skillengine.model.Value
 import com.astarworks.astera.core.domain.skillengine.op.OpSection
+import com.astarworks.astera.core.domain.skillengine.part.OpMap
 import com.astarworks.astera.core.domain.skillengine.table.OpId
 import com.astarworks.astera.core.domain.skillengine.table.SrcPath
-
-/** A decoded op plus the YAML path it came from (`Row.src` and error messages, ADR-0303 section 12). */
-public data class LocatedOp(val node: OpNode, val src: SrcPath)
 
 /**
  * Decodes an op list of one section (ADR-0303 2.0, 10.1). Per element:
@@ -28,38 +26,26 @@ public data class LocatedOp(val node: OpNode, val src: SrcPath)
  * A GAMEPLAY / PRESENTATION list also accepts CONTROL ops; a CONTROL list (machine enter/do/exit) accepts every section.
  */
 public class OpListDecoder(private val specs: OpSpecRegistry) {
-    public fun decode(list: YamlNode, section: OpSection, ctx: GrammarContext, path: String): Result<List<OpNode>, SkillDecodeError> =
-        decodeLocated(list, section, ctx, path).map { l -> l.map { it.node } }
+    /** Decodes a top-level op list (a machine's `enter` / `do` / `exit` / `on[].do`; CONTROL accepts every section). */
+    public fun decode(ops: List<OpMap>, ctx: GrammarContext, path: String): Result<List<OpNode>, SkillDecodeError> =
+        Grammar.guard { read(ops, OpSection.CONTROL, ctx.withOpLists(this), path) }
 
-    public fun decodeLocated(list: YamlNode, section: OpSection, ctx: GrammarContext, path: String): Result<List<LocatedOp>, SkillDecodeError> =
-        Grammar.guard { scoped { read(list, section, ctx, path) } }
-
-    /** Throwing form used by nested-list field types ([OpLists]); call under [Grammar.guard] inside [scoped]. */
-    internal fun read(list: YamlNode, section: OpSection, ctx: GrammarContext, path: String): List<LocatedOp> {
+    /** Throwing form used by nested-list field types ([OpLists]); call under [Grammar.guard]. */
+    internal fun read(list: YamlNode, section: OpSection, ctx: GrammarContext, path: String): List<OpNode> {
         if (list == null) return emptyList()
         val items = list as? List<*> ?: ctx.mismatch(path, "list of ops", list)
-        val out = ArrayList<LocatedOp>(items.size)
+        val out = ArrayList<OpNode>(items.size)
         val seen = HashSet<String>()
         for ((i, el) in items.withIndex()) {
             val p = "$path[$i]"
-            val located = element(el, i, section, ctx, p)
-            if (!seen.add(located.node.id.value)) ctx.abortWith(SkillDecodeError.DuplicateId(ctx.file, p, located.node.id.value))
-            out += located
+            val node = element(el, i, section, ctx, p)
+            if (!seen.add(node.id.value)) ctx.abortWith(SkillDecodeError.DuplicateId(ctx.file, p, node.id.value))
+            out += node
         }
         return out
     }
 
-    private fun <T> scoped(block: () -> T): T {
-        val prev = OpLists.active.get()
-        OpLists.active.set(this)
-        try {
-            return block()
-        } finally {
-            OpLists.active.set(prev)
-        }
-    }
-
-    private fun element(el: Any?, index: Int, section: OpSection, ctx: GrammarContext, p: String): LocatedOp {
+    private fun element(el: Any?, index: Int, section: OpSection, ctx: GrammarContext, p: String): OpNode {
         val m = el as? Map<*, *> ?: ctx.mismatch(p, "op map", el)
         val body = LinkedHashMap<String, Any?>()
         for ((k, v) in m) {
@@ -101,12 +87,12 @@ public class OpListDecoder(private val specs: OpSpecRegistry) {
             TimingSpec.from(values, ctx, p, kind)
         }
         @Suppress("UNCHECKED_CAST")
-        val decoded = (spec as OpSpec<OpNode>).decode(OpId(id), whenRef, timing, values, ctx)
+        val decoded = (spec as OpSpec<OpNode>).decode(OpId(id), SrcPath(p), whenRef, timing, values, ctx)
         val node = when (decoded) {
             is Result.Success -> decoded.value
             is Result.Failure -> ctx.abortWith(decoded.error)
         }
-        return LocatedOp(node, SrcPath(p))
+        return node
     }
 
     private fun find(section: OpSection, name: String): OpSpec<*>? {
@@ -141,14 +127,12 @@ public class OpListDecoder(private val specs: OpSpecRegistry) {
  * enclosing list, because [GrammarContext] carries no registry.
  */
 public object OpLists {
-    internal val active: ThreadLocal<OpListDecoder?> = ThreadLocal()
-
     /** An op list of [section] (`null` and `[]` read as empty). */
     public fun type(section: OpSection): FieldType<List<OpNode>> = object : FieldType<List<OpNode>> {
         override val label: String = "list of ${section.name.lowercase()} ops"
         override fun decode(raw: Any?, ctx: GrammarContext, path: String): List<OpNode> {
-            val d = active.get() ?: ctx.fail(path, "a nested op list can only be decoded inside OpListDecoder")
-            return d.read(raw, section, ctx, path).map { it.node }
+            val d = ctx.opLists ?: ctx.fail(path, "a nested op list can only be decoded inside OpListDecoder")
+            return d.read(raw, section, ctx, path)
         }
         override fun schema(): Map<String, Any?> = linkedMapOf("type" to "array", "items" to linkedMapOf("type" to "object"))
     }

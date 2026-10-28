@@ -55,7 +55,17 @@ public data class SkillDef(
 }
 
 /** `anchors:` entry (ADR-0303 1): a named point on the caster or a frame, with an optional offset. */
-public data class AnchorDecl(val id: String, val anchor: PointRef, val offset: Map<String, Double> = emptyMap())
+public data class AnchorDecl(
+    val id: String,
+    val anchor: PointRef,
+    val offset: Map<String, Double> = emptyMap(),
+    /** `caster` or null (ADR-0303 1). */
+    val mount: String? = null,
+    val mode: AnchorMode = AnchorMode.FOLLOW,
+)
+
+/** `follow` re-reads the parent at every send (the identity); `snapshot` copies the pose once at activation. */
+public enum class AnchorMode { FOLLOW, SNAPSHOT }
 
 /** `importance` of a skill (v3 header). */
 @JvmInline

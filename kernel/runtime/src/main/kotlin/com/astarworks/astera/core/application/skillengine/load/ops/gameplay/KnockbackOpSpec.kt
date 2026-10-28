@@ -19,11 +19,13 @@ import com.astarworks.astera.core.domain.skillengine.model.TargetRef
 import com.astarworks.astera.core.domain.skillengine.model.Value
 import com.astarworks.astera.core.domain.skillengine.op.OpSection
 import com.astarworks.astera.core.domain.skillengine.table.OpId
+import com.astarworks.astera.core.domain.skillengine.table.SrcPath
 import com.astarworks.astera.core.domain.skillengine.table.Val
 
 /** Decoded `knockback` op: a directed push of [strength] along [direction] (world axes). */
 public class KnockbackOp(
     override val id: OpId,
+    override val src: SrcPath,
     override val whenExpr: WhenRef?,
     override val timing: Timing?,
     val target: TargetRef,
@@ -42,8 +44,8 @@ public object KnockbackOpSpec : OpSpec<KnockbackOp> {
 
     override val fields: Fields = Fields.of("knockback", targetField, directionField, strengthField)
 
-    override fun decode(id: OpId, whenExpr: WhenRef?, timing: Timing?, values: FieldValues, ctx: GrammarContext): Result<KnockbackOp, SkillDecodeError> =
-        Result.Success(KnockbackOp(id, whenExpr, timing, values[targetField], values[directionField], values[strengthField]))
+    override fun decode(id: OpId, src: SrcPath, whenExpr: WhenRef?, timing: Timing?, values: FieldValues, ctx: GrammarContext): Result<KnockbackOp, SkillDecodeError> =
+        Result.Success(KnockbackOp(id, src, whenExpr, timing, values[targetField], values[directionField], values[strengthField]))
 
     override fun lower(op: KnockbackOp, lc: LowerContext): Result<Lowered, SkillDecodeError> {
         val path = lc.src.value

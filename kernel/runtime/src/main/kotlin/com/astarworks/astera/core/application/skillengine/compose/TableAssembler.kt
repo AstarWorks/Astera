@@ -1,5 +1,6 @@
 package com.astarworks.astera.core.application.skillengine.compose
 
+import com.astarworks.astera.core.domain.skillengine.model.EngineConfig
 import com.astarworks.astera.core.domain.skillengine.table.Bounds
 import com.astarworks.astera.core.domain.skillengine.table.EventPath
 import com.astarworks.astera.core.domain.skillengine.table.ExpansionTable
@@ -26,6 +27,7 @@ public object TableAssembler {
         subTables: Map<EventPath, SubTable>,
         writes: Map<InstanceId, WriteStats>,
         conditions: Map<String, String>,
+        config: EngineConfig,
     ): ExpansionTable = ExpansionTable(
         skillId = skillId,
         sampleSeed = sampleSeed,
@@ -35,5 +37,6 @@ public object TableAssembler {
         subTables = subTables.mapValues { (_, s) -> s.copy(rows = sortRows(s.rows)) },
         writes = writes,
         conditions = conditions,
+        config = config,
     )
 }

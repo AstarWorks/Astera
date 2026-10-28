@@ -11,6 +11,7 @@ import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.skillengine.expr.CompiledExpr
 import com.astarworks.astera.core.domain.skillengine.op.OpSection
 import com.astarworks.astera.core.domain.skillengine.table.OpId
+import com.astarworks.astera.core.domain.skillengine.table.SrcPath
 
 /**
  * A decoded v3 op. The v2 `SkillOp` is sealed inside the domain module and carries a plain-string id, so v3 ops (one per
@@ -18,6 +19,9 @@ import com.astarworks.astera.core.domain.skillengine.table.OpId
  */
 public interface OpNode {
     public val id: OpId
+
+    /** The YAML path this node was decoded from (`Row.src` and error messages, ADR-0303 section 12). */
+    public val src: SrcPath
     public val whenExpr: WhenRef?
     public val timing: Timing?
 }
@@ -39,7 +43,7 @@ public interface OpSpec<O : OpNode> {
     /** Own fields only; TimingSpec.fields are merged by the registry. */
     public val fields: Fields
 
-    public fun decode(id: OpId, whenExpr: WhenRef?, timing: Timing?, values: FieldValues, ctx: GrammarContext): Result<O, SkillDecodeError>
+    public fun decode(id: OpId, src: SrcPath, whenExpr: WhenRef?, timing: Timing?, values: FieldValues, ctx: GrammarContext): Result<O, SkillDecodeError>
 
     public fun lower(op: O, lc: LowerContext): Result<Lowered, SkillDecodeError>
 }

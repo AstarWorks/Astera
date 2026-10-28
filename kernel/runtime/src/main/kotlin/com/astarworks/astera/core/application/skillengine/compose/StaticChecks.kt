@@ -10,6 +10,7 @@ import com.astarworks.astera.core.domain.skillengine.table.Duration
 import com.astarworks.astera.core.domain.skillengine.table.EventPath
 import com.astarworks.astera.core.domain.skillengine.table.ExpansionTable
 import com.astarworks.astera.core.domain.skillengine.table.Guard
+import com.astarworks.astera.core.domain.skillengine.table.LockEnd
 import com.astarworks.astera.core.domain.skillengine.table.InstanceId
 import com.astarworks.astera.core.domain.skillengine.table.Phase
 import com.astarworks.astera.core.domain.skillengine.table.Row
@@ -310,8 +311,9 @@ public object StaticChecks {
         val last = base + row.tick
         if (last > max) return SkillDecodeError.StateOverrun(state, row.instance.text, last, max, g.skillId)
         val a = row.action
-        if (a is Action.Lock && base + a.untilTick > max) {
-            return SkillDecodeError.StateOverrun(state, row.instance.text.ifEmpty { "lock" }, base + a.untilTick, max, g.skillId)
+        val end = (a as? Action.Lock)?.until as? LockEnd.AtTick
+        if (end != null && base + end.tick > max) {
+            return SkillDecodeError.StateOverrun(state, row.instance.text.ifEmpty { "lock" }, base + end.tick, max, g.skillId)
         }
         return null
     }

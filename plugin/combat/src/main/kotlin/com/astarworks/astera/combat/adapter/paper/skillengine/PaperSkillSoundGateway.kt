@@ -15,7 +15,7 @@ public class PaperSkillSoundGateway(
     private val world: WorldId,
 ) : ISkillSoundGateway {
 
-    override fun play(sound: String, at: Vec3, volume: Double, pitch: Double) {
+    override fun play(sound: String, at: Vec3, category: String, volume: Double, pitch: Double) {
         val spec = SoundSpec(
             key = sound,
             volume = volume.coerceIn(0.0, SoundSpec.PRACTICAL_MAX_VOLUME),

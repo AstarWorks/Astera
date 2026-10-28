@@ -23,6 +23,7 @@ import com.astarworks.astera.core.domain.skillengine.model.Value
 import com.astarworks.astera.core.domain.skillengine.op.OpSection
 import com.astarworks.astera.core.domain.skillengine.table.Action
 import com.astarworks.astera.core.domain.skillengine.table.OpId
+import com.astarworks.astera.core.domain.skillengine.table.SrcPath
 import com.astarworks.astera.core.domain.skillengine.table.Row
 import com.astarworks.astera.core.domain.skillengine.table.Val
 import org.joml.Vector3d
@@ -44,6 +45,7 @@ public sealed interface ParticleStyle {
 /** Decoded `particle` op: one `spawnParticle` call per occurrence (ADR-0303 2.2). */
 public class ParticleOp(
     override val id: OpId,
+    override val src: SrcPath,
     override val whenExpr: WhenRef?,
     override val timing: Timing?,
     public val particle: String,
@@ -98,14 +100,14 @@ public object ParticleOpSpec : OpSpec<ParticleOp> {
         PARTICLE, COUNT, OFFSET, EXTRA, COLOR, SIZE, BLOCK, ITEM, ANCHOR,
     )
 
-    override fun decode(id: OpId, whenExpr: WhenRef?, timing: Timing?, values: FieldValues, ctx: GrammarContext): Result<ParticleOp, SkillDecodeError> =
+    override fun decode(id: OpId, src: SrcPath, whenExpr: WhenRef?, timing: Timing?, values: FieldValues, ctx: GrammarContext): Result<ParticleOp, SkillDecodeError> =
         Grammar.guard {
             val count = values[COUNT]
             if (count is Value.Literal && (count.value < 0.0 || count.value % 1.0 != 0.0)) {
                 ctx.fail("count", "count must be a whole number >= 0 (0 = one particle, direction mode)")
             }
             ParticleOp(
-                id, whenExpr, timing,
+                id, src, whenExpr, timing,
                 particle = values[PARTICLE],
                 count = count,
                 offset = values[OFFSET],
@@ -160,6 +162,7 @@ public object ParticleOpSpec : OpSpec<ParticleOp> {
             extra = extra,
             data = data,
             position = Val.Known(Vector3d()),
+            sweep = null,
         )
         return Result.Success(Lowered(rows = listOf(Row(tick = 0, instance = instance, action = action, src = lc.src))))
     }

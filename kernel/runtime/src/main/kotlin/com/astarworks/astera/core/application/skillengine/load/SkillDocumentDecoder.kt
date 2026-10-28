@@ -10,10 +10,12 @@ import com.astarworks.astera.core.domain.skillengine.expr.ExprCompiler
 import com.astarworks.astera.core.domain.skillengine.expr.ExprEnvSpec
 import com.astarworks.astera.core.domain.skillengine.expr.ExprType
 import com.astarworks.astera.core.domain.skillengine.model.AnchorDecl
+import com.astarworks.astera.core.domain.skillengine.model.AnchorMode
 import com.astarworks.astera.core.domain.skillengine.model.PointRef
 import com.astarworks.astera.core.domain.skillengine.model.SkillDef
 import com.astarworks.astera.core.domain.skillengine.model.SkillMeta
 import com.astarworks.astera.core.domain.skillengine.op.OpSection
+import com.astarworks.astera.core.domain.skillengine.part.OpMap
 import com.astarworks.astera.core.domain.skillengine.part.ParamSpec
 import com.astarworks.astera.core.domain.skillengine.part.ParamType
 
@@ -163,7 +165,11 @@ public class SkillDocumentDecoder(private val specs: OpSpecRegistry, private val
     }
 
     private fun checkOps(ctx: GrammarContext, list: Any?, path: String) {
-        when (val r = ops.decode(list, OpSection.CONTROL, ctx, path)) {
+        if (list == null) return
+        val items = list as? List<*> ?: ctx.mismatch(path, "list of ops", list)
+        @Suppress("UNCHECKED_CAST")
+        val maps = items.mapIndexed { i, e -> (e as? Map<*, *> ?: ctx.mismatch("$path[$i]", "op map", e)) as OpMap }
+        when (val r = ops.decode(maps, ctx, path)) {
             is Result.Success -> Unit
             is Result.Failure -> ctx.abortWith(r.error)
         }
@@ -228,13 +234,17 @@ public class SkillDocumentDecoder(private val specs: OpSpecRegistry, private val
             if (!seen.add(id)) ctx.abortWith(SkillDecodeError.DuplicateId(ctx.file, p, id))
             val anchor = m["anchor"] as? String ?: ctx.abortWith(SkillDecodeError.MissingField(ctx.file, p, "anchor"))
             if (anchor.isBlank() || anchor.startsWith('.') || anchor.endsWith('.')) ctx.mismatch("$p.anchor", "point reference (frame.point)", anchor)
-            m["mount"]?.let { if (it != "caster") ctx.mismatch("$p.mount", "'caster'", it) }
-            m["mode"]?.let { if (it != "follow" && it != "snapshot") ctx.mismatch("$p.mode", "'follow' or 'snapshot'", it) }
+            val mount = m["mount"]?.let { it as? String ?: ctx.mismatch("$p.mount", "'caster' or an anchor id", it) }
+            val mode = when (val raw = m["mode"]) {
+                null, "follow" -> AnchorMode.FOLLOW
+                "snapshot" -> AnchorMode.SNAPSHOT
+                else -> ctx.mismatch("$p.mode", "'follow' or 'snapshot'", raw)
+            }
             val offset = LinkedHashMap<String, Double>()
             for ((axis, v) in mapAt(ctx, m["offset"], "$p.offset")) {
                 offset[axis] = (v as? Number)?.toDouble() ?: ctx.mismatch("$p.offset.$axis", "number", v)
             }
-            AnchorDecl(id, PointRef.parse(anchor), offset)
+            AnchorDecl(id, PointRef.parse(anchor), offset, mount, mode)
         }
     }
 

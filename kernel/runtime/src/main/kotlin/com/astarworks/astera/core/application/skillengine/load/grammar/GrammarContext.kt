@@ -1,6 +1,7 @@
 package com.astarworks.astera.core.application.skillengine.load.grammar
 
 import com.astarworks.astera.core.application.skillengine.load.DecodeAbort
+import com.astarworks.astera.core.application.skillengine.load.OpListDecoder
 import com.astarworks.astera.core.application.skillengine.load.SkillDecodeError
 import com.astarworks.astera.core.application.skillengine.load.ValueDecoding
 import com.astarworks.astera.core.domain.Result
@@ -29,7 +30,12 @@ public class GrammarContext(
     public val params: Map<String, ParamValue>? = null,
     public val exprs: ExprCompiler? = null,
     public val env: ExprEnvSpec = ExprEnvSpec(),
+    /** The decoder that nested op lists (a group's `do:`, a projectile's `on:`) resolve through; null outside an op-list decode. */
+    public val opLists: OpListDecoder? = null,
 ) {
+    /** The same context with [decoder] as the nested-list decoder. */
+    public fun withOpLists(decoder: OpListDecoder): GrammarContext = GrammarContext(file, params, exprs, env, decoder)
+
     /** Aborts the current [Grammar.guard] block with a [SkillDecodeError.Invalid] at [path]. */
     public fun fail(path: String, message: String): Nothing =
         throw DecodeAbort(SkillDecodeError.Invalid(file, path, message))

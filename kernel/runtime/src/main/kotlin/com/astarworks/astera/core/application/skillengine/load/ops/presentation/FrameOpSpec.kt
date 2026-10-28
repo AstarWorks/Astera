@@ -42,6 +42,7 @@ import com.astarworks.astera.core.domain.skillengine.table.Action
 import com.astarworks.astera.core.domain.skillengine.table.InstanceId
 import com.astarworks.astera.core.domain.skillengine.table.Look
 import com.astarworks.astera.core.domain.skillengine.table.OpId
+import com.astarworks.astera.core.domain.skillengine.table.SrcPath
 import com.astarworks.astera.core.domain.skillengine.table.Pose
 import com.astarworks.astera.core.domain.skillengine.table.Row
 import com.astarworks.astera.core.domain.skillengine.table.SpawnKind
@@ -61,6 +62,7 @@ public enum class FrameMode { FOLLOW, SNAPSHOT }
  */
 public class FrameOp(
     override val id: OpId,
+    override val src: SrcPath,
     override val whenExpr: WhenRef?,
     override val timing: Timing?,
     /** Parent: a builtin (`caster`, `world`, `contact`, ...), a declared anchor, or a frame / family member (`blade[i]`). */
@@ -94,7 +96,7 @@ public object FrameOpSpec : OpSpec<FrameOp> {
         override fun schema(): Map<String, Any?> = MotionLaws.jsonSchema()
     }
 
-    override fun decode(id: OpId, whenExpr: WhenRef?, timing: Timing?, values: FieldValues, ctx: GrammarContext): Result<FrameOp, SkillDecodeError> =
+    override fun decode(id: OpId, src: SrcPath, whenExpr: WhenRef?, timing: Timing?, values: FieldValues, ctx: GrammarContext): Result<FrameOp, SkillDecodeError> =
         Grammar.guard {
             val times = timing?.times
             if (times != null && timing.every == null) {
@@ -102,7 +104,7 @@ public object FrameOpSpec : OpSpec<FrameOp> {
                 if (n != null && (n != Math.floor(n) || n < 1.0)) ctx.fail("${id.value}.times", "a frame family needs a whole times >= 1 (was $n)")
             }
             FrameOp(
-                id, whenExpr, timing,
+                id, src, whenExpr, timing,
                 values[anchorF], values[partF], values[offsetF], values[turnF],
                 if (values[modeF] == "snapshot") FrameMode.SNAPSHOT else FrameMode.FOLLOW,
                 values[motionF],
@@ -137,7 +139,7 @@ public object FrameOpSpec : OpSpec<FrameOp> {
         var basis = if (op.motion != null) ExprClass.T else ExprClass.S
 
         // The family base: instance prefix + the op id; members append `[k]`.
-        val prefix = lc.instancePrefix.path
+        val prefix = lc.self.path
         val declared = InstanceId(prefix + InstanceId.Segment(op.id, null))
 
         for (k in 0 until count) {

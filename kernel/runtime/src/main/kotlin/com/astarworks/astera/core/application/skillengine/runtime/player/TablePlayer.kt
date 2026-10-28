@@ -44,6 +44,8 @@ import com.astarworks.astera.core.domain.skillengine.table.SpawnKind
 import com.astarworks.astera.core.domain.skillengine.table.StatePath
 import com.astarworks.astera.core.domain.skillengine.table.StateTable
 import com.astarworks.astera.core.domain.skillengine.table.SubTable
+import com.astarworks.astera.core.domain.skillengine.table.LockEnd
+import com.astarworks.astera.core.domain.skillengine.table.HitWindow
 import com.astarworks.astera.core.domain.skillengine.table.TargetRule
 import com.astarworks.astera.core.domain.skillengine.table.TargetSet
 import com.astarworks.astera.core.domain.skillengine.table.Val
@@ -88,6 +90,7 @@ public class TablePlayer(
     private val gameplay: ISkillGameplayGateway,
     private val query: ISkillEntityQuery,
     private val live: LiveValueSource,
+    private val trace: CastTrace = CastTrace.NONE,
 ) : ISkillTablePlayer {
     /** Server caps (`maxLifeTicks`, `maxCastTicks`); set by the platform from `EngineConfig`. */
     public var config: EngineConfig = EngineConfig()
@@ -457,12 +460,17 @@ public class TablePlayer(
                 is Action.Sound -> sound(run, a, ctx)
                 is Action.Hit -> hit(run, row, a, ctx, now)
                 is Action.Damage -> damage(run, row, a, ctx, now)
-                is Action.Status -> for (v in targets(run, a.targets, ctx)) {
+                is Action.ParticleDef -> error("W1b-02: particle_def playback (named particle definition at a position)")
+                is Action.Set -> error("W1b-02: set row (write a cast field)")
+                is Action.Status -> for (v in ruleTargets(run, a.targets, ctx)) {
                     gameplay.applyStatus(run.request.caster, v, a.status, int(run, a.stacks, ctx), a.forTicks)
                 }
                 is Action.Effect -> effect(run, a, ctx, now, src)
                 is Action.Lock -> {
-                    val until = ctx.base + a.untilTick
+                    val until = when (val end = a.until) {
+                        is LockEnd.AtTick -> ctx.base + end.tick
+                        LockEnd.CastEnd -> error("W1b-02: lock until cast end")
+                    }
                     if (hooks.lock(run.request.caster, a.move, a.pitch, a.yaw, until)) {
                         run.locks += LockRec(ctx.owner, a.move, a.pitch, a.yaw, until)
                     } else {
@@ -585,13 +593,13 @@ public class TablePlayer(
 
     private fun sound(run: Run, a: Action.Sound, ctx: RowCtx) {
         val p = vec(run, a.position, ctx)
-        sounds.play(a.sound, Vec3(p.x, p.y, p.z), num(run, a.volume, ctx), num(run, a.pitch, ctx))
+        sounds.play(a.sound, Vec3(p.x, p.y, p.z), a.category, num(run, a.volume, ctx), num(run, a.pitch, ctx))
     }
 
     // hit: broad phase from the query, narrow phase from the domain resolver, swept along the frame's last-tick displacement (no tunnelling)
     private fun hit(run: Run, row: Row, a: Action.Hit, ctx: RowCtx, now: Int) {
         val caster = run.request.caster
-        val delta = a.frames.firstNotNullOfOrNull { run.recs[it] }?.let { r ->
+        val delta = a.anchor?.let { run.recs[it] }?.let { r ->
             val cur = worldOf(run, r, r.localAt(now), ctx.binding, now).pos
             val prev = worldOf(run, r, r.localAt(now - 1), ctx.binding, now - 1).pos
             Vector3d(cur).sub(prev)
@@ -613,23 +621,26 @@ public class TablePlayer(
                     )
                 })
             }
+            is HitShape.Sector -> error("W1b-02: sector hit (deg, range, +-height/2 around the origin)")
             is HitShape.Box -> {
                 fault(run, now, row.src.value, "Box hit shape has no ResolvedVolume in domain/hit")
                 return
             }
         }
         val rule = a.targets
-        val allowed = live.targets(run.cursor.handle, rule, ctx.binding).entities.map { it.id }.toSet()
-        val steps = if (delta.length() < 1e-9) 1 else min(32, ceil(delta.length() / max(0.25, volumes(0.0).let { if (it is ResolvedVolume.Sphere) it.radius else (it as ResolvedVolume.Capsule).radius })).toInt() + 1)
+        val allowed = ruleTargets(run, rule, ctx).toSet()
+        val steps = if (delta.length() < 1e-9) 1 else min(config.maxSweepSteps, ceil(delta.length() / max(0.25, volumes(0.0).let { if (it is ResolvedVolume.Sphere) it.radius else (it as ResolvedVolume.Capsule).radius })).toInt() + 1)
         val seen = LinkedHashMap<UUID, Pair<Vec3, Vec3>>()
         val once = run.hitOnce.getOrPut(row.instance) { HashSet() }
-        val excluded = if (rule is TargetRule.Caster || (rule is TargetRule.Allies && rule.includeSelf)) null else caster
+        val window = a.window
+        if (window is HitWindow.Every) error("W1b-02: hit window every ${window.ticks} ticks")
+        val excluded = if ((rule is TargetRule.Entity && rule.ref == "caster") || (rule is TargetRule.Area && rule.includeSelf)) null else caster
         for (i in steps downTo 0) {
             val k = if (steps == 0) 0.0 else i.toDouble() / steps
             val vol = volumes(k)
             val cands = query.nearby(vol.broadCenter, vol.broadRadius, excluded).filter { it.entityId in allowed && it.entityId !in seen }
             for (ce in resolver.narrow(row.instance.text, now, row.instance.text, vol, Vec3(delta.x, delta.y, delta.z), cands)) {
-                if (a.once && ce.victim in once) continue
+                if (ce.victim in once) continue
                 seen.putIfAbsent(ce.victim, ce.pointWorld to ce.normalWorld)
             }
         }
@@ -659,10 +670,7 @@ public class TablePlayer(
 
     private fun damage(run: Run, row: Row, a: Action.Damage, ctx: RowCtx, now: Int) {
         val comps = a.components.map { c -> SkillDamage(c.attribute.name.lowercase(), literalAmount(c)) }
-        val chance = num(run, a.chance, ctx)
-        val stream = rowStream(run, row, ctx)
-        for (v in targets(run, a.targets, ctx)) {
-            if (chance < 1.0 && stream.nextDouble() > chance) continue
+        for (v in ruleTargets(run, a.targets, ctx)) {
             val point = ctx.binding?.contact?.point?.let { Vec3(it.x, it.y, it.z) } ?: query.rootOf(v)?.feet ?: Vec3.ZERO
             gameplay.damage(run.cursor.skill.def.id, run.request.caster, v, comps, point, false, false)
         }
@@ -709,10 +717,10 @@ public class TablePlayer(
         is Val.Live -> live.rot(run.cursor.handle, v.name, ctx.binding)
     }
 
-    /** A live scalar is the `x` of the named live vector (LiveValueSource has no scalar lookup; see the report). */
+    /** A live scalar comes from [LiveValueSource.num]. */
     private fun num(run: Run, v: Num, ctx: RowCtx): Double = when (v) {
         is Val.Known -> v.value
-        is Val.Live -> live.vec(run.cursor.handle, v.name, ctx.binding).x
+        is Val.Live -> live.num(run.cursor.handle, v.name, ctx.binding)
     }
 
     private fun int(run: Run, v: Val<Int>, ctx: RowCtx): Int = when (v) {
@@ -734,11 +742,15 @@ public class TablePlayer(
 
     private fun flag(run: Run, look: Look, key: String, ctx: RowCtx): Boolean = look.fields[key]?.let { any(run, it, ctx) as? Boolean } ?: false
 
+    private fun ruleTargets(run: Run, rule: TargetRule, ctx: RowCtx): List<UUID> =
+        if (rule is TargetRule.Entity && rule.ref == "caster") listOf(run.request.caster)
+        else live.targets(run.cursor.handle, rule, ctx.binding).entities.map { it.id }
+
     private fun targets(run: Run, v: Val<TargetSet>, ctx: RowCtx): List<UUID> = when (v) {
         is Val.Known -> v.value.entities.map { it.id }
         is Val.Live ->
             if (v.name.startsWith("caster")) listOf(run.request.caster)
-            else live.targets(run.cursor.handle, TargetRule.Victim, ctx.binding).entities.map { it.id }
+            else live.targets(run.cursor.handle, TargetRule.Entity("event.victim"), ctx.binding).entities.map { it.id }
     }
 
     private fun rowStream(run: Run, row: Row, ctx: RowCtx): SeededStream =

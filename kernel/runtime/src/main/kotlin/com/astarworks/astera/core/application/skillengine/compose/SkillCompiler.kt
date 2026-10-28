@@ -54,7 +54,7 @@ public class SkillCompiler(
             instances = emptyMap(), liveDisplaysPeak = 0, liveDisplaysPeakTick = 0, groupDepth = 0, partDepth = 0,
             path = TickRange(0, 0), sameTickDepth = 0,
         )
-        val table = TableAssembler.assemble(def.id, sampleSeed, emptyMap(), bounds, m.states, subs, m.writes, def.conditions)
+        val table = TableAssembler.assemble(def.id, sampleSeed, emptyMap(), bounds, m.states, subs, m.writes, def.conditions, config)
         return Result.Success(CompiledSkill(def, table))
     }
 }

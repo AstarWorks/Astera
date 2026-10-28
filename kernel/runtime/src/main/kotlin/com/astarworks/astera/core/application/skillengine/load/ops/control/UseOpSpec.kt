@@ -25,10 +25,12 @@ import com.astarworks.astera.core.application.skillengine.load.spec.WhenRef
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.skillengine.op.OpSection
 import com.astarworks.astera.core.domain.skillengine.table.OpId
+import com.astarworks.astera.core.domain.skillengine.table.SrcPath
 
 /** Decoded `use` op. [target] is a part id, or `skill:<id>` (W1-15) with [gateCooldown] / [gateCost] from `gate:`. */
 public class UseOp(
     override val id: OpId,
+    override val src: SrcPath,
     override val whenExpr: WhenRef?,
     override val timing: Timing?,
     public val target: String,
@@ -48,15 +50,15 @@ public object UseOpSpec : OpSpec<UseOp> {
     private val gateField = Field.optional("gate", GateType, null)
     override val fields: Fields = Fields.of("use", useField, withField, framesField, gateField)
 
-    override fun decode(id: OpId, whenExpr: WhenRef?, timing: Timing?, values: FieldValues, ctx: GrammarContext): Result<UseOp, SkillDecodeError> {
+    override fun decode(id: OpId, src: SrcPath, whenExpr: WhenRef?, timing: Timing?, values: FieldValues, ctx: GrammarContext): Result<UseOp, SkillDecodeError> {
         val target = values[useField]
         val gate = values[gateField]
         if (target.startsWith(SkillCallInliner.PREFIX)) {
             if (target.length == SkillCallInliner.PREFIX.length) ctx.fail("use", "'skill:' names no skill")
-            return Result.success(UseOp(id, whenExpr, timing, target, values[withField], values[framesField], gate?.cooldown ?: false, gate?.cost ?: false))
+            return Result.success(UseOp(id, src, whenExpr, timing, target, values[withField], values[framesField], gate?.cooldown ?: false, gate?.cost ?: false))
         }
         if (gate != null) ctx.fail("gate", "gate: applies to a skill call (use: skill:<id>); a part call has no cooldown or cost")
-        return Result.success(UseOp(id, whenExpr, timing, target, values[withField], values[framesField]))
+        return Result.success(UseOp(id, src, whenExpr, timing, target, values[withField], values[framesField]))
     }
 
     override fun lower(op: UseOp, lc: LowerContext): Result<Lowered, SkillDecodeError> {
@@ -130,7 +132,7 @@ private object UseLowering {
                 return Result.failure(SkillDecodeError.UndefinedReference(lc.skillId, "$at.frames.$k", v))
             }
         }
-        val callId = InstanceId(lc.instancePrefix.path + InstanceId.Segment(op.id, null))
+        val callId = InstanceId(lc.self.path + InstanceId.Segment(op.id, null))
         val with = LinkedHashMap<String, Val<Any>>()
         for ((name, spec) in part.params) {
             val v = if (name in op.args) op.args[name] else spec.default

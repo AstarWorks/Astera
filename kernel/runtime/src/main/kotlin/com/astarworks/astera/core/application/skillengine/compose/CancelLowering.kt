@@ -26,7 +26,7 @@ public object CancelLowering {
     public fun subTableKey(state: StatePath, scopeText: String): EventPath = EventPath("${state.value}.cancel[$scopeText]")
 
     public fun lower(op: OpId, target: CancelTarget, lc: LowerContext): Result<Lowered, SkillDecodeError> {
-        val self = InstanceId(lc.instancePrefix.path + InstanceId.Segment(op, null))
+        val self = InstanceId(lc.self.path + InstanceId.Segment(op, null))
         val cancelEvent = EventPath("cancel")
         val endEvent = EventPath("end")
         fun row(action: Action) = Row(0, self, action, lc.src)
@@ -76,6 +76,6 @@ public object CancelLowering {
 
     private fun resolve(target: CancelTarget.Instance, lc: LowerContext): InstanceId {
         val segments = target.path.map { InstanceId.Segment(OpId(it.op), it.index) }
-        return InstanceId(if (target.fromRoot) segments else lc.instancePrefix.path + segments)
+        return InstanceId(if (target.fromRoot) segments else lc.self.path + segments)
     }
 }

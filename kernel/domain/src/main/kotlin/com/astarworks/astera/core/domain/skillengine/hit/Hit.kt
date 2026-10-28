@@ -60,6 +60,12 @@ public sealed interface ResolvedVolume {
         override val broadCenter: Vec3 get() = origin
         override val broadRadius: Double get() = range + height
     }
+
+    /** Oriented box: [rotation] turns the box's own axes into world axes. */
+    public data class Box(val center: Vec3, val halfExtents: Vec3, val rotation: org.joml.Quaterniond) : ResolvedVolume {
+        override val broadCenter: Vec3 get() = center
+        override val broadRadius: Double get() = halfExtents.length()
+    }
 }
 
 /** Axis-aligned box in world space (victim hitbox). */

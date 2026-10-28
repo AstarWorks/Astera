@@ -136,7 +136,7 @@ public interface ISkillParticleGateway {
 
 /** Positional sound: always at a world point. */
 public interface ISkillSoundGateway {
-    public fun play(sound: String, at: Vec3, volume: Double, pitch: Double)
+    public fun play(sound: String, at: Vec3, category: String, volume: Double, pitch: Double)
 }
 
 public data class SkillDamage(val kind: String, val amount: Double)

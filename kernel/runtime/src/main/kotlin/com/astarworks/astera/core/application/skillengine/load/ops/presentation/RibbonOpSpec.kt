@@ -23,6 +23,7 @@ import com.astarworks.astera.core.domain.skillengine.table.Action
 import com.astarworks.astera.core.domain.skillengine.table.InstanceId
 import com.astarworks.astera.core.domain.skillengine.table.Look
 import com.astarworks.astera.core.domain.skillengine.table.OpId
+import com.astarworks.astera.core.domain.skillengine.table.SrcPath
 import com.astarworks.astera.core.domain.skillengine.table.Pose
 import com.astarworks.astera.core.domain.skillengine.table.Row
 import com.astarworks.astera.core.domain.skillengine.table.SpawnKind
@@ -30,10 +31,16 @@ import com.astarworks.astera.core.domain.skillengine.table.Val
 import org.joml.Quaterniond
 import org.joml.Vector3d
 
+/** Trail width: a fraction of the root-to-tip length, or an absolute size in blocks. */
+public sealed interface RibbonWidth {
+    public data class Frac(val v: Value<Double>) : RibbonWidth
+    public data class Blocks(val v: Value<Double>) : RibbonWidth
+}
+
 /** Which of the two ribbon shapes the author wrote (ADR-0303 section 8: `trail` and `line` both become `ribbon`). */
 public sealed interface RibbonShape {
-    /** History trail of the tip anchor [of]; [root] fans the ribbon from a second anchor (blade edge). [history] = `lasts` ticks. */
-    public data class Trail(val of: String, val root: String?, val history: Value<Double>, val widthFrac: Value<Double>, val style: String) : RibbonShape
+    /** History trail of the tip anchor [of]; [root] fans the ribbon from a second anchor (blade edge). [history] = ticks of tip history drawn. */
+    public data class Trail(val of: String, val root: String?, val history: Value<Double>, val width: RibbonWidth, val style: String) : RibbonShape
 
     /** Straight bar stretched between two anchors. */
     public data class Line(val from: String, val to: String, val thickness: Value<Double>) : RibbonShape
@@ -42,6 +49,7 @@ public sealed interface RibbonShape {
 /** Decoded `ribbon` op. */
 public class RibbonOp(
     override val id: OpId,
+    override val src: SrcPath,
     override val whenExpr: WhenRef?,
     override val timing: Timing?,
     public val shape: RibbonShape,
@@ -75,7 +83,9 @@ public object RibbonOpSpec : OpSpec<RibbonOp> {
     private val thickness = Field.optional("thickness", Types.nullable(Types.number), null, "line: bar thickness in blocks")
     private val color = Field.required("color", Types.id, "#RRGGBB or #AARRGGBB")
     private val style = Field.optional("style", Types.nullable(Types.enumOf("soft", "crisp", "both")), null, "trail: edge style (required for a trail)")
-    private val widthFrac = Field.optional("width_frac", Types.nullable(Types.number), null, "trail: width as a fraction of the root-to-tip length (required for a trail)")
+    private val history = Field.optional("history", Types.nullable(Types.number), null, "trail: ticks of tip history drawn (required for a trail)")
+    private val widthFrac = Field.optional("width_frac", Types.nullable(Types.number), null, "trail: width as a fraction of the root-to-tip length (width_frac or width_blocks)")
+    private val widthBlocks = Field.optional("width_blocks", Types.nullable(Types.number), null, "trail: width in blocks (width_frac or width_blocks)")
     private val fade = Field.optional("fade", Types.number, Value.Literal(1.0), "alpha falloff exponent along the history; 1.0 = linear")
     private val stepDeg = Field.optional("step_deg", Types.number, Value.Literal(30.0), "max angle between two samples before the trail is subdivided (5..90)")
     private val lagTicks = Field.optional("lag_ticks", Types.number, Value.Literal(0.0), "ticks the drawn tip trails behind the anchor")
@@ -83,12 +93,12 @@ public object RibbonOpSpec : OpSpec<RibbonOp> {
     private val motion = Field.optional("motion", Types.nullable(rawList), null, "motion laws (stretch / grow ...), lowered by the law segmenter")
 
     override val fields: Fields = Fields.of(
-        "ribbon", of, root, from, to, thickness, color, style, widthFrac, fade, stepDeg, lagTicks, doubleSided, motion,
+        "ribbon", of, root, from, to, thickness, color, style, history, widthFrac, widthBlocks, fade, stepDeg, lagTicks, doubleSided, motion,
     )
 
     private val ARGB = Regex("^#([0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})$")
 
-    override fun decode(id: OpId, whenExpr: WhenRef?, timing: Timing?, values: FieldValues, ctx: GrammarContext): Result<RibbonOp, SkillDecodeError> =
+    override fun decode(id: OpId, src: SrcPath, whenExpr: WhenRef?, timing: Timing?, values: FieldValues, ctx: GrammarContext): Result<RibbonOp, SkillDecodeError> =
         Grammar.guard {
             val p = "ribbon[${id.value}]"
             if (timing == null) ctx.fail(p, "a ribbon needs a window: for (ticks) or until (ADR-0303 section 5)")
@@ -96,7 +106,7 @@ public object RibbonOpSpec : OpSpec<RibbonOp> {
             if (timing.span == null && timing.until == null) ctx.fail(p, "a ribbon needs an end: for or until (ADR-0303 section 5)")
             val tip = values[of]
             val line = values[from] != null || values[to] != null || values[thickness] != null
-            val trail = tip != null || values[root] != null || values[style] != null || values[widthFrac] != null
+            val trail = tip != null || values[root] != null || values[style] != null || values[widthFrac] != null || values[widthBlocks] != null || values[history] != null
             if (line && trail) ctx.fail(p, "a ribbon is either a trail (of/root/style/width_frac) or a line (from/to/thickness), not both")
             val shape: RibbonShape = if (line) {
                 val f = values[from] ?: ctx.fail("$p.from", "a line ribbon needs from")
@@ -107,8 +117,13 @@ public object RibbonOpSpec : OpSpec<RibbonOp> {
             } else {
                 val o = tip ?: ctx.fail("$p.of", "a trail ribbon needs of (or write from/to for a line)")
                 val st = values[style] ?: ctx.fail("$p.style", "a trail ribbon needs style: soft, crisp or both (ADR-0303 section 2.0b)")
-                val w = values[widthFrac] ?: ctx.fail("$p.width_frac", "a trail ribbon needs width_frac (ADR-0303 section 2.0b)")
-                val h = timing.lasts ?: ctx.fail("$p.lasts", "a trail ribbon needs lasts: the history length in ticks")
+                val w = when {
+                    values[widthFrac] != null && values[widthBlocks] != null -> ctx.fail("$p.width_blocks", "write width_frac or width_blocks, not both")
+                    values[widthFrac] != null -> RibbonWidth.Frac(values[widthFrac]!!)
+                    values[widthBlocks] != null -> RibbonWidth.Blocks(values[widthBlocks]!!)
+                    else -> ctx.fail("$p.width_frac", "a trail ribbon needs width_frac or width_blocks (ADR-0303 section 2.0b)")
+                }
+                val h = values[history] ?: ctx.fail("$p.history", "a trail ribbon needs history: the number of ticks of tip history drawn")
                 RibbonShape.Trail(o, values[root], h, w, st)
             }
             val hex = values[color]
@@ -117,7 +132,7 @@ public object RibbonOpSpec : OpSpec<RibbonOp> {
             val argb = if (digits.length == 6) (0xFF shl 24) or digits.toInt(16) else digits.toLong(16).toInt()
             val deg = ctx.resolveNumber(values[stepDeg])
             if (deg != null && deg !in 5.0..90.0) ctx.fail("$p.step_deg", "step_deg $deg is outside 5..90")
-            RibbonOp(id, whenExpr, timing, shape, argb, values[fade], values[stepDeg], values[lagTicks], values[doubleSided], values[motion])
+            RibbonOp(id, src, whenExpr, timing, shape, argb, values[fade], values[stepDeg], values[lagTicks], values[doubleSided], values[motion])
         }
 
     private fun known(v: Value<Double>, path: String, lc: LowerContext): Result<Val<Double>, SkillDecodeError> =
@@ -168,7 +183,7 @@ public object RibbonOpSpec : OpSpec<RibbonOp> {
         val count = family ?: 1
         for (k in 0 until count) {
             val idx = if (family != null) k else null
-            val self = InstanceId(lc.instancePrefix.path + InstanceId.Segment(op.id, idx))
+            val self = InstanceId(lc.self.path + InstanceId.Segment(op.id, idx))
             spawned += self
             val look = LinkedHashMap<String, Val<Any>>()
             look["argb"] = Val.Known(op.argb)
@@ -183,11 +198,13 @@ public object RibbonOpSpec : OpSpec<RibbonOp> {
                         look["root"] = Val.Known(r2.second)
                         look["root_anchor"] = Val.Known(r2.first.text)
                     }
-                    val hist = when (val r = known(s.history, "$p.lasts", lc)) { is Result.Success -> r.value; is Result.Failure -> return r }
-                    val w = when (val r = known(s.widthFrac, "$p.width_frac", lc)) { is Result.Success -> r.value; is Result.Failure -> return r }
+                    val hist = when (val r = known(s.history, "$p.history", lc)) { is Result.Success -> r.value; is Result.Failure -> return r }
                     look["shape"] = Val.Known("trail")
                     look["history_ticks"] = hist
-                    look["width_frac"] = w
+                    when (val wd = s.width) {
+                        is RibbonWidth.Frac -> look["width_frac"] = when (val r = known(wd.v, "$p.width_frac", lc)) { is Result.Success -> r.value; is Result.Failure -> return r }
+                        is RibbonWidth.Blocks -> look["width_blocks"] = when (val r = known(wd.v, "$p.width_blocks", lc)) { is Result.Success -> r.value; is Result.Failure -> return r }
+                    }
                     look["style"] = Val.Known(s.style)
                 }
                 is RibbonShape.Line -> {

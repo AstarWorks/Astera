@@ -20,6 +20,7 @@ import com.astarworks.astera.core.domain.skillengine.op.OpSection
 import com.astarworks.astera.core.domain.skillengine.table.Action
 import com.astarworks.astera.core.domain.skillengine.table.HitShape
 import com.astarworks.astera.core.domain.skillengine.table.OpId
+import com.astarworks.astera.core.domain.skillengine.table.SrcPath
 import com.astarworks.astera.core.domain.skillengine.table.TargetRule
 import com.astarworks.astera.core.domain.skillengine.table.Val
 import com.astarworks.astera.core.domain.skillengine.table.Vec
@@ -27,6 +28,7 @@ import com.astarworks.astera.core.domain.skillengine.table.Vec
 /** Decoded `hit` op: one volume tested each tick over the listed frames (ADR-0303 10.1b, 11.3). */
 public class HitOp(
     override val id: OpId,
+    override val src: SrcPath,
     override val whenExpr: WhenRef?,
     override val timing: Timing?,
     val frames: List<String>,
@@ -48,10 +50,12 @@ public object HitOpSpec : OpSpec<HitOp> {
     override val section: OpSection = OpSection.GAMEPLAY
     override val timing: TimingKind? = TimingKind.POINT
 
+    private val sectorHeight = Field.optional("height", Types.nullable(Types.number), null, "sector: total height in blocks (hits within +-height/2 of the origin); required")
     private val sectorFields: Fields = Fields.of(
         "hit.shape.sector",
         Field.required("deg", Types.number),
         Field.required("range", Types.number),
+        sectorHeight,
     )
     private val shapeSphere = Field.optional("sphere", Types.nullable(Types.number), null, "sphere radius (centre = first frame origin)")
     private val shapeCapsule = Field.optional("capsule", Types.nullable(Types.number), null, "capsule radius, from/to name points of the frames")
@@ -67,7 +71,7 @@ public object HitOpSpec : OpSpec<HitOp> {
 
     override val fields: Fields = Fields.of("hit", framesField, shapeField, targetsField, windowField)
 
-    override fun decode(id: OpId, whenExpr: WhenRef?, timing: Timing?, values: FieldValues, ctx: GrammarContext): Result<HitOp, SkillDecodeError> =
+    override fun decode(id: OpId, src: SrcPath, whenExpr: WhenRef?, timing: Timing?, values: FieldValues, ctx: GrammarContext): Result<HitOp, SkillDecodeError> =
         Grammar.guard {
             val frames = values[framesField]
             if (frames.isEmpty()) ctx.fail("hit.frames", "needs at least one frame")
@@ -77,6 +81,7 @@ public object HitOpSpec : OpSpec<HitOp> {
             val sector = shape[shapeSector]
             val given = listOfNotNull(sphere, capsule, sector).size
             if (given != 1) ctx.fail("hit.shape", "needs exactly one of sphere / capsule / sector (found $given)")
+            if (sector != null && sector[sectorHeight] == null) ctx.fail("hit.shape.sector.height", "a sector needs height (blocks, centred on the origin)")
             val decoded: HitShapeDecl = when {
                 sphere != null -> HitShapeDecl.Sphere(sphere)
                 capsule != null -> HitShapeDecl.Capsule(
@@ -88,6 +93,7 @@ public object HitOpSpec : OpSpec<HitOp> {
             }
             HitOp(
                 id = id,
+                src = src,
                 whenExpr = whenExpr,
                 timing = timing,
                 frames = frames,
@@ -122,11 +128,7 @@ public object HitOpSpec : OpSpec<HitOp> {
                 HitShape.Capsule(from, to, radius) to radius
             }
         }
-        val targets: TargetRule = if (op.targets == "allies") {
-            TargetRule.Allies(around, radius, null, includeSelf = false)
-        } else {
-            TargetRule.Enemies(around, radius, null)
-        }
-        return Result.Success(GameplayOps.lowered(lc, Action.Hit(shape, instances, targets, op.once)))
+        // The hit's `targets: enemies|allies` has no radius / max_count / include_self of its own; W1b-02 decides where they come from.
+        error("W1b-02: hit TargetRule.Area from targets=${op.targets} (radius=$radius, once=${op.once}, shape=$shape, anchors=$instances)")
     }
 }

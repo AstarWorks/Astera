@@ -11,17 +11,32 @@ public sealed interface Action {
     public data class Key(val display: InstanceId, val durationTicks: Int, val translation: Vec, val leftRotation: Rot, val scale: Vec) : Action
     public data class Teleport(val display: InstanceId, val durationTicks: Int, val position: Vec, val yaw: Num, val pitch: Num) : Action
     public data class TrailPoint(val ribbon: InstanceId, val position: Vec) : Action
-    public data class Particle(val type: String, val count: Val<Int>, val offset: Vec, val extra: Num, val data: ParticleData?, val position: Vec) : Action
+    public data class Particle(val type: String, val count: Val<Int>, val offset: Vec, val extra: Num, val data: ParticleData?, val position: Vec, val sweep: Double?) : Action
+
+    /** A custom particle definition (`op: particle_def, def: <id>`), played with the same timing block as a vanilla particle. */
+    public data class ParticleDef(val def: String, val position: Vec) : Action
     public data class Sound(val sound: String, val volume: Num, val pitch: Num, val position: Vec, val category: String) : Action
 
+    /** One per-tick write of a non-transform field ([field] e.g. `text_opacity`, `count`, `volume`) of the row's instance (`fade`, 3.4). */
+    public data class Set(val field: String, val value: Val<Any>) : Action
+
     // gameplay
-    public data class Hit(val shape: HitShape, val frames: List<InstanceId>, val targets: TargetRule, val once: Boolean) : Action
-    public data class Damage(val targets: Val<TargetSet>, val components: List<DamageComponent>, val chance: Num) : Action
-    public data class Status(val targets: Val<TargetSet>, val status: String, val stacks: Val<Int>, val forTicks: Int) : Action
+    /** Detection + damage in one op (ADR-0303 10.1b). [anchor] is the frame the shape's points are in. */
+    public data class Hit(
+        val shape: HitShape,
+        val anchor: InstanceId?,
+        val anchorName: String,
+        val targets: TargetRule,
+        val window: HitWindow,
+        val damage: List<DamageComponent>,
+    ) : Action
+
+    public data class Damage(val targets: TargetRule, val components: List<DamageComponent>, val ignoreInvulnerability: Boolean) : Action
+    public data class Status(val targets: TargetRule, val status: String, val stacks: Val<Int>, val forTicks: Int) : Action
 
     /** impulse, knockback, heal, resource, modify_attribute, dash, reel, rig. */
     public data class Effect(val op: OpId, val payload: Map<String, Val<Any>>) : Action
-    public data class Lock(val move: Boolean, val pitch: Boolean, val yaw: Boolean, val untilTick: Int) : Action
+    public data class Lock(val move: Boolean, val pitch: Boolean, val yaw: Boolean, val until: LockEnd) : Action
 
     // structure
     public data class Call(val callee: Callee, val callId: InstanceId, val with: Map<String, Val<Any>>, val frames: Map<String, InstanceId>) : Action
@@ -44,7 +59,7 @@ public val Action.phase: Phase
         is Action.Enter, is Action.Exit -> Phase.BOOKKEEPING
         is Action.Spawn -> Phase.SPAWN
         is Action.Key, is Action.Teleport, is Action.TrailPoint -> Phase.WRITE
-        is Action.Particle, is Action.Sound -> Phase.PRESENTATION
+        is Action.Particle, is Action.ParticleDef, is Action.Sound, is Action.Set -> Phase.PRESENTATION
         is Action.Hit, is Action.Damage, is Action.Status, is Action.Effect -> Phase.GAMEPLAY
         is Action.Lock -> Phase.LOCK
         is Action.Call -> Phase.CALL
@@ -75,14 +90,37 @@ public sealed interface HitShape {
     public data class Sphere(val center: Vec, val radius: Num) : HitShape
     public data class Capsule(val from: Vec, val to: Vec, val radius: Num) : HitShape
     public data class Box(val center: Vec, val halfExtents: Vec, val rotation: Rot) : HitShape
+
+    /** Sphere wedge: within [range] of [origin], horizontal angle to [forward] at most `deg / 2`, within +-[height] / 2 of the origin vertically. */
+    public data class Sector(val origin: Vec, val forward: Vec, val deg: Num, val range: Num, val height: Num) : HitShape
 }
 
-/** Who a `hit` row may touch; resolved at play time (C4c). */
+/** Who a gameplay row touches; resolved at play time (C4c). */
 public sealed interface TargetRule {
-    public data object Victim : TargetRule
-    public data object Caster : TargetRule
-    public data class Enemies(val around: Vec, val radius: Num, val maxCount: Int?) : TargetRule
-    public data class Allies(val around: Vec, val radius: Num, val maxCount: Int?, val includeSelf: Boolean) : TargetRule
+    /** `caster`, `event.victim`, `event.attacker`. */
+    public data class Entity(val ref: String) : TargetRule
+
+    /** `{kind: enemies|allies, around: <frame>, radius, max_count, include_self}`; every field is required. */
+    public data class Area(
+        val kind: String,
+        val around: InstanceId?,
+        val aroundName: String,
+        val radius: Num,
+        val maxCount: Int,
+        val includeSelf: Boolean,
+    ) : TargetRule
+}
+
+/** Re-hit rule of a repeating `hit`: once per victim per instance, or again after [Every.ticks]. */
+public sealed interface HitWindow {
+    public data object Once : HitWindow
+    public data class Every(val ticks: Int) : HitWindow
+}
+
+/** When a `lock` row lifts, in ticks relative to the state base (entry = 0). */
+public sealed interface LockEnd {
+    public data class AtTick(val tick: Int) : LockEnd
+    public data object CastEnd : LockEnd
 }
 
 /** A resolved victim set (a `Val.Known` only for fixed sets such as the caster). */

@@ -17,10 +17,12 @@ import com.astarworks.astera.core.application.skillengine.load.spec.WhenRef
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.skillengine.op.OpSection
 import com.astarworks.astera.core.domain.skillengine.table.OpId
+import com.astarworks.astera.core.domain.skillengine.table.SrcPath
 
 /** Decoded `particle_def` op: a custom particle definition (ADR-0303 2.2) emitted at its anchor, timed like `particle`. */
 public class ParticleDefOp(
     override val id: OpId,
+    override val src: SrcPath,
     override val whenExpr: WhenRef?,
     override val timing: Timing?,
     public val def: String,
@@ -37,9 +39,9 @@ public object ParticleDefOpSpec : OpSpec<ParticleDefOp> {
     override val timing: TimingKind? = TimingKind.POINT
     override val fields: Fields = Fields.of("particle_def", DEF, ANCHOR)
 
-    override fun decode(id: OpId, whenExpr: WhenRef?, timing: Timing?, values: FieldValues, ctx: GrammarContext): Result<ParticleDefOp, SkillDecodeError> =
+    override fun decode(id: OpId, src: SrcPath, whenExpr: WhenRef?, timing: Timing?, values: FieldValues, ctx: GrammarContext): Result<ParticleDefOp, SkillDecodeError> =
         Grammar.guard {
-            ParticleDefOp(id, whenExpr, timing, def = values[DEF], anchor = values[ANCHOR])
+            ParticleDefOp(id, src, whenExpr, timing, def = values[DEF], anchor = values[ANCHOR])
         }
 
     /** Action has no particle-definition variant yet (W0-01 request), so the op cannot be lowered without a placeholder. */

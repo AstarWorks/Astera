@@ -1,7 +1,20 @@
 package com.astarworks.astera.core.domain.skillengine.table
 
-/** [tick] is relative to the state entry (static) or to the event (sub-table). [src] is the YAML path the row came from. */
-public data class Row(val tick: Int, val instance: InstanceId, val action: Action, val src: SrcPath)
+import com.astarworks.astera.core.domain.skillengine.model.EngineConfig
+
+/**
+ * [tick] is relative to the state entry (static) or to the event (sub-table). [src] is the YAML path the row came from.
+ * [maskUntil] lists the events that suppress this candidate row (printed `mask until a, b`); [guard] is a class-L `when` on a point
+ * gameplay op, judged at play time (printed `when <expr>`).
+ */
+public data class Row(
+    val tick: Int,
+    val instance: InstanceId,
+    val action: Action,
+    val src: SrcPath,
+    val maskUntil: List<EventPath> = emptyList(),
+    val guard: Guard? = null,
+)
 
 /** "machine.states.cast.do[0].do[1]"; set by the op's lower() from LowerContext.src. */
 @JvmInline
@@ -63,4 +76,6 @@ public data class ExpansionTable(
     val writes: Map<InstanceId, WriteStats>,
     /** Name -> CEL source (3.8). */
     val conditions: Map<String, String>,
+    /** The caps this table was compiled under; printed as the `# engine:` header of the dump. */
+    val config: EngineConfig,
 )

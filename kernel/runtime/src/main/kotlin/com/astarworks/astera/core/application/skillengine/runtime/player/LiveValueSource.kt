@@ -9,6 +9,8 @@ import org.joml.Vector3d
 public interface LiveValueSource {
     public fun vec(cast: CastHandle, name: String, binding: EventBinding?): Vector3d
 
+    public fun num(cast: CastHandle, name: String, binding: EventBinding?): Double
+
     public fun rot(cast: CastHandle, name: String, binding: EventBinding?): Quaterniond
 
     public fun targets(cast: CastHandle, rule: TargetRule, binding: EventBinding?): TargetSet

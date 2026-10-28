@@ -19,11 +19,13 @@ import com.astarworks.astera.core.domain.skillengine.model.TargetRef
 import com.astarworks.astera.core.domain.skillengine.model.Value
 import com.astarworks.astera.core.domain.skillengine.op.OpSection
 import com.astarworks.astera.core.domain.skillengine.table.OpId
+import com.astarworks.astera.core.domain.skillengine.table.SrcPath
 import com.astarworks.astera.core.domain.skillengine.table.Val
 
 /** Decoded `impulse` op: a velocity added to the target (world axes). */
 public class ImpulseOp(
     override val id: OpId,
+    override val src: SrcPath,
     override val whenExpr: WhenRef?,
     override val timing: Timing?,
     val target: TargetRef,
@@ -40,8 +42,8 @@ public object ImpulseOpSpec : OpSpec<ImpulseOp> {
 
     override val fields: Fields = Fields.of("impulse", targetField, vectorField)
 
-    override fun decode(id: OpId, whenExpr: WhenRef?, timing: Timing?, values: FieldValues, ctx: GrammarContext): Result<ImpulseOp, SkillDecodeError> =
-        Result.Success(ImpulseOp(id, whenExpr, timing, values[targetField], values[vectorField]))
+    override fun decode(id: OpId, src: SrcPath, whenExpr: WhenRef?, timing: Timing?, values: FieldValues, ctx: GrammarContext): Result<ImpulseOp, SkillDecodeError> =
+        Result.Success(ImpulseOp(id, src, whenExpr, timing, values[targetField], values[vectorField]))
 
     override fun lower(op: ImpulseOp, lc: LowerContext): Result<Lowered, SkillDecodeError> {
         val path = lc.src.value

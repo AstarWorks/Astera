@@ -14,7 +14,7 @@ public data class SkillLoadReport(
  * definition; casts in progress hold their [CompiledSkill] and finish on it.
  */
 public interface SkillCatalog {
-    public fun get(skillId: String): CompiledSkill?
+    public fun get(id: String): CompiledSkill?
     public fun ids(): Set<String>
 
     /** Decode + compile + swap atomically for the given composed skills; others are untouched. */

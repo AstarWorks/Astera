@@ -19,6 +19,7 @@ import com.astarworks.astera.core.domain.skillengine.table.InstanceId
 import com.astarworks.astera.core.domain.skillengine.table.Num
 import com.astarworks.astera.core.domain.skillengine.table.OpId
 import com.astarworks.astera.core.domain.skillengine.table.Row
+import com.astarworks.astera.core.domain.skillengine.table.TargetRule
 import com.astarworks.astera.core.domain.skillengine.table.TargetSet
 import com.astarworks.astera.core.domain.skillengine.table.Val
 import com.astarworks.astera.core.application.skillengine.load.spec.Lowered
@@ -137,9 +138,16 @@ internal object GameplayOps {
             Result.Failure(SkillDecodeError.Invalid(lc.skillId, path, "area target needs a TargetRule on this action (domain request: Action.Damage / Action.Status take a TargetSet only)"))
     }
 
+    /** Target as a [TargetRule] (damage / status / hit). Area targets are List C. */
+    fun targetRule(t: TargetRef, lc: LowerContext, path: String): Result<TargetRule, SkillDecodeError> = when (t) {
+        TargetRef.Victim -> Result.Success(TargetRule.Entity("event.victim"))
+        TargetRef.Caster -> Result.Success(TargetRule.Entity("caster"))
+        is TargetRef.Enemies, is TargetRef.Allies -> error("W1b-02: area target -> TargetRule.Area (around anchor, radius, max_count, include_self)")
+    }
+
     fun row(lc: LowerContext, instance: InstanceId, action: Action): Row = Row(0, instance, action, lc.src)
 
-    fun lowered(lc: LowerContext, action: Action): Lowered = Lowered(rows = listOf(row(lc, lc.instancePrefix, action)))
+    fun lowered(lc: LowerContext, action: Action): Lowered = Lowered(rows = listOf(row(lc, lc.self, action)))
 
     /** `Action.Effect` for ops the table carries as a generic payload. */
     fun effect(lc: LowerContext, op: String, payload: Map<String, Val<Any>>): Lowered =

@@ -34,6 +34,7 @@ import com.astarworks.astera.core.domain.skillengine.table.OpId
 import com.astarworks.astera.core.domain.skillengine.table.Pose
 import com.astarworks.astera.core.domain.skillengine.table.Row
 import com.astarworks.astera.core.domain.skillengine.table.SpawnKind
+import com.astarworks.astera.core.domain.skillengine.table.SrcPath
 import com.astarworks.astera.core.domain.skillengine.table.SubTable
 import com.astarworks.astera.core.domain.skillengine.table.TickRange
 import com.astarworks.astera.core.domain.skillengine.table.Val
@@ -70,6 +71,7 @@ public data class ProjectileBlock(val mode: String, val forTicks: Value<Double>?
  */
 public class ProjectileOp(
     override val id: OpId,
+    override val src: SrcPath,
     override val whenExpr: WhenRef?,
     override val timing: Timing?,
     public val origin: String,
@@ -87,7 +89,7 @@ public class ProjectileOp(
     public val lowerHandlers: HandlerLowering? = null,
 ) : OpNode {
     public fun withHandlers(decoded: Map<ProjectileEvent, List<OpNode>>, lowering: HandlerLowering): ProjectileOp =
-        ProjectileOp(id, whenExpr, timing, origin, velocity, speed, range, radius, hit, motion, block, gravity, drag, rawOn, decoded, lowering)
+        ProjectileOp(id, src, whenExpr, timing, origin, velocity, speed, range, radius, hit, motion, block, gravity, drag, rawOn, decoded, lowering)
 }
 
 public object ProjectileOpSpec : OpSpec<ProjectileOp> {
@@ -164,7 +166,7 @@ public object ProjectileOpSpec : OpSpec<ProjectileOp> {
 
     override val fields: Fields = Fields.of("projectile", origin, velocity, speed, range, radius, hit, motion, block, gravity, drag, on)
 
-    override fun decode(id: OpId, whenExpr: WhenRef?, timing: Timing?, values: FieldValues, ctx: GrammarContext): Result<ProjectileOp, SkillDecodeError> =
+    override fun decode(id: OpId, src: SrcPath, whenExpr: WhenRef?, timing: Timing?, values: FieldValues, ctx: GrammarContext): Result<ProjectileOp, SkillDecodeError> =
         Grammar.guard {
             val path = "projectile '${id.value}'"
             if (timing?.every != null) ctx.fail("$path.every", "a projectile is not repeated with every; put it in a group")
@@ -206,7 +208,7 @@ public object ProjectileOpSpec : OpSpec<ProjectileOp> {
             }
 
             val keys = values[motion]?.let { m -> MotionLaws.read(m, ctx, "$path.motion") }
-            ProjectileOp(id, whenExpr, timing, values[origin], values[velocity], values[speed], values[range], values[radius], hitSpec, keys, blockSpec, values[gravity], values[drag], raw)
+            ProjectileOp(id, src, whenExpr, timing, values[origin], values[velocity], values[speed], values[range], values[radius], hitSpec, keys, blockSpec, values[gravity], values[drag], raw)
         }
 
     /** The events a body of this mode can fire (3.6): `pass` has no block events; `blocks_only` has no victim hit. */
@@ -220,7 +222,7 @@ public object ProjectileOpSpec : OpSpec<ProjectileOp> {
 
     override fun lower(op: ProjectileOp, lc: LowerContext): Result<Lowered, SkillDecodeError> {
         val src = lc.src
-        val body = lc.instancePrefix
+        val body = lc.self
         fun bad(message: String): Result.Failure<SkillDecodeError> =
             Result.Failure(SkillDecodeError.Invalid(lc.skillId, src.value, "projectile '${op.id.value}': $message"))
 
@@ -335,7 +337,7 @@ public object ProjectileOpSpec : OpSpec<ProjectileOp> {
                     val lowering = op.lowerHandlers ?: return bad("on.${e.key} has handlers but no lowering")
                     val prefix = InstanceId(body.path.dropLast(1) + InstanceId.Segment(OpId(op.id.value + "." + e.key), body.path.last().index))
                     val hc = LowerContext(
-                        lc.skillId, lc.state, prefix, lc.occurrence, 0, lc.anchors, lc.frames, lc.parts, lc.skills, lc.conditions, lc.exprs,
+                        lc.skillId, lc.state, prefix, lc.occurrence, 0, lc.anchors, lc.frames, lc.parts, lc.skills, lc.item, lc.sprites, lc.conditions, lc.exprs,
                         lc.config, lc.seed, com.astarworks.astera.core.domain.skillengine.table.SrcPath(src.value + ".on." + e.key),
                     )
                     val lo = when (val r = lowering.lower(handlerNodes, hc)) {

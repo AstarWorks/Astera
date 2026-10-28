@@ -20,6 +20,7 @@ internal object VolumeGeometry {
         is ResolvedVolume.Sphere -> sphere(volume, box)
         is ResolvedVolume.Capsule -> capsule(volume, box)
         is ResolvedVolume.Sector -> sector(volume, box)
+        is ResolvedVolume.Box -> error("W1b-02: oriented box vs hitbox narrow phase")
     }
 
     fun clampToBox(p: Vec3, box: HitBox): Vec3 = Vec3(

@@ -18,6 +18,7 @@ import com.astarworks.astera.core.application.skillengine.load.spec.WhenRef
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.skillengine.op.OpSection
 import com.astarworks.astera.core.domain.skillengine.table.OpId
+import com.astarworks.astera.core.domain.skillengine.table.SrcPath
 
 /**
  * Decoded timing group (ADR-0303 2.0a): `{id, at, every, for, times, until, lasts, do}`.
@@ -28,6 +29,7 @@ import com.astarworks.astera.core.domain.skillengine.table.OpId
  */
 public class GroupOp(
     override val id: OpId,
+    override val src: SrcPath,
     override val whenExpr: WhenRef?,
     override val timing: Timing?,
     public val rawDo: List<Any?>,
@@ -35,7 +37,7 @@ public class GroupOp(
     public val lowerChild: ChildLowering? = null,
 ) : OpNode {
     public fun withBody(children: List<OpNode>, lowering: ChildLowering): GroupOp =
-        GroupOp(id, whenExpr, timing, rawDo, children, lowering)
+        GroupOp(id, src, whenExpr, timing, rawDo, children, lowering)
 }
 
 public object GroupOpSpec : OpSpec<GroupOp> {
@@ -57,8 +59,8 @@ public object GroupOpSpec : OpSpec<GroupOp> {
 
     override val fields: Fields = Fields.of("group", doField)
 
-    override fun decode(id: OpId, whenExpr: WhenRef?, timing: Timing?, values: FieldValues, ctx: GrammarContext): Result<GroupOp, SkillDecodeError> =
-        Result.Success(GroupOp(id, whenExpr, timing, values[doField]))
+    override fun decode(id: OpId, src: SrcPath, whenExpr: WhenRef?, timing: Timing?, values: FieldValues, ctx: GrammarContext): Result<GroupOp, SkillDecodeError> =
+        Result.Success(GroupOp(id, src, whenExpr, timing, values[doField]))
 
     /** One occurrence of the body, rows relative to the occurrence tick 0 (no outer horizon known here). [GroupUnroller.unroll] is the schedule. */
     override fun lower(op: GroupOp, lc: LowerContext): Result<Lowered, SkillDecodeError> =
