@@ -6,8 +6,6 @@
 # CONVERT-PRESENT rig block parts (mesh takes an item model, not a block + size) (x1): 11 parts
 # CONVERT-PRESENT rig swing without a weapon mesh (track needs a visual to move) (x1): 10 keys
 # CONVERT-PRESENT particle along_path (x1): true
-# CONVERT-PRESENT element formation (no v2 equivalent) (x1): {"curve": {"from_deg": 0, "radius": 1.65, "to_deg": 360, "ty
-# CONVERT-PRESENT element count (no v2 equivalent) (x1): 12
 # CONVERT-PRESENT element jitter (no v2 equivalent) (x1): {"position": 0.08}
 # CONVERT-PRESENT vfx anchored at a runtime point (frame parent must exist at cast start): anchored at world (x1): contact.point
 apiVersion: "astera/v2"
@@ -307,15 +305,74 @@ presentation:
             - {t: 2, scale: [0.08, 0.08, 0.43], ease: out_expo}
             - {t: 10, scale: [0.0, 0.0, 0.26]}
         - {id: fx5_orrery_seal_front_clock_sparks_atrk, op: track, target: fx5_orrery_seal_front_clock_sparks_at, space: fx5_orrery_seal_front, keys: [{t: 7, offset: [0, 0.15, 0]}]}
+        - id: fx5_orrery_seal_front_clock_sparks
+          op: emit
+          at: fx5_orrery_seal_front_clock_sparks_at
+          particle: orrery-ember
+          times: 12
+          shift: "= [vec(0.0, 1.65, 3.6), vec(0.0, 2.475, 3.37894), vec(0.0, 3.07894, 2.775), vec(0.0, 3.3, 1.95), vec(0.0, 3.07894, 1.125), vec(0.0, 2.475, 0.52106), vec(0.0, 1.65, 0.3), vec(0.0, 0.825, 0.52106), vec(0.0, 0.22106, 1.125), vec(0.0, 0.0, 1.95), vec(0.0, 0.22106, 2.775), vec(0.0, 0.825, 3.37894)][int(i)]"
         - {id: flash, op: screen_flash, target: caster, overlay: impact_star, color: "#FFD447", stay: 1, fade_out: 2}
         - {id: snd, op: sound, sound: entity.player.attack.crit, at: caster, volume: 0.7, pitch: 1.2}
+    - id: fx25
+      at: 25
+      do:
+        - id: emit
+          op: emit
+          at: fx5_orrery_seal_front_clock_sparks_at
+          particle: orrery-ember
+          times: 12
+          shift: "= [vec(0.0, 1.65, 3.6), vec(0.0, 2.475, 3.37894), vec(0.0, 3.07894, 2.775), vec(0.0, 3.3, 1.95), vec(0.0, 3.07894, 1.125), vec(0.0, 2.475, 0.52106), vec(0.0, 1.65, 0.3), vec(0.0, 0.825, 0.52106), vec(0.0, 0.22106, 1.125), vec(0.0, 0.0, 1.95), vec(0.0, 0.22106, 2.775), vec(0.0, 0.825, 3.37894)][int(i)]"
+    - id: fx26
+      at: 26
+      do:
+        - id: emit_2
+          op: emit
+          at: fx5_orrery_seal_front_clock_sparks_at
+          particle: orrery-ember
+          times: 12
+          shift: "= [vec(0.0, 1.65, 3.6), vec(0.0, 2.475, 3.37894), vec(0.0, 3.07894, 2.775), vec(0.0, 3.3, 1.95), vec(0.0, 3.07894, 1.125), vec(0.0, 2.475, 0.52106), vec(0.0, 1.65, 0.3), vec(0.0, 0.825, 0.52106), vec(0.0, 0.22106, 1.125), vec(0.0, 0.0, 1.95), vec(0.0, 0.22106, 2.775), vec(0.0, 0.825, 3.37894)][int(i)]"
+    - id: fx27
+      at: 27
+      do:
+        - id: emit_3
+          op: emit
+          at: fx5_orrery_seal_front_clock_sparks_at
+          particle: orrery-ember
+          times: 12
+          shift: "= [vec(0.0, 1.65, 3.6), vec(0.0, 2.475, 3.37894), vec(0.0, 3.07894, 2.775), vec(0.0, 3.3, 1.95), vec(0.0, 3.07894, 1.125), vec(0.0, 2.475, 0.52106), vec(0.0, 1.65, 0.3), vec(0.0, 0.825, 0.52106), vec(0.0, 0.22106, 1.125), vec(0.0, 0.0, 1.95), vec(0.0, 0.22106, 2.775), vec(0.0, 0.825, 3.37894)][int(i)]"
+    - id: fx28
+      at: 28
+      do:
+        - id: emit_4
+          op: emit
+          at: fx5_orrery_seal_front_clock_sparks_at
+          particle: orrery-ember
+          times: 12
+          shift: "= [vec(0.0, 1.65, 3.6), vec(0.0, 2.475, 3.37894), vec(0.0, 3.07894, 2.775), vec(0.0, 3.3, 1.95), vec(0.0, 3.07894, 1.125), vec(0.0, 2.475, 0.52106), vec(0.0, 1.65, 0.3), vec(0.0, 0.825, 0.52106), vec(0.0, 0.22106, 1.125), vec(0.0, 0.0, 1.95), vec(0.0, 0.22106, 2.775), vec(0.0, 0.825, 3.37894)][int(i)]"
+    - id: fx29
+      at: 29
+      do:
+        - id: emit_5
+          op: emit
+          at: fx5_orrery_seal_front_clock_sparks_at
+          particle: orrery-ember
+          times: 12
+          shift: "= [vec(0.0, 1.65, 3.6), vec(0.0, 2.475, 3.37894), vec(0.0, 3.07894, 2.775), vec(0.0, 3.3, 1.95), vec(0.0, 3.07894, 1.125), vec(0.0, 2.475, 0.52106), vec(0.0, 1.65, 0.3), vec(0.0, 0.825, 0.52106), vec(0.0, 0.22106, 1.125), vec(0.0, 0.0, 1.95), vec(0.0, 0.22106, 2.775), vec(0.0, 0.825, 3.37894)][int(i)]"
+    - id: fx30
+      at: 30
+      do:
+        - id: emit_6
+          op: emit
+          at: fx5_orrery_seal_front_clock_sparks_at
+          particle: orrery-ember
+          times: 12
+          shift: "= [vec(0.0, 1.65, 3.6), vec(0.0, 2.475, 3.37894), vec(0.0, 3.07894, 2.775), vec(0.0, 3.3, 1.95), vec(0.0, 3.07894, 1.125), vec(0.0, 2.475, 0.52106), vec(0.0, 1.65, 0.3), vec(0.0, 0.825, 0.52106), vec(0.0, 0.22106, 1.125), vec(0.0, 0.0, 1.95), vec(0.0, 0.22106, 2.775), vec(0.0, 0.825, 3.37894)][int(i)]"
     - {id: fx34, at: 34, do: [{id: rm_3, op: remove, ids: [fx5_orrery_seal_front_gold, fx5_orrery_seal_front_dark, fx5_orrery_seal_front_inner_clock]}]}
     - {id: fx44, at: 44, do: [{id: rm, op: remove, ids: [fx3_orrery_orb_core]}]}
     - {id: fx56, at: 56, do: [{id: rm_2, op: remove, ids: [fx4_orrery_beam_core, fx4_orrery_beam_bloom, fx4_orrery_beam_dark]}]}
     - {id: fxhit_8, at: "hit+8", do: [{id: rm_4, op: remove, ids: [fx6_orrery_ring_hit_violet_core], when: "= event.source == 'sel'"}]}
     - {id: fxhit_10, at: "hit+10", do: [{id: rm_5, op: remove, ids: [fx6_orrery_ring_hit_shard], when: "= event.source == 'sel'"}]}
     - {id: loop1, at: 0, every: 1, for: 22, do: [{id: fx1_orrery_poise_staff_embers, op: emit, at: pt_fx1_orrery_poise_staff_0_1p65_0, particle: orrery-ember}]}
-    - {id: loop2, at: 24, every: 1, for: 7, do: [{id: fx5_orrery_seal_front_clock_sparks, op: emit, at: fx5_orrery_seal_front_clock_sparks_at, particle: orrery-ember}]}
   "on":
     hit:
       - op: block
@@ -346,4 +403,4 @@ presentation:
           - {t: 2, scale: [0.03, 0.8, 0.8], ease: out_expo}
           - {t: 8, scale: [0.0, 0.0, 0.0]}
         when: "= event.source == 'sel'"
-      - {id: emit, op: emit, at: contact.point, particle: orrery-sparks, when: "= event.source == 'sel'"}
+      - {id: emit_7, op: emit, at: contact.point, particle: orrery-sparks, when: "= event.source == 'sel'"}

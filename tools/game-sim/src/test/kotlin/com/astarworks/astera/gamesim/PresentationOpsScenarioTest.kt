@@ -282,8 +282,8 @@ class PresentationOpsScenarioTest {
     fun `decoders cover every presentation op and a plate has exactly two face modes`() {
         val names = presentationDecoders().flatMap { it.opNames }.toSet()
         assertThat(names).containsExactlyInAnyOrder(
-            "mesh", "plate", "line", "trail", "track", "remove", "emit", "sound",
-            "victim_anim", "caster_anim", "title", "action_bar", "camera_shake",
+            "mesh", "plate", "block", "quad", "line", "trail", "track", "remove", "emit", "sound",
+            "victim_anim", "caster_anim", "title", "action_bar", "camera_shake", "screen_flash", "stop_sound",
         )
         val viewer = decode("plate", mapOf("parent" to "volley", "sprite" to "slash_fan", "face" to mapOf("viewer" to "vertical"))) as VisualOp.Plate
         assertThat(viewer.face).isEqualTo(PlateFace.ViewerVertical)
