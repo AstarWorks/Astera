@@ -274,6 +274,8 @@ internal object CelFunctions {
         // frames
         // a bare `victim` is its feet (SKL-15), like `dist`; any named point of it (`point(victim, "body")`) is the body centre
         def("pos", "pos_ref", VEC3, listOf(REF), listOf(R)) { feet(it[0]) }
+        // `pos(event.victim)` / `pos(contact.point)`: a point already is its position (ADR-0303 3.6 writes normalize(pos(event.victim) - pos(caster)))
+        def("pos", "pos_vec3", VEC3, listOf(VEC3), listOf(V)) { it[0] as Vec3 }
         def("axis", "axis_ref", VEC3, listOf(REF, SimpleType.STRING), listOf(R, STR)) { axisOf(worldPose(it[0] as ExprValue.Ref), it[1] as String) }
         def("point", "point_ref", REF, listOf(REF, SimpleType.STRING), listOf(R, STR)) { (it[0] as ExprValue.Ref).copy(point = it[1] as String) }
         def("velocity", "velocity_ref", VEC3, listOf(REF), listOf(R)) { (it[0] as ExprValue.Ref).let { r -> env().frames.velocity(r.name, r.point) } }

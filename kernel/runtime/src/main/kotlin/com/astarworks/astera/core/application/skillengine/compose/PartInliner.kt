@@ -195,6 +195,7 @@ internal class ParamSubst(private val env: Map<String, Any?>, private val strict
     }
 
     private fun str(s: String): Any? {
+        if (s.startsWith("= ") && env.isNotEmpty()) return bare(s)
         if (!s.contains("\${")) return s
         EXACT.matchEntire(s)?.let { m ->
             val n = m.groupValues[1]
@@ -209,6 +210,24 @@ internal class ParamSubst(private val env: Map<String, Any?>, private val strict
                 unknown(n)
                 m.value
             } else render(env[n], cel) ?: m.value
+        }
+    }
+
+    /** `${p}` is "the same as the bare identifier `p`" (ExprCompiler doc): a bare param name in a CEL source gets the same substitution. */
+    private fun bare(s: String): String {
+        val withRefs = if (s.contains("\${")) {
+            REF.replace(s) { m ->
+                val n = m.groupValues[1]
+                if (n !in env) {
+                    unknown(n)
+                    m.value
+                } else render(env[n], true) ?: m.value
+            }
+        } else s
+        return IDENT.replace(withRefs) { m ->
+            val n = m.groupValues[2]
+            val q = m.groupValues[1]
+            if (q.isNotEmpty() || n !in env) m.value else render(env[n], true) ?: m.value
         }
     }
 
@@ -228,6 +247,8 @@ internal class ParamSubst(private val env: Map<String, Any?>, private val strict
 
     private companion object {
         val EXACT = Regex("""^\$\{([A-Za-z_][A-Za-z0-9_]*)}$""")
+        /** A quoted string literal (group 1, kept as is) or a bare identifier not preceded by `.`, `$` or a word char and not a call (group 2). */
+        val IDENT = Regex("""("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*')|(?<![\w.$])([A-Za-z_][A-Za-z0-9_]*)(?![\w(])""")
         val REF = Regex("""\$\{([A-Za-z_][A-Za-z0-9_]*)}""")
     }
 }

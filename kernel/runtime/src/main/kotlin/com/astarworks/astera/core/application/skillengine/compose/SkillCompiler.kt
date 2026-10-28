@@ -18,6 +18,7 @@ import com.astarworks.astera.core.application.skillengine.load.spec.OpSpec
 import com.astarworks.astera.core.application.skillengine.load.spec.OpSpecRegistry
 import com.astarworks.astera.core.application.skillengine.runtime.player.SeededStream
 import com.astarworks.astera.core.domain.Result
+import com.astarworks.astera.core.domain.skillengine.expr.ExprEnvSpec
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.geometry.math.Frame
 import com.astarworks.astera.core.domain.skillengine.expr.CompiledExpr
@@ -171,7 +172,7 @@ public class SkillCompiler(
         val usedSkills = LinkedHashSet<String>()
 
         private val decoder = OpListDecoder(specs)
-        private val grammar = GrammarContext(original.id, null, exprs, V3Bindings.spec(DEEP))
+        private val grammar = GrammarContext(original.id, null, exprs, V3Bindings.spec(DEEP, ExprEnvSpec(frames = flat.anchors.map { it.id }.toSet() + flat.framesIn.keys)))
         private val documents: Map<String, AnchorDecl> = flat.anchors.associateBy { it.id }
         private val registries = HashMap<String, AnchorRegistry>()
         private val callStack = ArrayList<String>().apply { add(SkillCallInliner.PREFIX + original.id) }

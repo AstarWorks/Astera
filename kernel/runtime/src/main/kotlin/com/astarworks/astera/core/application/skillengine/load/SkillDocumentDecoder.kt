@@ -113,13 +113,23 @@ public class SkillDocumentDecoder(private val specs: OpSpecRegistry, private val
         val framesIn = stringMap(boot, tree["frames_in"], "frames_in")
         val emits = stringList(boot, tree["emits"], "emits")
         val anchors = anchors(boot, tree["anchors"])
-        val ctx = GrammarContext(file, null, exprs, env.exprEnv)
+        val docEnv = ExprEnvSpec(
+            env.exprEnv.variables + params.mapValues { (_, p) ->
+                when (p.type) {
+                    ParamType.BOOL -> ExprType.BOOL
+                    ParamType.STRING -> ExprType.STR
+                    else -> ExprType.NUM
+                }
+            },
+            env.exprEnv.frames + anchors.map { it.id } + framesIn.keys,
+        )
+        val ctx = GrammarContext(file, null, exprs, docEnv)
         val conditions = LinkedHashMap<String, String>()
         for ((name, raw) in mapAt(boot, tree["conditions"], "conditions")) {
             val src = raw as? String ?: boot.mismatch("conditions.$name", "'= expr'", raw)
             if (!src.startsWith("= ")) boot.mismatch("conditions.$name", "'= expr'", src)
             val body = src.substring(2).trim()
-            when (val r = exprs.compile(body, env.exprEnv, ExprType.BOOL)) {
+            when (val r = exprs.compile(body, docEnv, ExprType.BOOL)) {
                 is Result.Success -> Unit
                 is Result.Failure -> boot.abortWith(SkillDecodeError.BadExpr(file, "conditions.$name", r.error))
             }
