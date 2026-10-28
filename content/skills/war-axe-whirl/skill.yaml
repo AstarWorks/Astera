@@ -1,15 +1,44 @@
-# Converted from content/skills/war-axe-whirl.yaml by tools/skill-convert/convert.py (v1 archetype: aoe). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
-# Generated point-frame offsets are [left, up, forward] in the parent frame.
-apiVersion: "astera/v2"
+apiVersion: astera/v3
 kind: Skill
 id: war-axe-whirl
 item: war-axe
-meta: {name: {ja: "旋風斬り", en: Whirl}, description: {ja: "回転して周囲の敵をまとめて斬る。", en: "Spins and cuts everyone around you."}, cooldown_ticks: 120, resource_cost: 15, tags: [aoe, physical]}
-gameplay:
-  params: {radius: 3.5, dmg_physical: 35.0}
-  expose:
-    - {id: damage, param: dmg_physical}
-    - {id: radius, param: radius}
-  timeline:
-    - {id: t0, at: 0, do: [{id: burst, op: hit, frames: [caster], sphere: {at: caster, radius: "${radius}"}, window: once, ticks: 1}]}
-  "on": {hit: [{id: dmg, op: damage, target: victim, components: [{kind: physical, amount: "= dmg_physical * (1.0 - 0.5 * dist(pos(caster), pos(victim)) / radius)"}], when: "= event.source == 'burst'"}]}
+meta:
+  name: {ja: "旋風斬り", en: "Whirl"}
+  description: {ja: "回転して周囲の敵をまとめて斬る。", en: "Spins and cuts everyone around you."}
+  cooldown_ticks: 120
+  resource_cost: 15
+  tags: [aoe, physical]
+# GAP: gameplay.expose (damage <- dmg_physical, radius) -> none (inline literals)
+anchors:
+  - {id: ring_pt, anchor: caster, offset: {up: 0.15}}
+  - {id: foe, anchor: victim.root}
+machine:
+  start: whirl
+  states:
+    whirl:
+      for: 6
+      then: end
+      do:
+        - id: burst
+          op: hit
+          at: 0
+          anchor: caster
+          shape: {sphere: 3.5}
+          targets: enemies
+          # linear falloff from 35 at the centre to 17.5 at the edge (v2 expression kept)
+          damage: {physical: "= 35.0 * (1.0 - 0.5 * dist(pos(caster), pos(event.victim)) / 3.5)"}
+          window: once
+          on:
+            hit:
+              - {id: snd_hit, op: sound, sound: "astera:weapons/blade-hit", anchor: foe, volume: 0.7, pitch: 1.0}
+        - {id: snd, op: sound, sound: "astera:weapons/blade-heavy-swing", anchor: caster, volume: 1.0, pitch: 1.2}
+        # six expanding rings, one per tick, radius 0.5 + 0.6 * k; 16 emits per ring
+        - id: ring
+          at: 0
+          every: 1
+          times: 6
+          do:
+            # GAP: v2 emit `shift` (per-emit position) -> particle anchor {of, offset} map (closest); v2 draw('shape_ph') per-cast shared phase -> none (phase 0 used)
+            - {id: crit,  op: particle, particle: crit, times: 16, at: 0, count: 0, offset: "= [cos(6.283185307179586 * i / 16), 0.0, -sin(6.283185307179586 * i / 16)]", extra: 0.03, anchor: {of: ring_pt, offset: {left: "= (0.5 + 0.6 * parent.i) * cos(6.283185307179586 * i / 16)", forward: "= -(0.5 + 0.6 * parent.i) * sin(6.283185307179586 * i / 16)"}}}
+            - {id: dust,  op: particle, particle: dust, times: 16, at: 0, count: 1, color: "#dcdcdc", size: 1.4, anchor: {of: ring_pt, offset: {left: "= (0.5 + 0.6 * parent.i) * cos(6.283185307179586 * i / 16)", forward: "= -(0.5 + 0.6 * parent.i) * sin(6.283185307179586 * i / 16)"}}}
+    end: {final: true}
