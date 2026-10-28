@@ -600,10 +600,17 @@ internal class CastInstance(
         is LocationSpec.AtValue -> values.vec3(spec.value)
     }
 
+    /** [point] in the `enemy@victim` frame (the parent of the `contact` frame): feet origin, yawed like [refreshEnemy]. */
+    private fun localToVictim(victim: UUID, point: Vec3): Vec3 {
+        val root = ports.entities.rootOf(victim) ?: return point
+        val pose = Frame.fromYawPitch(root.feet, root.yawDeg, 0.0)
+        return pose.rotation.conjugate().rotate(point - pose.origin)
+    }
+
     override fun runWithVictim(ctx: OpContext, source: String, victim: UUID, point: Vec3, ops: List<SkillOp>) {
         val synthetic = ContactEvent(
             hitId = source, tick = tick, victim = victim, hitterFrame = "caster", part = null,
-            pointWorld = point, normalWorld = UP, pointLocal = point, normalLocal = UP, relVelocity = Vec3.ZERO,
+            pointWorld = point, normalWorld = UP, pointLocal = localToVictim(victim, point), normalLocal = UP, relVelocity = Vec3.ZERO,
         )
         withContact(synthetic) { withVictim(victim) { run(ops) } }
         queue += CastEvent("dash_hit", tick, source = source, contact = synthetic)
