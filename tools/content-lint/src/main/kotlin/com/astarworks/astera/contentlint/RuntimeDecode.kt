@@ -68,7 +68,7 @@ internal object RuntimeDecode {
                     is com.astarworks.astera.core.domain.Result.Success -> r.value
                     is com.astarworks.astera.core.domain.Result.Failure -> return@to ContentLoader.LoadReport(0, r.error.size, r.error.map { ContentLoader.LoadFailure(partDir, it.toString()) })
                 }
-                val report = SkillEngineContents(SkillEngineRegistries.catalog(tables, parts)).reload(d)
+                val report = SkillEngineContents(SkillEngineRegistries.catalog(tables, parts, com.astarworks.astera.core.application.skillengine.compose.ContentSpriteCatalog.load(contentDir.resolve("sprites")))).reload(d)
                 val frameFailures = frameErrors.map { ContentLoader.LoadFailure(contentDir.resolve("frames"), "${it.path}: ${it.message}") }
                 ContentLoader.LoadReport(report.loaded, report.failed + frameFailures.size, report.failures + frameFailures)
             },
