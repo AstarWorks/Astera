@@ -14,4 +14,4 @@ presentation:
         - {id: snd, op: sound, sound: item.mace.smash_ground_heavy, at: caster, volume: 0.8, pitch: 1.2}
         - {id: emit, op: emit, at: pt_caster_0_0p15_0, particle: crit, count: 0, speed: 0.03}
         - {id: emit_2, op: emit, at: pt_caster_0_0p15_0, particle: dust, count: 1, data: "#96785a", data_size: 1.4}
-  "on": {hit: [{id: snd_2, op: sound, sound: "astera:weapons/blade-hit", at: contact.point, volume: 0.7, pitch: 1.0, when: "= event.source == 'burst'"}]}
+  "on": {hit: [{id: snd_2, op: sound, sound: "astera:weapons/blade-hit", at: enemy, volume: 0.7, pitch: 1.0, when: "= event.source == 'burst'"}]}

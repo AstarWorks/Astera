@@ -14,4 +14,4 @@ presentation:
         - {id: snd, op: sound, sound: "astera:skill/wand/cast", at: caster, volume: 1.0, pitch: 0.9}
         - {id: emit, op: emit, at: pt_caster_0_0p15_0, particle: flame, count: 0, speed: 0.03}
         - {id: emit_2, op: emit, at: pt_caster_0_0p15_0, particle: dust, count: 1, data: "#ff6e14", data_size: 1.4}
-  "on": {hit: [{id: snd_2, op: sound, sound: "astera:weapons/blade-hit", at: contact.point, volume: 0.7, pitch: 1.0, when: "= event.source == 'burst'"}]}
+  "on": {hit: [{id: snd_2, op: sound, sound: "astera:weapons/blade-hit", at: enemy, volume: 0.7, pitch: 1.0, when: "= event.source == 'burst'"}]}
