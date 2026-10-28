@@ -29,7 +29,7 @@ gameplay:
               op: delay
               after: 7
               do:
-                - {id: guard_riposte_riposte_hit, op: damage, target: victim, components: [{kind: physical, amount: 30}], ignore_invulnerability: true, when: "= dist(caster, victim) < 3.5"}
+                - {id: guard_riposte_riposte_hit, op: damage, target: victim, damage: {physical: 30}, ignore_invulnerability: true, when: "= dist(caster, victim) < 3.5"}
                 - {id: guard_end_emit_guard_end, op: raise_event, name: guard.end}
                 - {id: done_emit_end, op: raise_event, name: end}
 presentation:

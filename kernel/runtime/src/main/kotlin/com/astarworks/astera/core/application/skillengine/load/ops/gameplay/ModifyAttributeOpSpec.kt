@@ -68,18 +68,19 @@ public object ModifyAttributeOpSpec : OpSpec<ModifyAttributeOp> {
         val path = lc.src.value
         return GameplayOps.targetCell(op.target, lc, path).flatMap { target ->
             GameplayOps.duration(op.timing, lc, path, "for").flatMap { forTicks ->
-                GameplayOps.literal(op.amount, lc, "$path.amount").map { amount ->
-                    GameplayOps.effect(
+                run {
+                    val amount = GameplayOps.live(op.amount)
+                    Result.Success(GameplayOps.effect(
                         lc,
                         "modify_attribute",
                         mapOf<String, Val<Any>>(
                             "target" to target,
                             "attribute" to Val.Known(op.attribute),
                             "operation" to Val.Known(op.operation),
-                            "amount" to Val.Known(amount),
+                            "amount" to amount,
                             "for" to Val.Known(forTicks),
                         ),
-                    )
+                    ))
                 }
             }
         }

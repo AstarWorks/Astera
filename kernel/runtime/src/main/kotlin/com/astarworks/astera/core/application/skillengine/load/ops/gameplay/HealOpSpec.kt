@@ -47,9 +47,7 @@ public object HealOpSpec : OpSpec<HealOp> {
     override fun lower(op: HealOp, lc: LowerContext): Result<Lowered, SkillDecodeError> {
         val path = lc.src.value
         return GameplayOps.targetCell(op.target, lc, path).flatMap { target ->
-            GameplayOps.literal(op.amount, lc, "$path.amount").map { amount ->
-                GameplayOps.effect(lc, "heal", mapOf<String, Val<Any>>("target" to target, "amount" to Val.Known(amount)))
-            }
+            Result.Success(GameplayOps.effect(lc, "heal", mapOf<String, Val<Any>>("target" to target, "amount" to GameplayOps.live(op.amount))))
         }
     }
 }

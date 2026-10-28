@@ -195,7 +195,13 @@ internal class ParamSubst(private val env: Map<String, Any?>, private val strict
     }
 
     private fun str(s: String): Any? {
-        if (s.startsWith("= ") && env.isNotEmpty()) return bare(s)
+        if (s.startsWith("= ") && env.isNotEmpty()) {
+            // `= p` / `= ${p}` naming exactly one numeric param IS that number (compile-time fields such as a state's `for` need the value, not a CEL cell)
+            val body = s.substring(2).trim()
+            val name = EXACT.matchEntire(body)?.groupValues?.get(1) ?: body
+            (env[name] as? Number)?.let { return it }
+            return bare(s)
+        }
         if (!s.contains("\${")) return s
         EXACT.matchEntire(s)?.let { m ->
             val n = m.groupValues[1]

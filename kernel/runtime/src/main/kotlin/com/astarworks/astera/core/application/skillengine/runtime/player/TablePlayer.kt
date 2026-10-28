@@ -1031,15 +1031,21 @@ public class TablePlayer(
     }
 
     private fun damage(run: Run, row: Row, a: Action.Damage, ctx: RowCtx, now: Int) {
-        val comps = a.components.map { c -> SkillDamage(c.attribute.name.lowercase(), literalAmount(c)) }
+        val comps = a.components.map { c -> SkillDamage(c.attribute.name.lowercase(), liveAmount(run, c, ctx)) }
         for (v in ruleTargets(run, a.targets, ctx)) {
             val point = ctx.binding?.contact?.point?.let { Vec3(it.x, it.y, it.z) } ?: query.rootOf(castRef(run), v)?.feet ?: Vec3.ZERO
             gameplay.damage(run.cursor.skill.def.id, run.request.caster, v, comps, point, false, false)
         }
     }
 
-    private fun literalAmount(c: DamageComponent): Double {
-        require(c.base is NumericValue.Literal && c.multiplier is NumericValue.Literal) { "damage component is not a compile-time literal" }
+    /** A literal amount, or a `${p}` / `= expr` amount read live now (it may read `event.victim`, `contact.*`). */
+    private fun liveAmount(run: Run, c: DamageComponent, ctx: RowCtx): Double {
+        val base = c.base
+        if (base is NumericValue.Cel) {
+            val cell = if (base.script.startsWith("\${")) base.script else "= ${base.script}"
+            return dbl(run, Val.Live<Any>(cell, null), ctx) * ((c.multiplier as? NumericValue.Literal)?.value ?: 1.0)
+        }
+        require(base is NumericValue.Literal && c.multiplier is NumericValue.Literal) { "damage component is not a literal or an expression" }
         return c.constantValue
     }
 
@@ -1508,8 +1514,13 @@ public class TablePlayer(
 
     private fun ruleTargets(run: Run, rule: TargetRule, ctx: RowCtx): List<UUID> = liveTargets(run, rule, ctx)
 
-    private fun targets(run: Run, v: Val<TargetSet>, ctx: RowCtx): List<UUID> = when (v) {
-        is Val.Known -> v.value.entities.map { it.id }
+    /** A target cell: a known [TargetSet], a known area [TargetRule], or a live `caster` / `victim` name. */
+    private fun targets(run: Run, v: Val<Any>, ctx: RowCtx): List<UUID> = when (v) {
+        is Val.Known -> when (val t = v.value) {
+            is TargetRule -> ruleTargets(run, t, ctx)
+            is TargetSet -> t.entities.map { it.id }
+            else -> throw IllegalArgumentException("target cell holds ${t::class.simpleName}")
+        }
         is Val.Live ->
             if (v.name.startsWith("caster")) listOf(run.request.caster)
             else live.targets(run.cursor.handle, TargetRule.Entity("event.victim"), ctx.binding).entities.map { it.id }
@@ -1517,7 +1528,7 @@ public class TablePlayer(
 
     /** The seed `V3Bindings.seed(castSeed, op, i)` the compiler folds with, and the copy indices of the instance path (innermost first). */
     private fun rowScope(run: Run, row: Row): RowScope {
-        val last = row.instance.path.last()
+        val last = row.instance.path.lastOrNull() ?: return RowScope.cast(run.request.seed)
         val indices = row.instance.path.mapNotNull { it.index }.asReversed()
         return RowScope(V3Bindings.seed(run.request.seed, last.op, last.index ?: 0), run.request.seed, indices)
     }

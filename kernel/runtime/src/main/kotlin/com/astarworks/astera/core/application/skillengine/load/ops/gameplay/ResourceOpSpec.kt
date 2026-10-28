@@ -49,13 +49,13 @@ public object ResourceOpSpec : OpSpec<ResourceOp> {
     override fun lower(op: ResourceOp, lc: LowerContext): Result<Lowered, SkillDecodeError> {
         val path = lc.src.value
         return GameplayOps.targetCell(op.target, lc, path).flatMap { target ->
-            GameplayOps.literal(op.amount, lc, "$path.amount").map { amount ->
+            Result.Success(
                 GameplayOps.effect(
                     lc,
                     "resource",
-                    mapOf<String, Val<Any>>("target" to target, "resource" to Val.Known(op.resource), "amount" to Val.Known(amount)),
-                )
-            }
+                    mapOf<String, Val<Any>>("target" to target, "resource" to Val.Known(op.resource), "amount" to GameplayOps.live(op.amount)),
+                ),
+            )
         }
     }
 }
