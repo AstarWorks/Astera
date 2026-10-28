@@ -11,6 +11,7 @@ import com.astarworks.astera.core.application.skillengine.load.ops.statusDecoder
 import com.astarworks.astera.core.application.skillengine.load.presentation.presentationDecoders
 import com.astarworks.astera.core.application.skillengine.runtime.ModelPoint
 import com.astarworks.astera.core.application.skillengine.runtime.ModelPointSource
+import com.astarworks.astera.core.application.skillengine.load.spec.OpSpecRegistry
 import java.nio.file.Path
 
 /**
@@ -24,6 +25,9 @@ public object SkillEngineRegistries {
             listOf(FrameOpDecoders(), HitOpDecoders(), ControlOpDecoders()),
         ),
     )
+
+    /** The v3 document decoder over every registered [SkillEngineSpecs] op (replaces [decoder] at the W1b purge). */
+    public fun documentDecoder(): SkillDocumentDecoder = SkillDocumentDecoder(OpSpecRegistry(SkillEngineSpecs.all()), CelExprCompiler())
 
     /** Item point tables (the `content/frames` files); a table that fails to decode is reported, the rest still load. */
     public fun frameTables(framesDir: Path): Pair<Map<String, ItemFrames>, List<SkillDecodeError>> =
