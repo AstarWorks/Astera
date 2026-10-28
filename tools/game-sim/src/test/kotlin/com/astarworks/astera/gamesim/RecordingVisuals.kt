@@ -84,7 +84,7 @@ class RecordingVisuals(
     private class Mesh
     private class Plate(val intrinsic: Intrinsic)
     private class Line
-    private class Trail(val widthFrac: Double, val colorHex: String, val alpha: Double) {
+    private class Trail(val widthFrac: Double, val colorHex: String, val alpha: Double, val ticks: Int = 1) {
         val mesh = RibbonMesh()
         var bands: List<TrailBand> = emptyList()
         var edge: TrailEdge? = null
@@ -94,7 +94,9 @@ class RecordingVisuals(
     }
 
     /** One ribbon quad the Paper gateway would spawn: band index / kind and its colour + peak alpha. */
-    class RibbonQuad(val handle: Long, val tick: Int, val kind: RibbonMesh.PieceKind, val index: Int, val colorHex: String, val alpha: Double, val colorToHex: String?, val backFace: Boolean)
+    class RibbonQuad(val handle: Long, val tick: Int, val kind: RibbonMesh.PieceKind, val index: Int, val colorHex: String, val alpha: Double, val colorToHex: String?, val backFace: Boolean,
+        /** The Bukkit spawn position (segment centre), the three matrix columns + translation, and the quad's life in ticks (vanilla dump). */
+        val centre: Vec3 = Vec3.ZERO, val cols: List<Vec3> = emptyList(), val shift: Vec3 = Vec3.ZERO, val life: Int = 1)
 
     val ribbonQuads = ArrayList<RibbonQuad>()
     val trailShapes = HashMap<Long, Triple<List<TrailBand>, TrailEdge?, TrailRim?>>()
@@ -183,7 +185,7 @@ class RecordingVisuals(
         return h
     }
 
-    override fun spawnTrail(castOwner: UUID, ticks: Int, widthFrac: Double, colorHex: String, alpha: Double): VisualHandle = next(Trail(widthFrac, colorHex, alpha), "trail")
+    override fun spawnTrail(castOwner: UUID, ticks: Int, widthFrac: Double, colorHex: String, alpha: Double): VisualHandle = next(Trail(widthFrac, colorHex, alpha, ticks), "trail")
 
     /** Every flipbook frame / tint change of a plate: (tick, handle, frame, tint). */
     val plateFrames = ArrayList<Triple<Int, Long, Pair<Int, String?>>>()
@@ -247,8 +249,8 @@ class RecordingVisuals(
                 RibbonMesh.PieceKind.EDGE -> Triple(t.edge!!.color, 1.0, null)
                 RibbonMesh.PieceKind.RIM -> Triple(t.rim!!.color, t.rim!!.alpha, null)
             }
-            ribbonQuads += RibbonQuad(handle.id, now(), piece.kind, piece.index, hex, alpha, to, false)
-            if (t.doubleSided && piece.kind != RibbonMesh.PieceKind.EDGE) ribbonQuads += RibbonQuad(handle.id, now(), piece.kind, piece.index, hex, alpha, to, true)
+            ribbonQuads += RibbonQuad(handle.id, now(), piece.kind, piece.index, hex, alpha, to, false, s.centre, listOf(m.col0, m.col1, m.col2), m.shift, t.ticks)
+            if (t.doubleSided && piece.kind != RibbonMesh.PieceKind.EDGE) ribbonQuads += RibbonQuad(handle.id, now(), piece.kind, piece.index, hex, alpha, to, true, s.centre, listOf(m.col0, m.col1, m.col2), m.shift, t.ticks)
         }
     }
 

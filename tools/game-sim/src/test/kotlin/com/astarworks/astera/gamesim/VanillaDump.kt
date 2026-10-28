@@ -42,6 +42,24 @@ object VanillaDump {
 
     private fun transform(t: DisplayTransform) = "\"tr\":${v3(t.translation)},\"left\":${q(t.rotation)},\"scale\":${v3(t.scale)}"
 
+
+    private fun ribbonArgb(hex: String, alpha: Double): Int {
+        val rgb = hex.removePrefix("#").toInt(16)
+        return ((Math.round(alpha * 255.0).toInt().coerceIn(0, 255)) shl 24) or rgb
+    }
+
+    /** Rotation of the (rotation * scale) matrix with the given columns: columns normalised, Shepperd's method. */
+    private fun rotationOf(c0: Vec3, c1: Vec3, c2: Vec3): Quaternion {
+        val a = c0 * (1.0 / maxOf(c0.length(), 1e-9)); val b = c1 * (1.0 / maxOf(c1.length(), 1e-9)); val c = c2 * (1.0 / maxOf(c2.length(), 1e-9))
+        val m00 = a.x; val m10 = a.y; val m20 = a.z; val m01 = b.x; val m11 = b.y; val m21 = b.z; val m02 = c.x; val m12 = c.y; val m22 = c.z
+        val tr = m00 + m11 + m22
+        val qq = if (tr > 0) { val sq = Math.sqrt(tr + 1.0) * 2; Quaternion((m21 - m12) / sq, (m02 - m20) / sq, (m10 - m01) / sq, 0.25 * sq) }
+        else if (m00 > m11 && m00 > m22) { val sq = Math.sqrt(1.0 + m00 - m11 - m22) * 2; Quaternion(0.25 * sq, (m01 + m10) / sq, (m02 + m20) / sq, (m21 - m12) / sq) }
+        else if (m11 > m22) { val sq = Math.sqrt(1.0 + m11 - m00 - m22) * 2; Quaternion((m01 + m10) / sq, 0.25 * sq, (m12 + m21) / sq, (m02 - m20) / sq) }
+        else { val sq = Math.sqrt(1.0 + m22 - m00 - m11) * 2; Quaternion((m02 + m20) / sq, (m12 + m21) / sq, 0.25 * sq, (m10 - m01) / sq) }
+        return qq.normalized()
+    }
+
     /** The lines of one cast. */
     fun dump(id: String, ticks: Int = TICKS): List<String> {
         val lines = ArrayList<String>()
@@ -80,6 +98,19 @@ object VanillaDump {
             lines += "{\"t\":${c.tick},\"e\":\"write\",\"id\":$n,\"x\":${r(w.at.x)},\"y\":${r(w.at.y)},\"z\":${r(w.at.z)},\"yaw\":${r(w.yaw.toDouble())},\"pitch\":${r(w.pitch.toDouble())}," +
                 "${transform(w.transform)},\"bb\":\"${w.billboard.name.lowercase()}\",\"delay\":${w.interpolationDelay},\"interp\":${w.interpolationDuration},\"tp\":${w.teleportDuration}," +
                 "\"anch\":${if (w.anchor == null) "null" else v3(w.anchor!!.feet)}}"
+        }
+        // Trail ribbons: the Paper gateway spawns one blank text display per band / edge / rim quad (spawnSegment), fixed billboard,
+        // the segment matrix as its transformation. They are not in `visuals.calls`, so replay them here (R5: counts must see them).
+        var ribbon = ord.size
+        for (rq in visuals.ribbonQuads) {
+            val n = ribbon++
+            val scale = Vec3(rq.cols[0].length(), rq.cols[1].length(), rq.cols[2].length())
+            val rot = rotationOf(rq.cols[0], rq.cols[1], rq.cols[2])
+            val argb = ribbonArgb(rq.colorHex, rq.alpha)
+            lines += "{\"t\":${rq.tick},\"e\":\"spawn\",\"id\":$n,\"kind\":\"text\",\"text\":\" \",\"bg\":$argb,\"opacity\":255,\"br\":15,\"rigshade\":false,\"ribbon\":\"${rq.kind.name.lowercase()}\"}"
+            lines += "{\"t\":${rq.tick},\"e\":\"write\",\"id\":$n,\"x\":${r(rq.centre.x)},\"y\":${r(rq.centre.y)},\"z\":${r(rq.centre.z)},\"yaw\":0.0,\"pitch\":0.0," +
+                "\"tr\":${v3(rq.shift)},\"left\":${q(rot)},\"scale\":${v3(scale)},\"bb\":\"fixed\",\"delay\":0,\"interp\":0,\"tp\":0,\"anch\":null}"
+            lines += "{\"t\":${rq.tick + rq.life},\"e\":\"remove\",\"id\":$n}"
         }
         for ((t, h, f) in visuals.plateFrames) {
             val n = ord[h] ?: continue

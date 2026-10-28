@@ -618,6 +618,14 @@ def cel_rows(rows):
     return "[" + ", ".join(cel_vec(r) for r in rows) + "][int(i)]"
 
 
+def hex_alpha(argb):
+    """'#AARRGGBB' (v1 text background) -> ('#rrggbb', alpha 0..1)."""
+    h = str(argb).lstrip("#")
+    if len(h) == 8:
+        return "#" + h[2:].lower(), round(int(h[:2], 16) / 255.0, 3)
+    return "#" + h.lower(), 1.0
+
+
 def base_fields(kind, el, c, fid):
     """The kind-specific op skeleton (without id / placement)."""
     kt = kind["type"]
@@ -644,6 +652,16 @@ def base_fields(kind, el, c, fid):
         if "color" in kind:
             op["color"] = hexc(kind["color"])
         return op
+    if kt == "text":
+        # v1 VfxPlayer.displayKind VfxElementKind.Text: DisplayKind.Text(text, backgroundArgb, shadow, seeThrough); one text unit is
+        # the 8 px vanilla font = 0.2 blocks, so size 0.2 puts the keyframe scale on vanilla's own text scale.
+        rgb, a = hex_alpha(kind.get("background", "#40000000"))
+        op = {"op": "quad", "parent": fid, "face": face, "size": [0.2, 0.2], "color": rgb, "alpha": a, "text": kind["text"]}
+        if kind.get("shadow"):
+            op["shadow"] = True
+        if kind.get("see_through"):
+            op["see_through"] = True
+        return op
     c.present("element kind %s has no v2 op" % kt, str(kind)[:80])
     return None
 
@@ -660,7 +678,7 @@ def display_element(c, el, fid, where, delay, when, dur, removes):
     if skel is None:
         return
     for k in kind:
-        if k not in ("type", "block", "color", "alpha", "glyph", "see_through", "sprite", "frame_ticks", "loop"):
+        if k not in ("type", "block", "color", "alpha", "glyph", "see_through", "sprite", "frame_ticks", "loop", "text", "background", "shadow"):
             c.present("element kind field %s" % k)
     eid = c.oid("%s_%s" % (fid, sid(el["id"])))
     start = int(el.get("start_tick", 0))

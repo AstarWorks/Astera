@@ -1,7 +1,6 @@
 # Converted from content/skills/orrery-def.yaml + content/vfx/* by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
 # Generated point-frame offsets are [left, up, forward] in the parent frame.
 # CONVERT-PRESENT vfx frame orient (frames carry no orientation / scale) (x1): orient="yaw"
-# CONVERT-PRESENT element kind text has no v2 op (x1): {'type': 'text', 'text': '<#ffb000><b>◎</b>', 'background': '#00000000', 'shadow
 apiVersion: "astera/v2"
 kind: Skill
 id: orrery-def
@@ -39,6 +38,38 @@ presentation:
             - {t: 19, offset: [0.0, -0.35, 0.0], turn: [-54.02817, -54.02817, 77.74461], scale: [0.08, 0.08, 0.31913]}
             - {t: 20, offset: [0.0, -0.35, 0.0], turn: [-54.24438, -54.24438, 77.64223], scale: [0.08, 0.08, 0.2185]}
             - {t: 21, offset: [0.0, -0.35, 0.0], turn: [-54.32402, -54.32402, 77.6044], scale: [0.08, 0.08, 0.11213]}
+        - {op: quad, parent: fx1_orrery_guard, face: {viewer: center}, size: [0.2, 0.2], color: "#000000", alpha: 0.0, text: "<#ffb000><b>◎</b>", see_through: true, brightness: 15, id: fx1_orrery_guard_wheel}
+        - id: fx1_orrery_guard_wheel_trk
+          op: track
+          target: fx1_orrery_guard_wheel
+          keys:
+            - {t: 0, offset: [0.0, 1.0, 0.0], scale: [0.0, 0.0, 0.0], turn: [0.0, 0.0, 0.0]}
+            - {t: 1, turn: [0.0, 0.0, 1.59763]}
+            - {t: 2, turn: [0.0, 0.0, 6.39053]}
+            - {t: 3, turn: [0.0, 0.0, 14.3787]}
+            - {t: 4, scale: [7.0, 7.0, 7.0], ease: out_back, turn: [0.0, 0.0, 25.56213]}
+            - {t: 5, turn: [0.0, 0.0, 39.94083]}
+            - {t: 6, turn: [0.0, 0.0, 57.51479]}
+            - {t: 7, turn: [0.0, 0.0, 78.28402]}
+            - {t: 8, turn: [0.0, 0.0, 102.24852]}
+            - {t: 9, turn: [0.0, 0.0, 129.40828]}
+            - {t: 10, turn: [0.0, 0.0, 159.76331]}
+            - {t: 11, turn: [0.0, 0.0, -166.68639]}
+            - {t: 12, turn: [0.0, 0.0, -129.94083]}
+            - {t: 13, turn: [0.0, 0.0, -90.0]}
+            - {t: 14, turn: [0.0, 0.0, -50.05917]}
+            - {t: 15, turn: [0.0, 0.0, -13.31361]}
+            - {t: 16, turn: [0.0, 0.0, 20.23669]}
+            - {t: 17, turn: [0.0, 0.0, 50.59172]}
+            - {t: 18, turn: [0.0, 0.0, 77.75148]}
+            - {t: 19, turn: [0.0, 0.0, 101.71598]}
+            - {t: 20, turn: [0.0, 0.0, 122.48521]}
+            - {t: 21, turn: [0.0, 0.0, 140.05917]}
+            - {t: 22, turn: [0.0, 0.0, 154.43787]}
+            - {t: 23, turn: [0.0, 0.0, 165.6213]}
+            - {t: 24, turn: [0.0, 0.0, 173.60947]}
+            - {t: 25, turn: [0.0, 0.0, 178.40237]}
+            - {t: 26, scale: [0.0, 0.0, 0.0], ease: in_out_quad, turn: [0.0, 0.0, 180.0]}
         - {id: snd, op: sound, sound: item.shield.block, at: caster}
     - id: fx1
       at: 1
@@ -691,7 +722,7 @@ presentation:
     - {id: fx23, at: 23, do: [{id: rm_2, op: remove, ids: [fx1_orrery_guard_hoop_a_s1]}]}
     - {id: fx24, at: 24, do: [{id: rm_3, op: remove, ids: [fx1_orrery_guard_hoop_a_s2, fx1_orrery_guard_hoop_b_s0]}]}
     - {id: fx25, at: 25, do: [{id: rm_4, op: remove, ids: [fx1_orrery_guard_hoop_a_s3, fx1_orrery_guard_hoop_b_s1]}]}
-    - {id: fx26, at: 26, do: [{id: rm_5, op: remove, ids: [fx1_orrery_guard_hoop_a_s4, fx1_orrery_guard_hoop_b_s2, fx1_orrery_guard_hoop_c_s0]}]}
+    - {id: fx26, at: 26, do: [{id: rm_5, op: remove, ids: [fx1_orrery_guard_hoop_a_s4, fx1_orrery_guard_hoop_b_s2, fx1_orrery_guard_hoop_c_s0, fx1_orrery_guard_wheel]}]}
     - {id: fx27, at: 27, do: [{id: rm_6, op: remove, ids: [fx1_orrery_guard_hoop_a_s5, fx1_orrery_guard_hoop_b_s3, fx1_orrery_guard_hoop_c_s1]}]}
     - {id: fx28, at: 28, do: [{id: rm_7, op: remove, ids: [fx1_orrery_guard_hoop_a_s6, fx1_orrery_guard_hoop_b_s4, fx1_orrery_guard_hoop_c_s2]}]}
     - {id: fx29, at: 29, do: [{id: rm_8, op: remove, ids: [fx1_orrery_guard_hoop_a_s7, fx1_orrery_guard_hoop_b_s5, fx1_orrery_guard_hoop_c_s3]}]}

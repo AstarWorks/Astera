@@ -443,7 +443,8 @@ class Conv:
         if t == "caster":
             return "caster"
         if t == "target":
-            return "contact.point" if side == "p" and where.kind == "handler" and where.event == "hit" else "enemy"
+            # v1 VfxMechanics.play (VfxMechanics.kt:28-90) anchors at the resolved entity's poseOf(id).position (feet), not the body-centre contact point
+            return "enemy"
         if t == "hit_location":
             return "contact.point"
         if t == "caster_forward":
@@ -1191,7 +1192,8 @@ class Conv:
             parent = "world"
         self.look_frames[fid] = {"id": fid, "kind": "body", "parent": parent}
         if snapshot:
-            self.p(where, delay, self._w({"id": self.oid("snap"), "op": "place", "frame": fid, "like": "caster"}, when))
+            # `place` is a gameplay op (the presentation section rejects it), so the freeze happens on the gameplay timeline
+            self.g(where, delay, self._w({"id": self.oid("snap"), "op": "place", "frame": fid, "like": "caster"}, when))
         for k in ("orient", "scale"):
             if k in d or k in m:
                 self.present("vfx frame %s (frames carry no orientation / scale)" % k, "%s=%s" % (k, short(V(m.get(k, d.get(k))), 30)))

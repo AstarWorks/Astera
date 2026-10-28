@@ -4,7 +4,6 @@
 # CONVERT-PRESENT vfx frame orient (frames carry no orientation / scale) (x6): orient="yaw" | orient="look"
 # CONVERT-PRESENT particle along_path (x1): true
 # CONVERT-PRESENT element jitter (no v2 equivalent) (x1): {"position": 0.08}
-# CONVERT-PRESENT vfx anchored at a runtime point (frame parent must exist at cast start): anchored at world (x1): contact.point
 apiVersion: "astera/v2"
 kind: Skill
 id: orrery-ego
@@ -18,7 +17,7 @@ frames:
   - {id: fx4_orrery_beam, kind: body, parent: caster}
   - {id: fx5_orrery_seal_front, kind: body, parent: caster}
   - {id: fx5_orrery_seal_front_clock_sparks_at, kind: body, parent: fx5_orrery_seal_front}
-  - {id: fx6_orrery_ring_hit, kind: body, parent: world}
+  - {id: fx6_orrery_ring_hit, kind: body, parent: enemy}
 presentation:
   timeline:
     - id: fx0
@@ -462,4 +461,4 @@ presentation:
           - {t: 2, scale: [0.03, 0.8, 0.8], ease: out_expo}
           - {t: 8, scale: [0.0, 0.0, 0.0]}
         when: "= event.source == 'sel'"
-      - {id: emit_7, op: emit, at: contact.point, particle: orrery-sparks, when: "= event.source == 'sel'"}
+      - {id: emit_7, op: emit, at: enemy, particle: orrery-sparks, when: "= event.source == 'sel'"}
