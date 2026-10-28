@@ -6,6 +6,7 @@ import com.astarworks.astera.core.application.skillengine.expr.cel.V3Bindings
 import com.astarworks.astera.core.application.skillengine.runtime.CastRequest
 import com.astarworks.astera.core.application.skillengine.runtime.player.CastHandle
 import com.astarworks.astera.core.application.skillengine.runtime.player.EventBinding
+import com.astarworks.astera.core.application.skillengine.runtime.player.RowScope
 import com.astarworks.astera.core.application.skillengine.runtime.player.LiveValueSource
 import com.astarworks.astera.core.application.skillengine.runtime.port.ISkillGameplayGateway
 import com.astarworks.astera.core.domain.skillengine.expr.ExprEvalException
@@ -96,28 +97,28 @@ public class PaperLiveValueSource(
         }
     }
 
-    override fun vec(cast: CastHandle, name: String, binding: EventBinding?): Vector3d {
+    override fun vec(cast: CastHandle, name: String, binding: EventBinding?, scope: RowScope): Vector3d {
         val request = request(cast)
         val bare = name.removePrefix("anchor:")
         casterVec(request, bare)?.let { return it }
         bindingVec(bare, binding)?.let { return it }
-        return when (val v = evalExpr(cast, request, name, binding)) {
+        return when (val v = evalExpr(cast, request, name, binding, scope)) {
             is ExprValue.Vec3 -> Vector3d(v.value.x, v.value.y, v.value.z)
             is ExprValue.Num -> Vector3d(v.value, 0.0, 0.0)
             else -> unsupported(name, "a vector")
         }
     }
 
-    override fun num(cast: CastHandle, name: String, binding: EventBinding?): Double {
+    override fun num(cast: CastHandle, name: String, binding: EventBinding?, scope: RowScope): Double {
         val request = request(cast)
-        return when (val v = evalExpr(cast, request, name, binding)) {
+        return when (val v = evalExpr(cast, request, name, binding, scope)) {
             is ExprValue.Num -> v.value
             is ExprValue.Bool -> if (v.value) 1.0 else 0.0
             else -> unsupported(name, "a number")
         }
     }
 
-    override fun rot(cast: CastHandle, name: String, binding: EventBinding?): Quaterniond {
+    override fun rot(cast: CastHandle, name: String, binding: EventBinding?, scope: RowScope): Quaterniond {
         val request = request(cast)
         val bare = name.removePrefix("anchor:")
         if (bare == CASTER || bare.startsWith("$CASTER.")) {
@@ -125,7 +126,7 @@ public class PaperLiveValueSource(
             val pitched = bare == "$CASTER.look" || bare == "$CASTER.eye"
             return quat(Frame.fromYawPitch(p.feet, p.yaw, if (pitched) p.pitch else 0.0).rotation)
         }
-        return when (val v = evalExpr(cast, request, name, binding)) {
+        return when (val v = evalExpr(cast, request, name, binding, scope)) {
             is ExprValue.Quat -> quat(v.value)
             else -> unsupported(name, "a rotation")
         }
@@ -210,7 +211,7 @@ public class PaperLiveValueSource(
 
     // ------------------------------------------------------------------ CEL cells
 
-    private fun evalExpr(cast: CastHandle, request: CastRequest, name: String, binding: EventBinding?): ExprValue {
+    private fun evalExpr(cast: CastHandle, request: CastRequest, name: String, binding: EventBinding?, scope: RowScope): ExprValue {
         val source = when {
             name.startsWith("= ") -> name.removePrefix("= ")
             name.startsWith("expr:") -> name.removePrefix("expr:")
@@ -222,11 +223,18 @@ public class PaperLiveValueSource(
                 is Result.Failure -> throw IllegalArgumentException("'$source' does not compile: ${r.error.message}")
             }
         }
+        // the row's own seed and copy indices (R10), as the compiler folds with: so `rand()` and `i` read what game-sim reads
+        val vars = LinkedHashMap(variables(cast, binding, castTick = scheduler.currentTick().toInt() - request.startTick, stateTick = 0))
+        var prefix = ""
+        for (idx in scope.indices.take(V3Bindings.MAX_PARENT_DEPTH + 1)) {
+            vars[prefix + "i"] = ExprValue.Num(idx.toDouble())
+            prefix += "parent."
+        }
         val env = ExprEnv(
-            variables = variables(cast, binding, castTick = scheduler.currentTick().toInt() - request.startTick, stateTick = 0),
+            variables = vars,
             frames = frames(cast),
-            seed = request.seed,
-            castSeed = request.seed,
+            seed = scope.seed,
+            castSeed = scope.castSeed,
             host = StackHost(request, binding),
         )
         return expr.eval(env)
