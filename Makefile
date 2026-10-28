@@ -340,3 +340,13 @@ arena-preview: ## Render every stage to build/arena-previews/ and measure genera
 .PHONY: rig-fade-shot
 rig-fade-shot: ## Verify the skin-rig first-person fade (ADR-0285): first person vs F5 vs bystander: make rig-fade-shot [ANIM=<skill-id>]
 	bash tools/vfx-shot/rig-fade-shot.sh "$(ANIM)"
+
+.PHONY: sprite-gallery sprite-gallery-up sprite-gallery-down sprite-gallery-status
+sprite-gallery: ## Sprite/VFX gallery on 0.0.0.0:8098 (PORT=, HOST= to change)
+	bun tools/sprite-gallery/server.mjs
+sprite-gallery-up: ## Start the sprite gallery detached from this checkout (PORT=, HOST= to change)
+	bash tools/sprite-gallery/service.sh up
+sprite-gallery-down: ## Stop this checkout's detached sprite gallery
+	bash tools/sprite-gallery/service.sh down
+sprite-gallery-status: ## Show this checkout's sprite gallery process and log
+	bash tools/sprite-gallery/service.sh status
