@@ -1,89 +1,2181 @@
-# Couturier's Shears S2, coin 2 (shears throw), gameplay half. Presentation lives in look.yaml (same Skill, split across files).
-# No absolute coordinates: frame-relative offsets, point refs, params and CEL ("= ...") only.
-# Points (grip/pivot/root/tip) and axes (long/edge) come from content/frames/couture-rapier.yaml (parts held, body, blade_a, blade_b).
-apiVersion: astera/v2
+# v3 draft (wave 2, w2-couture). Hand-ported from the v2 skill.yaml + look.yaml; per-tick values come from the v2 tracks.
+# Each linear run of a v2 track channel is one law (laws sum and hold). Grep "# GAP:" for what v3 cannot spell.
+apiVersion: astera/v3
 kind: Skill
 id: couture-rapier-s2
 item: couture-rapier
-importance: 8
-
-# Gate data the cast reads (replaces the v1 flat couture-rapier-s2.yaml fields): cooldown 6.25 s, 18 of the item's resource.
-meta:
-  name: {ja: 型紙裁ち, en: Pattern Trim}
-  description:
-    ja: 突進して切り、続けてもう一撃。
-    en: Dash through with a cut, then strike again.
-  cooldown_ticks: 125
-  resource_cost: 18
-
-frames:
-  - {id: shears,  kind: item, parent: caster.right_hand, model: couture-rapier, part: held}
-  - {id: body,    kind: part, parent: shears, model: couture-rapier, part: body}
-  - {id: blade_a, kind: part, parent: shears, model: couture-rapier, part: blade_a}
-  - {id: blade_b, kind: part, parent: shears, model: couture-rapier, part: blade_b}
-  - {id: volley,  kind: body, parent: world, inactive: true}
-  - {id: palm,    kind: point, parent: caster.right_hand, offset: [0, 0, 0]}
-
-gameplay:
-  params: {throw_speed: 1.7, throw_range: 7.0, spin_dpt: 54, open_deg: 70, lane: 0.35,
-           stick_ticks: 28, reel_speed: 0.45, dmg_throw: 18, dmg_reel: 6, bleed_stacks: 2, bleed_ticks: 60}
-  expose:
-    - {id: range, param: throw_range, min: 2.0, max: 12.0}
-    - {id: flight_speed, param: throw_speed, min: 0.8, max: 3.0}
-    - {id: damage, param: dmg_throw}
-  timeline:
-    - id: raise
-      at: 0
+meta: {name: {ja: "型紙裁ち", en: "Pattern Trim"}, description: {ja: "突進して切り、続けてもう一撃。", en: "Dash through with a cut, then strike again."}, cooldown_ticks: 125, resource_cost: 18}
+params: {throw_speed: 1.7, throw_range: 7.0, spin_dpt: 54, open_deg: 70, lane: 0.35, stick_ticks: 28, reel_speed: 0.45, dmg_coin1: 30, dmg_throw: 18, dmg_reel: 6, bleed_stacks: 2, bleed_ticks: 60, dmg_coin3: 50, c1_arc_deg: 30, c1_reach: 9, c3_dash_distance: 9, thread_color: "#ff5fa2", thread_thick: 0.06, spark_count: 14, spark_particle: crit}
+# Four hits: coin1 30 (sector 30 deg, 9 blocks, height 2.0), throw 18 + bleed 2x60, reel 6, coin3 50 (dash 9 blocks, 3 ticks).
+anchors:
+  - {id: shears, anchor: caster.hand_r, mount: caster}
+machine:
+  start: windup
+  states:
+    windup:
+      # v2: coin1 (hit at 8) runs inside the overhead spin; the release event fires at tick 34.
+      for: 34
+      then: throw
+      enter:
+        - {id: body_anim, op: caster_anim, anim: couture-s2-body}
+        - {id: raise_snd, op: sound, sound: couture.raise, anchor: shears, volume: 0.6}
       do:
-        # shears overhead: long axis up, blade faces toward the throw direction
-        - {id: raise_pose, op: pose, frame: shears,
-           keys: [{t: 0}, {t: 6, align: {axis: shears.axis, to: world.up, up: caster.forward}, at: "= pos(palm) + up(caster) * 0.9", ease: ease_out}]}
-    - id: spin_up
-      at: 4
+        # v2 mesh_held (held part of the shears) shown ticks 0-4, then the three real pieces; raise 0-6: shears overhead (+0.9 up), long axis to world up, ease_out
+        - id: held
+          op: display
+          kind: item
+          item: couture-rapier
+          part: held
+          anchor: shears
+          for: 4
+          motion:
+            # GAP: v2 pose align {axis: shears.axis, to: world.up, up: caster.forward} over 6 ticks (ease_out) -> none (rotation to a world axis; the amount follows the hand pose)
+            - {law: move, velocity: {up: 0.9}, at: 0, for: 6, ease: out}
+        - {id: piece_body, op: display, kind: item, item: couture-rapier, part: body, anchor: shears, at: 4, for: 30, motion: [{law: spin, axis: left, deg_per_tick: "= spin_dpt", at: 0, for: 30}]}
+        - id: piece_a
+          op: display
+          kind: item
+          item: couture-rapier
+          part: blade_a
+          anchor: shears
+          at: 4
+          for: 30
+          motion:
+            - {law: spin, axis: left, deg_per_tick: "= spin_dpt", at: 0, for: 30}
+            - {law: keys, keys: [{t: 0, pose: []}, {t: 4, pose: [{axis: edge, deg: 35}]}]}      # open_deg / 2
+        - id: piece_b
+          op: display
+          kind: item
+          item: couture-rapier
+          part: blade_b
+          anchor: shears
+          at: 4
+          for: 30
+          motion:
+            - {law: spin, axis: left, deg_per_tick: "= spin_dpt", at: 0, for: 30}
+            - {law: keys, keys: [{t: 0, pose: []}, {t: 4, pose: [{axis: edge, deg: -35}]}]}     # -open_deg / 2
+        # v2 spin op: 54 deg/tick about caster.left from tick 4 until release (tick 34); the ring lies in the vertical plane through the throw
+        - {id: spin_shears, op: spin_group, anchor: shears, law: {law: spin, axis: left, deg_per_tick: "= spin_dpt", at: 4, for: 30}}
+        # GAP: v2 op spin on the shears frame -> a law on the anchor; v3 puts laws on displays, so the same spin is repeated on each piece (see pieces above) when the engine accepts laws on an anchor
+        - {id: trail_a, op: ribbon, of: piece_a.tip, root: piece_a.root, lasts: 6, color: "= thread_color", at: 4, for: 30}
+        - {id: trail_b, op: ribbon, of: piece_b.tip, root: piece_b.root, lasts: 6, color: "= thread_color", at: 4, for: 30}
+        - {id: whoosh, op: sound, sound: couture.whoosh, anchor: shears, at: 4, every: 4, for: 30, volume: 0.6, pitch: 1.0}
+        # GAP: v2 whoosh volume/pitch = f(speed(shears.tip)) clamp -> constant 0.6 / 1.0 (speed is runtime state)
+        # coin1: 30 degree / 9 block cone around the caster pose of tick 8; damage lands one tick after the selector (v2 delay op)
+        - {id: slash, op: frame, anchor: caster, mode: snapshot, at: 8, for: 1}
+        - {id: c1_hit, op: hit, at: 8, anchor: slash, targets: enemies, shape: {sector: {deg: "= c1_arc_deg", range: "= c1_reach", height: 2.0}}, window: once, damage: {physical: 0}}
+        # GAP: v2 selector has no damage (hit is a trigger, damage follows through delay 1) -> damage {physical: 0}; the real 30 is applied in the handler 1 tick later
+        # GAP: v2 max_count 1 on the coin1 selector -> none
+        - id: w0
+          at: 0
+          do:
+            - id: snd_5
+              op: sound
+              sound: entity.player.attack.sweep
+              anchor: caster
+              volume: 0.5
+              pitch: 0.6
+            - id: snd_6
+              op: sound
+              sound: item.armor.equip_chain
+              anchor: caster
+              volume: 0.6
+              pitch: 1.4
+        - id: w3
+          at: 3
+          do:
+            - id: fx6_couture_s2_haze
+              op: frame
+              anchor: caster
+              mode: snapshot
+              # GAP: teleport_ticks 2 -> engine default
+              for: 8
+            - id: fx6_couture_s2_haze_haze_hip
+              op: display
+              kind: sprite
+              sprite: couture-s2-haze-soft
+              tint: "#8A5CFF"
+              anchor: fx6_couture_s2_haze
+              offset: {left: 0, up: 0.9, forward: -0.1}
+              size: [2.56, 2.56]
+              alpha: 1
+              billboard: center
+              for: 8
+              motion:
+                - {law: grow, prop: size, per_tick: [0.853333, 0.853333], at: 0, for: 3}
+            - id: snd_7
+              op: sound
+              sound: block.amethyst_block.resonate
+              anchor: caster
+              volume: 0.5
+              pitch: 1.6
+        - id: w7
+          at: 7
+          do:
+            - id: fx3_couture_s2_coin1
+              op: frame
+              anchor: caster
+              mode: snapshot
+              # GAP: teleport_ticks 2 -> engine default
+              for: 11
+            - id: fx3_couture_s2_coin1_streak_0
+              op: display
+              kind: sprite
+              sprite: couture-s2-streak
+              anchor: fx3_couture_s2_coin1
+              offset: {left: 0, up: 0.9, forward: 0.8}
+              rotate: [{axis: forward, deg: 6}]
+              size: [1.28, 1.28]
+              alpha: 1
+              billboard: center
+              for: 6
+              motion:
+                - {law: move, velocity: {left: 0, up: 0, forward: 1.2}, at: 0, for: 1}
+                - {law: move, velocity: {left: 0, up: 0.025, forward: 0.35}, at: 1, for: 4}
+                - {law: grow, prop: size, per_tick: [1.92, 0], at: 0, for: 1}
+                - {law: grow, prop: size, per_tick: [-0.32, -0.128], at: 1, for: 4}
+            - id: fx3_couture_s2_coin1_streak_3
+              op: display
+              kind: sprite
+              sprite: couture-s2-streak
+              anchor: fx3_couture_s2_coin1
+              offset: {left: 0, up: 2.1, forward: 1.2}
+              rotate: [{axis: forward, deg: -8}]
+              size: [1.28, 1.28]
+              alpha: 1
+              billboard: center
+              for: 6
+              motion:
+                - {law: move, velocity: {left: 0, up: 0, forward: 1.2}, at: 0, for: 1}
+                - {law: move, velocity: {left: 0, up: 0.025, forward: 0.35}, at: 1, for: 4}
+                - {law: grow, prop: size, per_tick: [1.92, 0], at: 0, for: 1}
+                - {law: grow, prop: size, per_tick: [-0.32, -0.128], at: 1, for: 4}
+            - id: fx3_couture_s2_coin1_core
+              op: display
+              kind: sprite
+              sprite: couture-s2-crescent-core
+              anchor: fx3_couture_s2_coin1
+              offset: {left: 0, up: 1, forward: -0.2}
+              rotate: [{axis: forward, deg: -164}]
+              size: [3.2, 2.56]
+              alpha: 1
+              billboard: center
+              for: 8
+              motion:
+                - {law: move, velocity: {left: 0, up: 0, forward: 0.7}, at: 0, for: 1}
+                - {law: move, velocity: {left: 0, up: 0, forward: -0.066667}, at: 1, for: 3}
+                - {law: move, velocity: {left: 0, up: 0, forward: -0.7}, at: 4, for: 2}
+                - {law: move, velocity: {left: 0, up: 0, forward: -0.4}, at: 6, for: 1}
+                - {law: spin, axis: forward, deg_per_tick: -6, at: 0, for: 1}
+                - {law: spin, axis: forward, deg_per_tick: -1.3333, at: 1, for: 1}
+                - {law: spin, axis: forward, deg_per_tick: -1.3334, at: 2, for: 1}
+                - {law: spin, axis: forward, deg_per_tick: -1.3333, at: 3, for: 1}
+                - {law: spin, axis: forward, deg_per_tick: -5, at: 4, for: 1}
+                - {law: spin, axis: forward, deg_per_tick: 355, at: 5, for: 1}
+                - {law: spin, axis: forward, deg_per_tick: -2, at: 6, for: 1}
+                - {law: grow, prop: size, per_tick: [1.92, 1.408], at: 0, for: 1}
+                - {law: grow, prop: size, per_tick: [-0.128, 0], at: 1, for: 3}
+                - {law: grow, prop: size, per_tick: [-1.856, -0.384], at: 4, for: 2}
+                - {law: grow, prop: size, per_tick: [-0.64, -0.64], at: 6, for: 1}
+            - id: fx3_couture_s2_coin1_sp_0
+              op: particle_def
+              def: couture-s2-p-white
+              anchor: fx3_couture_s2_coin1
+              every: 1
+              times: 7
+            - id: fx3_couture_s2_coin1_sp_1
+              op: particle_def
+              def: couture-s2-p-white
+              anchor: fx3_couture_s2_coin1
+              every: 1
+              times: 7
+            - id: fx3_couture_s2_coin1_sp_2
+              op: particle_def
+              def: couture-s2-p-white
+              anchor: fx3_couture_s2_coin1
+              every: 1
+              times: 7
+            - id: fx3_couture_s2_coin1_sp_3
+              op: particle_def
+              def: couture-s2-p-white
+              anchor: fx3_couture_s2_coin1
+              every: 1
+              times: 7
+            - id: fx3_couture_s2_coin1_sp_4
+              op: particle_def
+              def: couture-s2-p-white
+              anchor: fx3_couture_s2_coin1
+              every: 1
+              times: 7
+            - id: fx3_couture_s2_coin1_or_0
+              op: particle_def
+              def: couture-s2-p-orange
+              anchor: fx3_couture_s2_coin1
+              every: 1
+              times: 6
+            - id: fx3_couture_s2_coin1_or_1
+              op: particle_def
+              def: couture-s2-p-orange
+              anchor: fx3_couture_s2_coin1
+              every: 1
+              times: 6
+        - id: w8
+          at: 8
+          do:
+            - id: fx3_couture_s2_coin1_streak_1
+              op: display
+              kind: sprite
+              sprite: couture-s2-streak
+              anchor: fx3_couture_s2_coin1
+              offset: {left: 0, up: 1.3, forward: 1.4}
+              rotate: [{axis: forward, deg: -4}]
+              size: [1.28, 1.28]
+              alpha: 1
+              billboard: center
+              for: 6
+              motion:
+                - {law: move, velocity: {left: 0, up: 0, forward: 1.2}, at: 0, for: 1}
+                - {law: move, velocity: {left: 0, up: 0.025, forward: 0.35}, at: 1, for: 4}
+                - {law: grow, prop: size, per_tick: [1.92, 0], at: 0, for: 1}
+                - {law: grow, prop: size, per_tick: [-0.32, -0.128], at: 1, for: 4}
+            - id: fx3_couture_s2_coin1_streak_4
+              op: display
+              kind: sprite
+              sprite: couture-s2-streak
+              anchor: fx3_couture_s2_coin1
+              offset: {left: 0, up: 2.5, forward: 0.9}
+              rotate: [{axis: forward, deg: 3}]
+              size: [1.28, 1.28]
+              alpha: 1
+              billboard: center
+              for: 6
+              motion:
+                - {law: move, velocity: {left: 0, up: 0, forward: 1.2}, at: 0, for: 1}
+                - {law: move, velocity: {left: 0, up: 0.025, forward: 0.35}, at: 1, for: 4}
+                - {law: grow, prop: size, per_tick: [1.92, 0], at: 0, for: 1}
+                - {law: grow, prop: size, per_tick: [-0.32, -0.128], at: 1, for: 4}
+            - id: fx3_couture_s2_coin1_petal_0
+              op: display
+              kind: sprite
+              sprite: couture-s2-petal-spark
+              anchor: fx3_couture_s2_coin1
+              offset: {left: -0.65, up: 0.65, forward: 1.68}
+              rotate: [{axis: forward, deg: -51}]
+              size: [0.1664, 0.1664]
+              alpha: 1
+              billboard: center
+              for: 6
+              motion:
+                - {law: move, velocity: {left: 0, up: 0, forward: 0.2}, at: 0, for: 1}
+                - {law: move, velocity: {left: 0, up: 0.0275, forward: 0.41}, at: 1, for: 4}
+                - {law: spin, axis: forward, deg_per_tick: 40, at: 0, for: 5}
+                - {law: grow, prop: size, per_tick: [0.2432, 0.16], at: 0, for: 1}
+                - {law: grow, prop: size, per_tick: [-0.0304, -0.0304], at: 1, for: 4}
+            - id: fx3_couture_s2_coin1_petal_5
+              op: display
+              kind: sprite
+              sprite: couture-s2-petal-spark
+              anchor: fx3_couture_s2_coin1
+              offset: {left: 0.43, up: 0.47, forward: 0.15}
+              rotate: [{axis: forward, deg: -64}]
+              size: [0.1792, 0.1792]
+              alpha: 1
+              billboard: center
+              for: 6
+              motion:
+                - {law: move, velocity: {left: 0, up: 0, forward: 0.2}, at: 0, for: 1}
+                - {law: move, velocity: {left: -0.15, up: 0.145, forward: 0.405}, at: 1, for: 4}
+                - {law: spin, axis: forward, deg_per_tick: 40, at: 0, for: 5}
+                - {law: grow, prop: size, per_tick: [0.2688, 0.1792], at: 0, for: 1}
+                - {law: grow, prop: size, per_tick: [-0.0336, -0.0336], at: 1, for: 4}
+            - id: fx3_couture_s2_coin1_petal_10
+              op: display
+              kind: sprite
+              sprite: couture-s2-petal-spark
+              anchor: fx3_couture_s2_coin1
+              offset: {left: 0.34, up: 0.91, forward: 1.95}
+              rotate: [{axis: forward, deg: -173}]
+              size: [0.2112, 0.2112]
+              alpha: 1
+              billboard: center
+              for: 6
+              motion:
+                - {law: move, velocity: {left: 0, up: 0, forward: 0.2}, at: 0, for: 1}
+                - {law: move, velocity: {left: 0.115, up: 0.04, forward: 0.41}, at: 1, for: 4}
+                - {law: spin, axis: forward, deg_per_tick: 40, at: 0, for: 5}
+                - {law: grow, prop: size, per_tick: [0.32, 0.2112], at: 0, for: 1}
+                - {law: grow, prop: size, per_tick: [-0.04, -0.04], at: 1, for: 4}
+            - id: fx3_couture_s2_coin1_petal_15
+              op: display
+              kind: sprite
+              sprite: couture-s2-petal-spark
+              anchor: fx3_couture_s2_coin1
+              offset: {left: -0.81, up: 0.5, forward: 3.46}
+              rotate: [{axis: forward, deg: 61}]
+              size: [0.2304, 0.2304]
+              alpha: 1
+              billboard: center
+              for: 6
+              motion:
+                - {law: move, velocity: {left: 0, up: 0, forward: 0.2}, at: 0, for: 1}
+                - {law: move, velocity: {left: 0.135, up: 0.0475, forward: 0.4425}, at: 1, for: 4}
+                - {law: spin, axis: forward, deg_per_tick: 40, at: 0, for: 2}
+                - {law: spin, axis: forward, deg_per_tick: -320, at: 2, for: 1}
+                - {law: spin, axis: forward, deg_per_tick: 40, at: 3, for: 2}
+                - {law: grow, prop: size, per_tick: [0.3456, 0.2304], at: 0, for: 1}
+                - {law: grow, prop: size, per_tick: [-0.0432, -0.0432], at: 1, for: 4}
+            - id: fx3_couture_s2_coin1_petal_20
+              op: display
+              kind: sprite
+              sprite: couture-s2-petal-spark
+              anchor: fx3_couture_s2_coin1
+              offset: {left: -0.53, up: 1.31, forward: 3.21}
+              rotate: [{axis: forward, deg: 42}]
+              size: [0.1728, 0.1728]
+              alpha: 1
+              billboard: center
+              for: 6
+              motion:
+                - {law: move, velocity: {left: 0, up: 0, forward: 0.2}, at: 0, for: 1}
+                - {law: move, velocity: {left: 0.0125, up: 0.1, forward: 0.2925}, at: 1, for: 4}
+                - {law: spin, axis: forward, deg_per_tick: 40, at: 0, for: 3}
+                - {law: spin, axis: forward, deg_per_tick: -320, at: 3, for: 1}
+                - {law: spin, axis: forward, deg_per_tick: 40, at: 4, for: 1}
+                - {law: grow, prop: size, per_tick: [0.2688, 0.1792], at: 0, for: 1}
+                - {law: grow, prop: size, per_tick: [-0.0336, -0.0336], at: 1, for: 4}
+            - id: fx3_couture_s2_coin1_petal_25
+              op: display
+              kind: sprite
+              sprite: couture-s2-petal-spark
+              anchor: fx3_couture_s2_coin1
+              offset: {left: 0.2, up: 0.96, forward: -0.33}
+              rotate: [{axis: forward, deg: 96}]
+              size: [0.16, 0.16]
+              alpha: 1
+              billboard: center
+              for: 6
+              motion:
+                - {law: move, velocity: {left: 0, up: 0, forward: 0.2}, at: 0, for: 1}
+                - {law: move, velocity: {left: -0.1275, up: 0.075, forward: 0.3525}, at: 1, for: 4}
+                - {law: spin, axis: forward, deg_per_tick: 40, at: 0, for: 2}
+                - {law: spin, axis: forward, deg_per_tick: -320, at: 2, for: 1}
+                - {law: spin, axis: forward, deg_per_tick: 40, at: 3, for: 2}
+                - {law: grow, prop: size, per_tick: [0.2368, 0.1536], at: 0, for: 1}
+                - {law: grow, prop: size, per_tick: [-0.0304, -0.0288], at: 1, for: 4}
+            - id: fx3_couture_s2_coin1_petal_30
+              op: display
+              kind: sprite
+              sprite: couture-s2-petal-spark
+              anchor: fx3_couture_s2_coin1
+              offset: {left: 0.33, up: 1.18, forward: -0.47}
+              rotate: [{axis: forward, deg: 52}]
+              size: [0.2176, 0.2176]
+              alpha: 1
+              billboard: center
+              for: 6
+              motion:
+                - {law: move, velocity: {left: 0, up: 0, forward: 0.2}, at: 0, for: 1}
+                - {law: move, velocity: {left: 0.0325, up: 0.0575, forward: 0.1525}, at: 1, for: 4}
+                - {law: spin, axis: forward, deg_per_tick: 40, at: 0, for: 3}
+                - {law: spin, axis: forward, deg_per_tick: -320, at: 3, for: 1}
+                - {law: spin, axis: forward, deg_per_tick: 40, at: 4, for: 1}
+                - {law: grow, prop: size, per_tick: [0.3328, 0.224], at: 0, for: 1}
+                - {law: grow, prop: size, per_tick: [-0.0416, -0.0416], at: 1, for: 4}
+        - id: w9
+          at: 9
+          do:
+            - id: fx3_couture_s2_coin1_streak_2
+              op: display
+              kind: sprite
+              sprite: couture-s2-streak
+              anchor: fx3_couture_s2_coin1
+              offset: {left: 0, up: 1.7, forward: 0.6}
+              rotate: [{axis: forward, deg: 10}]
+              size: [1.28, 1.28]
+              alpha: 1
+              billboard: center
+              for: 6
+              motion:
+                - {law: move, velocity: {left: 0, up: 0, forward: 1.2}, at: 0, for: 1}
+                - {law: move, velocity: {left: 0, up: 0.025, forward: 0.35}, at: 1, for: 4}
+                - {law: grow, prop: size, per_tick: [1.92, 0], at: 0, for: 1}
+                - {law: grow, prop: size, per_tick: [-0.32, -0.128], at: 1, for: 4}
+            - id: fx3_couture_s2_coin1_petal_1
+              op: display
+              kind: sprite
+              sprite: couture-s2-petal-spark
+              anchor: fx3_couture_s2_coin1
+              offset: {left: -0.83, up: 0.98, forward: 2.11}
+              rotate: [{axis: forward, deg: -144}]
+              size: [0.1728, 0.1728]
+              alpha: 1
+              billboard: center
+              for: 6
+              motion:
+                - {law: move, velocity: {left: 0, up: 0, forward: 0.2}, at: 0, for: 1}
+                - {law: move, velocity: {left: -0.0125, up: 0.1125, forward: 0.2625}, at: 1, for: 4}
+                - {law: spin, axis: forward, deg_per_tick: 40, at: 0, for: 5}
+                - {law: grow, prop: size, per_tick: [0.2624, 0.1728], at: 0, for: 1}
+                - {law: grow, prop: size, per_tick: [-0.032, -0.032], at: 1, for: 4}
+            - id: fx3_couture_s2_coin1_petal_6
+              op: display
+              kind: sprite
+              sprite: couture-s2-petal-spark
+              anchor: fx3_couture_s2_coin1
+              offset: {left: 0.71, up: 0.6, forward: 3.51}
+              rotate: [{axis: forward, deg: -67}]
+              size: [0.2176, 0.2176]
+              alpha: 1
+              billboard: center
+              for: 6
+              motion:
+                - {law: move, velocity: {left: 0, up: 0, forward: 0.2}, at: 0, for: 1}
+                - {law: move, velocity: {left: 0, up: 0.1375, forward: 0.19}, at: 1, for: 4}
+                - {law: spin, axis: forward, deg_per_tick: 40, at: 0, for: 5}
+                - {law: grow, prop: size, per_tick: [0.3264, 0.2176], at: 0, for: 1}
+                - {law: grow, prop: size, per_tick: [-0.0416, -0.0416], at: 1, for: 4}
+            - id: fx3_couture_s2_coin1_petal_11
+              op: display
+              kind: sprite
+              sprite: couture-s2-petal-spark
+              anchor: fx3_couture_s2_coin1
+              offset: {left: 0.13, up: 1.48, forward: 1.39}
+              rotate: [{axis: forward, deg: -139}]
+              size: [0.1664, 0.1664]
+              alpha: 1
+              billboard: center
+              for: 6
+              motion:
+                - {law: move, velocity: {left: 0, up: 0, forward: 0.2}, at: 0, for: 1}
+                - {law: move, velocity: {left: -0.05, up: 0.125, forward: 0.155}, at: 1, for: 4}
+                - {law: spin, axis: forward, deg_per_tick: 40, at: 0, for: 5}
+                - {law: grow, prop: size, per_tick: [0.256, 0.1664], at: 0, for: 1}
+                - {law: grow, prop: size, per_tick: [-0.032, -0.0304], at: 1, for: 4}
+            - id: fx3_couture_s2_coin1_petal_16
+              op: display
+              kind: sprite
+              sprite: couture-s2-petal-spark
+              anchor: fx3_couture_s2_coin1
+              offset: {left: -0.52, up: 0.23, forward: -0.44}
+              rotate: [{axis: forward, deg: -179}]
+              size: [0.192, 0.192]
+              alpha: 1
+              billboard: center
+              for: 6
+              motion:
+                - {law: move, velocity: {left: 0, up: 0, forward: 0.2}, at: 0, for: 1}
+                - {law: move, velocity: {left: 0.14, up: 0.1025, forward: 0.265}, at: 1, for: 4}
+                - {law: spin, axis: forward, deg_per_tick: 40, at: 0, for: 5}
+                - {law: grow, prop: size, per_tick: [0.2816, 0.1856], at: 0, for: 1}
+                - {law: grow, prop: size, per_tick: [-0.0352, -0.0352], at: 1, for: 4}
+            - id: fx3_couture_s2_coin1_petal_21
+              op: display
+              kind: sprite
+              sprite: couture-s2-petal-spark
+              anchor: fx3_couture_s2_coin1
+              offset: {left: 0.06, up: 1.43, forward: 1.77}
+              rotate: [{axis: forward, deg: -137}]
+              size: [0.224, 0.224]
+              alpha: 1
+              billboard: center
+              for: 6
+              motion:
+                - {law: move, velocity: {left: 0, up: 0, forward: 0.2}, at: 0, for: 1}
+                - {law: move, velocity: {left: 0.15, up: 0.0275, forward: 0.4325}, at: 1, for: 4}
+                - {law: spin, axis: forward, deg_per_tick: 40, at: 0, for: 5}
+                - {law: grow, prop: size, per_tick: [0.3328, 0.224], at: 0, for: 1}
+                - {law: grow, prop: size, per_tick: [-0.0416, -0.0416], at: 1, for: 4}
+            - id: fx3_couture_s2_coin1_petal_26
+              op: display
+              kind: sprite
+              sprite: couture-s2-petal-spark
+              anchor: fx3_couture_s2_coin1
+              offset: {left: -0.85, up: 0.26, forward: 3.04}
+              rotate: [{axis: forward, deg: 38}]
+              size: [0.1984, 0.1984]
+              alpha: 1
+              billboard: center
+              for: 6
+              motion:
+                - {law: move, velocity: {left: 0, up: 0, forward: 0.2}, at: 0, for: 1}
+                - {law: move, velocity: {left: -0.0075, up: 0.095, forward: 0.3375}, at: 1, for: 4}
+                - {law: spin, axis: forward, deg_per_tick: 40, at: 0, for: 3}
+                - {law: spin, axis: forward, deg_per_tick: -320, at: 3, for: 1}
+                - {law: spin, axis: forward, deg_per_tick: 40, at: 4, for: 1}
+                - {law: grow, prop: size, per_tick: [0.2944, 0.192], at: 0, for: 1}
+                - {law: grow, prop: size, per_tick: [-0.0368, -0.0368], at: 1, for: 4}
+            - id: fx3_couture_s2_coin1_petal_31
+              op: display
+              kind: sprite
+              sprite: couture-s2-petal-spark
+              anchor: fx3_couture_s2_coin1
+              offset: {left: -0.04, up: 1.36, forward: 1.46}
+              rotate: [{axis: forward, deg: -12}]
+              size: [0.192, 0.192]
+              alpha: 1
+              billboard: center
+              for: 6
+              motion:
+                - {law: move, velocity: {left: 0, up: 0, forward: 0.2}, at: 0, for: 1}
+                - {law: move, velocity: {left: 0.04, up: 0.135, forward: 0.245}, at: 1, for: 4}
+                - {law: spin, axis: forward, deg_per_tick: 40, at: 0, for: 4}
+                - {law: spin, axis: forward, deg_per_tick: -320, at: 4, for: 1}
+                - {law: grow, prop: size, per_tick: [0.2816, 0.1856], at: 0, for: 1}
+                - {law: grow, prop: size, per_tick: [-0.0352, -0.0352], at: 1, for: 4}
+            - id: snd_8
+              op: sound
+              sound: entity.player.attack.sweep
+              anchor: caster
+              volume: 0.9
+              pitch: 1.3
+            - id: snd_9
+              op: sound
+              sound: entity.sheep.shear
+              anchor: caster
+              volume: 1
+              pitch: 1
+        - id: w10
+          at: 10
+          do:
+            - id: fx3_couture_s2_coin1_petal_2
+              op: display
+              kind: sprite
+              sprite: couture-s2-petal-spark
+              anchor: fx3_couture_s2_coin1
+              offset: {left: 0.01, up: 0.3, forward: 0.62}
+              rotate: [{axis: forward, deg: -164}]
+              size: [0.256, 0.256]
+              alpha: 1
+              billboard: center
+              for: 6
+              motion:
+                - {law: move, velocity: {left: 0, up: 0, forward: 0.2}, at: 0, for: 1}
+                - {law: move, velocity: {left: 0.0825, up: 0.0975, forward: 0.4275}, at: 1, for: 4}
+                - {law: spin, axis: forward, deg_per_tick: 40, at: 0, for: 5}
+                - {law: grow, prop: size, per_tick: [0.3776, 0.256], at: 0, for: 1}
+                - {law: grow, prop: size, per_tick: [-0.0464, -0.048], at: 1, for: 4}
+            - id: fx3_couture_s2_coin1_petal_7
+              op: display
+              kind: sprite
+              sprite: couture-s2-petal-spark
+              anchor: fx3_couture_s2_coin1
+              offset: {left: -0.18, up: 0.72, forward: 3.83}
+              rotate: [{axis: forward, deg: 88}]
+              size: [0.2752, 0.2752]
+              alpha: 1
+              billboard: center
+              for: 6
+              motion:
+                - {law: move, velocity: {left: 0, up: 0, forward: 0.2}, at: 0, for: 1}
+                - {law: move, velocity: {left: 0.0225, up: 0.035, forward: 0.34}, at: 1, for: 4}
+                - {law: spin, axis: forward, deg_per_tick: 40, at: 0, for: 2}
+                - {law: spin, axis: forward, deg_per_tick: -320, at: 2, for: 1}
+                - {law: spin, axis: forward, deg_per_tick: 40, at: 3, for: 2}
+                - {law: grow, prop: size, per_tick: [0.4096, 0.2752], at: 0, for: 1}
+                - {law: grow, prop: size, per_tick: [-0.0512, -0.0528], at: 1, for: 4}
+            - id: fx3_couture_s2_coin1_petal_12
+              op: display
+              kind: sprite
+              sprite: couture-s2-petal-spark
+              anchor: fx3_couture_s2_coin1
+              offset: {left: 0.57, up: 0.51, forward: 0.54}
+              rotate: [{axis: forward, deg: 28}]
+              size: [0.16, 0.16]
+              alpha: 1
+              billboard: center
+              for: 6
+              motion:
+                - {law: move, velocity: {left: 0, up: 0, forward: 0.2}, at: 0, for: 1}
+                - {law: move, velocity: {left: 0.005, up: 0.0625, forward: 0.2425}, at: 1, for: 4}
+                - {law: spin, axis: forward, deg_per_tick: 40, at: 0, for: 3}
+                - {law: spin, axis: forward, deg_per_tick: -320, at: 3, for: 1}
+                - {law: spin, axis: forward, deg_per_tick: 40, at: 4, for: 1}
+                - {law: grow, prop: size, per_tick: [0.2304, 0.1536], at: 0, for: 1}
+                - {law: grow, prop: size, per_tick: [-0.0288, -0.0288], at: 1, for: 4}
+            - id: fx3_couture_s2_coin1_petal_17
+              op: display
+              kind: sprite
+              sprite: couture-s2-petal-spark
+              anchor: fx3_couture_s2_coin1
+              offset: {left: 0.83, up: 0.52, forward: 1.76}
+              rotate: [{axis: forward, deg: -145}]
+              size: [0.2112, 0.2112]
+              alpha: 1
+              billboard: center
+              for: 6
+              motion:
+                - {law: move, velocity: {left: 0, up: 0, forward: 0.2}, at: 0, for: 1}
+                - {law: move, velocity: {left: -0.115, up: 0.0625, forward: 0.375}, at: 1, for: 4}
+                - {law: spin, axis: forward, deg_per_tick: 40, at: 0, for: 5}
+                - {law: grow, prop: size, per_tick: [0.32, 0.2112], at: 0, for: 1}
+                - {law: grow, prop: size, per_tick: [-0.04, -0.04], at: 1, for: 4}
+            - id: fx3_couture_s2_coin1_petal_22
+              op: display
+              kind: sprite
+              sprite: couture-s2-petal-spark
+              anchor: fx3_couture_s2_coin1
+              offset: {left: 0.74, up: 0.88, forward: 1.96}
+              rotate: [{axis: forward, deg: 153}]
+              size: [0.16, 0.16]
+              alpha: 1
+              billboard: center
+              for: 6
+              motion:
+                - {law: move, velocity: {left: 0, up: 0, forward: 0.2}, at: 0, for: 1}
+                - {law: move, velocity: {left: 0.0125, up: 0.105, forward: 0.17}, at: 1, for: 4}
+                - {law: spin, axis: forward, deg_per_tick: -320, at: 0, for: 1}
+                - {law: spin, axis: forward, deg_per_tick: 40, at: 1, for: 4}
+                - {law: grow, prop: size, per_tick: [0.2432, 0.1664], at: 0, for: 1}
+                - {law: grow, prop: size, per_tick: [-0.0304, -0.0304], at: 1, for: 4}
+            - id: fx3_couture_s2_coin1_petal_27
+              op: display
+              kind: sprite
+              sprite: couture-s2-petal-spark
+              anchor: fx3_couture_s2_coin1
+              offset: {left: 0.82, up: 0.16, forward: 3.18}
+              rotate: [{axis: forward, deg: 70}]
+              size: [0.1664, 0.1664]
+              alpha: 1
+              billboard: center
+              for: 6
+              motion:
+                - {law: move, velocity: {left: 0, up: 0, forward: 0.2}, at: 0, for: 1}
+                - {law: move, velocity: {left: 0.145, up: 0.1475, forward: 0.3275}, at: 1, for: 4}
+                - {law: spin, axis: forward, deg_per_tick: 40, at: 0, for: 2}
+                - {law: spin, axis: forward, deg_per_tick: -320, at: 2, for: 1}
+                - {law: spin, axis: forward, deg_per_tick: 40, at: 3, for: 2}
+                - {law: grow, prop: size, per_tick: [0.2496, 0.1664], at: 0, for: 1}
+                - {law: grow, prop: size, per_tick: [-0.0304, -0.0304], at: 1, for: 4}
+        - id: w11
+          at: 11
+          do:
+            - id: fx3_couture_s2_coin1_petal_3
+              op: display
+              kind: sprite
+              sprite: couture-s2-petal-spark
+              anchor: fx3_couture_s2_coin1
+              offset: {left: -0.53, up: 1.39, forward: 3.67}
+              rotate: [{axis: forward, deg: 136}]
+              size: [0.2688, 0.2688]
+              alpha: 1
+              billboard: center
+              for: 6
+              motion:
+                - {law: move, velocity: {left: 0, up: 0, forward: 0.2}, at: 0, for: 1}
+                - {law: move, velocity: {left: 0.1175, up: 0.125, forward: 0.2175}, at: 1, for: 4}
+                - {law: spin, axis: forward, deg_per_tick: 40, at: 0, for: 1}
+                - {law: spin, axis: forward, deg_per_tick: -320, at: 1, for: 1}
+                - {law: spin, axis: forward, deg_per_tick: 40, at: 2, for: 3}
+                - {law: grow, prop: size, per_tick: [0.4096, 0.2688], at: 0, for: 1}
+                - {law: grow, prop: size, per_tick: [-0.0512, -0.0496], at: 1, for: 4}
+            - id: fx3_couture_s2_coin1_petal_8
+              op: display
+              kind: sprite
+              sprite: couture-s2-petal-spark
+              anchor: fx3_couture_s2_coin1
+              offset: {left: -0.41, up: 0.21, forward: 2.88}
+              rotate: [{axis: forward, deg: -66}]
+              size: [0.2816, 0.2816]
+              alpha: 1
+              billboard: center
+              for: 6
+              motion:
+                - {law: move, velocity: {left: 0, up: 0, forward: 0.2}, at: 0, for: 1}
+                - {law: move, velocity: {left: 0.0725, up: 0.13, forward: 0.355}, at: 1, for: 4}
+                - {law: spin, axis: forward, deg_per_tick: 40, at: 0, for: 5}
+                - {law: grow, prop: size, per_tick: [0.4224, 0.2816], at: 0, for: 1}
+                - {law: grow, prop: size, per_tick: [-0.0528, -0.0528], at: 1, for: 4}
+            - id: fx3_couture_s2_coin1_petal_13
+              op: display
+              kind: sprite
+              sprite: couture-s2-petal-spark
+              anchor: fx3_couture_s2_coin1
+              offset: {left: 0, up: 1.24, forward: 3.17}
+              rotate: [{axis: forward, deg: -143}]
+              size: [0.2368, 0.2368]
+              alpha: 1
+              billboard: center
+              for: 6
+              motion:
+                - {law: move, velocity: {left: 0, up: 0, forward: 0.2}, at: 0, for: 1}
+                - {law: move, velocity: {left: 0.07, up: 0.055, forward: 0.3625}, at: 1, for: 4}
+                - {law: spin, axis: forward, deg_per_tick: 40, at: 0, for: 5}
+                - {law: grow, prop: size, per_tick: [0.352, 0.2368], at: 0, for: 1}
+                - {law: grow, prop: size, per_tick: [-0.0432, -0.0448], at: 1, for: 4}
+            - id: fx3_couture_s2_coin1_petal_18
+              op: display
+              kind: sprite
+              sprite: couture-s2-petal-spark
+              anchor: fx3_couture_s2_coin1
+              offset: {left: -0.21, up: 1.18, forward: 2.81}
+              rotate: [{axis: forward, deg: -55}]
+              size: [0.2688, 0.2688]
+              alpha: 1
+              billboard: center
+              for: 6
+              motion:
+                - {law: move, velocity: {left: 0, up: 0, forward: 0.2}, at: 0, for: 1}
+                - {law: move, velocity: {left: 0.065, up: 0.0475, forward: 0.415}, at: 1, for: 4}
+                - {law: spin, axis: forward, deg_per_tick: 40, at: 0, for: 5}
+                - {law: grow, prop: size, per_tick: [0.3968, 0.2624], at: 0, for: 1}
+                - {law: grow, prop: size, per_tick: [-0.0496, -0.0496], at: 1, for: 4}
+            - id: fx3_couture_s2_coin1_petal_23
+              op: display
+              kind: sprite
+              sprite: couture-s2-petal-spark
+              anchor: fx3_couture_s2_coin1
+              offset: {left: -0.72, up: 0.34, forward: 0.55}
+              rotate: [{axis: forward, deg: 27}]
+              size: [0.2432, 0.2432]
+              alpha: 1
+              billboard: center
+              for: 6
+              motion:
+                - {law: move, velocity: {left: 0, up: 0, forward: 0.2}, at: 0, for: 1}
+                - {law: move, velocity: {left: 0.1175, up: 0.0325, forward: 0.2975}, at: 1, for: 4}
+                - {law: spin, axis: forward, deg_per_tick: 40, at: 0, for: 3}
+                - {law: spin, axis: forward, deg_per_tick: -320, at: 3, for: 1}
+                - {law: spin, axis: forward, deg_per_tick: 40, at: 4, for: 1}
+                - {law: grow, prop: size, per_tick: [0.3584, 0.2368], at: 0, for: 1}
+                - {law: grow, prop: size, per_tick: [-0.0448, -0.0448], at: 1, for: 4}
+            - id: fx3_couture_s2_coin1_petal_28
+              op: display
+              kind: sprite
+              sprite: couture-s2-petal-spark
+              anchor: fx3_couture_s2_coin1
+              offset: {left: 0.5, up: 0.46, forward: 1.14}
+              rotate: [{axis: forward, deg: 61}]
+              size: [0.16, 0.16]
+              alpha: 1
+              billboard: center
+              for: 6
+              motion:
+                - {law: move, velocity: {left: 0, up: 0, forward: 0.2}, at: 0, for: 1}
+                - {law: move, velocity: {left: -0.115, up: 0.0525, forward: 0.2075}, at: 1, for: 4}
+                - {law: spin, axis: forward, deg_per_tick: 40, at: 0, for: 2}
+                - {law: spin, axis: forward, deg_per_tick: -320, at: 2, for: 1}
+                - {law: spin, axis: forward, deg_per_tick: 40, at: 3, for: 2}
+                - {law: grow, prop: size, per_tick: [0.2496, 0.1664], at: 0, for: 1}
+                - {law: grow, prop: size, per_tick: [-0.0304, -0.0304], at: 1, for: 4}
+            - id: snd_10
+              op: sound
+              sound: block.amethyst_cluster.break
+              anchor: caster
+              volume: 0.5
+              pitch: 1.5
+        - id: w12
+          at: 12
+          do:
+            - id: fx3_couture_s2_coin1_petal_4
+              op: display
+              kind: sprite
+              sprite: couture-s2-petal-spark
+              anchor: fx3_couture_s2_coin1
+              offset: {left: -0.82, up: 0.61, forward: 1.36}
+              rotate: [{axis: forward, deg: -167}]
+              size: [0.2624, 0.2624]
+              alpha: 1
+              billboard: center
+              for: 6
+              motion:
+                - {law: move, velocity: {left: 0, up: 0, forward: 0.2}, at: 0, for: 1}
+                - {law: move, velocity: {left: -0.0275, up: 0.025, forward: 0.3625}, at: 1, for: 4}
+                - {law: spin, axis: forward, deg_per_tick: 40, at: 0, for: 5}
+                - {law: grow, prop: size, per_tick: [0.3904, 0.2624], at: 0, for: 1}
+                - {law: grow, prop: size, per_tick: [-0.048, -0.0496], at: 1, for: 4}
+            - id: fx3_couture_s2_coin1_petal_9
+              op: display
+              kind: sprite
+              sprite: couture-s2-petal-spark
+              anchor: fx3_couture_s2_coin1
+              offset: {left: 0.81, up: 1.1, forward: 0.07}
+              rotate: [{axis: forward, deg: -173}]
+              size: [0.2624, 0.2624]
+              alpha: 1
+              billboard: center
+              for: 6
+              motion:
+                - {law: move, velocity: {left: 0, up: 0, forward: 0.2}, at: 0, for: 1}
+                - {law: move, velocity: {left: -0.1375, up: 0.1025, forward: 0.22}, at: 1, for: 4}
+                - {law: spin, axis: forward, deg_per_tick: 40, at: 0, for: 5}
+                - {law: grow, prop: size, per_tick: [0.3904, 0.2624], at: 0, for: 1}
+                - {law: grow, prop: size, per_tick: [-0.048, -0.0496], at: 1, for: 4}
+            - id: fx3_couture_s2_coin1_petal_14
+              op: display
+              kind: sprite
+              sprite: couture-s2-petal-spark
+              anchor: fx3_couture_s2_coin1
+              offset: {left: 0.02, up: 1.18, forward: -0.05}
+              rotate: [{axis: forward, deg: 148}]
+              size: [0.1728, 0.1728]
+              alpha: 1
+              billboard: center
+              for: 6
+              motion:
+                - {law: move, velocity: {left: 0, up: 0, forward: 0.2}, at: 0, for: 1}
+                - {law: move, velocity: {left: -0.11, up: 0.095, forward: 0.4375}, at: 1, for: 4}
+                - {law: spin, axis: forward, deg_per_tick: -320, at: 0, for: 1}
+                - {law: spin, axis: forward, deg_per_tick: 40, at: 1, for: 4}
+                - {law: grow, prop: size, per_tick: [0.2688, 0.1792], at: 0, for: 1}
+                - {law: grow, prop: size, per_tick: [-0.0336, -0.0336], at: 1, for: 4}
+            - id: fx3_couture_s2_coin1_petal_19
+              op: display
+              kind: sprite
+              sprite: couture-s2-petal-spark
+              anchor: fx3_couture_s2_coin1
+              offset: {left: -0.81, up: 0.28, forward: 1.82}
+              rotate: [{axis: forward, deg: 43}]
+              size: [0.1728, 0.1728]
+              alpha: 1
+              billboard: center
+              for: 6
+              motion:
+                - {law: move, velocity: {left: 0, up: 0, forward: 0.2}, at: 0, for: 1}
+                - {law: move, velocity: {left: 0.0375, up: 0.0475, forward: 0.31}, at: 1, for: 4}
+                - {law: spin, axis: forward, deg_per_tick: 40, at: 0, for: 3}
+                - {law: spin, axis: forward, deg_per_tick: -320, at: 3, for: 1}
+                - {law: spin, axis: forward, deg_per_tick: 40, at: 4, for: 1}
+                - {law: grow, prop: size, per_tick: [0.2624, 0.1728], at: 0, for: 1}
+                - {law: grow, prop: size, per_tick: [-0.032, -0.032], at: 1, for: 4}
+            - id: fx3_couture_s2_coin1_petal_24
+              op: display
+              kind: sprite
+              sprite: couture-s2-petal-spark
+              anchor: fx3_couture_s2_coin1
+              offset: {left: -0.07, up: 0.48, forward: -0.36}
+              rotate: [{axis: forward, deg: -107}]
+              size: [0.2688, 0.2688]
+              alpha: 1
+              billboard: center
+              for: 6
+              motion:
+                - {law: move, velocity: {left: 0, up: 0, forward: 0.2}, at: 0, for: 1}
+                - {law: move, velocity: {left: 0.02, up: 0.145, forward: 0.26}, at: 1, for: 4}
+                - {law: spin, axis: forward, deg_per_tick: 40, at: 0, for: 5}
+                - {law: grow, prop: size, per_tick: [0.3968, 0.2624], at: 0, for: 1}
+                - {law: grow, prop: size, per_tick: [-0.0496, -0.0496], at: 1, for: 4}
+            - id: fx3_couture_s2_coin1_petal_29
+              op: display
+              kind: sprite
+              sprite: couture-s2-petal-spark
+              anchor: fx3_couture_s2_coin1
+              offset: {left: -0.71, up: 0.26, forward: 2.53}
+              rotate: [{axis: forward, deg: -36}]
+              size: [0.1664, 0.1664]
+              alpha: 1
+              billboard: center
+              for: 6
+              motion:
+                - {law: move, velocity: {left: 0, up: 0, forward: 0.2}, at: 0, for: 1}
+                - {law: move, velocity: {left: -0.09, up: 0.1025, forward: 0.1575}, at: 1, for: 4}
+                - {law: spin, axis: forward, deg_per_tick: 40, at: 0, for: 5}
+                - {law: grow, prop: size, per_tick: [0.2432, 0.16], at: 0, for: 1}
+                - {law: grow, prop: size, per_tick: [-0.0304, -0.0304], at: 1, for: 4}
+        - id: w15
+          at: 15
+          do:
+            - id: fx7_couture_s2_trail
+              op: frame
+              anchor: caster
+              mode: snapshot
+              # GAP: teleport_ticks 2 -> engine default
+              for: 6
+            - id: fx7_couture_s2_trail_wisp
+              op: display
+              kind: sprite
+              sprite: couture-s2-crescent-core
+              anchor: fx7_couture_s2_trail
+              offset: {left: 0, up: 1.3, forward: -1.6}
+              rotate: [{axis: forward, deg: 176}]
+              size: [0.512, 3.2]
+              alpha: 1
+              billboard: center
+              for: 6
+              motion:
+                - {law: move, velocity: {left: 0, up: 0, forward: -0.3}, at: 0, for: 1}
+                - {law: move, velocity: {left: 0, up: 0, forward: -0.125}, at: 1, for: 4}
+                - {law: spin, axis: forward, deg_per_tick: -2, at: 0, for: 1}
+                - {law: spin, axis: forward, deg_per_tick: -0.5, at: 1, for: 4}
+                - {law: grow, prop: size, per_tick: [0.128, 0.128], at: 0, for: 1}
+                - {law: grow, prop: size, per_tick: [-0.112, -0.192], at: 1, for: 4}
+        - id: w18
+          at: 18
+          do:
+            - id: snd_11
+              op: sound
+              sound: item.trident.throw
+              anchor: caster
+              volume: 0.5
+              pitch: 1.2
+        - id: w22
+          at: 22
+          do:
+            - id: fx1_couture_s2_rig
+              op: frame
+              anchor: caster
+              mode: follow
+              for: 10
+            - id: fx1_couture_s2_rig_loop_a
+              op: display
+              kind: sprite
+              sprite: couture-s2-overhead-slash
+              anchor: fx1_couture_s2_rig
+              offset: {left: 0, up: 2.6, forward: 0.2}
+              size: [1.70304, 1.70304]
+              alpha: 1
+              billboard: center
+              for: 6
+              motion:
+                - {law: spin, axis: forward, deg_per_tick: -60, at: 0, for: 3}
+                - {law: spin, axis: forward, deg_per_tick: 300, at: 3, for: 1}
+                - {law: spin, axis: forward, deg_per_tick: -60, at: 4, for: 2}
+                - {law: grow, prop: size, per_tick: [-0.00704, -0.00704], at: 0, for: 1}
+                - {law: grow, prop: size, per_tick: [-0.02112, -0.02112], at: 1, for: 1}
+                - {law: grow, prop: size, per_tick: [-0.03584, -0.03584], at: 2, for: 1}
+                - {law: grow, prop: size, per_tick: [-0.04928, -0.04928], at: 3, for: 1}
+                - {law: grow, prop: size, per_tick: [-0.03904, -0.03904], at: 4, for: 1}
+            - id: fx1_couture_s2_rig_loop_a_m
+              op: display
+              kind: sprite
+              sprite: couture-s2-overhead-slash
+              anchor: fx1_couture_s2_rig
+              offset: {left: 0, up: 2.6, forward: 0.2}
+              size: [1.70304, 1.70304]
+              alpha: 1
+              billboard: center
+              for: 6
+              motion:
+                - {law: spin, axis: forward, deg_per_tick: 60, at: 0, for: 3}
+                - {law: spin, axis: forward, deg_per_tick: -300, at: 3, for: 1}
+                - {law: spin, axis: forward, deg_per_tick: 60, at: 4, for: 2}
+                - {law: grow, prop: size, per_tick: [-0.00704, -0.00704], at: 0, for: 1}
+                - {law: grow, prop: size, per_tick: [-0.02112, -0.02112], at: 1, for: 1}
+                - {law: grow, prop: size, per_tick: [-0.03584, -0.03584], at: 2, for: 1}
+                - {law: grow, prop: size, per_tick: [-0.04928, -0.04928], at: 3, for: 1}
+                - {law: grow, prop: size, per_tick: [-0.03904, -0.03904], at: 4, for: 1}
+        - id: w25
+          at: 25
+          do:
+            - id: fx1_couture_s2_rig_loop_b
+              op: display
+              kind: sprite
+              sprite: couture-s2-overhead-slash
+              anchor: fx1_couture_s2_rig
+              offset: {left: 0, up: 2.6, forward: 0.2}
+              rotate: [{axis: forward, deg: 180}]
+              size: [1.61024, 1.61024]
+              alpha: 1
+              billboard: center
+              for: 4
+              motion:
+                - {law: spin, axis: forward, deg_per_tick: -60, at: 0, for: 4}
+                - {law: grow, prop: size, per_tick: [-0.0128, -0.0128], at: 0, for: 1}
+                - {law: grow, prop: size, per_tick: [-0.03968, -0.03968], at: 1, for: 1}
+                - {law: grow, prop: size, per_tick: [-0.00704, -0.00704], at: 2, for: 1}
+            - id: fx1_couture_s2_rig_loop_b_m
+              op: display
+              kind: sprite
+              sprite: couture-s2-overhead-slash
+              anchor: fx1_couture_s2_rig
+              offset: {left: 0, up: 2.6, forward: 0.2}
+              rotate: [{axis: forward, deg: -180}]
+              size: [1.61024, 1.61024]
+              alpha: 1
+              billboard: center
+              for: 4
+              motion:
+                - {law: spin, axis: forward, deg_per_tick: 60, at: 0, for: 4}
+                - {law: grow, prop: size, per_tick: [-0.0128, -0.0128], at: 0, for: 1}
+                - {law: grow, prop: size, per_tick: [-0.03968, -0.03968], at: 1, for: 1}
+                - {law: grow, prop: size, per_tick: [-0.00704, -0.00704], at: 2, for: 1}
+        - id: w27
+          at: 27
+          do:
+            - id: fx1_couture_s2_rig_loop_gc
+              op: display
+              kind: sprite
+              sprite: couture-s2-overhead-slash
+              anchor: fx1_couture_s2_rig
+              offset: {left: 0, up: 2.4, forward: 0}
+              size: [1.65696, 1.65696]
+              alpha: 1
+              billboard: center
+              for: 5
+              motion:
+                - {law: spin, axis: forward, deg_per_tick: -60, at: 0, for: 3}
+                - {law: spin, axis: forward, deg_per_tick: 300, at: 3, for: 1}
+                - {law: spin, axis: forward, deg_per_tick: -60, at: 4, for: 1}
+                - {law: grow, prop: size, per_tick: [-0.0096, -0.0096], at: 0, for: 1}
+                - {law: grow, prop: size, per_tick: [-0.02816, -0.02816], at: 1, for: 1}
+                - {law: grow, prop: size, per_tick: [-0.04608, -0.04608], at: 2, for: 1}
+                - {law: grow, prop: size, per_tick: [-0.0224, -0.0224], at: 3, for: 1}
+            - id: fx1_couture_s2_rig_loop_gc_m
+              op: display
+              kind: sprite
+              sprite: couture-s2-overhead-slash
+              anchor: fx1_couture_s2_rig
+              offset: {left: 0, up: 2.4, forward: 0}
+              size: [1.65696, 1.65696]
+              alpha: 1
+              billboard: center
+              for: 5
+              motion:
+                - {law: spin, axis: forward, deg_per_tick: 60, at: 0, for: 3}
+                - {law: spin, axis: forward, deg_per_tick: -300, at: 3, for: 1}
+                - {law: spin, axis: forward, deg_per_tick: 60, at: 4, for: 1}
+                - {law: grow, prop: size, per_tick: [-0.0096, -0.0096], at: 0, for: 1}
+                - {law: grow, prop: size, per_tick: [-0.02816, -0.02816], at: 1, for: 1}
+                - {law: grow, prop: size, per_tick: [-0.04608, -0.04608], at: 2, for: 1}
+                - {law: grow, prop: size, per_tick: [-0.0224, -0.0224], at: 3, for: 1}
+        - id: w33
+          at: 33
+          do:
+            - id: snd_13
+              op: sound
+              sound: block.amethyst_block.chime
+              anchor: caster
+              volume: 0.6
+              pitch: 0.7
+      on:
+        - event: c1_hit.hit
+          do:
+            - {id: c1_damage, op: damage, at: 1, target: event.victim, damage: {physical: "= dmg_coin1"}, ignore_invulnerability: true}
+            - id: h0
+              at: 0
+              do:
+                - id: fx4_couture_s2_hit1
+                  op: frame
+                  anchor: victim.root
+                  # GAP: anchor like enemy (victim origin, CASTER yaw) -> victim.root snapshot
+                  mode: snapshot
+                  for: 6
+                - id: fx4_couture_s2_hit1_p_orange
+                  op: particle_def
+                  def: couture-s2-p-orange
+                  anchor: fx4_couture_s2_hit1
+                  every: 1
+                  times: 3
+                - id: fx4_couture_s2_hit1_p_spark
+                  op: particle_def
+                  def: couture-s2-p-spark
+                  anchor: fx4_couture_s2_hit1
+                  every: 3
+                  times: 2
+                - id: fx4_couture_s2_hit1_ps_orange_0
+                  op: particle_def
+                  def: couture-s2-p-orange
+                  anchor: fx4_couture_s2_hit1
+                  every: 1
+                  times: 3
+                - id: fx4_couture_s2_hit1_ps_orange_1
+                  op: particle_def
+                  def: couture-s2-p-orange
+                  anchor: fx4_couture_s2_hit1
+                  every: 1
+                  times: 3
+                - id: fx4_couture_s2_hit1_ps_orange_2
+                  op: particle_def
+                  def: couture-s2-p-orange
+                  anchor: fx4_couture_s2_hit1
+                  every: 1
+                  times: 3
+                - id: fx4_couture_s2_hit1_ps_orange_3
+                  op: particle_def
+                  def: couture-s2-p-orange
+                  anchor: fx4_couture_s2_hit1
+                  every: 1
+                  times: 3
+                - id: fx4_couture_s2_hit1_ps_orange_4
+                  op: particle_def
+                  def: couture-s2-p-orange
+                  anchor: fx4_couture_s2_hit1
+                  every: 1
+                  times: 3
+                - id: fx4_couture_s2_hit1_star_0
+                  op: display
+                  kind: sprite
+                  sprite: couture-s2-feather
+                  anchor: fx4_couture_s2_hit1
+                  offset: {left: 0, up: 1.2, forward: 0}
+                  size: [0.6528, 0.1024]
+                  alpha: 1
+                  billboard: center
+                  for: 6
+                  motion:
+                    - {law: grow, prop: size, per_tick: [5.0048, 1.2288], at: 0, for: 1}
+                    - {law: grow, prop: size, per_tick: [0.3328, -0.256], at: 1, for: 5}
+                - id: fx4_couture_s2_hit1_star_1
+                  op: display
+                  kind: sprite
+                  sprite: couture-s2-feather
+                  anchor: fx4_couture_s2_hit1
+                  offset: {left: 0, up: 1.2, forward: 0}
+                  rotate: [{axis: forward, deg: 45}]
+                  size: [0.6528, 0.1024]
+                  alpha: 1
+                  billboard: center
+                  for: 6
+                  motion:
+                    - {law: grow, prop: size, per_tick: [5.0048, 1.2288], at: 0, for: 1}
+                    - {law: grow, prop: size, per_tick: [0.3328, -0.256], at: 1, for: 5}
+                - id: fx4_couture_s2_hit1_star_2
+                  op: display
+                  kind: sprite
+                  sprite: couture-s2-feather
+                  anchor: fx4_couture_s2_hit1
+                  offset: {left: 0, up: 1.2, forward: 0}
+                  rotate: [{axis: forward, deg: 90}]
+                  size: [0.6528, 0.1024]
+                  alpha: 1
+                  billboard: center
+                  for: 6
+                  motion:
+                    - {law: grow, prop: size, per_tick: [5.0048, 1.2288], at: 0, for: 1}
+                    - {law: grow, prop: size, per_tick: [0.3328, -0.256], at: 1, for: 5}
+                - id: fx4_couture_s2_hit1_star_3
+                  op: display
+                  kind: sprite
+                  sprite: couture-s2-feather
+                  anchor: fx4_couture_s2_hit1
+                  offset: {left: 0, up: 1.2, forward: 0}
+                  rotate: [{axis: forward, deg: 135}]
+                  size: [0.6528, 0.1024]
+                  alpha: 1
+                  billboard: center
+                  for: 6
+                  motion:
+                    - {law: grow, prop: size, per_tick: [5.0048, 1.2288], at: 0, for: 1}
+                    - {law: grow, prop: size, per_tick: [0.3328, -0.256], at: 1, for: 5}
+                - id: fx4_couture_s2_hit1_p_crit
+                  op: particle_def
+                  def: couture-s2-p-crit
+                  anchor: fx4_couture_s2_hit1
+                - id: fx4_couture_s2_hit1_p_crit2
+                  op: particle_def
+                  def: couture-s2-p-crit
+                  anchor: fx4_couture_s2_hit1
+    throw:
+      # v2 release: volley placed at the shears, pieces reparented, fly tip-first at throw_speed, gravity 0, drag 0, max_ticks = ceil(range / speed) + 2
+      for: "= ceil(throw_range / throw_speed) + 2"
+      then: reel
+      enter:
+        - id: volley
+          op: projectile
+          origin: shears
+          velocity: "= forward * throw_speed"
+          range: "= throw_range"
+          radius: 0.22
+          hit: {targets: enemies, once: true}
+          block: {mode: stick, for: "= stick_ticks"}
+          # GAP: v2 hit shape is a capsule root->tip of both blades (radius 0.22), window once -> projectile capsule radius 0.22 (axis follows velocity)
+          # GAP: v2 lane_a/lane_b blade offsets +-left * blade_len * lane -> none (blade_len is a frame-table value)
+          # GAP: v2 align velocity axis with world.up reference -> default
+          motion:
+            - {law: spin, axis: left, deg_per_tick: "= spin_dpt"}
+          on:
+            hit:
+              - {id: throw_dmg, op: damage, at: 0, target: event.victim, damage: {physical: "= dmg_throw"}}
+              - {id: bleed, op: status, at: 0, target: event.victim, status: bleed, stacks: "= bleed_stacks", for: "= bleed_ticks"}
+              # GAP: v2 impulse push -contact.normal*0.35 + up*0.12 on the victim -> none
+              # GAP: v2 freeze 2 ticks on volley and caster -> none (closest: lock {move: true, pitch: true, for: 2} on the caster)
+              - {id: hitstop, op: lock, move: true, pitch: true, at: 0, for: 2}
+              - {id: stab_snd, op: sound, sound: couture.stab, anchor: contact, pitch: 1.0}
+              # GAP: v2 stab pitch = 1.2 - 0.2 * clamp(|rel_velocity| / 2) -> constant 1.0; stagger_back victim_anim strength = clamp(|rel_velocity| / 2) -> none
+              - {id: sparks, op: particle, particle: "= spark_particle", anchor: contact, count: "= spark_count", offset: 0.4, extra: 0.4}
+            block:
+              - {id: crumb, op: particle_def, def: couture-s2-p-crumb, anchor: contact}
+              - {id: wall_snd, op: sound, sound: couture.stab_wall, anchor: contact}
+        # GAP: the flying pieces (body, blade_a, blade_b models on the volley, kept through stuck and reel until arrive) are not authored as displays here: their lifetime is the runtime-dependent flight; needs `until: volley.end`-style binding to the reel arrive
+        - {id: throw_snd, op: sound, sound: couture.throw, anchor: shears, pitch: 1.1}
+        - {id: puff, op: particle, particle: dust, anchor: shears, count: 6, extra: 0.1}
+        # GAP: v2 dust data = thread_color, dir -forward(volley), spread 20 deg, inherit_velocity 0.5 -> vanilla dust particle (colour from the particle def)
+        # GAP: v2 op line (thread palm -> blade_a.root / blade_b.root / body.pivot, thickness 0.06, viewer-axis facing) and op plate flight_fan (crescent plane-facing, size 1.9, alpha 0.5) -> none; closest: ribbon between two anchors, not available for live anchors
+        - {id: thread, op: ribbon, of: volley, root: shears, lasts: 1, color: "= thread_color"}
+      on:
+        - {event: volley.hit, to: stuck}
+        - {event: volley.block, to: stuck}
+    stuck:
+      for: "= stick_ticks"
+      then: reel
       do:
-        # spin about the horizontal axis perpendicular to the throw: the ring lies in the vertical plane through the throw direction
-        - {id: spin_shears, op: spin, frame: shears, axis: caster.left, deg_per_tick: "${spin_dpt}", until: release}
-        - {id: open_a, op: pose, frame: blade_a, keys: [{t: 0}, {t: 4, rotate: {axis: blade_a.edge, deg: "= open_deg / 2.0"}}]}
-        - {id: open_b, op: pose, frame: blade_b, keys: [{t: 0}, {t: 4, rotate: {axis: blade_b.edge, deg: "= -open_deg / 2.0"}}]}
-    - id: let_go
-      at: 34
-      do:
-        - {id: raise_release, op: event, name: release}
-  on:
-    release:
-      # volley must sit at the shears BEFORE the pieces move under it
-      - {id: place_volley, op: place, frame: volley, like: shears}
-      - {id: take_off, op: reparent, frames: [body, blade_a, blade_b], to: volley, keep_world: true}
-      # tip-first: the volley's forward axis follows the velocity
-      - {id: fly, op: fly, frame: volley, velocity: "= normalize(aim_point(caster, throw_range) - pos(volley)) * throw_speed",
-         gravity: 0.0, drag: 0.0, align: {axis: velocity, up: world.up}, max_ticks: "= ceil(throw_range / throw_speed) + 2"}
-      - {id: spin_volley, op: spin, frame: volley, axis: volley.left, deg_per_tick: "${spin_dpt}"}
-      - {id: lane_a, op: pose, frame: blade_a, keys: [{t: 0, offset: "= left(volley) * blade_len(blade_a) * lane"}]}
-      - {id: lane_b, op: pose, frame: blade_b, keys: [{t: 0, offset: "= left(volley) * blade_len(blade_b) * -lane"}]}
-      - {id: throw_hit, op: hit, frames: [blade_a, blade_b], capsule: {from: self.root, to: self.tip, radius: 0.22}, window: once}
-    hit:
-      - {id: dmg, op: damage, when: &on_throw "= event.source == 'throw_hit'", target: victim,
-         components: [{kind: physical, amount: "${dmg_throw}"}]}
-      - {id: bleed, op: status, when: *on_throw, target: victim, status: bleed, stacks: "${bleed_stacks}", duration_ticks: "${bleed_ticks}"}
-      - {id: stab, op: reparent, when: *on_throw, frames: [volley], to: contact, snap: {point: blade_a.tip, depth: 0.25}}
-      - {id: stuck, op: stick, when: *on_throw, frame: volley, parent: contact}
-      - {id: push, op: impulse, when: *on_throw, target: victim, vector: "= -contact.normal * 0.35 + world.up * 0.12"}
-      - {id: stop, op: freeze, when: *on_throw, ticks: 2, scope: [volley, caster]}
-      - {id: reel_later, op: schedule, when: *on_throw, after: "${stick_ticks}", event: reel}
-      - {id: reel_dmg, op: damage, when: &on_reel "= event.source == 'reel_hit'", target: victim,
-         components: [{kind: physical, amount: "${dmg_reel}"}]}
-      - {id: pull, op: impulse, when: *on_reel, target: victim, vector: "= normalize(pos(palm) - pos(victim)) * 0.25"}
-    block:
-      - {id: stab_wall, op: reparent, frames: [volley], to: contact, snap: {point: blade_a.tip, depth: 0.3}}
-      - {id: reel_later_w, op: schedule, after: "${stick_ticks}", event: reel}
-    expire:
-      - {id: reel_soon, op: schedule, after: 2, event: reel}
+        - id: t2
+          at: 2
+          do:
+            - id: fx1_couture_s2_hit2
+              op: frame
+              anchor: victim.root
+              # GAP: frame placed like contact (contact point + normal) -> victim.root snapshot; v3 has no contact-point anchor
+              mode: snapshot
+              for: 25
+            - id: fx1_couture_s2_hit2_burst_soft_0
+              op: display
+              kind: sprite
+              sprite: couture-s2-burst-soft
+              tint: "#FFB8D8"
+              anchor: fx1_couture_s2_hit2
+              offset: {left: 0.1, up: 1.3, forward: 0}
+              rotate: [{axis: forward, deg: 170}]
+              size: [0.45568, 0.5472]
+              alpha: 1
+              billboard: center
+              for: 6
+              motion:
+                - {law: grow, prop: size, per_tick: [0.45632, 0.3648], at: 0, for: 1}
+                - {law: grow, prop: size, per_tick: [0.04576, -0.04544], at: 1, for: 2}
+                - {law: grow, prop: size, per_tick: [-0.31936, -0.3648], at: 3, for: 2}
+            - id: fx1_couture_s2_hit2_burst_plume_0
+              op: display
+              kind: sprite
+              sprite: couture-s2-burst-plume
+              tint: "#FFB8D8"
+              anchor: fx1_couture_s2_hit2
+              offset: {left: 0, up: 1.3, forward: 0}
+              rotate: [{axis: forward, deg: 168}]
+              size: [1.2352, 1.0112]
+              alpha: 1
+              billboard: center
+              for: 5
+              motion:
+                - {law: grow, prop: size, per_tick: [1.0112, 0.78592], at: 0, for: 1}
+                - {law: grow, prop: size, per_tick: [0.22464, -0.22464], at: 1, for: 1}
+                - {law: grow, prop: size, per_tick: [-0.89856, -0.75232], at: 2, for: 2}
+            - id: fx1_couture_s2_hit2_burst_plume_1
+              op: display
+              kind: sprite
+              sprite: couture-s2-burst-plume
+              tint: "#FFB8D8"
+              anchor: fx1_couture_s2_hit2
+              offset: {left: 0, up: 1.3, forward: 0}
+              rotate: [{axis: forward, deg: 152}]
+              size: [1.30432, 1.06688]
+              alpha: 1
+              billboard: center
+              for: 6
+              motion:
+                - {law: grow, prop: size, per_tick: [1.06688, 0.83008], at: 0, for: 1}
+                - {law: grow, prop: size, per_tick: [0.23744, -0.2368], at: 1, for: 1}
+                - {law: grow, prop: size, per_tick: [-0.632533, -0.529707], at: 2, for: 3}
+            - id: fx1_couture_s2_hit2_burst_plume_2
+              op: display
+              kind: sprite
+              sprite: couture-s2-burst-plume
+              tint: "#FFB8D8"
+              anchor: fx1_couture_s2_hit2
+              offset: {left: 0, up: 1.3, forward: 0}
+              rotate: [{axis: forward, deg: 136}]
+              size: [1.16672, 0.95488]
+              alpha: 1
+              billboard: center
+              for: 5
+              motion:
+                - {law: grow, prop: size, per_tick: [0.95488, 0.7424], at: 0, for: 1}
+                - {law: grow, prop: size, per_tick: [0.21184, -0.21184], at: 1, for: 1}
+                - {law: grow, prop: size, per_tick: [-0.84864, -0.71072], at: 2, for: 2}
+            - id: fx1_couture_s2_hit2_burst_star_0
+              op: display
+              kind: sprite
+              sprite: couture-s2-burst-star
+              tint: "#FFB8D8"
+              anchor: fx1_couture_s2_hit2
+              offset: {left: 0, up: 1.3, forward: 0}
+              size: [0.1728, 0.1728]
+              alpha: 1
+              billboard: center
+              for: 6
+              motion:
+                - {law: spin, axis: forward, deg_per_tick: 3, at: 1, for: 2}
+                - {law: spin, axis: forward, deg_per_tick: 2, at: 3, for: 2}
+                - {law: grow, prop: size, per_tick: [0.1152, 0.1152], at: 0, for: 1}
+                - {law: grow, prop: size, per_tick: [0.00736, 0.00736], at: 1, for: 2}
+                - {law: grow, prop: size, per_tick: [-0.12992, -0.12992], at: 3, for: 2}
+            - id: fx1_couture_s2_hit2_burst_star_1
+              op: display
+              kind: sprite
+              sprite: couture-s2-burst-star
+              tint: "#FFB8D8"
+              anchor: fx1_couture_s2_hit2
+              offset: {left: 0, up: 1.3, forward: 0}
+              rotate: [{axis: forward, deg: 9}]
+              size: [0.1152, 0.1152]
+              alpha: 1
+              billboard: center
+              for: 5
+              motion:
+                - {law: spin, axis: forward, deg_per_tick: 3, at: 1, for: 2}
+                - {law: spin, axis: forward, deg_per_tick: 4, at: 3, for: 1}
+                - {law: grow, prop: size, per_tick: [0.0768, 0.0768], at: 0, for: 1}
+                - {law: grow, prop: size, per_tick: [0.0048, 0.0048], at: 1, for: 2}
+                - {law: grow, prop: size, per_tick: [-0.1728, -0.1728], at: 3, for: 1}
+            - id: fx1_couture_s2_hit2_burst_shard_0
+              op: display
+              kind: sprite
+              sprite: couture-s2-burst-shard
+              tint: "#FFB8D8"
+              anchor: fx1_couture_s2_hit2
+              offset: {left: 0, up: 1.387, forward: -0.295}
+              rotate: [{axis: forward, deg: 170}]
+              size: [0.2016, 0.28224]
+              alpha: 1
+              billboard: center
+              for: 5
+              motion:
+                - {law: move, velocity: {left: 0, up: 0.457, forward: -1.557}, at: 0, for: 1}
+                - {law: move, velocity: {left: 0, up: 0.119667, forward: -0.407}, at: 1, for: 3}
+                - {law: grow, prop: size, per_tick: [0.2016, 0.08064], at: 0, for: 1}
+                - {law: grow, prop: size, per_tick: [-0.10752, -0.10752], at: 1, for: 3}
+            - id: fx1_couture_s2_hit2_burst_shard_3
+              op: display
+              kind: sprite
+              sprite: couture-s2-burst-shard
+              tint: "#FFB8D8"
+              anchor: fx1_couture_s2_hit2
+              offset: {left: 0, up: 1.621, forward: -0.23}
+              rotate: [{axis: forward, deg: 140}]
+              size: [0.144, 0.2016]
+              alpha: 1
+              billboard: center
+              for: 5
+              motion:
+                - {law: move, velocity: {left: 0, up: 1.27, forward: -0.908}, at: 0, for: 1}
+                - {law: move, velocity: {left: 0, up: 0.326667, forward: -0.233333}, at: 1, for: 3}
+                - {law: grow, prop: size, per_tick: [0.144, 0.0576], at: 0, for: 1}
+                - {law: grow, prop: size, per_tick: [-0.0768, -0.0768], at: 1, for: 3}
+            - id: fx1_couture_s2_hit2_burst_shard_6
+              op: display
+              kind: sprite
+              sprite: couture-s2-burst-shard
+              tint: "#FFB8D8"
+              anchor: fx1_couture_s2_hit2
+              offset: {left: 0, up: 1.738, forward: -0.539}
+              rotate: [{axis: forward, deg: 154}]
+              size: [0.1344, 0.18816]
+              alpha: 1
+              billboard: center
+              for: 5
+              motion:
+                - {law: move, velocity: {left: 0, up: 0.96, forward: -1.181}, at: 0, for: 1}
+                - {law: move, velocity: {left: 0, up: 0.235333, forward: -0.289333}, at: 1, for: 3}
+                - {law: grow, prop: size, per_tick: [0.1344, 0.05376], at: 0, for: 1}
+                - {law: grow, prop: size, per_tick: [-0.07168, -0.07168], at: 1, for: 3}
+            - id: fx1_couture_s2_hit2_burst_core_0
+              op: display
+              kind: sprite
+              sprite: couture-s2-haze-soft
+              tint: "#FFB8D8"
+              anchor: fx1_couture_s2_hit2
+              offset: {left: -0.1, up: 1.3, forward: 0}
+              size: [0.2304, 0.2304]
+              alpha: 1
+              billboard: center
+              for: 6
+              motion:
+                - {law: spin, axis: forward, deg_per_tick: 5, at: 1, for: 4}
+                - {law: grow, prop: size, per_tick: [0.192, 0.192], at: 0, for: 1}
+                - {law: grow, prop: size, per_tick: [0.0192, 0.0192], at: 1, for: 2}
+                - {law: grow, prop: size, per_tick: [-0.18432, -0.18432], at: 3, for: 2}
+            - id: fx1_couture_s2_hit2_burst_ember_0
+              op: particle_def
+              def: couture-s2-burst-ember
+              anchor: fx1_couture_s2_hit2
+              every: 1
+              times: 9
+            - id: fx1_couture_s2_hit2_burst_ember_2
+              op: particle_def
+              def: couture-s2-burst-ember
+              anchor: fx1_couture_s2_hit2
+              every: 1
+              times: 9
+            - id: fx1_couture_s2_hit2_burst_ember_4
+              op: particle_def
+              def: couture-s2-burst-ember
+              anchor: fx1_couture_s2_hit2
+              every: 1
+              times: 9
+            - id: fx1_couture_s2_hit2_p_orange
+              op: particle_def
+              def: couture-s2-p-orange
+              anchor: fx1_couture_s2_hit2
+              every: 1
+              times: 2
+            - id: fx1_couture_s2_hit2_p_spark
+              op: particle_def
+              def: couture-s2-p-spark
+              anchor: fx1_couture_s2_hit2
+              every: 3
+              times: 2
+        - id: t3
+          at: 3
+          do:
+            - id: fx1_couture_s2_hit2_burst_plume_3
+              op: display
+              kind: sprite
+              sprite: couture-s2-burst-plume
+              tint: "#FFB8D8"
+              anchor: fx1_couture_s2_hit2
+              offset: {left: 0, up: 1.3, forward: 0}
+              rotate: [{axis: forward, deg: 160}]
+              size: [1.02976, 0.84224]
+              alpha: 1
+              billboard: center
+              for: 5
+              motion:
+                - {law: grow, prop: size, per_tick: [0.84224, 0.65536], at: 0, for: 1}
+                - {law: grow, prop: size, per_tick: [0.18688, -0.18752], at: 1, for: 1}
+                - {law: grow, prop: size, per_tick: [-0.7488, -0.62688], at: 2, for: 2}
+            - id: fx1_couture_s2_hit2_burst_plume_4
+              op: display
+              kind: sprite
+              sprite: couture-s2-burst-plume
+              tint: "#FFB8D8"
+              anchor: fx1_couture_s2_hit2
+              offset: {left: 0, up: 1.3, forward: 0}
+              rotate: [{axis: forward, deg: 144}]
+              size: [0.96128, 0.78656]
+              alpha: 1
+              billboard: center
+              for: 5
+              motion:
+                - {law: grow, prop: size, per_tick: [0.78592, 0.6112], at: 0, for: 1}
+                - {law: grow, prop: size, per_tick: [0.17472, -0.17472], at: 1, for: 1}
+                - {law: grow, prop: size, per_tick: [-0.69888, -0.58528], at: 2, for: 2}
+            - id: fx1_couture_s2_hit2_burst_shard_1
+              op: display
+              kind: sprite
+              sprite: couture-s2-burst-shard
+              tint: "#FFB8D8"
+              anchor: fx1_couture_s2_hit2
+              offset: {left: 0, up: 1.45, forward: -0.223}
+              rotate: [{axis: forward, deg: 158}]
+              size: [0.1632, 0.22848]
+              alpha: 1
+              billboard: center
+              for: 5
+              motion:
+                - {law: move, velocity: {left: 0, up: 0.839, forward: -1.246}, at: 0, for: 1}
+                - {law: move, velocity: {left: 0, up: 0.219667, forward: -0.326333}, at: 1, for: 3}
+                - {law: grow, prop: size, per_tick: [0.1632, 0.06528], at: 0, for: 1}
+                - {law: grow, prop: size, per_tick: [-0.08704, -0.08704], at: 1, for: 3}
+            - id: fx1_couture_s2_hit2_burst_shard_4
+              op: display
+              kind: sprite
+              sprite: couture-s2-burst-shard
+              tint: "#FFB8D8"
+              anchor: fx1_couture_s2_hit2
+              offset: {left: 0, up: 1.548, forward: -0.519}
+              rotate: [{axis: forward, deg: 164}]
+              size: [0.1728, 0.24192]
+              alpha: 1
+              billboard: center
+              for: 5
+              motion:
+                - {law: move, velocity: {left: 0, up: 0.798, forward: -1.67}, at: 0, for: 1}
+                - {law: move, velocity: {left: 0, up: 0.202667, forward: -0.424}, at: 1, for: 3}
+                - {law: grow, prop: size, per_tick: [0.1728, 0.06912], at: 0, for: 1}
+                - {law: grow, prop: size, per_tick: [-0.09216, -0.09216], at: 1, for: 3}
+            - id: fx1_couture_s2_hit2_burst_shard_7
+              op: display
+              kind: sprite
+              sprite: couture-s2-burst-shard
+              tint: "#FFB8D8"
+              anchor: fx1_couture_s2_hit2
+              offset: {left: 0, up: 1.476, forward: -0.146}
+              rotate: [{axis: forward, deg: 144}]
+              size: [0.1824, 0.25536]
+              alpha: 1
+              billboard: center
+              for: 5
+              motion:
+                - {law: move, velocity: {left: 0, up: 1.667, forward: -1.376}, at: 0, for: 1}
+                - {law: move, velocity: {left: 0, up: 0.443667, forward: -0.366333}, at: 1, for: 3}
+                - {law: grow, prop: size, per_tick: [0.1824, 0.07296], at: 0, for: 1}
+                - {law: grow, prop: size, per_tick: [-0.09728, -0.09728], at: 1, for: 3}
+            - id: fx1_couture_s2_hit2_burst_flare_0
+              op: display
+              kind: sprite
+              sprite: couture-s2-burst-flare
+              tint: "#FFB8D8"
+              anchor: fx1_couture_s2_hit2
+              offset: {left: 0, up: 1.3, forward: 0}
+              size: [0.31872, 0.31872]
+              alpha: 1
+              billboard: center
+              for: 5
+              motion:
+                - {law: spin, axis: forward, deg_per_tick: 8, at: 1, for: 1}
+                - {law: spin, axis: forward, deg_per_tick: 3, at: 2, for: 2}
+                - {law: grow, prop: size, per_tick: [0.41088, 0.41088], at: 0, for: 1}
+                - {law: grow, prop: size, per_tick: [-0.03648, -0.03648], at: 1, for: 1}
+                - {law: grow, prop: size, per_tick: [-0.25088, -0.25088], at: 2, for: 2}
+            - id: fx1_couture_s2_hit2_burst_flare_1
+              op: display
+              kind: sprite
+              sprite: couture-s2-burst-flare
+              tint: "#FFB8D8"
+              anchor: fx1_couture_s2_hit2
+              offset: {left: 0, up: 1.3, forward: 0}
+              rotate: [{axis: forward, deg: 28}]
+              size: [0.2016, 0.2016]
+              alpha: 1
+              billboard: center
+              for: 5
+              motion:
+                - {law: spin, axis: forward, deg_per_tick: 8, at: 1, for: 1}
+                - {law: spin, axis: forward, deg_per_tick: 6, at: 2, for: 1}
+                - {law: grow, prop: size, per_tick: [0.2592, 0.2592], at: 0, for: 1}
+                - {law: grow, prop: size, per_tick: [-0.02304, -0.02304], at: 1, for: 1}
+                - {law: grow, prop: size, per_tick: [-0.3168, -0.3168], at: 2, for: 1}
+        - id: t4
+          at: 4
+          do:
+            - id: fx1_couture_s2_hit2_burst_shard_2
+              op: display
+              kind: sprite
+              sprite: couture-s2-burst-shard
+              tint: "#FFB8D8"
+              anchor: fx1_couture_s2_hit2
+              offset: {left: 0, up: 1.65, forward: -0.364}
+              rotate: [{axis: forward, deg: 150}]
+              size: [0.2208, 0.30912]
+              alpha: 1
+              billboard: center
+              for: 5
+              motion:
+                - {law: move, velocity: {left: 0, up: 1.382, forward: -1.437}, at: 0, for: 1}
+                - {law: move, velocity: {left: 0, up: 0.356, forward: -0.369667}, at: 1, for: 3}
+                - {law: grow, prop: size, per_tick: [0.2208, 0.08832], at: 0, for: 1}
+                - {law: grow, prop: size, per_tick: [-0.11776, -0.11776], at: 1, for: 3}
+            - id: fx1_couture_s2_hit2_burst_shard_5
+              op: display
+              kind: sprite
+              sprite: couture-s2-burst-shard
+              tint: "#FFB8D8"
+              anchor: fx1_couture_s2_hit2
+              offset: {left: 0, up: 1.76, forward: -0.232}
+              rotate: [{axis: forward, deg: 130}]
+              size: [0.144, 0.2016]
+              alpha: 1
+              billboard: center
+              for: 5
+              motion:
+                - {law: move, velocity: {left: 0, up: 1.31, forward: -0.659}, at: 0, for: 1}
+                - {law: move, velocity: {left: 0, up: 0.329333, forward: -0.165667}, at: 1, for: 3}
+                - {law: grow, prop: size, per_tick: [0.144, 0.0576], at: 0, for: 1}
+                - {law: grow, prop: size, per_tick: [-0.0768, -0.0768], at: 1, for: 3}
+        - id: t8
+          at: 8
+          do:
+            - id: fx1_couture_s2_hit2_shadow_0
+              op: display
+              kind: sprite
+              sprite: couture-s2-shadow-spikes
+              anchor: fx1_couture_s2_hit2
+              offset: {left: 0, up: 0.02, forward: 0}
+              rotate: [{axis: up, deg: -90}]
+              size: [0.096, 0.096]
+              alpha: 1
+              # GAP: face {plane: {axes: [left, up], frame: fx1_couture_s2_hit2}} -> fixed plane (no plane-face spelling in v3; billboard fixed + rotate)
+              for: 19
+              motion:
+                - {law: grow, prop: size, per_tick: [1.488, 0.48], at: 0, for: 2}
+                - {law: grow, prop: size, per_tick: [0.005973, 0.002133], at: 2, for: 15}
+                - {law: grow, prop: size, per_tick: [-0.1664, -0.4896], at: 17, for: 2}
     reel:
-      - {id: unstick, op: reparent, frames: [volley], to: world, keep_world: true}
-      - {id: reel, op: reel, frame: volley, to: palm, speed: "${reel_speed}", ease: ease_in, align: {axis: "= -vel(volley)", up: world.up}}
-      - {id: reel_hit, op: hit, frames: [blade_a, blade_b], capsule: {from: self.root, to: self.tip, radius: 0.2}, window: once}
-    arrive:
-      - {id: rejoin, op: reparent, frames: [body, blade_a, blade_b], to: shears, snap: {point: self.pivot}}
-      - {id: close_a, op: pose, frame: blade_a, keys: [{t: 0}, {t: 2, rotate: {axis: blade_a.edge, deg: 0}}]}
-      - {id: close_b, op: pose, frame: blade_b, keys: [{t: 0}, {t: 2, rotate: {axis: blade_b.edge, deg: 0}}]}
-      - {id: next, op: event, name: coin3_start}
+      # v2 reel: volley flies back to the palm at reel_speed 0.45 with ease_in; reel_hit capsule (radius 0.2) 6 dmg once; ends on arrive (runtime distance)
+      # GAP: v2 op reel (frame -> palm, speed 0.45, ease_in, ends on arrive) -> none; the state ends on the `arrive` event the engine must emit
+      for: 16
+      then: coin3
+      do:
+        - {id: reel_hit, op: hit, anchor: volley, targets: enemies, shape: {capsule: 0.2, from: root, to: tip}, window: once, damage: {physical: "= dmg_reel"}}
+        # GAP: v2 reel pull impulse normalize(palm - victim) * 0.25 -> none
+        - {id: reel_snd, op: sound, sound: couture.reel, anchor: volley, every: 3, for: 16, volume: 1.0, pitch: 1.0}
+        # GAP: v2 reel pitch = 1.0 + 0.4 * (1 - dist(volley, palm)/range) -> grow law on pitch
+        - {id: catch_snd, op: sound, sound: couture.catch, anchor: shears, at: 15}
+      on:
+        - {event: reel_hit.hit, do: [{id: reel_sparks, op: particle, particle: "= spark_particle", anchor: contact, count: 6}, {id: slash_snd, op: sound, sound: couture.slash_light, anchor: contact}]}
+    coin3:
+      # v2: starts on the coin3_start event (caster_anim body-b at +0, dash at +9, 3 ticks, radius 0.8, hit_once, stop_before_target 1.0)
+      for: 37
+      then: end
+      enter:
+        - {id: dash, op: dash, at: 9, speed: "= c3_dash_distance / 3", for: 3}
+        # GAP: v2 dash_strike stop_before_target 1.0, stop_on_block true, follow_pitch false, invulnerable false -> none
+        - {id: c3_hit, op: hit, at: 9, for: 3, anchor: caster, targets: enemies, shape: {sphere: 0.8}, window: once, damage: {physical: "= dmg_coin3"}}
+        # GAP: v2 dash_strike had no sector so there is no height; sphere used
+      do:
+        - id: k0
+          at: 0
+          do:
+            - id: canim_2
+              op: caster_anim
+              anim: couture-s2-body-b
+        - id: k3
+          at: 3
+          do:
+            - id: snd_15
+              op: sound
+              sound: block.amethyst_block.resonate
+              anchor: caster
+              volume: 0.6
+              pitch: 0.6
+        - id: k7
+          at: 7
+          do:
+            - id: snd_16
+              op: sound
+              sound: item.armor.equip_iron
+              anchor: caster
+              volume: 0.5
+              pitch: 0.8
+        - id: k9
+          at: 9
+          do:
+            - id: fx8_couture_s2_dash
+              op: frame
+              anchor: caster
+              mode: snapshot
+              # GAP: teleport_ticks 2 -> engine default
+              for: 26
+            - id: fx8_couture_s2_dash_streak_0
+              op: display
+              kind: sprite
+              sprite: couture-s2-smear
+              anchor: fx8_couture_s2_dash
+              offset: {left: 0, up: 0.1, forward: -1.5}
+              rotate: [{axis: forward, deg: 2}]
+              size: [66.56, 0.6464]
+              alpha: 1
+              billboard: center
+              for: 3
+              motion:
+                - {law: move, velocity: {left: 0, up: 0, forward: 5}, at: 0, for: 1}
+                - {law: move, velocity: {left: 0, up: 0, forward: 3.25}, at: 1, for: 2}
+                - {law: grow, prop: size, per_tick: [99.84, 2.5792], at: 0, for: 1}
+                - {law: grow, prop: size, per_tick: [0, -1.5552], at: 1, for: 2}
+            - id: fx8_couture_s2_dash_streak_3
+              op: display
+              kind: sprite
+              sprite: couture-s2-smear
+              anchor: fx8_couture_s2_dash
+              offset: {left: 0, up: 1.3, forward: -1.5}
+              rotate: [{axis: forward, deg: 2}]
+              size: [76.8, 0.5504]
+              alpha: 1
+              billboard: center
+              for: 3
+              motion:
+                - {law: move, velocity: {left: 0, up: 0, forward: 5}, at: 0, for: 1}
+                - {law: move, velocity: {left: 0, up: 0, forward: 3.25}, at: 1, for: 2}
+                - {law: grow, prop: size, per_tick: [115.2, 2.2144], at: 0, for: 1}
+                - {law: grow, prop: size, per_tick: [0, -1.3248], at: 1, for: 2}
+            - id: fx8_couture_s2_dash_streak_6
+              op: display
+              kind: sprite
+              sprite: couture-s2-smear
+              anchor: fx8_couture_s2_dash
+              offset: {left: 0, up: 2.5, forward: -1.5}
+              rotate: [{axis: forward, deg: 2}]
+              size: [87.04, 0.6912]
+              alpha: 1
+              billboard: center
+              for: 3
+              motion:
+                - {law: move, velocity: {left: 0, up: 0, forward: 5}, at: 0, for: 1}
+                - {law: move, velocity: {left: 0, up: 0, forward: 3.25}, at: 1, for: 2}
+                - {law: grow, prop: size, per_tick: [130.56, 2.7648], at: 0, for: 1}
+                - {law: grow, prop: size, per_tick: [0, -1.6704], at: 1, for: 2}
+        - id: k10
+          at: 10
+          do:
+            - id: fx8_couture_s2_dash_streak_1
+              op: display
+              kind: sprite
+              sprite: couture-s2-smear
+              anchor: fx8_couture_s2_dash
+              offset: {left: 0, up: 0.5, forward: -1.5}
+              rotate: [{axis: forward, deg: 2}]
+              size: [81.92, 0.4608]
+              alpha: 1
+              billboard: center
+              for: 3
+              motion:
+                - {law: move, velocity: {left: 0, up: 0, forward: 5}, at: 0, for: 1}
+                - {law: move, velocity: {left: 0, up: 0, forward: 3.25}, at: 1, for: 2}
+                - {law: grow, prop: size, per_tick: [122.88, 1.8432], at: 0, for: 1}
+                - {law: grow, prop: size, per_tick: [0, -1.0944], at: 1, for: 2}
+            - id: fx8_couture_s2_dash_streak_4
+              op: display
+              kind: sprite
+              sprite: couture-s2-smear
+              anchor: fx8_couture_s2_dash
+              offset: {left: 0, up: 1.7, forward: -1.5}
+              rotate: [{axis: forward, deg: 2}]
+              size: [97.28, 0.736]
+              alpha: 1
+              billboard: center
+              for: 3
+              motion:
+                - {law: move, velocity: {left: 0, up: 0, forward: 5}, at: 0, for: 1}
+                - {law: move, velocity: {left: 0, up: 0, forward: 3.25}, at: 1, for: 2}
+                - {law: grow, prop: size, per_tick: [145.92, 2.9504], at: 0, for: 1}
+                - {law: grow, prop: size, per_tick: [0, -1.7856], at: 1, for: 2}
+            - id: fx8_couture_s2_dash_streak_7
+              op: display
+              kind: sprite
+              sprite: couture-s2-smear
+              anchor: fx8_couture_s2_dash
+              offset: {left: 0, up: 2.9, forward: -1.5}
+              rotate: [{axis: forward, deg: 2}]
+              size: [61.44, 0.416]
+              alpha: 1
+              billboard: center
+              for: 3
+              motion:
+                - {law: move, velocity: {left: 0, up: 0, forward: 5}, at: 0, for: 1}
+                - {law: move, velocity: {left: 0, up: 0, forward: 3.25}, at: 1, for: 2}
+                - {law: grow, prop: size, per_tick: [92.16, 1.6576], at: 0, for: 1}
+                - {law: grow, prop: size, per_tick: [0, -0.9792], at: 1, for: 2}
+            - id: snd_17
+              op: sound
+              sound: entity.player.attack.sweep
+              anchor: caster
+              volume: 0.7
+              pitch: 0.5
+        - id: k11
+          at: 11
+          do:
+            - id: fx8_couture_s2_dash_streak_2
+              op: display
+              kind: sprite
+              sprite: couture-s2-smear
+              anchor: fx8_couture_s2_dash
+              offset: {left: 0, up: 0.9, forward: -1.5}
+              rotate: [{axis: forward, deg: 2}]
+              size: [92.16, 0.832]
+              alpha: 1
+              billboard: center
+              for: 3
+              motion:
+                - {law: move, velocity: {left: 0, up: 0, forward: 5}, at: 0, for: 1}
+                - {law: move, velocity: {left: 0, up: 0, forward: 3.25}, at: 1, for: 2}
+                - {law: grow, prop: size, per_tick: [138.24, 3.3152], at: 0, for: 1}
+                - {law: grow, prop: size, per_tick: [0, -2.016], at: 1, for: 2}
+            - id: fx8_couture_s2_dash_streak_5
+              op: display
+              kind: sprite
+              sprite: couture-s2-smear
+              anchor: fx8_couture_s2_dash
+              offset: {left: 0, up: 2.1, forward: -1.5}
+              rotate: [{axis: forward, deg: 2}]
+              size: [71.68, 0.5056]
+              alpha: 1
+              billboard: center
+              for: 3
+              motion:
+                - {law: move, velocity: {left: 0, up: 0, forward: 5}, at: 0, for: 1}
+                - {law: move, velocity: {left: 0, up: 0, forward: 3.25}, at: 1, for: 2}
+                - {law: grow, prop: size, per_tick: [107.52, 2.0288], at: 0, for: 1}
+                - {law: grow, prop: size, per_tick: [0, -1.2096], at: 1, for: 2}
+            - id: fx8_couture_s2_dash_streak_8
+              op: display
+              kind: sprite
+              sprite: couture-s2-smear
+              anchor: fx8_couture_s2_dash
+              offset: {left: 0, up: 0.3, forward: -1.5}
+              rotate: [{axis: forward, deg: 2}]
+              size: [102.4, 1.0112]
+              alpha: 1
+              billboard: center
+              for: 3
+              motion:
+                - {law: move, velocity: {left: 0, up: 0, forward: 5}, at: 0, for: 1}
+                - {law: move, velocity: {left: 0, up: 0, forward: 3.25}, at: 1, for: 2}
+                - {law: grow, prop: size, per_tick: [153.6, 4.0576], at: 0, for: 1}
+                - {law: grow, prop: size, per_tick: [0, -2.4768], at: 1, for: 2}
+            - id: fx8_couture_s2_dash_p_orange
+              op: particle_def
+              def: couture-s2-p-pink
+              anchor: fx8_couture_s2_dash
+              every: 1
+              times: 4
+        - id: k15
+          at: 15
+          do:
+            - id: fx8_couture_s2_dash_pink_crescent
+              op: display
+              kind: sprite
+              sprite: couture-orbit
+              tint: "#FFC8DC"
+              anchor: fx8_couture_s2_dash
+              offset: {left: 0, up: 1.1, forward: -1.6}
+              rotate: [{axis: left, deg: 90}]
+              size: [5.76, 5.76]
+              alpha: 1
+              # GAP: face {plane: {axes: [left, up], frame: fx8_couture_s2_dash}} -> fixed plane (no plane-face spelling in v3; billboard fixed + rotate)
+              for: 20
+              motion:
+                - {law: move, velocity: {left: 0, up: 0, forward: -0.033333}, at: 0, for: 18}
+                - {law: grow, prop: size, per_tick: [0.035556, 0.035556], at: 0, for: 18}
+        - id: k17
+          at: 17
+          do:
+            - id: snd_18
+              op: sound
+              sound: block.amethyst_cluster.break
+              anchor: caster
+              volume: 0.5
+              pitch: 1
+      on:
+        - event: c3_hit.hit
+          do:
+            - id: d0
+              at: 0
+              do:
+                - id: fx2_couture_s2_hit3
+                  op: frame
+                  anchor: caster
+                  offset: {up: 0.9, forward: 1.3}
+                  # GAP: frame placed like dash_hit_anchor (caster-relative 0.9 up, 1.3 forward) at the hit tick: snapshot of the caster basis at that tick
+                  mode: snapshot
+                  for: 25
+                - id: fx2_couture_s2_hit3_p_orange
+                  op: particle_def
+                  def: couture-s2-p-pink
+                  anchor: fx2_couture_s2_hit3
+                  every: 1
+                  times: 4
+                - id: fx2_couture_s2_hit3_p_spark
+                  op: particle_def
+                  def: couture-s2-p-spark
+                  anchor: fx2_couture_s2_hit3
+                  every: 3
+                  times: 2
+                - id: fx2_couture_s2_hit3_flash_0
+                  op: display
+                  kind: sprite
+                  sprite: couture-s2-feather
+                  anchor: fx2_couture_s2_hit3
+                  offset: {left: 0, up: 1.2, forward: 0}
+                  size: [0.816, 0.128]
+                  alpha: 1
+                  billboard: center
+                  for: 5
+                  motion:
+                    - {law: grow, prop: size, per_tick: [8.976, 2.176], at: 0, for: 1}
+                    - {law: grow, prop: size, per_tick: [0.72, -0.56], at: 1, for: 4}
+                - id: fx2_couture_s2_hit3_flash_1
+                  op: display
+                  kind: sprite
+                  sprite: couture-s2-feather
+                  anchor: fx2_couture_s2_hit3
+                  offset: {left: 0, up: 1.2, forward: 0}
+                  rotate: [{axis: forward, deg: 60}]
+                  size: [0.816, 0.128]
+                  alpha: 1
+                  billboard: center
+                  for: 5
+                  motion:
+                    - {law: grow, prop: size, per_tick: [8.976, 2.176], at: 0, for: 1}
+                    - {law: grow, prop: size, per_tick: [0.72, -0.56], at: 1, for: 4}
+                - id: fx2_couture_s2_hit3_flash_2
+                  op: display
+                  kind: sprite
+                  sprite: couture-s2-feather
+                  anchor: fx2_couture_s2_hit3
+                  offset: {left: 0, up: 1.2, forward: 0}
+                  rotate: [{axis: forward, deg: 120}]
+                  size: [0.816, 0.128]
+                  alpha: 1
+                  billboard: center
+                  for: 5
+                  motion:
+                    - {law: grow, prop: size, per_tick: [8.976, 2.176], at: 0, for: 1}
+                    - {law: grow, prop: size, per_tick: [0.72, -0.56], at: 1, for: 4}
+                - id: c3_snd_0
+                  op: sound
+                  sound: entity.player.attack.sweep
+                  anchor: victim.root
+                  volume: 1
+                  pitch: 0.55
+                - id: c3_snd_1
+                  op: sound
+                  sound: entity.sheep.shear
+                  anchor: victim.root
+                  volume: 1
+                  pitch: 0.7
+                - id: c3_snd_2
+                  op: sound
+                  sound: item.trident.riptide_1
+                  anchor: victim.root
+                  volume: 0.8
+                  pitch: 1.5
+                - id: c3_snd_3
+                  op: sound
+                  sound: entity.player.attack.crit
+                  anchor: victim.root
+                  volume: 1
+                  pitch: 0.6
+                - id: c3_snd_4
+                  op: sound
+                  sound: block.anvil.land
+                  anchor: victim.root
+                  volume: 0.5
+                  pitch: 1.4
+            - id: d1
+              at: 1
+              do:
+                - id: fx2_couture_s2_hit3_pet_0
+                  op: display
+                  kind: sprite
+                  sprite: couture-s2-petal
+                  anchor: fx2_couture_s2_hit3
+                  offset: {left: 0.3, up: 1.19, forward: 0}
+                  rotate: [{axis: forward, deg: -2.8}]
+                  size: [0.16, 0.096]
+                  alpha: 1
+                  billboard: center
+                  for: 9
+                  motion:
+                    - {law: move, velocity: {left: 0.73, up: -0.04, forward: 0}, at: 0, for: 1}
+                    - {law: move, velocity: {left: 0.145714, up: -0.007143, forward: 0}, at: 1, for: 7}
+                    - {law: spin, axis: forward, deg_per_tick: 15, at: 0, for: 1}
+                    - {law: spin, axis: forward, deg_per_tick: 6.4286, at: 1, for: 1}
+                    - {law: spin, axis: forward, deg_per_tick: 6.4285, at: 2, for: 1}
+                    - {law: spin, axis: forward, deg_per_tick: 6.4286, at: 3, for: 3}
+                    - {law: spin, axis: forward, deg_per_tick: 6.4285, at: 6, for: 1}
+                    - {law: spin, axis: forward, deg_per_tick: 6.4286, at: 7, for: 1}
+                    - {law: grow, prop: size, per_tick: [0.48, 0.288], at: 0, for: 1}
+                    - {law: grow, prop: size, per_tick: [-0.018286, -0.013714], at: 1, for: 7}
+                - id: fx2_couture_s2_hit3_pet_1
+                  op: display
+                  kind: sprite
+                  sprite: couture-s2-petal
+                  anchor: fx2_couture_s2_hit3
+                  offset: {left: 0.28, up: 1.32, forward: 0}
+                  rotate: [{axis: forward, deg: 23.2}]
+                  size: [0.16, 0.096]
+                  alpha: 1
+                  billboard: center
+                  for: 9
+                  motion:
+                    - {law: move, velocity: {left: 0.94, up: 0.4, forward: 0}, at: 0, for: 1}
+                    - {law: move, velocity: {left: 0.174286, up: 0.074286, forward: 0}, at: 1, for: 7}
+                    - {law: spin, axis: forward, deg_per_tick: 15, at: 0, for: 1}
+                    - {law: spin, axis: forward, deg_per_tick: 6.4286, at: 1, for: 1}
+                    - {law: spin, axis: forward, deg_per_tick: 6.4285, at: 2, for: 1}
+                    - {law: spin, axis: forward, deg_per_tick: 6.4286, at: 3, for: 3}
+                    - {law: spin, axis: forward, deg_per_tick: 6.4285, at: 6, for: 1}
+                    - {law: spin, axis: forward, deg_per_tick: 6.4286, at: 7, for: 1}
+                    - {law: grow, prop: size, per_tick: [0.48, 0.288], at: 0, for: 1}
+                    - {law: grow, prop: size, per_tick: [-0.018286, -0.013714], at: 1, for: 7}
+                - id: fx2_couture_s2_hit3_pet_2
+                  op: display
+                  kind: sprite
+                  sprite: couture-s2-petal
+                  anchor: fx2_couture_s2_hit3
+                  offset: {left: 0.18, up: 1.44, forward: 0}
+                  rotate: [{axis: forward, deg: 52.9}]
+                  size: [0.16, 0.096]
+                  alpha: 1
+                  billboard: center
+                  for: 9
+                  motion:
+                    - {law: move, velocity: {left: 0.61, up: 0.8, forward: 0}, at: 0, for: 1}
+                    - {law: move, velocity: {left: 0.111429, up: 0.148571, forward: 0}, at: 1, for: 7}
+                    - {law: spin, axis: forward, deg_per_tick: 15, at: 0, for: 1}
+                    - {law: spin, axis: forward, deg_per_tick: 6.4286, at: 1, for: 1}
+                    - {law: spin, axis: forward, deg_per_tick: 6.4285, at: 2, for: 1}
+                    - {law: spin, axis: forward, deg_per_tick: 6.4286, at: 3, for: 3}
+                    - {law: spin, axis: forward, deg_per_tick: 6.4285, at: 6, for: 1}
+                    - {law: spin, axis: forward, deg_per_tick: 6.4286, at: 7, for: 1}
+                    - {law: grow, prop: size, per_tick: [0.48, 0.288], at: 0, for: 1}
+                    - {law: grow, prop: size, per_tick: [-0.018286, -0.013714], at: 1, for: 7}
+                - id: fx2_couture_s2_hit3_pet_3
+                  op: display
+                  kind: sprite
+                  sprite: couture-s2-petal
+                  anchor: fx2_couture_s2_hit3
+                  offset: {left: 0.01, up: 1.5, forward: 0}
+                  rotate: [{axis: forward, deg: 88.9}]
+                  size: [0.16, 0.096]
+                  alpha: 1
+                  billboard: center
+                  for: 9
+                  motion:
+                    - {law: move, velocity: {left: 0, up: 0.66, forward: 0}, at: 0, for: 1}
+                    - {law: move, velocity: {left: 0.004286, up: 0.137143, forward: 0}, at: 1, for: 7}
+                    - {law: spin, axis: forward, deg_per_tick: 15, at: 0, for: 1}
+                    - {law: spin, axis: forward, deg_per_tick: 6.4286, at: 1, for: 1}
+                    - {law: spin, axis: forward, deg_per_tick: 6.4285, at: 2, for: 1}
+                    - {law: spin, axis: forward, deg_per_tick: 6.4286, at: 3, for: 3}
+                    - {law: spin, axis: forward, deg_per_tick: 6.4285, at: 6, for: 1}
+                    - {law: spin, axis: forward, deg_per_tick: 6.4286, at: 7, for: 1}
+                    - {law: grow, prop: size, per_tick: [0.48, 0.288], at: 0, for: 1}
+                    - {law: grow, prop: size, per_tick: [-0.018286, -0.013714], at: 1, for: 7}
+                - id: fx2_couture_s2_hit3_pet_4
+                  op: display
+                  kind: sprite
+                  sprite: couture-s2-petal
+                  anchor: fx2_couture_s2_hit3
+                  offset: {left: -0.14, up: 1.46, forward: 0}
+                  rotate: [{axis: forward, deg: 118.8}]
+                  size: [0.16, 0.096]
+                  alpha: 1
+                  billboard: center
+                  for: 9
+                  motion:
+                    - {law: move, velocity: {left: -0.61, up: 1.11, forward: 0}, at: 0, for: 1}
+                    - {law: move, velocity: {left: -0.105714, up: 0.194286, forward: 0}, at: 1, for: 7}
+                    - {law: spin, axis: forward, deg_per_tick: 15, at: 0, for: 1}
+                    - {law: spin, axis: forward, deg_per_tick: 6.4286, at: 1, for: 1}
+                    - {law: spin, axis: forward, deg_per_tick: 6.4285, at: 2, for: 1}
+                    - {law: spin, axis: forward, deg_per_tick: 6.4286, at: 3, for: 3}
+                    - {law: spin, axis: forward, deg_per_tick: 6.4285, at: 6, for: 1}
+                    - {law: spin, axis: forward, deg_per_tick: 6.4286, at: 7, for: 1}
+                    - {law: grow, prop: size, per_tick: [0.48, 0.288], at: 0, for: 1}
+                    - {law: grow, prop: size, per_tick: [-0.018286, -0.013714], at: 1, for: 7}
+                - id: fx2_couture_s2_hit3_pet_5
+                  op: display
+                  kind: sprite
+                  sprite: couture-s2-petal
+                  anchor: fx2_couture_s2_hit3
+                  offset: {left: -0.25, up: 1.37, forward: 0}
+                  rotate: [{axis: forward, deg: 145.6}]
+                  size: [0.16, 0.096]
+                  alpha: 1
+                  billboard: center
+                  for: 9
+                  motion:
+                    - {law: move, velocity: {left: -0.91, up: 0.62, forward: 0}, at: 0, for: 1}
+                    - {law: move, velocity: {left: -0.164286, up: 0.114286, forward: 0}, at: 1, for: 7}
+                    - {law: spin, axis: forward, deg_per_tick: 15, at: 0, for: 1}
+                    - {law: spin, axis: forward, deg_per_tick: 6.4286, at: 1, for: 1}
+                    - {law: spin, axis: forward, deg_per_tick: 6.4285, at: 2, for: 1}
+                    - {law: spin, axis: forward, deg_per_tick: 6.4286, at: 3, for: 1}
+                    - {law: spin, axis: forward, deg_per_tick: -353.5714, at: 4, for: 1}
+                    - {law: spin, axis: forward, deg_per_tick: 6.4286, at: 5, for: 1}
+                    - {law: spin, axis: forward, deg_per_tick: 6.4285, at: 6, for: 1}
+                    - {law: spin, axis: forward, deg_per_tick: 6.4286, at: 7, for: 1}
+                    - {law: grow, prop: size, per_tick: [0.48, 0.288], at: 0, for: 1}
+                    - {law: grow, prop: size, per_tick: [-0.018286, -0.013714], at: 1, for: 7}
+                - id: fx2_couture_s2_hit3_pet_6
+                  op: display
+                  kind: sprite
+                  sprite: couture-s2-petal
+                  anchor: fx2_couture_s2_hit3
+                  offset: {left: -0.3, up: 1.19, forward: 0}
+                  rotate: [{axis: forward, deg: -178.8}]
+                  size: [0.16, 0.096]
+                  alpha: 1
+                  billboard: center
+                  for: 9
+                  motion:
+                    - {law: move, velocity: {left: -0.92, up: -0.02, forward: 0}, at: 0, for: 1}
+                    - {law: move, velocity: {left: -0.174286, up: -0.002857, forward: 0}, at: 1, for: 7}
+                    - {law: spin, axis: forward, deg_per_tick: 15, at: 0, for: 1}
+                    - {law: spin, axis: forward, deg_per_tick: 6.4286, at: 1, for: 1}
+                    - {law: spin, axis: forward, deg_per_tick: 6.4285, at: 2, for: 1}
+                    - {law: spin, axis: forward, deg_per_tick: 6.4286, at: 3, for: 3}
+                    - {law: spin, axis: forward, deg_per_tick: 6.4285, at: 6, for: 1}
+                    - {law: spin, axis: forward, deg_per_tick: 6.4286, at: 7, for: 1}
+                    - {law: grow, prop: size, per_tick: [0.48, 0.288], at: 0, for: 1}
+                    - {law: grow, prop: size, per_tick: [-0.018286, -0.013714], at: 1, for: 7}
+                - id: fx2_couture_s2_hit3_pet_7
+                  op: display
+                  kind: sprite
+                  sprite: couture-s2-petal
+                  anchor: fx2_couture_s2_hit3
+                  offset: {left: -0.28, up: 1.08, forward: 0}
+                  rotate: [{axis: forward, deg: -157.3}]
+                  size: [0.16, 0.096]
+                  alpha: 1
+                  billboard: center
+                  for: 9
+                  motion:
+                    - {law: move, velocity: {left: -1.18, up: -0.49, forward: 0}, at: 0, for: 1}
+                    - {law: move, velocity: {left: -0.207143, up: -0.087143, forward: 0}, at: 1, for: 7}
+                    - {law: spin, axis: forward, deg_per_tick: 15, at: 0, for: 1}
+                    - {law: spin, axis: forward, deg_per_tick: 6.4286, at: 1, for: 1}
+                    - {law: spin, axis: forward, deg_per_tick: 6.4285, at: 2, for: 1}
+                    - {law: spin, axis: forward, deg_per_tick: 6.4286, at: 3, for: 3}
+                    - {law: spin, axis: forward, deg_per_tick: 6.4285, at: 6, for: 1}
+                    - {law: spin, axis: forward, deg_per_tick: 6.4286, at: 7, for: 1}
+                    - {law: grow, prop: size, per_tick: [0.48, 0.288], at: 0, for: 1}
+                    - {law: grow, prop: size, per_tick: [-0.018286, -0.013714], at: 1, for: 7}
+            - id: d6
+              at: 6
+              do:
+                - id: fx2_couture_s2_hit3_dbris_0
+                  op: display
+                  kind: sprite
+                  sprite: couture-s2-burst-shard
+                  anchor: fx2_couture_s2_hit3
+                  offset: {left: 1.14, up: 0.88, forward: 0}
+                  rotate: [{axis: forward, deg: 3.6}]
+                  size: [0.768, 1.792]
+                  alpha: 1
+                  billboard: center
+                  for: 19
+                  motion:
+                    - {law: move, velocity: {left: 0.055, up: 0, forward: 0}, at: 0, for: 2}
+                    - {law: move, velocity: {left: 0.010625, up: -0.03125, forward: 0}, at: 2, for: 16}
+                    - {law: spin, axis: forward, deg_per_tick: 10, at: 0, for: 2}
+                    - {law: spin, axis: forward, deg_per_tick: 2.5, at: 2, for: 16}
+                    - {law: grow, prop: size, per_tick: [0.064, 0.256], at: 0, for: 2}
+                    - {law: grow, prop: size, per_tick: [-0.008, -0.032], at: 2, for: 16}
+                - id: fx2_couture_s2_hit3_dbris_1
+                  op: display
+                  kind: sprite
+                  sprite: couture-s2-burst-shard
+                  anchor: fx2_couture_s2_hit3
+                  offset: {left: 0.75, up: 1.45, forward: 0}
+                  rotate: [{axis: forward, deg: 44.1}]
+                  size: [0.832, 1.92]
+                  alpha: 1
+                  billboard: center
+                  for: 19
+                  motion:
+                    - {law: move, velocity: {left: 0.04, up: 0, forward: 0}, at: 0, for: 2}
+                    - {law: move, velocity: {left: 0.006875, up: -0.03125, forward: 0}, at: 2, for: 16}
+                    - {law: spin, axis: forward, deg_per_tick: 10, at: 0, for: 2}
+                    - {law: spin, axis: forward, deg_per_tick: 2.5, at: 2, for: 16}
+                    - {law: grow, prop: size, per_tick: [0.064, 0.256], at: 0, for: 2}
+                    - {law: grow, prop: size, per_tick: [-0.008, -0.032], at: 2, for: 16}
+                - id: fx2_couture_s2_hit3_dbris_2
+                  op: display
+                  kind: sprite
+                  sprite: couture-s2-burst-shard
+                  anchor: fx2_couture_s2_hit3
+                  offset: {left: 0.11, up: 1.13, forward: 0}
+                  rotate: [{axis: forward, deg: 84.9}]
+                  size: [0.896, 2.112]
+                  alpha: 1
+                  billboard: center
+                  for: 19
+                  motion:
+                    - {law: move, velocity: {left: 0.005, up: 0, forward: 0}, at: 0, for: 2}
+                    - {law: move, velocity: {left: 0.00125, up: -0.03125, forward: 0}, at: 2, for: 16}
+                    - {law: spin, axis: forward, deg_per_tick: 10, at: 0, for: 2}
+                    - {law: spin, axis: forward, deg_per_tick: 2.5, at: 2, for: 16}
+                    - {law: grow, prop: size, per_tick: [0.096, 0.256], at: 0, for: 2}
+                    - {law: grow, prop: size, per_tick: [-0.012, -0.032], at: 2, for: 16}
+                - id: fx2_couture_s2_hit3_dbris_3
+                  op: display
+                  kind: sprite
+                  sprite: couture-s2-burst-shard
+                  anchor: fx2_couture_s2_hit3
+                  offset: {left: -0.78, up: 1.68, forward: 0}
+                  rotate: [{axis: forward, deg: 139.6}]
+                  size: [0.576, 1.344]
+                  alpha: 1
+                  billboard: center
+                  for: 19
+                  motion:
+                    - {law: move, velocity: {left: -0.04, up: 0, forward: 0}, at: 0, for: 2}
+                    - {law: move, velocity: {left: -0.0075, up: -0.03125, forward: 0}, at: 2, for: 16}
+                    - {law: spin, axis: forward, deg_per_tick: 10, at: 0, for: 2}
+                    - {law: spin, axis: forward, deg_per_tick: 2.5, at: 2, for: 8}
+                    - {law: spin, axis: forward, deg_per_tick: -357.5, at: 10, for: 1}
+                    - {law: spin, axis: forward, deg_per_tick: 2.5, at: 11, for: 7}
+                    - {law: grow, prop: size, per_tick: [0.032, 0.16], at: 0, for: 2}
+                    - {law: grow, prop: size, per_tick: [-0.004, -0.02], at: 2, for: 16}
+    end: {final: true}
