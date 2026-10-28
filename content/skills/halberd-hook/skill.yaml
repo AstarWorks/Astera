@@ -1,29 +1,39 @@
-apiVersion: "astera/v3"
+apiVersion: astera/v3
 kind: Skill
 id: halberd-hook
 item: halberd
 meta: {name: {ja: "引っ掛け", en: "Halberd Hook"}, description: {ja: "穂先で足を払い、相手の体勢を崩す。", en: "Hooks the legs and shakes the target."}, cooldown_ticks: 110, resource_cost: 12, tags: [melee, physical, control]}
+params:
+  arc_deg:      {type: number, default: 50}
+  range:        {type: blocks, default: 3.6}
+  dmg_physical: {type: number, default: 22}
+  tremor_ticks: {type: ticks, default: 40}
 anchors:
-  cast_fx: {anchor: caster.eye, offset: {up: -0.1, forward: 1.6}, mode: snapshot}
-  heart: {anchor: victim.body, offset: {up: 0.4}}
-presentation:
-  timeline:
-    - at: 0
+  - {id: cast_fx, anchor: caster.eye, offset: {up: -0.1, forward: 1.6}}
+  - {id: heart, anchor: victim.root, offset: {up: 1.2}}  # GAP(Q2): v2 enemy frame origin = feet+0.8; victim.root = feet (founder choice)
+machine:
+  start: swing
+  states:
+    swing:
+      for: 1
+      then: end
       do:
-        - {id: snd, op: sound, sound: "entity.player.attack.sweep", anchor: caster, volume: 1.0, pitch: 0.8}
-        - {id: fx, op: particle_def, def: stab-spark, anchor: cast_fx}
-gameplay:
-  timeline:
-    - at: 0
-      do:
+        - {id: snd, op: sound, sound: "entity.player.attack.sweep", anchor: caster, volume: 1.0, pitch: 0.8, at: 0}
+        - {id: fx, op: particle_def, def: stab-spark, anchor: cast_fx, at: 0}
         - id: swing
           op: hit
+          at: 0
           anchor: caster.eye
+          shape: {sector: {deg: "${arc_deg}", range: "${range}", height: 2.0, forward: look}}
           targets: enemies
-          shape: {sector: {deg: 50.0, range: 3.6, height: 2.0}}
-          damage: {physical: 22.0}
+          max_count: all       # GAP(Q1): max_count spelling (A required int|all / B omit) is a founder question; v2 had no cap
+          window: once
+          ignore_invulnerability: false
+          damage: {physical: "${dmg_physical}"}
           on:
             hit:
-              - {id: st_tremor, op: status, target: event.victim, status: tremor, stacks: 1, for: 40}
-              - {id: snd_hit, op: sound, sound: "astera:weapons/blade-hit", anchor: victim.body, volume: 0.7, pitch: 1.2}
+              - {id: kb, op: knockback, target: event.victim, direction: "= normalize(pos(event.victim) - pos(caster))", strength: 0.2}
+              - {id: st_tremor, op: status, target: event.victim, status: tremor, stacks: 1, for: "${tremor_ticks}"}
+              - {id: snd_hit, op: sound, sound: "astera:weapons/blade-hit", anchor: contact, volume: 0.7, pitch: 1.2}
               - {id: fx_hit, op: particle_def, def: hit-spark, anchor: heart}
+    end: {final: true}

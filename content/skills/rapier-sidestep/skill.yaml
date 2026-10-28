@@ -1,11 +1,13 @@
-# v3 hand port of the v2 skill (ADR-0303 rev4.2). v2 params evasive_ticks 20, propel -0.9.
 apiVersion: astera/v3
 kind: Skill
 id: rapier-sidestep
 item: rapier
 meta: {name: {ja: "受け流し", en: "Parry Step"}, description: {ja: "後方へ軽く身を引き、素早く動ける。", en: "A light backstep followed by a short sprint."}, cooldown_ticks: 120, resource_cost: 0, tags: [melee, movement]}
+params:
+  evasive_ticks: {type: ticks, default: 20}
+  propel:        {type: number, default: -0.9}
 anchors:
-  - {id: feet, anchor: caster, offset: {up: 0.2}}                      # was pt_caster_0_0p2_0
+  - {id: feet, anchor: caster, offset: {up: 0.2}}
 machine:
   start: step
   states:
@@ -13,8 +15,8 @@ machine:
       for: 1
       then: end
       enter:
-        - {id: buff, op: status, target: caster, status: evasive, stacks: 1, for: 20}   # stacks: 1 assumed
-        - {id: back, op: impulse, target: caster, vector: {of: caster, forward: -0.9}}
-        - {id: snd, op: sound, sound: "astera:weapons/dash-whoosh", anchor: caster, volume: 0.8, pitch: 1.4}
-        - {id: fx, op: particle_def, def: dash-cloud, anchor: feet}
+        - {id: buff, op: status, target: caster, status: evasive, stacks: 1, for: "${evasive_ticks}"}
+        - {id: back, op: impulse, at: 0, target: caster, vector: {of: caster, forward: "${propel}"}}
+        - {id: snd, op: sound, sound: "astera:weapons/dash-whoosh", anchor: caster, volume: 0.8, pitch: 1.4, at: 0}
+        - {id: fx, op: particle_def, def: dash-cloud, anchor: feet, at: 0}
     end: {final: true}

@@ -24,21 +24,23 @@ machine:
   start: fly
   states:
     fly:
-      for: "= max_lifetime_ticks"
+      for: "${max_lifetime_ticks}"
       then: end
+      on:
+        - {event: bolt.end, to: end}      # v2: the cast ends when the projectile body ends (manager ruling 2026-10-29)
       enter:
         - id: bolt
           op: projectile
           origin: origin
-          velocity: "= look(caster) * launch_speed"
-          for: "= max_lifetime_ticks"
+          velocity: "= look(caster) * ${launch_speed}"
+          for: "${max_lifetime_ticks}"
           radius: 0.5
           hit: {targets: enemies, once: true}
           block: {mode: despawn}
           on:
             hit:
-              - {id: dmg, op: damage, target: event.victim, damage: {electric: "= dmg_electric"}}
-              - {id: st_shock, op: status, target: event.victim, status: shock, stacks: 1, for: "= shock_ticks", when: "= roll('shock') < 0.6"}
+              - {id: dmg, op: damage, target: event.victim, components: [{kind: electric, amount: "${dmg_electric}"}]}
+              - {id: st_shock, op: status, target: event.victim, status: shock, stacks: 1, for: "${shock_ticks}", when: "= roll('shock') < 0.6"}
               # GAP(Q2): v2 `at: enemy` = enemy frame origin (feet+0.8); `victim.root` is the feet.
               - {id: lightning, op: lightning, anchor: victim.root, visual_only: true}
               - {id: chip, op: break_area, anchor: contact, shape: {sphere: {radius: 1.0, ahead: 0.0}}, tool: none, block_damage: 25, ripple: 0, revert: 200, outside_arena: false}
@@ -95,15 +97,14 @@ machine:
           context: none
           anchor: bolt
           scale: [0.8, 0.8, 0.8]
-          until: end
-          motion:
-            - {law: follow, anchor: bolt, step: 1}
+          until: bolt.end
         - {id: snd_cast, op: sound, sound: "astera:skill/wand/cast", anchor: caster, at: 0, volume: 0.45, pitch: 1.8}
         - {id: fx_cast, op: particle_def, def: thunder-cast, anchor: muzzle, at: 0}
         - id: trail
+          op: group
           at: 0
           every: 1
-          until: end
+          until: bolt.end
           do:
             - {id: tr_spark, op: particle, particle: electric_spark, anchor: {of: bolt, sweep: 0.5}, count: 4, offset: [0.15, 0.15, 0.15], extra: 0.05}
             - {id: tr_rod, op: particle, particle: end_rod, anchor: {of: bolt, sweep: 0.5}, count: 1, offset: [0.02, 0.02, 0.02], extra: 0}
