@@ -66,9 +66,11 @@ public object ExpansionDump {
     }
 
     /**
-     * Parses [render] output. Lossy: only structural rows (enter, exit, emit, end, cancel, lock) are rebuilt; a table with any other row,
-     * or text that is not in the grammar, gives null. Bounds / writes / conditions / params are not printed, so they come back empty.
-     * W1-17 (A1) extends it as the example `# expand:` blocks need.
+     * Parses [render] output. Lossy: the structural rows (enter, exit, emit, end, cancel, lock) are rebuilt as typed actions; every other
+     * row (presentation: spawn, key, teleport, trail, particle, particle_def, sound, set; gameplay: hit, damage, status, effect, world, call)
+     * is kept as a [dumpedRow] (verb + the printed argument text verbatim), because the dump prints shapes, damage components, callees and
+     * CEL scripts with a grammar that cannot be read back into the domain types. Text that is not in the grammar gives null.
+     * Bounds / writes / conditions / params are not printed, so they come back empty.
      */
     public fun parse(text: String): ExpansionTable? {
         var skillId: String? = null
@@ -110,12 +112,18 @@ public object ExpansionDump {
                 }
                 line.startsWith("branch ") -> {
                     val c = cur ?: return null
-                    val kv = kvs(tok.drop(3))
+                    // the guard of an expression branch prints as "= <source with _ for spaces>", so its text can hold a space: match the whole line
+                    val m = BRANCH.matchEntire(line) ?: return null
+                    val (event, window, guard, target, sub) = m.destructured
                     c.branches += Branch(
-                        EventPath(tok[1]), parseRange(tok[2]) ?: return null,
-                        kv["guard"]?.takeIf { it != "-" }?.let { Guard.Named(it) },
-                        kv["target"]?.takeIf { it != "-" }?.let(::StatePath),
-                        kv["sub"]?.takeIf { it != "-" }?.let(::EventPath),
+                        EventPath(event), parseRange(window) ?: return null,
+                        when {
+                            guard == "-" -> null
+                            guard.startsWith("= ") -> Guard.Expr(guard.removePrefix("= "))
+                            else -> Guard.Named(guard)
+                        },
+                        target.takeIf { it != "-" }?.let(::StatePath),
+                        sub.takeIf { it != "-" }?.let(::EventPath),
                     )
                 }
                 line.startsWith("@") -> (cur ?: return null).rows += (parseRow(line) ?: return null)
@@ -184,10 +192,24 @@ public object ExpansionDump {
                 },
             )
             "lock" -> Action.Lock(LockMove.entries.firstOrNull { it.name == kv["move"] } ?: return null, kv["pitch"] == "true", kv["yaw"] == "true", parseLockEnd(kv["until"] ?: return null) ?: return null)
+            in VERBS -> return Row(tick, inst, dumpedRow(verb, tok.drop(3).joinToString(" ")), SrcPath(""))
             else -> return null
         }
         return Row(tick, inst, action, SrcPath(""))
     }
+
+    private val VERBS = setOf(
+        "spawn", "key", "teleport", "trail", "particle", "particle_def", "set", "sound",
+        "hit", "damage", "status", "effect", "world", "call",
+    )
+
+    private val BRANCH = Regex("""branch (\S+) (\[\d+,\d+]) guard=(.*) target=(\S+) sub=(\S+)""")
+
+    private const val DUMPED = "dump:"
+
+    /** A row read back from text: an [Action.Effect] whose op is `dump:<verb>` and whose only payload is the printed args. [row] prints it back verbatim. */
+    private fun dumpedRow(verb: String, args: String): Action =
+        Action.Effect(OpId(DUMPED + verb), mapOf("args" to Val.Known<Any>(args)))
 
     private fun parseLockEnd(s: String): LockEnd? = if (s == "cast") LockEnd.CastEnd else s.toIntOrNull()?.let { LockEnd.AtTick(it) }
 
@@ -202,6 +224,11 @@ public object ExpansionDump {
     }
 
     private fun row(r: Row): String {
+        val a = r.action
+        if (a is Action.Effect && a.op.value.startsWith(DUMPED)) {
+            val text = (a.payload["args"] as? Val.Known<*>)?.value as? String ?: ""
+            return "@${r.tick} ${r.instance.text} ${a.op.value.removePrefix(DUMPED)}" + (if (text.isEmpty()) "" else " $text")
+        }
         val args = payloadText(r.action)
         val mask = if (r.maskUntil.isEmpty()) "" else " mask_until=" + r.maskUntil.joinToString(",", "[", "]") { it.value }
         val guard = when (val g = r.guard) { null -> ""; is Guard.Named -> " when=${g.cond}"; is Guard.Expr -> " when==_" + g.source.replace(' ', '_') }

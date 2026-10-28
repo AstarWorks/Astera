@@ -39,7 +39,7 @@ machine:
               every: 2                                               # occurrences at 4, 6, 8, ... (exact multiples of 2)
               for: 30
               count: "= 2 + 0.5 * i"                                 # grow count 0.25/tick: thicker each occurrence
-              offset: [0.2, 0.2, 0.2]   # ENGINE GAP: particle `offset` is literal [x, y, z] only, so the ADR 3.4 `grow offset` tightening (-0.008/tick) cannot be written; constant mean box
+              offset: "= vec(1.0, 1.0, 1.0) * (0.3 - 0.016 * i)"      # grow offset -0.008/tick (tau = 2 i): the box tightens each occurrence
               extra: "= 0.02 + 0.004 * i + 0.0002 * i * i"           # grow extra 0.002/tick, accel 0.0001: and faster (0.02 + v*tau + a*tau^2/2)
 
             # SOUND (point kind): the same every/for; a rising hum, as CEL on i.

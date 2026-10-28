@@ -1,7 +1,11 @@
 package com.astarworks.astera.core.application.skillengine.load.grammar
 
 import com.astarworks.astera.core.application.skillengine.load.SkillDecodeError
+import com.astarworks.astera.core.application.skillengine.load.motion.ScaleVal
 import com.astarworks.astera.core.domain.Result
+import com.astarworks.astera.core.domain.geometry.Vec3
+import com.astarworks.astera.core.domain.geometry.math.Quaternion
+import com.astarworks.astera.core.domain.skillengine.model.TargetRef
 import com.astarworks.astera.core.domain.skillengine.model.Value
 
 /** How one field is read from a generic YAML tree, and how it shows up in the JSON schema. Same object = same source of truth. */
@@ -34,11 +38,10 @@ public class Field<T> internal constructor(
         if (doc != null) s["description"] = doc
         if (identity) s["x-identity"] = true
         if (!required) {
-            s["default"] = when (val d = default) {
-                null, is Number, is Boolean, is String -> d
-                is Value.Literal<*> -> d.value.let { if (it is Number || it is Boolean || it is String) it else it.toString() }
-                else -> d.toString() // domain values print as Kotlin text; the schema only needs to show a default exists
-            }
+            val d = SchemaDefaults.json(default)
+            // ADR-0303 2.0b / A8: `default` only ever carries an identity (0, 1, empty, false, null, [0,0,0], [1,1,1], a vanilla word).
+            // Any other default is a documented, listed one (2.0b table) and is printed as `x-listed-default`, never as `default`.
+            if (SchemaDefaults.isIdentity(d)) s["default"] = d else s["x-listed-default"] = d
         }
         return s
     }
@@ -127,5 +130,36 @@ public class Fields private constructor(public val name: String, public val fiel
 
     public companion object {
         public fun of(name: String, vararg fields: Field<*>): Fields = Fields(name, fields.toList())
+    }
+}
+
+/** JSON rendering of a field default for the schema: domain values become plain JSON, never Kotlin `toString` text (ADR-0303 2.0b). */
+internal object SchemaDefaults {
+    private val vanillaWords = setOf("fixed", "linear", "none", "all", "center", "caster", "world", "snapshot", "normal", "full", "crisp", "soft")
+
+    fun json(d: Any?): Any? = when (d) {
+        null, is Number, is Boolean, is String -> d
+        is Value.Literal<*> -> json(d.value)
+        is Map<*, *> -> d.entries.associate { it.key.toString() to json(it.value) }
+        is List<*> -> d.map { json(it) }
+        is Vec3 -> listOf(d.x, d.y, d.z)
+        is Quaternion -> if (d == Quaternion.IDENTITY) emptyList<Any?>() else listOf(d.x, d.y, d.z, d.w) // identity rotation = no turns
+        is Rotation.Turns -> d.turns.map { "${it.axis}:${json(it.deg)}" }
+        is Rotation.Whole -> json(d.value)
+        is FrameVec.Parts -> listOf(json(d.forward), json(d.up), json(d.left))
+        is FrameVec.Whole -> json(d.value)
+        is ScaleVal.Uniform -> json(d.value)
+        is TargetRef.Caster -> "caster"
+        else -> d::class.simpleName?.lowercase() // a named kind, never the Kotlin field dump
+    }
+
+    fun isIdentity(v: Any?): Boolean = when (v) {
+        null -> true
+        is Boolean -> true
+        is Number -> v.toDouble() == 0.0 || v.toDouble() == 1.0
+        is String -> v.isEmpty() || v in vanillaWords
+        is Map<*, *> -> v.isEmpty()
+        is List<*> -> v.isEmpty() || v.all { it is Number && it.toDouble() == 0.0 } || v.all { it is Number && it.toDouble() == 1.0 }
+        else -> false
     }
 }

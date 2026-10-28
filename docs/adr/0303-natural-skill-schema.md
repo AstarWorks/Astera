@@ -113,8 +113,8 @@ Cancelling therefore never produces a tick that is not in a table.
   can never be confused. Where a raw vector is a vanilla argument (particle `offset`, display `translation`) it is `[x, y, z]` in WORLD axes
   (particle) or entity-local axes (translation), and CEL values such as `= anchor.forward` produce world vectors.
 - Rotations are never Euler triples. A rotation is `{axis, deg}`, a list of them (applied in order, see 3.2), or a quaternion `[x, y, z, w]`.
-- Interpolating rotation is always slerp (shortest path; the client does the same). A segment that would turn more than 170 degrees is
-  split by the engine, never left to the client's shortest-path choice.
+- Interpolating rotation is always slerp (shortest path; the client does the same). A `spin` (rate law) segment that would turn more than 170 degrees is
+  split by the engine, never left to the client's shortest-path choice; a `keys` pair turning more than 170 degrees is a load error (3.3).
 - One unit: blocks. Time: **server ticks** (20/s). There is no other clock, no update period, no wall-clock expiry anywhere in a skill (RTM lesson: its scheduler counted updates of a configurable period; v3 counts ticks only).
 
 ### 1. Anchors
@@ -1113,10 +1113,10 @@ Event names (R35, `EventPath.value`, built on the instance id text): `input.*`, 
 a handled event is consumed, an unhandled one bubbles to the parent the same tick. One transition per level per tick; branches in declaration order,
 first match wins.
 
-Look keys are the YAML field names, in YAML units (the player converts): sprite `sprite size scale tint pivot billboard brightness glow_color
+Look keys are the YAML field names, in YAML units (the player converts): sprite `sprite size scale color pivot billboard brightness glow_color
 view_range see_through`; item `item part context model? rig_shading`; ribbon `shape of root history width_frac|width style color fade step_deg
 lag_ticks double_sided from to thickness`. Live names (the player contract) are `<kind>:<args>`: `anchor:<instance>[.<point>]`, `follow:<anchor>`
-(offset), `align:<axis>><anchor>` (rotation), `stretch:<base>><tip>` (offset, rotation, scale), `cel:<source>` (class L); `targets:` never (structured).
+(offset), `align:<axis>><anchor>^<up>` (rotation), `stretch:<base>><tip>` (offset, rotation, scale), `cel:<source>` (class L); `targets:` never (structured).
 An unknown kind is a player fault.
 
 `set` row: `@<tick> <id> set <field>=<value>` writes one field of a live object for one tick (the lowering of `fade`, 3.4), for example

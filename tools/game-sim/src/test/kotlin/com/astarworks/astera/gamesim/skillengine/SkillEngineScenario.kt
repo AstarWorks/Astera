@@ -213,7 +213,11 @@ abstract class SkillEngineScenario {
                     tick, "sound", "-",
                     listOfNotNull("sound=${a.sound}", known(a.volume)?.let { "vol=${RecordedCall.num(it)}" }, known(a.pitch)?.let { "pitch=${RecordedCall.num(it)}" }).joinToString(" "),
                 )
-                is Action.End -> ordinals[a.instance.text]?.let { out += tick to RecordedCall(tick, "remove", "#$it", "") }
+                is Action.End -> {
+                    ordinals[a.instance.text]?.let { out += tick to RecordedCall(tick, "remove", "#$it", "") }
+                    // ADR 3.6: an instance's natural end (range, lasts, for) raises `<id>.end` exactly once; its sub-table is pasted at that tick
+                    table.subTables[EventPath(a.instance.text + ".end")]?.rows?.forEach { emit(tick, it) }
+                }
                 else -> Unit
             }
         }
