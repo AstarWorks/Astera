@@ -309,6 +309,18 @@ class CastSim(
         }
     }
 
+    private val worldEffects = object : ISkillWorldEffectGateway {
+        override fun heal(caster: UUID, victim: UUID, amount: Double) { gpLine("world", "\"k\":\"heal\",\"detail\":\"${whoOf(victim)} ${r(amount)}\"") }
+        override fun resurrect(caster: UUID, victim: UUID, healthFraction: Double) { gpLine("world", "\"k\":\"resurrect\",\"detail\":\"${whoOf(victim)} ${r(healthFraction)}\"") }
+        override fun explode(caster: UUID, at: Vec3, power: Double, breakBlocks: Boolean, incendiary: Boolean) {
+            gpLine("world", "\"k\":\"explosion\",${rel(at)},\"detail\":\"power=${r(power)} blocks=$breakBlocks fire=$incendiary\"")
+        }
+        override fun summon(caster: UUID, at: Vec3, entityType: String, count: Int, lifetimeTicks: Int) {
+            gpLine("world", "\"k\":\"summon\",${rel(at)},\"detail\":\"$entityType x$count life=$lifetimeTicks\"")
+        }
+        override fun lightning(caster: UUID, at: Vec3, visualOnly: Boolean) { gpLine("world", "\"k\":\"lightning\",${rel(at)},\"detail\":\"visualOnly=$visualOnly\"") }
+    }
+
     private val c = Coin2CastWiring.collaborators()
     val catalog: SkillCatalog = c.newCatalog().also {
         val base = skillsDir ?: c.skillsDir
@@ -336,7 +348,7 @@ class CastSim(
             screen = noop<ISkillScreenGateway>(),
             cooldowns = noop<ISkillCooldownGateway>(),
             items = noop<ISkillItemGateway>(),
-            effects = noop<ISkillWorldEffectGateway>(),
+            effects = worldEffects,
         ),
         newTree = c.newTree, motion = c.motion, contacts = c.contacts, exprs = c.exprs, points = c.points,
         skills = catalog::get, observer = farObserver,
