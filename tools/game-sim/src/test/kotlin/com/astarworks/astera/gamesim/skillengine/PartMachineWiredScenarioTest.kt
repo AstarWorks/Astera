@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test
 
 /** ADR-0303 10: machine -> tables (W1-16). Runs at the wave 1b gate (needs W1-18 decoder + W1-20 harness). */
 class PartMachineWiredScenarioTest : SkillEngineScenario() {
-    private fun compiled(yaml: String) = (loadInline(yaml) as Result.Success).value.table
+    private fun compiled(yaml: String) = when (val r = loadInline(yaml)) { is Result.Success -> r.value.table; is Result.Failure -> throw AssertionError("did not load: ${r.error}") }
 
     @Test
     fun statesForThenTimer() {

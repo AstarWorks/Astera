@@ -79,6 +79,7 @@ public class PartExpander(private val parts: Map<String, Part>, private val maxD
                 exit = qualify(s.exit, path, "exit", evPrefix, localIds),
                 on = s.on.mapIndexed { i, t -> remap(t, entry, path, i, evPrefix, localIds) },
                 use = null,
+                parallel = s.parallel.map { region(it, evPrefix, depth, stack, out) },
                 start = s.start,
             )
         }
@@ -107,6 +108,14 @@ public class PartExpander(private val parts: Map<String, Part>, private val maxD
             }
         }
         return entry.getValue(m.start) to myFinals
+    }
+
+    /** A `parallel` region is a machine of its own: expanded with local ids (MachineTables prefixes them with the parent path); its links join the call's. */
+    private fun region(r: Machine, evPrefix: String, depth: Int, stack: List<String>, out: Out): Machine {
+        val sub = Out()
+        val entry = level(r, "", evPrefix, depth, stack, sub).first
+        out.links += sub.links
+        return Machine(entry, sub.states, emptyList(), r.world)
     }
 
     private fun join(prefix: String, name: String): String = if (prefix.isEmpty()) name else "$prefix.$name"

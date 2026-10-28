@@ -188,6 +188,9 @@ public class SkillCompiler(
 
         /** Latest `<op>.end` tick of the bodies a state without `for:` has spawned so far (its natural length). */
         private val bodyHorizon = HashMap<String, Int>()
+
+        /** Instances the sections of a state lowered so far spawned (the lexical lookup of a relative `cancel: <id>`). */
+        private val stateSpawned = HashMap<String, MutableList<InstanceId>>()
         private val callStack = ArrayList<String>().apply { add(SkillCallInliner.PREFIX + original.id) }
         private val statesById: Map<String, MachineState> = flat.machine.states.values.associateBy { it.id }
         private val specByNode: Map<Class<*>, OpSpec<*>> = buildMap {
@@ -243,6 +246,11 @@ public class SkillCompiler(
             }
             var acc = Lowered(emptyList())
             for (lo in lowered) acc = merge(acc, lo!!)
+            // `cancel: <id>` looks outward from its group (10.6): settle it against everything this state has spawned so far
+            val spawned = stateSpawned.getOrPut(state.value) { ArrayList() }
+            spawned += acc.instances
+            for (r in acc.rows) if (r.action is Action.Spawn || r.action is Action.Effect || r.action is Action.Lock) spawned += r.instance else (r.action as? Action.Call)?.let { spawned += it.callId }
+            acc = CancelLowering.retarget(acc, spawned)
             if (st?.forTicks == null) {
                 acc.subTables.filter { it.event.value.endsWith(".end") }.maxOfOrNull { it.window.max }
                     ?.let { bodyHorizon[state.value] = maxOf(it, bodyHorizon[state.value] ?: 0) }
