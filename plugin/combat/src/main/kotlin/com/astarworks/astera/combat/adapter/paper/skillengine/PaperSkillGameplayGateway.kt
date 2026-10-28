@@ -27,6 +27,9 @@ import com.astarworks.astera.core.domain.resource.ResourceType
 import com.astarworks.astera.core.domain.skill.SkillId
 import com.astarworks.astera.core.domain.skill.value.NumericValue
 import com.astarworks.astera.core.domain.status.StatusEffectId
+import org.bukkit.Location
+import org.bukkit.Server
+import org.bukkit.entity.Player
 import org.slf4j.LoggerFactory
 import java.util.UUID
 
@@ -52,6 +55,8 @@ public class PaperSkillGameplayGateway(
     private val randomizer: com.astarworks.astera.combat.application.port.outbound.IDamageRandomizer,
     /** Lazily resolved: the pool service registers after the combat plugin enables. */
     private val resourcePool: () -> IResourcePoolService?,
+    /** Resolves a caster for the look hold. */
+    private val server: Server = org.bukkit.Bukkit.getServer(),
 ) : ISkillGameplayGateway {
 
     private val log = LoggerFactory.getLogger(javaClass)
@@ -185,6 +190,44 @@ public class PaperSkillGameplayGateway(
         for (id in entities.distinct()) holdEntity(PlayerId(id), ticks)
     }
 
+    /** A running look hold: the values captured at [lockLook] and the per-tick drift check. */
+    private class LookHold(val pitch: Float?, val yaw: Float?, val until: Long) { var task: IScheduler.TaskHandle? = null }
+
+    private val lookHolds: MutableMap<UUID, LookHold> = HashMap()
+
+    /**
+     * Paper cannot lock a client's camera; the only mechanism is to re-send the held angle when the client drifts more than
+     * [LOOK_DRIFT_DEG] (ADR-0303 10.6). The hold ends at [untilTick] or on [unlockLook].
+     */
+    override fun lockLook(caster: UUID, pitch: Boolean, yaw: Boolean, untilTick: Int) {
+        unlockLook(caster)
+        if (!pitch && !yaw) return
+        val player = server.getEntity(caster) as? Player ?: return
+        val loc = player.location
+        val hold = LookHold(if (pitch) loc.pitch else null, if (yaw) loc.yaw else null, untilTick.toLong())
+        lookHolds[caster] = hold
+        hold.task = scheduler.repeat(ExecutionScope.Entity(caster), ticks(1), ticks(1)) { holdLook(caster, hold) }
+    }
+
+    override fun unlockLook(caster: UUID) {
+        lookHolds.remove(caster)?.task?.cancel()
+    }
+
+    private fun holdLook(caster: UUID, hold: LookHold) {
+        val player = server.getEntity(caster) as? Player
+        if (player == null || !player.isValid || scheduler.currentTick() >= hold.until) {
+            if (lookHolds[caster] === hold) unlockLook(caster)
+            return
+        }
+        val loc = player.location
+        val pitchDrift = hold.pitch != null && kotlin.math.abs(loc.pitch - hold.pitch) > LOOK_DRIFT_DEG
+        val yawDrift = hold.yaw != null && kotlin.math.abs(wrapDeg(loc.yaw - hold.yaw)) > LOOK_DRIFT_DEG
+        if (!pitchDrift && !yawDrift) return
+        player.teleportAsync(Location(loc.world, loc.x, loc.y, loc.z, hold.yaw ?: loc.yaw, hold.pitch ?: loc.pitch))
+    }
+
+    private fun wrapDeg(d: Float): Float = ((d + 180f) % 360f + 360f) % 360f - 180f
+
     /** Tick each entity is held until; an impulse before that tick is deferred to the release. */
     private val heldUntil: MutableMap<PlayerId, Long> = HashMap()
 
@@ -224,5 +267,6 @@ public class PaperSkillGameplayGateway(
 
     private companion object {
         val ENGINE_SKILL_ID = SkillId("skill-engine")
+        const val LOOK_DRIFT_DEG = 1.0f
     }
 }
