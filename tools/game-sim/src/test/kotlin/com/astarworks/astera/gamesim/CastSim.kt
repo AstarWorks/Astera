@@ -422,11 +422,15 @@ class CastSim(
             kit.runner.tick(now)
             now++
         }
+        // Cover strikes and ripple edits are scheduled up to one cast window (v1 CAST_TICKS = 30) after the contact, past the cast's end: let the world ledger run them out.
+        repeat(WORLD_EDIT_DRAIN_TICKS) { kit.world.tick(); now++ }
         assertThat(kit.runner.diagnostics()).describedAs("no op failed").isEmpty()
         return cast
     }
 }
 
+
+private const val WORLD_EDIT_DRAIN_TICKS = 30
 
 private fun withExtraSkills(shipped: java.nio.file.Path, extra: Map<String, String>): java.nio.file.Path {
     val dir = java.nio.file.Files.createTempDirectory("sim-skills")
