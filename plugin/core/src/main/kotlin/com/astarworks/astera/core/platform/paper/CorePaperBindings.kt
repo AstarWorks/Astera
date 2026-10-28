@@ -363,7 +363,13 @@ internal class CorePaperBindings(
                 // while PlayerSession.state == Loading).
                 val sessions = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IPlayerSessionRepository>()
                 val paperInventorySerializer = com.astarworks.astera.core.adapter.paper.inventory
-                    .PaperInventorySnapshotSerializer(onRestored = { player -> lobbyMenuKit?.refresh(player) })
+                    .PaperInventorySnapshotSerializer(
+                        codec = com.astarworks.astera.core.adapter.paper.item.PaperStoredItemCodec(
+                            materializer = { services.get<com.astarworks.astera.core.adapter.paper.item.PaperItemMaterializer>() },
+                            items = { services.get<com.astarworks.astera.core.application.port.outbound.IItemRegistry>() },
+                        ),
+                        onRestored = { player -> lobbyMenuKit?.refresh(player) },
+                    )
                 services.register<com.astarworks.astera.core.application.port.outbound.IPlayerInventoryGateway>(
                     com.astarworks.astera.core.adapter.paper.inventory
                         .PaperPlayerInventoryGateway(server, paperInventorySerializer),
@@ -512,6 +518,10 @@ internal class CorePaperBindings(
             save = ctx.services.getOrThrow<com.astarworks.astera.core.application.usecase.vault.SaveVaultUseCase>(),
             access = { ctx.services.getOrThrow<com.astarworks.astera.core.application.usecase.vault.AccessPersonalVaultUseCase>() },
             messages = ctx.services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IMessageRenderer>(),
+            codec = com.astarworks.astera.core.adapter.paper.item.PaperStoredItemCodec(
+                materializer = { ctx.services.get<com.astarworks.astera.core.adapter.paper.item.PaperItemMaterializer>() },
+                items = { ctx.services.get<com.astarworks.astera.core.application.port.outbound.IItemRegistry>() },
+            ),
         )
         ctx.registrations += ctx.services.register<com.astarworks.astera.core.application.port.outbound.IVaultWindow>(
             vaultWindow,

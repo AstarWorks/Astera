@@ -1,5 +1,6 @@
 package com.astarworks.astera.core.domain.vault
 
+import com.astarworks.astera.core.domain.item.StoredItemState
 import com.astarworks.astera.core.domain.player.PlayerId
 
 /**
@@ -14,9 +15,10 @@ import com.astarworks.astera.core.domain.player.PlayerId
  *    or a vanilla ender chest block, with free item movement like a chest.
  *
  * Sparse slot model: [items] only lists occupied slots (`0 until [CAPACITY]`, [MAX_PAGES] pages of [PAGE_SIZE]),
- * each slot at most once. [VaultItem.nbt] carries the opaque host-serialized
- * stack (Base64) so the Paper adapter can round-trip arbitrary item state;
- * [VaultItem.itemId] is the readable id used for display / valuation.
+ * each slot at most once. Items are stored by **id** (ADR-0302): [VaultItem.itemId] is an
+ * Astera item id, or a `minecraft:` material key for vanilla items, plus [VaultItem.count] and the
+ * small per-instance [VaultItem.state]; the Paper adapter rebuilds the stack from the current
+ * definition on every open.
  */
 public data class PersonalVault(
     val playerId: PlayerId,
@@ -49,7 +51,7 @@ public data class PersonalVault(
         val slot: Int,
         val itemId: String,
         val count: Int,
-        val nbt: String? = null,
+        val state: StoredItemState = StoredItemState.NONE,
     ) {
         init {
             require(count >= 1) { "VaultItem.count must be >= 1: $count" }

@@ -7,10 +7,8 @@ import com.astarworks.astera.core.domain.player.PlayerInventorySnapshot
  * Outbound port: per-player Bukkit-inventory snapshot (Wave 5e, RTM issue #5).
  *
  * Backed by V10 `player_inventory_snapshots` (player_id PK, snapshot JSONB,
- * version INT, saved_at TIMESTAMP) — latest-wins (no history). Wave 6b's
- * `PaperInventorySnapshotSerializer` lifts/lowers via
- * `BukkitObjectOutputStream` Base64 wrap; the Wave 5e domain treats slots
- * as opaque [InventoryItemSlot].
+ * version INT, saved_at TIMESTAMP) — latest-wins (no history). Slots are
+ * item ids plus small per-instance state (ADR-0302), never ItemStack bytes.
  */
 public interface IPlayerInventorySnapshotRepository {
 

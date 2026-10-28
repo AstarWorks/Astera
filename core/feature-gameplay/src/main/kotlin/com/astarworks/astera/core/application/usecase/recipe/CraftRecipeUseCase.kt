@@ -150,7 +150,7 @@ public class CraftRecipeUseCase(
             criteria is AdvancementCriteria.AnyOf && criteria.children.isEmpty()
     }
 
-    /** Aggregate every slot's content-item id → count. Serialized slots are skipped. */
+    /** Aggregate every slot's content-item id → count. Vanilla slots are skipped. */
     private fun countItems(snapshot: PlayerInventorySnapshot): Map<ItemId, Int> {
         val acc = HashMap<ItemId, Int>()
         fun addSlot(slot: InventoryItemSlot?) {
@@ -158,8 +158,7 @@ public class CraftRecipeUseCase(
                 val id = ItemId(slot.itemId)
                 acc[id] = (acc[id] ?: 0) + slot.count
             }
-            // SerializedBukkit slots are opaque in Phase 1 — Wave 6a will lift
-            // them to ContentItem before this use case runs.
+            // VanillaItem slots carry no Astera id and never count towards recipes.
         }
         snapshot.hotbar.forEach(::addSlot)
         snapshot.main.forEach(::addSlot)

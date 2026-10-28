@@ -1,82 +1,41 @@
 package com.astarworks.astera.core.adapter.paper.inventory
 
+import com.astarworks.astera.core.adapter.paper.item.PaperStoredItemCodec
 import com.astarworks.astera.core.adapter.paper.lobby.MenuKitTag
 import com.astarworks.astera.core.adapter.paper.lobby.TrainingItemTag
-import com.astarworks.astera.core.application.port.outbound.item.IContentItemRegistryLookup
 import com.astarworks.astera.core.domain.player.InventoryItemSlot
 import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.domain.player.PlayerInventorySnapshot
-import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
-import org.bukkit.util.io.BukkitObjectInputStream
-import org.bukkit.util.io.BukkitObjectOutputStream
 import org.slf4j.LoggerFactory
-import java.io.ByteArrayInputStream
-import java.io.ByteArrayOutputStream
 import java.time.Instant
-import java.util.Base64
 
 /**
- * Bukkit `PlayerInventory` ↔ Astera [PlayerInventorySnapshot] codec
- * (Wave 6b-3, ADR-0158).
+ * Bukkit `PlayerInventory` <-> Astera [PlayerInventorySnapshot] codec (ADR-0158, id-based since ADR-0302).
  *
- * # Why this exists
- *
- * The Wave 5e domain ([PlayerInventorySnapshot]) holds opaque
- * [InventoryItemSlot] entries per canonical region (hotbar [9] / main [27]
- * / offhand [1] / armor [4]). The Wave 5e listener
- * (`match.application.eventbus.listeners.SaveInventoryOnMatchEndedListener`)
- * could only emit [PlayerInventorySnapshot.empty] placeholders because no
- * Paper-facing adapter existed yet. This codec is the lift/lower the Wave
- * 5e KDoc promised — concrete enough to round-trip vanilla ItemStacks and
- * any third-party NBT (Oraxen / WeaponMechanics) via the Bukkit-blessed
- * serialization stream.
- *
- * # Per-slot serialization (Base64 wrap)
- *
- * Each non-null `ItemStack` is written through a `BukkitObjectOutputStream`
- * which is the contract Paper exposes for round-tripping arbitrary NBT and
- * custom Bukkit-serializable item state. The resulting byte array is
- * Base64-wrapped and stored as
- * [InventoryItemSlot.SerializedBukkit.serializedItemStack]; deserialize
- * walks the inverse path. Empty / air slots are encoded as `null` in the
- * domain list (matching the Wave 5e shape; the domain `init` block
- * enforces fixed-size lists with nullable entries).
- *
- * The [InventoryItemSlot.ContentItem] variant (vendor-neutral itemId +
- * count) is **not** produced by this codec. ContentItem is the
- * Studio-authored path used by tests + admin reset; round-tripping vanilla
- * Bukkit state through it would lose NBT, so the Paper codec consistently
- * uses [InventoryItemSlot.SerializedBukkit]. Restore handles both variants:
- * Wave 6c §C (ADR-0160) wired [IContentItemRegistryLookup] so the decode
- * path resolves a content-pack id → material key → vanilla `ItemStack`
- * with the right base material + count. Custom NBT / display-name /
- * attribute restoration on the ContentItem branch is left for a follow-up
- * wave — slot ends up the correct material, not lost.
+ * The saved form is an item **id** per slot (canonical regions: hotbar [9] / main [27] / offhand [1] /
+ * armor [4]): [InventoryItemSlot.ContentItem] for Astera items, [InventoryItemSlot.VanillaItem] for
+ * everything else, plus the small per-instance state. No ItemStack bytes are stored, so every restore
+ * rebuilds each Astera stack from the current `content/items` definition through [PaperStoredItemCodec]
+ * and the stacks are always up to date (name, lore, tooltip style, models).
  *
  * # Threading
  *
- * `Player.getInventory()` + `inventory.setContents` require the Bukkit
- * main thread. Callers (Wave 6b's [PlayerInventoryLifecycleListener]) run
- * on the main thread via the `PlayerJoinEvent` / `PlayerQuitEvent`
- * dispatch loop, so no extra `scheduler.runLater` is needed. Off-main
- * usage will fail at the Bukkit boundary with a runtime check.
+ * `Player.getInventory()` + `inventory.setContents` require the Bukkit main thread; callers run on the
+ * entity owner thread.
  *
  * # Error isolation
  *
- * Per-slot serialization is wrapped in try/catch — one corrupt slot logs
- * WARN and is dropped (null in the snapshot) rather than failing the
- * whole player. Same posture as the BukkitEventAdapter `safePublish`
- * pattern (ADR-0152 §A): bukkit listener handlers must never propagate
- * exceptions back into Paper's dispatch loop or the plugin disables.
+ * Per-slot failures log WARN and the slot is dropped (null) rather than failing the whole player.
+ * Lobby menu kit items (ADR-0185) and training-rack weapons (ADR-0200) are never part of a snapshot.
  *
  * @see PlayerInventoryLifecycleListener for the join/quit driver.
  * @see InventoryActionLockEnforcer for the action-lock that fires while
  *      [com.astarworks.astera.core.domain.player.SessionState.Loading].
  */
 public class PaperInventorySnapshotSerializer(
-    private val itemLookup: IContentItemRegistryLookup? = null,
+    private val codec: PaperStoredItemCodec,
     /** Runs after a snapshot was written into a live inventory (re-applies the lobby kit, ADR-0185). */
     private val onRestored: (Player) -> Unit = {},
 ) {
@@ -94,9 +53,8 @@ public class PaperInventorySnapshotSerializer(
      *  - armor: `inventory.armorContents` (4 entries — boots / leggings /
      *           chest / helmet)
      *
-     * Empty / air slots become `null`; non-null `ItemStack`s are encoded
-     * via [InventoryItemSlot.SerializedBukkit] (Base64-wrapped
-     * `BukkitObjectOutputStream` output).
+     * Empty / air slots become `null`; every other stack becomes its item id
+     * ([InventoryItemSlot.ContentItem] / [InventoryItemSlot.VanillaItem]).
      *
      * Per-slot serialization failures log WARN and are replaced with
      * `null` in the snapshot — one corrupt slot must not crash the whole
@@ -151,106 +109,52 @@ public class PaperInventorySnapshotSerializer(
 
         val combined = arrayOfNulls<ItemStack>(HOTBAR_SIZE + MAIN_SIZE)
         snapshot.hotbar.forEachIndexed { idx, slot ->
-            combined[idx] = decodeSlot(slot, "hotbar[$idx]")
+            combined[idx] = decodeSlot(slot, "hotbar[$idx]", snapshot.playerId)
         }
         snapshot.main.forEachIndexed { idx, slot ->
-            combined[HOTBAR_SIZE + idx] = decodeSlot(slot, "main[$idx]")
+            combined[HOTBAR_SIZE + idx] = decodeSlot(slot, "main[$idx]", snapshot.playerId)
         }
         inv.contents = combined
 
         val armor = arrayOfNulls<ItemStack>(ARMOR_SIZE)
         snapshot.armor.forEachIndexed { idx, slot ->
-            armor[idx] = decodeSlot(slot, "armor[$idx]")
+            armor[idx] = decodeSlot(slot, "armor[$idx]", snapshot.playerId)
         }
         inv.armorContents = armor
 
-        val offhand = decodeSlot(snapshot.offhand, "offhand")
+        val offhand = decodeSlot(snapshot.offhand, "offhand", snapshot.playerId)
         inv.setItemInOffHand(offhand ?: ItemStack.empty())
         onRestored(player)
     }
 
-    /**
-     * Encode a single `ItemStack?` to [InventoryItemSlot.SerializedBukkit].
-     * Empty / null / air stacks return `null`. Serialization failures log
-     * WARN and return `null` so the snapshot stays well-shaped.
-     */
+    /** Encode a single `ItemStack?` to its id-based slot; empty, kit and training stacks return `null`. */
     private fun encodeSlot(item: ItemStack?, where: String): InventoryItemSlot? {
-        // Lobby menu kit items (ADR-0185) and training-rack weapons (ADR-0200) are never part of a snapshot.
         if (item == null || item.isEmpty || MenuKitTag.isKit(item) || TrainingItemTag.isTraining(item)) return null
         return try {
-            val baos = ByteArrayOutputStream()
-            BukkitObjectOutputStream(baos).use { it.writeObject(item) }
-            val base64 = Base64.getEncoder().encodeToString(baos.toByteArray())
-            InventoryItemSlot.SerializedBukkit(serializedItemStack = base64)
+            val stored = codec.encode(item) ?: return null
+            if (stored.vanilla) {
+                InventoryItemSlot.VanillaItem(stored.itemId, stored.count, stored.state)
+            } else {
+                InventoryItemSlot.ContentItem(stored.itemId, stored.count, stored.state)
+            }
         } catch (t: Throwable) {
-            log.warn(
-                "PaperInventorySnapshotSerializer.encodeSlot: {} failed; storing null",
-                where,
-                t,
-            )
+            log.warn("PaperInventorySnapshotSerializer.encodeSlot: {} failed; storing null", where, t)
             null
         }
     }
 
-    /**
-     * Decode an [InventoryItemSlot] back into a Bukkit `ItemStack?`. Null
-     * input → null output. ContentItem (vendor-neutral itemId path) is
-     * not yet resolvable to a Bukkit material at this layer (no item-id
-     * registry in Core); WARN + null until a future wave wires one. Per-
-     * slot failures log WARN + null so one bad row does not crash the
-     * restore.
-     */
-    private fun decodeSlot(slot: InventoryItemSlot?, where: String): ItemStack? {
+    /** Rebuild the stack of [slot] from the current item definition; a missing definition or failure gives `null`. */
+    private fun decodeSlot(slot: InventoryItemSlot?, where: String, owner: PlayerId): ItemStack? {
         if (slot == null) return null
-        return when (slot) {
-            is InventoryItemSlot.SerializedBukkit -> {
-                try {
-                    val bytes = Base64.getDecoder().decode(slot.serializedItemStack)
-                    BukkitObjectInputStream(ByteArrayInputStream(bytes)).use { ois ->
-                        (ois.readObject() as? ItemStack)?.takeUnless { MenuKitTag.isKit(it) || TrainingItemTag.isTraining(it) }
-                    }
-                } catch (t: Throwable) {
-                    log.warn(
-                        "PaperInventorySnapshotSerializer.decodeSlot: {} (SerializedBukkit) failed; restoring empty",
-                        where,
-                        t,
-                    )
-                    null
-                }
-            }
-            is InventoryItemSlot.ContentItem -> {
-                val lookup = itemLookup
-                if (lookup == null) {
-                    log.warn(
-                        "PaperInventorySnapshotSerializer.decodeSlot: {} carries ContentItem(id={}, count={}) but no IContentItemRegistryLookup wired; slot restored as empty",
-                        where,
-                        slot.itemId,
-                        slot.count,
-                    )
-                    return null
-                }
-                val materialKey = lookup.bukkitMaterialKeyFor(slot.itemId)
-                    ?: run {
-                        log.warn(
-                            "PaperInventorySnapshotSerializer.decodeSlot: {} carries ContentItem(id={}, count={}) — registry resolved no material; slot restored as empty",
-                            where,
-                            slot.itemId,
-                            slot.count,
-                        )
-                        return null
-                    }
-                val material = Material.matchMaterial(materialKey)
-                    ?: run {
-                        log.warn(
-                            "PaperInventorySnapshotSerializer.decodeSlot: {} resolved id={} -> materialKey={} which Material.matchMaterial returned null; slot restored as empty",
-                            where,
-                            slot.itemId,
-                            materialKey,
-                        )
-                        return null
-                    }
-                ItemStack(material, slot.count.coerceAtLeast(1))
-            }
+        val stored = when (slot) {
+            is InventoryItemSlot.ContentItem -> PaperStoredItemCodec.Stored(slot.itemId, false, slot.count, slot.state)
+            is InventoryItemSlot.VanillaItem -> PaperStoredItemCodec.Stored(slot.materialKey, true, slot.count, slot.state)
+        }
+        return try {
+            codec.decode(stored, owner, where)
+        } catch (t: Throwable) {
+            log.warn("PaperInventorySnapshotSerializer.decodeSlot: {} failed; restoring empty", where, t)
+            null
         }
     }
 
