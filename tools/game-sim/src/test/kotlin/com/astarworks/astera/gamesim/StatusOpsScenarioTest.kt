@@ -85,6 +85,7 @@ class StatusOpsScenarioTest {
         return object : OpContext {
         override val host: com.astarworks.astera.core.application.skillengine.runtime.OpHost get() = error("this scenario never reaches the cast host")
             override val cast = CastId(cast)
+            override val world = com.astarworks.astera.core.domain.world.WorldId("world")
             override val tree: FrameTree = unused<FrameTree>()
             override val values = resolver
             override val ports = ports

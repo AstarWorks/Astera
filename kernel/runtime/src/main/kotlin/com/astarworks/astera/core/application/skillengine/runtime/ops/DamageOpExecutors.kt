@@ -20,11 +20,15 @@ private fun OpContext.damageAll(
     specs: List<DamageComponentSpec>,
     fallbackPoint: Vec3?,
     ignoreInvulnerability: Boolean = false,
-    scale: Double = 1.0,
+    ignoreArmor: Boolean = false,
+    /** Per-victim damage multiplier (explosion falloff); a victim at 0 is skipped. */
+    scaleOf: (UUID) -> Double = { 1.0 },
 ) {
     if (victims.isEmpty() || specs.isEmpty()) return
     val consumed = LinkedHashSet<Pair<UUID, String>>()
     for (victim in victims) {
+        val scale = scaleOf(victim)
+        if (scale <= 0.0) continue
         val parts = specs.map { spec ->
             val extra = spec.perStack?.let { ps ->
                 val holder = if (ps.on == StackSide.CASTER) scope.caster else victim
@@ -37,7 +41,7 @@ private fun OpContext.damageAll(
             ?: feetOf(victim)
             ?: fallbackPoint
             ?: Vec3.ZERO
-        ports.gameplay.damage(scope.skillId, scope.caster, victim, parts, point, ignoreInvulnerability)
+        ports.gameplay.damage(scope.skillId, scope.caster, victim, parts, point, ignoreInvulnerability, ignoreArmor)
     }
     for ((holder, status) in consumed) ports.gameplay.removeStatus(holder, status)
 }
@@ -48,7 +52,7 @@ internal object DamageExecutor : OpExecutor<DamageOp.Damage> {
     override fun execute(op: DamageOp.Damage, ctx: OpContext) {
         val scope = ctx as? SkillCastScope ?: return
         if (!ctx.passes(op.whenExpr)) return
-        ctx.damageAll(scope, ctx.resolveTargets(scope, op.target), op.components, ctx.positionOf(scope, op.target), op.ignoreInvulnerability)
+        ctx.damageAll(scope, ctx.resolveTargets(scope, op.target), op.components, ctx.positionOf(scope, op.target), op.ignoreInvulnerability, op.ignoreArmor)
     }
 }
 
@@ -105,7 +109,7 @@ internal object ExplodeExecutor : OpExecutor<DamageOp.Explode> {
         for ((victim, centre) in bodies) {
             val falloff = if (reach > 0.0) (1.0 - centre.distance(at) / reach).coerceIn(0.0, 1.0) else 1.0
             if (falloff <= 0.0) continue
-            ctx.damageAll(scope, listOf(victim), op.components, at, scale = falloff)
+            ctx.damageAll(scope, listOf(victim), op.components, at, scaleOf = { falloff })
             if (reach > 0.0) {
                 val away = centre - at
                 val radial = if (away.lengthSquared() < 1e-12) Vec3(0.0, 1.0, 0.0) else away.normalize()

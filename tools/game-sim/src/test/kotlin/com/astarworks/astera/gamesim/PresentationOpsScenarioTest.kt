@@ -227,6 +227,7 @@ class PresentationOpsScenarioTest {
     private val ctx = object : OpContext {
         override val host: com.astarworks.astera.core.application.skillengine.runtime.OpHost get() = lookOnlyHost
         override val cast = CastId(7)
+        override val world = com.astarworks.astera.core.domain.world.WorldId("world")
         override val tree: FrameTree = this@PresentationOpsScenarioTest.tree
         override val values: ValueResolver = Resolver(params = mapOf("n" to 6.0), texts = mapOf("c" to "#ff5fa2"))
         override val ports = this@PresentationOpsScenarioTest.ports

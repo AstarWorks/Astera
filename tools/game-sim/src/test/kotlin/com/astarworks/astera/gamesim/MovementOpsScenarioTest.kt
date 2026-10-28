@@ -168,6 +168,7 @@ class MovementOpsScenarioTest {
     private fun ctxOf(e: Env) = object : OpContext {
         override val host: com.astarworks.astera.core.application.skillengine.runtime.OpHost get() = error("this scenario never reaches the cast host")
         override val cast = CastId(1)
+        override val world = com.astarworks.astera.core.domain.world.WorldId("world")
         override val tree: FrameTree get() = error("movement ops never touch the frame tree")
         override val values = literals
         override val ports = e.ports

@@ -63,7 +63,7 @@ class CasterAnimCall(val tick: Int, val verb: String, val anim: String, val tick
 
 class VictimAnimCall(val tick: Int, val victim: UUID, val anim: String, val strength: Double)
 
-class Dealt(val tick: Int, val victim: UUID, val amount: Double, val ignoreInvulnerability: Boolean, val skill: String = "")
+class Dealt(val tick: Int, val victim: UUID, val amount: Double, val ignoreInvulnerability: Boolean, val skill: String = "", val ignoreArmor: Boolean = false)
 
 class CastSim(
     val victims: Map<UUID, Vec3>,
@@ -87,6 +87,10 @@ class CastSim(
     extraSkills: Map<String, String> = emptyMap(),
     /** The world the caster stands in; sound, particles and entity queries must be bound to it (see [soundWorlds]). */
     val castWorld: WorldId = WorldId("world"),
+    /** Status stacks held by other entities (entity -> status -> stacks). */
+    val entityStacks: Map<UUID, Map<String, Int>> = emptyMap(),
+    /** Entities on the caster's team. */
+    val allies: Set<UUID> = emptySet(),
 ) {
     /** World each sound / particle burst / entity query was bound to, in call order. */
     val soundWorlds = ArrayList<WorldId>()
@@ -216,9 +220,11 @@ class CastSim(
             damage(caster, victim, components, hitPoint, false)
         override fun damage(caster: UUID, victim: UUID, components: List<SkillDamage>, hitPoint: Vec3, ignoreInvulnerability: Boolean) =
             damage("", caster, victim, components, hitPoint, ignoreInvulnerability)
-        override fun damage(skillId: String, caster: UUID, victim: UUID, components: List<SkillDamage>, hitPoint: Vec3, ignoreInvulnerability: Boolean) {
+        override fun damage(skillId: String, caster: UUID, victim: UUID, components: List<SkillDamage>, hitPoint: Vec3, ignoreInvulnerability: Boolean) =
+            damage(skillId, caster, victim, components, hitPoint, ignoreInvulnerability, false)
+        override fun damage(skillId: String, caster: UUID, victim: UUID, components: List<SkillDamage>, hitPoint: Vec3, ignoreInvulnerability: Boolean, ignoreArmor: Boolean) {
             for (c in components) {
-                dealt += Dealt(now, victim, c.amount, ignoreInvulnerability, skillId)
+                dealt += Dealt(now, victim, c.amount, ignoreInvulnerability, skillId, ignoreArmor)
                 gpLine("damage", "\"v\":\"${whoOf(victim)}\",\"amt\":${r(c.amount)},\"src\":${jq(skillId)},\"hit\":{${rel(hitPoint)}},\"ignoreIframes\":$ignoreInvulnerability")
                 val max = victimHp
                 if (max != null && victim != caster && victim !in dead) {
@@ -237,7 +243,7 @@ class CastSim(
             frozen += Triple(now, entities, ticks)
             gpLine("freeze", "\"who\":${entities.joinToString(",", "[", "]") { jq(whoOf(it)) }},\"ticks\":$ticks")
         }
-        override fun statusStacks(entity: UUID, statusId: String): Int = if (entity == caster) casterStacks[statusId] ?: 0 else 0
+        override fun statusStacks(entity: UUID, statusId: String): Int = (if (entity == caster) casterStacks else entityStacks[entity] ?: emptyMap())[statusId] ?: 0
         override fun removeStatus(victim: UUID, statusId: String) {
             removed += victim to statusId
             gpLine("status", "\"who\":\"${whoOf(victim)}\",\"id\":${jq(statusId)},\"op\":\"removed\"")
@@ -375,6 +381,7 @@ class CastSim(
         ),
         newTree = c.newTree, motion = c.motion, contacts = c.contacts, exprs = c.exprs, points = c.points,
         skills = catalog::get, observer = farObserver,
+        isAlly = { a, b -> a == b || b in allies },
     )
 
     /** Starts [id] at the current tick without ticking; drive it with [step]. */
