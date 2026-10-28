@@ -68,7 +68,7 @@ public class PaperPlayerHooks(
         return try {
             val env = ExprEnv(
                 variables = live.variables(cast, binding, castTick = scheduler.currentTick().toInt() - request.startTick, stateTick = localTick),
-                frames = live.frames(cast),
+                frames = live.frames(cast, binding),
                 seed = request.seed,
                 castSeed = request.seed,
             )

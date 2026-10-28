@@ -80,6 +80,9 @@ public interface PlayerHooks {
      * false = unsupported. `count` and `volume` never reach here: the player folds them into the instance's later particle / sound rows.
      */
     public fun setDisplayField(handle: VisualHandle, field: String, value: Double): Boolean = false
+
+    /** One `set` row whose value is text: `color` (`#rrggbb`) and `text` (a sprite flipbook glyph). false = unsupported. */
+    public fun setDisplayText(handle: VisualHandle, field: String, value: String): Boolean = false
 }
 
 private object NoHooks : PlayerHooks
@@ -521,7 +524,8 @@ public class TablePlayer(
                 is Action.Status -> for (v in ruleTargets(run, a.targets, ctx)) {
                     gameplay.applyStatus(run.request.caster, v, a.status, int(run, a.stacks, ctx), a.forTicks)
                 }
-                is Action.Effect -> effect(run, row, a, ctx, now, src)                is Action.Lock -> {
+                is Action.Effect -> effect(run, row, a, ctx, now, src)
+                is Action.Lock -> {
                     val until = when (val end = a.until) {
                         is LockEnd.AtTick -> ctx.base + end.tick
                         // released by the owning level exiting or the cast ending; the bound is the server cap
@@ -596,7 +600,7 @@ public class TablePlayer(
             )
             SpawnKind.SPRITE -> visual.spawnPlate(
                 owner, req(run, look, "sprite", ctx), look.fields["alpha"]?.let { dbl(run, it, ctx) } ?: 1.0,
-                look.fields["tint"]?.let { strOf(run, it, ctx) }, flag(run, look, "see_through", ctx), pose, brightness, glow = glow,
+                look.fields["color"]?.let { strOf(run, it, ctx) }, flag(run, look, "see_through", ctx), pose, brightness, glow = glow,
             )
             SpawnKind.RIBBON -> visual.spawnTrail(
                 owner, dbl(run, look.fields["ticks"] ?: throw IllegalArgumentException("ribbon look needs 'ticks'"), ctx).toInt(),
@@ -686,6 +690,15 @@ public class TablePlayer(
 
     /** One `set` row (item 15c): `count` / `volume` are folded into the instance's later particle / sound rows, `text_opacity` goes to the display. */
     private fun set(run: Run, row: Row, a: Action.Set, ctx: RowCtx, now: Int, src: String) {
+        if (a.field == "color" || a.field == "text") {
+            val rec = run.recs[row.instance]
+            val handle = rec?.real
+            if (rec != null && rec.kind != SpawnKind.TEXT && rec.kind != SpawnKind.SPRITE) {
+                fault(run, now, src, "set ${a.field}: '${row.instance.text}' is a ${rec.kind.name.lowercase()} display; it is for text and sprite displays")
+            } else if (handle == null) fault(run, now, src, "set ${a.field}: '${row.instance.text}' has no display handle")
+            else if (!hooks.setDisplayText(handle, a.field, strOf(run, a.value, ctx))) fault(run, now, src, "set ${a.field}: no display sink in PlayerHooks")
+            return
+        }
         val value = dbl(run, a.value, ctx)
         when (a.field) {
             "count", "volume" -> run.fields.getOrPut(row.instance) { HashMap() }[a.field] = value
