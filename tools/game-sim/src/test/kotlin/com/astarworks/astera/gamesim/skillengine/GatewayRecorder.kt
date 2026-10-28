@@ -145,9 +145,13 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
         }
     }
 
+    /** Where each sound played, in call order (kept out of [calls]: the oracle diff compares verbs and payloads only). */
+    val soundPositions = ArrayList<Pair<Int, Vec3>>()
+
     val sounds: ISkillSoundGateway = object : ISkillSoundGateway {
         override fun play(cast: CastRef, sound: String, at: Vec3, category: String, volume: Double, pitch: Double) {
             seen("sounds.play", cast)
+            soundPositions += tick to at
             add("sound", "-", "sound=$sound cat=$category vol=${RecordedCall.num(volume)} pitch=${RecordedCall.num(pitch)}")
         }
     }
