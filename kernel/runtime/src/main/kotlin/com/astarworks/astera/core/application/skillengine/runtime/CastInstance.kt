@@ -38,6 +38,7 @@ import com.astarworks.astera.core.domain.skillengine.model.ValueResolver
 import com.astarworks.astera.core.domain.skillengine.motion.MotionComposer
 import com.astarworks.astera.core.domain.skillengine.motion.MotionPhase
 import com.astarworks.astera.core.domain.skillengine.motion.MotionSpec
+import com.astarworks.astera.core.domain.skillengine.op.ControlOp
 import com.astarworks.astera.core.domain.skillengine.op.SkillOp
 import java.util.UUID
 import kotlin.random.Random
@@ -70,6 +71,7 @@ internal class CastInstance(
 
     private class HitReg(val reg: HitRegistration, var prevAnchor: Vec3? = null)
     private class Scheduled(val dueTick: Int, val event: String?, val source: String?, val ops: List<SkillOp>?, val victim: UUID?)
+    private class OpenWindow(val op: ControlOp.Window, val untilTick: Int)
     private class Listener(val event: String, val source: String, val handler: () -> Unit)
 
     val skill: CompiledSkill = request.skill
@@ -119,6 +121,8 @@ internal class CastInstance(
     private val blockedOps = HashSet<String>()
     private val scheduled = ArrayList<Scheduled>()
     private val listeners = ArrayList<Listener>()
+    private val windows = ArrayList<OpenWindow>()
+    private var incomingAmount = 0.0
     private val frozenUntil = HashMap<String, Int>()
     private val queue = ArrayDeque<CastEvent>()
     private val tickEvents = ArrayList<CastEvent>()
@@ -210,6 +214,7 @@ internal class CastInstance(
         if (currentTick < request.startTick) return
         tick = currentTick
         tickEvents.clear()
+        windows.removeAll { it.untilTick <= tick }
         refreshRoots()
 
         // external + scheduled events
@@ -262,7 +267,7 @@ internal class CastInstance(
     }
 
     private fun idle(): Boolean =
-        !motion.hasWork() && scheduled.isEmpty() && queue.isEmpty() && !deps.dashes.isDashing(id) &&
+        !motion.hasWork() && scheduled.isEmpty() && windows.isEmpty() && queue.isEmpty() && !deps.dashes.isDashing(id) &&
             !gameplayTimeline.pending() && !presentationTimeline.pending()
 
     private fun finishNow(cancelled: Boolean = false) {
@@ -274,6 +279,7 @@ internal class CastInstance(
         deps.locks.cancel(id)
         hitRegs.clear()
         listeners.clear()
+        windows.clear()
         ended = true
     }
 
@@ -389,6 +395,48 @@ internal class CastInstance(
 
     override fun schedule(afterTicks: Int, event: String, source: String) {
         scheduled += Scheduled(tick + maxOf(0, afterTicks), event, source, null, null)
+    }
+
+    override fun openWindow(op: ControlOp.Window, ticks: Int) {
+        windows += OpenWindow(op, tick + ticks)
+    }
+
+    /**
+     * A hit of [amount] from [attacker] reaches the caster between ticks. Returns the damage multiplier the open
+     * windows impose (1 = untouched, 0 = negated); a passing window queues its body for the next tick with
+     * [attacker] bound as the victim.
+     */
+    fun interceptIncoming(attacker: UUID, amount: Double): Double {
+        if (ended || windows.isEmpty()) return 1.0
+        var multiplier = 1.0
+        for (w in windows.toList()) {
+            if (w.untilTick <= lastTick) continue
+            val guard = w.op.filter
+            incomingAmount = amount
+            val pass = try {
+                guard == null || withVictimResult(attacker) { values.bool(guard) }
+            } catch (e: ValueResolveException) {
+                report(w.op.id, "window filter: ${e.message}")
+                false
+            } finally {
+                incomingAmount = 0.0
+            }
+            if (!pass) continue
+            multiplier *= w.op.scale
+            if (w.op.body.isNotEmpty()) scheduled += Scheduled(lastTick + 1, null, w.op.id, w.op.body, attacker)
+            if (w.op.once) windows.remove(w)
+        }
+        return multiplier
+    }
+
+    private fun <T> withVictimResult(victim: UUID, block: () -> T): T {
+        val outer = victimOverride
+        victimOverride = victim
+        try {
+            return block()
+        } finally {
+            victimOverride = outer
+        }
     }
 
     override fun scheduleOps(afterTicks: Int, ops: List<SkillOp>) {
@@ -746,6 +794,7 @@ internal class CastInstance(
         vars["event.name"] = ExprValue.Str(currentEvent?.name ?: "")
         vars["event.source"] = ExprValue.Str(currentEvent?.source ?: "")
         vars["world.up"] = ExprValue.Vec3(UP)
+        vars["incoming.amount"] = ExprValue.Num(incomingAmount)
         activeContact()?.let { c ->
             vars["contact.point"] = ExprValue.Vec3(c.pointWorld)
             vars["contact.normal"] = ExprValue.Vec3(c.normalWorld)
@@ -772,6 +821,41 @@ internal class CastInstance(
         override fun aimPoint(caster: ExprValue.Ref, range: Double): Vec3 = aimAt(range)
 
         override fun counter(key: String): Double = counters[key] ?: 0.0
+
+        private fun enemies(from: Vec3, radius: Double): List<HitCandidate> =
+            ports.entities.nearby(from, radius, request.caster).filter { !isAlly(it.entityId) }
+
+        private fun surfaceDist(p: Vec3, box: HitBox): Double {
+            val dx = maxOf(box.min.x - p.x, 0.0, p.x - box.max.x)
+            val dy = maxOf(box.min.y - p.y, 0.0, p.y - box.max.y)
+            val dz = maxOf(box.min.z - p.z, 0.0, p.z - box.max.z)
+            return kotlin.math.sqrt(dx * dx + dy * dy + dz * dz)
+        }
+
+        override fun nearestEnemyDist(from: Vec3): Double =
+            enemies(from, NEAREST_SCAN).minOfOrNull { it.feet.distance(from) } ?: Double.MAX_VALUE
+
+        override fun enemyInCone(from: Vec3, dir: Vec3, range: Double, halfAngleDeg: Double): Boolean {
+            val flat = Vec3(dir.x, 0.0, dir.z)
+            if (flat.length() < 1e-9) return false
+            val facing = flat.normalize()
+            val cosMin = kotlin.math.cos(Math.toRadians(halfAngleDeg))
+            return enemies(from, range + 2.0).any { c ->
+                if (surfaceDist(from, c.box) > range) return@any false
+                val to = Vec3(c.box.center.x - from.x, 0.0, c.box.center.z - from.z)
+                val len = to.length()
+                len < 1e-6 || facing.dot(to * (1.0 / len)) >= cosMin
+            }
+        }
+
+        override fun hpRatio(who: ExprValue.Ref): Double {
+            val entity = when (who.name) {
+                "caster" -> request.caster
+                "victim" -> currentVictim
+                else -> null
+            } ?: return 1.0
+            return ports.entities.healthRatio(entity).coerceIn(0.0, 1.0)
+        }
 
         override fun bladeLen(frame: ExprValue.Ref): Double {
             val id = FrameId(frame.name)
@@ -834,6 +918,7 @@ internal class CastInstance(
     companion object {
         private const val MAX_EVENTS_PER_DRAIN = 256
         private const val MAX_CHAIN = 4
+        private const val NEAREST_SCAN = 64.0
 
         /** A swept hit volume that moved further than this in one tick was teleported, not flown: test the point only. */
         private const val MAX_SWEEP = 16.0

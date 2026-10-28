@@ -63,6 +63,7 @@ public class SkillExprSpec private constructor(public val spec: ExprEnvSpec, pri
             vars["contact.rel_velocity"] = ExprType.VEC3
             vars["contact.block"] = ExprType.STR
             vars["world.up"] = ExprType.VEC3
+            vars["incoming.amount"] = ExprType.NUM
             val frameNames = def.frames.mapTo(LinkedHashSet()) { it.id } + SectionRules.BUILTIN_FRAMES
             val frames = frameNames - "self" - "line" - "contact" + "victim"
             return SkillExprSpec(ExprEnvSpec(vars, frames), frameNames - "self" - "line" - "contact")

@@ -212,6 +212,13 @@ internal object CelFunctions {
         }
         def("blade_len", "blade_len_ref", D, listOf(REF), listOf(R)) { host().bladeLen(it[0] as ExprValue.Ref) }
 
+        // world queries about the caster's surroundings (cast required)
+        def("nearest_enemy_dist", "nearest_enemy_dist_ref", D, listOf(REF), listOf(R)) { host().nearestEnemyDist(vec(it[0])) }
+        def("enemy_in_cone", "enemy_in_cone_ref_num_num", SimpleType.BOOL, listOf(REF, NUM, NUM), listOf(R, OBJ, OBJ)) {
+            val ref = it[0] as ExprValue.Ref
+            host().enemyInCone(vec(ref), axisOf(worldPose(ref), "forward"), n(it[1]), n(it[2]))
+        }
+        def("hp_ratio", "hp_ratio_ref", D, listOf(REF), listOf(R)) { host().hpRatio(it[0] as ExprValue.Ref) }
         def("counter", "counter_str", D, listOf(SimpleType.STRING), listOf(STR)) { host().counter(it[0] as String) }
 
         // spatial tests (angles in degrees)

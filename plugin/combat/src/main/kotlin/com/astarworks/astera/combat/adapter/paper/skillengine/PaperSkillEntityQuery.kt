@@ -79,6 +79,12 @@ public class PaperSkillEntityQuery(
         )
     }
 
+    override fun healthRatio(entity: UUID): Double {
+        val e = server.getEntity(entity) as? LivingEntity ?: return 1.0
+        val max = e.getAttribute(org.bukkit.attribute.Attribute.MAX_HEALTH)?.value ?: return 1.0
+        return if (max <= 0.0) 1.0 else (e.health / max).coerceIn(0.0, 1.0)
+    }
+
     override fun raycastBlock(from: Vec3, to: Vec3): BlockHit? {
         val world = worldOf(null) ?: return null
         val delta = to - from

@@ -18,6 +18,7 @@ import com.astarworks.astera.combat.domain.damage.attackerIdOrNull
 import com.astarworks.astera.combat.domain.event.CriticalHit
 import com.astarworks.astera.combat.domain.event.DamageDealt
 import com.astarworks.astera.combat.domain.event.DamageMitigated
+import com.astarworks.astera.combat.application.port.outbound.IIncomingDamageInterceptor
 import com.astarworks.astera.combat.domain.event.FriendlyFireBlocked
 import com.astarworks.astera.combat.domain.event.KnockbackApplied
 import com.astarworks.astera.combat.domain.event.PlayerKilled
@@ -107,6 +108,10 @@ public class ApplyDamageUseCase(
      */
     private val contexts: CombatContextResolver = CombatContextResolver { teamLookup },
 ) {
+    /** Set once by the skill-engine runtime (it is built after this use case); `null` = nothing intercepts. */
+    @Volatile
+    public var incomingInterceptor: IIncomingDamageInterceptor? = null
+
     public fun execute(attempt: DamageAttempt): Result<DamageOutcome, ApplyDamageError> {
         if (entityDamageGateway?.isEntityTarget(attempt.targetId) == true) {
             return executeOnEntity(entityDamageGateway, attempt)
@@ -151,6 +156,15 @@ public class ApplyDamageUseCase(
             return Result.failure(ApplyDamageError.FriendlyFireBlocked(attempt.targetId))
         }
 
+        // 3b. A skill window on the defender may negate or scale the hit (parry); after friendly fire so a
+        //     blocked hit does not consume it.
+        val incomingFactor = if (attackerId != null && incomingInterceptor != null) {
+            incomingInterceptor!!.multiplier(attempt.targetId, attackerId, resolution.resolved.finalAmount).coerceAtLeast(0.0)
+        } else {
+            1.0
+        }
+        if (incomingFactor <= 0.0) return Result.failure(ApplyDamageError.TargetImmune(attempt.targetId))
+
         // 4. Mitigation audit events (one per recorded mitigation)
         resolution.mitigations.forEach { mit ->
             eventBus.publish(
@@ -187,7 +201,7 @@ public class ApplyDamageUseCase(
         val atTick = scheduler.currentTick()
         val context = contexts.betweenPlayers(attackerId, attempt.targetId)
         val ruleAmount = resolution.resolved.finalAmount
-        var bonusFactor = 1.0
+        var bonusFactor = incomingFactor
         for (src in bonusSources) {
             val m = src.bonusFor(attempt, atTick)
             require(m.isFinite() && m >= 0.0) {

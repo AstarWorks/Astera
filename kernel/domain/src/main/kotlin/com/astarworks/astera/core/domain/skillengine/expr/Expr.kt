@@ -68,6 +68,15 @@ public interface ExprHost {
 
     /** Value of the cast counter [key] (see the `counter` op); 0 when never bumped. */
     public fun counter(key: String): Double
+
+    /** Distance from [from] to the feet position of the nearest enemy of the caster, or [Double.MAX_VALUE] when none within 64 blocks. */
+    public fun nearestEnemyDist(from: GeoVec3): Double = Double.MAX_VALUE
+
+    /** True when an enemy of the caster stands within [range] of [from] and within [halfAngleDeg] of [dir]. */
+    public fun enemyInCone(from: GeoVec3, dir: GeoVec3, range: Double, halfAngleDeg: Double): Boolean = false
+
+    /** Health fraction 0..1 of the entity behind [who] (`caster`, `victim`); 1 when unknown. */
+    public fun hpRatio(who: ExprValue.Ref): Double = 1.0
 }
 
 /** Values at eval time. [seed] makes `rand(stream)` deterministic per cast; [host] serves `aim_point` / `blade_len`. */

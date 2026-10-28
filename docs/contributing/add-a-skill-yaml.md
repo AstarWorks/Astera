@@ -196,3 +196,42 @@ skills:
 - VFX: `end_tick` は全スロット共通の絶対 tick。スロットごとの寿命は `slot_lifetime_ticks`。`group_keyframes` で formation 全体を平行移動 / 回転 / 拡縮。
 - VFX display particles: `kind: { type: quad, color: "#RRGGBB", alpha: 0..1, glyph?, see_through? }`。keyframe に `color` / `alpha` で色・透明度を補間。`emit: { count (≤40), rate_per_tick?, speed: [min,max], spread_deg, direction: forward|up|outward|tangent|custom[x,y,z], gravity, drag, life_ticks: [min,max], size: [min,max], size_over_life / color_over_life / alpha_over_life / spin_over_life: [{ t: 0..1, v, ease? }, ...] (キー 1 個以上のカーブ)、sprite 要素なら start_frame / frame_ticks }` で粒子を放出 (デモ: `content/vfx/demo-quad-sparks.yaml`、較正は `docs/contributing/vfx-art-direction.md` §5)。
 - スタック専用 status は `content/status/` の `kind: stack_debuff|stack_buff` + `params: { type: marker }`。
+
+## v2 条件付きメカニクス (`astera/v2`, SKL-10)
+
+v2 skill (`content/skills/<id>/skill.yaml`) の条件は全部 CEL (`"= ..."`) で書く。専用 op ではなく汎用文法。
+
+| 目的 | 書き方 |
+|---|---|
+| op / timeline row を条件で実行 | `when: "= nearest_enemy_dist(caster) < 3.6"` (全 op、全 timeline row で使える) |
+| 2 択 / 多択 | `op: if` (`condition`, `then`, `else`)、`op: choose` (`cases: [{when, do}]`, `else`)、`op: weighted_branch` |
+| 回数・段階 | `op: counter` + CEL `counter("key")`、`op: delay` (`after`, `do`) |
+| 受けた攻撃に反応 (parry) | `op: window` |
+
+### `window` (event window)
+
+```yaml
+- id: parry
+  op: window
+  listen: incoming_hit        # 今は incoming_hit のみ (caster が受ける他者の攻撃)
+  ticks: 30                   # 窓の長さ。窓が開いている間 cast は終わらない
+  absorb: false               # true: ダメージを 0 にする (scale: 0.5 なら 50%)。既定は素通し (v1 counter と同じ)
+  once: true                  # 既定 true: 最初に条件を満たした 1 発で窓を閉じる
+  filter: "= dist(caster, victim) < 3.5"   # この式が true の hit だけ対象。victim = 攻撃者、incoming.amount = ダメージ量
+  do:                         # 対象になった hit ごとに 1 回、次 tick に victim=攻撃者 で実行 (damage / delay / status ...)
+    - {id: riposte, op: delay, after: 7, do: [{id: cut, op: damage, target: victim, components: [{kind: physical, amount: 30}]}]}
+```
+
+hit は ダメージパイプライン (`ApplyDamageUseCase`、friendly-fire 判定の後) から cast に届く。窓が無効化した hit は
+`TargetImmune` で戻り、knockback / kill event は発生しない。
+
+### CEL helpers
+
+| 関数 | 意味 |
+|---|---|
+| `nearest_enemy_dist(ref)` | `ref` から最寄りの敵の足元位置までの距離 (v1 `distance_less_than` と同じ測り方)。敵がいなければ非常に大きい値 |
+| `enemy_in_cone(ref, range, half_angle_deg)` | `ref` の前方 (水平) の扇形内に敵がいるか |
+| `hp_ratio(ref)` | `caster` / `victim` の HP 割合 0..1 (不明は 1) |
+| `dist(a, b)` / `counter("key")` | 既存 |
+
+`window` は gameplay 専用 (presentation には置けない)。Schema: `content/schemas/skill.schema.json` の `op_window`。
