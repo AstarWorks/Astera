@@ -208,7 +208,7 @@ internal class Sim(val c: Coin2Collaborators, val catalog: SkillCatalog, val wit
 
     private val dummyFeet = Vec3(0.0, 0.0, 6.0)
     private val entities = object : ISkillEntityQuery {
-    override fun healthRatio(entity: UUID): Double? = null
+    override fun healthRatio(entity: UUID): Double = error("hp_ratio: this fake has no entity $entity")
         override fun nearby(point: Vec3, radius: Double, excluding: UUID?): List<HitCandidate> {
             if (!withDummy) return emptyList()
             val box = HitBox(Vec3(-0.3, 0.0, 5.7), Vec3(0.3, 1.8, 6.3))

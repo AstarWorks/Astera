@@ -81,10 +81,13 @@ public class PaperSkillEntityQuery(
         )
     }
 
-    override fun healthRatio(entity: UUID): Double? {
-        val e = server.getEntity(entity) as? LivingEntity ?: return null
-        val max = e.getAttribute(org.bukkit.attribute.Attribute.MAX_HEALTH)?.value ?: return null
-        return if (max <= 0.0) null else (e.health / max).coerceIn(0.0, 1.0)
+    override fun healthRatio(entity: UUID): Double {
+        val e = server.getEntity(entity) ?: error("hp_ratio: entity $entity is not loaded")
+        val living = e as? LivingEntity ?: error("hp_ratio: entity $entity is not a living entity")
+        val max = living.getAttribute(org.bukkit.attribute.Attribute.MAX_HEALTH)?.value
+            ?: error("hp_ratio: entity $entity has no max health")
+        check(max > 0.0) { "hp_ratio: entity $entity has non-positive max health" }
+        return (living.health / max).coerceIn(0.0, 1.0)
     }
 
     override fun raycastBlock(from: Vec3, to: Vec3): BlockHit? {

@@ -931,9 +931,7 @@ internal class CastInstance(
                     ?.let { runCatching { UUID.fromString(it) }.getOrNull() }
                     ?: throw ValueResolveException("hp_ratio(${who.name}): not an entity (caster, victim, enemy or enemy@<uuid>)")
             }
-            val ratio = ports.entities.healthRatio(entity)
-                ?: throw ValueResolveException("hp_ratio: $entity is not a living entity")
-            return ratio.coerceIn(0.0, 1.0)
+            return ports.entities.healthRatio(entity).coerceIn(0.0, 1.0)
         }
 
         override fun bladeLen(frame: ExprValue.Ref): Double {

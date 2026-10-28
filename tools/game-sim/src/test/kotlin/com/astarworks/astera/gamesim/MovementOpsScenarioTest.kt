@@ -79,7 +79,7 @@ class MovementOpsScenarioTest {
     private fun env(caster: UUID): Env {
         val w = World()
         val entities = object : ISkillEntityQuery {
-    override fun healthRatio(entity: UUID): Double? = null
+    override fun healthRatio(entity: UUID): Double = error("hp_ratio: this fake has no entity $entity")
             override fun nearby(point: Vec3, radius: Double, excluding: UUID?): List<HitCandidate> =
                 w.feet.filter { (id, _) -> id != excluding && id in w.alive }
                     .map { (id, f) -> HitCandidate(id, f, 0.0, box(f)) }

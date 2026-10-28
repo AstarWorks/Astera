@@ -165,8 +165,8 @@ public interface ISkillEntityQuery {
     /** Where blocks stop a moving body: first solid hit on segment [from]->[to], or null. */
     public fun raycastBlock(from: Vec3, to: Vec3): BlockHit?
 
-    /** Health fraction 0..1 of a living entity (expression `hp_ratio`); null when [entity] is not a living entity. */
-    public fun healthRatio(entity: UUID): Double?
+    /** Health fraction 0..1 of a living entity (expression `hp_ratio`); an entity that is unknown or not living is an error. */
+    public fun healthRatio(entity: UUID): Double
 }
 
 public data class EntityRoot(val feet: Vec3, val yawDeg: Double, val pitchDeg: Double, val eyeHeight: Double, val height: Double)
