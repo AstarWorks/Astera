@@ -18,12 +18,23 @@ import java.util.concurrent.ConcurrentHashMap
 public class CastHosts : MovementHost, OpTargetResolver, PresentationCastInfo {
     private val live = ConcurrentHashMap<CastId, CastInstance>()
 
+    /** A finished cast's owner, kept until its ripple-delayed world edits (which name the cast) have run. */
+    private class Retired(val owner: UUID, val skillId: String, var ticksLeft: Int)
+
+    private val retired = ConcurrentHashMap<CastId, Retired>()
+
     internal fun register(cast: CastInstance) {
         live[cast.id] = cast
     }
 
     internal fun unregister(id: CastId) {
-        live.remove(id)
+        val cast = live.remove(id) ?: return
+        retired[id] = Retired(cast.owner(id), cast.skillId, RETIRE_TICKS)
+    }
+
+    /** Once per server tick: forgets finished casts whose delayed edits can no longer be pending. */
+    internal fun tick() {
+        retired.values.removeIf { --it.ticksLeft < 0 }
     }
 
     private fun of(ctx: OpContext): CastInstance = of(ctx.cast)
@@ -41,9 +52,17 @@ public class CastHosts : MovementHost, OpTargetResolver, PresentationCastInfo {
 
     override fun resolve(ctx: OpContext, target: TargetRef): List<UUID> = of(ctx).resolve(ctx, target)
 
-    override fun owner(cast: CastId): UUID = of(cast).owner(cast)
+    override fun owner(cast: CastId): UUID = live[cast]?.owner(cast) ?: retired[cast]?.owner ?: error("cast ${cast.value} is not running")
+
+    /** Skill id of [cast]: running, or finished with delayed world edits still owed. */
+    internal fun skillOf(cast: CastId): String? = live[cast]?.skillId ?: retired[cast]?.skillId
 
     override fun targets(cast: CastId, target: TargetRef): List<UUID> = of(cast).targets(cast, target)
 
     override fun hasRaised(cast: CastId, event: String): Boolean = live[cast]?.hasRaised(cast, event) ?: false
+
+    private companion object {
+        /** Longest a delayed world edit can trail its cast: the ripple window plus one tick. */
+        const val RETIRE_TICKS: Int = WorldLimits.RIPPLE_TICKS + 1
+    }
 }

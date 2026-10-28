@@ -69,6 +69,21 @@ public class DefaultCastRunner(private val deps: CastRunnerDeps) : CastRunner, I
 
     private val log = ArrayList<CastDiagnostic>()
 
+    private var lastTick = 0
+
+    init {
+        // A delayed world edit that throws ends its cast and is logged once; the editor already dropped the cast's other edits.
+        deps.world.failures = SkillWorldEditor.FailureSink { origin, cause ->
+            record(
+                CastDiagnostic(
+                    origin.cast, lastTick, origin.opId,
+                    "world edit of skill ${deps.hosts.skillOf(origin.cast) ?: "?"} failed, cast ended: ${cause::class.simpleName}: ${cause.message}",
+                ),
+            )
+            cancel(origin.cast)
+        }
+    }
+
     @Synchronized
     override fun start(request: CastRequest): Result<CastId, CastError> {
         return startChain(request, emptyList())
@@ -119,6 +134,7 @@ public class DefaultCastRunner(private val deps: CastRunnerDeps) : CastRunner, I
 
     @Synchronized
     override fun tick(currentTick: Int) {
+        lastTick = currentTick
         for (cast in casts.values.toList()) {
             try {
                 cast.tick(currentTick)
@@ -135,6 +151,7 @@ public class DefaultCastRunner(private val deps: CastRunnerDeps) : CastRunner, I
         deps.dashes.tick()
         deps.locks.tick()
         deps.world.tick()
+        deps.hosts.tick()
     }
 
     @Synchronized

@@ -14,7 +14,18 @@ public class SkillWorldEditor(public val world: ISkillWorldGateway) {
 
     private class Edited(val original: String?, var token: Long)
 
-    private class Task(val due: Long, val seq: Long, val action: () -> Unit)
+    private class Task(val due: Long, val seq: Long, val origin: EditOrigin?, val action: () -> Unit)
+
+    /** Which cast / op queued a delayed edit, so a failing edit can be reported and its cast ended. */
+    public class EditOrigin(public val cast: CastId, public val opId: String)
+
+    /** Called once per delayed edit that threw; the editor has already dropped the rest of that cast's queued edits. */
+    public fun interface FailureSink {
+        public fun failed(origin: EditOrigin, cause: RuntimeException)
+    }
+
+    /** Set by the runner; an edit with an origin that throws is reported here, never swallowed. */
+    public var failures: FailureSink? = null
 
     private var now: Long = 0
     private var seq: Long = 0
@@ -30,13 +41,21 @@ public class SkillWorldEditor(public val world: ISkillWorldGateway) {
             val head = queue.peek() ?: return
             if (head.due > now) return
             queue.poll()
-            head.action()
+            try {
+                head.action()
+            } catch (e: RuntimeException) {
+                val origin = head.origin ?: throw e
+                // One cast's broken edit must not stall the others: drop what it still has queued, report once, go on.
+                queue.removeIf { it.origin?.cast == origin.cast }
+                val sink = failures ?: throw e
+                sink.failed(origin, e)
+            }
         }
     }
 
     /** Run [action] after [delayTicks] (at least 1) server ticks. */
-    public fun later(delayTicks: Long, action: () -> Unit) {
-        queue.add(Task(now + delayTicks.coerceAtLeast(1), seq++, action))
+    public fun later(delayTicks: Long, origin: EditOrigin? = null, action: () -> Unit) {
+        queue.add(Task(now + delayTicks.coerceAtLeast(1), seq++, origin, action))
     }
 
     /**
@@ -46,7 +65,13 @@ public class SkillWorldEditor(public val world: ISkillWorldGateway) {
     public fun edit(cell: BlockCell, revertAfterTicks: Long, change: () -> Boolean) {
         val fresh = edited[cell] == null
         val entry = edited[cell] ?: Edited(world.blockAt(cell), 0L).also { edited[cell] = it }
-        if (!change()) {
+        val changed = try {
+            change()
+        } catch (e: RuntimeException) {
+            if (fresh) edited.remove(cell)
+            throw e
+        }
+        if (!changed) {
             if (fresh) edited.remove(cell)
             return
         }
