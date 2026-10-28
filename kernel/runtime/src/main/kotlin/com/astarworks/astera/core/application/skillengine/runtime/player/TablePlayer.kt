@@ -681,12 +681,16 @@ public class TablePlayer(
                 cast, req(run, look, "sprite", ctx), look.fields["alpha"]?.let { dbl(run, it, ctx) } ?: 1.0,
                 look.fields["color"]?.let { strOf(run, it, ctx) }, flag(run, look, "see_through", ctx), pose, brightness, glow = glow,
             )
-            SpawnKind.RIBBON -> visual.spawnTrail(
-                cast, dbl(run, look.fields["ticks"] ?: throw IllegalArgumentException("ribbon look needs 'ticks'"), ctx).toInt(),
-                look.fields["width"]?.let { dbl(run, it, ctx) } ?: 1.0, look.fields["color"]?.let { strOf(run, it, ctx) } ?: "#ffffff",
-                look.fields["alpha"]?.let { dbl(run, it, ctx) } ?: 1.0,
-            ).also { th ->
-                visual.setTrailLook(th, look.fields["fade_power"]?.let { dbl(run, it, ctx) } ?: 1.0, look.fields["style"]?.let { strOf(run, it, ctx) } ?: "soft")
+            SpawnKind.RIBBON -> {
+                // the lowered ribbon look (RibbonOpSpec): `argb` is #aarrggbb and its alpha is the trail opacity (ADR-0303 rev4.4; v1 `alpha`)
+                val argb = look.fields["argb"]?.let { dbl(run, it, ctx).toLong().toInt() } ?: -1
+                val width = look.fields["width_frac"] ?: look.fields["width"]
+                visual.spawnTrail(
+                    cast, dbl(run, look.fields["history_ticks"] ?: throw IllegalArgumentException("ribbon look needs 'history_ticks'"), ctx).toInt(),
+                    width?.let { dbl(run, it, ctx) } ?: 1.0, "#%06x".format(argb and 0xFFFFFF), ((argb ushr 24) and 0xFF) / 255.0,
+                ).also { th ->
+                    visual.setTrailLook(th, look.fields["fade"]?.let { dbl(run, it, ctx) } ?: 1.0, look.fields["style"]?.let { strOf(run, it, ctx) } ?: "soft")
+                }
             }
         }
         val gh = if (h != null) GatewayHandle(h.id) else GatewayHandle(nextSynthetic--)

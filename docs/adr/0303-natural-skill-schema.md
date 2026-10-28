@@ -42,7 +42,7 @@ rig `of` and `reset` (10.5); dump `world` rows and event names (11.3); Patch doc
 **rev4.4 (2026-10-29, SKL-22 engine triage, wording only)**: records what the engine settled while the wave 1 content was loaded against it: display centring
 and `#aarrggbb` colour (2.1), world op defaults (10.1c), dash `direction` required, `rand()` in a `when` guard, hit occurrence windows, check 10
 counted over `[spawn, end)`, a `lock` row owning its instance, param defaults and item-part axes for frame motion, state-qualified
-instance ids. Each sentence names the commit that implemented it. No field is added or removed.
+instance ids, ribbon opacity as the colour alpha. Each sentence names the commit that implemented it. No field is added or removed.
 Founder questions Q1-Q7 are OPEN: every spot that depends on one carries a "pending founder Qn" note with both options and chooses neither (list under
 "Open decisions"). Examples c, e, g updated; `rejected/r12`-`r14` added. Status stays Proposed (edited in place by the manager's authorisation).
 
@@ -317,7 +317,8 @@ exists (`size_frac` is deleted). Item/block/text displays keep the plain vanilla
 (`6b99a099c`, `0b76a1b71`). Text displays get the v1 centre compensation (`VfxQuad`), and their `scale` is the vanilla scale, which is the v1 size
 x 5 (`6b99a099c`). A sprite is centred by the sprite font, so `pivot` accepts only `center`, and its size is `size` / natural, applied once, with the
 gateway unit 1 (`a0b1d3798`). Colour keys are `#aarrggbb` everywhere, alpha first; a sprite's tint alpha sets its opacity, and the text background is
-one `#aarrggbb` string (`a0b1d3798`).
+one `#aarrggbb` string (`a0b1d3798`). A ribbon's opacity is the alpha byte of its `color` (v1 trail `alpha: 0.35` is `#59......`); there is no separate
+`alpha` field, and the player hands the gateway the rgb and the opacity from that one value (rev4.4).
 
 #### 2.2 `particle`
 
