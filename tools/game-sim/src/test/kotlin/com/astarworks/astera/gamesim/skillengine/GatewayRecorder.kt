@@ -99,6 +99,36 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
     /** The lock sink the platform's `PaperPlayerHooks` is: pitch / yaw go through `lockLook`, so a played lock shows as a `lock` call. */
     val hooks: com.astarworks.astera.core.application.skillengine.runtime.player.PlayerHooks =
         object : com.astarworks.astera.core.application.skillengine.runtime.player.PlayerHooks {
+            private val compiler = com.astarworks.astera.core.application.skillengine.expr.cel.CelExprCompiler()
+
+            /**
+             * PaperPlayerHooks.guard without Paper: expands `cond.<name>`, compiles the CEL against the v3 variable spec and evaluates it.
+             * The sim has no entities, so the caster stands at the origin and the `event.attacker` / `target` of every event stands 2 blocks ahead.
+             */
+            override fun guard(cast: CastHandle, guard: com.astarworks.astera.core.domain.skillengine.table.Guard, conditions: Map<String, String>, binding: EventBinding?, localTick: Int, seed: Long): Boolean? {
+                val source = when (guard) {
+                    is com.astarworks.astera.core.domain.skillengine.table.Guard.Expr -> guard.source
+                    is com.astarworks.astera.core.domain.skillengine.table.Guard.Named -> "cond.${guard.cond}"
+                }
+                val expanded = (com.astarworks.astera.core.application.skillengine.expr.cel.CondBindings.expand("sim", "guard", source, conditions)
+                    as? com.astarworks.astera.core.domain.Result.Success)?.value ?: return null
+                val expr = (compiler.compile(expanded, com.astarworks.astera.core.application.skillengine.expr.cel.V3Bindings.spec(null), com.astarworks.astera.core.domain.skillengine.expr.ExprType.BOOL)
+                    as? com.astarworks.astera.core.domain.Result.Success)?.value ?: return null
+                val ahead = com.astarworks.astera.core.domain.geometry.Vec3(0.0, 0.0, 2.0)
+                val vars = com.astarworks.astera.core.application.skillengine.expr.cel.V3Bindings.values(
+                    null, stateTick = localTick, eventI = binding?.index ?: 0,
+                    target = com.astarworks.astera.core.application.skillengine.expr.cel.V3Bindings.Binding(pos = ahead),
+                )
+                val frames = object : com.astarworks.astera.core.domain.skillengine.expr.FrameLookup {
+                    override fun worldPose(frame: String, point: String?) = com.astarworks.astera.core.domain.geometry.math.Frame(
+                        if (frame == "caster") com.astarworks.astera.core.domain.geometry.Vec3(0.0, 0.0, 0.0) else ahead,
+                    )
+                    override fun velocity(frame: String, point: String?) = com.astarworks.astera.core.domain.geometry.Vec3(0.0, 0.0, 0.0)
+                }
+                // like PaperPlayerHooks: a guard that cannot evaluate here (it needs a cast host, e.g. nearest_enemy_dist) answers null = a fault, false
+                return try { (expr.eval(com.astarworks.astera.core.domain.skillengine.expr.ExprEnv(vars, frames, seed = seed)) as? com.astarworks.astera.core.domain.skillengine.expr.ExprValue.Bool)?.value } catch (e: RuntimeException) { null }
+            }
+
             override fun lock(caster: UUID, move: com.astarworks.astera.core.domain.skillengine.table.LockMove, pitch: Boolean, yaw: Boolean, untilTick: Int): Boolean {
                 if (pitch || yaw) gameplay.lockLook(caster, pitch, yaw, untilTick)
                 return true
