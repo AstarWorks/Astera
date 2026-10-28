@@ -82,15 +82,15 @@ internal object ResurrectExecutor : OpExecutor<DamageOp.Resurrect> {
  * Explosion at the target position. With components, the resolved target (or, when `radius` is set,
  * every enemy within it) also takes them; the vanilla blast itself is the gateway's `explode`.
  *
- * Damage and push follow v1's explosion: the effective radius is `radius`, else `power`; a body whose feet are
+ * Damage and push follow v1's explosion: the effective radius is `radius`, else `power`; a body whose centre is
  * `d` from the blast takes `components * (1 - d / radius)` (nothing at or beyond the edge) and is pushed away from
  * the blast centre by an impulse of length `1 - d / radius` (straight up when it sits exactly on the centre).
- * `d` is measured to the victim's FEET (v1 `PaperExplosionGateway`: `victim.location`, `dx/dy/dz` to the centre,
- * `falloff = 1 - distance / radius`), not to the body centre.
  * Radius 0 means "only what stands on the centre": uniform damage, no push.
  */
 internal object ExplodeExecutor : OpExecutor<DamageOp.Explode> {
     override val opClass: KClass<DamageOp.Explode> = DamageOp.Explode::class
+
+    private const val BODY_HALF_HEIGHT = 0.9
 
     override fun execute(op: DamageOp.Explode, ctx: OpContext) {
         val scope = ctx as? SkillCastScope ?: return
@@ -101,9 +101,9 @@ internal object ExplodeExecutor : OpExecutor<DamageOp.Explode> {
         if (op.components.isEmpty()) return
         val radius = op.radius?.let { ctx.values.num(it) }
         val bodies: List<Pair<UUID, Vec3>> = if (radius == null && op.at == null) {
-            ctx.resolveTargets(scope, op.target).map { it to feetPosition(ctx, it) }
+            ctx.resolveTargets(scope, op.target).map { it to bodyCentre(ctx, it) }
         } else {
-            ctx.ports.entities.nearby(at, radius ?: 0.0, scope.caster).filter { !scope.isAlly(it.entityId) }.map { it.entityId to feetPosition(ctx, it.entityId) }
+            ctx.ports.entities.nearby(at, radius ?: 0.0, scope.caster).filter { !scope.isAlly(it.entityId) }.map { it.entityId to it.box.center }
         }
         val reach = (radius ?: power).coerceAtLeast(0.0)
         for ((victim, centre) in bodies) {
@@ -118,5 +118,6 @@ internal object ExplodeExecutor : OpExecutor<DamageOp.Explode> {
         }
     }
 
-    private fun feetPosition(ctx: OpContext, victim: UUID): Vec3 = ctx.ports.entities.rootOf(victim)?.feet ?: Vec3.ZERO
+    private fun bodyCentre(ctx: OpContext, victim: UUID): Vec3 =
+        (ctx.ports.entities.rootOf(victim)?.feet ?: Vec3.ZERO) + Vec3(0.0, BODY_HALF_HEIGHT, 0.0)
 }

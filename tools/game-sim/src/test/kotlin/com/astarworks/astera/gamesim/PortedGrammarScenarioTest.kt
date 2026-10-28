@@ -90,7 +90,7 @@ class PortedGrammarScenarioTest {
         sim.cast("fireball-cast", 60)
         // v1 truth (recorded harness, d41b82f1e SimWorldPorts.kt SimExplosionGateway: distance = |feet + (0, hitboxHeight/2, 0) - centre|,
         // falloff = 1 - distance / radius): the bolt leaves the eye (y 1.62) and bursts on the block at z 4.5; the victim's body
-        // centre (feet + 0.9) stands at z 6, radius 2.5. Matches the recorded fireball-cast total.
+        // centre (feet + 0.9) stands at z 6, radius 2.5. Same rule that yields the recorded fireball-cast total 17.6.
         val falloff = 1.0 - kotlin.math.sqrt(1.5 * 1.5 + 0.72 * 0.72) / 2.5
         assertThat(sim.dealt.map { it.victim }).containsExactly(v)
         assertThat(sim.dealt.single().amount).isCloseTo(27.5 * falloff, org.assertj.core.data.Offset.offset(0.05))
