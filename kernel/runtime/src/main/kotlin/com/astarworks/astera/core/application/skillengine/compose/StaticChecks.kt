@@ -510,6 +510,8 @@ public object StaticChecks {
                     for (r in s.rows + subsOf(s).flatMap { it.rows }) when (val a = r.action) {
                         is Action.Spawn -> out += r.instance
                         is Action.Call -> out += a.callId
+                        // `body` and `rig` are spawners too: their start row is an Effect on their own instance, their `for` an End
+                        is Action.Effect -> out += r.instance
                         else -> {}
                     }
                 }

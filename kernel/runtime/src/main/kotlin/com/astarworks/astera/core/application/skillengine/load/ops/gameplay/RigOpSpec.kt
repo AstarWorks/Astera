@@ -27,6 +27,7 @@ import com.astarworks.astera.core.domain.geometry.math.Quaternion
 import com.astarworks.astera.core.domain.skillengine.model.Value
 import com.astarworks.astera.core.domain.skillengine.op.OpSection
 import com.astarworks.astera.core.domain.skillengine.table.Action
+import com.astarworks.astera.core.domain.skillengine.table.InstanceId
 import com.astarworks.astera.core.domain.skillengine.table.OpId
 import com.astarworks.astera.core.domain.skillengine.table.SrcPath
 import com.astarworks.astera.core.domain.skillengine.table.Row
@@ -139,6 +140,8 @@ public object RigOpSpec : OpSpec<RigOp> {
             )
         }
 
+    private val BUILTIN_PARENTS = setOf("caster", "caster.body", "caster.eye", "caster.look", "caster.hand_r", "caster.hand_l", "world")
+
     override fun lower(op: RigOp, lc: LowerContext): Result<Lowered, SkillDecodeError> {
         val path = lc.src.value
         val item = lc.item?.takeIf { it != "any" }
@@ -147,7 +150,9 @@ public object RigOpSpec : OpSpec<RigOp> {
             is Result.Success -> d.value
             is Result.Failure -> return d
         }
+        // a builtin frame is a valid rig parent as in v2: it rides the caster by name (the player resolves a non-instance parent by its text)
         val parentInstance = lc.anchors.resolve(op.parent)?.instance
+            ?: op.parent.takeIf { it in BUILTIN_PARENTS }?.let { InstanceId(listOf(InstanceId.Segment(OpId(it), null))) }
             ?: return Result.Failure(SkillDecodeError.UndefinedReference(lc.skillId, path, op.parent))
         val driven = op.of?.let { name ->
             lc.anchors.resolve(name)?.instance ?: return Result.Failure(SkillDecodeError.UndefinedReference(lc.skillId, path, name))

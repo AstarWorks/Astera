@@ -78,7 +78,7 @@ public object PartParser {
         else -> v
     }
 
-    /** Parses every `kind: Part` document in [text]; `kind: Skill` documents are skipped, anything else is an error. */
+    /** Parses every `kind: Part` document in [text]; `kind: Skill` and `kind: Patch` documents are skipped, anything else is an error. */
     public fun parseParts(file: String, text: String): Result<List<Part>, List<PartError>> {
         val docs = documents(file, text).let { if (it is Result.Failure) return Result.failure(listOf(it.error)) else (it as Result.Success).value }
         val parts = ArrayList<Part>()
@@ -91,8 +91,8 @@ public object PartParser {
                 } catch (e: PartAbort) {
                     errors += e.error
                 }
-                "Skill" -> Unit
-                else -> errors += PartError.Invalid("$where.kind", "kind must be Part or Skill, was '${doc["kind"]}'")
+                "Skill", "Patch" -> Unit // a Patch document is applied by the composer (R35), it is not a part
+                else -> errors += PartError.Invalid("$where.kind", "kind must be Part, Skill or Patch, was '${doc["kind"]}'")
             }
         }
         return if (errors.isEmpty()) Result.success(parts) else Result.failure(errors)

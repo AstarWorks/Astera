@@ -27,7 +27,7 @@ public class BreakAreaOp(
     override val src: SrcPath,
     override val whenExpr: WhenRef?,
     override val timing: Timing?,
-    public val anchor: String,
+    public val anchor: com.astarworks.astera.core.application.skillengine.load.grammar.AnchorRef,
     public val spec: BreakAreaSpec,
 ) : OpNode
 

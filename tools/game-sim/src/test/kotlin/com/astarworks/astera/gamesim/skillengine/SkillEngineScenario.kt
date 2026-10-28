@@ -117,6 +117,15 @@ abstract class SkillEngineScenario {
         return compiler.compile(def, parts, skills)
     }
 
+    /** Compile result of one composed tree (a skill after `kind: Patch` documents were applied, e.g. a skin variant `<id>@<variant>`). */
+    protected fun compileTree(file: String, tree: Map<String, Any?>): Result<CompiledSkill, SkillDecodeError> {
+        val env = GrammarEnv(shippedParts.keys, setOfNotNull(tree["id"] as? String))
+        return when (val d = decoder.decode(file, tree, env)) {
+            is Result.Success -> compileMain(Loaded(mapOf(d.value.id to d.value), shippedParts), d.value.id)
+            is Result.Failure -> Result.failure(d.error)
+        }
+    }
+
     /** Compile result of one file (first skill document is the main skill), without throwing. */
     protected fun compileText(file: String, text: String): Result<CompiledSkill, SkillDecodeError> =
         when (val l = decodeAll(file, text)) {

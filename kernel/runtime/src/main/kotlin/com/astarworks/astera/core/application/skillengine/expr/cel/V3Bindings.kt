@@ -26,7 +26,7 @@ public object V3Bindings {
     internal val RUNTIME_POSITION_ROOTS: Set<String> = setOf("contact", "target", "caster")
 
     /** Single `event.` fields that are positions (`event.victim`); `event.i` and the other event fields stay static. */
-    internal val RUNTIME_POSITION_FIELDS: Set<String> = setOf("event.victim")
+    internal val RUNTIME_POSITION_FIELDS: Set<String> = setOf("event.victim", "event.attacker")
 
     /** True for a dotted identifier whose value is a position known only when the event happens. */
     internal fun isRuntimePosition(ident: String): Boolean =
@@ -55,6 +55,7 @@ public object V3Bindings {
         }
         for (f in CONTACT_ONLY_VEC3) v["contact.$f"] = ExprType.VEC3
         v["event.victim"] = ExprType.VEC3
+        v["event.attacker"] = ExprType.VEC3
         return ExprEnvSpec(v, base.frames + BUILTIN_FRAMES)
     }
 
@@ -97,6 +98,8 @@ public object V3Bindings {
         }
         // `event.victim` is the victim's feet (its Ref form stays `target`/`victim`); `dist(event.victim, caster)` reads it as a point
         out["event.victim"] = ExprValue.Vec3(target.pos)
+        // `event.attacker` (a `hurt` handler) is likewise read as the attacker's feet; only the runtime knows it, so the neutral value is the target's
+        out["event.attacker"] = ExprValue.Vec3(target.pos)
         out["contact.normal"] = ExprValue.Vec3(contact.normal)
         out["contact.point"] = ExprValue.Vec3(contact.point)
         return out
