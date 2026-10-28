@@ -454,6 +454,13 @@ class TablePlayerRulesScenarioTest {
                 writes += pose.frame.origin
                 rec.visual.write(handle, pose, interpolationTicks)
             }
+
+            // Kotlin's `by` delegation does not generate the mangled bridge for a value-class return with a defaulted parameter
+            override fun spawnText(
+                cast: com.astarworks.astera.core.application.skillengine.runtime.port.CastRef, text: String, backgroundArgbHex: String, shadow: Boolean,
+                seeThrough: Boolean, pose: com.astarworks.astera.core.application.skillengine.runtime.port.VisualPose, brightness: Int?,
+                view: com.astarworks.astera.core.application.skillengine.runtime.port.DisplayView,
+            ): VisualHandle = rec.visual.spawnText(cast, text, backgroundArgbHex, shadow, seeThrough, pose, brightness, view)
         }
         val player = playProbe(s, ticks = 6, rec = rec, visual = visual)
         assertThat(player.faults()).isEmpty()

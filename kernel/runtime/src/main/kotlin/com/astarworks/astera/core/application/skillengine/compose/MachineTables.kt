@@ -87,7 +87,7 @@ public object MachineTables {
     public fun lower(skillId: String, machine: Machine, lowerer: SectionLowerer, config: EngineConfig): Result<MachineLowering, SkillDecodeError> {
         fun bad(path: String, msg: String) = Result.Failure(SkillDecodeError.Invalid(skillId, path, msg))
         if (machine.states.isEmpty()) return bad("machine", "machine has no states")
-        if ('/' in machine.start) return Result.Failure(SkillDecodeError.StartNamesChild(skillId, machine.start))
+        // an authored `start` naming a child is StartNamesChild at decode; after part expansion a calling start state is a flattened path
         if (machine.start !in machine.states) return bad("machine.start", "start state '${machine.start}' is not declared")
 
         val flat = Flat(LinkedHashMap(), LinkedHashMap())
@@ -249,6 +249,9 @@ public object MachineTables {
             val duration: Duration = when {
                 st.final -> Duration.Fixed(0)
                 forTicks != null -> Duration.Fixed(forTicks)
+                // no event can hold the state and a timer is unguarded (a folded part continuation is `after: 0`): it leaves by the earliest such timer
+                !hasEvent && timers.any { it.guard == null } ->
+                    Duration.Bounded(TickRange(timers.minOf { it.window.min }, timers.filter { it.guard == null }.minOf { it.window.min }))
                 timers.isNotEmpty() -> Duration.Bounded(TickRange(timers.minOf { it.window.min }, config.maxCastTicks))
                 else -> Duration.Bounded(TickRange(0, config.maxCastTicks))
             }
