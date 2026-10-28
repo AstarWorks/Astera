@@ -8,10 +8,8 @@ meta:
   cooldown_ticks: 120
   resource_cost: 15
   tags: [aoe, physical]
-# GAP: gameplay.expose (damage <- dmg_physical, radius) -> none (inline literals)
 anchors:
   - {id: ring_pt, anchor: caster, offset: {up: 0.15}}
-  - {id: foe, anchor: victim.root}
 machine:
   start: whirl
   states:
@@ -25,12 +23,14 @@ machine:
           anchor: caster
           shape: {sphere: 3.5}
           targets: enemies
+          max_count: all  # GAP(Q1): spelling A (required, `all` = v2 unlimited); under B delete this line
+          ignore_invulnerability: false
           # linear falloff from 35 at the centre to 17.5 at the edge (v2 expression kept)
-          damage: {physical: "= 35.0 * (1.0 - 0.5 * dist(pos(caster), pos(event.victim)) / 3.5)"}
+          damage: {physical: "= 35.0 * (1.0 - 0.5 * dist(event.victim, caster) / 3.5)"}
           window: once
           on:
             hit:
-              - {id: snd_hit, op: sound, sound: "astera:weapons/blade-hit", anchor: foe, volume: 0.7, pitch: 1.0}
+              - {id: snd_hit, op: sound, sound: "astera:weapons/blade-hit", anchor: contact, volume: 0.7, pitch: 1.0}
         - {id: snd, op: sound, sound: "astera:weapons/blade-heavy-swing", anchor: caster, volume: 1.0, pitch: 1.2}
         # six expanding rings, one per tick, radius 0.5 + 0.6 * k; 16 emits per ring
         - id: ring
@@ -38,7 +38,6 @@ machine:
           every: 1
           times: 6
           do:
-            # GAP: v2 emit `shift` (per-emit position) -> particle anchor {of, offset} map (closest); v2 draw('shape_ph') per-cast shared phase -> none (phase 0 used)
-            - {id: crit,  op: particle, particle: crit, times: 16, at: 0, count: 0, offset: "= [cos(6.283185307179586 * i / 16), 0.0, -sin(6.283185307179586 * i / 16)]", extra: 0.03, anchor: {of: ring_pt, offset: {left: "= (0.5 + 0.6 * parent.i) * cos(6.283185307179586 * i / 16)", forward: "= -(0.5 + 0.6 * parent.i) * sin(6.283185307179586 * i / 16)"}}}
-            - {id: dust,  op: particle, particle: dust, times: 16, at: 0, count: 1, color: "#dcdcdc", size: 1.4, anchor: {of: ring_pt, offset: {left: "= (0.5 + 0.6 * parent.i) * cos(6.283185307179586 * i / 16)", forward: "= -(0.5 + 0.6 * parent.i) * sin(6.283185307179586 * i / 16)"}}}
+            - {id: crit,  op: particle, particle: crit, times: 16, at: 0, count: 0, offset: "= [cos((2*PI*i/16 + draw('shape_ph')*2*PI)), 0.0, -sin((2*PI*i/16 + draw('shape_ph')*2*PI))]", extra: 0.03, anchor: ring_pt, shift: {left: "= (0.5 + 0.6 * parent.i) * cos((2*PI*i/16 + draw('shape_ph')*2*PI))", forward: "= -(0.5 + 0.6 * parent.i) * sin((2*PI*i/16 + draw('shape_ph')*2*PI))"}}
+            - {id: dust,  op: particle, particle: dust, times: 16, at: 0, count: 1, color: "#dcdcdc", size: 1.4, anchor: ring_pt, shift: {left: "= (0.5 + 0.6 * parent.i) * cos((2*PI*i/16 + draw('shape_ph')*2*PI))", forward: "= -(0.5 + 0.6 * parent.i) * sin((2*PI*i/16 + draw('shape_ph')*2*PI))"}}
     end: {final: true}

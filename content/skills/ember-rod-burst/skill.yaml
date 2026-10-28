@@ -14,30 +14,19 @@ params:
   burn_ticks: {type: ticks, default: 20}
 anchors:
   - {id: ground, anchor: caster, offset: {up: 0.15}}
-  - {id: enemy, anchor: victim.body}
 presentation:
   timeline:
     - id: burst
       at: 0
       do:
         - {id: snd, op: sound, sound: "astera:skill/wand/cast", anchor: caster, volume: 1.0, pitch: 0.9}
-    - id: ring               # ticks 0..5, ring radius r = 0.5 + 0.6 * k
+    - id: ring               # ticks 0..5, ring radius r = 0.5 + 0.6 * k (k = parent.i); 16 copies per tick (R10)
       at: 0
       every: 1
       times: 6
       do:
-        - id: spoke          # 16 copies on the same tick, angle = phase * 2pi + 2pi * i / 16
-          at: 0
-          times: 16
-          # GAP: `k` (outer tick index 0..5) and `ang` (= rand()*2pi + 2pi*i/16) are pseudo-variables; v3 child timing is not inherited, no named outer index -> needs engine spelling
-          # GAP: 16 simultaneous copies in one tick -> v3 timing group has no same-tick fan; `times: 16` assumed to mean n copies at the occurrence tick
-          # GAP: v2 draw('shape_ph') random per-instance phase -> v3 only has rand(); phase written as rand() (meaning change: not deterministic per instance)
-          do:
-            - {id: flame, op: particle, particle: flame, anchor: ground, count: 0, offset: ["= cos(ang)", 0, "= -sin(ang)"], extra: 0.03}
-            - {id: dust, op: particle, particle: dust, anchor: ground, count: 1, offset: ["= (0.5 + 0.6 * k) * cos(ang)", 0, "= -(0.5 + 0.6 * k) * sin(ang)"], extra: 0, color: "#ff6e14", size: 1.4}
-  "on":
-    hit:
-      - {id: snd_hit, op: sound, sound: "astera:weapons/blade-hit", anchor: enemy, volume: 0.7, pitch: 1.0}
+        - {id: flame, op: particle, particle: flame, times: 16, anchor: ground, count: 0, offset: ["= cos(2 * PI * i / n + draw('shape_ph') * 2 * PI)", 0, "= -sin(2 * PI * i / n + draw('shape_ph') * 2 * PI)"], extra: 0.03}
+        - {id: dust, op: particle, particle: dust, times: 16, anchor: ground, shift: {x: "= (0.5 + 0.6 * parent.i) * cos(2 * PI * i / n + draw('shape_ph') * 2 * PI)", y: 0, z: "= -(0.5 + 0.6 * parent.i) * sin(2 * PI * i / n + draw('shape_ph') * 2 * PI)"}, count: 1, offset: [0, 0, 0], extra: 0, color: "#ff6e14", size: 1.4}
 machine:
   start: cast
   states:
@@ -47,11 +36,15 @@ machine:
       enter:
         - id: blast
           op: hit
-          anchor: caster
-          shape: {kind: sphere, radius: "${radius}"}
+          at: 0
+          shape: {sphere: {center: caster, radius: "${radius}"}}
           targets: enemies
-          damage: {fire: "= ${dmg_fire} * (1 - 0.5 * dist(pos(caster), pos(event.victim)) / ${radius})"}
+          max_count: all       # GAP(Q1): max_count spelling (A required int|all / B omit) is a founder question; v2 had no cap
+          window: once
+          ignore_invulnerability: false
+          damage: {fire: "= ${dmg_fire} * (1.0 - 0.5 * dist(event.victim, caster) / ${radius})"}
           on:
             hit:
+              - {id: snd_hit, op: sound, sound: "astera:weapons/blade-hit", anchor: contact, volume: 0.7, pitch: 1.0}
               - {id: burn, op: status, target: event.victim, status: burn, stacks: 1, for: "${burn_ticks}"}
     done: {final: true}

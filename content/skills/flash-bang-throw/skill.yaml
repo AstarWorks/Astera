@@ -34,8 +34,8 @@ gameplay:
           block: {mode: despawn}
           on:
             hit:
-              # GAP: max_count 64 is invented (v3 area targets require max_count; v2 had no cap) -> none
 # note: v2 shocks enemies within radius 4.0 of the victim (area target)
+              # GAP(Q1): max_count 64 is invented (v2 had no cap); spelling per founder answer
               - {id: st_shock, op: status, target: {kind: enemies, around: heart, radius: 4.0, max_count: 64, include_self: false}, status: shock, stacks: 1, for: 30}
               - {id: hit_base, op: frame, anchor: heart, turn: [{axis: up, deg: "= rand() * 360"}], for: 8}
               - id: hit_rings
@@ -48,6 +48,7 @@ gameplay:
                   - {op: particle, times: 16, anchor: 'hit_rings_pt[i]', particle: dust, count: 1, color: "#ffffe6", size: 1.4}
               - {id: snd_hit, op: sound, sound: "entity.firework_rocket.blast", anchor: heart, volume: 0.9, pitch: 1.3}
             block:
+              # GAP(Q1): max_count 64 is invented (v2 had no cap); spelling per founder answer
               - {id: st_shock_2, op: status, target: {kind: enemies, around: contact.point, radius: 4.0, max_count: 64, include_self: false}, status: shock, stacks: 1, for: 30}
               - {id: blk_base, op: frame, anchor: contact.point, turn: [{axis: up, deg: "= rand() * 360"}], for: 8}
               - id: blk_rings

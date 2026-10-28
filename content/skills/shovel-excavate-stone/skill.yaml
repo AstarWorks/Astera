@@ -5,7 +5,6 @@ id: shovel-excavate-stone
 item: stone-shovel
 meta: {name: {ja: "石の掘削", en: "Stone Excavate"}, description: {ja: "目の前の柔らかいブロックを箱形にえぐる。", en: "Digs out a box of soft blocks in front of you."}, cooldown_ticks: 140, resource_cost: 0, tags: [tool, cover]}
 anchors:
-  - {id: aim,    anchor: caster.eye}                              # the v2 `aim` frame, origin of break_area
   - {id: spark,  anchor: caster.eye, offset: {forward: 2.0}}      # was pt_aim_0_0_2
 machine:
   start: cast
@@ -14,8 +13,7 @@ machine:
       for: 1
       then: end
       do:
-        # GAP: op break_area has no v3 spelling in ADR-0303 -> none; v2 fields carried verbatim, v2 `at: aim` (a frame) is written `anchor: aim`
-        - {id: dig, op: break_area, at: 0, shape: box, radius: 2.0, length: 3, width: 3, height: 2, tool_class: SHOVEL, block_damage: 200, power: 1, anchor: aim}
+        - {id: dig, op: break_area, at: 0, anchor: caster.eye, shape: {box: {width: 3, height: 2, length: 3}}, tool: shovel, block_damage: 100, ripple: 29, revert: 200, outside_arena: false}
         - {id: snd, op: sound, sound: "astera:weapons/gun-impact-block", anchor: caster, volume: 1.0, pitch: 0.7}
         - {id: fx, op: particle_def, def: hit-spark, anchor: spark}
     end: {final: true}

@@ -8,11 +8,9 @@ meta:
   cooldown_ticks: 6
   resource_cost: 4
   tags: [melee, physical]
-# GAP: gameplay.expose (damage <- dmg_physical, arc_deg, range, bleed_ticks) -> none (inline literals)
 anchors:
   - {id: stab_pt, anchor: caster.eye, offset: {up: -0.2, forward: 1.4}}
-  - {id: foe,   anchor: victim.root}
-  - {id: heart, anchor: victim.root, offset: {up: 1.2}}
+  - {id: heart, anchor: victim.root, offset: {up: 1.2}}  # GAP(Q2): v2 enemy frame origin = feet+0.8 fixed; victim.body (live hitbox centre, 0.9) or a fixed chest point is the founder's choice (Q2)
 machine:
   start: swing
   states:
@@ -24,15 +22,18 @@ machine:
           op: hit
           at: 0
           anchor: caster.eye
-          shape: {sector: {deg: 70, range: 2.5, height: 2.0}}
+          shape: {sector: {deg: 70, range: 2.5, height: 2.0, forward: look}}
           targets: enemies
+          max_count: all  # GAP(Q1): spelling A (required, `all` = v2 unlimited); under B delete this line
+          ignore_invulnerability: false
           damage: {physical: 18.0}
           window: once
           on:
             hit:
+              - {id: kb, op: knockback, target: event.victim, direction: "= normalize(pos(event.victim) - pos(caster))", strength: 0.1}
               # v2 status bleed chance 0.4 -> rand() gate (chance field removed in v3)
               - {id: bleed, op: status, target: event.victim, status: bleed, stacks: 1, for: 80, when: "= rand() < 0.4"}
-              - {id: snd_hit, op: sound, sound: "astera:weapons/blade-hit", anchor: foe, volume: 0.7, pitch: 1.2}
+              - {id: snd_hit, op: sound, sound: "astera:weapons/blade-hit", anchor: contact, volume: 0.7, pitch: 1.2}
               - {id: fx_hit, op: particle_def, def: hit-spark, anchor: heart}
         - {id: snd, op: sound, sound: "astera:weapons/sword-swing", anchor: caster, volume: 1.0, pitch: 1.7}
         - {id: fx, op: particle_def, def: stab-spark, anchor: stab_pt}

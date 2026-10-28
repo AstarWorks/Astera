@@ -153,7 +153,7 @@ public object CombatWiring {
         if (engine is com.astarworks.astera.core.domain.Result.Failure) logger.severe("[skill-error] engine/skill-engine.yaml: ${engine.error}")
         val engineConfig = (engine as? com.astarworks.astera.core.domain.Result.Success)?.value
             ?: com.astarworks.astera.core.domain.skillengine.model.EngineConfig()
-        val skillCatalog = com.astarworks.astera.core.application.skillengine.load.SkillEngineRegistries.catalog(frameTables, skillParts, engineConfig)
+        val skillCatalog = com.astarworks.astera.core.application.skillengine.load.SkillEngineRegistries.catalog(frameTables, skillParts, com.astarworks.astera.core.application.skillengine.compose.ContentSpriteCatalog.load(ctx.contentDir.resolve("sprites")), engineConfig)
         val skillEngineContents = com.astarworks.astera.core.application.skillengine.runtime.SkillEngineContents(skillCatalog, engineConfig = engine)
         val skillGate = SkillMetaRegistry(skillCatalog)
         val skillReport = skillEngineContents.reload(skillsContentDir)

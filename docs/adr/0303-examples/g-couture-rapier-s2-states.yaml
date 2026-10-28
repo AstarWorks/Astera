@@ -15,8 +15,8 @@ machine:
       for: 34
       then: raise
       do:
-        - {use: slash-arc, at: 7, with: {radius: 9, sector: 30}, frames: {origin: caster}}          # reusable part
-        - {id: hit1, op: hit, at: 8, anchor: caster, targets: enemies, shape: {sector: {deg: 30, range: 9, height: 2.0}}, damage: {physical: 30}}
+        - {use: slash-arc, at: 7, with: {radius: 9, sector: 30, height: 2.0}, frames: {origin: caster}}          # reusable part
+        - {id: hit1, op: hit, at: 8, anchor: caster, targets: enemies, max_count: all, ignore_invulnerability: false, shape: {sector: {deg: 30, range: 9, height: 2.0, forward: look}}, damage: {physical: 30}}   # max_count: pending founder Q1 (A required int or all; B optional)
     raise:
       for: 4
       then: throw

@@ -20,6 +20,7 @@ machine:
       for: "= window"
       then: whiff
       enter:
+        # pending founder Q5 (couture absorb): (A) transition absorb: true; (B) this modify_attribute row; (C) a parry {for, scale: 0} op. Not chosen here.
         - {id: resist, op: modify_attribute, attribute: resist.physical, operation: add, amount: "= resist", target: caster, for: "= window"}
         - {id: snd_guard, op: sound, sound: item.shield.block, anchor: caster, volume: 0.6, pitch: 1.5}
       do:

@@ -15,7 +15,6 @@ params:
   bleed_ticks:  {type: ticks, default: 100}
 anchors:
   - {id: fx, anchor: caster.eye, offset: {forward: 1.3, up: -0.1}}
-  - {id: enemy, anchor: victim.body, offset: {up: 1.2}}
 presentation:
   timeline:
     - id: swing
@@ -23,10 +22,6 @@ presentation:
       do:
         - {id: snd, op: sound, sound: "entity.player.attack.sweep", anchor: caster, volume: 1.0, pitch: 0.7}
         - {id: fx1, op: emit, effect: stab-spark, anchor: fx}
-  "on":
-    hit:
-      - {id: snd_hit, op: sound, sound: "astera:weapons/blade-hit", anchor: enemy, volume: 0.7, pitch: 1.2}
-      - {id: spark, op: emit, effect: hit-spark, anchor: enemy}
 machine:
   start: cast
   states:
@@ -34,14 +29,19 @@ machine:
       for: 1
       then: done
       enter:
-        # GAP: v2 sector height 2.0 -> v3 sector has no vertical limit (F8), none
         - id: strike
           op: hit
           anchor: caster.eye
-          shape: {kind: sector, deg: "${arc_deg}", range: "${range}"}
+          at: 0
+          shape: {sector: {deg: "${arc_deg}", range: "${range}", height: 2.0, forward: look}}
           targets: enemies
+          max_count: all       # GAP(Q1): max_count spelling (A required int|all / B omit) is a founder question; v2 had no cap
+          window: once
+          ignore_invulnerability: false
           damage: {physical: "${dmg_physical}"}
           on:
             hit:
+              - {id: snd_hit, op: sound, sound: "astera:weapons/blade-hit", anchor: contact, volume: 0.7, pitch: 1.2}
+              - {id: spark, op: emit, effect: hit-spark, anchor: contact}
               - {id: bleed, op: status, target: event.victim, status: bleed, stacks: 1, for: "${bleed_ticks}"}
     done: {final: true}

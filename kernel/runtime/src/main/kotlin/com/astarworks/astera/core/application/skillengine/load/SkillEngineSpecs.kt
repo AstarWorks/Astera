@@ -24,6 +24,10 @@ import com.astarworks.astera.core.application.skillengine.load.ops.presentation.
 import com.astarworks.astera.core.application.skillengine.load.ops.presentation.ParticleOpSpec
 import com.astarworks.astera.core.application.skillengine.load.ops.presentation.RibbonOpSpec
 import com.astarworks.astera.core.application.skillengine.load.ops.presentation.SoundOpSpec
+import com.astarworks.astera.core.application.skillengine.load.ops.world.BreakAreaOpSpec
+import com.astarworks.astera.core.application.skillengine.load.ops.world.ExplodeOpSpec
+import com.astarworks.astera.core.application.skillengine.load.ops.world.LightningOpSpec
+import com.astarworks.astera.core.application.skillengine.load.ops.world.PlaceShapeOpSpec
 import com.astarworks.astera.core.application.skillengine.load.spec.OpSpec
 
 /**
@@ -56,5 +60,9 @@ public object SkillEngineSpecs {
         RigOpSpec,
         EmitOpSpec,
         RemoveOpSpec,
+        BreakAreaOpSpec,
+        PlaceShapeOpSpec,
+        ExplodeOpSpec,
+        LightningOpSpec,
     )
 }

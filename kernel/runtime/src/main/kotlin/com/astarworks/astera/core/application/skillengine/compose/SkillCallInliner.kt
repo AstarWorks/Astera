@@ -35,11 +35,11 @@ public object SkillCallInliner {
         Part(id, callee.params, callee.framesIn, emptyMap(), callee.emits, callee.machine)
 
     /** Skill calls resolved, then parts inlined (the skill half of the pipeline step `PartInliner.inline`). */
-    public fun inline(def: SkillDef, skills: SkillCatalogView, parts: PartCatalog, config: EngineConfig = EngineConfig()): Result<SkillDef, SkillDecodeError> {
+    public fun inline(def: SkillDef, skills: SkillCatalogView, parts: PartCatalog, config: EngineConfig = EngineConfig()): Result<PartInliner.Inlined, SkillDecodeError> {
         val session = Session(def.id, skills, parts)
         val machine = session.rewrite(def.machine, "machine", listOf(def.id))
         session.error?.let { return Result.failure(it) }
-        val out = PartInliner.inline(def.copy(machine = machine), session.catalog, config)
+        val out = PartInliner.inlineCounted(def.copy(machine = machine), session.catalog, config)
         session.error?.let { return Result.failure(it) }
         return out
     }

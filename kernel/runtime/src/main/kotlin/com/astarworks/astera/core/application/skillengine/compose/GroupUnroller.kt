@@ -1,7 +1,17 @@
 package com.astarworks.astera.core.application.skillengine.compose
 
 import com.astarworks.astera.core.application.skillengine.load.SkillDecodeError
+import com.astarworks.astera.core.application.skillengine.expr.cel.V3Bindings
 import com.astarworks.astera.core.application.skillengine.load.grammar.Every
+import com.astarworks.astera.core.application.skillengine.load.grammar.Spacing
+import com.astarworks.astera.core.application.skillengine.load.spec.WhenRef
+import com.astarworks.astera.core.domain.geometry.Vec3
+import com.astarworks.astera.core.domain.geometry.math.Frame
+import com.astarworks.astera.core.domain.skillengine.expr.ExprEnv
+import com.astarworks.astera.core.domain.skillengine.expr.ExprEvalException
+import com.astarworks.astera.core.domain.skillengine.expr.ExprValue
+import com.astarworks.astera.core.domain.skillengine.expr.FrameLookup
+import com.astarworks.astera.core.domain.skillengine.table.Guard
 import com.astarworks.astera.core.application.skillengine.load.grammar.Span
 import com.astarworks.astera.core.application.skillengine.load.grammar.TimeAt
 import com.astarworks.astera.core.application.skillengine.load.grammar.Timing
@@ -65,14 +75,28 @@ public object GroupUnroller {
                 base.clockOffset + s, base.anchors, base.frames, base.parts, base.skills, base.item, base.sprites, base.conditions, base.exprs, base.config, base.seed,
                 base.src,
             )
+            val gate = when (val r = whenGate(node, occ)) {
+                is Result.Success -> r.value
+                is Result.Failure -> return r
+            }
+            if (gate is WhenGate.Drop) continue
             val lo = when (val r = if (node is GroupOp) lowerBody(node, occ, horizon?.minus(s)) else lowerOnce.lower(node, occ)) {
                 is Result.Success -> r.value
                 is Result.Failure -> return r
             }
             val mask = sched.maskUntil
+            val guard = (gate as? WhenGate.Guarded)?.guard
+            if (guard != null) {
+                val bad = lo.rows.firstOrNull { it.action !is Action.Damage && it.action !is Action.Status && it.action !is Action.Hit && it.action !is Action.Emit && it.action !is Action.Effect }
+                if (bad != null) {
+                    return fail(SkillDecodeError.RuntimeTiming(occ.src.value, "when", "a live (class L) when may only gate a point gameplay op (damage / status / heal / hit / emit), not a spawn or an extended op (item 13)", occ.skillId))
+                }
+            }
             for (r in lo.rows) {
-                val shifted = r.copy(tick = r.tick + s)
-                rows += if (mask == null) shifted else shifted.copy(maskUntil = shifted.maskUntil + EventPath(mask))
+                var shifted = r.copy(tick = r.tick + s)
+                if (mask != null) shifted = shifted.copy(maskUntil = shifted.maskUntil + EventPath(mask))
+                if (guard != null && shifted.guard == null) shifted = shifted.copy(guard = guard)
+                rows += shifted
             }
             subs += lo.subTables
             inst += lo.instances
@@ -80,6 +104,40 @@ public object GroupUnroller {
             writes.putAll(lo.writes)
         }
         return Result.Success(Lowered(rows, subs, inst, events, writes))
+    }
+
+    private sealed interface WhenGate {
+        data object Keep : WhenGate
+        data object Drop : WhenGate
+        data class Guarded(val guard: Guard) : WhenGate
+    }
+
+    private object NoFrames : FrameLookup {
+        override fun worldPose(frame: String, point: String?): Frame? = null
+        override fun velocity(frame: String, point: String?): Vec3 = Vec3.ZERO
+    }
+
+    /** `when` per occurrence (item 13): class S is resolved here (false = no rows); L / T becomes a row guard, legal on point gameplay ops only. */
+    private fun whenGate(node: OpNode, occ: LowerContext): Result<WhenGate, SkillDecodeError> {
+        val ref = node.whenExpr ?: return Result.Success(WhenGate.Keep)
+        val compiled = when (ref) {
+            is WhenRef.Expr -> ref.compiled
+            is WhenRef.Named -> occ.conditions[ref.cond]
+                ?: return fail(SkillDecodeError.UndefinedReference(occ.skillId, occ.src.value + ".when", ref.cond))
+        }
+        val guard: Guard = when (ref) {
+            is WhenRef.Expr -> Guard.Expr(ref.compiled.source)
+            is WhenRef.Named -> Guard.Named(ref.cond)
+        }
+        if (occ.classify(compiled) != ExprClass.S) return Result.Success(WhenGate.Guarded(guard))
+        val env = ExprEnv(V3Bindings.values(occ.occurrence), NoFrames, seed = V3Bindings.seed(0L, node.id, occ.occurrence.i))
+        val v = try {
+            compiled.eval(env)
+        } catch (e: ExprEvalException) {
+            return fail(SkillDecodeError.Invalid(occ.skillId, occ.src.value + ".when", "when: ${e.message}"))
+        }
+        val b = (v as? ExprValue.Bool)?.value ?: return fail(SkillDecodeError.Invalid(occ.skillId, occ.src.value + ".when", "when is not a boolean"))
+        return Result.Success(if (b) WhenGate.Keep else WhenGate.Drop)
     }
 
     /** Lowers one occurrence of a group's `do` list (rows relative to the occurrence tick 0). [horizon] is on the occurrence's own clock. */
@@ -235,8 +293,10 @@ public object GroupUnroller {
                 }
                 if (p < 1) return fail(SkillDecodeError.Invalid(lc.skillId, "$path.every", "every must be at least 1 tick"))
                 val byWindow = windowLen?.let { ceilDiv(it, p) }
+                if (t.span is Span.Ticks && timesN != null) {
+                    return fail(SkillDecodeError.Invalid(lc.skillId, path, "every: write for or times, not both; the smaller one would be dead text"))
+                }
                 val n = when {
-                    byWindow != null && timesN != null -> minOf(byWindow, timesN)
                     byWindow != null -> byWindow
                     timesN != null -> timesN
                     else -> {
@@ -248,15 +308,29 @@ public object GroupUnroller {
                 if (n < 1) return fail(SkillDecodeError.Invalid(lc.skillId, path, "no occurrence falls inside the window"))
                 List(n) { start + it * p }
             }
-            is Every.Eased -> easedTicks(lc, path, start, windowLen, timesN)
+            is Every.Eased -> easedTicks(lc, path, every, t.span, start, windowLen, timesN)
                 .let { r -> when (r) { is Result.Success -> r.value; is Result.Failure -> return r } }
         }
         return Result.Success(Schedule(ticks, true, t.until))
     }
 
-    /** `every: {from, to, ease}` (3.7.1): fire ticks come from `Spacing.fireTicks` (package W1-02). Wired at merge, see the W1-01 report. */
-    private fun easedTicks(lc: LowerContext, path: String, start: Int, windowLen: Int?, times: Int?): Result<List<Int>, SkillDecodeError> =
-        fail(SkillDecodeError.Invalid(lc.skillId, "$path.every", "eased every needs Spacing.fireTicks (W1-02), not merged yet"))
+    /** `every: {from, to, ease}` (3.7.1): the fire ticks come from [Spacing.fireTicks]; a finite `for` is required, `for` + `times` is the item-1 error. */
+    private fun easedTicks(lc: LowerContext, path: String, every: Every.Eased, span: Span?, start: Int, windowLen: Int?, times: Int?): Result<List<Int>, SkillDecodeError> {
+        if (!Spacing.isKnownEase(every.ease)) return fail(SkillDecodeError.Invalid(lc.skillId, "$path.every.ease", "unknown ease '${every.ease}'"))
+        if (span is Span.Ticks && times != null) {
+            return fail(SkillDecodeError.Invalid(lc.skillId, path, "every: write for or times, not both; the smaller one would be dead text"))
+        }
+        val window = windowLen ?: return fail(SkillDecodeError.UnboundedRepeat(path, lc.skillId))
+        val from = when (val r = lc.requireStaticTiming(path, "every.from", every.from)) {
+            is Result.Success -> r.value
+            is Result.Failure -> return r
+        }
+        val to = when (val r = lc.requireStaticTiming(path, "every.to", every.to)) {
+            is Result.Success -> r.value
+            is Result.Failure -> return r
+        }
+        return Result.Success(Spacing.fireTicks(start, Spacing.Range(from.toDouble(), to.toDouble(), every.ease), window, times))
+    }
 
     private fun chainProduct(o: Occurrence?): Int {
         var p = 1
