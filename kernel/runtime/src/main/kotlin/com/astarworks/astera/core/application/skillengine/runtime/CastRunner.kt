@@ -14,6 +14,8 @@ public value class CastId(public val value: Long)
 public data class CastRequest(
     val skill: CompiledSkill,
     val caster: UUID,
+    /** The world the caster stands in; every sound, particle and entity query of the cast is bound to it. */
+    val world: com.astarworks.astera.core.domain.world.WorldId,
     val casterFeet: Vec3,
     val casterYawDeg: Double,
     val casterPitchDeg: Double,
@@ -51,6 +53,12 @@ public interface CastRunner {
 
     /** Raise an external event on a running cast (e.g. `release` from an input). */
     public fun raise(cast: CastId, event: CastEvent)
+
+    /**
+     * Raise the input event [name] (`release`, `charge`) on every running cast of [caster] that has not raised it yet;
+     * returns how many casts received it (0 is normal: most clicks end no hold).
+     */
+    public fun raiseAllOf(caster: java.util.UUID, name: String, tick: Int): Int
 
     public fun cancel(cast: CastId)
 

@@ -17,4 +17,6 @@ public data class DamageAttempt(
     val headshot: Boolean = false,
     /** `damage.ignore_invulnerability`: the gateway skips its i-frame window for this hit. */
     val ignoreInvulnerability: Boolean = false,
+    /** `damage.ignore_armor`: armor / resist reduction is skipped for this hit. */
+    val ignoreArmor: Boolean = false,
 )

@@ -18,9 +18,9 @@ import java.nio.file.Path
  * and `tools/skill-lint` cannot drift apart (ADR-0301). Every op family is registered here and nowhere else.
  */
 public object SkillEngineRegistries {
-    public fun decoder(): SkillDecoder = YamlSkillDecoder(
+    public fun decoder(blocks: IBlockKeyCatalog): SkillDecoder = YamlSkillDecoder(
         DefaultOpRegistries.decoders(
-            movementDecoders(), statusDecoders(), worldDecoders(), spawnDecoders(), damageDecoders(), presentationDecoders(),
+            movementDecoders(), statusDecoders(), worldDecoders(blocks), spawnDecoders(), damageDecoders(), presentationDecoders(),
             listOf(FrameOpDecoders(), HitOpDecoders(), ControlOpDecoders()),
         ),
     )
@@ -31,7 +31,8 @@ public object SkillEngineRegistries {
 
     public fun compiler(tables: Map<String, ItemFrames>): SkillCompiler = DefaultSkillCompiler(CelExprCompiler()) { tables[it] }
 
-    public fun catalog(tables: Map<String, ItemFrames>): InMemorySkillCatalog = InMemorySkillCatalog(decoder(), compiler(tables))
+    public fun catalog(tables: Map<String, ItemFrames>, blocks: IBlockKeyCatalog): InMemorySkillCatalog =
+        InMemorySkillCatalog(decoder(blocks), compiler(tables))
 
     /** Point source for ITEM / PART frames, backed by the decoded point tables. */
     public fun pointSource(tables: Map<String, ItemFrames>): ModelPointSource = ModelPointSource { model, part ->

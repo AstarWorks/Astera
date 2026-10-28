@@ -24,8 +24,8 @@ gameplay:
     hit:
       - {id: explode, op: explode, power: "${explode_power}", break_blocks: false, radius: "${explode_radius}", components: [{kind: physical, amount: "${explode_physical}"}], target: victim}
       - {id: st_bleed, op: status, status: bleed, duration_ticks: "${bleed_ticks}", target: {enemies: {around: enemy, radius: "${radius}"}}}
-      - {op: break_area, shape: sphere, radius: 1.5, block_damage: 35, breaks: true, id: chip, at: "= contact.point"}
+      - {op: break_area, shape: sphere, radius: 1.5, block_damage: 35, breaks: true, length: 0.0, id: chip, at: "= contact.point"}
     block:
       - {id: explode_2, op: explode, power: "${explode_power}", break_blocks: false, radius: "${explode_radius}", components: [{kind: physical, amount: "${explode_physical}"}], at: "= contact.point"}
       - {id: st_bleed_2, op: status, status: bleed, duration_ticks: "${bleed_ticks}", target: {enemies: {around: contact.point, radius: "${radius}"}}}
-      - {op: break_area, shape: sphere, radius: 1.5, block_damage: 35, breaks: true, id: chip_2, at: "= contact.point"}
+      - {op: break_area, shape: sphere, radius: 1.5, block_damage: 35, breaks: true, length: 0.0, id: chip_2, at: "= contact.point"}

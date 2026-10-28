@@ -75,12 +75,6 @@ public class PaperSkillVisualGateway(
     private val entries = ConcurrentHashMap<Long, Entry>()
     private val owners = ConcurrentHashMap<Long, UUID>()
 
-    @Volatile
-    private var lastWorld: WorldId? = null
-
-    /** World of the most recent cast owner; the particle and sound ports carry no world (see report). */
-    public fun activeWorld(): WorldId? = lastWorld
-
     private sealed interface Entry
     private class MeshEntry(val handle: DisplayHandle, val owner: UUID, val heldItem: Boolean = false) : Entry
     /** One hand lease per caster, shared by every live `main_hand` mesh of that caster. */
@@ -162,7 +156,7 @@ public class PaperSkillVisualGateway(
 
     override fun spawnQuad(castOwner: UUID, colorHex: String, alpha: Double, text: String?, shadow: Boolean, seeThrough: Boolean, pose: VisualPose, brightness: Int?): VisualHandle {
         val world = worldOf(castOwner) ?: return dead("quad")
-        val intrinsic = if (text == null) Intrinsic.TEXT_SOLID else Intrinsic.textGlyph(QUAD_TEXT_PX)
+        val intrinsic = if (text == null) Intrinsic.TEXT_SOLID else Intrinsic.glyphQuad(QUAD_TEXT_PX)
         val first = toDisplayWrite(pose.frame, pose.size, intrinsic, pose.billboard, 0)
         val spec = SkillDisplaySpecs.quad(colorHex, alpha, text, shadow, seeThrough, first.transform, pose.billboard, brightness)
         val handle = spawnDisplay(world, castOwner, pose.frame.origin, spec, listOf(text ?: " "), pose.anchorFeet != null && pose.billboard == DisplayBillboard.FIXED)
@@ -389,7 +383,6 @@ public class PaperSkillVisualGateway(
 
     private fun worldOf(owner: UUID): World? {
         val world = server.getPlayer(owner)?.world ?: return null
-        lastWorld = WorldId(world.name)
         return world
     }
 

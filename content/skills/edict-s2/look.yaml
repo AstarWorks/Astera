@@ -1280,7 +1280,7 @@ presentation:
           - {t: 1, offset: [0.0, 1.15, 0.0], scale: [0.8, 0.8, 1.0]}
           - {t: 6, offset: [0.0, 1.15, 0.0], scale: [0.0, 0.0, 1.0]}
         when: "= event.source == 'sel'"
-      - {id: snd, op: sound, sound: entity.player.attack.strong, at: contact.point, volume: 0.7, pitch: 1.1, when: "= event.source == 'sel'"}
+      - {id: snd, op: sound, sound: entity.player.attack.strong, at: enemy, volume: 0.7, pitch: 1.1, when: "= event.source == 'sel'"}
       - {op: block, parent: fx7_edict_impact, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx7_edict_impact_ray_0_0, when: "= event.source == 'sel_2'"}
       - id: fx7_edict_impact_ray_0_0_trk
         op: track
@@ -1450,7 +1450,7 @@ presentation:
           - {t: 1, offset: [0.0, 1.15, 0.0], scale: [0.8, 0.8, 1.0]}
           - {t: 6, offset: [0.0, 1.15, 0.0], scale: [0.0, 0.0, 1.0]}
         when: "= event.source == 'sel_2'"
-      - {id: snd_2, op: sound, sound: entity.player.attack.strong, at: contact.point, volume: 0.7, pitch: 1.1, when: "= event.source == 'sel_2'"}
+      - {id: snd_2, op: sound, sound: entity.player.attack.strong, at: enemy, volume: 0.7, pitch: 1.1, when: "= event.source == 'sel_2'"}
       - {op: block, parent: fx10_edict_impact, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx10_edict_impact_ray_0_0, when: "= event.source == 'sel_3'"}
       - id: fx10_edict_impact_ray_0_0_trk
         op: track
@@ -1620,4 +1620,4 @@ presentation:
           - {t: 1, offset: [0.0, 1.15, 0.0], scale: [0.8, 0.8, 1.0]}
           - {t: 6, offset: [0.0, 1.15, 0.0], scale: [0.0, 0.0, 1.0]}
         when: "= event.source == 'sel_3'"
-      - {id: snd_3, op: sound, sound: entity.player.attack.strong, at: contact.point, volume: 0.7, pitch: 1.1, when: "= event.source == 'sel_3'"}
+      - {id: snd_3, op: sound, sound: entity.player.attack.strong, at: enemy, volume: 0.7, pitch: 1.1, when: "= event.source == 'sel_3'"}

@@ -5,7 +5,7 @@
 # CONVERT-PRESENT rig respect_hit_stop / weapon points (x2): {"respect_hit_stop": true}
 # CONVERT-PRESENT rig block parts (mesh takes an item model, not a block + size) (x2): 6 parts
 # CONVERT-PRESENT rig swing without a weapon mesh (track needs a visual to move) (x2): 21 keys
-# CONVERT-PRESENT presentation inside a nested gameplay list (dash on_hit has no event hook) (x2): play_vfx | play_sound
+# CONVERT-PRESENT presentation inside a nested gameplay list (dash on_hit has no event hook) (x1): play_vfx
 apiVersion: "astera/v2"
 kind: Skill
 id: verdict-hammer-s1
@@ -149,4 +149,6 @@ presentation:
           - {t: 0, offset: [0.0, -1.87, 0.5], scale: [3.3, 3.3, 1.0], alpha: 0.22}
           - {t: 9, offset: [0.0, -2.5, 0.5], scale: [4.0, 4.0, 1.0], alpha: 0.0, ease: out_cubic}
         when: "= event.source == 'sel'"
-      - {id: snd, op: sound, sound: entity.player.attack.strong, at: contact.point, volume: 0.7, pitch: 1.1, when: "= event.source == 'sel'"}
+      - {id: snd, op: sound, sound: entity.player.attack.strong, at: enemy, volume: 0.7, pitch: 1.1, when: "= event.source == 'sel'"}
+    dash_hit:
+      - {id: snd_2, op: sound, sound: entity.player.attack.strong, at: enemy, volume: 0.7, pitch: 1.1, when: "= event.source == 'dash'"}

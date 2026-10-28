@@ -41,8 +41,9 @@ public sealed interface TargetRef {
     /** The entity of the current contact (hit/block handlers). */
     public data object Victim : TargetRef
     public data object Caster : TargetRef
-    public data class Enemies(val around: PointRef, val radius: Value<Double>) : TargetRef
-    public data class Allies(val around: PointRef, val radius: Value<Double>) : TargetRef
+    /** Non-allies within [radius] of [around]; [maxCount] keeps only the nearest N to [around] (v1 `max_count`). */
+    public data class Enemies(val around: PointRef, val radius: Value<Double>, val maxCount: Int? = null) : TargetRef
+    public data class Allies(val around: PointRef, val radius: Value<Double>, val maxCount: Int? = null) : TargetRef
 }
 
 /** A place: a frame point or a computed vector (world space). */

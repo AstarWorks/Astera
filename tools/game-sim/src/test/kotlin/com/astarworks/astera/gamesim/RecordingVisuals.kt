@@ -52,6 +52,7 @@ class RecordingVisuals(
     /** `content/frames` tables: resolves a mesh to its pack model like the Paper gateway does. */
     private val frameTables: Map<String, com.astarworks.astera.core.application.skillengine.load.ItemFrames> = emptyMap(),
 ) : ISkillVisualGateway {
+    override fun setTrailLook(handle: com.astarworks.astera.core.application.skillengine.runtime.port.VisualHandle, fadePower: Double, style: String) {}
     /** The vanilla display each spawn would create (kind, text, billboard, brightness), by handle: what the Paper gateway hands `IDisplayEntityGateway.spawn`. */
     val specs = HashMap<Long, com.astarworks.astera.core.domain.effect.DisplaySpec>()
 
@@ -161,7 +162,7 @@ class RecordingVisuals(
     }
 
     override fun spawnQuad(castOwner: UUID, colorHex: String, alpha: Double, text: String?, shadow: Boolean, seeThrough: Boolean, pose: VisualPose, brightness: Int?): VisualHandle {
-        val intrinsic = if (text == null) Intrinsic.TEXT_SOLID else Intrinsic.textGlyph(8)
+        val intrinsic = if (text == null) Intrinsic.TEXT_SOLID else Intrinsic.glyphQuad(8)
         val h = next(Quad(intrinsic), "quad", text ?: colorHex)
         val w = write(h.id, "quad", intrinsic, pose, 0, pose.size.x, "wh=${pose.size.x},${pose.size.y}", spawn = true)
         specs[h.id] = SkillDisplaySpecs.quad(colorHex, alpha, text, shadow, seeThrough, w.transform, pose.billboard, brightness)

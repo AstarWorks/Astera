@@ -27,7 +27,7 @@ class SkillFxResolutionScenarioTest {
         val contentDir = Path.of(requireNotNull(System.getProperty("astera.sim.contentDir")) { "astera.sim.contentDir is not set" })
         val registry = ParticleContents().also { check(it.bootstrap(contentDir.resolve("particles")).failed == 0) }
         val world = RecordingWorld()
-        return PaperSkillParticleGateway(world, { WorldId("world") }) { registry.find(ParticleId(it)) } to world
+        return PaperSkillParticleGateway(world, WorldId("world")) { registry.find(ParticleId(it)) } to world
     }
 
     @Test

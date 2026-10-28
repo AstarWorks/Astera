@@ -53,32 +53,16 @@ internal object VolumeGeometry {
 
     /**
      * Sector vs box. The sector is a horizontal wedge about `forward` (full opening `angleDeg`,
-     * radius `range`) with total vertical extent `height` centred on the origin. Instead of exact
-     * wedge/box clipping the box is probed at its 27 grid points (min/mid/max per axis) plus the point
-     * closest to the origin and to the forward ray; the in-sector probe nearest the origin is the contact.
+     * radius `range`) with total vertical extent `height` centred on the origin. As in v1's cone
+     * selector (melee reach), a target counts when its BODY CENTRE (hitbox centre) is inside: the
+     * hitbox width adds no reach, so `range` is the eye-to-body-centre distance.
      */
     private fun sector(v: ResolvedVolume.Sector, box: HitBox): VolumeTouch? {
         val fwd = v.forward.normalize()
         val up = fwd.cross(v.left.normalize()).normalize()
         val halfRad = Math.toRadians(v.angleDeg / 2.0)
-        val probes = ArrayList<Vec3>(30)
-        val xs = doubleArrayOf(box.min.x, (box.min.x + box.max.x) / 2.0, box.max.x)
-        val ys = doubleArrayOf(box.min.y, (box.min.y + box.max.y) / 2.0, box.max.y)
-        val zs = doubleArrayOf(box.min.z, (box.min.z + box.max.z) / 2.0, box.max.z)
-        for (x in xs) for (y in ys) for (z in zs) probes += Vec3(x, y, z)
-        probes += clampToBox(v.origin, box)
-        probes += clampToBox(v.origin + fwd * (v.range / 2.0), box)
-        var best: Vec3? = null
-        var bestD = Double.MAX_VALUE
-        for (p in probes) {
-            if (!inSector(p, v, fwd, up, halfRad)) continue
-            val d = p.distanceSquared(v.origin)
-            if (d < bestD) {
-                bestD = d
-                best = p
-            }
-        }
-        return best?.let { VolumeTouch(it) }
+        val centre = Vec3((box.min.x + box.max.x) / 2.0, (box.min.y + box.max.y) / 2.0, (box.min.z + box.max.z) / 2.0)
+        return if (inSector(centre, v, fwd, up, halfRad)) VolumeTouch(centre) else null
     }
 
     private fun inSector(p: Vec3, v: ResolvedVolume.Sector, fwd: Vec3, up: Vec3, halfRad: Double): Boolean {
@@ -87,7 +71,7 @@ internal object VolumeGeometry {
         if (abs(dy) > v.height / 2.0 + EPS) return false
         val flat = rel - up * dy
         val len = flat.length()
-        if (len > v.range + EPS) return false
+        if (rel.length() > v.range + EPS) return false
         if (len < EPS) return true
         val cos = (flat.dot(fwd) / len).coerceIn(-1.0, 1.0)
         return acos(cos) <= halfRad + 1e-9

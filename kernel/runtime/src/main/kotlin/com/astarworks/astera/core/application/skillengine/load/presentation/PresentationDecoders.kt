@@ -107,12 +107,13 @@ private fun OpReader.target(default: TargetRef): TargetRef {
     if (m.size != 1) fail("target map needs exactly one of enemies / allies")
     val (kind, body) = m.entries.single()
     val b = body as? Map<*, *> ?: fail("target.$kind must be a map")
-    b.keys.firstOrNull { it !in setOf("around", "radius") }?.let { fail("unknown key '$it' in target.$kind") }
+    b.keys.firstOrNull { it !in setOf("around", "radius", "max_count") }?.let { fail("unknown key '$it' in target.$kind") }
     val around = PointRef.parse(b["around"] as? String ?: fail("target.$kind needs 'around'"))
     val radius = numValue(b["radius"]) ?: fail("target.$kind needs 'radius'")
+    val maxCount = b["max_count"]?.let { (it as? Number)?.toInt()?.takeIf { n -> n >= 1 } ?: fail("target.$kind.max_count must be an integer >= 1") }
     return when (kind) {
-        "enemies" -> TargetRef.Enemies(around, radius)
-        "allies" -> TargetRef.Allies(around, radius)
+        "enemies" -> TargetRef.Enemies(around, radius, maxCount)
+        "allies" -> TargetRef.Allies(around, radius, maxCount)
         else -> fail("target must be victim, caster or {enemies|allies: ...}")
     }
 }
@@ -283,7 +284,7 @@ private object BodyOpDecoder : OpDecoder {
     override val opNames = setOf("victim_anim", "caster_anim")
     override fun decode(op: String, id: String, whenExpr: Value<Boolean>?, reader: OpReader): SkillOp = with(reader) {
         when (op) {
-            "victim_anim" -> BodyOp.VictimAnim(id, whenExpr, target(TargetRef.Victim), requireString("anim"), number("strength"))
+            "victim_anim" -> BodyOp.VictimAnim(id, whenExpr, target(TargetRef.Victim), requireString("anim").also { if (it !in BodyOp.VictimAnim.KNOWN) fail("victim_anim: unknown anim '$it' (${BodyOp.VictimAnim.KNOWN.joinToString()})") }, number("strength"))
             "caster_anim" -> BodyOp.CasterAnim(id, whenExpr, requireString("anim"), number("speed"), int("ticks"), string("until"))
             else -> fail("not a body op: $op")
         }

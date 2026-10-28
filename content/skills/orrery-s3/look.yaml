@@ -635,7 +635,7 @@ presentation:
             - {t: 2, scale: [0.03, 0.8, 0.8], ease: out_expo}
             - {t: 8, scale: [0.0, 0.0, 0.0]}
           when: "= event.source == 'sel'"
-        - {id: snd, op: sound, sound: entity.player.attack.strong, at: contact.point, volume: 0.7, pitch: 1.1, when: "= event.source == 'sel'"}
+        - {id: snd, op: sound, sound: entity.player.attack.strong, at: enemy, volume: 0.7, pitch: 1.1, when: "= event.source == 'sel'"}
     - {id: fxhit_53, at: "hit+53", do: [{id: rm_2, op: remove, ids: [fx2_orrery_ring_hit_target_violet_core], when: "= event.source == 'sel'"}]}
     - id: fxhit_55
       at: "hit+55"
@@ -700,7 +700,7 @@ presentation:
             - {t: 2, scale: [0.03, 0.8, 0.8], ease: out_expo}
             - {t: 8, scale: [0.0, 0.0, 0.0]}
           when: "= event.source == 'sel'"
-        - {id: snd_2, op: sound, sound: entity.player.attack.strong, at: contact.point, volume: 0.7, pitch: 1.1, when: "= event.source == 'sel'"}
+        - {id: snd_2, op: sound, sound: entity.player.attack.strong, at: enemy, volume: 0.7, pitch: 1.1, when: "= event.source == 'sel'"}
     - {id: fxhit_68, at: "hit+68", do: [{id: rm_5, op: remove, ids: [fx4_orrery_ring_hit_target_violet_core], when: "= event.source == 'sel'"}]}
     - id: fxhit_70
       at: "hit+70"
@@ -765,7 +765,7 @@ presentation:
             - {t: 2, scale: [0.03, 0.8, 0.8], ease: out_expo}
             - {t: 8, scale: [0.0, 0.0, 0.0]}
           when: "= event.source == 'sel'"
-        - {id: snd_3, op: sound, sound: entity.player.attack.strong, at: contact.point, volume: 0.7, pitch: 1.1, when: "= event.source == 'sel'"}
+        - {id: snd_3, op: sound, sound: entity.player.attack.strong, at: enemy, volume: 0.7, pitch: 1.1, when: "= event.source == 'sel'"}
     - {id: fxhit_80, at: "hit+80", do: [{id: rm_8, op: remove, ids: [fx6_orrery_ring_hit_target_violet_core], when: "= event.source == 'sel'"}]}
     - id: fxhit_82
       at: "hit+82"
@@ -836,7 +836,7 @@ presentation:
             - {t: 2, scale: [0.03, 0.8, 0.8], ease: out_expo}
             - {t: 8, scale: [0.0, 0.0, 0.0]}
           when: "= event.source == 'sel'"
-        - {id: snd_4, op: sound, sound: entity.player.attack.strong, at: contact.point, volume: 0.7, pitch: 1.1, when: "= event.source == 'sel'"}
+        - {id: snd_4, op: sound, sound: entity.player.attack.strong, at: enemy, volume: 0.7, pitch: 1.1, when: "= event.source == 'sel'"}
     - {id: fxhit_151, at: "hit+151", do: [{id: rm_11, op: remove, ids: [fx8_orrery_ring_hit_target_long_violet_core], when: "= event.source == 'sel'"}]}
     - {id: fxhit_179, at: "hit+179", do: [{id: rm_10, op: remove, ids: [fx7_orrery_beam_target_core, fx7_orrery_beam_target_bloom, fx7_orrery_beam_target_dark], when: "= event.source == 'sel'"}]}
     - {id: fxhit_182, at: "hit+182", do: [{id: rm_12, op: remove, ids: [fx8_orrery_ring_hit_target_long_shard], when: "= event.source == 'sel'"}]}

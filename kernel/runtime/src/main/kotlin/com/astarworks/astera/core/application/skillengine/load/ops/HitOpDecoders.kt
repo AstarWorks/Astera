@@ -12,7 +12,8 @@ import com.astarworks.astera.core.domain.skillengine.op.SkillOp
 
 /**
  * `op: hit`: `frames`, exactly one of `capsule {from,to,radius}` / `sphere {at,radius}` /
- * `sector {frame,forward,left,angle_deg,range,height}`, and `window: once | per_part | {every_ticks: N}`.
+ * `sector {frame,forward,left,angle_deg,range,height}`, `window: once | per_part | {every_ticks: N}`, optional `max_count` and `ticks` (lifetime in ticks;
+ * omitted = until the cast ends).
  * `self.root` / `self.tip` name points of each listed frame.
  */
 public class HitOpDecoders : OpDecoder {
@@ -27,6 +28,7 @@ public class HitOpDecoders : OpDecoder {
             volume = volume(reader),
             window = window(reader),
             maxCount = reader.int("max_count")?.also { if (it < 1) reader.fail("max_count must be >= 1") },
+            ticks = reader.int("ticks")?.also { if (it < 1) reader.fail("ticks must be >= 1") },
         )
 
     private fun volume(reader: OpReader): HitVolume {
