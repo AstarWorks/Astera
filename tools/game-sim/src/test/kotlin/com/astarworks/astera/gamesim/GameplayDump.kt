@@ -42,7 +42,7 @@ object GameplayDump {
     fun dump(id: String, ticks: Int = TICKS): List<String> {
         val lines = ArrayList<String>()
         val feet = Vec3.ZERO
-        val sim = CastSim(mapOf(simVictim(1) to ahead(feet, 0.0, 5.0)), blockAtZ = 8.0, floorY = 0.0)
+        val sim = CastSim(mapOf(simVictim(1) to ahead(feet, 0.0, 5.0)), blockAtZ = 8.0, floorY = 0.0, halfWidth = 0.3)
         val item = itemOf(id)
         lines += "{\"e\":\"meta\",\"id\":\"$id\",\"item\":\"${item?.first}\"}"
         val meta = sim.catalog.get(id)?.def?.meta
