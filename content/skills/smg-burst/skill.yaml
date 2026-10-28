@@ -16,8 +16,8 @@ machine:
   start: fly
   states:
     fly:
-      for: 31      # max flight 30 + 1 so the end handlers fit
-      then: end
+      on:
+        - {event: bolt.end, to: end}    # manager ruling 2026-10-29: the cast ends when the projectile body ends (v2)
       do:
         - {id: snd, op: sound, sound: "astera:weapons/gun-shot", anchor: caster, volume: 0.5, pitch: 1.6}
         - {id: puff, op: particle_def, def: gun-muzzle-flash, anchor: flash}

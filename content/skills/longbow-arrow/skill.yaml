@@ -21,20 +21,20 @@ machine:
   start: fly
   states:
     fly:
-      for: "= max_lifetime_ticks"
-      then: end
+      on:
+        - {event: bolt.end, to: end}
       enter:
         - id: bolt
           op: projectile
           origin: origin
-          velocity: "= look(caster) * launch_speed"
-          for: "= max_lifetime_ticks"
+          velocity: "= look(caster) * ${launch_speed}"
+          for: "${max_lifetime_ticks}"
           radius: 0.5
           hit: {targets: enemies, once: true}
           block: {mode: despawn}
           on:
             hit:
-              - {id: dmg, op: damage, target: event.victim, damage: {physical: "= dmg_physical"}}
+              - {id: dmg, op: damage, target: event.victim, damage: {physical: "${dmg_physical}"}}
               - {id: snd_hit, op: sound, sound: "astera:weapons/blade-hit", anchor: heart, volume: 0.7, pitch: 1.2}
               - {id: fx_hit, op: particle_def, def: hit-spark, anchor: heart}
             block:
@@ -43,11 +43,6 @@ machine:
       do:
         - {id: snd_cast, op: sound, sound: "astera:weapons/sword-swing", anchor: caster, at: 0, volume: 0.8, pitch: 0.9}
         - {id: fx_cast, op: particle_def, def: gun-muzzle-smoke, anchor: muzzle, at: 0}
-        - id: trail
-          at: 0
-          every: 1
-          until: end
-          do:
-            - {id: tr0, op: particle, anchor: {of: bolt, sweep: 0.4}, particle: crit, count: 1, offset: [0.04, 0.04, 0.04], extra: 0}
-            - {id: tr1, op: particle, anchor: {of: bolt, sweep: 0.4}, particle: dust, count: 1, offset: [0, 0, 0], extra: 0, color: "#c8aa6e", size: 1.0}
+        - {id: tr0, op: particle, anchor: {of: bolt, sweep: 0.4}, particle: crit, count: 1, offset: [0.04, 0.04, 0.04], extra: 0, at: 0, every: 1, until: bolt.end}
+        - {id: tr1, op: particle, anchor: {of: bolt, sweep: 0.4}, particle: dust, count: 1, offset: [0, 0, 0], extra: 0, color: "#c8aa6e", size: 1.0, at: 0, every: 1, until: bolt.end}
     end: {final: true}

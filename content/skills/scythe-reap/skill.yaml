@@ -29,7 +29,7 @@ machine:
           damage: {physical: 28.0}
           on:
             hit:
-              - {id: kb, op: knockback, target: event.victim, direction: "= normalize(pos(event.victim) - pos(caster))", strength: 0.3}
+              - {id: kb, op: knockback, target: event.victim, direction: "= normalize(event.victim - pos(caster))", strength: 0.3}
               - {id: snd_hit, op: sound, sound: "astera:weapons/blade-hit", anchor: contact, volume: 0.7, pitch: 1.2}
               - {id: fx_hit, op: particle_def, def: hit-spark, anchor: heart}
     end: {final: true}

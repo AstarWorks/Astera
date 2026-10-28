@@ -4,7 +4,7 @@ id: war-axe-chop
 item: war-axe
 meta:
   name: {ja: "重い一撃", en: "Heavy Chop"}
-  description: {ja: "重い一撃を叩き込む。", en: "A heavy overhead chop."}
+  description: {ja: "範囲は狭いが重い一撃を叩き込む。", en: "A slow, heavy chop with a short arc."}
   cooldown_ticks: 22
   resource_cost: 10
   tags: [melee, physical]
