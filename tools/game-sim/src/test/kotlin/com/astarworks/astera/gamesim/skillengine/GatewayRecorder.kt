@@ -105,7 +105,7 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
 
         override fun spawnBlock(cast: CastRef, block: String, pose: VisualPose, brightness: Int?, rigShading: Boolean, view: DisplayView, glow: String?) = spawned(cast, "block")
 
-        override fun spawnText(cast: CastRef, text: String, backgroundHex: String, backgroundAlpha: Double, shadow: Boolean, seeThrough: Boolean, pose: VisualPose, brightness: Int?, view: DisplayView) = spawned(cast, "text")
+        override fun spawnText(cast: CastRef, text: String, backgroundArgbHex: String, shadow: Boolean, seeThrough: Boolean, pose: VisualPose, brightness: Int?, view: DisplayView) = spawned(cast, "text")
 
         override fun spawnTrail(cast: CastRef, ticks: Int, widthFrac: Double, colorHex: String, alpha: Double) = spawned(cast, "ribbon")
 

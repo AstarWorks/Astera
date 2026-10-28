@@ -86,10 +86,10 @@ public interface ISkillVisualGateway {
     public fun spawnBlock(cast: CastRef, block: String, pose: VisualPose, brightness: Int?, rigShading: Boolean = false, view: DisplayView = DisplayView(), glow: String? = null): VisualHandle
 
     /**
-     * A text display of the MiniMessage [text] ([pose].size = blocks per text unit) with a [backgroundHex] box at [backgroundAlpha]
-     * (0 = none); the text keeps its own colour and full opacity.
+     * A text display of the MiniMessage [text] ([pose].size = blocks per text unit) with a box of [backgroundArgbHex]
+     * (`#aarrggbb`, `#00000000` = none); the text keeps its own colour and full opacity.
      */
-    public fun spawnText(cast: CastRef, text: String, backgroundHex: String, backgroundAlpha: Double, shadow: Boolean, seeThrough: Boolean, pose: VisualPose, brightness: Int?, view: DisplayView = DisplayView()): VisualHandle
+    public fun spawnText(cast: CastRef, text: String, backgroundArgbHex: String, shadow: Boolean, seeThrough: Boolean, pose: VisualPose, brightness: Int?, view: DisplayView = DisplayView()): VisualHandle
 
     public fun spawnTrail(cast: CastRef, ticks: Int, widthFrac: Double, colorHex: String, alpha: Double): VisualHandle
 

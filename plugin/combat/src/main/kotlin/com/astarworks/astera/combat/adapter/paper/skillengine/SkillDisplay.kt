@@ -45,11 +45,12 @@ public data class Intrinsic(val unit: Vec3, val centre: Vec3 = Vec3.ZERO) {
          */
         public val TEXT_QUAD: Intrinsic = Intrinsic(Vec3(1.0, 1.0, 1.0), Vec3(-CENTER_X_PER_SCALE, -CENTER_Y_PER_SCALE, 0.0))
 
-        /** Size of one scale unit of a sprite glyph: font height [px] pixels x 0.025 blocks (256 px = 6.4 blocks). */
-        public fun textGlyph(px: Int): Intrinsic {
-            val edge = px * 0.025
-            return Intrinsic(Vec3(edge, edge, 1.0))
-        }
+        /**
+         * `kind: sprite` (ADR-0303 2.1): the loader already turned the authored `size` in blocks into the vanilla `scale` (1 = the natural
+         * quad, font height px x 0.025 blocks), so [unit] is 1, and there is no centre: the sprite font's ascent (size/2 - 2, ADR-0239)
+         * puts the glyph's middle on the entity origin, which is v1's zero translation for a sprite and what `pivot: center` means.
+         */
+        public val SPRITE: Intrinsic = Intrinsic(Vec3(1.0, 1.0, 1.0))
     }
 }
 

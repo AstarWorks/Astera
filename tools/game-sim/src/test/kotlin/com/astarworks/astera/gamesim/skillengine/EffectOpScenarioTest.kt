@@ -224,12 +224,12 @@ class EffectOpScenarioTest : SkillEngineScenario() {
             val at = HashMap<String, com.astarworks.astera.core.domain.geometry.Vec3>()
             val visual = object : com.astarworks.astera.core.application.skillengine.runtime.port.ISkillVisualGateway by rec.visual {
                 override fun spawnText(
-                    cast: com.astarworks.astera.core.application.skillengine.runtime.port.CastRef, text: String, backgroundHex: String, backgroundAlpha: Double,
+                    cast: com.astarworks.astera.core.application.skillengine.runtime.port.CastRef, text: String, backgroundArgbHex: String,
                     shadow: Boolean, seeThrough: Boolean, pose: com.astarworks.astera.core.application.skillengine.runtime.port.VisualPose, brightness: Int?,
                     view: com.astarworks.astera.core.application.skillengine.runtime.port.DisplayView,
                 ): com.astarworks.astera.core.application.skillengine.runtime.port.VisualHandle {
                     at[text] = pose.frame.origin
-                    return rec.visual.spawnText(cast, text, backgroundHex, backgroundAlpha, shadow, seeThrough, pose, brightness, view)
+                    return rec.visual.spawnText(cast, text, backgroundArgbHex, shadow, seeThrough, pose, brightness, view)
                 }
             }
             val player = playProbe(compile(yaml(freeze)), ticks = 12, rec = rec, visual = visual)
