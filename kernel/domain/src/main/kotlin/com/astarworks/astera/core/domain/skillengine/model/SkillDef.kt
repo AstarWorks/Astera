@@ -6,8 +6,8 @@ import com.astarworks.astera.core.domain.skillengine.part.ParamSpec
 /** Well-known event names (authors may define more). */
 public object SkillEvents {
     public const val START: String = "start"
-    public const val CHARGE: String = "charge"
-    public const val RELEASE: String = "release"
+    public const val INPUT_USE: String = "input.use"
+    public const val INPUT_RELEASE: String = "input.release"
     public const val HIT: String = "hit"
     public const val BLOCK: String = "block"
     public const val STICK: String = "stick"

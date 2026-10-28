@@ -102,4 +102,47 @@ public object Types {
         override fun decode(raw: Any?, ctx: GrammarContext, path: String) = fields.read(raw, ctx, path)
         override fun schema(): Map<String, Any?> = fields.jsonSchema()
     }
+
+    private val anchorOf = Field.required("of", id, "the anchor whose axes the numbers are along, read at the row's tick")
+    private val anchorVector: Fields = Fields.of("anchor-vector", anchorOf, FrameVecs.forward, FrameVecs.up, FrameVecs.left)
+    private val worldX = Field.required("x", number, "blocks along world +x")
+    private val worldY = Field.required("y", number, "blocks along world +y")
+    private val worldZ = Field.required("z", number, "blocks along world +z")
+    private val worldVector: Fields = Fields.of("world-vector", worldX, worldY, worldZ)
+
+    /**
+     * A displacement or velocity: `{of: <anchor>, forward, up, left}` (that anchor's axes, missing axis = 0), `{x, y, z}` in world
+     * axes, or `${param}` / `= expr` (a world vec3). A positional triple is rejected so the axis order cannot be confused.
+     */
+    public val offsetVec: FieldType<OffsetVec> = object : FieldType<OffsetVec> {
+        override val label = "{of, forward, up, left} map, {x, y, z} map, \${param} or '= expr'"
+        override fun decode(raw: Any?, ctx: GrammarContext, path: String): OffsetVec {
+            if (raw is String) return OffsetVec.World(ctx.checked(ValueDecoding.vec3(raw, ctx.file, path), ExprType.VEC3, path))
+            if (raw is List<*>) ctx.fail(path, "positional vectors are not allowed; write {of: <anchor>, forward: .., up: .., left: ..} or {x: .., y: .., z: ..}")
+            if (raw is Map<*, *> && "of" in raw) {
+                val v = anchorVector.read(raw, ctx, path)
+                return OffsetVec.InAnchor(AnchorRef(v[anchorOf]), FrameVec.Parts(v[FrameVecs.forward], v[FrameVecs.up], v[FrameVecs.left]))
+            }
+            val v = worldVector.read(raw, ctx, path)
+            val x = v[worldX]; val y = v[worldY]; val z = v[worldZ]
+            return OffsetVec.World(
+                if (x is Value.Literal && y is Value.Literal && z is Value.Literal) Value.Literal(Vec3(x.value, y.value, z.value))
+                else Value.Expr("vec(${GrammarSource.of(x)}, ${GrammarSource.of(y)}, ${GrammarSource.of(z)})"),
+            )
+        }
+        override fun schema(): Map<String, Any?> =
+            linkedMapOf("oneOf" to listOf(anchorVector.jsonSchema(), worldVector.jsonSchema(), ValueForms.specialSchema()))
+    }
+}
+
+/** The name of an anchor / frame in scope (checked against the anchors of the occurrence at lowering, `UndefinedReference` if absent). */
+public data class AnchorRef(val name: String)
+
+/** What [Types.offsetVec] decodes to. */
+public sealed interface OffsetVec {
+    /** Numbers along the axes of [of] as they stand at the row's tick. */
+    public data class InAnchor(val of: AnchorRef, val parts: FrameVec.Parts) : OffsetVec
+
+    /** A vector in world axes: a literal, or a `= expr` / `${param}` the player evaluates. */
+    public data class World(val value: Value<Vec3>) : OffsetVec
 }

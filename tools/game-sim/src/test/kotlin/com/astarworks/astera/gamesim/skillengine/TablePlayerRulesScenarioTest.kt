@@ -18,6 +18,7 @@ import com.astarworks.astera.core.domain.skillengine.model.SkillDef
 import com.astarworks.astera.core.domain.skillengine.part.Machine
 import com.astarworks.astera.core.domain.skillengine.table.Action
 import com.astarworks.astera.core.domain.skillengine.table.Branch
+import com.astarworks.astera.core.domain.skillengine.table.LockMove
 import com.astarworks.astera.core.domain.skillengine.table.Bounds
 import com.astarworks.astera.core.domain.skillengine.table.Callee
 import com.astarworks.astera.core.domain.skillengine.table.CancelScope
@@ -277,12 +278,12 @@ class TablePlayerRulesScenarioTest {
     private class LockHooks : PlayerHooks {
         val log = ArrayList<String>()
         var now = 0
-        override fun lock(caster: UUID, move: Boolean, pitch: Boolean, yaw: Boolean, untilTick: Int): Boolean {
+        override fun lock(caster: UUID, move: LockMove, pitch: Boolean, yaw: Boolean, untilTick: Int): Boolean {
             log += "lock:$untilTick@$now"
             return true
         }
 
-        override fun unlock(caster: UUID, move: Boolean, pitch: Boolean, yaw: Boolean) {
+        override fun unlock(caster: UUID, move: LockMove, pitch: Boolean, yaw: Boolean) {
             log += "unlock@$now"
         }
     }
@@ -293,7 +294,7 @@ class TablePlayerRulesScenarioTest {
             "a",
             listOf(
                 st("a", branches = listOf(br("go", "b"))),
-                st("b", listOf(enter("b"), row(0, Action.Lock(move = true, pitch = false, yaw = false, until = LockEnd.AtTick(10))))),
+                st("b", listOf(enter("b"), row(0, Action.Lock(move = LockMove.ALL, pitch = false, yaw = false, until = LockEnd.AtTick(10))))),
             ),
         )
         val hooks = LockHooks()
@@ -307,7 +308,7 @@ class TablePlayerRulesScenarioTest {
         val s = skill(
             "a",
             listOf(
-                st("a", listOf(enter("a"), row(0, Action.Lock(move = true, pitch = true, yaw = true, until = LockEnd.CastEnd))), listOf(br("go", "z"))),
+                st("a", listOf(enter("a"), row(0, Action.Lock(move = LockMove.ALL, pitch = true, yaw = true, until = LockEnd.CastEnd))), listOf(br("go", "z"))),
                 st("z", final = true),
             ),
         )

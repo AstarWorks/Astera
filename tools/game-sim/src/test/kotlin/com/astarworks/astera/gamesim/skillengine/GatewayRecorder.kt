@@ -4,6 +4,7 @@ import com.astarworks.astera.core.application.skillengine.runtime.player.EventBi
 import com.astarworks.astera.core.application.skillengine.runtime.player.CastHandle
 import com.astarworks.astera.core.application.skillengine.runtime.player.LiveValueSource
 import com.astarworks.astera.core.application.skillengine.runtime.port.BlockHit
+import com.astarworks.astera.core.application.skillengine.runtime.port.CastRef
 import com.astarworks.astera.core.application.skillengine.runtime.port.EntityRoot
 import com.astarworks.astera.core.application.skillengine.runtime.port.ISkillEntityQuery
 import com.astarworks.astera.core.application.skillengine.runtime.port.ISkillGameplayGateway
@@ -131,6 +132,18 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L)) {
         override fun lockLook(caster: UUID, pitch: Boolean, yaw: Boolean, untilTick: Int) = add("lock", "-", "pitch=$pitch yaw=$yaw until=$untilTick")
 
         override fun unlockLook(caster: UUID) = add("unlock", "-", "")
+
+        override fun consumeStatus(cast: CastRef, entity: UUID, status: String) = add("effect", entity.toString(), "consume_status=$status")
+
+        override fun cameraShake(cast: CastRef, viewer: UUID, intensity: Double, ticks: Int, from: Vec3?) =
+            add("effect", viewer.toString(), "camera_shake=${RecordedCall.num(intensity)} ticks=$ticks from=${if (from == null) "none" else "hit"}")
+
+        override fun stopSound(cast: CastRef, viewer: UUID, sound: String) = add("effect", viewer.toString(), "stop_sound=$sound")
+
+        override fun playBodyClip(cast: CastRef, caster: UUID, anim: String, speed: Double) =
+            add("effect", caster.toString(), "body=$anim speed=${RecordedCall.num(speed)}")
+
+        override fun stopBodyClip(cast: CastRef, caster: UUID, anim: String) = add("effect", caster.toString(), "body_stop=$anim")
     }
 
     val query: ISkillEntityQuery = object : ISkillEntityQuery {

@@ -49,6 +49,11 @@ public data class MachineState(
     val use: PartCall?,
     /** Parallel regions; the parent emits `<parent>.end` when all regions are final. */
     val parallel: List<Machine> = emptyList(),
+    /**
+     * R36: the local name of the child state entered first; required when the state has children (flat ids `<this>/<child>`).
+     * Null for a state without children.
+     */
+    val start: String? = null,
 )
 
 /** A caller transition that could not be folded into the flat state graph (needs the runtime Transition op, WP-D D4). */

@@ -1,6 +1,9 @@
 package com.astarworks.astera.gamesim.skillengine
 
+import com.astarworks.astera.core.application.skillengine.compose.ComposeError
+import com.astarworks.astera.core.application.skillengine.compose.ComposeOptions
 import com.astarworks.astera.core.application.skillengine.compose.MachineTables
+import com.astarworks.astera.core.application.skillengine.compose.SkillComposer
 import com.astarworks.astera.core.application.skillengine.compose.SectionLowerer
 import com.astarworks.astera.core.application.skillengine.load.SkillDecodeError
 import com.astarworks.astera.core.domain.Result
@@ -15,6 +18,9 @@ import com.astarworks.astera.core.domain.skillengine.table.LockEnd
 import com.astarworks.astera.core.domain.skillengine.table.StatePath
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.io.TempDir
+import java.nio.file.Files
+import java.nio.file.Path
 
 /**
  * W1b-02c acceptance (ADR-0303 10.2 rev4.2, wave1-resolutions items 7 and 14): sub-table keys are exactly `<state>.exit[<reason>]` and
@@ -77,8 +83,10 @@ class MachineTablesScenarioTest : SkillEngineScenario() {
                   for: 30
                   then: z
                   on: [ { event: stop, to: z } ]
-                p/c: { for: 5, then: p/d }
-                p/d: { final: true }
+                  start: c
+                  states:
+                    c: { for: 5, then: d }
+                    d: { final: true }
                 z: { final: true }
             """.trimIndent(),
         )
@@ -131,7 +139,7 @@ class MachineTablesScenarioTest : SkillEngineScenario() {
                   for: 20
                   then: done
                   do:
-                    - {id: plant, op: lock, move: true, at: 3, for: 5}
+                    - {id: plant, op: lock, move: all, at: 3, for: 5}
                 done: { final: true }
             """.trimIndent(),
         )
@@ -140,5 +148,129 @@ class MachineTablesScenarioTest : SkillEngineScenario() {
         // tick 3 of the state; held until tick 8 of the state, not of the cast (the state is entered at cast tick 10)
         assertThat(lock.tick).isEqualTo(3)
         assertThat((lock.action as Action.Lock).until).isEqualTo(LockEnd.AtTick(8))
+    }
+
+    // ---- W2-09: R35 patch ops, R36 nested start, R39 input events --------------------------------------------------------
+
+    private fun failureOf(yaml: String): SkillDecodeError = when (val r = loadInline(yaml)) {
+        is Result.Success -> error("expected a load error")
+        is Result.Failure -> r.error
+    }
+
+    @Test
+    fun nestedStartRequired() {
+        val error = failureOf(
+            """
+            apiVersion: astera/v3
+            kind: Skill
+            id: nested-no-start
+            machine:
+              start: p
+              states:
+                p:
+                  states:
+                    c: { final: true }
+            """.trimIndent(),
+        )
+        assertThat(error).isInstanceOf(SkillDecodeError.NestedStartMissing::class.java)
+        assertThat((error as SkillDecodeError.NestedStartMissing).state).isEqualTo("p")
+    }
+
+    @Test
+    fun startNamesChildIsLoadError() {
+        val error = failureOf(
+            """
+            apiVersion: astera/v3
+            kind: Skill
+            id: start-child
+            machine:
+              start: p/c
+              states:
+                p:
+                  start: c
+                  states:
+                    c: { final: true }
+            """.trimIndent(),
+        )
+        assertThat(error).isInstanceOf(SkillDecodeError.StartNamesChild::class.java)
+        assertThat((error as SkillDecodeError.StartNamesChild).start).isEqualTo("p/c")
+    }
+
+    private val patchBase = """
+        apiVersion: astera/v3
+        kind: Skill
+        id: base
+        machine:
+          start: cast
+          states:
+            cast:
+              for: 10
+              then: done
+              do:
+                - { id: hit, op: damage, amount: 6 }
+                - { id: spark, op: particle, count: 3 }
+            done: { final: true }
+    """.trimIndent()
+
+    private fun patchDoc(vararg ops: String): String =
+        "apiVersion: astera/v3\nkind: Patch\nid: tune\ntarget: base\npatchKind: balance\nops:\n" + ops.joinToString("\n") { "  $it" }
+
+    private fun composeWith(tmp: Path, patch: String): SkillComposer {
+        Files.writeString(tmp.resolve("base.yaml"), patchBase)
+        Files.writeString(tmp.resolve("tune.yaml"), patch)
+        return SkillComposer(tmp, ComposeOptions(allowBalancePatches = true))
+    }
+
+    private fun doRows(c: SkillComposer): List<Map<*, *>> {
+        val machine = c.composed().getValue("base").tree["machine"] as Map<*, *>
+        val cast = (machine["states"] as Map<*, *>)["cast"] as Map<*, *>
+        return (cast["do"] as List<*>).map { it as Map<*, *> }
+    }
+
+    @Test
+    fun patchDeleteRowById(@TempDir tmp: Path) {
+        val c = composeWith(tmp, patchDoc("""- {path: "machine.states.cast.do[hit]", ${'$'}patch: delete}"""))
+        assertThat(c.composeAll()).isInstanceOf(Result.Success::class.java)
+        assertThat(doRows(c).map { it["id"] }).containsExactly("spark")
+    }
+
+    @Test
+    fun patchReplaceField(@TempDir tmp: Path) {
+        val c = composeWith(tmp, patchDoc("""- {path: "machine.states.cast.do[hit].amount", ${'$'}patch: replace, value: 9}"""))
+        assertThat(c.composeAll()).isInstanceOf(Result.Success::class.java)
+        val rows = doRows(c)
+        assertThat(rows.map { it["id"] }).containsExactly("hit", "spark")
+        assertThat(rows.first()["amount"]).isEqualTo(9)
+    }
+
+    @Test
+    fun patchUnresolvedPathIsLoadError(@TempDir tmp: Path) {
+        val c = composeWith(tmp, patchDoc("""- {path: "machine.states.cast.do[nope].amount", ${'$'}patch: replace, value: 9}"""))
+        val errors = (c.composeAll() as Result.Failure).error
+        assertThat(errors.single()).isInstanceOf(ComposeError.PatchError.UnresolvedPath::class.java)
+        assertThat((errors.single() as ComposeError.PatchError.UnresolvedPath).path).isEqualTo("machine.states.cast.do[nope].amount")
+    }
+
+    @Test
+    fun inputReleaseFiresOnSkillReleased() {
+        // R39: Paper raises SkillReleased as `input.release` (SkillEnginePaperRuntime); a state waiting on that name is a timed event exit.
+        val s = compiled(
+            """
+            apiVersion: astera/v3
+            kind: Skill
+            id: hold-release
+            machine:
+              start: hold
+              states:
+                hold:
+                  for: 40
+                  then: fire
+                  on: [ { event: input.release, to: fire } ]
+                fire: { final: true }
+            """.trimIndent(),
+        )
+        val hold = s.table.states.first { it.state == StatePath("hold") }
+        assertThat(hold.branches.map { it.event.value }).containsExactlyInAnyOrder("input.release", "timer(40)")
+        assertThat(keys(s)).contains("hold.exit[event]", "hold.exit[timer]")
     }
 }

@@ -217,7 +217,7 @@ public object LawSegmenter {
                             val target = fromTo(law.axis, v)
                             rot *= if (law.ease == null) target else Quaternion.slerp(Quaternion.IDENTITY, target, ease(law.ease, unit(t, law.at, law.forTicks)))
                         } else {
-                            liveRot = "align:${law.axisName}>${law.target}"
+                            liveRot = "align:${law.axisName}>${law.target}^${law.up}"
                             liveOpen = liveOpen || t < law.at + law.forTicks
                         }
                     }

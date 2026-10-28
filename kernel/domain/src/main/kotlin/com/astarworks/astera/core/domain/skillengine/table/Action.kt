@@ -42,7 +42,7 @@ public sealed interface Action {
      * happens, [forward] the look direction shapes face; [payload] holds the op's flat fields.
      */
     public data class World(val op: OpId, val origin: Vec, val forward: Vec, val payload: Map<String, Val<Any>>) : Action
-    public data class Lock(val move: Boolean, val pitch: Boolean, val yaw: Boolean, val until: LockEnd) : Action
+    public data class Lock(val move: LockMove, val pitch: Boolean, val yaw: Boolean, val until: LockEnd) : Action
 
     // structure
     public data class Call(val callee: Callee, val callId: InstanceId, val with: Map<String, Val<Any>>, val frames: Map<String, InstanceId>) : Action
@@ -122,6 +122,9 @@ public sealed interface HitWindow {
     public data object Once : HitWindow
     public data class Every(val ticks: Int) : HitWindow
 }
+
+/** What a `lock` row takes from the caster's feet (R32): nothing, walking only (a jump still works), or walking and jumping. */
+public enum class LockMove { NONE, WALK, ALL }
 
 /** When a `lock` row lifts, in ticks relative to the state base (entry = 0). */
 public sealed interface LockEnd {

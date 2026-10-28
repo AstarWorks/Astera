@@ -100,6 +100,22 @@ class DisplayOpScenarioTest : SkillEngineScenario() {
     }
 
     @Test
+    fun alignAcceptsNamedDirectionAndUp() {
+        // R42: `to` may be a named direction and `up` a named direction; the lowering writes the live rotation with both
+        val s = compiled(
+            "{id: pose, op: frame, anchor: caster, for: 34, motion: [{law: align, axis: long, to: world.up, up: caster.forward, step: 1, at: 0, for: 6, ease: out}]}",
+        )
+        val live = rows(s).mapNotNull { (it.action as? Action.Key)?.leftRotation as? Val.Live }
+        assertThat(live).isNotEmpty()
+        assertThat(live.first().name).contains("world.up").contains("caster.forward")
+        // velocity form: `up` other than world.up is a load error
+        val bad = loadInline(
+            skill("{id: p, op: frame, anchor: caster, for: 20, motion: [{law: move, velocity: {forward: 1}, at: 0, for: 10}, {law: align, axis: forward, to: velocity, up: caster.up, at: 0, for: 10}]}"),
+        )
+        assertThat(bad).isInstanceOf(Result.Failure::class.java)
+    }
+
+    @Test
     fun frameSnapshotAtTick() {
         val s = compiled("{id: tele, op: frame, at: 20, anchor: caster, mode: snapshot, for: 20}")
         val spawn = rows(s).first { (it.action as? Action.Spawn)?.kind == SpawnKind.FRAME }

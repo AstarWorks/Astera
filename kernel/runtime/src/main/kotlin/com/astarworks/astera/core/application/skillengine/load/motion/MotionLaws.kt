@@ -109,7 +109,8 @@ public object MotionLaws {
     private val faceF = Field.optional("face", Types.enumOf("keep", "tangent", "center"), "keep", "keep = the object does not turn; center / tangent = it turns with the orbit")
 
     // align
-    private val alignToF = Field.required("to", Types.id, "'velocity' (of the attached move laws) or the name of an anchor to face")
+    private val alignToF = Field.required("to", Types.id, "'velocity' (of the attached move laws), the name of an anchor to face, or a named direction (`world.up`, `world.forward`, `<anchor>.<axis>`)")
+    private val alignUpF = Field.optional("up", Types.id, "world.up", "the named direction the object's up is kept toward (Basis.facing(direction, up)); applies to every `to` form")
     private val alignAxisF = Field.optional("axis", Types.id, "forward", "the object axis that is pointed at the target")
 
     // follow / stretch (reactive: written every step ticks)
@@ -124,7 +125,7 @@ public object MotionLaws {
         "move" to (Fields.of("move-law", lawField("move")) + window + Fields.of("move", velocityF, speedF, moveStartF)),
         "orbit" to (Fields.of("orbit-law", lawField("orbit")) + window + Fields.of("orbit", centerF, axisF, degPerTickF, phaseF, faceF)),
         "grow" to (Fields.of("grow-law", lawField("grow")) + window + Fields.of("grow", growStartF, perTickF, toF, growAccelF)),
-        "align" to (Fields.of("align-law", lawField("align")) + window + Fields.of("align", alignToF, alignAxisF, stepF)),
+        "align" to (Fields.of("align-law", lawField("align")) + window + Fields.of("align", alignToF, alignAxisF, alignUpF, stepF)),
         "follow" to (Fields.of("follow-law", lawField("follow")) + window + Fields.of("follow", targetF, stepF)),
         "stretch" to (Fields.of("stretch-law", lawField("stretch")) + window + Fields.of("stretch", baseF, tipF, stretchAxisF, stepF)),
         "fade" to (Fields.of("fade-law", lawField("fade")) + window + Fields.of("fade", fadeStartF, fadeToF, exponentF)),
@@ -270,9 +271,12 @@ public object MotionLaws {
             "align" -> {
                 val axis = axisOf(alignAxisF)
                 val to = v[alignToF]
+                if (to == "velocity" && v[alignUpF] != "world.up") {
+                    ctx.fail("$path.up", "align to velocity keeps the heading's up at world.up (the velocity is a literal direction); '${v[alignUpF]}' is only valid with an anchor or a named direction")
+                }
                 val step = stepOf()
                 for (s in starts) {
-                    laws += AlignMotion(s, forTicks, axis, v[alignAxisF], to == "velocity", to, step, ease, order, path)
+                    laws += AlignMotion(s, forTicks, axis, v[alignAxisF], to == "velocity", to, v[alignUpF], step, ease, order, path)
                     pieces += Piece(path, "turn", s, s + forTicks, order, emptyList(), reactive = to != "velocity")
                 }
             }
@@ -565,9 +569,9 @@ public data class OrbitMotion(
     val face: String, val ease: String?, override val order: Int, override val path: String,
 ) : MotionLaw
 
-/** [toVelocity] points [axis] along the direction of the move laws; otherwise [target] names an anchor (live, re-sent every [step] ticks). */
+/** [toVelocity] points [axis] along the direction of the move laws; otherwise [target] names an anchor or a direction (live, re-sent every [step] ticks). [up] is the named direction the object's up faces. */
 public data class AlignMotion(
-    val at: Int, val forTicks: Int, val axis: Vec3, val axisName: String, val toVelocity: Boolean, val target: String, val step: Int, val ease: String?,
+    val at: Int, val forTicks: Int, val axis: Vec3, val axisName: String, val toVelocity: Boolean, val target: String, val up: String, val step: Int, val ease: String?,
     override val order: Int, override val path: String,
 ) : MotionLaw
 

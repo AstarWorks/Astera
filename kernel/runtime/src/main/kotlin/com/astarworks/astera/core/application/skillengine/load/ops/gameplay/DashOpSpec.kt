@@ -31,7 +31,8 @@ import org.joml.Vector3d
 
 /**
  * Decoded `dash` op (ADR-0303 10.1): the caster travels `speed` blocks per tick along [direction] for the span's ticks.
- * The travel is a closed-form segment; the player integrates it (no per-tick rows).
+ * The travel is a closed-form segment; the player integrates it (no per-tick rows). The four flags are required (R9); the
+ * corridor that stops or hits is a sibling `hit`, and `until: <event>` ends the dash inside its static `for` window.
  */
 public class DashOp(
     override val id: OpId,
@@ -46,8 +47,6 @@ public class DashOp(
     public val stopOnBlock: Boolean,
     public val invulnerable: Boolean,
     public val faceMovement: Boolean,
-    public val stopBeforeTarget: Value<Double>?,
-    public val radius: Value<Double>,
 ) : OpNode
 
 /** Value / id plumbing shared by the caster-motion ops (dash, reel, rig, emit). */
@@ -86,28 +85,25 @@ public object DashOpSpec : OpSpec<DashOp> {
     private val speed = Field.required("speed", Types.number, "blocks per tick along the direction")
     private val direction = Field.optional("direction", FrameVecs.type, FrameVec.Parts(Value.Literal(1.0), Value.Literal(0.0), Value.Literal(0.0)), "travel direction in the caster frame {forward, up, left}; default forward")
     private val ease = Field.optional("ease", Types.nullable(Types.id), null, "shapes the accumulated distance over the span (3.7.1); absent = linear")
-    private val followPitch = Field.optional("follow_pitch", Types.bool, Value.Literal(false), "true = the heading follows the caster's pitch; false = level")
-    private val stopOnBlock = Field.optional("stop_on_block", Types.bool, Value.Literal(true), "stop at a solid block")
-    private val invulnerable = Field.optional("invulnerable", Types.bool, Value.Literal(true), "caster takes no damage while dashing")
-    private val faceMovement = Field.optional("face_movement", Types.bool, Value.Literal(false), "turn the caster to the travel direction")
-    private val stopBeforeTarget = Field.optional("stop_before_target", Types.nullable(Types.number), null, "stop this many blocks before the first target in the corridor")
-    private val radius = Field.optional("radius", Types.number, Value.Literal(1.2), "corridor half-width for stop_before_target")
+    private val followPitch = Field.required("follow_pitch", Types.bool, "true = the heading follows the caster's pitch; false = level")
+    private val stopOnBlock = Field.required("stop_on_block", Types.bool, "stop at a solid block")
+    private val invulnerable = Field.required("invulnerable", Types.bool, "caster takes no damage while dashing")
+    private val faceMovement = Field.required("face_movement", Types.bool, "turn the caster to the travel direction")
 
     override val name: String = "dash"
     override val section: OpSection = OpSection.GAMEPLAY
     override val timing: TimingKind? = TimingKind.EXTENDED
-    override val fields: Fields = Fields.of("dash", speed, direction, ease, followPitch, stopOnBlock, invulnerable, faceMovement, stopBeforeTarget, radius)
+    override val fields: Fields = Fields.of("dash", speed, direction, ease, followPitch, stopOnBlock, invulnerable, faceMovement)
 
     override fun decode(id: OpId, src: SrcPath, whenExpr: WhenRef?, timing: Timing?, values: FieldValues, ctx: GrammarContext): Result<DashOp, SkillDecodeError> =
         Grammar.guard {
             val path = "dash(${id.value})"
-            val probe = DashOp(id, src, whenExpr, timing, values[speed], Value.Literal(0.0), values[direction], values[ease], false, true, true, false, null, Value.Literal(1.2))
+            val probe = DashOp(id, src, whenExpr, timing, values[speed], Value.Literal(0.0), values[direction], values[ease], false, true, true, false)
             val ticks = CasterMotion.ticksOf(probe, ctx, path)
             fun flag(f: Field<Value<Boolean>>): Boolean = (values[f] as? Value.Literal)?.value ?: ctx.fail("$path.${f.name}", "must be a literal true/false")
             DashOp(
                 id, src, whenExpr, timing, values[speed], ticks, values[direction], values[ease],
                 flag(followPitch), flag(stopOnBlock), flag(invulnerable), flag(faceMovement),
-                values[stopBeforeTarget], values[radius],
             )
         }
 
@@ -129,9 +125,7 @@ public object DashOpSpec : OpSpec<DashOp> {
             "stop_on_block" to CasterMotion.known(op.stopOnBlock),
             "invulnerable" to CasterMotion.known(op.invulnerable),
             "face_movement" to CasterMotion.known(op.faceMovement),
-            "radius" to CasterMotion.num(op.radius),
         )
-        op.stopBeforeTarget?.let { payload["stop_before_target"] = CasterMotion.num(it) }
         val rows = listOf(
             CasterMotion.row(0, inst, op.id, lc, payload),
             CasterMotion.row(ticks, inst, op.id, lc, mapOf("kind" to CasterMotion.known("dash.end"))),

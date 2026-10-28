@@ -121,6 +121,10 @@ internal class SkillEnginePaperRuntime(
             scheduler = scheduler,
             randomizer = services.getOrThrow<IDamageRandomizer>(),
             resourcePool = { services.get<IResourcePoolService>() },
+            feedback = { ports.playerFeedbackGateway?.invoke(services) },
+            bodyRigs = { services.get<com.astarworks.astera.core.application.port.outbound.animation.ISkinRigAnimator>() },
+            bodyRegistry = { services.get<com.astarworks.astera.core.application.port.outbound.ISkinRigRegistry>() },
+            bodyPoses = { services.get<com.astarworks.astera.core.application.port.outbound.animation.IPlayerAnimationGateway>() },
         )
         val live = PaperLiveValueSource(server, scheduler)
         val player = TablePlayer(
@@ -187,10 +191,10 @@ internal class SkillEnginePaperRuntime(
             playerHooks.releaseAll()
         }
         ctx.subscriptions += eventBus.subscribe(SkillChargeStarted::class) { event ->
-            cast.raiseAllOf(event.caster.uuid, "charge", event.atTick.toInt())
+            cast.raiseAllOf(event.caster.uuid, "input.use", event.atTick.toInt())
         }
         ctx.subscriptions += eventBus.subscribe(SkillReleased::class) { event ->
-            cast.raiseAllOf(event.caster.uuid, "release", event.atTick.toInt())
+            cast.raiseAllOf(event.caster.uuid, "input.release", event.atTick.toInt())
         }
         ctx.subscriptions += eventBus.subscribe(SkillCast::class) { event -> onSkillCast(cast, live, catalog::get, scheduler, event) }
     }

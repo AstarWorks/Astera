@@ -12,7 +12,7 @@ sealed interface ComposeError {
     /** The file is not parseable YAML (syntax error, duplicate key, unreadable). */
     data class ParseError(override val file: String, override val path: String, override val reason: String) : ComposeError
 
-    /** An `astera/v3` document is structurally invalid (unknown kind, missing id / target / patchKind, bad id). */
+    /** An `astera/v3` document is structurally invalid (unknown kind, missing id / target / patchKind / ops, bad id). */
     data class InvalidDocument(override val file: String, override val path: String, override val reason: String) : ComposeError
 
     /** Two `kind: Skill` documents with the same id live in different files / directories. */
@@ -28,7 +28,10 @@ sealed interface ComposeError {
         /** The patch `target` has no `kind: Skill` (or, for `part:<id>`, `kind: Part`) document. */
         data class TargetNotFound(override val file: String, override val path: String, override val reason: String) : PatchError
 
-        /** A list of maps is merged by `id`, but an entry has none. */
+        /** A list of maps is merged by `id`, but an entry has none (merging split documents of one skill). */
         data class MissingId(override val file: String, override val path: String, override val reason: String) : PatchError
+
+        /** A patch op's `path` does not resolve in the composed tree (R35). [path] is the op's path as written. */
+        data class UnresolvedPath(override val file: String, override val path: String, override val reason: String) : PatchError
     }
 }
