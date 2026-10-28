@@ -1900,6 +1900,12 @@ astera:
           staff:
             title: "<light_purple><bold>STAFF</bold></light_purple>"
             hint: "<dark_gray>Cast at the targets</dark_gray>"
+          tools:
+            title: "<gold><bold>TOOL BAY</bold></gold>"
+            hint: "<dark_gray>N stone / S dirt / E wood</dark_gray>"
+          reset:
+            title: "<red><bold>RESET</bold></red>"
+            hint: "<dark_gray>Restore the blocks</dark_gray>"
     # F3-1 — queue lane pads: holograms above the pads, join confirmation.
     lane:
       board:
@@ -1932,6 +1938,8 @@ astera:
         unknown: "<red>That weapon is not on the rack.</red>"
         already-held: "<yellow>You already carry <white>{item}</white> from the rack.</yellow>"
         full: "<red>Your inventory is full.</red>"
+    toolbay:
+      reset: "<green>Tool bay restored <gray>({count} blocks)</gray></green>"
 
   # F3-11 — lobby training dummies: name tag and live HP / DPS line.
   training:

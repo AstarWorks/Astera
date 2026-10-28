@@ -136,6 +136,7 @@ public object LobbyIslandGenerator {
             plazaNpcs()
 
             allIslands.forEach { decorate(it) }
+            toolBay() // after decorate: it clears any tree that grew into the yard
             return LobbyBuildPlan(
                 blocks = blocks,
                 signs = signs,
@@ -145,6 +146,7 @@ public object LobbyIslandGenerator {
                 npcSpots = npcSpots,
                 lanePads = lanePads,
                 training = LobbyTrainingLayout.plan(cx, cz, s),
+                toolBay = LobbyToolBayLayout.plan(cx, cz, s),
             )
         }
 
@@ -1030,6 +1032,67 @@ public object LobbyIslandGenerator {
          * gate to each, and the staff bay itself (three lanes of targets). The gun lanes and the melee pit are the
          * F3-11 stations built by [trainingIsland]; this only dresses them.
          */
+        /**
+         * Tool test bay (MAP-A6): walled yard east of the weapon range. North = stone-type blocks, south = dirt-type,
+         * east = wood-type (the three Annihilation pillar materials are among them), open floor between, the tool
+         * rack and reset button on the west wall. Geometry lives in [LobbyToolBayLayout].
+         */
+        private fun toolBay() {
+            val ix = cx + LobbyTrainingLayout.ISLAND_X
+            val iz = cz + LobbyTrainingLayout.ISLAND_Z
+            val x0 = ix + LobbyToolBayLayout.WALL_X
+            val x1 = ix + LobbyToolBayLayout.MAX_X
+            val z0 = iz + LobbyToolBayLayout.MIN_Z
+            val z1 = iz + LobbyToolBayLayout.MAX_Z
+            // clear whatever grew here (trees), then lay the floor
+            for (x in x0 - 1..x1 + 1) for (z in z0 - 1..z1 + 1) {
+                for (y in s + 1..s + 18) blocks.remove(LobbyBlockPos(x, y, z))
+            }
+            for (x in x0..x1) for (z in z0..z1) {
+                set(x, s - 1, z, "minecraft:stone_bricks")
+                set(x, s, z, if (x == x0 + 1) "minecraft:polished_andesite" else "minecraft:smooth_stone")
+            }
+            val stone = listOf("stone", "cobblestone", "andesite", "polished_deepslate", "stone", "cobblestone", "andesite")
+            val dirt = listOf("dirt", "coarse_dirt", "rooted_dirt", "mud", "clay", "podzol[snowy=false]", "coarse_dirt")
+            val wood = listOf(
+                "stripped_dark_oak_wood[axis=y]", "dark_oak_log[axis=y]", "oak_log[axis=y]", "spruce_log[axis=y]",
+                "birch_log[axis=y]", "stripped_dark_oak_wood[axis=y]", "oak_log[axis=y]",
+            )
+            val bx0 = ix + LobbyToolBayLayout.REGION_MIN_X
+            for (x in bx0..x1) {
+                for (y in s + 1..s + 4) {
+                    for (z in z0..z0 + 2) set(x, y, z, "minecraft:" + stone[(x - bx0) % stone.size])
+                    for (z in z1 - 2..z1) set(x, y, z, "minecraft:" + dirt[(x - bx0) % dirt.size])
+                }
+            }
+            for (x in x1 - 2..x1) for (z in z0 + 3..z1 - 3) for (y in s + 1..s + 4) {
+                set(x, y, z, "minecraft:" + wood[(z - z0) % wood.size])
+            }
+            // west wall: rack backing, gate gap at z 3..4
+            for (z in z0..z1) {
+                if (z - iz in LobbyToolBayLayout.GATE_Z1..LobbyToolBayLayout.GATE_Z2) continue
+                for (y in s + 1..s + 5) set(x0, y, z, "minecraft:stone_bricks")
+            }
+            // gate posts with lanterns
+            for (zz in listOf(iz + LobbyToolBayLayout.GATE_Z1 - 1, iz + LobbyToolBayLayout.GATE_Z2 + 1)) {
+                set(x0, s + 6, zz, "minecraft:lantern[hanging=false]")
+            }
+            val plan = LobbyToolBayLayout.plan(cx, cz, s)
+            val button = plan.resetButton
+            set(button.x, button.y, button.z, "minecraft:stone_button[face=wall,facing=east]")
+            fun wallSign(pos: LobbyBlockPos, base: String) {
+                val state = "minecraft:oak_wall_sign[facing=east]"
+                set(pos.x, pos.y, pos.z, state)
+                signs += LobbySign(
+                    pos,
+                    state,
+                    listOf(MessageKey("astera.lobby.sign.training.bay.$base.title"), MessageKey("astera.lobby.sign.training.bay.$base.hint"), null, null),
+                )
+            }
+            wallSign(LobbyBlockPos(x0 + 1, s + 5, iz - 1), "tools")
+            wallSign(LobbyBlockPos(button.x, button.y + 1, button.z), "reset")
+        }
+
         private fun weaponBays() {
             val ix = cx + LobbyTrainingLayout.ISLAND_X
             val iz = cz + LobbyTrainingLayout.ISLAND_Z
