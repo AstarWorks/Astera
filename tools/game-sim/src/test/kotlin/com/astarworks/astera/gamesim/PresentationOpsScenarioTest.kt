@@ -212,6 +212,9 @@ class PresentationOpsScenarioTest {
             override fun flash(viewer: UUID, overlay: com.astarworks.astera.core.domain.effect.ScreenOverlay, colorRgb: Int, fadeIn: Int, stay: Int, fadeOut: Int) {
                 calls += "flash:${overlay.yamlName}:${colorRgb.toString(16)}:$fadeIn:$stay:$fadeOut"
             }
+            override fun veil(viewer: UUID, sprite: String, colorRgb: Int, side: Double, distance: Double, ticks: Int) {
+                calls += "veil:$sprite:${colorRgb.toString(16)}:$side:$distance:$ticks"
+            }
             override fun stopSound(viewer: UUID, sound: String) { calls += "stop_sound:$sound" }
         },
     )
@@ -316,7 +319,7 @@ class PresentationOpsScenarioTest {
         val names = presentationDecoders().flatMap { it.opNames }.toSet()
         assertThat(names).containsExactlyInAnyOrder(
             "mesh", "plate", "block", "quad", "line", "trail", "track", "remove", "rig", "emit", "sound",
-            "victim_anim", "caster_anim", "title", "action_bar", "camera_shake", "screen_flash", "stop_sound",
+            "victim_anim", "caster_anim", "title", "action_bar", "camera_shake", "screen_flash", "screen_veil", "stop_sound",
         )
         val viewer = decode("plate", mapOf("parent" to "volley", "sprite" to "slash_fan", "face" to mapOf("viewer" to "vertical"))) as VisualOp.Plate
         assertThat(viewer.face).isEqualTo(PlateFace.ViewerVertical)
@@ -483,6 +486,17 @@ class PresentationOpsScenarioTest {
         run(VisualOp.Mesh("m", null, "shears", "couture-shears", null, null))
         rt.endCast(ctx.cast)
         assertThat(removed).hasSize(1)
+    }
+
+    @Test
+    fun `screen_veil clamps distance and side like v1 ScreenVeilMath and defaults the colour to white`() {
+        val math = com.astarworks.astera.core.domain.effect.ScreenVeilMath
+        run(ScreenOp.Veil("v", null, TargetRef.Caster, "burst", 0xFFC84A, lit(0.4), lit(1.4), lit(0.15), 5))
+        run(ScreenOp.Veil("v2", null, TargetRef.Caster, "burst", null, lit(5.0), lit(20.0), lit(0.9), 3))
+        val near = math.clampSide(0.2 * 1.4, 0.4, 0.15)
+        val far = math.clampSide(0.2 * 20.0, 1.0, 0.9)
+        assertThat(calls).containsExactly("veil:burst:ffc84a:$near:0.4:5", "veil:burst:ffffff:$far:1.0:3")
+        assertThat(far).isLessThan(4.0) // the hard 0.18 screen-fraction cap, not the requested side
     }
 
     // ---- SKL-14 restored v1 behaviour --------------------------------------------------------------

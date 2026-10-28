@@ -36,6 +36,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from yamlout import dump_doc  # noqa: E402
 from rotvec import convert_keys, euler_to_vec, ease_key  # noqa: E402
 import vfxelem  # noqa: E402
+import telegraph  # noqa: E402
 
 REPO = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
 # Skills whose windup holds the caster in place: id -> walk-speed factor (0.0 = rooted). SKL-15 row 13.
@@ -138,6 +139,76 @@ def fl(v):
     return repr(float(v))
 
 
+def hitstop_stops(freezes, base):
+    """v1 HitStopClock / VfxRigMotion: the merged `play_vfx freeze` windows (effect ticks, post-freeze time) as (local tick the clock
+    stops at, frozen ticks), local = ticks since the element / rig started (`base` = its effect start tick + the 1-tick animation delay)."""
+    merged = []
+    for f in sorted(freezes, key=lambda f: int(f["at"])):
+        at, n = int(f["at"]), int(f["ticks"])
+        if merged and at <= merged[-1][0] + merged[-1][1]:
+            merged[-1] = (merged[-1][0], max(merged[-1][0] + merged[-1][1], at + n) - merged[-1][0])
+        else:
+            merged.append((at, n))
+    stops, acc = [], 0
+    for at, n in merged:
+        local = at - base - acc
+        if local >= 0:
+            stops.append((local, n))
+            acc += n
+    return stops
+
+
+def hitstop_eff(stops, t):
+    """Local tick `t` -> the tick at which its state is reached once the clock stops (a freeze at `t` itself ends before it)."""
+    return t + sum(n for at, n in stops if at < t)
+
+
+def hitstop_warp(kfs, stops):
+    """Bake the freeze windows into a v1 keyframe list: one key per tick, each the pose the stopped clock shows then (the source
+    tick holds at a stop for its frozen ticks); the v1 per-channel lerp and ease are sampled, so the v2 track needs no clock."""
+    kfs = [k for k in kfs]
+    last = max(int(k["t"]) for k in kfs)
+    if not stops or all(at > last for at, _ in stops):
+        return kfs
+    chans = [c for c in ("translate", "rotate", "scale", "alpha") if any(c in k for k in kfs)]
+    held = [c for c in ("color", "block", "text") if any(c in k for k in kfs)]
+    end = hitstop_eff(stops, last)
+    out = {}
+    for e in range(0, end + 1):
+        src, acc = None, 0
+        for at, n in stops:
+            if e < at + acc:
+                break
+            if e < at + acc + n:
+                src = at
+                break
+            acc += n
+        if src is None:
+            src = e - acc
+        row = {"t": e}
+        for c in chans:
+            v = vfxelem.sample(kfs, c, None, src)
+            if v is not None:
+                row[c] = v
+        out[e] = row
+    for k in kfs:
+        for c in held:
+            if c in k:
+                out.setdefault(hitstop_eff(stops, int(k["t"])), {"t": hitstop_eff(stops, int(k["t"]))})[c] = k[c]
+    return [out[t] for t in sorted(out)]
+
+
+def hitstop_bake(d, freezes):
+    """Return the vfx definition `d` with `play_vfx freeze` baked into every element that has `respect_hit_stop`, and the flag
+    dropped (without a freeze the flag is a no-op in v1). Rigs keep the flag: the rig op owns its hit-stop windows."""
+    d = json.loads(json.dumps(d))
+    for el in d.get("elements", []):
+        if el.pop("respect_hit_stop", False) and freezes and el.get("keyframes"):
+            stops = hitstop_stops(freezes, int(el.get("start_tick", 0)) + 1)
+            el["keyframes"] = hitstop_warp(el["keyframes"], stops)
+    return d
+
+
 def short(x, n=120):
     return json.dumps(x, sort_keys=True, default=str, ensure_ascii=False)[:n]
 
@@ -208,12 +279,13 @@ def bake_swing(keys):
 
 
 class Where:
-    def __init__(self, kind, event=None, guard=None):
+    def __init__(self, kind, event=None, guard=None, owner=None):
         self.kind = kind  # cast | handler | nested
         self.event = event
         self.guard = guard
+        self.owner = owner  # nested only: id of the gameplay op whose list this is
         self.ops = []  # nested only
-        self.owner = None  # nested only: id of the op whose list this is (dash_strike on_hit)
+        self.fx = {}  # nested only: delay -> event name that carries the presentation of that delay
 
 
 CAST = Where("cast")
@@ -301,7 +373,16 @@ class Conv:
     def _put(self, side, where, delay, op):
         if where.kind == "nested":
             if side == "p":
-                self.present("presentation inside a nested gameplay list (dash on_hit has no event hook)", op.get("op", ""))
+                # A presentation op in a nested gameplay list rides an event the list raises: the event carries the current
+                # victim (CastEvent.victim), so the `on:` handler addresses the entity the dash / window hit.
+                ev = where.fx.get(delay)
+                if ev is None:
+                    ev = where.fx[delay] = self.oid("%s_fx%d" % (where.owner, delay) if delay else "%s_fx" % where.owner)
+                    if delay:
+                        where.ops.append({"id": self.oid("sch"), "op": "schedule", "after": delay, "event": ev})
+                    else:
+                        where.ops.append({"id": self.oid("raise"), "op": "raise_event", "name": ev})
+                self.p_on.setdefault(ev, []).append(op)
                 return
             if delay:
                 op = {"id": self.oid("delay"), "op": "delay", "after": delay, "do": [op]}
@@ -376,7 +457,7 @@ class Conv:
             r = self.param("radius", V(tg.get("radius", tg.get("distance", 3.0))))
             around = self.point(tg["center"], where, "g") if tg.get("center") else "caster"
             if t == "allies":
-                return ("allies", r, around)
+                return ("allies", r, around, None, bool(V(tg.get("include_self", False))))
             if where.kind != "cast":
                 if t in ("enemies", "nearby_entities"):
                     return ("enemies", r, around)
@@ -392,10 +473,14 @@ class Conv:
             area = {"around": spec[2], "radius": spec[1]}
             if len(spec) > 3 and spec[3]:
                 area["max_count"] = spec[3]
+            if len(spec) > 4 and spec[4]:
+                area["include_self"] = True
             op["target"] = {spec[0]: area}
         else:  # movement family: target + sibling around / radius
             if len(spec) > 3 and spec[3]:
                 raise ValueError("max_count=%s on a movement-family area target has no v2 field" % spec[3])
+            if len(spec) > 4 and spec[4]:
+                raise ValueError("include_self on a movement-family area target has no v2 field")
             op["target"] = spec[0]
             op["around"] = spec[2]
             op["radius"] = spec[1]
@@ -463,8 +548,8 @@ class Conv:
         return w
 
     def prune_idle_hits(self):
-        """Drop `hit` volumes no gameplay handler listens to (v1 area targets used only by play_vfx / sound): they
-        would be invisible hit volumes without an effect. Their presentation handlers go with them."""
+        """Drop `hit` volumes nothing listens to. A `hit` only resolves contacts (no damage), so a volume that only
+        presentation handlers (play_vfx / sound on an area target) listen to is kept: those ops fire on its `hit` event."""
         def mentions(op, hid):
             return ("'%s'" % hid) in (op.get("when") or "")
         for rows_key, rows in list(self.g_rows.items()):
@@ -472,19 +557,10 @@ class Conv:
                 if op.get("op") != "hit":
                     continue
                 hid = op["id"]
-                served = any(mentions(o, hid) for lst in self.g_on.values() for o in lst) or \
-                    any(mentions(o, hid) for rs in self.g_rows.values() for o in rs)
-                if served:
-                    continue
-                rows.remove(op)
-                n = 0
-                for store in (self.p_on, self.p_rows):
-                    for k, lst in store.items():
-                        keep = [o for o in lst if not mentions(o, hid)]
-                        n += len(lst) - len(keep)
-                        lst[:] = keep
-                self.present("area target used only by presentation ops (no damaging hit volume to attach them to)",
-                             "%s: %d presentation op(s) dropped" % (hid, n))
+                served = any(mentions(o, hid) for store in (self.g_on, self.p_on) for lst in store.values() for o in lst) or \
+                    any(mentions(o, hid) for store in (self.g_rows, self.p_rows) for rs in store.values() for o in rs)
+                if not served:
+                    rows.remove(op)
             if not rows:
                 del self.g_rows[rows_key]
 
@@ -496,7 +572,7 @@ class Conv:
         if c["type"] == "distance_less_than" and c["b"]["type"] in ("caster", "victim", "target"):
             def ref(x):
                 return "caster" if x["type"] == "caster" else "victim"
-            return "= dist(pos(%s), pos(%s)) < %s" % (ref(c["a"]), ref(c["b"]), fl(V(c["distance"])))
+            return "= dist(%s, %s) < %s" % (ref(c["a"]), ref(c["b"]), fl(V(c["distance"])))
         b = c.get("b", {})
         if (c["type"] == "distance_less_than" and c["a"]["type"] == "caster" and b.get("type") == "nearby_entities"
                 and b.get("center", {}).get("type") == "caster" and V(b.get("exclude_caster", True))
@@ -534,7 +610,13 @@ class Conv:
         return self.d.get("id", "?")
 
     def mechanics(self, lst, where, base_delay=0):
+        # SKL-15 row 1: a v2 `window` absorbs the parried hit, so the v1 guard resist (a physical resist on the caster for
+        # exactly the counter window) that stood in for it is dropped; keeping both would double-negate the first hit.
+        windows = {int(V(m["window_ticks"])) for m in lst or [] if m["type"] == "counter"}
         for m in lst or []:
+            if (m["type"] == "modify_attribute" and (m.get("targets") or {}).get("type") == "caster"
+                    and str(m["attribute_key"]).startswith("resist.") and int(V(m["ticks"])) in windows):
+                continue
             self.mech(m, where, base_delay)
 
     def mech(self, m, where, base_delay=0):
@@ -690,8 +772,6 @@ class Conv:
         elif t == "heal":
             op = {"id": self.oid("heal"), "op": "heal", "amount": self.param("heal", V(m["amount"]))}
             self.put_target(op, spec, "map")
-            if tg and tg["type"] == "allies" and V(tg.get("include_self", True)) is False:
-                self.todo("allies include_self=false (heal / cleanse hit the caster too)")
         elif t == "cleanse":
             op = {"id": self.oid("cleanse"), "op": "cleanse", "negative_only": True}
             self.put_target(op, spec, "map")
@@ -726,24 +806,30 @@ class Conv:
         w = self.cond(m)
         if w:
             op["when"] = w
-        nested = Where("nested")
-        nested.owner = did
+        nested = Where("nested", owner=did)
         self.mechanics(m.get("on_hit", []), nested, 0)
         if nested.ops:
             op["on_hit"] = nested.ops
         self.g(where, delay, op)
 
     def counter(self, m, where, delay):
-        kinds = sorted({x["type"] for x in m.get("on_hit", [])})
-        self.todo("counter (parry window) has no v2 op; its on_hit mechanics were dropped",
-                  "window_ticks=%s on_hit=%s" % (V(m["window_ticks"]), ",".join(kinds)))
+        # v1 CounterWindows: one window per defender, consumed by the first qualifying hit within max_distance; the on_hit
+        # mechanics run one tick later with the attacker as target. v2 `window` (SKL-15: the parried hit is absorbed).
+        wid = self.oid("counter")
+        op = {"id": wid, "op": "window", "listen": "incoming_hit", "absorb": True, "ticks": V(m["window_ticks"])}
+        if "max_distance" in m:
+            op["filter"] = "= dist(caster, victim) <= %s" % fl(V(m["max_distance"]))
+        w = self.cond(m)
+        if w:
+            op["when"] = w
+        nested = Where("nested", owner=wid)
+        self.mechanics(m.get("on_hit", []), nested, 0)
+        if nested.ops:
+            op["do"] = nested.ops
+        self.g(where, delay, op)
 
     # ---------- presentation ----------
     def presentation_op(self, m, t, tg, where, delay, when):
-        if where.kind == "nested" and t != "play_sound":
-            self.present("presentation inside a nested gameplay list (dash on_hit has no event hook)", t)
-            return
-
         def W(op):
             self.p(where, delay, self._w(op, when))
 
@@ -766,13 +852,14 @@ class Conv:
         elif t == "play_animation":
             anim = m["animation"]
             if tg and tg["type"] == "caster":
+                # v1 MechanicDispatcher PlayAnimation: playCustomAnimation(target, animation, ticks), ticks defaults to 20
                 op = {"id": self.oid("anim"), "op": "caster_anim", "anim": anim}
-                if m.get("ticks") is not None:
+                if "ticks" in m:
                     op["ticks"] = int(V(m["ticks"]))
                 W(op)
             else:
-                W({"id": self.oid("anim"), "op": "victim_anim", "target": self.screen_target(tg), "anim": anim})
-                self.present("play_animation ticks (victim_anim has no duration)", "ticks=%s" % V(m.get("ticks")))
+                # v1 plays the registered clip on the target; v2 victim_anim is the hurt tilt, a different thing
+                self.present("play_animation on a non-caster target (victim_anim is the hurt tilt, not the registered clip)", short(tg, 60))
         elif t == "screen_flash":
             op = {"id": self.oid("flash"), "op": "screen_flash", "target": self.screen_target(tg), "overlay": m["overlay"]}
             if "color" in m:
@@ -788,9 +875,41 @@ class Conv:
             if not (tg and tg["type"] == "caster"):
                 raise UnhandledV1Key("hide_held_item on a non-caster target")
             W({"id": self.oid("hide_hand"), "op": "caster_anim", "anim": "hide-main-hand", "ticks": int(V(m["ticks"]))})
-        else:  # screen_veil, telegraph
+        elif t == "screen_veil":
+            # v1 ScreenVeilHandler: the quad is shown to the `targets` players (viewers defaults to the target)
+            if "viewers" in m and str(V(m["viewers"])) not in ("caster", "target", "targets"):
+                self.present("screen_veil viewers (the veil is shown to the target player)", short(V(m["viewers"]), 30))
+            op = {"id": self.oid("veil"), "op": "screen_veil", "target": self.screen_target(tg), "sprite": m["sprite"],
+                  "ticks": V(m["ticks"])}
+            for k in ("color", "distance", "scale", "max_screen_fraction"):
+                if k in m:
+                    op[k] = V(m[k])
+            W(op)
+        elif t == "telegraph":
+            self.telegraph(m, tg, where, delay, when)
+        else:
             frag = {k: V(v) for k, v in m.items() if k not in ("type", "targets", "delay_ticks")}
             self.present("%s has no v2 op" % t, short(frag, 160))
+
+    def telegraph(self, m, tg, where, delay, when):
+        """v1 `telegraph` (TelegraphHandler + TelegraphPlanner): a ground footprint at the spawn pose of the target, world-fixed.
+        Baked by telegraph.plan into a v1-form vfx of flat quads (rim at full size, fill growing to impact) and inlined by vfx()."""
+        if tg and tg["type"] != "caster":
+            self.present("telegraph on a non-caster target (anchors other than the caster pose)", short(tg, 60))
+            return
+        color = str(V(m.get("team_color", "enemy")))
+        if color != "enemy":
+            self.present("telegraph team_color %s (v2 has no team colour lookup; enemy warning red only)" % color, "")
+            return
+        if "viewers" in m and str(V(m["viewers"])) != "all":
+            self.present("telegraph viewers (v2 vfx are seen by everyone)", short(V(m["viewers"]), 30))
+        shape = str(V(m["shape"]))
+        d = telegraph.plan(shape, float(V(m["radius"])), float(V(m.get("angle_degrees", 60.0))), float(V(m.get("width", 2.0))),
+                           int(V(m["ticks"])), int(V(m["impact_tick"])), telegraph.ENEMY_WARNING_RGB, str(self.vfx_n + 1))
+        snap = self.oid("tele")
+        self.frames[snap] = {"id": snap, "kind": "body", "parent": "world", "inactive": True}
+        self.g(CAST, delay, {"id": self.oid("place_" + snap), "op": "place", "frame": snap, "like": "caster"})
+        self.vfx({"vfx_id": d["id"], "follow": True}, {"type": "caster"}, where, delay, when, d=d, parent=snap)
 
     SOUND_KEYS = {"type", "targets", "sound_id", "volume", "pitch", "delay_ticks", "condition",
                   "pitch_to", "over", "pitch_ease", "every"}  # the last four: the windup pitch_arc, built by convert_skill
@@ -816,14 +935,6 @@ class Conv:
         for k in ("pitch_to", "over", "pitch_ease", "every"):
             if k in m:
                 op[k] = V(m[k])
-        if where.kind == "nested":
-            # dash_strike on_hit is gameplay-only; the sound waits on the dash's own hit event (engine request: the dash raises
-            # `dash_hit` with source = the dash op id and the victim as contact).
-            self.sound_gap("dash on_hit sound waits for the engine `dash_hit` event (CastInstance.runWithVictim does not raise it)",
-                           m["sound_id"])
-            op["when"] = "= event.source == '%s'" % where.owner
-            self.p(Where("handler", event="dash_hit"), delay, self._w(op, when))
-            return
         self.p(where, delay, self._w(op, when))
 
     def _w(self, op, when):
@@ -840,7 +951,10 @@ class Conv:
         if t in AREA:
             r = V(tg.get("radius", tg.get("distance", 8.0)))
             if t == "allies":
-                return {"allies": {"around": "caster", "radius": r}}
+                area = {"around": "caster", "radius": r}
+                if V(tg.get("include_self", False)):
+                    area["include_self"] = True
+                return {"allies": area}
             if t in ("enemies", "nearby_entities"):
                 return {"enemies": {"around": "caster", "radius": r}}
             return "victim"
@@ -895,9 +1009,10 @@ class Conv:
             or (parent == "bolt" and self.has_bolt)
         return parent if ok else None
 
-    def vfx(self, m, tg, where, delay, when):
+    def vfx(self, m, tg, where, delay, when, d=None, parent=None):
         vid = m["vfx_id"]
-        d = self.load_vfx(vid)
+        if d is None:
+            d = self.load_vfx(vid)
         if d is None:
             self.todo("missing vfx file", vid)
             return
@@ -906,7 +1021,7 @@ class Conv:
         fid = "fx%d_%s" % (self.vfx_n, sid(vid))
         want = self.point(tg, where, "p") if tg else "caster"
         follow = bool(V(m.get("follow", d.get("follow", True))))
-        parent = self.frame_parent(want) if follow else "world"
+        parent = parent or (self.frame_parent(want) if follow else "world")
         if parent is None:
             self.present("vfx anchored at a runtime point (frame parent must exist at cast start): anchored at world", want)
             parent = "world"
@@ -928,9 +1043,8 @@ class Conv:
                   "target_reference"):
             if k in d:
                 self.present("vfx %s (no v2 equivalent)" % k, short(d[k], 60))
-        for k in ("freeze", "track_bound_target", "viewers"):
-            if k == "freeze" and d.get("rigs"):
-                continue  # consumed by the rig ops (their hit-stop windows)
+        d = hitstop_bake(d, V(m.get("freeze")))
+        for k in ("track_bound_target", "viewers"):
             if k in m:
                 self.present("play_vfx %s (no v2 equivalent)" % k, short(V(m[k]), 40))
         dur = int(d.get("duration_ticks", 20))
@@ -1304,7 +1418,7 @@ def convert_skill(d, vfx_dir, item):
                        "components": [{"kind": comp["attribute"], "amount": c.param("dmg_" + comp["attribute"], V(comp["base"]))}]})
         if params.get("knockback"):
             kb = c.param("knockback", params["knockback"])
-            c.g(w, 0, {"id": c.oid("kb"), "op": "knockback", "direction": "= normalize(pos(victim) - pos(caster))", "strength": kb})
+            c.g(w, 0, {"id": c.oid("kb"), "op": "knockback", "direction": "= normalize(flat(pos(victim) - pos(caster)))", "strength": kb})
         c.mechanics(phases.get("cast"), CAST)
         c.mechanics(phases.get("hit_entity"), w)
         block_damage(c, d, arch, None, None)

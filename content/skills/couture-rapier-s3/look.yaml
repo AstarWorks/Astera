@@ -3,7 +3,6 @@
 # CONVERT-PRESENT vfx frame orient (frames carry no orientation / scale) (x11): orient="yaw"
 # CONVERT-PRESENT vfx follow=false (anchored at world, no place-at-spawn) (x9): couture-shears-remote | couture-rapier-cross
 # CONVERT-PRESENT element brightness (no v2 equivalent) (x3): 15
-# CONVERT-PRESENT area target used only by presentation ops (no damaging hit volume to attach them to) (x4): sel: 53 presentation op(s) dropped | sel_3: 53 presentation op(s) dropped
 apiVersion: "astera/v2"
 kind: Skill
 id: couture-rapier-s3
@@ -677,13 +676,567 @@ presentation:
         - {id: rm_6, op: remove, ids: [fx3_couture_rapier_cross_cross_0, fx3_couture_rapier_cross_cross_1, fx3_couture_rapier_cross_cross_2], when: "= event.source == 'sel_2'"}
         - {id: rm_12, op: remove, ids: [fx6_couture_rapier_cross_cross_0, fx6_couture_rapier_cross_cross_1, fx6_couture_rapier_cross_cross_2], when: "= event.source == 'sel_4'"}
         - {id: rm_19, op: remove, ids: [fx10_couture_rapier_cross_cross_0, fx10_couture_rapier_cross_cross_1, fx10_couture_rapier_cross_cross_2], when: "= event.source == 'sel_6'"}
-    - {id: fxhit_11, at: "hit+11", do: []}
-    - {id: fxhit_14, at: "hit+14", do: []}
+    - id: fxhit_11
+      at: "hit+11"
+      do:
+        - id: rm_20
+          op: remove
+          ids:
+            - fx11_couture_target_rosette_arc_0
+            - fx11_couture_target_rosette_arc_1
+            - fx11_couture_target_rosette_arc_2
+            - fx11_couture_target_rosette_arc_3
+            - fx11_couture_target_rosette_arc_4
+            - fx11_couture_target_rosette_arc_5
+            - fx11_couture_target_rosette_arc_6
+            - fx11_couture_target_rosette_arc_7
+            - fx11_couture_target_rosette_arc_8
+            - fx11_couture_target_rosette_arc_9
+            - fx11_couture_target_rosette_arc_10
+            - fx11_couture_target_rosette_arc_11
+            - fx11_couture_target_rosette_arc_12
+            - fx11_couture_target_rosette_arc_13
+            - fx11_couture_target_rosette_arc_14
+            - fx11_couture_target_rosette_arc_15
+          when: "= event.source == 'sel_7'"
+    - id: fxhit_14
+      at: "hit+14"
+      do:
+        - id: rm_2
+          op: remove
+          ids:
+            - fx2_couture_shears_remote_1_blade_0
+            - fx2_couture_shears_remote_1_edge_0
+            - fx2_couture_shears_remote_1_blade_1
+            - fx2_couture_shears_remote_1_edge_1
+            - fx2_couture_shears_remote_1_blade_2
+            - fx2_couture_shears_remote_1_edge_2
+            - fx2_couture_shears_remote_1_handle_0
+            - fx2_couture_shears_remote_1_handle_1
+            - fx2_couture_shears_remote_1_handle_2
+            - fx2_couture_shears_remote_1_handle_3
+            - fx2_couture_shears_remote_1_handle_4
+            - fx2_couture_shears_remote_1_blade_0_2
+            - fx2_couture_shears_remote_1_edge_0_2
+            - fx2_couture_shears_remote_1_blade_1_2
+            - fx2_couture_shears_remote_1_edge_1_2
+            - fx2_couture_shears_remote_1_blade_2_2
+            - fx2_couture_shears_remote_1_edge_2_2
+            - fx2_couture_shears_remote_1_handle_0_2
+            - fx2_couture_shears_remote_1_handle_1_2
+            - fx2_couture_shears_remote_1_handle_2_2
+            - fx2_couture_shears_remote_1_handle_3_2
+            - fx2_couture_shears_remote_1_handle_4_2
+            - fx2_couture_shears_remote_hinge_flower_0
+            - fx2_couture_shears_remote_hinge_flower_1
+            - fx2_couture_shears_remote_hinge_flower_2
+            - fx2_couture_shears_remote_hinge_flower_3
+          when: "= event.source == 'sel'"
+        - id: rm_8
+          op: remove
+          ids:
+            - fx5_couture_shears_remote_1_blade_0
+            - fx5_couture_shears_remote_1_edge_0
+            - fx5_couture_shears_remote_1_blade_1
+            - fx5_couture_shears_remote_1_edge_1
+            - fx5_couture_shears_remote_1_blade_2
+            - fx5_couture_shears_remote_1_edge_2
+            - fx5_couture_shears_remote_1_handle_0
+            - fx5_couture_shears_remote_1_handle_1
+            - fx5_couture_shears_remote_1_handle_2
+            - fx5_couture_shears_remote_1_handle_3
+            - fx5_couture_shears_remote_1_handle_4
+            - fx5_couture_shears_remote_1_blade_0_2
+            - fx5_couture_shears_remote_1_edge_0_2
+            - fx5_couture_shears_remote_1_blade_1_2
+            - fx5_couture_shears_remote_1_edge_1_2
+            - fx5_couture_shears_remote_1_blade_2_2
+            - fx5_couture_shears_remote_1_edge_2_2
+            - fx5_couture_shears_remote_1_handle_0_2
+            - fx5_couture_shears_remote_1_handle_1_2
+            - fx5_couture_shears_remote_1_handle_2_2
+            - fx5_couture_shears_remote_1_handle_3_2
+            - fx5_couture_shears_remote_1_handle_4_2
+            - fx5_couture_shears_remote_hinge_flower_0
+            - fx5_couture_shears_remote_hinge_flower_1
+            - fx5_couture_shears_remote_hinge_flower_2
+            - fx5_couture_shears_remote_hinge_flower_3
+          when: "= event.source == 'sel_3'"
+        - id: rm_15
+          op: remove
+          ids:
+            - fx9_couture_shears_remote_1_blade_0
+            - fx9_couture_shears_remote_1_edge_0
+            - fx9_couture_shears_remote_1_blade_1
+            - fx9_couture_shears_remote_1_edge_1
+            - fx9_couture_shears_remote_1_blade_2
+            - fx9_couture_shears_remote_1_edge_2
+            - fx9_couture_shears_remote_1_handle_0
+            - fx9_couture_shears_remote_1_handle_1
+            - fx9_couture_shears_remote_1_handle_2
+            - fx9_couture_shears_remote_1_handle_3
+            - fx9_couture_shears_remote_1_handle_4
+            - fx9_couture_shears_remote_1_blade_0_2
+            - fx9_couture_shears_remote_1_edge_0_2
+            - fx9_couture_shears_remote_1_blade_1_2
+            - fx9_couture_shears_remote_1_edge_1_2
+            - fx9_couture_shears_remote_1_blade_2_2
+            - fx9_couture_shears_remote_1_edge_2_2
+            - fx9_couture_shears_remote_1_handle_0_2
+            - fx9_couture_shears_remote_1_handle_1_2
+            - fx9_couture_shears_remote_1_handle_2_2
+            - fx9_couture_shears_remote_1_handle_3_2
+            - fx9_couture_shears_remote_1_handle_4_2
+            - fx9_couture_shears_remote_hinge_flower_0
+            - fx9_couture_shears_remote_hinge_flower_1
+            - fx9_couture_shears_remote_hinge_flower_2
+            - fx9_couture_shears_remote_hinge_flower_3
+          when: "= event.source == 'sel_5'"
     - {id: loop1, at: hit, every: 3, for: 4, do: [{id: fx3_couture_rapier_cross_sparks, op: emit, at: fx3_couture_rapier_cross_sparks_at, particle: stab-spark, when: "= event.source == 'sel_2'"}]}
     - {id: loop2, at: hit, every: 3, for: 4, do: [{id: fx6_couture_rapier_cross_sparks, op: emit, at: fx6_couture_rapier_cross_sparks_at, particle: stab-spark, when: "= event.source == 'sel_4'"}]}
     - {id: loop3, at: hit, every: 3, for: 4, do: [{id: fx10_couture_rapier_cross_sparks, op: emit, at: fx10_couture_rapier_cross_sparks_at, particle: stab-spark, when: "= event.source == 'sel_6'"}]}
   "on":
     hit:
+      - {op: block, parent: fx2_couture_shears_remote, block: gray_concrete, size: [1.0, 1.0, 1.0], id: fx2_couture_shears_remote_1_blade_0, when: "= event.source == 'sel'"}
+      - id: fx2_couture_shears_remote_1_blade_0_trk
+        op: track
+        target: fx2_couture_shears_remote_1_blade_0
+        keys:
+          - {t: 0, offset: [-0.045, 2.16453, -2.78214], scale: [0.042, 0.133, 0.56], turn: [57.0, 0.0, 0.0]}
+          - {t: 1, turn: [48.66667, 0.0, 0.0]}
+          - {t: 2, turn: [40.33333, 0.0, 0.0]}
+          - {t: 3, offset: [-0.045, 0.88803, -0.36078], scale: [0.06, 0.19, 0.8], turn: [32.0, 0.0, 0.0]}
+          - {t: 4, turn: [22.0, 0.0, 0.0]}
+          - {t: 5, turn: [12.0, 0.0, 0.0]}
+          - {t: 6, offset: [-0.045, 1.08604, -0.30024], scale: [0.06, 0.19, 0.8], turn: [2.0, 0.0, 0.0]}
+          - {t: 7, turn: [5.75, 0.0, 0.0]}
+          - {t: 8, turn: [9.5, 0.0, 0.0]}
+          - {t: 9, turn: [13.25, 0.0, 0.0]}
+          - {t: 10, offset: [-0.045, 0.98305, -0.31748], scale: [0.06, 0.19, 0.8], turn: [17.0, 0.0, 0.0]}
+          - {t: 13, offset: [-0.045, 0.98305, -0.31748], scale: [0.0, 0.0, 0.0], turn: [17.0, 0.0, 0.0]}
+        when: "= event.source == 'sel'"
+      - {op: block, parent: fx2_couture_shears_remote, block: iron_block, size: [1.0, 1.0, 1.0], id: fx2_couture_shears_remote_1_edge_0, when: "= event.source == 'sel'"}
+      - id: fx2_couture_shears_remote_1_edge_0_trk
+        op: track
+        target: fx2_couture_shears_remote_1_edge_0
+        keys:
+          - {t: 0, offset: [-0.045, 2.19713, -2.73195], scale: [0.042, 0.0175, 0.56115], turn: [60.66907, 0.0, 0.0]}
+          - {t: 1, turn: [52.33573, 0.0, 0.0]}
+          - {t: 2, turn: [44.0024, 0.0, 0.0]}
+          - {t: 3, offset: [-0.045, 0.93879, -0.32907], scale: [0.06, 0.025, 0.80164], turn: [35.66907, 0.0, 0.0]}
+          - {t: 4, turn: [25.66907, 0.0, 0.0]}
+          - {t: 5, turn: [15.66907, 0.0, 0.0]}
+          - {t: 6, offset: [-0.045, 1.14585, -0.29815], scale: [0.06, 0.025, 0.80164], turn: [5.66907, 0.0, 0.0]}
+          - {t: 7, turn: [9.41907, 0.0, 0.0]}
+          - {t: 8, turn: [13.16907, 0.0, 0.0]}
+          - {t: 9, turn: [16.91907, 0.0, 0.0]}
+          - {t: 10, offset: [-0.045, 1.04029, -0.29998], scale: [0.06, 0.025, 0.80164], turn: [20.66907, 0.0, 0.0]}
+          - {t: 13, offset: [-0.045, 1.04029, -0.29998], scale: [0.0, 0.0, 0.0], turn: [20.66907, 0.0, 0.0]}
+        when: "= event.source == 'sel'"
+      - {op: block, parent: fx2_couture_shears_remote, block: gray_concrete, size: [1.0, 1.0, 1.0], id: fx2_couture_shears_remote_1_blade_1, when: "= event.source == 'sel'"}
+      - id: fx2_couture_shears_remote_1_blade_1_trk
+        op: track
+        target: fx2_couture_shears_remote_1_blade_1
+        keys:
+          - {t: 0, offset: [-0.045, 1.57746, -2.4009], scale: [0.042, 0.084, 0.42], turn: [57.0, 0.0, 0.0]}
+          - {t: 1, turn: [48.66667, 0.0, 0.0]}
+          - {t: 2, turn: [40.33333, 0.0, 0.0]}
+          - {t: 3, offset: [-0.045, 0.51709, 0.23285], scale: [0.06, 0.12, 0.6], turn: [32.0, 0.0, 0.0]}
+          - {t: 4, turn: [22.0, 0.0, 0.0]}
+          - {t: 5, turn: [12.0, 0.0, 0.0]}
+          - {t: 6, offset: [-0.045, 1.06161, 0.39933], scale: [0.06, 0.12, 0.6], turn: [2.0, 0.0, 0.0]}
+          - {t: 7, turn: [5.75, 0.0, 0.0]}
+          - {t: 8, turn: [9.5, 0.0, 0.0]}
+          - {t: 9, turn: [13.25, 0.0, 0.0]}
+          - {t: 10, offset: [-0.045, 0.77839, 0.35194], scale: [0.06, 0.12, 0.6], turn: [17.0, 0.0, 0.0]}
+          - {t: 13, offset: [-0.045, 0.77839, 0.35194], scale: [0.0, 0.0, 0.0], turn: [17.0, 0.0, 0.0]}
+        when: "= event.source == 'sel'"
+      - {op: block, parent: fx2_couture_shears_remote, block: iron_block, size: [1.0, 1.0, 1.0], id: fx2_couture_shears_remote_1_edge_1, when: "= event.source == 'sel'"}
+      - id: fx2_couture_shears_remote_1_edge_1_trk
+        op: track
+        target: fx2_couture_shears_remote_1_edge_1
+        keys:
+          - {t: 0, offset: [-0.045, 1.59805, -2.3692], scale: [0.042, 0.0175, 0.42061], turn: [60.09097, 0.0, 0.0]}
+          - {t: 1, turn: [51.75764, 0.0, 0.0]}
+          - {t: 2, turn: [43.4243, 0.0, 0.0]}
+          - {t: 3, offset: [-0.045, 0.54915, 0.25288], scale: [0.06, 0.025, 0.60087], turn: [35.09097, 0.0, 0.0]}
+          - {t: 4, turn: [25.09097, 0.0, 0.0]}
+          - {t: 5, turn: [15.09097, 0.0, 0.0]}
+          - {t: 6, offset: [-0.045, 1.09939, 0.40065], scale: [0.06, 0.025, 0.60087], turn: [5.09097, 0.0, 0.0]}
+          - {t: 7, turn: [8.84097, 0.0, 0.0]}
+          - {t: 8, turn: [12.59097, 0.0, 0.0]}
+          - {t: 9, turn: [16.34097, 0.0, 0.0]}
+          - {t: 10, offset: [-0.045, 0.81454, 0.36299], scale: [0.06, 0.025, 0.60087], turn: [20.09097, 0.0, 0.0]}
+          - {t: 13, offset: [-0.045, 0.81454, 0.36299], scale: [0.0, 0.0, 0.0], turn: [20.09097, 0.0, 0.0]}
+        when: "= event.source == 'sel'"
+      - {op: block, parent: fx2_couture_shears_remote, block: gray_concrete, size: [1.0, 1.0, 1.0], id: fx2_couture_shears_remote_1_blade_2, when: "= event.source == 'sel'"}
+      - id: fx2_couture_shears_remote_1_blade_2_trk
+        op: track
+        target: fx2_couture_shears_remote_1_blade_2
+        keys:
+          - {t: 0, offset: [-0.045, 1.15813, -2.12858], scale: [0.042, 0.0315, 0.28], turn: [57.0, 0.0, 0.0]}
+          - {t: 1, turn: [48.66667, 0.0, 0.0]}
+          - {t: 2, turn: [40.33333, 0.0, 0.0]}
+          - {t: 3, offset: [-0.045, 0.25213, 0.65688], scale: [0.06, 0.045, 0.4], turn: [32.0, 0.0, 0.0]}
+          - {t: 4, turn: [22.0, 0.0, 0.0]}
+          - {t: 5, turn: [12.0, 0.0, 0.0]}
+          - {t: 6, offset: [-0.045, 1.04416, 0.89903], scale: [0.06, 0.045, 0.4], turn: [2.0, 0.0, 0.0]}
+          - {t: 7, turn: [5.75, 0.0, 0.0]}
+          - {t: 8, turn: [9.5, 0.0, 0.0]}
+          - {t: 9, turn: [13.25, 0.0, 0.0]}
+          - {t: 10, offset: [-0.045, 0.63221, 0.83009], scale: [0.06, 0.045, 0.4], turn: [17.0, 0.0, 0.0]}
+          - {t: 13, offset: [-0.045, 0.63221, 0.83009], scale: [0.0, 0.0, 0.0], turn: [17.0, 0.0, 0.0]}
+        when: "= event.source == 'sel'"
+      - {op: block, parent: fx2_couture_shears_remote, block: iron_block, size: [1.0, 1.0, 1.0], id: fx2_couture_shears_remote_1_edge_2, when: "= event.source == 'sel'"}
+      - id: fx2_couture_shears_remote_1_edge_2_trk
+        op: track
+        target: fx2_couture_shears_remote_1_edge_2
+        keys:
+          - {t: 0, offset: [-0.045, 1.16585, -2.11669], scale: [0.042, 0.0175, 0.28013], turn: [58.73982, 0.0, 0.0]}
+          - {t: 1, turn: [50.40649, 0.0, 0.0]}
+          - {t: 2, turn: [42.07316, 0.0, 0.0]}
+          - {t: 3, offset: [-0.045, 0.26415, 0.66439], scale: [0.06, 0.025, 0.40018], turn: [33.73982, 0.0, 0.0]}
+          - {t: 4, turn: [23.73982, 0.0, 0.0]}
+          - {t: 5, turn: [13.73982, 0.0, 0.0]}
+          - {t: 6, offset: [-0.045, 1.05833, 0.89952], scale: [0.06, 0.025, 0.40018], turn: [3.73982, 0.0, 0.0]}
+          - {t: 7, turn: [7.48982, 0.0, 0.0]}
+          - {t: 8, turn: [11.23982, 0.0, 0.0]}
+          - {t: 9, turn: [14.98982, 0.0, 0.0]}
+          - {t: 10, offset: [-0.045, 0.64576, 0.83423], scale: [0.06, 0.025, 0.40018], turn: [18.73982, 0.0, 0.0]}
+          - {t: 13, offset: [-0.045, 0.64576, 0.83423], scale: [0.0, 0.0, 0.0], turn: [18.73982, 0.0, 0.0]}
+        when: "= event.source == 'sel'"
+      - {op: block, parent: fx2_couture_shears_remote, block: black_concrete, size: [1.0, 1.0, 1.0], id: fx2_couture_shears_remote_1_handle_0, when: "= event.source == 'sel'"}
+      - id: fx2_couture_shears_remote_1_handle_0_trk
+        op: track
+        target: fx2_couture_shears_remote_1_handle_0
+        keys:
+          - {t: 0, offset: [-0.045, 2.71926, -3.01123], scale: [0.042, 0.0315, 0.21779], turn: [-78.0, 0.0, 0.0]}
+          - {t: 1, turn: [-86.33333, 0.0, 0.0]}
+          - {t: 2, turn: [-94.66667, 0.0, 0.0]}
+          - {t: 3, offset: [-0.045, 1.29397, -0.80284], scale: [0.06, 0.045, 0.31113], turn: [-103.0, 0.0, 0.0]}
+          - {t: 4, turn: [-113.0, 0.0, 0.0]}
+          - {t: 5, turn: [-123.0, 0.0, 0.0]}
+          - {t: 6, offset: [-0.045, 1.21656, -0.88605], scale: [0.06, 0.045, 0.31113], turn: [-133.0, 0.0, 0.0]}
+          - {t: 7, turn: [-129.25, 0.0, 0.0]}
+          - {t: 8, turn: [-125.5, 0.0, 0.0]}
+          - {t: 9, turn: [-121.75, 0.0, 0.0]}
+          - {t: 10, offset: [-0.045, 1.26074, -0.84954], scale: [0.06, 0.045, 0.31113], turn: [-118.0, 0.0, 0.0]}
+          - {t: 13, offset: [-0.045, 1.26074, -0.84954], scale: [0.0, 0.0, 0.0], turn: [-118.0, 0.0, 0.0]}
+        when: "= event.source == 'sel'"
+      - {op: block, parent: fx2_couture_shears_remote, block: black_concrete, size: [1.0, 1.0, 1.0], id: fx2_couture_shears_remote_1_handle_1, when: "= event.source == 'sel'"}
+      - id: fx2_couture_shears_remote_1_handle_1_trk
+        op: track
+        target: fx2_couture_shears_remote_1_handle_1
+        keys:
+          - {t: 0, offset: [-0.045, 3.05195, -3.11401], scale: [0.042, 0.0315, 0.3157], turn: [-126.81407, 0.0, 0.0]}
+          - {t: 1, turn: [-135.14741, 0.0, 0.0]}
+          - {t: 2, turn: [-143.48074, 0.0, 0.0]}
+          - {t: 3, offset: [-0.045, 1.55206, -1.03659], scale: [0.06, 0.045, 0.451], turn: [-151.81407, 0.0, 0.0]}
+          - {t: 4, turn: [-161.81407, 0.0, 0.0]}
+          - {t: 5, turn: [-171.81407, 0.0, 0.0]}
+          - {t: 6, offset: [-0.045, 1.3232, -1.21753], scale: [0.06, 0.045, 0.451], turn: [178.18593, 0.0, 0.0]}
+          - {t: 7, turn: [-178.06407, 0.0, 0.0]}
+          - {t: 8, turn: [-174.31407, 0.0, 0.0]}
+          - {t: 9, turn: [-170.56407, 0.0, 0.0]}
+          - {t: 10, offset: [-0.045, 1.44954, -1.14212], scale: [0.06, 0.045, 0.451], turn: [-166.81407, 0.0, 0.0]}
+          - {t: 13, offset: [-0.045, 1.44954, -1.14212], scale: [0.0, 0.0, 0.0], turn: [-166.81407, 0.0, 0.0]}
+        when: "= event.source == 'sel'"
+      - {op: block, parent: fx2_couture_shears_remote, block: black_concrete, size: [1.0, 1.0, 1.0], id: fx2_couture_shears_remote_1_handle_2, when: "= event.source == 'sel'"}
+      - id: fx2_couture_shears_remote_1_handle_2_trk
+        op: track
+        target: fx2_couture_shears_remote_1_handle_2
+        keys:
+          - {t: 0, offset: [-0.045, 3.22687, -3.35876], scale: [0.042, 0.0315, 0.15368], turn: [177.06858, 0.0, 0.0]}
+          - {t: 1, turn: [168.73525, 0.0, 0.0]}
+          - {t: 2, turn: [160.40192, 0.0, 0.0]}
+          - {t: 3, offset: [-0.045, 1.60715, -1.33234], scale: [0.06, 0.045, 0.21954], turn: [152.06858, 0.0, 0.0]}
+          - {t: 4, turn: [142.06858, 0.0, 0.0]}
+          - {t: 5, turn: [132.06858, 0.0, 0.0]}
+          - {t: 6, offset: [-0.045, 1.22304, -1.50119], scale: [0.06, 0.045, 0.21954], turn: [122.06858, 0.0, 0.0]}
+          - {t: 7, turn: [125.81858, 0.0, 0.0]}
+          - {t: 8, turn: [129.56858, 0.0, 0.0]}
+          - {t: 9, turn: [133.31858, 0.0, 0.0]}
+          - {t: 10, offset: [-0.045, 1.42621, -1.44205], scale: [0.06, 0.045, 0.21954], turn: [137.06858, 0.0, 0.0]}
+          - {t: 13, offset: [-0.045, 1.42621, -1.44205], scale: [0.0, 0.0, 0.0], turn: [137.06858, 0.0, 0.0]}
+        when: "= event.source == 'sel'"
+      - {op: block, parent: fx2_couture_shears_remote, block: black_concrete, size: [1.0, 1.0, 1.0], id: fx2_couture_shears_remote_1_handle_3, when: "= event.source == 'sel'"}
+      - id: fx2_couture_shears_remote_1_handle_3_trk
+        op: track
+        target: fx2_couture_shears_remote_1_handle_3
+        keys:
+          - {t: 0, offset: [-0.045, 3.00325, -3.44605], scale: [0.042, 0.0315, 0.3068], turn: [84.14968, 0.0, 0.0]}
+          - {t: 1, turn: [75.81635, 0.0, 0.0]}
+          - {t: 2, turn: [67.48302, 0.0, 0.0]}
+          - {t: 3, offset: [-0.045, 1.36759, -1.31694], scale: [0.06, 0.045, 0.43829], turn: [59.14968, 0.0, 0.0]}
+          - {t: 4, turn: [49.14968, 0.0, 0.0]}
+          - {t: 5, turn: [39.14968, 0.0, 0.0]}
+          - {t: 6, offset: [-0.045, 1.02327, -1.36808], scale: [0.06, 0.045, 0.43829], turn: [29.14968, 0.0, 0.0]}
+          - {t: 7, turn: [32.89968, 0.0, 0.0]}
+          - {t: 8, turn: [36.64968, 0.0, 0.0]}
+          - {t: 9, turn: [40.39968, 0.0, 0.0]}
+          - {t: 10, offset: [-0.045, 1.1988, -1.36518], scale: [0.06, 0.045, 0.43829], turn: [44.14968, 0.0, 0.0]}
+          - {t: 13, offset: [-0.045, 1.1988, -1.36518], scale: [0.0, 0.0, 0.0], turn: [44.14968, 0.0, 0.0]}
+        when: "= event.source == 'sel'"
+      - {op: block, parent: fx2_couture_shears_remote, block: black_concrete, size: [1.0, 1.0, 1.0], id: fx2_couture_shears_remote_1_handle_4, when: "= event.source == 'sel'"}
+      - id: fx2_couture_shears_remote_1_handle_4_trk
+        op: track
+        target: fx2_couture_shears_remote_1_handle_4
+        keys:
+          - {t: 0, offset: [-0.045, 2.67617, -3.23364], scale: [0.042, 0.0315, 0.3068], turn: [29.85032, 0.0, 0.0]}
+          - {t: 1, turn: [21.51698, 0.0, 0.0]}
+          - {t: 2, turn: [13.18365, 0.0, 0.0]}
+          - {t: 3, offset: [-0.045, 1.16092, -0.98621], scale: [0.06, 0.045, 0.43829], turn: [4.85032, 0.0, 0.0]}
+          - {t: 4, turn: [-5.14968, 0.0, 0.0]}
+          - {t: 5, turn: [-15.14968, 0.0, 0.0]}
+          - {t: 6, offset: [-0.045, 1.00966, -0.97832], scale: [0.06, 0.045, 0.43829], turn: [-25.14968, 0.0, 0.0]}
+          - {t: 7, turn: [-21.39968, 0.0, 0.0]}
+          - {t: 8, turn: [-17.64968, 0.0, 0.0]}
+          - {t: 9, turn: [-13.89968, 0.0, 0.0]}
+          - {t: 10, offset: [-0.045, 1.08477, -0.99222], scale: [0.06, 0.045, 0.43829], turn: [-10.14968, 0.0, 0.0]}
+          - {t: 13, offset: [-0.045, 1.08477, -0.99222], scale: [0.0, 0.0, 0.0], turn: [-10.14968, 0.0, 0.0]}
+        when: "= event.source == 'sel'"
+      - {op: block, parent: fx2_couture_shears_remote, block: gray_concrete, size: [1.0, 1.0, 1.0], id: fx2_couture_shears_remote_1_blade_0_2, when: "= event.source == 'sel'"}
+      - id: fx2_couture_shears_remote_1_blade_0_2_trk
+        op: track
+        target: fx2_couture_shears_remote_1_blade_0_2
+        keys:
+          - {t: 0, offset: [0.045, 2.54875, -2.60298], scale: [0.042, 0.133, 0.56], turn: [-7.0, 0.0, 0.0]}
+          - {t: 1, turn: [-15.33333, 0.0, 0.0]}
+          - {t: 2, turn: [-23.66667, 0.0, 0.0]}
+          - {t: 3, offset: [0.045, 1.31197, -0.36078], scale: [0.06, 0.19, 0.8], turn: [-32.0, 0.0, 0.0]}
+          - {t: 4, turn: [-22.0, 0.0, 0.0]}
+          - {t: 5, turn: [-12.0, 0.0, 0.0]}
+          - {t: 6, offset: [0.045, 1.11396, -0.30024], scale: [0.06, 0.19, 0.8], turn: [-2.0, 0.0, 0.0]}
+          - {t: 7, turn: [1.75, 0.0, 0.0]}
+          - {t: 8, turn: [5.5, 0.0, 0.0]}
+          - {t: 9, turn: [9.25, 0.0, 0.0]}
+          - {t: 10, offset: [0.045, 1.01002, -0.31025], scale: [0.06, 0.19, 0.8], turn: [13.0, 0.0, 0.0]}
+          - {t: 13, offset: [0.045, 1.01002, -0.31025], scale: [0.0, 0.0, 0.0], turn: [13.0, 0.0, 0.0]}
+        when: "= event.source == 'sel'"
+      - {op: block, parent: fx2_couture_shears_remote, block: iron_block, size: [1.0, 1.0, 1.0], id: fx2_couture_shears_remote_1_edge_0_2, when: "= event.source == 'sel'"}
+      - id: fx2_couture_shears_remote_1_edge_0_2_trk
+        op: track
+        target: fx2_couture_shears_remote_1_edge_0_2
+        keys:
+          - {t: 0, offset: [0.045, 2.60815, -2.61028], scale: [0.042, 0.0175, 0.56115], turn: [-3.33093, 0.0, 0.0]}
+          - {t: 1, turn: [-11.66427, 0.0, 0.0]}
+          - {t: 2, turn: [-19.9976, 0.0, 0.0]}
+          - {t: 3, offset: [0.045, 1.36272, -0.3925], scale: [0.06, 0.025, 0.80164], turn: [-28.33093, 0.0, 0.0]}
+          - {t: 4, turn: [-18.33093, 0.0, 0.0]}
+          - {t: 5, turn: [-8.33093, 0.0, 0.0]}
+          - {t: 6, offset: [0.045, 1.17377, -0.30233], scale: [0.06, 0.025, 0.80164], turn: [1.66907, 0.0, 0.0]}
+          - {t: 7, turn: [5.41907, 0.0, 0.0]}
+          - {t: 8, turn: [9.16907, 0.0, 0.0]}
+          - {t: 9, turn: [12.91907, 0.0, 0.0]}
+          - {t: 10, offset: [0.045, 1.06834, -0.29679], scale: [0.06, 0.025, 0.80164], turn: [16.66907, 0.0, 0.0]}
+          - {t: 13, offset: [0.045, 1.06834, -0.29679], scale: [0.0, 0.0, 0.0], turn: [16.66907, 0.0, 0.0]}
+        when: "= event.source == 'sel'"
+      - {op: block, parent: fx2_couture_shears_remote, block: gray_concrete, size: [1.0, 1.0, 1.0], id: fx2_couture_shears_remote_1_blade_1_2, when: "= event.source == 'sel'"}
+      - id: fx2_couture_shears_remote_1_blade_1_2_trk
+        op: track
+        target: fx2_couture_shears_remote_1_blade_1_2
+        keys:
+          - {t: 0, offset: [0.045, 2.63406, -1.9082], scale: [0.042, 0.084, 0.42], turn: [-7.0, 0.0, 0.0]}
+          - {t: 1, turn: [-15.33333, 0.0, 0.0]}
+          - {t: 2, turn: [-23.66667, 0.0, 0.0]}
+          - {t: 3, offset: [0.045, 1.68291, 0.23285], scale: [0.06, 0.12, 0.6], turn: [-32.0, 0.0, 0.0]}
+          - {t: 4, turn: [-22.0, 0.0, 0.0]}
+          - {t: 5, turn: [-12.0, 0.0, 0.0]}
+          - {t: 6, offset: [0.045, 1.13839, 0.39933], scale: [0.06, 0.12, 0.6], turn: [-2.0, 0.0, 0.0]}
+          - {t: 7, turn: [1.75, 0.0, 0.0]}
+          - {t: 8, turn: [5.5, 0.0, 0.0]}
+          - {t: 9, turn: [9.25, 0.0, 0.0]}
+          - {t: 10, offset: [0.045, 0.85255, 0.37181], scale: [0.06, 0.12, 0.6], turn: [13.0, 0.0, 0.0]}
+          - {t: 13, offset: [0.045, 0.85255, 0.37181], scale: [0.0, 0.0, 0.0], turn: [13.0, 0.0, 0.0]}
+        when: "= event.source == 'sel'"
+      - {op: block, parent: fx2_couture_shears_remote, block: iron_block, size: [1.0, 1.0, 1.0], id: fx2_couture_shears_remote_1_edge_1_2, when: "= event.source == 'sel'"}
+      - id: fx2_couture_shears_remote_1_edge_1_2_trk
+        op: track
+        target: fx2_couture_shears_remote_1_edge_1_2
+        keys:
+          - {t: 0, offset: [0.045, 2.67157, -1.91281], scale: [0.042, 0.0175, 0.42061], turn: [-3.90903, 0.0, 0.0]}
+          - {t: 1, turn: [-12.24236, 0.0, 0.0]}
+          - {t: 2, turn: [-20.5757, 0.0, 0.0]}
+          - {t: 3, offset: [0.045, 1.71497, 0.21282], scale: [0.06, 0.025, 0.60087], turn: [-28.90903, 0.0, 0.0]}
+          - {t: 4, turn: [-18.90903, 0.0, 0.0]}
+          - {t: 5, turn: [-8.90903, 0.0, 0.0]}
+          - {t: 6, offset: [0.045, 1.17617, 0.39801], scale: [0.06, 0.025, 0.60087], turn: [1.09097, 0.0, 0.0]}
+          - {t: 7, turn: [4.84097, 0.0, 0.0]}
+          - {t: 8, turn: [8.59097, 0.0, 0.0]}
+          - {t: 9, turn: [12.34097, 0.0, 0.0]}
+          - {t: 10, offset: [0.045, 0.88939, 0.38031], scale: [0.06, 0.025, 0.60087], turn: [16.09097, 0.0, 0.0]}
+          - {t: 13, offset: [0.045, 0.88939, 0.38031], scale: [0.0, 0.0, 0.0], turn: [16.09097, 0.0, 0.0]}
+        when: "= event.source == 'sel'"
+      - {op: block, parent: fx2_couture_shears_remote, block: gray_concrete, size: [1.0, 1.0, 1.0], id: fx2_couture_shears_remote_1_blade_2_2, when: "= event.source == 'sel'"}
+      - id: fx2_couture_shears_remote_1_blade_2_2_trk
+        op: track
+        target: fx2_couture_shears_remote_1_blade_2_2
+        keys:
+          - {t: 0, offset: [0.045, 2.69499, -1.41193], scale: [0.042, 0.0315, 0.28], turn: [-7.0, 0.0, 0.0]}
+          - {t: 1, turn: [-15.33333, 0.0, 0.0]}
+          - {t: 2, turn: [-23.66667, 0.0, 0.0]}
+          - {t: 3, offset: [0.045, 1.94787, 0.65688], scale: [0.06, 0.045, 0.4], turn: [-32.0, 0.0, 0.0]}
+          - {t: 4, turn: [-22.0, 0.0, 0.0]}
+          - {t: 5, turn: [-12.0, 0.0, 0.0]}
+          - {t: 6, offset: [0.045, 1.15584, 0.89903], scale: [0.06, 0.045, 0.4], turn: [-2.0, 0.0, 0.0]}
+          - {t: 7, turn: [1.75, 0.0, 0.0]}
+          - {t: 8, turn: [5.5, 0.0, 0.0]}
+          - {t: 9, turn: [9.25, 0.0, 0.0]}
+          - {t: 10, offset: [0.045, 0.74008, 0.85899], scale: [0.06, 0.045, 0.4], turn: [13.0, 0.0, 0.0]}
+          - {t: 13, offset: [0.045, 0.74008, 0.85899], scale: [0.0, 0.0, 0.0], turn: [13.0, 0.0, 0.0]}
+        when: "= event.source == 'sel'"
+      - {op: block, parent: fx2_couture_shears_remote, block: iron_block, size: [1.0, 1.0, 1.0], id: fx2_couture_shears_remote_1_edge_2_2, when: "= event.source == 'sel'"}
+      - id: fx2_couture_shears_remote_1_edge_2_2_trk
+        op: track
+        target: fx2_couture_shears_remote_1_edge_2_2
+        keys:
+          - {t: 0, offset: [0.045, 2.70906, -1.41365], scale: [0.042, 0.0175, 0.28013], turn: [-5.26018, 0.0, 0.0]}
+          - {t: 1, turn: [-13.59351, 0.0, 0.0]}
+          - {t: 2, turn: [-21.92684, 0.0, 0.0]}
+          - {t: 3, offset: [0.045, 1.95989, 0.64937], scale: [0.06, 0.025, 0.40018], turn: [-30.26018, 0.0, 0.0]}
+          - {t: 4, turn: [-20.26018, 0.0, 0.0]}
+          - {t: 5, turn: [-10.26018, 0.0, 0.0]}
+          - {t: 6, offset: [0.045, 1.17001, 0.89853], scale: [0.06, 0.025, 0.40018], turn: [-0.26018, 0.0, 0.0]}
+          - {t: 7, turn: [3.48982, 0.0, 0.0]}
+          - {t: 8, turn: [7.23982, 0.0, 0.0]}
+          - {t: 9, turn: [10.98982, 0.0, 0.0]}
+          - {t: 10, offset: [0.045, 0.75389, 0.86218], scale: [0.06, 0.025, 0.40018], turn: [14.73982, 0.0, 0.0]}
+          - {t: 13, offset: [0.045, 0.75389, 0.86218], scale: [0.0, 0.0, 0.0], turn: [14.73982, 0.0, 0.0]}
+        when: "= event.source == 'sel'"
+      - {op: block, parent: fx2_couture_shears_remote, block: black_concrete, size: [1.0, 1.0, 1.0], id: fx2_couture_shears_remote_1_handle_0_2, when: "= event.source == 'sel'"}
+      - id: fx2_couture_shears_remote_1_handle_0_2_trk
+        op: track
+        target: fx2_couture_shears_remote_1_handle_0_2
+        keys:
+          - {t: 0, offset: [0.045, 2.58602, -3.20199], scale: [0.042, 0.0315, 0.21779], turn: [-142.0, 0.0, 0.0]}
+          - {t: 1, turn: [-150.33333, 0.0, 0.0]}
+          - {t: 2, turn: [-158.66667, 0.0, 0.0]}
+          - {t: 3, offset: [0.045, 1.0926, -0.91942], scale: [0.06, 0.045, 0.31113], turn: [-167.0, 0.0, 0.0]}
+          - {t: 4, turn: [-157.0, 0.0, 0.0]}
+          - {t: 5, turn: [-147.0, 0.0, 0.0]}
+          - {t: 6, offset: [0.045, 1.2033, -0.89372], scale: [0.06, 0.045, 0.31113], turn: [-137.0, 0.0, 0.0]}
+          - {t: 7, turn: [-133.25, 0.0, 0.0]}
+          - {t: 8, turn: [-129.5, 0.0, 0.0]}
+          - {t: 9, turn: [-125.75, 0.0, 0.0]}
+          - {t: 10, offset: [0.045, 1.24992, -0.86039], scale: [0.06, 0.045, 0.31113], turn: [-122.0, 0.0, 0.0]}
+          - {t: 13, offset: [0.045, 1.24992, -0.86039], scale: [0.0, 0.0, 0.0], turn: [-122.0, 0.0, 0.0]}
+        when: "= event.source == 'sel'"
+      - {op: block, parent: fx2_couture_shears_remote, block: black_concrete, size: [1.0, 1.0, 1.0], id: fx2_couture_shears_remote_1_handle_1_2, when: "= event.source == 'sel'"}
+      - id: fx2_couture_shears_remote_1_handle_1_2_trk
+        op: track
+        target: fx2_couture_shears_remote_1_handle_1_2
+        keys:
+          - {t: 0, offset: [0.045, 2.63949, -3.54607], scale: [0.042, 0.0315, 0.3157], turn: [169.18593, 0.0, 0.0]}
+          - {t: 1, turn: [160.85259, 0.0, 0.0]}
+          - {t: 2, turn: [152.51926, 0.0, 0.0]}
+          - {t: 3, offset: [0.045, 0.99564, -1.25386], scale: [0.06, 0.045, 0.451], turn: [144.18593, 0.0, 0.0]}
+          - {t: 4, turn: [154.18593, 0.0, 0.0]}
+          - {t: 5, turn: [164.18593, 0.0, 0.0]}
+          - {t: 6, offset: [0.045, 1.28655, -1.23183], scale: [0.06, 0.045, 0.451], turn: [174.18593, 0.0, 0.0]}
+          - {t: 7, turn: [177.93593, 0.0, 0.0]}
+          - {t: 8, turn: [-178.31407, 0.0, 0.0]}
+          - {t: 9, turn: [-174.56407, 0.0, 0.0]}
+          - {t: 10, offset: [0.045, 1.41785, -1.16543], scale: [0.06, 0.045, 0.451], turn: [-170.81407, 0.0, 0.0]}
+          - {t: 13, offset: [0.045, 1.41785, -1.16543], scale: [0.0, 0.0, 0.0], turn: [-170.81407, 0.0, 0.0]}
+        when: "= event.source == 'sel'"
+      - {op: block, parent: fx2_couture_shears_remote, block: black_concrete, size: [1.0, 1.0, 1.0], id: fx2_couture_shears_remote_1_handle_2_2, when: "= event.source == 'sel'"}
+      - id: fx2_couture_shears_remote_1_handle_2_2_trk
+        op: track
+        target: fx2_couture_shears_remote_1_handle_2_2
+        keys:
+          - {t: 0, offset: [0.045, 2.49619, -3.81058], scale: [0.042, 0.0315, 0.15368], turn: [113.06858, 0.0, 0.0]}
+          - {t: 1, turn: [104.73525, 0.0, 0.0]}
+          - {t: 2, turn: [96.40192, 0.0, 0.0]}
+          - {t: 3, offset: [0.045, 0.75398, -1.43302], scale: [0.06, 0.045, 0.21954], turn: [88.06858, 0.0, 0.0]}
+          - {t: 4, turn: [98.06858, 0.0, 0.0]}
+          - {t: 5, turn: [108.06858, 0.0, 0.0]}
+          - {t: 6, offset: [0.045, 1.16685, -1.50783], scale: [0.06, 0.045, 0.21954], turn: [118.06858, 0.0, 0.0]}
+          - {t: 7, turn: [121.81858, 0.0, 0.0]}
+          - {t: 8, turn: [125.56858, 0.0, 0.0]}
+          - {t: 9, turn: [129.31858, 0.0, 0.0]}
+          - {t: 10, offset: [0.045, 1.37365, -1.463], scale: [0.06, 0.045, 0.21954], turn: [133.06858, 0.0, 0.0]}
+          - {t: 13, offset: [0.045, 1.37365, -1.463], scale: [0.0, 0.0, 0.0], turn: [133.06858, 0.0, 0.0]}
+        when: "= event.source == 'sel'"
+      - {op: block, parent: fx2_couture_shears_remote, block: black_concrete, size: [1.0, 1.0, 1.0], id: fx2_couture_shears_remote_1_handle_3_2, when: "= event.source == 'sel'"}
+      - id: fx2_couture_shears_remote_1_handle_3_2_trk
+        op: track
+        target: fx2_couture_shears_remote_1_handle_3_2
+        keys:
+          - {t: 0, offset: [0.045, 2.3197, -3.64786], scale: [0.042, 0.0315, 0.3068], turn: [20.14968, 0.0, 0.0]}
+          - {t: 1, turn: [11.81635, 0.0, 0.0]}
+          - {t: 2, turn: [3.48302, 0.0, 0.0]}
+          - {t: 3, offset: [0.045, 0.6628, -1.21096], scale: [0.06, 0.045, 0.43829], turn: [-4.85032, 0.0, 0.0]}
+          - {t: 4, turn: [5.14968, 0.0, 0.0]}
+          - {t: 5, turn: [15.14968, 0.0, 0.0]}
+          - {t: 6, offset: [0.045, 0.97685, -1.3611], scale: [0.06, 0.045, 0.43829], turn: [25.14968, 0.0, 0.0]}
+          - {t: 7, turn: [28.89968, 0.0, 0.0]}
+          - {t: 8, turn: [32.64968, 0.0, 0.0]}
+          - {t: 9, turn: [36.39968, 0.0, 0.0]}
+          - {t: 10, offset: [0.045, 1.15216, -1.37045], scale: [0.06, 0.045, 0.43829], turn: [40.14968, 0.0, 0.0]}
+          - {t: 13, offset: [0.045, 1.15216, -1.37045], scale: [0.0, 0.0, 0.0], turn: [40.14968, 0.0, 0.0]}
+        when: "= event.source == 'sel'"
+      - {op: block, parent: fx2_couture_shears_remote, block: black_concrete, size: [1.0, 1.0, 1.0], id: fx2_couture_shears_remote_1_handle_4_2, when: "= event.source == 'sel'"}
+      - id: fx2_couture_shears_remote_1_handle_4_2_trk
+        op: track
+        target: fx2_couture_shears_remote_1_handle_4_2
+        keys:
+          - {t: 0, offset: [0.045, 2.36723, -3.26076], scale: [0.042, 0.0315, 0.3068], turn: [-34.14968, 0.0, 0.0]}
+          - {t: 1, turn: [-42.48302, 0.0, 0.0]}
+          - {t: 2, turn: [-50.81635, 0.0, 0.0]}
+          - {t: 3, offset: [0.045, 0.86947, -0.88022], scale: [0.06, 0.045, 0.43829], turn: [-59.14968, 0.0, 0.0]}
+          - {t: 4, turn: [-49.14968, 0.0, 0.0]}
+          - {t: 5, turn: [-39.14968, 0.0, 0.0]}
+          - {t: 6, offset: [0.045, 0.99046, -0.97134], scale: [0.06, 0.045, 0.43829], turn: [-29.14968, 0.0, 0.0]}
+          - {t: 7, turn: [-25.39968, 0.0, 0.0]}
+          - {t: 8, turn: [-21.64968, 0.0, 0.0]}
+          - {t: 9, turn: [-17.89968, 0.0, 0.0]}
+          - {t: 10, offset: [0.045, 1.06442, -0.99045], scale: [0.06, 0.045, 0.43829], turn: [-14.14968, 0.0, 0.0]}
+          - {t: 13, offset: [0.045, 1.06442, -0.99045], scale: [0.0, 0.0, 0.0], turn: [-14.14968, 0.0, 0.0]}
+        when: "= event.source == 'sel'"
+      - {op: block, parent: fx2_couture_shears_remote, block: white_concrete, size: [1.0, 1.0, 1.0], id: fx2_couture_shears_remote_hinge_flower_0, when: "= event.source == 'sel'"}
+      - id: fx2_couture_shears_remote_hinge_flower_0_trk
+        op: track
+        target: fx2_couture_shears_remote_hinge_flower_0
+        keys:
+          - {t: 0, offset: [-0.12, 2.5, -3.0], scale: [0.105, 0.105, 0.084]}
+          - {t: 3, offset: [-0.12, 1.1, -0.7], scale: [0.15, 0.15, 0.12]}
+          - {t: 6, offset: [-0.12, 1.1, -0.7], scale: [0.15, 0.15, 0.12]}
+          - {t: 10, offset: [-0.12, 1.1, -0.7], scale: [0.15, 0.15, 0.12]}
+          - {t: 13, offset: [-0.12, 1.1, -0.7], scale: [0.0, 0.0, 0.0]}
+        when: "= event.source == 'sel'"
+      - {op: block, parent: fx2_couture_shears_remote, block: white_concrete, size: [1.0, 1.0, 1.0], id: fx2_couture_shears_remote_hinge_flower_1, when: "= event.source == 'sel'"}
+      - id: fx2_couture_shears_remote_hinge_flower_1_trk
+        op: track
+        target: fx2_couture_shears_remote_hinge_flower_1
+        keys:
+          - {t: 0, offset: [0.12, 2.5, -3.0], scale: [0.105, 0.105, 0.084]}
+          - {t: 3, offset: [0.12, 1.1, -0.7], scale: [0.15, 0.15, 0.12]}
+          - {t: 6, offset: [0.12, 1.1, -0.7], scale: [0.15, 0.15, 0.12]}
+          - {t: 10, offset: [0.12, 1.1, -0.7], scale: [0.15, 0.15, 0.12]}
+          - {t: 13, offset: [0.12, 1.1, -0.7], scale: [0.0, 0.0, 0.0]}
+        when: "= event.source == 'sel'"
+      - {op: block, parent: fx2_couture_shears_remote, block: white_concrete, size: [1.0, 1.0, 1.0], id: fx2_couture_shears_remote_hinge_flower_2, when: "= event.source == 'sel'"}
+      - id: fx2_couture_shears_remote_hinge_flower_2_trk
+        op: track
+        target: fx2_couture_shears_remote_hinge_flower_2
+        keys:
+          - {t: 0, offset: [0.0, 2.62, -3.0], scale: [0.105, 0.105, 0.084]}
+          - {t: 3, offset: [0.0, 1.22, -0.7], scale: [0.15, 0.15, 0.12]}
+          - {t: 6, offset: [0.0, 1.22, -0.7], scale: [0.15, 0.15, 0.12]}
+          - {t: 10, offset: [0.0, 1.22, -0.7], scale: [0.15, 0.15, 0.12]}
+          - {t: 13, offset: [0.0, 1.22, -0.7], scale: [0.0, 0.0, 0.0]}
+        when: "= event.source == 'sel'"
+      - {op: block, parent: fx2_couture_shears_remote, block: white_concrete, size: [1.0, 1.0, 1.0], id: fx2_couture_shears_remote_hinge_flower_3, when: "= event.source == 'sel'"}
+      - id: fx2_couture_shears_remote_hinge_flower_3_trk
+        op: track
+        target: fx2_couture_shears_remote_hinge_flower_3
+        keys:
+          - {t: 0, offset: [0.0, 2.38, -3.0], scale: [0.105, 0.105, 0.084]}
+          - {t: 3, offset: [0.0, 0.98, -0.7], scale: [0.15, 0.15, 0.12]}
+          - {t: 6, offset: [0.0, 0.98, -0.7], scale: [0.15, 0.15, 0.12]}
+          - {t: 10, offset: [0.0, 0.98, -0.7], scale: [0.15, 0.15, 0.12]}
+          - {t: 13, offset: [0.0, 0.98, -0.7], scale: [0.0, 0.0, 0.0]}
+        when: "= event.source == 'sel'"
       - {op: block, parent: fx3_couture_rapier_cross, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx3_couture_rapier_cross_cross_0, when: "= event.source == 'sel_2'"}
       - id: fx3_couture_rapier_cross_cross_0_trk
         op: track
@@ -996,6 +1549,446 @@ presentation:
           - {t: 6, scale: [0.2, 0.2, 1.0], alpha: 0.0, ease: in_quad}
         when: "= event.source == 'sel_2'"
       - {id: snd, op: sound, sound: entity.player.attack.strong, at: enemy, volume: 0.7, pitch: 1.1, when: "= event.source == 'sel_2'"}
+      - {op: block, parent: fx5_couture_shears_remote, block: gray_concrete, size: [1.0, 1.0, 1.0], id: fx5_couture_shears_remote_1_blade_0, when: "= event.source == 'sel_3'"}
+      - id: fx5_couture_shears_remote_1_blade_0_trk
+        op: track
+        target: fx5_couture_shears_remote_1_blade_0
+        keys:
+          - {t: 0, offset: [-0.045, 2.16453, -2.78214], scale: [0.042, 0.133, 0.56], turn: [57.0, 0.0, 0.0]}
+          - {t: 1, turn: [48.66667, 0.0, 0.0]}
+          - {t: 2, turn: [40.33333, 0.0, 0.0]}
+          - {t: 3, offset: [-0.045, 0.88803, -0.36078], scale: [0.06, 0.19, 0.8], turn: [32.0, 0.0, 0.0]}
+          - {t: 4, turn: [22.0, 0.0, 0.0]}
+          - {t: 5, turn: [12.0, 0.0, 0.0]}
+          - {t: 6, offset: [-0.045, 1.08604, -0.30024], scale: [0.06, 0.19, 0.8], turn: [2.0, 0.0, 0.0]}
+          - {t: 7, turn: [5.75, 0.0, 0.0]}
+          - {t: 8, turn: [9.5, 0.0, 0.0]}
+          - {t: 9, turn: [13.25, 0.0, 0.0]}
+          - {t: 10, offset: [-0.045, 0.98305, -0.31748], scale: [0.06, 0.19, 0.8], turn: [17.0, 0.0, 0.0]}
+          - {t: 13, offset: [-0.045, 0.98305, -0.31748], scale: [0.0, 0.0, 0.0], turn: [17.0, 0.0, 0.0]}
+        when: "= event.source == 'sel_3'"
+      - {op: block, parent: fx5_couture_shears_remote, block: iron_block, size: [1.0, 1.0, 1.0], id: fx5_couture_shears_remote_1_edge_0, when: "= event.source == 'sel_3'"}
+      - id: fx5_couture_shears_remote_1_edge_0_trk
+        op: track
+        target: fx5_couture_shears_remote_1_edge_0
+        keys:
+          - {t: 0, offset: [-0.045, 2.19713, -2.73195], scale: [0.042, 0.0175, 0.56115], turn: [60.66907, 0.0, 0.0]}
+          - {t: 1, turn: [52.33573, 0.0, 0.0]}
+          - {t: 2, turn: [44.0024, 0.0, 0.0]}
+          - {t: 3, offset: [-0.045, 0.93879, -0.32907], scale: [0.06, 0.025, 0.80164], turn: [35.66907, 0.0, 0.0]}
+          - {t: 4, turn: [25.66907, 0.0, 0.0]}
+          - {t: 5, turn: [15.66907, 0.0, 0.0]}
+          - {t: 6, offset: [-0.045, 1.14585, -0.29815], scale: [0.06, 0.025, 0.80164], turn: [5.66907, 0.0, 0.0]}
+          - {t: 7, turn: [9.41907, 0.0, 0.0]}
+          - {t: 8, turn: [13.16907, 0.0, 0.0]}
+          - {t: 9, turn: [16.91907, 0.0, 0.0]}
+          - {t: 10, offset: [-0.045, 1.04029, -0.29998], scale: [0.06, 0.025, 0.80164], turn: [20.66907, 0.0, 0.0]}
+          - {t: 13, offset: [-0.045, 1.04029, -0.29998], scale: [0.0, 0.0, 0.0], turn: [20.66907, 0.0, 0.0]}
+        when: "= event.source == 'sel_3'"
+      - {op: block, parent: fx5_couture_shears_remote, block: gray_concrete, size: [1.0, 1.0, 1.0], id: fx5_couture_shears_remote_1_blade_1, when: "= event.source == 'sel_3'"}
+      - id: fx5_couture_shears_remote_1_blade_1_trk
+        op: track
+        target: fx5_couture_shears_remote_1_blade_1
+        keys:
+          - {t: 0, offset: [-0.045, 1.57746, -2.4009], scale: [0.042, 0.084, 0.42], turn: [57.0, 0.0, 0.0]}
+          - {t: 1, turn: [48.66667, 0.0, 0.0]}
+          - {t: 2, turn: [40.33333, 0.0, 0.0]}
+          - {t: 3, offset: [-0.045, 0.51709, 0.23285], scale: [0.06, 0.12, 0.6], turn: [32.0, 0.0, 0.0]}
+          - {t: 4, turn: [22.0, 0.0, 0.0]}
+          - {t: 5, turn: [12.0, 0.0, 0.0]}
+          - {t: 6, offset: [-0.045, 1.06161, 0.39933], scale: [0.06, 0.12, 0.6], turn: [2.0, 0.0, 0.0]}
+          - {t: 7, turn: [5.75, 0.0, 0.0]}
+          - {t: 8, turn: [9.5, 0.0, 0.0]}
+          - {t: 9, turn: [13.25, 0.0, 0.0]}
+          - {t: 10, offset: [-0.045, 0.77839, 0.35194], scale: [0.06, 0.12, 0.6], turn: [17.0, 0.0, 0.0]}
+          - {t: 13, offset: [-0.045, 0.77839, 0.35194], scale: [0.0, 0.0, 0.0], turn: [17.0, 0.0, 0.0]}
+        when: "= event.source == 'sel_3'"
+      - {op: block, parent: fx5_couture_shears_remote, block: iron_block, size: [1.0, 1.0, 1.0], id: fx5_couture_shears_remote_1_edge_1, when: "= event.source == 'sel_3'"}
+      - id: fx5_couture_shears_remote_1_edge_1_trk
+        op: track
+        target: fx5_couture_shears_remote_1_edge_1
+        keys:
+          - {t: 0, offset: [-0.045, 1.59805, -2.3692], scale: [0.042, 0.0175, 0.42061], turn: [60.09097, 0.0, 0.0]}
+          - {t: 1, turn: [51.75764, 0.0, 0.0]}
+          - {t: 2, turn: [43.4243, 0.0, 0.0]}
+          - {t: 3, offset: [-0.045, 0.54915, 0.25288], scale: [0.06, 0.025, 0.60087], turn: [35.09097, 0.0, 0.0]}
+          - {t: 4, turn: [25.09097, 0.0, 0.0]}
+          - {t: 5, turn: [15.09097, 0.0, 0.0]}
+          - {t: 6, offset: [-0.045, 1.09939, 0.40065], scale: [0.06, 0.025, 0.60087], turn: [5.09097, 0.0, 0.0]}
+          - {t: 7, turn: [8.84097, 0.0, 0.0]}
+          - {t: 8, turn: [12.59097, 0.0, 0.0]}
+          - {t: 9, turn: [16.34097, 0.0, 0.0]}
+          - {t: 10, offset: [-0.045, 0.81454, 0.36299], scale: [0.06, 0.025, 0.60087], turn: [20.09097, 0.0, 0.0]}
+          - {t: 13, offset: [-0.045, 0.81454, 0.36299], scale: [0.0, 0.0, 0.0], turn: [20.09097, 0.0, 0.0]}
+        when: "= event.source == 'sel_3'"
+      - {op: block, parent: fx5_couture_shears_remote, block: gray_concrete, size: [1.0, 1.0, 1.0], id: fx5_couture_shears_remote_1_blade_2, when: "= event.source == 'sel_3'"}
+      - id: fx5_couture_shears_remote_1_blade_2_trk
+        op: track
+        target: fx5_couture_shears_remote_1_blade_2
+        keys:
+          - {t: 0, offset: [-0.045, 1.15813, -2.12858], scale: [0.042, 0.0315, 0.28], turn: [57.0, 0.0, 0.0]}
+          - {t: 1, turn: [48.66667, 0.0, 0.0]}
+          - {t: 2, turn: [40.33333, 0.0, 0.0]}
+          - {t: 3, offset: [-0.045, 0.25213, 0.65688], scale: [0.06, 0.045, 0.4], turn: [32.0, 0.0, 0.0]}
+          - {t: 4, turn: [22.0, 0.0, 0.0]}
+          - {t: 5, turn: [12.0, 0.0, 0.0]}
+          - {t: 6, offset: [-0.045, 1.04416, 0.89903], scale: [0.06, 0.045, 0.4], turn: [2.0, 0.0, 0.0]}
+          - {t: 7, turn: [5.75, 0.0, 0.0]}
+          - {t: 8, turn: [9.5, 0.0, 0.0]}
+          - {t: 9, turn: [13.25, 0.0, 0.0]}
+          - {t: 10, offset: [-0.045, 0.63221, 0.83009], scale: [0.06, 0.045, 0.4], turn: [17.0, 0.0, 0.0]}
+          - {t: 13, offset: [-0.045, 0.63221, 0.83009], scale: [0.0, 0.0, 0.0], turn: [17.0, 0.0, 0.0]}
+        when: "= event.source == 'sel_3'"
+      - {op: block, parent: fx5_couture_shears_remote, block: iron_block, size: [1.0, 1.0, 1.0], id: fx5_couture_shears_remote_1_edge_2, when: "= event.source == 'sel_3'"}
+      - id: fx5_couture_shears_remote_1_edge_2_trk
+        op: track
+        target: fx5_couture_shears_remote_1_edge_2
+        keys:
+          - {t: 0, offset: [-0.045, 1.16585, -2.11669], scale: [0.042, 0.0175, 0.28013], turn: [58.73982, 0.0, 0.0]}
+          - {t: 1, turn: [50.40649, 0.0, 0.0]}
+          - {t: 2, turn: [42.07316, 0.0, 0.0]}
+          - {t: 3, offset: [-0.045, 0.26415, 0.66439], scale: [0.06, 0.025, 0.40018], turn: [33.73982, 0.0, 0.0]}
+          - {t: 4, turn: [23.73982, 0.0, 0.0]}
+          - {t: 5, turn: [13.73982, 0.0, 0.0]}
+          - {t: 6, offset: [-0.045, 1.05833, 0.89952], scale: [0.06, 0.025, 0.40018], turn: [3.73982, 0.0, 0.0]}
+          - {t: 7, turn: [7.48982, 0.0, 0.0]}
+          - {t: 8, turn: [11.23982, 0.0, 0.0]}
+          - {t: 9, turn: [14.98982, 0.0, 0.0]}
+          - {t: 10, offset: [-0.045, 0.64576, 0.83423], scale: [0.06, 0.025, 0.40018], turn: [18.73982, 0.0, 0.0]}
+          - {t: 13, offset: [-0.045, 0.64576, 0.83423], scale: [0.0, 0.0, 0.0], turn: [18.73982, 0.0, 0.0]}
+        when: "= event.source == 'sel_3'"
+      - {op: block, parent: fx5_couture_shears_remote, block: black_concrete, size: [1.0, 1.0, 1.0], id: fx5_couture_shears_remote_1_handle_0, when: "= event.source == 'sel_3'"}
+      - id: fx5_couture_shears_remote_1_handle_0_trk
+        op: track
+        target: fx5_couture_shears_remote_1_handle_0
+        keys:
+          - {t: 0, offset: [-0.045, 2.71926, -3.01123], scale: [0.042, 0.0315, 0.21779], turn: [-78.0, 0.0, 0.0]}
+          - {t: 1, turn: [-86.33333, 0.0, 0.0]}
+          - {t: 2, turn: [-94.66667, 0.0, 0.0]}
+          - {t: 3, offset: [-0.045, 1.29397, -0.80284], scale: [0.06, 0.045, 0.31113], turn: [-103.0, 0.0, 0.0]}
+          - {t: 4, turn: [-113.0, 0.0, 0.0]}
+          - {t: 5, turn: [-123.0, 0.0, 0.0]}
+          - {t: 6, offset: [-0.045, 1.21656, -0.88605], scale: [0.06, 0.045, 0.31113], turn: [-133.0, 0.0, 0.0]}
+          - {t: 7, turn: [-129.25, 0.0, 0.0]}
+          - {t: 8, turn: [-125.5, 0.0, 0.0]}
+          - {t: 9, turn: [-121.75, 0.0, 0.0]}
+          - {t: 10, offset: [-0.045, 1.26074, -0.84954], scale: [0.06, 0.045, 0.31113], turn: [-118.0, 0.0, 0.0]}
+          - {t: 13, offset: [-0.045, 1.26074, -0.84954], scale: [0.0, 0.0, 0.0], turn: [-118.0, 0.0, 0.0]}
+        when: "= event.source == 'sel_3'"
+      - {op: block, parent: fx5_couture_shears_remote, block: black_concrete, size: [1.0, 1.0, 1.0], id: fx5_couture_shears_remote_1_handle_1, when: "= event.source == 'sel_3'"}
+      - id: fx5_couture_shears_remote_1_handle_1_trk
+        op: track
+        target: fx5_couture_shears_remote_1_handle_1
+        keys:
+          - {t: 0, offset: [-0.045, 3.05195, -3.11401], scale: [0.042, 0.0315, 0.3157], turn: [-126.81407, 0.0, 0.0]}
+          - {t: 1, turn: [-135.14741, 0.0, 0.0]}
+          - {t: 2, turn: [-143.48074, 0.0, 0.0]}
+          - {t: 3, offset: [-0.045, 1.55206, -1.03659], scale: [0.06, 0.045, 0.451], turn: [-151.81407, 0.0, 0.0]}
+          - {t: 4, turn: [-161.81407, 0.0, 0.0]}
+          - {t: 5, turn: [-171.81407, 0.0, 0.0]}
+          - {t: 6, offset: [-0.045, 1.3232, -1.21753], scale: [0.06, 0.045, 0.451], turn: [178.18593, 0.0, 0.0]}
+          - {t: 7, turn: [-178.06407, 0.0, 0.0]}
+          - {t: 8, turn: [-174.31407, 0.0, 0.0]}
+          - {t: 9, turn: [-170.56407, 0.0, 0.0]}
+          - {t: 10, offset: [-0.045, 1.44954, -1.14212], scale: [0.06, 0.045, 0.451], turn: [-166.81407, 0.0, 0.0]}
+          - {t: 13, offset: [-0.045, 1.44954, -1.14212], scale: [0.0, 0.0, 0.0], turn: [-166.81407, 0.0, 0.0]}
+        when: "= event.source == 'sel_3'"
+      - {op: block, parent: fx5_couture_shears_remote, block: black_concrete, size: [1.0, 1.0, 1.0], id: fx5_couture_shears_remote_1_handle_2, when: "= event.source == 'sel_3'"}
+      - id: fx5_couture_shears_remote_1_handle_2_trk
+        op: track
+        target: fx5_couture_shears_remote_1_handle_2
+        keys:
+          - {t: 0, offset: [-0.045, 3.22687, -3.35876], scale: [0.042, 0.0315, 0.15368], turn: [177.06858, 0.0, 0.0]}
+          - {t: 1, turn: [168.73525, 0.0, 0.0]}
+          - {t: 2, turn: [160.40192, 0.0, 0.0]}
+          - {t: 3, offset: [-0.045, 1.60715, -1.33234], scale: [0.06, 0.045, 0.21954], turn: [152.06858, 0.0, 0.0]}
+          - {t: 4, turn: [142.06858, 0.0, 0.0]}
+          - {t: 5, turn: [132.06858, 0.0, 0.0]}
+          - {t: 6, offset: [-0.045, 1.22304, -1.50119], scale: [0.06, 0.045, 0.21954], turn: [122.06858, 0.0, 0.0]}
+          - {t: 7, turn: [125.81858, 0.0, 0.0]}
+          - {t: 8, turn: [129.56858, 0.0, 0.0]}
+          - {t: 9, turn: [133.31858, 0.0, 0.0]}
+          - {t: 10, offset: [-0.045, 1.42621, -1.44205], scale: [0.06, 0.045, 0.21954], turn: [137.06858, 0.0, 0.0]}
+          - {t: 13, offset: [-0.045, 1.42621, -1.44205], scale: [0.0, 0.0, 0.0], turn: [137.06858, 0.0, 0.0]}
+        when: "= event.source == 'sel_3'"
+      - {op: block, parent: fx5_couture_shears_remote, block: black_concrete, size: [1.0, 1.0, 1.0], id: fx5_couture_shears_remote_1_handle_3, when: "= event.source == 'sel_3'"}
+      - id: fx5_couture_shears_remote_1_handle_3_trk
+        op: track
+        target: fx5_couture_shears_remote_1_handle_3
+        keys:
+          - {t: 0, offset: [-0.045, 3.00325, -3.44605], scale: [0.042, 0.0315, 0.3068], turn: [84.14968, 0.0, 0.0]}
+          - {t: 1, turn: [75.81635, 0.0, 0.0]}
+          - {t: 2, turn: [67.48302, 0.0, 0.0]}
+          - {t: 3, offset: [-0.045, 1.36759, -1.31694], scale: [0.06, 0.045, 0.43829], turn: [59.14968, 0.0, 0.0]}
+          - {t: 4, turn: [49.14968, 0.0, 0.0]}
+          - {t: 5, turn: [39.14968, 0.0, 0.0]}
+          - {t: 6, offset: [-0.045, 1.02327, -1.36808], scale: [0.06, 0.045, 0.43829], turn: [29.14968, 0.0, 0.0]}
+          - {t: 7, turn: [32.89968, 0.0, 0.0]}
+          - {t: 8, turn: [36.64968, 0.0, 0.0]}
+          - {t: 9, turn: [40.39968, 0.0, 0.0]}
+          - {t: 10, offset: [-0.045, 1.1988, -1.36518], scale: [0.06, 0.045, 0.43829], turn: [44.14968, 0.0, 0.0]}
+          - {t: 13, offset: [-0.045, 1.1988, -1.36518], scale: [0.0, 0.0, 0.0], turn: [44.14968, 0.0, 0.0]}
+        when: "= event.source == 'sel_3'"
+      - {op: block, parent: fx5_couture_shears_remote, block: black_concrete, size: [1.0, 1.0, 1.0], id: fx5_couture_shears_remote_1_handle_4, when: "= event.source == 'sel_3'"}
+      - id: fx5_couture_shears_remote_1_handle_4_trk
+        op: track
+        target: fx5_couture_shears_remote_1_handle_4
+        keys:
+          - {t: 0, offset: [-0.045, 2.67617, -3.23364], scale: [0.042, 0.0315, 0.3068], turn: [29.85032, 0.0, 0.0]}
+          - {t: 1, turn: [21.51698, 0.0, 0.0]}
+          - {t: 2, turn: [13.18365, 0.0, 0.0]}
+          - {t: 3, offset: [-0.045, 1.16092, -0.98621], scale: [0.06, 0.045, 0.43829], turn: [4.85032, 0.0, 0.0]}
+          - {t: 4, turn: [-5.14968, 0.0, 0.0]}
+          - {t: 5, turn: [-15.14968, 0.0, 0.0]}
+          - {t: 6, offset: [-0.045, 1.00966, -0.97832], scale: [0.06, 0.045, 0.43829], turn: [-25.14968, 0.0, 0.0]}
+          - {t: 7, turn: [-21.39968, 0.0, 0.0]}
+          - {t: 8, turn: [-17.64968, 0.0, 0.0]}
+          - {t: 9, turn: [-13.89968, 0.0, 0.0]}
+          - {t: 10, offset: [-0.045, 1.08477, -0.99222], scale: [0.06, 0.045, 0.43829], turn: [-10.14968, 0.0, 0.0]}
+          - {t: 13, offset: [-0.045, 1.08477, -0.99222], scale: [0.0, 0.0, 0.0], turn: [-10.14968, 0.0, 0.0]}
+        when: "= event.source == 'sel_3'"
+      - {op: block, parent: fx5_couture_shears_remote, block: gray_concrete, size: [1.0, 1.0, 1.0], id: fx5_couture_shears_remote_1_blade_0_2, when: "= event.source == 'sel_3'"}
+      - id: fx5_couture_shears_remote_1_blade_0_2_trk
+        op: track
+        target: fx5_couture_shears_remote_1_blade_0_2
+        keys:
+          - {t: 0, offset: [0.045, 2.54875, -2.60298], scale: [0.042, 0.133, 0.56], turn: [-7.0, 0.0, 0.0]}
+          - {t: 1, turn: [-15.33333, 0.0, 0.0]}
+          - {t: 2, turn: [-23.66667, 0.0, 0.0]}
+          - {t: 3, offset: [0.045, 1.31197, -0.36078], scale: [0.06, 0.19, 0.8], turn: [-32.0, 0.0, 0.0]}
+          - {t: 4, turn: [-22.0, 0.0, 0.0]}
+          - {t: 5, turn: [-12.0, 0.0, 0.0]}
+          - {t: 6, offset: [0.045, 1.11396, -0.30024], scale: [0.06, 0.19, 0.8], turn: [-2.0, 0.0, 0.0]}
+          - {t: 7, turn: [1.75, 0.0, 0.0]}
+          - {t: 8, turn: [5.5, 0.0, 0.0]}
+          - {t: 9, turn: [9.25, 0.0, 0.0]}
+          - {t: 10, offset: [0.045, 1.01002, -0.31025], scale: [0.06, 0.19, 0.8], turn: [13.0, 0.0, 0.0]}
+          - {t: 13, offset: [0.045, 1.01002, -0.31025], scale: [0.0, 0.0, 0.0], turn: [13.0, 0.0, 0.0]}
+        when: "= event.source == 'sel_3'"
+      - {op: block, parent: fx5_couture_shears_remote, block: iron_block, size: [1.0, 1.0, 1.0], id: fx5_couture_shears_remote_1_edge_0_2, when: "= event.source == 'sel_3'"}
+      - id: fx5_couture_shears_remote_1_edge_0_2_trk
+        op: track
+        target: fx5_couture_shears_remote_1_edge_0_2
+        keys:
+          - {t: 0, offset: [0.045, 2.60815, -2.61028], scale: [0.042, 0.0175, 0.56115], turn: [-3.33093, 0.0, 0.0]}
+          - {t: 1, turn: [-11.66427, 0.0, 0.0]}
+          - {t: 2, turn: [-19.9976, 0.0, 0.0]}
+          - {t: 3, offset: [0.045, 1.36272, -0.3925], scale: [0.06, 0.025, 0.80164], turn: [-28.33093, 0.0, 0.0]}
+          - {t: 4, turn: [-18.33093, 0.0, 0.0]}
+          - {t: 5, turn: [-8.33093, 0.0, 0.0]}
+          - {t: 6, offset: [0.045, 1.17377, -0.30233], scale: [0.06, 0.025, 0.80164], turn: [1.66907, 0.0, 0.0]}
+          - {t: 7, turn: [5.41907, 0.0, 0.0]}
+          - {t: 8, turn: [9.16907, 0.0, 0.0]}
+          - {t: 9, turn: [12.91907, 0.0, 0.0]}
+          - {t: 10, offset: [0.045, 1.06834, -0.29679], scale: [0.06, 0.025, 0.80164], turn: [16.66907, 0.0, 0.0]}
+          - {t: 13, offset: [0.045, 1.06834, -0.29679], scale: [0.0, 0.0, 0.0], turn: [16.66907, 0.0, 0.0]}
+        when: "= event.source == 'sel_3'"
+      - {op: block, parent: fx5_couture_shears_remote, block: gray_concrete, size: [1.0, 1.0, 1.0], id: fx5_couture_shears_remote_1_blade_1_2, when: "= event.source == 'sel_3'"}
+      - id: fx5_couture_shears_remote_1_blade_1_2_trk
+        op: track
+        target: fx5_couture_shears_remote_1_blade_1_2
+        keys:
+          - {t: 0, offset: [0.045, 2.63406, -1.9082], scale: [0.042, 0.084, 0.42], turn: [-7.0, 0.0, 0.0]}
+          - {t: 1, turn: [-15.33333, 0.0, 0.0]}
+          - {t: 2, turn: [-23.66667, 0.0, 0.0]}
+          - {t: 3, offset: [0.045, 1.68291, 0.23285], scale: [0.06, 0.12, 0.6], turn: [-32.0, 0.0, 0.0]}
+          - {t: 4, turn: [-22.0, 0.0, 0.0]}
+          - {t: 5, turn: [-12.0, 0.0, 0.0]}
+          - {t: 6, offset: [0.045, 1.13839, 0.39933], scale: [0.06, 0.12, 0.6], turn: [-2.0, 0.0, 0.0]}
+          - {t: 7, turn: [1.75, 0.0, 0.0]}
+          - {t: 8, turn: [5.5, 0.0, 0.0]}
+          - {t: 9, turn: [9.25, 0.0, 0.0]}
+          - {t: 10, offset: [0.045, 0.85255, 0.37181], scale: [0.06, 0.12, 0.6], turn: [13.0, 0.0, 0.0]}
+          - {t: 13, offset: [0.045, 0.85255, 0.37181], scale: [0.0, 0.0, 0.0], turn: [13.0, 0.0, 0.0]}
+        when: "= event.source == 'sel_3'"
+      - {op: block, parent: fx5_couture_shears_remote, block: iron_block, size: [1.0, 1.0, 1.0], id: fx5_couture_shears_remote_1_edge_1_2, when: "= event.source == 'sel_3'"}
+      - id: fx5_couture_shears_remote_1_edge_1_2_trk
+        op: track
+        target: fx5_couture_shears_remote_1_edge_1_2
+        keys:
+          - {t: 0, offset: [0.045, 2.67157, -1.91281], scale: [0.042, 0.0175, 0.42061], turn: [-3.90903, 0.0, 0.0]}
+          - {t: 1, turn: [-12.24236, 0.0, 0.0]}
+          - {t: 2, turn: [-20.5757, 0.0, 0.0]}
+          - {t: 3, offset: [0.045, 1.71497, 0.21282], scale: [0.06, 0.025, 0.60087], turn: [-28.90903, 0.0, 0.0]}
+          - {t: 4, turn: [-18.90903, 0.0, 0.0]}
+          - {t: 5, turn: [-8.90903, 0.0, 0.0]}
+          - {t: 6, offset: [0.045, 1.17617, 0.39801], scale: [0.06, 0.025, 0.60087], turn: [1.09097, 0.0, 0.0]}
+          - {t: 7, turn: [4.84097, 0.0, 0.0]}
+          - {t: 8, turn: [8.59097, 0.0, 0.0]}
+          - {t: 9, turn: [12.34097, 0.0, 0.0]}
+          - {t: 10, offset: [0.045, 0.88939, 0.38031], scale: [0.06, 0.025, 0.60087], turn: [16.09097, 0.0, 0.0]}
+          - {t: 13, offset: [0.045, 0.88939, 0.38031], scale: [0.0, 0.0, 0.0], turn: [16.09097, 0.0, 0.0]}
+        when: "= event.source == 'sel_3'"
+      - {op: block, parent: fx5_couture_shears_remote, block: gray_concrete, size: [1.0, 1.0, 1.0], id: fx5_couture_shears_remote_1_blade_2_2, when: "= event.source == 'sel_3'"}
+      - id: fx5_couture_shears_remote_1_blade_2_2_trk
+        op: track
+        target: fx5_couture_shears_remote_1_blade_2_2
+        keys:
+          - {t: 0, offset: [0.045, 2.69499, -1.41193], scale: [0.042, 0.0315, 0.28], turn: [-7.0, 0.0, 0.0]}
+          - {t: 1, turn: [-15.33333, 0.0, 0.0]}
+          - {t: 2, turn: [-23.66667, 0.0, 0.0]}
+          - {t: 3, offset: [0.045, 1.94787, 0.65688], scale: [0.06, 0.045, 0.4], turn: [-32.0, 0.0, 0.0]}
+          - {t: 4, turn: [-22.0, 0.0, 0.0]}
+          - {t: 5, turn: [-12.0, 0.0, 0.0]}
+          - {t: 6, offset: [0.045, 1.15584, 0.89903], scale: [0.06, 0.045, 0.4], turn: [-2.0, 0.0, 0.0]}
+          - {t: 7, turn: [1.75, 0.0, 0.0]}
+          - {t: 8, turn: [5.5, 0.0, 0.0]}
+          - {t: 9, turn: [9.25, 0.0, 0.0]}
+          - {t: 10, offset: [0.045, 0.74008, 0.85899], scale: [0.06, 0.045, 0.4], turn: [13.0, 0.0, 0.0]}
+          - {t: 13, offset: [0.045, 0.74008, 0.85899], scale: [0.0, 0.0, 0.0], turn: [13.0, 0.0, 0.0]}
+        when: "= event.source == 'sel_3'"
+      - {op: block, parent: fx5_couture_shears_remote, block: iron_block, size: [1.0, 1.0, 1.0], id: fx5_couture_shears_remote_1_edge_2_2, when: "= event.source == 'sel_3'"}
+      - id: fx5_couture_shears_remote_1_edge_2_2_trk
+        op: track
+        target: fx5_couture_shears_remote_1_edge_2_2
+        keys:
+          - {t: 0, offset: [0.045, 2.70906, -1.41365], scale: [0.042, 0.0175, 0.28013], turn: [-5.26018, 0.0, 0.0]}
+          - {t: 1, turn: [-13.59351, 0.0, 0.0]}
+          - {t: 2, turn: [-21.92684, 0.0, 0.0]}
+          - {t: 3, offset: [0.045, 1.95989, 0.64937], scale: [0.06, 0.025, 0.40018], turn: [-30.26018, 0.0, 0.0]}
+          - {t: 4, turn: [-20.26018, 0.0, 0.0]}
+          - {t: 5, turn: [-10.26018, 0.0, 0.0]}
+          - {t: 6, offset: [0.045, 1.17001, 0.89853], scale: [0.06, 0.025, 0.40018], turn: [-0.26018, 0.0, 0.0]}
+          - {t: 7, turn: [3.48982, 0.0, 0.0]}
+          - {t: 8, turn: [7.23982, 0.0, 0.0]}
+          - {t: 9, turn: [10.98982, 0.0, 0.0]}
+          - {t: 10, offset: [0.045, 0.75389, 0.86218], scale: [0.06, 0.025, 0.40018], turn: [14.73982, 0.0, 0.0]}
+          - {t: 13, offset: [0.045, 0.75389, 0.86218], scale: [0.0, 0.0, 0.0], turn: [14.73982, 0.0, 0.0]}
+        when: "= event.source == 'sel_3'"
+      - {op: block, parent: fx5_couture_shears_remote, block: black_concrete, size: [1.0, 1.0, 1.0], id: fx5_couture_shears_remote_1_handle_0_2, when: "= event.source == 'sel_3'"}
+      - id: fx5_couture_shears_remote_1_handle_0_2_trk
+        op: track
+        target: fx5_couture_shears_remote_1_handle_0_2
+        keys:
+          - {t: 0, offset: [0.045, 2.58602, -3.20199], scale: [0.042, 0.0315, 0.21779], turn: [-142.0, 0.0, 0.0]}
+          - {t: 1, turn: [-150.33333, 0.0, 0.0]}
+          - {t: 2, turn: [-158.66667, 0.0, 0.0]}
+          - {t: 3, offset: [0.045, 1.0926, -0.91942], scale: [0.06, 0.045, 0.31113], turn: [-167.0, 0.0, 0.0]}
+          - {t: 4, turn: [-157.0, 0.0, 0.0]}
+          - {t: 5, turn: [-147.0, 0.0, 0.0]}
+          - {t: 6, offset: [0.045, 1.2033, -0.89372], scale: [0.06, 0.045, 0.31113], turn: [-137.0, 0.0, 0.0]}
+          - {t: 7, turn: [-133.25, 0.0, 0.0]}
+          - {t: 8, turn: [-129.5, 0.0, 0.0]}
+          - {t: 9, turn: [-125.75, 0.0, 0.0]}
+          - {t: 10, offset: [0.045, 1.24992, -0.86039], scale: [0.06, 0.045, 0.31113], turn: [-122.0, 0.0, 0.0]}
+          - {t: 13, offset: [0.045, 1.24992, -0.86039], scale: [0.0, 0.0, 0.0], turn: [-122.0, 0.0, 0.0]}
+        when: "= event.source == 'sel_3'"
+      - {op: block, parent: fx5_couture_shears_remote, block: black_concrete, size: [1.0, 1.0, 1.0], id: fx5_couture_shears_remote_1_handle_1_2, when: "= event.source == 'sel_3'"}
+      - id: fx5_couture_shears_remote_1_handle_1_2_trk
+        op: track
+        target: fx5_couture_shears_remote_1_handle_1_2
+        keys:
+          - {t: 0, offset: [0.045, 2.63949, -3.54607], scale: [0.042, 0.0315, 0.3157], turn: [169.18593, 0.0, 0.0]}
+          - {t: 1, turn: [160.85259, 0.0, 0.0]}
+          - {t: 2, turn: [152.51926, 0.0, 0.0]}
+          - {t: 3, offset: [0.045, 0.99564, -1.25386], scale: [0.06, 0.045, 0.451], turn: [144.18593, 0.0, 0.0]}
+          - {t: 4, turn: [154.18593, 0.0, 0.0]}
+          - {t: 5, turn: [164.18593, 0.0, 0.0]}
+          - {t: 6, offset: [0.045, 1.28655, -1.23183], scale: [0.06, 0.045, 0.451], turn: [174.18593, 0.0, 0.0]}
+          - {t: 7, turn: [177.93593, 0.0, 0.0]}
+          - {t: 8, turn: [-178.31407, 0.0, 0.0]}
+          - {t: 9, turn: [-174.56407, 0.0, 0.0]}
+          - {t: 10, offset: [0.045, 1.41785, -1.16543], scale: [0.06, 0.045, 0.451], turn: [-170.81407, 0.0, 0.0]}
+          - {t: 13, offset: [0.045, 1.41785, -1.16543], scale: [0.0, 0.0, 0.0], turn: [-170.81407, 0.0, 0.0]}
+        when: "= event.source == 'sel_3'"
+      - {op: block, parent: fx5_couture_shears_remote, block: black_concrete, size: [1.0, 1.0, 1.0], id: fx5_couture_shears_remote_1_handle_2_2, when: "= event.source == 'sel_3'"}
+      - id: fx5_couture_shears_remote_1_handle_2_2_trk
+        op: track
+        target: fx5_couture_shears_remote_1_handle_2_2
+        keys:
+          - {t: 0, offset: [0.045, 2.49619, -3.81058], scale: [0.042, 0.0315, 0.15368], turn: [113.06858, 0.0, 0.0]}
+          - {t: 1, turn: [104.73525, 0.0, 0.0]}
+          - {t: 2, turn: [96.40192, 0.0, 0.0]}
+          - {t: 3, offset: [0.045, 0.75398, -1.43302], scale: [0.06, 0.045, 0.21954], turn: [88.06858, 0.0, 0.0]}
+          - {t: 4, turn: [98.06858, 0.0, 0.0]}
+          - {t: 5, turn: [108.06858, 0.0, 0.0]}
+          - {t: 6, offset: [0.045, 1.16685, -1.50783], scale: [0.06, 0.045, 0.21954], turn: [118.06858, 0.0, 0.0]}
+          - {t: 7, turn: [121.81858, 0.0, 0.0]}
+          - {t: 8, turn: [125.56858, 0.0, 0.0]}
+          - {t: 9, turn: [129.31858, 0.0, 0.0]}
+          - {t: 10, offset: [0.045, 1.37365, -1.463], scale: [0.06, 0.045, 0.21954], turn: [133.06858, 0.0, 0.0]}
+          - {t: 13, offset: [0.045, 1.37365, -1.463], scale: [0.0, 0.0, 0.0], turn: [133.06858, 0.0, 0.0]}
+        when: "= event.source == 'sel_3'"
+      - {op: block, parent: fx5_couture_shears_remote, block: black_concrete, size: [1.0, 1.0, 1.0], id: fx5_couture_shears_remote_1_handle_3_2, when: "= event.source == 'sel_3'"}
+      - id: fx5_couture_shears_remote_1_handle_3_2_trk
+        op: track
+        target: fx5_couture_shears_remote_1_handle_3_2
+        keys:
+          - {t: 0, offset: [0.045, 2.3197, -3.64786], scale: [0.042, 0.0315, 0.3068], turn: [20.14968, 0.0, 0.0]}
+          - {t: 1, turn: [11.81635, 0.0, 0.0]}
+          - {t: 2, turn: [3.48302, 0.0, 0.0]}
+          - {t: 3, offset: [0.045, 0.6628, -1.21096], scale: [0.06, 0.045, 0.43829], turn: [-4.85032, 0.0, 0.0]}
+          - {t: 4, turn: [5.14968, 0.0, 0.0]}
+          - {t: 5, turn: [15.14968, 0.0, 0.0]}
+          - {t: 6, offset: [0.045, 0.97685, -1.3611], scale: [0.06, 0.045, 0.43829], turn: [25.14968, 0.0, 0.0]}
+          - {t: 7, turn: [28.89968, 0.0, 0.0]}
+          - {t: 8, turn: [32.64968, 0.0, 0.0]}
+          - {t: 9, turn: [36.39968, 0.0, 0.0]}
+          - {t: 10, offset: [0.045, 1.15216, -1.37045], scale: [0.06, 0.045, 0.43829], turn: [40.14968, 0.0, 0.0]}
+          - {t: 13, offset: [0.045, 1.15216, -1.37045], scale: [0.0, 0.0, 0.0], turn: [40.14968, 0.0, 0.0]}
+        when: "= event.source == 'sel_3'"
+      - {op: block, parent: fx5_couture_shears_remote, block: black_concrete, size: [1.0, 1.0, 1.0], id: fx5_couture_shears_remote_1_handle_4_2, when: "= event.source == 'sel_3'"}
+      - id: fx5_couture_shears_remote_1_handle_4_2_trk
+        op: track
+        target: fx5_couture_shears_remote_1_handle_4_2
+        keys:
+          - {t: 0, offset: [0.045, 2.36723, -3.26076], scale: [0.042, 0.0315, 0.3068], turn: [-34.14968, 0.0, 0.0]}
+          - {t: 1, turn: [-42.48302, 0.0, 0.0]}
+          - {t: 2, turn: [-50.81635, 0.0, 0.0]}
+          - {t: 3, offset: [0.045, 0.86947, -0.88022], scale: [0.06, 0.045, 0.43829], turn: [-59.14968, 0.0, 0.0]}
+          - {t: 4, turn: [-49.14968, 0.0, 0.0]}
+          - {t: 5, turn: [-39.14968, 0.0, 0.0]}
+          - {t: 6, offset: [0.045, 0.99046, -0.97134], scale: [0.06, 0.045, 0.43829], turn: [-29.14968, 0.0, 0.0]}
+          - {t: 7, turn: [-25.39968, 0.0, 0.0]}
+          - {t: 8, turn: [-21.64968, 0.0, 0.0]}
+          - {t: 9, turn: [-17.89968, 0.0, 0.0]}
+          - {t: 10, offset: [0.045, 1.06442, -0.99045], scale: [0.06, 0.045, 0.43829], turn: [-14.14968, 0.0, 0.0]}
+          - {t: 13, offset: [0.045, 1.06442, -0.99045], scale: [0.0, 0.0, 0.0], turn: [-14.14968, 0.0, 0.0]}
+        when: "= event.source == 'sel_3'"
+      - {op: block, parent: fx5_couture_shears_remote, block: white_concrete, size: [1.0, 1.0, 1.0], id: fx5_couture_shears_remote_hinge_flower_0, when: "= event.source == 'sel_3'"}
+      - id: fx5_couture_shears_remote_hinge_flower_0_trk
+        op: track
+        target: fx5_couture_shears_remote_hinge_flower_0
+        keys:
+          - {t: 0, offset: [-0.12, 2.5, -3.0], scale: [0.105, 0.105, 0.084]}
+          - {t: 3, offset: [-0.12, 1.1, -0.7], scale: [0.15, 0.15, 0.12]}
+          - {t: 6, offset: [-0.12, 1.1, -0.7], scale: [0.15, 0.15, 0.12]}
+          - {t: 10, offset: [-0.12, 1.1, -0.7], scale: [0.15, 0.15, 0.12]}
+          - {t: 13, offset: [-0.12, 1.1, -0.7], scale: [0.0, 0.0, 0.0]}
+        when: "= event.source == 'sel_3'"
+      - {op: block, parent: fx5_couture_shears_remote, block: white_concrete, size: [1.0, 1.0, 1.0], id: fx5_couture_shears_remote_hinge_flower_1, when: "= event.source == 'sel_3'"}
+      - id: fx5_couture_shears_remote_hinge_flower_1_trk
+        op: track
+        target: fx5_couture_shears_remote_hinge_flower_1
+        keys:
+          - {t: 0, offset: [0.12, 2.5, -3.0], scale: [0.105, 0.105, 0.084]}
+          - {t: 3, offset: [0.12, 1.1, -0.7], scale: [0.15, 0.15, 0.12]}
+          - {t: 6, offset: [0.12, 1.1, -0.7], scale: [0.15, 0.15, 0.12]}
+          - {t: 10, offset: [0.12, 1.1, -0.7], scale: [0.15, 0.15, 0.12]}
+          - {t: 13, offset: [0.12, 1.1, -0.7], scale: [0.0, 0.0, 0.0]}
+        when: "= event.source == 'sel_3'"
+      - {op: block, parent: fx5_couture_shears_remote, block: white_concrete, size: [1.0, 1.0, 1.0], id: fx5_couture_shears_remote_hinge_flower_2, when: "= event.source == 'sel_3'"}
+      - id: fx5_couture_shears_remote_hinge_flower_2_trk
+        op: track
+        target: fx5_couture_shears_remote_hinge_flower_2
+        keys:
+          - {t: 0, offset: [0.0, 2.62, -3.0], scale: [0.105, 0.105, 0.084]}
+          - {t: 3, offset: [0.0, 1.22, -0.7], scale: [0.15, 0.15, 0.12]}
+          - {t: 6, offset: [0.0, 1.22, -0.7], scale: [0.15, 0.15, 0.12]}
+          - {t: 10, offset: [0.0, 1.22, -0.7], scale: [0.15, 0.15, 0.12]}
+          - {t: 13, offset: [0.0, 1.22, -0.7], scale: [0.0, 0.0, 0.0]}
+        when: "= event.source == 'sel_3'"
+      - {op: block, parent: fx5_couture_shears_remote, block: white_concrete, size: [1.0, 1.0, 1.0], id: fx5_couture_shears_remote_hinge_flower_3, when: "= event.source == 'sel_3'"}
+      - id: fx5_couture_shears_remote_hinge_flower_3_trk
+        op: track
+        target: fx5_couture_shears_remote_hinge_flower_3
+        keys:
+          - {t: 0, offset: [0.0, 2.38, -3.0], scale: [0.105, 0.105, 0.084]}
+          - {t: 3, offset: [0.0, 0.98, -0.7], scale: [0.15, 0.15, 0.12]}
+          - {t: 6, offset: [0.0, 0.98, -0.7], scale: [0.15, 0.15, 0.12]}
+          - {t: 10, offset: [0.0, 0.98, -0.7], scale: [0.15, 0.15, 0.12]}
+          - {t: 13, offset: [0.0, 0.98, -0.7], scale: [0.0, 0.0, 0.0]}
+        when: "= event.source == 'sel_3'"
       - {op: block, parent: fx6_couture_rapier_cross, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx6_couture_rapier_cross_cross_0, when: "= event.source == 'sel_4'"}
       - id: fx6_couture_rapier_cross_cross_0_trk
         op: track
@@ -1308,6 +2301,446 @@ presentation:
           - {t: 6, scale: [0.2, 0.2, 1.0], alpha: 0.0, ease: in_quad}
         when: "= event.source == 'sel_4'"
       - {id: snd_2, op: sound, sound: entity.player.attack.strong, at: enemy, volume: 0.7, pitch: 1.1, when: "= event.source == 'sel_4'"}
+      - {op: block, parent: fx9_couture_shears_remote, block: gray_concrete, size: [1.0, 1.0, 1.0], id: fx9_couture_shears_remote_1_blade_0, when: "= event.source == 'sel_5'"}
+      - id: fx9_couture_shears_remote_1_blade_0_trk
+        op: track
+        target: fx9_couture_shears_remote_1_blade_0
+        keys:
+          - {t: 0, offset: [-0.045, 2.16453, -2.78214], scale: [0.042, 0.133, 0.56], turn: [57.0, 0.0, 0.0]}
+          - {t: 1, turn: [48.66667, 0.0, 0.0]}
+          - {t: 2, turn: [40.33333, 0.0, 0.0]}
+          - {t: 3, offset: [-0.045, 0.88803, -0.36078], scale: [0.06, 0.19, 0.8], turn: [32.0, 0.0, 0.0]}
+          - {t: 4, turn: [22.0, 0.0, 0.0]}
+          - {t: 5, turn: [12.0, 0.0, 0.0]}
+          - {t: 6, offset: [-0.045, 1.08604, -0.30024], scale: [0.06, 0.19, 0.8], turn: [2.0, 0.0, 0.0]}
+          - {t: 7, turn: [5.75, 0.0, 0.0]}
+          - {t: 8, turn: [9.5, 0.0, 0.0]}
+          - {t: 9, turn: [13.25, 0.0, 0.0]}
+          - {t: 10, offset: [-0.045, 0.98305, -0.31748], scale: [0.06, 0.19, 0.8], turn: [17.0, 0.0, 0.0]}
+          - {t: 13, offset: [-0.045, 0.98305, -0.31748], scale: [0.0, 0.0, 0.0], turn: [17.0, 0.0, 0.0]}
+        when: "= event.source == 'sel_5'"
+      - {op: block, parent: fx9_couture_shears_remote, block: iron_block, size: [1.0, 1.0, 1.0], id: fx9_couture_shears_remote_1_edge_0, when: "= event.source == 'sel_5'"}
+      - id: fx9_couture_shears_remote_1_edge_0_trk
+        op: track
+        target: fx9_couture_shears_remote_1_edge_0
+        keys:
+          - {t: 0, offset: [-0.045, 2.19713, -2.73195], scale: [0.042, 0.0175, 0.56115], turn: [60.66907, 0.0, 0.0]}
+          - {t: 1, turn: [52.33573, 0.0, 0.0]}
+          - {t: 2, turn: [44.0024, 0.0, 0.0]}
+          - {t: 3, offset: [-0.045, 0.93879, -0.32907], scale: [0.06, 0.025, 0.80164], turn: [35.66907, 0.0, 0.0]}
+          - {t: 4, turn: [25.66907, 0.0, 0.0]}
+          - {t: 5, turn: [15.66907, 0.0, 0.0]}
+          - {t: 6, offset: [-0.045, 1.14585, -0.29815], scale: [0.06, 0.025, 0.80164], turn: [5.66907, 0.0, 0.0]}
+          - {t: 7, turn: [9.41907, 0.0, 0.0]}
+          - {t: 8, turn: [13.16907, 0.0, 0.0]}
+          - {t: 9, turn: [16.91907, 0.0, 0.0]}
+          - {t: 10, offset: [-0.045, 1.04029, -0.29998], scale: [0.06, 0.025, 0.80164], turn: [20.66907, 0.0, 0.0]}
+          - {t: 13, offset: [-0.045, 1.04029, -0.29998], scale: [0.0, 0.0, 0.0], turn: [20.66907, 0.0, 0.0]}
+        when: "= event.source == 'sel_5'"
+      - {op: block, parent: fx9_couture_shears_remote, block: gray_concrete, size: [1.0, 1.0, 1.0], id: fx9_couture_shears_remote_1_blade_1, when: "= event.source == 'sel_5'"}
+      - id: fx9_couture_shears_remote_1_blade_1_trk
+        op: track
+        target: fx9_couture_shears_remote_1_blade_1
+        keys:
+          - {t: 0, offset: [-0.045, 1.57746, -2.4009], scale: [0.042, 0.084, 0.42], turn: [57.0, 0.0, 0.0]}
+          - {t: 1, turn: [48.66667, 0.0, 0.0]}
+          - {t: 2, turn: [40.33333, 0.0, 0.0]}
+          - {t: 3, offset: [-0.045, 0.51709, 0.23285], scale: [0.06, 0.12, 0.6], turn: [32.0, 0.0, 0.0]}
+          - {t: 4, turn: [22.0, 0.0, 0.0]}
+          - {t: 5, turn: [12.0, 0.0, 0.0]}
+          - {t: 6, offset: [-0.045, 1.06161, 0.39933], scale: [0.06, 0.12, 0.6], turn: [2.0, 0.0, 0.0]}
+          - {t: 7, turn: [5.75, 0.0, 0.0]}
+          - {t: 8, turn: [9.5, 0.0, 0.0]}
+          - {t: 9, turn: [13.25, 0.0, 0.0]}
+          - {t: 10, offset: [-0.045, 0.77839, 0.35194], scale: [0.06, 0.12, 0.6], turn: [17.0, 0.0, 0.0]}
+          - {t: 13, offset: [-0.045, 0.77839, 0.35194], scale: [0.0, 0.0, 0.0], turn: [17.0, 0.0, 0.0]}
+        when: "= event.source == 'sel_5'"
+      - {op: block, parent: fx9_couture_shears_remote, block: iron_block, size: [1.0, 1.0, 1.0], id: fx9_couture_shears_remote_1_edge_1, when: "= event.source == 'sel_5'"}
+      - id: fx9_couture_shears_remote_1_edge_1_trk
+        op: track
+        target: fx9_couture_shears_remote_1_edge_1
+        keys:
+          - {t: 0, offset: [-0.045, 1.59805, -2.3692], scale: [0.042, 0.0175, 0.42061], turn: [60.09097, 0.0, 0.0]}
+          - {t: 1, turn: [51.75764, 0.0, 0.0]}
+          - {t: 2, turn: [43.4243, 0.0, 0.0]}
+          - {t: 3, offset: [-0.045, 0.54915, 0.25288], scale: [0.06, 0.025, 0.60087], turn: [35.09097, 0.0, 0.0]}
+          - {t: 4, turn: [25.09097, 0.0, 0.0]}
+          - {t: 5, turn: [15.09097, 0.0, 0.0]}
+          - {t: 6, offset: [-0.045, 1.09939, 0.40065], scale: [0.06, 0.025, 0.60087], turn: [5.09097, 0.0, 0.0]}
+          - {t: 7, turn: [8.84097, 0.0, 0.0]}
+          - {t: 8, turn: [12.59097, 0.0, 0.0]}
+          - {t: 9, turn: [16.34097, 0.0, 0.0]}
+          - {t: 10, offset: [-0.045, 0.81454, 0.36299], scale: [0.06, 0.025, 0.60087], turn: [20.09097, 0.0, 0.0]}
+          - {t: 13, offset: [-0.045, 0.81454, 0.36299], scale: [0.0, 0.0, 0.0], turn: [20.09097, 0.0, 0.0]}
+        when: "= event.source == 'sel_5'"
+      - {op: block, parent: fx9_couture_shears_remote, block: gray_concrete, size: [1.0, 1.0, 1.0], id: fx9_couture_shears_remote_1_blade_2, when: "= event.source == 'sel_5'"}
+      - id: fx9_couture_shears_remote_1_blade_2_trk
+        op: track
+        target: fx9_couture_shears_remote_1_blade_2
+        keys:
+          - {t: 0, offset: [-0.045, 1.15813, -2.12858], scale: [0.042, 0.0315, 0.28], turn: [57.0, 0.0, 0.0]}
+          - {t: 1, turn: [48.66667, 0.0, 0.0]}
+          - {t: 2, turn: [40.33333, 0.0, 0.0]}
+          - {t: 3, offset: [-0.045, 0.25213, 0.65688], scale: [0.06, 0.045, 0.4], turn: [32.0, 0.0, 0.0]}
+          - {t: 4, turn: [22.0, 0.0, 0.0]}
+          - {t: 5, turn: [12.0, 0.0, 0.0]}
+          - {t: 6, offset: [-0.045, 1.04416, 0.89903], scale: [0.06, 0.045, 0.4], turn: [2.0, 0.0, 0.0]}
+          - {t: 7, turn: [5.75, 0.0, 0.0]}
+          - {t: 8, turn: [9.5, 0.0, 0.0]}
+          - {t: 9, turn: [13.25, 0.0, 0.0]}
+          - {t: 10, offset: [-0.045, 0.63221, 0.83009], scale: [0.06, 0.045, 0.4], turn: [17.0, 0.0, 0.0]}
+          - {t: 13, offset: [-0.045, 0.63221, 0.83009], scale: [0.0, 0.0, 0.0], turn: [17.0, 0.0, 0.0]}
+        when: "= event.source == 'sel_5'"
+      - {op: block, parent: fx9_couture_shears_remote, block: iron_block, size: [1.0, 1.0, 1.0], id: fx9_couture_shears_remote_1_edge_2, when: "= event.source == 'sel_5'"}
+      - id: fx9_couture_shears_remote_1_edge_2_trk
+        op: track
+        target: fx9_couture_shears_remote_1_edge_2
+        keys:
+          - {t: 0, offset: [-0.045, 1.16585, -2.11669], scale: [0.042, 0.0175, 0.28013], turn: [58.73982, 0.0, 0.0]}
+          - {t: 1, turn: [50.40649, 0.0, 0.0]}
+          - {t: 2, turn: [42.07316, 0.0, 0.0]}
+          - {t: 3, offset: [-0.045, 0.26415, 0.66439], scale: [0.06, 0.025, 0.40018], turn: [33.73982, 0.0, 0.0]}
+          - {t: 4, turn: [23.73982, 0.0, 0.0]}
+          - {t: 5, turn: [13.73982, 0.0, 0.0]}
+          - {t: 6, offset: [-0.045, 1.05833, 0.89952], scale: [0.06, 0.025, 0.40018], turn: [3.73982, 0.0, 0.0]}
+          - {t: 7, turn: [7.48982, 0.0, 0.0]}
+          - {t: 8, turn: [11.23982, 0.0, 0.0]}
+          - {t: 9, turn: [14.98982, 0.0, 0.0]}
+          - {t: 10, offset: [-0.045, 0.64576, 0.83423], scale: [0.06, 0.025, 0.40018], turn: [18.73982, 0.0, 0.0]}
+          - {t: 13, offset: [-0.045, 0.64576, 0.83423], scale: [0.0, 0.0, 0.0], turn: [18.73982, 0.0, 0.0]}
+        when: "= event.source == 'sel_5'"
+      - {op: block, parent: fx9_couture_shears_remote, block: black_concrete, size: [1.0, 1.0, 1.0], id: fx9_couture_shears_remote_1_handle_0, when: "= event.source == 'sel_5'"}
+      - id: fx9_couture_shears_remote_1_handle_0_trk
+        op: track
+        target: fx9_couture_shears_remote_1_handle_0
+        keys:
+          - {t: 0, offset: [-0.045, 2.71926, -3.01123], scale: [0.042, 0.0315, 0.21779], turn: [-78.0, 0.0, 0.0]}
+          - {t: 1, turn: [-86.33333, 0.0, 0.0]}
+          - {t: 2, turn: [-94.66667, 0.0, 0.0]}
+          - {t: 3, offset: [-0.045, 1.29397, -0.80284], scale: [0.06, 0.045, 0.31113], turn: [-103.0, 0.0, 0.0]}
+          - {t: 4, turn: [-113.0, 0.0, 0.0]}
+          - {t: 5, turn: [-123.0, 0.0, 0.0]}
+          - {t: 6, offset: [-0.045, 1.21656, -0.88605], scale: [0.06, 0.045, 0.31113], turn: [-133.0, 0.0, 0.0]}
+          - {t: 7, turn: [-129.25, 0.0, 0.0]}
+          - {t: 8, turn: [-125.5, 0.0, 0.0]}
+          - {t: 9, turn: [-121.75, 0.0, 0.0]}
+          - {t: 10, offset: [-0.045, 1.26074, -0.84954], scale: [0.06, 0.045, 0.31113], turn: [-118.0, 0.0, 0.0]}
+          - {t: 13, offset: [-0.045, 1.26074, -0.84954], scale: [0.0, 0.0, 0.0], turn: [-118.0, 0.0, 0.0]}
+        when: "= event.source == 'sel_5'"
+      - {op: block, parent: fx9_couture_shears_remote, block: black_concrete, size: [1.0, 1.0, 1.0], id: fx9_couture_shears_remote_1_handle_1, when: "= event.source == 'sel_5'"}
+      - id: fx9_couture_shears_remote_1_handle_1_trk
+        op: track
+        target: fx9_couture_shears_remote_1_handle_1
+        keys:
+          - {t: 0, offset: [-0.045, 3.05195, -3.11401], scale: [0.042, 0.0315, 0.3157], turn: [-126.81407, 0.0, 0.0]}
+          - {t: 1, turn: [-135.14741, 0.0, 0.0]}
+          - {t: 2, turn: [-143.48074, 0.0, 0.0]}
+          - {t: 3, offset: [-0.045, 1.55206, -1.03659], scale: [0.06, 0.045, 0.451], turn: [-151.81407, 0.0, 0.0]}
+          - {t: 4, turn: [-161.81407, 0.0, 0.0]}
+          - {t: 5, turn: [-171.81407, 0.0, 0.0]}
+          - {t: 6, offset: [-0.045, 1.3232, -1.21753], scale: [0.06, 0.045, 0.451], turn: [178.18593, 0.0, 0.0]}
+          - {t: 7, turn: [-178.06407, 0.0, 0.0]}
+          - {t: 8, turn: [-174.31407, 0.0, 0.0]}
+          - {t: 9, turn: [-170.56407, 0.0, 0.0]}
+          - {t: 10, offset: [-0.045, 1.44954, -1.14212], scale: [0.06, 0.045, 0.451], turn: [-166.81407, 0.0, 0.0]}
+          - {t: 13, offset: [-0.045, 1.44954, -1.14212], scale: [0.0, 0.0, 0.0], turn: [-166.81407, 0.0, 0.0]}
+        when: "= event.source == 'sel_5'"
+      - {op: block, parent: fx9_couture_shears_remote, block: black_concrete, size: [1.0, 1.0, 1.0], id: fx9_couture_shears_remote_1_handle_2, when: "= event.source == 'sel_5'"}
+      - id: fx9_couture_shears_remote_1_handle_2_trk
+        op: track
+        target: fx9_couture_shears_remote_1_handle_2
+        keys:
+          - {t: 0, offset: [-0.045, 3.22687, -3.35876], scale: [0.042, 0.0315, 0.15368], turn: [177.06858, 0.0, 0.0]}
+          - {t: 1, turn: [168.73525, 0.0, 0.0]}
+          - {t: 2, turn: [160.40192, 0.0, 0.0]}
+          - {t: 3, offset: [-0.045, 1.60715, -1.33234], scale: [0.06, 0.045, 0.21954], turn: [152.06858, 0.0, 0.0]}
+          - {t: 4, turn: [142.06858, 0.0, 0.0]}
+          - {t: 5, turn: [132.06858, 0.0, 0.0]}
+          - {t: 6, offset: [-0.045, 1.22304, -1.50119], scale: [0.06, 0.045, 0.21954], turn: [122.06858, 0.0, 0.0]}
+          - {t: 7, turn: [125.81858, 0.0, 0.0]}
+          - {t: 8, turn: [129.56858, 0.0, 0.0]}
+          - {t: 9, turn: [133.31858, 0.0, 0.0]}
+          - {t: 10, offset: [-0.045, 1.42621, -1.44205], scale: [0.06, 0.045, 0.21954], turn: [137.06858, 0.0, 0.0]}
+          - {t: 13, offset: [-0.045, 1.42621, -1.44205], scale: [0.0, 0.0, 0.0], turn: [137.06858, 0.0, 0.0]}
+        when: "= event.source == 'sel_5'"
+      - {op: block, parent: fx9_couture_shears_remote, block: black_concrete, size: [1.0, 1.0, 1.0], id: fx9_couture_shears_remote_1_handle_3, when: "= event.source == 'sel_5'"}
+      - id: fx9_couture_shears_remote_1_handle_3_trk
+        op: track
+        target: fx9_couture_shears_remote_1_handle_3
+        keys:
+          - {t: 0, offset: [-0.045, 3.00325, -3.44605], scale: [0.042, 0.0315, 0.3068], turn: [84.14968, 0.0, 0.0]}
+          - {t: 1, turn: [75.81635, 0.0, 0.0]}
+          - {t: 2, turn: [67.48302, 0.0, 0.0]}
+          - {t: 3, offset: [-0.045, 1.36759, -1.31694], scale: [0.06, 0.045, 0.43829], turn: [59.14968, 0.0, 0.0]}
+          - {t: 4, turn: [49.14968, 0.0, 0.0]}
+          - {t: 5, turn: [39.14968, 0.0, 0.0]}
+          - {t: 6, offset: [-0.045, 1.02327, -1.36808], scale: [0.06, 0.045, 0.43829], turn: [29.14968, 0.0, 0.0]}
+          - {t: 7, turn: [32.89968, 0.0, 0.0]}
+          - {t: 8, turn: [36.64968, 0.0, 0.0]}
+          - {t: 9, turn: [40.39968, 0.0, 0.0]}
+          - {t: 10, offset: [-0.045, 1.1988, -1.36518], scale: [0.06, 0.045, 0.43829], turn: [44.14968, 0.0, 0.0]}
+          - {t: 13, offset: [-0.045, 1.1988, -1.36518], scale: [0.0, 0.0, 0.0], turn: [44.14968, 0.0, 0.0]}
+        when: "= event.source == 'sel_5'"
+      - {op: block, parent: fx9_couture_shears_remote, block: black_concrete, size: [1.0, 1.0, 1.0], id: fx9_couture_shears_remote_1_handle_4, when: "= event.source == 'sel_5'"}
+      - id: fx9_couture_shears_remote_1_handle_4_trk
+        op: track
+        target: fx9_couture_shears_remote_1_handle_4
+        keys:
+          - {t: 0, offset: [-0.045, 2.67617, -3.23364], scale: [0.042, 0.0315, 0.3068], turn: [29.85032, 0.0, 0.0]}
+          - {t: 1, turn: [21.51698, 0.0, 0.0]}
+          - {t: 2, turn: [13.18365, 0.0, 0.0]}
+          - {t: 3, offset: [-0.045, 1.16092, -0.98621], scale: [0.06, 0.045, 0.43829], turn: [4.85032, 0.0, 0.0]}
+          - {t: 4, turn: [-5.14968, 0.0, 0.0]}
+          - {t: 5, turn: [-15.14968, 0.0, 0.0]}
+          - {t: 6, offset: [-0.045, 1.00966, -0.97832], scale: [0.06, 0.045, 0.43829], turn: [-25.14968, 0.0, 0.0]}
+          - {t: 7, turn: [-21.39968, 0.0, 0.0]}
+          - {t: 8, turn: [-17.64968, 0.0, 0.0]}
+          - {t: 9, turn: [-13.89968, 0.0, 0.0]}
+          - {t: 10, offset: [-0.045, 1.08477, -0.99222], scale: [0.06, 0.045, 0.43829], turn: [-10.14968, 0.0, 0.0]}
+          - {t: 13, offset: [-0.045, 1.08477, -0.99222], scale: [0.0, 0.0, 0.0], turn: [-10.14968, 0.0, 0.0]}
+        when: "= event.source == 'sel_5'"
+      - {op: block, parent: fx9_couture_shears_remote, block: gray_concrete, size: [1.0, 1.0, 1.0], id: fx9_couture_shears_remote_1_blade_0_2, when: "= event.source == 'sel_5'"}
+      - id: fx9_couture_shears_remote_1_blade_0_2_trk
+        op: track
+        target: fx9_couture_shears_remote_1_blade_0_2
+        keys:
+          - {t: 0, offset: [0.045, 2.54875, -2.60298], scale: [0.042, 0.133, 0.56], turn: [-7.0, 0.0, 0.0]}
+          - {t: 1, turn: [-15.33333, 0.0, 0.0]}
+          - {t: 2, turn: [-23.66667, 0.0, 0.0]}
+          - {t: 3, offset: [0.045, 1.31197, -0.36078], scale: [0.06, 0.19, 0.8], turn: [-32.0, 0.0, 0.0]}
+          - {t: 4, turn: [-22.0, 0.0, 0.0]}
+          - {t: 5, turn: [-12.0, 0.0, 0.0]}
+          - {t: 6, offset: [0.045, 1.11396, -0.30024], scale: [0.06, 0.19, 0.8], turn: [-2.0, 0.0, 0.0]}
+          - {t: 7, turn: [1.75, 0.0, 0.0]}
+          - {t: 8, turn: [5.5, 0.0, 0.0]}
+          - {t: 9, turn: [9.25, 0.0, 0.0]}
+          - {t: 10, offset: [0.045, 1.01002, -0.31025], scale: [0.06, 0.19, 0.8], turn: [13.0, 0.0, 0.0]}
+          - {t: 13, offset: [0.045, 1.01002, -0.31025], scale: [0.0, 0.0, 0.0], turn: [13.0, 0.0, 0.0]}
+        when: "= event.source == 'sel_5'"
+      - {op: block, parent: fx9_couture_shears_remote, block: iron_block, size: [1.0, 1.0, 1.0], id: fx9_couture_shears_remote_1_edge_0_2, when: "= event.source == 'sel_5'"}
+      - id: fx9_couture_shears_remote_1_edge_0_2_trk
+        op: track
+        target: fx9_couture_shears_remote_1_edge_0_2
+        keys:
+          - {t: 0, offset: [0.045, 2.60815, -2.61028], scale: [0.042, 0.0175, 0.56115], turn: [-3.33093, 0.0, 0.0]}
+          - {t: 1, turn: [-11.66427, 0.0, 0.0]}
+          - {t: 2, turn: [-19.9976, 0.0, 0.0]}
+          - {t: 3, offset: [0.045, 1.36272, -0.3925], scale: [0.06, 0.025, 0.80164], turn: [-28.33093, 0.0, 0.0]}
+          - {t: 4, turn: [-18.33093, 0.0, 0.0]}
+          - {t: 5, turn: [-8.33093, 0.0, 0.0]}
+          - {t: 6, offset: [0.045, 1.17377, -0.30233], scale: [0.06, 0.025, 0.80164], turn: [1.66907, 0.0, 0.0]}
+          - {t: 7, turn: [5.41907, 0.0, 0.0]}
+          - {t: 8, turn: [9.16907, 0.0, 0.0]}
+          - {t: 9, turn: [12.91907, 0.0, 0.0]}
+          - {t: 10, offset: [0.045, 1.06834, -0.29679], scale: [0.06, 0.025, 0.80164], turn: [16.66907, 0.0, 0.0]}
+          - {t: 13, offset: [0.045, 1.06834, -0.29679], scale: [0.0, 0.0, 0.0], turn: [16.66907, 0.0, 0.0]}
+        when: "= event.source == 'sel_5'"
+      - {op: block, parent: fx9_couture_shears_remote, block: gray_concrete, size: [1.0, 1.0, 1.0], id: fx9_couture_shears_remote_1_blade_1_2, when: "= event.source == 'sel_5'"}
+      - id: fx9_couture_shears_remote_1_blade_1_2_trk
+        op: track
+        target: fx9_couture_shears_remote_1_blade_1_2
+        keys:
+          - {t: 0, offset: [0.045, 2.63406, -1.9082], scale: [0.042, 0.084, 0.42], turn: [-7.0, 0.0, 0.0]}
+          - {t: 1, turn: [-15.33333, 0.0, 0.0]}
+          - {t: 2, turn: [-23.66667, 0.0, 0.0]}
+          - {t: 3, offset: [0.045, 1.68291, 0.23285], scale: [0.06, 0.12, 0.6], turn: [-32.0, 0.0, 0.0]}
+          - {t: 4, turn: [-22.0, 0.0, 0.0]}
+          - {t: 5, turn: [-12.0, 0.0, 0.0]}
+          - {t: 6, offset: [0.045, 1.13839, 0.39933], scale: [0.06, 0.12, 0.6], turn: [-2.0, 0.0, 0.0]}
+          - {t: 7, turn: [1.75, 0.0, 0.0]}
+          - {t: 8, turn: [5.5, 0.0, 0.0]}
+          - {t: 9, turn: [9.25, 0.0, 0.0]}
+          - {t: 10, offset: [0.045, 0.85255, 0.37181], scale: [0.06, 0.12, 0.6], turn: [13.0, 0.0, 0.0]}
+          - {t: 13, offset: [0.045, 0.85255, 0.37181], scale: [0.0, 0.0, 0.0], turn: [13.0, 0.0, 0.0]}
+        when: "= event.source == 'sel_5'"
+      - {op: block, parent: fx9_couture_shears_remote, block: iron_block, size: [1.0, 1.0, 1.0], id: fx9_couture_shears_remote_1_edge_1_2, when: "= event.source == 'sel_5'"}
+      - id: fx9_couture_shears_remote_1_edge_1_2_trk
+        op: track
+        target: fx9_couture_shears_remote_1_edge_1_2
+        keys:
+          - {t: 0, offset: [0.045, 2.67157, -1.91281], scale: [0.042, 0.0175, 0.42061], turn: [-3.90903, 0.0, 0.0]}
+          - {t: 1, turn: [-12.24236, 0.0, 0.0]}
+          - {t: 2, turn: [-20.5757, 0.0, 0.0]}
+          - {t: 3, offset: [0.045, 1.71497, 0.21282], scale: [0.06, 0.025, 0.60087], turn: [-28.90903, 0.0, 0.0]}
+          - {t: 4, turn: [-18.90903, 0.0, 0.0]}
+          - {t: 5, turn: [-8.90903, 0.0, 0.0]}
+          - {t: 6, offset: [0.045, 1.17617, 0.39801], scale: [0.06, 0.025, 0.60087], turn: [1.09097, 0.0, 0.0]}
+          - {t: 7, turn: [4.84097, 0.0, 0.0]}
+          - {t: 8, turn: [8.59097, 0.0, 0.0]}
+          - {t: 9, turn: [12.34097, 0.0, 0.0]}
+          - {t: 10, offset: [0.045, 0.88939, 0.38031], scale: [0.06, 0.025, 0.60087], turn: [16.09097, 0.0, 0.0]}
+          - {t: 13, offset: [0.045, 0.88939, 0.38031], scale: [0.0, 0.0, 0.0], turn: [16.09097, 0.0, 0.0]}
+        when: "= event.source == 'sel_5'"
+      - {op: block, parent: fx9_couture_shears_remote, block: gray_concrete, size: [1.0, 1.0, 1.0], id: fx9_couture_shears_remote_1_blade_2_2, when: "= event.source == 'sel_5'"}
+      - id: fx9_couture_shears_remote_1_blade_2_2_trk
+        op: track
+        target: fx9_couture_shears_remote_1_blade_2_2
+        keys:
+          - {t: 0, offset: [0.045, 2.69499, -1.41193], scale: [0.042, 0.0315, 0.28], turn: [-7.0, 0.0, 0.0]}
+          - {t: 1, turn: [-15.33333, 0.0, 0.0]}
+          - {t: 2, turn: [-23.66667, 0.0, 0.0]}
+          - {t: 3, offset: [0.045, 1.94787, 0.65688], scale: [0.06, 0.045, 0.4], turn: [-32.0, 0.0, 0.0]}
+          - {t: 4, turn: [-22.0, 0.0, 0.0]}
+          - {t: 5, turn: [-12.0, 0.0, 0.0]}
+          - {t: 6, offset: [0.045, 1.15584, 0.89903], scale: [0.06, 0.045, 0.4], turn: [-2.0, 0.0, 0.0]}
+          - {t: 7, turn: [1.75, 0.0, 0.0]}
+          - {t: 8, turn: [5.5, 0.0, 0.0]}
+          - {t: 9, turn: [9.25, 0.0, 0.0]}
+          - {t: 10, offset: [0.045, 0.74008, 0.85899], scale: [0.06, 0.045, 0.4], turn: [13.0, 0.0, 0.0]}
+          - {t: 13, offset: [0.045, 0.74008, 0.85899], scale: [0.0, 0.0, 0.0], turn: [13.0, 0.0, 0.0]}
+        when: "= event.source == 'sel_5'"
+      - {op: block, parent: fx9_couture_shears_remote, block: iron_block, size: [1.0, 1.0, 1.0], id: fx9_couture_shears_remote_1_edge_2_2, when: "= event.source == 'sel_5'"}
+      - id: fx9_couture_shears_remote_1_edge_2_2_trk
+        op: track
+        target: fx9_couture_shears_remote_1_edge_2_2
+        keys:
+          - {t: 0, offset: [0.045, 2.70906, -1.41365], scale: [0.042, 0.0175, 0.28013], turn: [-5.26018, 0.0, 0.0]}
+          - {t: 1, turn: [-13.59351, 0.0, 0.0]}
+          - {t: 2, turn: [-21.92684, 0.0, 0.0]}
+          - {t: 3, offset: [0.045, 1.95989, 0.64937], scale: [0.06, 0.025, 0.40018], turn: [-30.26018, 0.0, 0.0]}
+          - {t: 4, turn: [-20.26018, 0.0, 0.0]}
+          - {t: 5, turn: [-10.26018, 0.0, 0.0]}
+          - {t: 6, offset: [0.045, 1.17001, 0.89853], scale: [0.06, 0.025, 0.40018], turn: [-0.26018, 0.0, 0.0]}
+          - {t: 7, turn: [3.48982, 0.0, 0.0]}
+          - {t: 8, turn: [7.23982, 0.0, 0.0]}
+          - {t: 9, turn: [10.98982, 0.0, 0.0]}
+          - {t: 10, offset: [0.045, 0.75389, 0.86218], scale: [0.06, 0.025, 0.40018], turn: [14.73982, 0.0, 0.0]}
+          - {t: 13, offset: [0.045, 0.75389, 0.86218], scale: [0.0, 0.0, 0.0], turn: [14.73982, 0.0, 0.0]}
+        when: "= event.source == 'sel_5'"
+      - {op: block, parent: fx9_couture_shears_remote, block: black_concrete, size: [1.0, 1.0, 1.0], id: fx9_couture_shears_remote_1_handle_0_2, when: "= event.source == 'sel_5'"}
+      - id: fx9_couture_shears_remote_1_handle_0_2_trk
+        op: track
+        target: fx9_couture_shears_remote_1_handle_0_2
+        keys:
+          - {t: 0, offset: [0.045, 2.58602, -3.20199], scale: [0.042, 0.0315, 0.21779], turn: [-142.0, 0.0, 0.0]}
+          - {t: 1, turn: [-150.33333, 0.0, 0.0]}
+          - {t: 2, turn: [-158.66667, 0.0, 0.0]}
+          - {t: 3, offset: [0.045, 1.0926, -0.91942], scale: [0.06, 0.045, 0.31113], turn: [-167.0, 0.0, 0.0]}
+          - {t: 4, turn: [-157.0, 0.0, 0.0]}
+          - {t: 5, turn: [-147.0, 0.0, 0.0]}
+          - {t: 6, offset: [0.045, 1.2033, -0.89372], scale: [0.06, 0.045, 0.31113], turn: [-137.0, 0.0, 0.0]}
+          - {t: 7, turn: [-133.25, 0.0, 0.0]}
+          - {t: 8, turn: [-129.5, 0.0, 0.0]}
+          - {t: 9, turn: [-125.75, 0.0, 0.0]}
+          - {t: 10, offset: [0.045, 1.24992, -0.86039], scale: [0.06, 0.045, 0.31113], turn: [-122.0, 0.0, 0.0]}
+          - {t: 13, offset: [0.045, 1.24992, -0.86039], scale: [0.0, 0.0, 0.0], turn: [-122.0, 0.0, 0.0]}
+        when: "= event.source == 'sel_5'"
+      - {op: block, parent: fx9_couture_shears_remote, block: black_concrete, size: [1.0, 1.0, 1.0], id: fx9_couture_shears_remote_1_handle_1_2, when: "= event.source == 'sel_5'"}
+      - id: fx9_couture_shears_remote_1_handle_1_2_trk
+        op: track
+        target: fx9_couture_shears_remote_1_handle_1_2
+        keys:
+          - {t: 0, offset: [0.045, 2.63949, -3.54607], scale: [0.042, 0.0315, 0.3157], turn: [169.18593, 0.0, 0.0]}
+          - {t: 1, turn: [160.85259, 0.0, 0.0]}
+          - {t: 2, turn: [152.51926, 0.0, 0.0]}
+          - {t: 3, offset: [0.045, 0.99564, -1.25386], scale: [0.06, 0.045, 0.451], turn: [144.18593, 0.0, 0.0]}
+          - {t: 4, turn: [154.18593, 0.0, 0.0]}
+          - {t: 5, turn: [164.18593, 0.0, 0.0]}
+          - {t: 6, offset: [0.045, 1.28655, -1.23183], scale: [0.06, 0.045, 0.451], turn: [174.18593, 0.0, 0.0]}
+          - {t: 7, turn: [177.93593, 0.0, 0.0]}
+          - {t: 8, turn: [-178.31407, 0.0, 0.0]}
+          - {t: 9, turn: [-174.56407, 0.0, 0.0]}
+          - {t: 10, offset: [0.045, 1.41785, -1.16543], scale: [0.06, 0.045, 0.451], turn: [-170.81407, 0.0, 0.0]}
+          - {t: 13, offset: [0.045, 1.41785, -1.16543], scale: [0.0, 0.0, 0.0], turn: [-170.81407, 0.0, 0.0]}
+        when: "= event.source == 'sel_5'"
+      - {op: block, parent: fx9_couture_shears_remote, block: black_concrete, size: [1.0, 1.0, 1.0], id: fx9_couture_shears_remote_1_handle_2_2, when: "= event.source == 'sel_5'"}
+      - id: fx9_couture_shears_remote_1_handle_2_2_trk
+        op: track
+        target: fx9_couture_shears_remote_1_handle_2_2
+        keys:
+          - {t: 0, offset: [0.045, 2.49619, -3.81058], scale: [0.042, 0.0315, 0.15368], turn: [113.06858, 0.0, 0.0]}
+          - {t: 1, turn: [104.73525, 0.0, 0.0]}
+          - {t: 2, turn: [96.40192, 0.0, 0.0]}
+          - {t: 3, offset: [0.045, 0.75398, -1.43302], scale: [0.06, 0.045, 0.21954], turn: [88.06858, 0.0, 0.0]}
+          - {t: 4, turn: [98.06858, 0.0, 0.0]}
+          - {t: 5, turn: [108.06858, 0.0, 0.0]}
+          - {t: 6, offset: [0.045, 1.16685, -1.50783], scale: [0.06, 0.045, 0.21954], turn: [118.06858, 0.0, 0.0]}
+          - {t: 7, turn: [121.81858, 0.0, 0.0]}
+          - {t: 8, turn: [125.56858, 0.0, 0.0]}
+          - {t: 9, turn: [129.31858, 0.0, 0.0]}
+          - {t: 10, offset: [0.045, 1.37365, -1.463], scale: [0.06, 0.045, 0.21954], turn: [133.06858, 0.0, 0.0]}
+          - {t: 13, offset: [0.045, 1.37365, -1.463], scale: [0.0, 0.0, 0.0], turn: [133.06858, 0.0, 0.0]}
+        when: "= event.source == 'sel_5'"
+      - {op: block, parent: fx9_couture_shears_remote, block: black_concrete, size: [1.0, 1.0, 1.0], id: fx9_couture_shears_remote_1_handle_3_2, when: "= event.source == 'sel_5'"}
+      - id: fx9_couture_shears_remote_1_handle_3_2_trk
+        op: track
+        target: fx9_couture_shears_remote_1_handle_3_2
+        keys:
+          - {t: 0, offset: [0.045, 2.3197, -3.64786], scale: [0.042, 0.0315, 0.3068], turn: [20.14968, 0.0, 0.0]}
+          - {t: 1, turn: [11.81635, 0.0, 0.0]}
+          - {t: 2, turn: [3.48302, 0.0, 0.0]}
+          - {t: 3, offset: [0.045, 0.6628, -1.21096], scale: [0.06, 0.045, 0.43829], turn: [-4.85032, 0.0, 0.0]}
+          - {t: 4, turn: [5.14968, 0.0, 0.0]}
+          - {t: 5, turn: [15.14968, 0.0, 0.0]}
+          - {t: 6, offset: [0.045, 0.97685, -1.3611], scale: [0.06, 0.045, 0.43829], turn: [25.14968, 0.0, 0.0]}
+          - {t: 7, turn: [28.89968, 0.0, 0.0]}
+          - {t: 8, turn: [32.64968, 0.0, 0.0]}
+          - {t: 9, turn: [36.39968, 0.0, 0.0]}
+          - {t: 10, offset: [0.045, 1.15216, -1.37045], scale: [0.06, 0.045, 0.43829], turn: [40.14968, 0.0, 0.0]}
+          - {t: 13, offset: [0.045, 1.15216, -1.37045], scale: [0.0, 0.0, 0.0], turn: [40.14968, 0.0, 0.0]}
+        when: "= event.source == 'sel_5'"
+      - {op: block, parent: fx9_couture_shears_remote, block: black_concrete, size: [1.0, 1.0, 1.0], id: fx9_couture_shears_remote_1_handle_4_2, when: "= event.source == 'sel_5'"}
+      - id: fx9_couture_shears_remote_1_handle_4_2_trk
+        op: track
+        target: fx9_couture_shears_remote_1_handle_4_2
+        keys:
+          - {t: 0, offset: [0.045, 2.36723, -3.26076], scale: [0.042, 0.0315, 0.3068], turn: [-34.14968, 0.0, 0.0]}
+          - {t: 1, turn: [-42.48302, 0.0, 0.0]}
+          - {t: 2, turn: [-50.81635, 0.0, 0.0]}
+          - {t: 3, offset: [0.045, 0.86947, -0.88022], scale: [0.06, 0.045, 0.43829], turn: [-59.14968, 0.0, 0.0]}
+          - {t: 4, turn: [-49.14968, 0.0, 0.0]}
+          - {t: 5, turn: [-39.14968, 0.0, 0.0]}
+          - {t: 6, offset: [0.045, 0.99046, -0.97134], scale: [0.06, 0.045, 0.43829], turn: [-29.14968, 0.0, 0.0]}
+          - {t: 7, turn: [-25.39968, 0.0, 0.0]}
+          - {t: 8, turn: [-21.64968, 0.0, 0.0]}
+          - {t: 9, turn: [-17.89968, 0.0, 0.0]}
+          - {t: 10, offset: [0.045, 1.06442, -0.99045], scale: [0.06, 0.045, 0.43829], turn: [-14.14968, 0.0, 0.0]}
+          - {t: 13, offset: [0.045, 1.06442, -0.99045], scale: [0.0, 0.0, 0.0], turn: [-14.14968, 0.0, 0.0]}
+        when: "= event.source == 'sel_5'"
+      - {op: block, parent: fx9_couture_shears_remote, block: white_concrete, size: [1.0, 1.0, 1.0], id: fx9_couture_shears_remote_hinge_flower_0, when: "= event.source == 'sel_5'"}
+      - id: fx9_couture_shears_remote_hinge_flower_0_trk
+        op: track
+        target: fx9_couture_shears_remote_hinge_flower_0
+        keys:
+          - {t: 0, offset: [-0.12, 2.5, -3.0], scale: [0.105, 0.105, 0.084]}
+          - {t: 3, offset: [-0.12, 1.1, -0.7], scale: [0.15, 0.15, 0.12]}
+          - {t: 6, offset: [-0.12, 1.1, -0.7], scale: [0.15, 0.15, 0.12]}
+          - {t: 10, offset: [-0.12, 1.1, -0.7], scale: [0.15, 0.15, 0.12]}
+          - {t: 13, offset: [-0.12, 1.1, -0.7], scale: [0.0, 0.0, 0.0]}
+        when: "= event.source == 'sel_5'"
+      - {op: block, parent: fx9_couture_shears_remote, block: white_concrete, size: [1.0, 1.0, 1.0], id: fx9_couture_shears_remote_hinge_flower_1, when: "= event.source == 'sel_5'"}
+      - id: fx9_couture_shears_remote_hinge_flower_1_trk
+        op: track
+        target: fx9_couture_shears_remote_hinge_flower_1
+        keys:
+          - {t: 0, offset: [0.12, 2.5, -3.0], scale: [0.105, 0.105, 0.084]}
+          - {t: 3, offset: [0.12, 1.1, -0.7], scale: [0.15, 0.15, 0.12]}
+          - {t: 6, offset: [0.12, 1.1, -0.7], scale: [0.15, 0.15, 0.12]}
+          - {t: 10, offset: [0.12, 1.1, -0.7], scale: [0.15, 0.15, 0.12]}
+          - {t: 13, offset: [0.12, 1.1, -0.7], scale: [0.0, 0.0, 0.0]}
+        when: "= event.source == 'sel_5'"
+      - {op: block, parent: fx9_couture_shears_remote, block: white_concrete, size: [1.0, 1.0, 1.0], id: fx9_couture_shears_remote_hinge_flower_2, when: "= event.source == 'sel_5'"}
+      - id: fx9_couture_shears_remote_hinge_flower_2_trk
+        op: track
+        target: fx9_couture_shears_remote_hinge_flower_2
+        keys:
+          - {t: 0, offset: [0.0, 2.62, -3.0], scale: [0.105, 0.105, 0.084]}
+          - {t: 3, offset: [0.0, 1.22, -0.7], scale: [0.15, 0.15, 0.12]}
+          - {t: 6, offset: [0.0, 1.22, -0.7], scale: [0.15, 0.15, 0.12]}
+          - {t: 10, offset: [0.0, 1.22, -0.7], scale: [0.15, 0.15, 0.12]}
+          - {t: 13, offset: [0.0, 1.22, -0.7], scale: [0.0, 0.0, 0.0]}
+        when: "= event.source == 'sel_5'"
+      - {op: block, parent: fx9_couture_shears_remote, block: white_concrete, size: [1.0, 1.0, 1.0], id: fx9_couture_shears_remote_hinge_flower_3, when: "= event.source == 'sel_5'"}
+      - id: fx9_couture_shears_remote_hinge_flower_3_trk
+        op: track
+        target: fx9_couture_shears_remote_hinge_flower_3
+        keys:
+          - {t: 0, offset: [0.0, 2.38, -3.0], scale: [0.105, 0.105, 0.084]}
+          - {t: 3, offset: [0.0, 0.98, -0.7], scale: [0.15, 0.15, 0.12]}
+          - {t: 6, offset: [0.0, 0.98, -0.7], scale: [0.15, 0.15, 0.12]}
+          - {t: 10, offset: [0.0, 0.98, -0.7], scale: [0.15, 0.15, 0.12]}
+          - {t: 13, offset: [0.0, 0.98, -0.7], scale: [0.0, 0.0, 0.0]}
+        when: "= event.source == 'sel_5'"
       - {op: block, parent: fx10_couture_rapier_cross, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx10_couture_rapier_cross_cross_0, when: "= event.source == 'sel_6'"}
       - id: fx10_couture_rapier_cross_cross_0_trk
         op: track
@@ -1620,3 +3053,147 @@ presentation:
           - {t: 6, scale: [0.2, 0.2, 1.0], alpha: 0.0, ease: in_quad}
         when: "= event.source == 'sel_6'"
       - {id: snd_3, op: sound, sound: entity.player.attack.strong, at: enemy, volume: 0.7, pitch: 1.1, when: "= event.source == 'sel_6'"}
+      - {op: block, parent: fx11_couture_target_rosette, block: pink_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx11_couture_target_rosette_arc_0, when: "= event.source == 'sel_7'"}
+      - id: fx11_couture_target_rosette_arc_0_trk
+        op: track
+        target: fx11_couture_target_rosette_arc_0
+        keys:
+          - {t: 0, offset: [0.0, 1.1, 3.0], scale: [0.0, 0.0, 0.0], turn: [-90.0, 0.0, 0.0]}
+          - {t: 2, offset: [0.0, 1.1, 3.0], scale: [0.05, 0.04705, 1.25245], turn: [-90.0, 0.0, 0.0]}
+          - {t: 11, offset: [0.0, 1.1, 3.0], scale: [0.0, 0.0, 0.75147], turn: [-90.0, 0.0, 0.0]}
+        when: "= event.source == 'sel_7'"
+      - {op: block, parent: fx11_couture_target_rosette, block: pink_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx11_couture_target_rosette_arc_1, when: "= event.source == 'sel_7'"}
+      - id: fx11_couture_target_rosette_arc_1_trk
+        op: track
+        target: fx11_couture_target_rosette_arc_1
+        keys:
+          - {t: 0, offset: [0.0, 2.15752, 2.77522], scale: [0.0, 0.0, 0.0], turn: [-114.0, 0.0, 0.0]}
+          - {t: 2, offset: [0.0, 2.15752, 2.77522], scale: [0.05, 0.06835, 1.25245], turn: [-114.0, 0.0, 0.0]}
+          - {t: 11, offset: [0.0, 2.15752, 2.77522], scale: [0.0, 0.0, 0.75147], turn: [-114.0, 0.0, 0.0]}
+        when: "= event.source == 'sel_7'"
+      - {op: block, parent: fx11_couture_target_rosette, block: pink_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx11_couture_target_rosette_arc_2, when: "= event.source == 'sel_7'"}
+      - id: fx11_couture_target_rosette_arc_2_trk
+        op: track
+        target: fx11_couture_target_rosette_arc_2
+        keys:
+          - {t: 0, offset: [0.0, 3.03218, 2.13974], scale: [0.0, 0.0, 0.0], turn: [-138.0, 0.0, 0.0]}
+          - {t: 2, offset: [0.0, 3.03218, 2.13974], scale: [0.05, 0.08817, 1.25245], turn: [-138.0, 0.0, 0.0]}
+          - {t: 11, offset: [0.0, 3.03218, 2.13974], scale: [0.0, 0.0, 0.75147], turn: [-138.0, 0.0, 0.0]}
+        when: "= event.source == 'sel_7'"
+      - {op: block, parent: fx11_couture_target_rosette, block: pink_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx11_couture_target_rosette_arc_3, when: "= event.source == 'sel_7'"}
+      - id: fx11_couture_target_rosette_arc_3_trk
+        op: track
+        target: fx11_couture_target_rosette_arc_3
+        keys:
+          - {t: 0, offset: [0.0, 3.57275, 1.20344], scale: [0.0, 0.0, 0.0], turn: [-162.0, 0.0, 0.0]}
+          - {t: 2, offset: [0.0, 3.57275, 1.20344], scale: [0.05, 0.10584, 1.25245], turn: [-162.0, 0.0, 0.0]}
+          - {t: 11, offset: [0.0, 3.57275, 1.20344], scale: [0.0, 0.0, 0.75147], turn: [-162.0, 0.0, 0.0]}
+        when: "= event.source == 'sel_7'"
+      - {op: block, parent: fx11_couture_target_rosette, block: pink_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx11_couture_target_rosette_arc_4, when: "= event.source == 'sel_7'"}
+      - id: fx11_couture_target_rosette_arc_4_trk
+        op: track
+        target: fx11_couture_target_rosette_arc_4
+        keys:
+          - {t: 0, offset: [0.0, 3.68576, 0.12823], scale: [0.0, 0.0, 0.0], turn: [174.0, 0.0, 0.0]}
+          - {t: 2, offset: [0.0, 3.68576, 0.12823], scale: [0.05, 0.12076, 1.25245], turn: [174.0, 0.0, 0.0]}
+          - {t: 11, offset: [0.0, 3.68576, 0.12823], scale: [0.0, 0.0, 0.75147], turn: [174.0, 0.0, 0.0]}
+        when: "= event.source == 'sel_7'"
+      - {op: block, parent: fx11_couture_target_rosette, block: pink_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx11_couture_target_rosette_arc_5, when: "= event.source == 'sel_7'"}
+      - id: fx11_couture_target_rosette_arc_5_trk
+        op: track
+        target: fx11_couture_target_rosette_arc_5
+        keys:
+          - {t: 0, offset: [0.0, 3.35167, -0.9], scale: [0.0, 0.0, 0.0], turn: [150.0, 0.0, 0.0]}
+          - {t: 2, offset: [0.0, 3.35167, -0.9], scale: [0.05, 0.13242, 1.25245], turn: [150.0, 0.0, 0.0]}
+          - {t: 11, offset: [0.0, 3.35167, -0.9], scale: [0.0, 0.0, 0.75147], turn: [150.0, 0.0, 0.0]}
+        when: "= event.source == 'sel_7'"
+      - {op: block, parent: fx11_couture_target_rosette, block: pink_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx11_couture_target_rosette_arc_6, when: "= event.source == 'sel_7'"}
+      - id: fx11_couture_target_rosette_arc_6_trk
+        op: track
+        target: fx11_couture_target_rosette_arc_6
+        keys:
+          - {t: 0, offset: [0.0, 2.62824, -1.70344], scale: [0.0, 0.0, 0.0], turn: [126.0, 0.0, 0.0]}
+          - {t: 2, offset: [0.0, 2.62824, -1.70344], scale: [0.05, 0.14042, 1.25245], turn: [126.0, 0.0, 0.0]}
+          - {t: 11, offset: [0.0, 2.62824, -1.70344], scale: [0.0, 0.0, 0.75147], turn: [126.0, 0.0, 0.0]}
+        when: "= event.source == 'sel_7'"
+      - {op: block, parent: fx11_couture_target_rosette, block: pink_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx11_couture_target_rosette_arc_7, when: "= event.source == 'sel_7'"}
+      - id: fx11_couture_target_rosette_arc_7_trk
+        op: track
+        target: fx11_couture_target_rosette_arc_7
+        keys:
+          - {t: 0, offset: [0.0, 1.64057, -2.14318], scale: [0.0, 0.0, 0.0], turn: [102.0, 0.0, 0.0]}
+          - {t: 2, offset: [0.0, 1.64057, -2.14318], scale: [0.05, 0.14449, 1.25245], turn: [102.0, 0.0, 0.0]}
+          - {t: 11, offset: [0.0, 1.64057, -2.14318], scale: [0.0, 0.0, 0.75147], turn: [102.0, 0.0, 0.0]}
+        when: "= event.source == 'sel_7'"
+      - {op: block, parent: fx11_couture_target_rosette, block: pink_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx11_couture_target_rosette_arc_8, when: "= event.source == 'sel_7'"}
+      - id: fx11_couture_target_rosette_arc_8_trk
+        op: track
+        target: fx11_couture_target_rosette_arc_8
+        keys:
+          - {t: 0, offset: [0.0, 0.55943, -2.14318], scale: [0.0, 0.0, 0.0], turn: [78.0, 0.0, 0.0]}
+          - {t: 2, offset: [0.0, 0.55943, -2.14318], scale: [0.05, 0.14449, 1.25245], turn: [78.0, 0.0, 0.0]}
+          - {t: 11, offset: [0.0, 0.55943, -2.14318], scale: [0.0, 0.0, 0.75147], turn: [78.0, 0.0, 0.0]}
+        when: "= event.source == 'sel_7'"
+      - {op: block, parent: fx11_couture_target_rosette, block: pink_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx11_couture_target_rosette_arc_9, when: "= event.source == 'sel_7'"}
+      - id: fx11_couture_target_rosette_arc_9_trk
+        op: track
+        target: fx11_couture_target_rosette_arc_9
+        keys:
+          - {t: 0, offset: [0.0, -0.42824, -1.70344], scale: [0.0, 0.0, 0.0], turn: [54.0, 0.0, 0.0]}
+          - {t: 2, offset: [0.0, -0.42824, -1.70344], scale: [0.05, 0.14042, 1.25245], turn: [54.0, 0.0, 0.0]}
+          - {t: 11, offset: [0.0, -0.42824, -1.70344], scale: [0.0, 0.0, 0.75147], turn: [54.0, 0.0, 0.0]}
+        when: "= event.source == 'sel_7'"
+      - {op: block, parent: fx11_couture_target_rosette, block: pink_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx11_couture_target_rosette_arc_10, when: "= event.source == 'sel_7'"}
+      - id: fx11_couture_target_rosette_arc_10_trk
+        op: track
+        target: fx11_couture_target_rosette_arc_10
+        keys:
+          - {t: 0, offset: [0.0, -1.15167, -0.9], scale: [0.0, 0.0, 0.0], turn: [30.0, 0.0, 0.0]}
+          - {t: 2, offset: [0.0, -1.15167, -0.9], scale: [0.05, 0.13242, 1.25245], turn: [30.0, 0.0, 0.0]}
+          - {t: 11, offset: [0.0, -1.15167, -0.9], scale: [0.0, 0.0, 0.75147], turn: [30.0, 0.0, 0.0]}
+        when: "= event.source == 'sel_7'"
+      - {op: block, parent: fx11_couture_target_rosette, block: pink_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx11_couture_target_rosette_arc_11, when: "= event.source == 'sel_7'"}
+      - id: fx11_couture_target_rosette_arc_11_trk
+        op: track
+        target: fx11_couture_target_rosette_arc_11
+        keys:
+          - {t: 0, offset: [0.0, -1.48576, 0.12823], scale: [0.0, 0.0, 0.0], turn: [6.0, 0.0, 0.0]}
+          - {t: 2, offset: [0.0, -1.48576, 0.12823], scale: [0.05, 0.12076, 1.25245], turn: [6.0, 0.0, 0.0]}
+          - {t: 11, offset: [0.0, -1.48576, 0.12823], scale: [0.0, 0.0, 0.75147], turn: [6.0, 0.0, 0.0]}
+        when: "= event.source == 'sel_7'"
+      - {op: block, parent: fx11_couture_target_rosette, block: pink_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx11_couture_target_rosette_arc_12, when: "= event.source == 'sel_7'"}
+      - id: fx11_couture_target_rosette_arc_12_trk
+        op: track
+        target: fx11_couture_target_rosette_arc_12
+        keys:
+          - {t: 0, offset: [0.0, -1.37275, 1.20344], scale: [0.0, 0.0, 0.0], turn: [-18.0, 0.0, 0.0]}
+          - {t: 2, offset: [0.0, -1.37275, 1.20344], scale: [0.05, 0.10584, 1.25245], turn: [-18.0, 0.0, 0.0]}
+          - {t: 11, offset: [0.0, -1.37275, 1.20344], scale: [0.0, 0.0, 0.75147], turn: [-18.0, 0.0, 0.0]}
+        when: "= event.source == 'sel_7'"
+      - {op: block, parent: fx11_couture_target_rosette, block: pink_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx11_couture_target_rosette_arc_13, when: "= event.source == 'sel_7'"}
+      - id: fx11_couture_target_rosette_arc_13_trk
+        op: track
+        target: fx11_couture_target_rosette_arc_13
+        keys:
+          - {t: 0, offset: [0.0, -0.83218, 2.13974], scale: [0.0, 0.0, 0.0], turn: [-42.0, 0.0, 0.0]}
+          - {t: 2, offset: [0.0, -0.83218, 2.13974], scale: [0.05, 0.08817, 1.25245], turn: [-42.0, 0.0, 0.0]}
+          - {t: 11, offset: [0.0, -0.83218, 2.13974], scale: [0.0, 0.0, 0.75147], turn: [-42.0, 0.0, 0.0]}
+        when: "= event.source == 'sel_7'"
+      - {op: block, parent: fx11_couture_target_rosette, block: pink_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx11_couture_target_rosette_arc_14, when: "= event.source == 'sel_7'"}
+      - id: fx11_couture_target_rosette_arc_14_trk
+        op: track
+        target: fx11_couture_target_rosette_arc_14
+        keys:
+          - {t: 0, offset: [0.0, 0.04248, 2.77522], scale: [0.0, 0.0, 0.0], turn: [-66.0, 0.0, 0.0]}
+          - {t: 2, offset: [0.0, 0.04248, 2.77522], scale: [0.05, 0.06835, 1.25245], turn: [-66.0, 0.0, 0.0]}
+          - {t: 11, offset: [0.0, 0.04248, 2.77522], scale: [0.0, 0.0, 0.75147], turn: [-66.0, 0.0, 0.0]}
+        when: "= event.source == 'sel_7'"
+      - {op: block, parent: fx11_couture_target_rosette, block: pink_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx11_couture_target_rosette_arc_15, when: "= event.source == 'sel_7'"}
+      - id: fx11_couture_target_rosette_arc_15_trk
+        op: track
+        target: fx11_couture_target_rosette_arc_15
+        keys:
+          - {t: 0, offset: [0.0, 1.1, 3.0], scale: [0.0, 0.0, 0.0], turn: [-90.0, 0.0, 0.0]}
+          - {t: 2, offset: [0.0, 1.1, 3.0], scale: [0.05, 0.04705, 1.25245], turn: [-90.0, 0.0, 0.0]}
+          - {t: 11, offset: [0.0, 1.1, 3.0], scale: [0.0, 0.0, 0.75147], turn: [-90.0, 0.0, 0.0]}
+        when: "= event.source == 'sel_7'"

@@ -239,6 +239,10 @@ def compare_skill(d, skill, v1, hd):
         if end_hd > a1 and abs(a2 - a1) <= 2:
             d.add("cast end: HEAD stays open only for a visual tail (same last gameplay action as v1)", skill, a1, end_hd - a1,
                   f"last gameplay action v1 t{a1} / HEAD t{a2}; HEAD end t{end_hd}")
+        elif end_hd < a1 and abs(a2 - a1) <= 2:
+            # delayed world edits (block break / place) belong to the world editor and outlive the cast by design; the last action coincides
+            d.add("cast end: HEAD cast ends before its delayed world edits (same last gameplay action as v1)", skill, end_hd, a1 - end_hd,
+                  f"last gameplay action v1 t{a1} / HEAD t{a2}; HEAD end t{end_hd}")
         else:
             d.add("cast end: HEAD ends " + ("earlier" if end_hd < a1 else "later") + " than v1's last action", skill, min(a1, end_hd), abs(a1 - end_hd),
                   f"v1 last action t{a1} vs HEAD last action t{a2}, HEAD end t{end_hd}")

@@ -2,7 +2,6 @@
 # Generated point-frame offsets are [left, up, forward] in the parent frame.
 # CONVERT-PRESENT vfx follow=false (anchored at world, no place-at-spawn) (x7): verdict-summoned-nails | verdict-impact
 # CONVERT-PRESENT vfx frame orient (frames carry no orientation / scale) (x7): orient="yaw" | orient="world"
-# CONVERT-PRESENT area target used only by presentation ops (no damaging hit volume to attach them to) (x1): sel: 13 presentation op(s) dropped
 apiVersion: "astera/v2"
 kind: Skill
 id: verdict-hammer-s3
@@ -427,9 +426,81 @@ presentation:
             - fx7_verdict_ego_ring_ring_s6
             - fx7_verdict_ego_ring_ring_s7
           when: "= event.source == 'sel_4'"
-    - {id: fxhit_35, at: "hit+35", do: []}
+    - id: fxhit_35
+      at: "hit+35"
+      do:
+        - id: rm
+          op: remove
+          ids:
+            - fx1_verdict_summoned_nails_nail__1_shaft
+            - fx1_verdict_summoned_nails_nail__1_tip
+            - fx1_verdict_summoned_nails_nail__1_head
+            - fx1_verdict_summoned_nails_nail_1_shaft
+            - fx1_verdict_summoned_nails_nail_1_tip
+            - fx1_verdict_summoned_nails_nail_1_head
+          when: "= event.source == 'sel'"
   "on":
     hit:
+      - {op: block, parent: fx1_verdict_summoned_nails, block: iron_block, size: [1.0, 1.0, 1.0], id: fx1_verdict_summoned_nails_nail__1_shaft, when: "= event.source == 'sel'"}
+      - id: fx1_verdict_summoned_nails_nail__1_shaft_trk
+        op: track
+        target: fx1_verdict_summoned_nails_nail__1_shaft
+        keys:
+          - {t: 0, offset: [-0.55, 5.0, 0.0], scale: [0.12, 2.3, 0.12], turn: [0.0, 0.0, -12.0]}
+          - {t: 15, offset: [-0.3, 1.1, 0.0], scale: [0.12, 2.3, 0.12], turn: [0.0, 0.0, -12.0]}
+          - {t: 27, offset: [-0.3, 1.1, 0.0], scale: [0.12, 2.3, 0.12]}
+          - {t: 34, offset: [-0.3, 1.1, 0.0], scale: [0.0, 0.0, 0.0]}
+        when: "= event.source == 'sel'"
+      - {op: block, parent: fx1_verdict_summoned_nails, block: white_concrete, size: [1.0, 1.0, 1.0], id: fx1_verdict_summoned_nails_nail__1_tip, when: "= event.source == 'sel'"}
+      - id: fx1_verdict_summoned_nails_nail__1_tip_trk
+        op: track
+        target: fx1_verdict_summoned_nails_nail__1_tip
+        keys:
+          - {t: 0, offset: [-0.55, 3.8, 0.0], scale: [0.06, 0.5, 0.06], turn: [0.0, 0.0, -12.0]}
+          - {t: 15, offset: [-0.3, -0.1, 0.0], scale: [0.06, 0.5, 0.06], turn: [0.0, 0.0, -12.0]}
+          - {t: 27, offset: [-0.3, -0.1, 0.0], scale: [0.06, 0.5, 0.06]}
+          - {t: 34, offset: [-0.3, -0.1, 0.0], scale: [0.0, 0.0, 0.0]}
+        when: "= event.source == 'sel'"
+      - {op: block, parent: fx1_verdict_summoned_nails, block: yellow_concrete, size: [1.0, 1.0, 1.0], id: fx1_verdict_summoned_nails_nail__1_head, when: "= event.source == 'sel'"}
+      - id: fx1_verdict_summoned_nails_nail__1_head_trk
+        op: track
+        target: fx1_verdict_summoned_nails_nail__1_head
+        keys:
+          - {t: 0, offset: [-0.55, 6.2, 0.0], scale: [0.45, 0.18, 0.45], turn: [0.0, 0.0, -12.0]}
+          - {t: 15, offset: [-0.3, 2.3, 0.0], scale: [0.45, 0.18, 0.45], turn: [0.0, 0.0, -12.0]}
+          - {t: 27, offset: [-0.3, 2.3, 0.0], scale: [0.45, 0.18, 0.45]}
+          - {t: 34, offset: [-0.3, 2.3, 0.0], scale: [0.0, 0.0, 0.0]}
+        when: "= event.source == 'sel'"
+      - {op: block, parent: fx1_verdict_summoned_nails, block: iron_block, size: [1.0, 1.0, 1.0], id: fx1_verdict_summoned_nails_nail_1_shaft, when: "= event.source == 'sel'"}
+      - id: fx1_verdict_summoned_nails_nail_1_shaft_trk
+        op: track
+        target: fx1_verdict_summoned_nails_nail_1_shaft
+        keys:
+          - {t: 0, offset: [0.55, 5.0, 0.0], scale: [0.12, 2.3, 0.12], turn: [0.0, 0.0, 12.0]}
+          - {t: 15, offset: [0.3, 1.1, 0.0], scale: [0.12, 2.3, 0.12], turn: [0.0, 0.0, 12.0]}
+          - {t: 27, offset: [0.3, 1.1, 0.0], scale: [0.12, 2.3, 0.12]}
+          - {t: 34, offset: [0.3, 1.1, 0.0], scale: [0.0, 0.0, 0.0]}
+        when: "= event.source == 'sel'"
+      - {op: block, parent: fx1_verdict_summoned_nails, block: white_concrete, size: [1.0, 1.0, 1.0], id: fx1_verdict_summoned_nails_nail_1_tip, when: "= event.source == 'sel'"}
+      - id: fx1_verdict_summoned_nails_nail_1_tip_trk
+        op: track
+        target: fx1_verdict_summoned_nails_nail_1_tip
+        keys:
+          - {t: 0, offset: [0.55, 3.8, 0.0], scale: [0.06, 0.5, 0.06], turn: [0.0, 0.0, 12.0]}
+          - {t: 15, offset: [0.3, -0.1, 0.0], scale: [0.06, 0.5, 0.06], turn: [0.0, 0.0, 12.0]}
+          - {t: 27, offset: [0.3, -0.1, 0.0], scale: [0.06, 0.5, 0.06]}
+          - {t: 34, offset: [0.3, -0.1, 0.0], scale: [0.0, 0.0, 0.0]}
+        when: "= event.source == 'sel'"
+      - {op: block, parent: fx1_verdict_summoned_nails, block: yellow_concrete, size: [1.0, 1.0, 1.0], id: fx1_verdict_summoned_nails_nail_1_head, when: "= event.source == 'sel'"}
+      - id: fx1_verdict_summoned_nails_nail_1_head_trk
+        op: track
+        target: fx1_verdict_summoned_nails_nail_1_head
+        keys:
+          - {t: 0, offset: [0.55, 6.2, 0.0], scale: [0.45, 0.18, 0.45], turn: [0.0, 0.0, 12.0]}
+          - {t: 15, offset: [0.3, 2.3, 0.0], scale: [0.45, 0.18, 0.45], turn: [0.0, 0.0, 12.0]}
+          - {t: 27, offset: [0.3, 2.3, 0.0], scale: [0.45, 0.18, 0.45]}
+          - {t: 34, offset: [0.3, 2.3, 0.0], scale: [0.0, 0.0, 0.0]}
+        when: "= event.source == 'sel'"
       - op: quad
         parent: fx2_verdict_impact
         face: {viewer: center}

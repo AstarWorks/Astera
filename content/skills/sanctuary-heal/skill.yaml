@@ -10,4 +10,4 @@ gameplay:
   expose:
     - {id: radius, param: radius}
   timeline:
-    - {id: t0, at: 0, do: [{id: heal, op: heal, amount: "${heal}", target: {allies: {around: caster, radius: "${radius}"}}}]}
+    - {id: t0, at: 0, do: [{id: heal, op: heal, amount: "${heal}", target: {allies: {around: caster, radius: "${radius}", include_self: true}}}]}

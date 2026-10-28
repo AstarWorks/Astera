@@ -10,14 +10,14 @@ import com.astarworks.astera.core.domain.status.StatusEffectId
  * `CastSkillUseCase` consults to refuse casts, so Silence needs no change there.
  * A `content/status/` entry with the same id wins over the built-in spec.
  */
-internal object MechanicStatuses {
-    val FREEZE_ID: StatusEffectId = StatusEffectId("freeze")
-    val SILENCE_ID: StatusEffectId = StatusEffectId("silence")
+public object MechanicStatuses {
+    public val FREEZE_ID: StatusEffectId = StatusEffectId("freeze")
+    public val SILENCE_ID: StatusEffectId = StatusEffectId("silence")
 
     /** The id `ApplyDamageUseCase` treats as full damage immunity; DashStrike's `invulnerable` rides it. */
-    val IMMUNITY_ID: StatusEffectId = StatusEffectId("immunity")
+    public val IMMUNITY_ID: StatusEffectId = StatusEffectId("immunity")
 
-    val IMMUNITY: StatusEffectSpec = StatusEffectSpec(
+    public val IMMUNITY: StatusEffectSpec = StatusEffectSpec(
         id = IMMUNITY_ID,
         displayNameKey = MessageKey("astera.status.immunity.name"),
         kind = StatusKind.STACK_BUFF,
@@ -26,7 +26,7 @@ internal object MechanicStatuses {
         maxStacks = 1,
     )
 
-    val FREEZE: StatusEffectSpec = StatusEffectSpec(
+    public val FREEZE: StatusEffectSpec = StatusEffectSpec(
         id = FREEZE_ID,
         displayNameKey = MessageKey("astera.status.freeze.name"),
         kind = StatusKind.PARALYSIS,
@@ -35,7 +35,7 @@ internal object MechanicStatuses {
         maxStacks = 1,
     )
 
-    val SILENCE: StatusEffectSpec = StatusEffectSpec(
+    public val SILENCE: StatusEffectSpec = StatusEffectSpec(
         id = SILENCE_ID,
         displayNameKey = MessageKey("astera.status.silence.name"),
         kind = StatusKind.SILENCE,
