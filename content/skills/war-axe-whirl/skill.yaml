@@ -14,7 +14,7 @@ machine:
   start: whirl
   states:
     whirl:
-      for: 6
+      for: 1   # v2 timeline is one row at tick 0; 6 ticks was the invented ring wave (see report)
       then: end
       do:
         - id: burst
@@ -32,18 +32,6 @@ machine:
             hit:
               - {id: snd_hit, op: sound, sound: "astera:weapons/blade-hit", anchor: contact, volume: 0.7, pitch: 1.0}
         - {id: snd, op: sound, sound: "astera:weapons/blade-heavy-swing", anchor: caster, volume: 1.0, pitch: 1.2}
-        # six expanding rings, one per tick, radius 0.5 + 0.6 * k; 16 emits per ring
-        # Unrolled per wave k: a state `do` does not accept a timing group (engine gap, PartParser.ops).
-        - {id: crit_0, op: particle, particle: crit, times: 16, at: 0, count: 0, offset: "= vec(cos((2*PI*i/16 + draw('shape_ph')*2*PI)), 0.0, -sin((2*PI*i/16 + draw('shape_ph')*2*PI)))", extra: 0.03, anchor: ring_pt, shift: {left: "= (0.5 + 0.6 * 0) * cos((2*PI*i/16 + draw('shape_ph')*2*PI))", forward: "= -(0.5 + 0.6 * 0) * sin((2*PI*i/16 + draw('shape_ph')*2*PI))"}}
-        - {id: dust_0, op: particle, particle: dust, times: 16, at: 0, count: 1, color: "#dcdcdc", size: 1.4, anchor: ring_pt, shift: {left: "= (0.5 + 0.6 * 0) * cos((2*PI*i/16 + draw('shape_ph')*2*PI))", forward: "= -(0.5 + 0.6 * 0) * sin((2*PI*i/16 + draw('shape_ph')*2*PI))"}}
-        - {id: crit_1, op: particle, particle: crit, times: 16, at: 1, count: 0, offset: "= vec(cos((2*PI*i/16 + draw('shape_ph')*2*PI)), 0.0, -sin((2*PI*i/16 + draw('shape_ph')*2*PI)))", extra: 0.03, anchor: ring_pt, shift: {left: "= (0.5 + 0.6 * 1) * cos((2*PI*i/16 + draw('shape_ph')*2*PI))", forward: "= -(0.5 + 0.6 * 1) * sin((2*PI*i/16 + draw('shape_ph')*2*PI))"}}
-        - {id: dust_1, op: particle, particle: dust, times: 16, at: 1, count: 1, color: "#dcdcdc", size: 1.4, anchor: ring_pt, shift: {left: "= (0.5 + 0.6 * 1) * cos((2*PI*i/16 + draw('shape_ph')*2*PI))", forward: "= -(0.5 + 0.6 * 1) * sin((2*PI*i/16 + draw('shape_ph')*2*PI))"}}
-        - {id: crit_2, op: particle, particle: crit, times: 16, at: 2, count: 0, offset: "= vec(cos((2*PI*i/16 + draw('shape_ph')*2*PI)), 0.0, -sin((2*PI*i/16 + draw('shape_ph')*2*PI)))", extra: 0.03, anchor: ring_pt, shift: {left: "= (0.5 + 0.6 * 2) * cos((2*PI*i/16 + draw('shape_ph')*2*PI))", forward: "= -(0.5 + 0.6 * 2) * sin((2*PI*i/16 + draw('shape_ph')*2*PI))"}}
-        - {id: dust_2, op: particle, particle: dust, times: 16, at: 2, count: 1, color: "#dcdcdc", size: 1.4, anchor: ring_pt, shift: {left: "= (0.5 + 0.6 * 2) * cos((2*PI*i/16 + draw('shape_ph')*2*PI))", forward: "= -(0.5 + 0.6 * 2) * sin((2*PI*i/16 + draw('shape_ph')*2*PI))"}}
-        - {id: crit_3, op: particle, particle: crit, times: 16, at: 3, count: 0, offset: "= vec(cos((2*PI*i/16 + draw('shape_ph')*2*PI)), 0.0, -sin((2*PI*i/16 + draw('shape_ph')*2*PI)))", extra: 0.03, anchor: ring_pt, shift: {left: "= (0.5 + 0.6 * 3) * cos((2*PI*i/16 + draw('shape_ph')*2*PI))", forward: "= -(0.5 + 0.6 * 3) * sin((2*PI*i/16 + draw('shape_ph')*2*PI))"}}
-        - {id: dust_3, op: particle, particle: dust, times: 16, at: 3, count: 1, color: "#dcdcdc", size: 1.4, anchor: ring_pt, shift: {left: "= (0.5 + 0.6 * 3) * cos((2*PI*i/16 + draw('shape_ph')*2*PI))", forward: "= -(0.5 + 0.6 * 3) * sin((2*PI*i/16 + draw('shape_ph')*2*PI))"}}
-        - {id: crit_4, op: particle, particle: crit, times: 16, at: 4, count: 0, offset: "= vec(cos((2*PI*i/16 + draw('shape_ph')*2*PI)), 0.0, -sin((2*PI*i/16 + draw('shape_ph')*2*PI)))", extra: 0.03, anchor: ring_pt, shift: {left: "= (0.5 + 0.6 * 4) * cos((2*PI*i/16 + draw('shape_ph')*2*PI))", forward: "= -(0.5 + 0.6 * 4) * sin((2*PI*i/16 + draw('shape_ph')*2*PI))"}}
-        - {id: dust_4, op: particle, particle: dust, times: 16, at: 4, count: 1, color: "#dcdcdc", size: 1.4, anchor: ring_pt, shift: {left: "= (0.5 + 0.6 * 4) * cos((2*PI*i/16 + draw('shape_ph')*2*PI))", forward: "= -(0.5 + 0.6 * 4) * sin((2*PI*i/16 + draw('shape_ph')*2*PI))"}}
-        - {id: crit_5, op: particle, particle: crit, times: 16, at: 5, count: 0, offset: "= vec(cos((2*PI*i/16 + draw('shape_ph')*2*PI)), 0.0, -sin((2*PI*i/16 + draw('shape_ph')*2*PI)))", extra: 0.03, anchor: ring_pt, shift: {left: "= (0.5 + 0.6 * 5) * cos((2*PI*i/16 + draw('shape_ph')*2*PI))", forward: "= -(0.5 + 0.6 * 5) * sin((2*PI*i/16 + draw('shape_ph')*2*PI))"}}
-        - {id: dust_5, op: particle, particle: dust, times: 16, at: 5, count: 1, color: "#dcdcdc", size: 1.4, anchor: ring_pt, shift: {left: "= (0.5 + 0.6 * 5) * cos((2*PI*i/16 + draw('shape_ph')*2*PI))", forward: "= -(0.5 + 0.6 * 5) * sin((2*PI*i/16 + draw('shape_ph')*2*PI))"}}
+        - {id: fx_crit, op: particle, particle: crit, anchor: ring_pt, at: 0, count: 0, extra: 0.03}
+        - {id: fx_dust, op: particle, particle: dust, anchor: ring_pt, at: 0, count: 1, color: "#dcdcdc", size: 1.4}
     end: {final: true}
