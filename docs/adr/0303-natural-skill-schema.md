@@ -77,6 +77,44 @@ anchors:
 | `mode` | `follow` (default): origin and axes re-read from the parent at every send. `snapshot`: pose copied once at activation, parent becomes `world`. |
 | `mount` | `caster`: only on `follow` anchors whose chain is rooted at the caster (RC2). Objects on it become real passengers of the caster entity; their pose is `translation + left_rotation` relative to the caster, the client moves them with the player. Without `mount` a rooted object is world-teleported with `teleport_duration` = segment length. The engine re-sends a mounted object only on a segment boundary or when the caster heading drifts more than 3 degrees from the last send (never per tick). The passenger attachment height is ONE calibrated engine constant, printed by `expand`; v1 `VfxPlayer` (d41b82f1e, ADR-0276) is the reference behaviour. |
 
+#### 1.1 Frames are spawned at runtime (first-class objects)
+
+Founder 2026-10-28: a basis (origin + 3 axes) can be grown freely during a cast: not only the enemy and the caster, but a weapon, and one per weapon
+instance when a throwing weapon exists several times. **A frame is a first-class object a skill can spawn** with `op: frame` (a state's `enter`/`do`, a transition `do`,
+or a part), under the same timing block (2.0), laws (3) and easing (3.7) as anything else.
+
+| field | meaning |
+|---|---|
+| `id` | name; with `times: N` it is an indexed family `id[0] .. id[N-1]` |
+| `anchor` | the parent: `caster`, `victim` / `target` (an enemy), `world`, `contact`, **or another frame** (including one spawned earlier or a family member); the same value set as the table above |
+| `part` | optional: instantiate a weapon part from `content/frames/<item>.yaml` (`pivot`, `tip`, `long`, `edge`, `root`, ...) for THIS frame: the named points and axes of the model become this instance's points and axes (`blade[1].tip`) |
+| `offset`, `turn` | the initial pose relative to the parent (name-keyed offset, `turn` list); any value may be CEL with `i`, `n` (3.5) |
+| `mode` | `follow` or `snapshot` as for anchors (1) |
+| `motion` | laws on the origin and the axes: `move`, `orbit`, `spin`, `follow`, `align`, `keys` etc., each with its own window and `ease` (3.7), so an origin moves "by `move`, `ease: out_cubic`" |
+| timing block | `at`, `for`/`until`, `times`; the frame is OWNED by its state and ends with it or earlier (5). A frame without an end is a load error. |
+
+A frame has no appearance. It is an origin + a quaternion that things ride on.
+
+- **Riders**: displays, ribbons, particles, sounds, hit shapes and sub-frames name a frame with `anchor: <id>` (or `anchor: <id>[i]` inside the same `times`) and are positioned
+  relative to it; when the frame moves under its laws, riders follow. A rider outlives its frame never (it ends when its frame ends, 5).
+- **Projectile**: a `projectile` body IS a frame (it has an origin and axes, `fly`/`move` laws, a block mode): `bolt` in a part's `frames_out` (9) is this frame.
+  A projectile op may also be given `frame: <id>` to drive an already-spawned frame instead of creating one.
+- **Indexing**: `times: N` creates N instances in one op; `i` in CEL selects the instance. A rider with the same `times` binds instance `i` to frame `id[i]`, so
+  "one display, one hit capsule and one ribbon per blade" is three lines, not nine.
+- **Parts**: a part (9) can declare frames in its `frames_out`, spawn its own, and a caller can pass a frame to `frames_in`.
+- **Expansion** (11): the table lists, per state, every frame spawned (id, count, parent, part), its lifetime (start and end tick, owner state) and the writes of its riders.
+
+```yaml
+- id: blade                     # three blades, three frames (the S2 blades), 120 degrees apart about the throw axis
+  op: frame
+  times: 3
+  anchor: shears
+  part: blade_a                 # content/frames/couture-rapier.yaml: gives blade[i].root, .tip, .long, .edge
+  turn: [{axis: long, deg: "= i * 120"}]
+  for: 40
+  motion: [{law: move, velocity: {forward: 1.0}, speed: 7.0, from: 4, for: 7, ease: out_cubic}]
+```
+
 Gameplay frames stay in `frames:` (hit volumes need them). A gameplay frame moved only by closed-form laws (`fly` without drag/gravity,
 `spin`, constant-rate `pose`) EXPORTS those law segments to the displays anchored on it, so a presentation on a spinning gameplay frame (coin 2
 shears) is tweened by the client exactly like a presentation law. A frame moved by a reactive law (`follow`, `reel`, collision) is sampled
@@ -516,6 +554,7 @@ Sizes in the examples are illustrative: the converter computes them from the spr
 | literal-only numbers | any numeric/vector field accepts `"= CEL"` with `t`, `i`, `n`, `rand()`, axes, `caster/target/contact` | n/a |
 | (new) free `wait`/`seq` sequences | `for N, every M` is primary; `seq:` is sugar that desugars to the same ops, equality asserted by lint | n/a |
 | (new) eased spacing and speed ramps | `every: {from, to, ease}`, `projectile speed: {from, to, for, ease}`, `move ease`; fire ticks listed in the expansion table | n/a |
+| `frames: [{id, kind, parent, model, part}]` (static, one per name) | `op: frame {id, times, anchor, part, offset, turn, motion, for}` spawned at runtime, indexed, owned by a state (1.1) | n/a |
 | (new) per-law `ease` names | `ease: linear\|<in_\|out_\|in_out_><shape>\|cubic_bezier(..)\|steps(n)`; ease shapes the accumulated total (3.7) | n/a, sent as linear segments within the budget |
 | (new) L-expression timing | `bound: [lo, hi]` declared or load error (11) | n/a |
 | v1 part: `sequence` timeline groups, `window`, `delay`, `schedule`, event handlers (`on: hit/block/expire/reel/arrive`) | states with `for`/`then`, transitions, nested parts | n/a |
@@ -676,6 +715,7 @@ is expanded to a **computed timeline table** by evaluating the timing blocks (2.
 
 | column | content |
 |---|---|
+| frames | for each state: every frame spawned (id, count, parent, part) with start tick, end tick and owner, and the number of riders on it |
 | firings | for each op: the exact tick of every firing relative to state entry (`at + k * every`, k < times / bounded by `for`) and the count |
 | lifetimes | for each display, ribbon, sound, part: start tick, end tick (or the state exit), and the owner state |
 | duration | min and max of the state (`for`, or the bounded window of its event transitions) |

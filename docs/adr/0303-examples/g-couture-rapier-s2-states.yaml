@@ -1,4 +1,5 @@
-# ADR-0303 example (g): couture-rapier-s2 as states. Ticks/data from content/skills/couture-rapier-s2/{skill,coin1,coin2fx,coin3}.yaml.
+# ADR-0303 example (g): couture-rapier-s2 as states, with the THREE BLADES as three spawned frames (ADR-0303 1.1). Ticks/data from
+# content/skills/couture-rapier-s2/{skill,coin1,coin2fx,coin3}.yaml; the 3 blades are a founder-specified variation of the 2-blade original.
 # Coin 1 visuals are example (a); here they are the `do` of the state `coin1`. 125-tick cooldown, 18 cost: gate effects of `use`.
 apiVersion: astera/v3
 kind: Skill
@@ -7,7 +8,6 @@ item: couture-rapier
 meta: {cooldown_ticks: 125, resource_cost: 18}
 anchors:
   - {id: shears, anchor: caster.hand_r, mount: caster}
-  - {id: volley, anchor: world, mode: snapshot}
 machine:
   start: coin1
   states:
@@ -19,34 +19,36 @@ machine:
         - {id: hit1, op: hit, at: 8, shape: {sector: {deg: 30, range: 9}}, damage: 30}
     raise:
       for: 4
-      then: spin_up
-      do: []                                   # the raise pose is a `keys` law on the shears anchor: anchors: [{id: shears, ..., motion: [{law: keys, ...}]}]
-    spin_up:
-      for: 30
-      then: flight
-      do:
-        - {id: spin, op: display, kind: item, item: couture-rapier, anchor: shears, for: 30,
-           motion: [{law: spin, axis: caster.left, deg_per_tick: 54}]}
-    flight:
-      for: "= ceil(7.0 / 1.7) + 2"             # S expression: constant at expand time = 7
-      then: reel
-      enter: [{id: fly, op: projectile, from: shears, velocity: "= look(caster) * 1.7", for: "= ceil(7.0 / 1.7) + 2", radius: 0.22,
-               block: {mode: stick, for: 28}}]
-      on:
-        - {event: hit,   to: stuck}
-        - {event: stick, to: stuck}               # block contact
-    stuck:
-      for: 28
-      then: reel
-      enter: [{id: dmg, op: damage, target: event.victim, components: [{kind: physical, amount: 18}], when: "= event.victim != null"},
-              {id: bleed, op: status, target: event.victim, status: bleed, stacks: 2, for: 60}]
-    reel:
-      for: 12                                  # bounded L: reel time depends on distance; declared bound
-      bound: [4, 24]
+      then: throw
+      do: []                                  # the raise pose is a `keys` law on the shears anchor
+    throw:                                    # one state: spin up, release, fly, stab, reel
+      for: 40
       then: coin3
-      do: [{id: pull, op: reel, anchor: volley, to: shears, speed: 0.45}]
-      on: [{event: reel.arrive, to: coin3}]
-      exit: [{id: reel_hit, op: hit, shape: {capsule: 0.2}, damage: 6, at: 0}]
+      enter:
+        # THREE blade frames, one per blade, 120 degrees apart about the throw axis. Each has its own origin and axes (blade[i].root / .tip / .long / .edge).
+        - id: blade
+          op: frame
+          times: 3
+          anchor: shears
+          part: blade_a
+          turn: [{axis: long, deg: "= i * 120"}]
+          for: 40
+          motion:
+            - {law: spin, axis: forward, deg_per_tick: 54, from: 0, for: 4, ease: in_quad}                  # spin up (total 216 degrees, accelerating)
+            - {law: spin, axis: forward, deg_per_tick: 54, from: 4}                                        # then constant 54 degrees/tick
+            - {law: move, velocity: {forward: 1.0}, speed: 7.0, from: 4, for: 7, ease: out_cubic}          # the ORIGIN flies out 7 blocks, decelerating
+            - {law: move, velocity: {forward: -1.0}, speed: 7.0, from: 32, for: 8, ease: in_quad}          # and is reeled back, accelerating
+      do:
+        # riders: one display and one hit capsule per blade frame, bound by `blade[i]` (same `times`)
+        - {id: blade_model, op: display, kind: item, item: couture-rapier, part: blade_a, anchor: "blade[i]", times: 3, for: 40}
+        - {id: blade_hit, op: hit, anchor: "blade[i]", times: 3, at: 4, every: 1, for: 7, shape: {capsule: 0.22, from: root, to: tip}, damage: "= 18 / 7", window: once}
+        - {id: edge, op: ribbon, of: "blade[i].tip", times: 3, root: "blade[i].root", lasts: 4, color: "#EEE5B9BE", at: 4, for: 7}
+        - {id: whirr, op: sound, sound: item.trident.throw, anchor: shears, at: 4, every: 3, for: 7, volume: 0.5, pitch: "= 1.0 + 0.05 * i"}
+      on:
+        - {event: blade_hit, when: "= event.victim != null", to: stuck, do: [{id: bleed, op: status, target: event.victim, status: bleed, stacks: 2, for: 60}]}
+    stuck:                                    # reached when a blade hit; the other blades continue under their own laws until the state ends
+      for: 12
+      then: coin3
     coin3:                                      # dash + 10 hits (coin3.yaml); visuals reference dash_hit
       for: 16
       then: end
@@ -54,14 +56,15 @@ machine:
         - {id: dash, op: dash, at: 9, speed: 1.5, for: 6}
         - {id: hit3, op: hit, at: 10, every: 1, times: 10, damage: 8}
     end: {final: true}
-# Expanded table:
-#   coin1   0-34   hit1 @8 x1; coin1/slash-arc 7-12; streak displays 7-12, petals 8-13
-#   raise   0-4    raise_pose 0-6
-#   spin_up 0-30   spin display 0-30
-#   flight  0-7    branches: hit/stick -> stuck | timer(7) -> reel
-#   stuck   0-28   dmg @0 x1, bleed @0 x1
-#   reel    4-24 (bound, L)  branches: arrive -> coin3 | timer(12) -> coin3     hits: reel_hit @exit x1
-#   coin3   0-16   dash @9..15, hit3 @10..19 x10
-#           INTENTIONAL LINT-ERROR SAMPLE (not a defect): hit3 ends at tick 19 > the state's `for: 16`, so check 8 / 10.4 reports
-#           "hit3 firing @16..19 lies outside state coin3"; the fix is `for: 20` or `times: 7`. Left as is to show what the expand lint says.
-#   worst-case path: coin1(34)+raise(4)+spin_up(30)+flight(7)+stuck(28)+reel(24)+coin3(19) = 146 ticks; best: 34+4+30+7+4+19 = 98
+# Expanded table (generated):
+#   coin1  0-34    hit1 @8 x1; coin1/slash-arc 7-12; streak displays 7-12, petals 8-13
+#   raise  0-4
+#   throw  0-40    FRAMES: blade[0..2] x3, parent shears, part blade_a, ticks 0-40 (owner throw), riders per frame: display 1, hit 1, ribbon 1 (total 9)
+#                  blade origin: out 4-11 (out_cubic: m=4, 5 writes), back 32-40 (in_quad: m=3, 4 writes); spin 0-4 in_quad m=3
+#                  hits: blade_hit @4..10 x7 per blade (x3 blades = 21 firings, window: once per victim); sounds: whirr @4,7,10 x3
+#                  branches: blade_hit[victim] -> stuck | timer(40) -> coin3
+#   stuck  0-12    (entered at 4..10 from throw) FRAMES: none new; blade[i] ended with its owner state `throw`
+#   coin3  0-16    dash @9..15, hit3 @10..19 x10
+#                  INTENTIONAL LINT-ERROR SAMPLE (not a defect): hit3 ends at tick 19 > the state's `for: 16`, so check 8 / 10.4 reports
+#                  "hit3 firing @16..19 lies outside state coin3"; the fix is `for: 20` or `times: 7`. Left as is to show what the expand lint says.
+#   worst-case path: 34 + 4 + 40 + 12(stuck) + 19 = 109 ticks (throw -> stuck -> coin3); best: 34 + 4 + 4(+blade_hit at 4) + 12 + 19 = 73
