@@ -40,7 +40,7 @@ machine:
       do:
         - {id: wind, op: sound, sound: item.trident.riptide_1, anchor: caster, volume: 0.7, pitch: 1.6}
       exit:                                          # the hit lands as the state ends (7 ticks after the parry), on every way out except cancel
-        - {id: riposte_hit, op: damage, target: event.attacker, components: [{kind: physical, amount: "= riposte_dmg"}],
+        - {id: riposte_hit, op: damage, target: event.attacker, damage: {physical: "= riposte_dmg"},
            ignore_invulnerability: true, when: "= dist(caster, event.attacker) < range"}
     whiff: {for: 6, then: end, do: [{id: snd_whiff, op: sound, sound: block.wool.break, anchor: caster, volume: 0.3, pitch: 1.0}]}
     end: {final: true}
