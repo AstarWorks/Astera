@@ -44,9 +44,16 @@ public class MatchShopNpcService(
     private val participants = ConcurrentHashMap<MatchId, Set<PlayerId>>()
 
     public fun onStarted(event: MatchStarted) {
-        val stage = stages.find(event.stageId) ?: return
+        val stage = stages.find(event.stageId)
+        if (stage == null) {
+            log.error("match shop NPCs not spawned: stage {} is not in the registry (match {})", event.stageId.value, event.matchId.value)
+            return
+        }
         remember(event.matchId)
-        if (stage.shopNpcs.isEmpty()) return
+        if (stage.shopNpcs.isEmpty()) {
+            log.error("match shop NPCs not spawned: stage {} declares no shop_npcs (match {}); players cannot buy tools here", stage.id.value, event.matchId.value)
+            return
+        }
         val world = worldOf(event.matchId) ?: stage.world
         val nameKey = MessageKey(NPC_NAME_KEY)
         val handles = stage.shopNpcs.mapNotNull { npc ->
@@ -62,6 +69,10 @@ public class MatchShopNpcService(
                 }
             }
         }
+        if (handles.size != stage.shopNpcs.size) {
+            log.error("match shop: only {} of {} NPCs spawned on stage {} (match {})", handles.size, stage.shopNpcs.size, stage.id.value, event.matchId.value)
+        }
+        if (bodies() == null) log.warn("match shop NPCs on stage {} have no visible body: INpcBodyMaterializer is not registered", stage.id.value)
         npcs[event.matchId] = handles
     }
 

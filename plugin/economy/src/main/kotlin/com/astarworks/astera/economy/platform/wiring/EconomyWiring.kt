@@ -396,7 +396,10 @@ public object EconomyWiring {
             }
             subscriptions += eventBus.subscribe(MatchEnded::class) { event -> matchShopNpcs.onEnded(event) }
         } else {
-            logger.warning("Match shop NPCs disabled: entity spawner / NPC router / stage registry unavailable.")
+            logger.severe(
+                "Match shop NPCs DISABLED - players get no base shop: entity spawner=${matchShopSpawner != null}, " +
+                    "NPC router=${matchShopRouter != null}, stage registry=${matchShopStages != null}.",
+            )
         }
 
         // ── ECO-02 / ECO-04 (ADR-0269) — cosmetics menu: GOLD sink + title / colour / kill-effect equip ──

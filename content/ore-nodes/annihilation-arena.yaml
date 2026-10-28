@@ -1,0 +1,24 @@
+# Mid ore nodes of annihilation-arena (center island, radius 18, surface y=64): mined with a pickaxe of the required tier, regrow. Stage-relative x/z, absolute y.
+# Kept off the generators (+-9, 0), the ruins (-4, -9) / (4, 9), the lobby spawn (0, 0) and the three bridge mouths.
+id: annihilation-arena
+nodes:
+  - block: astera:ore_iron_node
+    positions: [{ x: 13, y: 65, z: 3 }, { x: -13, y: 65, z: 3 }, { x: 13, y: 65, z: -3 }, { x: -13, y: 65, z: -3 }]
+    regrow_seconds: 20
+    required_tier: STONE
+    drops: [{ item_id: ore-iron, count: 2 }]
+  - block: astera:ore_gold_node
+    positions: [{ x: 7, y: 65, z: -7 }, { x: -7, y: 65, z: 7 }]
+    regrow_seconds: 45
+    required_tier: IRON
+    drops: [{ item_id: ore-gold, count: 2 }]
+  - block: astera:ore_diamond_node
+    positions: [{ x: 12, y: 65, z: 9 }, { x: -12, y: 65, z: -9 }]
+    regrow_seconds: 90
+    required_tier: IRON
+    drops: [{ item_id: ore-diamond, count: 1 }]
+  - block: astera:ore_emerald_node
+    positions: [{ x: 0, y: 65, z: 5 }, { x: 0, y: 65, z: -5 }]
+    regrow_seconds: 90
+    required_tier: DIAMOND
+    drops: [{ item_id: ore-emerald, count: 1 }]
