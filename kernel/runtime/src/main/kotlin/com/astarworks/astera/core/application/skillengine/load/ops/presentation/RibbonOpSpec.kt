@@ -84,8 +84,8 @@ public object RibbonOpSpec : OpSpec<RibbonOp> {
     private val color = Field.required("color", Types.id, "#RRGGBB or #AARRGGBB")
     private val style = Field.optional("style", Types.nullable(Types.enumOf("soft", "crisp", "both")), null, "trail: edge style (required for a trail)")
     private val history = Field.optional("history", Types.nullable(Types.number), null, "trail: ticks of tip history drawn (required for a trail)")
-    private val widthFrac = Field.optional("width_frac", Types.nullable(Types.number), null, "trail: width as a fraction of the root-to-tip length (width_frac or width_blocks)")
-    private val widthBlocks = Field.optional("width_blocks", Types.nullable(Types.number), null, "trail: width in blocks (width_frac or width_blocks)")
+    private val widthFrac = Field.optional("width_frac", Types.nullable(Types.number), null, "trail: width as a fraction of the root-to-tip length (width_frac or width)")
+    private val widthBlocks = Field.optional("width", Types.nullable(Types.number), null, "trail: width in blocks, no root (width_frac or width)")
     private val fade = Field.optional("fade", Types.number, Value.Literal(1.0), "alpha falloff exponent along the history; 1.0 = linear")
     private val stepDeg = Field.optional("step_deg", Types.number, Value.Literal(30.0), "max angle between two samples before the trail is subdivided (5..90)")
     private val lagTicks = Field.optional("lag_ticks", Types.number, Value.Literal(0.0), "ticks the drawn tip trails behind the anchor")
@@ -118,10 +118,16 @@ public object RibbonOpSpec : OpSpec<RibbonOp> {
                 val o = tip ?: ctx.fail("$p.of", "a trail ribbon needs of (or write from/to for a line)")
                 val st = values[style] ?: ctx.fail("$p.style", "a trail ribbon needs style: soft, crisp or both (ADR-0303 section 2.0b)")
                 val w = when {
-                    values[widthFrac] != null && values[widthBlocks] != null -> ctx.fail("$p.width_blocks", "write width_frac or width_blocks, not both")
-                    values[widthFrac] != null -> RibbonWidth.Frac(values[widthFrac]!!)
-                    values[widthBlocks] != null -> RibbonWidth.Blocks(values[widthBlocks]!!)
-                    else -> ctx.fail("$p.width_frac", "a trail ribbon needs width_frac or width_blocks (ADR-0303 section 2.0b)")
+                    values[widthFrac] != null && values[widthBlocks] != null -> ctx.fail("$p.width", "write width_frac or width, not both")
+                    values[widthFrac] != null -> {
+                        if (values[root] == null) ctx.fail("$p.width_frac", "width_frac is a fraction of root-to-tip and needs root; without root write width (blocks)")
+                        RibbonWidth.Frac(values[widthFrac]!!)
+                    }
+                    values[widthBlocks] != null -> {
+                        if (values[root] != null) ctx.fail("$p.width", "width (blocks) forbids root; with root write width_frac")
+                        RibbonWidth.Blocks(values[widthBlocks]!!)
+                    }
+                    else -> ctx.fail("$p.width_frac", "a trail ribbon needs width_frac (with root) or width (without root) (ADR-0303 section 2.0b)")
                 }
                 val h = values[history] ?: ctx.fail("$p.history", "a trail ribbon needs history: the number of ticks of tip history drawn")
                 RibbonShape.Trail(o, values[root], h, w, st)
@@ -172,19 +178,11 @@ public object RibbonOpSpec : OpSpec<RibbonOp> {
             Span.UntilCastEnds -> return Result.Failure(SkillDecodeError.Invalid(lc.skillId, "$p.for", "ribbon: 'for: cast' is not supported; give a tick count"))
             null -> return Result.Failure(SkillDecodeError.Invalid(lc.skillId, p, "ribbon needs for (the trail points are enumerated over the window)"))
         }
-        val family = timing.times?.let {
-            when (val r = lc.requireStaticTiming("$p.times", "times", it)) {
-                is Result.Success -> r.value
-                is Result.Failure -> return r
-            }
-        }
+        // The unroller owns every repetition and id (item 5): this call lowers exactly one instance, `lc.self`.
+        val self = lc.self
+        val k = lc.occurrence.i
         val rows = ArrayList<Row>()
-        val spawned = ArrayList<InstanceId>()
-        val count = family ?: 1
-        for (k in 0 until count) {
-            val idx = if (family != null) k else null
-            val self = InstanceId(lc.self.path + InstanceId.Segment(op.id, idx))
-            spawned += self
+        run {
             val look = LinkedHashMap<String, Val<Any>>()
             look["argb"] = Val.Known(op.argb)
             val tipAnchor: InstanceId?
@@ -203,7 +201,7 @@ public object RibbonOpSpec : OpSpec<RibbonOp> {
                     look["history_ticks"] = hist
                     when (val wd = s.width) {
                         is RibbonWidth.Frac -> look["width_frac"] = when (val r = known(wd.v, "$p.width_frac", lc)) { is Result.Success -> r.value; is Result.Failure -> return r }
-                        is RibbonWidth.Blocks -> look["width_blocks"] = when (val r = known(wd.v, "$p.width_blocks", lc)) { is Result.Success -> r.value; is Result.Failure -> return r }
+                        is RibbonWidth.Blocks -> look["width"] = when (val r = known(wd.v, "$p.width", lc)) { is Result.Success -> r.value; is Result.Failure -> return r }
                     }
                     look["style"] = Val.Known(s.style)
                 }
@@ -232,6 +230,6 @@ public object RibbonOpSpec : OpSpec<RibbonOp> {
             }
             rows += Row(life, self, Action.End(self), lc.src)
         }
-        return Result.Success(Lowered(rows, instances = spawned))
+        return Result.Success(Lowered(rows, instances = listOf(self)))
     }
 }
