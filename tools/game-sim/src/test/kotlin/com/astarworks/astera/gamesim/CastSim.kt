@@ -226,7 +226,11 @@ class CastSim(
 
     val kit: SkillEngineKit = SkillEngineKit.build(
         gateways = SkillEngineGateways(
-            ports = SkillRuntimePorts(visualGateway ?: object : ISkillVisualGateway by noop() { override fun sprite(sprite: String) = com.astarworks.astera.core.application.skillengine.runtime.port.SpriteInfo(1, 32) }, particleGateway ?: noop<ISkillParticleGateway>(), sound, gameplay, entities, noop<ISkillVictimAnimGateway>()),
+            ports = SkillRuntimePorts(visualGateway ?: object : ISkillVisualGateway by noop() {
+                override fun sprite(sprite: String) = com.astarworks.astera.core.application.skillengine.runtime.port.SpriteInfo(1, 32)
+                override fun spawnPlate(castOwner: UUID, sprite: String, alpha: Double, tintHex: String?, seeThrough: Boolean, pose: com.astarworks.astera.core.application.skillengine.runtime.port.VisualPose, brightness: Int?) = com.astarworks.astera.core.application.skillengine.runtime.port.VisualHandle(0)
+                override fun spawnText(castOwner: UUID, text: String, backgroundHex: String, backgroundAlpha: Double, shadow: Boolean, seeThrough: Boolean, pose: com.astarworks.astera.core.application.skillengine.runtime.port.VisualPose, brightness: Int?) = com.astarworks.astera.core.application.skillengine.runtime.port.VisualHandle(0)
+            }, particleGateway ?: noop<ISkillParticleGateway>(), sound, gameplay, entities, noop<ISkillVictimAnimGateway>()),
             movement = movement,
             world = world,
             casterAnim = object : ISkillCasterAnimGateway {

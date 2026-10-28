@@ -44,7 +44,7 @@ presentation:
     - id: fx20
       at: 20
       do:
-        - {op: plate, parent: fx10_orrery_orb, face: {viewer: center}, sprite: orrery-orb, size: 3.2, color: "#FFFFFF", brightness: 15, id: fx10_orrery_orb_core}
+        - {op: plate, parent: fx10_orrery_orb, face: {viewer: center}, sprite: orrery-orb, size: 3.2, color: "#FFFFFF", see_through: true, brightness: 15, id: fx10_orrery_orb_core}
         - id: fx10_orrery_orb_core_trk
           op: track
           target: fx10_orrery_orb_core

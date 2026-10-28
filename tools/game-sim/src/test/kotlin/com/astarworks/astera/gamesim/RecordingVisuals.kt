@@ -141,12 +141,12 @@ class RecordingVisuals(
         return h
     }
 
-    override fun spawnPlate(castOwner: UUID, sprite: String, alpha: Double, pose: VisualPose, brightness: Int?): VisualHandle {
+    override fun spawnPlate(castOwner: UUID, sprite: String, alpha: Double, tintHex: String?, seeThrough: Boolean, pose: VisualPose, brightness: Int?): VisualHandle {
         val intrinsic = Intrinsic.textGlyph(spritePixels(sprite))
         val h = next(Plate(intrinsic), "plate", sprite)
         spriteOf[h.id] = sprite
         val w = write(h.id, "plate", intrinsic, pose, 0, pose.size.x, sprite, spawn = true)
-        specs[h.id] = SkillDisplaySpecs.plate(SpriteGlyphs.text(SpriteId(sprite), 0), alpha, w.transform, pose.billboard, brightness ?: 15)
+        specs[h.id] = SkillDisplaySpecs.plate(SpriteGlyphs.text(SpriteId(sprite), 0, tintHex?.let { it.removePrefix("#").take(6).toInt(16) }), alpha, seeThrough, w.transform, pose.billboard, brightness ?: 15)
         return h
     }
 
@@ -165,6 +165,14 @@ class RecordingVisuals(
         val h = next(Quad(intrinsic), "quad", text ?: colorHex)
         val w = write(h.id, "quad", intrinsic, pose, 0, pose.size.x, "wh=${pose.size.x},${pose.size.y}", spawn = true)
         specs[h.id] = SkillDisplaySpecs.quad(colorHex, alpha, text, shadow, seeThrough, w.transform, pose.billboard, brightness)
+        return h
+    }
+
+    override fun spawnText(castOwner: UUID, text: String, backgroundHex: String, backgroundAlpha: Double, shadow: Boolean, seeThrough: Boolean, pose: VisualPose, brightness: Int?): VisualHandle {
+        val intrinsic = Intrinsic.textGlyph(8)
+        val h = next(Quad(intrinsic), "text", text)
+        val w = write(h.id, "text", intrinsic, pose, 0, pose.size.x, "wh=${pose.size.x},${pose.size.y}", spawn = true)
+        specs[h.id] = SkillDisplaySpecs.text(text, backgroundHex, backgroundAlpha, shadow, seeThrough, w.transform, pose.billboard, brightness)
         return h
     }
 
@@ -187,10 +195,12 @@ class RecordingVisuals(
 
     /** Every block switch a track key pushed: (tick, handle, block). */
     val blockSwaps = ArrayList<Triple<Int, Long, String>>()
+    val textSwaps = ArrayList<Triple<Int, Long, String>>()
 
     override fun setLook(handle: VisualHandle, alpha: Double?, colorHex: String?) { looks += Triple(now(), handle.id, alpha to colorHex) }
 
     override fun setBlock(handle: VisualHandle, block: String) { blockSwaps += Triple(now(), handle.id, block) }
+    override fun setText(handle: VisualHandle, text: String) { textSwaps += Triple(now(), handle.id, text) }
 
     override fun sprite(sprite: String): SpriteInfo = SpriteInfo(spriteFrames(sprite), spritePixels(sprite))
 

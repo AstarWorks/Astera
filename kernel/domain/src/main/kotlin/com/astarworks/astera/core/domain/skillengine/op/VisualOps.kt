@@ -68,6 +68,8 @@ public sealed interface VisualOp : PresentationOp {
         val loop: Boolean = false,
         /** `#rrggbb` multiplied into the sprite; null keeps the sprite's own colours. */
         val color: Value<String>? = null,
+        /** Vanilla text-display `see_through`: the glyph draws through blocks. */
+        val seeThrough: Boolean = false,
         /** Local position in [parent]'s axes `[left, up, forward]` at track 0. */
         val at: Value<Vec3>? = null,
         /** Rotation vector (degrees) of the plate at track 0. */
@@ -108,6 +110,28 @@ public sealed interface VisualOp : PresentationOp {
         /** Drawn text (a glyph); when set [size].x is the glyph scale (blocks per text unit) instead of the quad width. */
         val text: String? = null,
         /** Vanilla text-display `shadow` / `see_through` (only with [text]). */
+        val shadow: Boolean = false,
+        val seeThrough: Boolean = false,
+        val at: Value<Vec3>? = null,
+        val turn: Value<Vec3>? = null,
+        val brightness: Int? = null,
+        val repeat: Repeat? = null,
+    ) : VisualOp
+
+    /**
+     * A vanilla text display of a MiniMessage [text] (a glyph, a coloured symbol) as a NODE of the frame tree; [size] is blocks per
+     * text unit along x / y (0.2 = vanilla scale 1). The text keeps its own colour and opacity; only the box behind it is
+     * styled: [background] `#rrggbb` at [backgroundAlpha] (0 = no box). Unlike a [Quad] glyph it has no track-driven colour.
+     */
+    public data class Text(
+        override val id: String,
+        override val whenExpr: Value<Boolean>?,
+        val parent: String,
+        val face: PlateFace,
+        val size: Value<Vec3>,
+        val text: String,
+        val background: Value<String>,
+        val backgroundAlpha: Value<Double>,
         val shadow: Boolean = false,
         val seeThrough: Boolean = false,
         val at: Value<Vec3>? = null,
@@ -199,6 +223,8 @@ public data class TrackKey(
     val color: String? = null,
     /** Vanilla block id a block display switches to from this key on (a step, never blended). */
     val block: String? = null,
+    /** MiniMessage text a [VisualOp.Text] switches to from this key on (a step, never blended); nothing is applied before the first text key's tick. */
+    val text: String? = null,
 )
 
 /** One radial band of a [VisualOp.Trail]: colour `#rrggbb`, peak [alpha] 0..1, optional [colorTo] it has faded to at the end of the life. */

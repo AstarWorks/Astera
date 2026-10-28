@@ -122,7 +122,7 @@ private fun OpReader.trackKeys(): List<TrackKey> {
     if (list.isEmpty()) fail("track 'keys' must not be empty")
     return list.mapIndexed { i, e ->
         val m = e as? Map<*, *> ?: fail("keys[$i] must be a map")
-        m.keys.firstOrNull { it !in setOf("t", "offset", "turn", "scale", "ease", "alpha", "color", "block") }
+        m.keys.firstOrNull { it !in setOf("t", "offset", "turn", "scale", "ease", "alpha", "color", "block", "text") }
             ?.let { fail("unknown key '$it' in keys[$i]") }
         val t = (m["t"] as? Number)?.toInt() ?: fail("keys[$i] needs integer 't'")
         val offset = m["offset"]?.let { vecValue(it) ?: fail("keys[$i].offset must be [x,y,z], \${param} or = expr") }
@@ -133,7 +133,8 @@ private fun OpReader.trackKeys(): List<TrackKey> {
         val alpha = m["alpha"]?.let { numValue(it) ?: fail("keys[$i].alpha must be a number, \${param} or = expr") }
         val color = m["color"]?.let { c -> (c as? String)?.takeIf { Regex("#[0-9a-fA-F]{6}").matches(it) } ?: fail("keys[$i].color must be #rrggbb") }
         val block = m["block"]?.let { it as? String ?: fail("keys[$i].block must be a vanilla block id") }
-        TrackKey(t, offset, turn, scale, ease, alpha, color, block)
+        val text = m["text"]?.let { it as? String ?: fail("keys[$i].text must be a string") }
+        TrackKey(t, offset, turn, scale, ease, alpha, color, block, text)
     }
 }
 
@@ -210,7 +211,7 @@ private val TRAIL_STYLES = setOf("soft", "crisp", "both")
 
 private object VisualOpDecoder : OpDecoder {
     override val section = OpSection.PRESENTATION
-    override val opNames = setOf("mesh", "plate", "block", "quad", "line", "trail", "track", "remove")
+    override val opNames = setOf("mesh", "plate", "block", "quad", "text", "line", "trail", "track", "remove")
     override fun decode(op: String, id: String, whenExpr: Value<Boolean>?, reader: OpReader): SkillOp = with(reader) {
         when (op) {
             "mesh" -> VisualOp.Mesh(id, whenExpr, requireString("frame"), requireString("item"), string("part"), number("scale"),
@@ -219,7 +220,7 @@ private object VisualOpDecoder : OpDecoder {
                 id, whenExpr, requireString("parent"), face(null), requireString("sprite"),
                 numberOr("size", 1.0), numberOr("alpha", 1.0),
                 int("frame_ticks")?.also { if (it < 1) fail("frame_ticks must be >= 1") }, bool("loop") ?: false, stringValue("color"),
-                vec3("at"), vec3("turn"), brightness(), repeat(),
+                bool("see_through") ?: false, vec3("at"), vec3("turn"), brightness(), repeat(),
             )
             "block" -> VisualOp.Block(
                 id, whenExpr, requireString("parent"), requireString("block"), sizeVec("size", uniform = true),
@@ -228,6 +229,12 @@ private object VisualOpDecoder : OpDecoder {
             "quad" -> VisualOp.Quad(
                 id, whenExpr, requireString("parent"), face(PlateFace.ViewerCenter), sizeVec("size", uniform = false),
                 colorOr("color", "#ffffff"), numberOr("alpha", 1.0), string("text"), bool("shadow") ?: false, bool("see_through") ?: false,
+                vec3("at"), vec3("turn"), brightness(), repeat(),
+            )
+            "text" -> VisualOp.Text(
+                id, whenExpr, requireString("parent"), face(PlateFace.ViewerCenter), sizeVec("size", uniform = false),
+                requireString("text"), colorOr("background", "#000000"), numberOr("background_alpha", 0.0),
+                bool("shadow") ?: false, bool("see_through") ?: false,
                 vec3("at"), vec3("turn"), brightness(), repeat(),
             )
             "line" -> VisualOp.Line(

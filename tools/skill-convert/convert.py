@@ -62,12 +62,7 @@ BLOCK_RGB = {
 }
 
 
-def argb_split(c):
-    """v1 `#AARRGGBB` (or `#RRGGBB`) -> (`#rrggbb`, alpha 0..1)."""
-    h = str(c).lstrip("#")
-    if len(h) == 8:
-        return "#" + h[2:].lower(), round(int(h[:2], 16) / 255.0, 3)
-    return "#" + h.lower(), 1.0
+argb_split = vfxelem.argb_split
 
 
 def block_rgb(name):

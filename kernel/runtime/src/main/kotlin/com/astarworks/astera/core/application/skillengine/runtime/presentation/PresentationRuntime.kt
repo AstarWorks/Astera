@@ -71,6 +71,7 @@ public class PresentationRuntime(
         var shownAlpha: Double? = null
         var shownColor: String? = null
         var shownBlock: String? = null
+        var shownText: String? = null
 
         /** Id of the repeated op this is a copy of; a track on that id moves every copy in its own slot axes. */
         val group: String? get() = if (opId.contains('#')) opId.substringBeforeLast('#') else null
@@ -468,12 +469,14 @@ public class PresentationRuntime(
         var alpha: Double? = null
         var color: String? = null
         var block: String? = null
+        var text: String? = null
         for (t in s.tracks.values) {
             if (t.op.target != l.opId && (group == null || t.op.target != group)) continue
             val look = sampleLook(s, t, s.tick - t.startTick + DISPLAY_LEAD)
             look.alpha?.let { alpha = it }
             look.color?.let { color = it }
             look.block?.let { block = it }
+            look.text?.let { text = it }
         }
         val visuals = s.ctx.ports.visuals
         val a = alpha?.takeIf { it != l.shownAlpha }
@@ -484,9 +487,10 @@ public class PresentationRuntime(
             if (c != null) l.shownColor = c
         }
         block?.takeIf { it != l.shownBlock }?.let { visuals.setBlock(l.handle, it); l.shownBlock = it }
+        text?.takeIf { it != l.shownText }?.let { visuals.setText(l.handle, it); l.shownText = it }
     }
 
-    private class Look(val alpha: Double?, val color: String?, val block: String?)
+    private class Look(val alpha: Double?, val color: String?, val block: String?, val text: String?)
 
     private fun sampleLook(s: CastState, t: TrackState, elapsed: Int): Look {
         val keys = t.op.keys.sortedBy { it.tick }
@@ -498,7 +502,8 @@ public class PresentationRuntime(
             .let { c -> "#%02x%02x%02x".format(Math.round(c.x).toInt().coerceIn(0, 255), Math.round(c.y).toInt().coerceIn(0, 255), Math.round(c.z).toInt().coerceIn(0, 255)) }
         val block = keys.lastOrNull { it.block != null && it.tick <= elapsed }?.block
             ?: keys.firstOrNull { it.block != null }?.block
-        return Look(alpha, color, block)
+        val text = keys.lastOrNull { it.text != null && it.tick <= elapsed }?.text
+        return Look(alpha, color, block, text)
     }
 
     private fun rgbOf(hex: String): Vec3 = Vec3(hex.substring(1, 3).toInt(16).toDouble(), hex.substring(3, 5).toInt(16).toDouble(), hex.substring(5, 7).toInt(16).toDouble())

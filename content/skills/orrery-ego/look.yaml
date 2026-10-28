@@ -60,7 +60,7 @@ presentation:
             - {t: 0, scale: [0.0, 0.0, 0.0]}
             - {t: 2, scale: [0.1, 0.1, 0.1], ease: out_back}
             - {t: 13, offset: [0.0, 0.8, 0.0], scale: [0.0, 0.0, 0.0], ease: in_quad}
-        - {op: plate, parent: fx3_orrery_orb, face: {viewer: center}, sprite: orrery-orb, size: 3.2, color: "#FFFFFF", brightness: 15, id: fx3_orrery_orb_core}
+        - {op: plate, parent: fx3_orrery_orb, face: {viewer: center}, sprite: orrery-orb, size: 3.2, color: "#FFFFFF", see_through: true, brightness: 15, id: fx3_orrery_orb_core}
         - id: fx3_orrery_orb_core_trk
           op: track
           target: fx3_orrery_orb_core

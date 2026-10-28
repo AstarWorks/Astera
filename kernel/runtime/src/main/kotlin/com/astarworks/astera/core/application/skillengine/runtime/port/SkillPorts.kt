@@ -42,8 +42,12 @@ public interface ISkillVisualGateway {
     /** An item model; [pose].size is the model scale in blocks per model unit. */
     public fun spawnMesh(castOwner: UUID, item: String, part: String?, pose: VisualPose, brightness: Int? = null): VisualHandle
 
-    /** A sprite quad; [pose].size.x / .y are its width and height in blocks. [brightness] null = full bright (15). */
-    public fun spawnPlate(castOwner: UUID, sprite: String, alpha: Double, pose: VisualPose, brightness: Int? = null): VisualHandle
+    /**
+     * A sprite quad; [pose].size.x / .y are its width and height in blocks. [tintHex] (`#rrggbb`) is multiplied into the
+     * sprite from the first tick (null = the sprite's own colours), [seeThrough] is the vanilla text-display flag.
+     * [brightness] null = full bright (15).
+     */
+    public fun spawnPlate(castOwner: UUID, sprite: String, alpha: Double, tintHex: String?, seeThrough: Boolean, pose: VisualPose, brightness: Int? = null): VisualHandle
 
     /** A block display of vanilla block [block] (`gold_block`); [pose].size is its edge per axis in blocks, centred on the pose origin. */
     public fun spawnBlock(castOwner: UUID, block: String, pose: VisualPose, brightness: Int?): VisualHandle
@@ -53,6 +57,12 @@ public interface ISkillVisualGateway {
      * else the MiniMessage [text] over that background, [pose].size = blocks per text unit.
      */
     public fun spawnQuad(castOwner: UUID, colorHex: String, alpha: Double, text: String?, shadow: Boolean, seeThrough: Boolean, pose: VisualPose, brightness: Int?): VisualHandle
+
+    /**
+     * A text display of the MiniMessage [text] ([pose].size = blocks per text unit) with a [backgroundHex] box at [backgroundAlpha]
+     * (0 = none); the text keeps its own colour and full opacity.
+     */
+    public fun spawnText(castOwner: UUID, text: String, backgroundHex: String, backgroundAlpha: Double, shadow: Boolean, seeThrough: Boolean, pose: VisualPose, brightness: Int?): VisualHandle
 
     /** A solid ribbon; [pose] is its centre, basis (x along the line) and size (length, thickness). */
     public fun spawnLine(castOwner: UUID, colorHex: String, pose: VisualPose): VisualHandle
@@ -78,6 +88,9 @@ public interface ISkillVisualGateway {
 
     /** A block display switches to vanilla block [block]. */
     public fun setBlock(handle: VisualHandle, block: String) {}
+
+    /** A text display switches to the MiniMessage [text] (a track key's `text`); called only on change. */
+    public fun setText(handle: VisualHandle, text: String) {}
 
     /** Ribbon look: alpha follows `(1 - age/ticks) ^ fadePower`; [style] is `soft`, `crisp` or `both`. Called once after [spawnTrail]. */
     public fun setTrailLook(handle: VisualHandle, fadePower: Double, style: String) {}

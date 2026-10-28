@@ -1,7 +1,6 @@
 # Converted from content/skills/edict-ego.yaml + content/vfx/* by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
 # Generated point-frame offsets are [left, up, forward] in the parent frame.
 # CONVERT-PRESENT vfx frame orient (frames carry no orientation / scale) (x3): orient="yaw"
-# CONVERT-PRESENT element kind text has no v2 op (x1): {'type': 'text', 'text': '<#397BDB><b>7#A!0Z', 'background': '#A0101628', 'shado
 # CONVERT-PRESENT vfx follow=false (anchored at world, no place-at-spawn) (x2): edict-branching-arms | edict-ground-ellipse
 apiVersion: "astera/v2"
 kind: Skill
@@ -177,6 +176,26 @@ presentation:
             - {t: 10, offset: [1.55, 2.4, 0.9], scale: [0.1, 0.1, 0.8], turn: [-35.82541, -27.13511, 14.54976]}
             - {t: 34, offset: [1.55, 2.4, 0.9], scale: [0.1, 0.1, 0.8]}
             - {t: 44, offset: [1.55, 2.4, 0.9], scale: [0.0, 0.0, 0.0]}
+    - id: fx3
+      at: 3
+      do:
+        - op: text
+          parent: fx1_edict_prescript
+          face: {viewer: center}
+          size: [0.2, 0.2]
+          text: "<#397BDB><b>7#A!0Z"
+          background: "#101628"
+          background_alpha: 0.627
+          brightness: 15
+          id: fx1_edict_prescript_cipher
+        - id: fx1_edict_prescript_cipher_trk
+          op: track
+          target: fx1_edict_prescript_cipher
+          keys:
+            - {t: 0, offset: [0.0, 2.7, 0.0], scale: [2.5, 2.5, 2.5]}
+            - {t: 5, text: "<#397BDB><b>Q%4K!8"}
+            - {t: 13, text: "<#397BDB><b>SE@L#9"}
+            - {t: 23, text: "<#397BDB><b>CLEAR"}
     - {id: fx9, at: 9, do: [{id: flash, op: screen_flash, target: caster, overlay: vignette, color: "#080510", fade_in: 0, stay: 1, fade_out: 1}]}
     - id: fx10
       at: 10
@@ -467,7 +486,7 @@ presentation:
     - id: fx24
       at: 24
       do:
-        - id: rm_3
+        - id: rm_4
           op: remove
           ids:
             - fx3_edict_ground_ellipse_arc_0
@@ -500,10 +519,11 @@ presentation:
             - fx1_edict_prescript_violet_5
             - fx1_edict_prescript_violet_6
             - fx1_edict_prescript_violet_7
+    - {id: fx45, at: 45, do: [{id: rm_2, op: remove, ids: [fx1_edict_prescript_cipher]}]}
     - id: fx46
       at: 46
       do:
-        - id: rm_2
+        - id: rm_3
           op: remove
           ids:
             - fx2_edict_branching_arms_arm__1_0_0

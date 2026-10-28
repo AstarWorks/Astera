@@ -11,7 +11,7 @@ State of one display at a tick, in caster-relative world terms:
   alive, kind, item/model/text, origin (entity position + translation, rotation-free), left quaternion, scale,
   billboard, interpolation duration, teleport duration.
 """
-import json, os, sys, collections
+import json, os, re, sys, collections
 
 EPS = 1e-3
 
@@ -77,10 +77,11 @@ def displays_over_time(rows, engine, ticks):
             e = r["e"]
             i = r.get("id")
             if e == "spawn":
-                sp = {k: r.get(k) for k in ("kind", "item", "model", "text", "bg", "opacity", "br", "rigshade")}
+                sp = {k: r.get(k) for k in ("kind", "item", "model", "text", "bg", "opacity", "br", "rigshade", "rgb", "seeThrough", "shadow")}
                 spawn_info[i] = sp
                 st = {"alive": True, "kind": r["kind"], "item": r.get("item"), "model": r.get("model"), "text": r.get("text"),
                       "bg": r.get("bg"), "opacity": r.get("opacity"), "br": r.get("br"), "rigshade": r.get("rigshade"),
+                      "rgb": r.get("rgb"), "seeThrough": r.get("seeThrough"), "shadow": r.get("shadow"),
                       "spawn_tick": t, "pos": None, "yaw": 0.0, "pitch": 0.0, "tr": [0, 0, 0], "left": [0, 0, 0, 1],
                       "scale": [1, 1, 1], "bb": "fixed", "interp": 0, "tp": 0, "anch": False}
                 cur[i] = st
@@ -139,7 +140,7 @@ def displays_over_time(rows, engine, ticks):
     return out, particles
 
 
-FIELDS = ["alive", "kind", "item", "model", "text", "bg", "origin", "yaw", "pitch", "left", "scale", "bb", "interp", "tp", "br", "rigshade"]
+FIELDS = ["alive", "kind", "item", "model", "text", "bg", "origin", "yaw", "pitch", "left", "scale", "bb", "interp", "tp", "br", "rigshade", "rgb", "seeThrough", "shadow"]
 
 
 def klass(st):
@@ -148,7 +149,7 @@ def klass(st):
     if k == "item" and st.get("item") == "main-hand":
         return "main_hand"
     if k == "text":
-        t = st.get("text") or ""
+        t = re.sub(r"^<#[0-9a-fA-F]{6}>", "", st.get("text") or "")
         return "text:" + (t if t.startswith("<font") or len(t) <= 2 else "styled")
     if k == "item":
         return "item:" + str(st.get("model") or st.get("item"))
@@ -170,7 +171,7 @@ def sig_groups(states, ticks):
     return g, seen
 
 
-FIELD_CHECKS = ["origin", "left", "scale", "bb", "interp", "tp"]
+FIELD_CHECKS = ["origin", "left", "scale", "bb", "interp", "tp", "seeThrough", "shadow", "rgb", "bg"]
 
 
 def field_diff(a, b):

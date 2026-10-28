@@ -122,6 +122,9 @@ class PresentationOpsScenarioTest {
     private val lineEnds = HashMap<Long, Pair<Vec3, Vec3>>()
     private val trailPoints = ArrayList<Pair<Vec3, Vec3>>()
     private val plateFrames = ArrayList<Triple<Long, Int, String?>>()
+    private val seeThroughPlates = ArrayList<Long>()
+    private val textSpawns = ArrayList<List<Any>>()
+    private val textSwaps = ArrayList<Pair<Int, String>>()
     private val trailLooks = ArrayList<Triple<Long, Double, String>>()
     private val sounds = ArrayList<Triple<String, Vec3, Pair<Double, Double>>>()
     private val bursts = ArrayList<ParticleBurst>()
@@ -134,10 +137,19 @@ class PresentationOpsScenarioTest {
         private fun h(kind: String): VisualHandle { calls += kind; return VisualHandle(nextHandle++) }
         override fun spawnMesh(castOwner: UUID, item: String, part: String?, pose: VisualPose, brightness: Int?) =
             h("mesh:$item").also { poses[it.id] = pose.frame; scales[it.id] = pose.size.x }
-        override fun spawnPlate(castOwner: UUID, sprite: String, alpha: Double, pose: VisualPose, brightness: Int?) =
-            h("plate:$sprite").also { poses[it.id] = pose.frame; scales[it.id] = pose.size.x; spawnedBillboards[it.id] = pose.billboard }
+        override fun spawnPlate(castOwner: UUID, sprite: String, alpha: Double, tintHex: String?, seeThrough: Boolean, pose: VisualPose, brightness: Int?) =
+            h("plate:$sprite").also {
+                poses[it.id] = pose.frame; scales[it.id] = pose.size.x; spawnedBillboards[it.id] = pose.billboard
+                if (tintHex != null) plateFrames += Triple(it.id, 0, tintHex)
+                if (seeThrough) seeThroughPlates += it.id
+            }
         override fun spawnBlock(castOwner: UUID, block: String, pose: VisualPose, brightness: Int?) = h("block").also { poses[it.id] = pose.frame; scales[it.id] = pose.size.x }
         override fun spawnQuad(castOwner: UUID, colorHex: String, alpha: Double, text: String?, shadow: Boolean, seeThrough: Boolean, pose: VisualPose, brightness: Int?) = h("quad").also { poses[it.id] = pose.frame; scales[it.id] = pose.size.x }
+        override fun spawnText(castOwner: UUID, text: String, backgroundHex: String, backgroundAlpha: Double, shadow: Boolean, seeThrough: Boolean, pose: VisualPose, brightness: Int?) = h("text").also {
+            poses[it.id] = pose.frame; scales[it.id] = pose.size.x
+            textSpawns += listOf(text, backgroundHex, backgroundAlpha, shadow, seeThrough)
+        }
+        override fun setText(handle: VisualHandle, text: String) { textSwaps += handle.id.toInt() to text }
         override fun spawnLine(castOwner: UUID, colorHex: String, pose: VisualPose) =
             h("line:$colorHex").also { lineEnds[it.id] = ends(pose); lines += it.id }
         override fun spawnTrail(castOwner: UUID, ticks: Int, widthFrac: Double, colorHex: String, alpha: Double) = h("trail")
@@ -282,7 +294,7 @@ class PresentationOpsScenarioTest {
     fun `decoders cover every presentation op and a plate has exactly two face modes`() {
         val names = presentationDecoders().flatMap { it.opNames }.toSet()
         assertThat(names).containsExactlyInAnyOrder(
-            "mesh", "plate", "block", "quad", "line", "trail", "track", "remove", "emit", "sound",
+            "mesh", "plate", "block", "quad", "text", "line", "trail", "track", "remove", "emit", "sound",
             "victim_anim", "caster_anim", "title", "action_bar", "camera_shake", "screen_flash", "stop_sound",
         )
         val viewer = decode("plate", mapOf("parent" to "volley", "sprite" to "slash_fan", "face" to mapOf("viewer" to "vertical"))) as VisualOp.Plate
@@ -485,10 +497,20 @@ class PresentationOpsScenarioTest {
     }
 
     @Test
+    fun `text op - spawns the markup with its background box and a track key swaps the text`() {
+        run(VisualOp.Text("cipher", null, "volley", PlateFace.ViewerCenter, v(0.2, 0.2, 1.0), "<#397BDB><b>7#A", Value.Literal("#101628"), lit(0.627), shadow = false, seeThrough = true))
+        assertThat(textSpawns).containsExactly(listOf("<#397BDB><b>7#A", "#101628", 0.627, false, true))
+        run(VisualOp.Track("t", null, "cipher", listOf(TrackKey(0, v(0.0, 0.0, 0.0), null, null, null), TrackKey(2, null, null, null, null, text = "CLEAR")), null))
+        tick(4)
+        assertThat(textSwaps.map { it.second }.distinct()).containsExactly("CLEAR")
+    }
+
+    @Test
     fun `plate flipbook - frame follows age over frame_ticks, loops or holds, and carries the tint`() {
         run(VisualOp.Plate("held", null, "volley", PlateFace.ViewerCenter, "ring", lit(1.0), lit(1.0), 2, false, Value.Literal("#FFE070")))
         run(VisualOp.Plate("looped", null, "volley", PlateFace.ViewerCenter, "ring", lit(1.0), lit(1.0), 1, true, null))
-        run(VisualOp.Plate("still", null, "volley", PlateFace.ViewerCenter, "glow", lit(1.0), lit(1.0), 1, true, null))
+        run(VisualOp.Plate("still", null, "volley", PlateFace.ViewerCenter, "glow", lit(1.0), lit(1.0), 1, true, null, seeThrough = true))
+        assertThat(seeThroughPlates).containsExactly(3L) // see_through reaches the gateway at spawn
         assertThat(plateFrames).containsExactly(Triple(1L, 0, "#FFE070")) // tint applied at spawn
         tick(14)
         val held = plateFrames.filter { it.first == 1L }.map { it.second }

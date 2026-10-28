@@ -1,7 +1,6 @@
 # Converted from content/skills/edict-s3.yaml + content/vfx/* by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
 # Generated point-frame offsets are [left, up, forward] in the parent frame.
 # CONVERT-PRESENT vfx frame orient (frames carry no orientation / scale) (x8): orient="yaw"
-# CONVERT-PRESENT element kind text has no v2 op (x1): {'type': 'text', 'text': '<#4f8fff><b>★</b>', 'background': '#00000000', 'shadow
 # CONVERT-PRESENT vfx follow=false (anchored at world, no place-at-spawn) (x5): edict-cuff-sweep | edict-impact
 apiVersion: "astera/v2"
 kind: Skill
@@ -336,10 +335,21 @@ presentation:
             - {t: 2, offset: [0.0, 1.1, -2.2], scale: [4.8, 0.06, 0.06], ease: out_expo}
             - {t: 5, block: white_stained_glass}
             - {t: 12, scale: [0.0, 0.06, 0.06], ease: in_quad}
+    - id: fx9
+      at: 9
+      do:
+        - {op: text, parent: fx1_edict_ghost, face: {viewer: center}, size: [0.2, 0.2], text: "<#4f8fff><b>★</b>", see_through: true, brightness: 15, id: fx1_edict_ghost_star}
+        - id: fx1_edict_ghost_star_trk
+          op: track
+          target: fx1_edict_ghost_star
+          keys:
+            - {t: 0, offset: [0.0, 1.1, -2.2], scale: [0.0, 0.0, 0.0]}
+            - {t: 2, scale: [6.0, 6.0, 6.0], ease: out_back}
+            - {t: 9, scale: [0.0, 0.0, 0.0], ease: in_quad, turn: [0.0, 0.0, 120.0]}
     - id: fx15
       at: 15
       do:
-        - id: rm_2
+        - id: rm_3
           op: remove
           ids:
             - fx2_edict_fists_down_1_glove
@@ -357,7 +367,8 @@ presentation:
     - id: fx18
       at: 18
       do:
-        - id: rm_3
+        - {id: rm, op: remove, ids: [fx1_edict_ghost_star]}
+        - id: rm_4
           op: remove
           ids:
             - fx3_edict_cuff_sweep_arc_0
@@ -372,7 +383,7 @@ presentation:
             - fx3_edict_cuff_sweep_arc_9
             - fx3_edict_cuff_sweep_arc_10
             - fx3_edict_cuff_sweep_arc_11
-    - {id: fx20, at: 20, do: [{id: rm, op: remove, ids: [fx1_edict_ghost_counter_line]}]}
+    - {id: fx20, at: 20, do: [{id: rm_2, op: remove, ids: [fx1_edict_ghost_counter_line]}]}
     - id: fx51
       at: 51
       do:
@@ -765,7 +776,7 @@ presentation:
     - id: fx63
       at: 63
       do:
-        - id: rm_6
+        - id: rm_7
           op: remove
           ids:
             - fx5_edict_fists_return_1_glove
@@ -783,7 +794,7 @@ presentation:
     - id: fx68
       at: 68
       do:
-        - id: rm_7
+        - id: rm_8
           op: remove
           ids:
             - fx6_edict_cuff_sweep_arc_0
@@ -801,7 +812,7 @@ presentation:
     - id: fx71
       at: 71
       do:
-        - id: rm_10
+        - id: rm_11
           op: remove
           ids:
             - fx8_edict_ground_ellipse_arc_0
@@ -823,12 +834,12 @@ presentation:
     - id: fxhit_7
       at: "hit+7"
       do:
-        - {id: rm_4, op: remove, ids: [fx4_edict_impact_core], when: "= event.source == 'sel'"}
-        - {id: rm_8, op: remove, ids: [fx7_edict_impact_core], when: "= event.source == 'sel_2'"}
+        - {id: rm_5, op: remove, ids: [fx4_edict_impact_core], when: "= event.source == 'sel'"}
+        - {id: rm_9, op: remove, ids: [fx7_edict_impact_core], when: "= event.source == 'sel_2'"}
     - id: fxhit_10
       at: "hit+10"
       do:
-        - id: rm_5
+        - id: rm_6
           op: remove
           ids:
             - fx4_edict_impact_ray_0_0
@@ -848,7 +859,7 @@ presentation:
             - fx4_edict_impact_ray_1_6
             - fx4_edict_impact_ray_1_7
           when: "= event.source == 'sel'"
-        - id: rm_9
+        - id: rm_10
           op: remove
           ids:
             - fx7_edict_impact_ray_0_0
