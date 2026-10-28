@@ -1,13 +1,33 @@
-# Converted from content/skills/sanctuary-heal.yaml by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
-# Generated point-frame offsets are [left, up, forward] in the parent frame.
-apiVersion: "astera/v2"
+# v3 hand port of the v2 skill (ADR-0303 rev4.2). 8 expanding rings of 16 points at ticks 0..7 plus the gameplay op at tick 0.
+apiVersion: astera/v3
 kind: Skill
 id: sanctuary-heal
 item: sanctuary-staff
 meta: {name: {ja: "癒しの輪", en: "Healing Circle"}, description: {ja: "周囲の味方の体力を回復する。", en: "Heals you and nearby allies."}, cooldown_ticks: 240, resource_cost: 28, tags: [magic, support, heal]}
-gameplay:
-  params: {radius: 6.0, heal: 30.0}
-  expose:
-    - {id: radius, param: radius}
-  timeline:
-    - {id: t0, at: 0, do: [{id: heal, op: heal, amount: "${heal}", target: {allies: {around: caster, radius: "${radius}", include_self: true}}}]}
+# GAP: ring point position. v2 `shift` put point i of ring k at (left r*cos a, forward -r*sin a) around the anchor; the v3 particle op has no per-copy position
+#      (resolutions item 13 `Particle.position` not yet decoded). Direction/spread are kept; position is emitted at the anchor.
+# GAP: v2 ring phase draw('shape_ph') (shared random per cast) -> none; phase fixed to 0 (rand() is per (cast, op, i) and would scramble the ring).
+# GAP: area target max_count/include_self are required in v3; v2 had no cap -> max_count 32 is a decision needed (founder/ADR).
+anchors:
+  - {id: self,  anchor: caster}
+  - {id: feet,  anchor: caster, offset: {up: 0.15}}                   # was pt_caster_0_0p15_0
+  - {id: chest, anchor: caster, offset: {up: 1.0}}                    # was pt_caster_0_1_0
+machine:
+  start: bless
+  states:
+    bless:
+      for: 8
+      then: end
+      enter:
+        - {id: snd, op: sound, sound: "astera:skills/heal-chime", anchor: caster, volume: 0.7, pitch: 1.0}
+        - {id: fx, op: particle_def, def: verdant-heal, anchor: chest}
+        - {id: heal, op: heal, target: {kind: allies, around: self, radius: 6.0, max_count: 32, include_self: true}, amount: 30}   # v2 params radius 6.0, heal 30
+      do:
+        - id: ring
+          at: 0
+          every: 1
+          times: 8                   # ring k = parent.i; radius = 0.4 + parent.i * (4.0 - 0.4) / 7
+          do:
+            - {id: pts,  op: particle, particle: happy_villager, anchor: feet, count: 0, offset: "= [cos(6.283185307179586 * i / 16), 0, -sin(6.283185307179586 * i / 16)]", extra: 0.02, times: 16, at: 0}
+            - {id: dust, op: particle, particle: dust, anchor: feet, count: 1, extra: 0, color: "#5ae65a", size: 1.4, times: 16, at: 0}
+    end: {final: true}

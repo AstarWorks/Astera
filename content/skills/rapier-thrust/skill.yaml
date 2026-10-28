@@ -1,19 +1,29 @@
-# Converted from content/skills/rapier-thrust.yaml by tools/skill-convert/convert.py (v1 archetype: melee). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
-# Generated point-frame offsets are [left, up, forward] in the parent frame.
-# CONVERT-V1-NOOP melee params.knockback (x1): knockback: 0.1 (v1 MeleeHandler ignores it; the plain-hit push is the combat pipeline's)
-apiVersion: "astera/v2"
+# v3 hand port of the v2 skill (ADR-0303 rev4.2). v2 params arc_deg 20.0, range 3.6, dmg_physical 24.0.
+apiVersion: astera/v3
 kind: Skill
 id: rapier-thrust
 item: rapier
 meta: {name: {ja: "レイピアの突き", en: "Rapier Thrust"}, description: {ja: "細い突きを素早く繰り出す。", en: "A fast, precise thrust."}, cooldown_ticks: 9, resource_cost: 5, tags: [melee, physical]}
-gameplay:
-  params: {arc_deg: 20.0, range: 3.6, dmg_physical: 24.0}
-  expose:
-    - {id: damage, param: dmg_physical}
-    - {id: range, param: range}
-  timeline:
-    - id: t0
-      at: 0
+# GAP: v2 expose {damage <- dmg_physical, range <- range} -> none (no expose spelling for cast skills); literals inlined.
+# GAP: v2 sector forward was `caster.forward` (yaw only) from `at: eye`; v3 sector reads the anchor frame (eye anchor, may include pitch).
+anchors:
+  - {id: eye,   anchor: caster.eye}
+  - {id: muzzle, anchor: caster.eye, offset: {up: -0.1, forward: 1.5}, mode: snapshot}
+  - {id: foe,   anchor: victim.root}
+  - {id: heart, anchor: victim.root, offset: {up: 1.2}}                 # was pt_enemy_0_1p2_0
+machine:
+  start: strike
+  states:
+    strike:
+      for: 1
+      then: end
+      enter:
+        - {id: snd, op: sound, sound: "astera:weapons/sword-swing", anchor: caster, volume: 0.9, pitch: 1.7}
+        - {id: fx, op: particle_def, def: stab-spark, anchor: muzzle}
       do:
-        - {id: swing, op: hit, frames: [caster], sector: {frame: caster, at: eye, forward: caster.forward, left: caster.left, angle_deg: "${arc_deg}", range: "${range}", height: 2.0}, window: once, ticks: 1}
-  "on": {hit: [{id: dmg, op: damage, target: victim, components: [{kind: physical, amount: "${dmg_physical}"}], when: "= event.source == 'swing'"}]}
+        - {id: swing, op: hit, at: 0, anchor: eye, shape: {sector: {deg: 20.0, range: 3.6, height: 2.0}}, targets: enemies, damage: {physical: 24.0}}
+      on:
+        # GAP: v2 played the hit sound+spark per victim; a state transition fires for one victim per tick (meaning change: feedback once, first victim).
+        - {event: swing.hit, to: struck, do: [{id: snd_hit, op: sound, sound: "astera:weapons/blade-hit", anchor: foe, volume: 0.7, pitch: 1.2}, {id: fx_hit, op: particle_def, def: hit-spark, anchor: heart}]}
+    struck: {for: 1, then: end}
+    end: {final: true}
