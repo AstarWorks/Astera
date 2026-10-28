@@ -79,16 +79,20 @@ internal class RemoveBlockExecutor(private val editors: SkillWorldEditors) : OpE
     }
 }
 
+private const val RAY_STEP = 0.25
+
 internal class BreakAreaExecutor(private val editors: SkillWorldEditors) : OpExecutor<WorldOp.BreakArea> {
     override val opClass: KClass<WorldOp.BreakArea> = WorldOp.BreakArea::class
 
     override fun execute(op: WorldOp.BreakArea, ctx: OpContext) {
         if (!op.breaksBlocks) return
-        val aim = ctx.aim(op.at) ?: return
+        val cast0 = ctx.aim(op.at) ?: return
+        // RAY (v1 strikeRay): march the look ray from the origin up to `length`; the first cover cell it meets is the ball centre.
+        val editor = editors.of(ctx.world)
+        val aim = if (op.shape == WorldOp.AreaShape.RAY) rayHit(editor, cast0, op.length) ?: return else cast0
         val centre = WorldShapes.breakCentre(op, aim)
         val ordered = WorldShapes.breakCells(op, aim).sortedBy { it.distanceSquaredTo(centre) }
         val revert = ctx.revertTicks(op.revertAfterTicks)
-        val editor = editors.of(ctx.world)
         val world = editor.world
         val cast = ctx.cast
         for ((index, cell) in ordered.withIndex()) {
@@ -99,6 +103,16 @@ internal class BreakAreaExecutor(private val editors: SkillWorldEditors) : OpExe
         }
     }
 
+    private fun rayHit(editor: SkillWorldEditor, aim: WorldAim, reach: Double): WorldAim? {
+        var d = 0.0
+        while (d <= reach) {
+            val p = aim.origin + aim.look * d
+            if (editor.world.isCover(BlockCell.containing(p))) return WorldAim(p, aim.look)
+            d += RAY_STEP
+        }
+        return null
+    }
+
     private fun strike(editor: SkillWorldEditor, op: WorldOp.BreakArea, cast: CastId, cell: BlockCell, revert: Long) {
         val world = editor.world
         if (!world.canEdit(cast, cell, op.outsideArena)) return
@@ -106,6 +120,8 @@ internal class BreakAreaExecutor(private val editors: SkillWorldEditors) : OpExe
             world.damage(cast, cell, op.blockDamage, op.toolClass)
             return
         }
+        // A flat chip (no tool_class: guns, spells) only ever hurts cover; terrain is the tool skills' to break (v1 CoverBlockService).
+        if (op.toolClass == null) return
         val current = world.blockAt(cell)
         if (WorldBlockRules.isAir(current) || WorldBlockRules.isProtected(current!!)) return
         editor.edit(cell, revert) { world.damage(cast, cell, op.blockDamage, op.toolClass) == BlockDamageOutcome.BROKEN }

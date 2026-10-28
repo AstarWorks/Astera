@@ -969,7 +969,9 @@ def block_damage(c, d, arch, on_hit, on_block):
     if not bd:
         return
     op = {"op": "break_area", "shape": "sphere", "radius": max(float(bd.get("radius", 0.0)), 0.5),
-          "block_damage": int(bd["amount"]), "breaks": True}
+          "block_damage": int(bd["amount"]), "breaks": True,
+          # A sphere is centred `length` ahead of `at` (tool skills dig ahead); a v1 chip is centred ON the impact / cast point.
+          "length": 0.0}
     if bd.get("tool"):
         op["tool_class"] = str(bd["tool"]).split("/")[0].upper()
     if arch == "projectile":
@@ -979,7 +981,10 @@ def block_damage(c, d, arch, on_hit, on_block):
         c.g(CAST, 0, dict(op, id=c.oid("chip"), at="caster"))
     else:
         reach = float(bd.get("reach", 0.0)) or 4.0
-        c.g(CAST, 0, dict(op, id=c.oid("chip"), at=c.pframe("aim", [0.0, 0.0, reach], "g")))
+        if bd.get("shape", "ball") != "ball":
+            raise SystemExit("block_damage: %s: shape %r has no v2 equivalent (only ball/strikeRay is ported)" % (d.get("id"), bd.get("shape")))
+        # v1 strikeRay: march the look ray from the eye up to `reach`, strike the first cover met.
+        c.g(CAST, 0, dict(op, shape="ray", length=reach, id=c.oid("chip"), at="aim"))
 
 # Every v1 projectile field the converter maps to v2. Anything else fails the conversion (a silently dropped
 # projectile setting changes speed, flight time or impact, SKL-18).
@@ -1170,6 +1175,10 @@ def meta_block(d):
     tags = [t for t in d.get("tags", []) if t not in ("demo", "vfx", "rtm", "animation")]
     if tags:
         m["tags"] = tags
+    # Fail loudly: a v1 cast gate (cost / cooldown / reload / ego) that the v2 meta did not carry would silently make the skill free.
+    for k in ("cooldown_ticks", "resource_type", "resource_cost", "ego_cost", "reload_ticks"):
+        if k in d and m.get(k) != d[k]:
+            raise SystemExit("meta_block: %s: v1 %s=%r was not carried into the v2 meta (%r)" % (d.get("id"), k, d[k], m.get(k)))
     return m
 
 
