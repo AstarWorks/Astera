@@ -1004,8 +1004,8 @@ machine:
             - {id: snd_37, op: sound, sound: entity.generic.explode, anchor: caster, volume: 0.6, pitch: 0.45}
             - {id: snd_38, op: sound, sound: item.mace.smash_ground, anchor: caster, volume: 0.9, pitch: 0.5}
             - {id: snd_39, op: sound, sound: block.bell.use, anchor: caster, volume: 0.5, pitch: 0.5}
-            # GAP(Q1): max_count of this area target; unlimited here (v2 had no cap).
-            - {id: shake, op: camera_shake, target: {kind: enemies, around: self, radius: 9.0}, intensity: 0.6, for: 6, direction: none}
+            # max_count: all (v2 had no cap; founder 10/28 ruling: max_count = nearest N, all = unlimited).
+            - {id: shake, op: camera_shake, target: {kind: enemies, around: self, radius: 9.0, max_count: all}, intensity: 0.6, for: 6, direction: none}
             # GAP(Q7): screen_flash is undecided; raw v2 row kept.
             # v2: {"id": "flash", "op": "screen_flash", "target": "caster", "overlay": "gold_burst", "color": "#FFC84A", "fade_in": 0, "stay": 1, "fade_out": 2}
             # GAP(Q7): screen_flash is undecided; raw v2 row kept.

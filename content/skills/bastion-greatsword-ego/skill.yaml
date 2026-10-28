@@ -44,7 +44,7 @@ machine:
         - {id: dash, op: dash, at: 20, speed: "= dash_distance / 6", for: 6, until: dash_hit.hit, direction: {forward: 1.0}, invulnerable: true, stop_on_block: true, follow_pitch: false, face_movement: false}
         # v2 sel (damage 140 per_stack charge 0.5 consume true, ignore_invulnerability) + sel_2 (freeze 4, knockback) are the same sector at the same tick: merged.
         # sector {angle 110, range 3.8, height 2.0} at `eye` with forward caster.forward (yaw only) -> anchor caster.eye + `forward: yaw` (R31).
-        # GAP(Q1): max_count: 1 (v2 hit cap; the field name / semantics wait on the founder answer, not chosen here).
+        # max_count: 1 = the nearest 1 target (v2 hit cap; founder 10/28 ruling, TablePlayer hit sorts nearest-first then takes N).
         # per_stack charge 0.5 consume TRUE: stacks() is read once before the first victim and consume_status lands after all victims (R24); hit-stop 4 = freeze row in `on: hit1`.
         - {id: hit1, op: hit, at: 31, anchor: caster.eye, shape: {sector: {deg: "${arc_deg}", range: "${reach}", height: 2.0, forward: yaw}}, targets: enemies, damage: {physical: "= dmg_physical + 0.5 * stacks(caster, 'charge')"}, window: once, ignore_invulnerability: true, on: {hit: [{id: stop, op: freeze, at: 0, ticks: 4, scope: [caster, event.victim]}, {id: kb, op: knockback, target: event.victim, direction: "= normalize(flat(pos(event.victim) - pos(caster))) + vec(0.0, 0.3, 0.0)", strength: "${knockback}"}]}}
         - {id: spend, op: consume_status, at: 31, target: caster, status: charge}
@@ -174,8 +174,8 @@ machine:
             # v2 dust (plate "smoke-puff" x6, per-index at, R28): size 0.8 x scale 1.2 -> 2.6, rise 0.7, alpha 0.9 -> 0 over 18 ticks (out_quad), removed at tick 49.
             - {id: fx4_slam_dust, op: display, kind: sprite, sprite: smoke-puff, size: [0.8, 0.8], flipbook: {frames: 4, every: 6, loop: false}, color: "#8A8478", anchor: fx4_slam, billboard: center, brightness: {block: 9, sky: 9}, times: 6, offset: [{left: 0.0, up: 0.25, forward: 3.2}, {left: 1.29904, up: 0.25, forward: 2.45}, {left: 1.29904, up: 0.25, forward: 0.95}, {left: 0.0, up: 0.25, forward: 0.2}, {left: -1.29904, up: 0.25, forward: 0.95}, {left: -1.29904, up: 0.25, forward: 2.45}], for: 18, motion: [{law: keys, keys: [{t: 0, scale: {left: 1.2, up: 1.2, forward: 1.0}, alpha: 0.9}, {t: 18, offset: {left: 0.0, up: 0.7, forward: 0.0}, scale: {left: 2.6, up: 2.6, forward: 1.0}, alpha: 0.0, ease: out_quad}]}]}
             - {id: snd_anvil, op: sound, sound: block.anvil.land, anchor: caster, pitch: 0.5}
-            # GAP(Q1): max_count of the camera_shake area target; unlimited here (v2 had no cap).
-            - {id: shake, op: camera_shake, target: {kind: enemies, around: self, radius: 9.0}, intensity: 1.0, for: 10, direction: from_hit}
+            # max_count: all (v2 had no cap; founder 10/28 ruling: max_count = nearest N, all = unlimited).
+            - {id: shake, op: camera_shake, target: {kind: enemies, around: self, radius: 9.0, max_count: all}, intensity: 1.0, for: 10, direction: from_hit}
             - {id: shake_2, op: camera_shake, target: caster, intensity: 0.5, for: 8, direction: none}
             # GAP(Q7): screen_veil is undecided; raw v2 row kept.
             # v2: {"id": "veil", "op": "screen_veil", "target": "caster", "sprite": "burst", "ticks": 5, "color": "#FFC84A", "distance": 0.4, "scale": 1.4, "max_screen_fraction": 0.15}
