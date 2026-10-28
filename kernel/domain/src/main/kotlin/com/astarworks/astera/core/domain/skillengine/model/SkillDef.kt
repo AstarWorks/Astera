@@ -7,6 +7,8 @@ import com.astarworks.astera.core.domain.skillengine.modifier.ExposedParam
 import com.astarworks.astera.core.domain.skillengine.op.GameplayOp
 import com.astarworks.astera.core.domain.skillengine.op.PresentationOp
 import com.astarworks.astera.core.domain.skillengine.op.SkillOp
+import com.astarworks.astera.core.domain.skillengine.part.Machine
+import com.astarworks.astera.core.domain.skillengine.part.ParamSpec
 
 /** Well-known event names (authors may define more). */
 public object SkillEvents {
@@ -104,7 +106,22 @@ public data class SkillDef(
     val gameplay: GameplaySection,
     val presentation: PresentationSection,
     val meta: SkillMeta = SkillMeta(),
+    // v3 machine form (ADR-0303 rev4, skeleton 1.6). The v2 fields above are removed by the v2 purge (W1b-01).
+    val params: Map<String, ParamSpec> = emptyMap(),
+    val framesIn: Map<String, String> = emptyMap(),
+    val emits: List<String> = emptyList(),
+    val anchors: List<AnchorDecl> = emptyList(),
+    /** Named conditions (3.8), CEL source. */
+    val conditions: Map<String, String> = emptyMap(),
+    val machine: Machine = Machine(start = "", states = emptyMap()),
 ) {
     /** Base id without `@variant`. */
     val baseId: String get() = id.substringBefore('@')
 }
+
+/** `anchors:` entry (ADR-0303 1): a named point on the caster or a frame, with an optional offset. */
+public data class AnchorDecl(val id: String, val anchor: PointRef, val offset: Map<String, Double> = emptyMap())
+
+/** `importance` of a skill (v3 header). */
+@JvmInline
+public value class Importance(public val value: Int)

@@ -24,4 +24,4 @@ public sealed interface GameplayOp : SkillOp
  */
 public sealed interface PresentationOp : SkillOp
 
-public enum class OpSection { GAMEPLAY, PRESENTATION }
+public enum class OpSection { GAMEPLAY, PRESENTATION, CONTROL }
