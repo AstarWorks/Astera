@@ -8,13 +8,13 @@ meta:
   cooldown_ticks: 10
   tags: [melee, physical]
 anchors:
-  - {id: sweep_pt, anchor: caster.eye, offset: {up: -0.3, forward: 1.6}}
-  - {id: heart, anchor: victim.root, offset: {up: 1.2}}  # GAP(Q2): v2 enemy frame origin = feet+0.8 fixed; victim.body (live hitbox centre, 0.9) or a fixed chest point is the founder's choice (Q2)
+  - {id: sweep_pt, anchor: caster, offset: {up: -0.3, forward: 1.6}}
+  - {id: heart, anchor: victim.root, offset: {up: 1.2}}   # was pt_enemy_0_1p2_0 (victim feet, yaw-only)
 machine:
   start: swing
   states:
     swing:
-      for: 1
+      for: 2   # v2 cast lasts until its last presentation row (snd_miss at tick 2)
       then: end
       do:
         - id: swing
