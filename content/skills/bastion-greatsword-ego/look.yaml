@@ -5,7 +5,6 @@
 # CONVERT-PRESENT element brightness (no v2 equivalent) (x16): 15 | 9
 # CONVERT-PRESENT keyframe non-uniform scale (track scale is one number; the largest axis is used) (x7): [0.58, 0.3, 1.0] | [0.48, 0.22, 1.0]
 # CONVERT-PRESENT quad element (plate takes a sprite: no solid-colour quad / glyph) (x3): {"color": "#FFD66E", "glyph": "●"} | {"color": "$main", "glyph": "✦"}
-# CONVERT-PRESENT windup sound pitch_arc (sound has a fixed pitch) (x1): {"ease": "in_quad", "from": 0.6, "interval_ticks": 5, "ticks": 25, "to": 1.8}
 # CONVERT-PRESENT hide_held_item has no v2 op (x1): {"ticks": 24}
 # CONVERT-PRESENT stop_sound has no v2 op (x1): {"sound_id": "block.amethyst_block.resonate"}
 # CONVERT-PRESENT telegraph has no v2 op (x1): {"angle_degrees": 70, "impact_tick": 11, "radius": 6.2, "shape": "cone", "team_color": "enemy", "ticks": 12, "viewers": "all"}
@@ -52,7 +51,7 @@ presentation:
         - {id: fx1_bastion_ego_guard_rim1l_trk, op: track, target: fx1_bastion_ego_guard_rim1l, space: fx1_bastion_ego_guard, keys: [{t: 0, offset: [0.2, 1.3, 1.15], rotation: [50.0, 0, -90], scale: 1.0}]}
         - {id: fx1_bastion_ego_guard_crest, op: plate, parent: fx1_bastion_ego_guard, face: {plane: {frame: fx1_bastion_ego_guard, axes: [left, up]}}, sprite: bastion-crest}
         - {id: fx1_bastion_ego_guard_crest_trk, op: track, target: fx1_bastion_ego_guard_crest, space: fx1_bastion_ego_guard, keys: [{t: 0, offset: [0.2, 1.35, 1.15], rotation: [50.0, 0, 0], scale: 1.0}]}
-        - {id: snd, op: sound, sound: block.amethyst_block.resonate, at: caster, volume: 1.0}
+        - {id: snd, op: sound, sound: block.amethyst_block.resonate, at: caster, volume: 1.0, pitch: 0.6, pitch_to: 1.8, pitch_ease: in_quad, over: 25, every: 5}
     - id: fx20
       at: 20
       do:

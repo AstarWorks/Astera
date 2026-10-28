@@ -1,5 +1,8 @@
 package com.astarworks.astera.core.application.skillengine.runtime.presentation
 
+import com.astarworks.astera.core.domain.animation.Easing
+import com.astarworks.astera.core.domain.effect.sound.PitchArc
+import com.astarworks.astera.core.domain.effect.sound.SoundPlanner
 import com.astarworks.astera.core.application.skillengine.runtime.OpContext
 import com.astarworks.astera.core.application.skillengine.runtime.OpExecutor
 import com.astarworks.astera.core.application.skillengine.runtime.port.ParticleBurst
@@ -128,16 +131,26 @@ internal class SoundExecutor(private val rt: PresentationRuntime) : OpExecutor<F
         val s = rt.state(ctx)
         val until = op.untilEvent
         if (until != null && rt.info.hasRaised(ctx.cast, until)) return
+        val startTick = s.tick
         val play = {
             val at = rt.pointWorld(s, op.at)
             if (at != null) {
-                ctx.ports.sounds.play(op.sound, at, ctx.num(op.volume, 1.0).coerceAtLeast(0.0), ctx.num(op.pitch, 1.0))
+                val from = ctx.num(op.pitch, 1.0)
+                val over = op.overTicks
+                val pitch = if (op.pitchTo != null && over != null && over > 0) {
+                    // v1 PitchArc exactly: eased glide, clamped to the vanilla 0.5..2.0 range.
+                    val ease = op.pitchEase?.let { Easing.fromKey(it) } ?: Easing.LINEAR
+                    SoundPlanner.pitchAt(PitchArc(from, ctx.num(op.pitchTo, from), over, ease), s.tick - startTick)
+                } else from
+                ctx.ports.sounds.play(op.sound, at, ctx.num(op.volume, 1.0).coerceAtLeast(0.0), pitch)
             }
         }
         play()
         val every = op.everyTicks
         if (every != null && every > 0) {
-            s.sounds[op.id] = PresentationRuntime.SoundTask(op.id, every, until, s.tick + every, play)
+            val arcOver = op.overTicks
+            val arcEnd = if (op.pitchTo != null && arcOver != null && arcOver > 0) startTick + arcOver else null
+            s.sounds[op.id] = PresentationRuntime.SoundTask(op.id, every, until, minOf(s.tick + every, arcEnd ?: Int.MAX_VALUE), play, arcEnd)
         }
     }
 }

@@ -2,6 +2,7 @@ package com.astarworks.astera.core.application.skillengine.runtime
 
 import com.astarworks.astera.core.application.skillengine.load.CompiledSkill
 import com.astarworks.astera.core.application.skillengine.runtime.ops.DashStrikeDriver
+import com.astarworks.astera.core.application.skillengine.runtime.ops.MovementLockDriver
 import com.astarworks.astera.core.application.skillengine.runtime.ops.ISkillWorldEffectGateway
 import com.astarworks.astera.core.application.skillengine.runtime.ops.damageExecutors
 import com.astarworks.astera.core.application.skillengine.runtime.ops.movementExecutors
@@ -46,11 +47,13 @@ public class SkillEngineKit(
     public val runner: DefaultCastRunner,
     public val world: SkillWorldEditor,
     public val dashes: DashStrikeDriver,
+    public val locks: MovementLockDriver,
     public val presentation: PresentationRuntime,
     public val hosts: CastHosts,
 ) {
     public fun shutdown() {
         dashes.shutdown()
+        locks.shutdown()
         world.revertAll()
     }
 
@@ -69,6 +72,7 @@ public class SkillEngineKit(
         ): SkillEngineKit {
             val hosts = CastHosts()
             val dashes = DashStrikeDriver(gateways.ports, gateways.movement, hosts)
+            val locks = MovementLockDriver(gateways.movement)
             val editor = SkillWorldEditor(gateways.world)
             val presentation = PresentationRuntime(hosts, gateways.casterAnim, gateways.screen)
             val registry = DefaultOpExecutorRegistry()
@@ -78,18 +82,18 @@ public class SkillEngineKit(
             registry.registerAll(damageExecutors())
             registry.registerAll(spawnExecutors())
             registry.registerAll(statusExecutors(hosts) { hosts.owner(it.cast) })
-            registry.registerAll(movementExecutors(hosts, gateways.movement, dashes))
+            registry.registerAll(movementExecutors(hosts, gateways.movement, dashes, locks))
             registry.registerAll(worldExecutors(editor))
             registry.registerAll(presentationExecutors(presentation))
             val runner = DefaultCastRunner(
                 CastRunnerDeps(
                     ports = gateways.ports, newTree = newTree, motion = motion, contacts = contacts, exprs = exprs,
-                    executors = registry, points = points, hosts = hosts, dashes = dashes, world = editor,
+                    executors = registry, points = points, hosts = hosts, dashes = dashes, locks = locks, world = editor,
                     presentation = presentation, cooldowns = gateways.cooldowns, items = gateways.items,
                     effects = gateways.effects, skills = skills, isAlly = isAlly, observer = observer, maxCastTicks = maxCastTicks,
                 ),
             )
-            return SkillEngineKit(runner, editor, dashes, presentation, hosts)
+            return SkillEngineKit(runner, editor, dashes, locks, presentation, hosts)
         }
     }
 }

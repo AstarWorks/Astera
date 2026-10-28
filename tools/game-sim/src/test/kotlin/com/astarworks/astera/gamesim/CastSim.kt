@@ -107,6 +107,10 @@ class CastSim(
     var now = 0
     val dealt = ArrayList<Dealt>()
     val sounds = ArrayList<Pair<Int, String>>()
+    /** Every sound with its pitch: (tick, id, pitch). */
+    val soundPitches = ArrayList<Triple<Int, String, Double>>()
+    /** Movement lock calls on the caster: (tick, speed factor), `null` factor = unlock. */
+    val moveLocks = ArrayList<Pair<Int, Double?>>()
     val removed = ArrayList<Pair<UUID, String>>()
     val blockStrikes = ArrayList<Triple<Int, Int, String?>>()
 
@@ -119,6 +123,11 @@ class CastSim(
             else -> if (m.returnType == VisualHandle::class.java) VisualHandle(1) else null
         }
     } as T
+
+    private val movement = object : ISkillMovementGateway by noop() {
+        override fun lockMovement(entity: UUID, speedFactor: Double) { moveLocks += now to speedFactor }
+        override fun unlockMovement(entity: UUID) { moveLocks += now to null }
+    }
 
     private val gameplay = object : ISkillGameplayGateway by noop() {
         override fun damage(caster: UUID, victim: UUID, components: List<SkillDamage>, hitPoint: Vec3) =
@@ -133,7 +142,7 @@ class CastSim(
     }
 
     private val sound = object : ISkillSoundGateway {
-        override fun play(sound: String, at: Vec3, volume: Double, pitch: Double) { sounds += now to sound }
+        override fun play(sound: String, at: Vec3, volume: Double, pitch: Double) { sounds += now to sound; soundPitches += Triple(now, sound, pitch) }
     }
 
     private val entities = object : ISkillEntityQuery {
@@ -180,7 +189,7 @@ class CastSim(
     val kit: SkillEngineKit = SkillEngineKit.build(
         gateways = SkillEngineGateways(
             ports = SkillRuntimePorts(noop<ISkillVisualGateway>(), particleGateway ?: noop<ISkillParticleGateway>(), sound, gameplay, entities, noop<ISkillVictimAnimGateway>()),
-            movement = noop<ISkillMovementGateway>(),
+            movement = movement,
             world = world,
             casterAnim = noop<ISkillCasterAnimGateway>(),
             screen = noop<ISkillScreenGateway>(),
