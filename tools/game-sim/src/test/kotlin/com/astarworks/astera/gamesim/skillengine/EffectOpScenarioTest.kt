@@ -51,6 +51,14 @@ class EffectOpScenarioTest : SkillEngineScenario() {
     }
 
     @Test
+    fun knockbackPlaysDirectionTimesStrength() {
+        // v2 MovementOpExecutors: impulse(direction * strength), the direction is not normalised
+        val s = compile(skill("{op: knockback, at: 2, target: caster, direction: {x: 0, y: 0.5, z: 2}, strength: 1.5}"))
+        val impulses = play(s, 3L).filter { it.verb == "effect" && it.payload.startsWith("impulse") }
+        assertThat(impulses.map { it.tick to it.payload }).containsExactly(2 to "impulse x=0 y=0.75 z=3")
+    }
+
+    @Test
     fun cleanseNegativeOnly() {
         val s = compile(skill("{op: cleanse, at: 1, target: caster, negative_only: true}"))
         assertThat(effect(s, "cleanse").payload.getValue("negative_only")).isEqualTo(Val.Known(true))

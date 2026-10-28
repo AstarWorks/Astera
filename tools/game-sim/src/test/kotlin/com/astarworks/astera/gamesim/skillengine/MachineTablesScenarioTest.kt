@@ -12,6 +12,7 @@ import com.astarworks.astera.core.domain.skillengine.part.Machine
 import com.astarworks.astera.core.domain.skillengine.part.MachineState
 import com.astarworks.astera.core.domain.skillengine.table.Action
 import com.astarworks.astera.core.domain.skillengine.table.CompiledSkill
+import com.astarworks.astera.core.domain.skillengine.table.Duration
 import com.astarworks.astera.core.domain.skillengine.table.EventPath
 import com.astarworks.astera.core.domain.skillengine.table.ExitReason
 import com.astarworks.astera.core.domain.skillengine.table.LockEnd
@@ -325,5 +326,80 @@ class MachineTablesScenarioTest : SkillEngineScenario() {
         assertThat(s.table.worldRows.map { it.tick }).containsExactly(63, 72)
         val calls = play(s, 1L).filter { it.verb == "effect" }
         assertThat(calls.map { it.tick to it.payload }).contains(63 to "body=slash_a speed=1", 72 to "body_stop=slash_a")
+    }
+
+    @Test
+    fun childFinalEndChainFitsTheSameTickCascade() {
+        // B6: timer(1) -> strike leaves -> recover (child final) emits cast.end -> cast handles end -> done (top-level final) ends the machine.
+        // Three waves in one tick: the table must carry that depth so the player's cap (depth + 1 waves) does not cut the chain.
+        val s = compiled(
+            """
+            apiVersion: astera/v3
+            kind: Skill
+            id: end-chain
+            machine:
+              start: cast
+              states:
+                cast:
+                  start: strike
+                  do:
+                    - {op: sound, sound: "astera:test/ping", anchor: caster, at: 0}
+                  on: [ { event: end, to: done } ]
+                  states:
+                    strike: { for: 1, then: recover }
+                    recover: { final: true }
+                done: { final: true }
+            """.trimIndent(),
+        )
+        assertThat(s.table.bounds.sameTickDepth).isGreaterThanOrEqualTo(2)
+        val calls = play(s, 1L)
+        assertThat(calls.filter { it.verb == "sound" }.map { it.tick }).containsExactly(0)
+        assertThat(calls.none { it.verb == "fault" || it.payload.contains("cascade") }).isTrue()
+        // the machine ended on the v2 tick: the done level was entered at tick 1 and nothing is left running
+        assertThat(s.table.states.first { it.state == StatePath("cast/recover") }.duration).isEqualTo(Duration.Fixed(0))
+    }
+
+    @Test
+    fun finalStateLastsZeroTicksSoAFullLengthPathIntoItFits() {
+        // B5: entering a final ends the machine (ADR-0303 10.1), so it adds no 0..max_cast_ticks span to the path
+        val s = compiled(
+            """
+            apiVersion: astera/v3
+            kind: Skill
+            id: long-then-final
+            machine:
+              start: a
+              states:
+                a: { for: 1190, then: z }
+                z: { final: true }
+            """.trimIndent(),
+        )
+        assertThat(s.table.states.first { it.state == StatePath("z") }.duration).isEqualTo(Duration.Fixed(0))
+        assertThat(s.table.bounds.path.max).isEqualTo(1190)
+    }
+
+    @Test
+    fun timerAndInputBranchesAndExitTablesPassTheStaticChecks() {
+        // B3 + B4: `timer(n)` and `input.*` are engine events (never emitted by an op); `.exit[...]` tables are delivered by leaving the state
+        val s = compiled(
+            """
+            apiVersion: astera/v3
+            kind: Skill
+            id: engine-events
+            machine:
+              start: p
+              states:
+                p:
+                  for: 30
+                  then: z
+                  on: [ { event: input.use, to: z } ]
+                  start: c
+                  states:
+                    c: { for: 5, then: d }
+                    d: { final: true }
+                z: { final: true }
+            """.trimIndent(),
+        )
+        assertThat(keys(s)).contains("p.exit[event]", "p.exit[timer]", "p/c.exit[timer]")
     }
 }

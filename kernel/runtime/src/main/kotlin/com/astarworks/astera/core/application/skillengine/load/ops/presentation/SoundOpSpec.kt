@@ -78,13 +78,15 @@ public object SoundOpSpec : OpSpec<SoundOp> {
      * Literals stay [Val.Known]; a `${param}` and a `= CEL` stay [Val.Live] until the player resolves them (see W1-24 / W1-19).
      */
     override fun lower(op: SoundOp, lc: LowerContext): Result<Lowered, SkillDecodeError> {
-        val anchor = lc.anchors.resolve(op.anchor)
-            ?: return Result.Failure(SkillDecodeError.Invalid(lc.skillId, lc.src.value, "anchor '${op.anchor}' is not declared in this scope"))
+        val position = when (val r = ParticlePlacement.position(lc, op.anchor, "sound")) {
+            is Result.Failure -> return r
+            is Result.Success -> r.value
+        }
         val action = Action.Sound(
             sound = op.sound,
             volume = number(op.volume),
             pitch = number(op.pitch),
-            position = Val.Live<Vector3d>(anchor.instance.text, null),
+            position = position,
             category = op.category,
         )
         return Result.Success(Lowered(rows = listOf(Row(0, lc.self, action, lc.src))))

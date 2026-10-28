@@ -221,7 +221,7 @@ public object StaticChecks {
         }
         for (b in g.allBranches()) {
             val e = b.event.value
-            if (e in emitted || e in GLOBAL_EVENTS) continue
+            if (e in emitted || e in GLOBAL_EVENTS || e.startsWith("timer(") || e.startsWith("input.")) continue
             val dot = e.lastIndexOf('.')
             if (dot > 0) {
                 val base = e.substring(0, dot)
@@ -483,6 +483,13 @@ public object StaticChecks {
                 s.then?.let { enter(it.value) }
                 children(s).forEach { enter(it.state.value) }
                 scan(s.rows, s.branches)
+                // two kinds of sub-table are delivered without a branch naming them: `<state>.exit[<reason>]` (the player pastes it whenever the
+                // state is left) and an op's own event table (`<op>.hit`, `<proj>.end`, ...: the op's instance lives in the owner's rows, and its
+                // events fire while the owner is active). `<id>.on[k]` tables are branch-bound and stay unreached unless a branch names them.
+                for (sub in table.subTables.values) {
+                    if (sub.owner.value != s.state.value || ".on[" in sub.event.value) continue
+                    if (subs.add(sub.event.value)) scan(sub.rows, sub.branches)
+                }
             }
             reachableStates = states
             deliveredSubs = subs

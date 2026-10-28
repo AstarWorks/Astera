@@ -198,6 +198,7 @@ abstract class SkillEngineScenario {
                 is Action.Teleport -> ordinals[a.display.text]?.let { out += tick to RecordedCall(tick, "write", "#$it", "") }
                 is Action.TrailPoint -> ordinals[a.ribbon.text]?.let { out += tick to RecordedCall(tick, "trail", "#$it", "") }
                 is Action.Particle -> out += tick to RecordedCall(tick, "particle", "-", "type=${a.type}" + known(a.count)?.let { " count=$it" }.orEmpty())
+                is Action.ParticleDef -> out += tick to RecordedCall(tick, "particle", "-", "type=${a.def}")
                 is Action.Sound -> out += tick to RecordedCall(
                     tick, "sound", "-",
                     listOfNotNull("sound=${a.sound}", known(a.volume)?.let { "vol=${RecordedCall.num(it)}" }, known(a.pitch)?.let { "pitch=${RecordedCall.num(it)}" }).joinToString(" "),

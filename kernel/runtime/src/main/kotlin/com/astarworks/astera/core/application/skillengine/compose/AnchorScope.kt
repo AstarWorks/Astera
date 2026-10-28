@@ -1,6 +1,7 @@
 package com.astarworks.astera.core.application.skillengine.compose
 
 import com.astarworks.astera.core.application.skillengine.load.motion.MotionLaw
+import com.astarworks.astera.core.domain.skillengine.model.AnchorDecl
 import com.astarworks.astera.core.domain.skillengine.table.InstanceId
 import com.astarworks.astera.core.domain.skillengine.table.OpId
 
@@ -16,6 +17,9 @@ public interface AnchorScope {
 
     /** The motion laws bound to a frame-like anchor, in declaration order; empty for live anchors (caster, contact, ...) and unknown names. */
     public fun laws(anchor: String): List<MotionLaw> = emptyList()
+
+    /** The document `anchors:` entry [id] (ADR-0303 1); null for any other name. Document anchors are not frame instances, so [resolve] does not answer for them. */
+    public fun document(id: String): AnchorDecl? = null
 }
 
 public data class ResolvedAnchor(val instance: InstanceId, val basis: ExprClass)
@@ -48,8 +52,11 @@ public object AnchorNames {
 public class DefaultAnchorScope private constructor(
     private val occurrence: Occurrence,
     private val entries: MutableMap<String, Entry>,
+    private val documents: Map<String, AnchorDecl>,
 ) : AnchorRegistry {
-    public constructor(occurrence: Occurrence) : this(occurrence, LinkedHashMap())
+    public constructor(occurrence: Occurrence, documents: Map<String, AnchorDecl> = emptyMap()) : this(occurrence, LinkedHashMap(), documents)
+
+    override fun document(id: String): AnchorDecl? = documents[id]
 
     private data class Entry(val instance: InstanceId, val family: Int?, val basis: ExprClass, val laws: List<MotionLaw>)
 
@@ -61,7 +68,7 @@ public class DefaultAnchorScope private constructor(
 
     override fun laws(anchor: String): List<MotionLaw> = AnchorNames.split(anchor)?.let { entries[it.base]?.laws } ?: emptyList()
 
-    override fun at(occurrence: Occurrence): AnchorScope = DefaultAnchorScope(occurrence, entries)
+    override fun at(occurrence: Occurrence): AnchorScope = DefaultAnchorScope(occurrence, entries, documents)
 
     override fun resolve(name: String): ResolvedAnchor? {
         val parts = AnchorNames.split(name) ?: return null

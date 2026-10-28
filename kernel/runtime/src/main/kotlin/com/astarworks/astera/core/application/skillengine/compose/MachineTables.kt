@@ -238,7 +238,9 @@ public object MachineTables {
             }
 
             val timers = branches.filter { it.event.value.startsWith("timer(") }
+            // 10.1: entering a `final` state ends the machine (a child final announces `<parent>.end`), so a final lasts 0 ticks on every path
             val duration: Duration = when {
+                st.final -> Duration.Fixed(0)
                 forTicks != null -> Duration.Fixed(forTicks)
                 timers.isNotEmpty() -> Duration.Bounded(TickRange(timers.minOf { it.window.min }, config.maxCastTicks))
                 else -> Duration.Bounded(TickRange(0, config.maxCastTicks))

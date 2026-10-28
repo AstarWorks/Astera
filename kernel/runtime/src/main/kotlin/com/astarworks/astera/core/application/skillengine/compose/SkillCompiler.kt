@@ -27,6 +27,7 @@ import com.astarworks.astera.core.domain.skillengine.expr.ExprEvalException
 import com.astarworks.astera.core.domain.skillengine.expr.ExprType
 import com.astarworks.astera.core.domain.skillengine.expr.ExprValue
 import com.astarworks.astera.core.domain.skillengine.expr.FrameLookup
+import com.astarworks.astera.core.domain.skillengine.model.AnchorDecl
 import com.astarworks.astera.core.domain.skillengine.model.EngineConfig
 import com.astarworks.astera.core.domain.skillengine.model.SkillDef
 import com.astarworks.astera.core.domain.skillengine.part.Machine
@@ -99,9 +100,13 @@ public class SkillCompiler(
                 cur = cur.then?.let { stateByPath[it.value] }
             }
         }
+        val sameTick = SameTickDepth.of(m.states, subs)
+        sameTick.cycle?.let {
+            return Result.Failure(SkillDecodeError.TableClosure(it, "events emitted at tick 0 form a cycle inside one tick", def.id))
+        }
         val bounds = Bounds(
             instances = instanceCounts, liveDisplaysPeak = 0, liveDisplaysPeakTick = 0, groupDepth = 0,
-            partDepth = maxOf(inlined.depth, session.maxCallDepth), path = TickRange(0, pathMax), sameTickDepth = 0,
+            partDepth = maxOf(inlined.depth, session.maxCallDepth), path = TickRange(0, pathMax), sameTickDepth = sameTick.depth,
         )
         val table = TableAssembler.assemble(def.id, sampleSeed, emptyMap(), bounds, m.states, subs, m.writes, flat.conditions, config, m.world)
         when (val r = StaticChecks.run(table, config, def.emits)) {
@@ -167,6 +172,7 @@ public class SkillCompiler(
 
         private val decoder = OpListDecoder(specs)
         private val grammar = GrammarContext(original.id, null, exprs, V3Bindings.spec(DEEP))
+        private val documents: Map<String, AnchorDecl> = flat.anchors.associateBy { it.id }
         private val registries = HashMap<String, AnchorRegistry>()
         private val callStack = ArrayList<String>().apply { add(SkillCallInliner.PREFIX + original.id) }
         private val statesById: Map<String, MachineState> = flat.machine.states.values.associateBy { it.id }
@@ -205,7 +211,7 @@ public class SkillCompiler(
             val st = statesById[state.value]
             val horizon = (st?.forTicks as? Number)?.toInt()
             val nodes = decodeList(ops, "machine.states.${state.value}.$section").getOr { return@SectionLowerer Result.Failure(it) }
-            val registry = registries.getOrPut(state.value) { DefaultAnchorScope(Occurrence(0, 1, null)) }
+            val registry = registries.getOrPut(state.value) { DefaultAnchorScope(Occurrence(0, 1, null), documents) }
             var acc = Lowered(emptyList())
             for (n in nodes) {
                 val base = rootContext(state, registry).with(src = n.src)
@@ -399,6 +405,7 @@ public class SkillCompiler(
         }
 
         override fun laws(anchor: String) = own.laws(anchor)
+        override fun document(id: String) = own.document(id)
         override fun declare(instance: InstanceId, family: Int?, basis: ExprClass, laws: List<MotionLaw>) = own.declare(instance, family, basis, laws)
         override fun at(occurrence: Occurrence): AnchorScope = BoundAnchors(own, bound).let { BoundView(own.at(occurrence), bound) }
     }
@@ -410,6 +417,7 @@ public class SkillCompiler(
         }
 
         override fun laws(anchor: String) = own.laws(anchor)
+        override fun document(id: String) = own.document(id)
     }
 }
 

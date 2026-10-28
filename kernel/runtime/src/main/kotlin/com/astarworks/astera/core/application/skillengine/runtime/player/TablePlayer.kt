@@ -351,6 +351,7 @@ public class TablePlayer(
 
     private fun deliverEvent(run: Run, ev: RuntimeEvent, now: Int) {
         if (!bodyEventLive(run, ev.path)) return
+        run.seen += ev.path
         val binding = EventBinding(ev.path, ev.index, ev.contact, ev.victim, ev.attacker)
         val offered = offer(run, ev, binding, now, only = null)
         val sub = run.cursor.skill.table.subTables[ev.path] ?: return
@@ -536,6 +537,8 @@ public class TablePlayer(
     private class RowCtx(val base: Int, val binding: EventBinding?, val owner: StatePath?, val level: LevelCursor?)
 
     private fun playRow(run: Run, row: Row, ctx: RowCtx, now: Int) {
+        // ADR-0303 2.0a: `until` is a mask over candidate rows; the named event cuts every remaining candidate
+        if (row.maskUntil.isNotEmpty() && row.maskUntil.any { it in run.seen }) return
         val src = row.src.value.ifEmpty { row.instance.text }
         try {
             when (val a = row.action) {
@@ -1035,9 +1038,15 @@ public class TablePlayer(
                 run.reels.remove(row.instance)
             }
             "rig" -> rigStart(run, row, p, ctx, now, src)
-            "impulse", "knockback" -> {
+            "impulse" -> {
                 val vv = v("vector")
                 victims.forEach { gameplay.impulse(it, Vec3(vv.x, vv.y, vv.z)) }
+            }
+            "knockback" -> {
+                // v2 MovementOpExecutors Knockback: impulse(direction * strength), the direction is not normalised
+                val vv = v("direction")
+                val k = d("strength")
+                victims.forEach { gameplay.impulse(it, Vec3(vv.x * k, vv.y * k, vv.z * k)) }
             }
             "resource" -> victims.forEach { gameplay.restoreResource(it, s("resource"), d("amount")) }
             "heal" -> victims.forEach { gameplay.restoreResource(it, "health", d("amount")) }
@@ -1542,6 +1551,9 @@ public class TablePlayer(
         val pending = ArrayList<RuntimeEvent>()
         val external = ConcurrentLinkedQueue<RuntimeEvent>()
         val firings = HashMap<EventPath, Int>()
+
+        /** Every event delivered so far in this cast: what a row's `maskUntil` is checked against. */
+        val seen = HashSet<EventPath>()
         val hitOnce = HashMap<InstanceId, MutableSet<UUID>>()
 
         /** Ops (identity without the occurrence index) that have found a victim at least once / already raised `miss`. */

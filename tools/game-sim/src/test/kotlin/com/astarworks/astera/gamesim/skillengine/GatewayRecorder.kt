@@ -160,7 +160,7 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
 
         override fun restoreResource(victim: UUID, resource: String, amount: Double) = add("effect", victim.toString(), "resource=$resource")
 
-        override fun impulse(victim: UUID, vector: Vec3) = add("effect", victim.toString(), "impulse")
+        override fun impulse(victim: UUID, vector: Vec3) = add("effect", victim.toString(), "impulse x=${RecordedCall.num(vector.x)} y=${RecordedCall.num(vector.y)} z=${RecordedCall.num(vector.z)}")
 
         override fun freezeEntities(entities: List<UUID>, ticks: Int) = entities.forEach { add("effect", it.toString(), "freeze=$ticks") }
 
