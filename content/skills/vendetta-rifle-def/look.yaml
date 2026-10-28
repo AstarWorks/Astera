@@ -104,7 +104,7 @@ presentation:
           frame: fx2_vendetta_parry_ring_bayonet
           parent: caster
           duration: 11
-          pivot: [1.049232, -0.35228, 0.253199]
+          pivot: [0.35, 1.05, 0.25]
           tilt: [0.0, 0.0, 30.0]
           rest: [90.0, 0.0, 0.0]
           swing:
@@ -125,7 +125,7 @@ presentation:
           parent: caster
           duration: 11
           hand: false
-          pivot: [1.049232, -0.35228, 0.253199]
+          pivot: [0.35, 1.05, 0.25]
           tilt: [0.0, 0.0, 30.0]
           rest: [90.0, 0.0, 0.0]
           swing:

@@ -29,7 +29,7 @@ presentation:
           frame: fx1_ember_harness_furnace_pack
           parent: caster
           duration: 85
-          pivot: [1.099996, 0.003456, -0.359989]
+          pivot: [0.0, 1.1, -0.36]
           swing:
             - {t: 0, rotate: [0.0, 0.0, 0.0]}
             - {t: 1, rotate: [0.0, 0.0, 0.0], sample: true}
@@ -124,7 +124,7 @@ presentation:
           parent: caster
           duration: 85
           hand: false
-          pivot: [1.099996, 0.003456, -0.359989]
+          pivot: [0.0, 1.1, -0.36]
           swing:
             - {t: 0, rotate: [0.0, 0.0, 0.0]}
             - {t: 1, rotate: [0.0, 0.0, 0.0], sample: true}
@@ -645,7 +645,7 @@ presentation:
           frame: fx3_ember_counter_sweep_gauntlet
           parent: caster
           duration: 14
-          pivot: [1.050759, 0.347699, 0.246785]
+          pivot: [-0.35, 1.05, 0.25]
           tilt: [0.0, 0.0, 8.0]
           rest: [90.0, 0.0, 0.0]
           swing:
@@ -670,7 +670,7 @@ presentation:
           parent: caster
           duration: 14
           hand: false
-          pivot: [1.050759, 0.347699, 0.246785]
+          pivot: [-0.35, 1.05, 0.25]
           tilt: [0.0, 0.0, 8.0]
           rest: [90.0, 0.0, 0.0]
           swing:

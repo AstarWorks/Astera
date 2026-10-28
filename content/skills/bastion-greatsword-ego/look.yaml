@@ -575,7 +575,7 @@ presentation:
           frame: fx4_bastion_ego_slam_sword
           parent: caster
           duration: 43
-          pivot: [1.399997, -0.003665, 0.299985]
+          pivot: [0.0, 1.4, 0.3]
           rest: [90.0, 0.0, 0.0]
           swing:
             - {t: 0, rotate: [-125.0, 0.0, 0.0]}
@@ -627,7 +627,7 @@ presentation:
           parent: caster
           duration: 43
           hand: false
-          pivot: [1.399997, -0.003665, 0.299985]
+          pivot: [0.0, 1.4, 0.3]
           rest: [90.0, 0.0, 0.0]
           swing:
             - {t: 0, rotate: [-125.0, 0.0, 0.0]}

@@ -24,7 +24,7 @@ presentation:
           frame: fx1_sigil_rifle_s2_rig_rifle
           parent: caster
           duration: 70
-          pivot: [1.250606, 0.277261, 0.246935]
+          pivot: [-0.28, 1.25, 0.25]
           rest: [90.0, 0.0, 0.0]
           swing:
             - {t: 0, rotate: [-75.0, 0.0, 0.0]}
@@ -104,7 +104,7 @@ presentation:
           parent: caster
           duration: 70
           hand: false
-          pivot: [1.250606, 0.277261, 0.246935]
+          pivot: [-0.28, 1.25, 0.25]
           rest: [90.0, 0.0, 0.0]
           swing:
             - {t: 0, rotate: [-75.0, 0.0, 0.0]}

@@ -32,7 +32,7 @@ presentation:
           frame: fx1_orrery_crescent_a_staff
           parent: caster
           duration: 17
-          pivot: [1.900777, 0.294998, 0.294998]
+          pivot: [-0.3, 1.9, 0.3]
           tilt: [0.0, 0.0, 20.0]
           swing:
             - {t: 0, rotate: [65.0, 0.0, 0.0]}
@@ -61,7 +61,7 @@ presentation:
           parent: caster
           duration: 17
           hand: false
-          pivot: [1.900777, 0.294998, 0.294998]
+          pivot: [-0.3, 1.9, 0.3]
           tilt: [0.0, 0.0, 20.0]
           swing:
             - {t: 0, rotate: [65.0, 0.0, 0.0]}
@@ -135,7 +135,7 @@ presentation:
           frame: fx3_orrery_crescent_b_staff
           parent: caster
           duration: 17
-          pivot: [1.10078, 0.29711, 0.29711]
+          pivot: [-0.3, 1.1, 0.3]
           tilt: [0.0, 0.0, 20.0]
           swing:
             - {t: 0, rotate: [-65.0, 0.0, 0.0]}
@@ -164,7 +164,7 @@ presentation:
           parent: caster
           duration: 17
           hand: false
-          pivot: [1.10078, 0.29711, 0.29711]
+          pivot: [-0.3, 1.1, 0.3]
           tilt: [0.0, 0.0, 20.0]
           swing:
             - {t: 0, rotate: [-65.0, 0.0, 0.0]}

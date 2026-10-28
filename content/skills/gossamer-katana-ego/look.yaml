@@ -33,7 +33,7 @@ presentation:
           frame: fx1_gossamer_katana_draw_katana
           parent: caster
           duration: 29
-          pivot: [0.900325, 0.248817, 0.148033]
+          pivot: [-0.25, 0.9, 0.15]
           tilt: [0.0, 0.0, 12.0]
           swing:
             - {t: 0, rotate: [-100.0, 0.0, 0.0]}
@@ -74,7 +74,7 @@ presentation:
           parent: caster
           duration: 29
           hand: false
-          pivot: [0.900325, 0.248817, 0.148033]
+          pivot: [-0.25, 0.9, 0.15]
           tilt: [0.0, 0.0, 12.0]
           swing:
             - {t: 0, rotate: [-100.0, 0.0, 0.0]}
@@ -207,7 +207,7 @@ presentation:
           frame: fx4_gossamer_katana_slash_up_katana
           parent: caster
           duration: 12
-          pivot: [1.000542, 0.247812, 0.247812]
+          pivot: [-0.25, 1.0, 0.25]
           tilt: [0.0, 0.0, 12.0]
           swing:
             - {t: 0, rotate: [-45.0, 0.0, 0.0]}
@@ -229,7 +229,7 @@ presentation:
           parent: caster
           duration: 12
           hand: false
-          pivot: [1.000542, 0.247812, 0.247812]
+          pivot: [-0.25, 1.0, 0.25]
           tilt: [0.0, 0.0, 12.0]
           swing:
             - {t: 0, rotate: [-45.0, 0.0, 0.0]}
@@ -270,7 +270,7 @@ presentation:
           frame: fx5_gossamer_katana_slash_down_katana
           parent: caster
           duration: 12
-          pivot: [1.000542, 0.247812, 0.247812]
+          pivot: [-0.25, 1.0, 0.25]
           tilt: [0.0, 0.0, 12.0]
           swing:
             - {t: 0, rotate: [145.0, 0.0, 0.0]}
@@ -292,7 +292,7 @@ presentation:
           parent: caster
           duration: 12
           hand: false
-          pivot: [1.000542, 0.247812, 0.247812]
+          pivot: [-0.25, 1.0, 0.25]
           tilt: [0.0, 0.0, 12.0]
           swing:
             - {t: 0, rotate: [145.0, 0.0, 0.0]}

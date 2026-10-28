@@ -28,7 +28,7 @@ presentation:
           frame: fx1_verdict_s1_gavel_hammer
           parent: caster
           duration: 23
-          pivot: [1.600324, 0.247889, 0.146499]
+          pivot: [-0.25, 1.6, 0.15]
           tilt: [0.0, 0.0, 40.0]
           rest: [90.0, 0.0, 0.0]
           swing:
@@ -61,7 +61,7 @@ presentation:
           parent: caster
           duration: 23
           hand: false
-          pivot: [1.600324, 0.247889, 0.146499]
+          pivot: [-0.25, 1.6, 0.15]
           tilt: [0.0, 0.0, 40.0]
           rest: [90.0, 0.0, 0.0]
           swing:
@@ -115,7 +115,7 @@ presentation:
           frame: fx3_verdict_s1_echo_hammer
           parent: caster
           duration: 16
-          pivot: [1.600324, 0.247889, 0.146499]
+          pivot: [-0.25, 1.6, 0.15]
           tilt: [0.0, 0.0, 40.0]
           rest: [90.0, 0.0, 0.0]
           swing:
@@ -148,7 +148,7 @@ presentation:
           parent: caster
           duration: 16
           hand: false
-          pivot: [1.600324, 0.247889, 0.146499]
+          pivot: [-0.25, 1.6, 0.15]
           tilt: [0.0, 0.0, 40.0]
           rest: [90.0, 0.0, 0.0]
           swing:

@@ -92,7 +92,7 @@ presentation:
           frame: fx3_orrery_s2_poise_staff
           parent: caster
           duration: 99
-          pivot: [1.10078, 0.29711, 0.29711]
+          pivot: [-0.3, 1.1, 0.3]
           swing:
             - {t: 0, rotate: [90.0, 0.0, 0.0]}
             - {t: 1, rotate: [86.428571, 0.0, 0.0], sample: true}
@@ -201,7 +201,7 @@ presentation:
           parent: caster
           duration: 99
           hand: false
-          pivot: [1.10078, 0.29711, 0.29711]
+          pivot: [-0.3, 1.1, 0.3]
           swing:
             - {t: 0, rotate: [90.0, 0.0, 0.0]}
             - {t: 1, rotate: [86.428571, 0.0, 0.0], sample: true}

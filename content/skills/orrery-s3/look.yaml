@@ -46,7 +46,7 @@ presentation:
           frame: fx9_orrery_channel_staff
           parent: caster
           duration: 172
-          pivot: [1.10078, 0.29711, 0.29711]
+          pivot: [-0.3, 1.1, 0.3]
           tilt: [0.0, 0.0, 20.0]
           swing:
             - {t: 0, rotate: [20.0, 0.0, 0.0]}
@@ -230,7 +230,7 @@ presentation:
           parent: caster
           duration: 172
           hand: false
-          pivot: [1.10078, 0.29711, 0.29711]
+          pivot: [-0.3, 1.1, 0.3]
           tilt: [0.0, 0.0, 20.0]
           swing:
             - {t: 0, rotate: [20.0, 0.0, 0.0]}

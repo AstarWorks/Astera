@@ -29,7 +29,7 @@ presentation:
           frame: fx1_orrery_poise_staff
           parent: caster
           duration: 23
-          pivot: [1.10078, 0.29711, 0.29711]
+          pivot: [-0.3, 1.1, 0.3]
           tilt: [0.0, 0.0, 20.0]
           swing:
             - {t: 0, rotate: [25.0, 0.0, 0.0]}
@@ -63,7 +63,7 @@ presentation:
           parent: caster
           duration: 23
           hand: false
-          pivot: [1.10078, 0.29711, 0.29711]
+          pivot: [-0.3, 1.1, 0.3]
           tilt: [0.0, 0.0, 20.0]
           swing:
             - {t: 0, rotate: [25.0, 0.0, 0.0]}

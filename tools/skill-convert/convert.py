@@ -1181,7 +1181,10 @@ class Conv:
             op["anim"] = anim
         if not hand:
             op["hand"] = False
-        for key in ("pivot", "tilt", "rest"):
+        piv = r.get("pivot")
+        if piv and any(float(x) != 0.0 for x in piv):
+            op["pivot"] = [float(x) for x in piv]  # a position (blocks), not an Euler triple
+        for key in ("tilt", "rest"):
             val = r.get(key)
             if val and any(float(x) != 0.0 for x in val):
                 op[key] = euler_to_vec(val)

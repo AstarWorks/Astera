@@ -111,7 +111,7 @@ presentation:
           frame: fx1_vendetta_ready_bayonet
           parent: caster
           duration: 19
-          pivot: [1.049232, -0.35228, 0.253199]
+          pivot: [0.35, 1.05, 0.25]
           tilt: [0.0, 0.0, 30.0]
           rest: [90.0, 0.0, 0.0]
           swing:
@@ -140,7 +140,7 @@ presentation:
           parent: caster
           duration: 19
           hand: false
-          pivot: [1.049232, -0.35228, 0.253199]
+          pivot: [0.35, 1.05, 0.25]
           tilt: [0.0, 0.0, 30.0]
           rest: [90.0, 0.0, 0.0]
           swing:
@@ -449,7 +449,7 @@ presentation:
           frame: fx2_vendetta_slash_b_bayonet
           parent: caster
           duration: 8
-          pivot: [1.049232, -0.35228, 0.253199]
+          pivot: [0.35, 1.05, 0.25]
           tilt: [0.0, 0.0, 25.0]
           rest: [90.0, 0.0, 0.0]
           swing:
@@ -480,7 +480,7 @@ presentation:
           parent: caster
           duration: 8
           hand: false
-          pivot: [1.049232, -0.35228, 0.253199]
+          pivot: [0.35, 1.05, 0.25]
           tilt: [0.0, 0.0, 25.0]
           rest: [90.0, 0.0, 0.0]
           swing:
@@ -838,7 +838,7 @@ presentation:
           frame: fx5_vendetta_slash_b_bayonet
           parent: caster
           duration: 8
-          pivot: [1.049232, -0.35228, 0.253199]
+          pivot: [0.35, 1.05, 0.25]
           tilt: [0.0, 0.0, 25.0]
           rest: [90.0, 0.0, 0.0]
           swing:
@@ -869,7 +869,7 @@ presentation:
           parent: caster
           duration: 8
           hand: false
-          pivot: [1.049232, -0.35228, 0.253199]
+          pivot: [0.35, 1.05, 0.25]
           tilt: [0.0, 0.0, 25.0]
           rest: [90.0, 0.0, 0.0]
           swing:
@@ -1227,7 +1227,7 @@ presentation:
           frame: fx8_vendetta_slash_a_bayonet
           parent: caster
           duration: 8
-          pivot: [1.049232, -0.35228, 0.253199]
+          pivot: [0.35, 1.05, 0.25]
           tilt: [0.0, 0.0, 65.0]
           rest: [90.0, 0.0, 0.0]
           swing:
@@ -1258,7 +1258,7 @@ presentation:
           parent: caster
           duration: 8
           hand: false
-          pivot: [1.049232, -0.35228, 0.253199]
+          pivot: [0.35, 1.05, 0.25]
           tilt: [0.0, 0.0, 65.0]
           rest: [90.0, 0.0, 0.0]
           swing:
@@ -1616,7 +1616,7 @@ presentation:
           frame: fx11_vendetta_slash_b_bayonet
           parent: caster
           duration: 8
-          pivot: [1.049232, -0.35228, 0.253199]
+          pivot: [0.35, 1.05, 0.25]
           tilt: [0.0, 0.0, 25.0]
           rest: [90.0, 0.0, 0.0]
           swing:
@@ -1647,7 +1647,7 @@ presentation:
           parent: caster
           duration: 8
           hand: false
-          pivot: [1.049232, -0.35228, 0.253199]
+          pivot: [0.35, 1.05, 0.25]
           tilt: [0.0, 0.0, 25.0]
           rest: [90.0, 0.0, 0.0]
           swing:
@@ -2241,7 +2241,7 @@ presentation:
           frame: fx14_vendetta_slash_a_bayonet
           parent: caster
           duration: 8
-          pivot: [1.049232, -0.35228, 0.253199]
+          pivot: [0.35, 1.05, 0.25]
           tilt: [0.0, 0.0, 65.0]
           rest: [90.0, 0.0, 0.0]
           swing:
@@ -2272,7 +2272,7 @@ presentation:
           parent: caster
           duration: 8
           hand: false
-          pivot: [1.049232, -0.35228, 0.253199]
+          pivot: [0.35, 1.05, 0.25]
           tilt: [0.0, 0.0, 65.0]
           rest: [90.0, 0.0, 0.0]
           swing:
