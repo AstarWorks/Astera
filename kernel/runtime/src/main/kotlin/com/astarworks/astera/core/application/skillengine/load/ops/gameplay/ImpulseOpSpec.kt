@@ -64,7 +64,7 @@ public object ImpulseOpSpec : OpSpec<ImpulseOp> {
             },
         )
         is OffsetVec.InAnchor -> {
-            val name = v.of.name
+            val name = v.of.of
             if (lc.anchors.resolve(name) == null) {
                 Result.Failure(SkillDecodeError.UndefinedReference(lc.skillId, "$path.of", name))
             } else {
