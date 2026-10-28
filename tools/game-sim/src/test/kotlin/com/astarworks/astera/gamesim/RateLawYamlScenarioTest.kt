@@ -245,9 +245,9 @@ class RateLawYamlScenarioTest {
             (0..10).map { t -> key(4 + t, offset = z * (0.4 * t)) } +
             (0..10).map { t -> key(1 + t, scale = v(1.0, 1.0, 1.0) * (1.0 + 0.05 * t)) },
             """
-            - {law: spin, axis: up, deg_per_tick: "${'$'}{rate}", from: 2, for: 20, ease: out_cubic}
-            - {law: move, velocity: {forward: 0.4}, from: 4, for: 10}
-            - {law: grow, start: 1, per_tick: 0.05, from: 1, for: 10}
+            - {law: spin, axis: up, deg_per_tick: "${'$'}{rate}", at: 2, for: 20, ease: out_cubic}
+            - {law: move, velocity: {forward: 0.4}, at: 4, for: 10}
+            - {law: grow, start: 1, per_tick: 0.05, at: 1, for: 10}
             """)
 
         // 1 - negated axis with accel and a start orientation, move with speed + accel, grow `to` with an ease
@@ -257,7 +257,7 @@ class RateLawYamlScenarioTest {
             (0..8).map { t -> key(t, scale = v(1.0, 1.0, 1.0) + v(2.0, 2.0, 2.0) * ease("in_out_sine", t / 8.0)) },
             """
             - {law: spin, axis: -left, deg_per_tick: 2, accel: 1.0, start: [{axis: up, deg: 90}], for: 9}
-            - {law: move, velocity: {left: 1.0}, speed: 0.3, accel: 0.05, from: 12, for: 10}
+            - {law: move, velocity: {left: 1.0}, speed: 0.3, accel: 0.05, at: 12, for: 10}
             - {law: grow, start: {forward: 1, up: 1, left: 1}, to: 3, for: 8, ease: in_out_sine}
             """)
 
@@ -280,9 +280,9 @@ class RateLawYamlScenarioTest {
 
         // 3 - fade on a quad: absolute opacity with an ease, and exponent 2 (a key per tick)
         val d = pair(3, true, (0..10).map { t -> key(1 + t, alpha = 0.8 * (1.0 - ease("in_quad", t / 10.0))) },
-            "- {law: fade, start: 0.8, from: 1, for: 10, ease: in_quad}")
+            "- {law: fade, start: 0.8, at: 1, for: 10, ease: in_quad}")
         val e = pair(4, true, (0..10).map { t -> key(2 + t, alpha = Math.pow(1.0 - t / 10.0, 2.0)) },
-            "- {law: fade, exponent: 2.0, from: 2, for: 10}")
+            "- {law: fade, exponent: 2.0, at: 2, for: 10}")
 
         tickAll(ticks)
         assertSame("spin+param+ease, move, grow per_tick", a, 22)
@@ -335,15 +335,85 @@ class RateLawYamlScenarioTest {
               keys: [{t: 3}]
         """, "motion[0].keys[0]", "at least one of")
 
-        // lowering limit: two laws on one channel at the same ticks cannot become one key table
-        assertInvalid("""
-            - {law: spin, axis: up, deg_per_tick: 3, for: 10}
-            - {law: spin, axis: left, deg_per_tick: 3, from: 10, for: 5}
-        """, "motion[1]", "overlaps motion[0] on the turn channel")
+        // `from` was renamed to `at`: loud, with the fix in the message
+        assertInvalid("- {law: spin, axis: up, deg_per_tick: 3, from: 4, for: 5}", "motion[0].from", "write 'at'")
+
+        // laws may overlap now (rates add); keys are absolute, so a key tick inside a law's window is still an error naming both
         assertInvalid("""
             - {law: move, velocity: {up: 1}, for: 10}
             - law: keys
               keys: [{t: 4, offset: {up: 0}}]
         """, "motion[1].keys[0]", "overlaps motion[0] on the offset channel")
+    }
+
+    private fun clamp(x: Int, hi: Int) = x.coerceIn(0, hi)
+
+    @Test
+    fun `overlapping laws on one channel add - spin plus wobble, move plus drift, grow and fade multiply`() {
+        val up = v(0.0, 1.0, 0.0)
+        val left = v(1.0, 0.0, 0.0)
+
+        // turn: spin about up (0..20) then wobble about left (5..15), composed in list order = qSpin * qWobble, one key per tick
+        val spinWobble = pair(5, false, (0..20).map { t ->
+            key(t, turn = vec(Quaternion.axisAngle(up, Math.toRadians(12.0 * clamp(t, 20))) * Quaternion.axisAngle(left, Math.toRadians(6.0 * clamp(t - 5, 10)))))
+        }, """
+            - {law: spin, axis: up, deg_per_tick: 12, for: 20}
+            - {law: spin, axis: left, deg_per_tick: 6, at: 5, for: 10}
+        """)
+        // the other order composes the other way round (a different pose, so order is real)
+        val wobbleSpin = pair(6, false, (0..20).map { t ->
+            key(t, turn = vec(Quaternion.axisAngle(left, Math.toRadians(6.0 * clamp(t - 5, 10))) * Quaternion.axisAngle(up, Math.toRadians(12.0 * clamp(t, 20)))))
+        }, """
+            - {law: spin, axis: left, deg_per_tick: 6, at: 5, for: 10}
+            - {law: spin, axis: up, deg_per_tick: 12, for: 20}
+        """)
+
+        // offset: a drift along left for 20 ticks plus an eased move forward at 3..13; offsets add
+        val moveDrift = pair(7, false, (0..20).map { t ->
+            key(t, offset = v(0.1 * clamp(t, 20), 0.0, 5.0 * ease("out_quad", clamp(t - 3, 10) / 10.0)))
+        }, """
+            - {law: move, velocity: {left: 0.1}, for: 20}
+            - {law: move, velocity: {forward: 0.5}, at: 3, for: 10, ease: out_quad}
+        """)
+
+        // scale multiplies (1 -> 1.5 uniform, and 1 -> 2 on 5..15)
+        val growGrow = pair(8, false, (0..15).map { t ->
+            val a = 1.0 + 0.05 * clamp(t, 10)
+            val b = 1.0 + 1.0 * clamp(t - 5, 10) / 10.0
+            key(t, scale = v(a * b, a * b, a * b))
+        }, """
+            - {law: grow, start: 1, per_tick: 0.05, for: 10}
+            - {law: grow, start: 1, to: 2, at: 5, for: 10}
+        """)
+
+        // alpha multiplies (1 -> 0 over 0..10, and 1 -> 0.5 over 5..15)
+        val fades = pair(9, true, (0..15).map { t ->
+            key(t, alpha = (1.0 - clamp(t, 10) / 10.0) * (1.0 - 0.5 * clamp(t - 5, 10) / 10.0))
+        }, """
+            - {law: fade, for: 10}
+            - {law: fade, to: 0.5, at: 5, for: 10}
+        """)
+
+        tickAll(24)
+        assertSame("spin + wobble on turn", spinWobble, 20)
+        assertSame("wobble + spin on turn (list order)", wobbleSpin, 20)
+        assertSame("move + drift on offset", moveDrift, 20)
+        assertSame("grow x grow on scale", growGrow, 15)
+        sameLooks(looks.getValue(fades.second), looks.getValue(fades.first))
+        assertThat(looks.getValue(fades.first).filterNotNull().toSet().size).isGreaterThan(5)
+        assertThat(writes.getValue(spinWobble.second)).isNotEqualTo(writes.getValue(wobbleSpin.second))
+    }
+
+    @Test
+    fun `tables stay small - per-tick keys only inside overlapping clusters, segment keys elsewhere`() {
+        val keys = ok(MotionLaws.decode(yaml("""
+            - {law: spin, axis: up, deg_per_tick: 12, for: 4}
+            - {law: spin, axis: left, deg_per_tick: 6, at: 2, for: 4}
+            - {law: spin, axis: up, deg_per_tick: 12, at: 30, for: 5}
+        """), gctx, "motion"))
+        // cluster 0..6 = 7 per-tick keys, the isolated law keeps its 2 segment keys
+        assertThat(keys.map { it.tick }).containsExactly(0, 1, 2, 3, 4, 5, 6, 30, 35)
+        // a lone law is untouched: two keys
+        assertThat(ok(MotionLaws.decode(yaml("- {law: spin, axis: up, deg_per_tick: 12, for: 4}"), gctx, "motion"))).hasSize(2)
     }
 }
