@@ -19,7 +19,7 @@ public sealed interface EngineConfigError {
         override val message: String get() = "$origin: not a valid engine config: $detail"
     }
 
-    /** The file or a key is absent (the loader will require every key; W1b-02). */
+    /** The file ([key] = null) or a key is absent: every key is required and no v3 skill loads without the config (ADR-0303 11.4). */
     public data class Missing(override val origin: String, val key: String?) : EngineConfigError {
         override val message: String get() = if (key == null) "$origin: engine config file is missing" else "$origin: missing key '$key'"
     }
@@ -40,11 +40,13 @@ public sealed interface EngineConfigError {
 /**
  * Loads the server caps of the skill engine (ADR-0303 11.4) from `skill-engine.yaml`, keys in snake_case
  * (`max_same_tick_depth: 4`). Strict: an unknown key, a value of the wrong type or outside its range is an error,
- * never silently ignored. A key that is absent keeps its [EngineConfig] default; a missing file is the all-defaults config.
+ * never silently ignored. There are no defaults: an absent file or an absent key is [EngineConfigError.Missing], so the
+ * server loads no v3 skill until `content/engine/skill-engine.yaml` states every key. ([EngineConfig]'s Kotlin defaults exist
+ * only for direct construction in game-sim.)
  */
 public class EngineConfigLoader {
     public fun load(path: Path): Result<EngineConfig, EngineConfigError> {
-        if (!path.exists()) return Result.Success(EngineConfig())
+        if (!path.exists()) return Result.Failure(EngineConfigError.Missing(path.toString(), null))
         val text = runCatching { path.readText() }.getOrElse {
             return Result.Failure(EngineConfigError.Malformed(path.toString(), "unreadable: ${it.message}"))
         }
@@ -58,6 +60,8 @@ public class EngineConfigLoader {
         if (root !is YamlMap) return Result.Failure(EngineConfigError.Malformed(origin, "top level must be a mapping"))
         val values: Map<String, YamlNode> = root.entries.mapKeys { it.key.content }
         values.keys.firstOrNull { it !in KEYS }?.let { return Result.Failure(EngineConfigError.UnknownKey(origin, it)) }
+
+        KEYS.firstOrNull { it !in values }?.let { return Result.Failure(EngineConfigError.Missing(origin, it)) }
 
         val d = EngineConfig()
         val reader = FieldReader(origin, values)
@@ -80,7 +84,7 @@ public class EngineConfigLoader {
     }
 
     public companion object {
-        /** Every accepted YAML key, in the order `EngineConfig` declares them. */
+        /** Every YAML key (all required), in the order `EngineConfig` declares them. */
         public val KEYS: List<String> = listOf(
             "max_live_displays", "max_instances_per_op", "max_group_depth", "max_part_depth", "max_life_ticks",
             "max_cast_ticks", "segment_error_blocks", "segment_error_deg", "max_segment_ticks", "split_turn_deg",

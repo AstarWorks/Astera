@@ -35,14 +35,114 @@ object SkillEngineSchemaGenerator {
             "timing" to TimingSpec.fields.jsonSchema().toJson(),
             "motionLaws" to MotionLaws.jsonSchema().toJson(),
         )
-        return JsonObject(
+        val root = linkedMapOf<String, JsonElement>(
+            "\$schema" to JsonPrimitive("http://json-schema.org/draft-07/schema#"),
+            "\$id" to JsonPrimitive(ID),
+            "title" to JsonPrimitive("Skill document (engine v3, ADR-0303)"),
+        )
+        envelope().forEach { (k, v) -> root[k] = v.toJson() }
+        root["definitions"] = JsonObject(definitions)
+        return JsonObject(root)
+    }
+
+    private fun ref(name: String): Map<String, Any?> = linkedMapOf("\$ref" to "#/definitions/$name")
+
+    private fun obj(required: List<String>, properties: Map<String, Any?>): Map<String, Any?> {
+        val m = linkedMapOf<String, Any?>("type" to "object")
+        if (required.isNotEmpty()) m["required"] = required
+        m["properties"] = properties
+        m["additionalProperties"] = false
+        return m
+    }
+
+    private val string: Map<String, Any?> = linkedMapOf("type" to "string")
+    private val integer: Map<String, Any?> = linkedMapOf("type" to "integer")
+    private val celString: Map<String, Any?> = linkedMapOf("type" to "string", "pattern" to "^= .+")
+    private val ticks: Map<String, Any?> = linkedMapOf("oneOf" to listOf(linkedMapOf("type" to "integer", "minimum" to 0), celString))
+    private fun stringMap(): Map<String, Any?> = linkedMapOf("type" to "object", "additionalProperties" to string)
+
+    /** An op list: a registered op, or the `emit:` / `use:` shorthands of the machine grammar. */
+    private fun opList(): Map<String, Any?> = linkedMapOf(
+        "type" to "array",
+        "items" to linkedMapOf(
+            "anyOf" to listOf(
+                ref("op"),
+                obj(listOf("emit"), linkedMapOf("emit" to string)).minus("additionalProperties"),
+                obj(listOf("use"), linkedMapOf("use" to string)).minus("additionalProperties"),
+            ),
+        ),
+    )
+
+    /**
+     * The document envelope: the top-level keys `SkillDocumentDecoder` accepts (its `TOP_KEYS`), the `machine` shape of
+     * `PartParser.skillMachine`, and the op lists that resolve to `definitions.op`.
+     */
+    private fun envelope(): Map<String, Any?> {
+        val transition = obj(
+            listOf("to"),
+            linkedMapOf("event" to string, "after" to ticks, "when" to celString, "to" to string, "do" to opList()),
+        )
+        val state = linkedMapOf<String, Any?>(
+            "type" to "object",
+            "properties" to linkedMapOf(
+                "for" to ticks, "then" to string, "final" to linkedMapOf("type" to "boolean"),
+                "enter" to opList(), "do" to opList(), "exit" to opList(),
+                "on" to linkedMapOf("type" to "array", "items" to transition),
+                "use" to string, "with" to linkedMapOf("type" to "object"), "frames" to stringMap(),
+            ),
+            "additionalProperties" to false,
+        )
+        val machine = obj(
+            listOf("start", "states"),
+            linkedMapOf("start" to string, "states" to linkedMapOf("type" to "object", "additionalProperties" to state)),
+        )
+        val param = obj(
+            listOf("type"),
             linkedMapOf(
-                "\$schema" to JsonPrimitive("http://json-schema.org/draft-07/schema#"),
-                "\$id" to JsonPrimitive(ID),
-                "title" to JsonPrimitive("Skill document (engine v3, ADR-0303)"),
-                "definitions" to JsonObject(definitions),
+                "type" to linkedMapOf("enum" to listOf("ticks", "blocks", "number", "bool", "string")),
+                "required" to linkedMapOf("type" to "boolean"),
+                "default" to linkedMapOf<String, Any?>(),
             ),
         )
+        val anchor = obj(
+            listOf("id", "anchor"),
+            linkedMapOf(
+                "id" to string, "anchor" to string, "offset" to linkedMapOf("type" to "object", "additionalProperties" to linkedMapOf("type" to "number")),
+                "mount" to string, "mode" to linkedMapOf("enum" to listOf("follow", "snapshot")),
+            ),
+        )
+        val i18n = linkedMapOf("type" to "object", "additionalProperties" to string)
+        val meta = obj(
+            emptyList(),
+            linkedMapOf(
+                "name" to i18n, "description" to i18n,
+                "cooldown_ticks" to linkedMapOf("type" to "integer", "minimum" to 0),
+                "resource_type" to linkedMapOf("enum" to listOf("ammo", "energy")),
+                "resource_cost" to linkedMapOf("type" to "integer", "minimum" to 0),
+                "ego_cost" to linkedMapOf("type" to "integer", "minimum" to 0),
+                "reload_ticks" to linkedMapOf("type" to "integer", "minimum" to 0),
+                "ready_cue" to linkedMapOf("type" to "boolean"),
+                "tags" to linkedMapOf("type" to "array", "items" to string),
+            ),
+        )
+        val envelope = obj(
+            listOf("apiVersion", "kind", "id", "machine"),
+            linkedMapOf(
+                "apiVersion" to linkedMapOf("const" to "astera/v3"),
+                "kind" to linkedMapOf("const" to "Skill"),
+                "id" to linkedMapOf("type" to "string", "minLength" to 1),
+                "item" to string,
+                "importance" to integer,
+                "meta" to meta,
+                "params" to linkedMapOf("type" to "object", "additionalProperties" to param),
+                "frames_in" to stringMap(),
+                "emits" to linkedMapOf("type" to "array", "items" to string),
+                "anchors" to linkedMapOf("type" to "array", "items" to anchor),
+                "conditions" to linkedMapOf("type" to "object", "additionalProperties" to celString),
+                "machine" to machine,
+            ),
+        )
+        return envelope
     }
 
     /** Writes `<outputDir>/skill.schema.json` and returns its path. */
