@@ -1,0 +1,59 @@
+# Bot weapon pool. Schema: plugin/match/.../application/config/BotLoadoutYamlConfig.kt
+# Reload with `/astera reload bot-loadouts`. Bots are protocol clients (tools/bot-runner) and cannot give themselves
+# items, so each bot that enters a match is handed TWO weapons of TWO different families from this pool right after its
+# entry inventory snapshot (the match-end restore removes them again). Humans are never touched.
+#
+# The loader is strict: an unknown key, a duplicate id, or (at boot) an unknown item, a non-weapon or an item without
+# skill bindings stops the server from starting. Only weapons whose rarity is open at Norma level 1 are drawn
+# (`rarity_levels` in content/norma-layer/layer.yaml, ADR-0292), so bots can really use what they carry; the rest of
+# the pool waits for a rarity ladder that opens earlier.
+#
+# Left out on purpose: crimson-chain-axe, edict-blade, ember-gauntlet, gossamer-katana, orrery-staff, sigil-rifle,
+# verdict-hammer, vendetta-rifle (marker-heavy ego / S pieces), bastion-greatsword and couture-rapier (Limbus pieces),
+# thrown utility (grenades, bombs, mines, flasks, knives), grappling-hook, harpoon, shield-bulwark, gale-fan,
+# sanctuary-staff (no damage for a bot to use).
+
+# Account-name prefix of the bot runner (tools/bot-runner BotNames). The game server only sees the login name.
+bot_name_prefix: "Bot_"
+
+# Guns and bows.
+ranged:
+  - pistol
+  - rifle
+  - shotgun
+  - smg
+  - revolver
+  - sniper
+  - shortbow
+  - longbow
+  - hand-crossbow
+  - repeater-crossbow
+
+# Swords, axes, hammers and other close-range weapons.
+melee:
+  - knight-sword
+  - iron-blade
+  - dagger
+  - rapier
+  - twin-daggers
+  - katana
+  - cleaver
+  - halberd
+  - war-axe
+  - greatsword
+  - mace
+  - club
+  - spear
+  - scythe
+
+# Staves and other casters.
+caster:
+  - ember-rod
+  - fire-staff
+  - frost-rod
+  - frost-staff
+  - glacier-wand
+  - shock-wand
+  - chain-rod
+  - thunder-staff
+  - verdant-staff
