@@ -16,8 +16,10 @@ machine:
   start: fly
   states:
     fly:
-      for: 55      # max flight 50 + 4 ring ticks + 1
+      for: 51      # body for 50; the cast ends when the body ends (manager ruling 10/29)
       then: end
+      on:
+        - {event: bolt.end, to: tail}
       do:
         - {id: snd, op: sound, sound: "astera:skill/wand/cast", anchor: caster, volume: 0.9, pitch: 1.4}
         - {id: puff, op: particle_def, def: verdant-cast, anchor: flash}
@@ -59,9 +61,13 @@ machine:
         - {id: trail_3, op: particle, particle: dust,           anchor: {of: bolt, sweep: 0.3}, count: 2, offset: [0.08, 0.08, 0.08], color: "#46aa3c", size: 1.2, at: 0, every: 1, until: bolt.end}
         # trail jagged dust line: 7 points per tick, length 0.7, random axis per tick, +-0.15 jitter
         - id: trail_4
+          op: group
           at: 0
           every: 1
           until: bolt.end
           do:
             - {id: seg, op: particle, particle: dust, times: 7, at: 0, count: 1, color: "#287828", size: 0.9, anchor: {of: bolt, sweep: 0.3}, shift: "= roll_unit('trail_ax') * (0.7 * i / (n - 1)) + roll_unit('trail_jit') * 0.15"}
+    tail:
+      for: 4       # ring rows run ticks 0..3 after the event
+      then: end
     end: {final: true}

@@ -1,4 +1,4 @@
-apiVersion: "astera/v3"
+apiVersion: astera/v3
 kind: Skill
 id: grapple-shot
 item: grappling-hook
@@ -8,38 +8,46 @@ meta:
   cooldown_ticks: 120
   resource_cost: 10
   tags: [ranged, utility, movement]
+params:
+  launch_speed:       {type: number, default: 2.4}
+  max_lifetime_ticks: {type: ticks, default: 40}
+  dmg_physical:       {type: number, default: 5}
+  knockback:          {type: number, default: 1.2}
+  propel:             {type: number, default: 1.3}
+  propel_2:           {type: number, default: 0.4}
 anchors:
-  muzzle: {anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}
-  cast_fx: {anchor: caster.eye, offset: {up: -0.25, forward: 0.9}, mode: snapshot}
-  heart: {anchor: victim.body, offset: {up: 0.4}}
-# anchor note: v2 enemy point offset Y minus 0.8 (example b maps 1.0 -> up 0.2)
-presentation:
-  timeline:
-    - at: 0
-      do:
+  - {id: muzzle, anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}
+  - {id: cast_fx, anchor: caster.eye, offset: {up: -0.25, forward: 0.9}, mode: snapshot}
+  - {id: heart, anchor: victim.root, offset: {up: 1.2}}   # GAP(Q2): v2 pt_enemy_0_1p2_0 = enemy frame origin (feet+0.8) + 1.2; victim.root = feet
+machine:
+  start: cast
+  states:
+    cast:
+      on:
+        - {event: bolt.end, to: done}
+      enter:
         - {id: snd, op: sound, sound: "block.chain.place", anchor: caster, volume: 0.9, pitch: 1.2}
         - {id: fx, op: particle_def, def: hit-spark, anchor: cast_fx}
-    - {at: 0, every: 1, until: bolt.end, do: [{op: particle, particle: crit, anchor: {of: bolt, sweep: 0.4}, count: 1, offset: [0.02, 0.02, 0.02]}]}
-    - {at: 0, every: 1, until: bolt.end, do: [{op: particle, particle: dust, anchor: {of: bolt, sweep: 0.4}, count: 1, offset: [0.0, 0.0, 0.0], color: "#787878", size: 0.8}]}
-gameplay:
-  timeline:
-    - at: 0
       do:
         - id: bolt
           op: projectile
           origin: muzzle
-          velocity: "= look(caster) * 2.4"
-          for: 40
+          velocity: "= look(caster) * ${launch_speed}"
+          speed: "${launch_speed}"
+          for: "${max_lifetime_ticks}"
           radius: 0.5
           hit: {targets: enemies, once: true}
           block: {mode: despawn}
           on:
             hit:
-              - {id: dmg, op: damage, target: event.victim, damage: {physical: 5}}
-              - {id: kb, op: knockback, target: event.victim, direction: "= normalize(flat(pos(caster) - pos(event.victim))) + vec(0.0, 0.2, 0.0)", strength: 1.2}
-              - {id: snd_hit, op: sound, sound: "block.chain.place", anchor: heart, volume: 0.8, pitch: 0.8}
+              - {id: dmg, op: damage, target: event.victim, damage: {physical: "${dmg_physical}"}}
+              - {id: kb, op: knockback, target: event.victim, direction: "= normalize(pos(caster) - pos(event.victim)) + vec(0.0, 0.2, 0.0)", strength: "${knockback}"}
+              - {id: snd_hit, op: sound, sound: "block.chain.place", anchor: contact, volume: 0.8, pitch: 0.8}
               - {id: fx_hit, op: particle_def, def: hit-spark, anchor: heart}
             block:
-              - {id: pull, op: impulse, at: 0, target: caster, vector: {of: caster, forward: 1.3, up: 0.4}}
-              - {id: snd_blk, op: sound, sound: "block.chain.place", anchor: contact.point, volume: 0.8, pitch: 0.8}
-              - {id: fx_blk, op: particle_def, def: hit-spark, anchor: contact.point}
+              - {id: pull, op: impulse, at: 0, target: caster, vector: {of: caster, forward: "${propel}", up: "${propel_2}"}}
+              - {id: snd_blk, op: sound, sound: "block.chain.place", anchor: contact, volume: 0.8, pitch: 0.8}
+              - {id: fx_blk, op: particle_def, def: hit-spark, anchor: contact}
+        - {id: trail, op: particle, particle: crit, anchor: {of: bolt, sweep: 0.4}, count: 1, offset: [0.02, 0.02, 0.02], at: 0, every: 1, until: bolt.end}
+        - {id: trail_2, op: particle, particle: dust, anchor: {of: bolt, sweep: 0.4}, count: 1, color: "#787878", size: 0.8, at: 0, every: 1, until: bolt.end}
+    done: {final: true}

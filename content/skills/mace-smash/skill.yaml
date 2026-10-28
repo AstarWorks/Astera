@@ -13,6 +13,7 @@ params:
   arc_deg: {type: number, default: 100}
   range: {type: blocks, default: 3.0}
   dmg_physical: {type: number, default: 60.0}
+  knockback: {type: number, default: 1.0}
 anchors:
   - {id: eye, anchor: caster.eye}
   - {id: sweep, anchor: caster.eye, offset: {up: -0.2, forward: 1.4}, mode: snapshot}   # was pt_aim_0_m0p2_1p4
@@ -30,14 +31,15 @@ machine:
           op: hit
           anchor: eye
           at: 0
-          shape: {sector: {deg: "= arc_deg", range: "= range", height: 2.0, forward: look}}
+          shape: {sector: {deg: "${arc_deg}", range: "${range}", height: 2.0, forward: look}}
           targets: enemies
           max_count: all
           window: once
           ignore_invulnerability: false
-          damage: {physical: "= dmg_physical"}
+          damage: {physical: "${dmg_physical}"}
           on:
             hit:
+              - {id: kb, op: knockback, target: event.victim, direction: "= normalize(event.victim - pos(caster))", strength: "${knockback}"}
               - {id: snd_hit, op: sound, sound: "astera:weapons/blade-crit", anchor: contact, volume: 0.7, pitch: 1.2}
               - {id: fx_hit, op: particle_def, def: hit-spark, anchor: contact}
     end: {final: true}

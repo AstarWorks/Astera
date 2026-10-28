@@ -15,20 +15,22 @@ params:
 anchors:
   - {id: spot, anchor: caster.eye, offset: {forward: 2.5}, mode: snapshot}
   - {id: smoke_at, anchor: caster.eye, offset: {forward: 2.5, up: 0.1}}
-presentation:
-  timeline:
-    - id: lay
-      at: 0
-      do:
-        - {id: snd, op: sound, sound: "block.stone_pressure_plate.click_on", anchor: caster, volume: 1.0, pitch: 0.8}
-        - {id: smoke, op: emit, effect: gun-smoke, anchor: smoke_at}
 machine:
-  start: armed
+  start: cast
   states:
-    armed:
-      for: 51
-      then: done
+    cast:
+      start: armed
       do:
-        - {id: boom, op: explode, at: 50, anchor: spot, power: "${explode_power}", break_blocks: false, fire: false}
-        - {id: blast, op: damage, at: 50, target: {kind: enemies, around: spot, radius: "${explode_radius}", max_count: all, include_self: false}, damage: {physical: "${explode_physical}"}}  # GAP(Q1): max_count spelling (A required int|all / B omit) is a founder question; v2 had no cap
+        - {id: snd, op: sound, sound: "block.stone_pressure_plate.click_on", anchor: caster, volume: 1.0, pitch: 0.8, at: 0}
+        - {id: smoke, op: particle_def, def: gun-smoke, anchor: smoke_at, at: 0}
+      on:
+        - {event: end, to: done}
+      states:
+        armed:
+          for: 51
+          then: recover
+          do:
+            - {id: boom, op: explode, at: 50, anchor: spot, power: 1.0, break_blocks: false, fire: false}
+            - {id: blast, op: damage, at: 50, target: {kind: enemies, around: spot, radius: "${explode_radius}", max_count: all, include_self: false}, damage: {physical: "${explode_physical}"}}  # GAP(Q1): max_count spelling (A required int|all / B omit) is a founder question; v2 had no cap
+        recover: {final: true}
     done: {final: true}

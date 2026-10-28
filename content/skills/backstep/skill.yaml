@@ -1,7 +1,8 @@
+# also bound to items: shotgun
 apiVersion: astera/v3
 kind: Skill
 id: backstep
-item: rifle        # also bound to items: shotgun
+item: rifle
 meta:
   name: {ja: バックステップ, en: Backstep}
   description: {ja: "後方へ跳び退き、短時間だけ素早く動ける。", en: "Hops backwards and sprints briefly to break contact."}
@@ -14,21 +15,16 @@ params:
   propel_2: {type: number, default: 0.35}
 anchors:
   - {id: feet, anchor: caster, offset: {up: 0.2}}
-presentation:
-  timeline:
-    - id: hop
-      at: 0
-      do:
-        - {id: snd, op: sound, sound: "astera:weapons/dash-whoosh", anchor: caster, volume: 1.0, pitch: 1.0}
-        - {id: cloud, op: emit, effect: dash-cloud, anchor: feet}
 machine:
   start: cast
   states:
     cast:
       for: 1
-      then: done
-      enter:
+      then: end
+      do:
+        - {id: snd, op: sound, sound: "astera:weapons/dash-whoosh", anchor: caster, volume: 1.0, pitch: 1.0}
+        - {id: cloud, op: particle_def, def: dash-cloud, anchor: feet}
         - {id: evade, op: status, target: caster, status: evasive, stacks: 1, for: "${evasive_ticks}"}
         - {id: back, op: impulse, at: 0, target: caster, vector: {of: caster, forward: "${propel}"}}
         - {id: lift, op: impulse, at: 0, target: caster, vector: {x: 0, y: "${propel_2}", z: 0}}
-    done: {final: true}
+    end: {final: true}

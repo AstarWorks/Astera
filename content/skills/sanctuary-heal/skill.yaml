@@ -1,9 +1,11 @@
-# v3 hand port of the v2 skill (ADR-0303 rev4.2). 8 expanding rings of 16 points at ticks 0..7 plus the gameplay op at tick 0.
 apiVersion: astera/v3
 kind: Skill
 id: sanctuary-heal
 item: sanctuary-staff
 meta: {name: {ja: "癒しの輪", en: "Healing Circle"}, description: {ja: "周囲の味方の体力を回復する。", en: "Heals you and nearby allies."}, cooldown_ticks: 240, resource_cost: 28, tags: [magic, support, heal]}
+params:
+  radius: {type: blocks, default: 6.0}
+  heal:   {type: number, default: 30.0}
 anchors:
   - {id: self,  anchor: caster}
   - {id: feet,  anchor: caster, offset: {up: 0.15}}                   # was pt_caster_0_0p15_0
@@ -12,18 +14,12 @@ machine:
   start: bless
   states:
     bless:
-      for: 8
+      for: 1
       then: end
       enter:
+        - {id: heal, op: heal, target: {kind: allies, around: self, radius: "${radius}", max_count: all, include_self: true}, amount: "${heal}"}   # GAP(Q1): v2 had no cap
         - {id: snd, op: sound, sound: "astera:skills/heal-chime", anchor: caster, volume: 0.7, pitch: 1.0}
-        - {id: fx, op: particle_def, def: verdant-heal, anchor: chest}
-        - {id: heal, op: heal, target: {kind: allies, around: self, radius: 6.0, max_count: all, include_self: true}, amount: 30}   # v2 params radius 6.0, heal 30   # GAP(Q1): v2 had no cap; A=`all`, B=omit
-      do:
-        - id: ring
-          at: 0
-          every: 1
-          times: 8                   # ring k = parent.i; radius = 0.4 + parent.i * (4.0 - 0.4) / 7
-          do:
-            - {id: pts,  op: particle, particle: happy_villager, anchor: feet, count: 0, offset: "= [cos(6.283185307179586 * i / n + 6.283185307179586 * draw('shape_ph')), 0, -sin(6.283185307179586 * i / n + 6.283185307179586 * draw('shape_ph'))]", extra: 0.02, times: 16, at: 0, shift: {left: "= (0.4 + parent.i * 3.6 / 7.0) * cos(6.283185307179586 * i / n + 6.283185307179586 * draw('shape_ph'))", forward: "= -(0.4 + parent.i * 3.6 / 7.0) * sin(6.283185307179586 * i / n + 6.283185307179586 * draw('shape_ph'))"}}
-            - {id: dust, op: particle, particle: dust, anchor: feet, count: 1, extra: 0, color: "#5ae65a", size: 1.4, times: 16, at: 0, shift: {left: "= (0.4 + parent.i * 3.6 / 7.0) * cos(6.283185307179586 * i / n + 6.283185307179586 * draw('shape_ph'))", forward: "= -(0.4 + parent.i * 3.6 / 7.0) * sin(6.283185307179586 * i / n + 6.283185307179586 * draw('shape_ph'))"}}
+        - {id: emit, op: particle, particle: happy_villager, anchor: feet, count: 0, extra: 0.02}
+        - {id: emit_2, op: particle, particle: dust, anchor: feet, count: 1, color: "#5ae65a", size: 1.4}
+        - {id: emit_3, op: particle_def, def: verdant-heal, anchor: chest}
     end: {final: true}

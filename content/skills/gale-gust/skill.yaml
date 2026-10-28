@@ -1,26 +1,36 @@
-apiVersion: "astera/v3"
+apiVersion: astera/v3
 kind: Skill
 id: gale-gust
 item: gale-fan
 meta: {name: {ja: "突風", en: Gust}, description: {ja: "前方の敵を強く押し返す。", en: "Blows enemies in front of you away."}, cooldown_ticks: 70, resource_cost: 12, tags: [magic, wind, control]}
+params:
+  arc_deg:      {type: number, default: 80}
+  reach:        {type: blocks, default: 6.0}
+  knockback:    {type: number, default: 1.6}
+  dmg_physical: {type: number, default: 10.0}
 anchors:
-  cast_fx: {anchor: caster.eye, offset: {forward: 1.5}, mode: snapshot}
-presentation:
-  timeline:
-    - at: 0
+  - {id: cast_fx, anchor: caster, offset: {forward: 1.5}}       # was pt_caster_0_0_1p5
+machine:
+  start: cast
+  states:
+    cast:
+      for: 1
+      then: end
       do:
-        - {id: snd, op: sound, sound: entity.breeze.wind_burst, anchor: caster, volume: 0.9, pitch: 1.2}
-        - {id: fx, op: particle_def, def: dash-cloud, anchor: cast_fx}
-gameplay:
-  timeline:
-    - at: 0
-      do:
+        - {id: snd, op: sound, sound: entity.breeze.wind_burst, anchor: caster, volume: 0.9, pitch: 1.2, at: 0}
+        - {id: fx, op: particle_def, def: dash-cloud, anchor: cast_fx, at: 0}
+      enter:
         - id: sel
           op: hit
+          at: 0
           anchor: caster.eye
+          shape: {sector: {deg: "${arc_deg}", range: "${reach}", height: 2.0, forward: look}}
           targets: enemies
-          shape: {sector: {deg: 80, range: 6.0, height: 2.0}}
-          damage: {physical: 10.0}
+          max_count: all       # GAP(Q1): max_count spelling (A required int|all / B omit); v2 had no cap
+          window: once
+          ignore_invulnerability: false
+          damage: {physical: "${dmg_physical}"}
           on:
             hit:
-              - {id: kb, op: knockback, target: event.victim, direction: "= normalize(flat(pos(event.victim) - pos(caster))) + vec(0.0, 0.2, 0.0)", strength: 1.6}
+              - {id: kb, op: knockback, target: event.victim, direction: "= normalize(event.victim - pos(caster)) + vec(0.0, 0.2, 0.0)", strength: "${knockback}"}
+    end: {final: true}

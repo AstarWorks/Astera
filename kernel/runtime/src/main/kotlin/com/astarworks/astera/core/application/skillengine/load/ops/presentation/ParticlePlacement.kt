@@ -9,7 +9,7 @@ import com.astarworks.astera.core.application.skillengine.load.ops.OccurrenceBak
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.skillengine.model.Value
 import com.astarworks.astera.core.domain.skillengine.table.Val
-import org.joml.Vector3d
+import com.astarworks.astera.core.domain.skillengine.math.Vector3d
 
 /**
  * Where one copy of a `particle` / `particle_def` is emitted (ADR-0303 2.2, R10, R14): the anchor point, displaced by the anchor's

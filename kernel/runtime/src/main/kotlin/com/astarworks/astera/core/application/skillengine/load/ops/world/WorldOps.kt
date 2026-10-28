@@ -14,7 +14,7 @@ import com.astarworks.astera.core.domain.skillengine.table.Row
 import com.astarworks.astera.core.domain.skillengine.table.Val
 import com.astarworks.astera.core.domain.skillengine.world.AreaShape
 import com.astarworks.astera.core.domain.skillengine.world.BuildShape
-import org.joml.Vector3d
+import com.astarworks.astera.core.domain.skillengine.math.Vector3d
 
 /**
  * Shared field types and lowering for the world ops (`break_area`, `place_shape`, `explode`, `lightning`; ADR-0303 10.1c).

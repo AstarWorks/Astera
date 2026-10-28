@@ -1,4 +1,4 @@
-apiVersion: "astera/v3"
+apiVersion: astera/v3
 kind: Skill
 id: frost-shard
 item: frost-staff
@@ -9,26 +9,27 @@ meta:
   resource_cost: 8
   tags: [ranged, ice-family, slow]
 anchors:
-  muzzle: {anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}
-  cast_fx: {anchor: caster.eye, offset: {up: -0.2, forward: 1.0}, mode: snapshot}
-  heart: {anchor: victim.body, offset: {up: 0.2}}
-# anchor note: v2 enemy point offset Y minus 0.8 (example b maps 1.0 -> up 0.2)
-presentation:
-  timeline:
-    - at: 0
+  - {id: muzzle,  anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}
+  - {id: cast_fx, anchor: caster.eye, offset: {up: -0.2, forward: 1.0}, mode: snapshot}
+  - {id: heart,   anchor: victim.body, offset: {up: 0.2}}   # v2 enemy point offset Y 1.0 minus the enemy frame's 0.8 (ADR-0303 example b)
+machine:
+  start: cast
+  states:
+    cast:
+      start: fly
+      on:
+        - {event: bolt.end, to: done}
+        - {event: end, to: done}
       do:
-        - {id: shell, op: display, kind: item, item: "minecraft:prismarine_shard", context: fixed, anchor: bolt, scale: 0.9, at: 0, until: bolt.end}
-        - {id: snd, op: sound, sound: "astera:skills/frost-cast", anchor: caster, volume: 0.8, pitch: 1.4}
-        - {id: fx, op: particle_def, def: frost-cast, anchor: cast_fx}
-    - {at: 0, every: 1, until: bolt.end, do: [{op: particle, particle: snowflake, anchor: {of: bolt, sweep: 0.3}, count: 2, offset: [0.08, 0.08, 0.08], extra: 0.01}]}
-    - {at: 0, every: 1, until: bolt.end, do: [{op: particle, particle: dust, anchor: {of: bolt, sweep: 0.3}, count: 2, offset: [0.06, 0.06, 0.06], color: "#ebf5ff", size: 0.9}]}
-    - {at: 0, every: 1, until: bolt.end, do: [{op: particle, particle: end_rod, anchor: {of: bolt, sweep: 0.3}, count: 1, offset: [0.02, 0.02, 0.02]}]}
-gameplay:
-  timeline:
-    - at: 0
-      do:
+        - {id: shell, op: display, kind: item, item: "minecraft:prismarine_shard", context: fixed, anchor: bolt, scale: [0.9, 0.9, 0.9], at: 0, until: bolt.end}
+        - {id: snd, op: sound, sound: "astera:skills/frost-cast", anchor: caster, volume: 0.8, pitch: 1.4, at: 0}
+        - {id: fx, op: particle_def, def: frost-cast, anchor: cast_fx, at: 0}
+        - {id: tr0, op: particle, particle: snowflake, anchor: {of: bolt, sweep: 0.3}, count: 2, offset: [0.08, 0.08, 0.08], extra: 0.01, at: 0, every: 1, until: bolt.end}
+        - {id: tr1, op: particle, particle: dust, anchor: {of: bolt, sweep: 0.3}, count: 2, offset: [0.06, 0.06, 0.06], color: "#ebf5ff", size: 0.9, at: 0, every: 1, until: bolt.end}
+        - {id: tr2, op: particle, particle: end_rod, anchor: {of: bolt, sweep: 0.3}, count: 1, offset: [0.02, 0.02, 0.02], at: 0, every: 1, until: bolt.end}
         - id: bolt
           op: projectile
+          at: 0
           origin: muzzle
           velocity: "= look(caster) * 2.2"
           for: 50
@@ -61,3 +62,9 @@ gameplay:
               - {id: fx_blk_dust, op: particle_def, def: frost-impact-dust, anchor: contact.point}
             end:
               - {id: fx_end, op: particle_def, def: frost-impact, anchor: contact.point}
+      states:
+        fly:
+          for: 50
+          then: recover
+        recover: {final: true}
+    done: {final: true}

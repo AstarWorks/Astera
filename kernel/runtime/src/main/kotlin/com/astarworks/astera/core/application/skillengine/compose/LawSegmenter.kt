@@ -25,8 +25,8 @@ import com.astarworks.astera.core.domain.skillengine.table.Row
 import com.astarworks.astera.core.domain.skillengine.table.SrcPath
 import com.astarworks.astera.core.domain.skillengine.table.Val
 import com.astarworks.astera.core.domain.skillengine.table.WriteStats
-import org.joml.Quaterniond
-import org.joml.Vector3d
+import com.astarworks.astera.core.domain.skillengine.math.Quaterniond
+import com.astarworks.astera.core.domain.skillengine.math.Vector3d
 import kotlin.math.abs
 import kotlin.math.asin
 import kotlin.math.atan2

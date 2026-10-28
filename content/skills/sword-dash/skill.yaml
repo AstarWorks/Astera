@@ -8,8 +8,11 @@ meta:
   cooldown_ticks: 100
   resource_cost: 30
   tags: [buff, movement, sword]
+params:
+  dash_ticks: {type: ticks, default: 20}
+  propel:     {type: number, default: 1.1}
 anchors:
-  - {id: puff_pt, anchor: caster, offset: {up: 0.2}}
+  - {id: puff_pt, anchor: caster, offset: {up: 0.2}}   # was pt_caster_0_0p2_0
 machine:
   start: main
   states:
@@ -17,8 +20,8 @@ machine:
       for: 1
       then: end
       do:
-        - {id: buff, op: status, target: caster, status: dash, stacks: 1, for: 20}
-        - {id: propel, op: impulse, at: 0, target: caster, vector: {of: caster, forward: 1.1}}
-        - {id: snd, op: sound, sound: "astera:weapons/dash-whoosh", anchor: caster}
-        - {id: puff, op: particle_def, def: dash-cloud, anchor: puff_pt}
+        - {id: buff, op: status, at: 0, target: caster, status: dash, stacks: 1, for: "${dash_ticks}"}
+        - {id: propel, op: impulse, at: 0, target: caster, vector: {of: caster, forward: "${propel}"}}
+        - {id: snd, op: sound, at: 0, sound: "astera:weapons/dash-whoosh", anchor: caster}
+        - {id: puff, op: particle_def, at: 0, def: dash-cloud, anchor: puff_pt}
     end: {final: true}

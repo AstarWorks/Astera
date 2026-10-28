@@ -13,8 +13,8 @@ machine:
   start: fire
   states:
     fire:
-      for: 30                       # = max_lifetime_ticks; covers the whole flight
-      then: end
+      on:
+        - {event: bolt.end, to: end}
       enter:
         - {id: snd, op: sound, sound: "astera:weapons/gun-shot", anchor: caster, volume: 0.8, pitch: 1.2}
         - {id: fl0, op: particle_def, def: gun-muzzle-flash, anchor: muzzle}

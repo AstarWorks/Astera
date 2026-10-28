@@ -31,7 +31,7 @@ import com.astarworks.astera.core.domain.skillengine.table.OpId
 import com.astarworks.astera.core.domain.skillengine.table.SrcPath
 import com.astarworks.astera.core.domain.skillengine.table.Row
 import com.astarworks.astera.core.domain.skillengine.table.Val
-import org.joml.Vector3d
+import com.astarworks.astera.core.domain.skillengine.math.Vector3d
 
 /** The single data slot of the vanilla overload (2.2): Dust(color + size), Block or Item, or none. */
 public sealed interface ParticleStyle {

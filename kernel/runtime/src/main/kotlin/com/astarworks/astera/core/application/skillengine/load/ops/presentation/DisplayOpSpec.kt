@@ -48,8 +48,8 @@ import com.astarworks.astera.core.domain.skillengine.table.TickRange
 import com.astarworks.astera.core.domain.skillengine.table.Val
 import com.astarworks.astera.core.domain.sprite.SpriteGlyphs
 import com.astarworks.astera.core.domain.sprite.SpriteId
-import org.joml.Quaterniond
-import org.joml.Vector3d
+import com.astarworks.astera.core.domain.skillengine.math.Quaterniond
+import com.astarworks.astera.core.domain.skillengine.math.Vector3d
 
 public enum class DisplayKind { ITEM, BLOCK, TEXT, SPRITE }
 

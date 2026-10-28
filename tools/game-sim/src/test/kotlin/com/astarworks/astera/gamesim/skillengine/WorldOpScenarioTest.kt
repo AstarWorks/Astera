@@ -6,7 +6,7 @@ import com.astarworks.astera.core.domain.skillengine.table.Action
 import com.astarworks.astera.core.domain.skillengine.world.BlockCell
 import com.astarworks.astera.testfixtures.skillengine.FakeSkillWorldGateway
 import org.assertj.core.api.Assertions.assertThat
-import org.joml.Vector3d
+import com.astarworks.astera.core.domain.skillengine.math.Vector3d
 import org.junit.jupiter.api.Test
 import java.util.UUID
 

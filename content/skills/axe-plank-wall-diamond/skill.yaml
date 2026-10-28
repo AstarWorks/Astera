@@ -10,19 +10,14 @@ meta:
   tags: [tool, cover]
 anchors:
   - {id: aim, anchor: caster.eye, offset: {forward: 2.0}}
-presentation:
-  timeline:
-    - id: place
-      at: 0
-      do:
-        - {id: snd, op: sound, sound: "astera:weapons/gun-impact-block", anchor: caster, volume: 1.0, pitch: 0.9}
-        - {id: spark, op: emit, effect: hit-spark, anchor: aim}
 machine:
   start: cast
   states:
     cast:
       for: 1
-      then: done
-      enter:
+      then: end
+      do:
         - {id: wall, op: place_shape, at: 0, anchor: caster, shape: {wall: {width: 7, height: 3}}, block: "astera:reinforced_planks", consume: none, ripple: 29, revert: 200, outside_arena: false}
-    done: {final: true}
+        - {id: snd, op: sound, sound: "astera:weapons/gun-impact-block", anchor: caster, volume: 1.0, pitch: 0.9, at: 0}
+        - {id: spark, op: particle_def, def: hit-spark, anchor: aim, at: 0}
+    end: {final: true}

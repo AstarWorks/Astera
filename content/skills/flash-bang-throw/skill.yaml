@@ -1,4 +1,4 @@
-apiVersion: "astera/v3"
+apiVersion: astera/v3
 kind: Skill
 id: flash-bang-throw
 item: flash-bang
@@ -8,55 +8,44 @@ meta:
   cooldown_ticks: 200
   resource_cost: 12
   tags: [ranged, utility, control]
+params:
+  launch_speed:       {type: number, default: 1.4}
+  max_lifetime_ticks: {type: ticks, default: 50}
+  radius:             {type: blocks, default: 4.0}
+  shock_ticks:        {type: ticks, default: 30}
 anchors:
-  muzzle: {anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}
-  cast_fx: {anchor: caster.eye, offset: {up: -0.25, forward: 0.9}, mode: snapshot}
-  heart: {anchor: victim.body, offset: {up: 0.0}}
-# anchor note: v2 enemy point offset Y minus 0.8 (example b maps 1.0 -> up 0.2)
-presentation:
-  timeline:
-    - at: 0
-      do:
+  - {id: muzzle, anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}
+  - {id: cast_fx, anchor: caster.eye, offset: {up: -0.25, forward: 0.9}, mode: snapshot}
+  - {id: heart, anchor: victim.root, offset: {up: 0.8}}   # GAP(Q2): v2 pt_enemy_0_0p8_0 = enemy frame origin + 0.8 (origin itself feet+0.8 per sweep notes); victim.root = feet
+machine:
+  start: cast
+  states:
+    cast:
+      on:
+        - {event: bolt.end, to: done}
+      enter:
         - {id: snd, op: sound, sound: "entity.snowball.throw", anchor: caster, volume: 0.9, pitch: 1.2}
         - {id: fx, op: particle_def, def: gun-muzzle-flash, anchor: cast_fx}
-    - {at: 0, every: 1, until: bolt.end, do: [{op: particle, particle: end_rod, anchor: {of: bolt, sweep: 0.4}, count: 1, offset: [0.03, 0.03, 0.03]}]}
-gameplay:
-  timeline:
-    - at: 0
       do:
         - id: bolt
           op: projectile
           origin: muzzle
-          velocity: "= look(caster) * 1.4"
-          for: 50
+          velocity: "= look(caster) * ${launch_speed}"
+          speed: "${launch_speed}"
+          for: "${max_lifetime_ticks}"
           radius: 0.5
           hit: {targets: enemies, once: true}
           block: {mode: despawn}
           on:
             hit:
-# note: v2 shocks enemies within radius 4.0 of the victim (area target)
-              # GAP(Q1): max_count 64 is invented (v2 had no cap); spelling per founder answer
-              - {id: st_shock, op: status, target: {kind: enemies, around: heart, radius: 4.0, max_count: 64, include_self: false}, status: shock, stacks: 1, for: 30}
-              - {id: hit_base, op: frame, anchor: heart, turn: [{axis: up, deg: "= rand() * 360"}], for: 8}
-              - id: hit_rings
-                at: 0
-                every: 1
-                times: 4
-                do:
-                  - {id: hit_rings_pt, op: frame, times: 16, anchor: hit_base, turn: [{axis: up, deg: "= 360 * i / 16 + 90"}], offset: {forward: "= 0.4 + 1.0333 * parent.i"}, for: 1}
-                  - {op: particle, times: 16, anchor: 'hit_rings_pt[i]', particle: end_rod, count: 0, offset: "= anchor.forward", extra: 0.08}
-                  - {op: particle, times: 16, anchor: 'hit_rings_pt[i]', particle: dust, count: 1, color: "#ffffe6", size: 1.4}
-              - {id: snd_hit, op: sound, sound: "entity.firework_rocket.blast", anchor: heart, volume: 0.9, pitch: 1.3}
+              - {id: st_shock, op: status, target: {kind: enemies, around: heart, radius: "${radius}", max_count: all, include_self: false}, status: shock, stacks: 1, for: "${shock_ticks}"}   # GAP(Q1): max_count spelling; v2 had no cap
+              - {id: emit_2, op: particle, particle: end_rod, anchor: heart, count: 0, extra: 0.08}
+              - {id: emit_3, op: particle, particle: dust, anchor: heart, count: 1, color: "#ffffe6", size: 1.4}
+              - {id: snd_hit, op: sound, sound: "entity.firework_rocket.blast", anchor: contact, volume: 0.9, pitch: 1.3}
             block:
-              # GAP(Q1): max_count 64 is invented (v2 had no cap); spelling per founder answer
-              - {id: st_shock_2, op: status, target: {kind: enemies, around: contact.point, radius: 4.0, max_count: 64, include_self: false}, status: shock, stacks: 1, for: 30}
-              - {id: blk_base, op: frame, anchor: contact.point, turn: [{axis: up, deg: "= rand() * 360"}], for: 8}
-              - id: blk_rings
-                at: 0
-                every: 1
-                times: 4
-                do:
-                  - {id: blk_rings_pt, op: frame, times: 16, anchor: blk_base, turn: [{axis: up, deg: "= 360 * i / 16 + 90"}], offset: {forward: "= 0.4 + 1.0333 * parent.i"}, for: 1}
-                  - {op: particle, times: 16, anchor: 'blk_rings_pt[i]', particle: end_rod, count: 0, offset: "= anchor.forward", extra: 0.08}
-                  - {op: particle, times: 16, anchor: 'blk_rings_pt[i]', particle: dust, count: 1, color: "#ffffe6", size: 1.4}
-              - {id: snd_blk, op: sound, sound: "entity.firework_rocket.blast", anchor: contact.point, volume: 0.9, pitch: 1.3}
+              - {id: st_shock_2, op: status, target: {kind: enemies, around: contact, radius: "${radius}", max_count: all, include_self: false}, status: shock, stacks: 1, for: "${shock_ticks}"}   # GAP(Q1): max_count spelling; v2 had no cap
+              - {id: emit_4, op: particle, particle: end_rod, anchor: contact, count: 0, extra: 0.08}
+              - {id: emit_5, op: particle, particle: dust, anchor: contact, count: 1, color: "#ffffe6", size: 1.4}
+              - {id: snd_blk, op: sound, sound: "entity.firework_rocket.blast", anchor: contact, volume: 0.9, pitch: 1.3}
+        - {id: trail, op: particle, particle: end_rod, anchor: {of: bolt, sweep: 0.4}, count: 1, offset: [0.03, 0.03, 0.03], at: 0, every: 1, until: bolt.end}
+    done: {final: true}

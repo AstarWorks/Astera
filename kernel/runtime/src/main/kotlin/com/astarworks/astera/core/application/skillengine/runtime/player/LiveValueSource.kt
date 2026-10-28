@@ -2,8 +2,8 @@ package com.astarworks.astera.core.application.skillengine.runtime.player
 
 import com.astarworks.astera.core.domain.skillengine.table.TargetRule
 import com.astarworks.astera.core.domain.skillengine.table.TargetSet
-import org.joml.Quaterniond
-import org.joml.Vector3d
+import com.astarworks.astera.core.domain.skillengine.math.Quaterniond
+import com.astarworks.astera.core.domain.skillengine.math.Vector3d
 
 /**
  * What a row hands the live source so a CEL cell evaluates as the compiler's folds do (R10): [seed] is the per-occurrence

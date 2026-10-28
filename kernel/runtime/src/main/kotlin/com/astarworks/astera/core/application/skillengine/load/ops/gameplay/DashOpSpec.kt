@@ -30,7 +30,7 @@ import com.astarworks.astera.core.domain.skillengine.table.EventPath
 import com.astarworks.astera.core.domain.skillengine.table.SubTable
 import com.astarworks.astera.core.domain.skillengine.table.TickRange
 import com.astarworks.astera.core.domain.skillengine.table.Val
-import org.joml.Vector3d
+import com.astarworks.astera.core.domain.skillengine.math.Vector3d
 
 /**
  * Decoded `dash` op (ADR-0303 10.1): the caster travels `speed` blocks per tick along [direction] for the span's ticks.
