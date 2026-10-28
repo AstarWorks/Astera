@@ -72,4 +72,52 @@ class FrameOpScenarioTest : SkillEngineScenario() {
         )
         assertThat((r as Result.Failure).error).isInstanceOf(SkillDecodeError.UndefinedReference::class.java)
     }
+
+    /** Motion laws of a frame read the skill's `${param}` numbers and the item-part axes (`edge`, `long`) at load; the table holds plain numbers. */
+    private fun withParams(vararg ops: String): CompiledSkill =
+        when (val r = loadInline(skill(*ops).replace("anchors:", "params:\n  spin_dpt: {type: number, default: 54}\n  open_deg: {type: number, default: 35}\nanchors:"))) {
+            is Result.Success -> r.value
+            is Result.Failure -> throw AssertionError("load failed: ${r.error}")
+        }
+
+    private fun keysOf(s: CompiledSkill, id: String) =
+        rows(s).filter { it.instance.text == id }.mapNotNull { r -> (r.action as? Action.Key)?.let { r.tick to it } }
+
+    @Test
+    fun frameSpinReadsParamAndKeysPoseResolvesItemEdgeAxis() {
+        val s = withParams(
+            "{id: spun, op: frame, anchor: shears, for: 40, motion: [{law: spin, axis: forward, deg_per_tick: \"\${spin_dpt}\", at: 0, for: 1}]}",
+            "{id: open, op: frame, anchor: shears, part: blade_a, for: 40, motion: [{law: keys, keys: [{t: 0, pose: [{axis: edge, deg: 0}]}, {t: 6, pose: [{axis: edge, deg: 35}]}]}]}",
+        )
+        val tol = org.assertj.core.data.Offset.offset(1e-6)
+        // spin: 54 deg about forward (0, 0, 1) after one tick, from ${spin_dpt}
+        val spun = keysOf(s, "throw/spun").maxBy { it.first }.second.leftRotation as com.astarworks.astera.core.domain.skillengine.table.Val.Known
+        assertThat(spun.value.z).isCloseTo(Math.sin(Math.toRadians(27.0)), tol)
+        assertThat(spun.value.w).isCloseTo(Math.cos(Math.toRadians(27.0)), tol)
+        // keys: 35 deg about blade_a.edge = (0.8087, -0.5882, 0) (content/frames/couture-rapier.yaml)
+        val open = keysOf(s, "throw/open").maxBy { it.first }.second.leftRotation as com.astarworks.astera.core.domain.skillengine.table.Val.Known
+        val h = Math.toRadians(17.5)
+        val len = Math.sqrt(0.8087 * 0.8087 + 0.5882 * 0.5882)
+        assertThat(open.value.x).isCloseTo(0.8087 / len * Math.sin(h), tol)
+        assertThat(open.value.y).isCloseTo(-0.5882 / len * Math.sin(h), tol)
+        assertThat(open.value.w).isCloseTo(Math.cos(h), tol)
+    }
+
+    /** The s2 blades: a spin frame carries the open pose of a part child (a spin and a keys pose on ONE frame overlap on the turn channel and fail the load). */
+    @Test
+    fun spinFrameCarriesPartChildWithKeysPose() {
+        val s = withParams(
+            "{id: spun, op: frame, anchor: shears, for: 40, motion: [{law: spin, axis: forward, deg_per_tick: \"\${spin_dpt}\", at: 0, for: 30}]}",
+            "{id: open, op: frame, anchor: spun, part: blade_a, for: 40, motion: [{law: keys, keys: [{t: 0, pose: [{axis: edge, deg: 0}]}, {t: 4, pose: [{axis: edge, deg: 35}]}]}]}",
+        )
+        assertThat(keysOf(s, "throw/open")).isNotEmpty()
+    }
+
+    @Test
+    fun itemAxisWithoutPartIsLoadError() {
+        val r = loadInline(
+            skill("{id: open, op: frame, anchor: shears, for: 40, motion: [{law: keys, keys: [{t: 0, pose: [{axis: edge, deg: 5}]}]}]}"),
+        )
+        assertThat((r as Result.Failure).error).isInstanceOf(SkillDecodeError.Invalid::class.java)
+    }
 }

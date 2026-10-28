@@ -4,6 +4,7 @@ import com.astarworks.astera.core.application.skillengine.compose.ComposedSkill
 import com.astarworks.astera.core.application.skillengine.expr.cel.V3Bindings
 import com.astarworks.astera.core.application.skillengine.load.grammar.Grammar
 import com.astarworks.astera.core.application.skillengine.load.grammar.GrammarContext
+import com.astarworks.astera.core.application.skillengine.load.grammar.loadTimeDefaults
 import com.astarworks.astera.core.application.skillengine.load.spec.OpSpecRegistry
 import com.astarworks.astera.core.application.skillengine.part.PartParser
 import com.astarworks.astera.core.application.skillengine.part.PatchApplier
@@ -123,7 +124,7 @@ public class SkillDocumentDecoder(private val specs: OpSpecRegistry, private val
             },
             env.exprEnv.frames + anchors.map { it.id } + framesIn.keys,
         )
-        val ctx = GrammarContext(file, null, exprs, docEnv)
+        val ctx = GrammarContext(file, null, exprs, docEnv, paramDefaults = loadTimeDefaults(params))
         val conditions = LinkedHashMap<String, String>()
         for ((name, raw) in mapAt(boot, tree["conditions"], "conditions")) {
             val src = raw as? String ?: boot.mismatch("conditions.$name", "'= expr'", raw)
