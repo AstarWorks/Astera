@@ -1,8 +1,5 @@
 # Converted from content/skills/sigil-bullet-projectile.yaml + content/vfx/* by tools/skill-convert/convert.py (v1 archetype: projectile). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
 # Generated point-frame offsets are [left, up, forward] in the parent frame.
-# CONVERT-PRESENT projectile display.material used as the mesh item id (unverified); variant dropped (x1): minecraft:iron_nugget variant=item
-# CONVERT-PRESENT vfx follow=false (anchored at world, no place-at-spawn) (x1): sigil-rifle-mark
-# CONVERT-PRESENT vfx frame orient (frames carry no orientation / scale) (x1): orient="yaw"
 apiVersion: "astera/v2"
 kind: Skill
 id: sigil-bullet-projectile
@@ -10,11 +7,12 @@ frames:
   - {id: fx1_sigil_rifle_mark, kind: body, parent: world}
 presentation:
   timeline:
-    - {id: fx0, at: 0, do: [{id: mesh, op: mesh, frame: bolt, item: "minecraft:iron_nugget", scale: 0.35}]}
+    - {id: fx0, at: 0, do: [{id: mesh, op: mesh, frame: bolt, item: "minecraft:iron_nugget", display_mode: none, rig_shading: false, scale: 0.35}]}
     - {id: fxhit_7, at: "hit+7", do: [{id: rm, op: remove, ids: [fx1_sigil_rifle_mark_solid_impact_0, fx1_sigil_rifle_mark_solid_impact_1, fx1_sigil_rifle_mark_solid_impact_2]}]}
     - {id: rep1, at: 0, every: 1, until: end, do: [{id: trail, op: emit, at: bolt, particle: dust, count: 1, spacing: 0.2, data: "#f0dc96", data_size: 0.65}]}
   "on":
     hit:
+      - {id: anchor, op: anchor, frame: fx1_sigil_rifle_mark, at: contact.point, orient: yaw}
       - {op: block, parent: fx1_sigil_rifle_mark, block: red_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx1_sigil_rifle_mark_solid_impact_0}
       - id: fx1_sigil_rifle_mark_solid_impact_0_trk
         op: track

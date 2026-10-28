@@ -1,14 +1,12 @@
 # Converted from content/skills/bastion-greatsword-s1.yaml + content/vfx/* by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
 # Generated point-frame offsets are [left, up, forward] in the parent frame.
-# CONVERT-PRESENT vfx frame orient (frames carry no orientation / scale) (x3): orient="yaw"
-# CONVERT-PRESENT vfx attach_to_anchor (no v2 equivalent) (x1): true
 apiVersion: "astera/v2"
 kind: Skill
 id: bastion-greatsword-s1
 frames:
-  - {id: fx1_bastion_s1_rig, kind: body, parent: caster}
+  - {id: fx1_bastion_s1_rig, kind: body, parent: world}
   - {id: fx1_bastion_s1_rig_sword, kind: body, parent: caster}
-  - {id: fx2_bastion_s1_fx_high, kind: body, parent: caster}
+  - {id: fx2_bastion_s1_fx_high, kind: body, parent: world}
   - {id: fx2_bastion_s1_fx_high_s1h1_p_sheath_0_at, kind: body, parent: fx2_bastion_s1_fx_high}
   - {id: fx2_bastion_s1_fx_high_s1h1_p_sheath_1_at, kind: body, parent: fx2_bastion_s1_fx_high}
   - {id: fx2_bastion_s1_fx_high_s1h1_p_sheath_2_at, kind: body, parent: fx2_bastion_s1_fx_high}
@@ -188,7 +186,7 @@ frames:
   - {id: fx2_bastion_s1_fx_high_s1h1_p_trail_33_at, kind: body, parent: fx2_bastion_s1_fx_high}
   - {id: fx2_bastion_s1_fx_high_s1h1_p_csteel_27_at, kind: body, parent: fx2_bastion_s1_fx_high}
   - {id: fx2_bastion_s1_fx_high_s1h1_p_tcrit_26_at, kind: body, parent: fx2_bastion_s1_fx_high}
-  - {id: fx3_bastion_s1_fx_low, kind: body, parent: caster}
+  - {id: fx3_bastion_s1_fx_low, kind: body, parent: world}
   - {id: fx3_bastion_s1_fx_low_s1h2_p_sheath_0_at, kind: body, parent: fx3_bastion_s1_fx_low}
   - {id: fx3_bastion_s1_fx_low_s1h2_p_sheath_0_2_at, kind: body, parent: fx3_bastion_s1_fx_low}
   - {id: fx3_bastion_s1_fx_low_s1h2_p_sheath_1_at, kind: body, parent: fx3_bastion_s1_fx_low}
@@ -373,6 +371,7 @@ presentation:
     - id: fx0
       at: 0
       do:
+        - {id: anchor, op: anchor, frame: fx1_bastion_s1_rig, at: caster, orient: yaw, follow: true, teleport_ticks: 2}
         - id: fx1_bastion_s1_rig_sword_rig
           op: rig
           frame: fx1_bastion_s1_rig_sword
@@ -381,58 +380,55 @@ presentation:
           anim: bastion-s1-body
           swing:
             - {t: 0, rotate: [-55.234105, -31.30293, 83.579989]}
-            - {t: 1, rotate: [-55.234105, -31.30293, 83.579989]}
+            - {t: 1, rotate: [-55.234105, -31.30293, 83.579989], sample: true}
             - {t: 2, rotate: [-55.234105, -31.30293, 83.579989]}
             - {t: 3, rotate: [-124.371449, 10.23652, 73.392881]}
             - {t: 4, rotate: [-140.829985, 73.973734, 3.215676]}
             - {t: 5, rotate: [34.220704, -94.590607, 85.520133]}
             - {t: 6, rotate: [39.148117, -84.726135, 112.401778]}
-            - {t: 7, rotate: [39.148117, -84.726135, 112.401778]}
-            - {t: 8, rotate: [39.148117, -84.726135, 112.401778]}
-            - {t: 9, rotate: [30.130349, -58.597585, 141.97144]}
-            - {t: 10, rotate: [89.364156, -3.208198, -57.332857]}
-            - {t: 11, rotate: [89.63905, -4.796137, -65.627252]}
-            - {t: 12, rotate: [88.540938, -4.916379, -69.062813]}
-            - {t: 13, rotate: [87.345399, -5.080209, -72.46372]}
-            - {t: 14, rotate: [86.053124, -5.288987, -75.82636]}
-            - {t: 15, rotate: [84.66492, -5.544024, -79.147064]}
-            - {t: 16, rotate: [54.722906, 26.682723, -29.229866]}
-            - {t: 17, rotate: [62.265803, 3.490502, -14.400064]}
-            - {t: 18, rotate: [64.837018, -6.545682, -1.88682]}
-            - {t: 19, rotate: [64.837018, -6.545682, -1.88682]}
-            - {t: 20, rotate: [64.837018, -6.545682, -1.88682]}
-            - {t: 21, rotate: [64.837018, -6.545682, -1.88682]}
-            - {t: 22, rotate: [64.837018, -6.545682, -1.88682]}
-            - {t: 23, rotate: [64.837018, -6.545682, -1.88682]}
+            - {t: 7, rotate: [30.130349, -58.597585, 141.97144]}
+            - {t: 8, rotate: [89.364156, -3.208198, -57.332857]}
+            - {t: 9, rotate: [89.63905, -4.796137, -65.627252]}
+            - {t: 10, rotate: [88.540938, -4.916379, -69.062813], sample: true}
+            - {t: 11, rotate: [87.345399, -5.080209, -72.46372], sample: true}
+            - {t: 12, rotate: [86.053124, -5.288987, -75.82636], sample: true}
+            - {t: 13, rotate: [84.66492, -5.544024, -79.147064]}
+            - {t: 14, rotate: [54.722906, 26.682723, -29.229866]}
+            - {t: 15, rotate: [62.265803, 3.490502, -14.400064]}
+            - {t: 16, rotate: [64.837018, -6.545682, -1.88682]}
+            - {t: 17, rotate: [64.837018, -6.545682, -1.88682], sample: true}
+            - {t: 18, rotate: [64.837018, -6.545682, -1.88682], sample: true}
+            - {t: 19, rotate: [64.837018, -6.545682, -1.88682], sample: true}
+            - {t: 20, rotate: [64.837018, -6.545682, -1.88682], sample: true}
+            - {t: 21, rotate: [64.837018, -6.545682, -1.88682], sample: true}
+            - {t: 22, rotate: [64.837018, -6.545682, -1.88682], sample: true}
+            - {t: 23, rotate: [64.837018, -6.545682, -1.88682], sample: true}
             - {t: 24, rotate: [64.837018, -6.545682, -1.88682]}
-            - {t: 25, rotate: [64.837018, -6.545682, -1.88682]}
-            - {t: 26, rotate: [64.837018, -6.545682, -1.88682]}
-            - {t: 27, rotate: [37.394379, 31.460452, -38.992125]}
-            - {t: 28, rotate: [53.103492, 34.734984, -34.574833]}
-            - {t: 29, rotate: [97.142781, 41.08938, -22.518417]}
-            - {t: 30, rotate: [83.661701, 29.10967, -20.849061]}
-            - {t: 31, rotate: [83.661701, 29.10967, -20.849061]}
-            - {t: 32, rotate: [83.661701, 29.10967, -20.849061]}
-            - {t: 33, rotate: [83.654358, 28.996732, -19.386808]}
-            - {t: 34, rotate: [83.719247, 28.909555, -17.907555]}
-            - {t: 35, rotate: [83.749059, 29.084831, -18.363301]}
-            - {t: 36, rotate: [-38.019362, -59.994154, 145.957308]}
-            - {t: 37, rotate: [-38.924557, -60.256574, 146.261084]}
-            - {t: 38, rotate: [91.840639, 138.298147, -29.371663]}
-            - {t: 39, rotate: [76.212833, 113.839578, 13.358776]}
-            - {t: 40, rotate: [64.886328, 89.406442, 7.790645]}
-            - {t: 41, rotate: [64.886328, 89.406442, 7.790645]}
-            - {t: 42, rotate: [64.886328, 89.406442, 7.790645]}
-            - {t: 43, rotate: [64.886328, 89.406442, 7.790645]}
-            - {t: 44, rotate: [64.886328, 89.406442, 7.790645]}
-            - {t: 45, rotate: [64.886328, 89.406442, 7.790645]}
-            - {t: 46, rotate: [64.886328, 89.406442, 7.790645]}
-            - {t: 47, rotate: [64.886328, 89.406442, 7.790645]}
-            - {t: 48, rotate: [64.886328, 89.406442, 7.790645]}
-            - {t: 49, rotate: [64.886328, 89.406442, 7.790645]}
-            - {t: 50, rotate: [64.886328, 89.406442, 7.790645]}
-            - {t: 51, rotate: [0.0, 0.0, 0.0]}
+            - {t: 25, rotate: [37.394379, 31.460452, -38.992125]}
+            - {t: 26, rotate: [53.103492, 34.734984, -34.574833]}
+            - {t: 27, rotate: [97.142781, 41.08938, -22.518417]}
+            - {t: 28, rotate: [83.661701, 29.10967, -20.849061]}
+            - {t: 29, rotate: [83.654358, 28.996732, -19.386808], sample: true}
+            - {t: 30, rotate: [83.719247, 28.909555, -17.907555]}
+            - {t: 31, rotate: [83.749059, 29.084831, -18.363301]}
+            - {t: 32, rotate: [-38.019362, -59.994154, 145.957308]}
+            - {t: 33, rotate: [-38.924557, -60.256574, 146.261084]}
+            - {t: 34, rotate: [91.840639, 138.298147, -29.371663]}
+            - {t: 35, rotate: [76.212833, 113.839578, 13.358776]}
+            - {t: 36, rotate: [64.886328, 89.406442, 7.790645]}
+            - {t: 37, rotate: [64.886328, 89.406442, 7.790645], sample: true}
+            - {t: 38, rotate: [64.886328, 89.406442, 7.790645], sample: true}
+            - {t: 39, rotate: [64.886328, 89.406442, 7.790645], sample: true}
+            - {t: 40, rotate: [64.886328, 89.406442, 7.790645], sample: true}
+            - {t: 41, rotate: [64.886328, 89.406442, 7.790645], sample: true}
+            - {t: 42, rotate: [64.886328, 89.406442, 7.790645], sample: true}
+            - {t: 43, rotate: [64.886328, 89.406442, 7.790645], sample: true}
+            - {t: 44, rotate: [64.886328, 89.406442, 7.790645], sample: true}
+            - {t: 45, rotate: [64.886328, 89.406442, 7.790645], sample: true}
+            - {t: 46, rotate: [64.886328, 89.406442, 7.790645], sample: true}
+            - {t: 47, rotate: [0.0, 0.0, 0.0], ease: step}
           sample_ticks: 1
+          respect_hit_stop: true
           freezes:
             - {at: 7, ticks: 2}
             - {at: 31, ticks: 2}
@@ -450,6 +446,7 @@ presentation:
     - id: fx3
       at: 3
       do:
+        - {id: anchor_2, op: anchor, frame: fx2_bastion_s1_fx_high, at: caster, orient: yaw, follow: true, teleport_ticks: 2}
         - op: plate
           parent: fx2_bastion_s1_fx_high
           face: {plane: {frame: fx2_bastion_s1_fx_high, axes: [left, up]}}
@@ -1186,6 +1183,7 @@ presentation:
         - {id: snd_15, op: sound, sound: entity.player.attack.sweep, at: caster, volume: 1.0, pitch: 0.45}
         - {id: snd_16, op: sound, sound: entity.breeze.wind_burst, at: caster, volume: 0.6, pitch: 0.5}
         - {id: snd_17, op: sound, sound: item.trident.throw, at: caster, volume: 0.8, pitch: 0.5}
+    - {id: fx27, at: 27, do: [{id: anchor_3, op: anchor, frame: fx3_bastion_s1_fx_low, at: caster, orient: yaw, follow: true, teleport_ticks: 2}]}
     - id: fx28
       at: 28
       do:

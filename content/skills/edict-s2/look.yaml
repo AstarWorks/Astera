@@ -1,28 +1,27 @@
 # Converted from content/skills/edict-s2.yaml + content/vfx/* by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
 # Generated point-frame offsets are [left, up, forward] in the parent frame.
-# CONVERT-PRESENT vfx frame orient (frames carry no orientation / scale) (x11): orient="yaw"
 # CONVERT-PRESENT element kind text has no v2 op (x2): {'type': 'text', 'text': '<#4f8fff><b>★</b>', 'background': '#00000000', 'shadow
-# CONVERT-PRESENT vfx follow=false (anchored at world, no place-at-spawn) (x6): edict-cuff-sweep | edict-impact
 apiVersion: "astera/v2"
 kind: Skill
 id: edict-s2
 frames:
-  - {id: fx1_edict_ghost, kind: body, parent: caster}
-  - {id: fx2_edict_fists_down, kind: body, parent: caster}
+  - {id: fx1_edict_ghost, kind: body, parent: world}
+  - {id: fx2_edict_fists_down, kind: body, parent: world}
   - {id: fx3_edict_cuff_sweep, kind: body, parent: world}
   - {id: fx4_edict_impact, kind: body, parent: world}
-  - {id: fx5_edict_fists_return, kind: body, parent: caster}
+  - {id: fx5_edict_fists_return, kind: body, parent: world}
   - {id: fx6_edict_cuff_sweep, kind: body, parent: world}
   - {id: fx7_edict_impact, kind: body, parent: world}
-  - {id: fx8_edict_fists_return, kind: body, parent: caster}
+  - {id: fx8_edict_fists_return, kind: body, parent: world}
   - {id: fx9_edict_cuff_sweep, kind: body, parent: world}
   - {id: fx10_edict_impact, kind: body, parent: world}
-  - {id: fx11_edict_ghost, kind: body, parent: caster}
+  - {id: fx11_edict_ghost, kind: body, parent: world}
 presentation:
   timeline:
     - id: fx0
       at: 0
       do:
+        - {id: anchor, op: anchor, frame: fx1_edict_ghost, at: caster, orient: yaw, follow: true, teleport_ticks: 2}
         - op: block
           parent: fx1_edict_ghost
           block: white_stained_glass
@@ -55,6 +54,7 @@ presentation:
     - id: fx3
       at: 3
       do:
+        - {id: anchor_2, op: anchor, frame: fx2_edict_fists_down, at: caster, orient: yaw, follow: true, teleport_ticks: 2}
         - {op: block, parent: fx2_edict_fists_down, block: white_concrete, size: [1.0, 1.0, 1.0], id: fx2_edict_fists_down_1_glove}
         - id: fx2_edict_fists_down_1_glove_trk
           op: track
@@ -231,6 +231,7 @@ presentation:
     - id: fx7
       at: 7
       do:
+        - {id: anchor_3, op: anchor, frame: fx3_edict_cuff_sweep, at: caster, orient: yaw}
         - {op: block, parent: fx3_edict_cuff_sweep, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx3_edict_cuff_sweep_arc_0}
         - id: fx3_edict_cuff_sweep_arc_0_trk
           op: track
@@ -342,6 +343,7 @@ presentation:
     - id: fx16
       at: 16
       do:
+        - {id: anchor_5, op: anchor, frame: fx5_edict_fists_return, at: caster, orient: yaw, follow: true, teleport_ticks: 2}
         - {op: block, parent: fx5_edict_fists_return, block: white_concrete, size: [1.0, 1.0, 1.0], id: fx5_edict_fists_return_1_glove}
         - id: fx5_edict_fists_return_1_glove_trk
           op: track
@@ -535,6 +537,7 @@ presentation:
             - fx3_edict_cuff_sweep_arc_9
             - fx3_edict_cuff_sweep_arc_10
             - fx3_edict_cuff_sweep_arc_11
+        - {id: anchor_6, op: anchor, frame: fx6_edict_cuff_sweep, at: caster, orient: yaw}
         - {op: block, parent: fx6_edict_cuff_sweep, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx6_edict_cuff_sweep_arc_0}
         - id: fx6_edict_cuff_sweep_arc_0_trk
           op: track
@@ -670,6 +673,7 @@ presentation:
     - id: fx39
       at: 39
       do:
+        - {id: anchor_11, op: anchor, frame: fx11_edict_ghost, at: caster, orient: yaw, follow: true, teleport_ticks: 2}
         - op: block
           parent: fx11_edict_ghost
           block: white_stained_glass
@@ -726,6 +730,7 @@ presentation:
     - id: fx61
       at: 61
       do:
+        - {id: anchor_8, op: anchor, frame: fx8_edict_fists_return, at: caster, orient: yaw, follow: true, teleport_ticks: 2}
         - {op: block, parent: fx8_edict_fists_return, block: white_concrete, size: [1.0, 1.0, 1.0], id: fx8_edict_fists_return_1_glove}
         - id: fx8_edict_fists_return_1_glove_trk
           op: track
@@ -885,6 +890,7 @@ presentation:
     - id: fx65
       at: 65
       do:
+        - {id: anchor_9, op: anchor, frame: fx9_edict_cuff_sweep, at: caster, orient: yaw}
         - {op: block, parent: fx9_edict_cuff_sweep, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx9_edict_cuff_sweep_arc_0}
         - id: fx9_edict_cuff_sweep_arc_0_trk
           op: track
@@ -1088,6 +1094,7 @@ presentation:
           when: "= event.source == 'sel_3'"
   "on":
     hit:
+      - {id: anchor_4, op: anchor, frame: fx4_edict_impact, at: contact.point, orient: yaw, when: "= event.source == 'sel'"}
       - {op: block, parent: fx4_edict_impact, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx4_edict_impact_ray_0_0, when: "= event.source == 'sel'"}
       - id: fx4_edict_impact_ray_0_0_trk
         op: track
@@ -1258,6 +1265,7 @@ presentation:
           - {t: 6, offset: [0.0, 1.15, 0.0], scale: [0.0, 0.0, 1.0]}
         when: "= event.source == 'sel'"
       - {id: snd, op: sound, sound: entity.player.attack.strong, at: enemy, volume: 0.7, pitch: 1.1, when: "= event.source == 'sel'"}
+      - {id: anchor_7, op: anchor, frame: fx7_edict_impact, at: contact.point, orient: yaw, when: "= event.source == 'sel_2'"}
       - {op: block, parent: fx7_edict_impact, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx7_edict_impact_ray_0_0, when: "= event.source == 'sel_2'"}
       - id: fx7_edict_impact_ray_0_0_trk
         op: track
@@ -1428,6 +1436,7 @@ presentation:
           - {t: 6, offset: [0.0, 1.15, 0.0], scale: [0.0, 0.0, 1.0]}
         when: "= event.source == 'sel_2'"
       - {id: snd_2, op: sound, sound: entity.player.attack.strong, at: enemy, volume: 0.7, pitch: 1.1, when: "= event.source == 'sel_2'"}
+      - {id: anchor_10, op: anchor, frame: fx10_edict_impact, at: contact.point, orient: yaw, when: "= event.source == 'sel_3'"}
       - {op: block, parent: fx10_edict_impact, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx10_edict_impact_ray_0_0, when: "= event.source == 'sel_3'"}
       - id: fx10_edict_impact_ray_0_0_trk
         op: track

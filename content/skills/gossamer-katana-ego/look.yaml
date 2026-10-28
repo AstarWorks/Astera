@@ -1,24 +1,22 @@
 # Converted from content/skills/gossamer-katana-ego.yaml + content/vfx/* by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
 # Generated point-frame offsets are [left, up, forward] in the parent frame.
-# CONVERT-PRESENT vfx frame orient (frames carry no orientation / scale) (x6): orient="yaw"
-# CONVERT-PRESENT vfx follow=false (anchored at world, no place-at-spawn) (x5): gossamer-katana-guard | gossamer-katana-iaido-line
 apiVersion: "astera/v2"
 kind: Skill
 id: gossamer-katana-ego
 frames:
-  - {id: fx1_gossamer_katana_draw, kind: body, parent: caster}
-  - {id: fx1_gossamer_katana_draw_katana_at, kind: body, parent: caster.right_hand}
-  - {id: fx1_gossamer_katana_draw_katana, kind: body, parent: fx1_gossamer_katana_draw_katana_at}
+  - {id: fx1_gossamer_katana_draw, kind: body, parent: world}
+  - {id: fx1_gossamer_katana_draw_katana, kind: body, parent: caster}
+  - {id: fx1_gossamer_katana_draw_katana_parts, kind: body, parent: caster}
   - {id: fx2_gossamer_katana_guard, kind: body, parent: world}
   - {id: fx3_gossamer_katana_iaido_line, kind: body, parent: world}
   - {id: fx4_gossamer_katana_slash_up, kind: body, parent: world}
-  - {id: fx4_gossamer_katana_slash_up_katana_at, kind: body, parent: caster.right_hand}
-  - {id: fx4_gossamer_katana_slash_up_katana, kind: body, parent: fx4_gossamer_katana_slash_up_katana_at}
+  - {id: fx4_gossamer_katana_slash_up_katana, kind: body, parent: caster}
+  - {id: fx4_gossamer_katana_slash_up_katana_parts, kind: body, parent: caster}
   - {id: pt_fx4_gossamer_katana_slash_up_katana_0_1p25_0, kind: point, parent: fx4_gossamer_katana_slash_up_katana, offset: [0.0, 1.25, 0.0]}
   - {id: pt_fx4_gossamer_katana_slash_up_katana_0_2p1_0, kind: point, parent: fx4_gossamer_katana_slash_up_katana, offset: [0.0, 2.1, 0.0]}
   - {id: fx5_gossamer_katana_slash_down, kind: body, parent: world}
-  - {id: fx5_gossamer_katana_slash_down_katana_at, kind: body, parent: caster.right_hand}
-  - {id: fx5_gossamer_katana_slash_down_katana, kind: body, parent: fx5_gossamer_katana_slash_down_katana_at}
+  - {id: fx5_gossamer_katana_slash_down_katana, kind: body, parent: caster}
+  - {id: fx5_gossamer_katana_slash_down_katana_parts, kind: body, parent: caster}
   - {id: pt_fx5_gossamer_katana_slash_down_katana_0_1p25_0, kind: point, parent: fx5_gossamer_katana_slash_down_katana, offset: [0.0, 1.25, 0.0]}
   - {id: pt_fx5_gossamer_katana_slash_down_katana_0_2p1_0, kind: point, parent: fx5_gossamer_katana_slash_down_katana, offset: [0.0, 2.1, 0.0]}
   - {id: pt_caster_0_m1p62_3p6, kind: point, parent: caster, offset: [0.0, -1.62, 3.6]}
@@ -28,13 +26,13 @@ presentation:
     - id: fx0
       at: 0
       do:
+        - {id: anchor, op: anchor, frame: fx1_gossamer_katana_draw, at: caster, orient: yaw, follow: true, teleport_ticks: 2}
         - id: fx1_gossamer_katana_draw_katana_rig
           op: rig
           frame: fx1_gossamer_katana_draw_katana
-          parent: fx1_gossamer_katana_draw_katana_at
+          parent: caster
           duration: 29
-          hand: false
-          pivot: [0.900325, 0.248817, 0.148033]
+          pivot: [-0.25, 0.9, 0.15]
           tilt: [0.0, 0.0, 12.0]
           swing:
             - {t: 0, rotate: [-100.0, 0.0, 0.0]}
@@ -68,9 +66,52 @@ presentation:
             - {t: 28, rotate: [-75.555556, 0.0, 0.0], sample: true}
             - {t: 29, rotate: [-45.0, 0.0, 0.0]}
           sample_ticks: 1
-        - {id: fx1_gossamer_katana_draw_katana_blade, op: block, parent: fx1_gossamer_katana_draw_katana, block: iron_block, size: [0.09, 2.0, 0.05], at: [0.0, 1.05, 0.0], brightness: 15}
-        - {id: fx1_gossamer_katana_draw_katana_grip, op: block, parent: fx1_gossamer_katana_draw_katana, block: black_concrete, size: [0.1, 0.4, 0.08], at: [0.0, -0.15, 0.0]}
-        - {id: fx1_gossamer_katana_draw_katana_guard, op: block, parent: fx1_gossamer_katana_draw_katana, block: blue_concrete, size: [0.28, 0.08, 0.18], at: [0.0, 0.06, 0.0]}
+          respect_hit_stop: true
+        - id: fx1_gossamer_katana_draw_katana_parts_rig
+          op: rig
+          frame: fx1_gossamer_katana_draw_katana_parts
+          parent: caster
+          duration: 29
+          hand: false
+          pivot: [-0.25, 0.9, 0.15]
+          tilt: [0.0, 0.0, 12.0]
+          swing:
+            - {t: 0, rotate: [-100.0, 0.0, 0.0]}
+            - {t: 1, rotate: [-100.0, 0.0, 0.0], sample: true}
+            - {t: 2, rotate: [-100.0, 0.0, 0.0], sample: true}
+            - {t: 3, rotate: [-100.0, 0.0, 0.0], sample: true}
+            - {t: 4, rotate: [-100.0, 0.0, 0.0], sample: true}
+            - {t: 5, rotate: [-100.0, 0.0, 0.0], sample: true}
+            - {t: 6, rotate: [-100.0, 0.0, 0.0], sample: true}
+            - {t: 7, rotate: [-100.0, 0.0, 0.0], sample: true}
+            - {t: 8, rotate: [-100.0, 0.0, 0.0], sample: true}
+            - {t: 9, rotate: [-100.0, 0.0, 0.0], sample: true}
+            - {t: 10, rotate: [-100.0, 0.0, 0.0], sample: true}
+            - {t: 11, rotate: [-100.0, 0.0, 0.0], sample: true}
+            - {t: 12, rotate: [-100.0, 0.0, 0.0], sample: true}
+            - {t: 13, rotate: [-100.0, 0.0, 0.0], sample: true}
+            - {t: 14, rotate: [-100.0, 0.0, 0.0], sample: true}
+            - {t: 15, rotate: [-100.0, 0.0, 0.0], sample: true}
+            - {t: 16, rotate: [-100.0, 0.0, 0.0], sample: true}
+            - {t: 17, rotate: [-100.0, 0.0, 0.0], sample: true}
+            - {t: 18, rotate: [-100.0, 0.0, 0.0], sample: true}
+            - {t: 19, rotate: [-100.0, 0.0, 0.0], sample: true}
+            - {t: 20, rotate: [-100.0, 0.0, 0.0], sample: true}
+            - {t: 21, rotate: [-100.0, 0.0, 0.0], sample: true}
+            - {t: 22, rotate: [-100.0, 0.0, 0.0], sample: true}
+            - {t: 23, rotate: [-100.0, 0.0, 0.0], sample: true}
+            - {t: 24, rotate: [-100.0, 0.0, 0.0], sample: true}
+            - {t: 25, rotate: [-100.0, 0.0, 0.0], sample: true}
+            - {t: 26, rotate: [-100.0, 0.0, 0.0]}
+            - {t: 27, rotate: [-93.888889, 0.0, 0.0], sample: true}
+            - {t: 28, rotate: [-75.555556, 0.0, 0.0], sample: true}
+            - {t: 29, rotate: [-45.0, 0.0, 0.0]}
+          sample_ticks: 1
+          respect_hit_stop: true
+        - {id: fx1_gossamer_katana_draw_katana_blade, op: block, parent: fx1_gossamer_katana_draw_katana_parts, block: iron_block, size: [0.09, 2.0, 0.05], at: [0.0, 1.05, 0.0], brightness: 15}
+        - {id: fx1_gossamer_katana_draw_katana_grip, op: block, parent: fx1_gossamer_katana_draw_katana_parts, block: black_concrete, size: [0.1, 0.4, 0.08], at: [0.0, -0.15, 0.0], rig_shading: true}
+        - {id: fx1_gossamer_katana_draw_katana_guard, op: block, parent: fx1_gossamer_katana_draw_katana_parts, block: blue_concrete, size: [0.28, 0.08, 0.18], at: [0.0, 0.06, 0.0], rig_shading: true}
+        - {id: anchor_2, op: anchor, frame: fx2_gossamer_katana_guard, at: caster, orient: yaw}
         - {op: block, parent: fx2_gossamer_katana_guard, block: cyan_stained_glass, size: [1.0, 1.0, 1.0], brightness: 15, id: fx2_gossamer_katana_guard_echo_0}
         - id: fx2_gossamer_katana_guard_echo_0_trk
           op: track
@@ -118,6 +159,7 @@ presentation:
     - id: fx20
       at: 20
       do:
+        - {id: anchor_3, op: anchor, frame: fx3_gossamer_katana_iaido_line, at: caster, orient: yaw}
         - {op: block, parent: fx3_gossamer_katana_iaido_line, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx3_gossamer_katana_iaido_line_core}
         - id: fx3_gossamer_katana_iaido_line_core_trk
           op: track
@@ -161,13 +203,13 @@ presentation:
     - id: fx30
       at: 30
       do:
+        - {id: anchor_4, op: anchor, frame: fx4_gossamer_katana_slash_up, at: caster, orient: yaw}
         - id: fx4_gossamer_katana_slash_up_katana_rig
           op: rig
           frame: fx4_gossamer_katana_slash_up_katana
-          parent: fx4_gossamer_katana_slash_up_katana_at
+          parent: caster
           duration: 12
-          hand: false
-          pivot: [1.000542, 0.247812, 0.247812]
+          pivot: [-0.25, 1.0, 0.25]
           tilt: [0.0, 0.0, 12.0]
           swing:
             - {t: 0, rotate: [-45.0, 0.0, 0.0]}
@@ -182,9 +224,32 @@ presentation:
             - {t: 9, rotate: [154.84375, 0.0, 0.0], sample: true}
             - {t: 10, rotate: [155.0, 0.0, 0.0]}
           sample_ticks: 1
-        - {id: fx4_gossamer_katana_slash_up_katana_blade, op: block, parent: fx4_gossamer_katana_slash_up_katana, block: iron_block, size: [0.09, 2.0, 0.05], at: [0.0, 1.05, 0.0], brightness: 15}
-        - {id: fx4_gossamer_katana_slash_up_katana_grip, op: block, parent: fx4_gossamer_katana_slash_up_katana, block: black_concrete, size: [0.1, 0.4, 0.08], at: [0.0, -0.15, 0.0]}
-        - {id: fx4_gossamer_katana_slash_up_katana_guard, op: block, parent: fx4_gossamer_katana_slash_up_katana, block: blue_concrete, size: [0.28, 0.08, 0.18], at: [0.0, 0.06, 0.0]}
+          respect_hit_stop: true
+        - id: fx4_gossamer_katana_slash_up_katana_parts_rig
+          op: rig
+          frame: fx4_gossamer_katana_slash_up_katana_parts
+          parent: caster
+          duration: 12
+          hand: false
+          pivot: [-0.25, 1.0, 0.25]
+          tilt: [0.0, 0.0, 12.0]
+          swing:
+            - {t: 0, rotate: [-45.0, 0.0, 0.0]}
+            - {t: 1, rotate: [-45.0, 0.0, 0.0], sample: true}
+            - {t: 2, rotate: [-45.0, 0.0, 0.0]}
+            - {t: 3, rotate: [38.125, 0.0, 0.0], sample: true}
+            - {t: 4, rotate: [97.5, 0.0, 0.0], sample: true}
+            - {t: 5, rotate: [133.125, 0.0, 0.0], sample: true}
+            - {t: 6, rotate: [145.0, 0.0, 0.0]}
+            - {t: 7, rotate: [150.78125, 0.0, 0.0], sample: true}
+            - {t: 8, rotate: [153.75, 0.0, 0.0], sample: true}
+            - {t: 9, rotate: [154.84375, 0.0, 0.0], sample: true}
+            - {t: 10, rotate: [155.0, 0.0, 0.0]}
+          sample_ticks: 1
+          respect_hit_stop: true
+        - {id: fx4_gossamer_katana_slash_up_katana_blade, op: block, parent: fx4_gossamer_katana_slash_up_katana_parts, block: iron_block, size: [0.09, 2.0, 0.05], at: [0.0, 1.05, 0.0], brightness: 15}
+        - {id: fx4_gossamer_katana_slash_up_katana_grip, op: block, parent: fx4_gossamer_katana_slash_up_katana_parts, block: black_concrete, size: [0.1, 0.4, 0.08], at: [0.0, -0.15, 0.0], rig_shading: true}
+        - {id: fx4_gossamer_katana_slash_up_katana_guard, op: block, parent: fx4_gossamer_katana_slash_up_katana_parts, block: blue_concrete, size: [0.28, 0.08, 0.18], at: [0.0, 0.06, 0.0], rig_shading: true}
     - id: fx32
       at: 32
       do:
@@ -202,13 +267,13 @@ presentation:
       at: 42
       do:
         - {id: rm_8, op: remove, ids: [fx4_gossamer_katana_slash_up_katana_blade, fx4_gossamer_katana_slash_up_katana_grip, fx4_gossamer_katana_slash_up_katana_guard]}
+        - {id: anchor_5, op: anchor, frame: fx5_gossamer_katana_slash_down, at: caster, orient: yaw}
         - id: fx5_gossamer_katana_slash_down_katana_rig
           op: rig
           frame: fx5_gossamer_katana_slash_down_katana
-          parent: fx5_gossamer_katana_slash_down_katana_at
+          parent: caster
           duration: 12
-          hand: false
-          pivot: [1.000542, 0.247812, 0.247812]
+          pivot: [-0.25, 1.0, 0.25]
           tilt: [0.0, 0.0, 12.0]
           swing:
             - {t: 0, rotate: [145.0, 0.0, 0.0]}
@@ -223,9 +288,44 @@ presentation:
             - {t: 9, rotate: [-35.15625, 0.0, 0.0], sample: true}
             - {t: 10, rotate: [-35.0, 0.0, 0.0]}
           sample_ticks: 1
-        - {id: fx5_gossamer_katana_slash_down_katana_blade, op: block, parent: fx5_gossamer_katana_slash_down_katana, block: iron_block, size: [0.09, 2.0, 0.05], at: [0.0, 1.05, 0.0], brightness: 15}
-        - {id: fx5_gossamer_katana_slash_down_katana_grip, op: block, parent: fx5_gossamer_katana_slash_down_katana, block: black_concrete, size: [0.1, 0.4, 0.08], at: [0.0, -0.15, 0.0]}
-        - {id: fx5_gossamer_katana_slash_down_katana_guard, op: block, parent: fx5_gossamer_katana_slash_down_katana, block: blue_concrete, size: [0.28, 0.08, 0.18], at: [0.0, 0.06, 0.0]}
+          respect_hit_stop: true
+        - id: fx5_gossamer_katana_slash_down_katana_parts_rig
+          op: rig
+          frame: fx5_gossamer_katana_slash_down_katana_parts
+          parent: caster
+          duration: 12
+          hand: false
+          pivot: [-0.25, 1.0, 0.25]
+          tilt: [0.0, 0.0, 12.0]
+          swing:
+            - {t: 0, rotate: [145.0, 0.0, 0.0]}
+            - {t: 1, rotate: [145.0, 0.0, 0.0], sample: true}
+            - {t: 2, rotate: [145.0, 0.0, 0.0]}
+            - {t: 3, rotate: [61.875, 0.0, 0.0], sample: true}
+            - {t: 4, rotate: [2.5, 0.0, 0.0], sample: true}
+            - {t: 5, rotate: [-33.125, 0.0, 0.0], sample: true}
+            - {t: 6, rotate: [-45.0, 0.0, 0.0]}
+            - {t: 7, rotate: [-39.21875, 0.0, 0.0], sample: true}
+            - {t: 8, rotate: [-36.25, 0.0, 0.0], sample: true}
+            - {t: 9, rotate: [-35.15625, 0.0, 0.0], sample: true}
+            - {t: 10, rotate: [-35.0, 0.0, 0.0]}
+          sample_ticks: 1
+          respect_hit_stop: true
+        - {id: fx5_gossamer_katana_slash_down_katana_blade, op: block, parent: fx5_gossamer_katana_slash_down_katana_parts, block: iron_block, size: [0.09, 2.0, 0.05], at: [0.0, 1.05, 0.0], brightness: 15}
+        - id: fx5_gossamer_katana_slash_down_katana_grip
+          op: block
+          parent: fx5_gossamer_katana_slash_down_katana_parts
+          block: black_concrete
+          size: [0.1, 0.4, 0.08]
+          at: [0.0, -0.15, 0.0]
+          rig_shading: true
+        - id: fx5_gossamer_katana_slash_down_katana_guard
+          op: block
+          parent: fx5_gossamer_katana_slash_down_katana_parts
+          block: blue_concrete
+          size: [0.28, 0.08, 0.18]
+          at: [0.0, 0.06, 0.0]
+          rig_shading: true
     - id: fx44
       at: 44
       do:
@@ -247,6 +347,7 @@ presentation:
     - id: fx60
       at: 60
       do:
+        - {id: anchor_6, op: anchor, frame: fx6_gossamer_katana_scar, at: pt_caster_0_m1p62_3p6, orient: yaw}
         - {op: block, parent: fx6_gossamer_katana_scar, block: black_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx6_gossamer_katana_scar_ink}
         - id: fx6_gossamer_katana_scar_ink_trk
           op: track
