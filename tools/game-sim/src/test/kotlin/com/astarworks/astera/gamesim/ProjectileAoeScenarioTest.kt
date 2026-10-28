@@ -67,7 +67,13 @@ class ProjectileAoeScenarioTest {
     private class Flight(val frame: FrameId, val spec: MotionSpec.Fly, var velocity: Vec3, var age: Int = 0)
 
     private class Cast(victims: List<Victim>) : OpContext, SkillCastScope {
-        override val host: com.astarworks.astera.core.application.skillengine.runtime.OpHost get() = error("this scenario never reaches the cast host")
+        // Only `schedule` (the projectile launch event) is reached; this scenario's stepper has no delay line, so the launch fires at once
+        // and the body flies from the first step.
+        override val host: com.astarworks.astera.core.application.skillengine.runtime.OpHost =
+            java.lang.reflect.Proxy.newProxyInstance(
+                com.astarworks.astera.core.application.skillengine.runtime.OpHost::class.java.classLoader,
+                arrayOf(com.astarworks.astera.core.application.skillengine.runtime.OpHost::class.java),
+            ) { _, m, a -> if (m.name == "schedule") fire(a!![1] as String, a[2] as String) else error("this scenario never reaches the cast host: ${m.name}") } as com.astarworks.astera.core.application.skillengine.runtime.OpHost
         val casterId: UUID = UUID.randomUUID()
         val victimList = victims
         val damaged = mutableListOf<Pair<UUID, Double>>()
