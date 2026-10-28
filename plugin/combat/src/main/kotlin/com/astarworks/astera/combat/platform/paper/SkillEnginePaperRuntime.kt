@@ -100,7 +100,7 @@ internal class SkillEnginePaperRuntime(
         val catalog = wired.skillCatalog
 
         val entities = PaperSkillEntityQuery(server) { services.get<IStructureTargets>() }
-        val visuals = PaperSkillVisualGateway(server, displays)
+        val visuals = PaperSkillVisualGateway(server, displays, tables)
         // Presentation-only casts create no display entity, so the visual gateway alone never learns the world.
         val worldId = { entities.activeWorld()?.let { WorldId(it.name) } ?: visuals.activeWorld() }
         activeEntities = entities
