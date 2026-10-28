@@ -3,6 +3,8 @@ package com.astarworks.astera.gamesim
 import com.astarworks.astera.core.application.services.getOrThrow
 import com.astarworks.astera.core.domain.event.EndReason
 import com.astarworks.astera.core.domain.geometry.Vec3
+import com.astarworks.astera.combat.domain.event.PlayerKilled
+import com.astarworks.astera.core.domain.event.PlayerRespawned
 import com.astarworks.astera.match.application.port.inbound.IMatchLifecycle
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -79,7 +81,11 @@ class MatchClarityScenarioTest {
             assertThat(pillars).`as`("pillar labels").isNotEmpty()
             val key = pillars.first()
             assertThat(sim.worldLabels.textFor(matchId, key, red.id)).isNotEqualTo(sim.worldLabels.textFor(matchId, key, blue.id))
-            assertThat(sim.hologramGuide.guideOf(red.id)).`as`("red is pointed at an enemy pillar").isNotNull()
+            assertThat(sim.hologramGuide.guideOf(red.id)).`as`("no compass in hand: no hologram guide").isNull()
+            sim.matchCompass.select(red.id, true)
+            sim.matchCompass.select(blue.id, true)
+            advance(25)
+            assertThat(sim.hologramGuide.guideOf(red.id)).`as`("red holds the compass and is pointed at an enemy pillar").isNotNull()
             assertThat(sim.hologramGuide.guideOf(blue.id)).isNotNull()
             val card = chat(red)
             assertThat(card).contains("pillars").contains("Tier").contains("last team")
@@ -87,6 +93,54 @@ class MatchClarityScenarioTest {
             sim.services.getOrThrow<IMatchLifecycle>().end(matchId, EndReason.Cancelled("clarity-test"))
             advance(40)
             assertThat(sim.worldLabels.labels(matchId)).isEmpty()
+        }
+    }
+
+    @Test
+    fun `annihilation - the navigation compass sits in hotbar slot 9 after start and respawn and guides only while held`() {
+        scenario("clarity-annihilation-compass") {
+            val red = player("red-1", team = "red")
+            val blue = player("blue-1", team = "blue")
+            startMatch("annihilation", mapOf(red to "red", blue to "blue"), stage = "annihilation-arena")
+            advance(45)
+
+            for (who in listOf(red, blue)) {
+                assertThat(sim.matchCompass.slotOf(who.id)).`as`("${who.name}: compass at index 8 after start").isEqualTo(8)
+            }
+
+            // Not held: neither the hologram guide nor the action-bar arrow.
+            val arrowsBefore = checkNotNull(sim.server.view(red.id)).actionBars.size
+            advance(45)
+            assertThat(sim.hologramGuide.guideOf(red.id)).`as`("compass not held: no guide").isNull()
+            assertThat(checkNotNull(sim.server.view(red.id)).actionBars.size).`as`("compass not held: no arrow").isEqualTo(arrowsBefore)
+
+            // Held: both appear.
+            sim.matchCompass.select(red.id, true)
+            advance(25)
+            assertThat(sim.hologramGuide.guideOf(red.id)).`as`("compass held: guide shown").isNotNull()
+            assertThat(checkNotNull(sim.server.view(red.id)).actionBars.size).`as`("compass held: arrow shown").isGreaterThan(arrowsBefore)
+
+            // Switch to another slot: the guide goes away again.
+            sim.matchCompass.select(red.id, false)
+            advance(25)
+            assertThat(sim.hologramGuide.guideOf(red.id)).`as`("compass put away: guide hidden").isNull()
+
+            // Death takes the item, the respawn hands it back at index 8.
+            sim.setMaxHealth(blue, 1.0)
+            red.moveTo(blue.position + Vec3(0.0, 0.0, 6.0))
+            red.holds("pistol")
+            red.faces(blue)
+            repeat(20) {
+                if (eventsOf<PlayerKilled>().none { it.victim == blue.id }) {
+                    red.rightClick()
+                    advance(10)
+                }
+            }
+            assertThat(eventsOf<PlayerKilled>().any { it.victim == blue.id }).isTrue()
+            assertThat(sim.matchCompass.slotOf(blue.id)).`as`("the compass is lost on death").isNull()
+            advance(120)
+            assertThat(eventsOf<PlayerRespawned>().any { it.playerId == blue.id }).isTrue()
+            assertThat(sim.matchCompass.slotOf(blue.id)).`as`("compass back at index 8 after respawn").isEqualTo(8)
         }
     }
 }
