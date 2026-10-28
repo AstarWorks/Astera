@@ -83,5 +83,7 @@ internal fun OpReader.target(key: String, default: TargetRef): TargetRef {
     val around = PointRef.parse(area["around"]?.toString() ?: "caster")
     val radius = parseNumber(area["radius"]) ?: fail("$key.radius missing")
     val maxCount = area["max_count"]?.let { (it as? Number)?.toInt()?.takeIf { n -> n >= 1 } ?: fail("$key.max_count must be an integer >= 1") }
-    return if (enemies != null) TargetRef.Enemies(around, radius, maxCount) else TargetRef.Allies(around, radius, maxCount)
+    val includeSelf = area["include_self"]?.let { it as? Boolean ?: fail("$key.include_self must be a boolean") } ?: false
+    if (includeSelf && enemies != null) fail("$key.include_self applies to allies only")
+    return if (enemies != null) TargetRef.Enemies(around, radius, maxCount) else TargetRef.Allies(around, radius, maxCount, includeSelf)
 }
