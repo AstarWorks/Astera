@@ -314,8 +314,13 @@ class Conv:
         if isinstance(spec, str):
             op["target"] = spec
         elif mode == "map":
-            op["target"] = {spec[0]: {"around": spec[2], "radius": spec[1]}}
+            area = {"around": spec[2], "radius": spec[1]}
+            if len(spec) > 3 and spec[3]:
+                area["max_count"] = spec[3]
+            op["target"] = {spec[0]: area}
         else:  # movement family: target + sibling around / radius
+            if len(spec) > 3 and spec[3]:
+                raise ValueError("max_count=%s on a movement-family area target has no v2 field" % spec[3])
             op["target"] = spec[0]
             op["around"] = spec[2]
             op["radius"] = spec[1]
@@ -325,10 +330,9 @@ class Conv:
         resolution) and, in its handler, the gameplay ops address every enemy within the radius of the picked body."""
         cw = self.select(center, delay, m)
         w = Where("handler", cw.event, cw.guard)
-        w.area = ("enemies", self.param("radius", V(tg.get("radius", tg.get("distance", 3.0)))), "enemy")
-        if "max_count" in tg:
-            self.todo("nearby_entities max_count around a cone-picked centre (the area target takes every enemy in range)",
-                      "max_count=%s" % V(tg["max_count"]))
+        # v1 TargeterResolver.kt:79-86 takes the first max_count of the radius query; v2 keeps the nearest max_count.
+        w.area = ("enemies", self.param("radius", V(tg.get("radius", tg.get("distance", 3.0)))), "enemy",
+                  int(V(tg["max_count"])) if "max_count" in tg else None)
         self.sel[key] = w
         return w
 
@@ -418,8 +422,14 @@ class Conv:
             def ref(x):
                 return "caster" if x["type"] == "caster" else "victim"
             return "= dist(pos(%s), pos(%s)) < %s" % (ref(c["a"]), ref(c["b"]), fl(V(c["distance"])))
-        self.todo("mechanic condition %s" % c["type"], short(c))
-        return None
+        b = c.get("b", {})
+        if (c["type"] == "distance_less_than" and c["a"]["type"] == "caster" and b.get("type") == "nearby_entities"
+                and b.get("center", {}).get("type") == "caster" and V(b.get("exclude_caster", True))
+                and V(b["radius"]) >= V(c["distance"])):
+            # v1 ConditionEvaluator.kt:45-49 tests the first entity of the radius query (server player order, unspecified);
+            # the radius is no tighter than the distance, so "some other entity is closer than d" is its deterministic form.
+            return "= nearest_enemy_dist(caster) < %s" % fl(V(c["distance"]))
+        raise ValueError("%s: mechanic condition %s has no v2 form: %s" % (self.sid_hint(), c["type"], short(c)))
 
     # ---------- mechanics ----------
     COMMON_MECH_KEYS = {"type", "delay_ticks", "targets", "condition"}

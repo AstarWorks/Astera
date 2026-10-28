@@ -24,7 +24,7 @@ gameplay:
       at: 7
       do:
         - {id: sel, op: hit, frames: [caster], sphere: {at: caster, radius: "${radius}"}, window: once, ticks: 1}
-        - {id: st_charge, op: status, when: "= nearest_enemy_dist(caster) < 3.6", status: charge, duration_ticks: "${charge_ticks}", target: caster, stacks: "${charge_stacks}"}
+        - {id: st_charge, op: status, status: charge, duration_ticks: "${charge_ticks}", target: caster, stacks: "${charge_stacks}", when: "= nearest_enemy_dist(caster) < 3.6"}
     - id: t28
       at: 28
       do:

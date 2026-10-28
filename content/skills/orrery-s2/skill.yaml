@@ -1,6 +1,5 @@
 # Converted from content/skills/orrery-s2.yaml by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
 # Generated point-frame offsets are [left, up, forward] in the parent frame.
-# CONVERT-TODO nearby_entities max_count around a cone-picked centre (the area target takes every enemy in range) (x2): max_count=5
 apiVersion: "astera/v2"
 kind: Skill
 id: orrery-s2
@@ -39,11 +38,17 @@ gameplay:
           ticks: 1
   "on":
     hit:
-      - {id: dmg, op: damage, components: [{kind: physical, amount: "${dmg_physical}"}], target: {enemies: {around: enemy, radius: "${radius}"}}, ignore_invulnerability: true, when: "= event.source == 'sel'"}
+      - id: dmg
+        op: damage
+        components:
+          - {kind: physical, amount: "${dmg_physical}"}
+        target: {enemies: {around: enemy, radius: "${radius}", max_count: 5}}
+        ignore_invulnerability: true
+        when: "= event.source == 'sel'"
       - id: dmg_2
         op: damage
         components:
           - {kind: physical, amount: "${dmg_physical_2}"}
-        target: {enemies: {around: enemy, radius: "${radius}"}}
+        target: {enemies: {around: enemy, radius: "${radius}", max_count: 5}}
         ignore_invulnerability: true
         when: "= event.source == 'sel_2'"
