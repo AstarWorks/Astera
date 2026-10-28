@@ -2,16 +2,8 @@
 # Generated point-frame offsets are [left, up, forward] in the parent frame.
 # CONVERT-PRESENT vfx follow=false (anchored at world, no place-at-spawn) (x7): verdict-summoned-nails | verdict-impact
 # CONVERT-PRESENT vfx frame orient (frames carry no orientation / scale) (x7): orient="yaw" | orient="world"
-# CONVERT-PRESENT block element (mesh takes an item model, plate takes a sprite: no block / solid-colour primitive) (x7): iron_block | white_concrete
-# CONVERT-PRESENT quad element (plate takes a sprite: no solid-colour quad / glyph) (x15): {"color": "#FFFAD8", "glyph": "✷"} | {"color": "#FFD66B", "glyph": "✦"}
-# CONVERT-PRESENT element brightness (no v2 equivalent) (x16): 15
-# CONVERT-PRESENT rig respect_hit_stop / weapon points (x2): {"respect_hit_stop": true}
 # CONVERT-PRESENT rig block parts (mesh takes an item model, not a block + size) (x2): 6 parts
-# CONVERT-PRESENT rig swing without a weapon mesh (track needs a visual to move) (x2): 5 keys
-# CONVERT-PRESENT element group_keyframes (no v2 equivalent) (x1): [{"scale": 0.3, "t": 0}, {"ease": "out_cubic", "scale": 5.8,
-# CONVERT-PRESENT element formation (no v2 equivalent) (x1): {"align": "tangent", "curve": {"radius": 1.0, "type": "circl
-# CONVERT-PRESENT element count (no v2 equivalent) (x1): 8
-# CONVERT-PRESENT area target used only by presentation ops (no damaging hit volume to attach them to) (x1): sel: 0 presentation op(s) dropped
+# CONVERT-PRESENT rig swing without a weapon mesh (track needs a visual to move) (x2): 21 keys
 apiVersion: "astera/v2"
 kind: Skill
 id: verdict-hammer-s3
@@ -43,7 +35,7 @@ presentation:
             - {from: 0.0, to: 0.85, color: "#ffd878", alpha: 0.094, color_to: "#a07020"}
             - {from: 0.85, to: 1.0, color: "#fff4c7", alpha: 0.937, color_to: "#d5ac60"}
           step_deg: 18.0
-    - {id: fx59, at: 59, do: [{id: rm, op: remove, ids: [fx3_verdict_s1_gavel_hammer_gold_fan]}]}
+    - {id: fx59, at: 59, do: [{id: rm_5, op: remove, ids: [fx3_verdict_s1_gavel_hammer_gold_fan]}]}
     - id: fx87
       at: 87
       do:
@@ -56,9 +48,576 @@ presentation:
             - {from: 0.0, to: 0.85, color: "#ffd878", alpha: 0.094, color_to: "#a07020"}
             - {from: 0.85, to: 1.0, color: "#fff4c7", alpha: 0.937, color_to: "#d5ac60"}
           step_deg: 18.0
-    - {id: fx97, at: 97, do: [{id: rm_2, op: remove, ids: [fx5_verdict_s3_judgment_hammer_gold_fan]}]}
+    - {id: fx97, at: 97, do: [{id: rm_9, op: remove, ids: [fx5_verdict_s3_judgment_hammer_gold_fan]}]}
+    - id: fxhit_1
+      at: "hit+1"
+      do:
+        - op: quad
+          parent: fx2_verdict_impact
+          face: {viewer: center}
+          size: [1.0, 1.0]
+          color: "#302313"
+          alpha: 1.0
+          text: "▲"
+          see_through: true
+          brightness: 15
+          id: fx2_verdict_impact_dark0
+          when: "= event.source == 'sel_2'"
+        - id: fx2_verdict_impact_dark0_trk
+          op: track
+          target: fx2_verdict_impact_dark0
+          keys:
+            - {t: 0, offset: [0.0, 1.0, 0.0], scale: [0.12, 0.2, 1.0], alpha: 1.0}
+            - {t: 5, offset: [1.3, 1.4, 0.3], scale: [0.16, 0.26, 1.0], ease: out_cubic}
+            - {t: 11, scale: [0.04, 0.04, 1.0], alpha: 0.0}
+          when: "= event.source == 'sel_2'"
+        - op: quad
+          parent: fx2_verdict_impact
+          face: {viewer: center}
+          size: [1.0, 1.0]
+          color: "#302313"
+          alpha: 1.0
+          text: "▲"
+          see_through: true
+          brightness: 15
+          id: fx2_verdict_impact_dark1
+          when: "= event.source == 'sel_2'"
+        - id: fx2_verdict_impact_dark1_trk
+          op: track
+          target: fx2_verdict_impact_dark1
+          keys:
+            - {t: 0, offset: [0.0, 1.0, 0.0], scale: [0.12, 0.2, 1.0], alpha: 1.0}
+            - {t: 5, offset: [0.0, 2.4, 0.3], scale: [0.16, 0.26, 1.0], ease: out_cubic}
+            - {t: 11, scale: [0.04, 0.04, 1.0], alpha: 0.0}
+          when: "= event.source == 'sel_2'"
+        - op: quad
+          parent: fx2_verdict_impact
+          face: {viewer: center}
+          size: [1.0, 1.0]
+          color: "#302313"
+          alpha: 1.0
+          text: "▲"
+          see_through: true
+          brightness: 15
+          id: fx2_verdict_impact_dark2
+          when: "= event.source == 'sel_2'"
+        - id: fx2_verdict_impact_dark2_trk
+          op: track
+          target: fx2_verdict_impact_dark2
+          keys:
+            - {t: 0, offset: [0.0, 1.0, 0.0], scale: [0.12, 0.2, 1.0], alpha: 1.0}
+            - {t: 5, offset: [-1.3, 1.4, 0.3], scale: [0.16, 0.26, 1.0], ease: out_cubic}
+            - {t: 11, scale: [0.04, 0.04, 1.0], alpha: 0.0}
+          when: "= event.source == 'sel_2'"
+        - op: quad
+          parent: fx4_verdict_impact
+          face: {viewer: center}
+          size: [1.0, 1.0]
+          color: "#302313"
+          alpha: 1.0
+          text: "▲"
+          see_through: true
+          brightness: 15
+          id: fx4_verdict_impact_dark0
+          when: "= event.source == 'sel_3'"
+        - id: fx4_verdict_impact_dark0_trk
+          op: track
+          target: fx4_verdict_impact_dark0
+          keys:
+            - {t: 0, offset: [0.0, 1.0, 0.0], scale: [0.12, 0.2, 1.0], alpha: 1.0}
+            - {t: 5, offset: [1.3, 1.4, 0.3], scale: [0.16, 0.26, 1.0], ease: out_cubic}
+            - {t: 11, scale: [0.04, 0.04, 1.0], alpha: 0.0}
+          when: "= event.source == 'sel_3'"
+        - op: quad
+          parent: fx4_verdict_impact
+          face: {viewer: center}
+          size: [1.0, 1.0]
+          color: "#302313"
+          alpha: 1.0
+          text: "▲"
+          see_through: true
+          brightness: 15
+          id: fx4_verdict_impact_dark1
+          when: "= event.source == 'sel_3'"
+        - id: fx4_verdict_impact_dark1_trk
+          op: track
+          target: fx4_verdict_impact_dark1
+          keys:
+            - {t: 0, offset: [0.0, 1.0, 0.0], scale: [0.12, 0.2, 1.0], alpha: 1.0}
+            - {t: 5, offset: [0.0, 2.4, 0.3], scale: [0.16, 0.26, 1.0], ease: out_cubic}
+            - {t: 11, scale: [0.04, 0.04, 1.0], alpha: 0.0}
+          when: "= event.source == 'sel_3'"
+        - op: quad
+          parent: fx4_verdict_impact
+          face: {viewer: center}
+          size: [1.0, 1.0]
+          color: "#302313"
+          alpha: 1.0
+          text: "▲"
+          see_through: true
+          brightness: 15
+          id: fx4_verdict_impact_dark2
+          when: "= event.source == 'sel_3'"
+        - id: fx4_verdict_impact_dark2_trk
+          op: track
+          target: fx4_verdict_impact_dark2
+          keys:
+            - {t: 0, offset: [0.0, 1.0, 0.0], scale: [0.12, 0.2, 1.0], alpha: 1.0}
+            - {t: 5, offset: [-1.3, 1.4, 0.3], scale: [0.16, 0.26, 1.0], ease: out_cubic}
+            - {t: 11, scale: [0.04, 0.04, 1.0], alpha: 0.0}
+          when: "= event.source == 'sel_3'"
+        - op: quad
+          parent: fx6_verdict_impact
+          face: {viewer: center}
+          size: [1.0, 1.0]
+          color: "#302313"
+          alpha: 1.0
+          text: "▲"
+          see_through: true
+          brightness: 15
+          id: fx6_verdict_impact_dark0
+          when: "= event.source == 'sel_4'"
+        - id: fx6_verdict_impact_dark0_trk
+          op: track
+          target: fx6_verdict_impact_dark0
+          keys:
+            - {t: 0, offset: [0.0, 1.0, 0.0], scale: [0.12, 0.2, 1.0], alpha: 1.0}
+            - {t: 5, offset: [1.3, 1.4, 0.3], scale: [0.16, 0.26, 1.0], ease: out_cubic}
+            - {t: 11, scale: [0.04, 0.04, 1.0], alpha: 0.0}
+          when: "= event.source == 'sel_4'"
+        - op: quad
+          parent: fx6_verdict_impact
+          face: {viewer: center}
+          size: [1.0, 1.0]
+          color: "#302313"
+          alpha: 1.0
+          text: "▲"
+          see_through: true
+          brightness: 15
+          id: fx6_verdict_impact_dark1
+          when: "= event.source == 'sel_4'"
+        - id: fx6_verdict_impact_dark1_trk
+          op: track
+          target: fx6_verdict_impact_dark1
+          keys:
+            - {t: 0, offset: [0.0, 1.0, 0.0], scale: [0.12, 0.2, 1.0], alpha: 1.0}
+            - {t: 5, offset: [0.0, 2.4, 0.3], scale: [0.16, 0.26, 1.0], ease: out_cubic}
+            - {t: 11, scale: [0.04, 0.04, 1.0], alpha: 0.0}
+          when: "= event.source == 'sel_4'"
+        - op: quad
+          parent: fx6_verdict_impact
+          face: {viewer: center}
+          size: [1.0, 1.0]
+          color: "#302313"
+          alpha: 1.0
+          text: "▲"
+          see_through: true
+          brightness: 15
+          id: fx6_verdict_impact_dark2
+          when: "= event.source == 'sel_4'"
+        - id: fx6_verdict_impact_dark2_trk
+          op: track
+          target: fx6_verdict_impact_dark2
+          keys:
+            - {t: 0, offset: [0.0, 1.0, 0.0], scale: [0.12, 0.2, 1.0], alpha: 1.0}
+            - {t: 5, offset: [-1.3, 1.4, 0.3], scale: [0.16, 0.26, 1.0], ease: out_cubic}
+            - {t: 11, scale: [0.04, 0.04, 1.0], alpha: 0.0}
+          when: "= event.source == 'sel_4'"
+    - id: fxhit_9
+      at: "hit+9"
+      do:
+        - {id: rm_2, op: remove, ids: [fx2_verdict_impact_bloom], when: "= event.source == 'sel_2'"}
+        - {id: rm_6, op: remove, ids: [fx4_verdict_impact_bloom], when: "= event.source == 'sel_3'"}
+        - {id: rm_10, op: remove, ids: [fx6_verdict_impact_bloom], when: "= event.source == 'sel_4'"}
+    - id: fxhit_10
+      at: "hit+10"
+      do:
+        - {id: rm_3, op: remove, ids: [fx2_verdict_impact_star], when: "= event.source == 'sel_2'"}
+        - {id: rm_7, op: remove, ids: [fx4_verdict_impact_star], when: "= event.source == 'sel_3'"}
+        - {id: rm_11, op: remove, ids: [fx6_verdict_impact_star], when: "= event.source == 'sel_4'"}
+    - id: fxhit_12
+      at: "hit+12"
+      do:
+        - {id: rm_4, op: remove, ids: [fx2_verdict_impact_dark0, fx2_verdict_impact_dark1, fx2_verdict_impact_dark2], when: "= event.source == 'sel_2'"}
+        - {id: rm_8, op: remove, ids: [fx4_verdict_impact_dark0, fx4_verdict_impact_dark1, fx4_verdict_impact_dark2], when: "= event.source == 'sel_3'"}
+        - {id: rm_12, op: remove, ids: [fx6_verdict_impact_dark0, fx6_verdict_impact_dark1, fx6_verdict_impact_dark2], when: "= event.source == 'sel_4'"}
+    - id: fxhit_16
+      at: "hit+16"
+      do:
+        - id: rm_13
+          op: remove
+          ids:
+            - fx7_verdict_ego_ring_ring_s0
+            - fx7_verdict_ego_ring_ring_s1
+            - fx7_verdict_ego_ring_ring_s2
+            - fx7_verdict_ego_ring_ring_s3
+            - fx7_verdict_ego_ring_ring_s4
+            - fx7_verdict_ego_ring_ring_s5
+            - fx7_verdict_ego_ring_ring_s6
+            - fx7_verdict_ego_ring_ring_s7
+          when: "= event.source == 'sel_4'"
+    - id: fxhit_35
+      at: "hit+35"
+      do:
+        - id: rm
+          op: remove
+          ids:
+            - fx1_verdict_summoned_nails_nail__1_shaft
+            - fx1_verdict_summoned_nails_nail__1_tip
+            - fx1_verdict_summoned_nails_nail__1_head
+            - fx1_verdict_summoned_nails_nail_1_shaft
+            - fx1_verdict_summoned_nails_nail_1_tip
+            - fx1_verdict_summoned_nails_nail_1_head
+          when: "= event.source == 'sel'"
   "on":
     hit:
+      - {op: block, parent: fx1_verdict_summoned_nails, block: iron_block, size: [1.0, 1.0, 1.0], id: fx1_verdict_summoned_nails_nail__1_shaft, when: "= event.source == 'sel'"}
+      - id: fx1_verdict_summoned_nails_nail__1_shaft_trk
+        op: track
+        target: fx1_verdict_summoned_nails_nail__1_shaft
+        keys:
+          - {t: 0, offset: [-0.55, 5.0, 0.0], scale: [0.12, 2.3, 0.12], turn: [0.0, 0.0, -12.0]}
+          - {t: 15, offset: [-0.3, 1.1, 0.0], scale: [0.12, 2.3, 0.12], turn: [0.0, 0.0, -12.0]}
+          - {t: 27, offset: [-0.3, 1.1, 0.0], scale: [0.12, 2.3, 0.12]}
+          - {t: 34, offset: [-0.3, 1.1, 0.0], scale: [0.0, 0.0, 0.0]}
+        when: "= event.source == 'sel'"
+      - {op: block, parent: fx1_verdict_summoned_nails, block: white_concrete, size: [1.0, 1.0, 1.0], id: fx1_verdict_summoned_nails_nail__1_tip, when: "= event.source == 'sel'"}
+      - id: fx1_verdict_summoned_nails_nail__1_tip_trk
+        op: track
+        target: fx1_verdict_summoned_nails_nail__1_tip
+        keys:
+          - {t: 0, offset: [-0.55, 3.8, 0.0], scale: [0.06, 0.5, 0.06], turn: [0.0, 0.0, -12.0]}
+          - {t: 15, offset: [-0.3, -0.1, 0.0], scale: [0.06, 0.5, 0.06], turn: [0.0, 0.0, -12.0]}
+          - {t: 27, offset: [-0.3, -0.1, 0.0], scale: [0.06, 0.5, 0.06]}
+          - {t: 34, offset: [-0.3, -0.1, 0.0], scale: [0.0, 0.0, 0.0]}
+        when: "= event.source == 'sel'"
+      - {op: block, parent: fx1_verdict_summoned_nails, block: yellow_concrete, size: [1.0, 1.0, 1.0], id: fx1_verdict_summoned_nails_nail__1_head, when: "= event.source == 'sel'"}
+      - id: fx1_verdict_summoned_nails_nail__1_head_trk
+        op: track
+        target: fx1_verdict_summoned_nails_nail__1_head
+        keys:
+          - {t: 0, offset: [-0.55, 6.2, 0.0], scale: [0.45, 0.18, 0.45], turn: [0.0, 0.0, -12.0]}
+          - {t: 15, offset: [-0.3, 2.3, 0.0], scale: [0.45, 0.18, 0.45], turn: [0.0, 0.0, -12.0]}
+          - {t: 27, offset: [-0.3, 2.3, 0.0], scale: [0.45, 0.18, 0.45]}
+          - {t: 34, offset: [-0.3, 2.3, 0.0], scale: [0.0, 0.0, 0.0]}
+        when: "= event.source == 'sel'"
+      - {op: block, parent: fx1_verdict_summoned_nails, block: iron_block, size: [1.0, 1.0, 1.0], id: fx1_verdict_summoned_nails_nail_1_shaft, when: "= event.source == 'sel'"}
+      - id: fx1_verdict_summoned_nails_nail_1_shaft_trk
+        op: track
+        target: fx1_verdict_summoned_nails_nail_1_shaft
+        keys:
+          - {t: 0, offset: [0.55, 5.0, 0.0], scale: [0.12, 2.3, 0.12], turn: [0.0, 0.0, 12.0]}
+          - {t: 15, offset: [0.3, 1.1, 0.0], scale: [0.12, 2.3, 0.12], turn: [0.0, 0.0, 12.0]}
+          - {t: 27, offset: [0.3, 1.1, 0.0], scale: [0.12, 2.3, 0.12]}
+          - {t: 34, offset: [0.3, 1.1, 0.0], scale: [0.0, 0.0, 0.0]}
+        when: "= event.source == 'sel'"
+      - {op: block, parent: fx1_verdict_summoned_nails, block: white_concrete, size: [1.0, 1.0, 1.0], id: fx1_verdict_summoned_nails_nail_1_tip, when: "= event.source == 'sel'"}
+      - id: fx1_verdict_summoned_nails_nail_1_tip_trk
+        op: track
+        target: fx1_verdict_summoned_nails_nail_1_tip
+        keys:
+          - {t: 0, offset: [0.55, 3.8, 0.0], scale: [0.06, 0.5, 0.06], turn: [0.0, 0.0, 12.0]}
+          - {t: 15, offset: [0.3, -0.1, 0.0], scale: [0.06, 0.5, 0.06], turn: [0.0, 0.0, 12.0]}
+          - {t: 27, offset: [0.3, -0.1, 0.0], scale: [0.06, 0.5, 0.06]}
+          - {t: 34, offset: [0.3, -0.1, 0.0], scale: [0.0, 0.0, 0.0]}
+        when: "= event.source == 'sel'"
+      - {op: block, parent: fx1_verdict_summoned_nails, block: yellow_concrete, size: [1.0, 1.0, 1.0], id: fx1_verdict_summoned_nails_nail_1_head, when: "= event.source == 'sel'"}
+      - id: fx1_verdict_summoned_nails_nail_1_head_trk
+        op: track
+        target: fx1_verdict_summoned_nails_nail_1_head
+        keys:
+          - {t: 0, offset: [0.55, 6.2, 0.0], scale: [0.45, 0.18, 0.45], turn: [0.0, 0.0, 12.0]}
+          - {t: 15, offset: [0.3, 2.3, 0.0], scale: [0.45, 0.18, 0.45], turn: [0.0, 0.0, 12.0]}
+          - {t: 27, offset: [0.3, 2.3, 0.0], scale: [0.45, 0.18, 0.45]}
+          - {t: 34, offset: [0.3, 2.3, 0.0], scale: [0.0, 0.0, 0.0]}
+        when: "= event.source == 'sel'"
+      - op: quad
+        parent: fx2_verdict_impact
+        face: {viewer: center}
+        size: [1.0, 1.0]
+        color: "#FFFAD8"
+        alpha: 1.0
+        text: "✷"
+        see_through: true
+        brightness: 15
+        id: fx2_verdict_impact_star
+        when: "= event.source == 'sel_2'"
+      - id: fx2_verdict_impact_star_trk
+        op: track
+        target: fx2_verdict_impact_star
+        keys:
+          - {t: 0, offset: [0.0, -1.06, 0.55], scale: [2.4, 2.4, 1.0], alpha: 1.0}
+          - {t: 4, offset: [0.0, -1.06, 0.55], scale: [2.4, 2.4, 1.0], alpha: 1.0}
+          - {t: 10, offset: [0.0, 1.1, 0.55], scale: [0.0, 0.0, 0.0], alpha: 0.0, ease: in_quad}
+        when: "= event.source == 'sel_2'"
+      - op: quad
+        parent: fx2_verdict_impact
+        face: {viewer: center}
+        size: [1.0, 1.0]
+        color: "#FFD66B"
+        alpha: 0.22
+        text: "✦"
+        see_through: true
+        brightness: 15
+        id: fx2_verdict_impact_bloom
+        when: "= event.source == 'sel_2'"
+      - id: fx2_verdict_impact_bloom_trk
+        op: track
+        target: fx2_verdict_impact_bloom
+        keys:
+          - {t: 0, offset: [0.0, -1.87, 0.5], scale: [3.3, 3.3, 1.0], alpha: 0.22}
+          - {t: 9, offset: [0.0, -2.5, 0.5], scale: [4.0, 4.0, 1.0], alpha: 0.0, ease: out_cubic}
+        when: "= event.source == 'sel_2'"
       - {id: snd, op: sound, sound: entity.player.attack.strong, at: enemy, volume: 0.7, pitch: 1.1, when: "= event.source == 'sel_2'"}
+      - op: quad
+        parent: fx4_verdict_impact
+        face: {viewer: center}
+        size: [1.0, 1.0]
+        color: "#FFFAD8"
+        alpha: 1.0
+        text: "✷"
+        see_through: true
+        brightness: 15
+        id: fx4_verdict_impact_star
+        when: "= event.source == 'sel_3'"
+      - id: fx4_verdict_impact_star_trk
+        op: track
+        target: fx4_verdict_impact_star
+        keys:
+          - {t: 0, offset: [0.0, -1.06, 0.55], scale: [2.4, 2.4, 1.0], alpha: 1.0}
+          - {t: 4, offset: [0.0, -1.06, 0.55], scale: [2.4, 2.4, 1.0], alpha: 1.0}
+          - {t: 10, offset: [0.0, 1.1, 0.55], scale: [0.0, 0.0, 0.0], alpha: 0.0, ease: in_quad}
+        when: "= event.source == 'sel_3'"
+      - op: quad
+        parent: fx4_verdict_impact
+        face: {viewer: center}
+        size: [1.0, 1.0]
+        color: "#FFD66B"
+        alpha: 0.22
+        text: "✦"
+        see_through: true
+        brightness: 15
+        id: fx4_verdict_impact_bloom
+        when: "= event.source == 'sel_3'"
+      - id: fx4_verdict_impact_bloom_trk
+        op: track
+        target: fx4_verdict_impact_bloom
+        keys:
+          - {t: 0, offset: [0.0, -1.87, 0.5], scale: [3.3, 3.3, 1.0], alpha: 0.22}
+          - {t: 9, offset: [0.0, -2.5, 0.5], scale: [4.0, 4.0, 1.0], alpha: 0.0, ease: out_cubic}
+        when: "= event.source == 'sel_3'"
       - {id: snd_2, op: sound, sound: entity.player.attack.strong, at: enemy, volume: 0.7, pitch: 1.1, when: "= event.source == 'sel_3'"}
+      - op: quad
+        parent: fx6_verdict_impact
+        face: {viewer: center}
+        size: [1.0, 1.0]
+        color: "#FFFAD8"
+        alpha: 1.0
+        text: "✷"
+        see_through: true
+        brightness: 15
+        id: fx6_verdict_impact_star
+        when: "= event.source == 'sel_4'"
+      - id: fx6_verdict_impact_star_trk
+        op: track
+        target: fx6_verdict_impact_star
+        keys:
+          - {t: 0, offset: [0.0, -1.06, 0.55], scale: [2.4, 2.4, 1.0], alpha: 1.0}
+          - {t: 4, offset: [0.0, -1.06, 0.55], scale: [2.4, 2.4, 1.0], alpha: 1.0}
+          - {t: 10, offset: [0.0, 1.1, 0.55], scale: [0.0, 0.0, 0.0], alpha: 0.0, ease: in_quad}
+        when: "= event.source == 'sel_4'"
+      - op: quad
+        parent: fx6_verdict_impact
+        face: {viewer: center}
+        size: [1.0, 1.0]
+        color: "#FFD66B"
+        alpha: 0.22
+        text: "✦"
+        see_through: true
+        brightness: 15
+        id: fx6_verdict_impact_bloom
+        when: "= event.source == 'sel_4'"
+      - id: fx6_verdict_impact_bloom_trk
+        op: track
+        target: fx6_verdict_impact_bloom
+        keys:
+          - {t: 0, offset: [0.0, -1.87, 0.5], scale: [3.3, 3.3, 1.0], alpha: 0.22}
+          - {t: 9, offset: [0.0, -2.5, 0.5], scale: [4.0, 4.0, 1.0], alpha: 0.0, ease: out_cubic}
+        when: "= event.source == 'sel_4'"
       - {id: snd_3, op: sound, sound: entity.player.attack.strong, at: enemy, volume: 0.7, pitch: 1.1, when: "= event.source == 'sel_4'"}
+      - {op: block, parent: fx7_verdict_ego_ring, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx7_verdict_ego_ring_ring_s0, when: "= event.source == 'sel_4'"}
+      - id: fx7_verdict_ego_ring_ring_s0_trk
+        op: track
+        target: fx7_verdict_ego_ring_ring_s0
+        keys:
+          - {t: 0, offset: [0.0, 0.045, 0.3], turn: [0.0, 90.0, 0.0], scale: [0.0105, 0.0075, 0.24]}
+          - {t: 1, offset: [0.0, 0.39257, 2.61713], turn: [0.0, 90.0, 0.0], scale: [0.0916, 0.06543, 2.0937]}
+          - {t: 2, offset: [0.0, 0.62556, 4.17037], turn: [0.0, 90.0, 0.0], scale: [0.14596, 0.10426, 3.3363]}
+          - {t: 3, offset: [0.0, 0.76687, 5.1125], turn: [0.0, 90.0, 0.0], scale: [0.17894, 0.12781, 4.09]}
+          - {t: 4, offset: [0.0, 0.83944, 5.5963], turn: [0.0, 90.0, 0.0], scale: [0.19587, 0.13991, 4.47704]}
+          - {t: 5, offset: [0.0, 0.86618, 5.77454], turn: [0.0, 90.0, 0.0], scale: [0.20211, 0.14436, 4.61963]}
+          - {t: 6, offset: [0.0, 0.87, 5.8], turn: [0.0, 90.0, 0.0], scale: [0.203, 0.145, 4.64]}
+          - {t: 7, offset: [0.0, 0.8745, 5.83], turn: [0.0, 90.0, 0.0], scale: [0.20405, 0.14575, 4.664]}
+          - {t: 8, offset: [0.0, 0.879, 5.86], turn: [0.0, 90.0, 0.0], scale: [0.2051, 0.1465, 4.688], block: yellow_stained_glass}
+          - {t: 9, offset: [0.0, 0.8835, 5.89], turn: [0.0, 90.0, 0.0], scale: [0.20293, 0.14495, 4.63837]}
+          - {t: 10, offset: [0.0, 0.888, 5.92], turn: [0.0, 90.0, 0.0], scale: [0.19425, 0.13875, 4.44]}
+          - {t: 11, offset: [0.0, 0.8925, 5.95], turn: [0.0, 90.0, 0.0], scale: [0.17896, 0.12783, 4.09062]}
+          - {t: 12, offset: [0.0, 0.897, 5.98], turn: [0.0, 90.0, 0.0], scale: [0.15698, 0.11213, 3.588]}
+          - {t: 13, offset: [0.0, 0.9015, 6.01], turn: [0.0, 90.0, 0.0], scale: [0.12818, 0.09156, 2.92988]}
+          - {t: 14, offset: [0.0, 0.906, 6.04], turn: [0.0, 90.0, 0.0], scale: [0.09249, 0.06606, 2.114]}
+          - {t: 15, offset: [0.0, 0.9105, 6.07], turn: [0.0, 90.0, 0.0], scale: [0.04979, 0.03557, 1.13812]}
+        when: "= event.source == 'sel_4'"
+      - {op: block, parent: fx7_verdict_ego_ring, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx7_verdict_ego_ring_ring_s1, when: "= event.source == 'sel_4'"}
+      - id: fx7_verdict_ego_ring_ring_s1_trk
+        op: track
+        target: fx7_verdict_ego_ring_ring_s1
+        keys:
+          - {t: 0, offset: [0.21213, 0.045, 0.21213], turn: [0.0, 135.0, 0.0], scale: [0.0105, 0.0075, 0.24]}
+          - {t: 1, offset: [1.85059, 0.39257, 1.85059], turn: [0.0, 135.0, 0.0], scale: [0.0916, 0.06543, 2.0937]}
+          - {t: 2, offset: [2.9489, 0.62556, 2.9489], turn: [0.0, 135.0, 0.0], scale: [0.14596, 0.10426, 3.3363]}
+          - {t: 3, offset: [3.61508, 0.76687, 3.61508], turn: [0.0, 135.0, 0.0], scale: [0.17894, 0.12781, 4.09]}
+          - {t: 4, offset: [3.95718, 0.83944, 3.95718], turn: [0.0, 135.0, 0.0], scale: [0.19587, 0.13991, 4.47704]}
+          - {t: 5, offset: [4.08321, 0.86618, 4.08321], turn: [0.0, 135.0, 0.0], scale: [0.20211, 0.14436, 4.61963]}
+          - {t: 6, offset: [4.10122, 0.87, 4.10122], turn: [0.0, 135.0, 0.0], scale: [0.203, 0.145, 4.64]}
+          - {t: 7, offset: [4.12243, 0.8745, 4.12243], turn: [0.0, 135.0, 0.0], scale: [0.20405, 0.14575, 4.664]}
+          - {t: 8, offset: [4.14365, 0.879, 4.14365], turn: [0.0, 135.0, 0.0], scale: [0.2051, 0.1465, 4.688], block: yellow_stained_glass}
+          - {t: 9, offset: [4.16486, 0.8835, 4.16486], turn: [0.0, 135.0, 0.0], scale: [0.20293, 0.14495, 4.63837]}
+          - {t: 10, offset: [4.18607, 0.888, 4.18607], turn: [0.0, 135.0, 0.0], scale: [0.19425, 0.13875, 4.44]}
+          - {t: 11, offset: [4.20729, 0.8925, 4.20729], turn: [0.0, 135.0, 0.0], scale: [0.17896, 0.12783, 4.09062]}
+          - {t: 12, offset: [4.2285, 0.897, 4.2285], turn: [0.0, 135.0, 0.0], scale: [0.15698, 0.11213, 3.588]}
+          - {t: 13, offset: [4.24971, 0.9015, 4.24971], turn: [0.0, 135.0, 0.0], scale: [0.12818, 0.09156, 2.92988]}
+          - {t: 14, offset: [4.27092, 0.906, 4.27092], turn: [0.0, 135.0, 0.0], scale: [0.09249, 0.06606, 2.114]}
+          - {t: 15, offset: [4.29214, 0.9105, 4.29214], turn: [0.0, 135.0, 0.0], scale: [0.04979, 0.03557, 1.13812]}
+        when: "= event.source == 'sel_4'"
+      - {op: block, parent: fx7_verdict_ego_ring, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx7_verdict_ego_ring_ring_s2, when: "= event.source == 'sel_4'"}
+      - id: fx7_verdict_ego_ring_ring_s2_trk
+        op: track
+        target: fx7_verdict_ego_ring_ring_s2
+        keys:
+          - {t: 0, offset: [0.3, 0.045, 0.0], turn: [0.0, 180.0, 0.0], scale: [0.0105, 0.0075, 0.24]}
+          - {t: 1, offset: [2.61713, 0.39257, 0.0], turn: [0.0, 180.0, 0.0], scale: [0.0916, 0.06543, 2.0937]}
+          - {t: 2, offset: [4.17037, 0.62556, 0.0], turn: [0.0, 180.0, 0.0], scale: [0.14596, 0.10426, 3.3363]}
+          - {t: 3, offset: [5.1125, 0.76687, 0.0], turn: [0.0, 180.0, 0.0], scale: [0.17894, 0.12781, 4.09]}
+          - {t: 4, offset: [5.5963, 0.83944, 0.0], turn: [0.0, 180.0, 0.0], scale: [0.19587, 0.13991, 4.47704]}
+          - {t: 5, offset: [5.77454, 0.86618, 0.0], turn: [0.0, 180.0, 0.0], scale: [0.20211, 0.14436, 4.61963]}
+          - {t: 6, offset: [5.8, 0.87, 0.0], turn: [0.0, 180.0, 0.0], scale: [0.203, 0.145, 4.64]}
+          - {t: 7, offset: [5.83, 0.8745, 0.0], turn: [0.0, 180.0, 0.0], scale: [0.20405, 0.14575, 4.664]}
+          - {t: 8, offset: [5.86, 0.879, 0.0], turn: [0.0, 180.0, 0.0], scale: [0.2051, 0.1465, 4.688], block: yellow_stained_glass}
+          - {t: 9, offset: [5.89, 0.8835, 0.0], turn: [0.0, 180.0, 0.0], scale: [0.20293, 0.14495, 4.63837]}
+          - {t: 10, offset: [5.92, 0.888, 0.0], turn: [0.0, 180.0, 0.0], scale: [0.19425, 0.13875, 4.44]}
+          - {t: 11, offset: [5.95, 0.8925, 0.0], turn: [0.0, 180.0, 0.0], scale: [0.17896, 0.12783, 4.09062]}
+          - {t: 12, offset: [5.98, 0.897, 0.0], turn: [0.0, 180.0, 0.0], scale: [0.15698, 0.11213, 3.588]}
+          - {t: 13, offset: [6.01, 0.9015, 0.0], turn: [0.0, 180.0, 0.0], scale: [0.12818, 0.09156, 2.92988]}
+          - {t: 14, offset: [6.04, 0.906, 0.0], turn: [0.0, 180.0, 0.0], scale: [0.09249, 0.06606, 2.114]}
+          - {t: 15, offset: [6.07, 0.9105, 0.0], turn: [0.0, 180.0, 0.0], scale: [0.04979, 0.03557, 1.13812]}
+        when: "= event.source == 'sel_4'"
+      - {op: block, parent: fx7_verdict_ego_ring, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx7_verdict_ego_ring_ring_s3, when: "= event.source == 'sel_4'"}
+      - id: fx7_verdict_ego_ring_ring_s3_trk
+        op: track
+        target: fx7_verdict_ego_ring_ring_s3
+        keys:
+          - {t: 0, offset: [0.21213, 0.045, -0.21213], turn: [0.0, -135.0, 0.0], scale: [0.0105, 0.0075, 0.24]}
+          - {t: 1, offset: [1.85059, 0.39257, -1.85059], turn: [0.0, -135.0, 0.0], scale: [0.0916, 0.06543, 2.0937]}
+          - {t: 2, offset: [2.9489, 0.62556, -2.9489], turn: [0.0, -135.0, 0.0], scale: [0.14596, 0.10426, 3.3363]}
+          - {t: 3, offset: [3.61508, 0.76687, -3.61508], turn: [0.0, -135.0, 0.0], scale: [0.17894, 0.12781, 4.09]}
+          - {t: 4, offset: [3.95718, 0.83944, -3.95718], turn: [0.0, -135.0, 0.0], scale: [0.19587, 0.13991, 4.47704]}
+          - {t: 5, offset: [4.08321, 0.86618, -4.08321], turn: [0.0, -135.0, 0.0], scale: [0.20211, 0.14436, 4.61963]}
+          - {t: 6, offset: [4.10122, 0.87, -4.10122], turn: [0.0, -135.0, 0.0], scale: [0.203, 0.145, 4.64]}
+          - {t: 7, offset: [4.12243, 0.8745, -4.12243], turn: [0.0, -135.0, 0.0], scale: [0.20405, 0.14575, 4.664]}
+          - {t: 8, offset: [4.14365, 0.879, -4.14365], turn: [0.0, -135.0, 0.0], scale: [0.2051, 0.1465, 4.688], block: yellow_stained_glass}
+          - {t: 9, offset: [4.16486, 0.8835, -4.16486], turn: [0.0, -135.0, 0.0], scale: [0.20293, 0.14495, 4.63837]}
+          - {t: 10, offset: [4.18607, 0.888, -4.18607], turn: [0.0, -135.0, 0.0], scale: [0.19425, 0.13875, 4.44]}
+          - {t: 11, offset: [4.20729, 0.8925, -4.20729], turn: [0.0, -135.0, 0.0], scale: [0.17896, 0.12783, 4.09062]}
+          - {t: 12, offset: [4.2285, 0.897, -4.2285], turn: [0.0, -135.0, 0.0], scale: [0.15698, 0.11213, 3.588]}
+          - {t: 13, offset: [4.24971, 0.9015, -4.24971], turn: [0.0, -135.0, 0.0], scale: [0.12818, 0.09156, 2.92988]}
+          - {t: 14, offset: [4.27092, 0.906, -4.27092], turn: [0.0, -135.0, 0.0], scale: [0.09249, 0.06606, 2.114]}
+          - {t: 15, offset: [4.29214, 0.9105, -4.29214], turn: [0.0, -135.0, 0.0], scale: [0.04979, 0.03557, 1.13812]}
+        when: "= event.source == 'sel_4'"
+      - {op: block, parent: fx7_verdict_ego_ring, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx7_verdict_ego_ring_ring_s4, when: "= event.source == 'sel_4'"}
+      - id: fx7_verdict_ego_ring_ring_s4_trk
+        op: track
+        target: fx7_verdict_ego_ring_ring_s4
+        keys:
+          - {t: 0, offset: [0.0, 0.045, -0.3], turn: [0.0, -90.0, 0.0], scale: [0.0105, 0.0075, 0.24]}
+          - {t: 1, offset: [0.0, 0.39257, -2.61713], turn: [0.0, -90.0, 0.0], scale: [0.0916, 0.06543, 2.0937]}
+          - {t: 2, offset: [0.0, 0.62556, -4.17037], turn: [0.0, -90.0, 0.0], scale: [0.14596, 0.10426, 3.3363]}
+          - {t: 3, offset: [0.0, 0.76687, -5.1125], turn: [0.0, -90.0, 0.0], scale: [0.17894, 0.12781, 4.09]}
+          - {t: 4, offset: [0.0, 0.83944, -5.5963], turn: [0.0, -90.0, 0.0], scale: [0.19587, 0.13991, 4.47704]}
+          - {t: 5, offset: [0.0, 0.86618, -5.77454], turn: [0.0, -90.0, 0.0], scale: [0.20211, 0.14436, 4.61963]}
+          - {t: 6, offset: [0.0, 0.87, -5.8], turn: [0.0, -90.0, 0.0], scale: [0.203, 0.145, 4.64]}
+          - {t: 7, offset: [0.0, 0.8745, -5.83], turn: [0.0, -90.0, 0.0], scale: [0.20405, 0.14575, 4.664]}
+          - {t: 8, offset: [0.0, 0.879, -5.86], turn: [0.0, -90.0, 0.0], scale: [0.2051, 0.1465, 4.688], block: yellow_stained_glass}
+          - {t: 9, offset: [0.0, 0.8835, -5.89], turn: [0.0, -90.0, 0.0], scale: [0.20293, 0.14495, 4.63837]}
+          - {t: 10, offset: [0.0, 0.888, -5.92], turn: [0.0, -90.0, 0.0], scale: [0.19425, 0.13875, 4.44]}
+          - {t: 11, offset: [0.0, 0.8925, -5.95], turn: [0.0, -90.0, 0.0], scale: [0.17896, 0.12783, 4.09062]}
+          - {t: 12, offset: [0.0, 0.897, -5.98], turn: [0.0, -90.0, 0.0], scale: [0.15698, 0.11213, 3.588]}
+          - {t: 13, offset: [0.0, 0.9015, -6.01], turn: [0.0, -90.0, 0.0], scale: [0.12818, 0.09156, 2.92988]}
+          - {t: 14, offset: [0.0, 0.906, -6.04], turn: [0.0, -90.0, 0.0], scale: [0.09249, 0.06606, 2.114]}
+          - {t: 15, offset: [0.0, 0.9105, -6.07], turn: [0.0, -90.0, 0.0], scale: [0.04979, 0.03557, 1.13812]}
+        when: "= event.source == 'sel_4'"
+      - {op: block, parent: fx7_verdict_ego_ring, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx7_verdict_ego_ring_ring_s5, when: "= event.source == 'sel_4'"}
+      - id: fx7_verdict_ego_ring_ring_s5_trk
+        op: track
+        target: fx7_verdict_ego_ring_ring_s5
+        keys:
+          - {t: 0, offset: [-0.21213, 0.045, -0.21213], turn: [0.0, -45.0, 0.0], scale: [0.0105, 0.0075, 0.24]}
+          - {t: 1, offset: [-1.85059, 0.39257, -1.85059], turn: [0.0, -45.0, 0.0], scale: [0.0916, 0.06543, 2.0937]}
+          - {t: 2, offset: [-2.9489, 0.62556, -2.9489], turn: [0.0, -45.0, 0.0], scale: [0.14596, 0.10426, 3.3363]}
+          - {t: 3, offset: [-3.61508, 0.76687, -3.61508], turn: [0.0, -45.0, 0.0], scale: [0.17894, 0.12781, 4.09]}
+          - {t: 4, offset: [-3.95718, 0.83944, -3.95718], turn: [0.0, -45.0, 0.0], scale: [0.19587, 0.13991, 4.47704]}
+          - {t: 5, offset: [-4.08321, 0.86618, -4.08321], turn: [0.0, -45.0, 0.0], scale: [0.20211, 0.14436, 4.61963]}
+          - {t: 6, offset: [-4.10122, 0.87, -4.10122], turn: [0.0, -45.0, 0.0], scale: [0.203, 0.145, 4.64]}
+          - {t: 7, offset: [-4.12243, 0.8745, -4.12243], turn: [0.0, -45.0, 0.0], scale: [0.20405, 0.14575, 4.664]}
+          - {t: 8, offset: [-4.14365, 0.879, -4.14365], turn: [0.0, -45.0, 0.0], scale: [0.2051, 0.1465, 4.688], block: yellow_stained_glass}
+          - {t: 9, offset: [-4.16486, 0.8835, -4.16486], turn: [0.0, -45.0, 0.0], scale: [0.20293, 0.14495, 4.63837]}
+          - {t: 10, offset: [-4.18607, 0.888, -4.18607], turn: [0.0, -45.0, 0.0], scale: [0.19425, 0.13875, 4.44]}
+          - {t: 11, offset: [-4.20729, 0.8925, -4.20729], turn: [0.0, -45.0, 0.0], scale: [0.17896, 0.12783, 4.09062]}
+          - {t: 12, offset: [-4.2285, 0.897, -4.2285], turn: [0.0, -45.0, 0.0], scale: [0.15698, 0.11213, 3.588]}
+          - {t: 13, offset: [-4.24971, 0.9015, -4.24971], turn: [0.0, -45.0, 0.0], scale: [0.12818, 0.09156, 2.92988]}
+          - {t: 14, offset: [-4.27092, 0.906, -4.27092], turn: [0.0, -45.0, 0.0], scale: [0.09249, 0.06606, 2.114]}
+          - {t: 15, offset: [-4.29214, 0.9105, -4.29214], turn: [0.0, -45.0, 0.0], scale: [0.04979, 0.03557, 1.13812]}
+        when: "= event.source == 'sel_4'"
+      - {op: block, parent: fx7_verdict_ego_ring, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx7_verdict_ego_ring_ring_s6, when: "= event.source == 'sel_4'"}
+      - id: fx7_verdict_ego_ring_ring_s6_trk
+        op: track
+        target: fx7_verdict_ego_ring_ring_s6
+        keys:
+          - {t: 0, offset: [-0.3, 0.045, 0.0], turn: [0.0, 0.0, 0.0], scale: [0.0105, 0.0075, 0.24]}
+          - {t: 1, offset: [-2.61713, 0.39257, 0.0], turn: [0.0, 0.0, 0.0], scale: [0.0916, 0.06543, 2.0937]}
+          - {t: 2, offset: [-4.17037, 0.62556, 0.0], turn: [0.0, 0.0, 0.0], scale: [0.14596, 0.10426, 3.3363]}
+          - {t: 3, offset: [-5.1125, 0.76687, 0.0], turn: [0.0, 0.0, 0.0], scale: [0.17894, 0.12781, 4.09]}
+          - {t: 4, offset: [-5.5963, 0.83944, 0.0], turn: [0.0, 0.0, 0.0], scale: [0.19587, 0.13991, 4.47704]}
+          - {t: 5, offset: [-5.77454, 0.86618, 0.0], turn: [0.0, 0.0, 0.0], scale: [0.20211, 0.14436, 4.61963]}
+          - {t: 6, offset: [-5.8, 0.87, 0.0], turn: [0.0, 0.0, 0.0], scale: [0.203, 0.145, 4.64]}
+          - {t: 7, offset: [-5.83, 0.8745, 0.0], turn: [0.0, 0.0, 0.0], scale: [0.20405, 0.14575, 4.664]}
+          - {t: 8, offset: [-5.86, 0.879, 0.0], turn: [0.0, 0.0, 0.0], scale: [0.2051, 0.1465, 4.688], block: yellow_stained_glass}
+          - {t: 9, offset: [-5.89, 0.8835, 0.0], turn: [0.0, 0.0, 0.0], scale: [0.20293, 0.14495, 4.63837]}
+          - {t: 10, offset: [-5.92, 0.888, 0.0], turn: [0.0, 0.0, 0.0], scale: [0.19425, 0.13875, 4.44]}
+          - {t: 11, offset: [-5.95, 0.8925, 0.0], turn: [0.0, 0.0, 0.0], scale: [0.17896, 0.12783, 4.09062]}
+          - {t: 12, offset: [-5.98, 0.897, 0.0], turn: [0.0, 0.0, 0.0], scale: [0.15698, 0.11213, 3.588]}
+          - {t: 13, offset: [-6.01, 0.9015, 0.0], turn: [0.0, 0.0, 0.0], scale: [0.12818, 0.09156, 2.92988]}
+          - {t: 14, offset: [-6.04, 0.906, 0.0], turn: [0.0, 0.0, 0.0], scale: [0.09249, 0.06606, 2.114]}
+          - {t: 15, offset: [-6.07, 0.9105, 0.0], turn: [0.0, 0.0, 0.0], scale: [0.04979, 0.03557, 1.13812]}
+        when: "= event.source == 'sel_4'"
+      - {op: block, parent: fx7_verdict_ego_ring, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx7_verdict_ego_ring_ring_s7, when: "= event.source == 'sel_4'"}
+      - id: fx7_verdict_ego_ring_ring_s7_trk
+        op: track
+        target: fx7_verdict_ego_ring_ring_s7
+        keys:
+          - {t: 0, offset: [-0.21213, 0.045, 0.21213], turn: [0.0, 45.0, 0.0], scale: [0.0105, 0.0075, 0.24]}
+          - {t: 1, offset: [-1.85059, 0.39257, 1.85059], turn: [0.0, 45.0, 0.0], scale: [0.0916, 0.06543, 2.0937]}
+          - {t: 2, offset: [-2.9489, 0.62556, 2.9489], turn: [0.0, 45.0, 0.0], scale: [0.14596, 0.10426, 3.3363]}
+          - {t: 3, offset: [-3.61508, 0.76687, 3.61508], turn: [0.0, 45.0, 0.0], scale: [0.17894, 0.12781, 4.09]}
+          - {t: 4, offset: [-3.95718, 0.83944, 3.95718], turn: [0.0, 45.0, 0.0], scale: [0.19587, 0.13991, 4.47704]}
+          - {t: 5, offset: [-4.08321, 0.86618, 4.08321], turn: [0.0, 45.0, 0.0], scale: [0.20211, 0.14436, 4.61963]}
+          - {t: 6, offset: [-4.10122, 0.87, 4.10122], turn: [0.0, 45.0, 0.0], scale: [0.203, 0.145, 4.64]}
+          - {t: 7, offset: [-4.12243, 0.8745, 4.12243], turn: [0.0, 45.0, 0.0], scale: [0.20405, 0.14575, 4.664]}
+          - {t: 8, offset: [-4.14365, 0.879, 4.14365], turn: [0.0, 45.0, 0.0], scale: [0.2051, 0.1465, 4.688], block: yellow_stained_glass}
+          - {t: 9, offset: [-4.16486, 0.8835, 4.16486], turn: [0.0, 45.0, 0.0], scale: [0.20293, 0.14495, 4.63837]}
+          - {t: 10, offset: [-4.18607, 0.888, 4.18607], turn: [0.0, 45.0, 0.0], scale: [0.19425, 0.13875, 4.44]}
+          - {t: 11, offset: [-4.20729, 0.8925, 4.20729], turn: [0.0, 45.0, 0.0], scale: [0.17896, 0.12783, 4.09062]}
+          - {t: 12, offset: [-4.2285, 0.897, 4.2285], turn: [0.0, 45.0, 0.0], scale: [0.15698, 0.11213, 3.588]}
+          - {t: 13, offset: [-4.24971, 0.9015, 4.24971], turn: [0.0, 45.0, 0.0], scale: [0.12818, 0.09156, 2.92988]}
+          - {t: 14, offset: [-4.27092, 0.906, 4.27092], turn: [0.0, 45.0, 0.0], scale: [0.09249, 0.06606, 2.114]}
+          - {t: 15, offset: [-4.29214, 0.9105, 4.29214], turn: [0.0, 45.0, 0.0], scale: [0.04979, 0.03557, 1.13812]}
+        when: "= event.source == 'sel_4'"

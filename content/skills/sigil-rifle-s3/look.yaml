@@ -1,15 +1,9 @@
 # Converted from content/skills/sigil-rifle-s3.yaml + content/vfx/* by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
 # Generated point-frame offsets are [left, up, forward] in the parent frame.
 # CONVERT-PRESENT vfx frame orient (frames carry no orientation / scale) (x4): orient="yaw"
-# CONVERT-PRESENT rig respect_hit_stop / weapon points (x1): {"respect_hit_stop": false}
 # CONVERT-PRESENT rig block parts (mesh takes an item model, not a block + size) (x1): 5 parts
-# CONVERT-PRESENT rig swing without a weapon mesh (track needs a visual to move) (x1): 8 keys
+# CONVERT-PRESENT rig swing without a weapon mesh (track needs a visual to move) (x1): 23 keys
 # CONVERT-PRESENT vfx follow=false (anchored at world, no place-at-spawn) (x3): sigil-rifle-shot | sigil-rifle-detonate
-# CONVERT-PRESENT block element (mesh takes an item model, plate takes a sprite: no block / solid-colour primitive) (x22): red_concrete | black_concrete
-# CONVERT-PRESENT element brightness (no v2 equivalent) (x22): 15
-# CONVERT-PRESENT element formation (no v2 equivalent) (x3): {"align": "tangent", "curve": {"radius": 0.68, "type": "circ
-# CONVERT-PRESENT element count (no v2 equivalent) (x3): 12
-# CONVERT-PRESENT area target used only by presentation ops (no damaging hit volume to attach them to) (x1): sel: 0 presentation op(s) dropped
 apiVersion: "astera/v2"
 kind: Skill
 id: sigil-rifle-s3
@@ -39,5 +33,246 @@ presentation:
           dark_rim: {color: "#190808", alpha: 0.816, width: 0.15}
           step_deg: 25.0
     - {id: fx31, at: 31, do: [{id: rm, op: remove, ids: [fx1_sigil_rifle_s3_rig_rifle_shoulder_ribbon]}]}
+    - id: fx61
+      at: 61
+      do:
+        - {op: block, parent: fx2_sigil_rifle_shot, block: red_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx2_sigil_rifle_shot_red_core}
+        - id: fx2_sigil_rifle_shot_red_core_trk
+          op: track
+          target: fx2_sigil_rifle_shot_red_core
+          keys:
+            - {t: 0, offset: [-0.06, 1.23, 4.1], scale: [0.12, 0.12, 4.8]}
+            - {t: 7, scale: [0.0, 0.0, 4.8], ease: in_quad}
+        - {op: block, parent: fx2_sigil_rifle_shot, block: black_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx2_sigil_rifle_shot_dark_underlay}
+        - id: fx2_sigil_rifle_shot_dark_underlay_trk
+          op: track
+          target: fx2_sigil_rifle_shot_dark_underlay
+          keys:
+            - {t: 0, offset: [-0.08, 1.18, 4.1], scale: [0.18, 0.06, 4.8]}
+            - {t: 4, scale: [0.0, 0.0, 4.8], ease: in_quad}
+        - {op: block, parent: fx2_sigil_rifle_shot, block: yellow_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx2_sigil_rifle_shot_hot_thread}
+        - id: fx2_sigil_rifle_shot_hot_thread_trk
+          op: track
+          target: fx2_sigil_rifle_shot_hot_thread
+          keys:
+            - {t: 0, offset: [-0.02, 1.29, 4.1], scale: [0.045, 0.025, 4.8]}
+            - {t: 3, scale: [0.0, 0.0, 4.8], ease: in_quad}
+        - {op: block, parent: fx2_sigil_rifle_shot, block: red_stained_glass, size: [1.0, 1.0, 1.0], brightness: 15, id: fx2_sigil_rifle_shot_bloom}
+        - {id: fx2_sigil_rifle_shot_bloom_trk, op: track, target: fx2_sigil_rifle_shot_bloom, keys: [{t: 0, offset: [-0.15, 1.12, 4.1], scale: [0.3, 0.35, 4.8]}, {t: 9, scale: [0.0, 0.0, 4.8], ease: in_quad}]}
+        - {op: block, parent: fx2_sigil_rifle_shot, block: red_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx2_sigil_rifle_shot_solid_impact_0}
+        - id: fx2_sigil_rifle_shot_solid_impact_0_trk
+          op: track
+          target: fx2_sigil_rifle_shot_solid_impact_0
+          keys:
+            - {t: 0, offset: [0.0, 1.1, 1.8], scale: [0.055, 0.22, 1.6], turn: [25.0, 0.0, 0.0]}
+            - {t: 7, scale: [0.0, 0.0, 1.6], ease: in_quad}
+        - {op: block, parent: fx2_sigil_rifle_shot, block: red_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx2_sigil_rifle_shot_solid_impact_1}
+        - id: fx2_sigil_rifle_shot_solid_impact_1_trk
+          op: track
+          target: fx2_sigil_rifle_shot_solid_impact_1
+          keys:
+            - {t: 0, offset: [0.0, 1.1, 1.8], scale: [0.055, 0.12, 1.5], turn: [-25.0, 0.0, 0.0]}
+            - {t: 7, scale: [0.0, 0.0, 1.6], ease: in_quad}
+        - {op: block, parent: fx2_sigil_rifle_shot, block: yellow_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx2_sigil_rifle_shot_solid_impact_2}
+        - id: fx2_sigil_rifle_shot_solid_impact_2_trk
+          op: track
+          target: fx2_sigil_rifle_shot_solid_impact_2
+          keys:
+            - {t: 0, offset: [0.0, 1.1, 1.8], scale: [0.065, 0.055, 1.9], turn: [0.0, 0.0, 0.0]}
+            - {t: 7, scale: [0.0, 0.0, 1.6], ease: in_quad}
+    - {id: fx64, at: 64, do: [{id: rm_2, op: remove, ids: [fx2_sigil_rifle_shot_hot_thread]}]}
+    - {id: fx65, at: 65, do: [{id: rm_3, op: remove, ids: [fx2_sigil_rifle_shot_dark_underlay]}]}
+    - {id: fx68, at: 68, do: [{id: rm_4, op: remove, ids: [fx2_sigil_rifle_shot_red_core, fx2_sigil_rifle_shot_solid_impact_0, fx2_sigil_rifle_shot_solid_impact_1, fx2_sigil_rifle_shot_solid_impact_2]}]}
+    - {id: fx70, at: 70, do: [{id: rm_5, op: remove, ids: [fx2_sigil_rifle_shot_bloom]}]}
+    - id: fxhit_2
+      at: "hit+2"
+      do:
+        - op: block
+          parent: fx3_sigil_rifle_detonate
+          block: redstone_block
+          size: [1.0, 1.0, 1.0]
+          brightness: 15
+          at: "= [vec(-0.55702, 1.60997, 0.0), vec(-0.5491, 1.75748, 0.3195), vec(-0.39404, 1.96997, 0.55338), vec(-0.1334, 2.19051, 0.63899), vec(0.16298, 2.36001, 0.55338), vec(0.4157, 2.43303, 0.3195), vec(0.55702, 2.39003, 0.0), vec(0.5491, 2.24252, -0.3195), vec(0.39404, 2.03003, -0.55338), vec(0.1334, 1.80949, -0.63899), vec(-0.16298, 1.63999, -0.55338), vec(-0.4157, 1.56697, -0.3195)][int(i)]"
+          turn: "= [vec(-19.37168, -6.10787, 34.63944), vec(-27.85385, 22.67873, 28.62718), vec(-35.31276, 51.41296, 21.03763), vec(-41.65479, 80.01812, 11.7749), vec(-46.70867, 108.38954, 0.63953), vec(-50.18597, 136.36457, -12.71351), vec(-51.60235, 163.66174, -28.85798), vec(39.10316, -148.05208, 38.04684), vec(24.88897, -120.3199, 41.77744), vec(12.12412, -92.09182, 42.8902), vec(0.57358, -63.57059, 41.892), vec(-9.90137, -34.88062, 39.08518)][int(i)]"
+          times: 12
+          id: fx3_sigil_rifle_detonate_seal_1
+          when: "= event.source == 'sel'"
+        - id: fx3_sigil_rifle_detonate_seal_1_trk
+          op: track
+          target: fx3_sigil_rifle_detonate_seal_1
+          keys:
+            - {t: 0, scale: [0.06, 0.06, 0.36]}
+            - {t: 26, scale: [0.06, 0.06, 0.36]}
+            - {t: 42, scale: [0.0, 0.0, 0.0], ease: in_quad}
+          when: "= event.source == 'sel'"
+        - {op: block, parent: fx3_sigil_rifle_detonate, block: red_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx3_sigil_rifle_detonate_seal_spoke_1_0, when: "= event.source == 'sel'"}
+        - id: fx3_sigil_rifle_detonate_seal_spoke_1_0_trk
+          op: track
+          target: fx3_sigil_rifle_detonate_seal_spoke_1_0
+          keys:
+            - {t: 0, offset: [0.0, 2.135, -0.24], scale: [0.03, 0.03, 0.96], turn: [-60.0, 0.0, 0.0]}
+            - {t: 26, scale: [0.03, 0.03, 0.96]}
+            - {t: 42, scale: [0.0, 0.0, 0.0], ease: in_quad}
+          when: "= event.source == 'sel'"
+        - {op: block, parent: fx3_sigil_rifle_detonate, block: red_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx3_sigil_rifle_detonate_seal_spoke_1_1, when: "= event.source == 'sel'"}
+        - id: fx3_sigil_rifle_detonate_seal_spoke_1_1_trk
+          op: track
+          target: fx3_sigil_rifle_detonate_seal_spoke_1_1
+          keys:
+            - {t: 0, offset: [0.0, 2.135, 0.24], scale: [0.03, 0.03, 0.96], turn: [60.0, 0.0, 0.0]}
+            - {t: 26, scale: [0.03, 0.03, 0.96]}
+            - {t: 42, scale: [0.0, 0.0, 0.0], ease: in_quad}
+          when: "= event.source == 'sel'"
+        - {op: block, parent: fx3_sigil_rifle_detonate, block: red_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx3_sigil_rifle_detonate_seal_spoke_1_2, when: "= event.source == 'sel'"}
+        - id: fx3_sigil_rifle_detonate_seal_spoke_1_2_trk
+          op: track
+          target: fx3_sigil_rifle_detonate_seal_spoke_1_2
+          keys:
+            - {t: 0, offset: [0.0, 1.72, 0.0], scale: [0.03, 0.03, 0.96], turn: [0.0, 0.0, 0.0]}
+            - {t: 26, scale: [0.03, 0.03, 0.96]}
+            - {t: 42, scale: [0.0, 0.0, 0.0], ease: in_quad}
+          when: "= event.source == 'sel'"
+    - id: fxhit_4
+      at: "hit+4"
+      do:
+        - op: block
+          parent: fx3_sigil_rifle_detonate
+          block: redstone_block
+          size: [1.0, 1.0, 1.0]
+          brightness: 15
+          at: "= [vec(0.0, 0.42, 0.75), vec(-0.26046, 0.5111, 0.96855), vec(-0.45112, 0.76, 1.12854), vec(-0.52091, 1.1, 1.1871), vec(-0.45112, 1.44, 1.12854), vec(-0.26046, 1.6889, 0.96855), vec(0.0, 1.78, 0.75), vec(0.26046, 1.6889, 0.53145), vec(0.45112, 1.44, 0.37146), vec(0.52091, 1.1, 0.3129), vec(0.45112, 0.76, 0.37146), vec(0.26046, 0.5111, 0.53145)][int(i)]"
+          turn: "= [vec(-39.0405, -39.0405, 83.72263), vec(-58.09224, -15.69354, 69.23164), vec(-73.80044, 7.85218, 51.67562), vec(-85.99428, 31.29936, 31.29936), vec(-94.37039, 54.3354, 8.25634), vec(-98.45166, 76.58179, -17.35968), vec(-97.52453, 97.52453, -45.47643), vec(-90.54581, 116.40345, -75.97696), vec(70.27188, -122.04907, 100.35864), vec(37.88729, -104.09448, 104.09448), vec(8.90958, -83.73865, 101.83701), vec(-16.71149, -61.86037, 94.77558)][int(i)]"
+          times: 12
+          id: fx3_sigil_rifle_detonate_seal_2
+          when: "= event.source == 'sel'"
+        - id: fx3_sigil_rifle_detonate_seal_2_trk
+          op: track
+          target: fx3_sigil_rifle_detonate_seal_2
+          keys:
+            - {t: 0, scale: [0.06, 0.06, 0.36]}
+            - {t: 24, scale: [0.06, 0.06, 0.36]}
+            - {t: 40, scale: [0.0, 0.0, 0.0], ease: in_quad}
+          when: "= event.source == 'sel'"
+        - {op: block, parent: fx3_sigil_rifle_detonate, block: red_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx3_sigil_rifle_detonate_seal_spoke_2_0, when: "= event.source == 'sel'"}
+        - id: fx3_sigil_rifle_detonate_seal_spoke_2_0_trk
+          op: track
+          target: fx3_sigil_rifle_detonate_seal_spoke_2_0
+          keys:
+            - {t: 0, offset: [0.0, 1.235, 0.51], scale: [0.03, 0.03, 0.96], turn: [-60.0, 0.0, 0.0]}
+            - {t: 24, scale: [0.03, 0.03, 0.96]}
+            - {t: 40, scale: [0.0, 0.0, 0.0], ease: in_quad}
+          when: "= event.source == 'sel'"
+        - {op: block, parent: fx3_sigil_rifle_detonate, block: red_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx3_sigil_rifle_detonate_seal_spoke_2_1, when: "= event.source == 'sel'"}
+        - id: fx3_sigil_rifle_detonate_seal_spoke_2_1_trk
+          op: track
+          target: fx3_sigil_rifle_detonate_seal_spoke_2_1
+          keys:
+            - {t: 0, offset: [0.0, 1.235, 0.99], scale: [0.03, 0.03, 0.96], turn: [60.0, 0.0, 0.0]}
+            - {t: 24, scale: [0.03, 0.03, 0.96]}
+            - {t: 40, scale: [0.0, 0.0, 0.0], ease: in_quad}
+          when: "= event.source == 'sel'"
+        - {op: block, parent: fx3_sigil_rifle_detonate, block: red_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx3_sigil_rifle_detonate_seal_spoke_2_2, when: "= event.source == 'sel'"}
+        - id: fx3_sigil_rifle_detonate_seal_spoke_2_2_trk
+          op: track
+          target: fx3_sigil_rifle_detonate_seal_spoke_2_2
+          keys:
+            - {t: 0, offset: [0.0, 0.82, 0.75], scale: [0.03, 0.03, 0.96], turn: [0.0, 0.0, 0.0]}
+            - {t: 24, scale: [0.03, 0.03, 0.96]}
+            - {t: 40, scale: [0.0, 0.0, 0.0], ease: in_quad}
+          when: "= event.source == 'sel'"
+    - id: fxhit_7
+      at: "hit+7"
+      do:
+        - {id: rm_7, op: remove, ids: [fx4_sigil_rifle_mark_solid_impact_0, fx4_sigil_rifle_mark_solid_impact_1, fx4_sigil_rifle_mark_solid_impact_2], when: "= event.source == 'sel_2'"}
+    - id: fxhit_44
+      at: "hit+44"
+      do:
+        - id: rm_6
+          op: remove
+          ids:
+            - fx3_sigil_rifle_detonate_seal_0
+            - fx3_sigil_rifle_detonate_seal_1
+            - fx3_sigil_rifle_detonate_seal_2
+            - fx3_sigil_rifle_detonate_seal_spoke_0_0
+            - fx3_sigil_rifle_detonate_seal_spoke_0_1
+            - fx3_sigil_rifle_detonate_seal_spoke_0_2
+            - fx3_sigil_rifle_detonate_seal_spoke_1_0
+            - fx3_sigil_rifle_detonate_seal_spoke_1_1
+            - fx3_sigil_rifle_detonate_seal_spoke_1_2
+            - fx3_sigil_rifle_detonate_seal_spoke_2_0
+            - fx3_sigil_rifle_detonate_seal_spoke_2_1
+            - fx3_sigil_rifle_detonate_seal_spoke_2_2
+          when: "= event.source == 'sel'"
     - {id: loop1, at: 18, every: 1, for: 5, do: [{id: fx1_sigil_rifle_s3_rig_rifle_embers_18, op: emit, at: pt_fx1_sigil_rifle_s3_rig_rifle_0_1p65_0, particle: sigil-rifle-embers}]}
-  "on": {hit: [{id: snd, op: sound, sound: entity.player.attack.strong, at: enemy, volume: 0.7, pitch: 1.1, when: "= event.source == 'sel_2'"}]}
+  "on":
+    hit:
+      - op: block
+        parent: fx3_sigil_rifle_detonate
+        block: redstone_block
+        size: [1.0, 1.0, 1.0]
+        brightness: 15
+        at: "= [vec(0.0, 0.42, -0.75), vec(0.0, 0.5111, -0.41), vec(0.0, 0.76, -0.1611), vec(0.0, 1.1, -0.07), vec(0.0, 1.44, -0.1611), vec(0.0, 1.6889, -0.41), vec(0.0, 1.78, -0.75), vec(0.0, 1.6889, -1.09), vec(0.0, 1.44, -1.3389), vec(0.0, 1.1, -1.43), vec(0.0, 0.76, -1.3389), vec(0.0, 0.5111, -1.09)][int(i)]"
+        turn: "= [vec(0.0, 0.0, 90.0), vec(-23.51306, 23.51306, 87.75192), vec(-46.72376, 46.72376, 80.92793), vec(-69.28203, 69.28203, 69.28203), vec(-90.7287, 90.7287, 52.38224), vec(-110.40178, 110.40178, 29.58207), vec(127.27922, -127.27922, 0.0), vec(110.40178, -110.40178, 29.58207), vec(90.7287, -90.7287, 52.38224), vec(69.28203, -69.28203, 69.28203), vec(46.72376, -46.72376, 80.92793), vec(23.51306, -23.51306, 87.75192)][int(i)]"
+        times: 12
+        id: fx3_sigil_rifle_detonate_seal_0
+        when: "= event.source == 'sel'"
+      - id: fx3_sigil_rifle_detonate_seal_0_trk
+        op: track
+        target: fx3_sigil_rifle_detonate_seal_0
+        keys:
+          - {t: 0, scale: [0.06, 0.06, 0.36]}
+          - {t: 28, scale: [0.06, 0.06, 0.36]}
+          - {t: 44, scale: [0.0, 0.0, 0.0], ease: in_quad}
+        when: "= event.source == 'sel'"
+      - {op: block, parent: fx3_sigil_rifle_detonate, block: red_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx3_sigil_rifle_detonate_seal_spoke_0_0, when: "= event.source == 'sel'"}
+      - id: fx3_sigil_rifle_detonate_seal_spoke_0_0_trk
+        op: track
+        target: fx3_sigil_rifle_detonate_seal_spoke_0_0
+        keys:
+          - {t: 0, offset: [0.0, 1.235, -0.99], scale: [0.03, 0.03, 0.96], turn: [-60.0, 0.0, 0.0]}
+          - {t: 28, scale: [0.03, 0.03, 0.96]}
+          - {t: 44, scale: [0.0, 0.0, 0.0], ease: in_quad}
+        when: "= event.source == 'sel'"
+      - {op: block, parent: fx3_sigil_rifle_detonate, block: red_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx3_sigil_rifle_detonate_seal_spoke_0_1, when: "= event.source == 'sel'"}
+      - id: fx3_sigil_rifle_detonate_seal_spoke_0_1_trk
+        op: track
+        target: fx3_sigil_rifle_detonate_seal_spoke_0_1
+        keys:
+          - {t: 0, offset: [0.0, 1.235, -0.51], scale: [0.03, 0.03, 0.96], turn: [60.0, 0.0, 0.0]}
+          - {t: 28, scale: [0.03, 0.03, 0.96]}
+          - {t: 44, scale: [0.0, 0.0, 0.0], ease: in_quad}
+        when: "= event.source == 'sel'"
+      - {op: block, parent: fx3_sigil_rifle_detonate, block: red_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx3_sigil_rifle_detonate_seal_spoke_0_2, when: "= event.source == 'sel'"}
+      - id: fx3_sigil_rifle_detonate_seal_spoke_0_2_trk
+        op: track
+        target: fx3_sigil_rifle_detonate_seal_spoke_0_2
+        keys:
+          - {t: 0, offset: [0.0, 0.82, -0.75], scale: [0.03, 0.03, 0.96], turn: [0.0, 0.0, 0.0]}
+          - {t: 28, scale: [0.03, 0.03, 0.96]}
+          - {t: 44, scale: [0.0, 0.0, 0.0], ease: in_quad}
+        when: "= event.source == 'sel'"
+      - {op: block, parent: fx4_sigil_rifle_mark, block: red_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx4_sigil_rifle_mark_solid_impact_0, when: "= event.source == 'sel_2'"}
+      - id: fx4_sigil_rifle_mark_solid_impact_0_trk
+        op: track
+        target: fx4_sigil_rifle_mark_solid_impact_0
+        keys:
+          - {t: 0, offset: [0.0, 1.1, 0.0], scale: [0.055, 0.12, 1.6], turn: [25.0, 0.0, 0.0]}
+          - {t: 7, scale: [0.0, 0.0, 1.6], ease: in_quad}
+        when: "= event.source == 'sel_2'"
+      - {op: block, parent: fx4_sigil_rifle_mark, block: red_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx4_sigil_rifle_mark_solid_impact_1, when: "= event.source == 'sel_2'"}
+      - id: fx4_sigil_rifle_mark_solid_impact_1_trk
+        op: track
+        target: fx4_sigil_rifle_mark_solid_impact_1
+        keys:
+          - {t: 0, offset: [0.0, 1.1, 0.0], scale: [0.055, 0.08, 1.5], turn: [-25.0, 0.0, 0.0]}
+          - {t: 7, scale: [0.0, 0.0, 1.6], ease: in_quad}
+        when: "= event.source == 'sel_2'"
+      - {op: block, parent: fx4_sigil_rifle_mark, block: yellow_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx4_sigil_rifle_mark_solid_impact_2, when: "= event.source == 'sel_2'"}
+      - id: fx4_sigil_rifle_mark_solid_impact_2_trk
+        op: track
+        target: fx4_sigil_rifle_mark_solid_impact_2
+        keys:
+          - {t: 0, offset: [0.0, 1.1, 0.0], scale: [0.065, 0.1, 1.9], turn: [0.0, 0.0, 0.0]}
+          - {t: 7, scale: [0.0, 0.0, 1.6], ease: in_quad}
+        when: "= event.source == 'sel_2'"
+      - {id: snd, op: sound, sound: entity.player.attack.strong, at: enemy, volume: 0.7, pitch: 1.1, when: "= event.source == 'sel_2'"}

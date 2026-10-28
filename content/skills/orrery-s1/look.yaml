@@ -2,15 +2,9 @@
 # Generated point-frame offsets are [left, up, forward] in the parent frame.
 # CONVERT-PRESENT vfx follow=false (anchored at world, no place-at-spawn) (x2): orrery-crescent-a | orrery-crescent-b
 # CONVERT-PRESENT vfx frame orient (frames carry no orientation / scale) (x4): orient="yaw" | orient="to_target"
-# CONVERT-PRESENT rig respect_hit_stop / weapon points (x2): {"respect_hit_stop": true}
 # CONVERT-PRESENT rig block parts (mesh takes an item model, not a block + size) (x2): 11 parts
-# CONVERT-PRESENT rig swing without a weapon mesh (track needs a visual to move) (x2): 5 keys
-
+# CONVERT-PRESENT rig swing without a weapon mesh (track needs a visual to move) (x2): 18 keys
 # CONVERT-PRESENT vfx anchored at a runtime point (frame parent must exist at cast start): anchored at world (x2): contact.point
-# CONVERT-PRESENT block element (mesh takes an item model, plate takes a sprite: no block / solid-colour primitive) (x4): gold_block | purple_stained_glass
-# CONVERT-PRESENT element formation (no v2 equivalent) (x2): {"align": "outward", "curve": {"from_deg": 0, "radius": 0.5,
-# CONVERT-PRESENT element count (no v2 equivalent) (x2): 8
-# CONVERT-PRESENT element brightness (no v2 equivalent) (x4): 15
 apiVersion: "astera/v2"
 kind: Skill
 id: orrery-s1
@@ -58,10 +52,76 @@ presentation:
             - {from: 0.0, to: 0.65, color: "#dc820d", alpha: 0.439, color_to: "#4e2710"}
             - {from: 0.65, to: 1.0, color: "#ffd447", alpha: 1.0, color_to: "#ff970b"}
           step_deg: 20.0
-    - {id: fx60, at: 60, do: [{id: rm_2, op: remove, ids: [fx3_orrery_crescent_b_staff_fan]}]}
+    - {id: fx60, at: 60, do: [{id: rm_4, op: remove, ids: [fx3_orrery_crescent_b_staff_fan]}]}
+    - id: fxhit_8
+      at: "hit+8"
+      do:
+        - {id: rm_2, op: remove, ids: [fx2_orrery_ring_hit_violet_core], when: "= event.source == 'sel'"}
+        - {id: rm_5, op: remove, ids: [fx4_orrery_ring_hit_violet_core], when: "= event.source == 'sel_2'"}
+    - id: fxhit_10
+      at: "hit+10"
+      do:
+        - {id: rm_3, op: remove, ids: [fx2_orrery_ring_hit_shard], when: "= event.source == 'sel'"}
+        - {id: rm_6, op: remove, ids: [fx4_orrery_ring_hit_shard], when: "= event.source == 'sel_2'"}
     - {id: loop1, at: 17, every: 1, for: 8, do: [{id: fx1_orrery_crescent_a_staff_embers, op: emit, at: pt_fx1_orrery_crescent_a_staff_0_1p65_0, particle: orrery-ember}]}
     - {id: loop2, at: 48, every: 1, for: 8, do: [{id: fx3_orrery_crescent_b_staff_embers, op: emit, at: pt_fx3_orrery_crescent_b_staff_0_1p65_0, particle: orrery-ember}]}
   "on":
     hit:
+      - op: block
+        parent: fx2_orrery_ring_hit
+        block: gold_block
+        size: [1.0, 1.0, 1.0]
+        brightness: 15
+        at: "= [vec(0.0, 1.0, 0.5), vec(0.0, 1.35355, 0.35355), vec(0.0, 1.5, 0.0), vec(0.0, 1.35355, -0.35355), vec(0.0, 1.0, -0.5), vec(0.0, 0.64645, -0.35355), vec(0.0, 0.5, 0.0), vec(0.0, 0.64645, 0.35355)][int(i)]"
+        turn: "= [vec(0.0, 0.0, 90.0), vec(-35.17635, 35.17635, 84.92322), vec(-69.28203, 69.28203, 69.28203), vec(-100.83991, 100.83991, 41.76926), vec(-127.27922, 127.27922, 0.0), vec(100.83991, -100.83991, 41.76926), vec(69.28203, -69.28203, 69.28203), vec(35.17635, -35.17635, 84.92322)][int(i)]"
+        times: 8
+        id: fx2_orrery_ring_hit_shard
+        when: "= event.source == 'sel'"
+      - id: fx2_orrery_ring_hit_shard_trk
+        op: track
+        target: fx2_orrery_ring_hit_shard
+        keys:
+          - {t: 0, scale: [0.1, 0.1, 0.15]}
+          - {t: 2, offset: [0.0, 0.0, 0.1], scale: [0.1, 0.1, 0.25], ease: out_expo}
+          - {t: 6, block: yellow_stained_glass}
+          - {t: 10, offset: [0.0, 0.0, 0.25], scale: [0.0, 0.0, 0.0], ease: in_quad}
+        when: "= event.source == 'sel'"
+      - {op: block, parent: fx2_orrery_ring_hit, block: purple_stained_glass, size: [1.0, 1.0, 1.0], brightness: 15, id: fx2_orrery_ring_hit_violet_core, when: "= event.source == 'sel'"}
+      - id: fx2_orrery_ring_hit_violet_core_trk
+        op: track
+        target: fx2_orrery_ring_hit_violet_core
+        keys:
+          - {t: 0, offset: [0.0, 1.0, 0.0], scale: [0.03, 0.2, 0.2]}
+          - {t: 2, scale: [0.03, 0.8, 0.8], ease: out_expo}
+          - {t: 8, scale: [0.0, 0.0, 0.0]}
+        when: "= event.source == 'sel'"
       - {id: snd, op: sound, sound: entity.player.attack.strong, at: enemy, volume: 0.7, pitch: 1.1, when: "= event.source == 'sel'"}
+      - op: block
+        parent: fx4_orrery_ring_hit
+        block: gold_block
+        size: [1.0, 1.0, 1.0]
+        brightness: 15
+        at: "= [vec(0.0, 1.0, 0.5), vec(0.0, 1.35355, 0.35355), vec(0.0, 1.5, 0.0), vec(0.0, 1.35355, -0.35355), vec(0.0, 1.0, -0.5), vec(0.0, 0.64645, -0.35355), vec(0.0, 0.5, 0.0), vec(0.0, 0.64645, 0.35355)][int(i)]"
+        turn: "= [vec(0.0, 0.0, 90.0), vec(-35.17635, 35.17635, 84.92322), vec(-69.28203, 69.28203, 69.28203), vec(-100.83991, 100.83991, 41.76926), vec(-127.27922, 127.27922, 0.0), vec(100.83991, -100.83991, 41.76926), vec(69.28203, -69.28203, 69.28203), vec(35.17635, -35.17635, 84.92322)][int(i)]"
+        times: 8
+        id: fx4_orrery_ring_hit_shard
+        when: "= event.source == 'sel_2'"
+      - id: fx4_orrery_ring_hit_shard_trk
+        op: track
+        target: fx4_orrery_ring_hit_shard
+        keys:
+          - {t: 0, scale: [0.1, 0.1, 0.15]}
+          - {t: 2, offset: [0.0, 0.0, 0.1], scale: [0.1, 0.1, 0.25], ease: out_expo}
+          - {t: 6, block: yellow_stained_glass}
+          - {t: 10, offset: [0.0, 0.0, 0.25], scale: [0.0, 0.0, 0.0], ease: in_quad}
+        when: "= event.source == 'sel_2'"
+      - {op: block, parent: fx4_orrery_ring_hit, block: purple_stained_glass, size: [1.0, 1.0, 1.0], brightness: 15, id: fx4_orrery_ring_hit_violet_core, when: "= event.source == 'sel_2'"}
+      - id: fx4_orrery_ring_hit_violet_core_trk
+        op: track
+        target: fx4_orrery_ring_hit_violet_core
+        keys:
+          - {t: 0, offset: [0.0, 1.0, 0.0], scale: [0.03, 0.2, 0.2]}
+          - {t: 2, scale: [0.03, 0.8, 0.8], ease: out_expo}
+          - {t: 8, scale: [0.0, 0.0, 0.0]}
+        when: "= event.source == 'sel_2'"
       - {id: snd_2, op: sound, sound: entity.player.attack.strong, at: enemy, volume: 0.7, pitch: 1.1, when: "= event.source == 'sel_2'"}

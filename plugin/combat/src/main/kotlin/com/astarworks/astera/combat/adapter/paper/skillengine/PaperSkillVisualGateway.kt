@@ -82,6 +82,8 @@ public class PaperSkillVisualGateway(
     private val handHides = ConcurrentHashMap<UUID, HandHide>()
     private class PlateEntry(val handle: DisplayHandle, val owner: UUID, val sprite: String, val intrinsic: Intrinsic) : Entry
     private class LineEntry(val handle: DisplayHandle) : Entry
+    private class BlockEntry(val handle: DisplayHandle, val owner: UUID) : Entry
+    private class QuadEntry(val handle: DisplayHandle, val owner: UUID, val intrinsic: Intrinsic, var colorHex: String, var alpha: Double) : Entry
     /** Colour of one ribbon quad: peak [alpha], the [rgbTo] it has faded to at the end of its life, and whether it keeps its alpha until then. */
     private class PieceStyle(val rgb: Int, val alpha: Double, val rgbTo: Int?, val crisp: Boolean)
     private class Seg(val display: UUID, var age: Int, val style: PieceStyle)
@@ -99,7 +101,7 @@ public class PaperSkillVisualGateway(
         val segments = ArrayDeque<Seg>()
     }
 
-    override fun spawnMesh(castOwner: UUID, item: String, part: String?, pose: VisualPose): VisualHandle {
+    override fun spawnMesh(castOwner: UUID, item: String, part: String?, pose: VisualPose, brightness: Int?): VisualHandle {
         val world = worldOf(castOwner) ?: return dead("mesh $item")
         val heldItem = SkillDisplaySpecs.meshKind(MeshModels.resolve(item, part, frameTables)) == null
         val kind = SkillDisplaySpecs.meshKind(MeshModels.resolve(item, part, frameTables)) ?: run {
@@ -108,7 +110,7 @@ public class PaperSkillVisualGateway(
             DisplayKind.Item(ItemId(held.type.key.key.replace('_', '-')), DisplayItemMode.FIXED, held.itemMeta?.takeIf { it.hasItemModel() }?.itemModel?.toString())
         }
         val first = toDisplayWrite(pose.frame, pose.size, Intrinsic.ITEM_FIXED, pose.billboard, 0)
-        val spec = SkillDisplaySpecs.mesh(kind, first.transform)
+        val spec = SkillDisplaySpecs.mesh(kind, first.transform, brightness)
         val handle = spawnDisplay(world, castOwner, pose.frame.origin, spec, emptyList(), pose.anchorFeet != null) ?: return dead("mesh $item")
         if (heldItem) hideHand(castOwner)
         return register(castOwner, MeshEntry(handle, castOwner, heldItem))
@@ -132,15 +134,33 @@ public class PaperSkillVisualGateway(
         presentation()?.release(hide.lease)
     }
 
-    override fun spawnPlate(castOwner: UUID, sprite: String, alpha: Double, pose: VisualPose): VisualHandle {
+    override fun spawnPlate(castOwner: UUID, sprite: String, alpha: Double, pose: VisualPose, brightness: Int?): VisualHandle {
         val world = worldOf(castOwner) ?: return dead("plate $sprite")
         val glyph = SpriteGlyphs.text(SpriteId(sprite), 0)
         val intrinsic = Intrinsic.textGlyph(spriteInfo(sprite).px)
         val first = toDisplayWrite(pose.frame, pose.size, intrinsic, pose.billboard, 0)
-        val spec = SkillDisplaySpecs.plate(glyph, alpha, first.transform, pose.billboard)
+        val spec = SkillDisplaySpecs.plate(glyph, alpha, first.transform, pose.billboard, brightness ?: 15)
         val handle = spawnDisplay(world, castOwner, pose.frame.origin, spec, listOf(glyph), pose.anchorFeet != null && pose.billboard == DisplayBillboard.FIXED)
             ?: return dead("plate $sprite")
         return register(castOwner, PlateEntry(handle, castOwner, sprite, intrinsic))
+    }
+
+    override fun spawnBlock(castOwner: UUID, block: String, pose: VisualPose, brightness: Int?): VisualHandle {
+        val world = worldOf(castOwner) ?: return dead("block $block")
+        val first = toDisplayWrite(pose.frame, pose.size, Intrinsic.BLOCK, DisplayBillboard.FIXED, 0)
+        val spec = SkillDisplaySpecs.block(block, first.transform, brightness)
+        val handle = spawnDisplay(world, castOwner, pose.frame.origin, spec, emptyList(), pose.anchorFeet != null) ?: return dead("block $block")
+        return register(castOwner, BlockEntry(handle, castOwner))
+    }
+
+    override fun spawnQuad(castOwner: UUID, colorHex: String, alpha: Double, text: String?, shadow: Boolean, seeThrough: Boolean, pose: VisualPose, brightness: Int?): VisualHandle {
+        val world = worldOf(castOwner) ?: return dead("quad")
+        val intrinsic = if (text == null) Intrinsic.TEXT_SOLID else Intrinsic.textGlyph(QUAD_TEXT_PX)
+        val first = toDisplayWrite(pose.frame, pose.size, intrinsic, pose.billboard, 0)
+        val spec = SkillDisplaySpecs.quad(colorHex, alpha, text, shadow, seeThrough, first.transform, pose.billboard, brightness)
+        val handle = spawnDisplay(world, castOwner, pose.frame.origin, spec, listOf(text ?: " "), pose.anchorFeet != null && pose.billboard == DisplayBillboard.FIXED)
+            ?: return dead("quad")
+        return register(castOwner, QuadEntry(handle, castOwner, intrinsic, colorHex, alpha))
     }
 
     override fun spawnLine(castOwner: UUID, colorHex: String, pose: VisualPose): VisualHandle {
@@ -165,6 +185,24 @@ public class PaperSkillVisualGateway(
         displays.setText(e.handle, listOf(SpriteGlyphs.text(SpriteId(e.sprite), frame, rgb)))
     }
 
+    override fun setLook(handle: VisualHandle, alpha: Double?, colorHex: String?) {
+        when (val e = entries[handle.id]) {
+            is PlateEntry -> if (alpha != null) displays.setTextStyle(e.handle, 0, SkillDisplaySpecs.opacity(alpha), null)
+            is QuadEntry -> {
+                alpha?.let { e.alpha = it }
+                colorHex?.let { e.colorHex = it }
+                val a = (e.alpha.coerceIn(0.0, 1.0) * 255.0).roundToInt()
+                displays.setTextStyle(e.handle, (a shl 24) or (argb(e.colorHex) and 0xFFFFFF), 255, null)
+            }
+            else -> {}
+        }
+    }
+
+    override fun setBlock(handle: VisualHandle, block: String) {
+        val e = entries[handle.id] as? BlockEntry ?: return
+        displays.setBlock(e.handle, block)
+    }
+
     override fun setTrailLook(handle: VisualHandle, fadePower: Double, style: String) {
         val t = entries[handle.id] as? TrailEntry ?: return
         t.fadePower = fadePower.coerceAtLeast(0.0)
@@ -184,8 +222,11 @@ public class PaperSkillVisualGateway(
         when (val e = entries[handle.id]) {
             is MeshEntry -> displays.place(e.handle, toDisplayWrite(pose.frame, pose.size, Intrinsic.ITEM_FIXED, pose.billboard, interpolationTicks, anchorOf(e.owner, pose.anchorFeet)))
             is PlateEntry -> displays.place(e.handle, toDisplayWrite(pose.frame, pose.size, e.intrinsic, pose.billboard, interpolationTicks, anchorOf(e.owner, pose.anchorFeet)))
+            is BlockEntry -> displays.place(e.handle, toDisplayWrite(pose.frame, pose.size, Intrinsic.BLOCK, pose.billboard, interpolationTicks, anchorOf(e.owner, pose.anchorFeet)))
+            is QuadEntry -> displays.place(e.handle, toDisplayWrite(pose.frame, pose.size, e.intrinsic, pose.billboard, interpolationTicks, anchorOf(e.owner, pose.anchorFeet)))
             is LineEntry -> displays.place(e.handle, toDisplayWrite(pose.frame, pose.size, Intrinsic.TEXT_SOLID, DisplayBillboard.FIXED, interpolationTicks))
-            else -> Unit
+            is TrailEntry -> error("a trail is fed through pushTrailPoint, never written")
+            null -> Unit // already removed (owner quit / cast ended): nothing left to move
         }
     }
 
@@ -255,6 +296,8 @@ public class PaperSkillVisualGateway(
         when (val e = entries.remove(handle.id)) {
             is MeshEntry -> { displays.remove(e.handle); if (e.heldItem) showHand(e.owner) }
             is PlateEntry -> displays.remove(e.handle)
+            is BlockEntry -> displays.remove(e.handle)
+            is QuadEntry -> displays.remove(e.handle)
             is LineEntry -> displays.remove(e.handle)
             is TrailEntry -> {
                 e.segments.forEach { server.getEntity(it.display)?.remove() }
@@ -312,6 +355,9 @@ public class PaperSkillVisualGateway(
 
     private companion object {
         val HAND = PresentationMask(hand = true)
+
+        /** Font height (px) of a quad's drawn text: the vanilla default, 8 px = 0.2 blocks per text scale unit. */
+        const val QUAD_TEXT_PX = 8
     }
 
     private fun worldOf(owner: UUID): World? {
@@ -340,9 +386,6 @@ public class PaperSkillVisualGateway(
         return VisualHandle(id)
     }
 
-    /** The cast owner is offline or the display could not spawn: a handle that every update ignores. */
-    private fun dead(what: String): VisualHandle {
-        log.warn("skill visual '{}' dropped: owner offline or display refused", what)
-        return VisualHandle(ids.getAndIncrement())
-    }
+    /** The cast owner is offline or the display could not spawn: an error the op runner reports (never a silent dead handle). */
+    private fun dead(what: String): Nothing = error("skill visual '$what' could not be spawned: owner offline or display refused")
 }

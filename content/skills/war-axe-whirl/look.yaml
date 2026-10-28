@@ -1,6 +1,5 @@
 # Converted from content/skills/war-axe-whirl.yaml + content/vfx/* by tools/skill-convert/convert.py (v1 archetype: aoe). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
 # Generated point-frame offsets are [left, up, forward] in the parent frame.
-# CONVERT-PRESENT particle animation ring (emit has no shape / ring / path: one burst at the anchor) (x1): {"end_radius": 3.5, "period_ticks": 6, "points": 16, "start_radius": 0.5}
 apiVersion: "astera/v2"
 kind: Skill
 id: war-axe-whirl
@@ -12,6 +11,127 @@ presentation:
       at: 0
       do:
         - {id: snd, op: sound, sound: "astera:weapons/blade-heavy-swing", at: caster, volume: 1.0, pitch: 1.2}
-        - {id: emit, op: emit, at: pt_caster_0_0p15_0, particle: crit, count: 0, speed: 0.03}
-        - {id: emit_2, op: emit, at: pt_caster_0_0p15_0, particle: dust, count: 1, data: "#dcdcdc", data_size: 1.4}
+        - id: emit
+          op: emit
+          at: pt_caster_0_0p15_0
+          particle: crit
+          count: 0
+          speed: 0.03
+          times: 16
+          shift: "= vec(0.5*sin((3.6112 + 6.283185307179586*i/16)), 0.0, 0.5*cos((3.6112 + 6.283185307179586*i/16)))"
+          offset: "= vec(sin((3.6112 + 6.283185307179586*i/16)), 0, cos((3.6112 + 6.283185307179586*i/16)))"
+        - id: emit_2
+          op: emit
+          at: pt_caster_0_0p15_0
+          particle: dust
+          count: 1
+          data: "#dcdcdc"
+          data_size: 1.4
+          times: 16
+          shift: "= vec(0.5*sin((3.6112 + 6.283185307179586*i/16)), 0.0, 0.5*cos((3.6112 + 6.283185307179586*i/16)))"
+    - id: fx1
+      at: 1
+      do:
+        - id: emit_3
+          op: emit
+          at: pt_caster_0_0p15_0
+          particle: crit
+          count: 0
+          speed: 0.03
+          times: 16
+          shift: "= vec(1.1*sin((3.6112 + 6.283185307179586*i/16)), 0.0, 1.1*cos((3.6112 + 6.283185307179586*i/16)))"
+          offset: "= vec(sin((3.6112 + 6.283185307179586*i/16)), 0, cos((3.6112 + 6.283185307179586*i/16)))"
+        - id: emit_4
+          op: emit
+          at: pt_caster_0_0p15_0
+          particle: dust
+          count: 1
+          data: "#dcdcdc"
+          data_size: 1.4
+          times: 16
+          shift: "= vec(1.1*sin((3.6112 + 6.283185307179586*i/16)), 0.0, 1.1*cos((3.6112 + 6.283185307179586*i/16)))"
+    - id: fx2
+      at: 2
+      do:
+        - id: emit_5
+          op: emit
+          at: pt_caster_0_0p15_0
+          particle: crit
+          count: 0
+          speed: 0.03
+          times: 16
+          shift: "= vec(1.7*sin((3.6112 + 6.283185307179586*i/16)), 0.0, 1.7*cos((3.6112 + 6.283185307179586*i/16)))"
+          offset: "= vec(sin((3.6112 + 6.283185307179586*i/16)), 0, cos((3.6112 + 6.283185307179586*i/16)))"
+        - id: emit_6
+          op: emit
+          at: pt_caster_0_0p15_0
+          particle: dust
+          count: 1
+          data: "#dcdcdc"
+          data_size: 1.4
+          times: 16
+          shift: "= vec(1.7*sin((3.6112 + 6.283185307179586*i/16)), 0.0, 1.7*cos((3.6112 + 6.283185307179586*i/16)))"
+    - id: fx3
+      at: 3
+      do:
+        - id: emit_7
+          op: emit
+          at: pt_caster_0_0p15_0
+          particle: crit
+          count: 0
+          speed: 0.03
+          times: 16
+          shift: "= vec(2.3*sin((3.6112 + 6.283185307179586*i/16)), 0.0, 2.3*cos((3.6112 + 6.283185307179586*i/16)))"
+          offset: "= vec(sin((3.6112 + 6.283185307179586*i/16)), 0, cos((3.6112 + 6.283185307179586*i/16)))"
+        - id: emit_8
+          op: emit
+          at: pt_caster_0_0p15_0
+          particle: dust
+          count: 1
+          data: "#dcdcdc"
+          data_size: 1.4
+          times: 16
+          shift: "= vec(2.3*sin((3.6112 + 6.283185307179586*i/16)), 0.0, 2.3*cos((3.6112 + 6.283185307179586*i/16)))"
+    - id: fx4
+      at: 4
+      do:
+        - id: emit_9
+          op: emit
+          at: pt_caster_0_0p15_0
+          particle: crit
+          count: 0
+          speed: 0.03
+          times: 16
+          shift: "= vec(2.9*sin((3.6112 + 6.283185307179586*i/16)), 0.0, 2.9*cos((3.6112 + 6.283185307179586*i/16)))"
+          offset: "= vec(sin((3.6112 + 6.283185307179586*i/16)), 0, cos((3.6112 + 6.283185307179586*i/16)))"
+        - id: emit_10
+          op: emit
+          at: pt_caster_0_0p15_0
+          particle: dust
+          count: 1
+          data: "#dcdcdc"
+          data_size: 1.4
+          times: 16
+          shift: "= vec(2.9*sin((3.6112 + 6.283185307179586*i/16)), 0.0, 2.9*cos((3.6112 + 6.283185307179586*i/16)))"
+    - id: fx5
+      at: 5
+      do:
+        - id: emit_11
+          op: emit
+          at: pt_caster_0_0p15_0
+          particle: crit
+          count: 0
+          speed: 0.03
+          times: 16
+          shift: "= vec(3.5*sin((3.6112 + 6.283185307179586*i/16)), 0.0, 3.5*cos((3.6112 + 6.283185307179586*i/16)))"
+          offset: "= vec(sin((3.6112 + 6.283185307179586*i/16)), 0, cos((3.6112 + 6.283185307179586*i/16)))"
+        - id: emit_12
+          op: emit
+          at: pt_caster_0_0p15_0
+          particle: dust
+          count: 1
+          data: "#dcdcdc"
+          data_size: 1.4
+          times: 16
+          shift: "= vec(3.5*sin((3.6112 + 6.283185307179586*i/16)), 0.0, 3.5*cos((3.6112 + 6.283185307179586*i/16)))"
   "on": {hit: [{id: snd_2, op: sound, sound: "astera:weapons/blade-hit", at: enemy, volume: 0.7, pitch: 1.0, when: "= event.source == 'burst'"}]}
