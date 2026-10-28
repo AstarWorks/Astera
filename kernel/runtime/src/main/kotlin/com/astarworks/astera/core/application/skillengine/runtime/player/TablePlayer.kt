@@ -691,6 +691,11 @@ public class TablePlayer(
         }
         val gh = if (h != null) GatewayHandle(h.id) else GatewayHandle(nextSynthetic--)
         rec.real = h
+        // a glyph quad (v1 VfxQuad.style): the text colour and opacity of the spawn row are written like a first `set` (spawnText has no slot for them)
+        if (h != null && a.kind == SpawnKind.TEXT) {
+            look.fields["color"]?.let { hooks.setDisplayText(h, "color", strOf(run, it, ctx)) }
+            look.fields["text_opacity"]?.let { op -> dbl(run, op, ctx).takeIf { it < 255.0 }?.let { hooks.setDisplayField(h, "text_opacity", it / 255.0) } }
+        }
         run.cursor.instances[id] = gh
     }
 
