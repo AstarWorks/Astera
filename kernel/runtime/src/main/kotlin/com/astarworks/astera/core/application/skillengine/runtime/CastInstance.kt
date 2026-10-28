@@ -522,6 +522,10 @@ internal class CastInstance(
         report(opId, reason)
     }
 
+    override fun failHere(reason: String) {
+        report(currentOpId, reason)
+    }
+
     // ----------------------------------------------------------- SkillCastScope
 
     override val contact: ContactEvent? get() = activeContact()
@@ -582,6 +586,7 @@ internal class CastInstance(
 
     override fun location(ctx: OpContext, spec: LocationSpec): Vec3? = when (spec) {
         is LocationSpec.AtPoint -> tree.pointWorld(FrameId(spec.point.frame), spec.point.point).getOrNull()
+            ?: run { failHere("location '${spec.point}' does not resolve"); null }
         is LocationSpec.AtValue -> values.vec3(spec.value)
     }
 

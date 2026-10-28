@@ -52,7 +52,7 @@ internal class MeshExecutor(private val rt: PresentationRuntime) : OpExecutor<Vi
         val live = PresentationRuntime.Live.Mesh(op.id, op.frame, scale, pivot, tilt, rest)
         // The node carries the model's points (scaled to blocks), so `<mesh id>.tip` follows the swing.
         val pts = rt.points.points(op.item, op.part).map { FramePoint(live.node, it.name, it.offset * scale, it.axis) }
-        val pose = rt.spawnNode(s, live, op.frame, pts) ?: return
+        val pose = rt.spawnNode(s, live, op.frame, pts) ?: return ctx.host.fail(op.id, "mesh: parent frame '${op.frame}' is not in the frame tree")
         live.handle = ctx.ports.visuals.spawnMesh(rt.info.owner(ctx.cast), op.item, op.part, pose, op.brightness)
         rt.register(s, live)
     }
@@ -72,7 +72,7 @@ internal class PlateExecutor(private val rt: PresentationRuntime) : OpExecutor<V
                 op.sprite, frames, op.frameTicks, op.loop, tint, s.tick,
                 op.at?.let { ctx.values.vec3(it) } ?: Vec3.ZERO, op.turn?.let { turn(ctx.values.vec3(it)) } ?: Quaternion.IDENTITY,
             )
-            val pose = rt.spawnNode(s, live, par) ?: return@repeated null
+            val pose = rt.spawnNode(s, live, par) ?: run { ctx.host.fail(op.id, "plate: parent frame '$par' is not in the frame tree"); return@repeated null }
             live.handle = ctx.ports.visuals.spawnPlate(rt.info.owner(ctx.cast), op.sprite, ctx.values.num(op.alpha), pose, op.brightness)
             if (tint != null) ctx.ports.visuals.setPlateFrame(live.handle, 0, tint)
             rt.register(s, live)
@@ -92,7 +92,7 @@ internal class BlockExecutor(private val rt: PresentationRuntime) : OpExecutor<V
                 id, par, ctx.values.vec3(op.size),
                 op.at?.let { ctx.values.vec3(it) } ?: Vec3.ZERO, op.turn?.let { turn(ctx.values.vec3(it)) } ?: Quaternion.IDENTITY,
             )
-            val pose = rt.spawnNode(s, live, par) ?: return@repeated null
+            val pose = rt.spawnNode(s, live, par) ?: run { ctx.host.fail(op.id, "block: parent frame '$par' is not in the frame tree"); return@repeated null }
             live.handle = ctx.ports.visuals.spawnBlock(rt.info.owner(ctx.cast), op.block, pose, op.brightness)
             rt.register(s, live)
             live
@@ -111,7 +111,7 @@ internal class QuadExecutor(private val rt: PresentationRuntime) : OpExecutor<Vi
                 id, par, op.face, ctx.values.vec3(op.size), rt.billboardOf(s, op.face, par),
                 op.at?.let { ctx.values.vec3(it) } ?: Vec3.ZERO, op.turn?.let { turn(ctx.values.vec3(it)) } ?: Quaternion.IDENTITY,
             )
-            val pose = rt.spawnNode(s, live, par) ?: return@repeated null
+            val pose = rt.spawnNode(s, live, par) ?: run { ctx.host.fail(op.id, "quad: parent frame '$par' is not in the frame tree"); return@repeated null }
             live.handle = ctx.ports.visuals.spawnQuad(
                 rt.info.owner(ctx.cast), ctx.values.text(op.color), ctx.values.num(op.alpha), op.text, op.shadow, op.seeThrough, pose, op.brightness,
             )
@@ -127,7 +127,7 @@ internal class LineExecutor(private val rt: PresentationRuntime) : OpExecutor<Vi
         if (!ctx.passes(op)) return
         val s = rt.state(ctx)
         val live = PresentationRuntime.Live.Line(op.id, op.from, op.to, ctx.values.num(op.thickness), op.face)
-        val pose = rt.linePose(s, live) ?: return
+        val pose = rt.linePose(s, live) ?: return ctx.host.fail(op.id, "line: ${op.from} -> ${op.to} does not resolve to two distinct points")
         live.handle = ctx.ports.visuals.spawnLine(rt.info.owner(ctx.cast), ctx.values.text(op.color), pose)
         rt.register(s, live)
     }
@@ -175,7 +175,7 @@ internal class EmitExecutor(private val rt: PresentationRuntime) : OpExecutor<Fx
     }
 
     private fun emitOnce(op: FxOp.Emit, ctx: OpContext, s: PresentationRuntime.CastState) {
-        val base = rt.pointWorld(s, op.at) ?: return
+        val base = rt.pointWorld(s, op.at) ?: return ctx.host.fail(op.id, "emit: point '${op.at}' does not resolve")
         val at = op.shift?.let { sh -> rt.frameWorld(s, op.at.frame)?.let { base + it.directionToWorld(ctx.values.vec3(sh)) } } ?: base
         val inherit = op.inheritVelocity?.let { ctx.values.num(it) }
         val count = op.count?.let { ctx.values.num(it).roundToInt().coerceAtLeast(0) }
