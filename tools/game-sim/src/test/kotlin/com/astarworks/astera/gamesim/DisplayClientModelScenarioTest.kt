@@ -99,6 +99,13 @@ class DisplayClientModelScenarioTest {
             it.write.billboard == com.astarworks.astera.core.domain.effect.DisplayBillboard.CENTER && kotlin.math.abs(it.write.transform.rotation.w) < 0.999
         }
         assertThat(rolled).describedAs("center billboard writes carrying a roll").isNotEmpty
+        // v1 VfxTimeline.kt:270-274: a first key without `turn` starts from identity, so the roll spawns at identity and eases in.
+        val center = rec.calls.filter { it.write.billboard == com.astarworks.astera.core.domain.effect.DisplayBillboard.CENTER }.groupBy { it.handle }
+        val easing = center.values.count { w ->
+            val s = w.sortedBy { it.tick }
+            kotlin.math.abs(s.first().write.transform.rotation.w) > 0.999 && s.any { kotlin.math.abs(it.write.transform.rotation.w) < 0.999 }
+        }
+        assertThat(easing).describedAs("center billboards that spawn at identity and ease into their roll").isGreaterThan(0)
     }
 
     @Test

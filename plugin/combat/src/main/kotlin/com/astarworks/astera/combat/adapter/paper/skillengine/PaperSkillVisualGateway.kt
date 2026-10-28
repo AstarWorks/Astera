@@ -389,8 +389,6 @@ public class PaperSkillVisualGateway(
     private companion object {
         val HAND = PresentationMask(hand = true)
         val BODY = PresentationMask(hand = true, offhand = true, armor = true, body = true, pinPose = true)
-
-        val BODY = PresentationMask(hand = true, offhand = true, armor = true, body = true, pinPose = true)
     }
 
     private fun worldOf(owner: UUID): World? {

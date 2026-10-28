@@ -708,11 +708,11 @@ public class PresentationRuntime(
     private fun sampleTrack(s: CastState, t: TrackState, elapsed: Int): Sample {
         val keys = t.op.keys.sortedBy { it.tick }
         val v = s.ctx.values
-        val off = channel(keys.filter { it.offset != null }, elapsed, { v.vec3(it.offset!!) }, Vec3.ZERO) { a, b, f -> a + (b - a) * f }
+        val off = channel(keys, elapsed, { it.offset?.let { o -> v.vec3(o) } }, Vec3.ZERO) { a, b, f -> a + (b - a) * f }
         val turn = channel(
-            keys.filter { it.turn != null }, elapsed, { Quaternion.fromRotationVector(v.vec3(it.turn!!)) }, Quaternion.IDENTITY,
+            keys, elapsed, { it.turn?.let { r -> Quaternion.fromRotationVector(v.vec3(r)) } }, Quaternion.IDENTITY,
         ) { a, b, f -> Quaternion.slerp(a, b, f) }
-        val sc = channel(keys.filter { it.scale != null }, elapsed, { scaleOf(v, it.scale!!) }, ONE) { a, b, f -> a + (b - a) * f }
+        val sc = channel(keys, elapsed, { it.scale?.let { c -> scaleOf(v, c) } }, ONE) { a, b, f -> a + (b - a) * f }
         return Sample(off, turn, sc)
     }
 
@@ -722,21 +722,28 @@ public class PresentationRuntime(
         else -> runCatching { v.vec3(value) }.getOrElse { val n = v.num(value as Value<Nothing>); Vec3(n, n, n) }
     }
 
+    /**
+     * One channel of a track at [elapsed]. v1 `resolveKeyframes` (VfxTimeline.kt:270-274): an absent field carries over from
+     * the previous key and the state before the first key starts from the neutral value ([neutral]), so a key that omits the
+     * channel keeps the earlier value and a first key without it eases from the neutral value, never from a later key's value.
+     */
     private fun <T> channel(
         keys: List<TrackKey>,
         elapsed: Int,
-        value: (TrackKey) -> T,
+        value: (TrackKey) -> T?,
         neutral: T,
         lerp: (T, T, Double) -> T,
     ): T {
         if (keys.isEmpty()) return neutral
-        if (elapsed <= keys.first().tick) return value(keys.first())
-        if (elapsed >= keys.last().tick) return value(keys.last())
+        var cur = neutral
+        val vals = keys.map { k -> cur = value(k) ?: cur; cur }
+        if (elapsed <= keys.first().tick) return vals.first()
+        if (elapsed >= keys.last().tick) return vals.last()
         val hi = keys.indexOfFirst { it.tick >= elapsed }
         val a = keys[hi - 1]
         val b = keys[hi]
         val raw = (elapsed - a.tick).toDouble() / max(1, b.tick - a.tick)
-        return lerp(value(a), value(b), ease(b.ease, raw))
+        return lerp(vals[hi - 1], vals[hi], ease(b.ease, raw))
     }
 
     private fun ease(name: String?, f: Double): Double = name?.let { com.astarworks.astera.core.domain.animation.Easing.fromKey(it) }?.apply(f) ?: f
