@@ -18,6 +18,8 @@ import com.astarworks.astera.core.domain.effect.DisplayBillboard
 import com.astarworks.astera.core.domain.effect.DisplayItemMode
 import com.astarworks.astera.core.domain.effect.ParticleData
 import com.astarworks.astera.core.domain.geometry.Vec3
+import com.astarworks.astera.core.application.skillengine.load.grammar.LocalAxes
+import com.astarworks.astera.core.domain.geometry.math.Basis
 import com.astarworks.astera.core.domain.geometry.math.Frame
 import com.astarworks.astera.core.domain.geometry.math.Quaternion
 import com.astarworks.astera.core.domain.skill.value.NumericValue
@@ -581,7 +583,7 @@ public class TablePlayer(
     private fun spawn(run: Run, row: Row, a: Action.Spawn, ctx: RowCtx, now: Int) {
         val id = row.instance
         run.recs[id]?.let { endInstance(run, id) }
-        val local = PoseV(vec(run, a.pose.position, ctx), quat(run, a.pose.rotation, ctx), vec(run, a.pose.scale, ctx))
+        val local = PoseV(vec(run, a.pose.position, ctx), quat(run, a.pose.rotation, ctx, if (a.kind == SpawnKind.PROJECTILE_BODY) null else a.anchor, if (a.kind == SpawnKind.PROJECTILE_BODY) "" else a.anchorName), vec(run, a.pose.scale, ctx))
         // a body's spawn pose is already the origin anchor's WORLD pose (`anchor:<origin>.position`); anchoring it again would count the anchor twice
         val body = a.kind == SpawnKind.PROJECTILE_BODY
         val rec = Rec(a.kind, if (body) null else a.anchor, if (body) "" else a.anchorName, now, ctx.owner, local)
@@ -649,7 +651,7 @@ public class TablePlayer(
 
     private fun key(run: Run, a: Action.Key, ctx: RowCtx, now: Int) {
         val rec = run.recs[a.display] ?: return
-        val target = PoseV(vec(run, a.translation, ctx), quat(run, a.leftRotation, ctx), vec(run, a.scale, ctx))
+        val target = PoseV(vec(run, a.translation, ctx), quat(run, a.leftRotation, ctx, rec.anchor, rec.anchorName), vec(run, a.scale, ctx))
         rec.moveTo(target, now, a.durationTicks)
         rec.real?.let { visual.write(it, visualPose(rec, worldOf(run, rec, target, ctx.binding, now)), a.durationTicks) }
     }
@@ -1026,9 +1028,51 @@ public class TablePlayer(
         is Val.Live -> liveVec(run, v.name, ctx)
     }
 
-    private fun quat(run: Run, v: Rot, ctx: RowCtx): Quaterniond = when (v) {
+    private fun quat(run: Run, v: Rot, ctx: RowCtx, anchor: InstanceId? = null, anchorName: String = ""): Quaterniond = when (v) {
         is Val.Known -> Quaterniond(v.value)
-        is Val.Live -> liveRot(run, v.name, ctx)
+        is Val.Live -> if (v.name.startsWith("align:")) alignRot(run, v.name, ctx, anchor, anchorName) else liveRot(run, v.name, ctx)
+    }
+
+    /**
+     * `align:<axis>><to>^<up>` (R42, v2 `MotionComposer.alignedRotation`): the LOCAL rotation that points the object's [axis] along the
+     * named direction `to` with its up toward `up`, i.e. `Basis.facing(dir, up)` in world, expressed in the parent's space
+     * (`parentWorld.conjugate * world`). Directions are `world.up`, `world.down` and `<instance|caster>.<axis>` (v2 `Axes.resolve`);
+     * an anchor id has no direction without the object's own position, so it is a loud fault, never a guess.
+     */
+    private fun alignRot(run: Run, cell: String, ctx: RowCtx, anchor: InstanceId?, anchorName: String): Quaterniond {
+        val body = cell.removePrefix("align:")
+        val axisName = body.substringBefore('>')
+        val to = body.substringAfter('>').substringBefore('^')
+        val up = body.substringAfter('^')
+        val dir = namedDirection(run, to, ctx)
+        val upDir = namedDirection(run, up, ctx)
+        val objAxis = LocalAxes.axis(axisName.removePrefix("-"))?.let { if (axisName.startsWith("-")) it * -1.0 else it }
+            ?: throw IllegalArgumentException("align axis '$axisName' cannot be resolved")
+        val z = Vec3(0.0, 0.0, 1.0)
+        val a = objAxis.normalize()
+        val toZ = when {
+            a.dot(z) > 1.0 - 1e-12 -> Quaternion.IDENTITY
+            a.dot(z) < -1.0 + 1e-12 -> Quaternion.axisAngle(Vec3(0.0, 1.0, 0.0), Math.PI)
+            else -> Quaternion.axisAngle(a.cross(z), Math.acos(a.dot(z).coerceIn(-1.0, 1.0)))
+        }
+        val w = Basis.facing(dir, upDir) * toZ
+        val parentRot = anchor?.let { run.recs[it] }?.let { worldOf(run, it, it.localAt(lastTick), ctx.binding, lastTick).rot }
+            ?: if (anchorName.isNotEmpty() && anchorName != "world") live.rot(run.cursor.handle, anchorName, ctx.binding) else Quaterniond()
+        return Quaterniond(parentRot).conjugate().mul(Quaterniond(w.x, w.y, w.z, w.w)).normalize()
+    }
+
+    private fun namedDirection(run: Run, name: String, ctx: RowCtx): Vec3 {
+        if (name == "world.up") return Vec3(0.0, 1.0, 0.0)
+        if (name == "world.down") return Vec3(0.0, -1.0, 0.0)
+        val dot = name.lastIndexOf('.')
+        if (dot <= 0) throw IllegalArgumentException("align target '$name' is not a direction (world.up, world.down, <frame>.<axis>); facing an anchor by id needs the object's own position")
+        val inst = name.substring(0, dot)
+        val axis = name.substring(dot + 1)
+        val rot = if (inst == "caster") live.rot(run.cursor.handle, "caster", ctx.binding)
+        else anchorOf(run, inst)?.let { (rec, _) -> worldOf(run, rec, rec.localAt(lastTick), ctx.binding, lastTick).rot }
+            ?: throw IllegalArgumentException("align target '$name': no frame '$inst'")
+        return Basis.axis(Frame(Vec3(0.0, 0.0, 0.0), Quaternion(rot.x, rot.y, rot.z, rot.w)), axis)
+            ?: throw IllegalArgumentException("align target '$name': '$axis' is not a basis axis")
     }
 
     private fun num(run: Run, v: Num, ctx: RowCtx): Double = when (v) {

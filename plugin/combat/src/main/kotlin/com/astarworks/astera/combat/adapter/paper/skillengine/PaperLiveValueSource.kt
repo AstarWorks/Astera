@@ -80,7 +80,8 @@ public class PaperLiveValueSource(
                 if (frame != CASTER) return null
                 val p = casterPose(request)
                 return when (point) {
-                    null, "feet" -> Frame.fromYawPitch(p.feet, p.yaw, p.pitch)
+                    // bare `caster` is yaw only, as v2 `CastInstance.casterLocal` (CastInstance.kt:210, 807 at 9d4c4a3db); pitch is `look` / `eye`
+                    null, "feet" -> Frame.fromYawPitch(p.feet, p.yaw, 0.0)
                     "eye" -> Frame.fromYawPitch(p.eye, p.yaw, p.pitch)
                     "look" -> Frame.fromYawPitch(p.feet, p.yaw, p.pitch)
                     else -> null
@@ -117,7 +118,8 @@ public class PaperLiveValueSource(
         val bare = name.removePrefix("anchor:")
         if (bare == CASTER || bare.startsWith("$CASTER.")) {
             val p = casterPose(request)
-            return quat(Frame.fromYawPitch(p.feet, p.yaw, p.pitch).rotation)
+            val pitched = bare == "$CASTER.look" || bare == "$CASTER.eye"
+            return quat(Frame.fromYawPitch(p.feet, p.yaw, if (pitched) p.pitch else 0.0).rotation)
         }
         return when (val v = evalExpr(cast, request, name, binding)) {
             is ExprValue.Quat -> quat(v.value)
