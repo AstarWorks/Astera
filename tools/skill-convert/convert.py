@@ -545,6 +545,8 @@ class Conv:
         "set_block": {"block_key", "revert_after_ticks", "outside_arena", "snapshot_pose", "period_ticks", "duration_ticks"},
     }
 
+    REPEAT_ROUTED = {"teleport", "set_velocity", "set_block"}
+
     def require_movement_fields(self, m):
         allowed = self.MOVEMENT_KEYS.get(m["type"])
         if allowed is None:
@@ -575,6 +577,23 @@ class Conv:
         delay = int(V(m.get("delay_ticks", 0)) or 0) + base_delay
         tg = m.get("targets")
         self.require_movement_fields(m)
+        if t not in self.REPEAT_ROUTED and int(V(m.get("period_ticks", 0)) or 0) > 0:
+            # v1 dispatchOne (MD:462-495) repeats ANY mechanic carrying period_ticks. Silently firing once is a drop, so a
+            # bounded repeat is unrolled into one delayed mechanic per firing (each firing re-reads its pose live, exactly as
+            # a v1 repeat does), and everything else raises in strict and non-strict alike.
+            period = int(V(m["period_ticks"]))
+            duration = max(int(V(m.get("duration_ticks", 0)) or 0), 0)
+            if duration <= 0:
+                raise ValueError("%s: %s repeats every %d ticks with no duration_ticks (v1 repeats until the scheduler scope "
+                                 "retires); v2 has no unbounded repeat" % (self.sid_hint(), t, period))
+            if t in ("for_each_target", "dash_strike", "counter") or t not in PRESENT:
+                raise ValueError("%s: repeating %s (period_ticks=%d) has no v2 mapping; extend the converter before converting"
+                                 % (self.sid_hint(), t, period))
+            once = {k: v for k, v in m.items() if k not in ("period_ticks", "duration_ticks")}
+            for k in range(-(-duration // period)):
+                once["delay_ticks"] = int(V(m.get("delay_ticks", 0)) or 0) + k * period
+                self.mech(dict(once), where, base_delay)
+            return
         if t == "for_each_target":
             w = self.select(tg, delay, m) if where.kind == "cast" and tg["type"] != "allies" else where
             for sub in m.get("mechanics", []):
