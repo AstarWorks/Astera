@@ -127,7 +127,7 @@ class EntityView(val id: Int, val uuid: UUID, val type: String, @Volatile var x:
     @Volatile var updatedAt: Long = System.currentTimeMillis()
     fun moveTo(nx: Double, ny: Double, nz: Double) { x = nx; y = ny; z = nz; updatedAt = System.currentTimeMillis() }
 }
-data class SlotView(val containerId: Int, val slot: Int, val itemId: Int, val amount: Int, val lore: String = "")
+data class SlotView(val containerId: Int, val slot: Int, val itemId: Int, val amount: Int, val lore: String = "", val name: String = "")
 
 /** Flattens an Adventure component the way a client would display it; translatable keys stay visible as `<key>`. */
 fun plain(c: Component?): String {
@@ -445,11 +445,11 @@ class Bot private constructor(
             is ClientboundOpenScreenPacket -> screens += ScreenView(packet.containerId, packet.type.name, plain(packet.title))
             is ClientboundContainerSetContentPacket -> {
                 stateIds[packet.containerId] = packet.stateId
-                contents[packet.containerId] = packet.items.mapIndexed { i, st -> SlotView(packet.containerId, i, st?.id ?: -1, st?.amount ?: 0, loreOf(st)) }
+                contents[packet.containerId] = packet.items.mapIndexed { i, st -> SlotView(packet.containerId, i, st?.id ?: -1, st?.amount ?: 0, loreOf(st), nameOf(st)) }
             }
             is ClientboundContainerSetSlotPacket -> {
                 stateIds[packet.containerId] = packet.stateId
-                val view = SlotView(packet.containerId, packet.slot, packet.item?.id ?: -1, packet.item?.amount ?: 0, loreOf(packet.item))
+                val view = SlotView(packet.containerId, packet.slot, packet.item?.id ?: -1, packet.item?.amount ?: 0, loreOf(packet.item), nameOf(packet.item))
                 slotUpdates += view
                 contents.compute(packet.containerId) { _, old ->
                     val list = (old ?: emptyList()).toMutableList()
@@ -728,6 +728,15 @@ class Bot private constructor(
     /** Item lore as plain text lines joined by " | " (what a client shows under the name), or "". */
     private fun loreOf(stack: ItemStack?): String =
         stack?.dataComponentsPatch?.get(DataComponentTypes.LORE)?.joinToString(" | ") { plain(it) }.orEmpty()
+
+    /** Display name of a stack as plain text (custom name, else item name), or "". */
+    private fun nameOf(stack: ItemStack?): String {
+        val patch = stack?.dataComponentsPatch ?: return ""
+        return plain(patch.get(DataComponentTypes.CUSTOM_NAME) ?: patch.get(DataComponentTypes.ITEM_NAME))
+    }
+
+    /** Display name of hotbar slot 0..8 as plain text, "" when empty or unknown. */
+    fun hotbarName(slot: Int): String = contents[0]?.getOrNull(36 + slot)?.name.orEmpty()
 
     /** Lore of hotbar slot 0..8 (container 0, slots 36..44) as plain text, "" when empty or unknown. */
     fun hotbarLore(slot: Int): String = contents[0]?.getOrNull(36 + slot)?.lore.orEmpty()
