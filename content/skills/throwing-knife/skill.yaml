@@ -16,8 +16,8 @@ machine:
   start: fly
   states:
     fly:
-      for: 31      # max flight 30 + 1 so the end handlers fit
-      then: end
+      on:
+        - {event: bolt.end, to: end}
       do:
         - {id: snd, op: sound, sound: "astera:weapons/sword-swing", anchor: caster, volume: 0.8, pitch: 1.8}
         - {id: puff, op: particle_def, def: stab-spark, anchor: flash}

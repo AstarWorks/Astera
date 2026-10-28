@@ -17,34 +17,17 @@ params:
 anchors:
   - {id: muzzle, anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}
   - {id: fx, anchor: caster.eye, offset: {forward: 1.0, up: -0.2}}
-presentation:
-  timeline:
-    - id: cast
-      at: 0
-      do:
-        - {id: snd, op: sound, sound: "astera:skill/wand/cast", anchor: caster, volume: 0.5, pitch: 1.7}
-        - {id: fx1, op: emit, effect: thunder-cast, anchor: fx}
-    - id: trail
-      at: 0
-      every: 1
-      until: bolt.end
-      do:
-        - {id: t1, op: particle, particle: electric_spark, anchor: {of: bolt, sweep: 0.4}, count: 3, offset: [0.12, 0.12, 0.12], extra: 0.05}
-        - {id: t2, op: particle, particle: end_rod, anchor: {of: bolt, sweep: 0.4}, count: 1, offset: [0.02, 0.02, 0.02], extra: 0}
-  "on":
-    hit:
-      - {id: snd_hit, op: sound, sound: "astera:skills/lightning-impact", anchor: contact, volume: 0.7, pitch: 1.2}
-      - {id: imp, op: emit, effect: thunder-impact, anchor: contact}
-    block:
-      - {id: snd_blk, op: sound, sound: "astera:weapons/gun-impact-block", anchor: contact.point, volume: 0.5, pitch: 1.5}
-      - {id: spark, op: emit, effect: hit-spark, anchor: contact.point}
+  - {id: heart, anchor: victim.root, offset: {up: 1.2}}   # GAP(Q2): v2 pt_enemy_0_1p2_0 = enemy frame origin (feet+0.8) + 1.2; victim.root = feet
 machine:
   start: cast
   states:
     cast:
-      for: 41
-      then: done
+      on:
+        - {event: bolt.end, to: done}
       enter:
+        - {id: snd, op: sound, sound: "astera:skill/wand/cast", anchor: caster, volume: 0.5, pitch: 1.7}
+        - {id: fx1, op: particle_def, def: thunder-cast, anchor: fx}
+      do:
         - id: bolt
           op: projectile
           origin: muzzle
@@ -56,6 +39,13 @@ machine:
           block: {mode: despawn}
           on:
             hit:
-              - {id: dmg, op: damage, target: {kind: enemies, around: contact, radius: "${radius}", max_count: all, include_self: false}, damage: {electric: "${dmg_electric}"}}  # GAP(Q1): max_count spelling (A required int|all / B omit) is a founder question; v2 had no cap
+              - {id: dmg, op: damage, target: {kind: enemies, around: heart, radius: "${radius}", max_count: all, include_self: false}, damage: {electric: "${dmg_electric}"}}  # GAP(Q1): max_count spelling; v2 had no cap
               - {id: shock, op: status, target: event.victim, status: shock, stacks: 1, for: "${shock_ticks}", when: "= rand() < 0.4"}
+              - {id: snd_hit, op: sound, sound: "astera:skills/lightning-impact", anchor: contact, volume: 0.7, pitch: 1.2}
+              - {id: imp, op: particle_def, def: thunder-impact, anchor: heart}
+            block:
+              - {id: snd_blk, op: sound, sound: "astera:weapons/gun-impact-block", anchor: contact, volume: 0.5, pitch: 1.5}
+              - {id: spark, op: particle_def, def: hit-spark, anchor: contact}
+        - {id: t1, op: particle, particle: electric_spark, anchor: {of: bolt, sweep: 0.4}, count: 3, offset: [0.12, 0.12, 0.12], extra: 0.05, at: 0, every: 1, until: bolt.end}
+        - {id: t2, op: particle, particle: end_rod, anchor: {of: bolt, sweep: 0.4}, count: 1, offset: [0.02, 0.02, 0.02], extra: 0, at: 0, every: 1, until: bolt.end}
     done: {final: true}
