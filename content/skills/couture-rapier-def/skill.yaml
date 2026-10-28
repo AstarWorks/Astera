@@ -18,4 +18,11 @@ gameplay:
           ticks: 30
           filter: "= dist(caster, victim) <= 3.5"
           do:
+            # v1 counter on_hit presentation (snip at the parry, cross + sound 7 ticks later), run in the victim binding of the parry
+            - {id: raise, op: raise_event, name: counter_fx}
+            - {id: sch, op: schedule, after: 16, event: counter_fx16}
+            - {id: sch_2, op: schedule, after: 7, event: counter_fx7}
+            - {id: sch_3, op: schedule, after: 13, event: counter_fx13}
+            - {id: sch_4, op: schedule, after: 14, event: counter_fx14}
+            - {id: sch_5, op: schedule, after: 15, event: counter_fx15}
             - {id: riposte, op: delay, after: 7, do: [{id: riposte_dmg, op: damage, target: victim, components: [{kind: physical, amount: 30}], ignore_invulnerability: true, when: "= dist(caster, victim) < 3.5"}]}

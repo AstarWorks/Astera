@@ -7,6 +7,7 @@ import com.astarworks.astera.core.domain.skillengine.model.AxisRef
 import com.astarworks.astera.core.domain.skillengine.model.PointRef
 import com.astarworks.astera.core.domain.skillengine.model.TargetRef
 import com.astarworks.astera.core.domain.skillengine.model.Value
+import com.astarworks.astera.core.domain.skillengine.model.literal
 import com.astarworks.astera.core.domain.skillengine.op.BodyOp
 import com.astarworks.astera.core.domain.skillengine.op.FxOp
 import com.astarworks.astera.core.domain.skillengine.op.OpSection
@@ -285,7 +286,7 @@ private object BodyOpDecoder : OpDecoder {
 
 private object ScreenOpDecoder : OpDecoder {
     override val section = OpSection.PRESENTATION
-    override val opNames = setOf("title", "action_bar", "camera_shake", "screen_flash", "stop_sound")
+    override val opNames = setOf("title", "action_bar", "camera_shake", "screen_flash", "screen_veil", "stop_sound")
     override fun decode(op: String, id: String, whenExpr: Value<Boolean>?, reader: OpReader): SkillOp = with(reader) {
         when (op) {
             "title" -> ScreenOp.Title(
@@ -304,6 +305,16 @@ private object ScreenOpDecoder : OpDecoder {
                 ScreenOp.Flash(
                     id, whenExpr, target(TargetRef.Caster), overlay, color?.substring(1)?.toInt(16),
                     int("fade_in") ?: 0, int("stay") ?: 1, int("fade_out") ?: 2,
+                )
+            }
+            "screen_veil" -> {
+                val color = string("color")?.also { if (!Regex("#[0-9a-fA-F]{6}").matches(it)) fail("color '$it' is not #RRGGBB") }
+                val ticks = int("ticks") ?: fail("missing 'ticks'")
+                if (ticks < 1) fail("ticks must be >= 1")
+                ScreenOp.Veil(
+                    id, whenExpr, target(TargetRef.Caster), requireString("sprite"), color?.substring(1)?.toInt(16),
+                    number("distance") ?: literal(0.6), number("scale") ?: literal(1.0),
+                    number("max_screen_fraction") ?: literal(0.15), ticks,
                 )
             }
             "stop_sound" -> ScreenOp.StopSound(id, whenExpr, target(TargetRef.Caster), requireString("sound"))

@@ -6,8 +6,6 @@
 # CONVERT-PRESENT play_vfx track_bound_target (no v2 equivalent) (x8): true
 # CONVERT-PRESENT element target_line (no v2 equivalent) (x12): True
 # CONVERT-PRESENT element target_track (no v2 equivalent) (x8): [{'t': 0, 'weight': 1}]
-# CONVERT-PRESENT play_animation ticks (anim ops have no duration) (x1): ticks=173
-# CONVERT-PRESENT rig respect_hit_stop / weapon points (x1): {"respect_hit_stop": true}
 # CONVERT-PRESENT rig block parts (mesh takes an item model, not a block + size) (x1): 11 parts
 # CONVERT-PRESENT rig swing without a weapon mesh (track needs a visual to move) (x1): 112 keys
 # CONVERT-PRESENT particle along_path (x4): true
@@ -40,7 +38,7 @@ frames:
   - {id: fx14_orrery_seal_front_clock_sparks_at, kind: body, parent: fx14_orrery_seal_front}
 presentation:
   timeline:
-    - {id: fx5, at: 5, do: [{id: anim, op: caster_anim, anim: hide-main-hand}]}
+    - {id: fx5, at: 5, do: [{id: anim, op: caster_anim, anim: hide-main-hand, ticks: 173}]}
     - id: fx20
       at: 20
       do:

@@ -1,9 +1,11 @@
 # Converted from content/skills/spear-charge.yaml + content/vfx/* by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
 # Generated point-frame offsets are [left, up, forward] in the parent frame.
-# CONVERT-PRESENT presentation inside a nested gameplay list (dash on_hit has no event hook) (x1): play_sound
 apiVersion: "astera/v2"
 kind: Skill
 id: spear-charge
 frames:
   - {id: pt_caster_0_0p2_0, kind: point, parent: caster, offset: [0.0, 0.2, 0.0]}
-presentation: {timeline: [{id: fx0, at: 0, do: [{id: snd, op: sound, sound: "astera:weapons/dash-whoosh", at: caster, volume: 1.0, pitch: 1.1}, {id: emit, op: emit, at: pt_caster_0_0p2_0, particle: dash-cloud}]}]}
+presentation:
+  timeline:
+    - {id: fx0, at: 0, do: [{id: snd, op: sound, sound: "astera:weapons/dash-whoosh", at: caster, volume: 1.0, pitch: 1.1}, {id: emit, op: emit, at: pt_caster_0_0p2_0, particle: dash-cloud}]}
+  "on": {dash_fx: [{id: snd_2, op: sound, sound: "astera:weapons/blade-hit", at: enemy}]}

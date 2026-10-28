@@ -2,30 +2,27 @@
 # Generated point-frame offsets are [left, up, forward] in the parent frame.
 # CONVERT-PRESENT vfx frame orient (frames carry no orientation / scale) (x3): orient="yaw"
 # CONVERT-PRESENT windup sound pitch_arc (sound has a fixed pitch) (x1): {"ease": "in_quad", "from": 0.6, "interval_ticks": 5, "ticks": 25, "to": 1.8}
-# CONVERT-PRESENT telegraph has no v2 op (x1): {"angle_degrees": 70, "impact_tick": 11, "radius": 6.2, "shape": "cone", "team_color": "enemy", "ticks": 12, "viewers": "all"}
 # CONVERT-PRESENT vfx follow=false (anchored at world, no place-at-spawn) (x2): bastion-ego-trail | bastion-ego-slam
 # CONVERT-PRESENT dotted_line (line is solid) (x1): {"color": "#FFE08A", "from": [0, 1.0, 0.2], "spacing": 0.28,
 # CONVERT-PRESENT element lane (no v2 equivalent) (x10): "accent" | core
 # CONVERT-PRESENT element brightness (no v2 equivalent) (x1): 15
 # CONVERT-PRESENT element keyframes without a transform (alpha / colour only) (x1)
-# CONVERT-PRESENT element respect_hit_stop (no v2 equivalent) (x2): True | False
-# CONVERT-PRESENT rig respect_hit_stop / weapon points (x1): {"respect_hit_stop": true}
 # CONVERT-PRESENT rig block parts (mesh takes an item model, not a block + size) (x1): 8 parts
 # CONVERT-PRESENT rig swing without a weapon mesh (track needs a visual to move) (x1): 7 keys
 # CONVERT-PRESENT camera_shake shape (engine shake is intensity + ticks only) (x2): shape="decay"
 # CONVERT-PRESENT camera_shake direction (engine shake is intensity + ticks only) (x2): direction="from_hit" | direction="none"
 # CONVERT-PRESENT camera_shake viewers (engine shake is intensity + ticks only) (x2): viewers="all" | viewers="caster"
-# CONVERT-PRESENT screen_veil has no v2 op (x1): {"color": "#FFC84A", "distance": 0.4, "max_screen_fraction": 0.15, "scale": 1.4, "sprite": "burst", "ticks": 5, "viewers": "caster"}
 apiVersion: "astera/v2"
 kind: Skill
 id: bastion-greatsword-ego
 frames:
   - {id: fx1_bastion_ego_guard, kind: body, parent: caster}
-  - {id: fx2_bastion_ego_trail, kind: body, parent: world}
-  - {id: pt_fx2_bastion_ego_trail_0_1_0p2, kind: point, parent: fx2_bastion_ego_trail, offset: [0.0, 1.0, 0.2]}
-  - {id: pt_fx2_bastion_ego_trail_0_1p4_3, kind: point, parent: fx2_bastion_ego_trail, offset: [0.0, 1.4, 3.0]}
-  - {id: fx3_bastion_ego_slam, kind: body, parent: world}
-  - {id: fx3_bastion_ego_slam_sword, kind: body, parent: caster.right_hand}
+  - {id: fx2_telegraph_cone_2, kind: body, parent: tele}
+  - {id: fx3_bastion_ego_trail, kind: body, parent: world}
+  - {id: pt_fx3_bastion_ego_trail_0_1_0p2, kind: point, parent: fx3_bastion_ego_trail, offset: [0.0, 1.0, 0.2]}
+  - {id: pt_fx3_bastion_ego_trail_0_1p4_3, kind: point, parent: fx3_bastion_ego_trail, offset: [0.0, 1.4, 3.0]}
+  - {id: fx4_bastion_ego_slam, kind: body, parent: world}
+  - {id: fx4_bastion_ego_slam_sword, kind: body, parent: caster.right_hand}
 presentation:
   timeline:
     - id: fx0
@@ -100,8 +97,478 @@ presentation:
       at: 20
       do:
         - {id: hidehand, op: caster_anim, anim: hide-main-hand, ticks: 24}
+        - op: quad
+          parent: fx2_telegraph_cone_2
+          face: {plane: {frame: fx2_telegraph_cone_2, axes: [left, up]}}
+          size: [1.0, 1.0]
+          color: "#ff3b2f"
+          alpha: 0.85
+          brightness: 15
+          id: fx2_telegraph_cone_2_rim_arc_0
+        - id: fx2_telegraph_cone_2_rim_arc_0_trk
+          op: track
+          target: fx2_telegraph_cone_2_rim_arc_0
+          keys:
+            - {t: 0, offset: [-3.29314, 0.05, 5.25311], scale: [0.68173, 0.12, 1.0], turn: [-87.42776, -25.13833, -25.13833]}
+        - op: quad
+          parent: fx2_telegraph_cone_2
+          face: {plane: {frame: fx2_telegraph_cone_2, axes: [left, up]}}
+          size: [1.0, 1.0]
+          color: "#ff3b2f"
+          alpha: 0.85
+          brightness: 15
+          id: fx2_telegraph_cone_2_rim_arc_1
+        - id: fx2_telegraph_cone_2_rim_arc_1_trk
+          op: track
+          target: fx2_telegraph_cone_2_rim_arc_1
+          keys:
+            - {t: 0, offset: [-2.74219, 0.05, 5.56061], scale: [0.68173, 0.12, 1.0], turn: [-88.27999, -20.58401, -20.58401]}
+        - op: quad
+          parent: fx2_telegraph_cone_2
+          face: {plane: {frame: fx2_telegraph_cone_2, axes: [left, up]}}
+          size: [1.0, 1.0]
+          color: "#ff3b2f"
+          alpha: 0.85
+          brightness: 15
+          id: fx2_telegraph_cone_2_rim_arc_2
+        - id: fx2_telegraph_cone_2_rim_arc_2_trk
+          op: track
+          target: fx2_telegraph_cone_2_rim_arc_2
+          keys:
+            - {t: 0, offset: [-2.16284, 0.05, 5.81052], scale: [0.68173, 0.12, 1.0], turn: [-88.96042, -16.01987, -16.01987]}
+        - op: quad
+          parent: fx2_telegraph_cone_2
+          face: {plane: {frame: fx2_telegraph_cone_2, axes: [left, up]}}
+          size: [1.0, 1.0]
+          color: "#ff3b2f"
+          alpha: 0.85
+          brightness: 15
+          id: fx2_telegraph_cone_2_rim_arc_3
+        - id: fx2_telegraph_cone_2_rim_arc_3_trk
+          op: track
+          target: fx2_telegraph_cone_2_rim_arc_3
+          keys:
+            - {t: 0, offset: [-1.56108, 0.05, 6.00025], scale: [0.68173, 0.12, 1.0], turn: [-89.46996, -11.44814, -11.44814]}
+        - op: quad
+          parent: fx2_telegraph_cone_2
+          face: {plane: {frame: fx2_telegraph_cone_2, axes: [left, up]}}
+          size: [1.0, 1.0]
+          color: "#ff3b2f"
+          alpha: 0.85
+          brightness: 15
+          id: fx2_telegraph_cone_2_rim_arc_4
+        - id: fx2_telegraph_cone_2_rim_arc_4_trk
+          op: track
+          target: fx2_telegraph_cone_2_rim_arc_4
+          keys:
+            - {t: 0, offset: [-0.94316, 0.05, 6.12784], scale: [0.68173, 0.12, 1.0], turn: [-89.80927, -6.87103, -6.87103]}
+        - op: quad
+          parent: fx2_telegraph_cone_2
+          face: {plane: {frame: fx2_telegraph_cone_2, axes: [left, up]}}
+          size: [1.0, 1.0]
+          color: "#ff3b2f"
+          alpha: 0.85
+          brightness: 15
+          id: fx2_telegraph_cone_2_rim_arc_5
+        - id: fx2_telegraph_cone_2_rim_arc_5_trk
+          op: track
+          target: fx2_telegraph_cone_2_rim_arc_5
+          keys:
+            - {t: 0, offset: [-0.31548, 0.05, 6.19197], scale: [0.68173, 0.12, 1.0], turn: [-89.97881, -2.2907, -2.2907]}
+        - op: quad
+          parent: fx2_telegraph_cone_2
+          face: {plane: {frame: fx2_telegraph_cone_2, axes: [left, up]}}
+          size: [1.0, 1.0]
+          color: "#ff3b2f"
+          alpha: 0.85
+          brightness: 15
+          id: fx2_telegraph_cone_2_rim_arc_6
+        - id: fx2_telegraph_cone_2_rim_arc_6_trk
+          op: track
+          target: fx2_telegraph_cone_2_rim_arc_6
+          keys:
+            - {t: 0, offset: [0.31548, 0.05, 6.19197], scale: [0.68173, 0.12, 1.0], turn: [-89.97881, 2.2907, 2.2907]}
+        - op: quad
+          parent: fx2_telegraph_cone_2
+          face: {plane: {frame: fx2_telegraph_cone_2, axes: [left, up]}}
+          size: [1.0, 1.0]
+          color: "#ff3b2f"
+          alpha: 0.85
+          brightness: 15
+          id: fx2_telegraph_cone_2_rim_arc_7
+        - id: fx2_telegraph_cone_2_rim_arc_7_trk
+          op: track
+          target: fx2_telegraph_cone_2_rim_arc_7
+          keys:
+            - {t: 0, offset: [0.94316, 0.05, 6.12784], scale: [0.68173, 0.12, 1.0], turn: [-89.80927, 6.87103, 6.87103]}
+        - op: quad
+          parent: fx2_telegraph_cone_2
+          face: {plane: {frame: fx2_telegraph_cone_2, axes: [left, up]}}
+          size: [1.0, 1.0]
+          color: "#ff3b2f"
+          alpha: 0.85
+          brightness: 15
+          id: fx2_telegraph_cone_2_rim_arc_8
+        - id: fx2_telegraph_cone_2_rim_arc_8_trk
+          op: track
+          target: fx2_telegraph_cone_2_rim_arc_8
+          keys:
+            - {t: 0, offset: [1.56108, 0.05, 6.00025], scale: [0.68173, 0.12, 1.0], turn: [-89.46996, 11.44814, 11.44814]}
+        - op: quad
+          parent: fx2_telegraph_cone_2
+          face: {plane: {frame: fx2_telegraph_cone_2, axes: [left, up]}}
+          size: [1.0, 1.0]
+          color: "#ff3b2f"
+          alpha: 0.85
+          brightness: 15
+          id: fx2_telegraph_cone_2_rim_arc_9
+        - id: fx2_telegraph_cone_2_rim_arc_9_trk
+          op: track
+          target: fx2_telegraph_cone_2_rim_arc_9
+          keys:
+            - {t: 0, offset: [2.16284, 0.05, 5.81052], scale: [0.68173, 0.12, 1.0], turn: [-88.96042, 16.01987, 16.01987]}
+        - op: quad
+          parent: fx2_telegraph_cone_2
+          face: {plane: {frame: fx2_telegraph_cone_2, axes: [left, up]}}
+          size: [1.0, 1.0]
+          color: "#ff3b2f"
+          alpha: 0.85
+          brightness: 15
+          id: fx2_telegraph_cone_2_rim_arc_10
+        - id: fx2_telegraph_cone_2_rim_arc_10_trk
+          op: track
+          target: fx2_telegraph_cone_2_rim_arc_10
+          keys:
+            - {t: 0, offset: [2.74219, 0.05, 5.56061], scale: [0.68173, 0.12, 1.0], turn: [-88.27999, 20.58401, 20.58401]}
+        - op: quad
+          parent: fx2_telegraph_cone_2
+          face: {plane: {frame: fx2_telegraph_cone_2, axes: [left, up]}}
+          size: [1.0, 1.0]
+          color: "#ff3b2f"
+          alpha: 0.85
+          brightness: 15
+          id: fx2_telegraph_cone_2_rim_arc_11
+        - id: fx2_telegraph_cone_2_rim_arc_11_trk
+          op: track
+          target: fx2_telegraph_cone_2_rim_arc_11
+          keys:
+            - {t: 0, offset: [3.29314, 0.05, 5.25311], scale: [0.68173, 0.12, 1.0], turn: [-87.42776, 25.13833, 25.13833]}
+        - op: quad
+          parent: fx2_telegraph_cone_2
+          face: {plane: {frame: fx2_telegraph_cone_2, axes: [left, up]}}
+          size: [1.0, 1.0]
+          color: "#ff3b2f"
+          alpha: 0.85
+          brightness: 15
+          id: fx2_telegraph_cone_2_rim_edge_0
+        - id: fx2_telegraph_cone_2_rim_edge_0_trk
+          op: track
+          target: fx2_telegraph_cone_2_rim_edge_0
+          keys:
+            - {t: 0, offset: [1.77809, 0.05, 2.53937], scale: [6.2, 0.12, 1.0], turn: [-82.39131, -42.8902, -42.8902]}
+        - op: quad
+          parent: fx2_telegraph_cone_2
+          face: {plane: {frame: fx2_telegraph_cone_2, axes: [left, up]}}
+          size: [1.0, 1.0]
+          color: "#ff3b2f"
+          alpha: 0.85
+          brightness: 15
+          id: fx2_telegraph_cone_2_rim_edge_1
+        - id: fx2_telegraph_cone_2_rim_edge_1_trk
+          op: track
+          target: fx2_telegraph_cone_2_rim_edge_1
+          keys:
+            - {t: 0, offset: [-1.77809, 0.05, 2.53937], scale: [6.2, 0.12, 1.0], turn: [-49.01283, -94.15276, -94.15276]}
+        - op: quad
+          parent: fx2_telegraph_cone_2
+          face: {plane: {frame: fx2_telegraph_cone_2, axes: [left, up]}}
+          size: [1.0, 1.0]
+          color: "#ff3b2f"
+          alpha: 0.35
+          brightness: 15
+          id: fx2_telegraph_cone_2_fill_0_s0
+        - id: fx2_telegraph_cone_2_fill_0_s0_trk
+          op: track
+          target: fx2_telegraph_cone_2_fill_0_s0
+          keys:
+            - {t: 0, offset: [-0.01647, 0.0006, 0.02627], turn: [-50.99837, -92.16149, -92.16149], scale: [0.062, 0.006, 0.01]}
+            - {t: 1, offset: [-0.17948, 0.00654, 0.2863], turn: [-50.99837, -92.16149, -92.16149], scale: [0.6758, 0.06536, 0.109]}
+            - {t: 2, offset: [-0.34249, 0.01248, 0.54632], turn: [-50.99837, -92.16149, -92.16149], scale: [1.2896, 0.12473, 0.208]}
+            - {t: 3, offset: [-0.5055, 0.01842, 0.80635], turn: [-50.99837, -92.16149, -92.16149], scale: [1.9034, 0.1841, 0.307]}
+            - {t: 4, offset: [-0.66851, 0.02436, 1.06638], turn: [-50.99837, -92.16149, -92.16149], scale: [2.5172, 0.24347, 0.406]}
+            - {t: 5, offset: [-0.83152, 0.0303, 1.32641], turn: [-50.99837, -92.16149, -92.16149], scale: [3.131, 0.30283, 0.505]}
+            - {t: 6, offset: [-0.99453, 0.03624, 1.58644], turn: [-50.99837, -92.16149, -92.16149], scale: [3.7448, 0.3622, 0.604]}
+            - {t: 7, offset: [-1.15754, 0.04218, 1.84647], turn: [-50.99837, -92.16149, -92.16149], scale: [4.3586, 0.42157, 0.703]}
+            - {t: 8, offset: [-1.32055, 0.04812, 2.1065], turn: [-50.99837, -92.16149, -92.16149], scale: [4.9724, 0.48094, 0.802]}
+            - {t: 9, offset: [-1.48356, 0.05406, 2.36653], turn: [-50.99837, -92.16149, -92.16149], scale: [5.5862, 0.5403, 0.901]}
+            - {t: 10, offset: [-1.64657, 0.06, 2.62656], turn: [-50.99837, -92.16149, -92.16149], scale: [6.2, 0.59967, 1.0]}
+            - {t: 11, offset: [-1.64657, 0.06, 2.62656], turn: [-50.99837, -92.16149, -92.16149], scale: [6.2, 0.59967, 1.0]}
+        - op: quad
+          parent: fx2_telegraph_cone_2
+          face: {plane: {frame: fx2_telegraph_cone_2, axes: [left, up]}}
+          size: [1.0, 1.0]
+          color: "#ff3b2f"
+          alpha: 0.35
+          brightness: 15
+          id: fx2_telegraph_cone_2_fill_1_s0
+        - id: fx2_telegraph_cone_2_fill_1_s0_trk
+          op: track
+          target: fx2_telegraph_cone_2_fill_1_s0
+          keys:
+            - {t: 0, offset: [-0.01371, 0.0006, 0.0278], turn: [-54.80191, -88.12863, -88.12863], scale: [0.062, 0.006, 0.01]}
+            - {t: 1, offset: [-0.14945, 0.00654, 0.30305], turn: [-54.80191, -88.12863, -88.12863], scale: [0.6758, 0.06536, 0.109]}
+            - {t: 2, offset: [-0.28519, 0.01248, 0.5783], turn: [-54.80191, -88.12863, -88.12863], scale: [1.2896, 0.12473, 0.208]}
+            - {t: 3, offset: [-0.42092, 0.01842, 0.85356], turn: [-54.80191, -88.12863, -88.12863], scale: [1.9034, 0.1841, 0.307]}
+            - {t: 4, offset: [-0.55666, 0.02436, 1.12881], turn: [-54.80191, -88.12863, -88.12863], scale: [2.5172, 0.24347, 0.406]}
+            - {t: 5, offset: [-0.6924, 0.0303, 1.40406], turn: [-54.80191, -88.12863, -88.12863], scale: [3.131, 0.30283, 0.505]}
+            - {t: 6, offset: [-0.82814, 0.03624, 1.67931], turn: [-54.80191, -88.12863, -88.12863], scale: [3.7448, 0.3622, 0.604]}
+            - {t: 7, offset: [-0.96388, 0.04218, 1.95456], turn: [-54.80191, -88.12863, -88.12863], scale: [4.3586, 0.42157, 0.703]}
+            - {t: 8, offset: [-1.09961, 0.04812, 2.22981], turn: [-54.80191, -88.12863, -88.12863], scale: [4.9724, 0.48094, 0.802]}
+            - {t: 9, offset: [-1.23535, 0.05406, 2.50506], turn: [-54.80191, -88.12863, -88.12863], scale: [5.5862, 0.5403, 0.901]}
+            - {t: 10, offset: [-1.37109, 0.06, 2.78031], turn: [-54.80191, -88.12863, -88.12863], scale: [6.2, 0.59967, 1.0]}
+            - {t: 11, offset: [-1.37109, 0.06, 2.78031], turn: [-54.80191, -88.12863, -88.12863], scale: [6.2, 0.59967, 1.0]}
+        - op: quad
+          parent: fx2_telegraph_cone_2
+          face: {plane: {frame: fx2_telegraph_cone_2, axes: [left, up]}}
+          size: [1.0, 1.0]
+          color: "#ff3b2f"
+          alpha: 0.35
+          brightness: 15
+          id: fx2_telegraph_cone_2_fill_2_s0
+        - id: fx2_telegraph_cone_2_fill_2_s0_trk
+          op: track
+          target: fx2_telegraph_cone_2_fill_2_s0
+          keys:
+            - {t: 0, offset: [-0.01081, 0.0006, 0.02905], turn: [-58.38661, -84.03341, -84.03341], scale: [0.062, 0.006, 0.01]}
+            - {t: 1, offset: [-0.11787, 0.00654, 0.31667], turn: [-58.38661, -84.03341, -84.03341], scale: [0.6758, 0.06536, 0.109]}
+            - {t: 2, offset: [-0.22494, 0.01248, 0.60429], turn: [-58.38661, -84.03341, -84.03341], scale: [1.2896, 0.12473, 0.208]}
+            - {t: 3, offset: [-0.332, 0.01842, 0.89191], turn: [-58.38661, -84.03341, -84.03341], scale: [1.9034, 0.1841, 0.307]}
+            - {t: 4, offset: [-0.43906, 0.02436, 1.17954], turn: [-58.38661, -84.03341, -84.03341], scale: [2.5172, 0.24347, 0.406]}
+            - {t: 5, offset: [-0.54612, 0.0303, 1.46716], turn: [-58.38661, -84.03341, -84.03341], scale: [3.131, 0.30283, 0.505]}
+            - {t: 6, offset: [-0.65318, 0.03624, 1.75478], turn: [-58.38661, -84.03341, -84.03341], scale: [3.7448, 0.3622, 0.604]}
+            - {t: 7, offset: [-0.76024, 0.04218, 2.0424], turn: [-58.38661, -84.03341, -84.03341], scale: [4.3586, 0.42157, 0.703]}
+            - {t: 8, offset: [-0.8673, 0.04812, 2.33002], turn: [-58.38661, -84.03341, -84.03341], scale: [4.9724, 0.48094, 0.802]}
+            - {t: 9, offset: [-0.97436, 0.05406, 2.61764], turn: [-58.38661, -84.03341, -84.03341], scale: [5.5862, 0.5403, 0.901]}
+            - {t: 10, offset: [-1.08142, 0.06, 2.90526], turn: [-58.38661, -84.03341, -84.03341], scale: [6.2, 0.59967, 1.0]}
+            - {t: 11, offset: [-1.08142, 0.06, 2.90526], turn: [-58.38661, -84.03341, -84.03341], scale: [6.2, 0.59967, 1.0]}
+        - op: quad
+          parent: fx2_telegraph_cone_2
+          face: {plane: {frame: fx2_telegraph_cone_2, axes: [left, up]}}
+          size: [1.0, 1.0]
+          color: "#ff3b2f"
+          alpha: 0.35
+          brightness: 15
+          id: fx2_telegraph_cone_2_fill_3_s0
+        - id: fx2_telegraph_cone_2_fill_3_s0_trk
+          op: track
+          target: fx2_telegraph_cone_2_fill_3_s0
+          keys:
+            - {t: 0, offset: [-0.00781, 0.0006, 0.03], turn: [-61.75771, -79.88112, -79.88112], scale: [0.062, 0.006, 0.01]}
+            - {t: 1, offset: [-0.08508, 0.00654, 0.32701], turn: [-61.75771, -79.88112, -79.88112], scale: [0.6758, 0.06536, 0.109]}
+            - {t: 2, offset: [-0.16235, 0.01248, 0.62403], turn: [-61.75771, -79.88112, -79.88112], scale: [1.2896, 0.12473, 0.208]}
+            - {t: 3, offset: [-0.23963, 0.01842, 0.92104], turn: [-61.75771, -79.88112, -79.88112], scale: [1.9034, 0.1841, 0.307]}
+            - {t: 4, offset: [-0.3169, 0.02436, 1.21805], turn: [-61.75771, -79.88112, -79.88112], scale: [2.5172, 0.24347, 0.406]}
+            - {t: 5, offset: [-0.39417, 0.0303, 1.51507], turn: [-61.75771, -79.88112, -79.88112], scale: [3.131, 0.30283, 0.505]}
+            - {t: 6, offset: [-0.47145, 0.03624, 1.81208], turn: [-61.75771, -79.88112, -79.88112], scale: [3.7448, 0.3622, 0.604]}
+            - {t: 7, offset: [-0.54872, 0.04218, 2.10909], turn: [-61.75771, -79.88112, -79.88112], scale: [4.3586, 0.42157, 0.703]}
+            - {t: 8, offset: [-0.62599, 0.04812, 2.4061], turn: [-61.75771, -79.88112, -79.88112], scale: [4.9724, 0.48094, 0.802]}
+            - {t: 9, offset: [-0.70327, 0.05406, 2.70312], turn: [-61.75771, -79.88112, -79.88112], scale: [5.5862, 0.5403, 0.901]}
+            - {t: 10, offset: [-0.78054, 0.06, 3.00013], turn: [-61.75771, -79.88112, -79.88112], scale: [6.2, 0.59967, 1.0]}
+            - {t: 11, offset: [-0.78054, 0.06, 3.00013], turn: [-61.75771, -79.88112, -79.88112], scale: [6.2, 0.59967, 1.0]}
+        - op: quad
+          parent: fx2_telegraph_cone_2
+          face: {plane: {frame: fx2_telegraph_cone_2, axes: [left, up]}}
+          size: [1.0, 1.0]
+          color: "#ff3b2f"
+          alpha: 0.35
+          brightness: 15
+          id: fx2_telegraph_cone_2_fill_4_s0
+        - id: fx2_telegraph_cone_2_fill_4_s0_trk
+          op: track
+          target: fx2_telegraph_cone_2_fill_4_s0
+          keys:
+            - {t: 0, offset: [-0.00472, 0.0006, 0.03064], turn: [-64.92006, -75.67668, -75.67668], scale: [0.062, 0.006, 0.01]}
+            - {t: 1, offset: [-0.0514, 0.00654, 0.33397], turn: [-64.92006, -75.67668, -75.67668], scale: [0.6758, 0.06536, 0.109]}
+            - {t: 2, offset: [-0.09809, 0.01248, 0.6373], turn: [-64.92006, -75.67668, -75.67668], scale: [1.2896, 0.12473, 0.208]}
+            - {t: 3, offset: [-0.14478, 0.01842, 0.94062], turn: [-64.92006, -75.67668, -75.67668], scale: [1.9034, 0.1841, 0.307]}
+            - {t: 4, offset: [-0.19146, 0.02436, 1.24395], turn: [-64.92006, -75.67668, -75.67668], scale: [2.5172, 0.24347, 0.406]}
+            - {t: 5, offset: [-0.23815, 0.0303, 1.54728], turn: [-64.92006, -75.67668, -75.67668], scale: [3.131, 0.30283, 0.505]}
+            - {t: 6, offset: [-0.28483, 0.03624, 1.85061], turn: [-64.92006, -75.67668, -75.67668], scale: [3.7448, 0.3622, 0.604]}
+            - {t: 7, offset: [-0.33152, 0.04218, 2.15394], turn: [-64.92006, -75.67668, -75.67668], scale: [4.3586, 0.42157, 0.703]}
+            - {t: 8, offset: [-0.37821, 0.04812, 2.45726], turn: [-64.92006, -75.67668, -75.67668], scale: [4.9724, 0.48094, 0.802]}
+            - {t: 9, offset: [-0.42489, 0.05406, 2.76059], turn: [-64.92006, -75.67668, -75.67668], scale: [5.5862, 0.5403, 0.901]}
+            - {t: 10, offset: [-0.47158, 0.06, 3.06392], turn: [-64.92006, -75.67668, -75.67668], scale: [6.2, 0.59967, 1.0]}
+            - {t: 11, offset: [-0.47158, 0.06, 3.06392], turn: [-64.92006, -75.67668, -75.67668], scale: [6.2, 0.59967, 1.0]}
+        - op: quad
+          parent: fx2_telegraph_cone_2
+          face: {plane: {frame: fx2_telegraph_cone_2, axes: [left, up]}}
+          size: [1.0, 1.0]
+          color: "#ff3b2f"
+          alpha: 0.35
+          brightness: 15
+          id: fx2_telegraph_cone_2_fill_5_s0
+        - id: fx2_telegraph_cone_2_fill_5_s0_trk
+          op: track
+          target: fx2_telegraph_cone_2_fill_5_s0
+          keys:
+            - {t: 0, offset: [-0.00158, 0.0006, 0.03096], turn: [-67.8782, -71.42461, -71.42461], scale: [0.062, 0.006, 0.01]}
+            - {t: 1, offset: [-0.01719, 0.00654, 0.33746], turn: [-67.8782, -71.42461, -71.42461], scale: [0.6758, 0.06536, 0.109]}
+            - {t: 2, offset: [-0.03281, 0.01248, 0.64396], turn: [-67.8782, -71.42461, -71.42461], scale: [1.2896, 0.12473, 0.208]}
+            - {t: 3, offset: [-0.04843, 0.01842, 0.95047], turn: [-67.8782, -71.42461, -71.42461], scale: [1.9034, 0.1841, 0.307]}
+            - {t: 4, offset: [-0.06404, 0.02436, 1.25697], turn: [-67.8782, -71.42461, -71.42461], scale: [2.5172, 0.24347, 0.406]}
+            - {t: 5, offset: [-0.07966, 0.0303, 1.56347], turn: [-67.8782, -71.42461, -71.42461], scale: [3.131, 0.30283, 0.505]}
+            - {t: 6, offset: [-0.09527, 0.03624, 1.86997], turn: [-67.8782, -71.42461, -71.42461], scale: [3.7448, 0.3622, 0.604]}
+            - {t: 7, offset: [-0.11089, 0.04218, 2.17647], turn: [-67.8782, -71.42461, -71.42461], scale: [4.3586, 0.42157, 0.703]}
+            - {t: 8, offset: [-0.12651, 0.04812, 2.48298], turn: [-67.8782, -71.42461, -71.42461], scale: [4.9724, 0.48094, 0.802]}
+            - {t: 9, offset: [-0.14212, 0.05406, 2.78948], turn: [-67.8782, -71.42461, -71.42461], scale: [5.5862, 0.5403, 0.901]}
+            - {t: 10, offset: [-0.15774, 0.06, 3.09598], turn: [-67.8782, -71.42461, -71.42461], scale: [6.2, 0.59967, 1.0]}
+            - {t: 11, offset: [-0.15774, 0.06, 3.09598], turn: [-67.8782, -71.42461, -71.42461], scale: [6.2, 0.59967, 1.0]}
+        - op: quad
+          parent: fx2_telegraph_cone_2
+          face: {plane: {frame: fx2_telegraph_cone_2, axes: [left, up]}}
+          size: [1.0, 1.0]
+          color: "#ff3b2f"
+          alpha: 0.35
+          brightness: 15
+          id: fx2_telegraph_cone_2_fill_6_s0
+        - id: fx2_telegraph_cone_2_fill_6_s0_trk
+          op: track
+          target: fx2_telegraph_cone_2_fill_6_s0
+          keys:
+            - {t: 0, offset: [0.00158, 0.0006, 0.03096], turn: [-70.63637, -67.1291, -67.1291], scale: [0.062, 0.006, 0.01]}
+            - {t: 1, offset: [0.01719, 0.00654, 0.33746], turn: [-70.63637, -67.1291, -67.1291], scale: [0.6758, 0.06536, 0.109]}
+            - {t: 2, offset: [0.03281, 0.01248, 0.64396], turn: [-70.63637, -67.1291, -67.1291], scale: [1.2896, 0.12473, 0.208]}
+            - {t: 3, offset: [0.04843, 0.01842, 0.95047], turn: [-70.63637, -67.1291, -67.1291], scale: [1.9034, 0.1841, 0.307]}
+            - {t: 4, offset: [0.06404, 0.02436, 1.25697], turn: [-70.63637, -67.1291, -67.1291], scale: [2.5172, 0.24347, 0.406]}
+            - {t: 5, offset: [0.07966, 0.0303, 1.56347], turn: [-70.63637, -67.1291, -67.1291], scale: [3.131, 0.30283, 0.505]}
+            - {t: 6, offset: [0.09527, 0.03624, 1.86997], turn: [-70.63637, -67.1291, -67.1291], scale: [3.7448, 0.3622, 0.604]}
+            - {t: 7, offset: [0.11089, 0.04218, 2.17647], turn: [-70.63637, -67.1291, -67.1291], scale: [4.3586, 0.42157, 0.703]}
+            - {t: 8, offset: [0.12651, 0.04812, 2.48298], turn: [-70.63637, -67.1291, -67.1291], scale: [4.9724, 0.48094, 0.802]}
+            - {t: 9, offset: [0.14212, 0.05406, 2.78948], turn: [-70.63637, -67.1291, -67.1291], scale: [5.5862, 0.5403, 0.901]}
+            - {t: 10, offset: [0.15774, 0.06, 3.09598], turn: [-70.63637, -67.1291, -67.1291], scale: [6.2, 0.59967, 1.0]}
+            - {t: 11, offset: [0.15774, 0.06, 3.09598], turn: [-70.63637, -67.1291, -67.1291], scale: [6.2, 0.59967, 1.0]}
+        - op: quad
+          parent: fx2_telegraph_cone_2
+          face: {plane: {frame: fx2_telegraph_cone_2, axes: [left, up]}}
+          size: [1.0, 1.0]
+          color: "#ff3b2f"
+          alpha: 0.35
+          brightness: 15
+          id: fx2_telegraph_cone_2_fill_7_s0
+        - id: fx2_telegraph_cone_2_fill_7_s0_trk
+          op: track
+          target: fx2_telegraph_cone_2_fill_7_s0
+          keys:
+            - {t: 0, offset: [0.00472, 0.0006, 0.03064], turn: [-73.19845, -62.79408, -62.79408], scale: [0.062, 0.006, 0.01]}
+            - {t: 1, offset: [0.0514, 0.00654, 0.33397], turn: [-73.19845, -62.79408, -62.79408], scale: [0.6758, 0.06536, 0.109]}
+            - {t: 2, offset: [0.09809, 0.01248, 0.6373], turn: [-73.19845, -62.79408, -62.79408], scale: [1.2896, 0.12473, 0.208]}
+            - {t: 3, offset: [0.14478, 0.01842, 0.94062], turn: [-73.19845, -62.79408, -62.79408], scale: [1.9034, 0.1841, 0.307]}
+            - {t: 4, offset: [0.19146, 0.02436, 1.24395], turn: [-73.19845, -62.79408, -62.79408], scale: [2.5172, 0.24347, 0.406]}
+            - {t: 5, offset: [0.23815, 0.0303, 1.54728], turn: [-73.19845, -62.79408, -62.79408], scale: [3.131, 0.30283, 0.505]}
+            - {t: 6, offset: [0.28483, 0.03624, 1.85061], turn: [-73.19845, -62.79408, -62.79408], scale: [3.7448, 0.3622, 0.604]}
+            - {t: 7, offset: [0.33152, 0.04218, 2.15394], turn: [-73.19845, -62.79408, -62.79408], scale: [4.3586, 0.42157, 0.703]}
+            - {t: 8, offset: [0.37821, 0.04812, 2.45726], turn: [-73.19845, -62.79408, -62.79408], scale: [4.9724, 0.48094, 0.802]}
+            - {t: 9, offset: [0.42489, 0.05406, 2.76059], turn: [-73.19845, -62.79408, -62.79408], scale: [5.5862, 0.5403, 0.901]}
+            - {t: 10, offset: [0.47158, 0.06, 3.06392], turn: [-73.19845, -62.79408, -62.79408], scale: [6.2, 0.59967, 1.0]}
+            - {t: 11, offset: [0.47158, 0.06, 3.06392], turn: [-73.19845, -62.79408, -62.79408], scale: [6.2, 0.59967, 1.0]}
+        - op: quad
+          parent: fx2_telegraph_cone_2
+          face: {plane: {frame: fx2_telegraph_cone_2, axes: [left, up]}}
+          size: [1.0, 1.0]
+          color: "#ff3b2f"
+          alpha: 0.35
+          brightness: 15
+          id: fx2_telegraph_cone_2_fill_8_s0
+        - id: fx2_telegraph_cone_2_fill_8_s0_trk
+          op: track
+          target: fx2_telegraph_cone_2_fill_8_s0
+          keys:
+            - {t: 0, offset: [0.00781, 0.0006, 0.03], turn: [-75.56807, -58.4232, -58.4232], scale: [0.062, 0.006, 0.01]}
+            - {t: 1, offset: [0.08508, 0.00654, 0.32701], turn: [-75.56807, -58.4232, -58.4232], scale: [0.6758, 0.06536, 0.109]}
+            - {t: 2, offset: [0.16235, 0.01248, 0.62403], turn: [-75.56807, -58.4232, -58.4232], scale: [1.2896, 0.12473, 0.208]}
+            - {t: 3, offset: [0.23963, 0.01842, 0.92104], turn: [-75.56807, -58.4232, -58.4232], scale: [1.9034, 0.1841, 0.307]}
+            - {t: 4, offset: [0.3169, 0.02436, 1.21805], turn: [-75.56807, -58.4232, -58.4232], scale: [2.5172, 0.24347, 0.406]}
+            - {t: 5, offset: [0.39417, 0.0303, 1.51507], turn: [-75.56807, -58.4232, -58.4232], scale: [3.131, 0.30283, 0.505]}
+            - {t: 6, offset: [0.47145, 0.03624, 1.81208], turn: [-75.56807, -58.4232, -58.4232], scale: [3.7448, 0.3622, 0.604]}
+            - {t: 7, offset: [0.54872, 0.04218, 2.10909], turn: [-75.56807, -58.4232, -58.4232], scale: [4.3586, 0.42157, 0.703]}
+            - {t: 8, offset: [0.62599, 0.04812, 2.4061], turn: [-75.56807, -58.4232, -58.4232], scale: [4.9724, 0.48094, 0.802]}
+            - {t: 9, offset: [0.70327, 0.05406, 2.70312], turn: [-75.56807, -58.4232, -58.4232], scale: [5.5862, 0.5403, 0.901]}
+            - {t: 10, offset: [0.78054, 0.06, 3.00013], turn: [-75.56807, -58.4232, -58.4232], scale: [6.2, 0.59967, 1.0]}
+            - {t: 11, offset: [0.78054, 0.06, 3.00013], turn: [-75.56807, -58.4232, -58.4232], scale: [6.2, 0.59967, 1.0]}
+        - op: quad
+          parent: fx2_telegraph_cone_2
+          face: {plane: {frame: fx2_telegraph_cone_2, axes: [left, up]}}
+          size: [1.0, 1.0]
+          color: "#ff3b2f"
+          alpha: 0.35
+          brightness: 15
+          id: fx2_telegraph_cone_2_fill_9_s0
+        - id: fx2_telegraph_cone_2_fill_9_s0_trk
+          op: track
+          target: fx2_telegraph_cone_2_fill_9_s0
+          keys:
+            - {t: 0, offset: [0.01081, 0.0006, 0.02905], turn: [-77.74853, -54.01986, -54.01986], scale: [0.062, 0.006, 0.01]}
+            - {t: 1, offset: [0.11787, 0.00654, 0.31667], turn: [-77.74853, -54.01986, -54.01986], scale: [0.6758, 0.06536, 0.109]}
+            - {t: 2, offset: [0.22494, 0.01248, 0.60429], turn: [-77.74853, -54.01986, -54.01986], scale: [1.2896, 0.12473, 0.208]}
+            - {t: 3, offset: [0.332, 0.01842, 0.89191], turn: [-77.74853, -54.01986, -54.01986], scale: [1.9034, 0.1841, 0.307]}
+            - {t: 4, offset: [0.43906, 0.02436, 1.17954], turn: [-77.74853, -54.01986, -54.01986], scale: [2.5172, 0.24347, 0.406]}
+            - {t: 5, offset: [0.54612, 0.0303, 1.46716], turn: [-77.74853, -54.01986, -54.01986], scale: [3.131, 0.30283, 0.505]}
+            - {t: 6, offset: [0.65318, 0.03624, 1.75478], turn: [-77.74853, -54.01986, -54.01986], scale: [3.7448, 0.3622, 0.604]}
+            - {t: 7, offset: [0.76024, 0.04218, 2.0424], turn: [-77.74853, -54.01986, -54.01986], scale: [4.3586, 0.42157, 0.703]}
+            - {t: 8, offset: [0.8673, 0.04812, 2.33002], turn: [-77.74853, -54.01986, -54.01986], scale: [4.9724, 0.48094, 0.802]}
+            - {t: 9, offset: [0.97436, 0.05406, 2.61764], turn: [-77.74853, -54.01986, -54.01986], scale: [5.5862, 0.5403, 0.901]}
+            - {t: 10, offset: [1.08142, 0.06, 2.90526], turn: [-77.74853, -54.01986, -54.01986], scale: [6.2, 0.59967, 1.0]}
+            - {t: 11, offset: [1.08142, 0.06, 2.90526], turn: [-77.74853, -54.01986, -54.01986], scale: [6.2, 0.59967, 1.0]}
+        - op: quad
+          parent: fx2_telegraph_cone_2
+          face: {plane: {frame: fx2_telegraph_cone_2, axes: [left, up]}}
+          size: [1.0, 1.0]
+          color: "#ff3b2f"
+          alpha: 0.35
+          brightness: 15
+          id: fx2_telegraph_cone_2_fill_10_s0
+        - id: fx2_telegraph_cone_2_fill_10_s0_trk
+          op: track
+          target: fx2_telegraph_cone_2_fill_10_s0
+          keys:
+            - {t: 0, offset: [0.01371, 0.0006, 0.0278], turn: [-79.74286, -49.5873, -49.5873], scale: [0.062, 0.006, 0.01]}
+            - {t: 1, offset: [0.14945, 0.00654, 0.30305], turn: [-79.74286, -49.5873, -49.5873], scale: [0.6758, 0.06536, 0.109]}
+            - {t: 2, offset: [0.28519, 0.01248, 0.5783], turn: [-79.74286, -49.5873, -49.5873], scale: [1.2896, 0.12473, 0.208]}
+            - {t: 3, offset: [0.42092, 0.01842, 0.85356], turn: [-79.74286, -49.5873, -49.5873], scale: [1.9034, 0.1841, 0.307]}
+            - {t: 4, offset: [0.55666, 0.02436, 1.12881], turn: [-79.74286, -49.5873, -49.5873], scale: [2.5172, 0.24347, 0.406]}
+            - {t: 5, offset: [0.6924, 0.0303, 1.40406], turn: [-79.74286, -49.5873, -49.5873], scale: [3.131, 0.30283, 0.505]}
+            - {t: 6, offset: [0.82814, 0.03624, 1.67931], turn: [-79.74286, -49.5873, -49.5873], scale: [3.7448, 0.3622, 0.604]}
+            - {t: 7, offset: [0.96388, 0.04218, 1.95456], turn: [-79.74286, -49.5873, -49.5873], scale: [4.3586, 0.42157, 0.703]}
+            - {t: 8, offset: [1.09961, 0.04812, 2.22981], turn: [-79.74286, -49.5873, -49.5873], scale: [4.9724, 0.48094, 0.802]}
+            - {t: 9, offset: [1.23535, 0.05406, 2.50506], turn: [-79.74286, -49.5873, -49.5873], scale: [5.5862, 0.5403, 0.901]}
+            - {t: 10, offset: [1.37109, 0.06, 2.78031], turn: [-79.74286, -49.5873, -49.5873], scale: [6.2, 0.59967, 1.0]}
+            - {t: 11, offset: [1.37109, 0.06, 2.78031], turn: [-79.74286, -49.5873, -49.5873], scale: [6.2, 0.59967, 1.0]}
+        - op: quad
+          parent: fx2_telegraph_cone_2
+          face: {plane: {frame: fx2_telegraph_cone_2, axes: [left, up]}}
+          size: [1.0, 1.0]
+          color: "#ff3b2f"
+          alpha: 0.35
+          brightness: 15
+          id: fx2_telegraph_cone_2_fill_11_s0
+        - id: fx2_telegraph_cone_2_fill_11_s0_trk
+          op: track
+          target: fx2_telegraph_cone_2_fill_11_s0
+          keys:
+            - {t: 0, offset: [0.01647, 0.0006, 0.02627], turn: [-81.55381, -45.12852, -45.12852], scale: [0.062, 0.006, 0.01]}
+            - {t: 1, offset: [0.17948, 0.00654, 0.2863], turn: [-81.55381, -45.12852, -45.12852], scale: [0.6758, 0.06536, 0.109]}
+            - {t: 2, offset: [0.34249, 0.01248, 0.54632], turn: [-81.55381, -45.12852, -45.12852], scale: [1.2896, 0.12473, 0.208]}
+            - {t: 3, offset: [0.5055, 0.01842, 0.80635], turn: [-81.55381, -45.12852, -45.12852], scale: [1.9034, 0.1841, 0.307]}
+            - {t: 4, offset: [0.66851, 0.02436, 1.06638], turn: [-81.55381, -45.12852, -45.12852], scale: [2.5172, 0.24347, 0.406]}
+            - {t: 5, offset: [0.83152, 0.0303, 1.32641], turn: [-81.55381, -45.12852, -45.12852], scale: [3.131, 0.30283, 0.505]}
+            - {t: 6, offset: [0.99453, 0.03624, 1.58644], turn: [-81.55381, -45.12852, -45.12852], scale: [3.7448, 0.3622, 0.604]}
+            - {t: 7, offset: [1.15754, 0.04218, 1.84647], turn: [-81.55381, -45.12852, -45.12852], scale: [4.3586, 0.42157, 0.703]}
+            - {t: 8, offset: [1.32055, 0.04812, 2.1065], turn: [-81.55381, -45.12852, -45.12852], scale: [4.9724, 0.48094, 0.802]}
+            - {t: 9, offset: [1.48356, 0.05406, 2.36653], turn: [-81.55381, -45.12852, -45.12852], scale: [5.5862, 0.5403, 0.901]}
+            - {t: 10, offset: [1.64657, 0.06, 2.62656], turn: [-81.55381, -45.12852, -45.12852], scale: [6.2, 0.59967, 1.0]}
+            - {t: 11, offset: [1.64657, 0.06, 2.62656], turn: [-81.55381, -45.12852, -45.12852], scale: [6.2, 0.59967, 1.0]}
         - {id: snd_2, op: sound, sound: item.shield.block, at: caster, pitch: 0.8}
-        - {id: fx2_bastion_ego_trail_beads, op: line, from: pt_fx2_bastion_ego_trail_0_1_0p2, to: pt_fx2_bastion_ego_trail_0_1p4_3, thickness: 0.28, color: "#FFE08A", face: {viewer: axis, axis: line.along}}
+        - {id: fx3_bastion_ego_trail_beads, op: line, from: pt_fx3_bastion_ego_trail_0_1_0p2, to: pt_fx3_bastion_ego_trail_0_1p4_3, thickness: 0.28, color: "#FFE08A", face: {viewer: axis, axis: line.along}}
     - {id: fx27, at: 27, do: [{id: snd_3, op: sound, sound: item.trident.return, at: caster, volume: 0.8, pitch: 0.6}]}
     - id: fx30
       at: 30
@@ -112,56 +579,56 @@ presentation:
       at: 31
       do:
         - op: quad
-          parent: fx3_bastion_ego_slam
-          face: {plane: {frame: fx3_bastion_ego_slam, axes: [left, up]}}
+          parent: fx4_bastion_ego_slam
+          face: {plane: {frame: fx4_bastion_ego_slam, axes: [left, up]}}
           size: [1.0, 1.0]
           color: "#FFF2B0"
           alpha: 1.0
           text: "✦"
           brightness: 15
-          id: fx3_bastion_ego_slam_flash
-        - id: fx3_bastion_ego_slam_flash_trk
+          id: fx4_bastion_ego_slam_flash
+        - id: fx4_bastion_ego_slam_flash_trk
           op: track
-          target: fx3_bastion_ego_slam_flash
+          target: fx4_bastion_ego_slam_flash
           keys:
             - {t: 0, offset: [0.0, 1.0, 1.7], scale: [0.45, 0.45, 1.0], alpha: 1.0, color: "#FFF2B0"}
             - {t: 1, scale: [3.0, 3.0, 1.0], ease: out_back}
             - {t: 6, scale: [1.5, 1.5, 1.0], alpha: 0.0, color: "#FFD060", ease: out_quad}
-        - {op: block, parent: fx3_bastion_ego_slam, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx3_bastion_ego_slam_pilcore}
-        - id: fx3_bastion_ego_slam_pilcore_trk
+        - {op: block, parent: fx4_bastion_ego_slam, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx4_bastion_ego_slam_pilcore}
+        - id: fx4_bastion_ego_slam_pilcore_trk
           op: track
-          target: fx3_bastion_ego_slam_pilcore
+          target: fx4_bastion_ego_slam_pilcore
           keys:
             - {t: 0, offset: [0.0, 5.0, 1.7], scale: [0.15, 0.3, 0.15]}
             - {t: 1, scale: [0.5, 10.0, 0.5], ease: out_expo}
             - {t: 10, scale: [0.425, 10.0, 0.425]}
             - {t: 16, scale: [0.0, 10.0, 0.0], ease: in_quad}
-        - {op: block, parent: fx3_bastion_ego_slam, block: yellow_stained_glass, size: [1.0, 1.0, 1.0], brightness: 15, id: fx3_bastion_ego_slam_pilbloom}
-        - id: fx3_bastion_ego_slam_pilbloom_trk
+        - {op: block, parent: fx4_bastion_ego_slam, block: yellow_stained_glass, size: [1.0, 1.0, 1.0], brightness: 15, id: fx4_bastion_ego_slam_pilbloom}
+        - id: fx4_bastion_ego_slam_pilbloom_trk
           op: track
-          target: fx3_bastion_ego_slam_pilbloom
+          target: fx4_bastion_ego_slam_pilbloom
           keys:
             - {t: 0, offset: [0.0, 4.8, 1.7], scale: [0.5, 0.3, 0.5]}
             - {t: 1, scale: [1.4, 9.6, 1.4], ease: out_expo}
             - {t: 16, scale: [0.0, 9.6, 0.0], ease: in_quad}
         - op: quad
-          parent: fx3_bastion_ego_slam
-          face: {plane: {frame: fx3_bastion_ego_slam, axes: [left, up]}}
+          parent: fx4_bastion_ego_slam
+          face: {plane: {frame: fx4_bastion_ego_slam, axes: [left, up]}}
           size: [1.0, 1.0]
           color: "#FFF2B0"
           alpha: 0.95
           text: "●"
           brightness: 15
-          id: fx3_bastion_ego_slam_pildisc
-        - id: fx3_bastion_ego_slam_pildisc_trk
+          id: fx4_bastion_ego_slam_pildisc
+        - id: fx4_bastion_ego_slam_pildisc_trk
           op: track
-          target: fx3_bastion_ego_slam_pildisc
+          target: fx4_bastion_ego_slam_pildisc
           keys:
             - {t: 0, offset: [0.0, 1.25, 1.7], scale: [0.4, 0.4, 1.0], turn: [90.0, 0.0, 0.0], alpha: 0.95, color: "#FFF2B0"}
             - {t: 2, scale: [3.6, 3.6, 1.0], ease: out_expo}
             - {t: 12, scale: [3.9, 3.9, 1.0], alpha: 0.0, color: "#FFD060", ease: out_quad}
         - op: plate
-          parent: fx3_bastion_ego_slam
+          parent: fx4_bastion_ego_slam
           face: {viewer: center}
           sprite: smoke-puff
           size: 0.8
@@ -170,93 +637,123 @@ presentation:
           brightness: 9
           at: "= [vec(0.0, 0.25, 3.2), vec(1.29904, 0.25, 2.45), vec(1.29904, 0.25, 0.95), vec(0.0, 0.25, 0.2), vec(-1.29904, 0.25, 0.95), vec(-1.29904, 0.25, 2.45)][int(i)]"
           times: 6
-          id: fx3_bastion_ego_slam_dust
-        - id: fx3_bastion_ego_slam_dust_trk
+          id: fx4_bastion_ego_slam_dust
+        - id: fx4_bastion_ego_slam_dust_trk
           op: track
-          target: fx3_bastion_ego_slam_dust
+          target: fx4_bastion_ego_slam_dust
           keys:
             - {t: 0, scale: [1.2, 1.2, 1.2], alpha: 0.9}
             - {t: 18, offset: [0.0, 0.7, 0.0], scale: [2.6, 2.6, 2.6], alpha: 0.0, ease: out_quad}
         - {id: snd_4, op: sound, sound: block.anvil.land, at: caster, pitch: 0.5}
         - {id: shake, op: camera_shake, target: {enemies: {around: caster, radius: 9.0}}, intensity: 1.0, ticks: 10}
         - {id: shake_2, op: camera_shake, target: caster, intensity: 0.5, ticks: 8}
+        - {id: veil, op: screen_veil, target: caster, sprite: burst, ticks: 5, color: "#FFC84A", distance: 0.4, scale: 1.4, max_screen_fraction: 0.15}
         - {id: flash, op: screen_flash, target: {enemies: {around: caster, radius: 5.0}}, overlay: gold_burst, color: "#FFC84A", fade_in: 0, stay: 2, fade_out: 2}
         - {id: snd_5, op: sound, sound: entity.generic.explode, at: caster, pitch: 0.6}
     - id: fx32
       at: 32
       do:
+        - id: rm_2
+          op: remove
+          ids:
+            - fx2_telegraph_cone_2_rim_arc_0
+            - fx2_telegraph_cone_2_rim_arc_1
+            - fx2_telegraph_cone_2_rim_arc_2
+            - fx2_telegraph_cone_2_rim_arc_3
+            - fx2_telegraph_cone_2_rim_arc_4
+            - fx2_telegraph_cone_2_rim_arc_5
+            - fx2_telegraph_cone_2_rim_arc_6
+            - fx2_telegraph_cone_2_rim_arc_7
+            - fx2_telegraph_cone_2_rim_arc_8
+            - fx2_telegraph_cone_2_rim_arc_9
+            - fx2_telegraph_cone_2_rim_arc_10
+            - fx2_telegraph_cone_2_rim_arc_11
+            - fx2_telegraph_cone_2_rim_edge_0
+            - fx2_telegraph_cone_2_rim_edge_1
+            - fx2_telegraph_cone_2_fill_0_s0
+            - fx2_telegraph_cone_2_fill_1_s0
+            - fx2_telegraph_cone_2_fill_2_s0
+            - fx2_telegraph_cone_2_fill_3_s0
+            - fx2_telegraph_cone_2_fill_4_s0
+            - fx2_telegraph_cone_2_fill_5_s0
+            - fx2_telegraph_cone_2_fill_6_s0
+            - fx2_telegraph_cone_2_fill_7_s0
+            - fx2_telegraph_cone_2_fill_8_s0
+            - fx2_telegraph_cone_2_fill_9_s0
+            - fx2_telegraph_cone_2_fill_10_s0
+            - fx2_telegraph_cone_2_fill_11_s0
         - op: block
-          parent: fx3_bastion_ego_slam
+          parent: fx4_bastion_ego_slam
           block: yellow_concrete
           size: [1.0, 1.0, 1.0]
           brightness: 15
           at: "= [vec(0.0, 0.2, 1.7), vec(0.28338, 0.54567, 2.116), vec(0.37053, 0.52729, 2.72576), vec(0.87748, 0.58583, 3.15688), vec(0.9999, 0.55851, 3.75681), vec(1.1658, 1.09569, 4.15121), vec(0.89036, 0.91213, 4.94846), vec(1.29968, 1.4, 5.27083)][int(i)]"
           turn: "= [vec(-36.8789, 40.30813, 14.13381), vec(5.38401, -8.17108, 0.38485), vec(-8.66333, 60.95213, 5.11333), vec(4.75466, 26.17321, -1.10596), vec(0.21391, -2.43576, 0.00455), vec(-62.27711, 43.40012, 28.51233), vec(25.68815, -24.72221, 5.73305), vec(-41.87212, 62.80203, 27.63697)][int(i)]"
           times: 8
-          id: fx3_bastion_ego_slam_bolt0
-        - id: fx3_bastion_ego_slam_bolt0_trk
+          id: fx4_bastion_ego_slam_bolt0
+        - id: fx4_bastion_ego_slam_bolt0_trk
           op: track
-          target: fx3_bastion_ego_slam_bolt0
+          target: fx4_bastion_ego_slam_bolt0
           keys:
             - {t: 0, scale: [0.05, 0.05, 0.1]}
             - {t: 1, scale: [0.12, 0.12, 0.76], ease: out_expo}
             - {t: 9, scale: [0.09, 0.09, 0.76]}
             - {t: 12, scale: [0.0, 0.0, 0.76], ease: in_quad}
         - op: block
-          parent: fx3_bastion_ego_slam
+          parent: fx4_bastion_ego_slam
           block: white_concrete
           size: [1.0, 1.0, 1.0]
           brightness: 15
           at: "= [vec(0.0, 0.2, 1.7), vec(0.65425, 0.05053, 1.49052), vec(1.06442, 0.43574, 1.22748), vec(1.54153, 0.85146, 1.18362), vec(1.93018, 1.13945, 0.74929), vec(2.63746, 1.2519, 0.98778), vec(3.00586, 1.77528, 0.76948), vec(3.57083, 1.7, 0.40032)][int(i)]"
           turn: "= [vec(11.47097, 102.68559, -14.53834), vec(-8.68256, 141.68104, 26.53758), vec(-45.74003, 43.33562, 19.50033), vec(3.57711, 154.9218, -16.62304), vec(-54.2596, 70.20166, 45.25643), vec(14.83104, 68.99845, -10.29516), vec(-17.3927, 136.19214, 79.9154), vec(9.34572, 119.57836, -16.33434)][int(i)]"
           times: 8
-          id: fx3_bastion_ego_slam_bolt1
-        - id: fx3_bastion_ego_slam_bolt1_trk
+          id: fx4_bastion_ego_slam_bolt1
+        - id: fx4_bastion_ego_slam_bolt1_trk
           op: track
-          target: fx3_bastion_ego_slam_bolt1
+          target: fx4_bastion_ego_slam_bolt1
           keys:
             - {t: 0, scale: [0.05, 0.05, 0.1]}
             - {t: 1, scale: [0.12, 0.12, 0.76], ease: out_expo}
             - {t: 9, scale: [0.09, 0.09, 0.76]}
             - {t: 12, scale: [0.0, 0.0, 0.76], ease: in_quad}
         - op: block
-          parent: fx3_bastion_ego_slam
+          parent: fx4_bastion_ego_slam
           block: yellow_concrete
           size: [1.0, 1.0, 1.0]
           brightness: 15
           at: "= [vec(0.0, 0.2, 1.7), vec(0.04154, 0.523, 1.15812), vec(-0.1968, 0.70754, 0.67158), vec(-0.30993, 0.82733, 0.11771), vec(-0.80659, 0.82559, -0.33741), vec(-0.99574, 0.9298, -0.86886), vec(-1.19894, 0.86984, -1.45035), vec(-1.29968, 1.4, -1.87083)][int(i)]"
           turn: "= [vec(-3.78208, 164.60867, 45.8275), vec(-8.18948, -143.24581, -26.18541), vec(-0.20515, -177.81155, -17.07391), vec(-4.42515, -149.66715, -16.7981), vec(5.43281, -120.07999, 9.48095), vec(-3.33776, 165.19193, 31.93148), vec(4.65725, -150.49173, 18.31107), vec(-7.18661, -150.14117, -81.95938)][int(i)]"
           times: 8
-          id: fx3_bastion_ego_slam_bolt2
-        - id: fx3_bastion_ego_slam_bolt2_trk
+          id: fx4_bastion_ego_slam_bolt2
+        - id: fx4_bastion_ego_slam_bolt2_trk
           op: track
-          target: fx3_bastion_ego_slam_bolt2
+          target: fx4_bastion_ego_slam_bolt2
           keys:
             - {t: 0, scale: [0.05, 0.05, 0.1]}
             - {t: 1, scale: [0.12, 0.12, 0.76], ease: out_expo}
             - {t: 9, scale: [0.09, 0.09, 0.76]}
             - {t: 12, scale: [0.0, 0.0, 0.76], ease: in_quad}
         - op: block
-          parent: fx3_bastion_ego_slam
+          parent: fx4_bastion_ego_slam
           block: white_concrete
           size: [1.0, 1.0, 1.0]
           brightness: 15
           at: "= [vec(0.0, 0.2, 1.7), vec(-0.3598, 0.70274, 1.96575), vec(-0.96933, 0.57318, 2.27514), vec(-1.54423, 0.81756, 2.24808), vec(-2.10851, 0.91888, 2.41531), vec(-2.5931, 1.10076, 2.70854), vec(-2.96595, 1.46281, 3.1008), vec(-3.57083, 1.7, 2.99968)][int(i)]"
           turn: "= [vec(-52.90034, -52.18121, -28.91286), vec(20.89648, -41.11729, 7.94474), vec(-13.4473, -132.03481, -32.71594), vec(11.02644, -17.76236, 1.72851), vec(-10.40942, -133.43253, -25.37846), vec(-1.79779, -18.47354, -0.29239), vec(-41.95673, -58.22353, -25.11703), vec(-12.4023, -102.03054, -15.5676)][int(i)]"
           times: 8
-          id: fx3_bastion_ego_slam_bolt3
-        - id: fx3_bastion_ego_slam_bolt3_trk
+          id: fx4_bastion_ego_slam_bolt3
+        - id: fx4_bastion_ego_slam_bolt3_trk
           op: track
-          target: fx3_bastion_ego_slam_bolt3
+          target: fx4_bastion_ego_slam_bolt3
           keys:
             - {t: 0, scale: [0.05, 0.05, 0.1]}
             - {t: 1, scale: [0.12, 0.12, 0.76], ease: out_expo}
             - {t: 9, scale: [0.09, 0.09, 0.76]}
             - {t: 12, scale: [0.0, 0.0, 0.76], ease: in_quad}
-    - {id: fx34, at: 34, do: [{id: rm_2, op: remove, ids: [fx2_bastion_ego_trail_beads]}]}
-    - {id: fx37, at: 37, do: [{id: rm_3, op: remove, ids: [fx3_bastion_ego_slam_flash]}]}
-    - {id: fx43, at: 43, do: [{id: rm_4, op: remove, ids: [fx3_bastion_ego_slam_pildisc]}]}
-    - {id: fx44, at: 44, do: [{id: rm_5, op: remove, ids: [fx3_bastion_ego_slam_bolt0, fx3_bastion_ego_slam_bolt1, fx3_bastion_ego_slam_bolt2, fx3_bastion_ego_slam_bolt3]}]}
-    - {id: fx47, at: 47, do: [{id: rm_6, op: remove, ids: [fx3_bastion_ego_slam_pilcore, fx3_bastion_ego_slam_pilbloom]}]}
-    - {id: fx49, at: 49, do: [{id: rm_7, op: remove, ids: [fx3_bastion_ego_slam_dust]}]}
+    - {id: fx34, at: 34, do: [{id: rm_3, op: remove, ids: [fx3_bastion_ego_trail_beads]}]}
+    - {id: fx37, at: 37, do: [{id: rm_4, op: remove, ids: [fx4_bastion_ego_slam_flash]}]}
+    - {id: fx43, at: 43, do: [{id: rm_5, op: remove, ids: [fx4_bastion_ego_slam_pildisc]}]}
+    - {id: fx44, at: 44, do: [{id: rm_6, op: remove, ids: [fx4_bastion_ego_slam_bolt0, fx4_bastion_ego_slam_bolt1, fx4_bastion_ego_slam_bolt2, fx4_bastion_ego_slam_bolt3]}]}
+    - {id: fx47, at: 47, do: [{id: rm_7, op: remove, ids: [fx4_bastion_ego_slam_pilcore, fx4_bastion_ego_slam_pilbloom]}]}
+    - {id: fx49, at: 49, do: [{id: rm_8, op: remove, ids: [fx4_bastion_ego_slam_dust]}]}
   "on": {hit: [{id: emit, op: emit, at: contact.point, particle: bastion-s3-hit-crit, when: "= event.source == 'sel'"}]}

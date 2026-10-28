@@ -1,9 +1,7 @@
 # Converted from content/skills/orrery-s2.yaml + content/vfx/* by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
 # Generated point-frame offsets are [left, up, forward] in the parent frame.
-# CONVERT-PRESENT play_animation ticks (anim ops have no duration) (x2): ticks=7 | ticks=100
 # CONVERT-PRESENT vfx frame orient (frames carry no orientation / scale) (x5): orient="yaw"
 # CONVERT-PRESENT vfx follow=false (anchored at world, no place-at-spawn) (x3): orrery-s2-poise | orrery-s2-impact
-# CONVERT-PRESENT rig respect_hit_stop / weapon points (x1): {"respect_hit_stop": false}
 # CONVERT-PRESENT rig block parts (mesh takes an item model, not a block + size) (x1): 11 parts
 # CONVERT-PRESENT rig swing without a weapon mesh (track needs a visual to move) (x1): 32 keys
 # CONVERT-PRESENT vfx target_reference (no v2 equivalent) (x2): [0, 0, 0]
@@ -24,11 +22,11 @@ frames:
   - {id: fx5_orrery_s2_impact_long, kind: body, parent: world}
 presentation:
   timeline:
-    - {id: fx0, at: 0, do: [{id: anim, op: caster_anim, anim: crouch}]}
+    - {id: fx0, at: 0, do: [{id: anim, op: caster_anim, anim: crouch, ticks: 7}]}
     - id: fx7
       at: 7
       do:
-        - {id: anim_2, op: caster_anim, anim: hide-main-hand}
+        - {id: anim_2, op: caster_anim, anim: hide-main-hand, ticks: 100}
         - op: block
           parent: fx1_orrery_s2_charge_ring
           block: gold_block
