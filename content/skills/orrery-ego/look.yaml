@@ -462,4 +462,4 @@ presentation:
           - {t: 2, scale: [0.03, 0.8, 0.8], ease: out_expo}
           - {t: 8, scale: [0.0, 0.0, 0.0]}
         when: "= event.source == 'sel'"
-      - {id: emit_7, op: emit, at: contact.point, particle: orrery-sparks, when: "= event.source == 'sel'"}
+      - {id: emit_7, op: emit, at: contact.point, particle: orrery-sparks, when: "= event.source == 'sel_2'"}

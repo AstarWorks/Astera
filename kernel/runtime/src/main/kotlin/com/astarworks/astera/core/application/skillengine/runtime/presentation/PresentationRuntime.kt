@@ -143,6 +143,7 @@ public class PresentationRuntime(
         val tracks = LinkedHashMap<String, TrackState>()
         val lastOrigin = HashMap<String, Vec3>()
         val velocity = HashMap<String, Vec3>()
+        val lastRotation = HashMap<String, Quaternion>()
         val watched = LinkedHashSet<String>()
 
         /** Projectile bodies that ended (hit / block / expire): a trail `emit at:` them stops with the projectile. */
@@ -176,7 +177,17 @@ public class PresentationRuntime(
     /** Starts tracking [frame]'s origin velocity; the origin seen now is the baseline, so the very next tick already has a velocity. */
     private fun watch(s: CastState, frame: String) {
         if (!s.watched.add(frame)) return
-        s.ctx.tree.worldOf(FrameId(frame)).getOrNull()?.let { s.lastOrigin.putIfAbsent(frame, it.origin) }
+        s.ctx.tree.worldOf(FrameId(frame)).getOrNull()?.let {
+            s.lastOrigin.putIfAbsent(frame, it.origin)
+            s.lastRotation.putIfAbsent(frame, it.rotation)
+        }
+    }
+
+    /** Degrees [frame] turned since the end of the previous tick (v1 `VfxRigPlanner.emitterPlan` path density: one play per 12 degrees). */
+    internal fun turnedDegrees(s: CastState, frame: String): Double {
+        watch(s, frame)
+        val now = s.ctx.tree.worldOf(FrameId(frame)).getOrNull()?.rotation ?: return 0.0
+        return s.lastRotation[frame]?.let { Math.toDegrees(it.angleTo(now)) } ?: 0.0
     }
 
     /**
@@ -413,9 +424,11 @@ public class PresentationRuntime(
         val s = casts[cast] ?: return
         s.tick++
         for (f in s.watched) {
-            val o = s.ctx.tree.worldOf(FrameId(f)).getOrNull()?.origin ?: continue
+            val w = s.ctx.tree.worldOf(FrameId(f)).getOrNull() ?: continue
+            val o = w.origin
             s.lastOrigin[f]?.let { prev -> s.velocity[f] = o - prev }
             s.lastOrigin[f] = o
+            s.lastRotation[f] = w.rotation
         }
         if (s.pending.isNotEmpty()) {
             val due = s.pending.filter { it.due <= s.tick - 1 }

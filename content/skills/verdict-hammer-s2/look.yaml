@@ -12,7 +12,7 @@ presentation:
   timeline:
     - id: fxhit_1
       at: "hit+1"
-      when: "= event.source == 'sel_2'"
+      when: "= event.source == 'sel_3'"
       do:
         - {op: quad, parent: fx2_verdict_impact, face: {viewer: center}, size: [1.0, 1.0], color: "#302313", alpha: 1.0, text: "▲", see_through: true, brightness: 15, id: fx2_verdict_impact_dark0}
         - id: fx2_verdict_impact_dark0_trk
@@ -38,9 +38,9 @@ presentation:
             - {t: 0, offset: [0.0, 1.0, 0.0], scale: [0.12, 0.2, 1.0], alpha: 1.0}
             - {t: 5, offset: [-1.3, 1.4, 0.3], scale: [0.16, 0.26, 1.0], ease: out_cubic}
             - {t: 11, scale: [0.04, 0.04, 1.0], alpha: 0.0}
-    - {id: fxhit_9, at: "hit+9", when: "= event.source == 'sel_2'", do: [{id: rm_2, op: remove, ids: [fx2_verdict_impact_bloom]}]}
-    - {id: fxhit_10, at: "hit+10", when: "= event.source == 'sel_2'", do: [{id: rm_3, op: remove, ids: [fx2_verdict_impact_star]}]}
-    - {id: fxhit_12, at: "hit+12", when: "= event.source == 'sel_2'", do: [{id: rm_4, op: remove, ids: [fx2_verdict_impact_dark0, fx2_verdict_impact_dark1, fx2_verdict_impact_dark2]}]}
+    - {id: fxhit_9, at: "hit+9", when: "= event.source == 'sel_3'", do: [{id: rm_2, op: remove, ids: [fx2_verdict_impact_bloom]}]}
+    - {id: fxhit_10, at: "hit+10", when: "= event.source == 'sel_3'", do: [{id: rm_3, op: remove, ids: [fx2_verdict_impact_star]}]}
+    - {id: fxhit_12, at: "hit+12", when: "= event.source == 'sel_3'", do: [{id: rm_4, op: remove, ids: [fx2_verdict_impact_dark0, fx2_verdict_impact_dark1, fx2_verdict_impact_dark2]}]}
     - id: fxhit_35
       at: "hit+35"
       when: "= event.source == 'sel'"
@@ -126,7 +126,7 @@ presentation:
         see_through: true
         brightness: 15
         id: fx2_verdict_impact_star
-        when: "= event.source == 'sel_2'"
+        when: "= event.source == 'sel_3'"
       - id: fx2_verdict_impact_star_trk
         op: track
         target: fx2_verdict_impact_star
@@ -134,7 +134,7 @@ presentation:
           - {t: 0, offset: [0.0, -1.06, 0.55], scale: [2.4, 2.4, 1.0], alpha: 1.0}
           - {t: 4, offset: [0.0, -1.06, 0.55], scale: [2.4, 2.4, 1.0], alpha: 1.0}
           - {t: 10, offset: [0.0, 1.1, 0.55], scale: [0.0, 0.0, 0.0], alpha: 0.0, ease: in_quad}
-        when: "= event.source == 'sel_2'"
+        when: "= event.source == 'sel_3'"
       - op: quad
         parent: fx2_verdict_impact
         face: {viewer: center}
@@ -145,12 +145,12 @@ presentation:
         see_through: true
         brightness: 15
         id: fx2_verdict_impact_bloom
-        when: "= event.source == 'sel_2'"
+        when: "= event.source == 'sel_3'"
       - id: fx2_verdict_impact_bloom_trk
         op: track
         target: fx2_verdict_impact_bloom
         keys:
           - {t: 0, offset: [0.0, -1.87, 0.5], scale: [3.3, 3.3, 1.0], alpha: 0.22}
           - {t: 9, offset: [0.0, -2.5, 0.5], scale: [4.0, 4.0, 1.0], alpha: 0.0, ease: out_cubic}
-        when: "= event.source == 'sel_2'"
-      - {id: snd, op: sound, sound: entity.player.attack.strong, at: enemy, volume: 0.7, pitch: 1.1, when: "= event.source == 'sel_2'"}
+        when: "= event.source == 'sel_3'"
+      - {id: snd, op: sound, sound: entity.player.attack.strong, at: enemy, volume: 0.7, pitch: 1.1, when: "= event.source == 'sel_3'"}

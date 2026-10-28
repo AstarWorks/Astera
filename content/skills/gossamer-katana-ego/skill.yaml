@@ -15,7 +15,8 @@ gameplay:
       at: 60
       do:
         - {id: sel, op: hit, frames: [caster], sector: {frame: caster, at: eye, forward: caster.forward, left: caster.left, angle_deg: "${arc_deg}", range: "${reach}", height: 2.0}, window: once, ticks: 1}
+        - {id: sel_2, op: hit, frames: [caster], sector: {frame: caster, at: eye, forward: caster.forward, left: caster.left, angle_deg: "${arc_deg}", range: "${reach}", height: 2.0}, window: once, ticks: 1}
   "on":
     hit:
       - {id: dmg, op: damage, components: [{kind: physical, amount: "${dmg_physical}"}], target: victim, ignore_invulnerability: true, when: "= event.source == 'sel'"}
-      - {id: stop, op: freeze, ticks: 2, scope: [enemy, caster], when: "= event.source == 'sel'"}
+      - {id: stop, op: freeze, ticks: 2, scope: [enemy, caster], when: "= event.source == 'sel_2'"}

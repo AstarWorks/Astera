@@ -672,14 +672,20 @@ class Conv:
         if t == "counter":
             self.counter(m, where, delay)
             return
+        reselect = None
         if tg and tg["type"] in AREA and tg["type"] != "allies" and t not in ("camera_shake", "screen_flash", "screen_veil", "stop_sound", "glow"):
             if where.kind == "cast":
+                reselect = (json.dumps(tg, sort_keys=True), delay) if t == "damage" else None
                 where = self.select(tg, delay, m)
                 delay = 0
                 tg = {"type": "target"}
         when = self.cond(m)
         if t in GAMEPLAY:
             self.gameplay_op(m, t, tg, where, delay, when)
+            # v1 runs every effect's targeter in list order: a victim this damage killed is gone for the effects after it, so
+            # they get their own `hit` (resolved after this one's handlers, see CastInstance.resolveHits) instead of sharing it.
+            if reselect is not None:
+                self.sel.pop(reselect, None)
         elif t in PRESENT:
             self.presentation_op(m, t, tg, where, delay, when)
         else:

@@ -21,6 +21,13 @@ gameplay:
           max_count: 1
           window: once
           ticks: 1
+        - id: sel_2
+          op: hit
+          frames: [caster]
+          sector: {frame: caster, at: eye, forward: caster.forward, left: caster.left, angle_deg: "${arc_deg}", range: "${reach}", height: 2.0}
+          max_count: 1
+          window: once
+          ticks: 1
     - id: t23
       at: 23
       do:

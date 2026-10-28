@@ -633,7 +633,7 @@ presentation:
             - fx3_ember_counter_sweep_pressure_hoop_s11
     - {id: fx124, at: 124, do: [{id: rm_8, op: remove, ids: [fx3_ember_counter_sweep_gauntlet_flame_fan]}]}
     - {id: fx125, at: 125, do: [{id: rm_9, op: remove, ids: [fx3_ember_counter_sweep_gauntlet_cuff, fx3_ember_counter_sweep_gauntlet_fist, fx3_ember_counter_sweep_gauntlet_nozzle]}]}
-    - {id: fxhit_9, at: "hit+9", when: "= event.source == 'sel'", do: [{id: rm_10, op: remove, ids: [fx4_ember_hoop_hit_needle]}]}
+    - {id: fxhit_9, at: "hit+9", when: "= event.source == 'sel_2'", do: [{id: rm_10, op: remove, ids: [fx4_ember_hoop_hit_needle]}]}
     - {id: loop1, at: 111, every: 4, for: 10, do: [{id: fx3_ember_counter_sweep_embers, op: emit, at: fx3_ember_counter_sweep_embers_at, particle: ember-fine-spark}]}
     - {id: loop2, at: 112, every: 1, for: 9, do: [{id: fx3_ember_counter_sweep_gauntlet_fire, op: emit, at: pt_fx3_ember_counter_sweep_gauntlet_0_2p65_0, particle: ember-fine-spark, spacing: 0.4}]}
   "on":
@@ -647,7 +647,7 @@ presentation:
         turn: "= ([vec(-37.9525, 84.07428, 37.9525), vec(-13.63668, -47.2488, -6.00139), vec(0.96587, 173.62683, -22.0535), vec(46.80381, 35.17185, -15.87715)][int(i)]) + vec((rand('j_fx4_ember_hoop_hit_needle')*2.0-1.0)*8.0, (rand('j_fx4_ember_hoop_hit_needle')*2.0-1.0)*8.0, (rand('j_fx4_ember_hoop_hit_needle')*2.0-1.0)*8.0)"
         times: 4
         id: fx4_ember_hoop_hit_needle
-        when: "= event.source == 'sel'"
+        when: "= event.source == 'sel_2'"
       - id: fx4_ember_hoop_hit_needle_trk
         op: track
         target: fx4_ember_hoop_hit_needle
@@ -656,7 +656,7 @@ presentation:
           - {t: 2, offset: [0.0, 0.0, 0.7], scale: [0.09, 0.09, 1.1], ease: out_expo}
           - {t: 4, block: red_stained_glass}
           - {t: 8, scale: [0.0, 0.0, 1.1], ease: in_quad}
-        when: "= event.source == 'sel'"
-      - {id: fx4_ember_hoop_hit_embers_atrk, op: track, target: fx4_ember_hoop_hit_embers_at, space: fx4_ember_hoop_hit, keys: [{t: 0, offset: [0.0, 1.1, 0.0]}], when: "= event.source == 'sel'"}
-      - {id: fx4_ember_hoop_hit_embers, op: emit, at: fx4_ember_hoop_hit_embers_at, particle: fire-impact, when: "= event.source == 'sel'"}
-      - {id: snd, op: sound, sound: entity.player.attack.strong, at: enemy, volume: 0.7, pitch: 1.1, when: "= event.source == 'sel'"}
+        when: "= event.source == 'sel_2'"
+      - {id: fx4_ember_hoop_hit_embers_atrk, op: track, target: fx4_ember_hoop_hit_embers_at, space: fx4_ember_hoop_hit, keys: [{t: 0, offset: [0.0, 1.1, 0.0]}], when: "= event.source == 'sel_2'"}
+      - {id: fx4_ember_hoop_hit_embers, op: emit, at: fx4_ember_hoop_hit_embers_at, particle: fire-impact, when: "= event.source == 'sel_2'"}
+      - {id: snd, op: sound, sound: entity.player.attack.strong, at: enemy, volume: 0.7, pitch: 1.1, when: "= event.source == 'sel_2'"}

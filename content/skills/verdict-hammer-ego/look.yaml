@@ -10,14 +10,14 @@ id: verdict-hammer-ego
 frames:
   - {id: pt_aim_0_m1p62_8, kind: point, parent: aim, offset: [0.0, -1.62, 8.0]}
   - {id: fx1_verdict_ego_field, kind: body, parent: snap}
-  - {id: fx2_verdict_impact, kind: body, parent: snap_3}
-  - {id: fx3_verdict_ego_ring, kind: body, parent: snap_4}
-  - {id: fx4_verdict_impact, kind: body, parent: snap_6}
-  - {id: fx5_verdict_ego_ring, kind: body, parent: snap_7}
-  - {id: fx6_verdict_impact, kind: body, parent: snap_9}
-  - {id: fx7_verdict_ego_ring, kind: body, parent: snap_10}
-  - {id: fx8_verdict_impact, kind: body, parent: snap_12}
-  - {id: fx9_verdict_ego_ring, kind: body, parent: snap_13}
+  - {id: fx2_verdict_impact, kind: body, parent: snap_4}
+  - {id: fx3_verdict_ego_ring, kind: body, parent: snap_5}
+  - {id: fx4_verdict_impact, kind: body, parent: snap_8}
+  - {id: fx5_verdict_ego_ring, kind: body, parent: snap_9}
+  - {id: fx6_verdict_impact, kind: body, parent: snap_12}
+  - {id: fx7_verdict_ego_ring, kind: body, parent: snap_13}
+  - {id: fx8_verdict_impact, kind: body, parent: snap_16}
+  - {id: fx9_verdict_ego_ring, kind: body, parent: snap_17}
   - {id: fx10_verdict_ego_hammer, kind: body, parent: world}
   - {id: fx10_verdict_ego_hammer_hammer_at, kind: body, parent: caster.right_hand}
   - {id: fx10_verdict_ego_hammer_hammer, kind: body, parent: fx10_verdict_ego_hammer_hammer_at}
@@ -1871,19 +1871,19 @@ presentation:
             - fx1_verdict_ego_field_cross19
   "on":
     hit:
-      - {id: emit, op: emit, at: contact.point, particle: crit, count: 12, speed: 0.15, when: "= event.source == 'sel'"}
-      - {id: emit_2, op: emit, at: contact.point, particle: end_rod, count: 8, speed: 0.09, when: "= event.source == 'sel'"}
-      - {id: emit_3, op: emit, at: contact.point, particle: smoke, count: 4, speed: 0.03, when: "= event.source == 'sel'"}
-      - {id: emit_4, op: emit, at: contact.point, particle: flash, count: 1, when: "= event.source == 'sel'"}
-      - {id: emit_5, op: emit, at: contact.point, particle: crit, count: 12, speed: 0.15, when: "= event.source == 'sel_2'"}
-      - {id: emit_6, op: emit, at: contact.point, particle: end_rod, count: 8, speed: 0.09, when: "= event.source == 'sel_2'"}
-      - {id: emit_7, op: emit, at: contact.point, particle: smoke, count: 4, speed: 0.03, when: "= event.source == 'sel_2'"}
-      - {id: emit_8, op: emit, at: contact.point, particle: flash, count: 1, when: "= event.source == 'sel_2'"}
-      - {id: emit_9, op: emit, at: contact.point, particle: crit, count: 12, speed: 0.15, when: "= event.source == 'sel_3'"}
-      - {id: emit_10, op: emit, at: contact.point, particle: end_rod, count: 8, speed: 0.09, when: "= event.source == 'sel_3'"}
-      - {id: emit_11, op: emit, at: contact.point, particle: smoke, count: 4, speed: 0.03, when: "= event.source == 'sel_3'"}
-      - {id: emit_12, op: emit, at: contact.point, particle: flash, count: 1, when: "= event.source == 'sel_3'"}
-      - {id: emit_13, op: emit, at: contact.point, particle: crit, count: 12, speed: 0.15, when: "= event.source == 'sel_4'"}
-      - {id: emit_14, op: emit, at: contact.point, particle: end_rod, count: 8, speed: 0.09, when: "= event.source == 'sel_4'"}
-      - {id: emit_15, op: emit, at: contact.point, particle: smoke, count: 4, speed: 0.03, when: "= event.source == 'sel_4'"}
-      - {id: emit_16, op: emit, at: contact.point, particle: flash, count: 1, when: "= event.source == 'sel_4'"}
+      - {id: emit, op: emit, at: contact.point, particle: crit, count: 12, speed: 0.15, when: "= event.source == 'sel_2'"}
+      - {id: emit_2, op: emit, at: contact.point, particle: end_rod, count: 8, speed: 0.09, when: "= event.source == 'sel_2'"}
+      - {id: emit_3, op: emit, at: contact.point, particle: smoke, count: 4, speed: 0.03, when: "= event.source == 'sel_2'"}
+      - {id: emit_4, op: emit, at: contact.point, particle: flash, count: 1, when: "= event.source == 'sel_2'"}
+      - {id: emit_5, op: emit, at: contact.point, particle: crit, count: 12, speed: 0.15, when: "= event.source == 'sel_4'"}
+      - {id: emit_6, op: emit, at: contact.point, particle: end_rod, count: 8, speed: 0.09, when: "= event.source == 'sel_4'"}
+      - {id: emit_7, op: emit, at: contact.point, particle: smoke, count: 4, speed: 0.03, when: "= event.source == 'sel_4'"}
+      - {id: emit_8, op: emit, at: contact.point, particle: flash, count: 1, when: "= event.source == 'sel_4'"}
+      - {id: emit_9, op: emit, at: contact.point, particle: crit, count: 12, speed: 0.15, when: "= event.source == 'sel_6'"}
+      - {id: emit_10, op: emit, at: contact.point, particle: end_rod, count: 8, speed: 0.09, when: "= event.source == 'sel_6'"}
+      - {id: emit_11, op: emit, at: contact.point, particle: smoke, count: 4, speed: 0.03, when: "= event.source == 'sel_6'"}
+      - {id: emit_12, op: emit, at: contact.point, particle: flash, count: 1, when: "= event.source == 'sel_6'"}
+      - {id: emit_13, op: emit, at: contact.point, particle: crit, count: 12, speed: 0.15, when: "= event.source == 'sel_8'"}
+      - {id: emit_14, op: emit, at: contact.point, particle: end_rod, count: 8, speed: 0.09, when: "= event.source == 'sel_8'"}
+      - {id: emit_15, op: emit, at: contact.point, particle: smoke, count: 4, speed: 0.03, when: "= event.source == 'sel_8'"}
+      - {id: emit_16, op: emit, at: contact.point, particle: flash, count: 1, when: "= event.source == 'sel_8'"}

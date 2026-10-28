@@ -193,8 +193,10 @@ internal class EmitExecutor(private val rt: PresentationRuntime) : OpExecutor<Fx
         val spacing = op.spacing?.let { ctx.values.num(it) } ?: 0.0
         val sweep = if (spacing > 0.0) rt.velocityOf(s, op.at.frame) else Vec3(0.0, 0.0, 0.0)
         val distance = sweep.length()
-        // One play per `spacing` blocks along the segment covered since the last tick, ending at `at`.
-        val steps = if (distance > spacing && spacing > 0.0) kotlin.math.ceil(distance / spacing).toInt() else 1
+        // One play per `spacing` blocks along the segment covered since the last tick, ending at `at`; v1 also adds one per 12 degrees the frame turned.
+        val turnSteps = if (spacing > 0.0) kotlin.math.ceil(rt.turnedDegrees(s, op.at.frame) / 12.0).toInt() else 0
+        val moveSteps = if (distance > spacing && spacing > 0.0) kotlin.math.ceil(distance / spacing).toInt() else 1
+        val steps = maxOf(moveSteps, turnSteps, 1)
         for (i in 1..steps) {
             val where = if (steps == 1) at else at - sweep * (1.0 - i.toDouble() / steps)
             ctx.ports.particles.emit(

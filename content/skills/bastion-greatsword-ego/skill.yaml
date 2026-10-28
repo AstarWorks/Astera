@@ -36,6 +36,13 @@ gameplay:
           max_count: 1
           window: once
           ticks: 1
+        - id: sel_2
+          op: hit
+          frames: [caster]
+          sector: {frame: caster, at: eye, forward: caster.forward, left: caster.left, angle_deg: "${arc_deg}", range: "${reach}", height: 2.0}
+          max_count: 1
+          window: once
+          ticks: 1
   "on":
     hit:
       - id: dmg
@@ -45,5 +52,5 @@ gameplay:
         target: victim
         ignore_invulnerability: true
         when: "= event.source == 'sel'"
-      - {id: stop, op: freeze, ticks: 4, scope: [enemy, caster], when: "= event.source == 'sel'"}
-      - {id: kb, op: knockback, direction: "= normalize(flat(pos(victim) - pos(caster))) + vec(0.0, 0.3, 0.0)", strength: "${knockback}", when: "= event.source == 'sel'"}
+      - {id: stop, op: freeze, ticks: 4, scope: [enemy, caster], when: "= event.source == 'sel_2'"}
+      - {id: kb, op: knockback, direction: "= normalize(flat(pos(victim) - pos(caster))) + vec(0.0, 0.3, 0.0)", strength: "${knockback}", when: "= event.source == 'sel_2'"}

@@ -24,6 +24,10 @@ frames:
   - {id: snap_11, kind: body, parent: world, inactive: true}
   - {id: snap_12, kind: body, parent: world, inactive: true}
   - {id: snap_13, kind: body, parent: world, inactive: true}
+  - {id: snap_14, kind: body, parent: world, inactive: true}
+  - {id: snap_15, kind: body, parent: world, inactive: true}
+  - {id: snap_16, kind: body, parent: world, inactive: true}
+  - {id: snap_17, kind: body, parent: world, inactive: true}
 gameplay:
   params: {radius: 5.8, dmg_physical: 60.0, dash_distance: 3.0}
   expose:
@@ -41,7 +45,9 @@ gameplay:
         - {id: place_snap_2, op: place, frame: snap_2, like: caster}
         - {id: sel, op: hit, frames: [snap_2], sphere: {at: snap_2, radius: "${radius}"}, max_count: 3, window: once, ticks: 1}
         - {id: place_snap_3, op: place, frame: snap_3, like: caster}
+        - {id: sel_2, op: hit, frames: [snap_3], sphere: {at: snap_3, radius: "${radius}"}, max_count: 3, window: once, ticks: 1}
         - {id: place_snap_4, op: place, frame: snap_4, like: caster}
+        - {id: place_snap_5, op: place, frame: snap_5, like: caster}
     - id: t93
       at: 93
       do:
@@ -49,31 +55,37 @@ gameplay:
     - id: t102
       at: 102
       do:
-        - {id: place_snap_5, op: place, frame: snap_5, like: caster}
-        - {id: sel_2, op: hit, frames: [snap_5], sphere: {at: snap_5, radius: "${radius}"}, max_count: 3, window: once, ticks: 1}
         - {id: place_snap_6, op: place, frame: snap_6, like: caster}
+        - {id: sel_3, op: hit, frames: [snap_6], sphere: {at: snap_6, radius: "${radius}"}, max_count: 3, window: once, ticks: 1}
         - {id: place_snap_7, op: place, frame: snap_7, like: caster}
+        - {id: sel_4, op: hit, frames: [snap_7], sphere: {at: snap_7, radius: "${radius}"}, max_count: 3, window: once, ticks: 1}
+        - {id: place_snap_8, op: place, frame: snap_8, like: caster}
+        - {id: place_snap_9, op: place, frame: snap_9, like: caster}
     - id: t128
       at: 128
       do:
-        - {id: place_snap_8, op: place, frame: snap_8, like: caster}
-        - {id: sel_3, op: hit, frames: [snap_8], sphere: {at: snap_8, radius: "${radius}"}, max_count: 3, window: once, ticks: 1}
-        - {id: place_snap_9, op: place, frame: snap_9, like: caster}
         - {id: place_snap_10, op: place, frame: snap_10, like: caster}
+        - {id: sel_5, op: hit, frames: [snap_10], sphere: {at: snap_10, radius: "${radius}"}, max_count: 3, window: once, ticks: 1}
+        - {id: place_snap_11, op: place, frame: snap_11, like: caster}
+        - {id: sel_6, op: hit, frames: [snap_11], sphere: {at: snap_11, radius: "${radius}"}, max_count: 3, window: once, ticks: 1}
+        - {id: place_snap_12, op: place, frame: snap_12, like: caster}
+        - {id: place_snap_13, op: place, frame: snap_13, like: caster}
     - id: t191
       at: 191
       do:
-        - {id: place_snap_11, op: place, frame: snap_11, like: caster}
-        - {id: sel_4, op: hit, frames: [snap_11], sphere: {at: snap_11, radius: "${radius}"}, max_count: 3, window: once, ticks: 1}
-        - {id: place_snap_12, op: place, frame: snap_12, like: caster}
-        - {id: place_snap_13, op: place, frame: snap_13, like: caster}
+        - {id: place_snap_14, op: place, frame: snap_14, like: caster}
+        - {id: sel_7, op: hit, frames: [snap_14], sphere: {at: snap_14, radius: "${radius}"}, max_count: 3, window: once, ticks: 1}
+        - {id: place_snap_15, op: place, frame: snap_15, like: caster}
+        - {id: sel_8, op: hit, frames: [snap_15], sphere: {at: snap_15, radius: "${radius}"}, max_count: 3, window: once, ticks: 1}
+        - {id: place_snap_16, op: place, frame: snap_16, like: caster}
+        - {id: place_snap_17, op: place, frame: snap_17, like: caster}
   "on":
     hit:
       - {id: dmg, op: damage, components: [{kind: physical, amount: "${dmg_physical}"}], target: victim, ignore_invulnerability: true, when: "= event.source == 'sel'"}
-      - {id: stop, op: freeze, ticks: 2, scope: [enemy, caster], when: "= event.source == 'sel'"}
-      - {id: dmg_2, op: damage, components: [{kind: physical, amount: "${dmg_physical}"}], target: victim, ignore_invulnerability: true, when: "= event.source == 'sel_2'"}
-      - {id: stop_2, op: freeze, ticks: 2, scope: [enemy, caster], when: "= event.source == 'sel_2'"}
-      - {id: dmg_3, op: damage, components: [{kind: physical, amount: "${dmg_physical}"}], target: victim, ignore_invulnerability: true, when: "= event.source == 'sel_3'"}
-      - {id: stop_3, op: freeze, ticks: 2, scope: [enemy, caster], when: "= event.source == 'sel_3'"}
-      - {id: dmg_4, op: damage, components: [{kind: physical, amount: "${dmg_physical}"}], target: victim, ignore_invulnerability: true, when: "= event.source == 'sel_4'"}
-      - {id: stop_4, op: freeze, ticks: 2, scope: [enemy, caster], when: "= event.source == 'sel_4'"}
+      - {id: stop, op: freeze, ticks: 2, scope: [enemy, caster], when: "= event.source == 'sel_2'"}
+      - {id: dmg_2, op: damage, components: [{kind: physical, amount: "${dmg_physical}"}], target: victim, ignore_invulnerability: true, when: "= event.source == 'sel_3'"}
+      - {id: stop_2, op: freeze, ticks: 2, scope: [enemy, caster], when: "= event.source == 'sel_4'"}
+      - {id: dmg_3, op: damage, components: [{kind: physical, amount: "${dmg_physical}"}], target: victim, ignore_invulnerability: true, when: "= event.source == 'sel_5'"}
+      - {id: stop_3, op: freeze, ticks: 2, scope: [enemy, caster], when: "= event.source == 'sel_6'"}
+      - {id: dmg_4, op: damage, components: [{kind: physical, amount: "${dmg_physical}"}], target: victim, ignore_invulnerability: true, when: "= event.source == 'sel_7'"}
+      - {id: stop_4, op: freeze, ticks: 2, scope: [enemy, caster], when: "= event.source == 'sel_8'"}

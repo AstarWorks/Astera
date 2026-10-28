@@ -171,10 +171,10 @@ presentation:
             - fx3_orrery_crescent_b_staff_cable_drop
             - fx3_orrery_crescent_b_staff_cable_bottom
             - fx3_orrery_crescent_b_staff_cable_return
-    - {id: fxhit_8, at: "hit+8", when: "= event.source == 'sel'", do: [{id: rm_3, op: remove, ids: [fx2_orrery_ring_hit_violet_core]}]}
-    - {id: fxhit_8_2, at: "hit+8", when: "= event.source == 'sel_2'", do: [{id: rm_7, op: remove, ids: [fx4_orrery_ring_hit_violet_core]}]}
-    - {id: fxhit_10, at: "hit+10", when: "= event.source == 'sel'", do: [{id: rm_4, op: remove, ids: [fx2_orrery_ring_hit_shard]}]}
-    - {id: fxhit_10_2, at: "hit+10", when: "= event.source == 'sel_2'", do: [{id: rm_8, op: remove, ids: [fx4_orrery_ring_hit_shard]}]}
+    - {id: fxhit_8, at: "hit+8", when: "= event.source == 'sel_2'", do: [{id: rm_3, op: remove, ids: [fx2_orrery_ring_hit_violet_core]}]}
+    - {id: fxhit_8_2, at: "hit+8", when: "= event.source == 'sel_4'", do: [{id: rm_7, op: remove, ids: [fx4_orrery_ring_hit_violet_core]}]}
+    - {id: fxhit_10, at: "hit+10", when: "= event.source == 'sel_2'", do: [{id: rm_4, op: remove, ids: [fx2_orrery_ring_hit_shard]}]}
+    - {id: fxhit_10_2, at: "hit+10", when: "= event.source == 'sel_4'", do: [{id: rm_8, op: remove, ids: [fx4_orrery_ring_hit_shard]}]}
     - {id: loop1, at: 18, every: 1, for: 9, do: [{id: fx1_orrery_crescent_a_staff_embers, op: emit, at: pt_fx1_orrery_crescent_a_staff_0_1p65_0, particle: orrery-ember, spacing: 0.4}]}
     - {id: loop2, at: 49, every: 1, for: 9, do: [{id: fx3_orrery_crescent_b_staff_embers, op: emit, at: pt_fx3_orrery_crescent_b_staff_0_1p65_0, particle: orrery-ember, spacing: 0.4}]}
   "on":
@@ -188,7 +188,7 @@ presentation:
         turn: "= [vec(0.0, 0.0, 90.0), vec(-35.17635, 35.17635, 84.92322), vec(-69.28203, 69.28203, 69.28203), vec(-100.83991, 100.83991, 41.76926), vec(-127.27922, 127.27922, 0.0), vec(100.83991, -100.83991, 41.76926), vec(69.28203, -69.28203, 69.28203), vec(35.17635, -35.17635, 84.92322)][int(i)]"
         times: 8
         id: fx2_orrery_ring_hit_shard
-        when: "= event.source == 'sel'"
+        when: "= event.source == 'sel_2'"
       - id: fx2_orrery_ring_hit_shard_trk
         op: track
         target: fx2_orrery_ring_hit_shard
@@ -197,8 +197,8 @@ presentation:
           - {t: 2, offset: [0.0, 0.0, 0.1], scale: [0.1, 0.1, 0.25], ease: out_expo}
           - {t: 6, block: yellow_stained_glass}
           - {t: 10, offset: [0.0, 0.0, 0.25], scale: [0.0, 0.0, 0.0], ease: in_quad}
-        when: "= event.source == 'sel'"
-      - {op: block, parent: fx2_orrery_ring_hit, block: purple_stained_glass, size: [1.0, 1.0, 1.0], brightness: 15, id: fx2_orrery_ring_hit_violet_core, when: "= event.source == 'sel'"}
+        when: "= event.source == 'sel_2'"
+      - {op: block, parent: fx2_orrery_ring_hit, block: purple_stained_glass, size: [1.0, 1.0, 1.0], brightness: 15, id: fx2_orrery_ring_hit_violet_core, when: "= event.source == 'sel_2'"}
       - id: fx2_orrery_ring_hit_violet_core_trk
         op: track
         target: fx2_orrery_ring_hit_violet_core
@@ -206,8 +206,8 @@ presentation:
           - {t: 0, offset: [0.0, 1.0, 0.0], scale: [0.03, 0.2, 0.2]}
           - {t: 2, scale: [0.03, 0.8, 0.8], ease: out_expo}
           - {t: 8, scale: [0.0, 0.0, 0.0]}
-        when: "= event.source == 'sel'"
-      - {id: snd, op: sound, sound: entity.player.attack.strong, at: enemy, volume: 0.7, pitch: 1.1, when: "= event.source == 'sel'"}
+        when: "= event.source == 'sel_2'"
+      - {id: snd, op: sound, sound: entity.player.attack.strong, at: enemy, volume: 0.7, pitch: 1.1, when: "= event.source == 'sel_2'"}
       - op: block
         parent: fx4_orrery_ring_hit
         block: gold_block
@@ -217,7 +217,7 @@ presentation:
         turn: "= [vec(0.0, 0.0, 90.0), vec(-35.17635, 35.17635, 84.92322), vec(-69.28203, 69.28203, 69.28203), vec(-100.83991, 100.83991, 41.76926), vec(-127.27922, 127.27922, 0.0), vec(100.83991, -100.83991, 41.76926), vec(69.28203, -69.28203, 69.28203), vec(35.17635, -35.17635, 84.92322)][int(i)]"
         times: 8
         id: fx4_orrery_ring_hit_shard
-        when: "= event.source == 'sel_2'"
+        when: "= event.source == 'sel_4'"
       - id: fx4_orrery_ring_hit_shard_trk
         op: track
         target: fx4_orrery_ring_hit_shard
@@ -226,8 +226,8 @@ presentation:
           - {t: 2, offset: [0.0, 0.0, 0.1], scale: [0.1, 0.1, 0.25], ease: out_expo}
           - {t: 6, block: yellow_stained_glass}
           - {t: 10, offset: [0.0, 0.0, 0.25], scale: [0.0, 0.0, 0.0], ease: in_quad}
-        when: "= event.source == 'sel_2'"
-      - {op: block, parent: fx4_orrery_ring_hit, block: purple_stained_glass, size: [1.0, 1.0, 1.0], brightness: 15, id: fx4_orrery_ring_hit_violet_core, when: "= event.source == 'sel_2'"}
+        when: "= event.source == 'sel_4'"
+      - {op: block, parent: fx4_orrery_ring_hit, block: purple_stained_glass, size: [1.0, 1.0, 1.0], brightness: 15, id: fx4_orrery_ring_hit_violet_core, when: "= event.source == 'sel_4'"}
       - id: fx4_orrery_ring_hit_violet_core_trk
         op: track
         target: fx4_orrery_ring_hit_violet_core
@@ -235,5 +235,5 @@ presentation:
           - {t: 0, offset: [0.0, 1.0, 0.0], scale: [0.03, 0.2, 0.2]}
           - {t: 2, scale: [0.03, 0.8, 0.8], ease: out_expo}
           - {t: 8, scale: [0.0, 0.0, 0.0]}
-        when: "= event.source == 'sel_2'"
-      - {id: snd_2, op: sound, sound: entity.player.attack.strong, at: enemy, volume: 0.7, pitch: 1.1, when: "= event.source == 'sel_2'"}
+        when: "= event.source == 'sel_4'"
+      - {id: snd_2, op: sound, sound: entity.player.attack.strong, at: enemy, volume: 0.7, pitch: 1.1, when: "= event.source == 'sel_4'"}
