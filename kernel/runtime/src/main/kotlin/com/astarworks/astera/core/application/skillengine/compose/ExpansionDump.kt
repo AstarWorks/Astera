@@ -171,7 +171,7 @@ public object ExpansionDump {
                     else -> CancelScope.Instance(parseInstance((kv["scope"] ?: return null).removePrefix("#").trim('"')) ?: return null)
                 },
             )
-            "lock" -> Action.Lock(kv["move"] == "true", kv["pitch"] == "true", kv["yaw"] == "true", parseLockEnd(kv["until"] ?: return null) ?: return null)
+            "lock" -> Action.Lock(LockMove.entries.firstOrNull { it.name == kv["move"] } ?: return null, kv["pitch"] == "true", kv["yaw"] == "true", parseLockEnd(kv["until"] ?: return null) ?: return null)
             else -> return null
         }
         return Row(tick, inst, action, SrcPath(""))
