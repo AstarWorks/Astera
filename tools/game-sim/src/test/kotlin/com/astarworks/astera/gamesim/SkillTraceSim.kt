@@ -210,6 +210,7 @@ internal class Sim(val c: Coin2Collaborators, val catalog: SkillCatalog, val wit
 
     private val dummyFeet = Vec3(0.0, 0.0, 6.0)
     private val entities = object : ISkillEntityQuery {
+    override fun healthRatio(entity: UUID): Double = error("hp_ratio: this fake has no entity $entity")
         override fun nearby(point: Vec3, radius: Double, excluding: UUID?): List<HitCandidate> {
             if (!withDummy) return emptyList()
             val box = HitBox(Vec3(-0.3, 0.0, 5.7), Vec3(0.3, 1.8, 6.3))
@@ -225,9 +226,9 @@ internal class Sim(val c: Coin2Collaborators, val catalog: SkillCatalog, val wit
 
     val kit: SkillEngineKit = SkillEngineKit.build(
         gateways = SkillEngineGateways(
-            ports = SkillRuntimePorts(visuals, particles, sounds, gameplay, entities, anim),
+            portsIn = { _ -> SkillRuntimePorts(visuals, particles, sounds, gameplay, entities, anim) },
             movement = noop<ISkillMovementGateway>(),
-            world = noop<ISkillWorldGateway>(),
+            worldIn = { _ -> noop<ISkillWorldGateway>() },
             casterAnim = noop<ISkillCasterAnimGateway>(),
             screen = noop<ISkillScreenGateway>(),
             cooldowns = noop<ISkillCooldownGateway>(),
@@ -245,7 +246,7 @@ internal class Sim(val c: Coin2Collaborators, val catalog: SkillCatalog, val wit
     val runner = kit.runner
 
     fun request(skill: CompiledSkill, tick: Int, modifiers: ModifierStack = ModifierStack.EMPTY) =
-        CastRequest(skill, caster, Vec3.ZERO, 0.0, 0.0, seed = 7L, modifiers = modifiers, startTick = tick)
+        CastRequest(skill, caster, com.astarworks.astera.core.domain.world.WorldId("world"), Vec3.ZERO, 0.0, 0.0, seed = 7L, modifiers = modifiers, startTick = tick)
 
     fun start(skill: CompiledSkill, tick: Int, modifiers: ModifierStack = ModifierStack.EMPTY): CastId =
         when (val r = runner.start(request(skill, tick, modifiers))) {

@@ -63,6 +63,8 @@ public class CombatPlatformPorts(
     public val entityDamageGateway: ((ServiceRegistry) -> IEntityDamageGateway)? = null,
     public val entityEffectsGateway: ((ServiceRegistry) -> IEntityEffectsGateway)? = null,
     public val playerFeedbackGateway: ((ServiceRegistry) -> IPlayerFeedbackGateway)? = null,
+    /** Which block keys exist (vanilla + custom); `null` = this host has no block world and world-op block keys go unchecked. */
+    public val blockKeys: ((ServiceRegistry) -> com.astarworks.astera.core.application.skillengine.load.IBlockKeyCatalog)? = null,
     public val displayEntityGateway: ((ServiceRegistry) -> IDisplayEntityGateway)? = null,
     public val summonGateway: ((ServiceRegistry) -> ISummonGateway)? = null,
     public val blockEditGuard: ((ServiceRegistry) -> IBlockEditGuard)? = null,

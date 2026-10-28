@@ -378,7 +378,7 @@ presentation:
         when: "= event.source == 'sel'"
       - {id: fx3_ember_hoop_hit_embers_atrk, op: track, target: fx3_ember_hoop_hit_embers_at, space: fx3_ember_hoop_hit, keys: [{t: 0, offset: [0.0, 1.1, 0.0]}], when: "= event.source == 'sel'"}
       - {id: fx3_ember_hoop_hit_embers, op: emit, at: fx3_ember_hoop_hit_embers_at, particle: fire-impact, when: "= event.source == 'sel'"}
-      - {id: snd, op: sound, sound: entity.player.attack.strong, at: contact.point, volume: 0.7, pitch: 1.1, when: "= event.source == 'sel'"}
+      - {id: snd, op: sound, sound: entity.player.attack.strong, at: enemy, volume: 0.7, pitch: 1.1, when: "= event.source == 'sel'"}
       - op: block
         parent: fx5_ember_hoop_hit
         block: orange_stained_glass
@@ -400,4 +400,4 @@ presentation:
         when: "= event.source == 'sel_2'"
       - {id: fx5_ember_hoop_hit_embers_atrk, op: track, target: fx5_ember_hoop_hit_embers_at, space: fx5_ember_hoop_hit, keys: [{t: 0, offset: [0.0, 1.1, 0.0]}], when: "= event.source == 'sel_2'"}
       - {id: fx5_ember_hoop_hit_embers, op: emit, at: fx5_ember_hoop_hit_embers_at, particle: fire-impact, when: "= event.source == 'sel_2'"}
-      - {id: snd_2, op: sound, sound: entity.player.attack.strong, at: contact.point, volume: 0.7, pitch: 1.1, when: "= event.source == 'sel_2'"}
+      - {id: snd_2, op: sound, sound: entity.player.attack.strong, at: enemy, volume: 0.7, pitch: 1.1, when: "= event.source == 'sel_2'"}

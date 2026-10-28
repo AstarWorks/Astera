@@ -75,12 +75,6 @@ public class PaperSkillVisualGateway(
     private val entries = ConcurrentHashMap<Long, Entry>()
     private val owners = ConcurrentHashMap<Long, UUID>()
 
-    @Volatile
-    private var lastWorld: WorldId? = null
-
-    /** World of the most recent cast owner; the particle and sound ports carry no world (see report). */
-    public fun activeWorld(): WorldId? = lastWorld
-
     private sealed interface Entry
     private class MeshEntry(val handle: DisplayHandle, val owner: UUID, val heldItem: Boolean = false) : Entry
     /** One hand lease per caster, shared by every live `main_hand` mesh of that caster. */
@@ -401,7 +395,6 @@ public class PaperSkillVisualGateway(
 
     private fun worldOf(owner: UUID): World? {
         val world = server.getPlayer(owner)?.world ?: return null
-        lastWorld = WorldId(world.name)
         return world
     }
 

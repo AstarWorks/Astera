@@ -1,7 +1,7 @@
 # Converted from content/skills/gossamer-katana-s3.yaml + content/vfx/* by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
 # Generated point-frame offsets are [left, up, forward] in the parent frame.
 # CONVERT-PRESENT vfx frame orient (frames carry no orientation / scale) (x2): orient="yaw"
-# CONVERT-PRESENT presentation inside a nested gameplay list (dash on_hit has no event hook) (x2): play_vfx | play_sound
+# CONVERT-PRESENT presentation inside a nested gameplay list (dash on_hit has no event hook) (x1): play_vfx
 # CONVERT-PRESENT vfx follow=false (anchored at world, no place-at-spawn) (x1): gossamer-katana-iaido-line
 apiVersion: "astera/v2"
 kind: Skill
@@ -106,3 +106,4 @@ presentation:
     - {id: fx29, at: 29, do: [{id: rm, op: remove, ids: [fx1_gossamer_katana_draw_katana_blade, fx1_gossamer_katana_draw_katana_grip, fx1_gossamer_katana_draw_katana_guard]}]}
     - {id: fx39, at: 39, do: [{id: rm_4, op: remove, ids: [fx2_gossamer_katana_iaido_line_dark]}]}
     - {id: fx41, at: 41, do: [{id: rm_5, op: remove, ids: [fx2_gossamer_katana_iaido_line_core]}]}
+  "on": {dash_hit: [{id: snd, op: sound, sound: entity.player.attack.strong, at: enemy, volume: 0.7, pitch: 1.1, when: "= event.source == 'dash'"}]}

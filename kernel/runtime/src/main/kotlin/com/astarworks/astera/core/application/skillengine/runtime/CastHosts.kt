@@ -36,14 +36,17 @@ public class CastHosts : MovementHost, OpTargetResolver, PresentationCastInfo {
 
     override fun location(ctx: OpContext, spec: LocationSpec): Vec3? = of(ctx).location(ctx, spec)
 
-    override fun runWithVictim(ctx: OpContext, victim: UUID, point: Vec3, ops: List<SkillOp>) =
-        of(ctx).runWithVictim(ctx, victim, point, ops)
+    override fun runWithVictim(ctx: OpContext, source: String, victim: UUID, point: Vec3, ops: List<SkillOp>) =
+        of(ctx).runWithVictim(ctx, source, victim, point, ops)
 
     override fun resolve(ctx: OpContext, target: TargetRef): List<UUID> = of(ctx).resolve(ctx, target)
 
     override fun owner(cast: CastId): UUID = of(cast).owner(cast)
 
     override fun targets(cast: CastId, target: TargetRef): List<UUID> = of(cast).targets(cast, target)
+
+    /** The definition of the running [cast], null once it has ended. */
+    public fun skillOf(cast: CastId): com.astarworks.astera.core.domain.skillengine.model.SkillDef? = live[cast]?.skill?.def
 
     override fun hasRaised(cast: CastId, event: String): Boolean = live[cast]?.hasRaised(cast, event) ?: false
 }

@@ -22,5 +22,5 @@ public interface MovementHost {
     public fun location(ctx: OpContext, spec: LocationSpec): Vec3?
 
     /** Run [ops] with [victim] as the `victim` of a synthetic contact at [point] (dash on_hit). */
-    public fun runWithVictim(ctx: OpContext, victim: UUID, point: Vec3, ops: List<SkillOp>)
+    public fun runWithVictim(ctx: OpContext, source: String, victim: UUID, point: Vec3, ops: List<SkillOp>)
 }

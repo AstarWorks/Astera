@@ -11,7 +11,7 @@ import java.util.UUID
 import kotlin.math.atan2
 
 /**
- * [ISkillVictimAnimGateway]: vanilla hurt animation facing the attacker plus, for `stagger`, a
+ * [ISkillVictimAnimGateway]: vanilla hurt animation facing the attacker plus, for `stagger` / `stagger_back`, a
  * short push away through [IKnockbackGateway] (resistance honoured). Main thread only.
  */
 public class PaperSkillVictimAnimGateway(
@@ -26,9 +26,13 @@ public class PaperSkillVictimAnimGateway(
         val dz = awayFrom.z - loc.z
         // Hurt tilt is relative to the attacker's direction.
         val yaw = Math.toDegrees(atan2(-dx, dz)).toFloat()
-        e.playHurtAnimation(yaw)
-        if (anim.equals("stagger", ignoreCase = true) && strength > 0.0) {
-            knockback.applyPush(PlayerId(victim), KnockbackPush(awayFrom = awayFrom, strength = strength))
+        when (anim) {
+            "hurt" -> e.playHurtAnimation(yaw)
+            "stagger", "stagger_back" -> {
+                e.playHurtAnimation(yaw)
+                if (strength > 0.0) knockback.applyPush(PlayerId(victim), KnockbackPush(awayFrom = awayFrom, strength = strength))
+            }
+            else -> error("victim_anim '$anim' passed the loader but the gateway has no reaction for it")
         }
     }
 }

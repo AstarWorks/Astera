@@ -14,12 +14,12 @@ import com.astarworks.astera.core.domain.skillengine.world.WorldBlockRules
 import com.astarworks.astera.core.domain.skillengine.world.WorldShapes
 import kotlin.reflect.KClass
 
-/** Executors of the world family. The manager registers them: `worldExecutors(editor).forEach(registry::register)`. */
-public fun worldExecutors(editor: SkillWorldEditor): List<OpExecutor<*>> = listOf(
-    SetBlockExecutor(editor),
-    RemoveBlockExecutor(editor),
-    BreakAreaExecutor(editor),
-    PlaceShapeExecutor(editor),
+/** Executors of the world family. The manager registers them: `worldExecutors(editors).forEach(registry::register)`. */
+public fun worldExecutors(editors: SkillWorldEditors): List<OpExecutor<*>> = listOf(
+    SetBlockExecutor(editors),
+    RemoveBlockExecutor(editors),
+    BreakAreaExecutor(editors),
+    PlaceShapeExecutor(editors),
 )
 
 internal object WorldLimits {
@@ -47,26 +47,30 @@ private fun OpContext.revertTicks(value: Value<Double>?): Long {
 
 private fun rippleDelay(index: Int, total: Int): Long = (1 + index * WorldLimits.RIPPLE_TICKS / total.coerceAtLeast(1)).toLong()
 
-internal class SetBlockExecutor(private val editor: SkillWorldEditor) : OpExecutor<WorldOp.SetBlock> {
+internal class SetBlockExecutor(private val editors: SkillWorldEditors) : OpExecutor<WorldOp.SetBlock> {
     override val opClass: KClass<WorldOp.SetBlock> = WorldOp.SetBlock::class
 
     override fun execute(op: WorldOp.SetBlock, ctx: OpContext) {
         val key = WorldBlockRules.normalize(op.block)
         if (WorldBlockRules.isProtected(key)) return
         val cell = BlockCell.containing(ctx.position(op.at) ?: return)
+        val editor = editors.of(ctx.world)
         val world = editor.world
         if (!world.canEdit(ctx.cast, cell, op.outsideArena)) return
         if (!WorldBlockRules.isReplaceable(world.blockAt(cell))) return
-        editor.edit(cell, ctx.revertTicks(op.revertAfterTicks)) { world.place(cell, key); true }
+        editor.edit(cell, ctx.revertTicks(op.revertAfterTicks)) {
+            world.place(cell, key).also { if (!it) ctx.host.fail(op.id, "set_block: '$key' could not be placed at $cell") }
+        }
     }
 }
 
-internal class RemoveBlockExecutor(private val editor: SkillWorldEditor) : OpExecutor<WorldOp.RemoveBlock> {
+internal class RemoveBlockExecutor(private val editors: SkillWorldEditors) : OpExecutor<WorldOp.RemoveBlock> {
     override val opClass: KClass<WorldOp.RemoveBlock> = WorldOp.RemoveBlock::class
 
     override fun execute(op: WorldOp.RemoveBlock, ctx: OpContext) {
         if (!op.breaksBlocks) return
         val cell = BlockCell.containing(ctx.position(op.at) ?: return)
+        val editor = editors.of(ctx.world)
         val world = editor.world
         if (!world.canEdit(ctx.cast, cell, op.outsideArena)) return
         val current = world.blockAt(cell)
@@ -75,12 +79,17 @@ internal class RemoveBlockExecutor(private val editor: SkillWorldEditor) : OpExe
     }
 }
 
-internal class BreakAreaExecutor(private val editor: SkillWorldEditor) : OpExecutor<WorldOp.BreakArea> {
+private const val RAY_STEP = 0.25
+
+internal class BreakAreaExecutor(private val editors: SkillWorldEditors) : OpExecutor<WorldOp.BreakArea> {
     override val opClass: KClass<WorldOp.BreakArea> = WorldOp.BreakArea::class
 
     override fun execute(op: WorldOp.BreakArea, ctx: OpContext) {
         if (!op.breaksBlocks) return
-        val aim = ctx.aim(op.at) ?: return
+        val cast0 = ctx.aim(op.at) ?: return
+        // RAY (v1 strikeRay): march the look ray from the origin up to `length`; the first cover cell it meets is the ball centre.
+        val editor = editors.of(ctx.world)
+        val aim = if (op.shape == WorldOp.AreaShape.RAY) rayHit(editor, cast0, op.length) ?: return else cast0
         val centre = WorldShapes.breakCentre(op, aim)
         val ordered = WorldShapes.breakCells(op, aim).sortedBy { it.distanceSquaredTo(centre) }
         val revert = ctx.revertTicks(op.revertAfterTicks)
@@ -89,29 +98,42 @@ internal class BreakAreaExecutor(private val editor: SkillWorldEditor) : OpExecu
         for ((index, cell) in ordered.withIndex()) {
             if (!world.canEdit(cast, cell, op.outsideArena)) continue
             editor.later(rippleDelay(index, ordered.size)) {
-                strike(op, cast, cell, revert)
+                strike(editor, op, cast, cell, revert)
             }
         }
     }
 
-    private fun strike(op: WorldOp.BreakArea, cast: CastId, cell: BlockCell, revert: Long) {
+    private fun rayHit(editor: SkillWorldEditor, aim: WorldAim, reach: Double): WorldAim? {
+        var d = 0.0
+        while (d <= reach) {
+            val p = aim.origin + aim.look * d
+            if (editor.world.isCover(BlockCell.containing(p))) return WorldAim(p, aim.look)
+            d += RAY_STEP
+        }
+        return null
+    }
+
+    private fun strike(editor: SkillWorldEditor, op: WorldOp.BreakArea, cast: CastId, cell: BlockCell, revert: Long) {
         val world = editor.world
         if (!world.canEdit(cast, cell, op.outsideArena)) return
         if (world.isCover(cell)) {
             world.damage(cast, cell, op.blockDamage, op.toolClass)
             return
         }
+        // A flat chip (no tool_class: guns, spells) only ever hurts cover; terrain is the tool skills' to break (v1 CoverBlockService).
+        if (op.toolClass == null) return
         val current = world.blockAt(cell)
         if (WorldBlockRules.isAir(current) || WorldBlockRules.isProtected(current!!)) return
         editor.edit(cell, revert) { world.damage(cast, cell, op.blockDamage, op.toolClass) == BlockDamageOutcome.BROKEN }
     }
 }
 
-internal class PlaceShapeExecutor(private val editor: SkillWorldEditor) : OpExecutor<WorldOp.PlaceShape> {
+internal class PlaceShapeExecutor(private val editors: SkillWorldEditors) : OpExecutor<WorldOp.PlaceShape> {
     override val opClass: KClass<WorldOp.PlaceShape> = WorldOp.PlaceShape::class
 
     override fun execute(op: WorldOp.PlaceShape, ctx: OpContext) {
         val key = WorldBlockRules.normalize(op.block)
+        val editor = editors.of(ctx.world)
         val world = editor.world
         val cover = world.isCoverBlock(key)
         if (!cover && WorldBlockRules.isProtected(key)) return
@@ -127,7 +149,9 @@ internal class PlaceShapeExecutor(private val editor: SkillWorldEditor) : OpExec
                 if (cover) {
                     world.placeCover(cast, cell, key)
                 } else {
-                    editor.edit(cell, revert) { world.place(cell, key); true }
+                    editor.edit(cell, revert) {
+                        world.place(cell, key).also { if (!it) ctx.host.fail(op.id, "place_shape: '$key' could not be placed at $cell") }
+                    }
                 }
             }
         }

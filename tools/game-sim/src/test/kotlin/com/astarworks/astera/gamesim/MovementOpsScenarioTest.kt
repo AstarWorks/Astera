@@ -79,6 +79,7 @@ class MovementOpsScenarioTest {
     private fun env(caster: UUID): Env {
         val w = World()
         val entities = object : ISkillEntityQuery {
+    override fun healthRatio(entity: UUID): Double = error("hp_ratio: this fake has no entity $entity")
             override fun nearby(point: Vec3, radius: Double, excluding: UUID?): List<HitCandidate> =
                 w.feet.filter { (id, _) -> id != excluding && id in w.alive }
                     .map { (id, f) -> HitCandidate(id, f, 0.0, box(f)) }
@@ -91,6 +92,8 @@ class MovementOpsScenarioTest {
                 w.solidFromZ?.takeIf { to.z >= it }?.let { BlockHit(Vec3(to.x, to.y, it), Vec3(0.0, 0.0, -1.0), "stone") }
         }
         val movement = object : ISkillMovementGateway {
+    override fun lockMovement(entity: UUID, speedFactor: Double) {}
+    override fun unlockMovement(entity: UUID) {}
             override fun isAlive(entity: UUID) = entity in w.alive
             override fun setVelocity(entity: UUID, velocity: Vec3) { w.velocities[entity] = velocity }
             override fun addVelocity(entity: UUID, delta: Vec3) { w.added += entity to delta }
@@ -103,6 +106,7 @@ class MovementOpsScenarioTest {
             override fun releaseInvulnerable(entity: UUID) { w.immune = false }
         }
         val gameplay = object : ISkillGameplayGateway {
+    override fun statusStacks(entity: UUID, statusId: String): Int = 0
             override fun removeStatus(victim: UUID, statusId: String) = Unit
             override fun cleanse(victim: UUID, negativeOnly: Boolean) = Unit
             override fun ignite(caster: UUID, victim: UUID, durationTicks: Int) = Unit
@@ -142,7 +146,7 @@ class MovementOpsScenarioTest {
                 else -> emptyList()
             }
             override fun location(ctx: OpContext, spec: LocationSpec): Vec3? = (spec as? LocationSpec.AtValue)?.let { ctx.values.vec3(it.value) }
-            override fun runWithVictim(ctx: OpContext, victim: UUID, point: Vec3, ops: List<SkillOp>) {
+            override fun runWithVictim(ctx: OpContext, source: String, victim: UUID, point: Vec3, ops: List<SkillOp>) {
                 w.hits += victim
                 w.immuneTrace += w.immune
             }
@@ -163,6 +167,7 @@ class MovementOpsScenarioTest {
     private fun ctxOf(e: Env) = object : OpContext {
         override val host: com.astarworks.astera.core.application.skillengine.runtime.OpHost get() = error("this scenario never reaches the cast host")
         override val cast = CastId(1)
+        override val world = com.astarworks.astera.core.domain.world.WorldId("world")
         override val tree: FrameTree get() = error("movement ops never touch the frame tree")
         override val values = literals
         override val ports = e.ports
@@ -188,7 +193,7 @@ class MovementOpsScenarioTest {
         val e = env(caster)
         e.world.feet[caster] = Vec3(0.0, 0.0, 0.0)
         e.world.alive += listOf(caster, enemyA, enemyB)
-        return Triple(e, DashStrikeDriver(e.ports, e.movement, e.host), e.world)
+        return Triple(e, DashStrikeDriver(e.movement, e.host), e.world)
     }
 
     @Test
@@ -220,7 +225,7 @@ class MovementOpsScenarioTest {
     fun `local direction is relative to the caster heading`() {
         val (e, driver, w) = setup()
         run(e, driver, dash(distance = 4.0, ticks = 2.0, local = Vec3(1.0, 0.0, 0.0)))
-        driver.tick()
+        repeat(2) { driver.tick() }
         val left = Frame.fromDirection(Vec3.ZERO, Vec3(0.0, 0.0, 1.0)).left()
         val end = w.feet.getValue(caster)
         assertThat(end.x).isCloseTo(left.x * 4.0, offset(1e-9))
@@ -230,7 +235,7 @@ class MovementOpsScenarioTest {
         val (e2, d2, w2) = setup()
         w2.casterYaw = 90.0
         run(e2, d2, dash(distance = 4.0, ticks = 2.0, local = Vec3(1.0, 0.0, 0.0)))
-        d2.tick()
+        repeat(2) { d2.tick() }
         assertThat(w2.feet.getValue(caster).x).isCloseTo(0.0, offset(1e-6)) // heading is now -X, left is +/-Z
         assertThat(kotlin.math.abs(w2.feet.getValue(caster).z)).isCloseTo(4.0, offset(1e-6))
     }
