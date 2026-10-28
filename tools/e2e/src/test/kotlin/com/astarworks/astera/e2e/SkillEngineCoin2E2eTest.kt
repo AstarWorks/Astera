@@ -49,6 +49,8 @@ class SkillEngineCoin2E2eTest : E2eBase() {
             "health $before"
         }
 
+        // Cast lifecycle at INFO (start, release / hit / block / reel with frame positions, end summary): the failure message below quotes it.
+        rcon("astera skill trace on")
         val logMark = ServerLog.lineCount()
         val castReply = clean(rcon("astera skill cast $skillId ${a.name} --force"))
         // spin-up + release + flight + stick: the whole sequence is well under 4 seconds.
@@ -59,7 +61,7 @@ class SkillEngineCoin2E2eTest : E2eBase() {
             assertThat(before).isNotNull()
             assertThat(after).describedAs("dummy health after the cast").isNotNull()
             val lost = before!! - after!!
-            assertThat(lost).describedAs("health lost (expected at least one hit of ~18); cast reply='$castReply'; log=${ServerLog.read().lineSequence().drop(logMark).filter { it.contains("skill engine", true) }.toList().takeLast(5)}").isGreaterThanOrEqualTo(17.0)
+            assertThat(lost).describedAs("health lost (expected at least one hit of ~18); cast reply='$castReply'; log=${ServerLog.read().lineSequence().drop(logMark).filter { it.contains("skill engine", true) || it.contains("skill trace", true) }.toList().takeLast(12)}").isGreaterThanOrEqualTo(17.0)
             "health $before -> $after (lost $lost)"
         }
 
@@ -77,6 +79,7 @@ class SkillEngineCoin2E2eTest : E2eBase() {
             "clean"
         }
 
+        rcon("astera skill trace off")
         rcon("kill @e[type=minecraft:zombie,tag=coin2_dummy]")
     }
 }

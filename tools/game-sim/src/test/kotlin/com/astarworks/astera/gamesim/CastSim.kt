@@ -53,6 +53,8 @@ class CastSim(
     val victims: Map<UUID, Vec3>,
     val casterStacks: Map<String, Int> = emptyMap(),
     val blockAtZ: Double? = null,
+    /** A flat floor whose top face is at this y (feet level on a superflat world, as in the e2e); null = no floor. */
+    val floorY: Double? = null,
     /** Half the victim box width / its height; the default is a generous 1.6 x 1.8 box, real players are 0.6 wide. */
     val halfWidth: Double = 0.8,
     val boxHeight: Double = 1.8,
@@ -94,11 +96,22 @@ class CastSim(
     private val entities = object : ISkillEntityQuery {
         private fun box(feet: Vec3) = HitBox(Vec3(feet.x - halfWidth, 0.0, feet.z - halfWidth), Vec3(feet.x + halfWidth, boxHeight, feet.z + halfWidth))
         override fun nearby(point: Vec3, radius: Double, excluding: UUID?): List<HitCandidate> =
-            victims.filter { (id, feet) -> id != excluding && box(feet).center.distance(point) <= radius + 1.2 }
+            victims.filter { (id, feet) ->
+                // Paper's getNearbyLivingEntities: the cube of half-size radius around the point must overlap the entity box.
+                val b = box(feet)
+                id != excluding && b.min.x <= point.x + radius && b.max.x >= point.x - radius &&
+                    b.min.y <= point.y + radius && b.max.y >= point.y - radius &&
+                    b.min.z <= point.z + radius && b.max.z >= point.z - radius
+            }
                 .map { (id, feet) -> HitCandidate(id, feet, 0.0, box(feet)) }
         override fun rootOf(entity: UUID): EntityRoot? =
             if (entity == caster) EntityRoot(Vec3.ZERO, 0.0, 0.0, 1.62, 1.8) else victims[entity]?.let { EntityRoot(it, 0.0, 0.0, 1.62, 1.8) }
         override fun raycastBlock(from: Vec3, to: Vec3): BlockHit? {
+            val fy = floorY
+            if (fy != null && from.y > fy && to.y <= fy) {
+                val t = (from.y - fy) / (from.y - to.y)
+                return BlockHit(from + (to - from) * t, Vec3(0.0, 1.0, 0.0), "minecraft:grass_block")
+            }
             val z = blockAtZ ?: return null
             return if (from.z <= z && to.z >= z) BlockHit(Vec3(0.0, 1.0, z), Vec3(0.0, 0.0, -1.0), "minecraft:stone") else null
         }

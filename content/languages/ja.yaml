@@ -189,6 +189,7 @@ astera:
   skill.cast.ok: "<green>{player} に <white>{skill}</white> を発動しました。</green>"
   skill.cast.need-target: "<red>プレイヤーを指定してください: /astera skill cast <skill-id> <player></red>"
   skill.cast.no-player: "<red>プレイヤー <gold>{player}</gold> はオフラインか存在しません。</red>"
+  skill.trace.set: "<gray>スキルエンジンのトレース: <white>{state}</white></gray>"
   skill.preview.started: "<green><white>{skill}</white> をプレビュー中 (視点 {view}、速度 {speed}x)。0.5 秒後にダミーが発動します。</green>"
   skill.preview.again: "<green>直前のプレビューをもう一度再生します。</green>"
   skill.preview.slow-warning: "<yellow>プレビュー終了までこのバックエンドの全員の tick レートが遅くなります。</yellow>"

@@ -69,6 +69,7 @@ internal class SkillEnginePaperRuntime(
     private val notPorted = ConcurrentHashMap.newKeySet<String>()
     private var seenDiagnostics = 0
     private var activeEntities: PaperSkillEntityQuery? = null
+    private val trace = com.astarworks.astera.combat.adapter.paper.skillengine.SkillEngineTraceObserver()
 
     fun start(
         ctx: WiringContext,
@@ -161,6 +162,7 @@ internal class SkillEnginePaperRuntime(
             exprs = CelExprCompiler(),
             points = SkillEngineRegistries.pointSource(tables),
             skills = catalog::get,
+            observer = trace,
             isAlly = { caster, entity ->
                 if (caster == entity) {
                     true
@@ -216,6 +218,13 @@ internal class SkillEnginePaperRuntime(
         val result = kit.runner.start(request)
         if (result is com.astarworks.astera.core.domain.Result.Failure) {
             log.warn("skill engine v2 could not start {}: {}", id, result.error)
+        } else if (com.astarworks.astera.combat.application.trace.SkillEngineTrace.enabled && result is com.astarworks.astera.core.domain.Result.Success) {
+            val label = "$id#${result.value.value}"
+            trace.started(result.value, label, request.startTick)
+            log.info(
+                "skill trace {} start caster={} feet=({},{},{}) yaw={} pitch={} tick={}",
+                label, request.caster, loc.x, loc.y, loc.z, loc.yaw, loc.pitch, request.startTick,
+            )
         }
     }
 

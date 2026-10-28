@@ -7,6 +7,7 @@ import com.astarworks.astera.combat.application.preview.PreviewOptions
 import com.astarworks.astera.combat.application.preview.PreviewOptionsError
 import com.astarworks.astera.combat.application.preview.PreviewView
 import com.astarworks.astera.combat.application.preview.SkillPreviewService
+import com.astarworks.astera.combat.application.trace.SkillEngineTrace
 import com.astarworks.astera.core.adapter.api.server.IMcServer
 import com.astarworks.astera.core.application.command.ArgumentType
 import com.astarworks.astera.core.application.command.CommandContext
@@ -40,6 +41,7 @@ internal fun skillCommandSpec(
         subcommands = listOfNotNull(
             listSubcommand(caster),
             castSubcommand(caster, server),
+            traceSubcommand(),
             preview?.let { previewSubcommand(caster, it) },
         ),
     )
@@ -213,3 +215,17 @@ private fun runCast(ctx: CommandContext, caster: AdminSkillCaster, server: IMcSe
 }
 
 private val K_UNKNOWN = MessageKey("astera.admin.panel.skills.err.unknown")
+
+private val K_TRACE = MessageKey("astera.skill.trace.set")
+
+/** `/astera skill trace on|off`: the skill engine cast lifecycle log (SKL-08), for e2e and debugging. */
+private fun traceSubcommand(): CommandSpec.Literal = CommandSpec.Literal(
+    name = "trace",
+    subcommands = listOf(CommandSpec.Argument(name = "mode", type = ArgumentType.Choice(listOf("on", "off")))),
+    executor = { ctx ->
+        val on = ctx.required<String>("mode") == "on"
+        SkillEngineTrace.enabled = on
+        ctx.reply(K_TRACE, mapOf("state" to if (on) "on" else "off"))
+        CommandResult.Success
+    },
+).requirePermission(Permission("astera.skill.cast"))

@@ -181,6 +181,7 @@ astera:
   skill.cast.ok: "<green>Cast <white>{skill}</white> for {player}.</green>"
   skill.cast.need-target: "<red>Name a player: /astera skill cast <skill-id> <player></red>"
   skill.cast.no-player: "<red>Player <gold>{player}</gold> is offline or unknown.</red>"
+  skill.trace.set: "<gray>Skill engine trace is <white>{state}</white>.</gray>"
   skill.preview.started: "<green>Previewing <white>{skill}</white> (view {view}, speed {speed}x). A dummy casts it in 0.5s.</green>"
   skill.preview.again: "<green>Repeating the last preview.</green>"
   skill.preview.slow-warning: "<yellow>Tick rate is slowed for everyone on this backend until the preview ends.</yellow>"
