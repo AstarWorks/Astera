@@ -130,22 +130,6 @@ public class PaperItemMaterializer(
         stack.setData(DataComponentTypes.TOOLTIP_DISPLAY, TooltipDisplay.tooltipDisplay().hiddenComponents(hiddenComponents).build())
     }
 
-    /**
-     * The guarantee behind "an Astera stack never shows vanilla metadata lines": re-applies the `tooltip_display`
-     * to [stack] in place when it is an Astera stack (carries the `item_id` PDC) whose display is missing, whose
-     * hidden set is not complete (a stack given before the display existed, or one whose display was dropped by
-     * another mutation) or that hides the whole tooltip. Cheap and idempotent. Returns whether it rewrote.
-     */
-    public fun ensureTooltipHidden(stack: ItemStack?): Boolean {
-        if (stack == null || stack.isEmpty) return false
-        val pdc = stack.itemMeta?.persistentDataContainer ?: return false
-        if (pdc.keys.none { it.key == ITEM_ID_KEY }) return false
-        val display = stack.getData(DataComponentTypes.TOOLTIP_DISPLAY)
-        if (display != null && !display.hideTooltip() && display.hiddenComponents().containsAll(hiddenComponents)) return false
-        hideVanillaMetadata(stack)
-        return true
-    }
-
     private val hiddenComponents: Set<DataComponentType> by lazy {
         RegistryAccess.registryAccess().getRegistry(RegistryKey.DATA_COMPONENT_TYPE).stream()
             .filter { it !in VISIBLE_COMPONENTS }

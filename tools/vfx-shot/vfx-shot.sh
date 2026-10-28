@@ -3,7 +3,7 @@
 # Output: build/vfx-shot/<skill>/<view>/{frame_NNN.png,sheet.png,<skill>-<view>.gif,.mp4,meta.json}
 #
 #   make vfx-shot SKILL=couture-rapier-s2 [VIEW=caster|opponent|side|front|back|right|high|near|top|compare|all] [TICKS=60]
-#   orbit views (spectator Watcher): side = FOV/DISTANCE-framed off the caster's right (screen-right = forward), right = the opposite side, front = ahead beside
+#   orbit views (spectator Watcher): side = 6 blocks off the caster's right (screen-right = forward), right = the opposite side, front = ahead beside
 #   the target looking back, back = behind the caster, high = 45 deg down from the back-left, near = a bystander at eye
 #   height ~2.4 blocks away (orbit_cam)
 #   make vfx-shot SKILL=bastion-greatsword-s3 VIEW=compare CASE=zwei-s3     # camera from the skill-compare intent
@@ -267,7 +267,7 @@ KEEP="${SHOT_KEEP:-0}"               # 1 = keep the stack + parked clients for S
 [ "$CMD" = up ] && KEEP=1
 [ "$SOURCED" = 1 ] && KEEP=0         # anim-shot: its stack is per animation, never worth keeping
 
-CAMERA="${CAMERA:-case}"             # VIEW=compare: case = intent.json camera keys, side = fixed comparison camera, <name> = intent camera_presets.<name>
+CAMERA="${CAMERA:-case}"             # VIEW=compare: case = intent.json camera keys, side = fixed 6 blocks to the side, <name> = intent camera_presets.<name>
 PRE_TICKS=0                          # frames filmed before the cast (compare only; cast_tick_ms = PRE_TICKS * 50)
 ARENA_R=15                           # floor half-size around the arena centre
 ARENA_H=12                           # air cleared above the floor

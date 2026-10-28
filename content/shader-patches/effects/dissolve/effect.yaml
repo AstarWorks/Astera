@@ -1,7 +1,0 @@
-id: dissolve
-programs: [item]
-markers:
-  - {channel: vfx-tint, value: "66049"}
-constants:
-  PERIOD_SECONDS: 4.0
-  CELL_PIXELS: 3.0

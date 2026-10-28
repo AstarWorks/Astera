@@ -1,5 +1,0 @@
-id: skin-rig
-programs: [entity]
-markers:
-  - {channel: light-uv, value: "224:*"}
-constants: {}

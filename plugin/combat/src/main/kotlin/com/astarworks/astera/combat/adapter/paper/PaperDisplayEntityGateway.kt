@@ -197,10 +197,7 @@ public class PaperDisplayEntityGateway(
                     ?: Material.matchMaterial(kind.itemId.value.replace('-', '_'))
                     ?: return unsupported("item '${kind.itemId.value}' is not a vanilla material")
                 val stack = ItemStack(material)
-                val effectModelKey = spec.shaderEffect?.let { effect ->
-                    com.astarworks.astera.core.domain.effect.ShaderEffect.model(effect, requireNotNull(kind.itemModel))
-                } ?: kind.itemModel
-                effectModelKey?.let { key ->
+                kind.itemModel?.let { key ->
                     val model = NamespacedKey.fromString(key) ?: return unsupported("invalid item model '$key'")
                     stack.itemMeta = stack.itemMeta.apply { itemModel = model }
                 }
@@ -271,12 +268,6 @@ public class PaperDisplayEntityGateway(
         spec.brightness?.let { display.brightness = Display.Brightness(it, it) }
         if (spec.weaponRigShading) {
             display.brightness = Display.Brightness(WeaponRigShading.BLOCK_LIGHT, WeaponRigShading.SKY_LIGHT)
-        }
-        if (spec.shaderEffect != null) {
-            display.brightness = Display.Brightness(
-                com.astarworks.astera.core.domain.effect.ShaderEffect.BLOCK_LIGHT,
-                com.astarworks.astera.core.domain.effect.ShaderEffect.SKY_LIGHT,
-            )
         }
         spec.glowArgb?.let {
             display.isGlowing = true

@@ -1,9 +1,0 @@
-@@ hook: declarations
-layout(location = 12) flat in int asteraDissolve;
-@@ hook: surface
-    if (asteraDissolve == 1) {
-        float noise = fract(sin(dot(floor(texCoord0 * vec2(textureSize(Sampler0, 0)) / ${CELL_PIXELS}), vec2(12.9898, 78.233))) * 43758.5453);
-        float threshold = 0.5 - 0.5 * cos(GameTime * 1200.0 * 6.2831853 / ${PERIOD_SECONDS});
-        if (noise < threshold) discard;
-        color.rgb = mix(color.rgb, vec3(1.0, 0.55, 0.12), 1.0 - smoothstep(0.0, 0.12, noise - threshold));
-    }

@@ -4,9 +4,6 @@ import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.domain.world.WorldId
 import com.astarworks.astera.match.application.gamemode.annihilation.AnnihilationPillarTargets
-import com.astarworks.astera.core.domain.world.ToolKind
-import org.bukkit.Material
-import org.bukkit.Tag
 import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
@@ -20,7 +17,7 @@ import org.bukkit.plugin.java.JavaPlugin
  *
  * A pillar block never breaks the vanilla way: every break attempt on a
  * standing pillar block is cancelled and instead deals the match's
- * hand-break damage (x its matching-tool multiplier) to the pillar through [AnnihilationPillarTargets] (which
+ * `pillarBreakDamage` to the pillar through [AnnihilationPillarTargets] (which
  * applies the match / own-team / phase rules). Explosions never take a pillar
  * block out of the world either — the pillar's HP is the only thing that
  * removes it.
@@ -44,19 +41,11 @@ public class PaperPillarBlockListener(
             player = PlayerId(event.player.uniqueId),
             world = WorldId(block.world.name),
             blockPosition = Vec3(block.x.toDouble(), block.y.toDouble(), block.z.toDouble()),
-            heldTool = toolKindOf(event.player.inventory.itemInMainHand.type),
         )
         if (verdict is AnnihilationPillarTargets.BlockBreakVerdict.Pillar) {
             event.isCancelled = true
             event.isDropItems = false
         }
-    }
-
-    private fun toolKindOf(material: Material): ToolKind = when {
-        Tag.ITEMS_PICKAXES.isTagged(material) -> ToolKind.PICKAXE
-        Tag.ITEMS_SHOVELS.isTagged(material) -> ToolKind.SHOVEL
-        Tag.ITEMS_AXES.isTagged(material) -> ToolKind.AXE
-        else -> ToolKind.NONE
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)

@@ -13,18 +13,11 @@ public data class RackFrame(val slot: TrainingRackSlot, val itemId: ItemId)
  * item frame per [RackFrame]; the simulator records them.
  */
 public interface ITrainingRackGateway {
-    public companion object {
-        public const val KIND_WEAPON: String = "weapon"
-        public const val KIND_TOOL: String = "tool"
-    }
-
     /**
      * Makes exactly [frames] exist in [world] (missing ones are created, stray ones removed).
-     * Only frames of the same [kind] are created or removed, so the weapon rack and the tool rack
-     * (separate regions) do not sweep each other. Returns how many frames are in place, or `null`
-     * when the world is not loaded yet.
+     * Returns how many frames are in place, or `null` when the world is not loaded yet.
      */
-    public fun ensure(world: WorldId, frames: List<RackFrame>, kind: String = KIND_WEAPON): Int?
+    public fun ensure(world: WorldId, frames: List<RackFrame>): Int?
 
     /** Removes every frame this gateway created. */
     public fun removeAll()

@@ -38,15 +38,4 @@ public sealed class DamageApplicationError {
     public data class Immune(val targetId: PlayerId) : DamageApplicationError() {
         override val messageKey: MessageKey = MessageKey("astera.damage.target_immune")
     }
-
-    /**
-     * A structure (Annihilation pillar) refused the hit for a game rule: its own team, Build phase / tier not open,
-     * out of range. Kept apart from [Immune] (an i-frame window) so a refused skill hit says which rule refused it.
-     */
-    public data class StructureRejected(
-        val targetId: PlayerId,
-        val reason: com.astarworks.astera.core.application.port.outbound.IStructureTargets.Rejection,
-    ) : DamageApplicationError() {
-        override val messageKey: MessageKey = MessageKey("astera.damage.target_immune")
-    }
 }

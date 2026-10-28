@@ -1,0 +1,51 @@
+# Astera skin rig (ADR-0250): our own additions to Mojang's core/entity.vsh, applied at pack build time to the
+# vanilla shader taken from the client jar (never committed). Format: `@@ before|after|replace: <anchor>`,
+# anchor = one whole vanilla line (trimmed), must match exactly once or the pack build fails.
+# The body runs to the next `@@` line (or the end of file).
+@@ before: void main() {
+// Astera skin rig (ADR-0250). A player_head ItemDisplay with brightness override (block 14, sky = payload)
+// is one bone of an animated player body. The server writes payload = bone id (0 head, 1 body, 2 right arm,
+// 3 left arm, 4 right leg, 5 left leg) + 8 for a slim arm. -1 = an ordinary entity. entity.fsh remaps the
+// head-cube UVs of such a display onto that bone's part of the skin and fades it out near the camera (ADR-0285).
+// Block 15 is NOT the marker: every burning entity, blaze, magma cube, fireball and glow item frame is drawn with
+// block light 15 (EntityRenderer.getBlockLightLevel), whatever the sky, and would be misread as a rig. The marker is
+// block 14 (SkinRigMarker.BLOCK_LIGHT), which only world light sources produce, and only inside the source's own cell.
+// Ghost bones (ADR-0284, a translucent tinted afterimage) use the codes 6..9 and 12..15: rigPart = bone + 8 if slim + 16 if ghost.
+layout(location = 8) flat out int rigPart;
+layout(location = 9) out vec3 rigViewPos;
+layout(location = 10) out vec3 rigViewNormal;
+layout(location = 11) out vec4 rigLightColor;
+// The light marker alone is only a CANDIDATE (ADR-0298): world light produces block 14 + any sky next to every lantern, torch
+// and glowstone, so an ordinary player, zombie or villager standing there matches too. entity.fsh confirms a candidate by
+// the rig's mirrored winding (gl_FrontFacing against the vertex normal) and only then treats it as a rig; until then the entity
+// keeps its own light (lightMapColor) and the fullbright rig light waits in rigLightColor.
+
+@@ after: void main() {
+    rigPart = -1;
+    rigViewPos = vec3(0.0);
+    rigViewNormal = vec3(0.0);
+    rigLightColor = vec4(1.0);
+    if (UV2.x == 224 && (UV2.y & 15) == 0) {
+        int sky = UV2.y >> 4;
+        if (sky <= 5) {
+            rigPart = sky;
+        } else if (sky == 6 || sky == 7) {
+            rigPart = (sky - 4) + 16;
+        } else if (sky == 8 || sky == 9 || sky == 12 || sky == 13) {
+            rigPart = (sky - 8) + 16;
+        } else if (sky == 10 || sky == 11) {
+            rigPart = sky - 8 + 8;
+        } else {
+            rigPart = (sky - 12) + 8 + 16;
+        }
+        // Camera-space position, interpolated: the fragment shader fades every rig part (ghosts included) by its distance
+        // to the camera (ADR-0285). That replaces the old "drop a head bone enclosing the camera" rule.
+        rigViewPos = (ModelViewMat * vec4(Position, 1.0)).xyz;
+        rigViewNormal = (ModelViewMat * vec4(Normal, 0.0)).xyz;
+    }
+
+@@ replace: lightMapColor = sample_lightmap(Sampler2, UV2);
+    lightMapColor = sample_lightmap(Sampler2, UV2);
+    // Rig displays are lit as if beside a light-15 source, whatever payload their brightness carries (entity.fsh picks this
+    // once the candidate is confirmed as a rig).
+    rigLightColor = sample_lightmap(Sampler2, rigPart >= 0 ? ivec2(240, 240) : UV2);

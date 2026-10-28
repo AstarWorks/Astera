@@ -1,7 +1,0 @@
-id: emissive-pulse
-programs: [item]
-markers:
-  - {channel: vfx-tint, value: "66051"}
-constants:
-  PERIOD_SECONDS: 2.0
-  BOOST: 1.8

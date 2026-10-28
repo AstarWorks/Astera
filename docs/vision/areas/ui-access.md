@@ -18,7 +18,6 @@ Owner track `wp/ui-access`. Seed: audit 2026-10-26. Items: Board prefix `UI-`.
 - 初回ガイド (ADR-0242, UI-11, `content/tutorials/getting-started.yaml`): 「進め方」7 ステップ = menu → queue (対戦に参加) → match (対戦を最後まで) → result (直近の結果) → shop (GOLD で 1 品購入) → equip (ホットバーで手に持つ) → missions (デイリー/クエスト)。各ステップに why/how の 2〜4 行チャット説明・タイトル・ロビーサイドバーの「次のステップ」行・ホログラム補助 (プレイヤーごとの吹き出し + NPC 上の上下する矢印、完了/退出で消去)・完了時にタイトル+効果音。再接続は永続カーソルから再開。武器操作の説明は外した。ショップ/金庫は必須経路から外した (メニューから到達可)。
 - 試合中サイドバーのフッターは「自チーム / Stars / Norma Lv / 現在のゴール」。モード本体が長くてもフッターは切れない (`MatchSidebarModel`)。e2e `NormaPlaythroughE2eTest` が確認する。
 - 試合中のメニュー経路は `F` のみ。コマンドはショートカット。
-- 殲滅戦 (UI-A3, 2026-10-29): ナビコンパス (ロビーのメニューコンパスとは別アイテム、素材 COMPASS) をホットバー slot 9 (index 8, `HotbarLayout.MATCH_COMPASS_SLOT`) に開始時と全リスポーンで配布。ドロップ・移動・死亡ロストは不可 (`PaperMatchCompass`、スナップショットには入らない)。矢印+距離のアクションバーとホログラムガイドは手に持っている間だけ表示 (`ObjectiveKit(compassItem=true)`)。柱の浮遊ラベルは常時表示。他の siege モードは従来どおり常時表示 (`compassItem` を立てれば同じ挙動にできる)。
 - 武器ツールチップ (`ItemTooltip`, 唯一の組み立て箇所): 生成武器の生の `left_click: 技名` 行は「Left-click: 技名」(ja: 左クリック) のラベル付き灰色行に整形して表示する。ショップ/金庫/インベントリ共通。e2e `ShopPurchaseE2eTest` が生トリガー ID の混入を見る。
 
 ## 理想形

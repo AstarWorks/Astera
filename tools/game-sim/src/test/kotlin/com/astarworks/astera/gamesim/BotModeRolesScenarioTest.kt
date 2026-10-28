@@ -302,14 +302,6 @@ class BotModeRolesScenarioTest {
             assertThat(first.kind).isEqualTo("pillar")
             assertThat(first.strike).isEqualTo(Triple(bluePillar.x, bluePillar.y, bluePillar.z))
 
-            // BOT-A5: an attacker only leaves its pillar trip for an enemy inside the bounded engage radius, so one standing
-            // 40 blocks away (the brain compares the distance with this) never aborts it; it digs with the pillar's tool class.
-            assertThat(first.engage).isEqualTo(ModePlanner.ATTACK_ENGAGE)
-            assertThat(first.engage).isLessThan(40.0)
-            assertThat(first.affinity).isEqualTo(bluePillar.toolClass())
-            val attacker = make("r1").also { it.step(0, spawn.first, spawn.third) }
-            assertThat(attacker.engage).isEqualTo(ModePlanner.ATTACK_ENGAGE)
-
             // Yellow lost its tier 1: it is the weaker team now, and its tier 2 is next.
             facts.gone += "yellow" to 1
             val second = checkNotNull(make("r1").step(0, spawn.first, spawn.third))

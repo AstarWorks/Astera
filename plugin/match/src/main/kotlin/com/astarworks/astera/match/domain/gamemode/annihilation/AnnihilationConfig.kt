@@ -30,7 +30,6 @@ import com.astarworks.astera.core.domain.nexus.NexusPillarTier
  * @property pillarCount Number of pillars per team. Always 3 in Phase 1 PoC;
  *   exposed as a constructor parameter so a future YAML can opt into 2- or
  *   4-pillar variants without a breaking change.
- * @property pillarDamage How hand breaks, tool skills and weapons damage a pillar, and the distance falloff.
  * @property pillarHp HP of a Tier 1 pillar, and of every tier that has no
  *   [pillarHpTier2] / [pillarHpTier3] of its own. Default 500.
  * @property pillarHpTier2 HP of a Tier 2 pillar; null = [pillarHp].
@@ -56,8 +55,8 @@ import com.astarworks.astera.core.domain.nexus.NexusPillarTier
 public data class AnnihilationConfig(
     public val pillarCount: Int = 3,
     public val pillarHp: Int = 500,
-    /** Pillar damage sources, multipliers and distance falloff (the pillar block itself never breaks). */
-    public val pillarDamage: PillarDamageTuning = PillarDamageTuning(),
+    /** Damage one enemy block break deals to a pillar (the block itself never breaks). */
+    public val pillarBreakDamage: Int = 25,
     public val buildPhaseTicks: Long = 6000L,
     public val engagePhaseTicks: Long = 12000L,
     public val tier3PhaseTicks: Long = 6000L,
@@ -72,6 +71,7 @@ public data class AnnihilationConfig(
         require(pillarCount == 3) {
             "AnnihilationConfig.pillarCount: only 3-pillar variant supported in Phase 1 PoC (got=$pillarCount)"
         }
+        require(pillarBreakDamage > 0) { "AnnihilationConfig.pillarBreakDamage must be > 0 (got=$pillarBreakDamage)" }
         require(pillarHp > 0) { "AnnihilationConfig.pillarHp must be > 0 (got=$pillarHp)" }
         require((pillarHpTier2 ?: 1) > 0) { "AnnihilationConfig.pillarHpTier2 must be > 0 (got=$pillarHpTier2)" }
         require((pillarHpTier3 ?: 1) > 0) { "AnnihilationConfig.pillarHpTier3 must be > 0 (got=$pillarHpTier3)" }

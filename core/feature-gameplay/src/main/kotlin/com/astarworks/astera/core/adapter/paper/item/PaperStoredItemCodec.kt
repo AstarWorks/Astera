@@ -64,10 +64,7 @@ public class PaperStoredItemCodec(
     /** Rebuilds the stack for [stored], rendered for [viewer]'s locale; `null` (after a WARN) when it cannot be rebuilt. */
     public fun decode(stored: Stored, viewer: PlayerId?, where: String): ItemStack? {
         val stack = if (stored.vanilla) decodeVanilla(stored, where) else decodeAstera(stored, viewer, where)
-        return stack?.also {
-            applyState(it, stored.state)
-            materializer()?.ensureTooltipHidden(it)
-        }
+        return stack?.also { applyState(it, stored.state) }
     }
 
     private fun decodeAstera(stored: Stored, viewer: PlayerId?, where: String): ItemStack? {

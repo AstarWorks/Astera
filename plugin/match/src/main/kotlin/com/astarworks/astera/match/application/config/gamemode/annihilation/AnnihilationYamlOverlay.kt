@@ -1,7 +1,6 @@
 package com.astarworks.astera.match.application.config.gamemode.annihilation
 
 import com.astarworks.astera.match.domain.gamemode.annihilation.AnnihilationConfig
-import com.astarworks.astera.match.domain.gamemode.annihilation.PillarDamageTuning
 
 /**
  * Parses the free-form `default_config: Map<String, String>` from
@@ -22,13 +21,7 @@ import com.astarworks.astera.match.domain.gamemode.annihilation.PillarDamageTuni
  *   pillar_hp: 500                           # int, Tier 1 (and any tier without its own key)
  *   pillar_hp_tier2: 500                     # int, optional; default = pillar_hp
  *   pillar_hp_tier3: 500                     # int, optional; default = pillar_hp
- *   pillar_break_damage: 8                   # int, base damage of one enemy block break by hand on a pillar
- *   pillar_hand_match_mult: 2.0              # double, hand break with the pillar's affinity tool in hand
- *   pillar_tool_skill_match_mult: 3.0        # double, tool skill (break_area) of the affinity tool class
- *   pillar_tool_skill_other_mult: 1.0        # double, tool skill of another tool class
- *   pillar_weapon_mult: 0.18                 # double, weapon melee / skill / projectile
- *   pillar_falloff_near: 8.0                 # double, blocks: full damage up to here
- *   pillar_falloff_far: 32.0                 # double, blocks: zero damage from here (linear in between)
+ *   pillar_break_damage: 25                  # int, damage of one enemy block break on a pillar
  *   build_phase_ticks: 6000                  # long (= 5 min @ 20 tps)
  *   engage_phase_ticks: 12000                # long
  *   tier3_phase_ticks: 6000                  # long
@@ -65,21 +58,7 @@ public object AnnihilationYamlOverlay {
         val pillarHp = parseInt(raw, "pillar_hp", defaults.pillarHp, warnings)
         val hpTier2 = parseInt(raw, "pillar_hp_tier2", defaults.pillarHpTier2 ?: pillarHp, warnings)
         val hpTier3 = parseInt(raw, "pillar_hp_tier3", defaults.pillarHpTier3 ?: pillarHp, warnings)
-        val d = defaults.pillarDamage
-        val damage = try {
-            PillarDamageTuning(
-                handBreakDamage = parseInt(raw, "pillar_break_damage", d.handBreakDamage, warnings),
-                handMatchMult = parseDouble(raw, "pillar_hand_match_mult", d.handMatchMult, warnings),
-                toolSkillMatchMult = parseDouble(raw, "pillar_tool_skill_match_mult", d.toolSkillMatchMult, warnings),
-                toolSkillOtherMult = parseDouble(raw, "pillar_tool_skill_other_mult", d.toolSkillOtherMult, warnings),
-                weaponMult = parseDouble(raw, "pillar_weapon_mult", d.weaponMult, warnings),
-                falloffNear = parseDouble(raw, "pillar_falloff_near", d.falloffNear, warnings),
-                falloffFar = parseDouble(raw, "pillar_falloff_far", d.falloffFar, warnings),
-            )
-        } catch (e: IllegalArgumentException) {
-            warnings += "annihilation.yaml: pillar damage tunables rejected (${e.message}); using defaults."
-            d
-        }
+        val breakDamage = parseInt(raw, "pillar_break_damage", defaults.pillarBreakDamage, warnings)
         val buildTicks = parseLong(raw, "build_phase_ticks", defaults.buildPhaseTicks, warnings)
         val engageTicks = parseLong(raw, "engage_phase_ticks", defaults.engagePhaseTicks, warnings)
         val tier3Ticks = parseLong(raw, "tier3_phase_ticks", defaults.tier3PhaseTicks, warnings)
@@ -98,7 +77,7 @@ public object AnnihilationYamlOverlay {
                 pillarHp = pillarHp,
                 pillarHpTier2 = hpTier2,
                 pillarHpTier3 = hpTier3,
-                pillarDamage = damage,
+                pillarBreakDamage = breakDamage,
                 buildPhaseTicks = buildTicks,
                 engagePhaseTicks = engageTicks,
                 tier3PhaseTicks = tier3Ticks,

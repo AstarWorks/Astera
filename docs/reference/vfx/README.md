@@ -10,8 +10,6 @@
 
 調査日 2026-10-23。調査メモの原本は調査セッションの scratchpad にあり、リポジトリには入れていない。
 
-CPU sprite の YAML 制作・ノード一覧・プレビュー手順は [sprite graph](../../contributing/vfx-team/sprite-graph.md) (ADR-0304)。
-
 ## 読む順 (skill を作る / 直す前)
 
 1. [`failure-patterns.md`](failure-patterns.md) — 先に「やりがちな失敗」を知る。レビューのチェックリストとして使う。
@@ -56,6 +54,3 @@ Astera の対応状況は 2026-10-23 時点のコード (`MechanicYaml.kt`, `Vfx
 - 迫力を出す最短: 音 (層とピッチ弧) → 命中 tick のヒットストップ+フラッシュ → 溜めを見せる (telegraph) → 余韻。
 - 「薄い・軽い」と言われたら: [`next-improvements.md`](next-improvements.md) の 1-4 と [`failure-patterns.md`](failure-patterns.md) の G-11, G-12 を見る。
 10. [`neac-shader-techniques.md`](neac-shader-techniques.md) — NeAc_ / EMagipi 由来のシェーダー系技法 NA-1〜10 (魚眼床・スキャン帯・床の暗転ほか) と、(a)/(b)/(c) 分類、26.3 の core shader で届く範囲。原理のみ。
-- [`スプライトギャラリー`](../../../tools/sprite-gallery/README.md) — `make sprite-gallery-up` で LAN 上の全スプライトをアニメーション比較 (`:8098`)。
-
-- [Shader effects authoring](../../contributing/vfx-team/shader-effects.md) — add an isolated effect in 3 steps; markers, hooks and playable demos (ADR-0305).

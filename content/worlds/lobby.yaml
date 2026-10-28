@@ -29,7 +29,7 @@ spawn:
 
 # Bump to repaste the build (the old bounds are cleared first). Unchanged => the
 # marker (plugins/Astera-Core/lobby-world.marker) makes boot skip the paste.
-marker_version: 7                 # 7: tool test bay (MAP-A6); 6: guild hall + weapon test range bays (MAP-07); 5: hub buildings + practice ground (MAP-07); 4: Play gate arch in front of the spawn tile (ADR-0248)
+marker_version: 6                 # 6: guild hall + weapon test range bays (MAP-07); 5: hub buildings + practice ground (MAP-07); 4: Play gate arch in front of the spawn tile (ADR-0248)
 
 rules:
   time_of_day: 6000        # noon

@@ -1,7 +1,0 @@
-@@ hook: declarations
-layout(location = 13) flat out int asteraFlow;
-@@ hook: shade
-    asteraFlow = int(UV2.x == ${BLOCK_UV} && UV2.y == ${SKY_UV} && all(lessThan(abs(Color.rgb - vec3(${MARKER_R}, ${MARKER_G}, ${MARKER_B}) / 255.0), vec3(0.5 / 255.0))));
-    if (asteraFlow == 1) vertexColor = vec4(1.0, 1.0, 1.0, Color.a);
-@@ hook: light
-    if (asteraFlow == 1) lightMapColor = vec4(1.0);

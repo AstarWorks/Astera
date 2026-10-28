@@ -1,6 +1,5 @@
 package com.astarworks.astera.gamesim
 
-import com.astarworks.astera.bots.LoadoutClassifier
 import com.astarworks.astera.bots.Weapon
 import com.astarworks.astera.bots.WeaponKind
 import com.astarworks.astera.bots.WeaponPolicy
@@ -112,39 +111,6 @@ class BotTwoWeaponsScenarioTest {
             assertThat(fighter.log.map { it.second }.toSet()).containsExactlyInAnyOrder("rifle", "frost-staff")
             assertThat(eventsOf<ResourceReloaded>()).isNotEmpty()
             assertThat(eventsOf<DamageDealt>().count { it.attacker == bot.id }).isGreaterThan(0)
-        }
-    }
-
-    /** The tooltip lines the server shows (`astera.item.tooltip.trigger.*`, joined like the client lore) decide the weapon kind. */
-    @Test
-    fun `a bot classifies a rifle and a frost staff as ranged from their tooltips, shoots them at range and never selects a tool or the compass`() {
-        fun lore(vararg triggers: String) = "Uncommon · Lv.2 | " + triggers.joinToString(" | ")
-        val rifle = LoadoutClassifier.classify("Rifle", lore("[RMB] Rifle Shot", "[Shift+RMB] Backstep", "[Shift+Q] Reload"))
-        val staff = LoadoutClassifier.classify("Frost Staff", lore("[RMB] Frost Bolt", "[Shift+RMB] Frost Nova"))
-        val sword = LoadoutClassifier.classify("Knight's Sword", lore("[LMB] Slash", "[Shift+RMB] Guard"))
-        val pickaxe = LoadoutClassifier.classify("Diamond Pickaxe", lore("[RMB] Bore", "[Shift+RMB] Shatter"))
-        val shovelJa = LoadoutClassifier.classify("ダイヤのショベル", lore("[RMB] 掘削"))
-        val compass = LoadoutClassifier.classify("Navigation Compass", "")
-        assertThat(rifle).isEqualTo(LoadoutClassifier.Item(LoadoutClassifier.Kind.RANGED, magazine = true))
-        assertThat(staff).isEqualTo(LoadoutClassifier.Item(LoadoutClassifier.Kind.RANGED))
-        assertThat(sword.kind).isEqualTo(LoadoutClassifier.Kind.MELEE)
-        assertThat(pickaxe).isEqualTo(LoadoutClassifier.Item(LoadoutClassifier.Kind.TOOL, affinity = LoadoutClassifier.Affinity.PICKAXE))
-        assertThat(shovelJa.affinity).isEqualTo(LoadoutClassifier.Affinity.SHOVEL)
-        assertThat(compass.kind).isEqualTo(LoadoutClassifier.Kind.OTHER)
-
-        // The loadout the brain builds from them drives the same fight: the rifle shoots at range, the sword only up close.
-        scenario("bot-two-weapons-classified") {
-            val bot = player("bot", team = "red")
-            val victim = player("victim", at = Vec3(0.0, groundY, 12.0), team = "blue")
-            fatten(victim)
-            bot.holds("rifle")
-            bot.holds("knight-sword")
-            fun weapon(slot: Int, c: LoadoutClassifier.Item) =
-                Weapon(slot, if (c.kind == LoadoutClassifier.Kind.RANGED) WeaponKind.RANGED else WeaponKind.MELEE, c.magazine)
-            val fighter = Fighter(this, bot, victim, listOf("knight-sword", "rifle"), listOf(weapon(0, sword), weapon(1, rifle)))
-            fighter.phase(12.0, 120)
-            assertThat(eventsOf<DamageDealt>().count { it.attacker == bot.id }).`as`("rifle hits at range").isGreaterThan(0)
-            assertThat(fighter.log.map { it.second }.toSet()).containsExactly("rifle")
         }
     }
 

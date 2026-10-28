@@ -106,39 +106,25 @@ public class PaperSkillEntityQuery(
         val dist = delta.length()
         if (dist < 1.0e-9) return null
         val dir = delta * (1.0 / dist)
-        var start = from
-        var remaining = dist
-        // A structure block (an Annihilation pillar) is a hit target, not a wall: the engine only counts a target that is nearer
-        // than the wall, and the pillar's own face is that wall. Trace on past it so the hit lands on the pillar as an entity hit.
-        repeat(MAX_STRUCTURE_SKIPS + 1) {
-            val hit = world.rayTraceBlocks(
-                Location(world, start.x, start.y, start.z),
-                Vector(dir.x, dir.y, dir.z),
-                remaining,
-                FluidCollisionMode.NEVER,
-                true,
-            ) ?: return null
-            val block = hit.hitBlock ?: return null
-            val point = Vec3(hit.hitPosition.x, hit.hitPosition.y, hit.hitPosition.z)
-            val isStructure = structures()
-                ?.targetAtBlock(WorldId(world.name), Vec3(block.x.toDouble(), block.y.toDouble(), block.z.toDouble())) != null
-            if (!isStructure) {
-                val face = hit.hitBlockFace?.direction ?: Vector(0.0, 0.0, 0.0)
-                return BlockHit(point = point, normal = Vec3(face.x, face.y, face.z), blockKey = block.type.key.toString())
-            }
-            val step = start.distance(point) + STRUCTURE_SKIP
-            if (step >= remaining) return null
-            start = point + dir * STRUCTURE_SKIP
-            remaining -= step
-        }
-        return null
+        val hit = world.rayTraceBlocks(
+            Location(world, from.x, from.y, from.z),
+            Vector(dir.x, dir.y, dir.z),
+            dist,
+            FluidCollisionMode.NEVER,
+            true,
+        ) ?: return null
+        val block = hit.hitBlock ?: return null
+        val face = hit.hitBlockFace?.direction ?: Vector(0.0, 0.0, 0.0)
+        return BlockHit(
+            point = Vec3(hit.hitPosition.x, hit.hitPosition.y, hit.hitPosition.z),
+            normal = Vec3(face.x, face.y, face.z),
+            blockKey = block.type.key.toString(),
+        )
     }
 
     private companion object {
         /** The structure query measures to the block centre; the box reaches half a block (plus the diagonal) further. */
         const val STRUCTURE_REACH: Double = 1.0
-        const val STRUCTURE_SKIP: Double = 0.05
-        const val MAX_STRUCTURE_SKIPS: Int = 4
     }
 
     private fun hittable(e: LivingEntity): Boolean {

@@ -115,48 +115,39 @@ pillars:
 - team: red
   tier: 1
   position: {x: -9.0, y: 65.0, z: -37.4}
-  block: minecraft:stripped_dark_oak_wood
-  affinity: axe
+  block: minecraft:obsidian
 - team: red
   tier: 2
   position: {x: 9.0, y: 65.0, z: -37.4}
-  block: minecraft:coarse_dirt
-  affinity: shovel
+  block: minecraft:crying_obsidian
 - team: red
   tier: 3
   position: {x: 0.0, y: 65.0, z: -48.4}
-  block: minecraft:polished_deepslate
-  affinity: pickaxe
+  block: minecraft:beacon
 - team: blue
   tier: 1
   position: {x: 37.0, y: 65.0, z: 11.2}
-  block: minecraft:stripped_dark_oak_wood
-  affinity: axe
+  block: minecraft:obsidian
 - team: blue
   tier: 2
   position: {x: 28.0, y: 65.0, z: 26.2}
-  block: minecraft:coarse_dirt
-  affinity: shovel
+  block: minecraft:crying_obsidian
 - team: blue
   tier: 3
   position: {x: 42.0, y: 65.0, z: 24.2}
-  block: minecraft:polished_deepslate
-  affinity: pickaxe
+  block: minecraft:beacon
 - team: yellow
   tier: 1
   position: {x: -28.0, y: 65.0, z: 26.2}
-  block: minecraft:stripped_dark_oak_wood
-  affinity: axe
+  block: minecraft:obsidian
 - team: yellow
   tier: 2
   position: {x: -37.0, y: 65.0, z: 11.2}
-  block: minecraft:coarse_dirt
-  affinity: shovel
+  block: minecraft:crying_obsidian
 - team: yellow
   tier: 3
   position: {x: -42.0, y: 65.0, z: 24.2}
-  block: minecraft:polished_deepslate
-  affinity: pickaxe
+  block: minecraft:beacon
 spawn_points:
 - team: red
   position: {x: -2.5, y: 65.0, z: -34.5}

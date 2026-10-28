@@ -191,8 +191,8 @@ class StageContentsTest {
             id: pillar-arena
             display_name_key: astera.stage.pillar-arena.name
             pillars:
-              - { team: red, tier: 1, position: { x: 1.0, y: -60.0, z: 2.0 }, block: "minecraft:obsidian", affinity: pickaxe }
-              - { team: red, tier: 3, position: { x: 5.0, y: -60.0, z: 2.0 }, block: "minecraft:beacon", affinity: pickaxe, hp: 800 }
+              - { team: red, tier: 1, position: { x: 1.0, y: -60.0, z: 2.0 }, block: "minecraft:obsidian" }
+              - { team: red, tier: 3, position: { x: 5.0, y: -60.0, z: 2.0 }, block: "minecraft:beacon", hp: 800 }
             """.trimIndent(),
         )
         val contents = StageContents()
@@ -203,7 +203,6 @@ class StageContentsTest {
         assertThat(pillars[0].team.value).isEqualTo("red")
         assertThat(pillars[0].position).isEqualTo(Vec3(1.0, -60.0, 2.0))
         assertThat(pillars[0].block.key).isEqualTo("minecraft:obsidian")
-        assertThat(pillars[0].affinity).isEqualTo(com.astarworks.astera.core.domain.world.ToolKind.PICKAXE)
         assertThat(pillars[0].centre).isEqualTo(Vec3(1.5, -59.5, 2.5))
         assertThat(pillars[0].hp).isNull()
         assertThat(pillars[1].hp).isEqualTo(800)
@@ -217,7 +216,7 @@ class StageContentsTest {
             id: bad-tier
             display_name_key: astera.stage.bad-tier.name
             pillars:
-              - { team: red, tier: 4, position: { x: 0.0, y: 0.0, z: 0.0 }, block: "minecraft:obsidian", affinity: pickaxe }
+              - { team: red, tier: 4, position: { x: 0.0, y: 0.0, z: 0.0 }, block: "minecraft:obsidian" }
             """.trimIndent(),
         )
         Files.writeString(
@@ -226,8 +225,8 @@ class StageContentsTest {
             id: dup
             display_name_key: astera.stage.dup.name
             pillars:
-              - { team: red, tier: 1, position: { x: 0.0, y: 0.0, z: 0.0 }, block: "minecraft:obsidian", affinity: pickaxe }
-              - { team: red, tier: 1, position: { x: 1.0, y: 0.0, z: 0.0 }, block: "minecraft:obsidian", affinity: pickaxe }
+              - { team: red, tier: 1, position: { x: 0.0, y: 0.0, z: 0.0 }, block: "minecraft:obsidian" }
+              - { team: red, tier: 1, position: { x: 1.0, y: 0.0, z: 0.0 }, block: "minecraft:obsidian" }
             """.trimIndent(),
         )
         val report = StageContents().bootstrap(dir)

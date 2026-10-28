@@ -9,7 +9,7 @@
  *
  * Deterministic: icons are drawn from code, or converted from a committed raster listed in
  * content/textures/sources/items.yaml (ADR-0238; any tool may make the raster, the build never calls one).
- * Custom particle sprites (ADR-0239) come from content/textures/sources/sprites.yaml: YAML node graphs, committed sheet rows
+ * Custom particle sprites (ADR-0239) come from content/textures/sources/sprites.yaml: code painters, AI sheet rows
  * or hand-drawn strips become content/textures/generated/sprites/<id>.png (frame strip), content/fonts/vfx/<id>.json
  * (bitmap font, frame i = U+E000 + i), content/sprites/<id>.yaml and the contact sheet docs/assets/sprite-preview.png.
  * Retextured vanilla particle types (ADR-0274) come from content/particle-skins/<type>.yaml: smooth painters become
@@ -69,5 +69,4 @@ tasks.named("check") { dependsOn(checkItemArt) }
 tasks.test {
     systemProperty("java.awt.headless", "true")
     systemProperty("astera.contentDir", "$rootDir/content")
-    systemProperty("astera.spriteExamplesDir", "$projectDir/examples")
 }

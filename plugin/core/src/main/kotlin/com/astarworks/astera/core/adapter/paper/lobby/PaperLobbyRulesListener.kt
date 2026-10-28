@@ -1,8 +1,6 @@
 package com.astarworks.astera.core.adapter.paper.lobby
 
 import com.astarworks.astera.core.application.config.LobbyRulesYaml
-import com.astarworks.astera.core.application.port.outbound.lobby.ILobbyToolBay
-import com.astarworks.astera.core.domain.world.WorldId
 import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.World
@@ -36,8 +34,6 @@ internal class PaperLobbyRulesListener(
     private val worldName: String,
     private val rules: LobbyRulesYaml,
     private val plugin: org.bukkit.plugin.Plugin,
-    private val toolBay: () -> ILobbyToolBay? = { null },
-    private val onToolBayReset: (Player, Int) -> Unit = { _, _ -> },
     private val spawn: () -> Location?,
 ) : Listener {
 
@@ -62,18 +58,7 @@ internal class PaperLobbyRulesListener(
 
     @EventHandler(priority = EventPriority.LOWEST)
     fun onBreak(event: BlockBreakEvent) {
-        val block = event.block
-        if (!inLobby(block.location)) return
-        // The tool test bay (MAP-A6) is the one place hand-mining works: journaled for the restore, no drops.
-        val bay = toolBay()
-        val id = WorldId(block.world.name)
-        if (bay != null && bay.contains(id, block.x, block.y, block.z)) {
-            bay.remember(id, block.x, block.y, block.z)
-            event.isDropItems = false
-            event.expToDrop = 0
-            return
-        }
-        deny(event, event.player)
+        if (inLobby(event.block.location)) deny(event, event.player)
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
@@ -110,13 +95,6 @@ internal class PaperLobbyRulesListener(
         val block = event.clickedBlock ?: return
         if (!inLobby(block.location)) return
         if (event.action == Action.PHYSICAL && block.type == Material.FARMLAND) event.isCancelled = true
-        val bay = toolBay() ?: return
-        val button = bay.plan.resetButton
-        if (event.action == Action.RIGHT_CLICK_BLOCK && event.hand == org.bukkit.inventory.EquipmentSlot.HAND &&
-            block.x == button.x && block.y == button.y && block.z == button.z
-        ) {
-            onToolBayReset(event.player, bay.reset())
-        }
     }
 
     @EventHandler(priority = EventPriority.LOWEST)

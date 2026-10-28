@@ -63,7 +63,7 @@ class StageObjectives private constructor(
             starPoints,
             stage.layout?.let(::ArenaRouteGraph),
             stage.pillars.map {
-                ModePlanner.PillarSite(it.team.value, it.tier.ordinalValue, Math.floor(it.position.x).toInt(), Math.floor(it.position.y).toInt(), Math.floor(it.position.z).toInt(), it.affinity.name.lowercase())
+                ModePlanner.PillarSite(it.team.value, it.tier.ordinalValue, Math.floor(it.position.x).toInt(), Math.floor(it.position.y).toInt(), Math.floor(it.position.z).toInt())
             },
         )
 

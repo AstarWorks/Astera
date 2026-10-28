@@ -11,8 +11,8 @@ import java.util.zip.ZipFile
  * purple-black missing texture / missing model. Checked:
  *
  *  - `assets/<ns>/items/(name).json`: every `model` it names exists as a model;
- *  - `assets/<ns>/models/(any depth)`: `parent` exists; every non-`#` texture exists and, for the pack's own textures, is covered by an
- *    atlas directory or single source (the PNG would otherwise exist but never be stitched); every `#name` an element face
+ *  - `assets/<ns>/models/(any depth)`: `parent` exists; every non-`#` texture exists and, for the pack's own textures, lies in a
+ *    directory some atlas source covers (the PNG would otherwise exist but never be stitched); every `#name` an element face
  *    uses is bound along the parent chain;
  *  - `assets/<ns>/font/(any depth)`: bitmap `file` and `reference` targets;
  *  - atlas `directory` sources have at least one PNG, `single` sources exist;
@@ -49,7 +49,6 @@ public object PackReferenceCheck {
         }
 
         val atlasDirs = sortedSetOf<String>()
-        val atlasSingles = sortedSetOf<String>()
         for (atlas in pack.keys.filter { it.startsWith("assets/") && "/atlases/" in it && it.endsWith(".json") }) {
             val doc = json(atlas) ?: continue
             val ns = atlas.removePrefix("assets/").substringBefore('/')
@@ -66,14 +65,12 @@ public object PackReferenceCheck {
                     "single" -> {
                         val (rns, rp) = split(source.path("resource").asText())
                         exists(rns, "textures", rp, ".png", atlas, "single source")
-                        val (spriteNs, spritePath) = split(source.path("sprite").asText(source.path("resource").asText()))
-                        if (spriteNs == "astera") atlasSingles += spritePath
                     }
                 }
             }
         }
 
-        fun covered(texturePath: String): Boolean = texturePath in atlasSingles || atlasDirs.any { texturePath.startsWith("$it/") }
+        fun covered(texturePath: String): Boolean = atlasDirs.any { texturePath.startsWith("$it/") }
 
         // ---- model parent chain -------------------------------------------------------------------------------------
         fun bound(modelKey: String, depth: Int = 0): Set<String> {
@@ -117,7 +114,7 @@ public object PackReferenceCheck {
                         val (tns, tp) = split(ref)
                         exists(tns, "textures", tp, ".png", path, "texture '$slot'")
                         if (tns == "astera" && "assets/astera/textures/$tp.png" in pack && !covered(tp)) {
-                            problems += "$path: texture '$slot' astera:$tp is in no atlas source (renders missing)"
+                            problems += "$path: texture '$slot' astera:$tp is in no atlas source directory (renders missing)"
                         }
                     }
                     val have = bound(path)

@@ -68,12 +68,6 @@ patch game-modes/carry-tnt.yaml 's/^(  time_limit_seconds:).*/\1 "420"/' '^  tim
 patch game-modes/annihilation.yaml 's/^(  pillar_hp:).*/\1 "150"/' '^  pillar_hp:'
 patch game-modes/annihilation.yaml 's/^(  pillar_hp_tier2:).*/\1 "150"/' '^  pillar_hp_tier2:'
 patch game-modes/annihilation.yaml 's/^(  pillar_hp_tier3:).*/\1 "150"/' '^  pillar_hp_tier3:'
-# MODE-A1/A2: the e2e bots shoot pillars from anywhere with a plain weapon, so keep the pre-A1 flat damage: weapons count full, no distance falloff,
-# and a bare-hand break lands the old 25.
-patch game-modes/annihilation.yaml 's/^(  pillar_break_damage:).*/\1 "25"/' '^  pillar_break_damage:'
-patch game-modes/annihilation.yaml 's/^(  pillar_weapon_mult:).*/\1 "1.0"/' '^  pillar_weapon_mult:'
-patch game-modes/annihilation.yaml 's/^(  pillar_falloff_near:).*/\1 "200.0"/' '^  pillar_falloff_near:'
-patch game-modes/annihilation.yaml 's/^(  pillar_falloff_far:).*/\1 "400.0"/' '^  pillar_falloff_far:'
 patch game-modes/annihilation.yaml 's/^(  build_phase_ticks:).*/\1 "100"/' '^  build_phase_ticks:'
 patch game-modes/annihilation.yaml 's/^(  engage_phase_ticks:).*/\1 "200"/' '^  engage_phase_ticks:'
 patch game-modes/annihilation.yaml 's/^(  sudden_death_ticks:).*/\1 "600"/' '^  sudden_death_ticks:'

@@ -44,15 +44,13 @@ internal class PaperTrainingRackGateway(
 
     private val server: Server = plugin.server
     private val itemKey: NamespacedKey = NamespacedKey(plugin, "rack_item")
-    private val kindKey: NamespacedKey = NamespacedKey(plugin, "rack_kind")
 
-    override fun ensure(world: WorldId, frames: List<RackFrame>, kind: String): Int? {
+    override fun ensure(world: WorldId, frames: List<RackFrame>): Int? {
         val bukkitWorld = server.getWorld(world.value) ?: return null
         val wanted = frames.associateBy { Triple(it.slot.x, it.slot.y, it.slot.z) }
         val seen = HashSet<Triple<Int, Int, Int>>()
         for (frame in bukkitWorld.entities.filterIsInstance<ItemFrame>()) {
             if (TAG !in frame.scoreboardTags) continue
-            if ((frame.persistentDataContainer.get(kindKey, PersistentDataType.STRING) ?: ITrainingRackGateway.KIND_WEAPON) != kind) continue
             val cell = Triple(frame.location.blockX, frame.location.blockY, frame.location.blockZ)
             val want = wanted[cell]
             val shown = frame.persistentDataContainer.get(itemKey, PersistentDataType.STRING)
@@ -73,7 +71,6 @@ internal class PaperTrainingRackGateway(
                 f.setItem(icon, false)
                 f.addScoreboardTag(TAG)
                 f.persistentDataContainer.set(itemKey, PersistentDataType.STRING, frame.itemId.value)
-                f.persistentDataContainer.set(kindKey, PersistentDataType.STRING, kind)
             }
             present++
         }

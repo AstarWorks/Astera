@@ -1,7 +1,0 @@
-id: uv-flow
-programs: [item]
-markers:
-  - {channel: vfx-tint, value: "66050"}
-constants:
-  SPEED: 0.6
-  BAND_PIXELS: 12.0

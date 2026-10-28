@@ -11,10 +11,6 @@ import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.skillengine.model.EngineConfig
 import java.nio.file.Files
 import java.nio.file.Path
-import org.yaml.snakeyaml.Yaml
-import org.yaml.snakeyaml.LoaderOptions
-import org.yaml.snakeyaml.constructor.SafeConstructor
-import com.astarworks.astera.core.application.skillengine.compose.ComposedSkill
 
 /**
  * Hot reload of skill-engine v3 content (ADR-0301, ADR-0303). `make dev-content` sends `astera admin reload all`;
@@ -42,48 +38,6 @@ public class SkillEngineContents(
     private var root: Path? = null
     private var snapshot: Map<String, FileStamp> = emptyMap()
     private var retry: Set<String> = emptySet()
-    private var auxiliarySnapshot: Map<String, FileStamp> = emptyMap()
-    private var effectIds: Set<String> = emptySet()
-    private var demoIds: Set<String> = emptySet()
-
-    /** Registry + playable VFX examples share the same content root as skills. */
-    private fun auxiliary(dir: Path): Map<String, FileStamp> =
-        scan(dir.parent.resolve("shader-patches/effects")).mapKeys { "effects/${it.key}" } +
-            scan(dir.parent.resolve("vfx")).mapKeys { "vfx/${it.key}" }
-
-    private fun loadEffectIds(dir: Path): Set<String> {
-        val effects = dir.parent.resolve("shader-patches/effects")
-        if (!Files.isDirectory(effects)) return emptySet()
-        return Files.list(effects).use { paths -> paths.sorted().toList() }.mapNotNull { effect ->
-            val raw = Yaml(SafeConstructor(LoaderOptions().apply { isAllowDuplicateKeys = false })).load<Map<String, Any>>(Files.readString(effect.resolve("effect.yaml")))
-            val id = raw["id"] as? String ?: error("$effect: missing effect id")
-            require(id == effect.fileName.toString()) { "$effect: effect id differs from directory" }
-            val markers = raw["markers"] as? List<*> ?: error("$effect: missing markers")
-            if (markers.any { (it as? Map<*, *>)?.get("channel") == "vfx-tint" }) id else null
-        }.toSet()
-    }
-
-    private fun effectErrors(composed: Collection<ComposedSkill>): List<Pair<String, String>> {
-        val errors = mutableListOf<Pair<String, String>>()
-        fun visit(id: String, value: Any?) {
-            when (value) {
-                is Map<*, *> -> {
-                    if ("shader_effect" in value) {
-                        val effect = value["shader_effect"]
-                        if (effect !is String || effect !in effectIds) errors += id to "unknown shader_effect '$effect'"
-                        if (value["op"] != "mesh" || value["item"] == "main_hand" ||
-                            (value["item"] as? String)?.startsWith("minecraft:") == true) {
-                            errors += id to "shader_effect requires an Astera pack mesh (not main_hand/vanilla)"
-                        }
-                    }
-                    value.values.forEach { visit(id, it) }
-                }
-                is List<*> -> value.forEach { visit(id, it) }
-            }
-        }
-        composed.forEach { visit(it.id, it.tree) }
-        return errors
-    }
 
     private data class FileStamp(val mtime: Long, val size: Long)
 
@@ -93,9 +47,7 @@ public class SkillEngineContents(
         (engineConfig as? Result.Failure)?.let { return composeFailure(abs, listOf(it.error.origin to it.error.message)) }
         val current = scan(abs)
         val existing = composer
-        return (if (existing == null || root != abs) fullReload(abs, current) else incremental(existing, abs, current)).also {
-            if (it.failed == 0) auxiliarySnapshot = aux
-        }
+        return if (existing == null || root != abs) fullReload(abs, current) else incremental(existing, abs, current)
     }
 
     /** What a successful single-skill reload changed. */
@@ -159,16 +111,6 @@ public class SkillEngineContents(
             is Result.Success -> r.value
             is Result.Failure -> return composeFailure(dir, r.error.map { it.file to "${it.path}: ${it.reason}" })
         }
-        val examples = when (val r = SkillComposer(dir.parent.resolve("vfx"), options).composeAll()) {
-            is Result.Success -> r.value
-            is Result.Failure -> return composeFailure(dir, r.error.map { it.file to "${it.path}: ${it.reason}" })
-        }
-        val duplicates = composed.keys.intersect(examples.keys)
-        if (duplicates.isNotEmpty()) return composeFailure(dir, duplicates.map { it to "duplicate skill/VFX demo id" })
-        val all = composed + examples
-        val invalidEffects = effectErrors(all.values)
-        if (invalidEffects.isNotEmpty()) return composeFailure(dir, invalidEffects)
-        demoIds = examples.keys
         composer = fresh
         root = dir
         snapshot = current

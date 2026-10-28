@@ -3,7 +3,6 @@ package com.astarworks.astera.core.application.port.outbound
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.player.PlayerId
-import com.astarworks.astera.core.domain.world.ToolKind
 import com.astarworks.astera.core.domain.world.WorldId
 
 /**
@@ -31,31 +30,8 @@ public interface IStructureTargets {
         val world: WorldId,
     )
 
-    /** How a hit reached the structure; the structure's own rules weigh each kind differently. */
-    public enum class DamageKind {
-        /** A player broke the structure's block with their hands or a held tool. */
-        HAND_BREAK,
-
-        /** A tool skill (`break_area` with a `tool_class`) struck the structure's block. */
-        TOOL_SKILL,
-
-        /** Any other damage: weapon melee, weapon skill, projectile. */
-        WEAPON,
-    }
-
-    /**
-     * Where a hit came from. [tool] is the held tool for [DamageKind.HAND_BREAK] and the skill's tool class for
-     * [DamageKind.TOOL_SKILL] (`NONE` = bare hand / no tool). [origin] is the attacker's position when the source
-     * knows it; null lets the structure look the attacker up itself.
-     */
-    public data class DamageSource(
-        val kind: DamageKind,
-        val tool: ToolKind = ToolKind.NONE,
-        val origin: Vec3? = null,
-    )
-
     /** Why [damage] changed nothing. */
-    public enum class Rejection { UNKNOWN_TARGET, FRIENDLY, NOT_VULNERABLE, NO_ATTACKER, OUT_OF_RANGE }
+    public enum class Rejection { UNKNOWN_TARGET, FRIENDLY, NOT_VULNERABLE, NO_ATTACKER }
 
     /** Standing structures whose centre is within [radius] of [center] (any world when [world] is null). */
     public fun findInRadius(center: Vec3, radius: Double, world: WorldId?): List<StructureTarget>
@@ -67,10 +43,10 @@ public interface IStructureTargets {
     public fun targetAtBlock(world: WorldId?, blockPosition: Vec3): StructureTarget?
 
     /**
-     * Applies [amount] (> 0, the raw damage before the structure's own multipliers) from [attacker] through [source].
-     * On success returns the structure's remaining HP (0.0 when this hit destroyed it).
+     * Applies [amount] (> 0) damage from [attacker]. On success returns the
+     * structure's remaining HP (0.0 when this hit destroyed it).
      */
-    public fun damage(target: PlayerId, attacker: PlayerId?, amount: Double, source: DamageSource): Result<Double, Rejection>
+    public fun damage(target: PlayerId, attacker: PlayerId?, amount: Double): Result<Double, Rejection>
 
     /** Current HP, or null for an unknown id. */
     public fun hitPoints(id: PlayerId): Double?

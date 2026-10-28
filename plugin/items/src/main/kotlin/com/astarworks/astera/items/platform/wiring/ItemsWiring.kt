@@ -254,7 +254,6 @@ public object ItemsWiring {
             val rack = TrainingRackService(
                 scheduler = scheduler,
                 range = { services.get<com.astarworks.astera.core.application.port.outbound.lobby.ILobbyTrainingRange>() },
-                toolBay = { services.get<com.astarworks.astera.core.application.port.outbound.lobby.ILobbyToolBay>() },
                 items = itemRegistry,
                 delivery = itemDelivery,
                 server = mcServer,
@@ -276,15 +275,6 @@ public object ItemsWiring {
             // The lobby world does not exist yet at enable time (it is created on ServerLoad); the loop also repairs lost frames.
             val rackLoop = scheduler.runRepeatingTicks(ExecutionScope.Global, initialDelayTicks = 40L, periodTicks = 100L) { services.get<com.astarworks.astera.core.application.port.outbound.lobby.ILobbyTrainingRange>()?.let { training -> scheduler.run(regionScope(training.world, training.plan.spawn), kotlin.time.Duration.ZERO) { rack.ensureRendered() } } }
             shutdownHooks += { rackLoop.cancel() }
-            // The tool-bay rack (MAP-A6) is in another chunk than the weapon rack: its own region task.
-            val toolRackLoop = scheduler.runRepeatingTicks(ExecutionScope.Global, initialDelayTicks = 60L, periodTicks = 100L) {
-                services.get<com.astarworks.astera.core.application.port.outbound.lobby.ILobbyToolBay>()?.let { bay ->
-                    bay.plan.rackSlots.firstOrNull()?.let { slot ->
-                        scheduler.run(regionScope(bay.world, com.astarworks.astera.core.domain.geometry.Vec3(slot.x + 0.5, slot.y + 0.5, slot.z + 0.5)), kotlin.time.Duration.ZERO) { rack.ensureToolRackRendered() }
-                    }
-                }
-            }
-            shutdownHooks += { toolRackLoop.cancel() }
             shutdownHooks += { rackGateway.removeAll() }
             trainingRack = rack
         }

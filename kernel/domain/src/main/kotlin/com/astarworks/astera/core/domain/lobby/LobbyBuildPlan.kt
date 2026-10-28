@@ -43,8 +43,6 @@ public class LobbyBuildPlan(
     public val lanePads: Map<String, Vec3>,
     /** The training range landmarks (F3-11); blocks are part of [blocks]. */
     public val training: LobbyTrainingPlan,
-    /** The tool test bay (MAP-A6): editable region, tool rack frames, reset button. */
-    public val toolBay: LobbyToolBayPlan,
 ) {
     public val minX: Int = blocks.keys.minOf { it.x }
     public val maxX: Int = blocks.keys.maxOf { it.x }
