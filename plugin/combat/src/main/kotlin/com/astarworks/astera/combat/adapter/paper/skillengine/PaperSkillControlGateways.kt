@@ -90,6 +90,14 @@ public class PaperSkillScreenGateway(
         feedback.postActionBar(PlayerId(viewer), text)
     }
 
+    override fun flash(viewer: UUID, overlay: com.astarworks.astera.core.domain.effect.ScreenOverlay, colorRgb: Int, fadeIn: Int, stay: Int, fadeOut: Int) {
+        feedback.sendScreenFlash(PlayerId(viewer), overlay, colorRgb, fadeIn, stay, fadeOut)
+    }
+
+    override fun stopSound(viewer: UUID, sound: String) {
+        feedback.stopSound(PlayerId(viewer), sound)
+    }
+
     override fun cameraShake(viewer: UUID, intensity: Double, ticks: Int) {
         val seed = viewer.leastSignificantBits xor ticks.toLong()
         val pulses = ShakeProfile.plan(ShakeShape.DECAY, ShakeDirection.NONE, intensity, ticks, seed = seed)

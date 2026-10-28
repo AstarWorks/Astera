@@ -200,6 +200,10 @@ class PresentationOpsScenarioTest {
             override fun title(viewer: UUID, text: String, subtitle: String?, ticks: Int) { calls += "title:$text:$subtitle:$ticks" }
             override fun actionBar(viewer: UUID, text: String) { calls += "action_bar:$text" }
             override fun cameraShake(viewer: UUID, intensity: Double, ticks: Int) { calls += "shake:$intensity:$ticks" }
+            override fun flash(viewer: UUID, overlay: com.astarworks.astera.core.domain.effect.ScreenOverlay, colorRgb: Int, fadeIn: Int, stay: Int, fadeOut: Int) {
+                calls += "flash:${overlay.yamlName}:${colorRgb.toString(16)}:$fadeIn:$stay:$fadeOut"
+            }
+            override fun stopSound(viewer: UUID, sound: String) { calls += "stop_sound:$sound" }
         },
     )
 

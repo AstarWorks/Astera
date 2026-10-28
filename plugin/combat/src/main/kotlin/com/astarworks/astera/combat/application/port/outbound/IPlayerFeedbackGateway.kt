@@ -27,6 +27,19 @@ public interface IPlayerFeedbackGateway {
      */
     public fun cameraKick(target: PlayerId, dx: Double, dy: Double)
 
+    /** Full-screen cut-in (`screen_flash`): the [overlay] glyph tinted [colorRgb], shown as a title (it replaces any title on screen). */
+    public fun sendScreenFlash(
+        target: PlayerId,
+        overlay: com.astarworks.astera.core.domain.effect.ScreenOverlay,
+        colorRgb: Int,
+        fadeInTicks: Int,
+        stayTicks: Int,
+        fadeOutTicks: Int,
+    )
+
+    /** `stop_sound`: stops the named sound for [target] (vanilla `Player.stopSound`). */
+    public fun stopSound(target: PlayerId, sound: String)
+
     /**
      * Low-HP warning (FX-12): [active] true tints the screen edge red until it is called again with false. Idempotent;
      * offline players are ignored.

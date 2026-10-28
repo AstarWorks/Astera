@@ -374,6 +374,21 @@ public class SimPlayerFeedbackGateway(
         if (active) lowHealthVignette += target else lowHealthVignette -= target
     }
 
+    override fun sendScreenFlash(
+        target: PlayerId,
+        overlay: com.astarworks.astera.core.domain.effect.ScreenOverlay,
+        colorRgb: Int,
+        fadeInTicks: Int,
+        stayTicks: Int,
+        fadeOutTicks: Int,
+    ) {
+        recorder?.recordEffect(clock(), "screen_flash", null, "${target.uuid} ${overlay.yamlName} #${colorRgb.toString(16)}")
+    }
+
+    override fun stopSound(target: PlayerId, sound: String) {
+        recorder?.recordEffect(clock(), "stop_sound", null, "${target.uuid} $sound")
+    }
+
     public val actionBars: MutableList<Pair<PlayerId, String>> = mutableListOf()
     public val titles: MutableList<Title> = mutableListOf()
 

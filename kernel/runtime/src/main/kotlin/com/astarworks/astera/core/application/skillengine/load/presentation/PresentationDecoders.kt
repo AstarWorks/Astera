@@ -284,7 +284,7 @@ private object BodyOpDecoder : OpDecoder {
 
 private object ScreenOpDecoder : OpDecoder {
     override val section = OpSection.PRESENTATION
-    override val opNames = setOf("title", "action_bar", "camera_shake")
+    override val opNames = setOf("title", "action_bar", "camera_shake", "screen_flash", "stop_sound")
     override fun decode(op: String, id: String, whenExpr: Value<Boolean>?, reader: OpReader): SkillOp = with(reader) {
         when (op) {
             "title" -> ScreenOp.Title(
@@ -294,6 +294,18 @@ private object ScreenOpDecoder : OpDecoder {
             "camera_shake" -> ScreenOp.CameraShake(
                 id, whenExpr, target(TargetRef.Caster), requireNumber("intensity"), int("ticks") ?: 10,
             )
+            "screen_flash" -> {
+                val overlay = requireString("overlay")
+                if (com.astarworks.astera.core.domain.effect.ScreenOverlay.fromYaml(overlay) == null) {
+                    fail("unknown overlay '$overlay' (one of ${com.astarworks.astera.core.domain.effect.ScreenOverlay.entries.joinToString { it.yamlName }})")
+                }
+                val color = string("color")?.also { if (!Regex("#[0-9a-fA-F]{6}").matches(it)) fail("color '$it' is not #RRGGBB") }
+                ScreenOp.Flash(
+                    id, whenExpr, target(TargetRef.Caster), overlay, color?.substring(1)?.toInt(16),
+                    int("fade_in") ?: 0, int("stay") ?: 1, int("fade_out") ?: 2,
+                )
+            }
+            "stop_sound" -> ScreenOp.StopSound(id, whenExpr, target(TargetRef.Caster), requireString("sound"))
             else -> fail("not a screen op: $op")
         }
     }

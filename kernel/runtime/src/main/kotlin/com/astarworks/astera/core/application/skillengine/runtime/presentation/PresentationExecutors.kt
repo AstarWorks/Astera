@@ -25,7 +25,7 @@ public fun presentationExecutors(rt: PresentationRuntime): List<OpExecutor<*>> =
     MeshExecutor(rt), PlateExecutor(rt), BlockExecutor(rt), QuadExecutor(rt), LineExecutor(rt), TrailExecutor(rt), TrackExecutor(rt), RemoveExecutor(rt),
     EmitExecutor(rt), SoundExecutor(rt),
     VictimAnimExecutor(rt), CasterAnimExecutor(rt),
-    TitleExecutor(rt), ActionBarExecutor(rt), CameraShakeExecutor(rt),
+    TitleExecutor(rt), ActionBarExecutor(rt), CameraShakeExecutor(rt), FlashExecutor(rt), StopSoundExecutor(rt),
 )
 
 /** Hold time of a pose-only caster clip (crouch, hide-main-hand) when the op gives no `ticks:`. */
@@ -276,6 +276,25 @@ internal class ActionBarExecutor(private val rt: PresentationRuntime) : OpExecut
     override fun execute(op: ScreenOp.ActionBar, ctx: OpContext) {
         if (!ctx.passes(op)) return
         for (v in rt.info.targets(ctx.cast, op.target)) rt.screen.actionBar(v, op.text)
+    }
+}
+
+internal class FlashExecutor(private val rt: PresentationRuntime) : OpExecutor<ScreenOp.Flash> {
+    override val opClass: KClass<ScreenOp.Flash> = ScreenOp.Flash::class
+    override fun execute(op: ScreenOp.Flash, ctx: OpContext) {
+        if (!ctx.passes(op)) return
+        val overlay = com.astarworks.astera.core.domain.effect.ScreenOverlay.fromYaml(op.overlay)
+            ?: return ctx.host.fail(op.id, "screen_flash: unknown overlay '${op.overlay}'")
+        val rgb = op.colorRgb ?: overlay.defaultColor
+        for (v in rt.info.targets(ctx.cast, op.target)) rt.screen.flash(v, overlay, rgb, op.fadeIn, op.stay, op.fadeOut)
+    }
+}
+
+internal class StopSoundExecutor(private val rt: PresentationRuntime) : OpExecutor<ScreenOp.StopSound> {
+    override val opClass: KClass<ScreenOp.StopSound> = ScreenOp.StopSound::class
+    override fun execute(op: ScreenOp.StopSound, ctx: OpContext) {
+        if (!ctx.passes(op)) return
+        for (v in rt.info.targets(ctx.cast, op.target)) rt.screen.stopSound(v, op.sound)
     }
 }
 
