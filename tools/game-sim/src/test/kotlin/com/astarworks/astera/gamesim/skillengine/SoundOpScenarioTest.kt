@@ -16,10 +16,11 @@ class SoundOpScenarioTest : SkillEngineScenario() {
         id: sound-probe
         anchors:
           - {id: body, anchor: caster}
-        presentation:
-          timeline:
-            - id: fx0
-              at: 0
+        machine:
+          start: s
+          states:
+            s:
+              for: 20
               do:
                 - $soundLine
         """.trimIndent()
@@ -56,7 +57,9 @@ class SoundOpScenarioTest : SkillEngineScenario() {
     @Test
     fun expressionPitchStaysLiveUntilPlayed() {
         val rows = soundRows(loaded(skill("{id: snd, op: sound, sound: item.armor.equip_leather, anchor: body, every: 2, times: 3, pitch: \"= 0.9 + 0.08 * i\"}")))
-        assertThat(rows.single().pitch).isEqualTo(Val.Live<Double>("= 0.9 + 0.08 * i", null))
+        // `every` + `times` lowers to one row per copy (rev4.2 timing families); every copy keeps the expression live
+        assertThat(rows).isNotEmpty()
+        assertThat(rows.map { it.pitch }.toSet()).containsExactly(Val.Live<Double>("= 0.9 + 0.08 * i", null))
     }
 
     @Test

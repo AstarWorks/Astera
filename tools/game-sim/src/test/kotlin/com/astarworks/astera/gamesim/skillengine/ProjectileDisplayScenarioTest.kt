@@ -52,7 +52,7 @@ $body
 
     private fun rows(s: CompiledSkill): List<Row> = s.table.states.first { it.state.value == "cast" }.rows
 
-    private val bolt = "id: bolt, op: projectile, origin: muzzle, velocity: \"= forward * 1.0\", radius: 0.4, hit: {targets: enemies, once: true}, block: {mode: despawn}"
+    private val bolt = "id: bolt, op: projectile, origin: muzzle, velocity: \"= look(caster) * 1.0\", radius: 0.4, hit: {targets: enemies, once: true}, block: {mode: despawn}"
 
     private fun p(extra: String) = "        - {$bolt, $extra}"
 
@@ -65,34 +65,36 @@ $body
     @Test
     fun timesIsAFamily() {
         val s = compile(p("speed: 1.0, for: 20, at: 0, times: 3"))
-        assertThat(bodySpawns(s).map { it.instance.text }).containsExactly("bolt[0]", "bolt[1]", "bolt[2]")
+        assertThat(bodySpawns(s).map { it.instance.text }).containsExactly("cast/bolt[0]", "cast/bolt[1]", "cast/bolt[2]")
     }
 
     // item 16: the body emits no Key / Teleport rows (the laws are closed-form and composed into the riders)
     @Test
     fun bodyEmitsNoKeyRows() {
         val s = compile(p("speed: 1.0, for: 20, motion: [{law: spin, axis: up, deg_per_tick: 5, for: 10}]"))
-        val onBody = rows(s).filter { it.instance.text == "bolt" && (it.action is Action.Key || it.action is Action.Teleport) }
+        val onBody = rows(s).filter { it.instance.text == "cast/bolt" && (it.action is Action.Key || it.action is Action.Teleport) }
         assertThat(onBody).isEmpty()
     }
 
     // item 16: flight length is `for` and/or `range`, whichever ends first
     @Test
     fun forAndRangeEnd() {
-        val byFor = rows(compile(p("speed: 1.0, for: 12"))).single { it.action is Action.End && it.instance.text == "bolt" }
+        val byFor = rows(compile(p("speed: 1.0, for: 12"))).single { it.action is Action.End && it.instance.text == "cast/bolt" }
         assertThat(byFor.tick).isEqualTo(12)
-        val byRange = rows(compile(p("speed: 1.0, range: 8"))).single { it.action is Action.End && it.instance.text == "bolt" }
+        val byRange = rows(compile(p("speed: 1.0, range: 8"))).single { it.action is Action.End && it.instance.text == "cast/bolt" }
         assertThat(byRange.tick).isEqualTo(8)
-        val both = rows(compile(p("speed: 1.0, range: 30, for: 10"))).single { it.action is Action.End && it.instance.text == "bolt" }
+        val both = rows(compile(p("speed: 1.0, range: 30, for: 10"))).single { it.action is Action.End && it.instance.text == "cast/bolt" }
         assertThat(both.tick).isEqualTo(10)
     }
 
     // item 16: constant speed and the ramp print their own Look keys
     @Test
     fun lookKeys() {
+        // gravity / drag have no hidden default (ADR-0303 3.6): a Look key exists only for a field the skill wrote
         val constant = bodyLook(compile(p("speed: 1.5, for: 20")))
-        assertThat(constant).containsKeys("speed", "radius", "gravity", "drag")
-        assertThat(constant).doesNotContainKeys("speed.from", "speed.to")
+        assertThat(constant).containsKeys("speed", "radius")
+        assertThat(constant).doesNotContainKeys("speed.from", "speed.to", "gravity", "drag")
+        assertThat(bodyLook(compile(p("speed: 1.5, for: 20, gravity: 0.02, drag: 0.01")))).containsKeys("speed", "radius", "gravity", "drag")
         val ramp = bodyLook(compile(p("speed: {from: 0.5, to: 2.0, for: 10, ease: linear}, for: 20")))
         assertThat(ramp).containsKeys("speed.from", "speed.to", "speed.for", "speed.ease")
     }
@@ -104,7 +106,7 @@ $body
             p("speed: 1.0, for: 20, motion: [{law: spin, axis: up, deg_per_tick: 10, for: 10}]") + "\n" +
                 "        - {id: rider, op: display, kind: item, item: fire_charge, anchor: bolt, for: 20, at: 0}",
         )
-        val keys = rows(s).filter { it.instance.text == "rider" && it.action is Action.Key }
+        val keys = rows(s).filter { it.instance.text == "cast/rider" && it.action is Action.Key }
         assertThat(keys).isNotEmpty()
     }
 
@@ -113,7 +115,7 @@ $body
     fun repeatingDisplayIsIndexedOnce() {
         val s = compile("        - {id: puff, op: display, kind: item, item: fire_charge, anchor: muzzle, every: 5, lasts: 4, for: 15, at: 0}")
         val spawns = rows(s).filter { it.action is Action.Spawn }
-        assertThat(spawns.map { it.instance.text }).containsExactly("puff[0]", "puff[1]", "puff[2]")
+        assertThat(spawns.map { it.instance.text }).containsExactly("cast/puff[0]", "cast/puff[1]", "cast/puff[2]")
     }
 
     // item 10: `mount` is not a display key (it lives on the anchor declaration only)
@@ -124,15 +126,15 @@ $body
         assertThat((e as SkillDecodeError.UnknownKey).key).isEqualTo("mount")
     }
 
-    // item 10: the sprite colour key is `tint`; `color` is gone
+    // ADR-0303 2.1 rev4.3 (R33): the sprite colour key is `color` (ARGB hex); the v2-era `tint` is gone
     @Test
-    fun spriteTintReplacesColor() {
+    fun spriteColorReplacesTint() {
         val sprite = "id: s, op: display, kind: sprite, sprite: bastion-arc, size: [1.0, 1.0], anchor: muzzle, for: 10, at: 0"
-        val ok = compile("        - {$sprite, tint: \"#ff8800\"}")
+        val ok = compile("        - {$sprite, color: \"#ff8800\"}")
         val look = (rows(ok).first { it.action is Action.Spawn }.action as Action.Spawn).look.fields
-        assertThat(look).containsKey("tint")
-        assertThat(look).doesNotContainKey("color")
-        val e = failure("        - {$sprite, color: \"#ff8800\"}")
+        assertThat(look).containsKey("color")
+        assertThat(look).doesNotContainKey("tint")
+        val e = failure("        - {$sprite, tint: \"#ff8800\"}")
         assertThat(e).isInstanceOf(SkillDecodeError.UnknownKey::class.java)
     }
 

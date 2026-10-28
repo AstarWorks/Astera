@@ -50,7 +50,7 @@ class CompositionScenarioTest : SkillEngineScenario() {
 
     @Test
     fun partInlinedWithPrefixedIds() {
-        val r = load("with: {window: 10, power: 2}\n      frames: {src: blade}")
+        val r = load("with: {window: 10, power: 2}\n              frames: {src: caster}")
         assertThat(r).isInstanceOf(Result.Success::class.java)
         val dump = (r as Result.Success).value.toString()
         assertThat(dump).contains("p/charge").contains("p/charge/mark")
@@ -58,26 +58,26 @@ class CompositionScenarioTest : SkillEngineScenario() {
 
     @Test
     fun partSeesOnlyBoundFrames() {
-        val r = load("with: {window: 10, power: 2}\n      frames: {src: nowhere}")
+        val r = load("with: {window: 10, power: 2}\n              frames: {src: nowhere}")
         val e = (r as Result.Failure).error
         assertThat(e).isInstanceOf(SkillDecodeError.UndefinedReference::class.java)
     }
 
     @Test
     fun partEmitsCrossBoundary() {
-        val bad = loadInline(part + "\n" + skill("with: {window: 10, power: 2}\n      frames: {src: blade}").replace("p.end", "p.nope"))
+        val bad = loadInline(part + "\n" + skill("with: {window: 10, power: 2}\n              frames: {src: caster}").replace("p.end", "p.nope"))
         assertThat((bad as Result.Failure).error).isInstanceOf(SkillDecodeError.UndefinedReference::class.java)
-        val ok = load("with: {window: 10, power: 2}\n      frames: {src: blade}")
+        val ok = load("with: {window: 10, power: 2}\n              frames: {src: caster}")
         assertThat(ok).isInstanceOf(Result.Success::class.java)
     }
 
     @Test
     fun withArgsAreTypedAndRequired() {
-        val missing = load("with: {window: 10}\n      frames: {src: blade}")
+        val missing = load("with: {window: 10}\n              frames: {src: caster}")
         assertThat((missing as Result.Failure).error).isInstanceOf(SkillDecodeError.MissingField::class.java)
-        val typed = load("with: {window: 10, power: high}\n      frames: {src: blade}")
+        val typed = load("with: {window: 10, power: high}\n              frames: {src: caster}")
         assertThat((typed as Result.Failure).error).isInstanceOf(SkillDecodeError.TypeMismatch::class.java)
-        val unknown = load("with: {window: 10, power: 2, extra: 1}\n      frames: {src: blade}")
+        val unknown = load("with: {window: 10, power: 2, extra: 1}\n              frames: {src: caster}")
         assertThat((unknown as Result.Failure).error).isInstanceOf(SkillDecodeError.UnknownKey::class.java)
     }
 
@@ -169,7 +169,7 @@ class CompositionScenarioTest : SkillEngineScenario() {
 
     @Test
     fun skillCallUngatedByDefault() {
-        val calls = skillCalls(loadInline(sub + "\n" + callerOf("{id: c, use: skill:puff, with: {count: 6}, frames: {origin: blade}}")))
+        val calls = skillCalls(loadInline(callerOf("{id: c, use: skill:puff, with: {count: 6}, frames: {origin: caster}}") + "\n" + sub))
         assertThat(calls).hasSize(1)
         assertThat(calls[0].id).isEqualTo("puff")
         assertThat(calls[0].gateCooldown).isFalse()
@@ -178,13 +178,13 @@ class CompositionScenarioTest : SkillEngineScenario() {
 
     @Test
     fun skillCallGateCooldownAndCost() {
-        val both = skillCalls(loadInline(sub + "\n" + callerOf("{id: c, use: skill:puff, with: {count: 6}, frames: {origin: blade}, gate: {cooldown: true, cost: true}}")))
+        val both = skillCalls(loadInline(callerOf("{id: c, use: skill:puff, with: {count: 6}, frames: {origin: caster}, gate: {cooldown: true, cost: true}}") + "\n" + sub))
         assertThat(both.single().gateCooldown).isTrue()
         assertThat(both.single().gateCost).isTrue()
-        val costOnly = skillCalls(loadInline(sub + "\n" + callerOf("{id: c, use: skill:puff, with: {count: 6}, frames: {origin: blade}, gate: {cost: true}}")))
+        val costOnly = skillCalls(loadInline(callerOf("{id: c, use: skill:puff, with: {count: 6}, frames: {origin: caster}, gate: {cost: true}}") + "\n" + sub))
         assertThat(costOnly.single().gateCooldown).isFalse()
         assertThat(costOnly.single().gateCost).isTrue()
-        val onPart = loadInline(part + "\n" + callerOf("{id: c, use: pulse, with: {window: 10, power: 2}, frames: {src: blade}, gate: {cost: true}}"))
+        val onPart = loadInline(part + "\n" + callerOf("{id: c, use: pulse, with: {window: 10, power: 2}, frames: {src: caster}, gate: {cost: true}}"))
         assertThat((onPart as Result.Failure).error).isInstanceOf(SkillDecodeError.Invalid::class.java)
     }
 }

@@ -134,12 +134,12 @@ class MotionLawsWiredScenarioTest : SkillEngineScenario() {
         )
         near(ks.last().rot.rotate(Vec3(0.0, 0.0, 1.0)), Vec3(1.0, 0.0, 0.0), 1e-6)
         // toward an anchor: a live rotation cell re-sent every step ticks
-        val live = lowerRows("- {law: align, to: muzzle, for: 6, step: 2}")
+        val live = lowerRows("- {law: align, to: muzzle.forward, for: 6, step: 2}")
         assertThat(live.map { it.tick }).containsExactly(0, 2, 4)
         live.forEach { r ->
             val rot = (r.action as Action.Key).leftRotation as Val.Live
-            // item 15e: the live name carries the object axis
-            assertThat(rot.name).isEqualTo("align:forward>muzzle")
+            // item 15e: the live name carries the object axis; v3 (MotionLaws align `to`) names a direction `<anchor>.<axis>` and the kept-up direction (default world.up), see LawSegmenter live name
+            assertThat(rot.name).isEqualTo("align:forward>muzzle.forward^world.up")
         }
     }
 
@@ -189,7 +189,8 @@ class MotionLawsWiredScenarioTest : SkillEngineScenario() {
             - {law: move, velocity: {up: 0.1}, at: 10, for: 5}
             """,
         )
-        val held = ks.first { it.tick == 5 }
+        // v3 writes the minimum set of Key rows (LawSegmenter kdoc): the held stretch 5..10 is no row, so the value held at tick 5 is the END of the first segment
+        val held = ks.first { it.tick + it.dur == 5 }
         near(held.pos, Vec3(0.0, 0.0, 2.0))
         near(ks.last().pos, Vec3(0.0, 0.5, 2.0))
         assertThat(ks.last().tick + ks.last().dur).isEqualTo(15)
@@ -228,18 +229,19 @@ class MotionLawsWiredScenarioTest : SkillEngineScenario() {
 
     @Test
     fun keysTurningOver170DegreesIsALoadError() {
+        // a pose is an absolute orientation and slerp takes the shortest side (ADR-0303 3.3), so the old 200 degree key is a 160 degree turn and loads; 175 is the shortest turn over the 170 limit
         val r = MotionLaws.decodeLaws(
             Yaml().load<Any?>(
                 """
                 - law: keys
                   keys:
                     - {t: 0, pose: [{axis: up, deg: 0}]}
-                    - {t: 6, pose: [{axis: up, deg: 200}]}
+                    - {t: 6, pose: [{axis: up, deg: 175}]}
                 """.trimIndent(),
             ),
             gctx, "motion",
         )
-        val e = (r as? Result.Failure)?.error ?: error("a 200 degree key turn must not load")
+        val e = (r as? Result.Failure)?.error ?: error("a 175 degree key turn must not load")
         assertThat(e).isInstanceOf(SkillDecodeError.Invalid::class.java)
         assertThat((e as SkillDecodeError.Invalid).message).contains("write a spin or a midpoint key")
     }

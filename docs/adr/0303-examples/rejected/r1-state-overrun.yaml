@@ -11,5 +11,5 @@ machine:
       for: 16
       then: end
       do:
-        - {id: hit3, op: hit, at: 10, every: 1, times: 10, shape: {sector: {deg: 30, range: 3, height: 2.0}}, damage: 8}
+        - {id: hit3, op: hit, at: 10, every: 1, for: 10, anchor: caster, targets: enemies, shape: {sector: {deg: 30, range: 3, height: 2.0, forward: look}}, damage: {physical: 8}, ignore_invulnerability: false, window: {every: 1}}
     end: {final: true}

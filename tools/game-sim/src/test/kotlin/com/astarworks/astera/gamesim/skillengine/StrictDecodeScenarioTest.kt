@@ -45,10 +45,22 @@ class StrictDecodeScenarioTest : SkillEngineScenario() {
 
     @Test fun r8() = expectError("r8")
 
+    @Test fun r9() = expectError("r9")
+
+    @Test fun r10() = expectError("r10")
+
+    @Test fun r11() = expectError("r11")
+
+    @Test fun r12() = expectError("r12")
+
+    @Test fun r13() = expectError("r13")
+
+    @Test fun r14() = expectError("r14")
+
     @Test
     fun rejectedExamplesFailWithNamedError() {
         val names = fixtureNames(rejectedDir)
-        assertThat(names).hasSize(8)
+        assertThat(names).hasSize(14)
         names.forEach { expectError(it.substringBefore('-')) }
     }
 

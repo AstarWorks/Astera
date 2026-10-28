@@ -12,6 +12,8 @@ import org.junit.jupiter.api.Test
 /** ADR-0303 1.1 `frame` op (W1-07). Runs at the wave 1b gate (needs the document decoder, unroller and compiler). */
 class FrameOpScenarioTest : SkillEngineScenario() {
 
+    // Instance ids are state-qualified (ADR-0303 C2; section 9): the `throw` state emits `throw/<path>`.
+
     /** [ops] are flow-style op lines; they become the `enter:` list of the single state. */
     private fun skill(vararg ops: String): String = (
         listOf(
@@ -33,11 +35,11 @@ class FrameOpScenarioTest : SkillEngineScenario() {
             "{id: blade, op: frame, times: 3, anchor: shears, turn: [{axis: up, deg: \"= i * 120\"}], for: 40}",
         )
         val spawns = rows(s).filter { (it.action as? Action.Spawn)?.kind == SpawnKind.FRAME }
-        assertThat(spawns.map { it.instance.text }).containsExactly("blade[0]", "blade[1]", "blade[2]")
+        assertThat(spawns.map { it.instance.text }).containsExactly("throw/blade[0]", "throw/blade[1]", "throw/blade[2]")
         assertThat(spawns.map { it.tick }.toSet()).containsExactly(0)
         assertThat(spawns.map { (it.action as Action.Spawn).pose.rotation }.toSet()).hasSize(3)
         val ends = rows(s).filter { it.action is Action.End }
-        assertThat(ends.map { it.instance.text to it.tick }).containsExactlyInAnyOrder("blade[0]" to 40, "blade[1]" to 40, "blade[2]" to 40)
+        assertThat(ends.map { it.instance.text to it.tick }).containsExactlyInAnyOrder("throw/blade[0]" to 40, "throw/blade[1]" to 40, "throw/blade[2]" to 40)
     }
 
     @Test
@@ -46,9 +48,9 @@ class FrameOpScenarioTest : SkillEngineScenario() {
             "{id: blade, op: frame, times: 3, anchor: shears, for: 40}",
             "{id: tip, op: frame, times: 3, anchor: \"blade[i]\", offset: {forward: 1.0}, for: 40}",
         )
-        val tips = rows(s).filter { (it.action as? Action.Spawn)?.kind == SpawnKind.FRAME && it.instance.text.startsWith("tip") }
+        val tips = rows(s).filter { (it.action as? Action.Spawn)?.kind == SpawnKind.FRAME && it.instance.text.startsWith("throw/tip") }
         assertThat(tips.map { it.instance.text to (it.action as Action.Spawn).anchor?.text })
-            .containsExactly("tip[0]" to "blade[0]", "tip[1]" to "blade[1]", "tip[2]" to "blade[2]")
+            .containsExactly("throw/tip[0]" to "throw/blade[0]", "throw/tip[1]" to "throw/blade[1]", "throw/tip[2]" to "throw/blade[2]")
     }
 
     @Test
