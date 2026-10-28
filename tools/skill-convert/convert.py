@@ -1222,6 +1222,10 @@ class Conv:
             raise UnhandledV1Key("rig parent %s is not a known frame" % pr)
         if r.get("weapon_model"):
             self.present("rig weapon_model (item_model swap on the weapon display)", short(r["weapon_model"], 80))
+        if "." in pr:  # the rig op's parent is a frame in the tree; a point (caster.right_hand) needs a body frame standing on it
+            anchor = rid + "_at"
+            self.look_frames[anchor] = {"id": anchor, "kind": "body", "parent": pr}
+            pr = anchor
         self.look_frames[rid] = {"id": rid, "kind": "body", "parent": pr}
         start = delay + int(r.get("start_tick", 0))
         end = int(r.get("end_tick", dur))
