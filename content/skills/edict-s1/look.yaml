@@ -1,17 +1,14 @@
 # Converted from content/skills/edict-s1.yaml + content/vfx/* by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
 # Generated point-frame offsets are [left, up, forward] in the parent frame.
-# CONVERT-PRESENT vfx frame orient (frames carry no orientation / scale) (x7): orient="yaw"
-# CONVERT-PRESENT element kind text has no v2 op (x1): {'type': 'text', 'text': '<#4f8fff><b>★</b>', 'background': '#00000000', 'shadow
-# CONVERT-PRESENT vfx follow=false (anchored at world, no place-at-spawn) (x4): edict-cuff-sweep | edict-impact
 apiVersion: "astera/v2"
 kind: Skill
 id: edict-s1
 frames:
-  - {id: fx1_edict_ghost, kind: body, parent: caster}
-  - {id: fx2_edict_fists_down, kind: body, parent: caster}
+  - {id: fx1_edict_ghost, kind: body, parent: caster, orient: yaw}
+  - {id: fx2_edict_fists_down, kind: body, parent: caster, orient: yaw}
   - {id: fx3_edict_cuff_sweep, kind: body, parent: world}
   - {id: fx4_edict_impact, kind: body, parent: world}
-  - {id: fx5_edict_fists_return, kind: body, parent: caster}
+  - {id: fx5_edict_fists_return, kind: body, parent: caster, orient: yaw}
   - {id: fx6_edict_cuff_sweep, kind: body, parent: world}
   - {id: fx7_edict_impact, kind: body, parent: world}
 presentation:
@@ -335,6 +332,17 @@ presentation:
             - {t: 2, offset: [0.0, 1.1, -2.2], scale: [4.8, 0.06, 0.06], ease: out_expo}
             - {t: 5, block: white_stained_glass}
             - {t: 12, scale: [0.0, 0.06, 0.06], ease: in_quad}
+    - id: fx9
+      at: 9
+      do:
+        - {op: text, parent: fx1_edict_ghost, face: {viewer: center}, size: [0.2, 0.2], text: "<#4f8fff><b>★</b>", see_through: true, brightness: 15, id: fx1_edict_ghost_star}
+        - id: fx1_edict_ghost_star_trk
+          op: track
+          target: fx1_edict_ghost_star
+          keys:
+            - {t: 0, offset: [0.0, 1.1, -2.2], scale: [0.0, 0.0, 0.0]}
+            - {t: 2, scale: [6.0, 6.0, 6.0], ease: out_back}
+            - {t: 9, scale: [0.0, 0.0, 0.0], ease: in_quad, turn: [0.0, 0.0, 120.0]}
     - id: fx16
       at: 16
       do:
@@ -497,7 +505,7 @@ presentation:
     - id: fx17
       at: 17
       do:
-        - id: rm_2
+        - id: rm_3
           op: remove
           ids:
             - fx2_edict_fists_down_1_glove
@@ -512,11 +520,12 @@ presentation:
             - fx2_edict_fists_down_chain_3
             - fx2_edict_fists_down_chain_4
             - fx2_edict_fists_down_chain_5
+    - {id: fx18, at: 18, do: [{id: rm, op: remove, ids: [fx1_edict_ghost_star]}]}
     - id: fx20
       at: 20
       do:
-        - {id: rm, op: remove, ids: [fx1_edict_ghost_counter_line]}
-        - id: rm_3
+        - {id: rm_2, op: remove, ids: [fx1_edict_ghost_counter_line]}
+        - id: rm_4
           op: remove
           ids:
             - fx3_edict_cuff_sweep_arc_0
@@ -630,7 +639,7 @@ presentation:
     - id: fx28
       at: 28
       do:
-        - id: rm_6
+        - id: rm_7
           op: remove
           ids:
             - fx5_edict_fists_return_1_glove
@@ -648,7 +657,7 @@ presentation:
     - id: fx33
       at: 33
       do:
-        - id: rm_7
+        - id: rm_8
           op: remove
           ids:
             - fx6_edict_cuff_sweep_arc_0
@@ -666,12 +675,12 @@ presentation:
     - id: fxhit_7
       at: "hit+7"
       do:
-        - {id: rm_4, op: remove, ids: [fx4_edict_impact_core], when: "= event.source == 'sel'"}
-        - {id: rm_8, op: remove, ids: [fx7_edict_impact_core], when: "= event.source == 'sel_2'"}
+        - {id: rm_5, op: remove, ids: [fx4_edict_impact_core], when: "= event.source == 'sel'"}
+        - {id: rm_9, op: remove, ids: [fx7_edict_impact_core], when: "= event.source == 'sel_2'"}
     - id: fxhit_10
       at: "hit+10"
       do:
-        - id: rm_5
+        - id: rm_6
           op: remove
           ids:
             - fx4_edict_impact_ray_0_0
@@ -691,7 +700,7 @@ presentation:
             - fx4_edict_impact_ray_1_6
             - fx4_edict_impact_ray_1_7
           when: "= event.source == 'sel'"
-        - id: rm_9
+        - id: rm_10
           op: remove
           ids:
             - fx7_edict_impact_ray_0_0

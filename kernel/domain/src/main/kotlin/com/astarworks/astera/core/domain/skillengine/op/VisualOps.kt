@@ -24,8 +24,13 @@ public sealed interface PlateFace {
  * Copies of one display: `times` copies of the op, copy k spawned `every * k` ticks after the op runs and removed `life` ticks after
  * it spawned (null = stays until removed). Inside the op's values `i` is the copy index and `n` the copy count. Copies are the
  * children `<id>#<k>` of a plain group node named `<id>`, so a `track` or `remove` on `<id>` moves / removes the group.
+ *
+ * [instance]: every firing of the op is its own instance, like a display a v1 mechanic spawns at a resolved Location. The group node
+ * is named `<id>@<n>` (n counts the firings of the op in the cast), is parented to `world` and placed at the parent frame's world
+ * ORIGIN when the op runs (world axes, no yaw / pitch: a v1 location is a bare Vec3). It never follows the parent afterwards, and an
+ * earlier firing's copies are neither moved nor replaced by a later one; `remove` on `<id>` removes all instances.
  */
-public data class Repeat(val times: Value<Double>, val every: Int = 0, val life: Int? = null)
+public data class Repeat(val times: Value<Double>, val every: Int = 0, val life: Int? = null, val instance: Boolean = false)
 
 /** Display objects attached to frames. Family owner: visual (mesh/plate/line/trail) worker. */
 public sealed interface VisualOp : PresentationOp {
@@ -68,6 +73,8 @@ public sealed interface VisualOp : PresentationOp {
         val loop: Boolean = false,
         /** `#rrggbb` multiplied into the sprite; null keeps the sprite's own colours. */
         val color: Value<String>? = null,
+        /** Vanilla text-display `see_through`: the glyph draws through blocks. */
+        val seeThrough: Boolean = false,
         /** Local position in [parent]'s axes `[left, up, forward]` at track 0. */
         val at: Value<Vec3>? = null,
         /** Rotation vector (degrees) of the plate at track 0. */
@@ -114,6 +121,30 @@ public sealed interface VisualOp : PresentationOp {
         val turn: Value<Vec3>? = null,
         val brightness: Int? = null,
         val repeat: Repeat? = null,
+    ) : VisualOp
+
+    /**
+     * A vanilla text display of a MiniMessage [text] (a glyph, a coloured symbol) as a NODE of the frame tree; [size] is blocks per
+     * text unit along x / y (0.2 = vanilla scale 1). The text keeps its own colour and opacity; only the box behind it is
+     * styled: [background] `#rrggbb` at [backgroundAlpha] (0 = no box). Unlike a [Quad] glyph it has no track-driven colour.
+     */
+    public data class Text(
+        override val id: String,
+        override val whenExpr: Value<Boolean>?,
+        val parent: String,
+        val face: PlateFace,
+        val size: Value<Vec3>,
+        val text: String,
+        val background: Value<String>,
+        val backgroundAlpha: Value<Double>,
+        val shadow: Boolean = false,
+        val seeThrough: Boolean = false,
+        val at: Value<Vec3>? = null,
+        val turn: Value<Vec3>? = null,
+        val brightness: Int? = null,
+        val repeat: Repeat? = null,
+        /** Markup per locale code (`en`, `ja`); non-empty = the gateway picks the cast owner's locale and [text] is the fallback. */
+        val textByLocale: Map<String, String> = emptyMap(),
     ) : VisualOp
 
     /** Ribbon between two points; length follows them every tick. */
@@ -238,6 +269,8 @@ public data class TrackKey(
     val color: String? = null,
     /** Vanilla block id a block display switches to from this key on (a step, never blended). */
     val block: String? = null,
+    /** MiniMessage text a [VisualOp.Text] switches to from this key on (a step, never blended); nothing is applied before the first text key's tick. */
+    val text: String? = null,
 )
 
 /** One radial band of a [VisualOp.Trail]: colour `#rrggbb`, peak [alpha] 0..1, optional [colorTo] it has faded to at the end of the life. */

@@ -15,6 +15,7 @@ gameplay:
       at: 0
       do:
         - {id: dash, op: dash_strike, distance: "${dash_distance}", ticks: 3, radius: 0.8, hit_once: true, invulnerable: false, stop_on_block: true, follow_pitch: false, stop_before_target: 1.8}
+    - {id: t2, at: 2, do: [{id: pin, op: place, frame: fx2_vendetta_gold_sweep, like: caster, orient: yaw}]}
     - id: t3
       at: 3
       do:
@@ -29,6 +30,7 @@ gameplay:
       at: 24
       do:
         - {id: dash_2, op: dash_strike, distance: "${dash_distance}", ticks: 3, radius: 0.8, hit_once: true, invulnerable: false, stop_on_block: true, follow_pitch: false, stop_before_target: 1.8}
+    - {id: t27, at: 27, do: [{id: pin_3, op: place, frame: fx5_vendetta_gold_sweep, like: caster, orient: yaw}]}
     - id: t28
       at: 28
       do:
@@ -42,4 +44,7 @@ gameplay:
   "on":
     hit:
       - {id: dmg, op: damage, components: [{kind: physical, amount: "${dmg_physical}"}], target: victim, ignore_invulnerability: true, when: "= event.source == 'sel'"}
+      - {id: pin_2, op: place, frame: fx3_vendetta_thrust_flash, like: contact, orient: yaw, when: "= event.source == 'sel'"}
       - {id: dmg_2, op: damage, components: [{kind: physical, amount: "${dmg_physical_2}"}], target: victim, ignore_invulnerability: true, when: "= event.source == 'sel_2'"}
+      - {id: pin_4, op: place, frame: fx6_vendetta_thrust_flash, like: contact, orient: yaw, when: "= event.source == 'sel_2'"}
+      - {id: pin_5, op: place, frame: fx7_vendetta_contact_ring, like: contact, orient: yaw, when: "= event.source == 'sel_2'"}

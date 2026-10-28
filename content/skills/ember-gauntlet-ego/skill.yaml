@@ -43,6 +43,7 @@ gameplay:
           sector: {frame: caster, at: eye, forward: caster.forward, left: caster.left, angle_deg: "${arc_deg_2}", range: "${reach_2}", height: 2.0}
           window: once
           ticks: 1
+    - {id: t68, at: 68, do: [{id: pin, op: place, frame: fx6_ember_smoke_puff, like: caster, orient: yaw}]}
   "on":
     hit:
       - {id: dmg, op: damage, components: [{kind: fire, amount: "${dmg_fire}"}], target: victim, ignore_invulnerability: true, when: "= event.source == 'sel'"}

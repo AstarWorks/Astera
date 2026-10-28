@@ -11,7 +11,10 @@ State of one display at a tick, in caster-relative world terms:
   alive, kind, item/model/text, origin (entity position + translation, rotation-free), left quaternion, scale,
   billboard, interpolation duration, teleport duration.
 """
-import json, os, sys, collections
+import math
+
+import numpy as np
+import json, os, re, sys, collections
 
 EPS = 1e-3
 
@@ -77,10 +80,11 @@ def displays_over_time(rows, engine, ticks):
             e = r["e"]
             i = r.get("id")
             if e == "spawn":
-                sp = {k: r.get(k) for k in ("kind", "item", "model", "text", "bg", "opacity", "br", "rigshade")}
+                sp = {k: r.get(k) for k in ("kind", "item", "model", "text", "bg", "opacity", "br", "rigshade", "rgb", "seeThrough", "shadow")}
                 spawn_info[i] = sp
                 st = {"alive": True, "kind": r["kind"], "item": r.get("item"), "model": r.get("model"), "text": r.get("text"),
                       "bg": r.get("bg"), "opacity": r.get("opacity"), "br": r.get("br"), "rigshade": r.get("rigshade"),
+                      "rgb": r.get("rgb"), "seeThrough": r.get("seeThrough"), "shadow": r.get("shadow"),
                       "spawn_tick": t, "pos": None, "yaw": 0.0, "pitch": 0.0, "tr": [0, 0, 0], "left": [0, 0, 0, 1],
                       "scale": [1, 1, 1], "bb": "fixed", "interp": 0, "tp": 0, "anch": False}
                 cur[i] = st
@@ -141,7 +145,7 @@ def displays_over_time(rows, engine, ticks):
     return out, particles
 
 
-FIELDS = ["alive", "kind", "item", "model", "text", "bg", "origin", "yaw", "pitch", "left", "scale", "bb", "interp", "tp", "br", "rigshade"]
+FIELDS = ["alive", "kind", "item", "model", "text", "bg", "origin", "yaw", "pitch", "left", "scale", "bb", "interp", "tp", "br", "rigshade", "rgb", "seeThrough", "shadow"]
 
 
 def klass(st):
@@ -150,7 +154,7 @@ def klass(st):
     if k == "item" and st.get("item") == "main-hand":
         return "main_hand"
     if k == "text":
-        t = st.get("text") or ""
+        t = re.sub(r"^<#[0-9a-fA-F]{6}>", "", st.get("text") or "")
         return "text:" + (t if t.startswith("<font") or len(t) <= 2 else "styled")
     if k == "item":
         return "item:" + str(st.get("model") or st.get("item"))
@@ -172,7 +176,7 @@ def sig_groups(states, ticks):
     return g, seen
 
 
-FIELD_CHECKS = ["origin", "left", "scale", "bb", "interp", "tp"]
+FIELD_CHECKS = ["origin", "left", "scale", "bb", "interp", "tp", "seeThrough", "shadow", "rgb", "bg"]
 
 
 def field_diff(a, b):
@@ -186,6 +190,69 @@ def field_diff(a, b):
         if not close(x, y):
             out.append(f)
     return out
+
+
+def plane_of(g):
+    """(planar, unit normal) of a group's positions: planar when the smallest covariance eigenvalue is under 5% of the
+    largest; the normal is the matching eigenvector. None for fewer than 4 points or a degenerate (collinear) group."""
+    if len(g) < 4:
+        return None
+    pts = np.array([[p[1], p[2], p[3]] for p in g], dtype=float)
+    w, v = np.linalg.eigh(np.cov((pts - pts.mean(axis=0)).T))
+    if w[2] < 1e-9 or w[1] < 0.05 * w[2]:
+        return None
+    return (w[0] < 0.05 * w[2], v[:, 0])
+
+
+def plane_equal(a, b):
+    """Plane check for ring/circle groups. v1 and HEAD must agree on planarity per key, and when v1's normal is
+    axis-aligned (a horizontal or world-vertical ring, the angles v1 does not randomise) HEAD's must lie within 25 degrees.
+    Rings with a random axis legitimately differ per cast, so their normals are not compared: that is this check's limit."""
+    for key in {p[0] for p in a}:
+        pa = plane_of([p for p in a if p[0] == key])
+        pb = plane_of([p for p in b if p[0] == key])
+        if pa is None and pb is None:
+            continue
+        if pa is None or pb is None or pa[0] != pb[0]:
+            return False
+        if pa[0] and max(abs(pa[1])) > 0.95 and abs(float(np.dot(pa[1], pb[1]))) < math.cos(math.radians(25)):
+            return False
+    return True
+
+
+def stat_equal(a, b):
+    """True when two particle ticks differ only in v1-random fields. v1 drew ring phase, line jitter and orbit start from an
+    unseeded RNG, so HEAD (cast-seeded SeededRandom) can never reproduce its positions; seeding both runs identically is not
+    possible (different generators and draw order). Honest comparison: every non-positional field (key, count, data,
+    extra) must match exactly as a multiset, and per particle key the spread must match in distribution: mean and max distance
+    from the group's centroid, and the sorted offset lengths, within 25% (+0.05 blocks). Positions are NOT compared further."""
+    if len(a) != len(b):
+        return False
+    fixed = lambda ps: sorted((p[0], p[4], p[8], p[9]) for p in ps)
+    if fixed(a) != fixed(b):
+        return False
+
+    def spread(ps):
+        out = {}
+        for key in {p[0] for p in ps}:
+            g = [p for p in ps if p[0] == key]
+            cx, cy, cz = (sum(p[i] for p in g) / len(g) for i in (1, 2, 3))
+            d = sorted(math.sqrt((p[1] - cx) ** 2 + (p[2] - cy) ** 2 + (p[3] - cz) ** 2) for p in g)
+            o = sorted(math.sqrt(p[5] ** 2 + p[6] ** 2 + p[7] ** 2) for p in g)
+            out[key] = (d, o)
+        return out
+
+    sa, sb = spread(a), spread(b)
+    if not plane_equal(a, b):
+        return False
+    near = lambda x, y: abs(x - y) <= 0.25 * max(abs(x), abs(y)) + 0.05
+    for key in sa:
+        (da, oa), (db, ob) = sa[key], sb[key]
+        if not (near(sum(da) / len(da), sum(db) / len(db)) and near(max(da), max(db))):
+            return False
+        if any(abs(x - y) > 0.05 for x, y in zip(oa, ob)):
+            return False
+    return True
 
 
 def analyse(v1_rows, head_rows, ticks):
@@ -218,11 +285,15 @@ def analyse(v1_rows, head_rows, ticks):
     keys1 = collections.Counter(p[0] for ps in p1.values() for p in ps)
     keys2 = collections.Counter(p[0] for ps in p2.values() for p in ps)
     firstp = None
+    stat_ticks = 0
     for t in range(ticks + 1):
         if sorted(p1.get(t, [])) != sorted(p2.get(t, [])):
+            if stat_equal(p1.get(t, []), p2.get(t, [])):
+                stat_ticks += 1
+                continue
             firstp = t
             break
-    res["particles"] = {"v1": sum(keys1.values()), "head": sum(keys2.values()), "first_diff_tick": firstp,
+    res["particles"] = {"stat_ticks": stat_ticks, "v1": sum(keys1.values()), "head": sum(keys2.values()), "first_diff_tick": firstp,
                         "missing_keys": sorted(set(keys1) - set(keys2)), "extra_keys": sorted(set(keys2) - set(keys1))}
     return res
 
@@ -253,6 +324,8 @@ def main():
             causes["particles: call count differs"].append(f"{i} ({pr['v1']}->{pr['head']})")
         elif pr["first_diff_tick"] is not None:
             causes["particles: same count, args differ"].append(f"{i}@{pr['first_diff_tick']}")
+        elif pr["stat_ticks"]:
+            causes["particles: equal except v1-random positions (stat-equal, see stat_equal)"].append(f"{i} ({pr['stat_ticks']} ticks)")
     lines = ["# Vanilla output diff, v1 (d41b82f1e) vs HEAD", "",
              f"{len(ids)} skills, first {ticks} ticks, caster at the origin (yaw 0, pitch 0), dummy 5 blocks ahead.", "",
              "## By root cause", ""]

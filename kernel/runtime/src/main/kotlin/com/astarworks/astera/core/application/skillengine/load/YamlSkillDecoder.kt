@@ -1,5 +1,6 @@
 package com.astarworks.astera.core.application.skillengine.load
 
+import com.astarworks.astera.core.application.skillengine.load.ops.FrameRawValues
 import com.astarworks.astera.core.application.skillengine.compose.ComposedSkill
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.skillengine.model.FrameDecl
@@ -124,6 +125,7 @@ public class YamlSkillDecoder(private val registry: OpDecoderRegistry) : SkillDe
                     part = entry.string("part"),
                     offset = entry.literalVec3("offset"),
                     inactive = entry.bool("inactive") ?: false,
+                    orient = entry.raw("orient")?.let { FrameRawValues.orient(it, entry, "$path.orient") },
                 )
                 entry.consume("id")
                 entry.failOnUnconsumed()

@@ -4,11 +4,11 @@ apiVersion: "astera/v2"
 kind: Skill
 id: flash-bang-throw
 frames:
-  - {id: pt_caster_0_m0p25_0p9, kind: point, parent: caster, offset: [0.0, -0.25, 0.9]}
+  - {id: pt_aim_0_m0p25_0p9, kind: point, parent: aim, offset: [0.0, -0.25, 0.9]}
   - {id: pt_enemy_0_0p8_0, kind: point, parent: enemy, offset: [0.0, 0.8, 0.0]}
 presentation:
   timeline:
-    - {id: fx0, at: 0, do: [{id: snd, op: sound, sound: entity.snowball.throw, at: caster, volume: 0.9, pitch: 1.2}, {id: emit, op: emit, at: pt_caster_0_m0p25_0p9, particle: gun-muzzle-flash}]}
+    - {id: fx0, at: 0, do: [{id: snd, op: sound, sound: entity.snowball.throw, at: caster, volume: 0.9, pitch: 1.2}, {id: emit, op: emit, at: pt_aim_0_m0p25_0p9, particle: gun-muzzle-flash}]}
     - id: fxblock_1
       at: "block+1"
       do:
@@ -19,8 +19,8 @@ presentation:
           count: 0
           speed: 0.08
           times: 16
-          shift: "= vec(1.4333*sin((3.6213 + 6.283185307179586*i/16)), 0.0, 1.4333*cos((3.6213 + 6.283185307179586*i/16)))"
-          offset: "= vec(sin((3.6213 + 6.283185307179586*i/16)), 0, cos((3.6213 + 6.283185307179586*i/16)))"
+          shift: "= vec(0, 1, 0)*0 + vec(1, 0, -0)*(1.4333*cos((draw('shape_2_ph')*6.283185307179586 + 6.283185307179586*i/16))) + vec(-0, 0, -1)*(1.4333*sin((draw('shape_2_ph')*6.283185307179586 + 6.283185307179586*i/16)))"
+          offset: "= vec(1, 0, -0)*cos((draw('shape_2_ph')*6.283185307179586 + 6.283185307179586*i/16)) + vec(-0, 0, -1)*sin((draw('shape_2_ph')*6.283185307179586 + 6.283185307179586*i/16))"
         - id: emit_13
           op: emit
           at: contact.point
@@ -29,7 +29,7 @@ presentation:
           data: "#ffffe6"
           data_size: 1.4
           times: 16
-          shift: "= vec(1.4333*sin((3.6213 + 6.283185307179586*i/16)), 0.0, 1.4333*cos((3.6213 + 6.283185307179586*i/16)))"
+          shift: "= vec(0, 1, 0)*0 + vec(1, 0, -0)*(1.4333*cos((draw('shape_2_ph')*6.283185307179586 + 6.283185307179586*i/16))) + vec(-0, 0, -1)*(1.4333*sin((draw('shape_2_ph')*6.283185307179586 + 6.283185307179586*i/16)))"
     - id: fxblock_2
       at: "block+2"
       do:
@@ -40,8 +40,8 @@ presentation:
           count: 0
           speed: 0.08
           times: 16
-          shift: "= vec(2.4667*sin((3.6213 + 6.283185307179586*i/16)), 0.0, 2.4667*cos((3.6213 + 6.283185307179586*i/16)))"
-          offset: "= vec(sin((3.6213 + 6.283185307179586*i/16)), 0, cos((3.6213 + 6.283185307179586*i/16)))"
+          shift: "= vec(0, 1, 0)*0 + vec(1, 0, -0)*(2.4667*cos((draw('shape_2_ph')*6.283185307179586 + 6.283185307179586*i/16))) + vec(-0, 0, -1)*(2.4667*sin((draw('shape_2_ph')*6.283185307179586 + 6.283185307179586*i/16)))"
+          offset: "= vec(1, 0, -0)*cos((draw('shape_2_ph')*6.283185307179586 + 6.283185307179586*i/16)) + vec(-0, 0, -1)*sin((draw('shape_2_ph')*6.283185307179586 + 6.283185307179586*i/16))"
         - id: emit_15
           op: emit
           at: contact.point
@@ -50,7 +50,7 @@ presentation:
           data: "#ffffe6"
           data_size: 1.4
           times: 16
-          shift: "= vec(2.4667*sin((3.6213 + 6.283185307179586*i/16)), 0.0, 2.4667*cos((3.6213 + 6.283185307179586*i/16)))"
+          shift: "= vec(0, 1, 0)*0 + vec(1, 0, -0)*(2.4667*cos((draw('shape_2_ph')*6.283185307179586 + 6.283185307179586*i/16))) + vec(-0, 0, -1)*(2.4667*sin((draw('shape_2_ph')*6.283185307179586 + 6.283185307179586*i/16)))"
     - id: fxblock_3
       at: "block+3"
       do:
@@ -61,8 +61,8 @@ presentation:
           count: 0
           speed: 0.08
           times: 16
-          shift: "= vec(3.5*sin((3.6213 + 6.283185307179586*i/16)), 0.0, 3.5*cos((3.6213 + 6.283185307179586*i/16)))"
-          offset: "= vec(sin((3.6213 + 6.283185307179586*i/16)), 0, cos((3.6213 + 6.283185307179586*i/16)))"
+          shift: "= vec(0, 1, 0)*0 + vec(1, 0, -0)*(3.5*cos((draw('shape_2_ph')*6.283185307179586 + 6.283185307179586*i/16))) + vec(-0, 0, -1)*(3.5*sin((draw('shape_2_ph')*6.283185307179586 + 6.283185307179586*i/16)))"
+          offset: "= vec(1, 0, -0)*cos((draw('shape_2_ph')*6.283185307179586 + 6.283185307179586*i/16)) + vec(-0, 0, -1)*sin((draw('shape_2_ph')*6.283185307179586 + 6.283185307179586*i/16))"
         - id: emit_17
           op: emit
           at: contact.point
@@ -71,7 +71,7 @@ presentation:
           data: "#ffffe6"
           data_size: 1.4
           times: 16
-          shift: "= vec(3.5*sin((3.6213 + 6.283185307179586*i/16)), 0.0, 3.5*cos((3.6213 + 6.283185307179586*i/16)))"
+          shift: "= vec(0, 1, 0)*0 + vec(1, 0, -0)*(3.5*cos((draw('shape_2_ph')*6.283185307179586 + 6.283185307179586*i/16))) + vec(-0, 0, -1)*(3.5*sin((draw('shape_2_ph')*6.283185307179586 + 6.283185307179586*i/16)))"
     - id: fxhit_1
       at: "hit+1"
       do:
@@ -82,8 +82,8 @@ presentation:
           count: 0
           speed: 0.08
           times: 16
-          shift: "= vec(1.4333*sin((3.6112 + 6.283185307179586*i/16)), 0.0, 1.4333*cos((3.6112 + 6.283185307179586*i/16)))"
-          offset: "= vec(sin((3.6112 + 6.283185307179586*i/16)), 0, cos((3.6112 + 6.283185307179586*i/16)))"
+          shift: "= vec(0, 1, 0)*0 + vec(1, 0, -0)*(1.4333*cos((draw('shape_ph')*6.283185307179586 + 6.283185307179586*i/16))) + vec(-0, 0, -1)*(1.4333*sin((draw('shape_ph')*6.283185307179586 + 6.283185307179586*i/16)))"
+          offset: "= vec(1, 0, -0)*cos((draw('shape_ph')*6.283185307179586 + 6.283185307179586*i/16)) + vec(-0, 0, -1)*sin((draw('shape_ph')*6.283185307179586 + 6.283185307179586*i/16))"
         - id: emit_5
           op: emit
           at: pt_enemy_0_0p8_0
@@ -92,7 +92,7 @@ presentation:
           data: "#ffffe6"
           data_size: 1.4
           times: 16
-          shift: "= vec(1.4333*sin((3.6112 + 6.283185307179586*i/16)), 0.0, 1.4333*cos((3.6112 + 6.283185307179586*i/16)))"
+          shift: "= vec(0, 1, 0)*0 + vec(1, 0, -0)*(1.4333*cos((draw('shape_ph')*6.283185307179586 + 6.283185307179586*i/16))) + vec(-0, 0, -1)*(1.4333*sin((draw('shape_ph')*6.283185307179586 + 6.283185307179586*i/16)))"
     - id: fxhit_2
       at: "hit+2"
       do:
@@ -103,8 +103,8 @@ presentation:
           count: 0
           speed: 0.08
           times: 16
-          shift: "= vec(2.4667*sin((3.6112 + 6.283185307179586*i/16)), 0.0, 2.4667*cos((3.6112 + 6.283185307179586*i/16)))"
-          offset: "= vec(sin((3.6112 + 6.283185307179586*i/16)), 0, cos((3.6112 + 6.283185307179586*i/16)))"
+          shift: "= vec(0, 1, 0)*0 + vec(1, 0, -0)*(2.4667*cos((draw('shape_ph')*6.283185307179586 + 6.283185307179586*i/16))) + vec(-0, 0, -1)*(2.4667*sin((draw('shape_ph')*6.283185307179586 + 6.283185307179586*i/16)))"
+          offset: "= vec(1, 0, -0)*cos((draw('shape_ph')*6.283185307179586 + 6.283185307179586*i/16)) + vec(-0, 0, -1)*sin((draw('shape_ph')*6.283185307179586 + 6.283185307179586*i/16))"
         - id: emit_7
           op: emit
           at: pt_enemy_0_0p8_0
@@ -113,7 +113,7 @@ presentation:
           data: "#ffffe6"
           data_size: 1.4
           times: 16
-          shift: "= vec(2.4667*sin((3.6112 + 6.283185307179586*i/16)), 0.0, 2.4667*cos((3.6112 + 6.283185307179586*i/16)))"
+          shift: "= vec(0, 1, 0)*0 + vec(1, 0, -0)*(2.4667*cos((draw('shape_ph')*6.283185307179586 + 6.283185307179586*i/16))) + vec(-0, 0, -1)*(2.4667*sin((draw('shape_ph')*6.283185307179586 + 6.283185307179586*i/16)))"
     - id: fxhit_3
       at: "hit+3"
       do:
@@ -124,8 +124,8 @@ presentation:
           count: 0
           speed: 0.08
           times: 16
-          shift: "= vec(3.5*sin((3.6112 + 6.283185307179586*i/16)), 0.0, 3.5*cos((3.6112 + 6.283185307179586*i/16)))"
-          offset: "= vec(sin((3.6112 + 6.283185307179586*i/16)), 0, cos((3.6112 + 6.283185307179586*i/16)))"
+          shift: "= vec(0, 1, 0)*0 + vec(1, 0, -0)*(3.5*cos((draw('shape_ph')*6.283185307179586 + 6.283185307179586*i/16))) + vec(-0, 0, -1)*(3.5*sin((draw('shape_ph')*6.283185307179586 + 6.283185307179586*i/16)))"
+          offset: "= vec(1, 0, -0)*cos((draw('shape_ph')*6.283185307179586 + 6.283185307179586*i/16)) + vec(-0, 0, -1)*sin((draw('shape_ph')*6.283185307179586 + 6.283185307179586*i/16))"
         - id: emit_9
           op: emit
           at: pt_enemy_0_0p8_0
@@ -134,7 +134,7 @@ presentation:
           data: "#ffffe6"
           data_size: 1.4
           times: 16
-          shift: "= vec(3.5*sin((3.6112 + 6.283185307179586*i/16)), 0.0, 3.5*cos((3.6112 + 6.283185307179586*i/16)))"
+          shift: "= vec(0, 1, 0)*0 + vec(1, 0, -0)*(3.5*cos((draw('shape_ph')*6.283185307179586 + 6.283185307179586*i/16))) + vec(-0, 0, -1)*(3.5*sin((draw('shape_ph')*6.283185307179586 + 6.283185307179586*i/16)))"
     - {id: rep1, at: 0, every: 1, until: end, do: [{id: trail, op: emit, at: bolt, particle: end_rod, count: 1, spacing: 0.4, offset: [0.03, 0.03, 0.03]}]}
   "on":
     hit:
@@ -145,8 +145,8 @@ presentation:
         count: 0
         speed: 0.08
         times: 16
-        shift: "= vec(0.4*sin((3.6112 + 6.283185307179586*i/16)), 0.0, 0.4*cos((3.6112 + 6.283185307179586*i/16)))"
-        offset: "= vec(sin((3.6112 + 6.283185307179586*i/16)), 0, cos((3.6112 + 6.283185307179586*i/16)))"
+        shift: "= vec(0, 1, 0)*0 + vec(1, 0, -0)*(0.4*cos((draw('shape_ph')*6.283185307179586 + 6.283185307179586*i/16))) + vec(-0, 0, -1)*(0.4*sin((draw('shape_ph')*6.283185307179586 + 6.283185307179586*i/16)))"
+        offset: "= vec(1, 0, -0)*cos((draw('shape_ph')*6.283185307179586 + 6.283185307179586*i/16)) + vec(-0, 0, -1)*sin((draw('shape_ph')*6.283185307179586 + 6.283185307179586*i/16))"
       - id: emit_3
         op: emit
         at: pt_enemy_0_0p8_0
@@ -155,7 +155,7 @@ presentation:
         data: "#ffffe6"
         data_size: 1.4
         times: 16
-        shift: "= vec(0.4*sin((3.6112 + 6.283185307179586*i/16)), 0.0, 0.4*cos((3.6112 + 6.283185307179586*i/16)))"
+        shift: "= vec(0, 1, 0)*0 + vec(1, 0, -0)*(0.4*cos((draw('shape_ph')*6.283185307179586 + 6.283185307179586*i/16))) + vec(-0, 0, -1)*(0.4*sin((draw('shape_ph')*6.283185307179586 + 6.283185307179586*i/16)))"
       - {id: snd_2, op: sound, sound: entity.firework_rocket.blast, at: enemy, volume: 0.9, pitch: 1.3}
     block:
       - id: emit_10
@@ -165,8 +165,8 @@ presentation:
         count: 0
         speed: 0.08
         times: 16
-        shift: "= vec(0.4*sin((3.6213 + 6.283185307179586*i/16)), 0.0, 0.4*cos((3.6213 + 6.283185307179586*i/16)))"
-        offset: "= vec(sin((3.6213 + 6.283185307179586*i/16)), 0, cos((3.6213 + 6.283185307179586*i/16)))"
+        shift: "= vec(0, 1, 0)*0 + vec(1, 0, -0)*(0.4*cos((draw('shape_2_ph')*6.283185307179586 + 6.283185307179586*i/16))) + vec(-0, 0, -1)*(0.4*sin((draw('shape_2_ph')*6.283185307179586 + 6.283185307179586*i/16)))"
+        offset: "= vec(1, 0, -0)*cos((draw('shape_2_ph')*6.283185307179586 + 6.283185307179586*i/16)) + vec(-0, 0, -1)*sin((draw('shape_2_ph')*6.283185307179586 + 6.283185307179586*i/16))"
       - id: emit_11
         op: emit
         at: contact.point
@@ -175,5 +175,5 @@ presentation:
         data: "#ffffe6"
         data_size: 1.4
         times: 16
-        shift: "= vec(0.4*sin((3.6213 + 6.283185307179586*i/16)), 0.0, 0.4*cos((3.6213 + 6.283185307179586*i/16)))"
+        shift: "= vec(0, 1, 0)*0 + vec(1, 0, -0)*(0.4*cos((draw('shape_2_ph')*6.283185307179586 + 6.283185307179586*i/16))) + vec(-0, 0, -1)*(0.4*sin((draw('shape_2_ph')*6.283185307179586 + 6.283185307179586*i/16)))"
       - {id: snd_3, op: sound, sound: entity.firework_rocket.blast, at: contact.point, volume: 0.9, pitch: 1.3}

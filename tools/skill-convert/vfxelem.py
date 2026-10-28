@@ -302,7 +302,17 @@ def _vec3(v, what):
 
 
 def sample(kfs, ch, default, u, what=None):
-    pts = [(int(k["t"]), k[ch], k.get("ease")) for k in sorted(kfs, key=lambda k: k["t"]) if ch in k]
+    """Channel `ch` at tick `u`. With a [default] the keys carry forward from it exactly like v1 (VfxTimeline.resolveKeyframes /
+    resolveGroup: a key that omits a channel keeps the previous key's value, the first one starts at identity, and every key's `ease`
+    shapes the segment that ends at it); without one (alpha / colour) only the keys that name the channel count."""
+    if default is not None:
+        cur = default
+        pts = []
+        for k in sorted(kfs, key=lambda k: k["t"]):
+            cur = k[ch] if ch in k else cur
+            pts.append((int(k["t"]), cur, k.get("ease")))
+    else:
+        pts = [(int(k["t"]), k[ch], k.get("ease")) for k in sorted(kfs, key=lambda k: k["t"]) if ch in k]
     if not pts:
         return default
     scalar = isinstance(pts[0][1], (int, float))
@@ -355,7 +365,7 @@ def clean(v):
 
 # ------------------------------------------------------------------ keys
 def op_keys(kfs, extra=None, ticks=None):
-    """v1 keyframes -> v2 track keys. Channels: translate -> offset, rotate -> turn (densified), scale, alpha, color, block, ease.
+    """v1 keyframes -> v2 track keys. Channels: translate -> offset, rotate -> turn (densified), scale, alpha, color, block, text, ease.
     `extra` overrides the sampled channels per tick: {tick: {"offset"|"scale": vec}} (oscillate / group-scale bakes)."""
     ks = []
     for k in kfs:
@@ -372,6 +382,8 @@ def op_keys(kfs, extra=None, ticks=None):
             e["color"] = k["color"]
         if "block" in k:
             e["block"] = k["block"]
+        if "text" in k:
+            e["text"] = k["text"]
         if "ease" in k:
             ek = ease_key(str(k["ease"]))
             if ek is None:
@@ -588,6 +600,8 @@ def emit_quads(c, el, fid, where, delay, when, dur, removes):
             op["color"] = sorted(em["color_over_life"], key=lambda p: p["t"])[0]["v"]
         if glyph:
             op["text"] = glyph
+        if kind.get("see_through"):
+            op["see_through"] = True
         if "brightness" in el:
             op["brightness"] = int(el["brightness"])
         at = delay + spawn
@@ -603,6 +617,14 @@ def keys_shift(keys):
 
 # ------------------------------------------------------------------ display elements
 UNSUPPORTED = ("target_track", "lane", "glow_color", "target_line", "respect_hit_stop", "view_range")
+
+
+def argb_split(c):
+    """v1 `#AARRGGBB` (or `#RRGGBB`) -> (`#rrggbb`, alpha 0..1)."""
+    h = str(c).lstrip("#")
+    if len(h) == 8:
+        return "#" + h[2:].lower(), round(int(h[:2], 16) / 255.0, 3)
+    return "#" + h.lower(), 1.0
 
 
 def hexc(col):
@@ -643,6 +665,22 @@ def base_fields(kind, el, c, fid):
             op["loop"] = True
         if "color" in kind:
             op["color"] = hexc(kind["color"])
+        if kind.get("see_through"):
+            op["see_through"] = True
+        return op
+    if kt == "text":
+        # blocks per text unit: v1 scale 1 = 0.2 blocks (8 px * 0.025), so v1 scale keys carry over unchanged
+        op = {"op": "text", "parent": fid, "face": face, "size": [0.2, 0.2], "text": kind["text"]}
+        bg = kind.get("background")
+        if bg:
+            rgb, alpha = argb_split(bg)
+            if alpha > 0:
+                op["background"] = rgb
+                op["background_alpha"] = alpha
+        if kind.get("shadow"):
+            op["shadow"] = True
+        if kind.get("see_through"):
+            op["see_through"] = True
         return op
     c.present("element kind %s has no v2 op" % kt, str(kind)[:80])
     return None
@@ -660,7 +698,7 @@ def display_element(c, el, fid, where, delay, when, dur, removes):
     if skel is None:
         return
     for k in kind:
-        if k not in ("type", "block", "color", "alpha", "glyph", "see_through", "sprite", "frame_ticks", "loop"):
+        if k not in ("type", "block", "color", "alpha", "glyph", "see_through", "sprite", "frame_ticks", "loop", "text", "background", "shadow"):
             c.present("element kind field %s" % k)
     eid = c.oid("%s_%s" % (fid, sid(el["id"])))
     start = int(el.get("start_tick", 0))
@@ -675,8 +713,8 @@ def display_element(c, el, fid, where, delay, when, dur, removes):
     jit = el.get("jitter")
     osc = el.get("oscillate")
     for kf in kfs:
-        if "text" in kf:
-            c.present("keyframe text swap")
+        if "text" in kf and skel["op"] != "text":
+            c.present("keyframe text swap on a non-text element")
     try:
         slots = slot_tables(el)
     except ValueError as e:
@@ -764,7 +802,7 @@ def group_slots(c, el, skel, eid, where, delay, when, rows, spawns, life_of, liv
     extra = oscillate(kfs, osc, length) if osc else None
     side = op_keys(kfs, extra) if (kfs or extra) else []
     side = with_initial_look(side, skel.get("alpha"), skel.get("color") if skel["op"] == "quad" else None)
-    other = {k["t"]: {x: v for x, v in k.items() if x in ("alpha", "color", "block")} for k in side}
+    other = {k["t"]: {x: v for x, v in k.items() if x in ("alpha", "color", "block", "text")} for k in side}
     other = {t: v for t, v in other.items() if v}
     for k in live:
         sp, rs = rows[k]

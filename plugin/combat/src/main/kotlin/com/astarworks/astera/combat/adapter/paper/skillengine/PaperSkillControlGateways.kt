@@ -119,7 +119,7 @@ public class PaperSkillScreenGateway(
         val glyph = SpriteGlyphs.text(SpriteId(sprite), 0, colorRgb)
         val intrinsic = Intrinsic.textGlyph(spritePx(sprite))
         val write = toDisplayWrite(Frame(Vec3.ZERO), Vec3(side, side, 1.0), intrinsic, DisplayBillboard.CENTER, 0)
-        val spec = SkillDisplaySpecs.plate(glyph, 1.0, write.transform, DisplayBillboard.CENTER, 15).copy(lifetimeTicks = (ticks + 2).toLong(), viewRange = 8f)
+        val spec = SkillDisplaySpecs.plate(glyph, 1.0, false, write.transform, DisplayBillboard.CENTER, 15).copy(lifetimeTicks = (ticks + 2).toLong(), viewRange = 8f)
         val (at, yaw, pitch) = anchor(player, distance)
         val handle = displays.spawnFor(WorldId(player.world.name), at, spec, listOf(glyph), PlayerId(viewer))
         if (handle == null) {

@@ -1,7 +1,5 @@
 # Converted from content/skills/orrery-s2.yaml + content/vfx/* by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
 # Generated point-frame offsets are [left, up, forward] in the parent frame.
-# CONVERT-PRESENT vfx frame orient (frames carry no orientation / scale) (x5): orient="yaw"
-# CONVERT-PRESENT vfx follow=false (anchored at world, no place-at-spawn) (x3): orrery-s2-poise | orrery-s2-impact
 # CONVERT-PRESENT vfx target_reference (no v2 equivalent) (x2): [0, 0, 0]
 # CONVERT-PRESENT play_vfx track_bound_target (no v2 equivalent) (x2): true
 # CONVERT-PRESENT element target_track (no v2 equivalent) (x4): [{'t': 0, 'weight': 1}]
@@ -9,8 +7,8 @@ apiVersion: "astera/v2"
 kind: Skill
 id: orrery-s2
 frames:
-  - {id: fx1_orrery_s2_charge_ring, kind: body, parent: caster}
-  - {id: fx2_orrery_s2_charge_ring, kind: body, parent: caster}
+  - {id: fx1_orrery_s2_charge_ring, kind: body, parent: caster, orient: yaw}
+  - {id: fx2_orrery_s2_charge_ring, kind: body, parent: caster, orient: yaw}
   - {id: fx3_orrery_s2_poise, kind: body, parent: world}
   - {id: fx3_orrery_s2_poise_staff_at, kind: body, parent: caster.right_hand}
   - {id: fx3_orrery_s2_poise_staff, kind: body, parent: fx3_orrery_s2_poise_staff_at}
@@ -58,7 +56,7 @@ presentation:
             - {t: 0, scale: [0.09, 0.09, 0.55]}
             - {t: 2, scale: [0.09, 0.09, 0.7], ease: out_expo}
             - {t: 14, scale: [0.0, 0.0, 0.4]}
-        - {op: plate, parent: fx3_orrery_s2_poise, face: {viewer: center}, sprite: orrery-orb, size: 3.2, color: "#FFFFFF", brightness: 15, id: fx3_orrery_s2_poise_emitter_light}
+        - {op: plate, parent: fx3_orrery_s2_poise, face: {viewer: center}, sprite: orrery-orb, size: 3.2, color: "#FFFFFF", see_through: true, brightness: 15, id: fx3_orrery_s2_poise_emitter_light}
         - id: fx3_orrery_s2_poise_emitter_light_trk
           op: track
           target: fx3_orrery_s2_poise_emitter_light
@@ -308,6 +306,7 @@ presentation:
         frame_ticks: 2
         loop: true
         color: "#FFFFFF"
+        see_through: true
         brightness: 15
         id: fx4_orrery_s2_impact_annulus
         when: "= event.source == 'sel'"
@@ -320,7 +319,16 @@ presentation:
           - {t: 11, scale: [0.494, 0.7155, 1.0]}
           - {t: 15, scale: [0.507, 0.7425, 1.0], alpha: 0.0}
         when: "= event.source == 'sel'"
-      - {op: plate, parent: fx4_orrery_s2_impact, face: {viewer: center}, sprite: glint, size: 0.8, color: "#9A63EE", brightness: 15, id: fx4_orrery_s2_impact_violet_flash, when: "= event.source == 'sel'"}
+      - op: plate
+        parent: fx4_orrery_s2_impact
+        face: {viewer: center}
+        sprite: glint
+        size: 0.8
+        color: "#9A63EE"
+        see_through: true
+        brightness: 15
+        id: fx4_orrery_s2_impact_violet_flash
+        when: "= event.source == 'sel'"
       - id: fx4_orrery_s2_impact_violet_flash_trk
         op: track
         target: fx4_orrery_s2_impact_violet_flash
@@ -337,6 +345,7 @@ presentation:
         frame_ticks: 2
         loop: true
         color: "#FFFFFF"
+        see_through: true
         brightness: 15
         id: fx5_orrery_s2_impact_long_annulus
         when: "= event.source == 'sel_2'"
@@ -355,6 +364,7 @@ presentation:
         sprite: glint
         size: 0.8
         color: "#9A63EE"
+        see_through: true
         brightness: 15
         id: fx5_orrery_s2_impact_long_violet_flash
         when: "= event.source == 'sel_2'"

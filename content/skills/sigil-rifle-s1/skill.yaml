@@ -25,4 +25,7 @@ gameplay:
           max_count: 1
           window: once
           ticks: 1
-  "on": {hit: [{id: dmg, op: damage, components: [{kind: physical, amount: "${dmg_physical}"}], target: victim, ignore_invulnerability: true, when: "= event.source == 'sel'"}]}
+  "on":
+    hit:
+      - {id: dmg, op: damage, components: [{kind: physical, amount: "${dmg_physical}"}], target: victim, ignore_invulnerability: true, when: "= event.source == 'sel'"}
+      - {id: pin, op: place, frame: fx2_sigil_rifle_mark, like: contact, orient: yaw, when: "= event.source == 'sel'"}

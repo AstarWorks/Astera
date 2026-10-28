@@ -1,15 +1,14 @@
 # Converted from content/skills/bastion-greatsword-s2.yaml + content/vfx/* by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
 # Generated point-frame offsets are [left, up, forward] in the parent frame.
-# CONVERT-PRESENT vfx frame orient (frames carry no orientation / scale) (x4): orient="yaw"
 # CONVERT-PRESENT vfx attach_to_anchor (no v2 equivalent) (x1): true
 # CONVERT-PRESENT vfx follow_pitch (no v2 equivalent) (x3): true
 apiVersion: "astera/v2"
 kind: Skill
 id: bastion-greatsword-s2
 frames:
-  - {id: fx1_bastion_s2_rig, kind: body, parent: caster}
+  - {id: fx1_bastion_s2_rig, kind: body, parent: caster, orient: yaw}
   - {id: fx1_bastion_s2_rig_sword, kind: body, parent: caster}
-  - {id: fx2_bastion_s2_fx_ring, kind: body, parent: caster}
+  - {id: fx2_bastion_s2_fx_ring, kind: body, parent: caster, orient: yaw}
   - {id: fx2_bastion_s2_fx_ring_s2r_p_sheath_0_at, kind: body, parent: fx2_bastion_s2_fx_ring}
   - {id: fx2_bastion_s2_fx_ring_s2r_p_sheath_0_2_at, kind: body, parent: fx2_bastion_s2_fx_ring}
   - {id: fx2_bastion_s2_fx_ring_s2r_p_sheath_1_at, kind: body, parent: fx2_bastion_s2_fx_ring}
@@ -189,7 +188,7 @@ frames:
   - {id: fx2_bastion_s2_fx_ring_s2r_p_tcrit_17_at, kind: body, parent: fx2_bastion_s2_fx_ring}
   - {id: fx2_bastion_s2_fx_ring_s2r_p_trail_47_at, kind: body, parent: fx2_bastion_s2_fx_ring}
   - {id: fx2_bastion_s2_fx_ring_s2r_p_slash_14_at, kind: body, parent: fx2_bastion_s2_fx_ring}
-  - {id: fx3_bastion_s2_fx_ring, kind: body, parent: caster}
+  - {id: fx3_bastion_s2_fx_ring, kind: body, parent: caster, orient: yaw}
   - {id: fx3_bastion_s2_fx_ring_s2r_p_sheath_0_at, kind: body, parent: fx3_bastion_s2_fx_ring}
   - {id: fx3_bastion_s2_fx_ring_s2r_p_sheath_0_2_at, kind: body, parent: fx3_bastion_s2_fx_ring}
   - {id: fx3_bastion_s2_fx_ring_s2r_p_sheath_1_at, kind: body, parent: fx3_bastion_s2_fx_ring}
@@ -369,7 +368,7 @@ frames:
   - {id: fx3_bastion_s2_fx_ring_s2r_p_tcrit_17_at, kind: body, parent: fx3_bastion_s2_fx_ring}
   - {id: fx3_bastion_s2_fx_ring_s2r_p_trail_47_at, kind: body, parent: fx3_bastion_s2_fx_ring}
   - {id: fx3_bastion_s2_fx_ring_s2r_p_slash_14_at, kind: body, parent: fx3_bastion_s2_fx_ring}
-  - {id: fx4_bastion_s2_fx_chop, kind: body, parent: caster}
+  - {id: fx4_bastion_s2_fx_chop, kind: body, parent: caster, orient: yaw}
   - {id: fx4_bastion_s2_fx_chop_s2c_p_gather_at, kind: body, parent: fx4_bastion_s2_fx_chop}
   - {id: fx4_bastion_s2_fx_chop_s2c_p_steel_top_at, kind: body, parent: fx4_bastion_s2_fx_chop}
   - {id: fx4_bastion_s2_fx_chop_s2c_p_steel_mid_at, kind: body, parent: fx4_bastion_s2_fx_chop}
@@ -498,6 +497,7 @@ presentation:
           face: {plane: {frame: fx2_bastion_s2_fx_ring, axes: [left, up]}}
           sprite: bastion-s1-ring-q0
           size: 6.4
+          see_through: true
           brightness: 15
           id: fx2_bastion_s2_fx_ring_s2r_ring_q0
         - id: fx2_bastion_s2_fx_ring_s2r_ring_q0_trk
@@ -563,6 +563,7 @@ presentation:
           face: {plane: {frame: fx2_bastion_s2_fx_ring, axes: [left, up]}}
           sprite: bastion-s1-ring-q1
           size: 6.4
+          see_through: true
           brightness: 15
           id: fx2_bastion_s2_fx_ring_s2r_ring_q1
         - id: fx2_bastion_s2_fx_ring_s2r_ring_q1_trk
@@ -585,7 +586,7 @@ presentation:
           target: fx2_bastion_s2_fx_ring_s2r_floor_fill
           keys:
             - {t: 0, offset: [0.25, 0.03, 0.5], scale: [0.6875, 0.6875, 1.0], turn: [-69.28203, 69.28203, 69.28203]}
-        - {op: plate, parent: fx2_bastion_s2_fx_ring, face: {viewer: center}, sprite: bastion-s1-streak, size: 6.4, brightness: 15, id: fx2_bastion_s2_fx_ring_s2r_line_1}
+        - {op: plate, parent: fx2_bastion_s2_fx_ring, face: {viewer: center}, sprite: bastion-s1-streak, size: 6.4, see_through: true, brightness: 15, id: fx2_bastion_s2_fx_ring_s2r_line_1}
         - id: fx2_bastion_s2_fx_ring_s2r_line_1_trk
           op: track
           target: fx2_bastion_s2_fx_ring_s2r_line_1
@@ -813,7 +814,7 @@ presentation:
       do:
         - {op: plate, parent: fx2_bastion_s2_fx_ring, face: {viewer: center}, sprite: bastion-s1-ink, size: 6.4, brightness: 15, id: fx2_bastion_s2_fx_ring_s2r_ink}
         - {id: fx2_bastion_s2_fx_ring_s2r_ink_trk, op: track, target: fx2_bastion_s2_fx_ring_s2r_ink, keys: [{t: 0, offset: [0.212, 1.223, 1.554], scale: [0.5312, 0.5312, 1.0], turn: [0.0, 0.0, 0.0]}]}
-        - {op: plate, parent: fx2_bastion_s2_fx_ring, face: {viewer: center}, sprite: bastion-s1-streak, size: 6.4, brightness: 15, id: fx2_bastion_s2_fx_ring_s2r_streak_main}
+        - {op: plate, parent: fx2_bastion_s2_fx_ring, face: {viewer: center}, sprite: bastion-s1-streak, size: 6.4, see_through: true, brightness: 15, id: fx2_bastion_s2_fx_ring_s2r_streak_main}
         - id: fx2_bastion_s2_fx_ring_s2r_streak_main_trk
           op: track
           target: fx2_bastion_s2_fx_ring_s2r_streak_main
@@ -821,7 +822,7 @@ presentation:
             - {t: 0, offset: [0.062, 1.773, 1.604], scale: [0.09375, 0.32, 1.0], turn: [0.0, 0.0, -4.0]}
             - {t: 1, offset: [0.062, 1.773, 1.604], scale: [0.7187, 0.32, 1.0], ease: out_expo, turn: [0.0, 0.0, -4.0]}
             - {t: 6, offset: [0.062, 1.773, 1.604], scale: [0.5625, 0.04, 1.0], ease: in_quad, turn: [0.0, 0.0, -4.0]}
-        - {op: plate, parent: fx2_bastion_s2_fx_ring, face: {viewer: center}, sprite: bastion-s1-streak, size: 6.4, color: "#FFE070", brightness: 15, id: fx2_bastion_s2_fx_ring_s2r_line_2}
+        - {op: plate, parent: fx2_bastion_s2_fx_ring, face: {viewer: center}, sprite: bastion-s1-streak, size: 6.4, color: "#FFE070", see_through: true, brightness: 15, id: fx2_bastion_s2_fx_ring_s2r_line_2}
         - id: fx2_bastion_s2_fx_ring_s2r_line_2_trk
           op: track
           target: fx2_bastion_s2_fx_ring_s2r_line_2
@@ -829,7 +830,7 @@ presentation:
             - {t: 0, offset: [-0.5, 1.05, 1.4], scale: [0.07812, 0.1, 1.0], turn: [0.0, 0.0, 0.0]}
             - {t: 1, offset: [-0.5, 1.05, 1.4], scale: [0.3125, 0.1, 1.0], ease: out_expo, turn: [0.0, 0.0, 0.0]}
             - {t: 2, offset: [-0.5, 1.05, 1.4], scale: [0.2187, 0.02, 1.0], ease: in_quad, turn: [0.0, 0.0, 0.0]}
-        - {op: plate, parent: fx2_bastion_s2_fx_ring, face: {viewer: center}, sprite: bastion-s1-flare, size: 6.4, brightness: 15, id: fx2_bastion_s2_fx_ring_s2r_flash}
+        - {op: plate, parent: fx2_bastion_s2_fx_ring, face: {viewer: center}, sprite: bastion-s1-flare, size: 6.4, see_through: true, brightness: 15, id: fx2_bastion_s2_fx_ring_s2r_flash}
         - id: fx2_bastion_s2_fx_ring_s2r_flash_trk
           op: track
           target: fx2_bastion_s2_fx_ring_s2r_flash
@@ -842,6 +843,7 @@ presentation:
           face: {plane: {frame: fx2_bastion_s2_fx_ring, axes: [left, up]}}
           sprite: bastion-s1-flare
           size: 6.4
+          see_through: true
           brightness: 15
           id: fx2_bastion_s2_fx_ring_s2r_flash_x
         - id: fx2_bastion_s2_fx_ring_s2r_flash_x_trk
@@ -856,6 +858,7 @@ presentation:
           face: {plane: {frame: fx2_bastion_s2_fx_ring, axes: [left, up]}}
           sprite: bastion-s1-flare
           size: 6.4
+          see_through: true
           brightness: 15
           id: fx2_bastion_s2_fx_ring_s2r_flash_f
         - id: fx2_bastion_s2_fx_ring_s2r_flash_f_trk
@@ -870,6 +873,7 @@ presentation:
           face: {plane: {frame: fx2_bastion_s2_fx_ring, axes: [left, up]}}
           sprite: bastion-s1-streak
           size: 6.4
+          see_through: true
           brightness: 15
           id: fx2_bastion_s2_fx_ring_s2r_streak_x
         - id: fx2_bastion_s2_fx_ring_s2r_streak_x_trk
@@ -970,6 +974,7 @@ presentation:
           face: {plane: {frame: fx2_bastion_s2_fx_ring, axes: [left, up]}}
           sprite: bastion-s1-ring-q2
           size: 6.4
+          see_through: true
           brightness: 15
           id: fx2_bastion_s2_fx_ring_s2r_ring_q2
         - id: fx2_bastion_s2_fx_ring_s2r_ring_q2_trk
@@ -1008,6 +1013,7 @@ presentation:
           face: {plane: {frame: fx2_bastion_s2_fx_ring, axes: [left, up]}}
           sprite: bastion-s1-ring-q3
           size: 6.4
+          see_through: true
           brightness: 15
           id: fx2_bastion_s2_fx_ring_s2r_ring_q3
         - id: fx2_bastion_s2_fx_ring_s2r_ring_q3_trk
@@ -1200,6 +1206,7 @@ presentation:
           face: {plane: {frame: fx3_bastion_s2_fx_ring, axes: [left, up]}}
           sprite: bastion-s1-ring-q0
           size: 6.4
+          see_through: true
           brightness: 15
           id: fx3_bastion_s2_fx_ring_s2r_ring_q0
         - id: fx3_bastion_s2_fx_ring_s2r_ring_q0_trk
@@ -1265,6 +1272,7 @@ presentation:
           face: {plane: {frame: fx3_bastion_s2_fx_ring, axes: [left, up]}}
           sprite: bastion-s1-ring-q1
           size: 6.4
+          see_through: true
           brightness: 15
           id: fx3_bastion_s2_fx_ring_s2r_ring_q1
         - id: fx3_bastion_s2_fx_ring_s2r_ring_q1_trk
@@ -1287,7 +1295,7 @@ presentation:
           target: fx3_bastion_s2_fx_ring_s2r_floor_fill
           keys:
             - {t: 0, offset: [0.25, 0.03, 0.5], scale: [0.6875, 0.6875, 1.0], turn: [-69.28203, 69.28203, 69.28203]}
-        - {op: plate, parent: fx3_bastion_s2_fx_ring, face: {viewer: center}, sprite: bastion-s1-streak, size: 6.4, brightness: 15, id: fx3_bastion_s2_fx_ring_s2r_line_1}
+        - {op: plate, parent: fx3_bastion_s2_fx_ring, face: {viewer: center}, sprite: bastion-s1-streak, size: 6.4, see_through: true, brightness: 15, id: fx3_bastion_s2_fx_ring_s2r_line_1}
         - id: fx3_bastion_s2_fx_ring_s2r_line_1_trk
           op: track
           target: fx3_bastion_s2_fx_ring_s2r_line_1
@@ -1515,7 +1523,7 @@ presentation:
       do:
         - {op: plate, parent: fx3_bastion_s2_fx_ring, face: {viewer: center}, sprite: bastion-s1-ink, size: 6.4, brightness: 15, id: fx3_bastion_s2_fx_ring_s2r_ink}
         - {id: fx3_bastion_s2_fx_ring_s2r_ink_trk, op: track, target: fx3_bastion_s2_fx_ring_s2r_ink, keys: [{t: 0, offset: [0.212, 1.223, 1.554], scale: [0.5312, 0.5312, 1.0], turn: [0.0, 0.0, 0.0]}]}
-        - {op: plate, parent: fx3_bastion_s2_fx_ring, face: {viewer: center}, sprite: bastion-s1-streak, size: 6.4, brightness: 15, id: fx3_bastion_s2_fx_ring_s2r_streak_main}
+        - {op: plate, parent: fx3_bastion_s2_fx_ring, face: {viewer: center}, sprite: bastion-s1-streak, size: 6.4, see_through: true, brightness: 15, id: fx3_bastion_s2_fx_ring_s2r_streak_main}
         - id: fx3_bastion_s2_fx_ring_s2r_streak_main_trk
           op: track
           target: fx3_bastion_s2_fx_ring_s2r_streak_main
@@ -1523,7 +1531,7 @@ presentation:
             - {t: 0, offset: [0.062, 1.773, 1.604], scale: [0.09375, 0.32, 1.0], turn: [0.0, 0.0, -4.0]}
             - {t: 1, offset: [0.062, 1.773, 1.604], scale: [0.7187, 0.32, 1.0], ease: out_expo, turn: [0.0, 0.0, -4.0]}
             - {t: 6, offset: [0.062, 1.773, 1.604], scale: [0.5625, 0.04, 1.0], ease: in_quad, turn: [0.0, 0.0, -4.0]}
-        - {op: plate, parent: fx3_bastion_s2_fx_ring, face: {viewer: center}, sprite: bastion-s1-streak, size: 6.4, color: "#FFE070", brightness: 15, id: fx3_bastion_s2_fx_ring_s2r_line_2}
+        - {op: plate, parent: fx3_bastion_s2_fx_ring, face: {viewer: center}, sprite: bastion-s1-streak, size: 6.4, color: "#FFE070", see_through: true, brightness: 15, id: fx3_bastion_s2_fx_ring_s2r_line_2}
         - id: fx3_bastion_s2_fx_ring_s2r_line_2_trk
           op: track
           target: fx3_bastion_s2_fx_ring_s2r_line_2
@@ -1531,7 +1539,7 @@ presentation:
             - {t: 0, offset: [-0.5, 1.05, 1.4], scale: [0.07812, 0.1, 1.0], turn: [0.0, 0.0, 0.0]}
             - {t: 1, offset: [-0.5, 1.05, 1.4], scale: [0.3125, 0.1, 1.0], ease: out_expo, turn: [0.0, 0.0, 0.0]}
             - {t: 2, offset: [-0.5, 1.05, 1.4], scale: [0.2187, 0.02, 1.0], ease: in_quad, turn: [0.0, 0.0, 0.0]}
-        - {op: plate, parent: fx3_bastion_s2_fx_ring, face: {viewer: center}, sprite: bastion-s1-flare, size: 6.4, brightness: 15, id: fx3_bastion_s2_fx_ring_s2r_flash}
+        - {op: plate, parent: fx3_bastion_s2_fx_ring, face: {viewer: center}, sprite: bastion-s1-flare, size: 6.4, see_through: true, brightness: 15, id: fx3_bastion_s2_fx_ring_s2r_flash}
         - id: fx3_bastion_s2_fx_ring_s2r_flash_trk
           op: track
           target: fx3_bastion_s2_fx_ring_s2r_flash
@@ -1544,6 +1552,7 @@ presentation:
           face: {plane: {frame: fx3_bastion_s2_fx_ring, axes: [left, up]}}
           sprite: bastion-s1-flare
           size: 6.4
+          see_through: true
           brightness: 15
           id: fx3_bastion_s2_fx_ring_s2r_flash_x
         - id: fx3_bastion_s2_fx_ring_s2r_flash_x_trk
@@ -1558,6 +1567,7 @@ presentation:
           face: {plane: {frame: fx3_bastion_s2_fx_ring, axes: [left, up]}}
           sprite: bastion-s1-flare
           size: 6.4
+          see_through: true
           brightness: 15
           id: fx3_bastion_s2_fx_ring_s2r_flash_f
         - id: fx3_bastion_s2_fx_ring_s2r_flash_f_trk
@@ -1572,6 +1582,7 @@ presentation:
           face: {plane: {frame: fx3_bastion_s2_fx_ring, axes: [left, up]}}
           sprite: bastion-s1-streak
           size: 6.4
+          see_through: true
           brightness: 15
           id: fx3_bastion_s2_fx_ring_s2r_streak_x
         - id: fx3_bastion_s2_fx_ring_s2r_streak_x_trk
@@ -1674,6 +1685,7 @@ presentation:
           face: {plane: {frame: fx3_bastion_s2_fx_ring, axes: [left, up]}}
           sprite: bastion-s1-ring-q2
           size: 6.4
+          see_through: true
           brightness: 15
           id: fx3_bastion_s2_fx_ring_s2r_ring_q2
         - id: fx3_bastion_s2_fx_ring_s2r_ring_q2_trk
@@ -1712,6 +1724,7 @@ presentation:
           face: {plane: {frame: fx3_bastion_s2_fx_ring, axes: [left, up]}}
           sprite: bastion-s1-ring-q3
           size: 6.4
+          see_through: true
           brightness: 15
           id: fx3_bastion_s2_fx_ring_s2r_ring_q3
         - id: fx3_bastion_s2_fx_ring_s2r_ring_q3_trk
@@ -1915,6 +1928,7 @@ presentation:
           face: {plane: {frame: fx4_bastion_s2_fx_chop, axes: [left, up]}}
           sprite: bastion-s1-streak
           size: 6.4
+          see_through: true
           brightness: 15
           id: fx4_bastion_s2_fx_chop_s2c_streak_a
         - id: fx4_bastion_s2_fx_chop_s2c_streak_a_trk
@@ -1929,6 +1943,7 @@ presentation:
           face: {plane: {frame: fx4_bastion_s2_fx_chop, axes: [left, up]}}
           sprite: bastion-s1-streak
           size: 6.4
+          see_through: true
           brightness: 15
           id: fx4_bastion_s2_fx_chop_s2c_streak_b
         - id: fx4_bastion_s2_fx_chop_s2c_streak_b_trk
@@ -1949,6 +1964,7 @@ presentation:
           face: {plane: {frame: fx4_bastion_s2_fx_chop, axes: [left, up]}}
           sprite: bastion-s1-crescent
           size: 6.4
+          see_through: true
           brightness: 15
           id: fx4_bastion_s2_fx_chop_s2c_cres_a
         - id: fx4_bastion_s2_fx_chop_s2c_cres_a_trk
@@ -1963,6 +1979,7 @@ presentation:
           face: {plane: {frame: fx4_bastion_s2_fx_chop, axes: [left, up]}}
           sprite: bastion-s1-crescent
           size: 6.4
+          see_through: true
           brightness: 15
           id: fx4_bastion_s2_fx_chop_s2c_cres_b
         - id: fx4_bastion_s2_fx_chop_s2c_cres_b_trk
@@ -1977,11 +1994,25 @@ presentation:
     - id: fx53
       at: 53
       do:
-        - {op: plate, parent: fx4_bastion_s2_fx_chop, face: {plane: {frame: fx4_bastion_s2_fx_chop, axes: [left, up]}}, sprite: bastion-s1-ink, size: 6.4, brightness: 15, id: fx4_bastion_s2_fx_chop_s2c_ink_a}
+        - op: plate
+          parent: fx4_bastion_s2_fx_chop
+          face: {plane: {frame: fx4_bastion_s2_fx_chop, axes: [left, up]}}
+          sprite: bastion-s1-ink
+          size: 6.4
+          see_through: true
+          brightness: 15
+          id: fx4_bastion_s2_fx_chop_s2c_ink_a
         - {id: fx4_bastion_s2_fx_chop_s2c_ink_a_trk, op: track, target: fx4_bastion_s2_fx_chop_s2c_ink_a, keys: [{t: 0, offset: [0.0, 1.1, 1.7], scale: [0.45, 0.45, 1.0], turn: [90.0, 0.0, 0.0]}]}
-        - {op: plate, parent: fx4_bastion_s2_fx_chop, face: {plane: {frame: fx4_bastion_s2_fx_chop, axes: [left, up]}}, sprite: bastion-s1-ink, size: 6.4, brightness: 15, id: fx4_bastion_s2_fx_chop_s2c_ink_b}
+        - op: plate
+          parent: fx4_bastion_s2_fx_chop
+          face: {plane: {frame: fx4_bastion_s2_fx_chop, axes: [left, up]}}
+          sprite: bastion-s1-ink
+          size: 6.4
+          see_through: true
+          brightness: 15
+          id: fx4_bastion_s2_fx_chop_s2c_ink_b
         - {id: fx4_bastion_s2_fx_chop_s2c_ink_b_trk, op: track, target: fx4_bastion_s2_fx_chop_s2c_ink_b, keys: [{t: 0, offset: [0.0, 1.1, 1.7], scale: [0.45, 0.45, 1.0], turn: [-90.0, 0.0, 0.0]}]}
-        - {op: plate, parent: fx4_bastion_s2_fx_chop, face: {viewer: center}, sprite: bastion-s1-flare, size: 6.4, brightness: 15, id: fx4_bastion_s2_fx_chop_s2c_flash}
+        - {op: plate, parent: fx4_bastion_s2_fx_chop, face: {viewer: center}, sprite: bastion-s1-flare, size: 6.4, see_through: true, brightness: 15, id: fx4_bastion_s2_fx_chop_s2c_flash}
         - id: fx4_bastion_s2_fx_chop_s2c_flash_trk
           op: track
           target: fx4_bastion_s2_fx_chop_s2c_flash

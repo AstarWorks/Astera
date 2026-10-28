@@ -63,12 +63,7 @@ BLOCK_RGB = {
 }
 
 
-def argb_split(c):
-    """v1 `#AARRGGBB` (or `#RRGGBB`) -> (`#rrggbb`, alpha 0..1)."""
-    h = str(c).lstrip("#")
-    if len(h) == 8:
-        return "#" + h[2:].lower(), round(int(h[:2], 16) / 255.0, 3)
-    return "#" + h.lower(), 1.0
+argb_split = vfxelem.argb_split
 
 
 def block_rgb(name):
@@ -196,6 +191,60 @@ def hitstop_warp(kfs, stops):
             if c in k:
                 out.setdefault(hitstop_eff(stops, int(k["t"])), {"t": hitstop_eff(stops, int(k["t"]))})[c] = k[c]
     return [out[t] for t in sorted(out)]
+
+
+def scale_bake(d, s):
+    """Return the vfx definition `d` with the `play_vfx scale` argument applied. v1 multiplies every authored length by it at play
+    time (VfxTimeline.plan :102, slotGeometry :213, SlotContext :360-369, VfxRigPlanner partPlan :255 / pivotWorld :170): element
+    keyframe translations, display scales, rig pivot, part offset and part size. A frame has no scale, so the lengths themselves are
+    multiplied, 1:1. Anything whose length semantics are not that plain product (emitters, trails, boards, bodies, placement
+    curves, group tracks, jitter) is refused rather than guessed."""
+    if s == 1.0:
+        return d
+    d = json.loads(json.dumps(d))
+    if "scale" in d or d.get("body") or d.get("ghost_bodies") or d.get("groups"):
+        raise UnhandledV1Key("play_vfx scale %s on a vfx with a body / ghost bodies / group tracks / own scale" % s)
+
+    def mul(v):
+        return float(v) * s if isinstance(v, (int, float)) else [float(x) * s for x in v]
+
+    for el in d.get("elements", []):
+        extra = set(el) - {"id", "kind", "brightness", "start_tick", "end_tick", "keyframes", "billboard", "respect_hit_stop", "emit"}
+        kind = (el.get("kind") or {}).get("type")
+        if extra or kind not in ("block", "quad", "particle"):
+            raise UnhandledV1Key("play_vfx scale %s on element %s (kind %s, keys %s): its lengths are not a plain product"
+                                 % (s, el.get("id"), kind, sorted(extra)))
+        emit = el.get("emit")
+        if emit:
+            # VfxEmitter.plan :118-153: origin (first key translate), speed, size and gravity are lengths
+            extra = set(emit) - {"count", "speed", "spread_deg", "direction", "gravity", "drag", "life_ticks", "size", "size_over_life",
+                                 "alpha_over_life", "spin_over_life"}
+            if extra:
+                raise UnhandledV1Key("play_vfx scale %s on emitter %s keys %s" % (s, el.get("id"), sorted(extra)))
+            for ch in ("speed", "size"):
+                if ch in emit:
+                    emit[ch] = mul(emit[ch])
+            if "gravity" in emit:
+                emit["gravity"] = float(emit["gravity"]) * s
+        for k in el.get("keyframes") or []:
+            extra = set(k) - {"t", "translate", "rotate", "scale", "alpha", "ease", "color"}
+            if extra:
+                raise UnhandledV1Key("play_vfx scale %s on element %s keyframe keys %s" % (s, el.get("id"), sorted(extra)))
+            for ch in ("translate", "scale"):
+                if ch in k and (ch == "translate" or kind != "particle"):
+                    k[ch] = mul(k[ch])
+    for r in d.get("rigs", []) or []:
+        extra = set(r) - {"id", "pivot", "rest", "tilt", "respect_hit_stop", "end_tick", "start_tick", "parts", "swing", "trails"}
+        if extra or r.get("trails") or r.get("weapon") or any(set(p) - {"id", "block", "offset", "size", "brightness"} for p in r.get("parts", [])):
+            raise UnhandledV1Key("play_vfx scale %s on rig %s: only block parts (pivot / offset / size) scale as a plain product (keys %s)"
+                                 % (s, r.get("id"), sorted(extra)))
+        if "pivot" in r:
+            r["pivot"] = mul(r["pivot"])
+        for p in r.get("parts", []):
+            for ch in ("offset", "size"):
+                if ch in p:
+                    p[ch] = mul(p[ch])
+    return d
 
 
 def hitstop_bake(d, freezes):
@@ -438,18 +487,37 @@ class Conv:
         self.p_reps.append((at, every, span, op))
 
     # ---------- targets ----------
-    def point(self, tg, where, side="p"):
+    def frozen(self, base, where):
+        """`base` (caster | aim) as the context holds it: one body frame, placed like `base` once. v1 MechanicDispatcher.livePose :565
+        keeps the stored context pose instead of re-reading the live caster for `snapshot_pose` mechanics and for hit contexts
+        (hitLocation != null). The cast context is built at cast start (t = 0); an event handler's context is built when the event
+        is raised, so its frame is placed at the head of that handler. Targeter points derived from it (caster_forward 8,
+        caster_offset ..) are resolved from the frozen frame, so a delayed firing stays where the context put it."""
+        if where.kind == "handler":
+            fid = "%s_%s" % (sid(where.event), base)
+            rows = self.g_on.setdefault(where.event, [])
+        else:
+            fid = "cast_" + base
+            rows = self.g_rows.setdefault((None, 0), [])
+        if fid not in self.frames:
+            self.frames[fid] = {"id": fid, "kind": "body", "parent": "world", "inactive": True}
+            rows.insert(0, {"id": self.oid("place_" + fid), "op": "place", "frame": fid, "like": base})
+        return fid
+
+    def point(self, tg, where, side="p", frozen=False):
         t = tg["type"] if tg else "caster"
         if t == "caster":
-            return "caster"
+            return self.frozen("caster", where) if frozen else "caster"
         if t == "target":
             return "contact.point" if side == "p" and where.kind == "handler" and where.event == "hit" else "enemy"
         if t == "hit_location":
             return "contact.point"
         if t == "caster_forward":
-            return self.pframe("caster", [0.0, V(tg.get("height", 0.0)), V(tg.get("distance", 0.0))], side)
+            # v1 TargeterResolver.casterForward: eye + look direction * distance + (0, height, 0). The `aim` frame is the
+            # eye with the full look rotation, so distance is exact; height is along the aim up (world up at pitch 0).
+            return self.pframe(self.frozen("aim", where) if frozen else "aim", [0.0, V(tg.get("height", 0.0)), V(tg.get("distance", 0.0))], side)
         if t == "caster_offset":
-            return self.pframe("caster", vec3(tg["offset"]), side)
+            return self.pframe(self.frozen("caster", where) if frozen else "caster", vec3(tg["offset"]), side)
         if t == "target_offset":
             return self.pframe("enemy", vec3(tg["offset"]), side)
         if t == "projectile_position":
@@ -1045,6 +1113,8 @@ class Conv:
             W(op)
         elif t == "telegraph":
             self.telegraph(m, tg, where, delay, when)
+        elif t == "spawn_display":
+            self.spawn_display(m, tg, where, delay, when)
         else:
             frag = {k: V(v) for k, v in m.items() if k not in ("type", "targets", "delay_ticks")}
             self.present("%s has no v2 op" % t, short(frag, 160))
@@ -1121,39 +1191,92 @@ class Conv:
     def anim(self, a, at, where, delay, when):
         t = a["type"]
         d2 = delay + int(V(a.get("delay_ticks", 0)) or 0)
-        if t == "ring" and str(a.get("angle", "vertical")).lower() == "vertical":
-            self.ring(a, at, where, d2, when)
+        if t == "point":
+            for part in a.get("particles", []) or []:
+                op = emit_op(self.oid("emit"), at, part["id"], part.get("count", 1))
+                particle_vanilla(op, part)
+                self.p(where, d2, self._w(op, when))
             return
-        if t in ("ring", "circle", "line"):
-            self.present("particle animation %s (angle / shape without a baked equivalent)" % t,
-                         "%s" % short({k: a[k] for k in a if k not in ("particles", "type")}, 100))
-        for part in a.get("particles", []) or []:
+        for step, part, times, shift, offset in self.shape_emits(a):
             op = emit_op(self.oid("emit"), at, part["id"], part.get("count", 1))
             particle_vanilla(op, part)
-            self.p(where, d2, self._w(op, when))
+            if times != 1:
+                op["times"] = times
+            op["shift"] = shift
+            if offset is not None:
+                op["offset"] = offset
+            self.p(where, d2 + int(V(part.get("delay_ticks", 0)) or 0) + step, self._w(op, when))
 
-    def ring(self, a, at, where, delay, when):
-        """v1 AnimatedShape.Ring: each tick of the period drops `points` points on a flat circle, radius lerping
-        start -> end, lifted by `rise`; directional particles (count 0) fly outward. One emit per tick with times=points.
-        v1 drew a random phase per instance; it is a fixed constant per instance here (deterministic bake)."""
-        n = int(a.get("points", 16))
-        period = int(a.get("period_ticks", 1))
-        sr, er = float(a.get("start_radius", 0.0)), float(a.get("end_radius", 0.0))
+    def shape_emits(self, a, trail=False):
+        """Bake a v1 non-point AnimatedShape (ring, line, circle) into `(tick, part, times, shift, offset)` emit rows.
+        The shape lives in the `at` frame's [left, up, forward] axes. v1's random draws stay random: `draw(name)` is fixed
+        for the whole cast (v1 drew once per `plan()`: ring phase and axis, the circle cursor), `roll(name)` re-rolls per
+        tick and per spacing sample (a trail re-plans its shape at every sample, so ring phase / line jitter re-roll). The
+        name is per shape instance, so instances differ; the cast seed (sim: fixed, live: per cast) drives all of them."""
+        t = a["type"]
+        if t not in ("ring", "line", "circle"):
+            self.todo("particle animation shape %s" % t)
+            return []
+        rows = []
+        w = "roll" if trail and t != "circle" else "draw"
         for inst in range(int(a.get("amount", 1))):
-            phase = round(random.Random("%s/%d" % (self.oid("ringphase"), inst)).uniform(0.0, 2 * math.pi), 4)
-            ph = "(%s + 6.283185307179586*i/%d)" % (phase, n)
-            for step in range(period):
-                t = 1.0 if period == 1 else step / (period - 1)
-                r = round(sr + (er - sr) * t, 4)
-                rise = round(float(a.get("rise", 0.0)) * t, 4)
-                for part in a.get("particles", []) or []:
-                    op = emit_op(self.oid("emit"), at, part["id"], part.get("count", 1))
-                    particle_vanilla(op, part)
-                    op["times"] = n
-                    op["shift"] = "= vec(%s*sin(%s), %s, %s*cos(%s))" % (r, ph, rise, r, ph)
-                    if part.get("count", 1) == 0:
-                        op["offset"] = "= vec(sin(%s), 0, cos(%s))" % (ph, ph)
-                    self.p(where, delay + int(V(part.get("delay_ticks", 0)) or 0) + step, self._w(op, when))
+            nm = self.oid("shape")
+            angle = str(a.get("angle", "vertical" if t == "ring" else "raw")).lower()
+            if angle == "random":
+                ax = "%s_unit('%s_ax')" % (w, nm)
+                pa, pb = "plane_a(%s)" % ax, "plane_b(%s)" % ax
+            else:
+                axis = {"raw": (0.0, 0.0, 1.0), "horizontal": (0.0, 0.0, 1.0), "vertical": (0.0, 1.0, 0.0), "down": (0.0, -1.0, 0.0)}.get(angle)
+                if axis is None:
+                    self.todo("particle angle %s" % angle)
+                    axis = (0.0, 1.0, 0.0)
+                u = _unit(axis)
+                pua = _unit(_cross(u, _perp(u)))
+                ax, pa, pb = _vec(u), _vec(pua), _vec(_unit(_cross(u, pua)))
+            parts = a.get("particles", []) or []
+            if t == "ring":
+                n = int(a.get("points", 16))
+                period = int(a.get("period_ticks", 1))
+                sr, er = float(a.get("start_radius", 0.0)), float(a.get("end_radius", 0.0))
+                ph = "(%s('%s_ph')*6.283185307179586 + 6.283185307179586*i/%d)" % (w, nm, n)
+                for step in range(period):
+                    tt = 1.0 if period == 1 else step / (period - 1)
+                    r = round(sr + (er - sr) * tt, 4)
+                    rise = round(float(a.get("rise", 0.0)) * tt, 4)
+                    sh = "= %s*%s + %s*(%s*cos(%s)) + %s*(%s*sin(%s))" % (ax, fmt(rise), pa, fmt(r), ph, pb, fmt(r), ph)
+                    out = "= %s*cos(%s) + %s*sin(%s)" % (pa, ph, pb, ph)
+                    for part in parts:
+                        rows.append((step, part, n, sh, out if part.get("count", 1) == 0 else None))
+            elif t == "line":
+                segs = int(a["segments"])
+                pps = int(a["points_per_segment"])
+                length, jit = float(a["length"]), float(a.get("jitter", 0.0))
+                verts = []
+                for k in range(segs + 1):
+                    v = "%s*%s" % (ax, fmt(round(length * k / segs, 4)))
+                    if 0 < k < segs and jit > 0.0:
+                        v += " + %s*roll('%s_v%da',%s,%s) + %s*roll('%s_v%db',%s,%s)" % (pa, nm, k, fmt(-jit), fmt(jit), pb, nm, k, fmt(-jit), fmt(jit))
+                    verts.append(v)
+                for part in parts:
+                    for si in range(segs):
+                        rows.append((0, part, pps, "= lerp(%s, %s, i/%d.0)" % (verts[si], verts[si + 1], pps), None))
+                    rows.append((0, part, 1, "= " + verts[-1], None))
+            else:  # circle: one cursor per instance for the whole cast, advancing `speed` degrees per point
+                steps = int(a.get("period_ticks", 1))
+                speed, acc = int(a.get("speed", 0)), int(a.get("acceleration", 1))
+                rmin, rmax = float(a.get("min_radius", 0.0)), float(a.get("max_radius", 0.0))
+                if float(a.get("radius_acceleration", 0.0)) != 0.0:
+                    self.todo("circle radius_acceleration", str(a.get("radius_acceleration")))
+                radius = "draw('%s_r',%s,%s)" % (nm, fmt(rmin), fmt(rmax)) if rmax > rmin else fmt(rmin)
+                deg0 = "floor(draw('%s_deg')*360.0)" % nm
+                sign = "(draw('%s_sign') < 0.5 ? 1.0 : -1.0)" % nm
+                for step in range(steps):
+                    first = step * acc + 1
+                    ang = "((%s + %s*%d.0*(i + %d))*0.017453292519943295)" % (deg0, sign, speed, first)
+                    dirv = "%s*cos(%s) + %s*sin(%s)" % (ax, ang, pa, ang)
+                    for part in parts:
+                        rows.append((step, part, acc, "= (%s)*%s" % (dirv, radius), "= " + dirv if part.get("count", 1) == 0 else None))
+        return rows
 
     # ---------- vfx inlining ----------
     def load_vfx(self, vid):
@@ -1167,6 +1290,78 @@ class Conv:
             or (parent == "bolt" and self.has_bolt)
         return parent if ok else None
 
+    SPAWN_DISPLAY_KEYS = {"display", "viewers", "period_ticks", "duration_ticks", "snapshot_pose"}
+    SPAWN_DISPLAY_TEXT_KEYS = {"type", "lines", "background_argb"}
+
+    def spawn_display(self, m, tg, where, delay, when):
+        """v1 Mechanic.SpawnDisplay, text kind (WorldMechanics.display :459-478).
+
+        v1 renders every `lines` entry for the caster's locale (messageRenderer.renderText(actorId, ..)), joins them with newlines,
+        spawns a TextDisplay at the resolved location (billboard FIXED unless set, vanilla text scale 1 = 0.2 blocks, background
+        `background_argb` default 0x40000000, shadow / see_through off) and removes it `lifetime_ticks` later (scheduler.runLaterTicks).
+        At most MAX_DISPLAYS_PER_CAST (32, :631) displays per cast; the v2 text op enforces the same cap."""
+        extra = sorted(set(m) - self.SPAWN_DISPLAY_KEYS - self.COMMON_MECH_KEYS)
+        if extra:
+            raise ValueError("%s: spawn_display carries field(s) %s that v2 cannot express; extend the op before converting"
+                             % (self.sid_hint(), extra))
+        disp = m["display"]
+        kind = disp["kind"]
+        if kind.get("type") != "text":
+            self.present("spawn_display kind %s has no v2 op" % kind.get("type"), short(kind, 80))
+            return
+        extra = sorted(set(kind) - self.SPAWN_DISPLAY_TEXT_KEYS)
+        if extra:
+            raise ValueError("%s: spawn_display text carries field(s) %s that v2 cannot express" % (self.sid_hint(), extra))
+        extra = sorted(set(disp) - {"kind", "transform", "lifetime_ticks", "billboard"})
+        if extra:
+            raise ValueError("%s: spawn_display display carries field(s) %s that v2 cannot express" % (self.sid_hint(), extra))
+        if str(V(m.get("viewers", "all"))).lower() != "all":
+            self.present("spawn_display viewers (v2 displays are shown to everyone)", short(V(m["viewers"]), 30))
+        for k in ("period_ticks", "duration_ticks"):
+            if k in m and V(m[k]):
+                self.present("spawn_display %s (v1 respawns on a period; the v2 text op spawns once)" % k, str(V(m[k])))
+        if V(m.get("snapshot_pose", False)):
+            self.present("spawn_display snapshot_pose", "true")
+        lines = kind["lines"]
+        locales = sorted({loc for ln in lines for loc in ln})
+        by_locale = {loc: "\n".join(ln.get(loc, ln.get("en", next(iter(ln.values())))) for ln in lines) for loc in locales}
+        tr = disp.get("transform") or {}
+        sc = vec3(tr["scale"]) if "scale" in tr else [1.0, 1.0, 1.0]
+        size = [round(0.2 * float(sc[0]), 4), round(0.2 * float(sc[1]), 4)]
+        at = self.point(tg, where, "p")
+        parent = self.frame_parent(at)
+        if parent is None:
+            self.present("spawn_display anchored at a runtime point (frame parent must exist at cast start): anchored at world", at)
+            parent = "world"
+        bb = str(disp.get("billboard", "fixed")).lower()
+        if bb == "fixed":
+            face = {"plane": {"frame": parent, "axes": ["left", "up"]}}
+        elif bb in ("center", "vertical"):
+            face = {"viewer": bb}
+        else:
+            self.present("spawn_display billboard %s (v2 faces: fixed, center, vertical)" % bb)
+            face = {"plane": {"frame": parent, "axes": ["left", "up"]}}
+        rot = tr.get("rotation")
+        if rot and any(abs(float(V(rot.get(a, 0.0)))) > 1e-9 for a in ("x", "y", "z")):
+            self.present("spawn_display transform.rotation", short(rot, 60))
+        argb = int(V(kind.get("background_argb", 0x40000000))) & 0xFFFFFFFF
+        eid = self.oid("display")
+        # v1 resolves the Location once per firing (TargeterResolver.resolveLocations :120 returns bare Vec3s; PaperDisplayEntityGateway
+        # .spawn :146 builds Location(world, x, y, z), yaw = pitch = 0) and the display never moves afterwards. `instance` makes every
+        # firing its own world-parented, world-axes node at the parent's origin; `life` is runLaterTicks(lifetime) (WorldMechanics :472).
+        if face.get("plane"):
+            face["plane"]["frame"] = "world"
+        op = {"id": eid, "op": "text", "parent": parent, "face": face, "size": size, "text_by_locale": by_locale,
+              "times": 1, "life": int(V(disp["lifetime_ticks"])), "instance": True}
+        if "translation" in tr:
+            off = vec3(tr["translation"])
+            if any(abs(float(x)) > 1e-9 for x in off):
+                op["at"] = off
+        if argb >> 24:
+            op["background"] = "#%06x" % (argb & 0xFFFFFF)
+            op["background_alpha"] = round((argb >> 24) / 255.0, 3)
+        self.p(where, delay, self._w(op, when))
+
     def vfx(self, m, tg, where, delay, when, d=None, parent=None):
         vid = m["vfx_id"]
         if d is None:
@@ -1177,30 +1372,44 @@ class Conv:
         d = vfxelem.resolve_palette(d)
         self.vfx_n += 1
         fid = "fx%d_%s" % (self.vfx_n, sid(vid))
-        want = self.point(tg, where, "p") if tg else "caster"
+        # v1 reads the stored cast context, not the live caster, for `snapshot_pose` and for a hit context (MechanicDispatcher.livePose :565)
+        # (a delay-0 hit firing runs at the instant the context was built, so there is nothing to freeze)
+        snapshot = bool(V(m.get("snapshot_pose", False))) or (where.kind == "handler" and where.event == "hit" and delay > 0)
+        # only a caster-pose targeter is derived from the stored pose; enemy / contact targets resolve from their own entity / hit location
+        snapshot = snapshot and (not tg or tg["type"] in ("caster", "caster_forward", "caster_offset"))
+        want = self.point(tg, where, "p", frozen=snapshot) if tg else (self.frozen("caster", where) if snapshot else "caster")
         follow = bool(V(m.get("follow", d.get("follow", True))))
-        parent = parent or (self.frame_parent(want) if follow else "world")
+        parent = parent or (self.frame_parent(want) if (follow or snapshot) else "world")
         if parent is None:
             self.present("vfx anchored at a runtime point (frame parent must exist at cast start): anchored at world", want)
             parent = "world"
-        if not follow:
-            self.present("vfx follow=false (anchored at world, no place-at-spawn)", vid)
-        snapshot = bool(V(m.get("snapshot_pose", False)))
-        if snapshot:
-            # the effect stands on a frozen copy of the caster pose taken when it starts, not on the live caster
-            parent = "world"
+        # v1 builds the anchor frame from the definition's `orient` (VfxOrient.frame): the cast's look (frozen with the pose for a
+        # snapshot), level for yaw, none for world, caster -> anchor for to_target; the parent only supplies the position.
+        mode = str(V(m.get("orient", d.get("orient", "look")))).lower()
+        if mode not in ("look", "yaw", "world", "to_target"):
+            raise UnhandledV1Key("vfx %s: orient '%s' has no v2 mode" % (vid, mode))
+        orient = {"mode": mode}
+        if mode in ("look", "yaw", "to_target"):
+            orient["look"] = self.frozen("aim", where) if snapshot else "aim"
+        if mode == "to_target":
+            orient["reference"] = self.frozen("caster", where) if snapshot else "caster"
+        orient = {k: v for k, v in orient.items() if not (k == "look" and v == "aim") and not (k == "reference" and v == "caster")}
+        orient = orient["mode"] if len(orient) == 1 else orient
         self.look_frames[fid] = {"id": fid, "kind": "body", "parent": parent}
-        if snapshot:
-            self.p(where, delay, self._w({"id": self.oid("snap"), "op": "place", "frame": fid, "like": "caster"}, when))
-        for k in ("orient", "scale"):
-            if k in d or k in m:
-                self.present("vfx frame %s (frames carry no orientation / scale)" % k, "%s=%s" % (k, short(V(m.get(k, d.get(k))), 30)))
+        if not follow and not snapshot and parent == "world" and want != "world":
+            # v1 follow=false: the vfx anchor is set to the target's pose when it spawns and then stays put (world-fixed),
+            # oriented as it was oriented then
+            self.g(where, delay, self._w({"id": self.oid("pin"), "op": "place", "frame": fid, "like": "contact" if want == "contact.point" else want,
+                                          "orient": orient}, when))
+        else:
+            self.look_frames[fid]["orient"] = orient
         for k in ("follow_teleport_ticks", "attach_to_anchor", "replace_group", "follow_pitch", "ghost_bodies",
                   "target_reference"):
             if k in d:
                 self.present("vfx %s (no v2 equivalent)" % k, short(d[k], 60))
+        d = scale_bake(d, float(V(m.get("scale", 1.0))))
         d = hitstop_bake(d, V(m.get("freeze")))
-        for k in ("track_bound_target", "viewers", "snapshot_pose"):
+        for k in ("track_bound_target", "viewers"):
             if k in m:
                 self.present("play_vfx %s (no v2 equivalent)" % k, short(V(m[k]), 40))
         dur = int(d.get("duration_ticks", 20))
@@ -1432,6 +1641,25 @@ def _custom_count(pid):
     return _PARTICLE_COUNTS[pid]
 
 
+def _unit(v):
+    n = math.sqrt(sum(x * x for x in v)) or 1.0
+    return tuple(x / n for x in v)
+
+
+def _cross(a, b):
+    return (a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0])
+
+
+def _perp(u):
+    """v1 PlaneBasis / CircleCursor perpendicular: (-y, x, 0) when |x| > |y| else (0, -z, y)."""
+    return (-u[1], u[0], 0.0) if abs(u[0]) > abs(u[1]) else (0.0, -u[2], u[1])
+
+
+def _vec(v):
+    return "vec(%s, %s, %s)" % tuple(fmt(round(x, 4)) for x in v)
+
+
+
 def emit_op(oid, at, pid, v1_count):
     """An `emit` op. Vanilla key: `count` is the vanilla particle count. Custom definition: `count` is the number of
     particles, so a v1 repeat of N (N whole definitions) becomes N * the definition's own count; one repeat leaves it unset."""
@@ -1604,13 +1832,24 @@ def convert_skill(d, vfx_dir, item):
         we = Where("handler", "expire", guard)
         vis = params.get("visual") or {}
         for tr in vis.get("trail") or []:
+            if tr["type"] != "point":
+                for _, part, times, shift, offset in c.shape_emits(tr, trail=True):
+                    op = emit_op(c.oid("trail"), "bolt", part["id"], part.get("count", 1))
+                    if vis.get("trail_spacing", 0.5) > 0:
+                        op["spacing"] = vis.get("trail_spacing", 0.5)
+                    particle_vanilla(op, part)
+                    if times != 1:
+                        op["times"] = times
+                    op["shift"] = shift
+                    if offset is not None:
+                        op["offset"] = offset
+                    c.p_rows.setdefault(("rep", 1), []).append(op)
+                continue
             for part in tr.get("particles", []):
                 op = emit_op(c.oid("trail"), "bolt", part["id"], part.get("count", 1))
                 if vis.get("trail_spacing", 0.5) > 0:
                     op["spacing"] = vis.get("trail_spacing", 0.5)
                 particle_vanilla(op, part)
-                if tr["type"] == "line":
-                    c.present("projectile trail shape (emit has none)", tr["type"])
                 c.p_rows.setdefault(("rep", 1), []).append(op)
         if vis.get("display"):
             disp = vis["display"]

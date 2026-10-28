@@ -47,6 +47,12 @@ public data class Intrinsic(val unit: Vec3, val centre: Vec3 = Vec3.ZERO) {
             val edge = px * 0.025
             return Intrinsic(Vec3(edge, edge, 1.0))
         }
+
+        /** A glyph drawn by a quad: the same one-line text box as [TEXT_SOLID], so its middle is off the origin by the same amount (v1 `VfxQuad.transform`; sprites and text elements are not compensated). */
+        public fun glyphQuad(px: Int): Intrinsic {
+            val edge = px * 0.025
+            return Intrinsic(Vec3(edge, edge, 1.0), Vec3(-CENTER_X_PER_SCALE, -CENTER_Y_PER_SCALE, 0.0))
+        }
     }
 }
 

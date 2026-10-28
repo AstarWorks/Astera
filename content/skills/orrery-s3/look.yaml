@@ -1,7 +1,5 @@
 # Converted from content/skills/orrery-s3.yaml + content/vfx/* by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
 # Generated point-frame offsets are [left, up, forward] in the parent frame.
-# CONVERT-PRESENT vfx follow=false (anchored at world, no place-at-spawn) (x9): orrery-beam-short | orrery-ring-hit-target
-# CONVERT-PRESENT vfx frame orient (frames carry no orientation / scale) (x14): orient="yaw" | orient="to_target"
 # CONVERT-PRESENT vfx target_reference (no v2 equivalent) (x8): [0, 0, 6] | [0, 0, 0]
 # CONVERT-PRESENT play_vfx track_bound_target (no v2 equivalent) (x8): true
 # CONVERT-PRESENT element target_line (no v2 equivalent) (x12): True
@@ -12,13 +10,13 @@ apiVersion: "astera/v2"
 kind: Skill
 id: orrery-s3
 frames:
-  - {id: fx1_orrery_beam_short, kind: body, parent: world}
+  - {id: fx1_orrery_beam_short, kind: body, parent: hit_caster, orient: {mode: yaw, look: hit_aim}}
   - {id: fx2_orrery_ring_hit_target, kind: body, parent: world}
-  - {id: fx3_orrery_beam_short, kind: body, parent: world}
+  - {id: fx3_orrery_beam_short, kind: body, parent: hit_caster, orient: {mode: yaw, look: hit_aim}}
   - {id: fx4_orrery_ring_hit_target, kind: body, parent: world}
-  - {id: fx5_orrery_beam_short, kind: body, parent: world}
+  - {id: fx5_orrery_beam_short, kind: body, parent: hit_caster, orient: {mode: yaw, look: hit_aim}}
   - {id: fx6_orrery_ring_hit_target, kind: body, parent: world}
-  - {id: fx7_orrery_beam_target, kind: body, parent: world}
+  - {id: fx7_orrery_beam_target, kind: body, parent: hit_caster, orient: {mode: yaw, look: hit_aim}}
   - {id: fx8_orrery_ring_hit_target_long, kind: body, parent: world}
   - {id: fx9_orrery_channel, kind: body, parent: world}
   - {id: fx9_orrery_channel_staff_at, kind: body, parent: caster.right_hand}
@@ -26,14 +24,14 @@ frames:
   - {id: pt_fx9_orrery_channel_staff_0_1_0, kind: point, parent: fx9_orrery_channel_staff, offset: [0.0, 1.0, 0.0]}
   - {id: pt_fx9_orrery_channel_staff_0_2p3_0, kind: point, parent: fx9_orrery_channel_staff, offset: [0.0, 2.3, 0.0]}
   - {id: pt_fx9_orrery_channel_staff_0_1p65_0, kind: point, parent: fx9_orrery_channel_staff, offset: [0.0, 1.65, 0.0]}
-  - {id: fx10_orrery_orb, kind: body, parent: caster}
-  - {id: fx11_orrery_seal_front, kind: body, parent: caster}
+  - {id: fx10_orrery_orb, kind: body, parent: caster, orient: look}
+  - {id: fx11_orrery_seal_front, kind: body, parent: caster, orient: yaw}
   - {id: fx11_orrery_seal_front_clock_sparks_at, kind: body, parent: fx11_orrery_seal_front}
-  - {id: fx12_orrery_seal_front, kind: body, parent: caster}
+  - {id: fx12_orrery_seal_front, kind: body, parent: caster, orient: yaw}
   - {id: fx12_orrery_seal_front_clock_sparks_at, kind: body, parent: fx12_orrery_seal_front}
-  - {id: fx13_orrery_seal_front, kind: body, parent: caster}
+  - {id: fx13_orrery_seal_front, kind: body, parent: caster, orient: yaw}
   - {id: fx13_orrery_seal_front_clock_sparks_at, kind: body, parent: fx13_orrery_seal_front}
-  - {id: fx14_orrery_seal_front, kind: body, parent: caster}
+  - {id: fx14_orrery_seal_front, kind: body, parent: caster, orient: yaw}
   - {id: fx14_orrery_seal_front_clock_sparks_at, kind: body, parent: fx14_orrery_seal_front}
 presentation:
   timeline:
@@ -238,7 +236,7 @@ presentation:
     - id: fx20
       at: 20
       do:
-        - {op: plate, parent: fx10_orrery_orb, face: {viewer: center}, sprite: orrery-orb, size: 3.2, color: "#FFFFFF", brightness: 15, id: fx10_orrery_orb_core}
+        - {op: plate, parent: fx10_orrery_orb, face: {viewer: center}, sprite: orrery-orb, size: 3.2, color: "#FFFFFF", see_through: true, brightness: 15, id: fx10_orrery_orb_core}
         - id: fx10_orrery_orb_core_trk
           op: track
           target: fx10_orrery_orb_core
@@ -260,33 +258,33 @@ presentation:
             - {t: 14, scale: [0.17406, 0.17406, 1.01562], ease: in_out_quad}
             - {t: 15, scale: [0.21956, 0.21956, 0.98438]}
             - {t: 16, scale: [0.25328, 0.25328, 1.01562], ease: out_expo}
-            - {t: 17, scale: [0.22173, 0.22173, 0.98438]}
-            - {t: 18, scale: [0.25207, 0.25207, 1.01562]}
-            - {t: 19, scale: [0.2193, 0.2193, 0.98438]}
-            - {t: 20, scale: [0.24843, 0.24843, 1.01562]}
-            - {t: 21, scale: [0.21445, 0.21445, 0.98438]}
-            - {t: 22, scale: [0.24237, 0.24237, 1.01562]}
-            - {t: 23, scale: [0.20718, 0.20718, 0.98438]}
-            - {t: 24, scale: [0.23388, 0.23388, 1.01562]}
-            - {t: 25, scale: [0.19748, 0.19748, 0.98438]}
-            - {t: 26, scale: [0.22297, 0.22297, 1.01562]}
-            - {t: 27, scale: [0.18535, 0.18535, 0.98438]}
-            - {t: 28, scale: [0.20963, 0.20963, 1.01562]}
-            - {t: 29, scale: [0.1708, 0.1708, 0.98438]}
-            - {t: 30, scale: [0.19387, 0.19387, 1.01562]}
-            - {t: 31, scale: [0.15383, 0.15383, 0.98438]}
-            - {t: 32, scale: [0.17568, 0.17568, 1.01562]}
-            - {t: 33, scale: [0.13443, 0.13443, 0.98438]}
-            - {t: 34, scale: [0.15507, 0.15507, 1.01562]}
-            - {t: 35, scale: [0.1126, 0.1126, 0.98438]}
-            - {t: 36, scale: [0.13203, 0.13203, 1.01562]}
-            - {t: 37, scale: [0.08835, 0.08835, 0.98438]}
-            - {t: 38, scale: [0.10656, 0.10656, 1.01562]}
-            - {t: 39, scale: [0.06167, 0.06167, 0.98438]}
-            - {t: 40, scale: [0.07868, 0.07868, 1.01562]}
-            - {t: 41, scale: [0.03257, 0.03257, 0.98438]}
-            - {t: 42, scale: [0.04836, 0.04836, 1.01562]}
-            - {t: 43, scale: [0.00105, 0.00105, 0.98438]}
+            - {t: 17, scale: [0.22203, 0.22203, 0.98438]}
+            - {t: 18, scale: [0.25328, 0.25328, 1.01562]}
+            - {t: 19, scale: [0.22203, 0.22203, 0.98438]}
+            - {t: 20, scale: [0.25328, 0.25328, 1.01562]}
+            - {t: 21, scale: [0.22203, 0.22203, 0.98438]}
+            - {t: 22, scale: [0.25328, 0.25328, 1.01562]}
+            - {t: 23, scale: [0.22203, 0.22203, 0.98438]}
+            - {t: 24, scale: [0.25328, 0.25328, 1.01562]}
+            - {t: 25, scale: [0.22203, 0.22203, 0.98438]}
+            - {t: 26, scale: [0.25328, 0.25328, 1.01562]}
+            - {t: 27, scale: [0.22203, 0.22203, 0.98438]}
+            - {t: 28, scale: [0.25328, 0.25328, 1.01562]}
+            - {t: 29, scale: [0.22203, 0.22203, 0.98438]}
+            - {t: 30, scale: [0.25328, 0.25328, 1.01562]}
+            - {t: 31, scale: [0.22203, 0.22203, 0.98438]}
+            - {t: 32, scale: [0.25328, 0.25328, 1.01562]}
+            - {t: 33, scale: [0.22203, 0.22203, 0.98438]}
+            - {t: 34, scale: [0.25328, 0.25328, 1.01562]}
+            - {t: 35, scale: [0.22203, 0.22203, 0.98438]}
+            - {t: 36, scale: [0.25328, 0.25328, 1.01562]}
+            - {t: 37, scale: [0.22203, 0.22203, 0.98438]}
+            - {t: 38, scale: [0.25328, 0.25328, 1.01562]}
+            - {t: 39, scale: [0.21543, 0.21543, 0.98438]}
+            - {t: 40, scale: [0.22687, 0.22687, 1.01562]}
+            - {t: 41, scale: [0.16262, 0.16262, 0.98438]}
+            - {t: 42, scale: [0.14766, 0.14766, 1.01562]}
+            - {t: 43, scale: [0.05699, 0.05699, 0.98438]}
             - {t: 44, scale: [0.01562, 0.01562, 1.01562], ease: in_quad}
     - id: fx45
       at: 45

@@ -44,6 +44,7 @@ import com.astarworks.astera.core.domain.skillengine.op.BodyOp
 import com.astarworks.astera.core.domain.skillengine.op.FxOp
 import com.astarworks.astera.core.domain.skillengine.op.OpSection
 import com.astarworks.astera.core.domain.skillengine.op.PlateFace
+import com.astarworks.astera.core.domain.skillengine.op.Repeat
 import com.astarworks.astera.core.domain.skillengine.op.ScreenOp
 import com.astarworks.astera.core.domain.skillengine.op.SkillOp
 import com.astarworks.astera.core.domain.skillengine.op.TrackKey
@@ -122,6 +123,9 @@ class PresentationOpsScenarioTest {
     private val lineEnds = HashMap<Long, Pair<Vec3, Vec3>>()
     private val trailPoints = ArrayList<Pair<Vec3, Vec3>>()
     private val plateFrames = ArrayList<Triple<Long, Int, String?>>()
+    private val seeThroughPlates = ArrayList<Long>()
+    private val textSpawns = ArrayList<List<Any>>()
+    private val textSwaps = ArrayList<Pair<Int, String>>()
     private val trailLooks = ArrayList<Triple<Long, Double, String>>()
     private val sounds = ArrayList<Triple<String, Vec3, Pair<Double, Double>>>()
     private val bursts = ArrayList<ParticleBurst>()
@@ -137,10 +141,20 @@ class PresentationOpsScenarioTest {
             h("mesh:$item").also { poses[it.id] = pose.frame; scales[it.id] = pose.size.x }
         override fun spawnSkinBone(castOwner: UUID, bone: com.astarworks.astera.core.domain.animation.skinrig.SkinRigBone, slim: Boolean, ghost: Boolean, pose: VisualPose) =
             h("skin_bone:${bone.yamlName}").also { poses[it.id] = pose.frame; scales[it.id] = pose.size.x }
-        override fun spawnPlate(castOwner: UUID, sprite: String, alpha: Double, pose: VisualPose, brightness: Int?) =
-            h("plate:$sprite").also { poses[it.id] = pose.frame; scales[it.id] = pose.size.x; spawnedBillboards[it.id] = pose.billboard }
+        override fun spawnPlate(castOwner: UUID, sprite: String, alpha: Double, tintHex: String?, seeThrough: Boolean, pose: VisualPose, brightness: Int?) =
+            h("plate:$sprite").also {
+                poses[it.id] = pose.frame; scales[it.id] = pose.size.x; spawnedBillboards[it.id] = pose.billboard
+                if (tintHex != null) plateFrames += Triple(it.id, 0, tintHex)
+                if (seeThrough) seeThroughPlates += it.id
+            }
         override fun spawnBlock(castOwner: UUID, block: String, pose: VisualPose, brightness: Int?) = h("block").also { poses[it.id] = pose.frame; scales[it.id] = pose.size.x }
         override fun spawnQuad(castOwner: UUID, colorHex: String, alpha: Double, text: String?, shadow: Boolean, seeThrough: Boolean, pose: VisualPose, brightness: Int?) = h("quad").also { poses[it.id] = pose.frame; scales[it.id] = pose.size.x }
+        override fun spawnText(castOwner: UUID, text: String, backgroundHex: String, backgroundAlpha: Double, shadow: Boolean, seeThrough: Boolean, pose: VisualPose, brightness: Int?) = h("text").also {
+            poses[it.id] = pose.frame; scales[it.id] = pose.size.x
+            textSpawns += listOf(text, backgroundHex, backgroundAlpha, shadow, seeThrough)
+        }
+        override fun setText(handle: VisualHandle, text: String) { textSwaps += handle.id.toInt() to text }
+        override fun localize(castOwner: UUID, byLocale: Map<String, String>): String = byLocale["ja"] ?: super.localize(castOwner, byLocale)
         override fun spawnLine(castOwner: UUID, colorHex: String, pose: VisualPose) =
             h("line:$colorHex").also { lineEnds[it.id] = ends(pose); lines += it.id }
         override fun spawnTrail(castOwner: UUID, ticks: Int, widthFrac: Double, colorHex: String, alpha: Double) = h("trail")
@@ -235,7 +249,7 @@ class PresentationOpsScenarioTest {
     private val lookOnlyHost: com.astarworks.astera.core.application.skillengine.runtime.OpHost = java.lang.reflect.Proxy.newProxyInstance(
         com.astarworks.astera.core.application.skillengine.runtime.OpHost::class.java.classLoader,
         arrayOf(com.astarworks.astera.core.application.skillengine.runtime.OpHost::class.java),
-    ) { _, m, _ -> if (m.name == "lookDirection") Vec3(0.0, 0.0, 1.0) else error("this scenario never reaches the cast host (${m.name})") } as com.astarworks.astera.core.application.skillengine.runtime.OpHost
+    ) { _, m, a -> if (m.name == "lookDirection") Vec3(0.0, 0.0, 1.0) else if (m.name == "withIndex") (a[2] as () -> Unit)() else if (m.name == "withSample") (a[1] as () -> Unit).invoke() else error("this scenario never reaches the cast host (${m.name})") } as com.astarworks.astera.core.application.skillengine.runtime.OpHost
 
     private val ctx = object : OpContext {
         override val host: com.astarworks.astera.core.application.skillengine.runtime.OpHost get() = lookOnlyHost
@@ -293,7 +307,7 @@ class PresentationOpsScenarioTest {
     fun `decoders cover every presentation op and a plate has exactly two face modes`() {
         val names = presentationDecoders().flatMap { it.opNames }.toSet()
         assertThat(names).containsExactlyInAnyOrder(
-            "mesh", "plate", "block", "quad", "line", "trail", "track", "remove", "rig", "emit", "sound",
+            "mesh", "plate", "block", "quad", "text", "line", "trail", "track", "remove", "rig", "emit", "sound",
             "victim_anim", "caster_anim", "glow", "title", "action_bar", "camera_shake", "screen_flash", "screen_veil", "stop_sound",
         )
         val viewer = decode("plate", mapOf("parent" to "volley", "sprite" to "slash_fan", "face" to mapOf("viewer" to "vertical"))) as VisualOp.Plate
@@ -507,10 +521,62 @@ class PresentationOpsScenarioTest {
     }
 
     @Test
+    fun `text op - spawns the markup with its background box and a track key swaps the text`() {
+        run(VisualOp.Text("cipher", null, "volley", PlateFace.ViewerCenter, v(0.2, 0.2, 1.0), "<#397BDB><b>7#A", Value.Literal("#101628"), lit(0.627), shadow = false, seeThrough = true))
+        assertThat(textSpawns).containsExactly(listOf("<#397BDB><b>7#A", "#101628", 0.627, false, true))
+        run(VisualOp.Track("t", null, "cipher", listOf(TrackKey(0, v(0.0, 0.0, 0.0), null, null, null), TrackKey(2, null, null, null, null, text = "CLEAR")), null))
+        tick(4)
+        assertThat(textSwaps.map { it.second }.distinct()).containsExactly("CLEAR")
+    }
+
+    @Test
+    fun `text op - text_by_locale is picked by the gateway for the cast owner and one cast spawns at most 32 texts`() {
+        val d = decode("text", mapOf("parent" to "volley", "size" to listOf(0.2, 0.2), "text_by_locale" to mapOf("en" to "Quake!", "ja" to "クエイク！"))) as VisualOp.Text
+        assertThat(d.text).isEqualTo("Quake!") // the fallback is the English entry
+        assertThat(d.textByLocale).containsEntry("ja", "クエイク！")
+        run(d.copy(id = "q0"))
+        assertThat(textSpawns.map { it.first() }).containsExactly("クエイク！") // v1 messageRenderer.renderText(actorId, ..): the owner's locale
+        for (k in 1 until 32) run(d.copy(id = "q$k"))
+        assertThat(textSpawns).hasSize(32)
+        assertThatThrownBy { run(d.copy(id = "q32")) }.isInstanceOf(IllegalStateException::class.java) // v1 MAX_DISPLAYS_PER_CAST = 32
+        assertThat(textSpawns).hasSize(32)
+    }
+
+    @Test
+    fun `text op instance - each firing is its own world-fixed display at the resolved origin with v1 yaw 0, and the enemy moving later moves nothing`() {
+        // v1 WorldMechanics.display (:471) resolves the Location once per firing: TargeterResolver.resolveLocations (:120) returns bare Vec3s
+        // and PaperDisplayEntityGateway.spawn (:146) builds Location(world, x, y, z), so yaw = pitch = 0 whatever way the enemy faces.
+        tree.add(FrameNode(FrameId("enemy"), FrameKind.ENEMY, FrameId("world"), Frame(Vec3(10.0, 0.0, 0.0), Quaternion.axisAngle(Vec3(0.0, 1.0, 0.0), Math.PI / 2))))
+        val plane = PlateFace.Plane("world", AxisRef("left"), AxisRef("up"))
+        fun quake() = VisualOp.Text("quake", null, "enemy", plane, v(0.2, 0.2, 1.0), "Quake!", Value.Literal("#000000"), lit(0.25),
+            at = v(0.0, 2.5, 0.0), repeat = Repeat(lit(1.0), 0, 5, instance = true))
+        run(VisualOp.Text("ref", null, "world", plane, v(0.2, 0.2, 1.0), "ref", Value.Literal("#000000"), lit(0.25))) // a text on the world frame: yaw 0
+        val worldFacing = poses.getValue(1L).rotation
+        run(quake())
+        tick(2)
+        tree.setLocal(FrameId("enemy"), Frame(Vec3(20.0, 0.0, 5.0), Quaternion.axisAngle(Vec3(0.0, 1.0, 0.0), -Math.PI / 3)))
+        run(quake())
+        tick(3)
+        near(poses.getValue(2L).origin.x, 10.0); near(poses.getValue(2L).origin.y, 2.5); near(poses.getValue(2L).origin.z, 0.0)
+        near(poses.getValue(3L).origin.x, 20.0); near(poses.getValue(3L).origin.y, 2.5); near(poses.getValue(3L).origin.z, 5.0)
+        for (id in listOf(2L, 3L)) {
+            val r = poses.getValue(id).rotation
+            near(r.x, worldFacing.x); near(r.y, worldFacing.y); near(r.z, worldFacing.z); near(r.w, worldFacing.w)
+        }
+        assertThat(removed).isEmpty() // the second firing did not replace the first
+        tick(2)
+        assertThat(removed).containsExactly(2L) // the first lives `life` ticks after its own spawn, the second is untouched
+        tick(3)
+        assertThat(removed).containsExactly(2L, 3L)
+        assertThat(tree.nodes.keys.filter { it.startsWith("quake") }).isEmpty() // instance groups leave no frame behind
+    }
+
+    @Test
     fun `plate flipbook - frame follows age over frame_ticks, loops or holds, and carries the tint`() {
         run(VisualOp.Plate("held", null, "volley", PlateFace.ViewerCenter, "ring", lit(1.0), lit(1.0), 2, false, Value.Literal("#FFE070")))
         run(VisualOp.Plate("looped", null, "volley", PlateFace.ViewerCenter, "ring", lit(1.0), lit(1.0), 1, true, null))
-        run(VisualOp.Plate("still", null, "volley", PlateFace.ViewerCenter, "glow", lit(1.0), lit(1.0), 1, true, null))
+        run(VisualOp.Plate("still", null, "volley", PlateFace.ViewerCenter, "glow", lit(1.0), lit(1.0), 1, true, null, seeThrough = true))
+        assertThat(seeThroughPlates).containsExactly(3L) // see_through reaches the gateway at spawn
         assertThat(plateFrames).containsExactly(Triple(1L, 0, "#FFE070")) // tint applied at spawn
         tick(14)
         val held = plateFrames.filter { it.first == 1L }.map { it.second }

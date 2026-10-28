@@ -7,12 +7,14 @@ item: crimson-chain-axe
 meta: {name: {ja: "緋針の雨", en: "Needle Rain"}, description: {ja: "緋色の針を雨のように降らせる。", en: "Rain crimson needles down."}, cooldown_ticks: 165, resource_cost: 23}
 gameplay:
   timeline:
+    - {id: t0, at: 0, do: [{id: pin, op: place, frame: fx1_crimson_chain_axe_charge, like: caster, orient: yaw}]}
+    - {id: t51, at: 51, do: [{id: pin_2, op: place, frame: fx2_crimson_hand_nodes, like: caster, orient: yaw}]}
     - {id: t54, at: 54, do: [{id: cast, op: cast_skill, skill: crimson-needle-projectile}]}
     - {id: t56, at: 56, do: [{id: cast_4, op: cast_skill, skill: crimson-needle-visual}]}
     - {id: t58, at: 58, do: [{id: cast_5, op: cast_skill, skill: crimson-needle-visual}]}
     - {id: t60, at: 60, do: [{id: cast_6, op: cast_skill, skill: crimson-needle-visual}]}
     - {id: t62, at: 62, do: [{id: cast_7, op: cast_skill, skill: crimson-needle-visual}]}
-    - {id: t64, at: 64, do: [{id: cast_8, op: cast_skill, skill: crimson-needle-visual}]}
+    - {id: t64, at: 64, do: [{id: pin_3, op: place, frame: fx3_crimson_hand_nodes, like: caster, orient: yaw}, {id: cast_8, op: cast_skill, skill: crimson-needle-visual}]}
     - {id: t66, at: 66, do: [{id: cast_9, op: cast_skill, skill: crimson-needle-visual}]}
     - {id: t67, at: 67, do: [{id: cast_2, op: cast_skill, skill: crimson-needle-projectile}]}
     - {id: t68, at: 68, do: [{id: cast_10, op: cast_skill, skill: crimson-needle-visual}]}
@@ -22,7 +24,7 @@ gameplay:
     - {id: t76, at: 76, do: [{id: cast_14, op: cast_skill, skill: crimson-needle-visual}]}
     - {id: t78, at: 78, do: [{id: cast_15, op: cast_skill, skill: crimson-needle-visual}]}
     - {id: t80, at: 80, do: [{id: cast_16, op: cast_skill, skill: crimson-needle-visual}]}
-    - {id: t82, at: 82, do: [{id: cast_17, op: cast_skill, skill: crimson-needle-visual}]}
+    - {id: t82, at: 82, do: [{id: pin_4, op: place, frame: fx4_crimson_hand_nodes, like: caster, orient: yaw}, {id: cast_17, op: cast_skill, skill: crimson-needle-visual}]}
     - {id: t84, at: 84, do: [{id: cast_18, op: cast_skill, skill: crimson-needle-visual}]}
     - {id: t85, at: 85, do: [{id: cast_3, op: cast_skill, skill: crimson-needle-projectile}]}
     - {id: t86, at: 86, do: [{id: cast_19, op: cast_skill, skill: crimson-needle-visual}]}

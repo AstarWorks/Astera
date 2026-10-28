@@ -1,12 +1,10 @@
 # Converted from content/skills/gossamer-katana-ego.yaml + content/vfx/* by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
 # Generated point-frame offsets are [left, up, forward] in the parent frame.
-# CONVERT-PRESENT vfx frame orient (frames carry no orientation / scale) (x6): orient="yaw"
-# CONVERT-PRESENT vfx follow=false (anchored at world, no place-at-spawn) (x5): gossamer-katana-guard | gossamer-katana-iaido-line
 apiVersion: "astera/v2"
 kind: Skill
 id: gossamer-katana-ego
 frames:
-  - {id: fx1_gossamer_katana_draw, kind: body, parent: caster}
+  - {id: fx1_gossamer_katana_draw, kind: body, parent: caster, orient: yaw}
   - {id: fx1_gossamer_katana_draw_katana_at, kind: body, parent: caster.right_hand}
   - {id: fx1_gossamer_katana_draw_katana, kind: body, parent: fx1_gossamer_katana_draw_katana_at}
   - {id: fx2_gossamer_katana_guard, kind: body, parent: world}
@@ -21,7 +19,7 @@ frames:
   - {id: fx5_gossamer_katana_slash_down_katana, kind: body, parent: fx5_gossamer_katana_slash_down_katana_at}
   - {id: pt_fx5_gossamer_katana_slash_down_katana_0_1p25_0, kind: point, parent: fx5_gossamer_katana_slash_down_katana, offset: [0.0, 1.25, 0.0]}
   - {id: pt_fx5_gossamer_katana_slash_down_katana_0_2p1_0, kind: point, parent: fx5_gossamer_katana_slash_down_katana, offset: [0.0, 2.1, 0.0]}
-  - {id: pt_caster_0_m1p62_3p6, kind: point, parent: caster, offset: [0.0, -1.62, 3.6]}
+  - {id: pt_aim_0_m1p62_3p6, kind: point, parent: aim, offset: [0.0, -1.62, 3.6]}
   - {id: fx6_gossamer_katana_scar, kind: body, parent: world}
 presentation:
   timeline:

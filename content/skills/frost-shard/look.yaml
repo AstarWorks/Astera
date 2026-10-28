@@ -1,12 +1,11 @@
 # Converted from content/skills/frost-shard.yaml + content/vfx/* by tools/skill-convert/convert.py (v1 archetype: projectile). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
 # Generated point-frame offsets are [left, up, forward] in the parent frame.
 # CONVERT-PRESENT projectile display.material used as the mesh item id (unverified); variant dropped (x1): minecraft:prismarine_shard variant=item
-# CONVERT-PRESENT particle animation ring (angle / shape without a baked equivalent) (x1): {"angle": "random", "end_radius": 1.4, "period_ticks": 4, "points": 12, "start_radius": 0.3}
 apiVersion: "astera/v2"
 kind: Skill
 id: frost-shard
 frames:
-  - {id: pt_caster_0_m0p2_1, kind: point, parent: caster, offset: [0.0, -0.2, 1.0]}
+  - {id: pt_aim_0_m0p2_1, kind: point, parent: aim, offset: [0.0, -0.2, 1.0]}
   - {id: pt_enemy_0_1_0, kind: point, parent: enemy, offset: [0.0, 1.0, 0.0]}
 presentation:
   timeline:
@@ -15,7 +14,70 @@ presentation:
       do:
         - {id: mesh, op: mesh, frame: bolt, item: "minecraft:prismarine_shard", scale: 0.9}
         - {id: snd, op: sound, sound: "astera:skills/frost-cast", at: caster, volume: 0.8, pitch: 1.4}
-        - {id: emit, op: emit, at: pt_caster_0_m0p2_1, particle: frost-cast}
+        - {id: emit, op: emit, at: pt_aim_0_m0p2_1, particle: frost-cast}
+    - id: fxhit_1
+      at: "hit+1"
+      do:
+        - id: emit_7
+          op: emit
+          at: pt_enemy_0_1_0
+          particle: snowflake
+          count: 0
+          speed: 0.04
+          times: 12
+          shift: "= draw_unit('shape_ax')*0 + plane_a(draw_unit('shape_ax'))*(0.6667*cos((draw('shape_ph')*6.283185307179586 + 6.283185307179586*i/12))) + plane_b(draw_unit('shape_ax'))*(0.6667*sin((draw('shape_ph')*6.283185307179586 + 6.283185307179586*i/12)))"
+          offset: "= plane_a(draw_unit('shape_ax'))*cos((draw('shape_ph')*6.283185307179586 + 6.283185307179586*i/12)) + plane_b(draw_unit('shape_ax'))*sin((draw('shape_ph')*6.283185307179586 + 6.283185307179586*i/12))"
+        - id: emit_8
+          op: emit
+          at: pt_enemy_0_1_0
+          particle: dust
+          count: 1
+          data: "#bee6ff"
+          data_size: 1.3
+          times: 12
+          shift: "= draw_unit('shape_ax')*0 + plane_a(draw_unit('shape_ax'))*(0.6667*cos((draw('shape_ph')*6.283185307179586 + 6.283185307179586*i/12))) + plane_b(draw_unit('shape_ax'))*(0.6667*sin((draw('shape_ph')*6.283185307179586 + 6.283185307179586*i/12)))"
+    - id: fxhit_2
+      at: "hit+2"
+      do:
+        - id: emit_9
+          op: emit
+          at: pt_enemy_0_1_0
+          particle: snowflake
+          count: 0
+          speed: 0.04
+          times: 12
+          shift: "= draw_unit('shape_ax')*0 + plane_a(draw_unit('shape_ax'))*(1.0333*cos((draw('shape_ph')*6.283185307179586 + 6.283185307179586*i/12))) + plane_b(draw_unit('shape_ax'))*(1.0333*sin((draw('shape_ph')*6.283185307179586 + 6.283185307179586*i/12)))"
+          offset: "= plane_a(draw_unit('shape_ax'))*cos((draw('shape_ph')*6.283185307179586 + 6.283185307179586*i/12)) + plane_b(draw_unit('shape_ax'))*sin((draw('shape_ph')*6.283185307179586 + 6.283185307179586*i/12))"
+        - id: emit_10
+          op: emit
+          at: pt_enemy_0_1_0
+          particle: dust
+          count: 1
+          data: "#bee6ff"
+          data_size: 1.3
+          times: 12
+          shift: "= draw_unit('shape_ax')*0 + plane_a(draw_unit('shape_ax'))*(1.0333*cos((draw('shape_ph')*6.283185307179586 + 6.283185307179586*i/12))) + plane_b(draw_unit('shape_ax'))*(1.0333*sin((draw('shape_ph')*6.283185307179586 + 6.283185307179586*i/12)))"
+    - id: fxhit_3
+      at: "hit+3"
+      do:
+        - id: emit_11
+          op: emit
+          at: pt_enemy_0_1_0
+          particle: snowflake
+          count: 0
+          speed: 0.04
+          times: 12
+          shift: "= draw_unit('shape_ax')*0 + plane_a(draw_unit('shape_ax'))*(1.4*cos((draw('shape_ph')*6.283185307179586 + 6.283185307179586*i/12))) + plane_b(draw_unit('shape_ax'))*(1.4*sin((draw('shape_ph')*6.283185307179586 + 6.283185307179586*i/12)))"
+          offset: "= plane_a(draw_unit('shape_ax'))*cos((draw('shape_ph')*6.283185307179586 + 6.283185307179586*i/12)) + plane_b(draw_unit('shape_ax'))*sin((draw('shape_ph')*6.283185307179586 + 6.283185307179586*i/12))"
+        - id: emit_12
+          op: emit
+          at: pt_enemy_0_1_0
+          particle: dust
+          count: 1
+          data: "#bee6ff"
+          data_size: 1.3
+          times: 12
+          shift: "= draw_unit('shape_ax')*0 + plane_a(draw_unit('shape_ax'))*(1.4*cos((draw('shape_ph')*6.283185307179586 + 6.283185307179586*i/12))) + plane_b(draw_unit('shape_ax'))*(1.4*sin((draw('shape_ph')*6.283185307179586 + 6.283185307179586*i/12)))"
     - {id: rep1, at: 0, every: 1, until: end, do: [{id: trail, op: emit, at: bolt, particle: snowflake, count: 2, spacing: 0.3, offset: [0.08, 0.08, 0.08], speed: 0.01}]}
     - {id: rep2, at: 0, every: 1, until: end, do: [{id: trail_2, op: emit, at: bolt, particle: dust, count: 2, spacing: 0.3, offset: [0.06, 0.06, 0.06], data: "#ebf5ff", data_size: 0.9}]}
     - {id: rep3, at: 0, every: 1, until: end, do: [{id: trail_3, op: emit, at: bolt, particle: end_rod, count: 1, spacing: 0.3, offset: [0.02, 0.02, 0.02]}]}
@@ -25,11 +87,27 @@ presentation:
       - {id: emit_2, op: emit, at: pt_enemy_0_1_0, particle: snowflake, count: 30, speed: 0.15}
       - {id: emit_3, op: emit, at: pt_enemy_0_1_0, particle: end_rod, count: 10, speed: 0.2}
       - {id: emit_4, op: emit, at: pt_enemy_0_1_0, particle: dust, count: 20, offset: [0.4, 0.4, 0.4], speed: 0.0, data: "#bee6ff", data_size: 1.4}
-      - {id: emit_5, op: emit, at: pt_enemy_0_1_0, particle: snowflake, count: 0, speed: 0.04}
-      - {id: emit_6, op: emit, at: pt_enemy_0_1_0, particle: dust, count: 1, data: "#bee6ff", data_size: 1.3}
+      - id: emit_5
+        op: emit
+        at: pt_enemy_0_1_0
+        particle: snowflake
+        count: 0
+        speed: 0.04
+        times: 12
+        shift: "= draw_unit('shape_ax')*0 + plane_a(draw_unit('shape_ax'))*(0.3*cos((draw('shape_ph')*6.283185307179586 + 6.283185307179586*i/12))) + plane_b(draw_unit('shape_ax'))*(0.3*sin((draw('shape_ph')*6.283185307179586 + 6.283185307179586*i/12)))"
+        offset: "= plane_a(draw_unit('shape_ax'))*cos((draw('shape_ph')*6.283185307179586 + 6.283185307179586*i/12)) + plane_b(draw_unit('shape_ax'))*sin((draw('shape_ph')*6.283185307179586 + 6.283185307179586*i/12))"
+      - id: emit_6
+        op: emit
+        at: pt_enemy_0_1_0
+        particle: dust
+        count: 1
+        data: "#bee6ff"
+        data_size: 1.3
+        times: 12
+        shift: "= draw_unit('shape_ax')*0 + plane_a(draw_unit('shape_ax'))*(0.3*cos((draw('shape_ph')*6.283185307179586 + 6.283185307179586*i/12))) + plane_b(draw_unit('shape_ax'))*(0.3*sin((draw('shape_ph')*6.283185307179586 + 6.283185307179586*i/12)))"
     block:
       - {id: snd_3, op: sound, sound: "astera:skills/frost-impact", at: contact.point, volume: 0.5, pitch: 1.6}
-      - {id: emit_7, op: emit, at: contact.point, particle: frost-impact}
-      - {id: emit_8, op: emit, at: contact.point, particle: frost-impact-dust}
+      - {id: emit_13, op: emit, at: contact.point, particle: frost-impact}
+      - {id: emit_14, op: emit, at: contact.point, particle: frost-impact-dust}
     expire:
-      - {id: emit_9, op: emit, at: contact.point, particle: frost-impact}
+      - {id: emit_15, op: emit, at: contact.point, particle: frost-impact}

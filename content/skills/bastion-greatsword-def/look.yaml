@@ -1,19 +1,34 @@
 # Converted from content/skills/bastion-greatsword-def.yaml + content/vfx/* by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
 # Generated point-frame offsets are [left, up, forward] in the parent frame.
-# CONVERT-PRESENT vfx frame orient (frames carry no orientation / scale) (x1): orient="yaw"
 apiVersion: "astera/v2"
 kind: Skill
 id: bastion-greatsword-def
 frames:
-  - {id: fx1_bastion_shield, kind: body, parent: caster}
+  - {id: fx1_bastion_shield, kind: body, parent: caster, orient: yaw}
 presentation:
   timeline:
     - id: fx0
       at: 0
       do:
-        - {op: plate, parent: fx1_bastion_shield, face: {plane: {frame: fx1_bastion_shield, axes: [left, up]}}, sprite: bastion-rim, size: 6.4, frame_ticks: 162, brightness: 15, id: fx1_bastion_shield_rim0r}
+        - op: plate
+          parent: fx1_bastion_shield
+          face: {plane: {frame: fx1_bastion_shield, axes: [left, up]}}
+          sprite: bastion-rim
+          size: 6.4
+          frame_ticks: 162
+          see_through: true
+          brightness: 15
+          id: fx1_bastion_shield_rim0r
         - {id: fx1_bastion_shield_rim0r_trk, op: track, target: fx1_bastion_shield_rim0r, keys: [{t: 0, offset: [0.2, 1.3, 1.15], scale: [0.58, 0.3, 1.0], turn: [-39.0405, -39.0405, 83.72263]}]}
-        - {op: plate, parent: fx1_bastion_shield, face: {plane: {frame: fx1_bastion_shield, axes: [left, up]}}, sprite: bastion-rim, size: 6.4, frame_ticks: 162, brightness: 15, id: fx1_bastion_shield_rim0l}
+        - op: plate
+          parent: fx1_bastion_shield
+          face: {plane: {frame: fx1_bastion_shield, axes: [left, up]}}
+          sprite: bastion-rim
+          size: 6.4
+          frame_ticks: 162
+          see_through: true
+          brightness: 15
+          id: fx1_bastion_shield_rim0l
         - {id: fx1_bastion_shield_rim0l_trk, op: track, target: fx1_bastion_shield_rim0l, keys: [{t: 0, offset: [0.2, 1.3, 1.15], scale: [0.58, 0.3, 1.0], turn: [39.0405, -39.0405, -83.72263]}]}
         - op: plate
           parent: fx1_bastion_shield
@@ -22,6 +37,7 @@ presentation:
           size: 6.4
           frame_ticks: 162
           color: "#FFF3C8"
+          see_through: true
           brightness: 15
           id: fx1_bastion_shield_rim1r
         - {id: fx1_bastion_shield_rim1r_trk, op: track, target: fx1_bastion_shield_rim1r, keys: [{t: 0, offset: [0.2, 1.3, 1.15], scale: [0.48, 0.22, 1.0], turn: [-39.0405, -39.0405, 83.72263]}]}
@@ -32,10 +48,19 @@ presentation:
           size: 6.4
           frame_ticks: 162
           color: "#FFF3C8"
+          see_through: true
           brightness: 15
           id: fx1_bastion_shield_rim1l
         - {id: fx1_bastion_shield_rim1l_trk, op: track, target: fx1_bastion_shield_rim1l, keys: [{t: 0, offset: [0.2, 1.3, 1.15], scale: [0.48, 0.22, 1.0], turn: [39.0405, -39.0405, -83.72263]}]}
-        - {op: plate, parent: fx1_bastion_shield, face: {plane: {frame: fx1_bastion_shield, axes: [left, up]}}, sprite: bastion-crest, size: 6.4, frame_ticks: 162, brightness: 15, id: fx1_bastion_shield_crest}
+        - op: plate
+          parent: fx1_bastion_shield
+          face: {plane: {frame: fx1_bastion_shield, axes: [left, up]}}
+          sprite: bastion-crest
+          size: 6.4
+          frame_ticks: 162
+          see_through: true
+          brightness: 15
+          id: fx1_bastion_shield_crest
         - {id: fx1_bastion_shield_crest_trk, op: track, target: fx1_bastion_shield_crest, keys: [{t: 0, offset: [0.2, 1.35, 1.15], scale: [0.26, 0.26, 1.0], turn: [0.0, -50.0, 0.0]}]}
         - op: quad
           parent: fx1_bastion_shield

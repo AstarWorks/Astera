@@ -10,6 +10,7 @@ gameplay:
   expose:
     - {id: damage, param: dmg_physical}
   timeline:
+    - {id: t0, at: 0, do: [{id: pin, op: place, frame: fx1_couture_passage_windup, like: caster, orient: yaw}]}
     - id: t11
       at: 11
       do:
@@ -24,6 +25,7 @@ gameplay:
           follow_pitch: false
           on_hit:
             - {id: dmg, op: damage, components: [{kind: physical, amount: "${dmg_physical}"}], target: victim, ignore_invulnerability: true}
+            - {id: pin_2, op: place, frame: fx3_couture_passage_contact, like: enemy, orient: yaw}
             - {id: raise, op: raise_event, name: dash_fx}
             - {id: sch, op: schedule, after: 6, event: dash_fx6}
             - {id: sch_2, op: schedule, after: 7, event: dash_fx7}

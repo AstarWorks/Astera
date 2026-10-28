@@ -5,4 +5,10 @@ kind: Skill
 id: crimson-chain-axe-s2
 item: crimson-chain-axe
 meta: {name: {ja: "二重の刺繍", en: "Double Embroidery"}, description: {ja: "緋色の針を二本続けて撃つ。", en: "Fire two crimson needles in a row."}, cooldown_ticks: 130, resource_cost: 18}
-gameplay: {timeline: [{id: t27, at: 27, do: [{id: cast, op: cast_skill, skill: crimson-needle-projectile}]}, {id: t54, at: 54, do: [{id: cast_2, op: cast_skill, skill: crimson-needle-projectile}]}]}
+gameplay:
+  timeline:
+    - {id: t0, at: 0, do: [{id: pin, op: place, frame: fx1_crimson_chain_axe_charge, like: caster, orient: yaw}]}
+    - {id: t24, at: 24, do: [{id: pin_2, op: place, frame: fx2_crimson_hand_nodes, like: caster, orient: yaw}]}
+    - {id: t27, at: 27, do: [{id: cast, op: cast_skill, skill: crimson-needle-projectile}]}
+    - {id: t51, at: 51, do: [{id: pin_3, op: place, frame: fx3_crimson_hand_nodes, like: caster, orient: yaw}]}
+    - {id: t54, at: 54, do: [{id: cast_2, op: cast_skill, skill: crimson-needle-projectile}]}

@@ -47,12 +47,33 @@ public object SkillDisplaySpecs {
     /** A solid-colour quad (`text` null: one blank line on a background of [colorHex] at [alpha]) or a text glyph drawn over it. */
     public fun quad(colorHex: String, alpha: Double, text: String?, shadow: Boolean, seeThrough: Boolean, first: DisplayTransform, billboard: DisplayBillboard, brightness: Int?): DisplaySpec {
         val a = (alpha.coerceIn(0.0, 1.0) * 255.0).roundToInt()
-        val bg = (a shl 24) or (argb(colorHex) and 0xFFFFFF)
+        val rgb = argb(colorHex) and 0xFFFFFF
         val shown = text ?: " "
+        // v1 split (VfxQuad.style): a solid quad paints its background, a glyph quad keeps no box and tints / fades the glyph itself.
+        val kind = if (text == null) {
+            DisplayKind.Text(
+                lines = listOf(LocalizedText(mapOf(LocaleCode.EN to shown, LocaleCode.JA to shown))),
+                backgroundArgb = (a shl 24) or rgb, shadow = shadow, seeThrough = seeThrough, textOpacity = 255,
+            )
+        } else {
+            DisplayKind.Text(
+                lines = listOf(LocalizedText(mapOf(LocaleCode.EN to shown, LocaleCode.JA to shown))),
+                backgroundArgb = 0, shadow = shadow, seeThrough = seeThrough, textOpacity = a.coerceAtLeast(MIN_TEXT_OPACITY), textRgb = rgb,
+            )
+        }
+        return DisplaySpec(
+            kind = kind,
+            transform = first, lifetimeTicks = LIFETIME, billboard = billboard, brightness = brightness,
+        )
+    }
+
+    /** A MiniMessage [text] display with a [backgroundHex] box at [backgroundAlpha]; the text keeps its own colour and full opacity. */
+    public fun text(text: String, backgroundHex: String, backgroundAlpha: Double, shadow: Boolean, seeThrough: Boolean, first: DisplayTransform, billboard: DisplayBillboard, brightness: Int?): DisplaySpec {
+        val a = (backgroundAlpha.coerceIn(0.0, 1.0) * 255.0).roundToInt()
         return DisplaySpec(
             kind = DisplayKind.Text(
-                lines = listOf(LocalizedText(mapOf(LocaleCode.EN to shown, LocaleCode.JA to shown))),
-                backgroundArgb = bg, shadow = shadow, seeThrough = seeThrough, textOpacity = 255,
+                lines = listOf(LocalizedText(mapOf(LocaleCode.EN to text, LocaleCode.JA to text))),
+                backgroundArgb = (a shl 24) or (argb(backgroundHex) and 0xFFFFFF), shadow = shadow, seeThrough = seeThrough, textOpacity = 255,
             ),
             transform = first, lifetimeTicks = LIFETIME, billboard = billboard, brightness = brightness,
         )
@@ -62,11 +83,11 @@ public object SkillDisplaySpecs {
     public fun skinBone(kind: DisplayKind.SkinBone, first: DisplayTransform): DisplaySpec =
         DisplaySpec(kind = kind, transform = first, lifetimeTicks = LIFETIME, billboard = DisplayBillboard.FIXED)
 
-    public fun plate(glyph: String, alpha: Double, first: DisplayTransform, billboard: DisplayBillboard, brightness: Int? = 15): DisplaySpec =
+    public fun plate(glyph: String, alpha: Double, seeThrough: Boolean, first: DisplayTransform, billboard: DisplayBillboard, brightness: Int? = 15): DisplaySpec =
         DisplaySpec(
             kind = DisplayKind.Text(
                 lines = listOf(LocalizedText(mapOf(LocaleCode.EN to glyph, LocaleCode.JA to glyph))),
-                backgroundArgb = 0, shadow = false, seeThrough = false, textOpacity = opacity(alpha),
+                backgroundArgb = 0, shadow = false, seeThrough = seeThrough, textOpacity = opacity(alpha),
             ),
             transform = first, lifetimeTicks = LIFETIME, billboard = billboard, brightness = brightness,
         )

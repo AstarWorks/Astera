@@ -10,12 +10,16 @@ public enum class FrameKind { WORLD, CASTER, BONE, ITEM, PART, BODY, ENEMY, CONT
 @JvmInline
 public value class FrameId(public val value: String)
 
-/** A node's pose is [local], expressed in [parent]. The root ("world") has no parent. */
+/**
+ * A node's pose is [local], expressed in [parent]. The root ("world") has no parent. With an [orient] the world rotation is
+ * chosen by it (live, every read) instead of inherited, and [local]'s rotation is applied on top.
+ */
 public data class FrameNode(
     val id: FrameId,
     val kind: FrameKind,
     val parent: FrameId?,
     val local: Frame,
+    val orient: FrameOrient? = null,
 )
 
 /** A named attachment point on a node: `<node>.<name>` resolves to `node.world.toWorld(offset)`. */

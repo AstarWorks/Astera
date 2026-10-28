@@ -13,6 +13,7 @@ gameplay:
     - id: t0
       at: 0
       do:
+        - {id: pin, op: place, frame: fx1_couture_rapier_guard, like: caster, orient: yaw}
         - id: counter
           op: window
           listen: incoming_hit
@@ -27,6 +28,7 @@ gameplay:
               after: 7
               do:
                 - {id: dmg, op: damage, components: [{kind: physical, amount: "${dmg_physical}"}], target: victim, ignore_invulnerability: true, when: "= dist(caster, victim) < 3.5"}
+            - {id: delay_2, op: delay, after: 7, do: [{id: pin_2, op: place, frame: fx3_couture_rapier_cross, like: enemy, orient: yaw, when: "= dist(caster, victim) < 3.5"}]}
             - {id: sch_2, op: schedule, after: 7, event: counter_fx7}
             - {id: sch_3, op: schedule, after: 13, event: counter_fx13}
             - {id: sch_4, op: schedule, after: 14, event: counter_fx14}

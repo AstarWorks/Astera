@@ -1,17 +1,15 @@
 # Converted from content/skills/couture-rapier-s1.yaml + content/vfx/* by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
 # Generated point-frame offsets are [left, up, forward] in the parent frame.
-# CONVERT-PRESENT vfx follow=false (anchored at world, no place-at-spawn) (x2): couture-passage-windup | couture-passage-contact
-# CONVERT-PRESENT vfx frame orient (frames carry no orientation / scale) (x4): orient="yaw"
 # CONVERT-PRESENT element brightness (no v2 equivalent) (x1): 15
 apiVersion: "astera/v2"
 kind: Skill
 id: couture-rapier-s1
 frames:
   - {id: fx1_couture_passage_windup, kind: body, parent: world}
-  - {id: fx2_couture_shears_snip, kind: body, parent: caster}
+  - {id: fx2_couture_shears_snip, kind: body, parent: caster, orient: yaw}
   - {id: fx3_couture_passage_contact, kind: body, parent: world}
   - {id: fx3_couture_passage_contact_sparks_at, kind: body, parent: fx3_couture_passage_contact}
-  - {id: fx4_couture_shear_passage, kind: body, parent: caster}
+  - {id: fx4_couture_shear_passage, kind: body, parent: caster, orient: yaw}
 presentation:
   timeline:
     - id: fx2

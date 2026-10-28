@@ -3,6 +3,8 @@ package com.astarworks.astera.core.application.skillengine.load.ops
 import com.astarworks.astera.core.application.skillengine.load.OpDecoder
 import com.astarworks.astera.core.application.skillengine.load.OpReader
 import com.astarworks.astera.core.domain.geometry.Vec3
+import com.astarworks.astera.core.domain.skillengine.frame.FrameOrient
+import com.astarworks.astera.core.domain.skillengine.frame.OrientMode
 import com.astarworks.astera.core.domain.skillengine.model.AxisRef
 import com.astarworks.astera.core.domain.skillengine.model.PointRef
 import com.astarworks.astera.core.domain.skillengine.model.Value
@@ -61,6 +63,21 @@ internal object FrameRawValues {
     fun point(raw: Any?, reader: OpReader, what: String): PointRef =
         PointRef.parse(raw as? String ?: reader.fail("$what: expected a point like 'blade_a.tip'"))
 
+    /** `orient: world|yaw|look|to_target`, or `{mode, look, reference}` (see [FrameOrient]). */
+    fun orient(raw: Any?, reader: OpReader, what: String): FrameOrient {
+        val m = if (raw is String) mapOf("mode" to raw) else map(raw, reader, what)
+        onlyKeys(m, setOf("mode", "look", "reference"), reader, what)
+        val name = m["mode"] as? String ?: reader.fail("$what: missing 'mode'")
+        val mode = OrientMode.entries.firstOrNull { it.name.equals(name, ignoreCase = true) }
+            ?: reader.fail("$what.mode: '$name' is not one of ${OrientMode.entries.joinToString("|") { it.name.lowercase() }}")
+        val defaults = FrameOrient(mode)
+        return FrameOrient(
+            mode,
+            look = m["look"]?.let { it as? String ?: reader.fail("$what.look: expected a frame id") } ?: defaults.look,
+            reference = m["reference"]?.let { it as? String ?: reader.fail("$what.reference: expected a frame id") } ?: defaults.reference,
+        )
+    }
+
     /** Fails on keys of [map] outside [allowed] (nested maps are not tracked by the reader). */
     fun onlyKeys(map: Map<String, Any?>, allowed: Set<String>, reader: OpReader, what: String) {
         val extra = map.keys - allowed
@@ -82,6 +99,7 @@ public class FrameOpDecoders : OpDecoder {
             frame = reader.requireString("frame"),
             like = reader.requireString("like"),
             offset = reader.vec3("offset"),
+            orient = reader.raw("orient")?.let { FrameRawValues.orient(it, reader, "orient") },
         )
         else -> FrameOp.Motion(id, whenExpr, frame = reader.requireString("frame"), spec = motion(op, reader))
     }

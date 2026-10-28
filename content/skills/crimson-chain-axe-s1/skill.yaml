@@ -5,4 +5,8 @@ kind: Skill
 id: crimson-chain-axe-s1
 item: crimson-chain-axe
 meta: {name: {ja: "緋針", en: "Crimson Needle"}, description: {ja: "緋色の針を撃ち出す。", en: "Fire a crimson needle."}, cooldown_ticks: 90, resource_cost: 13}
-gameplay: {timeline: [{id: t23, at: 23, do: [{id: cast, op: cast_skill, skill: crimson-needle-projectile}]}]}
+gameplay:
+  timeline:
+    - {id: t0, at: 0, do: [{id: pin, op: place, frame: fx1_crimson_chain_axe_charge, like: caster, orient: yaw}]}
+    - {id: t20, at: 20, do: [{id: pin_2, op: place, frame: fx2_crimson_hand_nodes, like: caster, orient: yaw}]}
+    - {id: t23, at: 23, do: [{id: cast, op: cast_skill, skill: crimson-needle-projectile}]}
