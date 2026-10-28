@@ -110,3 +110,12 @@ Astera の `Rarity` (COMMON〜LEGENDARY) は人格武器ではほぼ epic で、
 - **P4 lint**: skill の `hit_stop` / `camera_shake` の tick と、vfx の最初のフラッシュ要素の開始 tick が一致するかを検査する。
 - **P1 / P10 lint**: sprite PNG ごとの色数 (帯の数) とアルファ値分布 (半透明の縁) を検査する。
 - **P6 lint**: pixel クラスの sprite の `size` と要素 `scale` から texel/block を概算し、約 8 未満 / 32 超を警告する。
+
+## 候補 (シェーダー系 (b), 2026-10-28)
+
+出典と分類は [`neac-shader-techniques.md`](neac-shader-techniques.md)。どれも core shader パッチ + 発火経路が要る未合意の候補。
+
+1. **床・空の青灰色への沈み (NA-3)**: 効果ポーションでライトマップ UBO を動かし `lightmap.fsh` を差し込む。最安。本物の暗闇 / 夜間視と区別がつかないので、強さ + 継続時間の組を予約する。
+2. **地形に張り付く波状スキャン帯 (NA-2)**: `terrain.fsh` で高さ + GameTime から帯を作る。GameTime が使えるのは `globals.glsl` を include するシェーダーのみ。
+3. **魚眼・湾曲した床 (NA-1)**: 頂点湾曲か FOV。全ジオメトリと一人称の手元に影響し、検証が重い。ライト値のマーカーは偽造可能なので、局所化には巻き方向などの併用が要る。
+4. **UV 置き換えの地形 (NA-8)**: スキル VFX から遠く、最後。
