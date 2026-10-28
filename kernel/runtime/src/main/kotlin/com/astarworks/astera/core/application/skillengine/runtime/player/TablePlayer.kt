@@ -21,6 +21,7 @@ import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.geometry.math.Frame
 import com.astarworks.astera.core.domain.geometry.math.Quaternion
 import com.astarworks.astera.core.domain.skill.value.NumericValue
+import com.astarworks.astera.core.domain.skillengine.hit.ContactEvent
 import com.astarworks.astera.core.domain.skillengine.hit.DefaultContactResolver
 import com.astarworks.astera.core.domain.skillengine.hit.ResolvedVolume
 import com.astarworks.astera.core.domain.skillengine.model.EngineConfig
@@ -595,6 +596,11 @@ public class TablePlayer(
             lf["end.max"]?.let { rec.expireTick = now + dbl(run, it, ctx).toInt() - stuck }
             rec.hitTargets = lf["hit.targets"]?.let { strOf(run, it, ctx) } ?: ""
             rec.hitRadius = lf["radius"]?.let { dbl(run, it, ctx) } ?: 0.0
+            lf["hit.shape.radius"]?.let { rec.shapeRadius = dbl(run, it, ctx) }
+            rec.shapeFrames = generateSequence(0) { it + 1 }.takeWhile { lf.containsKey("hit.shape.frame.$it") }.map { i ->
+                ShapeFrame(strOf(run, lf.getValue("hit.shape.frame.$i"), ctx), strOf(run, lf.getValue("hit.shape.frame.$i.from"), ctx), strOf(run, lf.getValue("hit.shape.frame.$i.to"), ctx))
+            }.toList()
+            rec.blockDespawn = mode == "despawn"
             val once = lf["hit.once"]?.let { any(run, it, ctx) } == true
             rec.hitTimes = if (once) 1 else lf["hit.times"]?.let { dbl(run, it, ctx).toInt() } ?: 1
             rec.endsOn = buildSet {
@@ -865,7 +871,15 @@ public class TablePlayer(
         run.pending += RuntimeEvent(
             path, now, id.path.lastOrNull()?.index, ContactInfo(Vector3d(b.point.x, b.point.y, b.point.z), Vector3d(b.normal.x, b.normal.y, b.normal.z)), null,
         )
+        if (rec.blockDespawn) endByContact(run, id, rec, now)
         return "block" in rec.endsOn
+    }
+
+    /** The flight ends at a contact (last victim, or a despawn block): `end` right after the contact event, the body goes at cleanup. */
+    private fun endByContact(run: Run, id: InstanceId, rec: Rec, now: Int) {
+        rec.ended = true
+        run.pending += RuntimeEvent(EventPath(id.text + ".end"), now, id.path.lastOrNull()?.index, null, null)
+        if (id !in run.pendingEnds) run.pendingEnds += id
     }
 
     /**
@@ -887,10 +901,39 @@ public class TablePlayer(
         val cur = worldOf(run, rec, rec.localAt(now), null, now).pos
         val prev = worldOf(run, rec, rec.localAt(now - 1), null, now - 1).pos
         val delta = Vec3(cur.x - prev.x, cur.y - prev.y, cur.z - prev.z)
-        val vol = ResolvedVolume.Capsule(Vec3(prev.x, prev.y, prev.z), Vec3(cur.x, cur.y, cur.z), rec.hitRadius)
-        val cands = query.nearby(vol.broadCenter, vol.broadRadius, run.request.caster).filter { it.entityId !in rec.hitVictims }
         val start = Vec3(prev.x, prev.y, prev.z)
-        val found = resolver.narrow(id.text, now, id.text, vol, delta, cands).sortedBy { it.pointWorld.distance(start) }
+        val raw = ArrayList<ContactEvent>()
+        fun test(vol: ResolvedVolume, velocity: Vec3) {
+            val cands = query.nearby(vol.broadCenter, vol.broadRadius, run.request.caster).filter { it.entityId !in rec.hitVictims }
+            raw += resolver.narrow(id.text, now, id.text, vol, velocity, cands)
+        }
+        if (rec.shapeFrames.isEmpty()) test(ResolvedVolume.Capsule(start, Vec3(cur.x, cur.y, cur.z), rec.hitRadius), delta)
+        else for (sf in rec.shapeFrames) {
+            // R43: one swept capsule per rider frame, swept back along the frame's own last-tick displacement (the same poses rule as the `hit` op, item 14.7)
+            val fr = run.recs.entries.firstOrNull { (k, r) ->
+                r.kind == SpawnKind.FRAME && k.path.size == id.path.size && k.path.dropLast(1) == id.path.dropLast(1) && k.path.last().op.value == sf.frame &&
+                    k.path.last().index == id.path.last().index
+            }?.value
+            if (fr == null) {
+                fault(run, now, id.text, "hit.shape frame '${sf.frame}' is not a live frame of this projectile")
+                continue
+            }
+            val d = Vector3d(worldOf(run, fr, fr.localAt(now), null, now).pos).sub(worldOf(run, fr, fr.localAt(now - 1), null, now - 1).pos)
+            val f = live.vec(run.cursor.handle, sf.from, null)
+            val t = live.vec(run.cursor.handle, sf.to, null)
+            val travel = d.length()
+            val poses = if (travel < 1e-9) 1 else min(config.maxSweepSteps.toDouble(), ceil(travel / max(rec.shapeRadius, 1e-6)) + 1.0).toInt().coerceAtLeast(1)
+            for (i in 0 until poses) {
+                val k = if (poses == 1) 0.0 else (poses - 1 - i).toDouble() / (poses - 1)
+                test(
+                    ResolvedVolume.Capsule(
+                        Vec3(f.x - d.x * k, f.y - d.y * k, f.z - d.z * k), Vec3(t.x - d.x * k, t.y - d.y * k, t.z - d.z * k), rec.shapeRadius,
+                    ),
+                    Vec3(d.x, d.y, d.z),
+                )
+            }
+        }
+        val found = raw.distinctBy { it.victim }.sortedBy { it.pointWorld.distance(start) }
         for (ce in found) {
             if (rec.hitTimes <= 0) break
             rec.hitVictims += ce.victim
@@ -901,10 +944,7 @@ public class TablePlayer(
             )
         }
         if (rec.hitTimes <= 0 && found.isNotEmpty()) {
-            // the flight ends with its last permitted victim: `end` right after `hit`, the body goes at cleanup
-            rec.ended = true
-            run.pending += RuntimeEvent(EventPath(id.text + ".end"), now, id.path.lastOrNull()?.index, null, null)
-            if (id !in run.pendingEnds) run.pendingEnds += id
+            endByContact(run, id, rec, now)
         }
     }
 
@@ -1123,6 +1163,8 @@ public class TablePlayer(
 
     private class PoseV(val pos: Vector3d, val rot: Quaterniond, val scale: Vector3d)
 
+    private class ShapeFrame(val frame: String, val from: String, val to: String)
+
     private class LockRec(val owner: StatePath?, val move: LockMove, val pitch: Boolean, val yaw: Boolean, val untilAbs: Int)
 
     /** A live thing: its local pose moves along one interpolation segment (closed form, same as the client's). */
@@ -1145,6 +1187,10 @@ public class TablePlayer(
         var hitRadius: Double = 0.0
         var hitTimes: Int = 0
         val hitVictims: MutableSet<UUID> = HashSet()
+        /** R43 `hit.shape`: capsule radius and the rider frames (op id, `from` / `to` point names); empty = the body sphere [hitRadius]. */
+        var shapeRadius: Double = 0.0
+        var shapeFrames: List<ShapeFrame> = emptyList()
+        var blockDespawn: Boolean = false
         var billboard: DisplayBillboard = DisplayBillboard.FIXED
         /** `frame axes`: which rotation a root frame takes (null = its anchor's own). */
         var axes: String? = null
