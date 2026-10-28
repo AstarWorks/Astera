@@ -190,6 +190,7 @@ internal class CombatPaperPlatform(private val plugin: JavaPlugin) {
                 eventBus = eventBus,
                 container = container,
                 playerHealthGateway = playerHealthGatewayForTicks,
+                entityDamageGateway = services.get<com.astarworks.astera.combat.application.port.outbound.IEntityDamageGateway>(),
             )
             statusTickHandle = statusTickListener.start(plugin)
         }

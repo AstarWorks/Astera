@@ -1,6 +1,10 @@
 package com.astarworks.astera.combat.adapter.paper
 
 import com.astarworks.astera.core.application.port.outbound.ExecutionScope
+import com.astarworks.astera.combat.application.port.outbound.IEntityDamageGateway
+import com.astarworks.astera.combat.domain.damage.DamageSource
+import com.astarworks.astera.combat.domain.damage.ResolvedDamage
+import com.astarworks.astera.core.domain.damage.DamageAttribute
 import com.astarworks.astera.combat.domain.event.StatusExpired
 import com.astarworks.astera.combat.domain.event.StatusRemoved
 import com.astarworks.astera.combat.domain.status.StatusEffectInstance
@@ -91,6 +95,8 @@ public class StatusEffectTickListener(
     private val eventBus: IDomainEventBus,
     private val container: PaperStatusEffectContainer,
     private val playerHealthGateway: IPlayerHealthGateway? = null,
+    /** Mobs have no Astera HP container, so their DoT / regen goes through the entity gateway (Bukkit health). */
+    private val entityDamageGateway: IEntityDamageGateway? = null,
 ) : Listener {
 
     private val log = LoggerFactory.getLogger(javaClass)
@@ -157,6 +163,10 @@ public class StatusEffectTickListener(
      * `IStatusEffectContainer.has(...)` / `.active(...)`.
      */
     private fun applyTickEffect(playerId: PlayerId, instance: StatusEffectInstance) {
+        if (entityDamageGateway?.isEntityTarget(playerId) == true) {
+            applyEntityTickEffect(entityDamageGateway, playerId, instance)
+            return
+        }
         val healthGateway = playerHealthGateway ?: return
         when (instance.spec.kind) {
             StatusKind.BURN -> {
@@ -200,6 +210,27 @@ public class StatusEffectTickListener(
             StatusKind.STACK_DEBUFF,
             StatusKind.STACK_BUFF,
             -> Unit
+        }
+    }
+
+    /** DoT / regen for a non-player mob: Bukkit health is authoritative, same amounts as the player branch. */
+    private fun applyEntityTickEffect(gateway: IEntityDamageGateway, targetId: PlayerId, instance: StatusEffectInstance) {
+        when (instance.spec.kind) {
+            StatusKind.BURN -> {
+                val damage = instance.spec.magnitude * instance.currentStacks
+                if (damage > 0.0) {
+                    gateway.apply(
+                        target = targetId,
+                        resolved = ResolvedDamage(damage, DamageAttribute.PHYSICAL, wasBlocked = false, wasCritical = false),
+                        source = DamageSource.StatusEffectTick(instance.spec.id, instance.sourcePlayerId),
+                    )
+                }
+            }
+            StatusKind.HEAL_AMP -> {
+                val healAmount = instance.spec.magnitude * instance.currentStacks * Attributes.VANILLA_HP_SCALE
+                if (healAmount > 0.0) gateway.heal(targetId, healAmount)
+            }
+            else -> Unit
         }
     }
 
