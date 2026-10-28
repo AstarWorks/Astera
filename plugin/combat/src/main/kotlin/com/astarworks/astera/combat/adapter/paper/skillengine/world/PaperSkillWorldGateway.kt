@@ -1,19 +1,29 @@
 package com.astarworks.astera.combat.adapter.paper.skillengine.world
 
 import com.astarworks.astera.combat.application.port.outbound.IBlockEditGuard
+import com.astarworks.astera.combat.application.port.outbound.IToolBlockGateway
 import com.astarworks.astera.combat.application.port.outbound.aoe.ILightningGateway
+import com.astarworks.astera.core.application.port.outbound.IAreaBreakExclusion
 import com.astarworks.astera.core.application.port.outbound.IBlockStateGateway
 import com.astarworks.astera.core.application.port.outbound.ICustomBlockRegistry
+import com.astarworks.astera.core.application.port.outbound.IItemRegistry
+import com.astarworks.astera.core.application.service.CoverBlockService
+import com.astarworks.astera.core.application.usecase.block.HitCustomBlockUseCase
 import com.astarworks.astera.core.application.skillengine.runtime.port.BlockDamageOutcome
 import com.astarworks.astera.core.application.skillengine.runtime.port.CastRef
 import com.astarworks.astera.core.application.skillengine.runtime.port.ISkillBlockAccess
 import com.astarworks.astera.core.application.skillengine.runtime.world.LedgerWorldGateway
 import com.astarworks.astera.core.domain.block.BlockDamageProfile
 import com.astarworks.astera.core.domain.geometry.Vec3
+import com.astarworks.astera.core.domain.item.ItemId
 import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.domain.skill.SkillId
 import com.astarworks.astera.core.domain.skillengine.world.BlockCell
+import com.astarworks.astera.core.domain.world.BlockHpRules
 import com.astarworks.astera.core.domain.world.BlockType
+import com.astarworks.astera.core.domain.world.ToolKind
+import com.astarworks.astera.core.domain.world.ToolTier
+import com.astarworks.astera.core.domain.world.ToolType
 import com.astarworks.astera.core.domain.world.WorldId
 import org.bukkit.Location
 import org.bukkit.Material
@@ -34,7 +44,11 @@ public class PaperSkillWorldGateway(
     blockStates: () -> IBlockStateGateway?,
     covers: () -> ICustomBlockRegistry?,
     private val lightning: () -> ILightningGateway?,
-) : LedgerWorldGateway(PaperBlockAccess(server, guard, blockStates, covers)) {
+    coverService: () -> CoverBlockService?,
+    toolBlocks: () -> IToolBlockGateway?,
+    items: () -> IItemRegistry?,
+    exclusion: () -> IAreaBreakExclusion?,
+) : LedgerWorldGateway(PaperBlockAccess(server, guard, blockStates, covers, coverService, toolBlocks, items, exclusion)) {
 
     override fun explode(cast: CastRef, at: Vec3, power: Double, breakBlocks: Boolean, fire: Boolean) {
         val owner = server.getEntity(cast.caster) ?: return
@@ -55,12 +69,20 @@ public class PaperSkillWorldGateway(
 /**
  * Block reads, edits and damage, in the world of the call's [CastRef]. Damage and cover go through [IBlockStateGateway] so the match's durability and cover bookkeeping
  * stay the single owner; plain place/remove are raw block edits the ledger reverts.
+ *
+ * A tool skill (`toolClass` set) strikes by the (tool class x item tier x block) rule of [BlockHpRules]: the tier comes from the
+ * item the cast's skill is bound to ([CastRef.item]), the block keeps its HP across casts, the crack overlay follows it and a
+ * break drops what that tool drops by hand. Cells an [IAreaBreakExclusion] names (Mid ore nodes) are never editable.
  */
 internal class PaperBlockAccess(
     private val server: Server,
     private val guard: () -> IBlockEditGuard?,
     private val blockStates: () -> IBlockStateGateway?,
     private val covers: () -> ICustomBlockRegistry?,
+    private val coverService: () -> CoverBlockService?,
+    private val toolBlocks: () -> IToolBlockGateway?,
+    private val items: () -> IItemRegistry?,
+    private val exclusion: () -> IAreaBreakExclusion?,
 ) : ISkillBlockAccess {
 
     private fun worldOf(cast: CastRef): World? = server.getWorld(cast.world.value)
@@ -72,6 +94,7 @@ internal class PaperBlockAccess(
 
     override fun canEdit(cast: CastRef, cell: BlockCell, outsideArena: Boolean): Boolean {
         val w = worldOf(cast) ?: return false
+        if (exclusion()?.isExcluded(worldId(w), pos(cell)) == true) return false
         if (outsideArena) return true
         return guard()?.canEdit(PlayerId(cast.caster), worldId(w), pos(cell)) ?: true
     }
@@ -105,6 +128,8 @@ internal class PaperBlockAccess(
     override fun damage(cast: CastRef, cell: BlockCell, blockDamage: Int, toolClass: String?): BlockDamageOutcome {
         val w = worldOf(cast) ?: return BlockDamageOutcome.NONE
         val gateway = blockStates() ?: return BlockDamageOutcome.NONE
+        val kind = toolClass?.let { runCatching { ToolKind.valueOf(it.uppercase()) }.getOrNull() }?.takeIf { it != ToolKind.NONE }
+        if (kind != null) return strikeWithTool(cast, w, cell, gateway, blockDamage, kind)
         val result = gateway.applyDamageFromSkill(
             worldId(w), pos(cell), SkillId("skill-engine"), PlayerId(cast.caster), BlockDamageProfile.flat(blockDamage),
         )
@@ -114,6 +139,57 @@ internal class PaperBlockAccess(
             is com.astarworks.astera.core.domain.block.BlockDamageOutcome.Broken -> BlockDamageOutcome.BROKEN
             else -> BlockDamageOutcome.NONE
         }
+    }
+
+    /** The tier of the item the cast's skill is bound to; an unbound or non-tool skill digs as a stone tool. */
+    private fun tierOf(cast: CastRef): ToolTier =
+        cast.item?.let { id -> items()?.let { HitCustomBlockUseCase.toolOf(it, ItemId(id)) } }?.tier ?: ToolTier.STONE
+
+    private fun strikeWithTool(
+        cast: CastRef,
+        w: World,
+        cell: BlockCell,
+        gateway: IBlockStateGateway,
+        blockDamage: Int,
+        kind: ToolKind,
+    ): BlockDamageOutcome {
+        val world = worldId(w)
+        val at = pos(cell)
+        val owner = PlayerId(cast.caster)
+        val tool = ToolType(kind, tierOf(cast))
+        val tools = toolBlocks()
+        val cover = coverService()
+        if (gateway.isCover(world, at)) {
+            val spec = block(cast, cell)?.let { covers()?.resolveByBlockData(it.blockData.asString) }
+            val outcome = (cover?.strikeCell(
+                owner, world, at, SkillId("skill-engine"), BlockDamageProfile(blockDamage, tool), CoverBlockService.Feedback.swing(kind),
+            ) as? AsteraResult.Success)?.value
+            return when (outcome) {
+                is CoverBlockService.CellOutcome.Broken -> {
+                    spec?.placedFrom?.let { tools?.dropCustom(world, at, owner, it) }
+                    BlockDamageOutcome.BROKEN
+                }
+                is CoverBlockService.CellOutcome.Chipped -> { tools?.hitEffect(world, at); BlockDamageOutcome.CHIPPED }
+                is CoverBlockService.CellOutcome.Ineffective -> { tools?.clink(world, at); BlockDamageOutcome.NONE }
+                null -> BlockDamageOutcome.NONE
+            }
+        }
+        val surface = tools?.surface(world, at)
+        val baseType = surface?.data?.substringBefore('[')?.let(::BlockType) ?: blockAt(cast, cell)?.let(::BlockType)
+        val hardness = surface?.hardness ?: baseType?.let(BlockHpRules::simulatedHardness) ?: 1.5
+        if (hardness < 0) return BlockDamageOutcome.NONE
+        val preferred = baseType == null || BlockHpRules.preferredKind(baseType) == kind
+        val maxHp = BlockHpRules.maxHp(hardness)
+        val hp = gateway.damageBlock(world, at, maxHp, BlockHpRules.damage(blockDamage, tool, preferred, hardness))
+        cover?.showHp(world, at, hp, maxHp)
+        if (hp > 0) {
+            tools?.hitEffect(world, at)
+            return BlockDamageOutcome.CHIPPED
+        }
+        val toolData = runCatching { tools?.heldTool(owner, kind.name, tool.tier.name) }.getOrNull()
+        if (tools != null) tools.breakBlock(world, at, owner, toolData) else remove(cast, cell)
+        surface?.let { tools?.effect(world, at, it.data, false) }
+        return BlockDamageOutcome.BROKEN
     }
 
     override fun consumeItem(cast: CastRef, itemId: String): Boolean {

@@ -143,6 +143,10 @@ internal class SkillEnginePaperRuntime(
             blockStates = { services.get<IBlockStateGateway>() },
             covers = { services.get<ICustomBlockRegistry>() },
             lightning = { services.get<ILightningGateway>() },
+            coverService = { services.get<com.astarworks.astera.core.application.service.CoverBlockService>() },
+            toolBlocks = { toolBlocks },
+            items = { services.get<com.astarworks.astera.core.application.port.outbound.IItemRegistry>() },
+            exclusion = { services.get<com.astarworks.astera.core.application.port.outbound.IAreaBreakExclusion>() },
         )
         worldOps = worldGateway3
         val player = TablePlayer(

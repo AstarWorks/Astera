@@ -46,7 +46,7 @@ class WorldOpScenarioTest : SkillEngineScenario() {
     }
 
     private fun run(world: FakeSkillWorldGateway, opLine: String) =
-        WorldRows.execute(world, com.astarworks.astera.core.application.skillengine.runtime.port.CastRef(1L, caster, com.astarworks.astera.core.domain.world.WorldId("world")), worldRow(opLine), origin, east) { cell -> ((cell as com.astarworks.astera.core.domain.skillengine.table.Val.Known<*>).value as Number).toDouble() }
+        WorldRows.execute(world, com.astarworks.astera.core.application.skillengine.runtime.port.CastRef(1L, caster, com.astarworks.astera.core.domain.world.WorldId("world"), "iron-pickaxe"), worldRow(opLine), origin, east) { cell -> ((cell as com.astarworks.astera.core.domain.skillengine.table.Val.Known<*>).value as Number).toDouble() }
 
     private fun stoneBlock(world: FakeSkillWorldGateway, from: Int, to: Int) {
         for (x in from..to) for (y in 62..66) for (z in -4..4) world.setBlock(BlockCell(x, y, z), "minecraft:stone")
