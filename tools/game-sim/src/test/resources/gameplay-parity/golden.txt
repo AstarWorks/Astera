@@ -3648,7 +3648,7 @@ delay-mine-lay	46	6d7be6ef9399
 delay-mine-lay	47	6d7be6ef9399
 delay-mine-lay	48	6d7be6ef9399
 delay-mine-lay	49	6d7be6ef9399
-delay-mine-lay	50	7db0f1d0bded
+delay-mine-lay	50	80b28f2bb061
 delay-mine-lay	51	6d7be6ef9399
 delay-mine-lay	52	6d7be6ef9399
 delay-mine-lay	53	6d7be6ef9399
@@ -5160,7 +5160,7 @@ ember-rod-spark	118	6d7be6ef9399
 ember-rod-spark	119	6d7be6ef9399
 fireball-cast	0	607e2107826b
 fireball-cast	1	6d7be6ef9399
-fireball-cast	2	42d1298b70e8
+fireball-cast	2	be3c71ff588b
 fireball-cast	3	6d7be6ef9399
 fireball-cast	4	6d7be6ef9399
 fireball-cast	5	6d7be6ef9399
@@ -5520,7 +5520,7 @@ flash-bang-throw	118	6d7be6ef9399
 flash-bang-throw	119	6d7be6ef9399
 frag-grenade-throw	0	fe9609d8f929
 frag-grenade-throw	1	6d7be6ef9399
-frag-grenade-throw	2	cff6495c5410
+frag-grenade-throw	2	400c8d4a7009
 frag-grenade-throw	3	a36820968e52
 frag-grenade-throw	4	ed2b65233dbd
 frag-grenade-throw	5	3be94fc50f86
@@ -8038,7 +8038,7 @@ harpoon-throw	116	6d7be6ef9399
 harpoon-throw	117	6d7be6ef9399
 harpoon-throw	118	6d7be6ef9399
 harpoon-throw	119	6d7be6ef9399
-heal-potion-use	0	48d3deca8138
+heal-potion-use	0	a152b4a30f8a
 heal-potion-use	1	6d7be6ef9399
 heal-potion-use	2	6d7be6ef9399
 heal-potion-use	3	6d7be6ef9399
@@ -8639,7 +8639,7 @@ katana-slash	117	6d7be6ef9399
 katana-slash	118	6d7be6ef9399
 katana-slash	119	6d7be6ef9399
 lightning-bolt	0	cc4ffe1e0398
-lightning-bolt	1	735eb003515b
+lightning-bolt	1	b5ab5f70543e
 lightning-bolt	2	6d7be6ef9399
 lightning-bolt	3	44d35a10ae09
 lightning-bolt	4	6d7be6ef9399
@@ -15480,7 +15480,7 @@ spear-thrust	118	6d7be6ef9399
 spear-thrust	119	6d7be6ef9399
 sticky-bomb-throw	0	15f79c2754bd
 sticky-bomb-throw	1	6d7be6ef9399
-sticky-bomb-throw	2	de9ca5aa395c
+sticky-bomb-throw	2	636a343881ed
 sticky-bomb-throw	3	6d7be6ef9399
 sticky-bomb-throw	4	44d35a10ae09
 sticky-bomb-throw	5	6d7be6ef9399
