@@ -43,6 +43,7 @@ rig `of` and `reset` (10.5); dump `world` rows and event names (11.3); Patch doc
 and `#aarrggbb` colour (2.1), world op defaults (10.1c), dash `direction` required, `rand()` in a `when` guard, hit occurrence windows, check 10
 counted over `[spawn, end)`, a `lock` row owning its instance, param defaults and item-part axes for frame motion, state-qualified
 instance ids, ribbon opacity as the colour alpha. Each sentence names the commit that implemented it. No field is added or removed.
+**rev4.5 (2026-10-29, SKL-22 gaps, wording only)**: the `seq:` desugar applies to part and machine op lists alike (11.1); a display `size` may be a T-class expression, fitted to `Key` segments (2.1, 3.5); a ribbon takes `{law: grow, prop: width}` and lowers it per tick because a trail has no client interpolation (3.4, 3.7). No field is added or removed.
 Founder questions Q1-Q7 are OPEN: every spot that depends on one carries a "pending founder Qn" note with both options and chooses neither (list under
 "Open decisions"). Examples c, e, g updated; `rejected/r12`-`r14` added. Status stays Proposed (edited in place by the manager's authorisation).
 
@@ -598,6 +599,8 @@ interpolates LINEARLY within `interpolation_duration`, so the curve is reproduce
 4. The sub-segment endpoints are sampled from `E`, so the first and last of the window always match the unmodified end values exactly.
 
 `expand` (11) prints, for each eased law, `m`, `h`, the max error and the writes, and the lint warns above one write per tick as it does for any T expression.
+
+Properties that no client interpolates (ribbon `width`, which the adapter applies to each trail point it pushes) are not fitted to `m + 1` segments: they lower per tick, one `set` per tick where the value changes, as `fade` does in 3.4.
 
 #### 3.7.1 Speed and spacing take the same `ease`
 
