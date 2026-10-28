@@ -41,7 +41,7 @@ machine:
               - {id: dmg, op: damage, target: event.victim, damage: {water: 25.0}}
               - {id: st_freeze, op: status, target: event.victim, status: freeze, stacks: 1, for: 60, when: "= rand() < 0.7"}
               - {id: st_wet, op: status, target: event.victim, status: wet, stacks: 1, for: 100}
-              - {id: chip, op: break_area, at: 0, anchor: contact, shape: {sphere: {radius: 0.5, ahead: 0.0}}, tool: none, block_damage: 10, ripple: 0, revert: 200, outside_arena: false}
+              - {id: chip, op: break_area, at: 0, anchor: contact, shape: {sphere: {radius: 0.5, ahead: 4.0}}, tool: none, block_damage: 10, ripple: 29, revert: 200, outside_arena: false}
               - {id: snd_hit, op: sound, sound: "astera:skills/frost-impact", anchor: heart, volume: 0.7, pitch: 1.5}
               - {id: fx_snow, op: particle, particle: snowflake, anchor: heart, count: 30, extra: 0.15}
               - {id: fx_rod, op: particle, particle: end_rod, anchor: heart, count: 10, extra: 0.2}
@@ -49,7 +49,7 @@ machine:
               - {id: fx_snow2, op: particle, particle: snowflake, anchor: heart, count: 0, extra: 0.04}
               - {id: fx_dust2, op: particle, particle: dust, anchor: heart, count: 1, color: "#bee6ff", size: 1.3}
             block:
-              - {id: chip_2, op: break_area, at: 0, anchor: contact, shape: {sphere: {radius: 0.5, ahead: 0.0}}, tool: none, block_damage: 10, ripple: 0, revert: 200, outside_arena: false}
+              - {id: chip_2, op: break_area, at: 0, anchor: contact, shape: {sphere: {radius: 0.5, ahead: 4.0}}, tool: none, block_damage: 10, ripple: 29, revert: 200, outside_arena: false}
               - {id: snd_blk, op: sound, sound: "astera:skills/frost-impact", anchor: contact.point, volume: 0.5, pitch: 1.6}
               - {id: fx_blk, op: particle_def, def: frost-impact, anchor: contact.point}
               - {id: fx_blk_dust, op: particle_def, def: frost-impact-dust, anchor: contact.point}

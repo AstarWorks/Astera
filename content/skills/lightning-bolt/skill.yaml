@@ -41,7 +41,7 @@ machine:
               - {id: dmg, op: damage, target: event.victim, damage: {electric: "${dmg_electric}"}}
               - {id: st_shock, op: status, target: event.victim, status: shock, stacks: 1, for: "${shock_ticks}", when: "= roll('shock') < 0.6"}
               - {id: lightning, op: lightning, anchor: victim.root, visual_only: true}
-              - {id: chip, op: break_area, anchor: contact, shape: {sphere: {radius: 1.0, ahead: 0.0}}, tool: none, block_damage: 25, ripple: 0, revert: 200, outside_arena: false}
+              - {id: chip, op: break_area, anchor: contact, shape: {sphere: {radius: 1.0, ahead: 4.0}}, tool: none, block_damage: 25, ripple: 29, revert: 200, outside_arena: false}
               - {id: snd_hit, op: sound, sound: "astera:skills/lightning-impact", anchor: heart, volume: 0.7, pitch: 1.3}
               - {id: fx_impact, op: particle_def, def: thunder-impact, anchor: heart}
               - {id: fx_sky_spark, op: particle, particle: electric_spark, anchor: sky, count: 1}
@@ -50,7 +50,7 @@ machine:
               - {id: fx_burst_rod, op: particle, particle: end_rod, anchor: feet, count: 12, extra: 0.25}
               - {id: fx_burst_spark0, op: particle, particle: electric_spark, anchor: feet, count: 0, extra: 0.1}
             block:
-              - {id: chip_blk, op: break_area, anchor: contact, shape: {sphere: {radius: 1.0, ahead: 0.0}}, tool: none, block_damage: 25, ripple: 0, revert: 200, outside_arena: false}
+              - {id: chip_blk, op: break_area, anchor: contact, shape: {sphere: {radius: 1.0, ahead: 4.0}}, tool: none, block_damage: 25, ripple: 29, revert: 200, outside_arena: false}
               - {id: snd_blk, op: sound, sound: "astera:skills/lightning-impact", anchor: contact, volume: 0.5, pitch: 1.6}
               - {id: fx_blk_spark, op: particle, particle: electric_spark, anchor: contact, count: 40, extra: 0.35}
               - {id: fx_blk_rod, op: particle, particle: end_rod, anchor: contact, count: 12, extra: 0.25}

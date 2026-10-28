@@ -10,7 +10,6 @@ meta:
   resource_cost: 0
   tags: [tool, cover]
 anchors:
-  - {id: aim, anchor: caster.eye, mode: snapshot}
   - {id: dust, anchor: caster.eye, offset: {forward: 2.0}, mode: snapshot}            # was pt_aim_0_0_2
 machine:
   start: bore
@@ -19,7 +18,7 @@ machine:
       for: 1
       then: end
       enter:
-        - {id: break, op: break_area, at: 0, anchor: aim, shape: {line: {length: 4, width: 3}}, tool: pickaxe, block_damage: 100, ripple: 29, revert: 200, outside_arena: false}
+        - {id: break, op: break_area, at: 0, anchor: caster, shape: {line: {length: 4, width: 3}}, tool: pickaxe, block_damage: 100, ripple: 29, revert: 200, outside_arena: false}
         - {id: snd_bore, op: sound, sound: "astera:weapons/gun-impact-block", anchor: caster, volume: 1.0, pitch: 0.5}
         - {id: fx_bore, op: particle_def, def: hit-spark, anchor: dust}
     end: {final: true}

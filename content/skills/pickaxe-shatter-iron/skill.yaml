@@ -16,5 +16,5 @@ machine:
         - {id: snd, op: sound, sound: "astera:weapons/gun-impact-block", anchor: caster, volume: 1.0, pitch: 0.4}
         - {id: fx, op: particle_def, def: hit-spark, anchor: spark}
       do:
-        - {id: break, op: break_area, at: 0, anchor: caster.eye, shape: {sphere: {radius: 3, ahead: 4.0}}, tool: pickaxe, block_damage: 100, ripple: 29, revert: 200, outside_arena: false}
+        - {id: break, op: break_area, at: 0, anchor: caster, shape: {sphere: {radius: 3, ahead: 4.0}}, tool: pickaxe, block_damage: 100, ripple: 29, revert: 200, outside_arena: false}
     end: {final: true}
