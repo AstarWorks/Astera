@@ -419,7 +419,7 @@ class Conv:
         if t == "counter":
             self.counter(m, where, delay)
             return
-        if tg and tg["type"] in AREA and tg["type"] != "allies" and t not in ("camera_shake", "screen_flash", "screen_veil"):
+        if tg and tg["type"] in AREA and tg["type"] != "allies" and t not in ("camera_shake", "screen_flash", "screen_veil", "stop_sound"):
             if where.kind == "cast":
                 where = self.select(tg, delay, m)
                 delay = 0
@@ -619,7 +619,21 @@ class Conv:
             else:
                 W({"id": self.oid("anim"), "op": "victim_anim", "target": self.screen_target(tg), "anim": anim})
             self.present("play_animation ticks (anim ops have no duration)", "ticks=%s" % V(m.get("ticks")))
-        else:  # screen_flash, screen_veil, telegraph, stop_sound, hide_held_item
+        elif t == "screen_flash":
+            op = {"id": self.oid("flash"), "op": "screen_flash", "target": self.screen_target(tg), "overlay": m["overlay"]}
+            if "color" in m:
+                op["color"] = m["color"]
+            for k in ("fade_in", "stay", "fade_out"):
+                if k in m:
+                    op[k] = V(m[k])
+            W(op)
+        elif t == "stop_sound":
+            W({"id": self.oid("stopsnd"), "op": "stop_sound", "target": self.screen_target(tg), "sound": m["sound_id"]})
+        elif t == "hide_held_item":
+            if tg and tg["type"] != "caster":
+                self.present("hide_held_item on a non-caster target", short(tg, 80))
+            W({"id": self.oid("hidehand"), "op": "caster_anim", "anim": "hide-main-hand", "ticks": V(m["ticks"])})
+        else:  # screen_veil, telegraph
             frag = {k: V(v) for k, v in m.items() if k not in ("type", "targets", "delay_ticks")}
             self.present("%s has no v2 op" % t, short(frag, 160))
 
