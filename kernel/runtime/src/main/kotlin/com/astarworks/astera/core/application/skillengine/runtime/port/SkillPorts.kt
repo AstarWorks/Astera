@@ -17,25 +17,30 @@ import java.util.UUID
 @JvmInline
 public value class VisualHandle(public val id: Long)
 
-/** Display entities teleported each tick with interpolation (F-6); no passengers. */
+/**
+ * Display entities driven once per tick: one atomic write per display (location, the full transformation and a single
+ * interpolation length). A display anchored to the caster rides the caster as a native passenger (ADR-0276), so it stays
+ * glued to the hand when the caster moves (dash, knockback); every other display is teleported.
+ */
 public interface ISkillVisualGateway {
-    public fun spawnMesh(castOwner: UUID, item: String, part: String?, scale: Double, pose: Frame): VisualHandle
+    /** [anchored]: the frame hangs off the caster frame, so the display rides the caster. */
+    public fun spawnMesh(castOwner: UUID, item: String, part: String?, scale: Double, pose: Frame, anchored: Boolean): VisualHandle
 
     /** [face] decides orientation; the adapter turns it into billboard/fixed rotation each update. */
-    public fun spawnPlate(castOwner: UUID, sprite: String, face: PlateFace, size: Double, alpha: Double, pose: Frame): VisualHandle
+    public fun spawnPlate(castOwner: UUID, sprite: String, face: PlateFace, size: Double, alpha: Double, pose: Frame, anchored: Boolean): VisualHandle
 
     public fun spawnLine(castOwner: UUID, from: Vec3, to: Vec3, thickness: Double, colorHex: String, face: PlateFace): VisualHandle
 
     public fun spawnTrail(castOwner: UUID, ticks: Int, widthFrac: Double, colorHex: String, alpha: Double): VisualHandle
 
-    /** Move a mesh/plate. [interpolationTicks] is the display interpolation length. */
-    public fun updatePose(handle: VisualHandle, pose: Frame, interpolationTicks: Int = 1)
-
     /**
-     * Final per-axis scale of a mesh (item scale on x/y/z) or plate (x = width, y = height in blocks, z ignored). A uniform
-     * factor is (s, s, s); the axes are the visual's own, so a (0.6, 0.3, 1) plate is an oval, not a stretched square.
+     * One write for a mesh or plate: [pose] and the final per-axis [scale] reach the client together and arrive together
+     * after [interpolationTicks] (location, rotation and scale share one interpolation, so none lags another). [scale] is
+     * the item scale on x/y/z of a mesh, or width (x) and height (y) in blocks of a plate (z ignored); a uniform factor
+     * is (s, s, s). The caller sampled everything it passes for the tick that is on screen [interpolationTicks] from now.
+     * [anchored] says whether the display rides the caster for this write (it can change when a frame is re-parented).
      */
-    public fun updateScale(handle: VisualHandle, scale: Vec3)
+    public fun updateDisplay(handle: VisualHandle, pose: Frame, scale: Vec3, interpolationTicks: Int, anchorFeet: Vec3?)
 
     public fun updateLine(handle: VisualHandle, from: Vec3, to: Vec3)
 

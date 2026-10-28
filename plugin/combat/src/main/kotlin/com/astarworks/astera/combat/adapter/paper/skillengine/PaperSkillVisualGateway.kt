@@ -20,7 +20,9 @@ import com.astarworks.astera.core.domain.geometry.math.Frame
 import com.astarworks.astera.core.domain.geometry.math.Quaternion
 import com.astarworks.astera.core.domain.i18n.LocaleCode
 import com.astarworks.astera.core.domain.i18n.LocalizedText
+import com.astarworks.astera.combat.application.port.outbound.IDisplayEntityGateway.DisplayWrite
 import com.astarworks.astera.core.domain.item.ItemId
+import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.domain.skillengine.op.PlateFace
 import com.astarworks.astera.core.domain.skillengine.op.TrailBand
 import com.astarworks.astera.core.domain.skillengine.op.TrailEdge
@@ -42,12 +44,15 @@ import kotlin.math.roundToInt
 
 /**
  * Paper [ISkillVisualGateway] (ADR-0301). Meshes, plates and lines are Display entities from the shared
- * [IDisplayEntityGateway], teleported with interpolation every tick; no passengers. Trails are one fixed text-quad
+ * [IDisplayEntityGateway]. Each tick a display gets ONE [IDisplayEntityGateway.place] write (location, full transformation,
+ * one interpolation length, see [SkillDisplayWrites]); a display anchored to the caster rides the caster as a native passenger
+ * (v1 ADR-0276 semantics) so it stays glued to the hand when the caster is moved, every other display is teleported. Trails are one fixed text-quad
  * Display per ribbon segment (a sheared parallelogram needs a transformation matrix, which the shared gateway does not
  * carry). Main thread only.
  *
- * Orientation: the two full-viewer plate faces use the client billboard; axis-constrained and plane faces compute a
- * fixed rotation server-side ([PlateOrientation]) towards the nearest player.
+ * Orientation: viewer-facing plates use the vanilla client billboard, so every viewer sees them right; plane faces are a
+ * fixed rotation ([PlateOrientation]). Only stretched lines still aim at the nearest viewer (a line is a cylinder about
+ * its own axis, which no vanilla billboard expresses).
  */
 public class PaperSkillVisualGateway(
     private val server: Server,
@@ -70,8 +75,8 @@ public class PaperSkillVisualGateway(
     public fun activeWorld(): WorldId? = lastWorld
 
     private sealed interface Entry
-    private class MeshEntry(val handle: DisplayHandle, var scale: Vec3, var rotation: Quaternion) : Entry
-    private class PlateEntry(val handle: DisplayHandle, val face: PlateFace, var size: Vec3, val world: World, var rotation: Quaternion, val sprite: String) : Entry
+    private class MeshEntry(val handle: DisplayHandle, val owner: UUID) : Entry
+    private class PlateEntry(val handle: DisplayHandle, val face: PlateFace, val owner: UUID, val sprite: String) : Entry
     private class LineEntry(val handle: DisplayHandle, val face: PlateFace, val thickness: Double, val world: World) : Entry
     /** Colour of one ribbon quad: peak [alpha], the [rgbTo] it has faded to at the end of its life, and whether it keeps its alpha until then. */
     private class PieceStyle(val rgb: Int, val alpha: Double, val rgbTo: Int?, val crisp: Boolean)
@@ -90,7 +95,7 @@ public class PaperSkillVisualGateway(
         val segments = ArrayDeque<Seg>()
     }
 
-    override fun spawnMesh(castOwner: UUID, item: String, part: String?, scale: Double, pose: Frame): VisualHandle {
+    override fun spawnMesh(castOwner: UUID, item: String, part: String?, scale: Double, pose: Frame, anchored: Boolean): VisualHandle {
         val world = worldOf(castOwner) ?: return dead("mesh $item")
         val kind = when (val model = MeshModels.resolve(item, part, frameTables)) {
             is MeshModel.Pack -> DisplayKind.Item(ItemId("paper"), DisplayItemMode.FIXED, model.key)
@@ -108,14 +113,14 @@ public class PaperSkillVisualGateway(
             billboard = DisplayBillboard.FIXED,
             weaponRigShading = true,
         )
-        val handle = displays.spawn(WorldId(world.name), pose.origin, spec, emptyList()) ?: return dead("mesh $item")
-        return register(castOwner, MeshEntry(handle, uniform(scale), pose.rotation))
+        val handle = spawnDisplay(world, castOwner, pose.origin, spec, emptyList(), anchored) ?: return dead("mesh $item")
+        return register(castOwner, MeshEntry(handle, castOwner))
     }
 
-    override fun spawnPlate(castOwner: UUID, sprite: String, face: PlateFace, size: Double, alpha: Double, pose: Frame): VisualHandle {
+    override fun spawnPlate(castOwner: UUID, sprite: String, face: PlateFace, size: Double, alpha: Double, pose: Frame, anchored: Boolean): VisualHandle {
         val world = worldOf(castOwner) ?: return dead("plate $sprite")
         val glyph = SpriteGlyphs.text(SpriteId(sprite), 0)
-        val placed = PlateOrientation.forPlate(pose, face, viewerEye(world, pose.origin))
+        val placed = PlateOrientation.forPlate(pose, face)
         val spec = DisplaySpec(
             kind = DisplayKind.Text(
                 lines = listOf(LocalizedText(mapOf(LocaleCode.EN to glyph, LocaleCode.JA to glyph))),
@@ -129,8 +134,9 @@ public class PaperSkillVisualGateway(
             billboard = placed.billboard,
             brightness = 15,
         )
-        val handle = displays.spawn(WorldId(world.name), pose.origin, spec, listOf(glyph)) ?: return dead("plate $sprite")
-        return register(castOwner, PlateEntry(handle, face, uniform(size), world, placed.rotation, sprite))
+        val handle = spawnDisplay(world, castOwner, pose.origin, spec, listOf(glyph), anchored && placed.billboard == DisplayBillboard.FIXED)
+            ?: return dead("plate $sprite")
+        return register(castOwner, PlateEntry(handle, face, castOwner, sprite))
     }
 
     override fun spawnLine(castOwner: UUID, from: Vec3, to: Vec3, thickness: Double, colorHex: String, face: PlateFace): VisualHandle {
@@ -145,7 +151,7 @@ public class PaperSkillVisualGateway(
                 seeThrough = false,
                 textOpacity = 255,
             ),
-            transform = lineTransform(from, to, thickness, face, world),
+            transform = SkillDisplayMath.lineTransform(from, to, thickness, face, viewerEye(world, mid)),
             lifetimeTicks = LIFETIME,
             billboard = DisplayBillboard.FIXED,
             brightness = 15,
@@ -183,41 +189,19 @@ public class PaperSkillVisualGateway(
         t.doubleSided = doubleSided
     }
 
-    override fun updatePose(handle: VisualHandle, pose: Frame, interpolationTicks: Int) {
+    override fun updateDisplay(handle: VisualHandle, pose: Frame, scale: Vec3, interpolationTicks: Int, anchorFeet: Vec3?) {
         when (val e = entries[handle.id]) {
-            is MeshEntry -> {
-                e.rotation = pose.rotation
-                displays.moveTo(e.handle, pose.origin, 0f, 0f, interpolationTicks)
-                displays.update(e.handle, DisplayTransform(Vec3.ZERO, pose.rotation, e.scale), interpolationTicks)
-            }
-            is PlateEntry -> {
-                val placed = PlateOrientation.forPlate(pose, e.face, viewerEye(e.world, pose.origin))
-                e.rotation = placed.rotation
-                displays.moveTo(e.handle, pose.origin, 0f, 0f, interpolationTicks)
-                displays.update(e.handle, SkillDisplayMath.plateTransform(placed.rotation, e.size.x, e.size.y), interpolationTicks)
-            }
-            else -> Unit
-        }
-    }
-
-    override fun updateScale(handle: VisualHandle, scale: Vec3) {
-        when (val e = entries[handle.id]) {
-            is MeshEntry -> {
-                e.scale = scale
-                displays.update(e.handle, DisplayTransform(Vec3.ZERO, e.rotation, scale), SCALE_INTERPOLATION_TICKS)
-            }
-            is PlateEntry -> {
-                e.size = scale
-                displays.update(e.handle, SkillDisplayMath.plateTransform(e.rotation, scale.x, scale.y), SCALE_INTERPOLATION_TICKS)
-            }
+            is MeshEntry -> displays.place(e.handle, SkillDisplayWrites.mesh(pose, scale, interpolationTicks, anchorOf(e.owner, anchorFeet)))
+            is PlateEntry -> displays.place(
+                e.handle, SkillDisplayWrites.plate(pose, e.face, scale.x, scale.y, interpolationTicks, anchorOf(e.owner, anchorFeet)),
+            )
             else -> Unit
         }
     }
 
     override fun updateLine(handle: VisualHandle, from: Vec3, to: Vec3) {
         val e = entries[handle.id] as? LineEntry ?: return
-        displays.moveTo(e.handle, (from + to) * 0.5, 0f, 0f, 1)
-        displays.update(e.handle, lineTransform(from, to, e.thickness, e.face, e.world), 1)
+        displays.place(e.handle, SkillDisplayWrites.line(from, to, e.thickness, e.face, viewerEye(e.world, (from + to) * 0.5), 1))
     }
 
     override fun pushTrailPoint(handle: VisualHandle, root: Vec3, tip: Vec3) {
@@ -297,9 +281,6 @@ public class PaperSkillVisualGateway(
 
     // ---- geometry ----------------------------------------------------------------
 
-    private fun lineTransform(from: Vec3, to: Vec3, thickness: Double, face: PlateFace, world: World): DisplayTransform =
-        SkillDisplayMath.lineTransform(from, to, thickness, face, viewerEye(world, (from + to) * 0.5))
-
     private fun spawnSegment(t: TrailEntry, s: RibbonMesh.Segment, style: PieceStyle): UUID? {
         val m = SkillDisplayMath.ribbonColumns(s.u, s.v, s.normal)
         val matrix = Matrix4f(
@@ -373,6 +354,20 @@ public class PaperSkillVisualGateway(
         return Vec3(eye.x, eye.y, eye.z)
     }
 
+    /** The caster as the anchor of a display, or null when it is not anchored (or the caster is offline). */
+    private fun anchorOf(owner: UUID, feet: Vec3?): DisplayWrite.Anchor? =
+        if (feet != null && server.getPlayer(owner) != null) DisplayWrite.Anchor(PlayerId(owner), feet) else null
+
+    /** Spawns a display; an anchored one is born riding the caster (no frame at the wrong place), with the plain spawn as fallback. */
+    private fun spawnDisplay(world: World, owner: UUID, at: Vec3, spec: DisplaySpec, lines: List<String>, anchored: Boolean): DisplayHandle? {
+        val player = if (anchored) server.getPlayer(owner) else null
+        if (player != null) {
+            val feet = player.location
+            displays.spawnAttached(WorldId(world.name), spec, lines, PlayerId(owner), at - Vec3(feet.x, feet.y, feet.z))?.let { return it }
+        }
+        return displays.spawn(WorldId(world.name), at, spec, lines)
+    }
+
     private fun register(owner: UUID, entry: Entry): VisualHandle {
         val id = ids.getAndIncrement()
         entries[id] = entry
@@ -388,7 +383,6 @@ public class PaperSkillVisualGateway(
 
     private companion object {
         const val LIFETIME: Long = 1_000_000L
-        const val SCALE_INTERPOLATION_TICKS: Int = 2
         const val VIEWER_RADIUS = 96.0
     }
 }

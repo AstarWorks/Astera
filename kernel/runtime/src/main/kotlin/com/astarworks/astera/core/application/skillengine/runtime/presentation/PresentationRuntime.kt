@@ -7,6 +7,7 @@ import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.geometry.math.Frame
 import com.astarworks.astera.core.domain.geometry.math.Quaternion
 import com.astarworks.astera.core.domain.skillengine.frame.FrameId
+import com.astarworks.astera.core.domain.skillengine.frame.FrameKind
 import com.astarworks.astera.core.domain.skillengine.model.PointRef
 import com.astarworks.astera.core.domain.skillengine.model.Value
 import com.astarworks.astera.core.domain.skillengine.model.ValueResolver
@@ -29,6 +30,12 @@ public class PresentationRuntime(
     internal val screen: ISkillScreenGateway,
 ) {
     private val casts = HashMap<CastId, CastState>()
+
+    internal companion object {
+        /** Client interpolation length of every per-tick display write; tracks are sampled this many ticks ahead. */
+        const val DISPLAY_LEAD: Int = 1
+        const val MAX_FRAME_DEPTH: Int = 64
+    }
 
     internal class TrackState(val op: VisualOp.Track, val startTick: Int)
 
@@ -244,18 +251,41 @@ public class PresentationRuntime(
         var scale = Vec3(baseScale, baseScale, baseScale)
         for (t in track) {
             val space = t.op.space?.let { frameWorld(s, it) } ?: s.ctx.tree.worldOf(FrameId(ownFrame)).getOrNull() ?: base
-            // The pose is pushed with a 1-tick client interpolation, so it is on screen one tick after this call:
-            // sample the NEXT tick so a keyframe at tick N is what the player sees at tick N (v1 did the same).
-            val sample = sampleTrack(s, t, s.tick - t.startTick + 1)
+            // The write interpolates for DISPLAY_LEAD ticks, so the keyframe sampled here is on screen DISPLAY_LEAD ticks
+            // from now: sample that tick so a keyframe at tick N is what the player sees at tick N (v1 did the same).
+            val sample = sampleTrack(s, t, s.tick - t.startTick + DISPLAY_LEAD)
             pose = Frame(
                 pose.origin + space.directionToWorld(sample.offset),
                 (pose.rotation * sample.rotation).normalized(),
             )
             scale = Vec3(scale.x * sample.scale.x, scale.y * sample.scale.y, scale.z * sample.scale.z)
         }
-        val visuals = s.ctx.ports.visuals
-        visuals.updatePose(handle, Frame(pose.origin, (pose.rotation * rest).normalized()), 1)
-        if (track.isNotEmpty()) visuals.updateScale(handle, scale)
+        // ONE write: position, rotation and scale reach the client together and arrive together after DISPLAY_LEAD ticks.
+        s.ctx.ports.visuals.updateDisplay(
+            handle, Frame(pose.origin, (pose.rotation * rest).normalized()), scale, DISPLAY_LEAD, anchorFeet(s, ownFrame),
+        )
+    }
+
+    /**
+     * Whether [frame] hangs off the caster frame (hand, bone, item) and not off the world / an enemy / a contact: such a
+     * display rides the caster natively (v1 ADR-0276) so a dash or knockback cannot leave it behind. A frame re-parented to
+     * the world (a thrown piece) is not anchored from that tick on.
+     */
+    internal fun anchorFeet(s: CastState, frame: String): Vec3? =
+        if (casterAnchored(s, frame)) s.ctx.tree.worldOf(FrameId("caster")).getOrNull()?.origin else null
+
+    internal fun casterAnchored(s: CastState, frame: String): Boolean {
+        var cur: FrameId? = FrameId(frame)
+        var hops = 0
+        while (cur != null && hops++ < MAX_FRAME_DEPTH) {
+            val node = s.ctx.tree.node(cur) ?: return false
+            when (node.kind) {
+                FrameKind.CASTER -> return true
+                FrameKind.WORLD, FrameKind.ENEMY, FrameKind.CONTACT -> return false
+                else -> cur = node.parent
+            }
+        }
+        return false
     }
 
     private class Sample(val offset: Vec3, val rotation: Quaternion, val scale: Vec3)

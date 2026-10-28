@@ -125,15 +125,16 @@ class PresentationOpsScenarioTest {
 
     private val visuals = object : ISkillVisualGateway {
         private fun h(kind: String): VisualHandle { calls += kind; return VisualHandle(nextHandle++) }
-        override fun spawnMesh(castOwner: UUID, item: String, part: String?, scale: Double, pose: Frame) =
+        override fun spawnMesh(castOwner: UUID, item: String, part: String?, scale: Double, pose: Frame, anchored: Boolean) =
             h("mesh:$item").also { poses[it.id] = pose; scales[it.id] = scale }
-        override fun spawnPlate(castOwner: UUID, sprite: String, face: PlateFace, size: Double, alpha: Double, pose: Frame) =
+        override fun spawnPlate(castOwner: UUID, sprite: String, face: PlateFace, size: Double, alpha: Double, pose: Frame, anchored: Boolean) =
             h("plate:$sprite").also { poses[it.id] = pose; scales[it.id] = size; spawnedFaces[it.id] = face }
         override fun spawnLine(castOwner: UUID, from: Vec3, to: Vec3, thickness: Double, colorHex: String, face: PlateFace) =
             h("line:$colorHex").also { lineEnds[it.id] = from to to; spawnedFaces[it.id] = face }
         override fun spawnTrail(castOwner: UUID, ticks: Int, widthFrac: Double, colorHex: String, alpha: Double) = h("trail")
-        override fun updatePose(handle: VisualHandle, pose: Frame, interpolationTicks: Int) { poses[handle.id] = pose }
-        override fun updateScale(handle: VisualHandle, scale: Vec3) { scales[handle.id] = scale.x }
+        override fun updateDisplay(handle: VisualHandle, pose: Frame, scale: Vec3, interpolationTicks: Int, anchorFeet: Vec3?) {
+            poses[handle.id] = pose; scales[handle.id] = scale.x
+        }
         override fun updateLine(handle: VisualHandle, from: Vec3, to: Vec3) { lineEnds[handle.id] = from to to }
         override fun pushTrailPoint(handle: VisualHandle, root: Vec3, tip: Vec3) { trailPoints += root to tip }
         override fun remove(handle: VisualHandle) { removed += handle.id }

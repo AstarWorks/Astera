@@ -126,7 +126,7 @@ presentation:
             ),
         )
         var tick = 0
-        val rec = RecordingVisuals { tick }
+        val rec = RecordingVisuals(now = { tick })
         val s = CastSim(emptyMap(), visualGateway = rec, skillsDir = dir)
         val id = s.start("t-bands")
         while (s.now < 10) { tick = s.now; s.step(s.now + 1) }
@@ -153,7 +153,7 @@ presentation:
         )
         fun run(id: String): RecordingVisuals {
             var tick = 0
-            val rec = RecordingVisuals { tick }
+            val rec = RecordingVisuals(now = { tick })
             val s = CastSim(emptyMap(), visualGateway = rec, skillsDir = dir)
             s.start(id)
             while (s.now < 10) { tick = s.now; s.step(s.now + 1) }

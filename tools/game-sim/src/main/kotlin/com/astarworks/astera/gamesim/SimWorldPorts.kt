@@ -255,6 +255,12 @@ public class SimDisplayGateway(
         )
     }
 
+    override fun place(handle: IDisplayEntityGateway.DisplayHandle, write: IDisplayEntityGateway.DisplayWrite) {
+        if (handle !in active) return
+        moveTo(handle, write.at, write.yaw, write.pitch, write.teleportDuration)
+        update(handle, write.transform, write.interpolationDuration)
+    }
+
     override fun remove(handle: IDisplayEntityGateway.DisplayHandle) {
         val record = active.remove(handle) ?: return
         attached.remove(handle)

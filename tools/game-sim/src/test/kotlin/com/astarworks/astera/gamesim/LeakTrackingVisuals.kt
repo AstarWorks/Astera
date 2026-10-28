@@ -33,12 +33,11 @@ class LeakTrackingVisuals(private val clock: () -> Int = { 0 }) : ISkillVisualGa
         if (handle.id !in live) stale += "$what on removed handle ${handle.id}"
     }
 
-    override fun spawnMesh(castOwner: UUID, item: String, part: String?, scale: Double, pose: Frame) = open("mesh $item/$part")
-    override fun spawnPlate(castOwner: UUID, sprite: String, face: PlateFace, size: Double, alpha: Double, pose: Frame) = open("plate $sprite")
+    override fun spawnMesh(castOwner: UUID, item: String, part: String?, scale: Double, pose: Frame, anchored: Boolean) = open("mesh $item/$part")
+    override fun spawnPlate(castOwner: UUID, sprite: String, face: PlateFace, size: Double, alpha: Double, pose: Frame, anchored: Boolean) = open("plate $sprite")
     override fun spawnLine(castOwner: UUID, from: Vec3, to: Vec3, thickness: Double, colorHex: String, face: PlateFace) = open("line")
     override fun spawnTrail(castOwner: UUID, ticks: Int, widthFrac: Double, colorHex: String, alpha: Double) = open("trail")
-    override fun updatePose(handle: VisualHandle, pose: Frame, interpolationTicks: Int) { touch(handle, "updatePose"); lastOrigin[handle.id] = pose.origin }
-    override fun updateScale(handle: VisualHandle, scale: Vec3) = touch(handle, "updateScale")
+    override fun updateDisplay(handle: VisualHandle, pose: Frame, scale: Vec3, interpolationTicks: Int, anchorFeet: Vec3?) { touch(handle, "updateDisplay"); lastOrigin[handle.id] = pose.origin }
     override fun updateLine(handle: VisualHandle, from: Vec3, to: Vec3) = touch(handle, "updateLine")
     override fun pushTrailPoint(handle: VisualHandle, root: Vec3, tip: Vec3) = touch(handle, "pushTrailPoint")
     override fun remove(handle: VisualHandle) {

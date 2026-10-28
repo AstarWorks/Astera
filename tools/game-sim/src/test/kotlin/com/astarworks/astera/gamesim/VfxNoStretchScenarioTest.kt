@@ -30,7 +30,7 @@ class VfxNoStretchScenarioTest {
         var nonSquarePlate = false
         for (id in ids) {
             lateinit var sim: CastSim
-            val rec = RecordingVisuals { sim.now }
+            val rec = RecordingVisuals(now = { sim.now })
             sim = CastSim(dummies, origin = origin, yawDeg = 30.0, visualGateway = rec, casterStacks = mapOf("charge" to 5, "bleed" to 5, "burn" to 5))
             runCatching { sim.cast(id, 120) }
             // lifetime as seen in the client: a plate left alive for the whole cast is a streak that stays on screen

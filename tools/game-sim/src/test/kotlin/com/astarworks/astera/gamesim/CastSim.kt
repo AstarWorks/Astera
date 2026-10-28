@@ -140,7 +140,16 @@ class CastSim(
         }
     } as T
 
+    /** Where the caster stands now: starts at [origin] and follows every `teleport` (a dash moves it tick by tick). */
+    var casterFeet: Vec3 = origin
+        private set
+
     private val movement = object : ISkillMovementGateway by noop() {
+        override fun isAlive(entity: UUID): Boolean = true
+        override fun teleport(entity: UUID, to: Vec3, yawDeg: Double?): Boolean {
+            if (entity == caster) casterFeet = to
+            return true
+        }
         override fun lockMovement(entity: UUID, speedFactor: Double) { moveLocks += now to speedFactor }
         override fun unlockMovement(entity: UUID) { moveLocks += now to null }
     }
@@ -176,7 +185,7 @@ class CastSim(
             }
                 .map { (id, feet) -> HitCandidate(id, feet, 0.0, box(feet)) }
         override fun rootOf(entity: UUID): EntityRoot? =
-            if (entity == caster) EntityRoot(origin, yawDeg, 0.0, 1.62, 1.8) else victims[entity]?.let { EntityRoot(it, 0.0, 0.0, 1.62, 1.8) }
+            if (entity == caster) EntityRoot(casterFeet, yawDeg, 0.0, 1.62, 1.8) else victims[entity]?.let { EntityRoot(it, 0.0, 0.0, 1.62, 1.8) }
         override fun raycastBlock(from: Vec3, to: Vec3): BlockHit? {
             val fy = floorY
             if (fy != null && from.y > fy && to.y <= fy) {

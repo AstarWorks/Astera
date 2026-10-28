@@ -47,6 +47,14 @@ public interface IDisplayEntityGateway {
      */
     public fun setTextStyle(handle: DisplayHandle, backgroundArgb: Int, textOpacity: Int, textRgb: Int?)
 
+    /**
+     * One atomic per-tick write: location, the full transformation, billboard, and a single `interpolation_delay` /
+     * `interpolation_duration` / `teleport_duration`, applied in the vanilla order (durations, then the data they apply
+     * to). [DisplayWrite.anchor] non-null makes the display a native passenger of that player (offset = [DisplayWrite.at]
+     * minus [DisplayWrite.Anchor.feet], carried in the translation); null dismounts it and teleports it to [DisplayWrite.at].
+     */
+    public fun place(handle: DisplayHandle, write: DisplayWrite)
+
     /** Moves the display; the client smooths the move over [teleportTicks] (`teleport_duration`). */
     public fun moveTo(handle: DisplayHandle, at: Vec3, yaw: Float, pitch: Float, teleportTicks: Int)
 
@@ -73,6 +81,22 @@ public interface IDisplayEntityGateway {
 
     /** Removes a display; unknown / already removed handles are ignored. */
     public fun remove(handle: DisplayHandle)
+
+    /** One display write (see [place]). Rotation lives in the transformation; entity yaw / pitch are free. */
+    public data class DisplayWrite(
+        val at: Vec3,
+        val yaw: Float,
+        val pitch: Float,
+        val transform: DisplayTransform,
+        val billboard: com.astarworks.astera.core.domain.effect.DisplayBillboard,
+        val interpolationDelay: Int,
+        val interpolationDuration: Int,
+        val teleportDuration: Int,
+        val anchor: Anchor?,
+    ) {
+        /** [feet] is the player position the [at] pose was computed against (not the live one, which may have moved this tick). */
+        public data class Anchor(val player: PlayerId, val feet: Vec3)
+    }
 
     /** Opaque id of a spawned display. */
     @JvmInline
