@@ -155,6 +155,8 @@ public class PresentationRuntime(
 
         /** Ids of the group nodes made for repeated displays. */
         val groups = LinkedHashSet<String>()
+        val firings = HashMap<String, Int>()
+        val instanceGroups = LinkedHashSet<String>()
         val rigs = ArrayList<RigPerformer>()
     }
 
@@ -342,16 +344,26 @@ public class PresentationRuntime(
     ) {
         if (repeat == null) { body(group, parent); return }
         val n = Math.round(ctx.values.num(repeat.times)).toInt().coerceAtLeast(0)
-        removeIds(s, listOf(group))
-        if (parent != null) {
-            if (s.ctx.tree.node(FrameId(parent)) == null) return
-            s.ctx.tree.add(FrameNode(FrameId(group), FrameKind.PART, FrameId(parent), IDENTITY)).getOrNull() ?: return
-            s.groups += group
+        var groupName = group
+        if (repeat.instance && parent != null) {
+            // one instance per firing: a world-parented node at the parent's origin now (v1 resolves a Location once, TargeterResolver.kt:120)
+            val origin = s.ctx.tree.worldOf(FrameId(parent)).getOrNull()?.origin ?: return
+            groupName = "$group@${s.firings.merge(group, 1, Int::plus)}"
+            s.ctx.tree.add(FrameNode(FrameId(groupName), FrameKind.PART, FrameId("world"), Frame(origin, Quaternion.IDENTITY))).getOrNull() ?: return
+            s.groups += groupName
+            s.instanceGroups += groupName
+        } else {
+            removeIds(s, listOf(group))
+            if (parent != null) {
+                if (s.ctx.tree.node(FrameId(parent)) == null) return
+                s.ctx.tree.add(FrameNode(FrameId(group), FrameKind.PART, FrameId(parent), IDENTITY)).getOrNull() ?: return
+                s.groups += group
+            }
         }
         for (k in 0 until n) {
             val run = {
                 ctx.host.withIndex(k, n) {
-                    val made = body("$group#$k", if (parent != null) group else null)
+                    val made = body("$groupName#$k", if (parent != null) groupName else null)
                     val life = repeat.life
                     if (made != null && life != null) made.dieAt = s.tick + life
                 }
@@ -370,7 +382,11 @@ public class PresentationRuntime(
     internal fun removeIds(s: CastState, ids: List<String>) {
         for (id in ids) {
             s.pending.removeAll { it.group == id }
+            if (s.instanceGroups.isNotEmpty() && id !in s.groups) {
+                for (g in s.instanceGroups.filter { it.startsWith("$id@") }) removeIds(s, listOf(g))
+            }
             if (id in s.groups) {
+                s.instanceGroups.remove(id)
                 for (copy in s.live.keys.filter { it.startsWith("$id#") }) removeIds(s, listOf(copy))
                 s.groups.remove(id)
                 s.ctx.tree.remove(FrameId(id))
@@ -414,6 +430,10 @@ public class PresentationRuntime(
             due.forEach { it.run() }
         }
         for (l in s.live.values.filter { val d = it.dieAt; d != null && s.tick - 1 >= d }) removeIds(s, listOf(l.opId))
+        // an instance whose copies are all gone (and none is still due) takes its group node with it
+        for (g in s.instanceGroups.toList()) {
+            if (s.live.keys.none { it.startsWith("$g#") } && s.pending.none { it.group == g }) removeIds(s, listOf(g))
+        }
         for (target in s.tracks.values.map { it.op.target }.distinct()) if (!s.live.containsKey(target) && target !in s.groups) settleFrame(s, target)
         val visuals = s.ctx.ports.visuals
         for (r in s.rigs.toList()) {

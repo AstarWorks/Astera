@@ -44,6 +44,7 @@ import com.astarworks.astera.core.domain.skillengine.op.BodyOp
 import com.astarworks.astera.core.domain.skillengine.op.FxOp
 import com.astarworks.astera.core.domain.skillengine.op.OpSection
 import com.astarworks.astera.core.domain.skillengine.op.PlateFace
+import com.astarworks.astera.core.domain.skillengine.op.Repeat
 import com.astarworks.astera.core.domain.skillengine.op.ScreenOp
 import com.astarworks.astera.core.domain.skillengine.op.SkillOp
 import com.astarworks.astera.core.domain.skillengine.op.TrackKey
@@ -248,7 +249,7 @@ class PresentationOpsScenarioTest {
     private val lookOnlyHost: com.astarworks.astera.core.application.skillengine.runtime.OpHost = java.lang.reflect.Proxy.newProxyInstance(
         com.astarworks.astera.core.application.skillengine.runtime.OpHost::class.java.classLoader,
         arrayOf(com.astarworks.astera.core.application.skillengine.runtime.OpHost::class.java),
-    ) { _, m, _ -> if (m.name == "lookDirection") Vec3(0.0, 0.0, 1.0) else error("this scenario never reaches the cast host (${m.name})") } as com.astarworks.astera.core.application.skillengine.runtime.OpHost
+    ) { _, m, a -> if (m.name == "lookDirection") Vec3(0.0, 0.0, 1.0) else if (m.name == "withIndex") (a[2] as () -> Unit)() else error("this scenario never reaches the cast host (${m.name})") } as com.astarworks.astera.core.application.skillengine.runtime.OpHost
 
     private val ctx = object : OpContext {
         override val host: com.astarworks.astera.core.application.skillengine.runtime.OpHost get() = lookOnlyHost
@@ -539,6 +540,35 @@ class PresentationOpsScenarioTest {
         assertThat(textSpawns).hasSize(32)
         assertThatThrownBy { run(d.copy(id = "q32")) }.isInstanceOf(IllegalStateException::class.java) // v1 MAX_DISPLAYS_PER_CAST = 32
         assertThat(textSpawns).hasSize(32)
+    }
+
+    @Test
+    fun `text op instance - each firing is its own world-fixed display at the resolved origin with v1 yaw 0, and the enemy moving later moves nothing`() {
+        // v1 WorldMechanics.display (:471) resolves the Location once per firing: TargeterResolver.resolveLocations (:120) returns bare Vec3s
+        // and PaperDisplayEntityGateway.spawn (:146) builds Location(world, x, y, z), so yaw = pitch = 0 whatever way the enemy faces.
+        tree.add(FrameNode(FrameId("enemy"), FrameKind.ENEMY, FrameId("world"), Frame(Vec3(10.0, 0.0, 0.0), Quaternion.axisAngle(Vec3(0.0, 1.0, 0.0), Math.PI / 2))))
+        val plane = PlateFace.Plane("world", AxisRef("left"), AxisRef("up"))
+        fun quake() = VisualOp.Text("quake", null, "enemy", plane, v(0.2, 0.2, 1.0), "Quake!", Value.Literal("#000000"), lit(0.25),
+            at = v(0.0, 2.5, 0.0), repeat = Repeat(lit(1.0), 0, 5, instance = true))
+        run(VisualOp.Text("ref", null, "world", plane, v(0.2, 0.2, 1.0), "ref", Value.Literal("#000000"), lit(0.25))) // a text on the world frame: yaw 0
+        val worldFacing = poses.getValue(1L).rotation
+        run(quake())
+        tick(2)
+        tree.setLocal(FrameId("enemy"), Frame(Vec3(20.0, 0.0, 5.0), Quaternion.axisAngle(Vec3(0.0, 1.0, 0.0), -Math.PI / 3)))
+        run(quake())
+        tick(3)
+        near(poses.getValue(2L).origin.x, 10.0); near(poses.getValue(2L).origin.y, 2.5); near(poses.getValue(2L).origin.z, 0.0)
+        near(poses.getValue(3L).origin.x, 20.0); near(poses.getValue(3L).origin.y, 2.5); near(poses.getValue(3L).origin.z, 5.0)
+        for (id in listOf(2L, 3L)) {
+            val r = poses.getValue(id).rotation
+            near(r.x, worldFacing.x); near(r.y, worldFacing.y); near(r.z, worldFacing.z); near(r.w, worldFacing.w)
+        }
+        assertThat(removed).isEmpty() // the second firing did not replace the first
+        tick(2)
+        assertThat(removed).containsExactly(2L) // the first lives `life` ticks after its own spawn, the second is untouched
+        tick(3)
+        assertThat(removed).containsExactly(2L, 3L)
+        assertThat(tree.nodes.keys.filter { it.startsWith("quake") }).isEmpty() // instance groups leave no frame behind
     }
 
     @Test

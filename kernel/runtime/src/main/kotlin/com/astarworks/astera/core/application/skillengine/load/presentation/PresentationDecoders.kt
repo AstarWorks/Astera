@@ -234,12 +234,13 @@ private fun OpReader.repeat(allowLife: Boolean = true): Repeat? {
     val times = number("times")
     val every = int("every")
     val life = int("life")
-    if (times == null && every == null && life == null) return null
+    val instance = bool("instance") ?: false
+    if (times == null && every == null && life == null && !instance) return null
     if (times == null && every != null) fail("'every' needs 'times'")
     if (every != null && every < 0) fail("every must be >= 0")
     if (life != null && life < 1) fail("life must be >= 1")
     if (life != null && !allowLife) fail("'life' is not used by this op")
-    return Repeat(times ?: Value.Literal(1.0), every ?: 0, life)
+    return Repeat(times ?: Value.Literal(1.0), every ?: 0, life, instance)
 }
 
 /** `size:` of a block / quad: a number (uniform), `[a, b]` (z = 1), `[a, b, c]`, `${param}` or `= expr`. */

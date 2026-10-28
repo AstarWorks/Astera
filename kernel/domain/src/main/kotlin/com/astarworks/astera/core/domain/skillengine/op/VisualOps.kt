@@ -24,8 +24,13 @@ public sealed interface PlateFace {
  * Copies of one display: `times` copies of the op, copy k spawned `every * k` ticks after the op runs and removed `life` ticks after
  * it spawned (null = stays until removed). Inside the op's values `i` is the copy index and `n` the copy count. Copies are the
  * children `<id>#<k>` of a plain group node named `<id>`, so a `track` or `remove` on `<id>` moves / removes the group.
+ *
+ * [instance]: every firing of the op is its own instance, like a display a v1 mechanic spawns at a resolved Location. The group node
+ * is named `<id>@<n>` (n counts the firings of the op in the cast), is parented to `world` and placed at the parent frame's world
+ * ORIGIN when the op runs (world axes, no yaw / pitch: a v1 location is a bare Vec3). It never follows the parent afterwards, and an
+ * earlier firing's copies are neither moved nor replaced by a later one; `remove` on `<id>` removes all instances.
  */
-public data class Repeat(val times: Value<Double>, val every: Int = 0, val life: Int? = null)
+public data class Repeat(val times: Value<Double>, val every: Int = 0, val life: Int? = null, val instance: Boolean = false)
 
 /** Display objects attached to frames. Family owner: visual (mesh/plate/line/trail) worker. */
 public sealed interface VisualOp : PresentationOp {
