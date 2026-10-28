@@ -14,6 +14,9 @@ import com.astarworks.astera.core.domain.skillengine.op.PlateFace
 import com.astarworks.astera.core.domain.skillengine.op.ScreenOp
 import com.astarworks.astera.core.domain.skillengine.op.SkillOp
 import com.astarworks.astera.core.domain.skillengine.op.TrackKey
+import com.astarworks.astera.core.domain.skillengine.op.TrailBand
+import com.astarworks.astera.core.domain.skillengine.op.TrailEdge
+import com.astarworks.astera.core.domain.skillengine.op.TrailRim
 import com.astarworks.astera.core.domain.skillengine.op.VisualOp
 
 /** The four presentation decoders (visual, fx, body, screen); the manager registers them. */
@@ -130,6 +133,51 @@ private fun OpReader.trackKeys(): List<TrackKey> {
     }
 }
 
+private val HEX_RGB = Regex("^#[0-9a-fA-F]{6}$")
+
+private fun OpReader.hexColor(what: String, raw: Any?): String =
+    (raw as? String)?.takeIf { HEX_RGB.matches(it) } ?: fail("$what must be a #rrggbb string")
+
+private fun OpReader.fraction(what: String, raw: Any?, default: Double? = null): Double {
+    val v = if (raw == null) default else (raw as? Number)?.toDouble()
+    return v?.takeIf { it in 0.0..1.0 } ?: fail("$what must be a number in 0..1")
+}
+
+private fun OpReader.positive(what: String, raw: Any?, default: Double): Double {
+    val v = if (raw == null) default else (raw as? Number)?.toDouble()
+    return v?.takeIf { it > 0.0 } ?: fail("$what must be a number > 0")
+}
+
+/** `bands: [{from, to, color, alpha?, color_to?}]`, radial fractions root (0) to tip (1). */
+private fun OpReader.trailBands(): List<TrailBand> {
+    val raw = raw("bands") ?: return emptyList()
+    val list = raw as? List<*> ?: fail("'bands' must be a list")
+    return list.mapIndexed { i, e ->
+        val m = e as? Map<*, *> ?: fail("bands[$i] must be a map")
+        val bad = m.keys.firstOrNull { it !in setOf("from", "to", "color", "alpha", "color_to") }
+        if (bad != null) fail("unknown key '$bad' in bands[$i]")
+        val from = (m["from"] as? Number)?.toDouble() ?: fail("bands[$i].from must be a number")
+        val to = (m["to"] as? Number)?.toDouble() ?: fail("bands[$i].to must be a number")
+        if (from < 0.0 || to <= from) fail("bands[$i] needs 0 <= from < to")
+        TrailBand(
+            from, to, hexColor("bands[$i].color", m["color"]), fraction("bands[$i].alpha", m["alpha"], 1.0),
+            m["color_to"]?.let { hexColor("bands[$i].color_to", it) },
+        )
+    }
+}
+
+private fun OpReader.trailEdge(): TrailEdge? {
+    val m = mapOf("edge") ?: return null
+    checkKeys("edge", m, setOf("color", "width"))
+    return TrailEdge(hexColor("edge.color", m["color"]), positive("edge.width", m["width"], 0.04))
+}
+
+private fun OpReader.trailRim(): TrailRim? {
+    val m = mapOf("dark_rim") ?: return null
+    checkKeys("dark_rim", m, setOf("color", "alpha", "width"))
+    return TrailRim(hexColor("dark_rim.color", m["color"]), fraction("dark_rim.alpha", m["alpha"], 1.0), positive("dark_rim.width", m["width"], 0.18))
+}
+
 private val TRAIL_STYLES = setOf("soft", "crisp", "both")
 
 private val EASES = setOf("linear", "ease_in", "ease_out", "ease_in_out")
@@ -154,6 +202,11 @@ private object VisualOpDecoder : OpDecoder {
                 id, whenExpr, requirePoint("of"), point("root"), int("ticks") ?: fail("missing 'ticks'"),
                 numberOr("width_frac", 1.0), colorOr("color", "#ffffff"), numberOr("alpha", 1.0), string("until"),
                 number("fade"), (string("style") ?: "soft").also { if (it !in TRAIL_STYLES) fail("style must be one of $TRAIL_STYLES") },
+                trailBands(), trailEdge(), trailRim(),
+                (raw("step_deg")?.let { it as? Number ?: fail("step_deg must be a number") }?.toDouble() ?: 30.0)
+                    .also { if (it !in 5.0..90.0) fail("step_deg must be 5..90") },
+                (int("lag_ticks") ?: 0).also { if (it < 0) fail("lag_ticks must be >= 0") },
+                bool("double_sided") ?: false,
             )
             "track" -> VisualOp.Track(id, whenExpr, requireString("target"), trackKeys(), string("space"))
             "remove" -> VisualOp.Remove(id, whenExpr, stringList("ids") ?: fail("missing 'ids'"))

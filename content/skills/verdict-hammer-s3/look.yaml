@@ -8,7 +8,6 @@
 # CONVERT-PRESENT rig respect_hit_stop / weapon points (x2): {"respect_hit_stop": true}
 # CONVERT-PRESENT rig block parts (mesh takes an item model, not a block + size) (x2): 6 parts
 # CONVERT-PRESENT rig swing without a weapon mesh (track needs a visual to move) (x2): 5 keys
-# CONVERT-PRESENT trail bands / edge / dark_rim / step_deg / lag_ticks / double_sided (trail has style, fade, width_frac, color, alpha) (x2): {"bands": [{"color": "#18FFD878", "color_to": "#00A07020", "from": 0.0, "to": 0.
 # CONVERT-PRESENT element group_keyframes (no v2 equivalent) (x1): [{"scale": 0.3, "t": 0}, {"ease": "out_cubic", "scale": 5.8,
 # CONVERT-PRESENT element formation (no v2 equivalent) (x1): {"align": "tangent", "curve": {"radius": 1.0, "type": "circl
 # CONVERT-PRESENT element count (no v2 equivalent) (x1): 8
@@ -32,9 +31,31 @@ frames:
   - {id: fx7_verdict_ego_ring, kind: body, parent: world}
 presentation:
   timeline:
-    - {id: fx49, at: 49, do: [{id: fx3_verdict_s1_gavel_hammer_gold_fan, op: trail, of: pt_fx3_verdict_s1_gavel_hammer_0_3_0, root: pt_fx3_verdict_s1_gavel_hammer_0_0p9_0, ticks: 5}]}
+    - id: fx49
+      at: 49
+      do:
+        - id: fx3_verdict_s1_gavel_hammer_gold_fan
+          op: trail
+          of: pt_fx3_verdict_s1_gavel_hammer_0_3_0
+          root: pt_fx3_verdict_s1_gavel_hammer_0_0p9_0
+          ticks: 5
+          bands:
+            - {from: 0.0, to: 0.85, color: "#ffd878", alpha: 0.094, color_to: "#a07020"}
+            - {from: 0.85, to: 1.0, color: "#fff4c7", alpha: 0.937, color_to: "#d5ac60"}
+          step_deg: 18.0
     - {id: fx59, at: 59, do: [{id: rm, op: remove, ids: [fx3_verdict_s1_gavel_hammer_gold_fan]}]}
-    - {id: fx87, at: 87, do: [{id: fx5_verdict_s3_judgment_hammer_gold_fan, op: trail, of: pt_fx5_verdict_s3_judgment_hammer_0_2p7_0, root: pt_fx5_verdict_s3_judgment_hammer_0_0p9_0, ticks: 5}]}
+    - id: fx87
+      at: 87
+      do:
+        - id: fx5_verdict_s3_judgment_hammer_gold_fan
+          op: trail
+          of: pt_fx5_verdict_s3_judgment_hammer_0_2p7_0
+          root: pt_fx5_verdict_s3_judgment_hammer_0_0p9_0
+          ticks: 5
+          bands:
+            - {from: 0.0, to: 0.85, color: "#ffd878", alpha: 0.094, color_to: "#a07020"}
+            - {from: 0.85, to: 1.0, color: "#fff4c7", alpha: 0.937, color_to: "#d5ac60"}
+          step_deg: 18.0
     - {id: fx97, at: 97, do: [{id: rm_2, op: remove, ids: [fx5_verdict_s3_judgment_hammer_gold_fan]}]}
   "on":
     hit:

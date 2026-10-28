@@ -46,6 +46,59 @@ SHAPES_BREAK = {"sphere", "line", "box"}
 SHAPES_BUILD = {"wall", "bridge", "pillar", "platform"}
 
 
+# v1 trail slabs were blocks; v2 draws a coloured quad, so a block that is the only colour source maps to its look.
+BLOCK_RGB = {
+    "black_concrete": "#080a0f", "white_concrete": "#cfd5d6", "red_concrete": "#8e2121", "gold_block": "#f6d03d",
+    "light_blue_concrete": "#2489c7", "pink_concrete": "#d5658f", "yellow_concrete": "#f0af15", "orange_concrete": "#e06101",
+    "iron_block": "#d8d8d8", "gray_concrete": "#36393d", "light_gray_concrete": "#7d7d73", "snow_block": "#f8fefe",
+    "blue_concrete": "#2c2e8f", "purple_concrete": "#64209c", "white_stained_glass": "#ffffff", "yellow_stained_glass": "#e5e533",
+    "red_stained_glass": "#993333", "orange_stained_glass": "#d87f33", "purple_stained_glass": "#7f3fb2",
+}
+
+
+def argb_split(c):
+    """v1 `#AARRGGBB` (or `#RRGGBB`) -> (`#rrggbb`, alpha 0..1)."""
+    h = str(c).lstrip("#")
+    if len(h) == 8:
+        return "#" + h[2:].lower(), round(int(h[:2], 16) / 255.0, 3)
+    return "#" + h.lower(), 1.0
+
+
+def block_rgb(name):
+    return BLOCK_RGB[str(name).replace("minecraft:", "")]
+
+
+def trail_shape(tr):
+    """v1 trail bands / edge / dark_rim / step_deg / lag_ticks / double_sided -> the v2 `trail` fields (SKL-15 row 11)."""
+    out = {}
+    bands = []
+    for b in tr.get("bands") or []:
+        if "color" in b:
+            rgb, a = argb_split(b["color"])
+        else:
+            rgb, a = block_rgb(b["block"]), 1.0
+        band = {"from": float(b["from"]), "to": float(b["to"]), "color": rgb, "alpha": a}
+        if b.get("color_to"):
+            band["color_to"] = argb_split(b["color_to"])[0]
+        bands.append(band)
+    if bands:
+        out["bands"] = bands
+    if tr.get("edge"):
+        e = tr["edge"]
+        out["edge"] = {"color": block_rgb(e.get("block", "white_concrete")), "width": float(e.get("width", 0.04))}
+    if tr.get("dark_rim"):
+        r = tr["dark_rim"]
+        rgb, a = argb_split(r["color"])
+        out["dark_rim"] = {"color": rgb, "alpha": a, "width": float(r.get("width", 0.18))}
+    if "step_deg" in tr and float(tr["step_deg"]) != 30.0:
+        out["step_deg"] = float(tr["step_deg"])
+    if int(tr.get("lag_ticks", 0)):
+        out["lag_ticks"] = int(tr["lag_ticks"])
+    if tr.get("double_sided"):
+        out["double_sided"] = True
+    return out
+
+
 def V(x):
     """Strip {type: literal, value: v}."""
     if isinstance(x, dict) and x.get("type") == "literal":
@@ -778,9 +831,7 @@ class Conv:
                 op["style"] = tr["style"]
             if "fade_power" in tr and float(tr["fade_power"]) != 1.0:
                 op["fade"] = float(tr["fade_power"])
-            extra = [k for k in ("step_deg", "bands", "edge", "dark_rim", "lag_ticks", "double_sided") if k in tr]
-            if extra:
-                self.present("trail bands / edge / dark_rim / step_deg / lag_ticks / double_sided (trail has style, fade, width_frac, color, alpha)", short({k: tr[k] for k in extra}, 80))
+            op.update(trail_shape(tr))
             self.p(where, delay + int(tr["start_t"]), self._w(op, when))
             removes.setdefault(int(tr["end_t"]) + int(tr["life_ticks"]), []).append(op["id"])
         for em in r.get("emitters", []):

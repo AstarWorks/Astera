@@ -10,6 +10,9 @@ import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.geometry.math.Frame
 import com.astarworks.astera.core.domain.geometry.math.Quaternion
 import com.astarworks.astera.core.domain.skillengine.op.PlateFace
+import com.astarworks.astera.core.domain.skillengine.op.TrailBand
+import com.astarworks.astera.core.domain.skillengine.op.TrailEdge
+import com.astarworks.astera.core.domain.skillengine.op.TrailRim
 import java.util.UUID
 
 /** One display transformation the Paper gateway would send: [kind] mesh / plate / line / ribbon, the authored size, the 3x3 columns. */
@@ -31,7 +34,20 @@ class RecordingVisuals(private val now: () -> Int) : ISkillVisualGateway {
     private class Mesh(var scale: Vec3, var rotation: Quaternion)
     private class Plate(val face: PlateFace, var size: Vec3, var rotation: Quaternion)
     private class Line(val face: PlateFace, val thickness: Double)
-    private class Trail(val widthFrac: Double) { val mesh = RibbonMesh() }
+    private class Trail(val widthFrac: Double, val colorHex: String, val alpha: Double) {
+        val mesh = RibbonMesh()
+        var bands: List<TrailBand> = emptyList()
+        var edge: TrailEdge? = null
+        var rim: TrailRim? = null
+        var stepDeg = 30.0
+        var doubleSided = false
+    }
+
+    /** One ribbon quad the Paper gateway would spawn: band index / kind and its colour + peak alpha. */
+    class RibbonQuad(val handle: Long, val tick: Int, val kind: RibbonMesh.PieceKind, val index: Int, val colorHex: String, val alpha: Double, val colorToHex: String?, val backFace: Boolean)
+
+    val ribbonQuads = ArrayList<RibbonQuad>()
+    val trailShapes = HashMap<Long, Triple<List<TrailBand>, TrailEdge?, TrailRim?>>()
     private val entries = HashMap<Long, Any>()
 
     private fun cols(rot: Quaternion, scale: Vec3) = listOf(
@@ -63,7 +79,7 @@ class RecordingVisuals(private val now: () -> Int) : ISkillVisualGateway {
         return h
     }
 
-    override fun spawnTrail(castOwner: UUID, ticks: Int, widthFrac: Double, colorHex: String, alpha: Double): VisualHandle = next(Trail(widthFrac))
+    override fun spawnTrail(castOwner: UUID, ticks: Int, widthFrac: Double, colorHex: String, alpha: Double): VisualHandle = next(Trail(widthFrac, colorHex, alpha))
 
     override fun updatePose(handle: VisualHandle, pose: Frame, interpolationTicks: Int) {
         when (val e = entries[handle.id]) {
@@ -88,13 +104,30 @@ class RecordingVisuals(private val now: () -> Int) : ISkillVisualGateway {
         record("line", handle.id, e.thickness, SkillDisplayMath.lineTransform(from, to, e.thickness, e.face, null), "len=${"%.2f".format(from.distance(to))}")
     }
 
+    override fun setTrailShape(handle: VisualHandle, bands: List<TrailBand>, edge: TrailEdge?, rim: TrailRim?, stepDeg: Double, doubleSided: Boolean) {
+        val t = entries[handle.id] as? Trail ?: return
+        t.bands = bands; t.edge = edge; t.rim = rim; t.stepDeg = stepDeg; t.doubleSided = doubleSided
+        trailShapes[handle.id] = Triple(bands, edge, rim)
+    }
+
     override fun pushTrailPoint(handle: VisualHandle, root: Vec3, tip: Vec3) {
         val t = entries[handle.id] as? Trail ?: return
         val span = root - tip
         val shaped = if (span.lengthSquared() < 1e-8) tip - Vec3(0.0, t.widthFrac, 0.0) else tip + span * t.widthFrac
-        val s = t.mesh.push(shaped, tip) ?: return
-        val m = SkillDisplayMath.ribbonColumns(s.u, s.v, s.normal)
-        frames += DisplayFrame(now(), "ribbon", handle.id, t.widthFrac, listOf(m.col0, m.col1, m.col2), 1.0, "u=${"%.2f".format(s.u.length())} v=${"%.2f".format(s.v.length())}")
+        val bands = if (t.bands.isEmpty()) listOf(RibbonMesh.Band(0.0, 1.0)) else t.bands.map { RibbonMesh.Band(it.from, it.to) }
+        for (piece in t.mesh.pushShaped(shaped, tip, bands, t.edge?.width, t.rim?.width, t.stepDeg)) {
+            val s = piece.segment
+            val m = SkillDisplayMath.ribbonColumns(s.u, s.v, s.normal)
+            frames += DisplayFrame(now(), "ribbon", handle.id, t.widthFrac, listOf(m.col0, m.col1, m.col2), 1.0, "u=${"%.2f".format(s.u.length())} v=${"%.2f".format(s.v.length())}")
+            val (hex, alpha, to) = when (piece.kind) {
+                RibbonMesh.PieceKind.BAND ->
+                    if (t.bands.isEmpty()) Triple(t.colorHex, t.alpha, null) else t.bands[piece.index].let { Triple(it.color, it.alpha, it.colorTo) }
+                RibbonMesh.PieceKind.EDGE -> Triple(t.edge!!.color, 1.0, null)
+                RibbonMesh.PieceKind.RIM -> Triple(t.rim!!.color, t.rim!!.alpha, null)
+            }
+            ribbonQuads += RibbonQuad(handle.id, now(), piece.kind, piece.index, hex, alpha, to, false)
+            if (t.doubleSided && piece.kind != RibbonMesh.PieceKind.EDGE) ribbonQuads += RibbonQuad(handle.id, now(), piece.kind, piece.index, hex, alpha, to, true)
+        }
     }
 
     override fun remove(handle: VisualHandle) { entries.remove(handle.id) }

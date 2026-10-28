@@ -4,6 +4,7 @@ import com.astarworks.astera.core.application.skillengine.load.OpDecoder
 import com.astarworks.astera.core.application.skillengine.load.OpReader
 import com.astarworks.astera.core.domain.skillengine.model.Value
 import com.astarworks.astera.core.domain.skillengine.model.literal
+import com.astarworks.astera.core.domain.skillengine.op.BlockMode
 import com.astarworks.astera.core.domain.skillengine.op.GameplayOp
 import com.astarworks.astera.core.domain.skillengine.op.OpSection
 import com.astarworks.astera.core.domain.skillengine.op.SkillOp
@@ -13,7 +14,7 @@ public fun spawnDecoders(): List<OpDecoder> = listOf(SpawnOpDecoder)
 
 /**
  * `projectile`: body, from, velocity, gravity?, drag?, max_ticks?, pierce?, capsule|sphere|sector,
- * on_hit? / on_block? / on_expire? (op lists). `aoe`: at, capsule|sphere|sector|radius, on_hit?.
+ * on_hit? / on_block? / on_expire? (op lists), block_mode? (despawn|stick|bounce|pass) with stick_ticks? / restitution? / max_bounces?. `aoe`: at, capsule|sphere|sector|radius, on_hit?.
  * `summon`: at, entity_type, count?, lifetime_ticks?. `summon_lightning`: at, visual_only?.
  */
 internal object SpawnOpDecoder : OpDecoder {
@@ -35,6 +36,10 @@ internal object SpawnOpDecoder : OpDecoder {
             onHit = gameplayOps(reader, "on_hit"),
             onBlock = gameplayOps(reader, "on_block"),
             onExpire = gameplayOps(reader, "on_expire"),
+            blockMode = blockMode(reader),
+            stickTicks = reader.number("stick_ticks") ?: literal(60.0),
+            restitution = reader.number("restitution") ?: literal(0.6),
+            maxBounces = reader.int("max_bounces") ?: 3,
         )
         "aoe" -> SpawnOp.Aoe(
             id = id,
@@ -58,6 +63,14 @@ internal object SpawnOpDecoder : OpDecoder {
             visualOnly = reader.bool("visual_only") ?: false,
         )
         else -> reader.fail("unknown spawn op '$op'")
+    }
+
+    private fun blockMode(reader: OpReader): BlockMode = when (val m = reader.string("block_mode") ?: "despawn") {
+        "despawn" -> BlockMode.Despawn
+        "stick" -> BlockMode.Stick
+        "bounce" -> BlockMode.Bounce
+        "pass" -> BlockMode.Pass
+        else -> reader.fail("block_mode '$m' is not one of despawn|stick|bounce|pass")
     }
 
     private fun gameplayOps(reader: OpReader, key: String): List<GameplayOp> =

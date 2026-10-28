@@ -4,6 +4,9 @@ import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.geometry.math.Frame
 import com.astarworks.astera.core.domain.skillengine.hit.HitCandidate
 import com.astarworks.astera.core.domain.skillengine.op.PlateFace
+import com.astarworks.astera.core.domain.skillengine.op.TrailBand
+import com.astarworks.astera.core.domain.skillengine.op.TrailEdge
+import com.astarworks.astera.core.domain.skillengine.op.TrailRim
 import java.util.UUID
 
 /**
@@ -49,6 +52,12 @@ public interface ISkillVisualGateway {
 
     /** Ribbon look: alpha follows `(1 - age/ticks) ^ fadePower`; [style] is `soft`, `crisp` or `both`. Called once after [spawnTrail]. */
     public fun setTrailLook(handle: VisualHandle, fadePower: Double, style: String) {}
+
+    /**
+     * Ribbon shape: [bands] (empty = one band in the colour [spawnTrail] got), leading [edge], dark [rim], the [stepDeg]
+     * turn limit per quad and a reversed face when [doubleSided]. Called once after [spawnTrail], only for a trail that sets any of them.
+     */
+    public fun setTrailShape(handle: VisualHandle, bands: List<TrailBand>, edge: TrailEdge?, rim: TrailRim?, stepDeg: Double, doubleSided: Boolean) {}
 }
 
 public data class ParticleBurst(

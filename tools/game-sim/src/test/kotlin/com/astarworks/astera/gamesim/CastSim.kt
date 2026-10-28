@@ -76,7 +76,15 @@ class CastSim(
     /** Caster feet in world space and yaw (Minecraft degrees: 0 faces +Z). Victims / floor / wall are WORLD coordinates; use [ahead] to place them relative to the caster. */
     val origin: Vec3 = Vec3.ZERO,
     val yawDeg: Double = 0.0,
+    /** Loads the skills from this directory instead of the shipped `content/skills` (scenario-local skills). */
+    private val skillsDir: Path? = null,
 ) {
+    /** Every live frame's world position after each tick: (tick, frame id, position). */
+    val frameTrace = ArrayList<Triple<Int, String, Vec3>>()
+
+    /** Positions of frame [id] by tick (a missing tick = the frame did not exist). */
+    fun trace(id: String): Map<Int, Vec3> = frameTrace.filter { it.second == id }.associate { it.first to it.third }
+
     /** World point `dist` blocks in front of the caster and `side` to its left, at feet level plus `up`. */
     fun ahead(dist: Double, side: Double = 0.0, up: Double = 0.0): Vec3 = ahead(origin, yawDeg, dist, side, up)
 
@@ -97,8 +105,9 @@ class CastSim(
         return false
     }
 
-    private val farObserver = CastObserver { _, _, tree, nodes, _ ->
+    private val farObserver = CastObserver { _, tick, tree, nodes, _ ->
         for (n in nodes) {
+            tree.worldOf(FrameId(n)).getOrNull()?.let { frameTrace += Triple(tick, n, it.origin) }
             if (n == "world" || unplaced(tree, FrameId(n))) continue
             val o = tree.worldOf(FrameId(n)).getOrNull()?.origin ?: continue
             val d = o.distance(origin)
@@ -193,7 +202,7 @@ class CastSim(
 
     private val c = Coin2CastWiring.collaborators()
     val catalog: SkillCatalog = c.newCatalog().also {
-        val dir = c.skillsDir
+        val dir = skillsDir ?: c.skillsDir
         val report = SkillEngineContents(it).reload(dir)
         assertThat(report.failed).describedAs("shipped skills load: ${report.failures}").isZero()
     }

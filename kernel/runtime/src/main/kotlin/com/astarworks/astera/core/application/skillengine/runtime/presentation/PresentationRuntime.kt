@@ -69,8 +69,10 @@ public class PresentationRuntime(
             val root: PointRef?,
             val ticks: Int,
             val untilEvent: String?,
+            val lagTicks: Int = 0,
         ) : Live() {
             var stoppedAt: Int = -1
+            val lagged = ArrayDeque<Pair<Vec3, Vec3>>()
         }
     }
 
@@ -189,7 +191,16 @@ public class PresentationRuntime(
         }
         val tip = pointWorld(s, t.of) ?: return
         val root = t.root?.let { pointWorld(s, it) } ?: tip
-        s.ctx.ports.visuals.pushTrailPoint(t.handle, root, tip)
+        if (t.lagTicks <= 0) {
+            s.ctx.ports.visuals.pushTrailPoint(t.handle, root, tip)
+            return
+        }
+        // lag_ticks: the ribbon is drawn that many ticks behind the point.
+        t.lagged.addLast(root to tip)
+        if (t.lagged.size > t.lagTicks) {
+            val (r, p) = t.lagged.removeFirst()
+            s.ctx.ports.visuals.pushTrailPoint(t.handle, r, p)
+        }
     }
 
     /** World pose of a plate: parent pose for viewer faces (the adapter billboards), plane pose otherwise. */

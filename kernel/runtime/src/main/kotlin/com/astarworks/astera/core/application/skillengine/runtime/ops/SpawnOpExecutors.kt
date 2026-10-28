@@ -11,6 +11,8 @@ import com.astarworks.astera.core.domain.skillengine.hit.HitWindow
 import com.astarworks.astera.core.domain.skillengine.model.AxisRef
 import com.astarworks.astera.core.domain.skillengine.motion.AlignSpec
 import com.astarworks.astera.core.domain.skillengine.motion.MotionSpec
+import com.astarworks.astera.core.domain.skillengine.model.Value
+import com.astarworks.astera.core.domain.skillengine.op.BlockMode
 import com.astarworks.astera.core.domain.skillengine.op.FrameOp
 import com.astarworks.astera.core.domain.skillengine.op.HitOp
 import com.astarworks.astera.core.domain.skillengine.op.SpawnOp
@@ -27,6 +29,8 @@ public fun spawnExecutors(): List<OpExecutor<*>> = listOf(
  * Terminal events (block, expire, or the hit that exhausts `pierce`) end the projectile after its
  * handler ran; `pierce: n` lets it pass through n victims.
  */
+private const val BOUNCE_NUDGE = 0.02
+
 internal object ProjectileExecutor : OpExecutor<SpawnOp.Projectile> {
     override val opClass: KClass<SpawnOp.Projectile> = SpawnOp.Projectile::class
 
@@ -48,10 +52,41 @@ internal object ProjectileExecutor : OpExecutor<SpawnOp.Projectile> {
             passed++
             if (passed > op.pierce) scope.endProjectile(op.id, body)
         }
+        val startTick = scope.tick
+        var bounces = 0
+        if (op.blockMode == BlockMode.Pass) scope.ignoreBlocks(op.id)
         scope.onEvent("block", op.id) {
             ctx.run(op.onBlock)
-            scope.endProjectile(op.id, body)
+            when (op.blockMode) {
+                BlockMode.Despawn, BlockMode.Pass -> scope.endProjectile(op.id, body)
+                BlockMode.Stick -> {
+                    scope.endProjectile(op.id, body)
+                    ctx.host.schedule(ctx.values.num(op.stickTicks).toInt(), "stick_end", op.id)
+                }
+                BlockMode.Bounce -> {
+                    val c = scope.contact
+                    if (c == null || bounces >= op.maxBounces) {
+                        scope.endProjectile(op.id, body)
+                    } else {
+                        bounces++
+                        val n = c.normalWorld
+                        val v = c.relVelocity
+                        val reflected = (v - n * (2.0 * v.dot(n))) * ctx.values.num(op.restitution)
+                        val left = ctx.values.num(op.maxTicks) - (scope.tick - startTick)
+                        scope.bounceProjectile(
+                            op.id, body,
+                            MotionSpec.Fly(
+                                velocity = Value.Literal(reflected), gravity = op.gravity, drag = op.drag,
+                                align = AlignSpec(AxisRef("velocity"), AxisRef("world.up")),
+                                maxTicks = Value.Literal(left.coerceAtLeast(1.0)),
+                            ),
+                            n * BOUNCE_NUDGE,
+                        )
+                    }
+                }
+            }
         }
+        scope.onEvent("stick_end", op.id) { ctx.tree.remove(body) }
         scope.onEvent("expire", op.id) {
             ctx.run(op.onExpire)
             scope.endProjectile(op.id, body)

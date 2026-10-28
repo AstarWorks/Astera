@@ -6,7 +6,6 @@
 # CONVERT-PRESENT rig swing without a weapon mesh (track needs a visual to move) (x6): 3 keys | 5 keys
 # CONVERT-PRESENT vfx follow=false (anchored at world, no place-at-spawn) (x17): vendetta-slash-b | vendetta-thrust-flash
 # CONVERT-PRESENT play_vfx freeze (no v2 equivalent) (x5): [{"at": 5, "ticks": 2}]
-# CONVERT-PRESENT trail bands / edge / dark_rim / step_deg / lag_ticks / double_sided (trail has style, fade, width_frac, color, alpha) (x5): {"bands": [{"block": "orange_concrete", "color": "#FFFF8A28", "color_to": "#8049
 # CONVERT-PRESENT block element (mesh takes an item model, plate takes a sprite: no block / solid-colour primitive) (x85): black_concrete | magenta_stained_glass
 # CONVERT-PRESENT element brightness (no v2 equivalent) (x92): 15
 # CONVERT-PRESENT quad element (plate takes a sprite: no solid-colour quad / glyph) (x7): {"color": "#F52952", "glyph": null}
@@ -58,19 +57,49 @@ presentation:
     - id: fx49
       at: 49
       do:
-        - {id: fx2_vendetta_slash_b_bayonet_cut, op: trail, of: pt_fx2_vendetta_slash_b_bayonet_0_2p1_0, root: pt_fx2_vendetta_slash_b_bayonet_0_0p55_0, ticks: 6, style: crisp, fade: 0.15}
+        - id: fx2_vendetta_slash_b_bayonet_cut
+          op: trail
+          of: pt_fx2_vendetta_slash_b_bayonet_0_2p1_0
+          root: pt_fx2_vendetta_slash_b_bayonet_0_0p55_0
+          ticks: 6
+          style: crisp
+          fade: 0.15
+          bands:
+            - {from: 0.75, to: 1.0, color: "#ff8a28", alpha: 1.0, color_to: "#491a23"}
+            - {from: 0.68, to: 0.75, color: "#2c0714", alpha: 1.0}
+          edge: {color: "#f0af15", width: 0.055}
     - {id: fx53, at: 53, do: [{id: snd_2, op: sound, sound: entity.player.attack.sweep, at: caster, pitch: 1.1}, {id: snd_3, op: sound, sound: entity.generic.explode, at: caster, volume: 0.5, pitch: 1.5}]}
     - {id: fx59, at: 59, do: [{id: rm, op: remove, ids: [fx2_vendetta_slash_b_bayonet_cut]}]}
     - id: fx67
       at: 67
       do:
-        - {id: fx5_vendetta_slash_b_bayonet_cut, op: trail, of: pt_fx5_vendetta_slash_b_bayonet_0_2p1_0, root: pt_fx5_vendetta_slash_b_bayonet_0_0p55_0, ticks: 6, style: crisp, fade: 0.15}
+        - id: fx5_vendetta_slash_b_bayonet_cut
+          op: trail
+          of: pt_fx5_vendetta_slash_b_bayonet_0_2p1_0
+          root: pt_fx5_vendetta_slash_b_bayonet_0_0p55_0
+          ticks: 6
+          style: crisp
+          fade: 0.15
+          bands:
+            - {from: 0.75, to: 1.0, color: "#ff8a28", alpha: 1.0, color_to: "#491a23"}
+            - {from: 0.68, to: 0.75, color: "#2c0714", alpha: 1.0}
+          edge: {color: "#f0af15", width: 0.055}
     - {id: fx71, at: 71, do: [{id: snd_4, op: sound, sound: entity.player.attack.sweep, at: caster, pitch: 1.1}, {id: snd_5, op: sound, sound: entity.generic.explode, at: caster, volume: 0.5, pitch: 1.5}]}
     - {id: fx77, at: 77, do: [{id: rm_2, op: remove, ids: [fx5_vendetta_slash_b_bayonet_cut]}]}
     - id: fx104
       at: 104
       do:
-        - {id: fx8_vendetta_slash_a_bayonet_cut, op: trail, of: pt_fx8_vendetta_slash_a_bayonet_0_2p1_0, root: pt_fx8_vendetta_slash_a_bayonet_0_0p55_0, ticks: 6, style: crisp, fade: 0.15}
+        - id: fx8_vendetta_slash_a_bayonet_cut
+          op: trail
+          of: pt_fx8_vendetta_slash_a_bayonet_0_2p1_0
+          root: pt_fx8_vendetta_slash_a_bayonet_0_0p55_0
+          ticks: 6
+          style: crisp
+          fade: 0.15
+          bands:
+            - {from: 0.75, to: 1.0, color: "#ff8a28", alpha: 1.0, color_to: "#491a23"}
+            - {from: 0.68, to: 0.75, color: "#2c0714", alpha: 1.0}
+          edge: {color: "#f0af15", width: 0.055}
     - id: fx108
       at: 108
       do:
@@ -80,7 +109,17 @@ presentation:
     - id: fx137
       at: 137
       do:
-        - {id: fx11_vendetta_slash_b_bayonet_cut, op: trail, of: pt_fx11_vendetta_slash_b_bayonet_0_2p1_0, root: pt_fx11_vendetta_slash_b_bayonet_0_0p55_0, ticks: 6, style: crisp, fade: 0.15}
+        - id: fx11_vendetta_slash_b_bayonet_cut
+          op: trail
+          of: pt_fx11_vendetta_slash_b_bayonet_0_2p1_0
+          root: pt_fx11_vendetta_slash_b_bayonet_0_0p55_0
+          ticks: 6
+          style: crisp
+          fade: 0.15
+          bands:
+            - {from: 0.75, to: 1.0, color: "#ff8a28", alpha: 1.0, color_to: "#491a23"}
+            - {from: 0.68, to: 0.75, color: "#2c0714", alpha: 1.0}
+          edge: {color: "#f0af15", width: 0.055}
     - id: fx141
       at: 141
       do:
@@ -90,7 +129,17 @@ presentation:
     - id: fx227
       at: 227
       do:
-        - {id: fx14_vendetta_slash_a_bayonet_cut, op: trail, of: pt_fx14_vendetta_slash_a_bayonet_0_2p1_0, root: pt_fx14_vendetta_slash_a_bayonet_0_0p55_0, ticks: 6, style: crisp, fade: 0.15}
+        - id: fx14_vendetta_slash_a_bayonet_cut
+          op: trail
+          of: pt_fx14_vendetta_slash_a_bayonet_0_2p1_0
+          root: pt_fx14_vendetta_slash_a_bayonet_0_0p55_0
+          ticks: 6
+          style: crisp
+          fade: 0.15
+          bands:
+            - {from: 0.75, to: 1.0, color: "#ff8a28", alpha: 1.0, color_to: "#491a23"}
+            - {from: 0.68, to: 0.75, color: "#2c0714", alpha: 1.0}
+          edge: {color: "#f0af15", width: 0.055}
     - id: fx231
       at: 231
       do:

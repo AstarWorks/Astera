@@ -7,7 +7,6 @@
 # CONVERT-PRESENT rig respect_hit_stop / weapon points (x2): {"respect_hit_stop": true}
 # CONVERT-PRESENT rig block parts (mesh takes an item model, not a block + size) (x2): 3 parts
 # CONVERT-PRESENT rig swing without a weapon mesh (track needs a visual to move) (x2): 4 keys
-# CONVERT-PRESENT trail bands / edge / dark_rim / step_deg / lag_ticks / double_sided (trail has style, fade, width_frac, color, alpha) (x2): {"bands": [{"color": "#EE14245F", "color_to": "#307C36A8", "from": 0.0, "to": 1.
 # CONVERT-PRESENT quad element (plate takes a sprite: no solid-colour quad / glyph) (x8): {"color": "#BC1839", "glyph": "◆"} | {"color": "#170E24", "glyph": "◆"}
 # CONVERT-PRESENT element emit (no v2 equivalent) (x5): {"alpha_over_life": [{"t": 0, "v": 1}, {"t": 1, "v": 0}], "c | {"alpha_over_life": [{"t": 0, "v": 0.8}, {"t": 1, "v": 0}], 
 # CONVERT-PRESENT presentation inside a nested gameplay list (dash on_hit has no event hook) (x2): play_vfx | play_sound
@@ -33,7 +32,14 @@ presentation:
     - id: fx30
       at: 30
       do:
-        - {id: fx4_gossamer_katana_slash_down_katana_crescent, op: trail, of: pt_fx4_gossamer_katana_slash_down_katana_0_2p1_0, root: pt_fx4_gossamer_katana_slash_down_katana_0_1p25_0, ticks: 4}
+        - id: fx4_gossamer_katana_slash_down_katana_crescent
+          op: trail
+          of: pt_fx4_gossamer_katana_slash_down_katana_0_2p1_0
+          root: pt_fx4_gossamer_katana_slash_down_katana_0_1p25_0
+          ticks: 4
+          bands:
+            - {from: 0.0, to: 1.0, color: "#14245f", alpha: 0.933, color_to: "#7c36a8"}
+          step_deg: 20.0
     - {id: fx38, at: 38, do: [{id: rm_2, op: remove, ids: [fx4_gossamer_katana_slash_down_katana_crescent]}]}
     - {id: fxhit_2, at: "hit+2", do: []}
     - {id: fxhit_10, at: "hit+10", do: []}

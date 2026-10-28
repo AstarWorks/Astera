@@ -97,7 +97,10 @@ internal class TrailExecutor(private val rt: PresentationRuntime) : OpExecutor<V
             rt.info.owner(ctx.cast), op.ticks, ctx.values.num(op.widthFrac), ctx.values.text(op.color), ctx.values.num(op.alpha),
         )
         if (op.fade != null || op.style != "soft") ctx.ports.visuals.setTrailLook(h, op.fade?.let { ctx.values.num(it) } ?: 1.0, op.style)
-        rt.register(s, PresentationRuntime.Live.Trail(op.id, h, op.of, op.root, op.ticks, op.untilEvent))
+        if (op.bands.isNotEmpty() || op.edge != null || op.darkRim != null || op.stepDeg != 30.0 || op.doubleSided) {
+            ctx.ports.visuals.setTrailShape(h, op.bands, op.edge, op.darkRim, op.stepDeg, op.doubleSided)
+        }
+        rt.register(s, PresentationRuntime.Live.Trail(op.id, h, op.of, op.root, op.ticks, op.untilEvent, op.lagTicks))
     }
 }
 
