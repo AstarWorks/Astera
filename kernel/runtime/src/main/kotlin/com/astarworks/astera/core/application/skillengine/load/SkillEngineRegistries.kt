@@ -12,7 +12,7 @@ import java.nio.file.Path
 
 /**
  * The production decode + compile stack of skill engine v3 (ADR-0303), built in one place so the plugin, the game-sim scenarios
- * and `tools/skill-lint` cannot drift apart (ADR-0301). Every op spec is registered in [SkillEngineSpecs] and nowhere else.
+ * and `tools/content-lint` cannot drift apart (ADR-0301). Every op spec is registered in [SkillEngineSpecs] and nowhere else.
  */
 public object SkillEngineRegistries {
     /** The v3 document decoder over every registered [SkillEngineSpecs] op. */

@@ -112,7 +112,7 @@ make skill-brief CASE=<case> [VIEW=compare] [AT="<seconds>:extra"]
 | 遊びやすさ | 術者と相手の視界、予兆、危険範囲、後片付けが適切 |
 | 予算 | 同時表示と寿命が基準内。例外は理由と影響を記録する |
 
-ラウンドごとに round note（[vfx-team/round-template.md](vfx-team/round-template.md)：比較API の `ref | this | previous` シート、`[vfx-trace]` の `cast+N`、撮影シーン、構図、ツール忠実度、「前ラウンドより弱い点: なし」）を書き、`make round-gate SKILL=<skill>` が PASS するまでラウンドは終わらない。時間と距離は trace の数値のみを根拠にし、フレームのラベルや目測で content を動かさない（[vfx-team/retro-2026-10-27.md](vfx-team/retro-2026-10-27.md)）。
+ラウンドごとに round note（[vfx-team/round-template.md](vfx-team/round-template.md)：比較API の `ref | this | previous` シート、`[vfx-trace]` の `cast+N`、撮影シーン、構図、ツール忠実度、「前ラウンドより弱い点: なし」）を書き、the manager's round-note review on skill-compare が PASS するまでラウンドは終わらない。時間と距離は trace の数値のみを根拠にし、フレームのラベルや目測で content を動かさない（[vfx-team/retro-2026-10-27.md](vfx-team/retro-2026-10-27.md)）。
 
 差分ごとに「原動画の事実 / 現在の見え方 / 原因 / 次の修正 / 再撮影結果」を記す。原因はコンテンツ、共通runtime、撮影同期、未対応表現、参照不足を区別する。「エンジンの限界」は確認した根拠を添える。姿勢やアンカーの調整不足を限界として処理しない。
 
