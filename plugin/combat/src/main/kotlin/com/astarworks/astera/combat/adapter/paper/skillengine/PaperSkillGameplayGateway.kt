@@ -55,24 +55,12 @@ public class PaperSkillGameplayGateway(
 
     private val log = LoggerFactory.getLogger(javaClass)
 
-    override fun damage(caster: UUID, victim: UUID, components: List<SkillDamage>, hitPoint: Vec3) {
-        damage(caster, victim, components, hitPoint, ignoreInvulnerability = false)
-    }
-
     override fun statusStacks(entity: UUID, statusId: String): Int {
         val id = runCatching { StatusEffectId(statusId) }.getOrElse {
             log.warn("skill engine: invalid status id '{}' in a stacks query; reading 0", statusId)
             return 0
         }
         return statusContainer.stacks(PlayerId(entity), id)
-    }
-
-    override fun damage(caster: UUID, victim: UUID, components: List<SkillDamage>, hitPoint: Vec3, ignoreInvulnerability: Boolean) {
-        damage(ENGINE_SKILL_ID.value, caster, victim, components, hitPoint, ignoreInvulnerability)
-    }
-
-    override fun damage(skillId: String, caster: UUID, victim: UUID, components: List<SkillDamage>, hitPoint: Vec3, ignoreInvulnerability: Boolean) {
-        damage(skillId, caster, victim, components, hitPoint, ignoreInvulnerability, ignoreArmor = false)
     }
 
     override fun damage(
