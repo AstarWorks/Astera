@@ -86,4 +86,20 @@ public class PaperOreNodeWorld(private val plugin: JavaPlugin) : IOreNodeWorld {
         val at = Location(w, pos.x, pos.y, pos.z)
         plugin.server.regionScheduler.execute(plugin, at, Runnable { at.block.type = type })
     }
+
+    override fun hit(world: WorldId, pos: Vec3, hp: Int, maxHp: Int) {
+        val w = plugin.server.getWorld(world.value) ?: return
+        val at = Location(w, pos.x, pos.y, pos.z)
+        val progress = (1.0f - hp.toFloat() / maxHp).coerceIn(0.0f, 1.0f)
+        plugin.server.regionScheduler.execute(plugin, at, Runnable {
+            at.world.playSound(at, at.block.blockData.soundGroup.hitSound, 1.0f, 1.0f)
+            at.world.players.forEach { it.sendBlockDamage(at, progress) }
+        })
+    }
+
+    override fun clearCrack(world: WorldId, pos: Vec3) {
+        val w = plugin.server.getWorld(world.value) ?: return
+        val at = Location(w, pos.x, pos.y, pos.z)
+        plugin.server.regionScheduler.execute(plugin, at, Runnable { at.world.players.forEach { it.sendBlockDamage(at, 0.0f) } })
+    }
 }

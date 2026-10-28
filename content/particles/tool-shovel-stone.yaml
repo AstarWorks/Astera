@@ -1,0 +1,13 @@
+# tool skill hit area (shovel: earth puff); heavier at stone tier
+id: tool-shovel-stone
+shape:
+  kind: burst
+  spread_blocks: 0.3
+color:
+  r: 255
+  g: 255
+  b: 255
+count: 4
+lifetime_ticks: 12
+vanilla_particle: poof
+speed: 0.04

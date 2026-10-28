@@ -58,19 +58,6 @@ public object SkillWorldRules {
         ToolTier.DIAMOND, ToolTier.NETHERITE -> 2.0
     }
 
-    /** The tier a vanilla tool material key names (`minecraft:iron_pickaxe` -> IRON); NONE for anything else. */
-    public fun tierOfMaterial(materialKey: String): ToolTier {
-        val id = materialKey.substringAfter(':').lowercase()
-        return when {
-            id.startsWith("wooden_") -> ToolTier.WOOD
-            id.startsWith("stone_") -> ToolTier.STONE
-            id.startsWith("iron_") -> ToolTier.IRON
-            id.startsWith("diamond_") -> ToolTier.DIAMOND
-            id.startsWith("netherite_") -> ToolTier.NETHERITE
-            else -> ToolTier.NONE
-        }
-    }
-
     /**
      * Does a stack count as [wanted]? A custom item matches by its Astera item id ([asteraId] on the stack) and never by
      * the material it is built on; a plain stack matches a vanilla key (`minecraft:stone` or `stone`) by [materialKey].

@@ -1,0 +1,13 @@
+# tool skill hit area (pickaxe: sparks off the rock); heavier at iron tier
+id: tool-pick-iron
+shape:
+  kind: burst
+  spread_blocks: 0.35
+color:
+  r: 255
+  g: 255
+  b: 255
+count: 20
+lifetime_ticks: 12
+vanilla_particle: electric_spark
+speed: 0.35

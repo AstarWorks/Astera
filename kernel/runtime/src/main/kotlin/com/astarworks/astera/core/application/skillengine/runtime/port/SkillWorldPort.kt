@@ -53,6 +53,9 @@ public interface ISkillBlockAccess {
     /** [blockKey] is a custom cover block (placed with durability, never reverted by tick). */
     public fun isCoverBlock(blockKey: String): Boolean
 
+    /** [cell] belongs to a structure (an Annihilation pillar) whose own HP the strike hits instead of breaking the block. */
+    public fun isStructure(cast: CastRef, cell: BlockCell): Boolean = false
+
     public fun place(cast: CastRef, cell: BlockCell, blockKey: String)
 
     public fun remove(cast: CastRef, cell: BlockCell)

@@ -14,6 +14,6 @@ machine:
       then: end
       do:
         - {id: dig, op: break_area, at: 0, anchor: caster, shape: {box: {width: 3, height: 2, length: 3}}, tool: shovel, block_damage: 100, ripple: 29, revert: 200, outside_arena: false}
-        - {id: snd, op: sound, sound: "astera:weapons/gun-impact-block", anchor: caster, volume: 1.0, pitch: 0.7}
-        - {id: fx, op: particle_def, def: hit-spark, anchor: spark}
+        - {id: snd, op: sound, sound: block.gravel.break, anchor: caster, volume: 1.0, pitch: 0.8}
+        - {id: fx, op: particle_def, def: tool-shovel-stone, anchor: spark}
     end: {final: true}

@@ -42,8 +42,12 @@ public abstract class LedgerWorldGateway(protected val blocks: ISkillBlockAccess
             }
             // a flat chip (no tool) only ever hurts cover; terrain is the tool skills' to break (v2 BreakAreaExecutor)
             if (toolClass == null) continue
-            if (WorldBlockRules.isAir(type) || WorldBlockRules.isProtected(type!!)) continue
-            if (!WorldBlockRules.breakable(type, spec.power, toolClass)) continue
+            // A structure cell (Annihilation pillar) always reaches damage(): the access scales it by tier and tool class.
+            if (!blocks.isStructure(cast, cell)) {
+                if (WorldBlockRules.isAir(type) || WorldBlockRules.isProtected(type!!)) continue
+                // The power gate keeps the hardness tiers; the tool CLASS is not a gate: a wrong class digs at x0.1 in damage().
+                if (!WorldBlockRules.breakable(type, spec.power, null)) continue
+            }
             schedule(cast, index, ordered.size, spec.rippleTicks) { strikeTerrain(cast, spec, toolClass, cell) }
         }
     }
@@ -68,7 +72,7 @@ public abstract class LedgerWorldGateway(protected val blocks: ISkillBlockAccess
     private fun strikeTerrain(cast: CastRef, spec: BreakAreaSpec, toolClass: String?, cell: BlockCell) {
         if (!blocks.canEdit(cast, cell, spec.outsideArena)) return
         val current = blocks.blockAt(cast, cell)
-        if (WorldBlockRules.isAir(current) || WorldBlockRules.isProtected(current!!)) return
+        if (!blocks.isStructure(cast, cell) && (WorldBlockRules.isAir(current) || WorldBlockRules.isProtected(current!!))) return
         editor.edit(cast, cell, spec.revertTicks.toLong()) { blocks.damage(cast, cell, spec.blockDamage, toolClass) == BlockDamageOutcome.BROKEN }
     }
 

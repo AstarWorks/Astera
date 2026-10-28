@@ -9,7 +9,7 @@ public sealed interface AreaShape {
     public data class Sphere(val radius: Double, val ahead: Double) : AreaShape
 
     /** 0.5-block steps along the look up to [length]; each step fills a ball of diameter [width]. */
-    public data class Line(val length: Double, val width: Double) : AreaShape
+    public data class Line(val length: Double, val width: Double, val height: Int = 1) : AreaShape
 
     /** [length] blocks ahead (starting 1 ahead of the feet cell), [width] centred on the caster, [height] up from the feet. */
     public data class Box(val width: Int, val height: Int, val length: Int) : AreaShape
@@ -79,8 +79,15 @@ public object WorldShapes {
                 var t = 0.5
                 while (t <= shape.length) {
                     val base = BlockCell.containing(aim.origin + aim.look * t)
-                    for (dx in -n..n) for (dy in -n..n) for (dz in -n..n) {
-                        if (dx * dx + dy * dy + dz * dz <= half * half) out += BlockCell(base.x + dx, base.y + dy, base.z + dz)
+                    if (shape.height > 1) {
+                        // a column: the `width` disc at each step, `height` cells tall around the look
+                        for (dx in -n..n) for (dz in -n..n) for (dy in -(shape.height / 2)..(shape.height - 1) / 2) {
+                            if (dx * dx + dz * dz <= half * half) out += BlockCell(base.x + dx, base.y + dy, base.z + dz)
+                        }
+                    } else {
+                        for (dx in -n..n) for (dy in -n..n) for (dz in -n..n) {
+                            if (dx * dx + dy * dy + dz * dz <= half * half) out += BlockCell(base.x + dx, base.y + dy, base.z + dz)
+                        }
                     }
                     t += 0.5
                 }
