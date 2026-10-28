@@ -95,6 +95,21 @@ $body
         assertThat(failure(chain(7))).containsIgnoringCase("deeper than")
     }
 
+    private fun texts(prefix: String, n: Int, at: Int, forTicks: Int): String =
+        (0 until n).joinToString("\n") {
+            "        - {id: $prefix$it, op: display, kind: text, text: \"x\", anchor: muzzle, at: $at, for: $forTicks}"
+        }
+
+    @Test
+    fun displayCapCountsWhatIsAliveAtTheEndOfEachTick() {
+        // 40 displays spawned at tick 5 for 10 are removed in tick 15's cleanup; 40 more spawn on tick 15. Never alive together: peak 40.
+        val touching = texts("a", 40, 5, 10) + "\n" + texts("b", 40, 15, 5)
+        assertThat(loadInline(skill(touching))).isInstanceOf(Result.Success::class.java)
+        // one tick earlier they do coexist (tick 14): 80 > 64.
+        val overlapping = texts("a", 40, 5, 10) + "\n" + texts("b", 40, 14, 5)
+        assertThat(failure(skill(overlapping))).contains("LiveDisplayCap(peak=80")
+    }
+
     @Test
     fun unknownCelFunctionIsALoadError() {
         val msg = failure(skill("        - {id: e, op: sound, sound: block.note_block.hat, anchor: muzzle, volume: \"= nosuchfn(1)\", pitch: 1.0, at: 0}"))
