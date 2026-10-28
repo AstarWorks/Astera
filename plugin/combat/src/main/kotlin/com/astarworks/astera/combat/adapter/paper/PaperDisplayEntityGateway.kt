@@ -223,6 +223,54 @@ public class PaperDisplayEntityGateway(
         display.transformation = next
     }
 
+    override fun place(handle: DisplayHandle, write: IDisplayEntityGateway.DisplayWrite) {
+        if (ConcealedDisplays.contains(handle.id)) return
+        val display = server.getEntity(handle.id) as? Display ?: return
+        var attachment = attachments[handle]
+        if (attachment != null && attachment.anchor != write.anchor?.player) {
+            // The frame left the caster (re-parented to the world): step off, the teleport below places it.
+            attachments.remove(handle)
+            display.vehicle?.removePassenger(display)
+            attachment = null
+        }
+        if (attachment == null && write.anchor != null) {
+            val player = server.getPlayer(write.anchor.player.uuid)
+            if (player != null && player.world == display.world && player.addPassenger(display)) {
+                attachment = Attachment(write.anchor.player, player.world, Vec3.ZERO, write.transform, player.height, false)
+                attachments[handle] = attachment
+            }
+        }
+        var transform = write.transform
+        if (attachment != null) {
+            val player = attachmentOwner(handle, display, attachment) ?: return
+            attachment.offset = write.at - write.anchor!!.feet
+            attachment.transform = write.transform
+            // The riding origin is the caster; the translation carries the offset (content stays feet-relative).
+            transform = write.transform.copy(translation = write.transform.translation + attachment.offset - Vec3(0.0, attachment.height, 0.0))
+        }
+        val bukkitBillboard = billboardOf(write.billboard)
+        if (display.billboard != bukkitBillboard) display.billboard = bukkitBillboard
+        val next = transformation(transform, flip = attachment?.flip == true)
+        // Vanilla order: the interpolation fields first, then the transformation they apply to. An unchanged transformation
+        // is not re-sent: re-sending the start tick would restart the client interpolation toward the same endpoint.
+        if (display.transformation != next) {
+            display.interpolationDelay = write.interpolationDelay.coerceAtLeast(0)
+            display.interpolationDuration = write.interpolationDuration.coerceAtLeast(0)
+            display.transformation = next
+        }
+        if (attachment == null) {
+            display.teleportDuration = write.teleportDuration.coerceIn(0, 59)
+            display.teleportAsync(Location(display.world, write.at.x, write.at.y, write.at.z, write.yaw, write.pitch))
+        }
+    }
+
+    private fun billboardOf(b: DisplayBillboard): Display.Billboard = when (b) {
+        DisplayBillboard.FIXED -> Display.Billboard.FIXED
+        DisplayBillboard.VERTICAL -> Display.Billboard.VERTICAL
+        DisplayBillboard.HORIZONTAL -> Display.Billboard.HORIZONTAL
+        DisplayBillboard.CENTER -> Display.Billboard.CENTER
+    }
+
     override fun setViewRange(handle: DisplayHandle, viewRange: Float) {
         (server.getEntity(handle.id) as? Display)?.viewRange = viewRange
     }

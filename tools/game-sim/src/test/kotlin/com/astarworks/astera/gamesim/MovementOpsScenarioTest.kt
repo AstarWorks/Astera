@@ -113,12 +113,11 @@ class MovementOpsScenarioTest {
             override fun freezeEntities(entities: List<UUID>, ticks: Int) = Unit
         }
         val visuals = object : ISkillVisualGateway {
-            override fun updateScale(handle: VisualHandle, scale: Vec3) = Unit
-            override fun spawnMesh(castOwner: UUID, item: String, part: String?, scale: Double, pose: Frame) = VisualHandle(0)
-            override fun spawnPlate(castOwner: UUID, sprite: String, face: PlateFace, size: Double, alpha: Double, pose: Frame) = VisualHandle(0)
+            override fun spawnMesh(castOwner: UUID, item: String, part: String?, scale: Double, pose: Frame, anchored: Boolean) = VisualHandle(0)
+            override fun spawnPlate(castOwner: UUID, sprite: String, face: PlateFace, size: Double, alpha: Double, pose: Frame, anchored: Boolean) = VisualHandle(0)
             override fun spawnLine(castOwner: UUID, from: Vec3, to: Vec3, thickness: Double, colorHex: String, face: PlateFace) = VisualHandle(0)
             override fun spawnTrail(castOwner: UUID, ticks: Int, widthFrac: Double, colorHex: String, alpha: Double) = VisualHandle(0)
-            override fun updatePose(handle: VisualHandle, pose: Frame, interpolationTicks: Int) = Unit
+            override fun updateDisplay(handle: VisualHandle, pose: Frame, scale: Vec3, interpolationTicks: Int, anchorFeet: Vec3?) = Unit
             override fun updateLine(handle: VisualHandle, from: Vec3, to: Vec3) = Unit
             override fun pushTrailPoint(handle: VisualHandle, root: Vec3, tip: Vec3) = Unit
             override fun remove(handle: VisualHandle) = Unit

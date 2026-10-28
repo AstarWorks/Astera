@@ -169,21 +169,20 @@ internal class Sim(val c: Coin2Collaborators, val catalog: SkillCatalog, val wit
     }
 
     private val visuals = object : ISkillVisualGateway {
-        override fun spawnMesh(castOwner: UUID, item: String, part: String?, scale: Double, pose: Frame) =
+        override fun spawnMesh(castOwner: UUID, item: String, part: String?, scale: Double, pose: Frame, anchored: Boolean) =
             spawn("mesh", buildJsonObject { put("item", item); put("part", part?.let { JsonPrimitive(it) } ?: JsonNull); put("scale", scale) }, poseObj(pose))
-        override fun spawnPlate(castOwner: UUID, sprite: String, face: PlateFace, size: Double, alpha: Double, pose: Frame) =
+        override fun spawnPlate(castOwner: UUID, sprite: String, face: PlateFace, size: Double, alpha: Double, pose: Frame, anchored: Boolean) =
             spawn("plate", buildJsonObject { put("sprite", sprite); put("face", faceJson(face)); put("size", size); put("alpha", alpha) }, poseObj(pose))
         override fun spawnLine(castOwner: UUID, from: Vec3, to: Vec3, thickness: Double, colorHex: String, face: PlateFace) =
             spawn("line", buildJsonObject { put("thickness", thickness); put("color", colorHex); put("face", faceJson(face)) },
                 buildJsonObject { put("from", vecJsonOf(from)); put("to", vecJsonOf(to)) })
         override fun spawnTrail(castOwner: UUID, ticks: Int, widthFrac: Double, colorHex: String, alpha: Double) =
             spawn("trail", buildJsonObject { put("ticks", ticks); put("widthFrac", widthFrac); put("color", colorHex); put("alpha", alpha) }, buildJsonObject {})
-        override fun updatePose(handle: VisualHandle, pose: Frame, interpolationTicks: Int) = capture.update(handle.id, poseObj(pose, interpolationTicks))
+        override fun updateDisplay(handle: VisualHandle, pose: Frame, scale: Vec3, interpolationTicks: Int, anchorFeet: Vec3?) = capture.update(handle.id, poseObj(pose, interpolationTicks))
         override fun updateLine(handle: VisualHandle, from: Vec3, to: Vec3) =
             capture.update(handle.id, buildJsonObject { put("from", vecJsonOf(from)); put("to", vecJsonOf(to)) })
         override fun pushTrailPoint(handle: VisualHandle, root: Vec3, tip: Vec3) =
             capture.update(handle.id, buildJsonObject { put("root", vecJsonOf(root)); put("tip", vecJsonOf(tip)) })
-        override fun updateScale(handle: VisualHandle, scale: Vec3) = Unit
         override fun remove(handle: VisualHandle) {
             capture.objects[handle.id]?.removeTick = capture.now
         }

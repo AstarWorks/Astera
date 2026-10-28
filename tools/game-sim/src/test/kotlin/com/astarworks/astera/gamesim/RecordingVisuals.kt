@@ -10,6 +10,10 @@ import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.geometry.math.Frame
 import com.astarworks.astera.core.domain.geometry.math.Quaternion
 import com.astarworks.astera.core.domain.skillengine.op.PlateFace
+import com.astarworks.astera.combat.adapter.paper.skillengine.SkillDisplayWrites
+import com.astarworks.astera.combat.application.port.outbound.IDisplayEntityGateway.DisplayWrite
+import com.astarworks.astera.core.domain.effect.DisplayBillboard
+import com.astarworks.astera.core.domain.player.PlayerId
 import java.util.UUID
 
 /** One display transformation the Paper gateway would send: [kind] mesh / plate / line / ribbon, the authored size, the 3x3 columns. */
@@ -21,12 +25,38 @@ class DisplayFrame(
     val note: String = "",
 )
 
+/** One display write as the client receives it: [write] at [tick], with the caster feet then (anchored writes are relative to them). */
+class DisplayCall(val tick: Int, val handle: Long, val write: DisplayWrite, val feet: Vec3, val spawn: Boolean = false)
+
 /**
  * Records the display matrices the Paper visual gateway would build (same maths, [SkillDisplayMath] / [PlateOrientation]),
  * one [DisplayFrame] per spawn / update, so a scenario can check them for stretch (SKL-14).
  */
-class RecordingVisuals(private val now: () -> Int) : ISkillVisualGateway {
+class RecordingVisuals(private val now: () -> Int, private val casterFeet: () -> Vec3 = { Vec3.ZERO }) : ISkillVisualGateway {
     val frames = ArrayList<DisplayFrame>()
+
+    /** Every spawn / update write, in order: what the Paper gateway hands [com.astarworks.astera.combat.application.port.outbound.IDisplayEntityGateway.place]. */
+    val calls = ArrayList<DisplayCall>()
+    private val player = PlayerId(UUID(0, 1))
+    private fun anchorAt(feet: Vec3?) = feet?.let { DisplayWrite.Anchor(player, it) }
+
+    /**
+     * Where the client draws display [handle] during tick [t] (>= its first write): the vanilla interpolation from the previous
+     * target to the latest write's, over its duration; an anchored display is the caster's feet at [t] plus its offset
+     * (a passenger moves with the caster instantly). Null before the first write.
+     */
+    fun shownAt(handle: Long, t: Int, feetAt: Vec3): Vec3? {
+        val mine = calls.filter { it.handle == handle && it.tick <= t }
+        val last = mine.lastOrNull() ?: return null
+        val prev = mine.getOrNull(mine.size - 2)
+        fun target(c: DisplayCall) = c.write.anchor?.let { c.write.at - it.feet } ?: c.write.at
+        fun place(rel: Vec3, anchored: Boolean) = if (anchored) feetAt + rel else rel
+        val to = place(target(last), last.write.anchor != null)
+        val from = prev?.let { place(target(it), it.write.anchor != null) } ?: return to
+        val d = last.write.teleportDuration
+        val k = if (d <= 0) 1.0 else minOf(1.0, (t - last.tick + 1).toDouble() / d)
+        return from + (to - from) * k
+    }
     private var ids = 0L
     private class Mesh(var scale: Vec3, var rotation: Quaternion)
     private class Plate(val face: PlateFace, var size: Vec3, var rotation: Quaternion)
@@ -44,15 +74,17 @@ class RecordingVisuals(private val now: () -> Int) : ISkillVisualGateway {
 
     private fun next(e: Any): VisualHandle { val id = ++ids; entries[id] = e; return VisualHandle(id) }
 
-    override fun spawnMesh(castOwner: UUID, item: String, part: String?, scale: Double, pose: Frame): VisualHandle {
+    override fun spawnMesh(castOwner: UUID, item: String, part: String?, scale: Double, pose: Frame, anchored: Boolean): VisualHandle {
         val h = next(Mesh(Vec3(scale, scale, scale), pose.rotation))
+        calls += DisplayCall(now(), h.id, SkillDisplayWrites.mesh(pose, Vec3(scale, scale, scale), 0, anchorAt(casterFeet().takeIf { anchored })), casterFeet(), spawn = true)
         record("mesh", h.id, scale, DisplayTransform(Vec3.ZERO, pose.rotation, Vec3(scale, scale, scale)), "$item/$part")
         return h
     }
 
-    override fun spawnPlate(castOwner: UUID, sprite: String, face: PlateFace, size: Double, alpha: Double, pose: Frame): VisualHandle {
-        val placed = PlateOrientation.forPlate(pose, face, null)
+    override fun spawnPlate(castOwner: UUID, sprite: String, face: PlateFace, size: Double, alpha: Double, pose: Frame, anchored: Boolean): VisualHandle {
+        val placed = PlateOrientation.forPlate(pose, face)
         val h = next(Plate(face, Vec3(size, size, size), placed.rotation))
+        calls += DisplayCall(now(), h.id, SkillDisplayWrites.plate(pose, face, size, size, 0, anchorAt(casterFeet().takeIf { anchored })), casterFeet(), spawn = true)
         record("plate", h.id, size, SkillDisplayMath.plateTransform(placed.rotation, size, size), sprite)
         return h
     }
@@ -65,21 +97,22 @@ class RecordingVisuals(private val now: () -> Int) : ISkillVisualGateway {
 
     override fun spawnTrail(castOwner: UUID, ticks: Int, widthFrac: Double, colorHex: String, alpha: Double): VisualHandle = next(Trail(widthFrac))
 
-    override fun updatePose(handle: VisualHandle, pose: Frame, interpolationTicks: Int) {
+    override fun updateDisplay(handle: VisualHandle, pose: Frame, scale: Vec3, interpolationTicks: Int, anchorFeet: Vec3?) {
+        val a = anchorAt(anchorFeet)
         when (val e = entries[handle.id]) {
-            is Mesh -> { e.rotation = pose.rotation; record("mesh", handle.id, e.scale.x, DisplayTransform(Vec3.ZERO, pose.rotation, e.scale)) }
-            is Plate -> {
-                val placed = PlateOrientation.forPlate(pose, e.face, null)
-                e.rotation = placed.rotation
-                record("plate", handle.id, e.size.x, SkillDisplayMath.plateTransform(placed.rotation, e.size.x, e.size.y), "wh=${e.size.x},${e.size.y}")
+            is Mesh -> {
+                e.scale = scale; e.rotation = pose.rotation
+                val w = SkillDisplayWrites.mesh(pose, scale, interpolationTicks, a)
+                calls += DisplayCall(now(), handle.id, w, casterFeet())
+                record("mesh", handle.id, scale.x, w.transform)
             }
-        }
-    }
-
-    override fun updateScale(handle: VisualHandle, scale: Vec3) {
-        when (val e = entries[handle.id]) {
-            is Mesh -> { e.scale = scale; record("mesh", handle.id, scale.x, DisplayTransform(Vec3.ZERO, e.rotation, scale)) }
-            is Plate -> { e.size = scale; record("plate", handle.id, scale.x, SkillDisplayMath.plateTransform(e.rotation, scale.x, scale.y), "wh=${scale.x},${scale.y}") }
+            is Plate -> {
+                e.size = scale
+                val w = SkillDisplayWrites.plate(pose, e.face, scale.x, scale.y, interpolationTicks, a)
+                e.rotation = w.transform.rotation
+                calls += DisplayCall(now(), handle.id, w, casterFeet())
+                record("plate", handle.id, scale.x, w.transform, "wh=${scale.x},${scale.y}")
+            }
         }
     }
 

@@ -50,7 +50,7 @@ internal class MeshExecutor(private val rt: PresentationRuntime) : OpExecutor<Vi
         val base = rt.rigBase(frame, pivot, tilt)
         val pose = Frame(base.origin, (base.rotation * rest).normalized())
         val scale = ctx.num(op.scale, 1.0)
-        val h = ctx.ports.visuals.spawnMesh(rt.info.owner(ctx.cast), op.item, op.part, scale, pose)
+        val h = ctx.ports.visuals.spawnMesh(rt.info.owner(ctx.cast), op.item, op.part, scale, pose, rt.casterAnchored(s, op.frame))
         rt.register(s, PresentationRuntime.Live.Mesh(op.id, h, op.frame, scale, pivot, tilt, rest))
     }
 }
@@ -66,6 +66,7 @@ internal class PlateExecutor(private val rt: PresentationRuntime) : OpExecutor<V
         val size = ctx.values.num(op.sizeFrac) * reference
         val h = ctx.ports.visuals.spawnPlate(
             rt.info.owner(ctx.cast), op.sprite, op.face, size, ctx.values.num(op.alpha), pose,
+            rt.casterAnchored(s, op.parent),
         )
         val tint = op.color?.let { ctx.values.text(it) }
         val frames = ctx.ports.visuals.spriteFrames(op.sprite)

@@ -5,6 +5,7 @@ import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.geometry.math.Frame
 import com.astarworks.astera.core.domain.geometry.math.Quaternion
 import com.astarworks.astera.core.domain.skillengine.op.PlateFace
+import kotlin.math.abs
 import kotlin.math.sqrt
 
 /**
@@ -15,8 +16,9 @@ import kotlin.math.sqrt
  * Pure maths, no Bukkit.
  */
 public object PlateOrientation {
+    private const val UPRIGHT = 0.7071
 
-    /** A resolved orientation: the two full-viewer modes are left to the client billboard; otherwise FIXED + [rotation]. */
+    /** A resolved orientation: the viewer modes are the client billboard (identity rotation); a plane is FIXED + [rotation]. */
     public data class Placed(val billboard: DisplayBillboard, val rotation: Quaternion)
 
     /** Pose-local axis names: `x y z`, `forward up left right`, each optionally prefixed with `-`. Unknown name = null. */
@@ -36,14 +38,18 @@ public object PlateOrientation {
     /** World-axis names for lines, which have no pose: `x y z`, optionally `-`. */
     public fun axisFixed(name: String): Vec3? = axisWorld(Frame(Vec3.ZERO), name)
 
-    /** Plate at [pose], seen from [viewerEye] (null when nobody is near: axis plates then face the pose forward). */
-    public fun forPlate(pose: Frame, face: PlateFace, viewerEye: Vec3?): Placed = when (face) {
+    /**
+     * Plate at [pose]. Viewer faces are the vanilla client billboard, so each viewer sees them right (nothing here aims at
+     * a player): `ViewerCenter` = CENTER, `ViewerVertical` = VERTICAL, `ViewerAxis` = VERTICAL when the axis is
+     * upright, else CENTER (vanilla has no billboard about an arbitrary axis).
+     */
+    public fun forPlate(pose: Frame, face: PlateFace): Placed = when (face) {
         PlateFace.ViewerCenter -> Placed(DisplayBillboard.CENTER, Quaternion.IDENTITY)
         PlateFace.ViewerVertical -> Placed(DisplayBillboard.VERTICAL, Quaternion.IDENTITY)
         is PlateFace.ViewerAxis -> {
             val axis = axisWorld(pose, face.axis.name)
-            if (axis == null) Placed(DisplayBillboard.FIXED, pose.rotation)
-            else Placed(DisplayBillboard.FIXED, aboutAxis(pose.origin, axis, viewerEye ?: (pose.origin + pose.forward())))
+            val upright = axis != null && abs(axis.normalize().y) >= UPRIGHT
+            Placed(if (upright) DisplayBillboard.VERTICAL else DisplayBillboard.CENTER, Quaternion.IDENTITY)
         }
         is PlateFace.Plane -> {
             val a = axisWorld(pose, face.axisA.name)
@@ -79,15 +85,6 @@ public object PlateOrientation {
         val y = perpendicular(b, x)
         if (x.lengthSquared() == 0.0 || y.lengthSquared() == 0.0) return Quaternion.IDENTITY
         return fromBasis(x, y, x.cross(y))
-    }
-
-    /** Height = [axis], normal = the part of (eye - [at]) perpendicular to it. */
-    public fun aboutAxis(at: Vec3, axis: Vec3, eye: Vec3): Quaternion {
-        val y = axis.normalize()
-        var z = perpendicular(eye - at, y)
-        if (z.lengthSquared() == 0.0) z = perpendicular(Vec3(0.0, 0.0, 1.0), y)
-        if (z.lengthSquared() == 0.0) z = perpendicular(Vec3(1.0, 0.0, 0.0), y)
-        return fromBasis(y.cross(z), y, z)
     }
 
     /** Unit vector of [v] with its component along [unitAxis] removed (zero vector when parallel). */
