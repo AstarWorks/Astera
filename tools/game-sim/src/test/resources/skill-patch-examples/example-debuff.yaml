@@ -1,0 +1,11 @@
+# EXAMPLE patch (test fixture, not shipped, bound to no item): debuff. Stronger bleed plus a second status on the throw hit.
+apiVersion: astera/v2
+kind: Patch
+target: couture-rapier-s2
+variant: example_debuff
+patchKind: balance
+gameplay:
+  params: {bleed_stacks: 5, bleed_ticks: 200}
+  on:
+    hit:
+      - {id: poison_on_throw, op: status, when: "= event.source == 'throw_hit'", target: victim, status: poison, stacks: 1, duration_ticks: 100}
