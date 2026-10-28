@@ -170,6 +170,14 @@ public object MachineTables {
                     is Result.Success -> rows += r.value
                 }
             }
+            // R45: the cast-level `world:` rows are lowered at the cast's tick 0, beside the start state's own. They are still bounded by that
+            // state's table until the static checks learn a machine-root owner (StaticChecks spawnScope), see ADR-0303 10.1.
+            if (id == machine.start && machine.world.isNotEmpty()) {
+                when (val r = section(st, "world", machine.world, null)) {
+                    is Result.Failure -> return r
+                    is Result.Success -> rows += r.value
+                }
+            }
             for (child in childStarts(id)) rows += row(0, Action.Enter(StatePath(child)), "$where.child")
             if (st.final) {
                 rows += if (parent == null) row(0, Action.End(root), "$where.final")
