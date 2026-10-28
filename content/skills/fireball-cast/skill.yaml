@@ -5,14 +5,16 @@ item: fireball-charge
 meta: {name: {ja: "火球", en: Fireball}, description: {ja: "火の玉を放ち、着弾で爆ぜる。", en: "Hurls a fireball that bursts on impact."}, cooldown_ticks: 70, resource_cost: 16, tags: [ranged, fire, magic]}
 anchors:
   - {id: muzzle,  anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}
-  - {id: cast_fx, anchor: caster.eye, offset: {up: -0.25, forward: 0.9}, mode: snapshot}
-  - {id: heart,   anchor: victim.body, offset: {up: 0.4}}   # v2 enemy point offset Y minus 0.8 (example b maps 1.0 -> up 0.2)
+  - {id: cast_fx, anchor: caster, offset: {up: -0.25, forward: 0.9}, mode: snapshot}
+  - {id: heart,   anchor: victim.root, offset: {up: 1.2}}   # was pt_enemy_0_1p2_0 (victim feet, yaw-only)
 machine:
   start: fly
   states:
     fly:
       for: 60                       # = v2 max_lifetime_ticks; covers the whole flight
       then: end
+      on:
+        - {event: bolt.end, to: end}
       enter:
         - {id: snd, op: sound, sound: "entity.blaze.shoot", anchor: caster, volume: 0.9, pitch: 0.9}
         - {id: fx, op: particle_def, def: fire-cast, anchor: cast_fx}
@@ -29,14 +31,14 @@ machine:
             hit:
               - {id: boom, op: explode, at: 0, anchor: victim, power: 1.2, break_blocks: false, fire: false}
               # GAP(Q1): max_count 64 is invented (v2 had no cap); spelling per founder answer
-              - {id: boom_dmg, op: damage, target: {kind: enemies, around: victim, radius: 2.5, max_count: 64, include_self: false}, damage: {fire: 27.5}}
+              - {id: boom_dmg, op: damage, target: {kind: enemies, around: victim, radius: 2.5, max_count: 64}, damage: {fire: 27.5}}
               - {id: st_burn, op: status, target: event.victim, status: burn, stacks: 1, for: 20}
               - {id: snd_hit, op: sound, sound: "astera:skills/fire-impact", anchor: heart, volume: 0.7, pitch: 1.0}
               - {id: fx_hit, op: particle_def, def: hit-spark, anchor: heart}
             block:
               - {id: boom_2, op: explode, at: 0, anchor: contact, power: 1.2, break_blocks: false, fire: false}
               # GAP(Q1): max_count 64 is invented (v2 had no cap); spelling per founder answer
-              - {id: boom_dmg_2, op: damage, target: {kind: enemies, around: contact, radius: 2.5, max_count: 64, include_self: false}, damage: {fire: 27.5}}
+              - {id: boom_dmg_2, op: damage, target: {kind: enemies, around: contact, radius: 2.5, max_count: 64}, damage: {fire: 27.5}}
               - {id: snd_blk, op: sound, sound: "astera:skills/fire-impact", anchor: contact.point, volume: 0.7, pitch: 1.0}
               - {id: fx_blk, op: particle_def, def: hit-spark, anchor: contact.point}
         - {id: trail_flame, op: particle, particle: flame, anchor: {of: bolt, sweep: 0.4}, count: 1, offset: [0.08, 0.08, 0.08], every: 1, until: bolt.end}
