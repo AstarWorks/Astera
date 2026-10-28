@@ -243,9 +243,7 @@ public class PresentationRuntime(
                     ?.let { parentW.rotation.conjugate() * it } ?: Quaternion.IDENTITY
                 tree.setLocal(live.node, Frame(live.at + live.turn.rotate(t.offset), (base * live.turn * t.turn).normalized()))
                 val world = tree.worldOf(live.node).getOrNull() ?: return null
-                val fixed = live.billboard == DisplayBillboard.FIXED
-                // A viewer face is the vanilla billboard: it owns the rotation, so the written frame carries only the origin.
-                val frame = if (fixed) world else Frame(world.origin)
+                val frame = billboardFrame(s, live.opId, parentW, world, live.billboard, live.turn)
                 return VisualPose(frame, Vec3(live.size * t.scale.x, live.size * t.scale.y, 1.0), live.billboard, anchorFeet(s, live.parent))
             }
             is Live.Block -> {
@@ -262,12 +260,24 @@ public class PresentationRuntime(
                     ?.let { parentW.rotation.conjugate() * it } ?: Quaternion.IDENTITY
                 tree.setLocal(live.node, Frame(live.at + live.turn.rotate(t.offset), (base * live.turn * t.turn).normalized()))
                 val world = tree.worldOf(live.node).getOrNull() ?: return null
-                val fixed = live.billboard == DisplayBillboard.FIXED
-                val frame = if (fixed) world else Frame(world.origin)
+                val frame = billboardFrame(s, live.opId, parentW, world, live.billboard, live.turn)
                 return VisualPose(frame, Vec3(live.size.x * t.scale.x, live.size.y * t.scale.y, 1.0), live.billboard, anchorFeet(s, live.parent))
             }
             else -> return null
         }
+    }
+
+    /**
+     * Frame written for a plate / quad. A viewer face is the vanilla billboard (the client turns the display toward the camera
+     * and then applies `left_rotation`), so the frame's rotation is what v1 wrote as `left_rotation` (v1 VfxTimeline.kt:362-366,
+     * `transformAt`): CENTER keeps only the element's own roll (base turn x its own tracks, no caster / group rotation, which the
+     * camera already supplies); VERTICAL keeps the full placed rotation. FIXED is the world frame.
+     */
+    private fun billboardFrame(
+        s: CastState, id: String, parentW: Frame, world: Frame, billboard: DisplayBillboard, baseTurn: Quaternion,
+    ): Frame = when (billboard) {
+        DisplayBillboard.FIXED, DisplayBillboard.VERTICAL -> world
+        else -> Frame(world.origin, (baseTurn * tracked(s, id, parentW).turn).normalized())
     }
 
     /** World rotation of a plane face: local x = axis A, local y = axis B's part perpendicular to A. */

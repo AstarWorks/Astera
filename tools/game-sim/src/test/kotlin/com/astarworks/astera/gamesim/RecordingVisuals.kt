@@ -169,7 +169,7 @@ class RecordingVisuals(
     }
 
     override fun spawnQuad(castOwner: UUID, colorHex: String, alpha: Double, text: String?, shadow: Boolean, seeThrough: Boolean, pose: VisualPose, brightness: Int?): VisualHandle {
-        val intrinsic = if (text == null) Intrinsic.TEXT_SOLID else Intrinsic.textGlyph(8)
+        val intrinsic = if (text == null) Intrinsic.TEXT_SOLID else Intrinsic.QUAD_GLYPH
         val h = next(Quad(intrinsic), "quad", text ?: colorHex)
         val w = write(h.id, "quad", intrinsic, pose, 0, pose.size.x, "wh=${pose.size.x},${pose.size.y}", spawn = true)
         specs[h.id] = SkillDisplaySpecs.quad(colorHex, alpha, text, shadow, seeThrough, w.transform, pose.billboard, brightness)

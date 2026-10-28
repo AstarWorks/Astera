@@ -185,7 +185,7 @@ public class PaperSkillVisualGateway(
 
     override fun spawnQuad(castOwner: UUID, colorHex: String, alpha: Double, text: String?, shadow: Boolean, seeThrough: Boolean, pose: VisualPose, brightness: Int?): VisualHandle {
         val world = worldOf(castOwner) ?: return dead("quad")
-        val intrinsic = if (text == null) Intrinsic.TEXT_SOLID else Intrinsic.textGlyph(QUAD_TEXT_PX)
+        val intrinsic = if (text == null) Intrinsic.TEXT_SOLID else Intrinsic.QUAD_GLYPH
         val first = toDisplayWrite(pose.frame, pose.size, intrinsic, pose.billboard, 0)
         val spec = SkillDisplaySpecs.quad(colorHex, alpha, text, shadow, seeThrough, first.transform, pose.billboard, brightness)
         val handle = spawnDisplay(world, castOwner, pose.frame.origin, spec, listOf(text ?: " "), pose.anchorFeet != null && pose.billboard == DisplayBillboard.FIXED)
@@ -388,8 +388,6 @@ public class PaperSkillVisualGateway(
     private companion object {
         val HAND = PresentationMask(hand = true)
 
-        /** Font height (px) of a quad's drawn text: the vanilla default, 8 px = 0.2 blocks per text scale unit. */
-        const val QUAD_TEXT_PX = 8
         val BODY = PresentationMask(hand = true, offhand = true, armor = true, body = true, pinPose = true)
     }
 
