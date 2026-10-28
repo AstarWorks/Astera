@@ -261,15 +261,17 @@ class CastSim(
     }
 
     private val world = object : ISkillWorldGateway by noop() {
-        override fun blockAt(cell: BlockCell): String? = "minecraft:stone"
+        // With a wall (blockAtZ) the only blocks are the cover wall z = blockAtZ, x -6..6, y 0..8 (the v1 reference scene); without one the world is open cover.
+        private fun inWall(cell: BlockCell) = blockAtZ?.let { cell.z == it.toInt() && cell.x in -6..6 && cell.y in 0..8 } ?: true
+        override fun blockAt(cell: BlockCell): String? = if (inWall(cell)) "minecraft:stone" else null
         override fun canEdit(cast: CastId, cell: BlockCell, outsideArena: Boolean) = true
-        override fun isCover(cell: BlockCell) = false
+        override fun isCover(cell: BlockCell) = inWall(cell)
         override fun damage(cast: CastId, cell: BlockCell, blockDamage: Int, toolClass: String?): BlockDamageOutcome {
             blockStrikes += Triple(now, blockDamage, toolClass)
             gpLine("block", "\"k\":\"damage\",${cellAt(cell)},\"amount\":$blockDamage,\"tool\":${toolClass?.let { jq(it) }}")
             return BlockDamageOutcome.CHIPPED
         }
-        override fun place(cell: BlockCell, blockKey: String) { gpLine("block", "\"k\":\"place\",${cellAt(cell)},\"block\":${jq(blockKey)}") }
+        override fun place(cell: BlockCell, blockKey: String): Boolean { gpLine("block", "\"k\":\"place\",${cellAt(cell)},\"block\":${jq(blockKey)}"); return true }
         override fun remove(cell: BlockCell) { gpLine("block", "\"k\":\"break\",${cellAt(cell)}") }
         override fun placeCover(cast: CastId, cell: BlockCell, blockKey: String): Boolean {
             gpLine("block", "\"k\":\"place\",${cellAt(cell)},\"block\":${jq(blockKey)},\"cover\":true")

@@ -910,7 +910,9 @@ def block_damage(c, d, arch, on_hit, on_block):
     if not bd:
         return
     op = {"op": "break_area", "shape": "sphere", "radius": max(float(bd.get("radius", 0.0)), 0.5),
-          "block_damage": int(bd["amount"]), "breaks": True}
+          "block_damage": int(bd["amount"]), "breaks": True,
+          # A sphere is centred `length` ahead of `at` (tool skills dig ahead); a v1 chip is centred ON the impact / cast point.
+          "length": 0.0}
     if bd.get("tool"):
         op["tool_class"] = str(bd["tool"]).split("/")[0].upper()
     if arch == "projectile":
@@ -1080,6 +1082,10 @@ def meta_block(d):
     tags = [t for t in d.get("tags", []) if t not in ("demo", "vfx", "rtm", "animation")]
     if tags:
         m["tags"] = tags
+    # Fail loudly: a v1 cast gate (cost / cooldown / reload / ego) that the v2 meta did not carry would silently make the skill free.
+    for k in ("cooldown_ticks", "resource_type", "resource_cost", "ego_cost", "reload_ticks"):
+        if k in d and m.get(k) != d[k]:
+            raise SystemExit("meta_block: %s: v1 %s=%r was not carried into the v2 meta (%r)" % (d.get("id"), k, d[k], m.get(k)))
     return m
 
 

@@ -20,7 +20,7 @@ gameplay:
       at: 0
       do:
         - {id: burst, op: hit, frames: [caster], sphere: {at: caster, radius: "${radius}"}, window: once}
-        - {op: break_area, shape: sphere, radius: 2.5, block_damage: 20, breaks: true, id: chip, at: caster}
+        - {op: break_area, shape: sphere, radius: 2.5, block_damage: 20, breaks: true, length: 0.0, id: chip, at: caster}
   "on":
     hit:
       - {id: dmg, op: damage, target: victim, components: [{kind: water, amount: "= dmg_water * (1.0 - 0.5 * dist(pos(caster), pos(victim)) / radius)"}], when: "= event.source == 'burst'"}

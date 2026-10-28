@@ -22,7 +22,7 @@ gameplay:
       at: 0
       do:
         - {id: swing, op: hit, frames: [caster], sector: {frame: caster, at: eye, forward: caster.forward, left: caster.left, angle_deg: "${arc_deg}", range: "${range}", height: 2.0}, window: once}
-        - {op: break_area, shape: sphere, radius: 0.5, block_damage: 30, breaks: true, id: chip, at: pt_aim_0_0_4}
+        - {op: break_area, shape: sphere, radius: 0.5, block_damage: 30, breaks: true, length: 0.0, id: chip, at: pt_aim_0_0_4}
   "on":
     hit:
       - {id: dmg, op: damage, target: victim, components: [{kind: physical, amount: "${dmg_physical}"}], when: "= event.source == 'swing'"}

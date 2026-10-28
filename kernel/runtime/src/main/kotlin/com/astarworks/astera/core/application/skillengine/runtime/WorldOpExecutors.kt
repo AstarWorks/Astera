@@ -103,6 +103,8 @@ internal class BreakAreaExecutor(private val editor: SkillWorldEditor) : OpExecu
             world.damage(cast, cell, op.blockDamage, op.toolClass)
             return
         }
+        // A flat chip (no tool_class: guns, spells) only ever hurts cover; terrain is the tool skills' to break (v1 CoverBlockService).
+        if (op.toolClass == null) return
         val current = world.blockAt(cell)
         if (WorldBlockRules.isAir(current) || WorldBlockRules.isProtected(current!!)) return
         editor.edit(cell, revert) { world.damage(cast, cell, op.blockDamage, op.toolClass) == BlockDamageOutcome.BROKEN }
