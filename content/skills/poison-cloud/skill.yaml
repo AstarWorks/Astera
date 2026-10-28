@@ -13,8 +13,8 @@ machine:
   start: throw
   states:
     throw:
-      for: 58                        # max_lifetime_ticks 50 + the 8-tick ring that follows a hit/block at the last tick
-      then: end
+      on:
+        - {event: bolt.end, to: end}    # manager ruling 2026-10-29: the cast ends when the projectile body ends (v2)
       enter:
         - {id: snd, op: sound, sound: entity.splash_potion.throw, anchor: caster, volume: 0.9, pitch: 0.9}
         - {id: fx, op: particle_def, def: verdant-cast, anchor: muzzle}
