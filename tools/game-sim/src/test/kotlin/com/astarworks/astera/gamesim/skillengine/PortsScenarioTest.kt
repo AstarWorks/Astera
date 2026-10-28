@@ -115,7 +115,7 @@ class PortsScenarioTest : SkillEngineScenario() {
         val rec = GatewayRecorder()
         val run = start(compile(reelSkill), rec, WorldId("world"))
         for (now in 0..12) run.tick(now)
-        assertThat(rec.trace.filter { it.startsWith("event:reel.end") }).hasSize(1)
+        assertThat(rec.trace.filter { it.startsWith("event:go/reel.end") }).hasSize(1)
         assertThat(run.player.faults()).isEmpty()
     }
 
