@@ -4,7 +4,6 @@ kind: Skill
 id: rapier-sidestep
 item: rapier
 meta: {name: {ja: "受け流し", en: "Parry Step"}, description: {ja: "後方へ軽く身を引き、素早く動ける。", en: "A light backstep followed by a short sprint."}, cooldown_ticks: 120, resource_cost: 0, tags: [melee, movement]}
-# GAP: v2 expose {duration <- evasive_ticks} -> none (no expose spelling for cast skills); literal 20 inlined.
 anchors:
   - {id: feet, anchor: caster, offset: {up: 0.2}}                      # was pt_caster_0_0p2_0
 machine:
@@ -15,8 +14,7 @@ machine:
       then: end
       enter:
         - {id: buff, op: status, target: caster, status: evasive, stacks: 1, for: 20}   # stacks: 1 assumed
-        # GAP: propel (direction = axis(caster,"forward"), strength -0.9) -> closest v3 `impulse` (world-axis vector) but propel is caster-relative; kept verbatim.
-        - {id: propel, op: propel, direction: "= axis(caster, \"forward\")", strength: -0.9}
+        - {id: back, op: impulse, target: caster, vector: {of: caster, forward: -0.9}}
         - {id: snd, op: sound, sound: "astera:weapons/dash-whoosh", anchor: caster, volume: 0.8, pitch: 1.4}
         - {id: fx, op: particle_def, def: dash-cloud, anchor: feet}
     end: {final: true}

@@ -4,13 +4,11 @@ kind: Skill
 id: revolver-fan
 item: revolver
 meta: {name: {ja: "ファニング", en: "Fan the Hammer"}, description: {ja: "至近距離へ素早く連射する。", en: "Rapid close-range fire."}, cooldown_ticks: 90, resource_cost: 10, tags: [ranged, gun, burst]}
-# GAP: v2 expose {damage <- dmg_physical, range <- range} -> none (no expose spelling for cast skills); literals inlined.
-# GAP: v2 sector forward was `caster.forward` (yaw only) from `at: eye`; v3 sector reads the anchor frame (eye anchor, may include pitch).
 anchors:
   - {id: eye,   anchor: caster.eye}
   - {id: muzzle, anchor: caster.eye, offset: {up: -0.25, forward: 1.1}, mode: snapshot}
-  - {id: foe,   anchor: victim.root}
-  - {id: heart, anchor: victim.root, offset: {up: 1.2}}                 # was pt_enemy_0_1p2_0
+  - {id: foe,   anchor: victim.root}   # GAP(Q2): v2 enemy frame origin = feet+0.8; victim.root = feet
+  - {id: heart, anchor: victim.root, offset: {up: 1.2}}   # GAP(Q2): v2 enemy frame origin = feet+0.8; victim.root = feet
 machine:
   start: strike
   states:
@@ -21,9 +19,19 @@ machine:
         - {id: snd, op: sound, sound: "astera:weapons/gun-shot", anchor: caster, volume: 0.9, pitch: 1.1}
         - {id: fx, op: particle_def, def: shotgun-muzzle, anchor: muzzle}
       do:
-        - {id: swing, op: hit, at: 0, anchor: eye, shape: {sector: {deg: 60.0, range: 5.0, height: 2.0}}, targets: enemies, damage: {physical: 21.0}}
-      on:
-        # GAP: v2 played the hit sound+spark per victim; a state transition fires for one victim per tick (meaning change: feedback once, first victim).
-        - {event: swing.hit, to: struck, do: [{id: snd_hit, op: sound, sound: "astera:weapons/blade-hit", anchor: foe, volume: 0.7, pitch: 1.2}, {id: fx_hit, op: particle_def, def: hit-spark, anchor: heart}]}
-    struck: {for: 1, then: end}
+        - id: swing
+          op: hit
+          at: 0
+          anchor: eye
+          shape: {sector: {deg: 60.0, range: 5.0, height: 2.0, forward: yaw}}
+          targets: enemies
+          max_count: all                   # GAP(Q1): v2 had no cap; A=`all`, B=omit
+          window: once
+          ignore_invulnerability: false
+          damage: {physical: 21.0}
+          on:
+            hit:
+              - {id: kb, op: knockback, target: event.victim, direction: "= normalize(pos(event.victim) - pos(caster))", strength: 0.5}
+              - {id: snd_hit, op: sound, sound: "astera:weapons/blade-hit", anchor: foe, volume: 0.7, pitch: 1.2}
+              - {id: fx_hit, op: particle_def, def: hit-spark, anchor: heart}
     end: {final: true}

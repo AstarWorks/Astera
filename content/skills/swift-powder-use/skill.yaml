@@ -17,7 +17,7 @@ machine:
       for: 1
       then: end
       do:
-        # GAP: consume_item {target: caster, item: swift-powder, count: 1} -> none (no item-consume op in ADR 10.1b)
+        - {id: consume, op: consume_item, at: 0, target: caster, item: swift-powder, count: 1}
         - {id: st_swift, op: status, target: caster, status: swift, stacks: 1, for: 160}
         - {id: snd, op: sound, sound: entity.player.attack.knockback, anchor: caster, pitch: 1.4}
         - {id: puff, op: particle_def, def: dash-cloud, anchor: puff_pt}

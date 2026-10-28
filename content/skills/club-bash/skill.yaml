@@ -14,7 +14,6 @@ params:
   dmg_physical: {type: number, default: 24}
 anchors:
   - {id: fx, anchor: caster.eye, offset: {forward: 1.4}}
-  - {id: enemy, anchor: victim.body, offset: {up: 1.2}}
 presentation:
   timeline:
     - id: swing
@@ -22,10 +21,6 @@ presentation:
       do:
         - {id: snd, op: sound, sound: "astera:weapons/blade-heavy-swing", anchor: caster, volume: 0.9, pitch: 1.1}
         - {id: fx1, op: emit, effect: hit-spark, anchor: fx}
-  "on":
-    hit:
-      - {id: snd_hit, op: sound, sound: "astera:weapons/blade-hit", anchor: enemy, volume: 0.7, pitch: 1.2}
-      - {id: spark, op: emit, effect: hit-spark, anchor: enemy}
 machine:
   start: cast
   states:
@@ -33,12 +28,19 @@ machine:
       for: 1
       then: done
       enter:
-        # GAP: v2 sector height 2.0 -> v3 sector has no vertical limit (F8), none
         # v2 knockback 1.6 was a no-op in v1 (CONVERT-V1-NOOP); not ported, per v1 behaviour
         - id: strike
           op: hit
           anchor: caster.eye
-          shape: {kind: sector, deg: "${arc_deg}", range: "${range}"}
+          at: 0
+          shape: {sector: {deg: "${arc_deg}", range: "${range}", height: 2.0, forward: look}}
           targets: enemies
+          max_count: all       # GAP(Q1): max_count spelling (A required int|all / B omit) is a founder question; v2 had no cap
+          window: once
+          ignore_invulnerability: false
           damage: {physical: "${dmg_physical}"}
+          on:
+            hit:
+              - {id: snd_hit, op: sound, sound: "astera:weapons/blade-hit", anchor: contact, volume: 0.7, pitch: 1.2}
+              - {id: spark, op: emit, effect: hit-spark, anchor: contact}
     done: {final: true}

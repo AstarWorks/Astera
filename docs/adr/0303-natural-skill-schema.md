@@ -33,6 +33,15 @@ duration-0 write, `steps(n)` removed (3.2, 3.4, 3.7, 4); stick window (3.6); the
 dump grammar additions (11.3). 2026-10-29 founder decision (F8, option B): the hit `sector` gets a required `height` (10.1b), so a sector hits only within
 ±height/2 of the origin's vertical position; an absent `height` is a load error (rejected `r11-sector-without-height.yaml`). Status stays Proposed.
 
+**rev4.3 (2026-10-29, wave 2 resolutions `design/wave2-resolutions.md` R1-R41, List D)**: world ops `break_area` / `place_shape` / `explode` / `lightning`
+(10.1c); hit / damage / impulse / dash rewritten, new `cleanse`, `consume_item`, `consume_status`, `freeze`, `camera_shake`, `stop_sound`, `body`; `counter`,
+`caster_anim`, `place` removed (10.1b); anchor `{of, offset, sweep}`, `caster.look`, `contact` frame, frame `axes`, `flipbook`, sprite / text `see_through`
+and `color`, `keys.alpha` / `keys.color`, particle `shift` (1, 1.1, 2.1, 2.2, 3.4); random streams `draw` / `roll` / `rand(name, k)` and `RandomInTiming`
+(3.5); projectile `expire` (3.6); `lock.move: walk | all` (10.6); `NestedStartMissing`, `StartNamesChild`, indexed-list length, Patch path checks (10.4);
+rig `of` and `reset` (10.5); dump `world` rows and event names (11.3); Patch documents, envelope keys, input events and the port list (13, 14).
+Founder questions Q1-Q7 are OPEN: every spot that depends on one carries a "pending founder Qn" note with both options and chooses neither (list under
+"Open decisions"). Examples c, e, g updated; `rejected/r12`-`r14` added. Status stays Proposed (edited in place by the manager's authorisation).
+
 **Partially supersedes [[adr/0301-skill-engine-v2-frame-tree]]** (0301's body is not edited). Map:
 
 | 0301 item | Fate |
@@ -122,6 +131,12 @@ anchors:
 | `offset` | name-keyed map in the PARENT's axes. |
 | `turn` | list of `{axis, deg}` relative to the parent basis, applied in list order. |
 | `mode` | `follow` (default): origin and axes re-read from the parent at every send. `snapshot`: pose copied once at activation, parent becomes `world`. |
+| `of`, `offset`, `sweep` | every `anchor:` reference may be the map `{of: <anchor>, offset: {...}, sweep: <blocks>}` instead of a bare id: `of` is the parent, `offset` is in its axes, `sweep` spaces one call per that many blocks of the anchor's travel since the last send (R-anchor; a particle or ribbon only). |
+| `caster.look` | feet origin, axes = yaw (left, forward) and PITCH (forward tilts, up follows). `caster` keeps the yaw-only basis; `caster.eye` is the eye origin. |
+| `contact` frame | origin = `contact.point`; up = `contact.normal` (an entity hit: world up); forward = the caster's yaw forward made orthogonal to up. Created when the event fires. |
+| `axes` | on a frame: `caster | victim | world`, which parent's axes the frame's offset map reads (R23). |
+| `victim.*` | `victim.root` (feet), `victim.head`, and the body anchor. **Pending founder Q2** (`victim.body` height): (A) `victim.body` = the live hitbox centre (0.9 for a standing player); (B) a fixed `victim.chest` at feet + 0.8. Not chosen. |
+| document anchors | declared in `anchors:` they exist from tick 0; a later pose is a `frame` row with `mode: snapshot` (R29). |
 | `mount` | `caster`: only on `follow` anchors whose chain is rooted at the caster (RC2). Objects on it become real passengers of the caster entity; their pose is `translation + left_rotation` relative to the caster, the client moves them with the player. Without `mount` a rooted object is world-teleported with `teleport_duration` = segment length. The engine re-sends a mounted object only on a segment boundary or when the caster heading drifts more than 3 degrees from the last send (never per tick). The passenger attachment height is ONE calibrated engine constant, printed by `expand`; v1 `VfxPlayer` (d41b82f1e, ADR-0276) is the reference behaviour. |
 
 #### 1.1 Frames are spawned at runtime (first-class objects)
@@ -176,7 +191,7 @@ gameplay ops (`hit`, `damage`, `status`, `impulse`, `knockback`, `projectile`). 
 
 | field | meaning |
 |---|---|
-| `at` | start: a tick (since cast start, or since the event inside a handler) or an event, with optional offset: `at: 8`, `at: release`, `at: "release+2"`. Inherited from the enclosing timeline group, overridable per op. |
+| `at` | start: a tick (since cast start, or since the event inside a handler) or an event, with optional offset: `at: 8`, `at: input.release`, `at: "input.release+2"`. Inherited from the enclosing timeline group, overridable per op. |
 | `for` | duration in ticks of the op's window; `for: cast` = until the cast ends. **Extended kinds** (display, ribbon) without `every`: the instance lives `for` ticks. **Point kinds** (particle, sound, hit, damage) with `every`: the window in which they repeat. |
 | `every` | repeat period in ticks: occurrences at `at + k * every` (exact multiples, k = 0, 1, ...) inside the window. Absent = one occurrence. May be a range with an `ease` (3.7.1): `every: {from, to, ease}`, fire ticks computed statically. |
 | `times` | number of occurrences (with `every`); exclusive with `for`; on a non-repeating op, `times: N` = N simultaneous instances (an indexed family, 1.1). |
@@ -197,8 +212,10 @@ The shipped grammar (`load/grammar/Timing.kt`, `TimingSpec`) enforces the field 
 - **Family or repeater, never both.** `times` without `every` = a family of N simultaneous instances (`id[i]`, 1.1); `times` with `every` = N
   occurrences in time. An op that must be both (three blades that pulse) is a group with `every` whose `do` holds the family op: the copy index is `i`,
   the occurrence index `parent.i` (2.0a). The two lowerings are distinct and the table names them (`blade[2]` vs `pulse[2]/blade[1]`).
-- Examples of the same grammar on different kinds: sound `{at: 4, every: 4, until: release}`; particle `{at: 7, every: 1, for: 7}`; display
-  `{at: 7, for: 5}`; trail ribbon `{at: 4, until: release}`; multi-hit `{op: hit, at: 8, every: 2, times: 3}`; damage over time
+- **`times` without `every` = same tick** (N simultaneous occurrences). **Per-index lists (R28)**: a field that varies per copy may be a list with EXACTLY `n`
+  entries (`count: [2, 3, 5]` with `times: 3`); a list of the wrong length is a load error (`SkillDecodeError.Invalid`, `IndexedListLength`).
+- Examples of the same grammar on different kinds: sound `{at: 4, every: 4, until: input.release}`; particle `{at: 7, every: 1, for: 7}`; display
+  `{at: 7, for: 5}`; trail ribbon `{at: 4, until: input.release}`; multi-hit `{op: hit, at: 8, every: 2, times: 3}`; damage over time
   `{op: damage, at: 0, every: 10, for: 60}`. Each occurrence of a gameplay op sees its own `i`.
 
 #### 2.0a Timing groups nest: any op under any group, any depth (T9, C1)
@@ -280,6 +297,10 @@ Every field is a vanilla field. Defaults are vanilla defaults.
 `kind: block` has `block: minecraft:white_concrete` instead of `item`/`context`. `kind: text` has `text`, `background`, `alignment`, `line_width`,
 `text_opacity`, `see_through`, `shadow`.
 
+Additions (rev4.3): `sprite` takes `flipbook: {frames: [...], every, loop}` (R23; `frames` are sprite ids, advanced every `every` ticks, `loop` true or false);
+sprite and text take `see_through` and `color` (R33, an ARGB hex). `keys.alpha` / `keys.color` (3.3) write the display's colour channel with ONE `Set`
+write per tick. A flat translucent quad is `{kind: sprite, sprite: quad, size: [1, 1], color: "#d9ff3b2f"}`, where `quad` is a 1x1 white glyph in `content/sprites/`.
+
 **Sprites (`kind: sprite`) are text-display glyphs with a REAL size (no hidden x5).** A sprite file `content/sprites/<id>.yaml` declares
 `px: [w, h]` and the loader derives the natural quad size `px x 0.025` blocks, plus the quad centre. The vanilla scale unit for a sprite is
 **1 = natural size**. **Decision (SKL-16, recommendation taken): the author writes `size: [w, h]` in BLOCKS**, because "0.4 x 0.3 blocks"
@@ -307,6 +328,7 @@ overload: `count: 1`, `offset: [0, 0, 0]`, `extra: 0`.
 | `color`, `size` | `Particle.DustOptions` (color, size) |
 | `block`, `item` | `BlockData` / `ItemStack` data |
 | `at`, `for`, `every`, `times`, `until` | the timing block of 2.0 (`every: 1` for a trail); not particle arguments |
+| `shift` | per-copy offset vector (an offsetVec in the anchor's axes), class S; may read `i`, `n`, `parent.i`, `draw`, `roll`. A ring is `shift: {left: "= 2 * cos(i * 6.2832 / n)", forward: "= 2 * sin(i * 6.2832 / n)"}` with `times: n`; a jagged line is `shift` with `= (roll(1) - 0.5) * 0.3` jitter per copy (R10). |
 
 Deleted: `dir`, `spread_deg`, `speed` (the 0.3 sphere), `inherit_velocity`, `seed`, "count as repeat" and the `vanilla` flag. A custom particle
 definition is a separate op, `{op: particle_def, def: couture-s2-p-pink, anchor: ...}` with the same timing block, never an overload of `particle`. The server-side per-call count cap
@@ -400,6 +422,8 @@ A law acts on a **property**, named by `prop`. Defaults per kind are in the tabl
 - `move`: `dir` or `velocity`, and `speed`. It has no `accel`, `gravity` or `drag` (those are projectile fields, 3.6).
 - `orbit`: `center` is a literal point `{forward, up, left}` in the object's anchor basis; the radius is the distance from the offset at law start to
   `center` (static, C1). To orbit another object, anchor on it and write `center: {forward: 0}`.
+- `shift` (position, per copy): on any kind that has `times`, `shift: <offsetVec>` adds a per-copy offset in the anchor's axes. Class S; may read `i`, `n`,
+  `parent.i`, `draw`, `roll` (3.5). It composes with `offset` and laws like another position term and is resolved at compile (rows in 11.3 show the final offset).
 - `fade` is lowered to one `set <field>=<value>` row per tick (`text_opacity` on a text or sprite display; it folds into `count` on a particle and
   `volume` on a sound). There is no `alpha` on a `Key`: a key is a Transformation write.
 
@@ -425,13 +449,19 @@ Every numeric or vector field of every op, law and key accepts `"= <CEL>"` (0301
 | `i`, `n` | repeat index of `every` (0-based), and the occurrence count (see 2.0) |
 | `ease(name, u)`, `lerp(a, b, k)`, `slerp(qa, qb, k)` | easing and interpolation functions (3.7); `ease` takes any easing name as a string |
 | `rand()` | seeded, deterministic uniform [0,1): seed = (cast id, op id, i, call-site order), so replays and the game-sim are identical |
+| `draw`, `roll`, `rand(stream, k)` | named deterministic streams (R11), all class S. `draw` / `draw(name)` is one value per (cast, name), shared by every row that reads it (a skill-wide random pick); `roll` / `roll(k)` is one value per (cast, tick, row), fresh at each occurrence; `rand(name, k)` is the k-th value of stream `name` for this cast. Replay-identical like `rand()`. |
+| `event.victim`, `event.i` | inside a handler: the entity or victim that caused the event, and the event index (bounce count, pierce index). |
+| `contact.*` | in `hit.damage` and `hit.on` expressions: `contact.point`, `contact.normal`, `contact.victim`. |
+| `stacks(entity, status)`, `velocity(anchor)` | live-class functions (L): current stack count of a status on an entity; the anchor's velocity in world axes. |
 | `forward`, `left`, `up`, `long`, `edge`, `face` | the object's axes as WORLD vectors (anchor axes first, then item part axes) |
 | `caster`, `target`, `contact` | positions with `.pos`, `.forward`, `.eye`; `contact.normal`, `contact.point`; `target` is the victim or aim target |
 | `row.<name>` | the current `each:` row; `${param}` for params; `anchor.<id>` for any anchor |
 
 **Classification is a definition, not a heuristic.** An expression is T iff it reads `t`, `lt`, `cast.t` or `state.t`; L iff it calls a frame
 function (`pos vel speed axis forward up left right dist dist_xz in_cone behind hp_ratio`) on `caster` / `target` / `victim` / `enemy` or an anchor of
-basis L, or a world function (`aim_point look_dir nearest_enemy_dist enemy_in_cone counter`); S otherwise. Snapshot versus live is syntax: an
+basis L, or a world function (`aim_point look_dir nearest_enemy_dist enemy_in_cone`) or `stacks` / `velocity`; S otherwise. The world function `counter` is removed (the `counter` op is gone, 10.1b).
+`draw`, `roll` and `rand(name, k)` are class S. **`RandomInTiming` (extends check 9, 10.4 / 11.4):** `rand`, `roll` or `draw` in `at`, `for`, `every`,
+`times`, `until`, `lasts` or a transition `then` is a load error; in an op `when` (and in any value field) it is allowed (C4d; rejected `r12`). Snapshot versus live is syntax: an
 identifier (`caster.pos`, `contact.normal`) is read ONCE at occurrence start (S, C4c); a call (`pos(caster)`) is live (L). An unknown function is a
 load error (`BadExpr`), never silently S.
 
@@ -482,7 +512,7 @@ field below is required unless marked identity; no field has a hidden default (`
 | `radius`, `hit` | the hit capsule and victim rule. `hit.targets`: `enemies` / `allies` / `all` / `blocks_only`; `hit.once`; `hit.times` (pierce count, required when `once: false`). Collision is **swept**: each tick the engine tests the capsule swept from the previous body position to the current one, so a fast body never tunnels and there is no substep count field (RTM's `repeat`/`maxRepeat` are not imported). The contact point is the first point of the sweep that hits. |
 | `motion` | laws on the body frame (3). `spin` here is a frozen-axis rotation of the body basis; displays `anchor: ball` ride it (one segment write for a constant spin). `align: {axis: forward, to: velocity}` keeps the nose on the path through bounces (one write per bounce). |
 | `block` | `mode` required: `despawn` (events `end`), `stick` (`for` ticks stuck, which extends the flight end window to `[1, for + block.for]`; events `stick`, `unstick`, `end`), `bounce` (`restitution` required, `times` required = max bounces; events `bounce` with `event.i`, `end` after the last or at `range`/`for`), `pass` (no block events; `range`/`for` end it). |
-| `on` | handlers keyed by event: `hit`, `bounce`, `stick`, `unstick`, `block` (any block contact, before the mode's own event), `end`. Each value is a `do` list; `at: 0` = the event tick; `contact`, `target` / `event.victim`, `event.i` are bound inside. `end` fires exactly once per body, after every other event, also on cancel. On one tick the order is fixed: body motion, swept collision, then the events in the order `hit` (per victim, declaration order), `block`, the mode's event (`bounce` / `stick` / `end`), and their `@0` handler rows in that same order (10.2a). **Handler sub-tables are owned by the occurrence (the cast), not by the body**: an `on: hit` explosion keeps running after the body despawns; `contact` and the body's last pose are **snapshots** taken at the event tick (example j: `frames: {origin: ball}` in `on: end` is the last pose). A handler list may hold groups, displays, `use:` parts, `use: skill:` calls and gameplay ops; it is compiled to a sub-table (C3). |
+| `on` | handlers keyed by event: `hit`, `bounce`, `stick`, `unstick`, `block` (any block contact, before the mode's own event), `expire`, `end`. `expire` fires just before `end`, ONLY when the body ends naturally by `range` or `for` (not on a hit, a block mode end or cancel). Each value is a `do` list; `at: 0` = the event tick; `contact`, `target` / `event.victim`, `event.i` are bound inside. `end` fires exactly once per body, after every other event, also on cancel. On one tick the order is fixed: body motion, swept collision, then the events in the order `hit` (per victim, declaration order), `block`, the mode's event (`bounce` / `stick` / `end`), and their `@0` handler rows in that same order (10.2a). **Handler sub-tables are owned by the occurrence (the cast), not by the body**: an `on: hit` explosion keeps running after the body despawns; `contact` and the body's last pose are **snapshots** taken at the event tick (example j: `frames: {origin: ball}` in `on: end` is the last pose). A handler list may hold groups, displays, `use:` parts, `use: skill:` calls and gameplay ops; it is compiled to a sub-table (C3). |
 | trail (C5) | there is **no `onTick` op**. A trail is a rider: `{op: particle, anchor: ball, every: 1, until: ball.end}` or a `ribbon` on the body frame. It is a static row set, the body position is its only L value. |
 | `frame` | optional: drive an already spawned frame (1.1) instead of creating one (`times: N` on the projectile makes N bodies `ball[i]`). |
 
@@ -610,7 +640,7 @@ bound (`for`, `times`, or `until`) on any repeating op; a skill without it fails
 
 ```yaml
 for: 24                      # n ticks after the start
-until: release               # first time the event fires
+until: input.release               # first time the event fires
 for: cast                    # explicit: until the cast ends (cancel, death, disconnect and unload count as the end)
 ```
 
@@ -693,7 +723,8 @@ Full examples are in `docs/adr/0303-examples/`:
   `r5-live-timing-no-bound.yaml` (L-class `for` without `bound`), `r6-hidden-default.yaml` (projectile `block: {mode: bounce}` without `times`),
   `r7-unknown-condition.yaml` (`when: cond:nope`), `r8-group-every-no-lasts.yaml` (repeating group with a display child and no `lasts`),
   `r9-every-for-and-times.yaml` (`every` with both `for` and `times`), `r10-hit-bare-damage.yaml` (`hit` with `damage: 12`, no kind),
-  `r11-sector-without-height.yaml` (`hit` with `sector: {deg, range}` and no `height`).
+  `r11-sector-without-height.yaml` (`hit` with `sector: {deg, range}` and no `height`), `r12-rand-in-timing.yaml` (`roll` in `every`, `RandomInTiming`),
+  `r13-dash-flag-missing.yaml` (`dash` without `invulnerable`), `r14-start-names-child.yaml` (`machine.start: p/c`, `StartNamesChild`).
 
 Sizes in the examples are illustrative (the sprite files decide them); shapes, rates and timings are taken from the current v1 files. **Every
 example under `0303-examples/*.yaml` loads, expands and plays exactly to the table in its comments (A1, A2); every `rejected/*.yaml` fails with
@@ -765,6 +796,7 @@ machine: { ... }                                 # a part IS an automaton (secti
 
 | topic | rule |
 |---|---|
+| `with:` shape (R37) | an op field is always its own map: `damage: {physical: 24}`. A scalar `damage: 24` is only a PART ARGUMENT (`with: {damage: 24}`) that the part body splices into its own map (`damage: {physical: "= damage"}`); a bare scalar on an op is a load error (rejected `r10`). |
 | Arguments | typed; a missing required argument or a type mismatch is a load error. Any argument may be CEL (3.5); its class (S, T, L) is judged in the CALLER and fixed at the call, so `with: {window: "= 20 + i"}` is evaluated per call. There is no argument with a hidden default (2.0b). |
 | Timing | a call carries the ordinary timing block (2.0): `at`, `for`, `until`, `every`, `times`. Repeating `use:` is a part call per occurrence. |
 | Scope of time | **`t` inside a part is local** (0 at the part's start; `lt` is local to the current state). The caller's clock is `parent.t`, the caster's `cast.t`. `i`, `n` are the part's own occurrence index and count. |
@@ -816,7 +848,7 @@ machine:
 | state | named; has `enter`, `do`, `exit`, `on`, `for`, `then`, optional `final: true`, optional nested `machine:` (sub-automaton) |
 | transition | `{event or timer, when?, to, do?}`; `when` is a pure CEL guard; `do` are the effects run between exit and entry (in order: exit of source, transition `do`, entry of target) |
 | timer | `for: N` + `then:` on a state, or `{after: N, to: ...}` as a transition; `N` may be CEL (class S at state entry) |
-| event | `input.<key>` (use, attack, sneak, swap), `hit` (the caster dealt damage), `hurt` (the caster is struck; was `incoming_hit`), `contact`, `block`, `bounce`, `stick`, `unstick`, `cancel`, `end`, plus any `emits` of a bound part (`<call>.<event>`), a projectile's events (`<id>.hit`, `<id>.bounce`, `<id>.end`, 3.6), a group's scoped events (`<group>.<event>` with `event.i`, 2.0a) and `emit: <name>` ops. Every event handler body is a compiled sub-table (C3). |
+| event | `input.<key>` (`use`, `attack`, `sneak`, `swap`, `release`; see 14.1), `hit` (the caster dealt damage), `hurt` (the caster is struck; was `incoming_hit`), `contact`, `block`, `bounce`, `stick`, `unstick`, `cancel`, `end`, plus any `emits` of a bound part (`<call>.<event>`), a projectile's events (`<id>.hit`, `<id>.bounce`, `<id>.end`, 3.6), a group's scoped events (`<group>.<event>` with `event.i`, 2.0a) and `emit: <name>` ops. Every event handler body is a compiled sub-table (C3). |
 | entry / exit action | an ordinary op: display, sound, particle, `use`, `damage`, `status`, `impulse`, `resource`, `emit` |
 | owner | every op listed under a state is OWNED by it: displays, ribbons, sounds, parts end when the state is exited (a tighter `for`/`until` of its own may end it earlier). There is no `remove` needed for ownership. A global `world:` list owns things for the whole machine. |
 | final | a state with `final: true`; entering it ends the machine (and emits `end` to the parent) |
@@ -830,15 +862,40 @@ All take the timing block (2.0); their own fields keep the 0301 meaning. `YAML` 
 
 | op | fields |
 |---|---|
-| `hit` | `anchor` (one frame, required; `caster` for body sectors), `shape` (one of `sector: {deg, range, height}`, `sphere: <radius>`, `capsule: <radius>` with the frames' `from`/`to`; points are in the anchor frame), `targets` (`enemies` \| `allies`, required), `damage: {kind: amount}` (a map; a bare number is a load error), `window` (required iff the hit repeats with `every`: `once` or `{every: N}`; forbidden on a single firing). A sector is a sphere wedge: points within `range` whose horizontal angle to the anchor's forward is at most `deg/2`, and whose vertical offset from the origin is within ±`height/2`. All three fields (`deg`, `range`, `height`) are required; an absent `height` is a load error. |
-| `damage` | `target` (`caster`, `event.victim`, `event.attacker`, or an area `{kind: enemies\|allies, around: <frame>, radius, max_count, include_self}`, all area fields required), `components: [{kind, amount}]`, `ignore_invulnerability?` (false = vanilla identity). No `chance` field anywhere: write `when: "= rand() < 0.3"` (class S). |
+| `hit` | `anchor` (one frame, required; `caster` for body sectors), `shape` (one of `sector: {deg, range, height, forward}`, `sphere: <radius>`, `capsule: <radius>` with the frames' `from`/`to`; points are in the anchor frame), `targets` (`enemies` \| `allies` \| `all`, required; a FILTER over the shape's victims), `max_count`, `ignore_invulnerability` (required, true or false), `damage: {kind: amount}` (a map; a bare number is a load error), `on: {hit, miss}` (handler lists; `miss` runs once when the firing finds no victim), `window` (required iff the hit repeats with `every`: `once` or `{every: N}`; forbidden on a single firing). A sector is a sphere wedge: points within `range` whose horizontal angle to the sector's forward is at most `deg/2`, and whose vertical offset from the origin is within ±`height/2`. `deg`, `range`, `height` are required; an absent `height` is a load error. `forward: look \| yaw` (required on a sector): `look` = the anchor's pitched forward, `yaw` = its horizontal forward. Expressions in `damage` may use `stacks(victim, status)` and `contact.*` (3.5). **Pending founder Q1** (`max_count`): (A) required, an integer or `all`; (B) optional, omitted means unlimited. **Pending founder Q4** (`damage` optional): (A) `damage` may be omitted on the hit, and a handler `damage` row (`on.hit`) deals it, the v2 order; (B) `damage` is always required on the hit, accepting the order difference. Neither is chosen; the text above writes `damage` as the map when present. |
+| `damage` | `target` (`caster`, `event.victim`, `event.attacker`, or an area `{kind: enemies\|allies, around: <frame>, radius, max_count, include_self}`, all area fields required), `damage: {kind: amount}` (a map, R20; replaces `components: [{kind, amount}]`), `ignore_invulnerability?` (false = vanilla identity). No `chance` field anywhere: write `when: "= rand() < 0.3"` (class S). Area `max_count` follows the hit's pending Q1. |
 | `status` | `target`, `status`, `stacks`, `for` |
 | `modify_attribute` | `target`, `attribute`, `operation`, `amount`, `for` |
-| `impulse`, `knockback`, `heal`, `resource` | as 0301 |
-| `caster_anim` | `anim` |
-| `dash` | `speed`, `for`, `ease?` (3.7, total = speed x for; absent = constant speed), `direction?` (caster movement, as 0301 `dash_strike`; never `motion:`, the caster is not a display) |
+| `impulse` | `target`, `vector` = an offsetVec: the frame-axes map `{of, forward, up, left}`, a world map `{x, y, z}`, or a CEL vector. Subsumes the removed `propel`. |
+| `knockback`, `heal`, `resource` | as 0301 |
+| `dash` | `speed`, `for`, `ease?` (3.7, total = speed x for), and the REQUIRED flags `direction`, `follow_pitch`, `stop_on_block`, `invulnerable`, `face_movement`, plus `until` (the window mask). A missing flag is a load error (rejected `r13`). `radius` and `stop_before_target` are dropped: the corridor is a sibling `hit` with `window: once` whose shape is swept along the path. Caster movement only; never `motion:`, the caster is not a display. |
 | `reel` | `anchor`, `to`, `speed`, `ease?` (as 0301 `reel`) |
+| `cleanse` | `target`, `negative_only` (true removes only harmful statuses) |
+| `consume_item` | `target`, `item`, `count` (fails the cast branch via `miss` semantics of the surrounding transition guard; checked with `has_item(...)` in a `when`) |
+| `consume_status` | `target`, `status` (removes the status and yields its stack count as `event.i` to the next row of the same tick) |
+| `freeze` | `ticks`, `scope` (`caster` or `all`): hit-stop; the named entities' motion and animation pause for `ticks` |
+| `camera_shake` | `target`, `intensity`, `for`, `direction: from_hit \| none` |
+| `stop_sound` | `target`, `sound` (stops a sound started by `sound` with a long `for`) |
+| `body` | `anim`, `speed`, `for \| until`: plays a caster body clip (replaces `caster_anim`; port `playBodyClip` / `stopBodyClip`, 14.2) |
 | `emit` | `name` (an event for transitions) |
+| removed | `counter` (and the `counter` world function), `caster_anim` (now `body`), `place` (now `place_shape`, 10.1c) |
+| `screen_flash`, `screen_veil` | **Pending founder Q7**: (A) revive both as presentation ops (full-screen tint / vignette on the target); (B) drop them (use a `sprite` display with `billboard: center` and a short `fade`). Not chosen; neither is in the op list until decided. |
+
+#### 10.1c World ops
+
+World ops edit blocks or the world; they take the timing block and are owned by the cast, so `revert` and cancel undo them. One table row per op: the
+compile emits ONE `world` row (11.3) and the gateway spreads the per-cell strikes over `ripple` ticks (`1 + k * ripple / cells`, so the work is not all on one tick).
+Cancel runs `revertAll` for the cast's `Action.World` rows.
+
+| op | fields |
+|---|---|
+| `break_area` | `shape` one of `sphere: {radius, ahead}`, `line: {length, width}`, `box: {width, height, length}`; `tool` (`axe` \| `pickaxe` \| `shovel` \| `none`: which blocks break and which drops apply); `block_damage` (0..2000); `ripple` (ticks to spread the cells over); `revert` (1..6000 ticks until the blocks are restored); `outside_arena` (true allows breaking beyond the arena bound) |
+| `place_shape` | `shape` one of `wall: {width, height}`, `bridge: {length, width}`, `pillar: {height}`, `platform: {width, length}`; `block` (the block id placed); `consume` (an item id, or `none`); `ripple`; `revert` (1..6000); `outside_arena` |
+| `explode` | `power`, `break_blocks`, `fire`: a vanilla `createExplosion` only. A damaging area is a SEPARATE `damage` op (keeps damage in the damage grammar) |
+| `lightning` | `visual_only` true (effect, no damage, no fire) or false (a real strike) |
+
+Rules: a WorldAim is axis-snapped (the look is snapped to its dominant horizontal axis, so a wall or bridge is always aligned to the grid); a shape is capped at 512 cells
+(a bigger shape is a load error); a `line` steps 0.5 blocks; a `wall` is placed 2 blocks ahead, a `bridge` at feet - 1. `revert` and `ripple` are required (no hidden default).
 
 #### 10.2 Hierarchy and event flow (Harel)
 
@@ -901,11 +958,18 @@ or by scheduler count (RTM lesson).
 5. **Events**: every `on: {event}` names an event that exists (built-in, a declared `emits`, or an `emit:`), and every name in `emits` is emitted by the declaring machine (an `emit:` row or an inlined part of it; otherwise `MachineCheck(5)`: `emits '<e>' is declared but never emitted`).
 6. **Parts**: the call graph is acyclic and its depth (nested calls, skill -> part = 1) is at most `max_part_depth` (`MachineCheck(6)` when `depth > max_part_depth`); arguments match their declared types; every `frames_in` is bound.
 7. **Effects**: gameplay ops appear only where 10.1 allows; every `damage` is reachable through at least one transition (no dead damage).
+8. **Rev4.3 additions** (all load errors): a `dash` missing any required flag (`SkillDecodeError.Invalid`, `r13`); a state with `states:` and no `start`
+   (`NestedStartMissing`); `machine.start` naming a child `p/c` (`StartNamesChild`, R36, `r14`; `machine.start` names a top-level state only); a per-index list whose
+   length is not `n` (`IndexedListLength`, 2.0); `rand`/`roll`/`draw` in a timing field or a transition `then` (`RandomInTiming`, `r12`); a Patch `path` that
+   does not resolve to a row (13).
 
 #### 10.5 Presentation stays mathematical
 
 States do not change the visual grammar: displays use frames + laws + CEL (sections 1-3, 3.5). A state's visuals are written against bound frames
 (`weapon.tip`, `body`), with `t` / `lt` as the clock; the automaton only decides WHEN a display lives and WHICH set is active.
+
+Rig additions (rev4.3): a rig takes `of: <frame id>` (the frame the rig drives; identity: the held item, and block displays follow it) and a `reset: true`
+step, a duration-0 write of the rest pose (R30; `MAX_STEP_DEG` is unchanged). `part` and `edge` are rig-step FIELDS, not events.
 
 #### 10.6 `lock` and `cancel` (L2, L4)
 
@@ -913,15 +977,15 @@ States do not change the visual grammar: displays use frames + laws + CEL (secti
 window ends it, 5).
 
 ```yaml
-- {id: plant, op: lock, move: true, pitch: true, at: 0, for: 12}
+- {id: plant, op: lock, move: walk, pitch: true, at: 0, for: 12}
 ```
 
 | field | meaning |
 |---|---|
-| `move` | `true`: the caster cannot walk / jump (velocity zeroed each tick, as v2 `lock`). Identity `false`. |
+| `move` | `none` \| `walk` \| `all` (R32). Identity `none`. `walk` zeroes the walk speed and leaves jumping free; `all` blocks walking and jumping. Example: `{op: lock, at: 0, for: 20, move: walk}`. |
 | `pitch` | `true`: the caster's look **pitch is held at its value at the op's first tick** for the window (the yaw stays free; the server re-sends the held pitch when the client drifts more than 1 degree, which is the only mechanism Paper offers). Identity `false`. A `pitch` lock makes `caster.eye` an S-class basis for the window (3.5), which is why a thrust whose hit capsule follows `caster.eye` becomes a straight line. |
 | `yaw` | `true`: as `pitch`, for yaw. Identity `false`. |
-| timing | `at` / `for` / `until`; `for` or `until` is required (5). At least one of `move` / `pitch` / `yaw` must be `true` (a no-op lock is a load error). Two locks overlapping on the same field are one lock until the later end. The lock ends early when its owning state exits or the cast is cancelled. |
+| timing | `at` / `for` / `until`; `for` or `until` is required (5). At least one of `move` (not `none`) / `pitch` / `yaw` must be set (a no-op lock is a load error). Two locks overlapping on the same field are one lock until the later end. The lock ends early when its owning state exits or the cast is cancelled. |
 
 **`cancel`** ends something early, running its exit actions. Interrupt = an ordinary transition (on `hurt`, `input.*`, a `cond:`) whose target state
 runs `cancel`, so there is no separate interrupt mechanism.
@@ -1021,12 +1085,13 @@ writes: <display id>: <segments> seg, max <w>/tick
 
 Row `<action>` vocabulary (one per gateway call or table transition): `spawn <kind> anchor=<id> pose={...}`, `key <display> dur=<d> T={translation,
 left, scale}`, `teleport <display> dur=<d> pos=<L:anchor>`, `particle <type> count= offset= extra= pos=<L:anchor>`, `sound <id> vol= pitch= pos=`,
-`hit <shape> anchor= targets=`, `damage targets=<L:victims> amount=`, `status ...`, `impulse ...`, `lock move=? pitch=?`, `call <part|skill> as <call id> with={...}
+`hit <shape> anchor= targets= max_count= ignore_invulnerability=`, `damage targets=<L:victims> amount=`, `status ...`, `impulse ...`, `world <break_area|place_shape|explode|lightning> shape= ripple= revert=` (one row per op, 10.1c), `lock move=<none|walk|all> pitch=? yaw=?`, `call <part|skill> as <call id> with={...}
 frames={...}`, `emit <event>`, `end <id>`, `cancel <scope>`. An L value is printed as `<L:name bound=[lo,hi]>`; an S/T value is printed evaluated. A candidate row under an `until` carries the suffix
 `mask until <a>, <b>` (the events, 2.0); a row guarded by a class L `when` on a point gameplay op carries `when <expr>`; a class S `when` that is false prints `# when false: <id>` so nothing is silent. The JSON form adds `src` (the YAML path of the op, `machine.states.cast.do[0].do[1]`) to every row for error messages and
 the skill-compare page; the text form omits it so the `# expand:` blocks stay readable (rev4.1).
-Event names (`EventPath.value`, built on the instance id text): `<instance>.hit|block|bounce|contact|end|expire|stick|unstick`, `<callId>.<name>` (an
-`emit` inside a call), `<state>.end` (a nested machine is final), and the globals `cancel`, `hurt`, `input`. Events are offered innermost level first;
+Event names (R35, `EventPath.value`, built on the instance id text): `input.*`, `hit`, `hurt`, `contact`, `block`, `bounce`, `stick`, `unstick`, `cancel`, `end`,
+`expire`, `<instance>.{hit,miss,block,bounce,contact,stick,unstick,expire,end}`, `<group>.<event>`, `<call>.<event>` (an `emit` inside a call), `emit:<name>`, `<state>.end`
+(a nested machine is final). Events are offered innermost level first;
 a handled event is consumed, an unhandled one bubbles to the parent the same tick. One transition per level per tick; branches in declaration order,
 first match wins.
 
@@ -1046,7 +1111,8 @@ the skill-compare page.
 
 9. **No runtime timing**: a timing field (2.0 fields, law windows, state `for`, transition `after`, projectile `range`/`for`, `lasts`) that references
    `rand()`, `t`/`lt`, a caster stat, or any L-class value, bounded or not, is a load error (`SkillDecodeError.RuntimeTiming`). A `{expr, bound}` form on a
-   timing field is the same error (rev4.1).
+   timing field is the same error (rev4.1). Rev4.3: `rand`, `roll`, `draw` and `rand(name, k)` in a timing field or a transition `then` is `RandomInTiming`
+   (3.5; allowed in an op `when`).
 10. **Live display cap**: the maximum number of displays alive at one tick on any path (sum over states of owned extended instances x their bounds)
     must not exceed `max_live_displays` (server config, default 64); the table prints the peak and the tick.
 11. **Bounded instances**: every op's instance bound (product of enclosing group bounds, `times`, part call count, bounce `times`) is finite and at
@@ -1071,11 +1137,47 @@ its class, what it asserts per tick, and the fixture. Migration (wave 2) starts 
 | A5 | `MotionLawsWiredScenarioTest` cases: one per law (`spin`, `move`, `orbit`, `grow`, `fade`, `align`, `follow`, `stretch`, `keys`) plus `lawWindowAtNotFrom`, `overlappingLawsCompose`, `easeShapesTotal`, `segmentBudgetSplits`, `lawOnParticleAndSound` | per segment write: `(tick, duration, translation, left_rotation, scale)` equals the closed form at the segment end; rotation composed outer-to-inner; eased spin total `deg_per_tick * for`; `from` on a law = `SkillDecodeError.UnknownKey`; a particle occurrence train samples the law per occurrence | examples a, d, i; inline YAML |
 | A6 | `ProjectileScenarioTest` cases: `rangeEnds`, `forEnds`, `speedRampPathIsExactIntegral`, `spinAboutForwardOneWrite`, `trailRidesBody`, `bounceHandlerCarriesIndex`, `stickUnstickEvents`, `despawnEnd`, `passNoBlockEvents`, `hitOnceEndsFlight`, `hitPierceTimes`, `onEndSubSkillWithParams`, `onHitSubSkillWithParams`, `endFiresOnCancel`, `blockModeFieldsRequired`, `sweptCollisionNoTunnel`, `hitBlockModeEventOrderOneTick`, `handlerOutlivesBodyWithSnapshotFrame` | per tick body position (world) against the integrated speed ramp within 0.001; the `end` tick inside the printed `[min, max]`; the `on:` sub-tables pasted at the event tick with `event.i`, `contact`, `target` bound; the called skill receives the `with:` values; a missing `times` on bounce = `MissingField` | examples b, f, j |
 | A7 | `PartMachineWiredScenarioTest` cases: `statesForThenTimer`, `transitionOrderFirstMatch`, `eventBubblesChildToParent`, `preemptionExitsChildrenInnermostFirst`, `parallelRegionsEndWhenAllFinal`, `ownedInstancesEndOnExit`, `lockMovePitchWindow`, `cancelCastEmitsCancelThenEnd`, `cancelStateTakesThen`, `cancelInstanceFiresEnd`, `namedConditionGuard`, `machineLintChecks1to8`, `exitReasonGuardOmitsRowFromCancelSubTable`, `sameTickCascadeDepthCapIsLoadError`, `tickPhaseOrder` | the active state per tick; exit/transition/enter order of actions; display handles removed on exit; the caster pitch gateway holds the value across the lock window; event order cancel -> end; `cond:` guard values at the event tick; each of 10.4 checks 1-8 has a rejected inline YAML | examples e, g; inline YAML |
-| A8 | `StrictDecodeScenarioTest#rejectedExamplesFailWithNamedError` (one case per file) + `noHiddenDefaultsInSchema` | every `0303-examples/rejected/*.yaml` fails with the `SkillDecodeError` subtype named in its first comment line; the generated JSON schema (`Fields.jsonSchema()`) contains no `default` other than identity values listed in 2.0b; unknown keys at any depth are errors | `rejected/r1..r8` |
+| A8 | `StrictDecodeScenarioTest#rejectedExamplesFailWithNamedError` (one case per file) + `noHiddenDefaultsInSchema` | every `0303-examples/rejected/*.yaml` fails with the `SkillDecodeError` subtype named in its first comment line; the generated JSON schema (`Fields.jsonSchema()`) contains no `default` other than identity values listed in 2.0b; unknown keys at any depth are errors | `rejected/r1..r14` |
 | A9 | `ShippedV3ContentScenarioTest#everyShippedSkillLoadsExpandsAndReplays` | every `content/skills/*.yaml` and `content/skill-parts/*.yaml` loads, passes checks 1-12, dumps, and replays byte-equal to its own dump in the sim for the sample seed; the per-skill `expand` dump is stored under `build/skill-expand/` as evidence | real content |
 
 Owner of the suite harness: package W1-20 (work-breakdown); each engine package adds its cases to the named class. A9 is the gate that wave 2
 (hand-written migration) runs under: a migrated skill is "done" when it is in A9 and the founder has judged it on skill-compare.
+
+### 13. Document envelope and Patch documents (rev4.3, R35, R38)
+
+**Envelope keys (R38).** A skill document's top-level keys are exactly `apiVersion, kind, id, item, importance, meta, params, frames_in, emits, anchors, conditions, machine`;
+any other key is `SkillDecodeError.UnknownKey`. `frames_out` is a Part-document key only. There is no `presentation` key (presentation is ordinary ops in the machine, 10.5).
+
+**Patch documents (R35).** A variant of a skill is a document of `kind: Patch`, applied BEFORE compile to the target's decoded document:
+
+```yaml
+apiVersion: astera/v3
+kind: Patch
+target: couture-rapier-s2          # the skill id being patched
+variant: s2-hard                   # id of the resulting variant
+ops:
+  - {path: "machine.states.coin1.do[hit1]", $patch: merge, value: {damage: {physical: 40}}}
+  - {path: "machine.states.coin1.do[snd]",  $patch: delete}
+  - {path: "machine.states.raise.do[glow]", $patch: replace, value: {id: glow, op: display, ...}}
+```
+
+`$patch` is `delete`, `replace` or `merge`. A path addresses rows by id (`do[<id>]`), not by list position, so inserting a row elsewhere does not break the patch.
+A `path` that does not resolve to exactly one node is a load error (`PatchPathUnresolved`, 10.4 check 8). The patched document is then compiled like any other,
+so every check of 10.4 and 11.4 applies to the variant. **Pending founder Q3** (`gameplay.expose`): (A) drop the `expose` concept entirely; (B) keep a `kind: Patch`
+form for later exposure to players/config. Not chosen: the Patch grammar above is the form either option would use.
+
+### 14. Input events and ports (rev4.3, R39, R40)
+
+#### 14.1 Input events
+
+`input.use | attack | sneak | swap | release`. `release` is the use key let go. The Paper mapping: `SkillChargeStarted -> input.use`, `SkillReleased -> input.release`.
+Bare `charge` and `release` are NOT events (a load error, 10.4 check 5). `cancel` and `hurt` are the other caster-side events (10.1).
+
+#### 14.2 Ports
+
+Every port call takes `cast: CastRef(castId, caster, world)` as its first parameter, so a gateway never needs ambient state. Ports and rev4.3 additions:
+`ISkillMovementGateway` (dash, impulse, lock, freeze), `ISkillItemGateway` (`consume_item`), `ISkillWorldGateway` (the 10.1c ops, `revertAll(cast)`),
+`ISkillGameplayGateway` (adds `consumeStatus`, `cameraShake`, `stopSound`, `playBodyClip` / `stopBodyClip`). `currentWorld` is deleted (the world is `cast.world`).
 
 ## Consequences
 
@@ -1145,6 +1247,18 @@ Resolved (not founder decisions; engine facts, rev3/rev4):
 3. **Sprite authoring unit**: blocks (`size`, taken here) vs vanilla scale.
 4. `ribbon`/`trail` internals (segment count, the history sampler) are deliberately thin here and need a follow-up.
 
+**Pending founder questions Q1-Q7 (rev4.3).** Both options are written; none is chosen.
+
+| Q | topic | option A | option B | where |
+|---|---|---|---|---|
+| Q1 | `max_count` on `hit` / area `damage` | required, an integer or `all` | optional, omitted = unlimited | 10.1b |
+| Q2 | `victim.body` height | live hitbox centre (0.9 for a standing player) | fixed `victim.chest` at feet + 0.8 | 1 |
+| Q3 | `gameplay.expose` | drop it | keep a `kind: Patch` form for later exposure | 13 |
+| Q4 | hit `damage` optional | omit on the hit; a handler `damage` deals it (v2 order) | always required on the hit; accept the order difference | 10.1b |
+| Q5 | couture `absorb` (example e) | transition `absorb: true` | `modify_attribute resist.physical` | example e (also option C: a `parry {for, scale: 0}` op) |
+| Q6 | coin1 delay | handler `at: 1` | `hit` gets `damage_delay: 1` | example a / g |
+| Q7 | screen ops | revive `screen_flash` / `screen_veil` | drop them | 10.1b |
+
 ## v1 presentation parity additions (2026-10-28)
 
 Added so the converter can express v1 presentation without dropping it (each maps 1:1 to a vanilla Display / `spawnParticle` field):
@@ -1160,7 +1274,7 @@ Added so the converter can express v1 presentation without dropping it (each map
 
 ## Skin rig (SKL-17)
 
-A weapon performance is one `rig` op, not a `caster_anim` plus a static hand point. `rig` plays a skin-rig clip (`anim`) as a tree of frames: the
+A weapon performance is one `rig` op, not a `body` clip (formerly `caster_anim`) plus a static hand point. `rig` plays a skin-rig clip (`anim`) as a tree of frames: the
 body, arm and hand bones are frames carrying v1's per-tick motion; the skin displays (`spawnSkinBone`) ride them through `toDisplayWrite`; the
 weapon `mesh` is a child of the animated hand frame (hand origin = arm position + arm rotation * (grip offset + pivot), rotation = arm * tilt *
 wrist * rest, scale 0.9375). The real body is hidden under a `BODY` lease for the duration. The wrist `swing` keys are rotation vectors; the

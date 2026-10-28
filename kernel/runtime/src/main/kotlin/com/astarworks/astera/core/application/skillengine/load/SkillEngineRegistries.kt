@@ -2,6 +2,7 @@ package com.astarworks.astera.core.application.skillengine.load
 
 import com.astarworks.astera.core.application.skillengine.compose.FrameTables
 import com.astarworks.astera.core.application.skillengine.compose.PartCatalog
+import com.astarworks.astera.core.application.skillengine.compose.SpriteCatalog
 import com.astarworks.astera.core.application.skillengine.compose.SkillCompiler
 import com.astarworks.astera.core.application.skillengine.expr.cel.CelExprCompiler
 import com.astarworks.astera.core.application.skillengine.load.spec.OpSpecRegistry
@@ -21,17 +22,17 @@ public object SkillEngineRegistries {
     public fun frameTables(framesDir: Path): Pair<Map<String, ItemFrames>, List<SkillDecodeError>> =
         ItemFramesDecoder.loadDirectory(framesDir)
 
-    public fun compiler(tables: Map<String, ItemFrames>, config: EngineConfig = EngineConfig()): SkillCompiler {
+    public fun compiler(tables: Map<String, ItemFrames>, sprites: SpriteCatalog, config: EngineConfig = EngineConfig()): SkillCompiler {
         val frames = object : FrameTables {
             override fun item(item: String): ItemFrames? = tables[item]
         }
-        return SkillCompiler(OpSpecRegistry(SkillEngineSpecs.all()), CelExprCompiler(), frames, config)
+        return SkillCompiler(OpSpecRegistry(SkillEngineSpecs.all()), CelExprCompiler(), frames, config, sprites)
     }
 
-    public fun catalog(tables: Map<String, ItemFrames>, parts: Map<String, Part>, config: EngineConfig = EngineConfig()): InMemorySkillCatalog {
+    public fun catalog(tables: Map<String, ItemFrames>, parts: Map<String, Part>, sprites: SpriteCatalog, config: EngineConfig = EngineConfig()): InMemorySkillCatalog {
         val partCatalog = object : PartCatalog {
             override fun part(id: String): Part? = parts[id]
         }
-        return InMemorySkillCatalog(documentDecoder(), compiler(tables, config), partCatalog, parts.keys)
+        return InMemorySkillCatalog(documentDecoder(), compiler(tables, sprites, config), partCatalog, parts.keys)
     }
 }

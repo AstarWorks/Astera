@@ -15,7 +15,7 @@ presentation:
     - id: swing
       at: 0
       do:
-        - {id: canim, op: caster_anim, anim: bastion-s1-body}
+        - {id: canim, op: body, at: 0, anim: bastion-s1-body, speed: 1.0, for: 58}   # R41: `body` replaces `caster_anim`
         - id: sword
           op: display
           kind: item

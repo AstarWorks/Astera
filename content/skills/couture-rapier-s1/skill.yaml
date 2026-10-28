@@ -1,5 +1,5 @@
 # v3 draft (wave 2, w2-couture). Hand-ported from the v2 skill.yaml + look.yaml; per-tick values come from the v2 tracks.
-# Each linear run of a v2 track channel is one law (laws sum and hold). Grep "# GAP:" for what v3 cannot spell.
+# Each linear run of a v2 track channel is one law (laws sum and hold).
 apiVersion: astera/v3
 kind: Skill
 id: couture-rapier-s1
@@ -20,8 +20,9 @@ presentation:
       at: 2
       do:
         - id: anim
-          op: caster_anim
+          op: body
           anim: crouch
+          speed: 1.0
           for: 35
         - id: fx1_couture_passage_windup_fold_0
           op: display
@@ -131,7 +132,6 @@ presentation:
           op: frame
           anchor: caster
           mode: follow
-          # GAP: teleport_ticks 2 -> engine default
           for: 16
         - id: fx2_couture_shears_snip_1_blade_0
           op: display
@@ -620,7 +620,6 @@ presentation:
           op: frame
           anchor: caster
           mode: follow
-          # GAP: teleport_ticks 2 -> engine default
           for: 9
         - id: fx4_couture_shear_passage_passage_crescent
           op: display
@@ -633,7 +632,7 @@ presentation:
           alpha: 1
           billboard: center
           brightness: {block: 15, sky: 15}
-          # GAP: frame_ticks 2 -> none
+          flipbook: {frames: 6, every: 2, loop: false}
           for: 9
           motion:
             - {law: move, velocity: {left: 0, up: -0.033333, forward: -0.033333}, at: 0, for: 3}
@@ -652,14 +651,10 @@ machine:
       for: 14
       then: end
       enter:
-        # GAP: dash_strike stop_on_block true -> none (op dash has no block-stop flag)
-        # GAP: dash_strike follow_pitch false -> none (dash is horizontal by default?)
-        - {id: lunge, op: dash, speed: "= dash_distance / 5", for: 5}
+        - {id: lunge, op: dash, speed: "= dash_distance / 5", for: 5, until: dash_hit.hit, direction: forward, follow_pitch: false, stop_on_block: true, invulnerable: false, face_movement: false}
       do:
-        # GAP: dash_strike hit_once true / radius 0.8 -> closest: hit sphere 0.8 with window once (the v2 sweep is a moving capsule along the dash)
-        # GAP: v2 dash_strike has no sector, so no height; sphere used
-        - {id: dash_hit, op: hit, anchor: caster, targets: enemies, shape: {sphere: 0.8}, at: 0, for: 5, window: once, damage: {physical: "= dmg_physical"}}
-        # GAP: damage ignore_invulnerability true -> none on op hit
+        # v2 dash_strike radius 0.8 + hit_once: corridor sphere swept between tick positions (R9).
+        - {id: dash_hit, op: hit, anchor: caster, targets: enemies, shape: {sphere: {center: caster.body, radius: 0.8}}, at: 0, every: 1, for: 5, window: once, damage: {physical: "= dmg_physical"}, ignore_invulnerability: true}
       on:
         - event: dash_hit.hit
           do:
@@ -668,8 +663,8 @@ machine:
               do:
                 - id: fx3_couture_passage_contact
                   op: frame
-                  anchor: victim.root
-                  # GAP: anchor orient yaw at enemy (victim origin, CASTER yaw) -> victim.root snapshot (victim basis)
+                  anchor: victim
+                  axes: caster
                   mode: snapshot
                   for: 9
                 - id: fx3_couture_passage_contact_cross_0
@@ -1063,7 +1058,7 @@ machine:
                 - id: snd
                   op: sound
                   sound: entity.player.attack.strong
-                  anchor: victim.root
+                  anchor: victim
                   volume: 0.7
                   pitch: 1.1
     end: {final: true}

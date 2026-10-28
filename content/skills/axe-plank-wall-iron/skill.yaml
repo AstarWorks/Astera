@@ -24,6 +24,5 @@ machine:
       for: 1
       then: done
       enter:
-        # GAP: v2 op place_shape has no v3 OpSpec -> kept verbatim, closest v3 is none (place behaviour must stay exact)
-        - {id: wall, op: place_shape, shape: wall, block: "astera:reinforced_planks", width: 5, height: 3}
+        - {id: wall, op: place_shape, at: 0, anchor: caster, shape: {wall: {width: 5, height: 3}}, block: "astera:reinforced_planks", consume: none, ripple: 29, revert: 200, outside_arena: false}
     done: {final: true}
