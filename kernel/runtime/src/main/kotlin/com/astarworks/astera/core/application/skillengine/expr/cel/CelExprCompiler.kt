@@ -40,7 +40,7 @@ public class CelExprCompiler : ExprCompiler {
 
     override fun compile(source: String, env: ExprEnvSpec, expected: ExprType?): Result<CompiledExpr, ExprError> {
         val compiler = compilerFor(env)
-        val parsed = compiler.parse(normalise(source))
+        val parsed = compiler.parse(numberCallSites(normalise(source)))
         if (parsed.hasError()) return Result.Failure(error(parsed.errors.first(), syntax = true))
         val checked = compiler.check(parsed.ast)
         if (checked.hasError()) return Result.Failure(error(checked.errors.first(), syntax = false))
@@ -133,6 +133,17 @@ public class CelExprCompiler : ExprCompiler {
             is Quaternion -> ExprValue.Quat(o)
             is ExprValue.Ref -> o
             else -> throw ExprEvalException("unsupported expression result: $o")
+        }
+
+        private val EMPTY_RAND = Regex("""(?<![A-Za-z0-9_.])rand\s*\(\s*\)""")
+
+        /**
+         * `rand()` (ADR-0303 3.5) becomes `rand("@k")` for the k-th call site of the source, so each site is its own
+         * stream and the draws depend only on (cast, op, i, call site) through [ExprEnv.seed].
+         */
+        fun numberCallSites(source: String): String {
+            var k = 0
+            return EMPTY_RAND.replace(source) { "rand(\"@" + k++ + "\")" }
         }
 
         /**
