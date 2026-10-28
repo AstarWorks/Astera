@@ -43,11 +43,11 @@ presentation:
           target: fx3_orrery_orb_core
           space: fx3_orrery_orb
           keys:
-            - {t: 0, offset: [-0.3, 1.4, 1.95], scale: 1}
-            - {t: 14, scale: 1}
-            - {t: 16, scale: 1}
+            - {t: 0, offset: [-0.3, 1.4, 1.95], scale: [0.0264062, 0.0264062, 1.0]}
+            - {t: 14, scale: [0.158438, 0.158438, 1.0]}
+            - {t: 16, scale: [0.237656, 0.237656, 1.0]}
             - {t: 38}
-            - {t: 44, scale: 1}
+            - {t: 44, scale: [0.0, 0.0, 1.0]}
     - id: fx24
       at: 24
       do:

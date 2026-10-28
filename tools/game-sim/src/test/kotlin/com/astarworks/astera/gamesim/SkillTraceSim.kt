@@ -183,7 +183,7 @@ internal class Sim(val c: Coin2Collaborators, val catalog: SkillCatalog, val wit
             capture.update(handle.id, buildJsonObject { put("from", vecJsonOf(from)); put("to", vecJsonOf(to)) })
         override fun pushTrailPoint(handle: VisualHandle, root: Vec3, tip: Vec3) =
             capture.update(handle.id, buildJsonObject { put("root", vecJsonOf(root)); put("tip", vecJsonOf(tip)) })
-        override fun updateScale(handle: VisualHandle, scale: Double) = Unit
+        override fun updateScale(handle: VisualHandle, scale: Vec3) = Unit
         override fun remove(handle: VisualHandle) {
             capture.objects[handle.id]?.removeTick = capture.now
         }

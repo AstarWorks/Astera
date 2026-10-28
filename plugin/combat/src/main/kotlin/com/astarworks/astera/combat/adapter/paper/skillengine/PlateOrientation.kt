@@ -14,13 +14,13 @@ import kotlin.math.sqrt
  * Every function returns a quaternion for a quad whose local +X is the quad width, +Y its height and +Z its normal.
  * Pure maths, no Bukkit.
  */
-internal object PlateOrientation {
+public object PlateOrientation {
 
     /** A resolved orientation: the two full-viewer modes are left to the client billboard; otherwise FIXED + [rotation]. */
-    data class Placed(val billboard: DisplayBillboard, val rotation: Quaternion)
+    public data class Placed(val billboard: DisplayBillboard, val rotation: Quaternion)
 
     /** Pose-local axis names: `x y z`, `forward up left right`, each optionally prefixed with `-`. Unknown name = null. */
-    fun axisWorld(pose: Frame, name: String): Vec3? {
+    public fun axisWorld(pose: Frame, name: String): Vec3? {
         val negative = name.startsWith("-")
         val local = when (name.removePrefix("-")) {
             "x", "left" -> Vec3(1.0, 0.0, 0.0)
@@ -34,10 +34,10 @@ internal object PlateOrientation {
     }
 
     /** World-axis names for lines, which have no pose: `x y z`, optionally `-`. */
-    fun axisFixed(name: String): Vec3? = axisWorld(Frame(Vec3.ZERO), name)
+    public fun axisFixed(name: String): Vec3? = axisWorld(Frame(Vec3.ZERO), name)
 
     /** Plate at [pose], seen from [viewerEye] (null when nobody is near: axis plates then face the pose forward). */
-    fun forPlate(pose: Frame, face: PlateFace, viewerEye: Vec3?): Placed = when (face) {
+    public fun forPlate(pose: Frame, face: PlateFace, viewerEye: Vec3?): Placed = when (face) {
         PlateFace.ViewerCenter -> Placed(DisplayBillboard.CENTER, Quaternion.IDENTITY)
         PlateFace.ViewerVertical -> Placed(DisplayBillboard.VERTICAL, Quaternion.IDENTITY)
         is PlateFace.ViewerAxis -> {
@@ -57,7 +57,7 @@ internal object PlateOrientation {
      * Stretched line from [from] to [to]: local X runs along the line. Viewer modes turn only about the line towards the
      * viewer; a plane face lies in the plane of the line and the normal given by the two world axes.
      */
-    fun forLine(from: Vec3, to: Vec3, face: PlateFace, viewerEye: Vec3?): Quaternion {
+    public fun forLine(from: Vec3, to: Vec3, face: PlateFace, viewerEye: Vec3?): Quaternion {
         val dir = (to - from).normalize()
         if (dir.lengthSquared() == 0.0) return Quaternion.IDENTITY
         val mid = (from + to) * 0.5
@@ -74,7 +74,7 @@ internal object PlateOrientation {
     }
 
     /** Quad width = [a], height = the part of [b] perpendicular to [a], normal = x cross y. */
-    fun inPlane(a: Vec3, b: Vec3): Quaternion {
+    public fun inPlane(a: Vec3, b: Vec3): Quaternion {
         val x = a.normalize()
         val y = perpendicular(b, x)
         if (x.lengthSquared() == 0.0 || y.lengthSquared() == 0.0) return Quaternion.IDENTITY
@@ -82,7 +82,7 @@ internal object PlateOrientation {
     }
 
     /** Height = [axis], normal = the part of (eye - [at]) perpendicular to it. */
-    fun aboutAxis(at: Vec3, axis: Vec3, eye: Vec3): Quaternion {
+    public fun aboutAxis(at: Vec3, axis: Vec3, eye: Vec3): Quaternion {
         val y = axis.normalize()
         var z = perpendicular(eye - at, y)
         if (z.lengthSquared() == 0.0) z = perpendicular(Vec3(0.0, 0.0, 1.0), y)
@@ -97,7 +97,7 @@ internal object PlateOrientation {
     }
 
     /** Right-handed orthonormal basis (columns x, y, z) to a unit quaternion. */
-    fun fromBasis(x: Vec3, y: Vec3, z: Vec3): Quaternion {
+    public fun fromBasis(x: Vec3, y: Vec3, z: Vec3): Quaternion {
         val m00 = x.x; val m01 = y.x; val m02 = z.x
         val m10 = x.y; val m11 = y.y; val m12 = z.y
         val m20 = x.z; val m21 = y.z; val m22 = z.z
