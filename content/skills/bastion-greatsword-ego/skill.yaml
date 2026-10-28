@@ -117,7 +117,7 @@ machine:
             - id: fx4_slam_sword_rig
               op: rig
               of: fx4_slam_sword
-              parent: caster
+              parent: caster.body
               pivot: {left: 0.0, up: 1.4, forward: 0.3}
               rest: [{axis: left, deg: 90.0}]
               sample_ticks: 1
@@ -131,7 +131,7 @@ machine:
             - id: fx4_slam_sword_parts_rig
               op: rig
               of: fx4_slam_sword_parts
-              parent: caster
+              parent: caster.body
               hand: false
               pivot: {left: 0.0, up: 1.4, forward: 0.3}
               rest: [{axis: left, deg: 90.0}]

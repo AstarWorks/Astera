@@ -52,9 +52,10 @@ machine:
         # v2 sel_3 (damage 45, ignore_invulnerability) + sel_4 (freeze 2 + knockback) merged the same way.
         - {id: hit2, op: hit, at: 31, anchor: caster, shape: {sphere: "${radius}"}, targets: enemies, damage: {physical: "${dmg_physical_2}"}, window: once, ignore_invulnerability: true, on: {hit: [{id: stop_2, op: freeze, at: 0, ticks: 2, scope: [caster, event.victim]}, {id: kb, op: knockback, target: event.victim, direction: "= normalize(flat(pos(event.victim) - pos(caster))) + vec(0.0, 0.2, 0.0)", strength: "${knockback}"}]}}
         # --- weapon rig (v2 look.yaml group fx0, rig duration 58) ---
+        - {id: wielder, op: frame, anchor: caster, mode: follow, for: 58}
         - id: rig
           op: rig
-          parent: caster
+          parent: wielder
           anim: bastion-s1-body
           rest: [{axis: left, deg: 72}]
           sample_ticks: 1
