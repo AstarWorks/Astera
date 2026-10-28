@@ -106,8 +106,8 @@ object VanillaDump {
             val n = ribbon++
             val scale = Vec3(rq.cols[0].length(), rq.cols[1].length(), rq.cols[2].length())
             val rot = rotationOf(rq.cols[0], rq.cols[1], rq.cols[2])
-            val argb = ribbonArgb(rq.colorHex, rq.alpha)
-            lines += "{\"t\":${rq.tick},\"e\":\"spawn\",\"id\":$n,\"kind\":\"text\",\"text\":\" \",\"bg\":$argb,\"opacity\":255,\"br\":15,\"rigshade\":false,\"ribbon\":\"${rq.kind.name.lowercase()}\"}"
+            val look = if (rq.block != null) "\"kind\":\"block\",\"block\":\"${rq.block}\"" else "\"kind\":\"text\",\"text\":\" \",\"bg\":${ribbonArgb(rq.colorHex, rq.alpha)},\"opacity\":255"
+            lines += "{\"t\":${rq.tick},\"e\":\"spawn\",\"id\":$n,$look,\"br\":15,\"rigshade\":false,\"ribbon\":\"${rq.kind.name.lowercase()}\"}"
             lines += "{\"t\":${rq.tick},\"e\":\"write\",\"id\":$n,\"x\":${r(rq.centre.x)},\"y\":${r(rq.centre.y)},\"z\":${r(rq.centre.z)},\"yaw\":0.0,\"pitch\":0.0," +
                 "\"tr\":${v3(rq.shift)},\"left\":${q(rot)},\"scale\":${v3(scale)},\"bb\":\"fixed\",\"delay\":0,\"interp\":0,\"tp\":0,\"anch\":null}"
             lines += "{\"t\":${rq.tick + rq.life},\"e\":\"remove\",\"id\":$n}"

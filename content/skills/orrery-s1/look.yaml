@@ -78,11 +78,12 @@ presentation:
             - {from: 0.0, to: 0.6, color: "#dc820d", alpha: 0.439, color_to: "#4e2710"}
             - {from: 0.6, to: 1.0, color: "#ffd447", alpha: 1.0, color_to: "#ff970b"}
           step_deg: 20.0
-    - {id: fx29, at: 29, do: [{id: rm, op: remove, ids: [fx1_orrery_crescent_a_staff_fan]}]}
+          lag_ticks: 1
+          until: fx1_orrery_crescent_a_staff_fan_stop
     - id: fx34
       at: 34
       do:
-        - id: rm_2
+        - id: rm
           op: remove
           ids:
             - fx1_orrery_crescent_a_staff_shaft
@@ -152,11 +153,12 @@ presentation:
             - {from: 0.0, to: 0.65, color: "#dc820d", alpha: 0.439, color_to: "#4e2710"}
             - {from: 0.65, to: 1.0, color: "#ffd447", alpha: 1.0, color_to: "#ff970b"}
           step_deg: 20.0
-    - {id: fx60, at: 60, do: [{id: rm_5, op: remove, ids: [fx3_orrery_crescent_b_staff_fan]}]}
+          lag_ticks: 1
+          until: fx3_orrery_crescent_b_staff_fan_stop
     - id: fx65
       at: 65
       do:
-        - id: rm_6
+        - id: rm_4
           op: remove
           ids:
             - fx3_orrery_crescent_b_staff_shaft
@@ -173,13 +175,13 @@ presentation:
     - id: fxhit_8
       at: "hit+8"
       do:
-        - {id: rm_3, op: remove, ids: [fx2_orrery_ring_hit_violet_core], when: "= event.source == 'sel'"}
-        - {id: rm_7, op: remove, ids: [fx4_orrery_ring_hit_violet_core], when: "= event.source == 'sel_2'"}
+        - {id: rm_2, op: remove, ids: [fx2_orrery_ring_hit_violet_core], when: "= event.source == 'sel'"}
+        - {id: rm_5, op: remove, ids: [fx4_orrery_ring_hit_violet_core], when: "= event.source == 'sel_2'"}
     - id: fxhit_10
       at: "hit+10"
       do:
-        - {id: rm_4, op: remove, ids: [fx2_orrery_ring_hit_shard], when: "= event.source == 'sel'"}
-        - {id: rm_8, op: remove, ids: [fx4_orrery_ring_hit_shard], when: "= event.source == 'sel_2'"}
+        - {id: rm_3, op: remove, ids: [fx2_orrery_ring_hit_shard], when: "= event.source == 'sel'"}
+        - {id: rm_6, op: remove, ids: [fx4_orrery_ring_hit_shard], when: "= event.source == 'sel_2'"}
     - {id: loop1, at: 17, every: 1, for: 8, do: [{id: fx1_orrery_crescent_a_staff_embers, op: emit, at: pt_fx1_orrery_crescent_a_staff_0_1p65_0, particle: orrery-ember}]}
     - {id: loop2, at: 48, every: 1, for: 8, do: [{id: fx3_orrery_crescent_b_staff_embers, op: emit, at: pt_fx3_orrery_crescent_b_staff_0_1p65_0, particle: orrery-ember}]}
   "on":

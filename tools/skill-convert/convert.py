@@ -75,11 +75,19 @@ def block_rgb(name):
     return BLOCK_RGB[str(name).replace("minecraft:", "")]
 
 
+DEFAULT_TRAIL_BANDS = [
+    {"from": 0.0, "to": 0.45, "color": "#30FFFFFF"},
+    {"from": 0.45, "to": 0.8, "color": "#70FFFFFF"},
+    {"from": 0.8, "to": 1.0, "color": "#C0FFFFFF"},
+]
+
+
 def trail_shape(tr):
     """v1 trail bands / edge / dark_rim / step_deg / lag_ticks / double_sided -> the v2 `trail` fields (SKL-15 row 11)."""
     out = {}
     bands = []
-    for b in tr.get("bands") or []:
+    # An unset `bands:` is VfxTrail.DEFAULT_BANDS in v1 (VfxYamlConfig.kt:872, VfxRig.kt:239-243): three white bands, not one.
+    for b in tr.get("bands") or DEFAULT_TRAIL_BANDS:
         if "color" in b:
             rgb, a = argb_split(b["color"])
         else:
@@ -87,12 +95,14 @@ def trail_shape(tr):
         band = {"from": float(b["from"]), "to": float(b["to"]), "color": rgb, "alpha": a}
         if b.get("color_to"):
             band["color_to"] = argb_split(b["color_to"])[0]
+        if b.get("block"):
+            band["block"] = str(b["block"]).replace("minecraft:", "")
         bands.append(band)
-    if bands:
-        out["bands"] = bands
+    out["bands"] = bands
     if tr.get("edge"):
         e = tr["edge"]
-        out["edge"] = {"color": block_rgb(e.get("block", "white_concrete")), "width": float(e.get("width", 0.04))}
+        # The edge is always a block slab in v1 (VfxRigPlanner.kt trailPlans), default white_concrete.
+        out["edge"] = {"block": str(e.get("block", "white_concrete")).replace("minecraft:", ""), "width": float(e.get("width", 0.04))}
     if tr.get("dark_rim"):
         r = tr["dark_rim"]
         rgb, a = argb_split(r["color"])
@@ -1407,11 +1417,20 @@ class Conv:
             op = {"id": "%s_%s" % (rid, sid(tr["id"])), "op": "trail", "of": b, "root": a, "ticks": tr["life_ticks"]}
             if tr.get("style", "soft") != "soft":
                 op["style"] = tr["style"]
-            if "fade_power" in tr and float(tr["fade_power"]) != 1.0:
-                op["fade"] = float(tr["fade_power"])
+            # v1 fade_power defaults to 1.5 (VfxYamlConfig.kt:860); the v2 default is 1.0.
+            fade = float(tr.get("fade_power", 1.5))
+            if fade != 1.0:
+                op["fade"] = fade
             op.update(trail_shape(tr))
-            self.p(where, delay + int(tr["start_t"]), self._w(op, when))
-            removes.setdefault(int(tr["end_t"]) + int(tr["life_ticks"]), []).append(op["id"])
+            # v1 pushes cross-sections only over the rig ticks start_t..end_t; the quads then live life_ticks (VfxRigPlanner.kt trailPlans).
+            stop = "%s_stop" % op["id"]
+            # start_t / end_t are rig ticks, sampled at start_tick + l. v1 spawns the quad of the interval ending at rig tick l at
+            # start_tick + ANIMATION_DELAY_TICKS (1) + l + lag_ticks (VfxRigPlanner.kt:45, :191, :339), so the ribbon lags one tick more.
+            base = delay + int(r.get("start_tick", 0))
+            op["lag_ticks"] = int(tr.get("lag_ticks", 0)) + 1
+            self.g(where, base + int(tr["end_t"]) + 1, self._w({"id": self.oid(stop), "op": "raise_event", "name": stop}, when))
+            op["until"] = stop
+            self.p(where, base + int(tr["start_t"]), self._w(op, when))
         for em in r.get("emitters", []):
             pt = self.pframe(rid, em["point"], "p")
             op = emit_op("%s_%s" % (rid, sid(em["id"])), pt, em["particle_id"], 1)

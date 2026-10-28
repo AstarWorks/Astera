@@ -87,10 +87,12 @@ presentation:
           style: both
           fade: 0.3
           bands:
-            - {from: 0.7, to: 1.0, color: "#ef2311", alpha: 0.933, color_to: "#3a0808"}
-          edge: {color: "#080a0f", width: 0.03}
+            - {from: 0.7, to: 1.0, color: "#ef2311", alpha: 0.933, color_to: "#3a0808", block: red_concrete}
+          edge: {block: black_concrete, width: 0.03}
           dark_rim: {color: "#190808", alpha: 0.816, width: 0.15}
           step_deg: 25.0
+          lag_ticks: 1
+          until: fx1_sigil_rifle_dash_rifle_ribbon_5_stop
     - id: fx20
       at: 20
       do:
@@ -102,11 +104,12 @@ presentation:
           style: both
           fade: 0.3
           bands:
-            - {from: 0.7, to: 1.0, color: "#ef2311", alpha: 0.933, color_to: "#3a0808"}
-          edge: {color: "#080a0f", width: 0.03}
+            - {from: 0.7, to: 1.0, color: "#ef2311", alpha: 0.933, color_to: "#3a0808", block: red_concrete}
+          edge: {block: black_concrete, width: 0.03}
           dark_rim: {color: "#190808", alpha: 0.816, width: 0.15}
           step_deg: 25.0
-        - {id: rm, op: remove, ids: [fx1_sigil_rifle_dash_rifle_ribbon_5]}
+          lag_ticks: 1
+          until: fx1_sigil_rifle_dash_rifle_ribbon_20_stop
     - id: fx21
       at: 21
       do:
@@ -145,20 +148,19 @@ presentation:
           keys:
             - {t: 0, offset: [0.0, 1.1, 1.8], scale: [0.065, 0.055, 1.9], turn: [0.0, 0.0, 0.0]}
             - {t: 7, scale: [0.0, 0.0, 1.6], ease: in_quad}
-    - {id: fx24, at: 24, do: [{id: rm_2, op: remove, ids: [fx1_sigil_rifle_dash_gold]}]}
-    - {id: fx25, at: 25, do: [{id: rm_3, op: remove, ids: [fx1_sigil_rifle_dash_contact]}]}
-    - {id: fx28, at: 28, do: [{id: rm_4, op: remove, ids: [fx1_sigil_rifle_dash_solid_impact_0, fx1_sigil_rifle_dash_solid_impact_1, fx1_sigil_rifle_dash_solid_impact_2]}]}
-    - {id: fx31, at: 31, do: [{id: rm_5, op: remove, ids: [fx1_sigil_rifle_dash_rifle_ribbon_20]}]}
+    - {id: fx24, at: 24, do: [{id: rm, op: remove, ids: [fx1_sigil_rifle_dash_gold]}]}
+    - {id: fx25, at: 25, do: [{id: rm_2, op: remove, ids: [fx1_sigil_rifle_dash_contact]}]}
+    - {id: fx28, at: 28, do: [{id: rm_3, op: remove, ids: [fx1_sigil_rifle_dash_solid_impact_0, fx1_sigil_rifle_dash_solid_impact_1, fx1_sigil_rifle_dash_solid_impact_2]}]}
     - id: fx44
       at: 44
       do:
-        - id: rm_6
+        - id: rm_4
           op: remove
           ids: [fx1_sigil_rifle_dash_rifle_stock, fx1_sigil_rifle_dash_rifle_receiver, fx1_sigil_rifle_dash_rifle_barrel, fx1_sigil_rifle_dash_rifle_rail, fx1_sigil_rifle_dash_rifle_sight]
     - id: fxhit_7
       at: "hit+7"
       do:
-        - {id: rm_7, op: remove, ids: [fx2_sigil_rifle_mark_solid_impact_0, fx2_sigil_rifle_mark_solid_impact_1, fx2_sigil_rifle_mark_solid_impact_2], when: "= event.source == 'sel'"}
+        - {id: rm_5, op: remove, ids: [fx2_sigil_rifle_mark_solid_impact_0, fx2_sigil_rifle_mark_solid_impact_1, fx2_sigil_rifle_mark_solid_impact_2], when: "= event.source == 'sel'"}
     - {id: loop1, at: 7, every: 1, for: 5, do: [{id: fx1_sigil_rifle_dash_rifle_embers_7, op: emit, at: pt_fx1_sigil_rifle_dash_rifle_0_1p65_0, particle: sigil-rifle-embers}]}
     - {id: loop2, at: 20, every: 1, for: 3, do: [{id: fx1_sigil_rifle_dash_rifle_embers_20, op: emit, at: pt_fx1_sigil_rifle_dash_rifle_0_1p65_0, particle: sigil-rifle-embers}]}
   "on":

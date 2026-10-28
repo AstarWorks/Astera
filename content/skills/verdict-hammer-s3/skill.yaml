@@ -45,6 +45,7 @@ gameplay:
           max_count: 1
           window: once
           ticks: 1
+    - {id: t55, at: 55, do: [{id: fx3_verdict_s1_gavel_hammer_gold_fan_stop, op: raise_event, name: fx3_verdict_s1_gavel_hammer_gold_fan_stop}]}
     - {id: t73, at: 73, do: [{id: propel, op: propel, direction: "= vec(0.0, 1.0, 0.0)", strength: "${propel}"}]}
     - id: t91
       at: 91
@@ -56,6 +57,7 @@ gameplay:
           max_count: 1
           window: once
           ticks: 1
+    - {id: t93, at: 93, do: [{id: fx5_verdict_s3_judgment_hammer_gold_fan_stop, op: raise_event, name: fx5_verdict_s3_judgment_hammer_gold_fan_stop}]}
   "on":
     hit:
       - {id: dmg, op: damage, components: [{kind: physical, amount: "${dmg_physical}"}], target: victim, ignore_invulnerability: true, when: "= event.source == 'sel_2'"}

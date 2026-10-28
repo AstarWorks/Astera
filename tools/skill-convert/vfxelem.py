@@ -729,6 +729,8 @@ def display_element(c, el, fid, where, delay, when, dur, removes):
     single = n == 1
     pos_e = cel_rows([r[0] for r in rows])
     rot_e = cel_rows([rv(r[1]) for r in rows])
+    # v1 seeds jitter from actor.hashCode() + the tick (VfxTimeline.kt:177-214), so it is not reproducible even in v1:
+    # a per-element random stream with the same distribution is the faithful mapping.
     stream = "j_" + eid
     dyn_at = (not single and "[int(i)]" in pos_e) or bool(jit)
     dyn_turn = (not single and "[int(i)]" in rot_e) or bool(jit and float(jit.get("rotation_deg", 0.0)))

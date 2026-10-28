@@ -371,7 +371,7 @@ presentation:
     - id: fx44
       at: 44
       do:
-        - id: rm_27
+        - id: rm_22
           op: remove
           ids:
             - fx17_vendetta_burst_petals_0
@@ -385,7 +385,7 @@ presentation:
     - id: fx47
       at: 47
       do:
-        - id: rm_28
+        - id: rm_23
           op: remove
           ids:
             - fx17_vendetta_burst_dark_0
@@ -455,9 +455,11 @@ presentation:
           style: crisp
           fade: 0.15
           bands:
-            - {from: 0.75, to: 1.0, color: "#ff8a28", alpha: 1.0, color_to: "#491a23"}
-            - {from: 0.68, to: 0.75, color: "#2c0714", alpha: 1.0}
-          edge: {color: "#f0af15", width: 0.055}
+            - {from: 0.75, to: 1.0, color: "#ff8a28", alpha: 1.0, color_to: "#491a23", block: orange_concrete}
+            - {from: 0.68, to: 0.75, color: "#2c0714", alpha: 1.0, block: black_concrete}
+          edge: {block: yellow_concrete, width: 0.055}
+          lag_ticks: 1
+          until: fx2_vendetta_slash_b_bayonet_cut_stop
     - id: fx53
       at: 53
       do:
@@ -711,13 +713,12 @@ presentation:
     - id: fx61
       at: 61
       do:
-        - {id: rm_3, op: remove, ids: [fx2_vendetta_slash_b_bayonet_cut]}
-        - {id: rm_4, op: remove, ids: [fx3_vendetta_thrust_flash_rim, fx3_vendetta_thrust_flash_bloom, fx3_vendetta_thrust_flash_core]}
+        - {id: rm_3, op: remove, ids: [fx3_vendetta_thrust_flash_rim, fx3_vendetta_thrust_flash_bloom, fx3_vendetta_thrust_flash_core]}
         - {id: fx4_vendetta_burst_smoke_atrk, op: track, target: fx4_vendetta_burst_smoke_at, space: fx4_vendetta_burst, keys: [{t: 0, offset: [0, 0.4, 2]}]}
     - id: fx62
       at: 62
       do:
-        - id: rm_5
+        - id: rm_4
           op: remove
           ids:
             - fx4_vendetta_burst_petals_0
@@ -731,7 +732,7 @@ presentation:
     - id: fx65
       at: 65
       do:
-        - id: rm_6
+        - id: rm_5
           op: remove
           ids:
             - fx4_vendetta_burst_dark_0
@@ -801,9 +802,11 @@ presentation:
           style: crisp
           fade: 0.15
           bands:
-            - {from: 0.75, to: 1.0, color: "#ff8a28", alpha: 1.0, color_to: "#491a23"}
-            - {from: 0.68, to: 0.75, color: "#2c0714", alpha: 1.0}
-          edge: {color: "#f0af15", width: 0.055}
+            - {from: 0.75, to: 1.0, color: "#ff8a28", alpha: 1.0, color_to: "#491a23", block: orange_concrete}
+            - {from: 0.68, to: 0.75, color: "#2c0714", alpha: 1.0, block: black_concrete}
+          edge: {block: yellow_concrete, width: 0.055}
+          lag_ticks: 1
+          until: fx5_vendetta_slash_b_bayonet_cut_stop
     - id: fx71
       at: 71
       do:
@@ -1040,7 +1043,7 @@ presentation:
     - id: fx74
       at: 74
       do:
-        - id: rm_7
+        - id: rm_6
           op: remove
           ids:
             - fx5_vendetta_slash_b_bayonet_heel
@@ -1057,13 +1060,12 @@ presentation:
     - id: fx79
       at: 79
       do:
-        - {id: rm_8, op: remove, ids: [fx5_vendetta_slash_b_bayonet_cut]}
-        - {id: rm_9, op: remove, ids: [fx6_vendetta_thrust_flash_rim, fx6_vendetta_thrust_flash_bloom, fx6_vendetta_thrust_flash_core]}
+        - {id: rm_7, op: remove, ids: [fx6_vendetta_thrust_flash_rim, fx6_vendetta_thrust_flash_bloom, fx6_vendetta_thrust_flash_core]}
         - {id: fx7_vendetta_burst_smoke_atrk, op: track, target: fx7_vendetta_burst_smoke_at, space: fx7_vendetta_burst, keys: [{t: 0, offset: [0, 0.4, 2]}]}
     - id: fx80
       at: 80
       do:
-        - id: rm_10
+        - id: rm_8
           op: remove
           ids:
             - fx7_vendetta_burst_petals_0
@@ -1077,7 +1079,7 @@ presentation:
     - id: fx83
       at: 83
       do:
-        - id: rm_11
+        - id: rm_9
           op: remove
           ids:
             - fx7_vendetta_burst_dark_0
@@ -1147,9 +1149,11 @@ presentation:
           style: crisp
           fade: 0.15
           bands:
-            - {from: 0.75, to: 1.0, color: "#ff8a28", alpha: 1.0, color_to: "#491a23"}
-            - {from: 0.68, to: 0.75, color: "#2c0714", alpha: 1.0}
-          edge: {color: "#f0af15", width: 0.055}
+            - {from: 0.75, to: 1.0, color: "#ff8a28", alpha: 1.0, color_to: "#491a23", block: orange_concrete}
+            - {from: 0.68, to: 0.75, color: "#2c0714", alpha: 1.0, block: black_concrete}
+          edge: {block: yellow_concrete, width: 0.055}
+          lag_ticks: 1
+          until: fx8_vendetta_slash_a_bayonet_cut_stop
     - id: fx108
       at: 108
       do:
@@ -1386,7 +1390,7 @@ presentation:
     - id: fx111
       at: 111
       do:
-        - id: rm_12
+        - id: rm_10
           op: remove
           ids:
             - fx8_vendetta_slash_a_bayonet_heel
@@ -1403,13 +1407,12 @@ presentation:
     - id: fx116
       at: 116
       do:
-        - {id: rm_13, op: remove, ids: [fx8_vendetta_slash_a_bayonet_cut]}
-        - {id: rm_14, op: remove, ids: [fx9_vendetta_thrust_flash_rim, fx9_vendetta_thrust_flash_bloom, fx9_vendetta_thrust_flash_core]}
+        - {id: rm_11, op: remove, ids: [fx9_vendetta_thrust_flash_rim, fx9_vendetta_thrust_flash_bloom, fx9_vendetta_thrust_flash_core]}
         - {id: fx10_vendetta_burst_smoke_atrk, op: track, target: fx10_vendetta_burst_smoke_at, space: fx10_vendetta_burst, keys: [{t: 0, offset: [0, 0.4, 2]}]}
     - id: fx117
       at: 117
       do:
-        - id: rm_15
+        - id: rm_12
           op: remove
           ids:
             - fx10_vendetta_burst_petals_0
@@ -1423,7 +1426,7 @@ presentation:
     - id: fx120
       at: 120
       do:
-        - id: rm_16
+        - id: rm_13
           op: remove
           ids:
             - fx10_vendetta_burst_dark_0
@@ -1493,9 +1496,11 @@ presentation:
           style: crisp
           fade: 0.15
           bands:
-            - {from: 0.75, to: 1.0, color: "#ff8a28", alpha: 1.0, color_to: "#491a23"}
-            - {from: 0.68, to: 0.75, color: "#2c0714", alpha: 1.0}
-          edge: {color: "#f0af15", width: 0.055}
+            - {from: 0.75, to: 1.0, color: "#ff8a28", alpha: 1.0, color_to: "#491a23", block: orange_concrete}
+            - {from: 0.68, to: 0.75, color: "#2c0714", alpha: 1.0, block: black_concrete}
+          edge: {block: yellow_concrete, width: 0.055}
+          lag_ticks: 1
+          until: fx11_vendetta_slash_b_bayonet_cut_stop
     - id: fx141
       at: 141
       do:
@@ -1732,7 +1737,7 @@ presentation:
     - id: fx144
       at: 144
       do:
-        - id: rm_17
+        - id: rm_14
           op: remove
           ids:
             - fx11_vendetta_slash_b_bayonet_heel
@@ -1749,13 +1754,12 @@ presentation:
     - id: fx149
       at: 149
       do:
-        - {id: rm_18, op: remove, ids: [fx11_vendetta_slash_b_bayonet_cut]}
-        - {id: rm_19, op: remove, ids: [fx12_vendetta_thrust_flash_rim, fx12_vendetta_thrust_flash_bloom, fx12_vendetta_thrust_flash_core]}
+        - {id: rm_15, op: remove, ids: [fx12_vendetta_thrust_flash_rim, fx12_vendetta_thrust_flash_bloom, fx12_vendetta_thrust_flash_core]}
         - {id: fx13_vendetta_burst_smoke_atrk, op: track, target: fx13_vendetta_burst_smoke_at, space: fx13_vendetta_burst, keys: [{t: 0, offset: [0, 0.4, 2]}]}
     - id: fx150
       at: 150
       do:
-        - id: rm_20
+        - id: rm_16
           op: remove
           ids:
             - fx13_vendetta_burst_petals_0
@@ -1769,7 +1773,7 @@ presentation:
     - id: fx153
       at: 153
       do:
-        - id: rm_21
+        - id: rm_17
           op: remove
           ids:
             - fx13_vendetta_burst_dark_0
@@ -1991,7 +1995,7 @@ presentation:
     - id: fx193
       at: 193
       do:
-        - id: rm_29
+        - id: rm_24
           op: remove
           ids:
             - fx18_vendetta_burst_petals_0
@@ -2005,7 +2009,7 @@ presentation:
     - id: fx196
       at: 196
       do:
-        - id: rm_30
+        - id: rm_25
           op: remove
           ids:
             - fx18_vendetta_burst_dark_0
@@ -2075,9 +2079,11 @@ presentation:
           style: crisp
           fade: 0.15
           bands:
-            - {from: 0.75, to: 1.0, color: "#ff8a28", alpha: 1.0, color_to: "#491a23"}
-            - {from: 0.68, to: 0.75, color: "#2c0714", alpha: 1.0}
-          edge: {color: "#f0af15", width: 0.055}
+            - {from: 0.75, to: 1.0, color: "#ff8a28", alpha: 1.0, color_to: "#491a23", block: orange_concrete}
+            - {from: 0.68, to: 0.75, color: "#2c0714", alpha: 1.0, block: black_concrete}
+          edge: {block: yellow_concrete, width: 0.055}
+          lag_ticks: 1
+          until: fx14_vendetta_slash_a_bayonet_cut_stop
     - id: fx231
       at: 231
       do:
@@ -2316,7 +2322,7 @@ presentation:
     - id: fx234
       at: 234
       do:
-        - id: rm_22
+        - id: rm_18
           op: remove
           ids:
             - fx14_vendetta_slash_a_bayonet_heel
@@ -2333,13 +2339,12 @@ presentation:
     - id: fx239
       at: 239
       do:
-        - {id: rm_23, op: remove, ids: [fx14_vendetta_slash_a_bayonet_cut]}
-        - {id: rm_24, op: remove, ids: [fx15_vendetta_thrust_flash_rim, fx15_vendetta_thrust_flash_bloom, fx15_vendetta_thrust_flash_core]}
+        - {id: rm_19, op: remove, ids: [fx15_vendetta_thrust_flash_rim, fx15_vendetta_thrust_flash_bloom, fx15_vendetta_thrust_flash_core]}
         - {id: fx16_vendetta_burst_smoke_atrk, op: track, target: fx16_vendetta_burst_smoke_at, space: fx16_vendetta_burst, keys: [{t: 0, offset: [0, 0.4, 2]}]}
     - id: fx240
       at: 240
       do:
-        - id: rm_25
+        - id: rm_20
           op: remove
           ids:
             - fx16_vendetta_burst_petals_0
@@ -2353,7 +2358,7 @@ presentation:
     - id: fx243
       at: 243
       do:
-        - id: rm_26
+        - id: rm_21
           op: remove
           ids:
             - fx16_vendetta_burst_dark_0

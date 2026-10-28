@@ -11,6 +11,7 @@ gameplay:
     - {id: damage, param: dmg_physical}
     - {id: range, param: reach}
   timeline:
+    - {id: t24, at: 24, do: [{id: fx1_sigil_rifle_s3_rig_rifle_shoulder_ribbon_stop, op: raise_event, name: fx1_sigil_rifle_s3_rig_rifle_shoulder_ribbon_stop}]}
     - {id: t61, at: 61, do: [{id: cast, op: cast_skill, skill: sigil-bullet-projectile}]}
     - id: t82
       at: 82

@@ -106,14 +106,16 @@ presentation:
           of: pt_fx3_gossamer_katana_slash_up_katana_0_2p1_0
           root: pt_fx3_gossamer_katana_slash_up_katana_0_1p25_0
           ticks: 4
+          fade: 1.5
           bands:
             - {from: 0.0, to: 1.0, color: "#14245f", alpha: 0.933, color_to: "#7c36a8"}
           step_deg: 20.0
-    - {id: fx20, at: 20, do: [{id: rm_3, op: remove, ids: [fx3_gossamer_katana_slash_up_katana_crescent]}]}
+          lag_ticks: 1
+          until: fx3_gossamer_katana_slash_up_katana_crescent_stop
     - id: fx22
       at: 22
       do:
-        - {id: rm_4, op: remove, ids: [fx3_gossamer_katana_slash_up_katana_blade, fx3_gossamer_katana_slash_up_katana_grip, fx3_gossamer_katana_slash_up_katana_guard]}
+        - {id: rm_3, op: remove, ids: [fx3_gossamer_katana_slash_up_katana_blade, fx3_gossamer_katana_slash_up_katana_grip, fx3_gossamer_katana_slash_up_katana_guard]}
         - id: fx4_gossamer_katana_slash_down_katana_rig
           op: rig
           frame: fx4_gossamer_katana_slash_down_katana
@@ -146,12 +148,14 @@ presentation:
           of: pt_fx4_gossamer_katana_slash_down_katana_0_2p1_0
           root: pt_fx4_gossamer_katana_slash_down_katana_0_1p25_0
           ticks: 4
+          fade: 1.5
           bands:
             - {from: 0.0, to: 1.0, color: "#14245f", alpha: 0.933, color_to: "#7c36a8"}
           step_deg: 20.0
+          lag_ticks: 1
+          until: fx4_gossamer_katana_slash_down_katana_crescent_stop
     - {id: fx29, at: 29, do: [{id: rm, op: remove, ids: [fx1_gossamer_katana_draw_katana_blade, fx1_gossamer_katana_draw_katana_grip, fx1_gossamer_katana_draw_katana_guard]}]}
-    - {id: fx32, at: 32, do: [{id: rm_5, op: remove, ids: [fx4_gossamer_katana_slash_down_katana_crescent]}]}
-    - {id: fx34, at: 34, do: [{id: rm_6, op: remove, ids: [fx4_gossamer_katana_slash_down_katana_blade, fx4_gossamer_katana_slash_down_katana_grip, fx4_gossamer_katana_slash_down_katana_guard]}]}
+    - {id: fx34, at: 34, do: [{id: rm_4, op: remove, ids: [fx4_gossamer_katana_slash_down_katana_blade, fx4_gossamer_katana_slash_down_katana_grip, fx4_gossamer_katana_slash_down_katana_guard]}]}
     - id: fx39
       at: 39
       do:
@@ -193,14 +197,14 @@ presentation:
             - {t: 0, offset: [0.0, 1.05, 3.0], scale: [0.016, 2.8, 0.04], turn: [0.0, 0.0, 0.0]}
             - {t: 1, scale: [0.08, 2.8, 0.04], ease: out_expo}
             - {t: 5, scale: [0.0, 0.0, 0.0], ease: in_quad}
-    - {id: fx45, at: 45, do: [{id: rm_9, op: remove, ids: [fx7_gossamer_katana_iaido_line_glint]}]}
-    - {id: fx51, at: 51, do: [{id: rm_10, op: remove, ids: [fx7_gossamer_katana_iaido_line_bloom]}]}
-    - {id: fx73, at: 73, do: [{id: rm_11, op: remove, ids: [fx7_gossamer_katana_iaido_line_dark]}]}
-    - {id: fx75, at: 75, do: [{id: rm_12, op: remove, ids: [fx7_gossamer_katana_iaido_line_core]}]}
+    - {id: fx45, at: 45, do: [{id: rm_7, op: remove, ids: [fx7_gossamer_katana_iaido_line_glint]}]}
+    - {id: fx51, at: 51, do: [{id: rm_8, op: remove, ids: [fx7_gossamer_katana_iaido_line_bloom]}]}
+    - {id: fx73, at: 73, do: [{id: rm_9, op: remove, ids: [fx7_gossamer_katana_iaido_line_dark]}]}
+    - {id: fx75, at: 75, do: [{id: rm_10, op: remove, ids: [fx7_gossamer_katana_iaido_line_core]}]}
     - id: fxhit_9
       at: "hit+9"
       do:
-        - id: rm_7
+        - id: rm_5
           op: remove
           ids:
             - fx5_gossamer_katana_petals_petals_0
@@ -864,7 +868,7 @@ presentation:
           - {t: 8, offset: [0.74635, -1.10328, 0.97349], scale: [0.0, 0.0, 1.0], alpha: 0.0}
       - {id: snd_3, op: sound, sound: entity.player.attack.strong, at: enemy, volume: 0.7, pitch: 1.1}
     dash_2_fx9:
-      - id: rm_8
+      - id: rm_6
         op: remove
         ids:
           - fx6_gossamer_katana_petals_petals_0

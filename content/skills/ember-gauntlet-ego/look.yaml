@@ -207,10 +207,13 @@ presentation:
           root: pt_fx3_ember_sweep_gauntlet_0_1p95_0
           ticks: 9
           style: both
+          fade: 1.5
           bands:
-            - {from: 0.0, to: 1.0, color: "#ff8f18", alpha: 0.627, color_to: "#e04d08"}
+            - {from: 0.0, to: 1.0, color: "#ff8f18", alpha: 0.627, color_to: "#e04d08", block: yellow_concrete}
           dark_rim: {color: "#2a170c", alpha: 0.69, width: 0.08}
           step_deg: 36.0
+          lag_ticks: 1
+          until: fx3_ember_sweep_gauntlet_flame_fan_stop
     - id: fx19
       at: 19
       do:
@@ -380,7 +383,7 @@ presentation:
           times: 5
           shift: "= [vec(0.0, 0.0, 0.8), vec(0.0, 0.0, 1.45), vec(0.0, 0.0, 2.1), vec(0.0, 0.0, 2.75), vec(0.0, 0.0, 3.4)][int(i)]"
     - {id: fx28, at: 28, do: [{id: rm_4, op: remove, ids: [fx3_ember_sweep_impact_spokes, fx3_ember_sweep_impact_flare]}]}
-    - {id: fx29, at: 29, do: [{id: rm_5, op: remove, ids: [fx3_ember_sweep_gauntlet_flame_fan]}, {id: rm_7, op: remove, ids: [fx4_ember_punch_impact_core]}]}
+    - {id: fx29, at: 29, do: [{id: rm_6, op: remove, ids: [fx4_ember_punch_impact_core]}]}
     - id: fx30
       at: 30
       do:
@@ -390,7 +393,7 @@ presentation:
           particle: ember-fine-spark
           times: 5
           shift: "= [vec(0.0, 0.0, 0.8), vec(0.0, 0.0, 1.45), vec(0.0, 0.0, 2.1), vec(0.0, 0.0, 2.75), vec(0.0, 0.0, 3.4)][int(i)]"
-    - {id: fx31, at: 31, do: [{id: rm_6, op: remove, ids: [fx3_ember_sweep_gauntlet_cuff, fx3_ember_sweep_gauntlet_fist, fx3_ember_sweep_gauntlet_nozzle]}]}
+    - {id: fx31, at: 31, do: [{id: rm_5, op: remove, ids: [fx3_ember_sweep_gauntlet_cuff, fx3_ember_sweep_gauntlet_fist, fx3_ember_sweep_gauntlet_nozzle]}]}
     - id: fx33
       at: 33
       do:
@@ -400,9 +403,9 @@ presentation:
           particle: ember-fine-spark
           times: 5
           shift: "= [vec(0.0, 0.0, 0.8), vec(0.0, 0.0, 1.45), vec(0.0, 0.0, 2.1), vec(0.0, 0.0, 2.75), vec(0.0, 0.0, 3.4)][int(i)]"
-        - {id: rm_8, op: remove, ids: [fx4_ember_punch_flame_0, fx4_ember_punch_flame_1, fx4_ember_punch_flame_2, fx4_ember_punch_flame_3, fx4_ember_punch_flame_4]}
-    - {id: fx34, at: 34, do: [{id: rm_9, op: remove, ids: [fx4_ember_punch_bloom, fx4_ember_punch_impact_spokes, fx4_ember_punch_impact_flare]}]}
-    - {id: fx40, at: 40, do: [{id: rm_10, op: remove, ids: [fx4_ember_punch_gauntlet_cuff, fx4_ember_punch_gauntlet_fist, fx4_ember_punch_gauntlet_nozzle]}]}
+        - {id: rm_7, op: remove, ids: [fx4_ember_punch_flame_0, fx4_ember_punch_flame_1, fx4_ember_punch_flame_2, fx4_ember_punch_flame_3, fx4_ember_punch_flame_4]}
+    - {id: fx34, at: 34, do: [{id: rm_8, op: remove, ids: [fx4_ember_punch_bloom, fx4_ember_punch_impact_spokes, fx4_ember_punch_impact_flare]}]}
+    - {id: fx40, at: 40, do: [{id: rm_9, op: remove, ids: [fx4_ember_punch_gauntlet_cuff, fx4_ember_punch_gauntlet_fist, fx4_ember_punch_gauntlet_nozzle]}]}
     - {id: fx49, at: 49, do: [{id: flash, op: screen_flash, target: caster, overlay: white, color: "#000000", fade_in: 0, stay: 1, fade_out: 0}]}
     - {id: fx50, at: 50, do: [{id: flash_2, op: screen_flash, target: caster, overlay: white, color: "#FFE839", fade_in: 0, stay: 2, fade_out: 1}]}
     - {id: fx53, at: 53, do: [{id: flash_3, op: screen_flash, target: caster, overlay: speed_radial, color: "#FFB020", fade_in: 0, stay: 2, fade_out: 2}]}
@@ -1229,7 +1232,7 @@ presentation:
           particle: ember-fine-spark
           times: 5
           shift: "= [vec(0.0, 0.0, 0.8), vec(0.0, 0.0, 1.45), vec(0.0, 0.0, 2.1), vec(0.0, 0.0, 2.75), vec(0.0, 0.0, 3.4)][int(i)]"
-        - {id: rm_11, op: remove, ids: [fx5_ember_furnace_blast_impact_core]}
+        - {id: rm_10, op: remove, ids: [fx5_ember_furnace_blast_impact_core]}
     - id: fx68
       at: 68
       do:
@@ -1247,8 +1250,8 @@ presentation:
     - id: fx70
       at: 70
       do:
-        - {id: rm_12, op: remove, ids: [fx5_ember_furnace_blast_flame_0, fx5_ember_furnace_blast_flame_1, fx5_ember_furnace_blast_flame_2, fx5_ember_furnace_blast_flame_3, fx5_ember_furnace_blast_flame_4]}
-    - {id: fx71, at: 71, do: [{id: rm_13, op: remove, ids: [fx5_ember_furnace_blast_bloom, fx5_ember_furnace_blast_impact_spokes, fx5_ember_furnace_blast_impact_flare]}]}
+        - {id: rm_11, op: remove, ids: [fx5_ember_furnace_blast_flame_0, fx5_ember_furnace_blast_flame_1, fx5_ember_furnace_blast_flame_2, fx5_ember_furnace_blast_flame_3, fx5_ember_furnace_blast_flame_4]}
+    - {id: fx71, at: 71, do: [{id: rm_12, op: remove, ids: [fx5_ember_furnace_blast_bloom, fx5_ember_furnace_blast_impact_spokes, fx5_ember_furnace_blast_impact_flare]}]}
     - id: fx72
       at: 72
       do:
@@ -1258,7 +1261,7 @@ presentation:
           particle: ember-fine-spark
           times: 5
           shift: "= [vec(0.0, 0.0, 0.8), vec(0.0, 0.0, 1.45), vec(0.0, 0.0, 2.1), vec(0.0, 0.0, 2.75), vec(0.0, 0.0, 3.4)][int(i)]"
-        - id: rm_14
+        - id: rm_13
           op: remove
           ids:
             - fx5_ember_furnace_blast_pressure_hoop_s0
@@ -1288,10 +1291,10 @@ presentation:
     - id: fx73
       at: 73
       do:
-        - id: rm_15
+        - id: rm_14
           op: remove
           ids: [fx5_ember_furnace_blast_flame_face_0, fx5_ember_furnace_blast_flame_face_1, fx5_ember_furnace_blast_flame_face_2, fx5_ember_furnace_blast_flame_face_3, fx5_ember_furnace_blast_flame_face_4]
-    - {id: fx75, at: 75, do: [{id: rm_16, op: remove, ids: [fx5_ember_furnace_blast_gauntlet_cuff, fx5_ember_furnace_blast_gauntlet_fist, fx5_ember_furnace_blast_gauntlet_nozzle]}]}
+    - {id: fx75, at: 75, do: [{id: rm_15, op: remove, ids: [fx5_ember_furnace_blast_gauntlet_cuff, fx5_ember_furnace_blast_gauntlet_fist, fx5_ember_furnace_blast_gauntlet_nozzle]}]}
     - {id: fx85, at: 85, do: [{id: rm, op: remove, ids: [fx1_ember_harness_furnace_pack_shell, fx1_ember_harness_furnace_pack_clasp]}]}
     - {id: loop1, at: 0, every: 3, for: 14, do: [{id: fx2_ember_ignition_pilot, op: emit, at: fx2_ember_ignition_pilot_at, particle: ember-fine-spark}]}
     - {id: loop2, at: 0, every: 3, for: 14, do: [{id: fx2_ember_ignition_smoke, op: emit, at: fx2_ember_ignition_smoke_at, particle: fire-smoke}]}

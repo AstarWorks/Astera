@@ -195,13 +195,13 @@ private fun OpReader.positive(what: String, raw: Any?, default: Double): Double 
     return v?.takeIf { it > 0.0 } ?: fail("$what must be a number > 0")
 }
 
-/** `bands: [{from, to, color, alpha?, color_to?}]`, radial fractions root (0) to tip (1). */
+/** `bands: [{from, to, color, alpha?, color_to?, block?}]`, radial fractions root (0) to tip (1). */
 private fun OpReader.trailBands(): List<TrailBand> {
     val raw = raw("bands") ?: return emptyList()
     val list = raw as? List<*> ?: fail("'bands' must be a list")
     return list.mapIndexed { i, e ->
         val m = e as? Map<*, *> ?: fail("bands[$i] must be a map")
-        val bad = m.keys.firstOrNull { it !in setOf("from", "to", "color", "alpha", "color_to") }
+        val bad = m.keys.firstOrNull { it !in setOf("from", "to", "color", "alpha", "color_to", "block") }
         if (bad != null) fail("unknown key '$bad' in bands[$i]")
         val from = (m["from"] as? Number)?.toDouble() ?: fail("bands[$i].from must be a number")
         val to = (m["to"] as? Number)?.toDouble() ?: fail("bands[$i].to must be a number")
@@ -209,14 +209,15 @@ private fun OpReader.trailBands(): List<TrailBand> {
         TrailBand(
             from, to, hexColor("bands[$i].color", m["color"]), fraction("bands[$i].alpha", m["alpha"], 1.0),
             m["color_to"]?.let { hexColor("bands[$i].color_to", it) },
+            m["block"]?.let { it as? String ?: fail("bands[$i].block must be a block id") },
         )
     }
 }
 
 private fun OpReader.trailEdge(): TrailEdge? {
     val m = mapOf("edge") ?: return null
-    checkKeys("edge", m, setOf("color", "width"))
-    return TrailEdge(hexColor("edge.color", m["color"]), positive("edge.width", m["width"], 0.04))
+    checkKeys("edge", m, setOf("block", "width"))
+    return TrailEdge(m["block"] as? String ?: fail("edge.block must be a block id"), positive("edge.width", m["width"], 0.04))
 }
 
 private fun OpReader.trailRim(): TrailRim? {

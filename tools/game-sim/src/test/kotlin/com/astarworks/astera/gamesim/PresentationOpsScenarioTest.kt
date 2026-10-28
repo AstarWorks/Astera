@@ -375,8 +375,10 @@ class PresentationOpsScenarioTest {
         // trail stops at `release`, ribbon leaves after its own length
         raised += "release"
         val n0 = trailPoints.size
+        val lastBefore = trailPoints.last()
+        // the runtime keeps re-pushing the last cross-section so the quads age (v1 fades them after the trail ends, VfxRigPlanner.kt:313-362); no new geometry
         tick(7)
-        assertThat(trailPoints.size).isEqualTo(n0)
+        assertThat(trailPoints.drop(n0).distinct()).isEqualTo(listOf(lastBefore))
         assertThat(removed).contains(5L)
 
         // remove by op id

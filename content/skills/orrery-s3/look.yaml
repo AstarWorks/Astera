@@ -400,7 +400,7 @@ presentation:
           particle: orrery-ember
           times: 12
           shift: "= [vec(0.0, 1.65, 3.6), vec(0.0, 2.475, 3.37894), vec(0.0, 3.07894, 2.775), vec(0.0, 3.3, 1.95), vec(0.0, 3.07894, 1.125), vec(0.0, 2.475, 0.52106), vec(0.0, 1.65, 0.3), vec(0.0, 0.825, 0.52106), vec(0.0, 0.22106, 1.125), vec(0.0, 0.0, 1.95), vec(0.0, 0.22106, 2.775), vec(0.0, 0.825, 3.37894)][int(i)]"
-    - {id: fx55, at: 55, do: [{id: rm_17, op: remove, ids: [fx11_orrery_seal_front_gold, fx11_orrery_seal_front_dark, fx11_orrery_seal_front_inner_clock]}]}
+    - {id: fx55, at: 55, do: [{id: rm_15, op: remove, ids: [fx11_orrery_seal_front_gold, fx11_orrery_seal_front_dark, fx11_orrery_seal_front_inner_clock]}]}
     - id: fx60
       at: 60
       do:
@@ -489,7 +489,7 @@ presentation:
     - id: fx64
       at: 64
       do:
-        - {id: rm_16, op: remove, ids: [fx10_orrery_orb_core]}
+        - {id: rm_14, op: remove, ids: [fx10_orrery_orb_core]}
         - id: emit_10
           op: emit
           at: fx12_orrery_seal_front_clock_sparks_at
@@ -514,7 +514,7 @@ presentation:
           particle: orrery-ember
           times: 12
           shift: "= [vec(0.0, 1.65, 3.6), vec(0.0, 2.475, 3.37894), vec(0.0, 3.07894, 2.775), vec(0.0, 3.3, 1.95), vec(0.0, 3.07894, 1.125), vec(0.0, 2.475, 0.52106), vec(0.0, 1.65, 0.3), vec(0.0, 0.825, 0.52106), vec(0.0, 0.22106, 1.125), vec(0.0, 0.0, 1.95), vec(0.0, 0.22106, 2.775), vec(0.0, 0.825, 3.37894)][int(i)]"
-    - {id: fx70, at: 70, do: [{id: rm_18, op: remove, ids: [fx12_orrery_seal_front_gold, fx12_orrery_seal_front_dark, fx12_orrery_seal_front_inner_clock]}]}
+    - {id: fx70, at: 70, do: [{id: rm_16, op: remove, ids: [fx12_orrery_seal_front_gold, fx12_orrery_seal_front_dark, fx12_orrery_seal_front_inner_clock]}]}
     - id: fx72
       at: 72
       do:
@@ -603,10 +603,11 @@ presentation:
           fade: 0.3
           bands:
             - {from: 0.0, to: 0.65, color: "#dc820d", alpha: 0.439, color_to: "#4e2710"}
-            - {from: 0.65, to: 1.0, color: "#ffd447", alpha: 1.0, color_to: "#ff970b"}
-          edge: {color: "#080a0f", width: 0.025}
+            - {from: 0.65, to: 1.0, color: "#ffd447", alpha: 1.0, color_to: "#ff970b", block: gold_block}
+          edge: {block: black_concrete, width: 0.025}
           step_deg: 50.0
-          lag_ticks: 1
+          lag_ticks: 2
+          until: fx9_orrery_channel_staff_flourish_75_stop
         - id: emit_15
           op: emit
           at: fx13_orrery_seal_front_clock_sparks_at
@@ -640,8 +641,7 @@ presentation:
           particle: orrery-ember
           times: 12
           shift: "= [vec(0.0, 1.65, 3.6), vec(0.0, 2.475, 3.37894), vec(0.0, 3.07894, 2.775), vec(0.0, 3.3, 1.95), vec(0.0, 3.07894, 1.125), vec(0.0, 2.475, 0.52106), vec(0.0, 1.65, 0.3), vec(0.0, 0.825, 0.52106), vec(0.0, 0.22106, 1.125), vec(0.0, 0.0, 1.95), vec(0.0, 0.22106, 2.775), vec(0.0, 0.825, 3.37894)][int(i)]"
-    - {id: fx82, at: 82, do: [{id: rm_19, op: remove, ids: [fx13_orrery_seal_front_gold, fx13_orrery_seal_front_dark, fx13_orrery_seal_front_inner_clock]}]}
-    - {id: fx85, at: 85, do: [{id: rm_13, op: remove, ids: [fx9_orrery_channel_staff_flourish_75]}]}
+    - {id: fx82, at: 82, do: [{id: rm_17, op: remove, ids: [fx13_orrery_seal_front_gold, fx13_orrery_seal_front_dark, fx13_orrery_seal_front_inner_clock]}]}
     - id: fx108
       at: 108
       do:
@@ -654,10 +654,11 @@ presentation:
           fade: 0.3
           bands:
             - {from: 0.0, to: 0.65, color: "#dc820d", alpha: 0.439, color_to: "#4e2710"}
-            - {from: 0.65, to: 1.0, color: "#ffd447", alpha: 1.0, color_to: "#ff970b"}
-          edge: {color: "#080a0f", width: 0.025}
+            - {from: 0.65, to: 1.0, color: "#ffd447", alpha: 1.0, color_to: "#ff970b", block: gold_block}
+          edge: {block: black_concrete, width: 0.025}
           step_deg: 50.0
-    - {id: fx121, at: 121, do: [{id: rm_14, op: remove, ids: [fx9_orrery_channel_staff_flourish_108]}]}
+          lag_ticks: 1
+          until: fx9_orrery_channel_staff_flourish_108_stop
     - id: fx143
       at: 143
       do:
@@ -770,11 +771,11 @@ presentation:
           particle: orrery-ember
           times: 12
           shift: "= [vec(0.0, 1.65, 3.6), vec(0.0, 2.475, 3.37894), vec(0.0, 3.07894, 2.775), vec(0.0, 3.3, 1.95), vec(0.0, 3.07894, 1.125), vec(0.0, 2.475, 0.52106), vec(0.0, 1.65, 0.3), vec(0.0, 0.825, 0.52106), vec(0.0, 0.22106, 1.125), vec(0.0, 0.0, 1.95), vec(0.0, 0.22106, 2.775), vec(0.0, 0.825, 3.37894)][int(i)]"
-    - {id: fx153, at: 153, do: [{id: rm_20, op: remove, ids: [fx14_orrery_seal_front_gold, fx14_orrery_seal_front_dark, fx14_orrery_seal_front_inner_clock]}]}
+    - {id: fx153, at: 153, do: [{id: rm_18, op: remove, ids: [fx14_orrery_seal_front_gold, fx14_orrery_seal_front_dark, fx14_orrery_seal_front_inner_clock]}]}
     - id: fx177
       at: 177
       do:
-        - id: rm_15
+        - id: rm_13
           op: remove
           ids:
             - fx9_orrery_channel_staff_shaft
