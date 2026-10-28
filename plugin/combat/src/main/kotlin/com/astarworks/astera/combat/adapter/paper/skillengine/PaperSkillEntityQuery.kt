@@ -24,15 +24,18 @@ import java.util.UUID
  * Hittable = living, valid, not an armor stand / spectator / invulnerable mob (same rule as
  * `PaperNearbyTargetQuery`). Main thread only.
  *
- * One instance serves ONE world, the casting entity's ([worldId], fixed at construction). A world that is not loaded
+ * One instance serves the world [worldOf] names at call time (the cast being played). A world that is not loaded
  * is an error, never an empty answer.
  */
 public class PaperSkillEntityQuery(
     private val server: Server,
-    private val worldId: WorldId,
+    /** The world of the cast being played (the platform tracks it; the v3 ports carry no cast context yet). */
+    private val worldOf: () -> WorldId,
     /** Lazy: Match registers the structure targets (Annihilation pillars) after Combat wires. */
     private val structures: () -> IStructureTargets? = { null },
 ) : ISkillEntityQuery {
+
+    private val worldId: WorldId get() = worldOf()
 
     private val world: World
         get() = server.getWorld(worldId.value) ?: error("skill engine: world '${worldId.value}' of the cast is not loaded")
