@@ -26,7 +26,6 @@ import com.astarworks.astera.core.domain.i18n.LocalizedText
 import com.astarworks.astera.combat.application.port.outbound.IDisplayEntityGateway.DisplayWrite
 import com.astarworks.astera.core.application.port.outbound.presentation.IPlayerPresentation
 import com.astarworks.astera.core.domain.Result
-import com.astarworks.astera.core.domain.item.ItemId
 import com.astarworks.astera.core.domain.presentation.PresentationKind
 import com.astarworks.astera.core.domain.presentation.PresentationLease
 import com.astarworks.astera.core.domain.presentation.PresentationMask
@@ -113,12 +112,10 @@ public class PaperSkillVisualGateway(
 
     override fun spawnMesh(castOwner: UUID, item: String, part: String?, pose: VisualPose, brightness: Int?, look: MeshLook): VisualHandle {
         val world = worldOf(castOwner) ?: return dead("mesh $item")
-        val heldItem = SkillDisplaySpecs.meshKind(MeshModels.resolve(item, part, frameTables), look) == null
-        val kind = SkillDisplaySpecs.meshKind(MeshModels.resolve(item, part, frameTables), look) ?: run {
-            val held = server.getPlayer(castOwner)?.inventory?.itemInMainHand?.takeUnless { it.type.isAir }
-                ?: return dead("mesh $item (empty main hand)")
-            DisplayKind.Item(ItemId(held.type.key.key.replace('_', '-')), look.mode, held.itemMeta?.takeIf { it.hasItemModel() }?.itemModel?.toString())
-        }
+        val kind = SkillDisplaySpecs.meshKind(MeshModels.resolve(item, part, frameTables), look)
+        val heldItem = kind == DisplayKind.AnchorMainHand
+        // v1 cloned the real stack (custom model, components) and drew it in THIRDPERSON_RIGHTHAND (PaperDisplayEntityGateway.kt:192-199).
+        if (heldItem && server.getPlayer(castOwner)?.inventory?.itemInMainHand?.type?.isAir != false) return dead("mesh $item (empty main hand)")
         val first = toDisplayWrite(pose.frame, pose.size, Intrinsic.ITEM_FIXED, pose.billboard, 0)
         val spec = SkillDisplaySpecs.mesh(kind, first.transform, brightness, look.rigShading)
         val handle = spawnDisplay(world, castOwner, pose.frame.origin, spec, emptyList(), pose.anchorFeet != null, pose.lane) ?: return dead("mesh $item")

@@ -89,6 +89,7 @@ object VanillaDump {
                 val k = spec?.kind
                 val kind = when (k) {
                     is DisplayKind.Item -> "\"kind\":\"item\",\"item\":\"${k.itemId.value}\",\"model\":${k.itemModel?.let { "\"${esc(it)}\"" } ?: "null"}"
+                    DisplayKind.AnchorMainHand -> "\"kind\":\"item\",\"item\":\"main-hand\",\"model\":null"
                     is DisplayKind.Text -> "\"kind\":\"text\",\"text\":\"${esc(k.lines.firstOrNull()?.byLocale?.values?.firstOrNull().orEmpty())}\",\"bg\":${k.backgroundArgb},\"opacity\":${k.textOpacity},\"rgb\":${k.textRgb},\"seeThrough\":${k.seeThrough},\"shadow\":${k.shadow}"
                     is DisplayKind.Block -> "\"kind\":\"block\",\"block\":\"${k.blockKey}\""
                     is DisplayKind.SkinBone -> "\"kind\":\"skin_bone\",\"bone\":\"${k.bone.yamlName}\",\"ghost\":${k.ghost}"
