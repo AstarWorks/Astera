@@ -90,14 +90,14 @@
     },
     {
       "tick": 16,
-      "beat": "B4 raise and release",
+      "beat": "B4 raise, release; shears A spins camera-CCW in the forward-up plane (f829-835)",
       "owner": "body anim",
       "carrier": "rig",
       "status": "implemented-unverified"
     },
     {
-      "tick": 22,
-      "beat": "B5 ONE flying shears overhead (hand model off), white blades + loops are flat VFX",
+      "tick": 26,
+      "beat": "B5 B and C appear overhead (f836), A static; B and C spin camera-CW, then three halves align (3 single halves, not one closed shears)",
       "owner": "couture-rapier-s2-shears projectile",
       "carrier": "rig",
       "status": "implemented-unverified"
