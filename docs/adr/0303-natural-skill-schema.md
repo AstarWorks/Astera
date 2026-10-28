@@ -674,6 +674,9 @@ worst-case path exceeds `max_cast_ticks` fails), and the Board's per-item "durat
 
 ## Open decisions (founder)
 
+- **Name collision `at`**: the timing block (2.0) uses `at` for the start tick and the objects use `at` for the anchor. The examples keep both (`at: slash` anchor, `at: 7` tick) and example h uses `at_tick`. Recommendation: rename the anchor field to `on:`-free `anchor:` and keep `at` as time everywhere; the examples would be rewritten once decided.
+- **`then_event` and `bound:` spellings** in examples f/g are provisional; the grammar is `on: [{event: <call>.end, to}]` and `bound: [lo, hi]`.
+
 1. **Held-item context, RC3.** `fixed` (recommended) vs `thirdperson_righthand`. `content/frames/couture-rapier.yaml` points are measured in the
    `fixed` basis and the three pieces of coin 2 share it; `thirdperson_righthand` (`held_hand` part in the frames file) matches how the real held
    weapon looks and avoids a pop when the real item is hidden. Needs a capture of both before the first skill ships.
