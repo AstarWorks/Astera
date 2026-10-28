@@ -29,7 +29,7 @@ class ItemTooltipStyleE2eTest : E2eBase() {
                 "$id hides attribute/enchant/unbreakable/dye, keeps name+lore"
             }
             // Preserve the real stack's item PDC while deliberately replacing only the style.
-            val modifyReply = rcon("item modify entity ${b.name} hotbar.0 {function:\"minecraft:set_components\",components:{\"minecraft:tooltip_style\":\"minecraft:wrong\"}}")
+            val modifyReply = rcon("item modify entity ${b.name} hotbar.0 {type:\"minecraft:set_components\",components:{\"minecraft:tooltip_style\":\"minecraft:wrong\"}}")
             E2eReport.check("Item tooltip", "$id style can be corrupted for the refresh check", "item modify + Inventory component") {
                 assertThat(component()).describedAs("modify reply: $modifyReply").contains("minecraft:wrong")
                 "$id -> minecraft:wrong"
@@ -115,13 +115,23 @@ class ItemTooltipStyleE2eTest : E2eBase() {
         rcon("clear ${b.name}")
         rcon("astera items give ${b.name} iron-pickaxe")
         rcon("astera items give ${b.name} stone-pickaxe")
-        rcon("item modify entity ${b.name} container.0 {function:\"minecraft:set_damage\",damage:0.5}")
-        rcon("item modify entity ${b.name} container.1 {function:\"minecraft:enchant_with_levels\",levels:5}")
+        val damaged = rcon("item modify entity ${b.name} container.0 {type:\"minecraft:set_damage\",damage:0.5}")
+        val enchanted = rcon("item modify entity ${b.name} container.1 {type:\"minecraft:enchant_with_levels\",levels:5}")
+        E2eReport.check("Item tooltip", "durability and enchant mutations were applied", "item modify replies") {
+            assertThat(damaged + enchanted).doesNotContain("Failed", "Unknown")
+            assertThat(probe(b, 0, ".components.\"minecraft:damage\"")).describedAs("damage component present: $damaged").isTrue()
+            assertThat(probe(b, 1, ".components.\"minecraft:enchantments\"")).describedAs("enchantments present: $enchanted").isTrue()
+            "damage + enchantments present"
+        }
         Thread.sleep(500)
         assertCovered(b, "after durability change and enchant", "Inventory components after set_damage/enchant")
 
         // A stack saved before the display existed: strip it, the guard must restore it.
-        rcon("item modify entity ${b.name} container.0 {function:\"minecraft:set_components\",components:{\"!minecraft:tooltip_display\":{}}}")
+        val stripReply = rcon("item modify entity ${b.name} container.0 {type:\"minecraft:set_components\",components:{\"!minecraft:tooltip_display\":{}}}")
+        E2eReport.check("Item tooltip", "tooltip_display strip command was accepted", "item modify reply") {
+            assertThat(stripReply).doesNotContain("Failed", "Unknown")
+            stripReply
+        }
         val restored = b.waitUntil(5_000) {
             !rcon("data get entity ${b.name} Inventory[{Slot:0b}].components.\"minecraft:tooltip_display\"").contains("Found no elements")
         }
