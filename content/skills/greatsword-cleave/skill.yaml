@@ -1,4 +1,4 @@
-apiVersion: "astera/v3"
+apiVersion: astera/v3
 kind: Skill
 id: greatsword-cleave
 item: greatsword
@@ -9,32 +9,42 @@ meta:
   resource_cost: 35
   tags: [melee, physical, burst]
 anchors:
-  cast_fx: {anchor: caster.eye, offset: {up: -0.3, forward: 2.4}, mode: snapshot}
-  heart: {anchor: victim.body, offset: {up: 0.4}}
-  head: {anchor: victim.body, offset: {up: 0.8}}
-presentation:
-  timeline:
-    - at: 0
+  - {id: cast_fx, anchor: caster.eye, offset: {up: -0.3, forward: 2.4}, mode: snapshot}
+  - {id: heart, anchor: victim.body, offset: {up: 0.4}}
+  - {id: head, anchor: victim.body, offset: {up: 0.8}}
+machine:
+  start: cast
+  states:
+    cast:
+      start: strike
       do:
-        - {id: snd, op: sound, sound: "astera:weapons/blade-heavy-swing", anchor: caster, volume: 1.0, pitch: 0.6}
-        - {id: fx, op: particle_def, def: cleave-sweep, anchor: cast_fx}
-gameplay:
-  timeline:
-    - at: 0
-      do:
-        - id: swing
-          op: hit
-          anchor: caster.eye
-          targets: enemies
-          shape: {sector: {deg: 150.0, range: 4.2, height: 2.0, forward: look}}
-          window: once
-          ignore_invulnerability: false
-          damage: {physical: 65.0}
-          on:
-            hit:
-              - {id: snd_hit, op: sound, sound: "astera:weapons/blade-crit", anchor: victim.body, volume: 1.0, pitch: 1.0}
-              - {id: fx_hit, op: particle_def, def: hit-spark, anchor: heart}
-              - {id: fx_ind, op: particle_def, def: hit-indicator, anchor: head}
-              - {id: kb, op: knockback, target: event.victim, direction: "= normalize(pos(event.victim) - pos(caster))", strength: 1.3}
-            miss:
-              - {id: whiff, op: sound, sound: "astera:weapons/blade-miss", anchor: caster, volume: 1.0, pitch: 1.0}
+        - {id: snd, op: sound, sound: "astera:weapons/blade-heavy-swing", anchor: caster, volume: 1.0, pitch: 0.6, at: 0}
+        - {id: fx, op: particle_def, def: cleave-sweep, anchor: cast_fx, at: 0}
+      on:
+        - {event: end, to: done}
+      states:
+        strike:
+          for: 1
+          then: recover
+          enter:
+            - id: swing
+              op: hit
+              anchor: caster.eye
+              at: 0
+              targets: enemies
+              shape: {sector: {deg: 150.0, range: 4.2, height: 2.0, forward: look}}
+              max_count: all       # GAP(Q1): v2 had no cap
+              window: once
+              ignore_invulnerability: false
+              damage: {physical: 65.0}
+              on:
+                hit:
+                  - {id: snd_hit, op: sound, sound: "astera:weapons/blade-crit", anchor: contact, volume: 1.0, pitch: 1.0}
+                  - {id: fx_hit, op: particle_def, def: hit-spark, anchor: heart}
+                  - {id: fx_ind, op: particle_def, def: hit-indicator, anchor: head}
+                  - {id: kb, op: knockback, target: event.victim, direction: "= normalize(pos(event.victim) - pos(caster))", strength: 1.3}
+                # v2 miss cue: sound at tick 2 when counter('swing_hits') == 0 (same spelling as sword-slash)
+                miss:
+                  - {id: whiff, op: sound, at: 2, sound: "astera:weapons/blade-miss", anchor: caster}
+        recover: {final: true}
+    done: {final: true}
