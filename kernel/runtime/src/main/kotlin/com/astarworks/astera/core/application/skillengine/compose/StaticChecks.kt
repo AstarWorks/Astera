@@ -217,6 +217,8 @@ public object StaticChecks {
             is Action.Emit -> emitted += a.event.value
             is Action.Spawn -> instances += row.instance.text
             is Action.Call -> { instances += a.callId.text; calls += a.callId.text }
+            // reel / dash / rig / body start as an Effect on their own instance and produce `<id>.end` (ADR-0303 10.1, R14)
+            is Action.Effect -> instances += row.instance.text
             else -> {}
         }
         for (b in g.allBranches()) {
