@@ -235,3 +235,52 @@ hit は ダメージパイプライン (`ApplyDamageUseCase`、friendly-fire 判
 | `dist(a, b)` / `counter("key")` | 既存 |
 
 `window` は gameplay 専用 (presentation には置けない)。Schema: `content/schemas/skill.schema.json` の `op_window`。
+
+## v2 演出の文法 (`look.yaml` presentation, SKL-14)
+
+v1 の演出 (rig / sprite / trail / 繰り返し emit) と同じ見た目を v2 で書くための field。値の意味は v1 と同じ。
+
+### Pose の時間 (読み方だけ、書く field は無い)
+
+`track` の keyframe `t: N` は **tick N の画面にそのまま出る**。クライアントは pose を 1 tick かけて補間するので、
+engine は 1 tick 先の値を送る (tick k に push した pose が k+1 に見える)。keyframe を 1 つ前倒しで書く必要は無い。
+
+### Rig: `mesh` の `pivot` / `rest` / `tilt`
+
+武器を持つ rig を作るときの `mesh` op の field。合成順は v1 と同じ `pivot フレーム ∘ tilt ∘ track(swing) ∘ rest ∘ part offset`。
+
+| field | 型 | 意味 |
+|---|---|---|
+| `pivot` | `[left, up, forward]` (blocks) | rig の回転中心を frame 原点からずらす。swing はこの点の周りで回る |
+| `tilt` | `[yaw, pitch, roll]` (度) | swing 全体を傾ける。track の回転より外側 |
+| `rest` | `[yaw, pitch, roll]` (度) | 武器を持った静止姿勢。track の回転より内側。v1 `rest: [0, 90, 0]` は刃先 (+Y) が前方を向く |
+
+角度は `track.rotation` と同じ yaw/pitch/roll。どれも省略 = 0。
+
+```yaml
+- {id: blade, op: mesh, frame: rig, item: couture-rapier, pivot: [-0.3, 1.1, 0.3], rest: [0, 90, 0], tilt: [0, 0, 20]}
+```
+
+### `plate` の flipbook と色
+
+| field | 意味 |
+|---|---|
+| `frame_ticks` | 1 frame を何 tick 見せるか (既定 1、1 frame の sprite では無効) |
+| `loop` | true = 最後の frame の次に先頭へ戻る、false (既定) = 最後の frame で止まる |
+| `color` | `"#RRGGBB"` の色味。sprite の色に掛ける |
+
+### `trail` の `fade` / `style`
+
+`fade: p` は alpha を `alpha * (1 - age/ticks)^p` で落とす (既定 1。小さいほど長く残り、0 で最後まで落ちない)。
+`style: soft | crisp | both` は縁の質感 (既定 soft)。`crisp` は端まで alpha を保つ。`bands` / `edge` / `dark_rim` /
+`step_deg` / `lag_ticks` / `double_sided` は未対応で、converter が `CONVERT-PRESENT` に残す。
+
+### 繰り返し: timeline の `for`
+
+`every: N` の row は `until:` (event) まで繰り返す。`for: M` は **最初に出た tick から M tick で打ち切る**
+(終端は含まない: `every: 2, for: 10` は 5 回)。`for` は `every` と一緒にしか書けない。v1 の `start..end` を回す
+particle element / rig emitter はこの形に変換される。
+
+```yaml
+- {id: embers, at: 17, every: 1, for: 8, do: [{id: e, op: emit, at: staff_tip, particle: orrery-ember, count: 1}]}
+```

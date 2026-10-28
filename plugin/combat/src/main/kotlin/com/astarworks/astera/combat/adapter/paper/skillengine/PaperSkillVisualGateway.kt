@@ -51,6 +51,8 @@ public class PaperSkillVisualGateway(
     private val displays: IDisplayEntityGateway,
     /** Item point tables: a mesh part names its pack model there ([MeshModels]). */
     private val frameTables: Map<String, ItemFrames> = emptyMap(),
+    /** Frames in a sprite's flipbook (`content/sprites/<id>.yaml`), 1 when unknown. */
+    private val spriteFrameCount: (String) -> Int = { 1 },
 ) : ISkillVisualGateway {
 
     private val log = LoggerFactory.getLogger(javaClass)
@@ -65,12 +67,14 @@ public class PaperSkillVisualGateway(
 
     private sealed interface Entry
     private class MeshEntry(val handle: DisplayHandle, var scale: Vec3, var rotation: Quaternion) : Entry
-    private class PlateEntry(val handle: DisplayHandle, val face: PlateFace, var size: Vec3, val world: World, var rotation: Quaternion) : Entry
+    private class PlateEntry(val handle: DisplayHandle, val face: PlateFace, var size: Vec3, val world: World, var rotation: Quaternion, val sprite: String) : Entry
     private class LineEntry(val handle: DisplayHandle, val face: PlateFace, val thickness: Double, val world: World) : Entry
     private class Seg(val display: UUID, var age: Int)
     private class TrailEntry(
         val world: World, val ticks: Int, val widthFrac: Double, val rgb: Int, val alpha: Double,
     ) : Entry {
+        var fadePower: Double = 1.0
+        var crisp: Boolean = false
         val mesh = RibbonMesh()
         val segments = ArrayDeque<Seg>()
     }
@@ -115,7 +119,7 @@ public class PaperSkillVisualGateway(
             brightness = 15,
         )
         val handle = displays.spawn(WorldId(world.name), pose.origin, spec, listOf(glyph)) ?: return dead("plate $sprite")
-        return register(PlateEntry(handle, face, uniform(size), world, placed.rotation))
+        return register(PlateEntry(handle, face, uniform(size), world, placed.rotation, sprite))
     }
 
     override fun spawnLine(castOwner: UUID, from: Vec3, to: Vec3, thickness: Double, colorHex: String, face: PlateFace): VisualHandle {
@@ -143,6 +147,20 @@ public class PaperSkillVisualGateway(
         val world = worldOf(castOwner) ?: return dead("trail")
         val rgb = argb(colorHex) and 0xFFFFFF
         return register(TrailEntry(world, ticks.coerceAtLeast(1), widthFrac, rgb, alpha.coerceIn(0.0, 1.0)))
+    }
+
+    override fun spriteFrames(sprite: String): Int = spriteFrameCount(sprite).coerceAtLeast(1)
+
+    override fun setPlateFrame(handle: VisualHandle, frame: Int, tintHex: String?) {
+        val e = entries[handle.id] as? PlateEntry ?: return
+        val rgb = tintHex?.let { argb(it) and 0xFFFFFF }
+        displays.setText(e.handle, listOf(SpriteGlyphs.text(SpriteId(e.sprite), frame, rgb)))
+    }
+
+    override fun setTrailLook(handle: VisualHandle, fadePower: Double, style: String) {
+        val t = entries[handle.id] as? TrailEntry ?: return
+        t.fadePower = fadePower.coerceAtLeast(0.0)
+        t.crisp = style != "soft"
     }
 
     override fun updatePose(handle: VisualHandle, pose: Frame, interpolationTicks: Int) {
@@ -243,8 +261,15 @@ public class PaperSkillVisualGateway(
         return display.uniqueId
     }
 
-    private fun fade(t: TrailEntry, age: Int): Int =
-        (t.alpha * (1.0 - age.toDouble() / t.ticks) * 255.0).roundToInt().coerceIn(0, 255)
+    /**
+     * Alpha at [age]: `alpha * (1 - age/ticks) ^ fadePower`. A crisp ribbon (`crisp` / `both`) keeps full alpha
+     * until its last tick and then ends: its edge is the point of the style, a fade would turn it soft.
+     */
+    private fun fade(t: TrailEntry, age: Int): Int {
+        val life = (1.0 - age.toDouble() / t.ticks).coerceIn(0.0, 1.0)
+        val k = if (t.crisp && t.fadePower == 1.0) 1.0 else Math.pow(life, t.fadePower)
+        return (t.alpha * k * 255.0).roundToInt().coerceIn(0, 255)
+    }
 
     // ---- helpers -----------------------------------------------------------------
 

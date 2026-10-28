@@ -5,8 +5,7 @@
 # CONVERT-PRESENT vfx follow=false (anchored at world, no place-at-spawn) (x1): vendetta-parry-ring
 # CONVERT-PRESENT quad element (plate takes a sprite: no solid-colour quad / glyph) (x1): {"color": "#FFCE66", "glyph": "✦"}
 # CONVERT-PRESENT element brightness (no v2 equivalent) (x1): 15
-# CONVERT-PRESENT repeating particle element (emit is one burst) (x1): every=3 ticks=4
-# CONVERT-PRESENT rig pivot / rest / tilt / respect_hit_stop / weapon points (frames carry no pivot or rest pose) (x1): {"pivot": [0.35, 1.05, 0.25], "respect_hit_stop": true, "rest": [0, 90, 0], "til
+# CONVERT-PRESENT rig respect_hit_stop / weapon points (x1): {"respect_hit_stop": true}
 # CONVERT-PRESENT rig block parts (mesh takes an item model, not a block + size) (x1): 11 parts
 # CONVERT-PRESENT rig swing without a weapon mesh (track needs a visual to move) (x1): 3 keys
 apiVersion: "astera/v2"
@@ -16,4 +15,4 @@ frames:
   - {id: fx1_vendetta_bayonet_thrust, kind: body, parent: caster}
   - {id: fx2_vendetta_parry_ring, kind: body, parent: world}
   - {id: fx2_vendetta_parry_ring_bayonet, kind: body, parent: caster.right_hand}
-presentation: {timeline: [{id: fx1, at: 1, do: [{id: fx2_vendetta_parry_ring_petals, op: emit, at: fx2_vendetta_parry_ring, particle: vendetta-petals, count: 1}]}]}
+presentation: {timeline: [{id: loop1, at: 1, every: 3, for: 4, do: [{id: fx2_vendetta_parry_ring_petals, op: emit, at: fx2_vendetta_parry_ring, particle: vendetta-petals, count: 1}]}]}

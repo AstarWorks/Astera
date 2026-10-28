@@ -2,10 +2,10 @@
 # Generated point-frame offsets are [left, up, forward] in the parent frame.
 # CONVERT-PRESENT vfx follow=false (anchored at world, no place-at-spawn) (x3): verdict-s1-gavel | verdict-impact
 # CONVERT-PRESENT vfx frame orient (frames carry no orientation / scale) (x3): orient="yaw" | orient="world"
-# CONVERT-PRESENT rig pivot / rest / tilt / respect_hit_stop / weapon points (frames carry no pivot or rest pose) (x2): {"pivot": [-0.25, 1.6, 0.15], "respect_hit_stop": true, "rest": [0, 90, 0], "til
+# CONVERT-PRESENT rig respect_hit_stop / weapon points (x2): {"respect_hit_stop": true}
 # CONVERT-PRESENT rig block parts (mesh takes an item model, not a block + size) (x2): 6 parts
 # CONVERT-PRESENT rig swing without a weapon mesh (track needs a visual to move) (x2): 5 keys
-# CONVERT-PRESENT trail style / bands / edge / fade (trail has width_frac, color, alpha only) (x2): {"bands": [{"color": "#18FFD878", "color_to": "#00A07020", "from": 0.0, "to": 0.
+# CONVERT-PRESENT trail bands / edge / dark_rim / step_deg / lag_ticks / double_sided (trail has style, fade, width_frac, color, alpha) (x2): {"bands": [{"color": "#18FFD878", "color_to": "#00A07020", "from": 0.0, "to": 0.
 # CONVERT-PRESENT quad element (plate takes a sprite: no solid-colour quad / glyph) (x5): {"color": "#FFFAD8", "glyph": "✷"} | {"color": "#FFD66B", "glyph": "✦"}
 # CONVERT-PRESENT element brightness (no v2 equivalent) (x5): 15
 # CONVERT-PRESENT presentation inside a nested gameplay list (dash on_hit has no event hook) (x2): play_vfx | play_sound

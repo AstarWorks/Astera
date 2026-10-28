@@ -3,11 +3,8 @@
 # CONVERT-PRESENT vfx frame orient (frames carry no orientation / scale) (x3): orient="yaw"
 # CONVERT-PRESENT vfx attach_to_anchor (no v2 equivalent) (x1): true
 # CONVERT-PRESENT play_vfx freeze (no v2 equivalent) (x1): [{"at": 7, "ticks": 2}, {"at": 31, "tick
-# CONVERT-PRESENT rig pivot / rest / tilt / respect_hit_stop / weapon points (frames carry no pivot or rest pose) (x1): {"pivot": [0, 0, 0], "respect_hit_stop": true, "weapon_edge": [0.0, -0.6155, 0.7
+# CONVERT-PRESENT rig respect_hit_stop / weapon points (x1): {"respect_hit_stop": true, "weapon_edge": [0.0, -0.6155, 0.7881], "weapon_root":
 # CONVERT-PRESENT element brightness (no v2 equivalent) (x23): 15
-# CONVERT-PRESENT keyframe non-uniform scale (track scale is one number; the largest axis is used) (x41): [0.4761, 0.4761, 1.0] | [0.3906, 0.3, 1.0]
-# CONVERT-PRESENT repeating particle element (emit is one burst) (x20): every=1 ticks=16 | every=1 ticks=15
-# CONVERT-PRESENT sprite frame_ticks / loop / color (plate has sprite, size_frac, alpha) (x1): {"color": "#FFE070", "frame_ticks": 1, "loop": false}
 apiVersion: "astera/v2"
 kind: Skill
 id: bastion-greatsword-s1
@@ -109,16 +106,6 @@ presentation:
           space: fx2_bastion_s1_fx_high
           keys:
             - {t: 0, offset: [1.138, 1.543, 1.508], rotation: [-179.6, -85.97, 0.0], scale: [0.4761, 0.4761, 1.0]}
-        - {id: fx2_bastion_s1_fx_high_s1h1_p_sheath_0, op: emit, at: fx2_bastion_s1_fx_high, particle: bastion-s1-p-sheath, count: 1}
-        - {id: fx2_bastion_s1_fx_high_s1h1_p_sheath_1, op: emit, at: fx2_bastion_s1_fx_high, particle: bastion-s1-p-sheath, count: 1}
-        - {id: fx2_bastion_s1_fx_high_s1h1_p_sheath_2, op: emit, at: fx2_bastion_s1_fx_high, particle: bastion-s1-p-sheath, count: 1}
-        - {id: fx2_bastion_s1_fx_high_s1h1_p_sheath_3, op: emit, at: fx2_bastion_s1_fx_high, particle: bastion-s1-p-sheath, count: 1}
-        - {id: fx2_bastion_s1_fx_high_s1h1_p_sheath_4, op: emit, at: fx2_bastion_s1_fx_high, particle: bastion-s1-p-sheath, count: 1}
-        - {id: fx2_bastion_s1_fx_high_s1h1_p_hot_0, op: emit, at: fx2_bastion_s1_fx_high, particle: bastion-s1-p-sheath-hot, count: 1}
-        - {id: fx2_bastion_s1_fx_high_s1h1_p_mid_0, op: emit, at: fx2_bastion_s1_fx_high, particle: bastion-s1-p-sheath, count: 1}
-        - {id: fx2_bastion_s1_fx_high_s1h1_p_steel_0, op: emit, at: fx2_bastion_s1_fx_high, particle: bastion-s1-p-steel, count: 1}
-        - {id: fx2_bastion_s1_fx_high_s1h1_p_steel_1, op: emit, at: fx2_bastion_s1_fx_high, particle: bastion-s1-p-steel, count: 1}
-        - {id: fx2_bastion_s1_fx_high_s1h1_p_fleck_0, op: emit, at: fx2_bastion_s1_fx_high, particle: bastion-s1-p-fleck, count: 1}
         - {id: fx2_bastion_s1_fx_high_s1h1_p_trail, op: emit, at: fx2_bastion_s1_fx_high, particle: bastion-s1-p-trail, count: 1}
         - {id: fx2_bastion_s1_fx_high_s1h1_p_csteel, op: emit, at: fx2_bastion_s1_fx_high, particle: bastion-s1-p-steel, count: 1}
         - {id: fx2_bastion_s1_fx_high_s1h1_p_slash, op: emit, at: fx2_bastion_s1_fx_high, particle: bastion-s1-p-slash, count: 1}
@@ -458,16 +445,6 @@ presentation:
             - {t: 0, offset: [0.5, 0.6, 1.2], rotation: [0, 0, 0], scale: [0.07812, 0.1, 1.0]}
             - {t: 1, offset: [0.5, 0.6, 1.2], rotation: [0, 0, 0], scale: [0.375, 0.1, 1.0]}
             - {t: 2, offset: [0.5, 0.6, 1.2], rotation: [0, 0, 0], scale: [0.2625, 0.02, 1.0]}
-        - {id: fx3_bastion_s1_fx_low_s1h2_p_sheath_0_2, op: emit, at: fx3_bastion_s1_fx_low, particle: bastion-s1-p-sheath, count: 1}
-        - {id: fx3_bastion_s1_fx_low_s1h2_p_sheath_1_2, op: emit, at: fx3_bastion_s1_fx_low, particle: bastion-s1-p-sheath, count: 1}
-        - {id: fx3_bastion_s1_fx_low_s1h2_p_sheath_2_2, op: emit, at: fx3_bastion_s1_fx_low, particle: bastion-s1-p-sheath, count: 1}
-        - {id: fx3_bastion_s1_fx_low_s1h2_p_sheath_3_2, op: emit, at: fx3_bastion_s1_fx_low, particle: bastion-s1-p-sheath, count: 1}
-        - {id: fx3_bastion_s1_fx_low_s1h2_p_sheath_4_2, op: emit, at: fx3_bastion_s1_fx_low, particle: bastion-s1-p-sheath, count: 1}
-        - {id: fx3_bastion_s1_fx_low_s1h2_p_hot_0_2, op: emit, at: fx3_bastion_s1_fx_low, particle: bastion-s1-p-sheath-hot, count: 1}
-        - {id: fx3_bastion_s1_fx_low_s1h2_p_mid_0_2, op: emit, at: fx3_bastion_s1_fx_low, particle: bastion-s1-p-sheath, count: 1}
-        - {id: fx3_bastion_s1_fx_low_s1h2_p_steel_0_2, op: emit, at: fx3_bastion_s1_fx_low, particle: bastion-s1-p-steel, count: 1}
-        - {id: fx3_bastion_s1_fx_low_s1h2_p_steel_1_2, op: emit, at: fx3_bastion_s1_fx_low, particle: bastion-s1-p-steel, count: 1}
-        - {id: fx3_bastion_s1_fx_low_s1h2_p_fleck_0_2, op: emit, at: fx3_bastion_s1_fx_low, particle: bastion-s1-p-fleck, count: 1}
         - {id: fx3_bastion_s1_fx_low_s1h2_p_trail_7, op: emit, at: fx3_bastion_s1_fx_low, particle: bastion-s1-p-trail, count: 1}
         - {id: fx3_bastion_s1_fx_low_s1h2_p_csteel_3, op: emit, at: fx3_bastion_s1_fx_low, particle: bastion-s1-p-steel, count: 1}
         - {id: fx3_bastion_s1_fx_low_s1h2_p_tcrit_2, op: emit, at: fx3_bastion_s1_fx_low, particle: bastion-s1-p-trail-crit, count: 1}
@@ -515,7 +492,7 @@ presentation:
             - {t: 0, offset: [0.062, 1.773, 1.604], rotation: [0, 0, -4], scale: [0.09375, 0.32, 1.0]}
             - {t: 1, offset: [0.062, 1.773, 1.604], rotation: [0, 0, -4], scale: [0.7187, 0.32, 1.0]}
             - {t: 6, offset: [0.062, 1.773, 1.604], rotation: [0, 0, -4], scale: [0.5625, 0.04, 1.0]}
-        - {id: fx3_bastion_s1_fx_low_s1h2_line_2, op: plate, parent: fx3_bastion_s1_fx_low, face: {viewer: center}, sprite: bastion-s1-streak}
+        - {id: fx3_bastion_s1_fx_low_s1h2_line_2, op: plate, parent: fx3_bastion_s1_fx_low, face: {viewer: center}, sprite: bastion-s1-streak, color: "#FFE070"}
         - id: fx3_bastion_s1_fx_low_s1h2_line_2_trk
           op: track
           target: fx3_bastion_s1_fx_low_s1h2_line_2
@@ -729,3 +706,23 @@ presentation:
         - {id: fx3_bastion_s1_fx_low_s1h2_p_slash_14, op: emit, at: fx3_bastion_s1_fx_low, particle: bastion-s1-p-slash, count: 1}
     - {id: fx42, at: 42, do: [{id: rm_10, op: remove, ids: [fx3_bastion_s1_fx_low_s1h2_ring_q0, fx3_bastion_s1_fx_low_s1h2_ring_q1, fx3_bastion_s1_fx_low_s1h2_ring_q2, fx3_bastion_s1_fx_low_s1h2_ring_q3]}]}
     - {id: fx58, at: 58, do: [{id: rm, op: remove, ids: [fx1_bastion_s1_rig_sword_weapon]}]}
+    - {id: loop1, at: 4, every: 1, for: 16, do: [{id: fx2_bastion_s1_fx_high_s1h1_p_sheath_0, op: emit, at: fx2_bastion_s1_fx_high, particle: bastion-s1-p-sheath, count: 1}]}
+    - {id: loop2, at: 4, every: 1, for: 16, do: [{id: fx2_bastion_s1_fx_high_s1h1_p_sheath_1, op: emit, at: fx2_bastion_s1_fx_high, particle: bastion-s1-p-sheath, count: 1}]}
+    - {id: loop3, at: 4, every: 1, for: 16, do: [{id: fx2_bastion_s1_fx_high_s1h1_p_sheath_2, op: emit, at: fx2_bastion_s1_fx_high, particle: bastion-s1-p-sheath, count: 1}]}
+    - {id: loop4, at: 4, every: 1, for: 16, do: [{id: fx2_bastion_s1_fx_high_s1h1_p_sheath_3, op: emit, at: fx2_bastion_s1_fx_high, particle: bastion-s1-p-sheath, count: 1}]}
+    - {id: loop5, at: 4, every: 1, for: 15, do: [{id: fx2_bastion_s1_fx_high_s1h1_p_sheath_4, op: emit, at: fx2_bastion_s1_fx_high, particle: bastion-s1-p-sheath, count: 1}]}
+    - {id: loop6, at: 4, every: 1, for: 16, do: [{id: fx2_bastion_s1_fx_high_s1h1_p_hot_0, op: emit, at: fx2_bastion_s1_fx_high, particle: bastion-s1-p-sheath-hot, count: 1}]}
+    - {id: loop7, at: 4, every: 1, for: 16, do: [{id: fx2_bastion_s1_fx_high_s1h1_p_mid_0, op: emit, at: fx2_bastion_s1_fx_high, particle: bastion-s1-p-sheath, count: 1}]}
+    - {id: loop8, at: 4, every: 1, for: 16, do: [{id: fx2_bastion_s1_fx_high_s1h1_p_steel_0, op: emit, at: fx2_bastion_s1_fx_high, particle: bastion-s1-p-steel, count: 1}]}
+    - {id: loop9, at: 4, every: 1, for: 16, do: [{id: fx2_bastion_s1_fx_high_s1h1_p_steel_1, op: emit, at: fx2_bastion_s1_fx_high, particle: bastion-s1-p-steel, count: 1}]}
+    - {id: loop10, at: 4, every: 1, for: 16, do: [{id: fx2_bastion_s1_fx_high_s1h1_p_fleck_0, op: emit, at: fx2_bastion_s1_fx_high, particle: bastion-s1-p-fleck, count: 1}]}
+    - {id: loop11, at: 30, every: 1, for: 12, do: [{id: fx3_bastion_s1_fx_low_s1h2_p_sheath_0_2, op: emit, at: fx3_bastion_s1_fx_low, particle: bastion-s1-p-sheath, count: 1}]}
+    - {id: loop12, at: 30, every: 1, for: 12, do: [{id: fx3_bastion_s1_fx_low_s1h2_p_sheath_1_2, op: emit, at: fx3_bastion_s1_fx_low, particle: bastion-s1-p-sheath, count: 1}]}
+    - {id: loop13, at: 30, every: 1, for: 12, do: [{id: fx3_bastion_s1_fx_low_s1h2_p_sheath_2_2, op: emit, at: fx3_bastion_s1_fx_low, particle: bastion-s1-p-sheath, count: 1}]}
+    - {id: loop14, at: 30, every: 1, for: 12, do: [{id: fx3_bastion_s1_fx_low_s1h2_p_sheath_3_2, op: emit, at: fx3_bastion_s1_fx_low, particle: bastion-s1-p-sheath, count: 1}]}
+    - {id: loop15, at: 30, every: 1, for: 11, do: [{id: fx3_bastion_s1_fx_low_s1h2_p_sheath_4_2, op: emit, at: fx3_bastion_s1_fx_low, particle: bastion-s1-p-sheath, count: 1}]}
+    - {id: loop16, at: 30, every: 1, for: 12, do: [{id: fx3_bastion_s1_fx_low_s1h2_p_hot_0_2, op: emit, at: fx3_bastion_s1_fx_low, particle: bastion-s1-p-sheath-hot, count: 1}]}
+    - {id: loop17, at: 30, every: 1, for: 12, do: [{id: fx3_bastion_s1_fx_low_s1h2_p_mid_0_2, op: emit, at: fx3_bastion_s1_fx_low, particle: bastion-s1-p-sheath, count: 1}]}
+    - {id: loop18, at: 30, every: 1, for: 12, do: [{id: fx3_bastion_s1_fx_low_s1h2_p_steel_0_2, op: emit, at: fx3_bastion_s1_fx_low, particle: bastion-s1-p-steel, count: 1}]}
+    - {id: loop19, at: 30, every: 1, for: 12, do: [{id: fx3_bastion_s1_fx_low_s1h2_p_steel_1_2, op: emit, at: fx3_bastion_s1_fx_low, particle: bastion-s1-p-steel, count: 1}]}
+    - {id: loop20, at: 30, every: 1, for: 12, do: [{id: fx3_bastion_s1_fx_low_s1h2_p_fleck_0_2, op: emit, at: fx3_bastion_s1_fx_low, particle: bastion-s1-p-fleck, count: 1}]}

@@ -1,0 +1,67 @@
+# Hand-built v2 skills the converter will not overwrite: what their v1 data has that the v2 files lack (read-only diff).
+== couture-rapier-s2 (protected: not written) ==
+  op cast_skill   v1 gives 3, v2 has 0; fields only v1 data fills: skill
+  op caster_anim  v1 gives 2, v2 has 0; fields only v1 data fills: anim
+  op damage       v1 gives 2, v2 has 0; fields only v1 data fills: components, ignore_invulnerability, target
+  op dash_strike  v1 gives 1, v2 has 0; fields only v1 data fills: distance, follow_pitch, hit_once, invulnerable, on_hit, radius, stop_before_target, stop_on_block, ticks
+  op delay        v1 gives 1, v2 has 0; fields only v1 data fills: after, do, when
+  op emit         v1 gives 17, v2 has 0; fields only v1 data fills: at, count, particle, when
+  op hit          v1 gives 1, v2 has 0; fields only v1 data fills: frames, max_count, sector, window
+  op mesh         v1 gives 5, v2 has 0; fields only v1 data fills: frame, item
+  op place        v1 gives 2, v2 has 0; fields only v1 data fills: frame, like
+  op plate        v1 gives 60, v2 has 0; fields only v1 data fills: color, face, parent, sprite, when
+  op remove       v1 gives 19, v2 has 0; fields only v1 data fills: ids, when
+  op sound        v1 gives 18, v2 has 0; fields only v1 data fills: at, pitch, sound, volume
+  op track        v1 gives 65, v2 has 0; fields only v1 data fills: keys, space, target, when
+  PRESENT vfx frame orient (frames carry no orientation / scale)
+  PRESENT vfx attach_to_anchor (no v2 equivalent)
+  PRESENT item element item_model / display_mode (mesh has item + part only)
+  PRESENT element brightness (no v2 equivalent)
+  PRESENT rig respect_hit_stop / weapon points
+  PRESENT vfx ghost_bodies (no v2 equivalent)
+  PRESENT block element (mesh takes an item model, plate takes a sprite: no block / solid-colour primitive)
+  PRESENT keyframe alpha (track animates offset / rotation / scale / ease only)
+  PRESENT vfx follow=false (anchored at world, no place-at-spawn)
+  PRESENT vfx target_reference (no v2 equivalent)
+  PRESENT play_vfx track_bound_target (no v2 equivalent)
+  PRESENT element target_line (no v2 equivalent)
+  PRESENT element target_track (no v2 equivalent)
+  PRESENT presentation inside a nested gameplay list (dash on_hit has no event hook)
+  PRESENT area target used only by presentation ops (no damaging hit volume to attach them to)
+== couture-rapier-s2-blade-b (protected: not written) ==
+  op emit         v1 gives 3, v2 has 0; fields only v1 data fills: at, count, particle
+  op mesh         v1 gives 2, v2 has 0; fields only v1 data fills: frame, item
+  op projectile   v1 gives 1, v2 has 0; fields only v1 data fills: body, from, max_ticks, radius, velocity
+  op remove       v1 gives 2, v2 has 0; fields only v1 data fills: ids
+  op sound        v1 gives 2, v2 has 0; fields only v1 data fills: at, pitch, sound, volume
+  op track        v1 gives 2, v2 has 0; fields only v1 data fills: keys, space, target
+  PRESENT vfx frame orient (frames carry no orientation / scale)
+  PRESENT item element item_model / display_mode (mesh has item + part only)
+  PRESENT element brightness (no v2 equivalent)
+  PRESENT vfx anchored at a runtime point (frame parent must exist at cast start): anchored at world
+== couture-rapier-s2-blade-a (protected: not written) ==
+  op emit         v1 gives 3, v2 has 0; fields only v1 data fills: at, count, particle
+  op mesh         v1 gives 2, v2 has 0; fields only v1 data fills: frame, item
+  op projectile   v1 gives 1, v2 has 0; fields only v1 data fills: body, from, max_ticks, radius, velocity
+  op remove       v1 gives 2, v2 has 0; fields only v1 data fills: ids
+  op sound        v1 gives 2, v2 has 0; fields only v1 data fills: at, pitch, sound, volume
+  op track        v1 gives 2, v2 has 0; fields only v1 data fills: keys, space, target
+  PRESENT vfx frame orient (frames carry no orientation / scale)
+  PRESENT item element item_model / display_mode (mesh has item + part only)
+  PRESENT element brightness (no v2 equivalent)
+  PRESENT vfx anchored at a runtime point (frame parent must exist at cast start): anchored at world
+== couture-rapier-s2-shears (protected: not written) ==
+  op damage       v1 gives 1, v2 has 0; fields only v1 data fills: components, ignore_invulnerability, target
+  op delay        v1 gives 1, v2 has 0; fields only v1 data fills: after, do
+  op emit         v1 gives 12, v2 has 0; fields only v1 data fills: at, count, particle
+  op mesh         v1 gives 2, v2 has 0; fields only v1 data fills: frame, item
+  op plate        v1 gives 20, v2 has 0; fields only v1 data fills: color, face, parent, sprite
+  op projectile   v1 gives 1, v2 has 0; fields only v1 data fills: body, from, max_ticks, radius, velocity
+  op remove       v1 gives 6, v2 has 0; fields only v1 data fills: ids
+  op sound        v1 gives 3, v2 has 0; fields only v1 data fills: at, pitch, sound, volume
+  op track        v1 gives 22, v2 has 0; fields only v1 data fills: keys, space, target
+  PRESENT vfx frame orient (frames carry no orientation / scale)
+  PRESENT item element item_model / display_mode (mesh has item + part only)
+  PRESENT element brightness (no v2 equivalent)
+  PRESENT vfx anchored at a runtime point (frame parent must exist at cast start): anchored at world
+  PRESENT vfx follow=false (anchored at world, no place-at-spawn)

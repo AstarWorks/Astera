@@ -7,6 +7,8 @@ import com.astarworks.astera.core.application.skillengine.runtime.OpContext
 import com.astarworks.astera.core.application.skillengine.runtime.OpExecutor
 import com.astarworks.astera.core.application.skillengine.runtime.port.ParticleBurst
 import com.astarworks.astera.core.domain.geometry.Vec3
+import com.astarworks.astera.core.domain.geometry.math.Frame
+import com.astarworks.astera.core.domain.geometry.math.Quaternion
 import com.astarworks.astera.core.domain.skillengine.frame.FrameId
 import com.astarworks.astera.core.domain.skillengine.model.Value
 import com.astarworks.astera.core.domain.skillengine.op.BodyOp
@@ -34,15 +36,22 @@ private fun OpContext.text(v: Value<String>?, default: String): String = v?.let 
 
 private fun OpContext.num(v: Value<Double>?, default: Double): Double = v?.let { values.num(it) } ?: default
 
+private fun euler(v: Vec3): Quaternion = Quaternion.fromEulerDegrees(v.x, v.y, v.z)
+
 internal class MeshExecutor(private val rt: PresentationRuntime) : OpExecutor<VisualOp.Mesh> {
     override val opClass: KClass<VisualOp.Mesh> = VisualOp.Mesh::class
     override fun execute(op: VisualOp.Mesh, ctx: OpContext) {
         if (!ctx.passes(op)) return
         val s = rt.state(ctx)
-        val pose = rt.frameWorld(s, op.frame) ?: return
+        val frame = rt.frameWorld(s, op.frame) ?: return
+        val pivot = op.pivot?.let { ctx.values.vec3(it) } ?: Vec3(0.0, 0.0, 0.0)
+        val tilt = op.tilt?.let { euler(ctx.values.vec3(it)) } ?: Quaternion.IDENTITY
+        val rest = op.rest?.let { euler(ctx.values.vec3(it)) } ?: Quaternion.IDENTITY
+        val base = rt.rigBase(frame, pivot, tilt)
+        val pose = Frame(base.origin, (base.rotation * rest).normalized())
         val scale = ctx.num(op.scale, 1.0)
         val h = ctx.ports.visuals.spawnMesh(rt.info.owner(ctx.cast), op.item, op.part, scale, pose)
-        rt.register(s, PresentationRuntime.Live.Mesh(op.id, h, op.frame, scale))
+        rt.register(s, PresentationRuntime.Live.Mesh(op.id, h, op.frame, scale, pivot, tilt, rest))
     }
 }
 
@@ -58,7 +67,10 @@ internal class PlateExecutor(private val rt: PresentationRuntime) : OpExecutor<V
         val h = ctx.ports.visuals.spawnPlate(
             rt.info.owner(ctx.cast), op.sprite, op.face, size, ctx.values.num(op.alpha), pose,
         )
-        rt.register(s, PresentationRuntime.Live.Plate(op.id, h, op.parent, op.face, size))
+        val tint = op.color?.let { ctx.values.text(it) }
+        val frames = ctx.ports.visuals.spriteFrames(op.sprite)
+        if (tint != null) ctx.ports.visuals.setPlateFrame(h, 0, tint)
+        rt.register(s, PresentationRuntime.Live.Plate(op.id, h, op.parent, op.face, size, op.sprite, frames, op.frameTicks, op.loop, tint, s.tick))
     }
 }
 
@@ -84,6 +96,7 @@ internal class TrailExecutor(private val rt: PresentationRuntime) : OpExecutor<V
         val h = ctx.ports.visuals.spawnTrail(
             rt.info.owner(ctx.cast), op.ticks, ctx.values.num(op.widthFrac), ctx.values.text(op.color), ctx.values.num(op.alpha),
         )
+        if (op.fade != null || op.style != "soft") ctx.ports.visuals.setTrailLook(h, op.fade?.let { ctx.values.num(it) } ?: 1.0, op.style)
         rt.register(s, PresentationRuntime.Live.Trail(op.id, h, op.of, op.root, op.ticks, op.untilEvent))
     }
 }

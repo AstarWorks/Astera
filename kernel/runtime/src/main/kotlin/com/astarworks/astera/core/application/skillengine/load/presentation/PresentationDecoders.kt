@@ -130,6 +130,8 @@ private fun OpReader.trackKeys(): List<TrackKey> {
     }
 }
 
+private val TRAIL_STYLES = setOf("soft", "crisp", "both")
+
 private val EASES = setOf("linear", "ease_in", "ease_out", "ease_in_out")
 
 private object VisualOpDecoder : OpDecoder {
@@ -137,10 +139,12 @@ private object VisualOpDecoder : OpDecoder {
     override val opNames = setOf("mesh", "plate", "line", "trail", "track", "remove")
     override fun decode(op: String, id: String, whenExpr: Value<Boolean>?, reader: OpReader): SkillOp = with(reader) {
         when (op) {
-            "mesh" -> VisualOp.Mesh(id, whenExpr, requireString("frame"), requireString("item"), string("part"), number("scale"))
+            "mesh" -> VisualOp.Mesh(id, whenExpr, requireString("frame"), requireString("item"), string("part"), number("scale"),
+                vec3("pivot"), vec3("rest"), vec3("tilt"))
             "plate" -> VisualOp.Plate(
                 id, whenExpr, requireString("parent"), face(null), requireString("sprite"),
                 numberOr("size_frac", 1.0), numberOr("alpha", 1.0),
+                int("frame_ticks")?.also { if (it < 1) fail("frame_ticks must be >= 1") }, bool("loop") ?: false, stringValue("color"),
             )
             "line" -> VisualOp.Line(
                 id, whenExpr, requirePoint("from"), requirePoint("to"), numberOr("thickness", 0.05),
@@ -149,6 +153,7 @@ private object VisualOpDecoder : OpDecoder {
             "trail" -> VisualOp.Trail(
                 id, whenExpr, requirePoint("of"), point("root"), int("ticks") ?: fail("missing 'ticks'"),
                 numberOr("width_frac", 1.0), colorOr("color", "#ffffff"), numberOr("alpha", 1.0), string("until"),
+                number("fade"), (string("style") ?: "soft").also { if (it !in TRAIL_STYLES) fail("style must be one of $TRAIL_STYLES") },
             )
             "track" -> VisualOp.Track(id, whenExpr, requireString("target"), trackKeys(), string("space"))
             "remove" -> VisualOp.Remove(id, whenExpr, stringList("ids") ?: fail("missing 'ids'"))

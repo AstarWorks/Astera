@@ -1,14 +1,14 @@
 # Converted from content/skills/gossamer-katana-ego.yaml + content/vfx/* by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
 # Generated point-frame offsets are [left, up, forward] in the parent frame.
 # CONVERT-PRESENT vfx frame orient (frames carry no orientation / scale) (x6): orient="yaw"
-# CONVERT-PRESENT rig pivot / rest / tilt / respect_hit_stop / weapon points (frames carry no pivot or rest pose) (x3): {"pivot": [-0.25, 0.9, 0.15], "respect_hit_stop": true, "rest": [0, 0, 0], "tilt | {"pivot": [-0.25, 1.0, 0.25], "respect_hit_stop": true, "rest": [0, 0, 0], "tilt
+# CONVERT-PRESENT rig respect_hit_stop / weapon points (x3): {"respect_hit_stop": true}
 # CONVERT-PRESENT rig block parts (mesh takes an item model, not a block + size) (x3): 3 parts
 # CONVERT-PRESENT rig swing without a weapon mesh (track needs a visual to move) (x3): 3 keys | 4 keys
 # CONVERT-PRESENT vfx follow=false (anchored at world, no place-at-spawn) (x5): gossamer-katana-guard | gossamer-katana-iaido-line
 # CONVERT-PRESENT block element (mesh takes an item model, plate takes a sprite: no block / solid-colour primitive) (x10): cyan_stained_glass | white_concrete
 # CONVERT-PRESENT element brightness (no v2 equivalent) (x11): 15
 # CONVERT-PRESENT quad element (plate takes a sprite: no solid-colour quad / glyph) (x1): {"color": "#59D9FF", "glyph": null}
-# CONVERT-PRESENT trail style / bands / edge / fade (trail has width_frac, color, alpha only) (x2): {"bands": [{"color": "#EE14245F", "color_to": "#307C36A8", "from": 0.0, "to": 1.
+# CONVERT-PRESENT trail bands / edge / dark_rim / step_deg / lag_ticks / double_sided (trail has style, fade, width_frac, color, alpha) (x2): {"bands": [{"color": "#EE14245F", "color_to": "#307C36A8", "from": 0.0, "to": 1.
 # CONVERT-PRESENT screen_flash has no v2 op (x1): {"fade_in": 0, "fade_out": 2, "overlay": "white", "stay": 1}
 apiVersion: "astera/v2"
 kind: Skill

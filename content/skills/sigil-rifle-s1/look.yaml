@@ -4,11 +4,10 @@
 # CONVERT-PRESENT quad element (plate takes a sprite: no solid-colour quad / glyph) (x2): {"color": "#FF3614", "glyph": "✦"} | {"color": "#FFC24A", "glyph": "✦"}
 # CONVERT-PRESENT element brightness (no v2 equivalent) (x8): 15
 # CONVERT-PRESENT block element (mesh takes an item model, plate takes a sprite: no block / solid-colour primitive) (x6): red_concrete | orange_concrete
-# CONVERT-PRESENT rig pivot / rest / tilt / respect_hit_stop / weapon points (frames carry no pivot or rest pose) (x1): {"pivot": [-0.28, 1.25, 0.25], "respect_hit_stop": false, "rest": [0, 90, 0]}
+# CONVERT-PRESENT rig respect_hit_stop / weapon points (x1): {"respect_hit_stop": false}
 # CONVERT-PRESENT rig block parts (mesh takes an item model, not a block + size) (x1): 5 parts
 # CONVERT-PRESENT rig swing without a weapon mesh (track needs a visual to move) (x1): 8 keys
-# CONVERT-PRESENT trail style / bands / edge / fade (trail has width_frac, color, alpha only) (x2): {"bands": [{"block": "red_concrete", "color": "#EEEF2311", "color_to": "#603A080
-# CONVERT-PRESENT rig emitter repeats (emit is one burst) (x2): ticks=5 | ticks=3
+# CONVERT-PRESENT trail bands / edge / dark_rim / step_deg / lag_ticks / double_sided (trail has style, fade, width_frac, color, alpha) (x2): {"bands": [{"block": "red_concrete", "color": "#EEEF2311", "color_to": "#603A080
 # CONVERT-PRESENT vfx follow=false (anchored at world, no place-at-spawn) (x1): sigil-rifle-mark
 apiVersion: "astera/v2"
 kind: Skill
@@ -21,16 +20,13 @@ frames:
   - {id: fx2_sigil_rifle_mark, kind: body, parent: world}
 presentation:
   timeline:
-    - id: fx7
-      at: 7
-      do:
-        - {id: fx1_sigil_rifle_dash_rifle_ribbon_5, op: trail, of: pt_fx1_sigil_rifle_dash_rifle_0_1p65_0, root: pt_fx1_sigil_rifle_dash_rifle_0_0p55_0, ticks: 8}
-        - {id: fx1_sigil_rifle_dash_rifle_embers_7, op: emit, at: pt_fx1_sigil_rifle_dash_rifle_0_1p65_0, particle: sigil-rifle-embers, count: 1}
+    - {id: fx7, at: 7, do: [{id: fx1_sigil_rifle_dash_rifle_ribbon_5, op: trail, of: pt_fx1_sigil_rifle_dash_rifle_0_1p65_0, root: pt_fx1_sigil_rifle_dash_rifle_0_0p55_0, ticks: 8, style: both, fade: 0.3}]}
     - id: fx20
       at: 20
       do:
-        - {id: fx1_sigil_rifle_dash_rifle_ribbon_20, op: trail, of: pt_fx1_sigil_rifle_dash_rifle_0_1p65_0, root: pt_fx1_sigil_rifle_dash_rifle_0_0p55_0, ticks: 8}
-        - {id: fx1_sigil_rifle_dash_rifle_embers_20, op: emit, at: pt_fx1_sigil_rifle_dash_rifle_0_1p65_0, particle: sigil-rifle-embers, count: 1}
+        - {id: fx1_sigil_rifle_dash_rifle_ribbon_20, op: trail, of: pt_fx1_sigil_rifle_dash_rifle_0_1p65_0, root: pt_fx1_sigil_rifle_dash_rifle_0_0p55_0, ticks: 8, style: both, fade: 0.3}
         - {id: rm, op: remove, ids: [fx1_sigil_rifle_dash_rifle_ribbon_5]}
     - {id: fx31, at: 31, do: [{id: rm_2, op: remove, ids: [fx1_sigil_rifle_dash_rifle_ribbon_20]}]}
+    - {id: loop1, at: 7, every: 1, for: 5, do: [{id: fx1_sigil_rifle_dash_rifle_embers_7, op: emit, at: pt_fx1_sigil_rifle_dash_rifle_0_1p65_0, particle: sigil-rifle-embers, count: 1}]}
+    - {id: loop2, at: 20, every: 1, for: 3, do: [{id: fx1_sigil_rifle_dash_rifle_embers_20, op: emit, at: pt_fx1_sigil_rifle_dash_rifle_0_1p65_0, particle: sigil-rifle-embers, count: 1}]}
   "on": {hit: [{id: snd, op: sound, sound: entity.player.attack.strong, at: contact.point, volume: 0.7, pitch: 1.1, when: "= event.source == 'sel'"}]}

@@ -114,6 +114,8 @@ class PresentationOpsScenarioTest {
     private val spawnedFaces = HashMap<Long, PlateFace>()
     private val lineEnds = HashMap<Long, Pair<Vec3, Vec3>>()
     private val trailPoints = ArrayList<Pair<Vec3, Vec3>>()
+    private val plateFrames = ArrayList<Triple<Long, Int, String?>>()
+    private val trailLooks = ArrayList<Triple<Long, Double, String>>()
     private val sounds = ArrayList<Triple<String, Vec3, Pair<Double, Double>>>()
     private val bursts = ArrayList<ParticleBurst>()
     private val removed = ArrayList<Long>()
@@ -135,6 +137,9 @@ class PresentationOpsScenarioTest {
         override fun updateLine(handle: VisualHandle, from: Vec3, to: Vec3) { lineEnds[handle.id] = from to to }
         override fun pushTrailPoint(handle: VisualHandle, root: Vec3, tip: Vec3) { trailPoints += root to tip }
         override fun remove(handle: VisualHandle) { removed += handle.id }
+        override fun spriteFrames(sprite: String) = if (sprite == "ring") 6 else 1
+        override fun setPlateFrame(handle: VisualHandle, frame: Int, tintHex: String?) { plateFrames += Triple(handle.id, frame, tintHex) }
+        override fun setTrailLook(handle: VisualHandle, fadePower: Double, style: String) { trailLooks += Triple(handle.id, fadePower, style) }
     }
 
     private val ports = SkillRuntimePorts(
@@ -363,7 +368,7 @@ class PresentationOpsScenarioTest {
             ),
         )
         val frames = tree.snapshot()
-        tick(2)
+        tick(1) // the pose pushed now is on screen next tick, so it already carries tick 2 of the track
         assertThat(poses[1]!!.origin.y).isCloseTo(3.0, Offset.offset(1e-9)) // 2.0 base + 1.0 (half of 2.0)
         near(scales[1]!!, 2.0)
         tick(10)
@@ -423,5 +428,60 @@ class PresentationOpsScenarioTest {
         run(VisualOp.Mesh("m", null, "shears", "couture-shears", null, null))
         rt.endCast(ctx.cast)
         assertThat(removed).hasSize(1)
+    }
+
+    // ---- SKL-14 restored v1 behaviour --------------------------------------------------------------
+
+    @Test
+    fun `pose lag - a keyframe at tick N is the pose pushed on tick N-1 so the player sees it at tick N`() {
+        run(VisualOp.Mesh("m", null, "shears", "couture-shears", null, null))
+        run(VisualOp.Track("t", null, "m", listOf(TrackKey(0, v(0.0, 0.0, 0.0), null, null, null), TrackKey(5, v(0.0, 5.0, 0.0), null, null, null)), null))
+        // the gateway interpolates one tick: what is pushed during tick k is displayed at tick k+1
+        val shown = (1..6).map { tick(); near(0.0, 0.0); poses[1]!!.origin.y - 2.0 }
+        // pushed at tick 1..6 -> shown at tick 2..7: tick N shows key value N (offset N), capped at the last key (5)
+        assertThat(shown.map { Math.round(it * 1000) / 1000.0 }).containsExactly(2.0, 3.0, 4.0, 5.0, 5.0, 5.0)
+        // and tick 1 shows 1.0: it was the spawn pose + the tick-0 push, i.e. the first push already looks one tick ahead
+        assertThat(shown.first()).isEqualTo(2.0)
+    }
+
+    @Test
+    fun `rig pivot rest and tilt - display is frame pivot tilt swing rest`() {
+        // shears frame at (0,2,0), identity rotation. pivot = 1 left (+x), tilt rolls 90 about the frame axis, rest yaws 90
+        val pivot = v(1.0, 0.0, 0.0)
+        val rest = v(90.0, 0.0, 0.0)
+        val tilt = v(0.0, 0.0, 0.0)
+        run(VisualOp.Mesh("m", null, "shears", "couture-shears", null, null, pivot, rest, tilt))
+        assertThat(poses[1]!!.origin).isEqualTo(Vec3(1.0, 2.0, 0.0))
+        val expect = Quaternion.fromEulerDegrees(90.0, 0.0, 0.0)
+        assertThat(poses[1]!!.rotation.rotate(Vec3(0.0, 0.0, 1.0)).distance(expect.rotate(Vec3(0.0, 0.0, 1.0)))).isLessThan(1e-9)
+        // a swing (track rotation) turns the model about the pivot AFTER rest, so rest stays the model's own orientation
+        run(VisualOp.Track("sw", null, "m", listOf(TrackKey(0, null, v(0.0, 0.0, 0.0), null, null), TrackKey(1, null, v(0.0, 90.0, 0.0), null, null)), null))
+        tick(3)
+        val swung = Quaternion.fromEulerDegrees(0.0, 90.0, 0.0) * expect
+        assertThat(poses[1]!!.rotation.rotate(Vec3(0.0, 0.0, 1.0)).distance(swung.rotate(Vec3(0.0, 0.0, 1.0)))).isLessThan(1e-9)
+        assertThat(poses[1]!!.origin).isEqualTo(Vec3(1.0, 2.0, 0.0)) // the pivot did not move
+    }
+
+    @Test
+    fun `plate flipbook - frame follows age over frame_ticks, loops or holds, and carries the tint`() {
+        run(VisualOp.Plate("held", null, "volley", PlateFace.ViewerCenter, "ring", lit(1.0), lit(1.0), 2, false, Value.Literal("#FFE070")))
+        run(VisualOp.Plate("looped", null, "volley", PlateFace.ViewerCenter, "ring", lit(1.0), lit(1.0), 1, true, null))
+        run(VisualOp.Plate("still", null, "volley", PlateFace.ViewerCenter, "glow", lit(1.0), lit(1.0), 1, true, null))
+        assertThat(plateFrames).containsExactly(Triple(1L, 0, "#FFE070")) // tint applied at spawn
+        tick(14)
+        val held = plateFrames.filter { it.first == 1L }.map { it.second }
+        val looped = plateFrames.filter { it.first == 2L }.map { it.second }
+        assertThat(held).containsExactly(0, 1, 2, 3, 4, 5) // 6 frames x 2 ticks, then holds the last
+        assertThat(looped.take(8)).containsExactly(1, 2, 3, 4, 5, 0, 1, 2) // one frame per tick, wraps
+        assertThat(plateFrames.none { it.first == 3L }).isTrue() // a one-frame sprite is never swapped
+    }
+
+    @Test
+    fun `trail style and fade power reach the gateway only when authored`() {
+        run(VisualOp.Trail("a", null, PointRef("shears", "tip"), PointRef("shears", "root"), 6, lit(0.6), Value.ParamRef("c"), lit(1.0), null))
+        run(VisualOp.Trail("b", null, PointRef("shears", "tip"), PointRef("shears", "root"), 6, lit(0.6), Value.ParamRef("c"), lit(1.0), null, lit(0.3), "both"))
+        assertThat(trailLooks).containsExactly(Triple(2L, 0.3, "both"))
+        assertThat((decode("trail", mapOf("of" to "shears.tip", "ticks" to 5, "fade" to 0.3, "style" to "crisp")) as VisualOp.Trail).style).isEqualTo("crisp")
+        assertThatThrownBy { decode("trail", mapOf("of" to "shears.tip", "ticks" to 5, "style" to "neon")) }.isInstanceOf(IllegalArgumentException::class.java)
     }
 }

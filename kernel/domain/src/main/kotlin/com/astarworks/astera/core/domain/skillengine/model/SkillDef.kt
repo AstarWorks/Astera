@@ -45,6 +45,8 @@ public data class TimelineEntry<out O : SkillOp>(
     val everyTicks: Int? = null,
     val untilEvent: String? = null,
     val whenExpr: Value<Boolean>? = null,
+    /** `for: N` - a repeating row stops after N ticks from its first firing (fires at first, first+every, ... < first+N). */
+    val forTicks: Int? = null,
 )
 
 public data class GameplaySection(

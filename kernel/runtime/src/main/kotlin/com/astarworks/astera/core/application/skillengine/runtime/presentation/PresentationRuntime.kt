@@ -36,14 +36,30 @@ public class PresentationRuntime(
         abstract val opId: String
         abstract val handle: VisualHandle
 
-        class Mesh(override val opId: String, override val handle: VisualHandle, val frame: String, val baseScale: Double) : Live()
+        class Mesh(
+            override val opId: String,
+            override val handle: VisualHandle,
+            val frame: String,
+            val baseScale: Double,
+            val pivot: Vec3 = Vec3(0.0, 0.0, 0.0),
+            val tilt: Quaternion = Quaternion.IDENTITY,
+            val rest: Quaternion = Quaternion.IDENTITY,
+        ) : Live()
         class Plate(
             override val opId: String,
             override val handle: VisualHandle,
             val parent: String,
             val face: PlateFace,
             val baseSize: Double,
-        ) : Live()
+            val sprite: String = "",
+            val frames: Int = 1,
+            val frameTicks: Int? = null,
+            val loop: Boolean = false,
+            val tint: String? = null,
+            val spawnTick: Int = 0,
+        ) : Live() {
+            var shownFrame: Int = 0
+        }
 
         class Line(override val opId: String, override val handle: VisualHandle, val from: PointRef, val to: PointRef) : Live()
         class Trail(
@@ -130,11 +146,12 @@ public class PresentationRuntime(
             when (l) {
                 is Live.Mesh -> {
                     val base = frameWorld(s, l.frame) ?: continue
-                    applyPose(s, l.opId, l.handle, base, l.frame, l.baseScale)
+                    applyPose(s, l.opId, l.handle, rigBase(base, l.pivot, l.tilt), l.frame, l.baseScale, l.rest)
                 }
                 is Live.Plate -> {
                     val base = platePose(s, l.parent, l.face) ?: continue
-                    applyPose(s, l.opId, l.handle, base, l.parent, l.baseSize)
+                    applyPose(s, l.opId, l.handle, base, l.parent, l.baseSize, Quaternion.IDENTITY)
+                    tickFlipbook(s, l)
                 }
                 is Live.Line -> {
                     val a = pointWorld(s, l.from) ?: continue
@@ -184,13 +201,33 @@ public class PresentationRuntime(
         else -> frameWorld(s, parent)
     }
 
-    private fun applyPose(s: CastState, opId: String, handle: VisualHandle, base: Frame, ownFrame: String, baseScale: Double) {
+    /** The frame a rig mesh hangs from: [pivot] (frame axes) away from [base], with the swing plane [tilt]ed. */
+    internal fun rigBase(base: Frame, pivot: Vec3, tilt: Quaternion): Frame =
+        Frame(base.origin + base.directionToWorld(pivot), (base.rotation * tilt).normalized())
+
+    /** Flipbook frame of a plate at the current tick: `(age / frameTicks)`, wrapped when [Live.Plate.loop], else held on the last frame. */
+    internal fun flipbookFrame(frames: Int, frameTicks: Int?, loop: Boolean, age: Int): Int {
+        if (frameTicks == null || frames <= 1) return 0
+        val raw = max(0, age) / frameTicks
+        return if (loop) raw % frames else minOf(raw, frames - 1)
+    }
+
+    private fun tickFlipbook(s: CastState, l: Live.Plate) {
+        val frame = flipbookFrame(l.frames, l.frameTicks, l.loop, s.tick - l.spawnTick)
+        if (frame == l.shownFrame) return
+        l.shownFrame = frame
+        s.ctx.ports.visuals.setPlateFrame(l.handle, frame, l.tint)
+    }
+
+    private fun applyPose(s: CastState, opId: String, handle: VisualHandle, base: Frame, ownFrame: String, baseScale: Double, rest: Quaternion) {
         val track = s.tracks.values.filter { it.op.target == opId }
         var pose = base
         var scale = Vec3(baseScale, baseScale, baseScale)
         for (t in track) {
             val space = t.op.space?.let { frameWorld(s, it) } ?: s.ctx.tree.worldOf(FrameId(ownFrame)).getOrNull() ?: base
-            val sample = sampleTrack(s, t, s.tick - t.startTick)
+            // The pose is pushed with a 1-tick client interpolation, so it is on screen one tick after this call:
+            // sample the NEXT tick so a keyframe at tick N is what the player sees at tick N (v1 did the same).
+            val sample = sampleTrack(s, t, s.tick - t.startTick + 1)
             pose = Frame(
                 pose.origin + space.directionToWorld(sample.offset),
                 (pose.rotation * sample.rotation).normalized(),
@@ -198,7 +235,7 @@ public class PresentationRuntime(
             scale = Vec3(scale.x * sample.scale.x, scale.y * sample.scale.y, scale.z * sample.scale.z)
         }
         val visuals = s.ctx.ports.visuals
-        visuals.updatePose(handle, pose, 1)
+        visuals.updatePose(handle, Frame(pose.origin, (pose.rotation * rest).normalized()), 1)
         if (track.isNotEmpty()) visuals.updateScale(handle, scale)
     }
 

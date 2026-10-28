@@ -40,6 +40,15 @@ public interface ISkillVisualGateway {
     public fun pushTrailPoint(handle: VisualHandle, root: Vec3, tip: Vec3)
 
     public fun remove(handle: VisualHandle)
+
+    /** Frames in a sprite's flipbook (1 when the sprite is unknown or not animated). */
+    public fun spriteFrames(sprite: String): Int = 1
+
+    /** Show flipbook [frame] of a plate's sprite, multiplied by [tintHex] (`#rrggbb`) when not null. */
+    public fun setPlateFrame(handle: VisualHandle, frame: Int, tintHex: String?) {}
+
+    /** Ribbon look: alpha follows `(1 - age/ticks) ^ fadePower`; [style] is `soft`, `crisp` or `both`. Called once after [spawnTrail]. */
+    public fun setTrailLook(handle: VisualHandle, fadePower: Double, style: String) {}
 }
 
 public data class ParticleBurst(

@@ -1,7 +1,7 @@
 # Converted from content/skills/gossamer-katana-s3.yaml + content/vfx/* by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
 # Generated point-frame offsets are [left, up, forward] in the parent frame.
 # CONVERT-PRESENT vfx frame orient (frames carry no orientation / scale) (x2): orient="yaw"
-# CONVERT-PRESENT rig pivot / rest / tilt / respect_hit_stop / weapon points (frames carry no pivot or rest pose) (x1): {"pivot": [-0.25, 0.9, 0.15], "respect_hit_stop": true, "rest": [0, 0, 0], "tilt
+# CONVERT-PRESENT rig respect_hit_stop / weapon points (x1): {"respect_hit_stop": true}
 # CONVERT-PRESENT rig block parts (mesh takes an item model, not a block + size) (x1): 3 parts
 # CONVERT-PRESENT rig swing without a weapon mesh (track needs a visual to move) (x1): 3 keys
 # CONVERT-PRESENT presentation inside a nested gameplay list (dash on_hit has no event hook) (x2): play_vfx | play_sound

@@ -357,6 +357,7 @@
                         "knockback",
                         "knockup",
                         "leap",
+                        "lock",
                         "loop",
                         "modify_attribute",
                         "path",
@@ -382,6 +383,7 @@
                         "summon",
                         "summon_lightning",
                         "teleport",
+                        "unlock",
                         "weighted_branch",
                         "window"
                     ]
@@ -521,21 +523,6 @@
                     },
                     "then": {
                         "$ref": "#/definitions/op_dash_strike"
-                    }
-                },
-                {
-                    "if": {
-                        "properties": {
-                            "op": {
-                                "const": "window"
-                            }
-                        },
-                        "required": [
-                            "op"
-                        ]
-                    },
-                    "then": {
-                        "$ref": "#/definitions/op_window"
                     }
                 },
                 {
@@ -776,6 +763,21 @@
                     },
                     "then": {
                         "$ref": "#/definitions/op_leap"
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "op": {
+                                "const": "lock"
+                            }
+                        },
+                        "required": [
+                            "op"
+                        ]
+                    },
+                    "then": {
+                        "$ref": "#/definitions/op_lock"
                     }
                 },
                 {
@@ -1157,6 +1159,21 @@
                     "if": {
                         "properties": {
                             "op": {
+                                "const": "unlock"
+                            }
+                        },
+                        "required": [
+                            "op"
+                        ]
+                    },
+                    "then": {
+                        "$ref": "#/definitions/op_unlock"
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "op": {
                                 "const": "weighted_branch"
                             }
                         },
@@ -1166,6 +1183,21 @@
                     },
                     "then": {
                         "$ref": "#/definitions/op_weighted_branch"
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "op": {
+                                "const": "window"
+                            }
+                        },
+                        "required": [
+                            "op"
+                        ]
+                    },
+                    "then": {
+                        "$ref": "#/definitions/op_window"
                     }
                 }
             ]
@@ -1202,6 +1234,10 @@
                 },
                 "until": {
                     "type": "string"
+                },
+                "for": {
+                    "type": "integer",
+                    "minimum": 1
                 },
                 "when": {
                     "$ref": "#/definitions/Value_boolean"
@@ -1530,6 +1566,10 @@
                 "until": {
                     "type": "string"
                 },
+                "for": {
+                    "type": "integer",
+                    "minimum": 1
+                },
                 "when": {
                     "$ref": "#/definitions/Value_boolean"
                 }
@@ -1630,8 +1670,7 @@
                     "$ref": "#/definitions/Value_vec3"
                 },
                 "scale": {
-                    "anyOf": [{"$ref": "#/definitions/Value_vec3"}, {"$ref": "#/definitions/Value_number"}],
-                    "description": "uniform number or per-axis [x, y, z] factor on the authored size (plate: x width, y height)"
+                    "$ref": "#/definitions/Value_vec3"
                 },
                 "ease": {
                     "type": "string"
@@ -1981,12 +2020,10 @@
                     "$ref": "#/definitions/Value_number"
                 },
                 "ticks": {
-                    "type": "integer",
-                    "description": "hold time of a pose-only clip (crouch, hide-main-hand)"
+                    "type": "integer"
                 },
                 "until": {
-                    "type": "string",
-                    "description": "event that blends the clip out early"
+                    "type": "string"
                 }
             },
             "required": [
@@ -2247,62 +2284,6 @@
             ],
             "additionalProperties": true
         },
-        "op_window": {
-            "type": "object",
-            "description": "Event window on the caster: for `ticks` ticks, each `incoming_hit` that passes `filter` is scaled by `scale` (absorb = 0) and runs `do` once with the attacker bound as victim on the next tick. The cast stays alive while the window is open.",
-            "properties": {
-                "id": {
-                    "type": "string",
-                    "minLength": 1,
-                    "description": "unique within the skill (patches address ops by id)"
-                },
-                "op": {
-                    "const": "window"
-                },
-                "when": {
-                    "$ref": "#/definitions/Value_boolean"
-                },
-                "listen": {
-                    "enum": [
-                        "incoming_hit"
-                    ],
-                    "default": "incoming_hit"
-                },
-                "ticks": {
-                    "$ref": "#/definitions/Value_number"
-                },
-                "once": {
-                    "type": "boolean",
-                    "default": true,
-                    "description": "close the window after the first hit that passes"
-                },
-                "absorb": {
-                    "type": "boolean",
-                    "default": false,
-                    "description": "negate the incoming damage (scale 0)"
-                },
-                "scale": {
-                    "type": "number",
-                    "description": "damage multiplier for a passing hit (default 0 with absorb, else 1)"
-                },
-                "filter": {
-                    "$ref": "#/definitions/Value_boolean",
-                    "description": "CEL guard; `victim` is the attacker, `incoming.amount` the damage"
-                },
-                "do": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/GameplayOp"
-                    }
-                }
-            },
-            "required": [
-                "id",
-                "op",
-                "ticks"
-            ],
-            "additionalProperties": true
-        },
         "op_emit": {
             "type": "object",
             "properties": {
@@ -2343,6 +2324,15 @@
                 },
                 "seed": {
                     "type": "string"
+                },
+                "spacing": {
+                    "$ref": "#/definitions/Value_number"
+                },
+                "offset": {
+                    "$ref": "#/definitions/Value_vec3"
+                },
+                "extra": {
+                    "$ref": "#/definitions/Value_number"
                 }
             },
             "required": [
@@ -2667,6 +2657,9 @@
                 },
                 "max_count": {
                     "type": "integer"
+                },
+                "swept": {
+                    "type": "boolean"
                 }
             },
             "required": [
@@ -2933,6 +2926,40 @@
             ],
             "additionalProperties": true
         },
+        "op_lock": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "unique within the skill (patches address ops by id)"
+                },
+                "op": {
+                    "const": "lock"
+                },
+                "when": {
+                    "$ref": "#/definitions/Value_boolean"
+                },
+                "target": {
+                    "type": [
+                        "string",
+                        "object"
+                    ],
+                    "description": "one of: allies, caster, enemies, victim"
+                },
+                "speed": {
+                    "$ref": "#/definitions/Value_number"
+                },
+                "ticks": {
+                    "$ref": "#/definitions/Value_number"
+                }
+            },
+            "required": [
+                "id",
+                "op"
+            ],
+            "additionalProperties": true
+        },
         "op_loop": {
             "type": "object",
             "properties": {
@@ -2991,6 +3018,15 @@
                 },
                 "scale": {
                     "$ref": "#/definitions/Value_number"
+                },
+                "pivot": {
+                    "$ref": "#/definitions/Value_vec3"
+                },
+                "rest": {
+                    "$ref": "#/definitions/Value_vec3"
+                },
+                "tilt": {
+                    "$ref": "#/definitions/Value_vec3"
                 }
             },
             "required": [
@@ -3195,6 +3231,15 @@
                 },
                 "alpha": {
                     "$ref": "#/definitions/Value_number"
+                },
+                "frame_ticks": {
+                    "type": "integer"
+                },
+                "loop": {
+                    "type": "boolean"
+                },
+                "color": {
+                    "type": "string"
                 }
             },
             "required": [
@@ -3784,6 +3829,15 @@
                 },
                 "until": {
                     "type": "string"
+                },
+                "pitch_to": {
+                    "$ref": "#/definitions/Value_number"
+                },
+                "over_ticks": {
+                    "type": "integer"
+                },
+                "pitch_ease": {
+                    "type": "string"
                 }
             },
             "required": [
@@ -4099,6 +4153,40 @@
                 },
                 "until": {
                     "type": "string"
+                },
+                "fade": {
+                    "$ref": "#/definitions/Value_number"
+                },
+                "style": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "id",
+                "op"
+            ],
+            "additionalProperties": true
+        },
+        "op_unlock": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "unique within the skill (patches address ops by id)"
+                },
+                "op": {
+                    "const": "unlock"
+                },
+                "when": {
+                    "$ref": "#/definitions/Value_boolean"
+                },
+                "target": {
+                    "type": [
+                        "string",
+                        "object"
+                    ],
+                    "description": "one of: allies, caster, enemies, victim"
                 }
             },
             "required": [
@@ -4158,6 +4246,54 @@
                 "branches": {
                     "type": "array",
                     "items": {}
+                }
+            },
+            "required": [
+                "id",
+                "op"
+            ],
+            "additionalProperties": true
+        },
+        "op_window": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "unique within the skill (patches address ops by id)"
+                },
+                "op": {
+                    "const": "window"
+                },
+                "when": {
+                    "$ref": "#/definitions/Value_boolean"
+                },
+                "listen": {
+                    "type": "string",
+                    "enum": [
+                        "incoming_hit"
+                    ]
+                },
+                "ticks": {
+                    "$ref": "#/definitions/Value_number"
+                },
+                "once": {
+                    "type": "boolean"
+                },
+                "absorb": {
+                    "type": "boolean"
+                },
+                "scale": {
+                    "type": "number"
+                },
+                "filter": {
+                    "$ref": "#/definitions/Value_boolean"
+                },
+                "body": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/GameplayOp"
+                    }
                 }
             },
             "required": [
