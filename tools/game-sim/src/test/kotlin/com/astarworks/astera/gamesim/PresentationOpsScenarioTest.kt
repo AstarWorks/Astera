@@ -430,8 +430,8 @@ class PresentationOpsScenarioTest {
         tree.setLocal(FrameId("palm"), Frame(Vec3(0.0, 1.0, 0.0)))
         run(FxOp.Emit("puff", null, PointRef("palm"), "dust", lit(6.0), null, null, Value.ParamRef("c"), null, v(0.0, 0.0, -1.0), lit(20.0), lit(0.5), "s"))
         tick()
+        // presentation runs after the tick's motion: the frame moved 2 blocks in the tick the second emit runs in
         tree.setLocal(FrameId("palm"), Frame(Vec3(0.0, 1.0, 2.0)))
-        tick()
         run(FxOp.Emit("puff", null, PointRef("palm"), "dust", lit(6.0), null, null, Value.ParamRef("c"), null, v(0.0, 0.0, -1.0), lit(20.0), lit(0.5), "s"))
         assertThat(bursts).hasSize(2)
         assertThat(bursts[0].count).isEqualTo(6)

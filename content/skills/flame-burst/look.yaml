@@ -5,7 +5,7 @@ apiVersion: "astera/v2"
 kind: Skill
 id: flame-burst
 frames:
-  - {id: pt_caster_0_m0p2_1, kind: point, parent: caster, offset: [0.0, -0.2, 1.0]}
+  - {id: pt_aim_0_m0p2_1, kind: point, parent: aim, offset: [0.0, -0.2, 1.0]}
   - {id: pt_enemy_0_1_0, kind: point, parent: enemy, offset: [0.0, 1.0, 0.0]}
 presentation:
   timeline:
@@ -14,7 +14,7 @@ presentation:
       do:
         - {id: mesh, op: mesh, frame: bolt, item: "minecraft:fire_charge", scale: 0.9}
         - {id: snd, op: sound, sound: "astera:skill/wand/cast", at: caster, volume: 0.8, pitch: 1.1}
-        - {id: emit, op: emit, at: pt_caster_0_m0p2_1, particle: fire-cast}
+        - {id: emit, op: emit, at: pt_aim_0_m0p2_1, particle: fire-cast}
     - id: fxblock_1
       at: "block+1"
       do:

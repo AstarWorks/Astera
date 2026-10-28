@@ -10,7 +10,7 @@ apiVersion: "astera/v2"
 kind: Skill
 id: verdict-hammer-ego
 frames:
-  - {id: pt_caster_0_m1p62_8, kind: point, parent: caster, offset: [0.0, -1.62, 8.0]}
+  - {id: pt_aim_0_m1p62_8, kind: point, parent: aim, offset: [0.0, -1.62, 8.0]}
   - {id: fx1_verdict_ego_field, kind: body, parent: world}
   - {id: fx2_verdict_impact, kind: body, parent: world}
   - {id: fx3_verdict_ego_ring, kind: body, parent: world}
@@ -28,7 +28,7 @@ frames:
   - {id: fx12_verdict_ego_hammer_hammer, kind: body, parent: caster.right_hand}
   - {id: fx13_verdict_ego_hammer, kind: body, parent: world}
   - {id: fx13_verdict_ego_hammer_hammer, kind: body, parent: caster.right_hand}
-  - {id: pt_caster_0_m1p5_8, kind: point, parent: caster, offset: [0.0, -1.5, 8.0]}
+  - {id: pt_aim_0_m1p5_8, kind: point, parent: aim, offset: [0.0, -1.5, 8.0]}
 presentation:
   timeline:
     - id: fx48
@@ -597,7 +597,7 @@ presentation:
             - {t: 15, offset: [-4.29214, 0.9105, 4.29214], turn: [0.0, 45.0, 0.0], scale: [0.04979, 0.03557, 1.13812]}
         - id: emit_17
           op: emit
-          at: pt_caster_0_m1p5_8
+          at: pt_aim_0_m1p5_8
           particle: dust
           count: 1
           data: "#ffdc6e"
@@ -633,7 +633,7 @@ presentation:
             - {t: 11, scale: [0.04, 0.04, 1.0], alpha: 0.0}
         - id: emit_18
           op: emit
-          at: pt_caster_0_m1p5_8
+          at: pt_aim_0_m1p5_8
           particle: dust
           count: 1
           data: "#ffdc6e"
@@ -645,7 +645,7 @@ presentation:
       do:
         - id: emit_19
           op: emit
-          at: pt_caster_0_m1p5_8
+          at: pt_aim_0_m1p5_8
           particle: dust
           count: 1
           data: "#ffdc6e"
@@ -657,7 +657,7 @@ presentation:
       do:
         - id: emit_20
           op: emit
-          at: pt_caster_0_m1p5_8
+          at: pt_aim_0_m1p5_8
           particle: dust
           count: 1
           data: "#ffdc6e"
@@ -669,7 +669,7 @@ presentation:
       do:
         - id: emit_21
           op: emit
-          at: pt_caster_0_m1p5_8
+          at: pt_aim_0_m1p5_8
           particle: dust
           count: 1
           data: "#ffdc6e"
@@ -681,7 +681,7 @@ presentation:
       do:
         - id: emit_22
           op: emit
-          at: pt_caster_0_m1p5_8
+          at: pt_aim_0_m1p5_8
           particle: dust
           count: 1
           data: "#ffdc6e"
@@ -895,7 +895,7 @@ presentation:
             - {t: 15, offset: [-4.29214, 0.9105, 4.29214], turn: [0.0, 45.0, 0.0], scale: [0.04979, 0.03557, 1.13812]}
         - id: emit_23
           op: emit
-          at: pt_caster_0_m1p5_8
+          at: pt_aim_0_m1p5_8
           particle: dust
           count: 1
           data: "#ffdc6e"
@@ -931,7 +931,7 @@ presentation:
             - {t: 11, scale: [0.04, 0.04, 1.0], alpha: 0.0}
         - id: emit_24
           op: emit
-          at: pt_caster_0_m1p5_8
+          at: pt_aim_0_m1p5_8
           particle: dust
           count: 1
           data: "#ffdc6e"
@@ -943,7 +943,7 @@ presentation:
       do:
         - id: emit_25
           op: emit
-          at: pt_caster_0_m1p5_8
+          at: pt_aim_0_m1p5_8
           particle: dust
           count: 1
           data: "#ffdc6e"
@@ -955,7 +955,7 @@ presentation:
       do:
         - id: emit_26
           op: emit
-          at: pt_caster_0_m1p5_8
+          at: pt_aim_0_m1p5_8
           particle: dust
           count: 1
           data: "#ffdc6e"
@@ -967,7 +967,7 @@ presentation:
       do:
         - id: emit_27
           op: emit
-          at: pt_caster_0_m1p5_8
+          at: pt_aim_0_m1p5_8
           particle: dust
           count: 1
           data: "#ffdc6e"
@@ -979,7 +979,7 @@ presentation:
       do:
         - id: emit_28
           op: emit
-          at: pt_caster_0_m1p5_8
+          at: pt_aim_0_m1p5_8
           particle: dust
           count: 1
           data: "#ffdc6e"
@@ -1193,7 +1193,7 @@ presentation:
             - {t: 15, offset: [-4.29214, 0.9105, 4.29214], turn: [0.0, 45.0, 0.0], scale: [0.04979, 0.03557, 1.13812]}
         - id: emit_29
           op: emit
-          at: pt_caster_0_m1p5_8
+          at: pt_aim_0_m1p5_8
           particle: dust
           count: 1
           data: "#ffdc6e"
@@ -1229,7 +1229,7 @@ presentation:
             - {t: 11, scale: [0.04, 0.04, 1.0], alpha: 0.0}
         - id: emit_30
           op: emit
-          at: pt_caster_0_m1p5_8
+          at: pt_aim_0_m1p5_8
           particle: dust
           count: 1
           data: "#ffdc6e"
@@ -1241,7 +1241,7 @@ presentation:
       do:
         - id: emit_31
           op: emit
-          at: pt_caster_0_m1p5_8
+          at: pt_aim_0_m1p5_8
           particle: dust
           count: 1
           data: "#ffdc6e"
@@ -1253,7 +1253,7 @@ presentation:
       do:
         - id: emit_32
           op: emit
-          at: pt_caster_0_m1p5_8
+          at: pt_aim_0_m1p5_8
           particle: dust
           count: 1
           data: "#ffdc6e"
@@ -1265,7 +1265,7 @@ presentation:
       do:
         - id: emit_33
           op: emit
-          at: pt_caster_0_m1p5_8
+          at: pt_aim_0_m1p5_8
           particle: dust
           count: 1
           data: "#ffdc6e"
@@ -1277,7 +1277,7 @@ presentation:
       do:
         - id: emit_34
           op: emit
-          at: pt_caster_0_m1p5_8
+          at: pt_aim_0_m1p5_8
           particle: dust
           count: 1
           data: "#ffdc6e"
@@ -1493,7 +1493,7 @@ presentation:
             - {t: 15, offset: [-4.29214, 0.9105, 4.29214], turn: [0.0, 45.0, 0.0], scale: [0.04979, 0.03557, 1.13812]}
         - id: emit_35
           op: emit
-          at: pt_caster_0_m1p5_8
+          at: pt_aim_0_m1p5_8
           particle: dust
           count: 1
           data: "#ffdc6e"
@@ -1529,7 +1529,7 @@ presentation:
             - {t: 11, scale: [0.04, 0.04, 1.0], alpha: 0.0}
         - id: emit_36
           op: emit
-          at: pt_caster_0_m1p5_8
+          at: pt_aim_0_m1p5_8
           particle: dust
           count: 1
           data: "#ffdc6e"
@@ -1541,7 +1541,7 @@ presentation:
       do:
         - id: emit_37
           op: emit
-          at: pt_caster_0_m1p5_8
+          at: pt_aim_0_m1p5_8
           particle: dust
           count: 1
           data: "#ffdc6e"
@@ -1553,7 +1553,7 @@ presentation:
       do:
         - id: emit_38
           op: emit
-          at: pt_caster_0_m1p5_8
+          at: pt_aim_0_m1p5_8
           particle: dust
           count: 1
           data: "#ffdc6e"
@@ -1565,7 +1565,7 @@ presentation:
       do:
         - id: emit_39
           op: emit
-          at: pt_caster_0_m1p5_8
+          at: pt_aim_0_m1p5_8
           particle: dust
           count: 1
           data: "#ffdc6e"
@@ -1577,7 +1577,7 @@ presentation:
       do:
         - id: emit_40
           op: emit
-          at: pt_caster_0_m1p5_8
+          at: pt_aim_0_m1p5_8
           particle: dust
           count: 1
           data: "#ffdc6e"

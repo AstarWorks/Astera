@@ -16,8 +16,8 @@ class MovementLockScenarioTest {
         val sim = CastSim(mapOf(simVictim(1) to Vec3(0.0, 0.0, 2.0)))
         sim.cast("bastion-greatsword-ego", 60)
         val windup = sim.soundPitches.filter { it.second == "block.amethyst_block.resonate" }
-        // v1 pitch_arc: 0.6 -> 1.8 over 25 ticks, in_quad, every 5 ticks (pitch values identical); the existing `every` repeat fires one cast tick early (semantic-diff.md).
-        assertThat(windup.map { it.first }).containsExactly(0, 4, 9, 14, 19, 24)
+        // v1 pitch_arc: 0.6 -> 1.8 over 25 ticks, in_quad, every 5 ticks (pitch values identical).
+        assertThat(windup.map { it.first }).containsExactly(0, 5, 10, 15, 20, 25)
         val expected = listOf(0, 5, 10, 15, 20, 25).map { 0.6 + 1.2 * (it / 25.0) * (it / 25.0) }
         windup.map { it.third }.zip(expected).forEach { (got, want) -> assertThat(got).isCloseTo(want, org.assertj.core.data.Offset.offset(1e-9)) }
     }

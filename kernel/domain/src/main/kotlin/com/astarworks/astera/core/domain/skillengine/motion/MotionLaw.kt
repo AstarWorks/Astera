@@ -70,7 +70,9 @@ public sealed interface MotionSpec {
     /** Constant angular speed about [axis] until [untilEvent] (spin). */
     public data class Spin(val axis: AxisRef, val degPerTick: Value<Double>, val untilEvent: String? = null) : MotionSpec
 
-    /** Ballistic flight (fly): block/tick velocity, optional gravity and drag. */
+    /**
+     * Ballistic flight (fly): block/tick velocity, optional gravity and drag.
+     */
     public data class Fly(
         val velocity: Value<Vec3>,
         val gravity: Value<Double>,

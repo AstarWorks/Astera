@@ -176,6 +176,7 @@ internal class EmitExecutor(private val rt: PresentationRuntime) : OpExecutor<Fx
     }
 
     private fun emitOnce(op: FxOp.Emit, ctx: OpContext, s: PresentationRuntime.CastState) {
+        if (op.at.frame in s.endedBodies) return
         val base = rt.pointWorld(s, op.at) ?: return ctx.host.fail(op.id, "emit: point '${op.at}' does not resolve")
         val at = op.shift?.let { sh -> rt.frameWorld(s, op.at.frame)?.let { base + it.directionToWorld(ctx.values.vec3(sh)) } } ?: base
         val inherit = op.inheritVelocity?.let { ctx.values.num(it) }

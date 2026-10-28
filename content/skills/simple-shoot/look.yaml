@@ -1,23 +1,22 @@
 # Converted from content/skills/simple-shoot.yaml + content/vfx/* by tools/skill-convert/convert.py (v1 archetype: projectile). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
 # Generated point-frame offsets are [left, up, forward] in the parent frame.
-# CONVERT-PRESENT particle animation circle (angle / shape without a baked equivalent) (x3): {"acceleration": 15, "amount": 3, "angle": "random", "delay_ticks": 0, "max_radius": 1.5, "min_radiu
 apiVersion: "astera/v2"
 kind: Skill
 id: simple-shoot
 frames:
-  - {id: pt_caster_0_0_1p2, kind: point, parent: caster, offset: [0.0, 0.0, 1.2]}
+  - {id: pt_aim_0_0_1p2, kind: point, parent: aim, offset: [0.0, 0.0, 1.2]}
 presentation:
   timeline:
     - id: fx0
       at: 0
       do:
         - {id: snd, op: sound, sound: "astera:skill/wand/cast", at: caster}
-        - {id: emit, op: emit, at: pt_caster_0_0_1p2, particle: flame, count: 50, speed: 0.2}
-        - {id: emit_2, op: emit, at: pt_caster_0_0_1p2, particle: dust, count: 20, offset: [0.2, 0.2, 0.2], speed: 0.0, data: "#ff6414", data_size: 1.6}
+        - {id: emit, op: emit, at: pt_aim_0_0_1p2, particle: flame, count: 50, speed: 0.2}
+        - {id: emit_2, op: emit, at: pt_aim_0_0_1p2, particle: dust, count: 20, offset: [0.2, 0.2, 0.2], speed: 0.0, data: "#ff6414", data_size: 1.6}
     - id: fxblock_1
       at: "block+1"
       do:
-        - id: emit_18
+        - id: emit_23
           op: emit
           at: contact.point
           particle: flame
@@ -26,7 +25,7 @@ presentation:
           times: 16
           shift: "= vec(0.8667*sin((3.6213 + 6.283185307179586*i/16)), 0.0, 0.8667*cos((3.6213 + 6.283185307179586*i/16)))"
           offset: "= vec(sin((3.6213 + 6.283185307179586*i/16)), 0, cos((3.6213 + 6.283185307179586*i/16)))"
-        - id: emit_19
+        - id: emit_24
           op: emit
           at: contact.point
           particle: dust
@@ -35,10 +34,37 @@ presentation:
           data_size: 2.5
           times: 16
           shift: "= vec(0.8667*sin((3.6213 + 6.283185307179586*i/16)), 0.0, 0.8667*cos((3.6213 + 6.283185307179586*i/16)))"
+        - id: emit_30
+          op: emit
+          at: contact.point
+          particle: dust
+          count: 1
+          data: "#ff6414"
+          data_size: 2.0
+          times: 15
+          shift: "= vec(-0.0106*cos((3.08923 + -0.174533*(i + 16))) + 1.2241*sin((3.08923 + -0.174533*(i + 16))), 0.7429*cos((3.08923 + -0.174533*(i + 16))) + 0.0065*sin((3.08923 + -0.174533*(i + 16))), 0.9728*cos((3.08923 + -0.174533*(i + 16))) + 0.0085*sin((3.08923 + -0.174533*(i + 16))))"
+        - id: emit_32
+          op: emit
+          at: contact.point
+          particle: dust
+          count: 1
+          data: "#ff6414"
+          data_size: 2.0
+          times: 15
+          shift: "= vec(-0.1589*cos((5.68977 + 0.174533*(i + 16))) + 0.9248*sin((5.68977 + 0.174533*(i + 16))), 0.6473*cos((5.68977 + 0.174533*(i + 16))) + 0.1113*sin((5.68977 + 0.174533*(i + 16))), 0.6605*cos((5.68977 + 0.174533*(i + 16))) + 0.1135*sin((5.68977 + 0.174533*(i + 16))))"
+        - id: emit_34
+          op: emit
+          at: contact.point
+          particle: dust
+          count: 1
+          data: "#ff6414"
+          data_size: 2.0
+          times: 15
+          shift: "= vec(0.2879*cos((1.20428 + 0.174533*(i + 16))) + 1.1342*sin((1.20428 + 0.174533*(i + 16))), -0.8324*cos((1.20428 + 0.174533*(i + 16))) + 0.2113*sin((1.20428 + 0.174533*(i + 16))), 0.7705*cos((1.20428 + 0.174533*(i + 16))) + -0.1956*sin((1.20428 + 0.174533*(i + 16))))"
     - id: fxblock_2
       at: "block+2"
       do:
-        - id: emit_20
+        - id: emit_25
           op: emit
           at: contact.point
           particle: flame
@@ -47,7 +73,7 @@ presentation:
           times: 16
           shift: "= vec(1.3333*sin((3.6213 + 6.283185307179586*i/16)), 0.0, 1.3333*cos((3.6213 + 6.283185307179586*i/16)))"
           offset: "= vec(sin((3.6213 + 6.283185307179586*i/16)), 0, cos((3.6213 + 6.283185307179586*i/16)))"
-        - id: emit_21
+        - id: emit_26
           op: emit
           at: contact.point
           particle: dust
@@ -59,7 +85,7 @@ presentation:
     - id: fxblock_3
       at: "block+3"
       do:
-        - id: emit_22
+        - id: emit_27
           op: emit
           at: contact.point
           particle: flame
@@ -68,7 +94,7 @@ presentation:
           times: 16
           shift: "= vec(1.8*sin((3.6213 + 6.283185307179586*i/16)), 0.0, 1.8*cos((3.6213 + 6.283185307179586*i/16)))"
           offset: "= vec(sin((3.6213 + 6.283185307179586*i/16)), 0, cos((3.6213 + 6.283185307179586*i/16)))"
-        - id: emit_23
+        - id: emit_28
           op: emit
           at: contact.point
           particle: dust
@@ -80,7 +106,7 @@ presentation:
     - id: fxexpire_1
       at: "expire+1"
       do:
-        - id: emit_29
+        - id: emit_39
           op: emit
           at: contact.point
           particle: flame
@@ -89,7 +115,7 @@ presentation:
           times: 16
           shift: "= vec(0.8667*sin((2.0382 + 6.283185307179586*i/16)), 0.0, 0.8667*cos((2.0382 + 6.283185307179586*i/16)))"
           offset: "= vec(sin((2.0382 + 6.283185307179586*i/16)), 0, cos((2.0382 + 6.283185307179586*i/16)))"
-        - id: emit_30
+        - id: emit_40
           op: emit
           at: contact.point
           particle: dust
@@ -98,10 +124,37 @@ presentation:
           data_size: 2.5
           times: 16
           shift: "= vec(0.8667*sin((2.0382 + 6.283185307179586*i/16)), 0.0, 0.8667*cos((2.0382 + 6.283185307179586*i/16)))"
+        - id: emit_46
+          op: emit
+          at: contact.point
+          particle: dust
+          count: 1
+          data: "#ff6414"
+          data_size: 2.0
+          times: 15
+          shift: "= vec(-0.4168*cos((6.02139 + -0.174533*(i + 16))) + 0.9275*sin((6.02139 + -0.174533*(i + 16))), -0.5963*cos((6.02139 + -0.174533*(i + 16))) + -0.268*sin((6.02139 + -0.174533*(i + 16))), -0.7103*cos((6.02139 + -0.174533*(i + 16))) + -0.3192*sin((6.02139 + -0.174533*(i + 16))))"
+        - id: emit_48
+          op: emit
+          at: contact.point
+          particle: dust
+          count: 1
+          data: "#ff6414"
+          data_size: 2.0
+          times: 15
+          shift: "= vec(0.3466*cos((0.942478 + 0.174533*(i + 16))) + 0.864*sin((0.942478 + 0.174533*(i + 16))), -0.6887*cos((0.942478 + 0.174533*(i + 16))) + 0.2763*sin((0.942478 + 0.174533*(i + 16))), -0.5217*cos((0.942478 + 0.174533*(i + 16))) + 0.2093*sin((0.942478 + 0.174533*(i + 16))))"
+        - id: emit_50
+          op: emit
+          at: contact.point
+          particle: dust
+          count: 1
+          data: "#ff6414"
+          data_size: 2.0
+          times: 15
+          shift: "= vec(0.8157*cos((5.53269 + -0.174533*(i + 16))) + 0.9013*sin((5.53269 + -0.174533*(i + 16))), -0.1105*cos((5.53269 + -0.174533*(i + 16))) + -0.1221*sin((5.53269 + -0.174533*(i + 16))), -0.9095*cos((5.53269 + -0.174533*(i + 16))) + 0.8232*sin((5.53269 + -0.174533*(i + 16))))"
     - id: fxexpire_2
       at: "expire+2"
       do:
-        - id: emit_31
+        - id: emit_41
           op: emit
           at: contact.point
           particle: flame
@@ -110,7 +163,7 @@ presentation:
           times: 16
           shift: "= vec(1.3333*sin((2.0382 + 6.283185307179586*i/16)), 0.0, 1.3333*cos((2.0382 + 6.283185307179586*i/16)))"
           offset: "= vec(sin((2.0382 + 6.283185307179586*i/16)), 0, cos((2.0382 + 6.283185307179586*i/16)))"
-        - id: emit_32
+        - id: emit_42
           op: emit
           at: contact.point
           particle: dust
@@ -122,7 +175,7 @@ presentation:
     - id: fxexpire_3
       at: "expire+3"
       do:
-        - id: emit_33
+        - id: emit_43
           op: emit
           at: contact.point
           particle: flame
@@ -131,7 +184,7 @@ presentation:
           times: 16
           shift: "= vec(1.8*sin((2.0382 + 6.283185307179586*i/16)), 0.0, 1.8*cos((2.0382 + 6.283185307179586*i/16)))"
           offset: "= vec(sin((2.0382 + 6.283185307179586*i/16)), 0, cos((2.0382 + 6.283185307179586*i/16)))"
-        - id: emit_34
+        - id: emit_44
           op: emit
           at: contact.point
           particle: dust
@@ -161,6 +214,33 @@ presentation:
           data_size: 2.5
           times: 16
           shift: "= vec(0.8667*sin((3.6112 + 6.283185307179586*i/16)), 0.0, 0.8667*cos((3.6112 + 6.283185307179586*i/16)))"
+        - id: emit_14
+          op: emit
+          at: contact.point
+          particle: dust
+          count: 1
+          data: "#ff6414"
+          data_size: 2.0
+          times: 15
+          shift: "= vec(-0.5752*cos((0.523599 + 0.174533*(i + 16))) + 0.7762*sin((0.523599 + 0.174533*(i + 16))), -0.6545*cos((0.523599 + 0.174533*(i + 16))) + -0.485*sin((0.523599 + 0.174533*(i + 16))), 0.4173*cos((0.523599 + 0.174533*(i + 16))) + 0.3093*sin((0.523599 + 0.174533*(i + 16))))"
+        - id: emit_16
+          op: emit
+          at: contact.point
+          particle: dust
+          count: 1
+          data: "#ff6414"
+          data_size: 2.0
+          times: 15
+          shift: "= vec(0.1675*cos((4.17134 + -0.174533*(i + 16))) + 1.1367*sin((4.17134 + -0.174533*(i + 16))), 0.9827*cos((4.17134 + -0.174533*(i + 16))) + -0.1448*sin((4.17134 + -0.174533*(i + 16))), -0.5714*cos((4.17134 + -0.174533*(i + 16))) + 0.0842*sin((4.17134 + -0.174533*(i + 16))))"
+        - id: emit_18
+          op: emit
+          at: contact.point
+          particle: dust
+          count: 1
+          data: "#ff6414"
+          data_size: 2.0
+          times: 15
+          shift: "= vec(0.1278*cos((5.55015 + -0.174533*(i + 16))) + 1.2283*sin((5.55015 + -0.174533*(i + 16))), -0.222*cos((5.55015 + -0.174533*(i + 16))) + 0.0231*sin((5.55015 + -0.174533*(i + 16))), -1.208*cos((5.55015 + -0.174533*(i + 16))) + 0.1257*sin((5.55015 + -0.174533*(i + 16))))"
     - id: fxhit_2
       at: "hit+2"
       do:
@@ -228,11 +308,37 @@ presentation:
         data_size: 2.5
         times: 16
         shift: "= vec(0.4*sin((3.6112 + 6.283185307179586*i/16)), 0.0, 0.4*cos((3.6112 + 6.283185307179586*i/16)))"
-      - {id: emit_13, op: emit, at: contact.point, particle: dust, count: 1, data: "#ff6414", data_size: 2.0}
+      - id: emit_13
+        op: emit
+        at: contact.point
+        particle: dust
+        count: 1
+        data: "#ff6414"
+        data_size: 2.0
+        times: 15
+        shift: "= vec(-0.5752*cos((0.523599 + 0.174533*(i + 1))) + 0.7762*sin((0.523599 + 0.174533*(i + 1))), -0.6545*cos((0.523599 + 0.174533*(i + 1))) + -0.485*sin((0.523599 + 0.174533*(i + 1))), 0.4173*cos((0.523599 + 0.174533*(i + 1))) + 0.3093*sin((0.523599 + 0.174533*(i + 1))))"
+      - id: emit_15
+        op: emit
+        at: contact.point
+        particle: dust
+        count: 1
+        data: "#ff6414"
+        data_size: 2.0
+        times: 15
+        shift: "= vec(0.1675*cos((4.17134 + -0.174533*(i + 1))) + 1.1367*sin((4.17134 + -0.174533*(i + 1))), 0.9827*cos((4.17134 + -0.174533*(i + 1))) + -0.1448*sin((4.17134 + -0.174533*(i + 1))), -0.5714*cos((4.17134 + -0.174533*(i + 1))) + 0.0842*sin((4.17134 + -0.174533*(i + 1))))"
+      - id: emit_17
+        op: emit
+        at: contact.point
+        particle: dust
+        count: 1
+        data: "#ff6414"
+        data_size: 2.0
+        times: 15
+        shift: "= vec(0.1278*cos((5.55015 + -0.174533*(i + 1))) + 1.2283*sin((5.55015 + -0.174533*(i + 1))), -0.222*cos((5.55015 + -0.174533*(i + 1))) + 0.0231*sin((5.55015 + -0.174533*(i + 1))), -1.208*cos((5.55015 + -0.174533*(i + 1))) + 0.1257*sin((5.55015 + -0.174533*(i + 1))))"
     block:
-      - {id: emit_14, op: emit, at: contact.point, particle: flame, count: 60, speed: 0.2}
-      - {id: emit_15, op: emit, at: contact.point, particle: lava, count: 8, speed: 0.1}
-      - id: emit_16
+      - {id: emit_19, op: emit, at: contact.point, particle: flame, count: 60, speed: 0.2}
+      - {id: emit_20, op: emit, at: contact.point, particle: lava, count: 8, speed: 0.1}
+      - id: emit_21
         op: emit
         at: contact.point
         particle: flame
@@ -241,7 +347,7 @@ presentation:
         times: 16
         shift: "= vec(0.4*sin((3.6213 + 6.283185307179586*i/16)), 0.0, 0.4*cos((3.6213 + 6.283185307179586*i/16)))"
         offset: "= vec(sin((3.6213 + 6.283185307179586*i/16)), 0, cos((3.6213 + 6.283185307179586*i/16)))"
-      - id: emit_17
+      - id: emit_22
         op: emit
         at: contact.point
         particle: dust
@@ -250,11 +356,37 @@ presentation:
         data_size: 2.5
         times: 16
         shift: "= vec(0.4*sin((3.6213 + 6.283185307179586*i/16)), 0.0, 0.4*cos((3.6213 + 6.283185307179586*i/16)))"
-      - {id: emit_24, op: emit, at: contact.point, particle: dust, count: 1, data: "#ff6414", data_size: 2.0}
+      - id: emit_29
+        op: emit
+        at: contact.point
+        particle: dust
+        count: 1
+        data: "#ff6414"
+        data_size: 2.0
+        times: 15
+        shift: "= vec(-0.0106*cos((3.08923 + -0.174533*(i + 1))) + 1.2241*sin((3.08923 + -0.174533*(i + 1))), 0.7429*cos((3.08923 + -0.174533*(i + 1))) + 0.0065*sin((3.08923 + -0.174533*(i + 1))), 0.9728*cos((3.08923 + -0.174533*(i + 1))) + 0.0085*sin((3.08923 + -0.174533*(i + 1))))"
+      - id: emit_31
+        op: emit
+        at: contact.point
+        particle: dust
+        count: 1
+        data: "#ff6414"
+        data_size: 2.0
+        times: 15
+        shift: "= vec(-0.1589*cos((5.68977 + 0.174533*(i + 1))) + 0.9248*sin((5.68977 + 0.174533*(i + 1))), 0.6473*cos((5.68977 + 0.174533*(i + 1))) + 0.1113*sin((5.68977 + 0.174533*(i + 1))), 0.6605*cos((5.68977 + 0.174533*(i + 1))) + 0.1135*sin((5.68977 + 0.174533*(i + 1))))"
+      - id: emit_33
+        op: emit
+        at: contact.point
+        particle: dust
+        count: 1
+        data: "#ff6414"
+        data_size: 2.0
+        times: 15
+        shift: "= vec(0.2879*cos((1.20428 + 0.174533*(i + 1))) + 1.1342*sin((1.20428 + 0.174533*(i + 1))), -0.8324*cos((1.20428 + 0.174533*(i + 1))) + 0.2113*sin((1.20428 + 0.174533*(i + 1))), 0.7705*cos((1.20428 + 0.174533*(i + 1))) + -0.1956*sin((1.20428 + 0.174533*(i + 1))))"
     expire:
-      - {id: emit_25, op: emit, at: contact.point, particle: flame, count: 60, speed: 0.2}
-      - {id: emit_26, op: emit, at: contact.point, particle: lava, count: 8, speed: 0.1}
-      - id: emit_27
+      - {id: emit_35, op: emit, at: contact.point, particle: flame, count: 60, speed: 0.2}
+      - {id: emit_36, op: emit, at: contact.point, particle: lava, count: 8, speed: 0.1}
+      - id: emit_37
         op: emit
         at: contact.point
         particle: flame
@@ -263,7 +395,7 @@ presentation:
         times: 16
         shift: "= vec(0.4*sin((2.0382 + 6.283185307179586*i/16)), 0.0, 0.4*cos((2.0382 + 6.283185307179586*i/16)))"
         offset: "= vec(sin((2.0382 + 6.283185307179586*i/16)), 0, cos((2.0382 + 6.283185307179586*i/16)))"
-      - id: emit_28
+      - id: emit_38
         op: emit
         at: contact.point
         particle: dust
@@ -272,4 +404,30 @@ presentation:
         data_size: 2.5
         times: 16
         shift: "= vec(0.4*sin((2.0382 + 6.283185307179586*i/16)), 0.0, 0.4*cos((2.0382 + 6.283185307179586*i/16)))"
-      - {id: emit_35, op: emit, at: contact.point, particle: dust, count: 1, data: "#ff6414", data_size: 2.0}
+      - id: emit_45
+        op: emit
+        at: contact.point
+        particle: dust
+        count: 1
+        data: "#ff6414"
+        data_size: 2.0
+        times: 15
+        shift: "= vec(-0.4168*cos((6.02139 + -0.174533*(i + 1))) + 0.9275*sin((6.02139 + -0.174533*(i + 1))), -0.5963*cos((6.02139 + -0.174533*(i + 1))) + -0.268*sin((6.02139 + -0.174533*(i + 1))), -0.7103*cos((6.02139 + -0.174533*(i + 1))) + -0.3192*sin((6.02139 + -0.174533*(i + 1))))"
+      - id: emit_47
+        op: emit
+        at: contact.point
+        particle: dust
+        count: 1
+        data: "#ff6414"
+        data_size: 2.0
+        times: 15
+        shift: "= vec(0.3466*cos((0.942478 + 0.174533*(i + 1))) + 0.864*sin((0.942478 + 0.174533*(i + 1))), -0.6887*cos((0.942478 + 0.174533*(i + 1))) + 0.2763*sin((0.942478 + 0.174533*(i + 1))), -0.5217*cos((0.942478 + 0.174533*(i + 1))) + 0.2093*sin((0.942478 + 0.174533*(i + 1))))"
+      - id: emit_49
+        op: emit
+        at: contact.point
+        particle: dust
+        count: 1
+        data: "#ff6414"
+        data_size: 2.0
+        times: 15
+        shift: "= vec(0.8157*cos((5.53269 + -0.174533*(i + 1))) + 0.9013*sin((5.53269 + -0.174533*(i + 1))), -0.1105*cos((5.53269 + -0.174533*(i + 1))) + -0.1221*sin((5.53269 + -0.174533*(i + 1))), -0.9095*cos((5.53269 + -0.174533*(i + 1))) + 0.8232*sin((5.53269 + -0.174533*(i + 1))))"

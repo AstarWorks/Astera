@@ -145,6 +145,9 @@ public class PresentationRuntime(
         val velocity = HashMap<String, Vec3>()
         val watched = LinkedHashSet<String>()
 
+        /** Projectile bodies that ended (hit / block / expire): a trail `emit at:` them stops with the projectile. */
+        val endedBodies = LinkedHashSet<String>()
+
         /** Later copies of repeated displays / emits that have not run yet. */
         val pending = ArrayList<Pending>()
 
@@ -170,10 +173,20 @@ public class PresentationRuntime(
         return null
     }
 
-    /** Frame origin velocity in blocks per tick; starts tracking the frame on first request. */
+    /** Starts tracking [frame]'s origin velocity; the origin seen now is the baseline, so the very next tick already has a velocity. */
+    private fun watch(s: CastState, frame: String) {
+        if (!s.watched.add(frame)) return
+        s.ctx.tree.worldOf(FrameId(frame)).getOrNull()?.let { s.lastOrigin.putIfAbsent(frame, it.origin) }
+    }
+
+    /**
+     * Frame origin velocity in blocks per tick: how far the frame moved since the end of the previous tick (presentation
+     * runs after the tick's motion, so this is this tick's step). Starts tracking the frame on first request.
+     */
     internal fun velocityOf(s: CastState, frame: String): Vec3 {
-        s.watched += frame
-        return s.velocity[frame] ?: Vec3(0.0, 0.0, 0.0)
+        watch(s, frame)
+        val now = s.ctx.tree.worldOf(FrameId(frame)).getOrNull()?.origin ?: return s.velocity[frame] ?: Vec3(0.0, 0.0, 0.0)
+        return s.lastOrigin[frame]?.let { now - it } ?: Vec3(0.0, 0.0, 0.0)
     }
 
     /**
@@ -391,6 +404,7 @@ public class PresentationRuntime(
     /** A projectile body ended (hit, block, expire): the meshes and plates riding that body go with it, on that tick. */
     public fun endBody(cast: CastId, body: String) {
         val s = casts[cast] ?: return
+        s.endedBodies += body
         val gone = s.live.values.filter { (it is Live.Mesh && it.parent == body) || (it is Live.Plate && it.parent == body) || (it is Live.Block && it.parent == body) || (it is Live.Quad && it.parent == body) }
         removeIds(s, gone.map { it.opId })
     }

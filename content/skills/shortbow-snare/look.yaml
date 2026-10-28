@@ -4,11 +4,11 @@ apiVersion: "astera/v2"
 kind: Skill
 id: shortbow-snare
 frames:
-  - {id: pt_caster_0_m0p25_0p9, kind: point, parent: caster, offset: [0.0, -0.25, 0.9]}
+  - {id: pt_aim_0_m0p25_0p9, kind: point, parent: aim, offset: [0.0, -0.25, 0.9]}
   - {id: pt_enemy_0_1p2_0, kind: point, parent: enemy, offset: [0.0, 1.2, 0.0]}
 presentation:
   timeline:
-    - {id: fx0, at: 0, do: [{id: snd, op: sound, sound: "astera:weapons/sword-swing", at: caster, volume: 0.7, pitch: 0.9}, {id: emit, op: emit, at: pt_caster_0_m0p25_0p9, particle: gun-muzzle-smoke}]}
+    - {id: fx0, at: 0, do: [{id: snd, op: sound, sound: "astera:weapons/sword-swing", at: caster, volume: 0.7, pitch: 0.9}, {id: emit, op: emit, at: pt_aim_0_m0p25_0p9, particle: gun-muzzle-smoke}]}
     - {id: rep1, at: 0, every: 1, until: end, do: [{id: trail, op: emit, at: bolt, particle: crit, count: 1, spacing: 0.4, offset: [0.04, 0.04, 0.04]}]}
     - {id: rep2, at: 0, every: 1, until: end, do: [{id: trail_2, op: emit, at: bolt, particle: dust, count: 1, spacing: 0.4, data: "#787878", data_size: 0.9}]}
   "on":
