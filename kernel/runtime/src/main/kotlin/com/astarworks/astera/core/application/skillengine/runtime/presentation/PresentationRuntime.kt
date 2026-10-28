@@ -262,6 +262,10 @@ public class PresentationRuntime(
         return update(s, live)
     }
 
+    /** [spawnNode] for a block/quad part: under a rig it is posed like a v1 rig part (pivot + wrist rotation at rig tick 0, VfxRigPlanner.kt:276). */
+    internal fun spawnPart(s: CastState, live: Live, parent: String): VisualPose? =
+        driverOf(s, parent).let { d -> if (d == null) spawnNode(s, live, parent) else d.withPartFrame(s, 0) { spawnNode(s, live, parent) } }
+
     /** Applies the tracks of [live] to its node and returns the pose to show; null when the parent is gone. */
     internal fun update(s: CastState, live: Live): VisualPose? {
         val tree = s.ctx.tree

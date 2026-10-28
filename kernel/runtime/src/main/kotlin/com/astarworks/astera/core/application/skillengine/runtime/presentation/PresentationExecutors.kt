@@ -101,7 +101,7 @@ internal class BlockExecutor(private val rt: PresentationRuntime) : OpExecutor<V
                 id, par, ctx.values.vec3(op.size),
                 op.at?.let { ctx.values.vec3(it) } ?: Vec3.ZERO, op.turn?.let { turn(ctx.values.vec3(it)) } ?: Quaternion.IDENTITY,
             )
-            val pose = rt.spawnNode(s, live, par) ?: run { ctx.host.fail(op.id, "block: parent frame '$par' is not in the frame tree"); return@repeated null }
+            val pose = rt.spawnPart(s, live, par) ?: run { ctx.host.fail(op.id, "block: parent frame '$par' is not in the frame tree"); return@repeated null }
             live.handle = ctx.ports.visuals.spawnBlock(rt.info.owner(ctx.cast), op.block, pose.copy(lane = op.lane), op.brightness, op.rigShading)
             rt.driverOf(s, par)?.changed(id, pose)
             rt.register(s, live)
@@ -121,7 +121,7 @@ internal class QuadExecutor(private val rt: PresentationRuntime) : OpExecutor<Vi
                 id, par, op.face, ctx.values.vec3(op.size), rt.billboardOf(s, op.face, par),
                 op.at?.let { ctx.values.vec3(it) } ?: Vec3.ZERO, op.turn?.let { turn(ctx.values.vec3(it)) } ?: Quaternion.IDENTITY,
             )
-            val pose = rt.spawnNode(s, live, par) ?: run { ctx.host.fail(op.id, "quad: parent frame '$par' is not in the frame tree"); return@repeated null }
+            val pose = rt.spawnPart(s, live, par) ?: run { ctx.host.fail(op.id, "quad: parent frame '$par' is not in the frame tree"); return@repeated null }
             live.handle = ctx.ports.visuals.spawnQuad(
                 rt.info.owner(ctx.cast), ctx.values.text(op.color), ctx.values.num(op.alpha), op.text, op.shadow, op.seeThrough, pose.copy(lane = op.lane), op.brightness,
             )
