@@ -1,7 +1,6 @@
 # Wave 2 v3 draft of bastion-greatsword-s2 (v2: skill.yaml + look.yaml), generated from the v2 files by a scratch script, gameplay hand-authored.
 # Offsets [left, up, forward] -> name-keyed maps. Euler turn [pitch, yaw, roll] -> pose list [up -yaw, left pitch, forward roll].
 # Weapon rig: v2's per-tick wrist rotation vectors became edge-travel steps (see bastion-greatsword-s1 header); holds are gaps.
-# GAP: v2 gameplay.expose (damage -> dmg_physical, range -> reach, radius -> radius) -> none (no expose field in v3 params)
 apiVersion: astera/v3
 kind: Skill
 id: bastion-greatsword-s2
@@ -27,20 +26,14 @@ params:
   knockback_3: {type: number, default: 0.9}
 anchors:
   # v2: frame fx2_bastion_s2_fx_ring at caster orient yaw follow pitch, group tick 9
-  # GAP: anchor teleport_ticks 2 -> none (engine-owned teleport_duration)
-  # GAP: anchor pitch: true (anchor follows caster pitch) -> none (caster anchor is yaw-only; caster.eye carries pitch)
   # NOTE: v2 created this frame at tick 9; a doc-level anchor exists from tick 0 and follows the caster the same way
-  - {id: fx2_fx_ring, anchor: caster, mode: follow}
+  - {id: fx2_fx_ring, anchor: caster.look, mode: follow}
   # v2: frame fx3_bastion_s2_fx_ring at caster orient yaw follow pitch, group tick 28
-  # GAP: anchor teleport_ticks 2 -> none (engine-owned teleport_duration)
-  # GAP: anchor pitch: true (anchor follows caster pitch) -> none (caster anchor is yaw-only; caster.eye carries pitch)
   # NOTE: v2 created this frame at tick 28; a doc-level anchor exists from tick 0 and follows the caster the same way
-  - {id: fx3_fx_ring, anchor: caster, mode: follow}
+  - {id: fx3_fx_ring, anchor: caster.look, mode: follow}
   # v2: frame fx4_bastion_s2_fx_chop at caster orient yaw follow pitch, group tick 49
-  # GAP: anchor teleport_ticks 2 -> none (engine-owned teleport_duration)
-  # GAP: anchor pitch: true (anchor follows caster pitch) -> none (caster anchor is yaw-only; caster.eye carries pitch)
   # NOTE: v2 created this frame at tick 49; a doc-level anchor exists from tick 0 and follows the caster the same way
-  - {id: fx4_fx_chop, anchor: caster, mode: follow}
+  - {id: fx4_fx_chop, anchor: caster.look, mode: follow}
 machine:
   start: rush
   states:
@@ -50,21 +43,23 @@ machine:
       do:
         # --- gameplay (v2 gameplay.timeline t10 / t13 / t29 / t32 / t53 / t54) ---
         # v2 dash_strike D over 3 ticks -> dash speed D/3 blocks/tick.
-        # GAP: dash_strike hit_once: true -> none (dash has no hit_once)
-        - {id: dash, op: dash, at: 10, speed: "= dash_distance / 3", for: 3, radius: 0.5, stop_before_target: 0.9, invulnerable: true, stop_on_block: true, follow_pitch: false}
+        # v2 hit_once + stop_before_target 0.9 (R9): sibling trigger-only corridor hit, window once; the dash ends at its first victim (sphere 0.9 = the stop distance).
+        - {id: dash_hit, op: hit, at: 10, for: 3, every: 1, anchor: caster.body, shape: {sphere: 0.9}, targets: enemies, window: once, ignore_invulnerability: false}
+        - {id: dash, op: dash, at: 10, speed: "= dash_distance / 3", for: 3, until: dash_hit.hit, direction: forward, invulnerable: true, stop_on_block: true, follow_pitch: false, face_movement: false}
         # v2 sel (damage 35 + per_stack charge 0.5, consume false, ignore_invulnerability) + sel_2 (freeze 2 enemy+caster, knockback) are the same sphere at the same tick: merged.
-        # GAP: damage per_stack {status: charge, amount: 0.5, on: caster, consume: false} -> none (inline hit damage is a flat number)
-        # GAP: damage ignore_invulnerability: true -> none
-        # GAP: freeze ticks 2 scope [enemy, caster] -> none (rig.freezes only freezes the weapon rig)
-        # GAP: sphere hit had no sector, so no height is needed here; written as sphere
-        - {id: hit1, op: hit, at: 13, anchor: caster, shape: {sphere: "${radius}"}, targets: enemies, damage: {physical: "${dmg_physical}"}, window: once}
-        - {id: dash_2, op: dash, at: 29, speed: "= dash_distance_2 / 3", for: 3, radius: 0.5, stop_before_target: 0.9, invulnerable: true, stop_on_block: true, follow_pitch: false}
-        # GAP: damage per_stack charge 0.5 consume false -> none; ignore_invulnerability -> none; freeze ticks 2 scope [enemy, caster] -> none
-        - {id: hit2, op: hit, at: 32, anchor: caster, shape: {sphere: "${radius}"}, targets: enemies, damage: {physical: "${dmg_physical_2}"}, window: once}
-        # v2 sel_5/sel_6: sector {angle 80, range 3.4, height 2.0} with origin `at: eye` and forward = caster.forward -> origin anchor caster.eye (full look basis, includes pitch; v2 forward was caster.forward).
-        # GAP: damage per_stack charge 0.5 consume TRUE (the final blow spends the charge) -> none; ignore_invulnerability -> none; freeze ticks 3 scope [enemy, caster] -> none
-        - {id: hit3, op: hit, at: 53, anchor: caster.eye, shape: {sector: {deg: "${arc_deg}", range: "${reach}", height: 2.0}}, targets: enemies, damage: {physical: "${dmg_physical_3}"}, window: once}
-        - {id: dash_3, op: dash, at: 54, speed: "= dash_distance_3 / 3", for: 3, radius: 0.5, stop_before_target: 0.6, invulnerable: true, stop_on_block: true, follow_pitch: false}
+        # per_stack charge 0.5 (consume false) -> stacks(); hit-stop is the freeze row in `on: hit1` (R25).
+        - {id: hit1, op: hit, at: 13, anchor: caster, shape: {sphere: "${radius}"}, targets: enemies, damage: {physical: "= dmg_physical + 0.5 * stacks(caster, 'charge')"}, window: once, ignore_invulnerability: true}
+        - {id: dash_hit_2, op: hit, at: 29, for: 3, every: 1, anchor: caster.body, shape: {sphere: 0.9}, targets: enemies, window: once, ignore_invulnerability: false}
+        - {id: dash_2, op: dash, at: 29, speed: "= dash_distance_2 / 3", for: 3, until: dash_hit_2.hit, direction: forward, invulnerable: true, stop_on_block: true, follow_pitch: false, face_movement: false}
+        # per_stack charge 0.5 (consume false) -> stacks(); freeze 2 in `on: hit2`.
+        - {id: hit2, op: hit, at: 32, anchor: caster, shape: {sphere: "${radius}"}, targets: enemies, damage: {physical: "= dmg_physical_2 + 0.5 * stacks(caster, 'charge')"}, window: once, ignore_invulnerability: true}
+        # v2 sel_5/sel_6: sector {angle 80, range 3.4, height 2.0}, origin `at: eye`, forward caster.forward (yaw only) -> anchor caster.eye + `forward: yaw` (R31).
+        # per_stack charge 0.5 consume TRUE: stacks() read once before the first victim, consume_status below lands after all victims (R24); freeze 3 in `on: hit3`.
+        - {id: hit3, op: hit, at: 53, anchor: caster.eye, shape: {sector: {deg: "${arc_deg}", range: "${reach}", height: 2.0}}, forward: yaw, targets: enemies, damage: {physical: "= dmg_physical_3 + 0.5 * stacks(caster, 'charge')"}, window: once, ignore_invulnerability: true}
+        - {id: spend, op: consume_status, at: 53, target: caster, status: charge}
+        # v2 hit_once + stop_before_target 0.6 (R9), as above.
+        - {id: dash_hit_3, op: hit, at: 54, for: 3, every: 1, anchor: caster.body, shape: {sphere: 0.6}, targets: enemies, window: once, ignore_invulnerability: false}
+        - {id: dash_3, op: dash, at: 54, speed: "= dash_distance_3 / 3", for: 3, until: dash_hit_3.hit, direction: forward, invulnerable: true, stop_on_block: true, follow_pitch: false, face_movement: false}
         # --- weapon rig (v2 look.yaml group fx0, rig duration 80) ---
         - id: rig
           op: rig
@@ -110,17 +105,20 @@ machine:
             - {for: 1, from: {left: -0.88709, up: -0.40352, forward: -0.22416}, to: {left: -0.99558, up: 0.08163, forward: -0.04641}, edge: trailing, roll: -57.451}
             - {for: 1, from: {left: -0.99558, up: 0.08163, forward: -0.04641}, to: {left: -0.70215, up: -0.41193, forward: -0.58078}, edge: leading, roll: -59.573}
             - {for: 1, from: {left: -0.70215, up: -0.41193, forward: -0.58078}, to: {left: -0.71524, up: -0.45802, forward: -0.52787}, edge: trailing, roll: -6.831}
-            # GAP: rig reset t66 -> t67 is 174.0 deg in one tick (> 170 lowering cap) -> 2-tick step: pose at t67 is the midpoint, identity reached at t68
-            - {at: 66, for: 2, from: {left: -0.71524, up: -0.45802, forward: -0.52787}, via: {left: -0.71455, up: -0.45189, forward: -0.53405}, to: {left: 0.57357, up: 0.25313, forward: 0.77906}, edge: leading, roll: -51.062}
+            # v2 holds the t66 pose through t66 and is at rest at t67 (a 174 deg jump): R30 reset step.
+            - {at: 67, reset: true}
       on:
         - event: hit2
           do:
+            - {id: stop_2, op: freeze, at: 0, ticks: 2, scope: [caster, event.victim]}
             - {id: kb, op: knockback, target: event.victim, direction: "= normalize(flat(pos(event.victim) - pos(caster))) + vec(0.0, 0.2, 0.0)", strength: "${knockback_2}"}
         - event: hit1
           do:
+            - {id: stop, op: freeze, at: 0, ticks: 2, scope: [caster, event.victim]}
             - {id: kb_1, op: knockback, target: event.victim, direction: "= normalize(flat(pos(event.victim) - pos(caster))) + vec(0.0, 0.2, 0.0)", strength: "${knockback}"}
         - event: hit3
           do:
+            - {id: stop_3, op: freeze, at: 0, ticks: 3, scope: [caster, event.victim]}
             - {id: kb_3, op: knockback, target: event.victim, direction: "= normalize(flat(pos(event.victim) - pos(caster))) + vec(0.0, 0.2, 0.0)", strength: "${knockback_3}"}
     end: {final: true}
 presentation:
@@ -143,8 +141,7 @@ presentation:
       - id: fx10
         at: 10
         do:
-# GAP: plate see_through: true on a sprite -> none (see_through is kind: text only)
-          - {id: fx2_fx_ring_s2r_ring_q0, op: display, kind: sprite, sprite: bastion-s1-ring-q0, size: [2.6502, 2.6502], anchor: fx2_fx_ring, brightness: {block: 15, sky: 15}, offset: {left: 0.98, up: 0.77, forward: -1.029}, rotate: [{axis: up, deg: 74.03572}, {axis: left, deg: -69.25163}, {axis: forward, deg: -64.62826}], for: 14}
+          - {id: fx2_fx_ring_s2r_ring_q0, op: display, kind: sprite, see_through: true, sprite: bastion-s1-ring-q0, size: [2.6502, 2.6502], anchor: fx2_fx_ring, brightness: {block: 15, sky: 15}, offset: {left: 0.98, up: 0.77, forward: -1.029}, rotate: [{axis: up, deg: 74.03572}, {axis: left, deg: -69.25163}, {axis: forward, deg: -64.62826}], for: 14}
           - {id: fx2_fx_ring_s2r_p_sheath_0_at, op: frame, anchor: fx2_fx_ring, offset: {left: 0.013, up: 0.683, forward: -0.595}, for: 1}
           - {id: fx2_fx_ring_s2r_p_sheath_0, op: particle_def, def: bastion-s1-p-sheath, anchor: fx2_fx_ring_s2r_p_sheath_0_at}
           - {id: fx2_fx_ring_s2r_p_sheath_1_at, op: frame, anchor: fx2_fx_ring, offset: {left: 0.039, up: 0.661, forward: -0.979}, for: 1}
@@ -198,15 +195,12 @@ presentation:
       - id: fx11
         at: 11
         do:
-# GAP: plate see_through: true on a sprite -> none (see_through is kind: text only)
-          - {id: fx2_fx_ring_s2r_ring_q1, op: display, kind: sprite, sprite: bastion-s1-ring-q1, size: [2.6502, 2.6502], anchor: fx2_fx_ring, brightness: {block: 15, sky: 15}, offset: {left: 0.968, up: 0.953, forward: 1.615}, rotate: [{axis: up, deg: 74.03572}, {axis: left, deg: -69.25163}, {axis: forward, deg: -64.62826}], for: 13}
+          - {id: fx2_fx_ring_s2r_ring_q1, op: display, kind: sprite, see_through: true, sprite: bastion-s1-ring-q1, size: [2.6502, 2.6502], anchor: fx2_fx_ring, brightness: {block: 15, sky: 15}, offset: {left: 0.968, up: 0.953, forward: 1.615}, rotate: [{axis: up, deg: 74.03572}, {axis: left, deg: -69.25163}, {axis: forward, deg: -64.62826}], for: 13}
       - id: fx12
         at: 12
         do:
           - {id: fx2_fx_ring_s2r_floor_fill, op: display, kind: sprite, sprite: bastion-s1-ink, size: [4.4, 4.4], anchor: fx2_fx_ring, brightness: {block: 15, sky: 15}, offset: {left: 0.25, up: 0.03, forward: 0.5}, rotate: [{axis: up, deg: -69.28203}, {axis: left, deg: -69.28203}, {axis: forward, deg: 69.28203}], for: 2}
-# GAP: plate see_through: true on a sprite -> none (see_through is kind: text only)
-          - {id: fx2_fx_ring_s2r_line_1, op: display, kind: sprite, sprite: bastion-s1-streak, size: [0.5, 0.64], anchor: fx2_fx_ring, brightness: {block: 15, sky: 15}, billboard: center, offset: {left: 0.5, up: 0.6, forward: 1.2}, for: 3}
-          - {id: fx2_fx_ring_s2r_line_1, op: display, kind: sprite, sprite: bastion-s1-streak, size: [0.5, 0.64], anchor: fx2_fx_ring, brightness: {block: 15, sky: 15}, billboard: center, offset: {left: 0.5, up: 0.6, forward: 1.2}, for: 3, motion: [{law: keys, keys: [{t: 0, offset: {left: 0.5, up: 0.6, forward: 1.2}, pose: [], scale: [1.0, 1.0, 1.0]}, {t: 1, offset: {left: 0.5, up: 0.6, forward: 1.2}, pose: [], scale: [4.8003, 1.0, 1.0], ease: out_expo}, {t: 2, offset: {left: 0.5, up: 0.6, forward: 1.2}, pose: [], scale: [3.3602, 0.2, 1.0], ease: in_quad}]}]}
+          - {id: fx2_fx_ring_s2r_line_1, op: display, kind: sprite, see_through: true, sprite: bastion-s1-streak, size: [0.5, 0.64], anchor: fx2_fx_ring, brightness: {block: 15, sky: 15}, billboard: center, offset: {left: 0.5, up: 0.6, forward: 1.2}, for: 3, motion: [{law: keys, keys: [{t: 0, offset: {left: 0.5, up: 0.6, forward: 1.2}, pose: [], scale: [1.0, 1.0, 1.0]}, {t: 1, offset: {left: 0.5, up: 0.6, forward: 1.2}, pose: [], scale: [4.8003, 1.0, 1.0], ease: out_expo}, {t: 2, offset: {left: 0.5, up: 0.6, forward: 1.2}, pose: [], scale: [3.3602, 0.2, 1.0], ease: in_quad}]}]}
           - {id: fx2_fx_ring_s2r_p_trail_7_at, op: frame, anchor: fx2_fx_ring, offset: {left: 0.132, up: 0.676, forward: -1.905}, for: 1}
           - {id: fx2_fx_ring_s2r_p_trail_7, op: particle_def, def: bastion-s1-p-trail, anchor: fx2_fx_ring_s2r_p_trail_7_at}
           - {id: fx2_fx_ring_s2r_p_csteel_3_at, op: frame, anchor: fx2_fx_ring, offset: {left: 0.12, up: 0.682, forward: -1.555}, for: 1}
@@ -257,24 +251,12 @@ presentation:
         at: 13
         do:
           - {id: fx2_fx_ring_s2r_ink, op: display, kind: sprite, sprite: bastion-s1-ink, size: [3.3997, 3.3997], anchor: fx2_fx_ring, brightness: {block: 15, sky: 15}, billboard: center, offset: {left: 0.212, up: 1.223, forward: 1.554}, for: 2}
-# GAP: plate see_through: true on a sprite -> none (see_through is kind: text only)
-          - {id: fx2_fx_ring_s2r_streak_main, op: display, kind: sprite, sprite: bastion-s1-streak, size: [0.6, 2.048], anchor: fx2_fx_ring, brightness: {block: 15, sky: 15}, billboard: center, offset: {left: 0.062, up: 1.773, forward: 1.604}, rotate: [{axis: forward, deg: -4.0}], for: 6}
-          - {id: fx2_fx_ring_s2r_streak_main, op: display, kind: sprite, sprite: bastion-s1-streak, size: [0.6, 2.048], anchor: fx2_fx_ring, brightness: {block: 15, sky: 15}, billboard: center, offset: {left: 0.062, up: 1.773, forward: 1.604}, rotate: [{axis: forward, deg: -4.0}], for: 6, motion: [{law: keys, keys: [{t: 0, offset: {left: 0.062, up: 1.773, forward: 1.604}, pose: [{axis: forward, deg: -4.0}], scale: [1.0, 1.0, 1.0]}, {t: 1, offset: {left: 0.062, up: 1.773, forward: 1.604}, pose: [{axis: forward, deg: -4.0}], scale: [7.6661, 1.0, 1.0], ease: out_expo}, {t: 6, offset: {left: 0.062, up: 1.773, forward: 1.604}, pose: [{axis: forward, deg: -4.0}], scale: [6.0, 0.125, 1.0], ease: in_quad}]}]}
-# GAP: plate see_through: true on a sprite -> none (see_through is kind: text only)
-          - {id: fx2_fx_ring_s2r_line_2, op: display, kind: sprite, sprite: bastion-s1-streak, size: [0.5, 0.64], tint: "#FFE070", anchor: fx2_fx_ring, brightness: {block: 15, sky: 15}, billboard: center, offset: {left: -0.5, up: 1.05, forward: 1.4}, for: 3}
-          - {id: fx2_fx_ring_s2r_line_2, op: display, kind: sprite, sprite: bastion-s1-streak, size: [0.5, 0.64], tint: "#FFE070", anchor: fx2_fx_ring, brightness: {block: 15, sky: 15}, billboard: center, offset: {left: -0.5, up: 1.05, forward: 1.4}, for: 3, motion: [{law: keys, keys: [{t: 0, offset: {left: -0.5, up: 1.05, forward: 1.4}, pose: [], scale: [1.0, 1.0, 1.0]}, {t: 1, offset: {left: -0.5, up: 1.05, forward: 1.4}, pose: [], scale: [4.0003, 1.0, 1.0], ease: out_expo}, {t: 2, offset: {left: -0.5, up: 1.05, forward: 1.4}, pose: [], scale: [2.7995, 0.2, 1.0], ease: in_quad}]}]}
-# GAP: plate see_through: true on a sprite -> none (see_through is kind: text only)
-          - {id: fx2_fx_ring_s2r_flash, op: display, kind: sprite, sprite: bastion-s1-flare, size: [1.2, 1.2], anchor: fx2_fx_ring, brightness: {block: 15, sky: 15}, billboard: center, offset: {left: 0.112, up: 1.273, forward: 1.504}, for: 4}
-          - {id: fx2_fx_ring_s2r_flash, op: display, kind: sprite, sprite: bastion-s1-flare, size: [1.2, 1.2], anchor: fx2_fx_ring, brightness: {block: 15, sky: 15}, billboard: center, offset: {left: 0.112, up: 1.273, forward: 1.504}, for: 4, motion: [{law: keys, keys: [{t: 0, offset: {left: 0.112, up: 1.273, forward: 1.504}, pose: [], scale: [1.0, 1.0, 1.0]}, {t: 1, offset: {left: 0.112, up: 1.273, forward: 1.504}, pose: [], scale: [1.9168, 1.9168, 1.0], ease: out_back}, {t: 3, offset: {left: 0.112, up: 1.273, forward: 1.504}, pose: [], scale: [0.7499, 0.7499, 1.0], ease: out_quad}]}]}
-# GAP: plate see_through: true on a sprite -> none (see_through is kind: text only)
-          - {id: fx2_fx_ring_s2r_flash_x, op: display, kind: sprite, sprite: bastion-s1-flare, size: [1.2, 1.2], anchor: fx2_fx_ring, brightness: {block: 15, sky: 15}, offset: {left: 0.112, up: 1.273, forward: 1.504}, rotate: [{axis: left, deg: 90.0}], for: 4}
-          - {id: fx2_fx_ring_s2r_flash_x, op: display, kind: sprite, sprite: bastion-s1-flare, size: [1.2, 1.2], anchor: fx2_fx_ring, brightness: {block: 15, sky: 15}, offset: {left: 0.112, up: 1.273, forward: 1.504}, rotate: [{axis: left, deg: 90.0}], for: 4, motion: [{law: keys, keys: [{t: 0, offset: {left: 0.112, up: 1.273, forward: 1.504}, pose: [{axis: left, deg: 90.0}], scale: [1.0, 1.0, 1.0]}, {t: 1, offset: {left: 0.112, up: 1.273, forward: 1.504}, pose: [{axis: left, deg: 90.0}], scale: [1.9168, 1.9168, 1.0], ease: out_back}, {t: 3, offset: {left: 0.112, up: 1.273, forward: 1.504}, pose: [{axis: left, deg: 90.0}], scale: [0.7499, 0.7499, 1.0], ease: out_quad}]}]}
-# GAP: plate see_through: true on a sprite -> none (see_through is kind: text only)
-          - {id: fx2_fx_ring_s2r_flash_f, op: display, kind: sprite, sprite: bastion-s1-flare, size: [1.2, 1.2], anchor: fx2_fx_ring, brightness: {block: 15, sky: 15}, offset: {left: 0.112, up: 1.273, forward: 1.504}, rotate: [{axis: up, deg: 90.0}], for: 4}
-          - {id: fx2_fx_ring_s2r_flash_f, op: display, kind: sprite, sprite: bastion-s1-flare, size: [1.2, 1.2], anchor: fx2_fx_ring, brightness: {block: 15, sky: 15}, offset: {left: 0.112, up: 1.273, forward: 1.504}, rotate: [{axis: up, deg: 90.0}], for: 4, motion: [{law: keys, keys: [{t: 0, offset: {left: 0.112, up: 1.273, forward: 1.504}, pose: [{axis: up, deg: 90.0}], scale: [1.0, 1.0, 1.0]}, {t: 1, offset: {left: 0.112, up: 1.273, forward: 1.504}, pose: [{axis: up, deg: 90.0}], scale: [1.9168, 1.9168, 1.0], ease: out_back}, {t: 3, offset: {left: 0.112, up: 1.273, forward: 1.504}, pose: [{axis: up, deg: 90.0}], scale: [0.7499, 0.7499, 1.0], ease: out_quad}]}]}
-# GAP: plate see_through: true on a sprite -> none (see_through is kind: text only)
-          - {id: fx2_fx_ring_s2r_streak_x, op: display, kind: sprite, sprite: bastion-s1-streak, size: [0.6, 2.048], anchor: fx2_fx_ring, brightness: {block: 15, sky: 15}, offset: {left: 0.062, up: 1.773, forward: 1.604}, rotate: [{axis: up, deg: -3.14148}, {axis: left, deg: 89.96015}, {axis: forward, deg: -3.14148}], for: 6}
-          - {id: fx2_fx_ring_s2r_streak_x, op: display, kind: sprite, sprite: bastion-s1-streak, size: [0.6, 2.048], anchor: fx2_fx_ring, brightness: {block: 15, sky: 15}, offset: {left: 0.062, up: 1.773, forward: 1.604}, rotate: [{axis: up, deg: -3.14148}, {axis: left, deg: 89.96015}, {axis: forward, deg: -3.14148}], for: 6, motion: [{law: keys, keys: [{t: 0, offset: {left: 0.062, up: 1.773, forward: 1.604}, pose: [{axis: up, deg: -3.14148}, {axis: left, deg: 89.96015}, {axis: forward, deg: -3.14148}], scale: [1.0, 1.0, 1.0]}, {t: 1, offset: {left: 0.062, up: 1.773, forward: 1.604}, pose: [{axis: up, deg: -3.14148}, {axis: left, deg: 89.96015}, {axis: forward, deg: -3.14148}], scale: [9.3333, 1.0, 1.0], ease: out_expo}, {t: 6, offset: {left: 0.062, up: 1.773, forward: 1.604}, pose: [{axis: up, deg: -3.14148}, {axis: left, deg: 89.96015}, {axis: forward, deg: -3.14148}], scale: [6.0, 0.125, 1.0], ease: in_quad}]}]}
+          - {id: fx2_fx_ring_s2r_streak_main, op: display, kind: sprite, see_through: true, sprite: bastion-s1-streak, size: [0.6, 2.048], anchor: fx2_fx_ring, brightness: {block: 15, sky: 15}, billboard: center, offset: {left: 0.062, up: 1.773, forward: 1.604}, rotate: [{axis: forward, deg: -4.0}], for: 6, motion: [{law: keys, keys: [{t: 0, offset: {left: 0.062, up: 1.773, forward: 1.604}, pose: [{axis: forward, deg: -4.0}], scale: [1.0, 1.0, 1.0]}, {t: 1, offset: {left: 0.062, up: 1.773, forward: 1.604}, pose: [{axis: forward, deg: -4.0}], scale: [7.6661, 1.0, 1.0], ease: out_expo}, {t: 6, offset: {left: 0.062, up: 1.773, forward: 1.604}, pose: [{axis: forward, deg: -4.0}], scale: [6.0, 0.125, 1.0], ease: in_quad}]}]}
+          - {id: fx2_fx_ring_s2r_line_2, op: display, kind: sprite, see_through: true, sprite: bastion-s1-streak, size: [0.5, 0.64], tint: "#FFE070", anchor: fx2_fx_ring, brightness: {block: 15, sky: 15}, billboard: center, offset: {left: -0.5, up: 1.05, forward: 1.4}, for: 3, motion: [{law: keys, keys: [{t: 0, offset: {left: -0.5, up: 1.05, forward: 1.4}, pose: [], scale: [1.0, 1.0, 1.0]}, {t: 1, offset: {left: -0.5, up: 1.05, forward: 1.4}, pose: [], scale: [4.0003, 1.0, 1.0], ease: out_expo}, {t: 2, offset: {left: -0.5, up: 1.05, forward: 1.4}, pose: [], scale: [2.7995, 0.2, 1.0], ease: in_quad}]}]}
+          - {id: fx2_fx_ring_s2r_flash, op: display, kind: sprite, see_through: true, sprite: bastion-s1-flare, size: [1.2, 1.2], anchor: fx2_fx_ring, brightness: {block: 15, sky: 15}, billboard: center, offset: {left: 0.112, up: 1.273, forward: 1.504}, for: 4, motion: [{law: keys, keys: [{t: 0, offset: {left: 0.112, up: 1.273, forward: 1.504}, pose: [], scale: [1.0, 1.0, 1.0]}, {t: 1, offset: {left: 0.112, up: 1.273, forward: 1.504}, pose: [], scale: [1.9168, 1.9168, 1.0], ease: out_back}, {t: 3, offset: {left: 0.112, up: 1.273, forward: 1.504}, pose: [], scale: [0.7499, 0.7499, 1.0], ease: out_quad}]}]}
+          - {id: fx2_fx_ring_s2r_flash_x, op: display, kind: sprite, see_through: true, sprite: bastion-s1-flare, size: [1.2, 1.2], anchor: fx2_fx_ring, brightness: {block: 15, sky: 15}, offset: {left: 0.112, up: 1.273, forward: 1.504}, rotate: [{axis: left, deg: 90.0}], for: 4, motion: [{law: keys, keys: [{t: 0, offset: {left: 0.112, up: 1.273, forward: 1.504}, pose: [{axis: left, deg: 90.0}], scale: [1.0, 1.0, 1.0]}, {t: 1, offset: {left: 0.112, up: 1.273, forward: 1.504}, pose: [{axis: left, deg: 90.0}], scale: [1.9168, 1.9168, 1.0], ease: out_back}, {t: 3, offset: {left: 0.112, up: 1.273, forward: 1.504}, pose: [{axis: left, deg: 90.0}], scale: [0.7499, 0.7499, 1.0], ease: out_quad}]}]}
+          - {id: fx2_fx_ring_s2r_flash_f, op: display, kind: sprite, see_through: true, sprite: bastion-s1-flare, size: [1.2, 1.2], anchor: fx2_fx_ring, brightness: {block: 15, sky: 15}, offset: {left: 0.112, up: 1.273, forward: 1.504}, rotate: [{axis: up, deg: 90.0}], for: 4, motion: [{law: keys, keys: [{t: 0, offset: {left: 0.112, up: 1.273, forward: 1.504}, pose: [{axis: up, deg: 90.0}], scale: [1.0, 1.0, 1.0]}, {t: 1, offset: {left: 0.112, up: 1.273, forward: 1.504}, pose: [{axis: up, deg: 90.0}], scale: [1.9168, 1.9168, 1.0], ease: out_back}, {t: 3, offset: {left: 0.112, up: 1.273, forward: 1.504}, pose: [{axis: up, deg: 90.0}], scale: [0.7499, 0.7499, 1.0], ease: out_quad}]}]}
+          - {id: fx2_fx_ring_s2r_streak_x, op: display, kind: sprite, see_through: true, sprite: bastion-s1-streak, size: [0.6, 2.048], anchor: fx2_fx_ring, brightness: {block: 15, sky: 15}, offset: {left: 0.062, up: 1.773, forward: 1.604}, rotate: [{axis: up, deg: -3.14148}, {axis: left, deg: 89.96015}, {axis: forward, deg: -3.14148}], for: 6, motion: [{law: keys, keys: [{t: 0, offset: {left: 0.062, up: 1.773, forward: 1.604}, pose: [{axis: up, deg: -3.14148}, {axis: left, deg: 89.96015}, {axis: forward, deg: -3.14148}], scale: [1.0, 1.0, 1.0]}, {t: 1, offset: {left: 0.062, up: 1.773, forward: 1.604}, pose: [{axis: up, deg: -3.14148}, {axis: left, deg: 89.96015}, {axis: forward, deg: -3.14148}], scale: [9.3333, 1.0, 1.0], ease: out_expo}, {t: 6, offset: {left: 0.062, up: 1.773, forward: 1.604}, pose: [{axis: up, deg: -3.14148}, {axis: left, deg: 89.96015}, {axis: forward, deg: -3.14148}], scale: [6.0, 0.125, 1.0], ease: in_quad}]}]}
           - {id: fx2_fx_ring_s2r_p_trail_17_at, op: frame, anchor: fx2_fx_ring, offset: {left: 2.185, up: 0.83, forward: -0.088}, for: 1}
           - {id: fx2_fx_ring_s2r_p_trail_17, op: particle_def, def: bastion-s1-p-trail, anchor: fx2_fx_ring_s2r_p_trail_17_at}
           - {id: fx2_fx_ring_s2r_p_csteel_7_at, op: frame, anchor: fx2_fx_ring, offset: {left: 1.839, up: 0.78, forward: -0.076}, for: 1}
@@ -361,8 +343,7 @@ presentation:
       - id: fx14
         at: 14
         do:
-# GAP: plate see_through: true on a sprite -> none (see_through is kind: text only)
-          - {id: fx2_fx_ring_s2r_ring_q2, op: display, kind: sprite, sprite: bastion-s1-ring-q2, size: [2.6502, 2.6502], anchor: fx2_fx_ring, brightness: {block: 15, sky: 15}, offset: {left: -1.664, up: 0.593, forward: -1.029}, rotate: [{axis: up, deg: 74.03572}, {axis: left, deg: -69.25163}, {axis: forward, deg: -64.62826}], for: 10}
+          - {id: fx2_fx_ring_s2r_ring_q2, op: display, kind: sprite, see_through: true, sprite: bastion-s1-ring-q2, size: [2.6502, 2.6502], anchor: fx2_fx_ring, brightness: {block: 15, sky: 15}, offset: {left: -1.664, up: 0.593, forward: -1.029}, rotate: [{axis: up, deg: 74.03572}, {axis: left, deg: -69.25163}, {axis: forward, deg: -64.62826}], for: 10}
           - {id: fx2_fx_ring_s2r_p_ring_11_at, op: frame, anchor: fx2_fx_ring, offset: {left: 0.566, up: 0.835, forward: 2.533}, for: 1}
           - {id: fx2_fx_ring_s2r_p_ring_11, op: particle_def, def: bastion-s1-p-ring-crit, anchor: fx2_fx_ring_s2r_p_ring_11_at}
           - {id: fx2_fx_ring_s2r_p_ring_12_at, op: frame, anchor: fx2_fx_ring, offset: {left: 0.575, up: 1.142, forward: 2.5}, for: 1}
@@ -388,8 +369,7 @@ presentation:
       - id: fx15
         at: 15
         do:
-# GAP: plate see_through: true on a sprite -> none (see_through is kind: text only)
-          - {id: fx2_fx_ring_s2r_ring_q3, op: display, kind: sprite, sprite: bastion-s1-ring-q3, size: [2.6502, 2.6502], anchor: fx2_fx_ring, brightness: {block: 15, sky: 15}, offset: {left: -1.676, up: 0.776, forward: 1.615}, rotate: [{axis: up, deg: 74.03572}, {axis: left, deg: -69.25163}, {axis: forward, deg: -64.62826}], for: 9}
+          - {id: fx2_fx_ring_s2r_ring_q3, op: display, kind: sprite, see_through: true, sprite: bastion-s1-ring-q3, size: [2.6502, 2.6502], anchor: fx2_fx_ring, brightness: {block: 15, sky: 15}, offset: {left: -1.676, up: 0.776, forward: 1.615}, rotate: [{axis: up, deg: 74.03572}, {axis: left, deg: -69.25163}, {axis: forward, deg: -64.62826}], for: 9}
           - {id: fx2_fx_ring_s2r_p_ring_21_at, op: frame, anchor: fx2_fx_ring, offset: {left: 0.71, up: 0.494, forward: 2.565}, for: 1}
           - {id: fx2_fx_ring_s2r_p_ring_21, op: particle_def, def: bastion-s1-p-ring-crit, anchor: fx2_fx_ring_s2r_p_ring_21_at}
           - {id: fx2_fx_ring_s2r_p_ring_22_at, op: frame, anchor: fx2_fx_ring, offset: {left: 0.893, up: 0.95, forward: 2.509}, for: 1}
@@ -565,8 +545,7 @@ presentation:
       - id: fx29
         at: 29
         do:
-# GAP: plate see_through: true on a sprite -> none (see_through is kind: text only)
-          - {id: fx3_fx_ring_s2r_ring_q0, op: display, kind: sprite, sprite: bastion-s1-ring-q0, size: [2.6502, 2.6502], anchor: fx3_fx_ring, brightness: {block: 15, sky: 15}, offset: {left: 0.98, up: 0.77, forward: -1.029}, rotate: [{axis: up, deg: 74.03572}, {axis: left, deg: -69.25163}, {axis: forward, deg: -64.62826}], for: 14}
+          - {id: fx3_fx_ring_s2r_ring_q0, op: display, kind: sprite, see_through: true, sprite: bastion-s1-ring-q0, size: [2.6502, 2.6502], anchor: fx3_fx_ring, brightness: {block: 15, sky: 15}, offset: {left: 0.98, up: 0.77, forward: -1.029}, rotate: [{axis: up, deg: 74.03572}, {axis: left, deg: -69.25163}, {axis: forward, deg: -64.62826}], for: 14}
           - {id: fx3_fx_ring_s2r_p_sheath_0_at, op: frame, anchor: fx3_fx_ring, offset: {left: 0.013, up: 0.683, forward: -0.595}, for: 1}
           - {id: fx3_fx_ring_s2r_p_sheath_0, op: particle_def, def: bastion-s1-p-sheath, anchor: fx3_fx_ring_s2r_p_sheath_0_at}
           - {id: fx3_fx_ring_s2r_p_sheath_1_at, op: frame, anchor: fx3_fx_ring, offset: {left: 0.039, up: 0.661, forward: -0.979}, for: 1}
@@ -620,15 +599,12 @@ presentation:
       - id: fx30
         at: 30
         do:
-# GAP: plate see_through: true on a sprite -> none (see_through is kind: text only)
-          - {id: fx3_fx_ring_s2r_ring_q1, op: display, kind: sprite, sprite: bastion-s1-ring-q1, size: [2.6502, 2.6502], anchor: fx3_fx_ring, brightness: {block: 15, sky: 15}, offset: {left: 0.968, up: 0.953, forward: 1.615}, rotate: [{axis: up, deg: 74.03572}, {axis: left, deg: -69.25163}, {axis: forward, deg: -64.62826}], for: 13}
+          - {id: fx3_fx_ring_s2r_ring_q1, op: display, kind: sprite, see_through: true, sprite: bastion-s1-ring-q1, size: [2.6502, 2.6502], anchor: fx3_fx_ring, brightness: {block: 15, sky: 15}, offset: {left: 0.968, up: 0.953, forward: 1.615}, rotate: [{axis: up, deg: 74.03572}, {axis: left, deg: -69.25163}, {axis: forward, deg: -64.62826}], for: 13}
       - id: fx31
         at: 31
         do:
           - {id: fx3_fx_ring_s2r_floor_fill, op: display, kind: sprite, sprite: bastion-s1-ink, size: [4.4, 4.4], anchor: fx3_fx_ring, brightness: {block: 15, sky: 15}, offset: {left: 0.25, up: 0.03, forward: 0.5}, rotate: [{axis: up, deg: -69.28203}, {axis: left, deg: -69.28203}, {axis: forward, deg: 69.28203}], for: 2}
-# GAP: plate see_through: true on a sprite -> none (see_through is kind: text only)
-          - {id: fx3_fx_ring_s2r_line_1, op: display, kind: sprite, sprite: bastion-s1-streak, size: [0.5, 0.64], anchor: fx3_fx_ring, brightness: {block: 15, sky: 15}, billboard: center, offset: {left: 0.5, up: 0.6, forward: 1.2}, for: 3}
-          - {id: fx3_fx_ring_s2r_line_1, op: display, kind: sprite, sprite: bastion-s1-streak, size: [0.5, 0.64], anchor: fx3_fx_ring, brightness: {block: 15, sky: 15}, billboard: center, offset: {left: 0.5, up: 0.6, forward: 1.2}, for: 3, motion: [{law: keys, keys: [{t: 0, offset: {left: 0.5, up: 0.6, forward: 1.2}, pose: [], scale: [1.0, 1.0, 1.0]}, {t: 1, offset: {left: 0.5, up: 0.6, forward: 1.2}, pose: [], scale: [4.8003, 1.0, 1.0], ease: out_expo}, {t: 2, offset: {left: 0.5, up: 0.6, forward: 1.2}, pose: [], scale: [3.3602, 0.2, 1.0], ease: in_quad}]}]}
+          - {id: fx3_fx_ring_s2r_line_1, op: display, kind: sprite, see_through: true, sprite: bastion-s1-streak, size: [0.5, 0.64], anchor: fx3_fx_ring, brightness: {block: 15, sky: 15}, billboard: center, offset: {left: 0.5, up: 0.6, forward: 1.2}, for: 3, motion: [{law: keys, keys: [{t: 0, offset: {left: 0.5, up: 0.6, forward: 1.2}, pose: [], scale: [1.0, 1.0, 1.0]}, {t: 1, offset: {left: 0.5, up: 0.6, forward: 1.2}, pose: [], scale: [4.8003, 1.0, 1.0], ease: out_expo}, {t: 2, offset: {left: 0.5, up: 0.6, forward: 1.2}, pose: [], scale: [3.3602, 0.2, 1.0], ease: in_quad}]}]}
           - {id: fx3_fx_ring_s2r_p_trail_7_at, op: frame, anchor: fx3_fx_ring, offset: {left: 0.132, up: 0.676, forward: -1.905}, for: 1}
           - {id: fx3_fx_ring_s2r_p_trail_7, op: particle_def, def: bastion-s1-p-trail, anchor: fx3_fx_ring_s2r_p_trail_7_at}
           - {id: fx3_fx_ring_s2r_p_csteel_3_at, op: frame, anchor: fx3_fx_ring, offset: {left: 0.12, up: 0.682, forward: -1.555}, for: 1}
@@ -679,24 +655,12 @@ presentation:
         at: 32
         do:
           - {id: fx3_fx_ring_s2r_ink, op: display, kind: sprite, sprite: bastion-s1-ink, size: [3.3997, 3.3997], anchor: fx3_fx_ring, brightness: {block: 15, sky: 15}, billboard: center, offset: {left: 0.212, up: 1.223, forward: 1.554}, for: 2}
-# GAP: plate see_through: true on a sprite -> none (see_through is kind: text only)
-          - {id: fx3_fx_ring_s2r_streak_main, op: display, kind: sprite, sprite: bastion-s1-streak, size: [0.6, 2.048], anchor: fx3_fx_ring, brightness: {block: 15, sky: 15}, billboard: center, offset: {left: 0.062, up: 1.773, forward: 1.604}, rotate: [{axis: forward, deg: -4.0}], for: 6}
-          - {id: fx3_fx_ring_s2r_streak_main, op: display, kind: sprite, sprite: bastion-s1-streak, size: [0.6, 2.048], anchor: fx3_fx_ring, brightness: {block: 15, sky: 15}, billboard: center, offset: {left: 0.062, up: 1.773, forward: 1.604}, rotate: [{axis: forward, deg: -4.0}], for: 6, motion: [{law: keys, keys: [{t: 0, offset: {left: 0.062, up: 1.773, forward: 1.604}, pose: [{axis: forward, deg: -4.0}], scale: [1.0, 1.0, 1.0]}, {t: 1, offset: {left: 0.062, up: 1.773, forward: 1.604}, pose: [{axis: forward, deg: -4.0}], scale: [7.6661, 1.0, 1.0], ease: out_expo}, {t: 6, offset: {left: 0.062, up: 1.773, forward: 1.604}, pose: [{axis: forward, deg: -4.0}], scale: [6.0, 0.125, 1.0], ease: in_quad}]}]}
-# GAP: plate see_through: true on a sprite -> none (see_through is kind: text only)
-          - {id: fx3_fx_ring_s2r_line_2, op: display, kind: sprite, sprite: bastion-s1-streak, size: [0.5, 0.64], tint: "#FFE070", anchor: fx3_fx_ring, brightness: {block: 15, sky: 15}, billboard: center, offset: {left: -0.5, up: 1.05, forward: 1.4}, for: 3}
-          - {id: fx3_fx_ring_s2r_line_2, op: display, kind: sprite, sprite: bastion-s1-streak, size: [0.5, 0.64], tint: "#FFE070", anchor: fx3_fx_ring, brightness: {block: 15, sky: 15}, billboard: center, offset: {left: -0.5, up: 1.05, forward: 1.4}, for: 3, motion: [{law: keys, keys: [{t: 0, offset: {left: -0.5, up: 1.05, forward: 1.4}, pose: [], scale: [1.0, 1.0, 1.0]}, {t: 1, offset: {left: -0.5, up: 1.05, forward: 1.4}, pose: [], scale: [4.0003, 1.0, 1.0], ease: out_expo}, {t: 2, offset: {left: -0.5, up: 1.05, forward: 1.4}, pose: [], scale: [2.7995, 0.2, 1.0], ease: in_quad}]}]}
-# GAP: plate see_through: true on a sprite -> none (see_through is kind: text only)
-          - {id: fx3_fx_ring_s2r_flash, op: display, kind: sprite, sprite: bastion-s1-flare, size: [1.2, 1.2], anchor: fx3_fx_ring, brightness: {block: 15, sky: 15}, billboard: center, offset: {left: 0.112, up: 1.273, forward: 1.504}, for: 4}
-          - {id: fx3_fx_ring_s2r_flash, op: display, kind: sprite, sprite: bastion-s1-flare, size: [1.2, 1.2], anchor: fx3_fx_ring, brightness: {block: 15, sky: 15}, billboard: center, offset: {left: 0.112, up: 1.273, forward: 1.504}, for: 4, motion: [{law: keys, keys: [{t: 0, offset: {left: 0.112, up: 1.273, forward: 1.504}, pose: [], scale: [1.0, 1.0, 1.0]}, {t: 1, offset: {left: 0.112, up: 1.273, forward: 1.504}, pose: [], scale: [1.9168, 1.9168, 1.0], ease: out_back}, {t: 3, offset: {left: 0.112, up: 1.273, forward: 1.504}, pose: [], scale: [0.7499, 0.7499, 1.0], ease: out_quad}]}]}
-# GAP: plate see_through: true on a sprite -> none (see_through is kind: text only)
-          - {id: fx3_fx_ring_s2r_flash_x, op: display, kind: sprite, sprite: bastion-s1-flare, size: [1.2, 1.2], anchor: fx3_fx_ring, brightness: {block: 15, sky: 15}, offset: {left: 0.112, up: 1.273, forward: 1.504}, rotate: [{axis: left, deg: 90.0}], for: 4}
-          - {id: fx3_fx_ring_s2r_flash_x, op: display, kind: sprite, sprite: bastion-s1-flare, size: [1.2, 1.2], anchor: fx3_fx_ring, brightness: {block: 15, sky: 15}, offset: {left: 0.112, up: 1.273, forward: 1.504}, rotate: [{axis: left, deg: 90.0}], for: 4, motion: [{law: keys, keys: [{t: 0, offset: {left: 0.112, up: 1.273, forward: 1.504}, pose: [{axis: left, deg: 90.0}], scale: [1.0, 1.0, 1.0]}, {t: 1, offset: {left: 0.112, up: 1.273, forward: 1.504}, pose: [{axis: left, deg: 90.0}], scale: [1.9168, 1.9168, 1.0], ease: out_back}, {t: 3, offset: {left: 0.112, up: 1.273, forward: 1.504}, pose: [{axis: left, deg: 90.0}], scale: [0.7499, 0.7499, 1.0], ease: out_quad}]}]}
-# GAP: plate see_through: true on a sprite -> none (see_through is kind: text only)
-          - {id: fx3_fx_ring_s2r_flash_f, op: display, kind: sprite, sprite: bastion-s1-flare, size: [1.2, 1.2], anchor: fx3_fx_ring, brightness: {block: 15, sky: 15}, offset: {left: 0.112, up: 1.273, forward: 1.504}, rotate: [{axis: up, deg: 90.0}], for: 4}
-          - {id: fx3_fx_ring_s2r_flash_f, op: display, kind: sprite, sprite: bastion-s1-flare, size: [1.2, 1.2], anchor: fx3_fx_ring, brightness: {block: 15, sky: 15}, offset: {left: 0.112, up: 1.273, forward: 1.504}, rotate: [{axis: up, deg: 90.0}], for: 4, motion: [{law: keys, keys: [{t: 0, offset: {left: 0.112, up: 1.273, forward: 1.504}, pose: [{axis: up, deg: 90.0}], scale: [1.0, 1.0, 1.0]}, {t: 1, offset: {left: 0.112, up: 1.273, forward: 1.504}, pose: [{axis: up, deg: 90.0}], scale: [1.9168, 1.9168, 1.0], ease: out_back}, {t: 3, offset: {left: 0.112, up: 1.273, forward: 1.504}, pose: [{axis: up, deg: 90.0}], scale: [0.7499, 0.7499, 1.0], ease: out_quad}]}]}
-# GAP: plate see_through: true on a sprite -> none (see_through is kind: text only)
-          - {id: fx3_fx_ring_s2r_streak_x, op: display, kind: sprite, sprite: bastion-s1-streak, size: [0.6, 2.048], anchor: fx3_fx_ring, brightness: {block: 15, sky: 15}, offset: {left: 0.062, up: 1.773, forward: 1.604}, rotate: [{axis: up, deg: -3.14148}, {axis: left, deg: 89.96015}, {axis: forward, deg: -3.14148}], for: 6}
-          - {id: fx3_fx_ring_s2r_streak_x, op: display, kind: sprite, sprite: bastion-s1-streak, size: [0.6, 2.048], anchor: fx3_fx_ring, brightness: {block: 15, sky: 15}, offset: {left: 0.062, up: 1.773, forward: 1.604}, rotate: [{axis: up, deg: -3.14148}, {axis: left, deg: 89.96015}, {axis: forward, deg: -3.14148}], for: 6, motion: [{law: keys, keys: [{t: 0, offset: {left: 0.062, up: 1.773, forward: 1.604}, pose: [{axis: up, deg: -3.14148}, {axis: left, deg: 89.96015}, {axis: forward, deg: -3.14148}], scale: [1.0, 1.0, 1.0]}, {t: 1, offset: {left: 0.062, up: 1.773, forward: 1.604}, pose: [{axis: up, deg: -3.14148}, {axis: left, deg: 89.96015}, {axis: forward, deg: -3.14148}], scale: [9.3333, 1.0, 1.0], ease: out_expo}, {t: 6, offset: {left: 0.062, up: 1.773, forward: 1.604}, pose: [{axis: up, deg: -3.14148}, {axis: left, deg: 89.96015}, {axis: forward, deg: -3.14148}], scale: [6.0, 0.125, 1.0], ease: in_quad}]}]}
+          - {id: fx3_fx_ring_s2r_streak_main, op: display, kind: sprite, see_through: true, sprite: bastion-s1-streak, size: [0.6, 2.048], anchor: fx3_fx_ring, brightness: {block: 15, sky: 15}, billboard: center, offset: {left: 0.062, up: 1.773, forward: 1.604}, rotate: [{axis: forward, deg: -4.0}], for: 6, motion: [{law: keys, keys: [{t: 0, offset: {left: 0.062, up: 1.773, forward: 1.604}, pose: [{axis: forward, deg: -4.0}], scale: [1.0, 1.0, 1.0]}, {t: 1, offset: {left: 0.062, up: 1.773, forward: 1.604}, pose: [{axis: forward, deg: -4.0}], scale: [7.6661, 1.0, 1.0], ease: out_expo}, {t: 6, offset: {left: 0.062, up: 1.773, forward: 1.604}, pose: [{axis: forward, deg: -4.0}], scale: [6.0, 0.125, 1.0], ease: in_quad}]}]}
+          - {id: fx3_fx_ring_s2r_line_2, op: display, kind: sprite, see_through: true, sprite: bastion-s1-streak, size: [0.5, 0.64], tint: "#FFE070", anchor: fx3_fx_ring, brightness: {block: 15, sky: 15}, billboard: center, offset: {left: -0.5, up: 1.05, forward: 1.4}, for: 3, motion: [{law: keys, keys: [{t: 0, offset: {left: -0.5, up: 1.05, forward: 1.4}, pose: [], scale: [1.0, 1.0, 1.0]}, {t: 1, offset: {left: -0.5, up: 1.05, forward: 1.4}, pose: [], scale: [4.0003, 1.0, 1.0], ease: out_expo}, {t: 2, offset: {left: -0.5, up: 1.05, forward: 1.4}, pose: [], scale: [2.7995, 0.2, 1.0], ease: in_quad}]}]}
+          - {id: fx3_fx_ring_s2r_flash, op: display, kind: sprite, see_through: true, sprite: bastion-s1-flare, size: [1.2, 1.2], anchor: fx3_fx_ring, brightness: {block: 15, sky: 15}, billboard: center, offset: {left: 0.112, up: 1.273, forward: 1.504}, for: 4, motion: [{law: keys, keys: [{t: 0, offset: {left: 0.112, up: 1.273, forward: 1.504}, pose: [], scale: [1.0, 1.0, 1.0]}, {t: 1, offset: {left: 0.112, up: 1.273, forward: 1.504}, pose: [], scale: [1.9168, 1.9168, 1.0], ease: out_back}, {t: 3, offset: {left: 0.112, up: 1.273, forward: 1.504}, pose: [], scale: [0.7499, 0.7499, 1.0], ease: out_quad}]}]}
+          - {id: fx3_fx_ring_s2r_flash_x, op: display, kind: sprite, see_through: true, sprite: bastion-s1-flare, size: [1.2, 1.2], anchor: fx3_fx_ring, brightness: {block: 15, sky: 15}, offset: {left: 0.112, up: 1.273, forward: 1.504}, rotate: [{axis: left, deg: 90.0}], for: 4, motion: [{law: keys, keys: [{t: 0, offset: {left: 0.112, up: 1.273, forward: 1.504}, pose: [{axis: left, deg: 90.0}], scale: [1.0, 1.0, 1.0]}, {t: 1, offset: {left: 0.112, up: 1.273, forward: 1.504}, pose: [{axis: left, deg: 90.0}], scale: [1.9168, 1.9168, 1.0], ease: out_back}, {t: 3, offset: {left: 0.112, up: 1.273, forward: 1.504}, pose: [{axis: left, deg: 90.0}], scale: [0.7499, 0.7499, 1.0], ease: out_quad}]}]}
+          - {id: fx3_fx_ring_s2r_flash_f, op: display, kind: sprite, see_through: true, sprite: bastion-s1-flare, size: [1.2, 1.2], anchor: fx3_fx_ring, brightness: {block: 15, sky: 15}, offset: {left: 0.112, up: 1.273, forward: 1.504}, rotate: [{axis: up, deg: 90.0}], for: 4, motion: [{law: keys, keys: [{t: 0, offset: {left: 0.112, up: 1.273, forward: 1.504}, pose: [{axis: up, deg: 90.0}], scale: [1.0, 1.0, 1.0]}, {t: 1, offset: {left: 0.112, up: 1.273, forward: 1.504}, pose: [{axis: up, deg: 90.0}], scale: [1.9168, 1.9168, 1.0], ease: out_back}, {t: 3, offset: {left: 0.112, up: 1.273, forward: 1.504}, pose: [{axis: up, deg: 90.0}], scale: [0.7499, 0.7499, 1.0], ease: out_quad}]}]}
+          - {id: fx3_fx_ring_s2r_streak_x, op: display, kind: sprite, see_through: true, sprite: bastion-s1-streak, size: [0.6, 2.048], anchor: fx3_fx_ring, brightness: {block: 15, sky: 15}, offset: {left: 0.062, up: 1.773, forward: 1.604}, rotate: [{axis: up, deg: -3.14148}, {axis: left, deg: 89.96015}, {axis: forward, deg: -3.14148}], for: 6, motion: [{law: keys, keys: [{t: 0, offset: {left: 0.062, up: 1.773, forward: 1.604}, pose: [{axis: up, deg: -3.14148}, {axis: left, deg: 89.96015}, {axis: forward, deg: -3.14148}], scale: [1.0, 1.0, 1.0]}, {t: 1, offset: {left: 0.062, up: 1.773, forward: 1.604}, pose: [{axis: up, deg: -3.14148}, {axis: left, deg: 89.96015}, {axis: forward, deg: -3.14148}], scale: [9.3333, 1.0, 1.0], ease: out_expo}, {t: 6, offset: {left: 0.062, up: 1.773, forward: 1.604}, pose: [{axis: up, deg: -3.14148}, {axis: left, deg: 89.96015}, {axis: forward, deg: -3.14148}], scale: [6.0, 0.125, 1.0], ease: in_quad}]}]}
           - {id: fx3_fx_ring_s2r_p_trail_17_at, op: frame, anchor: fx3_fx_ring, offset: {left: 2.185, up: 0.83, forward: -0.088}, for: 1}
           - {id: fx3_fx_ring_s2r_p_trail_17, op: particle_def, def: bastion-s1-p-trail, anchor: fx3_fx_ring_s2r_p_trail_17_at}
           - {id: fx3_fx_ring_s2r_p_csteel_7_at, op: frame, anchor: fx3_fx_ring, offset: {left: 1.839, up: 0.78, forward: -0.076}, for: 1}
@@ -785,8 +749,7 @@ presentation:
       - id: fx33
         at: 33
         do:
-# GAP: plate see_through: true on a sprite -> none (see_through is kind: text only)
-          - {id: fx3_fx_ring_s2r_ring_q2, op: display, kind: sprite, sprite: bastion-s1-ring-q2, size: [2.6502, 2.6502], anchor: fx3_fx_ring, brightness: {block: 15, sky: 15}, offset: {left: -1.664, up: 0.593, forward: -1.029}, rotate: [{axis: up, deg: 74.03572}, {axis: left, deg: -69.25163}, {axis: forward, deg: -64.62826}], for: 10}
+          - {id: fx3_fx_ring_s2r_ring_q2, op: display, kind: sprite, see_through: true, sprite: bastion-s1-ring-q2, size: [2.6502, 2.6502], anchor: fx3_fx_ring, brightness: {block: 15, sky: 15}, offset: {left: -1.664, up: 0.593, forward: -1.029}, rotate: [{axis: up, deg: 74.03572}, {axis: left, deg: -69.25163}, {axis: forward, deg: -64.62826}], for: 10}
           - {id: fx3_fx_ring_s2r_p_ring_11_at, op: frame, anchor: fx3_fx_ring, offset: {left: 0.566, up: 0.835, forward: 2.533}, for: 1}
           - {id: fx3_fx_ring_s2r_p_ring_11, op: particle_def, def: bastion-s1-p-ring-crit, anchor: fx3_fx_ring_s2r_p_ring_11_at}
           - {id: fx3_fx_ring_s2r_p_ring_12_at, op: frame, anchor: fx3_fx_ring, offset: {left: 0.575, up: 1.142, forward: 2.5}, for: 1}
@@ -812,8 +775,7 @@ presentation:
       - id: fx34
         at: 34
         do:
-# GAP: plate see_through: true on a sprite -> none (see_through is kind: text only)
-          - {id: fx3_fx_ring_s2r_ring_q3, op: display, kind: sprite, sprite: bastion-s1-ring-q3, size: [2.6502, 2.6502], anchor: fx3_fx_ring, brightness: {block: 15, sky: 15}, offset: {left: -1.676, up: 0.776, forward: 1.615}, rotate: [{axis: up, deg: 74.03572}, {axis: left, deg: -69.25163}, {axis: forward, deg: -64.62826}], for: 9}
+          - {id: fx3_fx_ring_s2r_ring_q3, op: display, kind: sprite, see_through: true, sprite: bastion-s1-ring-q3, size: [2.6502, 2.6502], anchor: fx3_fx_ring, brightness: {block: 15, sky: 15}, offset: {left: -1.676, up: 0.776, forward: 1.615}, rotate: [{axis: up, deg: 74.03572}, {axis: left, deg: -69.25163}, {axis: forward, deg: -64.62826}], for: 9}
           - {id: fx3_fx_ring_s2r_p_ring_21_at, op: frame, anchor: fx3_fx_ring, offset: {left: 0.71, up: 0.494, forward: 2.565}, for: 1}
           - {id: fx3_fx_ring_s2r_p_ring_21, op: particle_def, def: bastion-s1-p-ring-crit, anchor: fx3_fx_ring_s2r_p_ring_21_at}
           - {id: fx3_fx_ring_s2r_p_ring_22_at, op: frame, anchor: fx3_fx_ring, offset: {left: 0.893, up: 0.95, forward: 2.509}, for: 1}
@@ -996,35 +958,23 @@ presentation:
       - id: fx51
         at: 51
         do:
-# GAP: plate see_through: true on a sprite -> none (see_through is kind: text only)
-          - {id: fx4_fx_chop_s2c_streak_a, op: display, kind: sprite, sprite: bastion-s1-streak, size: [0.32, 1.28], anchor: fx4_fx_chop, brightness: {block: 15, sky: 15}, offset: {left: 0.0, up: 2.6, forward: 0.3}, rotate: [{axis: up, deg: 69.28203}, {axis: left, deg: 69.28203}, {axis: forward, deg: 69.28203}], for: 7}
-          - {id: fx4_fx_chop_s2c_streak_a, op: display, kind: sprite, sprite: bastion-s1-streak, size: [0.32, 1.28], anchor: fx4_fx_chop, brightness: {block: 15, sky: 15}, offset: {left: 0.0, up: 2.6, forward: 0.3}, rotate: [{axis: up, deg: 69.28203}, {axis: left, deg: 69.28203}, {axis: forward, deg: 69.28203}], for: 7, motion: [{law: keys, keys: [{t: 0, offset: {left: 0.0, up: 2.6, forward: 0.3}, pose: [{axis: up, deg: 69.28203}, {axis: left, deg: 69.28203}, {axis: forward, deg: 69.28203}], scale: [1.0, 1.0, 1.0]}, {t: 2, offset: {left: 0.0, up: 1.6, forward: 1.3}, pose: [{axis: up, deg: 69.28203}, {axis: left, deg: 69.28203}, {axis: forward, deg: 69.28203}], scale: [16.0, 1.5, 1.0], ease: out_expo}, {t: 7, offset: {left: 0.0, up: 1.2, forward: 1.6}, pose: [{axis: up, deg: 69.28203}, {axis: left, deg: 69.28203}, {axis: forward, deg: 69.28203}], scale: [12.0, 0.15, 1.0], ease: in_quad}]}]}
-# GAP: plate see_through: true on a sprite -> none (see_through is kind: text only)
-          - {id: fx4_fx_chop_s2c_streak_b, op: display, kind: sprite, sprite: bastion-s1-streak, size: [0.32, 1.28], anchor: fx4_fx_chop, brightness: {block: 15, sky: 15}, offset: {left: 0.0, up: 2.6, forward: 0.3}, rotate: [{axis: up, deg: -69.28203}, {axis: left, deg: -69.28203}, {axis: forward, deg: 69.28203}], for: 7}
-          - {id: fx4_fx_chop_s2c_streak_b, op: display, kind: sprite, sprite: bastion-s1-streak, size: [0.32, 1.28], anchor: fx4_fx_chop, brightness: {block: 15, sky: 15}, offset: {left: 0.0, up: 2.6, forward: 0.3}, rotate: [{axis: up, deg: -69.28203}, {axis: left, deg: -69.28203}, {axis: forward, deg: 69.28203}], for: 7, motion: [{law: keys, keys: [{t: 0, offset: {left: 0.0, up: 2.6, forward: 0.3}, pose: [{axis: up, deg: -69.28203}, {axis: left, deg: -69.28203}, {axis: forward, deg: 69.28203}], scale: [1.0, 1.0, 1.0]}, {t: 2, offset: {left: 0.0, up: 1.6, forward: 1.3}, pose: [{axis: up, deg: -69.28203}, {axis: left, deg: -69.28203}, {axis: forward, deg: 69.28203}], scale: [16.0, 1.5, 1.0], ease: out_expo}, {t: 7, offset: {left: 0.0, up: 1.2, forward: 1.6}, pose: [{axis: up, deg: -69.28203}, {axis: left, deg: -69.28203}, {axis: forward, deg: 69.28203}], scale: [12.0, 0.15, 1.0], ease: in_quad}]}]}
+          - {id: fx4_fx_chop_s2c_streak_a, op: display, kind: sprite, see_through: true, sprite: bastion-s1-streak, size: [0.32, 1.28], anchor: fx4_fx_chop, brightness: {block: 15, sky: 15}, offset: {left: 0.0, up: 2.6, forward: 0.3}, rotate: [{axis: up, deg: 69.28203}, {axis: left, deg: 69.28203}, {axis: forward, deg: 69.28203}], for: 7, motion: [{law: keys, keys: [{t: 0, offset: {left: 0.0, up: 2.6, forward: 0.3}, pose: [{axis: up, deg: 69.28203}, {axis: left, deg: 69.28203}, {axis: forward, deg: 69.28203}], scale: [1.0, 1.0, 1.0]}, {t: 2, offset: {left: 0.0, up: 1.6, forward: 1.3}, pose: [{axis: up, deg: 69.28203}, {axis: left, deg: 69.28203}, {axis: forward, deg: 69.28203}], scale: [16.0, 1.5, 1.0], ease: out_expo}, {t: 7, offset: {left: 0.0, up: 1.2, forward: 1.6}, pose: [{axis: up, deg: 69.28203}, {axis: left, deg: 69.28203}, {axis: forward, deg: 69.28203}], scale: [12.0, 0.15, 1.0], ease: in_quad}]}]}
+          - {id: fx4_fx_chop_s2c_streak_b, op: display, kind: sprite, see_through: true, sprite: bastion-s1-streak, size: [0.32, 1.28], anchor: fx4_fx_chop, brightness: {block: 15, sky: 15}, offset: {left: 0.0, up: 2.6, forward: 0.3}, rotate: [{axis: up, deg: -69.28203}, {axis: left, deg: -69.28203}, {axis: forward, deg: 69.28203}], for: 7, motion: [{law: keys, keys: [{t: 0, offset: {left: 0.0, up: 2.6, forward: 0.3}, pose: [{axis: up, deg: -69.28203}, {axis: left, deg: -69.28203}, {axis: forward, deg: 69.28203}], scale: [1.0, 1.0, 1.0]}, {t: 2, offset: {left: 0.0, up: 1.6, forward: 1.3}, pose: [{axis: up, deg: -69.28203}, {axis: left, deg: -69.28203}, {axis: forward, deg: 69.28203}], scale: [16.0, 1.5, 1.0], ease: out_expo}, {t: 7, offset: {left: 0.0, up: 1.2, forward: 1.6}, pose: [{axis: up, deg: -69.28203}, {axis: left, deg: -69.28203}, {axis: forward, deg: 69.28203}], scale: [12.0, 0.15, 1.0], ease: in_quad}]}]}
           - {id: fx4_fx_chop_s2c_p_steel_mid_at, op: frame, anchor: fx4_fx_chop, offset: {left: 0.0, up: 2.1, forward: 1.1}, for: 1}
           - {id: fx4_fx_chop_s2c_p_steel_mid, op: particle_def, def: bastion-s1-p-steel, anchor: fx4_fx_chop_s2c_p_steel_mid_at}
       - id: fx52
         at: 52
         do:
-# GAP: plate see_through: true on a sprite -> none (see_through is kind: text only)
-          - {id: fx4_fx_chop_s2c_cres_a, op: display, kind: sprite, sprite: bastion-s1-crescent, size: [1.92, 1.92], anchor: fx4_fx_chop, brightness: {block: 15, sky: 15}, offset: {left: 0.0, up: 1.5, forward: 1.55}, rotate: [{axis: up, deg: -69.28203}, {axis: left, deg: 69.28203}, {axis: forward, deg: -69.28203}], for: 7}
-          - {id: fx4_fx_chop_s2c_cres_a, op: display, kind: sprite, sprite: bastion-s1-crescent, size: [1.92, 1.92], anchor: fx4_fx_chop, brightness: {block: 15, sky: 15}, offset: {left: 0.0, up: 1.5, forward: 1.55}, rotate: [{axis: up, deg: -69.28203}, {axis: left, deg: 69.28203}, {axis: forward, deg: -69.28203}], for: 7, motion: [{law: keys, keys: [{t: 0, offset: {left: 0.0, up: 1.5, forward: 1.55}, pose: [{axis: up, deg: -69.28203}, {axis: left, deg: 69.28203}, {axis: forward, deg: -69.28203}], scale: [1.0, 1.0, 1.0]}, {t: 1, offset: {left: 0.0, up: 1.5, forward: 1.6}, pose: [{axis: up, deg: -69.28203}, {axis: left, deg: 69.28203}, {axis: forward, deg: -69.28203}], scale: [1.6667, 1.6667, 1.0], ease: out_expo}, {t: 7, offset: {left: 0.0, up: 1.2, forward: 1.7}, pose: [{axis: up, deg: -69.28203}, {axis: left, deg: 69.28203}, {axis: forward, deg: -69.28203}], scale: [1.5333, 0.6667, 1.0], ease: in_quad}]}]}
-# GAP: plate see_through: true on a sprite -> none (see_through is kind: text only)
-          - {id: fx4_fx_chop_s2c_cres_b, op: display, kind: sprite, sprite: bastion-s1-crescent, size: [1.92, 1.92], anchor: fx4_fx_chop, brightness: {block: 15, sky: 15}, offset: {left: 0.0, up: 1.5, forward: 1.55}, rotate: [{axis: up, deg: 69.28203}, {axis: left, deg: -69.28203}, {axis: forward, deg: -69.28203}], for: 7}
-          - {id: fx4_fx_chop_s2c_cres_b, op: display, kind: sprite, sprite: bastion-s1-crescent, size: [1.92, 1.92], anchor: fx4_fx_chop, brightness: {block: 15, sky: 15}, offset: {left: 0.0, up: 1.5, forward: 1.55}, rotate: [{axis: up, deg: 69.28203}, {axis: left, deg: -69.28203}, {axis: forward, deg: -69.28203}], for: 7, motion: [{law: keys, keys: [{t: 0, offset: {left: 0.0, up: 1.5, forward: 1.55}, pose: [{axis: up, deg: 69.28203}, {axis: left, deg: -69.28203}, {axis: forward, deg: -69.28203}], scale: [1.0, 1.0, 1.0]}, {t: 1, offset: {left: 0.0, up: 1.5, forward: 1.6}, pose: [{axis: up, deg: 69.28203}, {axis: left, deg: -69.28203}, {axis: forward, deg: -69.28203}], scale: [1.6667, 1.6667, 1.0], ease: out_expo}, {t: 7, offset: {left: 0.0, up: 1.2, forward: 1.7}, pose: [{axis: up, deg: 69.28203}, {axis: left, deg: -69.28203}, {axis: forward, deg: -69.28203}], scale: [1.5333, 0.6667, 1.0], ease: in_quad}]}]}
+          - {id: fx4_fx_chop_s2c_cres_a, op: display, kind: sprite, see_through: true, sprite: bastion-s1-crescent, size: [1.92, 1.92], anchor: fx4_fx_chop, brightness: {block: 15, sky: 15}, offset: {left: 0.0, up: 1.5, forward: 1.55}, rotate: [{axis: up, deg: -69.28203}, {axis: left, deg: 69.28203}, {axis: forward, deg: -69.28203}], for: 7, motion: [{law: keys, keys: [{t: 0, offset: {left: 0.0, up: 1.5, forward: 1.55}, pose: [{axis: up, deg: -69.28203}, {axis: left, deg: 69.28203}, {axis: forward, deg: -69.28203}], scale: [1.0, 1.0, 1.0]}, {t: 1, offset: {left: 0.0, up: 1.5, forward: 1.6}, pose: [{axis: up, deg: -69.28203}, {axis: left, deg: 69.28203}, {axis: forward, deg: -69.28203}], scale: [1.6667, 1.6667, 1.0], ease: out_expo}, {t: 7, offset: {left: 0.0, up: 1.2, forward: 1.7}, pose: [{axis: up, deg: -69.28203}, {axis: left, deg: 69.28203}, {axis: forward, deg: -69.28203}], scale: [1.5333, 0.6667, 1.0], ease: in_quad}]}]}
+          - {id: fx4_fx_chop_s2c_cres_b, op: display, kind: sprite, see_through: true, sprite: bastion-s1-crescent, size: [1.92, 1.92], anchor: fx4_fx_chop, brightness: {block: 15, sky: 15}, offset: {left: 0.0, up: 1.5, forward: 1.55}, rotate: [{axis: up, deg: 69.28203}, {axis: left, deg: -69.28203}, {axis: forward, deg: -69.28203}], for: 7, motion: [{law: keys, keys: [{t: 0, offset: {left: 0.0, up: 1.5, forward: 1.55}, pose: [{axis: up, deg: 69.28203}, {axis: left, deg: -69.28203}, {axis: forward, deg: -69.28203}], scale: [1.0, 1.0, 1.0]}, {t: 1, offset: {left: 0.0, up: 1.5, forward: 1.6}, pose: [{axis: up, deg: 69.28203}, {axis: left, deg: -69.28203}, {axis: forward, deg: -69.28203}], scale: [1.6667, 1.6667, 1.0], ease: out_expo}, {t: 7, offset: {left: 0.0, up: 1.2, forward: 1.7}, pose: [{axis: up, deg: 69.28203}, {axis: left, deg: -69.28203}, {axis: forward, deg: -69.28203}], scale: [1.5333, 0.6667, 1.0], ease: in_quad}]}]}
           - {id: fx4_fx_chop_s2c_p_steel_low_at, op: frame, anchor: fx4_fx_chop, offset: {left: 0.0, up: 1.1, forward: 1.9}, for: 1}
           - {id: fx4_fx_chop_s2c_p_steel_low, op: particle_def, def: bastion-s1-p-steel, anchor: fx4_fx_chop_s2c_p_steel_low_at}
       - id: fx53
         at: 53
         do:
-# GAP: plate see_through: true on a sprite -> none (see_through is kind: text only)
-          - {id: fx4_fx_chop_s2c_ink_a, op: display, kind: sprite, sprite: bastion-s1-ink, size: [2.88, 2.88], anchor: fx4_fx_chop, brightness: {block: 15, sky: 15}, offset: {left: 0.0, up: 1.1, forward: 1.7}, rotate: [{axis: left, deg: 90.0}], for: 2}
-# GAP: plate see_through: true on a sprite -> none (see_through is kind: text only)
-          - {id: fx4_fx_chop_s2c_ink_b, op: display, kind: sprite, sprite: bastion-s1-ink, size: [2.88, 2.88], anchor: fx4_fx_chop, brightness: {block: 15, sky: 15}, offset: {left: 0.0, up: 1.1, forward: 1.7}, rotate: [{axis: left, deg: -90.0}], for: 2}
-# GAP: plate see_through: true on a sprite -> none (see_through is kind: text only)
-          - {id: fx4_fx_chop_s2c_flash, op: display, kind: sprite, sprite: bastion-s1-flare, size: [1.28, 1.28], anchor: fx4_fx_chop, brightness: {block: 15, sky: 15}, billboard: center, offset: {left: 0.0, up: 0.5, forward: 2.3}, for: 4}
-          - {id: fx4_fx_chop_s2c_flash, op: display, kind: sprite, sprite: bastion-s1-flare, size: [1.28, 1.28], anchor: fx4_fx_chop, brightness: {block: 15, sky: 15}, billboard: center, offset: {left: 0.0, up: 0.5, forward: 2.3}, for: 4, motion: [{law: keys, keys: [{t: 0, offset: {left: 0.0, up: 0.5, forward: 2.3}, pose: [], scale: [1.0, 1.0, 1.0]}, {t: 1, offset: {left: 0.0, up: 0.5, forward: 2.3}, pose: [], scale: [2.5, 2.5, 1.0], ease: out_back}, {t: 3, offset: {left: 0.0, up: 0.5, forward: 2.3}, pose: [], scale: [0.7, 0.7, 1.0], ease: out_quad}]}]}
+          - {id: fx4_fx_chop_s2c_ink_a, op: display, kind: sprite, see_through: true, sprite: bastion-s1-ink, size: [2.88, 2.88], anchor: fx4_fx_chop, brightness: {block: 15, sky: 15}, offset: {left: 0.0, up: 1.1, forward: 1.7}, rotate: [{axis: left, deg: 90.0}], for: 2}
+          - {id: fx4_fx_chop_s2c_ink_b, op: display, kind: sprite, see_through: true, sprite: bastion-s1-ink, size: [2.88, 2.88], anchor: fx4_fx_chop, brightness: {block: 15, sky: 15}, offset: {left: 0.0, up: 1.1, forward: 1.7}, rotate: [{axis: left, deg: -90.0}], for: 2}
+          - {id: fx4_fx_chop_s2c_flash, op: display, kind: sprite, see_through: true, sprite: bastion-s1-flare, size: [1.28, 1.28], anchor: fx4_fx_chop, brightness: {block: 15, sky: 15}, billboard: center, offset: {left: 0.0, up: 0.5, forward: 2.3}, for: 4, motion: [{law: keys, keys: [{t: 0, offset: {left: 0.0, up: 0.5, forward: 2.3}, pose: [], scale: [1.0, 1.0, 1.0]}, {t: 1, offset: {left: 0.0, up: 0.5, forward: 2.3}, pose: [], scale: [2.5, 2.5, 1.0], ease: out_back}, {t: 3, offset: {left: 0.0, up: 0.5, forward: 2.3}, pose: [], scale: [0.7, 0.7, 1.0], ease: out_quad}]}]}
           - {id: fx4_fx_chop_s2c_floor, op: display, kind: sprite, sprite: bastion-s1-ink, size: [3.84, 3.84], anchor: fx4_fx_chop, brightness: {block: 15, sky: 15}, offset: {left: 0.0, up: 0.03, forward: 2.2}, rotate: [{axis: up, deg: -90.0}], for: 3}
           - {id: fx4_fx_chop_s2c_p_crit_at, op: frame, anchor: fx4_fx_chop, offset: {left: 0.0, up: 0.4, forward: 2.4}, for: 1}
           - {id: fx4_fx_chop_s2c_p_crit, op: particle_def, def: bastion-s1-p-impact-crit, anchor: fx4_fx_chop_s2c_p_crit_at}
@@ -1035,11 +985,11 @@ presentation:
           - {id: snd_37, op: sound, sound: entity.generic.explode, anchor: caster, volume: 0.6, pitch: 0.45}
           - {id: snd_38, op: sound, sound: item.mace.smash_ground, anchor: caster, volume: 0.9, pitch: 0.5}
           - {id: snd_39, op: sound, sound: block.bell.use, anchor: caster, volume: 0.5, pitch: 0.5}
-          # GAP: camera_shake shake -> see report
-          # v2: {"id": "shake", "op": "camera_shake", "target": {"enemies": {"around": "caster", "radius": 9.0}}, "intensity": 0.6, "ticks": 6}
-          # GAP: screen_flash flash -> see report
+          # GAP(Q1): max_count of this area target; unlimited here (v2 had no cap).
+          - {id: shake, op: camera_shake, target: {kind: enemies, around: self, radius: 9.0, include_self: false}, intensity: 0.6, for: 6, direction: none}
+          # GAP(Q7): screen_flash is undecided; raw v2 row kept.
           # v2: {"id": "flash", "op": "screen_flash", "target": "caster", "overlay": "gold_burst", "color": "#FFC84A", "fade_in": 0, "stay": 1, "fade_out": 2}
-          # GAP: screen_flash flash_2 -> see report
+          # GAP(Q7): screen_flash is undecided; raw v2 row kept.
           # v2: {"id": "flash_2", "op": "screen_flash", "target": {"enemies": {"around": "caster", "radius": 5.0}}, "overlay": "gold_burst", "color": "#FFC84A", "fade_in": 0, "stay": 1, "fade_out": 2}
       - id: fx56
         at: 56
