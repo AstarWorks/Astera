@@ -24,6 +24,8 @@ machine:
     fly:
       for: "= max_lifetime_ticks"
       then: end
+      on:
+        - {event: bolt.end, to: end}
       enter:
         - id: bolt
           op: projectile
@@ -45,11 +47,6 @@ machine:
       do:
         - {id: snd_cast, op: sound, sound: "astera:weapons/gun-shot", anchor: caster, at: 0, volume: 0.8, pitch: 1.3}
         - {id: fx_cast, op: particle_def, def: gun-muzzle-flash, anchor: muzzle, at: 0}
-        - id: trail
-          at: 0
-          every: 1
-          until: end
-          do:
-            - {id: tr0, op: particle, anchor: {of: bolt, sweep: 0.4}, particle: happy_villager, count: 1, offset: [0.04, 0.04, 0.04], extra: 0}
-            - {id: tr1, op: particle, anchor: {of: bolt, sweep: 0.4}, particle: dust, count: 1, offset: [0, 0, 0], extra: 0, color: "#46aa3c", size: 1.0}
+        - {id: tr0, op: particle, anchor: {of: bolt, sweep: 0.4}, particle: happy_villager, count: 1, offset: [0.04, 0.04, 0.04], extra: 0, at: 0, every: 1, until: bolt.end}
+        - {id: tr1, op: particle, anchor: {of: bolt, sweep: 0.4}, particle: dust, count: 1, offset: [0, 0, 0], extra: 0, color: "#46aa3c", size: 1.0, at: 0, every: 1, until: bolt.end}
     end: {final: true}
