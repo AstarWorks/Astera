@@ -164,6 +164,10 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
 
         override fun spawnTrail(cast: CastRef, ticks: Int, widthFrac: Double, colorHex: String, alpha: Double) = spawned(cast, "ribbon")
 
+        override fun spawnLine(cast: CastRef, from: Vec3, to: Vec3, thickness: Double, colorHex: String, alpha: Double) = spawned(cast, "ribbon")
+
+        override fun updateLine(handle: VisualHandle, from: Vec3, to: Vec3) = add("line", name(handle), "")
+
         override fun write(handle: VisualHandle, pose: VisualPose, interpolationTicks: Int) =
             add("write", name(handle), "dur=$interpolationTicks")
 
