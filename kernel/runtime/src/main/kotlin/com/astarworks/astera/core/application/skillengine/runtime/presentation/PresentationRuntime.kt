@@ -543,16 +543,14 @@ public class PresentationRuntime(
                     tickFlipbook(s, l)
                     tickLook(s, l)
                 }
-                is Live.Block -> {
-                    update(s, l)?.let { pose ->
-                        val driver = driverOf(s, l.parent)
-                        if (driver == null) put(visuals, l, followed(s, pose, l.parent, l), if (l.pulledNow) 0 else DISPLAY_TICKS)
-                        else driver.driven?.let { interp -> if (driver.changed(l.opId, pose)) visuals.write(l.handle, pose, interp) }
+                is Live.Block, is Live.Quad -> {
+                    // parts hanging from a rig are written per turning chunk (v1 VfxRigPlanner.partPlan), not per rig tick
+                    val parent = if (l is Live.Block) l.parent else (l as Live.Quad).parent
+                    val driver = driverOf(s, parent)
+                    if (driver == null) update(s, l)?.let { put(visuals, l, followed(s, it, parent, l), if (l.pulledNow) 0 else DISPLAY_TICKS) }
+                    else driver.atPartChunk(s) { interp ->
+                        update(s, l)?.let { pose -> if (driver.changed(l.opId, pose)) visuals.write(l.handle, pose, interp) }
                     }
-                    tickLook(s, l)
-                }
-                is Live.Quad -> {
-                    update(s, l)?.let { put(visuals, l, followed(s, it, l.parent, l), if (l.pulledNow) 0 else DISPLAY_TICKS) }
                     tickLook(s, l)
                 }
                 is Live.Line -> linePose(s, l)?.let { put(visuals, l, it, DISPLAY_TICKS) }

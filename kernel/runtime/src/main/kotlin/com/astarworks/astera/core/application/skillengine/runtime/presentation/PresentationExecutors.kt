@@ -126,6 +126,7 @@ internal class QuadExecutor(private val rt: PresentationRuntime) : OpExecutor<Vi
             live.handle = ctx.ports.visuals.spawnQuad(
                 rt.info.owner(ctx.cast), ctx.values.text(op.color), ctx.values.num(op.alpha), op.text, op.shadow, op.seeThrough, pose.copy(lane = op.lane), op.brightness,
             )
+            rt.driverOf(s, par)?.changed(id, pose)
             rt.register(s, live)
             live
         }
