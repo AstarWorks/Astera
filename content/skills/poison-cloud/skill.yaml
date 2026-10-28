@@ -1,22 +1,58 @@
-# Converted from content/skills/poison-cloud.yaml by tools/skill-convert/convert.py (v1 archetype: projectile). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
-# Generated point-frame offsets are [left, up, forward] in the parent frame.
-apiVersion: "astera/v2"
+# v3 hand port of the v2 skill (ADR-0303 rev4.2). v2 params launch_speed 1.3, max_lifetime_ticks 50, radius 3.5, poison_ticks 80.
+apiVersion: astera/v3
 kind: Skill
 id: poison-cloud
 item: venom-flask
 meta: {name: {ja: "毒霧の瓶", en: "Poison Cloud"}, description: {ja: "着弾点に毒の霧を広げる。", en: "Bursts into a lingering poison cloud."}, cooldown_ticks: 160, resource_cost: 16, tags: [ranged, poison, magic, zone]}
-frames:
-  - {id: bolt, kind: body, parent: world, inactive: true}
-  - {id: pt_aim_0_0_0p5, kind: point, parent: aim, offset: [0.0, 0.0, 0.5]}
-gameplay:
-  params: {launch_speed: 1.3, max_lifetime_ticks: 50, radius: 3.5, poison_ticks: 80}
-  expose:
-    - {id: flight_speed, param: launch_speed}
-    - {id: radius, param: radius}
-  timeline:
-    - {id: t0, at: 0, do: [{id: bolt, op: projectile, body: bolt, from: pt_aim_0_0_0p5, velocity: "= look(caster) * launch_speed", max_ticks: "${max_lifetime_ticks}", radius: 0.5}]}
-  "on":
-    hit:
-      - {id: st_poison, op: status, status: poison, duration_ticks: "${poison_ticks}", target: {enemies: {around: enemy, radius: "${radius}"}}}
-    block:
-      - {id: st_poison_2, op: status, status: poison, duration_ticks: "${poison_ticks}", target: {enemies: {around: contact.point, radius: "${radius}"}}}
+# GAP: v2 expose {flight_speed <- launch_speed, radius <- radius} -> none (no expose spelling for cast skills); literals inlined.
+# GAP: ring point position. v2 `shift` put point i of ring k at (left r*cos a, forward -r*sin a) around the anchor; the v3 particle op has no per-copy position
+#      (resolutions item 13 `Particle.position` not yet decoded). Direction/spread are kept; position is emitted at the anchor.
+# GAP: v2 ring phase draw('shape_ph') (shared random per cast) -> none; phase fixed to 0 (rand() is per (cast, op, i) and would scramble the ring).
+# GAP: area target max_count/include_self are required in v3; v2 had no cap -> max_count 32 is a decision needed (founder/ADR).
+anchors:
+  - {id: start,  anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}            # was pt_aim_0_0_0p5
+  - {id: muzzle, anchor: caster.eye, offset: {up: -0.25, forward: 0.9}, mode: snapshot} # was pt_aim_0_m0p25_0p9
+  - {id: foe,    anchor: victim.root}                                                   # was enemy
+  - {id: foe_low, anchor: victim.root, offset: {up: 0.15}}                            # was pt_enemy_0_0p15_0
+machine:
+  start: throw
+  states:
+    throw:
+      for: 58                        # max_lifetime_ticks 50 + the 8-tick ring that follows a hit/block at the last tick
+      then: end
+      enter:
+        - {id: snd, op: sound, sound: entity.splash_potion.throw, anchor: caster, volume: 0.9, pitch: 0.9}
+        - {id: fx, op: particle_def, def: verdant-cast, anchor: muzzle}
+      do:
+        - id: bolt
+          op: projectile
+          origin: start
+          velocity: "= look(caster) * 1.3"
+          for: 50
+          radius: 0.5
+          hit: {targets: enemies, once: true}
+          block: {mode: despawn}
+          on:
+            hit:
+              - {id: st_poison, op: status, target: {kind: enemies, around: foe, radius: 3.5, max_count: 32, include_self: false}, status: poison, stacks: 1, for: 80}
+              - id: ring
+                at: 0
+                every: 1
+                times: 8             # ring k = parent.i; radius = 0.4 + parent.i * 0.4429 (0.4 .. 3.5)
+                do:
+                  - {id: pts,  op: particle, particle: happy_villager, anchor: foe_low, count: 0, offset: "= [cos(6.283185307179586 * i / 16), 0, -sin(6.283185307179586 * i / 16)]", extra: 0.02, times: 16, at: 0}
+                  - {id: dust, op: particle, particle: dust, anchor: foe_low, count: 1, extra: 0, color: "#5aaa3c", size: 1.4, times: 16, at: 0}
+              - {id: snd_hit, op: sound, sound: entity.splash_potion.break, anchor: foe, volume: 0.8, pitch: 0.8}
+            block:
+              - {id: st_poison_b, op: status, target: {kind: enemies, around: contact.point, radius: 3.5, max_count: 32, include_self: false}, status: poison, stacks: 1, for: 80}
+              - id: ring
+                at: 0
+                every: 1
+                times: 8             # ring k = parent.i; radius = 0.4 + parent.i * 0.4429 (0.4 .. 3.5)
+                do:
+                  - {id: pts,  op: particle, particle: happy_villager, anchor: contact.point, count: 0, offset: "= [cos(6.283185307179586 * i / 16), 0, -sin(6.283185307179586 * i / 16)]", extra: 0.02, times: 16, at: 0}
+                  - {id: dust, op: particle, particle: dust, anchor: contact.point, count: 1, extra: 0, color: "#5aaa3c", size: 1.4, times: 16, at: 0}
+              - {id: snd_blk, op: sound, sound: entity.splash_potion.break, anchor: contact.point, volume: 0.8, pitch: 0.8}
+        - {id: trail0, op: particle, particle: happy_villager, anchor: {of: bolt, sweep: 0.4}, count: 1, offset: [0.04, 0.04, 0.04], extra: 0, every: 1, until: bolt.end}
+        - {id: trail1, op: particle, particle: dust, anchor: {of: bolt, sweep: 0.4}, count: 1, extra: 0, color: "#5aaa3c", size: 1.0, every: 1, until: bolt.end}
+    end: {final: true}
