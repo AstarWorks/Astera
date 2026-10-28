@@ -23,7 +23,7 @@ machine:
       enter:
         - {id: snd_dash, op: sound, sound: "astera:weapons/dash-whoosh", anchor: caster, volume: 1.0, pitch: 1.4}
         - {id: fx_dash, op: particle_def, def: dash-cloud, anchor: feet}
-        - {id: lunge, op: dash, speed: "= ${dash_distance} / ${dash_ticks}", for: "${dash_ticks}", direction: forward, follow_pitch: false, stop_on_block: true, invulnerable: false, face_movement: false}
+        - {id: lunge, op: dash, speed: "= ${dash_distance} / ${dash_ticks}", for: "${dash_ticks}", direction: {forward: 1}, follow_pitch: false, stop_on_block: true, invulnerable: false, face_movement: false}
         # v2 dash_strike corridor: capsule radius 1.0, hit_once, no early end (the dash runs through everyone).
         - id: strike
           op: hit
