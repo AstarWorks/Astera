@@ -2,7 +2,7 @@
 # Generated point-frame offsets are [left, up, forward] in the parent frame.
 # CONVERT-PRESENT vfx frame orient (frames carry no orientation / scale) (x3): orient="yaw"
 # CONVERT-PRESENT vfx attach_to_anchor (no v2 equivalent) (x1): true
-# CONVERT-PRESENT rig respect_hit_stop / weapon points (x1): {"weapon_edge": [0.0, -0.6155, 0.7881], "weapon_root": [0.0, 0.2367, 0.0], "weap
+# CONVERT-PRESENT rig weapon points (respect_hit_stop is baked by hitstop_bake) (x1): {"weapon_edge": [0.0, -0.6155, 0.7881], "weapon_root": [0.0, 0.2367, 0.0], "weap
 apiVersion: "astera/v2"
 kind: Skill
 id: bastion-greatsword-s1

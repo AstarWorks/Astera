@@ -1110,9 +1110,9 @@ class Conv:
             self.present("rig parent %s is not a known frame: anchored at caster" % pr)
             pr = "caster"
         self.look_frames[rid] = {"id": rid, "kind": "body", "parent": pr}
-        extras = [k for k in ("respect_hit_stop", "weapon_model", "weapon_tip", "weapon_root", "weapon_edge") if k in r]
+        extras = [k for k in ("weapon_model", "weapon_tip", "weapon_root", "weapon_edge") if k in r]
         if extras:
-            self.present("rig respect_hit_stop / weapon points", short({k: r[k] for k in extras}, 80))
+            self.present("rig weapon points (respect_hit_stop is baked by hitstop_bake)", short({k: r[k] for k in extras}, 80))
         start = delay + int(r.get("start_tick", 0))
         end = int(r.get("end_tick", dur))
         first = None
