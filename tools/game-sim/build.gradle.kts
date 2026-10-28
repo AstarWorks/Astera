@@ -38,6 +38,7 @@ dependencies {
     testImplementation(libs.kotlinx.collections.immutable) // GuiSpec.slots is a PersistentMap
     testImplementation(libs.junit.jupiter)
     testImplementation(libs.assertj.core)
+    testImplementation(libs.snakeyaml) // GrammarFieldsScenarioTest parses YAML snippets
     testRuntimeOnly(libs.junit.platform.launcher)
 }
 
