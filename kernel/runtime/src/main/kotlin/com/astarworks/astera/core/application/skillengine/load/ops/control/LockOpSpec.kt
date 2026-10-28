@@ -67,7 +67,7 @@ public object LockOpSpec : OpSpec<LockOp> {
         }
 
     override fun lower(op: LockOp, lc: LowerContext): Result<Lowered, SkillDecodeError> {
-        val self = InstanceId(lc.self.path + InstanceId.Segment(op.id, null))
+        val self = lc.self
         val span = op.timing?.span
         val path = lc.src.value
         // untilTick is state-relative like clockOffset (the unroller shifts rows but not payloads).

@@ -3,14 +3,17 @@ package com.astarworks.astera.core.application.skillengine.runtime
 import com.astarworks.astera.core.application.contents.ReloadableContents
 import com.astarworks.astera.core.application.service.ContentLoader
 import com.astarworks.astera.core.application.skillengine.compose.ComposeOptions
+import com.astarworks.astera.core.application.skillengine.compose.ComposedSkill
 import com.astarworks.astera.core.application.skillengine.compose.SkillComposer
+import com.astarworks.astera.core.application.skillengine.load.EngineConfigError
 import com.astarworks.astera.core.application.skillengine.load.SkillCatalog
 import com.astarworks.astera.core.domain.Result
+import com.astarworks.astera.core.domain.skillengine.model.EngineConfig
 import java.nio.file.Files
 import java.nio.file.Path
 
 /**
- * Hot reload of skill-engine v2 content (ADR-0301, design 7). `make dev-content` sends `astera admin reload all`;
+ * Hot reload of skill-engine v3 content (ADR-0301, ADR-0303). `make dev-content` sends `astera admin reload all`;
  * the registry calls [reload] for every category, this one included.
  *
  * Flow: file diff since the last reload -> [SkillComposer.recompose] of only the changed files -> [SkillCatalog.reload]
@@ -18,12 +21,17 @@ import java.nio.file.Path
  * affects the next cast only. A compose failure leaves composer, catalog and the file snapshot untouched; a skill
  * that fails to decode keeps its previous definition and is retried on the next reload.
  *
+ * Every skill is decoded by `SkillDocumentDecoder` inside [catalog] (the composer only merges trees). [engineConfig] is the
+ * outcome of loading `content/engine/skill-engine.yaml`: when it is a failure (absent file or key, ADR-0303 11.4) nothing
+ * loads and the failure is the report. Null = no gate (game-sim builds its own config).
+ *
  * The first reload (or a changed [dir]) composes everything.
  */
 public class SkillEngineContents(
     private val catalog: SkillCatalog,
     private val options: ComposeOptions = ComposeOptions(),
     override val categoryName: String = "skill-engine",
+    private val engineConfig: Result<EngineConfig, EngineConfigError>? = null,
 ) : ReloadableContents {
 
     private var composer: SkillComposer? = null
@@ -36,6 +44,7 @@ public class SkillEngineContents(
     @Synchronized
     override fun reload(dir: Path): ContentLoader.LoadReport {
         val abs = dir.toAbsolutePath().normalize()
+        (engineConfig as? Result.Failure)?.let { return composeFailure(abs, listOf(it.error.origin to it.error.message)) }
         val current = scan(abs)
         val existing = composer
         return if (existing == null || root != abs) fullReload(abs, current) else incremental(existing, abs, current)
@@ -69,6 +78,7 @@ public class SkillEngineContents(
     @Synchronized
     public fun reloadSkill(dir: Path, skillId: String): Result<SkillReload, SkillReloadError> {
         val abs = dir.toAbsolutePath().normalize()
+        (engineConfig as? Result.Failure)?.let { return Result.failure(SkillReloadError.Rejected(listOf(it.error.message))) }
         val c = composer
         if (c == null || root != abs) return Result.failure(SkillReloadError.NotLoaded)
         val base = skillId.substringBefore('@')
@@ -86,7 +96,7 @@ public class SkillEngineContents(
         val composed = c.composed()
         val affected = LinkedHashSet<String>(recomposed)
         retry.filterTo(affected) { it.substringBefore('@') == base }
-        val report = catalog.reload(affected.mapNotNull { composed[it] })
+        val report = catalog.reload(affected.mapNotNull { resolve(c, composed, it) })
         for (id in affected) if (id !in composed) catalog.remove(id)
         retry = (retry - affected) + report.failed.keys
         if (report.failed.isNotEmpty()) {
@@ -104,8 +114,9 @@ public class SkillEngineContents(
         composer = fresh
         root = dir
         snapshot = current
-        val report = catalog.reload(composed.values.toList())
-        for (gone in catalog.ids() - composed.keys) catalog.remove(gone)
+        val parts = fresh.composedParts()
+        val report = catalog.reload(composed.values + parts.values)
+        for (gone in catalog.ids() - composed.keys - parts.keys.map { "part:$it" }.toSet()) catalog.remove(gone)
         retry = report.failed.keys
         return finish(dir, report.loaded.size, report.failed.map { (id, e) -> id to "${e.path}: ${e.message}" })
     }
@@ -122,12 +133,16 @@ public class SkillEngineContents(
             snapshot = current
         }
         val composed = c.composed()
-        val toLoad = affected.mapNotNull { composed[it] }
+        val toLoad = affected.mapNotNull { resolve(c, composed, it) }
         val report = catalog.reload(toLoad)
         for (id in affected) if (id !in composed) catalog.remove(id)
         retry = report.failed.keys
         return finish(dir, report.loaded.size, report.failed.map { (id, e) -> id to "${e.path}: ${e.message}" })
     }
+
+    /** A `part:<id>` key resolves to the composed part (the catalog recompiles skills by `usedParts`), anything else to a composed skill. */
+    private fun resolve(c: SkillComposer, composed: Map<String, ComposedSkill>, key: String): ComposedSkill? =
+        composed[key] ?: if (key.startsWith("part:")) c.composedParts()[key.removePrefix("part:")] else null
 
     private fun composeFailure(dir: Path, errors: List<Pair<String, String>>): ContentLoader.LoadReport =
         ContentLoader.LoadReport(

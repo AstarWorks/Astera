@@ -1,6 +1,8 @@
 package com.astarworks.astera.core.application.skillengine.load.grammar
 
 import com.astarworks.astera.core.application.skillengine.load.SkillDecodeError
+import com.astarworks.astera.core.application.skillengine.load.ValueDecoding
+import com.astarworks.astera.core.domain.skillengine.expr.ExprType
 import com.astarworks.astera.core.domain.skillengine.model.Value
 
 /** Start of an op (ADR-0303 2.0): a tick, or an event with an optional tick offset (`release`, `release+2`). */
@@ -40,6 +42,14 @@ public data class Timing(
 public object TimingSpec {
     private val EVENT_AT = Regex("""^([A-Za-z_][A-Za-z0-9_.]*)(?:\+(\d+))?$""")
 
+    /** A numeric timing field: the `{expr, bound}` form is [SkillDecodeError.RuntimeTiming], never a schedule (C5 rev4.1). */
+    private fun timingNumber(field: String): FieldType<Value<Double>> = object : FieldType<Value<Double>> {
+        override val label = Types.number.label
+        override fun decode(raw: Any?, ctx: GrammarContext, path: String): Value<Double> =
+            ctx.checked(ValueDecoding.timingNumber(raw, ctx.file, path, field), ExprType.NUM, path)
+        override fun schema(): Map<String, Any?> = Types.number.schema()
+    }
+
     private val atType: FieldType<TimeAt> = object : FieldType<TimeAt> {
         override val label = "tick, event, 'event+ticks', \${param} or '= expr'"
         override fun decode(raw: Any?, ctx: GrammarContext, path: String): TimeAt {
@@ -47,23 +57,23 @@ public object TimingSpec {
                 val m = EVENT_AT.matchEntire(raw.trim()) ?: ctx.fail(path, "'$raw' is not a tick or an event ('release', 'release+2')")
                 return TimeAt.Event(m.groupValues[1], m.groupValues[2].ifEmpty { "0" }.toInt())
             }
-            return TimeAt.Tick(Types.number.decode(raw, ctx, path))
+            return TimeAt.Tick(timingNumber("at").decode(raw, ctx, path))
         }
         override fun schema(): Map<String, Any?> = linkedMapOf(
-            "oneOf" to listOf(Types.number.schema(), linkedMapOf("type" to "string", "pattern" to "^[A-Za-z_][A-Za-z0-9_.]*(\\+\\d+)?$")),
+            "oneOf" to listOf(timingNumber("at").schema(), linkedMapOf("type" to "string", "pattern" to "^[A-Za-z_][A-Za-z0-9_.]*(\\+\\d+)?$")),
         )
     }
 
     private val spanType: FieldType<Span> = object : FieldType<Span> {
         override val label = "ticks, 'cast', \${param} or '= expr'"
         override fun decode(raw: Any?, ctx: GrammarContext, path: String): Span =
-            if (raw == "cast") Span.UntilCastEnds else Span.Ticks(Types.number.decode(raw, ctx, path))
+            if (raw == "cast") Span.UntilCastEnds else Span.Ticks(timingNumber("for").decode(raw, ctx, path))
         override fun schema(): Map<String, Any?> =
-            linkedMapOf("oneOf" to listOf(Types.number.schema(), linkedMapOf("const" to "cast")))
+            linkedMapOf("oneOf" to listOf(timingNumber("for").schema(), linkedMapOf("const" to "cast")))
     }
 
-    private val easeFrom = Field.required("from", Types.number)
-    private val easeTo = Field.required("to", Types.number)
+    private val easeFrom = Field.required("from", timingNumber("every"))
+    private val easeTo = Field.required("to", timingNumber("every"))
     private val easeName = Field.required("ease", Types.id)
     private val easedEvery = Fields.of("every-range", easeFrom, easeTo, easeName)
 
@@ -74,18 +84,18 @@ public object TimingSpec {
                 val v = easedEvery.read(raw, ctx, path)
                 return Every.Eased(v[easeFrom], v[easeTo], v[easeName])
             }
-            return Every.Fixed(Types.number.decode(raw, ctx, path))
+            return Every.Fixed(timingNumber("every").decode(raw, ctx, path))
         }
         override fun schema(): Map<String, Any?> =
-            linkedMapOf("oneOf" to listOf(Types.number.schema(), easedEvery.jsonSchema()))
+            linkedMapOf("oneOf" to listOf(timingNumber("every").schema(), easedEvery.jsonSchema()))
     }
 
     public val at: Field<TimeAt?> = Field.optional("at", Types.nullable(atType), null, "start: tick since cast/event start, or an event with optional +offset; absent = inherited from the enclosing group")
     public val forSpan: Field<Span?> = Field.optional("for", Types.nullable(spanType), null, "window length in ticks, or 'cast'")
     public val every: Field<Every?> = Field.optional("every", Types.nullable(everyType), null, "repeat period in ticks, or {from, to, ease}")
-    public val times: Field<Value<Double>?> = Field.optional("times", Types.nullable(Types.number), null, "with every: maximum occurrences in time; without every: a family of N simultaneous instances id[i]")
+    public val times: Field<Value<Double>?> = Field.optional("times", Types.nullable(timingNumber("times")), null, "with every: maximum occurrences in time; without every: a family of N simultaneous instances id[i]")
     public val until: Field<String?> = Field.optional("until", Types.nullable(Types.id), null, "event that ends the window")
-    public val lasts: Field<Value<Double>?> = Field.optional("lasts", Types.nullable(Types.number), null, "life of each occurrence (extended ops with every)")
+    public val lasts: Field<Value<Double>?> = Field.optional("lasts", Types.nullable(timingNumber("lasts")), null, "life of each occurrence (extended ops with every)")
 
     public val fields: Fields = Fields.of("timing", at, forSpan, every, times, until, lasts)
 

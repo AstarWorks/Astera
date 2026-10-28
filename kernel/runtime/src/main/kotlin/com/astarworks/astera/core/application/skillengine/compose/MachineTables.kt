@@ -28,7 +28,7 @@ public fun interface SectionLowerer {
     public fun lower(state: StatePath, section: String, ops: List<OpMap>): Result<Lowered, SkillDecodeError>
 }
 
-/** Result of [MachineTables.lower]; sub-tables are keyed by [EventPath] (11.3 `sub <state>.exit[<reason>]`). */
+/** Result of [MachineTables.lower]; sub-tables are keyed by [EventPath] (11.3 `sub <state>.exit[<reason>]` / `sub <state>.on[<k>]`). */
 public data class MachineLowering(
     val states: List<StateTable>,
     val subTables: Map<EventPath, SubTable>,
@@ -38,21 +38,58 @@ public data class MachineLowering(
 )
 
 /**
- * ADR-0303 10 / 10.2 / 10.6: Machine -> one [StateTable] per state, one exit sub-table per reachable (state, exit.reason).
+ * ADR-0303 10 / 10.2 (rev4.2) / 14: Machine -> one [StateTable] per state plus exactly two kinds of sub-table:
+ * `<state>.exit[<reason>]` (one per reachable reason, first row `Exit(state, reason)`) and `<state>.on[<k>]` (the `do:` effects of the k-th
+ * `on:` entry, absent when empty). There is no static bubbling: every branch belongs to the level that declares it, and the player pastes
+ * `D.exit[preempt]` for the active descendants, then `L.exit[R]`, then `L.on[k]`, then enters the target. Ancestor timers are never copied
+ * into descendants. Cancel has no table of its own: `exit[cancel]` is the cancel exit, the scopes are played by the player (10.6).
  *
- * Hierarchy is the `/` prefix of the state id (PartExpander already flattens `use:` that way); the nearest existing prefix state is the parent.
- * A transition of an ancestor A is bubbled into every descendant S as a branch placed after S's own branches (child first, 10.1). Its sub-table
- * runs S's exit (PREEMPT) and each intermediate state's exit innermost first, then A's exit with the transition's own reason, then the effects.
+ * Hierarchy is the `/` prefix of the state id (PartExpander flattens `use:` that way); the nearest existing prefix state is the parent. A
+ * parent's rows enter its direct children at the entry tick: every `parallel` region start, else the implicit start of the children (the first
+ * declared child that no sibling transitions into). `parallel` regions are flattened into `<parent>/<region state>`; the parent emits
+ * `<parent>.end` through the player when every region is final.
  * `exit.reason` guards on ops (`when: "= exit.reason != 'cancel'"`) are resolved here, per reason, so the row is simply absent (10.2 rev4.1).
+ * Every section is lowered at tick 0 of its own base: `enter` / `do` rows are relative to the state base (a `lock` row's `AtTick(n)` therefore
+ * counts from the state entry, item 14.3), `exit` / `on[k]` sub-table rows relative to the firing tick.
  */
 public object MachineTables {
     private val reasonTest = Regex("""^=\s*exit\.reason\s*(==|!=)\s*'(timer|event|preempt|cancel)'\s*$""")
     private val reasonIn = Regex("""^=\s*exit\.reason\s+in\s+\[([^\]]*)]\s*$""")
 
+    private class Flat(val states: LinkedHashMap<String, MachineState>, val regionStarts: MutableMap<String, MutableList<String>>)
+
+    /** Renames a region machine's states under [prefix] and recurses into its own regions; returns an error message or null. */
+    private fun flatten(m: Machine, prefix: String, into: Flat): String? {
+        for ((_, s) in m.states) {
+            val id = prefix + s.id
+            if (id in into.states) return "state '$id' is declared twice"
+            into.states[id] = s.copy(
+                id = id,
+                then = s.then?.let { prefix + it },
+                on = s.on.map { it.copy(to = prefix + it.to) },
+                parallel = emptyList(),
+            )
+        }
+        for ((_, s) in m.states) {
+            val id = prefix + s.id
+            for (r in s.parallel) {
+                if (r.states.isEmpty()) return "parallel region of '$id' has no states"
+                if (r.start !in r.states) return "parallel region start '${r.start}' of '$id' is not declared"
+                flatten(r, "$id/", into)?.let { return it }
+                into.regionStarts.getOrPut(id) { ArrayList() } += "$id/${r.start}"
+            }
+        }
+        return null
+    }
+
     public fun lower(skillId: String, machine: Machine, lowerer: SectionLowerer, config: EngineConfig): Result<MachineLowering, SkillDecodeError> {
         fun bad(path: String, msg: String) = Result.Failure(SkillDecodeError.Invalid(skillId, path, msg))
         if (machine.states.isEmpty()) return bad("machine", "machine has no states")
         if (machine.start !in machine.states) return bad("machine.start", "start state '${machine.start}' is not declared")
+
+        val flat = Flat(LinkedHashMap(), LinkedHashMap())
+        flatten(machine, "", flat)?.let { return bad("machine.states", it) }
+        val all = flat.states
 
         val states = ArrayList<StateTable>()
         val subs = LinkedHashMap<EventPath, SubTable>()
@@ -79,23 +116,13 @@ public object MachineTables {
 
         fun row(tick: Int, action: Action, src: String) = Row(tick, root, action, SrcPath(src))
 
-        /** Rows of one state's exit, reason resolved. */
-        fun exitRows(st: MachineState, reason: ExitReason): Result<List<Row>, SkillDecodeError> {
-            val ops = section(st, "exit", st.exit, reason)
-            if (ops is Result.Failure) return ops
-            return Result.Success(
-                listOf(row(0, Action.Exit(StatePath(st.id), reason), "machine.${st.id}.exit")) + (ops as Result.Success).value,
-            )
-        }
-
-        fun ancestors(id: String): List<MachineState> {
-            val out = ArrayList<MachineState>()
+        fun parentOf(id: String): MachineState? {
             var cur = id
             while (cur.contains('/')) {
                 cur = cur.substringBeforeLast('/')
-                machine.states[cur]?.let { out += it }
+                all[cur]?.let { return it }
             }
-            return out
+            return null
         }
 
         fun guard(t: MachineTransition): Guard? = t.whenExpr?.let { w ->
@@ -108,9 +135,18 @@ public object MachineTables {
             else -> null
         }
 
-        for ((id, st) in machine.states) {
+        /** Direct children of [id] that the parent enters at its entry tick. */
+        fun childStarts(id: String): List<String> {
+            flat.regionStarts[id]?.let { return it }
+            val kids = all.keys.filter { it != id && parentOf(it)?.id == id }
+            if (kids.isEmpty()) return emptyList()
+            val targets = kids.flatMap { k -> all.getValue(k).on.map { it.to } + listOfNotNull(all.getValue(k).then) }.toSet()
+            return listOf(kids.firstOrNull { it !in targets } ?: kids.first())
+        }
+
+        for ((id, st) in all) {
             val path = StatePath(id)
-            val parents = ancestors(id)
+            val parent = parentOf(id)
             val where = "machine.states.$id"
 
             if (st.forTicks != null && timerTicks(st.forTicks) == null) {
@@ -119,7 +155,7 @@ public object MachineTables {
             val forTicks = timerTicks(st.forTicks)
             if (forTicks != null && forTicks < 0) return bad("$where.for", "'for' must be >= 0")
             if (forTicks != null && forTicks > config.maxCastTicks) return bad("$where.for", "'for' $forTicks exceeds maxCastTicks ${config.maxCastTicks}")
-            if (st.then != null && st.then !in machine.states) return bad("$where.then", "unknown state '${st.then}'")
+            if (st.then != null && st.then !in all) return bad("$where.then", "unknown state '${st.then}'")
 
             val rows = ArrayList<Row>()
             rows += row(0, Action.Enter(path), "$where.enter")
@@ -129,81 +165,65 @@ public object MachineTables {
                     is Result.Success -> rows += r.value
                 }
             }
+            for (child in childStarts(id)) rows += row(0, Action.Enter(StatePath(child)), "$where.child")
             if (st.final) {
-                val parent = parents.firstOrNull()
                 rows += if (parent == null) row(0, Action.End(root), "$where.final")
                 else row(0, Action.Emit(EventPath(parent.id + ".end")), "$where.final").also { emitted += EventPath(parent.id + ".end") }
             }
 
             val branches = ArrayList<Branch>()
-
-            /** Registers the sub-table of a transition fired from [st] (own) or bubbled from [owner]; returns its key. */
-            fun transitionSub(owner: MachineState, k: Int, t: MachineTransition, timer: Boolean): Result<EventPath, SkillDecodeError> {
-                val ownReason = if (timer) ExitReason.TIMER else ExitReason.EVENT
-                val own = owner.id == id
-                val key = when {
-                    own && t.effects.isEmpty() -> "$id.exit[${ownReason.name.lowercase()}]"
-                    own -> "$id.exit[${ownReason.name.lowercase()}]#$k"
-                    else -> "$id.exit[preempt]/${owner.id}#$k"
-                }
-                val ev = EventPath(key)
-                if (ev in subs) return Result.Success(ev)
-                val body = ArrayList<Row>()
-                if (own) {
-                    when (val r = exitRows(st, ownReason)) { is Result.Failure -> return r; is Result.Success -> body += r.value }
-                } else {
-                    // innermost first: S, then each ancestor strictly below the owner, then the owner
-                    val chain = listOf(st) + parents.takeWhile { it.id != owner.id }
-                    for (c in chain) when (val r = exitRows(c, ExitReason.PREEMPT)) { is Result.Failure -> return r; is Result.Success -> body += r.value }
-                    when (val r = exitRows(owner, ownReason)) { is Result.Failure -> return r; is Result.Success -> body += r.value }
-                }
+            var hasTimer = false
+            var hasEvent = false
+            st.on.forEachIndexed { k, t ->
+                if (t.to !in all) return bad("$where.on[$k].to", "unknown state '${t.to}'")
+                val timer = t.event == null
+                val after = if (timer) timerTicks(t.afterTicks) ?: return bad("$where.on[$k].after", "'after' must be a compile-time tick count (C5)") else 0
+                if (timer) hasTimer = true else hasEvent = true
+                var sub: EventPath? = null
                 if (t.effects.isNotEmpty()) {
-                    val eff = lowerer.lower(StatePath(owner.id), "on[$k].effects", t.effects)
-                    when (eff) { is Result.Failure -> return eff; is Result.Success -> { absorb(eff.value); body += eff.value.rows } }
+                    when (val r = lowerer.lower(path, "on[$k].effects", t.effects)) {
+                        is Result.Failure -> return r
+                        is Result.Success -> {
+                            absorb(r.value)
+                            if (r.value.rows.isNotEmpty()) {
+                                val key = EventPath("$id.on[$k]")
+                                subs[key] = SubTable(key, path, TickRange(0, 0), 1, r.value.rows, emptyList())
+                                sub = key
+                            }
+                        }
+                    }
                 }
-                subs[ev] = SubTable(ev, path, TickRange(0, 0), 1, body, emptyList())
-                return Result.Success(ev)
+                branches += Branch(
+                    event = EventPath(if (timer) "timer($after)" else t.event!!),
+                    window = if (timer) TickRange(after, after) else TickRange(0, forTicks ?: config.maxCastTicks),
+                    guard = guard(t), target = StatePath(t.to), subTable = sub,
+                )
+            }
+            val thenId = st.then
+            if (thenId != null && forTicks != null) {
+                hasTimer = true
+                branches += Branch(EventPath("timer($forTicks)"), TickRange(forTicks, forTicks), null, StatePath(thenId), null)
             }
 
-            fun collect(owner: MachineState, bubbled: Boolean): Result<Unit, SkillDecodeError> {
-                val ownerFor = timerTicks(owner.forTicks)
-                owner.on.forEachIndexed { k, t ->
-                    if (t.to !in machine.states) return bad("machine.states.${owner.id}.on[$k].to", "unknown state '${t.to}'")
-                    val timer = t.event == null
-                    if (timer && bubbled) return@forEachIndexed // an ancestor timer is measured from the ancestor's entry; not statically placeable in a descendant (see report)
-                    val after = if (timer) timerTicks(t.afterTicks) ?: return bad("machine.states.${owner.id}.on[$k].after", "'after' must be a compile-time tick count (C5)") else 0
-                    val sub = when (val r = transitionSub(owner, k, t, timer)) { is Result.Failure -> return r; is Result.Success -> r.value }
-                    branches += Branch(
-                        event = EventPath(if (timer) "timer($after)" else t.event!!),
-                        window = if (timer) TickRange(after, after) else TickRange(0, forTicks ?: config.maxCastTicks),
-                        guard = guard(t), target = StatePath(t.to), subTable = sub,
-                    )
-                }
-                val thenId = st.then
-                if (!bubbled && thenId != null && ownerFor != null) {
-                    val sub = when (val r = transitionSub(owner, -1, MachineTransition(null, ownerFor, null, thenId, emptyList()), true)) { is Result.Failure -> return r; is Result.Success -> r.value }
-                    branches += Branch(EventPath("timer($ownerFor)"), TickRange(ownerFor, ownerFor), null, StatePath(thenId), sub)
-                }
-                return Result.Success(Unit)
+            // one exit sub-table per reason that can reach this level (10.2); the player pastes it, then `on[k]`
+            val reasons = buildList {
+                if (hasTimer) add(ExitReason.TIMER)
+                if (hasEvent) add(ExitReason.EVENT)
+                if (parent != null) add(ExitReason.PREEMPT)
+                if (!(st.final && parent == null && !hasTimer && !hasEvent)) add(ExitReason.CANCEL)
             }
-
-            when (val r = collect(st, false)) { is Result.Failure -> return r; is Result.Success -> Unit }
-            for (a in parents) when (val r = collect(a, true)) { is Result.Failure -> return r; is Result.Success -> Unit }
-
-            // cancel is an event whose sub-table is the exits depth first, then end (10.6)
-            if (!st.final || parents.isNotEmpty()) {
-                val key = EventPath("$id.exit[cancel]")
-                val body = ArrayList<Row>()
-                for (c in listOf(st) + parents) when (val r = exitRows(c, ExitReason.CANCEL)) { is Result.Failure -> return r; is Result.Success -> body += r.value }
-                body += row(0, Action.End(root), "cancel")
+            for (reason in reasons) {
+                val ops = section(st, "exit", st.exit, reason)
+                if (ops is Result.Failure) return ops
+                val key = EventPath("$id.exit[${reason.name.lowercase()}]")
+                val body = listOf(row(0, Action.Exit(path, reason), "$where.exit")) + (ops as Result.Success).value
                 subs[key] = SubTable(key, path, TickRange(0, 0), 1, body, emptyList())
-                branches += Branch(EventPath("cancel"), TickRange(0, config.maxCastTicks), null, null, key)
             }
 
-            val hasTimer = branches.any { it.event.value.startsWith("timer(") }
+            val timers = branches.filter { it.event.value.startsWith("timer(") }
             val duration: Duration = when {
                 forTicks != null -> Duration.Fixed(forTicks)
-                hasTimer -> Duration.Bounded(TickRange(branches.filter { it.event.value.startsWith("timer(") }.minOf { it.window.min }, config.maxCastTicks))
+                timers.isNotEmpty() -> Duration.Bounded(TickRange(timers.minOf { it.window.min }, config.maxCastTicks))
                 else -> Duration.Bounded(TickRange(0, config.maxCastTicks))
             }
             states += StateTable(path, duration, st.then?.let(::StatePath), st.final, rows, branches)

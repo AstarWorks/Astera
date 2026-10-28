@@ -1,0 +1,25 @@
+# Skill engine v3 server caps (ADR-0303 11.4). EVERY key is required: an absent file or key is
+# EngineConfigError.Missing and no v3 skill loads. Printed in the `# engine:` header of every `astera skill expand` dump.
+
+# Live-object caps.
+max_live_displays: 64        # displays alive at one tick, per cast
+max_instances_per_op: 256    # instances one op may spawn
+max_group_depth: 8           # nested group / do: levels
+max_part_depth: 6            # nested part / skill-call levels
+
+# Time caps (ticks).
+max_life_ticks: 1200         # longest life of one instance
+max_cast_ticks: 1200         # longest cast, also the `lock for: cast` end
+
+# Rate-law segmentation (ADR-0303 section 3).
+segment_error_blocks: 0.03   # max position error of a segmented curve, blocks
+segment_error_deg: 2.0       # max rotation error of a segmented law, degrees
+max_segment_ticks: 59        # at most this many ticks per segment
+split_turn_deg: 170.0        # a key turning more than this is split (0 < x <= 180)
+
+# Player.
+max_same_tick_depth: 4       # events produced by @0 rows are delivered in the same tick, this many levels deep
+max_sweep_steps: 32          # hit sweep samples per tick: min(this, ceil(travel / radius) + 1)
+
+# Where `astera skill expand` writes <skill-id>.txt / .json (relative to the server directory; skill-compare mounts this path).
+expand_dir: build/skill-expand

@@ -1,6 +1,9 @@
-# Converted from content/skills/bastion-greatsword-ego.yaml by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
-# Generated point-frame offsets are [left, up, forward] in the parent frame.
-apiVersion: "astera/v2"
+# Wave 2 v3 draft of bastion-greatsword-ego (v2: skill.yaml + look.yaml), generated from the v2 files by a scratch script, gameplay hand-authored.
+# Offsets [left, up, forward] -> name-keyed maps. Euler turn [pitch, yaw, roll] -> pose list [up -yaw, left pitch, forward roll].
+# The v2 slam sword is built from block parts parented to a rig frame (hand: false), not the held item blade: those 2 rigs and their 14 blocks are GAP comments below.
+# GAP: v2 gameplay.expose (damage -> dmg_physical, range -> reach) -> none (no expose field in v3 params)
+# GAP: v2 `frames: tele` (inactive body frame at world, placed like the caster at tick 20 by `place`) -> a doc-level anchor is taken at cast start
+apiVersion: astera/v3
 kind: Skill
 id: bastion-greatsword-ego
 item: bastion-greatsword
@@ -11,46 +14,211 @@ meta:
   resource_cost: 0
   ego_cost: 100
   tags: [aoe, physical, finisher, charge]
-frames:
-  - {id: tele, kind: body, parent: world, inactive: true}
-gameplay:
-  params: {propel: 0.3, dash_distance: 2.8, arc_deg: 110, reach: 3.8, dmg_physical: 140, knockback: 1.6}
-  expose:
-    - {id: damage, param: dmg_physical}
-    - {id: range, param: reach}
+params:
+  propel: {type: number, default: 0.3}
+  dash_distance: {type: blocks, default: 2.8}
+  arc_deg: {type: number, default: 110}
+  reach: {type: blocks, default: 3.8}
+  dmg_physical: {type: number, default: 140}
+  knockback: {type: number, default: 1.6}
+anchors:
+  # v2: frame fx1_bastion_ego_guard at caster orient yaw follow, group tick 0
+  # GAP: anchor teleport_ticks 2 -> none (engine-owned teleport_duration)
+  - {id: fx1_guard, anchor: caster, mode: follow}
+  # v2: frame fx4_bastion_ego_slam at caster orient yaw, group tick 27
+  # NOTE: v2 created this frame at tick 27; a doc-level anchor exists from tick 0 and follows the caster the same way
+  - {id: fx4_slam, anchor: caster, mode: snapshot}
+machine:
+  start: slam
+  states:
+    slam:
+      for: 70
+      then: end
+      do:
+        # --- gameplay (v2 gameplay.timeline t0 / t20 / t31) ---
+        # v2 lock speed 0.0 ticks 20 -> lock move for 20 ticks (pitch / yaw stay free; v2 locked only speed).
+        - {id: windup_lock, op: lock, at: 0, for: 20, move: true}
+        # GAP: place frame tele like caster at tick 20 -> none (see header; the telegraph anchor `tele` is a cast-start snapshot)
+        # v2 propel direction (0,1,0) strength 0.3 -> impulse (0, 0.3, 0).
+        - {id: propel, op: impulse, at: 20, target: caster, vector: [0.0, "= propel", 0.0]}
+        # v2 dash_strike 2.8 over 6 ticks -> speed 2.8/6.
+        # GAP: dash_strike hit_once: true -> none (dash has no hit_once)
+        - {id: dash, op: dash, at: 20, speed: "= dash_distance / 6", for: 6, radius: 0.3, stop_before_target: 1.6, invulnerable: true, stop_on_block: true, follow_pitch: false}
+        # v2 sel (damage 140 per_stack charge 0.5 consume true, ignore_invulnerability) + sel_2 (freeze 4, knockback) are the same sector at the same tick: merged.
+        # sector {angle 110, range 3.8, height 2.0} at `eye` with forward caster.forward -> origin anchor caster.eye (full look basis, includes pitch).
+        # GAP: hit max_count: 1 -> none (a once-window hit can touch several victims)
+        # GAP: damage per_stack {status: charge, amount: 0.5, on: caster, consume: true} -> none (inline hit damage is a flat number)
+        # GAP: damage ignore_invulnerability: true -> none
+        # GAP: freeze ticks 4 scope [enemy, caster] -> none
+        - {id: hit1, op: hit, at: 31, anchor: caster.eye, shape: {sector: {deg: "${arc_deg}", range: "${reach}", height: 2.0}}, targets: enemies, damage: {physical: "${dmg_physical}"}, window: once}
+      on:
+        - event: hit1
+          do:
+            - {id: kb, op: knockback, target: event.victim, direction: "= normalize(flat(pos(event.victim) - pos(caster))) + vec(0.0, 0.3, 0.0)", strength: "${knockback}"}
+    end: {final: true}
+presentation:
   timeline:
-    - {id: t0, at: 0, do: [{id: windup_lock, op: lock, target: caster, speed: 0.0, ticks: 20}]}
-    - id: t20
-      at: 20
-      do:
-        - {id: place_tele, op: place, frame: tele, like: caster}
-        - {id: propel, op: propel, direction: "= vec(0.0, 1.0, 0.0)", strength: "${propel}"}
-        - {id: dash, op: dash_strike, distance: "${dash_distance}", ticks: 6, radius: 0.3, hit_once: true, invulnerable: true, stop_on_block: true, follow_pitch: false, stop_before_target: 1.6}
-    - id: t31
-      at: 31
-      do:
-        - id: sel
-          op: hit
-          frames: [caster]
-          sector: {frame: caster, at: eye, forward: caster.forward, left: caster.left, angle_deg: "${arc_deg}", range: "${reach}", height: 2.0}
-          max_count: 1
-          window: once
-          ticks: 1
-        - id: sel_2
-          op: hit
-          frames: [caster]
-          sector: {frame: caster, at: eye, forward: caster.forward, left: caster.left, angle_deg: "${arc_deg}", range: "${reach}", height: 2.0}
-          max_count: 1
-          window: once
-          ticks: 1
-  "on":
-    hit:
-      - id: dmg
-        op: damage
-        components:
-          - {kind: physical, amount: "${dmg_physical}", per_stack: {status: charge, amount: 0.5, "on": caster, consume: true}}
-        target: victim
-        ignore_invulnerability: true
-        when: "= event.source == 'sel'"
-      - {id: stop, op: freeze, ticks: 4, scope: [enemy, caster], when: "= event.source == 'sel_2'"}
-      - {id: kb, op: knockback, direction: "= normalize(flat(pos(victim) - pos(caster))) + vec(0.0, 0.3, 0.0)", strength: "${knockback}", when: "= event.source == 'sel_2'"}
+      - id: fx0
+        at: 0
+        do:
+# GAP: plate see_through: true on a sprite -> none (see_through is kind: text only)
+# GAP: plate frame_ticks 30 (animated sprite frame stepping) -> none
+          - {id: fx1_guard_rim0r, op: display, kind: sprite, sprite: bastion-rim, size: [3.712, 1.92], anchor: fx1_guard, brightness: {block: 15, sky: 15}, offset: {left: 0.2, up: 1.3, forward: 1.15}, rotate: [{axis: up, deg: 39.0405}, {axis: left, deg: -39.0405}, {axis: forward, deg: 83.72263}], for: 30}
+# GAP: plate see_through: true on a sprite -> none (see_through is kind: text only)
+# GAP: plate frame_ticks 30 (animated sprite frame stepping) -> none
+          - {id: fx1_guard_rim0l, op: display, kind: sprite, sprite: bastion-rim, size: [3.712, 1.92], anchor: fx1_guard, brightness: {block: 15, sky: 15}, offset: {left: 0.2, up: 1.3, forward: 1.15}, rotate: [{axis: up, deg: 39.0405}, {axis: left, deg: 39.0405}, {axis: forward, deg: -83.72263}], for: 30}
+# GAP: plate see_through: true on a sprite -> none (see_through is kind: text only)
+# GAP: plate frame_ticks 30 (animated sprite frame stepping) -> none
+          - {id: fx1_guard_rim1r, op: display, kind: sprite, sprite: bastion-rim, size: [3.072, 1.408], tint: "#FFF3C8", anchor: fx1_guard, brightness: {block: 15, sky: 15}, offset: {left: 0.2, up: 1.3, forward: 1.15}, rotate: [{axis: up, deg: 39.0405}, {axis: left, deg: -39.0405}, {axis: forward, deg: 83.72263}], for: 30}
+# GAP: plate see_through: true on a sprite -> none (see_through is kind: text only)
+# GAP: plate frame_ticks 30 (animated sprite frame stepping) -> none
+          - {id: fx1_guard_rim1l, op: display, kind: sprite, sprite: bastion-rim, size: [3.072, 1.408], tint: "#FFF3C8", anchor: fx1_guard, brightness: {block: 15, sky: 15}, offset: {left: 0.2, up: 1.3, forward: 1.15}, rotate: [{axis: up, deg: 39.0405}, {axis: left, deg: 39.0405}, {axis: forward, deg: -83.72263}], for: 30}
+# GAP: plate see_through: true on a sprite -> none (see_through is kind: text only)
+# GAP: plate frame_ticks 30 (animated sprite frame stepping) -> none
+          - {id: fx1_guard_crest, op: display, kind: sprite, sprite: bastion-crest, size: [1.664, 1.664], anchor: fx1_guard, brightness: {block: 15, sky: 15}, offset: {left: 0.2, up: 1.35, forward: 1.15}, rotate: [{axis: up, deg: 50.0}], for: 30}
+# GAP: quad colour #FFD66E on a text display -> none (text display has no colour field)
+# GAP: track keys alpha [0.0, 0.14, 0.14, 0.0] -> none (no alpha channel on keys; text_opacity via fade law only)
+          - {id: fx1_guard_fill, op: display, kind: text, text: "●", text_opacity: 0, anchor: fx1_guard, brightness: {block: 15, sky: 15}, offset: {left: 0.2, up: 1.3, forward: 1.15}, rotate: [{axis: up, deg: 50.0}], for: 30}
+          - {id: fx1_guard_fill, op: display, kind: text, text: "●", text_opacity: 0, anchor: fx1_guard, brightness: {block: 15, sky: 15}, offset: {left: 0.2, up: 1.3, forward: 1.15}, rotate: [{axis: up, deg: 50.0}], for: 30, motion: [{law: keys, keys: [{t: 0, offset: {left: 0.2, up: 1.3, forward: 1.15}, pose: [{axis: up, deg: 50.0}], scale: [0.3, 0.6, 1.0]}, {t: 6, scale: [1.5, 3.3, 1.0], ease: out_cubic}, {t: 22}, {t: 30, scale: [1.4, 3.1, 1.0], ease: in_quad}]}]}
+          # v2 sound pitch 0.6 -> 1.8 over 25 ticks (in_quad), every 5, until stop_sound at tick 30: unrolled to one sound per repeat with the pitch sampled at its tick
+          - {id: snd, op: sound, sound: block.amethyst_block.resonate, anchor: caster, at: 0, volume: 1.0, pitch: 0.6}
+          - {id: snd_1, op: sound, sound: block.amethyst_block.resonate, anchor: caster, at: 5, volume: 1.0, pitch: 0.648}
+          - {id: snd_2, op: sound, sound: block.amethyst_block.resonate, anchor: caster, at: 10, volume: 1.0, pitch: 0.792}
+          - {id: snd_3, op: sound, sound: block.amethyst_block.resonate, anchor: caster, at: 15, volume: 1.0, pitch: 1.032}
+          - {id: snd_4, op: sound, sound: block.amethyst_block.resonate, anchor: caster, at: 20, volume: 1.0, pitch: 1.368}
+          - {id: snd_5, op: sound, sound: block.amethyst_block.resonate, anchor: caster, at: 25, volume: 1.0, pitch: 1.8}
+      - id: fx20
+        at: 20
+        do:
+          - {id: hide_hand, op: caster_anim, anim: hide-main-hand, for: 24}
+# GAP: quad fx2_telegraph_cone_2_rim_arc_0 (plain coloured plane, colour #ff3b2f alpha 0.85 size [1.0, 1.0]) -> none (no coloured-plane display; only text/sprite/block/item)
+# v2 track: [{"t": 0, "offset": [-3.29314, 0.05, 5.25311], "scale": [0.68173, 0.12, 1.0], "turn": [-87.42776, -25.13833, -25.13833]}]
+# GAP: quad fx2_telegraph_cone_2_rim_arc_1 (plain coloured plane, colour #ff3b2f alpha 0.85 size [1.0, 1.0]) -> none (no coloured-plane display; only text/sprite/block/item)
+# v2 track: [{"t": 0, "offset": [-2.74219, 0.05, 5.56061], "scale": [0.68173, 0.12, 1.0], "turn": [-88.27999, -20.58401, -20.58401]}]
+# GAP: quad fx2_telegraph_cone_2_rim_arc_2 (plain coloured plane, colour #ff3b2f alpha 0.85 size [1.0, 1.0]) -> none (no coloured-plane display; only text/sprite/block/item)
+# v2 track: [{"t": 0, "offset": [-2.16284, 0.05, 5.81052], "scale": [0.68173, 0.12, 1.0], "turn": [-88.96042, -16.01987, -16.01987]}]
+# GAP: quad fx2_telegraph_cone_2_rim_arc_3 (plain coloured plane, colour #ff3b2f alpha 0.85 size [1.0, 1.0]) -> none (no coloured-plane display; only text/sprite/block/item)
+# v2 track: [{"t": 0, "offset": [-1.56108, 0.05, 6.00025], "scale": [0.68173, 0.12, 1.0], "turn": [-89.46996, -11.44814, -11.44814]}]
+# GAP: quad fx2_telegraph_cone_2_rim_arc_4 (plain coloured plane, colour #ff3b2f alpha 0.85 size [1.0, 1.0]) -> none (no coloured-plane display; only text/sprite/block/item)
+# v2 track: [{"t": 0, "offset": [-0.94316, 0.05, 6.12784], "scale": [0.68173, 0.12, 1.0], "turn": [-89.80927, -6.87103, -6.87103]}]
+# GAP: quad fx2_telegraph_cone_2_rim_arc_5 (plain coloured plane, colour #ff3b2f alpha 0.85 size [1.0, 1.0]) -> none (no coloured-plane display; only text/sprite/block/item)
+# v2 track: [{"t": 0, "offset": [-0.31548, 0.05, 6.19197], "scale": [0.68173, 0.12, 1.0], "turn": [-89.97881, -2.2907, -2.2907]}]
+# GAP: quad fx2_telegraph_cone_2_rim_arc_6 (plain coloured plane, colour #ff3b2f alpha 0.85 size [1.0, 1.0]) -> none (no coloured-plane display; only text/sprite/block/item)
+# v2 track: [{"t": 0, "offset": [0.31548, 0.05, 6.19197], "scale": [0.68173, 0.12, 1.0], "turn": [-89.97881, 2.2907, 2.2907]}]
+# GAP: quad fx2_telegraph_cone_2_rim_arc_7 (plain coloured plane, colour #ff3b2f alpha 0.85 size [1.0, 1.0]) -> none (no coloured-plane display; only text/sprite/block/item)
+# v2 track: [{"t": 0, "offset": [0.94316, 0.05, 6.12784], "scale": [0.68173, 0.12, 1.0], "turn": [-89.80927, 6.87103, 6.87103]}]
+# GAP: quad fx2_telegraph_cone_2_rim_arc_8 (plain coloured plane, colour #ff3b2f alpha 0.85 size [1.0, 1.0]) -> none (no coloured-plane display; only text/sprite/block/item)
+# v2 track: [{"t": 0, "offset": [1.56108, 0.05, 6.00025], "scale": [0.68173, 0.12, 1.0], "turn": [-89.46996, 11.44814, 11.44814]}]
+# GAP: quad fx2_telegraph_cone_2_rim_arc_9 (plain coloured plane, colour #ff3b2f alpha 0.85 size [1.0, 1.0]) -> none (no coloured-plane display; only text/sprite/block/item)
+# v2 track: [{"t": 0, "offset": [2.16284, 0.05, 5.81052], "scale": [0.68173, 0.12, 1.0], "turn": [-88.96042, 16.01987, 16.01987]}]
+# GAP: quad fx2_telegraph_cone_2_rim_arc_10 (plain coloured plane, colour #ff3b2f alpha 0.85 size [1.0, 1.0]) -> none (no coloured-plane display; only text/sprite/block/item)
+# v2 track: [{"t": 0, "offset": [2.74219, 0.05, 5.56061], "scale": [0.68173, 0.12, 1.0], "turn": [-88.27999, 20.58401, 20.58401]}]
+# GAP: quad fx2_telegraph_cone_2_rim_arc_11 (plain coloured plane, colour #ff3b2f alpha 0.85 size [1.0, 1.0]) -> none (no coloured-plane display; only text/sprite/block/item)
+# v2 track: [{"t": 0, "offset": [3.29314, 0.05, 5.25311], "scale": [0.68173, 0.12, 1.0], "turn": [-87.42776, 25.13833, 25.13833]}]
+# GAP: quad fx2_telegraph_cone_2_rim_edge_0 (plain coloured plane, colour #ff3b2f alpha 0.85 size [1.0, 1.0]) -> none (no coloured-plane display; only text/sprite/block/item)
+# v2 track: [{"t": 0, "offset": [1.77809, 0.05, 2.53937], "scale": [6.2, 0.12, 1.0], "turn": [-82.39131, -42.8902, -42.8902]}]
+# GAP: quad fx2_telegraph_cone_2_rim_edge_1 (plain coloured plane, colour #ff3b2f alpha 0.85 size [1.0, 1.0]) -> none (no coloured-plane display; only text/sprite/block/item)
+# v2 track: [{"t": 0, "offset": [-1.77809, 0.05, 2.53937], "scale": [6.2, 0.12, 1.0], "turn": [-49.01283, -94.15276, -94.15276]}]
+# GAP: quad fx2_telegraph_cone_2_fill_0_s0 (plain coloured plane, colour #ff3b2f alpha 0.35 size [1.0, 1.0]) -> none (no coloured-plane display; only text/sprite/block/item)
+# v2 track: [{"t": 0, "offset": [-0.01647, 0.0006, 0.02627], "turn": [-50.99837, -92.16149, -92.16149], "scale": [0.062, 0.006, 0.01]}, {"t": 1, "offset": [-0.17948, 0.00654, 0.2863], "turn": [-50.99837, -92.16149, -92.16149], "scale": [0.6758, 0.06536, 0.109], "sample": true}, {"t": 2, "offset": [-0.34249, 0.01248, 0.54632], "turn": [-50.99837, -92.16149, -92.16149], "scale": [1.2896, 0.12473, 0.208], "sample": true}, {"t": 3, "offset": [-0.5055, 0.01842, 0.80635], "turn": [-50.99837, -92.16149, -92.16149], "scale": [1.9034, 0.1841, 0.307], "sample": true}, {"t": 4, "offset": [-0.66851, 0.02436, 1.06638], "turn": [-50.99837, -92.16149, -92.16149], "scale": [2.5172, 0.24347, 0.406], "sample": true}, {"t
+# GAP: quad fx2_telegraph_cone_2_fill_1_s0 (plain coloured plane, colour #ff3b2f alpha 0.35 size [1.0, 1.0]) -> none (no coloured-plane display; only text/sprite/block/item)
+# v2 track: [{"t": 0, "offset": [-0.01371, 0.0006, 0.0278], "turn": [-54.80191, -88.12863, -88.12863], "scale": [0.062, 0.006, 0.01]}, {"t": 1, "offset": [-0.14945, 0.00654, 0.30305], "turn": [-54.80191, -88.12863, -88.12863], "scale": [0.6758, 0.06536, 0.109], "sample": true}, {"t": 2, "offset": [-0.28519, 0.01248, 0.5783], "turn": [-54.80191, -88.12863, -88.12863], "scale": [1.2896, 0.12473, 0.208], "sample": true}, {"t": 3, "offset": [-0.42092, 0.01842, 0.85356], "turn": [-54.80191, -88.12863, -88.12863], "scale": [1.9034, 0.1841, 0.307], "sample": true}, {"t": 4, "offset": [-0.55666, 0.02436, 1.12881], "turn": [-54.80191, -88.12863, -88.12863], "scale": [2.5172, 0.24347, 0.406], "sample": true}, {"t
+# GAP: quad fx2_telegraph_cone_2_fill_2_s0 (plain coloured plane, colour #ff3b2f alpha 0.35 size [1.0, 1.0]) -> none (no coloured-plane display; only text/sprite/block/item)
+# v2 track: [{"t": 0, "offset": [-0.01081, 0.0006, 0.02905], "turn": [-58.38661, -84.03341, -84.03341], "scale": [0.062, 0.006, 0.01]}, {"t": 1, "offset": [-0.11787, 0.00654, 0.31667], "turn": [-58.38661, -84.03341, -84.03341], "scale": [0.6758, 0.06536, 0.109], "sample": true}, {"t": 2, "offset": [-0.22494, 0.01248, 0.60429], "turn": [-58.38661, -84.03341, -84.03341], "scale": [1.2896, 0.12473, 0.208], "sample": true}, {"t": 3, "offset": [-0.332, 0.01842, 0.89191], "turn": [-58.38661, -84.03341, -84.03341], "scale": [1.9034, 0.1841, 0.307], "sample": true}, {"t": 4, "offset": [-0.43906, 0.02436, 1.17954], "turn": [-58.38661, -84.03341, -84.03341], "scale": [2.5172, 0.24347, 0.406], "sample": true}, {"t
+# GAP: quad fx2_telegraph_cone_2_fill_3_s0 (plain coloured plane, colour #ff3b2f alpha 0.35 size [1.0, 1.0]) -> none (no coloured-plane display; only text/sprite/block/item)
+# v2 track: [{"t": 0, "offset": [-0.00781, 0.0006, 0.03], "turn": [-61.75771, -79.88112, -79.88112], "scale": [0.062, 0.006, 0.01]}, {"t": 1, "offset": [-0.08508, 0.00654, 0.32701], "turn": [-61.75771, -79.88112, -79.88112], "scale": [0.6758, 0.06536, 0.109], "sample": true}, {"t": 2, "offset": [-0.16235, 0.01248, 0.62403], "turn": [-61.75771, -79.88112, -79.88112], "scale": [1.2896, 0.12473, 0.208], "sample": true}, {"t": 3, "offset": [-0.23963, 0.01842, 0.92104], "turn": [-61.75771, -79.88112, -79.88112], "scale": [1.9034, 0.1841, 0.307], "sample": true}, {"t": 4, "offset": [-0.3169, 0.02436, 1.21805], "turn": [-61.75771, -79.88112, -79.88112], "scale": [2.5172, 0.24347, 0.406], "sample": true}, {"t":
+# GAP: quad fx2_telegraph_cone_2_fill_4_s0 (plain coloured plane, colour #ff3b2f alpha 0.35 size [1.0, 1.0]) -> none (no coloured-plane display; only text/sprite/block/item)
+# v2 track: [{"t": 0, "offset": [-0.00472, 0.0006, 0.03064], "turn": [-64.92006, -75.67668, -75.67668], "scale": [0.062, 0.006, 0.01]}, {"t": 1, "offset": [-0.0514, 0.00654, 0.33397], "turn": [-64.92006, -75.67668, -75.67668], "scale": [0.6758, 0.06536, 0.109], "sample": true}, {"t": 2, "offset": [-0.09809, 0.01248, 0.6373], "turn": [-64.92006, -75.67668, -75.67668], "scale": [1.2896, 0.12473, 0.208], "sample": true}, {"t": 3, "offset": [-0.14478, 0.01842, 0.94062], "turn": [-64.92006, -75.67668, -75.67668], "scale": [1.9034, 0.1841, 0.307], "sample": true}, {"t": 4, "offset": [-0.19146, 0.02436, 1.24395], "turn": [-64.92006, -75.67668, -75.67668], "scale": [2.5172, 0.24347, 0.406], "sample": true}, {"t
+# GAP: quad fx2_telegraph_cone_2_fill_5_s0 (plain coloured plane, colour #ff3b2f alpha 0.35 size [1.0, 1.0]) -> none (no coloured-plane display; only text/sprite/block/item)
+# v2 track: [{"t": 0, "offset": [-0.00158, 0.0006, 0.03096], "turn": [-67.8782, -71.42461, -71.42461], "scale": [0.062, 0.006, 0.01]}, {"t": 1, "offset": [-0.01719, 0.00654, 0.33746], "turn": [-67.8782, -71.42461, -71.42461], "scale": [0.6758, 0.06536, 0.109], "sample": true}, {"t": 2, "offset": [-0.03281, 0.01248, 0.64396], "turn": [-67.8782, -71.42461, -71.42461], "scale": [1.2896, 0.12473, 0.208], "sample": true}, {"t": 3, "offset": [-0.04843, 0.01842, 0.95047], "turn": [-67.8782, -71.42461, -71.42461], "scale": [1.9034, 0.1841, 0.307], "sample": true}, {"t": 4, "offset": [-0.06404, 0.02436, 1.25697], "turn": [-67.8782, -71.42461, -71.42461], "scale": [2.5172, 0.24347, 0.406], "sample": true}, {"t": 
+# GAP: quad fx2_telegraph_cone_2_fill_6_s0 (plain coloured plane, colour #ff3b2f alpha 0.35 size [1.0, 1.0]) -> none (no coloured-plane display; only text/sprite/block/item)
+# v2 track: [{"t": 0, "offset": [0.00158, 0.0006, 0.03096], "turn": [-70.63637, -67.1291, -67.1291], "scale": [0.062, 0.006, 0.01]}, {"t": 1, "offset": [0.01719, 0.00654, 0.33746], "turn": [-70.63637, -67.1291, -67.1291], "scale": [0.6758, 0.06536, 0.109], "sample": true}, {"t": 2, "offset": [0.03281, 0.01248, 0.64396], "turn": [-70.63637, -67.1291, -67.1291], "scale": [1.2896, 0.12473, 0.208], "sample": true}, {"t": 3, "offset": [0.04843, 0.01842, 0.95047], "turn": [-70.63637, -67.1291, -67.1291], "scale": [1.9034, 0.1841, 0.307], "sample": true}, {"t": 4, "offset": [0.06404, 0.02436, 1.25697], "turn": [-70.63637, -67.1291, -67.1291], "scale": [2.5172, 0.24347, 0.406], "sample": true}, {"t": 5, "offset
+# GAP: quad fx2_telegraph_cone_2_fill_7_s0 (plain coloured plane, colour #ff3b2f alpha 0.35 size [1.0, 1.0]) -> none (no coloured-plane display; only text/sprite/block/item)
+# v2 track: [{"t": 0, "offset": [0.00472, 0.0006, 0.03064], "turn": [-73.19845, -62.79408, -62.79408], "scale": [0.062, 0.006, 0.01]}, {"t": 1, "offset": [0.0514, 0.00654, 0.33397], "turn": [-73.19845, -62.79408, -62.79408], "scale": [0.6758, 0.06536, 0.109], "sample": true}, {"t": 2, "offset": [0.09809, 0.01248, 0.6373], "turn": [-73.19845, -62.79408, -62.79408], "scale": [1.2896, 0.12473, 0.208], "sample": true}, {"t": 3, "offset": [0.14478, 0.01842, 0.94062], "turn": [-73.19845, -62.79408, -62.79408], "scale": [1.9034, 0.1841, 0.307], "sample": true}, {"t": 4, "offset": [0.19146, 0.02436, 1.24395], "turn": [-73.19845, -62.79408, -62.79408], "scale": [2.5172, 0.24347, 0.406], "sample": true}, {"t": 5,
+# GAP: quad fx2_telegraph_cone_2_fill_8_s0 (plain coloured plane, colour #ff3b2f alpha 0.35 size [1.0, 1.0]) -> none (no coloured-plane display; only text/sprite/block/item)
+# v2 track: [{"t": 0, "offset": [0.00781, 0.0006, 0.03], "turn": [-75.56807, -58.4232, -58.4232], "scale": [0.062, 0.006, 0.01]}, {"t": 1, "offset": [0.08508, 0.00654, 0.32701], "turn": [-75.56807, -58.4232, -58.4232], "scale": [0.6758, 0.06536, 0.109], "sample": true}, {"t": 2, "offset": [0.16235, 0.01248, 0.62403], "turn": [-75.56807, -58.4232, -58.4232], "scale": [1.2896, 0.12473, 0.208], "sample": true}, {"t": 3, "offset": [0.23963, 0.01842, 0.92104], "turn": [-75.56807, -58.4232, -58.4232], "scale": [1.9034, 0.1841, 0.307], "sample": true}, {"t": 4, "offset": [0.3169, 0.02436, 1.21805], "turn": [-75.56807, -58.4232, -58.4232], "scale": [2.5172, 0.24347, 0.406], "sample": true}, {"t": 5, "offset": [
+# GAP: quad fx2_telegraph_cone_2_fill_9_s0 (plain coloured plane, colour #ff3b2f alpha 0.35 size [1.0, 1.0]) -> none (no coloured-plane display; only text/sprite/block/item)
+# v2 track: [{"t": 0, "offset": [0.01081, 0.0006, 0.02905], "turn": [-77.74853, -54.01986, -54.01986], "scale": [0.062, 0.006, 0.01]}, {"t": 1, "offset": [0.11787, 0.00654, 0.31667], "turn": [-77.74853, -54.01986, -54.01986], "scale": [0.6758, 0.06536, 0.109], "sample": true}, {"t": 2, "offset": [0.22494, 0.01248, 0.60429], "turn": [-77.74853, -54.01986, -54.01986], "scale": [1.2896, 0.12473, 0.208], "sample": true}, {"t": 3, "offset": [0.332, 0.01842, 0.89191], "turn": [-77.74853, -54.01986, -54.01986], "scale": [1.9034, 0.1841, 0.307], "sample": true}, {"t": 4, "offset": [0.43906, 0.02436, 1.17954], "turn": [-77.74853, -54.01986, -54.01986], "scale": [2.5172, 0.24347, 0.406], "sample": true}, {"t": 5,
+# GAP: quad fx2_telegraph_cone_2_fill_10_s0 (plain coloured plane, colour #ff3b2f alpha 0.35 size [1.0, 1.0]) -> none (no coloured-plane display; only text/sprite/block/item)
+# v2 track: [{"t": 0, "offset": [0.01371, 0.0006, 0.0278], "turn": [-79.74286, -49.5873, -49.5873], "scale": [0.062, 0.006, 0.01]}, {"t": 1, "offset": [0.14945, 0.00654, 0.30305], "turn": [-79.74286, -49.5873, -49.5873], "scale": [0.6758, 0.06536, 0.109], "sample": true}, {"t": 2, "offset": [0.28519, 0.01248, 0.5783], "turn": [-79.74286, -49.5873, -49.5873], "scale": [1.2896, 0.12473, 0.208], "sample": true}, {"t": 3, "offset": [0.42092, 0.01842, 0.85356], "turn": [-79.74286, -49.5873, -49.5873], "scale": [1.9034, 0.1841, 0.307], "sample": true}, {"t": 4, "offset": [0.55666, 0.02436, 1.12881], "turn": [-79.74286, -49.5873, -49.5873], "scale": [2.5172, 0.24347, 0.406], "sample": true}, {"t": 5, "offset":
+# GAP: quad fx2_telegraph_cone_2_fill_11_s0 (plain coloured plane, colour #ff3b2f alpha 0.35 size [1.0, 1.0]) -> none (no coloured-plane display; only text/sprite/block/item)
+# v2 track: [{"t": 0, "offset": [0.01647, 0.0006, 0.02627], "turn": [-81.55381, -45.12852, -45.12852], "scale": [0.062, 0.006, 0.01]}, {"t": 1, "offset": [0.17948, 0.00654, 0.2863], "turn": [-81.55381, -45.12852, -45.12852], "scale": [0.6758, 0.06536, 0.109], "sample": true}, {"t": 2, "offset": [0.34249, 0.01248, 0.54632], "turn": [-81.55381, -45.12852, -45.12852], "scale": [1.2896, 0.12473, 0.208], "sample": true}, {"t": 3, "offset": [0.5055, 0.01842, 0.80635], "turn": [-81.55381, -45.12852, -45.12852], "scale": [1.9034, 0.1841, 0.307], "sample": true}, {"t": 4, "offset": [0.66851, 0.02436, 1.06638], "turn": [-81.55381, -45.12852, -45.12852], "scale": [2.5172, 0.24347, 0.406], "sample": true}, {"t": 5,
+          - {id: snd_2, op: sound, sound: item.shield.block, anchor: caster, pitch: 0.8}
+# GAP: plate fx3_bastion_ego_trail_beads uses `times` with indexed expression arrays (at/turn per i) -> needs per-i lists; kept as v2 data below
+# v2: {"op": "plate", "parent": "fx3_bastion_ego_trail", "face": {"viewer": "center"}, "sprite": "dot", "size": 0.8, "color": "#FFE08A", "lane": "accent", "brightness": 15, "at": "= [vec(0.0, 1.0, 0.2), vec(0.0, 1.04, 0.48), vec(0.0, 1.08, 0.76), vec(0.0, 1.12, 1.04), vec(0.0, 1.16, 1.32), vec(0.0, 1.2, 1.6), vec(0.0, 1.24, 1.88), vec(0.0, 1.28, 2.16), vec(0.0, 1.32, 2.44), vec(0.0, 1.36, 2.72), vec(0.0, 1.4, 3.0)][int(i)]", "times": 11, "id": "fx3_bastion_ego_trail_beads"}
+# v2 track: [{"t": 0, "scale": [0.336, 0.336, 0.336], "alpha": 1.0}, {"t": 14, "alpha": 0.0, "ease": "in_quad"}]
+      - id: fx27
+        at: 27
+        do:
+          # GAP: rig fx4_bastion_ego_slam_sword_rig (sword built from block parts: pivot [0.0, 1.4, 0.3] rest [90.0, 0.0, 0.0] hand True, not an item blade; swing is pure pitch) -> none (v3 rig swings the held item blade only)
+          # v2 rig swing keys (tick:pitch) every tick sampled, ticks beyond list hold: 0:-125.0 1:-150.0 2:-97.0 3:62.0 4:65.5 5:66.0 6:66.0 7:66.0 8:66.0 9:66.0 10:66.0 11:66.0 12:66.0 13:66.0 14:66.0 15:66.0 16:66.0 17:66.0 18:66.0 19:66.0 20:66.0 21:66.0 22:66.0 23:66.0 24:66.0 25:66.0 26:66.0 27:66.0 28:66.0 29:66.0 30:66.0 31:66.0 32:66.0 33:66.0 34:66.0 35:66.0 36:66.0 37:66.0 38:66.0 39:66.0 40:66.0
+          # GAP: rig fx4_bastion_ego_slam_sword_parts_rig (sword built from block parts: pivot [0.0, 1.4, 0.3] rest [90.0, 0.0, 0.0] hand False, not an item blade; swing is pure pitch) -> none (v3 rig swings the held item blade only)
+          # v2 rig swing keys (tick:pitch) every tick sampled, ticks beyond list hold: 0:-125.0 1:-150.0 2:-97.0 3:62.0 4:65.5 5:66.0 6:66.0 7:66.0 8:66.0 9:66.0 10:66.0 11:66.0 12:66.0 13:66.0 14:66.0 15:66.0 16:66.0 17:66.0 18:66.0 19:66.0 20:66.0 21:66.0 22:66.0 23:66.0 24:66.0 25:66.0 26:66.0 27:66.0 28:66.0 29:66.0 30:66.0 31:66.0 32:66.0 33:66.0 34:66.0 35:66.0 36:66.0 37:66.0 38:66.0 39:66.0 40:66.0
+# GAP: block fx4_bastion_ego_slam_sword_face is parented to frame fx4_bastion_ego_slam_sword_parts which is not an anchor (rig part / sword frame) -> none
+# v2: {"id": "fx4_bastion_ego_slam_sword_face", "op": "block", "parent": "fx4_bastion_ego_slam_sword_parts", "block": "gray_concrete", "size": [0.46, 1.9, 0.07], "at": [0.0, 1.55, 0.0], "rig_shading": true}
+# GAP: block fx4_bastion_ego_slam_sword_rim_l is parented to frame fx4_bastion_ego_slam_sword_parts which is not an anchor (rig part / sword frame) -> none
+# v2: {"id": "fx4_bastion_ego_slam_sword_rim_l", "op": "block", "parent": "fx4_bastion_ego_slam_sword_parts", "block": "white_concrete", "size": [0.07, 1.9, 0.12], "at": [0.25, 1.55, 0.0], "rig_shading": true}
+# GAP: block fx4_bastion_ego_slam_sword_rim_r is parented to frame fx4_bastion_ego_slam_sword_parts which is not an anchor (rig part / sword frame) -> none
+# v2: {"id": "fx4_bastion_ego_slam_sword_rim_r", "op": "block", "parent": "fx4_bastion_ego_slam_sword_parts", "block": "white_concrete", "size": [0.07, 1.9, 0.12], "at": [-0.25, 1.55, 0.0], "rig_shading": true}
+# GAP: block fx4_bastion_ego_slam_sword_tip is parented to frame fx4_bastion_ego_slam_sword_parts which is not an anchor (rig part / sword frame) -> none
+# v2: {"id": "fx4_bastion_ego_slam_sword_tip", "op": "block", "parent": "fx4_bastion_ego_slam_sword_parts", "block": "white_concrete", "size": [0.58, 0.08, 0.12], "at": [0.0, 2.5, 0.0], "rig_shading": true}
+# GAP: block fx4_bastion_ego_slam_sword_base is parented to frame fx4_bastion_ego_slam_sword_parts which is not an anchor (rig part / sword frame) -> none
+# v2: {"id": "fx4_bastion_ego_slam_sword_base", "op": "block", "parent": "fx4_bastion_ego_slam_sword_parts", "block": "white_concrete", "size": [0.58, 0.08, 0.12], "at": [0.0, 0.62, 0.0], "rig_shading": true}
+# GAP: block fx4_bastion_ego_slam_sword_inset is parented to frame fx4_bastion_ego_slam_sword_parts which is not an anchor (rig part / sword frame) -> none
+# v2: {"id": "fx4_bastion_ego_slam_sword_inset", "op": "block", "parent": "fx4_bastion_ego_slam_sword_parts", "block": "yellow_concrete", "size": [0.09, 0.2, 0.09], "at": [0.0, 0.86, 0.0], "rig_shading": true}
+# GAP: block fx4_bastion_ego_slam_sword_guard is parented to frame fx4_bastion_ego_slam_sword_parts which is not an anchor (rig part / sword frame) -> none
+# v2: {"id": "fx4_bastion_ego_slam_sword_guard", "op": "block", "parent": "fx4_bastion_ego_slam_sword_parts", "block": "black_concrete", "size": [0.62, 0.1, 0.18], "at": [0.0, 0.5, 0.0], "rig_shading": true}
+# GAP: block fx4_bastion_ego_slam_sword_grip is parented to frame fx4_bastion_ego_slam_sword_parts which is not an anchor (rig part / sword frame) -> none
+# v2: {"id": "fx4_bastion_ego_slam_sword_grip", "op": "block", "parent": "fx4_bastion_ego_slam_sword_parts", "block": "black_concrete", "size": [0.09, 0.8, 0.09], "at": [0.0, 0.05, 0.0], "rig_shading": true}
+          - {id: snd_3, op: sound, sound: item.trident.return, anchor: caster, volume: 0.8, pitch: 0.6}
+      - id: fx30
+        at: 30
+        do:
+          # GAP: stop_sound stopsnd -> see report
+          # v2: {"id": "stopsnd", "op": "stop_sound", "target": "caster", "sound": "block.amethyst_block.resonate"}
+      - id: fx31
+        at: 31
+        do:
+# GAP: quad colour #FFF2B0 on a text display -> none (text display has no colour field)
+# GAP: track keys alpha [1.0, 0.0] -> none (no alpha channel on keys; text_opacity via fade law only)
+# GAP: track keys colour -> none (no colour channel on keys)
+          - {id: fx4_slam_flash, op: display, kind: text, text: "✦", text_opacity: 255, anchor: fx4_slam, brightness: {block: 15, sky: 15}, offset: {left: 0.0, up: 1.0, forward: 1.7}, for: 6}
+          - {id: fx4_slam_flash, op: display, kind: text, text: "✦", text_opacity: 255, anchor: fx4_slam, brightness: {block: 15, sky: 15}, offset: {left: 0.0, up: 1.0, forward: 1.7}, for: 6, motion: [{law: keys, keys: [{t: 0, offset: {left: 0.0, up: 1.0, forward: 1.7}, scale: [0.45, 0.45, 1.0]}, {t: 1, scale: [3.0, 3.0, 1.0], ease: out_back}, {t: 6, scale: [1.5, 1.5, 1.0], ease: out_quad}]}]}
+          - {id: fx4_slam_pilcore, op: display, kind: block, block: "minecraft:white_concrete", scale: [0.15, 0.3, 0.15], anchor: fx4_slam, brightness: {block: 15, sky: 15}, offset: {left: 0.0, up: 5.0, forward: 1.7}, for: 16}
+          - {id: fx4_slam_pilcore, op: display, kind: block, block: "minecraft:white_concrete", scale: [0.15, 0.3, 0.15], anchor: fx4_slam, brightness: {block: 15, sky: 15}, offset: {left: 0.0, up: 5.0, forward: 1.7}, for: 16, motion: [{law: keys, keys: [{t: 0, offset: {left: 0.0, up: 5.0, forward: 1.7}, scale: [0.15, 0.3, 0.15]}, {t: 1, scale: [0.5, 10.0, 0.5], ease: out_expo}, {t: 10, scale: [0.425, 10.0, 0.425]}, {t: 16, scale: [0.0, 10.0, 0.0], ease: in_quad}]}]}
+# v2 lane: accent (render lane; no v3 field)
+          - {id: fx4_slam_pilbloom, op: display, kind: block, block: "minecraft:yellow_stained_glass", scale: [0.5, 0.3, 0.5], anchor: fx4_slam, brightness: {block: 15, sky: 15}, offset: {left: 0.0, up: 4.8, forward: 1.7}, for: 16}
+          - {id: fx4_slam_pilbloom, op: display, kind: block, block: "minecraft:yellow_stained_glass", scale: [0.5, 0.3, 0.5], anchor: fx4_slam, brightness: {block: 15, sky: 15}, offset: {left: 0.0, up: 4.8, forward: 1.7}, for: 16, motion: [{law: keys, keys: [{t: 0, offset: {left: 0.0, up: 4.8, forward: 1.7}, scale: [0.5, 0.3, 0.5]}, {t: 1, scale: [1.4, 9.6, 1.4], ease: out_expo}, {t: 16, scale: [0.0, 9.6, 0.0], ease: in_quad}]}]}
+# GAP: quad colour #FFF2B0 on a text display -> none (text display has no colour field)
+# GAP: track keys alpha [0.95, 0.0] -> none (no alpha channel on keys; text_opacity via fade law only)
+# GAP: track keys colour -> none (no colour channel on keys)
+          - {id: fx4_slam_pildisc, op: display, kind: text, text: "●", text_opacity: 242, anchor: fx4_slam, brightness: {block: 15, sky: 15}, offset: {left: 0.0, up: 1.25, forward: 1.7}, rotate: [{axis: left, deg: 90.0}], for: 12}
+          - {id: fx4_slam_pildisc, op: display, kind: text, text: "●", text_opacity: 242, anchor: fx4_slam, brightness: {block: 15, sky: 15}, offset: {left: 0.0, up: 1.25, forward: 1.7}, rotate: [{axis: left, deg: 90.0}], for: 12, motion: [{law: keys, keys: [{t: 0, offset: {left: 0.0, up: 1.25, forward: 1.7}, pose: [{axis: left, deg: 90.0}], scale: [0.4, 0.4, 1.0]}, {t: 2, scale: [3.6, 3.6, 1.0], ease: out_expo}, {t: 12, scale: [3.9, 3.9, 1.0], ease: out_quad}]}]}
+# GAP: plate fx4_bastion_ego_slam_dust uses `times` with indexed expression arrays (at/turn per i) -> needs per-i lists; kept as v2 data below
+# v2: {"op": "plate", "parent": "fx4_bastion_ego_slam", "face": {"viewer": "center"}, "sprite": "smoke-puff", "size": 0.8, "frame_ticks": 6, "color": "#8A8478", "lane": "ambient", "brightness": 9, "at": "= [vec(0.0, 0.25, 3.2), vec(1.29904, 0.25, 2.45), vec(1.29904, 0.25, 0.95), vec(0.0, 0.25, 0.2), vec(-1.29904, 0.25, 0.95), vec(-1.29904, 0.25, 2.45)][int(i)]", "times": 6, "id": "fx4_bastion_ego_slam_dust"}
+# v2 track: [{"t": 0, "scale": [1.2, 1.2, 1.2], "alpha": 0.9}, {"t": 18, "offset": [0.0, 0.7, 0.0], "scale": [2.6, 2.6, 2.6], "alpha": 0.0, "ease": "out_quad"}]
+          - {id: snd_4, op: sound, sound: block.anvil.land, anchor: caster, pitch: 0.5}
+          # GAP: camera_shake shake -> see report
+          # v2: {"id": "shake", "op": "camera_shake", "target": {"enemies": {"around": "caster", "radius": 9.0}}, "intensity": 1.0, "ticks": 10, "direction": "from_hit"}
+          # GAP: camera_shake shake_2 -> see report
+          # v2: {"id": "shake_2", "op": "camera_shake", "target": "caster", "intensity": 0.5, "ticks": 8, "viewers": "caster"}
+          # GAP: screen_veil veil -> see report
+          # v2: {"id": "veil", "op": "screen_veil", "target": "caster", "sprite": "burst", "ticks": 5, "color": "#FFC84A", "distance": 0.4, "scale": 1.4, "max_screen_fraction": 0.15}
+          # GAP: screen_flash flash -> see report
+          # v2: {"id": "flash", "op": "screen_flash", "target": {"enemies": {"around": "caster", "radius": 5.0}}, "overlay": "gold_burst", "color": "#FFC84A", "fade_in": 0, "stay": 2, "fade_out": 2}
+          - {id: snd_5, op: sound, sound: entity.generic.explode, anchor: caster, pitch: 0.6}
+      - id: fx32
+        at: 32
+        do:
+# GAP: block fx4_bastion_ego_slam_bolt0 uses `times` with indexed expression arrays (at/turn per i) -> needs per-i lists; kept as v2 data below
+# v2: {"op": "block", "parent": "fx4_bastion_ego_slam", "block": "yellow_concrete", "size": [1.0, 1.0, 1.0], "lane": "accent", "brightness": 15, "at": "= [vec(0.0, 0.2, 1.7), vec(0.28338, 0.54567, 2.116), vec(0.37053, 0.52729, 2.72576), vec(0.87748, 0.58583, 3.15688), vec(0.9999, 0.55851, 3.75681), vec(1.1658, 1.09569, 4.15121), vec(0.89036, 0.91213, 4.94846), vec(1.29968, 1.4, 5.27083)][int(i)]", "turn": "= [vec(-36.8789, 40.30813, 14.13381), vec(5.38401, -8.17108, 0.38485), vec(-8.66333, 60.95213, 5.11333), vec(4.75466, 26.17321, -1.10596), vec(0.21391, -2.43576, 0.00455), vec(-62.27711, 43.40012, 28.51233), vec(25.68815, -24.72221, 5.73305), vec(-41.87212, 62.80203, 27.63697)][int(i)]", "times": 8, "id": "fx4_bastion_ego_slam_bolt0"}
+# v2 track: [{"t": 0, "scale": [0.05, 0.05, 0.1]}, {"t": 1, "scale": [0.12, 0.12, 0.76], "ease": "out_expo"}, {"t": 9, "scale": [0.09, 0.09, 0.76]}, {"t": 12, "scale": [0.0, 0.0, 0.76], "ease": "in_quad"}]
+# GAP: block fx4_bastion_ego_slam_bolt1 uses `times` with indexed expression arrays (at/turn per i) -> needs per-i lists; kept as v2 data below
+# v2: {"op": "block", "parent": "fx4_bastion_ego_slam", "block": "white_concrete", "size": [1.0, 1.0, 1.0], "lane": "accent", "brightness": 15, "at": "= [vec(0.0, 0.2, 1.7), vec(0.65425, 0.05053, 1.49052), vec(1.06442, 0.43574, 1.22748), vec(1.54153, 0.85146, 1.18362), vec(1.93018, 1.13945, 0.74929), vec(2.63746, 1.2519, 0.98778), vec(3.00586, 1.77528, 0.76948), vec(3.57083, 1.7, 0.40032)][int(i)]", "turn": "= [vec(11.47097, 102.68559, -14.53834), vec(-8.68256, 141.68104, 26.53758), vec(-45.74003, 43.33562, 19.50033), vec(3.57711, 154.9218, -16.62304), vec(-54.2596, 70.20166, 45.25643), vec(14.83104, 68.99845, -10.29516), vec(-17.3927, 136.19214, 79.9154), vec(9.34572, 119.57836, -16.33434)][int(i)]", "times": 8, "id": "fx4_bastion_ego_slam_bolt1"}
+# v2 track: [{"t": 0, "scale": [0.05, 0.05, 0.1]}, {"t": 1, "scale": [0.12, 0.12, 0.76], "ease": "out_expo"}, {"t": 9, "scale": [0.09, 0.09, 0.76]}, {"t": 12, "scale": [0.0, 0.0, 0.76], "ease": "in_quad"}]
+# GAP: block fx4_bastion_ego_slam_bolt2 uses `times` with indexed expression arrays (at/turn per i) -> needs per-i lists; kept as v2 data below
+# v2: {"op": "block", "parent": "fx4_bastion_ego_slam", "block": "yellow_concrete", "size": [1.0, 1.0, 1.0], "lane": "accent", "brightness": 15, "at": "= [vec(0.0, 0.2, 1.7), vec(0.04154, 0.523, 1.15812), vec(-0.1968, 0.70754, 0.67158), vec(-0.30993, 0.82733, 0.11771), vec(-0.80659, 0.82559, -0.33741), vec(-0.99574, 0.9298, -0.86886), vec(-1.19894, 0.86984, -1.45035), vec(-1.29968, 1.4, -1.87083)][int(i)]", "turn": "= [vec(-3.78208, 164.60867, 45.8275), vec(-8.18948, -143.24581, -26.18541), vec(-0.20515, -177.81155, -17.07391), vec(-4.42515, -149.66715, -16.7981), vec(5.43281, -120.07999, 9.48095), vec(-3.33776, 165.19193, 31.93148), vec(4.65725, -150.49173, 18.31107), vec(-7.18661, -150.14117, -81.95938)][int(i)]", "times": 8, "id": "fx4_bastion_ego_slam_bolt2"}
+# v2 track: [{"t": 0, "scale": [0.05, 0.05, 0.1]}, {"t": 1, "scale": [0.12, 0.12, 0.76], "ease": "out_expo"}, {"t": 9, "scale": [0.09, 0.09, 0.76]}, {"t": 12, "scale": [0.0, 0.0, 0.76], "ease": "in_quad"}]
+# GAP: block fx4_bastion_ego_slam_bolt3 uses `times` with indexed expression arrays (at/turn per i) -> needs per-i lists; kept as v2 data below
+# v2: {"op": "block", "parent": "fx4_bastion_ego_slam", "block": "white_concrete", "size": [1.0, 1.0, 1.0], "lane": "accent", "brightness": 15, "at": "= [vec(0.0, 0.2, 1.7), vec(-0.3598, 0.70274, 1.96575), vec(-0.96933, 0.57318, 2.27514), vec(-1.54423, 0.81756, 2.24808), vec(-2.10851, 0.91888, 2.41531), vec(-2.5931, 1.10076, 2.70854), vec(-2.96595, 1.46281, 3.1008), vec(-3.57083, 1.7, 2.99968)][int(i)]", "turn": "= [vec(-52.90034, -52.18121, -28.91286), vec(20.89648, -41.11729, 7.94474), vec(-13.4473, -132.03481, -32.71594), vec(11.02644, -17.76236, 1.72851), vec(-10.40942, -133.43253, -25.37846), vec(-1.79779, -18.47354, -0.29239), vec(-41.95673, -58.22353, -25.11703), vec(-12.4023, -102.03054, -15.5676)][int(i)]", "times": 8, "id": "fx4_bastion_ego_slam_bolt3"}
+# v2 track: [{"t": 0, "scale": [0.05, 0.05, 0.1]}, {"t": 1, "scale": [0.12, 0.12, 0.76], "ease": "out_expo"}, {"t": 9, "scale": [0.09, 0.09, 0.76]}, {"t": 12, "scale": [0.0, 0.0, 0.76], "ease": "in_quad"}]
