@@ -22,7 +22,7 @@ class CasterMotionOpsScenarioTest : SkillEngineScenario() {
             go:
               for: 12
               do:
-                - {id: dash, op: dash, at: 3, speed: 1.5, for: 6}
+                - {id: dash, op: dash, at: 3, speed: 1.5, for: 6, follow_pitch: false, stop_on_block: true, invulnerable: false, face_movement: false}
                 - {emit: done, at: 9}
     """.trimIndent()
 
@@ -43,7 +43,7 @@ class CasterMotionOpsScenarioTest : SkillEngineScenario() {
 
     @Test
     fun dashWithoutSpanIsRejected() {
-        val r = loadInline(dashSkill.replace(", for: 6}", "}"))
+        val r = loadInline(dashSkill.replace(" for: 6,", ""))
         assertThat(r).isInstanceOf(Result.Failure::class.java)
     }
 }

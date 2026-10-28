@@ -8,6 +8,7 @@ import com.astarworks.astera.core.domain.skillengine.table.CompiledSkill
 import com.astarworks.astera.core.domain.skillengine.table.EventPath
 import com.astarworks.astera.core.domain.skillengine.table.ExitReason
 import com.astarworks.astera.core.domain.skillengine.table.LockEnd
+import com.astarworks.astera.core.domain.skillengine.table.LockMove
 import com.astarworks.astera.core.domain.skillengine.table.StatePath
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -46,11 +47,11 @@ class LockCancelScenarioTest : SkillEngineScenario() {
 
     @Test
     fun lockMovePitchWindow() {
-        val s = compile(skill("    - {id: plant, op: lock, move: true, pitch: true, at: 0, for: 12}"))
+        val s = compile(skill("    - {id: plant, op: lock, move: all, pitch: true, at: 0, for: 12}"))
         val rows = s.table.states.single { it.state == StatePath("cast") }.rows
         val lock = rows.single { it.action is Action.Lock }
         assertThat(lock.tick).isEqualTo(0)
-        assertThat(lock.action).isEqualTo(Action.Lock(move = true, pitch = true, yaw = false, until = LockEnd.AtTick(12)))
+        assertThat(lock.action).isEqualTo(Action.Lock(move = LockMove.ALL, pitch = true, yaw = false, until = LockEnd.AtTick(12)))
         val end = rows.single { it.action is Action.End && it.instance == lock.instance }
         assertThat(end.tick).isEqualTo(12)
 
@@ -60,7 +61,7 @@ class LockCancelScenarioTest : SkillEngineScenario() {
 
         // a lock with no flag, or without a window, is a load error
         assertThat(reject(skill("    - {id: noop, op: lock, at: 0, for: 4}"))).isInstanceOf(SkillDecodeError.Invalid::class.java)
-        assertThat(reject(skill("    - {id: open, op: lock, move: true, at: 0}"))).isInstanceOf(SkillDecodeError.Invalid::class.java)
+        assertThat(reject(skill("    - {id: open, op: lock, move: all, at: 0}"))).isInstanceOf(SkillDecodeError.Invalid::class.java)
     }
 
     @Test

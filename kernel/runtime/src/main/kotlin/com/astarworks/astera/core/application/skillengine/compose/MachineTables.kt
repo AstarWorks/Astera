@@ -45,8 +45,8 @@ public data class MachineLowering(
  * into descendants. Cancel has no table of its own: `exit[cancel]` is the cancel exit, the scopes are played by the player (10.6).
  *
  * Hierarchy is the `/` prefix of the state id (PartExpander flattens `use:` that way); the nearest existing prefix state is the parent. A
- * parent's rows enter its direct children at the entry tick: every `parallel` region start, else the implicit start of the children (the first
- * declared child that no sibling transitions into). `parallel` regions are flattened into `<parent>/<region state>`; the parent emits
+ * parent's rows enter its direct children at the entry tick: every `parallel` region start, else the state's declared `start` child (R36, required
+ * whenever it has children: `NestedStartMissing`; `machine.start` naming a child is `StartNamesChild`). `parallel` regions are flattened into `<parent>/<region state>`; the parent emits
  * `<parent>.end` through the player when every region is final.
  * `exit.reason` guards on ops (`when: "= exit.reason != 'cancel'"`) are resolved here, per reason, so the row is simply absent (10.2 rev4.1).
  * Every section is lowered at tick 0 of its own base: `enter` / `do` rows are relative to the state base (a `lock` row's `AtTick(n)` therefore
@@ -85,6 +85,7 @@ public object MachineTables {
     public fun lower(skillId: String, machine: Machine, lowerer: SectionLowerer, config: EngineConfig): Result<MachineLowering, SkillDecodeError> {
         fun bad(path: String, msg: String) = Result.Failure(SkillDecodeError.Invalid(skillId, path, msg))
         if (machine.states.isEmpty()) return bad("machine", "machine has no states")
+        if ('/' in machine.start) return Result.Failure(SkillDecodeError.StartNamesChild(skillId, machine.start))
         if (machine.start !in machine.states) return bad("machine.start", "start state '${machine.start}' is not declared")
 
         val flat = Flat(LinkedHashMap(), LinkedHashMap())
@@ -135,13 +136,17 @@ public object MachineTables {
             else -> null
         }
 
-        /** Direct children of [id] that the parent enters at its entry tick. */
+        /** The children [id] enters at its entry tick: every `parallel` region start, else its declared `start` (R36). */
         fun childStarts(id: String): List<String> {
             flat.regionStarts[id]?.let { return it }
-            val kids = all.keys.filter { it != id && parentOf(it)?.id == id }
-            if (kids.isEmpty()) return emptyList()
-            val targets = kids.flatMap { k -> all.getValue(k).on.map { it.to } + listOfNotNull(all.getValue(k).then) }.toSet()
-            return listOf(kids.firstOrNull { it !in targets } ?: kids.first())
+            val start = all.getValue(id).start ?: return emptyList()
+            return listOf("$id/$start")
+        }
+
+        for ((id, st) in all) {
+            val hasKids = all.keys.any { it != id && parentOf(it)?.id == id }
+            if (hasKids && st.start == null && id !in flat.regionStarts) return Result.Failure(SkillDecodeError.NestedStartMissing(skillId, id))
+            if (st.start != null && "$id/${st.start}" !in all) return bad("machine.states.$id.start", "start '${st.start}' is not a child state of '$id'")
         }
 
         for ((id, st) in all) {

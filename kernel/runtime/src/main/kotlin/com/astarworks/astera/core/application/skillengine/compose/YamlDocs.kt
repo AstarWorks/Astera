@@ -1,5 +1,8 @@
 package com.astarworks.astera.core.application.skillengine.compose
 
+import com.astarworks.astera.core.application.skillengine.part.PatchApplier
+import com.astarworks.astera.core.application.skillengine.part.PatchOp
+import com.astarworks.astera.core.domain.Result
 import org.yaml.snakeyaml.DumperOptions
 import org.yaml.snakeyaml.LoaderOptions
 import org.yaml.snakeyaml.Yaml
@@ -21,8 +24,10 @@ internal data class Doc(
     val baseId: String,
     val variant: String?,
     val patchKind: String?,
-    /** The document minus apiVersion / kind / target / variant / patchKind. */
+    /** The document minus apiVersion / kind (Skill / Part); empty for a Patch. */
     val body: Map<String, Any?>,
+    /** The ops of a Patch document (R35), decoded by `PatchApplier.decode`; empty for Skill / Part. */
+    val ops: List<PatchOp> = emptyList(),
 ) {
     /** Composition key: the id, or `part:<id>` for a part (skills and parts have separate id spaces). */
     val key: String get() = if (kind == Kind.Part) "part:$baseId" else baseId
@@ -96,7 +101,8 @@ internal object YamlDocs {
             }
             val tree = normalize(m) as Map<String, Any?>
             val body = LinkedHashMap(tree)
-            listOf("apiVersion", "kind", "target", "variant", "patchKind").forEach { body.remove(it) }
+            body.remove("apiVersion")
+            body.remove("kind")
             val where = "document #${i + 1}"
             when (val kind = tree["kind"]) {
                 "Skill", "Part" -> {
@@ -108,19 +114,9 @@ internal object YamlDocs {
                         docs += Doc(file, group, i, if (kind == "Part") Doc.Kind.Part else Doc.Kind.Skill, id, null, null, body)
                     }
                 }
-                "Patch" -> {
-                    val target = tree["target"] as? String
-                    val patchKind = tree["patchKind"] as? String
-                    val variant = tree["variant"]?.toString()
-                    when {
-                        target.isNullOrBlank() ->
-                            errors += ComposeError.InvalidDocument(file, "target", "$where: Patch needs a string 'target'")
-                        patchKind != "skin" && patchKind != "balance" ->
-                            errors += ComposeError.InvalidDocument(file, "patchKind", "$where: patchKind must be skin or balance, was '$patchKind'")
-                        variant != null && (variant.isBlank() || '@' in variant) ->
-                            errors += ComposeError.InvalidDocument(file, "variant", "$where: variant '$variant' must be non-blank and contain no '@'")
-                        else -> docs += Doc(file, group, i, Doc.Kind.Patch, target, variant, patchKind, body)
-                    }
+                "Patch" -> when (val r = PatchApplier.decode(tree, where)) {
+                    is Result.Failure -> errors += ComposeError.InvalidDocument(file, r.error.path, r.error.message)
+                    is Result.Success -> r.value.let { p -> docs += Doc(file, group, i, Doc.Kind.Patch, p.target, p.variant, p.patchKind, emptyMap(), p.ops) }
                 }
                 else -> errors += ComposeError.InvalidDocument(file, "kind", "$where: kind must be Skill, Part or Patch, was '$kind'")
             }

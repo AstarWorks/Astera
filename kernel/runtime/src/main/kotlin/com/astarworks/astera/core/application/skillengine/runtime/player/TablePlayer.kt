@@ -40,6 +40,7 @@ import com.astarworks.astera.core.domain.skillengine.table.EntityRef
 import com.astarworks.astera.core.domain.skillengine.table.EventPath
 import com.astarworks.astera.core.domain.skillengine.table.ExitReason
 import com.astarworks.astera.core.domain.skillengine.table.Guard
+import com.astarworks.astera.core.domain.skillengine.table.LockMove
 import com.astarworks.astera.core.domain.skillengine.table.HitShape
 import com.astarworks.astera.core.domain.skillengine.table.InstanceId
 import com.astarworks.astera.core.domain.skillengine.table.Look
@@ -78,9 +79,9 @@ public interface PlayerHooks {
     public fun guard(cast: CastHandle, guard: Guard, conditions: Map<String, String>, binding: EventBinding?, localTick: Int): Boolean? = null
 
     /** Starts holding the caster's inputs until server tick [untilTick] (absolute); false = unsupported. */
-    public fun lock(caster: UUID, move: Boolean, pitch: Boolean, yaw: Boolean, untilTick: Int): Boolean = false
+    public fun lock(caster: UUID, move: LockMove, pitch: Boolean, yaw: Boolean, untilTick: Int): Boolean = false
 
-    public fun unlock(caster: UUID, move: Boolean, pitch: Boolean, yaw: Boolean) {}
+    public fun unlock(caster: UUID, move: LockMove, pitch: Boolean, yaw: Boolean) {}
 
     /**
      * One `set` row (item 15c) for a field a display handle carries and the visual gateway has no method for (`text_opacity`).
@@ -563,7 +564,19 @@ public class TablePlayer(
                     trace.event(run.cursor.handle, a.event, now, ctx.binding?.index)
                     emitRow(run, a.event, now, ctx.binding)
                 }
-                is Action.End -> if (a.instance !in run.pendingEnds) run.pendingEnds += a.instance
+                is Action.End -> {
+                    // R16: a body reaching its End row on its own (range / `for`) announces `expire` then `end`; a hit / cancel already ended it
+                    val body = run.recs[a.instance]?.takeIf { it.kind == SpawnKind.PROJECTILE_BODY && !it.ended }
+                    if (body != null) {
+                        val idx = a.instance.path.lastOrNull()?.index
+                        if (body.expireTick == now) {
+                            run.pending += RuntimeEvent(EventPath(a.instance.text + ".expire"), now, idx, null, null)
+                            body.expireTick = -1
+                        }
+                        run.pending += RuntimeEvent(EventPath(a.instance.text + ".end"), now, idx, null, null)
+                    }
+                    if (a.instance !in run.pendingEnds) run.pendingEnds += a.instance
+                }
                 is Action.Cancel -> cancelScope(run, a.scope, now, ctx)
             }
         } catch (e: RuntimeException) {
@@ -586,6 +599,10 @@ public class TablePlayer(
             val mode = lf["block.mode"]?.let { strOf(run, it, ctx) }
             val stuck = if (mode == "stick") lf["block.for"]?.let { dbl(run, it, ctx).toInt() } ?: 0 else 0
             lf["end.max"]?.let { rec.expireTick = now + dbl(run, it, ctx).toInt() - stuck }
+            rec.hitTargets = lf["hit.targets"]?.let { strOf(run, it, ctx) } ?: ""
+            rec.hitRadius = lf["radius"]?.let { dbl(run, it, ctx) } ?: 0.0
+            val once = lf["hit.once"]?.let { any(run, it, ctx) } == true
+            rec.hitTimes = if (once) 1 else lf["hit.times"]?.let { dbl(run, it, ctx).toInt() } ?: 1
             rec.endsOn = buildSet {
                 if (lf["hit.once"]?.let { any(run, it, ctx) } == true) add("hit")
                 if (mode == "despawn" || mode == "stick") add("block")
@@ -829,22 +846,65 @@ public class TablePlayer(
                 val cur = rec.localAt(now)
                 rec.moveTo(PoseV(fl.at(now - rec.spawnTick), cur.rot, cur.scale), now, 0)
             }
-            blockContact(run, id, rec, now)
+            val blocked = blockContact(run, id, rec, now)
+            if (!blocked) entityContact(run, id, rec, now)
             // R16: `expire` is the end by range / `for`, just before `end`; a hit / block end (rec.ended) never expires (checked at delivery)
             if (rec.expireTick == now) run.pending += RuntimeEvent(EventPath(id.text + ".expire"), now, id.path.lastOrNull()?.index, null, null)
         }
     }
 
-    private fun blockContact(run: Run, id: InstanceId, rec: Rec, now: Int) {
+    /** Fires `<body>.block` for a block on this tick's segment; true when that block ends the flight (despawn / stick), so no entity is tested behind it. */
+    private fun blockContact(run: Run, id: InstanceId, rec: Rec, now: Int): Boolean {
         val path = EventPath(id.text + ".block")
-        if (path !in run.listened) return
+        if (path !in run.listened) return false
         val cur = worldOf(run, rec, rec.localAt(now), null, now).pos
         val prev = worldOf(run, rec, rec.localAt(now - 1), null, now - 1).pos
-        if (cur.distanceSquared(prev) < 1e-12) return
-        val b = query.raycastBlock(castRef(run), Vec3(prev.x, prev.y, prev.z), Vec3(cur.x, cur.y, cur.z)) ?: return
+        if (cur.distanceSquared(prev) < 1e-12) return false
+        val b = query.raycastBlock(castRef(run), Vec3(prev.x, prev.y, prev.z), Vec3(cur.x, cur.y, cur.z)) ?: return false
         run.pending += RuntimeEvent(
             path, now, id.path.lastOrNull()?.index, ContactInfo(Vector3d(b.point.x, b.point.y, b.point.z), Vector3d(b.normal.x, b.normal.y, b.normal.z)), null,
         )
+        return "block" in rec.endsOn
+    }
+
+    /**
+     * Fires `<body>.hit` (with `event.victim` and `contact`) for every victim the body's swept sphere reaches this tick, nearest the segment start first.
+     * 1:1 with the v2 projectile contact (`9d4c4a3db:plugin/combat/.../ProjectileStepper.kt:117-124`, `stepFlight`): the segment `from -> to` of one tick,
+     * inflated by the hit radius (`radiusOf`), the owner never a victim (`ProjectileWorldProbe` contract, :52), each victim hit once.
+     * `hit.once` ends the flight at the first victim (`.end` follows at once); otherwise it ends after `hit.times` victims.
+     */
+    private fun entityContact(run: Run, id: InstanceId, rec: Rec, now: Int) {
+        if (rec.hitTimes <= 0 || now == rec.spawnTick) return
+        val path = EventPath(id.text + ".hit")
+        if (path !in run.listened && path !in run.cursor.skill.table.subTables) return
+        if (rec.hitTargets == "blocks_only") return
+        if (rec.hitTargets != "enemies" && rec.hitTargets != "all") {
+            fault(run, now, id.text, "projectile hit.targets '${rec.hitTargets}': no team port in the query (only enemies / all)")
+            rec.hitTimes = 0
+            return
+        }
+        val cur = worldOf(run, rec, rec.localAt(now), null, now).pos
+        val prev = worldOf(run, rec, rec.localAt(now - 1), null, now - 1).pos
+        val delta = Vec3(cur.x - prev.x, cur.y - prev.y, cur.z - prev.z)
+        val vol = ResolvedVolume.Capsule(Vec3(prev.x, prev.y, prev.z), Vec3(cur.x, cur.y, cur.z), rec.hitRadius)
+        val cands = query.nearby(vol.broadCenter, vol.broadRadius, run.request.caster).filter { it.entityId !in rec.hitVictims }
+        val start = Vec3(prev.x, prev.y, prev.z)
+        val found = resolver.narrow(id.text, now, id.text, vol, delta, cands).sortedBy { it.pointWorld.distance(start) }
+        for (ce in found) {
+            if (rec.hitTimes <= 0) break
+            rec.hitVictims += ce.victim
+            rec.hitTimes--
+            run.pending += RuntimeEvent(
+                path, now, id.path.lastOrNull()?.index,
+                ContactInfo(Vector3d(ce.pointWorld.x, ce.pointWorld.y, ce.pointWorld.z), Vector3d(ce.normalWorld.x, ce.normalWorld.y, ce.normalWorld.z)), EntityRef(ce.victim),
+            )
+        }
+        if (rec.hitTimes <= 0 && found.isNotEmpty()) {
+            // the flight ends with its last permitted victim: `end` right after `hit`, the body goes at cleanup
+            rec.ended = true
+            run.pending += RuntimeEvent(EventPath(id.text + ".end"), now, id.path.lastOrNull()?.index, null, null)
+            if (id !in run.pendingEnds) run.pendingEnds += id
+        }
     }
 
     private fun damage(run: Run, row: Row, a: Action.Damage, ctx: RowCtx, now: Int) {
@@ -1215,7 +1275,7 @@ public class TablePlayer(
 
     private class RigRec(val parent: InstanceId, val start: Int, val rest: Vector3d, val keys: List<RigKey>, val reset: Boolean)
 
-    private class LockRec(val owner: StatePath?, val move: Boolean, val pitch: Boolean, val yaw: Boolean, val untilAbs: Int)
+    private class LockRec(val owner: StatePath?, val move: LockMove, val pitch: Boolean, val yaw: Boolean, val untilAbs: Int)
 
     /** A live thing: its local pose moves along one interpolation segment (closed form, same as the client's). */
     private class Rec(
@@ -1232,6 +1292,11 @@ public class TablePlayer(
         var expireTick: Int = -1
         var endsOn: Set<String> = emptySet()
         var ended: Boolean = false
+        /** hit.targets, the sphere radius, the victims still allowed (`hit.times`, 1 for `once`) and those already hit. */
+        var hitTargets: String = ""
+        var hitRadius: Double = 0.0
+        var hitTimes: Int = 0
+        val hitVictims: MutableSet<UUID> = HashSet()
         var billboard: DisplayBillboard = DisplayBillboard.FIXED
         private var from: PoseV = to
         private var segStart: Int = spawnTick

@@ -53,8 +53,8 @@ class OpSpecIdsScenarioTest : SkillEngineScenario() {
 
     @Test
     fun dashWithMotionIsALoadError() {
-        assertThat(fails("any", "{id: d, op: dash, speed: 1.6, for: 10, ease: out_cubic, motion: []}")).isTrue()
-        assertThat(fails("any", "{id: d, op: dash, speed: 1.6, for: 10, ease: out_cubic}")).isFalse()
+        assertThat(fails("any", "{id: d, op: dash, speed: 1.6, for: 10, ease: out_cubic, follow_pitch: false, stop_on_block: true, invulnerable: false, face_movement: false, motion: []}")).isTrue()
+        assertThat(fails("any", "{id: d, op: dash, speed: 1.6, for: 10, ease: out_cubic, follow_pitch: false, stop_on_block: true, invulnerable: false, face_movement: false}")).isFalse()
     }
 
     @Test

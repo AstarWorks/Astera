@@ -203,6 +203,24 @@ public interface ISkillGameplayGateway {
 
     /** Release the look hold of [caster] now (cast end, cancel, state exit, death, quit). Missing hold is a no-op. */
     public fun unlockLook(caster: UUID) {}
+
+    /** `consume_status` (R24): removes every stack of [status] from [entity] (the stacks a `per_stack` read just counted). */
+    public fun consumeStatus(cast: CastRef, entity: UUID, status: String)
+
+    /**
+     * `camera_shake` (R26): a decaying zero-sum series of view kicks for [viewer] over [ticks]. [from] is the world point the
+     * shake comes from (`direction: from_hit`: the kicks lean away from it); null = a random axis per pulse.
+     */
+    public fun cameraShake(cast: CastRef, viewer: UUID, intensity: Double, ticks: Int, from: Vec3?)
+
+    /** `stop_sound` (R26): stops the named sound for [viewer]. */
+    public fun stopSound(cast: CastRef, viewer: UUID, sound: String)
+
+    /** `body` (R41): plays the clip [anim] on the caster's own body (skin rig, else a pose clip) at [speed]. */
+    public fun playBodyClip(cast: CastRef, caster: UUID, anim: String, speed: Double)
+
+    /** Ends the [anim] clip on [caster] (the `body` window closed). A clip that is not playing is a no-op. */
+    public fun stopBodyClip(cast: CastRef, caster: UUID, anim: String)
 }
 
 /** Entity query with hitbox, used for the broad phase. */
@@ -247,7 +265,7 @@ public interface ISkillMovementGateway {
 
 /** Items and cooldowns of the caster (the `consume_item` op, gated `use: skill:<id>`). */
 public interface ISkillItemGateway {
-    /** Take [count] of [item] from [holder]; false when it does not hold that many (nothing is taken then). */
+    /** Remove up to [count] Astera items with id [item] from [holder]; true when all [count] were found (a short stack still loses what it had, as v2 did). */
     public fun consume(cast: CastRef, holder: UUID, item: String, count: Int): Boolean
 
     /** Start the cooldown of [skill] for the caster of [cast] for [ticks]. */
