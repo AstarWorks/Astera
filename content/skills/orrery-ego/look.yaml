@@ -498,9 +498,9 @@ presentation:
     - {id: fx34, at: 34, do: [{id: rm_4, op: remove, ids: [fx5_orrery_seal_front_gold, fx5_orrery_seal_front_dark, fx5_orrery_seal_front_inner_clock]}]}
     - {id: fx44, at: 44, do: [{id: rm_2, op: remove, ids: [fx3_orrery_orb_core]}]}
     - {id: fx56, at: 56, do: [{id: rm_3, op: remove, ids: [fx4_orrery_beam_core, fx4_orrery_beam_bloom, fx4_orrery_beam_dark]}]}
-    - {id: fxhit_8, at: "hit+8", do: [{id: rm_5, op: remove, ids: [fx6_orrery_ring_hit_violet_core], when: "= event.source == 'sel'"}]}
-    - {id: fxhit_10, at: "hit+10", do: [{id: rm_6, op: remove, ids: [fx6_orrery_ring_hit_shard], when: "= event.source == 'sel'"}]}
-    - {id: loop1, at: 0, every: 1, for: 22, do: [{id: fx1_orrery_poise_staff_embers, op: emit, at: pt_fx1_orrery_poise_staff_0_1p65_0, particle: orrery-ember}]}
+    - {id: fxhit_8, at: "hit+8", when: "= event.source == 'sel'", do: [{id: rm_5, op: remove, ids: [fx6_orrery_ring_hit_violet_core]}]}
+    - {id: fxhit_10, at: "hit+10", when: "= event.source == 'sel'", do: [{id: rm_6, op: remove, ids: [fx6_orrery_ring_hit_shard]}]}
+    - {id: loop1, at: 1, every: 1, for: 23, do: [{id: fx1_orrery_poise_staff_embers, op: emit, at: pt_fx1_orrery_poise_staff_0_1p65_0, particle: orrery-ember, spacing: 0.4}]}
   "on":
     hit:
       - {id: anchor_6, op: anchor, frame: fx6_orrery_ring_hit, at: enemy, orient: to_target, follow: true, teleport_ticks: 2, when: "= event.source == 'sel'"}
@@ -534,4 +534,4 @@ presentation:
           - {t: 8, scale: [0.0, 0.0, 0.0]}
         sample_ticks: 1
         when: "= event.source == 'sel'"
-      - {id: emit_7, op: emit, at: enemy, particle: orrery-sparks, when: "= (event.source == 'sel') && (hp_ratio(victim) > 0)"}
+      - {id: emit_7, op: emit, at: enemy, particle: orrery-sparks, when: "= event.source == 'sel_2'"}

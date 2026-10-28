@@ -1509,7 +1509,7 @@ presentation:
     - {id: loop1, at: 0, every: 3, for: 14, do: [{id: fx2_ember_ignition_pilot, op: emit, at: fx2_ember_ignition_pilot_at, particle: ember-fine-spark}]}
     - {id: loop2, at: 0, every: 3, for: 14, do: [{id: fx2_ember_ignition_smoke, op: emit, at: fx2_ember_ignition_smoke_at, particle: fire-smoke}]}
     - {id: loop3, at: 17, every: 4, for: 10, do: [{id: fx3_ember_sweep_embers, op: emit, at: fx3_ember_sweep_embers_at, particle: ember-fine-spark}]}
-    - {id: loop4, at: 17, every: 1, for: 8, do: [{id: fx3_ember_sweep_gauntlet_fire, op: emit, at: pt_fx3_ember_sweep_gauntlet_0_2p65_0, particle: ember-fine-spark}]}
+    - {id: loop4, at: 18, every: 1, for: 9, do: [{id: fx3_ember_sweep_gauntlet_fire, op: emit, at: pt_fx3_ember_sweep_gauntlet_0_2p65_0, particle: ember-fine-spark, spacing: 0.4}]}
     - {id: loop5, at: 24, every: 3, for: 10, do: [{id: fx4_ember_punch_soot, op: emit, at: fx4_ember_punch_soot_at, particle: fire-smoke}]}
     - {id: loop6, at: 54, every: 3, for: 17, do: [{id: fx5_ember_furnace_blast_soot, op: emit, at: fx5_ember_furnace_blast_soot_at, particle: fire-smoke}]}
     - {id: loop7, at: 68, every: 3, for: 12, do: [{id: fx6_ember_smoke_puff_vent, op: emit, at: fx6_ember_smoke_puff_vent_at, particle: fire-smoke}]}

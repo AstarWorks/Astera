@@ -2783,7 +2783,7 @@ presentation:
             - fx16_vendetta_burst_red_3
             - fx16_vendetta_burst_dark_4
             - fx16_vendetta_burst_red_4
-    - {id: loop1, at: 3, every: 1, for: 4, do: [{id: fx1_vendetta_ready_bayonet_ignition, op: emit, at: pt_fx1_vendetta_ready_bayonet_0_1p5_0, particle: fire-trail}]}
+    - {id: loop1, at: 4, every: 1, for: 5, do: [{id: fx1_vendetta_ready_bayonet_ignition, op: emit, at: pt_fx1_vendetta_ready_bayonet_0_1p5_0, particle: fire-trail, spacing: 0.4}]}
     - {id: loop2, at: 53, every: 2, for: 3, do: [{id: fx2_vendetta_slash_b_contact, op: emit, at: fx2_vendetta_slash_b_contact_at, particle: gun-impact}]}
     - {id: loop3, at: 53, every: 3, for: 5, do: [{id: fx2_vendetta_slash_b_petals, op: emit, at: fx2_vendetta_slash_b_petals_at, particle: vendetta-petals}]}
     - {id: loop4, at: 54, every: 2, for: 8, do: [{id: fx4_vendetta_burst_ember_0, op: emit, at: fx4_vendetta_burst_ember_0_at, particle: fire-trail}]}

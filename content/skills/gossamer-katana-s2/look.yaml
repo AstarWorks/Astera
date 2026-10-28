@@ -98,8 +98,9 @@ presentation:
     - {id: fx40, at: 40, do: [{id: rm_5, op: remove, ids: [fx5_gossamer_katana_slash_down_katana_blade, fx5_gossamer_katana_slash_down_katana_grip, fx5_gossamer_katana_slash_down_katana_guard]}]}
     - id: fxhit_1
       at: "hit+1"
+      when: "= event.source == 'sel_5'"
       do:
-        - {op: block, parent: fx6_gossamer_katana_lattice, block: purple_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx6_gossamer_katana_lattice_rake_b, when: "= event.source == 'sel_4'"}
+        - {op: block, parent: fx6_gossamer_katana_lattice, block: purple_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx6_gossamer_katana_lattice_rake_b}
         - id: fx6_gossamer_katana_lattice_rake_b_trk
           op: track
           target: fx6_gossamer_katana_lattice_rake_b
@@ -108,9 +109,9 @@ presentation:
             - {t: 1, scale: [0.04, 6.8, 0.04], ease: out_expo}
             - {t: 18, scale: [0.0, 0.0, 0.0], ease: in_quad}
           sample_ticks: 1
-          when: "= event.source == 'sel_4'"
     - id: fxhit_2
       at: "hit+2"
+      when: "= event.source == 'sel_2'"
       do:
         - id: fx2_gossamer_katana_echo_cut_katana_crescent
           op: trail
@@ -123,13 +124,14 @@ presentation:
           step_deg: 20.0
           lag_ticks: 1
           until: fx2_gossamer_katana_echo_cut_katana_crescent_stop
-          when: "= event.source == 'sel_2'"
     - id: fxhit_6
       at: "hit+6"
+      when: "= event.source == 'sel_5'"
       do:
-        - {id: rm_6, op: remove, ids: [fx6_gossamer_katana_lattice_impact_dark, fx6_gossamer_katana_lattice_impact_core, fx6_gossamer_katana_lattice_impact_bloom], when: "= event.source == 'sel_4'"}
+        - {id: rm_6, op: remove, ids: [fx6_gossamer_katana_lattice_impact_dark, fx6_gossamer_katana_lattice_impact_core, fx6_gossamer_katana_lattice_impact_bloom]}
     - id: fxhit_8
       at: "hit+8"
+      when: "= event.source == 'sel_5'"
       do:
         - id: rm_7
           op: remove
@@ -142,9 +144,9 @@ presentation:
             - fx6_gossamer_katana_lattice_petals_5
             - fx6_gossamer_katana_lattice_petals_6
             - fx6_gossamer_katana_lattice_petals_7
-          when: "= event.source == 'sel_4'"
     - id: fxhit_9
       at: "hit+9"
+      when: "= event.source == 'sel_4'"
       do:
         - id: rm_3
           op: remove
@@ -161,7 +163,10 @@ presentation:
             - fx3_gossamer_katana_petals_ink_1
             - fx3_gossamer_katana_petals_ink_2
             - fx3_gossamer_katana_petals_ink_3
-          when: "= event.source == 'sel_3'"
+    - id: fxhit_9_2
+      at: "hit+9"
+      when: "= event.source == 'sel_7'"
+      do:
         - id: rm_9
           op: remove
           ids:
@@ -177,9 +182,9 @@ presentation:
             - fx7_gossamer_katana_petals_ink_1
             - fx7_gossamer_katana_petals_ink_2
             - fx7_gossamer_katana_petals_ink_3
-          when: "= event.source == 'sel_5'"
     - id: fxhit_10
       at: "hit+10"
+      when: "= event.source == 'sel'"
       do:
         - id: rm
           op: remove
@@ -191,15 +196,16 @@ presentation:
             - fx1_gossamer_katana_echo_echo_4
             - fx1_gossamer_katana_echo_echo_blade
             - fx1_gossamer_katana_echo_scan_streak
-          when: "= event.source == 'sel'"
     - id: fxhit_12
       at: "hit+12"
+      when: "= event.source == 'sel_2'"
       do:
-        - {id: rm_2, op: remove, ids: [fx2_gossamer_katana_echo_cut_katana_blade, fx2_gossamer_katana_echo_cut_katana_grip, fx2_gossamer_katana_echo_cut_katana_guard], when: "= event.source == 'sel_2'"}
+        - {id: rm_2, op: remove, ids: [fx2_gossamer_katana_echo_cut_katana_blade, fx2_gossamer_katana_echo_cut_katana_grip, fx2_gossamer_katana_echo_cut_katana_guard]}
     - id: fxhit_20
       at: "hit+20"
+      when: "= event.source == 'sel_5'"
       do:
-        - {id: rm_8, op: remove, ids: [fx6_gossamer_katana_lattice_rake_a, fx6_gossamer_katana_lattice_rake_b, fx6_gossamer_katana_lattice_level], when: "= event.source == 'sel_4'"}
+        - {id: rm_8, op: remove, ids: [fx6_gossamer_katana_lattice_rake_a, fx6_gossamer_katana_lattice_rake_b, fx6_gossamer_katana_lattice_level]}
   "on":
     hit:
       - {id: anchor, op: anchor, frame: fx1_gossamer_katana_echo, at: enemy, orient: yaw, when: "= event.source == 'sel'"}
@@ -342,7 +348,7 @@ presentation:
         at: [0.0, 0.06, 0.0]
         rig_shading: true
         when: "= event.source == 'sel_2'"
-      - {id: anchor_3, op: anchor, frame: fx3_gossamer_katana_petals, at: enemy, orient: yaw, when: "= event.source == 'sel_3'"}
+      - {id: anchor_3, op: anchor, frame: fx3_gossamer_katana_petals, at: enemy, orient: yaw, when: "= event.source == 'sel_4'"}
       - id: fx3_gossamer_katana_petals_petals_0
         op: quad
         parent: fx3_gossamer_katana_petals
@@ -352,7 +358,7 @@ presentation:
         alpha: 1.0
         text: "◆"
         brightness: 15
-        when: "= event.source == 'sel_3'"
+        when: "= event.source == 'sel_4'"
       - id: fx3_gossamer_katana_petals_petals_0_trk
         op: track
         target: fx3_gossamer_katana_petals_petals_0
@@ -367,7 +373,7 @@ presentation:
           - {t: 7, offset: [0.80469, 1.9019, 0.0], scale: [0.023125, 0.023125, 1.0], alpha: 0.125}
           - {t: 8, offset: [0.89783, 1.91036, 0.0], scale: [0.0, 0.0, 1.0], alpha: 0.0}
         sample_ticks: 1
-        when: "= event.source == 'sel_3'"
+        when: "= event.source == 'sel_4'"
       - id: fx3_gossamer_katana_petals_petals_1
         op: quad
         parent: fx3_gossamer_katana_petals
@@ -377,7 +383,7 @@ presentation:
         alpha: 1.0
         text: "◆"
         brightness: 15
-        when: "= event.source == 'sel_3'"
+        when: "= event.source == 'sel_4'"
       - id: fx3_gossamer_katana_petals_petals_1_trk
         op: track
         target: fx3_gossamer_katana_petals_petals_1
@@ -392,7 +398,7 @@ presentation:
           - {t: 7, offset: [-0.95675, 1.48636, 0.87647], scale: [0.023125, 0.023125, 1.0], alpha: 0.125}
           - {t: 8, offset: [-1.0675, 1.44673, 0.97791], scale: [0.0, 0.0, 1.0], alpha: 0.0}
         sample_ticks: 1
-        when: "= event.source == 'sel_3'"
+        when: "= event.source == 'sel_4'"
       - id: fx3_gossamer_katana_petals_petals_2
         op: quad
         parent: fx3_gossamer_katana_petals
@@ -402,7 +408,7 @@ presentation:
         alpha: 1.0
         text: "◆"
         brightness: 15
-        when: "= event.source == 'sel_3'"
+        when: "= event.source == 'sel_4'"
       - id: fx3_gossamer_katana_petals_petals_2_trk
         op: track
         target: fx3_gossamer_katana_petals_petals_2
@@ -417,7 +423,7 @@ presentation:
           - {t: 7, offset: [0.13471, 1.07082, -1.53497], scale: [0.023125, 0.023125, 1.0], alpha: 0.125}
           - {t: 8, offset: [0.1503, 0.98309, -1.71263], scale: [0.0, 0.0, 1.0], alpha: 0.0}
         sample_ticks: 1
-        when: "= event.source == 'sel_3'"
+        when: "= event.source == 'sel_4'"
       - id: fx3_gossamer_katana_petals_petals_3
         op: quad
         parent: fx3_gossamer_katana_petals
@@ -427,7 +433,7 @@ presentation:
         alpha: 1.0
         text: "◆"
         brightness: 15
-        when: "= event.source == 'sel_3'"
+        when: "= event.source == 'sel_4'"
       - id: fx3_gossamer_katana_petals_petals_3_trk
         op: track
         target: fx3_gossamer_katana_petals_petals_3
@@ -442,7 +448,7 @@ presentation:
           - {t: 7, offset: [1.00339, 0.65528, 1.30875], scale: [0.023125, 0.023125, 1.0], alpha: 0.125}
           - {t: 8, offset: [1.11953, 0.51945, 1.46023], scale: [0.0, 0.0, 1.0], alpha: 0.0}
         sample_ticks: 1
-        when: "= event.source == 'sel_3'"
+        when: "= event.source == 'sel_4'"
       - id: fx3_gossamer_katana_petals_petals_4
         op: quad
         parent: fx3_gossamer_katana_petals
@@ -452,7 +458,7 @@ presentation:
         alpha: 1.0
         text: "◆"
         brightness: 15
-        when: "= event.source == 'sel_3'"
+        when: "= event.source == 'sel_4'"
       - id: fx3_gossamer_katana_petals_petals_4_trk
         op: track
         target: fx3_gossamer_katana_petals_petals_4
@@ -467,7 +473,7 @@ presentation:
           - {t: 7, offset: [-1.62392, 0.23974, -0.28725], scale: [0.023125, 0.023125, 1.0], alpha: 0.125}
           - {t: 8, offset: [-1.81188, 0.05581, -0.3205], scale: [0.0, 0.0, 1.0], alpha: 0.0}
         sample_ticks: 1
-        when: "= event.source == 'sel_3'"
+        when: "= event.source == 'sel_4'"
       - id: fx3_gossamer_katana_petals_petals_5
         op: quad
         parent: fx3_gossamer_katana_petals
@@ -477,7 +483,7 @@ presentation:
         alpha: 1.0
         text: "◆"
         brightness: 15
-        when: "= event.source == 'sel_3'"
+        when: "= event.source == 'sel_4'"
       - id: fx3_gossamer_katana_petals_petals_5_trk
         op: track
         target: fx3_gossamer_katana_petals_petals_5
@@ -492,7 +498,7 @@ presentation:
           - {t: 7, offset: [1.30011, -0.1758, -0.82703], scale: [0.023125, 0.023125, 1.0], alpha: 0.125}
           - {t: 8, offset: [1.4506, -0.40783, -0.92275], scale: [0.0, 0.0, 1.0], alpha: 0.0}
         sample_ticks: 1
-        when: "= event.source == 'sel_3'"
+        when: "= event.source == 'sel_4'"
       - id: fx3_gossamer_katana_petals_petals_6
         op: quad
         parent: fx3_gossamer_katana_petals
@@ -502,7 +508,7 @@ presentation:
         alpha: 1.0
         text: "◆"
         brightness: 15
-        when: "= event.source == 'sel_3'"
+        when: "= event.source == 'sel_4'"
       - id: fx3_gossamer_katana_petals_petals_6_trk
         op: track
         target: fx3_gossamer_katana_petals_petals_6
@@ -517,7 +523,7 @@ presentation:
           - {t: 7, offset: [-0.33684, -0.59135, 1.25304], scale: [0.023125, 0.023125, 1.0], alpha: 0.125}
           - {t: 8, offset: [-0.37583, -0.87147, 1.39808], scale: [0.0, 0.0, 1.0], alpha: 0.0}
         sample_ticks: 1
-        when: "= event.source == 'sel_3'"
+        when: "= event.source == 'sel_4'"
       - id: fx3_gossamer_katana_petals_petals_7
         op: quad
         parent: fx3_gossamer_katana_petals
@@ -527,7 +533,7 @@ presentation:
         alpha: 1.0
         text: "◆"
         brightness: 15
-        when: "= event.source == 'sel_3'"
+        when: "= event.source == 'sel_4'"
       - id: fx3_gossamer_katana_petals_petals_7_trk
         op: track
         target: fx3_gossamer_katana_petals_petals_7
@@ -542,7 +548,7 @@ presentation:
           - {t: 7, offset: [-0.37089, -1.00689, -0.71412], scale: [0.023125, 0.023125, 1.0], alpha: 0.125}
           - {t: 8, offset: [-0.41382, -1.3351, -0.79678], scale: [0.0, 0.0, 1.0], alpha: 0.0}
         sample_ticks: 1
-        when: "= event.source == 'sel_3'"
+        when: "= event.source == 'sel_4'"
       - id: fx3_gossamer_katana_petals_ink_0
         op: quad
         parent: fx3_gossamer_katana_petals
@@ -552,7 +558,7 @@ presentation:
         alpha: 1.0
         text: "◆"
         brightness: 15
-        when: "= event.source == 'sel_3'"
+        when: "= event.source == 'sel_4'"
       - id: fx3_gossamer_katana_petals_ink_0_trk
         op: track
         target: fx3_gossamer_katana_petals_ink_0
@@ -567,7 +573,7 @@ presentation:
           - {t: 7, offset: [1.09942, 1.69413, 0.0], scale: [0.013125, 0.013125, 1.0], alpha: 0.125}
           - {t: 8, offset: [1.22667, 1.67855, 0.0], scale: [0.0, 0.0, 1.0], alpha: 0.0}
         sample_ticks: 1
-        when: "= event.source == 'sel_3'"
+        when: "= event.source == 'sel_4'"
       - id: fx3_gossamer_katana_petals_ink_1
         op: quad
         parent: fx3_gossamer_katana_petals
@@ -577,7 +583,7 @@ presentation:
         alpha: 1.0
         text: "◆"
         brightness: 15
-        when: "= event.source == 'sel_3'"
+        when: "= event.source == 'sel_4'"
       - id: fx3_gossamer_katana_petals_ink_1_trk
         op: track
         target: fx3_gossamer_katana_petals_ink_1
@@ -592,7 +598,7 @@ presentation:
           - {t: 7, offset: [-1.18671, 0.86305, 1.08712], scale: [0.013125, 0.013125, 1.0], alpha: 0.125}
           - {t: 8, offset: [-1.32407, 0.75127, 1.21295], scale: [0.0, 0.0, 1.0], alpha: 0.0}
         sample_ticks: 1
-        when: "= event.source == 'sel_3'"
+        when: "= event.source == 'sel_4'"
       - id: fx3_gossamer_katana_petals_ink_2
         op: quad
         parent: fx3_gossamer_katana_petals
@@ -602,7 +608,7 @@ presentation:
         alpha: 1.0
         text: "◆"
         brightness: 15
-        when: "= event.source == 'sel_3'"
+        when: "= event.source == 'sel_4'"
       - id: fx3_gossamer_katana_petals_ink_2_trk
         op: track
         target: fx3_gossamer_katana_petals_ink_2
@@ -617,7 +623,7 @@ presentation:
           - {t: 7, offset: [0.1407, 0.03197, -1.60322], scale: [0.013125, 0.013125, 1.0], alpha: 0.125}
           - {t: 8, offset: [0.15699, -0.17601, -1.78879], scale: [0.0, 0.0, 1.0], alpha: 0.0}
         sample_ticks: 1
-        when: "= event.source == 'sel_3'"
+        when: "= event.source == 'sel_4'"
       - id: fx3_gossamer_katana_petals_ink_3
         op: quad
         parent: fx3_gossamer_katana_petals
@@ -627,7 +633,7 @@ presentation:
         alpha: 1.0
         text: "◆"
         brightness: 15
-        when: "= event.source == 'sel_3'"
+        when: "= event.source == 'sel_4'"
       - id: fx3_gossamer_katana_petals_ink_3_trk
         op: track
         target: fx3_gossamer_katana_petals_ink_3
@@ -642,10 +648,10 @@ presentation:
           - {t: 7, offset: [0.66893, -0.79912, 0.8725], scale: [0.013125, 0.013125, 1.0], alpha: 0.125}
           - {t: 8, offset: [0.74635, -1.10328, 0.97349], scale: [0.0, 0.0, 1.0], alpha: 0.0}
         sample_ticks: 1
-        when: "= event.source == 'sel_3'"
-      - {id: snd, op: sound, sound: entity.player.attack.strong, at: enemy, volume: 0.7, pitch: 1.1, when: "= event.source == 'sel_3'"}
-      - {id: anchor_6, op: anchor, frame: fx6_gossamer_katana_lattice, at: enemy, orient: yaw, when: "= event.source == 'sel_4'"}
-      - {op: block, parent: fx6_gossamer_katana_lattice, block: light_blue_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx6_gossamer_katana_lattice_rake_a, when: "= event.source == 'sel_4'"}
+        when: "= event.source == 'sel_4'"
+      - {id: snd, op: sound, sound: entity.player.attack.strong, at: enemy, volume: 0.7, pitch: 1.1, when: "= event.source == 'sel_4'"}
+      - {id: anchor_6, op: anchor, frame: fx6_gossamer_katana_lattice, at: enemy, orient: yaw, when: "= event.source == 'sel_5'"}
+      - {op: block, parent: fx6_gossamer_katana_lattice, block: light_blue_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx6_gossamer_katana_lattice_rake_a, when: "= event.source == 'sel_5'"}
       - id: fx6_gossamer_katana_lattice_rake_a_trk
         op: track
         target: fx6_gossamer_katana_lattice_rake_a
@@ -654,8 +660,8 @@ presentation:
           - {t: 1, scale: [0.045, 6.8, 0.045], ease: out_expo}
           - {t: 18, scale: [0.0, 0.0, 0.0], ease: in_quad}
         sample_ticks: 1
-        when: "= event.source == 'sel_4'"
-      - {op: block, parent: fx6_gossamer_katana_lattice, block: light_blue_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx6_gossamer_katana_lattice_level, when: "= event.source == 'sel_4'"}
+        when: "= event.source == 'sel_5'"
+      - {op: block, parent: fx6_gossamer_katana_lattice, block: light_blue_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx6_gossamer_katana_lattice_level, when: "= event.source == 'sel_5'"}
       - id: fx6_gossamer_katana_lattice_level_trk
         op: track
         target: fx6_gossamer_katana_lattice_level
@@ -664,7 +670,7 @@ presentation:
           - {t: 1, scale: [0.04, 0.045, 5.4], ease: out_expo}
           - {t: 18, scale: [0.0, 0.0, 0.0], ease: in_quad}
         sample_ticks: 1
-        when: "= event.source == 'sel_4'"
+        when: "= event.source == 'sel_5'"
       - id: fx6_gossamer_katana_lattice_petals_0
         op: quad
         parent: fx6_gossamer_katana_lattice
@@ -674,7 +680,7 @@ presentation:
         alpha: 0.8
         text: "✦"
         brightness: 15
-        when: "= event.source == 'sel_4'"
+        when: "= event.source == 'sel_5'"
       - id: fx6_gossamer_katana_lattice_petals_0_trk
         op: track
         target: fx6_gossamer_katana_lattice_petals_0
@@ -688,7 +694,7 @@ presentation:
           - {t: 6, offset: [0.55277, 1.83087, 0.0], scale: [0.018571, 0.018571, 1.0], alpha: 0.11429}
           - {t: 7, offset: [0.62655, 1.8816, 0.0], scale: [0.0, 0.0, 1.0], alpha: 0.0}
         sample_ticks: 1
-        when: "= event.source == 'sel_4'"
+        when: "= event.source == 'sel_5'"
       - id: fx6_gossamer_katana_lattice_petals_1
         op: quad
         parent: fx6_gossamer_katana_lattice
@@ -698,7 +704,7 @@ presentation:
         alpha: 0.8
         text: "✦"
         brightness: 15
-        when: "= event.source == 'sel_4'"
+        when: "= event.source == 'sel_5'"
       - id: fx6_gossamer_katana_lattice_petals_1_trk
         op: track
         target: fx6_gossamer_katana_lattice_petals_1
@@ -712,7 +718,7 @@ presentation:
           - {t: 6, offset: [-0.65723, 1.54542, 0.60207], scale: [0.018571, 0.018571, 1.0], alpha: 0.11429}
           - {t: 7, offset: [-0.74495, 1.55806, 0.68243], scale: [0.0, 0.0, 1.0], alpha: 0.0}
         sample_ticks: 1
-        when: "= event.source == 'sel_4'"
+        when: "= event.source == 'sel_5'"
       - id: fx6_gossamer_katana_lattice_petals_2
         op: quad
         parent: fx6_gossamer_katana_lattice
@@ -722,7 +728,7 @@ presentation:
         alpha: 0.8
         text: "✦"
         brightness: 15
-        when: "= event.source == 'sel_4'"
+        when: "= event.source == 'sel_5'"
       - id: fx6_gossamer_katana_lattice_petals_2_trk
         op: track
         target: fx6_gossamer_katana_lattice_petals_2
@@ -736,7 +742,7 @@ presentation:
           - {t: 6, offset: [0.09254, 1.25997, -1.05442], scale: [0.018571, 0.018571, 1.0], alpha: 0.11429}
           - {t: 7, offset: [0.10489, 1.23451, -1.19515], scale: [0.0, 0.0, 1.0], alpha: 0.0}
         sample_ticks: 1
-        when: "= event.source == 'sel_4'"
+        when: "= event.source == 'sel_5'"
       - id: fx6_gossamer_katana_lattice_petals_3
         op: quad
         parent: fx6_gossamer_katana_lattice
@@ -746,7 +752,7 @@ presentation:
         alpha: 0.8
         text: "✦"
         brightness: 15
-        when: "= event.source == 'sel_4'"
+        when: "= event.source == 'sel_5'"
       - id: fx6_gossamer_katana_lattice_petals_3_trk
         op: track
         target: fx6_gossamer_katana_lattice_petals_3
@@ -760,7 +766,7 @@ presentation:
           - {t: 6, offset: [0.68926, 0.97452, 0.89902], scale: [0.018571, 0.018571, 1.0], alpha: 0.11429}
           - {t: 7, offset: [0.78126, 0.91096, 1.01901], scale: [0.0, 0.0, 1.0], alpha: 0.0}
         sample_ticks: 1
-        when: "= event.source == 'sel_4'"
+        when: "= event.source == 'sel_5'"
       - id: fx6_gossamer_katana_lattice_petals_4
         op: quad
         parent: fx6_gossamer_katana_lattice
@@ -770,7 +776,7 @@ presentation:
         alpha: 0.8
         text: "✦"
         brightness: 15
-        when: "= event.source == 'sel_4'"
+        when: "= event.source == 'sel_5'"
       - id: fx6_gossamer_katana_lattice_petals_4_trk
         op: track
         target: fx6_gossamer_katana_lattice_petals_4
@@ -784,7 +790,7 @@ presentation:
           - {t: 6, offset: [-1.11552, 0.68907, -0.19732], scale: [0.018571, 0.018571, 1.0], alpha: 0.11429}
           - {t: 7, offset: [-1.26441, 0.58741, -0.22366], scale: [0.0, 0.0, 1.0], alpha: 0.0}
         sample_ticks: 1
-        when: "= event.source == 'sel_4'"
+        when: "= event.source == 'sel_5'"
       - id: fx6_gossamer_katana_lattice_petals_5
         op: quad
         parent: fx6_gossamer_katana_lattice
@@ -794,7 +800,7 @@ presentation:
         alpha: 0.8
         text: "✦"
         brightness: 15
-        when: "= event.source == 'sel_4'"
+        when: "= event.source == 'sel_5'"
       - id: fx6_gossamer_katana_lattice_petals_5_trk
         op: track
         target: fx6_gossamer_katana_lattice_petals_5
@@ -808,7 +814,7 @@ presentation:
           - {t: 6, offset: [0.89309, 0.40362, -0.56811], scale: [0.018571, 0.018571, 1.0], alpha: 0.11429}
           - {t: 7, offset: [1.01229, 0.26387, -0.64394], scale: [0.0, 0.0, 1.0], alpha: 0.0}
         sample_ticks: 1
-        when: "= event.source == 'sel_4'"
+        when: "= event.source == 'sel_5'"
       - id: fx6_gossamer_katana_lattice_petals_6
         op: quad
         parent: fx6_gossamer_katana_lattice
@@ -818,7 +824,7 @@ presentation:
         alpha: 0.8
         text: "✦"
         brightness: 15
-        when: "= event.source == 'sel_4'"
+        when: "= event.source == 'sel_5'"
       - id: fx6_gossamer_katana_lattice_petals_6_trk
         op: track
         target: fx6_gossamer_katana_lattice_petals_6
@@ -832,7 +838,7 @@ presentation:
           - {t: 6, offset: [-0.23139, 0.11817, 0.86076], scale: [0.018571, 0.018571, 1.0], alpha: 0.11429}
           - {t: 7, offset: [-0.26227, -0.05968, 0.97564], scale: [0.0, 0.0, 1.0], alpha: 0.0}
         sample_ticks: 1
-        when: "= event.source == 'sel_4'"
+        when: "= event.source == 'sel_5'"
       - id: fx6_gossamer_katana_lattice_petals_7
         op: quad
         parent: fx6_gossamer_katana_lattice
@@ -842,7 +848,7 @@ presentation:
         alpha: 0.8
         text: "✦"
         brightness: 15
-        when: "= event.source == 'sel_4'"
+        when: "= event.source == 'sel_5'"
       - id: fx6_gossamer_katana_lattice_petals_7_trk
         op: track
         target: fx6_gossamer_katana_lattice_petals_7
@@ -856,7 +862,7 @@ presentation:
           - {t: 6, offset: [-0.25478, -0.16728, -0.49055], scale: [0.018571, 0.018571, 1.0], alpha: 0.11429}
           - {t: 7, offset: [-0.28878, -0.38323, -0.55603], scale: [0.0, 0.0, 1.0], alpha: 0.0}
         sample_ticks: 1
-        when: "= event.source == 'sel_4'"
+        when: "= event.source == 'sel_5'"
       - op: quad
         parent: fx6_gossamer_katana_lattice
         face: {viewer: center}
@@ -866,7 +872,7 @@ presentation:
         text: "✦"
         brightness: 15
         id: fx6_gossamer_katana_lattice_impact_dark
-        when: "= event.source == 'sel_4'"
+        when: "= event.source == 'sel_5'"
       - id: fx6_gossamer_katana_lattice_impact_dark_trk
         op: track
         target: fx6_gossamer_katana_lattice_impact_dark
@@ -875,7 +881,7 @@ presentation:
           - {t: 2, scale: [1.8, 1.8, 1.0], ease: out_expo}
           - {t: 5, scale: [0.0, 0.0, 1.0], alpha: 0.0, ease: in_quad}
         sample_ticks: 1
-        when: "= event.source == 'sel_4'"
+        when: "= event.source == 'sel_5'"
       - op: quad
         parent: fx6_gossamer_katana_lattice
         face: {viewer: center}
@@ -885,7 +891,7 @@ presentation:
         text: "✦"
         brightness: 15
         id: fx6_gossamer_katana_lattice_impact_core
-        when: "= event.source == 'sel_4'"
+        when: "= event.source == 'sel_5'"
       - id: fx6_gossamer_katana_lattice_impact_core_trk
         op: track
         target: fx6_gossamer_katana_lattice_impact_core
@@ -894,7 +900,7 @@ presentation:
           - {t: 2, scale: [1.5, 1.5, 1.0], ease: out_expo}
           - {t: 5, scale: [0.0, 0.0, 1.0], alpha: 0.0, ease: in_quad}
         sample_ticks: 1
-        when: "= event.source == 'sel_4'"
+        when: "= event.source == 'sel_5'"
       - op: quad
         parent: fx6_gossamer_katana_lattice
         face: {viewer: center}
@@ -903,7 +909,7 @@ presentation:
         alpha: 0.22
         brightness: 15
         id: fx6_gossamer_katana_lattice_impact_bloom
-        when: "= event.source == 'sel_4'"
+        when: "= event.source == 'sel_5'"
       - id: fx6_gossamer_katana_lattice_impact_bloom_trk
         op: track
         target: fx6_gossamer_katana_lattice_impact_bloom
@@ -912,8 +918,8 @@ presentation:
           - {t: 2, scale: [3.2, 1.1, 1.0], ease: out_expo}
           - {t: 5, scale: [0.0, 0.0, 1.0], alpha: 0.0, ease: in_quad}
         sample_ticks: 1
-        when: "= event.source == 'sel_4'"
-      - {id: anchor_7, op: anchor, frame: fx7_gossamer_katana_petals, at: enemy, orient: yaw, when: "= event.source == 'sel_5'"}
+        when: "= event.source == 'sel_5'"
+      - {id: anchor_7, op: anchor, frame: fx7_gossamer_katana_petals, at: enemy, orient: yaw, when: "= event.source == 'sel_7'"}
       - id: fx7_gossamer_katana_petals_petals_0
         op: quad
         parent: fx7_gossamer_katana_petals
@@ -923,7 +929,7 @@ presentation:
         alpha: 1.0
         text: "◆"
         brightness: 15
-        when: "= event.source == 'sel_5'"
+        when: "= event.source == 'sel_7'"
       - id: fx7_gossamer_katana_petals_petals_0_trk
         op: track
         target: fx7_gossamer_katana_petals_petals_0
@@ -938,7 +944,7 @@ presentation:
           - {t: 7, offset: [0.80469, 1.9019, 0.0], scale: [0.023125, 0.023125, 1.0], alpha: 0.125}
           - {t: 8, offset: [0.89783, 1.91036, 0.0], scale: [0.0, 0.0, 1.0], alpha: 0.0}
         sample_ticks: 1
-        when: "= event.source == 'sel_5'"
+        when: "= event.source == 'sel_7'"
       - id: fx7_gossamer_katana_petals_petals_1
         op: quad
         parent: fx7_gossamer_katana_petals
@@ -948,7 +954,7 @@ presentation:
         alpha: 1.0
         text: "◆"
         brightness: 15
-        when: "= event.source == 'sel_5'"
+        when: "= event.source == 'sel_7'"
       - id: fx7_gossamer_katana_petals_petals_1_trk
         op: track
         target: fx7_gossamer_katana_petals_petals_1
@@ -963,7 +969,7 @@ presentation:
           - {t: 7, offset: [-0.95675, 1.48636, 0.87647], scale: [0.023125, 0.023125, 1.0], alpha: 0.125}
           - {t: 8, offset: [-1.0675, 1.44673, 0.97791], scale: [0.0, 0.0, 1.0], alpha: 0.0}
         sample_ticks: 1
-        when: "= event.source == 'sel_5'"
+        when: "= event.source == 'sel_7'"
       - id: fx7_gossamer_katana_petals_petals_2
         op: quad
         parent: fx7_gossamer_katana_petals
@@ -973,7 +979,7 @@ presentation:
         alpha: 1.0
         text: "◆"
         brightness: 15
-        when: "= event.source == 'sel_5'"
+        when: "= event.source == 'sel_7'"
       - id: fx7_gossamer_katana_petals_petals_2_trk
         op: track
         target: fx7_gossamer_katana_petals_petals_2
@@ -988,7 +994,7 @@ presentation:
           - {t: 7, offset: [0.13471, 1.07082, -1.53497], scale: [0.023125, 0.023125, 1.0], alpha: 0.125}
           - {t: 8, offset: [0.1503, 0.98309, -1.71263], scale: [0.0, 0.0, 1.0], alpha: 0.0}
         sample_ticks: 1
-        when: "= event.source == 'sel_5'"
+        when: "= event.source == 'sel_7'"
       - id: fx7_gossamer_katana_petals_petals_3
         op: quad
         parent: fx7_gossamer_katana_petals
@@ -998,7 +1004,7 @@ presentation:
         alpha: 1.0
         text: "◆"
         brightness: 15
-        when: "= event.source == 'sel_5'"
+        when: "= event.source == 'sel_7'"
       - id: fx7_gossamer_katana_petals_petals_3_trk
         op: track
         target: fx7_gossamer_katana_petals_petals_3
@@ -1013,7 +1019,7 @@ presentation:
           - {t: 7, offset: [1.00339, 0.65528, 1.30875], scale: [0.023125, 0.023125, 1.0], alpha: 0.125}
           - {t: 8, offset: [1.11953, 0.51945, 1.46023], scale: [0.0, 0.0, 1.0], alpha: 0.0}
         sample_ticks: 1
-        when: "= event.source == 'sel_5'"
+        when: "= event.source == 'sel_7'"
       - id: fx7_gossamer_katana_petals_petals_4
         op: quad
         parent: fx7_gossamer_katana_petals
@@ -1023,7 +1029,7 @@ presentation:
         alpha: 1.0
         text: "◆"
         brightness: 15
-        when: "= event.source == 'sel_5'"
+        when: "= event.source == 'sel_7'"
       - id: fx7_gossamer_katana_petals_petals_4_trk
         op: track
         target: fx7_gossamer_katana_petals_petals_4
@@ -1038,7 +1044,7 @@ presentation:
           - {t: 7, offset: [-1.62392, 0.23974, -0.28725], scale: [0.023125, 0.023125, 1.0], alpha: 0.125}
           - {t: 8, offset: [-1.81188, 0.05581, -0.3205], scale: [0.0, 0.0, 1.0], alpha: 0.0}
         sample_ticks: 1
-        when: "= event.source == 'sel_5'"
+        when: "= event.source == 'sel_7'"
       - id: fx7_gossamer_katana_petals_petals_5
         op: quad
         parent: fx7_gossamer_katana_petals
@@ -1048,7 +1054,7 @@ presentation:
         alpha: 1.0
         text: "◆"
         brightness: 15
-        when: "= event.source == 'sel_5'"
+        when: "= event.source == 'sel_7'"
       - id: fx7_gossamer_katana_petals_petals_5_trk
         op: track
         target: fx7_gossamer_katana_petals_petals_5
@@ -1063,7 +1069,7 @@ presentation:
           - {t: 7, offset: [1.30011, -0.1758, -0.82703], scale: [0.023125, 0.023125, 1.0], alpha: 0.125}
           - {t: 8, offset: [1.4506, -0.40783, -0.92275], scale: [0.0, 0.0, 1.0], alpha: 0.0}
         sample_ticks: 1
-        when: "= event.source == 'sel_5'"
+        when: "= event.source == 'sel_7'"
       - id: fx7_gossamer_katana_petals_petals_6
         op: quad
         parent: fx7_gossamer_katana_petals
@@ -1073,7 +1079,7 @@ presentation:
         alpha: 1.0
         text: "◆"
         brightness: 15
-        when: "= event.source == 'sel_5'"
+        when: "= event.source == 'sel_7'"
       - id: fx7_gossamer_katana_petals_petals_6_trk
         op: track
         target: fx7_gossamer_katana_petals_petals_6
@@ -1088,7 +1094,7 @@ presentation:
           - {t: 7, offset: [-0.33684, -0.59135, 1.25304], scale: [0.023125, 0.023125, 1.0], alpha: 0.125}
           - {t: 8, offset: [-0.37583, -0.87147, 1.39808], scale: [0.0, 0.0, 1.0], alpha: 0.0}
         sample_ticks: 1
-        when: "= event.source == 'sel_5'"
+        when: "= event.source == 'sel_7'"
       - id: fx7_gossamer_katana_petals_petals_7
         op: quad
         parent: fx7_gossamer_katana_petals
@@ -1098,7 +1104,7 @@ presentation:
         alpha: 1.0
         text: "◆"
         brightness: 15
-        when: "= event.source == 'sel_5'"
+        when: "= event.source == 'sel_7'"
       - id: fx7_gossamer_katana_petals_petals_7_trk
         op: track
         target: fx7_gossamer_katana_petals_petals_7
@@ -1113,7 +1119,7 @@ presentation:
           - {t: 7, offset: [-0.37089, -1.00689, -0.71412], scale: [0.023125, 0.023125, 1.0], alpha: 0.125}
           - {t: 8, offset: [-0.41382, -1.3351, -0.79678], scale: [0.0, 0.0, 1.0], alpha: 0.0}
         sample_ticks: 1
-        when: "= event.source == 'sel_5'"
+        when: "= event.source == 'sel_7'"
       - id: fx7_gossamer_katana_petals_ink_0
         op: quad
         parent: fx7_gossamer_katana_petals
@@ -1123,7 +1129,7 @@ presentation:
         alpha: 1.0
         text: "◆"
         brightness: 15
-        when: "= event.source == 'sel_5'"
+        when: "= event.source == 'sel_7'"
       - id: fx7_gossamer_katana_petals_ink_0_trk
         op: track
         target: fx7_gossamer_katana_petals_ink_0
@@ -1138,7 +1144,7 @@ presentation:
           - {t: 7, offset: [1.09942, 1.69413, 0.0], scale: [0.013125, 0.013125, 1.0], alpha: 0.125}
           - {t: 8, offset: [1.22667, 1.67855, 0.0], scale: [0.0, 0.0, 1.0], alpha: 0.0}
         sample_ticks: 1
-        when: "= event.source == 'sel_5'"
+        when: "= event.source == 'sel_7'"
       - id: fx7_gossamer_katana_petals_ink_1
         op: quad
         parent: fx7_gossamer_katana_petals
@@ -1148,7 +1154,7 @@ presentation:
         alpha: 1.0
         text: "◆"
         brightness: 15
-        when: "= event.source == 'sel_5'"
+        when: "= event.source == 'sel_7'"
       - id: fx7_gossamer_katana_petals_ink_1_trk
         op: track
         target: fx7_gossamer_katana_petals_ink_1
@@ -1163,7 +1169,7 @@ presentation:
           - {t: 7, offset: [-1.18671, 0.86305, 1.08712], scale: [0.013125, 0.013125, 1.0], alpha: 0.125}
           - {t: 8, offset: [-1.32407, 0.75127, 1.21295], scale: [0.0, 0.0, 1.0], alpha: 0.0}
         sample_ticks: 1
-        when: "= event.source == 'sel_5'"
+        when: "= event.source == 'sel_7'"
       - id: fx7_gossamer_katana_petals_ink_2
         op: quad
         parent: fx7_gossamer_katana_petals
@@ -1173,7 +1179,7 @@ presentation:
         alpha: 1.0
         text: "◆"
         brightness: 15
-        when: "= event.source == 'sel_5'"
+        when: "= event.source == 'sel_7'"
       - id: fx7_gossamer_katana_petals_ink_2_trk
         op: track
         target: fx7_gossamer_katana_petals_ink_2
@@ -1188,7 +1194,7 @@ presentation:
           - {t: 7, offset: [0.1407, 0.03197, -1.60322], scale: [0.013125, 0.013125, 1.0], alpha: 0.125}
           - {t: 8, offset: [0.15699, -0.17601, -1.78879], scale: [0.0, 0.0, 1.0], alpha: 0.0}
         sample_ticks: 1
-        when: "= event.source == 'sel_5'"
+        when: "= event.source == 'sel_7'"
       - id: fx7_gossamer_katana_petals_ink_3
         op: quad
         parent: fx7_gossamer_katana_petals
@@ -1198,7 +1204,7 @@ presentation:
         alpha: 1.0
         text: "◆"
         brightness: 15
-        when: "= event.source == 'sel_5'"
+        when: "= event.source == 'sel_7'"
       - id: fx7_gossamer_katana_petals_ink_3_trk
         op: track
         target: fx7_gossamer_katana_petals_ink_3
@@ -1213,8 +1219,8 @@ presentation:
           - {t: 7, offset: [0.66893, -0.79912, 0.8725], scale: [0.013125, 0.013125, 1.0], alpha: 0.125}
           - {t: 8, offset: [0.74635, -1.10328, 0.97349], scale: [0.0, 0.0, 1.0], alpha: 0.0}
         sample_ticks: 1
-        when: "= event.source == 'sel_5'"
-      - {id: snd_3, op: sound, sound: entity.player.attack.strong, at: enemy, volume: 0.7, pitch: 1.1, when: "= event.source == 'sel_5'"}
+        when: "= event.source == 'sel_7'"
+      - {id: snd_3, op: sound, sound: entity.player.attack.strong, at: enemy, volume: 0.7, pitch: 1.1, when: "= event.source == 'sel_7'"}
     dash_fx:
       - {id: anchor_4, op: anchor, frame: fx4_gossamer_katana_petals, at: enemy, orient: yaw}
       - {id: fx4_gossamer_katana_petals_petals_0, op: quad, parent: fx4_gossamer_katana_petals, face: {viewer: center}, size: [1.0, 1.0], color: "#BC1839", alpha: 1.0, text: "◆", brightness: 15}

@@ -307,6 +307,7 @@ presentation:
           shift: "= vec(0, 1, 0)*0 + vec(1, 0, -0)*(3.5*cos((draw('shape_2_ph')*6.283185307179586 + 6.283185307179586*i/12))) + vec(-0, 0, -1)*(3.5*sin((draw('shape_2_ph')*6.283185307179586 + 6.283185307179586*i/12)))"
     - id: fxhit_1
       at: "hit+1"
+      when: "= event.source == 'burst'"
       do:
         - id: emit_36
           op: emit
@@ -317,9 +318,9 @@ presentation:
           times: 10
           shift: "= vec(0, 1, 0)*0 + vec(1, 0, -0)*(0.75*cos((draw('shape_3_ph')*6.283185307179586 + 6.283185307179586*i/10))) + vec(-0, 0, -1)*(0.75*sin((draw('shape_3_ph')*6.283185307179586 + 6.283185307179586*i/10)))"
           offset: "= vec(1, 0, -0)*cos((draw('shape_3_ph')*6.283185307179586 + 6.283185307179586*i/10)) + vec(-0, 0, -1)*sin((draw('shape_3_ph')*6.283185307179586 + 6.283185307179586*i/10))"
-          when: "= event.source == 'burst'"
     - id: fxhit_2
       at: "hit+2"
+      when: "= event.source == 'burst'"
       do:
         - id: emit_37
           op: emit
@@ -330,7 +331,6 @@ presentation:
           times: 10
           shift: "= vec(0, 1, 0)*0 + vec(1, 0, -0)*(0.9*cos((draw('shape_3_ph')*6.283185307179586 + 6.283185307179586*i/10))) + vec(-0, 0, -1)*(0.9*sin((draw('shape_3_ph')*6.283185307179586 + 6.283185307179586*i/10)))"
           offset: "= vec(1, 0, -0)*cos((draw('shape_3_ph')*6.283185307179586 + 6.283185307179586*i/10)) + vec(-0, 0, -1)*sin((draw('shape_3_ph')*6.283185307179586 + 6.283185307179586*i/10))"
-          when: "= event.source == 'burst'"
   "on":
     hit:
       - {id: snd_3, op: sound, sound: "astera:skills/frost-impact", at: enemy, when: "= event.source == 'burst'"}

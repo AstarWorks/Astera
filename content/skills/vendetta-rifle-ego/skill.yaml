@@ -25,43 +25,48 @@ gameplay:
       at: 53
       do:
         - {id: sel, op: hit, frames: [caster], sector: {frame: caster, at: eye, forward: caster.forward, left: caster.left, angle_deg: "${arc_deg}", range: "${reach}", height: 2.0}, window: once, ticks: 1}
+        - {id: sel_2, op: hit, frames: [caster], sector: {frame: caster, at: eye, forward: caster.forward, left: caster.left, angle_deg: "${arc_deg}", range: "${reach}", height: 2.0}, window: once, ticks: 1}
     - {id: t54, at: 54, do: [{id: fx2_vendetta_slash_b_bayonet_cut_stop, op: raise_event, name: fx2_vendetta_slash_b_bayonet_cut_stop}]}
     - id: t71
       at: 71
       do:
-        - {id: sel_2, op: hit, frames: [caster], sector: {frame: caster, at: eye, forward: caster.forward, left: caster.left, angle_deg: "${arc_deg}", range: "${reach}", height: 2.0}, window: once, ticks: 1}
+        - {id: sel_3, op: hit, frames: [caster], sector: {frame: caster, at: eye, forward: caster.forward, left: caster.left, angle_deg: "${arc_deg}", range: "${reach}", height: 2.0}, window: once, ticks: 1}
+        - {id: sel_4, op: hit, frames: [caster], sector: {frame: caster, at: eye, forward: caster.forward, left: caster.left, angle_deg: "${arc_deg}", range: "${reach}", height: 2.0}, window: once, ticks: 1}
     - {id: t72, at: 72, do: [{id: fx5_vendetta_slash_b_bayonet_cut_stop, op: raise_event, name: fx5_vendetta_slash_b_bayonet_cut_stop}]}
     - id: t108
       at: 108
       do:
-        - {id: sel_3, op: hit, frames: [caster], sector: {frame: caster, at: eye, forward: caster.forward, left: caster.left, angle_deg: "${arc_deg}", range: "${reach}", height: 2.0}, window: once, ticks: 1}
+        - {id: sel_5, op: hit, frames: [caster], sector: {frame: caster, at: eye, forward: caster.forward, left: caster.left, angle_deg: "${arc_deg}", range: "${reach}", height: 2.0}, window: once, ticks: 1}
+        - {id: sel_6, op: hit, frames: [caster], sector: {frame: caster, at: eye, forward: caster.forward, left: caster.left, angle_deg: "${arc_deg}", range: "${reach}", height: 2.0}, window: once, ticks: 1}
     - {id: t109, at: 109, do: [{id: fx8_vendetta_slash_a_bayonet_cut_stop, op: raise_event, name: fx8_vendetta_slash_a_bayonet_cut_stop}]}
     - id: t141
       at: 141
       do:
-        - {id: sel_4, op: hit, frames: [caster], sector: {frame: caster, at: eye, forward: caster.forward, left: caster.left, angle_deg: "${arc_deg}", range: "${reach}", height: 2.0}, window: once, ticks: 1}
+        - {id: sel_7, op: hit, frames: [caster], sector: {frame: caster, at: eye, forward: caster.forward, left: caster.left, angle_deg: "${arc_deg}", range: "${reach}", height: 2.0}, window: once, ticks: 1}
+        - {id: sel_8, op: hit, frames: [caster], sector: {frame: caster, at: eye, forward: caster.forward, left: caster.left, angle_deg: "${arc_deg}", range: "${reach}", height: 2.0}, window: once, ticks: 1}
     - {id: t142, at: 142, do: [{id: fx11_vendetta_slash_b_bayonet_cut_stop, op: raise_event, name: fx11_vendetta_slash_b_bayonet_cut_stop}]}
     - {id: t213, at: 213, do: [{id: leap, op: leap, to: caster, arc_height: 1.4}]}
     - id: t231
       at: 231
       do:
-        - {id: sel_5, op: hit, frames: [caster], sector: {frame: caster, at: eye, forward: caster.forward, left: caster.left, angle_deg: "${arc_deg}", range: "${reach}", height: 2.0}, window: once, ticks: 1}
+        - {id: sel_9, op: hit, frames: [caster], sector: {frame: caster, at: eye, forward: caster.forward, left: caster.left, angle_deg: "${arc_deg}", range: "${reach}", height: 2.0}, window: once, ticks: 1}
+        - {id: sel_10, op: hit, frames: [caster], sector: {frame: caster, at: eye, forward: caster.forward, left: caster.left, angle_deg: "${arc_deg}", range: "${reach}", height: 2.0}, window: once, ticks: 1}
     - {id: t232, at: 232, do: [{id: fx14_vendetta_slash_a_bayonet_cut_stop, op: raise_event, name: fx14_vendetta_slash_a_bayonet_cut_stop}]}
   "on":
     hit:
       - {id: dmg, op: damage, components: [{kind: physical, amount: "${dmg_physical}"}], target: victim, ignore_invulnerability: true, when: "= event.source == 'sel'"}
-      - {id: st_tremor, op: status, status: tremor, duration_ticks: "${tremor_ticks}", target: victim, stacks: "${tremor_stacks}", when: "= event.source == 'sel'"}
-      - {id: stop, op: freeze, ticks: 2, scope: [enemy, caster], when: "= event.source == 'sel'"}
-      - {id: dmg_2, op: damage, components: [{kind: physical, amount: "${dmg_physical}"}], target: victim, ignore_invulnerability: true, when: "= event.source == 'sel_2'"}
-      - {id: st_tremor_2, op: status, status: tremor, duration_ticks: "${tremor_ticks}", target: victim, stacks: "${tremor_stacks}", when: "= event.source == 'sel_2'"}
-      - {id: stop_2, op: freeze, ticks: 2, scope: [enemy, caster], when: "= event.source == 'sel_2'"}
-      - {id: dmg_3, op: damage, components: [{kind: physical, amount: "${dmg_physical}"}], target: victim, ignore_invulnerability: true, when: "= event.source == 'sel_3'"}
-      - {id: st_tremor_3, op: status, status: tremor, duration_ticks: "${tremor_ticks}", target: victim, stacks: "${tremor_stacks}", when: "= event.source == 'sel_3'"}
-      - {id: stop_3, op: freeze, ticks: 2, scope: [enemy, caster], when: "= event.source == 'sel_3'"}
-      - {id: dmg_4, op: damage, components: [{kind: physical, amount: "${dmg_physical}"}], target: victim, ignore_invulnerability: true, when: "= event.source == 'sel_4'"}
-      - {id: st_tremor_4, op: status, status: tremor, duration_ticks: "${tremor_ticks}", target: victim, stacks: "${tremor_stacks}", when: "= event.source == 'sel_4'"}
-      - {id: stop_4, op: freeze, ticks: 2, scope: [enemy, caster], when: "= event.source == 'sel_4'"}
-      - {id: dmg_5, op: damage, components: [{kind: physical, amount: "${dmg_physical_2}"}], target: victim, ignore_invulnerability: true, when: "= event.source == 'sel_5'"}
-      - {id: st_tremor_5, op: status, status: tremor, duration_ticks: "${tremor_ticks}", target: victim, stacks: "${tremor_stacks}", when: "= event.source == 'sel_5'"}
-      - {id: stop_5, op: freeze, ticks: 3, scope: [enemy, caster], when: "= event.source == 'sel_5'"}
-      - {id: kb, op: knockback, direction: "= normalize(flat(pos(victim) - pos(caster))) + vec(0.0, 0.1, 0.0)", strength: "${knockback}", when: "= event.source == 'sel_5'"}
+      - {id: st_tremor, op: status, status: tremor, duration_ticks: "${tremor_ticks}", target: victim, stacks: "${tremor_stacks}", when: "= event.source == 'sel_2'"}
+      - {id: stop, op: freeze, ticks: 2, scope: [enemy, caster], when: "= event.source == 'sel_2'"}
+      - {id: dmg_2, op: damage, components: [{kind: physical, amount: "${dmg_physical}"}], target: victim, ignore_invulnerability: true, when: "= event.source == 'sel_3'"}
+      - {id: st_tremor_2, op: status, status: tremor, duration_ticks: "${tremor_ticks}", target: victim, stacks: "${tremor_stacks}", when: "= event.source == 'sel_4'"}
+      - {id: stop_2, op: freeze, ticks: 2, scope: [enemy, caster], when: "= event.source == 'sel_4'"}
+      - {id: dmg_3, op: damage, components: [{kind: physical, amount: "${dmg_physical}"}], target: victim, ignore_invulnerability: true, when: "= event.source == 'sel_5'"}
+      - {id: st_tremor_3, op: status, status: tremor, duration_ticks: "${tremor_ticks}", target: victim, stacks: "${tremor_stacks}", when: "= event.source == 'sel_6'"}
+      - {id: stop_3, op: freeze, ticks: 2, scope: [enemy, caster], when: "= event.source == 'sel_6'"}
+      - {id: dmg_4, op: damage, components: [{kind: physical, amount: "${dmg_physical}"}], target: victim, ignore_invulnerability: true, when: "= event.source == 'sel_7'"}
+      - {id: st_tremor_4, op: status, status: tremor, duration_ticks: "${tremor_ticks}", target: victim, stacks: "${tremor_stacks}", when: "= event.source == 'sel_8'"}
+      - {id: stop_4, op: freeze, ticks: 2, scope: [enemy, caster], when: "= event.source == 'sel_8'"}
+      - {id: dmg_5, op: damage, components: [{kind: physical, amount: "${dmg_physical_2}"}], target: victim, ignore_invulnerability: true, when: "= event.source == 'sel_9'"}
+      - {id: st_tremor_5, op: status, status: tremor, duration_ticks: "${tremor_ticks}", target: victim, stacks: "${tremor_stacks}", when: "= event.source == 'sel_10'"}
+      - {id: stop_5, op: freeze, ticks: 3, scope: [enemy, caster], when: "= event.source == 'sel_10'"}
+      - {id: kb, op: knockback, direction: "= normalize(flat(pos(victim) - pos(caster))) + vec(0.0, 0.1, 0.0)", strength: "${knockback}", when: "= event.source == 'sel_10'"}

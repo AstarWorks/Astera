@@ -26,5 +26,12 @@ gameplay:
           max_count: 1
           window: once
           ticks: 1
+        - id: sel_2
+          op: hit
+          frames: [caster]
+          sector: {frame: caster, at: eye, forward: caster.forward, left: caster.left, angle_deg: "${arc_deg}", range: "${reach}", height: 2.0}
+          max_count: 1
+          window: once
+          ticks: 1
     - {id: t24, at: 24, do: [{id: fx1_sigil_rifle_dash_rifle_ribbon_20_stop, op: raise_event, name: fx1_sigil_rifle_dash_rifle_ribbon_20_stop}]}
   "on": {hit: [{id: dmg, op: damage, components: [{kind: physical, amount: "${dmg_physical}"}], target: victim, ignore_invulnerability: true, when: "= event.source == 'sel'"}]}

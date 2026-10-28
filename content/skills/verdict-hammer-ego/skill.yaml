@@ -31,21 +31,37 @@ gameplay:
       at: 8
       do:
         - {id: dash, op: dash_strike, distance: "${dash_distance}", ticks: 8, radius: 0.3, hit_once: true, invulnerable: true, stop_on_block: true, follow_pitch: false, stop_before_target: 1.8}
-    - {id: t71, at: 71, do: [{id: sel, op: hit, frames: [snap], sphere: {at: snap, radius: "${radius}"}, max_count: 3, window: once, ticks: 1}]}
+    - id: t71
+      at: 71
+      do:
+        - {id: sel, op: hit, frames: [snap], sphere: {at: snap, radius: "${radius}"}, max_count: 3, window: once, ticks: 1}
+        - {id: sel_2, op: hit, frames: [snap], sphere: {at: snap, radius: "${radius}"}, max_count: 3, window: once, ticks: 1}
     - id: t93
       at: 93
       do:
         - {id: dash_2, op: dash_strike, distance: "${dash_distance}", ticks: 8, radius: 0.3, hit_once: true, invulnerable: true, stop_on_block: true, follow_pitch: false, stop_before_target: 1.8}
-    - {id: t102, at: 102, do: [{id: sel_2, op: hit, frames: [snap], sphere: {at: snap, radius: "${radius}"}, max_count: 3, window: once, ticks: 1}]}
-    - {id: t128, at: 128, do: [{id: sel_3, op: hit, frames: [snap], sphere: {at: snap, radius: "${radius}"}, max_count: 3, window: once, ticks: 1}]}
-    - {id: t191, at: 191, do: [{id: sel_4, op: hit, frames: [snap], sphere: {at: snap, radius: "${radius}"}, max_count: 3, window: once, ticks: 1}]}
+    - id: t102
+      at: 102
+      do:
+        - {id: sel_3, op: hit, frames: [snap], sphere: {at: snap, radius: "${radius}"}, max_count: 3, window: once, ticks: 1}
+        - {id: sel_4, op: hit, frames: [snap], sphere: {at: snap, radius: "${radius}"}, max_count: 3, window: once, ticks: 1}
+    - id: t128
+      at: 128
+      do:
+        - {id: sel_5, op: hit, frames: [snap], sphere: {at: snap, radius: "${radius}"}, max_count: 3, window: once, ticks: 1}
+        - {id: sel_6, op: hit, frames: [snap], sphere: {at: snap, radius: "${radius}"}, max_count: 3, window: once, ticks: 1}
+    - id: t191
+      at: 191
+      do:
+        - {id: sel_7, op: hit, frames: [snap], sphere: {at: snap, radius: "${radius}"}, max_count: 3, window: once, ticks: 1}
+        - {id: sel_8, op: hit, frames: [snap], sphere: {at: snap, radius: "${radius}"}, max_count: 3, window: once, ticks: 1}
   "on":
     hit:
       - {id: dmg, op: damage, components: [{kind: physical, amount: "${dmg_physical}"}], target: victim, ignore_invulnerability: true, when: "= event.source == 'sel'"}
-      - {id: stop, op: freeze, ticks: 2, scope: [enemy, caster], when: "= event.source == 'sel'"}
-      - {id: dmg_2, op: damage, components: [{kind: physical, amount: "${dmg_physical}"}], target: victim, ignore_invulnerability: true, when: "= event.source == 'sel_2'"}
-      - {id: stop_2, op: freeze, ticks: 2, scope: [enemy, caster], when: "= event.source == 'sel_2'"}
-      - {id: dmg_3, op: damage, components: [{kind: physical, amount: "${dmg_physical}"}], target: victim, ignore_invulnerability: true, when: "= event.source == 'sel_3'"}
-      - {id: stop_3, op: freeze, ticks: 2, scope: [enemy, caster], when: "= event.source == 'sel_3'"}
-      - {id: dmg_4, op: damage, components: [{kind: physical, amount: "${dmg_physical}"}], target: victim, ignore_invulnerability: true, when: "= event.source == 'sel_4'"}
-      - {id: stop_4, op: freeze, ticks: 2, scope: [enemy, caster], when: "= event.source == 'sel_4'"}
+      - {id: stop, op: freeze, ticks: 2, scope: [enemy, caster], when: "= event.source == 'sel_2'"}
+      - {id: dmg_2, op: damage, components: [{kind: physical, amount: "${dmg_physical}"}], target: victim, ignore_invulnerability: true, when: "= event.source == 'sel_3'"}
+      - {id: stop_2, op: freeze, ticks: 2, scope: [enemy, caster], when: "= event.source == 'sel_4'"}
+      - {id: dmg_3, op: damage, components: [{kind: physical, amount: "${dmg_physical}"}], target: victim, ignore_invulnerability: true, when: "= event.source == 'sel_5'"}
+      - {id: stop_3, op: freeze, ticks: 2, scope: [enemy, caster], when: "= event.source == 'sel_6'"}
+      - {id: dmg_4, op: damage, components: [{kind: physical, amount: "${dmg_physical}"}], target: victim, ignore_invulnerability: true, when: "= event.source == 'sel_7'"}
+      - {id: stop_4, op: freeze, ticks: 2, scope: [enemy, caster], when: "= event.source == 'sel_8'"}

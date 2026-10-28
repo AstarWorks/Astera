@@ -648,29 +648,31 @@ presentation:
             - {t: 14, scale: [0.0, 0.025, 1.5]}
           sample_ticks: 1
     - {id: fx103, at: 103, do: [{id: rm_14, op: remove, ids: [fx8_couture_rapier_thread_thread]}]}
-    - id: fxhit_6
-      at: "hit+6"
-      do:
-        - {id: rm_3, op: remove, ids: [fx3_couture_rapier_cross_bloom], when: "= event.source == 'sel_2'"}
-        - {id: rm_9, op: remove, ids: [fx6_couture_rapier_cross_bloom], when: "= event.source == 'sel_4'"}
-        - {id: rm_16, op: remove, ids: [fx10_couture_rapier_cross_bloom], when: "= event.source == 'sel_6'"}
+    - {id: fxhit_6, at: "hit+6", when: "= event.source == 'sel_3'", do: [{id: rm_3, op: remove, ids: [fx3_couture_rapier_cross_bloom]}]}
+    - {id: fxhit_6_2, at: "hit+6", when: "= event.source == 'sel_6'", do: [{id: rm_9, op: remove, ids: [fx6_couture_rapier_cross_bloom]}]}
+    - {id: fxhit_6_3, at: "hit+6", when: "= event.source == 'sel_9'", do: [{id: rm_16, op: remove, ids: [fx10_couture_rapier_cross_bloom]}]}
     - id: fxhit_7
       at: "hit+7"
+      when: "= event.source == 'sel_3'"
       do:
-        - id: rm_4
-          op: remove
-          ids: [fx3_couture_rapier_cross_dark_0, fx3_couture_rapier_cross_dark_1, fx3_couture_rapier_cross_dark_2, fx3_couture_rapier_cross_dark_3, fx3_couture_rapier_cross_contact_fill]
-          when: "= event.source == 'sel_2'"
+        - {id: rm_4, op: remove, ids: [fx3_couture_rapier_cross_dark_0, fx3_couture_rapier_cross_dark_1, fx3_couture_rapier_cross_dark_2, fx3_couture_rapier_cross_dark_3, fx3_couture_rapier_cross_contact_fill]}
+    - id: fxhit_7_2
+      at: "hit+7"
+      when: "= event.source == 'sel_6'"
+      do:
         - id: rm_10
           op: remove
           ids: [fx6_couture_rapier_cross_dark_0, fx6_couture_rapier_cross_dark_1, fx6_couture_rapier_cross_dark_2, fx6_couture_rapier_cross_dark_3, fx6_couture_rapier_cross_contact_fill]
-          when: "= event.source == 'sel_4'"
+    - id: fxhit_7_3
+      at: "hit+7"
+      when: "= event.source == 'sel_9'"
+      do:
         - id: rm_17
           op: remove
           ids: [fx10_couture_rapier_cross_dark_0, fx10_couture_rapier_cross_dark_1, fx10_couture_rapier_cross_dark_2, fx10_couture_rapier_cross_dark_3, fx10_couture_rapier_cross_contact_fill]
-          when: "= event.source == 'sel_6'"
     - id: fxhit_8
       at: "hit+8"
+      when: "= event.source == 'sel_3'"
       do:
         - id: rm_5
           op: remove
@@ -683,7 +685,10 @@ presentation:
             - fx3_couture_rapier_cross_petals_5
             - fx3_couture_rapier_cross_petals_6
             - fx3_couture_rapier_cross_petals_7
-          when: "= event.source == 'sel_2'"
+    - id: fxhit_8_2
+      at: "hit+8"
+      when: "= event.source == 'sel_6'"
+      do:
         - id: rm_11
           op: remove
           ids:
@@ -695,7 +700,10 @@ presentation:
             - fx6_couture_rapier_cross_petals_5
             - fx6_couture_rapier_cross_petals_6
             - fx6_couture_rapier_cross_petals_7
-          when: "= event.source == 'sel_4'"
+    - id: fxhit_8_3
+      at: "hit+8"
+      when: "= event.source == 'sel_9'"
+      do:
         - id: rm_18
           op: remove
           ids:
@@ -707,15 +715,20 @@ presentation:
             - fx10_couture_rapier_cross_petals_5
             - fx10_couture_rapier_cross_petals_6
             - fx10_couture_rapier_cross_petals_7
-          when: "= event.source == 'sel_6'"
-    - id: fxhit_9
+    - {id: fxhit_9, at: "hit+9", when: "= event.source == 'sel_3'", do: [{id: rm_6, op: remove, ids: [fx3_couture_rapier_cross_cross_0, fx3_couture_rapier_cross_cross_1, fx3_couture_rapier_cross_cross_2]}]}
+    - id: fxhit_9_2
       at: "hit+9"
+      when: "= event.source == 'sel_6'"
       do:
-        - {id: rm_6, op: remove, ids: [fx3_couture_rapier_cross_cross_0, fx3_couture_rapier_cross_cross_1, fx3_couture_rapier_cross_cross_2], when: "= event.source == 'sel_2'"}
-        - {id: rm_12, op: remove, ids: [fx6_couture_rapier_cross_cross_0, fx6_couture_rapier_cross_cross_1, fx6_couture_rapier_cross_cross_2], when: "= event.source == 'sel_4'"}
-        - {id: rm_19, op: remove, ids: [fx10_couture_rapier_cross_cross_0, fx10_couture_rapier_cross_cross_1, fx10_couture_rapier_cross_cross_2], when: "= event.source == 'sel_6'"}
+        - {id: rm_12, op: remove, ids: [fx6_couture_rapier_cross_cross_0, fx6_couture_rapier_cross_cross_1, fx6_couture_rapier_cross_cross_2]}
+    - id: fxhit_9_3
+      at: "hit+9"
+      when: "= event.source == 'sel_9'"
+      do:
+        - {id: rm_19, op: remove, ids: [fx10_couture_rapier_cross_cross_0, fx10_couture_rapier_cross_cross_1, fx10_couture_rapier_cross_cross_2]}
     - id: fxhit_11
       at: "hit+11"
+      when: "= event.source == 'sel_10'"
       do:
         - id: rm_20
           op: remove
@@ -736,9 +749,9 @@ presentation:
             - fx11_couture_target_rosette_arc_13
             - fx11_couture_target_rosette_arc_14
             - fx11_couture_target_rosette_arc_15
-          when: "= event.source == 'sel_7'"
     - id: fxhit_14
       at: "hit+14"
+      when: "= event.source == 'sel'"
       do:
         - id: rm_2
           op: remove
@@ -769,7 +782,10 @@ presentation:
             - fx2_couture_shears_remote_hinge_flower_1
             - fx2_couture_shears_remote_hinge_flower_2
             - fx2_couture_shears_remote_hinge_flower_3
-          when: "= event.source == 'sel'"
+    - id: fxhit_14_2
+      at: "hit+14"
+      when: "= event.source == 'sel_4'"
+      do:
         - id: rm_8
           op: remove
           ids:
@@ -799,7 +815,10 @@ presentation:
             - fx5_couture_shears_remote_hinge_flower_1
             - fx5_couture_shears_remote_hinge_flower_2
             - fx5_couture_shears_remote_hinge_flower_3
-          when: "= event.source == 'sel_3'"
+    - id: fxhit_14_3
+      at: "hit+14"
+      when: "= event.source == 'sel_7'"
+      do:
         - id: rm_15
           op: remove
           ids:
@@ -829,10 +848,9 @@ presentation:
             - fx9_couture_shears_remote_hinge_flower_1
             - fx9_couture_shears_remote_hinge_flower_2
             - fx9_couture_shears_remote_hinge_flower_3
-          when: "= event.source == 'sel_5'"
-    - {id: loop1, at: hit, every: 3, for: 4, do: [{id: fx3_couture_rapier_cross_sparks, op: emit, at: fx3_couture_rapier_cross_sparks_at, particle: stab-spark, when: "= event.source == 'sel_2'"}]}
-    - {id: loop2, at: hit, every: 3, for: 4, do: [{id: fx6_couture_rapier_cross_sparks, op: emit, at: fx6_couture_rapier_cross_sparks_at, particle: stab-spark, when: "= event.source == 'sel_4'"}]}
-    - {id: loop3, at: hit, every: 3, for: 4, do: [{id: fx10_couture_rapier_cross_sparks, op: emit, at: fx10_couture_rapier_cross_sparks_at, particle: stab-spark, when: "= event.source == 'sel_6'"}]}
+    - {id: loop1, at: hit, every: 3, for: 4, do: [{id: fx3_couture_rapier_cross_sparks, op: emit, at: fx3_couture_rapier_cross_sparks_at, particle: stab-spark, when: "= event.source == 'sel_3'"}]}
+    - {id: loop2, at: hit, every: 3, for: 4, do: [{id: fx6_couture_rapier_cross_sparks, op: emit, at: fx6_couture_rapier_cross_sparks_at, particle: stab-spark, when: "= event.source == 'sel_6'"}]}
+    - {id: loop3, at: hit, every: 3, for: 4, do: [{id: fx10_couture_rapier_cross_sparks, op: emit, at: fx10_couture_rapier_cross_sparks_at, particle: stab-spark, when: "= event.source == 'sel_9'"}]}
   "on":
     hit:
       - {id: anchor_2, op: anchor, frame: fx2_couture_shears_remote, at: enemy, orient: yaw, when: "= event.source == 'sel'"}
@@ -1302,8 +1320,8 @@ presentation:
           - {t: 13, offset: [0.0, 0.98, -0.7], scale: [0.0, 0.0, 0.0]}
         sample_ticks: 1
         when: "= event.source == 'sel'"
-      - {id: anchor_3, op: anchor, frame: fx3_couture_rapier_cross, at: enemy, orient: yaw, when: "= event.source == 'sel_2'"}
-      - {op: block, parent: fx3_couture_rapier_cross, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx3_couture_rapier_cross_cross_0, when: "= event.source == 'sel_2'"}
+      - {id: anchor_3, op: anchor, frame: fx3_couture_rapier_cross, at: enemy, orient: yaw, when: "= event.source == 'sel_3'"}
+      - {op: block, parent: fx3_couture_rapier_cross, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx3_couture_rapier_cross_cross_0, when: "= event.source == 'sel_3'"}
       - id: fx3_couture_rapier_cross_cross_0_trk
         op: track
         target: fx3_couture_rapier_cross_cross_0
@@ -1312,8 +1330,8 @@ presentation:
           - {t: 3, scale: [0.035, 3.3, 0.04]}
           - {t: 8, scale: [0.0, 3.3, 0.0], ease: in_quad}
         sample_ticks: 1
-        when: "= event.source == 'sel_2'"
-      - {op: block, parent: fx3_couture_rapier_cross, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx3_couture_rapier_cross_cross_1, when: "= event.source == 'sel_2'"}
+        when: "= event.source == 'sel_3'"
+      - {op: block, parent: fx3_couture_rapier_cross, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx3_couture_rapier_cross_cross_1, when: "= event.source == 'sel_3'"}
       - id: fx3_couture_rapier_cross_cross_1_trk
         op: track
         target: fx3_couture_rapier_cross_cross_1
@@ -1322,8 +1340,8 @@ presentation:
           - {t: 3, scale: [0.035, 3.3, 0.04]}
           - {t: 8, scale: [0.0, 3.3, 0.0], ease: in_quad}
         sample_ticks: 1
-        when: "= event.source == 'sel_2'"
-      - {op: block, parent: fx3_couture_rapier_cross, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx3_couture_rapier_cross_cross_2, when: "= event.source == 'sel_2'"}
+        when: "= event.source == 'sel_3'"
+      - {op: block, parent: fx3_couture_rapier_cross, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx3_couture_rapier_cross_cross_2, when: "= event.source == 'sel_3'"}
       - id: fx3_couture_rapier_cross_cross_2_trk
         op: track
         target: fx3_couture_rapier_cross_cross_2
@@ -1332,7 +1350,7 @@ presentation:
           - {t: 3, scale: [0.035, 3.3, 0.04]}
           - {t: 8, scale: [0.0, 3.3, 0.0], ease: in_quad}
         sample_ticks: 1
-        when: "= event.source == 'sel_2'"
+        when: "= event.source == 'sel_3'"
       - op: quad
         parent: fx3_couture_rapier_cross
         face: {viewer: center}
@@ -1341,7 +1359,7 @@ presentation:
         alpha: 1.0
         brightness: 15
         id: fx3_couture_rapier_cross_dark_0
-        when: "= event.source == 'sel_2'"
+        when: "= event.source == 'sel_3'"
       - id: fx3_couture_rapier_cross_dark_0_trk
         op: track
         target: fx3_couture_rapier_cross_dark_0
@@ -1349,7 +1367,7 @@ presentation:
           - {t: 0, offset: [0.0, 1.1, 0.0], scale: [0.12, 0.16, 1.0], alpha: 1.0}
           - {t: 6, offset: [0.0, 0.3, -0.9], scale: [0.05, 0.08, 1.0], alpha: 0.0, ease: out_cubic, turn: [0.0, 0.0, 0.0]}
         sample_ticks: 1
-        when: "= event.source == 'sel_2'"
+        when: "= event.source == 'sel_3'"
       - op: quad
         parent: fx3_couture_rapier_cross
         face: {viewer: center}
@@ -1358,7 +1376,7 @@ presentation:
         alpha: 1.0
         brightness: 15
         id: fx3_couture_rapier_cross_dark_1
-        when: "= event.source == 'sel_2'"
+        when: "= event.source == 'sel_3'"
       - id: fx3_couture_rapier_cross_dark_1_trk
         op: track
         target: fx3_couture_rapier_cross_dark_1
@@ -1366,7 +1384,7 @@ presentation:
           - {t: 0, offset: [0.0, 1.1, 0.0], scale: [0.12, 0.16, 1.0], alpha: 1.0}
           - {t: 6, offset: [0.0, 0.6, -0.3], scale: [0.05, 0.08, 1.0], alpha: 0.0, ease: out_cubic, turn: [0.0, 0.0, 60.0]}
         sample_ticks: 1
-        when: "= event.source == 'sel_2'"
+        when: "= event.source == 'sel_3'"
       - op: quad
         parent: fx3_couture_rapier_cross
         face: {viewer: center}
@@ -1375,7 +1393,7 @@ presentation:
         alpha: 1.0
         brightness: 15
         id: fx3_couture_rapier_cross_dark_2
-        when: "= event.source == 'sel_2'"
+        when: "= event.source == 'sel_3'"
       - id: fx3_couture_rapier_cross_dark_2_trk
         op: track
         target: fx3_couture_rapier_cross_dark_2
@@ -1383,7 +1401,7 @@ presentation:
           - {t: 0, offset: [0.0, 1.1, 0.0], scale: [0.12, 0.16, 1.0], alpha: 1.0}
           - {t: 6, offset: [0.0, 0.9, 0.3], scale: [0.05, 0.08, 1.0], alpha: 0.0, ease: out_cubic, turn: [0.0, 0.0, 120.0]}
         sample_ticks: 1
-        when: "= event.source == 'sel_2'"
+        when: "= event.source == 'sel_3'"
       - op: quad
         parent: fx3_couture_rapier_cross
         face: {viewer: center}
@@ -1392,7 +1410,7 @@ presentation:
         alpha: 1.0
         brightness: 15
         id: fx3_couture_rapier_cross_dark_3
-        when: "= event.source == 'sel_2'"
+        when: "= event.source == 'sel_3'"
       - id: fx3_couture_rapier_cross_dark_3_trk
         op: track
         target: fx3_couture_rapier_cross_dark_3
@@ -1400,7 +1418,7 @@ presentation:
           - {t: 0, offset: [0.0, 1.1, 0.0], scale: [0.12, 0.16, 1.0], alpha: 1.0}
           - {t: 6, offset: [0.0, 1.2, 0.9], scale: [0.05, 0.08, 1.0], alpha: 0.0, ease: out_cubic, turn: [0.0, 0.0, 180.0]}
         sample_ticks: 1
-        when: "= event.source == 'sel_2'"
+        when: "= event.source == 'sel_3'"
       - op: quad
         parent: fx3_couture_rapier_cross
         face: {viewer: center}
@@ -1409,7 +1427,7 @@ presentation:
         alpha: 0.2
         brightness: 15
         id: fx3_couture_rapier_cross_bloom
-        when: "= event.source == 'sel_2'"
+        when: "= event.source == 'sel_3'"
       - id: fx3_couture_rapier_cross_bloom_trk
         op: track
         target: fx3_couture_rapier_cross_bloom
@@ -1418,7 +1436,7 @@ presentation:
           - {t: 1, scale: [1.5, 1.5, 1.0]}
           - {t: 5, scale: [2.0, 2.0, 1.0], alpha: 0.0}
         sample_ticks: 1
-        when: "= event.source == 'sel_2'"
+        when: "= event.source == 'sel_3'"
       - id: fx3_couture_rapier_cross_petals_0
         op: quad
         parent: fx3_couture_rapier_cross
@@ -1427,7 +1445,7 @@ presentation:
         color: "#FFF5E9"
         alpha: 1.0
         brightness: 15
-        when: "= event.source == 'sel_2'"
+        when: "= event.source == 'sel_3'"
       - id: fx3_couture_rapier_cross_petals_0_trk
         op: track
         target: fx3_couture_rapier_cross_petals_0
@@ -1441,7 +1459,7 @@ presentation:
           - {t: 6, offset: [0.31787, 1.53529, 0.0], scale: [0.016571, 0.016571, 1.0], alpha: 0.14286}
           - {t: 7, offset: [0.35866, 1.56666, 0.0], scale: [0.00725, 0.00725, 1.0], alpha: 0.0}
         sample_ticks: 1
-        when: "= event.source == 'sel_2'"
+        when: "= event.source == 'sel_3'"
       - id: fx3_couture_rapier_cross_petals_1
         op: quad
         parent: fx3_couture_rapier_cross
@@ -1450,7 +1468,7 @@ presentation:
         color: "#FFF5E9"
         alpha: 1.0
         brightness: 15
-        when: "= event.source == 'sel_2'"
+        when: "= event.source == 'sel_3'"
       - id: fx3_couture_rapier_cross_petals_1_trk
         op: track
         target: fx3_couture_rapier_cross_petals_1
@@ -1464,7 +1482,7 @@ presentation:
           - {t: 6, offset: [-0.37794, 1.37114, 0.34623], scale: [0.016571, 0.016571, 1.0], alpha: 0.14286}
           - {t: 7, offset: [-0.42643, 1.38145, 0.39065], scale: [0.00725, 0.00725, 1.0], alpha: 0.0}
         sample_ticks: 1
-        when: "= event.source == 'sel_2'"
+        when: "= event.source == 'sel_3'"
       - id: fx3_couture_rapier_cross_petals_2
         op: quad
         parent: fx3_couture_rapier_cross
@@ -1473,7 +1491,7 @@ presentation:
         color: "#FFF5E9"
         alpha: 1.0
         brightness: 15
-        when: "= event.source == 'sel_2'"
+        when: "= event.source == 'sel_3'"
       - id: fx3_couture_rapier_cross_petals_2_trk
         op: track
         target: fx3_couture_rapier_cross_petals_2
@@ -1487,7 +1505,7 @@ presentation:
           - {t: 6, offset: [0.05321, 1.20699, -0.60635], scale: [0.016571, 0.016571, 1.0], alpha: 0.14286}
           - {t: 7, offset: [0.06004, 1.19624, -0.68414], scale: [0.00725, 0.00725, 1.0], alpha: 0.0}
         sample_ticks: 1
-        when: "= event.source == 'sel_2'"
+        when: "= event.source == 'sel_3'"
       - id: fx3_couture_rapier_cross_petals_3
         op: quad
         parent: fx3_couture_rapier_cross
@@ -1496,7 +1514,7 @@ presentation:
         color: "#FFF5E9"
         alpha: 1.0
         brightness: 15
-        when: "= event.source == 'sel_2'"
+        when: "= event.source == 'sel_3'"
       - id: fx3_couture_rapier_cross_petals_3_trk
         op: track
         target: fx3_couture_rapier_cross_petals_3
@@ -1510,7 +1528,7 @@ presentation:
           - {t: 6, offset: [0.39637, 1.04284, 0.51699], scale: [0.016571, 0.016571, 1.0], alpha: 0.14286}
           - {t: 7, offset: [0.44722, 1.01104, 0.58332], scale: [0.00725, 0.00725, 1.0], alpha: 0.0}
         sample_ticks: 1
-        when: "= event.source == 'sel_2'"
+        when: "= event.source == 'sel_3'"
       - id: fx3_couture_rapier_cross_petals_4
         op: quad
         parent: fx3_couture_rapier_cross
@@ -1519,7 +1537,7 @@ presentation:
         color: "#FFF5E9"
         alpha: 1.0
         brightness: 15
-        when: "= event.source == 'sel_2'"
+        when: "= event.source == 'sel_3'"
       - id: fx3_couture_rapier_cross_petals_4_trk
         op: track
         target: fx3_couture_rapier_cross_petals_4
@@ -1533,7 +1551,7 @@ presentation:
           - {t: 6, offset: [-0.64149, 0.87869, -0.11347], scale: [0.016571, 0.016571, 1.0], alpha: 0.14286}
           - {t: 7, offset: [-0.72379, 0.82583, -0.12803], scale: [0.00725, 0.00725, 1.0], alpha: 0.0}
         sample_ticks: 1
-        when: "= event.source == 'sel_2'"
+        when: "= event.source == 'sel_3'"
       - id: fx3_couture_rapier_cross_petals_5
         op: quad
         parent: fx3_couture_rapier_cross
@@ -1542,7 +1560,7 @@ presentation:
         color: "#FFF5E9"
         alpha: 1.0
         brightness: 15
-        when: "= event.source == 'sel_2'"
+        when: "= event.source == 'sel_3'"
       - id: fx3_couture_rapier_cross_petals_5_trk
         op: track
         target: fx3_couture_rapier_cross_petals_5
@@ -1556,7 +1574,7 @@ presentation:
           - {t: 6, offset: [0.51358, 0.71454, -0.3267], scale: [0.016571, 0.016571, 1.0], alpha: 0.14286}
           - {t: 7, offset: [0.57947, 0.64062, -0.36861], scale: [0.00725, 0.00725, 1.0], alpha: 0.0}
         sample_ticks: 1
-        when: "= event.source == 'sel_2'"
+        when: "= event.source == 'sel_3'"
       - id: fx3_couture_rapier_cross_petals_6
         op: quad
         parent: fx3_couture_rapier_cross
@@ -1565,7 +1583,7 @@ presentation:
         color: "#FFF5E9"
         alpha: 1.0
         brightness: 15
-        when: "= event.source == 'sel_2'"
+        when: "= event.source == 'sel_3'"
       - id: fx3_couture_rapier_cross_petals_6_trk
         op: track
         target: fx3_couture_rapier_cross_petals_6
@@ -1579,7 +1597,7 @@ presentation:
           - {t: 6, offset: [-0.13306, 0.55039, 0.49498], scale: [0.016571, 0.016571, 1.0], alpha: 0.14286}
           - {t: 7, offset: [-0.15013, 0.45541, 0.55849], scale: [0.00725, 0.00725, 1.0], alpha: 0.0}
         sample_ticks: 1
-        when: "= event.source == 'sel_2'"
+        when: "= event.source == 'sel_3'"
       - id: fx3_couture_rapier_cross_petals_7
         op: quad
         parent: fx3_couture_rapier_cross
@@ -1588,7 +1606,7 @@ presentation:
         color: "#FFF5E9"
         alpha: 1.0
         brightness: 15
-        when: "= event.source == 'sel_2'"
+        when: "= event.source == 'sel_3'"
       - id: fx3_couture_rapier_cross_petals_7_trk
         op: track
         target: fx3_couture_rapier_cross_petals_7
@@ -1602,14 +1620,14 @@ presentation:
           - {t: 6, offset: [-0.14651, 0.38624, -0.2821], scale: [0.016571, 0.016571, 1.0], alpha: 0.14286}
           - {t: 7, offset: [-0.16531, 0.2702, -0.31829], scale: [0.00725, 0.00725, 1.0], alpha: 0.0}
         sample_ticks: 1
-        when: "= event.source == 'sel_2'"
+        when: "= event.source == 'sel_3'"
       - id: fx3_couture_rapier_cross_sparks_atrk
         op: track
         target: fx3_couture_rapier_cross_sparks_at
         space: fx3_couture_rapier_cross
         keys:
           - {t: 0, offset: [0, 1.1, 0]}
-        when: "= event.source == 'sel_2'"
+        when: "= event.source == 'sel_3'"
       - op: quad
         parent: fx3_couture_rapier_cross
         face: {viewer: center}
@@ -1620,7 +1638,7 @@ presentation:
         see_through: true
         brightness: 15
         id: fx3_couture_rapier_cross_contact_fill
-        when: "= event.source == 'sel_2'"
+        when: "= event.source == 'sel_3'"
       - id: fx3_couture_rapier_cross_contact_fill_trk
         op: track
         target: fx3_couture_rapier_cross_contact_fill
@@ -1630,10 +1648,10 @@ presentation:
           - {t: 3, scale: [1.6, 1.6, 1.0]}
           - {t: 6, scale: [0.2, 0.2, 1.0], alpha: 0.0, ease: in_quad}
         sample_ticks: 1
-        when: "= event.source == 'sel_2'"
-      - {id: snd, op: sound, sound: entity.player.attack.strong, at: enemy, volume: 0.7, pitch: 1.1, when: "= event.source == 'sel_2'"}
-      - {id: anchor_5, op: anchor, frame: fx5_couture_shears_remote, at: enemy, orient: yaw, when: "= event.source == 'sel_3'"}
-      - {op: block, parent: fx5_couture_shears_remote, block: gray_concrete, size: [1.0, 1.0, 1.0], id: fx5_couture_shears_remote_1_blade_0, when: "= event.source == 'sel_3'"}
+        when: "= event.source == 'sel_3'"
+      - {id: snd, op: sound, sound: entity.player.attack.strong, at: enemy, volume: 0.7, pitch: 1.1, when: "= event.source == 'sel_3'"}
+      - {id: anchor_5, op: anchor, frame: fx5_couture_shears_remote, at: enemy, orient: yaw, when: "= event.source == 'sel_4'"}
+      - {op: block, parent: fx5_couture_shears_remote, block: gray_concrete, size: [1.0, 1.0, 1.0], id: fx5_couture_shears_remote_1_blade_0, when: "= event.source == 'sel_4'"}
       - id: fx5_couture_shears_remote_1_blade_0_trk
         op: track
         target: fx5_couture_shears_remote_1_blade_0
@@ -1651,8 +1669,8 @@ presentation:
           - {t: 10, offset: [-0.045, 0.98305, -0.31748], scale: [0.06, 0.19, 0.8], turn: [17.0, 0.0, 0.0]}
           - {t: 13, offset: [-0.045, 0.98305, -0.31748], scale: [0.0, 0.0, 0.0], turn: [17.0, 0.0, 0.0]}
         sample_ticks: 1
-        when: "= event.source == 'sel_3'"
-      - {op: block, parent: fx5_couture_shears_remote, block: iron_block, size: [1.0, 1.0, 1.0], id: fx5_couture_shears_remote_1_edge_0, when: "= event.source == 'sel_3'"}
+        when: "= event.source == 'sel_4'"
+      - {op: block, parent: fx5_couture_shears_remote, block: iron_block, size: [1.0, 1.0, 1.0], id: fx5_couture_shears_remote_1_edge_0, when: "= event.source == 'sel_4'"}
       - id: fx5_couture_shears_remote_1_edge_0_trk
         op: track
         target: fx5_couture_shears_remote_1_edge_0
@@ -1670,8 +1688,8 @@ presentation:
           - {t: 10, offset: [-0.045, 1.04029, -0.29998], scale: [0.06, 0.025, 0.80164], turn: [20.66907, 0.0, 0.0]}
           - {t: 13, offset: [-0.045, 1.04029, -0.29998], scale: [0.0, 0.0, 0.0], turn: [20.66907, 0.0, 0.0]}
         sample_ticks: 1
-        when: "= event.source == 'sel_3'"
-      - {op: block, parent: fx5_couture_shears_remote, block: gray_concrete, size: [1.0, 1.0, 1.0], id: fx5_couture_shears_remote_1_blade_1, when: "= event.source == 'sel_3'"}
+        when: "= event.source == 'sel_4'"
+      - {op: block, parent: fx5_couture_shears_remote, block: gray_concrete, size: [1.0, 1.0, 1.0], id: fx5_couture_shears_remote_1_blade_1, when: "= event.source == 'sel_4'"}
       - id: fx5_couture_shears_remote_1_blade_1_trk
         op: track
         target: fx5_couture_shears_remote_1_blade_1
@@ -1689,8 +1707,8 @@ presentation:
           - {t: 10, offset: [-0.045, 0.77839, 0.35194], scale: [0.06, 0.12, 0.6], turn: [17.0, 0.0, 0.0]}
           - {t: 13, offset: [-0.045, 0.77839, 0.35194], scale: [0.0, 0.0, 0.0], turn: [17.0, 0.0, 0.0]}
         sample_ticks: 1
-        when: "= event.source == 'sel_3'"
-      - {op: block, parent: fx5_couture_shears_remote, block: iron_block, size: [1.0, 1.0, 1.0], id: fx5_couture_shears_remote_1_edge_1, when: "= event.source == 'sel_3'"}
+        when: "= event.source == 'sel_4'"
+      - {op: block, parent: fx5_couture_shears_remote, block: iron_block, size: [1.0, 1.0, 1.0], id: fx5_couture_shears_remote_1_edge_1, when: "= event.source == 'sel_4'"}
       - id: fx5_couture_shears_remote_1_edge_1_trk
         op: track
         target: fx5_couture_shears_remote_1_edge_1
@@ -1708,8 +1726,8 @@ presentation:
           - {t: 10, offset: [-0.045, 0.81454, 0.36299], scale: [0.06, 0.025, 0.60087], turn: [20.09097, 0.0, 0.0]}
           - {t: 13, offset: [-0.045, 0.81454, 0.36299], scale: [0.0, 0.0, 0.0], turn: [20.09097, 0.0, 0.0]}
         sample_ticks: 1
-        when: "= event.source == 'sel_3'"
-      - {op: block, parent: fx5_couture_shears_remote, block: gray_concrete, size: [1.0, 1.0, 1.0], id: fx5_couture_shears_remote_1_blade_2, when: "= event.source == 'sel_3'"}
+        when: "= event.source == 'sel_4'"
+      - {op: block, parent: fx5_couture_shears_remote, block: gray_concrete, size: [1.0, 1.0, 1.0], id: fx5_couture_shears_remote_1_blade_2, when: "= event.source == 'sel_4'"}
       - id: fx5_couture_shears_remote_1_blade_2_trk
         op: track
         target: fx5_couture_shears_remote_1_blade_2
@@ -1727,8 +1745,8 @@ presentation:
           - {t: 10, offset: [-0.045, 0.63221, 0.83009], scale: [0.06, 0.045, 0.4], turn: [17.0, 0.0, 0.0]}
           - {t: 13, offset: [-0.045, 0.63221, 0.83009], scale: [0.0, 0.0, 0.0], turn: [17.0, 0.0, 0.0]}
         sample_ticks: 1
-        when: "= event.source == 'sel_3'"
-      - {op: block, parent: fx5_couture_shears_remote, block: iron_block, size: [1.0, 1.0, 1.0], id: fx5_couture_shears_remote_1_edge_2, when: "= event.source == 'sel_3'"}
+        when: "= event.source == 'sel_4'"
+      - {op: block, parent: fx5_couture_shears_remote, block: iron_block, size: [1.0, 1.0, 1.0], id: fx5_couture_shears_remote_1_edge_2, when: "= event.source == 'sel_4'"}
       - id: fx5_couture_shears_remote_1_edge_2_trk
         op: track
         target: fx5_couture_shears_remote_1_edge_2
@@ -1746,8 +1764,8 @@ presentation:
           - {t: 10, offset: [-0.045, 0.64576, 0.83423], scale: [0.06, 0.025, 0.40018], turn: [18.73982, 0.0, 0.0]}
           - {t: 13, offset: [-0.045, 0.64576, 0.83423], scale: [0.0, 0.0, 0.0], turn: [18.73982, 0.0, 0.0]}
         sample_ticks: 1
-        when: "= event.source == 'sel_3'"
-      - {op: block, parent: fx5_couture_shears_remote, block: black_concrete, size: [1.0, 1.0, 1.0], id: fx5_couture_shears_remote_1_handle_0, when: "= event.source == 'sel_3'"}
+        when: "= event.source == 'sel_4'"
+      - {op: block, parent: fx5_couture_shears_remote, block: black_concrete, size: [1.0, 1.0, 1.0], id: fx5_couture_shears_remote_1_handle_0, when: "= event.source == 'sel_4'"}
       - id: fx5_couture_shears_remote_1_handle_0_trk
         op: track
         target: fx5_couture_shears_remote_1_handle_0
@@ -1765,8 +1783,8 @@ presentation:
           - {t: 10, offset: [-0.045, 1.26074, -0.84954], scale: [0.06, 0.045, 0.31113], turn: [-118.0, 0.0, 0.0]}
           - {t: 13, offset: [-0.045, 1.26074, -0.84954], scale: [0.0, 0.0, 0.0], turn: [-118.0, 0.0, 0.0]}
         sample_ticks: 1
-        when: "= event.source == 'sel_3'"
-      - {op: block, parent: fx5_couture_shears_remote, block: black_concrete, size: [1.0, 1.0, 1.0], id: fx5_couture_shears_remote_1_handle_1, when: "= event.source == 'sel_3'"}
+        when: "= event.source == 'sel_4'"
+      - {op: block, parent: fx5_couture_shears_remote, block: black_concrete, size: [1.0, 1.0, 1.0], id: fx5_couture_shears_remote_1_handle_1, when: "= event.source == 'sel_4'"}
       - id: fx5_couture_shears_remote_1_handle_1_trk
         op: track
         target: fx5_couture_shears_remote_1_handle_1
@@ -1784,8 +1802,8 @@ presentation:
           - {t: 10, offset: [-0.045, 1.44954, -1.14212], scale: [0.06, 0.045, 0.451], turn: [-166.81407, 0.0, 0.0]}
           - {t: 13, offset: [-0.045, 1.44954, -1.14212], scale: [0.0, 0.0, 0.0], turn: [-166.81407, 0.0, 0.0]}
         sample_ticks: 1
-        when: "= event.source == 'sel_3'"
-      - {op: block, parent: fx5_couture_shears_remote, block: black_concrete, size: [1.0, 1.0, 1.0], id: fx5_couture_shears_remote_1_handle_2, when: "= event.source == 'sel_3'"}
+        when: "= event.source == 'sel_4'"
+      - {op: block, parent: fx5_couture_shears_remote, block: black_concrete, size: [1.0, 1.0, 1.0], id: fx5_couture_shears_remote_1_handle_2, when: "= event.source == 'sel_4'"}
       - id: fx5_couture_shears_remote_1_handle_2_trk
         op: track
         target: fx5_couture_shears_remote_1_handle_2
@@ -1803,8 +1821,8 @@ presentation:
           - {t: 10, offset: [-0.045, 1.42621, -1.44205], scale: [0.06, 0.045, 0.21954], turn: [137.06858, 0.0, 0.0]}
           - {t: 13, offset: [-0.045, 1.42621, -1.44205], scale: [0.0, 0.0, 0.0], turn: [137.06858, 0.0, 0.0]}
         sample_ticks: 1
-        when: "= event.source == 'sel_3'"
-      - {op: block, parent: fx5_couture_shears_remote, block: black_concrete, size: [1.0, 1.0, 1.0], id: fx5_couture_shears_remote_1_handle_3, when: "= event.source == 'sel_3'"}
+        when: "= event.source == 'sel_4'"
+      - {op: block, parent: fx5_couture_shears_remote, block: black_concrete, size: [1.0, 1.0, 1.0], id: fx5_couture_shears_remote_1_handle_3, when: "= event.source == 'sel_4'"}
       - id: fx5_couture_shears_remote_1_handle_3_trk
         op: track
         target: fx5_couture_shears_remote_1_handle_3
@@ -1822,8 +1840,8 @@ presentation:
           - {t: 10, offset: [-0.045, 1.1988, -1.36518], scale: [0.06, 0.045, 0.43829], turn: [44.14968, 0.0, 0.0]}
           - {t: 13, offset: [-0.045, 1.1988, -1.36518], scale: [0.0, 0.0, 0.0], turn: [44.14968, 0.0, 0.0]}
         sample_ticks: 1
-        when: "= event.source == 'sel_3'"
-      - {op: block, parent: fx5_couture_shears_remote, block: black_concrete, size: [1.0, 1.0, 1.0], id: fx5_couture_shears_remote_1_handle_4, when: "= event.source == 'sel_3'"}
+        when: "= event.source == 'sel_4'"
+      - {op: block, parent: fx5_couture_shears_remote, block: black_concrete, size: [1.0, 1.0, 1.0], id: fx5_couture_shears_remote_1_handle_4, when: "= event.source == 'sel_4'"}
       - id: fx5_couture_shears_remote_1_handle_4_trk
         op: track
         target: fx5_couture_shears_remote_1_handle_4
@@ -1841,8 +1859,8 @@ presentation:
           - {t: 10, offset: [-0.045, 1.08477, -0.99222], scale: [0.06, 0.045, 0.43829], turn: [-10.14968, 0.0, 0.0]}
           - {t: 13, offset: [-0.045, 1.08477, -0.99222], scale: [0.0, 0.0, 0.0], turn: [-10.14968, 0.0, 0.0]}
         sample_ticks: 1
-        when: "= event.source == 'sel_3'"
-      - {op: block, parent: fx5_couture_shears_remote, block: gray_concrete, size: [1.0, 1.0, 1.0], id: fx5_couture_shears_remote_1_blade_0_2, when: "= event.source == 'sel_3'"}
+        when: "= event.source == 'sel_4'"
+      - {op: block, parent: fx5_couture_shears_remote, block: gray_concrete, size: [1.0, 1.0, 1.0], id: fx5_couture_shears_remote_1_blade_0_2, when: "= event.source == 'sel_4'"}
       - id: fx5_couture_shears_remote_1_blade_0_2_trk
         op: track
         target: fx5_couture_shears_remote_1_blade_0_2
@@ -1860,8 +1878,8 @@ presentation:
           - {t: 10, offset: [0.045, 1.01002, -0.31025], scale: [0.06, 0.19, 0.8], turn: [13.0, 0.0, 0.0]}
           - {t: 13, offset: [0.045, 1.01002, -0.31025], scale: [0.0, 0.0, 0.0], turn: [13.0, 0.0, 0.0]}
         sample_ticks: 1
-        when: "= event.source == 'sel_3'"
-      - {op: block, parent: fx5_couture_shears_remote, block: iron_block, size: [1.0, 1.0, 1.0], id: fx5_couture_shears_remote_1_edge_0_2, when: "= event.source == 'sel_3'"}
+        when: "= event.source == 'sel_4'"
+      - {op: block, parent: fx5_couture_shears_remote, block: iron_block, size: [1.0, 1.0, 1.0], id: fx5_couture_shears_remote_1_edge_0_2, when: "= event.source == 'sel_4'"}
       - id: fx5_couture_shears_remote_1_edge_0_2_trk
         op: track
         target: fx5_couture_shears_remote_1_edge_0_2
@@ -1879,8 +1897,8 @@ presentation:
           - {t: 10, offset: [0.045, 1.06834, -0.29679], scale: [0.06, 0.025, 0.80164], turn: [16.66907, 0.0, 0.0]}
           - {t: 13, offset: [0.045, 1.06834, -0.29679], scale: [0.0, 0.0, 0.0], turn: [16.66907, 0.0, 0.0]}
         sample_ticks: 1
-        when: "= event.source == 'sel_3'"
-      - {op: block, parent: fx5_couture_shears_remote, block: gray_concrete, size: [1.0, 1.0, 1.0], id: fx5_couture_shears_remote_1_blade_1_2, when: "= event.source == 'sel_3'"}
+        when: "= event.source == 'sel_4'"
+      - {op: block, parent: fx5_couture_shears_remote, block: gray_concrete, size: [1.0, 1.0, 1.0], id: fx5_couture_shears_remote_1_blade_1_2, when: "= event.source == 'sel_4'"}
       - id: fx5_couture_shears_remote_1_blade_1_2_trk
         op: track
         target: fx5_couture_shears_remote_1_blade_1_2
@@ -1898,8 +1916,8 @@ presentation:
           - {t: 10, offset: [0.045, 0.85255, 0.37181], scale: [0.06, 0.12, 0.6], turn: [13.0, 0.0, 0.0]}
           - {t: 13, offset: [0.045, 0.85255, 0.37181], scale: [0.0, 0.0, 0.0], turn: [13.0, 0.0, 0.0]}
         sample_ticks: 1
-        when: "= event.source == 'sel_3'"
-      - {op: block, parent: fx5_couture_shears_remote, block: iron_block, size: [1.0, 1.0, 1.0], id: fx5_couture_shears_remote_1_edge_1_2, when: "= event.source == 'sel_3'"}
+        when: "= event.source == 'sel_4'"
+      - {op: block, parent: fx5_couture_shears_remote, block: iron_block, size: [1.0, 1.0, 1.0], id: fx5_couture_shears_remote_1_edge_1_2, when: "= event.source == 'sel_4'"}
       - id: fx5_couture_shears_remote_1_edge_1_2_trk
         op: track
         target: fx5_couture_shears_remote_1_edge_1_2
@@ -1917,8 +1935,8 @@ presentation:
           - {t: 10, offset: [0.045, 0.88939, 0.38031], scale: [0.06, 0.025, 0.60087], turn: [16.09097, 0.0, 0.0]}
           - {t: 13, offset: [0.045, 0.88939, 0.38031], scale: [0.0, 0.0, 0.0], turn: [16.09097, 0.0, 0.0]}
         sample_ticks: 1
-        when: "= event.source == 'sel_3'"
-      - {op: block, parent: fx5_couture_shears_remote, block: gray_concrete, size: [1.0, 1.0, 1.0], id: fx5_couture_shears_remote_1_blade_2_2, when: "= event.source == 'sel_3'"}
+        when: "= event.source == 'sel_4'"
+      - {op: block, parent: fx5_couture_shears_remote, block: gray_concrete, size: [1.0, 1.0, 1.0], id: fx5_couture_shears_remote_1_blade_2_2, when: "= event.source == 'sel_4'"}
       - id: fx5_couture_shears_remote_1_blade_2_2_trk
         op: track
         target: fx5_couture_shears_remote_1_blade_2_2
@@ -1936,8 +1954,8 @@ presentation:
           - {t: 10, offset: [0.045, 0.74008, 0.85899], scale: [0.06, 0.045, 0.4], turn: [13.0, 0.0, 0.0]}
           - {t: 13, offset: [0.045, 0.74008, 0.85899], scale: [0.0, 0.0, 0.0], turn: [13.0, 0.0, 0.0]}
         sample_ticks: 1
-        when: "= event.source == 'sel_3'"
-      - {op: block, parent: fx5_couture_shears_remote, block: iron_block, size: [1.0, 1.0, 1.0], id: fx5_couture_shears_remote_1_edge_2_2, when: "= event.source == 'sel_3'"}
+        when: "= event.source == 'sel_4'"
+      - {op: block, parent: fx5_couture_shears_remote, block: iron_block, size: [1.0, 1.0, 1.0], id: fx5_couture_shears_remote_1_edge_2_2, when: "= event.source == 'sel_4'"}
       - id: fx5_couture_shears_remote_1_edge_2_2_trk
         op: track
         target: fx5_couture_shears_remote_1_edge_2_2
@@ -1955,8 +1973,8 @@ presentation:
           - {t: 10, offset: [0.045, 0.75389, 0.86218], scale: [0.06, 0.025, 0.40018], turn: [14.73982, 0.0, 0.0]}
           - {t: 13, offset: [0.045, 0.75389, 0.86218], scale: [0.0, 0.0, 0.0], turn: [14.73982, 0.0, 0.0]}
         sample_ticks: 1
-        when: "= event.source == 'sel_3'"
-      - {op: block, parent: fx5_couture_shears_remote, block: black_concrete, size: [1.0, 1.0, 1.0], id: fx5_couture_shears_remote_1_handle_0_2, when: "= event.source == 'sel_3'"}
+        when: "= event.source == 'sel_4'"
+      - {op: block, parent: fx5_couture_shears_remote, block: black_concrete, size: [1.0, 1.0, 1.0], id: fx5_couture_shears_remote_1_handle_0_2, when: "= event.source == 'sel_4'"}
       - id: fx5_couture_shears_remote_1_handle_0_2_trk
         op: track
         target: fx5_couture_shears_remote_1_handle_0_2
@@ -1974,8 +1992,8 @@ presentation:
           - {t: 10, offset: [0.045, 1.24992, -0.86039], scale: [0.06, 0.045, 0.31113], turn: [-122.0, 0.0, 0.0]}
           - {t: 13, offset: [0.045, 1.24992, -0.86039], scale: [0.0, 0.0, 0.0], turn: [-122.0, 0.0, 0.0]}
         sample_ticks: 1
-        when: "= event.source == 'sel_3'"
-      - {op: block, parent: fx5_couture_shears_remote, block: black_concrete, size: [1.0, 1.0, 1.0], id: fx5_couture_shears_remote_1_handle_1_2, when: "= event.source == 'sel_3'"}
+        when: "= event.source == 'sel_4'"
+      - {op: block, parent: fx5_couture_shears_remote, block: black_concrete, size: [1.0, 1.0, 1.0], id: fx5_couture_shears_remote_1_handle_1_2, when: "= event.source == 'sel_4'"}
       - id: fx5_couture_shears_remote_1_handle_1_2_trk
         op: track
         target: fx5_couture_shears_remote_1_handle_1_2
@@ -1993,8 +2011,8 @@ presentation:
           - {t: 10, offset: [0.045, 1.41785, -1.16543], scale: [0.06, 0.045, 0.451], turn: [-170.81407, 0.0, 0.0]}
           - {t: 13, offset: [0.045, 1.41785, -1.16543], scale: [0.0, 0.0, 0.0], turn: [-170.81407, 0.0, 0.0]}
         sample_ticks: 1
-        when: "= event.source == 'sel_3'"
-      - {op: block, parent: fx5_couture_shears_remote, block: black_concrete, size: [1.0, 1.0, 1.0], id: fx5_couture_shears_remote_1_handle_2_2, when: "= event.source == 'sel_3'"}
+        when: "= event.source == 'sel_4'"
+      - {op: block, parent: fx5_couture_shears_remote, block: black_concrete, size: [1.0, 1.0, 1.0], id: fx5_couture_shears_remote_1_handle_2_2, when: "= event.source == 'sel_4'"}
       - id: fx5_couture_shears_remote_1_handle_2_2_trk
         op: track
         target: fx5_couture_shears_remote_1_handle_2_2
@@ -2012,8 +2030,8 @@ presentation:
           - {t: 10, offset: [0.045, 1.37365, -1.463], scale: [0.06, 0.045, 0.21954], turn: [133.06858, 0.0, 0.0]}
           - {t: 13, offset: [0.045, 1.37365, -1.463], scale: [0.0, 0.0, 0.0], turn: [133.06858, 0.0, 0.0]}
         sample_ticks: 1
-        when: "= event.source == 'sel_3'"
-      - {op: block, parent: fx5_couture_shears_remote, block: black_concrete, size: [1.0, 1.0, 1.0], id: fx5_couture_shears_remote_1_handle_3_2, when: "= event.source == 'sel_3'"}
+        when: "= event.source == 'sel_4'"
+      - {op: block, parent: fx5_couture_shears_remote, block: black_concrete, size: [1.0, 1.0, 1.0], id: fx5_couture_shears_remote_1_handle_3_2, when: "= event.source == 'sel_4'"}
       - id: fx5_couture_shears_remote_1_handle_3_2_trk
         op: track
         target: fx5_couture_shears_remote_1_handle_3_2
@@ -2031,8 +2049,8 @@ presentation:
           - {t: 10, offset: [0.045, 1.15216, -1.37045], scale: [0.06, 0.045, 0.43829], turn: [40.14968, 0.0, 0.0]}
           - {t: 13, offset: [0.045, 1.15216, -1.37045], scale: [0.0, 0.0, 0.0], turn: [40.14968, 0.0, 0.0]}
         sample_ticks: 1
-        when: "= event.source == 'sel_3'"
-      - {op: block, parent: fx5_couture_shears_remote, block: black_concrete, size: [1.0, 1.0, 1.0], id: fx5_couture_shears_remote_1_handle_4_2, when: "= event.source == 'sel_3'"}
+        when: "= event.source == 'sel_4'"
+      - {op: block, parent: fx5_couture_shears_remote, block: black_concrete, size: [1.0, 1.0, 1.0], id: fx5_couture_shears_remote_1_handle_4_2, when: "= event.source == 'sel_4'"}
       - id: fx5_couture_shears_remote_1_handle_4_2_trk
         op: track
         target: fx5_couture_shears_remote_1_handle_4_2
@@ -2050,8 +2068,8 @@ presentation:
           - {t: 10, offset: [0.045, 1.06442, -0.99045], scale: [0.06, 0.045, 0.43829], turn: [-14.14968, 0.0, 0.0]}
           - {t: 13, offset: [0.045, 1.06442, -0.99045], scale: [0.0, 0.0, 0.0], turn: [-14.14968, 0.0, 0.0]}
         sample_ticks: 1
-        when: "= event.source == 'sel_3'"
-      - {op: block, parent: fx5_couture_shears_remote, block: white_concrete, size: [1.0, 1.0, 1.0], id: fx5_couture_shears_remote_hinge_flower_0, when: "= event.source == 'sel_3'"}
+        when: "= event.source == 'sel_4'"
+      - {op: block, parent: fx5_couture_shears_remote, block: white_concrete, size: [1.0, 1.0, 1.0], id: fx5_couture_shears_remote_hinge_flower_0, when: "= event.source == 'sel_4'"}
       - id: fx5_couture_shears_remote_hinge_flower_0_trk
         op: track
         target: fx5_couture_shears_remote_hinge_flower_0
@@ -2062,8 +2080,8 @@ presentation:
           - {t: 10, offset: [-0.12, 1.1, -0.7], scale: [0.15, 0.15, 0.12]}
           - {t: 13, offset: [-0.12, 1.1, -0.7], scale: [0.0, 0.0, 0.0]}
         sample_ticks: 1
-        when: "= event.source == 'sel_3'"
-      - {op: block, parent: fx5_couture_shears_remote, block: white_concrete, size: [1.0, 1.0, 1.0], id: fx5_couture_shears_remote_hinge_flower_1, when: "= event.source == 'sel_3'"}
+        when: "= event.source == 'sel_4'"
+      - {op: block, parent: fx5_couture_shears_remote, block: white_concrete, size: [1.0, 1.0, 1.0], id: fx5_couture_shears_remote_hinge_flower_1, when: "= event.source == 'sel_4'"}
       - id: fx5_couture_shears_remote_hinge_flower_1_trk
         op: track
         target: fx5_couture_shears_remote_hinge_flower_1
@@ -2074,8 +2092,8 @@ presentation:
           - {t: 10, offset: [0.12, 1.1, -0.7], scale: [0.15, 0.15, 0.12]}
           - {t: 13, offset: [0.12, 1.1, -0.7], scale: [0.0, 0.0, 0.0]}
         sample_ticks: 1
-        when: "= event.source == 'sel_3'"
-      - {op: block, parent: fx5_couture_shears_remote, block: white_concrete, size: [1.0, 1.0, 1.0], id: fx5_couture_shears_remote_hinge_flower_2, when: "= event.source == 'sel_3'"}
+        when: "= event.source == 'sel_4'"
+      - {op: block, parent: fx5_couture_shears_remote, block: white_concrete, size: [1.0, 1.0, 1.0], id: fx5_couture_shears_remote_hinge_flower_2, when: "= event.source == 'sel_4'"}
       - id: fx5_couture_shears_remote_hinge_flower_2_trk
         op: track
         target: fx5_couture_shears_remote_hinge_flower_2
@@ -2086,8 +2104,8 @@ presentation:
           - {t: 10, offset: [0.0, 1.22, -0.7], scale: [0.15, 0.15, 0.12]}
           - {t: 13, offset: [0.0, 1.22, -0.7], scale: [0.0, 0.0, 0.0]}
         sample_ticks: 1
-        when: "= event.source == 'sel_3'"
-      - {op: block, parent: fx5_couture_shears_remote, block: white_concrete, size: [1.0, 1.0, 1.0], id: fx5_couture_shears_remote_hinge_flower_3, when: "= event.source == 'sel_3'"}
+        when: "= event.source == 'sel_4'"
+      - {op: block, parent: fx5_couture_shears_remote, block: white_concrete, size: [1.0, 1.0, 1.0], id: fx5_couture_shears_remote_hinge_flower_3, when: "= event.source == 'sel_4'"}
       - id: fx5_couture_shears_remote_hinge_flower_3_trk
         op: track
         target: fx5_couture_shears_remote_hinge_flower_3
@@ -2098,9 +2116,9 @@ presentation:
           - {t: 10, offset: [0.0, 0.98, -0.7], scale: [0.15, 0.15, 0.12]}
           - {t: 13, offset: [0.0, 0.98, -0.7], scale: [0.0, 0.0, 0.0]}
         sample_ticks: 1
-        when: "= event.source == 'sel_3'"
-      - {id: anchor_6, op: anchor, frame: fx6_couture_rapier_cross, at: enemy, orient: yaw, when: "= event.source == 'sel_4'"}
-      - {op: block, parent: fx6_couture_rapier_cross, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx6_couture_rapier_cross_cross_0, when: "= event.source == 'sel_4'"}
+        when: "= event.source == 'sel_4'"
+      - {id: anchor_6, op: anchor, frame: fx6_couture_rapier_cross, at: enemy, orient: yaw, when: "= event.source == 'sel_6'"}
+      - {op: block, parent: fx6_couture_rapier_cross, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx6_couture_rapier_cross_cross_0, when: "= event.source == 'sel_6'"}
       - id: fx6_couture_rapier_cross_cross_0_trk
         op: track
         target: fx6_couture_rapier_cross_cross_0
@@ -2109,8 +2127,8 @@ presentation:
           - {t: 3, scale: [0.035, 3.3, 0.04]}
           - {t: 8, scale: [0.0, 3.3, 0.0], ease: in_quad}
         sample_ticks: 1
-        when: "= event.source == 'sel_4'"
-      - {op: block, parent: fx6_couture_rapier_cross, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx6_couture_rapier_cross_cross_1, when: "= event.source == 'sel_4'"}
+        when: "= event.source == 'sel_6'"
+      - {op: block, parent: fx6_couture_rapier_cross, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx6_couture_rapier_cross_cross_1, when: "= event.source == 'sel_6'"}
       - id: fx6_couture_rapier_cross_cross_1_trk
         op: track
         target: fx6_couture_rapier_cross_cross_1
@@ -2119,8 +2137,8 @@ presentation:
           - {t: 3, scale: [0.035, 3.3, 0.04]}
           - {t: 8, scale: [0.0, 3.3, 0.0], ease: in_quad}
         sample_ticks: 1
-        when: "= event.source == 'sel_4'"
-      - {op: block, parent: fx6_couture_rapier_cross, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx6_couture_rapier_cross_cross_2, when: "= event.source == 'sel_4'"}
+        when: "= event.source == 'sel_6'"
+      - {op: block, parent: fx6_couture_rapier_cross, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx6_couture_rapier_cross_cross_2, when: "= event.source == 'sel_6'"}
       - id: fx6_couture_rapier_cross_cross_2_trk
         op: track
         target: fx6_couture_rapier_cross_cross_2
@@ -2129,7 +2147,7 @@ presentation:
           - {t: 3, scale: [0.035, 3.3, 0.04]}
           - {t: 8, scale: [0.0, 3.3, 0.0], ease: in_quad}
         sample_ticks: 1
-        when: "= event.source == 'sel_4'"
+        when: "= event.source == 'sel_6'"
       - op: quad
         parent: fx6_couture_rapier_cross
         face: {viewer: center}
@@ -2138,7 +2156,7 @@ presentation:
         alpha: 1.0
         brightness: 15
         id: fx6_couture_rapier_cross_dark_0
-        when: "= event.source == 'sel_4'"
+        when: "= event.source == 'sel_6'"
       - id: fx6_couture_rapier_cross_dark_0_trk
         op: track
         target: fx6_couture_rapier_cross_dark_0
@@ -2146,7 +2164,7 @@ presentation:
           - {t: 0, offset: [0.0, 1.1, 0.0], scale: [0.12, 0.16, 1.0], alpha: 1.0}
           - {t: 6, offset: [0.0, 0.3, -0.9], scale: [0.05, 0.08, 1.0], alpha: 0.0, ease: out_cubic, turn: [0.0, 0.0, 0.0]}
         sample_ticks: 1
-        when: "= event.source == 'sel_4'"
+        when: "= event.source == 'sel_6'"
       - op: quad
         parent: fx6_couture_rapier_cross
         face: {viewer: center}
@@ -2155,7 +2173,7 @@ presentation:
         alpha: 1.0
         brightness: 15
         id: fx6_couture_rapier_cross_dark_1
-        when: "= event.source == 'sel_4'"
+        when: "= event.source == 'sel_6'"
       - id: fx6_couture_rapier_cross_dark_1_trk
         op: track
         target: fx6_couture_rapier_cross_dark_1
@@ -2163,7 +2181,7 @@ presentation:
           - {t: 0, offset: [0.0, 1.1, 0.0], scale: [0.12, 0.16, 1.0], alpha: 1.0}
           - {t: 6, offset: [0.0, 0.6, -0.3], scale: [0.05, 0.08, 1.0], alpha: 0.0, ease: out_cubic, turn: [0.0, 0.0, 60.0]}
         sample_ticks: 1
-        when: "= event.source == 'sel_4'"
+        when: "= event.source == 'sel_6'"
       - op: quad
         parent: fx6_couture_rapier_cross
         face: {viewer: center}
@@ -2172,7 +2190,7 @@ presentation:
         alpha: 1.0
         brightness: 15
         id: fx6_couture_rapier_cross_dark_2
-        when: "= event.source == 'sel_4'"
+        when: "= event.source == 'sel_6'"
       - id: fx6_couture_rapier_cross_dark_2_trk
         op: track
         target: fx6_couture_rapier_cross_dark_2
@@ -2180,7 +2198,7 @@ presentation:
           - {t: 0, offset: [0.0, 1.1, 0.0], scale: [0.12, 0.16, 1.0], alpha: 1.0}
           - {t: 6, offset: [0.0, 0.9, 0.3], scale: [0.05, 0.08, 1.0], alpha: 0.0, ease: out_cubic, turn: [0.0, 0.0, 120.0]}
         sample_ticks: 1
-        when: "= event.source == 'sel_4'"
+        when: "= event.source == 'sel_6'"
       - op: quad
         parent: fx6_couture_rapier_cross
         face: {viewer: center}
@@ -2189,7 +2207,7 @@ presentation:
         alpha: 1.0
         brightness: 15
         id: fx6_couture_rapier_cross_dark_3
-        when: "= event.source == 'sel_4'"
+        when: "= event.source == 'sel_6'"
       - id: fx6_couture_rapier_cross_dark_3_trk
         op: track
         target: fx6_couture_rapier_cross_dark_3
@@ -2197,7 +2215,7 @@ presentation:
           - {t: 0, offset: [0.0, 1.1, 0.0], scale: [0.12, 0.16, 1.0], alpha: 1.0}
           - {t: 6, offset: [0.0, 1.2, 0.9], scale: [0.05, 0.08, 1.0], alpha: 0.0, ease: out_cubic, turn: [0.0, 0.0, 180.0]}
         sample_ticks: 1
-        when: "= event.source == 'sel_4'"
+        when: "= event.source == 'sel_6'"
       - op: quad
         parent: fx6_couture_rapier_cross
         face: {viewer: center}
@@ -2206,7 +2224,7 @@ presentation:
         alpha: 0.2
         brightness: 15
         id: fx6_couture_rapier_cross_bloom
-        when: "= event.source == 'sel_4'"
+        when: "= event.source == 'sel_6'"
       - id: fx6_couture_rapier_cross_bloom_trk
         op: track
         target: fx6_couture_rapier_cross_bloom
@@ -2215,7 +2233,7 @@ presentation:
           - {t: 1, scale: [1.5, 1.5, 1.0]}
           - {t: 5, scale: [2.0, 2.0, 1.0], alpha: 0.0}
         sample_ticks: 1
-        when: "= event.source == 'sel_4'"
+        when: "= event.source == 'sel_6'"
       - id: fx6_couture_rapier_cross_petals_0
         op: quad
         parent: fx6_couture_rapier_cross
@@ -2224,7 +2242,7 @@ presentation:
         color: "#FFF5E9"
         alpha: 1.0
         brightness: 15
-        when: "= event.source == 'sel_4'"
+        when: "= event.source == 'sel_6'"
       - id: fx6_couture_rapier_cross_petals_0_trk
         op: track
         target: fx6_couture_rapier_cross_petals_0
@@ -2238,7 +2256,7 @@ presentation:
           - {t: 6, offset: [0.31787, 1.53529, 0.0], scale: [0.016571, 0.016571, 1.0], alpha: 0.14286}
           - {t: 7, offset: [0.35866, 1.56666, 0.0], scale: [0.00725, 0.00725, 1.0], alpha: 0.0}
         sample_ticks: 1
-        when: "= event.source == 'sel_4'"
+        when: "= event.source == 'sel_6'"
       - id: fx6_couture_rapier_cross_petals_1
         op: quad
         parent: fx6_couture_rapier_cross
@@ -2247,7 +2265,7 @@ presentation:
         color: "#FFF5E9"
         alpha: 1.0
         brightness: 15
-        when: "= event.source == 'sel_4'"
+        when: "= event.source == 'sel_6'"
       - id: fx6_couture_rapier_cross_petals_1_trk
         op: track
         target: fx6_couture_rapier_cross_petals_1
@@ -2261,7 +2279,7 @@ presentation:
           - {t: 6, offset: [-0.37794, 1.37114, 0.34623], scale: [0.016571, 0.016571, 1.0], alpha: 0.14286}
           - {t: 7, offset: [-0.42643, 1.38145, 0.39065], scale: [0.00725, 0.00725, 1.0], alpha: 0.0}
         sample_ticks: 1
-        when: "= event.source == 'sel_4'"
+        when: "= event.source == 'sel_6'"
       - id: fx6_couture_rapier_cross_petals_2
         op: quad
         parent: fx6_couture_rapier_cross
@@ -2270,7 +2288,7 @@ presentation:
         color: "#FFF5E9"
         alpha: 1.0
         brightness: 15
-        when: "= event.source == 'sel_4'"
+        when: "= event.source == 'sel_6'"
       - id: fx6_couture_rapier_cross_petals_2_trk
         op: track
         target: fx6_couture_rapier_cross_petals_2
@@ -2284,7 +2302,7 @@ presentation:
           - {t: 6, offset: [0.05321, 1.20699, -0.60635], scale: [0.016571, 0.016571, 1.0], alpha: 0.14286}
           - {t: 7, offset: [0.06004, 1.19624, -0.68414], scale: [0.00725, 0.00725, 1.0], alpha: 0.0}
         sample_ticks: 1
-        when: "= event.source == 'sel_4'"
+        when: "= event.source == 'sel_6'"
       - id: fx6_couture_rapier_cross_petals_3
         op: quad
         parent: fx6_couture_rapier_cross
@@ -2293,7 +2311,7 @@ presentation:
         color: "#FFF5E9"
         alpha: 1.0
         brightness: 15
-        when: "= event.source == 'sel_4'"
+        when: "= event.source == 'sel_6'"
       - id: fx6_couture_rapier_cross_petals_3_trk
         op: track
         target: fx6_couture_rapier_cross_petals_3
@@ -2307,7 +2325,7 @@ presentation:
           - {t: 6, offset: [0.39637, 1.04284, 0.51699], scale: [0.016571, 0.016571, 1.0], alpha: 0.14286}
           - {t: 7, offset: [0.44722, 1.01104, 0.58332], scale: [0.00725, 0.00725, 1.0], alpha: 0.0}
         sample_ticks: 1
-        when: "= event.source == 'sel_4'"
+        when: "= event.source == 'sel_6'"
       - id: fx6_couture_rapier_cross_petals_4
         op: quad
         parent: fx6_couture_rapier_cross
@@ -2316,7 +2334,7 @@ presentation:
         color: "#FFF5E9"
         alpha: 1.0
         brightness: 15
-        when: "= event.source == 'sel_4'"
+        when: "= event.source == 'sel_6'"
       - id: fx6_couture_rapier_cross_petals_4_trk
         op: track
         target: fx6_couture_rapier_cross_petals_4
@@ -2330,7 +2348,7 @@ presentation:
           - {t: 6, offset: [-0.64149, 0.87869, -0.11347], scale: [0.016571, 0.016571, 1.0], alpha: 0.14286}
           - {t: 7, offset: [-0.72379, 0.82583, -0.12803], scale: [0.00725, 0.00725, 1.0], alpha: 0.0}
         sample_ticks: 1
-        when: "= event.source == 'sel_4'"
+        when: "= event.source == 'sel_6'"
       - id: fx6_couture_rapier_cross_petals_5
         op: quad
         parent: fx6_couture_rapier_cross
@@ -2339,7 +2357,7 @@ presentation:
         color: "#FFF5E9"
         alpha: 1.0
         brightness: 15
-        when: "= event.source == 'sel_4'"
+        when: "= event.source == 'sel_6'"
       - id: fx6_couture_rapier_cross_petals_5_trk
         op: track
         target: fx6_couture_rapier_cross_petals_5
@@ -2353,7 +2371,7 @@ presentation:
           - {t: 6, offset: [0.51358, 0.71454, -0.3267], scale: [0.016571, 0.016571, 1.0], alpha: 0.14286}
           - {t: 7, offset: [0.57947, 0.64062, -0.36861], scale: [0.00725, 0.00725, 1.0], alpha: 0.0}
         sample_ticks: 1
-        when: "= event.source == 'sel_4'"
+        when: "= event.source == 'sel_6'"
       - id: fx6_couture_rapier_cross_petals_6
         op: quad
         parent: fx6_couture_rapier_cross
@@ -2362,7 +2380,7 @@ presentation:
         color: "#FFF5E9"
         alpha: 1.0
         brightness: 15
-        when: "= event.source == 'sel_4'"
+        when: "= event.source == 'sel_6'"
       - id: fx6_couture_rapier_cross_petals_6_trk
         op: track
         target: fx6_couture_rapier_cross_petals_6
@@ -2376,7 +2394,7 @@ presentation:
           - {t: 6, offset: [-0.13306, 0.55039, 0.49498], scale: [0.016571, 0.016571, 1.0], alpha: 0.14286}
           - {t: 7, offset: [-0.15013, 0.45541, 0.55849], scale: [0.00725, 0.00725, 1.0], alpha: 0.0}
         sample_ticks: 1
-        when: "= event.source == 'sel_4'"
+        when: "= event.source == 'sel_6'"
       - id: fx6_couture_rapier_cross_petals_7
         op: quad
         parent: fx6_couture_rapier_cross
@@ -2385,7 +2403,7 @@ presentation:
         color: "#FFF5E9"
         alpha: 1.0
         brightness: 15
-        when: "= event.source == 'sel_4'"
+        when: "= event.source == 'sel_6'"
       - id: fx6_couture_rapier_cross_petals_7_trk
         op: track
         target: fx6_couture_rapier_cross_petals_7
@@ -2399,14 +2417,14 @@ presentation:
           - {t: 6, offset: [-0.14651, 0.38624, -0.2821], scale: [0.016571, 0.016571, 1.0], alpha: 0.14286}
           - {t: 7, offset: [-0.16531, 0.2702, -0.31829], scale: [0.00725, 0.00725, 1.0], alpha: 0.0}
         sample_ticks: 1
-        when: "= event.source == 'sel_4'"
+        when: "= event.source == 'sel_6'"
       - id: fx6_couture_rapier_cross_sparks_atrk
         op: track
         target: fx6_couture_rapier_cross_sparks_at
         space: fx6_couture_rapier_cross
         keys:
           - {t: 0, offset: [0, 1.1, 0]}
-        when: "= event.source == 'sel_4'"
+        when: "= event.source == 'sel_6'"
       - op: quad
         parent: fx6_couture_rapier_cross
         face: {viewer: center}
@@ -2417,7 +2435,7 @@ presentation:
         see_through: true
         brightness: 15
         id: fx6_couture_rapier_cross_contact_fill
-        when: "= event.source == 'sel_4'"
+        when: "= event.source == 'sel_6'"
       - id: fx6_couture_rapier_cross_contact_fill_trk
         op: track
         target: fx6_couture_rapier_cross_contact_fill
@@ -2427,10 +2445,10 @@ presentation:
           - {t: 3, scale: [1.6, 1.6, 1.0]}
           - {t: 6, scale: [0.2, 0.2, 1.0], alpha: 0.0, ease: in_quad}
         sample_ticks: 1
-        when: "= event.source == 'sel_4'"
-      - {id: snd_2, op: sound, sound: entity.player.attack.strong, at: enemy, volume: 0.7, pitch: 1.1, when: "= event.source == 'sel_4'"}
-      - {id: anchor_9, op: anchor, frame: fx9_couture_shears_remote, at: enemy, orient: yaw, when: "= event.source == 'sel_5'"}
-      - {op: block, parent: fx9_couture_shears_remote, block: gray_concrete, size: [1.0, 1.0, 1.0], id: fx9_couture_shears_remote_1_blade_0, when: "= event.source == 'sel_5'"}
+        when: "= event.source == 'sel_6'"
+      - {id: snd_2, op: sound, sound: entity.player.attack.strong, at: enemy, volume: 0.7, pitch: 1.1, when: "= event.source == 'sel_6'"}
+      - {id: anchor_9, op: anchor, frame: fx9_couture_shears_remote, at: enemy, orient: yaw, when: "= event.source == 'sel_7'"}
+      - {op: block, parent: fx9_couture_shears_remote, block: gray_concrete, size: [1.0, 1.0, 1.0], id: fx9_couture_shears_remote_1_blade_0, when: "= event.source == 'sel_7'"}
       - id: fx9_couture_shears_remote_1_blade_0_trk
         op: track
         target: fx9_couture_shears_remote_1_blade_0
@@ -2448,8 +2466,8 @@ presentation:
           - {t: 10, offset: [-0.045, 0.98305, -0.31748], scale: [0.06, 0.19, 0.8], turn: [17.0, 0.0, 0.0]}
           - {t: 13, offset: [-0.045, 0.98305, -0.31748], scale: [0.0, 0.0, 0.0], turn: [17.0, 0.0, 0.0]}
         sample_ticks: 1
-        when: "= event.source == 'sel_5'"
-      - {op: block, parent: fx9_couture_shears_remote, block: iron_block, size: [1.0, 1.0, 1.0], id: fx9_couture_shears_remote_1_edge_0, when: "= event.source == 'sel_5'"}
+        when: "= event.source == 'sel_7'"
+      - {op: block, parent: fx9_couture_shears_remote, block: iron_block, size: [1.0, 1.0, 1.0], id: fx9_couture_shears_remote_1_edge_0, when: "= event.source == 'sel_7'"}
       - id: fx9_couture_shears_remote_1_edge_0_trk
         op: track
         target: fx9_couture_shears_remote_1_edge_0
@@ -2467,8 +2485,8 @@ presentation:
           - {t: 10, offset: [-0.045, 1.04029, -0.29998], scale: [0.06, 0.025, 0.80164], turn: [20.66907, 0.0, 0.0]}
           - {t: 13, offset: [-0.045, 1.04029, -0.29998], scale: [0.0, 0.0, 0.0], turn: [20.66907, 0.0, 0.0]}
         sample_ticks: 1
-        when: "= event.source == 'sel_5'"
-      - {op: block, parent: fx9_couture_shears_remote, block: gray_concrete, size: [1.0, 1.0, 1.0], id: fx9_couture_shears_remote_1_blade_1, when: "= event.source == 'sel_5'"}
+        when: "= event.source == 'sel_7'"
+      - {op: block, parent: fx9_couture_shears_remote, block: gray_concrete, size: [1.0, 1.0, 1.0], id: fx9_couture_shears_remote_1_blade_1, when: "= event.source == 'sel_7'"}
       - id: fx9_couture_shears_remote_1_blade_1_trk
         op: track
         target: fx9_couture_shears_remote_1_blade_1
@@ -2486,8 +2504,8 @@ presentation:
           - {t: 10, offset: [-0.045, 0.77839, 0.35194], scale: [0.06, 0.12, 0.6], turn: [17.0, 0.0, 0.0]}
           - {t: 13, offset: [-0.045, 0.77839, 0.35194], scale: [0.0, 0.0, 0.0], turn: [17.0, 0.0, 0.0]}
         sample_ticks: 1
-        when: "= event.source == 'sel_5'"
-      - {op: block, parent: fx9_couture_shears_remote, block: iron_block, size: [1.0, 1.0, 1.0], id: fx9_couture_shears_remote_1_edge_1, when: "= event.source == 'sel_5'"}
+        when: "= event.source == 'sel_7'"
+      - {op: block, parent: fx9_couture_shears_remote, block: iron_block, size: [1.0, 1.0, 1.0], id: fx9_couture_shears_remote_1_edge_1, when: "= event.source == 'sel_7'"}
       - id: fx9_couture_shears_remote_1_edge_1_trk
         op: track
         target: fx9_couture_shears_remote_1_edge_1
@@ -2505,8 +2523,8 @@ presentation:
           - {t: 10, offset: [-0.045, 0.81454, 0.36299], scale: [0.06, 0.025, 0.60087], turn: [20.09097, 0.0, 0.0]}
           - {t: 13, offset: [-0.045, 0.81454, 0.36299], scale: [0.0, 0.0, 0.0], turn: [20.09097, 0.0, 0.0]}
         sample_ticks: 1
-        when: "= event.source == 'sel_5'"
-      - {op: block, parent: fx9_couture_shears_remote, block: gray_concrete, size: [1.0, 1.0, 1.0], id: fx9_couture_shears_remote_1_blade_2, when: "= event.source == 'sel_5'"}
+        when: "= event.source == 'sel_7'"
+      - {op: block, parent: fx9_couture_shears_remote, block: gray_concrete, size: [1.0, 1.0, 1.0], id: fx9_couture_shears_remote_1_blade_2, when: "= event.source == 'sel_7'"}
       - id: fx9_couture_shears_remote_1_blade_2_trk
         op: track
         target: fx9_couture_shears_remote_1_blade_2
@@ -2524,8 +2542,8 @@ presentation:
           - {t: 10, offset: [-0.045, 0.63221, 0.83009], scale: [0.06, 0.045, 0.4], turn: [17.0, 0.0, 0.0]}
           - {t: 13, offset: [-0.045, 0.63221, 0.83009], scale: [0.0, 0.0, 0.0], turn: [17.0, 0.0, 0.0]}
         sample_ticks: 1
-        when: "= event.source == 'sel_5'"
-      - {op: block, parent: fx9_couture_shears_remote, block: iron_block, size: [1.0, 1.0, 1.0], id: fx9_couture_shears_remote_1_edge_2, when: "= event.source == 'sel_5'"}
+        when: "= event.source == 'sel_7'"
+      - {op: block, parent: fx9_couture_shears_remote, block: iron_block, size: [1.0, 1.0, 1.0], id: fx9_couture_shears_remote_1_edge_2, when: "= event.source == 'sel_7'"}
       - id: fx9_couture_shears_remote_1_edge_2_trk
         op: track
         target: fx9_couture_shears_remote_1_edge_2
@@ -2543,8 +2561,8 @@ presentation:
           - {t: 10, offset: [-0.045, 0.64576, 0.83423], scale: [0.06, 0.025, 0.40018], turn: [18.73982, 0.0, 0.0]}
           - {t: 13, offset: [-0.045, 0.64576, 0.83423], scale: [0.0, 0.0, 0.0], turn: [18.73982, 0.0, 0.0]}
         sample_ticks: 1
-        when: "= event.source == 'sel_5'"
-      - {op: block, parent: fx9_couture_shears_remote, block: black_concrete, size: [1.0, 1.0, 1.0], id: fx9_couture_shears_remote_1_handle_0, when: "= event.source == 'sel_5'"}
+        when: "= event.source == 'sel_7'"
+      - {op: block, parent: fx9_couture_shears_remote, block: black_concrete, size: [1.0, 1.0, 1.0], id: fx9_couture_shears_remote_1_handle_0, when: "= event.source == 'sel_7'"}
       - id: fx9_couture_shears_remote_1_handle_0_trk
         op: track
         target: fx9_couture_shears_remote_1_handle_0
@@ -2562,8 +2580,8 @@ presentation:
           - {t: 10, offset: [-0.045, 1.26074, -0.84954], scale: [0.06, 0.045, 0.31113], turn: [-118.0, 0.0, 0.0]}
           - {t: 13, offset: [-0.045, 1.26074, -0.84954], scale: [0.0, 0.0, 0.0], turn: [-118.0, 0.0, 0.0]}
         sample_ticks: 1
-        when: "= event.source == 'sel_5'"
-      - {op: block, parent: fx9_couture_shears_remote, block: black_concrete, size: [1.0, 1.0, 1.0], id: fx9_couture_shears_remote_1_handle_1, when: "= event.source == 'sel_5'"}
+        when: "= event.source == 'sel_7'"
+      - {op: block, parent: fx9_couture_shears_remote, block: black_concrete, size: [1.0, 1.0, 1.0], id: fx9_couture_shears_remote_1_handle_1, when: "= event.source == 'sel_7'"}
       - id: fx9_couture_shears_remote_1_handle_1_trk
         op: track
         target: fx9_couture_shears_remote_1_handle_1
@@ -2581,8 +2599,8 @@ presentation:
           - {t: 10, offset: [-0.045, 1.44954, -1.14212], scale: [0.06, 0.045, 0.451], turn: [-166.81407, 0.0, 0.0]}
           - {t: 13, offset: [-0.045, 1.44954, -1.14212], scale: [0.0, 0.0, 0.0], turn: [-166.81407, 0.0, 0.0]}
         sample_ticks: 1
-        when: "= event.source == 'sel_5'"
-      - {op: block, parent: fx9_couture_shears_remote, block: black_concrete, size: [1.0, 1.0, 1.0], id: fx9_couture_shears_remote_1_handle_2, when: "= event.source == 'sel_5'"}
+        when: "= event.source == 'sel_7'"
+      - {op: block, parent: fx9_couture_shears_remote, block: black_concrete, size: [1.0, 1.0, 1.0], id: fx9_couture_shears_remote_1_handle_2, when: "= event.source == 'sel_7'"}
       - id: fx9_couture_shears_remote_1_handle_2_trk
         op: track
         target: fx9_couture_shears_remote_1_handle_2
@@ -2600,8 +2618,8 @@ presentation:
           - {t: 10, offset: [-0.045, 1.42621, -1.44205], scale: [0.06, 0.045, 0.21954], turn: [137.06858, 0.0, 0.0]}
           - {t: 13, offset: [-0.045, 1.42621, -1.44205], scale: [0.0, 0.0, 0.0], turn: [137.06858, 0.0, 0.0]}
         sample_ticks: 1
-        when: "= event.source == 'sel_5'"
-      - {op: block, parent: fx9_couture_shears_remote, block: black_concrete, size: [1.0, 1.0, 1.0], id: fx9_couture_shears_remote_1_handle_3, when: "= event.source == 'sel_5'"}
+        when: "= event.source == 'sel_7'"
+      - {op: block, parent: fx9_couture_shears_remote, block: black_concrete, size: [1.0, 1.0, 1.0], id: fx9_couture_shears_remote_1_handle_3, when: "= event.source == 'sel_7'"}
       - id: fx9_couture_shears_remote_1_handle_3_trk
         op: track
         target: fx9_couture_shears_remote_1_handle_3
@@ -2619,8 +2637,8 @@ presentation:
           - {t: 10, offset: [-0.045, 1.1988, -1.36518], scale: [0.06, 0.045, 0.43829], turn: [44.14968, 0.0, 0.0]}
           - {t: 13, offset: [-0.045, 1.1988, -1.36518], scale: [0.0, 0.0, 0.0], turn: [44.14968, 0.0, 0.0]}
         sample_ticks: 1
-        when: "= event.source == 'sel_5'"
-      - {op: block, parent: fx9_couture_shears_remote, block: black_concrete, size: [1.0, 1.0, 1.0], id: fx9_couture_shears_remote_1_handle_4, when: "= event.source == 'sel_5'"}
+        when: "= event.source == 'sel_7'"
+      - {op: block, parent: fx9_couture_shears_remote, block: black_concrete, size: [1.0, 1.0, 1.0], id: fx9_couture_shears_remote_1_handle_4, when: "= event.source == 'sel_7'"}
       - id: fx9_couture_shears_remote_1_handle_4_trk
         op: track
         target: fx9_couture_shears_remote_1_handle_4
@@ -2638,8 +2656,8 @@ presentation:
           - {t: 10, offset: [-0.045, 1.08477, -0.99222], scale: [0.06, 0.045, 0.43829], turn: [-10.14968, 0.0, 0.0]}
           - {t: 13, offset: [-0.045, 1.08477, -0.99222], scale: [0.0, 0.0, 0.0], turn: [-10.14968, 0.0, 0.0]}
         sample_ticks: 1
-        when: "= event.source == 'sel_5'"
-      - {op: block, parent: fx9_couture_shears_remote, block: gray_concrete, size: [1.0, 1.0, 1.0], id: fx9_couture_shears_remote_1_blade_0_2, when: "= event.source == 'sel_5'"}
+        when: "= event.source == 'sel_7'"
+      - {op: block, parent: fx9_couture_shears_remote, block: gray_concrete, size: [1.0, 1.0, 1.0], id: fx9_couture_shears_remote_1_blade_0_2, when: "= event.source == 'sel_7'"}
       - id: fx9_couture_shears_remote_1_blade_0_2_trk
         op: track
         target: fx9_couture_shears_remote_1_blade_0_2
@@ -2657,8 +2675,8 @@ presentation:
           - {t: 10, offset: [0.045, 1.01002, -0.31025], scale: [0.06, 0.19, 0.8], turn: [13.0, 0.0, 0.0]}
           - {t: 13, offset: [0.045, 1.01002, -0.31025], scale: [0.0, 0.0, 0.0], turn: [13.0, 0.0, 0.0]}
         sample_ticks: 1
-        when: "= event.source == 'sel_5'"
-      - {op: block, parent: fx9_couture_shears_remote, block: iron_block, size: [1.0, 1.0, 1.0], id: fx9_couture_shears_remote_1_edge_0_2, when: "= event.source == 'sel_5'"}
+        when: "= event.source == 'sel_7'"
+      - {op: block, parent: fx9_couture_shears_remote, block: iron_block, size: [1.0, 1.0, 1.0], id: fx9_couture_shears_remote_1_edge_0_2, when: "= event.source == 'sel_7'"}
       - id: fx9_couture_shears_remote_1_edge_0_2_trk
         op: track
         target: fx9_couture_shears_remote_1_edge_0_2
@@ -2676,8 +2694,8 @@ presentation:
           - {t: 10, offset: [0.045, 1.06834, -0.29679], scale: [0.06, 0.025, 0.80164], turn: [16.66907, 0.0, 0.0]}
           - {t: 13, offset: [0.045, 1.06834, -0.29679], scale: [0.0, 0.0, 0.0], turn: [16.66907, 0.0, 0.0]}
         sample_ticks: 1
-        when: "= event.source == 'sel_5'"
-      - {op: block, parent: fx9_couture_shears_remote, block: gray_concrete, size: [1.0, 1.0, 1.0], id: fx9_couture_shears_remote_1_blade_1_2, when: "= event.source == 'sel_5'"}
+        when: "= event.source == 'sel_7'"
+      - {op: block, parent: fx9_couture_shears_remote, block: gray_concrete, size: [1.0, 1.0, 1.0], id: fx9_couture_shears_remote_1_blade_1_2, when: "= event.source == 'sel_7'"}
       - id: fx9_couture_shears_remote_1_blade_1_2_trk
         op: track
         target: fx9_couture_shears_remote_1_blade_1_2
@@ -2695,8 +2713,8 @@ presentation:
           - {t: 10, offset: [0.045, 0.85255, 0.37181], scale: [0.06, 0.12, 0.6], turn: [13.0, 0.0, 0.0]}
           - {t: 13, offset: [0.045, 0.85255, 0.37181], scale: [0.0, 0.0, 0.0], turn: [13.0, 0.0, 0.0]}
         sample_ticks: 1
-        when: "= event.source == 'sel_5'"
-      - {op: block, parent: fx9_couture_shears_remote, block: iron_block, size: [1.0, 1.0, 1.0], id: fx9_couture_shears_remote_1_edge_1_2, when: "= event.source == 'sel_5'"}
+        when: "= event.source == 'sel_7'"
+      - {op: block, parent: fx9_couture_shears_remote, block: iron_block, size: [1.0, 1.0, 1.0], id: fx9_couture_shears_remote_1_edge_1_2, when: "= event.source == 'sel_7'"}
       - id: fx9_couture_shears_remote_1_edge_1_2_trk
         op: track
         target: fx9_couture_shears_remote_1_edge_1_2
@@ -2714,8 +2732,8 @@ presentation:
           - {t: 10, offset: [0.045, 0.88939, 0.38031], scale: [0.06, 0.025, 0.60087], turn: [16.09097, 0.0, 0.0]}
           - {t: 13, offset: [0.045, 0.88939, 0.38031], scale: [0.0, 0.0, 0.0], turn: [16.09097, 0.0, 0.0]}
         sample_ticks: 1
-        when: "= event.source == 'sel_5'"
-      - {op: block, parent: fx9_couture_shears_remote, block: gray_concrete, size: [1.0, 1.0, 1.0], id: fx9_couture_shears_remote_1_blade_2_2, when: "= event.source == 'sel_5'"}
+        when: "= event.source == 'sel_7'"
+      - {op: block, parent: fx9_couture_shears_remote, block: gray_concrete, size: [1.0, 1.0, 1.0], id: fx9_couture_shears_remote_1_blade_2_2, when: "= event.source == 'sel_7'"}
       - id: fx9_couture_shears_remote_1_blade_2_2_trk
         op: track
         target: fx9_couture_shears_remote_1_blade_2_2
@@ -2733,8 +2751,8 @@ presentation:
           - {t: 10, offset: [0.045, 0.74008, 0.85899], scale: [0.06, 0.045, 0.4], turn: [13.0, 0.0, 0.0]}
           - {t: 13, offset: [0.045, 0.74008, 0.85899], scale: [0.0, 0.0, 0.0], turn: [13.0, 0.0, 0.0]}
         sample_ticks: 1
-        when: "= event.source == 'sel_5'"
-      - {op: block, parent: fx9_couture_shears_remote, block: iron_block, size: [1.0, 1.0, 1.0], id: fx9_couture_shears_remote_1_edge_2_2, when: "= event.source == 'sel_5'"}
+        when: "= event.source == 'sel_7'"
+      - {op: block, parent: fx9_couture_shears_remote, block: iron_block, size: [1.0, 1.0, 1.0], id: fx9_couture_shears_remote_1_edge_2_2, when: "= event.source == 'sel_7'"}
       - id: fx9_couture_shears_remote_1_edge_2_2_trk
         op: track
         target: fx9_couture_shears_remote_1_edge_2_2
@@ -2752,8 +2770,8 @@ presentation:
           - {t: 10, offset: [0.045, 0.75389, 0.86218], scale: [0.06, 0.025, 0.40018], turn: [14.73982, 0.0, 0.0]}
           - {t: 13, offset: [0.045, 0.75389, 0.86218], scale: [0.0, 0.0, 0.0], turn: [14.73982, 0.0, 0.0]}
         sample_ticks: 1
-        when: "= event.source == 'sel_5'"
-      - {op: block, parent: fx9_couture_shears_remote, block: black_concrete, size: [1.0, 1.0, 1.0], id: fx9_couture_shears_remote_1_handle_0_2, when: "= event.source == 'sel_5'"}
+        when: "= event.source == 'sel_7'"
+      - {op: block, parent: fx9_couture_shears_remote, block: black_concrete, size: [1.0, 1.0, 1.0], id: fx9_couture_shears_remote_1_handle_0_2, when: "= event.source == 'sel_7'"}
       - id: fx9_couture_shears_remote_1_handle_0_2_trk
         op: track
         target: fx9_couture_shears_remote_1_handle_0_2
@@ -2771,8 +2789,8 @@ presentation:
           - {t: 10, offset: [0.045, 1.24992, -0.86039], scale: [0.06, 0.045, 0.31113], turn: [-122.0, 0.0, 0.0]}
           - {t: 13, offset: [0.045, 1.24992, -0.86039], scale: [0.0, 0.0, 0.0], turn: [-122.0, 0.0, 0.0]}
         sample_ticks: 1
-        when: "= event.source == 'sel_5'"
-      - {op: block, parent: fx9_couture_shears_remote, block: black_concrete, size: [1.0, 1.0, 1.0], id: fx9_couture_shears_remote_1_handle_1_2, when: "= event.source == 'sel_5'"}
+        when: "= event.source == 'sel_7'"
+      - {op: block, parent: fx9_couture_shears_remote, block: black_concrete, size: [1.0, 1.0, 1.0], id: fx9_couture_shears_remote_1_handle_1_2, when: "= event.source == 'sel_7'"}
       - id: fx9_couture_shears_remote_1_handle_1_2_trk
         op: track
         target: fx9_couture_shears_remote_1_handle_1_2
@@ -2790,8 +2808,8 @@ presentation:
           - {t: 10, offset: [0.045, 1.41785, -1.16543], scale: [0.06, 0.045, 0.451], turn: [-170.81407, 0.0, 0.0]}
           - {t: 13, offset: [0.045, 1.41785, -1.16543], scale: [0.0, 0.0, 0.0], turn: [-170.81407, 0.0, 0.0]}
         sample_ticks: 1
-        when: "= event.source == 'sel_5'"
-      - {op: block, parent: fx9_couture_shears_remote, block: black_concrete, size: [1.0, 1.0, 1.0], id: fx9_couture_shears_remote_1_handle_2_2, when: "= event.source == 'sel_5'"}
+        when: "= event.source == 'sel_7'"
+      - {op: block, parent: fx9_couture_shears_remote, block: black_concrete, size: [1.0, 1.0, 1.0], id: fx9_couture_shears_remote_1_handle_2_2, when: "= event.source == 'sel_7'"}
       - id: fx9_couture_shears_remote_1_handle_2_2_trk
         op: track
         target: fx9_couture_shears_remote_1_handle_2_2
@@ -2809,8 +2827,8 @@ presentation:
           - {t: 10, offset: [0.045, 1.37365, -1.463], scale: [0.06, 0.045, 0.21954], turn: [133.06858, 0.0, 0.0]}
           - {t: 13, offset: [0.045, 1.37365, -1.463], scale: [0.0, 0.0, 0.0], turn: [133.06858, 0.0, 0.0]}
         sample_ticks: 1
-        when: "= event.source == 'sel_5'"
-      - {op: block, parent: fx9_couture_shears_remote, block: black_concrete, size: [1.0, 1.0, 1.0], id: fx9_couture_shears_remote_1_handle_3_2, when: "= event.source == 'sel_5'"}
+        when: "= event.source == 'sel_7'"
+      - {op: block, parent: fx9_couture_shears_remote, block: black_concrete, size: [1.0, 1.0, 1.0], id: fx9_couture_shears_remote_1_handle_3_2, when: "= event.source == 'sel_7'"}
       - id: fx9_couture_shears_remote_1_handle_3_2_trk
         op: track
         target: fx9_couture_shears_remote_1_handle_3_2
@@ -2828,8 +2846,8 @@ presentation:
           - {t: 10, offset: [0.045, 1.15216, -1.37045], scale: [0.06, 0.045, 0.43829], turn: [40.14968, 0.0, 0.0]}
           - {t: 13, offset: [0.045, 1.15216, -1.37045], scale: [0.0, 0.0, 0.0], turn: [40.14968, 0.0, 0.0]}
         sample_ticks: 1
-        when: "= event.source == 'sel_5'"
-      - {op: block, parent: fx9_couture_shears_remote, block: black_concrete, size: [1.0, 1.0, 1.0], id: fx9_couture_shears_remote_1_handle_4_2, when: "= event.source == 'sel_5'"}
+        when: "= event.source == 'sel_7'"
+      - {op: block, parent: fx9_couture_shears_remote, block: black_concrete, size: [1.0, 1.0, 1.0], id: fx9_couture_shears_remote_1_handle_4_2, when: "= event.source == 'sel_7'"}
       - id: fx9_couture_shears_remote_1_handle_4_2_trk
         op: track
         target: fx9_couture_shears_remote_1_handle_4_2
@@ -2847,8 +2865,8 @@ presentation:
           - {t: 10, offset: [0.045, 1.06442, -0.99045], scale: [0.06, 0.045, 0.43829], turn: [-14.14968, 0.0, 0.0]}
           - {t: 13, offset: [0.045, 1.06442, -0.99045], scale: [0.0, 0.0, 0.0], turn: [-14.14968, 0.0, 0.0]}
         sample_ticks: 1
-        when: "= event.source == 'sel_5'"
-      - {op: block, parent: fx9_couture_shears_remote, block: white_concrete, size: [1.0, 1.0, 1.0], id: fx9_couture_shears_remote_hinge_flower_0, when: "= event.source == 'sel_5'"}
+        when: "= event.source == 'sel_7'"
+      - {op: block, parent: fx9_couture_shears_remote, block: white_concrete, size: [1.0, 1.0, 1.0], id: fx9_couture_shears_remote_hinge_flower_0, when: "= event.source == 'sel_7'"}
       - id: fx9_couture_shears_remote_hinge_flower_0_trk
         op: track
         target: fx9_couture_shears_remote_hinge_flower_0
@@ -2859,8 +2877,8 @@ presentation:
           - {t: 10, offset: [-0.12, 1.1, -0.7], scale: [0.15, 0.15, 0.12]}
           - {t: 13, offset: [-0.12, 1.1, -0.7], scale: [0.0, 0.0, 0.0]}
         sample_ticks: 1
-        when: "= event.source == 'sel_5'"
-      - {op: block, parent: fx9_couture_shears_remote, block: white_concrete, size: [1.0, 1.0, 1.0], id: fx9_couture_shears_remote_hinge_flower_1, when: "= event.source == 'sel_5'"}
+        when: "= event.source == 'sel_7'"
+      - {op: block, parent: fx9_couture_shears_remote, block: white_concrete, size: [1.0, 1.0, 1.0], id: fx9_couture_shears_remote_hinge_flower_1, when: "= event.source == 'sel_7'"}
       - id: fx9_couture_shears_remote_hinge_flower_1_trk
         op: track
         target: fx9_couture_shears_remote_hinge_flower_1
@@ -2871,8 +2889,8 @@ presentation:
           - {t: 10, offset: [0.12, 1.1, -0.7], scale: [0.15, 0.15, 0.12]}
           - {t: 13, offset: [0.12, 1.1, -0.7], scale: [0.0, 0.0, 0.0]}
         sample_ticks: 1
-        when: "= event.source == 'sel_5'"
-      - {op: block, parent: fx9_couture_shears_remote, block: white_concrete, size: [1.0, 1.0, 1.0], id: fx9_couture_shears_remote_hinge_flower_2, when: "= event.source == 'sel_5'"}
+        when: "= event.source == 'sel_7'"
+      - {op: block, parent: fx9_couture_shears_remote, block: white_concrete, size: [1.0, 1.0, 1.0], id: fx9_couture_shears_remote_hinge_flower_2, when: "= event.source == 'sel_7'"}
       - id: fx9_couture_shears_remote_hinge_flower_2_trk
         op: track
         target: fx9_couture_shears_remote_hinge_flower_2
@@ -2883,8 +2901,8 @@ presentation:
           - {t: 10, offset: [0.0, 1.22, -0.7], scale: [0.15, 0.15, 0.12]}
           - {t: 13, offset: [0.0, 1.22, -0.7], scale: [0.0, 0.0, 0.0]}
         sample_ticks: 1
-        when: "= event.source == 'sel_5'"
-      - {op: block, parent: fx9_couture_shears_remote, block: white_concrete, size: [1.0, 1.0, 1.0], id: fx9_couture_shears_remote_hinge_flower_3, when: "= event.source == 'sel_5'"}
+        when: "= event.source == 'sel_7'"
+      - {op: block, parent: fx9_couture_shears_remote, block: white_concrete, size: [1.0, 1.0, 1.0], id: fx9_couture_shears_remote_hinge_flower_3, when: "= event.source == 'sel_7'"}
       - id: fx9_couture_shears_remote_hinge_flower_3_trk
         op: track
         target: fx9_couture_shears_remote_hinge_flower_3
@@ -2895,9 +2913,9 @@ presentation:
           - {t: 10, offset: [0.0, 0.98, -0.7], scale: [0.15, 0.15, 0.12]}
           - {t: 13, offset: [0.0, 0.98, -0.7], scale: [0.0, 0.0, 0.0]}
         sample_ticks: 1
-        when: "= event.source == 'sel_5'"
-      - {id: anchor_10, op: anchor, frame: fx10_couture_rapier_cross, at: enemy, orient: yaw, when: "= event.source == 'sel_6'"}
-      - {op: block, parent: fx10_couture_rapier_cross, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx10_couture_rapier_cross_cross_0, when: "= event.source == 'sel_6'"}
+        when: "= event.source == 'sel_7'"
+      - {id: anchor_10, op: anchor, frame: fx10_couture_rapier_cross, at: enemy, orient: yaw, when: "= event.source == 'sel_9'"}
+      - {op: block, parent: fx10_couture_rapier_cross, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx10_couture_rapier_cross_cross_0, when: "= event.source == 'sel_9'"}
       - id: fx10_couture_rapier_cross_cross_0_trk
         op: track
         target: fx10_couture_rapier_cross_cross_0
@@ -2906,8 +2924,8 @@ presentation:
           - {t: 3, scale: [0.035, 3.3, 0.04]}
           - {t: 8, scale: [0.0, 3.3, 0.0], ease: in_quad}
         sample_ticks: 1
-        when: "= event.source == 'sel_6'"
-      - {op: block, parent: fx10_couture_rapier_cross, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx10_couture_rapier_cross_cross_1, when: "= event.source == 'sel_6'"}
+        when: "= event.source == 'sel_9'"
+      - {op: block, parent: fx10_couture_rapier_cross, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx10_couture_rapier_cross_cross_1, when: "= event.source == 'sel_9'"}
       - id: fx10_couture_rapier_cross_cross_1_trk
         op: track
         target: fx10_couture_rapier_cross_cross_1
@@ -2916,8 +2934,8 @@ presentation:
           - {t: 3, scale: [0.035, 3.3, 0.04]}
           - {t: 8, scale: [0.0, 3.3, 0.0], ease: in_quad}
         sample_ticks: 1
-        when: "= event.source == 'sel_6'"
-      - {op: block, parent: fx10_couture_rapier_cross, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx10_couture_rapier_cross_cross_2, when: "= event.source == 'sel_6'"}
+        when: "= event.source == 'sel_9'"
+      - {op: block, parent: fx10_couture_rapier_cross, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx10_couture_rapier_cross_cross_2, when: "= event.source == 'sel_9'"}
       - id: fx10_couture_rapier_cross_cross_2_trk
         op: track
         target: fx10_couture_rapier_cross_cross_2
@@ -2926,7 +2944,7 @@ presentation:
           - {t: 3, scale: [0.035, 3.3, 0.04]}
           - {t: 8, scale: [0.0, 3.3, 0.0], ease: in_quad}
         sample_ticks: 1
-        when: "= event.source == 'sel_6'"
+        when: "= event.source == 'sel_9'"
       - op: quad
         parent: fx10_couture_rapier_cross
         face: {viewer: center}
@@ -2935,7 +2953,7 @@ presentation:
         alpha: 1.0
         brightness: 15
         id: fx10_couture_rapier_cross_dark_0
-        when: "= event.source == 'sel_6'"
+        when: "= event.source == 'sel_9'"
       - id: fx10_couture_rapier_cross_dark_0_trk
         op: track
         target: fx10_couture_rapier_cross_dark_0
@@ -2943,7 +2961,7 @@ presentation:
           - {t: 0, offset: [0.0, 1.1, 0.0], scale: [0.12, 0.16, 1.0], alpha: 1.0}
           - {t: 6, offset: [0.0, 0.3, -0.9], scale: [0.05, 0.08, 1.0], alpha: 0.0, ease: out_cubic, turn: [0.0, 0.0, 0.0]}
         sample_ticks: 1
-        when: "= event.source == 'sel_6'"
+        when: "= event.source == 'sel_9'"
       - op: quad
         parent: fx10_couture_rapier_cross
         face: {viewer: center}
@@ -2952,7 +2970,7 @@ presentation:
         alpha: 1.0
         brightness: 15
         id: fx10_couture_rapier_cross_dark_1
-        when: "= event.source == 'sel_6'"
+        when: "= event.source == 'sel_9'"
       - id: fx10_couture_rapier_cross_dark_1_trk
         op: track
         target: fx10_couture_rapier_cross_dark_1
@@ -2960,7 +2978,7 @@ presentation:
           - {t: 0, offset: [0.0, 1.1, 0.0], scale: [0.12, 0.16, 1.0], alpha: 1.0}
           - {t: 6, offset: [0.0, 0.6, -0.3], scale: [0.05, 0.08, 1.0], alpha: 0.0, ease: out_cubic, turn: [0.0, 0.0, 60.0]}
         sample_ticks: 1
-        when: "= event.source == 'sel_6'"
+        when: "= event.source == 'sel_9'"
       - op: quad
         parent: fx10_couture_rapier_cross
         face: {viewer: center}
@@ -2969,7 +2987,7 @@ presentation:
         alpha: 1.0
         brightness: 15
         id: fx10_couture_rapier_cross_dark_2
-        when: "= event.source == 'sel_6'"
+        when: "= event.source == 'sel_9'"
       - id: fx10_couture_rapier_cross_dark_2_trk
         op: track
         target: fx10_couture_rapier_cross_dark_2
@@ -2977,7 +2995,7 @@ presentation:
           - {t: 0, offset: [0.0, 1.1, 0.0], scale: [0.12, 0.16, 1.0], alpha: 1.0}
           - {t: 6, offset: [0.0, 0.9, 0.3], scale: [0.05, 0.08, 1.0], alpha: 0.0, ease: out_cubic, turn: [0.0, 0.0, 120.0]}
         sample_ticks: 1
-        when: "= event.source == 'sel_6'"
+        when: "= event.source == 'sel_9'"
       - op: quad
         parent: fx10_couture_rapier_cross
         face: {viewer: center}
@@ -2986,7 +3004,7 @@ presentation:
         alpha: 1.0
         brightness: 15
         id: fx10_couture_rapier_cross_dark_3
-        when: "= event.source == 'sel_6'"
+        when: "= event.source == 'sel_9'"
       - id: fx10_couture_rapier_cross_dark_3_trk
         op: track
         target: fx10_couture_rapier_cross_dark_3
@@ -2994,7 +3012,7 @@ presentation:
           - {t: 0, offset: [0.0, 1.1, 0.0], scale: [0.12, 0.16, 1.0], alpha: 1.0}
           - {t: 6, offset: [0.0, 1.2, 0.9], scale: [0.05, 0.08, 1.0], alpha: 0.0, ease: out_cubic, turn: [0.0, 0.0, 180.0]}
         sample_ticks: 1
-        when: "= event.source == 'sel_6'"
+        when: "= event.source == 'sel_9'"
       - op: quad
         parent: fx10_couture_rapier_cross
         face: {viewer: center}
@@ -3003,7 +3021,7 @@ presentation:
         alpha: 0.2
         brightness: 15
         id: fx10_couture_rapier_cross_bloom
-        when: "= event.source == 'sel_6'"
+        when: "= event.source == 'sel_9'"
       - id: fx10_couture_rapier_cross_bloom_trk
         op: track
         target: fx10_couture_rapier_cross_bloom
@@ -3012,7 +3030,7 @@ presentation:
           - {t: 1, scale: [1.5, 1.5, 1.0]}
           - {t: 5, scale: [2.0, 2.0, 1.0], alpha: 0.0}
         sample_ticks: 1
-        when: "= event.source == 'sel_6'"
+        when: "= event.source == 'sel_9'"
       - id: fx10_couture_rapier_cross_petals_0
         op: quad
         parent: fx10_couture_rapier_cross
@@ -3021,7 +3039,7 @@ presentation:
         color: "#FFF5E9"
         alpha: 1.0
         brightness: 15
-        when: "= event.source == 'sel_6'"
+        when: "= event.source == 'sel_9'"
       - id: fx10_couture_rapier_cross_petals_0_trk
         op: track
         target: fx10_couture_rapier_cross_petals_0
@@ -3035,7 +3053,7 @@ presentation:
           - {t: 6, offset: [0.31787, 1.53529, 0.0], scale: [0.016571, 0.016571, 1.0], alpha: 0.14286}
           - {t: 7, offset: [0.35866, 1.56666, 0.0], scale: [0.00725, 0.00725, 1.0], alpha: 0.0}
         sample_ticks: 1
-        when: "= event.source == 'sel_6'"
+        when: "= event.source == 'sel_9'"
       - id: fx10_couture_rapier_cross_petals_1
         op: quad
         parent: fx10_couture_rapier_cross
@@ -3044,7 +3062,7 @@ presentation:
         color: "#FFF5E9"
         alpha: 1.0
         brightness: 15
-        when: "= event.source == 'sel_6'"
+        when: "= event.source == 'sel_9'"
       - id: fx10_couture_rapier_cross_petals_1_trk
         op: track
         target: fx10_couture_rapier_cross_petals_1
@@ -3058,7 +3076,7 @@ presentation:
           - {t: 6, offset: [-0.37794, 1.37114, 0.34623], scale: [0.016571, 0.016571, 1.0], alpha: 0.14286}
           - {t: 7, offset: [-0.42643, 1.38145, 0.39065], scale: [0.00725, 0.00725, 1.0], alpha: 0.0}
         sample_ticks: 1
-        when: "= event.source == 'sel_6'"
+        when: "= event.source == 'sel_9'"
       - id: fx10_couture_rapier_cross_petals_2
         op: quad
         parent: fx10_couture_rapier_cross
@@ -3067,7 +3085,7 @@ presentation:
         color: "#FFF5E9"
         alpha: 1.0
         brightness: 15
-        when: "= event.source == 'sel_6'"
+        when: "= event.source == 'sel_9'"
       - id: fx10_couture_rapier_cross_petals_2_trk
         op: track
         target: fx10_couture_rapier_cross_petals_2
@@ -3081,7 +3099,7 @@ presentation:
           - {t: 6, offset: [0.05321, 1.20699, -0.60635], scale: [0.016571, 0.016571, 1.0], alpha: 0.14286}
           - {t: 7, offset: [0.06004, 1.19624, -0.68414], scale: [0.00725, 0.00725, 1.0], alpha: 0.0}
         sample_ticks: 1
-        when: "= event.source == 'sel_6'"
+        when: "= event.source == 'sel_9'"
       - id: fx10_couture_rapier_cross_petals_3
         op: quad
         parent: fx10_couture_rapier_cross
@@ -3090,7 +3108,7 @@ presentation:
         color: "#FFF5E9"
         alpha: 1.0
         brightness: 15
-        when: "= event.source == 'sel_6'"
+        when: "= event.source == 'sel_9'"
       - id: fx10_couture_rapier_cross_petals_3_trk
         op: track
         target: fx10_couture_rapier_cross_petals_3
@@ -3104,7 +3122,7 @@ presentation:
           - {t: 6, offset: [0.39637, 1.04284, 0.51699], scale: [0.016571, 0.016571, 1.0], alpha: 0.14286}
           - {t: 7, offset: [0.44722, 1.01104, 0.58332], scale: [0.00725, 0.00725, 1.0], alpha: 0.0}
         sample_ticks: 1
-        when: "= event.source == 'sel_6'"
+        when: "= event.source == 'sel_9'"
       - id: fx10_couture_rapier_cross_petals_4
         op: quad
         parent: fx10_couture_rapier_cross
@@ -3113,7 +3131,7 @@ presentation:
         color: "#FFF5E9"
         alpha: 1.0
         brightness: 15
-        when: "= event.source == 'sel_6'"
+        when: "= event.source == 'sel_9'"
       - id: fx10_couture_rapier_cross_petals_4_trk
         op: track
         target: fx10_couture_rapier_cross_petals_4
@@ -3127,7 +3145,7 @@ presentation:
           - {t: 6, offset: [-0.64149, 0.87869, -0.11347], scale: [0.016571, 0.016571, 1.0], alpha: 0.14286}
           - {t: 7, offset: [-0.72379, 0.82583, -0.12803], scale: [0.00725, 0.00725, 1.0], alpha: 0.0}
         sample_ticks: 1
-        when: "= event.source == 'sel_6'"
+        when: "= event.source == 'sel_9'"
       - id: fx10_couture_rapier_cross_petals_5
         op: quad
         parent: fx10_couture_rapier_cross
@@ -3136,7 +3154,7 @@ presentation:
         color: "#FFF5E9"
         alpha: 1.0
         brightness: 15
-        when: "= event.source == 'sel_6'"
+        when: "= event.source == 'sel_9'"
       - id: fx10_couture_rapier_cross_petals_5_trk
         op: track
         target: fx10_couture_rapier_cross_petals_5
@@ -3150,7 +3168,7 @@ presentation:
           - {t: 6, offset: [0.51358, 0.71454, -0.3267], scale: [0.016571, 0.016571, 1.0], alpha: 0.14286}
           - {t: 7, offset: [0.57947, 0.64062, -0.36861], scale: [0.00725, 0.00725, 1.0], alpha: 0.0}
         sample_ticks: 1
-        when: "= event.source == 'sel_6'"
+        when: "= event.source == 'sel_9'"
       - id: fx10_couture_rapier_cross_petals_6
         op: quad
         parent: fx10_couture_rapier_cross
@@ -3159,7 +3177,7 @@ presentation:
         color: "#FFF5E9"
         alpha: 1.0
         brightness: 15
-        when: "= event.source == 'sel_6'"
+        when: "= event.source == 'sel_9'"
       - id: fx10_couture_rapier_cross_petals_6_trk
         op: track
         target: fx10_couture_rapier_cross_petals_6
@@ -3173,7 +3191,7 @@ presentation:
           - {t: 6, offset: [-0.13306, 0.55039, 0.49498], scale: [0.016571, 0.016571, 1.0], alpha: 0.14286}
           - {t: 7, offset: [-0.15013, 0.45541, 0.55849], scale: [0.00725, 0.00725, 1.0], alpha: 0.0}
         sample_ticks: 1
-        when: "= event.source == 'sel_6'"
+        when: "= event.source == 'sel_9'"
       - id: fx10_couture_rapier_cross_petals_7
         op: quad
         parent: fx10_couture_rapier_cross
@@ -3182,7 +3200,7 @@ presentation:
         color: "#FFF5E9"
         alpha: 1.0
         brightness: 15
-        when: "= event.source == 'sel_6'"
+        when: "= event.source == 'sel_9'"
       - id: fx10_couture_rapier_cross_petals_7_trk
         op: track
         target: fx10_couture_rapier_cross_petals_7
@@ -3196,14 +3214,14 @@ presentation:
           - {t: 6, offset: [-0.14651, 0.38624, -0.2821], scale: [0.016571, 0.016571, 1.0], alpha: 0.14286}
           - {t: 7, offset: [-0.16531, 0.2702, -0.31829], scale: [0.00725, 0.00725, 1.0], alpha: 0.0}
         sample_ticks: 1
-        when: "= event.source == 'sel_6'"
+        when: "= event.source == 'sel_9'"
       - id: fx10_couture_rapier_cross_sparks_atrk
         op: track
         target: fx10_couture_rapier_cross_sparks_at
         space: fx10_couture_rapier_cross
         keys:
           - {t: 0, offset: [0, 1.1, 0]}
-        when: "= event.source == 'sel_6'"
+        when: "= event.source == 'sel_9'"
       - op: quad
         parent: fx10_couture_rapier_cross
         face: {viewer: center}
@@ -3214,7 +3232,7 @@ presentation:
         see_through: true
         brightness: 15
         id: fx10_couture_rapier_cross_contact_fill
-        when: "= event.source == 'sel_6'"
+        when: "= event.source == 'sel_9'"
       - id: fx10_couture_rapier_cross_contact_fill_trk
         op: track
         target: fx10_couture_rapier_cross_contact_fill
@@ -3224,10 +3242,10 @@ presentation:
           - {t: 3, scale: [1.6, 1.6, 1.0]}
           - {t: 6, scale: [0.2, 0.2, 1.0], alpha: 0.0, ease: in_quad}
         sample_ticks: 1
-        when: "= event.source == 'sel_6'"
-      - {id: snd_3, op: sound, sound: entity.player.attack.strong, at: enemy, volume: 0.7, pitch: 1.1, when: "= event.source == 'sel_6'"}
-      - {id: anchor_11, op: anchor, frame: fx11_couture_target_rosette, at: enemy, orient: yaw, when: "= event.source == 'sel_7'"}
-      - {op: block, parent: fx11_couture_target_rosette, block: pink_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx11_couture_target_rosette_arc_0, when: "= event.source == 'sel_7'"}
+        when: "= event.source == 'sel_9'"
+      - {id: snd_3, op: sound, sound: entity.player.attack.strong, at: enemy, volume: 0.7, pitch: 1.1, when: "= event.source == 'sel_9'"}
+      - {id: anchor_11, op: anchor, frame: fx11_couture_target_rosette, at: enemy, orient: yaw, when: "= event.source == 'sel_10'"}
+      - {op: block, parent: fx11_couture_target_rosette, block: pink_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx11_couture_target_rosette_arc_0, when: "= event.source == 'sel_10'"}
       - id: fx11_couture_target_rosette_arc_0_trk
         op: track
         target: fx11_couture_target_rosette_arc_0
@@ -3236,8 +3254,8 @@ presentation:
           - {t: 2, offset: [0.0, 1.1, 3.0], scale: [0.05, 0.04705, 1.25245], turn: [-90.0, 0.0, 0.0]}
           - {t: 11, offset: [0.0, 1.1, 3.0], scale: [0.0, 0.0, 0.75147], turn: [-90.0, 0.0, 0.0]}
         sample_ticks: 1
-        when: "= event.source == 'sel_7'"
-      - {op: block, parent: fx11_couture_target_rosette, block: pink_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx11_couture_target_rosette_arc_1, when: "= event.source == 'sel_7'"}
+        when: "= event.source == 'sel_10'"
+      - {op: block, parent: fx11_couture_target_rosette, block: pink_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx11_couture_target_rosette_arc_1, when: "= event.source == 'sel_10'"}
       - id: fx11_couture_target_rosette_arc_1_trk
         op: track
         target: fx11_couture_target_rosette_arc_1
@@ -3246,8 +3264,8 @@ presentation:
           - {t: 2, offset: [0.0, 2.15752, 2.77522], scale: [0.05, 0.06835, 1.25245], turn: [-114.0, 0.0, 0.0]}
           - {t: 11, offset: [0.0, 2.15752, 2.77522], scale: [0.0, 0.0, 0.75147], turn: [-114.0, 0.0, 0.0]}
         sample_ticks: 1
-        when: "= event.source == 'sel_7'"
-      - {op: block, parent: fx11_couture_target_rosette, block: pink_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx11_couture_target_rosette_arc_2, when: "= event.source == 'sel_7'"}
+        when: "= event.source == 'sel_10'"
+      - {op: block, parent: fx11_couture_target_rosette, block: pink_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx11_couture_target_rosette_arc_2, when: "= event.source == 'sel_10'"}
       - id: fx11_couture_target_rosette_arc_2_trk
         op: track
         target: fx11_couture_target_rosette_arc_2
@@ -3256,8 +3274,8 @@ presentation:
           - {t: 2, offset: [0.0, 3.03218, 2.13974], scale: [0.05, 0.08817, 1.25245], turn: [-138.0, 0.0, 0.0]}
           - {t: 11, offset: [0.0, 3.03218, 2.13974], scale: [0.0, 0.0, 0.75147], turn: [-138.0, 0.0, 0.0]}
         sample_ticks: 1
-        when: "= event.source == 'sel_7'"
-      - {op: block, parent: fx11_couture_target_rosette, block: pink_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx11_couture_target_rosette_arc_3, when: "= event.source == 'sel_7'"}
+        when: "= event.source == 'sel_10'"
+      - {op: block, parent: fx11_couture_target_rosette, block: pink_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx11_couture_target_rosette_arc_3, when: "= event.source == 'sel_10'"}
       - id: fx11_couture_target_rosette_arc_3_trk
         op: track
         target: fx11_couture_target_rosette_arc_3
@@ -3266,8 +3284,8 @@ presentation:
           - {t: 2, offset: [0.0, 3.57275, 1.20344], scale: [0.05, 0.10584, 1.25245], turn: [-162.0, 0.0, 0.0]}
           - {t: 11, offset: [0.0, 3.57275, 1.20344], scale: [0.0, 0.0, 0.75147], turn: [-162.0, 0.0, 0.0]}
         sample_ticks: 1
-        when: "= event.source == 'sel_7'"
-      - {op: block, parent: fx11_couture_target_rosette, block: pink_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx11_couture_target_rosette_arc_4, when: "= event.source == 'sel_7'"}
+        when: "= event.source == 'sel_10'"
+      - {op: block, parent: fx11_couture_target_rosette, block: pink_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx11_couture_target_rosette_arc_4, when: "= event.source == 'sel_10'"}
       - id: fx11_couture_target_rosette_arc_4_trk
         op: track
         target: fx11_couture_target_rosette_arc_4
@@ -3276,8 +3294,8 @@ presentation:
           - {t: 2, offset: [0.0, 3.68576, 0.12823], scale: [0.05, 0.12076, 1.25245], turn: [174.0, 0.0, 0.0]}
           - {t: 11, offset: [0.0, 3.68576, 0.12823], scale: [0.0, 0.0, 0.75147], turn: [174.0, 0.0, 0.0]}
         sample_ticks: 1
-        when: "= event.source == 'sel_7'"
-      - {op: block, parent: fx11_couture_target_rosette, block: pink_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx11_couture_target_rosette_arc_5, when: "= event.source == 'sel_7'"}
+        when: "= event.source == 'sel_10'"
+      - {op: block, parent: fx11_couture_target_rosette, block: pink_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx11_couture_target_rosette_arc_5, when: "= event.source == 'sel_10'"}
       - id: fx11_couture_target_rosette_arc_5_trk
         op: track
         target: fx11_couture_target_rosette_arc_5
@@ -3286,8 +3304,8 @@ presentation:
           - {t: 2, offset: [0.0, 3.35167, -0.9], scale: [0.05, 0.13242, 1.25245], turn: [150.0, 0.0, 0.0]}
           - {t: 11, offset: [0.0, 3.35167, -0.9], scale: [0.0, 0.0, 0.75147], turn: [150.0, 0.0, 0.0]}
         sample_ticks: 1
-        when: "= event.source == 'sel_7'"
-      - {op: block, parent: fx11_couture_target_rosette, block: pink_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx11_couture_target_rosette_arc_6, when: "= event.source == 'sel_7'"}
+        when: "= event.source == 'sel_10'"
+      - {op: block, parent: fx11_couture_target_rosette, block: pink_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx11_couture_target_rosette_arc_6, when: "= event.source == 'sel_10'"}
       - id: fx11_couture_target_rosette_arc_6_trk
         op: track
         target: fx11_couture_target_rosette_arc_6
@@ -3296,8 +3314,8 @@ presentation:
           - {t: 2, offset: [0.0, 2.62824, -1.70344], scale: [0.05, 0.14042, 1.25245], turn: [126.0, 0.0, 0.0]}
           - {t: 11, offset: [0.0, 2.62824, -1.70344], scale: [0.0, 0.0, 0.75147], turn: [126.0, 0.0, 0.0]}
         sample_ticks: 1
-        when: "= event.source == 'sel_7'"
-      - {op: block, parent: fx11_couture_target_rosette, block: pink_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx11_couture_target_rosette_arc_7, when: "= event.source == 'sel_7'"}
+        when: "= event.source == 'sel_10'"
+      - {op: block, parent: fx11_couture_target_rosette, block: pink_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx11_couture_target_rosette_arc_7, when: "= event.source == 'sel_10'"}
       - id: fx11_couture_target_rosette_arc_7_trk
         op: track
         target: fx11_couture_target_rosette_arc_7
@@ -3306,8 +3324,8 @@ presentation:
           - {t: 2, offset: [0.0, 1.64057, -2.14318], scale: [0.05, 0.14449, 1.25245], turn: [102.0, 0.0, 0.0]}
           - {t: 11, offset: [0.0, 1.64057, -2.14318], scale: [0.0, 0.0, 0.75147], turn: [102.0, 0.0, 0.0]}
         sample_ticks: 1
-        when: "= event.source == 'sel_7'"
-      - {op: block, parent: fx11_couture_target_rosette, block: pink_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx11_couture_target_rosette_arc_8, when: "= event.source == 'sel_7'"}
+        when: "= event.source == 'sel_10'"
+      - {op: block, parent: fx11_couture_target_rosette, block: pink_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx11_couture_target_rosette_arc_8, when: "= event.source == 'sel_10'"}
       - id: fx11_couture_target_rosette_arc_8_trk
         op: track
         target: fx11_couture_target_rosette_arc_8
@@ -3316,8 +3334,8 @@ presentation:
           - {t: 2, offset: [0.0, 0.55943, -2.14318], scale: [0.05, 0.14449, 1.25245], turn: [78.0, 0.0, 0.0]}
           - {t: 11, offset: [0.0, 0.55943, -2.14318], scale: [0.0, 0.0, 0.75147], turn: [78.0, 0.0, 0.0]}
         sample_ticks: 1
-        when: "= event.source == 'sel_7'"
-      - {op: block, parent: fx11_couture_target_rosette, block: pink_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx11_couture_target_rosette_arc_9, when: "= event.source == 'sel_7'"}
+        when: "= event.source == 'sel_10'"
+      - {op: block, parent: fx11_couture_target_rosette, block: pink_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx11_couture_target_rosette_arc_9, when: "= event.source == 'sel_10'"}
       - id: fx11_couture_target_rosette_arc_9_trk
         op: track
         target: fx11_couture_target_rosette_arc_9
@@ -3326,8 +3344,8 @@ presentation:
           - {t: 2, offset: [0.0, -0.42824, -1.70344], scale: [0.05, 0.14042, 1.25245], turn: [54.0, 0.0, 0.0]}
           - {t: 11, offset: [0.0, -0.42824, -1.70344], scale: [0.0, 0.0, 0.75147], turn: [54.0, 0.0, 0.0]}
         sample_ticks: 1
-        when: "= event.source == 'sel_7'"
-      - {op: block, parent: fx11_couture_target_rosette, block: pink_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx11_couture_target_rosette_arc_10, when: "= event.source == 'sel_7'"}
+        when: "= event.source == 'sel_10'"
+      - {op: block, parent: fx11_couture_target_rosette, block: pink_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx11_couture_target_rosette_arc_10, when: "= event.source == 'sel_10'"}
       - id: fx11_couture_target_rosette_arc_10_trk
         op: track
         target: fx11_couture_target_rosette_arc_10
@@ -3336,8 +3354,8 @@ presentation:
           - {t: 2, offset: [0.0, -1.15167, -0.9], scale: [0.05, 0.13242, 1.25245], turn: [30.0, 0.0, 0.0]}
           - {t: 11, offset: [0.0, -1.15167, -0.9], scale: [0.0, 0.0, 0.75147], turn: [30.0, 0.0, 0.0]}
         sample_ticks: 1
-        when: "= event.source == 'sel_7'"
-      - {op: block, parent: fx11_couture_target_rosette, block: pink_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx11_couture_target_rosette_arc_11, when: "= event.source == 'sel_7'"}
+        when: "= event.source == 'sel_10'"
+      - {op: block, parent: fx11_couture_target_rosette, block: pink_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx11_couture_target_rosette_arc_11, when: "= event.source == 'sel_10'"}
       - id: fx11_couture_target_rosette_arc_11_trk
         op: track
         target: fx11_couture_target_rosette_arc_11
@@ -3346,8 +3364,8 @@ presentation:
           - {t: 2, offset: [0.0, -1.48576, 0.12823], scale: [0.05, 0.12076, 1.25245], turn: [6.0, 0.0, 0.0]}
           - {t: 11, offset: [0.0, -1.48576, 0.12823], scale: [0.0, 0.0, 0.75147], turn: [6.0, 0.0, 0.0]}
         sample_ticks: 1
-        when: "= event.source == 'sel_7'"
-      - {op: block, parent: fx11_couture_target_rosette, block: pink_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx11_couture_target_rosette_arc_12, when: "= event.source == 'sel_7'"}
+        when: "= event.source == 'sel_10'"
+      - {op: block, parent: fx11_couture_target_rosette, block: pink_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx11_couture_target_rosette_arc_12, when: "= event.source == 'sel_10'"}
       - id: fx11_couture_target_rosette_arc_12_trk
         op: track
         target: fx11_couture_target_rosette_arc_12
@@ -3356,8 +3374,8 @@ presentation:
           - {t: 2, offset: [0.0, -1.37275, 1.20344], scale: [0.05, 0.10584, 1.25245], turn: [-18.0, 0.0, 0.0]}
           - {t: 11, offset: [0.0, -1.37275, 1.20344], scale: [0.0, 0.0, 0.75147], turn: [-18.0, 0.0, 0.0]}
         sample_ticks: 1
-        when: "= event.source == 'sel_7'"
-      - {op: block, parent: fx11_couture_target_rosette, block: pink_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx11_couture_target_rosette_arc_13, when: "= event.source == 'sel_7'"}
+        when: "= event.source == 'sel_10'"
+      - {op: block, parent: fx11_couture_target_rosette, block: pink_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx11_couture_target_rosette_arc_13, when: "= event.source == 'sel_10'"}
       - id: fx11_couture_target_rosette_arc_13_trk
         op: track
         target: fx11_couture_target_rosette_arc_13
@@ -3366,8 +3384,8 @@ presentation:
           - {t: 2, offset: [0.0, -0.83218, 2.13974], scale: [0.05, 0.08817, 1.25245], turn: [-42.0, 0.0, 0.0]}
           - {t: 11, offset: [0.0, -0.83218, 2.13974], scale: [0.0, 0.0, 0.75147], turn: [-42.0, 0.0, 0.0]}
         sample_ticks: 1
-        when: "= event.source == 'sel_7'"
-      - {op: block, parent: fx11_couture_target_rosette, block: pink_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx11_couture_target_rosette_arc_14, when: "= event.source == 'sel_7'"}
+        when: "= event.source == 'sel_10'"
+      - {op: block, parent: fx11_couture_target_rosette, block: pink_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx11_couture_target_rosette_arc_14, when: "= event.source == 'sel_10'"}
       - id: fx11_couture_target_rosette_arc_14_trk
         op: track
         target: fx11_couture_target_rosette_arc_14
@@ -3376,8 +3394,8 @@ presentation:
           - {t: 2, offset: [0.0, 0.04248, 2.77522], scale: [0.05, 0.06835, 1.25245], turn: [-66.0, 0.0, 0.0]}
           - {t: 11, offset: [0.0, 0.04248, 2.77522], scale: [0.0, 0.0, 0.75147], turn: [-66.0, 0.0, 0.0]}
         sample_ticks: 1
-        when: "= event.source == 'sel_7'"
-      - {op: block, parent: fx11_couture_target_rosette, block: pink_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx11_couture_target_rosette_arc_15, when: "= event.source == 'sel_7'"}
+        when: "= event.source == 'sel_10'"
+      - {op: block, parent: fx11_couture_target_rosette, block: pink_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx11_couture_target_rosette_arc_15, when: "= event.source == 'sel_10'"}
       - id: fx11_couture_target_rosette_arc_15_trk
         op: track
         target: fx11_couture_target_rosette_arc_15
@@ -3386,4 +3404,4 @@ presentation:
           - {t: 2, offset: [0.0, 1.1, 3.0], scale: [0.05, 0.04705, 1.25245], turn: [-90.0, 0.0, 0.0]}
           - {t: 11, offset: [0.0, 1.1, 3.0], scale: [0.0, 0.0, 0.75147], turn: [-90.0, 0.0, 0.0]}
         sample_ticks: 1
-        when: "= event.source == 'sel_7'"
+        when: "= event.source == 'sel_10'"

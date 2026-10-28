@@ -15,7 +15,11 @@ gameplay:
   timeline:
     - {id: t0, at: 0, do: [{id: sel, op: hit, frames: [caster], capsule: {from: aim, to: pt_aim_0_0_12, radius: 0.3}, window: once, ticks: 1}]}
     - {id: t4, at: 4, do: [{id: sel_2, op: hit, frames: [caster], capsule: {from: aim, to: pt_aim_0_0_12, radius: 0.3}, window: once, ticks: 1}]}
-    - {id: t7, at: 7, do: [{id: sel_3, op: hit, frames: [caster], capsule: {from: aim, to: pt_aim_0_0_12, radius: 0.3}, window: once, ticks: 1}]}
+    - id: t7
+      at: 7
+      do:
+        - {id: sel_3, op: hit, frames: [caster], capsule: {from: aim, to: pt_aim_0_0_12, radius: 0.3}, window: once, ticks: 1}
+        - {id: sel_4, op: hit, frames: [caster], capsule: {from: aim, to: pt_aim_0_0_12, radius: 0.3}, window: once, ticks: 1}
     - id: t28
       at: 28
       do:
@@ -33,8 +37,12 @@ gameplay:
             - {id: raise, op: raise_event, name: dash_fx}
             - {id: sch, op: schedule, after: 9, event: dash_fx9}
     - {id: t35, at: 35, do: [{id: fx5_gossamer_katana_slash_down_katana_crescent_stop, op: raise_event, name: fx5_gossamer_katana_slash_down_katana_crescent_stop}]}
-    - {id: t57, at: 57, do: [{id: sel_4, op: hit, frames: [caster], sphere: {at: caster, radius: "${radius}"}, max_count: 1, window: once, ticks: 1}]}
-    - {id: t59, at: 59, do: [{id: sel_5, op: hit, frames: [caster], sphere: {at: caster, radius: "${radius}"}, max_count: 1, window: once, ticks: 1}]}
+    - {id: t57, at: 57, do: [{id: sel_5, op: hit, frames: [caster], sphere: {at: caster, radius: "${radius}"}, max_count: 1, window: once, ticks: 1}]}
+    - id: t59
+      at: 59
+      do:
+        - {id: sel_6, op: hit, frames: [caster], sphere: {at: caster, radius: "${radius}"}, max_count: 1, window: once, ticks: 1}
+        - {id: sel_7, op: hit, frames: [caster], sphere: {at: caster, radius: "${radius}"}, max_count: 1, window: once, ticks: 1}
   "on":
     hit:
       - id: delay
@@ -44,4 +52,4 @@ gameplay:
           - {id: fx2_gossamer_katana_echo_cut_katana_crescent_stop, op: raise_event, name: fx2_gossamer_katana_echo_cut_katana_crescent_stop}
         when: "= event.source == 'sel_2'"
       - {id: dmg, op: damage, components: [{kind: physical, amount: "${dmg_physical}"}], target: victim, ignore_invulnerability: true, when: "= event.source == 'sel_3'"}
-      - {id: dmg_3, op: damage, components: [{kind: physical, amount: "${dmg_physical_3}"}], target: victim, ignore_invulnerability: true, when: "= event.source == 'sel_5'"}
+      - {id: dmg_3, op: damage, components: [{kind: physical, amount: "${dmg_physical_3}"}], target: victim, ignore_invulnerability: true, when: "= event.source == 'sel_6'"}

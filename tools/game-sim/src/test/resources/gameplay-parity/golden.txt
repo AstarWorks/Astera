@@ -1109,7 +1109,7 @@ bastion-greatsword-ego	27	4cee356dee8b
 bastion-greatsword-ego	28	b70267c6eb48
 bastion-greatsword-ego	29	b70267c6eb48
 bastion-greatsword-ego	30	b70267c6eb48
-bastion-greatsword-ego	31	1c50876d8960
+bastion-greatsword-ego	31	4e6256869f9f
 bastion-greatsword-ego	32	a75eed609394
 bastion-greatsword-ego	33	a75eed609394
 bastion-greatsword-ego	34	a75eed609394
@@ -1205,7 +1205,7 @@ bastion-greatsword-s1	3	6d7be6ef9399
 bastion-greatsword-s1	4	0bb85353d4d1
 bastion-greatsword-s1	5	ef37c7e9df31
 bastion-greatsword-s1	6	0c602ec44630
-bastion-greatsword-s1	7	9f12f9588006
+bastion-greatsword-s1	7	395ed17a83b9
 bastion-greatsword-s1	8	799132a1d655
 bastion-greatsword-s1	9	758388a9e32d
 bastion-greatsword-s1	10	758388a9e32d
@@ -1229,7 +1229,7 @@ bastion-greatsword-s1	27	758388a9e32d
 bastion-greatsword-s1	28	601463325d2b
 bastion-greatsword-s1	29	32a3403f8164
 bastion-greatsword-s1	30	1c5e5ba860c7
-bastion-greatsword-s1	31	24b1cd4a8254
+bastion-greatsword-s1	31	b60c84f3ede3
 bastion-greatsword-s1	32	db551c9b18ca
 bastion-greatsword-s1	33	bd5ac91118e0
 bastion-greatsword-s1	34	53dbabcdd642
@@ -1331,7 +1331,7 @@ bastion-greatsword-s2	9	f7ac7aaaa29a
 bastion-greatsword-s2	10	4f5bfc0c2e27
 bastion-greatsword-s2	11	ef37c7e9df31
 bastion-greatsword-s2	12	0c602ec44630
-bastion-greatsword-s2	13	91ac83b24a2c
+bastion-greatsword-s2	13	9460fa4c8cbb
 bastion-greatsword-s2	14	799132a1d655
 bastion-greatsword-s2	15	4b9c0e94d4a0
 bastion-greatsword-s2	16	8e0128cc8fd2
@@ -1350,7 +1350,7 @@ bastion-greatsword-s2	28	3c8b7845cf61
 bastion-greatsword-s2	29	2e36ea776c3a
 bastion-greatsword-s2	30	bd98a18483b5
 bastion-greatsword-s2	31	5a4e800759b7
-bastion-greatsword-s2	32	a2d5f29983e1
+bastion-greatsword-s2	32	c2d9faadece7
 bastion-greatsword-s2	33	a9be73563a08
 bastion-greatsword-s2	34	3129947bd080
 bastion-greatsword-s2	35	852d252f6f78
@@ -1371,7 +1371,7 @@ bastion-greatsword-s2	49	852d252f6f78
 bastion-greatsword-s2	50	2c925d850953
 bastion-greatsword-s2	51	852d252f6f78
 bastion-greatsword-s2	52	852d252f6f78
-bastion-greatsword-s2	53	ef28b72700af
+bastion-greatsword-s2	53	0330d61b661b
 bastion-greatsword-s2	54	92b3fdfcb17c
 bastion-greatsword-s2	55	f535387f6c79
 bastion-greatsword-s2	56	2ddb33a89470
@@ -2187,7 +2187,7 @@ couture-rapier-ego	25	6d7be6ef9399
 couture-rapier-ego	26	6d7be6ef9399
 couture-rapier-ego	27	6d7be6ef9399
 couture-rapier-ego	28	6d7be6ef9399
-couture-rapier-ego	29	f578a3d64825
+couture-rapier-ego	29	8fbd38f88e1e
 couture-rapier-ego	30	6d7be6ef9399
 couture-rapier-ego	31	6d7be6ef9399
 couture-rapier-ego	32	6d7be6ef9399
@@ -2206,7 +2206,7 @@ couture-rapier-ego	44	6d7be6ef9399
 couture-rapier-ego	45	6d7be6ef9399
 couture-rapier-ego	46	6d7be6ef9399
 couture-rapier-ego	47	6d7be6ef9399
-couture-rapier-ego	48	00230ec41690
+couture-rapier-ego	48	aee5a6e3fc61
 couture-rapier-ego	49	6d7be6ef9399
 couture-rapier-ego	50	6d7be6ef9399
 couture-rapier-ego	51	6d7be6ef9399
@@ -2217,7 +2217,7 @@ couture-rapier-ego	55	6d7be6ef9399
 couture-rapier-ego	56	6d7be6ef9399
 couture-rapier-ego	57	6d7be6ef9399
 couture-rapier-ego	58	6d7be6ef9399
-couture-rapier-ego	59	7d6452986a52
+couture-rapier-ego	59	f18e54a8d4a8
 couture-rapier-ego	60	fc2f87a14f16
 couture-rapier-ego	61	fc2f87a14f16
 couture-rapier-ego	62	fc2f87a14f16
@@ -2548,7 +2548,7 @@ couture-rapier-s3	26	6d7be6ef9399
 couture-rapier-s3	27	6d7be6ef9399
 couture-rapier-s3	28	6d7be6ef9399
 couture-rapier-s3	29	6d7be6ef9399
-couture-rapier-s3	30	befa9628f555
+couture-rapier-s3	30	07ee5251d8c6
 couture-rapier-s3	31	6d7be6ef9399
 couture-rapier-s3	32	6d7be6ef9399
 couture-rapier-s3	33	6d7be6ef9399
@@ -2558,13 +2558,13 @@ couture-rapier-s3	36	6d7be6ef9399
 couture-rapier-s3	37	6d7be6ef9399
 couture-rapier-s3	38	6d7be6ef9399
 couture-rapier-s3	39	6d7be6ef9399
-couture-rapier-s3	40	00230ec41690
+couture-rapier-s3	40	aee5a6e3fc61
 couture-rapier-s3	41	6d7be6ef9399
 couture-rapier-s3	42	6d7be6ef9399
 couture-rapier-s3	43	6d7be6ef9399
 couture-rapier-s3	44	6d7be6ef9399
 couture-rapier-s3	45	6d7be6ef9399
-couture-rapier-s3	46	3c9ffc53cd8e
+couture-rapier-s3	46	ca150dc03b94
 couture-rapier-s3	47	6d7be6ef9399
 couture-rapier-s3	48	6d7be6ef9399
 couture-rapier-s3	49	6d7be6ef9399
@@ -2625,13 +2625,13 @@ couture-rapier-s3	103	6d7be6ef9399
 couture-rapier-s3	104	6d7be6ef9399
 couture-rapier-s3	105	6d7be6ef9399
 couture-rapier-s3	106	6d7be6ef9399
-couture-rapier-s3	107	5675345a8d95
+couture-rapier-s3	107	cb134a43a4f1
 couture-rapier-s3	108	6d7be6ef9399
 couture-rapier-s3	109	6d7be6ef9399
 couture-rapier-s3	110	6d7be6ef9399
 couture-rapier-s3	111	6d7be6ef9399
 couture-rapier-s3	112	6d7be6ef9399
-couture-rapier-s3	113	5472e6075865
+couture-rapier-s3	113	3e6a8983b582
 couture-rapier-s3	114	fc2f87a14f16
 couture-rapier-s3	115	fc2f87a14f16
 couture-rapier-s3	116	fc2f87a14f16
@@ -3967,7 +3967,7 @@ edict-s1	5	ef37c7e9df31
 edict-s1	6	9275a1a677cc
 edict-s1	7	6018b077929b
 edict-s1	8	81175dba2a81
-edict-s1	9	36ff724f93cb
+edict-s1	9	037a88a9a943
 edict-s1	10	81175dba2a81
 edict-s1	11	81175dba2a81
 edict-s1	12	81175dba2a81
@@ -3980,7 +3980,7 @@ edict-s1	18	81175dba2a81
 edict-s1	19	81175dba2a81
 edict-s1	20	81175dba2a81
 edict-s1	21	81175dba2a81
-edict-s1	22	f2f7f5143126
+edict-s1	22	66f6257aefc6
 edict-s1	23	81175dba2a81
 edict-s1	24	81175dba2a81
 edict-s1	25	81175dba2a81
@@ -4087,7 +4087,7 @@ edict-s2	5	ef37c7e9df31
 edict-s2	6	9275a1a677cc
 edict-s2	7	6018b077929b
 edict-s2	8	81175dba2a81
-edict-s2	9	b2ee1ce5b2dc
+edict-s2	9	99600289aa5a
 edict-s2	10	81175dba2a81
 edict-s2	11	81175dba2a81
 edict-s2	12	81175dba2a81
@@ -4100,7 +4100,7 @@ edict-s2	18	81175dba2a81
 edict-s2	19	81175dba2a81
 edict-s2	20	81175dba2a81
 edict-s2	21	81175dba2a81
-edict-s2	22	8833de920c36
+edict-s2	22	2f7c94b52dc7
 edict-s2	23	81175dba2a81
 edict-s2	24	81175dba2a81
 edict-s2	25	81175dba2a81
@@ -4145,7 +4145,7 @@ edict-s2	63	fcf687419af6
 edict-s2	64	fcf687419af6
 edict-s2	65	fcf687419af6
 edict-s2	66	fcf687419af6
-edict-s2	67	628abf06b791
+edict-s2	67	34bafcf8ae23
 edict-s2	68	a987972ab7d2
 edict-s2	69	a987972ab7d2
 edict-s2	70	a987972ab7d2
@@ -4205,7 +4205,7 @@ edict-s3	3	ef37c7e9df31
 edict-s3	4	9275a1a677cc
 edict-s3	5	6018b077929b
 edict-s3	6	81175dba2a81
-edict-s3	7	82c1e3ce2e3e
+edict-s3	7	57074687cba0
 edict-s3	8	81175dba2a81
 edict-s3	9	81175dba2a81
 edict-s3	10	81175dba2a81
@@ -4255,7 +4255,7 @@ edict-s3	53	424c83c68d80
 edict-s3	54	424c83c68d80
 edict-s3	55	424c83c68d80
 edict-s3	56	424c83c68d80
-edict-s3	57	b2d6c5aa8fc3
+edict-s3	57	e8f50bb50dbf
 edict-s3	58	424c83c68d80
 edict-s3	59	424c83c68d80
 edict-s3	60	424c83c68d80
@@ -4431,7 +4431,7 @@ ember-gauntlet-def	109	5e950f667b09
 ember-gauntlet-def	110	6dba24c85745
 ember-gauntlet-def	111	50e66815b13a
 ember-gauntlet-def	112	3be66dd7a631
-ember-gauntlet-def	113	24678d49c84e
+ember-gauntlet-def	113	fcbaff4a6824
 ember-gauntlet-def	114	3be66dd7a631
 ember-gauntlet-def	115	e3b77d017000
 ember-gauntlet-def	116	3be66dd7a631
@@ -4458,13 +4458,13 @@ ember-gauntlet-ego	16	6d7be6ef9399
 ember-gauntlet-ego	17	4f5bfc0c2e27
 ember-gauntlet-ego	18	ef37c7e9df31
 ember-gauntlet-ego	19	0c602ec44630
-ember-gauntlet-ego	20	65480a8420c5
+ember-gauntlet-ego	20	5c35619ad7bd
 ember-gauntlet-ego	21	671d267d1be1
 ember-gauntlet-ego	22	758388a9e32d
 ember-gauntlet-ego	23	758388a9e32d
 ember-gauntlet-ego	24	758388a9e32d
 ember-gauntlet-ego	25	758388a9e32d
-ember-gauntlet-ego	26	026ad7fbf3f4
+ember-gauntlet-ego	26	5d744c36654b
 ember-gauntlet-ego	27	758388a9e32d
 ember-gauntlet-ego	28	758388a9e32d
 ember-gauntlet-ego	29	758388a9e32d
@@ -4494,7 +4494,7 @@ ember-gauntlet-ego	52	758388a9e32d
 ember-gauntlet-ego	53	758388a9e32d
 ember-gauntlet-ego	54	758388a9e32d
 ember-gauntlet-ego	55	758388a9e32d
-ember-gauntlet-ego	56	8f875dea324a
+ember-gauntlet-ego	56	711ad652ed4a
 ember-gauntlet-ego	57	758388a9e32d
 ember-gauntlet-ego	58	3735c7dcffd4
 ember-gauntlet-ego	59	e49c4f698fd5
@@ -4565,7 +4565,7 @@ ember-gauntlet-s1	3	1faed8fe1253
 ember-gauntlet-s1	4	2dcad4aa5187
 ember-gauntlet-s1	5	32a3403f8164
 ember-gauntlet-s1	6	5743ee3fd42d
-ember-gauntlet-s1	7	03746b0a407f
+ember-gauntlet-s1	7	e08f8287e36e
 ember-gauntlet-s1	8	5743ee3fd42d
 ember-gauntlet-s1	9	0abd68a555b9
 ember-gauntlet-s1	10	5743ee3fd42d
@@ -4581,7 +4581,7 @@ ember-gauntlet-s1	19	5743ee3fd42d
 ember-gauntlet-s1	20	5743ee3fd42d
 ember-gauntlet-s1	21	5743ee3fd42d
 ember-gauntlet-s1	22	5743ee3fd42d
-ember-gauntlet-s1	23	e98d06d160be
+ember-gauntlet-s1	23	50c455358a9d
 ember-gauntlet-s1	24	5743ee3fd42d
 ember-gauntlet-s1	25	5743ee3fd42d
 ember-gauntlet-s1	26	5743ee3fd42d
@@ -4683,7 +4683,7 @@ ember-gauntlet-s2	1	1faed8fe1253
 ember-gauntlet-s2	2	2dcad4aa5187
 ember-gauntlet-s2	3	32a3403f8164
 ember-gauntlet-s2	4	5743ee3fd42d
-ember-gauntlet-s2	5	2114eb6982f0
+ember-gauntlet-s2	5	16d32e78c390
 ember-gauntlet-s2	6	5743ee3fd42d
 ember-gauntlet-s2	7	5743ee3fd42d
 ember-gauntlet-s2	8	5743ee3fd42d
@@ -4699,7 +4699,7 @@ ember-gauntlet-s2	17	5743ee3fd42d
 ember-gauntlet-s2	18	5743ee3fd42d
 ember-gauntlet-s2	19	5743ee3fd42d
 ember-gauntlet-s2	20	5743ee3fd42d
-ember-gauntlet-s2	21	e421dd07b00a
+ember-gauntlet-s2	21	4dc65a665a7a
 ember-gauntlet-s2	22	5743ee3fd42d
 ember-gauntlet-s2	23	5743ee3fd42d
 ember-gauntlet-s2	24	5743ee3fd42d
@@ -4815,13 +4815,13 @@ ember-gauntlet-s3	13	1faed8fe1253
 ember-gauntlet-s3	14	2dcad4aa5187
 ember-gauntlet-s3	15	32a3403f8164
 ember-gauntlet-s3	16	5743ee3fd42d
-ember-gauntlet-s3	17	036e19632009
+ember-gauntlet-s3	17	4229a30b0774
 ember-gauntlet-s3	18	5743ee3fd42d
 ember-gauntlet-s3	19	0abd68a555b9
 ember-gauntlet-s3	20	5743ee3fd42d
 ember-gauntlet-s3	21	5743ee3fd42d
 ember-gauntlet-s3	22	5743ee3fd42d
-ember-gauntlet-s3	23	e0989ae9f7df
+ember-gauntlet-s3	23	6b647d9a3661
 ember-gauntlet-s3	24	5743ee3fd42d
 ember-gauntlet-s3	25	5743ee3fd42d
 ember-gauntlet-s3	26	5743ee3fd42d
@@ -4849,7 +4849,7 @@ ember-gauntlet-s3	47	5743ee3fd42d
 ember-gauntlet-s3	48	5743ee3fd42d
 ember-gauntlet-s3	49	5743ee3fd42d
 ember-gauntlet-s3	50	5743ee3fd42d
-ember-gauntlet-s3	51	8d950603bc14
+ember-gauntlet-s3	51	11b91b21fb9d
 ember-gauntlet-s3	52	95ce8da9ba57
 ember-gauntlet-s3	53	95ce8da9ba57
 ember-gauntlet-s3	54	95ce8da9ba57
@@ -6778,7 +6778,7 @@ gossamer-katana-ego	56	6d7be6ef9399
 gossamer-katana-ego	57	6d7be6ef9399
 gossamer-katana-ego	58	6d7be6ef9399
 gossamer-katana-ego	59	6d7be6ef9399
-gossamer-katana-ego	60	7b613fc81875
+gossamer-katana-ego	60	2ea192f78b8a
 gossamer-katana-ego	61	fc2f87a14f16
 gossamer-katana-ego	62	fc2f87a14f16
 gossamer-katana-ego	63	fc2f87a14f16
@@ -6862,7 +6862,7 @@ gossamer-katana-s1	20	518e79c44e4b
 gossamer-katana-s1	21	c7d771726afc
 gossamer-katana-s1	22	2e2f0177595f
 gossamer-katana-s1	23	fbe967d439fa
-gossamer-katana-s1	24	9e9f4a99e527
+gossamer-katana-s1	24	db0dad5b185d
 gossamer-katana-s1	25	fbe967d439fa
 gossamer-katana-s1	26	fbe967d439fa
 gossamer-katana-s1	27	fbe967d439fa
@@ -6965,7 +6965,7 @@ gossamer-katana-s2	3	6d7be6ef9399
 gossamer-katana-s2	4	c30cc707714f
 gossamer-katana-s2	5	6d7be6ef9399
 gossamer-katana-s2	6	6d7be6ef9399
-gossamer-katana-s2	7	c96b6582b6f9
+gossamer-katana-s2	7	c2c2593d8630
 gossamer-katana-s2	8	6d7be6ef9399
 gossamer-katana-s2	9	6d7be6ef9399
 gossamer-katana-s2	10	6d7be6ef9399
@@ -7015,9 +7015,9 @@ gossamer-katana-s2	53	52e00342e7ed
 gossamer-katana-s2	54	52e00342e7ed
 gossamer-katana-s2	55	52e00342e7ed
 gossamer-katana-s2	56	52e00342e7ed
-gossamer-katana-s2	57	92bd52efce56
+gossamer-katana-s2	57	6430b6ac7a8c
 gossamer-katana-s2	58	52e00342e7ed
-gossamer-katana-s2	59	afd217734117
+gossamer-katana-s2	59	520d958b7bc3
 gossamer-katana-s2	60	87e3a09223fa
 gossamer-katana-s2	61	87e3a09223fa
 gossamer-katana-s2	62	87e3a09223fa
@@ -9382,7 +9382,7 @@ orrery-ego	20	6d7be6ef9399
 orrery-ego	21	6d7be6ef9399
 orrery-ego	22	6d7be6ef9399
 orrery-ego	23	6d7be6ef9399
-orrery-ego	24	5bce216624c7
+orrery-ego	24	e7bfc7cc6b6a
 orrery-ego	25	6d7be6ef9399
 orrery-ego	26	6d7be6ef9399
 orrery-ego	27	6d7be6ef9399
@@ -9502,7 +9502,7 @@ orrery-s1	20	5f37cdd0e7d4
 orrery-s1	21	ef37c7e9df31
 orrery-s1	22	9275a1a677cc
 orrery-s1	23	6018b077929b
-orrery-s1	24	ecb97ad3e043
+orrery-s1	24	2f0f8b8ffbd4
 orrery-s1	25	b206deb34318
 orrery-s1	26	81175dba2a81
 orrery-s1	27	81175dba2a81
@@ -9533,7 +9533,7 @@ orrery-s1	51	81175dba2a81
 orrery-s1	52	81175dba2a81
 orrery-s1	53	81175dba2a81
 orrery-s1	54	81175dba2a81
-orrery-s1	55	240bbad755e0
+orrery-s1	55	6872567136b5
 orrery-s1	56	baeec4a5b481
 orrery-s1	57	81175dba2a81
 orrery-s1	58	81175dba2a81
@@ -9704,8 +9704,8 @@ orrery-s2	102	3ac95e466bf8
 orrery-s2	103	3ac95e466bf8
 orrery-s2	104	3ac95e466bf8
 orrery-s2	105	3ac95e466bf8
-orrery-s2	106	cffd64b62119
-orrery-s2	107	3ac95e466bf8
+orrery-s2	106	3ac95e466bf8
+orrery-s2	107	cffd64b62119
 orrery-s2	108	3ac95e466bf8
 orrery-s2	109	3ac95e466bf8
 orrery-s2	110	3ac95e466bf8
@@ -14188,7 +14188,7 @@ sigil-rifle-ego	26	6d7be6ef9399
 sigil-rifle-ego	27	6d7be6ef9399
 sigil-rifle-ego	28	6d7be6ef9399
 sigil-rifle-ego	29	6d7be6ef9399
-sigil-rifle-ego	30	d0945ff1b540
+sigil-rifle-ego	30	e1a9c601f9aa
 sigil-rifle-ego	31	6d7be6ef9399
 sigil-rifle-ego	32	6d7be6ef9399
 sigil-rifle-ego	33	6d7be6ef9399
@@ -14196,7 +14196,7 @@ sigil-rifle-ego	34	6d7be6ef9399
 sigil-rifle-ego	35	6d7be6ef9399
 sigil-rifle-ego	36	6d7be6ef9399
 sigil-rifle-ego	37	6d7be6ef9399
-sigil-rifle-ego	38	c30cc707714f
+sigil-rifle-ego	38	00230ec41690
 sigil-rifle-ego	39	6d7be6ef9399
 sigil-rifle-ego	40	6d7be6ef9399
 sigil-rifle-ego	41	6d7be6ef9399
@@ -14218,7 +14218,7 @@ sigil-rifle-ego	56	6d7be6ef9399
 sigil-rifle-ego	57	6d7be6ef9399
 sigil-rifle-ego	58	6d7be6ef9399
 sigil-rifle-ego	59	6d7be6ef9399
-sigil-rifle-ego	60	fb9423f2d145
+sigil-rifle-ego	60	e6fe57b621ec
 sigil-rifle-ego	61	6d7be6ef9399
 sigil-rifle-ego	62	6d7be6ef9399
 sigil-rifle-ego	63	6d7be6ef9399
@@ -14291,7 +14291,7 @@ sigil-rifle-s1	9	72177cd3f827
 sigil-rifle-s1	10	902a6dbdd47f
 sigil-rifle-s1	11	a71f31182064
 sigil-rifle-s1	12	32a3403f8164
-sigil-rifle-s1	13	7b7b1e85ae4f
+sigil-rifle-s1	13	79bd4b643560
 sigil-rifle-s1	14	5743ee3fd42d
 sigil-rifle-s1	15	5743ee3fd42d
 sigil-rifle-s1	16	5743ee3fd42d
@@ -14614,7 +14614,7 @@ sigil-rifle-s3	92	6d7be6ef9399
 sigil-rifle-s3	93	6d7be6ef9399
 sigil-rifle-s3	94	6d7be6ef9399
 sigil-rifle-s3	95	6d7be6ef9399
-sigil-rifle-s3	96	d4c6f3f02c98
+sigil-rifle-s3	96	15b92816c472
 sigil-rifle-s3	97	6d7be6ef9399
 sigil-rifle-s3	98	6d7be6ef9399
 sigil-rifle-s3	99	6d7be6ef9399
@@ -16731,7 +16731,7 @@ vendetta-rifle-ego	49	5743ee3fd42d
 vendetta-rifle-ego	50	5743ee3fd42d
 vendetta-rifle-ego	51	5743ee3fd42d
 vendetta-rifle-ego	52	5743ee3fd42d
-vendetta-rifle-ego	53	54d534f46d6f
+vendetta-rifle-ego	53	bfec85edb892
 vendetta-rifle-ego	54	816420d4e62b
 vendetta-rifle-ego	55	5743ee3fd42d
 vendetta-rifle-ego	56	5743ee3fd42d
@@ -16749,7 +16749,7 @@ vendetta-rifle-ego	67	5743ee3fd42d
 vendetta-rifle-ego	68	5743ee3fd42d
 vendetta-rifle-ego	69	5743ee3fd42d
 vendetta-rifle-ego	70	5743ee3fd42d
-vendetta-rifle-ego	71	4574aaea4747
+vendetta-rifle-ego	71	73f1821bf9f0
 vendetta-rifle-ego	72	3f039f9d6d86
 vendetta-rifle-ego	73	5743ee3fd42d
 vendetta-rifle-ego	74	5743ee3fd42d
@@ -16786,7 +16786,7 @@ vendetta-rifle-ego	104	5743ee3fd42d
 vendetta-rifle-ego	105	5743ee3fd42d
 vendetta-rifle-ego	106	5743ee3fd42d
 vendetta-rifle-ego	107	5743ee3fd42d
-vendetta-rifle-ego	108	2f1fa2fe4775
+vendetta-rifle-ego	108	cbce5283f954
 vendetta-rifle-ego	109	08fe5c497560
 vendetta-rifle-ego	110	5743ee3fd42d
 vendetta-rifle-ego	111	5743ee3fd42d
@@ -16805,7 +16805,7 @@ vendetta-rifle-s1	3	5f37cdd0e7d4
 vendetta-rifle-s1	4	ef37c7e9df31
 vendetta-rifle-s1	5	9275a1a677cc
 vendetta-rifle-s1	6	758388a9e32d
-vendetta-rifle-s1	7	93360a5b0ae2
+vendetta-rifle-s1	7	b464d0cc90c2
 vendetta-rifle-s1	8	758388a9e32d
 vendetta-rifle-s1	9	758388a9e32d
 vendetta-rifle-s1	10	758388a9e32d
@@ -16818,7 +16818,7 @@ vendetta-rifle-s1	16	f9c201066737
 vendetta-rifle-s1	17	76b5eb79d767
 vendetta-rifle-s1	18	6018b077929b
 vendetta-rifle-s1	19	81175dba2a81
-vendetta-rifle-s1	20	dbd052a8e8f5
+vendetta-rifle-s1	20	51250ab8b8b2
 vendetta-rifle-s1	21	81175dba2a81
 vendetta-rifle-s1	22	81175dba2a81
 vendetta-rifle-s1	23	81175dba2a81
@@ -16921,7 +16921,7 @@ vendetta-rifle-s1	119	81175dba2a81
 vendetta-rifle-s2	0	11105feae94a
 vendetta-rifle-s2	1	ef37c7e9df31
 vendetta-rifle-s2	2	9275a1a677cc
-vendetta-rifle-s2	3	f1e88dae0930
+vendetta-rifle-s2	3	8724cd7d5aa5
 vendetta-rifle-s2	4	758388a9e32d
 vendetta-rifle-s2	5	758388a9e32d
 vendetta-rifle-s2	6	758388a9e32d
@@ -16946,7 +16946,7 @@ vendetta-rifle-s2	24	f9c201066737
 vendetta-rifle-s2	25	76b5eb79d767
 vendetta-rifle-s2	26	6018b077929b
 vendetta-rifle-s2	27	81175dba2a81
-vendetta-rifle-s2	28	2c4519d1a86f
+vendetta-rifle-s2	28	cba795652c53
 vendetta-rifle-s2	29	81175dba2a81
 vendetta-rifle-s2	30	81175dba2a81
 vendetta-rifle-s2	31	81175dba2a81
@@ -17046,7 +17046,7 @@ vendetta-rifle-s3	4	5f37cdd0e7d4
 vendetta-rifle-s3	5	ef37c7e9df31
 vendetta-rifle-s3	6	9275a1a677cc
 vendetta-rifle-s3	7	758388a9e32d
-vendetta-rifle-s3	8	94ad7c406a78
+vendetta-rifle-s3	8	d0b66b2d45cb
 vendetta-rifle-s3	9	758388a9e32d
 vendetta-rifle-s3	10	758388a9e32d
 vendetta-rifle-s3	11	758388a9e32d
@@ -17054,7 +17054,7 @@ vendetta-rifle-s3	12	f9c201066737
 vendetta-rifle-s3	13	76b5eb79d767
 vendetta-rifle-s3	14	6018b077929b
 vendetta-rifle-s3	15	81175dba2a81
-vendetta-rifle-s3	16	568c29142dd0
+vendetta-rifle-s3	16	2db948095406
 vendetta-rifle-s3	17	81175dba2a81
 vendetta-rifle-s3	18	81175dba2a81
 vendetta-rifle-s3	19	81175dba2a81
@@ -17082,7 +17082,7 @@ vendetta-rifle-s3	40	81175dba2a81
 vendetta-rifle-s3	41	81175dba2a81
 vendetta-rifle-s3	42	81175dba2a81
 vendetta-rifle-s3	43	81175dba2a81
-vendetta-rifle-s3	44	fe427390e593
+vendetta-rifle-s3	44	ba7708ac3aef
 vendetta-rifle-s3	45	89c28f3da873
 vendetta-rifle-s3	46	89c28f3da873
 vendetta-rifle-s3	47	89c28f3da873
@@ -17255,7 +17255,7 @@ verdict-hammer-def	93	6d7be6ef9399
 verdict-hammer-def	94	6d7be6ef9399
 verdict-hammer-def	95	6d7be6ef9399
 verdict-hammer-def	96	6d7be6ef9399
-verdict-hammer-def	97	1e50c45200f4
+verdict-hammer-def	97	f7fe77c7274e
 verdict-hammer-def	98	6d7be6ef9399
 verdict-hammer-def	99	6d7be6ef9399
 verdict-hammer-def	100	6d7be6ef9399
@@ -17276,7 +17276,7 @@ verdict-hammer-def	114	1faed8fe1253
 verdict-hammer-def	115	2dcad4aa5187
 verdict-hammer-def	116	32a3403f8164
 verdict-hammer-def	117	5743ee3fd42d
-verdict-hammer-def	118	c308674e964e
+verdict-hammer-def	118	cc98136b70ab
 verdict-hammer-def	119	5743ee3fd42d
 verdict-hammer-ego	0	2e87e6cad307
 verdict-hammer-ego	1	6d7be6ef9399
@@ -17349,7 +17349,7 @@ verdict-hammer-ego	67	5743ee3fd42d
 verdict-hammer-ego	68	5743ee3fd42d
 verdict-hammer-ego	69	5743ee3fd42d
 verdict-hammer-ego	70	5743ee3fd42d
-verdict-hammer-ego	71	b02ed5a15ce9
+verdict-hammer-ego	71	b761a0c544b4
 verdict-hammer-ego	72	5743ee3fd42d
 verdict-hammer-ego	73	5743ee3fd42d
 verdict-hammer-ego	74	5743ee3fd42d
@@ -17380,7 +17380,7 @@ verdict-hammer-ego	98	884aae826e2b
 verdict-hammer-ego	99	9b6b9989585a
 verdict-hammer-ego	100	d1c6d6e76b04
 verdict-hammer-ego	101	81175dba2a81
-verdict-hammer-ego	102	3934af3e8ce0
+verdict-hammer-ego	102	07aba048ddff
 verdict-hammer-ego	103	89c28f3da873
 verdict-hammer-ego	104	89c28f3da873
 verdict-hammer-ego	105	89c28f3da873
@@ -17537,7 +17537,7 @@ verdict-hammer-s2	15	6d7be6ef9399
 verdict-hammer-s2	16	6d7be6ef9399
 verdict-hammer-s2	17	6d7be6ef9399
 verdict-hammer-s2	18	6d7be6ef9399
-verdict-hammer-s2	19	8bd4276c3cb8
+verdict-hammer-s2	19	41678cdb6899
 verdict-hammer-s2	20	6d7be6ef9399
 verdict-hammer-s2	21	6d7be6ef9399
 verdict-hammer-s2	22	6d7be6ef9399
@@ -17664,7 +17664,7 @@ verdict-hammer-s3	22	6d7be6ef9399
 verdict-hammer-s3	23	6d7be6ef9399
 verdict-hammer-s3	24	6d7be6ef9399
 verdict-hammer-s3	25	6d7be6ef9399
-verdict-hammer-s3	26	60fb82cd54c8
+verdict-hammer-s3	26	5181e40b8d39
 verdict-hammer-s3	27	6d7be6ef9399
 verdict-hammer-s3	28	6d7be6ef9399
 verdict-hammer-s3	29	6d7be6ef9399
@@ -17691,7 +17691,7 @@ verdict-hammer-s3	49	5f37cdd0e7d4
 verdict-hammer-s3	50	ef37c7e9df31
 verdict-hammer-s3	51	9275a1a677cc
 verdict-hammer-s3	52	6018b077929b
-verdict-hammer-s3	53	4a1daac452cc
+verdict-hammer-s3	53	2759b68d7855
 verdict-hammer-s3	54	81175dba2a81
 verdict-hammer-s3	55	9d2f2d226009
 verdict-hammer-s3	56	81175dba2a81
@@ -17729,7 +17729,7 @@ verdict-hammer-s3	87	9709eb4ead2d
 verdict-hammer-s3	88	9709eb4ead2d
 verdict-hammer-s3	89	9709eb4ead2d
 verdict-hammer-s3	90	9709eb4ead2d
-verdict-hammer-s3	91	ca44e81f7178
+verdict-hammer-s3	91	f88f7682ba1c
 verdict-hammer-s3	92	124c200f3010
 verdict-hammer-s3	93	67d5e7edd30f
 verdict-hammer-s3	94	124c200f3010
