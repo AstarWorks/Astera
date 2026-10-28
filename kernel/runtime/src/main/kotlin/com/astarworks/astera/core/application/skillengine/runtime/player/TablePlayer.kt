@@ -583,7 +583,8 @@ public class TablePlayer(
     private fun spawn(run: Run, row: Row, a: Action.Spawn, ctx: RowCtx, now: Int) {
         val id = row.instance
         run.recs[id]?.let { endInstance(run, id) }
-        val local = PoseV(vec(run, a.pose.position, ctx), quat(run, a.pose.rotation, ctx, if (a.kind == SpawnKind.PROJECTILE_BODY) null else a.anchor, if (a.kind == SpawnKind.PROJECTILE_BODY) "" else a.anchorName), vec(run, a.pose.scale, ctx))
+        val spawnPos = vec(run, a.pose.position, ctx)
+        val local = PoseV(spawnPos, quat(run, a.pose.rotation, ctx, if (a.kind == SpawnKind.PROJECTILE_BODY) null else a.anchor, if (a.kind == SpawnKind.PROJECTILE_BODY) "" else a.anchorName, spawnPos), vec(run, a.pose.scale, ctx))
         // a body's spawn pose is already the origin anchor's WORLD pose (`anchor:<origin>.position`); anchoring it again would count the anchor twice
         val body = a.kind == SpawnKind.PROJECTILE_BODY
         val rec = Rec(a.kind, if (body) null else a.anchor, if (body) "" else a.anchorName, now, ctx.owner, local)
@@ -651,7 +652,8 @@ public class TablePlayer(
 
     private fun key(run: Run, a: Action.Key, ctx: RowCtx, now: Int) {
         val rec = run.recs[a.display] ?: return
-        val target = PoseV(vec(run, a.translation, ctx), quat(run, a.leftRotation, ctx, rec.anchor, rec.anchorName), vec(run, a.scale, ctx))
+        val keyPos = vec(run, a.translation, ctx)
+        val target = PoseV(keyPos, quat(run, a.leftRotation, ctx, rec.anchor, rec.anchorName, keyPos), vec(run, a.scale, ctx))
         rec.moveTo(target, now, a.durationTicks)
         rec.real?.let { visual.write(it, visualPose(rec, worldOf(run, rec, target, ctx.binding, now)), a.durationTicks) }
     }
@@ -1028,23 +1030,33 @@ public class TablePlayer(
         is Val.Live -> liveVec(run, v.name, ctx)
     }
 
-    private fun quat(run: Run, v: Rot, ctx: RowCtx, anchor: InstanceId? = null, anchorName: String = ""): Quaterniond = when (v) {
+    private fun quat(run: Run, v: Rot, ctx: RowCtx, anchor: InstanceId? = null, anchorName: String = "", ownLocal: Vector3d? = null): Quaterniond = when (v) {
         is Val.Known -> Quaterniond(v.value)
-        is Val.Live -> if (v.name.startsWith("align:")) alignRot(run, v.name, ctx, anchor, anchorName) else liveRot(run, v.name, ctx)
+        is Val.Live -> if (v.name.startsWith("align:")) alignRot(run, v.name, ctx, anchor, anchorName, ownLocal) else liveRot(run, v.name, ctx)
     }
 
     /**
      * `align:<axis>><to>^<up>` (R42, v2 `MotionComposer.alignedRotation`): the LOCAL rotation that points the object's [axis] along the
      * named direction `to` with its up toward `up`, i.e. `Basis.facing(dir, up)` in world, expressed in the parent's space
      * (`parentWorld.conjugate * world`). Directions are `world.up`, `world.down` and `<instance|caster>.<axis>` (v2 `Axes.resolve`);
-     * an anchor id has no direction without the object's own position, so it is a loud fault, never a guess.
+     * a bare anchor id (no dot) aims at that anchor's position: direction = anchor world position minus the object's own world position
+     * (its row's local position carried through the parent pose). v2's `Axes.resolve` returned null for such a name (no rotation); this
+     * is the explicit v1 form, so a missing own position or a coincident anchor is a loud fault.
      */
-    private fun alignRot(run: Run, cell: String, ctx: RowCtx, anchor: InstanceId?, anchorName: String): Quaterniond {
+    private fun alignRot(run: Run, cell: String, ctx: RowCtx, anchor: InstanceId?, anchorName: String, ownLocal: Vector3d?): Quaterniond {
         val body = cell.removePrefix("align:")
         val axisName = body.substringBefore('>')
         val to = body.substringAfter('>').substringBefore('^')
         val up = body.substringAfter('^')
-        val dir = namedDirection(run, to, ctx)
+        val parent = anchor?.let { run.recs[it] }?.let { worldOf(run, it, it.localAt(lastTick), ctx.binding, lastTick) }
+            ?: if (anchorName.isNotEmpty() && anchorName != "world") PoseV(live.vec(run.cursor.handle, anchorName, ctx.binding), live.rot(run.cursor.handle, anchorName, ctx.binding), Vector3d(1.0, 1.0, 1.0)) else PoseV(Vector3d(), Quaterniond(), Vector3d(1.0, 1.0, 1.0))
+        val dir = if (to.contains('.')) namedDirection(run, to, ctx) else {
+            val own = ownLocal ?: throw IllegalArgumentException("align toward '$to': the object's own position is not known here")
+            val ownWorld = Vector3d(own).rotate(parent.rot).add(parent.pos)
+            val at = liveVec(run, to, ctx).sub(ownWorld)
+            if (at.lengthSquared() < 1e-12) throw IllegalArgumentException("align toward '$to': the anchor coincides with the object")
+            Vec3(at.x, at.y, at.z)
+        }
         val upDir = namedDirection(run, up, ctx)
         val objAxis = LocalAxes.axis(axisName.removePrefix("-"))?.let { if (axisName.startsWith("-")) it * -1.0 else it }
             ?: throw IllegalArgumentException("align axis '$axisName' cannot be resolved")
@@ -1056,9 +1068,7 @@ public class TablePlayer(
             else -> Quaternion.axisAngle(a.cross(z), Math.acos(a.dot(z).coerceIn(-1.0, 1.0)))
         }
         val w = Basis.facing(dir, upDir) * toZ
-        val parentRot = anchor?.let { run.recs[it] }?.let { worldOf(run, it, it.localAt(lastTick), ctx.binding, lastTick).rot }
-            ?: if (anchorName.isNotEmpty() && anchorName != "world") live.rot(run.cursor.handle, anchorName, ctx.binding) else Quaterniond()
-        return Quaterniond(parentRot).conjugate().mul(Quaterniond(w.x, w.y, w.z, w.w)).normalize()
+        return Quaterniond(parent.rot).conjugate().mul(Quaterniond(w.x, w.y, w.z, w.w)).normalize()
     }
 
     private fun namedDirection(run: Run, name: String, ctx: RowCtx): Vec3 {
