@@ -1,18 +1,14 @@
 # Converted from content/skills/orrery-s2.yaml + content/vfx/* by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
 # Generated point-frame offsets are [left, up, forward] in the parent frame.
+# CONVERT-PRESENT play_animation ticks (anim ops have no duration) (x2): ticks=7 | ticks=100
 # CONVERT-PRESENT vfx frame orient (frames carry no orientation / scale) (x5): orient="yaw"
-# CONVERT-PRESENT block element (mesh takes an item model, plate takes a sprite: no block / solid-colour primitive) (x4): gold_block | black_concrete
-# CONVERT-PRESENT element formation (no v2 equivalent) (x4): {"align": "tangent", "curve": {"from_deg": 0, "radius": 1.25 | {"align": "tangent", "curve": {"from_deg": 0, "radius": 1.35
-# CONVERT-PRESENT element count (no v2 equivalent) (x4): 12 | 6
-# CONVERT-PRESENT element brightness (no v2 equivalent) (x9): 15
 # CONVERT-PRESENT vfx follow=false (anchored at world, no place-at-spawn) (x3): orrery-s2-poise | orrery-s2-impact
 # CONVERT-PRESENT rig respect_hit_stop / weapon points (x1): {"respect_hit_stop": false}
 # CONVERT-PRESENT rig block parts (mesh takes an item model, not a block + size) (x1): 11 parts
-# CONVERT-PRESENT rig swing without a weapon mesh (track needs a visual to move) (x1): 8 keys
+# CONVERT-PRESENT rig swing without a weapon mesh (track needs a visual to move) (x1): 32 keys
 # CONVERT-PRESENT vfx target_reference (no v2 equivalent) (x2): [0, 0, 0]
 # CONVERT-PRESENT play_vfx track_bound_target (no v2 equivalent) (x2): true
-# CONVERT-PRESENT element target_track (no v2 equivalent) (x4): [{"t": 0, "weight": 1}]
-# CONVERT-PRESENT keyframe alpha (track animates offset / rotation / scale / ease only) (x6)
+# CONVERT-PRESENT element target_track (no v2 equivalent) (x4): [{'t': 0, 'weight': 1}]
 apiVersion: "astera/v2"
 kind: Skill
 id: orrery-s2
@@ -28,39 +24,70 @@ frames:
   - {id: fx5_orrery_s2_impact_long, kind: body, parent: world}
 presentation:
   timeline:
-    - {id: fx0, at: 0, do: [{id: anim, op: caster_anim, anim: crouch, ticks: 7}]}
+    - {id: fx0, at: 0, do: [{id: anim, op: caster_anim, anim: crouch}]}
     - id: fx7
       at: 7
       do:
-        - {id: anim_2, op: caster_anim, anim: hide-main-hand, ticks: 100}
-        - {id: fx3_orrery_s2_poise_emitter_light, op: plate, parent: fx3_orrery_s2_poise, face: {viewer: center}, sprite: orrery-orb, size: 3.2, color: "#FFFFFF"}
+        - {id: anim_2, op: caster_anim, anim: hide-main-hand}
+        - op: block
+          parent: fx1_orrery_s2_charge_ring
+          block: gold_block
+          size: [1.0, 1.0, 1.0]
+          brightness: 15
+          at: "= [vec(-0.3, 1.4, 1.35), vec(-0.3, 2.025, 1.18253), vec(-0.3, 2.48253, 0.725), vec(-0.3, 2.65, 0.1), vec(-0.3, 2.48253, -0.525), vec(-0.3, 2.025, -0.98253), vec(-0.3, 1.4, -1.15), vec(-0.3, 0.775, -0.98253), vec(-0.3, 0.31747, -0.525), vec(-0.3, 0.15, 0.1), vec(-0.3, 0.31747, 0.725), vec(-0.3, 0.775, 1.18253)][int(i)]"
+          turn: "= [vec(-69.28203, 69.28203, 69.28203), vec(-90.7287, 90.7287, 52.38224), vec(-110.40178, 110.40178, 29.58207), vec(-127.27922, 127.27922, 0.0), vec(110.40178, -110.40178, 29.58207), vec(90.7287, -90.7287, 52.38224), vec(69.28203, -69.28203, 69.28203), vec(46.72376, -46.72376, 80.92793), vec(23.51306, -23.51306, 87.75192), vec(0.0, 0.0, 90.0), vec(-23.51306, 23.51306, 87.75192), vec(-46.72376, 46.72376, 80.92793)][int(i)]"
+          times: 12
+          id: fx1_orrery_s2_charge_ring_gold
+        - id: fx1_orrery_s2_charge_ring_gold_trk
+          op: track
+          target: fx1_orrery_s2_charge_ring_gold
+          keys:
+            - {t: 0, scale: [0.16, 0.16, 0.55]}
+            - {t: 2, scale: [0.16, 0.16, 0.7], ease: out_expo}
+            - {t: 14, scale: [0.0, 0.0, 0.4]}
+        - op: block
+          parent: fx1_orrery_s2_charge_ring
+          block: black_concrete
+          size: [1.0, 1.0, 1.0]
+          brightness: 15
+          at: "= [vec(-0.3, 1.4, 1.45), vec(-0.3, 2.56913, 0.775), vec(-0.3, 2.56913, -0.575), vec(-0.3, 1.4, -1.25), vec(-0.3, 0.23087, -0.575), vec(-0.3, 0.23087, 0.775)][int(i)]"
+          turn: "= [vec(-69.28203, 69.28203, 69.28203), vec(-110.40178, 110.40178, 29.58207), vec(110.40178, -110.40178, 29.58207), vec(69.28203, -69.28203, 69.28203), vec(23.51306, -23.51306, 87.75192), vec(-23.51306, 23.51306, 87.75192)][int(i)]"
+          times: 6
+          id: fx1_orrery_s2_charge_ring_dark
+        - id: fx1_orrery_s2_charge_ring_dark_trk
+          op: track
+          target: fx1_orrery_s2_charge_ring_dark
+          keys:
+            - {t: 0, scale: [0.09, 0.09, 0.55]}
+            - {t: 2, scale: [0.09, 0.09, 0.7], ease: out_expo}
+            - {t: 14, scale: [0.0, 0.0, 0.4]}
+        - {op: plate, parent: fx3_orrery_s2_poise, face: {viewer: center}, sprite: orrery-orb, size: 3.2, color: "#FFFFFF", brightness: 15, id: fx3_orrery_s2_poise_emitter_light}
         - id: fx3_orrery_s2_poise_emitter_light_trk
           op: track
           target: fx3_orrery_s2_poise_emitter_light
-          space: fx3_orrery_s2_poise
           keys:
             - {t: 0, offset: [-0.3, 1.1, 2.4], scale: [0.0, 0.0, 1.0]}
-            - {t: 11, offset: [-0.3, 1.283027, 2.392009], scale: [0.0, 0.0, 1.0]}
+            - {t: 11, offset: [-0.3, 1.28303, 2.39201], scale: [0.0, 0.0, 1.0]}
             - {t: 12, offset: [-0.3, 1.1, 2.4], scale: [0.09375, 0.09375, 1.0]}
-            - {t: 13, offset: [-0.3, 1.64352, 2.328444], scale: [0.111979, 0.111979, 1.0]}
-            - {t: 14, offset: [-0.3, 2.15, 2.118653], scale: [0.130208, 0.130208, 1.0]}
-            - {t: 15, offset: [-0.3, 2.584924, 1.784924], scale: [0.148437, 0.148437, 1.0]}
-            - {t: 16, offset: [-0.3, 2.918653, 1.35], scale: [0.166667, 0.166667, 1.0]}
-            - {t: 17, offset: [-0.3, 3.128444, 0.84352], scale: [0.184896, 0.184896, 1.0]}
-            - {t: 18, offset: [-0.3, 3.2, 0.3], scale: [0.203125, 0.203125, 1.0]}
-            - {t: 41, offset: [-0.3, 3.2, 0.3], scale: [0.203125, 0.203125, 1.0]}
-            - {t: 42, offset: [-0.3, 3.073355, 1.018242], scale: [0.18125, 0.18125, 1.0]}
-            - {t: 43, offset: [-0.3, 2.708693, 1.649854], scale: [0.159375, 0.159375, 1.0]}
-            - {t: 44, offset: [-0.3, 2.15, 2.118653], scale: [0.1375, 0.1375, 1.0]}
-            - {t: 45, offset: [-0.3, 1.464661, 2.368096], scale: [0.115625, 0.115625, 1.0]}
-            - {t: 46, offset: [-0.3, 0.735339, 2.368096], scale: [0.09375, 0.09375, 1.0]}
-            - {t: 47, offset: [-0.3, 1.343795, 2.385801], scale: [0.111979, 0.111979, 1.0]}
-            - {t: 48, offset: [-0.3, 1.931768, 2.228254], scale: [0.130208, 0.130208, 1.0]}
-            - {t: 49, offset: [-0.3, 2.449854, 1.908693], scale: [0.148437, 0.148437, 1.0]}
-            - {t: 50, offset: [-0.3, 2.854524, 1.453969], scale: [0.166667, 0.166667, 1.0]}
-            - {t: 51, offset: [-0.3, 3.111778, 0.902287], scale: [0.184896, 0.184896, 1.0]}
-            - {t: 52, offset: [-0.3, 3.2, 0.3], scale: [0.203125, 0.203125, 1.0]}
-            - {t: 82, offset: [-0.3, 3.2, 0.3], scale: [0.203125, 0.203125, 1.0]}
+            - {t: 13, offset: [-0.3, 1.64352, 2.32844], scale: [0.11198, 0.11198, 1.0]}
+            - {t: 14, offset: [-0.3, 2.15, 2.11865], scale: [0.13021, 0.13021, 1.0]}
+            - {t: 15, offset: [-0.3, 2.58492, 1.78492], scale: [0.14844, 0.14844, 1.0]}
+            - {t: 16, offset: [-0.3, 2.91865, 1.35], scale: [0.16667, 0.16667, 1.0]}
+            - {t: 17, offset: [-0.3, 3.12844, 0.84352], scale: [0.1849, 0.1849, 1.0]}
+            - {t: 18, offset: [-0.3, 3.2, 0.3], scale: [0.20312, 0.20312, 1.0]}
+            - {t: 41, offset: [-0.3, 3.2, 0.3], scale: [0.20312, 0.20312, 1.0]}
+            - {t: 42, offset: [-0.3, 3.07335, 1.01824], scale: [0.18125, 0.18125, 1.0]}
+            - {t: 43, offset: [-0.3, 2.70869, 1.64985], scale: [0.15937, 0.15937, 1.0]}
+            - {t: 44, offset: [-0.3, 2.15, 2.11865], scale: [0.1375, 0.1375, 1.0]}
+            - {t: 45, offset: [-0.3, 1.46466, 2.3681], scale: [0.11563, 0.11563, 1.0]}
+            - {t: 46, offset: [-0.3, 0.73534, 2.3681], scale: [0.09375, 0.09375, 1.0]}
+            - {t: 47, offset: [-0.3, 1.3438, 2.3858], scale: [0.11198, 0.11198, 1.0]}
+            - {t: 48, offset: [-0.3, 1.93177, 2.22825], scale: [0.13021, 0.13021, 1.0]}
+            - {t: 49, offset: [-0.3, 2.44985, 1.90869], scale: [0.14844, 0.14844, 1.0]}
+            - {t: 50, offset: [-0.3, 2.85452, 1.45397], scale: [0.16667, 0.16667, 1.0]}
+            - {t: 51, offset: [-0.3, 3.11178, 0.90229], scale: [0.1849, 0.1849, 1.0]}
+            - {t: 52, offset: [-0.3, 3.2, 0.3], scale: [0.20312, 0.20312, 1.0]}
+            - {t: 82, offset: [-0.3, 3.2, 0.3], scale: [0.20312, 0.20312, 1.0]}
             - {t: 92, offset: [-0.3, 3.2, 0.3], scale: [0.0, 0.0, 1.0]}
             - {t: 99, offset: [-0.3, 3.2, 0.3], scale: [0.0, 0.0, 1.0]}
     - id: fx19
@@ -76,7 +103,8 @@ presentation:
             - {from: 0.0, to: 0.65, color: "#dc820d", alpha: 0.439, color_to: "#4e2710"}
             - {from: 0.65, to: 1.0, color: "#ffd447", alpha: 1.0, color_to: "#ff970b"}
           step_deg: 50.0
-    - {id: fx28, at: 28, do: [{id: rm, op: remove, ids: [fx3_orrery_s2_poise_staff_raise]}]}
+    - {id: fx21, at: 21, do: [{id: rm, op: remove, ids: [fx1_orrery_s2_charge_ring_gold, fx1_orrery_s2_charge_ring_dark]}]}
+    - {id: fx28, at: 28, do: [{id: rm_3, op: remove, ids: [fx3_orrery_s2_poise_staff_raise]}]}
     - id: fx48
       at: 48
       do:
@@ -90,20 +118,55 @@ presentation:
             - {from: 0.0, to: 0.65, color: "#dc820d", alpha: 0.439, color_to: "#4e2710"}
             - {from: 0.65, to: 1.0, color: "#ffd447", alpha: 1.0, color_to: "#ff970b"}
           step_deg: 50.0
-    - {id: fx62, at: 62, do: [{id: rm_2, op: remove, ids: [fx3_orrery_s2_poise_staff_recharge]}]}
-    - {id: fx106, at: 106, do: [{id: rm_3, op: remove, ids: [fx3_orrery_s2_poise_emitter_light]}]}
+    - id: fx50
+      at: 50
+      do:
+        - op: block
+          parent: fx2_orrery_s2_charge_ring
+          block: gold_block
+          size: [1.0, 1.0, 1.0]
+          brightness: 15
+          at: "= [vec(-0.3, 1.4, 1.35), vec(-0.3, 2.025, 1.18253), vec(-0.3, 2.48253, 0.725), vec(-0.3, 2.65, 0.1), vec(-0.3, 2.48253, -0.525), vec(-0.3, 2.025, -0.98253), vec(-0.3, 1.4, -1.15), vec(-0.3, 0.775, -0.98253), vec(-0.3, 0.31747, -0.525), vec(-0.3, 0.15, 0.1), vec(-0.3, 0.31747, 0.725), vec(-0.3, 0.775, 1.18253)][int(i)]"
+          turn: "= [vec(-69.28203, 69.28203, 69.28203), vec(-90.7287, 90.7287, 52.38224), vec(-110.40178, 110.40178, 29.58207), vec(-127.27922, 127.27922, 0.0), vec(110.40178, -110.40178, 29.58207), vec(90.7287, -90.7287, 52.38224), vec(69.28203, -69.28203, 69.28203), vec(46.72376, -46.72376, 80.92793), vec(23.51306, -23.51306, 87.75192), vec(0.0, 0.0, 90.0), vec(-23.51306, 23.51306, 87.75192), vec(-46.72376, 46.72376, 80.92793)][int(i)]"
+          times: 12
+          id: fx2_orrery_s2_charge_ring_gold
+        - id: fx2_orrery_s2_charge_ring_gold_trk
+          op: track
+          target: fx2_orrery_s2_charge_ring_gold
+          keys:
+            - {t: 0, scale: [0.16, 0.16, 0.55]}
+            - {t: 2, scale: [0.16, 0.16, 0.7], ease: out_expo}
+            - {t: 14, scale: [0.0, 0.0, 0.4]}
+        - op: block
+          parent: fx2_orrery_s2_charge_ring
+          block: black_concrete
+          size: [1.0, 1.0, 1.0]
+          brightness: 15
+          at: "= [vec(-0.3, 1.4, 1.45), vec(-0.3, 2.56913, 0.775), vec(-0.3, 2.56913, -0.575), vec(-0.3, 1.4, -1.25), vec(-0.3, 0.23087, -0.575), vec(-0.3, 0.23087, 0.775)][int(i)]"
+          turn: "= [vec(-69.28203, 69.28203, 69.28203), vec(-110.40178, 110.40178, 29.58207), vec(110.40178, -110.40178, 29.58207), vec(69.28203, -69.28203, 69.28203), vec(23.51306, -23.51306, 87.75192), vec(-23.51306, 23.51306, 87.75192)][int(i)]"
+          times: 6
+          id: fx2_orrery_s2_charge_ring_dark
+        - id: fx2_orrery_s2_charge_ring_dark_trk
+          op: track
+          target: fx2_orrery_s2_charge_ring_dark
+          keys:
+            - {t: 0, scale: [0.09, 0.09, 0.55]}
+            - {t: 2, scale: [0.09, 0.09, 0.7], ease: out_expo}
+            - {t: 14, scale: [0.0, 0.0, 0.4]}
+    - {id: fx62, at: 62, do: [{id: rm_4, op: remove, ids: [fx3_orrery_s2_poise_staff_recharge]}]}
+    - {id: fx64, at: 64, do: [{id: rm_2, op: remove, ids: [fx2_orrery_s2_charge_ring_gold, fx2_orrery_s2_charge_ring_dark]}]}
+    - {id: fx106, at: 106, do: [{id: rm_5, op: remove, ids: [fx3_orrery_s2_poise_emitter_light]}]}
     - id: fxhit_7
       at: "hit+7"
       do:
-        - {id: rm_4, op: remove, ids: [fx4_orrery_s2_impact_violet_flash], when: "= event.source == 'sel'"}
-        - {id: rm_6, op: remove, ids: [fx5_orrery_s2_impact_long_violet_flash], when: "= event.source == 'sel_2'"}
-    - {id: fxhit_15, at: "hit+15", do: [{id: rm_5, op: remove, ids: [fx4_orrery_s2_impact_annulus], when: "= event.source == 'sel'"}]}
-    - {id: fxhit_18, at: "hit+18", do: [{id: rm_7, op: remove, ids: [fx5_orrery_s2_impact_long_annulus], when: "= event.source == 'sel_2'"}]}
+        - {id: rm_6, op: remove, ids: [fx4_orrery_s2_impact_violet_flash], when: "= event.source == 'sel'"}
+        - {id: rm_8, op: remove, ids: [fx5_orrery_s2_impact_long_violet_flash], when: "= event.source == 'sel_2'"}
+    - {id: fxhit_15, at: "hit+15", do: [{id: rm_7, op: remove, ids: [fx4_orrery_s2_impact_annulus], when: "= event.source == 'sel'"}]}
+    - {id: fxhit_18, at: "hit+18", do: [{id: rm_9, op: remove, ids: [fx5_orrery_s2_impact_long_annulus], when: "= event.source == 'sel_2'"}]}
     - {id: loop1, at: 7, every: 1, for: 99, do: [{id: fx3_orrery_s2_poise_staff_embers, op: emit, at: pt_fx3_orrery_s2_poise_staff_0_2p1_0, particle: orrery-ember}]}
   "on":
     hit:
-      - id: fx4_orrery_s2_impact_annulus
-        op: plate
+      - op: plate
         parent: fx4_orrery_s2_impact
         face: {viewer: center}
         sprite: orrery-impact
@@ -111,29 +174,28 @@ presentation:
         frame_ticks: 2
         loop: true
         color: "#FFFFFF"
+        brightness: 15
+        id: fx4_orrery_s2_impact_annulus
         when: "= event.source == 'sel'"
       - id: fx4_orrery_s2_impact_annulus_trk
         op: track
         target: fx4_orrery_s2_impact_annulus
-        space: fx4_orrery_s2_impact
         keys:
-          - {t: 0, offset: [0, 1.1, 0], scale: [0.312, 0.459, 1.0]}
-          - {t: 2, scale: [0.494, 0.7155, 1.0]}
+          - {t: 0, offset: [0.0, 1.1, 0.0], scale: [0.312, 0.459, 1.0]}
+          - {t: 2, scale: [0.494, 0.7155, 1.0], ease: out_expo}
           - {t: 11, scale: [0.494, 0.7155, 1.0]}
-          - {t: 15, scale: [0.507, 0.7425, 1.0]}
+          - {t: 15, scale: [0.507, 0.7425, 1.0], alpha: 0.0}
         when: "= event.source == 'sel'"
-      - {id: fx4_orrery_s2_impact_violet_flash, op: plate, parent: fx4_orrery_s2_impact, face: {viewer: center}, sprite: glint, size: 0.8, color: "#9A63EE", when: "= event.source == 'sel'"}
+      - {op: plate, parent: fx4_orrery_s2_impact, face: {viewer: center}, sprite: glint, size: 0.8, color: "#9A63EE", brightness: 15, id: fx4_orrery_s2_impact_violet_flash, when: "= event.source == 'sel'"}
       - id: fx4_orrery_s2_impact_violet_flash_trk
         op: track
         target: fx4_orrery_s2_impact_violet_flash
-        space: fx4_orrery_s2_impact
         keys:
-          - {t: 0, offset: [0, 1.1, 0], scale: [0.6, 2.1, 1.0]}
-          - {t: 7, scale: [0.2, 2.5, 1.0]}
+          - {t: 0, offset: [0.0, 1.1, 0.0], scale: [0.6, 2.1, 1.0], alpha: 0.8}
+          - {t: 7, scale: [0.2, 2.5, 1.0], alpha: 0.0}
         when: "= event.source == 'sel'"
       - {id: snd, op: sound, sound: entity.player.attack.strong, at: contact.point, volume: 0.7, pitch: 1.1, when: "= event.source == 'sel'"}
-      - id: fx5_orrery_s2_impact_long_annulus
-        op: plate
+      - op: plate
         parent: fx5_orrery_s2_impact_long
         face: {viewer: center}
         sprite: orrery-impact
@@ -141,24 +203,32 @@ presentation:
         frame_ticks: 2
         loop: true
         color: "#FFFFFF"
+        brightness: 15
+        id: fx5_orrery_s2_impact_long_annulus
         when: "= event.source == 'sel_2'"
       - id: fx5_orrery_s2_impact_long_annulus_trk
         op: track
         target: fx5_orrery_s2_impact_long_annulus
-        space: fx5_orrery_s2_impact_long
         keys:
-          - {t: 0, offset: [0, 1.1, 0], scale: [0.312, 0.459, 1.0]}
-          - {t: 2, scale: [0.494, 0.7155, 1.0]}
+          - {t: 0, offset: [0.0, 1.1, 0.0], scale: [0.312, 0.459, 1.0]}
+          - {t: 2, scale: [0.494, 0.7155, 1.0], ease: out_expo}
           - {t: 14, scale: [0.494, 0.7155, 1.0]}
-          - {t: 18, scale: [0.507, 0.7425, 1.0]}
+          - {t: 18, scale: [0.507, 0.7425, 1.0], alpha: 0.0}
         when: "= event.source == 'sel_2'"
-      - {id: fx5_orrery_s2_impact_long_violet_flash, op: plate, parent: fx5_orrery_s2_impact_long, face: {viewer: center}, sprite: glint, size: 0.8, color: "#9A63EE", when: "= event.source == 'sel_2'"}
+      - op: plate
+        parent: fx5_orrery_s2_impact_long
+        face: {viewer: center}
+        sprite: glint
+        size: 0.8
+        color: "#9A63EE"
+        brightness: 15
+        id: fx5_orrery_s2_impact_long_violet_flash
+        when: "= event.source == 'sel_2'"
       - id: fx5_orrery_s2_impact_long_violet_flash_trk
         op: track
         target: fx5_orrery_s2_impact_long_violet_flash
-        space: fx5_orrery_s2_impact_long
         keys:
-          - {t: 0, offset: [0, 1.1, 0], scale: [0.6, 2.1, 1.0]}
-          - {t: 7, scale: [0.2, 2.5, 1.0]}
+          - {t: 0, offset: [0.0, 1.1, 0.0], scale: [0.6, 2.1, 1.0], alpha: 0.8}
+          - {t: 7, scale: [0.2, 2.5, 1.0], alpha: 0.0}
         when: "= event.source == 'sel_2'"
       - {id: snd_2, op: sound, sound: entity.player.attack.strong, at: contact.point, volume: 0.7, pitch: 1.1, when: "= event.source == 'sel_2'"}

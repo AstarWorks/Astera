@@ -3,12 +3,8 @@
 # CONVERT-PRESENT vfx frame orient (frames carry no orientation / scale) (x6): orient="yaw"
 # CONVERT-PRESENT rig respect_hit_stop / weapon points (x3): {"respect_hit_stop": true}
 # CONVERT-PRESENT rig block parts (mesh takes an item model, not a block + size) (x3): 3 parts
-# CONVERT-PRESENT rig swing without a weapon mesh (track needs a visual to move) (x3): 3 keys | 4 keys
+# CONVERT-PRESENT rig swing without a weapon mesh (track needs a visual to move) (x3): 5 keys | 10 keys
 # CONVERT-PRESENT vfx follow=false (anchored at world, no place-at-spawn) (x5): gossamer-katana-guard | gossamer-katana-iaido-line
-# CONVERT-PRESENT block element (mesh takes an item model, plate takes a sprite: no block / solid-colour primitive) (x10): cyan_stained_glass | white_concrete
-# CONVERT-PRESENT element brightness (no v2 equivalent) (x11): 15
-# CONVERT-PRESENT quad element (plate takes a sprite: no solid-colour quad / glyph) (x1): {"color": "#59D9FF", "glyph": null}
-# CONVERT-PRESENT screen_flash has no v2 op (x1): {"fade_in": 0, "fade_out": 2, "overlay": "white", "stay": 1}
 apiVersion: "astera/v2"
 kind: Skill
 id: gossamer-katana-ego
@@ -29,9 +25,99 @@ frames:
   - {id: fx6_gossamer_katana_scar, kind: body, parent: world}
 presentation:
   timeline:
+    - id: fx0
+      at: 0
+      do:
+        - {op: block, parent: fx2_gossamer_katana_guard, block: cyan_stained_glass, size: [1.0, 1.0, 1.0], brightness: 15, id: fx2_gossamer_katana_guard_echo_0}
+        - id: fx2_gossamer_katana_guard_echo_0_trk
+          op: track
+          target: fx2_gossamer_katana_guard_echo_0
+          keys:
+            - {t: 0, offset: [0.0, 1.6, 0.0], scale: [0.084, 0.42, 0.3], turn: [0.0, 0.0, 0.0]}
+            - {t: 1, scale: [0.42, 0.42, 0.3], ease: out_expo}
+            - {t: 9, scale: [0.0, 0.0, 0.0], ease: in_quad}
+        - {op: block, parent: fx2_gossamer_katana_guard, block: cyan_stained_glass, size: [1.0, 1.0, 1.0], brightness: 15, id: fx2_gossamer_katana_guard_echo_1}
+        - id: fx2_gossamer_katana_guard_echo_1_trk
+          op: track
+          target: fx2_gossamer_katana_guard_echo_1
+          keys:
+            - {t: 0, offset: [0.0, 1.05, 0.0], scale: [0.1, 0.7, 0.25], turn: [0.0, 0.0, 0.0]}
+            - {t: 1, scale: [0.5, 0.7, 0.25], ease: out_expo}
+            - {t: 9, scale: [0.0, 0.0, 0.0], ease: in_quad}
+        - {op: block, parent: fx2_gossamer_katana_guard, block: cyan_stained_glass, size: [1.0, 1.0, 1.0], brightness: 15, id: fx2_gossamer_katana_guard_echo_2}
+        - id: fx2_gossamer_katana_guard_echo_2_trk
+          op: track
+          target: fx2_gossamer_katana_guard_echo_2
+          keys:
+            - {t: 0, offset: [0.0, 0.35, -0.17], scale: [0.044, 0.7, 0.2], turn: [0.0, 0.0, 0.0]}
+            - {t: 1, scale: [0.22, 0.7, 0.2], ease: out_expo}
+            - {t: 9, scale: [0.0, 0.0, 0.0], ease: in_quad}
+        - {op: block, parent: fx2_gossamer_katana_guard, block: cyan_stained_glass, size: [1.0, 1.0, 1.0], brightness: 15, id: fx2_gossamer_katana_guard_echo_3}
+        - id: fx2_gossamer_katana_guard_echo_3_trk
+          op: track
+          target: fx2_gossamer_katana_guard_echo_3
+          keys:
+            - {t: 0, offset: [0.0, 0.35, 0.17], scale: [0.044, 0.7, 0.2], turn: [0.0, 0.0, 0.0]}
+            - {t: 1, scale: [0.22, 0.7, 0.2], ease: out_expo}
+            - {t: 9, scale: [0.0, 0.0, 0.0], ease: in_quad}
+        - {op: block, parent: fx2_gossamer_katana_guard, block: cyan_stained_glass, size: [1.0, 1.0, 1.0], brightness: 15, id: fx2_gossamer_katana_guard_echo_4}
+        - id: fx2_gossamer_katana_guard_echo_4_trk
+          op: track
+          target: fx2_gossamer_katana_guard_echo_4
+          keys:
+            - {t: 0, offset: [0.0, 1.0, 0.4], scale: [0.036, 0.6, 0.18], turn: [0.0, 0.0, 0.0]}
+            - {t: 1, scale: [0.18, 0.6, 0.18], ease: out_expo}
+            - {t: 9, scale: [0.0, 0.0, 0.0], ease: in_quad}
+    - id: fx10
+      at: 10
+      do:
+        - {id: rm, op: remove, ids: [fx2_gossamer_katana_guard_echo_0, fx2_gossamer_katana_guard_echo_1, fx2_gossamer_katana_guard_echo_2, fx2_gossamer_katana_guard_echo_3, fx2_gossamer_katana_guard_echo_4]}
+    - id: fx20
+      at: 20
+      do:
+        - {op: block, parent: fx3_gossamer_katana_iaido_line, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx3_gossamer_katana_iaido_line_core}
+        - id: fx3_gossamer_katana_iaido_line_core_trk
+          op: track
+          target: fx3_gossamer_katana_iaido_line_core
+          keys:
+            - {t: 0, offset: [0.0, 1.05, 3.0], scale: [0.01, 0.045, 13.1], turn: [0.0, 0.0, 0.0]}
+            - {t: 1, scale: [0.05, 0.045, 13.1], ease: out_expo}
+            - {t: 35, scale: [0.0, 0.0, 0.0], ease: in_quad}
+        - {op: block, parent: fx3_gossamer_katana_iaido_line, block: blue_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx3_gossamer_katana_iaido_line_dark}
+        - id: fx3_gossamer_katana_iaido_line_dark_trk
+          op: track
+          target: fx3_gossamer_katana_iaido_line_dark
+          keys:
+            - {t: 0, offset: [0.04, 0.98, 3.0], scale: [0.012, 0.1, 13.1], turn: [0.0, 0.0, 0.0]}
+            - {t: 1, scale: [0.06, 0.1, 13.1], ease: out_expo}
+            - {t: 33, scale: [0.0, 0.0, 0.0], ease: in_quad}
+        - op: quad
+          parent: fx3_gossamer_katana_iaido_line
+          face: {plane: {frame: fx3_gossamer_katana_iaido_line, axes: [left, up]}}
+          size: [1.0, 1.0]
+          color: "#59D9FF"
+          alpha: 0.22
+          brightness: 15
+          id: fx3_gossamer_katana_iaido_line_bloom
+        - id: fx3_gossamer_katana_iaido_line_bloom_trk
+          op: track
+          target: fx3_gossamer_katana_iaido_line_bloom
+          keys:
+            - {t: 0, offset: [-0.02, 1.05, 3.0], scale: [13.1, 0.25, 1.0], turn: [0.0, -90.0, 0.0], alpha: 0.22}
+            - {t: 11, offset: [-0.02, 1.05, 3.0], scale: [13.1, 0.25, 1.0], alpha: 0.0, ease: in_quad, turn: [0.0, -90.0, 0.0]}
+        - {op: block, parent: fx3_gossamer_katana_iaido_line, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx3_gossamer_katana_iaido_line_glint}
+        - id: fx3_gossamer_katana_iaido_line_glint_trk
+          op: track
+          target: fx3_gossamer_katana_iaido_line_glint
+          keys:
+            - {t: 0, offset: [0.0, 1.05, 3.0], scale: [0.016, 2.8, 0.04], turn: [0.0, 0.0, 0.0]}
+            - {t: 1, scale: [0.08, 2.8, 0.04], ease: out_expo}
+            - {t: 5, scale: [0.0, 0.0, 0.0], ease: in_quad}
+    - {id: fx26, at: 26, do: [{id: rm_2, op: remove, ids: [fx3_gossamer_katana_iaido_line_glint]}]}
     - id: fx32
       at: 32
       do:
+        - {id: rm_3, op: remove, ids: [fx3_gossamer_katana_iaido_line_bloom]}
         - id: fx4_gossamer_katana_slash_up_katana_crescent
           op: trail
           of: pt_fx4_gossamer_katana_slash_up_katana_0_2p1_0
@@ -40,7 +126,7 @@ presentation:
           bands:
             - {from: 0.0, to: 1.0, color: "#14245f", alpha: 0.933, color_to: "#7c36a8"}
           step_deg: 20.0
-    - {id: fx40, at: 40, do: [{id: rm, op: remove, ids: [fx4_gossamer_katana_slash_up_katana_crescent]}]}
+    - {id: fx40, at: 40, do: [{id: rm_6, op: remove, ids: [fx4_gossamer_katana_slash_up_katana_crescent]}]}
     - id: fx44
       at: 44
       do:
@@ -52,6 +138,30 @@ presentation:
           bands:
             - {from: 0.0, to: 1.0, color: "#14245f", alpha: 0.933, color_to: "#7c36a8"}
           step_deg: 20.0
-    - {id: fx52, at: 52, do: [{id: rm_2, op: remove, ids: [fx5_gossamer_katana_slash_down_katana_crescent]}]}
-    - {id: fx60, at: 60, do: [{id: snd, op: sound, sound: entity.player.attack.crit, at: caster, pitch: 1.3}]}
+    - {id: fx52, at: 52, do: [{id: rm_7, op: remove, ids: [fx5_gossamer_katana_slash_down_katana_crescent]}]}
+    - {id: fx54, at: 54, do: [{id: rm_4, op: remove, ids: [fx3_gossamer_katana_iaido_line_dark]}]}
+    - {id: fx56, at: 56, do: [{id: rm_5, op: remove, ids: [fx3_gossamer_katana_iaido_line_core]}]}
+    - id: fx60
+      at: 60
+      do:
+        - {op: block, parent: fx6_gossamer_katana_scar, block: black_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx6_gossamer_katana_scar_ink}
+        - id: fx6_gossamer_katana_scar_ink_trk
+          op: track
+          target: fx6_gossamer_katana_scar_ink
+          keys:
+            - {t: 0, offset: [0.0, 1.05, 2.4], scale: [0.028, 11.5, 0.12], turn: [52.0, 0.0, 0.0]}
+            - {t: 1, scale: [0.14, 11.5, 0.12], ease: out_expo}
+            - {t: 37, scale: [0.0, 0.0, 0.0], ease: in_quad}
+        - {op: block, parent: fx6_gossamer_katana_scar, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx6_gossamer_katana_scar_cut}
+        - id: fx6_gossamer_katana_scar_cut_trk
+          op: track
+          target: fx6_gossamer_katana_scar_cut
+          keys:
+            - {t: 0, offset: [-0.08, 1.05, 2.4], scale: [0.01, 11.5, 0.06], turn: [52.0, 0.0, 0.0]}
+            - {t: 1, scale: [0.05, 11.5, 0.06], ease: out_expo}
+            - {t: 35, scale: [0.0, 0.0, 0.0], ease: in_quad}
+        - {id: flash, op: screen_flash, target: caster, overlay: white, fade_in: 0, stay: 1, fade_out: 2}
+        - {id: snd, op: sound, sound: entity.player.attack.crit, at: caster, pitch: 1.3}
+    - {id: fx96, at: 96, do: [{id: rm_8, op: remove, ids: [fx6_gossamer_katana_scar_cut]}]}
+    - {id: fx98, at: 98, do: [{id: rm_9, op: remove, ids: [fx6_gossamer_katana_scar_ink]}]}
   "on": {hit: [{id: emit, op: emit, at: contact.point, particle: hit-spark, when: "= event.source == 'sel'"}]}

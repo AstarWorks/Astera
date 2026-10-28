@@ -1,10 +1,8 @@
 # Converted from content/skills/couture-rapier-s1.yaml + content/vfx/* by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
 # Generated point-frame offsets are [left, up, forward] in the parent frame.
+# CONVERT-PRESENT play_animation ticks (anim ops have no duration) (x1): ticks=35
 # CONVERT-PRESENT vfx follow=false (anchored at world, no place-at-spawn) (x1): couture-passage-windup
 # CONVERT-PRESENT vfx frame orient (frames carry no orientation / scale) (x3): orient="yaw"
-# CONVERT-PRESENT quad element (plate takes a sprite: no solid-colour quad / glyph) (x6): {"color": "#8573B0", "glyph": "◆"} | {"color": "#B2A3CF", "glyph": null}
-# CONVERT-PRESENT element brightness (no v2 equivalent) (x7): 15
-# CONVERT-PRESENT block element (mesh takes an item model, plate takes a sprite: no block / solid-colour primitive) (x26): gray_concrete | iron_block
 # CONVERT-PRESENT presentation inside a nested gameplay list (dash on_hit has no event hook) (x2): play_vfx | play_sound
 apiVersion: "astera/v2"
 kind: Skill
@@ -15,17 +13,621 @@ frames:
   - {id: fx3_couture_shear_passage, kind: body, parent: caster}
 presentation:
   timeline:
-    - {id: fx2, at: 2, do: [{id: anim, op: caster_anim, anim: crouch, ticks: 35}]}
+    - id: fx2
+      at: 2
+      do:
+        - {id: anim, op: caster_anim, anim: crouch}
+        - {op: quad, parent: fx1_couture_passage_windup, face: {viewer: center}, size: [1.0, 1.0], color: "#8573B0", alpha: 0.38, text: "◆", brightness: 15, id: fx1_couture_passage_windup_fold_0}
+        - id: fx1_couture_passage_windup_fold_0_trk
+          op: track
+          target: fx1_couture_passage_windup_fold_0
+          keys:
+            - {t: 0, offset: [0.0, 0.25, 1.2], scale: [0.9, 0.3, 1.0], alpha: 0.12}
+            - {t: 3, alpha: 0.4}
+            - {t: 10, alpha: 0.32}
+            - {t: 11, scale: [0.54, 0.16, 1.0], alpha: 0.0}
+        - {op: quad, parent: fx1_couture_passage_windup, face: {viewer: center}, size: [1.0, 1.0], color: "#8573B0", alpha: 0.38, text: "◆", brightness: 15, id: fx1_couture_passage_windup_fold_1}
+        - id: fx1_couture_passage_windup_fold_1_trk
+          op: track
+          target: fx1_couture_passage_windup_fold_1
+          keys:
+            - {t: 0, offset: [0.0, 0.65, 1.2], scale: [1.15, 0.3, 1.0], alpha: 0.12}
+            - {t: 3, alpha: 0.4}
+            - {t: 10, alpha: 0.32}
+            - {t: 11, scale: [0.69, 0.16, 1.0], alpha: 0.0}
+        - {op: quad, parent: fx1_couture_passage_windup, face: {viewer: center}, size: [1.0, 1.0], color: "#8573B0", alpha: 0.38, text: "◆", brightness: 15, id: fx1_couture_passage_windup_fold_2}
+        - id: fx1_couture_passage_windup_fold_2_trk
+          op: track
+          target: fx1_couture_passage_windup_fold_2
+          keys:
+            - {t: 0, offset: [0.0, 1.05, 1.2], scale: [0.7, 0.3, 1.0], alpha: 0.12}
+            - {t: 3, alpha: 0.4}
+            - {t: 10, alpha: 0.32}
+            - {t: 11, scale: [0.42, 0.16, 1.0], alpha: 0.0}
+        - {op: quad, parent: fx1_couture_passage_windup, face: {viewer: center}, size: [1.0, 1.0], color: "#8573B0", alpha: 0.38, text: "◆", brightness: 15, id: fx1_couture_passage_windup_fold_3}
+        - id: fx1_couture_passage_windup_fold_3_trk
+          op: track
+          target: fx1_couture_passage_windup_fold_3
+          keys:
+            - {t: 0, offset: [0.0, 1.45, 1.2], scale: [1.2, 0.3, 1.0], alpha: 0.12}
+            - {t: 3, alpha: 0.4}
+            - {t: 10, alpha: 0.32}
+            - {t: 11, scale: [0.72, 0.16, 1.0], alpha: 0.0}
+        - {op: quad, parent: fx1_couture_passage_windup, face: {viewer: center}, size: [1.0, 1.0], color: "#8573B0", alpha: 0.38, text: "◆", brightness: 15, id: fx1_couture_passage_windup_fold_4}
+        - id: fx1_couture_passage_windup_fold_4_trk
+          op: track
+          target: fx1_couture_passage_windup_fold_4
+          keys:
+            - {t: 0, offset: [0.0, 1.8, 1.2], scale: [0.9, 0.3, 1.0], alpha: 0.12}
+            - {t: 3, alpha: 0.4}
+            - {t: 10, alpha: 0.32}
+            - {t: 11, scale: [0.54, 0.16, 1.0], alpha: 0.0}
+        - {op: quad, parent: fx1_couture_passage_windup, face: {viewer: center}, size: [1.0, 1.0], color: "#B2A3CF", alpha: 0.3, brightness: 15, id: fx1_couture_passage_windup_spindle}
+        - id: fx1_couture_passage_windup_spindle_trk
+          op: track
+          target: fx1_couture_passage_windup_spindle
+          keys:
+            - {t: 0, offset: [0.0, 1.0, 1.2], scale: [0.06, 1.8, 1.0], alpha: 0.12}
+            - {t: 3, alpha: 0.35}
+            - {t: 11, alpha: 0.0}
+    - id: fx6
+      at: 6
+      do:
+        - {op: block, parent: fx2_couture_shears_snip, block: gray_concrete, size: [1.0, 1.0, 1.0], id: fx2_couture_shears_snip_1_blade_0}
+        - id: fx2_couture_shears_snip_1_blade_0_trk
+          op: track
+          target: fx2_couture_shears_snip_1_blade_0
+          keys:
+            - {t: 0, offset: [-0.295, 1.00125, 0.84702], scale: [0.06, 0.19, 0.8], turn: [7.0, 0.0, 0.0]}
+            - {t: 1, turn: [12.5, 0.0, 0.0]}
+            - {t: 2, turn: [18.0, 0.0, 0.0]}
+            - {t: 3, turn: [23.5, 0.0, 0.0]}
+            - {t: 4, offset: [-0.295, 0.85608, 0.79985], scale: [0.06, 0.19, 0.8], turn: [29.0, 0.0, 0.0]}
+            - {t: 5, turn: [20.0, 0.0, 0.0]}
+            - {t: 6, turn: [11.0, 0.0, 0.0]}
+            - {t: 7, offset: [-0.295, 1.03604, 0.84976], scale: [0.06, 0.19, 0.8], turn: [2.0, 0.0, 0.0]}
+            - {t: 8, turn: [6.4, 0.0, 0.0]}
+            - {t: 9, turn: [10.8, 0.0, 0.0]}
+            - {t: 10, turn: [15.2, 0.0, 0.0]}
+            - {t: 11, turn: [19.6, 0.0, 0.0]}
+            - {t: 12, offset: [-0.295, 0.88731, 0.81542], scale: [0.06, 0.19, 0.8], turn: [24.0, 0.0, 0.0]}
+            - {t: 13, turn: [29.0, 0.0, 0.0]}
+            - {t: 14, turn: [34.0, 0.0, 0.0]}
+            - {t: 15, offset: [-0.295, 0.79827, 0.76086], scale: [0.0, 0.0, 0.0], turn: [39.0, 0.0, 0.0]}
+        - {op: block, parent: fx2_couture_shears_snip, block: iron_block, size: [1.0, 1.0, 1.0], id: fx2_couture_shears_snip_1_edge_0}
+        - id: fx2_couture_shears_snip_1_edge_0_trk
+          op: track
+          target: fx2_couture_shears_snip_1_edge_0
+          keys:
+            - {t: 0, offset: [-0.295, 1.06066, 0.85431], scale: [0.06, 0.025, 0.80164], turn: [10.66907, 0.0, 0.0]}
+            - {t: 1, turn: [16.16907, 0.0, 0.0]}
+            - {t: 2, turn: [21.66907, 0.0, 0.0]}
+            - {t: 3, turn: [27.16907, 0.0, 0.0]}
+            - {t: 4, offset: [-0.295, 0.90842, 0.82886], scale: [0.06, 0.025, 0.80164], turn: [32.66907, 0.0, 0.0]}
+            - {t: 5, turn: [23.66907, 0.0, 0.0]}
+            - {t: 6, turn: [14.66907, 0.0, 0.0]}
+            - {t: 7, offset: [-0.295, 1.09585, 0.85185], scale: [0.06, 0.025, 0.80164], turn: [5.66907, 0.0, 0.0]}
+            - {t: 8, turn: [10.06907, 0.0, 0.0]}
+            - {t: 9, turn: [14.46907, 0.0, 0.0]}
+            - {t: 10, turn: [18.86907, 0.0, 0.0]}
+            - {t: 11, turn: [23.26907, 0.0, 0.0]}
+            - {t: 12, offset: [-0.295, 0.94198, 0.83976], scale: [0.06, 0.025, 0.80164], turn: [27.66907, 0.0, 0.0]}
+            - {t: 13, turn: [32.66907, 0.0, 0.0]}
+            - {t: 14, turn: [37.66907, 0.0, 0.0]}
+            - {t: 15, offset: [-0.295, 0.84478, 0.79852], scale: [0.0, 0.0, 0.0], turn: [42.66907, 0.0, 0.0]}
+        - {op: block, parent: fx2_couture_shears_snip, block: gray_concrete, size: [1.0, 1.0, 1.0], id: fx2_couture_shears_snip_1_blade_1}
+        - id: fx2_couture_shears_snip_1_blade_1_trk
+          op: track
+          target: fx2_couture_shears_snip_1_blade_1
+          keys:
+            - {t: 0, offset: [-0.295, 0.91594, 1.5418], scale: [0.06, 0.12, 0.6], turn: [7.0, 0.0, 0.0]}
+            - {t: 1, turn: [12.5, 0.0, 0.0]}
+            - {t: 2, turn: [18.0, 0.0, 0.0]}
+            - {t: 3, turn: [23.5, 0.0, 0.0]}
+            - {t: 4, offset: [-0.295, 0.51671, 1.41208], scale: [0.06, 0.12, 0.6], turn: [29.0, 0.0, 0.0]}
+            - {t: 5, turn: [20.0, 0.0, 0.0]}
+            - {t: 6, turn: [11.0, 0.0, 0.0]}
+            - {t: 7, offset: [-0.295, 1.01161, 1.54933], scale: [0.06, 0.12, 0.6], turn: [2.0, 0.0, 0.0]}
+            - {t: 8, turn: [6.4, 0.0, 0.0]}
+            - {t: 9, turn: [10.8, 0.0, 0.0]}
+            - {t: 10, turn: [15.2, 0.0, 0.0]}
+            - {t: 11, turn: [19.6, 0.0, 0.0]}
+            - {t: 12, offset: [-0.295, 0.60259, 1.4549], scale: [0.06, 0.12, 0.6], turn: [24.0, 0.0, 0.0]}
+            - {t: 13, turn: [29.0, 0.0, 0.0]}
+            - {t: 14, turn: [34.0, 0.0, 0.0]}
+            - {t: 15, offset: [-0.295, 0.35775, 1.30486], scale: [0.0, 0.0, 0.0], turn: [39.0, 0.0, 0.0]}
+        - {op: block, parent: fx2_couture_shears_snip, block: iron_block, size: [1.0, 1.0, 1.0], id: fx2_couture_shears_snip_1_edge_1}
+        - id: fx2_couture_shears_snip_1_edge_1_trk
+          op: track
+          target: fx2_couture_shears_snip_1_edge_1
+          keys:
+            - {t: 0, offset: [-0.295, 0.95346, 1.54641], scale: [0.06, 0.025, 0.60087], turn: [10.09097, 0.0, 0.0]}
+            - {t: 1, turn: [15.59097, 0.0, 0.0]}
+            - {t: 2, turn: [21.09097, 0.0, 0.0]}
+            - {t: 3, turn: [26.59097, 0.0, 0.0]}
+            - {t: 4, offset: [-0.295, 0.54977, 1.43041], scale: [0.06, 0.025, 0.60087], turn: [32.09097, 0.0, 0.0]}
+            - {t: 5, turn: [23.09097, 0.0, 0.0]}
+            - {t: 6, turn: [14.09097, 0.0, 0.0]}
+            - {t: 7, offset: [-0.295, 1.04939, 1.55065], scale: [0.06, 0.025, 0.60087], turn: [5.09097, 0.0, 0.0]}
+            - {t: 8, turn: [9.49097, 0.0, 0.0]}
+            - {t: 9, turn: [13.89097, 0.0, 0.0]}
+            - {t: 10, turn: [18.29097, 0.0, 0.0]}
+            - {t: 11, turn: [22.69097, 0.0, 0.0]}
+            - {t: 12, offset: [-0.295, 0.63712, 1.47027], scale: [0.06, 0.025, 0.60087], turn: [27.09097, 0.0, 0.0]}
+            - {t: 13, turn: [32.09097, 0.0, 0.0]}
+            - {t: 14, turn: [37.09097, 0.0, 0.0]}
+            - {t: 15, offset: [-0.295, 0.38712, 1.32865], scale: [0.0, 0.0, 0.0], turn: [42.09097, 0.0, 0.0]}
+        - {op: block, parent: fx2_couture_shears_snip, block: gray_concrete, size: [1.0, 1.0, 1.0], id: fx2_couture_shears_snip_1_blade_2}
+        - id: fx2_couture_shears_snip_1_blade_2_trk
+          op: track
+          target: fx2_couture_shears_snip_1_blade_2
+          keys:
+            - {t: 0, offset: [-0.295, 0.85501, 2.03807], scale: [0.06, 0.045, 0.4], turn: [7.0, 0.0, 0.0]}
+            - {t: 1, turn: [12.5, 0.0, 0.0]}
+            - {t: 2, turn: [18.0, 0.0, 0.0]}
+            - {t: 3, turn: [23.5, 0.0, 0.0]}
+            - {t: 4, offset: [-0.295, 0.2743, 1.84939], scale: [0.06, 0.045, 0.4], turn: [29.0, 0.0, 0.0]}
+            - {t: 5, turn: [20.0, 0.0, 0.0]}
+            - {t: 6, turn: [11.0, 0.0, 0.0]}
+            - {t: 7, offset: [-0.295, 0.99416, 2.04903], scale: [0.06, 0.045, 0.4], turn: [2.0, 0.0, 0.0]}
+            - {t: 8, turn: [6.4, 0.0, 0.0]}
+            - {t: 9, turn: [10.8, 0.0, 0.0]}
+            - {t: 10, turn: [15.2, 0.0, 0.0]}
+            - {t: 11, turn: [19.6, 0.0, 0.0]}
+            - {t: 12, offset: [-0.295, 0.39922, 1.91167], scale: [0.06, 0.045, 0.4], turn: [24.0, 0.0, 0.0]}
+            - {t: 13, turn: [29.0, 0.0, 0.0]}
+            - {t: 14, turn: [34.0, 0.0, 0.0]}
+            - {t: 15, offset: [-0.295, 0.04309, 1.69343], scale: [0.0, 0.0, 0.0], turn: [39.0, 0.0, 0.0]}
+        - {op: block, parent: fx2_couture_shears_snip, block: iron_block, size: [1.0, 1.0, 1.0], id: fx2_couture_shears_snip_1_edge_2}
+        - id: fx2_couture_shears_snip_1_edge_2_trk
+          op: track
+          target: fx2_couture_shears_snip_1_edge_2
+          keys:
+            - {t: 0, offset: [-0.295, 0.86908, 2.0398], scale: [0.06, 0.025, 0.40018], turn: [8.73982, 0.0, 0.0]}
+            - {t: 1, turn: [14.23982, 0.0, 0.0]}
+            - {t: 2, turn: [19.73982, 0.0, 0.0]}
+            - {t: 3, turn: [25.23982, 0.0, 0.0]}
+            - {t: 4, offset: [-0.295, 0.2867, 1.85626], scale: [0.06, 0.025, 0.40018], turn: [30.73982, 0.0, 0.0]}
+            - {t: 5, turn: [21.73982, 0.0, 0.0]}
+            - {t: 6, turn: [12.73982, 0.0, 0.0]}
+            - {t: 7, offset: [-0.295, 1.00833, 2.04952], scale: [0.06, 0.025, 0.40018], turn: [3.73982, 0.0, 0.0]}
+            - {t: 8, turn: [8.13982, 0.0, 0.0]}
+            - {t: 9, turn: [12.53982, 0.0, 0.0]}
+            - {t: 10, turn: [16.93982, 0.0, 0.0]}
+            - {t: 11, turn: [21.33982, 0.0, 0.0]}
+            - {t: 12, offset: [-0.295, 0.41217, 1.91744], scale: [0.06, 0.025, 0.40018], turn: [25.73982, 0.0, 0.0]}
+            - {t: 13, turn: [30.73982, 0.0, 0.0]}
+            - {t: 14, turn: [35.73982, 0.0, 0.0]}
+            - {t: 15, offset: [-0.295, 0.0541, 1.70235], scale: [0.0, 0.0, 0.0], turn: [40.73982, 0.0, 0.0]}
+        - {op: block, parent: fx2_couture_shears_snip, block: black_concrete, size: [1.0, 1.0, 1.0], id: fx2_couture_shears_snip_1_handle_0}
+        - id: fx2_couture_shears_snip_1_handle_0_trk
+          op: track
+          target: fx2_couture_shears_snip_1_handle_0
+          keys:
+            - {t: 0, offset: [-0.295, 1.18234, 0.27482], scale: [0.06, 0.045, 0.31113], turn: [-128.0, 0.0, 0.0]}
+            - {t: 1, turn: [-122.5, 0.0, 0.0]}
+            - {t: 2, turn: [-117.0, 0.0, 0.0]}
+            - {t: 3, turn: [-111.5, 0.0, 0.0]}
+            - {t: 4, offset: [-0.295, 1.23832, 0.33715], scale: [0.06, 0.045, 0.31113], turn: [-106.0, 0.0, 0.0]}
+            - {t: 5, turn: [-115.0, 0.0, 0.0]}
+            - {t: 6, turn: [-124.0, 0.0, 0.0]}
+            - {t: 7, offset: [-0.295, 1.16656, 0.26395], scale: [0.06, 0.045, 0.31113], turn: [-133.0, 0.0, 0.0]}
+            - {t: 8, turn: [-128.6, 0.0, 0.0]}
+            - {t: 9, turn: [-124.2, 0.0, 0.0]}
+            - {t: 10, turn: [-119.8, 0.0, 0.0]}
+            - {t: 11, turn: [-115.4, 0.0, 0.0]}
+            - {t: 12, offset: [-0.295, 1.22777, 0.32117], scale: [0.06, 0.045, 0.31113], turn: [-111.0, 0.0, 0.0]}
+            - {t: 13, turn: [-106.0, 0.0, 0.0]}
+            - {t: 14, turn: [-101.0, 0.0, 0.0]}
+            - {t: 15, offset: [-0.295, 1.25506, 0.37157], scale: [0.0, 0.0, 0.0], turn: [-96.0, 0.0, 0.0]}
+        - {op: block, parent: fx2_couture_shears_snip, block: black_concrete, size: [1.0, 1.0, 1.0], id: fx2_couture_shears_snip_1_handle_1}
+        - id: fx2_couture_shears_snip_1_handle_1_trk
+          op: track
+          target: fx2_couture_shears_snip_1_handle_1
+          keys:
+            - {t: 0, offset: [-0.295, 1.31745, -0.0461], scale: [0.06, 0.045, 0.451], turn: [-176.81407, 0.0, 0.0]}
+            - {t: 1, turn: [-171.31407, 0.0, 0.0]}
+            - {t: 2, turn: [-165.81407, 0.0, 0.0]}
+            - {t: 3, turn: [-160.31407, 0.0, 0.0]}
+            - {t: 4, offset: [-0.295, 1.48382, 0.09021], scale: [0.06, 0.045, 0.451], turn: [-154.81407, 0.0, 0.0]}
+            - {t: 5, turn: [-163.81407, 0.0, 0.0]}
+            - {t: 6, turn: [-172.81407, 0.0, 0.0]}
+            - {t: 7, offset: [-0.295, 1.2732, -0.06753], scale: [0.06, 0.045, 0.451], turn: [178.18593, 0.0, 0.0]}
+            - {t: 8, turn: [-177.41407, 0.0, 0.0]}
+            - {t: 9, turn: [-173.01407, 0.0, 0.0]}
+            - {t: 10, turn: [-168.61407, 0.0, 0.0]}
+            - {t: 11, turn: [-164.21407, 0.0, 0.0]}
+            - {t: 12, offset: [-0.295, 1.45081, 0.05377], scale: [0.06, 0.045, 0.451], turn: [-159.81407, 0.0, 0.0]}
+            - {t: 13, turn: [-154.81407, 0.0, 0.0]}
+            - {t: 14, turn: [-149.81407, 0.0, 0.0]}
+            - {t: 15, offset: [-0.295, 1.53971, 0.17101], scale: [0.0, 0.0, 0.0], turn: [-144.81407, 0.0, 0.0]}
+        - {op: block, parent: fx2_couture_shears_snip, block: black_concrete, size: [1.0, 1.0, 1.0], id: fx2_couture_shears_snip_1_handle_2}
+        - id: fx2_couture_shears_snip_1_handle_2_trk
+          op: track
+          target: fx2_couture_shears_snip_1_handle_2
+          keys:
+            - {t: 0, offset: [-0.295, 1.2424, -0.33742], scale: [0.06, 0.045, 0.21954], turn: [127.06858, 0.0, 0.0]}
+            - {t: 1, turn: [132.56858, 0.0, 0.0]}
+            - {t: 2, turn: [138.06858, 0.0, 0.0]}
+            - {t: 3, turn: [143.56858, 0.0, 0.0]}
+            - {t: 4, offset: [-0.295, 1.52336, -0.20801], scale: [0.06, 0.045, 0.21954], turn: [149.06858, 0.0, 0.0]}
+            - {t: 5, turn: [140.06858, 0.0, 0.0]}
+            - {t: 6, turn: [131.06858, 0.0, 0.0]}
+            - {t: 7, offset: [-0.295, 1.17304, -0.35119], scale: [0.06, 0.045, 0.21954], turn: [122.06858, 0.0, 0.0]}
+            - {t: 8, turn: [126.46858, 0.0, 0.0]}
+            - {t: 9, turn: [130.86858, 0.0, 0.0]}
+            - {t: 10, turn: [135.26858, 0.0, 0.0]}
+            - {t: 11, turn: [139.66858, 0.0, 0.0]}
+            - {t: 12, offset: [-0.295, 1.46421, -0.24676], scale: [0.06, 0.045, 0.21954], turn: [144.06858, 0.0, 0.0]}
+            - {t: 13, turn: [149.06858, 0.0, 0.0]}
+            - {t: 14, turn: [154.06858, 0.0, 0.0]}
+            - {t: 15, offset: [-0.295, 1.63043, -0.11582], scale: [0.0, 0.0, 0.0], turn: [159.06858, 0.0, 0.0]}
+        - {op: block, parent: fx2_couture_shears_snip, block: black_concrete, size: [1.0, 1.0, 1.0], id: fx2_couture_shears_snip_1_handle_3}
+        - id: fx2_couture_shears_snip_1_handle_3_trk
+          op: track
+          target: fx2_couture_shears_snip_1_handle_3
+          keys:
+            - {t: 0, offset: [-0.295, 1.03179, -0.22223], scale: [0.06, 0.045, 0.43829], turn: [34.14968, 0.0, 0.0]}
+            - {t: 1, turn: [39.64968, 0.0, 0.0]}
+            - {t: 2, turn: [45.14968, 0.0, 0.0]}
+            - {t: 3, turn: [50.64968, 0.0, 0.0]}
+            - {t: 4, offset: [-0.295, 1.28494, -0.1801], scale: [0.06, 0.045, 0.43829], turn: [56.14968, 0.0, 0.0]}
+            - {t: 5, turn: [47.14968, 0.0, 0.0]}
+            - {t: 6, turn: [38.14968, 0.0, 0.0]}
+            - {t: 7, offset: [-0.295, 0.97327, -0.21808], scale: [0.06, 0.045, 0.43829], turn: [29.14968, 0.0, 0.0]}
+            - {t: 8, turn: [33.54968, 0.0, 0.0]}
+            - {t: 9, turn: [37.94968, 0.0, 0.0]}
+            - {t: 10, turn: [42.34968, 0.0, 0.0]}
+            - {t: 11, turn: [46.74968, 0.0, 0.0]}
+            - {t: 12, offset: [-0.295, 1.22913, -0.19818], scale: [0.06, 0.045, 0.43829], turn: [51.14968, 0.0, 0.0]}
+            - {t: 13, turn: [56.14968, 0.0, 0.0]}
+            - {t: 14, turn: [61.14968, 0.0, 0.0]}
+            - {t: 15, offset: [-0.295, 1.39078, -0.12973], scale: [0.0, 0.0, 0.0], turn: [66.14968, 0.0, 0.0]}
+        - {op: block, parent: fx2_couture_shears_snip, block: black_concrete, size: [1.0, 1.0, 1.0], id: fx2_couture_shears_snip_1_handle_4}
+        - id: fx2_couture_shears_snip_1_handle_4_trk
+          op: track
+          target: fx2_couture_shears_snip_1_handle_4
+          keys:
+            - {t: 0, offset: [-0.295, 0.98426, 0.16486], scale: [0.06, 0.045, 0.43829], turn: [-20.14968, 0.0, 0.0]}
+            - {t: 1, turn: [-14.64968, 0.0, 0.0]}
+            - {t: 2, turn: [-9.14968, 0.0, 0.0]}
+            - {t: 3, turn: [-3.64968, 0.0, 0.0]}
+            - {t: 4, offset: [-0.295, 1.09586, 0.161], scale: [0.06, 0.045, 0.43829], turn: [1.85032, 0.0, 0.0]}
+            - {t: 5, turn: [-7.14968, 0.0, 0.0]}
+            - {t: 6, turn: [-16.14968, 0.0, 0.0]}
+            - {t: 7, offset: [-0.295, 0.95966, 0.17168], scale: [0.06, 0.045, 0.43829], turn: [-25.14968, 0.0, 0.0]}
+            - {t: 8, turn: [-20.74968, 0.0, 0.0]}
+            - {t: 9, turn: [-16.34968, 0.0, 0.0]}
+            - {t: 10, turn: [-11.94968, 0.0, 0.0]}
+            - {t: 11, turn: [-7.54968, 0.0, 0.0]}
+            - {t: 12, offset: [-0.295, 1.0705, 0.1581], scale: [0.06, 0.045, 0.43829], turn: [-3.14968, 0.0, 0.0]}
+            - {t: 13, turn: [1.85032, 0.0, 0.0]}
+            - {t: 14, turn: [6.85032, 0.0, 0.0]}
+            - {t: 15, offset: [-0.295, 1.14535, 0.17335], scale: [0.0, 0.0, 0.0], turn: [11.85032, 0.0, 0.0]}
+        - {op: block, parent: fx2_couture_shears_snip, block: gray_concrete, size: [1.0, 1.0, 1.0], id: fx2_couture_shears_snip_1_blade_0_2}
+        - id: fx2_couture_shears_snip_1_blade_0_2_trk
+          op: track
+          target: fx2_couture_shears_snip_1_blade_0_2
+          keys:
+            - {t: 0, offset: [-0.205, 1.38547, 0.66786], scale: [0.06, 0.19, 0.8], turn: [-57.0, 0.0, 0.0]}
+            - {t: 1, turn: [-52.5, 0.0, 0.0]}
+            - {t: 2, turn: [-48.0, 0.0, 0.0]}
+            - {t: 3, turn: [-43.5, 0.0, 0.0]}
+            - {t: 4, offset: [-0.205, 1.30173, 0.76086], scale: [0.06, 0.19, 0.8], turn: [-39.0, 0.0, 0.0]}
+            - {t: 5, turn: [-26.66667, 0.0, 0.0]}
+            - {t: 6, turn: [-14.33333, 0.0, 0.0]}
+            - {t: 7, offset: [-0.205, 1.06396, 0.84976], scale: [0.06, 0.19, 0.8], turn: [-2.0, 0.0, 0.0]}
+            - {t: 8, turn: [1.6, 0.0, 0.0]}
+            - {t: 9, turn: [5.2, 0.0, 0.0]}
+            - {t: 10, turn: [8.8, 0.0, 0.0]}
+            - {t: 11, turn: [12.4, 0.0, 0.0]}
+            - {t: 12, offset: [-0.205, 0.93975, 0.8345], scale: [0.06, 0.19, 0.8], turn: [16.0, 0.0, 0.0]}
+            - {t: 13, turn: [21.0, 0.0, 0.0]}
+            - {t: 14, turn: [26.0, 0.0, 0.0]}
+            - {t: 15, offset: [-0.205, 0.84398, 0.79287], scale: [0.0, 0.0, 0.0], turn: [31.0, 0.0, 0.0]}
+        - {op: block, parent: fx2_couture_shears_snip, block: iron_block, size: [1.0, 1.0, 1.0], id: fx2_couture_shears_snip_1_edge_0_2}
+        - id: fx2_couture_shears_snip_1_edge_0_2_trk
+          op: track
+          target: fx2_couture_shears_snip_1_edge_0_2
+          keys:
+            - {t: 0, offset: [-0.205, 1.41806, 0.61766], scale: [0.06, 0.025, 0.80164], turn: [-53.33093, 0.0, 0.0]}
+            - {t: 1, turn: [-48.83093, 0.0, 0.0]}
+            - {t: 2, turn: [-44.33093, 0.0, 0.0]}
+            - {t: 3, turn: [-39.83093, 0.0, 0.0]}
+            - {t: 4, offset: [-0.205, 1.34824, 0.72319], scale: [0.06, 0.025, 0.80164], turn: [-35.33093, 0.0, 0.0]}
+            - {t: 5, turn: [-22.9976, 0.0, 0.0]}
+            - {t: 6, turn: [-10.66427, 0.0, 0.0]}
+            - {t: 7, offset: [-0.205, 1.12377, 0.84767], scale: [0.06, 0.025, 0.80164], turn: [1.66907, 0.0, 0.0]}
+            - {t: 8, turn: [5.26907, 0.0, 0.0]}
+            - {t: 9, turn: [8.86907, 0.0, 0.0]}
+            - {t: 10, turn: [12.46907, 0.0, 0.0]}
+            - {t: 11, turn: [16.06907, 0.0, 0.0]}
+            - {t: 12, offset: [-0.205, 0.99728, 0.851], scale: [0.06, 0.025, 0.80164], turn: [19.66907, 0.0, 0.0]}
+            - {t: 13, turn: [24.66907, 0.0, 0.0]}
+            - {t: 14, turn: [29.66907, 0.0, 0.0]}
+            - {t: 15, offset: [-0.205, 0.89529, 0.82369], scale: [0.0, 0.0, 0.0], turn: [34.66907, 0.0, 0.0]}
+        - {op: block, parent: fx2_couture_shears_snip, block: gray_concrete, size: [1.0, 1.0, 1.0], id: fx2_couture_shears_snip_1_blade_1_2}
+        - id: fx2_couture_shears_snip_1_blade_1_2_trk
+          op: track
+          target: fx2_couture_shears_snip_1_blade_1_2
+          keys:
+            - {t: 0, offset: [-0.205, 1.97254, 1.0491], scale: [0.06, 0.12, 0.6], turn: [-57.0, 0.0, 0.0]}
+            - {t: 1, turn: [-52.5, 0.0, 0.0]}
+            - {t: 2, turn: [-48.0, 0.0, 0.0]}
+            - {t: 3, turn: [-43.5, 0.0, 0.0]}
+            - {t: 4, offset: [-0.205, 1.74225, 1.30486], scale: [0.06, 0.12, 0.6], turn: [-39.0, 0.0, 0.0]}
+            - {t: 5, turn: [-26.66667, 0.0, 0.0]}
+            - {t: 6, turn: [-14.33333, 0.0, 0.0]}
+            - {t: 7, offset: [-0.205, 1.08839, 1.54933], scale: [0.06, 0.12, 0.6], turn: [-2.0, 0.0, 0.0]}
+            - {t: 8, turn: [1.6, 0.0, 0.0]}
+            - {t: 9, turn: [5.2, 0.0, 0.0]}
+            - {t: 10, turn: [8.8, 0.0, 0.0]}
+            - {t: 11, turn: [12.4, 0.0, 0.0]}
+            - {t: 12, offset: [-0.205, 0.7468, 1.50739], scale: [0.06, 0.12, 0.6], turn: [16.0, 0.0, 0.0]}
+            - {t: 13, turn: [21.0, 0.0, 0.0]}
+            - {t: 14, turn: [26.0, 0.0, 0.0]}
+            - {t: 15, offset: [-0.205, 0.48346, 1.39288], scale: [0.0, 0.0, 0.0], turn: [31.0, 0.0, 0.0]}
+        - {op: block, parent: fx2_couture_shears_snip, block: iron_block, size: [1.0, 1.0, 1.0], id: fx2_couture_shears_snip_1_edge_1_2}
+        - id: fx2_couture_shears_snip_1_edge_1_2_trk
+          op: track
+          target: fx2_couture_shears_snip_1_edge_1_2
+          keys:
+            - {t: 0, offset: [-0.205, 1.99312, 1.0174], scale: [0.06, 0.025, 0.60087], turn: [-53.90903, 0.0, 0.0]}
+            - {t: 1, turn: [-49.40903, 0.0, 0.0]}
+            - {t: 2, turn: [-44.90903, 0.0, 0.0]}
+            - {t: 3, turn: [-40.40903, 0.0, 0.0]}
+            - {t: 4, offset: [-0.205, 1.77163, 1.28107], scale: [0.06, 0.025, 0.60087], turn: [-35.90903, 0.0, 0.0]}
+            - {t: 5, turn: [-23.5757, 0.0, 0.0]}
+            - {t: 6, turn: [-11.24236, 0.0, 0.0]}
+            - {t: 7, offset: [-0.205, 1.12617, 1.54801], scale: [0.06, 0.025, 0.60087], turn: [1.09097, 0.0, 0.0]}
+            - {t: 8, turn: [4.69097, 0.0, 0.0]}
+            - {t: 9, turn: [8.29097, 0.0, 0.0]}
+            - {t: 10, turn: [11.89097, 0.0, 0.0]}
+            - {t: 11, turn: [15.49097, 0.0, 0.0]}
+            - {t: 12, offset: [-0.205, 0.78313, 1.51781], scale: [0.06, 0.025, 0.60087], turn: [19.09097, 0.0, 0.0]}
+            - {t: 13, turn: [24.09097, 0.0, 0.0]}
+            - {t: 14, turn: [29.09097, 0.0, 0.0]}
+            - {t: 15, offset: [-0.205, 0.51586, 1.41235], scale: [0.0, 0.0, 0.0], turn: [34.09097, 0.0, 0.0]}
+        - {op: block, parent: fx2_couture_shears_snip, block: gray_concrete, size: [1.0, 1.0, 1.0], id: fx2_couture_shears_snip_1_blade_2_2}
+        - id: fx2_couture_shears_snip_1_blade_2_2_trk
+          op: track
+          target: fx2_couture_shears_snip_1_blade_2_2
+          keys:
+            - {t: 0, offset: [-0.205, 2.39187, 1.32142], scale: [0.06, 0.045, 0.4], turn: [-57.0, 0.0, 0.0]}
+            - {t: 1, turn: [-52.5, 0.0, 0.0]}
+            - {t: 2, turn: [-48.0, 0.0, 0.0]}
+            - {t: 3, turn: [-43.5, 0.0, 0.0]}
+            - {t: 4, offset: [-0.205, 2.05691, 1.69343], scale: [0.06, 0.045, 0.4], turn: [-39.0, 0.0, 0.0]}
+            - {t: 5, turn: [-26.66667, 0.0, 0.0]}
+            - {t: 6, turn: [-14.33333, 0.0, 0.0]}
+            - {t: 7, offset: [-0.205, 1.10584, 2.04903], scale: [0.06, 0.045, 0.4], turn: [-2.0, 0.0, 0.0]}
+            - {t: 8, turn: [1.6, 0.0, 0.0]}
+            - {t: 9, turn: [5.2, 0.0, 0.0]}
+            - {t: 10, turn: [8.8, 0.0, 0.0]}
+            - {t: 11, turn: [12.4, 0.0, 0.0]}
+            - {t: 12, offset: [-0.205, 0.60898, 1.98802], scale: [0.06, 0.045, 0.4], turn: [16.0, 0.0, 0.0]}
+            - {t: 13, turn: [21.0, 0.0, 0.0]}
+            - {t: 14, turn: [26.0, 0.0, 0.0]}
+            - {t: 15, offset: [-0.205, 0.22594, 1.82147], scale: [0.0, 0.0, 0.0], turn: [31.0, 0.0, 0.0]}
+        - {op: block, parent: fx2_couture_shears_snip, block: iron_block, size: [1.0, 1.0, 1.0], id: fx2_couture_shears_snip_1_edge_2_2}
+        - id: fx2_couture_shears_snip_1_edge_2_2_trk
+          op: track
+          target: fx2_couture_shears_snip_1_edge_2_2
+          keys:
+            - {t: 0, offset: [-0.205, 2.39959, 1.30953], scale: [0.06, 0.025, 0.40018], turn: [-55.26018, 0.0, 0.0]}
+            - {t: 1, turn: [-50.76018, 0.0, 0.0]}
+            - {t: 2, turn: [-46.26018, 0.0, 0.0]}
+            - {t: 3, turn: [-41.76018, 0.0, 0.0]}
+            - {t: 4, offset: [-0.205, 2.06793, 1.68451], scale: [0.06, 0.025, 0.40018], turn: [-37.26018, 0.0, 0.0]}
+            - {t: 5, turn: [-24.92684, 0.0, 0.0]}
+            - {t: 6, turn: [-12.59351, 0.0, 0.0]}
+            - {t: 7, offset: [-0.205, 1.12001, 2.04853], scale: [0.06, 0.025, 0.40018], turn: [-0.26018, 0.0, 0.0]}
+            - {t: 8, turn: [3.33982, 0.0, 0.0]}
+            - {t: 9, turn: [6.93982, 0.0, 0.0]}
+            - {t: 10, turn: [10.53982, 0.0, 0.0]}
+            - {t: 11, turn: [14.13982, 0.0, 0.0]}
+            - {t: 12, offset: [-0.205, 0.62261, 1.99193], scale: [0.06, 0.025, 0.40018], turn: [17.73982, 0.0, 0.0]}
+            - {t: 13, turn: [22.73982, 0.0, 0.0]}
+            - {t: 14, turn: [27.73982, 0.0, 0.0]}
+            - {t: 15, offset: [-0.205, 0.23809, 1.82877], scale: [0.0, 0.0, 0.0], turn: [32.73982, 0.0, 0.0]}
+        - {op: block, parent: fx2_couture_shears_snip, block: black_concrete, size: [1.0, 1.0, 1.0], id: fx2_couture_shears_snip_1_handle_0_2}
+        - id: fx2_couture_shears_snip_1_handle_0_2_trk
+          op: track
+          target: fx2_couture_shears_snip_1_handle_0_2
+          keys:
+            - {t: 0, offset: [-0.205, 0.95056, 0.25426], scale: [0.06, 0.045, 0.31113], turn: [168.0, 0.0, 0.0]}
+            - {t: 1, turn: [172.5, 0.0, 0.0]}
+            - {t: 2, turn: [177.0, 0.0, 0.0]}
+            - {t: 3, turn: [-178.5, 0.0, 0.0]}
+            - {t: 4, offset: [-0.205, 1.01592, 0.23312], scale: [0.06, 0.045, 0.31113], turn: [-174.0, 0.0, 0.0]}
+            - {t: 5, turn: [-161.66667, 0.0, 0.0]}
+            - {t: 6, turn: [-149.33333, 0.0, 0.0]}
+            - {t: 7, offset: [-0.205, 1.1533, 0.25628], scale: [0.06, 0.045, 0.31113], turn: [-137.0, 0.0, 0.0]}
+            - {t: 8, turn: [-133.4, 0.0, 0.0]}
+            - {t: 9, turn: [-129.8, 0.0, 0.0]}
+            - {t: 10, turn: [-126.2, 0.0, 0.0]}
+            - {t: 11, turn: [-122.6, 0.0, 0.0]}
+            - {t: 12, offset: [-0.205, 1.20811, 0.29768], scale: [0.06, 0.045, 0.31113], turn: [-119.0, 0.0, 0.0]}
+            - {t: 13, turn: [-114.0, 0.0, 0.0]}
+            - {t: 14, turn: [-109.0, 0.0, 0.0]}
+            - {t: 15, offset: [-0.205, 1.24215, 0.34379], scale: [0.0, 0.0, 0.0], turn: [-104.0, 0.0, 0.0]}
+        - {op: block, parent: fx2_couture_shears_snip, block: black_concrete, size: [1.0, 1.0, 1.0], id: fx2_couture_shears_snip_1_handle_1_2}
+        - id: fx2_couture_shears_snip_1_handle_1_2_trk
+          op: track
+          target: fx2_couture_shears_snip_1_handle_1_2
+          keys:
+            - {t: 0, offset: [-0.205, 0.72135, -0.00786], scale: [0.06, 0.045, 0.451], turn: [119.18593, 0.0, 0.0]}
+            - {t: 1, turn: [123.68593, 0.0, 0.0]}
+            - {t: 2, turn: [128.18593, 0.0, 0.0]}
+            - {t: 3, turn: [132.68593, 0.0, 0.0]}
+            - {t: 4, offset: [-0.205, 0.87892, -0.08701], scale: [0.06, 0.045, 0.451], turn: [137.18593, 0.0, 0.0]}
+            - {t: 5, turn: [149.51926, 0.0, 0.0]}
+            - {t: 6, turn: [161.85259, 0.0, 0.0]}
+            - {t: 7, offset: [-0.205, 1.23655, -0.08183], scale: [0.06, 0.045, 0.451], turn: [174.18593, 0.0, 0.0]}
+            - {t: 8, turn: [177.78593, 0.0, 0.0]}
+            - {t: 9, turn: [-178.61407, 0.0, 0.0]}
+            - {t: 10, turn: [-175.01407, 0.0, 0.0]}
+            - {t: 11, turn: [-171.41407, 0.0, 0.0]}
+            - {t: 12, offset: [-0.205, 1.39177, 0.00184], scale: [0.06, 0.045, 0.451], turn: [-167.81407, 0.0, 0.0]}
+            - {t: 13, turn: [-162.81407, 0.0, 0.0]}
+            - {t: 14, turn: [-157.81407, 0.0, 0.0]}
+            - {t: 15, offset: [-0.205, 1.49611, 0.10557], scale: [0.0, 0.0, 0.0], turn: [-152.81407, 0.0, 0.0]}
+        - {op: block, parent: fx2_couture_shears_snip, block: black_concrete, size: [1.0, 1.0, 1.0], id: fx2_couture_shears_snip_1_handle_2_2}
+        - id: fx2_couture_shears_snip_1_handle_2_2_trk
+          op: track
+          target: fx2_couture_shears_snip_1_handle_2_2
+          keys:
+            - {t: 0, offset: [-0.205, 0.42661, -0.06811], scale: [0.06, 0.045, 0.21954], turn: [63.06858, 0.0, 0.0]}
+            - {t: 1, turn: [67.56858, 0.0, 0.0]}
+            - {t: 2, turn: [72.06858, 0.0, 0.0]}
+            - {t: 3, turn: [76.56858, 0.0, 0.0]}
+            - {t: 4, offset: [-0.205, 0.61723, -0.23539], scale: [0.06, 0.045, 0.21954], turn: [81.06858, 0.0, 0.0]}
+            - {t: 5, turn: [93.40192, 0.0, 0.0]}
+            - {t: 6, turn: [105.73525, 0.0, 0.0]}
+            - {t: 7, offset: [-0.205, 1.11685, -0.35783], scale: [0.06, 0.045, 0.21954], turn: [118.06858, 0.0, 0.0]}
+            - {t: 8, turn: [121.66858, 0.0, 0.0]}
+            - {t: 9, turn: [125.26858, 0.0, 0.0]}
+            - {t: 10, turn: [128.86858, 0.0, 0.0]}
+            - {t: 11, turn: [132.46858, 0.0, 0.0]}
+            - {t: 12, offset: [-0.205, 1.36321, -0.29763], scale: [0.06, 0.045, 0.21954], turn: [136.06858, 0.0, 0.0]}
+            - {t: 13, turn: [141.06858, 0.0, 0.0]}
+            - {t: 14, turn: [146.06858, 0.0, 0.0]}
+            - {t: 15, offset: [-0.205, 1.54604, -0.19109], scale: [0.0, 0.0, 0.0], turn: [151.06858, 0.0, 0.0]}
+        - {op: block, parent: fx2_couture_shears_snip, block: black_concrete, size: [1.0, 1.0, 1.0], id: fx2_couture_shears_snip_1_handle_3_2}
+        - id: fx2_couture_shears_snip_1_handle_3_2_trk
+          op: track
+          target: fx2_couture_shears_snip_1_handle_3_2
+          keys:
+            - {t: 0, offset: [-0.205, 0.43782, 0.17168], scale: [0.06, 0.045, 0.43829], turn: [-29.85032, 0.0, 0.0]}
+            - {t: 1, turn: [-25.35032, 0.0, 0.0]}
+            - {t: 2, turn: [-20.85032, 0.0, 0.0]}
+            - {t: 3, turn: [-16.35032, 0.0, 0.0]}
+            - {t: 4, offset: [-0.205, 0.55379, -0.00387], scale: [0.06, 0.045, 0.43829], turn: [-11.85032, 0.0, 0.0]}
+            - {t: 5, turn: [0.48302, 0.0, 0.0]}
+            - {t: 6, turn: [12.81635, 0.0, 0.0]}
+            - {t: 7, offset: [-0.205, 0.92685, -0.2111], scale: [0.06, 0.045, 0.43829], turn: [25.14968, 0.0, 0.0]}
+            - {t: 8, turn: [28.74968, 0.0, 0.0]}
+            - {t: 9, turn: [32.34968, 0.0, 0.0]}
+            - {t: 10, turn: [35.94968, 0.0, 0.0]}
+            - {t: 11, turn: [39.54968, 0.0, 0.0]}
+            - {t: 12, offset: [-0.205, 1.13717, -0.2168], scale: [0.06, 0.045, 0.43829], turn: [43.14968, 0.0, 0.0]}
+            - {t: 13, turn: [48.14968, 0.0, 0.0]}
+            - {t: 14, turn: [53.14968, 0.0, 0.0]}
+            - {t: 15, offset: [-0.205, 1.30678, -0.17152], scale: [0.0, 0.0, 0.0], turn: [58.14968, 0.0, 0.0]}
+        - {op: block, parent: fx2_couture_shears_snip, block: black_concrete, size: [1.0, 1.0, 1.0], id: fx2_couture_shears_snip_1_handle_4_2}
+        - id: fx2_couture_shears_snip_1_handle_4_2_trk
+          op: track
+          target: fx2_couture_shears_snip_1_handle_4_2
+          keys:
+            - {t: 0, offset: [-0.205, 0.7649, 0.38409], scale: [0.06, 0.045, 0.43829], turn: [-84.14968, 0.0, 0.0]}
+            - {t: 1, turn: [-79.64968, 0.0, 0.0]}
+            - {t: 2, turn: [-75.14968, 0.0, 0.0]}
+            - {t: 3, turn: [-70.64968, 0.0, 0.0]}
+            - {t: 4, offset: [-0.205, 0.79922, 0.29922], scale: [0.06, 0.045, 0.43829], turn: [-66.14968, 0.0, 0.0]}
+            - {t: 5, turn: [-53.81635, 0.0, 0.0]}
+            - {t: 6, turn: [-41.48302, 0.0, 0.0]}
+            - {t: 7, offset: [-0.205, 0.94046, 0.17866], scale: [0.06, 0.045, 0.43829], turn: [-29.14968, 0.0, 0.0]}
+            - {t: 8, turn: [-25.54968, 0.0, 0.0]}
+            - {t: 9, turn: [-21.94968, 0.0, 0.0]}
+            - {t: 10, turn: [-18.34968, 0.0, 0.0]}
+            - {t: 11, turn: [-14.74968, 0.0, 0.0]}
+            - {t: 12, offset: [-0.205, 1.02967, 0.15809], scale: [0.06, 0.045, 0.43829], turn: [-11.14968, 0.0, 0.0]}
+            - {t: 13, turn: [-6.14968, 0.0, 0.0]}
+            - {t: 14, turn: [-1.14968, 0.0, 0.0]}
+            - {t: 15, offset: [-0.205, 1.10592, 0.16278], scale: [0.0, 0.0, 0.0], turn: [3.85032, 0.0, 0.0]}
+        - {op: block, parent: fx2_couture_shears_snip, block: white_concrete, size: [1.0, 1.0, 1.0], id: fx2_couture_shears_snip_hinge_flower_0}
+        - id: fx2_couture_shears_snip_hinge_flower_0_trk
+          op: track
+          target: fx2_couture_shears_snip_hinge_flower_0
+          keys:
+            - {t: 0, offset: [-0.37, 1.05, 0.45], scale: [0.15, 0.15, 0.12]}
+            - {t: 4, offset: [-0.37, 1.05, 0.45], scale: [0.15, 0.15, 0.12]}
+            - {t: 7, offset: [-0.37, 1.05, 0.45], scale: [0.15, 0.15, 0.12]}
+            - {t: 12, offset: [-0.37, 1.05, 0.45], scale: [0.15, 0.15, 0.12]}
+            - {t: 15, offset: [-0.37, 1.05, 0.45], scale: [0.0, 0.0, 0.0]}
+        - {op: block, parent: fx2_couture_shears_snip, block: white_concrete, size: [1.0, 1.0, 1.0], id: fx2_couture_shears_snip_hinge_flower_1}
+        - id: fx2_couture_shears_snip_hinge_flower_1_trk
+          op: track
+          target: fx2_couture_shears_snip_hinge_flower_1
+          keys:
+            - {t: 0, offset: [-0.13, 1.05, 0.45], scale: [0.15, 0.15, 0.12]}
+            - {t: 4, offset: [-0.13, 1.05, 0.45], scale: [0.15, 0.15, 0.12]}
+            - {t: 7, offset: [-0.13, 1.05, 0.45], scale: [0.15, 0.15, 0.12]}
+            - {t: 12, offset: [-0.13, 1.05, 0.45], scale: [0.15, 0.15, 0.12]}
+            - {t: 15, offset: [-0.13, 1.05, 0.45], scale: [0.0, 0.0, 0.0]}
+        - {op: block, parent: fx2_couture_shears_snip, block: white_concrete, size: [1.0, 1.0, 1.0], id: fx2_couture_shears_snip_hinge_flower_2}
+        - id: fx2_couture_shears_snip_hinge_flower_2_trk
+          op: track
+          target: fx2_couture_shears_snip_hinge_flower_2
+          keys:
+            - {t: 0, offset: [-0.25, 1.17, 0.45], scale: [0.15, 0.15, 0.12]}
+            - {t: 4, offset: [-0.25, 1.17, 0.45], scale: [0.15, 0.15, 0.12]}
+            - {t: 7, offset: [-0.25, 1.17, 0.45], scale: [0.15, 0.15, 0.12]}
+            - {t: 12, offset: [-0.25, 1.17, 0.45], scale: [0.15, 0.15, 0.12]}
+            - {t: 15, offset: [-0.25, 1.17, 0.45], scale: [0.0, 0.0, 0.0]}
+        - {op: block, parent: fx2_couture_shears_snip, block: white_concrete, size: [1.0, 1.0, 1.0], id: fx2_couture_shears_snip_hinge_flower_3}
+        - id: fx2_couture_shears_snip_hinge_flower_3_trk
+          op: track
+          target: fx2_couture_shears_snip_hinge_flower_3
+          keys:
+            - {t: 0, offset: [-0.25, 0.93, 0.45], scale: [0.15, 0.15, 0.12]}
+            - {t: 4, offset: [-0.25, 0.93, 0.45], scale: [0.15, 0.15, 0.12]}
+            - {t: 7, offset: [-0.25, 0.93, 0.45], scale: [0.15, 0.15, 0.12]}
+            - {t: 12, offset: [-0.25, 0.93, 0.45], scale: [0.15, 0.15, 0.12]}
+            - {t: 15, offset: [-0.25, 0.93, 0.45], scale: [0.0, 0.0, 0.0]}
     - id: fx13
       at: 13
       do:
-        - {id: fx3_couture_shear_passage_passage_crescent, op: plate, parent: fx3_couture_shear_passage, face: {viewer: center}, sprite: couture-cut, size: 3.2, frame_ticks: 2}
+        - {op: plate, parent: fx3_couture_shear_passage, face: {viewer: center}, sprite: couture-cut, size: 3.2, frame_ticks: 2, brightness: 15, id: fx3_couture_shear_passage_passage_crescent}
         - id: fx3_couture_shear_passage_passage_crescent_trk
           op: track
           target: fx3_couture_shear_passage_passage_crescent
-          space: fx3_couture_shear_passage
           keys:
-            - {t: 0, offset: [0, 1, -0.2], turn: [0, 0, -60], scale: [1.625, 1.25, 1]}
-            - {t: 3, offset: [0, 0.9, -0.3], scale: [1.7, 1.3, 1]}
-            - {t: 7, offset: [0, 0.85, -0.4], scale: [1.75, 1.1, 1]}
-    - {id: fx22, at: 22, do: [{id: rm, op: remove, ids: [fx3_couture_shear_passage_passage_crescent]}]}
+            - {t: 0, offset: [0.0, 1.0, -0.2], scale: [1.625, 1.25, 1.0], turn: [0.0, 0.0, -60.0]}
+            - {t: 3, offset: [0.0, 0.9, -0.3], scale: [1.7, 1.3, 1.0]}
+            - {t: 7, offset: [0.0, 0.85, -0.4], scale: [1.75, 1.1, 1.0]}
+    - id: fx14
+      at: 14
+      do:
+        - id: rm
+          op: remove
+          ids:
+            - fx1_couture_passage_windup_fold_0
+            - fx1_couture_passage_windup_fold_1
+            - fx1_couture_passage_windup_fold_2
+            - fx1_couture_passage_windup_fold_3
+            - fx1_couture_passage_windup_fold_4
+            - fx1_couture_passage_windup_spindle
+    - id: fx22
+      at: 22
+      do:
+        - id: rm_2
+          op: remove
+          ids:
+            - fx2_couture_shears_snip_1_blade_0
+            - fx2_couture_shears_snip_1_edge_0
+            - fx2_couture_shears_snip_1_blade_1
+            - fx2_couture_shears_snip_1_edge_1
+            - fx2_couture_shears_snip_1_blade_2
+            - fx2_couture_shears_snip_1_edge_2
+            - fx2_couture_shears_snip_1_handle_0
+            - fx2_couture_shears_snip_1_handle_1
+            - fx2_couture_shears_snip_1_handle_2
+            - fx2_couture_shears_snip_1_handle_3
+            - fx2_couture_shears_snip_1_handle_4
+            - fx2_couture_shears_snip_1_blade_0_2
+            - fx2_couture_shears_snip_1_edge_0_2
+            - fx2_couture_shears_snip_1_blade_1_2
+            - fx2_couture_shears_snip_1_edge_1_2
+            - fx2_couture_shears_snip_1_blade_2_2
+            - fx2_couture_shears_snip_1_edge_2_2
+            - fx2_couture_shears_snip_1_handle_0_2
+            - fx2_couture_shears_snip_1_handle_1_2
+            - fx2_couture_shears_snip_1_handle_2_2
+            - fx2_couture_shears_snip_1_handle_3_2
+            - fx2_couture_shears_snip_1_handle_4_2
+            - fx2_couture_shears_snip_hinge_flower_0
+            - fx2_couture_shears_snip_hinge_flower_1
+            - fx2_couture_shears_snip_hinge_flower_2
+            - fx2_couture_shears_snip_hinge_flower_3
+        - {id: rm_3, op: remove, ids: [fx3_couture_shear_passage_passage_crescent]}

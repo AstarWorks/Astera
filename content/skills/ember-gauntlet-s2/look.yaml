@@ -2,14 +2,11 @@
 # Generated point-frame offsets are [left, up, forward] in the parent frame.
 # CONVERT-PRESENT vfx frame orient (frames carry no orientation / scale) (x6): orient="yaw" | orient="look"
 # CONVERT-PRESENT rig block parts (mesh takes an item model, not a block + size) (x3): 2 parts | 3 parts
-# CONVERT-PRESENT rig swing without a weapon mesh (track needs a visual to move) (x3): 2 keys | 4 keys
-# CONVERT-PRESENT block element (mesh takes an item model, plate takes a sprite: no block / solid-colour primitive) (x18): yellow_concrete | orange_stained_glass
-# CONVERT-PRESENT element brightness (no v2 equivalent) (x22): 15
-# CONVERT-PRESENT element formation (no v2 equivalent) (x6): {"curve": {"from": [0, 0, 0.8], "to": [0, 0, 3.4], "type": " | {"align": "outward", "curve": {"radius": 0.12, "type": "sphe
-# CONVERT-PRESENT element count (no v2 equivalent) (x6): 5 | 8
-# CONVERT-PRESENT element kind text (text) has no v2 op (x4): {"background": "#00000000", "see_through": true, "shadow": false, "text": "<#FFF | {"background": "#00000000", "see_through": true, "shadow": false, "text": "<#ffb
+# CONVERT-PRESENT rig swing without a weapon mesh (track needs a visual to move) (x3): 2 keys | 13 keys
+# CONVERT-PRESENT element formation (no v2 equivalent) (x2): {"curve": {"from": [0, 0, 0.8], "to": [0, 0, 3.4], "type": "
+# CONVERT-PRESENT element count (no v2 equivalent) (x2): 5
+# CONVERT-PRESENT element kind text has no v2 op (x4): {'type': 'text', 'text': '<#FFF1A0>✦', 'background': '#00000000', 'shadow': Fals | {'type': 'text', 'text': '<#ffb020>✦', 'background': '#00000000', 'shadow': Fals
 # CONVERT-PRESENT vfx follow=false (anchored at world, no place-at-spawn) (x3): ember-hoop-hit | ember-smoke-puff
-# CONVERT-PRESENT element jitter (no v2 equivalent) (x2): {"rotation_deg": 8, "scale": 0.3}
 apiVersion: "astera/v2"
 kind: Skill
 id: ember-gauntlet-s2
@@ -36,18 +33,179 @@ presentation:
     - id: fx3
       at: 3
       do:
+        - {op: block, parent: fx2_ember_punch, block: yellow_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx2_ember_punch_flame_0}
+        - id: fx2_ember_punch_flame_0_trk
+          op: track
+          target: fx2_ember_punch_flame_0
+          keys:
+            - {t: 0, offset: [0.0, 1.05, 0.8], scale: [0.019, 0.028, 0.09]}
+            - {t: 2, offset: [0.0, 1.05, 1.0], scale: [0.114, 0.165, 0.54], ease: out_expo, turn: [13.94868, -11.94015, 1.46607]}
+            - {t: 7, offset: [0.0, 1.2, 1.25], block: orange_concrete}
+            - {t: 8, offset: [0.0, 1.4, 1.5], scale: [0.0, 0.0, 0.0], block: orange_concrete}
+        - {op: block, parent: fx2_ember_punch, block: yellow_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx2_ember_punch_flame_1}
+        - id: fx2_ember_punch_flame_1_trk
+          op: track
+          target: fx2_ember_punch_flame_1
+          keys:
+            - {t: 0, offset: [0.0, 1.05, 1.35], scale: [0.019, 0.028, 0.09]}
+            - {t: 2, offset: [0.0, 1.17, 1.55], scale: [0.152, 0.22, 0.72], ease: out_expo, turn: [-13.94868, 11.94015, 1.46607]}
+            - {t: 7, offset: [0.0, 1.2, 1.8], block: orange_concrete}
+            - {t: 8, offset: [0.0, 1.4, 2.05], scale: [0.0, 0.0, 0.0], block: orange_concrete}
+        - {op: block, parent: fx2_ember_punch, block: yellow_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx2_ember_punch_flame_2}
+        - id: fx2_ember_punch_flame_2_trk
+          op: track
+          target: fx2_ember_punch_flame_2
+          keys:
+            - {t: 0, offset: [0.0, 1.05, 1.9], scale: [0.019, 0.028, 0.09]}
+            - {t: 2, offset: [0.0, 1.05, 2.1], scale: [0.19, 0.275, 0.9], ease: out_expo, turn: [13.94868, -11.94015, 1.46607]}
+            - {t: 7, offset: [0.0, 1.2, 2.35], block: orange_concrete}
+            - {t: 8, offset: [0.0, 1.4, 2.6], scale: [0.0, 0.0, 0.0], block: orange_concrete}
+        - {op: block, parent: fx2_ember_punch, block: yellow_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx2_ember_punch_flame_3}
+        - id: fx2_ember_punch_flame_3_trk
+          op: track
+          target: fx2_ember_punch_flame_3
+          keys:
+            - {t: 0, offset: [0.0, 1.05, 2.45], scale: [0.019, 0.028, 0.09]}
+            - {t: 2, offset: [0.0, 1.17, 2.65], scale: [0.228, 0.33, 1.08], ease: out_expo, turn: [-13.94868, 11.94015, 1.46607]}
+            - {t: 7, offset: [0.0, 1.2, 2.9], block: orange_concrete}
+            - {t: 8, offset: [0.0, 1.4, 3.15], scale: [0.0, 0.0, 0.0], block: orange_concrete}
+        - {op: block, parent: fx2_ember_punch, block: yellow_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx2_ember_punch_flame_4}
+        - id: fx2_ember_punch_flame_4_trk
+          op: track
+          target: fx2_ember_punch_flame_4
+          keys:
+            - {t: 0, offset: [0.0, 1.05, 3.0], scale: [0.019, 0.028, 0.09]}
+            - {t: 2, offset: [0.0, 1.05, 3.2], scale: [0.266, 0.385, 1.26], ease: out_expo, turn: [13.94868, -11.94015, 1.46607]}
+            - {t: 7, offset: [0.0, 1.2, 3.45], block: orange_concrete}
+            - {t: 8, offset: [0.0, 1.4, 3.7], scale: [0.0, 0.0, 0.0], block: orange_concrete}
+        - {op: block, parent: fx2_ember_punch, block: orange_stained_glass, size: [1.0, 1.0, 1.0], brightness: 15, id: fx2_ember_punch_bloom}
+        - id: fx2_ember_punch_bloom_trk
+          op: track
+          target: fx2_ember_punch_bloom
+          keys:
+            - {t: 0, offset: [-0.18, 0.8, 0.85], scale: [0.36, 0.5, 0.1]}
+            - {t: 2, scale: [0.36, 0.5, 2.7], ease: out_expo}
+            - {t: 9, scale: [0.01, 0.01, 2.7]}
         - {id: fx2_ember_punch_flame_atrk, op: track, target: fx2_ember_punch_flame_at, space: fx2_ember_punch, keys: [{t: 0, offset: [0, 1.05, 0]}]}
         - {id: fx2_ember_punch_soot_atrk, op: track, target: fx2_ember_punch_soot_at, space: fx2_ember_punch, keys: [{t: 0, offset: [0, 1.15, 0.8]}]}
+    - id: fx4
+      at: 4
+      do:
+        - op: block
+          parent: fx2_ember_punch
+          block: yellow_concrete
+          size: [1.0, 1.0, 1.0]
+          brightness: 15
+          at: "= [vec(0.05809, 1.205, 3.0), vec(-0.06907, 1.175, 3.06328), vec(0.00973, 1.145, 2.88918), vec(0.07244, 1.115, 3.09449), vec(-0.11724, 1.085, 2.97926), vec(0.09386, 1.055, 2.94029), vec(-0.02432, 1.025, 3.09046), vec(-0.02678, 0.995, 2.94844)][int(i)]"
+          turn: "= [vec(-47.52276, 80.60528, 47.52276), vec(-36.40712, -45.64799, -16.02246), vec(-1.46463, 171.84712, 33.44154), vec(-6.92276, 37.42693, 2.34839), vec(5.25608, -99.88519, 6.2674), vec(12.89416, 120.67843, -23.48408), vec(38.4562, -14.46938, 5.07876), vec(19.25152, -133.71762, 78.83641)][int(i)]"
+          times: 8
+          id: fx2_ember_punch_impact_spokes
+        - id: fx2_ember_punch_impact_spokes_trk
+          op: track
+          target: fx2_ember_punch_impact_spokes
+          keys:
+            - {t: 0, scale: [0.06, 0.06, 0.12]}
+            - {t: 1, scale: [0.12, 0.12, 0.85], ease: out_expo}
+            - {t: 4, block: orange_concrete}
+            - {t: 8, scale: [0.02, 0.02, 0.1]}
+        - {op: block, parent: fx2_ember_punch, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx2_ember_punch_impact_core}
+        - {id: fx2_ember_punch_impact_core_trk, op: track, target: fx2_ember_punch_impact_core, keys: [{t: 0, offset: [-0.12, 0.98, 2.88], scale: [0.24, 0.24, 0.24]}, {t: 3, scale: [0.0, 0.0, 0.0]}]}
+    - {id: fx8, at: 8, do: [{id: rm, op: remove, ids: [fx2_ember_punch_impact_core]}]}
+    - {id: fx12, at: 12, do: [{id: rm_2, op: remove, ids: [fx2_ember_punch_flame_0, fx2_ember_punch_flame_1, fx2_ember_punch_flame_2, fx2_ember_punch_flame_3, fx2_ember_punch_flame_4]}]}
+    - {id: fx13, at: 13, do: [{id: rm_3, op: remove, ids: [fx2_ember_punch_bloom, fx2_ember_punch_impact_spokes]}]}
     - id: fx19
       at: 19
       do:
+        - {op: block, parent: fx4_ember_punch, block: yellow_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx4_ember_punch_flame_0}
+        - id: fx4_ember_punch_flame_0_trk
+          op: track
+          target: fx4_ember_punch_flame_0
+          keys:
+            - {t: 0, offset: [0.0, 1.05, 0.8], scale: [0.019, 0.028, 0.09]}
+            - {t: 2, offset: [0.0, 1.05, 1.0], scale: [0.114, 0.165, 0.54], ease: out_expo, turn: [13.94868, -11.94015, 1.46607]}
+            - {t: 7, offset: [0.0, 1.2, 1.25], block: orange_concrete}
+            - {t: 8, offset: [0.0, 1.4, 1.5], scale: [0.0, 0.0, 0.0], block: orange_concrete}
+        - {op: block, parent: fx4_ember_punch, block: yellow_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx4_ember_punch_flame_1}
+        - id: fx4_ember_punch_flame_1_trk
+          op: track
+          target: fx4_ember_punch_flame_1
+          keys:
+            - {t: 0, offset: [0.0, 1.05, 1.35], scale: [0.019, 0.028, 0.09]}
+            - {t: 2, offset: [0.0, 1.17, 1.55], scale: [0.152, 0.22, 0.72], ease: out_expo, turn: [-13.94868, 11.94015, 1.46607]}
+            - {t: 7, offset: [0.0, 1.2, 1.8], block: orange_concrete}
+            - {t: 8, offset: [0.0, 1.4, 2.05], scale: [0.0, 0.0, 0.0], block: orange_concrete}
+        - {op: block, parent: fx4_ember_punch, block: yellow_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx4_ember_punch_flame_2}
+        - id: fx4_ember_punch_flame_2_trk
+          op: track
+          target: fx4_ember_punch_flame_2
+          keys:
+            - {t: 0, offset: [0.0, 1.05, 1.9], scale: [0.019, 0.028, 0.09]}
+            - {t: 2, offset: [0.0, 1.05, 2.1], scale: [0.19, 0.275, 0.9], ease: out_expo, turn: [13.94868, -11.94015, 1.46607]}
+            - {t: 7, offset: [0.0, 1.2, 2.35], block: orange_concrete}
+            - {t: 8, offset: [0.0, 1.4, 2.6], scale: [0.0, 0.0, 0.0], block: orange_concrete}
+        - {op: block, parent: fx4_ember_punch, block: yellow_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx4_ember_punch_flame_3}
+        - id: fx4_ember_punch_flame_3_trk
+          op: track
+          target: fx4_ember_punch_flame_3
+          keys:
+            - {t: 0, offset: [0.0, 1.05, 2.45], scale: [0.019, 0.028, 0.09]}
+            - {t: 2, offset: [0.0, 1.17, 2.65], scale: [0.228, 0.33, 1.08], ease: out_expo, turn: [-13.94868, 11.94015, 1.46607]}
+            - {t: 7, offset: [0.0, 1.2, 2.9], block: orange_concrete}
+            - {t: 8, offset: [0.0, 1.4, 3.15], scale: [0.0, 0.0, 0.0], block: orange_concrete}
+        - {op: block, parent: fx4_ember_punch, block: yellow_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx4_ember_punch_flame_4}
+        - id: fx4_ember_punch_flame_4_trk
+          op: track
+          target: fx4_ember_punch_flame_4
+          keys:
+            - {t: 0, offset: [0.0, 1.05, 3.0], scale: [0.019, 0.028, 0.09]}
+            - {t: 2, offset: [0.0, 1.05, 3.2], scale: [0.266, 0.385, 1.26], ease: out_expo, turn: [13.94868, -11.94015, 1.46607]}
+            - {t: 7, offset: [0.0, 1.2, 3.45], block: orange_concrete}
+            - {t: 8, offset: [0.0, 1.4, 3.7], scale: [0.0, 0.0, 0.0], block: orange_concrete}
+        - {op: block, parent: fx4_ember_punch, block: orange_stained_glass, size: [1.0, 1.0, 1.0], brightness: 15, id: fx4_ember_punch_bloom}
+        - id: fx4_ember_punch_bloom_trk
+          op: track
+          target: fx4_ember_punch_bloom
+          keys:
+            - {t: 0, offset: [-0.18, 0.8, 0.85], scale: [0.36, 0.5, 0.1]}
+            - {t: 2, scale: [0.36, 0.5, 2.7], ease: out_expo}
+            - {t: 9, scale: [0.01, 0.01, 2.7]}
         - {id: fx4_ember_punch_flame_atrk, op: track, target: fx4_ember_punch_flame_at, space: fx4_ember_punch, keys: [{t: 0, offset: [0, 1.05, 0]}]}
         - {id: fx4_ember_punch_soot_atrk, op: track, target: fx4_ember_punch_soot_at, space: fx4_ember_punch, keys: [{t: 0, offset: [0, 1.15, 0.8]}]}
+    - id: fx20
+      at: 20
+      do:
+        - op: block
+          parent: fx4_ember_punch
+          block: yellow_concrete
+          size: [1.0, 1.0, 1.0]
+          brightness: 15
+          at: "= [vec(0.05809, 1.205, 3.0), vec(-0.06907, 1.175, 3.06328), vec(0.00973, 1.145, 2.88918), vec(0.07244, 1.115, 3.09449), vec(-0.11724, 1.085, 2.97926), vec(0.09386, 1.055, 2.94029), vec(-0.02432, 1.025, 3.09046), vec(-0.02678, 0.995, 2.94844)][int(i)]"
+          turn: "= [vec(-47.52276, 80.60528, 47.52276), vec(-36.40712, -45.64799, -16.02246), vec(-1.46463, 171.84712, 33.44154), vec(-6.92276, 37.42693, 2.34839), vec(5.25608, -99.88519, 6.2674), vec(12.89416, 120.67843, -23.48408), vec(38.4562, -14.46938, 5.07876), vec(19.25152, -133.71762, 78.83641)][int(i)]"
+          times: 8
+          id: fx4_ember_punch_impact_spokes
+        - id: fx4_ember_punch_impact_spokes_trk
+          op: track
+          target: fx4_ember_punch_impact_spokes
+          keys:
+            - {t: 0, scale: [0.06, 0.06, 0.12]}
+            - {t: 1, scale: [0.12, 0.12, 0.85], ease: out_expo}
+            - {t: 4, block: orange_concrete}
+            - {t: 8, scale: [0.02, 0.02, 0.1]}
+        - {op: block, parent: fx4_ember_punch, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx4_ember_punch_impact_core}
+        - {id: fx4_ember_punch_impact_core_trk, op: track, target: fx4_ember_punch_impact_core, keys: [{t: 0, offset: [-0.12, 0.98, 2.88], scale: [0.24, 0.24, 0.24]}, {t: 3, scale: [0.0, 0.0, 0.0]}]}
+    - {id: fx24, at: 24, do: [{id: rm_5, op: remove, ids: [fx4_ember_punch_impact_core]}]}
+    - {id: fx28, at: 28, do: [{id: rm_6, op: remove, ids: [fx4_ember_punch_flame_0, fx4_ember_punch_flame_1, fx4_ember_punch_flame_2, fx4_ember_punch_flame_3, fx4_ember_punch_flame_4]}]}
+    - {id: fx29, at: 29, do: [{id: rm_7, op: remove, ids: [fx4_ember_punch_bloom, fx4_ember_punch_impact_spokes]}]}
     - id: fx33
       at: 33
       do:
         - {id: fx6_ember_smoke_puff_vent_atrk, op: track, target: fx6_ember_smoke_puff_vent_at, space: fx6_ember_smoke_puff, keys: [{t: 0, offset: [-0.3, 1.2, 0.5]}]}
         - {id: fx6_ember_smoke_puff_haze_atrk, op: track, target: fx6_ember_smoke_puff_haze_at, space: fx6_ember_smoke_puff, keys: [{t: 0, offset: [0, 1.3, -0.3]}]}
+    - id: fxhit_9
+      at: "hit+9"
+      do:
+        - {id: rm_4, op: remove, ids: [fx3_ember_hoop_hit_needle], when: "= event.source == 'sel'"}
+        - {id: rm_8, op: remove, ids: [fx5_ember_hoop_hit_needle], when: "= event.source == 'sel_2'"}
     - {id: loop1, at: 3, every: 3, for: 12, do: [{id: fx2_ember_punch_flame, op: emit, at: fx2_ember_punch_flame_at, particle: ember-fine-spark}]}
     - {id: loop2, at: 3, every: 3, for: 10, do: [{id: fx2_ember_punch_soot, op: emit, at: fx2_ember_punch_soot_at, particle: fire-smoke}]}
     - {id: loop3, at: 19, every: 3, for: 12, do: [{id: fx4_ember_punch_flame, op: emit, at: fx4_ember_punch_flame_at, particle: ember-fine-spark}]}
@@ -56,9 +214,47 @@ presentation:
     - {id: loop6, at: 33, every: 3, for: 15, do: [{id: fx6_ember_smoke_puff_haze, op: emit, at: fx6_ember_smoke_puff_haze_at, particle: gun-smoke}]}
   "on":
     hit:
+      - op: block
+        parent: fx3_ember_hoop_hit
+        block: orange_stained_glass
+        size: "= vec(1.0, 1.0, 1.0) * (1.0 + (rand('j_fx3_ember_hoop_hit_needle')*2.0-1.0)*0.3)"
+        brightness: 15
+        at: "= [vec(0.06614, 1.275, 0.0), vec(-0.0714, 1.225, 0.0654), vec(0.00846, 1.175, -0.09645), vec(0.04024, 1.125, 0.05249)][int(i)]"
+        turn: "= ([vec(-37.9525, 84.07428, 37.9525), vec(-13.63668, -47.2488, -6.00139), vec(0.96587, 173.62683, -22.0535), vec(46.80381, 35.17185, -15.87715)][int(i)]) + vec((rand('j_fx3_ember_hoop_hit_needle')*2.0-1.0)*8.0, (rand('j_fx3_ember_hoop_hit_needle')*2.0-1.0)*8.0, (rand('j_fx3_ember_hoop_hit_needle')*2.0-1.0)*8.0)"
+        times: 4
+        id: fx3_ember_hoop_hit_needle
+        when: "= event.source == 'sel'"
+      - id: fx3_ember_hoop_hit_needle_trk
+        op: track
+        target: fx3_ember_hoop_hit_needle
+        keys:
+          - {t: 0, offset: [0.0, 0.0, 0.1], scale: [0.03, 0.03, 0.2]}
+          - {t: 2, offset: [0.0, 0.0, 0.7], scale: [0.09, 0.09, 1.1], ease: out_expo}
+          - {t: 4, block: red_stained_glass}
+          - {t: 8, scale: [0.0, 0.0, 1.1], ease: in_quad}
+        when: "= event.source == 'sel'"
       - {id: fx3_ember_hoop_hit_embers_atrk, op: track, target: fx3_ember_hoop_hit_embers_at, space: fx3_ember_hoop_hit, keys: [{t: 0, offset: [0.0, 1.1, 0.0]}], when: "= event.source == 'sel'"}
       - {id: fx3_ember_hoop_hit_embers, op: emit, at: fx3_ember_hoop_hit_embers_at, particle: fire-impact, when: "= event.source == 'sel'"}
       - {id: snd, op: sound, sound: entity.player.attack.strong, at: contact.point, volume: 0.7, pitch: 1.1, when: "= event.source == 'sel'"}
+      - op: block
+        parent: fx5_ember_hoop_hit
+        block: orange_stained_glass
+        size: "= vec(1.0, 1.0, 1.0) * (1.0 + (rand('j_fx5_ember_hoop_hit_needle')*2.0-1.0)*0.3)"
+        brightness: 15
+        at: "= [vec(0.06614, 1.275, 0.0), vec(-0.0714, 1.225, 0.0654), vec(0.00846, 1.175, -0.09645), vec(0.04024, 1.125, 0.05249)][int(i)]"
+        turn: "= ([vec(-37.9525, 84.07428, 37.9525), vec(-13.63668, -47.2488, -6.00139), vec(0.96587, 173.62683, -22.0535), vec(46.80381, 35.17185, -15.87715)][int(i)]) + vec((rand('j_fx5_ember_hoop_hit_needle')*2.0-1.0)*8.0, (rand('j_fx5_ember_hoop_hit_needle')*2.0-1.0)*8.0, (rand('j_fx5_ember_hoop_hit_needle')*2.0-1.0)*8.0)"
+        times: 4
+        id: fx5_ember_hoop_hit_needle
+        when: "= event.source == 'sel_2'"
+      - id: fx5_ember_hoop_hit_needle_trk
+        op: track
+        target: fx5_ember_hoop_hit_needle
+        keys:
+          - {t: 0, offset: [0.0, 0.0, 0.1], scale: [0.03, 0.03, 0.2]}
+          - {t: 2, offset: [0.0, 0.0, 0.7], scale: [0.09, 0.09, 1.1], ease: out_expo}
+          - {t: 4, block: red_stained_glass}
+          - {t: 8, scale: [0.0, 0.0, 1.1], ease: in_quad}
+        when: "= event.source == 'sel_2'"
       - {id: fx5_ember_hoop_hit_embers_atrk, op: track, target: fx5_ember_hoop_hit_embers_at, space: fx5_ember_hoop_hit, keys: [{t: 0, offset: [0.0, 1.1, 0.0]}], when: "= event.source == 'sel_2'"}
       - {id: fx5_ember_hoop_hit_embers, op: emit, at: fx5_ember_hoop_hit_embers_at, particle: fire-impact, when: "= event.source == 'sel_2'"}
       - {id: snd_2, op: sound, sound: entity.player.attack.strong, at: contact.point, volume: 0.7, pitch: 1.1, when: "= event.source == 'sel_2'"}

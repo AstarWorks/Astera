@@ -57,7 +57,7 @@ internal class SkillStrictLint(private val contentDir: Path, private val repoRoo
                 val (skill, spawns, bursts) = line.split('\t')
                 if (!skills.resolve(skill).isDirectory() && !skills.resolve("$skill.yaml").isRegularFile()) continue
                 if ((spawns.toInt() > 0 || bursts.toInt() > 0) && presentationBySkill[skill] != true) {
-                    out += Problem("empty-presentation", "content/skills/$skill", "v1 dump has $spawns display spawn(s) and $bursts particle burst(s), the v2 skill has no mesh/plate/line/trail/emit op")
+                    out += Problem("empty-presentation", "content/skills/$skill", "v1 dump has $spawns display spawn(s) and $bursts particle burst(s), the v2 skill has no mesh/plate/block/quad/line/trail/emit op")
                 }
             }
         } else {
@@ -85,6 +85,6 @@ internal class SkillStrictLint(private val contentDir: Path, private val repoRoo
         val CONVERT = Regex("""CONVERT-[A-Z0-9_-]+.*""")
         val ID_LINE = Regex("(?m)^id:\\s*[\"']?([^\"'\\s#]+)")
         val PLATE_SPRITE = Regex("""op:\s*plate\b.*?\bsprite:\s*["']?([^"',}\s]+)""")
-        val PRESENTATION_OP = Regex("""op:\s*(mesh|plate|line|trail|emit)\b""")
+        val PRESENTATION_OP = Regex("""op:\s*(mesh|plate|block|quad|line|trail|emit)\b""")
     }
 }

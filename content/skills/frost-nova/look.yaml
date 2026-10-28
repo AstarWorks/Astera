@@ -1,6 +1,5 @@
 # Converted from content/skills/frost-nova.yaml + content/vfx/* by tools/skill-convert/convert.py (v1 archetype: aoe). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
 # Generated point-frame offsets are [left, up, forward] in the parent frame.
-# CONVERT-PRESENT particle animation ring (emit has no shape / ring / path: one burst at the anchor) (x3): {"end_radius": 5.0, "period_ticks": 8, "points": 24, "start_radius": 0.5} | {"delay_ticks": 2, "end_radius": 3.5, "period_ticks": 6, "points": 12, "start_radius": 0.5}
 apiVersion: "astera/v2"
 kind: Skill
 id: frost-nova
@@ -15,14 +14,336 @@ presentation:
         - {id: snd, op: sound, sound: "astera:skills/frost-cast", at: caster, volume: 1.0, pitch: 0.9}
         - {id: snd_2, op: sound, sound: "astera:skills/frost-impact", at: caster, volume: 0.7, pitch: 1.0}
         - {id: emit, op: emit, at: pt_caster_0_0p15_0, particle: snowflake, count: 40, speed: 0.12}
-        - {id: emit_2, op: emit, at: pt_caster_0_0p15_0, particle: snowflake, count: 0, speed: 0.03}
-        - {id: emit_3, op: emit, at: pt_caster_0_0p15_0, particle: dust, count: 1, data: "#c8ebff", data_size: 1.6}
-        - {id: emit_4, op: emit, at: pt_caster_0_0p15_0, particle: end_rod, count: 0, speed: 0.02}
-    - {id: fx2, at: 2, do: [{id: emit_5, op: emit, at: pt_caster_0_0p15_0, particle: snowflake, count: 2, offset: [0.0, 0.5, 0.0], speed: 0.02}]}
+        - id: emit_2
+          op: emit
+          at: pt_caster_0_0p15_0
+          particle: snowflake
+          count: 0
+          speed: 0.03
+          times: 24
+          shift: "= vec(0.5*sin((3.6112 + 6.283185307179586*i/24)), 0.0, 0.5*cos((3.6112 + 6.283185307179586*i/24)))"
+          offset: "= vec(sin((3.6112 + 6.283185307179586*i/24)), 0, cos((3.6112 + 6.283185307179586*i/24)))"
+        - id: emit_3
+          op: emit
+          at: pt_caster_0_0p15_0
+          particle: dust
+          count: 1
+          data: "#c8ebff"
+          data_size: 1.6
+          times: 24
+          shift: "= vec(0.5*sin((3.6112 + 6.283185307179586*i/24)), 0.0, 0.5*cos((3.6112 + 6.283185307179586*i/24)))"
+        - id: emit_4
+          op: emit
+          at: pt_caster_0_0p15_0
+          particle: end_rod
+          count: 0
+          speed: 0.02
+          times: 24
+          shift: "= vec(0.5*sin((3.6112 + 6.283185307179586*i/24)), 0.0, 0.5*cos((3.6112 + 6.283185307179586*i/24)))"
+          offset: "= vec(sin((3.6112 + 6.283185307179586*i/24)), 0, cos((3.6112 + 6.283185307179586*i/24)))"
+    - id: fx1
+      at: 1
+      do:
+        - id: emit_5
+          op: emit
+          at: pt_caster_0_0p15_0
+          particle: snowflake
+          count: 0
+          speed: 0.03
+          times: 24
+          shift: "= vec(1.1429*sin((3.6112 + 6.283185307179586*i/24)), 0.0, 1.1429*cos((3.6112 + 6.283185307179586*i/24)))"
+          offset: "= vec(sin((3.6112 + 6.283185307179586*i/24)), 0, cos((3.6112 + 6.283185307179586*i/24)))"
+        - id: emit_6
+          op: emit
+          at: pt_caster_0_0p15_0
+          particle: dust
+          count: 1
+          data: "#c8ebff"
+          data_size: 1.6
+          times: 24
+          shift: "= vec(1.1429*sin((3.6112 + 6.283185307179586*i/24)), 0.0, 1.1429*cos((3.6112 + 6.283185307179586*i/24)))"
+        - id: emit_7
+          op: emit
+          at: pt_caster_0_0p15_0
+          particle: end_rod
+          count: 0
+          speed: 0.02
+          times: 24
+          shift: "= vec(1.1429*sin((3.6112 + 6.283185307179586*i/24)), 0.0, 1.1429*cos((3.6112 + 6.283185307179586*i/24)))"
+          offset: "= vec(sin((3.6112 + 6.283185307179586*i/24)), 0, cos((3.6112 + 6.283185307179586*i/24)))"
+    - id: fx2
+      at: 2
+      do:
+        - id: emit_8
+          op: emit
+          at: pt_caster_0_0p15_0
+          particle: snowflake
+          count: 0
+          speed: 0.03
+          times: 24
+          shift: "= vec(1.7857*sin((3.6112 + 6.283185307179586*i/24)), 0.0, 1.7857*cos((3.6112 + 6.283185307179586*i/24)))"
+          offset: "= vec(sin((3.6112 + 6.283185307179586*i/24)), 0, cos((3.6112 + 6.283185307179586*i/24)))"
+        - id: emit_9
+          op: emit
+          at: pt_caster_0_0p15_0
+          particle: dust
+          count: 1
+          data: "#c8ebff"
+          data_size: 1.6
+          times: 24
+          shift: "= vec(1.7857*sin((3.6112 + 6.283185307179586*i/24)), 0.0, 1.7857*cos((3.6112 + 6.283185307179586*i/24)))"
+        - id: emit_10
+          op: emit
+          at: pt_caster_0_0p15_0
+          particle: end_rod
+          count: 0
+          speed: 0.02
+          times: 24
+          shift: "= vec(1.7857*sin((3.6112 + 6.283185307179586*i/24)), 0.0, 1.7857*cos((3.6112 + 6.283185307179586*i/24)))"
+          offset: "= vec(sin((3.6112 + 6.283185307179586*i/24)), 0, cos((3.6112 + 6.283185307179586*i/24)))"
+        - id: emit_26
+          op: emit
+          at: pt_caster_0_0p15_0
+          particle: snowflake
+          count: 2
+          offset: [0.0, 0.5, 0.0]
+          speed: 0.02
+          times: 12
+          shift: "= vec(0.5*sin((3.6213 + 6.283185307179586*i/12)), 0.0, 0.5*cos((3.6213 + 6.283185307179586*i/12)))"
+    - id: fx3
+      at: 3
+      do:
+        - id: emit_11
+          op: emit
+          at: pt_caster_0_0p15_0
+          particle: snowflake
+          count: 0
+          speed: 0.03
+          times: 24
+          shift: "= vec(2.4286*sin((3.6112 + 6.283185307179586*i/24)), 0.0, 2.4286*cos((3.6112 + 6.283185307179586*i/24)))"
+          offset: "= vec(sin((3.6112 + 6.283185307179586*i/24)), 0, cos((3.6112 + 6.283185307179586*i/24)))"
+        - id: emit_12
+          op: emit
+          at: pt_caster_0_0p15_0
+          particle: dust
+          count: 1
+          data: "#c8ebff"
+          data_size: 1.6
+          times: 24
+          shift: "= vec(2.4286*sin((3.6112 + 6.283185307179586*i/24)), 0.0, 2.4286*cos((3.6112 + 6.283185307179586*i/24)))"
+        - id: emit_13
+          op: emit
+          at: pt_caster_0_0p15_0
+          particle: end_rod
+          count: 0
+          speed: 0.02
+          times: 24
+          shift: "= vec(2.4286*sin((3.6112 + 6.283185307179586*i/24)), 0.0, 2.4286*cos((3.6112 + 6.283185307179586*i/24)))"
+          offset: "= vec(sin((3.6112 + 6.283185307179586*i/24)), 0, cos((3.6112 + 6.283185307179586*i/24)))"
+        - id: emit_27
+          op: emit
+          at: pt_caster_0_0p15_0
+          particle: snowflake
+          count: 2
+          offset: [0.0, 0.5, 0.0]
+          speed: 0.02
+          times: 12
+          shift: "= vec(1.1*sin((3.6213 + 6.283185307179586*i/12)), 0.0, 1.1*cos((3.6213 + 6.283185307179586*i/12)))"
+    - id: fx4
+      at: 4
+      do:
+        - id: emit_14
+          op: emit
+          at: pt_caster_0_0p15_0
+          particle: snowflake
+          count: 0
+          speed: 0.03
+          times: 24
+          shift: "= vec(3.0714*sin((3.6112 + 6.283185307179586*i/24)), 0.0, 3.0714*cos((3.6112 + 6.283185307179586*i/24)))"
+          offset: "= vec(sin((3.6112 + 6.283185307179586*i/24)), 0, cos((3.6112 + 6.283185307179586*i/24)))"
+        - id: emit_15
+          op: emit
+          at: pt_caster_0_0p15_0
+          particle: dust
+          count: 1
+          data: "#c8ebff"
+          data_size: 1.6
+          times: 24
+          shift: "= vec(3.0714*sin((3.6112 + 6.283185307179586*i/24)), 0.0, 3.0714*cos((3.6112 + 6.283185307179586*i/24)))"
+        - id: emit_16
+          op: emit
+          at: pt_caster_0_0p15_0
+          particle: end_rod
+          count: 0
+          speed: 0.02
+          times: 24
+          shift: "= vec(3.0714*sin((3.6112 + 6.283185307179586*i/24)), 0.0, 3.0714*cos((3.6112 + 6.283185307179586*i/24)))"
+          offset: "= vec(sin((3.6112 + 6.283185307179586*i/24)), 0, cos((3.6112 + 6.283185307179586*i/24)))"
+        - id: emit_28
+          op: emit
+          at: pt_caster_0_0p15_0
+          particle: snowflake
+          count: 2
+          offset: [0.0, 0.5, 0.0]
+          speed: 0.02
+          times: 12
+          shift: "= vec(1.7*sin((3.6213 + 6.283185307179586*i/12)), 0.0, 1.7*cos((3.6213 + 6.283185307179586*i/12)))"
+    - id: fx5
+      at: 5
+      do:
+        - id: emit_17
+          op: emit
+          at: pt_caster_0_0p15_0
+          particle: snowflake
+          count: 0
+          speed: 0.03
+          times: 24
+          shift: "= vec(3.7143*sin((3.6112 + 6.283185307179586*i/24)), 0.0, 3.7143*cos((3.6112 + 6.283185307179586*i/24)))"
+          offset: "= vec(sin((3.6112 + 6.283185307179586*i/24)), 0, cos((3.6112 + 6.283185307179586*i/24)))"
+        - id: emit_18
+          op: emit
+          at: pt_caster_0_0p15_0
+          particle: dust
+          count: 1
+          data: "#c8ebff"
+          data_size: 1.6
+          times: 24
+          shift: "= vec(3.7143*sin((3.6112 + 6.283185307179586*i/24)), 0.0, 3.7143*cos((3.6112 + 6.283185307179586*i/24)))"
+        - id: emit_19
+          op: emit
+          at: pt_caster_0_0p15_0
+          particle: end_rod
+          count: 0
+          speed: 0.02
+          times: 24
+          shift: "= vec(3.7143*sin((3.6112 + 6.283185307179586*i/24)), 0.0, 3.7143*cos((3.6112 + 6.283185307179586*i/24)))"
+          offset: "= vec(sin((3.6112 + 6.283185307179586*i/24)), 0, cos((3.6112 + 6.283185307179586*i/24)))"
+        - id: emit_29
+          op: emit
+          at: pt_caster_0_0p15_0
+          particle: snowflake
+          count: 2
+          offset: [0.0, 0.5, 0.0]
+          speed: 0.02
+          times: 12
+          shift: "= vec(2.3*sin((3.6213 + 6.283185307179586*i/12)), 0.0, 2.3*cos((3.6213 + 6.283185307179586*i/12)))"
+    - id: fx6
+      at: 6
+      do:
+        - id: emit_20
+          op: emit
+          at: pt_caster_0_0p15_0
+          particle: snowflake
+          count: 0
+          speed: 0.03
+          times: 24
+          shift: "= vec(4.3571*sin((3.6112 + 6.283185307179586*i/24)), 0.0, 4.3571*cos((3.6112 + 6.283185307179586*i/24)))"
+          offset: "= vec(sin((3.6112 + 6.283185307179586*i/24)), 0, cos((3.6112 + 6.283185307179586*i/24)))"
+        - id: emit_21
+          op: emit
+          at: pt_caster_0_0p15_0
+          particle: dust
+          count: 1
+          data: "#c8ebff"
+          data_size: 1.6
+          times: 24
+          shift: "= vec(4.3571*sin((3.6112 + 6.283185307179586*i/24)), 0.0, 4.3571*cos((3.6112 + 6.283185307179586*i/24)))"
+        - id: emit_22
+          op: emit
+          at: pt_caster_0_0p15_0
+          particle: end_rod
+          count: 0
+          speed: 0.02
+          times: 24
+          shift: "= vec(4.3571*sin((3.6112 + 6.283185307179586*i/24)), 0.0, 4.3571*cos((3.6112 + 6.283185307179586*i/24)))"
+          offset: "= vec(sin((3.6112 + 6.283185307179586*i/24)), 0, cos((3.6112 + 6.283185307179586*i/24)))"
+        - id: emit_30
+          op: emit
+          at: pt_caster_0_0p15_0
+          particle: snowflake
+          count: 2
+          offset: [0.0, 0.5, 0.0]
+          speed: 0.02
+          times: 12
+          shift: "= vec(2.9*sin((3.6213 + 6.283185307179586*i/12)), 0.0, 2.9*cos((3.6213 + 6.283185307179586*i/12)))"
+    - id: fx7
+      at: 7
+      do:
+        - id: emit_23
+          op: emit
+          at: pt_caster_0_0p15_0
+          particle: snowflake
+          count: 0
+          speed: 0.03
+          times: 24
+          shift: "= vec(5.0*sin((3.6112 + 6.283185307179586*i/24)), 0.0, 5.0*cos((3.6112 + 6.283185307179586*i/24)))"
+          offset: "= vec(sin((3.6112 + 6.283185307179586*i/24)), 0, cos((3.6112 + 6.283185307179586*i/24)))"
+        - id: emit_24
+          op: emit
+          at: pt_caster_0_0p15_0
+          particle: dust
+          count: 1
+          data: "#c8ebff"
+          data_size: 1.6
+          times: 24
+          shift: "= vec(5.0*sin((3.6112 + 6.283185307179586*i/24)), 0.0, 5.0*cos((3.6112 + 6.283185307179586*i/24)))"
+        - id: emit_25
+          op: emit
+          at: pt_caster_0_0p15_0
+          particle: end_rod
+          count: 0
+          speed: 0.02
+          times: 24
+          shift: "= vec(5.0*sin((3.6112 + 6.283185307179586*i/24)), 0.0, 5.0*cos((3.6112 + 6.283185307179586*i/24)))"
+          offset: "= vec(sin((3.6112 + 6.283185307179586*i/24)), 0, cos((3.6112 + 6.283185307179586*i/24)))"
+        - id: emit_31
+          op: emit
+          at: pt_caster_0_0p15_0
+          particle: snowflake
+          count: 2
+          offset: [0.0, 0.5, 0.0]
+          speed: 0.02
+          times: 12
+          shift: "= vec(3.5*sin((3.6213 + 6.283185307179586*i/12)), 0.0, 3.5*cos((3.6213 + 6.283185307179586*i/12)))"
+    - id: fxhit_1
+      at: "hit+1"
+      do:
+        - id: emit_36
+          op: emit
+          at: pt_enemy_0_0p9_0
+          particle: end_rod
+          count: 0
+          speed: 0.01
+          times: 10
+          shift: "= vec(0.75*sin((2.0382 + 6.283185307179586*i/10)), 0.0, 0.75*cos((2.0382 + 6.283185307179586*i/10)))"
+          offset: "= vec(sin((2.0382 + 6.283185307179586*i/10)), 0, cos((2.0382 + 6.283185307179586*i/10)))"
+          when: "= event.source == 'burst'"
+    - id: fxhit_2
+      at: "hit+2"
+      do:
+        - id: emit_37
+          op: emit
+          at: pt_enemy_0_0p9_0
+          particle: end_rod
+          count: 0
+          speed: 0.01
+          times: 10
+          shift: "= vec(0.9*sin((2.0382 + 6.283185307179586*i/10)), 0.0, 0.9*cos((2.0382 + 6.283185307179586*i/10)))"
+          offset: "= vec(sin((2.0382 + 6.283185307179586*i/10)), 0, cos((2.0382 + 6.283185307179586*i/10)))"
+          when: "= event.source == 'burst'"
   "on":
     hit:
       - {id: snd_3, op: sound, sound: "astera:skills/frost-impact", at: contact.point, when: "= event.source == 'burst'"}
-      - {id: emit_6, op: emit, at: pt_enemy_0_0p9_0, particle: snowflake, count: 30, offset: [0.4, 0.8, 0.4], speed: 0.02, when: "= event.source == 'burst'"}
-      - {id: emit_7, op: emit, at: pt_enemy_0_0p9_0, particle: dust, count: 20, offset: [0.4, 0.8, 0.4], data: "#aae1ff", data_size: 1.4, when: "= event.source == 'burst'"}
-      - {id: emit_8, op: emit, at: pt_enemy_0_0p9_0, particle: end_rod, count: 10, offset: [0.35, 0.8, 0.35], speed: 0.02, when: "= event.source == 'burst'"}
-      - {id: emit_9, op: emit, at: pt_enemy_0_0p9_0, particle: end_rod, count: 0, speed: 0.01, when: "= event.source == 'burst'"}
+      - {id: emit_32, op: emit, at: pt_enemy_0_0p9_0, particle: snowflake, count: 30, offset: [0.4, 0.8, 0.4], speed: 0.02, when: "= event.source == 'burst'"}
+      - {id: emit_33, op: emit, at: pt_enemy_0_0p9_0, particle: dust, count: 20, offset: [0.4, 0.8, 0.4], data: "#aae1ff", data_size: 1.4, when: "= event.source == 'burst'"}
+      - {id: emit_34, op: emit, at: pt_enemy_0_0p9_0, particle: end_rod, count: 10, offset: [0.35, 0.8, 0.35], speed: 0.02, when: "= event.source == 'burst'"}
+      - id: emit_35
+        op: emit
+        at: pt_enemy_0_0p9_0
+        particle: end_rod
+        count: 0
+        speed: 0.01
+        times: 10
+        shift: "= vec(0.6*sin((2.0382 + 6.283185307179586*i/10)), 0.0, 0.6*cos((2.0382 + 6.283185307179586*i/10)))"
+        offset: "= vec(sin((2.0382 + 6.283185307179586*i/10)), 0, cos((2.0382 + 6.283185307179586*i/10)))"
+        when: "= event.source == 'burst'"

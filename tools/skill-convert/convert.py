@@ -21,6 +21,8 @@ Idempotent: same input, same output bytes. Needs PyYAML for reading only.
 
 Local axes of generated point frames: offset [x, y, z] = [left, up, forward] in the parent's frame (vfx convention).
 """
+import math
+import random
 import argparse
 import json
 import os
@@ -32,7 +34,8 @@ import yaml
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from yamlout import dump_doc  # noqa: E402
-from rotvec import convert_keys, euler_to_vec  # noqa: E402
+from rotvec import convert_keys, euler_to_vec, ease_key  # noqa: E402
+import vfxelem  # noqa: E402
 
 REPO = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
 # Skills whose windup holds the caster in place: id -> walk-speed factor (0.0 = rooted). SKL-15 row 13.
@@ -660,13 +663,39 @@ class Conv:
     def anim(self, a, at, where, delay, when):
         t = a["type"]
         d2 = delay + int(V(a.get("delay_ticks", 0)) or 0)
+        if t == "ring" and str(a.get("angle", "vertical")).lower() == "vertical":
+            self.ring(a, at, where, d2, when)
+            return
         if t in ("ring", "circle", "line"):
-            self.present("particle animation %s (emit has no shape / ring / path: one burst at the anchor)" % t,
+            self.present("particle animation %s (angle / shape without a baked equivalent)" % t,
                          "%s" % short({k: a[k] for k in a if k not in ("particles", "type")}, 100))
         for part in a.get("particles", []) or []:
             op = emit_op(self.oid("emit"), at, part["id"], part.get("count", 1))
             particle_vanilla(op, part)
             self.p(where, d2, self._w(op, when))
+
+    def ring(self, a, at, where, delay, when):
+        """v1 AnimatedShape.Ring: each tick of the period drops `points` points on a flat circle, radius lerping
+        start -> end, lifted by `rise`; directional particles (count 0) fly outward. One emit per tick with times=points.
+        v1 drew a random phase per instance; it is a fixed constant per instance here (deterministic bake)."""
+        n = int(a.get("points", 16))
+        period = int(a.get("period_ticks", 1))
+        sr, er = float(a.get("start_radius", 0.0)), float(a.get("end_radius", 0.0))
+        for inst in range(int(a.get("amount", 1))):
+            phase = round(random.Random("%s/%d" % (self.oid("ringphase"), inst)).uniform(0.0, 2 * math.pi), 4)
+            ph = "(%s + 6.283185307179586*i/%d)" % (phase, n)
+            for step in range(period):
+                t = 1.0 if period == 1 else step / (period - 1)
+                r = round(sr + (er - sr) * t, 4)
+                rise = round(float(a.get("rise", 0.0)) * t, 4)
+                for part in a.get("particles", []) or []:
+                    op = emit_op(self.oid("emit"), at, part["id"], part.get("count", 1))
+                    particle_vanilla(op, part)
+                    op["times"] = n
+                    op["shift"] = "= vec(%s*sin(%s), %s, %s*cos(%s))" % (r, ph, rise, r, ph)
+                    if part.get("count", 1) == 0:
+                        op["offset"] = "= vec(sin(%s), 0, cos(%s))" % (ph, ph)
+                    self.p(where, delay + int(V(part.get("delay_ticks", 0)) or 0) + step, self._w(op, when))
 
     # ---------- vfx inlining ----------
     def load_vfx(self, vid):
@@ -686,6 +715,7 @@ class Conv:
         if d is None:
             self.todo("missing vfx file", vid)
             return
+        d = vfxelem.resolve_palette(d)
         self.vfx_n += 1
         fid = "fx%d_%s" % (self.vfx_n, sid(vid))
         want = self.point(tg, where, "p") if tg else "caster"
@@ -700,7 +730,7 @@ class Conv:
         for k in ("orient", "scale"):
             if k in d or k in m:
                 self.present("vfx frame %s (frames carry no orientation / scale)" % k, "%s=%s" % (k, short(V(m.get(k, d.get(k))), 30)))
-        for k in ("palette", "follow_teleport_ticks", "attach_to_anchor", "replace_group", "follow_pitch", "ghost_bodies",
+        for k in ("follow_teleport_ticks", "attach_to_anchor", "replace_group", "follow_pitch", "ghost_bodies",
                   "target_reference"):
             if k in d:
                 self.present("vfx %s (no v2 equivalent)" % k, short(d[k], 60))
@@ -742,10 +772,17 @@ class Conv:
                     nums = [x for x in sc if isinstance(x, (int, float))]
                     sc = [float(x) for x in nums[:3]] + [1.0] * (3 - len(nums[:3]))
                 e["scale"] = sc
-            if k.get("ease") in ("linear", "ease_in", "ease_out", "ease_in_out"):
-                e["ease"] = k["ease"]
+            if "ease" in k:
+                e["ease"] = self.ease_name(k["ease"])
             out.append(e)
         return convert_keys(out)
+
+    def ease_name(self, name):
+        key = ease_key(str(name))
+        if key is None:
+            self.present("unknown ease '%s'" % name)
+            return "linear"
+        return key
 
     def vfx_element(self, el, fid, where, delay, when, dur, removes):
         eid = "%s_%s" % (fid, sid(el["id"]))
@@ -758,20 +795,13 @@ class Conv:
         face = {"viewer": "center"} if bb == "center" else {"viewer": "vertical"} if bb == "vertical" \
             else {"plane": {"frame": fid, "axes": ["left", "up"]}}
         op = None
+        if kt in ("block", "quad", "sprite", "text"):
+            vfxelem.display_element(self, el, fid, where, delay, when, dur, removes)
+            return
         if kt == "item":
             op = {"id": eid, "op": "mesh", "frame": fid, "item": kind["item"]}
             if kind.get("item_model") or kind.get("display_mode"):
                 self.present("item element item_model / display_mode (mesh has item + part only)", short({k: kind.get(k) for k in ("item_model", "display_mode")}, 60))
-        elif kt == "sprite":
-            op = {"id": eid, "op": "plate", "parent": fid, "face": face, "sprite": kind["sprite"], "size": self.sprite_size(kind["sprite"])}
-            if "alpha" in kind:
-                op["alpha"] = kind["alpha"]
-            if kind.get("frame_ticks", 1) != 1:
-                op["frame_ticks"] = int(kind["frame_ticks"])
-            if kind.get("loop"):
-                op["loop"] = True
-            if "color" in kind:
-                op["color"] = color_hex(kind["color"])
         elif kt == "particle":
             at_frame = fid
             moving = [k for k in el.get("keyframes", []) if "translate" in k]
@@ -791,10 +821,6 @@ class Conv:
                   "color": color_hex(kind["color"]), "face": {"viewer": "axis", "axis": "line.along"}}
             if kt == "dotted_line":
                 self.present("dotted_line (line is solid)", short(kind, 60))
-        elif kt == "block":
-            self.present("block element (mesh takes an item model, plate takes a sprite: no block / solid-colour primitive)", kind.get("block", ""))
-        elif kt == "quad":
-            self.present("quad element (plate takes a sprite: no solid-colour quad / glyph)", short({k: kind.get(k) for k in ("color", "glyph")}, 60))
         else:
             self.present("element kind %s (text) has no v2 op" % kt, short(kind, 80))
         for k in ("group_keyframes", "target_track", "formation", "count", "jitter", "oscillate", "lane", "emit",
@@ -849,8 +875,8 @@ class Conv:
             keys = []
             for k in r["swing"]:
                 e = {"t": k["t"], "rotation": k["rotate"]}
-                if k.get("ease") in ("linear", "ease_in", "ease_out", "ease_in_out"):
-                    e["ease"] = k["ease"]
+                if "ease" in k:
+                    e["ease"] = self.ease_name(k["ease"])
                 keys.append(e)
             keys = convert_keys(keys)
             if first:
