@@ -1,27 +1,34 @@
-# Converted from content/skills/iron-blade-lunge.yaml by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
-# Generated point-frame offsets are [left, up, forward] in the parent frame.
-apiVersion: "astera/v2"
+# Wave 2 v3 draft (basic-ac): ported 1:1 from the v2 skill.yaml + look.yaml. GAP comments mark what v3 cannot spell yet.
+apiVersion: astera/v3
 kind: Skill
 id: iron-blade-lunge
 item: iron-blade
-meta: {name: {ja: "突進斬り", en: Lunge}, description: {ja: "前方へ踏み込み、触れた相手を斬る。", en: "Lunges forward and cuts whoever you hit."}, cooldown_ticks: 90, resource_cost: 10, tags: [melee, movement, physical]}
-gameplay:
-  params: {dash_distance: 3, dmg_physical: 30.0}
-  expose:
-    - {id: damage, param: dmg_physical}
-  timeline:
-    - id: t0
-      at: 0
-      do:
-        - id: dash
-          op: dash_strike
-          distance: "${dash_distance}"
-          ticks: 4
-          radius: 1.0
-          hit_once: true
-          invulnerable: false
-          stop_on_block: true
-          follow_pitch: false
-          on_hit:
-            - {id: dmg, op: damage, components: [{kind: physical, amount: "${dmg_physical}"}], target: victim}
-            - {id: raise, op: raise_event, name: dash_fx}
+meta:
+  name: {ja: "突進斬り", en: "Lunge"}
+  description: {ja: "前方へ踏み込み、触れた相手を斬る。", en: "Lunges forward and cuts whoever you hit."}
+  cooldown_ticks: 90
+  resource_cost: 10
+  tags: [melee, movement, physical]
+params:
+  dash_distance: {type: blocks, default: 3}
+  dash_ticks: {type: ticks, default: 4}
+  dmg_physical: {type: number, default: 30.0}
+anchors:
+  - {id: feet, anchor: caster, offset: {up: 0.2}, mode: snapshot}                  # was pt_caster_0_0p2_0
+  - {id: foe, anchor: victim.body}
+machine:
+  start: dash
+  states:
+    dash:
+      for: "= dash_ticks"
+      then: end
+      enter:
+        - {id: snd_dash, op: sound, sound: "astera:weapons/dash-whoosh", anchor: caster, volume: 1.0, pitch: 1.1}
+        - {id: fx_dash, op: particle_def, def: dash-cloud, anchor: feet}
+        - {id: lunge, op: dash, speed: "= dash_distance / dash_ticks", for: "= dash_ticks", follow_pitch: false, stop_on_block: true, invulnerable: false}
+        # GAP: dash_strike corridor (radius 1.0, hit_once true) swept along the path -> per-tick sphere 1.0 on the caster, once per victim (closest v3 hit).
+        - {id: strike, op: hit, anchor: caster, at: 0, every: 1, for: "= dash_ticks", shape: {sphere: 1.0}, targets: enemies, window: once, damage: {physical: "= dmg_physical"}}
+      on:
+        # v2 raise_event dash_fx on each hit -> react to the hit op (no `to`: stay in the dash).
+        - {event: strike, do: [{id: snd_hit, op: sound, sound: "astera:weapons/blade-hit", anchor: foe, volume: 1.0, pitch: 1.0}]}
+    end: {final: true}
