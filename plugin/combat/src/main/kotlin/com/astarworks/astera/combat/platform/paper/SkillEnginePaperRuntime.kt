@@ -126,7 +126,7 @@ internal class SkillEnginePaperRuntime(
             bodyRegistry = { services.get<com.astarworks.astera.core.application.port.outbound.ISkinRigRegistry>() },
             bodyPoses = { services.get<com.astarworks.astera.core.application.port.outbound.animation.IPlayerAnimationGateway>() },
         )
-        val live = PaperLiveValueSource(server, scheduler)
+        val live = PaperLiveValueSource(server, scheduler, gameplay)
         val player = TablePlayer(
             visual = visualGateway,
             particles = PaperSkillParticleGateway(worldGateway, { currentWorld }) { id -> particleRegistry?.find(ParticleId(id)) },

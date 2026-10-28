@@ -7,6 +7,9 @@ import com.astarworks.astera.core.application.skillengine.runtime.CastRequest
 import com.astarworks.astera.core.application.skillengine.runtime.player.CastHandle
 import com.astarworks.astera.core.application.skillengine.runtime.player.EventBinding
 import com.astarworks.astera.core.application.skillengine.runtime.player.LiveValueSource
+import com.astarworks.astera.core.application.skillengine.runtime.port.ISkillGameplayGateway
+import com.astarworks.astera.core.domain.skillengine.expr.ExprEvalException
+import com.astarworks.astera.core.domain.skillengine.expr.ExprHost
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.skillengine.frame.ContactBasis
@@ -37,6 +40,7 @@ import java.util.concurrent.ConcurrentHashMap
 public class PaperLiveValueSource(
     private val server: Server,
     private val scheduler: IScheduler,
+    private val gameplay: ISkillGameplayGateway,
 ) : LiveValueSource {
     private val requests = ConcurrentHashMap<CastHandle, CastRequest>()
     private val compiler = CelExprCompiler()
@@ -141,16 +145,20 @@ public class PaperLiveValueSource(
 
     // ------------------------------------------------------------------ caster / binding
 
-    private class CasterPose(val feet: Vec3, val eye: Vec3, val yaw: Double, val pitch: Double)
+    private class CasterPose(val feet: Vec3, val eye: Vec3, val body: Vec3, val yaw: Double, val pitch: Double)
 
     private fun casterPose(request: CastRequest): CasterPose {
         val e = server.getEntity(request.caster) as? LivingEntity
         if (e == null || !e.isValid) {
             val feet = request.casterFeet
-            return CasterPose(feet, feet, request.casterYawDeg, request.casterPitchDeg)
+            return CasterPose(feet, feet, feet, request.casterYawDeg, request.casterPitchDeg)
         }
         val loc = e.location
-        return CasterPose(Vec3(loc.x, loc.y, loc.z), Vec3(loc.x, loc.y + e.eyeHeight, loc.z), loc.yaw.toDouble(), loc.pitch.toDouble())
+        // body = feet + hitbox height / 2, the v2 body centre (ConeSelector, v2 at 9d4c4a3db)
+        return CasterPose(
+            Vec3(loc.x, loc.y, loc.z), Vec3(loc.x, loc.y + e.eyeHeight, loc.z), Vec3(loc.x, loc.y + e.height / 2.0, loc.z),
+            loc.yaw.toDouble(), loc.pitch.toDouble(),
+        )
     }
 
     private fun casterVec(request: CastRequest, name: String): Vector3d? {
@@ -159,8 +167,9 @@ public class PaperLiveValueSource(
         val v = when (name.removePrefix(CASTER).removePrefix(".")) {
             "", "feet", "pos", "position", "look" -> p.feet
             "eye" -> p.eye
+            "body" -> p.body
             "forward" -> Frame.fromYawPitch(p.feet, p.yaw, p.pitch).forward()
-            else -> throw IllegalArgumentException("caster field '$name' is not one of feet, eye, look, forward")
+            else -> throw IllegalArgumentException("caster field '$name' is not one of feet, eye, body, look, forward")
         }
         return Vector3d(v.x, v.y, v.z)
     }
@@ -217,8 +226,25 @@ public class PaperLiveValueSource(
             frames = frames(cast),
             seed = request.seed,
             castSeed = request.seed,
+            host = StackHost(request, binding),
         )
         return expr.eval(env)
+    }
+
+    /** `stacks(entity, status)` reads the gateway; the other host reads are not served on Paper yet and fail loudly. */
+    private inner class StackHost(private val request: CastRequest, private val binding: EventBinding?) : ExprHost {
+        override fun stacks(entity: ExprValue.Ref, status: String): Double {
+            val id = when (entity.name) {
+                CASTER -> request.caster
+                "victim", "target" -> binding?.victim?.id ?: throw ExprEvalException("stacks('$status'): '${entity.name}' needs a hit event binding")
+                else -> throw ExprEvalException("stacks('$status'): entity '${entity.name}' is not caster, victim or target")
+            }
+            return gameplay.statusStacks(id, status).toDouble()
+        }
+
+        override fun aimPoint(caster: ExprValue.Ref, range: Double): Vec3 = throw ExprEvalException("aim_point is not served by the Paper live-value host")
+        override fun lookDirection(caster: ExprValue.Ref): Vec3 = throw ExprEvalException("look_dir is not served by the Paper live-value host")
+        override fun bladeLen(frame: ExprValue.Ref): Double = throw ExprEvalException("blade_len is not served by the Paper live-value host")
     }
 
     private fun request(cast: CastHandle): CastRequest =
