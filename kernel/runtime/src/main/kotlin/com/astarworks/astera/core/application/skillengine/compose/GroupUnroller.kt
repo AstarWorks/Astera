@@ -124,7 +124,7 @@ public object GroupUnroller {
         val compiled = when (ref) {
             is WhenRef.Expr -> ref.compiled
             is WhenRef.Named -> occ.conditions[ref.cond]
-                ?: return fail(SkillDecodeError.UndefinedReference(occ.skillId, occ.src.value + ".when", ref.cond))
+                ?: return fail(SkillDecodeError.UnknownCondition(occ.src.value + ".when", ref.cond, occ.skillId))
         }
         val guard: Guard = when (ref) {
             is WhenRef.Expr -> Guard.Expr(ref.compiled.source)

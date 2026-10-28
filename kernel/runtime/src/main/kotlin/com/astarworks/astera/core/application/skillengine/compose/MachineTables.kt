@@ -174,7 +174,7 @@ public object MachineTables {
             val where = "machine.states.$id"
 
             if (st.forTicks != null && timerTicks(st.forTicks) == null) {
-                return bad("$where.for", "'for' must be a number of ticks known at compile time (C5), got '${st.forTicks}'")
+                return Result.Failure(SkillDecodeError.RuntimeTiming("$where.for", "for", "'for' must be a number of ticks known at compile time (C5), got '${st.forTicks}'; write until: / range: instead", skillId))
             }
             val forTicks = timerTicks(st.forTicks)
             if (forTicks != null && forTicks < 0) return bad("$where.for", "'for' must be >= 0")
