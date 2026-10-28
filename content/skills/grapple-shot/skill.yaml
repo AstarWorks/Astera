@@ -23,7 +23,7 @@ gameplay:
   "on":
     hit:
       - {id: dmg, op: damage, components: [{kind: physical, amount: "${dmg_physical}"}], target: victim}
-      - {id: kb, op: knockback, direction: "= normalize(pos(caster) - pos(victim)) + vec(0.0, 0.2, 0.0)", strength: "${knockback}"}
+      - {id: kb, op: knockback, direction: "= normalize(flat(pos(caster) - pos(victim))) + vec(0.0, 0.2, 0.0)", strength: "${knockback}"}
     block:
       - {id: propel, op: propel, direction: "= axis(caster, \"forward\")", strength: "${propel}"}
       - {id: propel_2, op: propel, direction: "= vec(0.0, 1.0, 0.0)", strength: "${propel_2}"}

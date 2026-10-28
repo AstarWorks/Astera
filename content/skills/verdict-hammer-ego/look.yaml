@@ -1,9 +1,7 @@
 # Converted from content/skills/verdict-hammer-ego.yaml + content/vfx/* by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
 # Generated point-frame offsets are [left, up, forward] in the parent frame.
-# CONVERT-PRESENT play_vfx freeze (no v2 equivalent) (x3): [{"at": 9, "ticks": 2}]
-# CONVERT-PRESENT rig respect_hit_stop / weapon points (x4): {"respect_hit_stop": true}
 # CONVERT-PRESENT rig block parts (mesh takes an item model, not a block + size) (x4): 6 parts
-# CONVERT-PRESENT rig swing without a weapon mesh (track needs a visual to move) (x4): 21 keys
+# CONVERT-PRESENT rig swing without a weapon mesh (track needs a visual to move) (x4): 23 keys | 21 keys
 apiVersion: "astera/v2"
 kind: Skill
 id: verdict-hammer-ego

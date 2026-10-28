@@ -22,8 +22,19 @@ public class CastHosts : MovementHost, OpTargetResolver, PresentationCastInfo {
         live[cast.id] = cast
     }
 
+    /** A finished cast's owner and definition, kept until its ripple-delayed world edits (which name the cast) have run. */
+    private class Retired(val owner: UUID, val skill: com.astarworks.astera.core.domain.skillengine.model.SkillDef, var ticksLeft: Int)
+
+    private val retired = ConcurrentHashMap<CastId, Retired>()
+
     internal fun unregister(id: CastId) {
-        live.remove(id)
+        val cast = live.remove(id) ?: return
+        retired[id] = Retired(cast.owner(id), cast.skill.def, RETIRE_TICKS)
+    }
+
+    /** Once per server tick: forgets finished casts whose delayed edits can no longer be pending. */
+    internal fun tick() {
+        retired.values.removeIf { --it.ticksLeft < 0 }
     }
 
     private fun of(ctx: OpContext): CastInstance = of(ctx.cast)
@@ -36,14 +47,22 @@ public class CastHosts : MovementHost, OpTargetResolver, PresentationCastInfo {
 
     override fun location(ctx: OpContext, spec: LocationSpec): Vec3? = of(ctx).location(ctx, spec)
 
-    override fun runWithVictim(ctx: OpContext, victim: UUID, point: Vec3, ops: List<SkillOp>) =
-        of(ctx).runWithVictim(ctx, victim, point, ops)
+    override fun runWithVictim(ctx: OpContext, source: String, victim: UUID, point: Vec3, ops: List<SkillOp>) =
+        of(ctx).runWithVictim(ctx, source, victim, point, ops)
 
     override fun resolve(ctx: OpContext, target: TargetRef): List<UUID> = of(ctx).resolve(ctx, target)
 
-    override fun owner(cast: CastId): UUID = of(cast).owner(cast)
+    override fun owner(cast: CastId): UUID = live[cast]?.owner(cast) ?: retired[cast]?.owner ?: error("cast ${cast.value} is not running")
 
     override fun targets(cast: CastId, target: TargetRef): List<UUID> = of(cast).targets(cast, target)
 
+    /** The definition of [cast]: running, or finished with delayed world edits still owed. */
+    public fun skillOf(cast: CastId): com.astarworks.astera.core.domain.skillengine.model.SkillDef? = live[cast]?.skill?.def ?: retired[cast]?.skill
+
     override fun hasRaised(cast: CastId, event: String): Boolean = live[cast]?.hasRaised(cast, event) ?: false
+
+    private companion object {
+        /** Longest a delayed world edit can trail its cast: the ripple window plus one tick. */
+        const val RETIRE_TICKS: Int = WorldLimits.RIPPLE_TICKS + 1
+    }
 }

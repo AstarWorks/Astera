@@ -1,6 +1,5 @@
 # Converted from content/skills/verdict-hammer-s3.yaml + content/vfx/* by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
 # Generated point-frame offsets are [left, up, forward] in the parent frame.
-# CONVERT-PRESENT rig respect_hit_stop / weapon points (x2): {"respect_hit_stop": true}
 # CONVERT-PRESENT rig block parts (mesh takes an item model, not a block + size) (x2): 6 parts
 # CONVERT-PRESENT rig swing without a weapon mesh (track needs a visual to move) (x2): 21 keys
 apiVersion: "astera/v2"
@@ -371,7 +370,7 @@ presentation:
           - {t: 0, offset: [0.0, -1.87, 0.5], scale: [3.3, 3.3, 1.0], alpha: 0.22}
           - {t: 9, offset: [0.0, -2.5, 0.5], scale: [4.0, 4.0, 1.0], alpha: 0.0, ease: out_cubic}
         when: "= event.source == 'sel_2'"
-      - {id: snd, op: sound, sound: entity.player.attack.strong, at: contact.point, volume: 0.7, pitch: 1.1, when: "= event.source == 'sel_2'"}
+      - {id: snd, op: sound, sound: entity.player.attack.strong, at: enemy, volume: 0.7, pitch: 1.1, when: "= event.source == 'sel_2'"}
       - {id: anchor_4, op: anchor, frame: fx4_verdict_impact, at: contact.point, orient: world, when: "= event.source == 'sel_3'"}
       - op: quad
         parent: fx4_verdict_impact
@@ -410,7 +409,7 @@ presentation:
           - {t: 0, offset: [0.0, -1.87, 0.5], scale: [3.3, 3.3, 1.0], alpha: 0.22}
           - {t: 9, offset: [0.0, -2.5, 0.5], scale: [4.0, 4.0, 1.0], alpha: 0.0, ease: out_cubic}
         when: "= event.source == 'sel_3'"
-      - {id: snd_2, op: sound, sound: entity.player.attack.strong, at: contact.point, volume: 0.7, pitch: 1.1, when: "= event.source == 'sel_3'"}
+      - {id: snd_2, op: sound, sound: entity.player.attack.strong, at: enemy, volume: 0.7, pitch: 1.1, when: "= event.source == 'sel_3'"}
       - {id: anchor_6, op: anchor, frame: fx6_verdict_impact, at: contact.point, orient: world, when: "= event.source == 'sel_4'"}
       - op: quad
         parent: fx6_verdict_impact
@@ -449,7 +448,7 @@ presentation:
           - {t: 0, offset: [0.0, -1.87, 0.5], scale: [3.3, 3.3, 1.0], alpha: 0.22}
           - {t: 9, offset: [0.0, -2.5, 0.5], scale: [4.0, 4.0, 1.0], alpha: 0.0, ease: out_cubic}
         when: "= event.source == 'sel_4'"
-      - {id: snd_3, op: sound, sound: entity.player.attack.strong, at: contact.point, volume: 0.7, pitch: 1.1, when: "= event.source == 'sel_4'"}
+      - {id: snd_3, op: sound, sound: entity.player.attack.strong, at: enemy, volume: 0.7, pitch: 1.1, when: "= event.source == 'sel_4'"}
       - {id: anchor_7, op: anchor, frame: fx7_verdict_ego_ring, at: contact.point, orient: yaw, when: "= event.source == 'sel_4'"}
       - {op: block, parent: fx7_verdict_ego_ring, block: white_concrete, size: [1.0, 1.0, 1.0], brightness: 15, id: fx7_verdict_ego_ring_ring_s0, when: "= event.source == 'sel_4'"}
       - id: fx7_verdict_ego_ring_ring_s0_trk

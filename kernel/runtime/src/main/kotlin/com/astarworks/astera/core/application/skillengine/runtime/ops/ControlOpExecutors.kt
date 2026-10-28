@@ -65,6 +65,28 @@ public class IfOpExecutor : OpExecutor<ControlOp.If> {
     }
 }
 
+public class HasStatusOpExecutor : OpExecutor<ControlOp.HasStatus> {
+    override val opClass: KClass<ControlOp.HasStatus> = ControlOp.HasStatus::class
+
+    override fun execute(op: ControlOp.HasStatus, ctx: OpContext) {
+        val targets = ctx.host.resolveTargets(op.target)
+        val min = ctx.values.num(op.minStacks).roundToInt().coerceAtLeast(1)
+        val pass = targets.isNotEmpty() && targets.all { ctx.ports.gameplay.statusStacks(it, op.status) >= min }
+        ctx.run(if (pass) op.then else op.otherwise)
+    }
+}
+
+public class IsAllyOpExecutor : OpExecutor<ControlOp.IsAlly> {
+    override val opClass: KClass<ControlOp.IsAlly> = ControlOp.IsAlly::class
+
+    override fun execute(op: ControlOp.IsAlly, ctx: OpContext) {
+        val scope = ctx as? SkillCastScope
+        val targets = ctx.host.resolveTargets(op.target)
+        val pass = scope != null && targets.isNotEmpty() && targets.all { it == ctx.host.caster || scope.isAlly(it) }
+        ctx.run(if (pass) op.then else op.otherwise)
+    }
+}
+
 /**
  * Iteration 0 runs now; iteration i runs `i * everyTicks` ticks later (everyTicks 0 = all now),
  * in the scope (victim binding) the loop was started in.
@@ -184,6 +206,8 @@ public fun registerControlOpExecutors(registry: OpExecutorRegistry) {
     registry.register(RaiseEventOpExecutor())
     registry.register(CastSkillOpExecutor())
     registry.register(IfOpExecutor())
+    registry.register(HasStatusOpExecutor())
+    registry.register(IsAllyOpExecutor())
     registry.register(LoopOpExecutor())
     registry.register(DelayOpExecutor())
     registry.register(WindowOpExecutor())

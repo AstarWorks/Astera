@@ -33,6 +33,12 @@ public interface IDisplayEntityGateway {
         spawn(world, at, spec, renderedLines)
 
     /**
+     * Like [spawn], but the display is visible to [viewer] only (spawned hidden by default, then revealed to that one player;
+     * `screen_veil`). Null when the world is not loaded, the viewer is offline or the kind is unsupported.
+     */
+    public fun spawnFor(world: WorldId, at: Vec3, spec: DisplaySpec, renderedLines: List<String>, viewer: PlayerId): DisplayHandle?
+
+    /**
      * Sets the display's `transformation` and lets the client interpolate to it over
      * [interpolationTicks] (`interpolation_delay = 0`; 0 = apply immediately).
      */

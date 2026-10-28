@@ -8,20 +8,19 @@ import com.astarworks.astera.core.domain.world.WorldId
 
 /**
  * Paper [ISkillSoundGateway] (ADR-0301): a sound always plays at a world point with a volume and a pitch. Volume and pitch
- * are clamped to the range [SoundSpec] allows. The port carries no world; [worldId] supplies the world of the cast being ticked.
+ * are clamped to the range [SoundSpec] allows. One instance serves ONE world, the casting entity's ([world] is fixed at construction).
  */
 public class PaperSkillSoundGateway(
-    private val world: IWorldGateway,
-    private val worldId: () -> WorldId?,
+    private val gateway: IWorldGateway,
+    private val world: WorldId,
 ) : ISkillSoundGateway {
 
     override fun play(sound: String, at: Vec3, volume: Double, pitch: Double) {
-        val w = worldId() ?: return
         val spec = SoundSpec(
             key = sound,
             volume = volume.coerceIn(0.0, SoundSpec.PRACTICAL_MAX_VOLUME),
             pitch = pitch.coerceIn(SoundSpec.MIN_PITCH, SoundSpec.MAX_PITCH),
         )
-        world.playSound(w, at, spec)
+        gateway.playSound(world, at, spec)
     }
 }

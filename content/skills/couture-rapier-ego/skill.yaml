@@ -19,7 +19,13 @@ gameplay:
     - id: t18
       at: 18
       do:
-        - {id: sel, op: hit, frames: [caster], sector: {frame: caster, at: eye, forward: caster.forward, left: caster.left, angle_deg: "${arc_deg}", range: "${reach}", height: 2.0}, max_count: 1, window: once}
+        - id: sel
+          op: hit
+          frames: [caster]
+          sector: {frame: caster, at: eye, forward: caster.forward, left: caster.left, angle_deg: "${arc_deg}", range: "${reach}", height: 2.0}
+          max_count: 1
+          window: once
+          ticks: 1
     - id: t29
       at: 29
       do:
@@ -29,6 +35,7 @@ gameplay:
           sector: {frame: caster, at: eye, forward: caster.forward, left: caster.left, angle_deg: "${arc_deg}", range: "${reach}", height: 2.0}
           max_count: 1
           window: once
+          ticks: 1
     - id: t48
       at: 48
       do:
@@ -38,6 +45,7 @@ gameplay:
           sector: {frame: caster, at: eye, forward: caster.forward, left: caster.left, angle_deg: "${arc_deg}", range: "${reach}", height: 2.0}
           max_count: 1
           window: once
+          ticks: 1
     - id: t59
       at: 59
       do:
@@ -47,6 +55,7 @@ gameplay:
           sector: {frame: caster, at: eye, forward: caster.forward, left: caster.left, angle_deg: "${arc_deg}", range: "${reach}", height: 2.0}
           max_count: 1
           window: once
+          ticks: 1
     - id: t62
       at: 62
       do:
@@ -56,6 +65,7 @@ gameplay:
           sector: {frame: caster, at: eye, forward: caster.forward, left: caster.left, angle_deg: "${arc_deg}", range: "${reach}", height: 2.0}
           max_count: 1
           window: once
+          ticks: 1
   "on":
     hit:
       - {id: dmg, op: damage, components: [{kind: physical, amount: "${dmg_physical}"}], target: victim, ignore_invulnerability: true, when: "= event.source == 'sel_2'"}

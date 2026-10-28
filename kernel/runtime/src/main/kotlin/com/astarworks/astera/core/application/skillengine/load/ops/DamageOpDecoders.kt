@@ -17,7 +17,7 @@ public fun damageDecoders(): List<OpDecoder> = listOf(DamageOpDecoder)
 /**
  * `damage`: target?, components: [{kind, amount}]. `heal`: target?, amount. `resurrect`: target?,
  * health_fraction?. `explode`: target? or at?, power, break_blocks?, incendiary?, radius?, components?.
- * `damage` may set `ignore_invulnerability`; a component may carry `per_stack: {status, amount, on: caster|victim,
+ * `damage` may set `ignore_invulnerability` and `ignore_armor`; a component may carry `per_stack: {status, amount, on: caster|victim,
  * consume}` (adds `amount x stacks`, read before the hit, removed after the op when `consume`).
  * Default target is `victim` (the contact in scope) for damage and `caster` for heal / resurrect.
  */
@@ -32,6 +32,7 @@ internal object DamageOpDecoder : OpDecoder {
             target = reader.target("target", TargetRef.Victim),
             components = components(reader, required = true),
             ignoreInvulnerability = reader.bool("ignore_invulnerability") ?: false,
+            ignoreArmor = reader.bool("ignore_armor") ?: false,
         )
         "heal" -> DamageOp.Heal(
             id = id,
@@ -60,7 +61,7 @@ internal object DamageOpDecoder : OpDecoder {
     }
 
     private fun perStack(m: Map<*, *>, reader: OpReader): PerStackSpec = PerStackSpec(
-        status = m["status"]?.toString() ?: reader.fail("per_stack.status missing"),
+        status = m.also { onlyKeys(it, setOf("status", "amount", "on", "consume"), reader, "per_stack") }["status"]?.toString() ?: reader.fail("per_stack.status missing"),
         amount = parseNumber(m["amount"]) ?: reader.fail("per_stack.amount missing"),
         on = when (val side = m["on"]?.toString() ?: "caster") {
             "caster" -> StackSide.CASTER
@@ -70,6 +71,10 @@ internal object DamageOpDecoder : OpDecoder {
         consume = m["consume"] as? Boolean ?: false,
     )
 
+    private fun onlyKeys(m: Map<*, *>, allowed: Set<String>, reader: OpReader, what: String) {
+        m.keys.firstOrNull { it.toString() !in allowed }?.let { reader.fail("$what: unknown key '$it'") }
+    }
+
     private fun components(reader: OpReader, required: Boolean): List<DamageComponentSpec> {
         val raw = reader.raw("components") as? List<*>
         if (raw == null) {
@@ -78,6 +83,7 @@ internal object DamageOpDecoder : OpDecoder {
         }
         return raw.map { entry ->
             val m = entry as? Map<*, *> ?: reader.fail("each component must be {kind, amount}")
+            onlyKeys(m, setOf("kind", "amount", "per_stack"), reader, "component")
             DamageComponentSpec(
                 kind = m["kind"]?.toString() ?: reader.fail("component.kind missing"),
                 amount = parseNumber(m["amount"]) ?: reader.fail("component.amount missing"),

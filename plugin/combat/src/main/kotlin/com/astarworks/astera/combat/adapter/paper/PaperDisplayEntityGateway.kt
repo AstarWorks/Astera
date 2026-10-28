@@ -159,6 +159,14 @@ public class PaperDisplayEntityGateway(
         }
     }
 
+    override fun spawnFor(world: WorldId, at: Vec3, spec: DisplaySpec, renderedLines: List<String>, viewer: PlayerId): DisplayHandle? {
+        val player = server.getPlayer(viewer.uuid) ?: return null
+        val handle = spawn(world, at, spec, renderedLines, null, hidden = true) ?: return null
+        val display = server.getEntity(handle.id) ?: return null
+        player.showEntity(plugin, display)
+        return handle
+    }
+
     private fun spawn(world: WorldId, at: Vec3, spec: DisplaySpec, renderedLines: List<String>, owner: Player?, hidden: Boolean = false): DisplayHandle? {
         val bukkitWorld = server.getWorld(world.value) ?: return null
         val location = Location(bukkitWorld, at.x, at.y, at.z)

@@ -122,7 +122,7 @@ class Coin2ContentScenario {
     fun `base and crimson decode and compile`() {
         val decoder = YamlSkillDecoder(
             DefaultOpRegistries.decoders(
-                movementDecoders(), statusDecoders(), worldDecoders(), spawnDecoders(), damageDecoders(), presentationDecoders(),
+                movementDecoders(), statusDecoders(), worldDecoders(com.astarworks.astera.core.application.skillengine.load.IBlockKeyCatalog.Unchecked), spawnDecoders(), damageDecoders(), presentationDecoders(),
                 listOf(FrameOpDecoders(), HitOpDecoders(), ControlOpDecoders()),
             ),
         )

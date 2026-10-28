@@ -25,6 +25,6 @@ gameplay:
       - {id: dmg, op: damage, components: [{kind: water, amount: "${dmg_water}"}], target: victim}
       - {id: st_freeze, op: status, status: freeze, duration_ticks: "${freeze_ticks}", target: victim, chance: 0.7}
       - {id: st_wet, op: status, status: wet, duration_ticks: "${wet_ticks}", target: victim}
-      - {op: break_area, shape: sphere, radius: 0.5, block_damage: 10, breaks: true, id: chip, at: "= contact.point"}
+      - {op: break_area, shape: sphere, radius: 0.5, block_damage: 10, breaks: true, length: 0.0, id: chip, at: "= contact.point"}
     block:
-      - {op: break_area, shape: sphere, radius: 0.5, block_damage: 10, breaks: true, id: chip_2, at: "= contact.point"}
+      - {op: break_area, shape: sphere, radius: 0.5, block_damage: 10, breaks: true, length: 0.0, id: chip_2, at: "= contact.point"}

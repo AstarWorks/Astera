@@ -1,7 +1,5 @@
 # Converted from content/skills/orrery-s1.yaml + content/vfx/* by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
 # Generated point-frame offsets are [left, up, forward] in the parent frame.
-# CONVERT-PRESENT play_animation ticks (anim ops have no duration) (x2): ticks=18
-# CONVERT-PRESENT rig respect_hit_stop / weapon points (x2): {"respect_hit_stop": true}
 # CONVERT-PRESENT rig block parts (mesh takes an item model, not a block + size) (x2): 11 parts
 # CONVERT-PRESENT rig swing without a weapon mesh (track needs a visual to move) (x2): 18 keys
 apiVersion: "astera/v2"
@@ -22,7 +20,7 @@ frames:
   - {id: fx4_orrery_ring_hit, kind: body, parent: world}
 presentation:
   timeline:
-    - {id: fx17, at: 17, do: [{id: anim, op: caster_anim, anim: hide-main-hand}, {id: anchor, op: anchor, frame: fx1_orrery_crescent_a, at: caster, orient: yaw}]}
+    - {id: fx17, at: 17, do: [{id: anim, op: caster_anim, anim: hide-main-hand, ticks: 18}, {id: anchor, op: anchor, frame: fx1_orrery_crescent_a, at: caster, orient: yaw}]}
     - id: fx20
       at: 20
       do:
@@ -37,7 +35,7 @@ presentation:
             - {from: 0.6, to: 1.0, color: "#ffd447", alpha: 1.0, color_to: "#ff970b"}
           step_deg: 20.0
     - {id: fx29, at: 29, do: [{id: rm, op: remove, ids: [fx1_orrery_crescent_a_staff_fan]}]}
-    - {id: fx48, at: 48, do: [{id: anim_2, op: caster_anim, anim: hide-main-hand}, {id: anchor_3, op: anchor, frame: fx3_orrery_crescent_b, at: caster, orient: yaw}]}
+    - {id: fx48, at: 48, do: [{id: anim_2, op: caster_anim, anim: hide-main-hand, ticks: 18}, {id: anchor_3, op: anchor, frame: fx3_orrery_crescent_b, at: caster, orient: yaw}]}
     - id: fx51
       at: 51
       do:
@@ -95,7 +93,7 @@ presentation:
           - {t: 2, scale: [0.03, 0.8, 0.8], ease: out_expo}
           - {t: 8, scale: [0.0, 0.0, 0.0]}
         when: "= event.source == 'sel'"
-      - {id: snd, op: sound, sound: entity.player.attack.strong, at: contact.point, volume: 0.7, pitch: 1.1, when: "= event.source == 'sel'"}
+      - {id: snd, op: sound, sound: entity.player.attack.strong, at: enemy, volume: 0.7, pitch: 1.1, when: "= event.source == 'sel'"}
       - {id: anchor_4, op: anchor, frame: fx4_orrery_ring_hit, at: contact.point, orient: to_target, teleport_ticks: 2, when: "= event.source == 'sel_2'"}
       - op: block
         parent: fx4_orrery_ring_hit
@@ -125,4 +123,4 @@ presentation:
           - {t: 2, scale: [0.03, 0.8, 0.8], ease: out_expo}
           - {t: 8, scale: [0.0, 0.0, 0.0]}
         when: "= event.source == 'sel_2'"
-      - {id: snd_2, op: sound, sound: entity.player.attack.strong, at: contact.point, volume: 0.7, pitch: 1.1, when: "= event.source == 'sel_2'"}
+      - {id: snd_2, op: sound, sound: entity.player.attack.strong, at: enemy, volume: 0.7, pitch: 1.1, when: "= event.source == 'sel_2'"}

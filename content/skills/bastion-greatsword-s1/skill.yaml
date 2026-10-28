@@ -19,21 +19,21 @@ gameplay:
     - id: t4
       at: 4
       do:
-        - {id: dash, op: dash_strike, distance: "${dash_distance}", ticks: 3, radius: 0.5, hit_once: true, invulnerable: false, stop_on_block: true, follow_pitch: false, stop_before_target: 1.7}
+        - {id: dash, op: dash_strike, distance: "${dash_distance}", ticks: 3, radius: 0.5, hit_once: true, invulnerable: true, stop_on_block: true, follow_pitch: false, stop_before_target: 1.7}
     - id: t7
       at: 7
       do:
-        - {id: sel, op: hit, frames: [caster], sphere: {at: caster, radius: "${radius}"}, window: once}
-        - {id: st_charge, op: status, when: "= nearest_enemy_dist(caster) < 3.6", status: charge, duration_ticks: "${charge_ticks}", target: caster, stacks: "${charge_stacks}"}
+        - {id: sel, op: hit, frames: [caster], sphere: {at: caster, radius: "${radius}"}, window: once, ticks: 1}
+        - {id: st_charge, op: status, status: charge, duration_ticks: "${charge_ticks}", target: caster, stacks: "${charge_stacks}", when: "= nearest_enemy_dist(caster) < 3.6"}
     - id: t28
       at: 28
       do:
-        - {id: dash_2, op: dash_strike, distance: "${dash_distance_2}", ticks: 3, radius: 0.5, hit_once: true, invulnerable: false, stop_on_block: true, follow_pitch: false, stop_before_target: 1.7}
-    - {id: t31, at: 31, do: [{id: sel_2, op: hit, frames: [caster], sphere: {at: caster, radius: "${radius}"}, window: once}]}
+        - {id: dash_2, op: dash_strike, distance: "${dash_distance_2}", ticks: 3, radius: 0.5, hit_once: true, invulnerable: true, stop_on_block: true, follow_pitch: false, stop_before_target: 1.7}
+    - {id: t31, at: 31, do: [{id: sel_2, op: hit, frames: [caster], sphere: {at: caster, radius: "${radius}"}, window: once, ticks: 1}]}
   "on":
     hit:
       - {id: dmg, op: damage, components: [{kind: physical, amount: "${dmg_physical}"}], target: victim, ignore_invulnerability: true, when: "= event.source == 'sel'"}
       - {id: stop, op: freeze, ticks: 2, scope: [enemy, caster], when: "= event.source == 'sel'"}
       - {id: dmg_2, op: damage, components: [{kind: physical, amount: "${dmg_physical_2}"}], target: victim, ignore_invulnerability: true, when: "= event.source == 'sel_2'"}
       - {id: stop_2, op: freeze, ticks: 2, scope: [enemy, caster], when: "= event.source == 'sel_2'"}
-      - {id: kb, op: knockback, direction: "= normalize(pos(victim) - pos(caster)) + vec(0.0, 0.2, 0.0)", strength: "${knockback}", when: "= event.source == 'sel_2'"}
+      - {id: kb, op: knockback, direction: "= normalize(flat(pos(victim) - pos(caster))) + vec(0.0, 0.2, 0.0)", strength: "${knockback}", when: "= event.source == 'sel_2'"}
