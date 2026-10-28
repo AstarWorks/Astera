@@ -18,8 +18,12 @@ function stage(sprite, big = false) {
 }
 function settings(player) {
   if (!player.canvas) return;
+  const mc = $('#preview-mode').value === 'minecraft';
+  player.canvas.width = mc ? 320 : player.sprite.size;
+  player.canvas.height = mc ? 220 : player.sprite.size;
   const side = player.sprite.size * Number($('#scale').value);
-  player.canvas.style.width = player.canvas.style.height = `${player.big ? side : Math.min(player.sprite.size * 4, 200) * Number($('#scale').value) / 4}px`;
+  player.canvas.style.width = player.canvas.style.height = `${mc ? (player.big ? 640 : 320) : player.big ? side : Math.min(player.sprite.size * 4, 200) * Number($('#scale').value) / 4}px`;
+  if (mc) player.canvas.style.height = `${player.big ? 440 : 220}px`;
   player.container.className = `stage${player.big ? ' big' : ''} ${$('#additive').checked ? 'black' : $('#background').value}`;
 }
 function draw(player, time) {
@@ -28,9 +32,29 @@ function draw(player, time) {
   const frame = player.frame ?? Math.floor(time * Number($('#fps').value) / 1000) % sprite.frames;
   const ctx = canvas.getContext('2d');
   ctx.globalCompositeOperation = 'source-over'; ctx.clearRect(0, 0, canvas.width, canvas.height);
-  if ($('#additive').checked) { ctx.fillStyle = '#080c14'; ctx.fillRect(0, 0, canvas.width, canvas.height); ctx.globalCompositeOperation = 'lighter'; }
+  const mc = player.minecraft || $('#preview-mode').value === 'minecraft';
+  if (mc) {
+    const distance = Number($('#distance').value);
+    const block = 110 / (distance * Math.tan(35 * Math.PI / 180)); // 70 degree vertical FOV
+    const side = (sprite.blocks || 4) * block;
+    ctx.fillStyle = '#8cbce4'; ctx.fillRect(0, 0, 320, 155);
+    ctx.fillStyle = '#6c8552'; ctx.fillRect(0, 155, 320, 65);
+    ctx.strokeStyle = '#415a36'; ctx.lineWidth = 1;
+    for (let x = 160 % block; x < 320; x += block) { ctx.beginPath(); ctx.moveTo(x, 155); ctx.lineTo(x, 220); ctx.stroke(); }
+    for (let y = 155; y < 220; y += block) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(320, y); ctx.stroke(); }
+    const tile = player.tile ||= document.createElement('canvas'); tile.width = tile.height = sprite.size;
+    const tc = tile.getContext('2d', { willReadFrequently: true });
+    tc.drawImage(img, frame * sprite.size, 0, sprite.size, sprite.size, 0, 0, sprite.size, sprite.size);
+    const pixels = tc.getImageData(0, 0, sprite.size, sprite.size);
+    for (let i = 3; i < pixels.data.length; i += 4) if (pixels.data[i] / 255 < 0.1) pixels.data[i] = 0;
+    tc.putImageData(pixels, 0, 0);
+    ctx.imageSmoothingEnabled = false; ctx.drawImage(tile, 160 - side / 2, 110 - side / 2, side, side);
+    ctx.fillStyle = '#fff'; ctx.font = '11px system-ui';
+    ctx.fillText(`${sprite.blocks || 4} blocks · 距離 ${distance} blocks · α ≥ 0.1`, 8, 17);
+    ctx.fillRect(8, 200, block, 2); ctx.fillText('1 block', 8, 194);
+  } else if ($('#additive').checked) { ctx.fillStyle = '#080c14'; ctx.fillRect(0, 0, canvas.width, canvas.height); ctx.globalCompositeOperation = 'lighter'; }
   ctx.imageSmoothingEnabled = false;
-  ctx.drawImage(img, frame * sprite.size, 0, sprite.size, sprite.size, 0, 0, canvas.width, canvas.height);
+  if (!mc) ctx.drawImage(img, frame * sprite.size, 0, sprite.size, sprite.size, 0, 0, canvas.width, canvas.height);
   if (player.big && player.frame === null) { $('#scrubber').value = frame; $('#frame-label').textContent = `${frame + 1} / ${sprite.frames}`; }
 }
 let time = 0, previous = performance.now();
@@ -45,6 +69,30 @@ function animate(now) {
   requestAnimationFrame(animate);
 }
 requestAnimationFrame(animate);
+// A single-plate sample can be inspected before engine preview/capture is available.
+// This is a labelled sprite dimension study, not a simulated skill performance.
+function sampleSheet(item) {
+  if (!item.id.startsWith('sample-')) return null;
+  const plate = item.plates?.find(op => op.op === 'plate');
+  const sprite = data.sprites.find(sprite => sprite.id === plate?.sprite);
+  if (!sprite?.image) return null;
+  const canvas = el('canvas', null, 'sheet'); canvas.width = 640; canvas.height = 264;
+  const img = image(sprite.image);
+  const fill = () => {
+    const ctx = canvas.getContext('2d'); ctx.imageSmoothingEnabled = false;
+    const tile = document.createElement('canvas'); tile.width = 320; tile.height = 220;
+    for (let frame = 0; frame < sprite.frames; frame++) {
+      draw({ sprite, img, canvas: tile, minecraft: true, frame }, 0);
+      const x = (frame % 4) * 160, y = Math.floor(frame / 4) * 132;
+      ctx.drawImage(tile, x, y, 160, 110);
+      ctx.fillStyle = '#111722'; ctx.fillRect(x, y + 110, 160, 22);
+      ctx.fillStyle = '#d8e2f1'; ctx.font = '12px system-ui';
+      ctx.fillText(`tick ${frame * (plate.frame_ticks || 1)}`, x + 5, y + 125);
+    }
+  };
+  if (img.complete && img.naturalWidth) fill(); else img.addEventListener('load', fill, { once: true });
+  return canvas;
+}
 function render() {
   if (!data) return;
   players = [];
@@ -68,12 +116,12 @@ function render() {
     } else {
       const area = el('div', null, 'stage');
       if (item.sheet) { const img = el('img', null, 'sheet'); img.src = item.sheet; img.alt = `${item.id} コンタクトシート`; area.append(img); }
-      else area.append(el('span', '未生成', 'missing'));
-      card.append(area, el('h3', item.id), el('p', item.sheet ? 'コンタクトシート' : 'コンタクトシート 未生成', 'meta'));
+      else area.append(sampleSheet(item) || el('span', '未生成', 'missing'));
+      card.append(area, el('h3', item.id), el('p', item.sheet ? `${item.capture} コンタクトシート` : item.id.startsWith('sample-') ? 'スプライト寸法シート（近似・skill 再生未撮影）' : 'コンタクトシート 未生成', 'meta'));
     }
     grid.append(card);
   }
-  if (!items.length) grid.append(el('p', tab === 'vfx' && !data.vfx.length ? 'content/vfx/ に演出 YAML がありません。' : '該当する素材がありません。', 'empty'));
+  if (!items.length) grid.append(el('p', tab === 'vfx' && !data.vfx.length ? 'content/skills/ に演出 YAML がありません。' : '該当する素材がありません。', 'empty'));
 }
 function openDetail(id) {
   selected = id;
@@ -116,7 +164,11 @@ function openDetail(id) {
     if (!item.intermediates.length) body.append(el('p', '中間画像は未生成です。', 'missing'));
   } else if (item.sheet) {
     const img = el('img', null, 'sheet'); img.src = item.sheet; img.alt = `${id} コンタクトシート`; body.append(img);
-  } else body.append(el('p', 'コンタクトシート 未生成', 'missing'));
+  } else {
+    const sheet = sampleSheet(item);
+    body.append(sheet || el('p', 'コンタクトシート 未生成', 'missing'));
+    if (sheet) body.append(el('p', 'スプライト寸法シート（近似）。skill 再生・shader は実機で確認してください。', 'meta'));
+  }
   body.append(el('h3', 'ソース YAML'), el('pre', item.source));
   if (!$('#detail').open) $('#detail').showModal();
 }
@@ -125,9 +177,11 @@ for (const button of document.querySelectorAll('[data-tab]')) button.onclick = (
   document.querySelectorAll('[data-tab]').forEach(node => node.setAttribute('aria-pressed', String(node === button))); render();
 };
 $('#filter').oninput = render;
-for (const id of ['scale', 'background', 'additive', 'fps']) $(`#${id}`).oninput = () => {
+for (const id of ['scale', 'background', 'additive', 'fps', 'preview-mode', 'distance']) $(`#${id}`).oninput = () => {
+  $('#scale').disabled = $('#additive').disabled = $('#background').disabled = $('#preview-mode').value === 'minecraft';
   $('#fps-value').textContent = `${$('#fps').value} fps`;
   for (const player of [...players, detailPlayer].filter(Boolean)) settings(player);
+  if (tab === 'vfx') { render(); if (selected) openDetail(selected); }
 };
 $('#pause').onclick = () => { paused = !paused; $('#pause').textContent = paused ? '再生' : '一時停止'; };
 $('#close').onclick = () => $('#detail').close();

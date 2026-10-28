@@ -35,16 +35,16 @@ PID・ログは `build/sprite-gallery/`。skill-compare の deploy follower と�
 | 横連番 PNG | `content/textures/generated/sprites/<id>.png` |
 | フレーム数・サイズ | `content/sprites/<id>.yaml`（ソースより優先） |
 | ソース定義 | `content/textures/sources/sprites.yaml` の `sprites.<id>` |
-| 任意のタグ | ソース定義の `tags: [tag, ...]`。未指定なら ID の最初の `-` より前 |
+| 任意のタグ | ソース定義の `tags: [tag, ...]`。未指定なら ID の最初の `-` より前（item-art の tags 許可は担当側の修正待ち） |
 | ノード中間画像 | `build/**/<id>/**/*.png`（ID ディレクトリ直下も対象） |
-| VFX 演出 | `content/vfx/*.yaml` / `*.yml` |
-| 演出コンタクトシート | `build/vfx-preview/<id>/sheet.png` |
+| VFX 演出 | `content/skills/<id>/look.yaml` |
+| 演出コンタクトシート | `build/vfx-shot/<id>/side/sheet.png`（実機優先） / `build/skill-preview/<id>/side/strip.png` |
 
 定義・メタ情報・PNG の ID の和集合を一覧化。PNG がなければ「未生成」。
 ソースブロックは元の YAML テキストを表示するので `draw:` / `from:` / `graph:`
 いずれも表示できる（キーは生成側と同じ lower-kebab、`sprites:` 直下の 2 空白インデント）。
 ノード出力先は固定せず `build/` の PNG を探索し、パス中の ID ディレクトリで対応づける。
-VFX ディレクトリがまだない checkout では演出タブを空表示する。
+演出を持つ skill ディレクトリを列挙する。
 画像は上記データから登録したものだけを配信し、任意のファイルパスは公開しない。
 大きい build ツリーでは PNG 探索量に応じてポーリング応答が遅くなる。
 
@@ -66,3 +66,39 @@ PLAYWRIGHT_PACKAGE_ROOT=/IdeaProjects/Astera/tools/skill-compare \
 実データの一覧・canvas・検索・スクラブ・設定を確認し、隔離した一時ディレクトリと
 別 Bun サーバーで graph YAML・中間画像・VFX シート・未生成・自動更新を確認する。
 ゲームサーバー、content 原本、Gradle、unit tests、`make e2e` は操作しない。
+
+## Minecraft 表示 / sample-*
+
+「Minecraft 表示」は nearest、alpha < 0.1 discard、70° 縦視野角、距離3/5/10ブロック。
+1ブロック目盛りを空・地面に重ねる。辺長は skill の plate.size（ブロック）を読む。
+plate がなければ4ブロックの仮寸法。照明・shader・Minecraft の描画順は近似しない。
+このモードでは加算・背景・ピクセル拡大を無効化。通常再生は20 fps。
+
+`sample-` は64px / 8フレームの14グラフ。通常11種はv2 skillの4ブロックplate、
+frame_ticks: 1、40tickの一覧用ループ。dissolve-sigil / energy-orb-rim / heat-hazeは
+shader-pendingタグ付きグラフのみ。ADR-0305側の効果が接続されるまで実機完成扱いにしない。
+VFXタブは実機シート、engineプレビューを優先する。未撮影のsampleには実sprite全8フレームの
+「スプライト寸法シート（近似）」を表示する。skill runtime の再現ではない。
+
+ブラウザ統合確認（実データ・α cutoff・距離・全14種・11デモ・シート・スクラブ）:
+
+```sh
+PORT=8099 make sprite-gallery
+PLAYWRIGHT_PACKAGE_ROOT=/IdeaProjects/Astera/tools/skill-compare \
+  GALLERY_URL=http://127.0.0.1:8099 bun tools/sprite-gallery/scripts/samples-browser.e2e.mjs
+```
+
+スクリーンショット: `/tmp/claude-1000/vfx-nodegraph/samples-shot.png`。
+
+実機の代表3種（専用 `astera-shot-*` のみ。既定sideは近接なのでDISTANCEを広げる）:
+
+```sh
+for sample in sample-magic-circle sample-slash-arc sample-portal-swirl; do
+  SHOT_REAP_SCOPE=self SHOT_KEEP=1 ITEM=shield-bulwark DISTANCE=10 \
+    VIEW=side TICKS=16 SHOT_SLOW_RATE=1.25 make vfx-shot SKILL="$sample"
+done
+make vfx-shot-down
+```
+
+フレームは `build/vfx-shot/<id>/side/frame_000.png`〜、シートは同じディレクトリの `sheet.png`。
+通常11種の残り8種はブラウザ寸法確認のみで、実機レビュー済みとは扱わない。

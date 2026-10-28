@@ -42,15 +42,15 @@ try {
   assert.equal(await page.locator('.card').count(), catalog.vfx.length);
 
   fixture = await mkdtemp(join(tmpdir(), 'sprite-gallery-browser-'));
-  for (const dir of ['content/textures/sources', 'content/textures/generated/sprites', 'content/sprites', 'content/vfx', 'build/sprite-node-preview/spark', 'build/vfx-preview/demo']) await mkdir(join(fixture, dir), { recursive: true });
+  for (const dir of ['content/textures/sources', 'content/textures/generated/sprites', 'content/sprites', 'content/skills/demo', 'content/skills/missing', 'build/sprite-node-preview/spark', 'build/skill-preview/demo/side']) await mkdir(join(fixture, dir), { recursive: true });
   for (const file of ['content/textures/generated/sprites/spark.png', 'content/sprites/spark.yaml']) await copyFile(join(root, file), join(fixture, file));
   const source = 'sprites:\n  spark:\n    frames: 6\n    size: 32\n    tags: [光, テスト]\n    graph:\n      nodes:\n        glow: { type: noise }\n';
   await writeFile(join(fixture, 'content/textures/sources/sprites.yaml'), source);
-  await writeFile(join(fixture, 'content/vfx/demo.yaml'), 'id: demo\nelements: []\n');
-  await writeFile(join(fixture, 'content/vfx/missing.yaml'), 'id: missing\n');
+  await writeFile(join(fixture, 'content/skills/demo/look.yaml'), 'apiVersion: astera/v2\nkind: Skill\nid: demo\npresentation: {timeline: []}\n');
+  await writeFile(join(fixture, 'content/skills/missing/look.yaml'), 'id: missing\n');
   const png = join(root, 'content/textures/generated/sprites/spark.png');
   await copyFile(png, join(fixture, 'build/sprite-node-preview/spark/glow.png'));
-  await copyFile(png, join(fixture, 'build/vfx-preview/demo/sheet.png'));
+  await copyFile(png, join(fixture, 'build/skill-preview/demo/side/strip.png'));
   child = Bun.spawn(['bun', join(root, 'tools/sprite-gallery/server.mjs')], { env: { ...process.env, SPRITE_GALLERY_ROOT: fixture, HOST: '127.0.0.1', PORT: '0' }, stdout: 'pipe', stderr: 'inherit' });
   const reader = child.stdout.getReader();
   const { value } = await reader.read();
@@ -70,7 +70,7 @@ try {
   await page.locator('[data-tab="vfx"]').click();
   assert.equal(await page.locator('.card img').count(), 1);
   assert.match(await page.locator('.card[data-id="missing"]').textContent(), /未生成/);
-  await rm(join(fixture, 'build/vfx-preview/demo/sheet.png'));
+  await rm(join(fixture, 'build/skill-preview/demo/side/strip.png'));
   await page.waitForFunction(() => document.querySelectorAll('.card img').length === 0);
   assert.equal((await fetch(`${address}/asset/../../etc/passwd`)).status, 404);
   assert.deepEqual(errors, []);

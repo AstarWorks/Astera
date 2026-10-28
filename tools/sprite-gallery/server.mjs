@@ -1,5 +1,5 @@
 import { readdir, readFile, stat, realpath } from 'node:fs/promises';
-import { resolve, relative, sep, basename } from 'node:path';
+import { resolve, sep } from 'node:path';
 import { createHash } from 'node:crypto';
 
 const root = resolve(process.env.SPRITE_GALLERY_ROOT || new URL('../..', import.meta.url).pathname);
@@ -59,17 +59,24 @@ async function catalog() {
       if (url) intermediates.set(id, [...(intermediates.get(id) || []), { name: file, url }]);
     }
   }
+  const skillDir = resolve(root, 'content/skills');
+  const skillNames = (await names(skillDir)).filter(id => /^[a-z][a-z0-9-]*$/.test(id));
+  const skills = await Promise.all(skillNames.map(async id => {
+    const source = await text(resolve(skillDir, id, 'look.yaml'));
+    const look = Bun.YAML.parse(source);
+    const plates = (look?.presentation?.timeline || []).flatMap(event => event.do || []).filter(op => op.op === 'plate');
+    const shot = await asset(resolve(root, 'build/vfx-shot', id, 'side/sheet.png'));
+    const preview = await asset(resolve(root, 'build/skill-preview', id, 'side/strip.png'));
+    return { id, source, plates, sheet: shot || preview, capture: shot ? '実クライアント' : 'プレビュー' };
+  }));
   const sprites = await Promise.all([...ids].sort().map(async id => {
     const meta = Bun.YAML.parse(await text(resolve(metaDir, `${id}.yaml`))) || {};
     const def = defs[id] || {};
     const tags = Array.isArray(def.tags) ? def.tags.map(String) : typeof def.tags === 'string' ? [def.tags] : [id.split('-')[0]];
-    return { id, frames: meta.frames || def.frames || 1, size: meta.size || def.size || 32, tags,
+    return { id, blocks: skills.flatMap(skill => skill.plates).find(op => op.sprite === id && typeof op.size === 'number')?.size, frames: meta.frames || def.frames || 1, size: meta.size || def.size || 32, tags,
       image: await asset(resolve(imageDir, `${id}.png`)), source: blocks.get(id) || '# ソース定義なし', intermediates: (intermediates.get(id) || []).sort((a,b) => a.name.localeCompare(b.name)) };
   }));
-  const vfx = await Promise.all((await names(resolve(root, 'content/vfx'))).filter(n => /\.ya?ml$/.test(n)).map(async file => {
-    const id = basename(file).replace(/\.ya?ml$/, '');
-    return { id, source: await text(resolve(root, 'content/vfx', file)), sheet: await asset(resolve(root, 'build/vfx-preview', id, 'sheet.png')) };
-  }));
+  const vfx = skills.filter(skill => skill.source);
   const data = { sprites, vfx };
   return { ...data, revision: digest(JSON.stringify(data)) };
 }
